@@ -109,7 +109,7 @@ void LMPainPoints::GenerateFromPath(float rating_cert_scale,
       float ol_dif = vse->outline_length - ol_subtr;
       // priority is set to the average rating of the path per unit of outline,
       // not counting the ratings of the pieces to be joined.
-      float priority = ol_dif > 0 ? (vse->ratings_sum-rat_subtr)/ol_dif : 0.0;
+      float priority = ol_dif > 0 ? (vse->ratings_sum-rat_subtr)/ol_dif : 0.0f;
       GeneratePainPoint(pain_coord.col, pain_coord.row, LM_PPTYPE_PATH,
                         priority, true, max_char_wh_ratio_, word_res);
     } else if (debug_level_ > 3) {
@@ -190,7 +190,7 @@ bool LMPainPoints::GeneratePainPoint(
     if (pp_type == LM_PPTYPE_PATH) {
       priority = special_priority;
     } else {
-      priority = associate_stats.gap_sum;
+      priority = static_cast<float>(associate_stats.gap_sum);
     }
     MatrixCoordPair pain_point(priority, MATRIX_COORD(col, row));
     pain_points_heaps_[pp_type].Push(&pain_point);

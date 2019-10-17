@@ -39,7 +39,7 @@ static int RadicalPreHash(const std::vector<int>& rs) {
     result *= kRadicalRadix;
     result += radical;
   }
-  return result;
+  return static_cast<int>(result);
 }
 
 // A hash map to convert unicodes to radical encoding.
@@ -142,7 +142,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
       auto it = radical_map.find(unicode);
       if (it != radical_map.end()) {
         // This is Han. Use the radical codes directly.
-        int num_radicals = it->second->size();
+        int num_radicals = static_cast<int>(it->second->size());
         for (int c = 0; c < num_radicals; ++c) {
           code.Set(c, han_offset + (*it->second)[c]);
         }

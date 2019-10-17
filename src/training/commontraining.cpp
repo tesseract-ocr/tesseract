@@ -85,7 +85,7 @@ using tesseract::ShapeTable;
 
 // global variable to hold configuration parameters to control clustering
 // -M 0.625   -B 0.05   -I 1.0   -C 1e-6.
-CLUSTERCONFIG Config = { elliptical, 0.625, 0.05, 1.0, 1e-6, 0 };
+CLUSTERCONFIG Config = { elliptical, 0.625f, 0.05f, 1.0f, 1e-6, 0 };
 FEATURE_DEFS_STRUCT feature_defs;
 static CCUtil ccutil;
 
@@ -133,11 +133,11 @@ void ParseArguments(int* argc, char ***argv) {
   tessoptind = 1;
   // Set some global values based on the flags.
   Config.MinSamples =
-          std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_min_samples_fraction)));
+          static_cast<float>(std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_min_samples_fraction))));
   Config.MaxIllegal =
-          std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_max_illegal)));
+          static_cast<float>(std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_max_illegal))));
   Config.Independence =
-          std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_independence)));
+          static_cast<float>(std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_independence))));
   Config.Confidence =
           std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_confidence)));
   // Set additional parameters from config file if specified.
@@ -259,7 +259,7 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
 
     // If there is a file with [lang].[fontname].exp[num].fontinfo present,
     // read font spacing information in to fontinfo_table.
-    int pagename_len = strlen(page_name);
+    int pagename_len = static_cast<int>(strlen(page_name));
     char* fontinfo_file_name = new char[pagename_len + 7];
     strncpy(fontinfo_file_name, page_name, pagename_len - 2);   // remove "tr"
     strcpy(fontinfo_file_name + pagename_len - 2, "fontinfo");  // +"fontinfo"
@@ -362,7 +362,7 @@ LABELEDLIST NewLabeledList(const char* Label) {
   LABELEDLIST LabeledList;
 
   LabeledList = static_cast<LABELEDLIST>(Emalloc (sizeof (LABELEDLISTNODE)));
-  LabeledList->Label = static_cast<char*>(Emalloc (strlen (Label)+1));
+  LabeledList->Label = static_cast<char*>(Emalloc (static_cast<int>(strlen (Label)+1)));
   strcpy (LabeledList->Label, Label);
   LabeledList->List = NIL_LIST;
   LabeledList->SampleCount = 0;
@@ -581,7 +581,7 @@ void MergeInsignificantProtos(LIST ProtoList, const char* label,
   iterate(pProtoList) {
     Prototype = reinterpret_cast<PROTOTYPE *>first_node (pProtoList);
     // Process insignificant protos that do not match a green one
-    if (!Prototype->Significant && Prototype->NumSamples >= min_samples &&
+    if (!Prototype->Significant && Prototype->NumSamples >= static_cast<unsigned int>(min_samples) &&
         !Prototype->Merged) {
       if (debug)
         tprintf("Red proto at %g,%g becoming green\n",
@@ -693,7 +693,7 @@ MERGE_CLASS NewLabeledClass(const char* Label) {
   MERGE_CLASS MergeClass;
 
   MergeClass = new MERGE_CLASS_NODE;
-  MergeClass->Label = static_cast<char*>(Emalloc (strlen (Label)+1));
+  MergeClass->Label = static_cast<char*>(Emalloc (static_cast<int>(strlen (Label)+1)));
   strcpy (MergeClass->Label, Label);
   MergeClass->Class = NewClass (MAX_NUM_PROTOS, MAX_NUM_CONFIGS);
   return (MergeClass);
@@ -792,9 +792,9 @@ void Normalize (
   float Intercept;
   float Normalizer;
 
-  Slope      = tan(Values [2] * 2 * M_PI);
+  Slope      = static_cast<float>(tan(Values [2] * 2 * M_PI));
   Intercept  = Values [1] - Slope * Values [0];
-  Normalizer = 1 / sqrt (Slope * Slope + 1.0);
+  Normalizer = static_cast<float>(1 / sqrt (Slope * Slope + 1.0));
 
   Values [0] = Slope * Normalizer;
   Values [1] = - Normalizer;

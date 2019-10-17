@@ -197,9 +197,9 @@ void Textord::block_spacing_stats(
   }
   else {
     /* For debug only ..... */
-    iqr_centre_to_centre = centre_to_centre_stats.ile (0.75) -
-      centre_to_centre_stats.ile (0.25);
-    iqr_all_gap_stats = all_gap_stats.ile (0.75) - all_gap_stats.ile (0.25);
+    iqr_centre_to_centre = static_cast<float>(centre_to_centre_stats.ile (0.75) -
+      centre_to_centre_stats.ile (0.25));
+    iqr_all_gap_stats = static_cast<float>(all_gap_stats.ile (0.75) - all_gap_stats.ile (0.25));
     old_text_ord_proportional =
       iqr_centre_to_centre * 2 > iqr_all_gap_stats;
     /* .......For debug only */
@@ -224,8 +224,8 @@ void Textord::block_spacing_stats(
         (row->pitch_decision == PITCH_DEF_PROP) ||
       (row->pitch_decision == PITCH_CORR_PROP))) {
         real_space_threshold =
-                std::max (tosp_init_guess_kn_mult * block_non_space_gap_width,
-          tosp_init_guess_xht_mult * row->xheight);
+                static_cast<float>(std::max (tosp_init_guess_kn_mult * block_non_space_gap_width,
+          tosp_init_guess_xht_mult * row->xheight));
         blob_it.set_to_list (row->blob_list ());
         blob_it.mark_cycle_pt ();
         end_of_row =
@@ -403,7 +403,7 @@ void Textord::row_spacing_stats(
                                  //Use block default
         row->space_size = block_space_gap_width;
         if (all_gap_stats.get_total () > tosp_redo_kern_limit)
-          row->kern_size = all_gap_stats.median ();
+          row->kern_size = static_cast<float>(all_gap_stats.median ());
         else
           row->kern_size = block_non_space_gap_width;
         row->space_threshold =
@@ -472,8 +472,8 @@ void Textord::row_spacing_stats(
     }
     /* Beware of tables - there may be NO spaces */
     if (suspected_table) {
-      sane_space = std::max(tosp_table_kn_sp_ratio * row->kern_size,
-        tosp_table_xht_sp_ratio * row->xheight);
+      sane_space = static_cast<float>(std::max(tosp_table_kn_sp_ratio * row->kern_size,
+        tosp_table_xht_sp_ratio * row->xheight));
       sane_threshold = int32_t (floor ((sane_space + row->kern_size) / 2));
 
       if ((row->space_size < sane_space) ||
@@ -596,30 +596,30 @@ void Textord::old_to_method(
   if (space_gap_stats->get_total () >= tosp_enough_space_samples_for_median) {
   //Adequate samples
     /* Set space size to median of spaces BUT limits it if it seems wildly out */
-    row->space_size = space_gap_stats->median ();
+    row->space_size = static_cast<float>(space_gap_stats->median ());
     if (row->space_size > block_space_gap_width * 1.5) {
       if (tosp_old_to_bug_fix)
-        row->space_size = block_space_gap_width * 1.5;
+        row->space_size = block_space_gap_width * 1.5f;
       else
                                  //BUG??? should be *1.5
         row->space_size = block_space_gap_width;
     }
     if (row->space_size < (block_non_space_gap_width * 2) + 1)
-      row->space_size = (block_non_space_gap_width * 2) + 1;
+      row->space_size = (block_non_space_gap_width * 2.f) + 1;
   }
                                  //Only 1 or 2 samples
   else if (space_gap_stats->get_total () >= 1) {
                                  //hence mean not median
-    row->space_size = space_gap_stats->mean ();
+    row->space_size = static_cast<float>(space_gap_stats->mean ());
     if (row->space_size > block_space_gap_width * 1.5) {
       if (tosp_old_to_bug_fix)
-        row->space_size = block_space_gap_width * 1.5;
+        row->space_size = block_space_gap_width * 1.5f;
       else
                                  //BUG??? should be *1.5
         row->space_size = block_space_gap_width;
     }
     if (row->space_size < (block_non_space_gap_width * 3) + 1)
-      row->space_size = (block_non_space_gap_width * 3) + 1;
+      row->space_size = (block_non_space_gap_width * 3.f) + 1;
   }
   else {
                                  //Use block default
@@ -629,9 +629,9 @@ void Textord::old_to_method(
   /* Next, estimate row kern size */
   if ((tosp_only_small_gaps_for_kern) &&
     (small_gap_stats->get_total () > tosp_redo_kern_limit))
-    row->kern_size = small_gap_stats->median ();
+    row->kern_size = static_cast<float>(small_gap_stats->median ());
   else if (all_gap_stats->get_total () > tosp_redo_kern_limit)
-    row->kern_size = all_gap_stats->median ();
+    row->kern_size = static_cast<float>(all_gap_stats->median ());
   else                          //old TO -SAME FOR ALL ROWS
     row->kern_size = block_non_space_gap_width;
 
@@ -663,7 +663,7 @@ void Textord::old_to_method(
        ((row->space_size - row->kern_size) <
         tosp_silly_kn_sp_gap * row->xheight))) {
     if (row->kern_size > 2.5)
-      row->kern_size = row->space_size / tosp_min_sane_kn_sp;
+      row->kern_size = static_cast<float>(row->space_size / tosp_min_sane_kn_sp);
     row->space_threshold = int32_t (floor ((row->space_size + row->kern_size) /
                                          tosp_old_sp_kn_th_factor));
   }
@@ -695,9 +695,9 @@ bool Textord::isolated_row_stats(TO_ROW* row,
   int32_t end_of_row;
   int32_t row_length;
 
-  kern_estimate = all_gap_stats->median ();
-  crude_threshold_estimate = std::max(tosp_init_guess_kn_mult * kern_estimate,
-    tosp_init_guess_xht_mult * row->xheight);
+  kern_estimate = static_cast<float>(all_gap_stats->median ());
+  crude_threshold_estimate = static_cast<float>(std::max(tosp_init_guess_kn_mult * kern_estimate,
+    tosp_init_guess_xht_mult * row->xheight));
   small_gaps_count = stats_count_under (all_gap_stats,
     static_cast<int16_t>(ceil (crude_threshold_estimate)));
   total = all_gap_stats->get_total ();
@@ -750,22 +750,22 @@ bool Textord::isolated_row_stats(TO_ROW* row,
   if (cert_space_gap_stats.get_total () >=
     tosp_enough_space_samples_for_median)
                                  //median
-    row->space_size = cert_space_gap_stats.median ();
+    row->space_size = static_cast<float>(cert_space_gap_stats.median ());
   else if (suspected_table && (cert_space_gap_stats.get_total () > 0))
                                  //to avoid spaced
-    row->space_size = cert_space_gap_stats.mean ();
+    row->space_size = static_cast<float>(cert_space_gap_stats.mean ());
   //      1's in tables
   else if (all_space_gap_stats.get_total () >=
     tosp_enough_space_samples_for_median)
                                  //median
-    row->space_size = all_space_gap_stats.median ();
+    row->space_size = static_cast<float>(all_space_gap_stats.median ());
   else
-    row->space_size = all_space_gap_stats.mean ();
+    row->space_size = static_cast<float>(all_space_gap_stats.mean ());
 
   if (tosp_only_small_gaps_for_kern)
-    row->kern_size = small_gap_stats.median ();
+    row->kern_size = static_cast<float>(small_gap_stats.median ());
   else
-    row->kern_size = all_gap_stats->median ();
+    row->kern_size = static_cast<float>(all_gap_stats->median ());
   row->space_threshold =
     int32_t (floor ((row->space_size + row->kern_size) / 2));
   /* Sanity check */
@@ -1389,9 +1389,9 @@ bool Textord::make_a_word_break(
     (current_gap > row->space_threshold)) {
       /* Heuristics to turn dubious spaces to kerns */
       if (tosp_pass_wide_fuzz_sp_to_context > 0)
-        fuzzy_sp_to_kn_limit = row->kern_size +
+        fuzzy_sp_to_kn_limit = static_cast<float>(row->kern_size +
           tosp_pass_wide_fuzz_sp_to_context *
-          (row->space_size - row->kern_size);
+          (row->space_size - row->kern_size));
       else
         fuzzy_sp_to_kn_limit = 99999.0f;
 
@@ -1591,8 +1591,8 @@ bool Textord::suspected_punct_blob(TO_ROW* row, TBOX box) {
   float baseline;
   float blob_x_centre;
   /* Find baseline of centre of blob */
-  blob_x_centre = (box.right () + box.left ()) / 2.0;
-  baseline = row->baseline.y (blob_x_centre);
+  blob_x_centre = (box.right () + box.left ()) / 2.0f;
+  baseline = static_cast<float>(row->baseline.y (blob_x_centre));
 
   result = (box.height () <= 0.66 * row->xheight) ||
            (box.top () < baseline + row->xheight / 2.0) ||
@@ -1686,12 +1686,12 @@ void Textord::mark_gap(
     else
       //interior_style(to_win, INT_HOLLOW, true);*/
                                  //x radius
-    to_win->Ellipse (current_gap / 2.0f,
-      blob.height () / 2.0f,     //y radius
+    to_win->Ellipse (current_gap / 2,
+      blob.height () / 2,        //y radius
                                  //x centre
-      blob.left () - current_gap / 2.0f,
+      blob.left () - current_gap / 2,
                                  //y centre
-      blob.bottom () + blob.height () / 2.0f);
+      blob.bottom () + blob.height () / 2);
  }
   if (tosp_debug_level > 5)
     tprintf("  (%d,%d) Sp<->Kn Rule %d %d %d %d %d %d\n",
@@ -1852,8 +1852,8 @@ TBOX Textord::reduced_box_for_blob(
   /* Find baseline of centre of blob */
 
   blob_box = blob->bounding_box ();
-  blob_x_centre = (blob_box.left () + blob_box.right ()) / 2.0;
-  baseline = row->baseline.y (blob_x_centre);
+  blob_x_centre = (blob_box.left () + blob_box.right ()) / 2.0f;
+  baseline = static_cast<float>(row->baseline.y (blob_x_centre));
 
   /*
   Find LH limit of blob ABOVE the xht. This is so that we can detect certain
@@ -1861,7 +1861,7 @@ TBOX Textord::reduced_box_for_blob(
   */
   left_limit = static_cast<float>(INT32_MAX);
   junk = static_cast<float>(-INT32_MAX);
-  find_cblob_hlimits(blob->cblob(), (baseline + 1.1 * row->xheight),
+  find_cblob_hlimits(blob->cblob(), (baseline + 1.1f * row->xheight),
                      static_cast<float>(INT16_MAX), left_limit, junk);
   if (left_limit > junk)
     *left_above_xht = INT16_MAX; //No area above xht

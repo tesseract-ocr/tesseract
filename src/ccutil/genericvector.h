@@ -28,6 +28,7 @@
 #include "serialis.h"
 #include "strngs.h"
 #include "tesscallback.h"
+#include "platform.h"
 
 // Use PointerVector<T> below in preference to GenericVector<T*>, as that
 // provides automatic deletion of pointers, [De]Serialize that works, and

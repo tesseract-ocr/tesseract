@@ -11,7 +11,7 @@ namespace tesseract {
 // Taken directly from the unicode table 16-3.
 // See http://www.unicode.org/versions/Unicode9.0.0/ch16.pdf
 bool ValidateMyanmar::ConsumeGraphemeIfValid() {
-  const unsigned num_codes = codes_.size();
+  const unsigned num_codes = static_cast<unsigned>(codes_.size());
   if (codes_used_ == num_codes) return true;
   // Other.
   if (IsMyanmarOther(codes_[codes_used_].second)) {
@@ -61,7 +61,7 @@ Validator::CharClass ValidateMyanmar::UnicodeToCharClass(char32 ch) const {
 // Returns true if the end of input is reached.
 bool ValidateMyanmar::ConsumeSubscriptIfPresent() {
   // Subscript consonant. It appears there can be only one.
-  const unsigned num_codes = codes_.size();
+  const unsigned num_codes = static_cast<unsigned>(codes_.size());
   if (codes_used_ + 1 < num_codes &&
       codes_[codes_used_].second == kMyanmarVirama) {
     if (IsMyanmarLetter(codes_[codes_used_ + 1].second)) {

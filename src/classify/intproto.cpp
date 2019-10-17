@@ -204,8 +204,8 @@ static double_VAR(classify_pp_side_pad, 2.5, "Proto Pruner Side Pad");
 /// Builds a feature from an FCOORD for position with all the necessary
 /// clipping and rounding.
 INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(const FCOORD& pos, uint8_t theta)
-  : X(ClipToRange<int16_t>(static_cast<int16_t>(pos.x() + 0.5), 0, 255)),
-    Y(ClipToRange<int16_t>(static_cast<int16_t>(pos.y() + 0.5), 0, 255)),
+  : X(static_cast<uint8_t>(ClipToRange<int16_t>(static_cast<int16_t>(pos.x() + 0.5), 0, 255))),
+    Y(static_cast<uint8_t>(ClipToRange<int16_t>(static_cast<int16_t>(pos.y() + 0.5), 0, 255))),
     Theta(theta),
     CP_misses(0) {
 }
@@ -385,27 +385,27 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
 #endif
 
   FillPPCircularBits (ProtoSet->ProtoPruner[PRUNER_ANGLE], Index,
-                      Angle + ANGLE_SHIFT, classify_pp_angle_pad / 360.0,
+                      static_cast<float>(Angle + ANGLE_SHIFT), static_cast<float>(classify_pp_angle_pad / 360.0),
                       debug);
 
-  Angle *= 2.0 * M_PI;
+  Angle *= static_cast<float>(2.0 * M_PI);
   Length = Proto->Length;
 
-  X = Proto->X + X_SHIFT;
-  Pad = std::max(fabs (cos (Angle)) * (Length / 2.0 +
+  X = static_cast<float>(Proto->X + X_SHIFT);
+  Pad = static_cast<float>(std::max(fabs (cos (Angle)) * (Length / 2.0 +
                                    classify_pp_end_pad *
                                    GetPicoFeatureLength ()),
              fabs (sin (Angle)) * (classify_pp_side_pad *
-                                   GetPicoFeatureLength ()));
+                                   GetPicoFeatureLength ())));
 
   FillPPLinearBits(ProtoSet->ProtoPruner[PRUNER_X], Index, X, Pad, debug);
 
-  Y = Proto->Y + Y_SHIFT;
-  Pad = std::max(fabs (sin (Angle)) * (Length / 2.0 +
+  Y = static_cast<float>(Proto->Y + Y_SHIFT);
+  Pad = static_cast<float>(std::max(fabs (sin (Angle)) * (Length / 2.0 +
                                    classify_pp_end_pad *
                                    GetPicoFeatureLength ()),
              fabs (cos (Angle)) * (classify_pp_side_pad *
-                                   GetPicoFeatureLength ()));
+                                   GetPicoFeatureLength ())));
 
   FillPPLinearBits(ProtoSet->ProtoPruner[PRUNER_Y], Index, Y, Pad, debug);
 }                                /* AddProtoToProtoPruner */
@@ -509,7 +509,7 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
     P->Angle = static_cast<uint8_t>(Param);
 
   /* round proto length to nearest integer number of pico-features */
-  Param = (Proto->Length / GetPicoFeatureLength()) + 0.5;
+  Param = (Proto->Length / GetPicoFeatureLength()) + 0.5f;
   Class->ProtoLengths[ProtoId] = TruncateParam(Param, 1, 255, nullptr);
   if (classify_learning_debug_level >= 2)
     cprintf("Converted ffeat to (A=%d,B=%d,C=%d,L=%d)",
@@ -991,17 +991,17 @@ void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView* window) {
   // Draw the feature space limit rectangle.
   window->Rectangle(0, 0, INT_MAX_X, INT_MAX_Y);
   if (norm_method == baseline) {
-    window->SetCursor(0, INT_DESCENDER);
-    window->DrawTo(INT_MAX_X, INT_DESCENDER);
-    window->SetCursor(0, INT_BASELINE);
-    window->DrawTo(INT_MAX_X, INT_BASELINE);
-    window->SetCursor(0, INT_XHEIGHT);
-    window->DrawTo(INT_MAX_X, INT_XHEIGHT);
-    window->SetCursor(0, INT_CAPHEIGHT);
-    window->DrawTo(INT_MAX_X, INT_CAPHEIGHT);
+    window->SetCursor(0, static_cast<int>(INT_DESCENDER));
+    window->DrawTo(INT_MAX_X, static_cast<int>(INT_DESCENDER));
+    window->SetCursor(0, static_cast<int>(INT_BASELINE));
+    window->DrawTo(INT_MAX_X, static_cast<int>(INT_BASELINE));
+    window->SetCursor(0, static_cast<int>(INT_XHEIGHT));
+    window->DrawTo(INT_MAX_X, static_cast<int>(INT_XHEIGHT));
+    window->SetCursor(0, static_cast<int>(INT_CAPHEIGHT));
+    window->DrawTo(INT_MAX_X, static_cast<int>(INT_CAPHEIGHT));
   } else {
-    window->Rectangle(INT_XCENTER - INT_XRADIUS, INT_YCENTER - INT_YRADIUS,
-                      INT_XCENTER + INT_XRADIUS, INT_YCENTER + INT_YRADIUS);
+    window->Rectangle(static_cast<int>(INT_XCENTER - INT_XRADIUS), static_cast<int>(INT_YCENTER - INT_YRADIUS),
+                      static_cast<int>(INT_XCENTER + INT_XRADIUS), static_cast<int>(INT_YCENTER + INT_YRADIUS));
   }
 }
 #endif
@@ -1334,27 +1334,27 @@ void GetCPPadsForLevel(int Level,
                        float *AnglePad) {
   switch (Level) {
     case 0:
-      *EndPad = classify_cp_end_pad_loose * GetPicoFeatureLength ();
-      *SidePad = classify_cp_side_pad_loose * GetPicoFeatureLength ();
-      *AnglePad = classify_cp_angle_pad_loose / 360.0;
+      *EndPad = static_cast<float>(classify_cp_end_pad_loose) * GetPicoFeatureLength ();
+      *SidePad = static_cast<float>(classify_cp_side_pad_loose) * GetPicoFeatureLength ();
+      *AnglePad = static_cast<float>(classify_cp_angle_pad_loose) / 360.0f;
       break;
 
     case 1:
-      *EndPad = classify_cp_end_pad_medium * GetPicoFeatureLength ();
-      *SidePad = classify_cp_side_pad_medium * GetPicoFeatureLength ();
-      *AnglePad = classify_cp_angle_pad_medium / 360.0;
+      *EndPad = static_cast<float>(classify_cp_end_pad_medium) * GetPicoFeatureLength ();
+      *SidePad = static_cast<float>(classify_cp_side_pad_medium) * GetPicoFeatureLength ();
+      *AnglePad = static_cast<float>(classify_cp_angle_pad_medium) / 360.0f;
       break;
 
     case 2:
-      *EndPad = classify_cp_end_pad_tight * GetPicoFeatureLength ();
-      *SidePad = classify_cp_side_pad_tight * GetPicoFeatureLength ();
-      *AnglePad = classify_cp_angle_pad_tight / 360.0;
+      *EndPad = static_cast<float>(classify_cp_end_pad_tight) * GetPicoFeatureLength ();
+      *SidePad = static_cast<float>(classify_cp_side_pad_tight) * GetPicoFeatureLength ();
+      *AnglePad = static_cast<float>(classify_cp_angle_pad_tight) / 360.0f;
       break;
 
     default:
-      *EndPad = classify_cp_end_pad_tight * GetPicoFeatureLength ();
-      *SidePad = classify_cp_side_pad_tight * GetPicoFeatureLength ();
-      *AnglePad = classify_cp_angle_pad_tight / 360.0;
+      *EndPad = static_cast<float>(classify_cp_end_pad_tight) * GetPicoFeatureLength ();
+      *SidePad = static_cast<float>(classify_cp_side_pad_tight) * GetPicoFeatureLength ();
+      *AnglePad = static_cast<float>(classify_cp_angle_pad_tight) / 360.0f;
       break;
   }
   if (*AnglePad > 0.5)
@@ -1454,7 +1454,7 @@ void InitTableFiller (float EndPad, float SidePad,
   Angle = Proto->Angle;
   X = Proto->X;
   Y = Proto->Y;
-  HalfLength = Proto->Length / 2.0;
+  HalfLength = Proto->Length / 2.0f;
 
   Filler->AngleStart = CircBucketFor(Angle - AnglePad, AS, NB);
   Filler->AngleEnd = CircBucketFor(Angle + AnglePad, AS, NB);
@@ -1484,19 +1484,19 @@ void InitTableFiller (float EndPad, float SidePad,
 
     if ((Angle > 0.0 && Angle < 0.25) || (Angle > 0.5 && Angle < 0.75)) {
       /* rising diagonal proto */
-      Angle *= 2.0 * M_PI;
+      Angle *= static_cast<float>(2.0 * M_PI);
       Cos = fabs(cos(Angle));
       Sin = fabs(sin(Angle));
 
       /* compute the positions of the corners of the acceptance region */
       Start.x = X - (HalfLength + EndPad) * Cos - SidePad * Sin;
       Start.y = Y - (HalfLength + EndPad) * Sin + SidePad * Cos;
-      End.x = 2.0 * X - Start.x;
-      End.y = 2.0 * Y - Start.y;
+      End.x = 2.0f * X - Start.x;
+      End.y = 2.0f * Y - Start.y;
       Switch1.x = X - (HalfLength + EndPad) * Cos + SidePad * Sin;
       Switch1.y = Y - (HalfLength + EndPad) * Sin - SidePad * Cos;
-      Switch2.x = 2.0 * X - Switch1.x;
-      Switch2.y = 2.0 * Y - Switch1.y;
+      Switch2.x = 2.0f * X - Switch1.x;
+      Switch2.y = 2.0f * Y - Switch1.y;
 
       if (Switch1.x > Switch2.x) {
         S1 = 1;
@@ -1534,19 +1534,19 @@ void InitTableFiller (float EndPad, float SidePad,
       Filler->Switch[2].X = Bucket8For(End.x, XS, NB);
     } else {
       /* falling diagonal proto */
-      Angle *= 2.0 * M_PI;
+      Angle *= static_cast<float>(2.0 * M_PI);
       Cos = fabs(cos(Angle));
       Sin = fabs(sin(Angle));
 
       /* compute the positions of the corners of the acceptance region */
       Start.x = X - (HalfLength + EndPad) * Cos - SidePad * Sin;
       Start.y = Y + (HalfLength + EndPad) * Sin - SidePad * Cos;
-      End.x = 2.0 * X - Start.x;
-      End.y = 2.0 * Y - Start.y;
+      End.x = 2.0f * X - Start.x;
+      End.y = 2.0f * Y - Start.y;
       Switch1.x = X - (HalfLength + EndPad) * Cos + SidePad * Sin;
       Switch1.y = Y + (HalfLength + EndPad) * Sin + SidePad * Cos;
-      Switch2.x = 2.0 * X - Switch1.x;
-      Switch2.y = 2.0 * Y - Switch1.y;
+      Switch2.x = 2.0f * X - Switch1.x;
+      Switch2.y = 2.0f * Y - Switch1.y;
 
       if (Switch1.x > Switch2.x) {
         S1 = 1;
@@ -1609,14 +1609,14 @@ void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
 
   X = Feature->X;
   Y = Feature->Y;
-  Length = GetPicoFeatureLength() * 0.7 * INT_CHAR_NORM_RANGE;
+  Length = GetPicoFeatureLength() * 0.7f * INT_CHAR_NORM_RANGE;
   // The -PI has no significant effect here, but the value of Theta is computed
   // using BinaryAnglePlusPi in intfx.cpp.
-  Dx = (Length / 2.0) * cos((Feature->Theta / 256.0) * 2.0 * M_PI - M_PI);
-  Dy = (Length / 2.0) * sin((Feature->Theta / 256.0) * 2.0 * M_PI - M_PI);
+  Dx = static_cast<float>((Length / 2.0) * cos((Feature->Theta / 256.0) * 2.0 * M_PI - M_PI));
+  Dy = static_cast<float>((Length / 2.0) * sin((Feature->Theta / 256.0) * 2.0 * M_PI - M_PI));
 
-  window->SetCursor(X, Y);
-  window->DrawTo(X + Dx, Y + Dy);
+  window->SetCursor(static_cast<int>(X), static_cast<int>(Y));
+  window->DrawTo(static_cast<int>(X + Dx), static_cast<int>(Y + Dy));
 }                                /* RenderIntFeature */
 
 /**
@@ -1673,15 +1673,15 @@ void RenderIntProto(ScrollView *window,
       UpdateRange(Bucket, &Ymin, &Ymax);
     }
   }
-  X = (Xmin + Xmax + 1) / 2.0 * PROTO_PRUNER_SCALE;
-  Y = (Ymin + Ymax + 1) / 2.0 * PROTO_PRUNER_SCALE;
+  X = static_cast<float>((Xmin + Xmax + 1) / 2.0 * PROTO_PRUNER_SCALE);
+  Y = static_cast<float>((Ymin + Ymax + 1) / 2.0 * PROTO_PRUNER_SCALE);
   // The -PI has no significant effect here, but the value of Theta is computed
   // using BinaryAnglePlusPi in intfx.cpp.
-  Dx = (Length / 2.0) * cos((Proto->Angle / 256.0) * 2.0 * M_PI - M_PI);
-  Dy = (Length / 2.0) * sin((Proto->Angle / 256.0) * 2.0 * M_PI - M_PI);
+  Dx = static_cast<float>((Length / 2.0) * cos((Proto->Angle / 256.0) * 2.0 * M_PI - M_PI));
+  Dy = static_cast<float>((Length / 2.0) * sin((Proto->Angle / 256.0) * 2.0 * M_PI - M_PI));
 
-  window->SetCursor(X - Dx, Y - Dy);
-  window->DrawTo(X + Dx, Y + Dy);
+  window->SetCursor(static_cast<int>(X - Dx), static_cast<int>(Y - Dy));
+  window->DrawTo(static_cast<int>(X + Dx), static_cast<int>(Y + Dy));
 }                                /* RenderIntProto */
 #endif
 
@@ -1703,12 +1703,12 @@ int TruncateParam(float Param, int Min, int Max, char *Id) {
     if (Id)
       cprintf("Warning: Param %s truncated from %f to %d!\n",
               Id, Param, Min);
-    Param = Min;
+    Param = static_cast<float>(Min);
   } else if (Param > Max) {
     if (Id)
       cprintf("Warning: Param %s truncated from %f to %d!\n",
               Id, Param, Max);
-    Param = Max;
+    Param = static_cast<float>(Max);
   }
   return static_cast<int>(std::floor(Param));
 }                                /* TruncateParam */

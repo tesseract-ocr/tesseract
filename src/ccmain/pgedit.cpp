@@ -206,7 +206,7 @@ class BlnEventHandler : public SVEventHandler {
     if (sv_event->type == SVET_DESTROY)
       bln_word_window = nullptr;
     else if (sv_event->type == SVET_CLICK)
-      show_point(current_page_res, sv_event->x, sv_event->y);
+      show_point(current_page_res, static_cast<float>(sv_event->x), static_cast<float>(sv_event->y));
   }
 };
 
@@ -257,14 +257,14 @@ static void display_bln_lines(ScrollView* window, ScrollView::Color colour,
                               float scale_factor, float y_offset,
                               float minx, float maxx) {
   window->Pen(colour);
-  window->Line(minx, y_offset + scale_factor * DESC_HEIGHT,
-               maxx, y_offset + scale_factor * DESC_HEIGHT);
-  window->Line(minx, y_offset + scale_factor * BL_HEIGHT,
-               maxx, y_offset + scale_factor * BL_HEIGHT);
-  window->Line(minx, y_offset + scale_factor * X_HEIGHT,
-               maxx, y_offset + scale_factor * X_HEIGHT);
-  window->Line(minx, y_offset + scale_factor * ASC_HEIGHT,
-               maxx, y_offset + scale_factor * ASC_HEIGHT);
+  window->Line(static_cast<int>(minx), static_cast<int>(y_offset + scale_factor * DESC_HEIGHT),
+               static_cast<int>(maxx), static_cast<int>(y_offset + scale_factor * DESC_HEIGHT));
+  window->Line(static_cast<int>(minx), static_cast<int>(y_offset + scale_factor * BL_HEIGHT),
+               static_cast<int>(maxx), static_cast<int>(y_offset + scale_factor * BL_HEIGHT));
+  window->Line(static_cast<int>(minx), static_cast<int>(y_offset + scale_factor * X_HEIGHT),
+               static_cast<int>(maxx), static_cast<int>(y_offset + scale_factor * X_HEIGHT));
+  window->Line(static_cast<int>(minx), static_cast<int>(y_offset + scale_factor * ASC_HEIGHT),
+               static_cast<int>(maxx), static_cast<int>(y_offset + scale_factor * ASC_HEIGHT));
 }
 
 /**
@@ -602,7 +602,7 @@ void Tesseract::process_image_event( // action in image win
         down.set_x(event.x + event.x_size);
         down.set_y(event.y + event.y_size);
         if (mode == SHOW_POINT_CMD_EVENT)
-          show_point(current_page_res, event.x, event.y);
+          show_point(current_page_res, static_cast<float>(event.x), static_cast<float>(event.y));
       }
 
       up.set_x(event.x);
@@ -870,15 +870,15 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
     word_bb = word->bounding_box();
     image_win->Pen(ScrollView::RED);
     word_height = word_bb.height();
-    int text_height = 0.50 * word_height;
+    int text_height = static_cast<int>(0.50 * word_height);
     if (text_height > 20) text_height = 20;
     image_win->TextAttributes("Arial", text_height, false, false, false);
-    shift = (word_height < word_bb.width()) ? 0.25 * word_height : 0.0f;
-    image_win->Text(word_bb.left() + shift,
-                    word_bb.bottom() + 0.25 * word_height, text.string());
+    shift = (word_height < word_bb.width()) ? 0.25f * word_height : 0.0f;
+    image_win->Text(static_cast<int>(word_bb.left() + shift),
+                    static_cast<int>(word_bb.bottom() + 0.25 * word_height), text.string());
     if (blame.length() > 0) {
-      image_win->Text(word_bb.left() + shift,
-                      word_bb.bottom() + 0.25 * word_height - text_height,
+      image_win->Text(static_cast<int>(word_bb.left() + shift),
+                      static_cast<int>(word_bb.bottom() + 0.25 * word_height - text_height),
                       blame.string());
     }
 

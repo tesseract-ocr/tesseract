@@ -52,9 +52,9 @@ namespace tesseract {
 
 // Special "weak" ParagraphModels.
 const ParagraphModel *kCrownLeft
-    = reinterpret_cast<ParagraphModel *>(0xDEAD111F);
+    = reinterpret_cast<ParagraphModel *>(static_cast<__int64>(0xDEAD111F));
 const ParagraphModel *kCrownRight
-    = reinterpret_cast<ParagraphModel *>(0xDEAD888F);
+    = reinterpret_cast<ParagraphModel *>(static_cast<__int64>(0xDEAD888F));
 
 // Do the text and geometry of two rows support a paragraph break between them?
 static bool LikelyParagraphStart(const RowScratchRegisters &before,
@@ -1593,8 +1593,8 @@ void RecomputeMarginsAndClearHypotheses(
     lefts.add(sr.lmargin_ + sr.lindent_, 1);
     rights.add(sr.rmargin_ + sr.rindent_, 1);
   }
-  int ignorable_left = lefts.ile(ClipToRange(percentile, 0, 100) / 100.0);
-  int ignorable_right = rights.ile(ClipToRange(percentile, 0, 100) / 100.0);
+  int ignorable_left = static_cast<int>(lefts.ile(ClipToRange(percentile, 0, 100) / 100.0));
+  int ignorable_right = static_cast<int>(rights.ile(ClipToRange(percentile, 0, 100) / 100.0));
   for (int i = start; i < end; i++) {
     RowScratchRegisters &sr = (*rows)[i];
     int ldelta = ignorable_left - sr.lmargin_;
@@ -1623,7 +1623,7 @@ int InterwordSpace(const GenericVector<RowScratchRegisters> &rows,
   int minimum_reasonable_space = word_height / 3;
   if (minimum_reasonable_space < 2)
     minimum_reasonable_space = 2;
-  int median = spacing_widths.median();
+  int median = static_cast<int>(spacing_widths.median());
   return (median > minimum_reasonable_space)
       ? median : minimum_reasonable_space;
 }
@@ -2452,11 +2452,11 @@ static void InitializeRowInfo(bool after_recognition,
   }
   info->text = "";
   const std::unique_ptr<const char[]> text(it.GetUTF8Text(RIL_TEXTLINE));
-  int trailing_ws_idx = strlen(text.get());  // strip trailing space
+  int trailing_ws_idx = static_cast<int>(strlen(text.get()));  // strip trailing space
   while (trailing_ws_idx > 0 &&
          // isspace() only takes ASCII
-         isascii(text[trailing_ws_idx - 1]) &&
-         isspace(text[trailing_ws_idx - 1]))
+         isascii(text[static_cast<long int>(trailing_ws_idx - 1)]) &&
+         isspace(text[static_cast<long int>(trailing_ws_idx - 1)]))
     trailing_ws_idx--;
   if (trailing_ws_idx > 0) {
     int lspaces = info->pix_ldistance / info->average_interword_space;

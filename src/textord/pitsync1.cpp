@@ -384,7 +384,7 @@ void make_illegal_segment(                          //find segmentation
     prevpt = prevpt_it.data ();
     if (prevpt->cost_function () < best_cost) {
                                  //find least
-      best_cost = prevpt->cost_function ();
+      best_cost = static_cast<float>(prevpt->cost_function ());
       min_x = prevpt->position ();
       max_x = min_x;             //limits on coords
     }

@@ -49,8 +49,8 @@ void Tesseract::output_pass(  //Tess output pass //send to api
     if (target_word_box) {
       TBOX current_word_box = page_res_it.word()->word->bounding_box();
       FCOORD center_pt(
-          (current_word_box.right() + current_word_box.left()) / 2,
-          (current_word_box.bottom() + current_word_box.top()) / 2);
+          static_cast<float>((current_word_box.right() + current_word_box.left()) / 2),
+          static_cast<float>((current_word_box.bottom() + current_word_box.top()) / 2));
       if (!target_word_box->contains(center_pt)) {
         page_res_it.forward();
         continue;

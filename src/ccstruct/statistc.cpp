@@ -592,9 +592,9 @@ void STATS::plot(ScrollView* window,  // to draw in
   window->Pen(colour);
 
   for (int index = 0; index < rangemax_ - rangemin_; index++) {
-    window->Rectangle(xorigin + xscale * index, yorigin,
-      xorigin + xscale * (index + 1),
-      yorigin + yscale * buckets_[index]);
+    window->Rectangle(static_cast<int>(xorigin + xscale * index), static_cast<int>(yorigin),
+                      static_cast<int>(xorigin + xscale * (index + 1)),
+                      static_cast<int>(yorigin + yscale * buckets_[index]));
   }
 }
 #endif
@@ -617,10 +617,10 @@ void STATS::plotline(ScrollView* window,  // to draw in
     return;
   }
   window->Pen(colour);
-  window->SetCursor(xorigin, yorigin + yscale * buckets_[0]);
+  window->SetCursor(static_cast<int>(xorigin), static_cast<int>(yorigin + yscale * buckets_[0]));
   for (int index = 0; index < rangemax_ - rangemin_; index++) {
-    window->DrawTo(xorigin + xscale * index,
-                   yorigin + yscale * buckets_[index]);
+    window->DrawTo(static_cast<int>(xorigin + xscale * index),
+                   static_cast<int>(yorigin + yscale * buckets_[index]));
   }
 }
 #endif

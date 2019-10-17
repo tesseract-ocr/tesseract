@@ -348,7 +348,7 @@ Network* NetworkBuilder::ParseLSTM(const StaticShape& input_shape, char** str) {
     lstm = BuildLSTMXYQuad(input_shape.depth(), num_states);
   } else {
     if (num_outputs == 0) num_outputs = num_states;
-    STRING name(spec_start, *str - spec_start);
+    STRING name(spec_start, static_cast<int>(*str - spec_start));
     lstm = new LSTM(name, input_shape.depth(), num_states, num_outputs, false,
                     type);
     if (dir != 'f') {
@@ -431,7 +431,7 @@ Network* NetworkBuilder::ParseFullyConnected(const StaticShape& input_shape,
     tprintf("Invalid F spec!:%s\n", *str);
     return nullptr;
   }
-  STRING name(spec_start, *str - spec_start);
+  STRING name(spec_start, static_cast<int>(*str - spec_start));
   return BuildFullyConnected(input_shape, type, name, depth);
 }
 

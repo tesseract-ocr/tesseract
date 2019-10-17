@@ -49,7 +49,7 @@ static void WriteProtos(FILE* File, uint16_t N, LIST ProtoList,
 /* global variable to hold configuration parameters to control clustering */
 //-M 0.025   -B 0.05   -I 0.8   -C 1e-3
 static const CLUSTERCONFIG CNConfig = {
-  elliptical, 0.025, 0.05, 0.8, 1e-3, 0
+  elliptical, 0.025f, 0.05f, 0.8f, 1e-3, 0
 };
 
 /*----------------------------------------------------------------------------
@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
       if (NumberOfProtos(ProtoList, true, false) > 0) {
         break;
       } else {
-        Config.MinSamples *= 0.95;
+        Config.MinSamples *= 0.95f;
         printf("0 significant protos for %s."
                " Retrying clustering with MinSamples = %f%%\n",
                CharSample->Label, Config.MinSamples);

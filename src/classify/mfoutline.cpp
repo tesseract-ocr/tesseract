@@ -247,9 +247,9 @@ void NormalizeOutline(MFOUTLINE Outline,
   MFOUTLINE EdgePoint = Outline;
   do {
     MFEDGEPT *Current = PointAt(EdgePoint);
-    Current->Point.y = MF_SCALE_FACTOR *
-        (Current->Point.y - kBlnBaselineOffset);
-    Current->Point.x = MF_SCALE_FACTOR * (Current->Point.x - XOrigin);
+    Current->Point.y = static_cast<float>(MF_SCALE_FACTOR *
+        (Current->Point.y - kBlnBaselineOffset));
+    Current->Point.x = static_cast<float>(MF_SCALE_FACTOR * (Current->Point.x - XOrigin));
     EdgePoint = NextPointAfter(EdgePoint);
   } while (EdgePoint != Outline);
 }                                /* NormalizeOutline */
@@ -336,8 +336,8 @@ void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
     CurrentPoint = PointAt(Current);
     FCOORD pos(CurrentPoint->Point.x, CurrentPoint->Point.y);
     cn_denorm.LocalNormTransform(pos, &pos);
-    CurrentPoint->Point.x = (pos.x() - UINT8_MAX / 2) * MF_SCALE_FACTOR;
-    CurrentPoint->Point.y = (pos.y() - UINT8_MAX / 2) * MF_SCALE_FACTOR;
+    CurrentPoint->Point.x = static_cast<float>((pos.x() - UINT8_MAX / 2) * MF_SCALE_FACTOR);
+    CurrentPoint->Point.y = static_cast<float>((pos.y() - UINT8_MAX / 2) * MF_SCALE_FACTOR);
 
     Current = NextPointAfter(Current);
   }

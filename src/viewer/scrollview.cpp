@@ -483,7 +483,7 @@ SVEvent* ScrollView::AwaitEventAnyWindow() {
 void ScrollView::SendPolygon() {
   if (!points_->empty) {
     points_->empty = true;  // Allows us to use SendMsg.
-    int length = points_->xcoords.size();
+    int length = static_cast<int>(points_->xcoords.size());
     // length == 1 corresponds to 2 SetCursors in a row and only the
     // last setCursor has any effect.
     if (length == 2) {
@@ -766,7 +766,7 @@ void ScrollView::Image(struct Pix* image, int x_pos, int y_pos) {
   l_uint8* data;
   size_t size;
   pixWriteMem(&data, &size, image, IFF_PNG);
-  int base64_len = (size + 2) / 3 * 4;
+  int base64_len = static_cast<int>((size + 2) / 3 * 4);
   y_pos = TranslateYCoordinate(y_pos);
   SendMsg("readImage(%d,%d,%d)", x_pos, y_pos, base64_len);
   // Base64 encode the data.
@@ -813,7 +813,7 @@ char* ScrollView::AddEscapeChars(const char* input) {
   int pos = 0;
   while (nextptr != nullptr) {
     strncpy(message+pos, lastptr, nextptr-lastptr);
-    pos += nextptr - lastptr;
+    pos += static_cast<int>(nextptr - lastptr);
     message[pos] = '\\';
     pos += 1;
     lastptr = nextptr;

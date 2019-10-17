@@ -106,10 +106,10 @@ void plot_to_row(                 //draw a row
   to_win->Pen(colour);
   plot_pt = FCOORD (left, row->line_m () * left + row->line_c ());
   plot_pt.rotate (rotation);
-  to_win->SetCursor(plot_pt.x (), plot_pt.y ());
+  to_win->SetCursor(static_cast<int>(plot_pt.x ()), static_cast<int>(plot_pt.y ()));
   plot_pt = FCOORD (right, row->line_m () * right + row->line_c ());
   plot_pt.rotate (rotation);
-  to_win->DrawTo(plot_pt.x (), plot_pt.y ());
+  to_win->DrawTo(static_cast<int>(plot_pt.x ()), static_cast<int>(plot_pt.y ()));
 }
 
 
@@ -139,16 +139,16 @@ void plot_parallel_row(                 //draw a row
   to_win->Pen(colour);
   plot_pt = FCOORD (fleft, gradient * left + row->max_y ());
   plot_pt.rotate (rotation);
-  to_win->SetCursor(plot_pt.x (), plot_pt.y ());
+  to_win->SetCursor(static_cast<int>(plot_pt.x ()), static_cast<int>(plot_pt.y ()));
   plot_pt = FCOORD (fleft, gradient * left + row->min_y ());
   plot_pt.rotate (rotation);
-  to_win->DrawTo(plot_pt.x (), plot_pt.y ());
+  to_win->DrawTo(static_cast<int>(plot_pt.x ()), static_cast<int>(plot_pt.y ()));
   plot_pt = FCOORD (fleft, gradient * left + row->parallel_c ());
   plot_pt.rotate (rotation);
-  to_win->SetCursor(plot_pt.x (), plot_pt.y ());
+  to_win->SetCursor(static_cast<int>(plot_pt.x ()), static_cast<int>(plot_pt.y ()));
   plot_pt = FCOORD (right, gradient * right + row->parallel_c ());
   plot_pt.rotate (rotation);
-  to_win->DrawTo(plot_pt.x (), plot_pt.y ());
+  to_win->DrawTo(static_cast<int>(plot_pt.x ()), static_cast<int>(plot_pt.y ()));
 }
 
 
@@ -173,7 +173,7 @@ int32_t thresholds[]               //for drop out
 
   colour = ScrollView::WHITE;
   to_win->Pen(colour);
-  to_win->SetCursor(fleft, static_cast<float>(ybottom));
+  to_win->SetCursor(static_cast<int>(fleft), ybottom);
   for (line_index = min_y; line_index <= max_y; line_index++) {
     if (occupation[line_index - min_y] < thresholds[line_index - min_y]) {
       if (colour != ScrollView::BLUE) {
@@ -187,13 +187,13 @@ int32_t thresholds[]               //for drop out
         to_win->Pen(colour);
       }
     }
-  to_win->DrawTo(fleft + occupation[line_index - min_y] / 10.0,      static_cast<float>(line_index));
+  to_win->DrawTo(static_cast<int>(fleft + occupation[line_index - min_y] / 10.0), line_index);
   }
   colour=ScrollView::STEEL_BLUE;
   to_win->Pen(colour);
-  to_win->SetCursor(fleft, static_cast<float>(ybottom));
+  to_win->SetCursor(static_cast<int>(fleft), ybottom);
   for (line_index = min_y; line_index <= max_y; line_index++) {
-     to_win->DrawTo(fleft + thresholds[line_index - min_y] / 10.0,      static_cast<float>(line_index));
+     to_win->DrawTo(static_cast<int>(fleft + thresholds[line_index - min_y] / 10.0), line_index);
   }
 }
 
@@ -227,12 +227,12 @@ void draw_meanlines(                  //draw a block
       FCOORD (static_cast<float>(left),
       gradient * left + row->parallel_c () + row->xheight);
     plot_pt.rotate (rotation);
-  to_win->SetCursor(plot_pt.x (), plot_pt.y ());
+  to_win->SetCursor(static_cast<int>(plot_pt.x ()), static_cast<int>(plot_pt.y ()));
     plot_pt =
       FCOORD (right,
       gradient * right + row->parallel_c () + row->xheight);
     plot_pt.rotate (rotation);
-    to_win->DrawTo (plot_pt.x (), plot_pt.y ());
+    to_win->DrawTo (static_cast<int>(plot_pt.x ()), static_cast<int>(plot_pt.y ()));
   }
 }
 
@@ -274,7 +274,7 @@ void plot_word_decisions(              //draw words
           plot_fp_cells (win, colour, &start_it, pitch, blob_count,
             &row->projection, row->projection_left,
             row->projection_right,
-            row->xheight * textord_projection_scale);
+            static_cast<float>(row->xheight * textord_projection_scale));
         blob_count = 0;
         start_it = blob_it;
       }
@@ -304,7 +304,7 @@ void plot_word_decisions(              //draw words
     plot_fp_cells (win, colour, &start_it, pitch, blob_count,
       &row->projection, row->projection_left,
       row->projection_right,
-      row->xheight * textord_projection_scale);
+      static_cast<float>(row->xheight * textord_projection_scale));
 }
 
 
@@ -410,7 +410,7 @@ void plot_row_cells(                       //draw words
   win->Pen(colour);
   for (cell_it.mark_cycle_pt (); !cell_it.cycled_list (); cell_it.forward ()) {
     cell = cell_it.data ();
-    win->Line(cell->x () + xshift, word_box.bottom (), cell->x () + xshift, word_box.top ());
+    win->Line(static_cast<int>(cell->x () + xshift), word_box.bottom (), static_cast<int>(cell->x () + xshift), word_box.top ());
   }
 }
 

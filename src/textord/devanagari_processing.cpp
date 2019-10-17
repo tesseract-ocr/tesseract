@@ -200,15 +200,15 @@ int ShiroRekhaSplitter::GetXheightForCC(Box* cc_bbox) {
       // and side is row's xheight. Take the overlap of this box with the input
       // box and check if it is a 'major overlap'. If so, this box lies in this
       // row. In that case, return the xheight for this row.
-      float box_middle = 0.5 * (bbox.left() + bbox.right());
+      float box_middle = 0.5f * (bbox.left() + bbox.right());
       int baseline = static_cast<int>(row->base_line(box_middle) + 0.5);
-      TBOX test_box(box_middle - row->x_height() / 2,
+      TBOX test_box(static_cast<int16_t>(box_middle - row->x_height() / 2),
                     baseline,
-                    box_middle + row->x_height() / 2,
+                    static_cast<int16_t>(box_middle + row->x_height() / 2),
                     static_cast<int>(baseline + row->x_height()));
       // Compute overlap. If it is is a major overlap, this is the right row.
       if (bbox.major_overlap(test_box)) {
-        return row->x_height();
+        return static_cast<int>(row->x_height());
       }
     }
   }

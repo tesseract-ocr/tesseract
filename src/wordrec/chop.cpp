@@ -118,7 +118,7 @@ EDGEPT *Wordrec::pick_close_point(EDGEPT *critical_point,
                                   int *best_dist) {
   EDGEPT *best_point = nullptr;
   int this_distance;
-  int found_better;
+  bool found_better;
 
   do {
     found_better = false;

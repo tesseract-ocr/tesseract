@@ -101,95 +101,95 @@ TFile::~TFile() {
 }
 
 bool TFile::DeSerialize(char* buffer, size_t count) {
-  return FRead(buffer, sizeof(*buffer), count) == count;
+  return FRead(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::DeSerialize(double* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+  return FReadEndian(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::DeSerialize(float* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+  return FReadEndian(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::DeSerialize(int8_t* buffer, size_t count) {
-  return FRead(buffer, sizeof(*buffer), count) == count;
+  return FRead(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::DeSerialize(int16_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+  return FReadEndian(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::DeSerialize(int32_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+  return FReadEndian(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::DeSerialize(int64_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+  return FReadEndian(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::DeSerialize(uint8_t* buffer, size_t count) {
-  return FRead(buffer, sizeof(*buffer), count) == count;
+  return FRead(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::DeSerialize(uint16_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+  return FReadEndian(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::DeSerialize(uint32_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+  return FReadEndian(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::DeSerialize(uint64_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+  return FReadEndian(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Serialize(const char* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
+  return FWrite(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Serialize(const double* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
+  return FWrite(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Serialize(const float* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
+  return FWrite(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Serialize(const int8_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
+  return FWrite(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Serialize(const int16_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
+  return FWrite(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Serialize(const int32_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
+  return FWrite(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Serialize(const int64_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
+  return FWrite(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Serialize(const uint8_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
+  return FWrite(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Serialize(const uint16_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
+  return FWrite(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Serialize(const uint32_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
+  return FWrite(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Serialize(const uint64_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
+  return FWrite(buffer, sizeof(*buffer), static_cast<int>(count)) == count;
 }
 
 bool TFile::Skip(size_t count) {
-  offset_ += count;
+  offset_ += static_cast<int>(count);
   return true;
 }
 
@@ -234,7 +234,7 @@ bool TFile::Open(FILE* fp, int64_t end_offset) {
     if (fseek(fp, current_pos, SEEK_SET))
       return false;
   }
-  int size = end_offset - current_pos;
+  int size = static_cast<int>(end_offset - current_pos);
   is_writing_ = false;
   swap_ = false;
   if (!data_is_owned_) {
@@ -261,7 +261,7 @@ int TFile::FReadEndian(void* buffer, size_t size, int count) {
   if (swap_) {
     char* char_buffer = static_cast<char*>(buffer);
     for (int i = 0; i < num_read; ++i, char_buffer += size) {
-      ReverseN(char_buffer, size);
+      ReverseN(char_buffer, static_cast<int>(size));
     }
   }
   return num_read;
@@ -283,8 +283,8 @@ int TFile::FRead(void* buffer, size_t size, int count) {
   }
   if (required_size > 0 && buffer != nullptr)
     memcpy(buffer, &(*data_)[offset_], required_size);
-  offset_ += required_size;
-  return required_size / size;
+  offset_ += static_cast<int>(required_size);
+  return static_cast<int>(required_size / size);
 }
 
 void TFile::Rewind() {

@@ -44,7 +44,7 @@ FILE* Tesseract::init_recog_training(const STRING& fname) {
   STRING output_fname = fname;
   const char* lastdot = strrchr(output_fname.string(), '.');
   if (lastdot != nullptr)
-    output_fname[lastdot - output_fname.string()] = '\0';
+    output_fname[static_cast<long>(lastdot - output_fname.string())] = '\0';
   output_fname += ".txt";
   FILE* output_file = fopen(output_fname.string(), "a+");
   if (output_file == nullptr) {
@@ -88,7 +88,7 @@ void Tesseract::recog_training_segmented(const STRING& fname,
   STRING box_fname = fname;
   const char* lastdot = strrchr(box_fname.string(), '.');
   if (lastdot != nullptr)
-    box_fname[lastdot - box_fname.string()] = '\0';
+    box_fname[static_cast<long int>(lastdot - box_fname.string())] = '\0';
   box_fname += ".box";
   // ReadNextBox() will close box_file
   FILE* box_file = fopen(box_fname.string(), "r");

@@ -42,7 +42,7 @@ static void AddBoxToAlto(const ResultIterator* it, PageIteratorLevel level,
   alto_str << " HEIGHT=\"" << height << "\"";
 
   if (level == RIL_WORD) {
-    int wc = it->Confidence(RIL_WORD);
+    int wc = static_cast<int>(it->Confidence(RIL_WORD));
     alto_str << " WC=\"0." << wc << "\"";
   } else {
     alto_str << ">";

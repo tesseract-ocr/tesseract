@@ -134,7 +134,7 @@ void StrideMap::SetStride(const std::vector<std::pair<int, int>>& h_w_pairs) {
     if (height > max_height) max_height = height;
     if (width > max_width) max_width = width;
   }
-  shape_[FD_BATCH] = heights_.size();
+  shape_[FD_BATCH] = static_cast<int>(heights_.size());
   shape_[FD_HEIGHT] = max_height;
   shape_[FD_WIDTH] = max_width;
   ComputeTIncrements();

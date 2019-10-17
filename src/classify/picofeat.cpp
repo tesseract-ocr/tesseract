@@ -122,8 +122,8 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
   Delta.y = YDelta (*Start, *End) / NumFeatures;
 
   /* compute position of first pico feature */
-  Center.x = Start->x + Delta.x / 2.0;
-  Center.y = Start->y + Delta.y / 2.0;
+  Center.x = Start->x + Delta.x / 2.0f;
+  Center.y = Start->y + Delta.y / 2.0f;
 
   /* compute each pico feature in segment and add to feature set */
   for (i = 0; i < NumFeatures; i++) {
@@ -255,9 +255,9 @@ FEATURE_SET Classify::ExtractIntGeoFeatures(
   FEATURE_SET feature_set = NewFeatureSet(1);
   FEATURE feature = NewFeature(&IntFeatDesc);
 
-  feature->Params[GeoBottom] = sample->geo_feature(GeoBottom);
-  feature->Params[GeoTop] = sample->geo_feature(GeoTop);
-  feature->Params[GeoWidth] = sample->geo_feature(GeoWidth);
+  feature->Params[GeoBottom] = static_cast<float>(sample->geo_feature(GeoBottom));
+  feature->Params[GeoTop] = static_cast<float>(sample->geo_feature(GeoTop));
+  feature->Params[GeoWidth] = static_cast<float>(sample->geo_feature(GeoWidth));
   AddFeature(feature_set, feature);
   delete sample;
 

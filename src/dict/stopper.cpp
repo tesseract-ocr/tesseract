@@ -39,7 +39,7 @@ namespace tesseract {
 
 bool Dict::AcceptableChoice(const WERD_CHOICE& best_choice,
                             XHeightConsistencyEnum xheight_consistency) {
-  float CertaintyThreshold = stopper_nondict_certainty_base;
+  float CertaintyThreshold = static_cast<float>(stopper_nondict_certainty_base);
   int WordSize;
 
   if (stopper_no_acceptable_choices) return false;
@@ -73,7 +73,7 @@ bool Dict::AcceptableChoice(const WERD_CHOICE& best_choice,
     WordSize -= stopper_smallword_size;
     if (WordSize < 0)
       WordSize = 0;
-    CertaintyThreshold += WordSize * stopper_certainty_per_char;
+    CertaintyThreshold += static_cast<float>(WordSize * stopper_certainty_per_char);
   }
 
   if (stopper_debug_level >= 1)
@@ -99,7 +99,7 @@ bool Dict::AcceptableChoice(const WERD_CHOICE& best_choice,
 
 bool Dict::AcceptableResult(WERD_RES *word) const {
   if (word->best_choice == nullptr) return false;
-  float CertaintyThreshold = stopper_nondict_certainty_base - reject_offset_;
+  float CertaintyThreshold = static_cast<float>(stopper_nondict_certainty_base) - reject_offset_;
   int WordSize;
 
   if (stopper_debug_level >= 1) {
@@ -118,7 +118,7 @@ bool Dict::AcceptableResult(WERD_RES *word) const {
     WordSize -= stopper_smallword_size;
     if (WordSize < 0)
       WordSize = 0;
-    CertaintyThreshold += WordSize * stopper_certainty_per_char;
+    CertaintyThreshold += static_cast<float>(WordSize * stopper_certainty_per_char);
   }
 
   if (stopper_debug_level >= 1)
@@ -360,7 +360,7 @@ void Dict::SettupStopperPass1() {
 }
 
 void Dict::SettupStopperPass2() {
-  reject_offset_ = stopper_phase2_certainty_rejection_offset;
+  reject_offset_ = static_cast<float>(stopper_phase2_certainty_rejection_offset);
 }
 
 void Dict::ReplaceAmbig(int wrong_ngram_begin_index, int wrong_ngram_size,
@@ -483,17 +483,17 @@ int Dict::UniformCertainties(const WERD_CHOICE& word) {
   TotalCertainty -= WorstCertainty;
   TotalCertaintySquared -= static_cast<double>(WorstCertainty) * WorstCertainty;
 
-  Mean = TotalCertainty / word_length;
+  Mean = static_cast<float>(TotalCertainty / word_length);
   Variance = ((word_length * TotalCertaintySquared -
     TotalCertainty * TotalCertainty) /
     (word_length * (word_length - 1)));
   if (Variance < 0.0)
     Variance = 0.0;
-  StdDev = sqrt(Variance);
+  StdDev = static_cast<float>(sqrt(Variance));
 
-  CertaintyThreshold = Mean - stopper_allowable_character_badness * StdDev;
+  CertaintyThreshold = static_cast<float>(Mean - stopper_allowable_character_badness * StdDev);
   if (CertaintyThreshold > stopper_nondict_certainty_base)
-    CertaintyThreshold = stopper_nondict_certainty_base;
+    CertaintyThreshold = static_cast<float>(stopper_nondict_certainty_base);
 
   if (word.certainty() < CertaintyThreshold) {
     if (stopper_debug_level >= 1)

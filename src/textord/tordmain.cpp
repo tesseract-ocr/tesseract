@@ -141,18 +141,18 @@ void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
   // 2*area/perimeter, as the numbers that gives do not match the numbers
   // from the distance method.
   if (h_stats.get_total() >= (width + height) / 4) {
-    blob->set_horz_stroke_width(h_stats.ile(0.5f));
+    blob->set_horz_stroke_width(static_cast<float>(h_stats.ile(0.5f)));
     if (v_stats.get_total() >= (width + height) / 4)
-      blob->set_vert_stroke_width(v_stats.ile(0.5f));
+      blob->set_vert_stroke_width(static_cast<float>(v_stats.ile(0.5f)));
     else
       blob->set_vert_stroke_width(0.0f);
   } else {
     if (v_stats.get_total() >= (width + height) / 4 ||
         v_stats.get_total() > h_stats.get_total()) {
       blob->set_horz_stroke_width(0.0f);
-      blob->set_vert_stroke_width(v_stats.ile(0.5f));
+      blob->set_vert_stroke_width(static_cast<float>(v_stats.ile(0.5f)));
     } else {
-      blob->set_horz_stroke_width(h_stats.get_total() > 2 ? h_stats.ile(0.5f)
+      blob->set_horz_stroke_width(h_stats.get_total() > 2 ? static_cast<float>(h_stats.ile(0.5f))
                                                           : 0.0f);
       blob->set_vert_stroke_width(0.0f);
     }
@@ -266,13 +266,13 @@ void Textord::filter_blobs(ICOORD page_tr,         // top right
       &block->small_blobs,
       &block->large_blobs);
     if (block->line_size == 0) block->line_size = 1;
-    block->line_spacing = block->line_size *
+    block->line_spacing = static_cast<float>(block->line_size *
         (tesseract::CCStruct::kDescenderFraction +
          tesseract::CCStruct::kXHeightFraction +
-         2 * tesseract::CCStruct::kAscenderFraction) /
-         tesseract::CCStruct::kXHeightFraction;
-    block->line_size *= textord_min_linesize;
-    block->max_blob_size = block->line_size * textord_excess_blobsize;
+         2 * tesseract::CCStruct::kAscenderFraction /
+         tesseract::CCStruct::kXHeightFraction));
+    block->line_size *= static_cast<float>(textord_min_linesize);
+    block->max_blob_size = static_cast<float>(block->line_size * textord_excess_blobsize);
 
     #ifndef GRAPHICS_DISABLED
     if (textord_show_blobs && testing_on) {
@@ -329,14 +329,14 @@ float Textord::filter_noise_blobs(
   for (src_it.mark_cycle_pt(); !src_it.cycled_list(); src_it.forward()) {
     size_stats.add(src_it.data()->bounding_box().height(), 1);
   }
-  initial_x = size_stats.ile(textord_initialx_ile);
-  max_y = ceil(initial_x *
+  initial_x = static_cast<float>(size_stats.ile(textord_initialx_ile));
+  max_y = static_cast<float>(ceil(initial_x *
                (tesseract::CCStruct::kDescenderFraction +
                 tesseract::CCStruct::kXHeightFraction +
                 2 * tesseract::CCStruct::kAscenderFraction) /
-               tesseract::CCStruct::kXHeightFraction);
+               tesseract::CCStruct::kXHeightFraction));
   min_y = floor (initial_x / 2);
-  max_x = ceil (initial_x * textord_width_limit);
+  max_x = static_cast<float>(ceil (initial_x * textord_width_limit));
   small_it.move_to_first ();
   for (small_it.mark_cycle_pt (); !small_it.cycled_list ();
   small_it.forward ()) {
@@ -357,10 +357,10 @@ float Textord::filter_noise_blobs(
     else
       size_stats.add (height, 1);
   }
-  max_height = size_stats.ile (textord_initialasc_ile);
+  max_height = static_cast<float>(size_stats.ile (textord_initialasc_ile));
   //      tprintf("max_y=%g, min_y=%g, initial_x=%g, max_height=%g,",
   //              max_y,min_y,initial_x,max_height);
-  max_height *= tesseract::CCStruct::kXHeightCapRatio;
+  max_height *= static_cast<float>(tesseract::CCStruct::kXHeightCapRatio);
   if (max_height > initial_x)
     initial_x = max_height;
   //      tprintf(" ret=%g\n",initial_x);
@@ -491,9 +491,9 @@ bool Textord::clean_noise_from_row(          //remove empties
   C_BLOB_IT blob_it;             //blob iterator
   C_OUTLINE_IT out_it;           //outline iterator
 
-  testing_on = textord_test_y > row->base_line (textord_test_x)
+  testing_on = textord_test_y > row->base_line (static_cast<float>(textord_test_x))
                && textord_show_blobs
-               && textord_test_y < row->base_line (textord_test_x) + row->x_height ();
+               && textord_test_y < row->base_line (static_cast<float>(textord_test_x)) + row->x_height ();
   dot_count = 0;
   norm_count = 0;
   super_norm_count = 0;
@@ -677,7 +677,7 @@ void Textord::clean_noise_from_words(          //remove empties
       // Previously we threw away the entire word.
       // Now just aggressively throw all small blobs into the reject list, where
       // the classifier can decide whether they are actually needed.
-      word->CleanNoise(textord_noise_sizelimit * row->x_height());
+      word->CleanNoise(static_cast<float>(textord_noise_sizelimit * row->x_height()));
     }
     word_index++;
   }
@@ -724,7 +724,7 @@ struct BlockGroup {
       : bounding_box(block->pdblk.bounding_box()),
         rotation(block->re_rotation()),
         angle(block->re_rotation().angle()),
-        min_xheight(block->x_height()) {
+        min_xheight(static_cast<float>(block->x_height())) {
     blocks.push_back(block);
   }
   // Union of block bounding boxes.
@@ -762,7 +762,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST* diacritic_blobs,
       double angle_diff = fabs(block_angle - groups[g]->angle);
       if (angle_diff > M_PI) angle_diff = fabs(angle_diff - 2.0 * M_PI);
       if (angle_diff < best_angle_diff) {
-        best_angle_diff = angle_diff;
+        best_angle_diff = static_cast<float>(angle_diff);
         best_g = g;
       }
     }
@@ -771,7 +771,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST* diacritic_blobs,
     } else {
       groups[best_g]->blocks.push_back(block);
       groups[best_g]->bounding_box += block->pdblk.bounding_box();
-      float x_height = block->x_height();
+      float x_height = static_cast<float>(block->x_height());
       if (x_height < groups[best_g]->min_xheight)
         groups[best_g]->min_xheight = x_height;
     }
@@ -781,7 +781,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST* diacritic_blobs,
   for (int g = 0; g < groups.size(); ++g) {
     const BlockGroup* group = groups[g];
     if (group->bounding_box.null_box()) continue;
-    WordGrid word_grid(group->min_xheight, group->bounding_box.botleft(),
+    WordGrid word_grid(static_cast<int>(group->min_xheight), group->bounding_box.botleft(),
                        group->bounding_box.topright());
     for (int b = 0; b < group->blocks.size(); ++b) {
       ROW_IT row_it(group->blocks[b]->row_list());
@@ -931,7 +931,7 @@ void tweak_row_baseline(ROW *row,
     blob_it.forward ()) {
       blob = blob_it.data ();
       blob_box = blob->bounding_box ();
-      x_centre = (blob_box.left () + blob_box.right ()) / 2.0;
+      x_centre = (blob_box.left () + blob_box.right ()) / 2.0f;
       ydiff = blob_box.bottom () - row->base_line (x_centre);
       if (ydiff < 0)
         ydiff = -ydiff / row->x_height ();

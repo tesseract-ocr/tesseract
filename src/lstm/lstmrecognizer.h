@@ -104,7 +104,7 @@ class LSTMRecognizer {
   // Multiplies the all the learning rate(s) by the given factor.
   void ScaleLearningRate(double factor) {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
-    learning_rate_ *= factor;
+    learning_rate_ *= static_cast<float>(factor);
     if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
       GenericVector<STRING> layers = EnumerateLayers();
       for (int i = 0; i < layers.size(); ++i) {

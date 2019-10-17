@@ -111,8 +111,8 @@ uint8_t FCOORD::to_direction() const {
 // Sets this with a unit vector in the given standard feature direction.
 void FCOORD::from_direction(uint8_t direction) {
   double radians = angle_from_direction(direction);
-  xcoord = cos(radians);
-  ycoord = sin(radians);
+  xcoord = static_cast<float>(cos(radians));
+  ycoord = static_cast<float>(sin(radians));
 }
 
 // Converts an angle in radians (from ICOORD::angle or FCOORD::angle) to a
@@ -138,5 +138,5 @@ FCOORD FCOORD::nearest_pt_on_line(const FCOORD& line_point,
   // to add to line1 to get the appropriate point, so
   // result = line1 + lambda dir_vector.
   double lambda = point_vector % dir_vector / dir_vector.sqlength();
-  return line_point + (dir_vector * lambda);
+  return line_point + (dir_vector * static_cast<float>(lambda));
 }

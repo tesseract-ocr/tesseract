@@ -151,8 +151,8 @@ static void ComputeBlackWhite(Pix* pix, float* black, float* white) {
   }
   if (mins.get_total() == 0) mins.add(0, 1);
   if (maxes.get_total() == 0) maxes.add(255, 1);
-  *black = mins.ile(0.25);
-  *white = maxes.ile(0.75);
+  *black = static_cast<float>(mins.ile(0.25));
+  *white = static_cast<float>(maxes.ile(0.75));
 }
 
 // Sets up the array from the given image, using the currently set int_mode_.
@@ -191,9 +191,9 @@ void NetworkIO::FromPixes(const StaticShape& shape,
     float contrast = (white - black) / 2.0f;
     if (contrast <= 0.0f) contrast = 1.0f;
     if (shape.height() == 1) {
-      Copy1DGreyImage(b, pix, black, contrast, randomizer);
+      Copy1DGreyImage(static_cast<int>(b), pix, black, contrast, randomizer);
     } else {
-      Copy2DImage(b, pix, black, contrast, randomizer);
+      Copy2DImage(static_cast<int>(b), pix, black, contrast, randomizer);
     }
   }
 }
@@ -423,7 +423,7 @@ void NetworkIO::Randomize(int t, int offset, int num_features,
     // float mode.
     float* line = f_[t] + offset;
     for (int i = 0; i < num_features; ++i)
-      line[i] = randomizer->SignedRand(1.0);
+      line[i] = static_cast<float>(randomizer->SignedRand(1.0));
   }
 }
 
@@ -555,7 +555,7 @@ void NetworkIO::EnsureBestLabel(int t, int label) {
     float* targets = f_[t];
     for (int c = 0; c < num_classes; ++c) {
       if (c == label) {
-        targets[c] += (1.0 - targets[c]) * (2 / 3.0);
+        targets[c] += (1.0f - targets[c]) * (2.0f / 3.0f);
       } else {
         targets[c] /= 3.0;
       }
@@ -795,14 +795,14 @@ void NetworkIO::ComputeCombinerDeltas(const NetworkIO& fwd_deltas,
     if (max_base_delta >= 0.5) {
       // The base network got it wrong. The combiner should output the right
       // answer and 0 for the base network.
-      comb_line[no] = 0.0 - base_weight;
+      comb_line[no] = 0.0f - base_weight;
     } else {
       // The base network was right. The combiner should flag that.
       for (int i = 0; i < no; ++i) {
         // All other targets are 0.
         if (comb_line[i] > 0.0) comb_line[i] -= 1.0;
       }
-      comb_line[no] = 1.0 - base_weight;
+      comb_line[no] = 1.0f - base_weight;
     }
   }
 }

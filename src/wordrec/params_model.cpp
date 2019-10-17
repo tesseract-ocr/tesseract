@@ -87,7 +87,7 @@ float ParamsModel::ComputeCost(const float features[]) const {
 }
 
 bool ParamsModel::Equivalent(const ParamsModel &that) const {
-  float epsilon = 0.0001;
+  float epsilon = 0.0001f;
   for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) {
     if (weights_vec_[p].size() != that.weights_vec_[p].size()) return false;
     for (int i = 0; i < weights_vec_[p].size(); i++) {

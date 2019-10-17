@@ -260,7 +260,7 @@ bool BLOBNBOX::DefiniteIndividualFlow() {
     // A complex shape such as a joined word should have a much larger value.
     int perimeter = cblob()->perimeter();
     if (vert_stroke_width() > 0 || perimeter <= 0)
-      perimeter -= 2 * vert_stroke_width();
+      perimeter -= static_cast<int>(2 * vert_stroke_width());
     else
       perimeter -= 4 * cblob()->area() / perimeter;
     perimeter -= 2 * box.width();
@@ -275,7 +275,7 @@ bool BLOBNBOX::DefiniteIndividualFlow() {
     // As above, but for a putative vertical word vs a I/1/l.
     int perimeter = cblob()->perimeter();
     if (horz_stroke_width() > 0 || perimeter <= 0)
-      perimeter -= 2 * horz_stroke_width();
+      perimeter -= static_cast<int>(2 * horz_stroke_width());
     else
       perimeter -= 4 * cblob()->area() / perimeter;
     perimeter -= 2 * box.height();
@@ -309,10 +309,10 @@ bool BLOBNBOX::MatchingStrokeWidth(const BLOBNBOX& other,
   // no information in the blob.
   double p_width = area_stroke_width();
   double n_p_width = other.area_stroke_width();
-  float h_tolerance = horz_stroke_width_ * fractional_tolerance
-                     + constant_tolerance;
-  float v_tolerance = vert_stroke_width_ * fractional_tolerance
-                     + constant_tolerance;
+  float h_tolerance = static_cast<float>(horz_stroke_width_ * fractional_tolerance
+                     + constant_tolerance);
+  float v_tolerance = static_cast<float>(vert_stroke_width_ * fractional_tolerance
+                     + constant_tolerance);
   double p_tolerance = p_width * fractional_tolerance
                      + constant_tolerance;
   bool h_zero = horz_stroke_width_ == 0.0f || other.horz_stroke_width_ == 0.0f;
@@ -344,8 +344,8 @@ TBOX BLOBNBOX::BoundsWithinLimits(int left, int right) {
     top = box.top();
     bottom = box.bottom();
   }
-  FCOORD bot_left(left, bottom);
-  FCOORD top_right(right, top);
+  FCOORD bot_left(static_cast<float>(left), bottom);
+  FCOORD top_right(static_cast<float>(right), top);
   TBOX shrunken_box(bot_left);
   TBOX shrunken_box2(top_right);
   shrunken_box += shrunken_box2;

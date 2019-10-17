@@ -45,7 +45,7 @@ BLOCK::BLOCK(const char *name,                ///< filename
 
   proportional = prop;
   right_to_left_ = false;
-  kerning = kern;
+  kerning = static_cast<int8_t>(kern);
   spacing = space;
   font_class = -1;               //not assigned
   cell_over_xheight_ = 2.0f;
@@ -373,7 +373,7 @@ void BLOCK::compute_row_margins() {
   for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward()) {
     ROW *row = r_it.data();
     TBOX row_box = row->bounding_box();
-    int left_y = row->base_line(row_box.left()) + row->x_height();
+    int left_y = static_cast<int>(row->base_line(row_box.left()) + row->x_height());
     int left_margin;
     const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments_left(
         lines.get_line(left_y));
@@ -387,7 +387,7 @@ void BLOCK::compute_row_margins() {
         left_margin = drop_cap_distance;
     }
 
-    int right_y = row->base_line(row_box.right()) + row->x_height();
+    int right_y = static_cast<int>(row->base_line(static_cast<float>(row_box.right()) + row->x_height()));
     int right_margin;
     const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments_right(
         lines.get_line(right_y));

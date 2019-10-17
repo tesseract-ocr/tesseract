@@ -199,7 +199,7 @@ float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res,
     return bottom_shift != 0 ? word_res->x_height : 0.0f;
   // The new xheight is just the median vote, which is then scaled out
   // of BLN space back to pixel space to get the x-height in pixel space.
-  float new_xht = top_stats.median();
+  float new_xht = static_cast<float>(top_stats.median());
   if (debug_x_ht_level >= 2) {
     tprintf("Median xht=%f\n", new_xht);
     tprintf("Mode20:A: New x-height = %f (norm), %f (orig)\n",

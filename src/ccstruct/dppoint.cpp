@@ -72,10 +72,10 @@ int64_t DPPoint::CostWithVariance(const DPPoint* prev) {
     return 0;
   }
 
-  int delta = this - prev;
+  int delta = static_cast<int>(this - prev);
   int32_t n = prev->n_ + 1;
   int32_t sig_x = prev->sig_x_ + delta;
-  int64_t sig_xsq = prev->sig_xsq_ + delta * delta;
+  int64_t sig_xsq = prev->sig_xsq_ + static_cast<int64_t>(delta) * static_cast<int64_t>(delta);
   int64_t cost = (sig_xsq - sig_x * sig_x / n) / n;
   cost += prev->total_cost_;
   UpdateIfBetter(cost, prev->total_steps_ + 1, prev, n, sig_x, sig_xsq);
@@ -86,7 +86,7 @@ int64_t DPPoint::CostWithVariance(const DPPoint* prev) {
 void DPPoint::UpdateIfBetter(int64_t cost, int32_t steps, const DPPoint* prev,
                              int32_t n, int32_t sig_x, int64_t sig_xsq) {
   if (cost < total_cost_) {
-    total_cost_ = cost;
+    total_cost_ = static_cast<int32_t>(cost);
     total_steps_ = steps;
     best_prev_ = prev;
     n_ = n;

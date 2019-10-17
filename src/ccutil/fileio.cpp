@@ -154,7 +154,7 @@ InputBuffer::~InputBuffer() {
 bool InputBuffer::Read(std::string* out) {
   char buf[BUFSIZ + 1];
   int l;
-  while ((l = fread(buf, 1, BUFSIZ, stream_)) > 0) {
+  while ((l = static_cast<int>(fread(buf, 1, BUFSIZ, stream_))) > 0) {
     if (ferror(stream_)) {
       clearerr(stream_);
       return false;

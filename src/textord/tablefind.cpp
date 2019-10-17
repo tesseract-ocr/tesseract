@@ -1828,8 +1828,8 @@ void TableFinder::RecognizeTables() {
   recognizer.Init();
   recognizer.set_line_grid(&leader_and_ruling_grid_);
   recognizer.set_text_grid(&fragmented_text_grid_);
-  recognizer.set_max_text_height(global_median_xheight_ * 2.0);
-  recognizer.set_min_height(1.5 * gridheight());
+  recognizer.set_max_text_height(global_median_xheight_ * 2);
+  recognizer.set_min_height(static_cast<int>(1.5 * gridheight()));
   // Loop over all of the tables and try to fit them.
   // Store the good tables here.
   ColSegment_CLIST good_tables;

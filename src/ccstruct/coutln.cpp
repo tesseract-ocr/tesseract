@@ -881,7 +881,7 @@ void C_OUTLINE::ComputeBinaryOffsets() {
         ClipToRange<int>(offset, -INT8_MAX, INT8_MAX);
     offsets[s].pixel_diff = ClipToRange<int>(best_diff, 0, UINT8_MAX);
     // The direction is just the vector from start to end of the window.
-    FCOORD direction(head_pos.x() - tail_pos.x(), head_pos.y() - tail_pos.y());
+    FCOORD direction(static_cast<float>(head_pos.x() - tail_pos.x()), static_cast<float>(head_pos.y() - tail_pos.y()));
     offsets[s].direction = direction.to_direction();
     increment_step(s - 2, -1, &tail_pos, dir_counts, pos_totals);
   }

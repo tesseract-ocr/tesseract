@@ -99,12 +99,12 @@ void ParamsEditor::GetFirstWords(
                      int n,          // number of words
                      char *t         // target string
                     ) {
-  int full_length = strlen(s);
+  int full_length = static_cast<int>(strlen(s));
   int reqd_len = 0;              // No. of chars requird
   const char *next_word = s;
 
   while ((n > 0) && reqd_len < full_length) {
-    reqd_len += strcspn(next_word, "_") + 1;
+    reqd_len += static_cast<int>(strcspn(next_word, "_") + 1);
     next_word += reqd_len;
     n--;
   }

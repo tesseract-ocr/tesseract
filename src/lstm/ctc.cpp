@@ -32,7 +32,7 @@ namespace tesseract {
 
 // Magic constants that keep CTC stable.
 // Minimum probability limit for softmax input to ctc_loss.
-const float CTC::kMinProb_ = 1e-12;
+const float CTC::kMinProb_ = 1e-12f;
 // Maximum absolute argument to exp().
 const double CTC::kMaxExpArg_ = 80.0;
 // Minimum probability for total prob in time normalization.
@@ -142,8 +142,8 @@ void CTC::ComputeSimpleTargets(GENERIC_2D_ARRAY<float>* targets) const {
       }
       // Make sure that no space is left unoccupied and that non-nulls always
       // peak at 1 by stretching nulls to meet their neighbors.
-      if (l > 0) left_half_width = mean - means[l - 1];
-      if (l + 1 < num_labels_) right_half_width = means[l + 1] - mean;
+      if (l > 0) left_half_width = static_cast<float>(mean - means[l - 1]);
+      if (l + 1 < num_labels_) right_half_width = static_cast<float>(means[l + 1] - mean);
     }
     if (mean >= 0 && mean < num_timesteps_) targets->put(mean, label, 1.0f);
     for (int offset = 1; offset < left_half_width && mean >= offset; ++offset) {
@@ -182,7 +182,7 @@ void CTC::ComputeWidthsAndMeans(GenericVector<float>* half_widths,
   // to have size>=1, then all are equal, otherwise plus_size=1 and star gets
   // whatever is left-over.
   float plus_size = 1.0f, star_size = 0.0f;
-  float total_floating = num_plus + num_star;
+  float total_floating = static_cast<float>(num_plus + num_star);
   if (total_floating <= num_timesteps_) {
     plus_size = star_size = num_timesteps_ / total_floating;
   } else if (num_star > 0) {
@@ -369,7 +369,7 @@ void CTC::LabelsToClasses(const GENERIC_2D_ARRAY<double>& probs,
     }
     int best_class = 0;
     for (int c = 0; c < num_classes_; ++c) {
-      targets_t[c] = class_probs[c];
+      targets_t[c] = static_cast<float>(class_probs[c]);
       if (class_probs[c] > class_probs[best_class]) best_class = c;
     }
   }
@@ -398,7 +398,7 @@ void CTC::NormalizeProbs(GENERIC_2D_ARRAY<float>* probs) {
     // Now normalize with clipping. Any additional clipping is negligible.
     total += increment;
     for (int c = 0; c < num_classes; ++c) {
-      float prob = probs_t[c] / total;
+      float prob = static_cast<float>(probs_t[c] / total);
       probs_t[c] = std::max(prob, kMinProb_);
     }
   }

@@ -28,6 +28,8 @@
 
 #include "scanutils.h"
 
+#pragma warning(disable: 4146)
+
 enum Flags {
   FL_SPLAT  = 0x01,   // Drop the value, do not assign
   FL_INV    = 0x02,   // Character-set with inverse

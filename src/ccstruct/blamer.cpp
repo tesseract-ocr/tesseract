@@ -149,7 +149,7 @@ void BlamerBundle::FillDebugString(const STRING &msg,
 // Sets up the norm_truth_word from truth_word using the given DENORM.
 void BlamerBundle::SetupNormTruthWord(const DENORM& denorm) {
   // TODO(rays) Is this the last use of denorm in WERD_RES and can it go?
-  norm_box_tolerance_ = kBlamerBoxTolerance * denorm.x_scale();
+  norm_box_tolerance_ = static_cast<int>(kBlamerBoxTolerance * denorm.x_scale());
   TPOINT topleft;
   TPOINT botright;
   TPOINT norm_topleft;

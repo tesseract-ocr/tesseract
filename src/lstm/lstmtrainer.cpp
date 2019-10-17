@@ -349,7 +349,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
         *log_msg += " failed to write best model:";
       } else {
         *log_msg += " wrote best model:";
-        error_rate_of_last_saved_best_ = best_error_rate_;
+        error_rate_of_last_saved_best_ = static_cast<float>(best_error_rate_);
       }
       *log_msg += best_model_name;
     }
@@ -633,8 +633,8 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
     // Which way will we modify the learning rate?
     for (int ww = 0; ww < LR_COUNT; ++ww) {
       // Transfer momentum to learning rate and adjust by the ww factor.
-      float ww_factor = momentum_factor;
-      if (ww == LR_DOWN) ww_factor *= factor;
+      float ww_factor = static_cast<float>(momentum_factor);
+      if (ww == LR_DOWN) ww_factor *= static_cast<float>(factor);
       // Make a copy of *this, so we can mess about without damaging anything.
       LSTMTrainer copy_trainer;
       samples_trainer->ReadTrainingDump(orig_trainer, &copy_trainer);
@@ -667,14 +667,14 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
         // Train again on the same sample, again holding back the updates.
         layer_trainer.TrainOnLine(trainingdata, true);
         // Count the sign changes in the updates in layer vs in copy_trainer.
-        float before_bad = bad_sums[ww][i];
-        float before_ok = ok_sums[ww][i];
+        float before_bad = static_cast<float>(bad_sums[ww][i]);
+        float before_ok = static_cast<float>(ok_sums[ww][i]);
         layer->CountAlternators(*copy_trainer.GetLayer(layers[i]),
                                 &ok_sums[ww][i], &bad_sums[ww][i]);
         float bad_frac =
-            bad_sums[ww][i] + ok_sums[ww][i] - before_bad - before_ok;
+            static_cast<float>(bad_sums[ww][i] + ok_sums[ww][i] - before_bad - before_ok);
         if (bad_frac > 0.0f)
-          bad_frac = (bad_sums[ww][i] - before_bad) / bad_frac;
+          bad_frac = static_cast<float>((bad_sums[ww][i] - before_bad) / bad_frac);
       }
     }
     ++iteration;
@@ -1082,7 +1082,7 @@ void LSTMTrainer::DisplayTargets(const NetworkIO& targets,
           (*window)->SetCursor(t - 1, 0);
           start_t = t;
         }
-        (*window)->DrawTo(t, target);
+        (*window)->DrawTo(t, static_cast<int>(target));
       } else if (start_t >= 0) {
         (*window)->DrawTo(t, 0);
         (*window)->DrawTo(start_t - 1, 0);

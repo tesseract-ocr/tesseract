@@ -77,9 +77,9 @@ void BaselineRow::SetupOldLineParameters(TO_ROW* row) const {
   // TODO(rays) get rid of this when m and c are no longer used.
   double gradient = tan(BaselineAngle());
   // para_c is the actual intercept of the baseline on the y-axis.
-  float para_c = StraightYAtX(0.0);
-  row->set_line(gradient, para_c, baseline_error_);
-  row->set_parallel_line(gradient, para_c, baseline_error_);
+  float para_c = static_cast<float>(StraightYAtX(0.0));
+  row->set_line(static_cast<float>(gradient), para_c, static_cast<float>(baseline_error_));
+  row->set_parallel_line(static_cast<float>(gradient), para_c, static_cast<float>(baseline_error_));
 }
 
 // Outputs diagnostic information.
@@ -109,7 +109,7 @@ double BaselineRow::SpaceBetween(const BaselineRow& other) const {
   float x = (std::max(bounding_box_.left(), other.bounding_box_.left()) +
           std::min(bounding_box_.right(), other.bounding_box_.right())) / 2.0f;
   // Find the vertical centre between them.
-  float y = (StraightYAtX(x) + other.StraightYAtX(x)) / 2.0f;
+  float y = static_cast<float>((StraightYAtX(x) + other.StraightYAtX(x)) / 2.0f);
   // Find the perpendicular distance of (x,y) from each line.
   FCOORD pt(x, y);
   return PerpDistanceFromBaseline(pt) + other.PerpDistanceFromBaseline(pt);
@@ -119,7 +119,7 @@ double BaselineRow::SpaceBetween(const BaselineRow& other) const {
 // perpendicular to the given direction.
 double BaselineRow::PerpDisp(const FCOORD& direction) const {
   float middle_x = (bounding_box_.left() + bounding_box_.right()) / 2.0f;
-  FCOORD middle_pos(middle_x, StraightYAtX(middle_x));
+  FCOORD middle_pos(middle_x, static_cast<float>(StraightYAtX(middle_x)));
   return direction * middle_pos / direction.length();
 }
 
@@ -198,7 +198,7 @@ bool BaselineRow::FitBaseline(bool use_box_bottoms) {
   if (fabs(angle) > M_PI * 0.25) {
     // Use the llsq fit as a backup.
     baseline_pt1_ = llsq.mean_point();
-    baseline_pt2_ = baseline_pt1_ + FCOORD(1.0f, llsq.m());
+    baseline_pt2_ = baseline_pt1_ + FCOORD(1.0f, static_cast<float>(llsq.m()));
     // TODO(rays) get rid of this when m and c are no longer used.
     double m = llsq.m();
     double c = llsq.c(m);
@@ -300,7 +300,7 @@ void BaselineRow::SetupBlobDisplacements(const FCOORD& direction) {
     if (box.bottom() < kDebugYCoord && box.top() > kDebugYCoord) debug = true;
 #endif
     FCOORD blob_pos((box.left() + box.right()) / 2.0f,
-                    blob->baseline_position());
+                    static_cast<float>(blob->baseline_position()));
     double offset = direction * blob_pos;
     perp_blob_dists.push_back(offset);
 #ifdef kDebugYCoord
@@ -465,7 +465,7 @@ void BaselineBlock::ParallelizeBaselines(double default_block_skew) {
   if (!good_skew_angle_) skew_angle_ = default_block_skew;
   if (debug_level_ > 0)
     tprintf("Adjusting block to skew angle %g\n", skew_angle_);
-  FCOORD direction(cos(skew_angle_), sin(skew_angle_));
+  FCOORD direction(static_cast<float>(cos(skew_angle_)), static_cast<float>(sin(skew_angle_)));
   for (int r = 0; r < rows_.size(); ++r) {
     BaselineRow* row = rows_[r];
     row->AdjustBaselineToParallel(debug_level_, direction);
@@ -508,9 +508,9 @@ void BaselineBlock::SetupBlockParameters() const {
     float min_spacing = std::min(block_->line_spacing, static_cast<float>(line_spacing_));
     if (min_spacing < block_->line_size)
       block_->line_size = min_spacing;
-    block_->line_spacing = line_spacing_;
-    block_->baseline_offset = line_offset_;
-    block_->max_blob_size = line_spacing_ * kMaxBlobSizeMultiple;
+    block_->line_spacing = static_cast<float>(line_spacing_);
+    block_->baseline_offset = static_cast<float>(line_offset_);
+    block_->max_blob_size = static_cast<float>(line_spacing_ * kMaxBlobSizeMultiple);
   }
   // Setup the parameters on all the rows.
   TO_ROW_IT row_it(block_->get_rows());
@@ -536,7 +536,7 @@ void BaselineBlock::PrepareForSplineFitting(ICOORD page_tr, bool remove_noise) {
   }
   FCOORD rotation(1.0f, 0.0f);
   double gradient = tan(skew_angle_);
-  separate_underlines(block_, gradient, rotation, true);
+  separate_underlines(block_, static_cast<float>(gradient), rotation, true);
   pre_associate_blobs(page_tr, block_, rotation, true);
 }
 
@@ -552,7 +552,7 @@ void BaselineBlock::FitBaselineSplines(bool enable_splines,
   FCOORD rotation(1.0f, 0.0f);
 
   if (enable_splines) {
-    textord->make_spline_rows(block_, gradient, show_final_rows);
+    textord->make_spline_rows(block_, static_cast<float>(gradient), show_final_rows);
   } else {
     // Make a fake spline from the existing line.
     TBOX block_box= block_->block->pdblk.bounding_box();
@@ -563,11 +563,11 @@ void BaselineBlock::FitBaselineSplines(bool enable_splines,
       double coeffs[3] = { 0.0, row->line_m(), row->line_c() };
       row->baseline = QSPLINE(1, xstarts, coeffs);
       textord->compute_row_xheight(row, block_->block->classify_rotation(),
-                                   row->line_m(), block_->line_size);
+                                   row->line_m(), static_cast<int>(block_->line_size));
     }
   }
-  textord->compute_block_xheight(block_, gradient);
-  block_->block->set_xheight(block_->xheight);
+  textord->compute_block_xheight(block_, static_cast<float>(gradient));
+  block_->block->set_xheight(static_cast<int32_t>(block_->xheight));
   if (textord_restore_underlines)  // fix underlines
     restore_underlined_blobs(block_);
 }
@@ -584,7 +584,7 @@ void BaselineBlock::DrawFinalRows(const ICOORD& page_tr) {
   ScrollView::Color colour = ScrollView::RED;
   TO_ROW_IT row_it = block_->get_rows();
   for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
-    plot_parallel_row(row_it.data(), gradient, left_edge, colour, rotation);
+    plot_parallel_row(row_it.data(), static_cast<float>(gradient), left_edge, colour, rotation);
     colour = static_cast<ScrollView::Color>(colour + 1);
     if (colour > ScrollView::MAGENTA)
       colour = ScrollView::RED;
@@ -595,7 +595,7 @@ void BaselineBlock::DrawFinalRows(const ICOORD& page_tr) {
                  ScrollView::YELLOW, ScrollView::CORAL);
   if (block_->blobs.length() > 0)
     tprintf("%d blobs discarded as noise\n", block_->blobs.length());
-  draw_meanlines(block_, gradient, left_edge, ScrollView::WHITE, rotation);
+  draw_meanlines(block_, static_cast<float>(gradient), left_edge, ScrollView::WHITE, rotation);
 #endif
 }
 
@@ -614,7 +614,7 @@ void BaselineBlock::DrawPixSpline(Pix* pix_in) {
 // Returns true if it seems that the model is a reasonable fit to the
 // observations.
 bool BaselineBlock::ComputeLineSpacing() {
-  FCOORD direction(cos(skew_angle_), sin(skew_angle_));
+  FCOORD direction(static_cast<float>(cos(skew_angle_)), static_cast<float>(sin(skew_angle_)));
   GenericVector<double> row_positions;
   ComputeBaselinePositions(direction, &row_positions);
   if (row_positions.size() < 2) return false;
@@ -679,7 +679,7 @@ void BaselineBlock::EstimateLineSpacing() {
       BaselineRow* row2 = rows_[r2];
       // Exclude silly lines.
       if (fabs(row2->BaselineAngle()) > M_PI * 0.25) continue;
-      float spacing = row->SpaceBetween(*row2);
+      float spacing = static_cast<float>(row->SpaceBetween(*row2));
       spacings.push_back(spacing);
     }
   }

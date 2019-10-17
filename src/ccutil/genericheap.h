@@ -180,7 +180,7 @@ class GenericHeap {
   // its first element. Reshuffles the heap to maintain the invariant.
   // Time = O(log n).
   void Reshuffle(Pair* pair) {
-    int index = pair - &heap_[0];
+    int index = static_cast<int>(pair - &heap_[0]);
     Pair hole_pair = heap_[index];
     index = SiftDown(index, hole_pair);
     index = SiftUp(index, hole_pair);

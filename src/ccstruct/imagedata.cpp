@@ -102,9 +102,9 @@ void FloatWordFeature::FromWordFeatures(
     GenericVector<FloatWordFeature>* float_features) {
   for (int i = 0; i < word_features.size(); ++i) {
     FloatWordFeature f;
-    f.x = word_features[i].x();
-    f.y = word_features[i].y();
-    f.dir = word_features[i].dir();
+    f.x = static_cast<float>(word_features[i].x());
+    f.y = static_cast<float>(word_features[i].y());
+    f.dir = static_cast<float>(word_features[i].dir());
     f.x_bucket = 0;  // Will set it later.
     float_features->push_back(f);
   }
@@ -116,7 +116,7 @@ int FloatWordFeature::SortByXBucket(const void* v1, const void* v2) {
   const auto* f1 = static_cast<const FloatWordFeature*>(v1);
   const auto* f2 = static_cast<const FloatWordFeature*>(v2);
   int x_diff = f1->x_bucket - f2->x_bucket;
-  if (x_diff == 0) return f1->y - f2->y;
+  if (x_diff == 0) return static_cast<int>(f1->y - f2->y);
   return x_diff;
 }
 
@@ -261,7 +261,7 @@ Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
     }
     if (boxes->empty()) {
       // Make a single box for the whole image.
-      TBOX box(0, 0, im_factor * input_width, target_height);
+      TBOX box(0, 0, static_cast<int16_t>(im_factor * input_width), target_height);
       boxes->push_back(box);
     }
   }
@@ -336,7 +336,7 @@ void ImageData::SetPixInternal(Pix* pix, GenericVector<char>* image_data) {
     ret = pixWriteMem(&data, &size, pix, IFF_PNM);
   }
   pixDestroy(&pix);
-  image_data->resize_no_init(size);
+  image_data->resize_no_init(static_cast<int>(size));
   memcpy(&(*image_data)[0], data, size);
   lept_free(data);
 }

@@ -107,7 +107,7 @@ STRING BoxFileName(const STRING& image_filename) {
   STRING box_filename = image_filename;
   const char *lastdot = strrchr(box_filename.string(), '.');
   if (lastdot != nullptr)
-    box_filename.truncate_at(lastdot - box_filename.string());
+    box_filename.truncate_at(static_cast<int32_t>(lastdot - box_filename.string()));
 
   box_filename += ".box";
   return box_filename;
@@ -217,7 +217,7 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
     strncpy(uch, buffptr + 1, kBoxReadBufSize - 1);
     uch[kBoxReadBufSize - 1] = '\0';  // Prevent buffer overrun.
     chomp_string(uch);
-    uch_len = strlen(uch);
+    uch_len = static_cast<int>(strlen(uch));
   }
   // Validate UTF8 by making unichars with it.
   int used = 0;

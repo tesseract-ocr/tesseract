@@ -121,7 +121,7 @@ class SVNetwork {
   /// The mutex for access to Send() and Flush().
   SVMutex mutex_send_;
   /// The actual stream_ to the server.
-  int stream_;
+  size_t stream_;
   /// Stores the last received message-chunk from the server.
   char* msg_buffer_in_;
 

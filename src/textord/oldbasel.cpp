@@ -103,7 +103,7 @@ void Textord::make_old_baselines(TO_BLOCK* block,   // block to do
     }
   }
   correlate_lines(block, gradient);
-  block->block->set_xheight(block->xheight);
+  block->block->set_xheight(static_cast<int32_t>(block->xheight));
 }
 
 
@@ -140,7 +140,7 @@ void Textord::correlate_lines(TO_BLOCK *block, float gradient) {
   if (textord_really_old_xheight || textord_old_xheight) {
     block->xheight = static_cast<float>(correlate_with_stats(&rows[0], rowcount, block));
     if (block->xheight <= 0)
-      block->xheight = block->line_size * tesseract::CCStruct::kXHeightFraction;
+      block->xheight = static_cast<float>(block->line_size * tesseract::CCStruct::kXHeightFraction);
     if (block->xheight < textord_min_xheight)
       block->xheight = (float) textord_min_xheight;
   } else {
@@ -253,24 +253,24 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
     fullheight = lineheight + ascheight / xcount;
                                  /*must be decent size */
     if (fullheight < lineheight * (1 + MIN_ASC_FRACTION))
-      fullheight = lineheight * (1 + MIN_ASC_FRACTION);
+      fullheight = static_cast<float>(lineheight * (1 + MIN_ASC_FRACTION));
   }
   else {
     fullheight /= fullcount;     /*average max height */
                                  /*guess x-height */
-    lineheight = fullheight * X_HEIGHT_FRACTION;
+    lineheight = static_cast<float>(fullheight * X_HEIGHT_FRACTION);
   }
   if (desccount > 0 && (!oldbl_corrfix || desccount >= rowcount / 2))
     descheight /= desccount;     /*average descenders */
   else
                                  /*guess descenders */
-    descheight = -lineheight * DESCENDER_FRACTION;
+    descheight = static_cast<float>(-lineheight * DESCENDER_FRACTION);
 
   if (lineheight > 0.0f)
     block->block->set_cell_over_xheight((fullheight - descheight) / lineheight);
 
-  minascheight = lineheight * MIN_ASC_FRACTION;
-  mindescheight = -lineheight * MIN_DESC_FRACTION;
+  minascheight = static_cast<float>(lineheight * MIN_ASC_FRACTION);
+  mindescheight = static_cast<float>(-lineheight * MIN_DESC_FRACTION);
   for (rowindex = 0; rowindex < rowcount; rowindex++) {
     row = rows[rowindex];        /*do each row */
     row->all_caps = false;
@@ -299,7 +299,7 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
       }
       if (row->ascrise < minascheight)
         row->ascrise =
-          row->xheight * ((1.0 - X_HEIGHT_FRACTION) / X_HEIGHT_FRACTION);
+          static_cast<float>(row->xheight * ((1.0 - X_HEIGHT_FRACTION) / X_HEIGHT_FRACTION));
     }
     if (row->descdrop > mindescheight) {
       if (row->xheight >= lineheight * (1 - MAXHEIGHTVARIANCE)
@@ -307,7 +307,7 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
                                  /*set to average */
           row->descdrop = descheight;
       else
-        row->descdrop = -row->xheight * DESCENDER_FRACTION;
+        row->descdrop = static_cast<float>(-row->xheight * DESCENDER_FRACTION);
     }
   }
   return static_cast<int>(lineheight);       //block xheight
@@ -351,7 +351,7 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
   lineheight = get_blob_coords(row, static_cast<int>(block->line_size), &blobcoords[0],
     holed_line, blobcount);
                                  /*limit for line change */
-  jumplimit = lineheight * textord_oldbl_jumplimit;
+  jumplimit = static_cast<float>(lineheight * textord_oldbl_jumplimit);
   if (jumplimit < MINASCRISE)
     jumplimit = MINASCRISE;
 
@@ -408,7 +408,7 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
                         blobcount, &row->baseline, jumplimit);
   } else {
     compute_row_xheight(row, block->block->classify_rotation(),
-                        row->line_m(), block->line_size);
+                        row->line_m(), static_cast<int>(block->line_size));
   }
 }
 
@@ -546,12 +546,12 @@ float jumplimit                  /*guess half descenders */
       ycount = 0;
       segment = 0;               /*no of segments */
       maxmax = minmin = 0.0f;
-      thisy = ycoords[0] - baseline->y (xcoords[0]);
-      nexty = ycoords[1] - baseline->y (xcoords[1]);
+      thisy = static_cast<float>(ycoords[0] - baseline->y (xcoords[0]));
+      nexty = static_cast<float>(ycoords[1] - baseline->y (xcoords[1]));
       for (blobindex = 2; blobindex < blobcount; blobindex++) {
         prevy = thisy;           /*shift ycoords */
         thisy = nexty;
-        nexty = ycoords[blobindex] - baseline->y (xcoords[blobindex]);
+        nexty = static_cast<float>(ycoords[blobindex] - baseline->y (xcoords[blobindex]));
                                  /*middle of smooth y */
         if (ABS (thisy - prevy) < jumplimit && ABS (thisy - nexty) < jumplimit) {
           y1 = y2;               /*shift window */
@@ -583,7 +583,7 @@ float jumplimit                  /*guess half descenders */
         }
       }
 
-      jumplimit *= 1.2;
+      jumplimit *= 1.2f;
                                  /*must be wavy */
       if (maxmax - minmin > jumplimit) {
         ycount = segment;        /*no of segments */
@@ -676,7 +676,7 @@ float gradient                   //of line
     && spline->xcoords[spline->segments - 1] >= rightedge
   - MAXOVERLAP * (rightedge - leftedge)) {
     *baseline = *spline;         /*copy it */
-    x = (leftedge + rightedge) / 2.0;
+    x = (leftedge + rightedge) / 2.0f;
     shift = ICOORD (0, static_cast<int16_t>(gradient * x + c - spline->y (x)));
     baseline->move (shift);
   }
@@ -806,13 +806,13 @@ float jumplimit                  /*allowed delta change */
         stats.clear ();
         for (test_blob = startx; test_blob < blobindex; test_blob++) {
           coord = FCOORD ((blobcoords[test_blob].left ()
-            + blobcoords[test_blob].right ()) / 2.0,
+            + blobcoords[test_blob].right ()) / 2.0f,
             blobcoords[test_blob].bottom ());
           stats.add (coord.x (), coord.y ());
         }
         stats.fit (1);
-        m = stats.get_b ();
-        c = stats.get_c ();
+        m = static_cast<float>(stats.get_b ());
+        c = static_cast<float>(stats.get_c ());
         if (textord_oldbl_debug)
           tprintf ("Fitted line y=%g x + %g\n", m, c);
         found_one = false;
@@ -826,7 +826,7 @@ float jumplimit                  /*allowed delta change */
             coord = FCOORD ((blobcoords[startx - test_blob].left ()
               + blobcoords[startx -
               test_blob].right ()) /
-              2.0,
+              2.0f,
               blobcoords[startx -
               test_blob].bottom ());
             diff = m * coord.x () + c - coord.y ();
@@ -843,7 +843,7 @@ float jumplimit                  /*allowed delta change */
             coord =
               FCOORD ((blobcoords[blobindex + test_blob - 1].
               left () + blobcoords[blobindex + test_blob -
-              1].right ()) / 2.0,
+              1].right ()) / 2.0f,
               blobcoords[blobindex + test_blob -
               1].bottom ());
             diff = m * coord.x () + c - coord.y ();
@@ -912,10 +912,10 @@ float ydiffs[]                   /*output */
                                  /*centre of blob */
     xcentre = (blobcoords[blobindex].left () + blobcoords[blobindex].right ()) >> 1;
                                  //step functions in spline
-    drift += spline->step (lastx, xcentre);
+    drift += static_cast<float>(spline->step (lastx, xcentre));
     lastx = xcentre;
     diff = blobcoords[blobindex].bottom ();
-    diff -= spline->y (xcentre);
+    diff -= static_cast<float>(spline->y (xcentre));
     diff += drift;
     ydiffs[blobindex] = diff;    /*store difference */
     if (blobindex > 2)
@@ -1183,8 +1183,8 @@ split_stepped_spline(           //make xstarts
   doneany = false;
   startindex = 0;
   for (segment = 1; segment < segments - 1; segment++) {
-    step = baseline->step ((xstarts[segment - 1] + xstarts[segment]) / 2.0,
-      (xstarts[segment] + xstarts[segment + 1]) / 2.0);
+    step = static_cast<float>(baseline->step((xstarts[segment - 1] + xstarts[segment]) / 2.0,
+                          (xstarts[segment] + xstarts[segment + 1]) / 2.0));
     if (step < 0)
       step = -step;
     if (step > jumplimit) {
@@ -1210,9 +1210,9 @@ split_stepped_spline(           //make xstarts
         leftindex = (startindex + startindex + centreindex) / 3;
         rightindex = (centreindex + endindex + endindex) / 3;
         leftcoord =
-          (xcoords[startindex] * 2 + xcoords[centreindex]) / 3.0;
+          (xcoords[startindex] * 2 + xcoords[centreindex]) / 3.0f;
         rightcoord =
-          (xcoords[centreindex] + xcoords[endindex] * 2) / 3.0;
+          (xcoords[centreindex] + xcoords[endindex] * 2) / 3.0f;
         while (xcoords[leftindex] > leftcoord
           && leftindex - startindex > textord_spline_medianwin)
           leftindex--;
@@ -1329,8 +1329,8 @@ int bestpart                     /*biggest partition */
       runlength++;               /*run of non bests */
       if (runlength > biggestrun)
         biggestrun = runlength;
-      partsteps[part_id] += blobcoords[blobindex].bottom()
-        - row->baseline.y(xcentre);
+      partsteps[part_id] += static_cast<float>(blobcoords[blobindex].bottom()
+        - row->baseline.y(xcentre));
     }
     else
       runlength = 0;
@@ -1429,7 +1429,7 @@ float jumplimit                  /*min ascender height */
   blobindex++) {
     xcentre = (blobcoords[blobindex].left ()
       + blobcoords[blobindex].right ()) / 2;
-    diff = blobcoords[blobindex].top () - baseline->y (xcentre);
+    diff = static_cast<float>(blobcoords[blobindex].top () - baseline->y (xcentre));
                                  /*is it ascender */
     if (diff > lineheight + jumplimit) {
       ascenders += diff;
@@ -1492,7 +1492,7 @@ float jumplimit                  /*min ascender height */
   for (blobindex = 0; blobindex < blobcount; blobindex++) {
     int xcenter = (blobcoords[blobindex].left () +
         blobcoords[blobindex].right ()) / 2;
-    float base = baseline->y(xcenter);
+    float base = static_cast<float>(baseline->y(xcenter));
     float bottomdiff = fabs(base - blobcoords[blobindex].bottom());
     int strength = textord_ocropus_mode &&
                    bottomdiff <= kBaselineTouch ? kGoodStrength : 1;

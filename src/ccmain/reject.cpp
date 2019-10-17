@@ -308,7 +308,7 @@ bool Tesseract::one_ell_conflict(WERD_RES* word_res, bool update_map) {
 
   word = word_res->best_choice->unichar_string().string ();
   lengths = word_res->best_choice->unichar_lengths().string();
-  word_len = strlen(lengths);
+  word_len = static_cast<int16_t>(strlen(lengths));
   /*
     If there are no occurrences of the conflict set characters then the word
     is OK.

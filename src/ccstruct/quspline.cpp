@@ -51,8 +51,8 @@ QSPLINE::QSPLINE(                 //constructor
                                  //copy them
     xcoords[index] = xstarts[index];
     quadratics[index] = QUAD_COEFFS (coeffs[index * 3],
-      coeffs[index * 3 + 1],
-      coeffs[index * 3 + 2]);
+      static_cast<float>(coeffs[index * 3 + 1]),
+      static_cast<float>(coeffs[index * 3 + 2]));
   }
                                  //right edge
   xcoords[index] = xstarts[index];
@@ -121,8 +121,8 @@ int degree                       //fit required
         / (xpts[pointindex] - xpts[pointindex - 1]));
     qlsq.fit (degree);
     quadratics[segment].a = qlsq.get_a ();
-    quadratics[segment].b = qlsq.get_b ();
-    quadratics[segment].c = qlsq.get_c ();
+    quadratics[segment].b = static_cast<float>(qlsq.get_b ());
+    quadratics[segment].c = static_cast<float>(qlsq.get_c ());
   }
   delete[] ptcounts;
 }
@@ -212,7 +212,7 @@ double QSPLINE::y(          //evaluate
   int32_t index;                   //segment index
 
   index = spline_index (x);
-  return quadratics[index].y (x);//in correct segment
+  return quadratics[index].y (static_cast<float>(x));//in correct segment
 }
 
 
@@ -309,8 +309,8 @@ void QSPLINE::extrapolate(                  //linear extrapolation
   if (xmin < xcoords[0]) {
     xstarts[0] = xmin;
     quads[0].a = 0;
-    quads[0].b = gradient;
-    quads[0].c = y (xcoords[0]) - quads[0].b * xcoords[0];
+    quads[0].b = static_cast<float>(gradient);
+    quads[0].c = static_cast<float>(y (xcoords[0]) - quads[0].b * xcoords[0]);
     dest_segment = 1;
   }
   else
@@ -323,9 +323,9 @@ void QSPLINE::extrapolate(                  //linear extrapolation
   xstarts[dest_segment] = xcoords[segment];
   if (xmax > xcoords[segments]) {
     quads[dest_segment].a = 0;
-    quads[dest_segment].b = gradient;
-    quads[dest_segment].c = y (xcoords[segments])
-      - quads[dest_segment].b * xcoords[segments];
+    quads[dest_segment].b = static_cast<float>(gradient);
+    quads[dest_segment].c = static_cast<float>(y (xcoords[segments])
+      - quads[dest_segment].b * xcoords[segments]);
     dest_segment++;
     xstarts[dest_segment] = xmax + 1;
   }
@@ -361,9 +361,9 @@ void QSPLINE::plot(                //draw it
     x = xcoords[segment];
     for (step = 0; step <= QSPLINE_PRECISION; step++) {
       if (segment == 0 && step == 0)
-        window->SetCursor(x, quadratics[segment].y (x));
+        window->SetCursor(static_cast<int>(x), static_cast<int>(quadratics[segment].y (static_cast<float>(x))));
       else
-        window->DrawTo(x, quadratics[segment].y (x));
+        window->DrawTo(static_cast<int>(x), static_cast<int>(quadratics[segment].y (static_cast<float>(x))));
       x += increment;
     }
   }
@@ -388,8 +388,8 @@ void QSPLINE::plot(Pix *pix) const {
         xcoords[segment])) / QSPLINE_PRECISION;
     x = xcoords[segment];
     for (step = 0; step <= QSPLINE_PRECISION; step++) {
-      double y = height - quadratics[segment].y(x);
-      ptaAddPt(points, x, y);
+      double y = height - quadratics[segment].y(static_cast<float>(x));
+      ptaAddPt(points, static_cast<l_float32>(x), static_cast<l_float32>(y));
       x += increment;
     }
   }

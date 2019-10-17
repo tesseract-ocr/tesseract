@@ -223,17 +223,17 @@ int32_t row_words(                  //compute space size
     return 0;
   }
   gap_stats.smooth (smooth_factor);
-  lower = row->xheight * textord_words_initial_lower;
-  upper = row->xheight * textord_words_initial_upper;
+  lower = static_cast<float>(row->xheight * textord_words_initial_lower);
+  upper = static_cast<float>(row->xheight * textord_words_initial_upper);
   cluster_count = gap_stats.cluster (lower, upper,
-    textord_spacesize_ratioprop, 3,
+    static_cast<float>(textord_spacesize_ratioprop), 3,
     cluster_stats);
   while (cluster_count < 2 && ceil (lower) < floor (upper)) {
                                  //shrink gap
     upper = (upper * 3 + lower) / 4;
     lower = (lower * 3 + upper) / 4;
     cluster_count = gap_stats.cluster (lower, upper,
-      textord_spacesize_ratioprop, 3,
+      static_cast<float>(textord_spacesize_ratioprop), 3,
       cluster_stats);
   }
   if (cluster_count < 2) {
@@ -242,7 +242,7 @@ int32_t row_words(                  //compute space size
     return 0;
   }
   for (gap_index = 0; gap_index < cluster_count; gap_index++)
-    gaps[gap_index] = cluster_stats[gap_index + 1].ile (0.5);
+    gaps[gap_index] = static_cast<float>(cluster_stats[gap_index + 1].ile (0.5));
   //get medians
   if (cluster_count > 2) {
     if (testing_on && textord_show_initial_words) {
@@ -411,13 +411,13 @@ int32_t row_words2(                  //compute space size
   }
 
   cluster_count = 0;
-  lower = block->xheight * words_initial_lower;
-  upper = block->xheight * words_initial_upper;
+  lower = static_cast<float>(block->xheight * words_initial_lower);
+  upper = static_cast<float>(block->xheight * words_initial_upper);
   gap_stats.smooth (smooth_factor);
   do {
     prev_count = cluster_count;
     cluster_count = gap_stats.cluster (lower, upper,
-      textord_spacesize_ratioprop,
+      static_cast<float>(textord_spacesize_ratioprop),
       BLOCK_STATS_CLUSTERS, cluster_stats);
   }
   while (cluster_count > prev_count && cluster_count < BLOCK_STATS_CLUSTERS);
@@ -427,7 +427,7 @@ int32_t row_words2(                  //compute space size
     return 0;
   }
   for (gap_index = 0; gap_index < cluster_count; gap_index++)
-    gaps[gap_index] = cluster_stats[gap_index + 1].ile (0.5);
+    gaps[gap_index] = static_cast<float>(cluster_stats[gap_index + 1].ile (0.5));
   //get medians
   if (testing_on) {
     tprintf ("cluster_count=%d:", cluster_count);

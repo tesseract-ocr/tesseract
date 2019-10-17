@@ -161,7 +161,7 @@ bool read_info(TFile* f, FontInfo* fi) {
 }
 
 bool write_info(FILE* f, const FontInfo& fi) {
-  int32_t size = strlen(fi.name);
+  int32_t size = static_cast<int32_t>(strlen(fi.name));
   return tesseract::Serialize(f, &size) &&
          tesseract::Serialize(f, &fi.name[0], size) &&
          tesseract::Serialize(f, &fi.properties);

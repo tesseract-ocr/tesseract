@@ -54,7 +54,7 @@ void ExtractFontName(const STRING& filename, STRING* fontname) {
     if (firstdot != lastdot && firstdot != nullptr && lastdot != nullptr) {
       ++firstdot;
       *fontname = firstdot;
-      fontname->truncate_at(lastdot - firstdot);
+      fontname->truncate_at(static_cast<int32_t>(lastdot - firstdot));
     }
   }
 }

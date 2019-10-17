@@ -100,7 +100,7 @@ bool TessResultRenderer::EndDocument() {
 }
 
 void TessResultRenderer::AppendString(const char* s) {
-  AppendData(s, strlen(s));
+  AppendData(s, static_cast<int>(strlen(s)));
 }
 
 void TessResultRenderer::AppendData(const char* s, int len) {

@@ -70,7 +70,7 @@ bool ValidateJavanese::ConsumeGraphemeIfValid() {
 // representation to make it consistent by adding a ZWNJ if missing from a
 // non-linking virama. Returns false with an invalid sequence.
 bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
-  const unsigned num_codes = codes_.size();
+  const unsigned num_codes = static_cast<unsigned>(codes_.size());
   if (joiner.first == CharClass::kOther) {
     CodeOnlyToOutput();
     if (codes_used_ < num_codes &&
@@ -89,7 +89,7 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
         ASSERT_HOST(!CodeOnlyToOutput());
       } else {
         // Half-form with optional Nukta.
-        unsigned len = output_.size() + 1 - output_used_;
+        unsigned len = static_cast<unsigned>(output_.size() + 1 - output_used_);
         if (UseMultiCode(len)) return true;
       }
       if (codes_used_ < num_codes &&
@@ -142,12 +142,12 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
 // Helper consumes/copies a series of consonants separated by viramas while
 // valid, but not any vowel or other modifiers.
 bool ValidateJavanese::ConsumeConsonantHeadIfValid() {
-  const unsigned num_codes = codes_.size();
+  const unsigned num_codes = static_cast<unsigned>(codes_.size());
   // Consonant aksara
   do {
     CodeOnlyToOutput();
     // Special Sinhala case of [H Z Yayana/Rayana].
-    int index = output_.size() - 3;
+    int index = static_cast<int>(output_.size() - 3);
     if (output_used_ + 3 <= output_.size() &&
         (output_.back() == kPengkal || output_.back() == kCakra) &&
         IsVirama(output_[index]) && output_[index + 1] == kZeroWidthJoiner) {
@@ -160,7 +160,7 @@ bool ValidateJavanese::ConsumeConsonantHeadIfValid() {
       CodeOnlyToOutput();
     }
     // Test for subscript conjunct.
-    index = output_.size() - 2 - have_nukta;
+    index = static_cast<int>(output_.size() - 2 - have_nukta);
     if (output_used_ + 2 + have_nukta <= output_.size() && IsSubscriptScript() &&
         IsVirama(output_[index])) {
       // Output previous virama, consonant + optional nukta.

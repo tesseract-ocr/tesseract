@@ -127,9 +127,9 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
   int num_remainder_leading = 0, num_remainder_trailing = 0;
   if (num_leading + num_trailing < num_blobs && unlikely_threshold < 0.0) {
     int super_y_bottom =
-        kBlnBaselineOffset + kBlnXHeight * superscript_min_y_bottom;
+        static_cast<int>(kBlnBaselineOffset + kBlnXHeight * superscript_min_y_bottom);
     int sub_y_top =
-        kBlnBaselineOffset + kBlnXHeight * subscript_max_y_top;
+        static_cast<int>(kBlnBaselineOffset + kBlnXHeight * subscript_max_y_top);
     int last_word_char = num_blobs - 1 - num_trailing;
     float last_char_certainty = word->best_choice->certainty(last_word_char);
     if (word->best_choice->unichar_id(last_word_char) != 0 &&
@@ -145,7 +145,7 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
     }
     bool another_blob_available = (num_remainder_trailing == 0) ||
         num_leading + num_trailing + 1 < num_blobs;
-    int first_char_certainty = word->best_choice->certainty(num_leading);
+    int first_char_certainty = static_cast<int>(word->best_choice->certainty(num_leading));
     if (another_blob_available &&
         word->best_choice->unichar_id(num_leading) != 0 &&
         first_char_certainty <= unlikely_threshold) {
@@ -155,7 +155,7 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
       if (num_leading > 0 && lpos != sp_leading) num_remainder_leading = 0;
       if (num_remainder_leading > 0 &&
           first_char_certainty < leading_certainty) {
-        leading_certainty = first_char_certainty;
+        leading_certainty = static_cast<float>(first_char_certainty);
       }
     }
   }
@@ -265,9 +265,9 @@ void Tesseract::GetSubAndSuperscriptCandidates(const WERD_RES *word,
   *leading_certainty = *trailing_certainty = 0.0f;
 
   int super_y_bottom =
-      kBlnBaselineOffset + kBlnXHeight * superscript_min_y_bottom;
+      static_cast<int>(kBlnBaselineOffset + kBlnXHeight * superscript_min_y_bottom);
   int sub_y_top =
-      kBlnBaselineOffset + kBlnXHeight * subscript_max_y_top;
+      static_cast<int>(kBlnBaselineOffset + kBlnXHeight * subscript_max_y_top);
 
   // Step one: Get an average certainty for "normally placed" characters.
 
@@ -318,7 +318,7 @@ void Tesseract::GetSubAndSuperscriptCandidates(const WERD_RES *word,
   }
   if (num_normal > 0) {
     *avg_certainty = normal_certainty_total / num_normal;
-    *unlikely_threshold = superscript_worse_certainty * (*avg_certainty);
+    *unlikely_threshold = static_cast<float>(superscript_worse_certainty * (*avg_certainty));
   }
   if (num_normal == 0 ||
       (leading_outliers == 0 && trailing_outliers == 0)) {
@@ -463,11 +463,11 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
   // than what we already had.
   bool good_prefix = !prefix || BelievableSuperscript(
       superscript_debug >= 1, *prefix,
-      superscript_bettered_certainty * leading_certainty,
+      static_cast<float>(superscript_bettered_certainty * leading_certainty),
       retry_rebuild_leading, nullptr);
   bool good_suffix = !suffix || BelievableSuperscript(
       superscript_debug >= 1, *suffix,
-      superscript_bettered_certainty * trailing_certainty,
+      static_cast<float>(superscript_bettered_certainty * trailing_certainty),
       nullptr, retry_rebuild_trailing);
 
   *is_good = good_prefix && good_suffix;
@@ -556,8 +556,8 @@ bool Tesseract::BelievableSuperscript(bool debug,
       wc.unicharset()->get_top_bottom(unichar_id,
                                       &min_bot, &max_bot,
                                       &min_top, &max_top);
-      float hi_height = max_top - max_bot;
-      float lo_height = min_top - min_bot;
+      float hi_height = static_cast<float>(max_top - max_bot);
+      float lo_height = static_cast<float>(min_top - min_bot);
       normal_height = (hi_height + lo_height) / 2;
       if (normal_height >= kBlnXHeight) {
         // Only ding characters that we have decent information for because

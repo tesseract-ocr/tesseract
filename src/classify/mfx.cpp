@@ -76,7 +76,7 @@ MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
     RemainingOutlines = Outlines;
     iterate(RemainingOutlines) {
       Outline = static_cast<MFOUTLINE>first_node(RemainingOutlines);
-      FindDirectionChanges(Outline, classify_min_slope, classify_max_slope);
+      FindDirectionChanges(Outline, static_cast<float>(classify_min_slope), static_cast<float>(classify_max_slope));
       MarkDirectionChanges(Outline);
       MicroFeatures = ConvertToMicroFeatures(Outline, MicroFeatures);
     }

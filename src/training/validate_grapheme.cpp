@@ -5,7 +5,7 @@
 namespace tesseract {
 
 bool ValidateGrapheme::ConsumeGraphemeIfValid() {
-  const unsigned num_codes = codes_.size();
+  const unsigned num_codes = static_cast<unsigned>(codes_.size());
   char32 prev_prev_ch = ' ';
   char32 prev_ch = ' ';
   CharClass prev_cc = CharClass::kWhitespace;

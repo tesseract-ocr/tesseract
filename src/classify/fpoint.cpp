@@ -29,7 +29,7 @@
 float DistanceBetween(FPOINT A, FPOINT B) {
   const double xd = XDelta(A, B);
   const double yd = YDelta(A, B);
-  return sqrt(static_cast<double>(xd * xd + yd * yd));
+  return static_cast<float>(sqrt(static_cast<double>(xd * xd + yd * yd)));
 }
 
 /**
@@ -42,9 +42,9 @@ float DistanceBetween(FPOINT A, FPOINT B) {
  * @return angle
  */
 float NormalizedAngleFrom(FPOINT *Point1, FPOINT *Point2, float FullScale) {
-  float NumRadsInCircle = 2.0 * M_PI;
+  float NumRadsInCircle = static_cast<float>(2.0 * M_PI);
 
-  float Angle = AngleFrom (*Point1, *Point2);
+  float Angle = static_cast<float>(AngleFrom (*Point1, *Point2));
   if (Angle < 0.0)
     Angle += NumRadsInCircle;
   Angle *= FullScale / NumRadsInCircle;

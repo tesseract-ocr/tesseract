@@ -217,8 +217,8 @@ void LSTMRecognizer::OutputStats(const NetworkIO& outputs, float* min_output,
     *sd = 1.0f;
   } else {
     *min_output = static_cast<float>(stats.min_bucket()) / kOutputScale;
-    *mean_output = stats.mean() / kOutputScale;
-    *sd = stats.sd() / kOutputScale;
+    *mean_output = static_cast<float>(stats.mean() / kOutputScale);
+    *sd = static_cast<float>(stats.sd() / kOutputScale);
   }
 }
 

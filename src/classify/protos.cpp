@@ -123,9 +123,9 @@ int AddProtoToClass(CLASS_TYPE Class) {
 void FillABC(PROTO Proto) {
   float Slope, Intercept, Normalizer;
 
-  Slope = tan(Proto->Angle * 2.0 * M_PI);
+  Slope = static_cast<float>(tan(Proto->Angle * 2.0 * M_PI));
   Intercept = Proto->Y - Slope * Proto->X;
-  Normalizer = 1.0 / sqrt (Slope * Slope + 1.0);
+  Normalizer = static_cast<float>(1.0 / sqrt (Slope * Slope + 1.0));
   Proto->A = Slope * Normalizer;
   Proto->B = -Normalizer;
   Proto->C = Intercept * Normalizer;

@@ -77,10 +77,10 @@ static int SortCPByHeight(const void* p1, const void* p2) {
 }
 
 // TODO(joeliu): we may want to parameterize these constants.
-const float kMathDigitDensityTh1 = 0.25;
-const float kMathDigitDensityTh2 = 0.1;
-const float kMathItalicDensityTh = 0.5;
-const float kUnclearDensityTh = 0.25;
+const float kMathDigitDensityTh1 = 0.25f;
+const float kMathDigitDensityTh2 = 0.1f;
+const float kMathItalicDensityTh = 0.5f;
+const float kUnclearDensityTh = 0.25f;
 const int kSeedBlobsCountTh = 10;
 const int kLeftIndentAlignmentCountTh = 1;
 
@@ -192,7 +192,7 @@ void EquationDetect::IdentifySpecialText(
   const float lang_score = lang_choice ? lang_choice->certainty() : -FLT_MAX;
   const float equ_score = equ_choice ? equ_choice->certainty() : -FLT_MAX;
 
-  const float kConfScoreTh = -5.0f, kConfDiffTh = 1.8;
+  const float kConfScoreTh = -5.0f, kConfDiffTh = 1.8f;
   // The scores here are negative, so the max/min == fabs(min/max).
   // float ratio = fmax(lang_score, equ_score) / fmin(lang_score, equ_score);
   const float diff = fabs(lang_score - equ_score);
@@ -332,7 +332,7 @@ void EquationDetect::IdentifyBlobsToSkip(ColPartition* part) {
       if (nextblob_box.left() >= blob_box.right()) {
         break;
       }
-      const float kWidthR = 0.4, kHeightR = 0.3;
+      const float kWidthR = 0.4f, kHeightR = 0.3f;
       const bool xoverlap = blob_box.major_x_overlap(nextblob_box),
           yoverlap = blob_box.y_overlap(nextblob_box);
       const float widthR = static_cast<float>(
@@ -478,8 +478,8 @@ void EquationDetect::SearchByOverlap(
   // Search iteratively.
   ColPartition *part;
   GenericVector<ColPartition*> parts;
-  const float kLargeOverlapTh = 0.95;
-  const float kEquXOverlap = 0.4, kEquYOverlap = 0.5;
+  const float kLargeOverlapTh = 0.95f;
+  const float kEquXOverlap = 0.4f, kEquYOverlap = 0.5f;
   while ((part = search.NextRadSearch()) != nullptr) {
     if (part == seed || !IsTextOrEquationType(part->type())) {
       continue;
@@ -487,8 +487,8 @@ void EquationDetect::SearchByOverlap(
     const TBOX& part_box(part->bounding_box());
     bool merge = false;
 
-    const float x_overlap_fraction = part_box.x_overlap_fraction(seed_box),
-        y_overlap_fraction = part_box.y_overlap_fraction(seed_box);
+    const float x_overlap_fraction = static_cast<float>(part_box.x_overlap_fraction(seed_box)),
+        y_overlap_fraction = static_cast<float>(part_box.y_overlap_fraction(seed_box));
 
     // If part is large overlapped with seed, then set merge to true.
     if (x_overlap_fraction >= kLargeOverlapTh &&
@@ -579,11 +579,11 @@ void EquationDetect::IdentifySeedParts() {
   // Sort the features collected from text regions.
   indented_texts_left.sort();
   texts_foreground_density.sort();
-  float foreground_density_th = 0.15;  // Default value.
+  float foreground_density_th = 0.15f;  // Default value.
   if (!texts_foreground_density.empty()) {
     // Use the median of the texts_foreground_density.
-    foreground_density_th = 0.8 * texts_foreground_density[
-        texts_foreground_density.size() / 2];
+    foreground_density_th = static_cast<float>(0.8 * texts_foreground_density[
+        texts_foreground_density.size() / 2]);
   }
 
   for (int i = 0; i < seeds1.size(); ++i) {
@@ -638,7 +638,7 @@ bool EquationDetect::CheckSeedFgDensity(const float density_th,
   }
 
   // If most sub parts passed, then we return true.
-  const float kSeedPartRatioTh = 0.3;
+  const float kSeedPartRatioTh = 0.3f;
   bool retval = (parts_passed / sub_boxes.size() >= kSeedPartRatioTh);
 
   return retval;
@@ -761,7 +761,7 @@ int EquationDetect::CountAlignment(
   if (sorted_vec.empty()) {
     return 0;
   }
-  const int kDistTh = static_cast<int>(roundf(0.03 * resolution_));
+  const int kDistTh = static_cast<int>(roundf(0.03f * resolution_));
   const int pos = sorted_vec.binary_search(val);
   int count = 0;
 
@@ -805,7 +805,7 @@ void EquationDetect::IdentifyInlinePartsHorizontal() {
   const int kMarginDiffTh = IntCastRounded(
       0.5 * lang_tesseract_->source_resolution());
   const int kGapTh = static_cast<int>(roundf(
-      1.0 * lang_tesseract_->source_resolution()));
+      1.0f * lang_tesseract_->source_resolution()));
   ColPartitionGridSearch search(part_grid_);
   search.SetUniqueMode(true);
   // The center x coordinate of the cp_super_bbox_.
@@ -966,8 +966,8 @@ bool EquationDetect::IsInline(const bool search_bottom,
     // Check if neighbor and part is inline similar.
     const float kHeightRatioTh = 0.5;
     const int kYGapTh = textparts_linespacing > 0 ?
-        textparts_linespacing + static_cast<int>(roundf(0.02 * resolution_)):
-        static_cast<int>(roundf(0.05 * resolution_));  // Default value.
+        textparts_linespacing + static_cast<int>(roundf(0.02f * resolution_)):
+        static_cast<int>(roundf(0.05f * resolution_));  // Default value.
     if (part_box.x_overlap(neighbor_box) &&  // Location feature.
         part_box.y_gap(neighbor_box) <= kYGapTh &&  // Line spacing.
         // Geo feature.
@@ -1023,9 +1023,9 @@ EquationDetect::IndentType EquationDetect::IsIndented(ColPartition* part) {
   ColPartitionGridSearch search(part_grid_);
   ColPartition *neighbor = nullptr;
   const TBOX& part_box(part->bounding_box());
-  const int kXGapTh = static_cast<int>(roundf(0.5 * resolution_));
-  const int kRadiusTh = static_cast<int>(roundf(3.0 * resolution_));
-  const int kYGapTh = static_cast<int>(roundf(0.5 * resolution_));
+  const int kXGapTh = static_cast<int>(roundf(0.5f * resolution_));
+  const int kRadiusTh = static_cast<int>(roundf(3.0f * resolution_));
+  const int kYGapTh = static_cast<int>(roundf(0.5f * resolution_));
 
   // Here we use a simple approximation algorithm: from the center of part, We
   // perform the radius search, and check if we can find a neighboring partition
@@ -1129,8 +1129,8 @@ void EquationDetect::ExpandSeedHorizontal(
     ColPartition* seed,
     GenericVector<ColPartition*>* parts_to_merge) {
   ASSERT_HOST(seed != nullptr && parts_to_merge != nullptr);
-  const float kYOverlapTh = 0.6;
-  const int kXGapTh = static_cast<int>(roundf(0.2 * resolution_));
+  const float kYOverlapTh = 0.6f;
+  const int kXGapTh = static_cast<int>(roundf(0.2f * resolution_));
 
   ColPartitionGridSearch search(part_grid_);
   const TBOX& seed_box(seed->bounding_box());
@@ -1186,8 +1186,8 @@ void EquationDetect::ExpandSeedVertical(
     GenericVector<ColPartition*>* parts_to_merge) {
   ASSERT_HOST(seed != nullptr && parts_to_merge != nullptr &&
               cps_super_bbox_ != nullptr);
-  const float kXOverlapTh = 0.4;
-  const int kYGapTh = static_cast<int>(roundf(0.2 * resolution_));
+  const float kXOverlapTh = 0.4f;
+  const int kYGapTh = static_cast<int>(roundf(0.2f * resolution_));
 
   ColPartitionGridSearch search(part_grid_);
   const TBOX& seed_box(seed->bounding_box());
@@ -1269,8 +1269,8 @@ void EquationDetect::ExpandSeedVertical(
 
 bool EquationDetect::IsNearSmallNeighbor(const TBOX& seed_box,
                                          const TBOX& part_box) const {
-  const int kXGapTh = static_cast<int>(roundf(0.25 * resolution_));
-  const int kYGapTh = static_cast<int>(roundf(0.05 * resolution_));
+  const int kXGapTh = static_cast<int>(roundf(0.25f * resolution_));
+  const int kYGapTh = static_cast<int>(roundf(0.05f * resolution_));
 
   // Check geometric feature.
   if (part_box.height() > seed_box.height() ||
@@ -1330,7 +1330,7 @@ void EquationDetect::ProcessMathBlockSatelliteParts() {
     const TBOX& text_box =
         text_parts[text_parts.size() / 2 - 1]->bounding_box();
     med_height = static_cast<int>(roundf(
-        0.5 * (text_box.height() + med_height)));
+        0.5f * (static_cast<int>(text_box.height()) + med_height)));
   }
 
   // Iterate every text_parts and check if it is a math block satellite.
@@ -1413,7 +1413,7 @@ ColPartition* EquationDetect::SearchNNVertical(
     const bool search_bottom, const ColPartition* part) {
   ASSERT_HOST(part);
   ColPartition *nearest_neighbor = nullptr, *neighbor = nullptr;
-  const int kYGapTh = static_cast<int>(roundf(resolution_ * 0.5));
+  const int kYGapTh = static_cast<int>(roundf(resolution_ * 0.5f));
 
   ColPartitionGridSearch search(part_grid_);
   search.SetUniqueMode(true);
@@ -1449,7 +1449,7 @@ bool EquationDetect::IsNearMathNeighbor(
   if (!neighbor) {
     return false;
   }
-  const int kYGapTh = static_cast<int>(roundf(resolution_ * 0.1));
+  const int kYGapTh = static_cast<int>(roundf(resolution_ * 0.1f));
   return neighbor->type() == PT_EQUATION && y_gap <= kYGapTh;
 }
 

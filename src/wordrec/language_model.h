@@ -115,7 +115,7 @@ class LanguageModel {
       // cert is assumed to be between 0 and -dict_->certainty_scale.
       // If you enable language_model_use_sigmoidal_certainty, you
       // need to adjust language_model_ngram_nonmatch_score as well.
-      cert = -cert / dict_->certainty_scale;
+      cert = -cert / static_cast<float>(dict_->certainty_scale);
       return 1.0f / (1.0f + exp(10.0f * cert));
     } else {
       return (-1.0f / cert);
@@ -125,8 +125,8 @@ class LanguageModel {
   inline float ComputeAdjustment(int num_problems, float penalty) {
     if (num_problems == 0) return 0.0f;
     if (num_problems == 1) return penalty;
-    return (penalty + (language_model_penalty_increment *
-                       static_cast<float>(num_problems-1)));
+    return (penalty + (static_cast<float> (language_model_penalty_increment) *
+                       (static_cast<float>(num_problems - 1))));
   }
 
   // Computes the adjustment to the ratings sum based on the given
@@ -138,18 +138,18 @@ class LanguageModel {
       const LMConsistencyInfo &consistency_info) {
     if (dawg_info != nullptr) {
       return ComputeAdjustment(consistency_info.NumInconsistentCase(),
-                               language_model_penalty_case) +
+                               static_cast<float>(language_model_penalty_case)) +
           (consistency_info.inconsistent_script ?
              language_model_penalty_script : 0.0f);
     }
     return (ComputeAdjustment(consistency_info.NumInconsistentPunc(),
-                              language_model_penalty_punc) +
+                              static_cast<float>(language_model_penalty_punc)) +
             ComputeAdjustment(consistency_info.NumInconsistentCase(),
-                              language_model_penalty_case) +
+                              static_cast<float>(language_model_penalty_case)) +
             ComputeAdjustment(consistency_info.NumInconsistentChartype(),
-                              language_model_penalty_chartype) +
+                              static_cast<float>(language_model_penalty_chartype)) +
             ComputeAdjustment(consistency_info.NumInconsistentSpaces(),
-                              language_model_penalty_spacing) +
+                              static_cast<float>(language_model_penalty_spacing)) +
             (consistency_info.inconsistent_script ?
              language_model_penalty_script : 0.0f) +
             (consistency_info.inconsistent_font ?

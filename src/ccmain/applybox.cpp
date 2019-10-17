@@ -283,7 +283,7 @@ void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
                                  &blob_number)) != nullptr) {
       word_res->InsertSeam(blob_number, seam);
       BLOB_CHOICE* left_choice = blob_choices[blob_number];
-      rating = left_choice->rating() / e;
+      rating = left_choice->rating() / static_cast<float>(e);
       left_choice->set_rating(rating);
       left_choice->set_certainty(-rating);
       // combine confidence w/ serial #
@@ -541,7 +541,7 @@ bool Tesseract::ConvertStringToUnichars(const char* utf8,
     const char* next_space = strchr(utf8, ' ');
     if (next_space == nullptr)
       next_space = utf8 + strlen(utf8);
-    step = next_space - utf8;
+    step = static_cast<int>(next_space - utf8);
     UNICHAR_ID class_id = unicharset.unichar_to_id(utf8, step);
     if (class_id == INVALID_UNICHAR_ID) {
       return false;

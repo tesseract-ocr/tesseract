@@ -150,7 +150,7 @@ class ETEXT_DESC {  // output header
       std::chrono::steady_clock::time_point chrono_point, struct timeval* tv) {
     auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(
         chrono_point.time_since_epoch());
-    tv->tv_sec = millisecs.count() / 1000;
+    tv->tv_sec = static_cast<long>(millisecs.count() / 1000);
     tv->tv_usec = (millisecs.count() % 1000) * 1000;
   }
 

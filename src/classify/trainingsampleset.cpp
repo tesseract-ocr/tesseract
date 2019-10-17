@@ -287,7 +287,7 @@ float TrainingSampleSet::UnicharDistance(const UnicharAndFonts& uf1,
       return UnicharDistance(uf1, uf2, false, feature_map);
     return 0.0f;
   }
-  return dist_sum / dist_count;
+  return static_cast<float>(dist_sum / dist_count);
 }
 
 // Returns the distance between the given pair of font/class pairs.
@@ -631,7 +631,7 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap& map,
         ++samples_found;
         if (max_dist < min_max_dist) {
           fcinfo.canonical_sample = s1;
-          fcinfo.canonical_dist = max_dist;
+          fcinfo.canonical_dist = static_cast<float>(max_dist);
         }
         UpdateRange(max_dist, &min_max_dist, &max_max_dist);
       }

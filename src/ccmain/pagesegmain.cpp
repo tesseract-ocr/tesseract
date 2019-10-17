@@ -110,7 +110,7 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
     STRING name = *input_file;
     const char* lastdot = strrchr(name.string(), '.');
     if (lastdot != nullptr)
-      name[lastdot - name.string()] = '\0';
+      name[static_cast<long int>(lastdot - name.string())] = '\0';
     read_unlv_file(name, width, height, blocks);
   }
   if (blocks->empty()) {

@@ -1563,7 +1563,7 @@ bool StrokeWidth::DiacriticBlob(BlobGrid* small_grid, BLOBNBOX* blob) {
   search_box.pad(x_pad, y_pad);
   BlobGridSearch rsearch(this);
   rsearch.SetUniqueMode(true);
-  int min_height = height * kMinDiacriticSizeRatio;
+  int min_height = static_cast<int>(height * kMinDiacriticSizeRatio);
   rsearch.StartRectSearch(search_box);
   BLOBNBOX* neighbour;
   while ((neighbour = rsearch.NextRectSearch()) != nullptr) {

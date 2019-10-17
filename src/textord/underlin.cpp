@@ -54,7 +54,7 @@ void restore_underlined_blobs(                 //get chop points
     if (row == nullptr)
       return;  // Don't crash if there is no row.
     find_underlined_blobs (u_line, &row->baseline, row->xheight,
-      row->xheight * textord_underline_offset,
+      static_cast<float>(row->xheight * textord_underline_offset),
       &chop_cells);
     cell_it.set_to_list (&chop_cells);
     for (cell_it.mark_cycle_pt (); !cell_it.cycled_list ();
@@ -62,14 +62,14 @@ void restore_underlined_blobs(                 //get chop points
       chop_coord = cell_it.data ()->x ();
       if (cell_it.data ()->y () - chop_coord > textord_fp_chop_error + 1) {
         split_to_blob (u_line, chop_coord,
-          textord_fp_chop_error + 0.5,
+          textord_fp_chop_error + 0.5f,
           &left_coutlines,
           &right_coutlines);
         if (!left_coutlines.empty()) {
           ru_it.add_after_then_move(new BLOBNBOX(new C_BLOB(&left_coutlines)));
         }
         chop_coord = cell_it.data ()->y ();
-        split_to_blob(nullptr, chop_coord, textord_fp_chop_error + 0.5,
+        split_to_blob(nullptr, chop_coord, textord_fp_chop_error + 0.5f,
                       &left_coutlines, &right_coutlines);
         if (!left_coutlines.empty()) {
           row->insert_blob(new BLOBNBOX(new C_BLOB(&left_coutlines)));
@@ -79,7 +79,7 @@ void restore_underlined_blobs(                 //get chop points
       delete cell_it.extract();
     }
     if (!right_coutlines.empty ()) {
-      split_to_blob(nullptr, blob_box.right(), textord_fp_chop_error + 0.5,
+      split_to_blob(nullptr, blob_box.right(), textord_fp_chop_error + 0.5f,
                     &left_coutlines, &right_coutlines);
       if (!left_coutlines.empty())
         ru_it.add_after_then_move(new BLOBNBOX(new C_BLOB(&left_coutlines)));
@@ -126,20 +126,20 @@ TO_ROW *most_overlapping_row(                    //find best row
   && !row_it.cycled_list ()) {
     best_row = row;
     bestover =
-      blob->bounding_box ().top () - row->baseline.y (x) + row->descdrop;
+      static_cast<float>(blob->bounding_box ().top () - row->baseline.y (x) + row->descdrop);
     row_it.forward ();
     row = row_it.data ();
   }
   while (row->baseline.y (x) + row->xheight + row->ascrise
   >= blob->bounding_box ().bottom () && !row_it.cycled_list ()) {
-    overlap = row->baseline.y (x) + row->xheight + row->ascrise;
+    overlap = static_cast<float>(row->baseline.y (x) + row->xheight + row->ascrise);
     if (blob->bounding_box ().top () < overlap)
       overlap = blob->bounding_box ().top ();
     if (blob->bounding_box ().bottom () >
       row->baseline.y (x) + row->descdrop)
       overlap -= blob->bounding_box ().bottom ();
     else
-      overlap -= row->baseline.y (x) + row->descdrop;
+      overlap -= static_cast<float>(row->baseline.y (x) + row->descdrop);
     if (overlap > bestover) {
       bestover = overlap;
       best_row = row;

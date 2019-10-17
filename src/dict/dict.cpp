@@ -724,11 +724,11 @@ void Dict::adjust_word(WERD_CHOICE* word, bool nonword,
     // Calculate x-height and y-offset consistency penalties.
     switch (xheight_consistency) {
       case XH_INCONSISTENT:
-        adjust_factor += xheight_penalty_inconsistent;
+        adjust_factor += static_cast<float>(xheight_penalty_inconsistent);
         xheight_triggered = ", xhtBAD";
         break;
       case XH_SUBNORMAL:
-        adjust_factor += xheight_penalty_subscripts;
+        adjust_factor += static_cast<float>(xheight_penalty_subscripts);
         xheight_triggered = ", xhtSUB";
         break;
       case XH_GOOD:
@@ -749,11 +749,11 @@ void Dict::adjust_word(WERD_CHOICE* word, bool nonword,
 
   if (nonword) {  // non-dictionary word
     if (case_is_ok && punc_is_ok) {
-      adjust_factor += segment_penalty_dict_nonword;
+      adjust_factor += static_cast<float>(segment_penalty_dict_nonword);
       new_rating *= adjust_factor;
       if (debug) tprintf(", W");
     } else {
-      adjust_factor += segment_penalty_garbage;
+      adjust_factor += static_cast<float>(segment_penalty_garbage);
       new_rating *= adjust_factor;
       if (debug) {
         if (!case_is_ok) tprintf(", C");
@@ -764,16 +764,16 @@ void Dict::adjust_word(WERD_CHOICE* word, bool nonword,
     if (case_is_ok) {
       if (!is_han && freq_dawg_ != nullptr && freq_dawg_->word_in_dawg(*word)) {
         word->set_permuter(FREQ_DAWG_PERM);
-        adjust_factor += segment_penalty_dict_frequent_word;
+        adjust_factor += static_cast<float>(segment_penalty_dict_frequent_word);
         new_rating *= adjust_factor;
         if (debug) tprintf(", F");
       } else {
-        adjust_factor += segment_penalty_dict_case_ok;
+        adjust_factor += static_cast<float>(segment_penalty_dict_case_ok);
         new_rating *= adjust_factor;
         if (debug) tprintf(", ");
       }
     } else {
-      adjust_factor += segment_penalty_dict_case_bad;
+      adjust_factor += static_cast<float>(segment_penalty_dict_case_bad);
       new_rating *= adjust_factor;
       if (debug) tprintf(", C");
     }

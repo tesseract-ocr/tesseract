@@ -186,7 +186,7 @@ TessPDFRenderer::TessPDFRenderer(const char *outputbase, const char *datadir,
 }
 
 void TessPDFRenderer::AppendPDFObjectDIY(size_t objectsize) {
-  offsets_.push_back(objectsize + offsets_.back());
+  offsets_.push_back(static_cast<long>(objectsize) + offsets_.back());
   obj_++;
 }
 
@@ -366,7 +366,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       int x1, y1, x2, y2;
       res_it->Baseline(RIL_TEXTLINE, &x1, &y1, &x2, &y2);
-      ClipBaseline(ppi, x1, y1, x2, y2, &line_x1, &line_y1, &line_x2, &line_y2);
+      ClipBaseline(static_cast<int>(ppi), x1, y1, x2, y2, &line_x1, &line_y1, &line_x2, &line_y2);
     }
 
     if (res_it->Empty(RIL_WORD)) {
@@ -401,7 +401,8 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     {
       int word_x1, word_y1, word_x2, word_y2;
       res_it->Baseline(RIL_WORD, &word_x1, &word_y1, &word_x2, &word_y2);
-      GetWordBaseline(writing_direction, ppi, height,
+      GetWordBaseline(writing_direction, 
+		              static_cast<int>(ppi), static_cast<int>(height),
                       word_x1, word_y1, word_x2, word_y2,
                       line_x1, line_y1, line_x2, line_y2,
                       &x, &y, &word_length);
@@ -556,8 +557,8 @@ bool TessPDFRenderer::BeginDocumentHandler() {
     ">>\n"
     "stream\n";
   AppendString(stream.str().c_str());
-  long objsize = stream.str().size();
-  AppendData(reinterpret_cast<char *>(comp), len);
+  size_t objsize = stream.str().size();
+  AppendData(reinterpret_cast<char *>(comp), static_cast<int>(len));
   objsize += len;
   lept_free(comp);
   const char *endstream_endobj =
@@ -764,7 +765,7 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   size_t colorspace_len = colorspace.str().size();
 
   *pdf_object_size =
-      b1_len + colorspace_len + b2_len + cid->nbytescomp + b3_len;
+      static_cast<long>(b1_len + colorspace_len + b2_len + cid->nbytescomp + b3_len);
   *pdf_object = new char[*pdf_object_size];
 
   char *p = *pdf_object;
@@ -824,7 +825,7 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   size_t len;
   unsigned char *comp_pdftext = zlibCompress(
       reinterpret_cast<unsigned char *>(pdftext.get()), pdftext_len, &len);
-  long comp_pdftext_len = len;
+  size_t comp_pdftext_len = len;
   stream.str("");
   stream <<
     obj_ << " 0 obj\n"
@@ -833,15 +834,15 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
     ">>\n"
     "stream\n";
   AppendString(stream.str().c_str());
-  long objsize = stream.str().size();
-  AppendData(reinterpret_cast<char *>(comp_pdftext), comp_pdftext_len);
-  objsize += comp_pdftext_len;
+  long int objsize = static_cast<long int>(stream.str().size());
+  AppendData(reinterpret_cast<char *>(comp_pdftext), static_cast<int>(comp_pdftext_len));
+  objsize += static_cast<long int>(comp_pdftext_len);
   lept_free(comp_pdftext);
   const char *b2 =
       "endstream\n"
       "endobj\n";
   AppendString(b2);
-  objsize += strlen(b2);
+  objsize += static_cast<long int>(strlen(b2));
   AppendPDFObjectDIY(objsize);
 
   if (!textonly_) {
@@ -876,7 +877,7 @@ bool TessPDFRenderer::EndDocumentHandler() {
   size_t pages_objsize  = stream.str().size();
   for (size_t i = 0; i < pages_.unsigned_size(); i++) {
     stream.str("");
-    stream << pages_[i] << " 0 R ";
+    stream << pages_[static_cast<long int>(i)] << " 0 R ";
     AppendString(stream.str().c_str());
     pages_objsize += stream.str().size();
   }
@@ -884,7 +885,7 @@ bool TessPDFRenderer::EndDocumentHandler() {
   stream << "]\n  /Count " << pages_.size() << "\n>>\nendobj\n";
   AppendString(stream.str().c_str());
   pages_objsize += stream.str().size();
-  offsets_.back() += pages_objsize;    // manipulation #2
+  offsets_.back() += static_cast<long>(pages_objsize);    // manipulation #2
 
   // INFO
   STRING utf16_title = "FEFF";  // byte_order_marker

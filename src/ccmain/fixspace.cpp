@@ -712,8 +712,8 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res,
   int max_noise_blob;            // last contender
   int non_noise_count;
   int worst_noise_blob;          // Worst blob
-  float small_limit = kBlnXHeight * fixsp_small_outlines_size;
-  float non_noise_limit = kBlnXHeight * 0.8;
+  float small_limit = kBlnXHeight * static_cast<float>(fixsp_small_outlines_size);
+  float non_noise_limit = kBlnXHeight * 0.8f;
 
   if (word_res->rebuild_word == nullptr)
     return -1;  // Can't handle cube words.
@@ -859,7 +859,7 @@ int16_t Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES *word;
   int16_t score = 0;
   int16_t i;
-  float small_limit = kBlnXHeight * fixsp_small_outlines_size;
+  float small_limit = kBlnXHeight * static_cast<float>(fixsp_small_outlines_size);
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     word = word_it.data();

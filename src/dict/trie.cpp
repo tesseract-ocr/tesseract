@@ -70,13 +70,13 @@ bool Trie::edge_char_of(NODE_REF node_ref, NODE_REF next_node,
             " direction %d word_end %d unichar_id %d, exploring node:\n",
             node_ref, next_node, direction, word_end, unichar_id);
     if (node_ref != NO_EDGE) {
-      print_node(node_ref, nodes_[node_ref]->forward_edges.size());
+      print_node(node_ref, nodes_[static_cast<int>(node_ref)]->forward_edges.size());
     }
   }
   if (node_ref == NO_EDGE) return false;
   assert(node_ref < nodes_.size());
   EDGE_VECTOR &vec = (direction == FORWARD_EDGE) ?
-    nodes_[node_ref]->forward_edges : nodes_[node_ref]->backward_edges;
+    nodes_[static_cast<int>(node_ref)]->forward_edges : nodes_[static_cast<int>(node_ref)]->backward_edges;
   int vec_size = vec.size();
   if (node_ref == 0 && direction == FORWARD_EDGE) {  // binary search
     EDGE_INDEX start = 0;
@@ -86,9 +86,9 @@ bool Trie::edge_char_of(NODE_REF node_ref, NODE_REF next_node,
     while (start <= end) {
       k = (start + end) >> 1;  // (start + end) / 2
       compare = given_greater_than_edge_rec(next_node, word_end,
-                                            unichar_id, vec[k]);
+                                            unichar_id, vec[static_cast<int>(k)]);
       if (compare == 0) {  // given == vec[k]
-        *edge_ptr = &(vec[k]);
+        *edge_ptr = &(vec[static_cast<int>(k)]);
         *edge_index = k;
         return true;
       } else if (compare == 1) {  // given > vec[k]
@@ -117,7 +117,7 @@ bool Trie::add_edge_linkage(NODE_REF node1, NODE_REF node2, bool marker_flag,
                             int direction, bool word_end,
                             UNICHAR_ID unichar_id) {
   EDGE_VECTOR *vec = (direction == FORWARD_EDGE) ?
-    &(nodes_[node1]->forward_edges) : &(nodes_[node1]->backward_edges);
+    &(nodes_[static_cast<int>(node1)]->forward_edges) : &(nodes_[static_cast<int>(node1)]->backward_edges);
   int search_index;
   if (node1 == 0 && direction == FORWARD_EDGE) {
     search_index = 0;  // find the index to make the add sorted
@@ -134,7 +134,7 @@ bool Trie::add_edge_linkage(NODE_REF node1, NODE_REF node2, bool marker_flag,
   if (node1 == 0 && direction == BACKWARD_EDGE &&
       !root_back_freelist_.empty()) {
     EDGE_INDEX edge_index = root_back_freelist_.pop_back();
-    (*vec)[edge_index] = edge_rec;
+    (*vec)[static_cast<int>(edge_index)] = edge_rec;
   } else if (search_index < vec->size()) {
     vec->insert(edge_rec, search_index);
   } else {
@@ -485,12 +485,12 @@ void Trie::remove_edge_linkage(NODE_REF node1, NODE_REF node2, int direction,
     tprintf("\n");
   }
   if (direction == FORWARD_EDGE) {
-    nodes_[node1]->forward_edges.remove(edge_index);
+    nodes_[static_cast<int>(node1)]->forward_edges.remove(static_cast<int>(edge_index));
   } else if (node1 == 0) {
-    KillEdge(&nodes_[node1]->backward_edges[edge_index]);
+    KillEdge(&nodes_[static_cast<int>(node1)]->backward_edges[static_cast<int>(edge_index)]);
     root_back_freelist_.push_back(edge_index);
   } else {
-    nodes_[node1]->backward_edges.remove(edge_index);
+    nodes_[static_cast<int>(node1)]->backward_edges.remove(static_cast<int>(edge_index));
   }
   --num_edges_;
 }
@@ -529,7 +529,7 @@ SquishedDawg *Trie::trie_to_dawg() {
   for (i = 0; i < nodes_.size(); ++i) {
     node_ref_map[i+1] = node_ref_map[i] + nodes_[i]->forward_edges.size();
   }
-  int num_forward_edges = node_ref_map[i];
+  int num_forward_edges = static_cast<int>(node_ref_map[i]);
 
   // Convert nodes_ vector into EDGE_ARRAY translating the next node references
   // in edges using node_ref_map. Empty nodes and backward edges are dropped.
@@ -569,7 +569,7 @@ bool Trie::eliminate_redundant_edges(NODE_REF node,
   }
   NODE_REF next_node1 = next_node_from_edge_rec(edge1);
   NODE_REF next_node2 = next_node_from_edge_rec(edge2);
-  TRIE_NODE_RECORD *next_node2_ptr = nodes_[next_node2];
+  TRIE_NODE_RECORD *next_node2_ptr = nodes_[static_cast<int>(next_node2)];
   // Translate all edges going to/from next_node2 to go to/from next_node1.
   EDGE_RECORD *edge_ptr = nullptr;
   EDGE_INDEX edge_index;
@@ -611,7 +611,7 @@ bool Trie::reduce_lettered_edges(EDGE_INDEX edge_index,
     tprintf("reduce_lettered_edges(edge=" REFFORMAT ")\n", edge_index);
   // Compare each of the edge pairs with the given unichar_id.
   bool did_something = false;
-  for (int i = edge_index; i < backward_edges->size() - 1; ++i) {
+  for (int i = static_cast<int>(edge_index); i < backward_edges->size() - 1; ++i) {
     // Find the first edge that can be eliminated.
     UNICHAR_ID curr_unichar_id = INVALID_UNICHAR_ID;
     while (i < backward_edges->size()) {
@@ -659,7 +659,7 @@ void Trie::sort_edges(EDGE_VECTOR *edges) {
 
 void Trie::reduce_node_input(NODE_REF node,
                              NODE_MARKER reduced_nodes) {
-  EDGE_VECTOR &backward_edges = nodes_[node]->backward_edges;
+  EDGE_VECTOR &backward_edges = nodes_[static_cast<int>(node)]->backward_edges;
   sort_edges(&backward_edges);
   if (debug_level_ > 1) {
     tprintf("reduce_node_input(node=" REFFORMAT ")\n", node);
@@ -668,14 +668,14 @@ void Trie::reduce_node_input(NODE_REF node,
 
   EDGE_INDEX edge_index = 0;
   while (edge_index < backward_edges.size()) {
-    if (DeadEdge(backward_edges[edge_index])) continue;
+    if (DeadEdge(backward_edges[static_cast<int>(edge_index)])) continue;
     UNICHAR_ID unichar_id =
-      unichar_id_from_edge_rec(backward_edges[edge_index]);
+      unichar_id_from_edge_rec(backward_edges[static_cast<int>(edge_index)]);
     while (reduce_lettered_edges(edge_index, unichar_id, node,
                                  &backward_edges, reduced_nodes));
     while (++edge_index < backward_edges.size()) {
-      UNICHAR_ID id = unichar_id_from_edge_rec(backward_edges[edge_index]);
-      if (!DeadEdge(backward_edges[edge_index]) && id != unichar_id) break;
+      UNICHAR_ID id = unichar_id_from_edge_rec(backward_edges[static_cast<int>(edge_index)]);
+      if (!DeadEdge(backward_edges[static_cast<int>(edge_index)]) && id != unichar_id) break;
     }
   }
   reduced_nodes[node] = true;  // mark as reduced
@@ -696,7 +696,7 @@ void Trie::reduce_node_input(NODE_REF node,
 
 void Trie::print_node(NODE_REF node, int max_num_edges) const {
   if (node == NO_EDGE) return;  // nothing to print
-  TRIE_NODE_RECORD *node_ptr = nodes_[node];
+  TRIE_NODE_RECORD *node_ptr = nodes_[static_cast<int>(node)];
   int num_fwd = node_ptr->forward_edges.size();
   int num_bkw = node_ptr->backward_edges.size();
   EDGE_VECTOR *vec;

@@ -76,10 +76,10 @@ float CompareProtos(PROTO p1, PROTO p2) {
   Feature->Params[PicoFeatDir] = p1->Angle;
 
   /* convert angle to radians */
-  Angle = p1->Angle * 2.0 * M_PI;
+  Angle = static_cast<float>(p1->Angle * 2.0 * M_PI);
 
   /* find distance from center of p1 to 1/2 picofeat from end */
-  Length = p1->Length / 2.0 - GetPicoFeatureLength () / 2.0;
+  Length = static_cast<float>(p1->Length / 2.0 - GetPicoFeatureLength () / 2.0);
   if (Length < 0) Length = 0;
 
   /* set the dummy pico-feature at one end of p1 and match it to p2 */
@@ -165,7 +165,7 @@ int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
   MakeNewFromOld (&NewProto, Prototype);
 
   BestProto = NO_PROTO;
-  BestMatch = WORST_MATCH_ALLOWED;
+  BestMatch = static_cast<float>(WORST_MATCH_ALLOWED);
   for (Pid = 0; Pid < Class->NumProtos; Pid++) {
     Proto  = ProtoIn(Class, Pid);
     ComputeMergedProto(Proto, &NewProto,
@@ -212,13 +212,13 @@ float SubfeatureEvidence(FEATURE Feature, PROTO Proto) {
   Dangle   = Proto->Angle - Feature->Params[PicoFeatDir];
   if (Dangle < -0.5) Dangle += 1.0;
   if (Dangle >  0.5) Dangle -= 1.0;
-  Dangle *= training_angle_match_scale;
+  Dangle *= static_cast<float>(training_angle_match_scale);
 
   Distance = Proto->A * Feature->Params[PicoFeatX] +
     Proto->B * Feature->Params[PicoFeatY] +
     Proto->C;
 
-  return (EvidenceOf (Distance * Distance + Dangle * Dangle));
+  return (static_cast<float>(EvidenceOf (Distance * Distance + Dangle * Dangle)));
 }
 
 /**
@@ -262,17 +262,17 @@ bool DummyFastMatch(FEATURE Feature, PROTO Proto)
   float MaxAngleError;
   float AngleError;
 
-  MaxAngleError = training_angle_pad / 360.0;
+  MaxAngleError = static_cast<float>(training_angle_pad / 360.0);
   AngleError = fabs (Proto->Angle - Feature->Params[PicoFeatDir]);
-  if (AngleError > 0.5)
-    AngleError = 1.0 - AngleError;
+  if (AngleError > 0.5f)
+    AngleError = 1.0f - AngleError;
 
   if (AngleError > MaxAngleError)
     return false;
 
   ComputePaddedBoundingBox (Proto,
-    training_tangent_bbox_pad * GetPicoFeatureLength (),
-    training_orthogonal_bbox_pad * GetPicoFeatureLength (),
+    static_cast<float>(training_tangent_bbox_pad * GetPicoFeatureLength ()),
+    static_cast<float>(training_orthogonal_bbox_pad * GetPicoFeatureLength ()),
     &BoundingBox);
 
   return PointInside(&BoundingBox, Feature->Params[PicoFeatX],
@@ -292,8 +292,8 @@ bool DummyFastMatch(FEATURE Feature, PROTO Proto)
  */
 void ComputePaddedBoundingBox (PROTO Proto, float TangentPad,
                                float OrthogonalPad, FRECT *BoundingBox) {
-  float Length     = Proto->Length / 2.0 + TangentPad;
-  float Angle      = Proto->Angle * 2.0 * M_PI;
+  float Length     = Proto->Length / 2.0f + TangentPad;
+  float Angle      = static_cast<float>(Proto->Angle * 2.0 * M_PI);
   float CosOfAngle = fabs(cos(Angle));
   float SinOfAngle = fabs(sin(Angle));
 

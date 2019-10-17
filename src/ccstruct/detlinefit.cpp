@@ -36,7 +36,7 @@ const int kNumEndPoints = 3;
 const int kMinPointsForErrorCount = 16;
 // The maximum real distance to use before switching to number of
 // mis-fitted points, which will get square-rooted for true distance.
-const int kMaxRealDistance = 2.0;
+const int kMaxRealDistance = 2;
 
 DetLineFit::DetLineFit() : square_length_(0.0) {
 }
@@ -189,10 +189,10 @@ double DetLineFit::ConstrainedFit(double m, float* c) {
     return 0.0;
   }
   double cos = 1.0 / sqrt(1.0 + m * m);
-  FCOORD direction(cos, m * cos);
+  FCOORD direction(static_cast<float>(cos), static_cast<float>(m * cos));
   ICOORD line_pt;
   double error = ConstrainedFit(direction, -FLT_MAX, FLT_MAX, false, &line_pt);
-  *c = line_pt.y() - line_pt.x() * m;
+  *c = static_cast<float>(line_pt.y() - line_pt.x() * m);
   return error;
 }
 

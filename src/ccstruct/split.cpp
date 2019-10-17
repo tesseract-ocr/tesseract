@@ -97,16 +97,16 @@ float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob,
     grade += 100.0f;  // Total overlap.
   } else {
     if (2 * overlap > min_width) overlap += 2 * overlap - min_width;
-    if (overlap > 0) grade += overlap_knob * overlap;
+    if (overlap > 0) grade += static_cast<float>(overlap_knob * overlap);
   }
   // grade_center_of_blob.
   if (width1 <= centered_maxwidth || width2 <= centered_maxwidth) {
-    grade += std::min(static_cast<double>(kCenterGradeCap), center_knob * abs(width1 - width2));
+    grade += static_cast<float>(std::min(static_cast<double>(kCenterGradeCap), center_knob * abs(width1 - width2)));
   }
   // grade_width_change.
-  float width_change_grade = 20 - (max_right - min_left - std::max(width1, width2));
+  float width_change_grade = static_cast<float>(20 - (max_right - min_left - std::max(width1, width2)));
   if (width_change_grade > 0.0f)
-    grade += width_change_grade * width_change_knob;
+    grade += width_change_grade * static_cast<float>(width_change_knob);
   return grade;
 }
 
@@ -146,8 +146,8 @@ EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev) {
   C_OUTLINE* prev_ol = prev->src_outline;
   if (prev_ol != nullptr && prev->next == next) {
     // Compute the fraction of the segment that is being cut.
-    FCOORD segment_vec(next->pos.x - prev->pos.x, next->pos.y - prev->pos.y);
-    FCOORD target_vec(x - prev->pos.x, y - prev->pos.y);
+    FCOORD segment_vec(static_cast<float>(next->pos.x - prev->pos.x), static_cast<float>(next->pos.y - prev->pos.y));
+    FCOORD target_vec(static_cast<float>(x - prev->pos.x), static_cast<float>(y - prev->pos.y));
     double cut_fraction = target_vec.length() / segment_vec.length();
     // Get the start and end at the step level.
     ICOORD step_start = prev_ol->position_at_index(prev->start_step);

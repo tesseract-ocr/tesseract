@@ -289,7 +289,7 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
         // Last pixel is start pixel + length.
         width = s_it.data ()->y ();
         window->SetCursor(s_it.data ()->x (), y);
-        window->DrawTo(s_it.data()->x() + static_cast<float>(width), y);
+        window->DrawTo(s_it.data()->x() + width, y);
       }
     }
   }

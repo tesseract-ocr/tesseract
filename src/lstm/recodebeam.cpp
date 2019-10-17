@@ -382,8 +382,8 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
           best_nodes[t]->permuter != NO_PERM) {
         // All the rating and certainty go on the previous character except
         // for the space itself.
-        if (certainty < certs->back()) certs->back() = certainty;
-        ratings->back() += rating;
+        if (certainty < certs->back()) certs->back() = static_cast<float>(certainty);
+        ratings->back() += static_cast<float>(rating);
         certainty = 0.0;
         rating = 0.0;
       }
@@ -403,11 +403,11 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
         }
         rating -= cert;
       } while (t < width && best_nodes[t]->duplicate);
-      certs->push_back(certainty);
-      ratings->push_back(rating);
+      certs->push_back(static_cast<float>(certainty));
+      ratings->push_back(static_cast<float>(rating));
     } else if (!certs->empty()) {
-      if (certainty < certs->back()) certs->back() = certainty;
-      ratings->back() += rating;
+      if (certainty < certs->back()) certs->back() = static_cast<float>(certainty);
+      ratings->back() += static_cast<float>(rating);
     }
     if (best_choices != nullptr) {
       best_choices->push_back(
@@ -586,18 +586,17 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
     if (top_n_flags_[prev->code] == top_n_flag) {
       if (prev_cont != NC_NO_DUP) {
         float cert =
-            NetworkIO::ProbToCertainty(outputs[prev->code]) + cert_offset;
+            static_cast<float>(NetworkIO::ProbToCertainty(outputs[prev->code]) + cert_offset);
         PushDupOrNoDawgIfBetter(length, true, prev->code, prev->unichar_id,
-                                cert, worst_dict_cert, dict_ratio, use_dawgs,
+                                cert, static_cast<float>(worst_dict_cert), static_cast<float>(dict_ratio), use_dawgs,
                                 NC_ANYTHING, prev, step);
       }
       if (prev_cont == NC_ANYTHING && top_n_flag == TN_TOP2 &&
           prev->code != null_char_) {
-        float cert = NetworkIO::ProbToCertainty(outputs[prev->code] +
-                                                outputs[null_char_]) +
-                     cert_offset;
+        float cert = static_cast<float>(NetworkIO::ProbToCertainty(outputs[prev->code] +
+                                                outputs[null_char_]) + cert_offset);
         PushDupOrNoDawgIfBetter(length, true, prev->code, prev->unichar_id,
-                                cert, worst_dict_cert, dict_ratio, use_dawgs,
+                                cert, static_cast<float>(worst_dict_cert), static_cast<float>(dict_ratio), use_dawgs,
                                 NC_NO_DUP, prev, step);
       }
     }
@@ -607,9 +606,9 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
       // Allow nulls within multi code sequences, as the nulls within are not
       // explicitly included in the code sequence.
       float cert =
-          NetworkIO::ProbToCertainty(outputs[null_char_]) + cert_offset;
+          static_cast<float>(NetworkIO::ProbToCertainty(outputs[null_char_]) + cert_offset);
       PushDupOrNoDawgIfBetter(length, false, null_char_, INVALID_UNICHAR_ID,
-                              cert, worst_dict_cert, dict_ratio, use_dawgs,
+                              cert, static_cast<float>(worst_dict_cert), static_cast<float>(dict_ratio), use_dawgs,
                               NC_ANYTHING, prev, step);
     }
   }
@@ -619,7 +618,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
       int code = (*final_codes)[i];
       if (top_n_flags_[code] != top_n_flag) continue;
       if (prev != nullptr && prev->code == code && !is_simple_text_) continue;
-      float cert = NetworkIO::ProbToCertainty(outputs[code]) + cert_offset;
+      float cert = static_cast<float>(NetworkIO::ProbToCertainty(outputs[code]) + cert_offset);
       if (cert < kMinCertainty && code != null_char_) continue;
       full_code.Set(length, code);
       int unichar_id = recoder_.DecodeUnichar(full_code);
@@ -629,7 +628,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
           charset != nullptr &&
           !charset->get_enabled(unichar_id))
         continue; // disabled by whitelist/blacklist
-      ContinueUnichar(code, unichar_id, cert, worst_dict_cert, dict_ratio,
+      ContinueUnichar(code, unichar_id, cert, static_cast<float>(worst_dict_cert), static_cast<float>(dict_ratio),
                       use_dawgs, NC_ANYTHING, prev, step);
       if (top_n_flag == TN_TOP2 && code != null_char_) {
         float prob = outputs[code] + outputs[null_char_];
@@ -639,8 +638,8 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
              (code == top_code_ && prev->code == second_code_))) {
           prob += outputs[prev->code];
         }
-        float cert = NetworkIO::ProbToCertainty(prob) + cert_offset;
-        ContinueUnichar(code, unichar_id, cert, worst_dict_cert, dict_ratio,
+        float cert = static_cast<float>(NetworkIO::ProbToCertainty(prob) + cert_offset);
+        ContinueUnichar(code, unichar_id, cert, static_cast<float>(worst_dict_cert), static_cast<float>(dict_ratio),
                         use_dawgs, NC_ONLY_DUP, prev, step);
       }
     }
@@ -651,9 +650,9 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
       int code = (*next_codes)[i];
       if (top_n_flags_[code] != top_n_flag) continue;
       if (prev != nullptr && prev->code == code && !is_simple_text_) continue;
-      float cert = NetworkIO::ProbToCertainty(outputs[code]) + cert_offset;
+      float cert = static_cast<float>(NetworkIO::ProbToCertainty(outputs[code]) + cert_offset);
       PushDupOrNoDawgIfBetter(length + 1, false, code, INVALID_UNICHAR_ID, cert,
-                              worst_dict_cert, dict_ratio, use_dawgs,
+                              static_cast<float>(worst_dict_cert), static_cast<float>(dict_ratio), use_dawgs,
                               NC_ANYTHING, prev, step);
       if (top_n_flag == TN_TOP2 && code != null_char_) {
         float prob = outputs[code] + outputs[null_char_];
@@ -663,9 +662,9 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
              (code == top_code_ && prev->code == second_code_))) {
           prob += outputs[prev->code];
         }
-        float cert = NetworkIO::ProbToCertainty(prob) + cert_offset;
+        float cert = static_cast<float>(NetworkIO::ProbToCertainty(prob) + cert_offset);
         PushDupOrNoDawgIfBetter(length + 1, false, code, INVALID_UNICHAR_ID,
-                                cert, worst_dict_cert, dict_ratio, use_dawgs,
+                                cert, static_cast<float>(worst_dict_cert), static_cast<float>(dict_ratio), use_dawgs,
                                 NC_ONLY_DUP, prev, step);
       }
     }

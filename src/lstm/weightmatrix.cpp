@@ -97,7 +97,7 @@ int WeightMatrix::InitWeightsFloat(int no, int ni, bool use_adam,
 int WeightMatrix::RemapOutputs(const std::vector<int>& code_map) {
   GENERIC_2D_ARRAY<double> old_wf(wf_);
   int old_no = wf_.dim1();
-  int new_no = code_map.size();
+  int new_no = static_cast<int>(code_map.size());
   int ni = wf_.dim2();
   std::vector<double> means(ni, 0.0);
   for (int c = 0; c < old_no; ++c) {

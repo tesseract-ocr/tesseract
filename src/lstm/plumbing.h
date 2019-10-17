@@ -111,7 +111,7 @@ class Plumbing : public Network {
   void ScaleLayerLearningRate(const char* id, double factor) {
     float* lr_ptr = LayerLearningRatePtr(id);
     ASSERT_HOST(lr_ptr != nullptr);
-    *lr_ptr *= factor;
+    *lr_ptr *= static_cast<float>(factor);
   }
   // Returns a pointer to the learning rate for the given layer id.
   float* LayerLearningRatePtr(const char* id) const;

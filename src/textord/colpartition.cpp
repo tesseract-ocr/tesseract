@@ -1474,7 +1474,7 @@ void ColPartition::LineSpacingBlocks(const ICOORD& bleft, const ICOORD& tright,
   TO_BLOCK_IT to_block_it(to_blocks);
   ColPartition_LIST spacing_parts;
   ColPartition_IT sp_block_it(&spacing_parts);
-  int same_block_threshold = max_line_height * kMaxSameBlockLineSpacing;
+  int same_block_threshold = static_cast<int>(max_line_height * kMaxSameBlockLineSpacing);
   for (it.mark_cycle_pt(); !it.empty();) {
     ColPartition* part = it.extract();
     sp_block_it.add_to_end(part);
@@ -1611,7 +1611,7 @@ static TO_BLOCK* MoveBlobsToBlock(bool vertical_text, int line_spacing,
     delete to_block;
     return nullptr;
   }
-  to_block->line_size = sizes.median();
+  to_block->line_size = static_cast<float>(sizes.median());
   if (vertical_text) {
     int block_width = block->pdblk.bounding_box().width();
     if (block_width < line_spacing)

@@ -216,10 +216,10 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
     case spherical:
       ASSERT_HOST(ReadNFloats(fp, 1, &(Proto->Variance.Spherical)) != nullptr);
       Proto->Magnitude.Spherical =
-          1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
+          static_cast<float>(1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical));
       Proto->TotalMagnitude = pow(Proto->Magnitude.Spherical, static_cast<float>(N));
-      Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
-      Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
+      Proto->LogMagnitude = static_cast<float>(log(static_cast<double>(Proto->TotalMagnitude)));
+      Proto->Weight.Spherical = 1.0f / Proto->Variance.Spherical;
       Proto->Distrib = nullptr;
       break;
     case elliptical:
@@ -230,11 +230,11 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->TotalMagnitude = 1.0;
       for (i = 0; i < N; i++) {
         Proto->Magnitude.Elliptical[i] =
-            1.0 / sqrt(2.0 * M_PI * Proto->Variance.Elliptical[i]);
-        Proto->Weight.Elliptical[i] = 1.0 / Proto->Variance.Elliptical[i];
+            static_cast<float>(1.0 / sqrt(2.0 * M_PI * Proto->Variance.Elliptical[i]));
+        Proto->Weight.Elliptical[i] = 1.0f / Proto->Variance.Elliptical[i];
         Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
       }
-      Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
+      Proto->LogMagnitude = static_cast<float>(log(static_cast<double>(Proto->TotalMagnitude)));
       Proto->Distrib = nullptr;
       break;
     default:

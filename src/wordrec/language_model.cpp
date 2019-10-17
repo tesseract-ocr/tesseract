@@ -904,7 +904,7 @@ LanguageModelNgramInfo *LanguageModel::GenerateNgramInfo(
   // The ngram_cost is used by the params_model, so it needs to be left as-is,
   // and the params model cost will be normalized by outline_length.
   ngram_and_classifier_cost *=
-      outline_length / language_model_ngram_rating_factor;
+      static_cast<float>(outline_length / language_model_ngram_rating_factor);
   // Add the ngram_cost of the parent.
   if (parent_vse != nullptr) {
     ngram_and_classifier_cost +=
@@ -954,7 +954,7 @@ float LanguageModel::ComputeNgramCost(const char *unichar,
       tprintf("prob(%s | %s)=%g\n", unichar_ptr, context_ptr,
               dict_->ProbabilityInContext(context_ptr, -1, unichar_ptr, step));
     }
-    prob += dict_->ProbabilityInContext(context_ptr, -1, unichar_ptr, step);
+    prob += static_cast<float>(dict_->ProbabilityInContext(context_ptr, -1, unichar_ptr, step));
     ++(*unichar_step_len);
     if (language_model_ngram_use_only_first_uft8_step) break;
     unichar_ptr += step;
@@ -979,12 +979,12 @@ float LanguageModel::ComputeNgramCost(const char *unichar,
   if (prob < language_model_ngram_small_prob) {
     if (language_model_debug_level > 0) tprintf("Found small prob %g\n", prob);
     *found_small_prob = true;
-    prob = language_model_ngram_small_prob;
+    prob = static_cast<float>(language_model_ngram_small_prob);
   }
-  *ngram_cost = -1.0*log2(prob);
+  *ngram_cost = -1.0f*log2(prob);
   float ngram_and_classifier_cost =
-      -1.0*log2(CertaintyScore(certainty)/denom) +
-      *ngram_cost * language_model_ngram_scale_factor;
+      static_cast<float>(-1.0f*log2(CertaintyScore(certainty)/denom) +
+      *ngram_cost * language_model_ngram_scale_factor);
   if (language_model_debug_level > 1) {
     tprintf("-log [ p(%s) * p(%s | %s) ] = -log2(%g*%g) = %g\n", unichar,
             unichar, context_ptr, CertaintyScore(certainty)/denom, prob,
@@ -1010,7 +1010,7 @@ float LanguageModel::ComputeDenom(BLOB_CHOICE_LIST *curr_list) {
   // Since we can not do this because of speed, we add a very crude estimate
   // of what these scores for the "missing" classifications would sum up to.
   denom += (dict_->getUnicharset().size() - len) *
-    CertaintyScore(language_model_ngram_nonmatch_score);
+    CertaintyScore(static_cast<float>(language_model_ngram_nonmatch_score));
 
   return denom;
 }
@@ -1143,7 +1143,7 @@ void LanguageModel::FillConsistencyInfo(
         ASSERT_HOST(fontinfo_id < fontinfo_table_->size());
         if (fontinfo_table_->get(fontinfo_id).get_spacing(
             parent_b->unichar_id(), unichar_id, &temp_gap)) {
-          expected_gap = temp_gap;
+          expected_gap = static_cast<float>(temp_gap);
           expected_gap_found = true;
         }
       } else {
@@ -1217,13 +1217,13 @@ float LanguageModel::ComputeAdjustedPathCost(ViterbiStateEntry *vse) {
   } else {
     float adjustment = 1.0f;
     if (vse->dawg_info == nullptr || vse->dawg_info->permuter != FREQ_DAWG_PERM) {
-      adjustment += language_model_penalty_non_freq_dict_word;
+      adjustment += static_cast<float>(language_model_penalty_non_freq_dict_word);
     }
     if (vse->dawg_info == nullptr) {
-      adjustment += language_model_penalty_non_dict_word;
+      adjustment += static_cast<float>(language_model_penalty_non_dict_word);
       if (vse->length > language_model_min_compound_length) {
-        adjustment += ((vse->length - language_model_min_compound_length) *
-            language_model_penalty_increment);
+        adjustment += static_cast<float>(((vse->length - language_model_min_compound_length) *
+            language_model_penalty_increment));
       }
     }
     if (vse->associate_stats.shape_cost > 0) {
@@ -1376,12 +1376,12 @@ void LanguageModel::ExtractFeaturesFromPath(
   // Record consistency-related features.
   // Disabled this feature for due to its poor performance.
   // features[PTRAIN_NUM_BAD_PUNC] = vse.consistency_info.NumInconsistentPunc();
-  features[PTRAIN_NUM_BAD_CASE] = vse.consistency_info.NumInconsistentCase();
-  features[PTRAIN_XHEIGHT_CONSISTENCY] = vse.consistency_info.xht_decision;
+  features[PTRAIN_NUM_BAD_CASE] = static_cast<float>(vse.consistency_info.NumInconsistentCase());
+  features[PTRAIN_XHEIGHT_CONSISTENCY] = static_cast<float>(vse.consistency_info.xht_decision);
   features[PTRAIN_NUM_BAD_CHAR_TYPE] = vse.dawg_info == nullptr ?
-      vse.consistency_info.NumInconsistentChartype() : 0.0;
+      vse.consistency_info.NumInconsistentChartype() : 0.0f;
   features[PTRAIN_NUM_BAD_SPACING] =
-      vse.consistency_info.NumInconsistentSpaces();
+      static_cast<float>(vse.consistency_info.NumInconsistentSpaces());
   // Disabled this feature for now due to its poor performance.
   // features[PTRAIN_NUM_BAD_FONT] = vse.consistency_info.inconsistent_font;
 

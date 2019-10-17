@@ -37,15 +37,15 @@
 #include "tesseractclass.h"
 #include "textord.h"
 
-const float kSizeRatioToReject = 2.0;
+const float kSizeRatioToReject = 2.0f;
 const int kMinAcceptableBlobHeight = 10;
 
-const float kScriptAcceptRatio = 1.3;
+const float kScriptAcceptRatio = 1.3f;
 
-const float kHanRatioInKorean = 0.7;
-const float kHanRatioInJapanese = 0.3;
+const float kHanRatioInKorean = 0.7f;
+const float kHanRatioInJapanese = 0.3f;
 
-const float kNonAmbiguousMargin = 1.0;
+const float kNonAmbiguousMargin = 1.0f;
 
 // General scripts
 static const char* han_script = "Han";
@@ -106,7 +106,7 @@ void OSResults::update_best_script(int orientation) {
     }
   }
   best_result.sconfidence =
-      (first / second - 1.0) / (kScriptAcceptRatio - 1.0);
+      (first / second - 1.0f) / (kScriptAcceptRatio - 1.0f);
 }
 
 int OSResults::get_best_script(int orientation_id) const {
@@ -196,7 +196,7 @@ int orientation_and_script_detection(STRING& filename,
 
   lastdot = strrchr (name.string (), '.');
   if (lastdot != nullptr)
-    name[lastdot-name.string()] = '\0';
+    name[static_cast<long int>(lastdot-name.string())] = '\0';
 
   ASSERT_HOST(tess->pix_binary() != nullptr);
   int width = pixGetWidth(tess->pix_binary());
@@ -406,7 +406,7 @@ bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
       if (choice != nullptr) {
         // The certainty score ranges between [-20,0]. This is converted here to
         // [0,1], with 1 indicating best match.
-        blob_o_score[i] = 1 + 0.05 * choice->certainty();
+        blob_o_score[i] = 1 + 0.05f * choice->certainty();
         total_blob_o_score += blob_o_score[i];
       }
     }

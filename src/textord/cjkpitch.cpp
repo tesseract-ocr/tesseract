@@ -32,11 +32,11 @@ static BOOL_VAR(textord_space_size_is_variable, false,
 namespace {
 
 // Allow +/-10% error for character pitch / body size.
-static const float kFPTolerance = 0.1;
+static const float kFPTolerance = 0.1f;
 
 // Minimum ratio of "good" character pitch for a row to be considered
 // to be fixed-pitch.
-static const float kFixedPitchThreshold = 0.35;
+static const float kFixedPitchThreshold = 0.35f;
 
 // rank statistics for a small collection of float values.
 class SimpleStats {
@@ -65,10 +65,10 @@ class SimpleStats {
     if (frac >= 1.0) return values_.back();
     if (frac <= 0.0 || values_.size() == 1) return values_[0];
     int index = static_cast<int>((values_.size() - 1) * frac);
-    float reminder = (values_.size() - 1) * frac - index;
+    float reminder = static_cast<float>((values_.size() - 1) * frac - index);
 
-    return values_[index] * (1.0 - reminder) +
-        values_[index + 1] * reminder;
+    return static_cast<float>(values_[index] * (1.0 - reminder) +
+        values_[index + 1] * reminder);
   }
 
   float median() {
@@ -354,7 +354,7 @@ class FPRow {
   }
 
   float center_x(int i) {
-    return (characters_[i].box().left() + characters_[i].box().right()) / 2.0;
+    return static_cast<float>((characters_[i].box().left() + characters_[i].box().right()) / 2.0);
   }
 
   bool is_final(int i) {
@@ -398,7 +398,7 @@ class FPRow {
   }
 
   static float box_pitch(const TBOX& ref, const TBOX& box) {
-    return abs(ref.left() + ref.right() - box.left() - box.right()) / 2.0;
+    return static_cast<float>(abs(ref.left() + ref.right() - box.left() - box.right()) / 2.0);
   }
 
   // Check if two neighboring characters satisfy the fixed pitch model.
@@ -526,12 +526,12 @@ void FPRow::OutputEstimations() {
   real_row_->space_size = real_row_->pr_space = pitch_;
   // Set min_space to 50% of character pitch so that we can break CJK
   // text at a half-width space after punctuation.
-  real_row_->min_space = (pitch_ + good_gaps_.minimum()) * 0.5;
+  real_row_->min_space = static_cast<int32_t>((pitch_ + good_gaps_.minimum()) * 0.5);
 
   // Don't consider a quarter space as a real space, because it's used
   // for line justification in traditional Japanese books.
-  real_row_->max_nonspace = std::max(pitch_ * 0.25 + good_gaps_.minimum(),
-                                static_cast<double>(good_gaps_.ile(0.875)));
+  real_row_->max_nonspace = static_cast<int32_t>(std::max(pitch_ * 0.25 + good_gaps_.minimum(),
+                                static_cast<double>(good_gaps_.ile(0.875))));
 
   int space_threshold =
           std::min((real_row_->max_nonspace + real_row_->min_space) / 2,
@@ -540,8 +540,8 @@ void FPRow::OutputEstimations() {
   // Make max_nonspace larger than any intra-character gap so that
   // make_prop_words() won't break a row at the middle of a character.
   for (size_t i = 0; i < num_chars(); ++i) {
-    if (characters_[i].max_gap() > real_row_->max_nonspace) {
-      real_row_->max_nonspace = characters_[i].max_gap();
+    if (characters_[static_cast<int>(i)].max_gap() > real_row_->max_nonspace) {
+      real_row_->max_nonspace = characters_[static_cast<int>(i)].max_gap();
     }
   }
   real_row_->space_threshold =
@@ -560,20 +560,20 @@ void FPRow::OutputEstimations() {
     // space_threshold.  Don't break if none of two characters
     // couldn't be "finalized", because maybe they need to be merged
     // to one character.
-    if ((is_final(i - 1) || is_final(i)) &&
-        real_body(i - 1).x_gap(real_body(i)) > space_threshold) {
+    if ((is_final(static_cast<int>(i - 1)) || is_final(static_cast<int>(i))) &&
+        real_body(static_cast<int>(i - 1)).x_gap(real_body(static_cast<int>(i))) > space_threshold) {
       cell = new ICOORDELT(right + 1, 0);
       cell_it.add_after_then_move(cell);
-      while (right + pitch_ < box(i).left()) {
-        right += pitch_;
+      while (right + pitch_ < box(static_cast<int>(i)).left()) {
+        right += static_cast<int>(pitch_);
         cell = new ICOORDELT(right + 1, 0);
         cell_it.add_after_then_move(cell);
       }
-      right = box(i).left();
+      right = box(static_cast<int>(i)).left();
     }
-    cell = new ICOORDELT((right + real_body(i).left()) / 2, 0);
+    cell = new ICOORDELT((right + real_body(static_cast<int>(i)).left()) / 2, 0);
     cell_it.add_after_then_move(cell);
-    right = real_body(i).right();
+    right = real_body(static_cast<int>(i)).right();
   }
 
   cell = new ICOORDELT(right + 1, 0);
@@ -594,21 +594,21 @@ void FPRow::EstimatePitch(bool pass1) {
 
   int32_t cx0, cx1;
   bool prev_was_good = is_good(0);
-  cx0 = center_x(0);
+  cx0 = static_cast<int32_t>(center_x(0));
 
   heights_.Add(box(0).height());
   for (size_t i = 1; i < num_chars(); i++) {
-    cx1 = center_x(i);
+    cx1 = static_cast<int32_t>(center_x(static_cast<int>(i)));
     int32_t pitch = cx1 - cx0;
-    int32_t gap = std::max(0, real_body(i - 1).x_gap(real_body(i)));
+    int32_t gap = std::max(0, real_body(static_cast<int>(i - 1)).x_gap(real_body(static_cast<int>(i))));
 
-    heights_.Add(box(i).height());
+    heights_.Add(box(static_cast<int>(i)).height());
     // Ignore if the pitch is too close.  But don't ignore wide pitch
     // may be the result of large tracking.
     if (pitch > height_ * 0.5) {
-      all_pitches_.Add(pitch);
-      all_gaps_.Add(gap);
-      if (is_good(i)) {
+      all_pitches_.Add(static_cast<float>(pitch));
+      all_gaps_.Add(static_cast<float>(gap));
+      if (is_good(static_cast<int>(i))) {
         // In pass1 (after Pass1Analyze()), all characters marked as
         // "good" have a good consistent pitch with their previous
         // characters.  However, it's not true in pass2 and a good
@@ -618,9 +618,9 @@ void FPRow::EstimatePitch(bool pass1) {
         if (pass1 || (prev_was_good &&
                       fabs(estimated_pitch_ - pitch) <
                           kFPTolerance * estimated_pitch_)) {
-          good_pitches_.Add(pitch);
-          if (!is_box_modified(i - 1) && !is_box_modified(i)) {
-            good_gaps_.Add(gap);
+          good_pitches_.Add(static_cast<float>(pitch));
+          if (!is_box_modified(static_cast<int>(i - 1)) && !is_box_modified(static_cast<int>(i))) {
+            good_gaps_.Add(static_cast<float>(gap));
           }
         }
         prev_was_good = true;
@@ -676,21 +676,21 @@ void FPRow::Pass1Analyze() {
 
   if (estimated_pitch_ > 0.0f) {
     for (size_t i = 2; i < num_chars(); i++) {
-      if (is_good_pitch(estimated_pitch_, box(i - 2), box(i-1)) &&
-          is_good_pitch(estimated_pitch_, box(i - 1), box(i))) {
-        mark_good(i - 1);
+      if (is_good_pitch(estimated_pitch_, box(static_cast<int>(i - 2)), box(static_cast<int>(i-1))) &&
+          is_good_pitch(estimated_pitch_, box(static_cast<int>(i - 1)), box(static_cast<int>(i)))) {
+        mark_good(static_cast<int>(i - 1));
       }
     }
   } else {
     for (size_t i = 2; i < num_chars(); i++) {
-      if (is_good_pitch(box_pitch(box(i-2), box(i-1)), box(i - 1), box(i))) {
-        mark_good(i - 1);
+      if (is_good_pitch(box_pitch(box(static_cast<int>(i-2)), box(static_cast<int>(i-1))), box(static_cast<int>(i - 1)), box(static_cast<int>(i)))) {
+        mark_good(static_cast<int>(i - 1));
       }
     }
   }
   character(0)->set_alignment(character(1)->alignment());
-  character(num_chars() - 1)->set_alignment(
-      character(num_chars() - 2)->alignment());
+  character(static_cast<int>(num_chars() - 1))->set_alignment(
+      character(static_cast<int>(num_chars() - 2))->alignment());
 }
 
 bool FPRow::Pass2Analyze() {
@@ -699,27 +699,27 @@ bool FPRow::Pass2Analyze() {
     return false;
   }
   for (size_t i = 0; i < num_chars(); i++) {
-    if (is_final(i)) continue;
+    if (is_final(static_cast<int>(i))) continue;
 
-    FPChar::Alignment alignment = character(i)->alignment();
+    FPChar::Alignment alignment = character(static_cast<int>(i))->alignment();
     bool intersecting = false;
     bool not_intersecting = false;
 
-    if (i < num_chars() - 1 && is_final(i + 1)) {
+    if (i < num_chars() - 1 && is_final(static_cast<int>(i + 1))) {
       // Next character is already finalized. Estimate the imaginary
       // body including this character based on the character. Skip
       // whitespace if necessary.
       bool skipped_whitespaces = false;
-      float c1 = center_x(i + 1)  - 1.5 * estimated_pitch_;
-      while (c1 > box(i).right()) {
+      float c1 = static_cast<float>(center_x(static_cast<int>(i + 1))  - 1.5 * estimated_pitch_);
+      while (c1 > box(static_cast<int>(i)).right()) {
         skipped_whitespaces = true;
         c1 -= estimated_pitch_;
       }
-      TBOX ibody(c1, box(i).bottom(), c1 + estimated_pitch_, box(i).top());
+      TBOX ibody(static_cast<int16_t>(c1), box(static_cast<int>(i)).bottom(), static_cast<int16_t>(c1 + estimated_pitch_), box(static_cast<int>(i)).top());
 
       // Collect all characters that mostly fit in the region.
       // Also, their union height shouldn't be too big.
-      int j = i;
+      int j = static_cast<int>(i);
       TBOX merged;
       while (j >= 0 && !is_final(j) && mostly_overlap(ibody, box(j)) &&
              merged.bounding_union(box(j)).height() <
@@ -739,61 +739,61 @@ bool FPRow::Pass2Analyze() {
           // into the body nicely.
           if (i - j == 1) {
             // Only one char in the imaginary body.
-            if (!skipped_whitespaces) mark_good(i);
+            if (!skipped_whitespaces) mark_good(static_cast<int>(i));
             // set ibody as bounding box of this character to get
             // better pitch analysis result for halfwidth glyphs
             // followed by a halfwidth space.
-            if (box(i).width() <= estimated_pitch_ * 0.5) {
-              ibody += box(i);
-              character(i)->set_box(ibody);
+            if (box(static_cast<int>(i)).width() <= estimated_pitch_ * 0.5) {
+              ibody += box(static_cast<int>(i));
+              character(static_cast<int>(i))->set_box(ibody);
             }
-            character(i)->set_merge_to_prev(false);
-            finalize(i);
+            character(static_cast<int>(i))->set_merge_to_prev(false);
+            finalize(static_cast<int>(i));
           } else {
-            for (int k = i; k > j + 1; k--) {
+            for (int k = static_cast<int>(i); k > j + 1; k--) {
               character(k)->set_merge_to_prev(true);
             }
           }
         }
       }
     }
-    if (i > 0 && is_final(i - 1)) {
+    if (i > 0 && is_final(static_cast<int>(i - 1))) {
       // Now we repeat everything from the opposite side.  Previous
       // character is already finalized. Estimate the imaginary body
       // including this character based on the character.
       bool skipped_whitespaces = false;
-      float c1 = center_x(i - 1) + 1.5 * estimated_pitch_;
-      while (c1 < box(i).left()) {
+      float c1 = static_cast<float>(center_x(static_cast<int>(i - 1)) + 1.5 * estimated_pitch_);
+      while (c1 < box(static_cast<int>(i)).left()) {
         skipped_whitespaces = true;
         c1 += estimated_pitch_;
       }
-      TBOX ibody(c1 - estimated_pitch_, box(i).bottom(), c1, box(i).top());
+      TBOX ibody(static_cast<int16_t>(c1 - estimated_pitch_), box(static_cast<int>(i)).bottom(), static_cast<int16_t>(c1), box(static_cast<int>(i)).top());
 
       size_t j = i;
       TBOX merged;
-      while (j < num_chars() && !is_final(j) && mostly_overlap(ibody, box(j)) &&
-             merged.bounding_union(box(j)).height() <
+      while (j < num_chars() && !is_final(static_cast<int>(j)) && mostly_overlap(ibody, box(static_cast<int>(j))) &&
+             merged.bounding_union(box(static_cast<int>(j))).height() <
              estimated_pitch_ * (1 + kFPTolerance)) {
-        merged += box(j);
+        merged += box(static_cast<int>(j));
         j++;
       }
 
-      if (j < num_chars() && significant_overlap(ibody, box(j))) {
-        if (!is_final(j)) intersecting = true;
+      if (j < num_chars() && significant_overlap(ibody, box(static_cast<int>(j)))) {
+        if (!is_final(static_cast<int>(j))) intersecting = true;
       } else {
         not_intersecting = true;
         if (j - i > 0) {
           if (j - i == 1) {
-            if (!skipped_whitespaces) mark_good(i);
-            if (box(i).width() <= estimated_pitch_ * 0.5) {
-              ibody += box(i);
-              character(i)->set_box(ibody);
+            if (!skipped_whitespaces) mark_good(static_cast<int>(i));
+            if (box(static_cast<int>(i)).width() <= estimated_pitch_ * 0.5) {
+              ibody += box(static_cast<int>(i));
+              character(static_cast<int>(i))->set_box(ibody);
             }
-            character(i)->set_merge_to_prev(false);
-            finalize(i);
+            character(static_cast<int>(i))->set_merge_to_prev(false);
+            finalize(static_cast<int>(i));
           } else {
             for (size_t k = i + 1; k < j; k++) {
-              character(k)->set_merge_to_prev(true);
+              character(static_cast<int>(k))->set_merge_to_prev(true);
             }
           }
         }
@@ -802,9 +802,9 @@ bool FPRow::Pass2Analyze() {
 
     // This character doesn't fit well into the estimated imaginary
     // bodies. Mark it as bad.
-    if (intersecting && !not_intersecting) mark_bad(i);
-    if (character(i)->alignment() != alignment ||
-        character(i)->merge_to_prev()) {
+    if (intersecting && !not_intersecting) mark_bad(static_cast<int>(i));
+    if (character(static_cast<int>(i))->alignment() != alignment ||
+        character(static_cast<int>(i))->merge_to_prev()) {
       changed = true;
     }
   }
@@ -816,13 +816,13 @@ void FPRow::MergeFragments() {
   int last_char = 0;
 
   for (size_t j = 0; j < num_chars(); ++j) {
-    if (character(j)->merge_to_prev()) {
-      character(last_char)->Merge(*character(j));
-      character(j)->set_delete_flag(true);
+    if (character(static_cast<int>(j))->merge_to_prev()) {
+      character(last_char)->Merge(*character(static_cast<int>(j)));
+      character(static_cast<int>(j))->set_delete_flag(true);
       clear_alignment(last_char);
-      character(j-1)->set_merge_to_prev(false);
+      character(static_cast<int>(j-1))->set_merge_to_prev(false);
     } else {
-      last_char = j;
+      last_char = static_cast<int>(j);
     }
   }
   DeleteChars();
@@ -831,24 +831,24 @@ void FPRow::MergeFragments() {
 void FPRow::FinalizeLargeChars() {
   float row_pitch = estimated_pitch();
   for (size_t i = 0; i < num_chars(); i++) {
-    if (is_final(i)) continue;
+    if (is_final(static_cast<int>(i))) continue;
 
     // Finalize if both neighbors are finalized. We have no other choice.
-    if (i > 0 && is_final(i - 1) && i < num_chars() - 1 && is_final(i + 1)) {
-      finalize(i);
+    if (i > 0 && is_final(static_cast<int>(i - 1)) && i < num_chars() - 1 && is_final(static_cast<int>(i + 1))) {
+      finalize(static_cast<int>(i));
       continue;
     }
 
-    float cx = center_x(i);
-    TBOX ibody(cx - 0.5 * row_pitch, 0, cx + 0.5 * row_pitch, 1);
+    float cx = center_x(static_cast<int>(i));
+    TBOX ibody(static_cast<int16_t>(cx - 0.5 * row_pitch), 0, static_cast<int16_t>(cx + 0.5 * row_pitch), 1);
     if (i > 0) {
       // The preceding character significantly intersects with the
       // imaginary body of this character. Let Pass2Analyze() handle
       // this case.
-      if (x_overlap_fraction(ibody, box(i - 1)) > 0.1) continue;
-      if (!is_final(i - 1)) {
-        TBOX merged = box(i);
-        merged += box(i - 1);
+      if (x_overlap_fraction(ibody, box(static_cast<int>(i - 1))) > 0.1) continue;
+      if (!is_final(static_cast<int>(i - 1))) {
+        TBOX merged = box(static_cast<int>(i));
+        merged += box(static_cast<int>(i - 1));
         if (merged.width() < row_pitch) continue;
         // This character cannot be finalized yet because it can be
         // merged with the previous one.  Again, let Pass2Analyze()
@@ -856,14 +856,14 @@ void FPRow::FinalizeLargeChars() {
       }
     }
     if (i < num_chars() - 1) {
-      if (x_overlap_fraction(ibody, box(i + 1)) > 0.1) continue;
-      if (!is_final(i + 1)) {
-        TBOX merged = box(i);
-        merged += box(i + 1);
+      if (x_overlap_fraction(ibody, box(static_cast<int>(i + 1))) > 0.1) continue;
+      if (!is_final(static_cast<int>(i + 1))) {
+        TBOX merged = box(static_cast<int>(i));
+        merged += box(static_cast<int>(i + 1));
         if (merged.width() < row_pitch) continue;
       }
     }
-    finalize(i);
+    finalize(static_cast<int>(i));
   }
 
   // Update alignment decision.  We only consider finalized characters
@@ -872,25 +872,25 @@ void FPRow::FinalizeLargeChars() {
   // right, we mark C as good if the pitch between C and L is good,
   // regardless of the pitch between C and R.
   for (size_t i = 0; i < num_chars(); i++) {
-    if (!is_final(i)) continue;
+    if (!is_final(static_cast<int>(i))) continue;
     bool good_pitch = false;
     bool bad_pitch = false;
-    if (i > 0 && is_final(i - 1)) {
-      if (is_good_pitch(row_pitch, box(i - 1), box(i))) {
+    if (i > 0 && is_final(static_cast<int>(i - 1))) {
+      if (is_good_pitch(row_pitch, box(static_cast<int>(i - 1)), box(static_cast<int>(i)))) {
         good_pitch = true;
       } else {
         bad_pitch = true;
       }
     }
-    if (i < num_chars() - 1 && is_final(i + 1)) {
-      if (is_good_pitch(row_pitch, box(i), box(i + 1))) {
+    if (i < num_chars() - 1 && is_final(static_cast<int>(i + 1))) {
+      if (is_good_pitch(row_pitch, box(static_cast<int>(i)), box(static_cast<int>(i + 1)))) {
         good_pitch = true;
       } else {
         bad_pitch = true;
       }
     }
-    if (good_pitch && !bad_pitch) mark_good(i);
-    else if (!good_pitch && bad_pitch) mark_bad(i);
+    if (good_pitch && !bad_pitch) mark_good(static_cast<int>(i));
+    else if (!good_pitch && bad_pitch) mark_bad(static_cast<int>(i));
   }
 }
 
@@ -939,7 +939,7 @@ class FPAnalyzer {
 
   void DebugOutputResult() {
     tprintf("FPAnalyzer: final result\n");
-    for (size_t i = 0; i < rows_.size(); i++) rows_[i].DebugOutputResult(i);
+    for (size_t i = 0; i < rows_.size(); i++) rows_[i].DebugOutputResult(static_cast<int>(i));
   }
 
   size_t num_rows() {
@@ -990,7 +990,7 @@ FPAnalyzer::FPAnalyzer(ICOORD page_tr, TO_BLOCK_LIST *port_blocks)
       rows_.push_back(row);
       size_t num_chars = rows_.back().num_chars();
       if (num_chars <= 1) num_empty_rows_++;
-      if (num_chars > max_chars_per_row_) max_chars_per_row_ = num_chars;
+      if (num_chars > max_chars_per_row_) max_chars_per_row_ = static_cast<unsigned int>(num_chars);
     }
   }
 }
@@ -1021,7 +1021,7 @@ void FPAnalyzer::EstimatePitch(bool pass1) {
     } else if (row.num_chars() > 1) {
       float estimated_pitch =
           pitch_height_stats.EstimateYFor(row.height() + row.gap(),
-                                          0.1);
+                                          0.1f);
       // CJK characters are more likely to be fragmented than poorly
       // chopped. So trust the page-level estimation of character
       // pitch only if it's larger than row-level estimation or

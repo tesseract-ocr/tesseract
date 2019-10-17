@@ -1422,7 +1422,7 @@ char* TessBaseAPI::GetTSVText(int page_number) {
     tsv_str.add_str_int("\t", top);
     tsv_str.add_str_int("\t", right - left);
     tsv_str.add_str_int("\t", bottom - top);
-    tsv_str.add_str_int("\t", res_it->Confidence(RIL_WORD));
+    tsv_str.add_str_int("\t", static_cast<int>(res_it->Confidence(RIL_WORD)));
     tsv_str += "\t";
 
     // Increment counts if at end of block/paragraph/textline.
@@ -1501,7 +1501,7 @@ char* TessBaseAPI::GetBoxText(int page_number) {
       snprintf(result + output_length, total_length - output_length,
                "%s %d %d %d %d %d\n", text.get(), left, image_height_ - bottom,
                right, image_height_ - top, page_number);
-      output_length += strlen(result + output_length);
+      output_length += static_cast<int>(strlen(result + output_length));
       // Just in case...
       if (output_length + kMaxBytesPerLine > total_length)
         break;
@@ -1713,7 +1713,7 @@ int TessBaseAPI::MeanTextConf() {
   int sum = 0;
   int *pt = conf;
   while (*pt >= 0) sum += *pt++;
-  if (pt != conf) sum /= pt - conf;
+  if (pt != conf) sum = static_cast<int>(sum / (pt - conf));
   delete [] conf;
   return sum;
 }
@@ -1728,7 +1728,7 @@ int* TessBaseAPI::AllWordConfidences() {
   for (res_it.restart_page(); res_it.word() != nullptr; res_it.forward())
     n_word++;
 
-  int* conf = new int[n_word+1];
+  int* conf = new int[static_cast<size_t>(n_word)+1];
   n_word = 0;
   for (res_it.restart_page(); res_it.word() != nullptr; res_it.forward()) {
     WERD_RES *word = res_it.word();
@@ -2410,7 +2410,7 @@ void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
     }
   }
 
-  threshold = tesseract_->matcher_good_threshold;
+  threshold = static_cast<float>(tesseract_->matcher_good_threshold);
 
   if (blob->outlines)
     tesseract_->AdaptToChar(blob, id, kUnknownFontinfoId, threshold,
@@ -2442,7 +2442,7 @@ struct TESS_CHAR : ELIST_LINK {
   TBOX box;
 
   TESS_CHAR(float _cost, const char *repr, int len = -1) : cost(_cost) {
-    length = (len == -1 ? strlen(repr) : len);
+    length = (len == -1 ? static_cast<int>(strlen(repr)) : len);
     unicode_repr = new char[length + 1];
     strncpy(unicode_repr, repr, length);
   }
@@ -2492,7 +2492,7 @@ static void extract_result(TESS_CHAR_IT* out,
 
     if (word_count)
       add_space(out);
-    int n = strlen(len);
+    int n = static_cast<int>(strlen(len));
     for (int i = 0; i < n; i++) {
       auto *tc = new TESS_CHAR(rating_to_cost(word->best_choice->rating()),
                                     str, *len);

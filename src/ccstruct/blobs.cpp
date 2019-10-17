@@ -361,9 +361,9 @@ TBLOB* TBLOB::ClassifyNormalizeIfNeeded() const {
     // Move the rotated blob back to the same y-position so that we
     // can still distinguish similar glyphs with differeny y-position.
     float target_y =
-        kBlnBaselineOffset +
-        (rotation.y() > 0 ? x_middle - box.left() : box.right() - x_middle);
-    rotated_blob->Normalize(nullptr, &rotation, &denorm_, x_middle, y_middle,
+        static_cast<float>(kBlnBaselineOffset +
+        (rotation.y() > 0 ? x_middle - box.left() : box.right() - x_middle));
+    rotated_blob->Normalize(nullptr, &rotation, &denorm_, static_cast<float>(x_middle), static_cast<float>(y_middle),
                             1.0f, 1.0f, 0.0f, target_y, denorm_.inverse(),
                             denorm_.pix());
   }
@@ -535,8 +535,8 @@ int TBLOB::ComputeMoments(FCOORD* center, FCOORD* second_moments) const {
   double y2nd = sqrt(accumulator.y_variance());
   if (x2nd < 1.0) x2nd = 1.0;
   if (y2nd < 1.0) y2nd = 1.0;
-  second_moments->set_x(x2nd);
-  second_moments->set_y(y2nd);
+  second_moments->set_x(static_cast<float>(x2nd));
+  second_moments->set_y(static_cast<float>(y2nd));
   return accumulator.count();
 }
 
@@ -729,9 +729,9 @@ static void CollectEdgesOfRun(const EDGEPT* startpt, const EDGEPT* lastpt,
     const EDGEPT* endpt = lastpt->next;
     const EDGEPT* pt = startpt;
     do {
-      FCOORD next_pos(pt->next->pos.x - box.left(),
-                      pt->next->pos.y - box.bottom());
-      FCOORD pos(pt->pos.x - box.left(), pt->pos.y - box.bottom());
+      FCOORD next_pos(static_cast<float>(pt->next->pos.x - box.left()),
+                      static_cast<float>(pt->next->pos.y - box.bottom()));
+      FCOORD pos(static_cast<float>(pt->pos.x - box.left()), static_cast<float>(pt->pos.y - box.bottom()));
       if (bounding_box != nullptr) {
         SegmentBBox(next_pos, pos, bounding_box);
       }

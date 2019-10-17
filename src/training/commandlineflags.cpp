@@ -124,7 +124,7 @@ static bool SafeAtod(const char* str, double* val) {
 
 static void PrintCommandLineFlags() {
   const char* kFlagNamePrefix = "FLAGS_";
-  const int kFlagNamePrefixLen = strlen(kFlagNamePrefix);
+  const int kFlagNamePrefixLen = static_cast<int>(strlen(kFlagNamePrefix));
   for (int i = 0; i < GlobalParams()->int_params.size(); ++i) {
     if (!strncmp(GlobalParams()->int_params[i]->name_str(),
                  kFlagNamePrefix, kFlagNamePrefixLen)) {
@@ -208,7 +208,7 @@ void ParseCommandLineFlags(const char* usage,
     if (equals_position == nullptr) {
       lhs = current_arg;
     } else {
-      lhs.assign(current_arg, equals_position - current_arg);
+      lhs.assign(current_arg, static_cast<int>(equals_position - current_arg));
     }
     if (!lhs.length()) {
       tprintf("ERROR: Bad argument: %s\n", (*argv)[i]);

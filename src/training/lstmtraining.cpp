@@ -169,9 +169,9 @@ int main(int argc, char **argv) {
       }
       // We are initializing from scratch.
       if (!trainer.InitNetwork(FLAGS_net_spec.c_str(), FLAGS_append_index,
-                               FLAGS_net_mode, FLAGS_weight_range,
-                               FLAGS_learning_rate, FLAGS_momentum,
-                               FLAGS_adam_beta)) {
+                               FLAGS_net_mode, static_cast<float>(FLAGS_weight_range),
+                               static_cast<float>(FLAGS_learning_rate), static_cast<float>(FLAGS_momentum),
+                               static_cast<float>(FLAGS_adam_beta))) {
         tprintf("Failed to create network from spec: %s\n",
                 FLAGS_net_spec.c_str());
         return EXIT_FAILURE;

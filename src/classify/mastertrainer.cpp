@@ -46,7 +46,7 @@ const int kMinClusteredShapes = 1;
 // Max number of unichars in any individual cluster.
 const int kMaxUnicharsPerCluster = 2000;
 // Mean font distance below which to merge fonts and unichars.
-const float kFontMergeDistance = 0.025;
+const float kFontMergeDistance = 0.025f;
 
 MasterTrainer::MasterTrainer(NormalizationMode norm_mode,
                              bool shape_analysis,
@@ -481,7 +481,7 @@ int MasterTrainer::GetBestMatchingFontInfoId(const char* filename) {
   int best_len = 0;
   for (int f = 0; f < fontinfo_table_.size(); ++f) {
     if (strstr(filename, fontinfo_table_.get(f).name) != nullptr) {
-      int len = strlen(fontinfo_table_.get(f).name);
+      int len = static_cast<int>(strlen(fontinfo_table_.get(f).name));
       // Use the longest matching length in case a substring of a font matched.
       if (len > best_len) {
         best_len = len;

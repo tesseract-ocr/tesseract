@@ -233,7 +233,7 @@ int32_t OL_BUCKETS::count_children(                   // recursive count
             parent_area = outline->outer_area();
             if (parent_area < 0)
               parent_area = -parent_area;
-            max_parent_area = outline->bounding_box().area() * edges_boxarea;
+            max_parent_area = static_cast<float>(outline->bounding_box().area() * edges_boxarea);
             if (parent_area < max_parent_area)
               parent_box = false;
           }

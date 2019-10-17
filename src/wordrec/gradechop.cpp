@@ -48,12 +48,12 @@ PRIORITY Wordrec::grade_split_length(SPLIT *split) {
   float split_length;
 
   split_length =
-      split->point1->WeightedDistance(*split->point2, chop_x_y_weight);
+      static_cast<float>(split->point1->WeightedDistance(*split->point2, chop_x_y_weight));
 
   if (split_length <= 0)
     grade = 0;
   else
-    grade = sqrt (split_length) * chop_split_dist_knob;
+    grade = static_cast<PRIORITY>(sqrt (split_length) * chop_split_dist_knob);
 
   return (std::max(0.0f, grade));
 }
@@ -76,7 +76,7 @@ PRIORITY Wordrec::grade_sharpness(SPLIT *split) {
   else
     grade += 360.0;
 
-  grade *= chop_sharpness_knob;       /* Values 0 to -360 */
+  grade *= static_cast<PRIORITY>(chop_sharpness_knob);       /* Values 0 to -360 */
 
   return (grade);
 }

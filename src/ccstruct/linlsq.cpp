@@ -165,7 +165,7 @@ double LLSQ::pearson() const {  // get correlation
 // Returns the x,y means as an FCOORD.
 FCOORD LLSQ::mean_point() const {
   if (total_weight > 0.0) {
-    return FCOORD(sigx / total_weight, sigy / total_weight);
+    return FCOORD(static_cast<float>(sigx / total_weight), static_cast<float>(sigy / total_weight));
   } else {
     return FCOORD(0.0f, 0.0f);
   }
@@ -253,6 +253,6 @@ FCOORD LLSQ::vector_fit() const {
   double y_var = y_variance();
   double covar = covariance();
   double theta = 0.5 * atan2(2.0 * covar, x_var - y_var);
-  FCOORD result(cos(theta), sin(theta));
+  FCOORD result(static_cast<float>(cos(theta)), static_cast<float>(sin(theta)));
   return result;
 }

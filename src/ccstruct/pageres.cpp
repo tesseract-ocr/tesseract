@@ -524,8 +524,8 @@ void WERD_RES::FilterWordChoices(int debug_level) {
   int index = 0;
   for (it.forward(); !it.at_first(); it.forward(), ++index) {
     WERD_CHOICE* choice = it.data();
-    float threshold = StopperAmbigThreshold(best_choice->adjust_factor(),
-                                            choice->adjust_factor());
+    float threshold = static_cast<float>(StopperAmbigThreshold(best_choice->adjust_factor(),
+                                            choice->adjust_factor()));
     // i, j index the blob choice in choice, best_choice.
     // chunk is an index into the chopped_word blobs (AKA chunks).
     // Since the two words may use different segmentations of the chunks, we
@@ -591,7 +591,7 @@ void WERD_RES::ComputeAdaptionThresholds(float certainty_scale,
 
     if (num_error_chunks > 0) {
       avg_rating /= num_error_chunks;
-      *thresholds = (avg_rating / -certainty_scale) * (1.0 - rating_margin);
+      *thresholds = (avg_rating / -certainty_scale) * (1.0f - rating_margin);
     } else {
       *thresholds = max_rating;
     }
@@ -630,8 +630,8 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
     // undesirable behavior. It would be better to keep all the choices and
     // prune them later when more information is available.
     float max_certainty_delta =
-        StopperAmbigThreshold(best_choice->adjust_factor(),
-                              word_choice->adjust_factor());
+        static_cast<float>(StopperAmbigThreshold(best_choice->adjust_factor(),
+                              word_choice->adjust_factor()));
     if (max_certainty_delta > -kStopperAmbiguityThresholdOffset)
       max_certainty_delta = -kStopperAmbiguityThresholdOffset;
     if (word_choice->certainty() - best_choice->certainty() <
@@ -905,8 +905,8 @@ void WERD_RES::FakeWordFromRatings(PermuterType permuter) {
   word_choice->set_permuter(permuter);
   for (int b = 0; b < num_blobs; ++b) {
     UNICHAR_ID unichar_id = UNICHAR_SPACE;
-    float rating = INT32_MAX;
-    float certainty = -INT32_MAX;
+    float rating = INT32_MAX * 1.f;
+    float certainty = -INT32_MAX * 1.f;
     BLOB_CHOICE_LIST* choices = ratings->get(b, b);
     if (choices != nullptr && !choices->empty()) {
       BLOB_CHOICE_IT bc_it(choices);
@@ -1012,8 +1012,8 @@ static int is_simple_quote(const char* signed_str, int length) {
 UNICHAR_ID WERD_RES::BothQuotes(UNICHAR_ID id1, UNICHAR_ID id2) {
   const char *ch = uch_set->id_to_unichar(id1);
   const char *next_ch = uch_set->id_to_unichar(id2);
-  if (is_simple_quote(ch, strlen(ch)) &&
-      is_simple_quote(next_ch, strlen(next_ch)))
+  if (is_simple_quote(ch, static_cast<int>(strlen(ch))) &&
+      is_simple_quote(next_ch, static_cast<int>(strlen(next_ch))))
     return uch_set->unichar_to_id("\"");
   return INVALID_UNICHAR_ID;
 }

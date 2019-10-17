@@ -210,8 +210,8 @@ UNICHAR_ID
 UNICHARSET::unichar_to_id(const char* const unichar_repr) const {
   std::string cleaned =
       old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
-  return ids.contains(cleaned.data(), cleaned.size())
-             ? ids.unichar_to_id(cleaned.data(), cleaned.size())
+  return ids.contains(cleaned.data(), static_cast<int>(cleaned.size()))
+             ? ids.unichar_to_id(cleaned.data(), static_cast<int>(cleaned.size()))
              : INVALID_UNICHAR_ID;
 }
 
@@ -220,8 +220,8 @@ UNICHAR_ID UNICHARSET::unichar_to_id(const char* const unichar_repr,
   assert(length > 0 && length <= UNICHAR_LEN);
   std::string cleaned(unichar_repr, length);
   if (!old_style_included_) cleaned = CleanupString(unichar_repr, length);
-  return ids.contains(cleaned.data(), cleaned.size())
-             ? ids.unichar_to_id(cleaned.data(), cleaned.size())
+  return ids.contains(cleaned.data(), static_cast<int>(cleaned.size()))
+             ? ids.unichar_to_id(cleaned.data(), static_cast<int>(cleaned.size()))
              : INVALID_UNICHAR_ID;
 }
 
@@ -264,7 +264,7 @@ bool UNICHARSET::encode_string(const char* str, bool give_up_on_failure,
   GenericVector<char> working_lengths;
   GenericVector<char> best_lengths;
   encoding->truncate(0);  // Just in case str is empty.
-  int str_length = strlen(str);
+  int str_length = static_cast<int>(strlen(str));
   int str_pos = 0;
   bool perfect = true;
   while (str_pos < str_length) {
@@ -628,7 +628,7 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr,
   if (old_style == OldUncleanUnichars::kTrue) old_style_included_ = true;
   std::string cleaned =
       old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
-  if (!cleaned.empty() && !ids.contains(cleaned.data(), cleaned.size())) {
+  if (!cleaned.empty() && !ids.contains(cleaned.data(), static_cast<int>(cleaned.size()))) {
     const char* str = cleaned.c_str();
     GenericVector<int> encoding;
     if (!old_style_included_ &&
@@ -671,7 +671,7 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr,
 bool UNICHARSET::contains_unichar(const char* const unichar_repr) const {
   std::string cleaned =
       old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
-  return ids.contains(cleaned.data(), cleaned.size());
+  return ids.contains(cleaned.data(), static_cast<int>(cleaned.size()));
 }
 
 bool UNICHARSET::contains_unichar(const char* const unichar_repr,
@@ -681,7 +681,7 @@ bool UNICHARSET::contains_unichar(const char* const unichar_repr,
   }
   std::string cleaned(unichar_repr, length);
   if (!old_style_included_) cleaned = CleanupString(unichar_repr, length);
-  return ids.contains(cleaned.data(), cleaned.size());
+  return ids.contains(cleaned.data(), static_cast<int>(cleaned.size()));
 }
 
 bool UNICHARSET::eq(UNICHAR_ID unichar_id,
@@ -1096,7 +1096,7 @@ STRING CHAR_FRAGMENT::to_string(const char *unichar, int pos, int total,
 
 CHAR_FRAGMENT *CHAR_FRAGMENT::parse_from_string(const char *string) {
   const char *ptr = string;
-  int len = strlen(string);
+  int len = static_cast<int>(strlen(string));
   if (len < kMinLen || *ptr != kSeparator) {
     return nullptr;  // this string can not represent a fragment
   }

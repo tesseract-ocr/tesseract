@@ -138,11 +138,11 @@ TrainingSample* TrainingSample::CopyFromFeatures(
 
   // Generate the cn_feature_ from the fx_info.
   sample->cn_feature_[CharNormY] =
-      MF_SCALE_FACTOR * (fx_info.Ymean - kBlnBaselineOffset);
+      static_cast<float>(MF_SCALE_FACTOR * (fx_info.Ymean - kBlnBaselineOffset));
   sample->cn_feature_[CharNormLength] =
-      MF_SCALE_FACTOR * fx_info.Length / LENGTH_COMPRESSION;
-  sample->cn_feature_[CharNormRx] = MF_SCALE_FACTOR * fx_info.Rx;
-  sample->cn_feature_[CharNormRy] = MF_SCALE_FACTOR * fx_info.Ry;
+      static_cast<float>(MF_SCALE_FACTOR * fx_info.Length / LENGTH_COMPRESSION);
+  sample->cn_feature_[CharNormRx] = static_cast<float>(MF_SCALE_FACTOR * fx_info.Rx);
+  sample->cn_feature_[CharNormRy] = static_cast<float>(MF_SCALE_FACTOR * fx_info.Ry);
 
   sample->features_are_indexed_ = false;
   sample->features_are_mapped_ = false;
@@ -169,10 +169,10 @@ TrainingSample* TrainingSample::RandomizedCopy(int index) const {
     for (uint32_t i = 0; i < num_features_; ++i) {
       double result = (features_[i].X - kRandomizingCenter) * scaling;
       result += kRandomizingCenter;
-      sample->features_[i].X = ClipToRange<int>(result + 0.5, 0, UINT8_MAX);
+      sample->features_[i].X = ClipToRange<int>(static_cast<int>(result + 0.5), 0, UINT8_MAX);
       result = (features_[i].Y - kRandomizingCenter) * scaling;
       result += kRandomizingCenter + yshift;
-      sample->features_[i].Y = ClipToRange<int>(result + 0.5, 0, UINT8_MAX);
+      sample->features_[i].Y = ClipToRange<int>(static_cast<int>(result + 0.5), 0, UINT8_MAX);
     }
   }
   return sample;
@@ -263,9 +263,9 @@ void TrainingSample::ExtractCharDesc(int int_feature_type,
     tprintf("Error: no Geo feature to train on.\n");
   } else {
     ASSERT_HOST(char_features->NumFeatures == 1);
-    geo_feature_[GeoBottom] = char_features->Features[0]->Params[GeoBottom];
-    geo_feature_[GeoTop] = char_features->Features[0]->Params[GeoTop];
-    geo_feature_[GeoWidth] = char_features->Features[0]->Params[GeoWidth];
+    geo_feature_[GeoBottom] = static_cast<int>(char_features->Features[0]->Params[GeoBottom]);
+    geo_feature_[GeoTop] = static_cast<int>(char_features->Features[0]->Params[GeoTop]);
+    geo_feature_[GeoWidth] = static_cast<int>(char_features->Features[0]->Params[GeoWidth]);
   }
   features_are_indexed_ = false;
   features_are_mapped_ = false;

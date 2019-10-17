@@ -96,7 +96,7 @@ char* STRING::ensure_cstr(int32_t min_capacity) {
 void STRING::FixHeader() const {
   const STRING_HEADER* header = GetHeader();
   if (header->used_ < 0)
-    header->used_ = strlen(GetCStr()) + 1;
+    header->used_ = static_cast<int>(strlen(GetCStr()) + 1);
 }
 
 
@@ -119,7 +119,7 @@ STRING::STRING(const char* cstr) {
     // Empty STRINGs contain just the "\0".
     memcpy(AllocData(1, kMinCapacity), "", 1);
   } else {
-    const int len = strlen(cstr) + 1;
+    const int len = static_cast<int>(strlen(cstr) + 1);
     char* this_cstr = AllocData(len, len);
     memcpy(this_cstr, cstr, len);
   }
@@ -329,7 +329,7 @@ bool STRING::operator!=(const char* cstr) const {
   if (cstr == nullptr)
     return this_header->used_ > 1;  // either '\0' or nullptr
   else {
-    const int32_t length = strlen(cstr) + 1;
+    const int32_t length = static_cast<int32_t>(strlen(cstr) + 1);
     return (this_header->used_ != length)
             || (memcmp(GetCStr(), cstr, length) != 0);
   }
@@ -399,7 +399,7 @@ void STRING::add_str_double(const char* str, double number) {
 STRING & STRING::operator=(const char* cstr) {
   STRING_HEADER* this_header = GetHeader();
   if (cstr) {
-    const int len = strlen(cstr) + 1;
+    const int len = static_cast<int>(strlen(cstr) + 1);
 
     this_header->used_ = 0;  // don't bother copying data if need to realloc
     char* this_cstr = ensure_cstr(len);
@@ -464,7 +464,7 @@ STRING&  STRING::operator+=(const char *str) {
     return *this;
 
   FixHeader();
-  const int len = strlen(str) + 1;
+  const int len = static_cast<int>(strlen(str) + 1);
   const int this_used = GetHeader()->used_;
   char* this_cstr = ensure_cstr(this_used + len);
   STRING_HEADER* this_header = GetHeader();  // after ensure for realloc

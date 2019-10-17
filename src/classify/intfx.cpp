@@ -53,8 +53,8 @@ void InitIntegerFX() {
   atan_table_mutex.Lock();
   if (!atan_table_init) {
     for (int i = 0; i < INT_CHAR_NORM_RANGE; ++i) {
-      cos_table[i] = cos(i * 2 * M_PI / INT_CHAR_NORM_RANGE + M_PI);
-      sin_table[i] = sin(i * 2 * M_PI / INT_CHAR_NORM_RANGE + M_PI);
+      cos_table[i] = static_cast<float>(cos(i * 2 * M_PI / INT_CHAR_NORM_RANGE + M_PI));
+      sin_table[i] = static_cast<float>(sin(i * 2 * M_PI / INT_CHAR_NORM_RANGE + M_PI));
     }
     atan_table_init = true;
   }
@@ -246,7 +246,7 @@ static int ComputeFeatures(const FCOORD& start_pt, const FCOORD& end_pt,
   double lambda = lambda_step / 2.0;
   for (int f = 0; f < num_features; ++f, lambda += lambda_step) {
     FCOORD feature_pt(start_pt);
-    feature_pt += feature_vector * lambda;
+    feature_pt += feature_vector * static_cast<float>(lambda);
     INT_FEATURE_STRUCT feature(feature_pt, theta);
     features->push_back(feature);
   }
@@ -478,8 +478,8 @@ void Classify::ExtractFeatures(const TBLOB& blob,
   }
   results->NumBL = bl_features->size();
   results->NumCN = cn_features->size();
-  results->YBottom = blob.bounding_box().bottom();
-  results->YTop = blob.bounding_box().top();
+  results->YBottom = static_cast<uint8_t>(blob.bounding_box().bottom());
+  results->YTop = static_cast<uint8_t>(blob.bounding_box().top());
   results->Width = blob.bounding_box().width();
 }
 

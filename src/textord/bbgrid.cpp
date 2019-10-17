@@ -110,9 +110,9 @@ void IntGrid::Rotate(const FCOORD& rotation) {
   // Iterate over the old grid, copying data to the rotated position in the new.
   int oldi = 0;
   FCOORD x_step(rotation);
-  x_step *= gridsize();
+  x_step *= static_cast<float>(gridsize());
   for (int oldy = 0; oldy < old_height; ++oldy) {
-    FCOORD line_pos(old_bleft.x(), old_bleft.y() + gridsize() * oldy);
+    FCOORD line_pos(old_bleft.x(), old_bleft.y() + static_cast<float>(gridsize() * oldy));
     line_pos.rotate(rotation);
     for (int oldx = 0; oldx < old_width; ++oldx, line_pos += x_step, ++oldi) {
       int grid_x, grid_y;

@@ -30,7 +30,7 @@
 
 /** Return the length of the outline in baseline normalized form. */
 float ActualOutlineLength(FEATURE Feature) {
-  return (Feature->Params[CharNormLength] * LENGTH_COMPRESSION);
+  return static_cast<float>(Feature->Params[CharNormLength] * LENGTH_COMPRESSION);
 }
 
 /**
@@ -63,11 +63,11 @@ FEATURE_SET ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT& fx_info) {
   FEATURE feature = NewFeature(&CharNormDesc);
 
   feature->Params[CharNormY] =
-      MF_SCALE_FACTOR * (fx_info.Ymean - kBlnBaselineOffset);
+      static_cast<float>(MF_SCALE_FACTOR * (fx_info.Ymean - kBlnBaselineOffset));
   feature->Params[CharNormLength] =
-      MF_SCALE_FACTOR * fx_info.Length / LENGTH_COMPRESSION;
-  feature->Params[CharNormRx] = MF_SCALE_FACTOR * fx_info.Rx;
-  feature->Params[CharNormRy] = MF_SCALE_FACTOR * fx_info.Ry;
+      static_cast<float>(MF_SCALE_FACTOR * fx_info.Length / LENGTH_COMPRESSION);
+  feature->Params[CharNormRx] = static_cast<float>(MF_SCALE_FACTOR * fx_info.Rx);
+  feature->Params[CharNormRy] = static_cast<float>(MF_SCALE_FACTOR * fx_info.Ry);
 
   AddFeature(feature_set, feature);
 

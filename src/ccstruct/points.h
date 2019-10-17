@@ -71,7 +71,7 @@ class ICOORD
 
     ///find sq length
     float sqlength() const {
-      return xcoord * xcoord + ycoord * ycoord;
+      return static_cast<float>(xcoord * xcoord + ycoord * ycoord);
     }
 
     ///find length
@@ -95,7 +95,7 @@ class ICOORD
 
     ///find angle
     float angle() const {
-      return std::atan2(ycoord, xcoord);
+      return static_cast<float>(std::atan2(ycoord, xcoord));
     }
 
     ///test equality

@@ -80,7 +80,7 @@ void ColPartitionGrid::HandleClick(int x, int y) {
   radsearch.SetUniqueMode(true);
   radsearch.StartRadSearch(x, y, 1);
   ColPartition* neighbour;
-  FCOORD click(x, y);
+  FCOORD click(static_cast<float>(x), static_cast<float>(y));
   while ((neighbour = radsearch.NextRadSearch()) != nullptr) {
     const TBOX& nbox = neighbour->bounding_box();
     if (nbox.contains(click)) {

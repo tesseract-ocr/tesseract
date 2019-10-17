@@ -263,9 +263,9 @@ void Tesseract::ParseLanguageString(const char* lang_str,
       ++start;
     }
     // Find the index of the end of the lang code in string start.
-    int end = strlen(start);
+    int end = static_cast<int>(strlen(start));
     const char* plus = strchr(start, '+');
-    if (plus != nullptr && plus - start < end) end = plus - start;
+    if (plus != nullptr && plus - start < end) end = static_cast<int>(plus - start);
     STRING lang_code(start);
     lang_code.truncate_at(end);
     STRING next(start + end);

@@ -55,7 +55,7 @@ ScrollView *c_create_window(                   /*create a window */
                       double ymin,       /*getting lost in */
                       double ymax        /*empty space */
                      ) {
-   return new ScrollView(name, xpos, ypos, xsize, ysize, xmax - xmin, ymax - ymin, true);
+   return new ScrollView(name, xpos, ypos, xsize, ysize, static_cast<int>(xmax - xmin), static_cast<int>(ymax - ymin), true);
 }
 
 

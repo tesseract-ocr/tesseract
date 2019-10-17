@@ -119,10 +119,10 @@ static float MakeRowFromBlobs(float line_size,
     int top = blob->bounding_box().top();
     int bottom = blob->bounding_box().bottom();
     if (row == nullptr) {
-      row = new TO_ROW(blob, top, bottom, line_size);
+      row = new TO_ROW(blob, static_cast<float>(top), static_cast<float>(bottom), line_size);
       row_it->add_before_then_move(row);
     } else {
-      row->add_blob(blob, top, bottom, line_size);
+      row->add_blob(blob, static_cast<float>(top), static_cast<float>(bottom), line_size);
     }
     total_size += top - bottom;
     ++blob_count;
@@ -273,7 +273,7 @@ void fit_lms_line(TO_ROW *row) {
     lms.Add(ICOORD((box.left() + box.right()) / 2, box.bottom()));
   }
   double error = lms.Fit(&m, &c);
-  row->set_line(m, c, error);
+  row->set_line(m, c, static_cast<float>(error));
 }
 
 
@@ -482,7 +482,7 @@ void vigorous_noise_removal(TO_BLOCK* block) {
       if (height >= kMinSize)
         hstats.add(blob->bounding_box().height(), 1);
     }
-    float xheight = hstats.median();
+    float xheight = static_cast<float>(hstats.median());
     // Delete small objects.
     BLOBNBOX* prev = nullptr;
     for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
@@ -992,11 +992,11 @@ void expand_rows(                   //find lines
     row = row_it.data ();
     y_max = row->max_y ();       //get current limits
     y_min = row->min_y ();
-    y_bottom = row->intercept () - block->line_size * textord_expansion_factor *
-      tesseract::CCStruct::kDescenderFraction;
-    y_top = row->intercept () + block->line_size * textord_expansion_factor *
+    y_bottom = static_cast<float>(row->intercept () - block->line_size * textord_expansion_factor *
+      tesseract::CCStruct::kDescenderFraction);
+    y_top = static_cast<float>(row->intercept () + block->line_size * textord_expansion_factor *
         (tesseract::CCStruct::kXHeightFraction +
-         tesseract::CCStruct::kAscenderFraction);
+         tesseract::CCStruct::kAscenderFraction));
     if (y_min > y_bottom) {      //expansion allowed
       if (textord_show_expanded_rows && testing_on)
         tprintf("Expanding bottom of row at %f from %f to %f\n",
@@ -1123,12 +1123,12 @@ void adjust_row_limits(                 //tidy limits
     if (textord_show_expanded_rows)
       tprintf("Row at %f has min %f, max %f, size %f\n",
               row->intercept(), row->min_y(), row->max_y(), size);
-    size /= tesseract::CCStruct::kXHeightFraction +
+    size /= static_cast<float>(tesseract::CCStruct::kXHeightFraction +
         tesseract::CCStruct::kAscenderFraction +
-        tesseract::CCStruct::kDescenderFraction;
-    ymax = size * (tesseract::CCStruct::kXHeightFraction +
-                   tesseract::CCStruct::kAscenderFraction);
-    ymin = -size * tesseract::CCStruct::kDescenderFraction;
+        tesseract::CCStruct::kDescenderFraction);
+    ymax = static_cast<float>(size * (tesseract::CCStruct::kXHeightFraction +
+                   tesseract::CCStruct::kAscenderFraction));
+    ymin = static_cast<float>(-size * tesseract::CCStruct::kDescenderFraction);
     row->set_limits (row->intercept () + ymin, row->intercept () + ymax);
     row->merged = false;
   }
@@ -1210,7 +1210,7 @@ void compute_row_stats(                  //find lines
         block->line_size = (float) textord_min_xheight;
       block->line_spacing = rows[row_index]->spacing;
       block->max_blob_size =
-        block->line_spacing * textord_excess_blobsize;
+        static_cast<float>(block->line_spacing * textord_excess_blobsize);
     }
     block->baseline_offset = fmod (rows[row_index]->intercept (),
       block->line_spacing);
@@ -1253,17 +1253,17 @@ void compute_row_stats(                  //find lines
 namespace tesseract {
 void Textord::compute_block_xheight(TO_BLOCK *block, float gradient) {
   TO_ROW *row;                          // current row
-  float asc_frac_xheight = CCStruct::kAscenderFraction /
-      CCStruct::kXHeightFraction;
-  float desc_frac_xheight = CCStruct::kDescenderFraction /
-      CCStruct::kXHeightFraction;
+  float asc_frac_xheight = static_cast<float>(CCStruct::kAscenderFraction /
+      CCStruct::kXHeightFraction);
+  float desc_frac_xheight = static_cast<float>(CCStruct::kDescenderFraction /
+      CCStruct::kXHeightFraction);
   int32_t min_height, max_height;         // limits on xheight
   TO_ROW_IT row_it = block->get_rows();
   if (row_it.empty()) return;  // no rows
 
   // Compute the best guess of xheight of each row individually.
   // Use xheight and ascrise values of the rows where ascenders were found.
-  get_min_max_xheight(block->line_size, &min_height, &max_height);
+  get_min_max_xheight(static_cast<int>(block->line_size), &min_height, &max_height);
   STATS row_asc_xheights(min_height, max_height + 1);
   STATS row_asc_ascrise(static_cast<int>(min_height * asc_frac_xheight),
                         static_cast<int>(max_height * asc_frac_xheight) + 1);
@@ -1279,7 +1279,7 @@ void Textord::compute_block_xheight(TO_BLOCK *block, float gradient) {
     // Compute the xheight of this row if it has not been computed before.
     if (row->xheight <= 0.0) {
       compute_row_xheight(row, block->block->classify_rotation(),
-                          gradient, block->line_size);
+                          gradient, static_cast<int>(block->line_size));
     }
     ROW_CATEGORY row_category = get_row_category(row);
     if (row_category == ROW_ASCENDERS_FOUND) {
@@ -1306,13 +1306,13 @@ void Textord::compute_block_xheight(TO_BLOCK *block, float gradient) {
   // Compute our best guess of xheight of this block.
   if (row_asc_xheights.get_total() > 0) {
     // Determine xheight from rows where ascenders were found.
-    xheight = row_asc_xheights.median();
-    ascrise = row_asc_ascrise.median();
-    descdrop = -row_asc_descdrop.median();
+    xheight = static_cast<float>(row_asc_xheights.median());
+    ascrise = static_cast<float>(row_asc_ascrise.median());
+    descdrop = static_cast<float>(-row_asc_descdrop.median());
   } else if (row_desc_xheights.get_total() > 0) {
     // Determine xheight from rows where descenders were found.
-    xheight = row_desc_xheights.median();
-    descdrop = -row_desc_descdrop.median();
+    xheight = static_cast<float>(row_desc_xheights.median());
+    descdrop = static_cast<float>(-row_desc_descdrop.median());
   } else if (row_cap_xheights.get_total() > 0) {
     // All the rows in the block were (a/de)scenderless.
     // Try to search for two modes in row_cap_heights that could
@@ -1326,10 +1326,10 @@ void Textord::compute_block_xheight(TO_BLOCK *block, float gradient) {
                                block->block->classify_rotation().y() == 0.0,
                                min_height, max_height, &(xheight), &(ascrise));
     if (ascrise == 0) {  // assume only caps in the whole block
-      xheight = row_cap_xheights.median() * CCStruct::kXHeightCapRatio;
+      xheight = static_cast<float>(row_cap_xheights.median() * CCStruct::kXHeightCapRatio);
     }
   } else {  // default block sizes
-    xheight = block->line_size * CCStruct::kXHeightFraction;
+    xheight = static_cast<float>(block->line_size * CCStruct::kXHeightFraction);
   }
   // Correct xheight, ascrise and descdrop if necessary.
   bool corrected_xheight = false;
@@ -1422,7 +1422,7 @@ void fill_heights(TO_ROW *row, float gradient, int min_height,
       top = blob->bounding_box().top();
       height = blob->bounding_box().height();
       if (textord_fix_xheight_bug)
-        top -= row->baseline.y(xcentre);
+        top -= static_cast<float>(row->baseline.y(xcentre));
       else
         top -= gradient * xcentre + row->parallel_c();
       if (top >= min_height && top <= max_height) {
@@ -1599,7 +1599,7 @@ int32_t compute_row_descdrop(TO_ROW *row, float gradient,
   int blob_index = heights.mode();  // find mode
   int blob_count = heights.pile_count(blob_index);  // get count of mode
   float total_fraction =
-    (textord_descheight_mode_fraction + textord_ascheight_mode_fraction);
+    static_cast<float>(textord_descheight_mode_fraction + textord_ascheight_mode_fraction);
   if (static_cast<float>(blob_count + num_potential_asc) <
       xheight_blob_count * total_fraction) {
     blob_count = 0;
@@ -1691,10 +1691,10 @@ void correct_row_xheight(TO_ROW *row, float xheight,
             row->xheight, row->ascrise, row->descdrop);
   }
   bool normal_xheight =
-    within_error_margin(row->xheight, xheight, textord_xheight_error_margin);
+    within_error_margin(row->xheight, xheight, static_cast<float>(textord_xheight_error_margin));
   bool cap_xheight =
     within_error_margin(row->xheight, xheight + ascrise,
-                        textord_xheight_error_margin);
+                        static_cast<float>(textord_xheight_error_margin));
   // Use the average xheight/ascrise for the following cases:
   // -- the xheight of the row could not be determined at all
   // -- the row has descenders (e.g. "many groups", "ISBN 12345 p.3")
@@ -1895,8 +1895,8 @@ void pre_associate_blobs(                  //make rough chars
       while (overlap);
       blob->chop (&start_it, &blob_it,
         blob_rotation,
-        block->line_size * tesseract::CCStruct::kXHeightFraction *
-        textord_chop_width);
+        static_cast<float>(block->line_size * tesseract::CCStruct::kXHeightFraction *
+        textord_chop_width));
       //attempt chop
     }
 #ifndef GRAPHICS_DISABLED
@@ -1985,12 +1985,12 @@ void fit_parallel_lms(float gradient, TO_ROW *row) {
     }
   }
   double error = lms.ConstrainedFit(gradient, &c);
-  row->set_parallel_line(gradient, c, error);
+  row->set_parallel_line(gradient, c, static_cast<float>(error));
   if (textord_straight_baselines && blobcount > textord_lms_line_trials) {
     error = lms.Fit(&gradient, &c);
   }
                                  //set the other too
-  row->set_line(gradient, c, error);
+  row->set_line(gradient, c, static_cast<float>(error));
 }
 
 
@@ -2124,7 +2124,7 @@ segment_baseline(               //split baseline
   new_it.mark_cycle_pt ();
   for (blobindex = 0; blobindex < textord_spline_medianwin; blobindex++) {
     new_box = box_next_pre_chopped (&new_it);
-    middle = (new_box.left () + new_box.right ()) / 2.0;
+    middle = (new_box.left () + new_box.right ()) / 2.0f;
     yshift = new_box.bottom () - row->line_m () * middle - row->line_c ();
                                  //record shift
     yshifts.add (yshift, blobindex);
@@ -2156,7 +2156,7 @@ segment_baseline(               //split baseline
     last_state = state;
     yshifts.remove (blobindex - textord_spline_medianwin);
     box = box_next_pre_chopped (&blob_it);
-    middle = (new_box.left () + new_box.right ()) / 2.0;
+    middle = (new_box.left () + new_box.right ()) / 2.0f;
     yshift = new_box.bottom () - row->line_m () * middle - row->line_c ();
     yshifts.add (yshift, blobindex);
     blobindex++;
@@ -2308,7 +2308,7 @@ void assign_blobs_to_rows(                      //find lines
     g_length = sqrt (1 + *gradient * *gradient);
 #ifndef GRAPHICS_DISABLED
   if (drawing_skew)
-    to_win->SetCursor(block->block->pdblk.bounding_box ().left (), ycoord);
+    to_win->SetCursor(block->block->pdblk.bounding_box ().left (), static_cast<int>(ycoord));
 #endif
   testpt = ICOORD (textord_test_x, textord_test_y);
   blob_it.sort (blob_x_order);
@@ -2341,7 +2341,7 @@ void assign_blobs_to_rows(                      //find lines
     bottom = blob->bounding_box ().bottom () - block_skew;
 #ifndef GRAPHICS_DISABLED
     if (drawing_skew)
-      to_win->DrawTo(blob->bounding_box ().left (), ycoord + block_skew);
+      to_win->DrawTo(blob->bounding_box ().left (), static_cast<int>(ycoord + block_skew));
 #endif
     if (!row_it.empty ()) {
       for (row_it.move_to_first ();
@@ -2411,8 +2411,8 @@ void assign_blobs_to_rows(                      //find lines
           else
             row_it.add_after_then_move (dest_row);
           smooth_factor =
-            1.0 / (row_count * textord_skew_lag +
-            textord_skewsmooth_offset);
+            static_cast<float>(1.0 / (row_count * textord_skew_lag +
+            textord_skewsmooth_offset));
         }
         else
           overlap_result = REJECT;
@@ -2424,8 +2424,8 @@ void assign_blobs_to_rows(                      //find lines
         new TO_ROW(blob_it.extract(), top, bottom, block->line_size);
       row_count++;
       row_it.add_after_then_move(dest_row);
-      smooth_factor = 1.0 / (row_count * textord_skew_lag +
-                             textord_skewsmooth_offset2);
+      smooth_factor = static_cast<float>(1.0 / (row_count * textord_skew_lag +
+                             textord_skewsmooth_offset2));
     }
     else
       overlap_result = REJECT;

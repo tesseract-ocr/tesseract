@@ -247,11 +247,11 @@ void WERD_CHOICE::init(const char *src_string,
                        float src_rating,
                        float src_certainty,
                        uint8_t src_permuter) {
-  int src_string_len = strlen(src_string);
+  int src_string_len = static_cast<int>(strlen(src_string));
   if (src_string_len == 0) {
     this->init(8);
   } else {
-    this->init(src_lengths ? strlen(src_lengths): src_string_len);
+    this->init(src_lengths ? static_cast<int>(strlen(src_lengths)): src_string_len);
     length_ = reserved_;
     int offset = 0;
     for (int i = 0; i < length_; ++i) {
@@ -454,7 +454,7 @@ void WERD_CHOICE::string_and_lengths(STRING *word_str,
     const char *ch = unicharset_->id_to_unichar_ext(unichar_ids_[i]);
     *word_str += ch;
     if (word_lengths_str != nullptr) {
-      *word_lengths_str += strlen(ch);
+      *word_lengths_str += static_cast<char>(strlen(ch));
     }
   }
 }
@@ -778,7 +778,7 @@ void WERD_CHOICE::DisplaySegmentation(TWERD* word) {
   // Create the window if needed.
   if (segm_window == nullptr) {
     segm_window = new ScrollView("Segmentation", 5, 10, 500, 256,
-                                 2000.0, 256.0, true);
+                                 2000, 256, true);
   } else {
     segm_window->Clear();
   }

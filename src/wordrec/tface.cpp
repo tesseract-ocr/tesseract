@@ -49,7 +49,7 @@ void Wordrec::program_editup(const char *textbase,
     getDict().Load(lang, init_dict);
     getDict().FinishLoad();
   }
-  pass2_ok_split = chop_ok_split;
+  pass2_ok_split = static_cast<PRIORITY>(chop_ok_split);
 #endif  // ndef DISABLED_LEGACY_ENGINE
 }
 

@@ -104,7 +104,7 @@ int UNICHARMAP::minmatch(const char* const unichar_repr) const {
 
   while (current_nodes != nullptr && *current_char != '\0') {
     if (current_nodes[static_cast<unsigned char>(*current_char)].id >= 0)
-      return current_char + 1 - unichar_repr;
+      return static_cast<int>(current_char + 1 - unichar_repr);
     current_nodes =
         current_nodes[static_cast<unsigned char>(*current_char)].children;
     ++current_char;

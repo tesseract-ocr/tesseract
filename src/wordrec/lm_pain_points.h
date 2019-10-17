@@ -103,7 +103,7 @@ class LMPainPoints {
   bool GenerateForBlamer(double max_char_wh_ratio, WERD_RES *word_res,
                          int col, int row) {
     return GeneratePainPoint(col, row, LM_PPTYPE_BLAMER, 0.0, false,
-                             max_char_wh_ratio, word_res);
+                             static_cast<float>(max_char_wh_ratio), word_res);
   }
 
   // Adds a pain point to classify chunks_record->ratings(col, row).

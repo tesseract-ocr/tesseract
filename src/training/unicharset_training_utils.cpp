@@ -78,7 +78,7 @@ void SetupBasicProperties(bool report_errors, bool decompose,
     unicharset->set_script(unichar_id, uscript_getName(
         uscript_getScript(uni_vector[0], err)));
 
-    const int num_code_points = uni_vector.size();
+    const int num_code_points = static_cast<int>(uni_vector.size());
     // Obtain the lower/upper case if needed and record it in the properties.
     unicharset->set_other_case(unichar_id, unichar_id);
     if (unichar_islower || unichar_isupper) {

@@ -741,7 +741,7 @@ void Tesseract::script_pos_pass(PAGE_RES* page_res) {
       page_res_it.forward();
       continue;
     }
-    const float x_height = page_res_it.block()->block->x_height();
+    const float x_height = static_cast<float>(page_res_it.block()->block->x_height());
     float word_x_height = word->x_height;
     if (word_x_height < word->best_choice->min_x_height() ||
         word_x_height > word->best_choice->max_x_height()) {
@@ -1048,7 +1048,7 @@ void Tesseract::AssignDiacriticsToOverlappingBlobs(
     // combination of outlines that doesn't hurt the end-result classification
     // by too much. Mark them as wanted.
     if (0 < num_blob_outlines && num_blob_outlines < noise_maxperblob) {
-      if (SelectGoodDiacriticOutlines(pass, noise_cert_basechar, pr_it, blob,
+      if (SelectGoodDiacriticOutlines(pass, static_cast<float>(noise_cert_basechar), pr_it, blob,
                                       outlines, num_blob_outlines,
                                       &blob_wanted)) {
         for (int i = 0; i < blob_wanted.size(); ++i) {
@@ -1103,7 +1103,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(
     C_BLOB* right_blob = blob_it.at_last() ? nullptr : blob_it.data_relative(1);
     if ((left_box.x_overlap(total_ol_box) || right_blob == nullptr ||
          !right_blob->bounding_box().x_overlap(total_ol_box)) &&
-        SelectGoodDiacriticOutlines(pass, noise_cert_disjoint, pr_it, left_blob,
+        SelectGoodDiacriticOutlines(pass, static_cast<float>(noise_cert_disjoint), pr_it, left_blob,
                                     outlines, num_blob_outlines,
                                     &blob_wanted)) {
       if (debug_noise_removal) tprintf("Added to left blob\n");
@@ -1116,7 +1116,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(
     } else if (right_blob != nullptr &&
                (!left_box.x_overlap(total_ol_box) ||
                 right_blob->bounding_box().x_overlap(total_ol_box)) &&
-               SelectGoodDiacriticOutlines(pass, noise_cert_disjoint, pr_it,
+               SelectGoodDiacriticOutlines(pass, static_cast<float>(noise_cert_disjoint), pr_it,
                                            right_blob, outlines,
                                            num_blob_outlines, &blob_wanted)) {
       if (debug_noise_removal) tprintf("Added to right blob\n");
@@ -1126,7 +1126,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(
           (*target_blobs)[j] = right_blob;
         }
       }
-    } else if (SelectGoodDiacriticOutlines(pass, noise_cert_punc, pr_it, nullptr,
+    } else if (SelectGoodDiacriticOutlines(pass, static_cast<float>(noise_cert_punc), pr_it, nullptr,
                                            outlines, num_blob_outlines,
                                            &blob_wanted)) {
       if (debug_noise_removal) tprintf("Fitted between blobs\n");
@@ -1159,7 +1159,7 @@ bool Tesseract::SelectGoodDiacriticOutlines(
               target_cert, target_c2);
       blob->bounding_box().print();
     }
-    target_cert -= (target_cert - certainty_threshold) * noise_cert_factor;
+    target_cert -= (target_cert - certainty_threshold) * static_cast<float>(noise_cert_factor);
   }
   GenericVector<bool> test_outlines = *ok_outlines;
   // Start with all the outlines in.
@@ -1870,7 +1870,7 @@ bool Tesseract::check_debug_pt(WERD_RES* word, int location) {
   tessedit_rejection_debug.set_value (false);
   debug_x_ht_level.set_value(0);
 
-  if (word->word->bounding_box().contains(FCOORD (test_pt_x, test_pt_y))) {
+  if (word->word->bounding_box().contains(FCOORD (static_cast<float>(test_pt_x), static_cast<float>(test_pt_y)))) {
     if (location < 0)
       return true;               // For breakpoint use
     tessedit_rejection_debug.set_value(true);

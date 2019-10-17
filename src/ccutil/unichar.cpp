@@ -213,7 +213,7 @@ UNICHAR::const_iterator UNICHAR::end(const char* utf8_str, int len) {
 // Returns an empty vector if the input contains invalid UTF-8.
 /* static */
 std::vector<char32> UNICHAR::UTF8ToUTF32(const char* utf8_str) {
-  const int utf8_length = strlen(utf8_str);
+  const int utf8_length = static_cast<int>(strlen(utf8_str));
   std::vector<char32> unicodes;
   unicodes.reserve(utf8_length);
   const_iterator end_it(end(utf8_str, utf8_length));

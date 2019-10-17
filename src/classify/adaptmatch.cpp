@@ -261,10 +261,10 @@ void Classify::LearnWord(const char* fontname, WERD_RES* word) {
       tprintf("\n\nAdapting to word = %s\n",
               word->best_choice->debug_string().string());
     thresholds = new float[word_len];
-    word->ComputeAdaptionThresholds(certainty_scale,
-                                    matcher_perfect_threshold,
-                                    matcher_good_threshold,
-                                    matcher_rating_margin, thresholds);
+    word->ComputeAdaptionThresholds(static_cast<float>(certainty_scale),
+                                    static_cast<float>(matcher_perfect_threshold),
+                                    static_cast<float>(matcher_good_threshold),
+                                    static_cast<float>(matcher_rating_margin), thresholds);
   }
   int start_blob = 0;
 
@@ -734,7 +734,7 @@ void Classify::InitAdaptedClass(TBLOB *Blob,
        instead of the -0.25 to 0.75 used in baseline normalization */
     Proto->Angle = Feature->Params[OutlineFeatDir];
     Proto->X = Feature->Params[OutlineFeatX];
-    Proto->Y = Feature->Params[OutlineFeatY] - Y_DIM_OFFSET;
+    Proto->Y = static_cast<float>(Feature->Params[OutlineFeatY] - Y_DIM_OFFSET);
     Proto->Length = Feature->Params[OutlineFeatLength];
     FillABC(Proto);
 
@@ -822,7 +822,7 @@ bool Classify::AdaptableWord(WERD_RES* word) {
   if (word->best_choice == nullptr) return false;
   int BestChoiceLength = word->best_choice->length();
   float adaptable_score =
-    getDict().segment_penalty_dict_case_ok + ADAPTABLE_WERD_ADJUSTMENT;
+    static_cast<float>(getDict().segment_penalty_dict_case_ok + ADAPTABLE_WERD_ADJUSTMENT);
   return   // rules that apply in general - simplest to compute first
       BestChoiceLength > 0 &&
       BestChoiceLength == word->rebuild_word->NumBlobs() &&
@@ -1177,21 +1177,21 @@ void Classify::ExpandShapesAndApplyCorrections(
       }
       for (int m = 0; m < mapped_results.size(); ++m) {
         mapped_results[m].rating =
-            ComputeCorrectedRating(debug, mapped_results[m].unichar_id,
+            static_cast<float>(ComputeCorrectedRating(debug, mapped_results[m].unichar_id,
                                    cp_rating, int_result->rating,
                                    int_result->feature_misses, bottom, top,
-                                   blob_length, matcher_multiplier, cn_factors);
+                                   blob_length, matcher_multiplier, cn_factors));
         AddNewResult(mapped_results[m], final_results);
       }
       return;
     }
   }
   if (unicharset.get_enabled(class_id)) {
-    int_result->rating = ComputeCorrectedRating(debug, class_id, cp_rating,
+    int_result->rating = static_cast<float>(ComputeCorrectedRating(debug, class_id, cp_rating,
                                                 int_result->rating,
                                                 int_result->feature_misses,
                                                 bottom, top, blob_length,
-                                                matcher_multiplier, cn_factors);
+                                                matcher_multiplier, cn_factors));
     AddNewResult(*int_result, final_results);
   }
 }
@@ -1206,7 +1206,7 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id,
                                         int blob_length, int matcher_multiplier,
                                         const uint8_t* cn_factors) {
   // Compute class feature corrections.
-  double cn_corrected = im_.ApplyCNCorrection(1.0 - im_rating, blob_length,
+  double cn_corrected = im_.ApplyCNCorrection(static_cast<float>(1.0 - im_rating), blob_length,
                                               cn_factors[unichar_id],
                                               matcher_multiplier);
   double miss_penalty = tessedit_class_miss_scale * feature_misses;
@@ -1397,9 +1397,9 @@ int Classify::CharNormTrainingSample(bool pruner_only,
  * - matcher_avg_noise_size avg. length of a noise blob
  */
 void Classify::ClassifyAsNoise(ADAPT_RESULTS *results) {
-  float rating = results->BlobLength / matcher_avg_noise_size;
+  float rating = static_cast<float>(results->BlobLength / matcher_avg_noise_size);
   rating *= rating;
-  rating /= 1.0 + rating;
+  rating /= 1.0f + rating;
 
   AddNewResult(UnicharRating(UNICHAR_SPACE, 1.0f - rating), results);
 }                                /* ClassifyAsNoise */
@@ -1451,8 +1451,8 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
       Rating = 100;    // should be -certainty * real_blob_length
     } else {
       Rating = Certainty = (1.0f - result.rating);
-      Rating *= rating_scale * Results->BlobLength;
-      Certainty *= -(getDict().certainty_scale);
+      Rating *= static_cast<float>(rating_scale * Results->BlobLength);
+      Certainty *= -(static_cast<float>(getDict().certainty_scale));
     }
     // Adapted results, by their very nature, should have good certainty.
     // Those that don't are at best misleading, and often lead to errors,
@@ -1552,7 +1552,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
                                      AdaptedTemplates, Results);
     if ((!Results->match.empty() &&
          MarginalMatch(Results->best_rating,
-                       matcher_reliable_adaptive_result) &&
+                       static_cast<float>(matcher_reliable_adaptive_result)) &&
          !tess_bn_matching) ||
         Results->match.empty()) {
       CharNormClassifier(Blob, *sample, Results);
@@ -1684,7 +1684,7 @@ int Classify::GetCharNormFeature(const INT_FX_RESULT_STRUCT& fx_info,
   float scale = MF_SCALE_FACTOR;
   norm_feature->Params[CharNormY] = (fx_info.Ymean - baseline) * scale;
   norm_feature->Params[CharNormLength] =
-      fx_info.Length * scale / LENGTH_COMPRESSION;
+      static_cast<float>(fx_info.Length * scale / LENGTH_COMPRESSION);
   norm_feature->Params[CharNormRx] = fx_info.Rx * scale;
   norm_feature->Params[CharNormRy] = fx_info.Ry * scale;
   // Deletes norm_feature.
@@ -1865,8 +1865,8 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features,
       A2 = F2->Params[PicoFeatDir];
 
       AngleDelta = fabs(A1 - A2);
-      if (AngleDelta > 0.5)
-        AngleDelta = 1.0 - AngleDelta;
+      if (AngleDelta > 0.5f)
+        AngleDelta = 1.0f - AngleDelta;
 
       if (AngleDelta > matcher_clustering_max_angle_delta ||
           fabs(X1 - X2) > SegmentLength ||
@@ -1891,8 +1891,8 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features,
        instead of the -0.25 to 0.75 used in baseline normalization */
     Proto->Length = SegmentLength;
     Proto->Angle = A1;
-    Proto->X = (X1 + X2) / 2.0;
-    Proto->Y = (Y1 + Y2) / 2.0 - Y_DIM_OFFSET;
+    Proto->X = (X1 + X2) / 2.0f;
+    Proto->Y = static_cast<float>((Y1 + Y2) / 2.0f - Y_DIM_OFFSET);
     FillABC(Proto);
 
     TempProto->ProtoId = Pid;
@@ -2034,7 +2034,7 @@ void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
   int Next, NextGood;
   float BadMatchThreshold;
   static const char* romans = "i v x I V X";
-  BadMatchThreshold = Results->best_rating - matcher_bad_match_pad;
+  BadMatchThreshold = Results->best_rating - static_cast<float>(matcher_bad_match_pad);
 
   if (classify_bln_numeric_mode) {
     UNICHAR_ID unichar_id_one = unicharset.contains_unichar("1") ?
@@ -2139,11 +2139,11 @@ void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
  * - matcher_good_threshold default good match rating
  */
 void Classify::SetAdaptiveThreshold(float Threshold) {
-  Threshold = (Threshold == matcher_good_threshold) ? 0.9: (1.0 - Threshold);
+  Threshold = (Threshold == matcher_good_threshold) ? 0.9f: (1.0f - Threshold);
   classify_adapt_proto_threshold.set_value(
-      ClipToRange<int>(255 * Threshold, 0, 255));
+      ClipToRange<int>(static_cast<int>(255 * Threshold), 0, 255));
   classify_adapt_feature_threshold.set_value(
-      ClipToRange<int>(255 * Threshold, 0, 255));
+      ClipToRange<int>(static_cast<int>(255 * Threshold), 0, 255));
 }                              /* SetAdaptiveThreshold */
 
 /*---------------------------------------------------------------------------*/

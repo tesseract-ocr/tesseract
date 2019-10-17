@@ -43,12 +43,12 @@ void Wordrec::SegSearch(WERD_RES* word_res,
                         BestChoiceBundle* best_choice_bundle,
                         BlamerBundle* blamer_bundle) {
   LMPainPoints pain_points(segsearch_max_pain_points,
-                           segsearch_max_char_wh_ratio,
+                           static_cast<float>(segsearch_max_char_wh_ratio),
                            assume_fixed_pitch_char_segment,
                            &getDict(), segsearch_debug_level);
   // Compute scaling factor that will help us recover blob outline length
   // from classifier rating and certainty for the blob.
-  float rating_cert_scale = -1.0 * getDict().certainty_scale / rating_scale;
+  float rating_cert_scale = static_cast<float>(-1.0 * getDict().certainty_scale / rating_scale);
   GenericVector<SegSearchPending> pending;
   InitialSegSearch(word_res, &pain_points, &pending, best_choice_bundle,
                    blamer_bundle);
@@ -147,11 +147,11 @@ void Wordrec::InitialSegSearch(WERD_RES* word_res, LMPainPoints* pain_points,
 
   // Compute scaling factor that will help us recover blob outline length
   // from classifier rating and certainty for the blob.
-  float rating_cert_scale = -1.0 * getDict().certainty_scale / rating_scale;
+  float rating_cert_scale = static_cast<float>(-1.0 * getDict().certainty_scale / rating_scale);
 
   language_model_->InitForWord(prev_word_best_choice_,
                                assume_fixed_pitch_char_segment,
-                               segsearch_max_char_wh_ratio, rating_cert_scale);
+                               static_cast<float>(segsearch_max_char_wh_ratio), rating_cert_scale);
 
   // Initialize blamer-related information: map character boxes recorded in
   // blamer_bundle->norm_truth_word to the corresponding i,j indices in the
@@ -294,12 +294,12 @@ void Wordrec::ProcessSegSearchPainPoint(
     if (pain_point.col > 0) {
       pain_points->GeneratePainPoint(
           pain_point.col - 1, pain_point.row, LM_PPTYPE_SHAPE, 0.0,
-          true, segsearch_max_char_wh_ratio, word_res);
+          true, static_cast<float>(segsearch_max_char_wh_ratio), word_res);
     }
     if (pain_point.row + 1 < ratings->dimension()) {
       pain_points->GeneratePainPoint(
           pain_point.col, pain_point.row + 1, LM_PPTYPE_SHAPE, 0.0,
-          true, segsearch_max_char_wh_ratio, word_res);
+          true, static_cast<float>(segsearch_max_char_wh_ratio), word_res);
     }
   }
   (*pending)[pain_point.col].SetBlobClassified(pain_point.row);

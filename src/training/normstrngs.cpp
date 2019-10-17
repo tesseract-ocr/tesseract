@@ -232,8 +232,8 @@ bool IsUTF8Whitespace(const char* text) {
 
 unsigned int SpanUTF8Whitespace(const char* text) {
   int n_white = 0;
-  for (UNICHAR::const_iterator it = UNICHAR::begin(text, strlen(text));
-       it != UNICHAR::end(text, strlen(text)); ++it) {
+  for (UNICHAR::const_iterator it = UNICHAR::begin(text, static_cast<int>(strlen(text)));
+       it != UNICHAR::end(text, static_cast<int>(strlen(text))); ++it) {
     if (!IsWhitespace(*it)) break;
     n_white += it.utf8_len();
   }
@@ -242,8 +242,8 @@ unsigned int SpanUTF8Whitespace(const char* text) {
 
 unsigned int SpanUTF8NotWhitespace(const char* text) {
   int n_notwhite = 0;
-  for (UNICHAR::const_iterator it = UNICHAR::begin(text, strlen(text));
-       it != UNICHAR::end(text, strlen(text)); ++it) {
+  for (UNICHAR::const_iterator it = UNICHAR::begin(text, static_cast<int>(strlen(text)));
+       it != UNICHAR::end(text, static_cast<int>(strlen(text))); ++it) {
     if (IsWhitespace(*it)) break;
     n_notwhite += it.utf8_len();
   }

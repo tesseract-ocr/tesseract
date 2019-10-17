@@ -982,7 +982,7 @@ bool Tesseract::noise_outlines(TWERD* word) {
   int16_t outline_count = 0;
   int16_t small_outline_count = 0;
   int16_t max_dimension;
-  float small_limit = kBlnXHeight * crunch_small_outlines_size;
+  float small_limit = static_cast<float>(kBlnXHeight * crunch_small_outlines_size);
 
   for (int b = 0; b < word->NumBlobs(); ++b) {
     TBLOB* blob = word->blobs[b];

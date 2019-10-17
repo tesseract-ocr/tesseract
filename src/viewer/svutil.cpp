@@ -209,7 +209,7 @@ void SVNetwork::Send(const char* msg) {
 void SVNetwork::Flush() {
   mutex_send_.Lock();
   while (!msg_buffer_out_.empty()) {
-    int i = send(stream_, msg_buffer_out_.c_str(), msg_buffer_out_.length(), 0);
+    int i = send(stream_, msg_buffer_out_.c_str(), static_cast<int>(msg_buffer_out_.length()), 0);
     msg_buffer_out_.erase(0, i);
   }
   mutex_send_.Unlock();
@@ -243,7 +243,7 @@ char* SVNetwork::Receive() {
     FD_ZERO(&readfds);
     FD_SET(stream_, &readfds);
 
-    int i = select(stream_+1, &readfds, nullptr, nullptr, &tv);
+    int i = select(static_cast<int>(stream_+1), &readfds, nullptr, nullptr, &tv);
 
     // The stream_ died.
     if (i == 0) { return nullptr; }
@@ -348,7 +348,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
 
   if (stream_ < 0) {
     std::cerr << "Failed to open socket" << std::endl;
-  } else if (connect(stream_, addr_info->ai_addr, addr_info->ai_addrlen) < 0) {
+  } else if (connect(stream_, addr_info->ai_addr, static_cast<int>(addr_info->ai_addrlen)) < 0) {
     // If server is not there, we will start a new server as local child process.
     const char* scrollview_path = getenv("SCROLLVIEW_PATH");
     if (scrollview_path == nullptr) {
@@ -374,7 +374,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
       stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
                        addr_info->ai_protocol);
       if (stream_ >= 0) {
-        if (connect(stream_, addr_info->ai_addr, addr_info->ai_addrlen) == 0) {
+        if (connect(stream_, addr_info->ai_addr, static_cast<int>(addr_info->ai_addrlen)) == 0) {
           break;
         }
 

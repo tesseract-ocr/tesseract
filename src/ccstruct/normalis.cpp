@@ -243,10 +243,10 @@ static void ComputeEdgeDensityProfiles(const TBOX& box,
   // Normalize each profile to sum to 1.
   if (total > 0.0) {
     for (int ix = 0; ix < width; ++ix) {
-      (*hx)[ix] /= total;
+      (*hx)[ix] /= static_cast<float>(total);
     }
     for (int iy = 0; iy < height; ++iy) {
-      (*hy)[iy] /= total;
+      (*hy)[iy] /= static_cast<float>(total);
     }
   }
   // There is an extra element in each array, so initialize to 1.
@@ -453,8 +453,8 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
   // Calculate the scale factor we'll use to get to image y-pixels
   double midx = (bbox.left() + bbox.right()) / 2.0;
   double ydiff = (bbox.top() - bbox.bottom()) + 2.0;
-  FCOORD mid_bot(midx, bbox.bottom()), tmid_bot;
-  FCOORD mid_high(midx, bbox.bottom() + ydiff), tmid_high;
+  FCOORD mid_bot(static_cast<float>(midx), static_cast<float>(bbox.bottom())), tmid_bot;
+  FCOORD mid_high(static_cast<float>(midx), static_cast<float>(bbox.bottom() + ydiff)), tmid_high;
   DenormTransform(nullptr, mid_bot, &tmid_bot);
   DenormTransform(nullptr, mid_high, &tmid_high);
 
@@ -477,7 +477,7 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
       (top_shift < 0 && bottom_shift < 0)) {
     bln_yshift = (top_shift + bottom_shift) / 2;
   }
-  *yshift = bln_yshift * yscale;
+  *yshift = static_cast<float>(bln_yshift * yscale);
 
   // To help very high cap/xheight ratio fonts accept the correct x-height,
   // and to allow the large caps in small caps to accept the xheight of the
@@ -494,9 +494,9 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
   // We shouldn't try calculations if the characters are very short (for example
   // for punctuation).
   if (min_height > kBlnXHeight / 8 && height > 0) {
-    float result = height * kBlnXHeight * yscale / min_height;
+    float result = static_cast<float>(height * kBlnXHeight * yscale / min_height);
     *max_xht = result + kFinalPixelTolerance;
-    result = height * kBlnXHeight * yscale / max_height;
+    result = static_cast<float>(height * kBlnXHeight * yscale / max_height);
     *min_xht = result - kFinalPixelTolerance;
   }
 }

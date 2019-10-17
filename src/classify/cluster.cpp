@@ -1005,7 +1005,7 @@ static PROTOTYPE* MakeDegenerateProto(  //this was MinSample
   if (MinSamples < MINSAMPLESNEEDED)
     MinSamples = MINSAMPLESNEEDED;
 
-  if (Cluster->SampleCount < MinSamples) {
+  if (Cluster->SampleCount < static_cast<unsigned int>(MinSamples)) {
     switch (Style) {
       case spherical:
         Proto = NewSphericalProto (N, Cluster, Statistics);
@@ -1149,7 +1149,7 @@ static PROTOTYPE* MakeSphericalProto(CLUSTERER* Clusterer,
 
     FillBuckets (Buckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Cluster->Mean[i],
-      sqrt (static_cast<double>(Statistics->AvgVariance)));
+      static_cast<float>(sqrt (static_cast<double>(Statistics->AvgVariance))));
     if (!DistributionOK (Buckets))
       break;
   }
@@ -1183,8 +1183,8 @@ static PROTOTYPE* MakeEllipticalProto(CLUSTERER* Clusterer,
 
     FillBuckets (Buckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Cluster->Mean[i],
-      sqrt (static_cast<double>(Statistics->
-      CoVariance[i * (Clusterer->SampleSize + 1)])));
+      static_cast<float>(sqrt (static_cast<double>(Statistics->
+      CoVariance[i * (Clusterer->SampleSize + 1)]))));
     if (!DistributionOK (Buckets))
       break;
   }
@@ -1227,7 +1227,7 @@ static PROTOTYPE* MakeMixedProto(CLUSTERER* Clusterer,
 
     FillBuckets (NormalBuckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Proto->Mean[i],
-      sqrt (static_cast<double>(Proto->Variance.Elliptical[i])));
+      static_cast<float>(sqrt (static_cast<double>(Proto->Variance.Elliptical[i]))));
     if (DistributionOK (NormalBuckets))
       continue;
 
@@ -1272,9 +1272,9 @@ static void MakeDimRandom(uint16_t i, PROTOTYPE* Proto, PARAM_DESC* ParamDesc) {
 
   // subtract out the previous magnitude of this dimension from the total
   Proto->TotalMagnitude /= Proto->Magnitude.Elliptical[i];
-  Proto->Magnitude.Elliptical[i] = 1.0 / ParamDesc->Range;
+  Proto->Magnitude.Elliptical[i] = 1.0f / ParamDesc->Range;
   Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
-  Proto->LogMagnitude = log (static_cast<double>(Proto->TotalMagnitude));
+  Proto->LogMagnitude = static_cast<float>(log (static_cast<double>(Proto->TotalMagnitude)));
 
   // note that the proto Weight is irrelevant for D_random protos
 }                                // MakeDimRandom
@@ -1293,14 +1293,14 @@ static void MakeDimUniform(uint16_t i, PROTOTYPE* Proto, STATISTICS* Statistics)
   Proto->Variance.Elliptical[i] =
     (Statistics->Max[i] - Statistics->Min[i]) / 2;
   if (Proto->Variance.Elliptical[i] < MINVARIANCE)
-    Proto->Variance.Elliptical[i] = MINVARIANCE;
+    Proto->Variance.Elliptical[i] = static_cast<float>(MINVARIANCE);
 
   // subtract out the previous magnitude of this dimension from the total
   Proto->TotalMagnitude /= Proto->Magnitude.Elliptical[i];
   Proto->Magnitude.Elliptical[i] =
-    1.0 / (2.0 * Proto->Variance.Elliptical[i]);
+    1.0f / (2.0f * Proto->Variance.Elliptical[i]);
   Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
-  Proto->LogMagnitude = log (static_cast<double>(Proto->TotalMagnitude));
+  Proto->LogMagnitude = static_cast<float>(log (static_cast<double>(Proto->TotalMagnitude)));
 
   // note that the proto Weight is irrelevant for uniform protos
 }                                // MakeDimUniform
@@ -1382,7 +1382,7 @@ ComputeStatistics (int16_t N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
     *CoVariance /= SampleCountAdjustedForBias;
     if (j == i) {
       if (*CoVariance < MINVARIANCE)
-        *CoVariance = MINVARIANCE;
+        *CoVariance = static_cast<float>(MINVARIANCE);
       Statistics->AvgVariance *= *CoVariance;
     }
   }
@@ -1413,14 +1413,14 @@ static PROTOTYPE* NewSphericalProto(uint16_t N, CLUSTER* Cluster,
 
   Proto->Variance.Spherical = Statistics->AvgVariance;
   if (Proto->Variance.Spherical < MINVARIANCE)
-    Proto->Variance.Spherical = MINVARIANCE;
+    Proto->Variance.Spherical = static_cast<float>(MINVARIANCE);
 
   Proto->Magnitude.Spherical =
-    1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
+    static_cast<float>(1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical));
   Proto->TotalMagnitude = static_cast<float>(pow(static_cast<double>(Proto->Magnitude.Spherical),
                                      static_cast<double>(N)));
-  Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
-  Proto->LogMagnitude = log (static_cast<double>(Proto->TotalMagnitude));
+  Proto->Weight.Spherical = 1.0f / Proto->Variance.Spherical;
+  Proto->LogMagnitude = static_cast<float>(log (static_cast<double>(Proto->TotalMagnitude)));
 
   return (Proto);
 }                                // NewSphericalProto
@@ -1451,14 +1451,14 @@ static PROTOTYPE* NewEllipticalProto(int16_t N, CLUSTER* Cluster,
   for (i = 0; i < N; i++, CoVariance += N + 1) {
     Proto->Variance.Elliptical[i] = *CoVariance;
     if (Proto->Variance.Elliptical[i] < MINVARIANCE)
-      Proto->Variance.Elliptical[i] = MINVARIANCE;
+      Proto->Variance.Elliptical[i] = static_cast<float>(MINVARIANCE);
 
     Proto->Magnitude.Elliptical[i] =
-      1.0 / sqrt(2.0 * M_PI * Proto->Variance.Elliptical[i]);
-    Proto->Weight.Elliptical[i] = 1.0 / Proto->Variance.Elliptical[i];
+      static_cast<float>(1.0 / sqrt(2.0 * M_PI * Proto->Variance.Elliptical[i]));
+    Proto->Weight.Elliptical[i] = 1.0f / Proto->Variance.Elliptical[i];
     Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
   }
-  Proto->LogMagnitude = log (static_cast<double>(Proto->TotalMagnitude));
+  Proto->LogMagnitude = static_cast<float>(log (static_cast<double>(Proto->TotalMagnitude)));
   Proto->Style = elliptical;
   return (Proto);
 }                                // NewEllipticalProto
@@ -1949,7 +1949,7 @@ static uint16_t NormalBucket(PARAM_DESC *ParamDesc,
       x += ParamDesc->Range;
   }
 
-  X = ((x - Mean) / StdDev) * kNormalStdDev + kNormalMean;
+  X = static_cast<float>(((x - Mean) / StdDev) * kNormalStdDev + kNormalMean);
   if (X < 0)
     return 0;
   if (X > BUCKETTABLESIZE - 1)
@@ -1982,7 +1982,7 @@ static uint16_t UniformBucket(PARAM_DESC *ParamDesc,
       x += ParamDesc->Range;
   }
 
-  X = ((x - Mean) / (2 * StdDev) * BUCKETTABLESIZE + BUCKETTABLESIZE / 2.0);
+  X = static_cast<float>(((x - Mean) / (2 * StdDev) * BUCKETTABLESIZE + BUCKETTABLESIZE / 2.0));
   if (X < 0)
     return 0;
   if (X > BUCKETTABLESIZE - 1)
@@ -2097,7 +2097,7 @@ static void AdjustBuckets(BUCKETS *Buckets, uint32_t NewSampleCount) {
     (static_cast<double>(Buckets->SampleCount)));
 
   for (i = 0; i < Buckets->NumberOfBuckets; i++) {
-    Buckets->ExpectedCount[i] *= AdjustFactor;
+    Buckets->ExpectedCount[i] *= static_cast<float>(AdjustFactor);
   }
 
   Buckets->SampleCount = NewSampleCount;
@@ -2306,11 +2306,11 @@ MultipleCharSamples(CLUSTERER* Clusterer,
   InitSampleSearch(SearchState, Cluster);
   while ((Sample = NextSample (&SearchState)) != nullptr) {
     CharID = Sample->CharID;
-    if (CharFlags[CharID] == false) {
-      CharFlags[CharID] = true;
+    if (CharFlags[CharID] == 0) {
+      CharFlags[CharID] = 1;
     }
     else {
-      if (CharFlags[CharID] == true) {
+      if (CharFlags[CharID] == 1) {
         NumIllegalInCluster++;
         CharFlags[CharID] = ILLEGAL_CHAR;
       }
@@ -2399,7 +2399,7 @@ static double InvertMatrix(const float* input, int size, float* inv) {
       for (int k = row; k < size; ++k) {
         sum += U_inv[row][k] * L[k][col];
       }
-      inv[row*size + col] = sum;
+      inv[row*size + col] = static_cast<float>(sum);
     }
   }
   // Check matrix product.

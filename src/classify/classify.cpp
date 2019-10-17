@@ -232,17 +232,17 @@ void Classify::AddLargeSpeckleTo(int blob_length, BLOB_CHOICE_LIST *choices) {
     BLOB_CHOICE_IT bc_it(choices);
   // If there is no classifier result, we will use the worst possible certainty
   // and corresponding rating.
-  float certainty = -getDict().certainty_scale;
-  float rating = rating_scale * blob_length;
+  float certainty = static_cast<float>(-getDict().certainty_scale);
+  float rating = static_cast<float>(rating_scale * blob_length);
   if (!choices->empty() && blob_length > 0) {
     bc_it.move_to_last();
     BLOB_CHOICE* worst_choice = bc_it.data();
     // Add speckle_rating_penalty to worst rating, matching old value.
-    rating = worst_choice->rating() + speckle_rating_penalty;
+    rating = static_cast<float>(worst_choice->rating() + speckle_rating_penalty);
     // Compute the rating to correspond to the certainty. (Used to be kept
     // the same, but that messes up the language model search.)
-    certainty = -rating * getDict().certainty_scale /
-        (rating_scale * blob_length);
+    certainty = static_cast<float>(-rating * getDict().certainty_scale /
+        (rating_scale * blob_length));
   }
   auto* blob_choice = new BLOB_CHOICE(UNICHAR_SPACE, rating, certainty,
                                              -1, 0.0f, FLT_MAX, 0,

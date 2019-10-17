@@ -229,11 +229,11 @@ void Tesseract::LSTMRecognizeWord(const BLOCK& block, ROW *row, WERD_RES *word,
     // interpretation.
     word_box = TBOX(0, 0, ImageWidth(), ImageHeight());
   } else {
-    float baseline = row->base_line((word_box.left() + word_box.right()) / 2);
+    float baseline = row->base_line(static_cast<float>((word_box.left() + word_box.right()) / 2));
     if (baseline + row->descenders() < word_box.bottom())
-      word_box.set_bottom(baseline + row->descenders());
+      word_box.set_bottom(static_cast<int>(baseline + row->descenders()));
     if (baseline + row->x_height() + row->ascenders() > word_box.top())
-      word_box.set_top(baseline + row->x_height() + row->ascenders());
+      word_box.set_top(static_cast<int>(baseline + row->x_height() + row->ascenders()));
   }
   ImageData* im_data = GetRectImage(word_box, block, kImagePadding, &word_box);
   if (im_data == nullptr) return;

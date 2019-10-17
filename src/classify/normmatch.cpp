@@ -109,12 +109,12 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId,
   if (ClassId == NO_CLASS) {
     /* kludge - clean up constants and make into control knobs later */
     Match = (feature.Params[CharNormLength] *
-      feature.Params[CharNormLength] * 500.0 +
+      feature.Params[CharNormLength] * 500.0f +
       feature.Params[CharNormRx] *
-      feature.Params[CharNormRx] * 8000.0 +
+      feature.Params[CharNormRx] * 8000.0f +
       feature.Params[CharNormRy] *
-      feature.Params[CharNormRy] * 8000.0);
-    return (1.0 - NormEvidenceOf(Match));
+      feature.Params[CharNormRy] * 8000.0f);
+    return static_cast<float>(1.0 - NormEvidenceOf(Match));
   }
 
   BestMatch = FLT_MAX;
@@ -162,7 +162,7 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId,
 
     ProtoId++;
   }
-  return 1.0 - NormEvidenceOf(BestMatch);
+  return static_cast<float>(1.0 - NormEvidenceOf(BestMatch));
 }                                /* ComputeNormMatch */
 
 void Classify::FreeNormProtos() {
