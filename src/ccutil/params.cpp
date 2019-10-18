@@ -40,7 +40,7 @@ bool ParamUtils::ReadParamsFile(const char *file,
                                 SetParamConstraint constraint,
                                 ParamsVectors *member_params) {
   TFile fp;
-  if (!fp.Open(file + nameoffset, nullptr)) {
+  if (!fp.Open(file, nullptr)) {
     tprintf("read_params_file: Can't open %s\n", file);
     return true;
   }
