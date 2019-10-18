@@ -149,6 +149,8 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
 #endif
 
   std::stringstream alto_str;
+  // Use "C" locale (needed for int values larger than 999).
+  alto_str.imbue(std::locale::classic());
   alto_str
       << "\t\t<Page WIDTH=\"" << rect_width_ << "\" HEIGHT=\""
       << rect_height_
