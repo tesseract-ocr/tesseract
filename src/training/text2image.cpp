@@ -736,6 +736,7 @@ int main(int argc, char** argv) {
     if ((strcmp(argv[1], "-v") == 0) ||
       (strcmp(argv[1], "--version") == 0)) {
     FontUtils::PangoFontTypeInfo();
+    printf("Pango version: %s\n", pango_version_string());
     }
   }
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
