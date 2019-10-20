@@ -303,6 +303,8 @@ void ImageThresholder::ThresholdRectToPix(Pix* src_pix,
   int wpl = pixGetWpl(*pix);
   int src_wpl = pixGetWpl(src_pix);
   uint32_t* srcdata = pixGetData(src_pix);
+  pixSetXRes(*pix, pixGetXRes(src_pix));
+  pixSetYRes(*pix, pixGetYRes(src_pix));
   for (int y = 0; y < rect_height_; ++y) {
     const uint32_t* linedata = srcdata + (y + rect_top_) * src_wpl;
     uint32_t* pixline = pixdata + y * wpl;
