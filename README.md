@@ -106,7 +106,11 @@ uses a [BSD 2-clause license](http://leptonica.com/about-the-license.html).
 
 ## Dependencies
 
-Tesseract uses [Leptonica library](https://github.com/DanBloomberg/leptonica) for opening input images (e.g. not documents like pdf). It is suggested to use leptonica with build-in support for [zlib](https://zlib.net), [png](https://sourceforge.net/projects/libpng) and [tiff](http://www.simplesystems.org/libtiff) (for w multipage tiff).
+Tesseract uses [Leptonica library](https://github.com/DanBloomberg/leptonica)
+for opening input images (e.g. not documents like pdf).
+It is suggested to use leptonica with built-in support for [zlib](https://zlib.net),
+[png](https://sourceforge.net/projects/libpng) and
+[tiff](http://www.simplesystems.org/libtiff) (for w multipage tiff).
 
 ## Latest Version of README
 
