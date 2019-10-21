@@ -26,11 +26,13 @@
 #include <cstdlib>
 #include <cstdio>
 #include <string>
+#include <cerrno>
 
 #include "errcode.h"
 #include "fileio.h"
 #include "host.h"       // includes windows.h for BOOL, ...
 #include "tprintf.h"
+
 
 namespace tesseract {
 
@@ -45,8 +47,8 @@ FILE* File::OpenOrDie(const std::string& filename,
                       const std::string& mode) {
   FILE* stream = fopen(filename.c_str(), mode.c_str());
   if (stream == nullptr) {
-    tprintf("Unable to open '%s' in mode '%s'\n", filename.c_str(),
-            mode.c_str());
+    tprintf("Unable to open '%s' in mode '%s': %s\n", filename.c_str(),
+            mode.c_str(), strerror(errno));
   }
   return stream;
 }
@@ -55,7 +57,8 @@ void File::WriteStringToFileOrDie(const std::string& str,
                                   const std::string& filename) {
   FILE* stream = fopen(filename.c_str(), "wb");
   if (stream == nullptr) {
-    tprintf("Unable to open '%s' for writing\n", filename.c_str());
+    tprintf("Unable to open '%s' for writing: %s\n",
+            filename.c_str(), strerror(errno));
     return;
   }
   fputs(str.c_str(), stream);
@@ -93,7 +96,8 @@ bool File::Delete(const char* pathname) {
   const int status = _unlink(pathname);
 #endif
   if (status != 0) {
-    tprintf("ERROR: Unable to delete file %s\n", pathname);
+    tprintf("ERROR: Unable to delete file '%s$: %s\n", pathname,
+            strerror(errno));
     return false;
   }
   return true;
