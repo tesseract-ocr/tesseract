@@ -92,6 +92,9 @@ class TESS_API TessBaseAPI {
  public:
   TessBaseAPI();
   virtual ~TessBaseAPI();
+  // Copy constructor and assignment operator are currently unsupported.
+  TessBaseAPI(TessBaseAPI const&) = delete;
+  TessBaseAPI& operator=(TessBaseAPI const&) = delete;
 
   /**
    * Returns the version identifier as a static string. Do not delete.
