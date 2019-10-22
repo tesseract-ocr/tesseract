@@ -51,10 +51,10 @@
 namespace tesseract {
 
 // Special "weak" ParagraphModels.
-const ParagraphModel *kCrownLeft
-    = reinterpret_cast<ParagraphModel *>(static_cast<__int64>(0xDEAD111F));
-const ParagraphModel *kCrownRight
-    = reinterpret_cast<ParagraphModel *>(static_cast<__int64>(0xDEAD888F));
+const ParagraphModel *kCrownLeft =
+    reinterpret_cast<ParagraphModel*>(static_cast<int64_t>(0xDEAD111F));
+const ParagraphModel *kCrownRight =
+    reinterpret_cast<ParagraphModel*>(static_cast<int64_t>(0xDEAD888F));
 
 // Do the text and geometry of two rows support a paragraph break between them?
 static bool LikelyParagraphStart(const RowScratchRegisters &before,
