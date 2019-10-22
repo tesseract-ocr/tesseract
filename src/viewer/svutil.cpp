@@ -373,20 +373,22 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
     for (;;) {
       stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
                        addr_info->ai_protocol);
-      if (stream_ >= 0) {
-        if (connect(stream_, addr_info->ai_addr, static_cast<int>(addr_info->ai_addrlen)) == 0) {
-          break;
-        }
-
-        Close();
-
-        std::cout << "ScrollView: Waiting for server...\n";
-#ifdef _WIN32
-        Sleep(1000);
-#else
-        sleep(1);
-#endif
+      if (stream_ < 0) {
+        continue;
       }
+      if (connect(stream_, addr_info->ai_addr,
+                  static_cast<int>(addr_info->ai_addrlen)) == 0) {
+        break;
+      }
+
+      Close();
+
+      std::cout << "ScrollView: Waiting for server...\n";
+#  ifdef _WIN32
+      Sleep(1000);
+#  else
+      sleep(1);
+#  endif
     }
   }
 #ifdef _WIN32
