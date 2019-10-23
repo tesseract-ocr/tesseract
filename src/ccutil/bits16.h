@@ -31,21 +31,21 @@ class DLLSYM BITS16 {
 
   void turn_on_bit(       // flip specified bit
       uint8_t bit_num) {  // bit to flip 0..7
-    val = val | 01 << bit_num;
+    val = static_cast<uint16_t>(val | 01 << bit_num);
   }
 
   void turn_off_bit(      // flip specified bit
       uint8_t bit_num) {  // bit to flip 0..7
-    val = val & ~(01 << bit_num);
+    val = static_cast<uint16_t>(val & ~(01 << bit_num));
   }
 
   void set_bit(         // flip specified bit
       uint8_t bit_num,  // bit to flip 0..7
       bool value) {     // value to flip to
     if (value)
-      val = val | 01 << bit_num;
+      val = static_cast<uint16_t>(val | 01 << bit_num);
     else
-      val = val & ~(01 << bit_num);
+      val = static_cast<uint16_t>(val & ~(01 << bit_num));
   }
 
   bool bit(                     // access bit
