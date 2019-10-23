@@ -1092,6 +1092,8 @@ class Tesseract : public Wordrec {
                "the coefficient, the better are the ratings for each choice "
                "and less information is lost due to the cut off at 0. The "
                "standard value is 5.");
+  BOOL_VAR_H(pageseg_apply_music_mask, true,
+             "Detect music staff and remove intersecting components");
 
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE* init_recog_training(const STRING& fname);
