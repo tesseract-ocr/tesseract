@@ -49,7 +49,7 @@ class TRand {
   // Returns an integer in the range 0 to INT32_MAX.
   int32_t IntRand() {
     Iterate();
-    return seed_ >> 33;
+    return static_cast<int32_t>(seed_>> 33);
   }
   // Returns a floating point value in the range [-range, range].
   double SignedRand(double range) {

@@ -55,18 +55,18 @@ class CHAR_FRAGMENT {
   static const int kMaxChunks = 5;
 
   // Setters and Getters.
-  inline void set_all(const char *unichar, int pos, int total, bool natural) {
-    set_unichar(unichar);
-    set_pos(pos);
-    set_total(total);
-    set_natural(natural);
+  inline void set_all(const char *unichar_, int pos_, int total_, bool natural_) {
+    set_unichar(unichar_);
+    set_pos(pos_);
+    set_total(total_);
+    set_natural(natural_);
   }
   inline void set_unichar(const char *uch) {
     strncpy(this->unichar, uch, sizeof(this->unichar));
     this->unichar[UNICHAR_LEN] = '\0';
   }
-  inline void set_pos(int p) { this->pos = p; }
-  inline void set_total(int t) { this->total = t; }
+  inline void set_pos(int p) { this->pos = static_cast<int16_t>(p); }
+  inline void set_total(int t) { this->total = static_cast<int16_t>(t); }
   inline const char* get_unichar() const { return this->unichar; }
   inline int get_pos() const { return this->pos; }
   inline int get_total() const { return this->total; }
@@ -360,12 +360,12 @@ class UNICHARSET {
   bool save_to_file(FILE *file) const {
     STRING str;
     return save_to_string(&str) &&
-           tesseract::Serialize(file, &str[0], str.length());
+           tesseract::Serialize(file, &str[0], static_cast<size_t>(str.length()));
   }
 
   bool save_to_file(tesseract::TFile *file) const {
     STRING str;
-    return save_to_string(&str) && file->Serialize(&str[0], str.length());
+    return save_to_string(&str) && file->Serialize(&str[0], static_cast<size_t>(str.length()));
   }
 
   // Saves the content of the UNICHARSET to the given STRING.
@@ -573,13 +573,13 @@ class UNICHARSET {
                       int min_bottom, int max_bottom,
                       int min_top, int max_top) {
     unichars[unichar_id].properties.min_bottom =
-        ClipToRange<int>(min_bottom, 0, UINT8_MAX);
+        static_cast<uint8_t>(ClipToRange<int>(min_bottom, 0, UINT8_MAX));
     unichars[unichar_id].properties.max_bottom =
-        ClipToRange<int>(max_bottom, 0, UINT8_MAX);
+        static_cast<uint8_t>(ClipToRange<int>(max_bottom, 0, UINT8_MAX));
     unichars[unichar_id].properties.min_top =
-        ClipToRange<int>(min_top, 0, UINT8_MAX);
+        static_cast<uint8_t>(ClipToRange<int>(min_top, 0, UINT8_MAX));
     unichars[unichar_id].properties.max_top =
-        ClipToRange<int>(max_top, 0, UINT8_MAX);
+        static_cast<uint8_t>(ClipToRange<int>(max_top, 0, UINT8_MAX));
   }
   // Returns the width stats (as mean, sd) of the given unichar relative to the
   // median advance of all characters in the character set.

@@ -210,7 +210,7 @@ class GenericVector {
   // This function uses memcpy to copy the data, instead of invoking
   // operator=() for each element like double_the_size() does.
   static T* double_the_size_memcpy(int current_size, T* data) {
-    T* data_new = new T[current_size * 2];
+    T* data_new = new T[static_cast<size_t>(current_size) * 2];
     memcpy(data_new, data, sizeof(T) * current_size);
     delete[] data;
     return data_new;
@@ -235,7 +235,7 @@ class GenericVector {
   // to two Ts and returns negative if the first element is to appear earlier
   // in the result and positive if it is to appear later, with 0 for equal.
   void sort(int (*comparator)(const void*, const void*)) {
-    qsort(data_, size_used_, sizeof(*data_), comparator);
+    qsort(data_, static_cast<size_t>(size_used_), sizeof(*data_), comparator);
   }
 
   // Searches the array (assuming sorted in ascending order, using sort()) for
@@ -355,7 +355,7 @@ inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
       // reserve an extra byte in case caller wants to append a '\0' character
       data->reserve(size + 1);
       data->resize_no_init(size);
-      result = static_cast<long>(fread(&(*data)[0], 1, size, fp)) == size;
+      result = static_cast<long>(fread(&(*data)[0], 1, static_cast<size_t>(size), fp)) == size;
     }
     fclose(fp);
   }
@@ -371,7 +371,7 @@ inline bool SaveDataToFile(const GenericVector<char>& data,
     return false;
   }
   bool result =
-      static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
+      static_cast<int>(fwrite(&data[0], 1, static_cast<size_t>(data.size()), fp)) == data.size();
   fclose(fp);
   return result;
 }
@@ -666,7 +666,7 @@ void GenericVector<T>::init(int size) {
     if (size < kDefaultVectorSize) {
       size = kDefaultVectorSize;
     }
-    data_ = new T[size];
+    data_ = new T[static_cast<size_t>(size)];
     size_reserved_ = size;
   }
   clear_cb_ = nullptr;
@@ -688,7 +688,7 @@ void GenericVector<T>::reserve(int size) {
   if (size < kDefaultVectorSize) {
     size = kDefaultVectorSize;
   }
-  T* new_array = new T[size];
+  T* new_array = new T[static_cast<size_t>(size)];
   for (int i = 0; i < size_used_; ++i) {
     new_array[i] = data_[i];
   }

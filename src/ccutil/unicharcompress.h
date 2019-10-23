@@ -61,13 +61,13 @@ class RecodedCharID {
   bool Serialize(TFile* fp) const {
     return fp->Serialize(&self_normalized_) &&
            fp->Serialize(&length_) &&
-           fp->Serialize(&code_[0], length_);
+           fp->Serialize(&code_[0], static_cast<size_t>(length_));
   }
   // Reads from the given file. Returns false in case of error.
   bool DeSerialize(TFile* fp) {
     return fp->DeSerialize(&self_normalized_) &&
            fp->DeSerialize(&length_) &&
-           fp->DeSerialize(&code_[0], length_);
+           fp->DeSerialize(&code_[0], static_cast<size_t>(length_));
   }
   bool operator==(const RecodedCharID& other) const {
     if (length_ != other.length_) return false;

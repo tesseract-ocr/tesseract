@@ -78,7 +78,7 @@ class TESS_API STRING {
 
   inline char* strdup() const {
     int32_t len = length() + 1;
-    return strncpy(new char[len], GetCStr(), len);
+    return strncpy(new char[static_cast<size_t>(len)], GetCStr(), static_cast<size_t>(len));
   }
 
 #if STRING_IS_PROTECTED
