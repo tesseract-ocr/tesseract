@@ -269,8 +269,8 @@ configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/include/tesseract")
 
 configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/tess_version.h.in
-    ${CMAKE_CURRENT_BINARY_DIR}/api/tess_version.h @ONLY)
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/tesseract/tess_version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/tess_version.h @ONLY)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/tesseract.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)
@@ -334,8 +334,9 @@ include_directories(${Leptonica_INCLUDE_DIRS})
 include_directories(${LibArchive_INCLUDE_DIRS})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+include_directories(include)
 include_directories(src/api)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/api)
 include_directories(src/arch)
 include_directories(src/ccmain)
 include_directories(src/ccstruct)
@@ -527,30 +528,30 @@ install(FILES
 
 install(FILES
     # from api/makefile.am
-    src/api/apitypes.h
-    src/api/baseapi.h
-    src/api/capi.h
-    src/api/renderer.h
-    ${CMAKE_CURRENT_BINARY_DIR}/api/tess_version.h
+    include/tesseract/apitypes.h
+    include/tesseract/baseapi.h
+    include/tesseract/capi.h
+    include/tesseract/renderer.h
+    ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/tess_version.h
 
     #from ccmain/makefile.am
-    src/ccmain/thresholder.h
-    src/ccmain/ltrresultiterator.h
-    src/ccmain/pageiterator.h
-    src/ccmain/resultiterator.h
-    src/ccmain/osdetect.h
+    include/tesseract/thresholder.h
+    include/tesseract/ltrresultiterator.h
+    include/tesseract/pageiterator.h
+    include/tesseract/resultiterator.h
+    include/tesseract/osdetect.h
 
     #from ccstruct/makefile.am
-    src/ccstruct/publictypes.h
+    include/tesseract/publictypes.h
 
     #from ccutil/makefile.am
-    src/ccutil/genericvector.h
-    src/ccutil/helpers.h
-    src/ccutil/ocrclass.h
-    src/ccutil/platform.h
-    src/ccutil/serialis.h
-    src/ccutil/strngs.h
-    src/ccutil/unichar.h
+    include/tesseract/genericvector.h
+    include/tesseract/helpers.h
+    include/tesseract/ocrclass.h
+    include/tesseract/platform.h
+    include/tesseract/serialis.h
+    include/tesseract/strngs.h
+    include/tesseract/unichar.h
 
     #${CMAKE_CURRENT_BINARY_DIR}/src/endianness.h
     DESTINATION include/tesseract)
