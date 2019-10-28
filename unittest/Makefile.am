@@ -25,7 +25,8 @@ AM_CPPFLAGS += -DPANGO_ENABLE_ENGINE
 if DISABLED_LEGACY_ENGINE
 AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
 endif # DISABLED_LEGACY_ENGINE
-AM_CPPFLAGS += -I$(top_builddir)/src/api
+AM_CPPFLAGS += -I$(top_builddir)/include
+AM_CPPFLAGS += -I$(top_srcdir)/include
 AM_CPPFLAGS += -I$(top_srcdir)/src/api
 AM_CPPFLAGS += -I$(top_srcdir)/src/arch
 AM_CPPFLAGS += -I$(top_srcdir)/src/ccmain

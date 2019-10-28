@@ -1,4 +1,6 @@
 AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\" \
+    -I$(top_builddir)/include \
+    -I$(top_srcdir)/include \
     -I$(top_srcdir)/src/arch \
     -I$(top_srcdir)/src/lstm \
     -I$(top_srcdir)/src/ccutil \
@@ -10,8 +12,7 @@ AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\" \
     -I$(top_srcdir)/src/ccmain \
     -I$(top_srcdir)/src/wordrec \
     -I$(top_srcdir)/src/cutil \
-    -I$(top_srcdir)/src/opencl \
-    -I$(top_builddir)/api
+    -I$(top_srcdir)/src/opencl
 
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
 
@@ -23,7 +24,6 @@ if VISIBILITY
 AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-pkginclude_HEADERS = apitypes.h baseapi.h capi.h renderer.h tess_version.h
 lib_LTLIBRARIES =
 
 noinst_LTLIBRARIES = libtesseract_api.la

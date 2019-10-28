@@ -1,5 +1,5 @@
 AM_CXXFLAGS =
-AM_CPPFLAGS =
+AM_CPPFLAGS += -I$(top_srcdir)/include
 
 if !NO_TESSDATA_PREFIX
 AM_CXXFLAGS += -DTESSDATA_PREFIX=@datadir@
@@ -13,11 +13,6 @@ endif
 if DISABLED_LEGACY_ENGINE
 AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
 endif
-
-pkginclude_HEADERS = \
-    genericvector.h helpers.h \
-    ocrclass.h platform.h serialis.h strngs.h \
-    unichar.h
 
 noinst_HEADERS = \
     bits16.h ccutil.h clst.h doubleptr.h elst2.h \

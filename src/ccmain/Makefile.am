@@ -1,4 +1,5 @@
 AM_CPPFLAGS += \
+  -I$(top_srcdir)/include \
   -I$(top_srcdir)/src/ccutil \
   -I$(top_srcdir)/src/ccstruct \
   -I$(top_srcdir)/src/arch \
@@ -22,13 +23,6 @@ if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
-
-pkginclude_HEADERS = \
-    thresholder.h \
-    osdetect.h \
-    ltrresultiterator.h \
-    pageiterator.h \
-    resultiterator.h
 
 noinst_HEADERS = \
     control.h \

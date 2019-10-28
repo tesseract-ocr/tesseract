@@ -1,6 +1,7 @@
 AM_CPPFLAGS += \
     -DPANGO_ENABLE_ENGINE \
-    -I$(top_builddir)/src/api \
+    -I$(top_builddir)/include \
+    -I$(top_srcdir)/include \
     -I$(top_srcdir)/src/api \
     -I$(top_srcdir)/src/ccmain \
     -I$(top_srcdir)/src/ccutil \

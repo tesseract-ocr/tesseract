@@ -1,4 +1,5 @@
 AM_CPPFLAGS += \
+    -I$(top_srcdir)/include \
     -I$(top_srcdir)/src/ccutil \
     -I$(top_srcdir)/src/cutil \
     -I$(top_srcdir)/src/dict \
@@ -16,7 +17,6 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-pkginclude_HEADERS = publictypes.h
 noinst_HEADERS = \
     blamer.h blobbox.h blobs.h blread.h boxread.h boxword.h \
     ccstruct.h coutln.h crakedge.h \
