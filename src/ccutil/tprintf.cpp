@@ -24,7 +24,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include "params.h"
-#include "strngs.h"
+#include "tesseract/strngs.h"
 #include "tprintf.h"
 
 #define MAX_MSG_LEN 2048

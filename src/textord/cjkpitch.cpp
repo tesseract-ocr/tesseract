@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "cjkpitch.h"
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 #include "topitch.h"
 #include "tovars.h"
 

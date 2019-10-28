@@ -17,7 +17,7 @@
  **********************************************************************/
 
 #include "werd.h"
-#include "helpers.h"
+#include "tesseract/helpers.h"
 #include "linlsq.h"
 
 // Include automatically generated configuration file if running autoconf.

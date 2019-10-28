@@ -25,12 +25,12 @@
 #include <iostream>
 
 #include "allheaders.h"
-#include "baseapi.h"
+#include "tesseract/baseapi.h"
 #include "dict.h"
 #if defined(USE_OPENCL)
 #include "openclwrapper.h"      // for OpenclDevice
 #endif
-#include "renderer.h"
+#include "tesseract/renderer.h"
 #include "simddetect.h"
 #include "tprintf.h"            // for tprintf
 

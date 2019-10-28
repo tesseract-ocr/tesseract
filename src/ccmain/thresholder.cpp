@@ -18,7 +18,7 @@
 
 #include "allheaders.h"
 
-#include "thresholder.h"
+#include "tesseract/thresholder.h"
 
 #include <cstdint>      // for uint32_t
 #include <cstring>

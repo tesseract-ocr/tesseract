@@ -20,11 +20,11 @@
 #include <locale>     // for std::locale::classic
 #include <memory>     // for std::unique_ptr
 #include <sstream>    // for std::stringstream
-#include "baseapi.h"  // for TessBaseAPI
+#include "tesseract/baseapi.h"  // for TessBaseAPI
 #ifdef _WIN32
 # include "host.h"    // windows.h for MultiByteToWideChar, ...
 #endif
-#include "renderer.h"
+#include "tesseract/renderer.h"
 #include "tesseractclass.h"  // for Tesseract
 
 namespace tesseract {

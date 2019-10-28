@@ -24,9 +24,9 @@
 
 #include "elst.h"
 #include "tprintf.h"
-#include "unichar.h"
+#include "tesseract/unichar.h"
 #include "unicharset.h"
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 
 #define MAX_AMBIG_SIZE    10
 

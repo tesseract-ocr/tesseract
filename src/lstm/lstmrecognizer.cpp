@@ -27,7 +27,7 @@
 #include "callcpp.h"
 #include "dict.h"
 #include "genericheap.h"
-#include "helpers.h"
+#include "tesseract/helpers.h"
 #include "imagedata.h"
 #include "input.h"
 #include "lstm.h"

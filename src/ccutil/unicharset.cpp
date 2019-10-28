@@ -27,8 +27,8 @@
 #include <sstream>    // for std::istringstream, std::ostringstream
 
 #include "params.h"
-#include "serialis.h"
-#include "unichar.h"
+#include "tesseract/serialis.h"
+#include "tesseract/unichar.h"
 
 // TODO(rays) Move UNICHARSET to tesseract namespace.
 using tesseract::char32;

@@ -24,7 +24,7 @@
 #endif
 
 #include "shapeclassifier.h"
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 #include "scrollview.h"
 #include "shapetable.h"
 #include "svmnode.h"

@@ -26,12 +26,12 @@
 #endif
 #include "ccutil.h"
 #include "dict.h"
-#include "helpers.h"
+#include "tesseract/helpers.h"
 #include "matchdefs.h"
 #include "pageres.h"
 #include "params.h"
 #include "ratngs.h"
-#include "unichar.h"
+#include "tesseract/unichar.h"
 
 /*----------------------------------------------------------------------------
               Private Code

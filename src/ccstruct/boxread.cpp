@@ -23,12 +23,12 @@
 #include <string>           // for std::string
 #include "errcode.h"        // for ERRCODE, TESSEXIT
 #include "fileerr.h"        // for CANTOPENFILE
-#include "genericvector.h"  // for GenericVector
-#include "helpers.h"        // for chomp_string
+#include "tesseract/genericvector.h"  // for GenericVector
+#include "tesseract/helpers.h"        // for chomp_string
 #include "rect.h"           // for TBOX
-#include "strngs.h"         // for STRING
+#include "tesseract/strngs.h"         // for STRING
 #include "tprintf.h"        // for tprintf
-#include "unichar.h"        // for UNICHAR
+#include "tesseract/unichar.h"        // for UNICHAR
 
 // Special char code used to identify multi-blob labels.
 static const char* kMultiBlobLabelCode = "WordStr";

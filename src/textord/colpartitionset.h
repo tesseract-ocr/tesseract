@@ -21,7 +21,7 @@
 #define TESSERACT_TEXTORD_COLPARTITIONSET_H_
 
 #include "colpartition.h"   // For ColPartition_LIST.
-#include "genericvector.h"  // For GenericVector.
+#include "tesseract/genericvector.h"  // For GenericVector.
 #include "rect.h"           // For TBOX.
 #include "tabvector.h"      // For BLOBNBOX_CLIST.
 

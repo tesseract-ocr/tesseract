@@ -21,11 +21,11 @@
 #ifdef GOOGLE_TESSERACT
 #include "base/commandlineflags.h"
 #endif  // GOOGLE_TESSERACT
-#include "baseapi.h"
+#include "tesseract/baseapi.h"
 #include "commontraining.h"
 #include "mastertrainer.h"
 #include "params.h"
-#include "strngs.h"
+#include "tesseract/strngs.h"
 #include "tessclassifier.h"
 #include "tesseractclass.h"
 

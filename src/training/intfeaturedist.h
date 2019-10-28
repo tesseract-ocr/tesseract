@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CLASSIFY_INTFEATUREDIST_H_
 #define TESSERACT_CLASSIFY_INTFEATUREDIST_H_
 
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 
 namespace tesseract {
 

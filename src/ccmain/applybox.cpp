@@ -22,10 +22,10 @@
 #include "allheaders.h"
 #include "boxread.h"
 #include "pageres.h"
-#include "unichar.h"
+#include "tesseract/unichar.h"
 #include "unicharset.h"
 #include "tesseractclass.h"
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 
 /** Max number of blobs to classify together in FindSegmentation. */
 const int kMaxGroupSize = 4;

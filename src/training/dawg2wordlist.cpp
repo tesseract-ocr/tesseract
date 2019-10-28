@@ -18,7 +18,7 @@
 
 #include "commontraining.h"     // CheckSharedLibraryVersion
 #include "dawg.h"
-#include "serialis.h"
+#include "tesseract/serialis.h"
 #include "trie.h"
 #include "unicharset.h"
 

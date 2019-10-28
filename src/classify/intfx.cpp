@@ -24,7 +24,7 @@
 #include <mutex>                // for std::mutex
 #include "allheaders.h"
 #include "classify.h"
-#include "helpers.h"
+#include "tesseract/helpers.h"
 #include "intmatcher.h"
 #include "linlsq.h"
 #include "normalis.h"

@@ -31,7 +31,7 @@
 #include "callcpp.h"
 #include "scrollview.h"
 #include "float2int.h"
-#include "helpers.h"
+#include "tesseract/helpers.h"
 #include "classify.h"
 #include "shapetable.h"
 

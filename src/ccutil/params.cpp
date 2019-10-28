@@ -24,7 +24,7 @@
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
 
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 #include "host.h"           // platform.h, windows.h for MAX_PATH
 #include "tprintf.h"
 #include "params.h"

@@ -31,7 +31,7 @@
 #ifdef _WIN32
 #include "host.h" // windows.h for HANDLE, ...
 #endif
-#include "strngs.h"
+#include "tesseract/strngs.h"
 #include "params.h"
 #include "unicharset.h"
 

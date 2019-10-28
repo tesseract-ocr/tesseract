@@ -11,7 +11,7 @@
 #include <cmath>                // for std::isnan, NAN
 #include <locale>               // for std::locale::classic
 #include <sstream>              // for std::stringstream
-#include "baseapi.h"            // TessBaseAPI::Version
+#include "tesseract/baseapi.h"            // TessBaseAPI::Version
 #include "commandlineflags.h"
 #include "errcode.h"
 #include "tprintf.h"            // for tprintf

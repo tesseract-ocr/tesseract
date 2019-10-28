@@ -16,15 +16,15 @@
  *
  **********************************************************************/
 
-#include "strngs.h"
+#include "tesseract/strngs.h"
 #include <cassert>          // for assert
 #include <cstdlib>          // for malloc, free
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
 #include "errcode.h"        // for ASSERT_HOST
-#include "genericvector.h"  // for GenericVector
-#include "helpers.h"        // for ReverseN
-#include "serialis.h"       // for TFile
+#include "tesseract/genericvector.h"  // for GenericVector
+#include "tesseract/helpers.h"        // for ReverseN
+#include "tesseract/serialis.h"       // for TFile
 
 using tesseract::TFile;
 

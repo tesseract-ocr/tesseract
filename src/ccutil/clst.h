@@ -20,7 +20,7 @@
 #define CLST_H
 
 #include <cstdio>
-#include "serialis.h"
+#include "tesseract/serialis.h"
 #include "lsterr.h"
 
 class CLIST_ITERATOR;

@@ -18,7 +18,7 @@
 #include <thread>               // for std::thread
 #include "fileio.h"             // for LoadFileLinesToStrings
 #include "lstmtester.h"
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 
 namespace tesseract {
 

@@ -26,7 +26,7 @@
 #include <cmath>
 #include <cstdlib>
 #include "errcode.h"
-#include "helpers.h"
+#include "tesseract/helpers.h"
 #include "scrollview.h"
 #include "tprintf.h"
 

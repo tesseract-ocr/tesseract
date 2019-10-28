@@ -17,11 +17,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "ltrresultiterator.h"
+#include "tesseract/ltrresultiterator.h"
 
 #include "allheaders.h"
 #include "pageres.h"
-#include "strngs.h"
+#include "tesseract/strngs.h"
 #include "tesseractclass.h"
 
 namespace tesseract {

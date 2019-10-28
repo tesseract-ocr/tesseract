@@ -24,7 +24,7 @@
 #include "lstmtester.h"
 #include "lstmtrainer.h"
 #include "params.h"
-#include "strngs.h"
+#include "tesseract/strngs.h"
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
 

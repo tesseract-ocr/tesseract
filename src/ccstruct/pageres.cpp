@@ -33,7 +33,7 @@
 #include "ocrrow.h"        // for ROW, ROW_IT
 #include "pdblock.h"       // for PDBLK
 #include "polyblk.h"       // for POLY_BLOCK
-#include "publictypes.h"   // for OcrEngineMode, OEM_LSTM_ONLY
+#include "tesseract/publictypes.h"   // for OcrEngineMode, OEM_LSTM_ONLY
 #include "seam.h"          // for SEAM, start_seam_list
 #include "stepblob.h"      // for C_BLOB_IT, C_BLOB, C_BLOB_LIST
 #include "tprintf.h"       // for tprintf

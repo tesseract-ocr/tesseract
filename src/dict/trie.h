@@ -21,7 +21,7 @@
 #define TRIE_H
 
 #include "dawg.h"
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 
 class UNICHARSET;
 

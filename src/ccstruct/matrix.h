@@ -33,10 +33,10 @@
 #include <cstdio>       // for FILE
 #include <cstring>      // for memcpy
 #include "errcode.h"    // for ASSERT_HOST
-#include "helpers.h"    // for ReverseN, ClipToRange
+#include "tesseract/helpers.h"    // for ReverseN, ClipToRange
 #include "kdpair.h"     // for KDPairInc
 #include "points.h"     // for ICOORD
-#include "serialis.h"   // for TFile
+#include "tesseract/serialis.h"   // for TFile
 
 class BLOB_CHOICE_LIST;
 class UNICHARSET;
