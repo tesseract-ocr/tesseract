@@ -95,11 +95,10 @@ LIB_FUZZING_ENGINE ?= -fsanitize=fuzzer
 fuzzer-api: all
 fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
 	$(CXX) $(CXXFLAGS) -g $(LIB_FUZZING_ENGINE) \
-          -I $(top_srcdir)/src/api \
+          -I $(top_srcdir)/include \
           -I $(top_srcdir)/src/ccmain \
           -I $(top_srcdir)/src/ccstruct \
           -I $(top_srcdir)/src/ccutil \
-          -I src/api \
           $< \
           src/api/.libs/libtesseract.a \
           $(LEPTONICA_LIBS) \

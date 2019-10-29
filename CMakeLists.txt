@@ -336,7 +336,6 @@ include_directories(${LibArchive_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 include_directories(include)
-include_directories(src/api)
 include_directories(src/arch)
 include_directories(src/ccmain)
 include_directories(src/ccstruct)
@@ -399,7 +398,6 @@ endif(SSE41_OPT)
 set_source_files_properties(${arch_files_opt} PROPERTIES COMPILE_FLAGS "${Vc_CXX_FLAGS}")
 
 file(GLOB tesseract_hdr
-    src/api/*.h
     src/arch/*.h
     src/ccmain/*.h
     src/ccstruct/*.h
