@@ -27,14 +27,14 @@
 #include "blamer.h"            // for BlamerBundle (ptr only), IRR_NUM_REASONS
 #include "clst.h"              // for CLIST_ITERATOR, CLISTIZEH
 #include "elst.h"              // for ELIST_ITERATOR, ELIST_LINK, ELISTIZEH
-#include "genericvector.h"     // for GenericVector, PointerVector (ptr only)
+#include "tesseract/genericvector.h"     // for GenericVector, PointerVector (ptr only)
 #include "matrix.h"            // for MATRIX
 #include "normalis.h"          // for DENORM
 #include "ratngs.h"            // for WERD_CHOICE, BLOB_CHOICE (ptr only)
 #include "rect.h"              // for TBOX
 #include "rejctmap.h"          // for REJMAP
-#include "strngs.h"            // for STRING
-#include "unichar.h"           // for UNICHAR_ID, INVALID_UNICHAR_ID
+#include "tesseract/strngs.h"            // for STRING
+#include "tesseract/unichar.h"           // for UNICHAR_ID, INVALID_UNICHAR_ID
 #include "unicharset.h"        // for UNICHARSET, UNICHARSET::Direction, UNI...
 #include "werd.h"              // for WERD, W_BOL, W_EOL
 

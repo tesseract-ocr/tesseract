@@ -21,8 +21,8 @@
 #include <algorithm>
 #include <cmath>                // for M_PI
 #include <cstdlib>
-#include "helpers.h"
-#include "serialis.h"
+#include "tesseract/helpers.h"
+#include "tesseract/serialis.h"
 #include "points.h"
 
 ELISTIZE (ICOORDELT)           //turn to list

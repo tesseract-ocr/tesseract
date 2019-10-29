@@ -30,7 +30,7 @@
 #include "params.h"                   // for IntParam, BoolParam, DoubleParam
 #include "params_training_featdef.h"  // for ParamsTrainingHypothesis, PTRAI...
 #include "tprintf.h"                  // for tprintf
-#include "unichar.h"                  // for UNICHAR_ID, INVALID_UNICHAR_ID
+#include "tesseract/unichar.h"                  // for UNICHAR_ID, INVALID_UNICHAR_ID
 #include "unicharset.h"               // for UNICHARSET
 #include "unicity_table.h"            // for UnicityTable
 

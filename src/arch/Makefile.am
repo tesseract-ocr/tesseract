@@ -1,4 +1,8 @@
-AM_CPPFLAGS += -I$(top_srcdir)/src/ccstruct -I$(top_srcdir)/src/ccutil -I$(top_srcdir)/src/viewer
+AM_CPPFLAGS += \
+  -I$(top_srcdir)/include \
+  -I$(top_srcdir)/src/ccstruct \
+  -I$(top_srcdir)/src/ccutil \
+  -I$(top_srcdir)/src/viewer
 
 AM_CXXFLAGS =
 

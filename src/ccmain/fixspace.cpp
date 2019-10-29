@@ -24,17 +24,17 @@
 #include "boxword.h"           // for BoxWord
 #include "errcode.h"           // for ASSERT_HOST
 #include "normalis.h"          // for kBlnXHeight, kBlnBaselineOffset
-#include "ocrclass.h"          // for ETEXT_DESC
+#include "tesseract/ocrclass.h"          // for ETEXT_DESC
 #include "pageres.h"           // for WERD_RES_IT, WERD_RES, WERD_RES_LIST
 #include "params.h"            // for IntParam, StringParam, BoolParam, Doub...
 #include "ratngs.h"            // for WERD_CHOICE, FREQ_DAWG_PERM, NUMBER_PERM
 #include "rect.h"              // for TBOX
 #include "stepblob.h"          // for C_BLOB_IT, C_BLOB_LIST, C_BLOB
-#include "strngs.h"            // for STRING
+#include "tesseract/strngs.h"            // for STRING
 #include "tesseractclass.h"    // for Tesseract, TesseractStats, WordData
 #include "tessvars.h"          // for debug_fp
 #include "tprintf.h"           // for tprintf
-#include "unichar.h"           // for UNICHAR_ID
+#include "tesseract/unichar.h"           // for UNICHAR_ID
 #include "unicharset.h"        // for UNICHARSET
 #include "werd.h"              // for WERD, W_EOL, W_FUZZY_NON, W_FUZZY_SP
 

@@ -24,9 +24,9 @@
 #include <memory>  // std::unique_ptr
 #include <sstream> // for std::stringstream
 #include "allheaders.h"
-#include "baseapi.h"
+#include "tesseract/baseapi.h"
 #include <cmath>
-#include "renderer.h"
+#include "tesseract/renderer.h"
 #include <cstring>
 #include "tprintf.h"
 

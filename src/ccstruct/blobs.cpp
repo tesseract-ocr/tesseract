@@ -29,7 +29,7 @@
 #include "blobs.h"
 #include "ccstruct.h"
 #include "clst.h"
-#include "helpers.h"
+#include "tesseract/helpers.h"
 #include "linlsq.h"
 #include "normalis.h"
 #include "ocrblock.h"

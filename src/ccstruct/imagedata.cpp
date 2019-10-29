@@ -29,10 +29,10 @@
 #include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 #include "boxread.h"     // for ReadMemBoxes
 #include "callcpp.h"     // for window_wait
-#include "helpers.h"     // for IntCastRounded, TRand, ClipToRange, Modulo
+#include "tesseract/helpers.h"     // for IntCastRounded, TRand, ClipToRange, Modulo
 #include "rect.h"        // for TBOX
 #include "scrollview.h"  // for ScrollView, ScrollView::CYAN, ScrollView::NONE
-#include "serialis.h"    // for TFile
+#include "tesseract/serialis.h"    // for TFile
 #include "tprintf.h"     // for tprintf
 
 // Number of documents to read ahead while training. Doesn't need to be very

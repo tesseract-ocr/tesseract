@@ -21,7 +21,7 @@
 //--------------------------Include Files---------------------------------------
 #include <cstdio>
 #include "cluster.h"
-#include "serialis.h"
+#include "tesseract/serialis.h"
 
 /*-------------------------------------------------------------------------
         Public Function Prototype

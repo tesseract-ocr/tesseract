@@ -23,7 +23,7 @@
 
 #include <cmath>                // for M_PI
 #include "allheaders.h"
-#include "helpers.h"
+#include "tesseract/helpers.h"
 #include "intfeaturemap.h"
 #include "normfeat.h"
 #include "shapetable.h"

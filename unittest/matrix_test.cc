@@ -15,7 +15,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "matrix.h"
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 #include "include_gunit.h"
 
 namespace {

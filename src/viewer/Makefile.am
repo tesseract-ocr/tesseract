@@ -1,4 +1,6 @@
-AM_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+AM_CPPFLAGS += \
+  -I$(top_srcdir)/include \
+  -I$(top_srcdir)/src/ccutil
 
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \

@@ -23,7 +23,7 @@
 #include "elst2.h"
 #include "params.h"
 #include "stepblob.h"
-#include "strngs.h"
+#include "tesseract/strngs.h"
 
 enum WERD_FLAGS {
   W_SEGMENTED,           ///< correctly segmented

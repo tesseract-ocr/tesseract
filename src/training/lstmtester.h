@@ -19,9 +19,9 @@
 #define TESSERACT_TRAINING_LSTMTESTER_H_
 
 #include <mutex>
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 #include "lstmtrainer.h"
-#include "strngs.h"
+#include "tesseract/strngs.h"
 
 namespace tesseract {
 

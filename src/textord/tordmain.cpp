@@ -34,7 +34,7 @@
 #include "drawtord.h"           // for plot_box_list, to_win, create_to_win
 #include "edgblob.h"            // for extract_edges
 #include "errcode.h"            // for set_global_loc_code, ASSERT_HOST, LOC...
-#include "genericvector.h"      // for PointerVector, GenericVector
+#include "tesseract/genericvector.h"      // for PointerVector, GenericVector
 #include "makerow.h"            // for textord_test_x, textord_test_y, texto...
 #include "morph.h"              // for L_BOUNDARY_BG
 #include "ocrblock.h"           // for BLOCK_IT, BLOCK, BLOCK_LIST (ptr only)

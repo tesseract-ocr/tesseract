@@ -20,9 +20,9 @@
 #define TESSERACT_IMAGE_IMAGEDATA_H_
 
 #include <mutex>                // for std::mutex
-#include "genericvector.h"      // for GenericVector, PointerVector, FileReader
+#include "tesseract/genericvector.h"      // for GenericVector, PointerVector, FileReader
 #include "points.h"             // for FCOORD
-#include "strngs.h"             // for STRING
+#include "tesseract/strngs.h"             // for STRING
 
 class ScrollView;
 class TBOX;

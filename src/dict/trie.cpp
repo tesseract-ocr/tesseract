@@ -26,8 +26,8 @@
 #include "callcpp.h"
 #include "dawg.h"
 #include "dict.h"
-#include "genericvector.h"
-#include "helpers.h"
+#include "tesseract/genericvector.h"
+#include "tesseract/helpers.h"
 #include "kdpair.h"
 
 namespace tesseract {

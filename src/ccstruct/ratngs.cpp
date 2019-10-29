@@ -27,7 +27,7 @@
 #include <string>
 #include "blobs.h"
 #include "callcpp.h"
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 #include "matrix.h"
 #include "normalis.h"  // kBlnBaselineOffset.
 #include "unicharset.h"

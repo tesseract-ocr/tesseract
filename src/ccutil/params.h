@@ -21,8 +21,8 @@
 
 #include <cstdio>
 
-#include "genericvector.h"
-#include "strngs.h"
+#include "tesseract/genericvector.h"
+#include "tesseract/strngs.h"
 
 namespace tesseract {
 

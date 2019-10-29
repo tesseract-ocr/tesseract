@@ -30,7 +30,7 @@
 
 #include "include_gunit.h"
 
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 #include "log.h"                        // for LOG
 #include "unicharset.h"
 #include "errorcounter.h"

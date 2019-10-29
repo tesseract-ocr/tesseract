@@ -72,7 +72,7 @@ class Wordrec : public Classify {
 #include "dict.h"
 #include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "findseam.h"          // for SeamQueue, SeamPile
-#include "genericvector.h"     // for GenericVector
+#include "tesseract/genericvector.h"     // for GenericVector
 #include "language_model.h"
 #include "matrix.h"
 #include "oldlist.h"           // for LIST

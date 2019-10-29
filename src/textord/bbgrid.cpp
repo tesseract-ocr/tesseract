@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "bbgrid.h"
-#include "helpers.h"
+#include "tesseract/helpers.h"
 #include "ocrblock.h"
 
 namespace tesseract {

@@ -23,8 +23,8 @@
 #include "commontraining.h"     // CheckSharedLibraryVersion
 #include "dawg.h"
 #include "dict.h"
-#include "helpers.h"
-#include "serialis.h"
+#include "tesseract/helpers.h"
+#include "tesseract/serialis.h"
 #include "trie.h"
 #include "unicharset.h"
 

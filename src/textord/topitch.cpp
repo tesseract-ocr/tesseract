@@ -25,7 +25,7 @@
 #include "tovars.h"
 #include "wordseg.h"
 #include "topitch.h"
-#include "helpers.h"
+#include "tesseract/helpers.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

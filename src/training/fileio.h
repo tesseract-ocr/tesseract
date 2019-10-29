@@ -20,9 +20,9 @@
 #include <cstdio>
 #include <string>
 
-#include "genericvector.h"      // for GenericVector
-#include "platform.h"
-#include "strngs.h"             // for STRING
+#include "tesseract/genericvector.h"      // for GenericVector
+#include "tesseract/platform.h"
+#include "tesseract/strngs.h"             // for STRING
 
 namespace tesseract {
 

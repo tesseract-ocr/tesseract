@@ -31,7 +31,7 @@
 #include "params_model.h"    // for ParamsModel
 #include "ratngs.h"          // for BLOB_CHOICE (ptr only), BLOB_CHOICE_LIST...
 #include "stopper.h"         // for DANGERR
-#include "strngs.h"          // for STRING
+#include "tesseract/strngs.h"          // for STRING
 
 class UNICHARSET;
 class WERD_RES;

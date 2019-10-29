@@ -20,7 +20,7 @@
 #include "ambigs.h"
 
 #include <cstdio>
-#include "helpers.h"
+#include "tesseract/helpers.h"
 #include "universalambigs.h"
 
 #if defined(_WIN32) && !defined(__GNUC__)

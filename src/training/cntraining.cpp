@@ -28,7 +28,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cmath>
-#include "unichar.h"
+#include "tesseract/unichar.h"
 #include "commontraining.h"
 
 #define PROGRAM_FEATURE_TYPE "cn"

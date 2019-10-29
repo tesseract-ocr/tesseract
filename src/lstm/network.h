@@ -21,13 +21,13 @@
 #include <cstdio>
 #include <cmath>
 
-#include "genericvector.h"
-#include "helpers.h"
+#include "tesseract/genericvector.h"
+#include "tesseract/helpers.h"
 #include "matrix.h"
 #include "networkio.h"
-#include "serialis.h"
+#include "tesseract/serialis.h"
 #include "static_shape.h"
-#include "strngs.h"             // for STRING
+#include "tesseract/strngs.h"             // for STRING
 #include "tprintf.h"
 
 struct Pix;
