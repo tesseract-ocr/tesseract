@@ -36,7 +36,7 @@ projects:
         type: lib
         export_all_symbols: true
         files:
-          - src/api/tess_version.h.in
+          - src/api/version.h.in
           - src/api/.*\.cpp
           - src/arch/.*\.cpp
           - src/ccmain/.*\.cpp
@@ -118,8 +118,8 @@ projects:
 
         post_sources: |
             configure_file(
-                ${SDIR}/src/api/tess_version.h.in
-                ${BDIR}/tess_version.h @ONLY)
+                ${SDIR}/src/api/version.h.in
+                ${BDIR}/version.h @ONLY)
             if (WIN32)
                 if (MSVC)
                     set_source_files_properties(

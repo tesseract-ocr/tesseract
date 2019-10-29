@@ -32,7 +32,7 @@ pkginclude_HEADERS = \
   apitypes.h \
   baseapi.h \
   capi.h renderer.h \
-  tess_version.h
+  version.h
 
 pkginclude_HEADERS += \
   thresholder.h \

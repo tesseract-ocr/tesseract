@@ -31,9 +31,9 @@
 #include "tesseract/publictypes.h"
 #include "tesseract/resultiterator.h"
 #include "tesseract/serialis.h"
-#include "tesseract/tess_version.h"
 #include "tesseract/thresholder.h"
 #include "tesseract/unichar.h"
+#include "tesseract/version.h"
 
 template <typename T> class GenericVector;
 class PAGE_RES;

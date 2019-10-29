@@ -269,8 +269,8 @@ configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/include/tesseract")
 
 configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/tesseract/tess_version.h.in
-    ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/tess_version.h @ONLY)
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/tesseract/version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/version.h @ONLY)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/tesseract.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)
@@ -532,7 +532,7 @@ install(FILES
     include/tesseract/baseapi.h
     include/tesseract/capi.h
     include/tesseract/renderer.h
-    ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/tess_version.h
+    ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/version.h
 
     #from ccmain/makefile.am
     include/tesseract/thresholder.h

@@ -62,7 +62,7 @@ void build(Solution &s)
         libtesseract.Variables["TESSERACT_MINOR_VERSION"] = libtesseract.Variables["PACKAGE_MINOR_VERSION"];
         libtesseract.Variables["TESSERACT_MICRO_VERSION"] = libtesseract.Variables["PACKAGE_PATCH_VERSION"];
         libtesseract.Variables["TESSERACT_VERSION_STR"] = "master";
-        libtesseract.configureFile("include/tesseract/tess_version.h.in", "tesseract/tess_version.h");
+        libtesseract.configureFile("include/tesseract/version.h.in", "tesseract/version.h");
     }
 
     //
