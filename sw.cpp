@@ -10,9 +10,8 @@ void build(Solution &s)
         libtesseract.ExportAllSymbols = true;
         libtesseract.PackageDefinitions = true;
         libtesseract +=
+            "include/tesseract/tess_version.h.in",
             "src/api/.*\\.cpp"_rr,
-            "src/api/.*\\.h"_rr,
-            "src/api/tess_version.h.in",
             "src/arch/.*\\.cpp"_rr,
             "src/arch/.*\\.h"_rr,
             "src/ccmain/.*\\.cpp"_rr,
@@ -89,7 +88,7 @@ void build(Solution &s)
         libtesseract.Variables["TESSERACT_MINOR_VERSION"] = libtesseract.Variables["PACKAGE_MINOR_VERSION"];
         libtesseract.Variables["TESSERACT_MICRO_VERSION"] = libtesseract.Variables["PACKAGE_PATCH_VERSION"];
         libtesseract.Variables["TESSERACT_VERSION_STR"] = "master";
-        libtesseract.configureFile("src/api/tess_version.h.in", "tess_version.h");
+        libtesseract.configureFile("include/tesseract/tess_version.h.in", "tess_version.h");
 
         // install
         if (!libtesseract.DryRun)
@@ -97,30 +96,30 @@ void build(Solution &s)
             const Files files
             {
                 // from api/makefile.am
-                "src/api/apitypes.h",
-                "src/api/baseapi.h",
-                "src/api/capi.h",
-                "src/api/renderer.h",
+                "include/tesseract/apitypes.h",
+                "include/tesseract/baseapi.h",
+                "include/tesseract/capi.h",
+                "include/tesseract/renderer.h",
                 "tess_version.h",
 
                 //from ccmain/makefile.am
-                "src/ccmain/thresholder.h",
-                "src/ccmain/ltrresultiterator.h",
-                "src/ccmain/pageiterator.h",
-                "src/ccmain/resultiterator.h",
-                "src/ccmain/osdetect.h",
+                "include/tesseract/thresholder.h",
+                "include/tesseract/ltrresultiterator.h",
+                "include/tesseract/pageiterator.h",
+                "include/tesseract/resultiterator.h",
+                "include/tesseract/osdetect.h",
 
                 //from ccstruct/makefile.am
-                "src/ccstruct/publictypes.h",
+                "include/tesseract/publictypes.h",
 
                 //from ccutil/makefile.am
-                "src/ccutil/genericvector.h",
-                "src/ccutil/helpers.h",
-                "src/ccutil/ocrclass.h",
-                "src/ccutil/platform.h",
-                "src/ccutil/serialis.h",
-                "src/ccutil/strngs.h",
-                "src/ccutil/unichar.h",
+                "include/tesseract/genericvector.h",
+                "include/tesseract/helpers.h",
+                "include/tesseract/ocrclass.h",
+                "include/tesseract/platform.h",
+                "include/tesseract/serialis.h",
+                "include/tesseract/strngs.h",
+                "include/tesseract/unichar.h",
             };
 
             auto d = libtesseract.BinaryDir / "tesseract";
