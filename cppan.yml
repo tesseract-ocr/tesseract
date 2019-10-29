@@ -36,7 +36,7 @@ projects:
         type: lib
         export_all_symbols: true
         files:
-          - src/api/version.h.in
+          - include/tesseract/version.h.in
           - src/api/.*\.cpp
           - src/arch/.*\.cpp
           - src/ccmain/.*\.cpp
@@ -51,7 +51,6 @@ projects:
           - src/viewer/.*\.cpp
           - src/wordrec/.*\.cpp
 
-          - src/api/.*\.h
           - src/arch/.*\.h
           - src/ccmain/.*\.h
           - src/ccstruct/.*\.h
@@ -83,7 +82,7 @@ projects:
             - src/viewer
             - src/wordrec
           #public:
-            - src/api
+            - include
             - src/ccmain
             - src/ccstruct
             - src/ccutil
@@ -118,7 +117,7 @@ projects:
 
         post_sources: |
             configure_file(
-                ${SDIR}/src/api/version.h.in
+                ${SDIR}/include/tesseract/version.h.in
                 ${BDIR}/version.h @ONLY)
             if (WIN32)
                 if (MSVC)
