@@ -20,10 +20,10 @@
 ///////////////////////////////////////////////////////////////////////
 //
 
-#include "tesseract/baseapi.h"
+#include <tesseract/baseapi.h>
 #include "commontraining.h"     // CheckSharedLibraryVersion
-#include "tesseract/helpers.h"
-#include "tesseract/strngs.h"
+#include <tesseract/helpers.h>
+#include <tesseract/strngs.h>
 #include "dict.h"
 #include "tesseractclass.h"
 

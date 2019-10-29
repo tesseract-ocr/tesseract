@@ -21,7 +21,7 @@
 #include <cmath>        // for std::fabs
 #include <memory>
 
-#include "tesseract/osdetect.h"
+#include <tesseract/osdetect.h>
 
 #include "blobbox.h"
 #include "blread.h"
@@ -32,7 +32,7 @@
 #include "oldlist.h"
 #include "qrsequence.h"
 #include "ratngs.h"
-#include "tesseract/strngs.h"
+#include <tesseract/strngs.h>
 #include "tabvector.h"
 #include "tesseractclass.h"
 #include "textord.h"

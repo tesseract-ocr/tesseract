@@ -20,7 +20,7 @@
 #define CALLCPP_H
 
 #include "params.h"
-#include "tesseract/unichar.h"
+#include <tesseract/unichar.h>
 
 class ScrollView;
 

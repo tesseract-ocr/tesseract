@@ -21,9 +21,9 @@
 
 #include <cstring>
 #include <memory>  // std::unique_ptr
-#include "tesseract/baseapi.h"
-#include "tesseract/genericvector.h"
-#include "tesseract/renderer.h"
+#include <tesseract/baseapi.h>
+#include <tesseract/genericvector.h>
+#include <tesseract/renderer.h>
 
 namespace tesseract {
 

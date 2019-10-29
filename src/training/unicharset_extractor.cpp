@@ -24,10 +24,10 @@
 #include "boxread.h"
 #include "commandlineflags.h"
 #include "commontraining.h"     // CheckSharedLibraryVersion
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 #include "lang_model_helpers.h"
 #include "normstrngs.h"
-#include "tesseract/strngs.h"
+#include <tesseract/strngs.h>
 #include "unicharset.h"
 #include "unicharset_training_utils.h"
 

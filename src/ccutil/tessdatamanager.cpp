@@ -31,9 +31,9 @@
 #endif
 
 #include "errcode.h"
-#include "tesseract/helpers.h"
-#include "tesseract/serialis.h"
-#include "tesseract/strngs.h"
+#include <tesseract/helpers.h>
+#include <tesseract/serialis.h>
+#include <tesseract/strngs.h>
 #include "tprintf.h"
 #include "params.h"
 

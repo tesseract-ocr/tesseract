@@ -40,8 +40,8 @@
 #include "featdefs.h"           // for CharNormDesc
 #include "float2int.h"          // for BASELINE_Y_SHIFT
 #include "fontinfo.h"           // for ScoredFont, FontSet
-#include "tesseract/genericvector.h"      // for GenericVector
-#include "tesseract/helpers.h"            // for IntCastRounded, ClipToRange
+#include <tesseract/genericvector.h>      // for GenericVector
+#include <tesseract/helpers.h>            // for IntCastRounded, ClipToRange
 #include "intfx.h"              // for BlobToTrainingSample, INT_FX_RESULT_S...
 #include "intmatcher.h"         // for CP_RESULT_STRUCT, IntegerMatcher
 #include "intproto.h"           // for INT_FEATURE_STRUCT, (anonymous), Clas...
@@ -60,15 +60,15 @@
 #include "rect.h"               // for TBOX
 #include "scrollview.h"         // for ScrollView, ScrollView::BROWN, Scroll...
 #include "seam.h"               // for SEAM
-#include "tesseract/serialis.h"           // for TFile
+#include <tesseract/serialis.h>           // for TFile
 #include "shapeclassifier.h"    // for ShapeClassifier
 #include "shapetable.h"         // for UnicharRating, ShapeTable, Shape, Uni...
-#include "tesseract/strngs.h"             // for STRING
+#include <tesseract/strngs.h>             // for STRING
 #include "tessclassifier.h"     // for TessClassifier
 #include "tessdatamanager.h"    // for TessdataManager, TESSDATA_INTTEMP
 #include "tprintf.h"            // for tprintf
 #include "trainingsample.h"     // for TrainingSample
-#include "tesseract/unichar.h"            // for UNICHAR_ID, INVALID_UNICHAR_ID
+#include <tesseract/unichar.h>            // for UNICHAR_ID, INVALID_UNICHAR_ID
 #include "unicharset.h"         // for UNICHARSET, CHAR_FRAGMENT, UNICHAR_SPACE
 #include "unicity_table.h"      // for UnicityTable
 

@@ -21,8 +21,8 @@
 #ifndef TESSERACT_CCMAIN_PAGEITERATOR_H_
 #define TESSERACT_CCMAIN_PAGEITERATOR_H_
 
-#include "tesseract/platform.h"
-#include "tesseract/publictypes.h"
+#include <tesseract/platform.h>
+#include <tesseract/publictypes.h>
 
 struct BlamerBundle;
 class C_BLOB_IT;

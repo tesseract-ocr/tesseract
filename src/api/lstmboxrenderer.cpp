@@ -16,8 +16,8 @@
  *
  **********************************************************************/
 
-#include "tesseract/baseapi.h"  // for TessBaseAPI
-#include "tesseract/renderer.h"
+#include <tesseract/baseapi.h>  // for TessBaseAPI
+#include <tesseract/renderer.h>
 #include "tesseractclass.h"  // for Tesseract
 
 namespace tesseract {

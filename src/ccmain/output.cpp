@@ -20,7 +20,7 @@
 #include <cerrno>
 #include <cstring>
 #include "control.h"
-#include "tesseract/helpers.h"
+#include <tesseract/helpers.h>
 #include "output.h"
 #include "tesseractclass.h"
 #include "tessvars.h"

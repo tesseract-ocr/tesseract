@@ -21,7 +21,7 @@
 
 // for micro-benchmark
 #include "otsuthr.h"
-#include "tesseract/thresholder.h"
+#include <tesseract/thresholder.h>
 
 // platform preprocessor commands
 #if defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || \

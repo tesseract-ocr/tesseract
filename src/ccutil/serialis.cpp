@@ -16,11 +16,11 @@
  *
  **********************************************************************/
 
-#include "tesseract/serialis.h"
+#include <tesseract/serialis.h>
 #include <cstdio>
 #include "errcode.h"
-#include "tesseract/genericvector.h"
-#include "tesseract/strngs.h"             // for STRING
+#include <tesseract/genericvector.h>
+#include <tesseract/strngs.h>             // for STRING
 
 namespace tesseract {
 

@@ -18,7 +18,7 @@
 #ifndef TESSERACT_LSTM_FUNCTIONS_H_
 #define TESSERACT_LSTM_FUNCTIONS_H_
 
-#include "tesseract/helpers.h"
+#include <tesseract/helpers.h>
 
 // Setting this to 1 or more causes massive dumps of debug data: weights,
 // updates, internal calculations etc, and reduces the number of test iterations

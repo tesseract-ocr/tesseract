@@ -24,25 +24,25 @@
 #include <cstring>                // for strchr, strlen
 #include <algorithm>              // for max
 #include <memory>                 // for unique_ptr
-#include "tesseract/genericvector.h"        // for GenericVector, GenericVectorEqEq
-#include "tesseract/helpers.h"              // for UpdateRange, ClipToRange
+#include <tesseract/genericvector.h>        // for GenericVector, GenericVectorEqEq
+#include <tesseract/helpers.h>              // for UpdateRange, ClipToRange
 #include "host.h"                 // for NearlyEqual
 #include "mutableiterator.h"      // for MutableIterator
 #include "ocrblock.h"             // for BLOCK
 #include "ocrpara.h"              // for ParagraphModel, PARA, PARA_IT, PARA...
 #include "ocrrow.h"               // for ROW
-#include "tesseract/pageiterator.h"         // for PageIterator
+#include <tesseract/pageiterator.h>         // for PageIterator
 #include "pageres.h"              // for PAGE_RES_IT, WERD_RES, ROW_RES, BLO...
 #include "paragraphs_internal.h"  // for RowScratchRegisters, SetOfModels
 #include "pdblock.h"              // for PDBLK
 #include "polyblk.h"              // for POLY_BLOCK
-#include "tesseract/publictypes.h"          // for JUSTIFICATION_LEFT, JUSTIFICATION_R...
+#include <tesseract/publictypes.h>          // for JUSTIFICATION_LEFT, JUSTIFICATION_R...
 #include "ratngs.h"               // for WERD_CHOICE
 #include "rect.h"                 // for TBOX
 #include "statistc.h"             // for STATS
-#include "tesseract/strngs.h"               // for STRING
+#include <tesseract/strngs.h>               // for STRING
 #include "tprintf.h"              // for tprintf
-#include "tesseract/unichar.h"              // for UNICHAR, UNICHAR_ID
+#include <tesseract/unichar.h>              // for UNICHAR, UNICHAR_ID
 #include "unicharset.h"           // for UNICHARSET
 #include "unicodes.h"             // for kPDF, kRLE
 #include "werd.h"                 // for WERD, W_REP_CHAR

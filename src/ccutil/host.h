@@ -19,7 +19,7 @@
 #define TESSERACT_CCUTIL_HOST_H_
 
 #include <limits>
-#include "tesseract/platform.h"
+#include <tesseract/platform.h>
 /* _WIN32 */
 #ifdef _WIN32
 #  ifndef NOMINMAX

@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCMAIN_OSDETECT_H_
 #define TESSERACT_CCMAIN_OSDETECT_H_
 
-#include "tesseract/platform.h"  // for TESS_API
+#include <tesseract/platform.h>  // for TESS_API
 
 class BLOBNBOX;
 class BLOBNBOX_CLIST;

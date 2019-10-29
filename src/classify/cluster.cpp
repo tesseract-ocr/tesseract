@@ -23,7 +23,7 @@
 #include "cluster.h"
 #include "emalloc.h"
 #include "genericheap.h"
-#include "tesseract/helpers.h"
+#include <tesseract/helpers.h>
 #include "kdpair.h"
 #include "matrix.h"
 #include "tprintf.h"

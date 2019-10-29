@@ -21,7 +21,7 @@
 #ifndef TESSERACT_CCMAIN_MUTABLEITERATOR_H_
 #define TESSERACT_CCMAIN_MUTABLEITERATOR_H_
 
-#include "tesseract/resultiterator.h"
+#include <tesseract/resultiterator.h>
 
 class BLOB_CHOICE_IT;
 

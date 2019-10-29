@@ -25,15 +25,15 @@
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
-#include "tesseract/apitypes.h"
-#include "tesseract/pageiterator.h"
-#include "tesseract/platform.h"
-#include "tesseract/publictypes.h"
-#include "tesseract/resultiterator.h"
-#include "tesseract/serialis.h"
-#include "tesseract/thresholder.h"
-#include "tesseract/unichar.h"
-#include "tesseract/version.h"
+#include <tesseract/apitypes.h>
+#include <tesseract/pageiterator.h>
+#include <tesseract/platform.h>
+#include <tesseract/publictypes.h>
+#include <tesseract/resultiterator.h>
+#include <tesseract/serialis.h>
+#include <tesseract/thresholder.h>
+#include <tesseract/unichar.h>
+#include <tesseract/version.h>
 
 template <typename T> class GenericVector;
 class PAGE_RES;

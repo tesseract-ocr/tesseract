@@ -20,7 +20,7 @@
 #define           PDBLOCK_H
 
 #include          "clst.h"
-#include          "tesseract/strngs.h"
+#include          <tesseract/strngs.h>
 #include          "polyblk.h"
 
 class DLLSYM PDBLK;              //forward decl

@@ -21,7 +21,7 @@
 #include <cfloat>      // for FLT_MAX
 #include <memory>
 
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 #include "matrix.h"
 #include "networkio.h"
 

@@ -34,7 +34,7 @@
 #include "fixspace.h"
 #endif
 #include "lstmrecognizer.h"
-#include "tesseract/ocrclass.h"
+#include <tesseract/ocrclass.h>
 #include "output.h"
 #include "pageres.h"             // for WERD_RES, PAGE_RES_IT, PAGE_RES, BLO...
 #ifndef DISABLED_LEGACY_ENGINE

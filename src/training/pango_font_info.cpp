@@ -39,7 +39,7 @@
 #include "fileio.h"
 #include "normstrngs.h"
 #include "tlog.h"
-#include "tesseract/unichar.h"
+#include <tesseract/unichar.h>
 #include "util.h"
 #include "pango/pango.h"
 #include "pango/pangocairo.h"

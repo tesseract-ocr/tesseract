@@ -15,12 +15,12 @@
 
 #include <memory>
 #include <sstream>  // for std::stringstream
-#include "tesseract/baseapi.h"
+#include <tesseract/baseapi.h>
 #ifdef _WIN32
 # include "host.h"    // windows.h for MultiByteToWideChar, ...
 #endif
-#include "tesseract/renderer.h"
-#include "tesseract/strngs.h" // for STRING
+#include <tesseract/renderer.h>
+#include <tesseract/strngs.h> // for STRING
 
 namespace tesseract {
 

@@ -36,7 +36,7 @@
 #include "commontraining.h"
 #include "featdefs.h"
 #include "fontinfo.h"
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 #include "indexmapbidi.h"
 #include "intproto.h"
 #include "mastertrainer.h"

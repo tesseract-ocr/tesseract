@@ -25,7 +25,7 @@
 #include "bitvector.h"
 #include "fontinfo.h"
 #include "genericheap.h"
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 #include "intmatcher.h"
 
 class STRING;

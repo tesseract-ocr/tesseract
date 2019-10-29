@@ -23,9 +23,9 @@
 #include <string>     // for std::string
 
 #include "classify.h"
-#include "tesseract/helpers.h"
-#include "tesseract/serialis.h"
-#include "tesseract/unichar.h"
+#include <tesseract/helpers.h>
+#include <tesseract/serialis.h>
+#include <tesseract/unichar.h>
 
 #define MAX_CUTOFF      1000
 

@@ -23,7 +23,7 @@
 #include "config_auto.h"
 #endif
 
-#include "tesseract/baseapi.h"
+#include <tesseract/baseapi.h>
 #ifdef __linux__
 #include <csignal>            // for sigaction, SA_RESETHAND, SIGBUS, SIGFPE
 #endif
@@ -66,18 +66,18 @@
 #include "environ.h"           // for l_uint8
 #include "equationdetect.h"    // for EquationDetect
 #include "errcode.h"           // for ASSERT_HOST
-#include "tesseract/helpers.h"           // for IntCastRounded, chomp_string
+#include <tesseract/helpers.h>           // for IntCastRounded, chomp_string
 #include "imageio.h"           // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...
 #ifndef DISABLED_LEGACY_ENGINE
 #include "intfx.h"             // for INT_FX_RESULT_STRUCT
 #endif
 #include "mutableiterator.h"   // for MutableIterator
 #include "normalis.h"          // for kBlnBaselineOffset, kBlnXHeight
-#include "tesseract/ocrclass.h"          // for ETEXT_DESC
+#include <tesseract/ocrclass.h>          // for ETEXT_DESC
 #if defined(USE_OPENCL)
 #include "openclwrapper.h"     // for OpenclDevice
 #endif
-#include "tesseract/osdetect.h"          // for OSResults, OSBestResult, OrientationId...
+#include <tesseract/osdetect.h>          // for OSResults, OSBestResult, OrientationId...
 #include "pageres.h"           // for PAGE_RES_IT, WERD_RES, PAGE_RES, CR_DE...
 #include "paragraphs.h"        // for DetectParagraphs
 #include "params.h"            // for BoolParam, IntParam, DoubleParam, Stri...
@@ -85,13 +85,13 @@
 #include "points.h"            // for FCOORD
 #include "polyblk.h"           // for POLY_BLOCK
 #include "rect.h"              // for TBOX
-#include "tesseract/renderer.h"          // for TessResultRenderer
-#include "tesseract/resultiterator.h"    // for ResultIterator
+#include <tesseract/renderer.h>          // for TessResultRenderer
+#include <tesseract/resultiterator.h>    // for ResultIterator
 #include "stepblob.h"          // for C_BLOB_IT, C_BLOB, C_BLOB_LIST
-#include "tesseract/strngs.h"            // for STRING
+#include <tesseract/strngs.h>            // for STRING
 #include "tessdatamanager.h"   // for TessdataManager, kTrainedDataSuffix
 #include "tesseractclass.h"    // for Tesseract
-#include "tesseract/thresholder.h"       // for ImageThresholder
+#include <tesseract/thresholder.h>       // for ImageThresholder
 #include "tprintf.h"           // for tprintf
 #include "werd.h"              // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
 

@@ -20,7 +20,7 @@
 #define TESSERACT_CCUTIL_BOXREAD_H_
 
 #include <cstdio>    // for FILE
-#include "tesseract/strngs.h"  // for STRING
+#include <tesseract/strngs.h>  // for STRING
 
 class TBOX;
 

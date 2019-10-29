@@ -26,7 +26,7 @@
 #include "commontraining.h"
 #include "mastertrainer.h"
 #include "params.h"
-#include "tesseract/strngs.h"
+#include <tesseract/strngs.h>
 
 static INT_PARAM_FLAG(display_cloud_font, -1,
                       "Display cloud of this font, canonical_class1");

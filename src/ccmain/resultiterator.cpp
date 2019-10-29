@@ -18,13 +18,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "tesseract/resultiterator.h"
+#include <tesseract/resultiterator.h>
 
 #include <set>
 #include <vector>
 #include "allheaders.h"
 #include "pageres.h"
-#include "tesseract/strngs.h"
+#include <tesseract/strngs.h>
 #include "tesseractclass.h"
 #include "unicharset.h"
 #include "unicodes.h"

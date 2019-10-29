@@ -19,7 +19,7 @@
 #ifndef TESSERACT_LSTM_CTC_H_
 #define TESSERACT_LSTM_CTC_H_
 
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 #include "network.h"
 #include "networkio.h"
 #include "scrollview.h"

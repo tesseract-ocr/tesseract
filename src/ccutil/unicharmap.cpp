@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include "tesseract/unichar.h"
+#include <tesseract/unichar.h>
 #include "unicharmap.h"
 
 UNICHARMAP::UNICHARMAP() :

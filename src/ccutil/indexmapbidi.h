@@ -21,7 +21,7 @@
 #define TESSERACT_CCUTIL_INDEXMAPBIDI_H_
 
 #include <cstdio>
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 
 namespace tesseract {
 

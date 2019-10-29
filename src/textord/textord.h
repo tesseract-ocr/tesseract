@@ -25,7 +25,7 @@
 #include "bbgrid.h"
 #include "blobbox.h"
 #include "gap_map.h"
-#include "tesseract/publictypes.h"  // For PageSegMode.
+#include <tesseract/publictypes.h>  // For PageSegMode.
 
 class FCOORD;
 class BLOCK_LIST;

@@ -37,7 +37,7 @@
 #include "colpartition.h"
 #include "colpartitiongrid.h"
 #include "colpartitionset.h"
-#include "tesseract/helpers.h"
+#include <tesseract/helpers.h>
 #include "ratngs.h"
 #include "tesseractclass.h"
 

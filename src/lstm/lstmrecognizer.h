@@ -19,7 +19,7 @@
 #define TESSERACT_LSTM_LSTMRECOGNIZER_H_
 
 #include "ccutil.h"
-#include "tesseract/helpers.h"
+#include <tesseract/helpers.h>
 #include "imagedata.h"
 #include "matrix.h"
 #include "network.h"
@@ -27,7 +27,7 @@
 #include "params.h"
 #include "recodebeam.h"
 #include "series.h"
-#include "tesseract/strngs.h"
+#include <tesseract/strngs.h>
 #include "unicharcompress.h"
 
 class BLOB_CHOICE_IT;

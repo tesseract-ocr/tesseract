@@ -27,9 +27,9 @@
 #ifndef DISABLED_LEGACY_ENGINE
 #include "fontinfo.h"
 #endif  // ndef DISABLED_LEGACY_ENGINE
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 #include "matrix.h"
-#include "tesseract/unichar.h"
+#include <tesseract/unichar.h>
 #include "unicharset.h"
 #include "werd.h"
 

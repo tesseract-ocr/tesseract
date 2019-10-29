@@ -27,10 +27,10 @@
 #include <cstdint>             // for int16_t
 #include <cstring>             // for memcpy, memset
 #include "clst.h"              // for CLIST_ITERATOR, CLISTIZEH
-#include "tesseract/genericvector.h"     // for GenericVector
+#include <tesseract/genericvector.h>     // for GenericVector
 #include "normalis.h"          // for DENORM
 #include "points.h"            // for FCOORD, ICOORD
-#include "tesseract/publictypes.h"       // for OcrEngineMode
+#include <tesseract/publictypes.h>       // for OcrEngineMode
 #include "rect.h"              // for TBOX
 #include "scrollview.h"        // for ScrollView, ScrollView::Color
 

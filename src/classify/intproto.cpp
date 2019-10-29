@@ -28,8 +28,8 @@
 #include "callcpp.h"       // for cprintf
 #include "emalloc.h"
 #include "fontinfo.h"
-#include "tesseract/genericvector.h"
-#include "tesseract/helpers.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/helpers.h>
 #include "intproto.h"
 #include "mfoutline.h"
 #include "picofeat.h"

@@ -24,8 +24,8 @@
 #include <cstdint>         // for uint16_t, uint32_t
 #include <cstdio>          // for FILE
 #include "errcode.h"
-#include "tesseract/genericvector.h"
-#include "tesseract/unichar.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/unichar.h>
 
 template <typename T> class UnicityTable;
 

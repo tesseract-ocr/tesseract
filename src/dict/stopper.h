@@ -22,10 +22,10 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 #include "params.h"
 #include "ratngs.h"
-#include "tesseract/unichar.h"
+#include <tesseract/unichar.h>
 
 class WERD_CHOICE;
 

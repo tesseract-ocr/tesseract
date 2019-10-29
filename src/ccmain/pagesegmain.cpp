@@ -38,7 +38,7 @@
 #include "imagefind.h"
 #include "linefind.h"
 #include "makerow.h"
-#include "tesseract/osdetect.h"
+#include <tesseract/osdetect.h>
 #include "tabvector.h"
 #include "tesseractclass.h"
 #include "tessvars.h"

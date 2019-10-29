@@ -21,11 +21,11 @@
 
 #include <functional>           // for std::function
 #include "errcode.h"
-#include "tesseract/genericvector.h"
-#include "tesseract/helpers.h"
-#include "tesseract/serialis.h"
-#include "tesseract/strngs.h"
-#include "tesseract/unichar.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/helpers.h>
+#include <tesseract/serialis.h>
+#include <tesseract/strngs.h>
+#include <tesseract/unichar.h>
 #include "unicharmap.h"
 
 // Enum holding special values of unichar_id. Every unicharset has these.

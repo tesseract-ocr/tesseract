@@ -22,9 +22,9 @@
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
 #include <string>  // for std::string
-#include "tesseract/genericvector.h"
-#include "tesseract/platform.h"
-#include "tesseract/strngs.h"             // for STRING
+#include <tesseract/genericvector.h>
+#include <tesseract/platform.h>
+#include <tesseract/strngs.h>             // for STRING
 
 struct Pix;
 

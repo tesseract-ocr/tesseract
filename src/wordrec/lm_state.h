@@ -23,12 +23,12 @@
 #include "associate.h"       // for AssociateStats
 #include "dawg.h"            // for DawgPositionVector
 #include "elst.h"            // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
-#include "tesseract/genericvector.h"   // for PointerVector
+#include <tesseract/genericvector.h>   // for PointerVector
 #include "lm_consistency.h"  // for LMConsistencyInfo
 #include "ratngs.h"          // for BLOB_CHOICE, PermuterType
 #include "stopper.h"         // for DANGERR
-#include "tesseract/strngs.h"          // for STRING
-#include "tesseract/unichar.h"         // for UNICHAR_ID
+#include <tesseract/strngs.h>          // for STRING
+#include <tesseract/unichar.h>         // for UNICHAR_ID
 #include "unicharset.h"      // for UNICHARSET
 
 namespace tesseract {

@@ -20,7 +20,7 @@
 #define ELST2_H
 
 #include <cstdio>
-#include "tesseract/serialis.h"
+#include <tesseract/serialis.h>
 #include "lsterr.h"
 
 class ELIST2_ITERATOR;

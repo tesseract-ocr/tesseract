@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include "tesseract/platform.h"
+#include <tesseract/platform.h>
 
 class STATS;
 class UNICHARSET;

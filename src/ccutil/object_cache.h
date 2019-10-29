@@ -23,7 +23,7 @@
 #include <functional>           // for std::function
 #include "ccutil.h"
 #include "errcode.h"
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 
 namespace tesseract {
 

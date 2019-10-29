@@ -18,9 +18,9 @@
 #ifndef TESS_CAPI_INCLUDE_BASEAPI
 #  define TESS_CAPI_INCLUDE_BASEAPI
 #endif
-#include "tesseract/capi.h"
-#include "tesseract/genericvector.h"
-#include "tesseract/strngs.h"
+#include <tesseract/capi.h>
+#include <tesseract/genericvector.h>
+#include <tesseract/strngs.h>
 
 const char* TessVersion() {
   return TessBaseAPI::Version();

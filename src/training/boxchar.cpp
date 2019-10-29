@@ -26,7 +26,7 @@
 #include <vector>
 
 #include "fileio.h"
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 #include "normstrngs.h"
 #include "tprintf.h"
 #include "unicharset.h"

@@ -21,7 +21,7 @@
 #define TESSERACT_CSTRUCT_BOXWORD_H_
 
 #include <functional>       // for std::function
-#include "tesseract/genericvector.h"  // for GenericVector
+#include <tesseract/genericvector.h>  // for GenericVector
 #include "rect.h"           // for TBOX
 
 class BLOCK;

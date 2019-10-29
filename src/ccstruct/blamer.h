@@ -23,15 +23,15 @@
 #include <cstdint>                    // for int16_t
 #include <cstring>                    // for memcpy
 #include "boxword.h"                  // for BoxWord
-#include "tesseract/genericvector.h"            // for GenericVector
+#include <tesseract/genericvector.h>            // for GenericVector
 #ifndef DISABLED_LEGACY_ENGINE
 #include "params_training_featdef.h"  // for ParamsTrainingBundle, ParamsTra...
 #endif //  ndef DISABLED_LEGACY_ENGINE
 #include "ratngs.h"                   // for BLOB_CHOICE_LIST (ptr only)
 #include "rect.h"                     // for TBOX
-#include "tesseract/strngs.h"                   // for STRING
+#include <tesseract/strngs.h>                   // for STRING
 #include "tprintf.h"                  // for tprintf
-#include "tesseract/unichar.h"                  // for UNICHAR_ID
+#include <tesseract/unichar.h>                  // for UNICHAR_ID
 
 class DENORM;
 class MATRIX;

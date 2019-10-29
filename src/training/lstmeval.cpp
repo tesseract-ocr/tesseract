@@ -19,9 +19,9 @@
 #include "base/commandlineflags.h"
 #endif
 #include "commontraining.h"
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 #include "lstmtester.h"
-#include "tesseract/strngs.h"
+#include <tesseract/strngs.h>
 #include "tprintf.h"
 
 static STRING_PARAM_FLAG(model, "", "Name of model file (training or recognition)");

@@ -21,7 +21,7 @@
 #define TESSERACT_CCUTIL_SORTHELPER_H_
 
 #include <cstdlib>
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 
 // Generic class to provide functions based on a <value,count> pair.
 // T is the value type.

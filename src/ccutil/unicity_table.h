@@ -22,7 +22,7 @@
 
 #include <functional>           // for std::function
 #include "errcode.h"
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 
 // A class to uniquify objects, manipulating them using integers ids.
 // T requirements:

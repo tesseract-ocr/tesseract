@@ -17,7 +17,7 @@
 #ifndef TESSERACT_ARCH_SIMDDETECT_H_
 #define TESSERACT_ARCH_SIMDDETECT_H_
 
-#include "tesseract/platform.h"
+#include <tesseract/platform.h>
 
 namespace tesseract {
 

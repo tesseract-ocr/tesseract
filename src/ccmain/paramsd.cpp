@@ -35,7 +35,7 @@
 #include <memory>            // for unique_ptr
 #include <sstream>           // for std::stringstream
 #include <utility>           // for pair
-#include "tesseract/genericvector.h"   // for GenericVector
+#include <tesseract/genericvector.h>   // for GenericVector
 #include "params.h"          // for ParamsVectors, StringParam, BoolParam
 #include "scrollview.h"      // for SVEvent, ScrollView, SVET_POPUP
 #include "svmnode.h"         // for SVMenuNode

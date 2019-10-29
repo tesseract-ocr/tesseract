@@ -25,7 +25,7 @@
 ----------------------------------------------------------------------*/
 #include "bitvec.h"
 #include "params.h"
-#include "tesseract/unichar.h"
+#include <tesseract/unichar.h>
 #include "unicity_table.h"
 
 /*----------------------------------------------------------------------
