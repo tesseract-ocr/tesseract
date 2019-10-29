@@ -18,7 +18,7 @@
 #include "include_gunit.h"              // for TEST
 #include "log.h"                        // for LOG
 
-#include "tesseract/genericvector.h"
+#include <tesseract/genericvector.h>
 // ccmain
 #include "paragraphs.h"
 #include "paragraphs_internal.h"

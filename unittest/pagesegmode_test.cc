@@ -16,8 +16,8 @@
 #endif
 #include <string>
 #include "allheaders.h"
-#include "tesseract/baseapi.h"
-#include "tesseract/helpers.h"
+#include <tesseract/baseapi.h>
+#include <tesseract/helpers.h>
 #include "log.h"
 #include "include_gunit.h"
 

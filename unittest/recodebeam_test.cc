@@ -13,8 +13,8 @@
 #include "matrix.h"
 #include "pageres.h"
 #include "ratngs.h"
-#include "tesseract/genericvector.h"
-#include "tesseract/helpers.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/helpers.h>
 #include "unicharcompress.h"
 #include "normstrngs.h"
 #include "unicharset_training_utils.h"

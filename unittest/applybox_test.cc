@@ -11,10 +11,10 @@
 
 #include <string>
 #include "allheaders.h"
-#include "tesseract/baseapi.h"
+#include <tesseract/baseapi.h>
 #include "boxread.h"
 #include "rect.h"
-#include "tesseract/resultiterator.h"
+#include <tesseract/resultiterator.h>
 
 #include "include_gunit.h"
 

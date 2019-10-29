@@ -15,11 +15,11 @@
 #include "absl/strings/str_format.h"    // for absl::StrFormat
 #include "include_gunit.h"
 
-#include "tesseract/baseapi.h"
+#include <tesseract/baseapi.h>
 #include "colfind.h"
 #include "log.h"                        // for LOG
 #include "mutableiterator.h"
-#include "tesseract/osdetect.h"
+#include <tesseract/osdetect.h>
 #include "pageres.h"
 #include "tesseractclass.h"
 #include "textlineprojection.h"

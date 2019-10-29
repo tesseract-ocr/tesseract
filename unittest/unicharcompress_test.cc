@@ -18,7 +18,7 @@
 
 #include "include_gunit.h"
 #include "log.h"                        // for LOG
-#include "tesseract/serialis.h"
+#include <tesseract/serialis.h>
 #include "tprintf.h"
 #include "unicharcompress.h"
 

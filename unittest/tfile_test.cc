@@ -9,8 +9,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "tesseract/genericvector.h"
-#include "tesseract/serialis.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/serialis.h>
 
 #include "include_gunit.h"
 

@@ -27,7 +27,7 @@
 #include "absl/strings/ascii.h"         // for absl::StripAsciiWhitespace
 #include "allheaders.h"
 #include "include_gunit.h"
-#include "tesseract/baseapi.h"
+#include <tesseract/baseapi.h>
 #include "commandlineflags.h"
 #include "log.h"
 

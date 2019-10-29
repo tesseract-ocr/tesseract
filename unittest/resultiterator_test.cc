@@ -1,9 +1,9 @@
 
-#include "tesseract/resultiterator.h"
+#include <tesseract/resultiterator.h>
 #include <string>
 #include "allheaders.h"
-#include "tesseract/baseapi.h"
-#include "tesseract/genericvector.h"
+#include <tesseract/baseapi.h>
+#include <tesseract/genericvector.h>
 #include "scrollview.h"
 
 #include "include_gunit.h"

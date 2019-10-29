@@ -9,7 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "tesseract/baseapi.h"
+#include <tesseract/baseapi.h>
 
 // Dummy enum in the global namespace that checks for collision with awkward
 // names.

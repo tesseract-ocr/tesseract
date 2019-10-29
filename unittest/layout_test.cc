@@ -15,14 +15,14 @@
 #include "include_gunit.h"
 
 #include "allheaders.h"
-#include "tesseract/baseapi.h"
+#include <tesseract/baseapi.h>
 #include "coutln.h"
 #include "log.h"                        // for LOG
 #include "mutableiterator.h"
 #include "ocrblock.h"                   // for class BLOCK
 #include "pageres.h"
 #include "polyblk.h"
-#include "tesseract/resultiterator.h"
+#include <tesseract/resultiterator.h>
 #include "stepblob.h"
 
 namespace {

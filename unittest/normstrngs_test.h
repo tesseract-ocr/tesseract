@@ -17,7 +17,7 @@
 #include <vector>
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
-#include "tesseract/unichar.h"
+#include <tesseract/unichar.h>
 
 namespace tesseract {
 
