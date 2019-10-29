@@ -19,9 +19,11 @@
 #ifndef CLST_H
 #define CLST_H
 
-#include <cstdio>
-#include "tesseract/serialis.h"
 #include "lsterr.h"
+
+#include <tesseract/serialis.h>
+
+#include <cstdio>
 
 class CLIST_ITERATOR;
 

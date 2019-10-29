@@ -19,10 +19,10 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
-#include <cstdio>
+#include <tesseract/genericvector.h>
+#include <tesseract/strngs.h>
 
-#include "tesseract/genericvector.h"
-#include "tesseract/strngs.h"
+#include <cstdio>
 
 namespace tesseract {
 
