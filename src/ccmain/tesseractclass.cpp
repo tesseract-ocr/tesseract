@@ -75,7 +75,7 @@ Tesseract::Tesseract()
           "Page seg mode: 0=osd only, 1=auto+osd, 2=auto_only, 3=auto, 4=column,"
           " 5=block_vert, 6=block, 7=line, 8=word, 9=word_circle, 10=char,"
           "11=sparse_text, 12=sparse_text+osd, 13=raw_line"
-          " (Values from PageSegMode enum in publictypes.h)",
+          " (Values from PageSegMode enum in tesseract/publictypes.h)",
           this->params()),
       INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
                       "Which OCR engine(s) to run (Tesseract, LSTM, both)."

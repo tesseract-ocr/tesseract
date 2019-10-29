@@ -163,7 +163,7 @@ bool Tesseract::init_tesseract_lang_data(
     return true;
   }
 
-// The various OcrEngineMode settings (see publictypes.h) determine which
+// The various OcrEngineMode settings (see tesseract/publictypes.h) determine which
 // engine-specific data files need to be loaded.
 // If LSTM_ONLY is requested, the base Tesseract files are *Not* required.
 #ifndef ANDROID_BUILD

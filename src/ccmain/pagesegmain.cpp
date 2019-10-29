@@ -333,7 +333,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
 
     BLOBNBOX_CLIST osd_blobs;
     // osd_orientation is the number of 90 degree rotations to make the
-    // characters upright. (See osdetect.h for precise definition.)
+    // characters upright. (See tesseract/osdetect.h for precise definition.)
     // We want the text lines horizontal, (vertical text indicates vertical
     // textlines) which may conflict (eg vertically written CJK).
     int osd_orientation = 0;

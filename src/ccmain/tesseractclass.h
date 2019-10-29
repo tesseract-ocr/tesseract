@@ -87,7 +87,7 @@ class WERD_RES;
 //
 // Other important classes:
 //
-//  TessBaseAPI (api/baseapi.h)
+//  TessBaseAPI (tesseract/baseapi.h)
 //                                 Members include: BLOCK_LIST*, PAGE_RES*,
 //                                 Tesseract*, ImageThresholder*
 //  Dict (dict/dict.h)
@@ -795,7 +795,7 @@ class Tesseract : public Wordrec {
   INT_VAR_H(tessedit_pageseg_mode, PSM_SINGLE_BLOCK,
             "Page seg mode: 0=osd only, 1=auto+osd, 2=auto, 3=col, 4=block,"
             " 5=line, 6=word, 7=char"
-            " (Values from PageSegMode enum in publictypes.h)");
+            " (Values from PageSegMode enum in tesseract/publictypes.h)");
   INT_VAR_H(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
             "Which OCR engine(s) to run (Tesseract, LSTM, both). Defaults"
             " to loading and running the most accurate available.");

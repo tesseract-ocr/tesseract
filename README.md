@@ -69,7 +69,10 @@ Examples can be found in the [wiki](https://github.com/tesseract-ocr/tesseract/w
 
 ## For developers
 
-Developers can use `libtesseract` [C](https://github.com/tesseract-ocr/tesseract/blob/master/src/api/capi.h) or [C++](https://github.com/tesseract-ocr/tesseract/blob/master/src/api/baseapi.h) API to build their own application. If you need bindings to `libtesseract` for other programming languages, please see the [wrapper](https://github.com/tesseract-ocr/tesseract/wiki/AddOns#tesseract-wrappers) section on AddOns wiki page.
+Developers can use `libtesseract` [C](https://github.com/tesseract-ocr/tesseract/blob/master/include/tesseract/capi.h) or
+[C++](https://github.com/tesseract-ocr/tesseract/blob/master/include/tesseract/baseapi.h) API to build their own application.
+If you need bindings to `libtesseract` for other programming languages, please see the
+[wrapper](https://github.com/tesseract-ocr/tesseract/wiki/AddOns#tesseract-wrappers) section on AddOns wiki page.
 
 Documentation of Tesseract generated from source code by doxygen can be found on [tesseract-ocr.github.io](https://tesseract-ocr.github.io/).
 
