@@ -17,6 +17,7 @@ void build(Solution &s)
             "src/api/tesseractmain.cpp",
             "src/viewer/svpaint.cpp";
 
+        libtesseract.Public += "include"_idir;
         libtesseract.Protected +=
             "src/opencl"_id,
             "src/ccmain"_id,
