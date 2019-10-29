@@ -486,7 +486,6 @@ fi
 # ----------------------------------------
 
 # Output files
-AC_CONFIG_FILES([include/tesseract/Makefile])
 AC_CONFIG_FILES([include/tesseract/version.h])
 AC_CONFIG_FILES([Makefile tesseract.pc])
 AC_CONFIG_FILES([src/api/Makefile])

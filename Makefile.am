@@ -22,7 +22,7 @@ endif
 
 SUBDIRS = src/arch src/ccutil src/viewer src/cutil src/opencl src/ccstruct
 SUBDIRS += src/dict src/classify src/wordrec src/textord src/lstm
-SUBDIRS += src/ccmain src/api . tessdata doc unittest include/tesseract
+SUBDIRS += src/ccmain src/api . tessdata doc unittest
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
@@ -64,6 +64,25 @@ doc-clean:
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tesseract.pc
+
+pkginclude_HEADERS = $(top_builddir)/include/tesseract/version.h
+pkginclude_HEADERS += include/tesseract/apitypes.h
+pkginclude_HEADERS += include/tesseract/baseapi.h
+pkginclude_HEADERS += include/tesseract/capi.h
+pkginclude_HEADERS += include/tesseract/genericvector.h
+pkginclude_HEADERS += include/tesseract/helpers.h
+pkginclude_HEADERS += include/tesseract/ltrresultiterator.h
+pkginclude_HEADERS += include/tesseract/ocrclass.h
+pkginclude_HEADERS += include/tesseract/osdetect.h
+pkginclude_HEADERS += include/tesseract/pageiterator.h
+pkginclude_HEADERS += include/tesseract/platform.h
+pkginclude_HEADERS += include/tesseract/publictypes.h
+pkginclude_HEADERS += include/tesseract/renderer.h
+pkginclude_HEADERS += include/tesseract/resultiterator.h
+pkginclude_HEADERS += include/tesseract/serialis.h
+pkginclude_HEADERS += include/tesseract/strngs.h
+pkginclude_HEADERS += include/tesseract/thresholder.h
+pkginclude_HEADERS += include/tesseract/unichar.h
 
 # fuzzer-api is used for fuzzing tests.
 # They are run by OSS-Fuzz https://oss-fuzz.com/, but can also be run locally.
