@@ -16,7 +16,7 @@
 
 #include "include_gunit.h"
 
-#include "serialis.h"
+#include "tesseract/serialis.h"
 #include "shapetable.h"
 #include "unicharset.h"
 

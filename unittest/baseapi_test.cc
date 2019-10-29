@@ -20,7 +20,7 @@
 #include "include_gunit.h"
 #include "gmock/gmock-matchers.h"
 
-#include "baseapi.h"
+#include "tesseract/baseapi.h"
 #include "cycletimer.h" // for CycleTimer
 #include "log.h"        // for LOG
 #include "ocrblock.h"   // for class BLOCK

@@ -18,10 +18,10 @@
 #include "boxchar.h"
 #include "boxread.h"
 #include "commandlineflags.h"
-#include "genericvector.h"
+#include "tesseract/genericvector.h"
 #include "include_gunit.h"
 #include "stringrenderer.h"
-#include "strngs.h"
+#include "tesseract/strngs.h"
 
 BOOL_PARAM_FLAG(display, false, "Display image for inspection");
 
