@@ -20,7 +20,7 @@
 
 namespace tesseract {
 
-#if __cplusplus < 201402 || defined(__clang__) // C++11
+#if __cplusplus < 201402 || defined(__clang__) || defined(__INTEL_COMPILER) // C++11
 
 double TanhTable[kTableSize];
 double LogisticTable[kTableSize];

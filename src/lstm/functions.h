@@ -35,7 +35,7 @@ constexpr int kTableSize = 4096;
 // Scale factor for float arg to int index.
 constexpr double kScaleFactor = 256.0;
 
-#if __cplusplus < 201402 || defined(__clang__) // C++11
+#if __cplusplus < 201402 || defined(__clang__) || defined(__INTEL_COMPILER) // C++11
 
 extern double TanhTable[];
 extern double LogisticTable[];
