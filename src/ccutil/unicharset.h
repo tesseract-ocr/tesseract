@@ -929,7 +929,7 @@ class UNICHARSET {
     uint8_t max_bottom;
     uint8_t min_top;
     uint8_t max_top;
-    // Statstics of the widths of bounding box, relative to the median advance.
+    // Statistics of the widths of bounding box, relative to the median advance.
     float width;
     float width_sd;
     // Stats of the x-bearing and advance, also relative to the median advance.
