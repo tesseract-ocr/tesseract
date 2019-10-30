@@ -6,12 +6,12 @@ if (UNIX AND NOT ANDROID)
     set(LIB_pthread pthread)
 endif()
 
-if (CPPAN_BUILD OR SW_BUILD)
+if (SW_BUILD)
     set(ICU_FOUND 1)
 endif()
 
 # experimental
-if (MSVC AND NOT CPPAN_BUILD AND NOT SW_BUILD AND NOT USE_SYSTEM_ICU)
+if (MSVC AND NOT SW_BUILD AND NOT USE_SYSTEM_ICU)
     include(CheckTypeSize)
     check_type_size("void *" SIZEOF_VOID_P)
 
@@ -55,7 +55,7 @@ if (MSVC AND NOT CPPAN_BUILD AND NOT SW_BUILD AND NOT USE_SYSTEM_ICU)
 endif()
 # experimental
 
-if (NOT CPPAN_BUILD AND NOT SW_BUILD)
+if (NOT SW_BUILD)
     find_package(ICU 52.1 COMPONENTS uc i18n)
 endif()
 
@@ -180,8 +180,8 @@ install                     (TARGETS wordlist2dawg RUNTIME DESTINATION bin LIBRA
 
 if (ICU_FOUND)
 
-if (NOT CPPAN_BUILD AND NOT SW_BUILD)
-include_directories(${ICU_INCLUDE_DIRS})
+if (NOT SW_BUILD)
+    include_directories(${ICU_INCLUDE_DIRS})
 endif()
 
 ########################################
@@ -211,9 +211,7 @@ set(unicharset_training_src
 
 )
 add_library                 (unicharset_training ${unicharset_training_src})
-if (CPPAN_BUILD)
-target_link_libraries       (unicharset_training common_training pvt.cppan.demo.unicode.icu.i18n)
-elseif (SW_BUILD)
+if (SW_BUILD)
 target_link_libraries       (unicharset_training common_training org.sw.demo.unicode.icu.i18n)
 else()
 target_link_libraries       (unicharset_training common_training ${ICU_LIBRARIES})
@@ -275,11 +273,11 @@ install                     (TARGETS unicharset_extractor RUNTIME DESTINATION bi
 # EXECUTABLE text2image
 ########################################
 
-if (NOT CPPAN_BUILD AND NOT SW_BUILD)
-find_package(PkgConfig)
+if (NOT SW_BUILD)
+    find_package(PkgConfig)
 endif()
 
-if (PKG_CONFIG_FOUND OR CPPAN_BUILD OR SW_BUILD)
+if (PKG_CONFIG_FOUND OR SW_BUILD)
 
 if (PKG_CONFIG_FOUND)
 pkg_check_modules(Pango REQUIRED pango>=1.22.0)
@@ -324,9 +322,7 @@ target_link_libraries       (text2image
     ${FontConfig_LIBRARIES}
 )
 endif()
-if (CPPAN_BUILD)
-target_link_libraries       (text2image pvt.cppan.demo.gnome.pango.pangocairo)
-elseif (SW_BUILD)
+if (SW_BUILD)
 target_link_libraries       (text2image org.sw.demo.gnome.pango.pangocairo)
 endif()
 project_group               (text2image "Training Tools")

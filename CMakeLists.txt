@@ -66,10 +66,10 @@ set(MINIMUM_LEPTONICA_VERSION 1.74)
 # options
 #
 ###############################################################################
+
 message( "Configuring tesseract version ${PACKAGE_VERSION}...")
 
-option(CPPAN_BUILD "Build with cppan" ON)
-option(SW_BUILD "Build with sw" OFF)
+option(SW_BUILD "Build with sw" ON)
 option(OPENMP_BUILD "Build with openmp support" OFF)  # see issue #1662
 option(AUTO_OPTIMIZE "Usage of cmake auto optimize macros (not suitable for portable build)" ON)
 option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
@@ -77,10 +77,6 @@ option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
 option(USE_SYSTEM_ICU "Use system ICU" OFF)
-
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.cppan OR SW_BUILD)
-    set(CPPAN_BUILD OFF)
-endif()
 
 ###############################################################################
 #
@@ -174,14 +170,7 @@ endif()
 #
 ###############################################################################
 
-if(CPPAN_BUILD)
-    if (STATIC)
-        set(CPPAN_BUILD_SHARED_LIBS 0)
-    else()
-        set(CPPAN_BUILD_SHARED_LIBS 1)
-    endif()
-    add_subdirectory(.cppan)
-elseif (SW_BUILD)
+if (SW_BUILD)
     find_package(SW REQUIRED)
     if (STATIC)
         set(SW_BUILD_SHARED_LIBS 0)
@@ -189,7 +178,7 @@ elseif (SW_BUILD)
         set(SW_BUILD_SHARED_LIBS 1)
     endif()
     sw_add_package(
-        org.sw.demo.danbloomberg.leptonica-master
+        org.sw.demo.danbloomberg.leptonica
         org.sw.demo.libarchive.libarchive
     )
     if (BUILD_TRAINING_TOOLS)
@@ -308,7 +297,6 @@ message( STATUS "SSE41_OPT: ${SSE41_OPT}")
 message( STATUS "MARCH_NATIVE_OPT: ${MARCH_NATIVE_OPT}")
 message( STATUS "sim_flags: ${sim_flags}")
 message( STATUS "--------------------------------------------------------")
-message( STATUS "Build with cppan [CPPAN_BUILD]: ${CPPAN_BUILD}")
 message( STATUS "Build with sw [SW_BUILD]: ${SW_BUILD}")
 message( STATUS "Build with openmp support [OPENMP_BUILD]: ${OPENMP_BUILD}")
 message( STATUS "Disable disable graphics (ScrollView) [GRAPHICS_DISABLED]: ${GRAPHICS_DISABLED}")
@@ -453,16 +441,9 @@ else()
 set_target_properties           (libtesseract PROPERTIES OUTPUT_NAME tesseract)
 endif()
 
-if (CPPAN_BUILD)
+if (SW_BUILD)
     target_link_libraries       (libtesseract PUBLIC
-        pvt.cppan.demo.danbloomberg.leptonica
-        pvt.cppan.demo.libarchive.libarchive
-    )
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_CURRENT_BINARY_DIR}/cppan.cmake)\n")
-    export(TARGETS libtesseract APPEND FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
-elseif (SW_BUILD)
-    target_link_libraries       (libtesseract PUBLIC
-        org.sw.demo.danbloomberg.leptonica-master
+        org.sw.demo.danbloomberg.leptonica
         org.sw.demo.libarchive.libarchive
     )
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_CURRENT_BINARY_DIR}/cppan.cmake)\n")
