@@ -396,9 +396,9 @@ SectionGroup "Additional script data (download)" SecGrp_ASD
     !insertmacro Download_Lang_Data script/Khmer
   SectionEnd
 
-  Section /o "Lao script" SecLang_Laos
+  Section /o "Lao script" SecLang_Script_Lao
     AddSize 9640
-    !insertmacro Download_Lang_Data script/Laos
+    !insertmacro Download_Lang_Data script/Lao
   SectionEnd
 
   Section /o "Latin script" SecLang_Latin
