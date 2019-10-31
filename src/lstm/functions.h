@@ -35,40 +35,9 @@ constexpr int kTableSize = 4096;
 // Scale factor for float arg to int index.
 constexpr double kScaleFactor = 256.0;
 
-#if __cplusplus < 201402 || defined(__clang__) || defined(__INTEL_COMPILER) // C++11
-
-extern double TanhTable[];
-extern double LogisticTable[];
-
-#else // C++14 or newer
-
-typedef double (*LUT_FUNCTION)(int i);
-
-constexpr double LUTFuncTanh(int i) {
-  return std::tanh(i / kScaleFactor);
-}
-
-constexpr double LUTFuncLog(int i) {
-  return 1 / (1 + std::exp(-i / kScaleFactor));
-}
-
-template<int n, LUT_FUNCTION f>
-struct LUTTempl {
-  constexpr LUTTempl() : table_() {
-    for (auto i = 0; i < n; ++i) {
-      table_[i] = f(i);
-    }
-  }
-  const double& operator[](size_t i) const {
-    return table_[i];
-  }
-  double table_[n];
-};
-
-extern const LUTTempl<kTableSize, LUTFuncTanh> TanhTable;
-extern const LUTTempl<kTableSize, LUTFuncLog>  LogisticTable;
-
-#endif
+// Generated lookup tables.
+extern const double TanhTable[];
+extern const double LogisticTable[];
 
 // Non-linearity (sigmoid) functions with cache tables and clipping.
 inline double Tanh(double x) {
