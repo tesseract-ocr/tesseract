@@ -1095,49 +1095,6 @@ WERD_RES::~WERD_RES () {
   Clear();
 }
 
-void WERD_RES::InitNonPointers() {
-  tess_failed = false;
-  tess_accepted = false;
-  tess_would_adapt = false;
-  done = false;
-  unlv_crunch_mode = CR_NONE;
-  small_caps = false;
-  odd_size = false;
-  italic = false;
-  bold = false;
-  // The fontinfos and tesseract count as non-pointers as they point to
-  // data owned elsewhere.
-  fontinfo = nullptr;
-  fontinfo2 = nullptr;
-  tesseract = nullptr;
-  fontinfo_id_count = 0;
-  fontinfo_id2_count = 0;
-  x_height = 0.0;
-  caps_height = 0.0;
-  baseline_shift = 0.0f;
-  space_certainty = 0.0f;
-  guessed_x_ht = true;
-  guessed_caps_ht = true;
-  combination = false;
-  part_of_combo = false;
-  reject_spaces = false;
-}
-
-void WERD_RES::InitPointers() {
-  word = nullptr;
-  bln_boxes = nullptr;
-  blob_row = nullptr;
-  uch_set = nullptr;
-  chopped_word = nullptr;
-  rebuild_word = nullptr;
-  box_word = nullptr;
-  ratings = nullptr;
-  best_choice = nullptr;
-  raw_choice = nullptr;
-  ep_choice = nullptr;
-  blamer_bundle = nullptr;
-}
-
 void WERD_RES::Clear() {
   if (combination) {
     delete word;
