@@ -513,6 +513,8 @@ Tesseract::Tesseract()
           "With 2 the alternative symbol choices are accumulated per "
           "character. ",
           this->params()),
+      BOOL_MEMBER(pageseg_apply_music_mask, true,
+                "Detect music staff and remove intersecting components", this->params()),
 
       backup_config_file_(nullptr),
       pix_binary_(nullptr),

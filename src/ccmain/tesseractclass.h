@@ -1084,6 +1084,8 @@ class Tesseract : public Wordrec {
             "With 1 the alternative symbol choices per timestep are included. "
             "With 2 the alternative symbol choices are accumulated per "
             "character. ");
+  BOOL_VAR_H(pageseg_apply_music_mask, true,
+             "Detect music staff and remove intersecting components");
 
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE* init_recog_training(const STRING& fname);

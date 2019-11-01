@@ -209,7 +209,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
 
   ColumnFinder* finder = SetupPageSegAndDetectOrientation(
       pageseg_mode, blocks, osd_tess, osr, &temp_blocks, &photomask_pix,
-      &musicmask_pix);
+      pageseg_apply_music_mask ? &musicmask_pix : nullptr);
   int result = 0;
   if (finder != nullptr) {
     TO_BLOCK_IT to_block_it(&temp_blocks);
