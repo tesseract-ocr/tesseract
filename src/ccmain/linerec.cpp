@@ -62,6 +62,10 @@ void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
     return;
   }
   TrainFromBoxes(boxes, texts, block_list, &images);
+  if (images.NumPages() <= 0) {
+    tprintf("Failed to read pages from %s\n", input_imagename.c_str());
+    return;
+  }
   images.Shuffle();
   if (!images.SaveDocument(lstmf_name.string(), nullptr)) {
     tprintf("Failed to write training data to %s!\n", lstmf_name.string());
