@@ -621,7 +621,6 @@ class Dict {
   INT_VAR_H(dawg_debug_level, 0, "Set to 1 for general debug info"
             ", to 2 for more details, to 3 to see all the debug messages");
   INT_VAR_H(hyphen_debug_level, 0, "Debug level for hyphenated words.");
-  INT_VAR_H(max_viterbi_list_size, 10, "Maximum size of viterbi list.");
   BOOL_VAR_H(use_only_first_uft8_step, false,
              "Use only the first UTF8 step of the given string"
              " when computing log probabilities.");
@@ -643,9 +642,6 @@ class Dict {
   INT_VAR_H(tessedit_truncate_wordchoice_log, 10, "Max words to keep in list");
   STRING_VAR_H(word_to_debug, "", "Word for which stopper debug information"
                " should be printed to stdout");
-  STRING_VAR_H(word_to_debug_lengths, "",
-               "Lengths of unichars in word_to_debug");
-  INT_VAR_H(fragments_debug, 0, "Debug character fragments");
   BOOL_VAR_H(segment_nonalphabetic_script, false,
              "Don't use any alphabetic-specific tricks."
              "Set to true in the traineddata config file for"

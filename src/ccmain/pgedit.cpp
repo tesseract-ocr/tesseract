@@ -141,8 +141,6 @@ INT_VAR(editor_word_ypos, 510, "Word window Y Pos");
 INT_VAR(editor_word_height, 240, "Word window height");
 INT_VAR(editor_word_width, 655, "Word window width");
 
-static STRING_VAR(editor_debug_config_file, "", "Config file to apply to single words");
-
 /**
  * show_point()
  *

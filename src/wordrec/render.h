@@ -37,8 +37,6 @@ extern C_COL color_list[];       /* Colors for outlines */
 
 extern BOOL_VAR_H(wordrec_display_all_blobs, 0, "Display Blobs");
 
-extern BOOL_VAR_H(wordrec_display_all_words, 0, "Display Words");
-
 extern BOOL_VAR_H(wordrec_blob_pause, 0, "Blob pause");
 
 #define NUM_COLORS 6

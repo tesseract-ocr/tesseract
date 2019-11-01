@@ -38,8 +38,6 @@ C_COL color_list[] = {
 
 BOOL_VAR(wordrec_display_all_blobs, 0, "Display Blobs");
 
-BOOL_VAR(wordrec_display_all_words, 0, "Display Words");
-
 BOOL_VAR(wordrec_blob_pause, 0, "Blob pause");
 
 /*----------------------------------------------------------------------

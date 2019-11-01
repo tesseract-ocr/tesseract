@@ -28,8 +28,6 @@
 
 namespace tesseract {
 
-static BOOL_VAR(textord_tabfind_show_color_fit, false, "Show stroke widths");
-
 // Max pad factor used to search the neighbourhood of a partition to smooth
 // partition types.
 const int kMaxPadFactor = 6;

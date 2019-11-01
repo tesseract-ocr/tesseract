@@ -17,8 +17,6 @@ CCUtil::CCUtil() :
   params_(),
   INT_INIT_MEMBER(ambigs_debug_level, 0, "Debug level for unichar ambiguities",
                   &params_),
-  BOOL_MEMBER(use_definite_ambigs_for_classifier, false, "Use definite"
-              " ambiguities when running character classifier", &params_),
   BOOL_MEMBER(use_ambigs_for_adaption, false, "Use ambigs for deciding"
               " whether to adapt to a character", &params_) {
 }
