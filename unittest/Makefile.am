@@ -106,6 +106,7 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
                  -isystem $(top_srcdir)/googletest/googlemock/include
 
 check_PROGRAMS = apiexample_test
+if ENABLE_TRAINING
 check_PROGRAMS += applybox_test
 check_PROGRAMS += baseapi_test
 if TENSORFLOW

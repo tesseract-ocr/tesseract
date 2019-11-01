@@ -41,9 +41,9 @@ noinst_HEADERS += tfnetwork.h weightmatrix.h
 noinst_LTLIBRARIES = libtesseract_lstm.la
 
 libtesseract_lstm_la_SOURCES = \
-        convolve.cpp ctc.cpp fullyconnected.cpp functions.cpp input.cpp \
+        convolve.cpp fullyconnected.cpp functions.cpp input.cpp \
         lstm.cpp lstmrecognizer.cpp maxpool.cpp \
-        networkbuilder.cpp network.cpp networkio.cpp \
+        network.cpp networkio.cpp \
         parallel.cpp plumbing.cpp recodebeam.cpp reconfig.cpp reversed.cpp \
         series.cpp stridemap.cpp tfnetwork.cpp weightmatrix.cpp
 
