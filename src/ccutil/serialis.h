@@ -46,10 +46,10 @@ constexpr size_t countof(T const (&)[N]) noexcept {
 
 // Function to read a GenericVector<char> from a whole file.
 // Returns false on failure.
-using FileReader = bool (*)(const char* filename, GenericVector<char>* data);
+using FileReader = bool (*)(const STRING&, GenericVector<char>*);
 // Function to write a GenericVector<char> to a whole file.
 // Returns false on failure.
-using FileWriter = bool (*)(const GenericVector<char>& data, const char* filename);
+using FileWriter = bool (*)(const GenericVector<char>&, const STRING&);
 
 // Deserialize data from file.
 bool DeSerialize(FILE* fp, char* data, size_t n = 1);

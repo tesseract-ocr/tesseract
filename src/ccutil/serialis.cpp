@@ -2,6 +2,7 @@
  * File:        serialis.cpp  (Formerly serialmac.h)
  * Description: Inline routines and macros for serialisation functions
  * Author:      Phil Cheatle
+ * Created:     Tue Oct 08 08:33:12 BST 1991
  *
  * (C) Copyright 1990, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -204,7 +205,7 @@ bool TFile::Open(const STRING& filename, FileReader reader) {
   if (reader == nullptr)
     return LoadDataFromFile(filename.c_str(), data_);
   else
-    return (*reader)(filename.c_str(), data_);
+    return (*reader)(filename, data_);
 }
 
 bool TFile::Open(const char* data, int size) {
@@ -312,7 +313,7 @@ bool TFile::CloseWrite(const STRING& filename, FileWriter writer) {
   if (writer == nullptr)
     return SaveDataToFile(*data_, filename.c_str());
   else
-    return (*writer)(*data_, filename.c_str());
+    return (*writer)(*data_, filename);
 }
 
 int TFile::FWrite(const void* buffer, size_t size, int count) {
