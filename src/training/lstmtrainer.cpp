@@ -345,7 +345,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
     checkpoint_writer_->Run(NO_BEST_TRAINER, this, &best_trainer_);
     if (error_rate < error_rate_of_last_saved_best_ * kBestCheckpointFraction) {
       STRING best_model_name = DumpFilename();
-      if (!(*file_writer_)(best_trainer_, best_model_name)) {
+      if (!(*file_writer_)(best_trainer_, best_model_name.c_str())) {
         *log_msg += " failed to write best model:";
       } else {
         *log_msg += " wrote best model:";
@@ -384,7 +384,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
     // Write a current checkpoint.
     GenericVector<char> checkpoint;
     if (!checkpoint_writer_->Run(FULL, this, &checkpoint) ||
-        !(*file_writer_)(checkpoint, checkpoint_name_)) {
+        !(*file_writer_)(checkpoint, checkpoint_name_.c_str())) {
       *log_msg += " failed to write checkpoint.";
     } else {
       *log_msg += " wrote checkpoint.";
