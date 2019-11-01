@@ -138,8 +138,7 @@ bool Tesseract::init_tesseract_lang_data(
       if (!ParamUtils::SetParam((*vars_vec)[i].string(),
                                 (*vars_values)[i].string(),
                                 set_params_constraint, this->params())) {
-        tprintf("Error setting param %s\n", (*vars_vec)[i].string());
-        exit(1);
+        tprintf("Warning: The parameter '%s' was not found.\n", (*vars_vec)[i].string());
       }
     }
   }
