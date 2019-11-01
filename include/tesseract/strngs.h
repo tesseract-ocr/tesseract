@@ -23,7 +23,7 @@
 #include <cstdint>     // for uint32_t
 #include <cstdio>      // for FILE
 #include <cstring>     // for strncpy
-#include <tesseract/platform.h>  // for TESS_API
+#include "platform.h"  // for TESS_API
 
 namespace tesseract {
 class TFile;

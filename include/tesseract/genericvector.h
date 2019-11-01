@@ -27,8 +27,8 @@
 #include <cstdlib>
 #include <functional>   // for std::function
 
-#include <tesseract/helpers.h>
-#include <tesseract/serialis.h>
+#include "helpers.h"
+#include "serialis.h"
 
 // Use PointerVector<T> below in preference to GenericVector<T*>, as that
 // provides automatic deletion of pointers, [De]Serialize that works, and

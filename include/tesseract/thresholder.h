@@ -19,8 +19,8 @@
 #ifndef TESSERACT_CCMAIN_THRESHOLDER_H_
 #define TESSERACT_CCMAIN_THRESHOLDER_H_
 
-#include <tesseract/platform.h>
-#include <tesseract/publictypes.h>
+#include "platform.h"
+#include "publictypes.h"
 
 struct Pix;
 

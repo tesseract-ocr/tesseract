@@ -23,15 +23,15 @@
 #endif
 
 #ifdef TESS_CAPI_INCLUDE_BASEAPI
-#  include <tesseract/baseapi.h>
-#  include <tesseract/ocrclass.h>
-#  include <tesseract/pageiterator.h>
-#  include <tesseract/renderer.h>
-#  include <tesseract/resultiterator.h>
+#  include "baseapi.h"
+#  include "ocrclass.h"
+#  include "pageiterator.h"
+#  include "renderer.h"
+#  include "resultiterator.h"
 #else
 #  include <stdbool.h>
 #  include <stdio.h>
-#  include <tesseract/platform.h>
+#  include "platform.h"
 #endif
 
 #ifdef __cplusplus
