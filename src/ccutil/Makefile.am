@@ -16,7 +16,7 @@ endif
 
 pkginclude_HEADERS = \
     genericvector.h helpers.h \
-    ocrclass.h platform.h serialis.h strngs.h \
+    ocrclass.h platform.h serialis.h \
     tesscallback.h unichar.h
 
 noinst_HEADERS = \
@@ -25,8 +25,9 @@ noinst_HEADERS = \
     genericheap.h globaloc.h host.h \
     kdpair.h lsterr.h \
     object_cache.h params.h qrsequence.h sorthelper.h \
-    scanutils.h tessdatamanager.h tprintf.h \
-    unicharcompress.h unicharmap.h unicharset.h unicity_table.h unicodes.h    
+    scanutils.h strngs.h \
+    tessdatamanager.h tprintf.h \
+    unicharcompress.h unicharmap.h unicharset.h unicity_table.h unicodes.h
 
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += ambigs.h

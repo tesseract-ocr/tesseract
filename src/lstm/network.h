@@ -27,6 +27,7 @@
 #include "networkio.h"
 #include "serialis.h"
 #include "static_shape.h"
+#include "strngs.h"             // for STRING
 #include "tprintf.h"
 
 struct Pix;
