@@ -23,11 +23,9 @@
 #include <cstdio>
 
 #include "classify.h"
-#ifndef DISABLED_LEGACY_ENGINE
 #include "featdefs.h"
 #include "mf.h"
 #include "normfeat.h"
-#endif  // ndef DISABLED_LEGACY_ENGINE
 
 static const char kUnknownFontName[] = "UnknownFont";
 
@@ -38,6 +36,7 @@ namespace tesseract {
 /**----------------------------------------------------------------------------
             Public Code
 ----------------------------------------------------------------------------**/
+
 // Finds the name of the training font and returns it in fontname, by cutting
 // it out based on the expectation that the filename is of the form:
 // /path/to/dir/[lang].[fontname].exp[num]
@@ -61,8 +60,6 @@ void ExtractFontName(const STRING& filename, STRING* fontname) {
 
 
 /*---------------------------------------------------------------------------*/
-
-#ifndef DISABLED_LEGACY_ENGINE
 
 // Extracts features from the given blob and saves them in the tr_file_data_
 // member variable.
@@ -110,7 +107,5 @@ bool Classify::WriteTRFile(const STRING& filename) {
   tr_file_data_.truncate_at(0);
   return result;
 }
-
-#endif  // ndef DISABLED_LEGACY_ENGINE
 
 }  // namespace tesseract.

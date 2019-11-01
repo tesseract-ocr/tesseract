@@ -15,14 +15,12 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-noinst_HEADERS = \
-    blobclass.h \
-    classify.h
+noinst_HEADERS = classify.h
 
 if !DISABLED_LEGACY_ENGINE
-noinst_HEADERS += \
-    adaptive.h \
-    cluster.h \
+noinst_HEADERS += adaptive.h
+noinst_HEADERS += blobclass.h
+noinst_HEADERS += cluster.h \
     clusttool.h \
     featdefs.h \
     float2int.h \
@@ -48,15 +46,13 @@ endif
 
 noinst_LTLIBRARIES = libtesseract_classify.la
 
-libtesseract_classify_la_SOURCES = \
-    blobclass.cpp \
-    classify.cpp
+libtesseract_classify_la_SOURCES = classify.cpp
 
 if !DISABLED_LEGACY_ENGINE
-libtesseract_classify_la_SOURCES += \
-    adaptive.cpp \
-    adaptmatch.cpp \
-    cluster.cpp \
+libtesseract_classify_la_SOURCES += adaptive.cpp
+libtesseract_classify_la_SOURCES += adaptmatch.cpp
+libtesseract_classify_la_SOURCES += blobclass.cpp
+libtesseract_classify_la_SOURCES += cluster.cpp \
     clusttool.cpp \
     cutoffs.cpp \
     featdefs.cpp \

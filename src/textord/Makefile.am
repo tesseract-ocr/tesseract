@@ -23,13 +23,16 @@ noinst_HEADERS = \
     ccnontextdetect.h cjkpitch.h colfind.h colpartition.h colpartitionset.h \
     colpartitiongrid.h \
     devanagari_processing.h drawtord.h edgblob.h edgloop.h \
-    equationdetectbase.h \
     fpchop.h gap_map.h imagefind.h linefind.h makerow.h oldbasel.h \
     pithsync.h pitsync1.h scanedg.h sortflts.h strokewidth.h \
     tabfind.h tablefind.h tabvector.h \
     tablerecog.h textlineprojection.h textord.h \
     topitch.h tordmain.h tovars.h \
     underlin.h wordseg.h workingpartset.h
+
+if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += equationdetectbase.h
+endif
 
 noinst_LTLIBRARIES = libtesseract_textord.la
 
@@ -38,10 +41,13 @@ libtesseract_textord_la_SOURCES = \
     ccnontextdetect.cpp cjkpitch.cpp colfind.cpp colpartition.cpp colpartitionset.cpp \
     colpartitiongrid.cpp devanagari_processing.cpp \
     drawtord.cpp edgblob.cpp edgloop.cpp \
-    equationdetectbase.cpp \
     fpchop.cpp gap_map.cpp imagefind.cpp linefind.cpp makerow.cpp oldbasel.cpp \
     pithsync.cpp pitsync1.cpp scanedg.cpp sortflts.cpp strokewidth.cpp \
     tabfind.cpp tablefind.cpp tabvector.cpp \
     tablerecog.cpp textlineprojection.cpp textord.cpp \
     topitch.cpp tordmain.cpp tospace.cpp tovars.cpp \
     underlin.cpp wordseg.cpp workingpartset.cpp
+
+if !DISABLED_LEGACY_ENGINE
+libtesseract_textord_la_SOURCES += equationdetectbase.cpp
+endif
