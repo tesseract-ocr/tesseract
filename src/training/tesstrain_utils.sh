@@ -44,6 +44,7 @@ RUN_SHAPE_CLUSTERING=false
 SAVE_BOX_TIFF=false
 WORKSPACE_DIR=$(mktemp -d)
 X_SIZE=3600
+PT_SIZE=12
 
 # set TESSDATA_PREFIX as empty, if not defined in environment to avoid an unbound variable
 TESSDATA_PREFIX=${TESSDATA_PREFIX:-}
@@ -153,6 +154,9 @@ parse_flags() {
             --maxpages)
                 parse_value "MAX_PAGES" ${ARGV[$j]:-}
                 i=$j ;;
+            --ptsize)
+                parse_value "PT_SIZE" ${ARGV[$j]:-}
+                i=$j ;;
             --my_boxtiff_dir)
                 parse_value "MY_BOXTIFF_DIR" ${ARGV[$j]:-}
                 i=$j ;;
@@ -244,7 +248,7 @@ initialize_fontconfig() {
     export FONT_CONFIG_CACHE
     local sample_path=${FONT_CONFIG_CACHE}/sample_text.txt
     echo "Text" >${sample_path}
-    run_command text2image --fonts_dir=${FONTS_DIR} \
+    run_command text2image --fonts_dir=${FONTS_DIR} --ptsize ${PT_SIZE} \
         --font="${FONTS[0]}" --outputbase=${sample_path} --text=${sample_path} \
         --fontconfig_tmpdir=${FONT_CONFIG_CACHE}
 }
@@ -275,7 +279,7 @@ generate_font_image() {
       fi
     done
 
-    run_command text2image ${common_args} --font="${font}" \
+    run_command text2image ${common_args} --font="${font}" --ptsize ${PT_SIZE} \
         --text=${TRAINING_TEXT}  ${TEXT2IMAGE_EXTRA_ARGS:-}
     check_file_readable ${outbase}.box ${outbase}.tif
 
