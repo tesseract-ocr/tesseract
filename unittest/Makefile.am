@@ -224,7 +224,7 @@ indexmapbidi_test_SOURCES = indexmapbidi_test.cc
 indexmapbidi_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 intfeaturemap_test_SOURCES = intfeaturemap_test.cc
-intfeaturemap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+intfeaturemap_test_LDADD = $(TRAINING_LIBS)
 
 intsimdmatrix_test_SOURCES = intsimdmatrix_test.cc
 intsimdmatrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
@@ -267,7 +267,7 @@ lstmtrainer_test_SOURCES = lstmtrainer_test.cc
 lstmtrainer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
 mastertrainer_test_SOURCES = mastertrainer_test.cc
-mastertrainer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS)
+mastertrainer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
 matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)

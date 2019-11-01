@@ -76,6 +76,22 @@ set(common_training_src
     commandlineflags.h
     commontraining.cpp
     commontraining.h
+    ctc.cpp
+    ctc.h
+    errorcounter.cpp
+    errorcounter.h
+    intfeaturedist.cpp
+    intfeaturedist.h
+    intfeaturemap.cpp
+    intfeaturemap.h
+    mastertrainer.cpp
+    mastertrainer.h
+    networkbuilder.cpp
+    networkbuilder.h
+    sampleiterator.cpp
+    sampleiterator.h
+    trainingsampleset.cpp
+    trainingsampleset.h
 )
 add_library                 (common_training ${common_training_src})
 target_link_libraries       (common_training libtesseract tessopt)
