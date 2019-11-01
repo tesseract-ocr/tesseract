@@ -219,7 +219,7 @@ class RecodeBeamSearch {
   // of certainty that will be returned by ExtractBestPathAsUnicharIds.
   // Supposedly on a uniform scale that can be compared across languages and
   // engines.
-  static const float kMinCertainty;
+  static constexpr float kMinCertainty = -20.0f;
   // Number of different code lengths for which we have a separate beam.
   static const int kNumLengths = RecodedCharID::kMaxCodeLen + 1;
   // Total number of beams: dawg/nodawg * number of NodeContinuation * number
