@@ -22,9 +22,10 @@
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
 #include <string>  // for std::string
+
 #include "genericvector.h"
 #include "platform.h"
-#include "strngs.h"             // for STRING
+#include "strngs.h"  // for STRING
 
 struct Pix;
 

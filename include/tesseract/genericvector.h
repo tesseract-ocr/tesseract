@@ -21,11 +21,11 @@
 
 #include <algorithm>
 #include <cassert>
-#include <climits>      // for LONG_MAX
-#include <cstdint>      // for uint32_t
+#include <climits>  // for LONG_MAX
+#include <cstdint>  // for uint32_t
 #include <cstdio>
 #include <cstdlib>
-#include <functional>   // for std::function
+#include <functional>  // for std::function
 
 #include "helpers.h"
 #include "serialis.h"
@@ -173,8 +173,7 @@ class GenericVector {
   // Returns false on error or if the callback returns false.
   // DEPRECATED. Use [De]Serialize[Classes] instead.
   bool write(FILE* f, std::function<bool(FILE*, const T&)> cb) const;
-  bool read(tesseract::TFile* f,
-            std::function<bool(tesseract::TFile*, T*)> cb);
+  bool read(tesseract::TFile* f, std::function<bool(tesseract::TFile*, T*)> cb);
   // Writes a vector of simple types to the given file. Assumes that bitwise
   // read/write of T will work. Returns false in case of error.
   // TODO(rays) Change all callers to use TFile and remove deprecated methods.
@@ -647,12 +646,12 @@ class GenericVectorEqEq : public GenericVector<T> {
   GenericVectorEqEq() {
     using namespace std::placeholders;  // for _1
     GenericVector<T>::set_compare_callback(
-      std::bind(tesseract::cmp_eq<T>, _1, _2));
+        std::bind(tesseract::cmp_eq<T>, _1, _2));
   }
   explicit GenericVectorEqEq(int size) : GenericVector<T>(size) {
     using namespace std::placeholders;  // for _1
     GenericVector<T>::set_compare_callback(
-      std::bind(tesseract::cmp_eq<T>, _1, _2));
+        std::bind(tesseract::cmp_eq<T>, _1, _2));
   }
 };
 
@@ -881,8 +880,8 @@ void GenericVector<T>::delete_data_pointers() {
 }
 
 template <typename T>
-bool GenericVector<T>::write(
-    FILE* f, std::function<bool(FILE*, const T&)> cb) const {
+bool GenericVector<T>::write(FILE* f,
+                             std::function<bool(FILE*, const T&)> cb) const {
   if (fwrite(&size_reserved_, sizeof(size_reserved_), 1, f) != 1) {
     return false;
   }
@@ -904,8 +903,8 @@ bool GenericVector<T>::write(
 }
 
 template <typename T>
-bool GenericVector<T>::read(
-    tesseract::TFile* f, std::function<bool(tesseract::TFile*, T*)> cb) {
+bool GenericVector<T>::read(tesseract::TFile* f,
+                            std::function<bool(tesseract::TFile*, T*)> cb) {
   int32_t reserved;
   if (f->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
     return false;

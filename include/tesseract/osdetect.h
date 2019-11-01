@@ -28,7 +28,8 @@ class BLOB_CHOICE_LIST;
 class STRING;
 class TO_BLOCK_LIST;
 class UNICHARSET;
-template <typename T> class GenericVector;
+template <typename T>
+class GenericVector;
 
 namespace tesseract {
 class Tesseract;
@@ -38,8 +39,8 @@ class Tesseract;
 const int kMaxNumberOfScripts = 116 + 1 + 2 + 1;
 
 struct OSBestResult {
-  OSBestResult() : orientation_id(0), script_id(0), sconfidence(0.0),
-                   oconfidence(0.0) {}
+  OSBestResult()
+      : orientation_id(0), script_id(0), sconfidence(0.0), oconfidence(0.0) {}
   int orientation_id;
   int script_id;
   float sconfidence;
@@ -49,8 +50,7 @@ struct OSBestResult {
 struct OSResults {
   OSResults() : unicharset(nullptr) {
     for (int i = 0; i < 4; ++i) {
-      for (int j = 0; j < kMaxNumberOfScripts; ++j)
-        scripts_na[i][j] = 0;
+      for (int j = 0; j < kMaxNumberOfScripts; ++j) scripts_na[i][j] = 0;
       orientations[i] = 0;
     }
   }
@@ -87,6 +87,7 @@ class OrientationDetector {
                       OSResults* results);
   bool detect_blob(BLOB_CHOICE_LIST* scores);
   int get_orientation();
+
  private:
   OSResults* osr_;
   const GenericVector<int>* allowed_scripts_;
@@ -94,10 +95,11 @@ class OrientationDetector {
 
 class ScriptDetector {
  public:
-  ScriptDetector(const GenericVector<int>* allowed_scripts,
-                 OSResults* osr, tesseract::Tesseract* tess);
+  ScriptDetector(const GenericVector<int>* allowed_scripts, OSResults* osr,
+                 tesseract::Tesseract* tess);
   void detect_blob(BLOB_CHOICE_LIST* scores);
   bool must_stop(int orientation);
+
  private:
   OSResults* osr_;
   static const char* korean_script_;
@@ -115,22 +117,18 @@ class ScriptDetector {
   const GenericVector<int>* allowed_scripts_;
 };
 
-int orientation_and_script_detection(STRING& filename,
-                                     OSResults*,
+int orientation_and_script_detection(STRING& filename, OSResults*,
                                      tesseract::Tesseract*);
 
-int os_detect(TO_BLOCK_LIST* port_blocks,
-              OSResults* osr,
+int os_detect(TO_BLOCK_LIST* port_blocks, OSResults* osr,
               tesseract::Tesseract* tess);
 
 int os_detect_blobs(const GenericVector<int>* allowed_scripts,
-                    BLOBNBOX_CLIST* blob_list,
-                    OSResults* osr,
+                    BLOBNBOX_CLIST* blob_list, OSResults* osr,
                     tesseract::Tesseract* tess);
 
-bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
-                    ScriptDetector* s, OSResults*,
-                    tesseract::Tesseract* tess);
+bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o, ScriptDetector* s,
+                    OSResults*, tesseract::Tesseract* tess);
 
 // Helper method to convert an orientation index to its value in degrees.
 // The value represents the amount of clockwise rotation in degrees that must be

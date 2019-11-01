@@ -65,10 +65,9 @@ class TESS_API PageIterator {
    * that tesseract has been given by the Thresholder.
    * After the constructor, Begin has already been called.
    */
-  PageIterator(PAGE_RES* page_res, Tesseract* tesseract,
-               int scale, int scaled_yres,
-               int rect_left, int rect_top,
-               int rect_width, int rect_height);
+  PageIterator(PAGE_RES* page_res, Tesseract* tesseract, int scale,
+               int scaled_yres, int rect_left, int rect_top, int rect_width,
+               int rect_height);
   virtual ~PageIterator();
 
   /**
@@ -164,7 +163,7 @@ class TESS_API PageIterator {
    *   equal to other:  0
    *   after other:     1
    */
-  int Cmp(const PageIterator &other) const;
+  int Cmp(const PageIterator& other) const;
 
   // ============= Accessing data ==============.
   // Coordinate system:
@@ -203,17 +202,17 @@ class TESS_API PageIterator {
    * from a grey image. The padding argument to GetImage can be used to expand
    * the image to include more foreground pixels. See GetImage below.
    */
-  bool BoundingBox(PageIteratorLevel level,
-                   int* left, int* top, int* right, int* bottom) const;
-  bool BoundingBox(PageIteratorLevel level, int padding,
-                   int* left, int* top, int* right, int* bottom) const;
+  bool BoundingBox(PageIteratorLevel level, int* left, int* top, int* right,
+                   int* bottom) const;
+  bool BoundingBox(PageIteratorLevel level, int padding, int* left, int* top,
+                   int* right, int* bottom) const;
   /**
    * Returns the bounding rectangle of the object in a coordinate system of the
    * working image rectangle having its origin at (rect_left_, rect_top_) with
    * respect to the original image and is scaled by a factor scale_.
    */
-  bool BoundingBoxInternal(PageIteratorLevel level,
-                           int* left, int* top, int* right, int* bottom) const;
+  bool BoundingBoxInternal(PageIteratorLevel level, int* left, int* top,
+                           int* right, int* bottom) const;
 
   /** Returns whether there is no object of a given level. */
   bool Empty(PageIteratorLevel level) const;
@@ -261,8 +260,8 @@ class TESS_API PageIterator {
    * WARNING: with vertical text, baselines may be vertical!
    * Returns false if there is no baseline at the current position.
    */
-  bool Baseline(PageIteratorLevel level,
-                int* x1, int* y1, int* x2, int* y2) const;
+  bool Baseline(PageIteratorLevel level, int* x1, int* y1, int* x2,
+                int* y2) const;
 
   /**
    * Returns orientation for the block the iterator points to.
@@ -272,10 +271,10 @@ class TESS_API PageIterator {
    *                 block anti-clockwise for it to be level?
    *                   -Pi/4 <= deskew_angle <= Pi/4
    */
-  void Orientation(tesseract::Orientation *orientation,
-                   tesseract::WritingDirection *writing_direction,
-                   tesseract::TextlineOrder *textline_order,
-                   float *deskew_angle) const;
+  void Orientation(tesseract::Orientation* orientation,
+                   tesseract::WritingDirection* writing_direction,
+                   tesseract::TextlineOrder* textline_order,
+                   float* deskew_angle) const;
 
   /**
    * Returns information about the current paragraph, if available.
@@ -305,16 +304,15 @@ class TESS_API PageIterator {
    *             first_line_indent for subsequent paragraphs in this block
    *             of text.
    */
-  void ParagraphInfo(tesseract::ParagraphJustification *justification,
-                     bool *is_list_item,
-                     bool *is_crown,
-                     int *first_line_indent) const;
+  void ParagraphInfo(tesseract::ParagraphJustification* justification,
+                     bool* is_list_item, bool* is_crown,
+                     int* first_line_indent) const;
 
   // If the current WERD_RES (it_->word()) is not nullptr, sets the BlamerBundle
   // of the current word to the given pointer (takes ownership of the pointer)
   // and returns true.
   // Can only be used when iterating on the word level.
-  bool SetWordBlamerBundle(BlamerBundle *blamer_bundle);
+  bool SetWordBlamerBundle(BlamerBundle* blamer_bundle);
 
  protected:
   /**

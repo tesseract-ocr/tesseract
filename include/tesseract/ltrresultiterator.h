@@ -46,6 +46,7 @@ class Tesseract;
 
 class TESS_API LTRResultIterator : public PageIterator {
   friend class ChoiceIterator;
+
  public:
   // page_res and tesseract come directly from the BaseAPI.
   // The rectangle parameters are copied indirectly from the Thresholder,
@@ -59,9 +60,8 @@ class TESS_API LTRResultIterator : public PageIterator {
   // The scaled_yres indicates the effective resolution of the binary image
   // that tesseract has been given by the Thresholder.
   // After the constructor, Begin has already been called.
-  LTRResultIterator(PAGE_RES* page_res, Tesseract* tesseract,
-                    int scale, int scaled_yres,
-                    int rect_left, int rect_top,
+  LTRResultIterator(PAGE_RES* page_res, Tesseract* tesseract, int scale,
+                    int scaled_yres, int rect_left, int rect_top,
                     int rect_width, int rect_height);
 
   ~LTRResultIterator() override;
@@ -84,10 +84,10 @@ class TESS_API LTRResultIterator : public PageIterator {
   char* GetUTF8Text(PageIteratorLevel level) const;
 
   // Set the string inserted at the end of each text line. "\n" by default.
-  void SetLineSeparator(const char *new_line);
+  void SetLineSeparator(const char* new_line);
 
   // Set the string inserted at the end of each paragraph. "\n" by default.
-  void SetParagraphSeparator(const char *new_para);
+  void SetParagraphSeparator(const char* new_para);
 
   // Returns the mean confidence of the current object at the given level.
   // The number should be interpreted as a percent probability. (0.0f-100.0f)
@@ -107,14 +107,10 @@ class TESS_API LTRResultIterator : public PageIterator {
   // the iterator itself, ie rendered invalid by various members of
   // TessBaseAPI, including Init, SetImage, End or deleting the TessBaseAPI.
   // Pointsize is returned in printers points (1/72 inch.)
-  const char* WordFontAttributes(bool* is_bold,
-                                 bool* is_italic,
-                                 bool* is_underlined,
-                                 bool* is_monospace,
-                                 bool* is_serif,
-                                 bool* is_smallcaps,
-                                 int* pointsize,
-                                 int* font_id) const;
+  const char* WordFontAttributes(bool* is_bold, bool* is_italic,
+                                 bool* is_underlined, bool* is_monospace,
+                                 bool* is_serif, bool* is_smallcaps,
+                                 int* pointsize, int* font_id) const;
 
   // Return the name of the language used to recognize this word.
   // On error, nullptr.  Do not delete this pointer.
@@ -137,22 +133,22 @@ class TESS_API LTRResultIterator : public PageIterator {
 
   // Returns the pointer to ParamsTrainingBundle stored in the BlamerBundle
   // of the current word.
-  const void *GetParamsTrainingBundle() const;
+  const void* GetParamsTrainingBundle() const;
 
   // Returns a pointer to the string with blamer information for this word.
   // Assumes that the word's blamer_bundle is not nullptr.
-  const char *GetBlamerDebug() const;
+  const char* GetBlamerDebug() const;
 
   // Returns a pointer to the string with misadaption information for this word.
   // Assumes that the word's blamer_bundle is not nullptr.
-  const char *GetBlamerMisadaptionDebug() const;
+  const char* GetBlamerMisadaptionDebug() const;
 
   // Returns true if a truth string was recorded for the current word.
   bool HasTruthString() const;
 
   // Returns true if the given string is equivalent to the truth string for
   // the current word.
-  bool EquivalentToTruth(const char *str) const;
+  bool EquivalentToTruth(const char* str) const;
 
   // Returns a null terminated UTF-8 encoded truth string for the current word.
   // Use delete [] to free after use.
@@ -164,7 +160,7 @@ class TESS_API LTRResultIterator : public PageIterator {
 
   // Returns a pointer to serialized choice lattice.
   // Fills lattice_size with the number of bytes in lattice data.
-  const char *WordLattice(int *lattice_size) const;
+  const char* WordLattice(int* lattice_size) const;
 
   // ============= Functions that refer to symbols only ============.
 
@@ -182,8 +178,8 @@ class TESS_API LTRResultIterator : public PageIterator {
   bool SymbolIsDropcap() const;
 
  protected:
-  const char *line_separator_;
-  const char *paragraph_separator_;
+  const char* line_separator_;
+  const char* paragraph_separator_;
 };
 
 // Class to iterate over the classifier choices for a single RIL_SYMBOL.
@@ -222,7 +218,7 @@ class ChoiceIterator {
   std::vector<std::vector<std::pair<const char*, float>>>* Timesteps() const;
 
  private:
-   //clears the remaining spaces out of the results and adapt the probabilities
+  // clears the remaining spaces out of the results and adapt the probabilities
   void filterSpaces();
   // Pointer to the WERD_RES object owned by the API.
   WERD_RES* word_res_;
