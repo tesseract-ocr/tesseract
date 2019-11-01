@@ -389,16 +389,11 @@ inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
   return result;
 }
 
-inline bool LoadDataFromFile(const STRING& filename,
-                             GenericVector<char>* data) {
-  return LoadDataFromFile(filename.string(), data);
-}
-
 // The default FileWriter writes the vector of char to the filename file,
 // returning false on error.
 inline bool SaveDataToFile(const GenericVector<char>& data,
-                           const STRING& filename) {
-  FILE* fp = fopen(filename.string(), "wb");
+                           const char* filename) {
+  FILE* fp = fopen(filename, "wb");
   if (fp == nullptr) {
     return false;
   }
@@ -408,10 +403,10 @@ inline bool SaveDataToFile(const GenericVector<char>& data,
   return result;
 }
 // Reads a file as a vector of STRING.
-inline bool LoadFileLinesToStrings(const STRING& filename,
+inline bool LoadFileLinesToStrings(const char* filename,
                                    GenericVector<STRING>* lines) {
   GenericVector<char> data;
-  if (!LoadDataFromFile(filename.string(), &data)) {
+  if (!LoadDataFromFile(filename, &data)) {
     return false;
   }
   STRING lines_str(&data[0], data.size());
