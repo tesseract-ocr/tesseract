@@ -146,10 +146,26 @@ if(CLANG)  # clang all platforms
 endif()
 
 if (OPENMP_BUILD)
-    if (MSVC)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
-    else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+    find_package(OpenMP QUIET)
+    if (OpenMP_FOUND)
+        message(">> ${OpenMP_FOUND} ${OpenMP_VERSION}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+        add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
+    endif()
+    # https://stackoverflow.com/questions/12399422/how-to-set-linker-flags-for-openmp-in-cmakes-try-compile-function
+    if (NOT OpenMP_FOUND AND CLANG AND WIN32)
+        # workaroung because find_package(OpenMP) does not work for clang-cl
+        # https://gitlab.kitware.com/cmake/cmake/issues/19404
+        check_include_file_cxx(omp.h HAVE_OMP_H_INCLUDE)
+        find_library(OpenMP_LIBRARY NAMES omp libomp.lib)
+        message(">> OpenMP_LIBRARY: ${OpenMP_LIBRARY}")
+        if (MSVC)
+            set(OpenMP_CXX_FLAGS "${OpenMP_CXX_FLAGS} /openmp")
+        else()
+            set(OpenMP_CXX_FLAGS "${OpenMP_CXX_FLAGS} -fopenmp")
+        endif()
+        set(OpenMP_FOUND 1)
+        add_definitions(-D_OPENMP=201107)  # 3.1 version is supported from Clang 3.8.0
     endif()
 endif()
 
@@ -459,8 +475,7 @@ endif()
 if (WIN32 AND CLANG AND OPENMP_BUILD)
     # Workaround for "libomp.lib is not automatically added on Windows"
     # see: http://lists.llvm.org/pipermail/openmp-dev/2015-August/000857.html
-    # TODO: Find better way how to set Clang OpenMP library for linking on Windows
-    target_link_libraries       (libtesseract PRIVATE "c:\\Program Files\\LLVM\\lib\\libomp.lib")
+    target_link_libraries (libtesseract PRIVATE ${OpenMP_LIBRARY})
 endif()
 
 ########################################
