@@ -39,7 +39,8 @@ const float kWorstDictCertainty = -25.0f;
 // Generates training data for training a line recognizer, eg LSTM.
 // Breaks the page into lines, according to the boxes, and writes them to a
 // serialized DocumentData based on output_basename.
-void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
+// Return true if successful, false if an error occurred.
+bool Tesseract::TrainLineRecognizer(const STRING& input_imagename,
                                     const STRING& output_basename,
                                     BLOCK_LIST *block_list) {
   STRING lstmf_name = output_basename + ".lstmf";
@@ -48,7 +49,7 @@ void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
     // Load existing document for the previous pages.
     if (!images.LoadDocument(lstmf_name.c_str(), 0, 0, nullptr)) {
       tprintf("Failed to read training data from %s!\n", lstmf_name.c_str());
-      return;
+      return false;
     }
   }
   GenericVector<TBOX> boxes;
@@ -58,13 +59,19 @@ void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
                     nullptr) ||
       boxes.empty()) {
     tprintf("Failed to read boxes from %s\n", input_imagename.c_str());
-    return;
+    return false;
   }
   TrainFromBoxes(boxes, texts, block_list, &images);
+  if (images.NumPages() <= 0) {
+    tprintf("Failed to read pages from %s\n", input_imagename.c_str());
+    return false;
+  }
   images.Shuffle();
   if (!images.SaveDocument(lstmf_name.c_str(), nullptr)) {
     tprintf("Failed to write training data to %s!\n", lstmf_name.c_str());
+    return false;
   }
+  return true;
 }
 
 // Generates training data for training a line recognizer, eg LSTM.

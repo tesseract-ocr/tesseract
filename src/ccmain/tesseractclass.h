@@ -334,7 +334,8 @@ class Tesseract : public Wordrec {
   // Generates training data for training a line recognizer, eg LSTM.
   // Breaks the page into lines, according to the boxes, and writes them to a
   // serialized DocumentData based on output_basename.
-  void TrainLineRecognizer(const STRING& input_imagename,
+  // Return true if successful, false if an error occurred.
+  bool TrainLineRecognizer(const STRING& input_imagename,
                            const STRING& output_basename,
                            BLOCK_LIST* block_list);
   // Generates training data for training a line recognizer, eg LSTM.

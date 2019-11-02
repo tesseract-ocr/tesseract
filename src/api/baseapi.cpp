@@ -855,7 +855,9 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   }
 
   if (tesseract_->tessedit_train_line_recognizer) {
-    tesseract_->TrainLineRecognizer(*input_file_, *output_file_, block_list_);
+    if (!tesseract_->TrainLineRecognizer(*input_file_, *output_file_, block_list_)) {
+      return -1;
+    }
     tesseract_->CorrectClassifyWords(page_res_);
     return 0;
   }
