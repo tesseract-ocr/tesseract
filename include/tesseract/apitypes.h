@@ -20,7 +20,7 @@
 #ifndef TESSERACT_API_APITYPES_H_
 #define TESSERACT_API_APITYPES_H_
 
-#include <tesseract/publictypes.h>
+#include "publictypes.h"
 
 // The types used by the API and Page/ResultIterator can be found in:
 //   ccstruct/publictypes.h

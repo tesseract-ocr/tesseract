@@ -20,10 +20,12 @@
 #define TESSERACT_CCUTIL_UNICHAR_H_
 
 #include <memory.h>
+
 #include <cstring>
 #include <string>
 #include <vector>
-#include <tesseract/platform.h>
+
+#include "platform.h"
 
 // Maximum number of characters that can be stored in a UNICHAR. Must be
 // at least 4. Must not exceed 31 without changing the coding of length.
