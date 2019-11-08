@@ -63,7 +63,7 @@ bool Tesseract::TrainLineRecognizer(const STRING& input_imagename,
     return false;
   }
   TrainFromBoxes(boxes, texts, block_list, &images);
-  if (images.NumPages() <= 0) {
+  if (images.PagesSize() == 0) {
     tprintf("Failed to read pages from %s\n", input_imagename.c_str());
     return false;
   }

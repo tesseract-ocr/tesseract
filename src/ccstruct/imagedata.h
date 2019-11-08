@@ -234,6 +234,9 @@ class DocumentData {
     SVAutoLock lock(&general_mutex_);
     return total_pages_;
   }
+  size_t PagesSize() const {
+    return pages_.size();
+  }
   int64_t memory_used() const {
     SVAutoLock lock(&general_mutex_);
     return memory_used_;
