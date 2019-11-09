@@ -910,11 +910,13 @@ void LSTMTrainer::SaveRecognitionDump(GenericVector<char>* data) const {
 }
 
 // Returns a suitable filename for a training dump, based on the model_base_,
-// the iteration and the error rates.
+// best_error_rate_, best learning iteration and training_iteration_.
 STRING LSTMTrainer::DumpFilename() const {
   STRING filename;
-  filename.add_str_double(model_base_.c_str(), best_error_rate_);
+  filename += model_base_.c_str();
+  filename.add_str_double("_", best_error_rate_);
   filename.add_str_int("_", best_iteration_);
+  filename.add_str_int("_", training_iteration_);
   filename += ".checkpoint";
   return filename;
 }
