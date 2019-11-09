@@ -910,7 +910,7 @@ void LSTMTrainer::SaveRecognitionDump(GenericVector<char>* data) const {
 }
 
 // Returns a suitable filename for a training dump, based on the model_base_,
-// best_error_rate_, best learning iteration and training_iteration_.
+// best_error_rate_, best_iteration_ and training_iteration_.
 STRING LSTMTrainer::DumpFilename() const {
   STRING filename;
   filename += model_base_.c_str();
