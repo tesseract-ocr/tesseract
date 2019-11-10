@@ -721,7 +721,7 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   } else {
     switch (cid->spp) {
       case 1:
-        if (cid->bps == 1) {
+        if (cid->bps == 1 && pixGetInputFormat(pix) == IFF_PNG) {
           colorspace.str("  /ColorSpace /DeviceGray\n"
                          "  /Decode [1 0]\n");
         } else {
