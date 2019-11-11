@@ -153,7 +153,7 @@ void build(Solution &s)
         "src/training/errorcounter.cpp",
         "src/training/errorcounter.h",
         "src/training/mastertrainer.cpp",
-        "src/training/mastertrainer.h",
+        "src/training/mastertrainer.h";
     common_training.Public += tessopt;
 
     //
@@ -164,7 +164,6 @@ void build(Solution &s)
         "src/training/icuerrorcode.h",
         "src/training/lang_model_helpers.*"_rr,
         "src/training/lstmtester.*"_rr,
-        "src/training/lstmtrainer.*"_rr,
         "src/training/normstrngs.*"_rr,
         "src/training/unicharset_training_utils.*"_rr,
         "src/training/validat.*"_rr;
