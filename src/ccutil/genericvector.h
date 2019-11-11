@@ -28,6 +28,7 @@
 
 #include "helpers.h"
 #include "serialis.h"
+#include "strngs.h"
 #include "tesscallback.h"
 
 // Use PointerVector<T> below in preference to GenericVector<T*>, as that
@@ -390,11 +391,16 @@ inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
   return result;
 }
 
+inline bool LoadDataFromFile(const STRING& filename,
+                             GenericVector<char>* data) {
+  return LoadDataFromFile(filename.string(), data);
+}
+
 // The default FileWriter writes the vector of char to the filename file,
 // returning false on error.
 inline bool SaveDataToFile(const GenericVector<char>& data,
-                           const char* filename) {
-  FILE* fp = fopen(filename, "wb");
+                           const STRING& filename) {
+  FILE* fp = fopen(filename.string(), "wb");
   if (fp == nullptr) {
     return false;
   }
