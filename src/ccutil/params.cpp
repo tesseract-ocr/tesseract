@@ -156,36 +156,43 @@ bool ParamUtils::GetParamAsString(const char *name,
   auto *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
                                            member_params->double_params);
   if (dp != nullptr) {
-    char buf[128];
-    snprintf(buf, sizeof(buf), "%g", double(*dp));
-    *value = buf;
+    std::ostringstream stream;
+    stream.imbue(std::locale::classic());
+    stream << double(*dp);
+    *value = stream.str().c_str();
     return true;
   }
   return false;
 }
 
 void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
-  int v, i;
   int num_iterations = (member_params == nullptr) ? 1 : 2;
-  for (v = 0; v < num_iterations; ++v) {
+  std::ostringstream stream;
+  stream.imbue(std::locale::classic());
+  for (int v = 0; v < num_iterations; ++v) {
     const ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
-    for (i = 0; i < vec->int_params.size(); ++i) {
-      fprintf(fp, "%s\t%d\t%s\n", vec->int_params[i]->name_str(),
-              (int32_t)(*vec->int_params[i]), vec->int_params[i]->info_str());
+    for (int i = 0; i < vec->int_params.size(); ++i) {
+      stream << vec->int_params[i]->name_str() << '\t' <<
+        (int32_t)(*vec->int_params[i]) << '\t' <<
+        vec->int_params[i]->info_str() << '\n';
     }
-    for (i = 0; i < vec->bool_params.size(); ++i) {
-      fprintf(fp, "%s\t%d\t%s\n", vec->bool_params[i]->name_str(),
-              bool(*vec->bool_params[i]), vec->bool_params[i]->info_str());
+    for (int i = 0; i < vec->bool_params.size(); ++i) {
+      stream << vec->bool_params[i]->name_str() << '\t' <<
+        bool(*vec->bool_params[i]) << '\t' <<
+        vec->bool_params[i]->info_str() << '\n';
     }
     for (int i = 0; i < vec->string_params.size(); ++i) {
-      fprintf(fp, "%s\t%s\t%s\n", vec->string_params[i]->name_str(),
-              vec->string_params[i]->string(), vec->string_params[i]->info_str());
+      stream << vec->string_params[i]->name_str() << '\t' <<
+        vec->string_params[i]->c_str() << '\t' <<
+        vec->string_params[i]->info_str() << '\n';
     }
     for (int i = 0; i < vec->double_params.size(); ++i) {
-      fprintf(fp, "%s\t%g\t%s\n", vec->double_params[i]->name_str(),
-              (double)(*vec->double_params[i]), vec->double_params[i]->info_str());
+      stream << vec->double_params[i]->name_str() << '\t' <<
+        (double)(*vec->double_params[i]) << '\t' <<
+        vec->double_params[i]->info_str() << '\n';
     }
   }
+  fprintf(fp, "%s", stream.str().c_str());
 }
 
 // Resets all parameters back to default values;
