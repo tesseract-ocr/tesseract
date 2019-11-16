@@ -58,23 +58,31 @@ class PageSegModeTest : public testing::Test {
 // Tests the single-word segmentation mode, and that it performs correctly
 // and differently to line and block mode.
 TEST_F(PageSegModeTest, WordTest) {
-  SetImage("segmodeimg.tif");
-  // Test various rectangles around the inverse page number.
-  VerifyRectText(tesseract::PSM_SINGLE_WORD, "183", 1482, 146, 72, 44);
-  VerifyRectText(tesseract::PSM_SINGLE_WORD, "183", 1474, 134, 82, 72);
-  VerifyRectText(tesseract::PSM_SINGLE_WORD, "183", 1459, 116, 118, 112);
-  // Test a random pair of words as a line
-  VerifyRectText(tesseract::PSM_SINGLE_LINE, "What should", 1119, 621, 245, 54);
-  // Test a random pair of words as a word
-  VerifyRectText(tesseract::PSM_SINGLE_WORD, "Whatshould", 1119, 621, 245, 54);
-  // Test single block mode.
-  VerifyRectText(tesseract::PSM_SINGLE_BLOCK, "both the\nfrom the", 181, 676,
-                 179, 104);
-  // But doesn't work in line or word mode.
-  NotRectText(tesseract::PSM_SINGLE_LINE, "both the\nfrom the", 181, 676, 179,
-              104);
-  NotRectText(tesseract::PSM_SINGLE_WORD, "both the\nfrom the", 181, 676, 179,
-              104);
+  std::string filename = file::JoinPath(TESTING_DIR, "segmodeimg.tif");
+  if (!file_exists(filename.c_str())) {
+    LOG(INFO) << "Skip test because of missing " << filename << '\n';
+    GTEST_SKIP();
+  } else {
+    SetImage(filename.c_str());
+    // Test various rectangles around the inverse page number.
+    VerifyRectText(tesseract::PSM_SINGLE_WORD, "183", 1419, 264, 69, 34);
+    VerifyRectText(tesseract::PSM_SINGLE_WORD, "183", 1411, 252, 78, 62);
+    VerifyRectText(tesseract::PSM_SINGLE_WORD, "183", 1396, 218, 114, 102);
+    // Test a random pair of words as a line
+    VerifyRectText(tesseract::PSM_SINGLE_LINE,
+                   "What should", 237, 393, 256, 36);
+    // Test a random pair of words as a word
+    VerifyRectText(tesseract::PSM_SINGLE_WORD,
+                   "Whatshould", 237, 393, 256, 36);
+    // Test single block mode.
+    VerifyRectText(tesseract::PSM_SINGLE_BLOCK,
+                   "both the\nfrom the", 237, 450, 172, 94);
+    // But doesn't work in line or word mode.
+    NotRectText(tesseract::PSM_SINGLE_LINE,
+                "both the\nfrom the", 237, 450, 172, 94);
+    NotRectText(tesseract::PSM_SINGLE_WORD,
+                "both the\nfrom the", 237, 450, 172, 94);
+  }
 }
 
 }  // namespace
