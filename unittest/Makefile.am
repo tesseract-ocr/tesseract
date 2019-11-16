@@ -160,10 +160,11 @@ check_PROGRAMS += stringrenderer_test
 check_PROGRAMS += tablefind_test
 check_PROGRAMS += tablerecog_test
 check_PROGRAMS += tabvector_test
-# check_PROGRAMS += tatweel_test
+if TENSORFLOW
+check_PROGRAMS += tatweel_test
+endif # TENSORFLOW
 check_PROGRAMS += textlineprojection_test
 check_PROGRAMS += tfile_test
-
 if ENABLE_TRAINING
 check_PROGRAMS += commandlineflags_test
 check_PROGRAMS += lstm_recode_test
