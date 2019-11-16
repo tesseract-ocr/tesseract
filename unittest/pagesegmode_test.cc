@@ -1,35 +1,61 @@
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
+#if defined(_WIN32)
+#include <io.h>         // for _access
+#else
+#include <unistd.h>     // for access
+#endif
 #include <string>
-#include "leptonica/include/allheaders.h"
-#include "tesseract/api/baseapi.h"
-#include "tesseract/ccutil/helpers.h"
+#include "allheaders.h"
+#include <tesseract/baseapi.h>
+#include <tesseract/helpers.h>
+#include "log.h"
+#include "include_gunit.h"
 
 namespace {
+
+// Replacement for std::filesystem::exists (C++-17)
+static bool file_exists(const char* filename) {
+#if defined(_WIN32)
+  return _access(filename, 0) == 0;
+#else
+  return access(filename, 0) == 0;
+#endif
+}
 
 // The fixture for testing Tesseract.
 class PageSegModeTest : public testing::Test {
  protected:
-  string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
-  }
-  string TessdataPath() {
-    return file::JoinPath(FLAGS_test_srcdir, "tessdata");
+  PageSegModeTest() = default;
+  ~PageSegModeTest() {
+    pixDestroy(&src_pix_);
   }
 
-  PageSegModeTest() { src_pix_ = nullptr; }
-  ~PageSegModeTest() { pixDestroy(&src_pix_); }
+  void SetUp() override {
+    static std::locale system_locale("");
+    std::locale::global(system_locale);
+  }
 
   void SetImage(const char* filename) {
     pixDestroy(&src_pix_);
-    src_pix_ = pixRead(TestDataNameToPath(filename).c_str());
-    api_.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
+    src_pix_ = pixRead(filename);
+    api_.Init(TESSDATA_DIR, "eng", tesseract::OEM_TESSERACT_ONLY);
     api_.SetImage(src_pix_);
   }
 
   // Tests that the given rectangle produces exactly the given text in the
   // given segmentation mode (after chopping off the last 2 newlines.)
-  void VerifyRectText(tesseract::PageSegMode mode, const char* str, int left,
-                      int top, int width, int height) {
+  void VerifyRectText(tesseract::PageSegMode mode, const char* str,
+                      int left, int top, int width, int height) {
     api_.SetPageSegMode(mode);
     api_.SetRectangle(left, top, width, height);
     char* result = api_.GetUTF8Text();
@@ -41,8 +67,8 @@ class PageSegModeTest : public testing::Test {
 
   // Tests that the given rectangle does NOT produce the given text in the
   // given segmentation mode.
-  void NotRectText(tesseract::PageSegMode mode, const char* str, int left,
-                   int top, int width, int height) {
+  void NotRectText(tesseract::PageSegMode mode, const char* str,
+                   int left, int top, int width, int height) {
     api_.SetPageSegMode(mode);
     api_.SetRectangle(left, top, width, height);
     char* result = api_.GetUTF8Text();
@@ -50,8 +76,8 @@ class PageSegModeTest : public testing::Test {
     delete[] result;
   }
 
-  Pix* src_pix_;
-  string ocr_text_;
+  Pix* src_pix_ = nullptr;
+  std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };
 
