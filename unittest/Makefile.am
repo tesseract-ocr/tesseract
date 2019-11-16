@@ -202,8 +202,11 @@ applybox_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 baseapi_test_SOURCES = baseapi_test.cc
 baseapi_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
-#baseapi_thread_test_SOURCES = baseapi_thread_test.cc
-#baseapi_thread_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
+if TENSORFLOW
+baseapi_thread_test_SOURCES = baseapi_thread_test.cc
+baseapi_thread_test_LDADD = $(ABSEIL_LIBS)
+baseapi_thread_test_LDADD += $(TESS_LIBS) $(LEPTONICA_LIBS)
+endif # TENSORFLOW
 
 bitvector_test_SOURCES = bitvector_test.cc
 bitvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
@@ -223,8 +226,13 @@ dawg_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 denorm_test_SOURCES = denorm_test.cc
 denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
+if TENSORFLOW
+equationdetect_test_SOURCES = equationdetect_test.cc
+equationdetect_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
+endif # TENSORFLOW
+
 fileio_test_SOURCES = fileio_test.cc
-fileio_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
+fileio_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
 
 heap_test_SOURCES = heap_test.cc
 heap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
@@ -290,8 +298,24 @@ normstrngs_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(ICU_I18N
 nthitem_test_SOURCES = nthitem_test.cc
 nthitem_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
-#pango_font_info_test_SOURCES = pango_font_info_test.cc
-#pango_font_info_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+osd_test_SOURCES = osd_test.cc
+osd_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+pagesegmode_test_SOURCES = pagesegmode_test.cc
+pagesegmode_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+if TENSORFLOW
+pango_font_info_test_SOURCES = pango_font_info_test.cc
+pango_font_info_test_SOURCES += third_party/utf/rune.c
+pango_font_info_test_SOURCES += util/utf8/unicodetext.cc util/utf8/unilib.cc
+pango_font_info_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+pango_font_info_test_LDADD += $(ICU_I18N_LIBS) -lfontconfig
+pango_font_info_test_LDADD += -lpangocairo-1.0 -lpangoft2-1.0
+pango_font_info_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
+endif # TENSORFLOW
+
+paragraphs_test_SOURCES = paragraphs_test.cc
+paragraphs_test_LDADD = $(ABSEIL_LIBS) $(TESS_LIBS) 
 
 paragraphs_test_SOURCES = paragraphs_test.cc
 paragraphs_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
@@ -337,17 +361,17 @@ tablerecog_test_SOURCES = tablerecog_test.cc
 tablerecog_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 tabvector_test_SOURCES = tabvector_test.cc
-tabvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+tabvector_test_LDADD = $(TESS_LIBS)
 
 if TENSORFLOW
 tatweel_test_SOURCES = tatweel_test.cc
 tatweel_test_SOURCES += third_party/utf/rune.c
 tatweel_test_SOURCES += util/utf8/unicodetext.cc util/utf8/unilib.cc
-tatweel_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) -ltensorflow_cc
+tatweel_test_LDADD = $(TRAINING_LIBS)
 endif # TENSORFLOW
 
 textlineprojection_test_SOURCES = textlineprojection_test.cc
-textlineprojection_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+textlineprojection_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
 tfile_test_SOURCES = tfile_test.cc
 tfile_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
