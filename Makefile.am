@@ -21,7 +21,7 @@ endif
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
 SUBDIRS = src/viewer
-SUBDIRS += src/wordrec src/textord
+SUBDIRS += src/wordrec
 SUBDIRS += . tessdata doc unittest
 
 EXTRA_DIST = README.md LICENSE
@@ -151,8 +151,8 @@ libtesseract_la_LIBADD += libtesseract_lstm.la
 libtesseract_la_LIBADD += libtesseract_main.la
 libtesseract_la_LIBADD += libtesseract_native.la
 libtesseract_la_LIBADD += libtesseract_opencl.la
+libtesseract_la_LIBADD += libtesseract_textord.la
 libtesseract_la_LIBADD += \
-    src/textord/libtesseract_textord.la \
     src/wordrec/libtesseract_wordrec.la \
     src/viewer/libtesseract_viewer.la
 
@@ -669,6 +669,108 @@ noinst_HEADERS += src/opencl/oclkernels.h
 noinst_LTLIBRARIES += libtesseract_opencl.la
 
 libtesseract_opencl_la_SOURCES = src/opencl/openclwrapper.cpp
+
+# Rules for src/textord.
+
+libtesseract_textord_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/include
+libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/ccmain
+libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
+libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/api
+libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
+libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/classify
+libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/dict
+libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
+
+noinst_HEADERS += src/textord/alignedblob.h
+noinst_HEADERS += src/textord/baselinedetect.h
+noinst_HEADERS += src/textord/bbgrid.h
+noinst_HEADERS += src/textord/blkocc.h
+noinst_HEADERS += src/textord/blobgrid.h
+noinst_HEADERS += src/textord/ccnontextdetect.h
+noinst_HEADERS += src/textord/cjkpitch.h
+noinst_HEADERS += src/textord/colfind.h
+noinst_HEADERS += src/textord/colpartition.h
+noinst_HEADERS += src/textord/colpartitionset.h
+noinst_HEADERS += src/textord/colpartitiongrid.h
+noinst_HEADERS += src/textord/devanagari_processing.h
+noinst_HEADERS += src/textord/drawtord.h
+noinst_HEADERS += src/textord/edgblob.h
+noinst_HEADERS += src/textord/edgloop.h
+noinst_HEADERS += src/textord/fpchop.h
+noinst_HEADERS += src/textord/gap_map.h
+noinst_HEADERS += src/textord/imagefind.h
+noinst_HEADERS += src/textord/linefind.h
+noinst_HEADERS += src/textord/makerow.h
+noinst_HEADERS += src/textord/oldbasel.h
+noinst_HEADERS += src/textord/pithsync.h
+noinst_HEADERS += src/textord/pitsync1.h
+noinst_HEADERS += src/textord/scanedg.h
+noinst_HEADERS += src/textord/sortflts.h
+noinst_HEADERS += src/textord/strokewidth.h
+noinst_HEADERS += src/textord/tabfind.h
+noinst_HEADERS += src/textord/tablefind.h
+noinst_HEADERS += src/textord/tabvector.h
+noinst_HEADERS += src/textord/tablerecog.h
+noinst_HEADERS += src/textord/textlineprojection.h
+noinst_HEADERS += src/textord/textord.h
+noinst_HEADERS += src/textord/topitch.h
+noinst_HEADERS += src/textord/tordmain.h
+noinst_HEADERS += src/textord/tovars.h
+noinst_HEADERS += src/textord/underlin.h
+noinst_HEADERS += src/textord/wordseg.h
+noinst_HEADERS += src/textord/workingpartset.h
+if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += src/textord/equationdetectbase.h
+endif
+
+noinst_LTLIBRARIES += libtesseract_textord.la
+
+libtesseract_textord_la_SOURCES = src/textord/alignedblob.cpp
+libtesseract_textord_la_SOURCES += src/textord/baselinedetect.cpp
+libtesseract_textord_la_SOURCES += src/textord/bbgrid.cpp
+libtesseract_textord_la_SOURCES += src/textord/blkocc.cpp
+libtesseract_textord_la_SOURCES += src/textord/blobgrid.cpp
+libtesseract_textord_la_SOURCES += src/textord/ccnontextdetect.cpp
+libtesseract_textord_la_SOURCES += src/textord/cjkpitch.cpp
+libtesseract_textord_la_SOURCES += src/textord/colfind.cpp
+libtesseract_textord_la_SOURCES += src/textord/colpartition.cpp
+libtesseract_textord_la_SOURCES += src/textord/colpartitionset.cpp
+libtesseract_textord_la_SOURCES += src/textord/colpartitiongrid.cpp
+libtesseract_textord_la_SOURCES += src/textord/devanagari_processing.cpp
+libtesseract_textord_la_SOURCES += src/textord/drawtord.cpp
+libtesseract_textord_la_SOURCES += src/textord/edgblob.cpp
+libtesseract_textord_la_SOURCES += src/textord/edgloop.cpp
+libtesseract_textord_la_SOURCES += src/textord/fpchop.cpp
+libtesseract_textord_la_SOURCES += src/textord/gap_map.cpp
+libtesseract_textord_la_SOURCES += src/textord/imagefind.cpp
+libtesseract_textord_la_SOURCES += src/textord/linefind.cpp
+libtesseract_textord_la_SOURCES += src/textord/makerow.cpp
+libtesseract_textord_la_SOURCES += src/textord/oldbasel.cpp
+libtesseract_textord_la_SOURCES += src/textord/pithsync.cpp
+libtesseract_textord_la_SOURCES += src/textord/pitsync1.cpp
+libtesseract_textord_la_SOURCES += src/textord/scanedg.cpp
+libtesseract_textord_la_SOURCES += src/textord/sortflts.cpp
+libtesseract_textord_la_SOURCES += src/textord/strokewidth.cpp
+libtesseract_textord_la_SOURCES += src/textord/tabfind.cpp
+libtesseract_textord_la_SOURCES += src/textord/tablefind.cpp
+libtesseract_textord_la_SOURCES += src/textord/tabvector.cpp
+libtesseract_textord_la_SOURCES += src/textord/tablerecog.cpp
+libtesseract_textord_la_SOURCES += src/textord/textlineprojection.cpp
+libtesseract_textord_la_SOURCES += src/textord/textord.cpp
+libtesseract_textord_la_SOURCES += src/textord/topitch.cpp
+libtesseract_textord_la_SOURCES += src/textord/tordmain.cpp
+libtesseract_textord_la_SOURCES += src/textord/tospace.cpp
+libtesseract_textord_la_SOURCES += src/textord/tovars.cpp
+libtesseract_textord_la_SOURCES += src/textord/underlin.cpp
+libtesseract_textord_la_SOURCES += src/textord/wordseg.cpp
+libtesseract_textord_la_SOURCES += src/textord/workingpartset.cpp
+if !DISABLED_LEGACY_ENGINE
+libtesseract_textord_la_SOURCES += src/textord/equationdetectbase.cpp
+endif
 
 # Rules for tesseract executable.
 
