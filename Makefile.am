@@ -20,7 +20,7 @@ endif
 
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
-SUBDIRS = src/ccutil src/viewer src/cutil src/opencl src/ccstruct
+SUBDIRS = src/ccutil src/viewer src/cutil src/opencl
 SUBDIRS += src/dict src/classify src/wordrec src/textord src/lstm
 SUBDIRS += . tessdata doc unittest
 
@@ -141,6 +141,7 @@ libtesseract_la_SOURCES =
 nodist_EXTRA_libtesseract_la_SOURCES = dummy.cxx
 libtesseract_la_LIBADD = \
     libtesseract_api.la \
+    libtesseract_ccstruct.la \
     libtesseract_main.la \
     src/textord/libtesseract_textord.la \
     src/wordrec/libtesseract_wordrec.la \
@@ -149,7 +150,6 @@ libtesseract_la_LIBADD = \
     libtesseract_arch.la \
     libtesseract_native.la \
     src/lstm/libtesseract_lstm.la \
-    src/ccstruct/libtesseract_ccstruct.la \
     src/cutil/libtesseract_cutil.la \
     src/viewer/libtesseract_viewer.la \
     src/ccutil/libtesseract_ccutil.la \
@@ -302,6 +302,101 @@ libtesseract_main_la_SOURCES += src/ccmain/recogtraining.cpp
 libtesseract_main_la_SOURCES += src/ccmain/superscript.cpp
 libtesseract_main_la_SOURCES += src/ccmain/tessbox.cpp
 libtesseract_main_la_SOURCES += src/ccmain/tfacepp.cpp
+endif
+
+# Rules for src/ccstruct.
+
+libtesseract_ccstruct_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
+libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/dict
+libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
+libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
+
+noinst_HEADERS += src/ccstruct/blamer.h
+noinst_HEADERS += src/ccstruct/blobbox.h
+noinst_HEADERS += src/ccstruct/blobs.h
+noinst_HEADERS += src/ccstruct/blread.h
+noinst_HEADERS += src/ccstruct/boxread.h
+noinst_HEADERS += src/ccstruct/boxword.h
+noinst_HEADERS += src/ccstruct/ccstruct.h
+noinst_HEADERS += src/ccstruct/coutln.h
+noinst_HEADERS += src/ccstruct/crakedge.h
+noinst_HEADERS += src/ccstruct/debugpixa.h
+noinst_HEADERS += src/ccstruct/detlinefit.h
+noinst_HEADERS += src/ccstruct/dppoint.h
+noinst_HEADERS += src/ccstruct/imagedata.h
+noinst_HEADERS += src/ccstruct/linlsq.h
+noinst_HEADERS += src/ccstruct/matrix.h
+noinst_HEADERS += src/ccstruct/mod128.h
+noinst_HEADERS += src/ccstruct/normalis.h
+noinst_HEADERS += src/ccstruct/ocrblock.h
+noinst_HEADERS += src/ccstruct/ocrpara.h
+noinst_HEADERS += src/ccstruct/ocrrow.h
+noinst_HEADERS += src/ccstruct/otsuthr.h
+noinst_HEADERS += src/ccstruct/pageres.h
+noinst_HEADERS += src/ccstruct/pdblock.h
+noinst_HEADERS += src/ccstruct/points.h
+noinst_HEADERS += src/ccstruct/polyaprx.h
+noinst_HEADERS += src/ccstruct/polyblk.h
+noinst_HEADERS += src/ccstruct/quadlsq.h
+noinst_HEADERS += src/ccstruct/quadratc.h
+noinst_HEADERS += src/ccstruct/quspline.h
+noinst_HEADERS += src/ccstruct/ratngs.h
+noinst_HEADERS += src/ccstruct/rect.h
+noinst_HEADERS += src/ccstruct/rejctmap.h
+noinst_HEADERS += src/ccstruct/seam.h
+noinst_HEADERS += src/ccstruct/split.h
+noinst_HEADERS += src/ccstruct/statistc.h
+noinst_HEADERS += src/ccstruct/stepblob.h
+noinst_HEADERS += src/ccstruct/werd.h
+if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += src/ccstruct/fontinfo.h
+noinst_HEADERS += src/ccstruct/params_training_featdef.h
+endif
+
+noinst_LTLIBRARIES += libtesseract_ccstruct.la
+
+libtesseract_ccstruct_la_SOURCES = src/ccstruct/blamer.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/blobbox.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/blobs.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/blread.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/boxread.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/boxword.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/ccstruct.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/coutln.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/detlinefit.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/dppoint.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/imagedata.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/linlsq.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/matrix.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/mod128.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/normalis.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/ocrblock.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/ocrpara.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/ocrrow.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/otsuthr.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/pageres.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/pdblock.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/points.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/polyaprx.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/polyblk.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/quadlsq.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/quspline.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/ratngs.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/rect.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/rejctmap.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/seam.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/split.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/statistc.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/stepblob.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/werd.cpp
+
+if !DISABLED_LEGACY_ENGINE
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/fontinfo.cpp
+libtesseract_ccstruct_la_SOURCES += src/ccstruct/params_training_featdef.cpp
 endif
 
 # Rules for tesseract executable.
