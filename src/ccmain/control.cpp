@@ -1965,8 +1965,20 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   ASSERT_HOST(word->best_choice != nullptr);
 
 #ifndef DISABLED_LEGACY_ENGINE
-  const int fontinfo_size = get_fontinfo_table().size();
+  const int fontinfo_size = fontinfo_table_.size();
   if (fontinfo_size == 0) return;
+  if (tessedit_font_id > 0) {
+    if (tessedit_font_id >= fontinfo_size) {
+      tprintf("Error, invalid font ID provided: must be below %d.\n"
+              "Falling back to font auto-detection.\n", fontinfo_size);
+    } else {
+      word->fontinfo = &fontinfo_table_.get(tessedit_font_id);
+      word->fontinfo2 = nullptr;
+      word->fontinfo_id_count = INT8_MAX;
+      word->fontinfo_id2_count = 0;
+      return;
+    }
+  }
   GenericVector<int> font_total_score;
   font_total_score.init_to_size(fontinfo_size, 0);
 

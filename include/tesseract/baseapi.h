@@ -170,6 +170,11 @@ class TESS_API TessBaseAPI {
   const char* GetStringVariable(const char* name) const;
 
   /**
+   * Print Tesseract fonts table to the given file.
+   */
+  void PrintFontsTable(FILE* fp) const;
+
+  /**
    * Print Tesseract parameters to the given file.
    */
   void PrintVariables(FILE* fp) const;
