@@ -69,9 +69,6 @@ endif
 
 noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
-libtesseract_training_la_LIBADD = \
-    ../cutil/libtesseract_cutil.la
-
 libtesseract_training_la_SOURCES = \
     boxchar.cpp \
     commandlineflags.cpp \

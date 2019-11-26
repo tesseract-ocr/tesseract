@@ -20,7 +20,7 @@ endif
 
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
-SUBDIRS = src/viewer src/cutil src/opencl
+SUBDIRS = src/viewer src/opencl
 SUBDIRS += src/dict src/wordrec src/textord src/lstm
 SUBDIRS += . tessdata doc unittest
 
@@ -144,6 +144,7 @@ libtesseract_la_LIBADD += libtesseract_api.la
 libtesseract_la_LIBADD += libtesseract_ccstruct.la
 libtesseract_la_LIBADD += libtesseract_ccutil.la
 libtesseract_la_LIBADD += libtesseract_classify.la
+libtesseract_la_LIBADD += libtesseract_cutil.la
 libtesseract_la_LIBADD += libtesseract_main.la
 libtesseract_la_LIBADD += libtesseract_native.la
 libtesseract_la_LIBADD += \
@@ -151,7 +152,6 @@ libtesseract_la_LIBADD += \
     src/wordrec/libtesseract_wordrec.la \
     src/dict/libtesseract_dict.la \
     src/lstm/libtesseract_lstm.la \
-    src/cutil/libtesseract_cutil.la \
     src/viewer/libtesseract_viewer.la \
     src/opencl/libtesseract_opencl.la
 
@@ -539,6 +539,27 @@ libtesseract_classify_la_SOURCES += src/classify/shapeclassifier.cpp
 libtesseract_classify_la_SOURCES += src/classify/shapetable.cpp
 libtesseract_classify_la_SOURCES += src/classify/tessclassifier.cpp
 libtesseract_classify_la_SOURCES += src/classify/trainingsample.cpp
+endif
+
+# Rules for src/cutil.
+
+libtesseract_cutil_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_cutil_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_cutil_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+
+noinst_HEADERS += src/cutil/callcpp.h
+if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += src/cutil/bitvec.h
+noinst_HEADERS += src/cutil/emalloc.h
+noinst_HEADERS += src/cutil/oldlist.h
+endif
+
+noinst_LTLIBRARIES += libtesseract_cutil.la
+
+libtesseract_cutil_la_SOURCES = src/cutil/callcpp.cpp
+if !DISABLED_LEGACY_ENGINE
+libtesseract_cutil_la_SOURCES += src/cutil/emalloc.cpp
+libtesseract_cutil_la_SOURCES += src/cutil/oldlist.cpp
 endif
 
 # Rules for tesseract executable.
