@@ -20,7 +20,7 @@ endif
 
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
-SUBDIRS = src/arch src/ccutil src/viewer src/cutil src/opencl src/ccstruct
+SUBDIRS = src/ccutil src/viewer src/cutil src/opencl src/ccstruct
 SUBDIRS += src/dict src/classify src/wordrec src/textord src/lstm
 SUBDIRS += src/ccmain . tessdata doc unittest
 
@@ -86,13 +86,17 @@ pkginclude_HEADERS += include/tesseract/unichar.h
 
 # Rules for all subdirectories.
 
+noinst_HEADERS =
+noinst_LTLIBRARIES =
+
 AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"
-AM_CPPFLAGS += -I$(top_builddir)/include
 AM_CPPFLAGS += -I$(top_srcdir)/include
+AM_CPPFLAGS += -I$(top_builddir)/include
 if DISABLED_LEGACY_ENGINE
 AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
 endif
 if VISIBILITY
+AM_CPPFLAGS += -DTESS_EXPORTS
 AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
@@ -111,14 +115,11 @@ libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
 libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/textord
 libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
 libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
-if VISIBILITY
-libtesseract_api_la_CPPFLAGS += -DTESS_EXPORTS
-endif
 if HAVE_LIBCURL
 libtesseract_api_la_CPPFLAGS += $(libcurl_CFLAGS) -DHAVE_LIBCURL
 endif
 
-noinst_LTLIBRARIES = libtesseract_api.la
+noinst_LTLIBRARIES += libtesseract_api.la
 
 libtesseract_api_la_SOURCES = src/api/baseapi.cpp
 libtesseract_api_la_SOURCES += src/api/altorenderer.cpp
@@ -144,8 +145,8 @@ libtesseract_la_LIBADD = \
     src/wordrec/libtesseract_wordrec.la \
     src/classify/libtesseract_classify.la \
     src/dict/libtesseract_dict.la \
-    src/arch/libtesseract_arch.la \
-    src/arch/libtesseract_native.la \
+    libtesseract_arch.la \
+    libtesseract_native.la \
     src/lstm/libtesseract_lstm.la \
     src/ccstruct/libtesseract_ccstruct.la \
     src/cutil/libtesseract_cutil.la \
@@ -154,19 +155,88 @@ libtesseract_la_LIBADD = \
     src/opencl/libtesseract_opencl.la
 
 if AVX_OPT
-libtesseract_la_LIBADD += src/arch/libtesseract_avx.la
+libtesseract_la_LIBADD += libtesseract_avx.la
 endif
 if AVX2_OPT
-libtesseract_la_LIBADD += src/arch/libtesseract_avx2.la
+libtesseract_la_LIBADD += libtesseract_avx2.la
 endif
 if FMA_OPT
-libtesseract_la_LIBADD += src/arch/libtesseract_fma.la
+libtesseract_la_LIBADD += libtesseract_fma.la
 endif
 if SSE41_OPT
-libtesseract_la_LIBADD += src/arch/libtesseract_sse.la
+libtesseract_la_LIBADD += libtesseract_sse.la
 endif
 
 libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION) $(NOUNDEFINED)
+
+# Rules for src/arch.
+
+libtesseract_arch_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_arch_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+libtesseract_arch_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_arch_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+
+noinst_HEADERS += src/arch/dotproduct.h
+noinst_HEADERS += src/arch/intsimdmatrix.h
+noinst_HEADERS += src/arch/simddetect.h
+
+noinst_LTLIBRARIES += libtesseract_native.la
+if AVX_OPT
+noinst_LTLIBRARIES += libtesseract_avx.la
+endif
+if AVX2_OPT
+noinst_LTLIBRARIES += libtesseract_avx2.la
+endif
+if FMA_OPT
+noinst_LTLIBRARIES += libtesseract_fma.la
+endif
+if SSE41_OPT
+noinst_LTLIBRARIES += libtesseract_sse.la
+endif
+noinst_LTLIBRARIES += libtesseract_arch.la
+
+if AVX_OPT
+libtesseract_arch_la_CPPFLAGS += -DAVX
+libtesseract_avx_la_CXXFLAGS = -mavx
+endif
+if AVX2_OPT
+libtesseract_arch_la_CPPFLAGS += -DAVX2
+libtesseract_avx2_la_CXXFLAGS = -mavx2
+endif
+if FMA_OPT
+libtesseract_arch_la_CPPFLAGS += -DFMA
+libtesseract_fma_la_CXXFLAGS = -mfma
+endif
+if SSE41_OPT
+libtesseract_arch_la_CPPFLAGS += -DSSE4_1
+libtesseract_sse_la_CXXFLAGS = -msse4.1
+endif
+
+libtesseract_native_la_CXXFLAGS = -O3 -ffast-math
+if MARCH_NATIVE_OPT
+libtesseract_native_la_CXXFLAGS += -march=native -mtune=native
+endif
+libtesseract_native_la_SOURCES = src/arch/dotproduct.cpp
+
+libtesseract_arch_la_SOURCES = src/arch/intsimdmatrix.cpp src/arch/simddetect.cpp
+
+if AVX_OPT
+libtesseract_avx_la_SOURCES = src/arch/dotproductavx.cpp
+endif
+
+if AVX2_OPT
+libtesseract_avx2_la_SOURCES = src/arch/intsimdmatrixavx2.cpp
+endif
+
+if FMA_OPT
+libtesseract_fma_la_SOURCES = src/arch/dotproductfma.cpp
+endif
+
+if SSE41_OPT
+libtesseract_sse_la_SOURCES = src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp
+endif
+
+# Rules for tesseract executable.
 
 bin_PROGRAMS = tesseract
 tesseract_SOURCES = src/api/tesseractmain.cpp
