@@ -20,7 +20,7 @@ endif
 
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
-SUBDIRS = src/viewer src/opencl
+SUBDIRS = src/viewer
 SUBDIRS += src/wordrec src/textord
 SUBDIRS += . tessdata doc unittest
 
@@ -150,11 +150,11 @@ libtesseract_la_LIBADD += libtesseract_dict.la
 libtesseract_la_LIBADD += libtesseract_lstm.la
 libtesseract_la_LIBADD += libtesseract_main.la
 libtesseract_la_LIBADD += libtesseract_native.la
+libtesseract_la_LIBADD += libtesseract_opencl.la
 libtesseract_la_LIBADD += \
     src/textord/libtesseract_textord.la \
     src/wordrec/libtesseract_wordrec.la \
-    src/viewer/libtesseract_viewer.la \
-    src/opencl/libtesseract_opencl.la
+    src/viewer/libtesseract_viewer.la
 
 if AVX_OPT
 libtesseract_la_LIBADD += libtesseract_avx.la
@@ -654,6 +654,21 @@ libtesseract_lstm_la_SOURCES += src/lstm/weightmatrix.cpp
 if TENSORFLOW
 libtesseract_lstm_la_SOURCES += src/lstm/tfnetwork.pb.cc
 endif
+
+# Rules for src/opencl.
+
+libtesseract_opencl_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_opencl_la_CPPFLAGS += $(OPENCL_CFLAGS)
+libtesseract_opencl_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_opencl_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+libtesseract_opencl_la_CPPFLAGS += -I$(top_srcdir)/src/ccmain
+
+noinst_HEADERS += src/opencl/openclwrapper.h
+noinst_HEADERS += src/opencl/oclkernels.h
+
+noinst_LTLIBRARIES += libtesseract_opencl.la
+
+libtesseract_opencl_la_SOURCES = src/opencl/openclwrapper.cpp
 
 # Rules for tesseract executable.
 
