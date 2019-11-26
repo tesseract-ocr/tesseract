@@ -20,9 +20,7 @@ endif
 
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
-SUBDIRS = src/viewer
-SUBDIRS += src/wordrec
-SUBDIRS += . tessdata doc unittest
+SUBDIRS = . tessdata doc unittest
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
@@ -152,9 +150,8 @@ libtesseract_la_LIBADD += libtesseract_main.la
 libtesseract_la_LIBADD += libtesseract_native.la
 libtesseract_la_LIBADD += libtesseract_opencl.la
 libtesseract_la_LIBADD += libtesseract_textord.la
-libtesseract_la_LIBADD += \
-    src/wordrec/libtesseract_wordrec.la \
-    src/viewer/libtesseract_viewer.la
+libtesseract_la_LIBADD += libtesseract_viewer.la
+libtesseract_la_LIBADD += libtesseract_wordrec.la
 
 if AVX_OPT
 libtesseract_la_LIBADD += libtesseract_avx.la
@@ -770,6 +767,75 @@ libtesseract_textord_la_SOURCES += src/textord/wordseg.cpp
 libtesseract_textord_la_SOURCES += src/textord/workingpartset.cpp
 if !DISABLED_LEGACY_ENGINE
 libtesseract_textord_la_SOURCES += src/textord/equationdetectbase.cpp
+endif
+
+# Rules for src/viewer.
+
+libtesseract_viewer_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_viewer_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+
+noinst_HEADERS += src/viewer/scrollview.h
+noinst_HEADERS += src/viewer/svmnode.h
+noinst_HEADERS += src/viewer/svutil.h
+
+noinst_LTLIBRARIES += libtesseract_viewer.la
+
+libtesseract_viewer_la_SOURCES = src/viewer/scrollview.cpp
+libtesseract_viewer_la_SOURCES += src/viewer/svmnode.cpp
+libtesseract_viewer_la_SOURCES += src/viewer/svutil.cpp
+
+# TODO: Add rule to generate svpaint from svpaint.cpp.
+
+# Rules for src/wordrec.
+
+libtesseract_wordrec_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/include
+libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
+libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/classify
+libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/dict
+libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+
+noinst_HEADERS += src/wordrec/wordrec.h
+if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += src/wordrec/associate.h
+noinst_HEADERS += src/wordrec/chop.h
+noinst_HEADERS += src/wordrec/drawfx.h
+noinst_HEADERS += src/wordrec/findseam.h
+noinst_HEADERS += src/wordrec/language_model.h
+noinst_HEADERS += src/wordrec/lm_consistency.h
+noinst_HEADERS += src/wordrec/lm_pain_points.h
+noinst_HEADERS += src/wordrec/lm_state.h
+noinst_HEADERS += src/wordrec/measure.h
+noinst_HEADERS += src/wordrec/outlines.h
+noinst_HEADERS += src/wordrec/params_model.h
+noinst_HEADERS += src/wordrec/plotedges.h
+noinst_HEADERS += src/wordrec/render.h
+endif
+
+noinst_LTLIBRARIES += libtesseract_wordrec.la
+
+libtesseract_wordrec_la_SOURCES = src/wordrec/tface.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/wordrec.cpp
+if !DISABLED_LEGACY_ENGINE
+libtesseract_wordrec_la_SOURCES += src/wordrec/associate.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/chop.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/chopper.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/drawfx.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/findseam.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/gradechop.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/language_model.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/lm_consistency.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/lm_pain_points.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/lm_state.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/outlines.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/params_model.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/pieces.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/plotedges.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/render.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/segsearch.cpp
+libtesseract_wordrec_la_SOURCES += src/wordrec/wordclass.cpp
 endif
 
 # Rules for tesseract executable.
