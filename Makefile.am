@@ -22,7 +22,7 @@ endif
 
 SUBDIRS = src/ccutil src/viewer src/cutil src/opencl src/ccstruct
 SUBDIRS += src/dict src/classify src/wordrec src/textord src/lstm
-SUBDIRS += src/ccmain . tessdata doc unittest
+SUBDIRS += . tessdata doc unittest
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
@@ -100,6 +100,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS
 AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
+AM_CPPFLAGS += $(OPENMP_CXXFLAGS)
 
 # Rules for src/api.
 
@@ -140,7 +141,7 @@ libtesseract_la_SOURCES =
 nodist_EXTRA_libtesseract_la_SOURCES = dummy.cxx
 libtesseract_la_LIBADD = \
     libtesseract_api.la \
-    src/ccmain/libtesseract_main.la \
+    libtesseract_main.la \
     src/textord/libtesseract_textord.la \
     src/wordrec/libtesseract_wordrec.la \
     src/classify/libtesseract_classify.la \
@@ -234,6 +235,73 @@ endif
 
 if SSE41_OPT
 libtesseract_sse_la_SOURCES = src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp
+endif
+
+# Rules for src/ccmain.
+
+libtesseract_main_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/arch
+libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/lstm
+libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/classify
+libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/dict
+libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
+libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
+libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/textord
+libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
+
+noinst_HEADERS += src/ccmain/control.h
+noinst_HEADERS += src/ccmain/equationdetect.h
+noinst_HEADERS += src/ccmain/mutableiterator.h
+noinst_HEADERS += src/ccmain/output.h
+noinst_HEADERS += src/ccmain/paragraphs.h
+noinst_HEADERS += src/ccmain/paragraphs_internal.h
+noinst_HEADERS += src/ccmain/paramsd.h
+noinst_HEADERS += src/ccmain/pgedit.h
+noinst_HEADERS += src/ccmain/tesseractclass.h
+noinst_HEADERS += src/ccmain/tessvars.h
+noinst_HEADERS += src/ccmain/werdit.h
+if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += src/ccmain/docqual.h
+noinst_HEADERS += src/ccmain/fixspace.h
+noinst_HEADERS += src/ccmain/reject.h
+endif
+
+noinst_LTLIBRARIES += libtesseract_main.la
+
+libtesseract_main_la_SOURCES = src/ccmain/applybox.cpp
+libtesseract_main_la_SOURCES += src/ccmain/control.cpp
+libtesseract_main_la_SOURCES += src/ccmain/linerec.cpp
+libtesseract_main_la_SOURCES += src/ccmain/ltrresultiterator.cpp
+libtesseract_main_la_SOURCES += src/ccmain/mutableiterator.cpp
+libtesseract_main_la_SOURCES += src/ccmain/output.cpp
+libtesseract_main_la_SOURCES += src/ccmain/pageiterator.cpp
+libtesseract_main_la_SOURCES += src/ccmain/pagesegmain.cpp
+libtesseract_main_la_SOURCES += src/ccmain/pagewalk.cpp
+libtesseract_main_la_SOURCES += src/ccmain/paragraphs.cpp
+libtesseract_main_la_SOURCES += src/ccmain/paramsd.cpp
+libtesseract_main_la_SOURCES += src/ccmain/pgedit.cpp
+libtesseract_main_la_SOURCES += src/ccmain/reject.cpp
+libtesseract_main_la_SOURCES += src/ccmain/resultiterator.cpp
+libtesseract_main_la_SOURCES += src/ccmain/tessedit.cpp
+libtesseract_main_la_SOURCES += src/ccmain/tesseractclass.cpp
+libtesseract_main_la_SOURCES += src/ccmain/tessvars.cpp
+libtesseract_main_la_SOURCES += src/ccmain/thresholder.cpp
+libtesseract_main_la_SOURCES += src/ccmain/werdit.cpp
+if !DISABLED_LEGACY_ENGINE
+libtesseract_main_la_SOURCES += src/ccmain/adaptions.cpp
+libtesseract_main_la_SOURCES += src/ccmain/docqual.cpp
+libtesseract_main_la_SOURCES += src/ccmain/equationdetect.cpp
+libtesseract_main_la_SOURCES += src/ccmain/fixspace.cpp
+libtesseract_main_la_SOURCES += src/ccmain/fixxht.cpp
+libtesseract_main_la_SOURCES += src/ccmain/osdetect.cpp
+libtesseract_main_la_SOURCES += src/ccmain/par_control.cpp
+libtesseract_main_la_SOURCES += src/ccmain/recogtraining.cpp
+libtesseract_main_la_SOURCES += src/ccmain/superscript.cpp
+libtesseract_main_la_SOURCES += src/ccmain/tessbox.cpp
+libtesseract_main_la_SOURCES += src/ccmain/tfacepp.cpp
 endif
 
 # Rules for tesseract executable.
