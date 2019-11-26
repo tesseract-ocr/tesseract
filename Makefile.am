@@ -21,7 +21,7 @@ endif
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
 SUBDIRS = src/viewer src/opencl
-SUBDIRS += src/dict src/wordrec src/textord src/lstm
+SUBDIRS += src/wordrec src/textord src/lstm
 SUBDIRS += . tessdata doc unittest
 
 EXTRA_DIST = README.md LICENSE
@@ -145,12 +145,12 @@ libtesseract_la_LIBADD += libtesseract_ccstruct.la
 libtesseract_la_LIBADD += libtesseract_ccutil.la
 libtesseract_la_LIBADD += libtesseract_classify.la
 libtesseract_la_LIBADD += libtesseract_cutil.la
+libtesseract_la_LIBADD += libtesseract_dict.la
 libtesseract_la_LIBADD += libtesseract_main.la
 libtesseract_la_LIBADD += libtesseract_native.la
 libtesseract_la_LIBADD += \
     src/textord/libtesseract_textord.la \
     src/wordrec/libtesseract_wordrec.la \
-    src/dict/libtesseract_dict.la \
     src/lstm/libtesseract_lstm.la \
     src/viewer/libtesseract_viewer.la \
     src/opencl/libtesseract_opencl.la
@@ -560,6 +560,34 @@ libtesseract_cutil_la_SOURCES = src/cutil/callcpp.cpp
 if !DISABLED_LEGACY_ENGINE
 libtesseract_cutil_la_SOURCES += src/cutil/emalloc.cpp
 libtesseract_cutil_la_SOURCES += src/cutil/oldlist.cpp
+endif
+
+# Rules for src/dict.
+
+libtesseract_dict_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_dict_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+libtesseract_dict_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_dict_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
+libtesseract_dict_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+
+noinst_HEADERS += src/dict/dawg.h
+noinst_HEADERS += src/dict/dawg_cache.h
+noinst_HEADERS += src/dict/dict.h
+noinst_HEADERS += src/dict/matchdefs.h
+noinst_HEADERS += src/dict/stopper.h
+noinst_HEADERS += src/dict/trie.h
+
+noinst_LTLIBRARIES += libtesseract_dict.la
+
+libtesseract_dict_la_SOURCES = src/dict/context.cpp
+libtesseract_dict_la_SOURCES += src/dict/dawg.cpp
+libtesseract_dict_la_SOURCES += src/dict/dawg_cache.cpp
+libtesseract_dict_la_SOURCES += src/dict/dict.cpp
+libtesseract_dict_la_SOURCES += src/dict/permdawg.cpp
+libtesseract_dict_la_SOURCES += src/dict/stopper.cpp
+libtesseract_dict_la_SOURCES += src/dict/trie.cpp
+if !DISABLED_LEGACY_ENGINE
+libtesseract_dict_la_SOURCES += src/dict/hyphen.cpp
 endif
 
 # Rules for tesseract executable.

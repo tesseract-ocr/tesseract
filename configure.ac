@@ -489,7 +489,6 @@ fi
 AC_CONFIG_FILES([include/tesseract/version.h])
 AC_CONFIG_FILES([Makefile tesseract.pc])
 AC_CONFIG_FILES([src/opencl/Makefile])
-AC_CONFIG_FILES([src/dict/Makefile])
 AC_CONFIG_FILES([src/lstm/Makefile])
 AC_CONFIG_FILES([src/textord/Makefile])
 AC_CONFIG_FILES([src/viewer/Makefile])
