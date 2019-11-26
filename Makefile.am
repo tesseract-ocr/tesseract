@@ -21,7 +21,7 @@ endif
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
 SUBDIRS = src/viewer src/opencl
-SUBDIRS += src/wordrec src/textord src/lstm
+SUBDIRS += src/wordrec src/textord
 SUBDIRS += . tessdata doc unittest
 
 EXTRA_DIST = README.md LICENSE
@@ -100,7 +100,8 @@ AM_CPPFLAGS += -DTESS_EXPORTS
 AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
-AM_CPPFLAGS += $(OPENMP_CXXFLAGS)
+
+AM_CXXFLAGS = $(OPENMP_CXXFLAGS)
 
 # Rules for src/api.
 
@@ -146,12 +147,12 @@ libtesseract_la_LIBADD += libtesseract_ccutil.la
 libtesseract_la_LIBADD += libtesseract_classify.la
 libtesseract_la_LIBADD += libtesseract_cutil.la
 libtesseract_la_LIBADD += libtesseract_dict.la
+libtesseract_la_LIBADD += libtesseract_lstm.la
 libtesseract_la_LIBADD += libtesseract_main.la
 libtesseract_la_LIBADD += libtesseract_native.la
 libtesseract_la_LIBADD += \
     src/textord/libtesseract_textord.la \
     src/wordrec/libtesseract_wordrec.la \
-    src/lstm/libtesseract_lstm.la \
     src/viewer/libtesseract_viewer.la \
     src/opencl/libtesseract_opencl.la
 
@@ -590,6 +591,70 @@ if !DISABLED_LEGACY_ENGINE
 libtesseract_dict_la_SOURCES += src/dict/hyphen.cpp
 endif
 
+# Rules for src/lstm.
+
+libtesseract_lstm_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/arch
+libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/classify
+libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
+libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/dict
+libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/lstm
+libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+if TENSORFLOW
+libtesseract_lstm_la_CPPFLAGS += -DINCLUDE_TENSORFLOW
+libtesseract_lstm_la_CPPFLAGS += -I/usr/include/tensorflow
+endif
+if !NO_TESSDATA_PREFIX
+libtesseract_lstm_la_CPPFLAGS += -DTESSDATA_PREFIX=@datadir@
+endif
+
+noinst_HEADERS += src/lstm/convolve.h
+noinst_HEADERS += src/lstm/fullyconnected.h
+noinst_HEADERS += src/lstm/functions.h
+noinst_HEADERS += src/lstm/input.h
+noinst_HEADERS += src/lstm/lstm.h
+noinst_HEADERS += src/lstm/lstmrecognizer.h
+noinst_HEADERS += src/lstm/maxpool.h
+noinst_HEADERS += src/lstm/network.h
+noinst_HEADERS += src/lstm/networkio.h
+noinst_HEADERS += src/lstm/networkscratch.h
+noinst_HEADERS += src/lstm/parallel.h
+noinst_HEADERS += src/lstm/plumbing.h
+noinst_HEADERS += src/lstm/recodebeam.h
+noinst_HEADERS += src/lstm/reconfig.h
+noinst_HEADERS += src/lstm/reversed.h
+noinst_HEADERS += src/lstm/series.h
+noinst_HEADERS += src/lstm/static_shape.h
+noinst_HEADERS += src/lstm/stridemap.h
+noinst_HEADERS += src/lstm/tfnetwork.h
+noinst_HEADERS += src/lstm/weightmatrix.h
+
+noinst_LTLIBRARIES += libtesseract_lstm.la
+
+libtesseract_lstm_la_SOURCES = src/lstm/convolve.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/fullyconnected.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/functions.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/input.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/lstm.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/lstmrecognizer.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/maxpool.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/network.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/networkio.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/parallel.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/plumbing.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/recodebeam.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/reconfig.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/reversed.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/series.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/stridemap.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/tfnetwork.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/weightmatrix.cpp
+if TENSORFLOW
+libtesseract_lstm_la_SOURCES += src/lstm/tfnetwork.pb.cc
+endif
+
 # Rules for tesseract executable.
 
 bin_PROGRAMS = tesseract
@@ -605,12 +670,11 @@ if VISIBILITY
 tesseract_CPPFLAGS += -DTESS_IMPORTS
 endif
 
-tesseract_LDADD = libtesseract.la
-
 tesseract_LDFLAGS = $(OPENCL_LDFLAGS)
+tesseract_LDFLAGS += $(OPENMP_CXXFLAGS)
 
+tesseract_LDADD = libtesseract.la
 tesseract_LDADD += $(LEPTONICA_LIBS)
-tesseract_LDADD += $(OPENMP_CXXFLAGS)
 tesseract_LDADD += $(TENSORFLOW_LIBS)
 tesseract_LDADD += $(libarchive_LIBS)
 tesseract_LDADD += $(libcurl_LIBS)
