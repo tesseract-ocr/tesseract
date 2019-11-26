@@ -22,7 +22,7 @@ endif
 
 SUBDIRS = src/arch src/ccutil src/viewer src/cutil src/opencl src/ccstruct
 SUBDIRS += src/dict src/classify src/wordrec src/textord src/lstm
-SUBDIRS += src/ccmain src/api . tessdata doc unittest
+SUBDIRS += src/ccmain . tessdata doc unittest
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
@@ -83,6 +83,122 @@ pkginclude_HEADERS += include/tesseract/serialis.h
 pkginclude_HEADERS += include/tesseract/strngs.h
 pkginclude_HEADERS += include/tesseract/thresholder.h
 pkginclude_HEADERS += include/tesseract/unichar.h
+
+# Rules for all subdirectories.
+
+AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"
+AM_CPPFLAGS += -I$(top_builddir)/include
+AM_CPPFLAGS += -I$(top_srcdir)/include
+if DISABLED_LEGACY_ENGINE
+AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
+endif
+if VISIBILITY
+AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
+endif
+AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
+
+# Rules for src/api.
+
+libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/arch
+libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/ccmain
+libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/classify
+libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
+libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/dict
+libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
+libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/textord
+libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
+if VISIBILITY
+libtesseract_api_la_CPPFLAGS += -DTESS_EXPORTS
+endif
+if HAVE_LIBCURL
+libtesseract_api_la_CPPFLAGS += $(libcurl_CFLAGS) -DHAVE_LIBCURL
+endif
+
+noinst_LTLIBRARIES = libtesseract_api.la
+
+libtesseract_api_la_SOURCES = src/api/baseapi.cpp
+libtesseract_api_la_SOURCES += src/api/altorenderer.cpp
+libtesseract_api_la_SOURCES += src/api/capi.cpp
+libtesseract_api_la_SOURCES += src/api/hocrrenderer.cpp
+libtesseract_api_la_SOURCES += src/api/lstmboxrenderer.cpp
+libtesseract_api_la_SOURCES += src/api/pdfrenderer.cpp
+libtesseract_api_la_SOURCES += src/api/renderer.cpp
+libtesseract_api_la_SOURCES += src/api/wordstrboxrenderer.cpp
+
+lib_LTLIBRARIES = libtesseract.la
+libtesseract_la_LDFLAGS = $(LEPTONICA_LIBS) $(OPENCL_LDFLAGS) $(libarchive_LIBS)
+libtesseract_la_LDFLAGS += $(libcurl_LIBS)
+libtesseract_la_LDFLAGS += $(TENSORFLOW_LIBS)
+libtesseract_la_SOURCES =
+# Dummy C++ source to cause C++ linking.
+# see http://www.gnu.org/s/hello/manual/automake/Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries
+nodist_EXTRA_libtesseract_la_SOURCES = dummy.cxx
+libtesseract_la_LIBADD = \
+    libtesseract_api.la \
+    src/ccmain/libtesseract_main.la \
+    src/textord/libtesseract_textord.la \
+    src/wordrec/libtesseract_wordrec.la \
+    src/classify/libtesseract_classify.la \
+    src/dict/libtesseract_dict.la \
+    src/arch/libtesseract_arch.la \
+    src/arch/libtesseract_native.la \
+    src/lstm/libtesseract_lstm.la \
+    src/ccstruct/libtesseract_ccstruct.la \
+    src/cutil/libtesseract_cutil.la \
+    src/viewer/libtesseract_viewer.la \
+    src/ccutil/libtesseract_ccutil.la \
+    src/opencl/libtesseract_opencl.la
+
+if AVX_OPT
+libtesseract_la_LIBADD += src/arch/libtesseract_avx.la
+endif
+if AVX2_OPT
+libtesseract_la_LIBADD += src/arch/libtesseract_avx2.la
+endif
+if FMA_OPT
+libtesseract_la_LIBADD += src/arch/libtesseract_fma.la
+endif
+if SSE41_OPT
+libtesseract_la_LIBADD += src/arch/libtesseract_sse.la
+endif
+
+libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION) $(NOUNDEFINED)
+
+bin_PROGRAMS = tesseract
+tesseract_SOURCES = src/api/tesseractmain.cpp
+tesseract_CPPFLAGS =
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/arch
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/dict
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/viewer
+tesseract_CPPFLAGS += $(AM_CPPFLAGS)
+if VISIBILITY
+tesseract_CPPFLAGS += -DTESS_IMPORTS
+endif
+
+tesseract_LDADD = libtesseract.la
+
+tesseract_LDFLAGS = $(OPENCL_LDFLAGS)
+
+tesseract_LDADD += $(LEPTONICA_LIBS)
+tesseract_LDADD += $(OPENMP_CXXFLAGS)
+tesseract_LDADD += $(TENSORFLOW_LIBS)
+tesseract_LDADD += $(libarchive_LIBS)
+tesseract_LDADD += $(libcurl_LIBS)
+
+if T_WIN
+tesseract_LDADD += -ltiff
+tesseract_LDADD += -lws2_32
+libtesseract_la_LDFLAGS += -no-undefined -Wl,--as-needed -lws2_32
+endif
+if ADD_RT
+tesseract_LDADD += -lrt
+endif
 
 # fuzzer-api is used for fuzzing tests.
 # They are run by OSS-Fuzz https://oss-fuzz.com/, but can also be run locally.
