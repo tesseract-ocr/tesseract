@@ -20,7 +20,7 @@ endif
 
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
-SUBDIRS = src/ccutil src/viewer src/cutil src/opencl
+SUBDIRS = src/viewer src/cutil src/opencl
 SUBDIRS += src/dict src/classify src/wordrec src/textord src/lstm
 SUBDIRS += . tessdata doc unittest
 
@@ -139,20 +139,20 @@ libtesseract_la_SOURCES =
 # Dummy C++ source to cause C++ linking.
 # see http://www.gnu.org/s/hello/manual/automake/Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries
 nodist_EXTRA_libtesseract_la_SOURCES = dummy.cxx
-libtesseract_la_LIBADD = \
-    libtesseract_api.la \
-    libtesseract_ccstruct.la \
-    libtesseract_main.la \
+libtesseract_la_LIBADD = libtesseract_arch.la
+libtesseract_la_LIBADD += libtesseract_api.la
+libtesseract_la_LIBADD += libtesseract_ccstruct.la
+libtesseract_la_LIBADD += libtesseract_ccutil.la
+libtesseract_la_LIBADD += libtesseract_main.la
+libtesseract_la_LIBADD += libtesseract_native.la
+libtesseract_la_LIBADD += \
     src/textord/libtesseract_textord.la \
     src/wordrec/libtesseract_wordrec.la \
     src/classify/libtesseract_classify.la \
     src/dict/libtesseract_dict.la \
-    libtesseract_arch.la \
-    libtesseract_native.la \
     src/lstm/libtesseract_lstm.la \
     src/cutil/libtesseract_cutil.la \
     src/viewer/libtesseract_viewer.la \
-    src/ccutil/libtesseract_ccutil.la \
     src/opencl/libtesseract_opencl.la
 
 if AVX_OPT
@@ -397,6 +397,73 @@ libtesseract_ccstruct_la_SOURCES += src/ccstruct/werd.cpp
 if !DISABLED_LEGACY_ENGINE
 libtesseract_ccstruct_la_SOURCES += src/ccstruct/fontinfo.cpp
 libtesseract_ccstruct_la_SOURCES += src/ccstruct/params_training_featdef.cpp
+endif
+
+# Rules for src/ccutil
+
+libtesseract_ccutil_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_ccutil_la_CPPFLAGS += $(libarchive_CFLAGS)
+if !NO_TESSDATA_PREFIX
+libtesseract_ccutil_la_CPPFLAGS += -DTESSDATA_PREFIX=@datadir@
+endif
+
+noinst_HEADERS += src/ccutil/bits16.h
+noinst_HEADERS += src/ccutil/ccutil.h
+noinst_HEADERS += src/ccutil/clst.h
+noinst_HEADERS += src/ccutil/doubleptr.h
+noinst_HEADERS += src/ccutil/elst2.h
+noinst_HEADERS += src/ccutil/elst.h
+noinst_HEADERS += src/ccutil/errcode.h
+noinst_HEADERS += src/ccutil/fileerr.h
+noinst_HEADERS += src/ccutil/genericheap.h
+noinst_HEADERS += src/ccutil/globaloc.h
+noinst_HEADERS += src/ccutil/host.h
+noinst_HEADERS += src/ccutil/kdpair.h
+noinst_HEADERS += src/ccutil/lsterr.h
+noinst_HEADERS += src/ccutil/object_cache.h
+noinst_HEADERS += src/ccutil/params.h
+noinst_HEADERS += src/ccutil/qrsequence.h
+noinst_HEADERS += src/ccutil/sorthelper.h
+noinst_HEADERS += src/ccutil/scanutils.h
+noinst_HEADERS += src/ccutil/tessdatamanager.h
+noinst_HEADERS += src/ccutil/tprintf.h
+noinst_HEADERS += src/ccutil/unicharcompress.h
+noinst_HEADERS += src/ccutil/unicharmap.h
+noinst_HEADERS += src/ccutil/unicharset.h
+noinst_HEADERS += src/ccutil/unicity_table.h
+noinst_HEADERS += src/ccutil/unicodes.h
+if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += src/ccutil/ambigs.h
+noinst_HEADERS += src/ccutil/bitvector.h
+noinst_HEADERS += src/ccutil/indexmapbidi.h
+noinst_HEADERS += src/ccutil/universalambigs.h
+endif
+
+noinst_LTLIBRARIES += libtesseract_ccutil.la
+
+libtesseract_ccutil_la_SOURCES = src/ccutil/ccutil.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/clst.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/elst2.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/elst.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/errcode.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/globaloc.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/mainblk.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/serialis.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/strngs.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/scanutils.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/tessdatamanager.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/tprintf.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/unichar.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/unicharcompress.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/unicharmap.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/unicharset.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/unicodes.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/params.cpp
+if !DISABLED_LEGACY_ENGINE
+libtesseract_ccutil_la_SOURCES += src/ccutil/ambigs.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/bitvector.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/indexmapbidi.cpp
+libtesseract_ccutil_la_SOURCES += src/ccutil/universalambigs.cpp
 endif
 
 # Rules for tesseract executable.
