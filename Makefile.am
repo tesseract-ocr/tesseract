@@ -21,7 +21,7 @@ endif
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
 SUBDIRS = src/viewer src/cutil src/opencl
-SUBDIRS += src/dict src/classify src/wordrec src/textord src/lstm
+SUBDIRS += src/dict src/wordrec src/textord src/lstm
 SUBDIRS += . tessdata doc unittest
 
 EXTRA_DIST = README.md LICENSE
@@ -143,12 +143,12 @@ libtesseract_la_LIBADD = libtesseract_arch.la
 libtesseract_la_LIBADD += libtesseract_api.la
 libtesseract_la_LIBADD += libtesseract_ccstruct.la
 libtesseract_la_LIBADD += libtesseract_ccutil.la
+libtesseract_la_LIBADD += libtesseract_classify.la
 libtesseract_la_LIBADD += libtesseract_main.la
 libtesseract_la_LIBADD += libtesseract_native.la
 libtesseract_la_LIBADD += \
     src/textord/libtesseract_textord.la \
     src/wordrec/libtesseract_wordrec.la \
-    src/classify/libtesseract_classify.la \
     src/dict/libtesseract_dict.la \
     src/lstm/libtesseract_lstm.la \
     src/cutil/libtesseract_cutil.la \
@@ -464,6 +464,81 @@ libtesseract_ccutil_la_SOURCES += src/ccutil/ambigs.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/bitvector.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/indexmapbidi.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/universalambigs.cpp
+endif
+
+# Rules for src/classify.
+
+libtesseract_classify_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/classify
+libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
+libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/dict
+libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/training
+libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+
+noinst_HEADERS += src/classify/classify.h
+if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += src/classify/adaptive.h
+noinst_HEADERS += src/classify/blobclass.h
+noinst_HEADERS += src/classify/cluster.h
+noinst_HEADERS += src/classify/clusttool.h
+noinst_HEADERS += src/classify/featdefs.h
+noinst_HEADERS += src/classify/float2int.h
+noinst_HEADERS += src/classify/fpoint.h
+noinst_HEADERS += src/classify/intfeaturespace.h
+noinst_HEADERS += src/classify/intfx.h
+noinst_HEADERS += src/classify/intmatcher.h
+noinst_HEADERS += src/classify/intproto.h
+noinst_HEADERS += src/classify/kdtree.h
+noinst_HEADERS += src/classify/mf.h
+noinst_HEADERS += src/classify/mfdefs.h
+noinst_HEADERS += src/classify/mfoutline.h
+noinst_HEADERS += src/classify/mfx.h
+noinst_HEADERS += src/classify/normfeat.h
+noinst_HEADERS += src/classify/normmatch.h
+noinst_HEADERS += src/classify/ocrfeatures.h
+noinst_HEADERS += src/classify/outfeat.h
+noinst_HEADERS += src/classify/picofeat.h
+noinst_HEADERS += src/classify/protos.h
+noinst_HEADERS += src/classify/shapeclassifier.h
+noinst_HEADERS += src/classify/shapetable.h
+noinst_HEADERS += src/classify/tessclassifier.h
+noinst_HEADERS += src/classify/trainingsample.h
+endif
+
+noinst_LTLIBRARIES += libtesseract_classify.la
+
+libtesseract_classify_la_SOURCES = src/classify/classify.cpp
+if !DISABLED_LEGACY_ENGINE
+libtesseract_classify_la_SOURCES += src/classify/adaptive.cpp
+libtesseract_classify_la_SOURCES += src/classify/adaptmatch.cpp
+libtesseract_classify_la_SOURCES += src/classify/blobclass.cpp
+libtesseract_classify_la_SOURCES += src/classify/cluster.cpp
+libtesseract_classify_la_SOURCES += src/classify/clusttool.cpp
+libtesseract_classify_la_SOURCES += src/classify/cutoffs.cpp
+libtesseract_classify_la_SOURCES += src/classify/featdefs.cpp
+libtesseract_classify_la_SOURCES += src/classify/float2int.cpp
+libtesseract_classify_la_SOURCES += src/classify/fpoint.cpp
+libtesseract_classify_la_SOURCES += src/classify/intfeaturespace.cpp
+libtesseract_classify_la_SOURCES += src/classify/intfx.cpp
+libtesseract_classify_la_SOURCES += src/classify/intmatcher.cpp
+libtesseract_classify_la_SOURCES += src/classify/intproto.cpp
+libtesseract_classify_la_SOURCES += src/classify/kdtree.cpp
+libtesseract_classify_la_SOURCES += src/classify/mf.cpp
+libtesseract_classify_la_SOURCES += src/classify/mfdefs.cpp
+libtesseract_classify_la_SOURCES += src/classify/mfoutline.cpp
+libtesseract_classify_la_SOURCES += src/classify/mfx.cpp
+libtesseract_classify_la_SOURCES += src/classify/normfeat.cpp
+libtesseract_classify_la_SOURCES += src/classify/normmatch.cpp
+libtesseract_classify_la_SOURCES += src/classify/ocrfeatures.cpp
+libtesseract_classify_la_SOURCES += src/classify/outfeat.cpp
+libtesseract_classify_la_SOURCES += src/classify/picofeat.cpp
+libtesseract_classify_la_SOURCES += src/classify/protos.cpp
+libtesseract_classify_la_SOURCES += src/classify/shapeclassifier.cpp
+libtesseract_classify_la_SOURCES += src/classify/shapetable.cpp
+libtesseract_classify_la_SOURCES += src/classify/tessclassifier.cpp
+libtesseract_classify_la_SOURCES += src/classify/trainingsample.cpp
 endif
 
 # Rules for tesseract executable.
