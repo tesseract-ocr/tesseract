@@ -39,7 +39,7 @@ config_auto.h
 /include/tesseract/version.h
 
 # executables
-/src/api/tesseract
+/tesseract
 /src/training/ambiguous_words
 /src/training/classifier_tester
 /src/training/cntraining
@@ -64,6 +64,8 @@ config_auto.h
 build/*
 /bin
 */.deps/*
+.dirstamp
+/.libs
 */.libs/*
 */*/.deps/*
 */*/.libs/*
