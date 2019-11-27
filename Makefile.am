@@ -87,7 +87,6 @@ pkginclude_HEADERS += include/tesseract/unichar.h
 noinst_HEADERS =
 noinst_LTLIBRARIES =
 
-AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"
 AM_CPPFLAGS += -I$(top_srcdir)/include
 AM_CPPFLAGS += -I$(top_builddir)/include
 if DISABLED_LEGACY_ENGINE

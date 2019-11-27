@@ -323,8 +323,6 @@ else
     AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
 fi
 
-#localedir='${prefix}/share/locale'
-
 # Always look into a "gnu" directory.
 curwd=`pwd`
 if test -d $curwd/gnu/include ; then
