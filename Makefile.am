@@ -89,9 +89,6 @@ noinst_LTLIBRARIES =
 
 AM_CPPFLAGS += -I$(top_srcdir)/include
 AM_CPPFLAGS += -I$(top_builddir)/include
-if DISABLED_LEGACY_ENGINE
-AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
-endif
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS
 AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
@@ -102,77 +99,61 @@ AM_CXXFLAGS = $(OPENMP_CXXFLAGS)
 
 # Rules for src/api.
 
-libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS)
-libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/arch
-libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/ccmain
-libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
-libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/classify
-libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
-libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/dict
-libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
-libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/textord
-libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
-libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
-libtesseract_api_la_CPPFLAGS += $(libcurl_CFLAGS)
-
-noinst_LTLIBRARIES += libtesseract_api.la
-
-libtesseract_api_la_SOURCES = src/api/baseapi.cpp
-libtesseract_api_la_SOURCES += src/api/altorenderer.cpp
-libtesseract_api_la_SOURCES += src/api/capi.cpp
-libtesseract_api_la_SOURCES += src/api/hocrrenderer.cpp
-libtesseract_api_la_SOURCES += src/api/lstmboxrenderer.cpp
-libtesseract_api_la_SOURCES += src/api/pdfrenderer.cpp
-libtesseract_api_la_SOURCES += src/api/renderer.cpp
-libtesseract_api_la_SOURCES += src/api/wordstrboxrenderer.cpp
+libtesseract_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/arch
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/ccmain
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/classify
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/dict
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/lstm
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/textord
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/training
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
+libtesseract_la_CPPFLAGS += $(libcurl_CFLAGS)
 
 lib_LTLIBRARIES = libtesseract.la
-libtesseract_la_LDFLAGS = $(LEPTONICA_LIBS) $(OPENCL_LDFLAGS) $(libarchive_LIBS)
+libtesseract_la_LDFLAGS = $(LEPTONICA_LIBS) $(OPENCL_LDFLAGS)
+libtesseract_la_LDFLAGS += $(libarchive_LIBS)
 libtesseract_la_LDFLAGS += $(libcurl_LIBS)
 libtesseract_la_LDFLAGS += $(TENSORFLOW_LIBS)
-libtesseract_la_SOURCES =
-# Dummy C++ source to cause C++ linking.
-# see http://www.gnu.org/s/hello/manual/automake/Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries
-nodist_EXTRA_libtesseract_la_SOURCES = dummy.cxx
-libtesseract_la_LIBADD = libtesseract_arch.la
-libtesseract_la_LIBADD += libtesseract_api.la
-libtesseract_la_LIBADD += libtesseract_ccstruct.la
-libtesseract_la_LIBADD += libtesseract_ccutil.la
-libtesseract_la_LIBADD += libtesseract_classify.la
-libtesseract_la_LIBADD += libtesseract_cutil.la
-libtesseract_la_LIBADD += libtesseract_dict.la
+if T_WIN
+libtesseract_la_LDFLAGS += -no-undefined -Wl,--as-needed -lws2_32
+else
+libtesseract_la_LDFLAGS += $(NOUNDEFINED)
+endif
+libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION)
+
+libtesseract_la_SOURCES = src/api/baseapi.cpp
+libtesseract_la_SOURCES += src/api/altorenderer.cpp
+libtesseract_la_SOURCES += src/api/capi.cpp
+libtesseract_la_SOURCES += src/api/hocrrenderer.cpp
+libtesseract_la_SOURCES += src/api/lstmboxrenderer.cpp
+libtesseract_la_SOURCES += src/api/pdfrenderer.cpp
+libtesseract_la_SOURCES += src/api/renderer.cpp
+libtesseract_la_SOURCES += src/api/wordstrboxrenderer.cpp
+
+libtesseract_la_LIBADD = libtesseract_ccutil.la
 libtesseract_la_LIBADD += libtesseract_lstm.la
-libtesseract_la_LIBADD += libtesseract_main.la
 libtesseract_la_LIBADD += libtesseract_native.la
 libtesseract_la_LIBADD += libtesseract_opencl.la
-libtesseract_la_LIBADD += libtesseract_textord.la
-libtesseract_la_LIBADD += libtesseract_viewer.la
-libtesseract_la_LIBADD += libtesseract_wordrec.la
-
-libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION) $(NOUNDEFINED)
 
 # Rules for src/arch.
-
-libtesseract_arch_la_CPPFLAGS = $(AM_CPPFLAGS)
-libtesseract_arch_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
-libtesseract_arch_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_arch_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
 
 noinst_HEADERS += src/arch/dotproduct.h
 noinst_HEADERS += src/arch/intsimdmatrix.h
 noinst_HEADERS += src/arch/simddetect.h
 
 noinst_LTLIBRARIES += libtesseract_native.la
-noinst_LTLIBRARIES += libtesseract_arch.la
 
 libtesseract_native_la_CXXFLAGS = -O3 -ffast-math
 if MARCH_NATIVE_OPT
 libtesseract_native_la_CXXFLAGS += -march=native -mtune=native
 endif
 libtesseract_native_la_SOURCES = src/arch/dotproduct.cpp
-
-libtesseract_arch_la_SOURCES = src/arch/intsimdmatrix.cpp src/arch/simddetect.cpp
 
 if HAVE_AVX
 libtesseract_avx_la_CXXFLAGS = -mavx
@@ -202,20 +183,10 @@ libtesseract_la_LIBADD += libtesseract_sse.la
 noinst_LTLIBRARIES += libtesseract_sse.la
 endif
 
-# Rules for src/ccmain.
+libtesseract_la_SOURCES += src/arch/intsimdmatrix.cpp
+libtesseract_la_SOURCES += src/arch/simddetect.cpp
 
-libtesseract_main_la_CPPFLAGS = $(AM_CPPFLAGS)
-libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
-libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/arch
-libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/lstm
-libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
-libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/classify
-libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/dict
-libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
-libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
-libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/textord
-libtesseract_main_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
+# Rules for src/ccmain.
 
 noinst_HEADERS += src/ccmain/control.h
 noinst_HEADERS += src/ccmain/equationdetect.h
@@ -234,51 +205,40 @@ noinst_HEADERS += src/ccmain/fixspace.h
 noinst_HEADERS += src/ccmain/reject.h
 endif
 
-noinst_LTLIBRARIES += libtesseract_main.la
-
-libtesseract_main_la_SOURCES = src/ccmain/applybox.cpp
-libtesseract_main_la_SOURCES += src/ccmain/control.cpp
-libtesseract_main_la_SOURCES += src/ccmain/linerec.cpp
-libtesseract_main_la_SOURCES += src/ccmain/ltrresultiterator.cpp
-libtesseract_main_la_SOURCES += src/ccmain/mutableiterator.cpp
-libtesseract_main_la_SOURCES += src/ccmain/output.cpp
-libtesseract_main_la_SOURCES += src/ccmain/pageiterator.cpp
-libtesseract_main_la_SOURCES += src/ccmain/pagesegmain.cpp
-libtesseract_main_la_SOURCES += src/ccmain/pagewalk.cpp
-libtesseract_main_la_SOURCES += src/ccmain/paragraphs.cpp
-libtesseract_main_la_SOURCES += src/ccmain/paramsd.cpp
-libtesseract_main_la_SOURCES += src/ccmain/pgedit.cpp
-libtesseract_main_la_SOURCES += src/ccmain/reject.cpp
-libtesseract_main_la_SOURCES += src/ccmain/resultiterator.cpp
-libtesseract_main_la_SOURCES += src/ccmain/tessedit.cpp
-libtesseract_main_la_SOURCES += src/ccmain/tesseractclass.cpp
-libtesseract_main_la_SOURCES += src/ccmain/tessvars.cpp
-libtesseract_main_la_SOURCES += src/ccmain/thresholder.cpp
-libtesseract_main_la_SOURCES += src/ccmain/werdit.cpp
+libtesseract_la_SOURCES += src/ccmain/applybox.cpp
+libtesseract_la_SOURCES += src/ccmain/control.cpp
+libtesseract_la_SOURCES += src/ccmain/linerec.cpp
+libtesseract_la_SOURCES += src/ccmain/ltrresultiterator.cpp
+libtesseract_la_SOURCES += src/ccmain/mutableiterator.cpp
+libtesseract_la_SOURCES += src/ccmain/output.cpp
+libtesseract_la_SOURCES += src/ccmain/pageiterator.cpp
+libtesseract_la_SOURCES += src/ccmain/pagesegmain.cpp
+libtesseract_la_SOURCES += src/ccmain/pagewalk.cpp
+libtesseract_la_SOURCES += src/ccmain/paragraphs.cpp
+libtesseract_la_SOURCES += src/ccmain/paramsd.cpp
+libtesseract_la_SOURCES += src/ccmain/pgedit.cpp
+libtesseract_la_SOURCES += src/ccmain/reject.cpp
+libtesseract_la_SOURCES += src/ccmain/resultiterator.cpp
+libtesseract_la_SOURCES += src/ccmain/tessedit.cpp
+libtesseract_la_SOURCES += src/ccmain/tesseractclass.cpp
+libtesseract_la_SOURCES += src/ccmain/tessvars.cpp
+libtesseract_la_SOURCES += src/ccmain/thresholder.cpp
+libtesseract_la_SOURCES += src/ccmain/werdit.cpp
 if !DISABLED_LEGACY_ENGINE
-libtesseract_main_la_SOURCES += src/ccmain/adaptions.cpp
-libtesseract_main_la_SOURCES += src/ccmain/docqual.cpp
-libtesseract_main_la_SOURCES += src/ccmain/equationdetect.cpp
-libtesseract_main_la_SOURCES += src/ccmain/fixspace.cpp
-libtesseract_main_la_SOURCES += src/ccmain/fixxht.cpp
-libtesseract_main_la_SOURCES += src/ccmain/osdetect.cpp
-libtesseract_main_la_SOURCES += src/ccmain/par_control.cpp
-libtesseract_main_la_SOURCES += src/ccmain/recogtraining.cpp
-libtesseract_main_la_SOURCES += src/ccmain/superscript.cpp
-libtesseract_main_la_SOURCES += src/ccmain/tessbox.cpp
-libtesseract_main_la_SOURCES += src/ccmain/tfacepp.cpp
+libtesseract_la_SOURCES += src/ccmain/adaptions.cpp
+libtesseract_la_SOURCES += src/ccmain/docqual.cpp
+libtesseract_la_SOURCES += src/ccmain/equationdetect.cpp
+libtesseract_la_SOURCES += src/ccmain/fixspace.cpp
+libtesseract_la_SOURCES += src/ccmain/fixxht.cpp
+libtesseract_la_SOURCES += src/ccmain/osdetect.cpp
+libtesseract_la_SOURCES += src/ccmain/par_control.cpp
+libtesseract_la_SOURCES += src/ccmain/recogtraining.cpp
+libtesseract_la_SOURCES += src/ccmain/superscript.cpp
+libtesseract_la_SOURCES += src/ccmain/tessbox.cpp
+libtesseract_la_SOURCES += src/ccmain/tfacepp.cpp
 endif
 
 # Rules for src/ccstruct.
-
-libtesseract_ccstruct_la_CPPFLAGS = $(AM_CPPFLAGS)
-libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
-libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
-libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/dict
-libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
-libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
-libtesseract_ccstruct_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 
 noinst_HEADERS += src/ccstruct/blamer.h
 noinst_HEADERS += src/ccstruct/blobbox.h
@@ -322,46 +282,44 @@ noinst_HEADERS += src/ccstruct/fontinfo.h
 noinst_HEADERS += src/ccstruct/params_training_featdef.h
 endif
 
-noinst_LTLIBRARIES += libtesseract_ccstruct.la
-
-libtesseract_ccstruct_la_SOURCES = src/ccstruct/blamer.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/blobbox.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/blobs.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/blread.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/boxread.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/boxword.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/ccstruct.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/coutln.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/detlinefit.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/dppoint.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/imagedata.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/linlsq.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/matrix.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/mod128.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/normalis.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/ocrblock.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/ocrpara.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/ocrrow.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/otsuthr.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/pageres.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/pdblock.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/points.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/polyaprx.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/polyblk.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/quadlsq.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/quspline.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/ratngs.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/rect.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/rejctmap.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/seam.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/split.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/statistc.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/stepblob.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/werd.cpp
+libtesseract_la_SOURCES += src/ccstruct/blamer.cpp
+libtesseract_la_SOURCES += src/ccstruct/blobbox.cpp
+libtesseract_la_SOURCES += src/ccstruct/blobs.cpp
+libtesseract_la_SOURCES += src/ccstruct/blread.cpp
+libtesseract_la_SOURCES += src/ccstruct/boxread.cpp
+libtesseract_la_SOURCES += src/ccstruct/boxword.cpp
+libtesseract_la_SOURCES += src/ccstruct/ccstruct.cpp
+libtesseract_la_SOURCES += src/ccstruct/coutln.cpp
+libtesseract_la_SOURCES += src/ccstruct/detlinefit.cpp
+libtesseract_la_SOURCES += src/ccstruct/dppoint.cpp
+libtesseract_la_SOURCES += src/ccstruct/imagedata.cpp
+libtesseract_la_SOURCES += src/ccstruct/linlsq.cpp
+libtesseract_la_SOURCES += src/ccstruct/matrix.cpp
+libtesseract_la_SOURCES += src/ccstruct/mod128.cpp
+libtesseract_la_SOURCES += src/ccstruct/normalis.cpp
+libtesseract_la_SOURCES += src/ccstruct/ocrblock.cpp
+libtesseract_la_SOURCES += src/ccstruct/ocrpara.cpp
+libtesseract_la_SOURCES += src/ccstruct/ocrrow.cpp
+libtesseract_la_SOURCES += src/ccstruct/otsuthr.cpp
+libtesseract_la_SOURCES += src/ccstruct/pageres.cpp
+libtesseract_la_SOURCES += src/ccstruct/pdblock.cpp
+libtesseract_la_SOURCES += src/ccstruct/points.cpp
+libtesseract_la_SOURCES += src/ccstruct/polyaprx.cpp
+libtesseract_la_SOURCES += src/ccstruct/polyblk.cpp
+libtesseract_la_SOURCES += src/ccstruct/quadlsq.cpp
+libtesseract_la_SOURCES += src/ccstruct/quspline.cpp
+libtesseract_la_SOURCES += src/ccstruct/ratngs.cpp
+libtesseract_la_SOURCES += src/ccstruct/rect.cpp
+libtesseract_la_SOURCES += src/ccstruct/rejctmap.cpp
+libtesseract_la_SOURCES += src/ccstruct/seam.cpp
+libtesseract_la_SOURCES += src/ccstruct/split.cpp
+libtesseract_la_SOURCES += src/ccstruct/statistc.cpp
+libtesseract_la_SOURCES += src/ccstruct/stepblob.cpp
+libtesseract_la_SOURCES += src/ccstruct/werd.cpp
 
 if !DISABLED_LEGACY_ENGINE
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/fontinfo.cpp
-libtesseract_ccstruct_la_SOURCES += src/ccstruct/params_training_featdef.cpp
+libtesseract_la_SOURCES += src/ccstruct/fontinfo.cpp
+libtesseract_la_SOURCES += src/ccstruct/params_training_featdef.cpp
 endif
 
 # Rules for src/ccutil
@@ -433,15 +391,6 @@ endif
 
 # Rules for src/classify.
 
-libtesseract_classify_la_CPPFLAGS = $(AM_CPPFLAGS)
-libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
-libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/classify
-libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
-libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/dict
-libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/training
-libtesseract_classify_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
-
 noinst_HEADERS += src/classify/classify.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/classify/adaptive.h
@@ -472,45 +421,39 @@ noinst_HEADERS += src/classify/tessclassifier.h
 noinst_HEADERS += src/classify/trainingsample.h
 endif
 
-noinst_LTLIBRARIES += libtesseract_classify.la
-
-libtesseract_classify_la_SOURCES = src/classify/classify.cpp
+libtesseract_la_SOURCES += src/classify/classify.cpp
 if !DISABLED_LEGACY_ENGINE
-libtesseract_classify_la_SOURCES += src/classify/adaptive.cpp
-libtesseract_classify_la_SOURCES += src/classify/adaptmatch.cpp
-libtesseract_classify_la_SOURCES += src/classify/blobclass.cpp
-libtesseract_classify_la_SOURCES += src/classify/cluster.cpp
-libtesseract_classify_la_SOURCES += src/classify/clusttool.cpp
-libtesseract_classify_la_SOURCES += src/classify/cutoffs.cpp
-libtesseract_classify_la_SOURCES += src/classify/featdefs.cpp
-libtesseract_classify_la_SOURCES += src/classify/float2int.cpp
-libtesseract_classify_la_SOURCES += src/classify/fpoint.cpp
-libtesseract_classify_la_SOURCES += src/classify/intfeaturespace.cpp
-libtesseract_classify_la_SOURCES += src/classify/intfx.cpp
-libtesseract_classify_la_SOURCES += src/classify/intmatcher.cpp
-libtesseract_classify_la_SOURCES += src/classify/intproto.cpp
-libtesseract_classify_la_SOURCES += src/classify/kdtree.cpp
-libtesseract_classify_la_SOURCES += src/classify/mf.cpp
-libtesseract_classify_la_SOURCES += src/classify/mfdefs.cpp
-libtesseract_classify_la_SOURCES += src/classify/mfoutline.cpp
-libtesseract_classify_la_SOURCES += src/classify/mfx.cpp
-libtesseract_classify_la_SOURCES += src/classify/normfeat.cpp
-libtesseract_classify_la_SOURCES += src/classify/normmatch.cpp
-libtesseract_classify_la_SOURCES += src/classify/ocrfeatures.cpp
-libtesseract_classify_la_SOURCES += src/classify/outfeat.cpp
-libtesseract_classify_la_SOURCES += src/classify/picofeat.cpp
-libtesseract_classify_la_SOURCES += src/classify/protos.cpp
-libtesseract_classify_la_SOURCES += src/classify/shapeclassifier.cpp
-libtesseract_classify_la_SOURCES += src/classify/shapetable.cpp
-libtesseract_classify_la_SOURCES += src/classify/tessclassifier.cpp
-libtesseract_classify_la_SOURCES += src/classify/trainingsample.cpp
+libtesseract_la_SOURCES += src/classify/adaptive.cpp
+libtesseract_la_SOURCES += src/classify/adaptmatch.cpp
+libtesseract_la_SOURCES += src/classify/blobclass.cpp
+libtesseract_la_SOURCES += src/classify/cluster.cpp
+libtesseract_la_SOURCES += src/classify/clusttool.cpp
+libtesseract_la_SOURCES += src/classify/cutoffs.cpp
+libtesseract_la_SOURCES += src/classify/featdefs.cpp
+libtesseract_la_SOURCES += src/classify/float2int.cpp
+libtesseract_la_SOURCES += src/classify/fpoint.cpp
+libtesseract_la_SOURCES += src/classify/intfeaturespace.cpp
+libtesseract_la_SOURCES += src/classify/intfx.cpp
+libtesseract_la_SOURCES += src/classify/intmatcher.cpp
+libtesseract_la_SOURCES += src/classify/intproto.cpp
+libtesseract_la_SOURCES += src/classify/kdtree.cpp
+libtesseract_la_SOURCES += src/classify/mf.cpp
+libtesseract_la_SOURCES += src/classify/mfdefs.cpp
+libtesseract_la_SOURCES += src/classify/mfoutline.cpp
+libtesseract_la_SOURCES += src/classify/mfx.cpp
+libtesseract_la_SOURCES += src/classify/normfeat.cpp
+libtesseract_la_SOURCES += src/classify/normmatch.cpp
+libtesseract_la_SOURCES += src/classify/ocrfeatures.cpp
+libtesseract_la_SOURCES += src/classify/outfeat.cpp
+libtesseract_la_SOURCES += src/classify/picofeat.cpp
+libtesseract_la_SOURCES += src/classify/protos.cpp
+libtesseract_la_SOURCES += src/classify/shapeclassifier.cpp
+libtesseract_la_SOURCES += src/classify/shapetable.cpp
+libtesseract_la_SOURCES += src/classify/tessclassifier.cpp
+libtesseract_la_SOURCES += src/classify/trainingsample.cpp
 endif
 
 # Rules for src/cutil.
-
-libtesseract_cutil_la_CPPFLAGS = $(AM_CPPFLAGS)
-libtesseract_cutil_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_cutil_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
 
 noinst_HEADERS += src/cutil/callcpp.h
 if !DISABLED_LEGACY_ENGINE
@@ -519,21 +462,13 @@ noinst_HEADERS += src/cutil/emalloc.h
 noinst_HEADERS += src/cutil/oldlist.h
 endif
 
-noinst_LTLIBRARIES += libtesseract_cutil.la
-
-libtesseract_cutil_la_SOURCES = src/cutil/callcpp.cpp
+libtesseract_la_SOURCES += src/cutil/callcpp.cpp
 if !DISABLED_LEGACY_ENGINE
-libtesseract_cutil_la_SOURCES += src/cutil/emalloc.cpp
-libtesseract_cutil_la_SOURCES += src/cutil/oldlist.cpp
+libtesseract_la_SOURCES += src/cutil/emalloc.cpp
+libtesseract_la_SOURCES += src/cutil/oldlist.cpp
 endif
 
 # Rules for src/dict.
-
-libtesseract_dict_la_CPPFLAGS = $(AM_CPPFLAGS)
-libtesseract_dict_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
-libtesseract_dict_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_dict_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
-libtesseract_dict_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
 
 noinst_HEADERS += src/dict/dawg.h
 noinst_HEADERS += src/dict/dawg_cache.h
@@ -542,17 +477,15 @@ noinst_HEADERS += src/dict/matchdefs.h
 noinst_HEADERS += src/dict/stopper.h
 noinst_HEADERS += src/dict/trie.h
 
-noinst_LTLIBRARIES += libtesseract_dict.la
-
-libtesseract_dict_la_SOURCES = src/dict/context.cpp
-libtesseract_dict_la_SOURCES += src/dict/dawg.cpp
-libtesseract_dict_la_SOURCES += src/dict/dawg_cache.cpp
-libtesseract_dict_la_SOURCES += src/dict/dict.cpp
-libtesseract_dict_la_SOURCES += src/dict/permdawg.cpp
-libtesseract_dict_la_SOURCES += src/dict/stopper.cpp
-libtesseract_dict_la_SOURCES += src/dict/trie.cpp
+libtesseract_la_SOURCES += src/dict/context.cpp
+libtesseract_la_SOURCES += src/dict/dawg.cpp
+libtesseract_la_SOURCES += src/dict/dawg_cache.cpp
+libtesseract_la_SOURCES += src/dict/dict.cpp
+libtesseract_la_SOURCES += src/dict/permdawg.cpp
+libtesseract_la_SOURCES += src/dict/stopper.cpp
+libtesseract_la_SOURCES += src/dict/trie.cpp
 if !DISABLED_LEGACY_ENGINE
-libtesseract_dict_la_SOURCES += src/dict/hyphen.cpp
+libtesseract_la_SOURCES += src/dict/hyphen.cpp
 endif
 
 # Rules for src/lstm.
@@ -636,19 +569,6 @@ libtesseract_opencl_la_SOURCES = src/opencl/openclwrapper.cpp
 
 # Rules for src/textord.
 
-libtesseract_textord_la_CPPFLAGS = $(AM_CPPFLAGS)
-libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/include
-libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
-libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
-libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/ccmain
-libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
-libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/api
-libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
-libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/classify
-libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/dict
-libtesseract_textord_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
-
 noinst_HEADERS += src/textord/alignedblob.h
 noinst_HEADERS += src/textord/baselinedetect.h
 noinst_HEADERS += src/textord/bbgrid.h
@@ -691,78 +611,62 @@ if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/textord/equationdetectbase.h
 endif
 
-noinst_LTLIBRARIES += libtesseract_textord.la
-
-libtesseract_textord_la_SOURCES = src/textord/alignedblob.cpp
-libtesseract_textord_la_SOURCES += src/textord/baselinedetect.cpp
-libtesseract_textord_la_SOURCES += src/textord/bbgrid.cpp
-libtesseract_textord_la_SOURCES += src/textord/blkocc.cpp
-libtesseract_textord_la_SOURCES += src/textord/blobgrid.cpp
-libtesseract_textord_la_SOURCES += src/textord/ccnontextdetect.cpp
-libtesseract_textord_la_SOURCES += src/textord/cjkpitch.cpp
-libtesseract_textord_la_SOURCES += src/textord/colfind.cpp
-libtesseract_textord_la_SOURCES += src/textord/colpartition.cpp
-libtesseract_textord_la_SOURCES += src/textord/colpartitionset.cpp
-libtesseract_textord_la_SOURCES += src/textord/colpartitiongrid.cpp
-libtesseract_textord_la_SOURCES += src/textord/devanagari_processing.cpp
-libtesseract_textord_la_SOURCES += src/textord/drawtord.cpp
-libtesseract_textord_la_SOURCES += src/textord/edgblob.cpp
-libtesseract_textord_la_SOURCES += src/textord/edgloop.cpp
-libtesseract_textord_la_SOURCES += src/textord/fpchop.cpp
-libtesseract_textord_la_SOURCES += src/textord/gap_map.cpp
-libtesseract_textord_la_SOURCES += src/textord/imagefind.cpp
-libtesseract_textord_la_SOURCES += src/textord/linefind.cpp
-libtesseract_textord_la_SOURCES += src/textord/makerow.cpp
-libtesseract_textord_la_SOURCES += src/textord/oldbasel.cpp
-libtesseract_textord_la_SOURCES += src/textord/pithsync.cpp
-libtesseract_textord_la_SOURCES += src/textord/pitsync1.cpp
-libtesseract_textord_la_SOURCES += src/textord/scanedg.cpp
-libtesseract_textord_la_SOURCES += src/textord/sortflts.cpp
-libtesseract_textord_la_SOURCES += src/textord/strokewidth.cpp
-libtesseract_textord_la_SOURCES += src/textord/tabfind.cpp
-libtesseract_textord_la_SOURCES += src/textord/tablefind.cpp
-libtesseract_textord_la_SOURCES += src/textord/tabvector.cpp
-libtesseract_textord_la_SOURCES += src/textord/tablerecog.cpp
-libtesseract_textord_la_SOURCES += src/textord/textlineprojection.cpp
-libtesseract_textord_la_SOURCES += src/textord/textord.cpp
-libtesseract_textord_la_SOURCES += src/textord/topitch.cpp
-libtesseract_textord_la_SOURCES += src/textord/tordmain.cpp
-libtesseract_textord_la_SOURCES += src/textord/tospace.cpp
-libtesseract_textord_la_SOURCES += src/textord/tovars.cpp
-libtesseract_textord_la_SOURCES += src/textord/underlin.cpp
-libtesseract_textord_la_SOURCES += src/textord/wordseg.cpp
-libtesseract_textord_la_SOURCES += src/textord/workingpartset.cpp
+libtesseract_la_SOURCES += src/textord/alignedblob.cpp
+libtesseract_la_SOURCES += src/textord/baselinedetect.cpp
+libtesseract_la_SOURCES += src/textord/bbgrid.cpp
+libtesseract_la_SOURCES += src/textord/blkocc.cpp
+libtesseract_la_SOURCES += src/textord/blobgrid.cpp
+libtesseract_la_SOURCES += src/textord/ccnontextdetect.cpp
+libtesseract_la_SOURCES += src/textord/cjkpitch.cpp
+libtesseract_la_SOURCES += src/textord/colfind.cpp
+libtesseract_la_SOURCES += src/textord/colpartition.cpp
+libtesseract_la_SOURCES += src/textord/colpartitionset.cpp
+libtesseract_la_SOURCES += src/textord/colpartitiongrid.cpp
+libtesseract_la_SOURCES += src/textord/devanagari_processing.cpp
+libtesseract_la_SOURCES += src/textord/drawtord.cpp
+libtesseract_la_SOURCES += src/textord/edgblob.cpp
+libtesseract_la_SOURCES += src/textord/edgloop.cpp
+libtesseract_la_SOURCES += src/textord/fpchop.cpp
+libtesseract_la_SOURCES += src/textord/gap_map.cpp
+libtesseract_la_SOURCES += src/textord/imagefind.cpp
+libtesseract_la_SOURCES += src/textord/linefind.cpp
+libtesseract_la_SOURCES += src/textord/makerow.cpp
+libtesseract_la_SOURCES += src/textord/oldbasel.cpp
+libtesseract_la_SOURCES += src/textord/pithsync.cpp
+libtesseract_la_SOURCES += src/textord/pitsync1.cpp
+libtesseract_la_SOURCES += src/textord/scanedg.cpp
+libtesseract_la_SOURCES += src/textord/sortflts.cpp
+libtesseract_la_SOURCES += src/textord/strokewidth.cpp
+libtesseract_la_SOURCES += src/textord/tabfind.cpp
+libtesseract_la_SOURCES += src/textord/tablefind.cpp
+libtesseract_la_SOURCES += src/textord/tabvector.cpp
+libtesseract_la_SOURCES += src/textord/tablerecog.cpp
+libtesseract_la_SOURCES += src/textord/textlineprojection.cpp
+libtesseract_la_SOURCES += src/textord/textord.cpp
+libtesseract_la_SOURCES += src/textord/topitch.cpp
+libtesseract_la_SOURCES += src/textord/tordmain.cpp
+libtesseract_la_SOURCES += src/textord/tospace.cpp
+libtesseract_la_SOURCES += src/textord/tovars.cpp
+libtesseract_la_SOURCES += src/textord/underlin.cpp
+libtesseract_la_SOURCES += src/textord/wordseg.cpp
+libtesseract_la_SOURCES += src/textord/workingpartset.cpp
 if !DISABLED_LEGACY_ENGINE
-libtesseract_textord_la_SOURCES += src/textord/equationdetectbase.cpp
+libtesseract_la_SOURCES += src/textord/equationdetectbase.cpp
 endif
 
 # Rules for src/viewer.
-
-libtesseract_viewer_la_CPPFLAGS = $(AM_CPPFLAGS)
-libtesseract_viewer_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
 
 noinst_HEADERS += src/viewer/scrollview.h
 noinst_HEADERS += src/viewer/svmnode.h
 noinst_HEADERS += src/viewer/svutil.h
 
-noinst_LTLIBRARIES += libtesseract_viewer.la
-
-libtesseract_viewer_la_SOURCES = src/viewer/scrollview.cpp
-libtesseract_viewer_la_SOURCES += src/viewer/svmnode.cpp
-libtesseract_viewer_la_SOURCES += src/viewer/svutil.cpp
+libtesseract_la_SOURCES += src/viewer/scrollview.cpp
+libtesseract_la_SOURCES += src/viewer/svmnode.cpp
+libtesseract_la_SOURCES += src/viewer/svutil.cpp
 
 # TODO: Add rule to generate svpaint from svpaint.cpp.
 
 # Rules for src/wordrec.
-
-libtesseract_wordrec_la_CPPFLAGS = $(AM_CPPFLAGS)
-libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/include
-libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
-libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
-libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/classify
-libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/dict
-libtesseract_wordrec_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
 
 noinst_HEADERS += src/wordrec/wordrec.h
 if !DISABLED_LEGACY_ENGINE
@@ -781,28 +685,26 @@ noinst_HEADERS += src/wordrec/plotedges.h
 noinst_HEADERS += src/wordrec/render.h
 endif
 
-noinst_LTLIBRARIES += libtesseract_wordrec.la
-
-libtesseract_wordrec_la_SOURCES = src/wordrec/tface.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/wordrec.cpp
+libtesseract_la_SOURCES += src/wordrec/tface.cpp
+libtesseract_la_SOURCES += src/wordrec/wordrec.cpp
 if !DISABLED_LEGACY_ENGINE
-libtesseract_wordrec_la_SOURCES += src/wordrec/associate.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/chop.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/chopper.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/drawfx.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/findseam.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/gradechop.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/language_model.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/lm_consistency.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/lm_pain_points.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/lm_state.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/outlines.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/params_model.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/pieces.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/plotedges.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/render.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/segsearch.cpp
-libtesseract_wordrec_la_SOURCES += src/wordrec/wordclass.cpp
+libtesseract_la_SOURCES += src/wordrec/associate.cpp
+libtesseract_la_SOURCES += src/wordrec/chop.cpp
+libtesseract_la_SOURCES += src/wordrec/chopper.cpp
+libtesseract_la_SOURCES += src/wordrec/drawfx.cpp
+libtesseract_la_SOURCES += src/wordrec/findseam.cpp
+libtesseract_la_SOURCES += src/wordrec/gradechop.cpp
+libtesseract_la_SOURCES += src/wordrec/language_model.cpp
+libtesseract_la_SOURCES += src/wordrec/lm_consistency.cpp
+libtesseract_la_SOURCES += src/wordrec/lm_pain_points.cpp
+libtesseract_la_SOURCES += src/wordrec/lm_state.cpp
+libtesseract_la_SOURCES += src/wordrec/outlines.cpp
+libtesseract_la_SOURCES += src/wordrec/params_model.cpp
+libtesseract_la_SOURCES += src/wordrec/pieces.cpp
+libtesseract_la_SOURCES += src/wordrec/plotedges.cpp
+libtesseract_la_SOURCES += src/wordrec/render.cpp
+libtesseract_la_SOURCES += src/wordrec/segsearch.cpp
+libtesseract_la_SOURCES += src/wordrec/wordclass.cpp
 endif
 
 # Rules for tesseract executable.
@@ -832,7 +734,6 @@ tesseract_LDADD += $(libcurl_LIBS)
 if T_WIN
 tesseract_LDADD += -ltiff
 tesseract_LDADD += -lws2_32
-libtesseract_la_LDFLAGS += -no-undefined -Wl,--as-needed -lws2_32
 endif
 if ADD_RT
 tesseract_LDADD += -lrt
