@@ -323,8 +323,6 @@ else
     AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
 fi
 
-#localedir='${prefix}/share/locale'
-
 # Always look into a "gnu" directory.
 curwd=`pwd`
 if test -d $curwd/gnu/include ; then
@@ -488,19 +486,6 @@ fi
 # Output files
 AC_CONFIG_FILES([include/tesseract/version.h])
 AC_CONFIG_FILES([Makefile tesseract.pc])
-AC_CONFIG_FILES([src/api/Makefile])
-AC_CONFIG_FILES([src/arch/Makefile])
-AC_CONFIG_FILES([src/ccmain/Makefile])
-AC_CONFIG_FILES([src/opencl/Makefile])
-AC_CONFIG_FILES([src/ccstruct/Makefile])
-AC_CONFIG_FILES([src/ccutil/Makefile])
-AC_CONFIG_FILES([src/classify/Makefile])
-AC_CONFIG_FILES([src/cutil/Makefile])
-AC_CONFIG_FILES([src/dict/Makefile])
-AC_CONFIG_FILES([src/lstm/Makefile])
-AC_CONFIG_FILES([src/textord/Makefile])
-AC_CONFIG_FILES([src/viewer/Makefile])
-AC_CONFIG_FILES([src/wordrec/Makefile])
 AC_CONFIG_FILES([tessdata/Makefile])
 AC_CONFIG_FILES([tessdata/configs/Makefile])
 AC_CONFIG_FILES([tessdata/tessconfigs/Makefile])

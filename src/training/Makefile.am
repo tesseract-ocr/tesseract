@@ -69,10 +69,6 @@ endif
 
 noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
-libtesseract_training_la_LIBADD = \
-    ../cutil/libtesseract_cutil.la
-#    ../api/libtesseract.la
-
 libtesseract_training_la_SOURCES = \
     boxchar.cpp \
     commandlineflags.cpp \
@@ -137,7 +133,7 @@ ambiguous_words_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la
 ambiguous_words_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 classifier_tester_SOURCES = classifier_tester.cpp
 #classifier_tester_LDFLAGS = -static
@@ -145,7 +141,7 @@ classifier_tester_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la
 classifier_tester_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 cntraining_SOURCES = cntraining.cpp
 #cntraining_LDFLAGS = -static
@@ -153,7 +149,7 @@ cntraining_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la
 cntraining_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 mftraining_SOURCES = mftraining.cpp mergenf.cpp
 #mftraining_LDFLAGS = -static
@@ -162,7 +158,7 @@ mftraining_LDADD = \
     libtesseract_tessopt.la \
     $(ICU_UC_LIBS)
 mftraining_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 shapeclustering_SOURCES = shapeclustering.cpp
 #shapeclustering_LDFLAGS = -static
@@ -170,7 +166,7 @@ shapeclustering_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la
 shapeclustering_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 endif
 
 combine_lang_model_SOURCES = combine_lang_model.cpp
@@ -180,19 +176,19 @@ combine_lang_model_LDADD = \
     libtesseract_tessopt.la \
     $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 combine_lang_model_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 combine_tessdata_SOURCES = combine_tessdata.cpp
 #combine_tessdata_LDFLAGS = -static
 combine_tessdata_LDADD = \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 dawg2wordlist_SOURCES = dawg2wordlist.cpp
 #dawg2wordlist_LDFLAGS = -static
 dawg2wordlist_LDADD = \
     libtesseract_tessopt.la
 dawg2wordlist_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 lstmeval_SOURCES = lstmeval.cpp
 #lstmeval_LDFLAGS = -static
@@ -201,7 +197,7 @@ lstmeval_LDADD = \
     libtesseract_tessopt.la \
     $(ICU_UC_LIBS)
 lstmeval_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 lstmtraining_SOURCES = lstmtraining.cpp
 #lstmtraining_LDFLAGS = -static
@@ -210,14 +206,14 @@ lstmtraining_LDADD = \
     libtesseract_tessopt.la \
     $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 lstmtraining_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 merge_unicharsets_SOURCES = merge_unicharsets.cpp
 #merge_unicharsets_LDFLAGS = -static
 merge_unicharsets_LDADD = \
     libtesseract_tessopt.la
 merge_unicharsets_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 set_unicharset_properties_SOURCES = set_unicharset_properties.cpp
 set_unicharset_properties_LDADD = \
@@ -225,7 +221,7 @@ set_unicharset_properties_LDADD = \
     libtesseract_tessopt.la \
     $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 set_unicharset_properties_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 text2image_SOURCES = text2image.cpp
 #text2image_LDFLAGS = -static
@@ -234,7 +230,7 @@ text2image_LDADD = \
     libtesseract_tessopt.la \
     $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 text2image_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 text2image_LDADD += $(ICU_UC_LIBS) -lpango-1.0 -lpangocairo-1.0
 text2image_LDADD += -lgobject-2.0 -lglib-2.0 -lcairo -lpangoft2-1.0 -lfontconfig
 
@@ -245,14 +241,14 @@ unicharset_extractor_LDADD = \
     libtesseract_tessopt.la \
     $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 unicharset_extractor_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 wordlist2dawg_SOURCES = wordlist2dawg.cpp
 #wordlist2dawg_LDFLAGS = -static
 wordlist2dawg_LDADD = \
     libtesseract_tessopt.la
 wordlist2dawg_LDADD += \
-    ../api/libtesseract.la
+    ../../libtesseract.la
 
 if T_WIN
 if !DISABLED_LEGACY_ENGINE
