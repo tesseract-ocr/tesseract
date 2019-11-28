@@ -41,6 +41,9 @@
 #if defined(HAVE_LIBARCHIVE)
 #include <archive.h>
 #endif
+#if defined(HAVE_LIBCURL)
+#include <curl/curl.h>
+#endif
 
 #if defined(_WIN32)
 #include <fcntl.h>
@@ -148,7 +151,9 @@ static void PrintVersionInfo() {
   printf(" Found %s\n", archive_version_string());
 #  endif  // ARCHIVE_VERSION_NUMBER
 #endif    // HAVE_LIBARCHIVE
-
+#if defined(HAVE_LIBCURL)
+  printf(" Found %s\n", curl_version());
+#endif
 }
 
 static void PrintHelpForPSM() {
