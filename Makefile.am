@@ -114,9 +114,7 @@ libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
 libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/textord
 libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
 libtesseract_api_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
-if HAVE_LIBCURL
-libtesseract_api_la_CPPFLAGS += $(libcurl_CFLAGS) -DHAVE_LIBCURL
-endif
+libtesseract_api_la_CPPFLAGS += $(libcurl_CFLAGS)
 
 noinst_LTLIBRARIES += libtesseract_api.la
 

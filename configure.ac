@@ -428,6 +428,9 @@ AC_CHECK_TYPES([mbstate_t],,, [#include "wchar.h"])
 
 PKG_CHECK_MODULES([libcurl], [libcurl], [have_libcurl=true], [have_libcurl=false])
 AM_CONDITIONAL([HAVE_LIBCURL], $have_libcurl)
+if $have_libcurl; then
+  AC_DEFINE([HAVE_LIBCURL], [1], [Enable libcurl])
+fi
 
 PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.74], [have_lept=true], [have_lept=false])
 if $have_lept; then
@@ -439,7 +442,7 @@ fi
 PKG_CHECK_MODULES([libarchive], [libarchive], [have_libarchive=true], [have_libarchive=false])
 AM_CONDITIONAL([HAVE_LIBARCHIVE], [$have_libarchive])
 if $have_libarchive; then
-  AC_DEFINE([HAVE_LIBARCHIVE], [], [Enable libarchive])
+  AC_DEFINE([HAVE_LIBARCHIVE], [1], [Enable libarchive])
   CPPFLAGS="$CPPFLAGS $libarchive_CFLAGS"
 fi
 
