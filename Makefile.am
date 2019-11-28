@@ -150,19 +150,6 @@ libtesseract_la_LIBADD += libtesseract_textord.la
 libtesseract_la_LIBADD += libtesseract_viewer.la
 libtesseract_la_LIBADD += libtesseract_wordrec.la
 
-if AVX_OPT
-libtesseract_la_LIBADD += libtesseract_avx.la
-endif
-if AVX2_OPT
-libtesseract_la_LIBADD += libtesseract_avx2.la
-endif
-if FMA_OPT
-libtesseract_la_LIBADD += libtesseract_fma.la
-endif
-if SSE41_OPT
-libtesseract_la_LIBADD += libtesseract_sse.la
-endif
-
 libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION) $(NOUNDEFINED)
 
 # Rules for src/arch.
@@ -177,36 +164,7 @@ noinst_HEADERS += src/arch/intsimdmatrix.h
 noinst_HEADERS += src/arch/simddetect.h
 
 noinst_LTLIBRARIES += libtesseract_native.la
-if AVX_OPT
-noinst_LTLIBRARIES += libtesseract_avx.la
-endif
-if AVX2_OPT
-noinst_LTLIBRARIES += libtesseract_avx2.la
-endif
-if FMA_OPT
-noinst_LTLIBRARIES += libtesseract_fma.la
-endif
-if SSE41_OPT
-noinst_LTLIBRARIES += libtesseract_sse.la
-endif
 noinst_LTLIBRARIES += libtesseract_arch.la
-
-if AVX_OPT
-libtesseract_arch_la_CPPFLAGS += -DAVX
-libtesseract_avx_la_CXXFLAGS = -mavx
-endif
-if AVX2_OPT
-libtesseract_arch_la_CPPFLAGS += -DAVX2
-libtesseract_avx2_la_CXXFLAGS = -mavx2
-endif
-if FMA_OPT
-libtesseract_arch_la_CPPFLAGS += -DFMA
-libtesseract_fma_la_CXXFLAGS = -mfma
-endif
-if SSE41_OPT
-libtesseract_arch_la_CPPFLAGS += -DSSE4_1
-libtesseract_sse_la_CXXFLAGS = -msse4.1
-endif
 
 libtesseract_native_la_CXXFLAGS = -O3 -ffast-math
 if MARCH_NATIVE_OPT
@@ -216,20 +174,32 @@ libtesseract_native_la_SOURCES = src/arch/dotproduct.cpp
 
 libtesseract_arch_la_SOURCES = src/arch/intsimdmatrix.cpp src/arch/simddetect.cpp
 
-if AVX_OPT
+if HAVE_AVX
+libtesseract_avx_la_CXXFLAGS = -mavx
 libtesseract_avx_la_SOURCES = src/arch/dotproductavx.cpp
+libtesseract_la_LIBADD += libtesseract_avx.la
+noinst_LTLIBRARIES += libtesseract_avx.la
 endif
 
-if AVX2_OPT
+if HAVE_AVX2
+libtesseract_avx2_la_CXXFLAGS = -mavx2
 libtesseract_avx2_la_SOURCES = src/arch/intsimdmatrixavx2.cpp
+libtesseract_la_LIBADD += libtesseract_avx2.la
+noinst_LTLIBRARIES += libtesseract_avx2.la
 endif
 
-if FMA_OPT
+if HAVE_FMA
+libtesseract_fma_la_CXXFLAGS = -mfma
 libtesseract_fma_la_SOURCES = src/arch/dotproductfma.cpp
+libtesseract_la_LIBADD += libtesseract_fma.la
+noinst_LTLIBRARIES += libtesseract_fma.la
 endif
 
-if SSE41_OPT
+if HAVE_SSE4_1
+libtesseract_sse_la_CXXFLAGS = -msse4.1
 libtesseract_sse_la_SOURCES = src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp
+libtesseract_la_LIBADD += libtesseract_sse.la
+noinst_LTLIBRARIES += libtesseract_sse.la
 endif
 
 # Rules for src/ccmain.

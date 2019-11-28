@@ -125,16 +125,28 @@ AX_CHECK_COMPILE_FLAG([-Werror=unused-command-line-argument], [WERROR=-Werror=un
 ## Checks for supported compiler options.
 
 AX_CHECK_COMPILE_FLAG([-mavx], [avx=true], [avx=false], [$WERROR])
-AM_CONDITIONAL([AVX_OPT], ${avx})
+AM_CONDITIONAL([HAVE_AVX], ${avx})
+if $avx; then
+  AC_DEFINE([HAVE_AVX], [1], [Enable AVX instructions])
+fi
 
 AX_CHECK_COMPILE_FLAG([-mavx2], [avx2=true], [avx2=false], [$WERROR])
-AM_CONDITIONAL([AVX2_OPT], $avx2)
+AM_CONDITIONAL([HAVE_AVX2], $avx2)
+if $avx2; then
+  AC_DEFINE([HAVE_AVX2], [1], [Enable AVX2 instructions])
+fi
 
 AX_CHECK_COMPILE_FLAG([-mfma], [fma=true], [fma=false], [$WERROR])
-AM_CONDITIONAL([FMA_OPT], $fma)
+AM_CONDITIONAL([HAVE_FMA], $fma)
+if $fma; then
+  AC_DEFINE([HAVE_FMA], [1], [Enable FMA instructions])
+fi
 
 AX_CHECK_COMPILE_FLAG([-msse4.1], [sse41=true], [sse41=false], [$WERROR])
-AM_CONDITIONAL([SSE41_OPT], $sse41)
+AM_CONDITIONAL([HAVE_SSE4_1], $sse41)
+if $sse41; then
+  AC_DEFINE([HAVE_SSE4_1], [1], [Enable SSE 4.1 instructions])
+fi
 
 AX_CHECK_COMPILE_FLAG([-march=native], [arch_native=true], [arch_native=false], [$WERROR])
 AM_CONDITIONAL([MARCH_NATIVE_OPT], $arch_native)

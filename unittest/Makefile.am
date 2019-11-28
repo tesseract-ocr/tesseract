@@ -271,11 +271,11 @@ intfeaturemap_test_LDADD = $(TRAINING_LIBS)
 intsimdmatrix_test_SOURCES = intsimdmatrix_test.cc
 intsimdmatrix_test_LDADD = $(TESS_LIBS)
 intsimdmatrix_test_CPPFLAGS = $(AM_CPPFLAGS)
-if AVX2_OPT
-intsimdmatrix_test_CPPFLAGS += -DAVX2
+if HAVE_AVX2
+intsimdmatrix_test_CPPFLAGS += -DHAVE_AVX2
 endif
-if SSE41_OPT
-intsimdmatrix_test_CPPFLAGS += -DSSE4_1
+if HAVE_SSE4_1
+intsimdmatrix_test_CPPFLAGS += -DHAVE_SSE4_1
 endif
 
 lang_model_test_SOURCES = lang_model_test.cc
