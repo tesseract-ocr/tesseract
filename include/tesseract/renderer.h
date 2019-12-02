@@ -143,7 +143,7 @@ class TESS_API TessResultRenderer {
 
  private:
   const char* file_extension_;  // standard extension for generated output
-  STRING title_;                // title of document being renderered
+  STRING title_;                // title of document being rendered
   int imagenum_;                // index of last image added
 
   FILE* fout_;                // output file pointer

@@ -47,15 +47,6 @@ extern "C" {
 
 #ifdef TESS_CAPI_INCLUDE_BASEAPI
 typedef tesseract::TessResultRenderer TessResultRenderer;
-typedef tesseract::TessTextRenderer TessTextRenderer;
-typedef tesseract::TessHOcrRenderer TessHOcrRenderer;
-typedef tesseract::TessAltoRenderer TessAltoRenderer;
-typedef tesseract::TessTsvRenderer TessTsvRenderer;
-typedef tesseract::TessPDFRenderer TessPDFRenderer;
-typedef tesseract::TessUnlvRenderer TessUnlvRenderer;
-typedef tesseract::TessBoxTextRenderer TessBoxTextRenderer;
-typedef tesseract::TessWordStrBoxRenderer TessWordStrBoxRenderer;
-typedef tesseract::TessLSTMBoxRenderer TessLSTMBoxRenderer;
 typedef tesseract::TessBaseAPI TessBaseAPI;
 typedef tesseract::PageIterator TessPageIterator;
 typedef tesseract::ResultIterator TessResultIterator;
@@ -78,11 +69,6 @@ typedef tesseract::TextlineOrder TessTextlineOrder;
 typedef PolyBlockType TessPolyBlockType;
 #else
 typedef struct TessResultRenderer TessResultRenderer;
-typedef struct TessTextRenderer TessTextRenderer;
-typedef struct TessHOcrRenderer TessHOcrRenderer;
-typedef struct TessPDFRenderer TessPDFRenderer;
-typedef struct TessUnlvRenderer TessUnlvRenderer;
-typedef struct TessBoxTextRenderer TessBoxTextRenderer;
 typedef struct TessBaseAPI TessBaseAPI;
 typedef struct TessPageIterator TessPageIterator;
 typedef struct TessResultIterator TessResultIterator;

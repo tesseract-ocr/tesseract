@@ -49,52 +49,52 @@ void TessDeleteBlockList(BLOCK_LIST* block_list) {
 
 TessResultRenderer*
 TessTextRendererCreate(const char* outputbase) {
-  return new TessTextRenderer(outputbase);
+  return new tesseract::TessTextRenderer(outputbase);
 }
 
 TessResultRenderer*
 TessHOcrRendererCreate(const char* outputbase) {
-  return new TessHOcrRenderer(outputbase);
+  return new tesseract::TessHOcrRenderer(outputbase);
 }
 
 TessResultRenderer*
 TessHOcrRendererCreate2(const char* outputbase, BOOL font_info) {
-  return new TessHOcrRenderer(outputbase, font_info != 0);
+  return new tesseract::TessHOcrRenderer(outputbase, font_info != 0);
 }
 
 TessResultRenderer*
 TessAltoRendererCreate(const char* outputbase) {
-  return new TessAltoRenderer(outputbase);
+  return new tesseract::TessAltoRenderer(outputbase);
 }
 
 TessResultRenderer*
 TessTsvRendererCreate(const char* outputbase) {
-  return new TessTsvRenderer(outputbase);
+  return new tesseract::TessTsvRenderer(outputbase);
 }
 
 TessResultRenderer* TessPDFRendererCreate(
     const char* outputbase, const char* datadir, BOOL textonly) {
-  return new TessPDFRenderer(outputbase, datadir, textonly != 0);
+  return new tesseract::TessPDFRenderer(outputbase, datadir, textonly != 0);
 }
 
 TessResultRenderer*
 TessUnlvRendererCreate(const char* outputbase) {
-  return new TessUnlvRenderer(outputbase);
+  return new tesseract::TessUnlvRenderer(outputbase);
 }
 
 TessResultRenderer*
 TessBoxTextRendererCreate(const char* outputbase) {
-  return new TessBoxTextRenderer(outputbase);
+  return new tesseract::TessBoxTextRenderer(outputbase);
 }
 
 TessResultRenderer*
 TessWordStrBoxRendererCreate(const char* outputbase) {
-  return new TessWordStrBoxRenderer(outputbase);
+  return new tesseract::TessWordStrBoxRenderer(outputbase);
 }
 
 TessResultRenderer*
 TessLSTMBoxRendererCreate(const char* outputbase) {
-  return new TessLSTMBoxRenderer(outputbase);
+  return new tesseract::TessLSTMBoxRenderer(outputbase);
 }
 
 void TessDeleteResultRenderer(TessResultRenderer* renderer) {
