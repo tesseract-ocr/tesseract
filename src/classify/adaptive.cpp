@@ -140,7 +140,7 @@ void free_adapted_class(ADAPT_CLASS adapt_class) {
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
 /**
- * Allocates memory for adapted tempates.
+ * Allocates memory for adapted templates.
  * each char in unicharset to the newly created templates
  *
  * @param InitFromUnicharset if true, add an empty class for

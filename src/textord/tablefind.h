@@ -350,7 +350,7 @@ class TableFinder {
   // include them in the table
   void IncludeLeftOutColumnHeaders(TBOX* table_box);
 
-  // Remove false alarms consiting of a single column
+  // Remove false alarms consisting of a single column
   void DeleteSingleColumnTables();
 
   // Return true if at least one gap larger than the global x-height

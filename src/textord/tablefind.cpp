@@ -324,7 +324,7 @@ void TableFinder::LocateTables(ColPartitionGrid* grid,
   GridMergeTableRegions();
 
   if (textord_tablefind_recognize_tables) {
-    // Remove false alarms consiting of a single column
+    // Remove false alarms consisting of a single column
     DeleteSingleColumnTables();
 
 #ifndef GRAPHICS_DISABLED
@@ -350,7 +350,7 @@ void TableFinder::LocateTables(ColPartitionGrid* grid,
     }
 #endif  // GRAPHICS_DISABLED
   } else {
-    // Remove false alarms consiting of a single column
+    // Remove false alarms consisting of a single column
     // TODO(nbeato): verify this is a NOP after structured table rejection.
     // Right now it isn't. If the recognize function is doing what it is
     // supposed to do, this function is obsolete.
@@ -1696,7 +1696,7 @@ void TableFinder::IncludeLeftOutColumnHeaders(TBOX* table_box) {
   }
 }
 
-// Remove false alarms consiting of a single column based on their
+// Remove false alarms consisting of a single column based on their
 // projection on the x-axis. Projection of a real table on the x-axis
 // should have at least one zero-valley larger than the global median
 // x-height of the page.

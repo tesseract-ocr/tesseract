@@ -25,7 +25,7 @@
 enum TessErrorLogCode {
   DBG =     -1,           /*log without alert */
   TESSLOG =  0,            /*alert user */
-  TESSEXIT = 1,            /*exit after erro */
+  TESSEXIT = 1,            /*exit after error */
   ABORT =    2            /*abort after error */
 };
 
