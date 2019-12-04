@@ -751,12 +751,14 @@ fuzzer-api: all
 fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
 	$(CXX) $(CXXFLAGS) -g $(LIB_FUZZING_ENGINE) \
           -I $(top_srcdir)/include \
+          -I $(builddir)/include \
           -I $(top_srcdir)/src/ccmain \
           -I $(top_srcdir)/src/ccstruct \
           -I $(top_srcdir)/src/ccutil \
           $< \
-          src/api/.libs/libtesseract.a \
+          $(builddir)/.libs/libtesseract.a \
           $(LEPTONICA_LIBS) \
           $(TENSORFLOW_LIBS) \
           $(libarchive_LIBS) \
+          $(libcurl_LIBS) \
           -o $@
