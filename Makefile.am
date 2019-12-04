@@ -760,5 +760,5 @@ fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
           $(LEPTONICA_LIBS) \
           $(TENSORFLOW_LIBS) \
           $(libarchive_LIBS) \
-          -lcurl \
+          $(libcurl_LIBS) \
           -o $@
