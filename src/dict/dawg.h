@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/******************************************************************************
  *
  * File:         dawg.h
  * Description:  Definition of a class that represents Directed Acyclic Word
@@ -17,7 +16,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- *********************************************************************************/
+ *****************************************************************************/
 
 #ifndef DICT_DAWG_H_
 #define DICT_DAWG_H_

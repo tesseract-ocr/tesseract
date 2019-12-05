@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/******************************************************************************
  *
  * File:         oldlist.h  (Formerly list.h)
  * Description:  List processing procedures declarations.
@@ -16,13 +15,13 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- ********************************************************************************
+ ******************************************************************************
  *
  * This file contains the interface for a set of general purpose list
  * manipulation routines.  For the implementation of these routines see
  * the file "list.c".
  *
- ********************************************************************************
+ ******************************************************************************
  *
  *                            INDEX
  *                           =======

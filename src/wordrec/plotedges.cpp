@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/******************************************************************************
  *
  * File:         plotedges.cpp  (Formerly plotedges.c)
  * Description:  Graphics routines for "Edges" and "Outlines" windows
@@ -16,7 +15,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- *********************************************************************************/
+ *****************************************************************************/
 
 #include "plotedges.h"
 #include "render.h"
