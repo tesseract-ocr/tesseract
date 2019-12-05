@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/******************************************************************************
  *
  * File:         measure.h
  * Description:  Statistics for a group of single measurements
@@ -16,8 +15,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- ********************************************************************************
- */
+ *****************************************************************************/
 
 #ifndef MEASURE_H
 #define MEASURE_H
