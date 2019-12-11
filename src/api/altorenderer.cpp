@@ -45,6 +45,9 @@ static void AddBoxToAlto(const ResultIterator* it, PageIteratorLevel level,
   if (level == RIL_WORD) {
     int wc = it->Confidence(RIL_WORD);
     alto_str << " WC=\"0." << wc << "\"";
+  } else if (level == RIL_SYMBOL) {
+    int gc = it->Confidence(RIL_SYMBOL);
+    alto_str << " GC=\"0." << gc << "\"";
   } else {
     alto_str << ">";
   }
@@ -56,11 +59,11 @@ static void AddBoxToAlto(const ResultIterator* it, PageIteratorLevel level,
 bool TessAltoRenderer::BeginDocumentHandler() {
   AppendString(
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v3#\" "
+      "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v4#\" "
       "xmlns:xlink=\"http://www.w3.org/1999/xlink\" "
       "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-      "xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v3# "
-      "http://www.loc.gov/alto/v3/alto-3-0.xsd\">\n"
+      "xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v4# "
+      "https://www.loc.gov/standards/alto/v4/alto-4-0.xsd\">\n"
       "\t<Description>\n"
       "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
       "\t\t<sourceImageInformation>\n"
@@ -127,7 +130,7 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
   if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0))
     return nullptr;
 
-  int lcnt = 0, tcnt = 0, bcnt = 0, wcnt = 0;
+  int lcnt = 0, tcnt = 0, bcnt = 0, wcnt = 0, scnt = 0;
 
   if (input_file_ == nullptr) SetInputName(nullptr);
 
@@ -187,7 +190,7 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
 
     alto_str << "\t\t\t\t\t\t\t<String ID=\"string_" << wcnt << "\"";
     AddBoxToAlto(res_it, RIL_WORD, alto_str);
-    alto_str << " CONTENT=\"";
+    alto_str << " CONTENT=\"" << HOcrEscape(res_it->GetUTF8Text(RIL_WORD)).c_str() << "\">";
 
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_tblock = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
@@ -198,15 +201,21 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
     res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
 
     do {
+      alto_str << "\n\t\t\t\t\t\t\t\t<Glyph ID=\"glyph_" << scnt << "\"";
+      AddBoxToAlto(res_it, RIL_SYMBOL, alto_str);
+      alto_str << " CONTENT=\"";
       const std::unique_ptr<const char[]> grapheme(
           res_it->GetUTF8Text(RIL_SYMBOL));
       if (grapheme && grapheme[0] != 0) {
         alto_str << HOcrEscape(grapheme.get()).c_str();
       }
+      alto_str << "\"/>";
       res_it->Next(RIL_SYMBOL);
+      
+      scnt++;
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
 
-    alto_str << "\"/>";
+    alto_str << "\n\t\t\t\t\t\t\t</String>";
 
     wcnt++;
 
