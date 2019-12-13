@@ -209,7 +209,18 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
       if (grapheme && grapheme[0] != 0) {
         alto_str << HOcrEscape(grapheme.get()).c_str();
       }
-      alto_str << "\"/>";
+      alto_str << "\">";
+      ChoiceIterator choice_it(*res_it);
+      do {
+        int vc = choice_it.Confidence();
+        alto_str << "\n\t\t\t\t\t\t\t\t\t<Variant VC=\"0." << vc << "\"";
+        alto_str << " CONTENT=\"";
+        const char* variant = choice_it.GetUTF8Text();
+        if (variant && variant[0] != 0)
+          alto_str << HOcrEscape(variant).c_str();
+        alto_str << "\"/>";
+      } while (choice_it.Next());
+      alto_str << "\n\t\t\t\t\t\t\t\t</Glyph>";
       res_it->Next(RIL_SYMBOL);
       
       scnt++;
@@ -227,8 +238,12 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
       int vpos = top;
       res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
       int width = left - hpos;
-      alto_str << "<SP WIDTH=\"" << width << "\" VPOS=\"" << vpos
-               << "\" HPOS=\"" << hpos << "\"/>\n";
+      int height = bottom - top;
+      alto_str << "\n\t\t\t\t\t\t\t<SP";
+      alto_str << " HPOS=\"" << hpos << "\"";
+      alto_str << " VPOS=\"" << vpos << "\"";
+      alto_str << " WIDTH=\"" << width << "\"";
+      alto_str << " HEIGHT=\"" << height << "\"/>\n";
     }
 
     if (last_word_in_tblock) {
