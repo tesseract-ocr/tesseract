@@ -371,7 +371,13 @@ Pta* PageIterator::BlockPolygon() const {
     return nullptr;  // Already at the end!
   if (it_->block()->block->pdblk.poly_block() == nullptr)
     return nullptr;  // No layout analysis used - no polygon.
-  ICOORDELT_IT it(it_->block()->block->pdblk.poly_block()->points());
+  // Copy polygon, so we can unrotate it to image coordinates.
+  POLY_BLOCK* internal_poly = it_->block()->block->pdblk.poly_block();
+  ICOORDELT_LIST vertices;
+  vertices.deep_copy(internal_poly->points(), ICOORDELT::deep_copy);
+  POLY_BLOCK poly(&vertices, internal_poly->isA());
+  poly.rotate(it_->block()->block->re_rotation());
+  ICOORDELT_IT it(poly.points());
   Pta* pta = ptaCreate(it.length());
   int num_pts = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward(), ++num_pts) {
