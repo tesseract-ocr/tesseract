@@ -383,8 +383,10 @@ Pta* PageIterator::BlockPolygon() const {
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward(), ++num_pts) {
     ICOORD* pt = it.data();
     // Convert to top-down coords within the input image.
-    float x = static_cast<float>(pt->x()) / scale_ + rect_left_;
-    float y = rect_top_ + rect_height_ - static_cast<float>(pt->y()) / scale_;
+    int x = static_cast<float>(pt->x()) / scale_ + rect_left_;
+    int y = rect_top_ + rect_height_ - static_cast<float>(pt->y()) / scale_;
+    x = ClipToRange(x, rect_left_, rect_left_ + rect_width_);
+    y = ClipToRange(y, rect_top_, rect_top_ + rect_height_);
     ptaAddPt(pta, x, y);
   }
   return pta;
