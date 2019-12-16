@@ -471,8 +471,6 @@ if !($have_icu_uc && $have_icu_i18n); then
   AC_MSG_WARN([Training tools WILL NOT be built.])
   AC_MSG_WARN([Try to install libicu-devel package.])
   AM_CONDITIONAL([ENABLE_TRAINING], false)
-else
-  CPPFLAGS="$CPPFLAGS $ICU_UC_CFLAGS $ICU_I18N_CFLAGS"
 fi
 
 # Check location of pango headers
@@ -482,8 +480,6 @@ if !($have_pango); then
         AC_MSG_WARN([Training tools WILL NOT be built.])
         AC_MSG_WARN([Try to install libpango1.0-dev package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
-else
-      CPPFLAGS="$CPPFLAGS $pango_CFLAGS"
 fi
 
 # Check location of cairo headers
@@ -492,8 +488,6 @@ if !($have_cairo); then
         AC_MSG_WARN([Training tools WILL NOT be built because of missing cairo library.])
         AC_MSG_WARN([Try to install libcairo-dev?? package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
-else
-      CPPFLAGS="$CPPFLAGS $cairo_CFLAGS"
 fi
 
 

@@ -15,6 +15,10 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/src/wordrec \
     -I$(top_srcdir)/src/cutil
 
+AM_CPPFLAGS += $(ICU_UC_CFLAGS) $(ICU_I18N_CFLAGS)
+AM_CPPFLAGS += $(pango_CFLAGS)
+AM_CPPFLAGS += $(cairo_CFLAGS)
+
 bin_SCRIPTS = language-specific.sh tesstrain.sh
 scripts_DATA = tesstrain_utils.sh
 scriptsdir = $(bindir)
