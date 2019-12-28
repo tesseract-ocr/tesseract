@@ -41,6 +41,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/unittest/base
 AM_CPPFLAGS += -I$(top_srcdir)/unittest/util
 if ENABLE_TRAINING
 AM_CPPFLAGS += -I$(top_srcdir)/src/training
+AM_CPPFLAGS += $(pangocairo_CFLAGS)
 endif # ENABLE_TRAINING
 AM_CPPFLAGS += -I$(top_srcdir)/src/viewer
 AM_CPPFLAGS += -I$(top_srcdir)/src/wordrec
@@ -339,9 +340,9 @@ pango_font_info_test_SOURCES = pango_font_info_test.cc
 pango_font_info_test_SOURCES += third_party/utf/rune.c
 pango_font_info_test_SOURCES += util/utf8/unicodetext.cc util/utf8/unilib.cc
 pango_font_info_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
-pango_font_info_test_LDADD += $(ICU_I18N_LIBS) -lfontconfig
-pango_font_info_test_LDADD += -lpangocairo-1.0 -lpangoft2-1.0
-pango_font_info_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
+pango_font_info_test_LDADD += $(ICU_I18N_LIBS)
+pango_font_info_test_LDADD += $(pangocairo_LIBS)
+pango_font_info_test_LDADD += $(pangoft2_LIBS)
 endif # TENSORFLOW
 
 paragraphs_test_SOURCES = paragraphs_test.cc

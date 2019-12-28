@@ -490,6 +490,8 @@ if !($have_cairo); then
         AM_CONDITIONAL([ENABLE_TRAINING], false)
 fi
 
+PKG_CHECK_MODULES([pangocairo], [pangocairo])
+PKG_CHECK_MODULES([pangoft2], [pangoft2])
 
 # ----------------------------------------
 # Final Tasks and Output
