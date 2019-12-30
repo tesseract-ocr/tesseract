@@ -344,6 +344,61 @@ static bool checkArgValues(int arg, const char* mode, int count) {
   return true;
 }
 
+#include <filesystem>
+#include "imagedata.h"  // DocumentData
+
+static void UnpackFiles(char** filenames) {
+  const char* filename;
+  while ((filename = *filenames++) != nullptr) {
+    printf("Extracting %s...\n", filename);
+    tesseract::DocumentData images(filename);
+    if (!images.LoadDocument(filename, 0, 0, nullptr)) {
+      tprintf("Failed to read training data from %s!\n", filename);
+      continue;
+    }
+#if 0
+    printf("%d pages\n", images.NumPages());
+    printf("%zu size\n", images.PagesSize());
+#endif
+    const tesseract::ImageData* image = images.GetPage(0);
+    const char* transcription = image->transcription().c_str();
+    FILE* f = fopen("unpacked.gt.txt", "wb");
+    if (f == nullptr) {
+      printf("Writing unpacked.gt.txt failed\n");
+      continue;
+    }
+    fprintf(f, "%s\n", transcription);
+    fclose(f);
+    printf("gt: %s\n", transcription);
+    Pix* pix = image->GetPix();
+    if (pixWrite("unpacked.png", pix, IFF_PNG) != 0) {
+      printf("Writing unpacked.png failed\n");
+    }
+    pixDestroy(&pix);
+    const GenericVector<TBOX>& boxes = image->boxes();
+    const TBOX& box = boxes[0];
+    box.print();
+#if 0
+    const GenericVector<STRING>& box_texts = image->box_texts();
+    printf("gt: %s\n", box_texts[0].c_str());
+#endif
+  }
+}
+
+namespace std {
+namespace filesystem {
+  bool exists(const char* filename);
+}
+}
+
+bool std::filesystem::exists(const char* filename) {
+#if defined(_WIN32)
+  return _access(filename, 0) == 0;
+#else
+  return access(filename, 0) == 0;
+#endif
+}
+
 // NOTE: arg_i is used here to avoid ugly *i so many times in this function
 static bool ParseArgs(int argc, char** argv, const char** lang,
                       const char** image, const char** outputbase,
@@ -352,13 +407,40 @@ static bool ParseArgs(int argc, char** argv, const char** lang,
                       std::vector<std::string>* vars_values, l_int32* arg_i,
                       tesseract::PageSegMode* pagesegmode,
                       tesseract::OcrEngineMode* enginemode) {
+  int i = 1;
+  if (i < argc) {
+    const char* verb = argv[i];
+    if (verb[0] != '-' && !std::filesystem::exists(verb)) {
+      i++;
+      if (strcmp(verb, "help") == 0) {
+        if (i < argc) {
+          if (strcmp(argv[i], "extra") == 0) {
+            PrintHelpExtra(argv[0]);
+#ifndef DISABLED_LEGACY_ENGINE
+          } else if ((strcmp(argv[i], "oem") == 0)) {
+            PrintHelpForOEM();
+#endif
+          } else if ((strcmp(argv[i], "psm") == 0)) {
+            PrintHelpForPSM();
+          } else {
+            printf("No help available for %s\n", argv[i]);
+          }
+        } else {
+          PrintHelpMessage(argv[0]);
+        }
+      } else if (strcmp(verb, "unpack") == 0) {
+        UnpackFiles(argv + i);
+      } else if (strcmp(verb, "version") == 0) {
+        PrintVersionInfo();
+      } else {
+        printf("Unknown action: %s\n", verb);
+      }
+      return true;
+    }
+  }
   bool noocr = false;
-  int i;
   for (i = 1; i < argc && (*outputbase == nullptr || argv[i][0] == '-'); i++) {
-    if (*image != nullptr && *outputbase == nullptr) {
-      // outputbase follows image, don't allow options at that position.
-      *outputbase = argv[i];
-    } else if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
+    if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
       PrintHelpMessage(argv[0]);
       noocr = true;
     } else if (strcmp(argv[i], "--help-extra") == 0) {
@@ -419,6 +501,13 @@ static bool ParseArgs(int argc, char** argv, const char** lang,
       ++i;
     } else if (*image == nullptr) {
       *image = argv[i];
+      i++;
+      if (i == argc) {
+        fprintf(stderr, "Error, missing outputbase command line argument\n");
+        return false;
+      }
+      // outputbase follows image, don't allow options at that position.
+      *outputbase = argv[i];
     } else {
       // Unexpected argument.
       fprintf(stderr, "Error, unknown command line argument '%s'\n", argv[i]);
@@ -646,7 +735,7 @@ int main(int argc, char** argv) {
 #endif // HAVE_TIFFIO_H && _WIN32
 
   if (!ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &dpi,
-            &list_langs, &print_parameters, &vars_vec, &vars_values, &arg_i,
+                 &list_langs, &print_parameters, &vars_vec, &vars_values, &arg_i,
                  &pagesegmode, &enginemode)) {
     return EXIT_FAILURE;
   }
