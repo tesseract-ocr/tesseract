@@ -344,7 +344,8 @@ static bool checkArgValues(int arg, const char* mode, int count) {
   return true;
 }
 
-#include <filesystem>
+//#include <filesystem>
+#include <sstream>      // std::ostringstream
 #include "imagedata.h"  // DocumentData
 
 static void UnpackFiles(char** filenames) {
@@ -360,28 +361,42 @@ static void UnpackFiles(char** filenames) {
     printf("%d pages\n", images.NumPages());
     printf("%zu size\n", images.PagesSize());
 #endif
-    const tesseract::ImageData* image = images.GetPage(0);
-    const char* transcription = image->transcription().c_str();
-    FILE* f = fopen("unpacked.gt.txt", "wb");
-    if (f == nullptr) {
-      printf("Writing unpacked.gt.txt failed\n");
-      continue;
-    }
-    fprintf(f, "%s\n", transcription);
-    fclose(f);
-    printf("gt: %s\n", transcription);
-    Pix* pix = image->GetPix();
-    if (pixWrite("unpacked.png", pix, IFF_PNG) != 0) {
-      printf("Writing unpacked.png failed\n");
-    }
-    pixDestroy(&pix);
-    const GenericVector<TBOX>& boxes = image->boxes();
-    const TBOX& box = boxes[0];
-    box.print();
+    for (int page = 0; page < images.NumPages(); page++) {
+      std::string basename = filename;
+      basename = basename.erase(basename.size() - 6);
+      std::ostringstream stream;
+      stream << basename << '_' << page;
+      const tesseract::ImageData* image = images.GetPage(page);
 #if 0
-    const GenericVector<STRING>& box_texts = image->box_texts();
-    printf("gt: %s\n", box_texts[0].c_str());
+      const char* imagefilename = image->imagefilename().c_str();
+      printf("fn: %s\n", imagefilename);
 #endif
+      const char* transcription = image->transcription().c_str();
+      std::string gt_filename = stream.str() + ".gt.txt";
+      FILE* f = fopen(gt_filename.c_str(), "wb");
+      if (f == nullptr) {
+        printf("Writing %s failed\n", gt_filename.c_str());
+        continue;
+      }
+      fprintf(f, "%s\n", transcription);
+      fclose(f);
+#if 0
+      printf("gt page %d: %s\n", page, transcription);
+#endif
+      Pix* pix = image->GetPix();
+      std::string image_filename = stream.str() + ".png";
+      if (pixWrite(image_filename.c_str(), pix, IFF_PNG) != 0) {
+        printf("Writing %s failed\n", image_filename.c_str());
+      }
+      pixDestroy(&pix);
+#if 0
+      const GenericVector<TBOX>& boxes = image->boxes();
+      const TBOX& box = boxes[0];
+      box.print();
+      const GenericVector<STRING>& box_texts = image->box_texts();
+      printf("gt: %s\n", box_texts[0].c_str());
+#endif
+    }
   }
 }
 
