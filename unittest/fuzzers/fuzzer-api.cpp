@@ -6,6 +6,14 @@
 #include <cstdlib>      // for std::getenv, std::setenv
 #include <string>       // for std::string
 
+#ifndef TESSERACT_FUZZER_WIDTH
+#define TESSERACT_FUZZER_WIDTH 100
+#endif
+
+#ifndef TESSERACT_FUZZER_HEIGHT
+#define TESSERACT_FUZZER_HEIGHT 100
+#endif
+
 class BitReader {
  private:
   uint8_t const* data;
@@ -80,7 +88,7 @@ static PIX* createPix(BitReader& BR, const size_t width, const size_t height) {
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   BitReader BR(data, size);
 
-  auto pix = createPix(BR, 100, 100);
+  auto pix = createPix(BR, TESSERACT_FUZZER_WIDTH, TESSERACT_FUZZER_HEIGHT);
 
   api->SetImage(pix);
 
