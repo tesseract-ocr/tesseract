@@ -26,7 +26,7 @@ cd $SRC/tesseract
 CXXFLAGS="$CXXFLAGS -D_GLIBCXX_DEBUG" ./configure --disable-graphics --disable-shared
 make -j$(nproc)
 
-cp -R $SRC/tessdata $OUT
+ln -s $SRC/tessdata $OUT
 
 $CXX $CXXFLAGS \
     -I $SRC/tesseract/include \
