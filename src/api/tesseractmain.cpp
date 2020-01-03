@@ -346,6 +346,7 @@ static bool checkArgValues(int arg, const char* mode, int count) {
 
 //#include <filesystem>
 #include <sstream>      // std::ostringstream
+#include <unistd.h>     // access
 #include "imagedata.h"  // DocumentData
 
 static void UnpackFiles(char** filenames) {
