@@ -55,9 +55,6 @@ using tesseract::MasterTrainer;
 using tesseract::Shape;
 using tesseract::ShapeTable;
 
-// Max length of a fake shape label.
-const int kMaxShapeLabelLength = 10;
-
 /*----------------------------------------------------------------------------
             Public Code
 -----------------------------------------------------------------------------*/
@@ -242,8 +239,8 @@ int main (int argc, char **argv) {
     // output modules happy that we are doing things correctly.
     int num_shapes = config_map.CompactSize();
     for (int s = 0; s < num_shapes; ++s) {
-      char shape_label[kMaxShapeLabelLength + 1];
-      snprintf(shape_label, kMaxShapeLabelLength, "sh%04d", s);
+      char shape_label[14];
+      snprintf(shape_label, sizeof(shape_label), "sh%04d", s);
       shape_set.unichar_insert(shape_label);
     }
   }
