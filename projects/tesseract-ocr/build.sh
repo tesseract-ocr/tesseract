@@ -27,17 +27,12 @@ cd $SRC/tesseract
 CXXFLAGS="$CXXFLAGS -D_GLIBCXX_DEBUG" ./configure --disable-graphics --disable-shared
 make -j$(nproc)
 
-cd $SRC/tesseract-ocr-fuzzers
-
 cp -R $SRC/tessdata $OUT
 
 $CXX $CXXFLAGS \
-    -I $SRC/tesseract/src/api \
-    -I $SRC/tesseract/src/ccstruct \
-    -I $SRC/tesseract/src/ccmain \
-    -I $SRC/tesseract/src/ccutil \
-     $SRC/tesseract-ocr-fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api \
-     $SRC/tesseract/src/api/.libs/libtesseract.a \
+    -I $SRC/tesseract/include \
+     $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api \
+     $SRC/tesseract/.libs/libtesseract.a \
      /usr/local/lib/liblept.a \
      /usr/lib/x86_64-linux-gnu/libtiff.a \
      /usr/lib/x86_64-linux-gnu/libpng.a \
@@ -49,13 +44,10 @@ $CXX $CXXFLAGS \
 
 $CXX $CXXFLAGS \
     -DTESSERACT_FUZZER_WIDTH=512 \
-    -DTESSERACT_FUZZER_HEIGHT=512 \
-    -I $SRC/tesseract/src/api \
-    -I $SRC/tesseract/src/ccstruct \
-    -I $SRC/tesseract/src/ccmain \
-    -I $SRC/tesseract/src/ccutil \
-     $SRC/tesseract-ocr-fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api-512x512 \
-     $SRC/tesseract/src/api/.libs/libtesseract.a \
+    -DTESSERACT_FUZZER_HEIGHT=256 \
+    -I $SRC/tesseract/include \
+     $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api-512x256 \
+     $SRC/tesseract/.libs/libtesseract.a \
      /usr/local/lib/liblept.a \
      /usr/lib/x86_64-linux-gnu/libtiff.a \
      /usr/lib/x86_64-linux-gnu/libpng.a \
