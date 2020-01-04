@@ -900,8 +900,9 @@ void WERD_RES::FakeWordFromRatings(PermuterType permuter) {
   word_choice->set_permuter(permuter);
   for (int b = 0; b < num_blobs; ++b) {
     UNICHAR_ID unichar_id = UNICHAR_SPACE;
-    float rating = INT32_MAX;
-    float certainty = -INT32_MAX;
+    // Initialize rating and certainty like in WERD_CHOICE::make_bad().
+    float rating = WERD_CHOICE::kBadRating;
+    float certainty = -FLT_MAX;
     BLOB_CHOICE_LIST* choices = ratings->get(b, b);
     if (choices != nullptr && !choices->empty()) {
       BLOB_CHOICE_IT bc_it(choices);
