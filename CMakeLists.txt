@@ -69,7 +69,11 @@ set(MINIMUM_LEPTONICA_VERSION 1.74)
 
 message( "Configuring tesseract version ${PACKAGE_VERSION}...")
 
-option(SW_BUILD "Build with sw" ON)
+if (WIN32)
+    option(SW_BUILD "Build with sw" ON)
+else()
+    option(SW_BUILD "Build with sw" OFF)
+endif()
 option(OPENMP_BUILD "Build with openmp support" OFF)  # see issue #1662
 option(AUTO_OPTIMIZE "Usage of cmake auto optimize macros (not suitable for portable build)" ON)
 option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
