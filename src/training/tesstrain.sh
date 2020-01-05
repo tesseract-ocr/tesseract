@@ -16,7 +16,7 @@
 #
 
 display_usage() {
-echo -e "USAGE: tesstrain.sh
+echo -e 'USAGE: tesstrain.sh
      --exposures EXPOSURES      # A list of exposure levels to use (e.g. "-1 0 1").
      --fontlist FONTS           # A list of fontnames to train on.
      --fonts_dir FONTS_PATH     # Path to font files.
@@ -47,7 +47,7 @@ echo -e "USAGE: tesstrain.sh
   The font names specified in --fontlist need to be recognizable by Pango using
   fontconfig. An easy way to list the canonical names of all fonts available on
   your system is to run text2image with --list_available_fonts and the
-  appropriate --fonts_dir path."
+  appropriate --fonts_dir path.'
 }
 
 source "$(dirname $0)/tesstrain_utils.sh"
