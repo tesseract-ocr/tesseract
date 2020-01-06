@@ -32,5 +32,5 @@ jobs:
       shell: sh
 
     - name: build
-      run: ./sw -static -shared -mt -mt -platform x86 x64 -config d,r build
+      run: ./sw -static -shared -mt -md -platform x86 x64 -config d,r build
 
