@@ -721,9 +721,9 @@ void Tesseract::blamer_pass(PAGE_RES* page_res) {
         static_cast<IncorrectResultReason>(bl)),
         page_res->blame_reasons[bl]);
   }
-  if (page_res->misadaption_log.length() > 0) {
+  if (page_res->misadaption_log.size() > 0) {
     tprintf("Misadaption log:\n");
-    for (int i = 0; i < page_res->misadaption_log.length(); ++i) {
+    for (int i = 0; i < page_res->misadaption_log.size(); ++i) {
       tprintf("%s\n", page_res->misadaption_log[i].c_str());
     }
   }

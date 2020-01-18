@@ -190,7 +190,7 @@ DawgCache* Dict::GlobalDawgCache() {
 
 // Sets up ready for a Load or LoadLSTM.
 void Dict::SetupForLoad(DawgCache* dawg_cache) {
-  if (dawgs_.length() != 0) this->End();
+  if (dawgs_.size() != 0) this->End();
 
   apostrophe_unichar_id_ = getUnicharset().unichar_to_id(kApostropheSymbol);
   question_unichar_id_ = getUnicharset().unichar_to_id(kQuestionSymbol);
@@ -353,11 +353,11 @@ bool Dict::FinishLoad() {
   // Construct a list of corresponding successors for each dawg. Each entry, i,
   // in the successors_ vector is a vector of integers that represent the
   // indices into the dawgs_ vector of the successors for dawg i.
-  successors_.reserve(dawgs_.length());
-  for (int i = 0; i < dawgs_.length(); ++i) {
+  successors_.reserve(dawgs_.size());
+  for (int i = 0; i < dawgs_.size(); ++i) {
     const Dawg* dawg = dawgs_[i];
     auto* lst = new SuccessorList();
-    for (int j = 0; j < dawgs_.length(); ++j) {
+    for (int j = 0; j < dawgs_.size(); ++j) {
       const Dawg* other = dawgs_[j];
       if (dawg != nullptr && other != nullptr &&
           (dawg->lang() == other->lang()) &&
@@ -370,7 +370,7 @@ bool Dict::FinishLoad() {
 }
 
 void Dict::End() {
-  if (dawgs_.length() == 0) return;  // Not safe to call twice.
+  if (dawgs_.size() == 0) return;  // Not safe to call twice.
   for (int i = 0; i < dawgs_.size(); i++) {
     if (!dawg_cache_->FreeDawg(dawgs_[i])) {
       delete dawgs_[i];
@@ -403,7 +403,7 @@ int Dict::def_letter_is_okay(void* void_dawg_args, const UNICHARSET& unicharset,
         "def_letter_is_okay: current unichar=%s word_end=%d"
         " num active dawgs=%d\n",
         getUnicharset().debug_str(unichar_id).c_str(), word_end,
-        dawg_args->active_dawgs->length());
+        dawg_args->active_dawgs->size());
   }
 
   // Do not accept words that contain kPatternUnicharID.
@@ -423,7 +423,7 @@ int Dict::def_letter_is_okay(void* void_dawg_args, const UNICHARSET& unicharset,
   // Go over the active_dawgs vector and insert DawgPosition records
   // with the updated ref (an edge with the corresponding unichar id) into
   // dawg_args->updated_pos.
-  for (int a = 0; a < dawg_args->active_dawgs->length(); ++a) {
+  for (int a = 0; a < dawg_args->active_dawgs->size(); ++a) {
     const DawgPosition& pos = (*dawg_args->active_dawgs)[a];
     const Dawg* punc_dawg =
         pos.punc_index >= 0 ? dawgs_[pos.punc_index] : nullptr;
@@ -442,7 +442,7 @@ int Dict::def_letter_is_okay(void* void_dawg_args, const UNICHARSET& unicharset,
       if (punc_transition_edge != NO_EDGE) {
         // Find all successors, and see which can transition.
         const SuccessorList& slist = *(successors_[pos.punc_index]);
-        for (int s = 0; s < slist.length(); ++s) {
+        for (int s = 0; s < slist.size(); ++s) {
           int sdawg_index = slist[s];
           const Dawg* sdawg = dawgs_[sdawg_index];
           UNICHAR_ID ch = char_for_dawg(unicharset, unichar_id, sdawg);
@@ -620,7 +620,7 @@ void Dict::default_dawgs(DawgPositionVector* dawg_pos_vec,
       (punc_dawg_ != nullptr) &&
       punc_dawg_->edge_char_of(0, Dawg::kPatternUnicharID, true) != NO_EDGE;
 
-  for (int i = 0; i < dawgs_.length(); i++) {
+  for (int i = 0; i < dawgs_.size(); i++) {
     if (dawgs_[i] != nullptr &&
         !(suppress_patterns && (dawgs_[i])->type() == DAWG_TYPE_PATTERN)) {
       int dawg_ty = dawgs_[i]->type();

@@ -52,17 +52,17 @@ class TestableStructuredTable : public tesseract::StructuredTable {
 
   void ExpectCellX(int x_min, int second, int add, int almost_done, int x_max) {
     ASSERT_EQ(0, (almost_done - second) % add);
-    EXPECT_EQ(3 + (almost_done - second) / add, cell_x_.length());
+    EXPECT_EQ(3 + (almost_done - second) / add, cell_x_.size());
     EXPECT_EQ(x_min, cell_x_.get(0));
-    EXPECT_EQ(x_max, cell_x_.get(cell_x_.length() - 1));
-    for (int i = 1; i < cell_x_.length() - 1; ++i) {
+    EXPECT_EQ(x_max, cell_x_.get(cell_x_.size() - 1));
+    for (int i = 1; i < cell_x_.size() - 1; ++i) {
       EXPECT_EQ(second + add * (i - 1), cell_x_.get(i));
     }
   }
 
   void ExpectSortedX() {
-    EXPECT_GT(cell_x_.length(), 0);
-    for (int i = 1; i < cell_x_.length(); ++i) {
+    EXPECT_GT(cell_x_.size(), 0);
+    for (int i = 1; i < cell_x_.size(); ++i) {
       EXPECT_LT(cell_x_.get(i - 1), cell_x_.get(i));
     }
   }

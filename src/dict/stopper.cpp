@@ -296,7 +296,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
   if (ambigs_found) {
     if (stopper_debug_level > 2) {
       tprintf("\nResulting ambig_blob_choices:\n");
-      for (i = 0; i < ambig_blob_choices.length(); ++i) {
+      for (i = 0; i < ambig_blob_choices.size(); ++i) {
         print_ratings_list("", ambig_blob_choices.get(i), getUnicharset());
         tprintf("\n");
       }

@@ -169,10 +169,10 @@ WERD_CHOICE *Dict::dawg_permute_and_select(
   auto *best_choice = new WERD_CHOICE(&getUnicharset());
   best_choice->make_bad();
   best_choice->set_rating(rating_limit);
-  if (char_choices.length() == 0 || char_choices.length() > MAX_WERD_LENGTH)
+  if (char_choices.size() == 0 || char_choices.size() > MAX_WERD_LENGTH)
     return best_choice;
   auto *active_dawgs =
-      new DawgPositionVector[char_choices.length() + 1];
+      new DawgPositionVector[char_choices.size() + 1];
   init_active_dawgs(&(active_dawgs[0]), true);
   DawgArgs dawg_args(&(active_dawgs[0]), &(active_dawgs[1]), NO_PERM);
   WERD_CHOICE word(&getUnicharset(), MAX_WERD_LENGTH);
@@ -210,7 +210,7 @@ void Dict::permute_choices(
             debug, char_choice_index, *limit, word->rating(),
             word->certainty(), word->debug_string().c_str());
   }
-  if (char_choice_index < char_choices.length()) {
+  if (char_choice_index < char_choices.size()) {
     BLOB_CHOICE_IT blob_choice_it;
     blob_choice_it.set_to_list(char_choices.get(char_choice_index));
     for (blob_choice_it.mark_cycle_pt(); !blob_choice_it.cycled_list();
@@ -247,7 +247,7 @@ void Dict::append_choices(
     WERD_CHOICE *best_choice,
     int *attempts_left,
     void *more_args) {
-  int word_ending = (char_choice_index == char_choices.length() - 1);
+  int word_ending = (char_choice_index == char_choices.size() - 1);
 
   // Deal with fragments.
   CHAR_FRAGMENT_INFO char_frag_info;
