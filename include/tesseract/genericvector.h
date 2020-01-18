@@ -82,10 +82,6 @@ class GenericVector {
     return size_reserved_;
   }
 
-  int length() const {
-    return size_used_;
-  }
-
   // Return true if empty.
   bool empty() const {
     return size_used_ == 0;

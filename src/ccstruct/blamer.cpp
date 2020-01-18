@@ -130,7 +130,7 @@ void BlamerBundle::FillDebugString(const STRING &msg,
                                    const WERD_CHOICE *choice,
                                    STRING *debug) {
   (*debug) += "Truth ";
-  for (int i = 0; i < this->truth_text_.length(); ++i) {
+  for (int i = 0; i < this->truth_text_.size(); ++i) {
     (*debug) += this->truth_text_[i];
   }
   if (!this->truth_has_char_boxes_) (*debug) += " (no char boxes)";
@@ -451,12 +451,12 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD* word, bool debug) {
     }
   }
   if (blob_index < num_blobs ||  // trailing blobs
-      correct_segmentation_cols_.length() != norm_truth_word_.length()) {
+      correct_segmentation_cols_.size() != norm_truth_word_.length()) {
     debug_str.add_str_int("Blamer failed to find correct segmentation"
                           " (tolerance=", norm_box_tolerance_);
     if (blob_index >= num_blobs) debug_str += " blob == nullptr";
     debug_str += ")\n";
-    debug_str.add_str_int(" path length ", correct_segmentation_cols_.length());
+    debug_str.add_str_int(" path length ", correct_segmentation_cols_.size());
     debug_str.add_str_int(" vs. truth ", norm_truth_word_.length());
     debug_str += "\n";
     SetBlame(IRR_UNKNOWN, debug_str, nullptr, debug);
@@ -488,7 +488,7 @@ void BlamerBundle::InitForSegSearch(const WERD_CHOICE* best_choice,
   // Fill pain points for any unclassifed blob corresponding to the
   // correct segmentation state.
   *debug_str += "Correct segmentation:\n";
-  for (int idx = 0; idx < correct_segmentation_cols_.length(); ++idx) {
+  for (int idx = 0; idx < correct_segmentation_cols_.size(); ++idx) {
     debug_str->add_str_int("col=", correct_segmentation_cols_[idx]);
     debug_str->add_str_int(" row=", correct_segmentation_rows_[idx]);
     *debug_str += "\n";

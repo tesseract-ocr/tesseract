@@ -553,7 +553,7 @@ int Wordrec::select_blob_to_split(
   }
 
   if (split_next_to_fragment && blob_choices.size() > 0) {
-    fragments = new const CHAR_FRAGMENT *[blob_choices.length()];
+    fragments = new const CHAR_FRAGMENT *[blob_choices.size()];
     if (blob_choices[0] != nullptr) {
       fragments[0] = getDict().getUnicharset().get_fragment(
           blob_choices[0]->unichar_id());

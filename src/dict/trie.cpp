@@ -267,7 +267,7 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
 NODE_REF Trie::new_dawg_node() {
   auto *node = new TRIE_NODE_RECORD();
   nodes_.push_back(node);
-  return nodes_.length() - 1;
+  return nodes_.size() - 1;
 }
 
 // Sort function to sort words by decreasing order of length.

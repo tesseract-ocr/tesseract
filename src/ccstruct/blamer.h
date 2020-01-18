@@ -114,7 +114,7 @@ struct BlamerBundle {
   // Accessors.
   STRING TruthString() const {
     STRING truth_str;
-    for (int i = 0; i < truth_text_.length(); ++i)
+    for (int i = 0; i < truth_text_.size(); ++i)
       truth_str += truth_text_[i];
     return truth_str;
   }
@@ -139,7 +139,7 @@ struct BlamerBundle {
       best_correctly_segmented_rating_ = rating;
   }
   int correct_segmentation_length() const {
-    return correct_segmentation_cols_.length();
+    return correct_segmentation_cols_.size();
   }
   // Returns true if the given ratings matrix col,row position is included
   // in the correct segmentation path at the given index.
