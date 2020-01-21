@@ -1015,6 +1015,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
       return false;
     }
     tprintf("Page %d : %s\n", page, pagename);
+    fflush(stderr);
     bool r = ProcessPage(pix, page, pagename, retry_config,
                          timeout_millisec, renderer);
     pixDestroy(&pix);
