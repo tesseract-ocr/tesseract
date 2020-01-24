@@ -1,0 +1,34 @@
+name: macos
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macOS-latest]
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Download SW
+      shell: cmake -P {0}
+      run: |
+        if (WIN32)
+          file(DOWNLOAD "https://software-network.org/client/sw-master-windows-client.zip" ./sw.zip)
+        elseif (APPLE)
+          file(DOWNLOAD "https://software-network.org/client/sw-master-macos-client.tar.gz" ./sw.zip)
+        else()
+          file(DOWNLOAD "https://software-network.org/client/sw-master-linux-client.tar.gz" ./sw.zip)
+        endif()
+
+    - name: Unpack SW
+      run: cmake -E tar xvf sw.zip
+
+    - name: chmod
+      run: chmod 755 sw
+      shell: sh
+
+    - name: build
+      run: ./sw -static -shared -config d,r build

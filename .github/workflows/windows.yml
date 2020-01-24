@@ -1,4 +1,4 @@
-name: CI
+name: windows
 
 on: [push]
 
@@ -33,4 +33,3 @@ jobs:
 
     - name: build
       run: ./sw -static -shared -platform x86,x64 -config d,r build
-
