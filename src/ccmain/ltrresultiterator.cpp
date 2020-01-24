@@ -386,7 +386,8 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
   BLOB_CHOICE_LIST* choices = nullptr; 
   tstep_index_ = &result_it.blob_index_;
   if (oemLSTM_ && !word_res_->CTC_symbol_choices.empty()) {
-    if (strcmp(word_res_->CTC_symbol_choices[0][0].first, " ")) {
+    if (!word_res_->CTC_symbol_choices[0].empty() &&
+        strcmp(word_res_->CTC_symbol_choices[0][0].first, " ")) {
       blanks_before_word_ = 0;
     }
     auto index = *tstep_index_;
