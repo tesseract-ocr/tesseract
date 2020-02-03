@@ -2,50 +2,32 @@
 
 name: Cross build for Windows
 
-on: [push]
+on:
+  push:
+    branches:
+    - 'windows'
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-
-    runs-on: ${{ matrix.os }}
-
+  build32:
+    if: github.repository == 'UB-Mannheim/tesseract'
+    runs-on: [ubuntu-latest]
     steps:
     - uses: actions/checkout@v2
-
-    - name: Install cygwin key and add cygwin sources
-      run: |
-        curl -s https://qemu.weilnetz.de/debian/gpg.key | sudo apt-key add -
-        echo deb https://qemu.weilnetz.de/debian/ testing contrib | \
-        sudo tee /etc/apt/sources.list.d/cygwin.list
-
-    - name: Install packages
-      run: sudo apt-get update && sudo apt-get install g++-mingw-w64-x86-64 mingw-w64-tools nsis mingw64-x86-64-liblept5 mingw64-x86-64-curl mingw64-x86-64-libarchive mingw64-x86-64-giflib mingw64-x86-64-libpng mingw64-x86-64-libwebp mingw64-x86-64-openjpeg2 mingw64-x86-64-tiff mingw64-x86-64-pango1.0 mingw64-x86-64-icu asciidoc xsltproc
-
-    - name: Run autogen
-      run: ./autogen.sh
-
-    - name: Build Tesseract installer (64 bit)
-      run: |
-        # Run configure.
-        ./configure --disable-openmp --host=x86_64-w64-mingw32 \
-          --prefix=/usr/x86_64-w64-mingw32 \
-          CXX=x86_64-w64-mingw32-g++-posix \
-          CXXFLAGS="-fno-math-errno -Wall -Wextra -Wpedantic -g -O2"
-        # Make install-jars.
-        make install-jars prefix=$PWD/usr/x86_64-w64-mingw32
-        # Make install.
-        make install prefix=$PWD/usr/x86_64-w64-mingw32
-        # Make training-install.
-        make training-install prefix=$PWD/usr/x86_64-w64-mingw32
-        # Make winsetup.
-        make html winsetup prefix=$PWD/usr/x86_64-w64-mingw32
-        # Copy result for upload.
-        mkdir -p dist && cp nsis/tesseract-ocr-w64-setup-*.exe dist/
-
+    - name: Build Tesseract installer (32 bit)
+      run: .github/workflows/build.sh i686
     - uses: actions/upload-artifact@v1
       with:
-        name: Tesseract Installer for Windows
+        name: Tesseract Installer for Windows (32 bit)
+        path: dist
+
+  build64:
+    if: github.repository == 'UB-Mannheim/tesseract'
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build Tesseract installer (64 bit)
+      run: .github/workflows/build.sh x86_64
+    - uses: actions/upload-artifact@v1
+      with:
+        name: Tesseract Installer for Windows (64 bit)
         path: dist
