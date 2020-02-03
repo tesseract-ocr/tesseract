@@ -30,7 +30,7 @@
   * Enabled OpenMP support.
   * Parameter unlv_tilde_crunching change to false.
   * Miscellaneous Fixes.
-  * Detailed Changelog can be found at https://github.com/tesseract-ocr/tesseract/wiki/4.0x-Changelog and https://github.com/tesseract-ocr/tesseract/wiki/ReleaseNotes#tesseract-release-notes-oct-29-2018---v400
+  * Detailed Changelog can be found at https://tesseract-ocr.github.io/tessdoc/4.0x-Changelog.html and https://tesseract-ocr.github.io/tessdoc/ReleaseNotes.html#tesseract-release-notes-oct-29-2018---v400
 
 2017-02-16 - V3.05.00
   * Made some fine tuning to the hOCR output.
