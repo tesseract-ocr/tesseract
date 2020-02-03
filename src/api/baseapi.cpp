@@ -1149,13 +1149,33 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
     } else {
       CURLcode curlcode;
       curlcode = curl_easy_setopt(curl, CURLOPT_URL, filename);
-      ASSERT_HOST(curlcode == CURLE_OK);
+      if (curlcode != CURLE_OK) {
+        fprintf(stderr, "Error, curl_easy_setopt failed with error %s\n",
+                curl_easy_strerror(curlcode));
+        curl_easy_cleanup(curl);
+        return false;
+      }
       curlcode = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-      ASSERT_HOST(curlcode == CURLE_OK);
+      if (curlcode != CURLE_OK) {
+        fprintf(stderr, "Error, curl_easy_setopt failed with error %s\n",
+                curl_easy_strerror(curlcode));
+        curl_easy_cleanup(curl);
+        return false;
+      }
       curlcode = curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buf);
-      ASSERT_HOST(curlcode == CURLE_OK);
+      if (curlcode != CURLE_OK) {
+        fprintf(stderr, "Error, curl_easy_setopt failed with error %s\n",
+                curl_easy_strerror(curlcode));
+        curl_easy_cleanup(curl);
+        return false;
+      }
       curlcode = curl_easy_perform(curl);
-      ASSERT_HOST(curlcode == CURLE_OK);
+      if (curlcode != CURLE_OK) {
+        fprintf(stderr, "Error, curl_easy_perform failed with error %s\n",
+                curl_easy_strerror(curlcode));
+        curl_easy_cleanup(curl);
+        return false;
+      }
       curl_easy_cleanup(curl);
       data = reinterpret_cast<const l_uint8 *>(buf.data());
     }
