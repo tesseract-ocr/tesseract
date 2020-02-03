@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
   if (FLAGS_traineddata.empty()) {
-    tprintf("Must provide a --traineddata see training wiki\n");
+    tprintf("Must provide a --traineddata see training documentation\n");
     return EXIT_FAILURE;
   }
 

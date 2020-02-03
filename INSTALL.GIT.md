@@ -48,7 +48,7 @@ Just run:
 
     $ make ScrollView.jar
 
-and follow the instruction on [Viewer Debugging wiki](https://github.com/tesseract-ocr/tesseract/wiki/ViewerDebugging).
+and follow the instruction on [Viewer Debugging](https://tesseract-ocr.github.io/tessdoc/ViewerDebugging.html).
 
 
 # CMAKE
@@ -64,4 +64,4 @@ There is alternative build system based on multiplatform [cmake](https://cmake.o
 
 ## WINDOWS
 
-See [Wiki](https://github.com/tesseract-ocr/tesseract/wiki) for more information on this.
+See the [documentation](https://tesseract-ocr.github.io/tessdoc/) for more information on this.

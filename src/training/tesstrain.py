@@ -14,7 +14,7 @@
 #
 # This script provides an easy way to execute various phases of training
 # Tesseract.  For a detailed description of the phases, see
-# https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
+# https://tesseract-ocr.github.io/tessdoc/Training-Tesseract.html.
 
 import logging
 import os

@@ -29,11 +29,14 @@ Tesseract has **unicode (UTF-8) support**, and can **recognize more than 100 lan
 
 Tesseract supports **various output formats**: plain text, hOCR (HTML), PDF, invisible-text-only PDF, TSV. The master branch also has experimental support for ALTO (XML) output.
 
-You should note that in many cases, in order to get better OCR results, you'll need to **[improve the quality](https://github.com/tesseract-ocr/tesseract/wiki/ImproveQuality) of the image** you are giving Tesseract.
+You should note that in many cases, in order to get better OCR results,
+you'll need to **[improve the quality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html) of the image** you are giving Tesseract.
 
-This project **does not include a GUI application**. If you need one, please see the [3rdParty](https://github.com/tesseract-ocr/tesseract/wiki/User-Projects-%E2%80%93-3rdParty) wiki page.
+This project **does not include a GUI application**.
+If you need one, please see the [3rdParty](https://tesseract-ocr.github.io/tessdoc/User-Projects-%E2%80%93-3rdParty.html) documentation.
 
-Tesseract **can be trained to recognize other languages**. See [Tesseract Training](https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract) for more information.
+Tesseract **can be trained to recognize other languages**.
+See [Tesseract Training](https://tesseract-ocr.github.io/tessdoc/Training-Tesseract.html) for more information.
 
 ## Brief history
 
@@ -45,15 +48,18 @@ In 2005 Tesseract was open sourced by HP. Since 2006 it is developed by Google.
 The latest (LSTM based) stable version is **[4.1.1](https://github.com/tesseract-ocr/tesseract/releases/tag/4.1.1)**, released on December 26, 2019.
 Latest source code is available from [master branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/master).
 Open issues can be found in [issue tracker](https://github.com/tesseract-ocr/tesseract/issues),
-and [Planning wiki](https://github.com/tesseract-ocr/tesseract/wiki/Planning).
+and [planning documentation](https://tesseract-ocr.github.io/tessdoc/Planning.html).
 
-The latest 3.0x version is **[3.05.02](https://github.com/tesseract-ocr/tesseract/releases/tag/3.05.02)**, released on June 19, 2018. Latest source code for 3.05 is available from [3.05 branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/3.05). There is no development for this version, but it can be used for special cases (e.g. see [Regression of features from 3.0x](https://github.com/tesseract-ocr/tesseract/wiki/Planning#regression-of-features-from-30x)).
+The latest 3.0x version is **[3.05.02](https://github.com/tesseract-ocr/tesseract/releases/tag/3.05.02)**, released on June 19, 2018. Latest source code for 3.05 is available from [3.05 branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/3.05).
+There is no development for this version, but it can be used for special cases (e.g. see [Regression of features from 3.0x](https://tesseract-ocr.github.io/tessdoc/Planning.html#regression-of-features-from-30x)).
 
-See **[Release Notes](https://github.com/tesseract-ocr/tesseract/wiki/ReleaseNotes)** and **[Change Log](https://github.com/tesseract-ocr/tesseract/blob/master/ChangeLog)** for more details of the releases.
+See **[Release Notes](https://tesseract-ocr.github.io/tessdoc/ReleaseNotes.html)**
+and **[Change Log](https://github.com/tesseract-ocr/tesseract/blob/master/ChangeLog)** for more details of the releases.
 
 ## Installing Tesseract
 
-You can either [Install Tesseract via pre-built binary package](https://github.com/tesseract-ocr/tesseract/wiki) or [build it from source](https://github.com/tesseract-ocr/tesseract/wiki/Compiling).
+You can either [Install Tesseract via pre-built binary package](https://tesseract-ocr.github.io/tessdoc/)
+or [build it from source](https://tesseract-ocr.github.io/tessdoc/Compiling.html).
 
 Supported Compilers are:
 
@@ -65,20 +71,20 @@ Other compilers might work, but are not officially supported.
 
 ## Running Tesseract
 
-Basic **[command line usage](https://github.com/tesseract-ocr/tesseract/wiki/Command-Line-Usage)**:
+Basic **[command line usage](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html)**:
 
     tesseract imagename outputbase [-l lang] [--oem ocrenginemode] [--psm pagesegmode] [configfiles...]
 
 For more information about the various command line options use `tesseract --help` or `man tesseract`.
 
-Examples can be found in the [wiki](https://github.com/tesseract-ocr/tesseract/wiki/Command-Line-Usage#simplest-invocation-to-ocr-an-image).
+Examples can be found in the [documentatin](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html#simplest-invocation-to-ocr-an-image).
 
 ## For developers
 
 Developers can use `libtesseract` [C](https://github.com/tesseract-ocr/tesseract/blob/master/include/tesseract/capi.h) or
 [C++](https://github.com/tesseract-ocr/tesseract/blob/master/include/tesseract/baseapi.h) API to build their own application.
 If you need bindings to `libtesseract` for other programming languages, please see the
-[wrapper](https://github.com/tesseract-ocr/tesseract/wiki/AddOns#tesseract-wrappers) section on AddOns wiki page.
+[wrapper](https://tesseract-ocr.github.io/tessdoc/AddOns.html#tesseract-wrappers) section in the AddOns documentation.
 
 Documentation of Tesseract generated from source code by doxygen can be found on [tesseract-ocr.github.io](https://tesseract-ocr.github.io/).
 
@@ -86,7 +92,9 @@ Documentation of Tesseract generated from source code by doxygen can be found on
 
 Before you submit an issue, please review **[the guidelines for this repository](https://github.com/tesseract-ocr/tesseract/blob/master/CONTRIBUTING.md)**.
 
-For support, first read the [Wiki](https://github.com/tesseract-ocr/tesseract/wiki), particularly the [FAQ](https://github.com/tesseract-ocr/tesseract/wiki/FAQ) to see if your problem is addressed there. If not, search the [Tesseract user forum](https://groups.google.com/d/forum/tesseract-ocr), the [Tesseract developer forum](https://groups.google.com/d/forum/tesseract-dev) and [past issues](https://github.com/tesseract-ocr/tesseract/issues), and if you still can't find what you need, ask for support in the mailing-lists.
+For support, first read the [documentation](https://tesseract-ocr.github.io/tessdoc/),
+particularly the [FAQ](https://tesseract-ocr.github.io/tessdoc/FAQ.html) to see if your problem is addressed there.
+If not, search the [Tesseract user forum](https://groups.google.com/d/forum/tesseract-ocr), the [Tesseract developer forum](https://groups.google.com/d/forum/tesseract-dev) and [past issues](https://github.com/tesseract-ocr/tesseract/issues), and if you still can't find what you need, ask for support in the mailing-lists.
 
 Mailing-lists:
 * [tesseract-ocr](https://groups.google.com/d/forum/tesseract-ocr) - For tesseract users.

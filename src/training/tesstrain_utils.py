@@ -11,7 +11,7 @@
 # limitations under the License.
 #
 # For a detailed description of the phases, see
-# https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
+# https://tesseract-ocr.github.io/tessdoc/Training-Tesseract.html.
 #
 
 import argparse
