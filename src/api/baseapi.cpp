@@ -219,7 +219,11 @@ TessBaseAPI::TessBaseAPI()
   // problems caused by the locale settings.
 
   // Use the current locale if building debug code.
-  std::locale::global(std::locale(""));
+  try {
+    std::locale::global(std::locale(""));
+  } catch (const std::runtime_error& ex) {
+    fprintf(stderr, "Warning: Could not set the current locale\n");
+  }
 #endif
 }
 
