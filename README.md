@@ -77,7 +77,7 @@ Basic **[command line usage](https://tesseract-ocr.github.io/tessdoc/Command-Lin
 
 For more information about the various command line options use `tesseract --help` or `man tesseract`.
 
-Examples can be found in the [documentatin](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html#simplest-invocation-to-ocr-an-image).
+Examples can be found in the [documentation](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html#simplest-invocation-to-ocr-an-image).
 
 ## For developers
 
