@@ -42,6 +42,21 @@ void build(Solution &s)
         {
             libtesseract += "__SSE4_1__"_def;
             libtesseract.CompileOptions.push_back("-arch:AVX2");
+
+            // openmp
+            //if (libtesseract.getOptions()["openmp"] == "true")
+            if (0)
+            {
+                if (libtesseract.getCompilerType() == CompilerType::MSVC)
+                    libtesseract.CompileOptions.push_back("-openmp");
+                else
+                    libtesseract.CompileOptions.push_back("-fopenmp");
+                libtesseract += "_OPENMP=201107"_def;
+                if (libtesseract.getBuildSettings().Native.ConfigurationType == ConfigurationType::Debug)
+                    libtesseract += "vcompd.lib"_slib;
+                else
+                    libtesseract += "vcomp.lib"_slib;
+            }
         }
 
         // check fma flags
