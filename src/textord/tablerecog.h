@@ -22,6 +22,8 @@
 
 #include "colpartitiongrid.h"
 #include <tesseract/genericvector.h>
+#include <vector>
+#include "points.h"
 
 namespace tesseract {
 
@@ -136,6 +138,11 @@ class StructuredTable {
   // Debug display, draws the table in the given color. If the table is not
   // valid, the table and "best" grid lines are still drawn in the given color.
   void Display(ScrollView* window, ScrollView::Color color);
+  
+  /// calcualte bounding boxes of the rows and return them
+  std::vector<TBOX> getRows();
+  /// calcualte bounding boxes of the columns and return them
+  std::vector<TBOX> getCols();
 
  protected:
   // Clear the structure information.
