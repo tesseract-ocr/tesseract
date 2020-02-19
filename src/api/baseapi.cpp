@@ -94,6 +94,7 @@
 #include <tesseract/thresholder.h>       // for ImageThresholder
 #include "tprintf.h"           // for tprintf
 #include "werd.h"              // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
+#include "tabletransfer.hpp"   // for detected tables from tablefind.h
 
 static BOOL_VAR(stream_filelist, false, "Stream a filelist from stdin");
 static STRING_VAR(document_title, "", "Title of output document (used for hOCR and PDF output)");
@@ -1364,6 +1365,62 @@ char* TessBaseAPI::GetUTF8Text() {
   strncpy(result, text.c_str(), text.length() + 1);
   delete it;
   return result;
+}
+
+size_t TessBaseAPI::GetNumberOfTables()
+{
+  return constUniqueInstance<std::vector<MyTable>>().size();
+  
+}
+
+std::tuple<int,int,int,int> TessBaseAPI::GetTableBoundingBox(unsigned i)
+{
+  const std::vector<MyTable>& t = constUniqueInstance<std::vector<MyTable>>();
+  
+  if(i >= t.size())
+    return std::tuple<int,int,int,int>(0, 0, 0, 0);
+  
+  const int height = tesseract_->ImageHeight();
+  
+  return std::make_tuple<int,int,int,int>(
+    t[i].box.left(), height - t[i].box.top(),
+    t[i].box.right(), height - t[i].box.bottom());
+}
+  
+std::vector<std::tuple<int,int,int,int>> TessBaseAPI::GetTableRows(unsigned i)
+{
+  const std::vector<MyTable>& t = constUniqueInstance<std::vector<MyTable>>();
+  
+  if(i >= t.size())
+    return std::vector<std::tuple<int,int,int,int>>();
+  
+  std::vector<std::tuple<int,int,int,int>> rows(t[i].rows.size());
+  const int height = tesseract_->ImageHeight();
+  
+  for(unsigned j = 0; j < t[i].rows.size(); ++j)
+    rows[j] = std::make_tuple<int,int,int,int>(
+      t[i].rows[j].left(), height - t[i].rows[j].top(),
+      t[i].rows[j].right(), height - t[i].rows[j].bottom());
+  
+  return rows;
+}
+  
+std::vector<std::tuple<int,int,int,int> > TessBaseAPI::GetTableCols(unsigned i)
+{
+  const std::vector<MyTable>& t = constUniqueInstance<std::vector<MyTable>>();
+  
+  if(i >= t.size())
+    return std::vector<std::tuple<int,int,int,int>>();
+  
+  std::vector<std::tuple<int,int,int,int>> cols(t[i].cols.size());
+  const int height = tesseract_->ImageHeight();
+  
+  for(unsigned j = 0; j < t[i].cols.size(); ++j)
+    cols[j] = std::make_tuple<int,int,int,int>(
+      t[i].cols[j].left(), height - t[i].cols[j].top(),
+      t[i].cols[j].right(), height - t[i].cols[j].bottom());
+  
+  return cols;
 }
 
 static void AddBoxToTSV(const PageIterator* it, PageIteratorLevel level,

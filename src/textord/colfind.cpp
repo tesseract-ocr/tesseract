@@ -36,6 +36,7 @@
 #include "tablefind.h"
 #include "params.h"
 #include "workingpartset.h"
+#include "tabletransfer.hpp"
 
 #include <algorithm>
 
@@ -1574,6 +1575,10 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl,
       tprintf("Block median size = (%d, %d)\n",
               block->median_size().x(), block->median_size().y());
   }
+ 
+  std::vector<MyTable>& tables = uniqueInstance<std::vector<MyTable>>();
+  for(MyTable& mt: tables)
+    mt.box.rotate_large(reskew_);
 }
 
 // Computes the rotations for the block (to make textlines horizontal) and

@@ -21,6 +21,7 @@
 
 #include <cstdio>
 #include <functional>  // for std::function
+#include <tuple>
 
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
@@ -566,7 +567,23 @@ class TESS_API TessBaseAPI {
    * as UTF8 and must be freed with the delete [] operator.
    */
   char* GetUTF8Text();
-
+  
+  size_t GetNumberOfTables();
+  
+  /// return value is x1,y1,x2,y2 of the bounding rectangle
+  std::tuple<int,int,int,int> GetTableBoundingBox(
+    unsigned i///<Table index needs to be lesser than GetNumberOfTables()
+  );
+  
+  /// return values are x1,y1,x2,y2 of the bounding rectangles
+  std::vector<std::tuple<int,int,int,int> > GetTableRows(
+    unsigned i///<Table index needs to be lesser than GetNumberOfTables()
+  );
+  
+  /// return values are x1,y1,x2,y2 of the bounding rectangles
+  std::vector<std::tuple<int,int,int,int> > GetTableCols(
+    unsigned i///<Table index needs to be lesser than GetNumberOfTables()
+  );
   /**
    * Make a HTML-formatted string with hOCR markup from the internal
    * data structures.
