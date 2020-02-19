@@ -2215,6 +2215,8 @@ void TessBaseAPI::ClearResults() {
     delete paragraph_models_;
     paragraph_models_ = nullptr;
   }
+
+  uniqueInstance<std::vector<MyTable>>().clear();
 }
 
 /**
