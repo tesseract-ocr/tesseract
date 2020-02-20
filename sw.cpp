@@ -12,6 +12,7 @@ void build(Solution &s)
 
         libtesseract += cpp14;
 
+        libtesseract += "include/.*"_rr;
         libtesseract += "src/.*"_rr;
         libtesseract -= "src/lstm/.*\\.cc"_rr;
         libtesseract -= "src/training/.*"_rr;
