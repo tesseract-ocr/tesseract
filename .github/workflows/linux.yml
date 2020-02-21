@@ -28,18 +28,5 @@ jobs:
         cmake -E tar xvf sw.zip
         chmod 755 sw
 
-    - name: gcc
-      run: |
-        sudo add-apt-repository ppa:jonathonf/gcc-9.0
-        sudo apt-get update
-        sudo apt-get install g++-9
-
-    - name: llvm
-      run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key 2>/dev/null | sudo apt-key add -
-        sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main' -y
-        sudo apt-get update -q
-        sudo apt-get install -y clang-9 lld-9 libc++-9-dev libc++abi-9-dev clang-tools-9
-
     - name: build
       run: ./sw -static -shared -config d,r build
