@@ -99,19 +99,26 @@ SIMDDetect::SIMDDetect() {
 #if defined(HAVE_SSE4_1)
     sse_available_ = (ecx & 0x00080000) != 0;
 #endif
+#if defined(HAVE_AVX) || defined(HAVE_AVX2) || defined(HAVE_FMA)
+    uint32_t xcr0;
+    __asm__("xgetbv" : "=a" (xcr0) : "c" (0) : "%edx");
+    if ((ecx & 0x08000000) && ((xcr0 & 6) == 6)) {
+      // OSXSAVE bit is set, XMM state and YMM state are fine.
 #if defined(HAVE_FMA)
-    fma_available_ = (ecx & 0x00001000) != 0;
+      fma_available_ = (ecx & 0x00001000) != 0;
 #endif
 #if defined(HAVE_AVX)
-    avx_available_ = (ecx & 0x10000000) != 0;
-    if (avx_available_) {
-      // There is supposed to be a __get_cpuid_count function, but this is all
-      // there is in my cpuid.h. It is a macro for an asm statement and cannot
-      // be used inside an if.
-      __cpuid_count(7, 0, eax, ebx, ecx, edx);
-      avx2_available_ = (ebx & 0x00000020) != 0;
-      avx512F_available_ = (ebx & 0x00010000) != 0;
-      avx512BW_available_ = (ebx & 0x40000000) != 0;
+      avx_available_ = (ecx & 0x10000000) != 0;
+      if (avx_available_) {
+        // There is supposed to be a __get_cpuid_count function, but this is all
+        // there is in my cpuid.h. It is a macro for an asm statement and cannot
+        // be used inside an if.
+        __cpuid_count(7, 0, eax, ebx, ecx, edx);
+        avx2_available_ = (ebx & 0x00000020) != 0;
+        avx512F_available_ = (ebx & 0x00010000) != 0;
+        avx512BW_available_ = (ebx & 0x40000000) != 0;
+      }
+#endif
     }
 #endif
   }
