@@ -100,9 +100,12 @@ SIMDDetect::SIMDDetect() {
     sse_available_ = (ecx & 0x00080000) != 0;
 #endif
 #if defined(HAVE_AVX) || defined(HAVE_AVX2) || defined(HAVE_FMA)
-    uint32_t xcr0;
-    __asm__("xgetbv" : "=a" (xcr0) : "c" (0) : "%edx");
-    if ((ecx & 0x08000000) && ((xcr0 & 6) == 6)) {
+    auto xgetbv = []() {
+      uint32_t xcr0;
+      __asm__("xgetbv" : "=a" (xcr0) : "c" (0) : "%edx");
+      return xcr0;
+    };
+    if ((ecx & 0x08000000) && ((xgetbv() & 6) == 6)) {
       // OSXSAVE bit is set, XMM state and YMM state are fine.
 #if defined(HAVE_FMA)
       fma_available_ = (ecx & 0x00001000) != 0;
