@@ -1,14 +1,13 @@
-name: windows
+name: sw
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
-        #os: [windows-latest, ubuntu-latest, macOS-latest]
+        os: [windows-latest, ubuntu-latest, macOS-latest]
 
     steps:
     - uses: actions/checkout@v1
@@ -23,7 +22,6 @@ jobs:
         else()
           file(DOWNLOAD "https://software-network.org/client/sw-master-linux-client.tar.gz" ./sw.zip)
         endif()
-
     - name: Unpack SW
       run: cmake -E tar xvf sw.zip
 
@@ -32,4 +30,9 @@ jobs:
       shell: sh
 
     - name: build
+      if: matrix.os == 'windows-latest'
       run: ./sw -static -shared -platform x86,x64 -config d,r build
+
+    - name: build
+      if: matrix.os != 'windows-latest'
+      run: ./sw -static -shared -config d,r build
