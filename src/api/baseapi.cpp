@@ -1148,14 +1148,28 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
       return false;
     } else {
       CURLcode curlcode;
+      auto error = [curl, curlcode](const char* function) {
+        fprintf(stderr, "Error, %s failed with error %s\n", function,
+                curl_easy_strerror(curlcode));
+        curl_easy_cleanup(curl);
+        return false;
+      };
       curlcode = curl_easy_setopt(curl, CURLOPT_URL, filename);
-      ASSERT_HOST(curlcode == CURLE_OK);
+      if (curlcode != CURLE_OK) {
+        return error("curl_easy_setopt");
+      }
       curlcode = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-      ASSERT_HOST(curlcode == CURLE_OK);
+      if (curlcode != CURLE_OK) {
+        return error("curl_easy_setopt");
+      }
       curlcode = curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buf);
-      ASSERT_HOST(curlcode == CURLE_OK);
+      if (curlcode != CURLE_OK) {
+        return error("curl_easy_setopt");
+      }
       curlcode = curl_easy_perform(curl);
-      ASSERT_HOST(curlcode == CURLE_OK);
+      if (curlcode != CURLE_OK) {
+        return error("curl_easy_perform");
+      }
       curl_easy_cleanup(curl);
       data = reinterpret_cast<const l_uint8 *>(buf.data());
     }
