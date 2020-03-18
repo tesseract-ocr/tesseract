@@ -1147,14 +1147,13 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
       fprintf(stderr, "Error, curl_easy_init failed\n");
       return false;
     } else {
-      CURLcode curlcode;
+      CURLcode curlcode = curl_easy_setopt(curl, CURLOPT_URL, filename);
       auto error = [curl, curlcode](const char* function) {
         fprintf(stderr, "Error, %s failed with error %s\n", function,
                 curl_easy_strerror(curlcode));
         curl_easy_cleanup(curl);
         return false;
       };
-      curlcode = curl_easy_setopt(curl, CURLOPT_URL, filename);
       if (curlcode != CURLE_OK) {
         return error("curl_easy_setopt");
       }
