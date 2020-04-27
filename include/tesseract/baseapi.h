@@ -738,54 +738,6 @@ class TESS_API TessBaseAPI {
   void GetBlockTextOrientations(int** block_orientation,
                                 bool** vertical_writing);
 
-#ifndef DISABLED_LEGACY_ENGINE
-
-  /** Sets Wordrec::fill_lattice_ function to point to the given function. */
-  void SetFillLatticeFunc(FillLatticeFunc f);
-
-  /** Find lines from the image making the BLOCK_LIST. */
-  BLOCK_LIST* FindLinesCreateBlockList();
-
-  /**
-   * Delete a block list.
-   * This is to keep BLOCK_LIST pointer opaque
-   * and let go of including the other headers.
-   */
-  static void DeleteBlockList(BLOCK_LIST* block_list);
-
-  /** Returns a ROW object created from the input row specification. */
-  static ROW* MakeTessOCRRow(float baseline, float xheight, float descender,
-                             float ascender);
-
-  /** Returns a TBLOB corresponding to the entire input image. */
-  static TBLOB* MakeTBLOB(Pix* pix);
-
-  /**
-   * This method baseline normalizes a TBLOB in-place. The input row is used
-   * for normalization. The denorm is an optional parameter in which the
-   * normalization-antidote is returned.
-   */
-  static void NormalizeTBLOB(TBLOB* tblob, ROW* row, bool numeric_mode);
-
-  /** This method returns the features associated with the input image. */
-  void GetFeaturesForBlob(TBLOB* blob, INT_FEATURE_STRUCT* int_features,
-                          int* num_features, int* feature_outline_index);
-
-  /**
-   * This method returns the row to which a box of specified dimensions would
-   * belong. If no good match is found, it returns nullptr.
-   */
-  static ROW* FindRowForBox(BLOCK_LIST* blocks, int left, int top, int right,
-                            int bottom);
-
-  /**
-   * Method to run adaptive classifier on a blob.
-   * It returns at max num_max_matches results.
-   */
-  void RunAdaptiveClassifier(TBLOB* blob, int num_max_matches, int* unichar_ids,
-                             float* ratings, int* num_matches_returned);
-#endif  // ndef DISABLED_LEGACY_ENGINE
-
   /** This method returns the string form of the specified unichar. */
   const char* GetUnichar(int unichar_id);
 
@@ -847,40 +799,6 @@ class TESS_API TessBaseAPI {
 
   //// paragraphs.cpp ////////////////////////////////////////////////////
   TESS_LOCAL void DetectParagraphs(bool after_text_recognition);
-
-#ifndef DISABLED_LEGACY_ENGINE
-
-  /** @defgroup ocropusAddOns ocropus add-ons */
-  /* @{ */
-
-  /**
-   * Adapt to recognize the current image as the given character.
-   * The image must be preloaded and be just an image of a single character.
-   */
-  TESS_LOCAL void AdaptToCharacter(const char* unichar_repr, int length,
-                                   float baseline, float xheight,
-                                   float descender, float ascender);
-
-  /** Recognize text doing one pass only, using settings for a given pass. */
-  TESS_LOCAL PAGE_RES* RecognitionPass1(BLOCK_LIST* block_list);
-
-  TESS_LOCAL PAGE_RES* RecognitionPass2(BLOCK_LIST* block_list,
-                                        PAGE_RES* pass1_result);
-
-  /**
-   * Extract the OCR results, costs (penalty points for uncertainty),
-   * and the bounding boxes of the characters.
-   */
-  TESS_LOCAL static int TesseractExtractResult(char** text, int** lengths,
-                                               float** costs, int** x0,
-                                               int** y0, int** x1, int** y1,
-                                               PAGE_RES* page_res);
-
-  TESS_LOCAL const PAGE_RES* GetPageRes() const {
-    return page_res_;
-  }
-  /* @} */
-#endif  // ndef DISABLED_LEGACY_ENGINE
 
  protected:
   Tesseract* tesseract_;           ///< The underlying data object.
