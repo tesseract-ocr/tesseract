@@ -196,6 +196,9 @@ class ImageData {
  private:
   STRING imagefilename_;             // File to read image from.
   int32_t page_number_;              // Page number if multi-page tif or -1.
+#ifdef TESSERACT_IMAGEDATA_AS_PIX
+  Pix *internal_pix_;
+#endif
   GenericVector<char> image_data_;   // PNG/PNM file data.
   STRING language_;                  // Language code for image.
   STRING transcription_;             // UTF-8 ground truth of image.

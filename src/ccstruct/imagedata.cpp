@@ -207,12 +207,28 @@ bool ImageData::SkipDeSerialize(TFile* fp) {
 // In case of missing PNG support in Leptonica use PNM format,
 // which requires more memory.
 void ImageData::SetPix(Pix* pix) {
+#ifdef TESSERACT_IMAGEDATA_AS_PIX
+  internal_pix_ = pix;
+#else
   SetPixInternal(pix, &image_data_);
+#endif
 }
 
 // Returns the Pix image for *this. Must be pixDestroyed after use.
 Pix* ImageData::GetPix() const {
+#ifdef TESSERACT_IMAGEDATA_AS_PIX
+#ifdef GRAPHICS_DISABLED
+  /* The only caller of this is the scaling functions to prescale the
+   * source. Thus we can just return a new pointer to the same data. */
+  return pixClone(internal_pix_);
+#else
+  /* pixCopy always does an actual copy, so the caller can modify the
+   * changed data. */
+  return pixCopy(NULL, internal_pix_);
+#endif
+#else
   return GetPixInternal(image_data_);
+#endif
 }
 
 // Gets anything and everything with a non-nullptr pointer, prescaled to a
@@ -320,6 +336,7 @@ void ImageData::AddBoxes(const GenericVector<TBOX>& boxes,
   }
 }
 
+#ifndef TESSERACT_IMAGEDATA_AS_PIX
 // Saves the given Pix as a PNG-encoded string and destroys it.
 // In case of missing PNG support in Leptonica use PNM format,
 // which requires more memory.
@@ -348,6 +365,7 @@ Pix* ImageData::GetPixInternal(const GenericVector<char>& image_data) {
   }
   return pix;
 }
+#endif
 
 // Parses the text string as a box file and adds any discovered boxes that
 // match the page number. Returns false on error.
