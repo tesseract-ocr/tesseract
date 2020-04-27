@@ -524,40 +524,6 @@ TESS_API void TessMonitorSetProgressFunc(ETEXT_DESC* monitor,
 TESS_API int TessMonitorGetProgress(ETEXT_DESC* monitor);
 TESS_API void TessMonitorSetDeadlineMSecs(ETEXT_DESC* monitor, int deadline);
 
-#ifndef DISABLED_LEGACY_ENGINE
-
-#  ifdef TESS_CAPI_INCLUDE_BASEAPI
-TESS_API void TessBaseAPISetFillLatticeFunc(TessBaseAPI* handle,
-                                            TessFillLatticeFunc f);
-
-TESS_API void TessBaseAPIGetFeaturesForBlob(TessBaseAPI* handle, TBLOB* blob,
-                                            INT_FEATURE_STRUCT* int_features,
-                                            int* num_features,
-                                            int* FeatureOutlineIndex);
-
-TESS_API ROW* TessFindRowForBox(BLOCK_LIST* blocks, int left, int top,
-                                int right, int bottom);
-
-TESS_API void TessBaseAPIRunAdaptiveClassifier(TessBaseAPI* handle, TBLOB* blob,
-                                               int num_max_matches,
-                                               int* unichar_ids, float* ratings,
-                                               int* num_matches_returned);
-
-TESS_API ROW* TessMakeTessOCRRow(float baseline, float xheight, float descender,
-                                 float ascender);
-
-TESS_API TBLOB* TessMakeTBLOB(Pix* pix);
-
-TESS_API void TessNormalizeTBLOB(TBLOB* tblob, ROW* row, BOOL numeric_mode);
-
-TESS_API BLOCK_LIST* TessBaseAPIFindLinesCreateBlockList(TessBaseAPI* handle);
-
-TESS_API void TessDeleteBlockList(BLOCK_LIST* block_list);
-
-#  endif  // def TESS_CAPI_INCLUDE_BASEAPI
-
-#endif  // ndef DISABLED_LEGACY_ENGINE
-
 #ifdef __cplusplus
 }
 #endif

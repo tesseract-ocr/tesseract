@@ -41,12 +41,6 @@ void TessDeleteIntArray(const int* arr) {
   delete[] arr;
 }
 
-#ifndef DISABLED_LEGACY_ENGINE
-void TessDeleteBlockList(BLOCK_LIST* block_list) {
-  TessBaseAPI::DeleteBlockList(block_list);
-}
-#endif
-
 TessResultRenderer*
 TessTextRendererCreate(const char* outputbase) {
   return new tesseract::TessTextRenderer(outputbase);
@@ -597,25 +591,6 @@ BOOL TessBaseAPIDetectOrientationScript(
   return static_cast<BOOL>(success);
 }
 
-void TessBaseAPIGetFeaturesForBlob(
-    TessBaseAPI* handle, TBLOB* blob, INT_FEATURE_STRUCT* int_features,
-    int* num_features, int* FeatureOutlineIndex) {
-  handle->GetFeaturesForBlob(blob, int_features, num_features,
-                             FeatureOutlineIndex);
-}
-
-ROW* TessFindRowForBox(BLOCK_LIST* blocks, int left, int top,
-                                          int right, int bottom) {
-  return TessBaseAPI::FindRowForBox(blocks, left, top, right, bottom);
-}
-
-void TessBaseAPIRunAdaptiveClassifier(
-    TessBaseAPI* handle, TBLOB* blob, int num_max_matches, int* unichar_ids,
-    float* ratings, int* num_matches_returned) {
-  handle->RunAdaptiveClassifier(blob, num_max_matches, unichar_ids, ratings,
-                                num_matches_returned);
-}
-
 #endif  // ndef DISABLED_LEGACY_ENGINE
 
 const char* TessBaseAPIGetUnichar(TessBaseAPI* handle,
@@ -631,22 +606,6 @@ const TessDawg* TessBaseAPIGetDawg(const TessBaseAPI* handle,
 int TessBaseAPINumDawgs(const TessBaseAPI* handle) {
   return handle->NumDawgs();
 }
-
-#ifndef DISABLED_LEGACY_ENGINE
-ROW* TessMakeTessOCRRow(float baseline, float xheight,
-                                           float descender, float ascender) {
-  return TessBaseAPI::MakeTessOCRRow(baseline, xheight, descender, ascender);
-}
-
-TBLOB* TessMakeTBLOB(struct Pix* pix) {
-  return TessBaseAPI::MakeTBLOB(pix);
-}
-
-void TessNormalizeTBLOB(TBLOB* tblob, ROW* row,
-                                           BOOL numeric_mode) {
-  TessBaseAPI::NormalizeTBLOB(tblob, row, static_cast<bool>(numeric_mode));
-}
-#endif  // ndef DISABLED_LEGACY_ENGINE
 
 TessOcrEngineMode TessBaseAPIOem(const TessBaseAPI* handle) {
   return handle->oem();
@@ -666,13 +625,6 @@ void TessBaseGetBlockTextOrientations(
     TessBaseAPI* handle, int** block_orientation, bool** vertical_writing) {
   handle->GetBlockTextOrientations(block_orientation, vertical_writing);
 }
-
-#ifndef DISABLED_LEGACY_ENGINE
-BLOCK_LIST*
-TessBaseAPIFindLinesCreateBlockList(TessBaseAPI* handle) {
-  return handle->FindLinesCreateBlockList();
-}
-#endif
 
 void TessPageIteratorDelete(TessPageIterator* handle) {
   delete handle;
