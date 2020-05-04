@@ -257,10 +257,6 @@ TEST_F(TesseractTest, BasicLSTMTest) {
 // errors due to float/int conversions (e.g., see OUTLINE::move() in
 // ccstruct/poutline.h) Instead, we do a loose check.
 TEST_F(TesseractTest, LSTMGeometryTest) {
-#ifdef DISABLED_LEGACY_ENGINE
-  // Skip test because TessBaseAPI::GetPageRes is missing.
-  GTEST_SKIP();
-#else
   Pix* src_pix = pixRead(TestDataNameToPath("deslant.tif").c_str());
   FriendlyTessBaseAPI api;
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
@@ -303,7 +299,6 @@ TEST_F(TesseractTest, LSTMGeometryTest) {
     }
   }
   pixDestroy(&src_pix);
-#endif
 }
 
 TEST_F(TesseractTest, InitConfigOnlyTest) {
