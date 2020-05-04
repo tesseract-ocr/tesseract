@@ -800,6 +800,10 @@ class TESS_API TessBaseAPI {
   //// paragraphs.cpp ////////////////////////////////////////////////////
   TESS_LOCAL void DetectParagraphs(bool after_text_recognition);
 
+  TESS_LOCAL const PAGE_RES* GetPageRes() const {
+    return page_res_;
+  }
+
  protected:
   Tesseract* tesseract_;           ///< The underlying data object.
   Tesseract* osd_tesseract_;       ///< For orientation & script detection.
