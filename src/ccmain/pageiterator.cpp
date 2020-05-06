@@ -516,6 +516,14 @@ bool PageIterator::Baseline(PageIteratorLevel level,
   return true;
 }
 
+void PageIterator::RowAttributes(float* row_height, float* descenders,
+                                 float* ascenders) const {
+  *row_height = it_->row()->row->x_height() + it_->row()->row->ascenders() -
+                it_->row()->row->descenders();
+  *descenders = it_->row()->row->descenders();
+  *ascenders = it_->row()->row->ascenders();
+}
+
 void PageIterator::Orientation(tesseract::Orientation *orientation,
                                tesseract::WritingDirection *writing_direction,
                                tesseract::TextlineOrder *textline_order,
