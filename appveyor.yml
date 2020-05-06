@@ -23,7 +23,7 @@ before_build:
 
 build_script:
   - sw -version
-  - sw -show-output -platform %platform% build
+  - sw -show-output -platform %platform% build sw.cpp
 
 after_build:
   - 7z a tesseract.zip %APPVEYOR_BUILD_FOLDER%\.sw\out\**\*.exe %APPVEYOR_BUILD_FOLDER%\.sw\out\**\*.dll
