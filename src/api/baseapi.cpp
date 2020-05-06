@@ -57,7 +57,6 @@
 #include "blobclass.h"         // for ExtractFontName
 #endif
 #include "boxword.h"           // for BoxWord
-#include "config_auto.h"       // for PACKAGE_VERSION
 #include "coutln.h"            // for C_OUTLINE_IT, C_OUTLINE_LIST
 #include "dawg_cache.h"        // for DawgCache
 #include "dict.h"              // for Dict
@@ -235,7 +234,7 @@ TessBaseAPI::~TessBaseAPI() {
  * Returns the version identifier as a static string. Do not delete.
  */
 const char* TessBaseAPI::Version() {
-  return PACKAGE_VERSION;
+  return TESSERACT_VERSION_STR;
 }
 
 /**
