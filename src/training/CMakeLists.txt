@@ -40,7 +40,7 @@ if (MSVC AND NOT SW_BUILD AND NOT USE_SYSTEM_ICU)
         "http://download.icu-project.org/files/icu4c/56.1/icu4c-56_1-Win${ARCH_DIR_NAME}-msvc10.zip"
         "${icu_archive}"
         SHOW_PROGRESS
-        INACTIVITY_TIMEOUT 60 # seconds
+        INACTIVITY_TIMEOUT 300 # seconds
         EXPECTED_HASH MD5=${icu_hash}
     )
     execute_process(COMMAND ${CMAKE_COMMAND} -E tar xz "${icu_archive}"
