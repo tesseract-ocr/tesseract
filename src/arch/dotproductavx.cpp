@@ -16,8 +16,10 @@
 ///////////////////////////////////////////////////////////////////////
 
 #if !defined(__AVX__)
-#error Implementation only for AVX capable architectures
-#endif
+ #if defined(__i686__) || defined(__x86_64__)
+  #error Implementation only for AVX capable architectures
+ #endif
+#else
 
 #include <immintrin.h>
 #include <cstdint>
@@ -57,3 +59,5 @@ double DotProductAVX(const double* u, const double* v, int n) {
 }
 
 }  // namespace tesseract.
+
+#endif

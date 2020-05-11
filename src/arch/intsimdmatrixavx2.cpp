@@ -17,8 +17,10 @@
 ///////////////////////////////////////////////////////////////////////
 
 #if !defined(__AVX2__)
-#error Implementation only for AVX2 capable architectures
-#endif
+ #if defined(__i686__) || defined(__x86_64__)
+  #error Implementation only for AVX2 capable architectures
+ #endif
+#else
 
 #include "intsimdmatrix.h"
 
@@ -340,3 +342,5 @@ const IntSimdMatrix IntSimdMatrix::intSimdMatrixAVX2 = {
 };
 
 }  // namespace tesseract.
+
+#endif
