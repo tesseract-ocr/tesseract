@@ -233,8 +233,6 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                                    bool debug, bool re_invert, bool upside_down,
                                    float* scale_factor, NetworkIO* inputs,
                                    NetworkIO* outputs) {
-  // Maximum width of image to train on.
-  const int kMaxImageWidth = 4096;
   // This ensures consistent recognition results.
   SetRandomSeed();
   int min_width = network_->XScaleFactor();
@@ -244,6 +242,8 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
     tprintf("Line cannot be recognized!!\n");
     return false;
   }
+  // Maximum width of image to train on.
+  const int kMaxImageWidth = 128 * pixGetHeight(pix);
   if (network_->IsTraining() && pixGetWidth(pix) > kMaxImageWidth) {
     tprintf("Image too large to learn!! Size = %dx%d\n", pixGetWidth(pix),
             pixGetHeight(pix));
