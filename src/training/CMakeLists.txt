@@ -37,7 +37,7 @@ if (MSVC AND NOT SW_BUILD AND NOT USE_SYSTEM_ICU)
     message(STATUS "Downloading latest ICU binaries")
 
     file(DOWNLOAD
-        "http://download.icu-project.org/files/icu4c/56.1/icu4c-56_1-Win${ARCH_DIR_NAME}-msvc10.zip"
+        "https://github.com/unicode-org/icu/releases/download/release-56-1/icu4c-56_1-Win${ARCH_DIR_NAME}-msvc10.zip"
         "${icu_archive}"
         SHOW_PROGRESS
         INACTIVITY_TIMEOUT 300 # seconds
