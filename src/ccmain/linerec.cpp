@@ -196,8 +196,8 @@ ImageData* Tesseract::GetRectImage(const TBOX& box, const BLOCK& block,
   Box* clip_box = boxCreate(revised_box->left(), height - revised_box->top(),
                             revised_box->width(), revised_box->height());
   Pix* box_pix = pixClipRectangle(pix, clip_box, nullptr);
-  if (box_pix == nullptr) return nullptr;
   boxDestroy(&clip_box);
+  if (box_pix == nullptr) return nullptr;
   if (num_rotations > 0) {
     Pix* rot_pix = pixRotateOrth(box_pix, num_rotations);
     pixDestroy(&box_pix);
