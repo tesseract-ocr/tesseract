@@ -16,8 +16,10 @@
 ///////////////////////////////////////////////////////////////////////
 
 #if !defined(__FMA__)
-#error Implementation only for FMA capable architectures
-#endif
+ #if defined(__i686__) || defined(__x86_64__)
+  #error Implementation only for FMA capable architectures
+ #endif
+#else
 
 #include <immintrin.h>
 #include <cstdint>
@@ -55,3 +57,5 @@ double DotProductFMA(const double* u, const double* v, int n) {
 }
 
 }  // namespace tesseract.
+
+#endif

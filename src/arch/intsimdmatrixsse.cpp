@@ -16,8 +16,10 @@
 ///////////////////////////////////////////////////////////////////////
 
 #if !defined(__SSE4_1__)
-#error Implementation only for SSE 4.1 capable architectures
-#endif
+ #if defined(__i686__) || defined(__x86_64__)
+  #error Implementation only for SSE 4.1 capable architectures
+ #endif
+#else
 
 #include "intsimdmatrix.h"
 
@@ -102,3 +104,5 @@ const IntSimdMatrix IntSimdMatrix::intSimdMatrixSSE = {
 };
 
 }  // namespace tesseract.
+
+#endif
