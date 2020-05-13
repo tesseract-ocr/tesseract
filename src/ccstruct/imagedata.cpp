@@ -86,6 +86,7 @@ bool WordFeature::Serialize(FILE* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
+// If swap is true, assumes a big/little-endian swap is needed.
 bool WordFeature::DeSerialize(bool swap, FILE* fp) {
   if (!tesseract::DeSerialize(fp, &x_)) return false;
   if (swap) ReverseN(&x_, sizeof(x_));
@@ -173,7 +174,6 @@ bool ImageData::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
 bool ImageData::DeSerialize(TFile* fp) {
   if (!imagefilename_.DeSerialize(fp)) return false;
   if (!fp->DeSerialize(&page_number_)) return false;
