@@ -15,7 +15,9 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef HAVE_CONFIG_H
 #include "config_auto.h"     // for HAVE_AVX, ...
+#endif
 #include <numeric>           // for std::inner_product
 #include "simddetect.h"
 #include "dotproduct.h"
