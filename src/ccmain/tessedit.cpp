@@ -100,7 +100,9 @@ bool Tesseract::init_tesseract_lang_data(
         " to your \"tessdata\" directory.\n");
     return false;
   }
-#ifndef DISABLED_LEGACY_ENGINE
+#ifdef DISABLED_LEGACY_ENGINE
+  tessedit_ocr_engine_mode.set_value(OEM_LSTM_ONLY);
+#else
   if (oem == OEM_DEFAULT) {
     // Set the engine mode from availability, which can then be overridden by
     // the config file when we read it below.
@@ -154,8 +156,10 @@ bool Tesseract::init_tesseract_lang_data(
     }
   }
 
+#ifndef DISABLED_LEGACY_ENGINE
   // Determine which ocr engine(s) should be loaded and used for recognition.
   if (oem != OEM_DEFAULT) tessedit_ocr_engine_mode.set_value(oem);
+#endif
 
   // If we are only loading the config file (and so not planning on doing any
   // recognition) then there's nothing else do here.
