@@ -85,15 +85,8 @@ static inline void MultiplyGroup(const __m256i& rep_input, const __m256i& ones,
 // up with them being zero.
 static inline __m128i load64_to_128(const int8_t *wi_)
 {
-#if 1
   const int64_t *wi = reinterpret_cast<const int64_t *>(wi_);
   return _mm_set_epi64x(0, wi[0]);
-#else
-  // This version doesn't work on MSVC 32bits mode.
-  __m64 wi64  = _m_from_int64(*reinterpret_cast<const __int64*>(wi));
-  // wi64 = 8 x 8 bit values
-  return _mm_movpi64_epi64(wi64); // 8x8 bit vals in 128bit reg
-#endif
 }
 
 static inline void ExtractResults8(__m256i result,
