@@ -135,7 +135,7 @@ void WeightMatrix::ConvertToInt() {
       if (abs_val > max_abs) max_abs = abs_val;
     }
     double scale = max_abs / INT8_MAX;
-    scales_[t] = scale;
+    scales_[t] = scale / INT8_MAX;
     if (scale == 0.0) scale = 1.0;
     for (int f = 0; f < dim2; ++f) {
       i_line[f] = IntCastRounded(f_line[f] / scale);
@@ -177,7 +177,12 @@ bool WeightMatrix::Serialize(bool training, TFile* fp) const {
   if (!fp->Serialize(&mode)) return false;
   if (int_mode_) {
     if (!wi_.Serialize(fp)) return false;
+    /* The scales stored in memory have an extra factor applied to them
+     * to allow faster operation. We have to remove that factor here
+     * before writing to disc, and put it back afterwards. */
+    scales_.scale(INT8_MAX);
     if (!scales_.Serialize(fp)) return false;
+    scales_.scale(1.0/INT8_MAX);
   } else {
     if (!wf_.Serialize(fp)) return false;
     if (training && !updates_.Serialize(fp)) return false;
@@ -197,6 +202,7 @@ bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
   if (int_mode_) {
     if (!wi_.DeSerialize(fp)) return false;
     if (!scales_.DeSerialize(fp)) return false;
+    scales_.scale(1.0/INT8_MAX);
     if (IntSimdMatrix::intSimdMatrix) {
       IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_, scales_);
     }

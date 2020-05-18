@@ -68,9 +68,15 @@ class IntSimdMatrixTest : public ::testing::Test {
         GENERIC_2D_ARRAY<int8_t> w = InitRandom(num_out, num_in + 1);
         std::vector<int8_t> u = RandomVector(num_in, matrix);
         GenericVector<double> scales = RandomScales(num_out);
-        std::vector<double> base_result(num_out);
+        scales.scale(1.0/INT8_MAX);
+        int ro = num_out;
+        if (IntSimdMatrix::intSimdMatrix)
+          ro = IntSimdMatrix::intSimdMatrix->RoundOutputs(ro);
+        std::vector<double> base_result(ro);
+        base_result.resize(num_out);
         IntSimdMatrix::MatrixDotVector(w, scales, u.data(), base_result.data());
-        std::vector<double> test_result(num_out);
+        std::vector<double> test_result(ro);
+        test_result.resize(num_out);
         std::vector<int8_t> shaped_wi;
         matrix.Init(w, shaped_wi, scales);
         if (matrix.matrixDotVectorFunction) {

@@ -112,21 +112,21 @@ PartialMatrixDotVector8(const int8_t* __restrict wi,
     u += 8;
     wi += 64;
   }
-  *v++ = (static_cast<double>(vget_lane_s32(vget_low_s32 (result0123), 0)) / INT8_MAX + *wi++) * *scales++;
+  *v++ = (vget_lane_s32(vget_low_s32 (result0123), 0) + *wi++ * INT8_MAX) * *scales++;
   if (num_out > 1)
-    *v++ = (static_cast<double>(vget_lane_s32(vget_low_s32 (result0123), 1)) / INT8_MAX + *wi++) * *scales++;
+    *v++ = (vget_lane_s32(vget_low_s32 (result0123), 1) + *wi++ * INT8_MAX) * *scales++;
   if (num_out > 2)
-    *v++ = (static_cast<double>(vget_lane_s32(vget_high_s32(result0123), 0)) / INT8_MAX + *wi++) * *scales++;
+    *v++ = (vget_lane_s32(vget_high_s32(result0123), 0) + *wi++ * INT8_MAX) * *scales++;
   if (num_out > 3)
-    *v++ = (static_cast<double>(vget_lane_s32(vget_high_s32(result0123), 1)) / INT8_MAX + *wi++) * *scales++;
+    *v++ = (vget_lane_s32(vget_high_s32(result0123), 1) + *wi++ * INT8_MAX) * *scales++;
   if (num_out > 4)
-    *v++ = (static_cast<double>(vget_lane_s32(vget_low_s32 (result4567), 0)) / INT8_MAX + *wi++) * *scales++;
+    *v++ = (vget_lane_s32(vget_low_s32 (result4567), 0) + *wi++ * INT8_MAX) * *scales++;
   if (num_out > 5)
-    *v++ = (static_cast<double>(vget_lane_s32(vget_low_s32 (result4567), 1)) / INT8_MAX + *wi++) * *scales++;
+    *v++ = (vget_lane_s32(vget_low_s32 (result4567), 1) + *wi++ * INT8_MAX) * *scales++;
   if (num_out > 6)
-    *v++ = (static_cast<double>(vget_lane_s32(vget_high_s32(result4567), 0)) / INT8_MAX + *wi++) * *scales++;
+    *v++ = (vget_lane_s32(vget_high_s32(result4567), 0) + *wi++ * INT8_MAX) * *scales++;
   if (num_out > 7)
-    *v   = (static_cast<double>(vget_lane_s32(vget_high_s32(result4567), 1)) / INT8_MAX + *wi  ) * *scales;
+    *v   = (vget_lane_s32(vget_high_s32(result4567), 1) + *wi   * INT8_MAX) * *scales;
 }
 
 static void matrixDotVector(int dim1, int dim2, const int8_t* wi,
