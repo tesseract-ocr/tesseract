@@ -94,7 +94,7 @@ static inline void ExtractResults(__m256i& result, __m256i& shift_id,
     // _mm256_extract_epi32(X, Y) == ((int32_t*)&X)[Y]
     auto res = ((int32_t*)&result)[0];
 #endif
-    *v++ = (static_cast<double>(res) / INT8_MAX + *wi++) * *scales++;
+    *v++ = (res + *wi++ * INT8_MAX) * *scales++;
     // Rotate the results in int32_t units, so the next result is ready.
     result = _mm256_permutevar8x32_epi32(result, shift_id);
   }
