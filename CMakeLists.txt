@@ -75,7 +75,7 @@ else()
     option(SW_BUILD "Build with sw" OFF)
 endif()
 option(OPENMP_BUILD "Build with openmp support" OFF)  # see issue #1662
-option(AUTO_OPTIMIZE "Usage of cmake auto optimize macros (not suitable for portable build)" OFF)
+option(AUTO_OPTIMIZE "Usage of cmake auto optimize macros (not suitable for portable build)" ON)
 option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
 option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
 option(BUILD_TRAINING_TOOLS "Build training tools" OFF)
@@ -97,15 +97,15 @@ endif()
 include(CheckCXXCompilerFlag)
 
 # Check for C++ standard to use
-#get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
-#if (cxx_std_17 IN_LIST known_features)
-#    set(CMAKE_CXX_STANDARD 17)
-#elseif (cxx_std_14 IN_LIST known_features)
-#    set(CMAKE_CXX_STANDARD 14)
-#else()  # minimum required standard
-#    set(CMAKE_CXX_STANDARD 11)
-#endif()
-set(CMAKE_CXX_STANDARD 14)
+get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
+if (cxx_std_17 IN_LIST known_features)
+    set(CMAKE_CXX_STANDARD 17)
+elseif (cxx_std_14 IN_LIST known_features)
+    set(CMAKE_CXX_STANDARD 14)
+else()  # minimum required standard
+    set(CMAKE_CXX_STANDARD 11)
+endif()
+#set(CMAKE_CXX_STANDARD 14)
 
 # Avoid using experimental c++1y (c++1z) standard even if the compiler announces cxx14 (cxx17)
 # in CMAKE_CXX_KNOWN_FEATURES and CMAKE_CXX_COMPILE_FEATURES
