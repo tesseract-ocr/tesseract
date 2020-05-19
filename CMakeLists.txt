@@ -148,6 +148,7 @@ elseif(MSVC)
     if (NOT CLANG)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
     endif()
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /wd4244 /wd4305 /wd4267")
     # Don't use /Wall because it generates too many warnings.
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /W4 /bigobj")
 endif()
