@@ -259,7 +259,10 @@ foreach(flag ${_enable_vector_unit_list})  # from OptimizeForArchitecture()
     string(TOUPPER "${flag}" flag)
     string(REPLACE "\." "_" flag "${flag}")
     if("${flag}" MATCHES "AVX|AVX2|FMA|SSE4_1")
-        set(simd_flags "${simd_flags} -DHAVE_${flag} -D__${flag}__")
+        # global definition autotools put them to config_auto.h
+        add_definitions("-DHAVE_${flag}")
+        # compiler definition valid only for arch directory
+        set(arch_compiler_definition "${arch_compiler_definition} -D__${flag}__")
         set("HAVE_${flag}" ON)
     endif()
 endforeach(flag)
@@ -326,7 +329,7 @@ message( STATUS "HAVE_AVX2: ${HAVE_AVX2}")
 message( STATUS "HAVE_FMA: ${HAVE_FMA}")
 message( STATUS "HAVE_SSE4_1: ${HAVE_SSE4_1}")
 message( STATUS "MARCH_NATIVE_OPT: ${MARCH_NATIVE_OPT}")
-message( STATUS "simd_flags: ${simd_flags}")
+message( STATUS "arch_compiler_definition: ${arch_compiler_definition}")
 message( STATUS "--------------------------------------------------------")
 message( STATUS "Build with sw [SW_BUILD]: ${SW_BUILD}")
 message( STATUS "Build with openmp support [OPENMP_BUILD]: ${OPENMP_BUILD}")
@@ -396,7 +399,7 @@ list(APPEND arch_files
     src/arch/simddetect.cpp
     src/arch/intsimdmatrix.cpp
 )
-set_source_files_properties(${arch_files} PROPERTIES COMPILE_FLAGS "${simd_flags}")
+set_source_files_properties(${arch_files} PROPERTIES COMPILE_FLAGS "${arch_compiler_definition}")
 set_source_files_properties(src/arch/dotproduct.cpp PROPERTIES COMPILE_FLAGS "${MARCH_NATIVE_FLAGS} ${Vc_CXX_FLAGS}")
 if(HAVE_AVX)
    list(APPEND arch_files_opt src/arch/dotproductavx.cpp)
@@ -414,7 +417,7 @@ if(HAVE_SSE4_1)
    list(APPEND arch_files_opt src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp)
    set_source_files_properties(src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp PROPERTIES COMPILE_FLAGS "-msse4.1")
 endif(HAVE_SSE4_1)
-set_source_files_properties(${arch_files_opt} PROPERTIES COMPILE_FLAGS "${simd_flags} ${Vc_CXX_FLAGS}")
+set_source_files_properties(${arch_files_opt} PROPERTIES COMPILE_FLAGS "${arch_compiler_definition} ${Vc_CXX_FLAGS}")
 
 file(GLOB tesseract_hdr
     src/arch/*.h
