@@ -414,7 +414,7 @@ if(HAVE_SSE4_1)
    list(APPEND arch_files_opt src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp)
    set_source_files_properties(src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp PROPERTIES COMPILE_FLAGS "-msse4.1")
 endif(HAVE_SSE4_1)
-set_source_files_properties(${arch_files_opt} PROPERTIES COMPILE_FLAGS "${Vc_CXX_FLAGS}")
+set_source_files_properties(${arch_files_opt} PROPERTIES COMPILE_FLAGS "${simd_flags} ${Vc_CXX_FLAGS}")
 
 file(GLOB tesseract_hdr
     src/arch/*.h
