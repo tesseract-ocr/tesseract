@@ -16,9 +16,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if !defined(__ARM_NEON)
-//#error Implementation only for NEON capable architectures
-#else
+#if defined(__ARM_NEON)
 
 #include "intsimdmatrix.h"
 
@@ -158,4 +156,4 @@ const IntSimdMatrix IntSimdMatrix::intSimdMatrixNEON = {
 
 }  // namespace tesseract.
 
-#endif
+#endif /* __ARM_NEON */

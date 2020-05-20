@@ -66,6 +66,10 @@ static STRING_VAR(dotproduct, "auto",
 
 SIMDDetect SIMDDetect::detector;
 
+#if defined(HAVE_NEON)
+// If true, then Neon has been detected.
+bool SIMDDetect::neon_available_;
+#else
 // If true, then AVX has been detected.
 bool SIMDDetect::avx_available_;
 bool SIMDDetect::avx2_available_;
@@ -75,8 +79,7 @@ bool SIMDDetect::avx512BW_available_;
 bool SIMDDetect::fma_available_;
 // If true, then SSe4.1 has been detected.
 bool SIMDDetect::sse_available_;
-// If true, then Neon has been detected.
-bool SIMDDetect::neon_available_;
+#endif
 
 // Computes and returns the dot product of the two n-vectors u and v.
 static double DotProductGeneric(const double* u, const double* v, int n) {
@@ -188,8 +191,6 @@ SIMDDetect::SIMDDetect() {
       neon_available_ = (android_getCpuFeatures() &
                          ANDROID_CPU_ARM64_FEATURE_ASIMD);
 #endif
-    else
-      neon_available_ = false;
   }
 #else
   /* Assume linux */
