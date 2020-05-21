@@ -736,18 +736,6 @@ class ColPartition : public ELIST2_LINK {
   }
 
  private:
-  // enum to refer to the entries in a neighbourhood of lines.
-  // Used by SmoothSpacings to test for blips with OKSpacingBlip.
-  enum SpacingNeighbourhood {
-    PN_ABOVE2,
-    PN_ABOVE1,
-    PN_UPPER,
-    PN_LOWER,
-    PN_BELOW1,
-    PN_BELOW2,
-    PN_COUNT
-  };
-
   // Cleans up the partners above if upper is true, else below.
   // If get_desperate is true, goes to more desperate merge methods
   // to merge flowing text before breaking partnerships.
@@ -786,7 +774,7 @@ class ColPartition : public ELIST2_LINK {
   // condition for a spacing blip. See SmoothSpacings for what this means
   // and how it is used.
   static bool OKSpacingBlip(int resolution, int median_spacing,
-                            ColPartition** parts);
+                            ColPartition** parts, int offset);
 
   // Returns true if both the top and bottom spacings of this match the given
   // spacing to within suitable margins dictated by the image resolution.
