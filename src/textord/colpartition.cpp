@@ -39,6 +39,18 @@ CLISTIZE(ColPartition)
 
 //////////////// ColPartition Implementation ////////////////
 
+// enum to refer to the entries in a neighbourhood of lines.
+// Used by SmoothSpacings to test for blips with OKSpacingBlip.
+enum SpacingNeighbourhood {
+  PN_ABOVE2,
+  PN_ABOVE1,
+  PN_UPPER,
+  PN_LOWER,
+  PN_BELOW1,
+  PN_BELOW2,
+  PN_COUNT
+};
+
 // Maximum change in spacing (in inches) to ignore.
 const double kMaxSpacingDrift = 1.0 / 72;  // 1/72 is one point.
 // Maximum fraction of line height used as an additional allowance
@@ -2239,10 +2251,16 @@ void ColPartition::SmoothSpacings(int resolution, int page_height,
     if (neighbourhood[PN_LOWER] == nullptr ||
         (!neighbourhood[PN_UPPER]->SpacingsEqual(*neighbourhood[PN_LOWER],
                                                  resolution) &&
-         !OKSpacingBlip(resolution, median_space, neighbourhood) &&
-         (!OKSpacingBlip(resolution, median_space, neighbourhood - 1) ||
+         (neighbourhood[PN_UPPER] == nullptr ||
+          neighbourhood[PN_LOWER] == nullptr ||
+          !OKSpacingBlip(resolution, median_space, neighbourhood, 0)) &&
+         (neighbourhood[PN_UPPER - 1] == nullptr ||
+          neighbourhood[PN_LOWER - 1] == nullptr ||
+          !OKSpacingBlip(resolution, median_space, neighbourhood, -1) ||
           !neighbourhood[PN_LOWER]->SpacingEqual(median_space, resolution)) &&
-         (!OKSpacingBlip(resolution, median_space, neighbourhood + 1) ||
+         (neighbourhood[PN_UPPER + 1] == nullptr ||
+          neighbourhood[PN_LOWER + 1] == nullptr ||
+          !OKSpacingBlip(resolution, median_space, neighbourhood, 1) ||
           !neighbourhood[PN_UPPER]->SpacingEqual(median_space, resolution)))) {
       // The group has ended. PN_UPPER is the last member.
       // Compute the mean spacing over the group.
@@ -2329,11 +2347,10 @@ void ColPartition::SmoothSpacings(int resolution, int page_height,
 // condition for a spacing blip. See SmoothSpacings for what this means
 // and how it is used.
 bool ColPartition::OKSpacingBlip(int resolution, int median_spacing,
-                                 ColPartition** parts) {
-  if (parts[PN_UPPER] == nullptr || parts[PN_LOWER] == nullptr)
-    return false;
+                                 ColPartition** parts, int offset) {
   // The blip is OK if upper and lower sum to an OK value and at least
   // one of above1 and below1 is equal to the median.
+  parts += offset;
   return parts[PN_UPPER]->SummedSpacingOK(*parts[PN_LOWER],
                                           median_spacing, resolution) &&
          ((parts[PN_ABOVE1] != nullptr &&
