@@ -183,6 +183,13 @@ libtesseract_la_LIBADD += libtesseract_sse.la
 noinst_LTLIBRARIES += libtesseract_sse.la
 endif
 
+if HAVE_NEON
+libtesseract_neon_la_CXXFLAGS = -mfpu=neon
+libtesseract_neon_la_SOURCES = src/arch/intsimdmatrixneon.cpp
+libtesseract_la_LIBADD += libtesseract_neon.la
+noinst_LTLIBRARIES += libtesseract_neon.la
+endif
+
 libtesseract_la_SOURCES += src/arch/intsimdmatrix.cpp
 libtesseract_la_SOURCES += src/arch/simddetect.cpp
 

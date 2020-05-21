@@ -37,6 +37,16 @@
 #endif
 #endif
 
+#ifdef HAVE_NEON
+#ifdef ANDROID
+#include <cpufeatures.h>
+#else
+/* Assume linux */
+#include <sys/auxv.h>
+#include <asm/hwcap.h>
+#endif
+#endif
+
 namespace tesseract {
 
 // Computes and returns the dot product of the two n-vectors u and v.
@@ -65,6 +75,8 @@ bool SIMDDetect::avx512BW_available_;
 bool SIMDDetect::fma_available_;
 // If true, then SSe4.1 has been detected.
 bool SIMDDetect::sse_available_;
+// If true, then Neon has been detected.
+bool SIMDDetect::neon_available_;
 
 // Computes and returns the dot product of the two n-vectors u and v.
 static double DotProductGeneric(const double* u, const double* v, int n) {
@@ -162,6 +174,29 @@ SIMDDetect::SIMDDetect() {
 #endif
 #endif
 
+#ifdef HAVE_NEON
+#ifdef ANDROID
+  {
+    AndroidCpuFamily family = android_getCpuFamily();
+    if (family == ANDROID_CPU_FAMILY_ARM)
+      neon_available_ = (android_getCpuFeatures() &
+                         ANDROID_CPU_ARM_FEATURE_NEON);
+#if 0
+    /* There is no NEON flag to test on ARM64. A wild guess would have
+     * it being the ASIMD flag, but I'll leave this disabled for now. */
+    else if (family == ANDROID_CPU_FAMILY_ARM64)
+      neon_available_ = (android_getCpuFeatures() &
+                         ANDROID_CPU_ARM64_FEATURE_ASIMD);
+#endif
+    else
+      neon_available_ = false;
+  }
+#else
+  /* Assume linux */
+  neon_available_ = getauxval(AT_HWCAP) & HWCAP_NEON;
+#endif
+#endif
+
   // Select code for calculation of dot product based on autodetection.
   if (false) {
     // This is a dummy to support conditional compilation.
@@ -179,6 +214,11 @@ SIMDDetect::SIMDDetect() {
   } else if (sse_available_) {
     // SSE detected.
     SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
+#endif
+#if defined(HAVE_NEON)
+  } else if (neon_available_) {
+    // NEON detected.
+    SetDotProduct(DotProduct, &IntSimdMatrix::intSimdMatrixNEON);
 #endif
   }
 }

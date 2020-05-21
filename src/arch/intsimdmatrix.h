@@ -116,6 +116,7 @@ struct IntSimdMatrix {
   static const IntSimdMatrix* intSimdMatrix;
   static const IntSimdMatrix intSimdMatrixAVX2;
   static const IntSimdMatrix intSimdMatrixSSE;
+  static const IntSimdMatrix intSimdMatrixNEON;
 };
 
 }  // namespace tesseract
