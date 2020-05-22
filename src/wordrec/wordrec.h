@@ -19,6 +19,10 @@
 #ifndef TESSERACT_WORDREC_WORDREC_H_
 #define TESSERACT_WORDREC_WORDREC_H_
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h" // DISABLED_LEGACY_ENGINE
+#endif
+
 #ifdef DISABLED_LEGACY_ENGINE
 
 #include <cstdint>             // for int16_t, int32_t
@@ -58,10 +62,6 @@ class Wordrec : public Classify {
 }  // namespace tesseract
 
 #else  // DISABLED_LEGACY_ENGINE not defined
-
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 
 #include <cstdint>             // for int16_t, int32_t
 #include <memory>

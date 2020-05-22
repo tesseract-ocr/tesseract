@@ -27,6 +27,11 @@
 
 #include <cstdint>                  // for int16_t, int32_t, uint16_t
 #include <cstdio>                   // for FILE
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h" // DISABLED_LEGACY_ENGINE
+#endif
+
 #include "allheaders.h"             // for pixDestroy, pixGetWidth, pixGetHe...
 #include "control.h"                // for ACCEPTABLE_WERD_TYPE
 #include "debugpixa.h"              // for DebugPixa

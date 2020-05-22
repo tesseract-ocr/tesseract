@@ -24,7 +24,6 @@
 #include "config_auto.h"
 #endif
 
-
 #ifdef DISABLED_LEGACY_ENGINE
 
 #include "ccstruct.h"

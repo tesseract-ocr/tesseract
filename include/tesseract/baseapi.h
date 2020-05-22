@@ -22,6 +22,10 @@
 #include <cstdio>
 #include <functional>  // for std::function
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h" // DISABLED_LEGACY_ENGINE
+#endif
+
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.

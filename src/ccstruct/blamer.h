@@ -22,6 +22,10 @@
 
 #include <cstdint>                    // for int16_t
 #include <cstring>                    // for memcpy
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h" // DISABLED_LEGACY_ENGINE
+#endif
 #include "boxword.h"                  // for BoxWord
 #include <tesseract/genericvector.h>            // for GenericVector
 #ifndef DISABLED_LEGACY_ENGINE
