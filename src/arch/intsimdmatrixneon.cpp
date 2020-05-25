@@ -51,9 +51,13 @@ constexpr int kNumInputsPerGroup = 8;
 // bias weights, before continuing with any more weights.
 // u must be padded out with zeros to
 // kNumInputsPerGroup*ceil(num_in/kNumInputsPerGroup) elements.
-static void PartialMatrixDotVector8(const int8_t* __restrict wi, const double* __restrict scales,
-                                     const int8_t* __restrict u, int num_in,
-                                     double* __restrict v) {
+static inline void
+PartialMatrixDotVector8(const int8_t* __restrict wi,
+                        const double* __restrict scales,
+                        const int8_t* __restrict u,
+                              int                num_in,
+                              double* __restrict v,
+                              int                num_out) {
   // Initialize all the results to 0.
   int32x4_t result0123 = { 0, 0, 0, 0 };
   int32x4_t result4567 = { 0, 0, 0, 0 };
@@ -109,13 +113,20 @@ static void PartialMatrixDotVector8(const int8_t* __restrict wi, const double* _
     wi += 64;
   }
   *v++ = (static_cast<double>(vget_lane_s32(vget_low_s32 (result0123), 0)) / INT8_MAX + *wi++) * *scales++;
-  *v++ = (static_cast<double>(vget_lane_s32(vget_low_s32 (result0123), 1)) / INT8_MAX + *wi++) * *scales++;
-  *v++ = (static_cast<double>(vget_lane_s32(vget_high_s32(result0123), 0)) / INT8_MAX + *wi++) * *scales++;
-  *v++ = (static_cast<double>(vget_lane_s32(vget_high_s32(result0123), 1)) / INT8_MAX + *wi++) * *scales++;
-  *v++ = (static_cast<double>(vget_lane_s32(vget_low_s32 (result4567), 0)) / INT8_MAX + *wi++) * *scales++;
-  *v++ = (static_cast<double>(vget_lane_s32(vget_low_s32 (result4567), 1)) / INT8_MAX + *wi++) * *scales++;
-  *v++ = (static_cast<double>(vget_lane_s32(vget_high_s32(result4567), 0)) / INT8_MAX + *wi++) * *scales++;
-  *v   = (static_cast<double>(vget_lane_s32(vget_high_s32(result4567), 1)) / INT8_MAX + *wi  ) * *scales;
+  if (num_out > 1)
+    *v++ = (static_cast<double>(vget_lane_s32(vget_low_s32 (result0123), 1)) / INT8_MAX + *wi++) * *scales++;
+  if (num_out > 2)
+    *v++ = (static_cast<double>(vget_lane_s32(vget_high_s32(result0123), 0)) / INT8_MAX + *wi++) * *scales++;
+  if (num_out > 3)
+    *v++ = (static_cast<double>(vget_lane_s32(vget_high_s32(result0123), 1)) / INT8_MAX + *wi++) * *scales++;
+  if (num_out > 4)
+    *v++ = (static_cast<double>(vget_lane_s32(vget_low_s32 (result4567), 0)) / INT8_MAX + *wi++) * *scales++;
+  if (num_out > 5)
+    *v++ = (static_cast<double>(vget_lane_s32(vget_low_s32 (result4567), 1)) / INT8_MAX + *wi++) * *scales++;
+  if (num_out > 6)
+    *v++ = (static_cast<double>(vget_lane_s32(vget_high_s32(result4567), 0)) / INT8_MAX + *wi++) * *scales++;
+  if (num_out > 7)
+    *v   = (static_cast<double>(vget_lane_s32(vget_high_s32(result4567), 1)) / INT8_MAX + *wi  ) * *scales;
 }
 
 static void matrixDotVector(int dim1, int dim2, const int8_t* wi,
@@ -126,19 +137,19 @@ static void matrixDotVector(int dim1, int dim2, const int8_t* wi,
   // last one, which can produce less.
   const int rounded_num_in =
     IntSimdMatrix::Roundup(num_in, kNumInputsPerGroup);
-  const int rounded_num_out =
-    IntSimdMatrix::Roundup(num_out, kNumOutputsPerRegister);
   int group_size = kNumOutputsPerRegister * kMaxOutputRegisters;
   int output = 0;
 
   int w_step = (rounded_num_in + 1) * group_size;
 
-  for (; output + group_size <= rounded_num_out; output += group_size) {
-    PartialMatrixDotVector8(wi, scales, u, rounded_num_in, v);
+  for (; output + group_size <= num_out; output += group_size) {
+    PartialMatrixDotVector8(wi, scales, u, rounded_num_in, v, kNumOutputsPerRegister);
     wi += w_step;
     scales += group_size;
     v += group_size;
   }
+  if (output < num_out)
+    PartialMatrixDotVector8(wi, scales, u, rounded_num_in, v, num_out & (kNumOutputsPerRegister-1));
 }
 
 const IntSimdMatrix IntSimdMatrix::intSimdMatrixNEON = {
