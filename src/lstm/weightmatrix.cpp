@@ -144,7 +144,7 @@ void WeightMatrix::ConvertToInt() {
   wf_.Resize(1, 1, 0.0);
   int_mode_ = true;
   if (IntSimdMatrix::intSimdMatrix) {
-    IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_);
+    IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_, scales_);
   }
 }
 
@@ -198,7 +198,7 @@ bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
     if (!wi_.DeSerialize(fp)) return false;
     if (!scales_.DeSerialize(fp)) return false;
     if (IntSimdMatrix::intSimdMatrix) {
-      IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_);
+      IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_, scales_);
     }
   } else {
     if (!wf_.DeSerialize(fp)) return false;
