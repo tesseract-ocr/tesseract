@@ -62,7 +62,8 @@ namespace tesseract {
 struct IntSimdMatrix {
   // Computes a reshaped copy of the weight matrix w.
   void Init(const GENERIC_2D_ARRAY<int8_t>& w,
-            std::vector<int8_t>& shaped_w) const;
+            std::vector<int8_t>& shaped_w,
+            GenericVector<double>& scales) const;
 
   // Rounds the size up to a multiple of the input register size (in int8_t).
   int RoundInputs(int size) const {
