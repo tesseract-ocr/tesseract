@@ -40,8 +40,7 @@
 #ifdef HAVE_NEON
 #ifdef ANDROID
 #include <cpufeatures.h>
-#else
-/* Assume linux */
+#elif defined(HAVE_HWCAP_BASED_NEON_RUNTIME_DETECTION)
 #include <sys/auxv.h>
 #include <asm/hwcap.h>
 #endif
@@ -192,9 +191,13 @@ SIMDDetect::SIMDDetect() {
                          ANDROID_CPU_ARM64_FEATURE_ASIMD);
 #endif
   }
-#else
+#elif defined(HAVE_HWCAP_BASED_NEON_RUNTIME_DETECTION)
   /* Assume linux */
   neon_available_ = getauxval(AT_HWCAP) & HWCAP_NEON;
+#elif defined(NEON_ALWAYS_AVAILABLE)
+  neon_available = 1;
+#else
+  neon_available = 0;
 #endif
 #endif
 

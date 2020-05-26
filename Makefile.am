@@ -188,6 +188,9 @@ libtesseract_neon_la_CXXFLAGS = -mfpu=neon
 libtesseract_neon_la_SOURCES = src/arch/intsimdmatrixneon.cpp
 libtesseract_la_LIBADD += libtesseract_neon.la
 noinst_LTLIBRARIES += libtesseract_neon.la
+if HAVE_HWCAP_BASED_NEON_RUNTIME_DETECTION
+libtesseract_neon_la_CXXFLAGS += -DHAVE_HWCAP_BASED_NEON_RUNTIME_DETECTION
+endif
 endif
 
 libtesseract_la_SOURCES += src/arch/intsimdmatrix.cpp
