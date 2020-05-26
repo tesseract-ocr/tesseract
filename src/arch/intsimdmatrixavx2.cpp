@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <vector>
 
-#include <string.h>
+#include <cstring> // memcpy
 
 namespace tesseract {
 
