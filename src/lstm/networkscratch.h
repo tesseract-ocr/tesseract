@@ -144,13 +144,22 @@ class NetworkScratch {
       if (scratch_space_ != nullptr) scratch_space_->vec_stack_.Return(vec_);
     }
 
-    void Init(int size, NetworkScratch* scratch) {
+    void Init(int size, int reserve, NetworkScratch* scratch) {
       if (scratch_space_ != nullptr && vec_ != nullptr)
         scratch_space_->vec_stack_.Return(vec_);
       scratch_space_ = scratch;
       vec_ = scratch_space_->vec_stack_.Borrow();
+      // Abuse vec_ here; first resize to 'reserve', which is larger
+      // than 'size' (i.e. it's size rounded up) then resize down again
+      // to the desired size. This assumes that the implementation does
+      // not shrink the storage on a resize.
+      vec_->resize_no_init(reserve);
       vec_->resize_no_init(size);
       data_ = &(*vec_)[0];
+    }
+
+    void Init(int size, NetworkScratch *scratch) {
+      Init(size, size, scratch);
     }
 
     // Use the cast operator instead of operator[] so the FloatVec can be used

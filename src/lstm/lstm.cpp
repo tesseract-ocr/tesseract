@@ -264,7 +264,10 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
   ResizeForward(input);
   // Temporary storage of forward computation for each gate.
   NetworkScratch::FloatVec temp_lines[WT_COUNT];
-  for (auto & temp_line : temp_lines) temp_line.Init(ns_, scratch);
+  int ro = ns_;
+  if (source_.int_mode() && IntSimdMatrix::intSimdMatrix)
+    ro = IntSimdMatrix::intSimdMatrix->RoundOutputs(ro);
+  for (auto & temp_line : temp_lines) temp_line.Init(ns_, ro, scratch);
   // Single timestep buffers for the current/recurrent output and state.
   NetworkScratch::FloatVec curr_state, curr_output;
   curr_state.Init(ns_, scratch);
