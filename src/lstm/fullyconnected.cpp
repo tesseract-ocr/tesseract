@@ -128,8 +128,11 @@ void FullyConnected::Forward(bool debug, const NetworkIO& input,
   temp_lines.init_to_size(kNumThreads, NetworkScratch::FloatVec());
   GenericVector<NetworkScratch::FloatVec> curr_input;
   curr_input.init_to_size(kNumThreads, NetworkScratch::FloatVec());
+  int ro = no_;
+  if (IntSimdMatrix::intSimdMatrix)
+    ro = IntSimdMatrix::intSimdMatrix->RoundOutputs(ro);
   for (int i = 0; i < kNumThreads; ++i) {
-    temp_lines[i].Init(no_, scratch);
+    temp_lines[i].Init(no_, ro, scratch);
     curr_input[i].Init(ni_, scratch);
   }
 #ifdef _OPENMP
