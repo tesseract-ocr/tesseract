@@ -2,7 +2,6 @@
  * File:        mainblk.cpp  (Formerly main.c)
  * Description: Function to call from main() to setup.
  * Author:      Ray Smith
- * Created:     Tue Oct 22 11:09:40 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,16 +17,13 @@
  **********************************************************************/
 
 #include <cstdlib>
+#include <cstring>      // for std::strrchr
 #if defined(_WIN32)
 #include <io.h>         // for _access
 #endif
 
 #include "fileerr.h"
 #include "ccutil.h"
-
-const ERRCODE NO_PATH =
-"Warning:explicit path for executable will not be used for configs";
-static const ERRCODE USAGE = "Usage";
 
 namespace tesseract {
 /**********************************************************************
@@ -57,22 +53,17 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
     /* Use tessdata prefix from the environment. */
     datadir = tessdata_prefix;
 #if defined(_WIN32)
-  } else if (datadir == nullptr || _access(datadir.string(), 0) != 0) {
+  } else if (datadir == nullptr || _access(datadir.c_str(), 0) != 0) {
     /* Look for tessdata in directory of executable. */
-    char drive[_MAX_DRIVE];
-    char dir[_MAX_DIR];
     char path[_MAX_PATH];
     DWORD length = GetModuleFileName(nullptr, path, sizeof(path));
     if (length > 0 && length < sizeof(path)) {
-      errno_t result = _splitpath_s(path, drive, sizeof(drive),
-                                    dir, sizeof(dir), nullptr, 0, nullptr, 0);
-      if (result == ERANGE) {
-        tprintf("Error: Path too long: %s\n", path);
+      char* separator = std::strrchr(path, '\\');
+      if (separator != nullptr) {
+        *separator = '\0';
+        datadir = path;
+        datadir += "/tessdata";
       }
-
-      datadir = drive;
-      datadir += dir;
-      datadir += "/tessdata";
     }
 #endif /* _WIN32 */
 #if defined(TESSDATA_PREFIX)
@@ -92,7 +83,7 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
   }
 
   // check for missing directory separator
-  const char *lastchar = datadir.string();
+  const char *lastchar = datadir.c_str();
   lastchar += datadir.length() - 1;
   if ((strcmp(lastchar, "/") != 0) && (strcmp(lastchar, "\\") != 0))
     datadir += "/";

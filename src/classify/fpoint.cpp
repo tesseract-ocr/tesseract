@@ -17,10 +17,10 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
+#define _USE_MATH_DEFINES       // for M_PI
 #include "fpoint.h"
 #include <cstdio>
-#include <cmath>
-#include "platform.h"   // M_PI
+#include <cmath>                // for M_PI
 
 /*----------------------------------------------------------------------------
               Public Code
@@ -39,8 +39,7 @@ float DistanceBetween(FPOINT A, FPOINT B) {
  * @param Point1 points to compute angle between
  * @param Point2 points to compute angle between
  * @param FullScale value to associate with 2*pi
- * @return none
- * @note Globals: none
+ * @return angle
  */
 float NormalizedAngleFrom(FPOINT *Point1, FPOINT *Point2, float FullScale) {
   float NumRadsInCircle = 2.0 * M_PI;

@@ -21,7 +21,7 @@
 #define BLREAD_H
 
 #include <cstdint>      // for int32_t
-#include "strngs.h"     // for STRING
+#include <tesseract/strngs.h>     // for STRING
 
 class BLOCK_LIST;
 

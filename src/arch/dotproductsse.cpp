@@ -16,13 +16,15 @@
 ///////////////////////////////////////////////////////////////////////
 
 #if !defined(__SSE4_1__)
-#error Implementation only for SSE 4.1 capable architectures
-#endif
+ #if defined(__i686__) || defined(__x86_64__)
+  #error Implementation only for SSE 4.1 capable architectures
+ #endif
+#else
 
 #include <emmintrin.h>
 #include <smmintrin.h>
 #include <cstdint>
-#include "dotproductsse.h"
+#include "dotproduct.h"
 
 namespace tesseract {
 
@@ -79,3 +81,5 @@ double DotProductSSE(const double* u, const double* v, int n) {
 }
 
 }  // namespace tesseract.
+
+#endif

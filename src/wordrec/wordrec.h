@@ -19,6 +19,10 @@
 #ifndef TESSERACT_WORDREC_WORDREC_H_
 #define TESSERACT_WORDREC_WORDREC_H_
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h" // DISABLED_LEGACY_ENGINE
+#endif
+
 #ifdef DISABLED_LEGACY_ENGINE
 
 #include <cstdint>             // for int16_t, int32_t
@@ -59,10 +63,6 @@ class Wordrec : public Classify {
 
 #else  // DISABLED_LEGACY_ENGINE not defined
 
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include <cstdint>             // for int16_t, int32_t
 #include <memory>
 #include "associate.h"
@@ -72,7 +72,7 @@ class Wordrec : public Classify {
 #include "dict.h"
 #include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "findseam.h"          // for SeamQueue, SeamPile
-#include "genericvector.h"     // for GenericVector
+#include <tesseract/genericvector.h>     // for GenericVector
 #include "language_model.h"
 #include "matrix.h"
 #include "oldlist.h"           // for LIST
@@ -195,14 +195,10 @@ class Wordrec : public Classify {
   BOOL_VAR_H(merge_fragments_in_matrix, true,
              "Merge the fragments in the ratings matrix and delete them "
              "after merging");
-  BOOL_VAR_H(wordrec_no_block, false, "Don't output block information");
   BOOL_VAR_H(wordrec_enable_assoc, true, "Associator Enable");
   BOOL_VAR_H(force_word_assoc, false,
              "force associator to run regardless of what enable_assoc is."
              "This is used for CJK where component grouping is necessary.");
-  double_VAR_H(wordrec_worst_state, 1, "Worst segmentation state");
-  BOOL_VAR_H(fragments_guide_chopper, false,
-             "Use information from fragments to guide chopping process");
   INT_VAR_H(repair_unchopped_blobs, 1, "Fix blobs that aren't chopped");
   double_VAR_H(tessedit_certainty_threshold, -2.25, "Good blob limit");
   INT_VAR_H(chop_debug, 0, "Chop debug");
@@ -225,7 +221,6 @@ class Wordrec : public Classify {
   double_VAR_H(chop_ok_split, 100.0, "OK split limit");
   double_VAR_H(chop_good_split, 50.0, "Good split limit");
   INT_VAR_H(chop_x_y_weight, 3, "X / Y  length weight");
-  INT_VAR_H(segment_adjust_debug, 0, "Segmentation adjustment debug");
   BOOL_VAR_H(assume_fixed_pitch_char_segment, false,
              "include fixed-pitch heuristics in char segmentation");
   INT_VAR_H(wordrec_debug_level, 0, "Debug level for wordrec");

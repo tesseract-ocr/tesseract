@@ -16,8 +16,8 @@
  *
  **********************************************************************/
 
-#include "baseapi.h"  // for TessBaseAPI
-#include "renderer.h"
+#include <tesseract/baseapi.h>  // for TessBaseAPI
+#include <tesseract/renderer.h>
 #include "tesseractclass.h"  // for Tesseract
 
 namespace tesseract {
@@ -44,8 +44,6 @@ char* TessBaseAPI::GetWordStrBoxText(int page_number=0) {
       continue;
     }
 
-    // Use bounding box for whole line for WordStr
-    res_it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom);
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       if (!first_line) {
         wordstr_box_str.add_str_int("\n\t ", right + 1);
@@ -57,6 +55,8 @@ char* TessBaseAPI::GetWordStrBoxText(int page_number=0) {
       } else {
         first_line = false;
       }
+     // Use bounding box for whole line for WordStr
+     res_it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom);
       wordstr_box_str.add_str_int("WordStr ", left);
       wordstr_box_str.add_str_int(" ", image_height_ - bottom);
       wordstr_box_str.add_str_int(" ", right);
@@ -81,7 +81,7 @@ char* TessBaseAPI::GetWordStrBoxText(int page_number=0) {
     wordstr_box_str += "\n";
   }
   char* ret = new char[wordstr_box_str.length() + 1];
-  strcpy(ret, wordstr_box_str.string());
+  strcpy(ret, wordstr_box_str.c_str());
   delete res_it;
   return ret;
 }

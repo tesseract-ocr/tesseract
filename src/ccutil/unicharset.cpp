@@ -22,11 +22,13 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
+#include <iomanip>    // for std::setw
+#include <locale>     // for std::locale::classic
+#include <sstream>    // for std::istringstream, std::ostringstream
 
 #include "params.h"
-#include "serialis.h"
-#include "tesscallback.h"
-#include "unichar.h"
+#include <tesseract/serialis.h>
+#include <tesseract/unichar.h>
 
 // TODO(rays) Move UNICHARSET to tesseract namespace.
 using tesseract::char32;
@@ -371,7 +373,7 @@ void UNICHARSET::set_normed_ids(UNICHAR_ID unichar_id) {
   unichars[unichar_id].properties.normed_ids.truncate(0);
   if (unichar_id == UNICHAR_SPACE && id_to_unichar(unichar_id)[0] == ' ') {
     unichars[unichar_id].properties.normed_ids.push_back(UNICHAR_SPACE);
-  } else if (!encode_string(unichars[unichar_id].properties.normed.string(),
+  } else if (!encode_string(unichars[unichar_id].properties.normed.c_str(),
                             true, &unichars[unichar_id].properties.normed_ids,
                             nullptr, nullptr)) {
     unichars[unichar_id].properties.normed_ids.truncate(0);
@@ -705,58 +707,26 @@ bool UNICHARSET::save_to_string(STRING *str) const {
       snprintf(buffer, kFileBufSize, "%s %x %s %d\n", "NULL", properties,
               this->get_script_from_script_id(this->get_script(id)),
               this->get_other_case(id));
+      *str += buffer;
     } else {
-      snprintf(buffer, kFileBufSize,
-              "%s %x %d,%d,%d,%d,%g,%g,%g,%g,%g,%g %s %d %d %d %s\t# %s\n",
-              this->id_to_unichar(id), properties,
-              min_bottom, max_bottom, min_top, max_top, width, width_sd,
-              bearing, bearing_sd, advance, advance_sd,
-              this->get_script_from_script_id(this->get_script(id)),
-              this->get_other_case(id), this->get_direction(id),
-              this->get_mirror(id), this->get_normed_unichar(id),
-              this->debug_str(id).string());
+      std::ostringstream stream;
+      stream.imbue(std::locale::classic());
+      stream << this->id_to_unichar(id) << ' ' << properties << ' ' <<
+              min_bottom << ',' << max_bottom << ',' <<
+              min_top << ',' << max_top << ',' <<
+              width << ',' << width_sd << ',' <<
+              bearing << ',' << bearing_sd << ',' <<
+              advance << ',' << advance_sd << ' ' <<
+              this->get_script_from_script_id(this->get_script(id)) << ' ' <<
+              this->get_other_case(id) << ' ' <<
+              this->get_direction(id) << ' ' <<
+              this->get_mirror(id) << ' ' <<
+              this->get_normed_unichar(id) << "\t# " <<
+              this->debug_str(id).c_str() << '\n';
+      *str += stream.str().c_str();
     }
-    *str += buffer;
   }
   return true;
-}
-
-// TODO(rays) Replace with TFile everywhere.
-class InMemoryFilePointer {
- public:
-  InMemoryFilePointer(const char *memory, int mem_size)
-      : memory_(memory), fgets_ptr_(memory), mem_size_(mem_size) { }
-
-  char *fgets(char *orig_dst, int size) {
-    const char *src_end = memory_ + mem_size_;
-    char *dst_end = orig_dst + size - 1;
-    if (size < 1) {
-      return fgets_ptr_ < src_end ? orig_dst : nullptr;
-    }
-
-    char *dst = orig_dst;
-    char ch = '^';
-    while (fgets_ptr_ < src_end && dst < dst_end && ch != '\n') {
-      ch = *dst++ = *fgets_ptr_++;
-    }
-    *dst = 0;
-    return (dst == orig_dst) ? nullptr : orig_dst;
-  }
-
- private:
-  const char *memory_;
-  const char *fgets_ptr_;
-  const int mem_size_;
-};
-
-bool UNICHARSET::load_from_inmemory_file(
-    const char *memory, int mem_size, bool skip_fragments) {
-  InMemoryFilePointer mem_fp(memory, mem_size);
-  TessResultCallback2<char *, char *, int> *fgets_cb =
-      NewPermanentTessCallback(&mem_fp, &InMemoryFilePointer::fgets);
-  bool success = load_via_fgets(fgets_cb, skip_fragments);
-  delete fgets_cb;
-  return success;
 }
 
 class LocalFilePointer {
@@ -771,29 +741,28 @@ class LocalFilePointer {
 
 bool UNICHARSET::load_from_file(FILE *file, bool skip_fragments) {
   LocalFilePointer lfp(file);
-  TessResultCallback2<char *, char *, int> *fgets_cb =
-      NewPermanentTessCallback(&lfp, &LocalFilePointer::fgets);
+  using namespace std::placeholders;  // for _1, _2
+  std::function<char*(char*, int)> fgets_cb =
+      std::bind(&LocalFilePointer::fgets, &lfp, _1, _2);
   bool success = load_via_fgets(fgets_cb, skip_fragments);
-  delete fgets_cb;
   return success;
 }
 
 bool UNICHARSET::load_from_file(tesseract::TFile *file, bool skip_fragments) {
-  TessResultCallback2<char *, char *, int> *fgets_cb =
-      NewPermanentTessCallback(file, &tesseract::TFile::FGets);
+  using namespace std::placeholders;  // for _1, _2
+  std::function<char*(char*, int)> fgets_cb =
+      std::bind(&tesseract::TFile::FGets, file, _1, _2);
   bool success = load_via_fgets(fgets_cb, skip_fragments);
-  delete fgets_cb;
   return success;
 }
 
-bool UNICHARSET::load_via_fgets(
-    TessResultCallback2<char *, char *, int> *fgets_cb,
-    bool skip_fragments) {
+bool UNICHARSET::load_via_fgets(std::function<char*(char*, int)> fgets_cb,
+                                bool skip_fragments) {
   int unicharset_size;
   char buffer[256];
 
   this->clear();
-  if (fgets_cb->Run(buffer, sizeof(buffer)) == nullptr ||
+  if (fgets_cb(buffer, sizeof(buffer)) == nullptr ||
       sscanf(buffer, "%d", &unicharset_size) != 1) {
     return false;
   }
@@ -815,40 +784,63 @@ bool UNICHARSET::load_via_fgets(
     float advance = 0.0f;
     float advance_sd = 0.0f;
     // TODO(eger): check that this default it ok
-    // after enabling BiDi iterator for Arabic+Cube.
+    // after enabling BiDi iterator for Arabic.
     int direction = UNICHARSET::U_LEFT_TO_RIGHT;
-    UNICHAR_ID other_case = id;
-    UNICHAR_ID mirror = id;
-    char normed[64];
-    int v = -1;
-    if (fgets_cb->Run(buffer, sizeof (buffer)) == nullptr ||
-        ((v = sscanf(buffer,
-                     "%s %x %d,%d,%d,%d,%g,%g,%g,%g,%g,%g %63s %d %d %d %63s",
-                     unichar, &properties,
-                     &min_bottom, &max_bottom, &min_top, &max_top,
-                     &width, &width_sd, &bearing, &bearing_sd,
-                     &advance, &advance_sd, script, &other_case,
-                     &direction, &mirror, normed)) != 17 &&
-         (v = sscanf(buffer,
-                     "%s %x %d,%d,%d,%d,%g,%g,%g,%g,%g,%g %63s %d %d %d",
-                     unichar, &properties,
-                     &min_bottom, &max_bottom, &min_top, &max_top,
-                     &width, &width_sd, &bearing, &bearing_sd,
-                     &advance, &advance_sd, script, &other_case,
-                     &direction, &mirror)) != 16 &&
-          (v = sscanf(buffer, "%s %x %d,%d,%d,%d %63s %d %d %d",
-                      unichar, &properties,
-                      &min_bottom, &max_bottom, &min_top, &max_top,
-                      script, &other_case, &direction, &mirror)) != 10 &&
-          (v = sscanf(buffer, "%s %x %d,%d,%d,%d %63s %d", unichar, &properties,
-                      &min_bottom, &max_bottom, &min_top, &max_top,
-                      script, &other_case)) != 8 &&
-          (v = sscanf(buffer, "%s %x %63s %d", unichar, &properties,
-                      script, &other_case)) != 4 &&
-          (v = sscanf(buffer, "%s %x %63s",
-                      unichar, &properties, script)) != 3 &&
-          (v = sscanf(buffer, "%s %x", unichar, &properties)) != 2)) {
+    UNICHAR_ID other_case = unicharset_size;
+    UNICHAR_ID mirror = unicharset_size;
+    if (fgets_cb(buffer, sizeof (buffer)) == nullptr) {
       return false;
+    }
+    char normed[64];
+    normed[0] = '\0';
+    std::istringstream stream(buffer);
+    stream.imbue(std::locale::classic());
+    // 标 1 0,255,0,255,0,0,0,0,0,0 Han 68 0 68 标  # 标 [6807 ]x
+    //stream.flags(std::ios::hex);
+    stream >> std::setw(255) >> unichar >> std::hex >> properties >> std::dec;
+    //stream.flags(std::ios::dec);
+    if (stream.fail()) {
+      fprintf(stderr, "%s:%u failed\n", __FILE__, __LINE__);
+      return false;
+    }
+    auto position = stream.tellg();
+    stream.seekg(position);
+    char c1, c2, c3, c4, c5, c6, c7, c8, c9;
+    stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >> max_top >> c4 >>
+      width >> c5 >>width_sd >> c6 >> bearing >> c7 >> bearing_sd >> c8 >>
+      advance >> c9 >> advance_sd >> std::setw(63) >> script >>
+      other_case >> direction >> mirror >> std::setw(63) >> normed;
+    if (stream.fail() || c1 != ',' || c2 != ',' || c3 != ',' || c4 != ',' ||
+        c5 != ',' || c6 != ',' || c7 != ',' || c8 != ',' || c9 != ',') {
+      stream.clear();
+      stream.seekg(position);
+      stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >> max_top >> c4 >>
+      width >> c5 >>width_sd >> c6 >> bearing >> c7 >> bearing_sd >> c8 >>
+      advance >> c9 >> advance_sd >> std::setw(63) >> script >>
+      other_case >> direction >> mirror;
+      if (stream.fail() || c1 != ',' || c2 != ',' || c3 != ',' || c4 != ',' ||
+          c5 != ',' || c6 != ',' || c7 != ',' || c8 != ',' || c9 != ',') {
+        stream.clear();
+        stream.seekg(position);
+        stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >> max_top >>
+        std::setw(63) >> script >> other_case >> direction >> mirror;
+        if (stream.fail() || c1 != ',' || c2 != ',' || c3 != ',') {
+          stream.clear();
+          stream.seekg(position);
+          stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >> max_top >>
+          std::setw(63) >> script >> other_case;
+          if (stream.fail() || c1 != ',' || c2 != ',' || c3 != ',') {
+            stream.clear();
+            stream.seekg(position);
+            stream >> std::setw(63) >> script >> other_case;
+            if (stream.fail()) {
+              stream.clear();
+              stream.seekg(position);
+              stream >> std::setw(63) >> script;
+            }
+          }
+        }
+      }
     }
 
     // Skip fragments if needed.
@@ -880,9 +872,9 @@ bool UNICHARSET::load_via_fgets(
     this->set_advance_stats(id, advance, advance_sd);
     this->set_direction(id, static_cast<UNICHARSET::Direction>(direction));
     this->set_other_case(
-        id, (v > 3 && other_case < unicharset_size) ? other_case : id);
-    this->set_mirror(id, (v > 8 && mirror < unicharset_size) ? mirror : id);
-    this->set_normed(id, (v>16) ? normed : unichar);
+        id, (other_case < unicharset_size) ? other_case : id);
+    this->set_mirror(id, (mirror < unicharset_size) ? mirror : id);
+    this->set_normed(id, normed[0] != '\0' ? normed : unichar);
   }
   post_load_setup();
   return true;

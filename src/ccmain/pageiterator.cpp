@@ -3,7 +3,6 @@
 // Description: Iterator for tesseract page structure that avoids using
 //              tesseract internal data structures.
 // Author:      Ray Smith
-// Created:     Fri Feb 26 14:32:09 PST 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +17,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "pageiterator.h"
+#include <tesseract/pageiterator.h>
 #include "allheaders.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "pageres.h"
 #include "tesseractclass.h"
 
@@ -355,7 +354,7 @@ bool PageIterator::Empty(PageIteratorLevel level) const {
   return false;
 }
 
-/** Returns the type of the current block. See apitypes.h for PolyBlockType. */
+/** Returns the type of the current block. See tesseract/apitypes.h for PolyBlockType. */
 PolyBlockType PageIterator::BlockType() const {
   if (it_->block() == nullptr || it_->block()->block == nullptr)
     return PT_UNKNOWN;  // Already at the end!
@@ -371,14 +370,22 @@ Pta* PageIterator::BlockPolygon() const {
     return nullptr;  // Already at the end!
   if (it_->block()->block->pdblk.poly_block() == nullptr)
     return nullptr;  // No layout analysis used - no polygon.
-  ICOORDELT_IT it(it_->block()->block->pdblk.poly_block()->points());
+  // Copy polygon, so we can unrotate it to image coordinates.
+  POLY_BLOCK* internal_poly = it_->block()->block->pdblk.poly_block();
+  ICOORDELT_LIST vertices;
+  vertices.deep_copy(internal_poly->points(), ICOORDELT::deep_copy);
+  POLY_BLOCK poly(&vertices, internal_poly->isA());
+  poly.rotate(it_->block()->block->re_rotation());
+  ICOORDELT_IT it(poly.points());
   Pta* pta = ptaCreate(it.length());
   int num_pts = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward(), ++num_pts) {
     ICOORD* pt = it.data();
     // Convert to top-down coords within the input image.
-    float x = static_cast<float>(pt->x()) / scale_ + rect_left_;
-    float y = rect_top_ + rect_height_ - static_cast<float>(pt->y()) / scale_;
+    int x = static_cast<float>(pt->x()) / scale_ + rect_left_;
+    int y = rect_top_ + rect_height_ - static_cast<float>(pt->y()) / scale_;
+    x = ClipToRange(x, rect_left_, rect_left_ + rect_width_);
+    y = ClipToRange(y, rect_top_, rect_top_ + rect_height_);
     ptaAddPt(pta, x, y);
   }
   return pta;
@@ -591,7 +598,7 @@ void PageIterator::BeginWord(int offset) {
     if (word_res->box_word != nullptr) {
       if (word_res->box_word->length() != word_length_) {
         tprintf("Corrupted word! best_choice[len=%d] = %s, box_word[len=%d]: ",
-                word_length_, word_res->best_choice->unichar_string().string(),
+                word_length_, word_res->best_choice->unichar_string().c_str(),
                 word_res->box_word->length());
         word_res->box_word->bounding_box().print();
       }

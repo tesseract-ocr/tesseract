@@ -17,7 +17,7 @@
  **********************************************************************/
 
 #include "werd.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "linlsq.h"
 
 // Include automatically generated configuration file if running autoconf.
@@ -28,9 +28,6 @@
 #define FIRST_COLOUR ScrollView::RED        ///< first rainbow colour
 #define LAST_COLOUR ScrollView::AQUAMARINE  ///< last rainbow colour
 #define CHILD_COLOUR ScrollView::BROWN      ///< colour of children
-
-const ERRCODE CANT_SCALE_EDGESTEPS =
-    "Attempted to scale an edgestep format word";
 
 ELIST2IZE(WERD)
 
@@ -271,7 +268,7 @@ void WERD::print() {
   tprintf("   W_REP_CHAR = %s\n", flags.bit(W_REP_CHAR) ? "TRUE" : "FALSE");
   tprintf("   W_FUZZY_SP = %s\n", flags.bit(W_FUZZY_SP) ? "TRUE" : "FALSE");
   tprintf("   W_FUZZY_NON = %s\n", flags.bit(W_FUZZY_NON) ? "TRUE" : "FALSE");
-  tprintf("Correct= %s\n", correct.string());
+  tprintf("Correct= %s\n", correct.c_str());
   tprintf("Rejected cblob count = %d\n", rej_cblobs.length());
   tprintf("Script = %d\n", script_id_);
 }
@@ -339,7 +336,6 @@ WERD* WERD::shallow_copy() {
 
   new_word->blanks = blanks;
   new_word->flags = flags;
-  new_word->dummy = dummy;
   new_word->correct = correct;
   return new_word;
 }
@@ -355,7 +351,6 @@ WERD& WERD::operator=(const WERD& source) {
   blanks = source.blanks;
   flags = source.flags;
   script_id_ = source.script_id_;
-  dummy = source.dummy;
   correct = source.correct;
   if (!cblobs.empty()) cblobs.clear();
   cblobs.deep_copy(&source.cblobs, &C_BLOB::deep_copy);

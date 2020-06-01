@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#include "platform.h"
+#include <tesseract/platform.h>
 
 // StringHash is the hashing functor needed by the stl hash map.
 #ifndef COMPILER_MSVC

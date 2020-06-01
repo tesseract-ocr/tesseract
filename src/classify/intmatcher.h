@@ -35,7 +35,6 @@ extern INT_VAR_H(classify_integer_matcher_multiplier, 10,
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "intproto.h"
-#include "cutoffs.h"
 
 namespace tesseract {
 struct UnicharRating;
@@ -48,15 +47,6 @@ struct CP_RESULT_STRUCT {
   CLASS_ID Class;
 };
 
-/*----------------------------------------------------------------------------
-            Variables
------------------------------------------------------------------------------*/
-
-extern INT_VAR_H(classify_adapt_proto_thresh, 230,
-                 "Threshold for good protos during adaptive 0-255:   ");
-
-extern INT_VAR_H(classify_adapt_feature_thresh, 230,
-                 "Threshold for good features during adaptive 0-255:   ");
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes

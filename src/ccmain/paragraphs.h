@@ -21,7 +21,7 @@
 #define TESSERACT_CCMAIN_PARAGRAPHS_H_
 
 #include "rect.h"    // for TBOX
-#include "strngs.h"  // for STRING
+#include <tesseract/strngs.h>  // for STRING
 
 class PARA_LIST;
 class ParagraphModel;

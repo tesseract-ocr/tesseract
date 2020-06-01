@@ -18,8 +18,9 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 
+#define _USE_MATH_DEFINES  // for M_PI
 #include <algorithm>
-#include <cmath>           // for std::floor
+#include <cmath>           // for M_PI, std::floor
 #include <cstdio>
 #include <cassert>
 
@@ -27,8 +28,8 @@
 #include "callcpp.h"       // for cprintf
 #include "emalloc.h"
 #include "fontinfo.h"
-#include "genericvector.h"
-#include "helpers.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/helpers.h>
 #include "intproto.h"
 #include "mfoutline.h"
 #include "picofeat.h"
@@ -171,31 +172,31 @@ int TruncateParam(float Param, int Min, int Max, char *Id);
 -----------------------------------------------------------------------------*/
 
 /* global display lists used to display proto and feature match information*/
-ScrollView *IntMatchWindow = nullptr;
-ScrollView *FeatureDisplayWindow = nullptr;
-ScrollView *ProtoDisplayWindow = nullptr;
+static ScrollView* IntMatchWindow = nullptr;
+static ScrollView* FeatureDisplayWindow = nullptr;
+static ScrollView* ProtoDisplayWindow = nullptr;
 
 /*-----------------------------------------------------------------------------
         Variables
 -----------------------------------------------------------------------------*/
 
 /* control knobs */
-INT_VAR(classify_num_cp_levels, 3, "Number of Class Pruner Levels");
-double_VAR(classify_cp_angle_pad_loose, 45.0,
-           "Class Pruner Angle Pad Loose");
-double_VAR(classify_cp_angle_pad_medium, 20.0,
-           "Class Pruner Angle Pad Medium");
-double_VAR(classify_cp_angle_pad_tight, 10.0,
-           "CLass Pruner Angle Pad Tight");
-double_VAR(classify_cp_end_pad_loose, 0.5, "Class Pruner End Pad Loose");
-double_VAR(classify_cp_end_pad_medium, 0.5, "Class Pruner End Pad Medium");
-double_VAR(classify_cp_end_pad_tight, 0.5, "Class Pruner End Pad Tight");
-double_VAR(classify_cp_side_pad_loose, 2.5, "Class Pruner Side Pad Loose");
-double_VAR(classify_cp_side_pad_medium, 1.2, "Class Pruner Side Pad Medium");
-double_VAR(classify_cp_side_pad_tight, 0.6, "Class Pruner Side Pad Tight");
-double_VAR(classify_pp_angle_pad, 45.0, "Proto Pruner Angle Pad");
-double_VAR(classify_pp_end_pad, 0.5, "Proto Prune End Pad");
-double_VAR(classify_pp_side_pad, 2.5, "Proto Pruner Side Pad");
+static INT_VAR(classify_num_cp_levels, 3, "Number of Class Pruner Levels");
+static double_VAR(classify_cp_angle_pad_loose, 45.0,
+                  "Class Pruner Angle Pad Loose");
+static double_VAR(classify_cp_angle_pad_medium, 20.0,
+                  "Class Pruner Angle Pad Medium");
+static double_VAR(classify_cp_angle_pad_tight, 10.0,
+                  "CLass Pruner Angle Pad Tight");
+static double_VAR(classify_cp_end_pad_loose, 0.5, "Class Pruner End Pad Loose");
+static double_VAR(classify_cp_end_pad_medium, 0.5, "Class Pruner End Pad Medium");
+static double_VAR(classify_cp_end_pad_tight, 0.5, "Class Pruner End Pad Tight");
+static double_VAR(classify_cp_side_pad_loose, 2.5, "Class Pruner Side Pad Loose");
+static double_VAR(classify_cp_side_pad_medium, 1.2, "Class Pruner Side Pad Medium");
+static double_VAR(classify_cp_side_pad_tight, 0.6, "Class Pruner Side Pad Tight");
+static double_VAR(classify_pp_angle_pad, 45.0, "Proto Pruner Angle Pad");
+static double_VAR(classify_pp_end_pad, 0.5, "Proto Prune End Pad");
+static double_VAR(classify_pp_side_pad, 2.5, "Proto Pruner Side Pad");
 
 /*-----------------------------------------------------------------------------
               Public Code
@@ -323,7 +324,6 @@ int AddIntProto(INT_CLASS Class) {
  * @param Proto   floating-pt proto to add to class pruner
  * @param ClassId   class id corresponding to Proto
  * @param Templates set of templates containing class pruner
- * @return none
  */
 void AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId,
                             INT_TEMPLATES Templates)
@@ -363,7 +363,6 @@ void AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId,
  * @param Class integer class that contains desired proto pruner
  * @param debug debug flag
  * @note Globals: none
- * @return none
  */
 void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
                            INT_CLASS Class, bool debug) {
@@ -444,7 +443,6 @@ uint8_t CircBucketFor(float param, float offset, int num_buckets) {
  * Globals:
  * - FeatureShapes display list for features
  * - ProtoShapes display list for protos
- * @return none
  */
 void UpdateMatchDisplay() {
   if (IntMatchWindow != nullptr)
@@ -461,8 +459,6 @@ void UpdateMatchDisplay() {
  * @param Config    config to be added to class
  * @param ConfigId  id to be used for new config
  * @param Class   class to add new config to
- * @return none
- * @note Globals: none
  */
 void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class) {
   int ProtoId;
@@ -488,8 +484,6 @@ namespace tesseract {
  * @param Proto floating-pt proto to be converted to integer format
  * @param ProtoId id of proto
  * @param Class integer class to add converted proto to
- * @return none
- * @note Globals: none
  */
 void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
   INT_PROTO P;
@@ -592,7 +586,6 @@ INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
  * - FeatureShapes global display list for features
  * @param Feature   pico-feature to be displayed
  * @param Evidence  best evidence for this feature (0-1)
- * @return none
  */
 void DisplayIntFeature(const INT_FEATURE_STRUCT *Feature, float Evidence) {
   ScrollView::Color color = GetMatchColorFor(Evidence);
@@ -611,7 +604,6 @@ void DisplayIntFeature(const INT_FEATURE_STRUCT *Feature, float Evidence) {
  * @param Class   class to take proto from
  * @param ProtoId   id of proto in Class to be displayed
  * @param Evidence  total evidence for proto (0-1)
- * @return none
  */
 void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, float Evidence) {
   ScrollView::Color color = GetMatchColorFor(Evidence);
@@ -941,12 +933,13 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     }
   }
   if (version_id >= 4) {
-    this->fontinfo_table_.read(fp, NewPermanentTessCallback(read_info));
+    using namespace std::placeholders; // for _1, _2
+    this->fontinfo_table_.read(fp, std::bind(read_info, _1, _2));
     if (version_id >= 5) {
       this->fontinfo_table_.read(fp,
-                                 NewPermanentTessCallback(read_spacing_info));
+                                 std::bind(read_spacing_info, _1, _2));
     }
-    this->fontset_table_.read(fp, NewPermanentTessCallback(read_set));
+    this->fontset_table_.read(fp, std::bind(read_set, _1, _2));
   }
 
   // Clean up.
@@ -966,7 +959,6 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
  * Globals:
  * - FeatureShapes display list containing feature matches
  * - ProtoShapes display list containing proto matches
- * @return none
  */
 void Classify::ShowMatchDisplay() {
   InitIntMatchWindowIfReqd();
@@ -1022,8 +1014,6 @@ void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView* window) {
  * @param File open file to write templates to
  * @param Templates templates to save into File
  * @param target_unicharset the UNICHARSET to use
- * @return none
- * @note Globals: none
  */
 void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
                                  const UNICHARSET& target_unicharset) {
@@ -1078,10 +1068,11 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
   }
 
   /* Write the fonts info tables */
-  this->fontinfo_table_.write(File, NewPermanentTessCallback(write_info));
+  using namespace std::placeholders; // for _1, _2
+  this->fontinfo_table_.write(File, std::bind(write_info, _1, _2));
   this->fontinfo_table_.write(File,
-                              NewPermanentTessCallback(write_spacing_info));
-  this->fontset_table_.write(File, NewPermanentTessCallback(write_set));
+                              std::bind(write_spacing_info, _1, _2));
+  this->fontset_table_.write(File, std::bind(write_set, _1, _2));
 }                                /* WriteIntTemplates */
 } // namespace tesseract
 
@@ -1129,8 +1120,6 @@ float BucketEnd(int Bucket, float Offset, int NumBuckets) {
  * @param ClassMask indicates which bits to change in each word
  * @param ClassCount  indicates what to change bits to
  * @param WordIndex indicates which word to change
- * @return none
- * @note Globals: none
  */
 void DoFill(FILL_SPEC *FillSpec,
             CLASS_PRUNER_STRUCT* Pruner,
@@ -1193,8 +1182,6 @@ bool FillerDone(TABLE_FILLER* Filler) {
  * @param Center center of filled area
  * @param Spread spread of filled area
  * @param debug debug flag
- * @return none
- * @note Globals: none
  */
 void FillPPCircularBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
                         int Bit, float Center, float Spread, bool debug) {
@@ -1234,8 +1221,6 @@ void FillPPCircularBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR]
  * @param Center center of filled area
  * @param Spread spread of filled area
  * @param debug debug flag
- * @return none
- * @note Globals: none
  */
 void FillPPLinearBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
                       int Bit, float Center, float Spread, bool debug) {
@@ -1317,7 +1302,7 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
           }
           for (int s = 0; s < shape_table_->NumShapes(); ++s) {
             if (shape_table_->GetShape(s).ContainsUnichar(unichar_id)) {
-              tprintf("%s\n", shape_table_->DebugStr(s).string());
+              tprintf("%s\n", shape_table_->DebugStr(s).c_str());
             }
           }
         } else {
@@ -1344,8 +1329,6 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
  * @param EndPad    place to put end pad for Level
  * @param SidePad   place to put side pad for Level
  * @param AnglePad  place to put angle pad for Level
- * @return none (results are returned in EndPad, SidePad, and AnglePad.
- * @note Globals: none
  */
 void GetCPPadsForLevel(int Level,
                        float *EndPad,
@@ -1407,8 +1390,6 @@ ScrollView::Color GetMatchColorFor(float Evidence) {
  * do not run past the end of the fill table.
  * @param Filler    filler to get next fill spec from
  * @param Fill    place to put spec for next fill
- * @return none (results are returned in Fill)
- * @note Globals: none
  */
 void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
   FILL_SWITCH *Next;
@@ -1451,14 +1432,11 @@ void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
 /**
  * This routine computes a data structure (Filler)
  * which can be used to fill in a rectangle surrounding
- * the specified Proto.
+ * the specified Proto. Results are returned in Filler.
  *
  * @param EndPad, SidePad, AnglePad padding to add to proto
  * @param Proto       proto to create a filler for
  * @param Filler        place to put table filler
- *
- * @return none (results are returned in Filler)
- * @note Globals: none
  */
 void InitTableFiller (float EndPad, float SidePad,
                       float AnglePad, PROTO Proto, TABLE_FILLER * Filler)

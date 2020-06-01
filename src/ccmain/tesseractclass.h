@@ -27,6 +27,11 @@
 
 #include <cstdint>                  // for int16_t, int32_t, uint16_t
 #include <cstdio>                   // for FILE
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h" // DISABLED_LEGACY_ENGINE
+#endif
+
 #include "allheaders.h"             // for pixDestroy, pixGetWidth, pixGetHe...
 #include "control.h"                // for ACCEPTABLE_WERD_TYPE
 #include "debugpixa.h"              // for DebugPixa
@@ -34,16 +39,16 @@
 #ifndef DISABLED_LEGACY_ENGINE
 #include "docqual.h"                // for GARBAGE_LEVEL
 #endif
-#include "genericvector.h"          // for GenericVector, PointerVector
+#include <tesseract/genericvector.h>          // for GenericVector, PointerVector
 #include "pageres.h"                // for WERD_RES (ptr only), PAGE_RES (pt...
 #include "params.h"                 // for BOOL_VAR_H, BoolParam, DoubleParam
 #include "points.h"                 // for FCOORD
-#include "publictypes.h"            // for OcrEngineMode, PageSegMode, OEM_L...
+#include <tesseract/publictypes.h>            // for OcrEngineMode, PageSegMode, OEM_L...
 #include "ratngs.h"                 // for ScriptPos, WERD_CHOICE (ptr only)
-#include "strngs.h"                 // for STRING
+#include <tesseract/strngs.h>                 // for STRING
 #include "tessdatamanager.h"        // for TessdataManager
 #include "textord.h"                // for Textord
-#include "unichar.h"                // for UNICHAR_ID
+#include <tesseract/unichar.h>                // for UNICHAR_ID
 #include "wordrec.h"                // for Wordrec
 
 class BLOCK_LIST;
@@ -76,8 +81,6 @@ class WERD_RES;
 //
 //             CCUtil (ccutil/ccutil.h)
 //                         ^      Members include: UNICHARSET
-//            CUtil (cutil/cutil_class.h)
-//                         ^       Members include: TBLOB*, TEXTBLOCK*
 //           CCStruct (ccstruct/ccstruct.h)
 //                         ^       Members include: Image
 //           Classify (classify/classify.h)
@@ -89,7 +92,7 @@ class WERD_RES;
 //
 // Other important classes:
 //
-//  TessBaseAPI (api/baseapi.h)
+//  TessBaseAPI (tesseract/baseapi.h)
 //                                 Members include: BLOCK_LIST*, PAGE_RES*,
 //                                 Tesseract*, ImageThresholder*
 //  Dict (dict/dict.h)
@@ -336,7 +339,8 @@ class Tesseract : public Wordrec {
   // Generates training data for training a line recognizer, eg LSTM.
   // Breaks the page into lines, according to the boxes, and writes them to a
   // serialized DocumentData based on output_basename.
-  void TrainLineRecognizer(const STRING& input_imagename,
+  // Return true if successful, false if an error occurred.
+  bool TrainLineRecognizer(const STRING& input_imagename,
                            const STRING& output_basename,
                            BLOCK_LIST* block_list);
   // Generates training data for training a line recognizer, eg LSTM.
@@ -648,10 +652,10 @@ class Tesseract : public Wordrec {
   void quality_based_rejection(PAGE_RES_IT& page_res_it, bool good_quality_doc);
   void convert_bad_unlv_chs(WERD_RES* word_res);
   void tilde_delete(PAGE_RES_IT& page_res_it);
-  int16_t word_blob_quality(WERD_RES* word, ROW* row);
-  void word_char_quality(WERD_RES* word, ROW* row, int16_t* match_count,
+  int16_t word_blob_quality(WERD_RES* word);
+  void word_char_quality(WERD_RES* word, int16_t* match_count,
                          int16_t* accepted_match_count);
-  void unrej_good_chs(WERD_RES* word, ROW* row);
+  void unrej_good_chs(WERD_RES* word);
   int16_t count_outline_errs(char c, int16_t outline_count);
   int16_t word_outline_errs(WERD_RES* word);
 #ifndef DISABLED_LEGACY_ENGINE
@@ -792,10 +796,12 @@ class Tesseract : public Wordrec {
              "Break input into lines and remap boxes if present");
   BOOL_VAR_H(tessedit_dump_pageseg_images, false,
              "Dump intermediate images made during page segmentation");
+  BOOL_VAR_H(tessedit_do_invert, true,
+             "Try inverting the image in `LSTMRecognizeWord`");
   INT_VAR_H(tessedit_pageseg_mode, PSM_SINGLE_BLOCK,
             "Page seg mode: 0=osd only, 1=auto+osd, 2=auto, 3=col, 4=block,"
             " 5=line, 6=word, 7=char"
-            " (Values from PageSegMode enum in publictypes.h)");
+            " (Values from PageSegMode enum in tesseract/publictypes.h)");
   INT_VAR_H(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
             "Which OCR engine(s) to run (Tesseract, LSTM, both). Defaults"
             " to loading and running the most accurate available.");
@@ -839,7 +845,6 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_unrej_any_wd, false,
              "Don't bother with word plausibility");
   BOOL_VAR_H(tessedit_fix_hyphens, true, "Crunch double hyphens?");
-  BOOL_VAR_H(tessedit_redo_xheight, true, "Check/Correct x-height");
   BOOL_VAR_H(tessedit_enable_doc_dict, true,
              "Add words to the document dictionary");
   BOOL_VAR_H(tessedit_debug_fonts, false, "Output font info per char");
@@ -870,7 +875,6 @@ class Tesseract : public Wordrec {
   INT_VAR_H(noise_maxperblob, 8, "Max diacritics to apply to a blob");
   INT_VAR_H(noise_maxperword, 16, "Max diacritics to apply to a word");
   INT_VAR_H(debug_x_ht_level, 0, "Reestimate debug");
-  BOOL_VAR_H(debug_acceptable_wds, false, "Dump word pass/fail chk");
   STRING_VAR_H(chs_leading_punct, "('`\"", "Leading punctuation");
   STRING_VAR_H(chs_trailing_punct1, ").,;:?!", "1st Trailing punctuation");
   STRING_VAR_H(chs_trailing_punct2, ")'`\"", "2nd Trailing punctuation");
@@ -885,9 +889,6 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_minimal_rej_pass1, false,
              "Do minimal rejection on pass 1 output");
   BOOL_VAR_H(tessedit_test_adaption, false, "Test adaption criteria");
-  BOOL_VAR_H(tessedit_matcher_log, false, "Log matcher activity");
-  INT_VAR_H(tessedit_test_adaption_mode, 3,
-            "Adaptation decision algorithm for tess");
   BOOL_VAR_H(test_pt, false, "Test for point");
   double_VAR_H(test_pt_x, 99999.99, "xcoord");
   double_VAR_H(test_pt_y, 99999.99, "ycoord");
@@ -899,8 +900,6 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(lstm_use_matrix, 1, "Use ratings matrix/beam searct with lstm");
   STRING_VAR_H(outlines_odd, "%| ", "Non standard number of outlines");
   STRING_VAR_H(outlines_2, "ij!?%\":;", "Non standard number of outlines");
-  BOOL_VAR_H(docqual_excuse_outline_errs, false,
-             "Allow outline errs in unrejection?");
   BOOL_VAR_H(tessedit_good_quality_unrej, true,
              "Reduce rejection on good docs");
   BOOL_VAR_H(tessedit_use_reject_spaces, true, "Reject spaces?");
@@ -945,7 +944,6 @@ class Tesseract : public Wordrec {
   double_VAR_H(crunch_poor_garbage_rate, 60, "crunch garbage rating lt this");
   double_VAR_H(crunch_pot_poor_rate, 40, "POTENTIAL crunch rating lt this");
   double_VAR_H(crunch_pot_poor_cert, -8.0, "POTENTIAL crunch cert lt this");
-  BOOL_VAR_H(crunch_pot_garbage, true, "POTENTIAL crunch garbage");
   double_VAR_H(crunch_del_rating, 60, "POTENTIAL crunch rating lt this");
   double_VAR_H(crunch_del_cert, -10.0, "POTENTIAL crunch cert lt this");
   double_VAR_H(crunch_del_min_ht, 0.7, "Del if word ht lt xht x this");
@@ -1019,7 +1017,6 @@ class Tesseract : public Wordrec {
             "Specify minimum characters to try during OSD");
   STRING_VAR_H(unrecognised_char, "|", "Output char for unidentified blobs");
   INT_VAR_H(suspect_level, 99, "Suspect marker level");
-  INT_VAR_H(suspect_space_level, 100, "Min suspect level for rejecting spaces");
   INT_VAR_H(suspect_short_words, 2, "Don't Suspect dict wds longer than this");
   BOOL_VAR_H(suspect_constrain_1Il, false, "UNLV keep 1Il chars rejected");
   double_VAR_H(suspect_rating_per_ch, 999.9, "Don't touch bad rating limit");
@@ -1030,7 +1027,6 @@ class Tesseract : public Wordrec {
              "Make output have exactly one word per WERD");
   BOOL_VAR_H(tessedit_zero_kelvin_rejection, false,
              "Don't reject ANYTHING AT ALL");
-  BOOL_VAR_H(tessedit_consistent_reps, true, "Force all rep chars the same");
   INT_VAR_H(tessedit_reject_mode, 0, "Rejection algorithm");
   BOOL_VAR_H(tessedit_rejection_debug, false, "Adaption debug");
   BOOL_VAR_H(tessedit_flip_0O, true, "Contextual 0O O0 flips");
@@ -1088,12 +1084,22 @@ class Tesseract : public Wordrec {
   INT_VAR_H(lstm_choice_mode, 0,
             "Allows to include alternative symbols choices in the hOCR "
             "output. "
-            "Valid input values are 0, 1, 2 and 3. 0 is the default value. "
+            "Valid input values are 0, 1 and 2. 0 is the default value. "
             "With 1 the alternative symbol choices per timestep are included. "
-            "With 2 the alternative symbol choices are accumulated per "
-            "character. "
-            "With 3 the alternative symbol choices per timestep are included "
-            "and separated by the suggested segmentation of Tesseract");
+            "With 2 the alternative symbol choices are extracted from the CTC "
+            "process instead of the lattice. The choices are mapped per "
+            "character.");
+  INT_VAR_H(lstm_choice_iterations, 5,
+            "Sets the number of cascading iterations for the Beamsearch in "
+            "lstm_choice_mode. Note that lstm_choice_mode must be set to "
+            "a value greater than 0 to produce results.");
+  double_VAR_H(lstm_rating_coefficient, 5, 
+               "Sets the rating coefficient for the lstm choices. The smaller "
+               "the coefficient, the better are the ratings for each choice "
+               "and less information is lost due to the cut off at 0. The "
+               "standard value is 5.");
+  BOOL_VAR_H(pageseg_apply_music_mask, true,
+             "Detect music staff and remove intersecting components");
 
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE* init_recog_training(const STRING& fname);

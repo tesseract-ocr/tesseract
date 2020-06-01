@@ -20,7 +20,7 @@
 #define TESSERACT_CCMAIN_PARAGRAPHS_INTERNAL_H_
 
 #include "paragraphs.h"
-#include "publictypes.h"        // for ParagraphJustification
+#include <tesseract/publictypes.h>        // for ParagraphJustification
 
 // NO CODE OUTSIDE OF paragraphs.cpp AND TESTS SHOULD NEED TO ACCESS
 // DATA STRUCTURES OR FUNCTIONS IN THIS FILE.

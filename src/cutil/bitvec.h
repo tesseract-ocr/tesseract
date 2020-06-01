@@ -15,44 +15,42 @@
  ** limitations under the License.
  ******************************************************************************/
 
-#ifndef   BITVEC_H
-#define   BITVEC_H
+#ifndef BITVEC_H
+#define BITVEC_H
 
+#include <cstddef>      // for size_t
 #include <cstdint>      // for uint32_t
 
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
-// TODO(rays) Rename BITSINLONG to BITSINuint32_t, and use sizeof.
-#define BITSINLONG      32       /**< no of bits in a long */
-using BIT_VECTOR = uint32_t *;
+
+using BIT_VECTOR = uint32_t*;
+
+//< no of bits in a BIT_VECTOR element
+const size_t BITSINLONG = 8 * sizeof(uint32_t);
 
 /*-----------------------------------------------------------------------------
           Public Function Prototypes
 -----------------------------------------------------------------------------*/
-#define zero_all_bits(array, length)         \
-  {                                          \
-    int index; /*temporary index*/           \
-                                             \
-    for (index = 0; index < length; index++) \
-      array[index] = 0; /*zero all bits*/    \
-  }
 
-#define set_all_bits(array, length)          \
-  {                                          \
-    int index; /*temporary index*/           \
-                                             \
-    for (index = 0; index < length; index++) \
-      array[index] = ~0; /*set all bits*/    \
+static inline void zero_all_bits(BIT_VECTOR array, size_t length) {
+  for (size_t index = 0; index < length; index++) {
+    array[index] = 0;
   }
+}
 
-#define copy_all_bits(source, dest, length)          \
-  {                                                  \
-    int index; /*temporary index*/                   \
-                                                     \
-    for (index = 0; index < length; index++)         \
-      dest[index] = source[index]; /*copy all bits*/ \
+static inline void set_all_bits(BIT_VECTOR array, size_t length) {
+  for (size_t index = 0; index < length; index++) {
+    array[index] = ~0;
   }
+}
+
+static inline void copy_all_bits(BIT_VECTOR source, BIT_VECTOR dest, size_t length) {
+  for (size_t index = 0; index < length; index++) {
+    dest[index] = source[index];
+  }
+}
 
 #define SET_BIT(array,bit) (array[bit/BITSINLONG]|=1<<(bit&(BITSINLONG-1)))
 
@@ -60,16 +58,31 @@ using BIT_VECTOR = uint32_t *;
 
 #define test_bit(array,bit) (array[bit/BITSINLONG] & (1<<(bit&(BITSINLONG-1))))
 
-#define WordsInVectorOfSize(NumBits) \
-(((NumBits) + BITSINLONG - 1) / BITSINLONG)
+static inline size_t WordsInVectorOfSize(size_t NumBits) {
+  return (NumBits + BITSINLONG - 1) / BITSINLONG;
+}
 
-/*--------------------------------------------------------------------------
-        Public Function Prototypes
---------------------------------------------------------------------------*/
-BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits);
+/**
+ * This routine frees a bit vector.
+ *
+ * @param BitVector bit vector to be freed
+ *
+ */
+static inline void FreeBitVector(BIT_VECTOR BitVector) {
+  delete[] BitVector;
+}
 
-void FreeBitVector(BIT_VECTOR BitVector);
-
-BIT_VECTOR NewBitVector(int NumBits);
+/*---------------------------------------------------------------------------*/
+/**
+ * Allocate and return a new bit vector large enough to
+ * hold the specified number of bits.
+ *
+ * @param NumBits number of bits in new bit vector
+ *
+ * @return New bit vector.
+ */
+static inline BIT_VECTOR NewBitVector(size_t NumBits) {
+  return new uint32_t[WordsInVectorOfSize(NumBits)];
+}
 
 #endif

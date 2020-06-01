@@ -28,7 +28,7 @@
 #ifndef TESSERACT_VIEWER_SVMNODE_H_
 #define TESSERACT_VIEWER_SVMNODE_H_
 
-#include "strngs.h"
+#include <tesseract/strngs.h>
 
 class ScrollView;
 

@@ -26,8 +26,13 @@ const int kThetaBuckets = 13;
 namespace {
 
 class IntFeatureMapTest : public testing::Test {
+ protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
  public:
-  // Expects that the given vector has continguous integer values in the
+  // Expects that the given vector has contiguous integer values in the
   // range [start, end).
   void ExpectContiguous(const GenericVector<int>& v, int start, int end) {
     for (int i = start; i < end; ++i) {
@@ -38,6 +43,10 @@ class IntFeatureMapTest : public testing::Test {
 
 // Tests the IntFeatureMap and implicitly the IntFeatureSpace underneath.
 TEST_F(IntFeatureMapTest, Exhaustive) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because IntFeatureSpace is missing.
+  GTEST_SKIP();
+#else
   IntFeatureSpace space;
   space.Init(kXBuckets, kYBuckets, kThetaBuckets);
   IntFeatureMap map;
@@ -117,6 +126,7 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
   ExpectContiguous(map_features, 0, total_buckets - 2);
   EXPECT_EQ(total_buckets - 2, map.compact_size());
   EXPECT_EQ(total_buckets, map.sparse_size());
+#endif
 }
 
 }  // namespace.

@@ -22,7 +22,7 @@
 #include <iostream>
 #include <memory>               // std::unique_ptr
 #include <string>
-#include "baseapi.h"
+#include <tesseract/baseapi.h>
 #include "include_gunit.h"
 #include "leptonica/allheaders.h"
 
@@ -32,7 +32,8 @@ class TestClass : public testing::Test {
  protected:
 };
 
-void OSDTester(int expected_deg, const char* imgname, const char* tessdatadir) {
+#ifndef DISABLED_LEGACY_ENGINE
+static void OSDTester(int expected_deg, const char* imgname, const char* tessdatadir) {
   // log.info() << tessdatadir << " for image: " << imgname << std::endl;
   std::unique_ptr<tesseract::TessBaseAPI> api(new tesseract::TessBaseAPI());
   ASSERT_FALSE(api->Init(tessdatadir, "osd"))
@@ -55,14 +56,20 @@ void OSDTester(int expected_deg, const char* imgname, const char* tessdatadir) {
   api->End();
   pixDestroy(&image);
 }
+#endif
 
 class OSDTest : public TestClass,
                 public ::testing::WithParamInterface<
                     std::tuple<int, const char*, const char*>> {};
 
 TEST_P(OSDTest, MatchOrientationDegrees) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because TessBaseAPI::DetectOrientationScript is missing.
+  GTEST_SKIP();
+#else
   OSDTester(std::get<0>(GetParam()), std::get<1>(GetParam()),
             std::get<2>(GetParam()));
+#endif
 }
 
 INSTANTIATE_TEST_CASE_P(

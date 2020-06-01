@@ -132,7 +132,7 @@ bool ValidateMyanmar::ConsumeOptionalSignsIfPresent() {
 // Returns true if the unicode is a Myanmar "letter" including consonants
 // and independent vowels. Although table 16-3 distinguishes between some
 // base consonants and vowels, the extensions make no such distinction, so we
-// put them all into a single bucket. 
+// put them all into a single bucket.
 // Update MYANMAR LETTER based on following:
 // https://unicode.org/charts/PDF/U1000.pdf - Myanmar
 // http://unicode.org/charts/PDF/UAA60.pdf - Myanmar Extended-A
@@ -144,14 +144,14 @@ bool ValidateMyanmar::IsMyanmarLetter(char32 ch) {
          ch == 0x1061 || ch == 0x1065 || ch == 0x1066 ||
          (0x106e <= ch && ch <= 0x1070) || (0x1075 <= ch && ch <= 0x1081) ||
          ch == 0x108e || (0xa9e0 <= ch && ch <= 0xa9e4) ||
-         (0xa9e7 <= ch && ch <= 0xa9ef) || (0xa9fa <= ch && ch <= 0xa9fe) || 
+         (0xa9e7 <= ch && ch <= 0xa9ef) || (0xa9fa <= ch && ch <= 0xa9fe) ||
          (0xaa60 <= ch && ch <= 0xaa6f) || (0xaa71 <= ch && ch <= 0xaa73) ||
          ch == 0xaa7a || ch == 0xaa7e || ch == 0xaa7f;
 }
 
 // Returns true if ch is a Myanmar digit or other symbol that does not take
 // part in being a syllable eg. punctuation marks.
-// MYANMAR DIGIT, MYANMAR SYMBOL, MYANMAR LOGOGRAM 
+// MYANMAR DIGIT, MYANMAR SYMBOL, MYANMAR LOGOGRAM
 // REDUPLICATION MARKS
 /* static */
 bool ValidateMyanmar::IsMyanmarOther(char32 ch) {

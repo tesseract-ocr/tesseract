@@ -24,7 +24,7 @@
 #include "bits16.h"     // for BITS16
 #include "elst.h"       // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "mod128.h"     // for DIR128, DIRBITS
-#include "platform.h"   // for DLLSYM
+#include <tesseract/platform.h>   // for DLLSYM
 #include "points.h"     // for ICOORD, FCOORD
 #include "rect.h"       // for TBOX
 #include "scrollview.h" // for ScrollView, ScrollView::Color

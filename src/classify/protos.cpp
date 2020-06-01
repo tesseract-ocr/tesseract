@@ -1,5 +1,4 @@
-/* -*-C-*-
- ******************************************************************************
+/******************************************************************************
  *
  * File:        protos.cpp  (Formerly protos.c)
  * Author:      Mark Seaman, OCR Technology
@@ -19,16 +18,16 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
+#define _USE_MATH_DEFINES       // for M_PI
 #include "protos.h"
+#include <cmath>                // for M_PI
+#include <cstdio>
 #include "emalloc.h"
 #include "callcpp.h"
 #include "tprintf.h"
 #include "classify.h"
 #include "params.h"
 #include "intproto.h"
-
-#include <cstdio>
-#include <cmath>
 
 #define PROTO_INCREMENT   32
 #define CONFIG_INCREMENT  16
@@ -51,6 +50,7 @@ int AddConfigToClass(CLASS_TYPE Class) {
   BIT_VECTOR Config;
 
   MaxNumProtos = Class->MaxNumProtos;
+  ASSERT_HOST(MaxNumProtos <= MAX_NUM_PROTOS);
 
   if (Class->NumConfigs >= Class->MaxNumConfigs) {
     /* add configs in CONFIG_INCREMENT chunks at a time */
@@ -64,9 +64,9 @@ int AddConfigToClass(CLASS_TYPE Class) {
     Class->MaxNumConfigs = NewNumConfigs;
   }
   NewConfig = Class->NumConfigs++;
-  Config = NewBitVector (MaxNumProtos);
+  Config = NewBitVector(MAX_NUM_PROTOS);
   Class->Configurations[NewConfig] = Config;
-  zero_all_bits (Config, WordsInVectorOfSize (MaxNumProtos));
+  zero_all_bits (Config, WordsInVectorOfSize(MAX_NUM_PROTOS));
 
   return (NewConfig);
 }
@@ -81,15 +81,9 @@ int AddConfigToClass(CLASS_TYPE Class) {
  * @param Class The class to add to
  */
 int AddProtoToClass(CLASS_TYPE Class) {
-  int i;
-  int Bit;
-  int NewNumProtos;
-  int NewProto;
-  BIT_VECTOR Config;
-
   if (Class->NumProtos >= Class->MaxNumProtos) {
     /* add protos in PROTO_INCREMENT chunks at a time */
-    NewNumProtos = (((Class->MaxNumProtos + PROTO_INCREMENT) /
+    int NewNumProtos = (((Class->MaxNumProtos + PROTO_INCREMENT) /
       PROTO_INCREMENT) * PROTO_INCREMENT);
 
     Class->Prototypes = static_cast<PROTO>(Erealloc (Class->Prototypes,
@@ -97,20 +91,10 @@ int AddProtoToClass(CLASS_TYPE Class) {
       NewNumProtos));
 
     Class->MaxNumProtos = NewNumProtos;
-
-    for (i = 0; i < Class->NumConfigs; i++) {
-      Config = Class->Configurations[i];
-      Class->Configurations[i] = ExpandBitVector (Config, NewNumProtos);
-
-      for (Bit = Class->NumProtos; Bit < NewNumProtos; Bit++)
-        reset_bit(Config, Bit);
-    }
+    ASSERT_HOST(NewNumProtos <= MAX_NUM_PROTOS);
   }
-  NewProto = Class->NumProtos++;
-  if (Class->NumProtos > MAX_NUM_PROTOS) {
-    tprintf("Ouch! number of protos = %d, vs max of %d!",
-            Class->NumProtos, MAX_NUM_PROTOS);
-  }
+  int NewProto = Class->NumProtos++;
+  ASSERT_HOST(Class->NumProtos <= MAX_NUM_PROTOS);
   return (NewProto);
 }
 

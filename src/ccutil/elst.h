@@ -20,7 +20,7 @@
 #define ELST_H
 
 #include <cstdio>
-#include "serialis.h"
+#include <tesseract/serialis.h>
 #include "lsterr.h"
 
 class ELIST_ITERATOR;
@@ -46,11 +46,6 @@ The following list types and iterators are provided:
               CLIST_ITERATOR
               CLIST_LINK
     (Single linked)
-
-    Cons List           CLIST2
-              CLIST2_ITERATOR
-              CLIST2_LINK
-    (Double linked)
 
 An embedded list is where the list pointers are provided by a generic class.
 Data types to be listed inherit from the generic class.  Data is thus linked
@@ -190,14 +185,10 @@ class DLLSYM ELIST_ITERATOR
   ELIST_LINK *prev;              //prev element
   ELIST_LINK *current;           //current element
   ELIST_LINK *next;              //next element
-  bool ex_current_was_last;     //current extracted
-  //was end of list
-  bool ex_current_was_cycle_pt; //current extracted
-  //was cycle point
-  ELIST_LINK *cycle_pt;          //point we are cycling
-  //the list to.
-  bool started_cycling;         //Have we moved off
-  //the start?
+  ELIST_LINK *cycle_pt;          //point we are cycling the list to.
+  bool ex_current_was_last;      //current extracted was end of list
+  bool ex_current_was_cycle_pt;  //current extracted was cycle point
+  bool started_cycling;          //Have we moved off the start?
 
   ELIST_LINK *extract_sublist(                            //from this current...
                               ELIST_ITERATOR *other_it);  //to other current
@@ -838,7 +829,7 @@ The macros generate:
   - An E_LIST_ITERATOR subclass:       CLASSNAME##_IT
 
 NOTE: Generated names are DELIBERATELY designed to clash with those for
-ELIST2IZE but NOT with those for CLISTIZE and CLIST2IZE
+ELIST2IZE but NOT with those for CLISTIZE.
 
 Two macros are provided: ELISTIZE and ELISTIZEH.
 The ...IZEH macros just define the class names for use in .h files

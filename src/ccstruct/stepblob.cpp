@@ -23,7 +23,7 @@
 
 #include "stepblob.h"
 #include "allheaders.h"     // for pixCreate, pixGetDepth
-#include "genericvector.h"  // for GenericVector
+#include <tesseract/genericvector.h>  // for GenericVector
 #include "points.h"         // for operator+=, FCOORD, ICOORD
 
 class DENORM;

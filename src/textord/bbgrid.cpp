@@ -3,7 +3,6 @@
 // Description: Class to hold BLOBNBOXs in a grid for fast access
 //              to neighbours.
 // Author:      Ray Smith
-// Created:     Wed Jun 06 17:22:01 PDT 2007
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "bbgrid.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "ocrblock.h"
 
 namespace tesseract {
@@ -100,7 +99,7 @@ void IntGrid::Clear() {
 void IntGrid::Rotate(const FCOORD& rotation) {
   ASSERT_HOST(rotation.x() == 0.0f || rotation.y() == 0.0f);
   ICOORD old_bleft(bleft());
-  ICOORD old_tright(tright());
+  //ICOORD old_tright(tright());
   int old_width = gridwidth();
   int old_height = gridheight();
   TBOX box(bleft(), tright());

@@ -14,7 +14,7 @@
 #
 # This script provides an easy way to execute various phases of training
 # Tesseract.  For a detailed description of the phases, see
-# https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
+# https://tesseract-ocr.github.io/tessdoc/Training-Tesseract.html.
 
 import logging
 import os
@@ -50,19 +50,20 @@ def setup_logging_console():
 
 
 def setup_logging_logfile(logfile):
-    logfile = logging.FileHandler(logfile)
+    logfile = logging.FileHandler(logfile, encoding='utf-8')
     logfile.setLevel(logging.DEBUG)
     logfile_formatter = logging.Formatter(
         "[%(asctime)s] - %(levelname)s - %(name)s - %(message)s"
     )
     logfile.setFormatter(logfile_formatter)
     log.addHandler(logfile)
+    return logfile
 
 
 def main():
     setup_logging_console()
     ctx = parse_flags()
-    setup_logging_logfile(ctx.log_file)
+    logfile = setup_logging_logfile(ctx.log_file)
     if not ctx.linedata:
         log.error("--linedata_only is required since only LSTM is supported")
         sys.exit(1)
@@ -78,6 +79,8 @@ def main():
         phase_E_extract_features(ctx, ["--psm", "6", "lstm.train"], "lstmf")
         make_lstmdata(ctx)
 
+    log.removeHandler(logfile)
+    logfile.close()
     cleanup(ctx)
     log.info("All done!")
     return 0

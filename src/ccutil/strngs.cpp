@@ -2,7 +2,6 @@
  * File:        strngs.cpp  (Formerly strings.c)
  * Description: STRING class functions.
  * Author:      Ray Smith
- * Created:     Fri Feb 15 09:13:30 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,22 +16,21 @@
  *
  **********************************************************************/
 
-#include "strngs.h"
+#include <tesseract/strngs.h>
 #include <cassert>          // for assert
 #include <cstdlib>          // for malloc, free
+#include <locale>           // for std::locale::classic
+#include <sstream>          // for std::stringstream
 #include "errcode.h"        // for ASSERT_HOST
-#include "genericvector.h"  // for GenericVector
-#include "helpers.h"        // for ReverseN
-#include "serialis.h"       // for TFile
+#include <tesseract/genericvector.h>  // for GenericVector
+#include <tesseract/helpers.h>        // for ReverseN
+#include <tesseract/serialis.h>       // for TFile
 
 using tesseract::TFile;
 
 // Size of buffer needed to host the decimal representation of the maximum
 // possible length of an int (in 64 bits), being -<20 digits>.
 const int kMaxIntSize = 22;
-// Size of buffer needed to host the decimal representation of the maximum
-// possible length of a %.8g being -1.2345678e+999<nul> = 16.
-const int kMaxDoubleSize = 16;
 
 /**********************************************************************
  * STRING_HEADER provides metadata about the allocated buffer,
@@ -193,7 +191,7 @@ int32_t STRING::length() const {
   return GetHeader()->used_ - 1;
 }
 
-const char* STRING::string() const {
+const char* STRING::c_str() const {
   const STRING_HEADER* header = GetHeader();
   if (!header || header->used_ == 0)
     return nullptr;
@@ -202,10 +200,6 @@ const char* STRING::string() const {
   // cast away the const and mutate the string directly.
   header->used_ = -1;
   return GetCStr();
-}
-
-const char* STRING::c_str() const {
-  return string();
 }
 
 /******
@@ -389,11 +383,13 @@ void STRING::add_str_int(const char* str, int number) {
 void STRING::add_str_double(const char* str, double number) {
   if (str != nullptr)
     *this += str;
-  // Allow space for the maximum possible length of %8g.
-  char num_buffer[kMaxDoubleSize];
-  snprintf(num_buffer, kMaxDoubleSize - 1, "%.8g", number);
-  num_buffer[kMaxDoubleSize - 1] = '\0';
-  *this += num_buffer;
+  std::stringstream stream;
+  // Use "C" locale (needed for double value).
+  stream.imbue(std::locale::classic());
+  // Use 8 digits for double value.
+  stream.precision(8);
+  stream << number;
+  *this += stream.str().c_str();
 }
 
 STRING & STRING::operator=(const char* cstr) {

@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/******************************************************************************
  *
  * File:         blobs.cpp  (Formerly blobs.c)
  * Description:  Blob definition
@@ -16,7 +15,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- *********************************************************************************/
+ *****************************************************************************/
 
 /*----------------------------------------------------------------------
               I n c l u d e s
@@ -29,14 +28,13 @@
 #include "blobs.h"
 #include "ccstruct.h"
 #include "clst.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "linlsq.h"
 #include "normalis.h"
 #include "ocrblock.h"
 #include "ocrrow.h"
 #include "points.h"
 #include "polyaprx.h"
-#include "structures.h"
 #include "werd.h"
 
 #include <algorithm>
@@ -66,9 +64,6 @@ CLISTIZE(EDGEPT)
 /* static */
 bool TPOINT::IsCrossed(const TPOINT& a0, const TPOINT& a1, const TPOINT& b0,
                        const TPOINT& b1) {
-  int b0a1xb0b1, b0b1xb0a0;
-  int a1b1xa1a0, a1a0xa1b0;
-
   TPOINT b0a1, b0a0, a1b1, b0b1, a1a0;
 
   b0a1.x = a1.x - b0.x;
@@ -82,12 +77,12 @@ bool TPOINT::IsCrossed(const TPOINT& a0, const TPOINT& a1, const TPOINT& b0,
   b0b1.y = b1.y - b0.y;
   a1a0.y = a0.y - a1.y;
 
-  b0a1xb0b1 = CROSS(b0a1, b0b1);
-  b0b1xb0a0 = CROSS(b0b1, b0a0);
-  a1b1xa1a0 = CROSS(a1b1, a1a0);
-  // For clarity, we want CROSS(a1a0,a1b0) here but we have b0a1 instead of a1b0
-  // so use -CROSS(a1b0,b0a1) instead, which is the same.
-  a1a0xa1b0 = -CROSS(a1a0, b0a1);
+  int b0a1xb0b1 = b0a1.cross(b0b1);
+  int b0b1xb0a0 = b0b1.cross(b0a0);
+  int a1b1xa1a0 = a1b1.cross(a1a0);
+  // For clarity, we want a1a0.cross(a1b0) here but we have b0a1 instead of a1b0
+  // so use -a1b0.cross(b0a1) instead, which is the same.
+  int a1a0xa1b0 = -a1a0.cross(b0a1);
 
   return ((b0a1xb0b1 > 0 && b0b1xb0a0 > 0) ||
           (b0a1xb0b1 < 0 && b0b1xb0a0 < 0)) &&
@@ -251,7 +246,7 @@ void TESSLINE::MinMaxCrossProduct(const TPOINT vec, int* min_xp,
   EDGEPT* this_edge = loop;
   do {
     if (!this_edge->IsHidden() || !this_edge->prev->IsHidden()) {
-      int product = CROSS(this_edge->pos, vec);
+      int product = this_edge->pos.cross(vec);
       UpdateRange(product, min_xp, max_xp);
     }
     this_edge = this_edge->next;
@@ -926,7 +921,7 @@ bool divisible_blob(TBLOB* blob, bool italic_blob, TPOINT* location) {
     TPOINT mid_pt1(
         static_cast<int16_t>((outline1->topleft.x + outline1->botright.x) / 2),
         static_cast<int16_t>((outline1->topleft.y + outline1->botright.y) / 2));
-    int mid_prod1 = CROSS(mid_pt1, vertical);
+    int mid_prod1 = mid_pt1.cross(vertical);
     int min_prod1, max_prod1;
     outline1->MinMaxCrossProduct(vertical, &min_prod1, &max_prod1);
     for (TESSLINE* outline2 = outline1->next; outline2 != nullptr;
@@ -936,7 +931,7 @@ bool divisible_blob(TBLOB* blob, bool italic_blob, TPOINT* location) {
                          (outline2->topleft.x + outline2->botright.x) / 2),
                      static_cast<int16_t>(
                          (outline2->topleft.y + outline2->botright.y) / 2));
-      int mid_prod2 = CROSS(mid_pt2, vertical);
+      int mid_prod2 = mid_pt2.cross(vertical);
       int min_prod2, max_prod2;
       outline2->MinMaxCrossProduct(vertical, &min_prod2, &max_prod2);
       int mid_gap = abs(mid_prod2 - mid_prod1);
@@ -972,13 +967,13 @@ void divide_blobs(TBLOB* blob, TBLOB* other_blob, bool italic_blob,
 
   TESSLINE* outline = blob->outlines;
   blob->outlines = nullptr;
-  int location_prod = CROSS(location, vertical);
+  int location_prod = location.cross(vertical);
 
   while (outline != nullptr) {
     TPOINT mid_pt(
         static_cast<int16_t>((outline->topleft.x + outline->botright.x) / 2),
         static_cast<int16_t>((outline->topleft.y + outline->botright.y) / 2));
-    int mid_prod = CROSS(mid_pt, vertical);
+    int mid_prod = mid_pt.cross(vertical);
     if (mid_prod < location_prod) {
       // Outline is in left blob.
       if (outline1)

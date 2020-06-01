@@ -22,7 +22,7 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 #include "matchdefs.h"
 #include "mfoutline.h"
 #include "protos.h"

@@ -18,7 +18,7 @@
 #include "config_auto.h"
 #endif
 
-#include "baseapi.h"
+#include <tesseract/baseapi.h>
 
 #ifdef DISABLED_LEGACY_ENGINE
 

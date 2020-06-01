@@ -2,7 +2,6 @@
 // File:        unicharset.h
 // Description: Unicode character/ligature set class.
 // Author:      Thomas Kielbus
-// Created:     Wed Jun 28 17:05:01 PDT 2006
 //
 // (C) Copyright 2006, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +19,13 @@
 #ifndef TESSERACT_CCUTIL_UNICHARSET_H_
 #define TESSERACT_CCUTIL_UNICHARSET_H_
 
+#include <functional>           // for std::function
 #include "errcode.h"
-#include "genericvector.h"
-#include "helpers.h"
-#include "serialis.h"
-#include "strngs.h"
-#include "tesscallback.h"
-#include "unichar.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/helpers.h>
+#include <tesseract/serialis.h>
+#include <tesseract/strngs.h>
+#include <tesseract/unichar.h>
 #include "unicharmap.h"
 
 // Enum holding special values of unichar_id. Every unicharset has these.
@@ -153,7 +152,7 @@ class UNICHARSET {
   // List of strings for the SpecialUnicharCodes. Keep in sync with the enum.
   static TESS_API const char* kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT];
 
-  // ICU 2.0 UCharDirection enum (from third_party/icu/include/unicode/uchar.h)
+  // ICU 2.0 UCharDirection enum (from icu/include/unicode/uchar.h)
   enum Direction {
       U_LEFT_TO_RIGHT               = 0,
       U_RIGHT_TO_LEFT               = 1,
@@ -174,7 +173,13 @@ class UNICHARSET {
       U_POP_DIRECTIONAL_FORMAT      = 16,
       U_DIR_NON_SPACING_MARK        = 17,
       U_BOUNDARY_NEUTRAL            = 18,
+      U_FIRST_STRONG_ISOLATE        = 19,
+      U_LEFT_TO_RIGHT_ISOLATE       = 20,
+      U_RIGHT_TO_LEFT_ISOLATE       = 21,
+      U_POP_DIRECTIONAL_ISOLATE     = 22,
+#ifndef U_HIDE_DEPRECATED_API
       U_CHAR_DIRECTION_COUNT
+#endif  // U_HIDE_DEPRECATED_API
   };
 
   // Create an empty UNICHARSET
@@ -366,16 +371,6 @@ class UNICHARSET {
   // Saves the content of the UNICHARSET to the given STRING.
   // Returns true if the operation is successful.
   bool save_to_string(STRING *str) const;
-
-  // Load a unicharset from a unicharset file that has been loaded into
-  // the given memory buffer.
-  // Returns true if the operation is successful.
-  bool load_from_inmemory_file(const char* const memory, int mem_size,
-                               bool skip_fragments);
-  // Returns true if the operation is successful.
-  bool load_from_inmemory_file(const char* const memory, int mem_size) {
-    return load_from_inmemory_file(memory, mem_size, false);
-  }
 
   // Opens the file indicated by filename and loads the UNICHARSET
   // from the given file. The previous data is lost.
@@ -822,7 +817,7 @@ class UNICHARSET {
   // Returns normalized version of unichar with the given unichar_id.
   const char *get_normed_unichar(UNICHAR_ID unichar_id) const {
     if (unichar_id == UNICHAR_SPACE) return " ";
-    return unichars[unichar_id].properties.normed.string();
+    return unichars[unichar_id].properties.normed.c_str();
   }
   // Returns a vector of UNICHAR_IDs that represent the ids of the normalized
   // version of the given id. There may be more than one UNICHAR_ID in the
@@ -934,7 +929,7 @@ class UNICHARSET {
     uint8_t max_bottom;
     uint8_t min_top;
     uint8_t max_top;
-    // Statstics of the widths of bounding box, relative to the median advance.
+    // Statistics of the widths of bounding box, relative to the median advance.
     float width;
     float width_sd;
     // Stats of the x-bearing and advance, also relative to the median advance.
@@ -997,8 +992,8 @@ class UNICHARSET {
 
   // Load ourselves from a "file" where our only interface to the file is
   // an implementation of fgets().  This is the parsing primitive accessed by
-  // the public routines load_from_file() and load_from_inmemory_file().
-  bool load_via_fgets(TessResultCallback2<char *, char *, int> *fgets_cb,
+  // the public routines load_from_file().
+  bool load_via_fgets(std::function<char*(char*, int)> fgets_cb,
                       bool skip_fragments);
 
   // List of mappings to make when ingesting strings from the outside.

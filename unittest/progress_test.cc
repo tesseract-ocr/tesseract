@@ -23,11 +23,11 @@
 #include <locale>
 #include <memory>               // std::unique_ptr
 #include <string>
-#include "baseapi.h"
+#include <tesseract/baseapi.h>
 #include "gmock/gmock.h"
 #include "include_gunit.h"
 #include "leptonica/allheaders.h"
-#include "ocrclass.h"
+#include <tesseract/ocrclass.h>
 
 namespace {
 

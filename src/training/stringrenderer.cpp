@@ -35,7 +35,7 @@
 #include "pango/pango-font.h"
 #include "pango/pango-glyph-item.h"
 #include "tlog.h"
-#include "unichar.h"
+#include <tesseract/unichar.h>
 #include "unicode/uchar.h"  // from libicu
 #include "util.h"
 

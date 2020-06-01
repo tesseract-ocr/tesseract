@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/******************************************************************************
  *
  * File:         trie.cpp  (Formerly trie.c)
  * Description:  Functions to build a trie data structure.
@@ -16,7 +15,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- *********************************************************************************/
+ *****************************************************************************/
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
@@ -26,8 +25,8 @@
 #include "callcpp.h"
 #include "dawg.h"
 #include "dict.h"
-#include "genericvector.h"
-#include "helpers.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/helpers.h>
 #include "kdpair.h"
 
 namespace tesseract {
@@ -268,7 +267,7 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
 NODE_REF Trie::new_dawg_node() {
   auto *node = new TRIE_NODE_RECORD();
   nodes_.push_back(node);
-  return nodes_.length() - 1;
+  return nodes_.size() - 1;
 }
 
 // Sort function to sort words by decreasing order of length.
@@ -314,7 +313,7 @@ bool Trie::add_word_list(const GenericVector<STRING> &words,
                          const UNICHARSET &unicharset,
                          Trie::RTLReversePolicy reverse_policy) {
   for (int i = 0; i < words.size(); ++i) {
-    WERD_CHOICE word(words[i].string(), unicharset);
+    WERD_CHOICE word(words[i].c_str(), unicharset);
     if (word.length() == 0 || word.contains_unichar_id(INVALID_UNICHAR_ID))
       continue;
     if ((reverse_policy == RRP_REVERSE_IF_HAS_RTL &&
@@ -326,7 +325,7 @@ bool Trie::add_word_list(const GenericVector<STRING> &words,
       add_word_to_dawg(word);
       if (!word_in_dawg(word)) {
         tprintf("Error: word '%s' not in DAWG after adding it\n",
-                words[i].string());
+                words[i].c_str());
         return false;
       }
     }
@@ -456,7 +455,7 @@ bool Trie::read_pattern_list(const char *filename,
     // Insert the pattern into the trie.
     if (debug_level_ > 2) {
       tprintf("Inserting expanded user pattern %s\n",
-              word.debug_string().string());
+              word.debug_string().c_str());
     }
     if (!this->word_in_dawg(word)) {
       this->add_word_to_dawg(word, &repetitions_vec);

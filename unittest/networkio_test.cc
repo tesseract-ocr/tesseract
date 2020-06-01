@@ -1,5 +1,18 @@
-#include "tesseract/lstm/networkio.h"
-#include "tesseract/lstm/stridemap.h"
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include "include_gunit.h"
+#include "networkio.h"
+#include "stridemap.h"
+#include <tensorflow/compiler/xla/array2d.h> // for xla::Array2D
 
 using tesseract::FD_BATCH;
 using tesseract::FD_HEIGHT;
@@ -12,10 +25,14 @@ namespace {
 
 class NetworkioTest : public ::testing::Test {
  protected:
+  void SetUp() override {
+    std::locale::global(std::locale(""));
+  }
+
   // Sets up an Array2d object of the given size, initialized to increasing
   // values starting with start.
-  std::unique_ptr<Array2D<int>> SetupArray(int ysize, int xsize, int start) {
-    std::unique_ptr<Array2D<int>> a(new Array2D<int>(ysize, xsize));
+  std::unique_ptr<xla::Array2D<int>> SetupArray(int ysize, int xsize, int start) {
+    std::unique_ptr<xla::Array2D<int>> a(new xla::Array2D<int>(ysize, xsize));
     int value = start;
     for (int y = 0; y < ysize; ++y) {
       for (int x = 0; x < xsize; ++x) {
@@ -26,11 +43,11 @@ class NetworkioTest : public ::testing::Test {
   }
   // Sets up a NetworkIO with a batch of 2 "images" of known values.
   void SetupNetworkIO(NetworkIO* nio) {
-    std::vector<std::unique_ptr<Array2D<int>>> arrays;
+    std::vector<std::unique_ptr<xla::Array2D<int>>> arrays;
     arrays.push_back(SetupArray(3, 4, 0));
     arrays.push_back(SetupArray(4, 5, 12));
     std::vector<std::pair<int, int>> h_w_sizes;
-    for (int i = 0; i < arrays.size(); ++i) {
+    for (size_t i = 0; i < arrays.size(); ++i) {
       h_w_sizes.emplace_back(arrays[i].get()->height(),
                              arrays[i].get()->width());
     }

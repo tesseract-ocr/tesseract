@@ -10,7 +10,7 @@
 // limitations under the License.
 
 #include "allheaders.h"
-#include "baseapi.h"
+#include <tesseract/baseapi.h>
 #include "lstm_test.h"
 
 namespace tesseract {

@@ -50,7 +50,6 @@ bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
 /**
  * Release the memory consumed by the specified feature.
  * @param Feature feature to be deallocated.
- * @return none
  */
 void FreeFeature(FEATURE Feature) { free(Feature); } /* FreeFeature */
 
@@ -59,7 +58,6 @@ void FreeFeature(FEATURE Feature) { free(Feature); } /* FreeFeature */
  * set.  This routine also frees the memory consumed by the
  * features contained in the set.
  * @param FeatureSet  set of features to be freed
- * @return none
  */
 void FreeFeatureSet(FEATURE_SET FeatureSet) {
   int i;
@@ -115,7 +113,7 @@ FEATURE_SET NewFeatureSet(int NumFeatures) {
  * @param FeatureDesc specifies type of feature to read from File
  * @return New #FEATURE read from File.
  */
-FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
+static FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
   int i;
 
@@ -146,7 +144,7 @@ FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 
   FEATURE_SET FeatureSet = NewFeatureSet(NumFeatures);
   for (int i = 0; i < NumFeatures; i++)
-    AddFeature(FeatureSet, ReadFeature (File, FeatureDesc));
+    AddFeature(FeatureSet, ReadFeature(File, FeatureDesc));
 
   return FeatureSet;
 }
@@ -160,9 +158,8 @@ FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
  * feature type information is specified or assumed elsewhere.
  * @param Feature feature to write out to str
  * @param str string to write Feature to
- * @return none
  */
-void WriteFeature(FEATURE Feature, STRING* str) {
+static void WriteFeature(FEATURE Feature, STRING* str) {
   for (int i = 0; i < Feature->Type->NumParams; i++) {
 #ifndef WIN32
     assert(!std::isnan(Feature->Params[i]));
@@ -179,7 +176,6 @@ void WriteFeature(FEATURE Feature, STRING* str) {
  * text representations for each feature in the set.
  * @param FeatureSet feature set to write to File
  * @param str string to write Feature to
- * @return none
  */
 void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str) {
   if (FeatureSet) {

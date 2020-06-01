@@ -1,5 +1,4 @@
-/* -*-C-*-
-###############################################################################
+/******************************************************************************
 #
 # File:         oldlist.cpp
 # Description:  List processing procedures.
@@ -59,24 +58,6 @@
 #include <cstdio>
 #include <cstring>      // for strcmp
 #include "errcode.h"    // for ASSERT_HOST
-#include "structures.h"
-
-/*----------------------------------------------------------------------
-              M a c r o s
-----------------------------------------------------------------------*/
-#define add_on(l, x) l = push(l, first_node(x))
-#define next_one(l) l = list_rest(l)
-
-/**********************************************************************
- *  c o p y   f i r s t
- *
- *  Do the appropriate kind a push operation to copy the first node from
- *  one list to another.
- *
- **********************************************************************/
-
-#define copy_first(l1,l2)  \
-(l2=push(l2, first_node(l1)))
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -148,7 +129,7 @@ LIST destroy(LIST list) {
 
   while (list != NIL_LIST) {
     next = list_rest(list);
-    free_cell(list);
+    delete list;
     list = next;
   }
   return (NIL_LIST);
@@ -185,13 +166,8 @@ LIST last(LIST var_list) {
  *  that it occupied in the list.
  **********************************************************************/
 LIST pop(LIST list) {
-  LIST temp;
-
-  temp = list_rest(list);
-
-  if (list != NIL_LIST) {
-    free_cell(list);
-  }
+  LIST temp = list_rest(list);
+  delete list;
   return (temp);
 }
 
@@ -204,7 +180,7 @@ LIST pop(LIST list) {
 LIST push(LIST list, void *element) {
   LIST t;
 
-  t = new_cell();
+  t = new list_rec;
   t->node = static_cast<LIST>(element);
   set_rest(t, list);
   return (t);

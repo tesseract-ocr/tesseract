@@ -23,8 +23,8 @@
 #include <cstdio>
 #include <vector>
 
-#include "genericvector.h"
-#include "helpers.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/helpers.h>
 #include "static_shape.h"
 #include "stridemap.h"
 #include "weightmatrix.h"

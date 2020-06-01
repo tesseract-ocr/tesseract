@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/******************************************************************************
  *
  * File:         findseam.cpp  (Formerly findseam.c)
  * Author:       Mark Seaman, OCR Technology
@@ -15,7 +14,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- *********************************************************************************/
+ *****************************************************************************/
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
@@ -48,7 +47,6 @@
                                  /* How many to keep */
 #define MAX_NUM_SEAMS          150
                                  /* How many to keep */
-#define MAX_OLD_SEAMS          150
 #define NO_FULL_PRIORITY       -1/* Special marker for pri. */
                                  /* Evaluate right away */
 #define BAD_PRIORITY           9999.0

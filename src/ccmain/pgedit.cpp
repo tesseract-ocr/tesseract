@@ -42,9 +42,6 @@
 #define X_HEIGHT       (kBlnBaselineOffset + kBlnXHeight)
 #define BL_HEIGHT     kBlnBaselineOffset
 #define DESC_HEIGHT     0
-#define MAXSPACING      128      /*max expected spacing in pix */
-
-const ERRCODE EMPTYBLOCKLIST = "No blocks to edit";
 
 enum CMD_EVENTS
 {
@@ -117,13 +114,13 @@ static bool display_image = false;
 static bool display_blocks = false;
 static bool display_baselines = false;
 
-PAGE_RES *current_page_res = nullptr;
+static PAGE_RES *current_page_res = nullptr;
 
 STRING_VAR(editor_image_win_name, "EditorImage",
            "Editor image window name");
 INT_VAR(editor_image_xpos, 590, "Editor image X Pos");
 INT_VAR(editor_image_ypos, 10, "Editor image Y Pos");
-INT_VAR(editor_image_menuheight, 50, "Add to image height for menu bar");
+static INT_VAR(editor_image_menuheight, 50, "Add to image height for menu bar");
 INT_VAR(editor_image_word_bb_color, ScrollView::BLUE,
         "Word bounding box colour");
 INT_VAR(editor_image_blob_bb_color, ScrollView::YELLOW,
@@ -144,7 +141,62 @@ INT_VAR(editor_word_ypos, 510, "Word window Y Pos");
 INT_VAR(editor_word_height, 240, "Word window height");
 INT_VAR(editor_word_width, 655, "Word window width");
 
-STRING_VAR(editor_debug_config_file, "", "Config file to apply to single words");
+/**
+ * show_point()
+ *
+ * Show coords of point, blob bounding box, word bounding box and offset from
+ * row baseline
+ */
+
+static void show_point(PAGE_RES* page_res, float x, float y) {
+  FCOORD pt(x, y);
+  PAGE_RES_IT pr_it(page_res);
+
+  const int kBufsize = 512;
+  char msg[kBufsize];
+  char *msg_ptr = msg;
+
+  msg_ptr += sprintf(msg_ptr, "Pt:(%0.3f, %0.3f) ", x, y);
+
+  for (WERD_RES* word = pr_it.word(); word != nullptr; word = pr_it.forward()) {
+    if (pr_it.row() != pr_it.prev_row() &&
+        pr_it.row()->row->bounding_box().contains(pt)) {
+      msg_ptr += sprintf(msg_ptr, "BL(x)=%0.3f ",
+                         pr_it.row()->row->base_line(x));
+    }
+    if (word->word->bounding_box().contains(pt)) {
+      TBOX box = word->word->bounding_box();
+      msg_ptr += sprintf(msg_ptr, "Wd(%d, %d)/(%d, %d) ",
+                         box.left(), box.bottom(),
+                         box.right(), box.top());
+      C_BLOB_IT cblob_it(word->word->cblob_list());
+      for (cblob_it.mark_cycle_pt();
+           !cblob_it.cycled_list();
+           cblob_it.forward()) {
+        C_BLOB* cblob = cblob_it.data();
+        box = cblob->bounding_box();
+        if (box.contains(pt)) {
+          msg_ptr += sprintf(msg_ptr,
+                             "CBlb(%d, %d)/(%d, %d) ",
+                             box.left(), box.bottom(),
+                             box.right(), box.top());
+        }
+      }
+    }
+  }
+  image_win->AddMessage(msg);
+}
+
+/**
+ * pgeditor_msg()
+ *
+ * Display a message - in the command window if there is one, or to stdout
+ */
+
+static void pgeditor_msg( // message display
+                  const char *msg) {
+    image_win->AddMessage(msg);
+}
 
 class BlnEventHandler : public SVEventHandler {
  public:
@@ -161,11 +213,11 @@ class BlnEventHandler : public SVEventHandler {
  *
  *  @return a WINDOW for the word window, creating it if necessary
  */
-ScrollView* bln_word_window_handle() {  // return handle
+static ScrollView* bln_word_window_handle() {  // return handle
                                  // not opened yet
   if (bln_word_window == nullptr) {
     pgeditor_msg("Creating BLN word window...");
-    bln_word_window = new ScrollView(editor_word_name.string(),
+    bln_word_window = new ScrollView(editor_word_name.c_str(),
       editor_word_xpos, editor_word_ypos, editor_word_width,
       editor_word_height, 4000, 4000, true);
     auto* a = new BlnEventHandler();
@@ -182,9 +234,9 @@ ScrollView* bln_word_window_handle() {  // return handle
  *  new window needs to be. Create it and re-display.
  */
 
-void build_image_window(int width, int height) {
+static void build_image_window(int width, int height) {
   delete image_win;
-  image_win = new ScrollView(editor_image_win_name.string(),
+  image_win = new ScrollView(editor_image_win_name.c_str(),
                              editor_image_xpos, editor_image_ypos,
                              width + 1,
                              height + editor_image_menuheight + 1,
@@ -351,29 +403,6 @@ void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
   image_win->AddEventHandler(nullptr);
 }
 }  // namespace tesseract
-
-
-/**
- * pgeditor_msg()
- *
- * Display a message - in the command window if there is one, or to stdout
- */
-
-void pgeditor_msg( // message display
-                  const char *msg) {
-    image_win->AddMessage(msg);
-}
-
-/**
- * pgeditor_show_point()
- *
- * Display the coordinates of a point in the command window
- */
-
-void pgeditor_show_point( // display coords
-                         SVEvent *event) {
-  image_win->AddMessage("Pointing at(%d, %d)", event->x, event->y);
-}
 
 /**
  *  process_cmd_win_event()
@@ -637,56 +666,9 @@ void Tesseract::debug_word(PAGE_RES* page_res, const TBOX &selection_box) {
 #ifndef DISABLED_LEGACY_ENGINE
   ResetAdaptiveClassifier();
 #endif
-  recog_all_words(page_res, nullptr, &selection_box, word_config_.string(), 0);
+  recog_all_words(page_res, nullptr, &selection_box, word_config_.c_str(), 0);
 }
 }  // namespace tesseract
-
-
-/**
- * show_point()
- *
- * Show coords of point, blob bounding box, word bounding box and offset from
- * row baseline
- */
-
-void show_point(PAGE_RES* page_res, float x, float y) {
-  FCOORD pt(x, y);
-  PAGE_RES_IT pr_it(page_res);
-
-  const int kBufsize = 512;
-  char msg[kBufsize];
-  char *msg_ptr = msg;
-
-  msg_ptr += sprintf(msg_ptr, "Pt:(%0.3f, %0.3f) ", x, y);
-
-  for (WERD_RES* word = pr_it.word(); word != nullptr; word = pr_it.forward()) {
-    if (pr_it.row() != pr_it.prev_row() &&
-        pr_it.row()->row->bounding_box().contains(pt)) {
-      msg_ptr += sprintf(msg_ptr, "BL(x)=%0.3f ",
-                         pr_it.row()->row->base_line(x));
-    }
-    if (word->word->bounding_box().contains(pt)) {
-      TBOX box = word->word->bounding_box();
-      msg_ptr += sprintf(msg_ptr, "Wd(%d, %d)/(%d, %d) ",
-                         box.left(), box.bottom(),
-                         box.right(), box.top());
-      C_BLOB_IT cblob_it(word->word->cblob_list());
-      for (cblob_it.mark_cycle_pt();
-           !cblob_it.cycled_list();
-           cblob_it.forward()) {
-        C_BLOB* cblob = cblob_it.data();
-        box = cblob->bounding_box();
-        if (box.contains(pt)) {
-          msg_ptr += sprintf(msg_ptr,
-                             "CBlb(%d, %d)/(%d, %d) ",
-                             box.left(), box.bottom(),
-                             box.right(), box.top());
-        }
-      }
-    }
-  }
-  image_win->AddMessage(msg);
-}
 
 
 /**********************************************************************
@@ -764,6 +746,7 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
   float shift;                   // from bot left
 
   if (color_mode != CM_RAINBOW && word_res->box_word != nullptr) {
+  #ifndef DISABLED_LEGACY_ENGINE
     BoxWord* box_word = word_res->box_word;
     WERD_CHOICE* best_choice = word_res->best_choice;
     int length = box_word->length();
@@ -814,6 +797,9 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
       image_win->Rectangle(box.left(), box.bottom(), box.right(), box.top());
     }
     return true;
+  #else
+    return false;
+  #endif  // ndef DISABLED_LEGACY_ENGINE
   }
   /*
     Note the double coercions of(COLOUR)((int32_t)editor_image_word_bb_color)
@@ -891,11 +877,11 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
     image_win->TextAttributes("Arial", text_height, false, false, false);
     shift = (word_height < word_bb.width()) ? 0.25 * word_height : 0.0f;
     image_win->Text(word_bb.left() + shift,
-                    word_bb.bottom() + 0.25 * word_height, text.string());
+                    word_bb.bottom() + 0.25 * word_height, text.c_str());
     if (blame.length() > 0) {
       image_win->Text(word_bb.left() + shift,
                       word_bb.bottom() + 0.25 * word_height - text_height,
-                      blame.string());
+                      blame.c_str());
     }
 
     displayed_something = true;
@@ -928,7 +914,7 @@ bool Tesseract::word_dumper(PAGE_RES_IT* pr_it) {
   if (word_res->blamer_bundle != nullptr && wordrec_debug_blamer &&
       word_res->blamer_bundle->incorrect_result_reason() != IRR_CORRECT) {
     tprintf("Current blamer debug: %s\n",
-            word_res->blamer_bundle->debug().string());
+            word_res->blamer_bundle->debug().c_str());
   }
   return true;
 }

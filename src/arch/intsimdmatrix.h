@@ -2,7 +2,6 @@
 // File:        intsimdmatrix.h
 // Description: Base class for 8-bit int SIMD matrix multipliers.
 // Author:      Ray Smith
-// Created:     Tue Aug 15 07:37:20 PST 2017
 //
 // (C) Copyright 2017, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -114,6 +113,9 @@ struct IntSimdMatrix {
   // num_input_groups_ = num_inputs_per_register_ / num_inputs_per_group_
 
   static const IntSimdMatrix* intSimdMatrix;
+  // Only available with NEON.
+  static const IntSimdMatrix intSimdMatrixNEON;
+  // Only available with AVX2 / SSE.
   static const IntSimdMatrix intSimdMatrixAVX2;
   static const IntSimdMatrix intSimdMatrixSSE;
 };

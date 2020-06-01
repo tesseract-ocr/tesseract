@@ -25,8 +25,6 @@
 #include "pithsync.h"
 #include "tprintf.h"
 
-#define PROJECTION_MARGIN 10     //arbitrary
-
 /**********************************************************************
  * FPCUTPT::setup
  *

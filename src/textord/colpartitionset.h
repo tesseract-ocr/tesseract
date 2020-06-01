@@ -3,7 +3,6 @@
 // Description: Class to hold a list of ColPartitions of the page that
 //              correspond roughly to columns.
 // Author:      Ray Smith
-// Created:     Thu Aug 14 10:50:01 PDT 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +21,7 @@
 #define TESSERACT_TEXTORD_COLPARTITIONSET_H_
 
 #include "colpartition.h"   // For ColPartition_LIST.
-#include "genericvector.h"  // For GenericVector.
+#include <tesseract/genericvector.h>  // For GenericVector.
 #include "rect.h"           // For TBOX.
 #include "tabvector.h"      // For BLOBNBOX_CLIST.
 
@@ -72,15 +71,15 @@ class ColPartitionSet : public ELIST_LINK {
   void RelinquishParts();
 
   // Attempt to improve this by adding partitions or expanding partitions.
-  void ImproveColumnCandidate(WidthCallback* cb, PartSetVector* src_sets);
+  void ImproveColumnCandidate(WidthCallback cb, PartSetVector* src_sets);
 
   // If this set is good enough to represent a new partitioning into columns,
   // add it to the vector of sets, otherwise delete it.
-  void AddToColumnSetsIfUnique(PartSetVector* column_sets, WidthCallback* cb);
+  void AddToColumnSetsIfUnique(PartSetVector* column_sets, WidthCallback cb);
 
   // Return true if the partitions in other are all compatible with the columns
   // in this.
-  bool CompatibleColumns(bool debug, ColPartitionSet* other, WidthCallback* cb);
+  bool CompatibleColumns(bool debug, ColPartitionSet* other, WidthCallback cb);
 
   // Returns the total width of all blobs in the part_set that do not lie
   // within an approved column. Used as a cost measure for using this
@@ -136,7 +135,7 @@ class ColPartitionSet : public ELIST_LINK {
   // Coverage is split into good and bad. Good coverage is provided by
   // ColPartitions of a frequent width (according to the callback function
   // provided by TabFinder::WidthCB, which accesses stored statistics on the
-  // widths of ColParititions) and bad coverage is provided by all other
+  // widths of ColPartitions) and bad coverage is provided by all other
   // ColPartitions, even if they have tab vectors at both sides. Thus:
   // |-----------------------------------------------------------------|
   // |        Double     width    heading                              |

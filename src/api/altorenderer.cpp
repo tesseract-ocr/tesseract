@@ -15,11 +15,12 @@
 
 #include <memory>
 #include <sstream>  // for std::stringstream
+#include <tesseract/baseapi.h>
 #ifdef _WIN32
-#  include <windows.h>   // MultiByteToWideChar, ...
+# include "host.h"    // windows.h for MultiByteToWideChar, ...
 #endif
-#include "baseapi.h"
-#include "renderer.h"
+#include <tesseract/renderer.h>
+#include <tesseract/strngs.h> // for STRING
 
 namespace tesseract {
 
@@ -68,7 +69,7 @@ bool TessAltoRenderer::BeginDocumentHandler() {
   AppendString(title());
 
   AppendString(
-      "\t\t\t</fileName>\n"
+      "</fileName>\n"
       "\t\t</sourceImageInformation>\n"
       "\t\t<OCRProcessing ID=\"OCR_0\">\n"
       "\t\t\t<ocrProcessingStep>\n"
@@ -126,16 +127,16 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
   if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0))
     return nullptr;
 
-  int lcnt = 0, bcnt = 0, wcnt = 0;
+  int lcnt = 0, tcnt = 0, bcnt = 0, wcnt = 0;
 
   if (input_file_ == nullptr) SetInputName(nullptr);
 
 #ifdef _WIN32
   // convert input name from ANSI encoding to utf-8
   int str16_len =
-      MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1, nullptr, 0);
+      MultiByteToWideChar(CP_ACP, 0, input_file_->c_str(), -1, nullptr, 0);
   wchar_t* uni16_str = new WCHAR[str16_len];
-  str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1,
+  str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->c_str(), -1,
                                   uni16_str, str16_len);
   int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr,
                                      0, nullptr, nullptr);
@@ -148,6 +149,8 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
 #endif
 
   std::stringstream alto_str;
+  // Use "C" locale (needed for int values larger than 999).
+  alto_str.imbue(std::locale::classic());
   alto_str
       << "\t\t<Page WIDTH=\"" << rect_width_ << "\" HEIGHT=\""
       << rect_height_
@@ -165,23 +168,31 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
     }
 
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-      alto_str << "\t\t\t\t<TextBlock ID=\"block_" << bcnt << "\"";
+      alto_str << "\t\t\t\t<ComposedBlock ID=\"cblock_" << bcnt << "\"";
       AddBoxToAlto(res_it, RIL_BLOCK, alto_str);
       alto_str << "\n";
     }
 
+    if (res_it->IsAtBeginningOf(RIL_PARA)) {
+      alto_str << "\t\t\t\t\t<TextBlock ID=\"block_" << tcnt << "\"";
+      AddBoxToAlto(res_it, RIL_PARA, alto_str);
+      alto_str << "\n";
+    }
+
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      alto_str << "\t\t\t\t\t<TextLine ID=\"line_" << lcnt << "\"";
+      alto_str << "\t\t\t\t\t\t<TextLine ID=\"line_" << lcnt << "\"";
       AddBoxToAlto(res_it, RIL_TEXTLINE, alto_str);
       alto_str << "\n";
     }
 
-    alto_str << "\t\t\t\t\t\t<String ID=\"string_" << wcnt << "\"";
+    alto_str << "\t\t\t\t\t\t\t<String ID=\"string_" << wcnt << "\"";
     AddBoxToAlto(res_it, RIL_WORD, alto_str);
     alto_str << " CONTENT=\"";
 
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
-    bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
+    bool last_word_in_tblock = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
+    bool last_word_in_cblock = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
+
 
     int left, top, right, bottom;
     res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
@@ -200,7 +211,7 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
     wcnt++;
 
     if (last_word_in_line) {
-      alto_str << "\n\t\t\t\t\t</TextLine>\n";
+      alto_str << "\n\t\t\t\t\t\t</TextLine>\n";
       lcnt++;
     } else {
       int hpos = right;
@@ -211,8 +222,13 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
                << "\" HPOS=\"" << hpos << "\"/>\n";
     }
 
-    if (last_word_in_block) {
-      alto_str << "\t\t\t\t</TextBlock>\n";
+    if (last_word_in_tblock) {
+      alto_str << "\t\t\t\t\t</TextBlock>\n";
+      tcnt++;
+    }
+
+    if (last_word_in_cblock) {
+      alto_str << "\t\t\t\t</ComposedBlock>\n";
       bcnt++;
     }
   }

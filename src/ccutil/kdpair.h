@@ -24,7 +24,7 @@
 #ifndef TESSERACT_CCUTIL_KDPAIR_H_
 #define TESSERACT_CCUTIL_KDPAIR_H_
 
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 
 namespace tesseract {
 

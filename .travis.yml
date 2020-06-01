@@ -2,10 +2,10 @@
 
 language: cpp
 
-dist: trusty
+dist: xenial
 
 env:
-  - LEPT_VER=1.77.0
+  - LEPT_VER=1.78.0
 
 notifications:
   email: false
@@ -22,6 +22,7 @@ addons:
     #- ubuntu-toolchain-r-test
     packages:
       - libarchive-dev
+      - libpango1.0-dev
     #- g++-6
 
 #matrix:
@@ -52,5 +53,5 @@ install:
 script:
   - mkdir build
   - cd build
-  - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DCPPAN_BUILD=OFF
+  - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
   - make

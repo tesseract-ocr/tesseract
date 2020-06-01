@@ -2,7 +2,6 @@
  ** Filename:    cutoffs.c
  ** Purpose:     Routines to manipulate an array of class cutoffs.
  ** Author:      Dan Johnson
- ** History:     Wed Feb 20 09:28:51 1991, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,16 +17,15 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
-#include "cutoffs.h"
 
 #include <cstdio>
+#include <sstream>    // for std::istringstream
+#include <string>     // for std::string
 
 #include "classify.h"
-#include "helpers.h"
-#include "serialis.h"
-#include "unichar.h"
-
-#define REALLY_QUOTE_IT(x) QUOTE_IT(x)
+#include <tesseract/helpers.h>
+#include <tesseract/serialis.h>
+#include <tesseract/unichar.h>
 
 #define MAX_CUTOFF      1000
 
@@ -39,12 +37,8 @@ namespace tesseract {
  * array are set to an arbitrarily high cutoff value.
  * @param fp file containing cutoff definitions
  * @param Cutoffs array to put cutoffs into
- * @return none
- * @note Globals: none
  */
-void Classify::ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs) {
-  char Class[UNICHAR_LEN + 1];
-  CLASS_ID ClassId;
+void Classify::ReadNewCutoffs(TFile* fp, uint16_t* Cutoffs) {
   int Cutoff;
 
   if (shape_table_ != nullptr) {
@@ -57,14 +51,20 @@ void Classify::ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs) {
 
   const int kMaxLineSize = 100;
   char line[kMaxLineSize];
-  while (fp->FGets(line, kMaxLineSize) != nullptr &&
-         sscanf(line, "%" REALLY_QUOTE_IT(UNICHAR_LEN) "s %d", Class,
-                &Cutoff) == 2) {
-    if (strcmp(Class, "NULL") == 0) {
+  while (fp->FGets(line, kMaxLineSize) != nullptr) {
+    std::string Class;
+    CLASS_ID ClassId;
+    std::istringstream stream(line);
+    stream >> Class >> Cutoff;
+    if (stream.fail()) {
+      break;
+    }
+    if (Class.compare("NULL") == 0) {
       ClassId = unicharset.unichar_to_id(" ");
     } else {
-      ClassId = unicharset.unichar_to_id(Class);
+      ClassId = unicharset.unichar_to_id(Class.c_str());
     }
+    ASSERT_HOST(ClassId >= 0 && ClassId < MAX_NUM_CLASSES);
     Cutoffs[ClassId] = Cutoff;
   }
 }

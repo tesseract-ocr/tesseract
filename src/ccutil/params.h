@@ -19,10 +19,10 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
-#include <cstdio>
+#include <tesseract/genericvector.h>
+#include <tesseract/strngs.h>
 
-#include "genericvector.h"
-#include "strngs.h"
+#include <cstdio>
 
 namespace tesseract {
 
@@ -213,8 +213,7 @@ class StringParam : public Param {
   }
   ~StringParam() { ParamUtils::RemoveParam<StringParam>(this, params_vec_); }
   operator STRING&() { return value_; }
-  const char* string() const { return value_.string(); }
-  const char* c_str() const { return value_.string(); }
+  const char* c_str() const { return value_.c_str(); }
   bool empty() { return value_.length() <= 0; }
   bool operator==(const STRING& other) { return value_ == other; }
   void operator=(const STRING& value) { value_ = value; }

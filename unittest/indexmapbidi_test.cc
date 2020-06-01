@@ -25,6 +25,11 @@ const int kPrimeLimit = 1000;
 namespace {
 
 class IndexMapBiDiTest : public testing::Test {
+ protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
  public:
   std::string OutputNameToPath(const std::string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);

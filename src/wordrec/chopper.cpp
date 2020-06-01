@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/******************************************************************************
  *
  * File:         chopper.cpp  (Formerly chopper.c)
  * Author:       Mark Seaman, OCR Technology
@@ -15,7 +14,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- **************************************************************************/
+ *****************************************************************************/
 
 /*----------------------------------------------------------------------
           I n c l u d e s
@@ -554,7 +553,7 @@ int Wordrec::select_blob_to_split(
   }
 
   if (split_next_to_fragment && blob_choices.size() > 0) {
-    fragments = new const CHAR_FRAGMENT *[blob_choices.length()];
+    fragments = new const CHAR_FRAGMENT *[blob_choices.size()];
     if (blob_choices[0] != nullptr) {
       fragments[0] = getDict().getUnicharset().get_fragment(
           blob_choices[0]->unichar_id());

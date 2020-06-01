@@ -17,7 +17,7 @@
  **********************************************************************/
 
 #include "rect.h"
-#include "strngs.h"     // for STRING
+#include <tesseract/strngs.h>     // for STRING
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

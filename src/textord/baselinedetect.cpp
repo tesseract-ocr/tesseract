@@ -3,7 +3,6 @@
 // Description: Initial Baseline Determination.
 // Copyright 2012 Google Inc. All Rights Reserved.
 // Author:      rays@google.com (Ray Smith)
-// Created:     Mon Apr 30 10:15:31 PDT 2012
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,9 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifdef _MSC_VER
-#define _USE_MATH_DEFINES
-#endif  // _MSC_VER
+#define _USE_MATH_DEFINES       // for M_PI
 
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
@@ -28,13 +25,13 @@
 #include "baselinedetect.h"
 
 #include <algorithm>
-#include <cfloat>      // for FLT_MAX
-#include <cmath>
+#include <cfloat>               // for FLT_MAX
+#include <cmath>                // for M_PI
 #include "allheaders.h"
 #include "blobbox.h"
 #include "detlinefit.h"
 #include "drawtord.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "linlsq.h"
 #include "makerow.h"
 #include "textord.h"

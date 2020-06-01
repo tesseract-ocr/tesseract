@@ -15,14 +15,14 @@
 #include "include_gunit.h"
 
 #include "allheaders.h"
-#include "baseapi.h"
+#include <tesseract/baseapi.h>
 #include "coutln.h"
 #include "log.h"                        // for LOG
 #include "mutableiterator.h"
 #include "ocrblock.h"                   // for class BLOCK
 #include "pageres.h"
 #include "polyblk.h"
-#include "resultiterator.h"
+#include <tesseract/resultiterator.h>
 #include "stepblob.h"
 
 namespace {
@@ -30,6 +30,26 @@ namespace {
 using tesseract::MutableIterator;
 using tesseract::PageIteratorLevel;
 using tesseract::ResultIterator;
+
+/** String name for each block type. Keep in sync with PolyBlockType. */
+static const char* kPolyBlockNames[] = {
+  "Unknown",
+  "Flowing Text",
+  "Heading Text",
+  "Pullout Text",
+  "Equation",
+  "Inline Equation",
+  "Table",
+  "Vertical Text",
+  "Caption Text",
+  "Flowing Image",
+  "Heading Image",
+  "Pullout Image",
+  "Horizontal Line",
+  "Vertical Line",
+  "Noise",
+  ""  // End marker for testing that sizes match.
+};
 
 const char* kStrings8087_054[] = {
     "dat", "Dalmatian", "", "DAMAGED DURING", "margarine,", nullptr};
@@ -170,6 +190,14 @@ class LayoutTest : public testing::Test {
   std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };
+
+// Tests that array sizes match their intended size.
+TEST_F(LayoutTest, ArraySizeTest) {
+  int size = 0;
+  for (size = 0; kPolyBlockNames[size][0] != '\0'; ++size)
+    ;
+  EXPECT_EQ(size, PT_COUNT);
+}
 
 // Tests that Tesseract gets the important blocks and in the right order
 // on a UNLV page numbered 8087_054.3B.tif. (Dubrovnik)

@@ -31,6 +31,7 @@
 #include <set>
 #include <tuple>
 #include <vector>
+#include <unordered_set>
 
 namespace tesseract {
 
@@ -191,6 +192,11 @@ class RecodeBeamSearch {
               double cert_offset, double worst_dict_cert,
               const UNICHARSET* charset);
 
+  void DecodeSecondaryBeams(const NetworkIO& output, double dict_ratio,
+                            double cert_offset, double worst_dict_cert,
+                            const UNICHARSET* charset,
+                            int lstm_choice_mode = 0);
+
   // Returns the best path as labels/scores/xcoords similar to simple CTC.
   void ExtractBestPathAsLabels(GenericVector<int>* labels,
                                GenericVector<int>* xcoords) const;
@@ -211,15 +217,39 @@ class RecodeBeamSearch {
   // Generates debug output of the content of the beams after a Decode.
   void DebugBeams(const UNICHARSET& unicharset) const;
 
+  // Extract the best charakters from the current decode iteration and block
+  // those symbols for the next iteration. In contrast to tesseracts standard
+  // method to chose the best overall node chain, this methods looks at a short
+  // node chain segmented by the character boundaries and chooses the best 
+  // option independent of the remaining node chain.
+  void extractSymbolChoices(const UNICHARSET* unicharset);
+  
+  // Generates debug output of the content of the beams after a Decode.
+  void PrintBeam2(bool uids, int num_outputs, const UNICHARSET* charset,
+                  bool secondary) const;
+  // Segments the timestep bundle by the character_boundaries.
+  void segmentTimestepsByCharacters();
+  std::vector<std::vector<std::pair<const char*, float>>>
+  // Unions the segmented timestep character bundles to one big bundle.
+  combineSegmentedTimesteps(
+      std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
+          segmentedTimesteps);
   // Stores the alternative characters of every timestep together with their
   // probability.
   std::vector< std::vector<std::pair<const char*, float>>> timesteps;
-
+  std::vector<std::vector<std::vector<std::pair<const char*, float>>>>
+      segmentedTimesteps;
+  // Stores the character choices found in the ctc algorithm
+  std::vector<std::vector<std::pair<const char*, float>>> ctc_choices;
+  // Stores all unicharids which are excluded for future iterations
+  std::vector<std::unordered_set<int>> excludedUnichars;
+  // Stores the character boundaries regarding timesteps.
+  std::vector<int> character_boundaries_;
   // Clipping value for certainty inside Tesseract. Reflects the minimum value
   // of certainty that will be returned by ExtractBestPathAsUnicharIds.
   // Supposedly on a uniform scale that can be compared across languages and
   // engines.
-  static const float kMinCertainty;
+  static constexpr float kMinCertainty = -20.0f;
   // Number of different code lengths for which we have a separate beam.
   static const int kNumLengths = RecodedCharID::kMaxCodeLen + 1;
   // Total number of beams: dawg/nodawg * number of NodeContinuation * number
@@ -282,8 +312,7 @@ class RecodeBeamSearch {
       const GenericVector<const RecodeNode*>& best_nodes,
       GenericVector<int>* unichar_ids, GenericVector<float>* certs,
       GenericVector<float>* ratings, GenericVector<int>* xcoords,
-      std::deque<std::tuple<int, int>>* best_choices = nullptr,
-      std::deque<std::tuple<int, int>>* best_choices_acc = nullptr);
+      std::vector<int>* character_boundaries = nullptr);
 
   // Sets up a word with the ratings matrix and fake blobs with boxes in the
   // right places.
@@ -297,6 +326,9 @@ class RecodeBeamSearch {
   // is one of the top_n.
   void ComputeTopN(const float* outputs, int num_outputs, int top_n);
 
+  void ComputeSecTopN(std::unordered_set<int>* exList,
+                      const float* outputs, int num_outputs, int top_n);
+
   // Adds the computation for the current time-step to the beam. Call at each
   // time-step in sequence from left to right. outputs is the activation vector
   // for the current timestep.
@@ -304,8 +336,20 @@ class RecodeBeamSearch {
                   double cert_offset, double worst_dict_cert,
                   const UNICHARSET* charset, bool debug = false);
 
-  //Saves the most certain choices for the current time-step
-  void SaveMostCertainChoices(const float* outputs, int num_outputs, const UNICHARSET* charset, int xCoord);
+  void DecodeSecondaryStep(const float* outputs, int t, double dict_ratio,
+                  double cert_offset, double worst_dict_cert,
+                  const UNICHARSET* charset, bool debug = false);
+
+  // Saves the most certain choices for the current time-step.
+  void SaveMostCertainChoices(const float* outputs, int num_outputs, 
+                              const UNICHARSET* charset, int xCoord);
+
+  // Calculates more accurate character boundaries which can be used to
+  // provide more acurate alternative symbol choices.
+  static void calculateCharBoundaries(std::vector<int>* starts,
+                                      std::vector<int>* ends,
+                                      std::vector<int>* character_boundaries_,
+                                      int maxWidth);
 
   // Adds to the appropriate beams the legal (according to recoder)
   // continuations of context prev, which is from the given index to beams_,
@@ -362,6 +406,9 @@ class RecodeBeamSearch {
   // path and reversing it.
   void ExtractPath(const RecodeNode* node,
                    GenericVector<const RecodeNode*>* path) const;
+  void ExtractPath(const RecodeNode* node,
+                   GenericVector<const RecodeNode*>* path,
+                   int limiter) const;
   // Helper prints debug information on the given lattice path.
   void DebugPath(const UNICHARSET* unicharset,
                  const GenericVector<const RecodeNode*>& path) const;
@@ -379,6 +426,8 @@ class RecodeBeamSearch {
   const UnicharCompress& recoder_;
   // The beam for each timestep in the output.
   PointerVector<RecodeBeam> beam_;
+  // Secondary Beam for Results with less Probability
+  PointerVector<RecodeBeam> secondary_beam_;
   // The number of timesteps valid in beam_;
   int beam_size_;
   // A flag to indicate which outputs are the top-n choices. Current timestep

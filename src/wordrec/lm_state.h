@@ -2,9 +2,7 @@
 // File:        lm_state.h
 // Description: Structures and functionality for capturing the state of
 //              segmentation search guided by the language model.
-//
 // Author:      Rika Antonova
-// Created:     Mon Jun 20 11:26:43 PST 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,12 +23,12 @@
 #include "associate.h"       // for AssociateStats
 #include "dawg.h"            // for DawgPositionVector
 #include "elst.h"            // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
-#include "genericvector.h"   // for PointerVector
+#include <tesseract/genericvector.h>   // for PointerVector
 #include "lm_consistency.h"  // for LMConsistencyInfo
 #include "ratngs.h"          // for BLOB_CHOICE, PermuterType
 #include "stopper.h"         // for DANGERR
-#include "strngs.h"          // for STRING
-#include "unichar.h"         // for UNICHAR_ID
+#include <tesseract/strngs.h>          // for STRING
+#include <tesseract/unichar.h>         // for UNICHAR_ID
 #include "unicharset.h"      // for UNICHARSET
 
 namespace tesseract {
@@ -99,11 +97,17 @@ struct ViterbiStateEntry : public ELIST_LINK {
                     LanguageModelDawgInfo *d,
                     LanguageModelNgramInfo *n,
                     const char *debug_uch)
-    : cost(c), curr_b(b), parent_vse(pe), competing_vse(nullptr),
+    : curr_b(b), parent_vse(pe), competing_vse(nullptr),
+      dawg_info(d), ngram_info(n),
+      cost(c),
       ratings_sum(b->rating()),
-      min_certainty(b->certainty()), adapted(b->IsAdapted()), length(1),
-      outline_length(ol), consistency_info(ci), associate_stats(as),
-      top_choice_flags(tcf), dawg_info(d), ngram_info(n),
+      min_certainty(b->certainty()),
+      adapted(b->IsAdapted()),
+      length(1),
+      outline_length(ol),
+      consistency_info(ci),
+      associate_stats(as),
+      top_choice_flags(tcf),
       updated(true) {
     debug_str = (debug_uch == nullptr) ? nullptr : new STRING();
     if (pe != nullptr) {
@@ -150,16 +154,28 @@ struct ViterbiStateEntry : public ELIST_LINK {
   }
   void Print(const char *msg) const;
 
-  /// The cost is an adjusted ratings sum, that is adjusted by all the language
-  /// model components that use Viterbi search.
-  float cost;
-
   /// Pointers to BLOB_CHOICE and parent ViterbiStateEntry (not owned by this).
   BLOB_CHOICE *curr_b;
   ViterbiStateEntry *parent_vse;
   /// Pointer to a case-competing ViterbiStateEntry in the same list that
   /// represents a path ending in the same letter of the opposite case.
   ViterbiStateEntry *competing_vse;
+
+  /// Extra information maintained by Dawg language model component
+  /// (owned by ViterbiStateEntry).
+  LanguageModelDawgInfo *dawg_info;
+
+  /// Extra information maintained by Ngram language model component
+  /// (owned by ViterbiStateEntry).
+  LanguageModelNgramInfo *ngram_info;
+
+  /// UTF8 string representing the path corresponding to this vse.
+  /// Populated only in when language_model_debug_level > 0.
+  STRING *debug_str;
+
+  /// The cost is an adjusted ratings sum, that is adjusted by all the language
+  /// model components that use Viterbi search.
+  float cost;
 
   /// Various information about the characters on the path represented
   /// by this ViterbiStateEntry.
@@ -175,18 +191,7 @@ struct ViterbiStateEntry : public ELIST_LINK {
   /// the smallest rating or lower/upper case letters).
   LanguageModelFlagsType top_choice_flags;
 
-  /// Extra information maintained by Dawg language model component
-  /// (owned by ViterbiStateEntry).
-  LanguageModelDawgInfo *dawg_info;
-
-  /// Extra information maintained by Ngram language model component
-  /// (owned by ViterbiStateEntry).
-  LanguageModelNgramInfo *ngram_info;
-
   bool updated;  ///< set to true if the entry has just been created/updated
-  /// UTF8 string representing the path corresponding to this vse.
-  /// Populated only in when language_model_debug_level > 0.
-  STRING *debug_str;
 };
 
 ELISTIZEH(ViterbiStateEntry)

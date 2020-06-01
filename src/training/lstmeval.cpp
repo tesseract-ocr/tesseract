@@ -2,7 +2,6 @@
 // File:        lstmeval.cpp
 // Description: Evaluation program for LSTM-based networks.
 // Author:      Ray Smith
-// Created:     Wed Nov 23 12:20:06 PST 2016
 //
 // (C) Copyright 2016, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,20 +19,20 @@
 #include "base/commandlineflags.h"
 #endif
 #include "commontraining.h"
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 #include "lstmtester.h"
-#include "strngs.h"
+#include <tesseract/strngs.h>
 #include "tprintf.h"
 
-STRING_PARAM_FLAG(model, "", "Name of model file (training or recognition)");
-STRING_PARAM_FLAG(traineddata, "",
-                  "If model is a training checkpoint, then traineddata must "
-                  "be the traineddata file that was given to the trainer");
-STRING_PARAM_FLAG(eval_listfile, "",
-                  "File listing sample files in lstmf training format.");
-INT_PARAM_FLAG(max_image_MB, 2000, "Max memory to use for images.");
-INT_PARAM_FLAG(verbosity, 1,
-               "Amount of diagnosting information to output (0-2).");
+static STRING_PARAM_FLAG(model, "", "Name of model file (training or recognition)");
+static STRING_PARAM_FLAG(traineddata, "",
+                         "If model is a training checkpoint, then traineddata must "
+                         "be the traineddata file that was given to the trainer");
+static STRING_PARAM_FLAG(eval_listfile, "",
+                         "File listing sample files in lstmf training format.");
+static INT_PARAM_FLAG(max_image_MB, 2000, "Max memory to use for images.");
+static INT_PARAM_FLAG(verbosity, 1,
+                      "Amount of diagnosting information to output (0-2).");
 
 int main(int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();
@@ -77,6 +76,6 @@ int main(int argc, char **argv) {
   STRING result =
       tester.RunEvalSync(0, &errs, mgr,
                          /*training_stage (irrelevant)*/ 0, FLAGS_verbosity);
-  tprintf("%s\n", result.string());
+  tprintf("%s\n", result.c_str());
   return 0;
 } /* main */

@@ -18,7 +18,7 @@
 #include "include_gunit.h"              // for TEST
 #include "log.h"                        // for LOG
 
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 // ccmain
 #include "paragraphs.h"
 #include "paragraphs_internal.h"
@@ -162,7 +162,7 @@ void EvaluateParagraphDetection(const TextAndModel* correct, int n,
     for (int i = 0; i < n; i++) {
       if (correct[i].model_type != PCONT) {
         dbg_lines.push_back(absl::StrCat(
-            correct[i].ascii, "  #  ", correct[i].model.ToString().string(),
+            correct[i].ascii, "  #  ", correct[i].model.ToString().c_str(),
             correct[i].is_very_first_or_continuation ? " crown" : "",
             correct[i].is_list_item ? " li" : ""));
       } else {
@@ -178,7 +178,7 @@ void EvaluateParagraphDetection(const TextAndModel* correct, int n,
       if (i == 0 || (detector_output[i - 1] != detector_output[i])) {
         if (detector_output[i] && detector_output[i]->model) {
           annotation += absl::StrCat(
-              "  #  ", detector_output[i]->model->ToString().string(),
+              "  #  ", detector_output[i]->model->ToString().c_str(),
               detector_output[i]->is_very_first_or_continuation ? " crown" : "",
               detector_output[i]->is_list_item ? " li" : "");
         } else {
@@ -699,6 +699,6 @@ TEST(ParagraphsTest, IndexPageTest) {
   TestParagraphDetection(kNewZealandIndex, ABSL_ARRAYSIZE(kNewZealandIndex));
 }
 
-// TOOO(eger): Add some right-to-left examples, and fix the algorithm as needed.
+// TODO(eger): Add some right-to-left examples, and fix the algorithm as needed.
 
 }  // namespace

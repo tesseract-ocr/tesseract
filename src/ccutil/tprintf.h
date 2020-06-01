@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCUTIL_TPRINTF_H
 #define TESSERACT_CCUTIL_TPRINTF_H
 
-#include "platform.h"   // for TESS_API
+#include <tesseract/platform.h>   // for TESS_API
 
 // Main logging function.
 extern TESS_API void tprintf(  // Trace printf

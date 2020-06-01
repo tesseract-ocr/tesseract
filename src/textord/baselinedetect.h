@@ -21,10 +21,10 @@
 #define TESSERACT_TEXTORD_BASELINEDETECT_H_
 
 #include "detlinefit.h"
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 #include "points.h"
 #include "rect.h"
-#include "strngs.h"
+#include <tesseract/strngs.h>
 
 class BLOBNBOX_LIST;
 class TO_BLOCK;

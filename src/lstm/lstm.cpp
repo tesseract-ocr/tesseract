@@ -2,7 +2,6 @@
 // File:        lstm.cpp
 // Description: Long-term-short-term-memory Recurrent neural network.
 // Author:      Ray Smith
-// Created:     Wed May 01 17:43:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -196,7 +195,7 @@ void LSTM::DebugWeights() {
     if (w == GFS && !Is2D()) continue;
     STRING msg = name_;
     msg.add_str_int(" Gate weights ", w);
-    gate_weights_[w].Debug2D(msg.string());
+    gate_weights_[w].Debug2D(msg.c_str());
   }
   if (softmax_ != nullptr) {
     softmax_->DebugWeights();
@@ -426,11 +425,11 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
     }
   } while (src_index.Increment());
 #if DEBUG_DETAIL > 0
-  tprintf("Source:%s\n", name_.string());
+  tprintf("Source:%s\n", name_.c_str());
   source_.Print(10);
-  tprintf("State:%s\n", name_.string());
+  tprintf("State:%s\n", name_.c_str());
   state_.Print(10);
-  tprintf("Output:%s\n", name_.string());
+  tprintf("Output:%s\n", name_.c_str());
   output->Print(10);
 #endif
   if (debug) DisplayForward(*output);
@@ -489,7 +488,7 @@ bool LSTM::Backward(bool debug, const NetworkIO& fwd_deltas,
   }
   double state_clip = Is2D() ? 9.0 : 4.0;
 #if DEBUG_DETAIL > 1
-  tprintf("fwd_deltas:%s\n", name_.string());
+  tprintf("fwd_deltas:%s\n", name_.c_str());
   fwd_deltas.Print(10);
 #endif
   StrideMap::Index dest_index(input_map_);
@@ -639,7 +638,7 @@ bool LSTM::Backward(bool debug, const NetworkIO& fwd_deltas,
   } while (dest_index.Decrement());
 #if DEBUG_DETAIL > 2
   for (int w = 0; w < WT_COUNT; ++w) {
-    tprintf("%s gate errors[%d]\n", name_.string(), w);
+    tprintf("%s gate errors[%d]\n", name_.c_str(), w);
     gate_errors_t[w].get()->PrintUnTransposed(10);
   }
 #endif
@@ -699,7 +698,7 @@ void LSTM::CountAlternators(const Network& other, double* same,
 
 // Prints the weights for debug purposes.
 void LSTM::PrintW() {
-  tprintf("Weight state:%s\n", name_.string());
+  tprintf("Weight state:%s\n", name_.c_str());
   for (int w = 0; w < WT_COUNT; ++w) {
     if (w == GFS && !Is2D()) continue;
     tprintf("Gate %d, inputs\n", w);
@@ -725,7 +724,7 @@ void LSTM::PrintW() {
 
 // Prints the weight deltas for debug purposes.
 void LSTM::PrintDW() {
-  tprintf("Delta state:%s\n", name_.string());
+  tprintf("Delta state:%s\n", name_.c_str());
   for (int w = 0; w < WT_COUNT; ++w) {
     if (w == GFS && !Is2D()) continue;
     tprintf("Gate %d, inputs\n", w);

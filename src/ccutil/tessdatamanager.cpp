@@ -31,23 +31,24 @@
 #endif
 
 #include "errcode.h"
-#include "helpers.h"
-#include "serialis.h"
-#include "strngs.h"
+#include <tesseract/helpers.h>
+#include <tesseract/serialis.h>
+#include <tesseract/strngs.h>
+#include <tesseract/version.h>
 #include "tprintf.h"
 #include "params.h"
 
 namespace tesseract {
 
 TessdataManager::TessdataManager() : reader_(nullptr), is_loaded_(false), swap_(false) {
-  SetVersionString(PACKAGE_VERSION);
+  SetVersionString(TESSERACT_VERSION_STR);
 }
 
 TessdataManager::TessdataManager(FileReader reader)
   : reader_(reader),
     is_loaded_(false),
     swap_(false) {
-  SetVersionString(PACKAGE_VERSION);
+  SetVersionString(TESSERACT_VERSION_STR);
 }
 
 // Lazily loads from the the given filename. Won't actually read the file
@@ -157,9 +158,9 @@ bool TessdataManager::SaveFile(const STRING &filename,
   GenericVector<char> data;
   Serialize(&data);
   if (writer == nullptr)
-    return SaveDataToFile(data, filename);
+    return SaveDataToFile(data, filename.c_str());
   else
-    return (*writer)(data, filename);
+    return (*writer)(data, filename.c_str());
 }
 
 // Serializes to the given vector.
@@ -214,7 +215,7 @@ void TessdataManager::Directory() const {
 // Opens the given TFile pointer to the given component type.
 // Returns false in case of failure.
 bool TessdataManager::GetComponent(TessdataType type, TFile *fp) {
-  if (!is_loaded_ && !Init(data_file_name_.string())) return false;
+  if (!is_loaded_ && !Init(data_file_name_.c_str())) return false;
   const TessdataManager *const_this = this;
   return const_this->GetComponent(type, fp);
 }
@@ -250,11 +251,11 @@ bool TessdataManager::CombineDataFiles(
     ASSERT_HOST(TessdataTypeFromFileSuffix(filesuffix, &type));
     STRING filename = language_data_path_prefix;
     filename += filesuffix;
-    FILE *fp = fopen(filename.string(), "rb");
+    FILE *fp = fopen(filename.c_str(), "rb");
     if (fp != nullptr) {
       fclose(fp);
-      if (!LoadDataFromFile(filename, &entries_[type])) {
-        tprintf("Load of file %s failed!\n", filename.string());
+      if (!LoadDataFromFile(filename.c_str(), &entries_[type])) {
+        tprintf("Load of file %s failed!\n", filename.c_str());
         return false;
       }
     }

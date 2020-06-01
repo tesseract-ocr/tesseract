@@ -27,7 +27,7 @@
 #include <vector>
 
 #include "allheaders.h"  // from Leptonica
-#include "platform.h"
+#include <tesseract/platform.h>
 
 struct Box;
 

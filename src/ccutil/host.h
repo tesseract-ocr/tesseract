@@ -19,30 +19,19 @@
 #define TESSERACT_CCUTIL_HOST_H_
 
 #include <limits>
-#include "platform.h"
+#include <tesseract/platform.h>
 /* _WIN32 */
 #ifdef _WIN32
+#  ifndef NOMINMAX
+#    define NOMINMAX
+#  endif /* NOMINMAX */
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN
+#  endif
 #include <windows.h>
 #undef min
 #undef max
-#endif
-
-#include <cinttypes>  // PRId32, ...
-#include <cstdint>    // int32_t, ...
-
-#if defined(_WIN32)
-
-/* MinGW defines the standard PRI... macros, but MSVS doesn't. */
-
-#if !defined(PRId32)
-#define PRId32 "d"
-#endif
-
-#if !defined(PRId64)
-#define PRId64 "I64d"
-#endif
-
-#endif /* _WIN32 */
+#endif  // _WIN32
 
 // Return true if x is within tolerance of y
 template<class T> bool NearlyEqual(T x, T y, T tolerance) {

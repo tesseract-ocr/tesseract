@@ -27,7 +27,7 @@
 #include "crakedge.h"     // for CRACKEDGE
 #include "environ.h"      // for l_uint32
 #include "errcode.h"      // for ASSERT_HOST
-#include "helpers.h"      // for ClipToRange, IntCastRounded, Modulo
+#include <tesseract/helpers.h>      // for ClipToRange, IntCastRounded, Modulo
 #include "normalis.h"     // for DENORM
 #include "pix.h"          // for Pix (ptr only), PIX_DST, PIX_NOT
 

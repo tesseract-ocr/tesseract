@@ -17,11 +17,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "ltrresultiterator.h"
+#include <tesseract/ltrresultiterator.h>
 
 #include "allheaders.h"
 #include "pageres.h"
-#include "strngs.h"
+#include <tesseract/strngs.h>
 #include "tesseractclass.h"
 
 namespace tesseract {
@@ -43,7 +43,8 @@ LTRResultIterator::~LTRResultIterator() = default;
 // Returns the null terminated UTF-8 encoded text string for the current
 // object at the given level. Use delete [] to free after use.
 char* LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
-  if (it_->word() == nullptr) return nullptr;  // Already at the end!
+  if (it_->word() == nullptr)
+    return nullptr;  // Already at the end!
   STRING text;
   PAGE_RES_IT res_it(*it_);
   WERD_CHOICE* best_choice = res_it.word()->best_choice;
@@ -70,12 +71,13 @@ char* LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
         eop = res_it.block() != res_it.prev_block() ||
               res_it.row()->row->para() != res_it.prev_row()->row->para();
       } while (level != RIL_TEXTLINE && !eop);
-      if (eop) text += paragraph_separator_;
+      if (eop)
+        text += paragraph_separator_;
     } while (level == RIL_BLOCK && res_it.block() == res_it.prev_block());
   }
   int length = text.length() + 1;
   char* result = new char[length];
-  strncpy(result, text.string(), length);
+  strncpy(result, text.c_str(), length);
   return result;
 }
 
@@ -92,7 +94,8 @@ void LTRResultIterator::SetParagraphSeparator(const char* new_para) {
 // Returns the mean confidence of the current object at the given level.
 // The number should be interpreted as a percent probability. (0.0f-100.0f)
 float LTRResultIterator::Confidence(PageIteratorLevel level) const {
-  if (it_->word() == nullptr) return 0.0f;  // Already at the end!
+  if (it_->word() == nullptr)
+    return 0.0f;  // Already at the end!
   float mean_certainty = 0.0f;
   int certainty_count = 0;
   PAGE_RES_IT res_it(*it_);
@@ -137,10 +140,7 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
   }
   if (certainty_count > 0) {
     mean_certainty /= certainty_count;
-    float confidence = 100 + 5 * mean_certainty;
-    if (confidence < 0.0f) confidence = 0.0f;
-    if (confidence > 100.0f) confidence = 100.0f;
-    return confidence;
+    return ClipToRange(100 + 5 * mean_certainty, 0.0f, 100.0f);
   }
   return 0.0f;
 }
@@ -178,6 +178,8 @@ const char* LTRResultIterator::WordFontAttributes(
         scaled_yres_ > 0
             ? static_cast<int>(row_height * kPointsPerInch / scaled_yres_ + 0.5)
             : 0;
+
+    #ifndef DISABLED_LEGACY_ENGINE
     const FontInfo* font_info = it_->word()->fontinfo;
     if (font_info) {
       // Font information available.
@@ -187,9 +189,11 @@ const char* LTRResultIterator::WordFontAttributes(
       *is_underlined = false;  // TODO(rays) fix this!
       *is_monospace = font_info->is_fixed_pitch();
       *is_serif = font_info->is_serif();
-      *is_smallcaps = it_->word()->small_caps;
       result = font_info->name;
     }
+    #endif  // ndef DISABLED_LEGACY_ENGINE
+
+    *is_smallcaps = it_->word()->small_caps;
   }
 
   if (!result) {
@@ -209,23 +213,28 @@ const char* LTRResultIterator::WordFontAttributes(
 const char* LTRResultIterator::WordRecognitionLanguage() const {
   if (it_->word() == nullptr || it_->word()->tesseract == nullptr)
     return nullptr;
-  return it_->word()->tesseract->lang.string();
+  return it_->word()->tesseract->lang.c_str();
 }
 
 // Return the overall directionality of this word.
 StrongScriptDirection LTRResultIterator::WordDirection() const {
-  if (it_->word() == nullptr) return DIR_NEUTRAL;
+  if (it_->word() == nullptr)
+    return DIR_NEUTRAL;
   bool has_rtl = it_->word()->AnyRtlCharsInWord();
   bool has_ltr = it_->word()->AnyLtrCharsInWord();
-  if (has_rtl && !has_ltr) return DIR_RIGHT_TO_LEFT;
-  if (has_ltr && !has_rtl) return DIR_LEFT_TO_RIGHT;
-  if (!has_ltr && !has_rtl) return DIR_NEUTRAL;
+  if (has_rtl && !has_ltr)
+    return DIR_RIGHT_TO_LEFT;
+  if (has_ltr && !has_rtl)
+    return DIR_LEFT_TO_RIGHT;
+  if (!has_ltr && !has_rtl)
+    return DIR_NEUTRAL;
   return DIR_MIX;
 }
 
 // Returns true if the current word was found in a dictionary.
 bool LTRResultIterator::WordIsFromDictionary() const {
-  if (it_->word() == nullptr) return false;  // Already at the end!
+  if (it_->word() == nullptr)
+    return false;  // Already at the end!
   int permuter = it_->word()->best_choice->permuter();
   return permuter == SYSTEM_DAWG_PERM || permuter == FREQ_DAWG_PERM ||
          permuter == USER_DAWG_PERM;
@@ -233,13 +242,15 @@ bool LTRResultIterator::WordIsFromDictionary() const {
 
 // Returns the number of blanks before the current word.
 int LTRResultIterator::BlanksBeforeWord() const {
-  if (it_->word() == nullptr) return 1;
+  if (it_->word() == nullptr)
+    return 1;
   return it_->word()->word->space();
 }
 
 // Returns true if the current word is numeric.
 bool LTRResultIterator::WordIsNumeric() const {
-  if (it_->word() == nullptr) return false;  // Already at the end!
+  if (it_->word() == nullptr)
+    return false;  // Already at the end!
   int permuter = it_->word()->best_choice->permuter();
   return permuter == NUMBER_PERM;
 }
@@ -250,6 +261,7 @@ bool LTRResultIterator::HasBlamerInfo() const {
          it_->word()->blamer_bundle->HasDebugInfo();
 }
 
+#ifndef DISABLED_LEGACY_ENGINE
 // Returns the pointer to ParamsTrainingBundle stored in the BlamerBundle
 // of the current word.
 const void* LTRResultIterator::GetParamsTrainingBundle() const {
@@ -257,22 +269,24 @@ const void* LTRResultIterator::GetParamsTrainingBundle() const {
              ? &(it_->word()->blamer_bundle->params_training_bundle())
              : nullptr;
 }
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
 // Returns the pointer to the string with blamer information for this word.
 // Assumes that the word's blamer_bundle is not nullptr.
 const char* LTRResultIterator::GetBlamerDebug() const {
-  return it_->word()->blamer_bundle->debug().string();
+  return it_->word()->blamer_bundle->debug().c_str();
 }
 
 // Returns the pointer to the string with misadaption information for this word.
 // Assumes that the word's blamer_bundle is not nullptr.
 const char* LTRResultIterator::GetBlamerMisadaptionDebug() const {
-  return it_->word()->blamer_bundle->misadaption_debug().string();
+  return it_->word()->blamer_bundle->misadaption_debug().c_str();
 }
 
 // Returns true if a truth string was recorded for the current word.
 bool LTRResultIterator::HasTruthString() const {
-  if (it_->word() == nullptr) return false;  // Already at the end!
+  if (it_->word() == nullptr)
+    return false;  // Already at the end!
   if (it_->word()->blamer_bundle == nullptr ||
       it_->word()->blamer_bundle->NoTruth()) {
     return false;  // no truth information for this word
@@ -283,7 +297,8 @@ bool LTRResultIterator::HasTruthString() const {
 // Returns true if the given string is equivalent to the truth string for
 // the current word.
 bool LTRResultIterator::EquivalentToTruth(const char* str) const {
-  if (!HasTruthString()) return false;
+  if (!HasTruthString())
+    return false;
   ASSERT_HOST(it_->word()->uch_set != nullptr);
   WERD_CHOICE str_wd(str, *(it_->word()->uch_set));
   return it_->word()->blamer_bundle->ChoiceIsCorrect(&str_wd);
@@ -292,18 +307,20 @@ bool LTRResultIterator::EquivalentToTruth(const char* str) const {
 // Returns the null terminated UTF-8 encoded truth string for the current word.
 // Use delete [] to free after use.
 char* LTRResultIterator::WordTruthUTF8Text() const {
-  if (!HasTruthString()) return nullptr;
+  if (!HasTruthString())
+    return nullptr;
   STRING truth_text = it_->word()->blamer_bundle->TruthString();
   int length = truth_text.length() + 1;
   char* result = new char[length];
-  strncpy(result, truth_text.string(), length);
+  strncpy(result, truth_text.c_str(), length);
   return result;
 }
 
 // Returns the null terminated UTF-8 encoded normalized OCR string for the
 // current word. Use delete [] to free after use.
 char* LTRResultIterator::WordNormedUTF8Text() const {
-  if (it_->word() == nullptr) return nullptr;  // Already at the end!
+  if (it_->word() == nullptr)
+    return nullptr;  // Already at the end!
   STRING ocr_text;
   WERD_CHOICE* best_choice = it_->word()->best_choice;
   const UNICHARSET* unicharset = it_->word()->uch_set;
@@ -313,15 +330,17 @@ char* LTRResultIterator::WordNormedUTF8Text() const {
   }
   int length = ocr_text.length() + 1;
   char* result = new char[length];
-  strncpy(result, ocr_text.string(), length);
+  strncpy(result, ocr_text.c_str(), length);
   return result;
 }
 
 // Returns a pointer to serialized choice lattice.
 // Fills lattice_size with the number of bytes in lattice data.
 const char* LTRResultIterator::WordLattice(int* lattice_size) const {
-  if (it_->word() == nullptr) return nullptr;  // Already at the end!
-  if (it_->word()->blamer_bundle == nullptr) return nullptr;
+  if (it_->word() == nullptr)
+    return nullptr;  // Already at the end!
+  if (it_->word()->blamer_bundle == nullptr)
+    return nullptr;
   *lattice_size = it_->word()->blamer_bundle->lattice_size();
   return it_->word()->blamer_bundle->lattice_data();
 }
@@ -358,17 +377,27 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
   ASSERT_HOST(result_it.it_->word() != nullptr);
   word_res_ = result_it.it_->word();
   oemLSTM_ = word_res_->tesseract->AnyLSTMLang();
-  oemLegacy_ = word_res_->tesseract->AnyTessLang();
-  BLOB_CHOICE_LIST* choices = nullptr;
+  // Is there legacy engine related trained data?
+  bool oemLegacy = word_res_->tesseract->AnyTessLang();
+  // Is lstm_choice_mode activated?
+  bool lstm_choice_mode = word_res_->tesseract->lstm_choice_mode;
+  rating_coefficient_ = word_res_->tesseract->lstm_rating_coefficient;
+  blanks_before_word_ = result_it.BlanksBeforeWord();
+  BLOB_CHOICE_LIST* choices = nullptr; 
   tstep_index_ = &result_it.blob_index_;
-  if (oemLSTM_ && !oemLegacy_ && !word_res_->accumulated_timesteps.empty()) {
-    if (word_res_->leadingSpace)
-      LSTM_choices_ = &word_res_->accumulated_timesteps[(*tstep_index_) + 1];
-    else
-      LSTM_choices_ = &word_res_->accumulated_timesteps[*tstep_index_];
-    filterSpaces();
+  if (oemLSTM_ && !word_res_->CTC_symbol_choices.empty()) {
+    if (!word_res_->CTC_symbol_choices[0].empty() &&
+        strcmp(word_res_->CTC_symbol_choices[0][0].first, " ")) {
+      blanks_before_word_ = 0;
+    }
+    auto index = *tstep_index_;
+    index += blanks_before_word_;
+    if (index < word_res_->CTC_symbol_choices.size()) {
+      LSTM_choices_ = &word_res_->CTC_symbol_choices[index];
+      filterSpaces();
+    }
   }
-  if (word_res_->ratings != nullptr)
+  if ((oemLegacy || !lstm_choice_mode) && word_res_->ratings != nullptr)
     choices = word_res_->GetBlobChoices(result_it.blob_index_);
   if (choices != nullptr && !choices->empty()) {
     choice_it_ = new BLOB_CHOICE_IT(choices);
@@ -377,16 +406,17 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
     choice_it_ = nullptr;
   }
   if (LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
-    LSTM_mode_ = true;
     LSTM_choice_it_ = LSTM_choices_->begin();
   }
 }
-ChoiceIterator::~ChoiceIterator() { delete choice_it_; }
+ChoiceIterator::~ChoiceIterator() {
+  delete choice_it_;
+}
 
 // Moves to the next choice for the symbol and returns false if there
 // are none left.
 bool ChoiceIterator::Next() {
-  if (LSTM_mode_) {
+  if (oemLSTM_ && LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
     if (LSTM_choice_it_ != LSTM_choices_->end() &&
         next(LSTM_choice_it_) == LSTM_choices_->end()) {
       return false;
@@ -395,7 +425,8 @@ bool ChoiceIterator::Next() {
       return true;
     }
   } else {
-    if (choice_it_ == nullptr) return false;
+    if (choice_it_ == nullptr)
+      return false;
     choice_it_->forward();
     return !choice_it_->cycled_list();
   }
@@ -404,63 +435,55 @@ bool ChoiceIterator::Next() {
 // Returns the null terminated UTF-8 encoded text string for the current
 // choice. Do NOT use delete [] to free after use.
 const char* ChoiceIterator::GetUTF8Text() const {
-  if (LSTM_mode_) {
+  if (oemLSTM_ && LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
     std::pair<const char*, float> choice = *LSTM_choice_it_;
     return choice.first;
   } else {
-    if (choice_it_ == nullptr) return nullptr;
+    if (choice_it_ == nullptr)
+      return nullptr;
     UNICHAR_ID id = choice_it_->data()->unichar_id();
     return word_res_->uch_set->id_to_unichar_ext(id);
   }
 }
 
 // Returns the confidence of the current choice depending on the used language
-// data. If only LSTM traineddata is used the value range is 0.0f - 1.0f. All 
+// data. If only LSTM traineddata is used the value range is 0.0f - 1.0f. All
 // choices for one symbol should roughly add up to 1.0f.
-// If only traineddata of the legacy engine is used, the number should be 
-// interpreted as a percent probability. (0.0f-100.0f) In this case probabilities
-// won't add up to 100. Each one stands on its own.
+// If only traineddata of the legacy engine is used, the number should be
+// interpreted as a percent probability. (0.0f-100.0f) In this case
+// probabilities won't add up to 100. Each one stands on its own.
 float ChoiceIterator::Confidence() const {
-  if (LSTM_mode_) {
+  float confidence;
+  if (oemLSTM_ && LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
     std::pair<const char*, float> choice = *LSTM_choice_it_;
-    return choice.second;
+    confidence = 100 - rating_coefficient_ * choice.second;
   } else {
-    if (choice_it_ == nullptr) return 0.0f;
-    float confidence = 100 + 5 * choice_it_->data()->certainty();
-    if (confidence < 0.0f) confidence = 0.0f;
-    if (confidence > 100.0f) confidence = 100.0f;
-    return confidence;
+    if (choice_it_ == nullptr)
+      return 0.0f;
+    confidence = 100 + 5 * choice_it_->data()->certainty();
   }
+  return ClipToRange(confidence, 0.0f, 100.0f);
 }
 
 // Returns the set of timesteps which belong to the current symbol
 std::vector<std::vector<std::pair<const char*, float>>>*
 ChoiceIterator::Timesteps() const {
-  if (word_res_->symbol_steps.empty() || !LSTM_mode_) return nullptr;
-  if (word_res_->leadingSpace) {
-    return &word_res_->symbol_steps[*(tstep_index_) + 1];
-  } else {
-    return &word_res_->symbol_steps[*tstep_index_];
+  int offset = *tstep_index_ + blanks_before_word_;
+  if (offset >= word_res_->segmented_timesteps.size() || !oemLSTM_) {
+    return nullptr;
   }
+  return &word_res_->segmented_timesteps[offset];
 }
 
 void ChoiceIterator::filterSpaces() {
-  if (LSTM_choices_->empty()) return;
+  if (LSTM_choices_->empty())
+    return;
   std::vector<std::pair<const char*, float>>::iterator it;
-  bool found_space = false;
-  float sum = 0;
   for (it = LSTM_choices_->begin(); it != LSTM_choices_->end();) {
     if (!strcmp(it->first, " ")) {
       it = LSTM_choices_->erase(it);
-      found_space = true;
     } else {
-      sum += it->second;
       ++it;
-    }
-  }
-  if (found_space) {
-    for (it = LSTM_choices_->begin(); it != LSTM_choices_->end(); ++it) {
-      it->second /= sum;
     }
   }
 }

@@ -24,8 +24,8 @@
 
 #include <unordered_map>
 
-#include "serialis.h"
-#include "strngs.h"
+#include <tesseract/serialis.h>
+#include <tesseract/strngs.h>
 #include "unicharset.h"
 
 namespace tesseract {
@@ -78,10 +78,10 @@ class RecodedCharID {
   }
   // Hash functor for RecodedCharID.
   struct RecodedCharIDHash {
-    size_t operator()(const RecodedCharID& code) const {
-      size_t result = 0;
+    uint64_t operator()(const RecodedCharID& code) const {
+      uint64_t result = 0;
       for (int i = 0; i < code.length_; ++i) {
-        result ^= code(i) << (7 * i);
+        result ^= static_cast<uint64_t>(code(i)) << (7 * i);
       }
       return result;
     }

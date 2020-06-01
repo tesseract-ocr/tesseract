@@ -211,9 +211,9 @@ TEST_F(LSTMTrainerTest, TestLayerAccess) {
   GenericVector<STRING> layers = trainer_->EnumerateLayers();
   EXPECT_EQ(kNumLayers, layers.size());
   for (int i = 0; i < kNumLayers && i < layers.size(); ++i) {
-    EXPECT_STREQ(kLayerIds[i], layers[i].string());
+    EXPECT_STREQ(kLayerIds[i], layers[i].c_str());
     EXPECT_STREQ(kLayerNames[i],
-                 trainer_->GetLayer(layers[i])->name().string());
+                 trainer_->GetLayer(layers[i])->name().c_str());
     EXPECT_EQ(kNumWeights[i], trainer_->GetLayer(layers[i])->num_weights());
   }
 }

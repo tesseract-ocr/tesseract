@@ -105,8 +105,6 @@ Dict::Dict(CCUtil* ccutil)
                  getCCUtil()->params()),
       INT_MEMBER(hyphen_debug_level, 0, "Debug level for hyphenated words.",
                  getCCUtil()->params()),
-      INT_MEMBER(max_viterbi_list_size, 10, "Maximum size of viterbi list.",
-                 getCCUtil()->params()),
       BOOL_MEMBER(use_only_first_uft8_step, false,
                   "Use only the first UTF8 step of the given string"
                   " when computing log probabilities.",
@@ -140,11 +138,6 @@ Dict::Dict(CCUtil* ccutil)
                     "Word for which stopper debug"
                     " information should be printed to stdout",
                     getCCUtil()->params()),
-      STRING_MEMBER(word_to_debug_lengths, "",
-                    "Lengths of unichars in word_to_debug",
-                    getCCUtil()->params()),
-      INT_MEMBER(fragments_debug, 0, "Debug character fragments",
-                 getCCUtil()->params()),
       BOOL_MEMBER(segment_nonalphabetic_script, false,
                   "Don't use any alphabetic-specific tricks."
                   " Set to true in the traineddata config file for"
@@ -166,8 +159,6 @@ Dict::Dict(CCUtil* ccutil)
                  " are specified, since overly generic patterns can result in"
                  " dawg search exploring an overly large number of options.",
                  getCCUtil()->params()) {
-  dang_ambigs_table_ = nullptr;
-  replace_ambigs_table_ = nullptr;
   reject_offset_ = 0.0;
   go_deeper_fxn_ = nullptr;
   hyphen_word_ = nullptr;
@@ -199,7 +190,7 @@ DawgCache* Dict::GlobalDawgCache() {
 
 // Sets up ready for a Load or LoadLSTM.
 void Dict::SetupForLoad(DawgCache* dawg_cache) {
-  if (dawgs_.length() != 0) this->End();
+  if (dawgs_.size() != 0) this->End();
 
   apostrophe_unichar_id_ = getUnicharset().unichar_to_id(kApostropheSymbol);
   question_unichar_id_ = getUnicharset().unichar_to_id(kQuestionSymbol);
@@ -260,9 +251,9 @@ void Dict::Load(const STRING& lang, TessdataManager* data_file) {
       name = getCCUtil()->language_data_path_prefix;
       name += user_words_suffix;
     }
-    if (!trie_ptr->read_and_add_word_list(name.string(), getUnicharset(),
+    if (!trie_ptr->read_and_add_word_list(name.c_str(), getUnicharset(),
                                           Trie::RRP_REVERSE_IF_HAS_RTL)) {
-      tprintf("Error: failed to load %s\n", name.string());
+      tprintf("Error: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
       dawgs_ += trie_ptr;
@@ -279,8 +270,8 @@ void Dict::Load(const STRING& lang, TessdataManager* data_file) {
       name = getCCUtil()->language_data_path_prefix;
       name += user_patterns_suffix;
     }
-    if (!trie_ptr->read_pattern_list(name.string(), getUnicharset())) {
-      tprintf("Error: failed to load %s\n", name.string());
+    if (!trie_ptr->read_pattern_list(name.c_str(), getUnicharset())) {
+      tprintf("Error: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
       dawgs_ += trie_ptr;
@@ -327,9 +318,9 @@ void Dict::LoadLSTM(const STRING& lang, TessdataManager* data_file) {
       name = getCCUtil()->language_data_path_prefix;
       name += user_words_suffix;
     }
-    if (!trie_ptr->read_and_add_word_list(name.string(), getUnicharset(),
+    if (!trie_ptr->read_and_add_word_list(name.c_str(), getUnicharset(),
                                           Trie::RRP_REVERSE_IF_HAS_RTL)) {
-      tprintf("Error: failed to load %s\n", name.string());
+      tprintf("Error: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
       dawgs_ += trie_ptr;
@@ -346,8 +337,8 @@ void Dict::LoadLSTM(const STRING& lang, TessdataManager* data_file) {
       name = getCCUtil()->language_data_path_prefix;
       name += user_patterns_suffix;
     }
-    if (!trie_ptr->read_pattern_list(name.string(), getUnicharset())) {
-      tprintf("Error: failed to load %s\n", name.string());
+    if (!trie_ptr->read_pattern_list(name.c_str(), getUnicharset())) {
+      tprintf("Error: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
       dawgs_ += trie_ptr;
@@ -362,11 +353,11 @@ bool Dict::FinishLoad() {
   // Construct a list of corresponding successors for each dawg. Each entry, i,
   // in the successors_ vector is a vector of integers that represent the
   // indices into the dawgs_ vector of the successors for dawg i.
-  successors_.reserve(dawgs_.length());
-  for (int i = 0; i < dawgs_.length(); ++i) {
+  successors_.reserve(dawgs_.size());
+  for (int i = 0; i < dawgs_.size(); ++i) {
     const Dawg* dawg = dawgs_[i];
     auto* lst = new SuccessorList();
-    for (int j = 0; j < dawgs_.length(); ++j) {
+    for (int j = 0; j < dawgs_.size(); ++j) {
       const Dawg* other = dawgs_[j];
       if (dawg != nullptr && other != nullptr &&
           (dawg->lang() == other->lang()) &&
@@ -379,7 +370,7 @@ bool Dict::FinishLoad() {
 }
 
 void Dict::End() {
-  if (dawgs_.length() == 0) return;  // Not safe to call twice.
+  if (dawgs_.size() == 0) return;  // Not safe to call twice.
   for (int i = 0; i < dawgs_.size(); i++) {
     if (!dawg_cache_->FreeDawg(dawgs_[i])) {
       delete dawgs_[i];
@@ -411,8 +402,8 @@ int Dict::def_letter_is_okay(void* void_dawg_args, const UNICHARSET& unicharset,
     tprintf(
         "def_letter_is_okay: current unichar=%s word_end=%d"
         " num active dawgs=%d\n",
-        getUnicharset().debug_str(unichar_id).string(), word_end,
-        dawg_args->active_dawgs->length());
+        getUnicharset().debug_str(unichar_id).c_str(), word_end,
+        dawg_args->active_dawgs->size());
   }
 
   // Do not accept words that contain kPatternUnicharID.
@@ -432,7 +423,7 @@ int Dict::def_letter_is_okay(void* void_dawg_args, const UNICHARSET& unicharset,
   // Go over the active_dawgs vector and insert DawgPosition records
   // with the updated ref (an edge with the corresponding unichar id) into
   // dawg_args->updated_pos.
-  for (int a = 0; a < dawg_args->active_dawgs->length(); ++a) {
+  for (int a = 0; a < dawg_args->active_dawgs->size(); ++a) {
     const DawgPosition& pos = (*dawg_args->active_dawgs)[a];
     const Dawg* punc_dawg =
         pos.punc_index >= 0 ? dawgs_[pos.punc_index] : nullptr;
@@ -451,7 +442,7 @@ int Dict::def_letter_is_okay(void* void_dawg_args, const UNICHARSET& unicharset,
       if (punc_transition_edge != NO_EDGE) {
         // Find all successors, and see which can transition.
         const SuccessorList& slist = *(successors_[pos.punc_index]);
-        for (int s = 0; s < slist.length(); ++s) {
+        for (int s = 0; s < slist.size(); ++s) {
           int sdawg_index = slist[s];
           const Dawg* sdawg = dawgs_[sdawg_index];
           UNICHAR_ID ch = char_for_dawg(unicharset, unichar_id, sdawg);
@@ -629,7 +620,7 @@ void Dict::default_dawgs(DawgPositionVector* dawg_pos_vec,
       (punc_dawg_ != nullptr) &&
       punc_dawg_->edge_char_of(0, Dawg::kPatternUnicharID, true) != NO_EDGE;
 
-  for (int i = 0; i < dawgs_.length(); i++) {
+  for (int i = 0; i < dawgs_.size(); i++) {
     if (dawgs_[i] != nullptr &&
         !(suppress_patterns && (dawgs_[i])->type() == DAWG_TYPE_PATTERN)) {
       int dawg_ty = dawgs_[i]->type();
@@ -696,12 +687,12 @@ void Dict::add_document_word(const WERD_CHOICE& best_choice) {
   if (save_doc_words) {
     STRING filename(getCCUtil()->imagefile);
     filename += ".doc";
-    FILE* doc_word_file = fopen(filename.string(), "a");
+    FILE* doc_word_file = fopen(filename.c_str(), "a");
     if (doc_word_file == nullptr) {
-      tprintf("Error: Could not open file %s\n", filename.string());
+      tprintf("Error: Could not open file %s\n", filename.c_str());
       ASSERT_HOST(doc_word_file);
     }
-    fprintf(doc_word_file, "%s\n", best_choice.debug_string().string());
+    fprintf(doc_word_file, "%s\n", best_choice.debug_string().c_str());
     fclose(doc_word_file);
   }
   document_words_->add_word_to_dawg(best_choice);
@@ -744,7 +735,7 @@ void Dict::adjust_word(WERD_CHOICE* word, bool nonword,
   }
   if (debug) {
     tprintf("%sWord: %s %4.2f%s", nonword ? "Non-" : "",
-            word->unichar_string().string(), word->rating(), xheight_triggered);
+            word->unichar_string().c_str(), word->rating(), xheight_triggered);
   }
 
   if (nonword) {  // non-dictionary word

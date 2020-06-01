@@ -11,9 +11,7 @@
  *              the appropriate --fonts_dir path.
  *              Specifying --use_only_legacy_fonts will restrict the available
  *              fonts to those listed in legacy_fonts.h
- *
  * Authors:     Ranjith Unnikrishnan, Ray Smith
- * Created:     Tue Nov 19 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,6 +31,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <random>
 #include <string>
 #include <utility>
 #include <vector>
@@ -44,7 +43,7 @@
 #include "degradeimage.h"
 #include "errcode.h"
 #include "fileio.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "normstrngs.h"
 #include "stringrenderer.h"
 #include "tlog.h"
@@ -58,140 +57,144 @@
 const int kRandomSeed = 0x18273645;
 
 // The text input file.
-STRING_PARAM_FLAG(text, "", "File name of text input to process");
+static STRING_PARAM_FLAG(text, "", "File name of text input to process");
 
 // The text output file.
-STRING_PARAM_FLAG(outputbase, "", "Basename for output image/box file");
+static STRING_PARAM_FLAG(outputbase, "", "Basename for output image/box file");
 
 // Degrade the rendered image to mimic scanner quality.
-BOOL_PARAM_FLAG(degrade_image, true,
-                "Degrade rendered image with speckle noise, dilation/erosion "
-                "and rotation");
+static BOOL_PARAM_FLAG(degrade_image, true,
+                       "Degrade rendered image with speckle noise, dilation/erosion "
+                       "and rotation");
 
 // Rotate the rendered image to have more realistic glyph borders
-BOOL_PARAM_FLAG(rotate_image, true, "Rotate the image in a random way.");
+static BOOL_PARAM_FLAG(rotate_image, true, "Rotate the image in a random way.");
 
 // Degradation to apply to the image.
-INT_PARAM_FLAG(exposure, 0, "Exposure level in photocopier");
+static INT_PARAM_FLAG(exposure, 0, "Exposure level in photocopier");
 
 // Distort the rendered image by various means according to the bool flags.
-BOOL_PARAM_FLAG(distort_image, false,
-                "Degrade rendered image with noise, blur, invert.");
+static BOOL_PARAM_FLAG(distort_image, false,
+                       "Degrade rendered image with noise, blur, invert.");
 
 // Distortion to apply to the image.
-BOOL_PARAM_FLAG(invert, true, "Invert the image");
+static BOOL_PARAM_FLAG(invert, true, "Invert the image");
 
 // Distortion to apply to the image.
-BOOL_PARAM_FLAG(white_noise, true, "Add  Gaussian Noise");
+static BOOL_PARAM_FLAG(white_noise, true, "Add  Gaussian Noise");
 
 // Distortion to apply to the image.
-BOOL_PARAM_FLAG(smooth_noise, true, "Smoothen Noise");
+static BOOL_PARAM_FLAG(smooth_noise, true, "Smoothen Noise");
 
 // Distortion to apply to the image.
-BOOL_PARAM_FLAG(blur, true, "Blur the image");
+static BOOL_PARAM_FLAG(blur, true, "Blur the image");
+
+#if 0
 
 // Distortion to apply to the image.
-//BOOL_PARAM_FLAG(perspective, false, "Generate Perspective Distortion");
+static BOOL_PARAM_FLAG(perspective, false, "Generate Perspective Distortion");
 
 // Distortion to apply to the image.
-//INT_PARAM_FLAG(box_reduction, 0, "Integer reduction factor box_scale");
+static INT_PARAM_FLAG(box_reduction, 0, "Integer reduction factor box_scale");
+
+#endif
 
 // Output image resolution.
-INT_PARAM_FLAG(resolution, 300, "Pixels per inch");
+static INT_PARAM_FLAG(resolution, 300, "Pixels per inch");
 
 // Width of output image (in pixels).
-INT_PARAM_FLAG(xsize, 3600, "Width of output image");
+static INT_PARAM_FLAG(xsize, 3600, "Width of output image");
 
 // Max height of output image (in pixels).
-INT_PARAM_FLAG(ysize, 4800, "Height of output image");
+static INT_PARAM_FLAG(ysize, 4800, "Height of output image");
 
 // Max number of pages to produce.
-INT_PARAM_FLAG(max_pages, 0, "Maximum number of pages to output (0=unlimited)");
+static INT_PARAM_FLAG(max_pages, 0, "Maximum number of pages to output (0=unlimited)");
 
 // Margin around text (in pixels).
-INT_PARAM_FLAG(margin, 100, "Margin round edges of image");
+static INT_PARAM_FLAG(margin, 100, "Margin round edges of image");
 
 // Size of text (in points).
-INT_PARAM_FLAG(ptsize, 12, "Size of printed text");
+static INT_PARAM_FLAG(ptsize, 12, "Size of printed text");
 
 // Inter-character space (in ems).
-DOUBLE_PARAM_FLAG(char_spacing, 0, "Inter-character space in ems");
+static DOUBLE_PARAM_FLAG(char_spacing, 0, "Inter-character space in ems");
 
 // Sets the probability (value in [0, 1]) of starting to render a word with an
 // underline. Words are assumed to be space-delimited.
-DOUBLE_PARAM_FLAG(underline_start_prob, 0,
-                  "Fraction of words to underline (value in [0,1])");
+static DOUBLE_PARAM_FLAG(underline_start_prob, 0,
+                         "Fraction of words to underline (value in [0,1])");
 // Set the probability (value in [0, 1]) of continuing a started underline to
 // the next word.
-DOUBLE_PARAM_FLAG(underline_continuation_prob, 0,
-                  "Fraction of words to underline (value in [0,1])");
+static DOUBLE_PARAM_FLAG(underline_continuation_prob, 0,
+                         "Fraction of words to underline (value in [0,1])");
 
 // Inter-line space (in pixels).
-INT_PARAM_FLAG(leading, 12, "Inter-line space (in pixels)");
+static INT_PARAM_FLAG(leading, 12, "Inter-line space (in pixels)");
 
 // Layout and glyph orientation on rendering.
-STRING_PARAM_FLAG(writing_mode, "horizontal",
-                  "Specify one of the following writing"
-                  " modes.\n"
-                  "'horizontal' : Render regular horizontal text. (default)\n"
-                  "'vertical' : Render vertical text. Glyph orientation is"
-                  " selected by Pango.\n"
-                  "'vertical-upright' : Render vertical text. Glyph "
-                  " orientation is set to be upright.");
+static STRING_PARAM_FLAG(writing_mode, "horizontal",
+                         "Specify one of the following writing"
+                         " modes.\n"
+                         "'horizontal' : Render regular horizontal text. (default)\n"
+                         "'vertical' : Render vertical text. Glyph orientation is"
+                         " selected by Pango.\n"
+                         "'vertical-upright' : Render vertical text. Glyph "
+                         " orientation is set to be upright.");
 
-INT_PARAM_FLAG(box_padding, 0, "Padding around produced bounding boxes");
+static INT_PARAM_FLAG(box_padding, 0, "Padding around produced bounding boxes");
 
-BOOL_PARAM_FLAG(strip_unrenderable_words, true,
-                "Remove unrenderable words from source text");
+static BOOL_PARAM_FLAG(strip_unrenderable_words, true,
+                       "Remove unrenderable words from source text");
 
 // Font name.
-STRING_PARAM_FLAG(font, "Arial", "Font description name to use");
+static STRING_PARAM_FLAG(font, "Arial", "Font description name to use");
 
-BOOL_PARAM_FLAG(ligatures, false,
-                "Rebuild and render ligatures");
+static BOOL_PARAM_FLAG(ligatures, false,
+                       "Rebuild and render ligatures");
 
-BOOL_PARAM_FLAG(find_fonts, false,
-                "Search for all fonts that can render the text");
-BOOL_PARAM_FLAG(render_per_font, true,
-                "If find_fonts==true, render each font to its own image. "
-                "Image filenames are of the form output_name.font_name.tif");
-DOUBLE_PARAM_FLAG(min_coverage, 1.0,
-                  "If find_fonts==true, the minimum coverage the font has of "
-                  "the characters in the text file to include it, between "
-                  "0 and 1.");
+static BOOL_PARAM_FLAG(find_fonts, false,
+                       "Search for all fonts that can render the text");
+static BOOL_PARAM_FLAG(render_per_font, true,
+                       "If find_fonts==true, render each font to its own image. "
+                       "Image filenames are of the form output_name.font_name.tif");
+static DOUBLE_PARAM_FLAG(min_coverage, 1.0,
+                         "If find_fonts==true, the minimum coverage the font has of "
+                         "the characters in the text file to include it, between "
+                         "0 and 1.");
 
-BOOL_PARAM_FLAG(list_available_fonts, false, "List available fonts and quit.");
+static BOOL_PARAM_FLAG(list_available_fonts, false, "List available fonts and quit.");
 
-BOOL_PARAM_FLAG(render_ngrams, false, "Put each space-separated entity from the"
-                " input file into one bounding box. The ngrams in the input"
-                " file will be randomly permuted before rendering (so that"
-                " there is sufficient variety of characters on each line).");
+static BOOL_PARAM_FLAG(render_ngrams, false, "Put each space-separated entity from the"
+                       " input file into one bounding box. The ngrams in the input"
+                       " file will be randomly permuted before rendering (so that"
+                       " there is sufficient variety of characters on each line).");
 
-BOOL_PARAM_FLAG(output_word_boxes, false,
-                "Output word bounding boxes instead of character boxes. "
-                "This is used for Cube training, and implied by "
-                "--render_ngrams.");
+static BOOL_PARAM_FLAG(output_word_boxes, false,
+                       "Output word bounding boxes instead of character boxes. "
+                       "This is used for Cube training, and implied by "
+                       "--render_ngrams.");
 
-STRING_PARAM_FLAG(unicharset_file, "",
-                  "File with characters in the unicharset. If --render_ngrams"
-                  " is true and --unicharset_file is specified, ngrams with"
-                  " characters that are not in unicharset will be omitted");
+static STRING_PARAM_FLAG(unicharset_file, "",
+                         "File with characters in the unicharset. If --render_ngrams"
+                         " is true and --unicharset_file is specified, ngrams with"
+                         " characters that are not in unicharset will be omitted");
 
-BOOL_PARAM_FLAG(bidirectional_rotation, false,
-                "Rotate the generated characters both ways.");
+static BOOL_PARAM_FLAG(bidirectional_rotation, false,
+                       "Rotate the generated characters both ways.");
 
-BOOL_PARAM_FLAG(only_extract_font_properties, false,
-                "Assumes that the input file contains a list of ngrams. Renders"
-                " each ngram, extracts spacing properties and records them in"
-                " output_base/[font_name].fontinfo file.");
+static BOOL_PARAM_FLAG(only_extract_font_properties, false,
+                       "Assumes that the input file contains a list of ngrams. Renders"
+                       " each ngram, extracts spacing properties and records them in"
+                       " output_base/[font_name].fontinfo file.");
 
 // Use these flags to output zero-padded, square individual character images
-BOOL_PARAM_FLAG(output_individual_glyph_images, false,
-                "If true also outputs individual character images");
-INT_PARAM_FLAG(glyph_resized_size, 0,
-               "Each glyph is square with this side length in pixels");
-INT_PARAM_FLAG(glyph_num_border_pixels_to_pad, 0,
-               "Final_size=glyph_resized_size+2*glyph_num_border_pixels_to_pad");
+static BOOL_PARAM_FLAG(output_individual_glyph_images, false,
+                       "If true also outputs individual character images");
+static INT_PARAM_FLAG(glyph_resized_size, 0,
+                      "Each glyph is square with this side length in pixels");
+static INT_PARAM_FLAG(glyph_num_border_pixels_to_pad, 0,
+                      "Final_size=glyph_resized_size+2*glyph_num_border_pixels_to_pad");
 
 namespace tesseract {
 
@@ -538,7 +541,7 @@ static int Main() {
   if (strncmp(src_utf8.c_str(), "\xef\xbb\xbf", 3) == 0) {
     src_utf8.erase(0, 3);
   }
-  tlog(1, "Render string of size %d\n", src_utf8.length());
+  tlog(1, "Render string of size %zu\n", src_utf8.length());
 
   if (FLAGS_render_ngrams || FLAGS_only_extract_font_properties) {
     // Try to preserve behavior of old text2image by expanding inter-word
@@ -571,8 +574,11 @@ static int Main() {
       offset += step;
       offset += SpanUTF8Whitespace(str8 + offset);
     }
-    if (FLAGS_render_ngrams)
-      std::random_shuffle(offsets.begin(), offsets.end());
+    if (FLAGS_render_ngrams) {
+      std::seed_seq seed{kRandomSeed};
+      std::mt19937 random_gen(seed);
+      std::shuffle(offsets.begin(), offsets.end(), random_gen);
+    }
 
     for (size_t i = 0, line = 1; i < offsets.size(); ++i) {
       const char *curr_pos = str8 + offsets[i].first;
@@ -592,7 +598,7 @@ static int Main() {
         rand_utf8.append(kSeparator);
       }
     }
-    tlog(1, "Rendered ngram string of size %d\n", rand_utf8.length());
+    tlog(1, "Rendered ngram string of size %zu\n", rand_utf8.length());
     src_utf8.swap(rand_utf8);
   }
   if (FLAGS_only_extract_font_properties) {
@@ -730,6 +736,7 @@ int main(int argc, char** argv) {
     if ((strcmp(argv[1], "-v") == 0) ||
       (strcmp(argv[1], "--version") == 0)) {
     FontUtils::PangoFontTypeInfo();
+    printf("Pango version: %s\n", pango_version_string());
     }
   }
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);

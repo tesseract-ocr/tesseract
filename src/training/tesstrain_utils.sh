@@ -12,7 +12,7 @@
 #
 # This script defines functions that are used by tesstrain.sh
 # For a detailed description of the phases, see
-# https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
+# https://tesseract-ocr.github.io/tessdoc/Training-Tesseract.html.
 #
 # USAGE: source tesstrain_utils.sh
 
@@ -44,6 +44,7 @@ RUN_SHAPE_CLUSTERING=false
 SAVE_BOX_TIFF=false
 WORKSPACE_DIR=$(mktemp -d)
 X_SIZE=3600
+PT_SIZE=12
 
 # set TESSDATA_PREFIX as empty, if not defined in environment to avoid an unbound variable
 TESSDATA_PREFIX=${TESSDATA_PREFIX:-}
@@ -77,7 +78,7 @@ run_command() {
               done) || err_exit "'$1' not found"
     shift
     tlog "[$(date)] ${cmd} $@"
-    if ! "${cmd}" "$@" |& tee -a ${LOG_FILE}; then
+    if ! "${cmd}" "$@" 2>&1 | tee -a "${LOG_FILE}"; then
         err_exit "Program $(basename ${cmd}) failed. Abort."
     fi
 }
@@ -153,6 +154,9 @@ parse_flags() {
             --maxpages)
                 parse_value "MAX_PAGES" ${ARGV[$j]:-}
                 i=$j ;;
+            --ptsize)
+                parse_value "PT_SIZE" ${ARGV[$j]:-}
+                i=$j ;;
             --my_boxtiff_dir)
                 parse_value "MY_BOXTIFF_DIR" ${ARGV[$j]:-}
                 i=$j ;;
@@ -209,13 +213,17 @@ parse_flags() {
             TESSDATA_DIR="${TESSDATA_PREFIX}"
         fi
     fi
+    if [[ ! -d "${OUTPUT_DIR}" ]]; then
+        tlog "Creating new directory ${OUTPUT_DIR}"
+        mkdir -p "${OUTPUT_DIR}"
+    fi
 
     # Location where intermediate files will be created.
     TIMESTAMP=$(date +%Y-%m-%d)
     if [[ -z ${TMP_DIR:-} ]]; then
         TMP_DIR=$(mktemp -d -t ${LANG_CODE}-${TIMESTAMP}.XXX)
     else
-	TMP_DIR=$(mktemp -d -p ${TMP_DIR} -t ${LANG_CODE}-${TIMESTAMP}.XXX)
+        TMP_DIR=$(mktemp -d -p ${TMP_DIR} -t ${LANG_CODE}-${TIMESTAMP}.XXX)
     fi
     TRAINING_DIR=${TMP_DIR}
     # Location of log file for the whole run.
@@ -240,7 +248,7 @@ initialize_fontconfig() {
     export FONT_CONFIG_CACHE
     local sample_path=${FONT_CONFIG_CACHE}/sample_text.txt
     echo "Text" >${sample_path}
-    run_command text2image --fonts_dir=${FONTS_DIR} \
+    run_command text2image --fonts_dir=${FONTS_DIR} --ptsize ${PT_SIZE} \
         --font="${FONTS[0]}" --outputbase=${sample_path} --text=${sample_path} \
         --fontconfig_tmpdir=${FONT_CONFIG_CACHE}
 }
@@ -259,7 +267,7 @@ generate_font_image() {
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
     common_args+=" --outputbase=${outbase} --max_pages=${MAX_PAGES}"
     if $DISTORT_IMAGE; then
-        common_args+=" --distort_image "
+        common_args+=" --distort_image --invert=false"
     fi
 
     # add --writing_mode=vertical-upright to common_args if the font is
@@ -271,7 +279,7 @@ generate_font_image() {
       fi
     done
 
-    run_command text2image ${common_args} --font="${font}" \
+    run_command text2image ${common_args} --font="${font}" --ptsize ${PT_SIZE} \
         --text=${TRAINING_TEXT}  ${TEXT2IMAGE_EXTRA_ARGS:-}
     check_file_readable ${outbase}.box ${outbase}.tif
 
@@ -304,7 +312,7 @@ phase_I_generate_image() {
             # combined weight accounts for 95% of all the bigrams in the language.
             NGRAM_FRAC=$(cat ${BIGRAM_FREQS_FILE} \
                 | awk '{s=s+$2}; END {print (s/100)*p}' p=99)
-            cat ${BIGRAM_FREQS_FILE} | sort -rnk2 \
+            sort -rnk2 ${BIGRAM_FREQS_FILE} \
                 | awk '{s=s+$2; if (s <= x) {printf "%s ", $1; } }' \
                 x=${NGRAM_FRAC} > ${TRAIN_NGRAMS_FILE}
             check_file_readable ${TRAIN_NGRAMS_FILE}
@@ -326,6 +334,17 @@ phase_I_generate_image() {
             check_file_readable ${outbase}.box ${outbase}.tif
         done
     done
+    if $SAVE_BOX_TIFF && ( ! $LINEDATA ) ; then
+    tlog "\n=== Saving box/tiff pairs for training data ==="
+        for f in "${TRAINING_DIR}/${LANG_CODE}".*.box; do
+            tlog "Moving ${f} to ${OUTPUT_DIR}"
+            cp "${f}" "${OUTPUT_DIR}"
+        done
+        for f in "${TRAINING_DIR}/${LANG_CODE}".*.tif; do
+            tlog "Moving ${f} to ${OUTPUT_DIR}"
+            cp "${f}" "${OUTPUT_DIR}"
+        done
+    fi
 }
 
 # Phase UP : Generate (U)nicharset and (P)roperties file.
@@ -386,7 +405,7 @@ phase_D_generate_dawg() {
 
     # Punctuation DAWG
     # -r arguments to wordlist2dawg denote RTL reverse policy
-    # (see Trie::RTLReversePolicy enum in third_party/tesseract/dict/trie.h).
+    # (see Trie::RTLReversePolicy enum in tesseract/src/dict/trie.h).
     # We specify 0/RRP_DO_NO_REVERSE when generating number DAWG,
     # 1/RRP_REVERSE_IF_HAS_RTL for freq and word DAWGS,
     # 2/RRP_FORCE_REVERSE for the punctuation DAWG.
@@ -539,10 +558,6 @@ phase_B_generate_ambiguities() {
 make__lstmdata() {
   tlog "\n=== Constructing LSTM training data ==="
   local lang_prefix="${LANGDATA_ROOT}/${LANG_CODE}/${LANG_CODE}"
-  if [[ ! -d "${OUTPUT_DIR}" ]]; then
-      tlog "Creating new directory ${OUTPUT_DIR}"
-      mkdir -p "${OUTPUT_DIR}"
-  fi
   local lang_is_rtl=""
   if [[ "${LANG_IS_RTL}" == "1" ]]; then
     lang_is_rtl="--lang_is_rtl"
@@ -573,6 +588,7 @@ make__lstmdata() {
     mv "${f}" "${OUTPUT_DIR}"
   done
   fi
+
   tlog "\n=== Moving lstmf files for training data ==="
   for f in "${TRAINING_DIR}/${LANG_CODE}".*.lstmf; do
     tlog "Moving ${f} to ${OUTPUT_DIR}"
@@ -602,10 +618,6 @@ make__traineddata() {
   run_command combine_tessdata ${TRAINING_DIR}/${LANG_CODE}.
 
   # Copy it to the output dir, overwriting only if allowed by the cmdline flag.
-  if [[ ! -d ${OUTPUT_DIR} ]]; then
-      tlog "Creating new directory ${OUTPUT_DIR}"
-      mkdir -p ${OUTPUT_DIR}
-  fi
   local destfile=${OUTPUT_DIR}/${LANG_CODE}.traineddata;
   if [[ -f ${destfile} ]] && ! $OVERWRITE; then
       err_exit "File ${destfile} exists and no --overwrite specified";

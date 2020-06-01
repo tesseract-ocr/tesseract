@@ -22,7 +22,7 @@
 
 #include <memory>
 #include <vector>
-#include "unichar.h"
+#include <tesseract/unichar.h>
 
 namespace tesseract {
 

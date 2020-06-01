@@ -21,7 +21,7 @@
 
 // for micro-benchmark
 #include "otsuthr.h"
-#include "thresholder.h"
+#include <tesseract/thresholder.h>
 
 // platform preprocessor commands
 #if defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || \
@@ -287,7 +287,7 @@ static ds_status readProFile(const char* fileName, char** content,
     status = DS_FILE_ERROR;
   } else {
     fseek(input, 0L, SEEK_END);
-    long pos = ftell(input);
+    auto pos = std::ftell(input);
     rewind(input);
     if (pos > 0) {
       size_t size = pos;
@@ -976,7 +976,7 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
 
     std::vector<cl_device_id> mpArryDevsID(numDevices);
     bool b_error = fseek(fd, 0, SEEK_END) < 0;
-    long pos = ftell(fd);
+    auto pos = std::ftell(fd);
     b_error |= (pos <= 0);
     size_t length = pos;
     b_error |= fseek(fd, 0, SEEK_SET) < 0;

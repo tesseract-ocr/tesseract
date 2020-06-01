@@ -27,6 +27,10 @@ namespace {
 // aka Directed Acyclic Word Graphs).
 class DawgTest : public testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   void LoadWordlist(const std::string& filename, std::set<std::string>* words) const {
     std::ifstream file(filename);
     if (file.is_open()) {

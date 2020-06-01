@@ -21,7 +21,7 @@
 #include "errcode.h"
 #include "linlsq.h"
 
-const ERRCODE EMPTY_LLSQ = "Can't delete from an empty LLSQ";
+constexpr ERRCODE EMPTY_LLSQ("Can't delete from an empty LLSQ");
 
 /**********************************************************************
  * LLSQ::clear
@@ -155,7 +155,7 @@ double LLSQ::pearson() const {  // get correlation
 
   double covar = covariance();
   if (covar != 0.0) {
-    double var_product = x_variance()  * y_variance();
+    double var_product = x_variance() * y_variance();
     if (var_product > 0.0)
       r = covar / std::sqrt(var_product);
   }
@@ -195,9 +195,9 @@ FCOORD LLSQ::mean_point() const {
 double LLSQ::rms_orth(const FCOORD &dir) const {
   FCOORD v = !dir;
   v.normalise();
-  return std::sqrt(v.x() * v.x() * x_variance() +
-                   2 * v.x() * v.y() * covariance() +
-                   v.y() * v.y() * y_variance());
+  return std::sqrt(x_variance() * v.x() * v.x() +
+                   2 * covariance() * v.x() * v.y() +
+                   y_variance() * v.y() * v.y());
 }
 
 // Returns the direction of the fitted line as a unit vector, using the

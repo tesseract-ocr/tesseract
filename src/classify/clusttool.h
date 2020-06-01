@@ -21,7 +21,7 @@
 //--------------------------Include Files---------------------------------------
 #include <cstdio>
 #include "cluster.h"
-#include "serialis.h"
+#include <tesseract/serialis.h>
 
 /*-------------------------------------------------------------------------
         Public Function Prototype
@@ -32,18 +32,8 @@ PARAM_DESC *ReadParamDesc(tesseract::TFile *fp, uint16_t N);
 
 PROTOTYPE *ReadPrototype(tesseract::TFile *fp, uint16_t N);
 
-float *ReadNFloats(tesseract::TFile *fp, uint16_t N, float Buffer[]);
-
 void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]);
 
 void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto);
-
-void WriteNFloats (FILE * File, uint16_t N, float Array[]);
-
-void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle);
-
-void WriteProtoList(FILE* File, uint16_t N, PARAM_DESC* ParamDesc,
-                    LIST ProtoList, bool WriteSigProtos,
-                    bool WriteInsigProtos);
 
 #endif  // TESSERACT_CLASSIFY_CLUSTTOOL_H_

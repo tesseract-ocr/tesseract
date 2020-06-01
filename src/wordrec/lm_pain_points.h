@@ -5,7 +5,6 @@
 //              to generate "pain points" - the locations in the ratings
 //              matrix which should be classified next.
 // Author:      Rika Antonova
-// Created:     Mon Jun 20 11:26:43 PST 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,13 +97,6 @@ class LMPainPoints {
   // Generate pain points from dangerous ambiguities in best choice.
   void GenerateFromAmbigs(const DANGERR &fixpt, ViterbiStateEntry *vse,
                           WERD_RES *word_res);
-
-  // Generate a pain point for the blamer.
-  bool GenerateForBlamer(double max_char_wh_ratio, WERD_RES *word_res,
-                         int col, int row) {
-    return GeneratePainPoint(col, row, LM_PPTYPE_BLAMER, 0.0, false,
-                             max_char_wh_ratio, word_res);
-  }
 
   // Adds a pain point to classify chunks_record->ratings(col, row).
   // Returns true if a new pain point was added to an appropriate heap.

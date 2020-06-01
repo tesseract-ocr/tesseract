@@ -19,7 +19,7 @@
 #ifndef TESSERACT_LSTM_RECONFIG_H_
 #define TESSERACT_LSTM_RECONFIG_H_
 
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 #include "matrix.h"
 #include "network.h"
 

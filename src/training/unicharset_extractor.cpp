@@ -2,7 +2,6 @@
 // File:        unicharset_extractor.cpp
 // Description: Unicode character/ligature set extractor.
 // Author:      Thomas Kielbus
-// Created:     Wed Jun 28 17:05:01 PDT 2006
 //
 // (C) Copyright 2006, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,17 +24,17 @@
 #include "boxread.h"
 #include "commandlineflags.h"
 #include "commontraining.h"     // CheckSharedLibraryVersion
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 #include "lang_model_helpers.h"
 #include "normstrngs.h"
-#include "strngs.h"
+#include <tesseract/strngs.h>
 #include "unicharset.h"
 #include "unicharset_training_utils.h"
 
-STRING_PARAM_FLAG(output_unicharset, "unicharset", "Output file path");
-INT_PARAM_FLAG(norm_mode, 1,
-               "Normalization mode: 1=Combine graphemes, "
-               "2=Split graphemes, 3=Pure unicode");
+static STRING_PARAM_FLAG(output_unicharset, "unicharset", "Output file path");
+static INT_PARAM_FLAG(norm_mode, 1,
+                      "Normalization mode: 1=Combine graphemes, "
+                      "2=Split graphemes, 3=Pure unicode");
 
 namespace tesseract {
 
@@ -48,7 +47,7 @@ static void AddStringsToUnicharset(const GenericVector<STRING>& strings,
     if (NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                      static_cast<GraphemeNormMode>(norm_mode),
                                      /*report_errors*/ true,
-                                     strings[i].string(), &normalized)) {
+                                     strings[i].c_str(), &normalized)) {
       for (const std::string& normed : normalized) {
 
        // normed is a UTF-8 encoded string

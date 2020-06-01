@@ -19,14 +19,22 @@
 #ifndef TESSERACT_DICT_DICT_H_
 #define TESSERACT_DICT_DICT_H_
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h" // DISABLED_LEGACY_ENGINE
+#endif
+
+#ifndef DISABLED_LEGACY_ENGINE
 #include "ambigs.h"
+#endif
 #include "dawg.h"
 #include "dawg_cache.h"
 #include "ratngs.h"
 #include "stopper.h"
 #include "trie.h"
 #include "unicharset.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "params_training_featdef.h"
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
 class MATRIX;
 class WERD_RES;
@@ -100,10 +108,11 @@ class Dict {
   UNICHARSET& getUnicharset() {
     return getCCUtil()->unicharset;
   }
+#ifndef DISABLED_LEGACY_ENGINE
   const UnicharAmbigs &getUnicharAmbigs() const {
     return getCCUtil()->unichar_ambigs;
   }
-
+#endif
   // Returns true if unichar_id is a word compounding character like - or /.
   inline bool compound_marker(UNICHAR_ID unichar_id) {
     const UNICHARSET& unicharset = getUnicharset();
@@ -251,10 +260,12 @@ class Dict {
                              CHAR_FRAGMENT_INFO *char_frag_info);
 
   /* stopper.cpp *************************************************************/
+#if !defined(DISABLED_LEGACY_ENGINE)
   bool NoDangerousAmbig(WERD_CHOICE *BestChoice,
                         DANGERR *fixpt,
                         bool fix_replaceable,
                         MATRIX* ratings);
+#endif  // !defined(DISABLED_LEGACY_ENGINE)
   // Replaces the corresponding wrong ngram in werd_choice with the correct
   // one. The whole correct n-gram is inserted into the ratings matrix and
   // the werd_choice: no more fragments!. Rating and certainty of new entries
@@ -283,7 +294,9 @@ class Dict {
   /// and should be tried again on the second pass or should be flagged to
   /// the user.
   bool AcceptableResult(WERD_RES *word) const;
+#if !defined(DISABLED_LEGACY_ENGINE)
   void EndDangerousAmbigs();
+#endif   // !defined(DISABLED_LEGACY_ENGINE)
   /// Prints the current choices for this word to stdout.
   void DebugWordChoices();
   /// Sets up stopper variables in preparation for the first pass.
@@ -301,7 +314,7 @@ class Dict {
 
   /// Initialize Dict class - load dawgs from [lang].traineddata and
   /// user-specified wordlist and parttern list.
-  static DawgCache *GlobalDawgCache();
+  static TESS_API DawgCache *GlobalDawgCache();
   // Sets up ready for a Load or LoadLSTM.
   void SetupForLoad(DawgCache *dawg_cache);
   // Loads the dawgs needed by Tesseract. Call FinishLoad() after.
@@ -383,7 +396,7 @@ class Dict {
                               const char* character,
                               int character_bytes) {
     return (this->*probability_in_context_)(
-        getCCUtil()->lang.string(),
+        getCCUtil()->lang.c_str(),
         context, context_bytes,
         character, character_bytes);
   }
@@ -412,7 +425,7 @@ class Dict {
   float CallParamsModelClassify(void *path) {
     ASSERT_HOST(params_model_classify_ != nullptr);  // ASSERT_HOST -> assert
     return (this->*params_model_classify_)(
-        getCCUtil()->lang.string(), path);
+        getCCUtil()->lang.c_str(), path);
   }
 
   inline void SetWildcardID(UNICHAR_ID id) { wildcard_unichar_id_ = id; }
@@ -513,9 +526,11 @@ class Dict {
    * Each entry i in the table stores a set of amibiguities whose
    * wrong ngram starts with unichar id i.
    */
-  UnicharAmbigs *dang_ambigs_table_;
+#ifndef DISABLED_LEGACY_ENGINE
+  UnicharAmbigs* dang_ambigs_table_ = nullptr;
   /** Same as above, but for ambiguities with replace flag set. */
-  UnicharAmbigs *replace_ambigs_table_;
+  UnicharAmbigs* replace_ambigs_table_ = nullptr;
+#endif
   /** Additional certainty padding allowed before a word is rejected. */
   float reject_offset_;
   // Cached UNICHAR_IDs:
@@ -610,7 +625,6 @@ class Dict {
   INT_VAR_H(dawg_debug_level, 0, "Set to 1 for general debug info"
             ", to 2 for more details, to 3 to see all the debug messages");
   INT_VAR_H(hyphen_debug_level, 0, "Debug level for hyphenated words.");
-  INT_VAR_H(max_viterbi_list_size, 10, "Maximum size of viterbi list.");
   BOOL_VAR_H(use_only_first_uft8_step, false,
              "Use only the first UTF8 step of the given string"
              " when computing log probabilities.");
@@ -632,9 +646,6 @@ class Dict {
   INT_VAR_H(tessedit_truncate_wordchoice_log, 10, "Max words to keep in list");
   STRING_VAR_H(word_to_debug, "", "Word for which stopper debug information"
                " should be printed to stdout");
-  STRING_VAR_H(word_to_debug_lengths, "",
-               "Lengths of unichars in word_to_debug");
-  INT_VAR_H(fragments_debug, 0, "Debug character fragments");
   BOOL_VAR_H(segment_nonalphabetic_script, false,
              "Don't use any alphabetic-specific tricks."
              "Set to true in the traineddata config file for"

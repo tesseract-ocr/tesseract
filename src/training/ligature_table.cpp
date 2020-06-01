@@ -25,7 +25,7 @@
 
 #include "pango_font_info.h"
 #include "tlog.h"
-#include "unichar.h"
+#include <tesseract/unichar.h>
 #include "unicharset.h"
 #include "unicode/errorcode.h"  // from libicu
 #include "unicode/normlzr.h"    // from libicu

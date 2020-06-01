@@ -11,7 +11,7 @@
 
 #include "include_gunit.h"
 #include "gmock/gmock.h"                // for testing::ElementsAreArray
-#include "unichar.h"
+#include <tesseract/unichar.h>
 
 using tesseract::char32;
 using tesseract::UNICHAR;

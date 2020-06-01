@@ -2,7 +2,6 @@
 // File:        tablefind.cpp
 // Description: Helper classes to find tables from ColPartitions.
 // Author:      Faisal Shafait (faisal.shafait@dfki.de)
-// Created:     Tue Jan 06 11:13:01 PST 2009
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,7 +89,7 @@ const double kTableColumnThreshold = 3.0;
 
 // Search for horizontal ruling lines within the vertical margin as a
 // multiple of grid size
-const int kRulingVerticalMargin = 3;
+// const int kRulingVerticalMargin = 3;
 
 // Minimum overlap that a colpartition must have with a table region
 // to become part of that table
@@ -140,13 +139,13 @@ const double kMaxXProjectionGapFactor = 2.0;
 const double kStrokeWidthFractionalTolerance = 0.25;
 const double kStrokeWidthConstantTolerance = 2.0;
 
-BOOL_VAR(textord_show_tables, false, "Show table regions");
-BOOL_VAR(textord_tablefind_show_mark, false,
-         "Debug table marking steps in detail");
-BOOL_VAR(textord_tablefind_show_stats, false,
-         "Show page stats used in table finding");
-BOOL_VAR(textord_tablefind_recognize_tables, false,
-         "Enables the table recognizer for table layout and filtering.");
+static BOOL_VAR(textord_show_tables, false, "Show table regions");
+static BOOL_VAR(textord_tablefind_show_mark, false,
+                "Debug table marking steps in detail");
+static BOOL_VAR(textord_tablefind_show_stats, false,
+                "Show page stats used in table finding");
+static BOOL_VAR(textord_tablefind_recognize_tables, false,
+                "Enables the table recognizer for table layout and filtering.");
 
 ELISTIZE(ColSegment)
 CLISTIZE(ColSegment)
@@ -259,7 +258,7 @@ void TableFinder::InsertCleanPartitions(ColPartitionGrid* grid,
 // High level function to perform table detection
 void TableFinder::LocateTables(ColPartitionGrid* grid,
                                ColPartitionSet** all_columns,
-                               WidthCallback* width_cb,
+                               WidthCallback width_cb,
                                const FCOORD& reskew) {
   // initialize spacing, neighbors, and columns
   InitializePartitions(all_columns);
@@ -325,7 +324,7 @@ void TableFinder::LocateTables(ColPartitionGrid* grid,
   GridMergeTableRegions();
 
   if (textord_tablefind_recognize_tables) {
-    // Remove false alarms consiting of a single column
+    // Remove false alarms consisting of a single column
     DeleteSingleColumnTables();
 
 #ifndef GRAPHICS_DISABLED
@@ -351,7 +350,7 @@ void TableFinder::LocateTables(ColPartitionGrid* grid,
     }
 #endif  // GRAPHICS_DISABLED
   } else {
-    // Remove false alarms consiting of a single column
+    // Remove false alarms consisting of a single column
     // TODO(nbeato): verify this is a NOP after structured table rejection.
     // Right now it isn't. If the recognize function is doing what it is
     // supposed to do, this function is obsolete.
@@ -1697,7 +1696,7 @@ void TableFinder::IncludeLeftOutColumnHeaders(TBOX* table_box) {
   }
 }
 
-// Remove false alarms consiting of a single column based on their
+// Remove false alarms consisting of a single column based on their
 // projection on the x-axis. Projection of a real table on the x-axis
 // should have at least one zero-valley larger than the global median
 // x-height of the page.
@@ -1997,7 +1996,7 @@ void TableFinder::DisplayColPartitionConnections(
 // assigned to any table to their original types.
 void TableFinder::MakeTableBlocks(ColPartitionGrid* grid,
                                   ColPartitionSet** all_columns,
-                                  WidthCallback* width_cb) {
+                                  WidthCallback width_cb) {
   // Since we have table blocks already, remove table tags from all
   // colpartitions
   GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>

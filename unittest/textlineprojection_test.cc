@@ -1,13 +1,28 @@
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "tesseract/textord/textlineprojection.h"
-#include <string>
-#include "leptonica/include/allheaders.h"
-#include "tesseract/api/baseapi.h"
-#include "tesseract/ccmain/mutableiterator.h"
-#include "tesseract/ccmain/osdetect.h"
-#include "tesseract/ccmain/tesseractclass.h"
-#include "tesseract/ccstruct/pageres.h"
-#include "tesseract/textord/colfind.h"
+#include <allheaders.h>
+#include <string>                       // for std::string
+
+#include "absl/strings/str_format.h"    // for absl::StrFormat
+#include "include_gunit.h"
+
+#include <tesseract/baseapi.h>
+#include "colfind.h"
+#include "log.h"                        // for LOG
+#include "mutableiterator.h"
+#include <tesseract/osdetect.h>
+#include "pageres.h"
+#include "tesseractclass.h"
+#include "textlineprojection.h"
 
 namespace {
 
@@ -23,13 +38,7 @@ const int kMinStrongTextValue = 6;
 // The fixture for testing Tesseract.
 class TextlineProjectionTest : public testing::Test {
  protected:
-  string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
-  }
-  string TessdataPath() {
-    return file::JoinPath(FLAGS_test_srcdir, "tessdata");
-  }
-  string OutputNameToPath(const string& name) {
+  std::string OutputNameToPath(const std::string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
@@ -50,8 +59,8 @@ class TextlineProjectionTest : public testing::Test {
 
   void SetImage(const char* filename) {
     pixDestroy(&src_pix_);
-    src_pix_ = pixRead(TestDataNameToPath(filename).c_str());
-    api_.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
+    src_pix_ = pixRead(file::JoinPath(TESTING_DIR, filename).c_str());
+    api_.Init(TESSDATA_DIR, "eng", tesseract::OEM_TESSERACT_ONLY);
     api_.SetPageSegMode(tesseract::PSM_AUTO_OSD);
     api_.SetImage(src_pix_);
   }
@@ -67,12 +76,12 @@ class TextlineProjectionTest : public testing::Test {
     tesseract::TessdataManager mgr;
     Tesseract* osd_tess = new Tesseract;
     OSResults osr;
-    EXPECT_EQ(osd_tess->init_tesseract(TessdataPath().c_str(), nullptr, "osd",
+    EXPECT_EQ(osd_tess->init_tesseract(TESSDATA_DIR, nullptr, "osd",
                                        tesseract::OEM_TESSERACT_ONLY, nullptr, 0,
                                        nullptr, nullptr, false, &mgr),
               0);
     tesseract_ = new Tesseract;
-    EXPECT_EQ(tesseract_->init_tesseract(TessdataPath().c_str(), nullptr, "eng",
+    EXPECT_EQ(tesseract_->init_tesseract(TESSDATA_DIR, nullptr, "eng",
                                          tesseract::OEM_TESSERACT_ONLY, nullptr, 0,
                                          nullptr, nullptr, false, &mgr),
               0);
@@ -115,15 +124,15 @@ class TextlineProjectionTest : public testing::Test {
                    const char* text, const char* message) {
     int value = projection_->EvaluateBox(box, denorm_, false);
     if (greater_or_equal != (value > target_value)) {
-      LOG(INFO) << StringPrintf(
+      LOG(INFO) << absl::StrFormat(
           "EvaluateBox too %s:%d vs %d for %s word '%s' at:",
           greater_or_equal ? "low" : "high", value, target_value, message,
           text);
       box.print();
       value = projection_->EvaluateBox(box, denorm_, true);
     } else {
-      VLOG(1) << StringPrintf("EvaluateBox OK(%d) for %s word '%s'", value,
-                              message, text);
+      LOG(INFO) << absl::StrFormat("EvaluateBox OK(%d) for %s word '%s'",
+                                   value, message, text);
     }
     if (greater_or_equal) {
       EXPECT_GE(value, target_value);
@@ -142,14 +151,15 @@ class TextlineProjectionTest : public testing::Test {
     int false_dist =
         projection_->DistanceOfBoxFromBox(box, false_box, true, denorm_, false);
     if (false_dist <= true_dist) {
-      LOG(INFO) << StringPrintf("Distance wrong:%d vs %d for %s word '%s' at:",
-                                false_dist, true_dist, message, text);
+      LOG(INFO) << absl::StrFormat(
+        "Distance wrong:%d vs %d for %s word '%s' at:",
+        false_dist, true_dist, message, text);
       true_box.print();
       projection_->DistanceOfBoxFromBox(box, true_box, true, denorm_, true);
       projection_->DistanceOfBoxFromBox(box, false_box, true, denorm_, true);
     } else {
-      VLOG(1) << StringPrintf("Distance OK(%d vs %d) for %s word '%s'",
-                              false_dist, true_dist, message, text);
+      LOG(INFO) << absl::StrFormat("Distance OK(%d vs %d) for %s word '%s'",
+                                   false_dist, true_dist, message, text);
     }
   }
 
@@ -239,7 +249,7 @@ class TextlineProjectionTest : public testing::Test {
   Pix* src_pix_;
   Pix* bin_pix_;
   BLOCK_LIST blocks_;
-  string ocr_text_;
+  std::string ocr_text_;
   tesseract::TessBaseAPI api_;
   Tesseract* tesseract_;
   ColumnFinder* finder_;

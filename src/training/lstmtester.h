@@ -2,7 +2,6 @@
 // File:        lstmtester.h
 // Description: Top-level line evaluation class for LSTM-based networks.
 // Author:      Ray Smith
-// Created:     Wed Nov 23 11:05:06 PST 2016
 //
 // (C) Copyright 2016, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,10 +18,10 @@
 #ifndef TESSERACT_TRAINING_LSTMTESTER_H_
 #define TESSERACT_TRAINING_LSTMTESTER_H_
 
-#include "genericvector.h"
+#include <mutex>
+#include <tesseract/genericvector.h>
 #include "lstmtrainer.h"
-#include "strngs.h"
-#include "svutil.h"
+#include <tesseract/strngs.h>
 
 namespace tesseract {
 
@@ -62,13 +61,10 @@ class LSTMTester {
                      int verbosity);
 
  private:
-  // Static helper thread function for RunEvalAsync, with a specific signature
-  // required by SVSync::StartThread. Actually a member function pretending to
-  // be static, its arg is a this pointer that it will cast back to LSTMTester*
-  // to call RunEvalSync using the stored args that RunEvalAsync saves in *this.
+  // Helper thread function for RunEvalAsync.
   // LockIfNotRunning must have returned true before calling ThreadFunc, and
   // it will call UnlockRunning to release the lock after RunEvalSync completes.
-  static void* ThreadFunc(void* lstmtester_void);
+  void ThreadFunc();
   // Returns true if there is currently nothing running, and takes the lock
   // if there is nothing running.
   bool LockIfNotRunning();
@@ -77,16 +73,16 @@ class LSTMTester {
 
   // The data to test with.
   DocumentCache test_data_;
-  int total_pages_;
+  int total_pages_ = 0;
   // Flag that indicates an asynchronous test is currently running.
   // Protected by running_mutex_.
-  bool async_running_;
-  SVMutex running_mutex_;
+  bool async_running_ = false;
+  std::mutex running_mutex_;
   // Stored copies of the args for use while running asynchronously.
-  int test_iteration_;
-  const double* test_training_errors_;
+  int test_iteration_ = 0;
+  const double* test_training_errors_ = nullptr;
   TessdataManager test_model_mgr_;
-  int test_training_stage_;
+  int test_training_stage_ = 0;
   STRING test_result_;
 };
 

@@ -2,7 +2,6 @@
  * File:        quadlsq.cpp  (Formerly qlsq.c)
  * Description: Code for least squares approximation of quadratics.
  * Author:      Ray Smith
- * Created:     Wed Oct  6 15:14:23 BST 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +22,7 @@
 #include "tprintf.h"
 
 // Minimum variance in least squares before backing off to a lower degree.
-const double kMinVariance = 1.0 / 1024;
+const long double kMinVariance = 1.0L / 1024;
 
 /**********************************************************************
  * QLSQ::clear

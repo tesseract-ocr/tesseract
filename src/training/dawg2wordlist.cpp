@@ -18,8 +18,7 @@
 
 #include "commontraining.h"     // CheckSharedLibraryVersion
 #include "dawg.h"
-#include "serialis.h"
-#include "tesscallback.h"
+#include <tesseract/serialis.h>
 #include "trie.h"
 #include "unicharset.h"
 
@@ -61,10 +60,9 @@ static int WriteDawgAsWordlist(const UNICHARSET &unicharset,
     return 1;
   }
   WordOutputter outputter(out);
-  TessCallback1<const char *> *print_word_cb =
-      NewPermanentTessCallback(&outputter, &WordOutputter::output_word);
-  dawg->iterate_words(unicharset, print_word_cb);
-  delete print_word_cb;
+  using namespace std::placeholders;  // for _1
+  dawg->iterate_words(unicharset,
+                      std::bind(&WordOutputter::output_word, &outputter, _1));
   return fclose(out);
 }
 

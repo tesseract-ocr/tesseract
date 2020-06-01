@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/******************************************************************************
  *
  * File:         render.h
  * Description:  Convert the various data type into line lists
@@ -16,7 +15,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- *********************************************************************************/
+ *****************************************************************************/
 #ifndef RENDER_H
 #define RENDER_H
 
@@ -36,8 +35,6 @@ extern ScrollView *blob_window;        /* Window for blobs */
 extern C_COL color_list[];       /* Colors for outlines */
 
 extern BOOL_VAR_H(wordrec_display_all_blobs, 0, "Display Blobs");
-
-extern BOOL_VAR_H(wordrec_display_all_words, 0, "Display Words");
 
 extern BOOL_VAR_H(wordrec_blob_pause, 0, "Blob pause");
 

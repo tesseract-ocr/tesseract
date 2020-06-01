@@ -21,18 +21,17 @@
 #ifdef GOOGLE_TESSERACT
 #include "base/commandlineflags.h"
 #endif  // GOOGLE_TESSERACT
-#include "baseapi.h"
+#include <tesseract/baseapi.h>
 #include "commontraining.h"
 #include "mastertrainer.h"
 #include "params.h"
-#include "strngs.h"
+#include <tesseract/strngs.h>
 #include "tessclassifier.h"
 #include "tesseractclass.h"
 
-STRING_PARAM_FLAG(classifier, "", "Classifier to test");
-STRING_PARAM_FLAG(lang, "eng", "Language to test");
-STRING_PARAM_FLAG(tessdata_dir, "", "Directory of traineddata files");
-DECLARE_INT_PARAM_FLAG(debug_level);
+static STRING_PARAM_FLAG(classifier, "", "Classifier to test");
+static STRING_PARAM_FLAG(lang, "eng", "Language to test");
+static STRING_PARAM_FLAG(tessdata_dir, "", "Directory of traineddata files");
 
 enum ClassifierName {
   CN_PRUNER,

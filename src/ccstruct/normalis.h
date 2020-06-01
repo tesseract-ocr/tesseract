@@ -76,7 +76,7 @@ class DENORM {
   // A DENORM may point to a predecessor DENORM, which is actually the earlier
   // normalization, so the full normalization sequence involves executing all
   // predecessors first and then the transform in "this".
-  // Let x be image co-ordinates and that we have normalization classes A, B, C
+  // Let x be image coordinates and that we have normalization classes A, B, C
   // where we first apply A then B then C to get normalized x':
   // x' = CBAx
   // Then the backwards (to original coordinates) would be:

@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include "unichar.h"
+#include <tesseract/unichar.h>
 #include "unicharmap.h"
 
 UNICHARMAP::UNICHARMAP() :
@@ -39,7 +39,7 @@ UNICHAR_ID UNICHARMAP::unichar_to_id(const char* const unichar_repr,
   assert(length > 0 && length <= UNICHAR_LEN);
 
   int index = 0;
-  if (index >= length || unichar_repr[index] == '\0') return INVALID_UNICHAR_ID;
+  if (length <= 0 || unichar_repr[index] == '\0') return INVALID_UNICHAR_ID;
   do {
     if (index + 1 >= length || unichar_repr[index + 1] == '\0')
       return current_nodes[static_cast<unsigned char>(unichar_repr[index])].id;

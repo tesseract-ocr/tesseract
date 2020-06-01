@@ -3,7 +3,6 @@
 // Description: Structures and functionality for capturing the state of
 //              segmentation search guided by the language model.
 // Author:      Rika Antonova
-// Created:     Mon Jun 20 11:26:43 PST 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +27,7 @@ void ViterbiStateEntry::Print(const char *msg) const {
   tprintf("%s ViterbiStateEntry", msg);
   if (updated) tprintf("(NEW)");
   if (this->debug_str != nullptr) {
-    tprintf(" str=%s", this->debug_str->string());
+    tprintf(" str=%s", this->debug_str->c_str());
   }
   tprintf(" with ratings_sum=%.4f length=%d cost=%.6f",
           this->ratings_sum, this->length, this->cost);
@@ -47,7 +46,7 @@ void ViterbiStateEntry::Print(const char *msg) const {
   if (this->ngram_info) {
     tprintf(" ngram_cl_cost=%g context=%s ngram pruned=%d",
             this->ngram_info->ngram_and_classifier_cost,
-            this->ngram_info->context.string(),
+            this->ngram_info->context.c_str(),
             this->ngram_info->pruned);
   }
   if (this->associate_stats.shape_cost > 0.0f) {

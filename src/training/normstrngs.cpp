@@ -26,7 +26,7 @@
 
 #include "errcode.h"
 #include "icuerrorcode.h"
-#include "unichar.h"
+#include <tesseract/unichar.h>
 #include "unicode/normalizer2.h"  // From libicu
 #include "unicode/translit.h"     // From libicu
 #include "unicode/uchar.h"        // From libicu

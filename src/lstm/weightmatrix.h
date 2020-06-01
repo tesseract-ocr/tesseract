@@ -19,7 +19,7 @@
 #define TESSERACT_LSTM_WEIGHTMATRIX_H_
 
 #include <memory>
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 #include "intsimdmatrix.h"
 #include "matrix.h"
 #include "tprintf.h"

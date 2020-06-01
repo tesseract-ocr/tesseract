@@ -16,11 +16,11 @@
  *
  **********************************************************************/
 
+#include "allheaders.h"
 #include "pdblock.h"
 #include <cstdlib>
 #include <memory>  // std::unique_ptr
-#include "allheaders.h"
-#include "host.h"  // for PRId32
+#include <cinttypes>  // for PRId32
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -29,8 +29,8 @@
 
 #define BLOCK_LABEL_HEIGHT  150  //char height of block id
 
-const ERRCODE BADBLOCKLINE = "Y coordinate in block out of bounds";
-const ERRCODE LOSTBLOCKLINE = "Can't find rectangle for line";
+constexpr ERRCODE BADBLOCKLINE("Y coordinate in block out of bounds");
+constexpr ERRCODE LOSTBLOCKLINE("Can't find rectangle for line");
 
 CLISTIZE (PDBLK)
 /**********************************************************************

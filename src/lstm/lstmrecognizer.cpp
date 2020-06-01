@@ -27,7 +27,7 @@
 #include "callcpp.h"
 #include "dict.h"
 #include "genericheap.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "imagedata.h"
 #include "input.h"
 #include "lstm.h"
@@ -39,12 +39,20 @@
 #include "statistc.h"
 #include "tprintf.h"
 
+#include <unordered_set>
+#include <vector>
+
 namespace tesseract {
 
 // Default ratio between dict and non-dict words.
 const double kDictRatio = 2.25;
 // Default certainty offset to give the dictionary a chance.
 const double kCertOffset = -0.085;
+
+LSTMRecognizer::LSTMRecognizer(const STRING language_data_path_prefix)
+    : LSTMRecognizer::LSTMRecognizer() {
+  ccutil_.language_data_path_prefix = language_data_path_prefix;
+}
 
 LSTMRecognizer::LSTMRecognizer()
     : network_(nullptr),
@@ -180,7 +188,8 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                                    bool debug, double worst_dict_cert,
                                    const TBOX& line_box,
                                    PointerVector<WERD_RES>* words,
-                                   int lstm_choice_mode) {
+                                   int lstm_choice_mode,
+                                   int lstm_choice_amount) {
   NetworkIO outputs;
   float scale_factor;
   NetworkIO inputs;
@@ -191,10 +200,38 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
     search_ =
         new RecodeBeamSearch(recoder_, null_char_, SimpleTextOutput(), dict_);
   }
+  search_->excludedUnichars.clear();
   search_->Decode(outputs, kDictRatio, kCertOffset, worst_dict_cert,
                   &GetUnicharset(), lstm_choice_mode);
   search_->ExtractBestPathAsWords(line_box, scale_factor, debug,
                                   &GetUnicharset(), words, lstm_choice_mode);
+  if (lstm_choice_mode){
+    search_->extractSymbolChoices(&GetUnicharset());
+    for (int i = 0; i < lstm_choice_amount; ++i) {
+      search_->DecodeSecondaryBeams(outputs, kDictRatio, kCertOffset,
+                                    worst_dict_cert, &GetUnicharset(),
+                                    lstm_choice_mode);
+      search_->extractSymbolChoices(&GetUnicharset());
+    }
+    search_->segmentTimestepsByCharacters();
+    int char_it = 0;
+    for (int i = 0; i < words->size(); ++i) {
+      for (int j = 0; j < words->get(i)->end; ++j) {
+        if (char_it < search_->ctc_choices.size())
+          words->get(i)->CTC_symbol_choices.push_back(
+              search_->ctc_choices[char_it]);
+        if (char_it < search_->segmentedTimesteps.size())
+          words->get(i)->segmented_timesteps.push_back(
+              search_->segmentedTimesteps[char_it]);
+        ++char_it;
+      }
+      words->get(i)->timesteps = search_->combineSegmentedTimesteps(
+          &words->get(i)->segmented_timesteps);
+    }
+    search_->segmentedTimesteps.clear();
+    search_->ctc_choices.clear();
+    search_->excludedUnichars.clear();
+  }
 }
 
 // Helper computes min and mean best results in the output.
@@ -228,8 +265,6 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                                    bool debug, bool re_invert, bool upside_down,
                                    float* scale_factor, NetworkIO* inputs,
                                    NetworkIO* outputs) {
-  // Maximum width of image to train on.
-  const int kMaxImageWidth = 2560;
   // This ensures consistent recognition results.
   SetRandomSeed();
   int min_width = network_->XScaleFactor();
@@ -239,6 +274,8 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
     tprintf("Line cannot be recognized!!\n");
     return false;
   }
+  // Maximum width of image to train on.
+  const int kMaxImageWidth = 128 * pixGetHeight(pix);
   if (network_->IsTraining() && pixGetWidth(pix) > kMaxImageWidth) {
     tprintf("Image too large to learn!! Size = %dx%d\n", pixGetWidth(pix),
             pixGetHeight(pix));

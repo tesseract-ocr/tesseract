@@ -21,7 +21,7 @@
 #define TABLERECOG_H_
 
 #include "colpartitiongrid.h"
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 
 namespace tesseract {
 

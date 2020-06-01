@@ -22,7 +22,7 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include <cstdio>
-#include "unichar.h"
+#include <tesseract/unichar.h>
 
 /* define the maximum number of classes defined for any matcher
   and the maximum class id for any matcher. This must be changed

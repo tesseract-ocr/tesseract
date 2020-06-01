@@ -21,9 +21,9 @@
 
 #include <cstring>
 #include <memory>  // std::unique_ptr
-#include "baseapi.h"
-#include "genericvector.h"
-#include "renderer.h"
+#include <tesseract/baseapi.h>
+#include <tesseract/genericvector.h>
+#include <tesseract/renderer.h>
 
 namespace tesseract {
 
@@ -39,7 +39,7 @@ TessResultRenderer::TessResultRenderer(const char *outputbase,
       happy_(true) {
   if (strcmp(outputbase, "-") && strcmp(outputbase, "stdout")) {
     STRING outfile = STRING(outputbase) + STRING(".") + STRING(file_extension_);
-    fout_ = fopen(outfile.string(), "wb");
+    fout_ = fopen(outfile.c_str(), "wb");
     if (fout_ == nullptr) {
       happy_ = false;
     }
@@ -105,6 +105,7 @@ void TessResultRenderer::AppendString(const char* s) {
 
 void TessResultRenderer::AppendData(const char* s, int len) {
   if (!tesseract::Serialize(fout_, s, len)) happy_ = false;
+  fflush(fout_);
 }
 
 bool TessResultRenderer::BeginDocumentHandler() {

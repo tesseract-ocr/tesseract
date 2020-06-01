@@ -16,7 +16,9 @@
 
 #include "intsimdmatrix.h"
 #include <memory>
-#include "genericvector.h"
+#include <gtest/gtest.h>
+#include <gtest/internal/gtest-port.h>
+#include <tesseract/genericvector.h>
 #include "include_gunit.h"
 #include "matrix.h"
 #include "simddetect.h"
@@ -27,6 +29,10 @@ namespace {
 
 class IntSimdMatrixTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   // Makes a random weights matrix of the given size.
   GENERIC_2D_ARRAY<int8_t> InitRandom(int no, int ni) {
     GENERIC_2D_ARRAY<int8_t> a(no, ni, 0);
@@ -94,31 +100,29 @@ TEST_F(IntSimdMatrixTest, C) {
 
 // Tests that the SSE implementation gets the same result as the vanilla.
 TEST_F(IntSimdMatrixTest, SSE) {
-#if defined(SSE4_1)
-  if (SIMDDetect::IsSSEAvailable()) {
-    tprintf("SSE found! Continuing...");
-  } else {
-    tprintf("No SSE found! Not tested!");
-    return;
+#if defined(HAVE_SSE4_1)
+  if (!SIMDDetect::IsSSEAvailable()) {
+    GTEST_LOG_(INFO) << "No SSE found! Not tested!";
+    GTEST_SKIP();
   }
   ExpectEqualResults(IntSimdMatrix::intSimdMatrixSSE);
 #else
-  tprintf("SSE unsupported! Not tested!");
+  GTEST_LOG_(INFO) << "SSE unsupported! Not tested!";
+  GTEST_SKIP();
 #endif
 }
 
 // Tests that the AVX2 implementation gets the same result as the vanilla.
 TEST_F(IntSimdMatrixTest, AVX2) {
-#if defined(AVX2)
-  if (SIMDDetect::IsAVX2Available()) {
-    tprintf("AVX2 found! Continuing...");
-  } else {
-    tprintf("No AVX2 found! Not tested!");
-    return;
+#if defined(HAVE_AVX2)
+  if (!SIMDDetect::IsAVX2Available()) {
+    GTEST_LOG_(INFO) << "No AVX2 found! Not tested!";
+    GTEST_SKIP();
   }
   ExpectEqualResults(IntSimdMatrix::intSimdMatrixAVX2);
 #else
-  tprintf("AVX2 unsupported! Not tested!");
+  GTEST_LOG_(INFO) << "AVX2 unsupported! Not tested!";
+  GTEST_SKIP();
 #endif
 }
 

@@ -17,7 +17,7 @@
 #ifndef TESSERACT_ARCH_SIMDDETECT_H_
 #define TESSERACT_ARCH_SIMDDETECT_H_
 
-#include "platform.h"
+#include <tesseract/platform.h>
 
 namespace tesseract {
 
@@ -46,13 +46,21 @@ class SIMDDetect {
   static inline bool IsAVX512BWAvailable() {
     return detector.avx512BW_available_;
   }
+  // Returns true if FMA is available on this system.
+  static inline bool IsFMAAvailable() {
+    return detector.fma_available_;
+  }
   // Returns true if SSE4.1 is available on this system.
   static inline bool IsSSEAvailable() {
     return detector.sse_available_;
   }
+  // Returns true if NEON is available on this system.
+  static inline bool IsNEONAvailable() {
+    return detector.neon_available_;
+  }
 
   // Update settings after config variable was set.
-  static void Update();
+  static TESS_API void Update();
 
  private:
   // Constructor, must set all static member variables.
@@ -66,8 +74,12 @@ class SIMDDetect {
   static TESS_API bool avx2_available_;
   static TESS_API bool avx512F_available_;
   static TESS_API bool avx512BW_available_;
+  // If true, then FMA has been detected.
+  static TESS_API bool fma_available_;
   // If true, then SSe4.1 has been detected.
   static TESS_API bool sse_available_;
+  // If true, then NEON has been detected.
+  static TESS_API bool neon_available_;
 };
 
 }  // namespace tesseract

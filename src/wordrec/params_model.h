@@ -2,7 +2,6 @@
 // File:        params_model.h
 // Description: Trained feature serialization for language parameter training.
 // Author:      David Eger
-// Created:     Mon Jun 11 11:26:42 PDT 2012
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,9 +19,9 @@
 #ifndef TESSERACT_WORDREC_PARAMS_MODEL_H_
 #define TESSERACT_WORDREC_PARAMS_MODEL_H_
 
-#include "genericvector.h"              // for GenericVector
+#include <tesseract/genericvector.h>              // for GenericVector
 #include "params_training_featdef.h"    // for PTRAIN_NUM_FEATURE_TYPES
-#include "strngs.h"                     // for STRING
+#include <tesseract/strngs.h>                     // for STRING
 
 namespace tesseract {
 
@@ -62,7 +61,6 @@ class ParamsModel {
   bool SaveToFile(const char *full_path) const;
 
   // Returns true on success.
-  bool LoadFromFile(const char *lang, const char *full_path);
   bool LoadFromFp(const char *lang, TFile *fp);
 
   const GenericVector<float>& weights() const {

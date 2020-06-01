@@ -25,16 +25,13 @@
 #include <iostream>
 
 #include "allheaders.h"
-#include "baseapi.h"
-#include "basedir.h"
+#include <tesseract/baseapi.h>
 #include "dict.h"
 #if defined(USE_OPENCL)
 #include "openclwrapper.h"      // for OpenclDevice
 #endif
-#include "osdetect.h"
-#include "renderer.h"
+#include <tesseract/renderer.h>
 #include "simddetect.h"
-#include "strngs.h"
 #include "tprintf.h"            // for tprintf
 
 #ifdef _OPENMP
@@ -43,6 +40,9 @@
 
 #if defined(HAVE_LIBARCHIVE)
 #include <archive.h>
+#endif
+#if defined(HAVE_LIBCURL)
+#include <curl/curl.h>
 #endif
 
 #if defined(_WIN32)
@@ -72,6 +72,22 @@ static void Win32WarningHandler(const char* module, const char* fmt,
 }
 
 #endif /* HAVE_TIFFIO_H */
+
+class AutoWin32ConsoleOutputCP {
+ public:
+  explicit AutoWin32ConsoleOutputCP(UINT codeCP) {
+    oldCP_ = GetConsoleOutputCP();    
+    SetConsoleOutputCP(codeCP);
+  }
+  ~AutoWin32ConsoleOutputCP() {    
+    SetConsoleOutputCP(oldCP_);    
+  }
+ private:  
+  UINT oldCP_;
+};
+
+static AutoWin32ConsoleOutputCP autoWin32ConsoleOutputCP(CP_UTF8);
+
 #endif   // _WIN32
 
 static void PrintVersionInfo() {
@@ -119,22 +135,29 @@ static void PrintVersionInfo() {
     }
   }
 #endif
+#if defined(HAVE_NEON)
+  if (tesseract::SIMDDetect::IsNEONAvailable()) printf(" Found NEON\n");
+#else
   if (tesseract::SIMDDetect::IsAVX512BWAvailable()) printf(" Found AVX512BW\n");
   if (tesseract::SIMDDetect::IsAVX512FAvailable()) printf(" Found AVX512F\n");
   if (tesseract::SIMDDetect::IsAVX2Available()) printf(" Found AVX2\n");
   if (tesseract::SIMDDetect::IsAVXAvailable()) printf(" Found AVX\n");
+  if (tesseract::SIMDDetect::IsFMAAvailable()) printf(" Found FMA\n");
   if (tesseract::SIMDDetect::IsSSEAvailable()) printf(" Found SSE\n");
+#endif
 #ifdef _OPENMP
   printf(" Found OpenMP %d\n", _OPENMP);
 #endif
 #if defined(HAVE_LIBARCHIVE)
 #  if ARCHIVE_VERSION_NUMBER >= 3002000
-  printf(" Found %s", archive_version_details());
+  printf(" Found %s\n", archive_version_details());
 #  else
-  printf(" Found %s", archive_version_string());
+  printf(" Found %s\n", archive_version_string());
 #  endif  // ARCHIVE_VERSION_NUMBER
 #endif    // HAVE_LIBARCHIVE
-
+#if defined(HAVE_LIBCURL)
+  printf(" Found %s\n", curl_version());
+#endif
 }
 
 static void PrintHelpForPSM() {
@@ -279,7 +302,7 @@ static void PrintLangsList(tesseract::TessBaseAPI* api) {
   printf("List of available languages (%d):\n", languages.size());
   for (int index = 0; index < languages.size(); ++index) {
     STRING& string = languages[index];
-    printf("%s\n", string.string());
+    printf("%s\n", string.c_str());
   }
   api->End();
 }
@@ -551,6 +574,9 @@ static void PreloadRenderers(
 
     api->GetBoolVariable("tessedit_create_txt", &b);
     if (b || (!error && renderers->empty())) {
+      // Create text output if no other output was requested
+      // even if text output was not explicitly requested unless
+      // there was an error.
       auto* renderer =
         new tesseract::TessTextRenderer(outputbase);
       if (renderer->happy()) {
@@ -702,13 +728,15 @@ int main(int argc, char** argv) {
     return ret_val;
   }
 
-  // set in_training_mode to true when using one of these configs:
-  // ambigs.train, box.train, box.train.stderr, linebox, rebox
+  // Set in_training_mode to true when using one of these configs:
+  // ambigs.train, box.train, box.train.stderr, linebox, rebox, lstm.train.
+  // In this mode no other OCR result files are written.
   bool b = false;
   bool in_training_mode =
       (api.GetBoolVariable("tessedit_ambigs_training", &b) && b) ||
       (api.GetBoolVariable("tessedit_resegment_from_boxes", &b) && b) ||
-      (api.GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b);
+      (api.GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b) ||
+      (api.GetBoolVariable("tessedit_train_line_recognizer", &b) && b);
 
 #ifdef DISABLED_LEGACY_ENGINE
   auto cur_psm = api.GetPageSegMode();
@@ -736,7 +764,7 @@ int main(int argc, char** argv) {
 
   if (in_training_mode) {
     renderers.push_back(nullptr);
-  } else {
+  } else if (outputbase != nullptr) {
     PreloadRenderers(&api, &renderers, pagesegmode, outputbase);
   }
 

@@ -2,7 +2,6 @@
 // File:        alignedblob.cpp
 // Description: Subclass of BBGrid to find vertically aligned blobs.
 // Author:      Ray Smith
-// Created:     Fri Mar 21 15:03:01 PST 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,10 +26,10 @@
 
 INT_VAR(textord_debug_tabfind, 0, "Debug tab finding");
 INT_VAR(textord_debug_bugs, 0, "Turn on output related to bugs in tab finding");
-INT_VAR(textord_testregion_left, -1, "Left edge of debug reporting rectangle");
-INT_VAR(textord_testregion_top, -1, "Top edge of debug reporting rectangle");
-INT_VAR(textord_testregion_right, INT32_MAX, "Right edge of debug rectangle");
-INT_VAR(textord_testregion_bottom, INT32_MAX, "Bottom edge of debug rectangle");
+static INT_VAR(textord_testregion_left, -1, "Left edge of debug reporting rectangle");
+static INT_VAR(textord_testregion_top, -1, "Top edge of debug reporting rectangle");
+static INT_VAR(textord_testregion_right, INT32_MAX, "Right edge of debug rectangle");
+static INT_VAR(textord_testregion_bottom, INT32_MAX, "Bottom edge of debug rectangle");
 BOOL_VAR(textord_debug_printable, false, "Make debug windows printable");
 
 namespace tesseract {
@@ -385,7 +384,7 @@ BLOBNBOX* AlignedBlob::FindAlignedBlob(const AlignedBlobParams& p,
   // Compute skew tolerance.
   int skew_tolerance = p.max_v_gap / kMaxSkewFactor;
   // Calculate xmin and xmax of the search box so that it contains
-  // all possibly relevant boxes up to p.max_v_gap above or below accoording
+  // all possibly relevant boxes up to p.max_v_gap above or below according
   // to top_to_bottom.
   // Start with a notion of vertical with the current estimate.
   int x2 = (p.max_v_gap * p.vertical.x() + p.vertical.y()/2) / p.vertical.y();

@@ -28,7 +28,7 @@
 #include "errcode.h"
 #include "drawtord.h"
 #include "blkocc.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 
 double_VAR(textord_underline_threshold, 0.5, "Fraction of width occupied");
 

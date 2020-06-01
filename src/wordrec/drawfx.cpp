@@ -32,23 +32,13 @@
 #define FXDEMOYSIZE     256
 #define BLN_MAX       512        //max coord for bln
 #define WERDWIDTH       (BLN_MAX*20)
-#define DECENT_WERD_WIDTH (5*kBlnXHeight)
                                  //title of window
 #define DEBUG_WIN_NAME    "FXDebug"
-#define DEBUG_XPOS      0
-#define DEBUG_YPOS      120
-#define DEBUG_XSIZE     80
-#define DEBUG_YSIZE     32
-#define YMAX        3508
-#define XMAX        2550
-#define MAXEDGELENGTH   1024     //max steps inoutline
 
-#define EXTERN
+STRING_VAR(fx_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
 
-EXTERN STRING_VAR (fx_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
-
-EXTERN ScrollView* fx_win = nullptr;
-EXTERN FILE *fx_debug = nullptr;
+ScrollView* fx_win = nullptr;
+FILE* fx_debug = nullptr;
 
 /**********************************************************************
  * create_fx_win

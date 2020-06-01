@@ -2,7 +2,6 @@
  * File:        boxread.cpp
  * Description: Read data from a box file.
  * Author:      Ray Smith
- * Created:     Fri Aug 24 17:47:23 PDT 2007
  *
  * (C) Copyright 2007, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,26 +17,46 @@
  **********************************************************************/
 
 #include "boxread.h"
-#include <cstring>          // for strchr, strcmp, strrchr
+#include <cstring>          // for strchr, strcmp
+#include <locale>           // for std::locale::classic
+#include <sstream>          // for std::stringstream
+#include <string>           // for std::string
 #include "errcode.h"        // for ERRCODE, TESSEXIT
 #include "fileerr.h"        // for CANTOPENFILE
-#include "genericvector.h"  // for GenericVector
-#include "helpers.h"        // for chomp_string
+#include <tesseract/genericvector.h>  // for GenericVector
+#include <tesseract/helpers.h>        // for chomp_string
 #include "rect.h"           // for TBOX
-#include "strngs.h"         // for STRING
+#include <tesseract/strngs.h>         // for STRING
 #include "tprintf.h"        // for tprintf
-#include "unichar.h"        // for UNICHAR
+#include <tesseract/unichar.h>        // for UNICHAR
 
 // Special char code used to identify multi-blob labels.
 static const char* kMultiBlobLabelCode = "WordStr";
 
+// Returns the box file name corresponding to the given image_filename.
+static std::string BoxFileName(const char* image_filename) {
+  std::string box_filename = image_filename;
+  size_t length = box_filename.length();
+  std::string last = (length > 8) ? box_filename.substr(length - 8) : "";
+  if (last == ".bin.png" || last == ".nrm.png") {
+    box_filename.resize(length - 8);
+  } else {
+    size_t lastdot = box_filename.find_last_of('.');
+    if (lastdot < length) {
+      box_filename.resize(lastdot);
+    }
+  }
+  box_filename += ".box";
+  return box_filename;
+}
+
 // Open the boxfile based on the given image filename.
 FILE* OpenBoxFile(const STRING& fname) {
-  STRING filename = BoxFileName(fname);
+  std::string filename = BoxFileName(fname.c_str());
   FILE* box_file = nullptr;
-  if (!(box_file = fopen(filename.string(), "rb"))) {
+  if (!(box_file = fopen(filename.c_str(), "rb"))) {
     CANTOPENFILE.error("read_next_box", TESSEXIT, "Can't open box file %s",
-                       filename.string());
+                       filename.c_str());
   }
   return box_file;
 }
@@ -55,7 +74,7 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const STRING& filename,
                   GenericVector<STRING>* box_texts,
                   GenericVector<int>* pages) {
   GenericVector<char> box_data;
-  if (!tesseract::LoadDataFromFile(BoxFileName(filename), &box_data))
+  if (!tesseract::LoadDataFromFile(BoxFileName(filename.c_str()).c_str(), &box_data))
     return false;
   // Convert the array of bytes to a string, so it can be used by the parser.
   box_data.push_back('\0');
@@ -80,7 +99,7 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
     int page = 0;
     STRING utf8_str;
     TBOX box;
-    if (!ParseBoxFileStr(lines[i].string(), &page, &utf8_str, &box)) {
+    if (!ParseBoxFileStr(lines[i].c_str(), &page, &utf8_str, &box)) {
       if (continue_on_failure)
         continue;
       else
@@ -92,24 +111,13 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
     if (texts != nullptr) texts->push_back(utf8_str);
     if (box_texts != nullptr) {
       STRING full_text;
-      MakeBoxFileStr(utf8_str.string(), box, target_page, &full_text);
+      MakeBoxFileStr(utf8_str.c_str(), box, target_page, &full_text);
       box_texts->push_back(full_text);
     }
     if (pages != nullptr) pages->push_back(page);
     ++num_boxes;
   }
   return num_boxes > 0;
-}
-
-// Returns the box file name corresponding to the given image_filename.
-STRING BoxFileName(const STRING& image_filename) {
-  STRING box_filename = image_filename;
-  const char *lastdot = strrchr(box_filename.string(), '.');
-  if (lastdot != nullptr)
-    box_filename.truncate_at(lastdot - box_filename.string());
-
-  box_filename += ".box";
-  return box_filename;
 }
 
 // TODO(rays) convert all uses of ReadNextBox to use the new ReadAllBoxes.
@@ -194,11 +202,19 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
            uch_len < kBoxReadBufSize - 1);
   uch[uch_len] = '\0';
   if (*buffptr != '\0') ++buffptr;
-  int x_min, y_min, x_max, y_max;
+  int x_min = INT_MAX;
+  int y_min = INT_MAX;
+  int x_max = INT_MIN;
+  int y_max = INT_MIN;
   *page_number = 0;
-  int count = sscanf(buffptr, "%d %d %d %d %d",
-                 &x_min, &y_min, &x_max, &y_max, page_number);
-  if (count != 5 && count != 4) {
+  std::stringstream stream(buffptr);
+  stream.imbue(std::locale::classic());
+  stream >> x_min;
+  stream >> y_min;
+  stream >> x_max;
+  stream >> y_max;
+  stream >> *page_number;
+  if (x_max < x_min || y_max < y_min) {
     tprintf("Bad box coordinates in boxfile string! %s\n", ubuf);
     return false;
   }

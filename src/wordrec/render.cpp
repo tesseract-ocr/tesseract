@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/******************************************************************************
  *
  * File:         render.cpp  (Formerly render.c)
  * Description:  Convert the various data type into line lists
@@ -16,13 +15,11 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- *********************************************************************************/
+ *****************************************************************************/
 #include "render.h"
 #include "blobs.h"
 
 #include <cmath>
-
-#include "vecfuncs.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -39,8 +36,6 @@ C_COL color_list[] = {
 };
 
 BOOL_VAR(wordrec_display_all_blobs, 0, "Display Blobs");
-
-BOOL_VAR(wordrec_display_all_words, 0, "Display Words");
 
 BOOL_VAR(wordrec_blob_pause, 0, "Blob pause");
 

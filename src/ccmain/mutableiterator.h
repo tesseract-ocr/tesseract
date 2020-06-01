@@ -21,7 +21,7 @@
 #ifndef TESSERACT_CCMAIN_MUTABLEITERATOR_H_
 #define TESSERACT_CCMAIN_MUTABLEITERATOR_H_
 
-#include "resultiterator.h"
+#include <tesseract/resultiterator.h>
 
 class BLOB_CHOICE_IT;
 
@@ -36,7 +36,7 @@ class Tesseract;
 // therefore can only be used while the TessBaseAPI class still exists and
 // has not been subjected to a call of Init, SetImage, Recognize, Clear, End
 // DetectOS, or anything else that changes the internal PAGE_RES.
-// See apitypes.h for the definition of PageIteratorLevel.
+// See tesseract/apitypes.h for the definition of PageIteratorLevel.
 // See also base class PageIterator, which contains the bulk of the interface.
 // ResultIterator adds text-specific methods for access to OCR output.
 // MutableIterator adds access to internal data structures.

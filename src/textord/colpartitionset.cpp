@@ -3,7 +3,6 @@
 // Description: Class to hold a list of ColPartitions of the page that
 //              correspond roughly to columns.
 // Author:      Ray Smith
-// Created:     Thu Aug 14 10:54:01 PDT 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -87,7 +86,7 @@ void ColPartitionSet::RelinquishParts() {
 }
 
 // Attempt to improve this by adding partitions or expanding partitions.
-void ColPartitionSet::ImproveColumnCandidate(WidthCallback* cb,
+void ColPartitionSet::ImproveColumnCandidate(WidthCallback cb,
                                              PartSetVector* src_sets) {
   int set_size = src_sets->size();
   // Iterate over the provided column sets, as each one may have something
@@ -124,13 +123,13 @@ void ColPartitionSet::ImproveColumnCandidate(WidthCallback* cb,
         continue;
       }
       // Check the edges of col_part to see if they can improve part.
-      bool part_width_ok = cb->Run(part->KeyWidth(part_left, part_right));
+      bool part_width_ok = cb(part->KeyWidth(part_left, part_right));
       if (col_left < part_left && col_left > prev_right) {
         // The left edge of the column is better and it doesn't overlap,
         // so we can potentially expand it.
         int col_box_left = col_part->BoxLeftKey();
-        bool tab_width_ok = cb->Run(part->KeyWidth(col_left, part_right));
-        bool box_width_ok = cb->Run(part->KeyWidth(col_box_left, part_right));
+        bool tab_width_ok = cb(part->KeyWidth(col_left, part_right));
+        bool box_width_ok = cb(part->KeyWidth(col_box_left, part_right));
         if (tab_width_ok || (!part_width_ok)) {
           // The tab is leaving the good column metric at least as good as
           // it was before, so use the tab.
@@ -150,8 +149,8 @@ void ColPartitionSet::ImproveColumnCandidate(WidthCallback* cb,
            part_it.data_relative(1)->left_key() > col_right)) {
         // The right edge is better, so we can possibly expand it.
         int col_box_right = col_part->BoxRightKey();
-        bool tab_width_ok = cb->Run(part->KeyWidth(part_left, col_right));
-        bool box_width_ok = cb->Run(part->KeyWidth(part_left, col_box_right));
+        bool tab_width_ok = cb(part->KeyWidth(part_left, col_right));
+        bool box_width_ok = cb(part->KeyWidth(part_left, col_box_right));
         if (tab_width_ok || (!part_width_ok)) {
           // The tab is leaving the good column metric at least as good as
           // it was before, so use the tab.
@@ -173,7 +172,7 @@ void ColPartitionSet::ImproveColumnCandidate(WidthCallback* cb,
 // If this set is good enough to represent a new partitioning into columns,
 // add it to the vector of sets, otherwise delete it.
 void ColPartitionSet::AddToColumnSetsIfUnique(PartSetVector* column_sets,
-                                              WidthCallback* cb) {
+                                              WidthCallback cb) {
   bool debug = TabFind::WithinTestRegion(2, bounding_box_.left(),
                                          bounding_box_.bottom());
   if (debug) {
@@ -221,7 +220,7 @@ void ColPartitionSet::AddToColumnSetsIfUnique(PartSetVector* column_sets,
 // Return true if the partitions in other are all compatible with the columns
 // in this.
 bool ColPartitionSet::CompatibleColumns(bool debug, ColPartitionSet* other,
-                                        WidthCallback* cb) {
+                                        WidthCallback cb) {
   if (debug) {
     tprintf("CompatibleColumns testing compatibility\n");
     Print();
@@ -254,7 +253,7 @@ bool ColPartitionSet::CompatibleColumns(bool debug, ColPartitionSet* other,
       }
       return false;  // A partition edge lies outside of all columns
     }
-    if (right_col != left_col && cb->Run(right - left)) {
+    if (right_col != left_col && cb(right - left)) {
       if (debug) {
         tprintf("CompatibleColumns false due to good width in multiple cols\n");
         part->Print();
@@ -622,7 +621,7 @@ void ColPartitionSet::AddPartition(ColPartition* new_part,
 // Coverage is split into good and bad. Good coverage is provided by
 // ColPartitions of a frequent width (according to the callback function
 // provided by TabFinder::WidthCB, which accesses stored statistics on the
-// widths of ColParititions) and bad coverage is provided by all other
+// widths of ColPartitions) and bad coverage is provided by all other
 // ColPartitions, even if they have tab vectors at both sides. Thus:
 // |-----------------------------------------------------------------|
 // |        Double     width    heading                              |

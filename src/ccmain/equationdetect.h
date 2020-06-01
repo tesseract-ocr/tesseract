@@ -2,7 +2,6 @@
 // File:        equationdetect.h
 // Description: The equation detection class that inherits equationdetectbase.
 // Author:      Zongyi (Joe) Liu (joeliu@google.com)
-// Created:     Fri Aug 31 11:13:01 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +21,9 @@
 
 #include "blobbox.h"             // for BLOBNBOX (ptr only), BlobSpecialText...
 #include "equationdetectbase.h"  // for EquationDetectBase
-#include "genericvector.h"       // for GenericVector
+#include <tesseract/genericvector.h>       // for GenericVector
 #include "tesseractclass.h"      // for Tesseract
-#include "unichar.h"             // for UNICHAR_ID
+#include <tesseract/unichar.h>             // for UNICHAR_ID
 
 class TBOX;
 class UNICHARSET;
@@ -181,7 +180,7 @@ class EquationDetect : public EquationDetectBase {
   bool ExpandSeed(ColPartition* seed);
 
   // Starting from the seed position, we search the part_grid_
-  // horizontally/vertically, find all parititions that can be
+  // horizontally/vertically, find all partitions that can be
   // merged with seed, remove them from part_grid_, and put them  into
   // parts_to_merge.
   void ExpandSeedHorizontal(const bool search_left,
@@ -249,12 +248,12 @@ class EquationDetect : public EquationDetectBase {
 
   // The ColPartitionGrid that we are processing. This pointer is passed in from
   // the caller, so do NOT destroy it in the class.
-  ColPartitionGrid* part_grid_;
+  ColPartitionGrid* part_grid_ = nullptr;
 
   // A simple array of pointers to the best assigned column division at
   // each grid y coordinate. This pointer is passed in from the caller, so do
   // NOT destroy it in the class.
-  ColPartitionSet** best_columns_;
+  ColPartitionSet** best_columns_ = nullptr;
 
   // The super bounding box of all cps in the part_grid_.
   TBOX* cps_super_bbox_;

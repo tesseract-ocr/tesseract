@@ -23,7 +23,7 @@
 
 #include "bbgrid.h"
 #include "blobbox.h"
-#include "strngs.h"
+#include <tesseract/strngs.h>
 #include "tabvector.h"
 
 extern INT_VAR_H(textord_debug_bugs, 0,

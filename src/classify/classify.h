@@ -24,7 +24,6 @@
 #include "config_auto.h"
 #endif
 
-
 #ifdef DISABLED_LEGACY_ENGINE
 
 #include "ccstruct.h"
@@ -145,7 +144,7 @@ class Classify : public CCStruct {
                    const uint8_t* normalization_factors,
                    const uint16_t* expected_num_features,
                    GenericVector<CP_RESULT_STRUCT>* results);
-  void ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs);
+  void ReadNewCutoffs(TFile* fp, uint16_t* Cutoffs);
   void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   ADAPT_TEMPLATES ReadAdaptedTemplates(TFile* File);
@@ -434,10 +433,6 @@ class Classify : public CCStruct {
   INT_VAR_H(classify_norm_method, character, "Normalization Method   ...");
   double_VAR_H(classify_char_norm_range, 0.2,
              "Character Normalization Range ...");
-  double_VAR_H(classify_min_norm_scale_x, 0.0, "Min char x-norm scale ...");
-  double_VAR_H(classify_max_norm_scale_x, 0.325, "Max char x-norm scale ...");
-  double_VAR_H(classify_min_norm_scale_y, 0.0, "Min char y-norm scale ...");
-  double_VAR_H(classify_max_norm_scale_y, 0.325, "Max char y-norm scale ...");
   double_VAR_H(classify_max_rating_ratio, 1.5,
                "Veto ratio between classifier ratings");
   double_VAR_H(classify_max_certainty_margin, 5.5,
@@ -508,22 +503,27 @@ class Classify : public CCStruct {
   INT_VAR_H(classify_integer_matcher_multiplier, 10,
             "Integer Matcher Multiplier  0-255:   ");
 
+  BOOL_VAR_H(classify_bln_numeric_mode, 0,
+             "Assume the input is numbers [0-9].");
+  double_VAR_H(speckle_large_max_size, 0.30, "Max large speckle size");
+  double_VAR_H(speckle_rating_penalty, 10.0,
+               "Penalty to add to worst rating for noise");
+
   // Use class variables to hold onto built-in templates and adapted templates.
-  INT_TEMPLATES PreTrainedTemplates;
-  ADAPT_TEMPLATES AdaptedTemplates;
+  INT_TEMPLATES PreTrainedTemplates = nullptr;
+  ADAPT_TEMPLATES AdaptedTemplates = nullptr;
   // The backup adapted templates are created from the previous page (only)
   // so they are always ready and reasonably well trained if the primary
   // adapted templates become full.
-  ADAPT_TEMPLATES BackupAdaptedTemplates;
+  ADAPT_TEMPLATES BackupAdaptedTemplates = nullptr;
 
   // Create dummy proto and config masks for use with the built-in templates.
-  BIT_VECTOR AllProtosOn;
-  BIT_VECTOR AllConfigsOn;
-  BIT_VECTOR AllConfigsOff;
-  BIT_VECTOR TempProtoMask;
-  bool EnableLearning;
+  BIT_VECTOR AllProtosOn = nullptr;
+  BIT_VECTOR AllConfigsOn = nullptr;
+  BIT_VECTOR AllConfigsOff = nullptr;
+  BIT_VECTOR TempProtoMask = nullptr;
   /* normmatch.cpp */
-  NORM_PROTOS *NormProtos;
+  NORM_PROTOS* NormProtos = nullptr;
   /* font detection ***********************************************************/
   UnicityTable<FontInfo> fontinfo_table_;
   // Without shape training, each class_id, config pair represents a single
@@ -535,13 +535,6 @@ class Classify : public CCStruct {
   // font combinations that the shape represents.
   UnicityTable<FontSet> fontset_table_;
 
-  INT_VAR_H(il1_adaption_test, 0, "Don't adapt to i/I at beginning of word");
-  BOOL_VAR_H(classify_bln_numeric_mode, 0,
-             "Assume the input is numbers [0-9].");
-  double_VAR_H(speckle_large_max_size, 0.30, "Max large speckle size");
-  double_VAR_H(speckle_rating_penalty, 10.0,
-               "Penalty to add to worst rating for noise");
-
  protected:
   IntegerMatcher im_;
   FEATURE_DEFS_STRUCT feature_defs_;
@@ -549,18 +542,24 @@ class Classify : public CCStruct {
   // ExpandShapesAndApplyCorrections. font_ids referenced by configs actually
   // mean an index to the shape_table_ and the choices returned are *all* the
   // shape_table_ entries at that index.
-  ShapeTable* shape_table_;
+  ShapeTable* shape_table_ = nullptr;
 
  private:
-  Dict dict_;
   // The currently active static classifier.
-  ShapeClassifier* static_classifier_;
-
-  /* variables used to hold performance statistics */
-  int NumAdaptationsFailed;
+  ShapeClassifier* static_classifier_ = nullptr;
+  ScrollView* learn_debug_win_ = nullptr;
+  ScrollView* learn_fragmented_word_debug_win_ = nullptr;
+  ScrollView* learn_fragments_debug_win_ = nullptr;
 
   // Training data gathered here for all the images in a document.
   STRING tr_file_data_;
+
+  Dict dict_;
+
+  GenericVector<uint16_t> shapetable_cutoffs_;
+
+  /* variables used to hold performance statistics */
+  int NumAdaptationsFailed = 0;
 
   // Expected number of features in the class pruner, used to penalize
   // unknowns that have too few features (like a c being classified as e) so
@@ -572,10 +571,9 @@ class Classify : public CCStruct {
   // shape_table_
   uint16_t CharNormCutoffs[MAX_NUM_CLASSES];
   uint16_t BaselineCutoffs[MAX_NUM_CLASSES];
-  GenericVector<uint16_t> shapetable_cutoffs_;
-  ScrollView* learn_debug_win_;
-  ScrollView* learn_fragmented_word_debug_win_;
-  ScrollView* learn_fragments_debug_win_;
+
+ public:
+  bool EnableLearning = true;
 };
 }  // namespace tesseract
 

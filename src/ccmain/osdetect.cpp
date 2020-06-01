@@ -21,7 +21,7 @@
 #include <cmath>        // for std::fabs
 #include <memory>
 
-#include "osdetect.h"
+#include <tesseract/osdetect.h>
 
 #include "blobbox.h"
 #include "blread.h"
@@ -32,7 +32,7 @@
 #include "oldlist.h"
 #include "qrsequence.h"
 #include "ratngs.h"
-#include "strngs.h"
+#include <tesseract/strngs.h>
 #include "tabvector.h"
 #include "tesseractclass.h"
 #include "textord.h"
@@ -105,7 +105,7 @@ void OSResults::update_best_script(int orientation) {
       second = scripts_na[orientation][i];
     }
   }
-  best_result.sconfidence =
+  best_result.sconfidence = (second == 0.0f) ? 2.0f :
       (first / second - 1.0) / (kScriptAcceptRatio - 1.0);
 }
 
@@ -194,9 +194,9 @@ int orientation_and_script_detection(STRING& filename,
   const char *lastdot;           //of name
   TBOX page_box;
 
-  lastdot = strrchr (name.string (), '.');
+  lastdot = strrchr(name.c_str(), '.');
   if (lastdot != nullptr)
-    name[lastdot-name.string()] = '\0';
+    name[lastdot-name.c_str()] = '\0';
 
   ASSERT_HOST(tess->pix_binary() != nullptr);
   int width = pixGetWidth(tess->pix_binary());

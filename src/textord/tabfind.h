@@ -2,7 +2,6 @@
 // File:        tabfind.h
 // Description: Subclass of BBGrid to find tabstops.
 // Author:      Ray Smith
-// Created:     Fri Mar 21 15:03:01 PST 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +19,8 @@
 #ifndef TESSERACT_TEXTORD_TABFIND_H_
 #define TESSERACT_TEXTORD_TABFIND_H_
 
+#include <functional>           // for std::function
 #include "alignedblob.h"
-#include "tesscallback.h"
 #include "tabvector.h"
 #include "linefind.h"
 
@@ -33,7 +32,7 @@ struct Pix;
 
 namespace tesseract {
 
-using WidthCallback = TessResultCallback1<bool, int>;
+using WidthCallback = std::function<bool(int)>;
 
 struct AlignedBlobParams;
 class ColPartitionGrid;
@@ -155,7 +154,7 @@ class TabFind : public AlignedBlob {
   /**
    * Return a callback for testing CommonWidth.
    */
-  WidthCallback* WidthCB() {
+  WidthCallback WidthCB() {
     return width_cb_;
   }
 
@@ -374,7 +373,7 @@ class TabFind : public AlignedBlob {
   // List of commonly occurring width ranges with x=min and y=max.
   ICOORDELT_LIST column_widths_;  ///< List of commonly occurring width ranges.
   /** Callback to test an int for being a common width. */
-  WidthCallback* width_cb_;
+  WidthCallback width_cb_;
   // Sets of bounding boxes that are candidate tab stops.
   GenericVector<BLOBNBOX*> left_tab_boxes_;
   GenericVector<BLOBNBOX*> right_tab_boxes_;

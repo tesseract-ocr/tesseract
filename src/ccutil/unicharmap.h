@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCUTIL_UNICHARMAP_H_
 #define TESSERACT_CCUTIL_UNICHARMAP_H_
 
-#include "unichar.h"
+#include <tesseract/unichar.h>
 
 // A UNICHARMAP stores unique unichars. Each of them is associated with one
 // UNICHAR_ID.

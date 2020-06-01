@@ -1,7 +1,7 @@
 /**********************************************************************
  * File:        oldbasel.cpp  (Formerly oldbl.c)
  * Description: A re-implementation of the old baseline algorithm.
- * Author:    Ray Smith
+ * Author:      Ray Smith
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,24 +34,22 @@
 
 #include <algorithm>
 
-#define EXTERN
-
-EXTERN BOOL_VAR (textord_really_old_xheight, false,
+static BOOL_VAR (textord_really_old_xheight, false,
 "Use original wiseowl xheight");
-EXTERN BOOL_VAR (textord_oldbl_debug, false, "Debug old baseline generation");
-EXTERN BOOL_VAR (textord_debug_baselines, false, "Debug baseline generation");
-EXTERN BOOL_VAR (textord_oldbl_paradef, true, "Use para default mechanism");
-EXTERN BOOL_VAR (textord_oldbl_split_splines, true, "Split stepped splines");
-EXTERN BOOL_VAR (textord_oldbl_merge_parts, true, "Merge suspect partitions");
-EXTERN BOOL_VAR (oldbl_corrfix, true, "Improve correlation of heights");
-EXTERN BOOL_VAR (oldbl_xhfix, false,
+BOOL_VAR (textord_oldbl_debug, false, "Debug old baseline generation");
+static BOOL_VAR (textord_debug_baselines, false, "Debug baseline generation");
+static BOOL_VAR (textord_oldbl_paradef, true, "Use para default mechanism");
+static BOOL_VAR (textord_oldbl_split_splines, true, "Split stepped splines");
+static BOOL_VAR (textord_oldbl_merge_parts, true, "Merge suspect partitions");
+static BOOL_VAR (oldbl_corrfix, true, "Improve correlation of heights");
+static BOOL_VAR (oldbl_xhfix, false,
 "Fix bug in modes threshold for xheights");
-EXTERN BOOL_VAR(textord_ocropus_mode, false, "Make baselines for ocropus");
-EXTERN double_VAR (oldbl_xhfract, 0.4, "Fraction of est allowed in calc");
-EXTERN INT_VAR (oldbl_holed_losscount, 10,
+static BOOL_VAR(textord_ocropus_mode, false, "Make baselines for ocropus");
+static double_VAR (oldbl_xhfract, 0.4, "Fraction of est allowed in calc");
+static INT_VAR (oldbl_holed_losscount, 10,
 "Max lost before fallback line used");
-EXTERN double_VAR (oldbl_dot_error_size, 1.26, "Max aspect ratio of a dot");
-EXTERN double_VAR (textord_oldbl_jumplimit, 0.15,
+static double_VAR (oldbl_dot_error_size, 1.26, "Max aspect ratio of a dot");
+static double_VAR (textord_oldbl_jumplimit, 0.15,
 "X fraction for new partition");
 
 #define TURNLIMIT          1     /*min size for turning point */
@@ -65,9 +63,6 @@ EXTERN double_VAR (textord_oldbl_jumplimit, 0.15,
 #define MAXOVERLAP         0.1   /*max 10% missed overlap */
 #define MAXBADRUN          2     /*max non best for failed */
 #define HEIGHTBUCKETS      200   /* Num of buckets */
-#define DELTAHEIGHT        5.0   /* Small amount of diff */
-#define GOODHEIGHT         5
-#define MAXLOOPS           10
 #define MODENUM            10
 #define MAXPARTS      6
 #define SPLINESIZE      23

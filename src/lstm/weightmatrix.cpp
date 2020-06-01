@@ -41,7 +41,7 @@ const double kAdamEpsilon = 1e-8;
 // W.dim1() - skip_bias_back.
 // If add_bias_fwd, u is imagined to have an extra element at the end with value
 // 1, to implement the bias, weight.
-// If skip_bias_back, we are actullay performing the backwards product on a
+// If skip_bias_back, we are actually performing the backwards product on a
 // transposed matrix, so we need to drop the v output corresponding to the last
 // element in dim1.
 static inline void MatrixDotVectorInternal(const GENERIC_2D_ARRAY<double>& w,

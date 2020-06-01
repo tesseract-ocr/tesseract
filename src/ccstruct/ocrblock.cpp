@@ -22,8 +22,6 @@
 #include "stepblob.h"
 #include "tprintf.h"
 
-#define BLOCK_LABEL_HEIGHT  150  //char height of block id
-
 ELISTIZE (BLOCK)
 /**
  * BLOCK::BLOCK
@@ -46,7 +44,6 @@ BLOCK::BLOCK(const char *name,                ///< filename
   ICOORDELT_IT right_it = &pdblk.rightside;
 
   proportional = prop;
-  right_to_left_ = false;
   kerning = kern;
   spacing = space;
   font_class = -1;               //not assigned
@@ -201,7 +198,7 @@ void BLOCK::print(            //print list of sides
   tprintf ("Kerning= %d\n", kerning);
   tprintf ("Spacing= %d\n", spacing);
   tprintf ("Fixed_pitch=%d\n", pitch);
-  tprintf ("Filename= %s\n", filename.string ());
+  tprintf ("Filename= %s\n", filename.c_str ());
 
   if (dump) {
     tprintf ("Left side coords are:\n");

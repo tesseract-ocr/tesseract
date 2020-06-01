@@ -24,7 +24,7 @@
 #include <cmath>               // for std::ceil, std::floor
 #include <cstdint>             // for INT16_MAX
 #include <cstdio>              // for FILE
-#include "platform.h"          // for DLLSYM
+#include <tesseract/platform.h>          // for DLLSYM
 #include "points.h"            // for ICOORD, FCOORD
 #include "scrollview.h"        // for ScrollView, ScrollView::Color
 #include "tprintf.h"           // for tprintf

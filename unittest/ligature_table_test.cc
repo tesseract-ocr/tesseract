@@ -1,9 +1,19 @@
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "tesseract/training/ligature_table.h"
-
-#include "tesseract/training/commandlineflags.h"
-#include "tesseract/training/fileio.h"
-#include "tesseract/training/pango_font_info.h"
+#include "commandlineflags.h"
+#include "fileio.h"
+#include "include_gunit.h"
+#include "ligature_table.h"
+#include "pango_font_info.h"
 
 DECLARE_STRING_PARAM_FLAG(fonts_dir);
 DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
@@ -24,11 +34,16 @@ const char kRenderableEngLigatureText[] = "ﬁdelity efﬁgy ſteep";
 
 class LigatureTableTest : public ::testing::Test {
  protected:
+ void SetUp() override {
+    static std::locale system_locale("");
+    std::locale::global(system_locale);
+    lig_table_ = LigatureTable::Get();
+  }
+
   static void SetUpTestCase() {
-    FLAGS_fonts_dir = File::JoinPath(FLAGS_test_srcdir, "testdata");
+    FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
   }
-  void SetUp() { lig_table_ = LigatureTable::Get(); }
   LigatureTable* lig_table_;
 };
 
@@ -45,6 +60,8 @@ TEST_F(LigatureTableTest, DoesAddLigatures) {
 TEST_F(LigatureTableTest, DoesAddLigaturesWithSupportedFont) {
   PangoFontInfo font;
   EXPECT_TRUE(font.ParseFontDescriptionName("Verdana"));
+printf("1:%s\n", kRenderableEngLigatureText);
+printf("2:%s\n", lig_table_->AddLigatures(kEngNonLigatureText, &font).c_str());
   EXPECT_STREQ(kRenderableEngLigatureText,
                lig_table_->AddLigatures(kEngNonLigatureText, &font).c_str());
 }
@@ -66,7 +83,7 @@ TEST_F(LigatureTableTest, TestCustomLigatures) {
       "act",       "a\uE003", "publiſh",    "publi\uE006", "ſince",
       "\uE007nce", "aſleep",  "a\uE008eep", "neceſſary",   "nece\uE009ary",
   };
-  for (int i = 0; i < ARRAYSIZE(kTestCases); i += 2) {
+  for (size_t i = 0; i < ARRAYSIZE(kTestCases); i += 2) {
     EXPECT_STREQ(kTestCases[i + 1],
                  lig_table_->AddLigatures(kTestCases[i], nullptr).c_str());
     EXPECT_STREQ(kTestCases[i],
@@ -82,7 +99,7 @@ TEST_F(LigatureTableTest, TestRemovesCustomLigatures) {
       "ﬁ\uE003ion",
       "ﬁction",
   };
-  for (int i = 0; i < ARRAYSIZE(kTestCases); i += 3) {
+  for (size_t i = 0; i < ARRAYSIZE(kTestCases); i += 3) {
     EXPECT_STREQ(kTestCases[i + 1],
                  lig_table_->AddLigatures(kTestCases[i], nullptr).c_str());
     EXPECT_STREQ(kTestCases[i + 2],

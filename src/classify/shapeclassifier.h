@@ -23,7 +23,7 @@
 #ifndef TESSERACT_CLASSIFY_SHAPECLASSIFIER_H_
 #define TESSERACT_CLASSIFY_SHAPECLASSIFIER_H_
 
-#include "unichar.h"
+#include <tesseract/unichar.h>
 
 template <typename T> class GenericVector;
 struct Pix;

@@ -13,8 +13,8 @@
 #include "matrix.h"
 #include "pageres.h"
 #include "ratngs.h"
-#include "genericvector.h"
-#include "helpers.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/helpers.h>
 #include "unicharcompress.h"
 #include "normstrngs.h"
 #include "unicharset_training_utils.h"
@@ -69,6 +69,10 @@ const float kVi2ndScores[] = {0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
 
 class RecodeBeamTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   RecodeBeamTest() : lstm_dict_(&ccutil_) {}
   ~RecodeBeamTest() { lstm_dict_.End(); }
 
@@ -78,13 +82,10 @@ class RecodeBeamTest : public ::testing::Test {
                                                 "radical-stroke.txt");
     std::string unicharset_file =
         file::JoinPath(TESTDATA_DIR, unicharset_name);
-    std::string uni_data;
-    CHECK_OK(file::GetContents(unicharset_file, &uni_data, file::Defaults()));
     std::string radical_data;
     CHECK_OK(file::GetContents(radical_stroke_file, &radical_data,
                                file::Defaults()));
-    CHECK(ccutil_.unicharset.load_from_inmemory_file(uni_data.data(),
-                                                     uni_data.size()));
+    CHECK(ccutil_.unicharset.load_from_file(unicharset_file.c_str()));
     unichar_null_char_ = ccutil_.unicharset.has_special_codes()
                              ? UNICHAR_BROKEN
                              : ccutil_.unicharset.size();
@@ -153,7 +154,7 @@ class RecodeBeamTest : public ::testing::Test {
                 !recoder_.IsValidFirstCode(labels[index])));
       EXPECT_NE(INVALID_UNICHAR_ID, uni_id)
           << "index=" << index << "/" << labels.size();
-		  // To the extent of truth_utf8, we expect decoded to match, but if
+      // To the extent of truth_utf8, we expect decoded to match, but if
       // transcription is shorter, that is OK too, as we may just be testing
       // that we get a valid sequence when padded with random data.
       if (uni_id != unichar_null_char_ && decoded.size() < truth_utf8.size())
@@ -196,10 +197,10 @@ class RecodeBeamTest : public ::testing::Test {
         const WERD_RES* word = (*words)[w];
         if (w_decoded.size() < truth_utf8.size()) {
           if (!w_decoded.empty() && word->word->space()) w_decoded += " ";
-          w_decoded += word->best_choice->unichar_string().string();
+          w_decoded += word->best_choice->unichar_string().c_str();
         }
         LOG(INFO) << absl::StrFormat("Word:%d = %s, c=%g, r=%g, perm=%d", w,
-                                  word->best_choice->unichar_string().string(),
+                                  word->best_choice->unichar_string().c_str(),
                                   word->best_choice->certainty(),
                                   word->best_choice->rating(),
                                   word->best_choice->permuter()) << "\n";
@@ -338,8 +339,8 @@ class RecodeBeamTest : public ::testing::Test {
     return outputs;
   }
   UnicharCompress recoder_;
-  int unichar_null_char_;
-  int encoded_null_char_;
+  int unichar_null_char_ = 0;
+  int encoded_null_char_ = 0;
   CCUtil ccutil_;
   Dict lstm_dict_;
 };
@@ -463,7 +464,7 @@ TEST_F(RecodeBeamTest, DISABLED_ChiDictionary) {
                                      SYSTEM_DAWG_PERM};
   EXPECT_EQ(kNumWords, words.size());
   for (int w = 0; w < kNumWords && w < words.size(); ++w) {
-    EXPECT_STREQ(kWords[w], words[w]->best_choice->unichar_string().string());
+    EXPECT_STREQ(kWords[w], words[w]->best_choice->unichar_string().c_str());
     EXPECT_EQ(kWordPerms[w], words[w]->best_choice->permuter());
   }
 }

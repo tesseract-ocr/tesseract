@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        edgloop.cpp  (Formerly edgeloop.c)
  * Description: Functions to clean up an outline before approximation.
- * Author:					Ray Smith
- * Created:					Tue Mar 26 16:56:25 GMT 1991
+ * Author:      Ray Smith
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +16,8 @@
  *
  **********************************************************************/
 
-#include          "scanedg.h"
-#include          "drawedg.h"
-#include          "edgloop.h"
+#include "scanedg.h"
+#include "edgloop.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -72,7 +70,7 @@ ScrollView::Color check_path_legal(                  //certify outline
   int32_t length;                  //length of loop
   int32_t chainsum;                //sum of chain diffs
   CRACKEDGE *edgept;             //current point
-  const ERRCODE ED_ILLEGAL_SUM = "Illegal sum of chain codes";
+  constexpr ERRCODE ED_ILLEGAL_SUM("Illegal sum of chain codes");
 
   length = 0;
   chainsum = 0;                  //sum of chain codes

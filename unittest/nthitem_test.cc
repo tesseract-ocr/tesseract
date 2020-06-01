@@ -9,7 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 #include "kdpair.h"
 
 #include "include_gunit.h"
@@ -20,6 +20,11 @@ int test_data[] = {8, 1, 2, -4, 7, 9, 65536, 4, 9, 0, -32767, 6, 7};
 
 // The fixture for testing GenericHeap and DoublePtr.
 class NthItemTest : public testing::Test {
+ protected:
+  void SetUp() override {
+    std::locale::global(std::locale(""));
+  }
+
  public:
   virtual ~NthItemTest();
   // Pushes the test data onto the KDVector.

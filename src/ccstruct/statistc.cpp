@@ -26,7 +26,7 @@
 #include <cmath>
 #include <cstdlib>
 #include "errcode.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "scrollview.h"
 #include "tprintf.h"
 
@@ -46,12 +46,6 @@ STATS::STATS(int32_t min_bucket_value, int32_t max_bucket_value_plus_1) {
   rangemax_ = max_bucket_value_plus_1;
   buckets_ = new int32_t[rangemax_ - rangemin_];
   clear();
-}
-
-STATS::STATS() {
-  rangemax_ = 0;
-  rangemin_ = 0;
-  buckets_ = nullptr;
 }
 
 /**********************************************************************

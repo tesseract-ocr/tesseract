@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/******************************************************************************
  *
  * File:         oldlist.h  (Formerly list.h)
  * Description:  List processing procedures declarations.
@@ -16,13 +15,13 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- ********************************************************************************
+ ******************************************************************************
  *
  * This file contains the interface for a set of general purpose list
  * manipulation routines.  For the implementation of these routines see
  * the file "list.c".
  *
- ********************************************************************************
+ ******************************************************************************
  *
  *                            INDEX
  *                           =======
@@ -67,14 +66,14 @@
                   T y p e s
 ----------------------------------------------------------------------*/
 
-#define NIL_LIST ((LIST) nullptr)
+#define NIL_LIST static_cast<LIST>(nullptr)
 
 using int_compare = int (*)(void*, void*);
 using void_dest = void (*)(void*);
 
 struct list_rec {
-  struct list_rec* node;
-  struct list_rec* next;
+  list_rec* node;
+  list_rec* next;
 };
 using LIST = list_rec*;
 
@@ -93,15 +92,6 @@ using LIST = list_rec*;
  **********************************************************************/
 
 #define iterate(l) for (; (l) != NIL_LIST; (l) = list_rest(l))
-
-/**********************************************************************
- * p u s h   o n
- *
- * Add a cell onto the front of a list.  The list given as an input
- * parameter is modified.
- **********************************************************************/
-
-#define push_on(list, thing) ((list) = push(list, (LIST)(thing)))
 
 /**********************************************************************
  *  s e t   r e s t

@@ -2,7 +2,6 @@
  * File:        tordmain.cpp  (Formerly textordp.c)
  * Description: C++ top level textord code.
  * Author:      Ray Smith
- * Created:     Tue Jul 28 17:12:33 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +16,7 @@
  *
  **********************************************************************/
 
+#define _USE_MATH_DEFINES       // for M_PI
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
@@ -34,7 +34,7 @@
 #include "drawtord.h"           // for plot_box_list, to_win, create_to_win
 #include "edgblob.h"            // for extract_edges
 #include "errcode.h"            // for set_global_loc_code, ASSERT_HOST, LOC...
-#include "genericvector.h"      // for PointerVector, GenericVector
+#include <tesseract/genericvector.h>      // for PointerVector, GenericVector
 #include "makerow.h"            // for textord_test_x, textord_test_y, texto...
 #include "morph.h"              // for L_BOUNDARY_BG
 #include "ocrblock.h"           // for BLOCK_IT, BLOCK, BLOCK_LIST (ptr only)
@@ -135,7 +135,7 @@ void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
   }
   pixDestroy(&dist_pix);
   // Store the horizontal and vertical width in the blob, keeping both
-  // widths if there is enough information, otherwse only the one with
+  // widths if there is enough information, otherwise only the one with
   // the most samples.
   // If there are insufficient samples, store zero, rather than using
   // 2*area/perimeter, as the numbers that gives do not match the numbers

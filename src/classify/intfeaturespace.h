@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 #define TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 #include "intproto.h"
 
 // Extent of x,y,theta in the input feature space. [0,255].

@@ -11,7 +11,7 @@
 # limitations under the License.
 #
 # For a detailed description of the phases, see
-# https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
+# https://tesseract-ocr.github.io/tessdoc/Training-Tesseract.html.
 #
 
 import argparse
@@ -55,6 +55,16 @@ class TrainingArgs(argparse.Namespace):
         self.run_shape_clustering = False
         self.extract_font_properties = True
         self.distort_image = False
+
+    def __eq__(self, other):
+        return (argparse.Namespace.__eq__(self, other) and
+        self.uname == other.uname and self.lang_code == other.lang_code and
+        self.timestamp == other.timestamp and self.font_config_cache == other.font_config_cache and
+        self.fonts_dir == other.fonts_dir and self.max_pages == other.max_pages and
+        self.save_box_tiff == other.save_box_tiff and self.overwrite == other.overwrite and
+        self.linedata == other.linedata and self.run_shape_clustering == other.run_shape_clustering and
+        self.extract_font_properties == other.extract_font_properties and
+        self.distort_image == other.distort_image)
 
 
 def err_exit(msg):
@@ -226,7 +236,7 @@ def parse_flags(argv=None):
         ctx.output_dir = mkdtemp(prefix=f"trained-{ctx.lang_code}-{ctx.timestamp}")
         log.info(f"Output directory set to: {ctx.output_dir}")
 
-    # Location where intermediate files will be created.       
+    # Location where intermediate files will be created.
     if not ctx.tmp_dir:
         ctx.training_dir = mkdtemp(prefix=f"{ctx.lang_code}-{ctx.timestamp}")
     else:
@@ -356,7 +366,7 @@ def generate_font_image(ctx, font, exposure, char_spacing):
 
 
 # Phase I : Generate (I)mages from training text for each font.
-def phase_I_generate_image(ctx, par_factor):
+def phase_I_generate_image(ctx, par_factor=None):
     if not par_factor or par_factor <= 0:
         par_factor = 1
 
@@ -370,7 +380,7 @@ def phase_I_generate_image(ctx, par_factor):
             # for tesseract to recognize during training. Take only the ngrams whose
             # combined weight accounts for 95% of all the bigrams in the language.
             lines = pathlib.Path(ctx.bigram_freqs_file).read_text(encoding="utf-8").split("\n")
-            records = (line.split(" ") for line in lines)
+            records = (line.split() for line in lines)
             p = 0.99
             ngram_frac = p * sum(int(rec[1]) for rec in records if len(rec) >= 2)
 
@@ -386,7 +396,7 @@ def phase_I_generate_image(ctx, par_factor):
 
         with tqdm(
                 total=len(ctx.fonts)
-        ) as pbar, concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+        ) as pbar, concurrent.futures.ThreadPoolExecutor(max_workers=par_factor) as executor:
             futures = [
                 executor.submit(generate_font_image, ctx, font, exposure, char_spacing)
                 for font in ctx.fonts
@@ -480,7 +490,7 @@ def phase_UP_generate_unicharset(ctx):
 
 #     # Punctuation DAWG
 #     # -r arguments to wordlist2dawg denote RTL reverse policy
-#     # (see Trie::RTLReversePolicy enum in third_party/tesseract/dict/trie.h).
+#     # (see Trie::RTLReversePolicy enum in tesseract/src/dict/trie.h).
 #     # We specify 0/RRP_DO_NO_REVERSE when generating number DAWG,
 #     # 1/RRP_REVERSE_IF_HAS_RTL for freq and word DAWGS,
 #     # 2/RRP_FORCE_REVERSE for the punctuation DAWG.

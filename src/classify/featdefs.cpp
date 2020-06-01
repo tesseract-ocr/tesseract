@@ -18,21 +18,21 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 #include "featdefs.h"
-#include "emalloc.h"
-#include "scanutils.h"
-
 #include <cstring>
 #include <cstdio>
+#include "emalloc.h"
+#include "picofeat.h"  // for PicoFeatureLength
+#include "scanutils.h"
 
 #define PICO_FEATURE_LENGTH 0.05
 
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 -----------------------------------------------------------------------------*/
-const char* kMicroFeatureType = "mf";
-const char* kCNFeatureType = "cn";
-const char* kIntFeatureType = "if";
-const char* kGeoFeatureType = "tb";
+const char* const kMicroFeatureType = "mf";
+const char* const kCNFeatureType = "cn";
+const char* const kIntFeatureType = "if";
+const char* const kGeoFeatureType = "tb";
 
 // Define all of the parameters for the MicroFeature type.
 StartParamDesc(MicroFeatureParams)

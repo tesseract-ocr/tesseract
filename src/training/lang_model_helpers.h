@@ -16,9 +16,9 @@
 #define TESSERACT_TRAINING_LANG_MODEL_HELPERS_H_
 
 #include <string>
-#include "genericvector.h"
-#include "serialis.h"
-#include "strngs.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/serialis.h>
+#include <tesseract/strngs.h>
 #include "tessdatamanager.h"
 #include "unicharset.h"
 

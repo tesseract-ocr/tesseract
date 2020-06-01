@@ -2,7 +2,6 @@
 // File:        pgedit.h
 // Description: Page structure file editor
 // Author:      Joern Wanke
-// Created:     Wed Jul 18 10:05:01 PDT 2007
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,14 +65,5 @@ extern INT_VAR_H (editor_word_ypos, 510, "Word window Y Pos");
 extern INT_VAR_H (editor_word_height, 240, "Word window height");
 extern INT_VAR_H (editor_word_width, 655, "Word window width");
 extern double_VAR_H (editor_smd_scale_factor, 1.0, "Scaling for smd image");
-
-ScrollView* bln_word_window_handle();  //return handle
-void build_image_window(int width, int height);
-void pgeditor_msg(  //message display
-                  const char *msg);
-void pgeditor_show_point(  //display coords
-                         SVEvent *event);
-                                 //put bln word in       box
-void show_point(PAGE_RES* page_res, float x, float y);
 
 #endif

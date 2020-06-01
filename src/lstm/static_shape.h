@@ -19,7 +19,7 @@
 #ifndef TESSERACT_LSTM_STATIC_SHAPE_H_
 #define TESSERACT_LSTM_STATIC_SHAPE_H_
 
-#include "serialis.h"   // for TFile
+#include <tesseract/serialis.h>   // for TFile
 #include "tprintf.h"    // for tprintf
 
 namespace tesseract {

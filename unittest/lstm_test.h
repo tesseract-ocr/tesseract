@@ -20,7 +20,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "tprintf.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 
 #include "functions.h"
 #include "lang_model_helpers.h"
@@ -45,6 +45,10 @@ const int kBatchIterations = 1;
 // The fixture for testing LSTMTrainer.
 class LSTMTrainerTest : public testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   LSTMTrainerTest() {}
   std::string TestDataNameToPath(const std::string& name) {
     return file::JoinPath(TESTDATA_DIR,
@@ -80,8 +84,7 @@ class LSTMTrainerTest : public testing::Test {
                                   nullptr, nullptr));
     std::string model_path = file::JoinPath(FLAGS_test_tmpdir, model_name);
     std::string checkpoint_path = model_path + "_checkpoint";
-    trainer_.reset(new LSTMTrainer(nullptr, nullptr, nullptr, nullptr,
-                                   model_path.c_str(), checkpoint_path.c_str(),
+    trainer_.reset(new LSTMTrainer(model_path.c_str(), checkpoint_path.c_str(),
                                    0, 0));
     trainer_->InitCharSet(file::JoinPath(FLAGS_test_tmpdir, kLang,
     absl::StrCat(kLang, ".traineddata")));
@@ -115,7 +118,7 @@ class LSTMTrainerTest : public testing::Test {
       trainer_->MaintainCheckpoints(nullptr, &log_str);
       iteration = trainer_->training_iteration();
       mean_error *= 100.0 / kBatchIterations;
-      LOG(INFO) << log_str.string();
+      LOG(INFO) << log_str.c_str();
       LOG(INFO) << "Best error = " << best_error << "\n" ;
       LOG(INFO) << "Mean error = " << mean_error << "\n" ;
       if (mean_error < best_error) best_error = mean_error;

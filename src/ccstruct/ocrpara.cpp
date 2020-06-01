@@ -2,7 +2,6 @@
 // File:        ocrpara.cpp
 // Description: OCR Paragraph Output Type
 // Author:      David Eger
-// Created:     2010-11-15
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -95,6 +94,6 @@ STRING ParagraphModel::ToString() const {
   const STRING &alignment = ParagraphJustificationToString(justification_);
   snprintf(buffer, sizeof(buffer),
            "margin: %d, first_indent: %d, body_indent: %d, alignment: %s",
-           margin_, first_indent_, body_indent_, alignment.string());
+           margin_, first_indent_, body_indent_, alignment.c_str());
   return STRING(buffer);
 }

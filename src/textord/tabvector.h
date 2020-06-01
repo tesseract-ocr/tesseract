@@ -2,7 +2,6 @@
 // File:        tabvector.h
 // Description: Class to hold a near-vertical vector representing a tab-stop.
 // Author:      Ray Smith
-// Created:     Thu Apr 10 16:25:01 PST 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -398,31 +397,31 @@ class TabVector : public ELIST2_LINK {
   // The top of the tab line.
   ICOORD endpt_;
   // The lowest y that the vector might extend to.
-  int extended_ymin_;
+  int extended_ymin_ = 0;
   // The highest y that the vector might extend to.
-  int extended_ymax_;
+  int extended_ymax_ = 0;
   // Perpendicular distance of vector from a given vertical for sorting.
-  int sort_key_;
+  int sort_key_ = 0;
   // Result of Evaluate 0-100. Coverage of line with good boxes.
-  int percent_score_;
+  int percent_score_ = 0;
   // The mean width of the blobs. Meaningful only for separator lines.
-  int mean_width_;
+  int mean_width_ = 0;
   // True if the boxes_ list has been modified, so a refit is needed.
-  bool needs_refit_;
+  bool needs_refit_ = false;
   // True if a fit has been done, so re-evaluation is needed.
-  bool needs_evaluation_;
+  bool needs_evaluation_ = false;
   // True if a separator line intersects at least 2 other lines.
-  bool intersects_other_lines_;
+  bool intersects_other_lines_ = false;
   // The type of this TabVector.
-  TabAlignment alignment_;
+  TabAlignment alignment_ = TA_LEFT_ALIGNED;
   // The list of boxes whose edges are aligned at this TabVector.
   BLOBNBOX_CLIST boxes_;
   // List of TabVectors that have a connection with this via a text line.
   TabVector_CLIST partners_;
   // Constraints used to resolve the exact location of the top and bottom
   // of the tab line.
-  TabConstraint_LIST* top_constraints_;
-  TabConstraint_LIST* bottom_constraints_;
+  TabConstraint_LIST* top_constraints_ = nullptr;
+  TabConstraint_LIST* bottom_constraints_ = nullptr;
 };
 
 }  // namespace tesseract.

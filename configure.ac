@@ -10,7 +10,11 @@ AC_INIT([tesseract],
         [m4_esyscmd_s([test -d .git && git describe --abbrev=4 || cat VERSION])],
         [https://github.com/tesseract-ocr/tesseract/issues],,
         [https://github.com/tesseract-ocr/tesseract/])
+
+# Store command like options for CXXFLAGS
+OLD_CXXFLAGS=$CXXFLAGS
 AC_PROG_CXX([g++ clang++])
+# reset compiler flags to initial flags
 AC_LANG([C++])
 AC_LANG_COMPILER_REQUIRE
 CXXFLAGS=${CXXFLAGS:-""}
@@ -99,7 +103,7 @@ case "${host_os}" in
         OPENCL_INC=""
         AM_CONDITIONAL([ADD_RT], false)
         ;;
-    *android*)
+    *android*|openbsd*)
         AM_CONDITIONAL([ADD_RT], false)
         ;;
     powerpc-*-darwin*)
@@ -111,31 +115,69 @@ case "${host_os}" in
         ;;
 esac
 
+WERROR=-Werror
+# The test code used by AX_CHECK_COMPILE_FLAG uses an empty statement
+# and unused macros which must not raise a compiler error, but it must
+# be an error if flags like -avx are ignored on ARM and other
+# architectures because they are unsupported.
+AX_CHECK_COMPILE_FLAG([-Werror=unused-command-line-argument], [WERROR=-Werror=unused-command-line-argument])
+
 ## Checks for supported compiler options.
-AM_CONDITIONAL([AVX_OPT], false)
-AM_CONDITIONAL([AVX2_OPT], false)
-AM_CONDITIONAL([SSE41_OPT], false)
-AM_CONDITIONAL([MARCH_NATIVE_OPT], false)
 
-AX_CHECK_COMPILE_FLAG([-mavx], [avx=true], [avx=false], [-Werror])
-if $avx; then
-    AM_CONDITIONAL([AVX_OPT], true)
-fi
+AM_CONDITIONAL([HAVE_AVX], false)
+AM_CONDITIONAL([HAVE_AVX2], false)
+AM_CONDITIONAL([HAVE_FMA], false)
+AM_CONDITIONAL([HAVE_SSE4_1], false)
+AM_CONDITIONAL([HAVE_NEON], false)
 
-AX_CHECK_COMPILE_FLAG([-mavx2], [avx2=true], [avx2=false], [-Werror])
-if $avx2; then
-    AM_CONDITIONAL([AVX2_OPT], true)
-fi
+case "${host_cpu}" in
 
-AX_CHECK_COMPILE_FLAG([-msse4.1], [sse41=true], [sse41=false], [-Werror])
-if $sse41; then
-    AM_CONDITIONAL([SSE41_OPT], true)
-fi
+  *86*)
 
-AX_CHECK_COMPILE_FLAG([-march=native], [arch_native=true], [arch_native=false], [-Werror])
-if $arch_native; then
-    AM_CONDITIONAL([MARCH_NATIVE_OPT], true)
-fi
+    AX_CHECK_COMPILE_FLAG([-mavx], [avx=true], [avx=false], [$WERROR])
+    AM_CONDITIONAL([HAVE_AVX], ${avx})
+    if $avx; then
+      AC_DEFINE([HAVE_AVX], [1], [Enable AVX instructions])
+    fi
+
+    AX_CHECK_COMPILE_FLAG([-mavx2], [avx2=true], [avx2=false], [$WERROR])
+    AM_CONDITIONAL([HAVE_AVX2], $avx2)
+    if $avx2; then
+      AC_DEFINE([HAVE_AVX2], [1], [Enable AVX2 instructions])
+    fi
+
+    AX_CHECK_COMPILE_FLAG([-mfma], [fma=true], [fma=false], [$WERROR])
+    AM_CONDITIONAL([HAVE_FMA], $fma)
+    if $fma; then
+      AC_DEFINE([HAVE_FMA], [1], [Enable FMA instructions])
+    fi
+
+    AX_CHECK_COMPILE_FLAG([-msse4.1], [sse41=true], [sse41=false], [$WERROR])
+    AM_CONDITIONAL([HAVE_SSE4_1], $sse41)
+    if $sse41; then
+      AC_DEFINE([HAVE_SSE4_1], [1], [Enable SSE 4.1 instructions])
+    fi
+
+    ;;
+
+  arm*)
+
+    AX_CHECK_COMPILE_FLAG([-mfpu=neon], [neon=true], [neon=false], [$WERROR])
+    AM_CONDITIONAL([HAVE_NEON], $neon)
+    if $neon; then
+      AC_DEFINE([HAVE_NEON], [1], [Enable NEON instructions])
+    fi
+
+    ;;
+
+  *)
+
+    AC_MSG_WARN([No compiler options for $host_cpu])
+
+esac
+
+AX_CHECK_COMPILE_FLAG([-march=native], [arch_native=true], [arch_native=false], [$WERROR])
+AM_CONDITIONAL([MARCH_NATIVE_OPT], $arch_native)
 
 AC_ARG_WITH([extra-includes],
             [AS_HELP_STRING([--with-extra-includes=DIR],
@@ -169,15 +211,8 @@ AC_ARG_ENABLE([legacy],
   AS_HELP_STRING([--disable-legacy], [disable the legacy OCR engine]))
 AC_MSG_RESULT([$enable_legacy])
 AM_CONDITIONAL([DISABLED_LEGACY_ENGINE], test "$enable_legacy" = "no")
-
-# check whether to build embedded version
-AC_MSG_CHECKING([--enable-embedded argument])
-AC_ARG_ENABLE([embedded],
-    AS_HELP_STRING([--enable-embedded], [enable embedded build [default=no]]))
-AC_MSG_RESULT([$enable_embedded])
-AM_CONDITIONAL([EMBEDDED], [test "$enable_embedded" = "yes"])
-if test "$enable_embedded" = "yes"; then
-  AM_CPPFLAGS="-DEMBEDDED $AM_CPPFLAGS"
+if test "$enable_legacy" = "no"; then
+  AC_DEFINE([DISABLED_LEGACY_ENGINE], [1], [Disable legacy OCR engine])
 fi
 
 # check whether to build OpenMP support
@@ -199,6 +234,25 @@ if test "$enable_opencl" = "yes"; then
     AC_CHECK_HEADERS(OpenCL/cl.h, [have_opencl=true], [have_opencl=false])
   ])
 fi
+
+# Check whether to build with support for TensorFlow.
+AC_ARG_WITH([tensorflow],
+  AS_HELP_STRING([--with-tensorflow],
+                 [support TensorFlow @<:@default=check@:>@]),
+  [], [with_tensorflow=check])
+AM_CONDITIONAL([TENSORFLOW], false)
+TENSORFLOW_LIBS=
+AS_IF([test "x$with_tensorflow" != xno],
+  [AC_CHECK_HEADERS(["tensorflow/core/framework/graph.pb.h"],
+    [AC_SUBST([TENSORFLOW_LIBS], ["-lprotobuf -ltensorflow_cc"])
+      AM_CONDITIONAL([TENSORFLOW], true)
+    ],
+    [if test "x$with_tensorflow" != xcheck; then
+      AC_MSG_FAILURE(
+        [--with-tensorflow was given, but test for libtensorflow-dev failed])
+     fi
+    ])
+  ])
 
 # https://lists.apple.com/archives/unix-porting/2009/Jan/msg00026.html
 m4_define([MY_CHECK_FRAMEWORK],
@@ -277,20 +331,40 @@ AC_ARG_ENABLE([tessdata-prefix],
 AC_MSG_RESULT([$tessdata_prefix])
 AM_CONDITIONAL([NO_TESSDATA_PREFIX], [test "$tessdata_prefix" = "no"])
 
+
+# Detect Clang compiler
+AC_MSG_CHECKING([if compiling with clang])
+AC_COMPILE_IFELSE(
+[AC_LANG_PROGRAM([], [[
+#ifndef __clang__
+       not clang
+#endif
+]])],
+[CLANG=yes], [CLANG=no])
+AC_MSG_RESULT([$CLANG])
+
 # Check whether to enable debugging
 AC_MSG_CHECKING([whether to enable debugging])
 AC_ARG_ENABLE([debug],
   AS_HELP_STRING([--enable-debug], [turn on debugging [default=no]]))
 AC_MSG_RESULT([$enable_debug])
 if test x"$enable_debug" = x"yes"; then
-    AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -O0 -DDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -DDEBUG"
+    CXXFLAGS=${CXXFLAGS:-"-O2"}
+    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -DDEBUG -pedantic"
+    AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -DDEBUG -pedantic"
+    if test "x$CLANG" = "xyes"; then
+        # https://clang.llvm.org/docs/CommandGuide/clang.html
+        # clang treats -Og as -O1
+        AM_CPPFLAGS="$AM_CPPFLAGS -O0"
+        AM_CXXFLAGS="$AM_CXXFLAGS -O0"
+    else
+        AM_CPPFLAGS="$AM_CPPFLAGS -Og"
+        AM_CXXFLAGS="$AM_CXXFLAGS -Og"
+    fi
 else
     AM_CXXFLAGS="$AM_CXXFLAGS -O2 -DNDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -DNDEBUG"
+    AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
 fi
-
-#localedir='${prefix}/share/locale'
 
 # Always look into a "gnu" directory.
 curwd=`pwd`
@@ -319,50 +393,30 @@ LT_INIT
 # ----------------------------------------
 # C++ related options
 # ----------------------------------------
-
-AC_MSG_CHECKING([if compiling with clang])
-AC_COMPILE_IFELSE(
-[AC_LANG_PROGRAM([], [[
-#ifndef __clang__
-       not clang
-#endif
-]])],
-[CLANG=yes], [CLANG=no])
-
-AC_MSG_RESULT([$CLANG])
-
 dnl **********************
 dnl Turn on C++11 or newer
 dnl **********************
 
 CPLUSPLUS=
-
-AX_CHECK_COMPILE_FLAG([-std=c++11], [cplusplus11=true], [cplusplus11=false], [-Werror])
-if $cplusplus11; then
-  CPLUSPLUS=11
-fi
-
-AX_CHECK_COMPILE_FLAG([-std=c++14], [cplusplus14=true], [cplusplus14=false], [-Werror])
-if $cplusplus14; then
-  CPLUSPLUS=14
-fi
+AX_CHECK_COMPILE_FLAG([-std=c++11], [CPLUSPLUS=11], [], [$WERROR])
+AX_CHECK_COMPILE_FLAG([-std=c++14], [CPLUSPLUS=14], [], [$WERROR])
+AX_CHECK_COMPILE_FLAG([-std=c++17], [CPLUSPLUS=17], [], [$WERROR])
+#AX_CHECK_COMPILE_FLAG([-std=c++20], [CPLUSPLUS=20], [], [$WERROR])
 
 if test -z "$CPLUSPLUS"; then
   AC_MSG_ERROR([Your compiler does not have the necessary C++11 support! Cannot proceed.])
 fi
 
-# Set C++11 or C++14 support based on platform/compiler
+# Set C++11, C++14 or C++17 support based on platform/compiler
 case "${host_os}" in
   cygwin*)
     CXXFLAGS="$CXXFLAGS -std=gnu++$CPLUSPLUS"
     ;;
   *-darwin* | *-macos10*)
-     if test "x$CLANG" = "xyes"; then
-       CXXFLAGS="$CXXFLAGS -std=c++$CPLUSPLUS"
-       LDFLAGS="$LDFLAGS -stdlib=libc++"
-     else
-       CXXFLAGS="$CXXFLAGS -std=c++$CPLUSPLUS"
-     fi
+    CXXFLAGS="$CXXFLAGS -std=c++$CPLUSPLUS"
+    if test "x$CLANG" = "xyes"; then
+      LDFLAGS="$LDFLAGS -stdlib=libc++"
+    fi
     ;;
   *)
     # default
@@ -415,6 +469,12 @@ AC_CHECK_TYPES([mbstate_t],,, [#include "wchar.h"])
 # Test auxiliary packages
 # ----------------------------------------
 
+PKG_CHECK_MODULES([libcurl], [libcurl], [have_libcurl=true], [have_libcurl=false])
+AM_CONDITIONAL([HAVE_LIBCURL], $have_libcurl)
+if $have_libcurl; then
+  AC_DEFINE([HAVE_LIBCURL], [1], [Enable libcurl])
+fi
+
 PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.74], [have_lept=true], [have_lept=false])
 if $have_lept; then
   CPPFLAGS="$CPPFLAGS $LEPTONICA_CFLAGS"
@@ -425,7 +485,8 @@ fi
 PKG_CHECK_MODULES([libarchive], [libarchive], [have_libarchive=true], [have_libarchive=false])
 AM_CONDITIONAL([HAVE_LIBARCHIVE], [$have_libarchive])
 if $have_libarchive; then
-  AC_DEFINE([HAVE_LIBARCHIVE], [], [Enable libarchive])
+  AC_DEFINE([HAVE_LIBARCHIVE], [1], [Enable libarchive])
+  CPPFLAGS="$CPPFLAGS $libarchive_CFLAGS"
 fi
 
 AM_CONDITIONAL([ENABLE_TRAINING], true)
@@ -434,12 +495,10 @@ AM_CONDITIONAL([ENABLE_TRAINING], true)
 PKG_CHECK_MODULES([ICU_UC], [icu-uc >= 52.1], [have_icu_uc=true], [have_icu_uc=false])
 PKG_CHECK_MODULES([ICU_I18N], [icu-i18n >= 52.1], [have_icu_i18n=true], [have_icu_i18n=false])
 if !($have_icu_uc && $have_icu_i18n); then
-  if !($have_icu); then
-        AC_MSG_WARN([icu 52.1 or higher is required, but was not found.])
-        AC_MSG_WARN([Training tools WILL NOT be built.])
-        AC_MSG_WARN([Try to install libicu-devel package.])
-        AM_CONDITIONAL([ENABLE_TRAINING], false)
-  fi
+  AC_MSG_WARN([icu 52.1 or higher is required, but was not found.])
+  AC_MSG_WARN([Training tools WILL NOT be built.])
+  AC_MSG_WARN([Try to install libicu-devel package.])
+  AM_CONDITIONAL([ENABLE_TRAINING], false)
 fi
 
 # Check location of pango headers
@@ -449,8 +508,6 @@ if !($have_pango); then
         AC_MSG_WARN([Training tools WILL NOT be built.])
         AC_MSG_WARN([Try to install libpango1.0-dev package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
-else
-      CPPFLAGS="$CPPFLAGS $pango_CFLAGS"
 fi
 
 # Check location of cairo headers
@@ -459,31 +516,18 @@ if !($have_cairo); then
         AC_MSG_WARN([Training tools WILL NOT be built because of missing cairo library.])
         AC_MSG_WARN([Try to install libcairo-dev?? package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
-else
-      CPPFLAGS="$CPPFLAGS $cairo_CFLAGS"
 fi
 
+PKG_CHECK_MODULES([pangocairo], [pangocairo], [], [false])
+PKG_CHECK_MODULES([pangoft2], [pangoft2], [], [false])
 
 # ----------------------------------------
 # Final Tasks and Output
 # ----------------------------------------
 
 # Output files
+AC_CONFIG_FILES([include/tesseract/version.h])
 AC_CONFIG_FILES([Makefile tesseract.pc])
-AC_CONFIG_FILES([src/api/Makefile])
-AC_CONFIG_FILES([src/api/tess_version.h])
-AC_CONFIG_FILES([src/arch/Makefile])
-AC_CONFIG_FILES([src/ccmain/Makefile])
-AC_CONFIG_FILES([src/opencl/Makefile])
-AC_CONFIG_FILES([src/ccstruct/Makefile])
-AC_CONFIG_FILES([src/ccutil/Makefile])
-AC_CONFIG_FILES([src/classify/Makefile])
-AC_CONFIG_FILES([src/cutil/Makefile])
-AC_CONFIG_FILES([src/dict/Makefile])
-AC_CONFIG_FILES([src/lstm/Makefile])
-AC_CONFIG_FILES([src/textord/Makefile])
-AC_CONFIG_FILES([src/viewer/Makefile])
-AC_CONFIG_FILES([src/wordrec/Makefile])
 AC_CONFIG_FILES([tessdata/Makefile])
 AC_CONFIG_FILES([tessdata/configs/Makefile])
 AC_CONFIG_FILES([tessdata/tessconfigs/Makefile])

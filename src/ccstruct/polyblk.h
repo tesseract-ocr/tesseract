@@ -18,7 +18,7 @@
 #ifndef POLYBLK_H
 #define POLYBLK_H
 
-#include "publictypes.h"
+#include <tesseract/publictypes.h>
 #include "elst.h"
 #include "points.h"
 #include "rect.h"

@@ -2,7 +2,6 @@
  * File:        paragraphs.cpp
  * Description: Paragraph detection for tesseract.
  * Author:      David Eger
- * Created:     25 February 2011
  *
  * (C) Copyright 2011, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,25 +24,25 @@
 #include <cstring>                // for strchr, strlen
 #include <algorithm>              // for max
 #include <memory>                 // for unique_ptr
-#include "genericvector.h"        // for GenericVector, GenericVectorEqEq
-#include "helpers.h"              // for UpdateRange, ClipToRange
+#include <tesseract/genericvector.h>        // for GenericVector, GenericVectorEqEq
+#include <tesseract/helpers.h>              // for UpdateRange, ClipToRange
 #include "host.h"                 // for NearlyEqual
 #include "mutableiterator.h"      // for MutableIterator
 #include "ocrblock.h"             // for BLOCK
 #include "ocrpara.h"              // for ParagraphModel, PARA, PARA_IT, PARA...
 #include "ocrrow.h"               // for ROW
-#include "pageiterator.h"         // for PageIterator
+#include <tesseract/pageiterator.h>         // for PageIterator
 #include "pageres.h"              // for PAGE_RES_IT, WERD_RES, ROW_RES, BLO...
 #include "paragraphs_internal.h"  // for RowScratchRegisters, SetOfModels
 #include "pdblock.h"              // for PDBLK
 #include "polyblk.h"              // for POLY_BLOCK
-#include "publictypes.h"          // for JUSTIFICATION_LEFT, JUSTIFICATION_R...
+#include <tesseract/publictypes.h>          // for JUSTIFICATION_LEFT, JUSTIFICATION_R...
 #include "ratngs.h"               // for WERD_CHOICE
 #include "rect.h"                 // for TBOX
 #include "statistc.h"             // for STATS
-#include "strngs.h"               // for STRING
+#include <tesseract/strngs.h>               // for STRING
 #include "tprintf.h"              // for tprintf
-#include "unichar.h"              // for UNICHAR, UNICHAR_ID
+#include <tesseract/unichar.h>              // for UNICHAR, UNICHAR_ID
 #include "unicharset.h"           // for UNICHARSET
 #include "unicodes.h"             // for kPDF, kRLE
 #include "werd.h"                 // for WERD, W_REP_CHAR
@@ -52,9 +51,9 @@ namespace tesseract {
 
 // Special "weak" ParagraphModels.
 const ParagraphModel *kCrownLeft
-    = reinterpret_cast<ParagraphModel *>(0xDEAD111F);
+    = reinterpret_cast<ParagraphModel *>(static_cast<uintptr_t>(0xDEAD111F));
 const ParagraphModel *kCrownRight
-    = reinterpret_cast<ParagraphModel *>(0xDEAD888F);
+    = reinterpret_cast<ParagraphModel *>(static_cast<uintptr_t>(0xDEAD888F));
 
 // Do the text and geometry of two rows support a paragraph break between them?
 static bool LikelyParagraphStart(const RowScratchRegisters &before,
@@ -126,8 +125,8 @@ static void PrintTable(const GenericVector<GenericVector<STRING> > &rows,
   for (int r = 0; r < rows.size(); r++) {
     for (int c = 0; c < rows[r].size(); c++) {
       if (c > 0)
-        tprintf("%s", colsep.string());
-      tprintf(col_width_patterns[c].string(), rows[r][c].string());
+        tprintf("%s", colsep.c_str());
+      tprintf(col_width_patterns[c].c_str(), rows[r][c].c_str());
     }
     tprintf("\n");
   }
@@ -178,7 +177,7 @@ static void PrintDetectorState(const ParagraphTheory &theory,
 
   tprintf("Active Paragraph Models:\n");
   for (int m = 0; m < theory.models().size(); m++) {
-    tprintf(" %d: %s\n", m + 1, theory.models()[m]->ToString().string());
+    tprintf(" %d: %s\n", m + 1, theory.models()[m]->ToString().c_str());
   }
 }
 
@@ -189,7 +188,7 @@ static void DebugDump(
     const GenericVector<RowScratchRegisters> &rows) {
   if (!should_print)
     return;
-  tprintf("# %s\n", phase.string());
+  tprintf("# %s\n", phase.c_str());
   PrintDetectorState(theory, rows);
 }
 
@@ -198,7 +197,7 @@ static void PrintRowRange(const GenericVector<RowScratchRegisters> &rows,
                           int row_start, int row_end) {
   tprintf("======================================\n");
   for (int row = row_start; row < row_end; row++) {
-    tprintf("%s\n", rows[row].ri_->text.string());
+    tprintf("%s\n", rows[row].ri_->text.c_str());
   }
   tprintf("======================================\n");
 }
@@ -248,7 +247,7 @@ static bool LikelyListNumeral(const STRING &word) {
   const char *kClose = "]})";
 
   int num_segments = 0;
-  const char *pos = word.string();
+  const char *pos = word.c_str();
   while (*pos != '\0' && num_segments < 3) {
     // skip up to two open parens.
     const char *numeral_start = SkipOne(SkipOne(pos, kOpen), kOpen);
@@ -868,8 +867,7 @@ struct GeometricClassifierState {
   GeometricClassifierState(int dbg_level,
                            GenericVector<RowScratchRegisters> *r,
                            int r_start, int r_end)
-      : debug_level(dbg_level), rows(r), row_start(r_start), row_end(r_end),
-        margin(0) {
+      : debug_level(dbg_level), rows(r), row_start(r_start), row_end(r_end) {
     tolerance = InterwordSpace(*r, r_start, r_end);
     CalculateTabStops(r, r_start, r_end, tolerance,
                       &left_tabs, &right_tabs);
@@ -938,20 +936,20 @@ struct GeometricClassifierState {
   }
 
   // We print out messages with a debug level at least as great as debug_level.
-  int debug_level;
+  int debug_level = 0;
 
   // The Geometric Classifier was asked to find a single paragraph model
   // to fit the text rows (*rows)[row_start, row_end)
   GenericVector<RowScratchRegisters> *rows;
-  int row_start;
-  int row_end;
+  int row_start = 0;
+  int row_end = 0;
 
   // The amount by which we expect the text edge can vary and still be aligned.
-  int tolerance;
+  int tolerance = 0;
 
   // Is the script in this text block left-to-right?
   // HORRIBLE ROUGH APPROXIMATION.  TODO(eger): Improve
-  bool ltr;
+  bool ltr = false;
 
   // These left and right tab stops were determined to be the common tab
   // stops for the given text.
@@ -959,13 +957,13 @@ struct GeometricClassifierState {
   GenericVector<Cluster> right_tabs;
 
   // These are parameters we must determine to create a ParagraphModel.
-  tesseract::ParagraphJustification just;
-  int margin;
-  int first_indent;
-  int body_indent;
+  tesseract::ParagraphJustification just = JUSTIFICATION_UNKNOWN;
+  int margin = 0;
+  int first_indent = 0;
+  int body_indent = 0;
 
   // eop_threshold > 0 if the text is fully justified.  See MarkRowsWithModel()
-  int eop_threshold;
+  int eop_threshold = 0;
 };
 
 // Given a section of text where strong textual clues did not help identifying
@@ -2491,8 +2489,8 @@ static void InitializeRowInfo(bool after_recognition,
   info->num_words = werds.size();
   if (!werds.empty()) {
     WERD_RES *lword = werds[0], *rword = werds[werds.size() - 1];
-    info->lword_text = lword->best_choice->unichar_string().string();
-    info->rword_text = rword->best_choice->unichar_string().string();
+    info->lword_text = lword->best_choice->unichar_string().c_str();
+    info->rword_text = rword->best_choice->unichar_string().c_str();
     info->lword_box = lword->word->bounding_box();
     info->rword_box = rword->word->bounding_box();
     LeftWordAttributes(lword->uch_set, lword->best_choice,

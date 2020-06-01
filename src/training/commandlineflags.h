@@ -62,6 +62,19 @@
 
 #endif
 
+// Flags from commontraining.cpp
+// Command line arguments for font_properties, xheights and unicharset.
+DECLARE_INT_PARAM_FLAG(debug_level);
+DECLARE_STRING_PARAM_FLAG(D);
+DECLARE_STRING_PARAM_FLAG(F);
+DECLARE_STRING_PARAM_FLAG(O);
+DECLARE_STRING_PARAM_FLAG(U);
+DECLARE_STRING_PARAM_FLAG(X);
+DECLARE_STRING_PARAM_FLAG(fonts_dir);
+DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
+DECLARE_STRING_PARAM_FLAG(output_trainer);
+DECLARE_STRING_PARAM_FLAG(test_ch);
+
 namespace tesseract {
 
 // Parse commandline flags and values. Prints the usage string and exits on

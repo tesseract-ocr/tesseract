@@ -23,7 +23,7 @@
 #include <cstdio>
 #include "elst.h"
 #include "errcode.h"            // for ASSERT_HOST
-#include "platform.h"           // for DLLSYM
+#include <tesseract/platform.h>           // for DLLSYM
 
 class FCOORD;
 

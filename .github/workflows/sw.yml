@@ -1,0 +1,23 @@
+name: sw
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macOS-latest]
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: egorpugin/sw-action@master
+
+    - name: build
+      if: matrix.os == 'windows-latest'
+      run: ./sw -static -shared -platform x86,x64 -config d,r build
+
+    - name: build
+      if: matrix.os != 'windows-latest'
+      run: ./sw -static -shared -config d,r build

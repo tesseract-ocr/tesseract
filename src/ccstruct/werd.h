@@ -23,7 +23,7 @@
 #include "elst2.h"
 #include "params.h"
 #include "stepblob.h"
-#include "strngs.h"
+#include <tesseract/strngs.h>
 
 enum WERD_FLAGS {
   W_SEGMENTED,           ///< correctly segmented
@@ -111,7 +111,7 @@ class WERD : public ELIST2_LINK {
   // Returns the bounding box of only the good blobs.
   TBOX true_bounding_box() const;
 
-  const char* text() const { return correct.string(); }
+  const char* text() const { return correct.c_str(); }
   void set_text(const char* new_text) { correct = new_text; }
 
   bool flag(WERD_FLAGS mask) const { return flags.bit(mask); }
@@ -171,11 +171,10 @@ class WERD : public ELIST2_LINK {
                            bool* make_next_word_fuzzy);
 
  private:
-  uint8_t blanks;          // no of blanks
-  uint8_t dummy;           // padding
+  uint8_t blanks = 0;      // no of blanks
   BITS16 flags;            // flags about word
   BITS16 disp_flags;       // display flags
-  int16_t script_id_;      // From unicharset.
+  int16_t script_id_ = 0;  // From unicharset.
   STRING correct;          // correct text
   C_BLOB_LIST cblobs;      // compacted blobs
   C_BLOB_LIST rej_cblobs;  // DUFF blobs

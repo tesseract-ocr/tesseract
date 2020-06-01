@@ -1,13 +1,9 @@
 /******************************************************************************
- **      Filename:    intfx.c
- **      Purpose:     Integer character normalization & feature extraction
- **      Author:      Robert Moss, rays@google.com (Ray Smith)
- **      History:     Tue May 21 15:51:57 MDT 1991, RWM, Created.
- **                   Tue Feb 28 10:42:00 PST 2012, vastly rewritten to allow
-                                                    greyscale fx and non-linear
-                                                    normalization.
+ ** Filename:    intfx.c
+ ** Purpose:     Integer character normalization & feature extraction
+ ** Author:      Robert Moss, rays@google.com (Ray Smith)
  **
- **      (c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -21,11 +17,14 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
+
+#define _USE_MATH_DEFINES       // for M_PI
 #include "intfx.h"
+#include <cmath>                // for M_PI
+#include <mutex>                // for std::mutex
 #include "allheaders.h"
-#include "ccutil.h"
 #include "classify.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "intmatcher.h"
 #include "linlsq.h"
 #include "normalis.h"
@@ -42,17 +41,16 @@ using tesseract::TrainingSample;
 // The entries are in binary degrees where a full circle is 256 binary degrees.
 static float cos_table[INT_CHAR_NORM_RANGE];
 static float sin_table[INT_CHAR_NORM_RANGE];
-// Guards write access to AtanTable so we don't create it more than once.
-tesseract::CCUtilMutex atan_table_mutex;
-
 
 /**----------------------------------------------------------------------------
             Public Code
 ----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
+
 void InitIntegerFX() {
+  // Guards write access to AtanTable so we don't create it more than once.
+  static std::mutex atan_table_mutex;
   static bool atan_table_init = false;
-  atan_table_mutex.Lock();
+  std::lock_guard<std::mutex> guard(atan_table_mutex);
   if (!atan_table_init) {
     for (int i = 0; i < INT_CHAR_NORM_RANGE; ++i) {
       cos_table[i] = cos(i * 2 * M_PI / INT_CHAR_NORM_RANGE + M_PI);
@@ -60,7 +58,6 @@ void InitIntegerFX() {
     }
     atan_table_init = true;
   }
-  atan_table_mutex.Unlock();
 }
 
 // Returns a vector representing the direction of a feature with the given

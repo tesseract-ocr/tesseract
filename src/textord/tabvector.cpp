@@ -2,7 +2,6 @@
 // File:        tabvector.cpp
 // Description: Class to hold a near-vertical vector representing a tab-stop.
 // Author:      Ray Smith
-// Created:     Thu Apr 10 16:28:01 PST 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -199,10 +198,8 @@ TabVector* TabVector::FitVector(TabAlignment alignment, ICOORD vertical,
 TabVector::TabVector(const TabVector& src, TabAlignment alignment,
                      const ICOORD& vertical_skew, BLOBNBOX* blob)
   : extended_ymin_(src.extended_ymin_), extended_ymax_(src.extended_ymax_),
-    sort_key_(0), percent_score_(0), mean_width_(0),
-    needs_refit_(true), needs_evaluation_(true), intersects_other_lines_(false),
-    alignment_(alignment),
-    top_constraints_(nullptr), bottom_constraints_(nullptr) {
+    needs_refit_(true), needs_evaluation_(true),
+    alignment_(alignment) {
   BLOBNBOX_C_IT it(&boxes_);
   it.add_to_end(blob);
   TBOX box = blob->bounding_box();
@@ -507,7 +504,7 @@ bool TabVector::IsAPartner(const TabVector* other) {
 }
 
 // These names must be synced with the TabAlignment enum in tabvector.h.
-const char* kAlignmentNames[] = {
+static const char* const kAlignmentNames[] = {
   "Left Aligned",
   "Left Ragged",
   "Center",

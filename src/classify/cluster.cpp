@@ -15,14 +15,15 @@
  ** limitations under the License.
  *****************************************************************************/
 
+#define _USE_MATH_DEFINES // for M_PI
 #include <cfloat>       // for FLT_MAX
-#include <cmath>
+#include <cmath>        // for M_PI
 #include <vector>       // for std::vector
 
 #include "cluster.h"
 #include "emalloc.h"
 #include "genericheap.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "kdpair.h"
 #include "matrix.h"
 #include "tprintf.h"
@@ -509,7 +510,6 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
  * longer exist.  Any sample lists that have been obtained
  * via calls to GetSamples are no longer valid.
  * @param Clusterer pointer to data structure to be freed
- * @return None
  */
 void FreeClusterer(CLUSTERER *Clusterer) {
   if (Clusterer != nullptr) {
@@ -534,7 +534,6 @@ void FreeClusterer(CLUSTERER *Clusterer) {
  * specified list of prototypes.  The clusters which are
  * pointed to by the prototypes are not freed.
  * @param ProtoList pointer to list of prototypes to be freed
- * @return None
  */
 void FreeProtoList(LIST *ProtoList) {
   destroy_nodes(*ProtoList, FreePrototype);
@@ -546,7 +545,6 @@ void FreeProtoList(LIST *ProtoList) {
  * is no longer marked as a prototype.  The cluster is NOT
  * deallocated by this routine.
  * @param arg prototype data structure to be deallocated
- * @return None
  */
 void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
   auto *Prototype = static_cast<PROTOTYPE *>(arg);
@@ -646,8 +644,8 @@ float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
  * tree are the individual samples themselves; they have no
  * sub-clusters.  The root node of the tree conceptually contains
  * all of the samples.
+ * The Clusterer data structure is changed.
  * @param Clusterer data structure holdings samples to be clustered
- * @return  None (the Clusterer data structure is changed)
  */
 static void CreateClusterTree(CLUSTERER *Clusterer) {
   ClusteringContext context;
@@ -863,7 +861,6 @@ int32_t MergeClusters(int16_t N,
  * structure.
  * @param Clusterer data structure holding cluster tree
  * @param Config    parameters used to control prototype generation
- * @return  None
  */
 static void ComputePrototypes(CLUSTERER* Clusterer, CLUSTERCONFIG* Config) {
   LIST ClusterStack = NIL_LIST;
@@ -1267,7 +1264,6 @@ static PROTOTYPE* MakeMixedProto(CLUSTERER* Clusterer,
  * @param i index of dimension to be changed
  * @param Proto prototype whose dimension is to be altered
  * @param ParamDesc description of specified dimension
- * @return  None
  */
 static void MakeDimRandom(uint16_t i, PROTOTYPE* Proto, PARAM_DESC* ParamDesc) {
   Proto->Distrib[i] = D_random;
@@ -1289,7 +1285,6 @@ static void MakeDimRandom(uint16_t i, PROTOTYPE* Proto, PARAM_DESC* ParamDesc) {
  * @param i index of dimension to be changed
  * @param Proto   prototype whose dimension is to be altered
  * @param Statistics  statistical info about prototype
- * @return  None
  */
 static void MakeDimUniform(uint16_t i, PROTOTYPE* Proto, STATISTICS* Statistics) {
   Proto->Distrib[i] = uniform;
@@ -1862,13 +1857,13 @@ static double Integral(double f1, double f2, double Dx) {
  * range and the StdDev is 1/2 the range.  A dimension with
  * zero standard deviation cannot be statistically analyzed.
  * In this case, a pseudo-analysis is used.
+ * The Buckets data structure is filled in.
  * @param Buckets histogram buckets to count samples
  * @param Cluster cluster whose samples are being analyzed
  * @param Dim dimension of samples which is being analyzed
  * @param ParamDesc description of the dimension
  * @param Mean  "mean" of the distribution
  * @param StdDev  "standard deviation" of the distribution
- * @return None (the Buckets data structure is filled in)
  */
 static void FillBuckets(BUCKETS *Buckets,
                  CLUSTER *Cluster,
@@ -2029,7 +2024,6 @@ static bool DistributionOK(BUCKETS* Buckets) {
  * This routine frees the memory used by the statistics
  * data structure.
  * @param Statistics  pointer to data structure to be freed
- * @return None
  */
 static void FreeStatistics(STATISTICS *Statistics) {
   free(Statistics->CoVariance);
@@ -2055,8 +2049,6 @@ static void FreeBuckets(BUCKETS *buckets) {
  * recursive calls to FreeCluster().
  *
  * @param Cluster pointer to cluster to be freed
- *
- * @return None
  */
 static void FreeCluster(CLUSTER *Cluster) {
   if (Cluster != nullptr) {
@@ -2096,7 +2088,6 @@ static uint16_t DegreesOfFreedom(DISTRIBUTION Distribution, uint16_t HistogramBu
  * is now adjusted to the new sample count.
  * @param Buckets histogram data structure to adjust
  * @param NewSampleCount  new sample count to adjust to
- * @return none
  */
 static void AdjustBuckets(BUCKETS *Buckets, uint32_t NewSampleCount) {
   int i;
@@ -2117,7 +2108,6 @@ static void AdjustBuckets(BUCKETS *Buckets, uint32_t NewSampleCount) {
  * This routine sets the bucket counts in the specified histogram
  * to zero.
  * @param Buckets histogram data structure to init
- * @return none
  */
 static void InitBuckets(BUCKETS *Buckets) {
   int i;
@@ -2156,7 +2146,7 @@ static int AlphaMatch(void *arg1,    //CHISTRUCT                             *Ch
  *
  * @param DegreesOfFreedom  degrees of freedom for new chi value
  * @param Alpha     confidence level for new chi value
- * @return none
+ * @return newly allocated data structure
  */
 static CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha) {
   CHISTRUCT *NewChiStruct;

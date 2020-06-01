@@ -16,13 +16,15 @@
 
 #include "include_gunit.h"
 
-#include "serialis.h"
+#include <tesseract/serialis.h>
 #include "shapetable.h"
 #include "unicharset.h"
 
 namespace {
 
-using tesseract::Shape;
+#ifndef DISABLED_LEGACY_ENGINE
+
+  using tesseract::Shape;
 using tesseract::ShapeTable;
 using tesseract::TFile;
 using tesseract::UnicharAndFonts;
@@ -52,11 +54,22 @@ static void Expect352(int font_id, const Shape& shape) {
   EXPECT_TRUE(shape.IsSubsetOf(shape));
 }
 
+#endif
+
 // The fixture for testing Shape.
-class ShapeTest : public testing::Test {};
+class ShapeTest : public testing::Test {
+ protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+};
 
 // Tests that a Shape works as expected for all the basic functions.
 TEST_F(ShapeTest, BasicTest) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because Shape is missing.
+  GTEST_SKIP();
+#else
   Shape shape1;
   EXPECT_EQ(0, shape1.size());
   Setup352(101, &shape1);
@@ -80,10 +93,15 @@ TEST_F(ShapeTest, BasicTest) {
   // and still pass afterwards.
   Expect352(101, shape1);
   Expect352(101, shape2);
+#endif
 }
 
 // Tests AddShape separately, as it takes quite a bit of work.
 TEST_F(ShapeTest, AddShapeTest) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because Shape is missing.
+  GTEST_SKIP();
+#else
   Shape shape1;
   Setup352(101, &shape1);
   Expect352(101, shape1);
@@ -107,6 +125,7 @@ TEST_F(ShapeTest, AddShapeTest) {
   EXPECT_FALSE(shape1.ContainsUnicharAndFont(3, 110));
   EXPECT_FALSE(shape1.ContainsUnicharAndFont(7, 110));
   EXPECT_FALSE(shape1.IsEqualUnichars(&shape2));
+#endif
 }
 
 // The fixture for testing Shape.
@@ -114,6 +133,10 @@ class ShapeTableTest : public testing::Test {};
 
 // Tests that a Shape works as expected for all the basic functions.
 TEST_F(ShapeTableTest, FullTest) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because Shape is missing.
+  GTEST_SKIP();
+#else
   Shape shape1;
   Setup352(101, &shape1);
   // Build a shape table with the same data, but in separate shapes.
@@ -157,6 +180,7 @@ TEST_F(ShapeTableTest, FullTest) {
   EXPECT_EQ(1, st2.NumShapes());
   EXPECT_TRUE(st2.MutableShape(0)->IsEqualUnichars(&shape1));
   EXPECT_TRUE(st2.AnyMultipleUnichars());
+#endif
 }
 
 }  // namespace

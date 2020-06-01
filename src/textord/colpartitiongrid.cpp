@@ -2,7 +2,6 @@
 // File:        colpartitiongrid.cpp
 // Description: Class collecting code that acts on a BBGrid of ColPartitions.
 // Author:      Ray Smith
-// Created:     Mon Oct 05 08:42:01 PDT 2009
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,8 +27,6 @@
 #include <algorithm>
 
 namespace tesseract {
-
-BOOL_VAR(textord_tabfind_show_color_fit, false, "Show stroke widths");
 
 // Max pad factor used to search the neighbourhood of a partition to smooth
 // partition types.
@@ -100,9 +97,8 @@ void ColPartitionGrid::HandleClick(int x, int y) {
 // true, then the partitions are merged.
 // Both callbacks are deleted before returning.
 void ColPartitionGrid::Merges(
-    TessResultCallback2<bool, ColPartition*, TBOX*>* box_cb,
-    TessResultCallback2<bool, const ColPartition*,
-                        const ColPartition*>* confirm_cb) {
+    std::function<bool(ColPartition*, TBOX*)> box_cb,
+    std::function<bool(const ColPartition*, const ColPartition*)> confirm_cb) {
   // Iterate the ColPartitions in the grid.
   ColPartitionGridSearch gsearch(this);
   gsearch.StartFullSearch();
@@ -111,8 +107,6 @@ void ColPartitionGrid::Merges(
     if (MergePart(box_cb, confirm_cb, part))
       gsearch.RepositionIterator();
   }
-  delete box_cb;
-  delete confirm_cb;
 }
 
 // For the given partition, calls the box_cb permanent callback
@@ -121,9 +115,8 @@ void ColPartitionGrid::Merges(
 // true, then the partitions are merged.
 // Returns true if the partition is consumed by one or more merges.
 bool ColPartitionGrid::MergePart(
-    TessResultCallback2<bool, ColPartition*, TBOX*>* box_cb,
-    TessResultCallback2<bool, const ColPartition*,
-                        const ColPartition*>* confirm_cb,
+    std::function<bool(ColPartition*, TBOX*)> box_cb,
+    std::function<bool(const ColPartition*, const ColPartition*)> confirm_cb,
     ColPartition* part) {
   if (part->IsUnMergeableType())
     return false;
@@ -139,7 +132,7 @@ bool ColPartitionGrid::MergePart(
       box.print();
     }
     // Set up a rectangle search bounded by the part.
-    if (!box_cb->Run(part, &box))
+    if (!box_cb(part, &box))
       continue;
     // Create a list of merge candidates.
     ColPartition_CLIST merge_candidates;
@@ -405,7 +398,7 @@ void ColPartitionGrid::FindOverlappingPartitions(const TBOX& box,
 // in overlap, or tightly spaced text would end up in bits.
 ColPartition* ColPartitionGrid::BestMergeCandidate(
     const ColPartition* part, ColPartition_CLIST* candidates, bool debug,
-    TessResultCallback2<bool, const ColPartition*, const ColPartition*>* confirm_cb,
+    std::function<bool(const ColPartition*, const ColPartition*)> confirm_cb,
     int* overlap_increase) {
   if (overlap_increase != nullptr)
     *overlap_increase = 0;
@@ -449,7 +442,7 @@ ColPartition* ColPartitionGrid::BestMergeCandidate(
   int best_area = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     ColPartition* candidate = it.data();
-    if (confirm_cb != nullptr && !confirm_cb->Run(part, candidate)) {
+    if (confirm_cb != nullptr && !confirm_cb(part, candidate)) {
       if (debug) {
         tprintf("Candidate not confirmed:");
         candidate->bounding_box().print();
@@ -819,7 +812,7 @@ bool ColPartitionGrid::MakeColPartSets(PartSetVector* part_sets) {
 // represents the total horizontal extent of the significant content on the
 // page. Used for the single column setting in place of automatic detection.
 // Returns nullptr if the page is empty of significant content.
-ColPartitionSet* ColPartitionGrid::MakeSingleColumnSet(WidthCallback* cb) {
+ColPartitionSet* ColPartitionGrid::MakeSingleColumnSet(WidthCallback cb) {
   ColPartition* single_column_part = nullptr;
   // Iterate the ColPartitions in the grid to get parts onto lists for the
   // y bottom of each.

@@ -19,13 +19,13 @@
 #ifndef ERRCODE_H
 #define ERRCODE_H
 
-#include "platform.h"   // for TESS_API
+#include <tesseract/platform.h>   // for TESS_API
 
 /*Control parameters for error()*/
 enum TessErrorLogCode {
   DBG =     -1,           /*log without alert */
   TESSLOG =  0,            /*alert user */
-  TESSEXIT = 1,            /*exit after erro */
+  TESSEXIT = 1,            /*exit after error */
   ABORT =    2            /*abort after error */
 };
 
@@ -73,12 +73,11 @@ class TESS_API ERRCODE {           // error handler class
     TessErrorLogCode action,   // action to take
     const char *format, ...    // fprintf format
   ) const;
-  ERRCODE(const char *string) {
-    message = string;
+  constexpr ERRCODE(const char *string) : message(string) {
   }                            // initialize with string
 };
 
-const ERRCODE ASSERT_FAILED = "Assert failed";
+constexpr ERRCODE ASSERT_FAILED("Assert failed");
 
 #if defined __cplusplus
 # define DO_NOTHING static_cast<void>(0)

@@ -28,11 +28,9 @@
 #include "config_auto.h"
 #endif
 
-#define EXTERN
-
-EXTERN INT_VAR (textord_fp_chop_error, 2,
+INT_VAR (textord_fp_chop_error, 2,
 "Max allowed bending of chop cells");
-EXTERN double_VAR (textord_fp_chop_snap, 0.5,
+double_VAR (textord_fp_chop_snap, 0.5,
 "Max distance of chop pt from vertex");
 
 ELISTIZE(C_OUTLINE_FRAG)

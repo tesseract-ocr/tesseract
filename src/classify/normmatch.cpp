@@ -2,7 +2,6 @@
  ** Filename:    normmatch.c
  ** Purpose:     Simple matcher based on character normalization features.
  ** Author:      Dan Johnson
- ** History:     Wed Dec 19 16:18:06 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,11 +21,12 @@
 
 #include <cstdio>
 #include <cmath>
+#include <sstream>          // for std::istringstream
 
 #include "classify.h"
 #include "clusttool.h"
 #include "emalloc.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "normfeat.h"
 #include "unicharset.h"
 #include "params.h"
@@ -40,16 +40,28 @@ struct NORM_PROTOS
 };
 
 /*----------------------------------------------------------------------------
-          Private Function Prototypes
+              Private Code
 ----------------------------------------------------------------------------*/
-double NormEvidenceOf(double NormAdj);
 
-void PrintNormMatch(FILE *File,
-                    int NumParams,
-                    PROTOTYPE *Proto,
-                    FEATURE Feature);
+/**
+ * @name NormEvidenceOf
+ *
+ * Return the new type of evidence number corresponding to this
+ * normalization adjustment.  The equation that represents the transform is:
+ *       1 / (1 + (NormAdj / midpoint) ^ curl)
+ */
+static double NormEvidenceOf(double NormAdj) {
+  NormAdj /= classify_norm_adj_midpoint;
 
-NORM_PROTOS *ReadNormProtos(FILE *File);
+  if (classify_norm_adj_curl == 3) {
+    NormAdj = NormAdj * NormAdj * NormAdj;
+  } else if (classify_norm_adj_curl == 2) {
+    NormAdj = NormAdj * NormAdj;
+  } else {
+    NormAdj = pow(NormAdj, classify_norm_adj_curl);
+  }
+  return (1.0 / (1.0 + NormAdj));
+}
 
 /*----------------------------------------------------------------------------
         Variables
@@ -102,7 +114,7 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId,
       feature.Params[CharNormRx] * 8000.0 +
       feature.Params[CharNormRy] *
       feature.Params[CharNormRy] * 8000.0);
-    return (1.0 - NormEvidenceOf (Match));
+    return (1.0 - NormEvidenceOf(Match));
   }
 
   BestMatch = FLT_MAX;
@@ -165,62 +177,6 @@ void Classify::FreeNormProtos() {
 }
 }  // namespace tesseract
 
-/*----------------------------------------------------------------------------
-              Private Code
-----------------------------------------------------------------------------*/
-/**
- * @name NormEvidenceOf
- *
- * Return the new type of evidence number corresponding to this
- * normalization adjustment.  The equation that represents the transform is:
- *       1 / (1 + (NormAdj / midpoint) ^ curl)
- */
-double NormEvidenceOf(double NormAdj) {
-  NormAdj /= classify_norm_adj_midpoint;
-
-  if (classify_norm_adj_curl == 3)
-    NormAdj = NormAdj * NormAdj * NormAdj;
-  else if (classify_norm_adj_curl == 2)
-    NormAdj = NormAdj * NormAdj;
-  else
-    NormAdj = pow (NormAdj, classify_norm_adj_curl);
-  return (1.0 / (1.0 + NormAdj));
-}
-
-
-/*---------------------------------------------------------------------------*/
-/**
- * This routine dumps out detailed normalization match info.
- * @param File    open text file to dump match debug info to
- * @param NumParams # of parameters in proto and feature
- * @param Proto[]   array of prototype parameters
- * @param Feature[] array of feature parameters
- * Globals: none
- * @return  none
- */
-void PrintNormMatch(FILE *File,
-                    int NumParams,
-                    PROTOTYPE *Proto,
-                    FEATURE Feature) {
-  int i;
-  float ParamMatch;
-  float TotalMatch;
-
-  for (i = 0, TotalMatch = 0.0; i < NumParams; i++) {
-    ParamMatch = (Feature->Params[i] - Mean(Proto, i)) /
-      StandardDeviation(Proto, i);
-
-    fprintf (File, " %6.1f", ParamMatch);
-
-    if (i == CharNormY || i == CharNormRx)
-      TotalMatch += ParamMatch * ParamMatch;
-  }
-  fprintf (File, " --> %6.1f (%4.2f)\n",
-    TotalMatch, NormEvidenceOf (TotalMatch));
-
-}                                /* PrintNormMatch */
-
-
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
 /**
@@ -254,7 +210,11 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   const int kMaxLineSize = 100;
   char line[kMaxLineSize];
   while (fp->FGets(line, kMaxLineSize) != nullptr) {
-    if (sscanf(line, "%s %d", unichar, &NumProtos) != 2) continue;
+    std::istringstream stream(line);
+    stream >> unichar >> NumProtos;
+    if (stream.fail()) {
+      continue;
+    }
     if (unicharset.contains_unichar(unichar)) {
       unichar_id = unicharset.unichar_to_id(unichar);
       Protos = NormProtos->Protos[unichar_id];

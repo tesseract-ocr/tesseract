@@ -20,7 +20,7 @@
 #define ELST2_H
 
 #include <cstdio>
-#include "serialis.h"
+#include <tesseract/serialis.h>
 #include "lsterr.h"
 
 class ELIST2_ITERATOR;
@@ -154,14 +154,10 @@ class DLLSYM ELIST2_ITERATOR
   ELIST2_LINK *prev;             //prev element
   ELIST2_LINK *current;          //current element
   ELIST2_LINK *next;             //next element
-  bool ex_current_was_last;     //current extracted
-  //was end of list
-  bool ex_current_was_cycle_pt; //current extracted
-  //was cycle point
-  ELIST2_LINK *cycle_pt;         //point we are cycling
-  //the list to.
-  bool started_cycling;         //Have we moved off
-  //the start?
+  ELIST2_LINK *cycle_pt;         //point we are cycling the list to.
+  bool ex_current_was_last;      //current extracted was end of list
+  bool ex_current_was_cycle_pt;  //current extracted was cycle point
+  bool started_cycling;          //Have we moved off the start?
 
   ELIST2_LINK *extract_sublist(                             //from this current...
                                ELIST2_ITERATOR *other_it);  //to other current
@@ -841,7 +837,7 @@ The macro generates:
               CLASSNAME##_IT
 
 NOTE: Generated names are DELIBERATELY designed to clash with those for
-ELISTIZE but NOT with those for CLISTIZE and CLIST2IZE
+ELISTIZE but NOT with those for CLISTIZE.
 
 Two macros are provided: ELIST2IZE and ELIST2IZEH
 The ...IZEH macros just define the class names for use in .h files

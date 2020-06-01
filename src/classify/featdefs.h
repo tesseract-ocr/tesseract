@@ -2,7 +2,6 @@
  ** Filename:    featdefs.h
  ** Purpose:     Definitions of currently defined feature types.
  ** Author:      Dan Johnson
- ** History:     Mon May 21 08:28:01 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,10 +25,10 @@
 
 /* Enumerate the different types of features currently defined. */
 #define NUM_FEATURE_TYPES 4
-extern const char* kMicroFeatureType;
-extern const char* kCNFeatureType;
-extern const char* kIntFeatureType;
-extern const char* kGeoFeatureType;
+extern TESS_API const char* const kMicroFeatureType;
+extern TESS_API const char* const kCNFeatureType;
+extern TESS_API const char* const kIntFeatureType;
+extern TESS_API const char* const kGeoFeatureType;
 
 /* A character is described by multiple sets of extracted features.  Each
   set contains a number of features of a particular type, for example, a
@@ -46,7 +45,6 @@ using CHAR_DESC = CHAR_DESC_STRUCT *;
 struct FEATURE_DEFS_STRUCT {
   int32_t NumFeatureTypes;
   const FEATURE_DESC_STRUCT* FeatureDesc[NUM_FEATURE_TYPES];
-  int FeatureEnabled[NUM_FEATURE_TYPES];
 };
 using FEATURE_DEFS = FEATURE_DEFS_STRUCT *;
 

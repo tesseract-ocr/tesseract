@@ -14,6 +14,14 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
 ******************************************************************************/
+
+#define _USE_MATH_DEFINES // for M_PI
+#include <algorithm>
+#include <cfloat>       // for FLT_MAX
+#include <cmath>        // for M_PI
+#include <cstdio>
+#include <cstring>
+
 #include "mergenf.h"
 #include "clusttool.h"
 #include "cluster.h"
@@ -24,24 +32,19 @@
 #include "intproto.h"
 #include "params.h"
 
-#include <algorithm>
-#include <cstdio>
-#include <cstring>
-#include <cmath>
-
 /*-------------------once in subfeat---------------------------------*/
-double_VAR(training_angle_match_scale, 1.0, "Angle Match Scale ...");
+static double_VAR(training_angle_match_scale, 1.0, "Angle Match Scale ...");
 
-double_VAR(training_similarity_midpoint, 0.0075, "Similarity Midpoint ...");
+static double_VAR(training_similarity_midpoint, 0.0075, "Similarity Midpoint ...");
 
-double_VAR(training_similarity_curl, 2.0, "Similarity Curl ...");
+static double_VAR(training_similarity_curl, 2.0, "Similarity Curl ...");
 
 /*-----------------------------once in fasttrain----------------------------------*/
-double_VAR(training_tangent_bbox_pad, 0.5, "Tangent bounding box pad ...");
+static double_VAR(training_tangent_bbox_pad, 0.5, "Tangent bounding box pad ...");
 
-double_VAR(training_orthogonal_bbox_pad, 2.5, "Orthogonal bounding box pad ...");
+static double_VAR(training_orthogonal_bbox_pad, 2.5, "Orthogonal bounding box pad ...");
 
-double_VAR(training_angle_pad, 45.0, "Angle pad ...");
+static double_VAR(training_angle_pad, 45.0, "Angle pad ...");
 
 /**
  * Compare protos p1 and p2 and return an estimate of the
@@ -116,10 +119,6 @@ float CompareProtos(PROTO p1, PROTO p2) {
  * @param p1, p2    protos to be merged
  * @param w1, w2    weight of each proto
  * @param MergedProto place to put resulting merged proto
- *
- * Globals: none
- *
- * @return none (results are returned in MergedProto)
  */
 void ComputeMergedProto (PROTO  p1,
                          PROTO  p2,
@@ -290,10 +289,6 @@ bool DummyFastMatch(FEATURE Feature, PROTO Proto)
  * @param TangentPad  amount of pad to add in direction of segment
  * @param OrthogonalPad amount of pad to add orthogonal to segment
  * @param[out] BoundingBox place to put results
- *
- * Globals: none
- *
- * @return none (results are returned in BoundingBox)
  */
 void ComputePaddedBoundingBox (PROTO Proto, float TangentPad,
                                float OrthogonalPad, FRECT *BoundingBox) {

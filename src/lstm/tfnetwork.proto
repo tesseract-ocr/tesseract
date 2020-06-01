@@ -1,9 +1,22 @@
+// Protocol description for Tesseract
+
+// Compile this file with the Protocol Compiler protoc to generate
+// the files tfnetwork.pb.cc and tfnetwork.pb.h.
+
+// This requires the protocol descriptions for TensorFlow
+// (included in the TensorFlow sources).
+
+// With TensorFlow sources installed in /usr/src/tensorflow/tensorflow-1.10.1,
+// this command was used on Debian to generate the files:
+
+// protoc --cpp_out=$PWD --proto_path=/usr/src/tensorflow/tensorflow-1.10.1 \
+//                       --proto_path=$PWD src/lstm/tfnetwork.proto
+
 syntax = "proto3";
 
 package tesseract;
 
-// TODO(rays) How to make this usable both in Google and open source?
-import "third_party/tensorflow/core/framework/graph.proto";
+import "tensorflow/core/framework/graph.proto";
 
 // This proto is the interface between a python TF graph builder/trainer and
 // the C++ world. The writer of this proto must provide fields as documented

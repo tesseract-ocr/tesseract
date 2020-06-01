@@ -2,7 +2,6 @@
  * File:        boxread.h
  * Description: Read data from a box file.
  * Author:      Ray Smith
- * Created:     Fri Aug 24 17:47:23 PDT 2007
  *
  * (C) Copyright 2007, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +20,7 @@
 #define TESSERACT_CCUTIL_BOXREAD_H_
 
 #include <cstdio>    // for FILE
-#include "strngs.h"  // for STRING
+#include <tesseract/strngs.h>  // for STRING
 
 class TBOX;
 
@@ -58,9 +57,6 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
                   GenericVector<STRING>* texts,
                   GenericVector<STRING>* box_texts,
                   GenericVector<int>* pages);
-
-// Returns the box file name corresponding to the given image_filename.
-STRING BoxFileName(const STRING& image_filename);
 
 // ReadNextBox factors out the code to interpret a line of a box
 // file so that applybox and unicharset_extractor interpret the same way.

@@ -40,8 +40,8 @@
 #include "featdefs.h"           // for CharNormDesc
 #include "float2int.h"          // for BASELINE_Y_SHIFT
 #include "fontinfo.h"           // for ScoredFont, FontSet
-#include "genericvector.h"      // for GenericVector
-#include "helpers.h"            // for IntCastRounded, ClipToRange
+#include <tesseract/genericvector.h>      // for GenericVector
+#include <tesseract/helpers.h>            // for IntCastRounded, ClipToRange
 #include "intfx.h"              // for BlobToTrainingSample, INT_FX_RESULT_S...
 #include "intmatcher.h"         // for CP_RESULT_STRUCT, IntegerMatcher
 #include "intproto.h"           // for INT_FEATURE_STRUCT, (anonymous), Clas...
@@ -60,15 +60,15 @@
 #include "rect.h"               // for TBOX
 #include "scrollview.h"         // for ScrollView, ScrollView::BROWN, Scroll...
 #include "seam.h"               // for SEAM
-#include "serialis.h"           // for TFile
+#include <tesseract/serialis.h>           // for TFile
 #include "shapeclassifier.h"    // for ShapeClassifier
 #include "shapetable.h"         // for UnicharRating, ShapeTable, Shape, Uni...
-#include "strngs.h"             // for STRING
+#include <tesseract/strngs.h>             // for STRING
 #include "tessclassifier.h"     // for TessClassifier
 #include "tessdatamanager.h"    // for TessdataManager, TESSDATA_INTTEMP
 #include "tprintf.h"            // for tprintf
 #include "trainingsample.h"     // for TrainingSample
-#include "unichar.h"            // for UNICHAR_ID, INVALID_UNICHAR_ID
+#include <tesseract/unichar.h>            // for UNICHAR_ID, INVALID_UNICHAR_ID
 #include "unicharset.h"         // for UNICHARSET, CHAR_FRAGMENT, UNICHAR_SPACE
 #include "unicity_table.h"      // for UnicityTable
 
@@ -259,7 +259,7 @@ void Classify::LearnWord(const char* fontname, WERD_RES* word) {
 
     if (classify_learning_debug_level >= 1)
       tprintf("\n\nAdapting to word = %s\n",
-              word->best_choice->debug_string().string());
+              word->best_choice->debug_string().c_str());
     thresholds = new float[word_len];
     word->ComputeAdaptionThresholds(certainty_scale,
                                     matcher_perfect_threshold,
@@ -284,13 +284,13 @@ void Classify::LearnWord(const char* fontname, WERD_RES* word) {
 
   for (int ch = 0; ch < word_len; ++ch) {
     if (classify_debug_character_fragments) {
-      tprintf("\nLearning %s\n",  word->correct_text[ch].string());
+      tprintf("\nLearning %s\n",  word->correct_text[ch].c_str());
     }
     if (word->correct_text[ch].length() > 0) {
       float threshold = thresholds != nullptr ? thresholds[ch] : 0.0f;
 
       LearnPieces(fontname, start_blob, word->best_state[ch], threshold,
-                  CST_WHOLE, word->correct_text[ch].string(), word);
+                  CST_WHOLE, word->correct_text[ch].c_str(), word);
 
       if (word->best_state[ch] > 1 && !disable_character_fragments) {
         // Check that the character breaks into meaningful fragments
@@ -314,7 +314,7 @@ void Classify::LearnWord(const char* fontname, WERD_RES* word) {
               word->correct_text[ch].split(' ', &tokens);
 
               tokens[0] = CHAR_FRAGMENT::to_string(
-                  tokens[0].string(), frag, word->best_state[ch],
+                  tokens[0].c_str(), frag, word->best_state[ch],
                   pieces_all_natural);
 
               STRING full_string;
@@ -324,7 +324,7 @@ void Classify::LearnWord(const char* fontname, WERD_RES* word) {
                   full_string += ' ';
               }
               LearnPieces(fontname, start_blob + frag, 1, threshold,
-                          CST_FRAGMENT, full_string.string(), word);
+                          CST_FRAGMENT, full_string.c_str(), word);
             }
           }
         }
@@ -353,7 +353,7 @@ void Classify::LearnWord(const char* fontname, WERD_RES* word) {
         joined_text += word->correct_text[ch + 1];
         LearnPieces(fontname, start_blob,
                     word->best_state[ch] + word->best_state[ch + 1],
-                    threshold, CST_NGRAM, joined_text.string(), word);
+                    threshold, CST_NGRAM, joined_text.c_str(), word);
       }
       */
     }
@@ -392,7 +392,7 @@ void Classify::LearnPieces(const char* fontname, int start, int length,
 
   #ifndef GRAPHICS_DISABLED
   // Draw debug windows showing the blob that is being learned if needed.
-  if (strcmp(classify_learn_debug_str.string(), correct_text) == 0) {
+  if (strcmp(classify_learn_debug_str.c_str(), correct_text) == 0) {
     RefreshDebugWindow(&learn_debug_win_, "LearnPieces", 600,
                        word->chopped_word->bounding_box());
     rotated_blob->plot(learn_debug_win_, ScrollView::GREEN, ScrollView::BROWN);
@@ -463,11 +463,11 @@ void Classify::EndAdaptiveClassifier() {
   if (AdaptedTemplates != nullptr &&
       classify_enable_adaptive_matcher && classify_save_adapted_templates) {
     Filename = imagefile + ADAPT_TEMPLATE_SUFFIX;
-    File = fopen (Filename.string(), "wb");
+    File = fopen (Filename.c_str(), "wb");
     if (File == nullptr)
-      cprintf ("Unable to save adapted templates to %s!\n", Filename.string());
+      cprintf ("Unable to save adapted templates to %s!\n", Filename.c_str());
     else {
-      cprintf ("\nSaving adapted templates to %s ...", Filename.string());
+      cprintf ("\nSaving adapted templates to %s ...", Filename.c_str());
       fflush(stdout);
       WriteAdaptedTemplates(File, AdaptedTemplates);
       cprintf ("\n");
@@ -574,11 +574,11 @@ void Classify::InitAdaptiveClassifier(TessdataManager* mgr) {
 
     Filename = imagefile;
     Filename += ADAPT_TEMPLATE_SUFFIX;
-    if (!fp.Open(Filename.string(), nullptr)) {
+    if (!fp.Open(Filename.c_str(), nullptr)) {
       AdaptedTemplates = NewAdaptedTemplates(true);
     } else {
       cprintf("\nReading pre-adapted templates from %s ...\n",
-              Filename.string());
+              Filename.c_str());
       fflush(stdout);
       AdaptedTemplates = ReadAdaptedTemplates(&fp);
       cprintf("\n");
@@ -849,8 +849,6 @@ bool Classify::AdaptableWord(WERD_RES* word) {
  * Globals:
  * - AllProtosOn dummy mask to match against all protos
  * - AllConfigsOn dummy mask to match against all configs
- *
- * @return none
  */
 void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
                            float Threshold,
@@ -1956,7 +1954,7 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
   if (classify_learning_debug_level >= 1) {
     tprintf("Making config %d for %s (ClassId %d) permanent:"
             " fontinfo id %d, ambiguities '",
-            ConfigId, getDict().getUnicharset().debug_str(ClassId).string(),
+            ConfigId, getDict().getUnicharset().debug_str(ClassId).c_str(),
             ClassId, PermConfigFor(Class, ConfigId)->FontinfoId);
     for (UNICHAR_ID *AmbigsPointer = Ambigs;
         *AmbigsPointer >= 0; ++AmbigsPointer)
@@ -2014,7 +2012,7 @@ namespace tesseract {
  */
 void Classify::PrintAdaptiveMatchResults(const ADAPT_RESULTS& results) {
   for (int i = 0; i < results.match.size(); ++i) {
-    tprintf("%s  ", unicharset.debug_str(results.match[i].unichar_id).string());
+    tprintf("%s  ", unicharset.debug_str(results.match[i].unichar_id).c_str());
     results.match[i].Print();
   }
 }                              /* PrintAdaptiveMatchResults */
@@ -2239,7 +2237,7 @@ bool Classify::TempConfigReliable(CLASS_ID class_id,
                                   const TEMP_CONFIG &config) {
   if (classify_learning_debug_level >= 1) {
     tprintf("NumTimesSeen for config of %s is %d\n",
-            getDict().getUnicharset().debug_str(class_id).string(),
+            getDict().getUnicharset().debug_str(class_id).c_str(),
             config->NumTimesSeen);
   }
   if (config->NumTimesSeen >= matcher_sufficient_examples_for_prototyping) {
@@ -2262,8 +2260,8 @@ bool Classify::TempConfigReliable(CLASS_ID class_id,
           tprintf("Ambig %s has not been seen enough times,"
                   " not making config for %s permanent\n",
                   getDict().getUnicharset().debug_str(
-                      (*ambigs)[ambig]).string(),
-                  getDict().getUnicharset().debug_str(class_id).string());
+                      (*ambigs)[ambig]).c_str(),
+                  getDict().getUnicharset().debug_str(class_id).c_str());
         }
         return false;
       }
@@ -2278,7 +2276,7 @@ void Classify::UpdateAmbigsGroup(CLASS_ID class_id, TBLOB *Blob) {
   int ambigs_size = (ambigs == nullptr) ? 0 : ambigs->size();
   if (classify_learning_debug_level >= 1) {
     tprintf("Running UpdateAmbigsGroup for %s class_id=%d\n",
-            getDict().getUnicharset().debug_str(class_id).string(), class_id);
+            getDict().getUnicharset().debug_str(class_id).c_str(), class_id);
   }
   for (int ambig = 0; ambig < ambigs_size; ++ambig) {
     CLASS_ID ambig_class_id = (*ambigs)[ambig];
@@ -2291,7 +2289,7 @@ void Classify::UpdateAmbigsGroup(CLASS_ID class_id, TBLOB *Blob) {
         if (classify_learning_debug_level >= 1) {
           tprintf("Making config %d of %s permanent\n", cfg,
                   getDict().getUnicharset().debug_str(
-                      ambig_class_id).string());
+                      ambig_class_id).c_str());
         }
         MakePermanent(AdaptedTemplates, ambig_class_id, cfg, Blob);
       }

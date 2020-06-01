@@ -2,7 +2,6 @@
  ** Filename:   adaptive.h
  ** Purpose:    Interface to adaptive matcher.
  ** Author:     Dan Johnson
- ** History:    Fri Mar  8 10:00:49 1991, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +26,6 @@
 
 typedef struct {
   uint16_t ProtoId;
-  uint16_t dummy;
   PROTO_STRUCT Proto;
 }
 
@@ -57,7 +55,7 @@ typedef union {
 typedef struct {
   uint8_t NumPermConfigs;
   uint8_t MaxNumTimesSeen;  // maximum number of times any TEMP_CONFIG was seen
-  uint8_t dummy[2];         // (cut at matcher_min_examples_for_prototyping)
+                            // (cut at matcher_min_examples_for_prototyping)
   BIT_VECTOR PermProtos;
   BIT_VECTOR PermConfigs;
   LIST TempProtos;
@@ -69,7 +67,6 @@ typedef struct {
   INT_TEMPLATES Templates;
   int NumNonEmptyClasses;
   uint8_t NumPermClasses;
-  uint8_t dummy[3];
   ADAPT_CLASS Class[MAX_NUM_CLASSES];
 } ADAPT_TEMPLATES_STRUCT;
 using ADAPT_TEMPLATES = ADAPT_TEMPLATES_STRUCT*;

@@ -18,10 +18,10 @@
 #include "boxchar.h"
 #include "boxread.h"
 #include "commandlineflags.h"
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 #include "include_gunit.h"
 #include "stringrenderer.h"
-#include "strngs.h"
+#include <tesseract/strngs.h>
 
 BOOL_PARAM_FLAG(display, false, "Display image for inspection");
 
@@ -50,6 +50,11 @@ using tesseract::StringRenderer;
 
 class StringRendererTest : public ::testing::Test {
  protected:
+  void SetUp() override {
+    static std::locale system_locale("");
+    std::locale::global(system_locale);
+  }
+
   static void SetUpTestCase() {
     l_chooseDisplayProg(L_DISPLAY_WITH_XZGV);
     FLAGS_fonts_dir = TESTING_DIR;
@@ -223,7 +228,9 @@ TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
   EXPECT_TRUE(ReadMemBoxes(0, false, boxes_str.c_str(), false, nullptr, &texts,
                            nullptr, nullptr));
   std::string ltr_str;
-  for (int i = 0; i < texts.size(); ++i) ltr_str += texts[i].string();
+  for (int i = 0; i < texts.size(); ++i) {
+    ltr_str += texts[i].c_str();
+  }
   // The string should come out perfectly reversed, despite there being a
   // ligature.
   EXPECT_EQ(ltr_str, kRevWord);

@@ -1,13 +1,26 @@
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "tesseract/ccmain/equationdetect.h"
 #include <memory>
 #include <string>
 #include <utility>
-#include "leptonica/include/allheaders.h"
-#include "tesseract/ccmain/tesseractclass.h"
-#include "tesseract/textord/colpartitiongrid.h"
-#include "util/gtl/map_util.h"
-#include "util/gtl/stl_util.h"
+#include "allheaders.h"
+#include "colpartitiongrid.h"
+#include "equationdetect.h"
+#include "tesseractclass.h"
+#include "include_gunit.h"
+
+using string = std::string;
+#include <tensorflow/core/lib/gtl/map_util.h>
+#include <tensorflow/core/lib/gtl/stl_util.h>
 
 namespace tesseract {
 
@@ -102,18 +115,18 @@ class EquationFinderTest : public testing::Test {
   std::unique_ptr<Tesseract> tesseract_;
 
   // The directory for testdata;
-  string testdata_dir_;
+  std::string testdata_dir_;
 
   void SetUp() {
-    string tessdata_dir = file::JoinPath(FLAGS_test_srcdir, "tessdata");
+    std::locale::global(std::locale(""));
     tesseract_.reset(new Tesseract());
-    tesseract_->init_tesseract(tessdata_dir.c_str(), "eng", OEM_TESSERACT_ONLY);
+    tesseract_->init_tesseract(TESSDATA_DIR, "eng", OEM_TESSERACT_ONLY);
     tesseract_->set_source_resolution(300);
     equation_det_.reset(
-        new TestableEquationDetect(tessdata_dir.c_str(), tesseract_.get()));
+        new TestableEquationDetect(TESSDATA_DIR, tesseract_.get()));
     equation_det_->SetResolution(300);
 
-    testdata_dir_ = file::JoinPath(FLAGS_test_srcdir, "testdata");
+    testdata_dir_ = TESTDATA_DIR;
   }
 
   void TearDown() {
@@ -150,7 +163,7 @@ class EquationFinderTest : public testing::Test {
   }
 
   void ClearParts(std::vector<ColPartition*>* all_parts) {
-    for (int i = 0; i < all_parts->size(); ++i) {
+    for (size_t i = 0; i < all_parts->size(); ++i) {
       (*all_parts)[i]->DeleteBoxes();
       delete ((*all_parts)[i]);
     }
@@ -166,8 +179,11 @@ class EquationFinderTest : public testing::Test {
 };
 
 TEST_F(EquationFinderTest, IdentifySpecialText) {
+#if 1
+  GTEST_SKIP();
+#else // TODO: missing equ_gt1.tif
   // Load Image.
-  string imagefile = file::JoinPath(testdata_dir_, "equ_gt1.tif");
+  std::string imagefile = file::JoinPath(testdata_dir_, "equ_gt1.tif");
   Pix* pix_binary = pixRead(imagefile.c_str());
   CHECK(pix_binary != nullptr && pixGetDepth(pix_binary) == 1);
 
@@ -180,7 +196,7 @@ TEST_F(EquationFinderTest, IdentifySpecialText) {
 
   // Identify special texts from to_blocks.
   TO_BLOCK_IT to_block_it(&to_blocks);
-  __gnu_cxx::hash_map<int, int> stt_count;
+  std::map<int, int> stt_count;
   for (to_block_it.mark_cycle_pt(); !to_block_it.cycled_list();
        to_block_it.forward()) {
     TO_BLOCK* to_block = to_block_it.data();
@@ -189,7 +205,7 @@ TEST_F(EquationFinderTest, IdentifySpecialText) {
       BLOBNBOX* blob = blob_it.data();
       // blob->set_special_text_type(BSTT_NONE);
       equation_det_->RunIdentifySpecialText(blob, 0);
-      InsertIfNotPresent(&stt_count, blob->special_text_type(), 0);
+      tensorflow::gtl::InsertIfNotPresent(&stt_count, blob->special_text_type(), 0);
       stt_count[blob->special_text_type()]++;
     }
   }
@@ -211,6 +227,7 @@ TEST_F(EquationFinderTest, IdentifySpecialText) {
 
   // Release memory.
   pixDestroy(&pix_binary);
+#endif
 }
 
 TEST_F(EquationFinderTest, EstimateTypeForUnichar) {

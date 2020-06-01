@@ -4,7 +4,6 @@
 //              structure and statistics of the language to help segmentation
 //              search.
 // Author:      Daria Antonova
-// Created:     Mon Nov 11 11:26:43 PST 2009
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +31,7 @@
 #include "params_model.h"    // for ParamsModel
 #include "ratngs.h"          // for BLOB_CHOICE (ptr only), BLOB_CHOICE_LIST...
 #include "stopper.h"         // for DANGERR
-#include "strngs.h"          // for STRING
+#include <tesseract/strngs.h>          // for STRING
 
 class UNICHARSET;
 class WERD_RES;
@@ -372,26 +371,26 @@ class LanguageModel {
   // avoid dynamic memory re-allocation (should be cleared before each use).
   DawgArgs dawg_args_;
   // Scaling for recovering blob outline length from rating and certainty.
-  float rating_cert_scale_;
+  float rating_cert_scale_ = 0.0f;
 
   // The following variables are set at construction time.
 
   // Pointer to fontinfo table (not owned by LanguageModel).
-  const UnicityTable<FontInfo> *fontinfo_table_;
+  const UnicityTable<FontInfo>* fontinfo_table_ = nullptr;
 
   // Pointer to Dict class, that is used for querying the dictionaries
   // (the pointer is not owned by LanguageModel).
-  Dict *dict_;
+  Dict* dict_ = nullptr;
 
   // TODO(daria): the following variables should become LanguageModel params
   // when the old code in bestfirst.cpp and heuristic.cpp is deprecated.
   //
   // Set to true if we are dealing with fixed pitch text
   // (set to assume_fixed_pitch_char_segment).
-  bool fixed_pitch_;
+  bool fixed_pitch_ = false;
   // Max char width-to-height ratio allowed
   // (set to segsearch_max_char_wh_ratio).
-  float max_char_wh_ratio_;
+  float max_char_wh_ratio_ = 0.0f;
 
   // The following variables are initialized with InitForWord().
 
@@ -399,7 +398,7 @@ class LanguageModel {
   // (since this is only used by the character ngram model component,
   // only the last language_model_ngram_order of the word are stored).
   STRING prev_word_str_;
-  int prev_word_unichar_step_len_;
+  int prev_word_unichar_step_len_ = 0;
   // Active dawg vector.
   DawgPositionVector very_beginning_active_dawgs_;  // includes continuation
   DawgPositionVector beginning_active_dawgs_;
@@ -414,9 +413,9 @@ class LanguageModel {
   // choices. This way the stopper will know that the best choice is not
   // ambiguous (i.e. there are best choices in the best choice list that have
   // ratings close to the very best one) and will be less likely to mis-adapt.
-  bool acceptable_choice_found_;
+  bool acceptable_choice_found_ = false;
   // Set to true if a choice representing correct segmentation was explored.
-  bool correct_segmentation_explored_;
+  bool correct_segmentation_explored_ = false;
 
   // Params models containing weights for for computing ViterbiStateEntry costs.
   ParamsModel params_model_;

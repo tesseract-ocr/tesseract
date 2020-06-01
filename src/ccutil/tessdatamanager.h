@@ -2,7 +2,6 @@
 // File:        tessdatamanager.h
 // Description: Functions to handle loading/combining tesseract data files.
 // Author:      Daria Antonova
-// Created:     Wed Jun 03 11:26:43 PST 2009
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +19,8 @@
 #ifndef TESSERACT_CCUTIL_TESSDATAMANAGER_H_
 #define TESSERACT_CCUTIL_TESSDATAMANAGER_H_
 
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/strngs.h>             // for STRING
 
 static const char kTrainedDataSuffix[] = "traineddata";
 

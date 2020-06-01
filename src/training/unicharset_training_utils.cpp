@@ -28,7 +28,7 @@
 #include "icuerrorcode.h"
 #include "normstrngs.h"
 #include "statistc.h"
-#include "unichar.h"
+#include <tesseract/unichar.h>
 #include "unicharset.h"
 #include "unicode/uchar.h"    // from libicu
 #include "unicode/uscript.h"  // from libicu

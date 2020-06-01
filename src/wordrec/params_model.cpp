@@ -2,7 +2,6 @@
 // File:        params_model.cpp
 // Description: Trained language model parameters.
 // Author:      David Eger
-// Created:     Mon Jun 11 11:26:42 PDT 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +36,7 @@ static const float kMaxFinalCost = 100.0f;
 
 void ParamsModel::Print() {
   for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) {
-    tprintf("ParamsModel for pass %d lang %s\n", p, lang_.string());
+    tprintf("ParamsModel for pass %d lang %s\n", p, lang_.c_str());
     for (int i = 0; i < weights_vec_[p].size(); ++i) {
       tprintf("%s = %g\n", kParamsTrainingFeatureTypeName[i],
               weights_vec_[p][i]);
@@ -98,17 +97,6 @@ bool ParamsModel::Equivalent(const ParamsModel &that) const {
     }
   }
   return true;
-}
-
-bool ParamsModel::LoadFromFile(
-    const char *lang,
-    const char *full_path) {
-  TFile fp;
-  if (!fp.Open(full_path, nullptr)) {
-    tprintf("Error opening file %s\n", full_path);
-    return false;
-  }
-  return LoadFromFp(lang, &fp);
 }
 
 bool ParamsModel::LoadFromFp(const char *lang, TFile *fp) {

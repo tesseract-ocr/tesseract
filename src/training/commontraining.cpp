@@ -11,17 +11,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#define _USE_MATH_DEFINES       // for M_PI
 #include "commontraining.h"
+#include <algorithm>
+#include <cmath>                // for M_PI
 
 #ifdef DISABLED_LEGACY_ENGINE
-
-#include <algorithm>
-#include <cmath>
 
 #include "params.h"
 #include "tessopt.h"
 #include "tprintf.h"
-
 
 INT_PARAM_FLAG(debug_level, 0, "Level of Trainer debugging");
 INT_PARAM_FLAG(load_images, 0, "Load images with tr files");
@@ -34,7 +33,6 @@ STRING_PARAM_FLAG(O, "", "File to write unicharset to");
 STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
 STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
 
-
 /**
  * This routine parses the command line arguments that were
  * passed to the program and uses them to set relevant
@@ -44,7 +42,6 @@ STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
  * - Config  current clustering parameters
  * @param argc number of command line arguments to parse
  * @param argv command line arguments
- * @return none
  * @note Exceptions: Illegal options terminate the program.
  */
 void ParseArguments(int* argc, char ***argv) {
@@ -59,9 +56,6 @@ void ParseArguments(int* argc, char ***argv) {
 }
 
 #else
-
-#include <algorithm>
-#include <cmath>
 
 #include "allheaders.h"
 #include "ccutil.h"
@@ -93,11 +87,11 @@ using tesseract::ShapeTable;
 // -M 0.625   -B 0.05   -I 1.0   -C 1e-6.
 CLUSTERCONFIG Config = { elliptical, 0.625, 0.05, 1.0, 1e-6, 0 };
 FEATURE_DEFS_STRUCT feature_defs;
-CCUtil ccutil;
+static CCUtil ccutil;
 
 INT_PARAM_FLAG(debug_level, 0, "Level of Trainer debugging");
-INT_PARAM_FLAG(load_images, 0, "Load images with tr files");
-STRING_PARAM_FLAG(configfile, "", "File to load more configs from");
+static INT_PARAM_FLAG(load_images, 0, "Load images with tr files");
+static STRING_PARAM_FLAG(configfile, "", "File to load more configs from");
 STRING_PARAM_FLAG(D, "", "Directory to write output files to");
 STRING_PARAM_FLAG(F, "font_properties", "File listing font properties");
 STRING_PARAM_FLAG(X, "", "File listing font xheights");
@@ -105,15 +99,15 @@ STRING_PARAM_FLAG(U, "unicharset", "File to load unicharset from");
 STRING_PARAM_FLAG(O, "", "File to write unicharset to");
 STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
 STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
-DOUBLE_PARAM_FLAG(clusterconfig_min_samples_fraction, Config.MinSamples,
-                  "Min number of samples per proto as % of total");
-DOUBLE_PARAM_FLAG(clusterconfig_max_illegal, Config.MaxIllegal,
-                  "Max percentage of samples in a cluster which have more"
-                  " than 1 feature in that cluster");
-DOUBLE_PARAM_FLAG(clusterconfig_independence, Config.Independence,
-                  "Desired independence between dimensions");
-DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
-                  "Desired confidence in prototypes created");
+static DOUBLE_PARAM_FLAG(clusterconfig_min_samples_fraction, Config.MinSamples,
+                         "Min number of samples per proto as % of total");
+static DOUBLE_PARAM_FLAG(clusterconfig_max_illegal, Config.MaxIllegal,
+                         "Max percentage of samples in a cluster which have more"
+                         " than 1 feature in that cluster");
+static DOUBLE_PARAM_FLAG(clusterconfig_independence, Config.Independence,
+                         "Desired independence between dimensions");
+static DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
+                         "Desired confidence in prototypes created");
 
 /**
  * This routine parses the command line arguments that were
@@ -124,7 +118,6 @@ DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
  * - Config  current clustering parameters
  * @param argc number of command line arguments to parse
  * @param argv command line arguments
- * @return none
  */
 void ParseArguments(int* argc, char ***argv) {
   STRING usage;
@@ -163,21 +156,21 @@ ShapeTable* LoadShapeTable(const STRING& file_prefix) {
   STRING shape_table_file = file_prefix;
   shape_table_file += kShapeTableFileSuffix;
   TFile shape_fp;
-  if (shape_fp.Open(shape_table_file.string(), nullptr)) {
+  if (shape_fp.Open(shape_table_file.c_str(), nullptr)) {
     shape_table = new ShapeTable;
     if (!shape_table->DeSerialize(&shape_fp)) {
       delete shape_table;
       shape_table = nullptr;
       tprintf("Error: Failed to read shape table %s\n",
-              shape_table_file.string());
+              shape_table_file.c_str());
     } else {
       int num_shapes = shape_table->NumShapes();
       tprintf("Read shape table %s of %d shapes\n",
-              shape_table_file.string(), num_shapes);
+              shape_table_file.c_str(), num_shapes);
     }
   } else {
     tprintf("Warning: No shape table file present: %s\n",
-            shape_table_file.string());
+            shape_table_file.c_str());
   }
   return shape_table;
 }
@@ -186,16 +179,16 @@ ShapeTable* LoadShapeTable(const STRING& file_prefix) {
 void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table) {
   STRING shape_table_file = file_prefix;
   shape_table_file += kShapeTableFileSuffix;
-  FILE* fp = fopen(shape_table_file.string(), "wb");
+  FILE* fp = fopen(shape_table_file.c_str(), "wb");
   if (fp != nullptr) {
     if (!shape_table.Serialize(fp)) {
       fprintf(stderr, "Error writing shape table: %s\n",
-              shape_table_file.string());
+              shape_table_file.c_str());
     }
     fclose(fp);
   } else {
     fprintf(stderr, "Error creating shape table: %s\n",
-            shape_table_file.string());
+            shape_table_file.c_str());
   }
 }
 
@@ -279,7 +272,7 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
       // Chop off the tr and replace with tif. Extension must be tif!
       image_name.truncate_at(image_name.length() - 2);
       image_name += "tif";
-      trainer->LoadPageImages(image_name.string());
+      trainer->LoadPageImages(image_name.c_str());
     }
   }
   trainer->PostLoadCleanup();
@@ -307,7 +300,7 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
       *shape_table = new ShapeTable;
       trainer->SetupFlatShapeTable(*shape_table);
       tprintf("Flat shape table summary: %s\n",
-              (*shape_table)->SummaryStr().string());
+              (*shape_table)->SummaryStr().c_str());
     }
     (*shape_table)->set_unicharset(trainer->unicharset());
   }
@@ -392,8 +385,6 @@ LABELEDLIST NewLabeledList(const char* Label) {
  * @param max_samples
  * @param unicharset
  * @param training_samples
- * @return none
- * @note Globals: none
  */
 void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_definitions,
                          const char *feature_name, int max_samples,
@@ -455,8 +446,6 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_definitions,
  * This routine deallocates all of the space allocated to
  * the specified list of training samples.
  * @param CharList list of all fonts in document
- * @return none
- * @note Globals: none
  */
 void FreeTrainingSamples(LIST CharList) {
   LABELEDLIST char_sample;
@@ -483,7 +472,6 @@ void FreeTrainingSamples(LIST CharList) {
  * consumed by the items in the list.
  * @param LabeledList labeled list to be freed
  * @note Globals: none
- * @return none
  */
 void FreeLabeledList(LABELEDLIST LabeledList) {
   destroy(LabeledList->List);
@@ -717,8 +705,6 @@ MERGE_CLASS NewLabeledClass(const char* Label) {
  * This routine deallocates all of the space allocated to
  * the specified list of training samples.
  * @param ClassList list of all fonts in document
- * @return none
- * @note Globals: none
  */
 void FreeLabeledClassList(LIST ClassList) {
   MERGE_CLASS MergeClass;

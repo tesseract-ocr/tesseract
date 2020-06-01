@@ -30,7 +30,7 @@
 
 #include "include_gunit.h"
 
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
 #include "log.h"                        // for LOG
 #include "unicharset.h"
 #include "errorcounter.h"
@@ -40,13 +40,6 @@
 #include "trainingsample.h"
 #include "commontraining.h"
 #include "tessopt.h"                    // tessoptind
-
-// Commontraining command-line arguments for font_properties, xheights and
-// unicharset.
-DECLARE_STRING_PARAM_FLAG(F);
-DECLARE_STRING_PARAM_FLAG(X);
-DECLARE_STRING_PARAM_FLAG(U);
-DECLARE_STRING_PARAM_FLAG(output_trainer);
 
 // Specs of the MockClassifier.
 static const int kNumTopNErrs = 10;
@@ -61,12 +54,14 @@ static const int kNumAnswers = kNumNonReject + 2 * (kNumTop2Errs - kNumTopNErrs)
                         (kNumTop1Errs - kNumTop2Errs) +
                         (kNumTopTopErrs - kNumTop1Errs);
 
+#ifndef DISABLED_LEGACY_ENGINE
 static bool safe_strto32(const std::string& str, int* pResult)
 {
   long n = strtol(str.c_str(), nullptr, 0);
   *pResult = n;
   return true;
 }
+#endif
 
 namespace tesseract {
 
@@ -160,12 +155,14 @@ const double kMin1lDistance = 0.25;
 
 // The fixture for testing Tesseract.
 class MasterTrainerTest : public testing::Test {
+#ifndef DISABLED_LEGACY_ENGINE
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   std::string TestDataNameToPath(const std::string& name) {
     return file::JoinPath(TESTING_DIR, name);
-  }
-  std::string TessdataPath() {
-    return TESSDATA_DIR;
   }
   std::string TmpNameToPath(const std::string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
@@ -252,19 +249,29 @@ class MasterTrainerTest : public testing::Test {
   // Objects declared here can be used by all tests in the test case for Foo.
   ShapeTable* shape_table_;
   MasterTrainer* master_trainer_;
+#endif
 };
 
 // Tests that the MasterTrainer correctly loads its data and reaches the correct
 // conclusion over the distance between Arial I l and 1.
 TEST_F(MasterTrainerTest, Il1Test) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because LoadTrainingData is missing.
+  GTEST_SKIP();
+#else
   // Initialize the master_trainer_ and load the Arial tr file.
   LoadMasterTrainer();
   VerifyIl1();
+#endif
 }
 
 // Tests the ErrorCounter using a MockClassifier to check that it counts
 // error categories correctly.
 TEST_F(MasterTrainerTest, ErrorCounterTest) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because LoadTrainingData is missing.
+  GTEST_SKIP();
+#else
   // Initialize the master_trainer_ from the saved tmp file.
   LoadMasterTrainer();
   // Add the space character to the shape_table_ if not already present to
@@ -278,8 +285,8 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
   master_trainer_->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR, 0,
                                            false, shape_classifier,
                                            &accuracy_report);
-  LOG(INFO) << accuracy_report.string();
-  std::string result_string = accuracy_report.string();
+  LOG(INFO) << accuracy_report.c_str();
+  std::string result_string = accuracy_report.c_str();
   std::vector<std::string> results =
       absl::StrSplit(result_string, '\t', absl::SkipEmpty());
   EXPECT_EQ(tesseract::CT_SIZE + 1, results.size());
@@ -303,6 +310,7 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
   EXPECT_EQ(kNumAnswers, result_values[tesseract::CT_NUM_RESULTS]);
 
   delete shape_classifier;
+#endif
 }
 
 }  // namespace.

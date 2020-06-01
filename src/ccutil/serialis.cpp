@@ -2,7 +2,6 @@
  * File:        serialis.cpp  (Formerly serialmac.h)
  * Description: Inline routines and macros for serialisation functions
  * Author:      Phil Cheatle
- * Created:     Tue Oct 08 08:33:12 BST 1991
  *
  * (C) Copyright 1990, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +16,11 @@
  *
  **********************************************************************/
 
-#include "serialis.h"
+#include <tesseract/serialis.h>
 #include <cstdio>
 #include "errcode.h"
-#include "genericvector.h"
+#include <tesseract/genericvector.h>
+#include <tesseract/strngs.h>             // for STRING
 
 namespace tesseract {
 
@@ -202,9 +202,9 @@ bool TFile::Open(const STRING& filename, FileReader reader) {
   is_writing_ = false;
   swap_ = false;
   if (reader == nullptr)
-    return LoadDataFromFile(filename, data_);
+    return LoadDataFromFile(filename.c_str(), data_);
   else
-    return (*reader)(filename, data_);
+    return (*reader)(filename.c_str(), data_);
 }
 
 bool TFile::Open(const char* data, int size) {
@@ -222,7 +222,7 @@ bool TFile::Open(const char* data, int size) {
 
 bool TFile::Open(FILE* fp, int64_t end_offset) {
   offset_ = 0;
-  long current_pos = ftell(fp);
+  auto current_pos = std::ftell(fp);
   if (current_pos < 0) {
     // ftell failed.
     return false;
@@ -310,9 +310,9 @@ void TFile::OpenWrite(GenericVector<char>* data) {
 bool TFile::CloseWrite(const STRING& filename, FileWriter writer) {
   ASSERT_HOST(is_writing_);
   if (writer == nullptr)
-    return SaveDataToFile(*data_, filename);
+    return SaveDataToFile(*data_, filename.c_str());
   else
-    return (*writer)(*data_, filename);
+    return (*writer)(*data_, filename.c_str());
 }
 
 int TFile::FWrite(const void* buffer, size_t size, int count) {

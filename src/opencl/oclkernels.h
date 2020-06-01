@@ -18,7 +18,7 @@
 // cl_amd_fp64: AMD extension
 // use build option outside to define fp_t
 /////////////////////////////////////////////
-const char *kernel_src = KERNEL(
+static const char* kernel_src = KERNEL(
 \n#ifdef KHR_DP_EXTENSION\n
 \n#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n
 \n#elif AMD_DP_EXTENSION\n

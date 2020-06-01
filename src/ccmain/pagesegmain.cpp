@@ -38,7 +38,7 @@
 #include "imagefind.h"
 #include "linefind.h"
 #include "makerow.h"
-#include "osdetect.h"
+#include <tesseract/osdetect.h>
 #include "tabvector.h"
 #include "tesseractclass.h"
 #include "tessvars.h"
@@ -108,9 +108,9 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
   if (!PSM_COL_FIND_ENABLED(pageseg_mode) &&
       input_file != nullptr && input_file->length() > 0) {
     STRING name = *input_file;
-    const char* lastdot = strrchr(name.string(), '.');
+    const char* lastdot = strrchr(name.c_str(), '.');
     if (lastdot != nullptr)
-      name[lastdot - name.string()] = '\0';
+      name[lastdot - name.c_str()] = '\0';
     read_unlv_file(name, width, height, blocks);
   }
   if (blocks->empty()) {
@@ -209,7 +209,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
 
   ColumnFinder* finder = SetupPageSegAndDetectOrientation(
       pageseg_mode, blocks, osd_tess, osr, &temp_blocks, &photomask_pix,
-      &musicmask_pix);
+      pageseg_apply_music_mask ? &musicmask_pix : nullptr);
   int result = 0;
   if (finder != nullptr) {
     TO_BLOCK_IT to_block_it(&temp_blocks);
@@ -333,7 +333,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
 
     BLOBNBOX_CLIST osd_blobs;
     // osd_orientation is the number of 90 degree rotations to make the
-    // characters upright. (See osdetect.h for precise definition.)
+    // characters upright. (See tesseract/osdetect.h for precise definition.)
     // We want the text lines horizontal, (vertical text indicates vertical
     // textlines) which may conflict (eg vertically written CJK).
     int osd_orientation = 0;

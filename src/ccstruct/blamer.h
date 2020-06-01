@@ -3,7 +3,6 @@
 // Description: Module allowing precise error causes to be allocated.
 // Author:      Rike Antonova
 // Refactored:  Ray Smith
-// Created:     Mon Feb 04 14:37:01 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,14 +22,20 @@
 
 #include <cstdint>                    // for int16_t
 #include <cstring>                    // for memcpy
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h" // DISABLED_LEGACY_ENGINE
+#endif
 #include "boxword.h"                  // for BoxWord
-#include "genericvector.h"            // for GenericVector
+#include <tesseract/genericvector.h>            // for GenericVector
+#ifndef DISABLED_LEGACY_ENGINE
 #include "params_training_featdef.h"  // for ParamsTrainingBundle, ParamsTra...
+#endif //  ndef DISABLED_LEGACY_ENGINE
 #include "ratngs.h"                   // for BLOB_CHOICE_LIST (ptr only)
 #include "rect.h"                     // for TBOX
-#include "strngs.h"                   // for STRING
+#include <tesseract/strngs.h>                   // for STRING
 #include "tprintf.h"                  // for tprintf
-#include "unichar.h"                  // for UNICHAR_ID
+#include <tesseract/unichar.h>                  // for UNICHAR_ID
 
 class DENORM;
 class MATRIX;
@@ -40,7 +45,9 @@ class WERD_RES;
 struct MATRIX_COORD;
 struct TWERD;
 
-template <class R, class A1, class A2> class TessResultCallback2;
+namespace tesseract {
+  class LMPainPoints;
+}
 
 static const int16_t kBlamerBoxTolerance = 5;
 
@@ -111,7 +118,7 @@ struct BlamerBundle {
   // Accessors.
   STRING TruthString() const {
     STRING truth_str;
-    for (int i = 0; i < truth_text_.length(); ++i)
+    for (int i = 0; i < truth_text_.size(); ++i)
       truth_str += truth_text_[i];
     return truth_str;
   }
@@ -136,7 +143,7 @@ struct BlamerBundle {
       best_correctly_segmented_rating_ = rating;
   }
   int correct_segmentation_length() const {
-    return correct_segmentation_cols_.length();
+    return correct_segmentation_cols_.size();
   }
   // Returns true if the given ratings matrix col,row position is included
   // in the correct segmentation path at the given index.
@@ -159,6 +166,7 @@ struct BlamerBundle {
     lattice_data_ = new char[lattice_size_];
     memcpy(lattice_data_, data, lattice_size_);
   }
+#ifndef DISABLED_LEGACY_ENGINE
   const tesseract::ParamsTrainingBundle& params_training_bundle() const {
     return params_training_bundle_;
   }
@@ -166,6 +174,7 @@ struct BlamerBundle {
   void AddHypothesis(const tesseract::ParamsTrainingHypothesis& hypo) {
     params_training_bundle_.AddHypothesis(hypo);
   }
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
   // Functions to setup the blamer.
   // Whole word string, whole word bounding box.
@@ -266,14 +275,11 @@ struct BlamerBundle {
   // Returns true if a guided segmentation search is needed.
   bool GuidedSegsearchNeeded(const WERD_CHOICE *best_choice) const;
   // Setup ready to guide the segmentation search to the correct segmentation.
-  // The callback pp_cb is used to avoid a cyclic dependency.
-  // It calls into LMPainPoints::GenerateForBlamer by pre-binding the
-  // WERD_RES, and the LMPainPoints itself.
-  // pp_cb must be a permanent callback, and should be deleted by the caller.
-  void InitForSegSearch(const WERD_CHOICE *best_choice,
+  void InitForSegSearch(const WERD_CHOICE* best_choice,
                         MATRIX* ratings, UNICHAR_ID wildcard_id,
-                        bool debug, STRING *debug_str,
-                        TessResultCallback2<bool, int, int>* pp_cb);
+                        bool debug, STRING* debug_str,
+                        tesseract::LMPainPoints* pain_points,
+                        double max_char_wh_ratio, WERD_RES* word_res);
   // Returns true if the guided segsearch is in progress.
   bool GuidedSegsearchStillGoing() const;
   // The segmentation search has ended. Sets the blame appropriately.
@@ -297,7 +303,7 @@ struct BlamerBundle {
     debug_ = IncorrectReason();
     debug_ += " to blame: ";
     FillDebugString(msg, choice, &debug_);
-    if (debug) tprintf("SetBlame(): %s", debug_.string());
+    if (debug) tprintf("SetBlame(): %s", debug_.c_str());
   }
 
  private:
@@ -337,7 +343,9 @@ struct BlamerBundle {
   char *lattice_data_;
   int lattice_size_;  // size of lattice_data in bytes
   // Information about hypotheses (paths) explored by the segmentation search.
+#ifndef DISABLED_LEGACY_ENGINE
   tesseract::ParamsTrainingBundle params_training_bundle_;
+#endif  // ndef DISABLED_LEGACY_ENGINE
 };
 
 

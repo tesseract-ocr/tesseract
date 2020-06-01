@@ -21,7 +21,7 @@
 #include "normmatch.h"
 #include "mfoutline.h"
 #include "classify.h"
-#include "helpers.h"
+#include <tesseract/helpers.h>
 #include "picofeat.h"
 
 #define MAX_INT_CHAR_NORM (INT_CHAR_NORM_RANGE - 1)

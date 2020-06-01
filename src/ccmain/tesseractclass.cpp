@@ -66,6 +66,8 @@ Tesseract::Tesseract()
       BOOL_MEMBER(tessedit_dump_pageseg_images, false,
                   "Dump intermediate images made during page segmentation",
                   this->params()),
+      BOOL_MEMBER(tessedit_do_invert, true,
+                 "Try inverting the image in `LSTMRecognizeWord`", this->params()),
       // The default for pageseg_mode is the old behaviour, so as not to
       // upset anything that relies on that.
       INT_MEMBER(
@@ -73,7 +75,7 @@ Tesseract::Tesseract()
           "Page seg mode: 0=osd only, 1=auto+osd, 2=auto_only, 3=auto, 4=column,"
           " 5=block_vert, 6=block, 7=line, 8=word, 9=word_circle, 10=char,"
           "11=sparse_text, 12=sparse_text+osd, 13=raw_line"
-          " (Values from PageSegMode enum in publictypes.h)",
+          " (Values from PageSegMode enum in tesseract/publictypes.h)",
           this->params()),
       INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
                       "Which OCR engine(s) to run (Tesseract, LSTM, both)."
@@ -137,8 +139,6 @@ Tesseract::Tesseract()
                   "Don't bother with word plausibility", this->params()),
       BOOL_MEMBER(tessedit_fix_hyphens, true, "Crunch double hyphens?",
                   this->params()),
-      BOOL_MEMBER(tessedit_redo_xheight, true, "Check/Correct x-height",
-                  this->params()),
       BOOL_MEMBER(tessedit_enable_doc_dict, true,
                   "Add words to the document dictionary", this->params()),
       BOOL_MEMBER(tessedit_debug_fonts, false, "Output font info per char",
@@ -182,8 +182,6 @@ Tesseract::Tesseract()
       INT_MEMBER(noise_maxperword, 16, "Max diacritics to apply to a word",
                  this->params()),
       INT_MEMBER(debug_x_ht_level, 0, "Reestimate debug", this->params()),
-      BOOL_MEMBER(debug_acceptable_wds, false, "Dump word pass/fail chk",
-                  this->params()),
       STRING_MEMBER(chs_leading_punct, "('`\"", "Leading punctuation",
                     this->params()),
       STRING_MEMBER(chs_trailing_punct1, ").,;:?!", "1st Trailing punctuation",
@@ -206,10 +204,6 @@ Tesseract::Tesseract()
                   "Do minimal rejection on pass 1 output", this->params()),
       BOOL_MEMBER(tessedit_test_adaption, false, "Test adaption criteria",
                   this->params()),
-      BOOL_MEMBER(tessedit_matcher_log, false, "Log matcher activity",
-                  this->params()),
-      INT_MEMBER(tessedit_test_adaption_mode, 3,
-                 "Adaptation decision algorithm for tess", this->params()),
       BOOL_MEMBER(test_pt, false, "Test for point", this->params()),
       double_MEMBER(test_pt_x, 99999.99, "xcoord", this->params()),
       double_MEMBER(test_pt_y, 99999.99, "ycoord", this->params()),
@@ -227,8 +221,6 @@ Tesseract::Tesseract()
                     this->params()),
       STRING_MEMBER(outlines_2, "ij!?%\":;", "Non standard number of outlines",
                     this->params()),
-      BOOL_MEMBER(docqual_excuse_outline_errs, false,
-                  "Allow outline errs in unrejection?", this->params()),
       BOOL_MEMBER(tessedit_good_quality_unrej, true,
                   "Reduce rejection on good docs", this->params()),
       BOOL_MEMBER(tessedit_use_reject_spaces, true, "Reject spaces?",
@@ -291,8 +283,6 @@ Tesseract::Tesseract()
                     this->params()),
       double_MEMBER(crunch_pot_poor_cert, -8.0, "POTENTIAL crunch cert lt this",
                     this->params()),
-      BOOL_MEMBER(crunch_pot_garbage, true, "POTENTIAL crunch garbage",
-                  this->params()),
       double_MEMBER(crunch_del_rating, 60, "POTENTIAL crunch rating lt this",
                     this->params()),
       double_MEMBER(crunch_del_cert, -10.0, "POTENTIAL crunch cert lt this",
@@ -410,8 +400,6 @@ Tesseract::Tesseract()
       STRING_MEMBER(unrecognised_char, "|",
                     "Output char for unidentified blobs", this->params()),
       INT_MEMBER(suspect_level, 99, "Suspect marker level", this->params()),
-      INT_MEMBER(suspect_space_level, 100,
-                 "Min suspect level for rejecting spaces", this->params()),
       INT_MEMBER(suspect_short_words, 2,
                  "Don't suspect dict wds longer than this", this->params()),
       BOOL_MEMBER(suspect_constrain_1Il, false, "UNLV keep 1Il chars rejected",
@@ -428,8 +416,6 @@ Tesseract::Tesseract()
                   "Make output have exactly one word per WERD", this->params()),
       BOOL_MEMBER(tessedit_zero_kelvin_rejection, false,
                   "Don't reject ANYTHING AT ALL", this->params()),
-      BOOL_MEMBER(tessedit_consistent_reps, true,
-                  "Force all rep chars the same", this->params()),
       INT_MEMBER(tessedit_reject_mode, 0, "Rejection algorithm",
                  this->params()),
       BOOL_MEMBER(tessedit_rejection_debug, false, "Adaption debug",
@@ -469,8 +455,7 @@ Tesseract::Tesseract()
       BOOL_MEMBER(tessedit_create_boxfile, false, "Output text with boxes",
                   this->params()),
       INT_MEMBER(tessedit_page_number, -1,
-                 "-1 -> All pages"
-                 " , else specific page to process",
+                 "-1 -> All pages, else specific page to process",
                  this->params()),
       BOOL_MEMBER(tessedit_write_images, false,
                   "Capture the image from the IPE", this->params()),
@@ -523,13 +508,26 @@ Tesseract::Tesseract()
                     this->params()),
       INT_MEMBER(lstm_choice_mode, 0,
           "Allows to include alternative symbols choices in the hOCR output. "
-          "Valid input values are 0, 1, 2 and 3. 0 is the default value. "
+          "Valid input values are 0, 1 and 2. 0 is the default value. "
           "With 1 the alternative symbol choices per timestep are included. "
-          "With 2 the alternative symbol choices are accumulated per "
-          "character. "
-          "With 3 the alternative symbol choices per timestep are included "
-          "and separated by the suggested segmentation of Tesseract",
+          "With 2 alternative symbol choices are extracted from the CTC "
+          "process instead of the lattice. The choices are mapped per "
+          "character.",
           this->params()),
+      INT_MEMBER(
+          lstm_choice_iterations, 5,
+          "Sets the number of cascading iterations for the Beamsearch in "
+          "lstm_choice_mode. Note that lstm_choice_mode must be set to a "
+          "value greater than 0 to produce results.",
+                 this->params()),
+      double_MEMBER(
+          lstm_rating_coefficient, 5,
+          "Sets the rating coefficient for the lstm choices. The smaller the "
+          "coefficient, the better are the ratings for each choice and less "
+          "information is lost due to the cut off at 0. The standard value is "
+          "5", this->params()),
+      BOOL_MEMBER(pageseg_apply_music_mask, true,
+                "Detect music staff and remove intersecting components", this->params()),
 
       backup_config_file_(nullptr),
       pix_binary_(nullptr),
@@ -563,22 +561,19 @@ Tesseract::~Tesseract() {
 #endif
 }
 
-Dict& Tesseract::getDict()
-{
-    if (0 == Classify::getDict().NumDawgs() && AnyLSTMLang())
-    {
-        if (lstm_recognizer_ && lstm_recognizer_->GetDict())
-        {
-            return *const_cast<Dict*>(lstm_recognizer_->GetDict());
-        }
+Dict& Tesseract::getDict() {
+  if (0 == Classify::getDict().NumDawgs() && AnyLSTMLang()) {
+    if (lstm_recognizer_ && lstm_recognizer_->GetDict()) {
+      return *lstm_recognizer_->GetDict();
     }
-    return Classify::getDict();
   }
+  return Classify::getDict();
+}
 
 
 void Tesseract::Clear() {
   STRING debug_name = imagebasename + "_debug.pdf";
-  pixa_debug_.WritePDF(debug_name.string());
+  pixa_debug_.WritePDF(debug_name.c_str());
   pixDestroy(&pix_binary_);
   pixDestroy(&pix_grey_);
   pixDestroy(&pix_thresholds_);
@@ -618,25 +613,25 @@ void Tesseract::ResetDocumentDictionary() {
 
 void Tesseract::SetBlackAndWhitelist() {
   // Set the white and blacklists (if any)
-  unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
-                                     tessedit_char_whitelist.string(),
-                                     tessedit_char_unblacklist.string());
+  unicharset.set_black_and_whitelist(tessedit_char_blacklist.c_str(),
+                                     tessedit_char_whitelist.c_str(),
+                                     tessedit_char_unblacklist.c_str());
   if (lstm_recognizer_) {
-    UNICHARSET& lstm_unicharset = const_cast<UNICHARSET&> (lstm_recognizer_->GetUnicharset());
-    lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
-                                            tessedit_char_whitelist.string(),
-                                            tessedit_char_unblacklist.string());
+    UNICHARSET& lstm_unicharset = lstm_recognizer_->GetUnicharset();
+    lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.c_str(),
+                                            tessedit_char_whitelist.c_str(),
+                                            tessedit_char_unblacklist.c_str());
   }
   // Black and white lists should apply to all loaded classifiers.
   for (int i = 0; i < sub_langs_.size(); ++i) {
     sub_langs_[i]->unicharset.set_black_and_whitelist(
-        tessedit_char_blacklist.string(), tessedit_char_whitelist.string(),
-        tessedit_char_unblacklist.string());
+        tessedit_char_blacklist.c_str(), tessedit_char_whitelist.c_str(),
+        tessedit_char_unblacklist.c_str());
     if (sub_langs_[i]->lstm_recognizer_) {
-      UNICHARSET& lstm_unicharset = const_cast<UNICHARSET&> (sub_langs_[i]->lstm_recognizer_->GetUnicharset());
-      lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
-                                              tessedit_char_whitelist.string(),
-                                              tessedit_char_unblacklist.string());
+      UNICHARSET& lstm_unicharset = sub_langs_[i]->lstm_recognizer_->GetUnicharset();
+      lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.c_str(),
+                                              tessedit_char_whitelist.c_str(),
+                                              tessedit_char_unblacklist.c_str());
     }
   }
 }
