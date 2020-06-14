@@ -210,8 +210,6 @@ class ImageData {
 
 // A collection of ImageData that knows roughly how much memory it is using.
 class DocumentData {
-  friend void* ReCachePagesFunc(void* data);
-
  public:
   explicit DocumentData(const STRING& name);
   ~DocumentData();
