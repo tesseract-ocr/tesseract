@@ -24,7 +24,6 @@
 #include "imagedata.h"
 
 #include <cinttypes>     // for PRId64
-#include <thread>        // for std::thread
 
 #include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 #include "boxread.h"     // for ReadMemBoxes
@@ -396,6 +395,9 @@ DocumentData::DocumentData(const STRING& name)
       reader_(nullptr) {}
 
 DocumentData::~DocumentData() {
+  if (thread.joinable()) {
+    thread.join();
+  }
   std::lock_guard<std::mutex> lock_p(pages_mutex_);
   std::lock_guard<std::mutex> lock_g(general_mutex_);
 }
@@ -454,8 +456,10 @@ void DocumentData::LoadPageInBackground(int index) {
   if (pages_offset_ == index) return;
   pages_offset_ = index;
   pages_.clear();
-  std::thread t(&tesseract::DocumentData::ReCachePages, this);
-  t.detach();
+  if (thread.joinable()) {
+    thread.join();
+  }
+  thread = std::thread(&tesseract::DocumentData::ReCachePages, this);
 }
 
 // Returns a pointer to the page with the given index, modulo the total
