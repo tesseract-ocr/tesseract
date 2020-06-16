@@ -35,30 +35,6 @@ TBOX SEAM::bounding_box() const {
   return box;
 }
 
-// Returns true if other can be combined into *this.
-bool SEAM::CombineableWith(const SEAM& other, int max_x_dist,
-                           float max_total_priority) const {
-  int dist = location_.x - other.location_.x;
-  if (-max_x_dist < dist && dist < max_x_dist &&
-      num_splits_ + other.num_splits_ <= kMaxNumSplits &&
-      priority_ + other.priority_ < max_total_priority &&
-      !OverlappingSplits(other) && !SharesPosition(other)) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-// Combines other into *this. Only works if CombinableWith returned true.
-void SEAM::CombineWith(const SEAM& other) {
-  priority_ += other.priority_;
-  location_ += other.location_;
-  location_ /= 2;
-
-  for (uint8_t s = 0; s < other.num_splits_ && num_splits_ < kMaxNumSplits; ++s)
-    splits_[num_splits_++] = other.splits_[s];
-}
-
 // Returns true if the splits in *this SEAM appear OK in the sense that they
 // do not cross any outlines and do not chop off any ridiculously small
 // pieces.
