@@ -1152,7 +1152,6 @@ void ScratchEvidence::UpdateSumOfProtoEvidences(
          ((ProtoNum < PROTOS_PER_PROTO_SET) && (ActualProtoNum < NumProtos));
          ProtoNum++, ActualProtoNum++) {
       int temp = 0;
-      assert(ClassTemplate->ProtoLengths[ActualProtoNum] < MAX_PROTO_INDEX);
       for (uint8_t i = 0; i < MAX_PROTO_INDEX &&
            i < ClassTemplate->ProtoLengths[ActualProtoNum]; i++)
         temp += proto_evidence_[ActualProtoNum] [i];
