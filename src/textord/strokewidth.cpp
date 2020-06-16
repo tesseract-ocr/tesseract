@@ -1327,7 +1327,6 @@ bool StrokeWidth::DetectAndRemoveNoise(int pre_overlap, const TBOX& grid_box,
         blob->ClearNeighbours();
         if (!blob->IsDiacritic() || blob->owner() != nullptr)
           continue;  // Not a noise candidate.
-        TBOX blob_box(blob->bounding_box());
         TBOX search_box(blob->bounding_box());
         search_box.pad(gridsize(), gridsize());
         rsearch.StartRectSearch(search_box);
