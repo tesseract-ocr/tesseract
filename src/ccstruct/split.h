@@ -37,7 +37,13 @@ struct SPLIT {
   SPLIT(EDGEPT* pt1, EDGEPT* pt2) : point1(pt1), point2(pt2) {}
 
   // Returns the bounding box of all the points in the split.
-  TBOX bounding_box() const;
+  TBOX bounding_box() const {
+    return TBOX(std::min(point1->pos.x, point2->pos.x),
+                std::min(point1->pos.y, point2->pos.y),
+                std::max(point1->pos.x, point2->pos.x),
+                std::max(point1->pos.y, point2->pos.y));
+  }
+
   // Returns the bounding box of the outline from point1 to point2.
   TBOX Box12() const { return point1->SegmentBox(point2); }
   // Returns the bounding box of the outline from point1 to point1.
