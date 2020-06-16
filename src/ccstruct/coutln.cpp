@@ -215,13 +215,15 @@ C_OUTLINE::C_OUTLINE(C_OUTLINE* srcline, FCOORD rotation) : offsets(nullptr) {
       }
     }
     ASSERT_HOST (destpos.x () == start.x () && destpos.y () == start.y ());
-    dirdiff = step_dir (destindex - 1) - step_dir (0);
-    while ((dirdiff == 64 || dirdiff == -64) && destindex > 1) {
+    while (destindex > 1) {
+      dirdiff = step_dir(destindex - 1) - step_dir(0);
+      if (dirdiff != 64 && dirdiff != -64) {
+        break;
+      }
       start += step (0);
       destindex -= 2;
       for (int i = 0; i < destindex; ++i)
         set_step(i, step_dir(i + 1));
-      dirdiff = step_dir (destindex - 1) - step_dir (0);
     }
     if (destindex >= 4)
       break;
