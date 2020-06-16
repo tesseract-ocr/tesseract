@@ -165,7 +165,7 @@ void RenderIntProto(ScrollView *window,
                     ScrollView::Color color);
 #endif  // GRAPHICS_DISABLED
 
-int TruncateParam(float Param, int Min, int Max, char *Id);
+int TruncateParam(float Param, int Min, int Max);
 
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
@@ -494,13 +494,13 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
   P = ProtoForProtoId(Class, ProtoId);
 
   Param = Proto->A * 128;
-  P->A = TruncateParam(Param, -128, 127, nullptr);
+  P->A = TruncateParam(Param, -128, 127);
 
   Param = -Proto->B * 256;
-  P->B = TruncateParam(Param, 0, 255, nullptr);
+  P->B = TruncateParam(Param, 0, 255);
 
   Param = Proto->C * 128;
-  P->C = TruncateParam(Param, -128, 127, nullptr);
+  P->C = TruncateParam(Param, -128, 127);
 
   Param = Proto->Angle * 256;
   if (Param < 0 || Param >= 256)
@@ -510,7 +510,7 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
 
   /* round proto length to nearest integer number of pico-features */
   Param = (Proto->Length / GetPicoFeatureLength()) + 0.5;
-  Class->ProtoLengths[ProtoId] = TruncateParam(Param, 1, 255, nullptr);
+  Class->ProtoLengths[ProtoId] = TruncateParam(Param, 1, 255);
   if (classify_learning_debug_level >= 2)
     cprintf("Converted ffeat to (A=%d,B=%d,C=%d,L=%d)",
             P->A, P->B, P->C, Class->ProtoLengths[ProtoId]);
@@ -1689,27 +1689,17 @@ void RenderIntProto(ScrollView *window,
 
 /**
  * This routine truncates Param to lie within the range
- * of Min-Max inclusive.  If a truncation is performed, and
- * Id is not null, an warning message is printed.
+ * of Min-Max inclusive.
  *
  * @param Param   parameter value to be truncated
  * @param Min, Max  parameter limits (inclusive)
- * @param Id    string id of parameter for error messages
- *
- * Globals: none
  *
  * @return Truncated parameter.
  */
-int TruncateParam(float Param, int Min, int Max, char *Id) {
+int TruncateParam(float Param, int Min, int Max) {
   if (Param < Min) {
-    if (Id)
-      cprintf("Warning: Param %s truncated from %f to %d!\n",
-              Id, Param, Min);
     Param = Min;
   } else if (Param > Max) {
-    if (Id)
-      cprintf("Warning: Param %s truncated from %f to %d!\n",
-              Id, Param, Max);
     Param = Max;
   }
   return static_cast<int>(std::floor(Param));
