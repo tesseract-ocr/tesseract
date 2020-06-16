@@ -55,17 +55,6 @@ TBOX::TBOX(            // constructor
   }
 }
 
-/**********************************************************************
- * TBOX::TBOX()  Constructor from 4 integer values.
- *  Note: It is caller's responsibility to provide values in the right
- *        order.
- **********************************************************************/
-
-TBOX::TBOX(                    //constructor
-    int16_t left, int16_t bottom, int16_t right, int16_t top)
-    : bot_left(left, bottom), top_right(right, top) {
-}
-
 // rotate_large constructs the containing bounding box of all 4
 // corners after rotating them. It therefore guarantees that all
 // original content is contained within, but also slightly enlarges the box.

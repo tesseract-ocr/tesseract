@@ -39,13 +39,6 @@ const double kBadPriority = 999.0;
 
 BOOL_VAR(wordrec_display_splits, 0, "Display splits");
 
-// Returns the bounding box of all the points in the split.
-TBOX SPLIT::bounding_box() const {
-  return TBOX(
-      std::min(point1->pos.x, point2->pos.x), std::min(point1->pos.y, point2->pos.y),
-      std::max(point1->pos.x, point2->pos.x), std::max(point1->pos.y, point2->pos.y));
-}
-
 // Hides the SPLIT so the outlines appear not to be cut by it.
 void SPLIT::Hide() const {
   EDGEPT* edgept = point1;
