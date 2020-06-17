@@ -394,6 +394,84 @@ file(GLOB tesseract_src
     src/wordrec/*.cpp
 )
 
+if (DISABLED_LEGACY_ENGINE)
+    function(prepend_path srcs path)
+        set(tmp, "")
+        foreach(src IN LISTS ${srcs})
+            list(APPEND tmp ${path}/${src})
+        endforeach(src ${srcs})
+        set(${srcs} ${tmp} PARENT_SCOPE)
+    endfunction()
+
+    SET(tesseract_src_legacy
+        src/ccmain/adaptions.cpp
+        src/ccmain/docqual.cpp
+        src/ccmain/equationdetect.cpp
+        src/ccmain/fixspace.cpp
+        src/ccmain/fixxht.cpp
+        src/ccmain/osdetect.cpp
+        src/ccmain/par_control.cpp
+        src/ccmain/recogtraining.cpp
+        src/ccmain/superscript.cpp
+        src/ccmain/tessbox.cpp
+        src/ccmain/tfacepp.cpp
+        src/ccstruct/fontinfo.cpp
+        src/ccstruct/params_training_featdef.cpp
+        src/ccutil/ambigs.cpp
+        src/ccutil/bitvector.cpp
+        src/ccutil/indexmapbidi.cpp
+        src/ccutil/universalambigs.cpp
+        src/classify/adaptive.cpp
+        src/classify/adaptmatch.cpp
+        src/classify/blobclass.cpp
+        src/classify/cluster.cpp
+        src/classify/clusttool.cpp
+        src/classify/cutoffs.cpp
+        src/classify/featdefs.cpp
+        src/classify/float2int.cpp
+        src/classify/fpoint.cpp
+        src/classify/intfeaturespace.cpp
+        src/classify/intfx.cpp
+        src/classify/intmatcher.cpp
+        src/classify/intproto.cpp
+        src/classify/kdtree.cpp
+        src/classify/mf.cpp
+        src/classify/mfdefs.cpp
+        src/classify/mfoutline.cpp
+        src/classify/mfx.cpp
+        src/classify/normfeat.cpp
+        src/classify/normmatch.cpp
+        src/classify/ocrfeatures.cpp
+        src/classify/outfeat.cpp
+        src/classify/picofeat.cpp
+        src/classify/protos.cpp
+        src/classify/shapeclassifier.cpp
+        src/classify/shapetable.cpp
+        src/classify/tessclassifier.cpp
+        src/classify/trainingsample.cpp
+        src/dict/hyphen.cpp
+        src/wordrec/associate.cpp
+        src/wordrec/chop.cpp
+        src/wordrec/chopper.cpp
+        src/wordrec/drawfx.cpp
+        src/wordrec/findseam.cpp
+        src/wordrec/gradechop.cpp
+        src/wordrec/language_model.cpp
+        src/wordrec/lm_consistency.cpp
+        src/wordrec/lm_pain_points.cpp
+        src/wordrec/lm_state.cpp
+        src/wordrec/outlines.cpp
+        src/wordrec/params_model.cpp
+        src/wordrec/pieces.cpp
+        src/wordrec/plotedges.cpp
+        src/wordrec/render.cpp
+        src/wordrec/segsearch.cpp
+        src/wordrec/wordclass.cpp
+    )
+    prepend_path(tesseract_src_legacy "${CMAKE_CURRENT_SOURCE_DIR}")
+    list(REMOVE_ITEM tesseract_src ${tesseract_src_legacy})
+endif(DISABLED_LEGACY_ENGINE)
+
 list(APPEND arch_files
     src/arch/dotproduct.cpp
     src/arch/simddetect.cpp
