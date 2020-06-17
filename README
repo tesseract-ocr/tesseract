@@ -100,6 +100,7 @@ find its data directory. You must either:
     make install
     sudo ldconfig
 
+
 to move the data files to the standard place, or:
 
     export TESSDATA_PREFIX="directory in which your tessdata resides/"
