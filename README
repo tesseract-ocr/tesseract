@@ -97,6 +97,8 @@ find its data directory. You must either:
     ./autogen.sh
     ./configure
     make
+
+
     make install
     sudo ldconfig
 
