@@ -449,6 +449,7 @@ if (DISABLED_LEGACY_ENGINE)
         src/classify/shapetable.cpp
         src/classify/tessclassifier.cpp
         src/classify/trainingsample.cpp
+        src/dict/permdawg.cpp
         src/dict/hyphen.cpp
         src/wordrec/associate.cpp
         src/wordrec/chop.cpp
