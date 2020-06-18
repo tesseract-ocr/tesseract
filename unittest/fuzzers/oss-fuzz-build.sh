@@ -28,6 +28,7 @@ make -j$(nproc)
 
 cp -R $SRC/tessdata $OUT
 
+# Default fuzzer (image dimension 100 x 100).
 $CXX $CXXFLAGS \
     -I $SRC/tesseract/include \
      $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api \
@@ -41,17 +42,5 @@ $CXX $CXXFLAGS \
      -lz \
      $LIB_FUZZING_ENGINE
 
-$CXX $CXXFLAGS \
-    -DTESSERACT_FUZZER_WIDTH=512 \
-    -DTESSERACT_FUZZER_HEIGHT=256 \
-    -I $SRC/tesseract/include \
-     $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api-512x256 \
-     $SRC/tesseract/.libs/libtesseract.a \
-     /usr/local/lib/liblept.a \
-     /usr/lib/x86_64-linux-gnu/libtiff.a \
-     /usr/lib/x86_64-linux-gnu/libpng.a \
-     /usr/lib/x86_64-linux-gnu/libjpeg.a \
-     /usr/lib/x86_64-linux-gnu/libjbig.a \
-     /usr/lib/x86_64-linux-gnu/liblzma.a \
-     -lz \
-     $LIB_FUZZING_ENGINE
+# More fuzzers with different image dimensions.
+ln -s $OUT/fuzzer-api $OUT/fuzzer-api-512x256

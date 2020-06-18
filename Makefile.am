@@ -750,8 +750,14 @@ endif
 # This is used by OSS-Fuzz.
 LIB_FUZZING_ENGINE ?= -fsanitize=fuzzer
 
+.PHONY: fuzzers
+fuzzers: fast fuzzer-api fuzzer-api-256x512 fuzzer-api-512x256
 fuzzer-api: all
-fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
+fuzzer-api-256x512 \
+fuzzer-api-512x256: fuzzer-api
+	ln -sf $< $@
+
+%: $(top_srcdir)/unittest/fuzzers/%.cpp
 	$(CXX) $(CXXFLAGS) -g $(LIB_FUZZING_ENGINE) \
           -I $(top_srcdir)/include \
           -I $(builddir)/include \
