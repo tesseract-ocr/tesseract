@@ -1193,6 +1193,7 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode* new_node,
 }
 
 // Computes and returns the code-hash for the given code and prev.
+__attribute__((no_sanitize("unsigned-integer-overflow")))
 uint64_t RecodeBeamSearch::ComputeCodeHash(int code, bool dup,
                                            const RecodeNode* prev) const {
   uint64_t hash = prev == nullptr ? 0 : prev->code_hash;
