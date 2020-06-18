@@ -61,6 +61,7 @@ class TRand {
 
  private:
   // Steps the generator to the next value.
+  __attribute__((no_sanitize("unsigned-integer-overflow")))
   void Iterate() {
     seed_ *= 6364136223846793005ULL;
     seed_ += 1442695040888963407ULL;
