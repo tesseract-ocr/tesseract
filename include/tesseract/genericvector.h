@@ -230,6 +230,7 @@ class GenericVector {
   // to two Ts and returns negative if the first element is to appear earlier
   // in the result and positive if it is to appear later, with 0 for equal.
   void sort(int (*comparator)(const void*, const void*)) {
+    assert(data_ != nullptr);
     qsort(data_, size_used_, sizeof(*data_), comparator);
   }
 
