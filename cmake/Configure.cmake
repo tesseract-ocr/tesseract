@@ -83,7 +83,6 @@ set(include_files_list
     dlfcn.h
     inttypes.h
     limits.h
-    malloc.h
     memory.h
     stdbool.h
     stdint.h

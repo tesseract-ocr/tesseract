@@ -440,7 +440,7 @@ AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([sys/ipc.h sys/shm.h])
-AC_CHECK_HEADERS([limits.h malloc.h])
+AC_CHECK_HEADERS([limits.h])
 # Enable use of system-defined bool type if available:
 AC_HEADER_STDBOOL
 
