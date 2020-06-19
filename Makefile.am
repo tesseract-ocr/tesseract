@@ -488,11 +488,11 @@ libtesseract_la_SOURCES += src/dict/context.cpp
 libtesseract_la_SOURCES += src/dict/dawg.cpp
 libtesseract_la_SOURCES += src/dict/dawg_cache.cpp
 libtesseract_la_SOURCES += src/dict/dict.cpp
-libtesseract_la_SOURCES += src/dict/permdawg.cpp
 libtesseract_la_SOURCES += src/dict/stopper.cpp
 libtesseract_la_SOURCES += src/dict/trie.cpp
 if !DISABLED_LEGACY_ENGINE
 libtesseract_la_SOURCES += src/dict/hyphen.cpp
+libtesseract_la_SOURCES += src/dict/permdawg.cpp
 endif
 
 # Rules for src/lstm.
