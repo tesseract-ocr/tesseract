@@ -251,11 +251,15 @@ Pix* ImageThresholder::GetPixRect() {
 // The returned Pix must be pixDestroyed.
 // Provided to the classifier to extract features from the greyscale image.
 Pix* ImageThresholder::GetPixRectGrey() {
-  Pix* pix = GetPixRect();  // May have to be reduced to grey.
+  auto pix = GetPixRect();  // May have to be reduced to grey.
   int depth = pixGetDepth(pix);
   if (depth != 8) {
-    Pix* result = depth < 8 ? pixConvertTo8(pix, false)
-                            : pixConvertRGBToLuminance(pix);
+    if (depth == 24) {
+      auto tmp = pixConvert24To32(pix);
+      pixDestroy(&pix);
+      pix = tmp;
+    }
+    auto result = pixConvertTo8(pix, false);
     pixDestroy(&pix);
     return result;
   }
