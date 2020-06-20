@@ -1376,7 +1376,9 @@ int Classify::CharNormTrainingSample(bool pruner_only,
     for (int i = 0; i < adapt_results->match.size(); i++) {
       results->push_back(adapt_results->match[i]);
     }
-    results->sort(&UnicharRating::SortDescendingRating);
+    if (results->size() > 1) {
+      results->sort(&UnicharRating::SortDescendingRating);
+    }
   }
   delete [] char_norm_array;
   delete adapt_results;
