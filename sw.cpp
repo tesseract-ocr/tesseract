@@ -209,8 +209,6 @@ void check(Checker &c)
     s.checkIncludeExists("stdint.h");
     s.checkIncludeExists("stdlib.h");
     s.checkIncludeExists("string.h");
-    s.checkIncludeExists("sys/ipc.h");
-    s.checkIncludeExists("sys/shm.h");
     s.checkIncludeExists("sys/stat.h");
     s.checkIncludeExists("sys/types.h");
     s.checkIncludeExists("sys/wait.h");

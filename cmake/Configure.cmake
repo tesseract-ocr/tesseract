@@ -86,8 +86,6 @@ set(include_files_list
     stdint.h
     stdlib.h
     string.h
-    sys/ipc.h
-    sys/shm.h
     sys/stat.h
     sys/types.h
     sys/wait.h
