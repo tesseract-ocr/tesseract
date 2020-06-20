@@ -16,7 +16,6 @@
 
 // expects clone of tessdata_fast repo in ../../tessdata_fast
 
-#include <limits.h>
 #include <time.h>
 #include <fstream>
 #include <iostream>

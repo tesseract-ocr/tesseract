@@ -366,23 +366,6 @@ else
     AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
 fi
 
-# Always look into a "gnu" directory.
-curwd=`pwd`
-if test -d $curwd/gnu/include ; then
-   CPPFLAGS="$CPPFLAGS -I$curwd/gnu/include"
-fi
-if test -d $curwd/gnu/lib ; then
-   LDFLAGS="$LDFLAGS -L$curwd/gnu/lib"
-fi
-
-# ----------------------------------------
-# Additional checking of compiler characteristics
-# ----------------------------------------
-
-# Check Endianness. If Big Endian, this will define WORDS_BIGENDIAN
-AC_C_BIGENDIAN
-
-
 # ----------------------------------------
 # Init libtool
 # ----------------------------------------
@@ -438,11 +421,6 @@ AC_SEARCH_LIBS([pthread_create], [pthread])
 
 AC_HEADER_STDC
 AC_HEADER_TIME
-AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS([sys/ipc.h sys/shm.h])
-AC_CHECK_HEADERS([limits.h malloc.h])
-# Enable use of system-defined bool type if available:
-AC_HEADER_STDBOOL
 
 # ----------------------------------------
 # Check for programs needed to build documentation.
