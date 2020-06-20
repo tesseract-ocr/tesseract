@@ -83,7 +83,6 @@ set(include_files_list
     dlfcn.h
     inttypes.h
     memory.h
-    stdbool.h
     stdint.h
     stdlib.h
     string.h

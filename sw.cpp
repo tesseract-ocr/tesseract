@@ -206,7 +206,6 @@ void check(Checker &c)
     s.checkIncludeExists("dlfcn.h");
     s.checkIncludeExists("inttypes.h");
     s.checkIncludeExists("memory.h");
-    s.checkIncludeExists("stdbool.h");
     s.checkIncludeExists("stdint.h");
     s.checkIncludeExists("stdlib.h");
     s.checkIncludeExists("string.h");

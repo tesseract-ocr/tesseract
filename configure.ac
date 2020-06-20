@@ -440,8 +440,6 @@ AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([sys/ipc.h sys/shm.h])
-# Enable use of system-defined bool type if available:
-AC_HEADER_STDBOOL
 
 # ----------------------------------------
 # Check for programs needed to build documentation.
