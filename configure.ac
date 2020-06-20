@@ -366,23 +366,6 @@ else
     AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
 fi
 
-# Always look into a "gnu" directory.
-curwd=`pwd`
-if test -d $curwd/gnu/include ; then
-   CPPFLAGS="$CPPFLAGS -I$curwd/gnu/include"
-fi
-if test -d $curwd/gnu/lib ; then
-   LDFLAGS="$LDFLAGS -L$curwd/gnu/lib"
-fi
-
-# ----------------------------------------
-# Additional checking of compiler characteristics
-# ----------------------------------------
-
-# Check Endianness. If Big Endian, this will define WORDS_BIGENDIAN
-AC_C_BIGENDIAN
-
-
 # ----------------------------------------
 # Init libtool
 # ----------------------------------------
