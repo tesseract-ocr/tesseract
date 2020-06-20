@@ -82,7 +82,6 @@ include(TestBigEndian)
 set(include_files_list
     dlfcn.h
     inttypes.h
-    limits.h
     memory.h
     stdbool.h
     stdint.h

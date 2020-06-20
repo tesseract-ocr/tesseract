@@ -16,10 +16,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifdef __MINGW32__
-#include <limits.h>
-#endif
-
 #include <algorithm>
 #include <cfloat>
 #include <limits>
