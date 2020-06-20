@@ -88,7 +88,6 @@ set(include_files_list
     string.h
     sys/stat.h
     sys/types.h
-    sys/wait.h
     unistd.h
 
     cairo/cairo-version.h

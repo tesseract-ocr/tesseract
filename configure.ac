@@ -421,7 +421,6 @@ AC_SEARCH_LIBS([pthread_create], [pthread])
 
 AC_HEADER_STDC
 AC_HEADER_TIME
-AC_HEADER_SYS_WAIT
 
 # ----------------------------------------
 # Check for programs needed to build documentation.

@@ -211,7 +211,6 @@ void check(Checker &c)
     s.checkIncludeExists("string.h");
     s.checkIncludeExists("sys/stat.h");
     s.checkIncludeExists("sys/types.h");
-    s.checkIncludeExists("sys/wait.h");
     s.checkIncludeExists("tiffio.h");
     s.checkIncludeExists("unistd.h");
     s.checkTypeSize("long long int");
