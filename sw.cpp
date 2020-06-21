@@ -214,12 +214,9 @@ void check(Checker &c)
     s.checkIncludeExists("tiffio.h");
     s.checkIncludeExists("unistd.h");
     s.checkTypeSize("long long int");
-    s.checkTypeSize("mbstate_t");
-    s.checkTypeSize("off_t");
     s.checkTypeSize("size_t");
     s.checkTypeSize("void *");
     s.checkTypeSize("wchar_t");
-    s.checkTypeSize("_Bool");
     {
         auto &c = s.checkSymbolExists("snprintf");
         c.Parameters.Includes.push_back("stdio.h");

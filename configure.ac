@@ -440,8 +440,6 @@ fi
 
 AC_CHECK_TYPES([wchar_t],,, [#include "wchar.h"])
 AC_CHECK_TYPES([long long int])
-AC_CHECK_TYPES([off_t],,, [#include "sys/types.h"])
-AC_CHECK_TYPES([mbstate_t],,, [#include "wchar.h"])
 
 # ----------------------------------------
 # Test auxiliary packages
