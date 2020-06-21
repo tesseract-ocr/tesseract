@@ -416,12 +416,6 @@ AC_SEARCH_LIBS([pthread_create], [pthread])
 
 
 # ----------------------------------------
-# Checks for header files.
-# ----------------------------------------
-
-AC_HEADER_STDC
-
-# ----------------------------------------
 # Check for programs needed to build documentation.
 # ----------------------------------------
 
