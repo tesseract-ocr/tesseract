@@ -33,7 +33,7 @@
 #include "ambigs.h"             // for UnicharIdVector, UnicharAmbigs
 #include "bitvec.h"             // for FreeBitVector, NewBitVector, BIT_VECTOR
 #include "blobs.h"              // for TBLOB, TWERD
-#include "callcpp.h"            // for cprintf, window_wait
+#include "callcpp.h"            // for window_wait
 #include "classify.h"           // for Classify, CST_FRAGMENT, CST_WHOLE
 #include "dict.h"               // for Dict
 #include "errcode.h"            // for ASSERT_HOST
@@ -465,12 +465,12 @@ void Classify::EndAdaptiveClassifier() {
     Filename = imagefile + ADAPT_TEMPLATE_SUFFIX;
     File = fopen (Filename.c_str(), "wb");
     if (File == nullptr)
-      cprintf ("Unable to save adapted templates to %s!\n", Filename.c_str());
+      tprintf ("Unable to save adapted templates to %s!\n", Filename.c_str());
     else {
-      cprintf ("\nSaving adapted templates to %s ...", Filename.c_str());
+      tprintf ("\nSaving adapted templates to %s ...", Filename.c_str());
       fflush(stdout);
       WriteAdaptedTemplates(File, AdaptedTemplates);
-      cprintf ("\n");
+      tprintf ("\n");
       fclose(File);
     }
   }
@@ -577,11 +577,11 @@ void Classify::InitAdaptiveClassifier(TessdataManager* mgr) {
     if (!fp.Open(Filename.c_str(), nullptr)) {
       AdaptedTemplates = NewAdaptedTemplates(true);
     } else {
-      cprintf("\nReading pre-adapted templates from %s ...\n",
+      tprintf("\nReading pre-adapted templates from %s ...\n",
               Filename.c_str());
       fflush(stdout);
       AdaptedTemplates = ReadAdaptedTemplates(&fp);
-      cprintf("\n");
+      tprintf("\n");
       PrintAdaptedTemplates(stdout, AdaptedTemplates);
 
       for (int i = 0; i < AdaptedTemplates->Templates->NumClasses; i++) {
@@ -1768,7 +1768,7 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
   if (IClass->NumConfigs >= MAX_NUM_CONFIGS) {
     ++NumAdaptationsFailed;
     if (classify_learning_debug_level >= 1)
-      cprintf("Cannot make new temporary config: maximum number exceeded.\n");
+      tprintf("Cannot make new temporary config: maximum number exceeded.\n");
     return -1;
   }
 
@@ -1795,7 +1795,7 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
   if (MaxProtoId == NO_PROTO) {
     ++NumAdaptationsFailed;
     if (classify_learning_debug_level >= 1)
-      cprintf("Cannot make new temp protos: maximum number exceeded.\n");
+      tprintf("Cannot make new temp protos: maximum number exceeded.\n");
     return -1;
   }
 
@@ -1806,7 +1806,7 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
   copy_all_bits(TempProtoMask, Config->Protos, Config->ProtoVectorSize);
 
   if (classify_learning_debug_level >= 1)
-    cprintf("Making new temp config %d fontinfo id %d"
+    tprintf("Making new temp config %d fontinfo id %d"
             " using %d old and %d new protos.\n",
             ConfigId, Config->FontinfoId,
             NumOldProtos, MaxProtoId - OldMaxProtoId);

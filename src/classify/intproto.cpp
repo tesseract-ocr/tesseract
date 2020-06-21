@@ -25,7 +25,6 @@
 #include <cassert>
 
 #include "classify.h"
-#include "callcpp.h"       // for cprintf
 #include "emalloc.h"
 #include "fontinfo.h"
 #include <tesseract/genericvector.h>
@@ -391,7 +390,7 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
   PROTO_SET ProtoSet;
 
   if (ProtoId >= Class->NumProtos)
-    cprintf("AddProtoToProtoPruner:assert failed: %d < %d",
+    tprintf("AddProtoToProtoPruner:assert failed: %d < %d",
             ProtoId, Class->NumProtos);
   assert(ProtoId < Class->NumProtos);
 
@@ -528,7 +527,7 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
   Param = (Proto->Length / GetPicoFeatureLength()) + 0.5;
   Class->ProtoLengths[ProtoId] = TruncateParam(Param, 1, 255);
   if (classify_learning_debug_level >= 2)
-    cprintf("Converted ffeat to (A=%d,B=%d,C=%d,L=%d)",
+    tprintf("Converted ffeat to (A=%d,B=%d,C=%d,L=%d)",
             P->A, P->B, P->C, Class->ProtoLengths[ProtoId]);
 }                                /* ConvertProto */
 
@@ -556,7 +555,7 @@ INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
     FClass = &(FloatProtos[ClassId]);
     if (FClass->NumProtos == 0 && FClass->NumConfigs == 0 &&
         strcmp(target_unicharset.id_to_unichar(ClassId), " ") != 0) {
-      cprintf("Warning: no protos/configs for %s in CreateIntTemplates()\n",
+      tprintf("Warning: no protos/configs for %s in CreateIntTemplates()\n",
               target_unicharset.id_to_unichar(ClassId));
     }
     assert(UnusedClassIdIn(IntTemplates, ClassId));
@@ -915,7 +914,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
         if (fp->FReadEndian(&ProtoSet->Protos[x].Configs,
                             sizeof(ProtoSet->Protos[x].Configs[0]),
                             WerdsPerConfigVec) != WerdsPerConfigVec)
-          cprintf("Bad read of inttemp!\n");
+          tprintf("Bad read of inttemp!\n");
       }
       Class->ProtoSets[j] = ProtoSet;
     }
@@ -1039,7 +1038,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
   int version_id = -5;  // When negated by the reader -1 becomes +1 etc.
 
   if (Templates->NumClasses != unicharset_size) {
-    cprintf("Warning: executing WriteIntTemplates() with %d classes in"
+    tprintf("Warning: executing WriteIntTemplates() with %d classes in"
             " Templates, while target_unicharset size is %d\n",
             Templates->NumClasses, unicharset_size);
   }

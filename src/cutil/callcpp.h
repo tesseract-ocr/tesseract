@@ -75,9 +75,6 @@ typedef enum {
   Green_YELLOW
 } C_COL;                         /*starbase colours */
 
-void cprintf (                   //Trace printf
-const char *format, ...          //special message
-);
 ScrollView *c_create_window(                   /*create a window */
                       const char *name,  /*name/title of window */
                       int16_t xpos,        /*coords of window */
