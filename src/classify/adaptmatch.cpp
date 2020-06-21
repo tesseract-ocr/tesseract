@@ -33,7 +33,6 @@
 #include "ambigs.h"             // for UnicharIdVector, UnicharAmbigs
 #include "bitvec.h"             // for FreeBitVector, NewBitVector, BIT_VECTOR
 #include "blobs.h"              // for TBLOB, TWERD
-#include "callcpp.h"            // for window_wait
 #include "classify.h"           // for Classify, CST_FRAGMENT, CST_WHOLE
 #include "dict.h"               // for Dict
 #include "errcode.h"            // for ASSERT_HOST
@@ -271,7 +270,7 @@ void Classify::LearnWord(const char* fontname, WERD_RES* word) {
   #ifndef GRAPHICS_DISABLED
   if (classify_debug_character_fragments) {
     if (learn_fragmented_word_debug_win_ != nullptr) {
-      window_wait(learn_fragmented_word_debug_win_);
+      learn_fragmented_word_debug_win_->Wait();
     }
     RefreshDebugWindow(&learn_fragments_debug_win_, "LearnPieces", 400,
                        word->chopped_word->bounding_box());
@@ -397,7 +396,7 @@ void Classify::LearnPieces(const char* fontname, int start, int length,
                        word->chopped_word->bounding_box());
     rotated_blob->plot(learn_debug_win_, ScrollView::GREEN, ScrollView::BROWN);
     learn_debug_win_->Update();
-    window_wait(learn_debug_win_);
+    learn_debug_win_->Wait();
   }
   if (classify_debug_character_fragments && segmentation == CST_FRAGMENT) {
     ASSERT_HOST(learn_fragments_debug_win_ != nullptr);  // set up in LearnWord

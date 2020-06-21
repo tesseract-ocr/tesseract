@@ -38,8 +38,6 @@
 #endif
 #include "tprintf.h"
 
-#include "callcpp.h"
-
 namespace tesseract {
 
 // Min actual error rate increase to constitute divergence.

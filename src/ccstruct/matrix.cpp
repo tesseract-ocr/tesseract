@@ -21,7 +21,6 @@
 ----------------------------------------------------------------------*/
 #include "matrix.h"
 
-#include "callcpp.h"
 #include "ratngs.h"
 #include "tprintf.h"
 #include "unicharset.h"

@@ -22,7 +22,6 @@
 /**----------------------------------------------------------------------------
      Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "callcpp.h"
 #include "cluster.h"
 #include "ocrfeatures.h"
 #include "picofeat.h"

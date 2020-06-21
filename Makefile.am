@@ -462,14 +462,12 @@ endif
 
 # Rules for src/cutil.
 
-noinst_HEADERS += src/cutil/callcpp.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/cutil/bitvec.h
 noinst_HEADERS += src/cutil/emalloc.h
 noinst_HEADERS += src/cutil/oldlist.h
 endif
 
-libtesseract_la_SOURCES += src/cutil/callcpp.cpp
 if !DISABLED_LEGACY_ENGINE
 libtesseract_la_SOURCES += src/cutil/emalloc.cpp
 libtesseract_la_SOURCES += src/cutil/oldlist.cpp
