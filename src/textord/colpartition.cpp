@@ -365,7 +365,7 @@ bool ColPartition::IsLegal() {
       tprintf("Margins invalid\n");
       Print();
     }
-    return false;  // Margins invalid.
+//    return false;  // Margins invalid.
   }
   if (left_key_ > BoxLeftKey() || right_key_ < BoxRightKey()) {
     if (textord_debug_bugs) {
