@@ -208,6 +208,9 @@ void C_BLOB::ConstructBlobsFromOutlines(bool good_blob,
       ol_it.add_list_after(outline->child());
     }
     auto* blob = new C_BLOB(outline);
+#if 0
+printf("%p allocated\n", blob);
+#endif
     // Set inverse flag and reverse if needed.
     blob->CheckInverseFlagAndDirection();
     // Put on appropriate list.
