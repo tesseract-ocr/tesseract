@@ -420,7 +420,6 @@ AC_SEARCH_LIBS([pthread_create], [pthread])
 # ----------------------------------------
 
 AC_HEADER_STDC
-AC_HEADER_TIME
 
 # ----------------------------------------
 # Check for programs needed to build documentation.
