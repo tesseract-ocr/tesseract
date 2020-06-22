@@ -521,7 +521,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
   int Feature;
 
   if (MatchDebuggingOn (Debug))
-    cprintf ("Integer Matcher -------------------------------------------\n");
+    tprintf ("Integer Matcher -------------------------------------------\n");
 
   tables->Clear(ClassTemplate);
   Result->feature_misses = 0;
@@ -563,7 +563,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
     Result->Print();
 
   if (MatchDebuggingOn(Debug))
-    cprintf("Match Complete --------------------------------------------\n");
+    tprintf("Match Complete --------------------------------------------\n");
 #endif
 
   delete tables;
@@ -600,7 +600,7 @@ int IntegerMatcher::FindGoodProtos(
 
   /* DEBUG opening heading */
   if (MatchDebuggingOn (Debug))
-    cprintf
+    tprintf
       ("Find Good Protos -------------------------------------------\n");
 
   tables->Clear(ClassTemplate);
@@ -635,7 +635,7 @@ int IntegerMatcher::FindGoodProtos(
   }
 
   if (MatchDebuggingOn (Debug))
-    cprintf ("Match Complete --------------------------------------------\n");
+    tprintf ("Match Complete --------------------------------------------\n");
   delete tables;
 
   return NumGoodProtos;
@@ -668,7 +668,7 @@ int IntegerMatcher::FindBadFeatures(
 
   /* DEBUG opening heading */
   if (MatchDebuggingOn(Debug))
-    cprintf("Find Bad Features -------------------------------------------\n");
+    tprintf("Find Bad Features -------------------------------------------\n");
 
   tables->Clear(ClassTemplate);
 
@@ -699,7 +699,7 @@ int IntegerMatcher::FindBadFeatures(
 #endif
 
   if (MatchDebuggingOn(Debug))
-    cprintf("Match Complete --------------------------------------------\n");
+    tprintf("Match Complete --------------------------------------------\n");
 
   delete tables;
   return NumBadFeatures;
@@ -753,16 +753,16 @@ void ScratchEvidence::ClearFeatureEvidence(const INT_CLASS class_template) {
  */
 static void IMDebugConfiguration(int FeatureNum, uint16_t ActualProtoNum,
                                  uint8_t Evidence, uint32_t ConfigWord) {
-  cprintf ("F = %3d, P = %3d, E = %3d, Configs = ",
+  tprintf ("F = %3d, P = %3d, E = %3d, Configs = ",
     FeatureNum, static_cast<int>(ActualProtoNum), static_cast<int>(Evidence));
   while (ConfigWord) {
     if (ConfigWord & 1)
-      cprintf ("1");
+      tprintf ("1");
     else
-      cprintf ("0");
+      tprintf ("0");
     ConfigWord >>= 1;
   }
-  cprintf ("\n");
+  tprintf ("\n");
 }
 
 /**
@@ -770,11 +770,11 @@ static void IMDebugConfiguration(int FeatureNum, uint16_t ActualProtoNum,
  */
 static void IMDebugConfigurationSum(int FeatureNum, uint8_t *FeatureEvidence,
                                     int32_t ConfigCount) {
-  cprintf("F=%3d, C=", FeatureNum);
+  tprintf("F=%3d, C=", FeatureNum);
   for (int ConfigNum = 0; ConfigNum < ConfigCount; ConfigNum++) {
-    cprintf("%4d", FeatureEvidence[ConfigNum]);
+    tprintf("%4d", FeatureEvidence[ConfigNum]);
   }
-  cprintf("\n");
+  tprintf("\n");
 }
 
 /**
@@ -946,23 +946,23 @@ void IntegerMatcher::DebugFeatureProtoError(
   uint16_t ActualProtoNum;
 
   if (PrintMatchSummaryOn(Debug)) {
-    cprintf("Configuration Mask:\n");
+    tprintf("Configuration Mask:\n");
     for (ConfigNum = 0; ConfigNum < ClassTemplate->NumConfigs; ConfigNum++)
-      cprintf("%1d", (((*ConfigMask) >> ConfigNum) & 1));
-    cprintf("\n");
+      tprintf("%1d", (((*ConfigMask) >> ConfigNum) & 1));
+    tprintf("\n");
 
-    cprintf("Feature Error for Configurations:\n");
+    tprintf("Feature Error for Configurations:\n");
     for (ConfigNum = 0; ConfigNum < ClassTemplate->NumConfigs; ConfigNum++) {
-      cprintf(
+      tprintf(
           " %5.1f",
           100.0 * (1.0 - static_cast<float>(tables.sum_feature_evidence_[ConfigNum])
           / NumFeatures / 256.0));
     }
-    cprintf("\n\n\n");
+    tprintf("\n\n\n");
   }
 
   if (PrintMatchSummaryOn (Debug)) {
-    cprintf ("Proto Mask:\n");
+    tprintf ("Proto Mask:\n");
     for (ProtoSetIndex = 0; ProtoSetIndex < ClassTemplate->NumProtoSets;
     ProtoSetIndex++) {
       ActualProtoNum = (ProtoSetIndex * PROTOS_PER_PROTO_SET);
@@ -973,18 +973,18 @@ void IntegerMatcher::DebugFeatureProtoError(
           ((ProtoNum < (PROTOS_PER_PROTO_SET >> 1))
           && (ActualProtoNum < ClassTemplate->NumProtos));
           ProtoNum++, ActualProtoNum++)
-        cprintf ("%1d", (((*ProtoMask) >> ProtoNum) & 1));
-        cprintf ("\n");
+        tprintf ("%1d", (((*ProtoMask) >> ProtoNum) & 1));
+        tprintf ("\n");
       }
     }
-    cprintf ("\n");
+    tprintf ("\n");
   }
 
   for (int i = 0; i < ClassTemplate->NumConfigs; i++)
     ProtoConfigs[i] = 0;
 
   if (PrintProtoMatchesOn (Debug)) {
-    cprintf ("Proto Evidence:\n");
+    tprintf ("Proto Evidence:\n");
     for (ProtoSetIndex = 0; ProtoSetIndex < ClassTemplate->NumProtoSets;
     ProtoSetIndex++) {
       ProtoSet = ClassTemplate->ProtoSets[ProtoSetIndex];
@@ -993,52 +993,52 @@ void IntegerMatcher::DebugFeatureProtoError(
            ((ProtoNum < PROTOS_PER_PROTO_SET) &&
             (ActualProtoNum < ClassTemplate->NumProtos));
            ProtoNum++, ActualProtoNum++) {
-        cprintf ("P %3d =", ActualProtoNum);
+        tprintf ("P %3d =", ActualProtoNum);
         int temp = 0;
         for (uint8_t j = 0; j < ClassTemplate->ProtoLengths[ActualProtoNum]; j++) {
           uint8_t data = tables.proto_evidence_[ActualProtoNum][j];
-          cprintf(" %d", data);
+          tprintf(" %d", data);
           temp += data;
         }
 
-        cprintf(" = %6.4f%%\n",
+        tprintf(" = %6.4f%%\n",
                 temp / 256.0 / ClassTemplate->ProtoLengths[ActualProtoNum]);
 
         ConfigWord = ProtoSet->Protos[ProtoNum].Configs[0];
         ConfigNum = 0;
         while (ConfigWord) {
-          cprintf ("%5d", ConfigWord & 1 ? temp : 0);
+          tprintf ("%5d", ConfigWord & 1 ? temp : 0);
           if (ConfigWord & 1)
             ProtoConfigs[ConfigNum] += temp;
           ConfigNum++;
           ConfigWord >>= 1;
         }
-        cprintf("\n");
+        tprintf("\n");
       }
     }
   }
 
   if (PrintMatchSummaryOn (Debug)) {
-    cprintf ("Proto Error for Configurations:\n");
+    tprintf ("Proto Error for Configurations:\n");
     for (ConfigNum = 0; ConfigNum < ClassTemplate->NumConfigs; ConfigNum++)
-      cprintf (" %5.1f",
+      tprintf (" %5.1f",
         100.0 * (1.0 -
         ProtoConfigs[ConfigNum] /
         ClassTemplate->ConfigLengths[ConfigNum] / 256.0));
-    cprintf ("\n\n");
+    tprintf ("\n\n");
   }
 
   if (PrintProtoMatchesOn (Debug)) {
-    cprintf ("Proto Sum for Configurations:\n");
+    tprintf ("Proto Sum for Configurations:\n");
     for (ConfigNum = 0; ConfigNum < ClassTemplate->NumConfigs; ConfigNum++)
-      cprintf (" %4.1f", ProtoConfigs[ConfigNum] / 256.0);
-    cprintf ("\n\n");
+      tprintf (" %4.1f", ProtoConfigs[ConfigNum] / 256.0);
+    tprintf ("\n\n");
 
-    cprintf ("Proto Length for Configurations:\n");
+    tprintf ("Proto Length for Configurations:\n");
     for (ConfigNum = 0; ConfigNum < ClassTemplate->NumConfigs; ConfigNum++)
-      cprintf (" %4.1f",
+      tprintf (" %4.1f",
         static_cast<float>(ClassTemplate->ConfigLengths[ConfigNum]));
-    cprintf ("\n\n");
+    tprintf ("\n\n");
   }
 
 }

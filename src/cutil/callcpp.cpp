@@ -26,22 +26,6 @@
 #include <cstdio>       // for vsprintf
 #include <memory>       // for unique_ptr
 #include "scrollview.h" // for ScrollView, SVEvent, SVET_ANY, SVET_INPUT
-#include "tprintf.h"    // for tprintf
-
-void
-cprintf (                        //Trace printf
-const char *format, ...          //special message
-) {
-  va_list args;                  //variable args
-  char msg[1000];
-
-  va_start(args, format);  //variable list
-  vsprintf(msg, format, args);  //Format into msg
-  va_end(args);
-
-  tprintf("%s", msg);
-}
-
 
 #ifndef GRAPHICS_DISABLED
 ScrollView *c_create_window(                   /*create a window */

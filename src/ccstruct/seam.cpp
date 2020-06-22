@@ -127,7 +127,7 @@ void SEAM::UndoSeam(TBLOB* blob, TBLOB* other_blob) const {
 
 // Prints everything in *this SEAM.
 void SEAM::Print(const char* label) const {
-  tprintf(label);
+  tprintf("%s", label);
   tprintf(" %6.2f @ (%d,%d), p=%d, n=%d ", priority_, location_.x, location_.y,
           widthp_, widthn_);
   for (int s = 0; s < num_splits_; ++s) {
