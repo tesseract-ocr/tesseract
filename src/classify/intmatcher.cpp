@@ -890,18 +890,21 @@ int IntegerMatcher::UpdateTablesForFeature(
               tables->feature_evidence_[config_offset] = Evidence;
           }
 
+          uint8_t ProtoIndex =
+            ClassTemplate->ProtoLengths[ActualProtoNum + proto_offset];
+          if (ProtoIndex > MAX_PROTO_INDEX) {
+            // Avoid buffer overflow.
+            // TODO: A better fix is still open.
+            ProtoIndex = MAX_PROTO_INDEX;
+          }
           uint8_t* UINT8Pointer =
             &(tables->proto_evidence_[ActualProtoNum + proto_offset][0]);
-          for (uint8_t ProtoIndex =
-            ClassTemplate->ProtoLengths[ActualProtoNum + proto_offset];
-          ProtoIndex > 0; ProtoIndex--, UINT8Pointer++) {
+          for (; Evidence > 0 && ProtoIndex > 0; ProtoIndex--, UINT8Pointer++) {
             if (Evidence > *UINT8Pointer) {
               uint8_t Temp = *UINT8Pointer;
               *UINT8Pointer = Evidence;
               Evidence = Temp;
             }
-            else if (Evidence == 0)
-              break;
           }
         }
       }
