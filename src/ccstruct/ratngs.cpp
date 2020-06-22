@@ -26,7 +26,6 @@
 #include <algorithm>
 #include <string>
 #include "blobs.h"
-#include "callcpp.h"
 #include <tesseract/genericvector.h>
 #include "matrix.h"
 #include "normalis.h"  // kBlnBaselineOffset.
@@ -800,7 +799,7 @@ void WERD_CHOICE::DisplaySegmentation(TWERD* word) {
   segm_window->ZoomToRectangle(bbox.left(), bbox.top(),
                                bbox.right(), bbox.bottom());
   segm_window->Update();
-  window_wait(segm_window);
+  segm_window->Wait();
 #endif
 }
 

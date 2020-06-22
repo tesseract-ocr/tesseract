@@ -341,6 +341,8 @@ class ScrollView {
 // have to be flipped (by ySize).
   int TranslateYCoordinate(int y);
 
+  char Wait();
+
  private:
 // Transfers a binary Image.
   void TransferBinaryImage(struct Pix* image);

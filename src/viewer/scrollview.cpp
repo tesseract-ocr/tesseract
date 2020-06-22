@@ -829,4 +829,17 @@ int ScrollView::TranslateYCoordinate(int y) {
   } else { return y_size_ - y; }
 }
 
+char ScrollView::Wait() {
+  // Wait till an input or click event (all others are thrown away)
+  char ret = '\0';
+  SVEventType ev_type = SVET_ANY;
+  do {
+    std::unique_ptr<SVEvent> ev(AwaitEvent(SVET_ANY));
+    ev_type = ev->type;
+    if (ev_type == SVET_INPUT)
+      ret = ev->parameter[0];
+  } while (ev_type != SVET_INPUT && ev_type != SVET_CLICK);
+  return ret;
+}
+
 #endif  // GRAPHICS_DISABLED

@@ -28,7 +28,6 @@
 #include <cmath>
 #include "fontinfo.h"
 #include "intproto.h"
-#include "callcpp.h"
 #include "scrollview.h"
 #include "float2int.h"
 #include <tesseract/helpers.h>

@@ -27,7 +27,6 @@
 
 #include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 #include "boxread.h"     // for ReadMemBoxes
-#include "callcpp.h"     // for window_wait
 #include <tesseract/helpers.h>     // for IntCastRounded, TRand, ClipToRange, Modulo
 #include "rect.h"        // for TBOX
 #include "scrollview.h"  // for ScrollView, ScrollView::CYAN, ScrollView::NONE
@@ -317,7 +316,7 @@ void ImageData::Display() const {
     win->Text(0, height + kTextSize * 2, transcription_.c_str());
   }
   win->Update();
-  window_wait(win);
+  win->Wait();
 #endif
 }
 

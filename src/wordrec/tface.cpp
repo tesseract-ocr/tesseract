@@ -21,7 +21,6 @@
 #include "wordrec.h"
 
 #ifndef DISABLED_LEGACY_ENGINE
-#include "callcpp.h"
 #include "chop.h"
 #include "featdefs.h"
 #include "pageres.h"

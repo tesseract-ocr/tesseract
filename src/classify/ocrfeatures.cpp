@@ -19,9 +19,8 @@
 ----------------------------------------------------------------------------*/
 #include "ocrfeatures.h"
 #include "emalloc.h"
-#include "callcpp.h"
 #include "scanutils.h"
-
+#include <tesseract/strngs.h>             // for STRING
 #include <cassert>
 #include <cmath>
 

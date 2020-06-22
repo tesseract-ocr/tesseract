@@ -26,7 +26,6 @@
 #include <cstdio>                // for fclose, fopen, FILE
 #include <ctime>                 // for clock
 #include <cctype>
-#include "callcpp.h"
 #include "control.h"
 #ifndef DISABLED_LEGACY_ENGINE
 #include "docqual.h"

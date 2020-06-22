@@ -22,7 +22,6 @@
 
 #include "trie.h"
 
-#include "callcpp.h"
 #include "dawg.h"
 #include "dict.h"
 #include <tesseract/genericvector.h>

@@ -24,7 +24,6 @@
 #include <cmath>                // for M_PI
 #include "chop.h"
 #include "outlines.h"
-#include "callcpp.h"
 #include "plotedges.h"
 #include "wordrec.h"
 

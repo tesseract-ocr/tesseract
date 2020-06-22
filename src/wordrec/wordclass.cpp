@@ -21,7 +21,6 @@
 ----------------------------------------------------------------------*/
 
 #include "blamer.h"   // for blamer_bundle
-#include "callcpp.h"  // for window_wait, C_COL
 #include "params.h"   // for BoolParam
 #include "render.h"   // for display_blob, blob_window, wordrec_blob_pause
 #include "wordrec.h"  // for Wordrec
@@ -51,7 +50,8 @@ namespace tesseract {
  * @param color The colour to use when displayed with ScrollView
  */
 BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob,
-                                         const char *string, C_COL color,
+                                         const char *string,
+                                         ScrollView::Color color,
                                          BlamerBundle *blamer_bundle) {
 #ifndef GRAPHICS_DISABLED
   if (wordrec_display_all_blobs)
@@ -73,7 +73,7 @@ BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob,
     print_ratings_list(string, choices, getDict().getUnicharset());
 
   if (wordrec_blob_pause)
-    window_wait(blob_window);
+    blob_window->Wait();
 #endif
 
   return choices;

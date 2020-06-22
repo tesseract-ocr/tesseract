@@ -66,7 +66,6 @@ class Wordrec : public Classify {
 #include <cstdint>             // for int16_t, int32_t
 #include <memory>
 #include "associate.h"
-#include "callcpp.h"           // for C_COL
 #include "chop.h"              // for PointHeap, MAX_NUM_POINTS
 #include "classify.h"          // for Classify
 #include "dict.h"
@@ -276,7 +275,7 @@ class Wordrec : public Classify {
   // wordclass.cpp
   BLOB_CHOICE_LIST *classify_blob(TBLOB *blob,
                                   const char *string,
-                                  C_COL color,
+                                  ScrollView::Color color,
                                   BlamerBundle *blamer_bundle);
 
   // segsearch.cpp

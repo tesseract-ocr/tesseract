@@ -22,7 +22,6 @@
 
 #include "blamer.h"    // for BlamerBundle, IRR_CORRECT
 #include "blobs.h"     // for TPOINT, TBLOB, EDGEPT, TESSLINE, divisible_blob
-#include "callcpp.h"   // for Red
 #include "dict.h"      // for Dict
 #include "lm_pain_points.h" // for LMPainPoints
 #include "lm_state.h"  // for BestChoiceBundle
@@ -187,7 +186,7 @@ static SEAM* CheckSeam(int debug_level, int32_t blob_number, TWERD* word,
 #ifndef GRAPHICS_DISABLED
       if (debug_level) {
         if (debug_level >2)
-          display_blob(blob, Red);
+          display_blob(blob, ScrollView::RED);
         tprintf("\n** seam being removed ** \n");
       }
 #endif

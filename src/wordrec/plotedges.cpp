@@ -42,20 +42,18 @@ ScrollView *edge_window = nullptr;
  * Macro to display edge points in a window.
  **********************************************************************/
 void display_edgepts(LIST outlines) {
-  void *window;
   /* Set up window */
   if (edge_window == nullptr) {
-    edge_window = c_create_window ("Edges", 750, 150,
-      400, 128, -400.0, 400.0, 0.0, 256.0);
-  }
-  else {
-    c_clear_window(edge_window);
+    edge_window = new ScrollView("Edges", 750, 150, 400, 128, 800, 256, true);
+  } else {
+    edge_window->Clear();
   }
   /* Render the outlines */
-  window = edge_window;
+  auto window = edge_window;
   /* Reclaim old memory */
   iterate(outlines) {
-    render_edgepts (window, reinterpret_cast<EDGEPT *>first_node (outlines), White);
+    render_edgepts(window, reinterpret_cast<EDGEPT *>first_node (outlines),
+                   ScrollView::WHITE);
   }
 }
 
@@ -83,30 +81,30 @@ void draw_blob_edges(TBLOB *blob) {
  * Make a mark on the edges window at a particular location.
  **********************************************************************/
 void mark_outline(EDGEPT *edgept) {  /* Start of point list */
-  void *window = edge_window;
+  auto window = edge_window;
   float x = edgept->pos.x;
   float y = edgept->pos.y;
 
-  c_line_color_index(window, Red);
-  c_move(window, x, y);
+  window->Pen(ScrollView::RED);
+  window->SetCursor(x, y);
 
   x -= 4;
   y -= 12;
-  c_draw(window, x, y);
+  window->DrawTo(x, y);
 
   x -= 2;
   y += 4;
-  c_draw(window, x, y);
+  window->DrawTo(x, y);
 
   x -= 4;
   y += 2;
-  c_draw(window, x, y);
+  window->DrawTo(x, y);
 
   x += 10;
   y += 6;
-  c_draw(window, x, y);
+  window->DrawTo(x, y);
 
-  c_make_current(window);
+  window->Update();
 }
 
 #endif  // GRAPHICS_DISABLED

@@ -23,7 +23,6 @@
 #include <cmath>                // for M_PI
 #include <cstdio>
 #include "emalloc.h"
-#include "callcpp.h"
 #include "tprintf.h"
 #include "classify.h"
 #include "params.h"

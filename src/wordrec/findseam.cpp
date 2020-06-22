@@ -273,8 +273,8 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
     else if (wordrec_display_splits) {
       seam->Mark(edge_window);
       if (chop_debug > 2) {
-        update_edge_window();
-        edge_window_wait();
+        edge_window->Update();
+        edge_window->Wait();
       }
     }
 #endif

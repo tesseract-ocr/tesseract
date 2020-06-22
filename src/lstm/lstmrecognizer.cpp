@@ -24,7 +24,6 @@
 #include "lstmrecognizer.h"
 
 #include "allheaders.h"
-#include "callcpp.h"
 #include "dict.h"
 #include "genericheap.h"
 #include <tesseract/helpers.h>
