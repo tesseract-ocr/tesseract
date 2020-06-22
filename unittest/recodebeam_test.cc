@@ -315,7 +315,6 @@ class RecodeBeamTest : public ::testing::Test {
       int end_t1 = EncodeUTF8(chars1[i], scores1[i], t, random, &outputs);
       // Advance t to the max end, setting everything else to the leftovers.
       int max_t = std::max(end_t1, end_t2);
-      int min_t = std::min(end_t1, end_t2);
       while (t < max_t) {
         double total_score = 0.0;
         for (int j = 0; j < num_codes; ++j) total_score += outputs(t, j);
