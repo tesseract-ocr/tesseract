@@ -900,6 +900,8 @@ int IntegerMatcher::UpdateTablesForFeature(
           uint8_t* UINT8Pointer =
             &(tables->proto_evidence_[ActualProtoNum + proto_offset][0]);
           for (; Evidence > 0 && ProtoIndex > 0; ProtoIndex--, UINT8Pointer++) {
+            assert(UINT8Pointer <
+                   tables->proto_evidence_[ActualProtoNum + proto_offset] + MAX_PROTO_INDEX);
             if (Evidence > *UINT8Pointer) {
               uint8_t Temp = *UINT8Pointer;
               *UINT8Pointer = Evidence;
