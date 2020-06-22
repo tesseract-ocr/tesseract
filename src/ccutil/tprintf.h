@@ -23,7 +23,8 @@
 #include <tesseract/platform.h>   // for TESS_API
 
 // Main logging function.
-extern TESS_API void tprintf(  // Trace printf
+__attribute__((format(printf, 1, 2)))
+TESS_API void tprintf(  // Trace printf
     const char *format, ...);  // Message
 
 #endif  // define TESSERACT_CCUTIL_TPRINTF_H
