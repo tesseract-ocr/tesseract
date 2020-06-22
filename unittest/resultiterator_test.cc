@@ -168,7 +168,7 @@ class ResultIteratorTest : public testing::Test {
   // (expected_reading_order[num_reading_order_entries]) and a given reading
   // context (ltr or rtl).
   void ExpectTextlineReadingOrder(bool in_ltr_context,
-                                  StrongScriptDirection* word_dirs,
+                                  const StrongScriptDirection* word_dirs,
                                   int num_words, int* expected_reading_order,
                                   int num_reading_order_entries) const {
     GenericVector<StrongScriptDirection> gv_word_dirs;
@@ -193,7 +193,7 @@ class ResultIteratorTest : public testing::Test {
   // Sane means that the output contains some permutation of the indices
   // 0..[num_words - 1] interspersed optionally with negative (marker) values.
   void VerifySaneTextlineOrder(bool in_ltr_context,
-                               StrongScriptDirection* word_dirs,
+                               const StrongScriptDirection* word_dirs,
                                int num_words) const {
     GenericVector<StrongScriptDirection> gv_word_dirs;
     for (int i = 0; i < num_words; i++) {
@@ -475,13 +475,12 @@ TEST_F(ResultIteratorTest, SubSuperTest) {
 static const StrongScriptDirection dL = DIR_LEFT_TO_RIGHT;
 static const StrongScriptDirection dR = DIR_RIGHT_TO_LEFT;
 static const StrongScriptDirection dN = DIR_NEUTRAL;
-static const StrongScriptDirection dZ = DIR_MIX;
 
 // Test that a sequence of words that could be interpreted to start from
 // the left side left-to-right or from the right side right-to-left is
 // interpreted appropriately in different contexts.
 TEST_F(ResultIteratorTest, DualStartTextlineOrderTest) {
-  StrongScriptDirection word_dirs[] = {dL, dL, dN, dL, dN, dR, dR, dR};
+  const StrongScriptDirection word_dirs[] = {dL, dL, dN, dL, dN, dR, dR, dR};
   int reading_order_rtl_context[] = {7, 6, 5, 4, ResultIterator::kMinorRunStart,
                                      0, 1, 2, 3, ResultIterator::kMinorRunEnd};
   int reading_order_ltr_context[] = {0, 1,
@@ -501,7 +500,7 @@ TEST_F(ResultIteratorTest, DualStartTextlineOrderTest) {
 // Tests that clearly left-direction text (with no right-to-left indications)
 // comes out strictly left to right no matter the context.
 TEST_F(ResultIteratorTest, LeftwardTextlineOrderTest) {
-  StrongScriptDirection word_dirs[] = {dL, dL, dN, dL, dN, dN, dL, dL};
+  const StrongScriptDirection word_dirs[] = {dL, dL, dN, dL, dN, dN, dL, dL};
   // The order here is just left to right, nothing fancy.
   int reading_order_ltr_context[] = {0, 1, 2, 3, 4, 5, 6, 7};
   // In the strange event that this shows up in an RTL paragraph, nonetheless
@@ -521,7 +520,7 @@ TEST_F(ResultIteratorTest, LeftwardTextlineOrderTest) {
 // Test that right-direction text comes out strictly right-to-left in
 // a right-to-left context.
 TEST_F(ResultIteratorTest, RightwardTextlineOrderTest) {
-  StrongScriptDirection word_dirs[] = {dR, dR, dN, dR, dN, dN, dR, dR};
+  const StrongScriptDirection word_dirs[] = {dR, dR, dN, dR, dN, dN, dR, dR};
   // The order here is just right-to-left, nothing fancy.
   int reading_order_rtl_context[] = {7, 6, 5, 4, 3, 2, 1, 0};
   ExpectTextlineReadingOrder(false, word_dirs, ABSL_ARRAYSIZE(word_dirs),
