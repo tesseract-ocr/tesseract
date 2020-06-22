@@ -350,20 +350,16 @@ AC_ARG_ENABLE([debug],
 AC_MSG_RESULT([$enable_debug])
 if test x"$enable_debug" = x"yes"; then
     CXXFLAGS=${CXXFLAGS:-"-O2"}
-    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -DDEBUG -pedantic"
     AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -DDEBUG -pedantic"
     if test "x$CLANG" = "xyes"; then
         # https://clang.llvm.org/docs/CommandGuide/clang.html
         # clang treats -Og as -O1
-        AM_CPPFLAGS="$AM_CPPFLAGS -O0"
         AM_CXXFLAGS="$AM_CXXFLAGS -O0"
     else
-        AM_CPPFLAGS="$AM_CPPFLAGS -Og"
         AM_CXXFLAGS="$AM_CXXFLAGS -Og"
     fi
 else
     AM_CXXFLAGS="$AM_CXXFLAGS -O2 -DNDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
 fi
 
 # ----------------------------------------
