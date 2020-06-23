@@ -254,11 +254,13 @@ Pix* ImageThresholder::GetPixRectGrey() {
   auto pix = GetPixRect();  // May have to be reduced to grey.
   int depth = pixGetDepth(pix);
   if (depth != 8) {
+#if (LIBLEPT_MAJOR_VERSION == 1 && LIBLEPT_MINOR_VERSION > 80) || (LIBLEPT_MAJOR_VERSION > 1)
     if (depth == 24) {
       auto tmp = pixConvert24To32(pix);
       pixDestroy(&pix);
       pix = tmp;
     }
+#endif
     auto result = pixConvertTo8(pix, false);
     pixDestroy(&pix);
     return result;
