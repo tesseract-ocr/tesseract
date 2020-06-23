@@ -929,11 +929,13 @@ void ColPartition::ComputeLimits() {
   }
 
   if (right_margin_ < bounding_box_.right() && textord_debug_bugs) {
-    tprintf("Made partition with bad right coords");
+    tprintf("Made partition with bad right coords, %d < %d\n",
+            right_margin_, bounding_box_.right());
     Print();
   }
   if (left_margin_ > bounding_box_.left() && textord_debug_bugs) {
-    tprintf("Made partition with bad left coords");
+    tprintf("Made partition with bad left coords, %d > %d\n",
+            left_margin_, bounding_box_.left());
     Print();
   }
   // Fix partner lists. The bounding box has changed and partners are stored
