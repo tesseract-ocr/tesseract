@@ -257,6 +257,8 @@ Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
   if (pix == nullptr) {
     tprintf("Scaling pix of size %d, %d by factor %g made null pix!!\n",
             input_width, input_height, im_factor);
+    pixDestroy(&src_pix);
+    return nullptr;
   }
   if (scaled_width != nullptr) *scaled_width = pixGetWidth(pix);
   if (scaled_height != nullptr) *scaled_height = pixGetHeight(pix);
