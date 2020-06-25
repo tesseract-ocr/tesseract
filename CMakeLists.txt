@@ -32,6 +32,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake Targets")
 
+if(NOT ${CMAKE_VERSION} VERSION_LESS "3.15.0")
+    if (WIN32)
+        cmake_policy(SET CMP0091 NEW)
+        message(STATUS "Setting policy CMP0091 to NEW")
+    endif()
+endif()
+
 ###############################################################################
 #
 # project settings
@@ -81,6 +88,11 @@ option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
 option(USE_SYSTEM_ICU "Use system ICU" OFF)
+if(NOT ${CMAKE_VERSION} VERSION_LESS "3.15.0")
+    if(WIN32 AND MSVC)
+        option(WIN32_MT_BUILD "Build with MT flag for MSVC" OFF)
+    endif()
+endif()
 
 ###############################################################################
 #
@@ -151,6 +163,11 @@ elseif(MSVC)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /wd4244 /wd4305 /wd4267")
     # Don't use /Wall because it generates too many warnings.
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /W4 /bigobj")
+    # MT flag
+    if(WIN32_MT_BUILD)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        message (STATUS "Building with static CRT.")
+    endif()
 endif()
 if(CLANG)  # clang all platforms
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-unused-command-line-argument")
