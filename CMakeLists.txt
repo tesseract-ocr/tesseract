@@ -121,6 +121,13 @@ else()  # minimum required standard
     set(CMAKE_CXX_STANDARD 11)
 endif()
 
+if ("${CMAKE_CXX17_STANDARD_COMPILE_OPTION}" STREQUAL "")
+    set(CMAKE_CXX_STANDARD 14)
+endif()
+if ("${CMAKE_CXX14_STANDARD_COMPILE_OPTION}" STREQUAL "")
+    set(CMAKE_CXX_STANDARD 11)
+endif()
+
 # Avoid using experimental c++1y (c++1z) standard even if the compiler announces cxx14 (cxx17)
 # in CMAKE_CXX_KNOWN_FEATURES and CMAKE_CXX_COMPILE_FEATURES
 # It is the case of clang 3.9, 4.0 (announces c++1z) and gcc 4.8 (announces c++1y)
