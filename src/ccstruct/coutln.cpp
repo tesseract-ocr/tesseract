@@ -1013,18 +1013,21 @@ C_OUTLINE& C_OUTLINE::operator=(const C_OUTLINE& source) {
   box = source.box;
   start = source.start;
   free(steps);
-  stepcount = source.stepcount;
-  steps = static_cast<uint8_t *>(malloc(step_mem()));
-  memmove (steps, source.steps, step_mem());
-  if (!children.empty ())
-    children.clear ();
+  steps = nullptr;
+  if (!children.empty()) {
+    children.clear();
+  }
   children.deep_copy(&source.children, &deep_copy);
   delete [] offsets;
-  if (source.offsets != nullptr) {
-    offsets = new EdgeOffset[stepcount];
-    memcpy(offsets, source.offsets, stepcount * sizeof(*offsets));
-  } else {
-    offsets = nullptr;
+  offsets = nullptr;
+  stepcount = source.stepcount;
+  if (stepcount > 0) {
+    steps = static_cast<uint8_t *>(malloc(step_mem()));
+    memmove(steps, source.steps, step_mem());
+    if (source.offsets != nullptr) {
+      offsets = new EdgeOffset[stepcount];
+      memcpy(offsets, source.offsets, stepcount * sizeof(*offsets));
+    }
   }
   return *this;
 }
