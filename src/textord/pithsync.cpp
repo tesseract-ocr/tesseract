@@ -72,7 +72,7 @@ void FPCUTPT::setup(                     //constructor
   }
   else {
     back_balance = cutpts[x - 1 - array_origin].back_balance << 1;
-    back_balance &= lead_flag + lead_flag - 1;
+    back_balance &= lead_flag + (lead_flag - 1);
     if (projection->pile_count (x) > zero_count)
       back_balance |= 1;
     fwd_balance = cutpts[x - 1 - array_origin].fwd_balance >> 1;
@@ -122,7 +122,7 @@ void FPCUTPT::assign(                         //constructor
   lead_flag = 1 << half_pitch;
 
   back_balance = cutpts[x - 1 - array_origin].back_balance << 1;
-  back_balance &= lead_flag + lead_flag - 1;
+  back_balance &= lead_flag + (lead_flag - 1);
   if (projection->pile_count (x) > zero_count)
     back_balance |= 1;
   fwd_balance = cutpts[x - 1 - array_origin].fwd_balance >> 1;
@@ -229,7 +229,7 @@ void FPCUTPT::assign_cheap(                         //constructor
   lead_flag = 1 << half_pitch;
 
   back_balance = cutpts[x - 1 - array_origin].back_balance << 1;
-  back_balance &= lead_flag + lead_flag - 1;
+  back_balance &= lead_flag + (lead_flag - 1);
   if (projection->pile_count (x) > zero_count)
     back_balance |= 1;
   fwd_balance = cutpts[x - 1 - array_origin].fwd_balance >> 1;
