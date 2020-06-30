@@ -36,8 +36,6 @@ if(NOT ${CMAKE_VERSION} VERSION_LESS "3.15.0")
     if (WIN32)
         cmake_policy(SET CMP0091 NEW)
         message(STATUS "Setting policy CMP0091 to NEW")
-        cmake_policy(SET CMP0069 NEW)
-        message(STATUS "Setting policy CMP0069 to NEW")
     endif()
 endif()
 
@@ -147,6 +145,7 @@ if (STATIC)
 endif()
 
 # LTO
+cmake_policy(SET CMP0069 NEW)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT LTO_SUPPORTED OUTPUT error)
 if(LTO_SUPPORTED)
