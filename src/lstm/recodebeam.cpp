@@ -615,11 +615,12 @@ WERD_RES* RecodeBeamSearch::InitializeWord(bool leading_space,
   C_BLOB_IT b_it(&blobs);
   for (int i = word_start; i < word_end; ++i) {
     if (character_boundaries_.size() > (i + 1)) {
-      TBOX box(character_boundaries_[i], 0, character_boundaries_[i + 1],
-               line_box.height());
-      box.scale(scale_factor);
-      box.move(ICOORD(line_box.left(), line_box.bottom()));
-      box.set_top(line_box.top());
+      TBOX box(static_cast<int16_t>(std::floor(character_boundaries_[i] *
+                                               scale_factor)) + line_box.left(),
+               line_box.bottom(),
+               static_cast<int16_t>(std::ceil(character_boundaries_[i + 1] *
+                                              scale_factor)) + line_box.left(),
+               line_box.top());
       b_it.add_after_then_move(C_BLOB::FakeBlob(box));
     }
   }
