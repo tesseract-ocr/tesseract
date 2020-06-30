@@ -82,7 +82,6 @@ else()
     option(SW_BUILD "Build with sw" OFF)
 endif()
 option(OPENMP_BUILD "Build with openmp support" OFF)  # see issue #1662
-option(AUTO_OPTIMIZE "Usage of cmake auto optimize macros (not suitable for portable build)" ON)
 option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
 option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
 option(ENABLE_LTO "Enable link-time optimization" OFF)
@@ -154,18 +153,18 @@ else()
     message(STATUS "IPO / LTO not supported: <${error}>")
 endif()
 
-# auto optimize
-if (AUTO_OPTIMIZE)
-    include(OptimizeForArchitecture)
-    AutodetectHostArchitecture()
-    OptimizeForArchitecture()
-    # remove global definition for portable build
-    foreach(_flag ${_enable_vector_unit_list})
-        string(TOUPPER "${_flag}" _flag)
-        string(REPLACE "." "_" _flag "__${_flag}__")
-        remove_definitions("-D${_flag}")
-    endforeach(_flag)
-endif()
+# auto optimize - used only for information about available vectors
+include(OptimizeForArchitecture)
+OptimizeForArchitecture()
+# remove global definition to eliminate effect on build
+foreach(_flag ${_enable_vector_unit_list})
+    string(TOUPPER "${_flag}" _flag)
+    string(REPLACE "." "_" _flag "__${_flag}__")
+    remove_definitions("-D${_flag}")
+endforeach(_flag)
+foreach(flag ${Vc_ARCHITECTURE_FLAGS})
+    set(Vc_CXX_FLAGS "${Vc_CXX_FLAGS} ${flag}")
+endforeach()
 
 # Compiler specific environments
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -288,30 +287,10 @@ find_package(OpenCL QUIET)
 #
 ###############################################################################
 
-foreach(flag ${Vc_ARCHITECTURE_FLAGS})
-    set(Vc_CXX_FLAGS "${Vc_CXX_FLAGS} ${flag}")
-endforeach()
-
-# add definition as expected in src/arch/simddetect.cpp
-set(HAVE_AVX OFF)
-set(HAVE_AVX2 OFF)
-set(HAVE_FMA OFF)
-set(HAVE_SSE4_1 OFF)
-set(MARCH_NATIVE_OPT OFF)
-foreach(flag ${_enable_vector_unit_list})  # from OptimizeForArchitecture()
-    string(TOUPPER "${flag}" flag)
-    string(REPLACE "\." "_" flag "${flag}")
-    if("${flag}" MATCHES "AVX|AVX2|FMA|SSE4_1")
-        # global definition autotools put them to config_auto.h
-        add_definitions("-DHAVE_${flag}")
-        # compiler definition valid only for arch directory
-        set(arch_compiler_definition "${arch_compiler_definition} -D__${flag}__")
-        set("HAVE_${flag}" ON)
-    endif()
-endforeach(flag)
 if (NOT MSVC)
    set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -O3 -ffast-math")
 endif()
+
 CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
 if(COMPILER_SUPPORTS_MARCH_NATIVE)
     set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -march=native -mtune=native")
@@ -378,7 +357,6 @@ message( STATUS "HAVE_FMA: ${HAVE_FMA}")
 message( STATUS "HAVE_NEON: ${HAVE_NEON}")
 message( STATUS "HAVE_SSE4_1: ${HAVE_SSE4_1}")
 message( STATUS "MARCH_NATIVE_OPT: ${MARCH_NATIVE_OPT}")
-message( STATUS "arch_compiler_definition: ${arch_compiler_definition}")
 message( STATUS "Link-time optimization: ${CMAKE_INTERPROCEDURAL_OPTIMIZATION}")
 message( STATUS "--------------------------------------------------------")
 message( STATUS "Build with sw [SW_BUILD]: ${SW_BUILD}")
@@ -528,8 +506,9 @@ list(APPEND arch_files
     src/arch/simddetect.cpp
     src/arch/intsimdmatrix.cpp
 )
-set_source_files_properties(${arch_files} PROPERTIES COMPILE_FLAGS "${arch_compiler_definition}")
-set_source_files_properties(src/arch/dotproduct.cpp PROPERTIES COMPILE_FLAGS "${MARCH_NATIVE_FLAGS} ${Vc_CXX_FLAGS}")
+if(MARCH_NATIVE_FLAGS)
+    set_source_files_properties(src/arch/dotproduct.cpp PROPERTIES COMPILE_FLAGS ${MARCH_NATIVE_FLAGS})
+endif(MARCH_NATIVE_FLAGS)
 if(HAVE_AVX)
    list(APPEND arch_files_opt src/arch/dotproductavx.cpp)
    set_source_files_properties(src/arch/dotproductavx.cpp PROPERTIES COMPILE_FLAGS "-mavx")
@@ -550,7 +529,6 @@ if(HAVE_NEON)
    list(APPEND arch_files_opt src/arch/intsimdmatrixneon.cpp)
    set_source_files_properties(src/arch/intsimdmatrixneon.cpp PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
 endif(HAVE_NEON)
-set_source_files_properties(${arch_files_opt} PROPERTIES COMPILE_FLAGS "${arch_compiler_definition} ${Vc_CXX_FLAGS}")
 
 file(GLOB tesseract_hdr
     src/arch/*.h
