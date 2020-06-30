@@ -35,8 +35,8 @@
 #=============================================================================
 
 get_filename_component(_currentDir "${CMAKE_CURRENT_LIST_FILE}" PATH)
-include("${_currentDir}/CheckCCompilerFlag.cmake")
-include("${_currentDir}/CheckCXXCompilerFlag.cmake")
+include(CheckCCompilerFlag)
+include(CheckCXXCompilerFlag)
 
 macro(AddCompilerFlag _flag)
    string(REGEX REPLACE "[-.+/:= ]" "_" _flag_esc "${_flag}")
