@@ -82,7 +82,6 @@ else()
     option(SW_BUILD "Build with sw" OFF)
 endif()
 option(OPENMP_BUILD "Build with openmp support" OFF)  # see issue #1662
-option(AUTO_OPTIMIZE "Usage of cmake auto optimize macros (not suitable for portable build)" ON)
 option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
 option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
 option(ENABLE_LTO "Enable link-time optimization" OFF)
@@ -100,6 +99,10 @@ endif()
 # compiler and linker
 #
 ###############################################################################
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(CLANG 1)
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -154,30 +157,101 @@ else()
     message(STATUS "IPO / LTO not supported: <${error}>")
 endif()
 
-# auto optimize
-if (AUTO_OPTIMIZE)
-    include(OptimizeForArchitecture)
-    AutodetectHostArchitecture()
-    OptimizeForArchitecture()
-    # remove global definition for portable build
-    foreach(_flag ${_enable_vector_unit_list})
-        string(TOUPPER "${_flag}" _flag)
-        string(REPLACE "." "_" _flag "__${_flag}__")
-        remove_definitions("-D${_flag}")
-    endforeach(_flag)
+CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+if(COMPILER_SUPPORTS_MARCH_NATIVE)
+    set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -march=native -mtune=native")
+    set(MARCH_NATIVE_OPT ON)
 endif()
+
+CHECK_CXX_COMPILER_FLAG("-mavx" HAVE_AVX)
+if(HAVE_AVX)
+    set(AVX_COMPILE_FLAGS "-mavx")
+    add_definitions("-DHAVE_AVX")
+endif(HAVE_AVX)
+
+CHECK_CXX_COMPILER_FLAG("-mavx2" HAVE_AVX2)
+if(HAVE_AVX2)
+    set(AVX2_COMPILE_FLAGS "-mavx2")
+    add_definitions("-DHAVE_AVX2")
+endif()
+
+CHECK_CXX_COMPILER_FLAG("-mfma" HAVE_FMA)
+if(HAVE_FMA)
+    set(FMA_COMPILE_FLAGS "-mfma")
+    add_definitions("-DHAVE_FMA")
+endif()
+
+CHECK_CXX_COMPILER_FLAG("-msse4.1" HAVE_SSE4_1)
+if(HAVE_SSE4_1)
+    set(SSE4_1_COMPILE_FLAGS "-msse4.1")
+    add_definitions("-DHAVE_SSE4_1")
+endif()
+
+if(NOT APPLE)
+    # NEON support relies on getauxval, which is not available on OSX, only on Linux and Android
+    CHECK_CXX_COMPILER_FLAG("-mfpu=neon" HAVE_NEON)
+    if(HAVE_NEON)
+        set(NEON_COMPILE_FLAGS "-mfpu=neon")
+        add_definitions("-DHAVE_NEON")
+    endif()
+endif(NOT APPLE)
+
+if(MSVC)
+    if(NOT HAVE_AVX)
+        CHECK_CXX_COMPILER_FLAG("/arch:AVX" HAVE_AVX_MSVC)
+        if(HAVE_AVX_MSVC)
+            set(AVX_COMPILE_FLAGS "/arch:AVX")
+            set(HAVE_AVX ON)
+            add_definitions("-DHAVE_AVX")
+        endif()
+    endif()
+
+    if(NOT HAVE_AVX2)
+        CHECK_CXX_COMPILER_FLAG("/arch:AVX2" HAVE_AVX2_MSVC)
+        if(HAVE_AVX2_MSVC)
+            set(AVX2_COMPILE_FLAGS "/arch:AVX2")
+            set(HAVE_AVX2 ON)
+            add_definitions("-DHAVE_AVX2")
+        endif()
+    endif()
+
+    if(NOT HAVE_FMA)
+        CHECK_CXX_COMPILER_FLAG("/arch:FMA" HAVE_FMA_MSVC)
+        if(HAVE_FMA_MSVC)
+            set(FMA_COMPILE_FLAGS "/arch:FMA  -D__FMA__")
+            set(HAVE_FMA ON)
+            add_definitions("-DHAVE_FMA")
+        endif()
+    else()  # clanc-cl / MSVC does not define __FMA__
+        set(FMA_COMPILE_FLAGS "${FMA_COMPILE_FLAGS} -D__FMA__")
+    endif()
+
+    if(NOT HAVE_SSE4_1)
+        CHECK_CXX_COMPILER_FLAG("/arch:SSE4.1" HAVE_SSE4_1_MSVC)
+        if(HAVE_SSE4_1_MSVC)
+            set(SSE4_1_COMPILE_FLAGS "/arch:SSE4.1 -D__SSE4_1__")
+            set(HAVE_SSE4_1 ON)
+            add_definitions("-DHAVE_SSE4_1")
+        endif()
+    else()  # clanc-cl / MSVC does not define __SSE4_1__
+        set(SSE4_1_COMPILE_FLAGS "${SSE4_1_COMPILE_FLAGS} -D__SSE4_1__")
+    endif()
+endif(MSVC)
+
+# auto optimize - used only for information about available vectors
+include(OptimizeForArchitecture)
+OptimizeForArchitecture()
+# remove global definition to eliminate effect on build
+foreach(_flag ${_enable_vector_unit_list})
+    string(TOUPPER "${_flag}" _flag)
+    string(REPLACE "." "_" _flag "__${_flag}__")
+    remove_definitions("-D${_flag}")
+endforeach(_flag)
+foreach(flag ${Vc_ARCHITECTURE_FLAGS})
+    set(Vc_CXX_FLAGS "${Vc_CXX_FLAGS} ${flag}")
+endforeach()
 
 # Compiler specific environments
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(CLANG 1)
-endif()
-
-CHECK_CXX_COMPILER_FLAG("-mfpu=neon" HAVE_NEON)
-if(HAVE_NEON)
-    set(NEON_COMPILE_FLAGS "-mfpu=neon")
-    add_definitions("-DHAVE_NEON")
-endif()
-
 if(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG -pedantic -Og")
 elseif(MSVC)
@@ -288,34 +362,8 @@ find_package(OpenCL QUIET)
 #
 ###############################################################################
 
-foreach(flag ${Vc_ARCHITECTURE_FLAGS})
-    set(Vc_CXX_FLAGS "${Vc_CXX_FLAGS} ${flag}")
-endforeach()
-
-# add definition as expected in src/arch/simddetect.cpp
-set(HAVE_AVX OFF)
-set(HAVE_AVX2 OFF)
-set(HAVE_FMA OFF)
-set(HAVE_SSE4_1 OFF)
-set(MARCH_NATIVE_OPT OFF)
-foreach(flag ${_enable_vector_unit_list})  # from OptimizeForArchitecture()
-    string(TOUPPER "${flag}" flag)
-    string(REPLACE "\." "_" flag "${flag}")
-    if("${flag}" MATCHES "AVX|AVX2|FMA|SSE4_1")
-        # global definition autotools put them to config_auto.h
-        add_definitions("-DHAVE_${flag}")
-        # compiler definition valid only for arch directory
-        set(arch_compiler_definition "${arch_compiler_definition} -D__${flag}__")
-        set("HAVE_${flag}" ON)
-    endif()
-endforeach(flag)
 if (NOT MSVC)
    set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -O3 -ffast-math")
-endif()
-CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
-if(COMPILER_SUPPORTS_MARCH_NATIVE)
-    set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -march=native -mtune=native")
-    set(MARCH_NATIVE_OPT ON)
 endif()
 
 set(AUTOCONFIG_SRC ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h.in)
@@ -375,10 +423,9 @@ message( STATUS "Vector unit list: ${_enable_vector_unit_list}")
 message( STATUS "HAVE_AVX: ${HAVE_AVX}")
 message( STATUS "HAVE_AVX2: ${HAVE_AVX2}")
 message( STATUS "HAVE_FMA: ${HAVE_FMA}")
-message( STATUS "HAVE_NEON: ${HAVE_NEON}")
 message( STATUS "HAVE_SSE4_1: ${HAVE_SSE4_1}")
 message( STATUS "MARCH_NATIVE_OPT: ${MARCH_NATIVE_OPT}")
-message( STATUS "arch_compiler_definition: ${arch_compiler_definition}")
+message( STATUS "HAVE_NEON: ${HAVE_NEON}")
 message( STATUS "Link-time optimization: ${CMAKE_INTERPROCEDURAL_OPTIMIZATION}")
 message( STATUS "--------------------------------------------------------")
 message( STATUS "Build with sw [SW_BUILD]: ${SW_BUILD}")
@@ -528,29 +575,36 @@ list(APPEND arch_files
     src/arch/simddetect.cpp
     src/arch/intsimdmatrix.cpp
 )
-set_source_files_properties(${arch_files} PROPERTIES COMPILE_FLAGS "${arch_compiler_definition}")
-set_source_files_properties(src/arch/dotproduct.cpp PROPERTIES COMPILE_FLAGS "${MARCH_NATIVE_FLAGS} ${Vc_CXX_FLAGS}")
+
+if(MARCH_NATIVE_FLAGS)
+    set_source_files_properties(src/arch/dotproduct.cpp
+                                PROPERTIES COMPILE_FLAGS ${MARCH_NATIVE_FLAGS})
+endif(MARCH_NATIVE_FLAGS)
 if(HAVE_AVX)
-   list(APPEND arch_files_opt src/arch/dotproductavx.cpp)
-   set_source_files_properties(src/arch/dotproductavx.cpp PROPERTIES COMPILE_FLAGS "-mavx")
+    list(APPEND arch_files_opt src/arch/dotproductavx.cpp)
+    set_source_files_properties(src/arch/dotproductavx.cpp
+                                PROPERTIES COMPILE_FLAGS ${AVX_COMPILE_FLAGS})
 endif(HAVE_AVX)
 if(HAVE_AVX2)
-   list(APPEND arch_files_opt src/arch/intsimdmatrixavx2.cpp)
-   set_source_files_properties(src/arch/intsimdmatrixavx2.cpp PROPERTIES COMPILE_FLAGS "-mavx2")
+    list(APPEND arch_files_opt src/arch/intsimdmatrixavx2.cpp src/arch/dotproductavx.cpp)
+    set_source_files_properties(src/arch/intsimdmatrixavx2.cpp
+                                PROPERTIES COMPILE_FLAGS ${AVX2_COMPILE_FLAGS})
 endif(HAVE_AVX2)
 if(HAVE_FMA)
-   list(APPEND arch_files_opt src/arch/dotproductfma.cpp)
-   set_source_files_properties(src/arch/dotproductfma.cpp PROPERTIES COMPILE_FLAGS "-mfma")
+    list(APPEND arch_files_opt src/arch/dotproductfma.cpp)
+    set_source_files_properties(src/arch/dotproductfma.cpp
+                                PROPERTIES COMPILE_FLAGS ${FMA_COMPILE_FLAGS})
 endif(HAVE_FMA)
 if(HAVE_SSE4_1)
-   list(APPEND arch_files_opt src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp)
-   set_source_files_properties(src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp PROPERTIES COMPILE_FLAGS "-msse4.1")
+    list(APPEND arch_files_opt src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp)
+    set_source_files_properties(src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp
+                                PROPERTIES COMPILE_FLAGS ${SSE4_1_COMPILE_FLAGS})
 endif(HAVE_SSE4_1)
 if(HAVE_NEON)
    list(APPEND arch_files_opt src/arch/intsimdmatrixneon.cpp)
-   set_source_files_properties(src/arch/intsimdmatrixneon.cpp PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
+   set_source_files_properties(src/arch/intsimdmatrixneon.cpp
+                               PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
 endif(HAVE_NEON)
-set_source_files_properties(${arch_files_opt} PROPERTIES COMPILE_FLAGS "${arch_compiler_definition} ${Vc_CXX_FLAGS}")
 
 file(GLOB tesseract_hdr
     src/arch/*.h
