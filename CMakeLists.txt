@@ -172,7 +172,7 @@ endif(HAVE_AVX)
 CHECK_CXX_COMPILER_FLAG("-mavx2" HAVE_AVX2)
 if(HAVE_AVX2)
     set(AVX2_COMPILE_FLAGS "-mavx2")
-    add_definitions("-DHAVE_AVX")
+    add_definitions("-DHAVE_AVX2")
 endif()
 
 CHECK_CXX_COMPILER_FLAG("-mfma" HAVE_FMA)
