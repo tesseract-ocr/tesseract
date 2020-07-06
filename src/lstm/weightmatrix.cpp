@@ -180,9 +180,13 @@ bool WeightMatrix::Serialize(bool training, TFile* fp) const {
     /* The scales stored in memory have an extra factor applied to them
      * to allow faster operation. We have to remove that factor here
      * before writing to disc, and put it back afterwards. */
-    scales_.scale(INT8_MAX);
+    for (int i = 0; i < scales_.size(); ++i) {
+      scales_[i] *= INT8_MAX;
+    }
     if (!scales_.Serialize(fp)) return false;
-    scales_.scale(1.0/INT8_MAX);
+    for (int i = 0; i < scales_.size(); ++i) {
+      scales_[i] /= INT8_MAX;
+    }
   } else {
     if (!wf_.Serialize(fp)) return false;
     if (training && !updates_.Serialize(fp)) return false;
@@ -202,7 +206,9 @@ bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
   if (int_mode_) {
     if (!wi_.DeSerialize(fp)) return false;
     if (!scales_.DeSerialize(fp)) return false;
-    scales_.scale(1.0/INT8_MAX);
+    for (int i = 0; i < scales_.size(); ++i) {
+      scales_[i] /= INT8_MAX;
+    }
     if (IntSimdMatrix::intSimdMatrix) {
       IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_, scales_);
     }
