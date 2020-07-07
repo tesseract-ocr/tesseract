@@ -187,7 +187,7 @@ static void remove_nontext_regions(tesseract::Tesseract *tess,
 // Find connected components in the page and process a subset until finished or
 // a stopping criterion is met.
 // Returns the number of blobs used in making the estimate. 0 implies failure.
-int orientation_and_script_detection(STRING& filename,
+int orientation_and_script_detection(const char* filename,
                                      OSResults* osr,
                                      tesseract::Tesseract* tess) {
   STRING name = filename;        //truncated name

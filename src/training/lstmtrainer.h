@@ -291,7 +291,7 @@ class LSTMTrainer : public LSTMRecognizer {
   void SetupCheckpointInfo();
 
   // Writes the full recognition traineddata to the given filename.
-  bool SaveTraineddata(const STRING& filename);
+  bool SaveTraineddata(const char* filename);
 
   // Writes the recognizer to memory, so that it can be used for testing later.
   void SaveRecognitionDump(GenericVector<char>* data) const;

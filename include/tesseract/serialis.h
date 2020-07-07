@@ -26,7 +26,6 @@
 
 template <typename T>
 class GenericVector;
-class STRING;
 
 /***********************************************************************
   QUOTE_IT   MACRO DEFINITION
@@ -82,7 +81,7 @@ class TFile {
   // All the Open methods load the whole file into memory for reading.
   // Opens a file with a supplied reader, or nullptr to use the default.
   // Note that mixed read/write is not supported.
-  bool Open(const STRING& filename, FileReader reader);
+  bool Open(const char* filename, FileReader reader);
   // From an existing memory buffer.
   bool Open(const char* data, int size);
   // From an open file and an end offset.
@@ -139,7 +138,7 @@ class TFile {
   // calling FWrite, (no close required), or supply a nullptr data to OpenWrite
   // and call CloseWrite to write to a file after the FWrites.
   void OpenWrite(GenericVector<char>* data);
-  bool CloseWrite(const STRING& filename, FileWriter writer);
+  bool CloseWrite(const char* filename, FileWriter writer);
 
   // Replicates fwrite, returning the number of items written.
   // To use fprintf, use snprintf and FWrite.

@@ -843,9 +843,9 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   recognition_done_ = true;
 #ifndef DISABLED_LEGACY_ENGINE
   if (tesseract_->tessedit_resegment_from_line_boxes) {
-    page_res_ = tesseract_->ApplyBoxes(*input_file_, true, block_list_);
+    page_res_ = tesseract_->ApplyBoxes(input_file_->c_str(), true, block_list_);
   } else if (tesseract_->tessedit_resegment_from_boxes) {
-    page_res_ = tesseract_->ApplyBoxes(*input_file_, false, block_list_);
+    page_res_ = tesseract_->ApplyBoxes(input_file_->c_str(), false, block_list_);
   } else
 #endif  // ndef DISABLED_LEGACY_ENGINE
   {
@@ -858,7 +858,7 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   }
 
   if (tesseract_->tessedit_train_line_recognizer) {
-    if (!tesseract_->TrainLineRecognizer(*input_file_, *output_file_, block_list_)) {
+    if (!tesseract_->TrainLineRecognizer(input_file_->c_str(), *output_file_, block_list_)) {
       return -1;
     }
     tesseract_->CorrectClassifyWords(page_res_);
@@ -895,13 +895,14 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   #ifndef DISABLED_LEGACY_ENGINE
   } else if (tesseract_->tessedit_train_from_boxes) {
     STRING fontname;
-    ExtractFontName(*output_file_, &fontname);
+    ExtractFontName(output_file_->c_str(), &fontname);
     tesseract_->ApplyBoxTraining(fontname, page_res_);
   } else if (tesseract_->tessedit_ambigs_training) {
-    FILE *training_output_file = tesseract_->init_recog_training(*input_file_);
+    FILE* training_output_file =
+      tesseract_->init_recog_training(input_file_->c_str());
     // OCR the page segmented into words by tesseract.
     tesseract_->recog_training_segmented(
-        *input_file_, page_res_, monitor, training_output_file);
+        input_file_->c_str(), page_res_, monitor, training_output_file);
     fclose(training_output_file);
   #endif  // ndef DISABLED_LEGACY_ENGINE
   } else {
@@ -1081,7 +1082,7 @@ bool TessBaseAPI::ProcessPages(const char* filename, const char* retry_config,
   #ifndef DISABLED_LEGACY_ENGINE
   if (result) {
     if (tesseract_->tessedit_train_from_boxes &&
-        !tesseract_->WriteTRFile(*output_file_)) {
+        !tesseract_->WriteTRFile(output_file_->c_str())) {
       tprintf("Write of TR file failed: %s\n", output_file_->c_str());
       return false;
     }
@@ -2215,7 +2216,7 @@ bool TessBaseAPI::DetectOS(OSResults* osr) {
 
   if (input_file_ == nullptr)
     input_file_ = new STRING(kInputFile);
-  return orientation_and_script_detection(*input_file_, osr, tesseract_) > 0;
+  return orientation_and_script_detection(input_file_->c_str(), osr, tesseract_) > 0;
 }
 #endif  // ndef DISABLED_LEGACY_ENGINE
 

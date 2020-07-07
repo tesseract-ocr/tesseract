@@ -40,7 +40,7 @@ const float kWorstDictCertainty = -25.0f;
 // Breaks the page into lines, according to the boxes, and writes them to a
 // serialized DocumentData based on output_basename.
 // Return true if successful, false if an error occurred.
-bool Tesseract::TrainLineRecognizer(const STRING& input_imagename,
+bool Tesseract::TrainLineRecognizer(const char* input_imagename,
                                     const STRING& output_basename,
                                     BLOCK_LIST *block_list) {
   STRING lstmf_name = output_basename + ".lstmf";
@@ -58,12 +58,12 @@ bool Tesseract::TrainLineRecognizer(const STRING& input_imagename,
   if (!ReadAllBoxes(applybox_page, false, input_imagename, &boxes, &texts, nullptr,
                     nullptr) ||
       boxes.empty()) {
-    tprintf("Failed to read boxes from %s\n", input_imagename.c_str());
+    tprintf("Failed to read boxes from %s\n", input_imagename);
     return false;
   }
   TrainFromBoxes(boxes, texts, block_list, &images);
   if (images.PagesSize() == 0) {
-    tprintf("Failed to read pages from %s\n", input_imagename.c_str());
+    tprintf("Failed to read pages from %s\n", input_imagename);
     return false;
   }
   images.Shuffle();

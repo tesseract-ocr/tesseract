@@ -42,14 +42,14 @@ namespace tesseract {
 // /path/to/dir/[lang].[fontname].exp[num]
 // The [lang], [fontname] and [num] fields should not have '.' characters.
 // If the global parameter classify_font_name is set, its value is used instead.
-void ExtractFontName(const STRING& filename, STRING* fontname) {
+void ExtractFontName(const char* filename, STRING* fontname) {
   *fontname = classify_font_name;
   if (*fontname == kUnknownFontName) {
     // filename is expected to be of the form [lang].[fontname].exp[num]
     // The [lang], [fontname] and [num] fields should not have '.' characters.
-    const char *basename = strrchr(filename.c_str(), '/');
-    const char *firstdot = strchr(basename ? basename : filename.c_str(), '.');
-    const char *lastdot  = strrchr(filename.c_str(), '.');
+    const char *basename = strrchr(filename, '/');
+    const char *firstdot = strchr(basename ? basename : filename, '.');
+    const char *lastdot  = strrchr(filename, '.');
     if (firstdot != lastdot && firstdot != nullptr && lastdot != nullptr) {
       ++firstdot;
       *fontname = firstdot;
@@ -95,9 +95,10 @@ void Classify::LearnBlob(const STRING& fontname, TBLOB* blob,
 
 // Writes stored training data to a .tr file based on the given filename.
 // Returns false on error.
-bool Classify::WriteTRFile(const STRING& filename) {
+bool Classify::WriteTRFile(const char* filename) {
   bool result = false;
-  STRING tr_filename = filename + ".tr";
+  std::string tr_filename = filename;
+  tr_filename += ".tr";
   FILE* fp = fopen(tr_filename.c_str(), "wb");
   if (fp) {
     result =

@@ -33,7 +33,7 @@ const int16_t kMaxBoxEdgeDiff = 2;
 
 // Sets flags necessary for recognition in the training mode.
 // Opens and returns the pointer to the output file.
-FILE* Tesseract::init_recog_training(const STRING& fname) {
+FILE* Tesseract::init_recog_training(const char* filename) {
   if (tessedit_ambigs_training) {
     tessedit_tess_adaption_mode.set_value(0);  // turn off adaption
     tessedit_enable_doc_dict.set_value(0);     // turn off document dictionary
@@ -41,7 +41,7 @@ FILE* Tesseract::init_recog_training(const STRING& fname) {
     getDict().stopper_no_acceptable_choices.set_value(1);
   }
 
-  STRING output_fname = fname;
+  STRING output_fname = filename;
   const char* lastdot = strrchr(output_fname.c_str(), '.');
   if (lastdot != nullptr)
     output_fname[lastdot - output_fname.c_str()] = '\0';
@@ -81,11 +81,11 @@ static bool read_t(PAGE_RES_IT* page_res_it, TBOX* tbox) {
 // match to those specified by the input box file. For each word (ngram in a
 // single bounding box from the input box file) it outputs the ocred result,
 // the correct label, rating and certainty.
-void Tesseract::recog_training_segmented(const STRING& fname,
+void Tesseract::recog_training_segmented(const char* filename,
                                          PAGE_RES* page_res,
                                          volatile ETEXT_DESC* monitor,
                                          FILE* output_file) {
-  STRING box_fname = fname;
+  std::string box_fname = filename;
   const char* lastdot = strrchr(box_fname.c_str(), '.');
   if (lastdot != nullptr)
     box_fname[lastdot - box_fname.c_str()] = '\0';

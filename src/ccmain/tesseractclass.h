@@ -340,7 +340,7 @@ class Tesseract : public Wordrec {
   // Breaks the page into lines, according to the boxes, and writes them to a
   // serialized DocumentData based on output_basename.
   // Return true if successful, false if an error occurred.
-  bool TrainLineRecognizer(const STRING& input_imagename,
+  bool TrainLineRecognizer(const char* input_imagename,
                            const STRING& output_basename,
                            BLOCK_LIST* block_list);
   // Generates training data for training a line recognizer, eg LSTM.
@@ -678,7 +678,7 @@ class Tesseract : public Wordrec {
   bool tess_acceptable_word(WERD_RES* word);
 
   //// applybox.cpp //////////////////////////////////////////////////////
-  // Applies the box file based on the image name fname, and resegments
+  // Applies the box file based on the image name filename, and resegments
   // the words in the block_list (page), with:
   // blob-mode: one blob per line in the box file, words as input.
   // word/line-mode: one blob per space-delimited unit after the #, and one word
@@ -698,7 +698,7 @@ class Tesseract : public Wordrec {
   // Instead, the correct_text member of WERD_RES is set, and this may be later
   // converted to a best_choice using CorrectClassifyWords. CorrectClassifyWords
   // is not required before calling ApplyBoxTraining.
-  PAGE_RES* ApplyBoxes(const STRING& fname, bool find_segmentation,
+  PAGE_RES* ApplyBoxes(const char* filename, bool find_segmentation,
                        BLOCK_LIST* block_list);
 
   // Any row xheight that is significantly different from the median is set
@@ -1102,8 +1102,8 @@ class Tesseract : public Wordrec {
              "Detect music staff and remove intersecting components");
 
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
-  FILE* init_recog_training(const STRING& fname);
-  void recog_training_segmented(const STRING& fname, PAGE_RES* page_res,
+  FILE* init_recog_training(const char* filename);
+  void recog_training_segmented(const char* filename, PAGE_RES* page_res,
                                 volatile ETEXT_DESC* monitor,
                                 FILE* output_file);
   void ambigs_classify_and_output(const char* label, PAGE_RES_IT* pr_it,

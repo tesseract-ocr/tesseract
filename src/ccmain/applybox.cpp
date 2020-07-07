@@ -90,7 +90,7 @@ static void clear_any_old_text(BLOCK_LIST *block_list) {
   }
 }
 
-// Applies the box file based on the image name fname, and resegments
+// Applies the box file based on the image name filename, and resegments
 // the words in the block_list (page), with:
 // blob-mode: one blob per line in the box file, words as input.
 // word/line-mode: one blob per space-delimited unit after the #, and one word
@@ -110,12 +110,12 @@ static void clear_any_old_text(BLOCK_LIST *block_list) {
 // Instead, the correct_text member of WERD_RES is set, and this may be later
 // converted to a best_choice using CorrectClassifyWords. CorrectClassifyWords
 // is not required before calling ApplyBoxTraining.
-PAGE_RES* Tesseract::ApplyBoxes(const STRING& fname,
+PAGE_RES* Tesseract::ApplyBoxes(const char* filename,
                                 bool find_segmentation,
                                 BLOCK_LIST *block_list) {
   GenericVector<TBOX> boxes;
   GenericVector<STRING> texts, full_texts;
-  if (!ReadAllBoxes(applybox_page, true, fname, &boxes, &texts, &full_texts,
+  if (!ReadAllBoxes(applybox_page, true, filename, &boxes, &texts, &full_texts,
                     nullptr)) {
     return nullptr;  // Can't do it.
   }

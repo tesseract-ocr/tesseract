@@ -73,7 +73,7 @@ class ApplyBoxTest : public testing::Test {
     // Test the boxes by reading the target box file in parallel with the
     // bounding boxes in the ocr output.
     std::string box_filename = TestDataNameToPath(target_box_file);
-    FILE* box_file = OpenBoxFile(STRING(box_filename.c_str()));
+    FILE* box_file = OpenBoxFile(box_filename.c_str());
     ASSERT_TRUE(box_file != nullptr);
     int height = pixGetHeight(src_pix_);
     ResultIterator* it = api_.GetIterator();

@@ -20,7 +20,6 @@
 #include <cstdio>
 #include "errcode.h"
 #include <tesseract/genericvector.h>
-#include <tesseract/strngs.h>             // for STRING
 
 namespace tesseract {
 
@@ -89,8 +88,8 @@ bool Serialize(FILE* fp, const uint32_t* data, size_t n) {
 }
 
 TFile::TFile()
-    : offset_(0),
-      data_(nullptr),
+    : data_(nullptr),
+      offset_(0),
       data_is_owned_(false),
       is_writing_(false),
       swap_(false) {}
@@ -193,7 +192,7 @@ bool TFile::Skip(size_t count) {
   return true;
 }
 
-bool TFile::Open(const STRING& filename, FileReader reader) {
+bool TFile::Open(const char* filename, FileReader reader) {
   if (!data_is_owned_) {
     data_ = new GenericVector<char>;
     data_is_owned_ = true;
@@ -202,9 +201,9 @@ bool TFile::Open(const STRING& filename, FileReader reader) {
   is_writing_ = false;
   swap_ = false;
   if (reader == nullptr)
-    return LoadDataFromFile(filename.c_str(), data_);
+    return LoadDataFromFile(filename, data_);
   else
-    return (*reader)(filename.c_str(), data_);
+    return (*reader)(filename, data_);
 }
 
 bool TFile::Open(const char* data, int size) {
@@ -307,12 +306,12 @@ void TFile::OpenWrite(GenericVector<char>* data) {
   data_->truncate(0);
 }
 
-bool TFile::CloseWrite(const STRING& filename, FileWriter writer) {
+bool TFile::CloseWrite(const char* filename, FileWriter writer) {
   ASSERT_HOST(is_writing_);
   if (writer == nullptr)
-    return SaveDataToFile(*data_, filename.c_str());
+    return SaveDataToFile(*data_, filename);
   else
-    return (*writer)(*data_, filename.c_str());
+    return (*writer)(*data_, filename);
 }
 
 int TFile::FWrite(const void* buffer, size_t size, int count) {

@@ -25,7 +25,6 @@
 class BLOBNBOX;
 class BLOBNBOX_CLIST;
 class BLOB_CHOICE_LIST;
-class STRING;
 class TO_BLOCK_LIST;
 class UNICHARSET;
 template <typename T>
@@ -117,7 +116,7 @@ class ScriptDetector {
   const GenericVector<int>* allowed_scripts_;
 };
 
-int orientation_and_script_detection(STRING& filename, OSResults*,
+int orientation_and_script_detection(const char* filename, OSResults*,
                                      tesseract::Tesseract*);
 
 int os_detect(TO_BLOCK_LIST* port_blocks, OSResults* osr,
