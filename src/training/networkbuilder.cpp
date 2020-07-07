@@ -275,9 +275,9 @@ Network* NetworkBuilder::ParseC(const StaticShape& input_shape, const char** str
   int y = 0, x = 0, d = 0;
   char* end;
   if ((y = strtol(*str + 2, &end, 10)) <= 0 || *end != ',' ||
-      (x = strtol(*str + 1, &end, 10)) <= 0 || *end != ',' ||
-      (d = strtol(*str + 1, &end, 10)) <= 0) {
-    tprintf("Invalid C spec!:%s\n", *str);
+      (x = strtol(end + 1, &end, 10)) <= 0 || *end != ',' ||
+      (d = strtol(end + 1, &end, 10)) <= 0) {
+    tprintf("Invalid C spec!:%s\n", end);
     return nullptr;
   }
   *str = end;
@@ -300,7 +300,7 @@ Network* NetworkBuilder::ParseM(const StaticShape& input_shape, const char** str
   int y = 0, x = 0;
   char* end;
   if ((*str)[1] != 'p' || (y = strtol(*str + 2, &end, 10)) <= 0 ||
-      *end != ',' || (x = strtol(*str + 1, &end, 10)) <= 0) {
+      *end != ',' || (x = strtol(end + 1, &end, 10)) <= 0) {
     tprintf("Invalid Mp spec!:%s\n", *str);
     return nullptr;
   }
