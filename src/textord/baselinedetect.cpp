@@ -387,11 +387,16 @@ void BaselineRow::FitConstrainedIfBetter(int debug,
 
 // Returns the perpendicular distance of the point from the straight
 // baseline.
-double BaselineRow::PerpDistanceFromBaseline(const FCOORD& pt) const {
+float BaselineRow::PerpDistanceFromBaseline(const FCOORD& pt) const {
   FCOORD baseline_vector(baseline_pt2_ - baseline_pt1_);
   FCOORD offset_vector(pt - baseline_pt1_);
-  double distance = baseline_vector * offset_vector;
-  return sqrt(distance * distance / baseline_vector.sqlength());
+  float distance = baseline_vector * offset_vector;
+  float sqlength = baseline_vector.sqlength();
+  if (sqlength == 0.0f) {
+    tprintf("unexpected baseline vector (0,0)\n");
+    return 0.0f;
+  }
+  return std::sqrt(distance * distance / sqlength);
 }
 
 // Computes the bounding box of the row.
