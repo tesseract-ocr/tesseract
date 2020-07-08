@@ -535,9 +535,10 @@ void TabVector::Debug(const char* prefix) {
   }
 }
 
+#ifndef GRAPHICS_DISABLED
+
 // Draw this tabvector in place in the given window.
 void TabVector::Display(ScrollView* tab_win) {
-#ifndef GRAPHICS_DISABLED
   if (textord_debug_printable)
     tab_win->Pen(ScrollView::BLUE);
   else if (alignment_ == TA_LEFT_ALIGNED)
@@ -558,8 +559,9 @@ void TabVector::Display(ScrollView* tab_win) {
   snprintf(score_buf, sizeof(score_buf), "%d", percent_score_);
   tab_win->TextAttributes("Times", 50, false, false, false);
   tab_win->Text(startpt_.x(), startpt_.y(), score_buf);
-#endif
 }
+
+#endif
 
 // Refit the line and/or re-evaluate the vector if the dirty flags are set.
 void TabVector::FitAndEvaluateIfNeeded(const ICOORD& vertical,

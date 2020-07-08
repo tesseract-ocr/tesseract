@@ -107,4 +107,4 @@ void mark_outline(EDGEPT *edgept) {  /* Start of point list */
   window->Update();
 }
 
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED

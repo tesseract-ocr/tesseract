@@ -85,7 +85,7 @@ class PDBLK {
   ///@param serial serial number
   ///@param colour colour to draw in
   void plot(ScrollView *window, int32_t serial, ScrollView::Color colour);
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
   /// assignment
   ///@param source from this

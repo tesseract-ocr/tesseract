@@ -148,7 +148,7 @@ class WERD : public ELIST2_LINK {
 
   // plot rejected blobs in a rainbow of colours
   void plot_rej_blobs(ScrollView* window);
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
   // Removes noise from the word by moving small outlines to the rej_cblobs
   // list, based on the size_threshold.

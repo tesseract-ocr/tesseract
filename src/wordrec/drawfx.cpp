@@ -67,7 +67,7 @@ void clear_fx_win() {  //make features win
                kBlnXHeight + kBlnBaselineOffset);
 }
 
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 /**********************************************************************
  * create_fxdebug_win

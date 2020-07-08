@@ -2,7 +2,6 @@
 // File:        parallel.cpp
 // Description: Runs networks in parallel on the same input.
 // Author:      Ray Smith
-// Created:     Thu May 02 08:06:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #include "parallel.h"
 
@@ -100,9 +103,11 @@ void Parallel::Forward(bool debug, const NetworkIO& input,
       out_offset = output->CopyPacking(*result, out_offset);
     }
   }
+#ifndef GRAPHICS_DISABLED
   if (parallel_debug) {
     DisplayForward(*output);
   }
+#endif
 }
 
 // Runs backward propagation of errors on the deltas line.
@@ -113,7 +118,9 @@ bool Parallel::Backward(bool debug, const NetworkIO& fwd_deltas,
   // If this parallel is a replicator of convolvers, or holds a 1-d LSTM pair,
   // or a 2-d LSTM quad, do debug locally, and don't pass the flag on.
   if (debug && type_ != NT_PARALLEL) {
+#ifndef GRAPHICS_DISABLED
     DisplayBackward(fwd_deltas);
+#endif
     debug = false;
   }
   int stack_size = stack_.size();

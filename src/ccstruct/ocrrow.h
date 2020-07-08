@@ -140,7 +140,7 @@ class ROW:public ELIST_LINK
                                  //draw it
       baseline.plot (window, colour);
     }
-    #endif  // GRAPHICS_DISABLED
+    #endif // !GRAPHICS_DISABLED
     ROW& operator= (const ROW & source);
 
   private:

@@ -275,7 +275,7 @@ void TESSLINE::plot(ScrollView* window, ScrollView::Color color,
       window->DrawTo(pt->pos.x, pt->pos.y);
   } while (pt != loop);
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 // Returns the first non-hidden EDGEPT that has a different src_outline to
 // its predecessor, or, if all the same, the lowest indexed point.
@@ -512,7 +512,7 @@ void TBLOB::plot(ScrollView* window, ScrollView::Color color,
        outline = outline->next)
     outline->plot(window, color, child_color);
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 // Computes the center of mass and second moments for the old baseline and
 // 2nd moment normalizations. Returns the outline length.
@@ -900,7 +900,7 @@ void TWERD::plot(ScrollView* window) {
     color = WERD::NextColor(color);
   }
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 /**********************************************************************
  * divisible_blob

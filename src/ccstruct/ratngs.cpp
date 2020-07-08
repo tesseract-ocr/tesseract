@@ -758,10 +758,11 @@ void WERD_CHOICE::print_state(const char *msg) const {
   tprintf("\n");
 }
 
+#ifndef GRAPHICS_DISABLED
+
 // Displays the segmentation state of *this (if not the same as the last
 // one displayed) and waits for a click in the window.
 void WERD_CHOICE::DisplaySegmentation(TWERD* word) {
-#ifndef GRAPHICS_DISABLED
   // Number of different colors to draw with.
   const int kNumColors = 6;
   static ScrollView *segm_window = nullptr;
@@ -800,9 +801,9 @@ void WERD_CHOICE::DisplaySegmentation(TWERD* word) {
                                bbox.right(), bbox.bottom());
   segm_window->Update();
   segm_window->Wait();
-#endif
 }
 
+#endif // !GRAPHICS_DISABLED
 
 bool EqualIgnoringCaseAndTerminalPunct(const WERD_CHOICE &word1,
                                        const WERD_CHOICE &word2) {

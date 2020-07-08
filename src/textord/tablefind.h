@@ -385,8 +385,6 @@ class TableFinder {
   void DisplayColPartitionConnections(ScrollView* win,
                                       ColPartitionGrid* grid,
                                       ScrollView::Color default_color);
-  void DisplayColSegmentGrid(ScrollView* win, ColSegmentGrid* grid,
-                             ScrollView::Color color);
 
   // Merge all colpartitions in table regions to make them a single
   // colpartition and revert types of isolated table cells not

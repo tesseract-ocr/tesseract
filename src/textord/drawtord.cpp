@@ -34,12 +34,13 @@ BOOL_VAR (textord_show_fixed_cuts, false,
 
 ScrollView* to_win = nullptr;
 
+#ifndef GRAPHICS_DISABLED
+
 /**********************************************************************
  * create_to_win
  *
  * Create the to window used to show the fit.
  **********************************************************************/
-#ifndef GRAPHICS_DISABLED
 
 ScrollView* create_to_win(ICOORD page_tr) {
   if (to_win != nullptr) return to_win;
@@ -414,4 +415,4 @@ void plot_row_cells(                       //draw words
   }
 }
 
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED

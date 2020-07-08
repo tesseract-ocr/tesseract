@@ -62,7 +62,7 @@ class DLLSYM POLY_BLOCK {
 
   #ifndef GRAPHICS_DISABLED
   void fill(ScrollView* window, ScrollView::Color colour);
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
 
   // Returns true if other is inside this.
   bool contains(POLY_BLOCK *other);
@@ -79,7 +79,7 @@ class DLLSYM POLY_BLOCK {
   // Static utility functions to handle the PolyBlockType.
   // Returns a color to draw the given type.
   static ScrollView::Color ColorForPolyBlockType(PolyBlockType type);
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
 
  private:
   ICOORDELT_LIST vertices;     // vertices

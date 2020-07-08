@@ -690,7 +690,7 @@ void Tesseract::debug_word(PAGE_RES* page_res, const TBOX &selection_box) {
  * Blank display of word then redisplay word according to current display mode
  * settings
  */
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 namespace tesseract {
 #ifndef GRAPHICS_DISABLED
 bool Tesseract::word_blank_and_set_display(PAGE_RES_IT* pr_it) {
@@ -894,7 +894,7 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
       editor_image_word_bb_color));
   return true;
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 /**
  * word_dumper()
@@ -980,6 +980,6 @@ void Tesseract::blob_feature_display(PAGE_RES* page_res,
 }
 
 
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 }  // namespace tesseract

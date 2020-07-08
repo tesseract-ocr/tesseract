@@ -107,7 +107,7 @@ class C_BLOB:public ELIST_LINK
                      ScrollView::Color blob_colour,
                      ScrollView::Color child_colour,
                      ScrollView* window);
-    #endif  // GRAPHICS_DISABLED
+    #endif // !GRAPHICS_DISABLED
 
     C_BLOB& operator= (const C_BLOB & source) {
       if (!outlines.empty ())

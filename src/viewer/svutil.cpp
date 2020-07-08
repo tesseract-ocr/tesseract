@@ -341,4 +341,4 @@ SVNetwork::~SVNetwork() {
   delete[] msg_buffer_in_;
 }
 
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED

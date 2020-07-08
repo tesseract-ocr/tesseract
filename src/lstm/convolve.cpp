@@ -4,7 +4,6 @@
 //              and pulls in random data to fill out-of-input inputs.
 //              Output is therefore same size as its input, but deeper.
 // Author:      Ray Smith
-// Created:     Tue Mar 18 16:56:06 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +16,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #include "convolve.h"
 
@@ -76,7 +79,9 @@ void Convolve::Forward(bool debug, const NetworkIO& input,
       }
     }
   } while (dest_index.Increment());
+#ifndef GRAPHICS_DISABLED
   if (debug) DisplayForward(*output);
+#endif
 }
 
 // Runs backward propagation of errors on the deltas line.

@@ -261,7 +261,7 @@ struct TESSLINE {
   #ifndef GRAPHICS_DISABLED
   void plot(ScrollView* window, ScrollView::Color color,
             ScrollView::Color child_color);
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
 
   // Returns the first outline point that has a different src_outline to its
   // predecessor, or, if all the same, the lowest indexed point.
@@ -366,7 +366,7 @@ struct TBLOB {
   #ifndef GRAPHICS_DISABLED
   void plot(ScrollView* window, ScrollView::Color color,
             ScrollView::Color child_color);
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
 
   int BBArea() const {
     int total_area = 0;

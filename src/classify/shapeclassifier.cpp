@@ -88,6 +88,8 @@ const UNICHARSET& ShapeClassifier::GetUnicharset() const {
   return GetShapeTable()->unicharset();
 }
 
+#ifndef GRAPHICS_DISABLED
+
 // Visual debugger classifies the given sample, displays the results and
 // solicits user input to display other classifications. Returns when
 // the user has finished with debugging the sample.
@@ -96,7 +98,6 @@ const UNICHARSET& ShapeClassifier::GetUnicharset() const {
 void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
                                    Pix* page_pix,
                                    UNICHAR_ID unichar_id) {
-#ifndef GRAPHICS_DISABLED
   static ScrollView* terminator = nullptr;
   if (terminator == nullptr) {
     terminator = new ScrollView("XIT", 0, 0, 50, 50, 50, 50, true);
@@ -152,8 +153,9 @@ void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
              ev_type != SVET_CLICK && ev_type != SVET_DESTROY);
   } while (ev_type != SVET_CLICK && ev_type != SVET_DESTROY);
   delete debug_win;
-#endif  // GRAPHICS_DISABLED
 }
+
+#endif // !GRAPHICS_DISABLED
 
 // Displays classification as the given shape_id. Creates as many windows
 // as it feels fit, using index as a guide for placement. Adds any created
