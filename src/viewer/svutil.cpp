@@ -52,6 +52,10 @@
 #include <unistd.h>
 #endif
 
+#if defined(_WIN32) && !defined(__GNUC__)
+#define strtok_r(str, delim, saveptr) strtok_s(str, delim, saveptr)
+#endif /* _WIN32 && !__GNUC__ */
+
 #ifndef GRAPHICS_DISABLED
 
 const int kMaxMsgSize = 4096;
@@ -164,18 +168,15 @@ void SVNetwork::Flush() {
 // This will always return one line of char* (denoted by \n).
 char* SVNetwork::Receive() {
   char* result = nullptr;
-#if defined(_WIN32) || defined(__CYGWIN__)
-  if (has_content) { result = strtok (nullptr, "\n"); }
-#else
-  if (buffer_ptr_ != nullptr) { result = strtok_r(nullptr, "\n", &buffer_ptr_); }
-#endif
+  if (buffer_ptr_ != nullptr) {
+    result = strtok_r(nullptr, "\n", &buffer_ptr_);
+  }
 
   // This means there is something left in the buffer and we return it.
   if (result != nullptr) { return result;
   // Otherwise, we read from the stream_.
   } else {
     buffer_ptr_ = nullptr;
-    has_content = false;
 
     // The timeout length is not really important since we are looping anyway
     // until a new message is delivered.
@@ -199,13 +200,8 @@ char* SVNetwork::Receive() {
     // Server quit (0) or error (-1).
     if (i <= 0) { return nullptr; }
     msg_buffer_in_[i] = '\0';
-    has_content = true;
-#ifdef _WIN32
-    return strtok(msg_buffer_in_, "\n");
-#else
     // Setup a new string tokenizer.
     return strtok_r(msg_buffer_in_, "\n", &buffer_ptr_);
-#endif
   }
 }
 
@@ -265,7 +261,6 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
   msg_buffer_in_ = new char[kMaxMsgSize + 1];
   msg_buffer_in_[0] = '\0';
 
-  has_content = false;
   buffer_ptr_ = nullptr;
 
   struct addrinfo *addr_info = nullptr;
