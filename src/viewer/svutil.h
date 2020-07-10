@@ -95,9 +95,8 @@ class SVNetwork {
   /// Stores the messages which are supposed to go out.
   std::string msg_buffer_out_;
 
-  bool has_content;  // Win32 (strtok)
   /// Where we are at in our msg_buffer_in_
-  char* buffer_ptr_;  // Unix (strtok_r)
+  char* buffer_ptr_;  // strtok_r, strtok_s
 };
 
 #endif  // TESSERACT_VIEWER_SVUTIL_H_
