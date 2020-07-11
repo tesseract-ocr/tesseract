@@ -37,7 +37,7 @@
 #endif
 #endif
 
-#ifdef HAVE_NEON
+#if defined(HAVE_NEON) && !defined(__aarch64__)
 #ifdef ANDROID
 #include <cpufeatures.h>
 #else
@@ -66,7 +66,10 @@ static STRING_VAR(dotproduct, "auto",
 
 SIMDDetect SIMDDetect::detector;
 
-#if defined(HAVE_NEON)
+#if defined(__aarch64__)
+// ARMv8 always has NEON.
+bool SIMDDetect::neon_available_ = true;
+#elif defined(HAVE_NEON)
 // If true, then Neon has been detected.
 bool SIMDDetect::neon_available_;
 #else
@@ -177,7 +180,7 @@ SIMDDetect::SIMDDetect() {
 #endif
 #endif
 
-#ifdef HAVE_NEON
+#if defined(HAVE_NEON) && !defined(__aarch64__)
 #ifdef ANDROID
   {
     AndroidCpuFamily family = android_getCpuFamily();

@@ -184,7 +184,7 @@ noinst_LTLIBRARIES += libtesseract_sse.la
 endif
 
 if HAVE_NEON
-libtesseract_neon_la_CXXFLAGS = -mfpu=neon
+libtesseract_neon_la_CXXFLAGS = $(NEON_CXXFLAGS)
 libtesseract_neon_la_SOURCES = src/arch/intsimdmatrixneon.cpp
 libtesseract_la_LIBADD += libtesseract_neon.la
 noinst_LTLIBRARIES += libtesseract_neon.la

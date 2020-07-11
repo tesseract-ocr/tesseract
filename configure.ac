@@ -160,12 +160,21 @@ case "${host_cpu}" in
 
     ;;
 
+  aarch64)
+
+    # ARMv8 always has NEON and does not need special compiler flags.
+    AM_CONDITIONAL([HAVE_NEON], true)
+    AC_DEFINE([HAVE_NEON], [1], [Enable NEON instructions])
+    ;;
+
   arm*)
 
     AX_CHECK_COMPILE_FLAG([-mfpu=neon], [neon=true], [neon=false], [$WERROR])
     AM_CONDITIONAL([HAVE_NEON], $neon)
     if $neon; then
       AC_DEFINE([HAVE_NEON], [1], [Enable NEON instructions])
+      NEON_CXXFLAGS="-mfpu=neon"
+      AC_SUBST([NEON_CXXFLAGS])
     fi
 
     ;;
