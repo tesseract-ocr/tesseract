@@ -566,7 +566,7 @@ class Tesseract : public Wordrec {
   SVMenuNode* build_menu_new();
 #ifndef GRAPHICS_DISABLED
   void pgeditor_main(int width, int height, PAGE_RES* page_res);
-#endif                       // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
   void process_image_event(  // action in image win
       const SVEvent& event);
   bool process_cmd_win_event(  // UI command semantics
@@ -582,7 +582,7 @@ class Tesseract : public Wordrec {
   bool word_set_display(PAGE_RES_IT* pr_it);
   // #ifndef GRAPHICS_DISABLED
   bool word_dumper(PAGE_RES_IT* pr_it);
-  // #endif  // GRAPHICS_DISABLED
+  // #endif // !GRAPHICS_DISABLED
   void blob_feature_display(PAGE_RES* page_res, const TBOX& selection_box);
   //// reject.h //////////////////////////////////////////////////////////
   // make rej map for word
@@ -1093,7 +1093,7 @@ class Tesseract : public Wordrec {
             "Sets the number of cascading iterations for the Beamsearch in "
             "lstm_choice_mode. Note that lstm_choice_mode must be set to "
             "a value greater than 0 to produce results.");
-  double_VAR_H(lstm_rating_coefficient, 5, 
+  double_VAR_H(lstm_rating_coefficient, 5,
                "Sets the rating coefficient for the lstm choices. The smaller "
                "the coefficient, the better are the ratings for each choice "
                "and less information is lost due to the cut off at 0. The "

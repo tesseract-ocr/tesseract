@@ -322,7 +322,9 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   if (debug) {
     GenericVector<int> labels, coords;
     LabelsFromOutputs(*outputs, &labels, &coords);
+#ifndef GRAPHICS_DISABLED
     DisplayForward(*inputs, labels, coords, "LSTMForward", &debug_win_);
+#endif
     DebugActivationPath(*outputs, labels, coords);
   }
   return true;
@@ -343,6 +345,8 @@ STRING LSTMRecognizer::DecodeLabels(const GenericVector<int>& labels) {
   return result;
 }
 
+#ifndef GRAPHICS_DISABLED
+
 // Displays the forward results in a window with the characters and
 // boundaries as determined by the labels and label_coords.
 void LSTMRecognizer::DisplayForward(const NetworkIO& inputs,
@@ -350,13 +354,11 @@ void LSTMRecognizer::DisplayForward(const NetworkIO& inputs,
                                     const GenericVector<int>& label_coords,
                                     const char* window_name,
                                     ScrollView** window) {
-#ifndef GRAPHICS_DISABLED  // do nothing if there's no graphics
   Pix* input_pix = inputs.ToPix();
   Network::ClearWindow(false, window_name, pixGetWidth(input_pix),
                        pixGetHeight(input_pix), window);
   int line_height = Network::DisplayImage(input_pix, *window);
   DisplayLSTMOutput(labels, label_coords, line_height, *window);
-#endif  // GRAPHICS_DISABLED
 }
 
 // Displays the labels and cuts at the corresponding xcoords.
@@ -364,7 +366,6 @@ void LSTMRecognizer::DisplayForward(const NetworkIO& inputs,
 void LSTMRecognizer::DisplayLSTMOutput(const GenericVector<int>& labels,
                                        const GenericVector<int>& xcoords,
                                        int height, ScrollView* window) {
-#ifndef GRAPHICS_DISABLED  // do nothing if there's no graphics
   int x_scale = network_->XScaleFactor();
   window->TextAttributes("Arial", height / 4, false, false, false);
   int end = 1;
@@ -383,8 +384,9 @@ void LSTMRecognizer::DisplayLSTMOutput(const GenericVector<int>& labels,
     window->Line(xpos, 0, xpos, height * 3 / 2);
   }
   window->Update();
-#endif  // GRAPHICS_DISABLED
 }
+
+#endif // !GRAPHICS_DISABLED
 
 // Prints debug output detailing the activation path that is implied by the
 // label_coords.

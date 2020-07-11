@@ -209,7 +209,7 @@ class MasterTrainer {
   // will display the samples that have that feature in a separate window.
   void DisplaySamples(const char* unichar_str1, int cloud_font,
                       const char* unichar_str2, int canonical_font);
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
 
   void TestClassifierVOld(bool replicate_samples,
                           ShapeClassifier* test_classifier,

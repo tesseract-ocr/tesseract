@@ -214,7 +214,7 @@ void ROW::plot(               //draw it
     word->plot (window);         //in rainbow colours
   }
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 /**********************************************************************
  * ROW::operator=

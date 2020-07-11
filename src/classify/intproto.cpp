@@ -162,16 +162,18 @@ void RenderIntProto(ScrollView *window,
                     INT_CLASS Class,
                     PROTO_ID ProtoId,
                     ScrollView::Color color);
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 -----------------------------------------------------------------------------*/
 
+#ifndef GRAPHICS_DISABLED
 /* global display lists used to display proto and feature match information*/
 static ScrollView* IntMatchWindow = nullptr;
 static ScrollView* FeatureDisplayWindow = nullptr;
 static ScrollView* ProtoDisplayWindow = nullptr;
+#endif
 
 /*-----------------------------------------------------------------------------
         Variables
@@ -1751,4 +1753,4 @@ void InitFeatureDisplayWindowIfReqd() {
 ScrollView* CreateFeatureSpaceWindow(const char* name, int xpos, int ypos) {
   return new ScrollView(name, xpos, ypos, 520, 520, 260, 260, true);
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED

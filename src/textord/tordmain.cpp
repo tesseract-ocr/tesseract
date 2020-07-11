@@ -256,7 +256,7 @@ void Textord::filter_blobs(ICOORD page_tr,         // top right
   #ifndef GRAPHICS_DISABLED
   if (to_win != nullptr)
     to_win->Clear();
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
 
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward()) {
@@ -288,7 +288,7 @@ void Textord::filter_blobs(ICOORD page_tr,         // top right
       plot_box_list(to_win, &block->large_blobs, ScrollView::WHITE);
       plot_box_list(to_win, &block->blobs, ScrollView::WHITE);
     }
-    #endif  // GRAPHICS_DISABLED
+    #endif // !GRAPHICS_DISABLED
   }
 }
 

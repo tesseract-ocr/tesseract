@@ -409,7 +409,7 @@ class ScrollView {
 
   // Semaphore to the thread belonging to this window.
   SVSemaphore* semaphore_;
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 };
 
 #endif  // OCR_SCROLLVIEW_H__

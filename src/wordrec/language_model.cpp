@@ -120,7 +120,7 @@ LanguageModel::LanguageModel(const UnicityTable<FontInfo> *fontinfo_table,
                     dict->getCCUtil()->params()),
       double_MEMBER(language_model_penalty_increment, 0.01, "Penalty increment",
                     dict->getCCUtil()->params()),
-      INT_MEMBER(wordrec_display_segmentations, 0, "Display Segmentations",
+      INT_MEMBER(wordrec_display_segmentations, 0, "Display Segmentations (ScrollView)",
                  dict->getCCUtil()->params()),
       BOOL_INIT_MEMBER(language_model_use_sigmoidal_certainty, false,
                        "Use sigmoidal score for certainty",
@@ -1333,9 +1333,11 @@ void LanguageModel::UpdateBestChoice(
           vse->dawg_info != nullptr && vse->top_choice_flags);
     }
   }
+#ifndef GRAPHICS_DISABLED
   if (wordrec_display_segmentations && word_res->chopped_word != nullptr) {
     word->DisplaySegmentation(word_res->chopped_word);
   }
+#endif
 }
 
 void LanguageModel::ExtractFeaturesFromPath(

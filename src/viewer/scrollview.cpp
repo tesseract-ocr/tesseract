@@ -356,7 +356,7 @@ void ScrollView::StartEventHandler() {
     // The thread should run as long as its associated window is alive.
   }
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 ScrollView::~ScrollView() {
   #ifndef GRAPHICS_DISABLED
@@ -385,7 +385,7 @@ ScrollView::~ScrollView() {
   for (auto & i : event_table_) {
     delete i;
   }
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
 }
 
 #ifndef GRAPHICS_DISABLED
@@ -842,4 +842,4 @@ char ScrollView::Wait() {
   return ret;
 }
 
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED

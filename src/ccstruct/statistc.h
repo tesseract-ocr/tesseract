@@ -136,7 +136,7 @@ class STATS {
                 float xscale,    // size of one unit
                 float yscale,    // size of one uint
                 ScrollView::Color colour) const;  // colour to draw in
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
 
  private:
   int32_t rangemin_ = 0;            // min of range

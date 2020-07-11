@@ -53,17 +53,21 @@ const double kMinGutterWidthGrid = 0.5;
 // adding noise blobs.
 const double kMaxDistToPartSizeRatio = 1.5;
 
+#ifndef GRAPHICS_DISABLED
 static BOOL_VAR(textord_tabfind_show_initial_partitions,
                 false, "Show partition bounds");
 static BOOL_VAR(textord_tabfind_show_reject_blobs,
                 false, "Show blobs rejected as noise");
 static INT_VAR(textord_tabfind_show_partitions, 0,
-              "Show partition bounds, waiting if >1");
-static BOOL_VAR(textord_tabfind_show_columns, false, "Show column bounds");
-static BOOL_VAR(textord_tabfind_show_blocks, false, "Show final block bounds");
+              "Show partition bounds, waiting if >1 (ScrollView)");
+static BOOL_VAR(textord_tabfind_show_columns, false, "Show column bounds (ScrollView)");
+static BOOL_VAR(textord_tabfind_show_blocks, false, "Show final block bounds (ScrollView)");
+#endif
 static BOOL_VAR(textord_tabfind_find_tables, true, "run table detection");
 
+#ifndef GRAPHICS_DISABLED
 ScrollView* ColumnFinder::blocks_win_ = nullptr;
+#endif
 
 // Gridsize is an estimate of the text size in the image. A suitable value
 // is in TO_BLOCK::line_size after find_components has been used to make
@@ -152,7 +156,7 @@ void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode,
     input_blobs_win_ = MakeWindow(0, 0, "Filtered Input Blobs");
     input_block->plot_graded_blobs(input_blobs_win_);
   }
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
   SetBlockRuleEdges(input_block);
   pixDestroy(&nontext_map_);
   // Run a preliminary strokewidth neighbour detection on the medium blobs.
@@ -381,7 +385,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
       ScrollView* rej_win = MakeWindow(500, 300, "Rejected blobs");
       input_block->plot_graded_blobs(rej_win);
     }
-    #endif  // GRAPHICS_DISABLED
+    #endif // !GRAPHICS_DISABLED
     InsertBlobsToGrid(false, false, &image_bblobs_, this);
     InsertBlobsToGrid(true, true, &input_block->blobs, this);
 
@@ -402,12 +406,13 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
     part_grid_.GridFindMargins(best_columns_);
     SetPartitionTypes();
   }
+#ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_initial_partitions) {
     ScrollView* part_win = MakeWindow(100, 300, "InitialPartitions");
     part_grid_.DisplayBoxes(part_win);
     DisplayTabVectors(part_win);
   }
-
+#endif
   if (!PSM_SPARSE(pageseg_mode)) {
     if (equation_detect_) {
       equation_detect_->FindEquationParts(&part_grid_, best_columns_);
@@ -446,7 +451,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
         }
       }
     }
-    #endif  // GRAPHICS_DISABLED
+    #endif // !GRAPHICS_DISABLED
     part_grid_.AssertNoDuplicates();
   }
   // Ownership of the ColPartitions moves from part_sets_ to part_grid_ here,
@@ -466,7 +471,9 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
             blocks->length(), to_blocks->length());
   }
 
+#ifndef GRAPHICS_DISABLED
   DisplayBlocks(blocks);
+#endif
   RotateAndReskewBlocks(input_is_rtl, to_blocks);
   int result = 0;
   #ifndef GRAPHICS_DISABLED
@@ -488,7 +495,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
       delete event;
     } while (waiting);
   }
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
   return result;
 }
 
@@ -505,9 +512,10 @@ void ColumnFinder::SetEquationDetect(EquationDetectBase* detect) {
 
 //////////////// PRIVATE CODE /////////////////////////
 
+#ifndef GRAPHICS_DISABLED
+
 // Displays the blob and block bounding boxes in a window called Blocks.
 void ColumnFinder::DisplayBlocks(BLOCK_LIST* blocks) {
-#ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_blocks) {
     if (blocks_win_ == nullptr)
       blocks_win_ = MakeWindow(700, 300, "Blocks");
@@ -525,13 +533,11 @@ void ColumnFinder::DisplayBlocks(BLOCK_LIST* blocks) {
     }
     blocks_win_->Update();
   }
-#endif
 }
 
 // Displays the column edges at each grid y coordinate defined by
 // best_columns_.
 void ColumnFinder::DisplayColumnBounds(PartSetVector* sets) {
-#ifndef GRAPHICS_DISABLED
   ScrollView* col_win = MakeWindow(50, 300, "Columns");
   DisplayBoxes(col_win);
   col_win->Pen(textord_debug_printable ? ScrollView::BLUE : ScrollView::GREEN);
@@ -540,8 +546,9 @@ void ColumnFinder::DisplayColumnBounds(PartSetVector* sets) {
     if (columns != nullptr)
       columns->DisplayColumnEdges(i * gridsize_, (i + 1) * gridsize_, col_win);
   }
-#endif
 }
+
+#endif // !GRAPHICS_DISABLED
 
 // Sets up column_sets_ (the determined column layout at each horizontal
 // slice). Returns false if the page is empty.
@@ -589,9 +596,11 @@ bool ColumnFinder::MakeColumns(bool single_column) {
   if (has_columns) {
     // Divide the page into sections of uniform column layout.
     bool any_multi_column = AssignColumns(part_sets);
+#ifndef GRAPHICS_DISABLED
     if (textord_tabfind_show_columns) {
       DisplayColumnBounds(&part_sets);
     }
+#endif
     ComputeMeanColumnGap(any_multi_column);
   }
   for (int i = 0; i < part_sets.size(); ++i) {

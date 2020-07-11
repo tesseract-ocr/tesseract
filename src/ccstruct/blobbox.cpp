@@ -1092,4 +1092,4 @@ void plot_blob_list(ScrollView* win,                   // window to draw in
     it.data()->plot(win, body_colour, child_colour);
   }
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED

@@ -37,7 +37,11 @@
 
 namespace tesseract {
 
+#ifndef GRAPHICS_DISABLED
+static INT_VAR(textord_tabfind_show_strokewidths, 0, "Show stroke widths (ScrollView)");
+#else
 static INT_VAR(textord_tabfind_show_strokewidths, 0, "Show stroke widths");
+#endif
 static BOOL_VAR(textord_tabfind_only_strokewidths, false, "Only run stroke widths");
 
 /** Allowed proportional change in stroke width to be the same font. */
@@ -123,7 +127,7 @@ StrokeWidth::~StrokeWidth() {
   if (widths_win_ != nullptr) {
     #ifndef GRAPHICS_DISABLED
     delete widths_win_->AwaitEvent(SVET_DESTROY);
-    #endif  // GRAPHICS_DISABLED
+    #endif // !GRAPHICS_DISABLED
     if (textord_tabfind_only_strokewidths)
       exit(0);
     delete widths_win_;
@@ -319,7 +323,7 @@ void StrokeWidth::RemoveLineResidue(ColPartition_LIST* big_part_list) {
         leaders_win_->Rectangle(box.left(), box.bottom(),
                                 box.right(), box.top());
       }
-      #endif  // GRAPHICS_DISABLED
+      #endif // !GRAPHICS_DISABLED
       ColPartition::MakeBigPartition(bbox, big_part_list);
     }
   }
@@ -359,11 +363,13 @@ void StrokeWidth::GradeBlobsIntoPartitions(
   }
   FindTextlineFlowDirection(pageseg_mode, false);
   projection_->ConstructProjection(block, rerotation, nontext_map_);
+#ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_strokewidths) {
     ScrollView* line_blobs_win = MakeWindow(0, 0, "Initial textline Blobs");
     projection_->PlotGradedBlobs(&block->blobs, line_blobs_win);
     projection_->PlotGradedBlobs(&block->small_blobs, line_blobs_win);
   }
+#endif
   projection_->MoveNonTextlineBlobs(&block->blobs, &block->noise_blobs);
   projection_->MoveNonTextlineBlobs(&block->small_blobs, &block->noise_blobs);
   // Clear and re Insert to take advantage of the removed diacritics.
@@ -476,9 +482,11 @@ void StrokeWidth::FindLeadersAndMarkNoise(TO_BLOCK* block,
         delete part;
     }
   }
+#ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_strokewidths) {
     leaders_win_ = DisplayGoodBlobs("LeaderNeighbours", 0, 0);
   }
+#endif
   // Move any non-leaders from the small to the blobs list, as they are
   // most likely dashes or broken characters.
   BLOBNBOX_IT blob_it(&block->blobs);
@@ -554,7 +562,7 @@ void StrokeWidth::MarkLeaderNeighbours(const ColPartition* part,
       leaders_win_->Rectangle(blob_box.left(), blob_box.bottom(),
                               blob_box.right(), blob_box.top());
     }
-    #endif  // GRAPHICS_DISABLED
+    #endif // !GRAPHICS_DISABLED
   }
 }
 
@@ -823,10 +831,12 @@ void StrokeWidth::FindTextlineFlowDirection(PageSegMode pageseg_mode,
       SetNeighbourFlows(bbox);
     }
   }
+#ifndef GRAPHICS_DISABLED
   if ((textord_tabfind_show_strokewidths  && display_if_debugging) ||
       textord_tabfind_show_strokewidths > 1) {
     initial_widths_win_ = DisplayGoodBlobs("InitialStrokewidths", 400, 0);
   }
+#endif
   // Improve flow direction with neighbours.
   gsearch.StartFullSearch();
   while ((bbox = gsearch.NextFullSearch()) != nullptr) {
@@ -842,10 +852,12 @@ void StrokeWidth::FindTextlineFlowDirection(PageSegMode pageseg_mode,
   while ((bbox = gsearch.NextFullSearch()) != nullptr) {
     SmoothNeighbourTypes(pageseg_mode, true, bbox);
   }
+#ifndef GRAPHICS_DISABLED
   if ((textord_tabfind_show_strokewidths  && display_if_debugging) ||
       textord_tabfind_show_strokewidths > 1) {
     widths_win_ = DisplayGoodBlobs("ImprovedStrokewidths", 800, 0);
   }
+#endif
 }
 
 // Sets the neighbours and good_stroke_neighbours members of the blob by
@@ -1252,11 +1264,13 @@ PartitionFindResult StrokeWidth::FindInitialPartitions(
     FCOORD* skew_angle) {
   if (!FindingHorizontalOnly(pageseg_mode)) FindVerticalTextChains(part_grid);
   if (!FindingVerticalOnly(pageseg_mode)) FindHorizontalTextChains(part_grid);
+#ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_strokewidths) {
     chains_win_ = MakeWindow(0, 400, "Initial text chains");
     part_grid->DisplayBoxes(chains_win_);
     projection_->DisplayProjection();
   }
+#endif
   if (find_problems) {
     // TODO(rays) Do something to find skew, set skew_angle and return if there
     // is some.
@@ -1277,11 +1291,13 @@ PartitionFindResult StrokeWidth::FindInitialPartitions(
                            diacritic_blobs)) {
     return PFR_NOISE;
   }
+#ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_strokewidths) {
     textlines_win_ = MakeWindow(400, 400, "GoodTextline blobs");
     part_grid->DisplayBoxes(textlines_win_);
     diacritics_win_ = DisplayDiacritics("Diacritics", 0, 0, block);
   }
+#endif
   PartitionRemainingBlobs(pageseg_mode, part_grid);
   part_grid->SplitOverlappingPartitions(big_parts);
   EasyMerges(part_grid);
@@ -1292,10 +1308,12 @@ PartitionFindResult StrokeWidth::FindInitialPartitions(
   // Now eliminate strong stuff in a sea of the opposite.
   while (part_grid->GridSmoothNeighbours(BTFT_STRONG_CHAIN, nontext_map_,
                                          grid_box, rerotation));
+#ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_strokewidths) {
     smoothed_win_ = MakeWindow(800, 400, "Smoothed blobs");
     part_grid->DisplayBoxes(smoothed_win_);
   }
+#endif
   return PFR_OK;
 }
 
@@ -1315,10 +1333,12 @@ bool StrokeWidth::DetectAndRemoveNoise(int pre_overlap, const TBOX& grid_box,
     if (post_overlap > pre_overlap * kNoiseOverlapGrowthFactor &&
         post_overlap > grid_box.area() * kNoiseOverlapAreaFactor) {
       // This is noisy enough to fix.
+#ifndef GRAPHICS_DISABLED
       if (textord_tabfind_show_strokewidths) {
         ScrollView* noise_win = MakeWindow(1000, 500, "Noise Areas");
         noise_grid->DisplayBoxes(noise_win);
       }
+#endif
       part_grid->DeleteNonLeaderParts();
       BLOBNBOX_IT blob_it(&block->noise_blobs);
       ColPartitionGridSearch rsearch(noise_grid);
@@ -1919,14 +1939,14 @@ bool StrokeWidth::NoNoiseInBetween(const TBOX& box1, const TBOX& box2) const {
                                         nontext_map_);
 }
 
+#ifndef GRAPHICS_DISABLED
+
 /** Displays the blobs colored according to the number of good neighbours
  * and the vertical/horizontal flow.
  */
 ScrollView* StrokeWidth::DisplayGoodBlobs(const char* window_name,
                                           int x, int y) {
-  ScrollView* window = nullptr;
-#ifndef GRAPHICS_DISABLED
-  window = MakeWindow(x, y, window_name);
+  auto window = MakeWindow(x, y, window_name);
   // For every blob in the grid, display it.
   window->Brush(ScrollView::NONE);
 
@@ -1959,26 +1979,21 @@ ScrollView* StrokeWidth::DisplayGoodBlobs(const char* window_name,
     window->Rectangle(left_x, bottom_y, right_x, top_y);
   }
   window->Update();
-#endif
   return window;
 }
 
 static void DrawDiacriticJoiner(const BLOBNBOX* blob, ScrollView* window) {
-#ifndef GRAPHICS_DISABLED
   const TBOX& blob_box(blob->bounding_box());
   int top = std::max(static_cast<int>(blob_box.top()), blob->base_char_top());
   int bottom = std::min(static_cast<int>(blob_box.bottom()), blob->base_char_bottom());
   int x = (blob_box.left() + blob_box.right()) / 2;
   window->Line(x, top, x, bottom);
-#endif  // GRAPHICS_DISABLED
 }
 
 // Displays blobs colored according to whether or not they are diacritics.
 ScrollView* StrokeWidth::DisplayDiacritics(const char* window_name,
                                            int x, int y, TO_BLOCK* block) {
-  ScrollView* window = nullptr;
-#ifndef GRAPHICS_DISABLED
-  window = MakeWindow(x, y, window_name);
+  auto window = MakeWindow(x, y, window_name);
   // For every blob in the grid, display it.
   window->Brush(ScrollView::NONE);
 
@@ -2007,8 +2022,9 @@ ScrollView* StrokeWidth::DisplayDiacritics(const char* window_name,
     window->Rectangle(box.left(), box. bottom(), box.right(), box.top());
   }
   window->Update();
-#endif
   return window;
 }
+
+#endif // !GRAPHICS_DISABLED
 
 }  // namespace tesseract.

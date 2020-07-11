@@ -355,4 +355,4 @@ void ParamsEditor::WriteParams(char *filename,
   }
   fclose(fp);
 }
-#endif // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED

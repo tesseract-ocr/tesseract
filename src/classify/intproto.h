@@ -258,6 +258,6 @@ void InitFeatureDisplayWindowIfReqd();
 // Creates a window of the appropriate size for displaying elements
 // in feature space.
 ScrollView* CreateFeatureSpaceWindow(const char* name, int xpos, int ypos);
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 #endif

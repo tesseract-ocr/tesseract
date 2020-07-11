@@ -414,4 +414,4 @@ ScrollView::Color POLY_BLOCK::ColorForPolyBlockType(PolyBlockType type) {
   }
   return ScrollView::WHITE;
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED

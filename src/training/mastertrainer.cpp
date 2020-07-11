@@ -743,7 +743,7 @@ void MasterTrainer::DisplaySamples(const char* unichar_str1, int cloud_font,
     delete ev;
   } while (ev_type != SVET_DESTROY);
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 void MasterTrainer::TestClassifierVOld(bool replicate_samples,
                                        ShapeClassifier* test_classifier,

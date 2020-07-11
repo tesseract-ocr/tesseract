@@ -285,9 +285,10 @@ int ImageData::MemoryUsed() const {
   return image_data_.size();
 }
 
+#ifndef GRAPHICS_DISABLED
+
 // Draws the data in a new window.
 void ImageData::Display() const {
-#ifndef GRAPHICS_DISABLED
   const int kTextSize = 64;
   // Draw the image.
   Pix* pix = GetPix();
@@ -319,8 +320,9 @@ void ImageData::Display() const {
   }
   win->Update();
   win->Wait();
-#endif
 }
+
+#endif
 
 // Adds the supplied boxes and transcriptions that correspond to the correct
 // page number.

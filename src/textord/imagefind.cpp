@@ -1354,10 +1354,12 @@ void ImageFind::FindImagePartitions(Pix* image_pix, const FCOORD& rotation,
   boxaDestroy(&boxa);
   pixaDestroy(&pixa);
   DeleteSmallImages(part_grid);
+#ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_images) {
     ScrollView* images_win_ = part_grid->MakeWindow(1000, 400, "With Images");
     part_grid->DisplayBoxes(images_win_);
   }
+#endif
 }
 
 

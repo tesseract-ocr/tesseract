@@ -1,10 +1,7 @@
-// Copyright 2011 Google Inc. All Rights Reserved.
-// Author: rays@google.com (Ray Smith)
 ///////////////////////////////////////////////////////////////////////
 // File:        tessclassifier.cpp
 // Description: Tesseract implementation of a ShapeClassifier.
 // Author:      Ray Smith
-// Created:     Tue Nov 22 14:16:25 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -77,8 +74,10 @@ int TessClassifier::DisplayClassifyAs(
     tprintf("No built-in templates for class/shape %d\n", shape_id);
     return index;
   }
+#ifndef GRAPHICS_DISABLED
   classify_->ShowBestMatchFor(shape_id, sample.features(),
                               sample.num_features());
+#endif
   return index;
 }
 

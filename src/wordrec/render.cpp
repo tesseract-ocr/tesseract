@@ -124,4 +124,4 @@ void render_outline(ScrollView* window, TESSLINE* outline,
   render_outline (window, outline->next, color);
 }
 
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED

@@ -757,7 +757,7 @@ Trainability LSTMTrainer::TrainOnLine(const ImageData* trainingdata,
   if (debug_interval_ == 1 && debug_win_ != nullptr) {
     delete debug_win_->AwaitEvent(SVET_CLICK);
   }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
   // Roll the memory of past means.
   RollErrorBuffers();
   return trainable;
@@ -1026,20 +1026,23 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO& inputs,
       tprintf("TRAINING activation path for truth string %s\n",
               truth_text.c_str());
       DebugActivationPath(outputs, labels, xcoords);
+#ifndef GRAPHICS_DISABLED
       DisplayForward(inputs, labels, xcoords, "LSTMTraining", &align_win_);
       if (OutputLossType() == LT_CTC) {
         DisplayTargets(fwd_outputs, "CTC Outputs", &ctc_win_);
         DisplayTargets(outputs, "CTC Targets", &target_win_);
       }
+#endif
     }
   }
   return true;
 }
 
+#ifndef GRAPHICS_DISABLED
+
 // Displays the network targets as line a line graph.
 void LSTMTrainer::DisplayTargets(const NetworkIO& targets,
                                  const char* window_name, ScrollView** window) {
-#ifndef GRAPHICS_DISABLED  // do nothing if there's no graphics.
   int width = targets.Width();
   int num_features = targets.NumFeatures();
   Network::ClearWindow(true, window_name, width * kTargetXScale, kTargetYScale,
@@ -1069,8 +1072,9 @@ void LSTMTrainer::DisplayTargets(const NetworkIO& targets,
     }
   }
   (*window)->Update();
-#endif  // GRAPHICS_DISABLED
 }
+
+#endif // !GRAPHICS_DISABLED
 
 // Builds a no-compromises target where the first positions should be the
 // truth labels and the rest is padded with the null_char_.

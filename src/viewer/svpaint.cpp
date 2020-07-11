@@ -232,4 +232,4 @@ int main(int argc, char** argv) {
   if (argc > 1) { server_name = argv[1]; } else { server_name = "localhost"; }
   SVPaint svp(server_name);
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED

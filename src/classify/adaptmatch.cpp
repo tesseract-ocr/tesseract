@@ -220,11 +220,12 @@ void Classify::AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices) {
   delete Results;
 }                                /* AdaptiveClassifier */
 
+#ifndef GRAPHICS_DISABLED
+
 // If *win is nullptr, sets it to a new ScrollView() object with title msg.
 // Clears the window and draws baselines.
 void Classify::RefreshDebugWindow(ScrollView **win, const char *msg,
                                   int y_offset, const TBOX &wbox) {
-  #ifndef GRAPHICS_DISABLED
   const int kSampleSpaceWidth = 500;
   if (*win == nullptr) {
     *win = new ScrollView(msg, 100, y_offset, kSampleSpaceWidth * 2, 200,
@@ -238,8 +239,9 @@ void Classify::RefreshDebugWindow(ScrollView **win, const char *msg,
                kSampleSpaceWidth, kBlnXHeight + kBlnBaselineOffset);
   (*win)->ZoomToRectangle(wbox.left(), wbox.top(),
                           wbox.right(), wbox.bottom());
-  #endif  // GRAPHICS_DISABLED
 }
+
+#endif // !GRAPHICS_DISABLED
 
 // Learns the given word using its chopped_word, seam_array, denorm,
 // box_word, best_state, and correct_text to learn both correctly and
@@ -279,7 +281,7 @@ void Classify::LearnWord(const char* fontname, WERD_RES* word) {
     word->chopped_word->plot(learn_fragmented_word_debug_win_);
     ScrollView::Update();
   }
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
 
   for (int ch = 0; ch < word_len; ++ch) {
     if (classify_debug_character_fragments) {
@@ -404,7 +406,7 @@ void Classify::LearnPieces(const char* fontname, int start, int length,
                ScrollView::BLUE, ScrollView::BROWN);
     learn_fragments_debug_win_->Update();
   }
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
 
   if (fontname != nullptr) {
     classify_norm_method.set_value(character);  // force char norm spc 30/11/93
@@ -754,8 +756,10 @@ void Classify::InitAdaptedClass(TBLOB *Blob,
   if (classify_learning_debug_level >= 1) {
     tprintf("Added new class '%s' with class id %d and %d protos.\n",
             unicharset.id_to_unichar(ClassId), ClassId, NumFeatures);
+#ifndef GRAPHICS_DISABLED
     if (classify_learning_debug_level > 1)
       DisplayAdaptedChar(Blob, IClass);
+#endif
   }
 
   if (IsEmptyAdaptedClass(Class))
@@ -920,8 +924,10 @@ void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
       if (classify_learning_debug_level >= 1) {
         tprintf("Found poor match to temp config %d = %4.1f%%.\n",
                 int_result.config, int_result.rating * 100.0);
+#ifndef GRAPHICS_DISABLED
         if (classify_learning_debug_level > 2)
           DisplayAdaptedChar(Blob, IClass);
+#endif
       }
       NewTempConfigId =
           MakeNewTemporaryConfig(adaptive_templates, ClassId, FontinfoId,
@@ -942,8 +948,9 @@ void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
   }
 }                                /* AdaptToChar */
 
-void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
 #ifndef GRAPHICS_DISABLED
+
+void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
   INT_FX_RESULT_STRUCT fx_info;
   GenericVector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
@@ -970,8 +977,9 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
   }
 
   delete sample;
-#endif
 }
+
+#endif
 
 /**
  * This routine adds the result of a classification into
@@ -2147,6 +2155,8 @@ void Classify::SetAdaptiveThreshold(float Threshold) {
       ClipToRange<int>(255 * Threshold, 0, 255));
 }                              /* SetAdaptiveThreshold */
 
+#ifndef GRAPHICS_DISABLED
+
 /*---------------------------------------------------------------------------*/
 /**
  * This routine displays debug information for the best config
@@ -2160,7 +2170,6 @@ void Classify::SetAdaptiveThreshold(float Threshold) {
 void Classify::ShowBestMatchFor(int shape_id,
                                 const INT_FEATURE_STRUCT* features,
                                 int num_features) {
-#ifndef GRAPHICS_DISABLED
   uint32_t config_mask;
   if (UnusedClassIdIn(PreTrainedTemplates, shape_id)) {
     tprintf("No built-in templates for class/shape %d\n", shape_id);
@@ -2187,8 +2196,9 @@ void Classify::ShowBestMatchFor(int shape_id,
             classify_adapt_feature_threshold, matcher_debug_flags,
             matcher_debug_separate_windows);
   UpdateMatchDisplay();
-#endif  // GRAPHICS_DISABLED
 }                              /* ShowBestMatchFor */
+
+#endif // !GRAPHICS_DISABLED
 
 // Returns a string for the classifier class_id: either the corresponding
 // unicharset debug_str or the shape_table_ debug str.

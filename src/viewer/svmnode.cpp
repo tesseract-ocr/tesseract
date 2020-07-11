@@ -140,4 +140,4 @@ void SVMenuNode::BuildMenu(ScrollView* sv, bool menu_bar) {
   }
 }
 
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED

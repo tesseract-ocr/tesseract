@@ -254,7 +254,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     // making use of sub-pixel accurate information if available.
     void plot_normed(const DENORM& denorm, ScrollView::Color colour,
                      ScrollView* window) const;
-    #endif  // GRAPHICS_DISABLED
+    #endif // !GRAPHICS_DISABLED
 
     C_OUTLINE& operator=(const C_OUTLINE& source);
 

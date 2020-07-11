@@ -12,6 +12,11 @@
 // limitations under the License.
 //
 ///////////////////////////////////////////////////////////////////////
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include <algorithm>
 #include <ctime>
 
@@ -78,7 +83,9 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
       tprintf("Error on sample %d: %s Classifier debug output:\n",
               it->GlobalSampleIndex(),
               it->sample_set()->SampleToString(*mutable_sample).c_str());
+#ifndef GRAPHICS_DISABLED
       classifier->DebugDisplay(*mutable_sample, page_pix, correct_id);
+#endif
       --error_samples;
     }
     ++total_samples;
@@ -141,7 +148,9 @@ void ErrorCounter::DebugNewErrors(
         new_classifier->UnicharClassifySample(*mutable_sample, page_pix, 1,
                                               correct_id, &results);
         if (results.size() > 0 && error_samples > 0) {
+#ifndef GRAPHICS_DISABLED
           new_classifier->DebugDisplay(*mutable_sample, page_pix, correct_id);
+#endif
           --error_samples;
         }
       }

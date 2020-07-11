@@ -88,7 +88,7 @@ static void DisplayProtoList(const char* ch, LIST protolist) {
   }
   window->Update();
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 // Helper to run clustering on a single config.
 // Mostly copied from the old mftraining, but with renamed variables.
@@ -111,7 +111,7 @@ static LIST ClusterOneConfig(int shape_id, const char* class_label,
   #ifndef GRAPHICS_DISABLED
   if (strcmp(FLAGS_test_ch.c_str(), class_label) == 0)
     DisplayProtoList(FLAGS_test_ch.c_str(), proto_list);
-  #endif  // GRAPHICS_DISABLED
+  #endif // !GRAPHICS_DISABLED
   // Delete the protos that will not be used in the inttemp output file.
   proto_list = RemoveInsignificantProtos(proto_list, true,
                                          false,

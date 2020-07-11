@@ -13,6 +13,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#include <algorithm>
+
 #include "trainingsampleset.h"
 #include "allheaders.h"
 #include "boxread.h"
@@ -24,8 +30,6 @@
 #include "shapetable.h"
 #include "trainingsample.h"
 #include "unicity_table.h"
-
-#include <algorithm>
 
 namespace tesseract {
 
@@ -738,6 +742,8 @@ void TrainingSampleSet::AddAllFontsForClass(int class_id, Shape* shape) const {
   }
 }
 
+#ifndef GRAPHICS_DISABLED
+
 // Display the samples with the given indexed feature that also match
 // the given shape.
 void TrainingSampleSet::DisplaySamplesWithFeature(int f_index,
@@ -760,5 +766,6 @@ void TrainingSampleSet::DisplaySamplesWithFeature(int f_index,
   }
 }
 
+#endif // !GRAPHICS_DISABLED
 
 }  // namespace tesseract.

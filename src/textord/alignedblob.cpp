@@ -154,10 +154,11 @@ bool AlignedBlob::WithinTestRegion(int detail_level, int x, int y) {
          y <= textord_testregion_top && y >= textord_testregion_bottom;
 }
 
+#ifndef GRAPHICS_DISABLED
+
 // Display the tab codes of the BLOBNBOXes in this grid.
 ScrollView* AlignedBlob::DisplayTabs(const char* window_name,
                                      ScrollView* tab_win) {
-#ifndef GRAPHICS_DISABLED
   if (tab_win == nullptr)
     tab_win = MakeWindow(0, 50, window_name);
   // For every tab in the grid, display it.
@@ -196,9 +197,10 @@ ScrollView* AlignedBlob::DisplayTabs(const char* window_name,
     }
   }
   tab_win->Update();
-#endif
   return tab_win;
 }
+
+#endif // !GRAPHICS_DISABLED
 
 // Helper returns true if the total number of line_crossings of all the blobs
 // in the list is at least 2.

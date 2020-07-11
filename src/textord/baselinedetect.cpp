@@ -577,10 +577,11 @@ void BaselineBlock::FitBaselineSplines(bool enable_splines,
     restore_underlined_blobs(block_);
 }
 
+#ifndef GRAPHICS_DISABLED
+
 // Draws the (straight) baselines and final blobs colored according to
 // what was discarded as noise and what is associated with each row.
 void BaselineBlock::DrawFinalRows(const ICOORD& page_tr) {
-#ifndef GRAPHICS_DISABLED
   if (non_text_block_) return;
   double gradient = tan(skew_angle_);
   FCOORD rotation(1.0f, 0.0f);
@@ -601,8 +602,9 @@ void BaselineBlock::DrawFinalRows(const ICOORD& page_tr) {
   if (block_->blobs.length() > 0)
     tprintf("%d blobs discarded as noise\n", block_->blobs.length());
   draw_meanlines(block_, gradient, left_edge, ScrollView::WHITE, rotation);
-#endif
 }
+
+#endif // !GRAPHICS_DISABLED
 
 void BaselineBlock::DrawPixSpline(Pix* pix_in) {
   if (non_text_block_) return;
@@ -856,9 +858,11 @@ void BaselineDetect::ComputeBaselineSplinesAndXheights(const ICOORD& page_tr,
     if (enable_splines)
       bl_block->PrepareForSplineFitting(page_tr, remove_noise);
     bl_block->FitBaselineSplines(enable_splines, show_final_rows, textord);
+#ifndef GRAPHICS_DISABLED
     if (show_final_rows) {
       bl_block->DrawFinalRows(page_tr);
     }
+#endif
   }
 }
 

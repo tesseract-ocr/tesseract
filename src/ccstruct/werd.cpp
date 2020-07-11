@@ -323,7 +323,7 @@ void WERD::plot_rej_blobs(ScrollView* window) {
     it.data()->plot(window, ScrollView::GREY, ScrollView::GREY);
   }
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 /**
  * WERD::shallow_copy()
