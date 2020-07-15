@@ -456,7 +456,7 @@ void WERD_CHOICE::string_and_lengths(STRING *word_str,
     const char *ch = unicharset_->id_to_unichar_ext(unichar_ids_[i]);
     *word_str += ch;
     if (word_lengths_str != nullptr) {
-      *word_lengths_str += strlen(ch);
+      *word_lengths_str += (char)strlen(ch);
     }
   }
 }
