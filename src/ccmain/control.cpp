@@ -74,9 +74,6 @@ void Tesseract::recog_pseudo_word(PAGE_RES* page_res,
  * @param pr_it the page results iterator
  */
 bool Tesseract::recog_interactive(PAGE_RES_IT* pr_it) {
-  int16_t char_qual;
-  int16_t good_char_qual;
-
   WordData word_data(*pr_it);
   SetupWordPassN(2, &word_data);
   // LSTM doesn't run on pass2, but we want to run pass2 for tesseract.
@@ -89,6 +86,8 @@ bool Tesseract::recog_interactive(PAGE_RES_IT* pr_it) {
   }
 #ifndef DISABLED_LEGACY_ENGINE
   if (tessedit_debug_quality_metrics) {
+    int16_t char_qual;
+    int16_t good_char_qual;
     WERD_RES* word_res = pr_it->word();
     word_char_quality(word_res, &char_qual, &good_char_qual);
     tprintf("\n%d chars;  word_blob_quality: %d;  outline_errs: %d; "

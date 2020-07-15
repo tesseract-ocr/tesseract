@@ -583,7 +583,7 @@ float jumplimit                  /*guess half descenders */
         }
       }
 
-      jumplimit *= 1.2;
+      jumplimit *= 1.2f;
                                  /*must be wavy */
       if (maxmax - minmin > jumplimit) {
         ycount = segment;        /*no of segments */
