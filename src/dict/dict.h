@@ -60,7 +60,6 @@ using DawgVector = GenericVector<Dawg *>;
 // Constants
 //
 static const int kRatingPad = 4;
-static const char kDictWildcard[] = "\u2606";   // WHITE STAR
 static const int kDictMaxWildcards = 2;  // max wildcards for a word
 // TODO(daria): If hyphens are different in different languages and can be
 // inferred from training data we should load their values dynamically.
