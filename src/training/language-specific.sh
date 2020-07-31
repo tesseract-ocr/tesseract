@@ -65,13 +65,6 @@ LATIN_FONTS=(
     "Verdana Italic" \
     "Verdana" \
     "Verdana Bold Italic" \
-    "URW Bookman L Bold" \
-    "URW Bookman L Italic" \
-    "URW Bookman L Bold Italic" \
-    "Century Schoolbook L Bold" \
-    "Century Schoolbook L Italic" \
-    "Century Schoolbook L Bold Italic" \
-    "Century Schoolbook L Medium" \
     "DejaVu Sans Ultra-Light" \
 )
 
