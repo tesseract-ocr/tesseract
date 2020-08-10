@@ -61,9 +61,8 @@ fi
 
 bail_out()
 {
-    echo
-    echo "  Something went wrong, bailing out!"
-    echo
+    
+    echo -e "Something went wrong, bailing out!"
     exit 1
 }
 
