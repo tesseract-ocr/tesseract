@@ -115,6 +115,6 @@ echo "Running automake --add-missing --copy"
 automake --add-missing --copy --warnings=all || bail_out
 
 
-echo "\nAll done."
-echo "To build the software now, do something like:\n"
+echo -e "\nAll done."
+echo -e "To build the software now, do something like:\n"
 echo "$ ./configure [--enable-debug] [...other options]"
