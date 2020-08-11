@@ -61,8 +61,8 @@ fi
 
 bail_out()
 {
-    
-    echo -e "Something went wrong, bailing out!"
+
+    echo -e "\nSomething went wrong, bailing out!\n"
     exit 1
 }
 
@@ -114,8 +114,7 @@ autoheader -f || bail_out
 echo "Running automake --add-missing --copy"
 automake --add-missing --copy --warnings=all || bail_out
 
-echo ""
-echo "All done."
-echo "To build the software now, do something like:"
-echo ""
+
+echo "\nAll done."
+echo "To build the software now, do something like:\n"
 echo "$ ./configure [--enable-debug] [...other options]"
