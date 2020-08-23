@@ -128,8 +128,10 @@ StrokeWidth::~StrokeWidth() {
     #ifndef GRAPHICS_DISABLED
     delete widths_win_->AwaitEvent(SVET_DESTROY);
     #endif // !GRAPHICS_DISABLED
-    if (textord_tabfind_only_strokewidths)
-      exit(0);
+    if (textord_tabfind_only_strokewidths) {
+      assert(!"unexpected textord_tabfind_only_strokewidths. code damaged?");
+      exit(1);
+    }
     delete widths_win_;
   }
   delete leaders_win_;

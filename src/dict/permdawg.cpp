@@ -118,7 +118,7 @@ void Dict::go_deeper_dawg_fxn(
           if (output_ambig_words_file_ == nullptr) {
             tprintf("Failed to open output_ambig_words_file %s\n",
                     output_ambig_words_file.c_str());
-            exit(1);
+            throw "Failed to open output_ambig_words_file";			// GHo: analyzed code flow; this entire function seems to only be used in DISABLED_LEGACY_ENGINE but better to throw than to exit() anyway!
           }
           STRING word_str;
           word->string_and_lengths(&word_str, nullptr);
