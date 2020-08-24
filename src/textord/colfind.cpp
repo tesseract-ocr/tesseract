@@ -1252,7 +1252,9 @@ void ColumnFinder::GridRemoveUnderlinePartitions() {
         if (line_box.bottom() <= text_bottom && text_bottom <= search_box.top())
           touched_text = true;
       } else if (covered->blob_type() == BRT_HLINE &&
-          line_box.contains(covered->bounding_box())) {
+          line_box.contains(covered->bounding_box()) &&
+          // not if same instance (identical to hline)
+          !TBOX(covered->bounding_box()).contains(line_box)) {
         line_part = covered;
       }
     }
