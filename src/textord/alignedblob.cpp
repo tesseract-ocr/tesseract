@@ -53,7 +53,7 @@ const int kMinRaggedTabs = 5;
 // Min number of points to accept for an aligned tab stop.
 const int kMinAlignedTabs = 4;
 // Constant number of pixels minimum height of a vertical line.
-const int kVLineMinLength = 500;
+const int kVLineMinLength = 300;
 // Minimum gradient for a vertical tab vector. Used to prune away junk
 // tab vectors with what would be a ridiculously large skew angle.
 // Value corresponds to tan(90 - max allowed skew angle)
