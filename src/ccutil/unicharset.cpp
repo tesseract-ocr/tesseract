@@ -60,11 +60,11 @@ const double kMinCapHeightFraction = 0.05;
 
 /*static */
 const char* UNICHARSET::kCustomLigatures[][2] = {
-  {"ct", "\uE003"},  // c + t -> U+E003
-  {"ſh", "\uE006"},  // long-s + h -> U+E006
-  {"ſi", "\uE007"},  // long-s + i -> U+E007
-  {"ſl", "\uE008"},  // long-s + l -> U+E008
-  {"ſſ", "\uE009"},  // long-s + long-s -> U+E009
+  {"ct", u8"\uE003"},  // c + t -> U+E003
+  {"ſh", u8"\uE006"},  // long-s + h -> U+E006
+  {"ſi", u8"\uE007"},  // long-s + i -> U+E007
+  {"ſl", u8"\uE008"},  // long-s + l -> U+E008
+  {"ſſ", u8"\uE009"},  // long-s + long-s -> U+E009
   {nullptr, nullptr}
 };
 
@@ -72,9 +72,9 @@ const char* UNICHARSET::kCustomLigatures[][2] = {
 // The substitutions clean up text that should exist for rendering of
 // synthetic data, but not in the recognition set.
 const char* UNICHARSET::kCleanupMaps[][2] = {
-    {"\u0640", ""},    // TATWEEL is deleted.
-    {"\ufb01", "fi"},  // fi ligature->fi pair.
-    {"\ufb02", "fl"},  // fl ligature->fl pair.
+    {u8"\u0640", ""},    // TATWEEL is deleted.
+    {u8"\ufb01", "fi"},  // fi ligature->fi pair.
+    {u8"\ufb02", "fl"},  // fl ligature->fl pair.
     {nullptr, nullptr}};
 
 // List of strings for the SpecialUnicharCodes. Keep in sync with the enum.
