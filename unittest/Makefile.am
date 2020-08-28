@@ -225,6 +225,19 @@ applybox_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 baseapi_test_SOURCES = baseapi_test.cc
 baseapi_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
+# Make sure that abseil and googletest are available before compiling.
+
+$(patsubst %,%.$(OBJEXT),$(check_programs)): $(top_srcdir)/abseil/absl/strings/ascii.h
+$(patsubst %.cc,%.$(OBJEXT),$(libabseil_la_SOURCES)): $(top_srcdir)/abseil/absl/strings/ascii.h
+$(patsubst %,%.$(OBJEXT),$(check_programs)): $(top_srcdir)/googletest/googletest/include/gtest/gtest.h
+$(patsubst %.c,%.$(OBJEXT),$(libabseil_la_SOURCES)): $(top_srcdir)/googletest/googletest/include/gtest/gtest.h
+
+$(top_srcdir)/abseil/absl/strings/ascii.h:
+	cd $(top_srcdir) && git submodule update --init abseil
+
+$(top_srcdir)/googletest/googletest/include/gtest/gtest.h:
+	cd $(top_srcdir) && git submodule update --init googletest
+
 if TENSORFLOW
 baseapi_thread_test_SOURCES = baseapi_thread_test.cc
 baseapi_thread_test_LDADD = $(ABSEIL_LIBS)
@@ -443,12 +456,17 @@ osd_test_LDADD += -lws2_32
 loadlang_test_LDADD += -lws2_32
 endif
 
+# Make sure that the test submodule is available before running the tests.
+
+$(TESTING_DIR)/phototest.tif:
+	cd $(top_srcdir) && git submodule update --init test
+
 EXTRA_apiexample_test_DEPENDENCIES = $(abs_top_builddir)/test/testing/phototest.tif
 EXTRA_apiexample_test_DEPENDENCIES += $(abs_top_builddir)/test/testing/phototest.txt
 
-$(abs_top_builddir)/test/testing/phototest.tif:
+$(abs_top_builddir)/test/testing/phototest.tif: $(TESTING_DIR)/phototest.tif
 	mkdir -p $(top_builddir)/test/testing
-	ln -s $(TESTING_DIR)/phototest.tif $(top_builddir)/test/testing/phototest.tif
+	ln -sf $(TESTING_DIR)/phototest.tif $(top_builddir)/test/testing/phototest.tif
 
 $(abs_top_builddir)/test/testing/phototest.txt:
 	mkdir -p $(top_builddir)/test/testing

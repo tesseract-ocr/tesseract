@@ -17,34 +17,6 @@
 static unsigned tesseractFuzzerHeight = TESSERACT_FUZZER_HEIGHT;
 static unsigned tesseractFuzzerWidth = TESSERACT_FUZZER_WIDTH;
 
-class BitReader {
- private:
-  uint8_t const* data;
-  size_t size;
-  size_t shift;
-
- public:
-  BitReader(const uint8_t* data, size_t size)
-      : data(data), size(size), shift(0) {}
-
-  int Read(void) {
-    if (size == 0) {
-      return 0;
-    }
-
-    const int ret = ((*data) >> shift) & 1;
-
-    shift++;
-    if (shift >= 8) {
-      shift = 0;
-      data++;
-      size--;
-    }
-
-    return ret;
-  }
-};
-
 static tesseract::TessBaseAPI* api = nullptr;
 
 extern "C" int LLVMFuzzerInitialize(int* /*pArgc*/, char*** pArgv) {
@@ -79,27 +51,26 @@ extern "C" int LLVMFuzzerInitialize(int* /*pArgc*/, char*** pArgv) {
   return 0;
 }
 
-static PIX* createPix(BitReader& BR, const size_t width, const size_t height) {
-  Pix* pix = pixCreate(width, height, 1);
-
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
+  unsigned depth = 1;
+  unsigned width = tesseractFuzzerWidth;
+  if (size * 8 < width) {
+    width = size / 8;
+  }
+  if (width == 0) {
+    return 0;
+  }
+  unsigned wpl = (width * depth + 31) / 32;
+  unsigned height = size / (4 * wpl); 
+  if (height == 0) {
+    return 0;
+  }
+  auto pix = pixCreateNoInit(width, height, depth);
   if (pix == nullptr) {
     printf("pix creation failed\n");
     abort();
   }
-
-  for (size_t i = 0; i < width; i++) {
-    for (size_t j = 0; j < height; j++) {
-      pixSetPixel(pix, i, j, BR.Read());
-    }
-  }
-
-  return pix;
-}
-
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  BitReader BR(data, size);
-
-  auto pix = createPix(BR, tesseractFuzzerWidth, tesseractFuzzerHeight);
+  memcpy(pixGetData(pix), data, 4 * wpl * height);
 
   api->SetImage(pix);
 

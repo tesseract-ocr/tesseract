@@ -117,16 +117,16 @@ edgesteps_to_edgepts (           //convert outline
 C_OUTLINE * c_outline,           //input
 EDGEPT edgepts[]                 //output is array
 ) {
-  int32_t length;                  //steps in path
+  int32_t length;                //steps in path
   ICOORD pos;                    //current coords
-  int32_t stepindex;               //current step
-  int32_t stepinc;                 //increment
-  int32_t epindex;                 //current EDGEPT
-  int32_t count;                   //repeated steps
+  int32_t stepindex;             //current step
+  int32_t stepinc;               //increment
+  int32_t epindex;               //current EDGEPT
+  int32_t count;                 //repeated steps
   ICOORD vec;                    //for this 8 step
   ICOORD prev_vec;
-  int8_t epdir;                    //of this step
-  DIR128 prevdir;                //prvious dir
+  int8_t epdir;                  //of this step
+  DIR128 prevdir;                //previous dir
   DIR128 dir;                    //of this step
 
   pos = c_outline->start_pos (); //start of loop

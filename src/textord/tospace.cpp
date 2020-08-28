@@ -998,6 +998,9 @@ ROW *Textord::make_prop_words(
           cout_it.set_to_list (cblob_it.data ()->out_list ());
           cout_it.move_to_last ();
           cout_it.add_list_after (bblob->cblob ()->out_list ());
+#if 0
+printf("%p deleted\n", bblob->cblob());
+#endif
           delete bblob->cblob ();
         }
       } else {
