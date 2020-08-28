@@ -202,9 +202,13 @@ class DLLSYM TBOX  {  // bounding box
     // and top-right corners. Use rotate_large if you want to guarantee
     // that all content is contained within the rotated box.
     void rotate(const FCOORD& vec) {  // by vector
-      bot_left.rotate (vec);
+      ICOORD top_left(bot_left.x(), top_right.y());
+      bot_left -= top_left;
+      bot_left.rotate(vec);
+      bot_left += top_left;
+      top_right -= top_left;
       top_right.rotate (vec);
-      *this = TBOX (bot_left, top_right);
+      top_right += top_left;
     }
     // rotate_large constructs the containing bounding box of all 4
     // corners after rotating them. It therefore guarantees that all
