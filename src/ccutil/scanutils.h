@@ -16,6 +16,7 @@
 #define TESSERACT_CCUTIL_SCANUTILS_H_
 
 #include <cstdio>       // for FILE
+#include <tesseract/platform.h>   // for __attribute__
 
 /**
  * fscanf variant to ensure correct reading regardless of locale.

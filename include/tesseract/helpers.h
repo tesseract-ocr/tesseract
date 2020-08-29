@@ -26,6 +26,9 @@
 #include <functional>
 #include <string>
 
+#include <tesseract/platform.h>   // for __attribute__
+
+
 // TODO(rays) Put the rest of the helpers in the namespace.
 namespace tesseract {
 

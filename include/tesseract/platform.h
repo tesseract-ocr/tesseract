@@ -36,6 +36,31 @@
 # define __attribute__(attr) /* compiler without support for __attribute__ */
 #endif
 
+/* GCC can do type checking of printf strings */
+#ifdef __printflike
+#  define TS_PRINTFLIKE(F, V) __printflike(F, V)
+#else
+#  if defined(__GNUC__) && \
+      (__GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 7)
+#    define TS_PRINTFLIKE(F, V) __attribute__((format(gnu_printf, F, V))
+#  else
+#    define TS_PRINTFLIKE(F, V)
+#  endif
+#endif
+/* https://stackoverflow.com/questions/2354784/attribute-formatprintf-1-2-for-msvc/6849629#6849629
+ */
+#undef FZ_FORMAT_STRING
+#if _MSC_VER >= 1400
+#  include <sal.h>
+#  if _MSC_VER > 1400
+#    define TS_FORMAT_STRING(p) _Printf_format_string_ p
+#  else
+#    define TS_FORMAT_STRING(p) __format_string p
+#  endif
+#else
+#  define TS_FORMAT_STRING(p) p
+#endif /* _MSC_VER */
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 #  if defined(TESS_EXPORTS)
 #    define TESS_API __declspec(dllexport)

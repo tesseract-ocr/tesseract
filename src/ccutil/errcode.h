@@ -58,7 +58,7 @@ enum TessErrorLogCode {
 #define SUBLOC_NORM     0
 #define SUBLOC_FIX_XHT    3
 
-/* Sub Sub locatation determines whether match_word_pass2 was in Tess
+/* Sub Sub location determines whether match_word_pass2 was in Tess
   matcher, NN matcher or somewhere else */
 
 #define SUBSUBLOC_OTHER   0
@@ -68,12 +68,11 @@ enum TessErrorLogCode {
 class TESS_API ERRCODE {           // error handler class
   const char *message;           // error message
  public:
-  __attribute__((format(printf, 4, 5)))
   void error(                  // error print function
     const char *caller,        // function location
     TessErrorLogCode action,   // action to take
-    const char *format, ...    // fprintf format
-  ) const __attribute__((format(gnu_printf, 4, 5)));
+    TS_FORMAT_STRING(const char* format), ...  // fprintf format
+  ) const TS_PRINTFLIKE(3, 4);
   constexpr ERRCODE(const char *string) : message(string) {
   }                            // initialize with string
 };
