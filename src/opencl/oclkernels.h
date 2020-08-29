@@ -122,7 +122,7 @@ KERNEL(
     unsigned int destword;
     int i;
 
-    //Ignore the execss
+    //Ignore the excess
     if (row >= h || col >= wpl)
         return;
 
@@ -163,7 +163,7 @@ KERNEL(
     unsigned int lnextword, lprevword, rnextword, rprevword, firstword, secondword;
     int i, j, siter, eiter;
 
-    //Ignore the execss
+    //Ignore the excess
     if (pos >= (wpl*h) || (xn < 1 && xp < 1))
         return;
 
@@ -305,7 +305,7 @@ KERNEL(
     unsigned int destword;
     int i;
 
-    //Ignore the execss
+    //Ignore the excess
     if (pos >= (wpl * h))
         return;
 
@@ -360,7 +360,7 @@ KERNEL(
     unsigned int destword;
     int i, siter, eiter;
 
-    //Ignore the execss
+    //Ignore the excess
     if (row >= h || col >= wpl)
         return;
 
@@ -390,7 +390,7 @@ KERNEL(
     unsigned int destword;
     const int col = pos % wpl;
 
-    //Ignore the execss
+    //Ignore the excess
     if (pos >= (wpl * h))
         return;
 
@@ -444,7 +444,7 @@ KERNEL(
     unsigned int destword;
     int i;
 
-    //Ignore the execss
+    //Ignore the excess
     if (row >= h || col >= wpl)
         return;
 
@@ -507,7 +507,7 @@ KERNEL(
     unsigned int lnextword, lprevword, rnextword, rprevword, firstword, secondword;
     int i, j, siter, eiter;
 
-    //Ignore the execss
+    //Ignore the excess
     if (pos >= (wpl*h) || (xn < 1 && xp < 1))
         return;
 
@@ -673,7 +673,7 @@ KERNEL(
     unsigned int prevword, nextword, currword,tempword, destword;
     int i;
 
-    //Ignore the execss
+    //Ignore the excess
     if (pos >= (wpl * h))
         return;
 
@@ -739,7 +739,7 @@ KERNEL(
     unsigned int tempword, destword;
     int i, siter, eiter;
 
-    //Ignore the execss
+    //Ignore the excess
     if (row >= h || col >= wpl)
         return;
 
