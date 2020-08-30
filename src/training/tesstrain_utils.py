@@ -421,8 +421,6 @@ def phase_I_generate_image(ctx, par_factor=None):
 def phase_UP_generate_unicharset(ctx):
     log.info("=== Phase UP: Generating unicharset and unichar properties files from Training Text ===")
 
-    box_files = pathlib.Path(ctx.training_dir).glob("*.box")
-
     ctx.unicharset_file = pathlib.Path(ctx.training_dir) / f"{ctx.lang_code}.unicharset"
 
     run_command(
