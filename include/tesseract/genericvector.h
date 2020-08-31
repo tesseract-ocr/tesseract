@@ -26,6 +26,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <functional>  // for std::function
+#if defined(_MSC_VER)
+#  include <crtdbg.h>
+#endif
 
 #include "helpers.h"
 #include "serialis.h"
@@ -205,7 +208,11 @@ class GenericVector {
   // This function uses memcpy to copy the data, instead of invoking
   // operator=() for each element like double_the_size() does.
   static T* double_the_size_memcpy(int current_size, T* data) {
+#ifdef _DEBUG
+    T* data_new = new (_CLIENT_BLOCK, __FILE__, __LINE__) T[current_size * 2];
+#else
     T* data_new = new T[current_size * 2];
+#endif  // _DEBUG
     memcpy(data_new, data, sizeof(T) * current_size);
     delete[] data;
     return data_new;
@@ -564,7 +571,11 @@ class PointerVector : public GenericVector<T*> {
       }
       T* item = nullptr;
       if (non_null != 0) {
+#ifdef _DEBUG
+        item = new (_CLIENT_BLOCK, __FILE__, __LINE__) T;
+#else
         item = new T;
+#endif  // _DEBUG
         if (!item->DeSerialize(swap, fp)) {
           delete item;
           return false;
@@ -606,7 +617,11 @@ class PointerVector : public GenericVector<T*> {
     }
     T* item = nullptr;
     if (non_null != 0) {
+#ifdef _DEBUG
+      item = new (_CLIENT_BLOCK, __FILE__, __LINE__) T;
+#else
       item = new T;
+#endif  // _DEBUG
       if (!item->DeSerialize(fp)) {
         delete item;
         return false;
@@ -667,7 +682,11 @@ void GenericVector<T>::init(int size) {
     if (size < kDefaultVectorSize) {
       size = kDefaultVectorSize;
     }
+#ifdef _DEBUG
+    data_ = new (_CLIENT_BLOCK, __FILE__, __LINE__) T[size];
+#else
     data_ = new T[size];
+#endif  // _DEBUG
     size_reserved_ = size;
   }
   clear_cb_ = nullptr;
@@ -689,7 +708,11 @@ void GenericVector<T>::reserve(int size) {
   if (size < kDefaultVectorSize) {
     size = kDefaultVectorSize;
   }
+#ifdef _DEBUG
+  T* new_array = new (_CLIENT_BLOCK, __FILE__, __LINE__) T[size];
+#else
   T* new_array = new T[size];
+#endif  // _DEBUG
   for (int i = 0; i < size_used_; ++i) {
     new_array[i] = data_[i];
   }
