@@ -77,7 +77,7 @@ class TESS_API STRING {
   }
   const char* c_str() const;
 
-  inline char* strdup() const {
+  inline char* strdup_() const {
     int32_t len = length() + 1;
     return strncpy(new char[len], GetCStr(), len);
   }
