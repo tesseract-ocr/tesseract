@@ -208,7 +208,7 @@ class GenericVector {
   // This function uses memcpy to copy the data, instead of invoking
   // operator=() for each element like double_the_size() does.
   static T* double_the_size_memcpy(int current_size, T* data) {
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_CRTDBG_REPORT_FLAG)
     T* data_new = new (_CLIENT_BLOCK, __FILE__, __LINE__) T[current_size * 2];
 #else
     T* data_new = new T[current_size * 2];
@@ -571,7 +571,7 @@ class PointerVector : public GenericVector<T*> {
       }
       T* item = nullptr;
       if (non_null != 0) {
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_CRTDBG_REPORT_FLAG)
         item = new (_CLIENT_BLOCK, __FILE__, __LINE__) T;
 #else
         item = new T;
@@ -617,7 +617,7 @@ class PointerVector : public GenericVector<T*> {
     }
     T* item = nullptr;
     if (non_null != 0) {
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_CRTDBG_REPORT_FLAG)
       item = new (_CLIENT_BLOCK, __FILE__, __LINE__) T;
 #else
       item = new T;
@@ -682,7 +682,7 @@ void GenericVector<T>::init(int size) {
     if (size < kDefaultVectorSize) {
       size = kDefaultVectorSize;
     }
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_CRTDBG_REPORT_FLAG)
     data_ = new (_CLIENT_BLOCK, __FILE__, __LINE__) T[size];
 #else
     data_ = new T[size];
@@ -708,7 +708,7 @@ void GenericVector<T>::reserve(int size) {
   if (size < kDefaultVectorSize) {
     size = kDefaultVectorSize;
   }
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_CRTDBG_REPORT_FLAG)
   T* new_array = new (_CLIENT_BLOCK, __FILE__, __LINE__) T[size];
 #else
   T* new_array = new T[size];
