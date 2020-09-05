@@ -535,10 +535,10 @@ void STATS::print() const {
     if (buckets_[index] != 0) {
       tprintf("%4d:%-3d ", rangemin_ + index, buckets_[index]);
       if (++num_printed % 8 == 0)
-        tprintf ("\n");
+        tprintf("\n");
     }
   }
-  tprintf ("\n");
+  tprintf("\n");
   print_summary();
 }
 

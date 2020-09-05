@@ -691,9 +691,9 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
   }
   if (debug) {
     if (inserted)
-      tprintf("New %s", best_choice == word_choice ? "Best" : "Secondary");
+      tprintf("New %s Word Choice", best_choice == word_choice ? "Best" : "Secondary");
     else
-      tprintf("Poor");
+      tprintf("Poor Word Choice");
     word_choice->print(" Word Choice");
   }
   if (!inserted) {

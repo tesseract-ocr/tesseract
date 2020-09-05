@@ -194,22 +194,22 @@ void BLOCK::print(            //print list of sides
   ICOORDELT_IT it = &pdblk.leftside;   //iterator
 
   pdblk.box.print ();
-  tprintf ("Proportional= %s\n", proportional ? "TRUE" : "FALSE");
-  tprintf ("Kerning= %d\n", kerning);
-  tprintf ("Spacing= %d\n", spacing);
-  tprintf ("Fixed_pitch=%d\n", pitch);
-  tprintf ("Filename= %s\n", filename.c_str ());
+  tprintf("Proportional= %s\n", proportional ? "TRUE" : "FALSE");
+  tprintf("Kerning= %d\n", kerning);
+  tprintf("Spacing= %d\n", spacing);
+  tprintf("Fixed_pitch=%d\n", pitch);
+  tprintf("Filename= %s\n", filename.c_str ());
 
   if (dump) {
-    tprintf ("Left side coords are:\n");
+    tprintf("Left side coords are:\n");
     for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
-      tprintf ("(%d,%d) ", it.data ()->x (), it.data ()->y ());
-    tprintf ("\n");
-    tprintf ("Right side coords are:\n");
+      tprintf("(%d,%d) ", it.data ()->x (), it.data ()->y ());
+    tprintf("\n");
+    tprintf("Right side coords are:\n");
     it.set_to_list (&pdblk.rightside);
     for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
-      tprintf ("(%d,%d) ", it.data ()->x (), it.data ()->y ());
-    tprintf ("\n");
+      tprintf("(%d,%d) ", it.data ()->x (), it.data ()->y ());
+    tprintf("\n");
   }
 }
 

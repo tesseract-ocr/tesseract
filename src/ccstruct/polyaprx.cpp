@@ -543,7 +543,7 @@ void cutline(                //recursive refine
     squaresum += perp;           /*sum squares */
     ptcount++;                   /*count points */
     if (poly_debug)
-      tprintf ("Cutline:Final perp=%d\n", perp);
+      tprintf("Cutline:Final perp=%d\n", perp);
     if (perp > maxperp) {
       maxperp = perp;
       maxpoint = edge;           /*find greatest deviation */
@@ -573,7 +573,7 @@ void cutline(                //recursive refine
     perp = (squaresum / perp << 8) / ptcount;
 
   if (poly_debug)
-    tprintf ("Cutline:A=%d, max=%.2f(%.2f%%), msd=%.2f(%.2f%%)\n",
+    tprintf("Cutline:A=%d, max=%.2f(%.2f%%), msd=%.2f(%.2f%%)\n",
       area, maxperp / 256.0, maxperp * 200.0 / area,
       perp / 256.0, perp * 300.0 / area);
   if (maxperp * par1 >= 10 * area || perp * par2 >= 10 * area || vlen >= 126) {

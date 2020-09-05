@@ -157,7 +157,7 @@ void Tesseract::make_reject_map(WERD_RES *word, ROW *row, int16_t pass) {
       /* Ambig word rejection was here once !!*/
     }
   } else {
-    tprintf("BAD tessedit_reject_mode\n");
+    tprintf("ERROR: BAD tessedit_reject_mode\n");
     ASSERT_HOST("Fatal error encountered!" == nullptr);
   }
 

@@ -174,7 +174,7 @@ static NetworkType getNetworkType(TFile* fp) {
     for (data = 0; data < NT_COUNT && type_name != kTypeNames[data]; ++data) {
     }
     if (data == NT_COUNT) {
-      tprintf("Invalid network layer type:%s\n", type_name.c_str());
+      tprintf("ERROR: Invalid network layer type:%s\n", type_name.c_str());
       return NT_NONE;
     }
   }
@@ -247,7 +247,7 @@ Network* Network::CreateFromFile(TFile* fp) {
 #ifdef INCLUDE_TENSORFLOW
       network = new TFNetwork(name);
 #else
-      tprintf("TensorFlow not compiled in! -DINCLUDE_TENSORFLOW\n");
+      tprintf("WARNING: TensorFlow not compiled in! -DINCLUDE_TENSORFLOW\n");
 #endif
       break;
     // All variants of FullyConnected.

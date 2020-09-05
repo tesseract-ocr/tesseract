@@ -305,7 +305,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
     ambigs_found = (alt_word->rating() < 0.0);
     if (ambigs_found) {
       if (stopper_debug_level >= 1) {
-        tprintf ("Stopper: Possible ambiguous word = %s\n",
+        tprintf("Stopper: Possible ambiguous word = %s\n",
                  alt_word->debug_string().c_str());
       }
       if (fixpt != nullptr) {

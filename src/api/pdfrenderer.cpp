@@ -304,7 +304,7 @@ static void ClipBaseline(int ppi, int x1, int y1, int x2, int y2,
 
 static bool CodepointToUtf16be(int code, char utf16[kMaxBytesPerCodepoint]) {
   if ((code > 0xD7FF && code < 0xE000) || code > 0x10FFFF) {
-    tprintf("Dropping invalid codepoint %d\n", code);
+    tprintf("ERROR: Dropping invalid codepoint %d\n", code);
     return false;
   }
   if (code < 0x10000) {
@@ -625,7 +625,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   stream << datadir_.c_str() << "/pdf.ttf";
   FILE *fp = fopen(stream.str().c_str(), "rb");
   if (!fp) {
-    tprintf("Cannot open file \"%s\"!\n", stream.str().c_str());
+    tprintf("ERROR: Cannot open file \"%s\"!\n", stream.str().c_str());
     return false;
   }
   fseek(fp, 0, SEEK_END);

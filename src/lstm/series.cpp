@@ -160,7 +160,7 @@ void Series::SplitAt(int last_start, Series** start, Series** end) {
   *start = nullptr;
   *end = nullptr;
   if (last_start < 0 || last_start >= stack_.size()) {
-    tprintf("Invalid split index %d must be in range [0,%d]!\n",
+    tprintf("ERROR: Invalid split index %d must be in range [0,%d]!\n",
             last_start, stack_.size() - 1);
     return;
   }

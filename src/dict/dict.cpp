@@ -253,7 +253,7 @@ void Dict::Load(const STRING& lang, TessdataManager* data_file) {
     }
     if (!trie_ptr->read_and_add_word_list(name.c_str(), getUnicharset(),
                                           Trie::RRP_REVERSE_IF_HAS_RTL)) {
-      tprintf("Error: failed to load %s\n", name.c_str());
+      tprintf("ERROR: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
       dawgs_ += trie_ptr;
@@ -271,7 +271,7 @@ void Dict::Load(const STRING& lang, TessdataManager* data_file) {
       name += user_patterns_suffix;
     }
     if (!trie_ptr->read_pattern_list(name.c_str(), getUnicharset())) {
-      tprintf("Error: failed to load %s\n", name.c_str());
+      tprintf("ERROR: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
       dawgs_ += trie_ptr;
@@ -320,7 +320,7 @@ void Dict::LoadLSTM(const STRING& lang, TessdataManager* data_file) {
     }
     if (!trie_ptr->read_and_add_word_list(name.c_str(), getUnicharset(),
                                           Trie::RRP_REVERSE_IF_HAS_RTL)) {
-      tprintf("Error: failed to load %s\n", name.c_str());
+      tprintf("ERROR: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
       dawgs_ += trie_ptr;
@@ -338,7 +338,7 @@ void Dict::LoadLSTM(const STRING& lang, TessdataManager* data_file) {
       name += user_patterns_suffix;
     }
     if (!trie_ptr->read_pattern_list(name.c_str(), getUnicharset())) {
-      tprintf("Error: failed to load %s\n", name.c_str());
+      tprintf("ERROR: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
       dawgs_ += trie_ptr;
@@ -689,7 +689,7 @@ void Dict::add_document_word(const WERD_CHOICE& best_choice) {
     filename += ".doc";
     FILE* doc_word_file = fopen(filename.c_str(), "a");
     if (doc_word_file == nullptr) {
-      tprintf("Error: Could not open file %s\n", filename.c_str());
+      tprintf("ERROR: Could not open file %s\n", filename.c_str());
       ASSERT_HOST(doc_word_file);
     }
     fprintf(doc_word_file, "%s\n", best_choice.debug_string().c_str());

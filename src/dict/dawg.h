@@ -485,11 +485,11 @@ class SquishedDawg : public Dawg {
     TFile file;
     file.OpenWrite(nullptr);
     if (!this->write_squished_dawg(&file)) {
-      tprintf("Error serializing %s\n", filename);
+      tprintf("ERROR: Error serializing %s\n", filename);
       return false;
     }
     if (!file.CloseWrite(filename, nullptr)) {
-      tprintf("Error writing file %s\n", filename);
+      tprintf("ERROR: Error writing file %s\n", filename);
       return false;
     }
     return true;

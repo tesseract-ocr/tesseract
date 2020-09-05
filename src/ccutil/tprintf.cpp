@@ -27,6 +27,36 @@
 #include <tesseract/strngs.h>
 #include "tprintf.h"
 
+#ifdef HAVE_MUPDF
+// for fz_error():
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "mupdf/fitz/config.h"
+#include "mupdf/fitz/system.h"
+#include "mupdf/fitz/version.h"
+#include "mupdf/fitz/context.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+DLLSYM void tprintf(const char* format, ...) {
+  va_list args;
+  va_start(args, format);
+
+  if (!strncmp(format, "ERROR: ", 7))
+	fz_verror(NULL, format + 7, args);
+  else if (!strncmp(format, "WARNING: ", 9))
+    fz_vwarn(NULL, format + 9, args);
+  else
+    fz_vinfo(NULL, format, args);
+  va_end(args);
+}
+
+#else
+
 #define MAX_MSG_LEN 2048
 
 static STRING_VAR(debug_file, "", "File to send tprintf output to");
@@ -66,3 +96,6 @@ DLLSYM void tprintf(const char *format, ...)
   }
   va_end(args);
 }
+
+#endif
+

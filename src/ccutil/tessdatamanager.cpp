@@ -85,7 +85,7 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
       result = is_loaded_;
 #if defined(DEBUG)
     } else {
-      tprintf("archive_read_open_filename(...,%s,...) failed, %s\n",
+      tprintf("ERROR: archive_read_open_filename(...,%s,...) failed, %s\n",
               filename, strerror(archive_errno(a)));
 #endif
     }
@@ -255,7 +255,7 @@ bool TessdataManager::CombineDataFiles(
     if (fp != nullptr) {
       fclose(fp);
       if (!LoadDataFromFile(filename.c_str(), &entries_[type])) {
-        tprintf("Load of file %s failed!\n", filename.c_str());
+        tprintf("ERROR: Load of file %s failed!\n", filename.c_str());
         return false;
       }
     }
@@ -265,7 +265,7 @@ bool TessdataManager::CombineDataFiles(
   // Make sure that the required components are present.
   if (!IsBaseAvailable() && !IsLSTMAvailable()) {
     tprintf(
-        "Error: traineddata file must contain at least (a unicharset file"
+        "ERROR: traineddata file must contain at least (a unicharset file"
         "and inttemp) OR an lstm file.\n");
     return false;
   }
@@ -283,7 +283,7 @@ bool TessdataManager::OverwriteComponents(
     TessdataType type;
     if (TessdataTypeFromFileName(component_filenames[i], &type)) {
       if (!LoadDataFromFile(component_filenames[i], &entries_[type])) {
-        tprintf("Failed to read component file:%s\n", component_filenames[i]);
+        tprintf("ERROR: Failed to read component file:%s\n", component_filenames[i]);
         return false;
       }
     }
@@ -310,7 +310,7 @@ bool TessdataManager::TessdataTypeFromFileSuffix(const char *suffix,
     }
   }
 #if defined(DEBUG)
-  tprintf("TessdataManager can't determine which tessdata"
+  tprintf("ERROR: TessdataManager can't determine which tessdata"
          " component is represented by %s\n", suffix);
 #endif
   return false;

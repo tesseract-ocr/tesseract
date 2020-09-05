@@ -116,7 +116,7 @@ void Dict::go_deeper_dawg_fxn(
           output_ambig_words_file_ =
               fopen(output_ambig_words_file.c_str(), "wb+");
           if (output_ambig_words_file_ == nullptr) {
-            tprintf("Failed to open output_ambig_words_file %s\n",
+            tprintf("ERROR: Failed to open output_ambig_words_file %s\n",
                     output_ambig_words_file.c_str());
             throw "Failed to open output_ambig_words_file";			// GHo: analyzed code flow; this entire function seems to only be used in DISABLED_LEGACY_ENGINE but better to throw than to exit() anyway!
           }

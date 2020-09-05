@@ -664,7 +664,7 @@ bool find_best_dropout_row(                    //find neighbours
   TO_ROW *next_row;              //nextious row
 
   if (testing_on)
-    tprintf ("Row at %g(%g), dropout dist=%d,",
+    tprintf("Row at %g(%g), dropout dist=%d,",
       row->intercept (), row->parallel_c (), distance);
   if (distance < 0) {
     row_inc = 1;
@@ -676,7 +676,7 @@ bool find_best_dropout_row(                    //find neighbours
   }
   if (abs_dist > dist_limit) {
     if (testing_on) {
-      tprintf (" too far - deleting\n");
+      tprintf(" too far - deleting\n");
     }
     return true;
   }
@@ -693,7 +693,7 @@ bool find_best_dropout_row(                    //find neighbours
         && next_index > line_index
       && next_index < line_index + distance + distance)) {
         if (testing_on) {
-          tprintf (" nearer neighbour (%d) at %g\n",
+          tprintf(" nearer neighbour (%d) at %g\n",
             line_index + distance - next_index,
             next_row->intercept ());
         }
@@ -703,7 +703,7 @@ bool find_best_dropout_row(                    //find neighbours
       || next_index == line_index + distance + distance) {
         if (row->believability () <= next_row->believability ()) {
           if (testing_on) {
-            tprintf (" equal but more believable at %g (%g/%g)\n",
+            tprintf(" equal but more believable at %g (%g/%g)\n",
               next_row->intercept (),
               row->believability (),
               next_row->believability ());
@@ -717,7 +717,7 @@ bool find_best_dropout_row(                    //find neighbours
       || next_index == line_index + distance + distance)
       && row_offset < row_it->length ());
     if (testing_on)
-      tprintf (" keeping\n");
+      tprintf(" keeping\n");
   }
   return false;
 }
@@ -1162,7 +1162,7 @@ void compute_row_stats(                  //find lines
       rows[rowcount++] = prev_row;
       prev_row->spacing = row->intercept () - prev_row->intercept ();
       if (testing_on)
-        tprintf ("Row at %g yields spacing of %g\n",
+        tprintf("Row at %g yields spacing of %g\n",
           row->intercept (), prev_row->spacing);
     }
     prev_row = row;
@@ -1173,7 +1173,7 @@ void compute_row_stats(                  //find lines
   block->baseline_offset =
     fmod (prev_row->parallel_c (), block->line_spacing);
   if (testing_on)
-    tprintf ("Blob based spacing=(%g,%g), offset=%g",
+    tprintf("Blob based spacing=(%g,%g), offset=%g",
       block->line_size, block->line_spacing, block->baseline_offset);
   if (rowcount > 0) {
     row_index = choose_nth_item(rowcount * 3 / 4, &rows[0], rowcount,
@@ -1186,7 +1186,7 @@ void compute_row_stats(                  //find lines
       sizeof (TO_ROW *), row_spacing_order);
     block->key_row = rows[row_index];
     if (testing_on)
-      tprintf (" row based=%g(%g)", rows[row_index]->spacing, iqr);
+      tprintf(" row based=%g(%g)", rows[row_index]->spacing, iqr);
     if (rowcount > 2
     && iqr < rows[row_index]->spacing * textord_linespace_iqrlimit) {
       if (!textord_new_initial_xheight) {
@@ -1216,7 +1216,7 @@ void compute_row_stats(                  //find lines
       block->line_spacing);
   }
   if (testing_on)
-    tprintf ("\nEstimate line size=%g, spacing=%g, offset=%g\n",
+    tprintf("\nEstimate line size=%g, spacing=%g, offset=%g\n",
       block->line_size, block->line_spacing, block->baseline_offset);
 }
 
@@ -2111,7 +2111,7 @@ segment_baseline(               //split baseline
   segments = 1;
   blobcount = row->blob_list ()->length ();
   if (textord_oldbl_debug)
-    tprintf ("Segmenting baseline of %d blobs at (%d,%d)\n",
+    tprintf("Segmenting baseline of %d blobs at (%d,%d)\n",
       blobcount, box.left (), box.bottom ());
   if (blobcount <= textord_spline_medianwin
   || blobcount < textord_spline_minblobs) {
@@ -2170,7 +2170,7 @@ segment_baseline(               //split baseline
     xstarts[--segments] = new_box.right ();
   }
   if (textord_oldbl_debug)
-    tprintf ("Made %d segments on row at (%d,%d)\n",
+    tprintf("Made %d segments on row at (%d,%d)\n",
       segments, box.right (), box.bottom ());
   return needs_curve;
 }
@@ -2518,7 +2518,7 @@ OVERLAP_STATE most_overlapping_row(                    //find best row
           row->min_y ()? test_row->min_y () : row->min_y ();
         if (merge_top - merge_bottom <= rowsize) {
           if (testing_blob && textord_debug_blob) {
-            tprintf ("Merging rows at (%g,%g), (%g,%g)\n",
+            tprintf("Merging rows at (%g,%g), (%g,%g)\n",
               row->min_y (), row->max_y (),
               test_row->min_y (), test_row->max_y ());
           }

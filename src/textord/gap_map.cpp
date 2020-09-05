@@ -148,7 +148,7 @@ GAPMAP::GAPMAP(                 //Constructor
     }
   }
   if (gapmap_debug && any_tabs)
-    tprintf ("Table found\n");
+    tprintf("Table found\n");
 }
 
 

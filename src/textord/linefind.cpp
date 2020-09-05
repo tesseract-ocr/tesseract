@@ -246,7 +246,7 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Pix* pix,
                                     TabVector_LIST* v_lines,
                                     TabVector_LIST* h_lines) {
   if (pix == nullptr || vertical_x == nullptr || vertical_y == nullptr) {
-    tprintf("Error in parameters for LineFinder::FindAndRemoveLines\n");
+    tprintf("ERROR: Error in parameters for LineFinder::FindAndRemoveLines\n");
     return;
   }
   Pix* pix_vline = nullptr;

@@ -73,7 +73,7 @@ void QLSQ::add(double x, double y) {
 
 void QLSQ::remove(double x, double y) {
   if (n <= 0) {
-    tprintf("Can't remove an element from an empty QLSQ accumulator!\n");
+    tprintf("ERROR: Can't remove an element from an empty QLSQ accumulator!\n");
     return;
   }
   n--;                           // Count elements.

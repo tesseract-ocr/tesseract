@@ -85,7 +85,7 @@ void Textord::to_spacing(
       if ((row->pitch_decision == PITCH_DEF_PROP) ||
       (row->pitch_decision == PITCH_CORR_PROP)) {
         if ((tosp_debug_level > 0) && !old_text_ord_proportional)
-          tprintf ("Block %d Row %d: Now Proportional\n",
+          tprintf("Block %d Row %d: Now Proportional\n",
             block_index, row_index);
         row_spacing_stats(row,
                           gapmap.get(),
@@ -397,7 +397,7 @@ void Textord::row_spacing_stats(
         !isolated_row_stats (row, gapmap, &all_gap_stats, suspected_table,
                              block_idx, row_idx)) {
       if (tosp_row_use_cert_spaces && (tosp_debug_level > 5))
-        tprintf ("B:%d R:%d -- Inadequate certain spaces.\n",
+        tprintf("B:%d R:%d -- Inadequate certain spaces.\n",
           block_idx, row_idx);
       if (tosp_row_use_cert_spaces1 && good_block_space_estimate) {
                                  //Use block default
@@ -479,7 +479,7 @@ void Textord::row_spacing_stats(
       if ((row->space_size < sane_space) ||
       (row->space_threshold < sane_threshold)) {
         if (tosp_debug_level > 5)
-          tprintf ("B:%d R:%d -- SUSPECT NO SPACES %3.2f %d %3.2f.\n",
+          tprintf("B:%d R:%d -- SUSPECT NO SPACES %3.2f %d %3.2f.\n",
             block_idx, row_idx,
             row->kern_size,
             row->space_threshold, row->space_size);
@@ -773,7 +773,7 @@ bool Textord::isolated_row_stats(TO_ROW* row,
     (row->space_threshold >= row->space_size) ||
   (row->space_threshold <= 0)) {
     if (tosp_debug_level > 5)
-      tprintf ("B:%d R:%d -- Isolated row stats SANITY FAILURE: %f %d %f\n",
+      tprintf("B:%d R:%d -- Isolated row stats SANITY FAILURE: %f %d %f\n",
         block_idx, row_idx,
         row->kern_size, row->space_threshold, row->space_size);
     row->kern_size = 0.0f;
@@ -783,7 +783,7 @@ bool Textord::isolated_row_stats(TO_ROW* row,
   }
 
   if (tosp_debug_level > 5)
-    tprintf ("B:%d R:%d -- Isolated row stats: %f %d %f\n",
+    tprintf("B:%d R:%d -- Isolated row stats: %f %d %f\n",
       block_idx, row_idx,
       row->kern_size, row->space_threshold, row->space_size);
   return true;
@@ -823,7 +823,7 @@ void Textord::improve_row_threshold(TO_ROW *row, STATS *all_gap_stats) {
   int16_t index = 0;
 
   if (tosp_debug_level > 10)
-    tprintf ("Improve row threshold 0");
+    tprintf("Improve row threshold 0");
   if ((all_gap_stats->get_total () <= 25) ||
     (sp <= 10) ||
     (sp <= 3 * kn) ||
@@ -832,7 +832,7 @@ void Textord::improve_row_threshold(TO_ROW *row, STATS *all_gap_stats) {
     (0.75 * all_gap_stats->get_total ())))
     return;
   if (tosp_debug_level > 10)
-    tprintf (" 1");
+    tprintf(" 1");
   /*
   Look for the first region of all 0's in the histogram which is wider than
   max(3, (sp - kn) / 3) and starts between kn and sp. If found, and current
@@ -858,14 +858,14 @@ void Textord::improve_row_threshold(TO_ROW *row, STATS *all_gap_stats) {
   }
   index--;
   if (tosp_debug_level > 10)
-    tprintf (" reqd_z_width: %d found %d 0's, starting %d; thresh: %d/n",
+    tprintf(" reqd_z_width: %d found %d 0's, starting %d; thresh: %d/n",
       reqd_zero_width, zero_width, zero_start, row->space_threshold);
   if ((zero_width < reqd_zero_width) ||
     ((row->space_threshold >= zero_start) &&
     (row->space_threshold <= index)))
     return;
   if (tosp_debug_level > 10)
-    tprintf (" 2");
+    tprintf(" 2");
   if (row->space_threshold < zero_start) {
     if (tosp_debug_level > 5)
       tprintf
@@ -969,7 +969,7 @@ ROW *Textord::make_prop_words(
       else
         prev_blanks = 0;
       if (tosp_debug_level > 5)
-        tprintf ("Repch wd at BOL(%d, %d). rep spacing %5.2f;  Rgap:%d  ",
+        tprintf("Repch wd at BOL(%d, %d). rep spacing %5.2f;  Rgap:%d  ",
           box_it.data ()->bounding_box ().left (),
           box_it.data ()->bounding_box ().bottom (),
           repetition_spacing, current_gap);
@@ -1094,7 +1094,7 @@ printf("%p deleted\n", bblob->cblob());
             else
               blanks = 0;
             if (tosp_debug_level > 5)
-              tprintf (" Rgap:%d (%d blanks)\n",
+              tprintf(" Rgap:%d (%d blanks)\n",
                 current_gap, blanks);
             fuzzy_sp = false;
             fuzzy_non = false;
@@ -1166,7 +1166,7 @@ printf("%p deleted\n", bblob->cblob());
     real_row->recalc_bounding_box ();
 
     if (tosp_debug_level > 4) {
-      tprintf ("Row: Made %d words in row ((%d,%d)(%d,%d))\n",
+      tprintf("Row: Made %d words in row ((%d,%d)(%d,%d))\n",
         word_count,
         real_row->bounding_box ().left (),
         real_row->bounding_box ().bottom (),
@@ -1246,7 +1246,7 @@ ROW *Textord::make_blob_words(
     word_it.add_list_after(&words);
     real_row->recalc_bounding_box();
     if (tosp_debug_level > 4) {
-      tprintf ("Row:Made %d words in row ((%d,%d)(%d,%d))\n",
+      tprintf("Row:Made %d words in row ((%d,%d)(%d,%d))\n",
         word_count,
         real_row->bounding_box().left(),
         real_row->bounding_box().bottom(),

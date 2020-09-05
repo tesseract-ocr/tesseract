@@ -76,7 +76,7 @@ int Dawg::check_for_words(const char *filename,
 
   word_file = fopen(filename, "r");
   if (word_file == nullptr) {
-    tprintf("Error: Could not open file %s\n", filename);
+    tprintf("ERROR: Could not open file %s\n", filename);
     ASSERT_HOST(word_file);
   }
 
@@ -87,11 +87,11 @@ int Dawg::check_for_words(const char *filename,
         !word.contains_unichar_id(INVALID_UNICHAR_ID)) {
       if (!match_words(&word, 0, 0,
                        enable_wildcard ? wildcard : INVALID_UNICHAR_ID)) {
-        tprintf("Missing word: %s\n", string);
+        tprintf("WARNING: Missing word: %s\n", string);
         ++misses;
       }
     } else {
-      tprintf("Failed to create a valid word from %s\n", string);
+      tprintf("ERROR: Failed to create a valid word from %s\n", string);
     }
   }
   fclose (word_file);
@@ -315,7 +315,7 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
   int16_t magic;
   if (!file->DeSerialize(&magic)) return false;
   if (magic != kDawgMagicNumber) {
-    tprintf("Bad magic number on dawg: %d vs %d\n", magic, kDawgMagicNumber);
+    tprintf("ERROR: Bad magic number on dawg: %d vs %d\n", magic, kDawgMagicNumber);
     return false;
   }
 

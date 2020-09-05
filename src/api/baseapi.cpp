@@ -585,7 +585,7 @@ void TessBaseAPI::SetSourceResolution(int ppi) {
   if (thresholder_)
     thresholder_->SetSourceYResolution(ppi);
   else
-    tprintf("Please call SetImage before SetSourceResolution.\n");
+    tprintf("ERROR: Please call SetImage before SetSourceResolution.\n");
 }
 
 /**
@@ -925,7 +925,7 @@ int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
   if (tesseract_ == nullptr)
     return -1;
   if (thresholder_ == nullptr || thresholder_->IsEmpty()) {
-    tprintf("Please call SetImage before attempting recognition.\n");
+    tprintf("ERROR: Please call SetImage before attempting recognition.\n");
     return -1;
   }
   if (page_res_ != nullptr)
@@ -1015,7 +1015,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
     chomp_string(pagename);
     Pix *pix = pixRead(pagename);
     if (pix == nullptr) {
-      tprintf("Image file %s cannot be read!\n", pagename);
+      tprintf("ERROR: Image file %s cannot be read!\n", pagename);
       return false;
     }
     tprintf("Page %d : %s\n", page, pagename);
@@ -1083,7 +1083,7 @@ bool TessBaseAPI::ProcessPages(const char* filename, const char* retry_config,
   if (result) {
     if (tesseract_->tessedit_train_from_boxes &&
         !tesseract_->WriteTRFile(output_file_->c_str())) {
-      tprintf("Write of TR file failed: %s\n", output_file_->c_str());
+      tprintf("ERROR: Write of TR file failed: %s\n", output_file_->c_str());
       return false;
     }
   }
@@ -1119,7 +1119,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   if (stdInput) {
 #ifdef WIN32
     if (_setmode(_fileno(stdin), _O_BINARY) == -1)
-      tprintf("ERROR: cin to binary: %s", strerror(errno));
+      tprintf("ERROR: cin to binary: %s\n", strerror(errno));
 #endif  // WIN32
   }
 
@@ -1295,7 +1295,7 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
     // Save current config variables before switching modes.
     FILE* fp = fopen(kOldVarsFile, "wb");
     if (fp == nullptr) {
-      tprintf("Error, failed to open file \"%s\"\n", kOldVarsFile);
+      tprintf("ERROR: failed to open file \"%s\"\n", kOldVarsFile);
     } else {
       PrintVariables(fp);
       fclose(fp);
@@ -2004,7 +2004,7 @@ void TessBaseAPI::SetProbabilityInContextFunc(ProbabilityInContextFunc f) {
 /** Common code for setting the image. */
 bool TessBaseAPI::InternalSetImage() {
   if (tesseract_ == nullptr) {
-    tprintf("Please call Init before attempting to set an image.\n");
+    tprintf("ERROR: Please call Init before attempting to set an image.\n");
     return false;
   }
   if (thresholder_ == nullptr)
@@ -2029,7 +2029,7 @@ bool TessBaseAPI::Threshold(Pix** pix) {
   int y_res = thresholder_->GetScaledYResolution();
   if (user_dpi && (user_dpi < kMinCredibleResolution ||
       user_dpi > kMaxCredibleResolution)) {
-    tprintf("Warning: User defined image dpi is outside of expected range "
+    tprintf("WARNING: User defined image dpi is outside of expected range "
             "(%d - %d)!\n",
             kMinCredibleResolution, kMaxCredibleResolution);
   }
@@ -2038,7 +2038,7 @@ bool TessBaseAPI::Threshold(Pix** pix) {
     thresholder_->SetSourceYResolution(user_dpi);
   } else if (y_res < kMinCredibleResolution ||
              y_res > kMaxCredibleResolution) {
-    tprintf("Warning: Invalid resolution %d dpi. Using %d instead.\n",
+    tprintf("WARNING: Invalid resolution %d dpi. Using %d instead.\n",
             y_res, kMinCredibleResolution);
     thresholder_->SetSourceYResolution(kMinCredibleResolution);
   }
@@ -2064,7 +2064,7 @@ bool TessBaseAPI::Threshold(Pix** pix) {
                                   kMinCredibleResolution,
                                   kMaxCredibleResolution);
   if (estimated_res != thresholder_->GetScaledEstimatedResolution()) {
-    tprintf("Estimated internal resolution %d out of range! "
+    tprintf("WARNING: Estimated internal resolution %d out of range! "
             "Corrected to %d.\n",
             thresholder_->GetScaledEstimatedResolution(), estimated_res);
   }
@@ -2075,7 +2075,7 @@ bool TessBaseAPI::Threshold(Pix** pix) {
 /** Find lines from the image making the BLOCK_LIST. */
 int TessBaseAPI::FindLines() {
   if (thresholder_ == nullptr || thresholder_->IsEmpty()) {
-    tprintf("Please call SetImage before attempting recognition.\n");
+    tprintf("ERROR: Please call SetImage before attempting recognition.\n");
     return -1;
   }
   if (recognition_done_)
@@ -2102,7 +2102,7 @@ int TessBaseAPI::FindLines() {
       equ_detect_ = new EquationDetect(datapath_->c_str(), nullptr);
     }
     if (equ_detect_ == nullptr) {
-      tprintf("Warning: Could not set equation detector\n");
+      tprintf("WARNING: Could not set equation detector\n");
     } else {
       tesseract_->SetEquationDetect(equ_detect_);
     }
@@ -2119,7 +2119,7 @@ int TessBaseAPI::FindLines() {
       osd_tesseract_ = new Tesseract;
       TessdataManager mgr(reader_);
       if (datapath_ == nullptr) {
-        tprintf("Warning: Auto orientation and script detection requested,"
+        tprintf("WARNING: Auto orientation and script detection requested,"
                 " but data path is undefined\n");
         delete osd_tesseract_;
         osd_tesseract_ = nullptr;
@@ -2131,7 +2131,7 @@ int TessBaseAPI::FindLines() {
         osd_tesseract_->set_source_resolution(
             thresholder_->GetSourceYResolution());
       } else {
-        tprintf("Warning: Auto orientation and script detection requested,"
+        tprintf("WARNING: Auto orientation and script detection requested,"
                 " but osd language failed to load\n");
         delete osd_tesseract_;
         osd_tesseract_ = nullptr;

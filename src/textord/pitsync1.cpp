@@ -344,7 +344,7 @@ double check_pitch_sync(                        //find segmentation
   mean_sum = outseg_it.data ()->sum ();
   mean_sum = mean_sum * mean_sum / best_region_index;
   if (outseg_it.data ()->squares () - mean_sum < 0)
-    tprintf ("Impossible sqsum=%g, mean=%g, total=%d\n",
+    tprintf("Impossible sqsum=%g, mean=%g, total=%d\n",
       outseg_it.data ()->squares (), outseg_it.data ()->sum (),
       best_region_index);
   lattice.deep_clear ();         //shift the lot

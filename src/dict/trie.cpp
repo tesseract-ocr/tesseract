@@ -323,7 +323,7 @@ bool Trie::add_word_list(const GenericVector<STRING> &words,
     if (!word_in_dawg(word)) {
       add_word_to_dawg(word);
       if (!word_in_dawg(word)) {
-        tprintf("Error: word '%s' not in DAWG after adding it\n",
+        tprintf("ERROR: word '%s' not in DAWG after adding it\n",
                 words[i].c_str());
         return false;
       }
@@ -392,13 +392,13 @@ UNICHAR_ID Trie::character_class_to_pattern(char ch) {
 bool Trie::read_pattern_list(const char *filename,
                              const UNICHARSET &unicharset) {
   if (!initialized_patterns_) {
-    tprintf("please call initialize_patterns() before read_pattern_list()\n");
+    tprintf("WARNING: please call initialize_patterns() before read_pattern_list()\n");
     return false;
   }
 
   FILE *pattern_file = fopen(filename, "rb");
   if (pattern_file == nullptr) {
-    tprintf("Error opening pattern file %s\n", filename);
+    tprintf("ERROR: Error opening pattern file %s\n", filename);
     return false;
   }
 
@@ -459,7 +459,7 @@ bool Trie::read_pattern_list(const char *filename,
     if (!this->word_in_dawg(word)) {
       this->add_word_to_dawg(word, &repetitions_vec);
       if (!this->word_in_dawg(word)) {
-        tprintf("Error: failed to insert pattern '%s'\n", string);
+        tprintf("ERROR: failed to insert pattern '%s'\n", string);
       }
     }
     ++pattern_count;

@@ -319,7 +319,7 @@ void compute_block_pitch(TO_BLOCK* block,     // input list
 
   block_box = block->block->pdblk.bounding_box ();
   if (testing_on && textord_debug_pitch_test) {
-    tprintf ("Block %d at (%d,%d)->(%d,%d)\n",
+    tprintf("Block %d at (%d,%d)->(%d,%d)\n",
       block_index,
       block_box.left (), block_box.bottom (),
       block_box.right (), block_box.top ());
@@ -595,7 +595,7 @@ bool try_rows_fixed(                    //find line stats
   if (testing_on
     && (textord_debug_pitch_test
   || textord_blocksall_prop || textord_blocksall_fixed)) {
-    tprintf ("Initially:");
+    tprintf("Initially:");
     print_block_counts(block, block_index);
   }
   if (def_fixed > def_prop * textord_words_veto_power)
@@ -640,14 +640,14 @@ void print_block_counts(                   //find line stats
                     corr_fixed,
                     corr_prop,
                     dunno);
-  tprintf ("Block %d has (%d,%d,%d)",
+  tprintf("Block %d has (%d,%d,%d)",
     block_index, def_fixed, maybe_fixed, corr_fixed);
   if (textord_blocksall_prop && (def_fixed || maybe_fixed || corr_fixed))
-    tprintf (" (Wrongly)");
-  tprintf (" fixed, (%d,%d,%d)", def_prop, maybe_prop, corr_prop);
+    tprintf(" (Wrongly)");
+  tprintf(" fixed, (%d,%d,%d)", def_prop, maybe_prop, corr_prop);
   if (textord_blocksall_fixed && (def_prop || maybe_prop || corr_prop))
-    tprintf (" (Wrongly)");
-  tprintf (" prop, %d dunno\n", dunno);
+    tprintf(" (Wrongly)");
+  tprintf(" prop, %d dunno\n", dunno);
 }
 
 
@@ -762,11 +762,11 @@ bool row_pitch_stats(                  //find line stats
     gaps[gap_index] = cluster_stats[gap_index + 1].ile (0.5);
   //get medians
   if (testing_on) {
-    tprintf ("cluster_count=%d:", cluster_count);
+    tprintf("cluster_count=%d:", cluster_count);
     for (gap_index = 0; gap_index < cluster_count; gap_index++)
-      tprintf (" %g(%d)", gaps[gap_index],
+      tprintf(" %g(%d)", gaps[gap_index],
         cluster_stats[gap_index + 1].get_total ());
-    tprintf ("\n");
+    tprintf("\n");
   }
   qsort (gaps, cluster_count, sizeof (float), sort_floats);
 
@@ -777,7 +777,7 @@ bool row_pitch_stats(                  //find line stats
     && gaps[gap_index] < lower; gap_index++);
   if (gap_index == 0) {
     if (testing_on)
-      tprintf ("No clusters below nonspace threshold!!\n");
+      tprintf("No clusters below nonspace threshold!!\n");
     if (cluster_count > 1) {
       row->pr_nonsp = gaps[0];
       row->pr_space = gaps[1];
@@ -793,7 +793,7 @@ bool row_pitch_stats(                  //find line stats
       gap_index++;
     if (gap_index == cluster_count) {
       if (testing_on)
-        tprintf ("No clusters above nonspace threshold!!\n");
+        tprintf("No clusters above nonspace threshold!!\n");
       row->pr_space = lower * textord_spacesize_ratioprop;
     }
     else
@@ -806,7 +806,7 @@ bool row_pitch_stats(                  //find line stats
     && gaps[gap_index] < upper; gap_index++);
   if (gap_index == 0) {
     if (testing_on)
-      tprintf ("No clusters below space threshold!!\n");
+      tprintf("No clusters below space threshold!!\n");
     row->fp_nonsp = upper;
     row->fp_space = gaps[0];
   }
@@ -814,7 +814,7 @@ bool row_pitch_stats(                  //find line stats
     row->fp_nonsp = gaps[gap_index - 1];
     if (gap_index == cluster_count) {
       if (testing_on)
-        tprintf ("No clusters above space threshold!!\n");
+        tprintf("No clusters above space threshold!!\n");
       row->fp_space = row->xheight;
     }
     else
@@ -917,7 +917,7 @@ bool find_row_pitch(                    //find lines
   if (pitch_iqr > maxwidth && dm_pitch_iqr > maxwidth) {
     row->pitch_decision = PITCH_DUNNO;
     if (textord_debug_pitch_metric)
-      tprintf ("\n");
+      tprintf("\n");
     return false;                //insufficient data
   }
   if (pitch_iqr * dm_gap_iqr <= dm_pitch_iqr * gap_iqr) {
@@ -941,9 +941,9 @@ bool find_row_pitch(                    //find lines
     used_dm_model = true;
   }
   if (textord_debug_pitch_metric) {
-    tprintf ("rev_p_iqr=%g:rev_g_iqr=%g:pitch=%g:",
+    tprintf("rev_p_iqr=%g:rev_g_iqr=%g:pitch=%g:",
       pitch_iqr, gap_iqr, pitch);
-    tprintf ("p_iqr/g=%g:p_iqr/x=%g:iqr_res=%c:",
+    tprintf("p_iqr/g=%g:p_iqr/x=%g:iqr_res=%c:",
       pitch_iqr / gap_iqr, pitch_iqr / block->xheight,
       pitch_iqr < gap_iqr * textord_fpiqr_ratio
       && pitch_iqr < block->xheight * textord_max_pitch_iqr
@@ -1045,7 +1045,7 @@ bool fixed_pitch_row(TO_ROW* row,       // row to do
       default:
         res_string = "??";
     }
-    tprintf (":sd/p=%g:occ=%g:init_res=%s\n",
+    tprintf(":sd/p=%g:occ=%g:init_res=%s\n",
       pitch_sd / row->fixed_pitch, sp_sd, res_string);
   }
   return true;
@@ -1195,14 +1195,14 @@ float tune_row_pitch(                             //find fp cells
   best_sd = initial_sd;
   best_pitch = initial_pitch;
   if (testing_on)
-    tprintf ("tune_row_pitch:start pitch=%g, sd=%g\n", best_pitch, best_sd);
+    tprintf("tune_row_pitch:start pitch=%g, sd=%g\n", best_pitch, best_sd);
   for (pitch_delta = 1; pitch_delta <= textord_pitch_range; pitch_delta++) {
     pitch_sd =
       compute_pitch_sd (row, projection, projection_left, projection_right,
       space_size, initial_pitch + pitch_delta, sp_sd,
       mid_cuts, &test_cells, testing_on);
     if (testing_on)
-      tprintf ("testing pitch at %g, sd=%g\n", initial_pitch + pitch_delta,
+      tprintf("testing pitch at %g, sd=%g\n", initial_pitch + pitch_delta,
         pitch_sd);
     if (pitch_sd < best_sd) {
       best_sd = pitch_sd;
@@ -1224,7 +1224,7 @@ float tune_row_pitch(                             //find fp cells
       space_size, initial_pitch - pitch_delta, sp_sd,
       mid_cuts, &test_cells, testing_on);
     if (testing_on)
-      tprintf ("testing pitch at %g, sd=%g\n", initial_pitch - pitch_delta,
+      tprintf("testing pitch at %g, sd=%g\n", initial_pitch - pitch_delta,
         pitch_sd);
     if (pitch_sd < best_sd) {
       best_sd = pitch_sd;
@@ -1321,7 +1321,7 @@ float tune_row_pitch2(                             //find fp cells
     }
   }
   if (testing_on)
-    tprintf ("tune_row_pitch:start pitch=%g, best_delta=%d, count=%d\n",
+    tprintf("tune_row_pitch:start pitch=%g, best_delta=%d, count=%d\n",
       initial_pitch, best_delta, best_count);
   best_pitch += best_delta;
   initial_pitch = best_pitch;
@@ -1351,7 +1351,7 @@ float tune_row_pitch2(                             //find fp cells
                      start,
                      end);
   if (testing_on)
-    tprintf ("tune_row_pitch:output pitch=%g, sd=%g\n", initial_pitch,
+    tprintf("tune_row_pitch:output pitch=%g, sd=%g\n", initial_pitch,
       best_sd);
 
   if (textord_debug_pitch_metric)
@@ -1461,21 +1461,21 @@ float compute_pitch_sd(                            //find fp cells
         check_pitch_sync (&start_it, blob_count, static_cast<int16_t>(initial_pitch), 2,
         projection, &seg_list);
     if (testing_on) {
-      tprintf ("Word ending at (%d,%d), len=%d, sync rating=%g, ",
+      tprintf("Word ending at (%d,%d), len=%d, sync rating=%g, ",
         prev_box.right (), prev_box.top (),
         seg_list.length () - 1, word_sync);
       seg_it.set_to_list (&seg_list);
       for (seg_it.mark_cycle_pt (); !seg_it.cycled_list ();
       seg_it.forward ()) {
         if (seg_it.data ()->faked)
-          tprintf ("(F)");
-        tprintf ("%d, ", seg_it.data ()->position ());
+          tprintf("(F)");
+        tprintf("%d, ", seg_it.data ()->position ());
         //                              tprintf("C=%g, s=%g, sq=%g\n",
         //                                      seg_it.data()->cost_function(),
         //                                      seg_it.data()->sum(),
         //                                      seg_it.data()->squares());
       }
-      tprintf ("\n");
+      tprintf("\n");
     }
 #ifndef GRAPHICS_DISABLED
     if (textord_show_fixed_cuts && blob_count > 0 && to_win != nullptr)
@@ -1588,20 +1588,20 @@ float compute_pitch_sd2(                            //find fp cells
     row->xheight * textord_projection_scale,
     occupation, &seg_list, start, end);
   if (testing_on) {
-    tprintf ("Row ending at (%d,%d), len=%d, sync rating=%g, ",
+    tprintf("Row ending at (%d,%d), len=%d, sync rating=%g, ",
       blob_box.right (), blob_box.top (),
       seg_list.length () - 1, word_sync);
     seg_it.set_to_list (&seg_list);
     for (seg_it.mark_cycle_pt (); !seg_it.cycled_list (); seg_it.forward ()) {
       if (seg_it.data ()->faked)
-        tprintf ("(F)");
-      tprintf ("%d, ", seg_it.data ()->position ());
+        tprintf("(F)");
+      tprintf("%d, ", seg_it.data ()->position ());
       //                              tprintf("C=%g, s=%g, sq=%g\n",
       //                                      seg_it.data()->cost_function(),
       //                                      seg_it.data()->sum(),
       //                                      seg_it.data()->squares());
     }
-    tprintf ("\n");
+    tprintf("\n");
   }
 #ifndef GRAPHICS_DISABLED
   if (textord_show_fixed_cuts && blob_count > 0 && to_win != nullptr)
@@ -1713,7 +1713,7 @@ void print_pitch_sd(                        //find fp cells
   while (!blob_it.cycled_list ());
   sp_sd = sp_count > 0 ? sqrt (spsum / sp_count) : 0;
   word_sync = total_count > 0 ? sqrt (sqsum / total_count) : space_size * 10;
-  tprintf ("new_sd=%g:sd/p=%g:new_sp_sd=%g:res=%c:",
+  tprintf("new_sd=%g:sd/p=%g:new_sp_sd=%g:res=%c:",
     word_sync, word_sync / initial_pitch, sp_sd,
     word_sync < textord_words_pitchsd_threshold * initial_pitch
     ? 'F' : 'P');

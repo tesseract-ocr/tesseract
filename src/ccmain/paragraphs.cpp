@@ -72,7 +72,7 @@ static bool AcceptableRowArgs(
     const GenericVector<RowScratchRegisters> *rows,
     int row_start, int row_end) {
   if (row_start < 0 || row_end > rows->size() || row_start > row_end) {
-    tprintf("Invalid arguments rows[%d, %d) while rows is of size %d.\n",
+    tprintf("ERROR: Invalid arguments rows[%d, %d) while rows is of size %d.\n",
             row_start, row_end, rows->size());
     return false;
   }
@@ -541,7 +541,7 @@ LineType RowScratchRegisters::GetLineType() const {
       case LT_START: has_start = true; break;
       case LT_BODY: has_body = true; break;
       default:
-        tprintf("Encountered bad value in hypothesis list: %c\n",
+        tprintf("ERROR: Encountered bad value in hypothesis list: %c\n",
                 hypotheses_[i].ty);
         break;
     }
@@ -563,7 +563,7 @@ LineType RowScratchRegisters::GetLineType(const ParagraphModel *model) const {
       case LT_START: has_start = true; break;
       case LT_BODY: has_body = true; break;
       default:
-        tprintf("Encountered bad value in hypothesis list: %c\n",
+        tprintf("ERROR: Encountered bad value in hypothesis list: %c\n",
                 hypotheses_[i].ty);
         break;
     }
@@ -1277,7 +1277,7 @@ int ParagraphTheory::IndexOf(const ParagraphModel *model) const {
 bool ValidFirstLine(const GenericVector<RowScratchRegisters> *rows,
                     int row, const ParagraphModel *model) {
   if (!StrongModel(model)) {
-    tprintf("ValidFirstLine() should only be called with strong models!\n");
+    tprintf("WARNING: ValidFirstLine() should only be called with strong models!\n");
   }
   return StrongModel(model) &&
       model->ValidFirstLine(
@@ -1288,7 +1288,7 @@ bool ValidFirstLine(const GenericVector<RowScratchRegisters> *rows,
 bool ValidBodyLine(const GenericVector<RowScratchRegisters> *rows,
                    int row, const ParagraphModel *model) {
   if (!StrongModel(model)) {
-    tprintf("ValidBodyLine() should only be called with strong models!\n");
+    tprintf("WARNING: ValidBodyLine() should only be called with strong models!\n");
   }
   return StrongModel(model) &&
       model->ValidBodyLine(
@@ -1715,7 +1715,7 @@ static ParagraphModel InternalParagraphModelByOutline(
   cmin = cmax = 0;
   for (int i = start + 1; i < end; i++) {
     if ((*rows)[i].lmargin_ != lmargin || (*rows)[i].rmargin_ != rmargin) {
-      tprintf("Margins don't match! Software error.\n");
+      tprintf("ERROR: Margins don't match! Software error.\n");
       *consistent = false;
       return ParagraphModel();
     }
@@ -2114,7 +2114,7 @@ static void ConvertHypothesizedModelRunsToParagraphs(
             : rows[start].ri_->lword_indicates_list_item;
     for (int row = start; row < end; row++) {
       if ((*row_owners)[row] != nullptr) {
-        tprintf("Memory leak! ConvertHypothesizeModelRunsToParagraphs() called "
+        tprintf("ERROR: Memory leak! ConvertHypothesizeModelRunsToParagraphs() called "
                 "more than once!\n");
         delete (*row_owners)[row];
       }

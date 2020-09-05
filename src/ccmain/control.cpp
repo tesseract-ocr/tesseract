@@ -125,7 +125,7 @@ bool Tesseract::ProcessTargetWord(const TBOX& word_box,
         backup_config_file_ = kBackUpConfigFile;
         FILE* config_fp = fopen(backup_config_file_, "wb");
         if (config_fp == nullptr) {
-          tprintf("Error, failed to open file \"%s\"\n", backup_config_file_);
+          tprintf("ERROR: failed to open file \"%s\"\n", backup_config_file_);
         } else {
           ParamUtils::PrintParams(config_fp, params());
           fclose(config_fp);
@@ -1858,48 +1858,48 @@ bool Tesseract::check_debug_pt(WERD_RES* word, int location) {
       return true;               // For breakpoint use
     tessedit_rejection_debug.set_value(true);
     debug_x_ht_level.set_value(2);
-    tprintf ("\n\nTESTWD::");
+    tprintf("\n\nTESTWD::");
     switch (location) {
       case 0:
-        tprintf ("classify_word_pass1 start\n");
+        tprintf("classify_word_pass1 start\n");
         word->word->print();
         break;
       case 10:
-        tprintf ("make_reject_map: initial map");
+        tprintf("make_reject_map: initial map");
         break;
       case 20:
-        tprintf ("make_reject_map: after NN");
+        tprintf("make_reject_map: after NN");
         break;
       case 30:
-        tprintf ("classify_word_pass2 - START");
+        tprintf("classify_word_pass2 - START");
         break;
       case 40:
-        tprintf ("classify_word_pass2 - Pre Xht");
+        tprintf("classify_word_pass2 - Pre Xht");
         break;
       case 50:
-        tprintf ("classify_word_pass2 - END");
+        tprintf("classify_word_pass2 - END");
         show_map_detail = true;
         break;
       case 60:
-        tprintf ("fixspace");
+        tprintf("fixspace");
         break;
       case 70:
-        tprintf ("MM pass START");
+        tprintf("MM pass START");
         break;
       case 80:
-        tprintf ("MM pass END");
+        tprintf("MM pass END");
         break;
       case 90:
-        tprintf ("After Poor quality rejection");
+        tprintf("After Poor quality rejection");
         break;
       case 100:
-        tprintf ("unrej_good_quality_words - START");
+        tprintf("unrej_good_quality_words - START");
         break;
       case 110:
-        tprintf ("unrej_good_quality_words - END");
+        tprintf("unrej_good_quality_words - END");
         break;
       case 120:
-        tprintf ("Write results pass");
+        tprintf("Write results pass");
         show_map_detail = true;
         break;
     }
@@ -1917,8 +1917,8 @@ bool Tesseract::check_debug_pt(WERD_RES* word, int location) {
     } else {
       tprintf("null best choice\n");
     }
-    tprintf ("Tess Accepted: %s\n", word->tess_accepted ? "TRUE" : "FALSE");
-    tprintf ("Done flag: %s\n\n", word->done ? "TRUE" : "FALSE");
+    tprintf("Tess Accepted: %s\n", word->tess_accepted ? "TRUE" : "FALSE");
+    tprintf("Done flag: %s\n\n", word->done ? "TRUE" : "FALSE");
     return true;
   } else {
     return false;

@@ -62,7 +62,7 @@ class Convolve : public Network {
 
  private:
   void DebugWeights() override {
-    tprintf("Must override Network::DebugWeights for type %d\n", type_);
+    tprintf("WARNING: Must override Network::DebugWeights for type %d\n", type_);
   }
 
  protected:

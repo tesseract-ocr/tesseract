@@ -112,7 +112,7 @@ void ImageThresholder::SetImage(const unsigned char* imagedata,
     break;
 
   default:
-    tprintf("Cannot convert RAW image to Pix with bpp = %d\n", bpp);
+    tprintf("ERROR: Cannot convert RAW image to Pix with bpp = %d\n", bpp);
   }
   SetImage(pix);
   pixDestroy(&pix);
@@ -184,7 +184,7 @@ void ImageThresholder::SetImage(const Pix* pix) {
 /// Returns false on error.
 bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
   if (image_width_ > INT16_MAX || image_height_ > INT16_MAX) {
-    tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
+    tprintf("ERROR: Image too large: (%d, %d)\n", image_width_, image_height_);
     return false;
   }
   if (pix_channels_ == 0) {

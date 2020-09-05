@@ -179,7 +179,7 @@ void Tesseract::write_results(PAGE_RES_IT& page_res_it,
   set_unlv_suspects(word);
   check_debug_pt (word, 120);
   if (tessedit_rejection_debug) {
-    tprintf ("Dict word: \"%s\": %d\n",
+    tprintf("Dict word: \"%s\": %d\n",
              word->best_choice->debug_string().c_str(),
              dict_word(*(word->best_choice)));
   }

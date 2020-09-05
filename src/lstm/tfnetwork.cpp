@@ -103,7 +103,7 @@ void TFNetwork::Forward(bool debug, const NetworkIO& input,
   std::vector<std::string> target_layers = {model_proto_.output_layer()};
   std::vector<Tensor> outputs;
   Status s = session_->Run(tf_inputs, target_layers, {}, &outputs);
-  if (!s.ok()) tprintf("session->Run failed:%s\n", s.error_message().c_str());
+  if (!s.ok()) tprintf("ERROR: session->Run failed:%s\n", s.error_message().c_str());
   ASSERT_HOST(s.ok());
   ASSERT_HOST(outputs.size() == 1);
   const Tensor& output_tensor = outputs[0];

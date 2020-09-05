@@ -722,7 +722,7 @@ float ydiffs[]                   /*diff from spline */
   /*do each blob in row */
     diff = ydiffs[blobindex];    /*diff from line */
     if (textord_oldbl_debug) {
-      tprintf ("%d(%d,%d), ", blobindex,
+      tprintf("%d(%d,%d), ", blobindex,
         blobcoords[blobindex].left (),
         blobcoords[blobindex].bottom ());
     }
@@ -741,7 +741,7 @@ float ydiffs[]                   /*diff from spline */
   for (blobindex = startx; blobindex >= 0; blobindex--) {
     diff = ydiffs[blobindex];    /*diff from line */
     if (textord_oldbl_debug) {
-      tprintf ("%d(%d,%d), ", blobindex,
+      tprintf("%d(%d,%d), ", blobindex,
         blobcoords[blobindex].left (),
         blobcoords[blobindex].bottom ());
     }
@@ -814,7 +814,7 @@ float jumplimit                  /*allowed delta change */
         m = stats.get_b ();
         c = stats.get_c ();
         if (textord_oldbl_debug)
-          tprintf ("Fitted line y=%g x + %g\n", m, c);
+          tprintf("Fitted line y=%g x + %g\n", m, c);
         found_one = false;
         close_one = false;
         for (test_blob = 1; !found_one
@@ -961,7 +961,7 @@ int *partcount                   /*no of partitions */
                                  /*adjusted diff from part */
   delta = diff - partdiffs[lastpart] - *drift;
   if (textord_oldbl_debug) {
-    tprintf ("Diff=%.2f, Delta=%.3f, Drift=%.3f, ", diff, delta, *drift);
+    tprintf("Diff=%.2f, Delta=%.3f, Drift=%.3f, ", diff, delta, *drift);
   }
   if (ABS (delta) > jumplimit / 2) {
                                  /*delta on part 0 */
@@ -996,7 +996,7 @@ int *partcount                   /*no of partitions */
   *lastdelta = delta;
 
   if (textord_oldbl_debug) {
-    tprintf ("P=%d\n", bestpart);
+    tprintf("P=%d\n", bestpart);
   }
 
   return bestpart;
@@ -1127,7 +1127,7 @@ int xstarts[]                    //result
   }
 
   if (textord_oldbl_debug && turncount > 0)
-    tprintf ("First turn is %d at (%d,%d)\n",
+    tprintf("First turn is %d at (%d,%d)\n",
       turnpoints[0], xcoords[turnpoints[0]], ycoords[turnpoints[0]]);
   for (segment = 1; segment < turncount; segment++) {
                                  /*centre y coord */
@@ -1147,7 +1147,7 @@ int xstarts[]                    //result
       + xcoords[turnpoints[segment]] + 2) / 4;
     /*halfway between turns */
     if (textord_oldbl_debug)
-      tprintf ("Turn %d is %d at (%d,%d), mid pt is %d@%d, final @%d\n",
+      tprintf("Turn %d is %d at (%d,%d), mid pt is %d@%d, final @%d\n",
         segment, turnpoints[segment],
         xcoords[turnpoints[segment]], ycoords[turnpoints[segment]],
         ptindex - 1, xcoords[ptindex - 1], xstarts[segment]);
@@ -1198,7 +1198,7 @@ split_stepped_spline(           //make xstarts
         endindex++;
       if (segments >= SPLINESIZE) {
         if (textord_debug_baselines)
-          tprintf ("Too many segments to resegment spline!!\n");
+          tprintf("Too many segments to resegment spline!!\n");
       }
       else if (endindex - startindex >= textord_spline_medianwin * 3) {
         while (centreindex - startindex <
@@ -1234,7 +1234,7 @@ split_stepped_spline(           //make xstarts
           rightcoord - xcoords[rightindex - 1])
           rightindex--;
         if (textord_debug_baselines)
-          tprintf ("Splitting spline at %d with step %g at (%d,%d)\n",
+          tprintf("Splitting spline at %d with step %g at (%d,%d)\n",
             xstarts[segment],
             baseline->
             step ((xstarts[segment - 1] +
@@ -1517,21 +1517,21 @@ float jumplimit                  /*min ascender height */
     mode_threshold = static_cast<int>(mode_count * 0.1);
 
   if (textord_oldbl_debug) {
-    tprintf ("blobcount=%d, mode_count=%d, mode_t=%d\n",
+    tprintf("blobcount=%d, mode_count=%d, mode_t=%d\n",
       blobcount, mode_count, mode_threshold);
   }
   find_top_modes(&heightstat, HEIGHTBUCKETS, modelist, MODENUM);
   if (textord_oldbl_debug) {
     for (blobindex = 0; blobindex < MODENUM; blobindex++)
-      tprintf ("mode[%d]=%d ", blobindex, modelist[blobindex]);
-    tprintf ("\n");
+      tprintf("mode[%d]=%d ", blobindex, modelist[blobindex]);
+    tprintf("\n");
   }
   pick_x_height(row, modelist, lefts, rights, &heightstat, mode_threshold);
 
   if (textord_oldbl_debug)
-    tprintf ("Output xheight=%g\n", row->xheight);
+    tprintf("Output xheight=%g\n", row->xheight);
   if (row->xheight < 0 && textord_oldbl_debug)
-    tprintf ("warning: Row Line height < 0; %4.2f\n", row->xheight);
+    tprintf("WARNING: Row Line height < 0; %4.2f\n", row->xheight);
 
   if (sign_bit < 0)
     row->xheight = -row->xheight;

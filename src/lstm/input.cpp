@@ -72,7 +72,7 @@ void Input::Forward(bool debug, const NetworkIO& input,
 bool Input::Backward(bool debug, const NetworkIO& fwd_deltas,
                      NetworkScratch* scratch,
                      NetworkIO* back_deltas) {
-  tprintf("Input::Backward should not be called!!\n");
+  tprintf("ERROR: Input::Backward should not be called!!\n");
   return false;
 }
 
@@ -89,11 +89,11 @@ Pix* Input::PrepareLSTMInputs(const ImageData& image_data,
   Pix* pix = image_data.PreScale(target_height, kMaxInputHeight, image_scale,
                                  &width, &height, nullptr);
   if (pix == nullptr) {
-    tprintf("Bad pix from ImageData!\n");
+    tprintf("ERROR: Bad pix from ImageData!\n");
     return nullptr;
   }
   if (width < min_width || height < min_width) {
-    tprintf("Image too small to scale!! (%dx%d vs min width of %d)\n", width,
+    tprintf("ERROR: Image too small to scale!! (%dx%d vs min width of %d)\n", width,
             height, min_width);
     pixDestroy(&pix);
     return nullptr;

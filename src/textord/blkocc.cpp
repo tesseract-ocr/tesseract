@@ -92,10 +92,10 @@ bool test_underline(                   //look for underlines
     if (occ >= blob_box.bottom () && projection.pile_count (occ) > asc_occ)
       asc_occ = projection.pile_count (occ);
   if (testing_on) {
-    tprintf ("%d %d %d\n", desc_occ, x_occ, asc_occ);
+    tprintf("%d %d %d\n", desc_occ, x_occ, asc_occ);
   }
   if (desc_occ == 0 && x_occ == 0 && asc_occ == 0) {
-    tprintf ("Bottom=%d, top=%d, base=%d, x=%d\n",
+    tprintf("Bottom=%d, top=%d, base=%d, x=%d\n",
       blob_box.bottom (), blob_box.top (), baseline, xheight);
     projection.print();
   }
