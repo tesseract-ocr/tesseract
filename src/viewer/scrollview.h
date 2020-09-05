@@ -36,6 +36,8 @@
 #include <cstdio>
 #include <mutex>
 
+#include <tesseract/platform.h>   // for TS_PRINTFLIKE and TS_FORMAT_STRING
+
 class ScrollView;
 class SVNetwork;
 class SVSemaphore;
