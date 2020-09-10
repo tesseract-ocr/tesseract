@@ -42,7 +42,7 @@
 #else
 #  if defined(__GNUC__) && \
       (__GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 7)
-#    define TS_PRINTFLIKE(F, V) __attribute__((format(gnu_printf, F, V))
+#    define TS_PRINTFLIKE(F, V) __attribute__((format(gnu_printf, F, V)))
 #  else
 #    define TS_PRINTFLIKE(F, V)
 #  endif
