@@ -372,10 +372,10 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc @ONLY)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/TesseractConfig-version.cmake @ONLY)
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/TesseractConfig-version.cmake @ONLY)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/TesseractConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/TesseractConfig.cmake @ONLY)
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/TesseractConfig.cmake @ONLY)
 
 # show summary of configuration
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
@@ -703,11 +703,8 @@ configure_file(tesseract.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc @ONLY
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc DESTINATION lib/pkgconfig)
 install(TARGETS tesseract RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 install(TARGETS libtesseract EXPORT TesseractTargets RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
-install(EXPORT TesseractTargets DESTINATION cmake)
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/TesseractConfig.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/TesseractConfig-version.cmake
-    DESTINATION cmake)
+install(EXPORT TesseractTargets DESTINATION lib/tesseract)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake TYPE LIB)
 
 install(FILES
     # from api/makefile.am
