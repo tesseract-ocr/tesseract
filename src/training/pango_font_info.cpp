@@ -622,49 +622,6 @@ static void CharCoverageMapToBitmap(PangoCoverage* coverage,
   }
 }
 
-/* static */
-void FontUtils::GetAllRenderableCharacters(std::vector<bool>* unichar_bitmap) {
-  const std::vector<std::string>& all_fonts = ListAvailableFonts();
-  return GetAllRenderableCharacters(all_fonts, unichar_bitmap);
-}
-
-/* static */
-void FontUtils::GetAllRenderableCharacters(const std::string& font_name,
-                                           std::vector<bool>* unichar_bitmap) {
-  PangoFontInfo font_info(font_name);
-  PangoFont* font = font_info.ToPangoFont();
-  if (font != nullptr) {
-    // Font found.
-    PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
-    CharCoverageMapToBitmap(coverage, unichar_bitmap);
-    pango_coverage_unref(coverage);
-    g_object_unref(font);
-  }
-}
-
-/* static */
-void FontUtils::GetAllRenderableCharacters(const std::vector<std::string>& fonts,
-                                           std::vector<bool>* unichar_bitmap) {
-  // Form the union of coverage maps from the fonts
-  PangoCoverage* all_coverage = pango_coverage_new();
-  tlog(1, "Processing %u fonts\n", static_cast<unsigned>(fonts.size()));
-  for (unsigned i = 0; i < fonts.size(); ++i) {
-    PangoFontInfo font_info(fonts[i]);
-    PangoFont* font = font_info.ToPangoFont();
-    if (font != nullptr) {
-      // Font found.
-      PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
-      // Mark off characters that any font can render.
-      pango_coverage_max(all_coverage, coverage);
-      pango_coverage_unref(coverage);
-      g_object_unref(font);
-    }
-  }
-  CharCoverageMapToBitmap(all_coverage, unichar_bitmap);
-  pango_coverage_unref(all_coverage);
-}
-
-
 // Utilities written to be backward compatible with StringRender
 
 /* static */

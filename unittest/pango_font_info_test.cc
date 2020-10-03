@@ -275,6 +275,9 @@ TEST_F(FontUtilsTest, DoesFailToSelectFont) {
                                      &selected_font, &graphemes));
 }
 
+#if 0
+// Needs fix. FontUtils::GetAllRenderableCharacters was removed
+// because of deprecated pango_coverage_max.
 TEST_F(FontUtilsTest, GetAllRenderableCharacters) {
   const int32_t kHindiChar = 0x0905;
   const int32_t kArabicChar = 0x0623;
@@ -315,4 +318,6 @@ TEST_F(FontUtilsTest, GetAllRenderableCharacters) {
     unicode_mask.clear();
   }
 }
+#endif
+
 }  // namespace
