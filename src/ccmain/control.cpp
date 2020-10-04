@@ -400,7 +400,6 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
   if (AnyTessLang() && !AnyLSTMLang()) {
     // ****************** Pass 3 *******************
     // Fix fuzzy spaces.
-    set_global_loc_code(LOC_FUZZY_SPACE);
 
     if (!tessedit_test_adaption && tessedit_fix_fuzzy_spaces
         && !tessedit_word_for_word && !right_to_left())
@@ -425,7 +424,6 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
   #endif  // ndef DISABLED_LEGACY_ENGINE
 
   // Write results pass.
-  set_global_loc_code(LOC_WRITE_RESULTS);
   // This is now redundant, but retained commented so show how to obtain
   // bounding boxes and style information.
 
@@ -616,7 +614,6 @@ void Tesseract::rejection_passes(PAGE_RES* page_res,
   // Gather statistics on rejects.
   int word_index = 0;
   while (!tessedit_test_adaption && page_res_it.word() != nullptr) {
-    set_global_loc_code(LOC_MM_ADAPT);
     WERD_RES* word = page_res_it.word();
     word_index++;
     if (monitor != nullptr) {
@@ -697,7 +694,6 @@ void Tesseract::rejection_passes(PAGE_RES* page_res,
   // ****************** Pass 6 *******************
   // Do whole document or whole block rejection pass
   if (!tessedit_test_adaption) {
-    set_global_loc_code(LOC_DOC_BLK_REJ);
     quality_based_rejection(page_res_it, good_quality_doc);
   }
 }
@@ -1580,7 +1576,6 @@ void Tesseract::classify_word_pass2(const WordData& word_data,
   prev_word_best_choice_ = word_data.prev_word != nullptr
       ? word_data.prev_word->word->best_choice : nullptr;
 
-  set_global_subloc_code(SUBLOC_NORM);
   check_debug_pt(word, 30);
   if (!word->done) {
     word->caps_height = 0.0;
@@ -1598,8 +1593,6 @@ void Tesseract::classify_word_pass2(const WordData& word_data,
       // Use the tops and bottoms since they are available.
       TrainedXheightFix(word, block, row);
     }
-
-    set_global_subloc_code(SUBLOC_NORM);
   }
 #ifndef GRAPHICS_DISABLED
   if (tessedit_display_outwords) {
@@ -1613,7 +1606,6 @@ void Tesseract::classify_word_pass2(const WordData& word_data,
     ScrollView::Update();
   }
 #endif
-  set_global_subloc_code(SUBLOC_NORM);
   check_debug_pt(word, 50);
 #endif  // ndef DISABLED_LEGACY_ENGINE
 }
