@@ -33,7 +33,7 @@
 #include "coutln.h"             // for C_OUTLINE_IT, C_OUTLINE_LIST, C_OUTLINE
 #include "drawtord.h"           // for plot_box_list, to_win, create_to_win
 #include "edgblob.h"            // for extract_edges
-#include "errcode.h"            // for set_global_loc_code, ASSERT_HOST, LOC...
+#include "errcode.h"            // for ASSERT_HOST, ...
 #include <tesseract/genericvector.h>      // for PointerVector, GenericVector
 #include "makerow.h"            // for textord_test_x, textord_test_y, texto...
 #include "morph.h"              // for L_BOUNDARY_BG
@@ -224,8 +224,6 @@ void Textord::find_components(Pix* pix, BLOCK_LIST *blocks,
     tprintf("Input image too large! (%d, %d)\n", width, height);
     return;  // Can't handle it.
   }
-
-  set_global_loc_code(LOC_EDGE_PROG);
 
   BLOCK_IT block_it(blocks);    // iterator
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();

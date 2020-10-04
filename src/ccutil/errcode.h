@@ -35,36 +35,6 @@ enum TessErrorLogCode {
 #define MEMORY_ABORT    2
 #define FILE_ABORT      3
 
-/* Location of code at error codes Reserve 0..2 (status codes 0..23 for UNLV)*/
-#define LOC_UNUSED0        0
-#define LOC_UNUSED1        1
-#define LOC_UNUSED2        2
-#define LOC_INIT      3
-#define LOC_EDGE_PROG   4
-#define LOC_TEXT_ORD_ROWS 5
-#define LOC_TEXT_ORD_WORDS  6
-#define LOC_PASS1     7
-#define LOC_PASS2     8
-/* Reserve up to 8..13 for adding subloc 0/3 plus subsubloc 0/1/2 */
-#define LOC_FUZZY_SPACE   14
-/* Reserve up to 14..20 for adding subloc 0/3 plus subsubloc 0/1/2 */
-#define LOC_MM_ADAPT    21
-#define LOC_DOC_BLK_REJ   22
-#define LOC_WRITE_RESULTS 23
-#define LOC_ADAPTIVE    24
-/* DON'T DEFINE ANY LOCATION > 31 !!! */
-
-/* Sub locatation determines whether pass2 was in normal mode or fix xht mode*/
-#define SUBLOC_NORM     0
-#define SUBLOC_FIX_XHT    3
-
-/* Sub Sub location determines whether match_word_pass2 was in Tess
-  matcher, NN matcher or somewhere else */
-
-#define SUBSUBLOC_OTHER   0
-#define SUBSUBLOC_TESS    1
-#define SUBSUBLOC_NN    2
-
 class TESS_API ERRCODE {           // error handler class
   const char *message;           // error message
  public:
@@ -94,13 +64,5 @@ constexpr ERRCODE ASSERT_FAILED("Assert failed");
     tprintf(__VA_ARGS__);                                                      \
     ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d", __FILE__, __LINE__); \
   }
-
-void signal_exit(int signal_code);
-
-void set_global_loc_code(int loc_code);
-
-void set_global_subloc_code(int loc_code);
-
-void set_global_subsubloc_code(int loc_code);
 
 #endif
