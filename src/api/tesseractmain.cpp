@@ -76,13 +76,13 @@ static void Win32WarningHandler(const char* module, const char* fmt,
 class AutoWin32ConsoleOutputCP {
  public:
   explicit AutoWin32ConsoleOutputCP(UINT codeCP) {
-    oldCP_ = GetConsoleOutputCP();    
+    oldCP_ = GetConsoleOutputCP();
     SetConsoleOutputCP(codeCP);
   }
-  ~AutoWin32ConsoleOutputCP() {    
-    SetConsoleOutputCP(oldCP_);    
+  ~AutoWin32ConsoleOutputCP() {
+    SetConsoleOutputCP(oldCP_);
   }
- private:  
+ private:
   UINT oldCP_;
 };
 
@@ -252,7 +252,20 @@ static void PrintHelpExtra(const char* program) {
   );
 }
 
+static const char* basename(const char* path)
+{
+  size_t i;
+  size_t len = strlen(path);
+  for (i = strcspn(path, ":/\\"); i < len; i = strcspn(path, ":/\\"))
+  {
+    path = path + i + 1;
+    len -= i + 1;
+  }
+  return path;
+}
+
 static void PrintHelpMessage(const char* program) {
+  program = basename(program);
   printf(
       "Usage:\n"
       "  %s --help | --help-extra | --version\n"
@@ -273,7 +286,7 @@ static void PrintHelpMessage(const char* program) {
 }
 
 static void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
-                                   char** argv) {
+                                   const char** argv) {
   char opt1[256], opt2[255];
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
@@ -332,15 +345,17 @@ static void FixPageSegMode(tesseract::TessBaseAPI* api,
     api->SetPageSegMode(pagesegmode);
 }
 
-static void checkArgValues(int arg, const char* mode, int count) {
+static int checkArgValues(int arg, const char* mode, int count) {
   if (arg >= count || arg < 0) {
-    printf("Invalid %s value, please enter a number between 0-%d\n", mode, count - 1);
-    exit(EXIT_SUCCESS);
+    printf("Invalid %s value, please enter a number between 0-%d\n", mode,
+           count - 1);
+    return TRUE;
   }
+  return FALSE;
 }
 
 // NOTE: arg_i is used here to avoid ugly *i so many times in this function
-static void ParseArgs(const int argc, char** argv, const char** lang,
+static int ParseArgs(const int argc, const char** argv, const char** lang,
                       const char** image, const char** outputbase,
                       const char** datapath, l_int32* dpi, bool* list_langs,
                       bool* print_parameters, GenericVector<STRING>* vars_vec,
@@ -392,13 +407,15 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
       noocr = true;
       *list_langs = true;
     } else if (strcmp(argv[i], "--psm") == 0 && i + 1 < argc) {
-      checkArgValues(atoi(argv[i+1]), "PSM", tesseract::PSM_COUNT);
+      if (checkArgValues(atoi(argv[i + 1]), "PSM", tesseract::PSM_COUNT))
+        return EXIT_FAILURE;
       *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
       ++i;
     } else if (strcmp(argv[i], "--oem") == 0 && i + 1 < argc) {
 #ifndef DISABLED_LEGACY_ENGINE
       int oem = atoi(argv[i + 1]);
-      checkArgValues(oem, "OEM", tesseract::OEM_COUNT);
+      if (checkArgValues(oem, "OEM", tesseract::OEM_COUNT))
+        return EXIT_FAILURE;
       *enginemode = static_cast<tesseract::OcrEngineMode>(oem);
 #endif
       ++i;
@@ -413,7 +430,7 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
     } else {
       // Unexpected argument.
       fprintf(stderr, "Error, unknown command line argument '%s'\n", argv[i]);
-      exit(EXIT_FAILURE);
+      return EXIT_FAILURE;
     }
   }
 
@@ -433,8 +450,9 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
 
   if (*outputbase == nullptr && noocr == false) {
     PrintHelpMessage(argv[0]);
-    exit(EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
+  return EXIT_SUCCESS;
 }
 
 static void PreloadRenderers(
@@ -605,7 +623,12 @@ static void PreloadRenderers(
  *
  **********************************************************************/
 
-int main(int argc, char** argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_main(int argc, const char** argv)
+#endif
+{
   const char* lang = nullptr;
   const char* image = nullptr;
   const char* outputbase = nullptr;
@@ -614,6 +637,8 @@ int main(int argc, char** argv) {
   bool print_parameters = false;
   l_int32 dpi = 0;
   int arg_i = 1;
+  int ret_val = EXIT_SUCCESS;
+
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
 #ifdef DISABLED_LEGACY_ENGINE
   auto enginemode = tesseract::OEM_LSTM_ONLY;
@@ -637,9 +662,11 @@ int main(int argc, char** argv) {
   TIFFSetWarningHandler(Win32WarningHandler);
 #endif // HAVE_TIFFIO_H && _WIN32
 
-  ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &dpi,
+  ret_val = ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &dpi,
             &list_langs, &print_parameters, &vars_vec, &vars_values, &arg_i,
             &pagesegmode, &enginemode);
+  if (ret_val)
+    return ret_val;
 
   if (lang == nullptr) {
     // Set default language if none was given.
@@ -694,8 +721,6 @@ int main(int argc, char** argv) {
   }
 
   if (pagesegmode == tesseract::PSM_AUTO_ONLY) {
-    int ret_val = EXIT_SUCCESS;
-
     Pix* pixs = pixRead(image);
     if (!pixs) {
       fprintf(stderr, "Leptonica can't process input file: %s\n", image);

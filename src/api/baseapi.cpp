@@ -338,7 +338,7 @@ void TessBaseAPI::PrintVariables(FILE *fp) const {
  * @return: 0 on success and -1 on initialization failure.
  */
 int TessBaseAPI::Init(const char* datapath, const char* language,
-                      OcrEngineMode oem, char **configs, int configs_size,
+                      OcrEngineMode oem, const char **configs, int configs_size,
                       const GenericVector<STRING> *vars_vec,
                       const GenericVector<STRING> *vars_values,
                       bool set_only_non_debug_params) {
@@ -350,7 +350,7 @@ int TessBaseAPI::Init(const char* datapath, const char* language,
 // data[data_size] array. Also implements the version with a datapath in data,
 // flagged by data_size = 0.
 int TessBaseAPI::Init(const char* data, int data_size, const char* language,
-                      OcrEngineMode oem, char** configs, int configs_size,
+                      OcrEngineMode oem, const char** configs, int configs_size,
                       const GenericVector<STRING>* vars_vec,
                       const GenericVector<STRING>* vars_values,
                       bool set_only_non_debug_params, FileReader reader) {

@@ -508,7 +508,7 @@ class Tesseract : public Wordrec {
   // traineddata file (via tessedit_load_sublangs in its config) that is loaded.
   // See init_tesseract_internal for args.
   int init_tesseract(const char* arg0, const char* textbase,
-                     const char* language, OcrEngineMode oem, char** configs,
+                     const char* language, OcrEngineMode oem, const char** configs,
                      int configs_size, const GenericVector<STRING>* vars_vec,
                      const GenericVector<STRING>* vars_values,
                      bool set_only_init_params, TessdataManager* mgr);
@@ -536,7 +536,7 @@ class Tesseract : public Wordrec {
   // will be set.
   int init_tesseract_internal(const char* arg0, const char* textbase,
                               const char* language, OcrEngineMode oem,
-                              char** configs, int configs_size,
+                              const char** configs, int configs_size,
                               const GenericVector<STRING>* vars_vec,
                               const GenericVector<STRING>* vars_values,
                               bool set_only_init_params, TessdataManager* mgr);
@@ -553,7 +553,7 @@ class Tesseract : public Wordrec {
 
   bool init_tesseract_lang_data(const char* arg0, const char* textbase,
                                 const char* language, OcrEngineMode oem,
-                                char** configs, int configs_size,
+                                const char** configs, int configs_size,
                                 const GenericVector<STRING>* vars_vec,
                                 const GenericVector<STRING>* vars_values,
                                 bool set_only_init_params,

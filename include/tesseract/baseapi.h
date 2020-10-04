@@ -221,7 +221,7 @@ class TESS_API TessBaseAPI {
    * "debug" in the name will be set.
    */
   int Init(const char* datapath, const char* language, OcrEngineMode mode,
-           char** configs, int configs_size,
+           const char** configs, int configs_size,
            const GenericVector<STRING>* vars_vec,
            const GenericVector<STRING>* vars_values,
            bool set_only_non_debug_params);
@@ -235,7 +235,7 @@ class TESS_API TessBaseAPI {
   // In-memory version reads the traineddata file directly from the given
   // data[data_size] array, and/or reads data via a FileReader.
   int Init(const char* data, int data_size, const char* language,
-           OcrEngineMode mode, char** configs, int configs_size,
+           OcrEngineMode mode, const char** configs, int configs_size,
            const GenericVector<STRING>* vars_vec,
            const GenericVector<STRING>* vars_values,
            bool set_only_non_debug_params, FileReader reader);

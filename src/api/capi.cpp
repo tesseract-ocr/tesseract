@@ -243,7 +243,7 @@ BOOL TessBaseAPIGetVariableAsString(TessBaseAPI* handle,
 
 int TessBaseAPIInit4(
     TessBaseAPI* handle, const char* datapath, const char* language,
-    TessOcrEngineMode mode, char** configs, int configs_size, char** vars_vec,
+    TessOcrEngineMode mode, const char** configs, int configs_size, char** vars_vec,
     char** vars_values, size_t vars_vec_size, BOOL set_only_non_debug_params) {
   GenericVector<STRING> varNames;
   GenericVector<STRING> varValues;
@@ -260,8 +260,8 @@ int TessBaseAPIInit4(
 
 int TessBaseAPIInit1(TessBaseAPI* handle,
                                         const char* datapath,
-                                        const char* language,
-                                        TessOcrEngineMode oem, char** configs,
+                                        const char* language, TessOcrEngineMode oem,
+										const char** configs,
                                         int configs_size) {
   return handle->Init(datapath, language, oem, configs, configs_size, nullptr,
                       nullptr, false);

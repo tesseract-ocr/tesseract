@@ -78,7 +78,7 @@ void Tesseract::read_config_file(const char* filename,
 // OEM_TESSERACT_ONLY if none of the configs specify this variable.
 bool Tesseract::init_tesseract_lang_data(
     const char* arg0, const char* textbase, const char* language,
-    OcrEngineMode oem, char** configs, int configs_size,
+    OcrEngineMode oem, const char** configs, int configs_size,
     const GenericVector<STRING>* vars_vec,
     const GenericVector<STRING>* vars_values, bool set_only_non_debug_params,
     TessdataManager* mgr) {
@@ -289,7 +289,7 @@ void Tesseract::ParseLanguageString(const char* lang_str,
 // See init_tesseract_internal for args.
 int Tesseract::init_tesseract(const char* arg0, const char* textbase,
                               const char* language, OcrEngineMode oem,
-                              char** configs, int configs_size,
+                              const char** configs, int configs_size,
                               const GenericVector<STRING>* vars_vec,
                               const GenericVector<STRING>* vars_values,
                               bool set_only_non_debug_params,
@@ -389,7 +389,7 @@ int Tesseract::init_tesseract(const char* arg0, const char* textbase,
 // will be set.
 int Tesseract::init_tesseract_internal(const char* arg0, const char* textbase,
                                        const char* language, OcrEngineMode oem,
-                                       char** configs, int configs_size,
+                                       const char** configs, int configs_size,
                                        const GenericVector<STRING>* vars_vec,
                                        const GenericVector<STRING>* vars_values,
                                        bool set_only_non_debug_params,
