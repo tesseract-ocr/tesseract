@@ -183,9 +183,9 @@ static void PrintHelpForPSM() {
 #ifdef DISABLED_LEGACY_ENGINE
   const char* disabled_osd_msg =
       "\nNOTE: The OSD modes are currently disabled.\n";
-  printf("%s%s", msg, disabled_osd_msg);
+  tprintf("%s%s", msg, disabled_osd_msg);
 #else
-  printf("%s", msg);
+  tprintf("%s", msg);
 #endif
 }
 
@@ -198,12 +198,12 @@ static void PrintHelpForOEM() {
       "  2    Legacy + LSTM engines.\n"
       "  3    Default, based on what is available.\n";
 
-  printf("%s", msg);
+  tprintf("%s", msg);
 }
 #endif  // ndef DISABLED_LEGACY_ENGINE
 
 static void PrintHelpExtra(const char* program) {
-  printf(
+  tprintf(
       "Usage:\n"
       "  %s --help | --help-extra | --help-psm | "
 #ifndef DISABLED_LEGACY_ENGINE
@@ -233,11 +233,11 @@ static void PrintHelpExtra(const char* program) {
 
   PrintHelpForPSM();
 #ifndef DISABLED_LEGACY_ENGINE
-  printf("\n");
+  tprintf("\n");
   PrintHelpForOEM();
 #endif
 
-  printf(
+  tprintf(
       "\n"
       "Single options:\n"
       "  -h, --help            Show minimal help message.\n"
@@ -266,7 +266,7 @@ static const char* basename(const char* path)
 
 static void PrintHelpMessage(const char* program) {
   program = basename(program);
-  printf(
+  tprintf(
       "Usage:\n"
       "  %s --help | --help-extra | --version\n"
       "  %s --list-langs\n"
@@ -285,7 +285,7 @@ static void PrintHelpMessage(const char* program) {
   );
 }
 
-static void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
+static int SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
                                    const char** argv) {
   char opt1[256], opt2[255];
   for (int i = 0; i < argc; i++) {
@@ -294,8 +294,8 @@ static void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
       opt1[255] = '\0';
       char* p = strchr(opt1, '=');
       if (!p) {
-        fprintf(stderr, "Missing = in configvar assignment\n");
-        exit(EXIT_FAILURE);
+        tprintf("ERROR: Missing '=' in configvar assignment for '%s'\n", opt1);
+        return TRUE;
       }
       *p = 0;
       strncpy(opt2, strchr(argv[i + 1], '=') + 1, sizeof(opt2) - 1);
@@ -303,19 +303,21 @@ static void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
       ++i;
 
       if (!api->SetVariable(opt1, opt2)) {
-        fprintf(stderr, "Could not set option: %s=%s\n", opt1, opt2);
+        tprintf("ERROR: Could not set option: %s=%s\n", opt1, opt2);
+        return TRUE;
       }
     }
   }
+  return FALSE;
 }
 
 static void PrintLangsList(tesseract::TessBaseAPI* api) {
   GenericVector<STRING> languages;
   api->GetAvailableLanguagesAsVector(&languages);
-  printf("List of available languages (%d):\n", languages.size());
+  tprintf("List of available languages (%d):\n", languages.size());
   for (int index = 0; index < languages.size(); ++index) {
     STRING& string = languages[index];
-    printf("%s\n", string.c_str());
+    tprintf("%s\n", string.c_str());
   }
   api->End();
 }
@@ -347,7 +349,7 @@ static void FixPageSegMode(tesseract::TessBaseAPI* api,
 
 static int checkArgValues(int arg, const char* mode, int count) {
   if (arg >= count || arg < 0) {
-    printf("Invalid %s value, please enter a number between 0-%d\n", mode,
+    tprintf("ERROR: Invalid %s value, please enter a number between 0-%d\n", mode,
            count - 1);
     return TRUE;
   }
@@ -429,7 +431,7 @@ static int ParseArgs(const int argc, const char** argv, const char** lang,
       *image = argv[i];
     } else {
       // Unexpected argument.
-      fprintf(stderr, "Error, unknown command line argument '%s'\n", argv[i]);
+      tprintf("ERROR: Unknown command line argument '%s'\n", argv[i]);
       return EXIT_FAILURE;
     }
   }
@@ -441,7 +443,7 @@ static int ParseArgs(const int argc, const char** argv, const char** lang,
     if (*lang != nullptr && strcmp(*lang, "osd")) {
       // If the user explicitly specifies a language (other than osd)
       // or a script, only orientation can be detected.
-      fprintf(stderr, "Warning, detects only orientation with -l %s\n", *lang);
+      tprintf("WARNING: detects only orientation with -l %s\n", *lang);
     } else {
       // That mode requires osd.traineddata to detect orientation and script.
       *lang = "osd";
@@ -476,7 +478,7 @@ static void PreloadRenderers(
         renderers->push_back(renderer);
       } else {
         delete renderer;
-        tprintf("Error, could not create hOCR output file: %s\n",
+        tprintf("ERROR: Could not create hOCR output file: %s\n",
                 strerror(errno));
         error = true;
       }
@@ -490,7 +492,7 @@ static void PreloadRenderers(
         renderers->push_back(renderer);
       } else {
         delete renderer;
-        tprintf("Error, could not create ALTO output file: %s\n",
+        tprintf("ERROR: Could not create ALTO output file: %s\n",
                 strerror(errno));
         error = true;
       }
@@ -506,7 +508,7 @@ static void PreloadRenderers(
         renderers->push_back(renderer);
       } else {
         delete renderer;
-        tprintf("Error, could not create TSV output file: %s\n",
+        tprintf("ERROR: Could not create TSV output file: %s\n",
                 strerror(errno));
         error = true;
       }
@@ -527,7 +529,7 @@ static void PreloadRenderers(
         renderers->push_back(renderer);
       } else {
         delete renderer;
-        tprintf("Error, could not create PDF output file: %s\n",
+        tprintf("ERROR: Could not create PDF output file: %s\n",
                 strerror(errno));
         error = true;
       }
@@ -542,7 +544,7 @@ static void PreloadRenderers(
         renderers->push_back(renderer);
       } else {
         delete renderer;
-        tprintf("Error, could not create UNLV output file: %s\n",
+        tprintf("ERROR: Could not create UNLV output file: %s\n",
                 strerror(errno));
         error = true;
       }
@@ -556,7 +558,7 @@ static void PreloadRenderers(
         renderers->push_back(renderer);
       } else {
         delete renderer;
-        tprintf("Error, could not create LSTM BOX output file: %s\n",
+        tprintf("ERROR: Could not create LSTM BOX output file: %s\n",
                 strerror(errno));
         error = true;
       }
@@ -570,7 +572,7 @@ static void PreloadRenderers(
         renderers->push_back(renderer);
       } else {
         delete renderer;
-        tprintf("Error, could not create BOX output file: %s\n",
+        tprintf("ERROR: Could not create BOX output file: %s\n",
                 strerror(errno));
         error = true;
       }
@@ -584,7 +586,7 @@ static void PreloadRenderers(
         renderers->push_back(renderer);
       } else {
         delete renderer;
-        tprintf("Error, could not create WordStr BOX output file: %s\n",
+        tprintf("ERROR: Could not create WordStr BOX output file: %s\n",
                 strerror(errno));
         error = true;
       }
@@ -601,7 +603,7 @@ static void PreloadRenderers(
         renderers->push_back(renderer);
       } else {
         delete renderer;
-        tprintf("Error, could not create TXT output file: %s\n",
+        tprintf("ERROR: Could not create TXT output file: %s\n",
                 strerror(errno));
       }
     }
@@ -689,7 +691,8 @@ extern "C" int tesseract_main(int argc, const char** argv)
   const int init_failed = api.Init(datapath, lang, enginemode, &(argv[arg_i]),
                              argc - arg_i, &vars_vec, &vars_values, false);
 
-  SetVariablesFromCLArgs(&api, argc, argv);
+  if (SetVariablesFromCLArgs(&api, argc, argv))
+    return EXIT_FAILURE;
 
   // SIMD settings might be overridden by config variable.
   tesseract::SIMDDetect::Update();
@@ -700,13 +703,13 @@ extern "C" int tesseract_main(int argc, const char** argv)
   }
 
   if (init_failed) {
-    fprintf(stderr, "Could not initialize tesseract.\n");
+    tprintf("ERROR: Could not initialize tesseract.\n");
     return EXIT_FAILURE;
   }
 
   if (print_parameters) {
     FILE* fout = stdout;
-    fprintf(stdout, "Tesseract parameters:\n");
+    tprintf("Tesseract parameters:\n");
     api.PrintVariables(fout);
     api.End();
     return EXIT_SUCCESS;
@@ -723,7 +726,7 @@ extern "C" int tesseract_main(int argc, const char** argv)
   if (pagesegmode == tesseract::PSM_AUTO_ONLY) {
     Pix* pixs = pixRead(image);
     if (!pixs) {
-      fprintf(stderr, "Leptonica can't process input file: %s\n", image);
+      tprintf("ERROR: Leptonica can't process input file: %s\n", image);
       return 2;
     }
 
@@ -769,7 +772,7 @@ extern "C" int tesseract_main(int argc, const char** argv)
   if (cur_psm == tesseract::PSM_OSD_ONLY) {
     const char* disabled_osd_msg =
         "\nERROR: The page segmentation mode 0 (OSD Only) is currently disabled.\n\n";
-    fprintf(stderr, "%s",  disabled_osd_msg);
+    tprintf("%s",  disabled_osd_msg);
     return EXIT_FAILURE;
   } else if (cur_psm == tesseract::PSM_AUTO_OSD) {
       api.SetPageSegMode(tesseract::PSM_AUTO);
@@ -803,12 +806,12 @@ extern "C" int tesseract_main(int argc, const char** argv)
     if (banner) PrintBanner();
 #ifdef DISABLED_LEGACY_ENGINE
     if (!osd_warning.empty()) {
-      fprintf(stderr, "%s",osd_warning.c_str());
+      tprintf("%s", osd_warning.c_str());
     }
 #endif
     bool succeed = api.ProcessPages(image, nullptr, 0, renderers[0]);
     if (!succeed) {
-      fprintf(stderr, "Error during processing.\n");
+      tprintf("ERROR: Error during processing.\n");
       return EXIT_FAILURE;
     }
   }
