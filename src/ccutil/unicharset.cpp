@@ -30,6 +30,9 @@
 #include <tesseract/serialis.h>
 #include <tesseract/unichar.h>
 
+#undef min
+#undef max
+
 // TODO(rays) Move UNICHARSET to tesseract namespace.
 using tesseract::char32;
 using tesseract::UNICHAR;

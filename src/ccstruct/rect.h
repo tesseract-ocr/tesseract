@@ -29,6 +29,9 @@
 #include "scrollview.h"        // for ScrollView, ScrollView::Color
 #include "tprintf.h"           // for tprintf
 
+#undef max
+#undef min
+
 class STRING;
 
 class DLLSYM TBOX  {  // bounding box
