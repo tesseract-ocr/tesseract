@@ -360,6 +360,7 @@ static int checkArgValues(int arg, const char* mode, int count) {
 static int ParseArgs(const int argc, const char** argv, const char** lang,
                       const char** image, const char** outputbase,
                       const char** datapath, l_int32* dpi, bool* list_langs,
+                      const char **visible_pdf_image_file,
                       bool* print_parameters, GenericVector<STRING>* vars_vec,
                       GenericVector<STRING>* vars_values, l_int32* arg_i,
                       tesseract::PageSegMode* pagesegmode,
@@ -426,6 +427,9 @@ static int ParseArgs(const int argc, const char** argv, const char** lang,
       *print_parameters = true;
     } else if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
       // handled properly after api init
+      ++i;
+    } else if (strcmp(argv[i], "--visible-pdf-image") == 0 && i + 1 < argc) {
+      *visible_pdf_image_file = argv[i + 1];
       ++i;
     } else if (*image == nullptr) {
       *image = argv[i];
@@ -635,6 +639,7 @@ extern "C" int tesseract_main(int argc, const char** argv)
   const char* image = nullptr;
   const char* outputbase = nullptr;
   const char* datapath = nullptr;
+  const char *visible_pdf_image_file = nullptr;
   bool list_langs = false;
   bool print_parameters = false;
   l_int32 dpi = 0;
@@ -665,7 +670,8 @@ extern "C" int tesseract_main(int argc, const char** argv)
 #endif // HAVE_TIFFIO_H && _WIN32
 
   ret_val = ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &dpi,
-            &list_langs, &print_parameters, &vars_vec, &vars_values, &arg_i,
+            &list_langs, &visible_pdf_image_file,
+			&print_parameters, &vars_vec, &vars_values, &arg_i,
             &pagesegmode, &enginemode);
   if (ret_val)
     return ret_val;
@@ -721,6 +727,10 @@ extern "C" int tesseract_main(int argc, const char** argv)
     char dpi_string[255];
     snprintf(dpi_string, 254, "%d", dpi);
     api.SetVariable("user_defined_dpi", dpi_string);
+  }
+
+  if (visible_pdf_image_file) {
+    api.SetVisiblePdfImageFilename(visible_pdf_image_file);
   }
 
   if (pagesegmode == tesseract::PSM_AUTO_ONLY) {

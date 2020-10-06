@@ -198,6 +198,8 @@ TessBaseAPI::TessBaseAPI()
       block_list_(nullptr),
       page_res_(nullptr),
       input_file_(nullptr),
+      visible_pdf_image_file_(NULL),
+      visible_pdf_image_(NULL),
       output_file_(nullptr),
       datapath_(nullptr),
       language_(nullptr),
@@ -268,6 +270,14 @@ void TessBaseAPI::SetInputName(const char* name) {
   else
     *input_file_ = name;
 }
+
+void TessBaseAPI::SetVisiblePdfImageFilename(const char* name) {
+  if (visible_pdf_image_file_ == NULL)
+    visible_pdf_image_file_ = new STRING(name);
+  else
+    *visible_pdf_image_file_ = name;
+}
+
 
 /** Set the name of the output files. Needed only for debugging. */
 void TessBaseAPI::SetOutputName(const char* name) {
@@ -956,11 +966,29 @@ int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
 // Takes ownership of the input pix.
 void TessBaseAPI::SetInputImage(Pix* pix) { tesseract_->set_pix_original(pix); }
 
+void TessBaseAPI::SetVisiblePdfImage(Pix *pix) {
+  if (visible_pdf_image_)
+    pixDestroy(&visible_pdf_image_);
+  visible_pdf_image_ = nullptr;
+  if (pix)
+    visible_pdf_image_ = pixCopy(NULL, pix);
+}
+
 Pix* TessBaseAPI::GetInputImage() { return tesseract_->pix_original(); }
+
+Pix* TessBaseAPI::GetVisiblePdfImage() {
+  return visible_pdf_image_;
+}
 
 const char * TessBaseAPI::GetInputName() {
   if (input_file_)
     return input_file_->c_str();
+  return nullptr;
+}
+
+const char * TessBaseAPI::GetVisiblePdfImageFilename() {
+  if (visible_pdf_image_file_)
+    return visible_pdf_image_file_->c_str();
   return nullptr;
 }
 
@@ -1909,6 +1937,8 @@ void TessBaseAPI::End() {
   equ_detect_ = nullptr;
   delete input_file_;
   input_file_ = nullptr;
+  pixDestroy(&visible_pdf_image_);
+  visible_pdf_image_ = nullptr;
   delete output_file_;
   output_file_ = nullptr;
   delete datapath_;
