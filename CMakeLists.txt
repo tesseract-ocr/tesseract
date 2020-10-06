@@ -704,7 +704,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc DESTINATION lib/pkgconfig
 install(TARGETS tesseract RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 install(TARGETS libtesseract EXPORT TesseractTargets RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 install(EXPORT TesseractTargets DESTINATION lib/tesseract)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake TYPE LIB)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake DESTINATION lib)
 
 install(FILES
     # from api/makefile.am
