@@ -370,12 +370,17 @@ configure_file(
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/libtesseract.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc @ONLY)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/TesseractConfig-version.cmake @ONLY)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/TesseractConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/TesseractConfig.cmake @ONLY)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+    cmake/templates/TesseractConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/TesseractConfig.cmake
+    INSTALL_DESTINATION lib/tesseract/cmake
+    PATH_VARS INCLUDE_DIR)
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/TesseractConfigVersion.cmake
+    VERSION ${PACKAGE_VERSION}
+    COMPATIBILITY SameMajorVersion)
 
 # show summary of configuration
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
