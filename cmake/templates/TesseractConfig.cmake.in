@@ -7,7 +7,7 @@
 #    In your CMakeLists.txt, add these lines:
 #
 #    find_package(Tesseract REQUIRED)
-#    target_link_libraries(MY_TARGET_NAME Tesseract::Tesseract)
+#    target_link_libraries(MY_TARGET_NAME Tesseract::libtesseract)
 #
 #    This file will define the following variables:
 #      - Tesseract_LIBRARIES             : The list of all imported targets for OpenCV modules.
@@ -23,13 +23,5 @@ find_package(Leptonica REQUIRED)
 
 set_and_check(Tesseract_INCLUDE_DIR "@PACKAGE_INCLUDE_DIR@")
 set(Tesseract_LIBRARIES libtesseract)
-
-if(Tesseract_FOUND AND NOT TARGET Tesseract::Tesseract)
-    add_library(Tesseract::Tesseract UNKNOWN IMPORTED)
-    set_target_properties(Tesseract::Tesseract PROPERTIES
-        IMPORTED_LOCATION ${Tesseract_LIBRARIES}
-        INTERFACE_INCLUDE_DIRECTORIES "${Tesseract_INCLUDE_DIR}"
-    )
-endif()
 
 check_required_components(Tesseract)
