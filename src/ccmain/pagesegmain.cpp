@@ -34,7 +34,9 @@
 #include "blread.h"
 #include "colfind.h"
 #include "debugpixa.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "equationdetect.h"
+#endif
 #include "imagefind.h"
 #include "linefind.h"
 #include "makerow.h"
@@ -219,9 +221,11 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
       // blocks separately. For now combine with photomask_pix.
       pixOr(photomask_pix, photomask_pix, musicmask_pix);
     }
+  #ifndef DISABLED_LEGACY_ENGINE
     if (equ_detect_) {
       finder->SetEquationDetect(equ_detect_);
     }
+  #endif  // ndef DISABLED_LEGACY_ENGINE
     result = finder->FindBlocks(pageseg_mode, scaled_color_, scaled_factor_,
                                 to_block, photomask_pix, pix_thresholds_,
                                 pix_grey_, &pixa_debug_, &found_blocks,
