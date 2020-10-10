@@ -12,7 +12,7 @@ man_MANS = \
   set_unicharset_properties.1 \
   tesseract.1 \
   text2image.1 \
-  unicharambigs.5 \
+  unicharset.5 \
   unicharset_extractor.1 \
   wordlist2dawg.1
 
@@ -23,7 +23,7 @@ man_MANS += \
   cntraining.1 \
   mftraining.1 \
   shapeclustering.1 \
-  unicharset.5
+  unicharambigs.5
 endif
 
 man_xslt = http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl

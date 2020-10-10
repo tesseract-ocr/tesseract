@@ -27,7 +27,9 @@
 #include "ccnontextdetect.h"
 #include "colpartition.h"
 #include "colpartitionset.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "equationdetectbase.h"
+#endif
 #include "linefind.h"
 #include "normalis.h"
 #include "strokewidth.h"
@@ -414,9 +416,11 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
   }
 #endif
   if (!PSM_SPARSE(pageseg_mode)) {
+  #ifndef DISABLED_LEGACY_ENGINE
     if (equation_detect_) {
       equation_detect_->FindEquationParts(&part_grid_, best_columns_);
     }
+  #endif
     if (textord_tabfind_find_tables) {
       TableFinder table_finder;
       table_finder.Init(gridsize(), bleft(), tright());
@@ -506,9 +510,11 @@ void ColumnFinder::GetDeskewVectors(FCOORD* deskew, FCOORD* reskew) {
   deskew->set_y(-deskew->y());
 }
 
+#ifndef DISABLED_LEGACY_ENGINE
 void ColumnFinder::SetEquationDetect(EquationDetectBase* detect) {
   equation_detect_ = detect;
 }
+#endif
 
 //////////////// PRIVATE CODE /////////////////////////
 
