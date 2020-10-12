@@ -1,4 +1,4 @@
-name: sw
+name: as
 
 on: [push, pull_request]
 
@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-20.04, macOS-latest]
+        os: [windows-latest, ubuntu-20.10, macOS-latest]
 
     steps:
     - uses: actions/checkout@v1
