@@ -1,5 +1,6 @@
 # Contributing
 
+••saya gatau••
 **Please follow these rules and advice**.
 
 ## Creating an Issue or Using the Forum
