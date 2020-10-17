@@ -37,12 +37,14 @@
 #
 # All the rest is auto-generated.
 
+#make the file moved to ~/backup folder for emergency need
 if [ "$1" = "clean" ]; then
     echo "Cleaning..."
-    rm configure aclocal.m4
-    rm m4/l*
-    rm config/*
-    rmdir config
+    mv configure ~/backup
+    mv aclocal.m4 ~/backup
+    mv m4/l* ~/backup
+    mv config/* ~/backup
+    mv config ~/backup
     find . -iname "Makefile.in" -type f -exec rm '{}' +
 fi
 
