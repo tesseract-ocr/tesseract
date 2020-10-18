@@ -1,7 +1,7 @@
 Copyright 1994, 1995, 1996, 1999, 2000, 2001, 2002 Free Software
 Foundation, Inc.
 
-   This file is free documentation; the Free Software Foundation gives
+This file is free documentation; the Free Software Foundation gives
 unlimited permission to copy, distribute and modify it.
 
 Basic Installation
@@ -76,9 +76,9 @@ for details on some of the pertinent environment variables.
 by setting variables in the command line or in the environment.  Here
 is an example:
 
-     ./configure CC=c89 CFLAGS=-O2 LIBS=-lposix
+  ./configure CC=c89 CFLAGS=-O2 LIBS=-lposix
 
-   *Note Defining Variables::, for more details.
+*Note Defining Variables::, for more details.
 
 Compiling For Multiple Architectures
 ====================================
@@ -145,12 +145,8 @@ _same_ architectures, `configure' can figure that out, but if it prints
 a message saying it cannot guess the machine type, give it the
 `--build=TYPE' option.  TYPE can either be a short name for the system
 type, such as `sun4', or a canonical name which has the form:
-
-     CPU-COMPANY-SYSTEM
-
-where SYSTEM can have one of these forms:
-
-     OS KERNEL-OS
+CPU-COMPANY-SYSTEM where SYSTEM can have one of these forms:
+OS KERNEL-OS
 
    See the file `config.sub' for the possible values of each field.  If
 `config.sub' isn't included in this package, then this package doesn't
