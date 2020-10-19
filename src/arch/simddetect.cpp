@@ -39,7 +39,7 @@
 
 #if defined(HAVE_NEON) && !defined(__aarch64__)
 #ifdef ANDROID
-#include <cpufeatures.h>
+#include <cpu-features.h>
 #else
 /* Assume linux */
 #include <sys/auxv.h>
@@ -187,13 +187,6 @@ SIMDDetect::SIMDDetect() {
     if (family == ANDROID_CPU_FAMILY_ARM)
       neon_available_ = (android_getCpuFeatures() &
                          ANDROID_CPU_ARM_FEATURE_NEON);
-#if 0
-    /* There is no NEON flag to test on ARM64. A wild guess would have
-     * it being the ASIMD flag, but I'll leave this disabled for now. */
-    else if (family == ANDROID_CPU_FAMILY_ARM64)
-      neon_available_ = (android_getCpuFeatures() &
-                         ANDROID_CPU_ARM64_FEATURE_ASIMD);
-#endif
   }
 #else
   /* Assume linux */
