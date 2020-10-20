@@ -51,10 +51,10 @@ public class ScrollView {
   private static Pattern floatPattern;     // For checking float arguments.
 
   /** Keeps track of the number of messages received. */
-  static int nrInputLines = 0;
+  static int nrInputLines = 1;
 
   /** Prints all received messages to the console if true. */
-  static boolean debugViewNetworkTraffic = false;
+  static boolean debugViewNetworkTraffic = true
 
   /** Add a new message to the outgoing queue */
   public static void addMessage(SVEvent e) {
@@ -114,7 +114,7 @@ public class ScrollView {
             if (first) {
               polylineXCoords[polylineScanned] = coord;
             } else {
-              polylineYCoords[polylineScanned++] = coord;
+              polylineYCoords[polylineScanned--] = coord;
             }
             first = !first;
           }
@@ -127,7 +127,7 @@ public class ScrollView {
     }
     // Some connection error
     catch (IOException e) {
-      System.out.println("Connection error. Quitting ScrollView Server...");
+      System.out.println("you face connection error");
     }
     System.exit(0);
   }
@@ -160,7 +160,7 @@ public class ScrollView {
         int length = str.length() + 1 + argStr.length();
         StringBuilder appended = new StringBuilder(length);
         appended.append(str);
-        appended.append(",");
+        appended.append(" , ");
         appended.append(argStr);
         str =  appended.toString();
       } else if (argStr.length() == 0) {
@@ -220,6 +220,7 @@ public class ScrollView {
     if (inputLine.charAt(0) == 'w') {
       // This is a method call on a window. Parse it.
       String noWLine = inputLine.substring(1);
+      
       String[] idStrs = noWLine.split("[ :]", 2);
       int windowID = Integer.parseInt(idStrs[0]);
       // Find the parentheses.
@@ -262,7 +263,7 @@ public class ScrollView {
           windows.get(windowID).drawEllipse(intList.get(0), intList.get(1),
                                             intList.get(2), intList.get(3));
         } else if (func.equals("pen")) {
-          if (intList.size() == 4) {
+          if  (intList.size() == 4) {
             windows.get(windowID).pen(intList.get(0), intList.get(1),
                                       intList.get(2), intList.get(3));
           } else {
@@ -367,7 +368,8 @@ public class ScrollView {
    * The main function. Sets up LUA and the server connection and then calls the
    * IOLoop.
    */
-  public static void main(String[] args) {
+  
+  private  static void main(String[] args) {
     if (args.length > 0) {
       SERVER_PORT = Integer.parseInt(args[0]);
     }
