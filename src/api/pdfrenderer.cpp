@@ -468,7 +468,9 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     if (res_it->IsAtBeginningOf(RIL_WORD)) {
       pdf_word += "0020";
-      pdf_word_len++;
+      // We don't increment `pdf_word_len` here because it repesents the number
+      // of characters of the word itself - the added space is not part of the
+      // word!
     }
     if (word_length > 0 && pdf_word_len > 0) {
       double h_stretch =
