@@ -302,7 +302,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                       &inv_outputs);
     float inv_min, inv_mean, inv_sd;
     OutputStats(inv_outputs, &inv_min, &inv_mean, &inv_sd);
-    if (inv_min > pos_min && inv_mean > pos_mean && inv_sd < pos_sd) {
+    if (inv_mean > pos_mean) {
       // Inverted did better. Use inverted data.
       if (debug) {
         tprintf("Inverting image: old min=%g, mean=%g, sd=%g, inv %g,%g,%g\n",
