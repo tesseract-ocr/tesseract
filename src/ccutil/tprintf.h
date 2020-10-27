@@ -23,6 +23,7 @@
 #include <tesseract/platform.h>   // for TESS_API
 
 // Main logging function.
+__attribute__((format(printf, 1, 2)))
 TESS_API void tprintf(  // Trace printf
     TS_FORMAT_STRING(const char* fmt), ...) TS_PRINTFLIKE(1, 2);  // Message
 

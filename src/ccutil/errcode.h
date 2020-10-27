@@ -38,6 +38,7 @@ enum TessErrorLogCode {
 class TESS_API ERRCODE {           // error handler class
   const char *message;           // error message
  public:
+  __attribute__((format(printf, 4, 5)))
   void error(                  // error print function
     const char *caller,        // function location
     TessErrorLogCode action,   // action to take
