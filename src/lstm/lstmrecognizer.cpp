@@ -2,7 +2,6 @@
 // File:        lstmrecognizer.cpp
 // Description: Top-level line recognizer class for LSTM-based networks.
 // Author:      Ray Smith
-// Created:     Thu May 02 10:59:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -291,7 +290,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   // Check for auto inversion.
   float pos_min, pos_mean, pos_sd;
   OutputStats(*outputs, &pos_min, &pos_mean, &pos_sd);
-  if (invert && pos_min < 0.5) {
+  if (invert && pos_mean < 0.5) {
     // Run again inverted and see if it is any better.
     NetworkIO inv_inputs, inv_outputs;
     inv_inputs.set_int_mode(IsIntMode());
@@ -303,7 +302,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                       &inv_outputs);
     float inv_min, inv_mean, inv_sd;
     OutputStats(inv_outputs, &inv_min, &inv_mean, &inv_sd);
-    if (inv_min > pos_min && inv_mean > pos_mean && inv_sd < pos_sd) {
+    if (inv_mean > pos_mean) {
       // Inverted did better. Use inverted data.
       if (debug) {
         tprintf("Inverting image: old min=%g, mean=%g, sd=%g, inv %g,%g,%g\n",
