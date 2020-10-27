@@ -63,7 +63,9 @@
 #include "edgblob.h"           // for extract_edges
 #include "elst.h"              // for ELIST_ITERATOR, ELISTIZE, ELISTIZEH
 #include "environ.h"           // for l_uint8
+#ifndef DISABLED_LEGACY_ENGINE
 #include "equationdetect.h"    // for EquationDetect
+#endif
 #include "errcode.h"           // for ASSERT_HOST
 #include <tesseract/helpers.h>           // for IntCastRounded, chomp_string
 #include "imageio.h"           // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...

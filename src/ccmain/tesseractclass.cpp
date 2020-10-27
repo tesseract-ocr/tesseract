@@ -42,7 +42,9 @@
 
 #include "allheaders.h"
 #include "edgblob.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "equationdetect.h"
+#endif
 #ifndef ANDROID_BUILD
 #include "lstmrecognizer.h"
 #endif

@@ -115,7 +115,9 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
 
 check_PROGRAMS = apiexample_test
 if ENABLE_TRAINING
+if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += applybox_test
+endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += baseapi_test
 if TENSORFLOW
 check_PROGRAMS += baseapi_thread_test
@@ -141,8 +143,8 @@ check_PROGRAMS += heap_test
 check_PROGRAMS += imagedata_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += indexmapbidi_test
-endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += intfeaturemap_test
+endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += intsimdmatrix_test
 check_PROGRAMS += lang_model_test
 check_PROGRAMS += layout_test
@@ -155,7 +157,9 @@ check_PROGRAMS += lstm_test
 check_PROGRAMS += lstmtrainer_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += loadlang_test
+if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += mastertrainer_test
+endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += matrix_test
 if TENSORFLOW
 check_PROGRAMS += networkio_test
@@ -164,7 +168,9 @@ if ENABLE_TRAINING
 check_PROGRAMS += normstrngs_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += nthitem_test
+if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += osd_test
+endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += pagesegmode_test
 if ENABLE_TRAINING
 if TENSORFLOW
@@ -172,14 +178,18 @@ check_PROGRAMS += pango_font_info_test
 endif # TENSORFLOW
 endif # ENABLE_TRAINING
 check_PROGRAMS += paragraphs_test
+if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += params_model_test
+endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += progress_test
 check_PROGRAMS += qrsequence_test
 check_PROGRAMS += recodebeam_test
 check_PROGRAMS += rect_test
 check_PROGRAMS += resultiterator_test
 check_PROGRAMS += scanutils_test
+if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += shapetable_test
+endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += stats_test
 if TENSORFLOW
 check_PROGRAMS += stridemap_test
@@ -219,8 +229,10 @@ apiexample_test_SOURCES = apiexample_test.cc
 apiexample_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
 apiexample_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
 
+if !DISABLED_LEGACY_ENGINE
 applybox_test_SOURCES = applybox_test.cc
 applybox_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
 
 baseapi_test_SOURCES = baseapi_test.cc
 baseapi_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
@@ -244,8 +256,10 @@ baseapi_thread_test_LDADD = $(ABSEIL_LIBS)
 baseapi_thread_test_LDADD += $(TESS_LIBS) $(LEPTONICA_LIBS)
 endif # TENSORFLOW
 
+if !DISABLED_LEGACY_ENGINE
 bitvector_test_SOURCES = bitvector_test.cc
 bitvector_test_LDADD = $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
 
 cleanapi_test_SOURCES = cleanapi_test.cc
 cleanapi_test_LDADD = $(TESS_LIBS)
@@ -262,10 +276,12 @@ dawg_test_LDADD = $(TRAINING_LIBS)
 denorm_test_SOURCES = denorm_test.cc
 denorm_test_LDADD = $(TESS_LIBS)
 
+if !DISABLED_LEGACY_ENGINE
 if TENSORFLOW
 equationdetect_test_SOURCES = equationdetect_test.cc
 equationdetect_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
 endif # TENSORFLOW
+endif # !DISABLED_LEGACY_ENGINE
 
 fileio_test_SOURCES = fileio_test.cc
 fileio_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
@@ -276,11 +292,15 @@ heap_test_LDADD = $(TESS_LIBS)
 imagedata_test_SOURCES = imagedata_test.cc
 imagedata_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
 
+if !DISABLED_LEGACY_ENGINE
 indexmapbidi_test_SOURCES = indexmapbidi_test.cc
 indexmapbidi_test_LDADD = $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
 
+if !DISABLED_LEGACY_ENGINE
 intfeaturemap_test_SOURCES = intfeaturemap_test.cc
 intfeaturemap_test_LDADD = $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
 
 intsimdmatrix_test_SOURCES = intsimdmatrix_test.cc
 intsimdmatrix_test_LDADD = $(TESS_LIBS)
@@ -322,8 +342,10 @@ lstm_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
 lstmtrainer_test_SOURCES = lstmtrainer_test.cc
 lstmtrainer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
+if !DISABLED_LEGACY_ENGINE
 mastertrainer_test_SOURCES = mastertrainer_test.cc
 mastertrainer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
 
 matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(TESS_LIBS)
@@ -342,8 +364,10 @@ normstrngs_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_U
 nthitem_test_SOURCES = nthitem_test.cc
 nthitem_test_LDADD = $(TESS_LIBS)
 
+if !DISABLED_LEGACY_ENGINE
 osd_test_SOURCES = osd_test.cc
 osd_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
 
 pagesegmode_test_SOURCES = pagesegmode_test.cc
 pagesegmode_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
@@ -361,8 +385,10 @@ endif # TENSORFLOW
 paragraphs_test_SOURCES = paragraphs_test.cc
 paragraphs_test_LDADD = $(ABSEIL_LIBS) $(TESS_LIBS)
 
+if !DISABLED_LEGACY_ENGINE
 params_model_test_SOURCES = params_model_test.cc
 params_model_test_LDADD = $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
 
 progress_test_SOURCES = progress_test.cc
 progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
@@ -384,8 +410,10 @@ resultiterator_test_LDADD += $(LEPTONICA_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 scanutils_test_SOURCES = scanutils_test.cc
 scanutils_test_LDADD = $(TRAINING_LIBS)
 
+if !DISABLED_LEGACY_ENGINE
 shapetable_test_SOURCES = shapetable_test.cc
 shapetable_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
 
 stats_test_SOURCES = stats_test.cc
 stats_test_LDADD = $(TESS_LIBS)
@@ -452,7 +480,9 @@ if T_WIN
 apiexample_test_LDADD += -lws2_32
 intsimdmatrix_test_LDADD += -lws2_32
 matrix_test_LDADD += -lws2_32
+if !DISABLED_LEGACY_ENGINE
 osd_test_LDADD += -lws2_32
+endif # !DISABLED_LEGACY_ENGINE
 loadlang_test_LDADD += -lws2_32
 endif
 

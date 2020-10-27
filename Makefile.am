@@ -199,7 +199,6 @@ libtesseract_la_SOURCES += src/arch/simddetect.cpp
 # Rules for src/ccmain.
 
 noinst_HEADERS += src/ccmain/control.h
-noinst_HEADERS += src/ccmain/equationdetect.h
 noinst_HEADERS += src/ccmain/mutableiterator.h
 noinst_HEADERS += src/ccmain/output.h
 noinst_HEADERS += src/ccmain/paragraphs.h
@@ -211,6 +210,7 @@ noinst_HEADERS += src/ccmain/tessvars.h
 noinst_HEADERS += src/ccmain/werdit.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/ccmain/docqual.h
+noinst_HEADERS += src/ccmain/equationdetect.h
 noinst_HEADERS += src/ccmain/fixspace.h
 noinst_HEADERS += src/ccmain/reject.h
 endif
