@@ -144,7 +144,9 @@ void WeightMatrix::ConvertToInt() {
   wf_.Resize(1, 1, 0.0);
   int_mode_ = true;
   if (IntSimdMatrix::intSimdMatrix) {
-    IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_, scales_);
+    int32_t rounded_num_out;
+    IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_, rounded_num_out);
+    scales_.resize_no_init(rounded_num_out);
   }
 }
 
@@ -210,7 +212,9 @@ bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
       scales_[i] /= INT8_MAX;
     }
     if (IntSimdMatrix::intSimdMatrix) {
-      IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_, scales_);
+      int32_t rounded_num_out;
+      IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_, rounded_num_out);
+      scales_.resize_no_init(rounded_num_out);
     }
   } else {
     if (!wf_.DeSerialize(fp)) return false;

@@ -77,7 +77,9 @@ class IntSimdMatrixTest : public ::testing::Test {
         std::vector<double> test_result(ro);
         test_result.resize(num_out);
         std::vector<int8_t> shaped_wi;
-        matrix.Init(w, shaped_wi, scales);
+        int32_t rounded_num_out;
+        matrix.Init(w, shaped_wi, rounded_num_out);
+        scales.resize_no_init(rounded_num_out);
         if (matrix.matrixDotVectorFunction) {
           matrix.matrixDotVectorFunction(w.dim1(), w.dim2(), &shaped_wi[0],
                                          &scales[0], &u[0], &test_result[0]);

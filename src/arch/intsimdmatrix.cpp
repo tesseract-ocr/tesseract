@@ -28,15 +28,14 @@ const IntSimdMatrix* IntSimdMatrix::intSimdMatrix = nullptr;
 // Computes a reshaped copy of the weight matrix w.
 void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w,
                          std::vector<int8_t>& shaped_w,
-                         GenericVector<double>& scales) const {
+                         int32_t& rounded_num_out) const {
   const int num_out = w.dim1();
   const int num_in = w.dim2() - 1;
   // The rounded-up sizes of the reshaped weight matrix, excluding biases.
   int rounded_num_in = Roundup(num_in, num_inputs_per_group_);
-  int rounded_num_out = RoundOutputs(num_out);
+  rounded_num_out = RoundOutputs(num_out);
   // Add the bias and compute the required size.
   shaped_w.resize((rounded_num_in + 1) * rounded_num_out, 0);
-  scales.resize_no_init(rounded_num_out);
   int shaped_index = 0;
   int output = 0;
   // Each number of registers needs a different format! Iterates over the
