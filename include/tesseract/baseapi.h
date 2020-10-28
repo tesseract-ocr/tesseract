@@ -815,9 +815,11 @@ class TESS_API TessBaseAPI {
  protected:
   Tesseract* tesseract_;           ///< The underlying data object.
   Tesseract* osd_tesseract_;       ///< For orientation & script detection.
+#ifndef DISABLED_LEGACY_ENGINE
   EquationDetect* equ_detect_;     ///< The equation detector.
-  FileReader reader_;              ///< Reads files from any filesystem.
-  ImageThresholder* thresholder_;  ///< Image thresholding module.
+#endif
+  FileReader reader_;                 ///< Reads files from any filesystem.
+  ImageThresholder* thresholder_;     ///< Image thresholding module.
   GenericVector<ParagraphModel*>* paragraph_models_;
   BLOCK_LIST* block_list_;            ///< The page layout.
   PAGE_RES* page_res_;                ///< The page-level data.

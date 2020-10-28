@@ -190,7 +190,9 @@ static int CompareSTRING(const void* p1, const void* p2) {
 TessBaseAPI::TessBaseAPI()
     : tesseract_(nullptr),
       osd_tesseract_(nullptr),
+#ifndef DISABLED_LEGACY_ENGINE
       equ_detect_(nullptr),
+#endif
       reader_(nullptr),
       // Thresholder is initialized to nullptr here, but will be set before use by:
       // A constructor of a derived API,  SetThresholder(), or
@@ -1935,8 +1937,10 @@ void TessBaseAPI::End() {
   tesseract_ = nullptr;
   delete osd_tesseract_;
   osd_tesseract_ = nullptr;
+#ifndef DISABLED_LEGACY_ENGINE
   delete equ_detect_;
   equ_detect_ = nullptr;
+#endif
   delete input_file_;
   input_file_ = nullptr;
   pixDestroy(&visible_pdf_image_);
