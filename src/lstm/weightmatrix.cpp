@@ -124,7 +124,7 @@ int WeightMatrix::RemapOutputs(const std::vector<int>& code_map) {
 // the original value, subject to rounding errors.
 void WeightMatrix::ConvertToInt() {
   wi_.ResizeNoInit(wf_.dim1(), wf_.dim2());
-  scales_.init_to_size(wi_.dim1(), 0.0);
+  scales_.reserve(wi_.dim1());
   int dim2 = wi_.dim2();
   for (int t = 0; t < wi_.dim1(); ++t) {
     double* f_line = wf_[t];
@@ -135,7 +135,7 @@ void WeightMatrix::ConvertToInt() {
       if (abs_val > max_abs) max_abs = abs_val;
     }
     double scale = max_abs / INT8_MAX;
-    scales_[t] = scale / INT8_MAX;
+    scales_.push_back(scale / INT8_MAX);
     if (scale == 0.0) scale = 1.0;
     for (int f = 0; f < dim2; ++f) {
       i_line[f] = IntCastRounded(f_line[f] / scale);
@@ -146,7 +146,7 @@ void WeightMatrix::ConvertToInt() {
   if (IntSimdMatrix::intSimdMatrix) {
     int32_t rounded_num_out;
     IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_, rounded_num_out);
-    scales_.resize_no_init(rounded_num_out);
+    scales_.resize(rounded_num_out);
   }
 }
 
@@ -179,16 +179,16 @@ bool WeightMatrix::Serialize(bool training, TFile* fp) const {
   if (!fp->Serialize(&mode)) return false;
   if (int_mode_) {
     if (!wi_.Serialize(fp)) return false;
-    /* The scales stored in memory have an extra factor applied to them
-     * to allow faster operation. We have to remove that factor here
-     * before writing to disc, and put it back afterwards. */
-    for (int i = 0; i < scales_.size(); ++i) {
-      scales_[i] *= INT8_MAX;
+    // The scales stored in memory have an extra factor applied to them
+    // to allow faster operation. We have to remove that factor here
+    // before writing to disc.
+    auto scales = scales_;
+    for (auto& scale : scales) {
+      scale *= INT8_MAX;
     }
-    if (!scales_.Serialize(fp)) return false;
-    for (int i = 0; i < scales_.size(); ++i) {
-      scales_[i] /= INT8_MAX;
-    }
+    uint32_t size = scales.size();
+    if (!fp->Serialize(&size)) return false;
+    if (!fp->Serialize(&scales[0], size)) return false;
   } else {
     if (!wf_.Serialize(fp)) return false;
     if (training && !updates_.Serialize(fp)) return false;
@@ -207,14 +207,17 @@ bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
   if ((mode & kDoubleFlag) == 0) return DeSerializeOld(training, fp);
   if (int_mode_) {
     if (!wi_.DeSerialize(fp)) return false;
-    if (!scales_.DeSerialize(fp)) return false;
-    for (int i = 0; i < scales_.size(); ++i) {
-      scales_[i] /= INT8_MAX;
+    uint32_t size;
+    if (!fp->DeSerialize(&size)) return false;
+    scales_.resize(size);
+    if (!fp->DeSerialize(&scales_[0], size)) return false;
+    for (auto& scale : scales_) {
+      scale /= INT8_MAX;
     }
     if (IntSimdMatrix::intSimdMatrix) {
       int32_t rounded_num_out;
       IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_, rounded_num_out);
-      scales_.resize_no_init(rounded_num_out);
+      scales_.resize(rounded_num_out);
     }
   } else {
     if (!wf_.DeSerialize(fp)) return false;
@@ -235,8 +238,10 @@ bool WeightMatrix::DeSerializeOld(bool training, TFile* fp) {
     if (!wi_.DeSerialize(fp)) return false;
     GenericVector<float> old_scales;
     if (!old_scales.DeSerialize(fp)) return false;
-    scales_.resize_no_init(old_scales.size());
-    for (int i = 0; i < old_scales.size(); ++i) scales_[i] = old_scales[i];
+    scales_.reserve(old_scales.size());
+    for (int i = 0; i < old_scales.size(); ++i) {
+      scales_.push_back(old_scales[i]);
+    }
   } else {
     if (!float_array.DeSerialize(fp)) return false;
     FloatToDouble(float_array, &wf_);

@@ -16,9 +16,9 @@
 
 #include "intsimdmatrix.h"
 #include <memory>
+#include <vector>
 #include <gtest/gtest.h>
 #include <gtest/internal/gtest-port.h>
-#include <tesseract/genericvector.h>
 #include "include_gunit.h"
 #include "matrix.h"
 #include "simddetect.h"
@@ -53,8 +53,8 @@ class IntSimdMatrixTest : public ::testing::Test {
     return v;
   }
   // Makes a random scales vector of the given size.
-  GenericVector<double> RandomScales(int size) {
-    GenericVector<double> v(size, 0.0);
+  std::vector<double> RandomScales(int size) {
+    std::vector<double> v(size);
     for (int i = 0; i < size; ++i) {
       v[i] = (1.0 + random_.SignedRand(1.0)) / INT8_MAX;
     }
@@ -67,7 +67,7 @@ class IntSimdMatrixTest : public ::testing::Test {
       for (int num_in = 1; num_in < 130; ++num_in) {
         GENERIC_2D_ARRAY<int8_t> w = InitRandom(num_out, num_in + 1);
         std::vector<int8_t> u = RandomVector(num_in, matrix);
-        GenericVector<double> scales = RandomScales(num_out);
+        std::vector<double> scales = RandomScales(num_out);
         int ro = num_out;
         if (IntSimdMatrix::intSimdMatrix)
           ro = IntSimdMatrix::intSimdMatrix->RoundOutputs(ro);
@@ -79,7 +79,7 @@ class IntSimdMatrixTest : public ::testing::Test {
         std::vector<int8_t> shaped_wi;
         int32_t rounded_num_out;
         matrix.Init(w, shaped_wi, rounded_num_out);
-        scales.resize_no_init(rounded_num_out);
+        scales.reserve(rounded_num_out);
         if (matrix.matrixDotVectorFunction) {
           matrix.matrixDotVectorFunction(w.dim1(), w.dim2(), &shaped_wi[0],
                                          &scales[0], &u[0], &test_result[0]);

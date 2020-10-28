@@ -19,7 +19,7 @@
 #define TESSERACT_LSTM_WEIGHTMATRIX_H_
 
 #include <memory>
-#include <tesseract/genericvector.h>
+#include <vector>
 #include "intsimdmatrix.h"
 #include "matrix.h"
 #include "tprintf.h"
@@ -168,7 +168,7 @@ class WeightMatrix {
   bool use_adam_;
   // If we are using wi_, then scales_ is a factor to restore the row product
   // with a vector to the correct range.
-  GenericVector<double> scales_;
+  std::vector<double> scales_;
   // Weight deltas. dw_ is the new delta, and updates_ the momentum-decaying
   // amount to be added to wf_/wi_.
   GENERIC_2D_ARRAY<double> dw_;
