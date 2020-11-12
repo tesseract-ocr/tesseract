@@ -25,7 +25,6 @@
 
 #include "genericvector.h"
 #include "platform.h"
-#include "strngs.h"  // for STRING
 
 struct Pix;
 
@@ -143,7 +142,7 @@ class TESS_API TessResultRenderer {
 
  private:
   const char* file_extension_;  // standard extension for generated output
-  STRING title_;                // title of document being rendered
+  std::string title_;           // title of document being rendered
   int imagenum_;                // index of last image added
 
   FILE* fout_;                // output file pointer

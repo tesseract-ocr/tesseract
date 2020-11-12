@@ -63,7 +63,7 @@ struct IntSimdMatrix {
   // Computes a reshaped copy of the weight matrix w.
   void Init(const GENERIC_2D_ARRAY<int8_t>& w,
             std::vector<int8_t>& shaped_w,
-            GenericVector<double>& scales) const;
+            int32_t& rounded_num_out) const;
 
   // Rounds the size up to a multiple of the input register size (in int8_t).
   int RoundInputs(int size) const {
@@ -80,7 +80,7 @@ struct IntSimdMatrix {
   // implement the bias, but it doesn't actually have it.
   // Computes the base C++ implementation.
   static void MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
-                              const GenericVector<double>& scales,
+                              const std::vector<double>& scales,
                               const int8_t* u, double* v);
 
   // Rounds the input up to a multiple of the given factor.

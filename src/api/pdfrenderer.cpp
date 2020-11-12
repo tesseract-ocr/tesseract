@@ -904,7 +904,7 @@ bool TessPDFRenderer::EndDocumentHandler() {
   offsets_.back() += pages_objsize;    // manipulation #2
 
   // INFO
-  STRING utf16_title = "FEFF";  // byte_order_marker
+  std::string utf16_title = "FEFF";  // byte_order_marker
   std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(title());
   char utf16[kMaxBytesPerCodepoint];
   for (char32 code : unicodes) {
