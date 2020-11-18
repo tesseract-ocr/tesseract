@@ -15,7 +15,7 @@
 #
 # ===================================================================================
 
-include(${CMAKE_CURRENT_LIST_DIR}/TesseractTargets.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/tesseract/TesseractTargets.cmake)
 
 find_package(Leptonica REQUIRED)
 
