@@ -3,7 +3,6 @@
 // Description: Base class for networks that organize other networks
 //              eg series or parallel.
 // Author:      Ray Smith
-// Created:     Mon May 12 08:11:36 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +29,7 @@ namespace tesseract {
 class Plumbing : public Network {
  public:
   // ni_ and no_ will be set by AddToStack.
-  explicit Plumbing(const STRING& name);
+  explicit Plumbing(const std::string& name);
   ~Plumbing() override = default;
 
   // Returns the required shape input to the network.

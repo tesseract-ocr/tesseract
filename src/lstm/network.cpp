@@ -84,7 +84,7 @@ Network::Network()
       forward_win_(nullptr),
       backward_win_(nullptr),
       randomizer_(nullptr) {}
-Network::Network(NetworkType type, const STRING& name, int ni, int no)
+Network::Network(NetworkType type, const std::string& name, int ni, int no)
     : type_(type),
       training_(TS_ENABLED),
       needs_to_backprop_(true),
@@ -161,7 +161,7 @@ bool Network::Serialize(TFile* fp) const {
   if (!fp->Serialize(&ni_)) return false;
   if (!fp->Serialize(&no_)) return false;
   if (!fp->Serialize(&num_weights_)) return false;
-  if (!name_.Serialize(fp)) return false;
+  if (!fp->Serialize(name_.c_str(), name_.length())) return false;
   return true;
 }
 
@@ -208,20 +208,20 @@ Network* Network::CreateFromFile(TFile* fp) {
 
   switch (type) {
     case NT_CONVOLVE:
-      network = new Convolve(name, ni, 0, 0);
+      network = new Convolve(name.c_str(), ni, 0, 0);
       break;
     case NT_INPUT:
-      network = new Input(name, ni, no);
+      network = new Input(name.c_str(), ni, no);
       break;
     case NT_LSTM:
     case NT_LSTM_SOFTMAX:
     case NT_LSTM_SOFTMAX_ENCODED:
     case NT_LSTM_SUMMARY:
       network =
-          new LSTM(name, ni, no, no, false, type);
+          new LSTM(name.c_str(), ni, no, no, false, type);
       break;
     case NT_MAXPOOL:
-      network = new Maxpool(name, ni, 0, 0);
+      network = new Maxpool(name.c_str(), ni, 0, 0);
       break;
     // All variants of Parallel.
     case NT_PARALLEL:
@@ -229,19 +229,19 @@ Network* Network::CreateFromFile(TFile* fp) {
     case NT_PAR_RL_LSTM:
     case NT_PAR_UD_LSTM:
     case NT_PAR_2D_LSTM:
-      network = new Parallel(name, type);
+      network = new Parallel(name.c_str(), type);
       break;
     case NT_RECONFIG:
-      network = new Reconfig(name, ni, 0, 0);
+      network = new Reconfig(name.c_str(), ni, 0, 0);
       break;
     // All variants of reversed.
     case NT_XREVERSED:
     case NT_YREVERSED:
     case NT_XYTRANSPOSE:
-      network = new Reversed(name, type);
+      network = new Reversed(name.c_str(), type);
       break;
     case NT_SERIES:
-      network = new Series(name);
+      network = new Series(name.c_str());
       break;
     case NT_TENSORFLOW:
 #ifdef INCLUDE_TENSORFLOW
@@ -259,7 +259,7 @@ Network* Network::CreateFromFile(TFile* fp) {
     case NT_LOGISTIC:
     case NT_POSCLIP:
     case NT_SYMCLIP:
-      network = new FullyConnected(name, ni, no, type);
+      network = new FullyConnected(name.c_str(), ni, no, type);
       break;
     default:
       break;
@@ -298,7 +298,7 @@ void Network::DisplayForward(const NetworkIO& matrix) {
 // Displays the image of the matrix to the backward window.
 void Network::DisplayBackward(const NetworkIO& matrix) {
   Pix* image = matrix.ToPix();
-  STRING window_name = name_ + "-back";
+  std::string window_name = name_ + "-back";
   ClearWindow(false, window_name.c_str(), pixGetWidth(image),
               pixGetHeight(image), &backward_win_);
   DisplayImage(image, backward_win_);

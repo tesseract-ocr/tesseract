@@ -27,7 +27,7 @@ namespace tesseract {
 // C++ Implementation of the Reversed class from lstm.py.
 class Reversed : public Plumbing {
  public:
-  explicit Reversed(const STRING& name, NetworkType type);
+  explicit Reversed(const std::string& name, NetworkType type);
   ~Reversed() override = default;
 
   // Returns the shape output from the network given an input shape (which may

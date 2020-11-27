@@ -3,7 +3,6 @@
 // Description: Class to parse the network description language and
 //              build a corresponding network.
 // Author:      Ray Smith
-// Created:     Wed Jul 16 18:35:38 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +22,6 @@
 #include "static_shape.h"
 #include "stridemap.h"
 
-class STRING;
 class UNICHARSET;
 
 namespace tesseract {
@@ -48,7 +46,7 @@ class NetworkBuilder {
   // net_flags control network behavior according to the NetworkFlags enum.
   // The resulting network is returned via **network.
   // Returns false if something failed.
-  static bool InitNetwork(int num_outputs, STRING network_spec,
+  static bool InitNetwork(int num_outputs, const char* network_spec,
                           int append_index, int net_flags, float weight_range,
                           TRand* randomizer, Network** network);
 
@@ -123,33 +121,33 @@ class NetworkBuilder {
   //  NOTE2: n is totally ignored, and for compatibility purposes only. The
   //         output number of classes is obtained automatically from the
   //         unicharset.
-  Network* BuildFromString(const StaticShape& input_shape, char** str);
+  Network* BuildFromString(const StaticShape& input_shape, const char** str);
 
  private:
   // Parses an input specification and returns the result, which may include a
   // series.
-  Network* ParseInput(char** str);
+  Network* ParseInput(const char** str);
   // Parses a sequential series of networks, defined by [<net><net>...].
   Network* ParseSeries(const StaticShape& input_shape, Input* input_layer,
-                       char** str);
+                       const char** str);
   // Parses a parallel set of networks, defined by (<net><net>...).
-  Network* ParseParallel(const StaticShape& input_shape, char** str);
+  Network* ParseParallel(const StaticShape& input_shape, const char** str);
   // Parses a network that begins with 'R'.
-  Network* ParseR(const StaticShape& input_shape, char** str);
+  Network* ParseR(const StaticShape& input_shape, const char** str);
   // Parses a network that begins with 'S'.
-  Network* ParseS(const StaticShape& input_shape, char** str);
+  Network* ParseS(const StaticShape& input_shape, const char** str);
   // Parses a network that begins with 'C'.
-  Network* ParseC(const StaticShape& input_shape, char** str);
+  Network* ParseC(const StaticShape& input_shape, const char** str);
   // Parses a network that begins with 'M'.
-  Network* ParseM(const StaticShape& input_shape, char** str);
+  Network* ParseM(const StaticShape& input_shape, const char** str);
   // Parses an LSTM network, either individual, bi- or quad-directional.
-  Network* ParseLSTM(const StaticShape& input_shape, char** str);
+  Network* ParseLSTM(const StaticShape& input_shape, const char** str);
   // Builds a set of 4 lstms with t and y reversal, running in true parallel.
   static Network* BuildLSTMXYQuad(int num_inputs, int num_states);
   // Parses a Fully connected network.
-  Network* ParseFullyConnected(const StaticShape& input_shape, char** str);
+  Network* ParseFullyConnected(const StaticShape& input_shape, const char** str);
   // Parses an Output spec.
-  Network* ParseOutput(const StaticShape& input_shape, char** str);
+  Network* ParseOutput(const StaticShape& input_shape, const char** str);
 
  private:
   int num_softmax_outputs_;

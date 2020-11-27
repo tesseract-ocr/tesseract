@@ -26,6 +26,7 @@
 #endif
 #include <cstdio>
 #include <cstdlib>
+#include <sstream>    // for std::ostringstream
 
 #if !defined(__GNUC__) && defined(_MSC_VER)
 #include <intrin.h>     // _BitScanReverse
@@ -99,7 +100,7 @@ static inline uint32_t ceil_log2(uint32_t n)
   return (n == (1u << l2)) ? l2 : l2 + 1;
 }
 
-LSTM::LSTM(const STRING& name, int ni, int ns, int no, bool two_dimensional,
+LSTM::LSTM(const std::string& name, int ni, int ns, int no, bool two_dimensional,
            NetworkType type)
     : Network(type, name, ni, no),
       na_(ni + ns),
@@ -197,9 +198,9 @@ void LSTM::ConvertToInt() {
 void LSTM::DebugWeights() {
   for (int w = 0; w < WT_COUNT; ++w) {
     if (w == GFS && !Is2D()) continue;
-    STRING msg = name_;
-    msg.add_str_int(" Gate weights ", w);
-    gate_weights_[w].Debug2D(msg.c_str());
+    std::ostringstream msg;
+    msg << name_ << " Gate weights " << w;
+    gate_weights_[w].Debug2D(msg.str().c_str());
   }
   if (softmax_ != nullptr) {
     softmax_->DebugWeights();
