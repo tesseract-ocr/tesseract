@@ -109,6 +109,9 @@ case "${host_os}" in
     powerpc-*-darwin*)
         OPENCL_LIBS=""
         ;;
+    *android*)
+        AM_CONDITIONAL([ADD_RT], false)
+        ;;
     *)
         # default
         AM_CONDITIONAL([ADD_RT], true)
