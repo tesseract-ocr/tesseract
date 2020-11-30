@@ -733,7 +733,7 @@ bool FPRow::Pass2Analyze() {
         if (!is_final(j)) intersecting = true;
       } else {
         not_intersecting = true;
-        if (i - j > 0) {
+        if (i > j) {
           // Merge character(j+1) ... character(i) because they fit
           // into the body nicely.
           if (i - j == 1) {
@@ -781,7 +781,7 @@ bool FPRow::Pass2Analyze() {
         if (!is_final(j)) intersecting = true;
       } else {
         not_intersecting = true;
-        if (j - i > 0) {
+        if (j > i) {
           if (j - i == 1) {
             if (!skipped_whitespaces) mark_good(i);
             if (box(i).width() <= estimated_pitch_ * 0.5) {
