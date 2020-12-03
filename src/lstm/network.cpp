@@ -161,8 +161,9 @@ bool Network::Serialize(TFile* fp) const {
   if (!fp->Serialize(&ni_)) return false;
   if (!fp->Serialize(&no_)) return false;
   if (!fp->Serialize(&num_weights_)) return false;
-  if (!fp->Serialize(name_.c_str(), name_.length())) return false;
-  return true;
+  uint32_t length = name_.length();
+  if (!fp->Serialize(&length)) return false;
+  return fp->Serialize(name_.c_str(), length);
 }
 
 static NetworkType getNetworkType(TFile* fp) {
