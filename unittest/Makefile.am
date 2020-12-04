@@ -15,6 +15,9 @@ TESTING_DIR=$(shell cd $(top_srcdir) && pwd)/test/testing
 # (using submodule test).
 TESTDATA_DIR=$(shell cd $(top_srcdir) && pwd)/test/testdata
 
+# Suppress some memory leaks reported by LeakSanitizer.
+export LSAN_OPTIONS=suppressions=$(top_srcdir)/unittest/tesseract_leaksanitizer.supp
+
 AM_CPPFLAGS += -DTESSBIN_DIR="\"$(abs_top_builddir)\""
 AM_CPPFLAGS += -DLANGDATA_DIR="\"$(LANGDATA_DIR)\""
 AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
