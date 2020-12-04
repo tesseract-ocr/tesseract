@@ -246,7 +246,7 @@ Network* Network::CreateFromFile(TFile* fp) {
       break;
     case NT_TENSORFLOW:
 #ifdef INCLUDE_TENSORFLOW
-      network = new TFNetwork(name);
+      network = new TFNetwork(name.c_str());
 #else
       tprintf("TensorFlow not compiled in! -DINCLUDE_TENSORFLOW\n");
 #endif
