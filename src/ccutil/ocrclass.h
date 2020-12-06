@@ -28,9 +28,6 @@
 
 #include <chrono>
 #include <ctime>
-#ifdef _WIN32
-#include <winsock2.h> // for timeval
-#endif
 
 /**********************************************************************
  * EANYCODE_CHAR
@@ -114,46 +111,35 @@ class ETEXT_DESC {  // output header
       nullptr};                       /// called whenever progress increases
   PROGRESS_FUNC2 progress_callback2;  /// monitor-aware progress callback
   void* cancel_this{nullptr};         /// this or other data for cancel
-  struct timeval end_time;
+  std::chrono::steady_clock::time_point end_time;
   /// Time to stop. Expected to be set only
   /// by call to set_deadline_msecs().
   EANYCODE_CHAR text[1]{};  /// character data
 
   ETEXT_DESC() : progress_callback2(&default_progress_func) {
-    auto chrono_end_time = std::chrono::time_point<std::chrono::steady_clock,
-                                                   std::chrono::milliseconds>();
-    timePointToTimeval(chrono_end_time, &end_time);
+    end_time = std::chrono::time_point<std::chrono::steady_clock,
+                                       std::chrono::milliseconds>();
   }
 
   // Sets the end time to be deadline_msecs milliseconds from now.
   void set_deadline_msecs(int32_t deadline_msecs) {
     if (deadline_msecs > 0) {
-      auto chrono_end_time = std::chrono::steady_clock::now() +
-                             std::chrono::milliseconds(deadline_msecs);
-      timePointToTimeval(chrono_end_time, &end_time);
+      end_time = std::chrono::steady_clock::now() +
+                 std::chrono::milliseconds(deadline_msecs);
     }
   }
 
   // Returns false if we've not passed the end_time, or have not set a deadline.
   bool deadline_exceeded() const {
-    if (end_time.tv_sec == 0 && end_time.tv_usec == 0)
+    if (end_time.time_since_epoch() ==
+        std::chrono::steady_clock::duration::zero()) {
       return false;
-    auto chrono_now = std::chrono::steady_clock::now();
-    struct timeval now;
-    timePointToTimeval(chrono_now, &now);
-    return (now.tv_sec > end_time.tv_sec ||
-            (now.tv_sec == end_time.tv_sec && now.tv_usec > end_time.tv_usec));
+    }
+    auto now = std::chrono::steady_clock::now();
+    return (now > end_time);
   }
 
  private:
-  static void timePointToTimeval(
-      std::chrono::steady_clock::time_point chrono_point, struct timeval* tv) {
-    auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(
-        chrono_point.time_since_epoch());
-    tv->tv_sec = millisecs.count() / 1000;
-    tv->tv_usec = (millisecs.count() % 1000) * 1000;
-  }
-
   static bool default_progress_func(ETEXT_DESC* ths, int left, int right,
                                     int top, int bottom) {
     if (ths->progress_callback != nullptr) {
