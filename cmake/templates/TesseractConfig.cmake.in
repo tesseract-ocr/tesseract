@@ -22,7 +22,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/TesseractTargets.cmake)
 
 @PACKAGE_INIT@
 
-set_and_check(Tesseract_INCLUDE_DIR "@PACKAGE_INCLUDE_DIR@")
+set_and_check(Tesseract_INCLUDE_DIRS "@PACKAGE_INCLUDE_DIR@")
 set(Tesseract_LIBRARIES libtesseract)
 
 check_required_components(Tesseract)
