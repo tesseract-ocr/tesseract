@@ -374,11 +374,11 @@ configure_file(
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
     cmake/templates/TesseractConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/TesseractConfig.cmake
-    INSTALL_DESTINATION lib/tesseract/cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/tesseract/TesseractConfig.cmake
+    INSTALL_DESTINATION lib/cmake/tesseract
     PATH_VARS INCLUDE_DIR)
 write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/TesseractConfigVersion.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/tesseract/TesseractConfigVersion.cmake
     VERSION ${PACKAGE_VERSION}
     COMPATIBILITY SameMajorVersion)
 

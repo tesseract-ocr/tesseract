@@ -18,7 +18,7 @@
 include(CMakeFindDependencyMacro)
 find_dependency(Leptonica)
 
-include(${CMAKE_CURRENT_LIST_DIR}/tesseract/TesseractTargets.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/TesseractTargets.cmake)
 
 @PACKAGE_INIT@
 
