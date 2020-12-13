@@ -25,7 +25,7 @@
 #include <tesseract/baseapi.h>
 #include "gmock/gmock.h"
 #include "include_gunit.h"
-#include "leptonica/allheaders.h"
+#include "allheaders.h"
 #include <tesseract/ocrclass.h>
 
 namespace {
