@@ -480,6 +480,8 @@ else
       CPPFLAGS="$CPPFLAGS $cairo_CFLAGS"
 fi
 
+PKG_CHECK_MODULES([pangocairo], [pangocairo], [], [false])
+PKG_CHECK_MODULES([pangoft2], [pangoft2], [], [false])
 
 # ----------------------------------------
 # Final Tasks and Output
