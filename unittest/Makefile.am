@@ -42,6 +42,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/src/lstm
 AM_CPPFLAGS += -I$(top_srcdir)/src/textord
 AM_CPPFLAGS += -I$(top_srcdir)/unittest/base
 AM_CPPFLAGS += -I$(top_srcdir)/unittest/util
+AM_CPPFLAGS += $(LEPTONICA_CFLAGS)
 if ENABLE_TRAINING
 AM_CPPFLAGS += -I$(top_srcdir)/src/training
 AM_CPPFLAGS += $(pangocairo_CFLAGS)
@@ -310,8 +311,8 @@ layout_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
 ligature_table_test_SOURCES = ligature_table_test.cc
 ligature_table_test_LDADD = $(TRAINING_LIBS)
-ligature_table_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS) -lfontconfig
-ligature_table_test_LDADD += -lpangocairo-1.0 -lpangoft2-1.0
+ligature_table_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+ligature_table_test_LDADD += $(pangocairo_LIBS) $(pangoft2_LIBS)
 ligature_table_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
 
 linlsq_test_SOURCES = linlsq_test.cc
@@ -416,7 +417,7 @@ endif # TENSORFLOW
 stringrenderer_test_SOURCES = stringrenderer_test.cc
 stringrenderer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 stringrenderer_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
-stringrenderer_test_LDADD += -lfontconfig -lpangocairo-1.0 -lpangoft2-1.0
+stringrenderer_test_LDADD += $(pangocairo_LIBS) $(pangoft2_LIBS)
 stringrenderer_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
 
 tablefind_test_SOURCES = tablefind_test.cc

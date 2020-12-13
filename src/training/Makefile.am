@@ -235,8 +235,8 @@ text2image_LDADD = \
     $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 text2image_LDADD += \
     ../../libtesseract.la
-text2image_LDADD += $(ICU_UC_LIBS) -lpango-1.0 -lpangocairo-1.0
-text2image_LDADD += -lgobject-2.0 -lglib-2.0 -lcairo -lpangoft2-1.0 -lfontconfig
+text2image_LDADD += $(ICU_UC_LIBS) $(cairo_LIBS)
+text2image_LDADD += $(pango_LIBS) $(pangocairo_LIBS) $(pangoft2_LIBS)
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
 #unicharset_extractor_LDFLAGS = -static
