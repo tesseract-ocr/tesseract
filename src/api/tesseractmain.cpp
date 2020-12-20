@@ -349,6 +349,23 @@ static bool checkArgValues(int arg, const char* mode, int count) {
 #include <unistd.h>     // access
 #include "imagedata.h"  // DocumentData
 
+static void InfoTraineddata(char** filenames) {
+  char* filename;
+  while ((filename = *filenames++) != nullptr) {
+    tesseract::TessdataManager mgr;
+    if (!mgr.is_loaded() && !mgr.Init(filename)) {
+      tprintf("Error opening data file %s\n", filename);
+    } else {
+      if (mgr.IsLSTMAvailable()) {
+        printf("%s - LSTM\n", filename);
+      }
+      if (mgr.IsBaseAvailable()) {
+        printf("%s - legacy\n", filename);
+      }
+    }
+  }
+}
+
 static void UnpackFiles(char** filenames) {
   const char* filename;
   while ((filename = *filenames++) != nullptr) {
@@ -444,6 +461,8 @@ static bool ParseArgs(int argc, char** argv, const char** lang,
         } else {
           PrintHelpMessage(argv[0]);
         }
+      } else if (strcmp(verb, "info") == 0) {
+        InfoTraineddata(argv + i);
       } else if (strcmp(verb, "unpack") == 0) {
         UnpackFiles(argv + i);
       } else if (strcmp(verb, "version") == 0) {
