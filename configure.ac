@@ -432,6 +432,25 @@ AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
 AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
 if $have_asciidoc && $have_xsltproc; then
   AM_CONDITIONAL([ASCIIDOC], true)
+  # MacOS with Homebrew requires the environment variable
+  # XML_CATALOG_FILES for xsltproc.
+  AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], false)
+  XML_CATALOG_FILES=
+  AC_CHECK_PROG([have_brew], brew, true, false)
+  if $have_brew; then
+    brew_prefix=m4_esyscmd_s([brew --prefix])
+    catalog_file=$brew_prefix/etc/xml/catalog
+    AC_CHECK_FILE($catalog_file,
+      [
+        AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], true)
+        XML_CATALOG_FILES=file:$catalog_file
+      ],
+      [
+        AC_MSG_ERROR([Missing file $catalog_file.])
+      ]
+    )
+  fi
+  AC_SUBST([XML_CATALOG_FILES])
 else
   AM_CONDITIONAL([ASCIIDOC], false)
 fi
