@@ -438,7 +438,7 @@ if $have_asciidoc && $have_xsltproc; then
   XML_CATALOG_FILES=
   AC_CHECK_PROG([have_brew], brew, true, false)
   if $have_brew; then
-    brew_prefix=m4_esyscmd_s([brew --prefix])
+    brew_prefix=$(brew --prefix)
     catalog_file=$brew_prefix/etc/xml/catalog
     AC_CHECK_FILE($catalog_file,
       [
