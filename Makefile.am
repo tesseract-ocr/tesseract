@@ -732,7 +732,8 @@ training: $(EXTRA_PROGRAMS) | $(PROGRAMS)
 
 training-install: $(EXTRA_PROGRAMS)
 	mkdir -p $(DESTDIR)$(bindir)
-	$(INSTALL) $(EXTRA_PROGRAMS) $(DESTDIR)$(bindir)
+	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install \
+	$(INSTALL) $(INSTALL_STRIP_FLAG) $(EXTRA_PROGRAMS) $(DESTDIR)$(bindir)
 
 training-uninstall:
 
