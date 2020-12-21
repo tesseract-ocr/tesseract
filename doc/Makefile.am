@@ -38,8 +38,13 @@ pdf: ${man_MANS:%=%.pdf}
 SUFFIXES = .asc .html .pdf
 
 .asc:
-	-asciidoc -b docbook -d manpage -o - $< | \
+if HAVE_XML_CATALOG_FILES
+	asciidoc -b docbook -d manpage -o - $< | \
+	XML_CATALOG_FILES=$(XML_CATALOG_FILES) xsltproc --nonet $(man_xslt) -
+else
+	asciidoc -b docbook -d manpage -o - $< | \
 	xsltproc --nonet $(man_xslt) -
+endif
 
 .asc.html:
 	asciidoc -b html5 -o $@ $<
