@@ -430,11 +430,11 @@ AC_SEARCH_LIBS([pthread_create], [pthread])
 
 AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
 AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
+# MacOS with Homebrew requires the environment variable
+# XML_CATALOG_FILES for xsltproc.
+AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], false)
 if $have_asciidoc && $have_xsltproc; then
   AM_CONDITIONAL([ASCIIDOC], true)
-  # MacOS with Homebrew requires the environment variable
-  # XML_CATALOG_FILES for xsltproc.
-  AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], false)
   XML_CATALOG_FILES=
   AC_CHECK_PROG([have_brew], brew, true, false)
   if $have_brew; then
