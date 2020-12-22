@@ -149,7 +149,7 @@ void PangoFontInfo::HardInitFontConfig(const char* fonts_dir,
            "<dir>%s</dir>\n"
            "<cachedir>%s</cachedir>\n"
            "<config></config>\n"
-           "</fontconfig>",
+           "</fontconfig>\n",
            fonts_dir, cache_dir);
   std::string fonts_conf_file = File::JoinPath(cache_dir, "fonts.conf");
   File::WriteStringToFileOrDie(fonts_conf_template, fonts_conf_file);
