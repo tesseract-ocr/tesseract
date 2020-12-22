@@ -408,14 +408,7 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
     PangoGlyph dotted_circle_glyph;
     PangoFont* font = run->item->analysis.font;
 
-#ifdef _WIN32
-    PangoGlyphString* glyphs = pango_glyph_string_new();
-    const char s[] = "\xc2\xa7";
-    pango_shape(s, strlen(s), &(run->item->analysis), glyphs);
-    dotted_circle_glyph = glyphs->glyphs[0].glyph;
-#else  // TODO: Do we need separate solution for non win build?
     dotted_circle_glyph = get_glyph(font, kDottedCircleGlyph);
-#endif
 
     if (TLOG_IS_ON(2)) {
       PangoFontDescription* desc = pango_font_describe(font);
@@ -468,9 +461,6 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
       if (bad_glyph)
         tlog(1, "Found illegal glyph!\n");
     }
-#ifdef _WIN32
-    pango_glyph_string_free(glyphs);
-#endif
   } while (!bad_glyph && pango_layout_iter_next_run(run_iter));
 
   pango_layout_iter_free(run_iter);
