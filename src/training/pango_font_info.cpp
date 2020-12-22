@@ -72,6 +72,19 @@ const int kDefaultResolution = 300;
 std::string PangoFontInfo::fonts_dir_;
 std::string PangoFontInfo::cache_dir_;
 
+static PangoGlyph get_glyph(PangoFont* font, gunichar wc) {
+#if PANGO_VERSION_CHECK(1, 44, 0)
+  // pango_font_get_hb_font requires Pango 1.44 or newer.
+  hb_font_t* hb_font = pango_font_get_hb_font(font);
+  hb_codepoint_t glyph;
+  hb_font_get_nominal_glyph(hb_font, wc, &glyph);
+#else
+  // Use deprecated pango_fc_font_get_glyph for older Pango versions.
+  PangoGlyph glyph = pango_fc_font_get_glyph(PANGO_FC_FONT(font), wc);
+#endif
+  return glyph;
+}
+
 PangoFontInfo::PangoFontInfo()
     : desc_(nullptr), resolution_(kDefaultResolution) {
   Clear();
@@ -327,8 +340,7 @@ bool PangoFontInfo::GetSpacingProperties(const std::string& utf8_char,
   const UNICHAR::const_iterator it_end = UNICHAR::end(utf8_char.c_str(),
                                                       utf8_char.length());
   for (UNICHAR::const_iterator it = it_begin; it != it_end; ++it) {
-    PangoGlyph glyph_index = pango_fc_font_get_glyph(
-        reinterpret_cast<PangoFcFont*>(font), *it);
+    PangoGlyph glyph_index = get_glyph(font, *it);
     if (!glyph_index) {
       // Glyph for given unicode character doesn't exist in font.
       g_object_unref(font);
@@ -402,15 +414,7 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
     PangoGlyph dotted_circle_glyph;
     PangoFont* font = run->item->analysis.font;
 
-#ifdef _WIN32
-    PangoGlyphString* glyphs = pango_glyph_string_new();
-    const char s[] = "\xc2\xa7";
-    pango_shape(s, strlen(s), &(run->item->analysis), glyphs);
-    dotted_circle_glyph = glyphs->glyphs[0].glyph;
-#else  // TODO: Do we need separate solution for non win build?
-    dotted_circle_glyph = pango_fc_font_get_glyph(
-        reinterpret_cast<PangoFcFont*>(font), kDottedCircleGlyph);
-#endif
+    dotted_circle_glyph = get_glyph(font, kDottedCircleGlyph);
 
     if (TLOG_IS_ON(2)) {
       PangoFontDescription* desc = pango_font_describe(font);
@@ -463,9 +467,6 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
       if (bad_glyph)
         tlog(1, "Found illegal glyph!\n");
     }
-#ifdef _WIN32
-    pango_glyph_string_free(glyphs);
-#endif
   } while (!bad_glyph && pango_layout_iter_next_run(run_iter));
 
   pango_layout_iter_free(run_iter);

@@ -177,9 +177,7 @@ check_PROGRAMS += osd_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += pagesegmode_test
 if ENABLE_TRAINING
-if TENSORFLOW
 check_PROGRAMS += pango_font_info_test
-endif # TENSORFLOW
 endif # ENABLE_TRAINING
 check_PROGRAMS += paragraphs_test
 if !DISABLED_LEGACY_ENGINE
@@ -363,15 +361,16 @@ endif # !DISABLED_LEGACY_ENGINE
 pagesegmode_test_SOURCES = pagesegmode_test.cc
 pagesegmode_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
-if TENSORFLOW
 pango_font_info_test_SOURCES = pango_font_info_test.cc
+if TENSORFLOW
 pango_font_info_test_SOURCES += third_party/utf/rune.c
-pango_font_info_test_SOURCES += util/utf8/unicodetext.cc util/utf8/unilib.cc
+pango_font_info_test_SOURCES += util/utf8/unicodetext.cc
+pango_font_info_test_SOURCES += util/utf8/unilib.cc
+endif # TENSORFLOW
 pango_font_info_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 pango_font_info_test_LDADD += $(ICU_I18N_LIBS)
 pango_font_info_test_LDADD += $(pangocairo_LIBS)
 pango_font_info_test_LDADD += $(pangoft2_LIBS)
-endif # TENSORFLOW
 
 paragraphs_test_SOURCES = paragraphs_test.cc
 paragraphs_test_LDADD = $(ABSEIL_LIBS) $(TESS_LIBS)
