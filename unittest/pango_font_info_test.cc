@@ -61,11 +61,17 @@ const char* kBadlyFormedHinWords[] = {
   "प्रंात", nullptr
 };
 
+static PangoFontMap* font_map;
+
 class PangoFontInfoTest : public ::testing::Test {
  protected:
   void SetUp() override {
     static std::locale system_locale("");
     std::locale::global(system_locale);
+    if (!font_map) {
+      font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
+    }
+    pango_cairo_font_map_set_default(PANGO_CAIRO_FONT_MAP(font_map));
   }
 
   // Creates a fake fonts.conf file that points to the testdata fonts for
@@ -187,6 +193,10 @@ class FontUtilsTest : public ::testing::Test {
   static void SetUpTestCase() {
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
+    if (!font_map) {
+      font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
+    }
+    pango_cairo_font_map_set_default(PANGO_CAIRO_FONT_MAP(font_map));
   }
 
 #ifdef INCLUDE_TENSORFLOW
