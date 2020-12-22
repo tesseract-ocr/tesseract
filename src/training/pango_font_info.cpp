@@ -73,9 +73,15 @@ std::string PangoFontInfo::fonts_dir_;
 std::string PangoFontInfo::cache_dir_;
 
 static PangoGlyph get_glyph(PangoFont* font, gunichar wc) {
+#if PANGO_VERSION_CHECK(1, 44, 0)
+  // pango_font_get_hb_font requires Pango 1.44 or newer.
   hb_font_t* hb_font = pango_font_get_hb_font(font);
   hb_codepoint_t glyph;
   hb_font_get_nominal_glyph(hb_font, wc, &glyph);
+#else
+  // Use deprecated pango_fc_font_get_glyph for older Pango versions.
+  PangoGlyph glyph = pango_fc_font_get_glyph(PANGO_FC_FONT(font), wc);
+#endif
   return glyph;
 }
 
