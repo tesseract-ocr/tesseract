@@ -59,7 +59,7 @@ STRING_PARAM_FLAG(fonts_dir, "/auto/ocr-data/tesstraining/fonts",
 #else
 using std::pair;
 STRING_PARAM_FLAG(fonts_dir, "",
-                  "If empty it use system default. Otherwise it overrides"
+                  "If empty it uses system default. Otherwise it overrides"
                   " system default font location");
 #endif
 
