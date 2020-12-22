@@ -72,6 +72,13 @@ const int kDefaultResolution = 300;
 std::string PangoFontInfo::fonts_dir_;
 std::string PangoFontInfo::cache_dir_;
 
+static PangoGlyph get_glyph(PangoFont* font, gunichar wc) {
+  hb_font_t* hb_font = pango_font_get_hb_font(font);
+  hb_codepoint_t glyph;
+  hb_font_get_nominal_glyph(hb_font, wc, &glyph);
+  return glyph;
+}
+
 PangoFontInfo::PangoFontInfo()
     : desc_(nullptr), resolution_(kDefaultResolution) {
   Clear();
@@ -327,8 +334,7 @@ bool PangoFontInfo::GetSpacingProperties(const std::string& utf8_char,
   const UNICHAR::const_iterator it_end = UNICHAR::end(utf8_char.c_str(),
                                                       utf8_char.length());
   for (UNICHAR::const_iterator it = it_begin; it != it_end; ++it) {
-    PangoGlyph glyph_index = pango_fc_font_get_glyph(
-        PANGO_FC_FONT(font), *it);
+    PangoGlyph glyph_index = get_glyph(font, *it);
     if (!glyph_index) {
       // Glyph for given unicode character doesn't exist in font.
       g_object_unref(font);
@@ -408,8 +414,7 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
     pango_shape(s, strlen(s), &(run->item->analysis), glyphs);
     dotted_circle_glyph = glyphs->glyphs[0].glyph;
 #else  // TODO: Do we need separate solution for non win build?
-    dotted_circle_glyph = pango_fc_font_get_glyph(
-        PANGO_FC_FONT(font), kDottedCircleGlyph);
+    dotted_circle_glyph = get_glyph(font, kDottedCircleGlyph);
 #endif
 
     if (TLOG_IS_ON(2)) {
