@@ -503,7 +503,7 @@ fonts += Verdana.ttf
 # apiexample_test baseapi_test lang_model_test layout_test
 # ligature_table_test loadlang_test lstm_recode_test lstm_squashed_test
 # lstm_test lstmtrainer_test mastertrainer_test osd_test
-# pagesegmode_test pango_font_info_test progress_test#
+# pagesegmode_test pango_font_info_test progress_test
 # recodebeam_test resultiterator_test stringrenderer_test
 # textlineprojection_test unicharcompress_test
 #
