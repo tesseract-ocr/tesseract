@@ -6,7 +6,8 @@ LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata_lstm
 # Absolute path of directory 'tessdata' with traineddata files
 # (must be on same level as top source directory).
 TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
-TESSDATA_BEST_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata_best
+TESSDATA_BEST_DIR=$(TESSDATA_DIR)_best
+TESSDATA_FAST_DIR=$(TESSDATA_DIR)_fast
 
 # Absolute path of directory 'testing' with test images and ground truth texts
 # (using submodule test).
@@ -487,6 +488,8 @@ $(abs_top_builddir)/test/testing/phototest.txt:
 	mkdir -p $(top_builddir)/test/testing
 	ln -s $(TESTING_DIR)/phototest.txt $(top_builddir)/test/testing/phototest.txt
 
+# Some tests require a well defined set of the following font files.
+
 fonts = ae_Arab.ttf
 fonts += Arial_Bold_Italic.ttf
 fonts += DejaVuSans-ExtraLight.ttf
@@ -495,7 +498,30 @@ fonts += Times_New_Roman.ttf
 fonts += UnBatang.ttf
 fonts += Verdana.ttf
 
+# These tests depend on installed model files and fonts:
+#
+# apiexample_test baseapi_test lang_model_test layout_test
+# ligature_table_test loadlang_test lstm_recode_test lstm_squashed_test
+# lstm_test lstmtrainer_test mastertrainer_test osd_test
+# pagesegmode_test pango_font_info_test progress_test#
+# recodebeam_test resultiterator_test stringrenderer_test
+# textlineprojection_test unicharcompress_test
+#
+# Instead of fine-tuned dependencies the following lines
+# simply require those dependencies for all tests.
+# That can be improved if necessary.
+
+$(check_PROGRAMS): | $(LANGDATA_DIR)
+$(check_PROGRAMS): | $(TESSDATA_DIR)
+$(check_PROGRAMS): | $(TESSDATA_BEST_DIR)
+$(check_PROGRAMS): | $(TESSDATA_FAST_DIR)
 $(check_PROGRAMS): | $(fonts:%=$(TESTING_DIR)/%)
+
+$(LANGDATA_DIR) $(TESSDATA_DIR) $(TESSDATA_BEST_DIR) $(TESSDATA_FAST_DIR):
+	@echo "Some unit tests require $@."
+	@echo "It can be installed manually by running this command:"
+	@echo "  git clone https://github.com/tesseract-ocr/$$(basename $@).git $@"
+	@exit 1
 
 $(TESTING_DIR)/Arial_Bold_Italic.ttf:
 	curl -sSL -o Arial.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/arial32.exe/download
