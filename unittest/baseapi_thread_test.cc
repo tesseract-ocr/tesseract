@@ -23,7 +23,9 @@
 #include <functional>
 #include <memory>
 #include <string>
+#ifdef INCLUDE_TENSORFLOW
 #include <tensorflow/core/lib/core/threadpool.h>
+#endif
 #include "absl/strings/ascii.h"         // for absl::StripAsciiWhitespace
 #include "allheaders.h"
 #include "include_gunit.h"
@@ -102,9 +104,11 @@ class BaseapiThreadTest : public ::testing::Test {
       pix_.push_back(new_pix);
     }
 
+#ifdef INCLUDE_TENSORFLOW
     pool_size_ = (FLAGS_max_concurrent_instances < 1)
                      ? num_langs_ * FLAGS_reps
                      : FLAGS_max_concurrent_instances;
+#endif
   }
 
   static void TearDownTestCase() {
@@ -113,6 +117,7 @@ class BaseapiThreadTest : public ::testing::Test {
     }
   }
 
+#ifdef INCLUDE_TENSORFLOW
   void ResetPool() {
     pool_.reset(new tensorflow::thread::ThreadPool(tensorflow::Env::Default(), "tessthread", pool_size_));
   }
@@ -121,6 +126,7 @@ class BaseapiThreadTest : public ::testing::Test {
 
   std::unique_ptr<tensorflow::thread::ThreadPool> pool_;
   static int pool_size_;
+#endif
   static std::vector<Pix*> pix_;
   static std::vector<std::string> langs_;
   static std::vector<std::string> gt_text_;
@@ -128,7 +134,9 @@ class BaseapiThreadTest : public ::testing::Test {
 };
 
 // static member variable declarations.
+#ifdef INCLUDE_TENSORFLOW
 int BaseapiThreadTest::pool_size_;
+#endif
 std::vector<Pix*> BaseapiThreadTest::pix_;
 std::vector<std::string> BaseapiThreadTest::langs_;
 std::vector<std::string> BaseapiThreadTest::gt_text_;
@@ -177,6 +185,7 @@ TEST_F(BaseapiThreadTest, TestBasicSanity) {
 
 // Test concurrent instance initialization.
 TEST_F(BaseapiThreadTest, TestInit) {
+#ifdef INCLUDE_TENSORFLOW
   const int n = num_langs_ * FLAGS_reps;
   ResetPool();
   std::vector<TessBaseAPI> tess(n);
@@ -184,10 +193,12 @@ TEST_F(BaseapiThreadTest, TestInit) {
     pool_->Schedule(std::bind(InitTessInstance, &tess[i], langs_[i % num_langs_]));
   }
   WaitForPoolWorkers();
+#endif
 }
 
 // Test concurrent recognition.
 TEST_F(BaseapiThreadTest, TestRecognition) {
+#ifdef INCLUDE_TENSORFLOW
   const int n = num_langs_ * FLAGS_reps;
   std::vector<TessBaseAPI> tess(n);
   // Initialize api instances in a single thread.
@@ -201,9 +212,11 @@ TEST_F(BaseapiThreadTest, TestRecognition) {
       langs_[i % num_langs_], gt_text_[i % num_langs_]));
   }
   WaitForPoolWorkers();
+#endif
 }
 
 TEST_F(BaseapiThreadTest, TestAll) {
+#ifdef INCLUDE_TENSORFLOW
   const int n = num_langs_ * FLAGS_reps;
   ResetPool();
   for (int i = 0; i < n; ++i) {
@@ -211,5 +224,6 @@ TEST_F(BaseapiThreadTest, TestAll) {
       langs_[i % num_langs_], gt_text_[i % num_langs_]));
   }
   WaitForPoolWorkers();
+#endif
 }
 }  // namespace

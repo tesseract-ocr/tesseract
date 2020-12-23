@@ -19,7 +19,9 @@
 #include "dawg.h"
 #include "trie.h"
 #include "unicharset.h"
+#ifdef INCLUDE_TENSORFLOW
 #include "util/utf8/unicodetext.h"  // for UnicodeText
+#endif
 
 namespace tesseract {
 
@@ -40,6 +42,7 @@ class TatweelTest : public ::testing::Test {
   }
 
   TatweelTest() {
+#ifdef INCLUDE_TENSORFLOW
     std::string filename = TestDataNameToPath("ara.wordlist");
     if (file_exists(filename.c_str())) {
       std::string wordlist(u8"\u0640");
@@ -56,6 +59,7 @@ class TatweelTest : public ::testing::Test {
       LOG(INFO) << "Num tatweels in source data=" << num_tatweel;
       EXPECT_GT(num_tatweel, 0);
     }
+#endif
   }
 
   std::string TestDataNameToPath(const std::string& name) {
