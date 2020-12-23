@@ -59,7 +59,7 @@ STRING_PARAM_FLAG(fonts_dir, "/auto/ocr-data/tesstraining/fonts",
 #else
 using std::pair;
 STRING_PARAM_FLAG(fonts_dir, "",
-                  "If empty it use system default. Otherwise it overrides"
+                  "If empty it uses system default. Otherwise it overrides"
                   " system default font location");
 #endif
 
@@ -132,8 +132,8 @@ void PangoFontInfo::SoftInitFontConfig() {
 // Re-initializes font config, whether or not already initialized.
 // If already initialized, any existing cache is deleted, just to be sure.
 /* static */
-void PangoFontInfo::HardInitFontConfig(const std::string& fonts_dir,
-                                       const std::string& cache_dir) {
+void PangoFontInfo::HardInitFontConfig(const char* fonts_dir,
+                                       const char* cache_dir) {
   if (!cache_dir_.empty()) {
     File::DeleteMatchingFiles(
         File::JoinPath(cache_dir_.c_str(), "*cache-?").c_str());
@@ -149,17 +149,17 @@ void PangoFontInfo::HardInitFontConfig(const std::string& fonts_dir,
            "<dir>%s</dir>\n"
            "<cachedir>%s</cachedir>\n"
            "<config></config>\n"
-           "</fontconfig>",
-           fonts_dir.c_str(), cache_dir_.c_str());
-  std::string fonts_conf_file = File::JoinPath(cache_dir_.c_str(), "fonts.conf");
+           "</fontconfig>\n",
+           fonts_dir, cache_dir);
+  std::string fonts_conf_file = File::JoinPath(cache_dir, "fonts.conf");
   File::WriteStringToFileOrDie(fonts_conf_template, fonts_conf_file);
 #ifdef _WIN32
   std::string env("FONTCONFIG_PATH=");
-  env.append(cache_dir_.c_str());
+  env.append(cache_dir);
   _putenv(env.c_str());
   _putenv("LANG=en_US.utf8");
 #else
-  setenv("FONTCONFIG_PATH", cache_dir_.c_str(), true);
+  setenv("FONTCONFIG_PATH", cache_dir, true);
   // Fix the locale so that the reported font names are consistent.
   setenv("LANG", "en_US.utf8", true);
 #endif  // _WIN32

@@ -92,8 +92,8 @@ class PangoFontInfo {
   static void SoftInitFontConfig();
   // Re-initializes font config, whether or not already initialized.
   // If already initialized, any existing cache is deleted, just to be sure.
-  static void HardInitFontConfig(const std::string& fonts_dir,
-                                 const std::string& cache_dir);
+  static void HardInitFontConfig(const char* fonts_dir,
+                                 const char* cache_dir);
 
   // Accessors
   std::string DescriptionName() const;
