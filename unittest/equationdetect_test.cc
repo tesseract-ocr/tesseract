@@ -18,10 +18,6 @@
 #include "tesseractclass.h"
 #include "include_gunit.h"
 
-using string = std::string;
-#include <tensorflow/core/lib/gtl/map_util.h>
-#include <tensorflow/core/lib/gtl/stl_util.h>
-
 namespace tesseract {
 
 class TestableEquationDetect : public EquationDetect {

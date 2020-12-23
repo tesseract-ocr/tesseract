@@ -139,9 +139,7 @@ check_PROGRAMS += dawg_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += denorm_test
 if !DISABLED_LEGACY_ENGINE
-if TENSORFLOW
 check_PROGRAMS += equationdetect_test
-endif # TENSORFLOW
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += fileio_test
 check_PROGRAMS += heap_test
@@ -267,10 +265,8 @@ denorm_test_SOURCES = denorm_test.cc
 denorm_test_LDADD = $(TESS_LIBS)
 
 if !DISABLED_LEGACY_ENGINE
-if TENSORFLOW
 equationdetect_test_SOURCES = equationdetect_test.cc
 equationdetect_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
-endif # TENSORFLOW
 endif # !DISABLED_LEGACY_ENGINE
 
 fileio_test_SOURCES = fileio_test.cc
