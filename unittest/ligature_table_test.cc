@@ -32,12 +32,18 @@ const char kEngLigatureText[] = "ﬁdelity eﬃgy ﬅeep";
 // ligature. The test Verdana font does not support the "ffi" or "ſt" ligature.
 const char kRenderableEngLigatureText[] = "ﬁdelity efﬁgy ſteep";
 
+static PangoFontMap* font_map;
+
 class LigatureTableTest : public ::testing::Test {
  protected:
  void SetUp() override {
     static std::locale system_locale("");
     std::locale::global(system_locale);
     lig_table_ = LigatureTable::Get();
+    if (!font_map) {
+      font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
+    }
+    pango_cairo_font_map_set_default(PANGO_CAIRO_FONT_MAP(font_map));
   }
 
   static void SetUpTestCase() {
