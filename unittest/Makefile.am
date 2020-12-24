@@ -217,13 +217,6 @@ endif # ENABLE_TRAINING
 
 TESTS = $(check_PROGRAMS)
 
-.PHONY: all
-
-all: tmp
-
-tmp:
-	mkdir -p tmp
-
 # List of source files needed to build the executable:
 
 apiexample_test_SOURCES = apiexample_test.cc
@@ -483,6 +476,13 @@ $(abs_top_builddir)/test/testing/phototest.tif:
 $(abs_top_builddir)/test/testing/phototest.txt:
 	mkdir -p $(top_builddir)/test/testing
 	ln -s $(TESTING_DIR)/phototest.txt $(top_builddir)/test/testing/phototest.txt
+
+# Some tests require a local tmp directory.
+
+$(check_PROGRAMS): | tmp
+
+tmp:
+	mkdir -p tmp
 
 # Some tests require a well defined set of the following font files.
 
