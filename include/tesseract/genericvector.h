@@ -19,6 +19,9 @@
 #ifndef TESSERACT_CCUTIL_GENERICVECTOR_H_
 #define TESSERACT_CCUTIL_GENERICVECTOR_H_
 
+#include "helpers.h"
+#include "serialis.h"
+
 #include <algorithm>
 #include <cassert>
 #include <climits>  // for LONG_MAX
@@ -26,9 +29,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <functional>  // for std::function
-
-#include "helpers.h"
-#include "serialis.h"
 
 // Use PointerVector<T> below in preference to GenericVector<T*>, as that
 // provides automatic deletion of pointers, [De]Serialize that works, and

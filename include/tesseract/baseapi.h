@@ -19,17 +19,9 @@
 #ifndef TESSERACT_API_BASEAPI_H_
 #define TESSERACT_API_BASEAPI_H_
 
-#include <cstdio>
-#include <functional>  // for std::function
-
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h" // DISABLED_LEGACY_ENGINE
 #endif
-
-// To avoid collision with other typenames include the ABSOLUTE MINIMUM
-// complexity of includes here. Use forward declarations wherever possible
-// and hide includes of complex types in baseapi.cpp.
-#include <tesseract/version.h>
 
 #include "apitypes.h"
 #include "pageiterator.h"
@@ -39,6 +31,14 @@
 #include "serialis.h"
 #include "thresholder.h"
 #include "unichar.h"
+
+// To avoid collision with other typenames include the ABSOLUTE MINIMUM
+// complexity of includes here. Use forward declarations wherever possible
+// and hide includes of complex types in baseapi.cpp.
+#include <tesseract/version.h>
+
+#include <cstdio>
+#include <functional>  // for std::function
 
 template <typename T>
 class GenericVector;

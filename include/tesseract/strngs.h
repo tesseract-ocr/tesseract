@@ -19,12 +19,12 @@
 #ifndef STRNGS_H
 #define STRNGS_H
 
+#include "platform.h"  // for TESS_API
+
 #include <cassert>  // for assert
 #include <cstdint>  // for uint32_t
 #include <cstdio>   // for FILE
 #include <cstring>  // for strncpy
-
-#include "platform.h"  // for TESS_API
 
 namespace tesseract {
 class TFile;
