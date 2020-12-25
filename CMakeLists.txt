@@ -364,12 +364,6 @@ set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/inclu
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/tesseract/version.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/version.h @ONLY)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/tesseract.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/libtesseract.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc @ONLY)
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
@@ -619,15 +613,7 @@ set(tesseract_src ${tesseract_src}
     src/api/wordstrboxrenderer.cpp
 )
 
-if (WIN32 AND MSVC)
-    include_directories(src/vs2010/tesseract)
-    set(tesseract_hdr
-        ${tesseract_hdr}
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/resource.h)
-    set(tesseract_rsc ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
-endif()
-
-set(libtessfiles ${tesseract_src} ${arch_files} ${arch_files_opt} ${tesseract_hdr} ${tesseract_rsc})
+set(libtessfiles ${tesseract_src} ${arch_files} ${arch_files_opt} ${tesseract_hdr})
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${libtessfiles})
 
