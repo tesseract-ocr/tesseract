@@ -667,12 +667,7 @@ endif()
 # EXECUTABLE tesseractmain
 ########################################
 
-set(tesseractmain_src src/api/tesseractmain.cpp)
-if (MSVC)
-    set(tesseractmain_rsc ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/tesseract.rc)
-endif()
-
-add_executable                  (tesseract ${tesseractmain_src} ${tesseractmain_rsc})
+add_executable                  (tesseract src/api/tesseractmain.cpp)
 target_link_libraries           (tesseract libtesseract)
 if (HAVE_TIFFIO_H)
     target_link_libraries(tesseract tiff)
