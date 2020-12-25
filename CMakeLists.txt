@@ -434,20 +434,6 @@ include_directories(${LibArchive_INCLUDE_DIRS})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
-include_directories(include)
-include_directories(src/arch)
-include_directories(src/ccmain)
-include_directories(src/ccstruct)
-include_directories(src/ccutil)
-include_directories(src/classify)
-include_directories(src/cutil)
-include_directories(src/dict)
-include_directories(src/lstm)
-include_directories(src/opencl)
-include_directories(src/textord)
-include_directories(src/viewer)
-include_directories(src/wordrec)
-include_directories(src/training)
 if(ANDROID_TOOLCHAIN)
   include_directories(${ANDROID_TOOLCHAIN}/sysroot/usr/include)
   add_compile_definitions(__ANDROID_API_FUTURE__)
@@ -618,6 +604,24 @@ set(libtessfiles ${tesseract_src} ${arch_files} ${arch_files_opt} ${tesseract_hd
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${libtessfiles})
 
 add_library                     (libtesseract ${LIBRARY_TYPE} ${libtessfiles})
+target_include_directories      (libtesseract
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE src
+
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/arch>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/ccmain>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/ccstruct>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/ccutil>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/classify>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/cutil>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/dict>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/lstm>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/opencl>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/textord>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/viewer>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/wordrec>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/training>
+)
 if (NOT STATIC)
 target_compile_definitions      (libtesseract
     PRIVATE -DTESS_EXPORTS
