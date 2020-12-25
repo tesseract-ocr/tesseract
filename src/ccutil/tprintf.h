@@ -22,8 +22,12 @@
 
 #include <tesseract/platform.h>   // for TESS_API
 
+namespace tesseract {
+
 // Main logging function.
 extern TESS_API void tprintf(  // Trace printf
     const char *format, ...);  // Message
+
+} // namespace tesseract
 
 #endif  // define TESSERACT_CCUTIL_TPRINTF_H

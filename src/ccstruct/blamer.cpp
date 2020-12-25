@@ -18,8 +18,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "blamer.h"
-#include <cmath>           // for abs
-#include <cstdlib>         // for abs
+
 #include "blobs.h"         // for TPOINT, TWERD, TBLOB
 #include "errcode.h"       // for ASSERT_HOST
 #if !defined(DISABLED_LEGACY_ENGINE)
@@ -29,6 +28,11 @@
 #include "normalis.h"      // for DENORM
 #include "pageres.h"       // for WERD_RES
 #include "unicharset.h"    // for UNICHARSET
+
+#include <cmath>           // for abs
+#include <cstdlib>         // for abs
+
+namespace tesseract {
 
 // Names for each value of IncorrectResultReason enum. Keep in sync.
 const char kBlameCorrect[] = "corr";
@@ -595,3 +599,5 @@ void BlamerBundle::SetMisAdaptionDebug(const WERD_CHOICE *best_choice,
     }
   }
 }
+
+} // namespace tesseract

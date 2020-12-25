@@ -22,13 +22,6 @@
 #include "config_auto.h"
 #endif
 
-#include <algorithm>            // for max, min
-#include <cassert>              // for assert
-#include <cmath>                // for fabs
-#include <cstdint>              // for INT32_MAX, UINT8_MAX
-#include <cstdio>               // for fflush, fclose, fopen, stdout, FILE
-#include <cstdlib>              // for malloc
-#include <cstring>              // for strstr, memset, strcmp
 #include "adaptive.h"           // for ADAPT_CLASS, free_adapted_templates
 #include "ambigs.h"             // for UnicharIdVector, UnicharAmbigs
 #include "bitvec.h"             // for FreeBitVector, NewBitVector, BIT_VECTOR
@@ -39,8 +32,6 @@
 #include "featdefs.h"           // for CharNormDesc
 #include "float2int.h"          // for BASELINE_Y_SHIFT
 #include "fontinfo.h"           // for ScoredFont, FontSet
-#include <tesseract/genericvector.h>      // for GenericVector
-#include <tesseract/helpers.h>            // for IntCastRounded, ClipToRange
 #include "intfx.h"              // for BlobToTrainingSample, INT_FX_RESULT_S...
 #include "intmatcher.h"         // for CP_RESULT_STRUCT, IntegerMatcher
 #include "intproto.h"           // for INT_FEATURE_STRUCT, (anonymous), Clas...
@@ -59,17 +50,30 @@
 #include "rect.h"               // for TBOX
 #include "scrollview.h"         // for ScrollView, ScrollView::BROWN, Scroll...
 #include "seam.h"               // for SEAM
-#include <tesseract/serialis.h>           // for TFile
 #include "shapeclassifier.h"    // for ShapeClassifier
 #include "shapetable.h"         // for UnicharRating, ShapeTable, Shape, Uni...
-#include <tesseract/strngs.h>             // for STRING
 #include "tessclassifier.h"     // for TessClassifier
 #include "tessdatamanager.h"    // for TessdataManager, TESSDATA_INTTEMP
 #include "tprintf.h"            // for tprintf
 #include "trainingsample.h"     // for TrainingSample
-#include <tesseract/unichar.h>            // for UNICHAR_ID, INVALID_UNICHAR_ID
 #include "unicharset.h"         // for UNICHARSET, CHAR_FRAGMENT, UNICHAR_SPACE
 #include "unicity_table.h"      // for UnicityTable
+
+#include <tesseract/genericvector.h>      // for GenericVector
+#include <tesseract/helpers.h>            // for IntCastRounded, ClipToRange
+#include <tesseract/serialis.h>           // for TFile
+#include <tesseract/strngs.h>             // for STRING
+#include <tesseract/unichar.h>            // for UNICHAR_ID, INVALID_UNICHAR_ID
+
+#include <algorithm>            // for max, min
+#include <cassert>              // for assert
+#include <cmath>                // for fabs
+#include <cstdint>              // for INT32_MAX, UINT8_MAX
+#include <cstdio>               // for fflush, fclose, fopen, stdout, FILE
+#include <cstdlib>              // for malloc
+#include <cstring>              // for strstr, memset, strcmp
+
+namespace tesseract {
 
 #define ADAPT_TEMPLATE_SUFFIX ".a"
 
@@ -83,9 +87,6 @@
 #define Y_DIM_OFFSET    (Y_SHIFT - BASELINE_Y_SHIFT)
 
 #define WORST_POSSIBLE_RATING (0.0f)
-
-using tesseract::UnicharRating;
-using tesseract::ScoredFont;
 
 struct ADAPT_RESULTS {
   int32_t BlobLength;
@@ -162,8 +163,6 @@ void SetAdaptiveThreshold(float Threshold);
 /*-----------------------------------------------------------------------------
               Public Code
 -----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine calls the adaptive matcher
  * which returns (in an array) the class id of each
@@ -1971,7 +1970,6 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
     tprintf("'.\n");
   }
 }                              /* MakePermanent */
-}  // namespace tesseract
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -2011,7 +2009,6 @@ int MakeTempProtoPerm(void *item1, void *item2) {
 }                              /* MakeTempProtoPerm */
 
 /*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine writes the matches in Results to File.
  *

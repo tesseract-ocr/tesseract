@@ -16,17 +16,15 @@
  ** limitations under the License.
  ******************************************************************************/
 
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
 #include "adaptive.h"
+
 #include "emalloc.h"
 #include "classify.h"
 
 #include <cassert>
 #include <cstdio>
 
-using tesseract::TFile;
+namespace tesseract {
 
 /*----------------------------------------------------------------------------
               Public Code
@@ -138,7 +136,6 @@ void free_adapted_class(ADAPT_CLASS adapt_class) {
 
 
 /*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * Allocates memory for adapted templates.
  * each char in unicharset to the newly created templates
@@ -175,8 +172,6 @@ int Classify::GetFontinfoId(ADAPT_CLASS Class, uint8_t ConfigId) {
       PermConfigFor(Class, ConfigId)->FontinfoId :
       TempConfigFor(Class, ConfigId)->FontinfoId);
 }
-
-}  // namespace tesseract
 
 /*----------------------------------------------------------------------------*/
 void free_adapted_templates(ADAPT_TEMPLATES templates) {
@@ -231,7 +226,6 @@ TEMP_PROTO NewTempProto() {
 
 
 /*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine prints a summary of the adapted templates
  *  in Templates to File.
@@ -265,7 +259,6 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
   fprintf (File, "\n");
 
 }                                /* PrintAdaptedTemplates */
-}  // namespace tesseract
 
 
 /*---------------------------------------------------------------------------*/
@@ -319,7 +312,6 @@ ADAPT_CLASS ReadAdaptedClass(TFile *fp) {
 
 
 /*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * Read a set of adapted templates from file and return
  * a ptr to the templates.
@@ -346,8 +338,6 @@ ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(TFile *fp) {
   return (Templates);
 
 }                                /* ReadAdaptedTemplates */
-}  // namespace tesseract
-
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -441,7 +431,6 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
 
 
 /*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine saves Templates to File in a binary format.
  *
@@ -465,7 +454,6 @@ void Classify::WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
       Templates->Templates->Class[i]->NumConfigs);
   }
 }                                /* WriteAdaptedTemplates */
-}  // namespace tesseract
 
 
 /*---------------------------------------------------------------------------*/
@@ -507,3 +495,5 @@ void WriteTempConfig(FILE *File, TEMP_CONFIG Config) {
   fwrite(Config->Protos, sizeof (uint32_t), Config->ProtoVectorSize, File);
 
 }                                /* WriteTempConfig */
+
+} // namespace tesseract

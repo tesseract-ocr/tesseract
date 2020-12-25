@@ -19,19 +19,24 @@
 ----------------------------------------------------------------------------**/
 
 #define _USE_MATH_DEFINES       // for M_PI
+
 #include "intfx.h"
-#include <cmath>                // for M_PI
-#include <mutex>                // for std::mutex
-#include "allheaders.h"
+
 #include "classify.h"
-#include <tesseract/helpers.h>
 #include "intmatcher.h"
 #include "linlsq.h"
 #include "normalis.h"
 #include "statistc.h"
 #include "trainingsample.h"
 
-using tesseract::TrainingSample;
+#include <tesseract/helpers.h>
+
+#include "allheaders.h"
+
+#include <cmath>                // for M_PI
+#include <mutex>                // for std::mutex
+
+namespace tesseract {
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
@@ -65,8 +70,6 @@ void InitIntegerFX() {
 FCOORD FeatureDirection(uint8_t theta) {
   return FCOORD(cos_table[theta], sin_table[theta]);
 }
-
-namespace tesseract {
 
 // Generates a TrainingSample from a TBLOB. Extracts features and sets
 // the bounding box, so classifiers that operate on the image can work.

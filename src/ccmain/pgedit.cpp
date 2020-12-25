@@ -23,9 +23,6 @@
 
 #include "pgedit.h"
 
-#include <cctype>
-#include <cmath>
-
 #include "blread.h"
 #include "control.h"
 #include "paramsd.h"
@@ -37,7 +34,11 @@
 #include "tesseractclass.h"
 #include "werdit.h"
 
+#include <cctype>
+#include <cmath>
+
 #ifndef GRAPHICS_DISABLED
+namespace tesseract {
 #define ASC_HEIGHT     (2 * kBlnBaselineOffset + kBlnXHeight)
 #define X_HEIGHT       (kBlnBaselineOffset + kBlnXHeight)
 #define BL_HEIGHT     kBlnBaselineOffset
@@ -294,7 +295,6 @@ void PGEventHandler::Notify(const SVEvent* event) {
  *
  *  Construct the menu tree used by the command window
  */
-namespace tesseract {
 SVMenuNode *Tesseract::build_menu_new() {
   SVMenuNode* parent_menu;
   auto* root_menu_item = new SVMenuNode();
@@ -402,7 +402,6 @@ void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
   image_win->AwaitEvent(SVET_DESTROY);
   image_win->AddEventHandler(nullptr);
 }
-}  // namespace tesseract
 
 /**
  *  process_cmd_win_event()
@@ -411,7 +410,6 @@ void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
  * (Just call the appropriate command handler)
  */
 
-namespace tesseract {
 bool Tesseract::process_cmd_win_event(                 // UI command semantics
         int32_t cmd_event,  // which menu item?
         char* new_value   // any prompt data
@@ -668,7 +666,6 @@ void Tesseract::debug_word(PAGE_RES* page_res, const TBOX &selection_box) {
 #endif
   recog_all_words(page_res, nullptr, &selection_box, word_config_.c_str(), 0);
 }
-}  // namespace tesseract
 
 
 /**********************************************************************
@@ -690,9 +687,7 @@ void Tesseract::debug_word(PAGE_RES* page_res, const TBOX &selection_box) {
  * Blank display of word then redisplay word according to current display mode
  * settings
  */
-#endif // !GRAPHICS_DISABLED
-namespace tesseract {
-#ifndef GRAPHICS_DISABLED
+
 bool Tesseract::word_blank_and_set_display(PAGE_RES_IT* pr_it) {
   pr_it->word()->word->bounding_box().plot(image_win, ScrollView::BLACK,
                                            ScrollView::BLACK);
@@ -894,8 +889,10 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
       editor_image_word_bb_color));
   return true;
 }
+}  // namespace tesseract
 #endif // !GRAPHICS_DISABLED
 
+namespace tesseract {
 /**
  * word_dumper()
  *
@@ -978,7 +975,6 @@ void Tesseract::blob_feature_display(PAGE_RES* page_res,
   }
 #endif  // ndef DISABLED_LEGACY_ENGINE
 }
-
 
 #endif // !GRAPHICS_DISABLED
 

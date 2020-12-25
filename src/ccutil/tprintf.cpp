@@ -21,11 +21,16 @@
 #include "config_auto.h"
 #endif
 
+#include "tprintf.h"
+
+#include "params.h"
+
+#include <tesseract/strngs.h>
+
 #include <cstdio>
 #include <cstdarg>
-#include "params.h"
-#include <tesseract/strngs.h>
-#include "tprintf.h"
+
+namespace tesseract {
 
 #define MAX_MSG_LEN 2048
 
@@ -66,3 +71,5 @@ DLLSYM void tprintf(const char *format, ...)
   }
   va_end(args);
 }
+
+} // namespace tesseract

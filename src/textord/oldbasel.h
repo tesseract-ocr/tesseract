@@ -22,6 +22,8 @@
 #include          "params.h"
 #include          "blobbox.h"
 
+namespace tesseract {
+
 extern BOOL_VAR_H (textord_oldbl_debug, false,
 "Debug old baseline generation");
 
@@ -156,4 +158,7 @@ int modelist[],
 int lefts[], int rights[],
 STATS * heightstat,
 int mode_threshold);
+
+} // namespace tesseract
+
 #endif

@@ -53,6 +53,8 @@
 #  define putenv(s) _putenv(s)
 #endif
 
+using namespace tesseract;
+
 // A number with which to initialize the random number generator.
 const int kRandomSeed = 0x18273645;
 

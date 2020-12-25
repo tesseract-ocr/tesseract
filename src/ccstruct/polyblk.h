@@ -18,11 +18,14 @@
 #ifndef POLYBLK_H
 #define POLYBLK_H
 
-#include <tesseract/publictypes.h>
 #include "elst.h"
 #include "points.h"
 #include "rect.h"
 #include "scrollview.h"
+
+#include <tesseract/publictypes.h>
+
+namespace tesseract {
 
 class DLLSYM POLY_BLOCK {
  public:
@@ -107,4 +110,7 @@ class DLLSYM PB_LINE_IT {
  private:
   POLY_BLOCK * block;
 };
+
+} // namespace tesseract
+
 #endif

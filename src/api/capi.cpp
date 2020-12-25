@@ -18,9 +18,12 @@
 #ifndef TESS_CAPI_INCLUDE_BASEAPI
 #  define TESS_CAPI_INCLUDE_BASEAPI
 #endif
+
 #include <tesseract/capi.h>
 #include <tesseract/genericvector.h>
 #include <tesseract/strngs.h>
+
+namespace tesseract {
 
 const char* TessVersion() {
   return TessBaseAPI::Version();
@@ -863,3 +866,5 @@ void TessMonitorSetDeadlineMSecs(ETEXT_DESC* monitor,
                                                     int deadline) {
   monitor->set_deadline_msecs(deadline);
 }
+
+} // namespace tesseract

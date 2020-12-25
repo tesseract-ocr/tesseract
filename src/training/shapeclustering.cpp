@@ -28,6 +28,8 @@
 #include "params.h"
 #include <tesseract/strngs.h>
 
+using namespace tesseract;
+
 static INT_PARAM_FLAG(display_cloud_font, -1,
                       "Display cloud of this font, canonical_class1");
 static INT_PARAM_FLAG(display_canonical_font, -1,

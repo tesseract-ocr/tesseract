@@ -22,6 +22,8 @@
 
 #include          "points.h"
 
+namespace tesseract {
+
 #define MODULUS       128        /*range of directions */
 #define DIRBITS       7          //no of bits used
 #define DIRSCALE      1000       //length of vector
@@ -80,4 +82,7 @@ class DLLSYM DIR128
   private:
     int8_t dir;                    //a direction
 };
+
+}  // namespace tesseract
+
 #endif

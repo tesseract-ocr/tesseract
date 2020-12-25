@@ -18,10 +18,12 @@
 #ifndef EMALLOC_H
 #define EMALLOC_H
 
+namespace tesseract {
+
 void *Emalloc(int Size);
-
 void *Erealloc(void *ptr, int size);
-
 void Efree(void *ptr);
+
+} // namespace tesseract
 
 #endif

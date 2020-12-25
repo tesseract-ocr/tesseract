@@ -16,13 +16,16 @@
  *
  **********************************************************************/
 
-#include "rect.h"
-#include <tesseract/strngs.h>     // for STRING
-
-// Include automatically generated configuration file if running autoconf.
+ // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+
+#include "rect.h"
+
+#include <tesseract/strngs.h>     // for STRING
+
+namespace tesseract {
 
 /**********************************************************************
  * TBOX::TBOX()  Constructor from 2 ICOORDS
@@ -250,3 +253,5 @@ bool TBOX::almost_equal(const TBOX &box, int tolerance) const {
           abs(top() - box.top()) <= tolerance &&
           abs(bottom() - box.bottom()) <= tolerance);
 }
+
+} // namespace tesseract

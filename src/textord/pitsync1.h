@@ -27,9 +27,11 @@
 #include          "statistc.h"
 #include          "pithsync.h"
 
+namespace tesseract {
+
 class FPSEGPT_LIST;
 
-class FPSEGPT:public ELIST_LINK
+class FPSEGPT : public ELIST_LINK
 {
   public:
     FPSEGPT() = default;
@@ -117,4 +119,7 @@ void vertical_coutline_projection(                     //project outlines
                                   C_OUTLINE *outline,  //outline to project
                                   STATS *stats         //output
                                  );
+
+} // namespace tesseract
+
 #endif

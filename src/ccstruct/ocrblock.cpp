@@ -17,10 +17,14 @@
  **********************************************************************/
 
 #include "ocrblock.h"
-#include <cstdlib>
-#include <memory>  // std::unique_ptr
+
 #include "stepblob.h"
 #include "tprintf.h"
+
+#include <cstdlib>
+#include <memory>  // std::unique_ptr
+
+namespace tesseract {
 
 ELISTIZE (BLOCK)
 /**
@@ -511,3 +515,5 @@ void RefreshWordBlobsFromNewBlobs(BLOCK_LIST* block_list,
     }
   }
 }
+
+} // namespace tesseract

@@ -22,8 +22,9 @@
 #include          "blobbox.h"
 
 namespace tesseract {
+
 class Tesseract;
-}
+
 extern BOOL_VAR_H (textord_debug_pitch_test, false,
 "Debug on fixed pitch test");
 extern BOOL_VAR_H (textord_debug_pitch_metric, false,
@@ -184,4 +185,7 @@ void plot_fp_word(                  //draw block of words
                   float pitch,      //pitch to draw with
                   float nonspace    //for space threshold
                  );
+
+} // namespace tesseract
+
 #endif

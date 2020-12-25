@@ -20,6 +20,8 @@
 #ifndef POLYAPRX_H
 #define POLYAPRX_H
 
+namespace tesseract {
+
 class C_OUTLINE;
 struct EDGEPT;
 struct TESSLINE;
@@ -42,4 +44,7 @@ void cutline(                //recursive refine
              EDGEPT *last,
              int area        /*area of object */
             );
+
+} // namespace tesseract
+
 #endif

@@ -30,14 +30,14 @@
 #include <set>     // for std::pair
 #include <vector>  // for std::vector
 
+namespace tesseract {
+
 template <typename T>
 class GenericVector;
 template <typename T>
 class GenericVectorEqEq;
 
 class STRING;
-
-namespace tesseract {
 
 class Tesseract;
 

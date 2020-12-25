@@ -36,6 +36,8 @@
 #include "params_training_featdef.h"
 #endif  // ndef DISABLED_LEGACY_ENGINE
 
+namespace tesseract {
+
 class MATRIX;
 class WERD_RES;
 
@@ -51,8 +53,6 @@ struct CHAR_FRAGMENT_INFO {
   float rating;
   float certainty;
 };
-
-namespace tesseract {
 
 using DawgVector = GenericVector<Dawg *>;
 
@@ -660,6 +660,7 @@ class Dict {
               " are specified, since overly generic patterns can result in"
               " dawg search exploring an overly large number of options.");
 };
+
 }  // namespace tesseract
 
 #endif  // THIRD_PARTY_TESSERACT_DICT_DICT_H_

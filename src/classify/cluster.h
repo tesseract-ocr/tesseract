@@ -21,6 +21,8 @@
 #include "kdtree.h"
 #include "oldlist.h"
 
+namespace tesseract {
+
 struct BUCKETS;
 
 #define MINBUCKETS 5
@@ -124,5 +126,7 @@ float StandardDeviation(PROTOTYPE* Proto, uint16_t Dimension);
 
 int32_t MergeClusters(int16_t N, PARAM_DESC ParamDesc[], int32_t n1, int32_t n2,
                       float m[], float m1[], float m2[]);
+
+} // namespace tesseract
 
 #endif

@@ -25,6 +25,8 @@
 #include "tprintf.h"
 #include "unicharset.h"
 
+namespace tesseract {
+
 // Destructor.
 // It is defined here, so the compiler can create a single vtable
 // instead of weak vtables in every compilation unit.
@@ -155,3 +157,5 @@ void MATRIX::print(const UNICHARSET &unicharset) const {
     tprintf("\n");
   }
 }
+
+} // namespace tesseract

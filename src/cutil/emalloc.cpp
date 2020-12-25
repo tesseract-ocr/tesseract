@@ -16,8 +16,12 @@
 ******************************************************************************/
 
 #include "emalloc.h"
-#include <cstdlib>
+
 #include "errcode.h"    // for ASSERT_HOST
+
+#include <cstdlib>
+
+namespace tesseract {
 
 /**
  * This routine attempts to allocate the specified number of
@@ -46,3 +50,5 @@ void Efree(void *ptr) {
   ASSERT_HOST(ptr != nullptr);
   free(ptr);
 }
+
+} // namespace tesseract

@@ -16,7 +16,13 @@
  *
  **********************************************************************/
 
-#include <vector>       // for std::vector
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#include "makerow.h"
+
 #include "blobbox.h"
 #include "ccstruct.h"
 #include "detlinefit.h"
@@ -28,16 +34,13 @@
 #include "textord.h"
 #include "tordmain.h"
 #include "underlin.h"
-#include "makerow.h"
 #include "tprintf.h"
 #include "tovars.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include <algorithm>
+#include <vector>       // for std::vector
+
+namespace tesseract {
 
 BOOL_VAR(textord_heavy_nr, false, "Vigorously remove noise");
 BOOL_VAR(textord_show_initial_rows, false, "Display row accumulation");
@@ -1250,7 +1253,6 @@ void compute_row_stats(                  //find lines
  * ROW_UNKNOWN and ROW_INVALID categories.
  *
  */
-namespace tesseract {
 void Textord::compute_block_xheight(TO_BLOCK *block, float gradient) {
   TO_ROW *row;                          // current row
   float asc_frac_xheight = CCStruct::kAscenderFraction /
@@ -1394,8 +1396,6 @@ void Textord::compute_row_xheight(TO_ROW *row,          // row to do
         compute_row_descdrop(row, gradient, row->xheight_evidence, &heights));
   }
 }
-
-}  // namespace tesseract.
 
 /**
  * @name fill_heights
@@ -1999,7 +1999,6 @@ void fit_parallel_lms(float gradient, TO_ROW *row) {
  *
  * Re-fit the rows in the block to the given gradient.
  */
-namespace tesseract {
 void Textord::make_spline_rows(TO_BLOCK* block,   // block to do
                                float gradient,    // gradient to fit
                                bool testing_on) {
@@ -2042,9 +2041,6 @@ void Textord::make_spline_rows(TO_BLOCK* block,   // block to do
   }
 #endif
 }
-
-}  // namespace tesseract.
-
 
 /**
  * @name make_baseline_spline
@@ -2673,3 +2669,5 @@ void mark_repeated_chars(TO_ROW *row) {
   }
   row->set_num_repeated_sets(num_repeated_sets);
 }
+
+} // namespace tesseract

@@ -19,10 +19,7 @@
 #include <cstdlib>
 #include "elst.h"
 
-/***********************************************************************
- *  MEMBER FUNCTIONS OF CLASS: ELIST
- *  ================================
- **********************************************************************/
+namespace tesseract {
 
 /***********************************************************************
  *              ELIST::internal_clear
@@ -456,3 +453,5 @@ ELIST_LINK *ELIST_ITERATOR::extract_sublist(                             //from 
   }
   return end_of_new_list;
 }
+
+} // namespace tesseract

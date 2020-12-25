@@ -24,6 +24,8 @@
 
 #include <algorithm>
 
+namespace tesseract {
+
 INT_VAR(textord_debug_tabfind, 0, "Debug tab finding");
 INT_VAR(textord_debug_bugs, 0, "Turn on output related to bugs in tab finding");
 static INT_VAR(textord_testregion_left, -1, "Left edge of debug reporting rectangle in Leptonica coords (bottom=0/top=height), with horizontal lines x/y-flipped");
@@ -31,8 +33,6 @@ static INT_VAR(textord_testregion_top, INT32_MAX, "Top edge of debug reporting r
 static INT_VAR(textord_testregion_right, INT32_MAX, "Right edge of debug rectangle in Leptonica coords (bottom=0/top=height), with horizontal lines x/y-flipped");
 static INT_VAR(textord_testregion_bottom, -1, "Bottom edge of debug rectangle in Leptonica coords (bottom=0/top=height), with horizontal lines x/y-flipped");
 BOOL_VAR(textord_debug_printable, false, "Make debug windows printable");
-
-namespace tesseract {
 
 // Fraction of resolution used as alignment tolerance for aligned tabs.
 const double kAlignedFraction = 0.03125;

@@ -24,6 +24,8 @@
 #include <cstdlib>
 #include <cstring>
 
+namespace tesseract {
+
 template <typename T>
 class GenericVector;
 
@@ -34,8 +36,6 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 ***********************************************************************/
 
 #define QUOTE_IT(parm) #parm
-
-namespace tesseract {
 
 // Return number of elements of an array.
 template <typename T, size_t N>

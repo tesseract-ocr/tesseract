@@ -14,15 +14,18 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
+
 #include "ocrfeatures.h"
+
 #include "emalloc.h"
 #include "scanutils.h"
+
 #include <tesseract/strngs.h>             // for STRING
+
 #include <cassert>
 #include <cmath>
+
+namespace tesseract {
 
 /*----------------------------------------------------------------------------
               Public Code
@@ -185,3 +188,5 @@ void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str) {
     }
   }
 }                                /* WriteFeatureSet */
+
+} // namespace tesseract

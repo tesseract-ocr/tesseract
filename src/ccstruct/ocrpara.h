@@ -20,9 +20,12 @@
 #ifndef TESSERACT_CCSTRUCT_OCRPARA_H_
 #define TESSERACT_CCSTRUCT_OCRPARA_H_
 
-#include <tesseract/publictypes.h>
 #include "elst.h"
+
+#include <tesseract/publictypes.h>
 #include <tesseract/strngs.h>
+
+namespace tesseract {
 
 class ParagraphModel;
 
@@ -187,5 +190,7 @@ class ParagraphModel {
   int body_indent_;
   int tolerance_;
 };
+
+} // namespace tesseract
 
 #endif  // TESSERACT_CCSTRUCT_OCRPARA_H_

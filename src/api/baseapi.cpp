@@ -23,7 +23,67 @@
 #include "config_auto.h"
 #endif
 
+#ifndef DISABLED_LEGACY_ENGINE
+#include "blobclass.h"         // for ExtractFontName
+#endif
+#include "boxword.h"           // for BoxWord
+#include "coutln.h"            // for C_OUTLINE_IT, C_OUTLINE_LIST
+#include "dawg_cache.h"        // for DawgCache
+#include "dict.h"              // for Dict
+#include "edgblob.h"           // for extract_edges
+#include "elst.h"              // for ELIST_ITERATOR, ELISTIZE, ELISTIZEH
+#include "environ.h"           // for l_uint8
+#ifndef DISABLED_LEGACY_ENGINE
+#include "equationdetect.h"    // for EquationDetect
+#endif
+#include "errcode.h"           // for ASSERT_HOST
+#include "imageio.h"           // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...
+#ifndef DISABLED_LEGACY_ENGINE
+#include "intfx.h"             // for INT_FX_RESULT_STRUCT
+#endif
+#include "mutableiterator.h"   // for MutableIterator
+#include "normalis.h"          // for kBlnBaselineOffset, kBlnXHeight
+#if defined(USE_OPENCL)
+#include "openclwrapper.h"     // for OpenclDevice
+#endif
+#include "pageres.h"           // for PAGE_RES_IT, WERD_RES, PAGE_RES, CR_DE...
+#include "paragraphs.h"        // for DetectParagraphs
+#include "params.h"            // for BoolParam, IntParam, DoubleParam, Stri...
+#include "pdblock.h"           // for PDBLK
+#include "points.h"            // for FCOORD
+#include "polyblk.h"           // for POLY_BLOCK
+#include "rect.h"              // for TBOX
+#include "stepblob.h"          // for C_BLOB_IT, C_BLOB, C_BLOB_LIST
+#include "tessdatamanager.h"   // for TessdataManager, kTrainedDataSuffix
+#include "tesseractclass.h"    // for Tesseract
+#include "tprintf.h"           // for tprintf
+#include "werd.h"              // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
+
 #include <tesseract/baseapi.h>
+#include <tesseract/renderer.h>          // for TessResultRenderer
+#include <tesseract/resultiterator.h>    // for ResultIterator
+#include <tesseract/strngs.h>            // for STRING
+#include <tesseract/thresholder.h>       // for ImageThresholder
+#include <tesseract/helpers.h>           // for IntCastRounded, chomp_string
+#include <tesseract/ocrclass.h>          // for ETEXT_DESC
+#include <tesseract/osdetect.h>          // for OSResults, OSBestResult, OrientationId...
+
+#include <cmath>               // for round, M_PI
+#include <cstdint>             // for int32_t
+#include <cstring>             // for strcmp, strcpy
+#include <fstream>             // for size_t
+#include <iostream>            // for std::cin
+#include <locale>              // for std::locale::classic
+#include <memory>              // for std::unique_ptr
+#include <set>                 // for std::pair
+#include <sstream>             // for std::stringstream
+#include <vector>              // for std::vector
+
+#include "allheaders.h"        // for pixDestroy, boxCreate, boxaAddBox, box...
+#ifdef HAVE_LIBCURL
+#include <curl/curl.h>
+#endif
+
 #ifdef __linux__
 #include <csignal>            // for sigaction, SA_RESETHAND, SIGBUS, SIGFPE
 #endif
@@ -39,67 +99,10 @@
 #include <unistd.h>
 #endif  // _WIN32
 
-#include <cmath>               // for round, M_PI
-#include <cstdint>             // for int32_t
-#include <cstring>             // for strcmp, strcpy
-#include <fstream>             // for size_t
-#include <iostream>            // for std::cin
-#include <locale>              // for std::locale::classic
-#include <memory>              // for std::unique_ptr
-#include <set>                 // for std::pair
-#include <sstream>             // for std::stringstream
-#include <vector>              // for std::vector
-#ifdef HAVE_LIBCURL
-#include <curl/curl.h>
-#endif
-#include "allheaders.h"        // for pixDestroy, boxCreate, boxaAddBox, box...
-#ifndef DISABLED_LEGACY_ENGINE
-#include "blobclass.h"         // for ExtractFontName
-#endif
-#include "boxword.h"           // for BoxWord
-#include "coutln.h"            // for C_OUTLINE_IT, C_OUTLINE_LIST
-#include "dawg_cache.h"        // for DawgCache
-#include "dict.h"              // for Dict
-#include "edgblob.h"           // for extract_edges
-#include "elst.h"              // for ELIST_ITERATOR, ELISTIZE, ELISTIZEH
-#include "environ.h"           // for l_uint8
-#ifndef DISABLED_LEGACY_ENGINE
-#include "equationdetect.h"    // for EquationDetect
-#endif
-#include "errcode.h"           // for ASSERT_HOST
-#include <tesseract/helpers.h>           // for IntCastRounded, chomp_string
-#include "imageio.h"           // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...
-#ifndef DISABLED_LEGACY_ENGINE
-#include "intfx.h"             // for INT_FX_RESULT_STRUCT
-#endif
-#include "mutableiterator.h"   // for MutableIterator
-#include "normalis.h"          // for kBlnBaselineOffset, kBlnXHeight
-#include <tesseract/ocrclass.h>          // for ETEXT_DESC
-#if defined(USE_OPENCL)
-#include "openclwrapper.h"     // for OpenclDevice
-#endif
-#include <tesseract/osdetect.h>          // for OSResults, OSBestResult, OrientationId...
-#include "pageres.h"           // for PAGE_RES_IT, WERD_RES, PAGE_RES, CR_DE...
-#include "paragraphs.h"        // for DetectParagraphs
-#include "params.h"            // for BoolParam, IntParam, DoubleParam, Stri...
-#include "pdblock.h"           // for PDBLK
-#include "points.h"            // for FCOORD
-#include "polyblk.h"           // for POLY_BLOCK
-#include "rect.h"              // for TBOX
-#include <tesseract/renderer.h>          // for TessResultRenderer
-#include <tesseract/resultiterator.h>    // for ResultIterator
-#include "stepblob.h"          // for C_BLOB_IT, C_BLOB, C_BLOB_LIST
-#include <tesseract/strngs.h>            // for STRING
-#include "tessdatamanager.h"   // for TessdataManager, kTrainedDataSuffix
-#include "tesseractclass.h"    // for Tesseract
-#include <tesseract/thresholder.h>       // for ImageThresholder
-#include "tprintf.h"           // for tprintf
-#include "werd.h"              // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
+namespace tesseract {
 
 static BOOL_VAR(stream_filelist, false, "Stream a filelist from stdin");
 static STRING_VAR(document_title, "", "Title of output document (used for hOCR and PDF output)");
-
-namespace tesseract {
 
 /** Minimum sensible image size to be worth running tesseract. */
 const int kMinRectSize = 10;

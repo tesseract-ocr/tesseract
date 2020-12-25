@@ -29,6 +29,8 @@
 
 #include <tesseract/strngs.h>
 
+namespace tesseract {
+
 class ScrollView;
 
 class SVMenuNode {
@@ -91,5 +93,7 @@ class SVMenuNode {
   // A description_ of the value. (optional)
   STRING description_;
 };
+
+} // namespace tesseract
 
 #endif  // TESSERACT_VIEWER_SVMNODE_H_

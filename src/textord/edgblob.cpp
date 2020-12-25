@@ -16,14 +16,17 @@
  *
  **********************************************************************/
 
-#include "scanedg.h"
-#include "edgloop.h"
-#include "edgblob.h"
-
-// Include automatically generated configuration file if running autoconf.
+ // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+
+#include "edgblob.h"
+
+#include "scanedg.h"
+#include "edgloop.h"
+
+namespace tesseract {
 
 // Control parameters used in outline_complexity(), which rejects an outline
 // if any one of the 3 conditions is satisfied:
@@ -455,3 +458,5 @@ bool capture_children(                       // find children
     buckets->extract_children(outline, blob_it);
   return true;
 }
+
+} // namespace tesseract

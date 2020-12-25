@@ -18,11 +18,11 @@
 #ifndef MATCHDEFS_H
 #define MATCHDEFS_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
-#include <cstdio>
 #include <tesseract/unichar.h>
+
+#include <cstdio>
+
+namespace tesseract {
 
 /* define the maximum number of classes defined for any matcher
   and the maximum class id for any matcher. This must be changed
@@ -106,7 +106,6 @@ _ARGS ((FILE * File, int N, MATCH_RESULT MatchResults[]));
 
 #undef _ARGS
 
-/*----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------*/
+} // namespace tesseract
+
 #endif

@@ -19,31 +19,34 @@
  **********************************************************************/
 
 #include "fixspace.h"
-#include <cstdint>             // for INT16_MAX, int16_t, int32_t
+
 #include "blobs.h"             // for TWERD, TBLOB, TESSLINE
 #include "boxword.h"           // for BoxWord
 #include "errcode.h"           // for ASSERT_HOST
 #include "normalis.h"          // for kBlnXHeight, kBlnBaselineOffset
-#include <tesseract/ocrclass.h>          // for ETEXT_DESC
 #include "pageres.h"           // for WERD_RES_IT, WERD_RES, WERD_RES_LIST
 #include "params.h"            // for IntParam, StringParam, BoolParam, Doub...
 #include "ratngs.h"            // for WERD_CHOICE, FREQ_DAWG_PERM, NUMBER_PERM
 #include "rect.h"              // for TBOX
 #include "stepblob.h"          // for C_BLOB_IT, C_BLOB_LIST, C_BLOB
-#include <tesseract/strngs.h>            // for STRING
 #include "tesseractclass.h"    // for Tesseract, TesseractStats, WordData
 #include "tessvars.h"          // for debug_fp
 #include "tprintf.h"           // for tprintf
-#include <tesseract/unichar.h>           // for UNICHAR_ID
 #include "unicharset.h"        // for UNICHARSET
 #include "werd.h"              // for WERD, W_EOL, W_FUZZY_NON, W_FUZZY_SP
+
+#include <tesseract/ocrclass.h>          // for ETEXT_DESC
+#include <tesseract/strngs.h>            // for STRING
+#include <tesseract/unichar.h>           // for UNICHAR_ID
+
+#include <cstdint>             // for INT16_MAX, int16_t, int32_t
+
+namespace tesseract {
 
 class BLOCK;
 class ROW;
 
 #define PERFECT_WERDS   999
-
-namespace tesseract {
 
 /**********************************************************************
  *  c_blob_comparator()
@@ -199,8 +202,6 @@ void Tesseract::fix_fuzzy_space_list(WERD_RES_LIST &best_perm,
   dump_words(best_perm, best_score, 3, improved);
 }
 
-}  // namespace tesseract
-
 void initialise_search(WERD_RES_LIST &src_list, WERD_RES_LIST &new_list) {
   WERD_RES_IT src_it(&src_list);
   WERD_RES_IT new_it(&new_list);
@@ -218,8 +219,6 @@ void initialise_search(WERD_RES_LIST &src_list, WERD_RES_LIST &new_list) {
   }
 }
 
-
-namespace tesseract {
 void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row,
                                     BLOCK* block) {
   WERD_RES_IT word_it(&words);
@@ -382,9 +381,6 @@ bool Tesseract::digit_or_numeric_punct(WERD_RES *word, int char_position) {
            word->best_choice->unichar_string().c_str()[offset])));
 }
 
-}  // namespace tesseract
-
-
 /**
  * @name transform_to_next_perm()
  * Examines the current word list to find the smallest word gap size. Then walks
@@ -472,7 +468,6 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
   }
 }
 
-namespace tesseract {
 void Tesseract::dump_words(WERD_RES_LIST &perm, int16_t score,
                            int16_t mode, bool improved) {
   WERD_RES_IT word_res_it(&perm);
@@ -817,7 +812,6 @@ float Tesseract::blob_noise_score(TBLOB *blob) {
 
   return largest_outline_dimension;
 }
-}  // namespace tesseract
 
 void fixspace_dbg(WERD_RES *word) {
   TBOX box = word->word->bounding_box();
@@ -853,7 +847,6 @@ void fixspace_dbg(WERD_RES *word) {
  * acceptable words or in dict words and are not rejected.
  * Penalise any potential noise chars
  */
-namespace tesseract {
 int16_t Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_it(&word_res_list);
   WERD_RES *word;

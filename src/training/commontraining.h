@@ -67,10 +67,10 @@ class ShapeTable;
 // Globals ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-extern FEATURE_DEFS_STRUCT feature_defs;
+extern tesseract::FEATURE_DEFS_STRUCT feature_defs;
 
 // Must be defined in the file that "implements" commonTraining facilities.
-extern CLUSTERCONFIG Config;
+extern tesseract::CLUSTERCONFIG Config;
 
 //////////////////////////////////////////////////////////////////////////////
 // Structs ///////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ typedef struct
   char  *Label;
   int   SampleCount;
   int   font_sample_count;
-  LIST  List;
+  tesseract::LIST  List;
 }
 LABELEDLISTNODE, *LABELEDLIST;
 
@@ -88,7 +88,7 @@ typedef struct
 {
   char* Label;
   int   NumMerged[MAX_NUM_PROTOS];
-  CLASS_TYPE Class;
+  tesseract::CLASS_TYPE Class;
 }MERGE_CLASS_NODE;
 using MERGE_CLASS = MERGE_CLASS_NODE*;
 
@@ -142,78 +142,78 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
 const char *GetNextFilename(int argc, const char* const * argv);
 
 LABELEDLIST FindList(
-    LIST        List,
+    tesseract::LIST        List,
     char        *Label);
 
 LABELEDLIST NewLabeledList(
     const char  *Label);
 
-void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
+void ReadTrainingSamples(const tesseract::FEATURE_DEFS_STRUCT& feature_defs,
                          const char *feature_name, int max_samples,
-                         UNICHARSET* unicharset,
-                         FILE* file, LIST* training_samples);
+                         tesseract::UNICHARSET* unicharset,
+                         FILE* file, tesseract::LIST* training_samples);
 
 void WriteTrainingSamples(
-    const FEATURE_DEFS_STRUCT &FeatureDefs,
+    const tesseract::FEATURE_DEFS_STRUCT &FeatureDefs,
     char *Directory,
-    LIST CharList,
+    tesseract::LIST CharList,
     const char  *program_feature_type);
 
 void FreeTrainingSamples(
-    LIST        CharList);
+    tesseract::LIST        CharList);
 
 void FreeLabeledList(
     LABELEDLIST LabeledList);
 
 void FreeLabeledClassList(
-    LIST        ClassListList);
+    tesseract::LIST        ClassListList);
 
-CLUSTERER *SetUpForClustering(
-    const FEATURE_DEFS_STRUCT &FeatureDefs,
+tesseract::CLUSTERER *SetUpForClustering(
+    const tesseract::FEATURE_DEFS_STRUCT &FeatureDefs,
     LABELEDLIST CharSample,
     const char  *program_feature_type);
 
-LIST RemoveInsignificantProtos(
-    LIST        ProtoList,
+tesseract::LIST RemoveInsignificantProtos(
+    tesseract::LIST        ProtoList,
     bool        KeepSigProtos,
     bool        KeepInsigProtos,
     int         N);
 
 void CleanUpUnusedData(
-    LIST        ProtoList);
+    tesseract::LIST        ProtoList);
 
 void MergeInsignificantProtos(
-    LIST        ProtoList,
+    tesseract::LIST        ProtoList,
     const char  *label,
-    CLUSTERER   *Clusterer,
-    CLUSTERCONFIG *Config);
+    tesseract::CLUSTERER   *Clusterer,
+    tesseract::CLUSTERCONFIG *Config);
 
 MERGE_CLASS FindClass(
-    LIST        List,
+    tesseract::LIST        List,
     const char        *Label);
 
 MERGE_CLASS NewLabeledClass(
     const char        *Label);
 
 void FreeTrainingSamples(
-    LIST        CharList);
+    tesseract::LIST        CharList);
 
-CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
-                                LIST LabeledClassList);
+tesseract::CLASS_STRUCT* SetUpForFloat2Int(const tesseract::UNICHARSET& unicharset,
+                                tesseract::LIST LabeledClassList);
 
 void Normalize(
     float       *Values);
 
 void FreeNormProtoList(
-    LIST        CharList);
+    tesseract::LIST        CharList);
 
 void AddToNormProtosList(
-    LIST*       NormProtoList,
-    LIST        ProtoList,
+    tesseract::LIST*       NormProtoList,
+    tesseract::LIST        ProtoList,
     char        *CharName);
 
 int NumberOfProtos(
-    LIST        ProtoList,
+    tesseract::LIST        ProtoList,
     bool        CountSigProtos,
     bool        CountInsigProtos);
 

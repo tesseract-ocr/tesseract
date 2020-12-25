@@ -19,19 +19,21 @@
 #ifndef TESSERACT_IMAGE_IMAGEDATA_H_
 #define TESSERACT_IMAGE_IMAGEDATA_H_
 
-#include <mutex>                // for std::mutex
-#include <thread>               // for std::thread
-#include <tesseract/genericvector.h>      // for GenericVector, PointerVector, FileReader
 #include "points.h"             // for FCOORD
+
+#include <tesseract/genericvector.h>      // for GenericVector, PointerVector, FileReader
 #include <tesseract/strngs.h>   // for STRING
 
-class ScrollView;
-class TBOX;
+#include <mutex>                // for std::mutex
+#include <thread>               // for std::thread
+
 struct Pix;
 
 namespace tesseract {
 
 class TFile;
+class ScrollView;
+class TBOX;
 
 // Amount of padding to apply in output pixels in feature mode.
 const int kFeaturePadding = 2;

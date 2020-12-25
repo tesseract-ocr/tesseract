@@ -16,25 +16,31 @@
  *
  **********************************************************************/
 
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "coutln.h"
-#include <algorithm>      // for max, min
-#include <cmath>          // for abs
-#include <cstdlib>        // for abs
-#include <cstring>        // for memset, memcpy, memmove
-#include "allheaders.h"   // for pixSetPixel, pixGetData, pixRasterop, pixGe...
+
 #include "arrayaccess.h"  // for GET_DATA_BYTE
 #include "blobs.h"        // for TPOINT
 #include "crakedge.h"     // for CRACKEDGE
 #include "environ.h"      // for l_uint32
 #include "errcode.h"      // for ASSERT_HOST
-#include <tesseract/helpers.h>      // for ClipToRange, IntCastRounded, Modulo
 #include "normalis.h"     // for DENORM
+
+#include <tesseract/helpers.h>      // for ClipToRange, IntCastRounded, Modulo
+
+#include "allheaders.h"   // for pixSetPixel, pixGetData, pixRasterop, pixGe...
 #include "pix.h"          // for Pix (ptr only), PIX_DST, PIX_NOT
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
+#include <algorithm>      // for max, min
+#include <cmath>          // for abs
+#include <cstdlib>        // for abs
+#include <cstring>        // for memset, memcpy, memmove
+
+namespace tesseract {
 
 ELISTIZE (C_OUTLINE)
 ICOORD C_OUTLINE::step_coords[4] = {
@@ -1054,3 +1060,5 @@ void C_OUTLINE::increment_step(int s, int increment, ICOORD* pos,
 ICOORD C_OUTLINE::chain_step(int chaindir) {
   return step_coords[chaindir % 4];
 }
+
+} // namespace tesseract

@@ -16,9 +16,10 @@
  *
  *****************************************************************************/
 
-/*----------------------------------------------------------------------
-          I n c l u d e s
-----------------------------------------------------------------------*/
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #include "blamer.h"    // for BlamerBundle, IRR_CORRECT
 #include "blobs.h"     // for TPOINT, TBLOB, EDGEPT, TESSLINE, divisible_blob
@@ -38,12 +39,9 @@
 #include "tprintf.h"   // for tprintf
 #include "wordrec.h"   // for Wordrec, SegSearchPending (ptr only)
 
-template <typename T> class GenericVector;
+namespace tesseract {
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
+template <typename T> class GenericVector;
 
 // Even though the limit on the number of chunks may now be removed, keep
 // the same limit for repeatable behavior, and it may be a speed advantage.
@@ -197,8 +195,6 @@ static SEAM* CheckSeam(int debug_level, int32_t blob_number, TWERD* word,
   }
   return seam;
 }
-
-namespace tesseract {
 
 /**
  * @name attempt_blob_chop

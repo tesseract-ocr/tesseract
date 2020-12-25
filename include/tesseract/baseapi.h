@@ -40,6 +40,13 @@
 #include <cstdio>
 #include <functional>  // for std::function
 
+struct Pix;
+struct Box;
+struct Pixa;
+struct Boxa;
+
+namespace tesseract {
+
 template <typename T>
 class GenericVector;
 class PAGE_RES;
@@ -52,10 +59,6 @@ class MATRIX;
 class ROW;
 class STRING;
 class WERD;
-struct Pix;
-struct Box;
-struct Pixa;
-struct Boxa;
 class ETEXT_DESC;
 struct OSResults;
 class TBOX;
@@ -65,8 +68,6 @@ class WERD_CHOICE_LIST;
 struct INT_FEATURE_STRUCT;
 using INT_FEATURE = INT_FEATURE_STRUCT*;
 struct TBLOB;
-
-namespace tesseract {
 
 class Dawg;
 class Dict;
@@ -853,6 +854,7 @@ class TESS_API TessBaseAPI {
 
 /** Escape a char string - remove &<>"' with HTML codes. */
 STRING HOcrEscape(const char* text);
-}  // namespace tesseract.
+
+}  // namespace tesseract
 
 #endif  // TESSERACT_API_BASEAPI_H_

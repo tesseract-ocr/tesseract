@@ -17,16 +17,16 @@
 #define TESSERACT_TRAINING_TRAININGSAMPLESET_H_
 
 #include "bitvector.h"
-#include <tesseract/genericvector.h>
 #include "indexmapbidi.h"
 #include "matrix.h"
 #include "shapetable.h"
 #include "trainingsample.h"
 
-class UNICHARSET;
+#include <tesseract/genericvector.h>
 
 namespace tesseract {
 
+class UNICHARSET;
 struct FontInfo;
 class FontInfoTable;
 class IntFeatureMap;

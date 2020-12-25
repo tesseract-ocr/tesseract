@@ -19,6 +19,8 @@
 #include "normalis.h"
 #include "tesseractclass.h"
 
+namespace tesseract {
+
 static int LeadingUnicharsToChopped(WERD_RES *word, int num_unichars) {
   int num_chopped = 0;
   for (int i = 0; i < num_unichars; i++)
@@ -32,9 +34,6 @@ static int TrailingUnicharsToChopped(WERD_RES *word, int num_unichars) {
     num_chopped += word->best_state[word->best_state.size() - 1 - i];
   return num_chopped;
 }
-
-
-namespace tesseract {
 
 /**
  * Given a recognized blob, see if a contiguous collection of sub-pieces

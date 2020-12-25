@@ -27,8 +27,8 @@
 #include <cstring>  // for strncpy
 
 namespace tesseract {
+
 class TFile;
-}  // namespace tesseract.
 
 // STRING_IS_PROTECTED means that  string[index] = X is invalid
 // because you have to go through strings interface to modify it.
@@ -184,5 +184,7 @@ class TESS_API STRING {
   char* AllocData(int used, int capacity);
   void DiscardData();
 };
+
+}  // namespace tesseract.
 
 #endif

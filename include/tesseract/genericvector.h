@@ -30,6 +30,8 @@
 #include <cstdlib>
 #include <functional>  // for std::function
 
+namespace tesseract {
+
 // Use PointerVector<T> below in preference to GenericVector<T*>, as that
 // provides automatic deletion of pointers, [De]Serialize that works, and
 // sort that works.
@@ -169,35 +171,35 @@ class GenericVector {
   // Returns false on error or if the callback returns false.
   // DEPRECATED. Use [De]Serialize[Classes] instead.
   bool write(FILE* f, std::function<bool(FILE*, const T&)> cb) const;
-  bool read(tesseract::TFile* f, std::function<bool(tesseract::TFile*, T*)> cb);
+  bool read(TFile* f, std::function<bool(TFile*, T*)> cb);
   // Writes a vector of simple types to the given file. Assumes that bitwise
   // read/write of T will work. Returns false in case of error.
   // TODO(rays) Change all callers to use TFile and remove deprecated methods.
   bool Serialize(FILE* fp) const;
-  bool Serialize(tesseract::TFile* fp) const;
+  bool Serialize(TFile* fp) const;
   // Reads a vector of simple types from the given file. Assumes that bitwise
   // read/write will work with ReverseN according to sizeof(T).
   // Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
   // TFile is assumed to know about swapping.
   bool DeSerialize(bool swap, FILE* fp);
-  bool DeSerialize(tesseract::TFile* fp);
+  bool DeSerialize(TFile* fp);
   // Skips the deserialization of the vector.
-  static bool SkipDeSerialize(tesseract::TFile* fp);
+  static bool SkipDeSerialize(TFile* fp);
   // Writes a vector of classes to the given file. Assumes the existence of
   // bool T::Serialize(FILE* fp) const that returns false in case of error.
   // Returns false in case of error.
   bool SerializeClasses(FILE* fp) const;
-  bool SerializeClasses(tesseract::TFile* fp) const;
+  bool SerializeClasses(TFile* fp) const;
   // Reads a vector of classes from the given file. Assumes the existence of
   // bool T::Deserialize(bool swap, FILE* fp) that returns false in case of
   // error. Also needs T::T() and T::T(constT&), as init_to_size is used in
   // this function. Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerializeClasses(bool swap, FILE* fp);
-  bool DeSerializeClasses(tesseract::TFile* fp);
+  bool DeSerializeClasses(TFile* fp);
   // Calls SkipDeSerialize on the elements of the vector.
-  static bool SkipDeSerializeClasses(tesseract::TFile* fp);
+  static bool SkipDeSerializeClasses(TFile* fp);
 
   // Allocates a new array of double the current_size, copies over the
   // information from data to the new location, deletes data and returns
@@ -333,8 +335,6 @@ class GenericVector {
   std::function<void(T)> clear_cb_;
   std::function<bool(const T&, const T&)> compare_cb_;
 };
-
-namespace tesseract {
 
 // The default FileReader loads the whole file into the vector of char,
 // returning false on error.
@@ -633,8 +633,6 @@ class PointerVector : public GenericVector<T*> {
   }
 };
 
-}  // namespace tesseract
-
 // A useful vector that uses operator== to do comparisons.
 template <typename T>
 class GenericVectorEqEq : public GenericVector<T> {
@@ -642,12 +640,12 @@ class GenericVectorEqEq : public GenericVector<T> {
   GenericVectorEqEq() {
     using namespace std::placeholders;  // for _1
     GenericVector<T>::set_compare_callback(
-        std::bind(tesseract::cmp_eq<T>, _1, _2));
+        std::bind(cmp_eq<T>, _1, _2));
   }
   explicit GenericVectorEqEq(int size) : GenericVector<T>(size) {
     using namespace std::placeholders;  // for _1
     GenericVector<T>::set_compare_callback(
-        std::bind(tesseract::cmp_eq<T>, _1, _2));
+        std::bind(cmp_eq<T>, _1, _2));
   }
 };
 
@@ -899,8 +897,8 @@ bool GenericVector<T>::write(FILE* f,
 }
 
 template <typename T>
-bool GenericVector<T>::read(tesseract::TFile* f,
-                            std::function<bool(tesseract::TFile*, T*)> cb) {
+bool GenericVector<T>::read(TFile* f,
+                            std::function<bool(TFile*, T*)> cb) {
   int32_t reserved;
   if (f->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
     return false;
@@ -936,7 +934,7 @@ bool GenericVector<T>::Serialize(FILE* fp) const {
   return true;
 }
 template <typename T>
-bool GenericVector<T>::Serialize(tesseract::TFile* fp) const {
+bool GenericVector<T>::Serialize(TFile* fp) const {
   if (fp->FWrite(&size_used_, sizeof(size_used_), 1) != 1) {
     return false;
   }
@@ -977,7 +975,7 @@ bool GenericVector<T>::DeSerialize(bool swap, FILE* fp) {
   return true;
 }
 template <typename T>
-bool GenericVector<T>::DeSerialize(tesseract::TFile* fp) {
+bool GenericVector<T>::DeSerialize(TFile* fp) {
   uint32_t reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
     return false;
@@ -993,7 +991,7 @@ bool GenericVector<T>::DeSerialize(tesseract::TFile* fp) {
   return fp->FReadEndian(data_, sizeof(T), size_used_) == size_used_;
 }
 template <typename T>
-bool GenericVector<T>::SkipDeSerialize(tesseract::TFile* fp) {
+bool GenericVector<T>::SkipDeSerialize(TFile* fp) {
   uint32_t reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
     return false;
@@ -1017,7 +1015,7 @@ bool GenericVector<T>::SerializeClasses(FILE* fp) const {
   return true;
 }
 template <typename T>
-bool GenericVector<T>::SerializeClasses(tesseract::TFile* fp) const {
+bool GenericVector<T>::SerializeClasses(TFile* fp) const {
   if (fp->FWrite(&size_used_, sizeof(size_used_), 1) != 1) {
     return false;
   }
@@ -1053,7 +1051,7 @@ bool GenericVector<T>::DeSerializeClasses(bool swap, FILE* fp) {
   return true;
 }
 template <typename T>
-bool GenericVector<T>::DeSerializeClasses(tesseract::TFile* fp) {
+bool GenericVector<T>::DeSerializeClasses(TFile* fp) {
   int32_t reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
     return false;
@@ -1068,7 +1066,7 @@ bool GenericVector<T>::DeSerializeClasses(tesseract::TFile* fp) {
   return true;
 }
 template <typename T>
-bool GenericVector<T>::SkipDeSerializeClasses(tesseract::TFile* fp) {
+bool GenericVector<T>::SkipDeSerializeClasses(TFile* fp) {
   int32_t reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
     return false;
@@ -1100,7 +1098,7 @@ void GenericVector<T>::move(GenericVector<T>* from) {
 
 template <typename T>
 void GenericVector<T>::sort() {
-  sort(&tesseract::sort_cmp<T>);
+  sort(&sort_cmp<T>);
 }
 
 // Internal recursive version of choose_nth_item.
@@ -1163,5 +1161,7 @@ int GenericVector<T>::choose_nth_item(int target_index, int start, int end,
   }
   return choose_nth_item(target_index, prev_greater, end, seed);
 }
+
+}  // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_GENERICVECTOR_H_

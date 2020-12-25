@@ -19,9 +19,13 @@
 #ifndef ELST_H
 #define ELST_H
 
-#include <cstdio>
-#include <tesseract/serialis.h>
 #include "lsterr.h"
+
+#include <tesseract/serialis.h>
+
+#include <cstdio>
+
+namespace tesseract {
 
 class ELIST_ITERATOR;
 
@@ -967,5 +971,7 @@ ELISTIZEH_C(CLASSNAME)
     for (from_it.mark_cycle_pt(); !from_it.cycled_list(); from_it.forward())  \
       to_it.add_after_then_move((*copier)(from_it.data()));                   \
   }
+
+}  // namespace tesseract
 
 #endif

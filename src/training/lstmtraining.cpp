@@ -28,6 +28,8 @@
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
 
+using namespace tesseract;
+
 static INT_PARAM_FLAG(debug_interval, 0, "How often to display the alignment.");
 static STRING_PARAM_FLAG(net_spec, "", "Network specification");
 static INT_PARAM_FLAG(net_mode, 192, "Controls network behavior.");

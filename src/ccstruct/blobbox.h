@@ -19,9 +19,6 @@
 #ifndef BLOBBOX_H
 #define BLOBBOX_H
 
-#include <cinttypes>           // for PRId32
-#include <cmath>               // for std::sqrt
-#include <cstdint>             // for int16_t, int32_t
 #include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "elst2.h"             // for ELIST2_ITERATOR, ELIST2IZEH, ELIST2_LINK
 #include "errcode.h"           // for ASSERT_HOST
@@ -37,9 +34,15 @@
 #include "tprintf.h"           // for tprintf
 #include "werd.h"              // for WERD_LIST
 
-class C_OUTLINE;
+#include <cinttypes>           // for PRId32
+#include <cmath>               // for std::sqrt
+#include <cstdint>             // for int16_t, int32_t
 
 struct Pix;
+
+namespace tesseract {
+
+class C_OUTLINE;
 
 enum PITCH_TYPE
 {
@@ -134,13 +137,11 @@ inline bool DominatesInMerge(BlobTextFlowType type1, BlobTextFlowType type2) {
   return type1 >= type2;
 }
 
-namespace tesseract {
 class ColPartition;
-}
 
 class BLOBNBOX;
 ELISTIZEH (BLOBNBOX)
-class BLOBNBOX:public ELIST_LINK
+class BLOBNBOX : public ELIST_LINK
 {
   public:
     BLOBNBOX() {
@@ -847,4 +848,7 @@ void plot_blob_list(ScrollView* win,                   // window to draw in
                     ScrollView::Color body_colour,     // colour to draw
                     ScrollView::Color child_colour);   // colour of child
 #endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract
+
 #endif

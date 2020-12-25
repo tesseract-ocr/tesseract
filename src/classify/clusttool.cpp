@@ -15,15 +15,17 @@
  ** limitations under the License.
  *****************************************************************************/
 
-//--------------------------Include Files----------------------------------
 #define _USE_MATH_DEFINES   // for M_PI
+
 #include "clusttool.h"
+
+#include "emalloc.h"
+
 #include <cmath>            // for M_PI, std::isnan
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
-#include "emalloc.h"
 
-using tesseract::TFile;
+namespace tesseract {
 
 //---------------Global Data Definitions and Declarations--------------------
 #define TOKENSIZE 80         ///< max size of tokens read from an input file
@@ -315,3 +317,5 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
       WriteNFloats (File, N, Proto->Variance.Elliptical);
   }
 }
+
+} // namespace tesseract

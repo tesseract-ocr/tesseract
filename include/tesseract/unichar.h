@@ -26,6 +26,8 @@
 #include <vector>
 #include <memory.h>
 
+namespace tesseract {
+
 // Maximum number of characters that can be stored in a UNICHAR. Must be
 // at least 4. Must not exceed 31 without changing the coding of length.
 #define UNICHAR_LEN 30
@@ -46,8 +48,6 @@ enum StrongScriptDirection {
   DIR_MIX = 3,            // Text contains a mixture of left-to-right
                           // and right-to-left characters.
 };
-
-namespace tesseract {
 
 using char32 = signed int;
 

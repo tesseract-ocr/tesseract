@@ -19,22 +19,26 @@
 #ifndef           RATNGS_H
 #define           RATNGS_H
 
-#include <cassert>
-#include <cfloat>      // for FLT_MAX
-
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h" // DISABLED_LEGACY_ENGINE
 #endif
+
 #include "clst.h"
 #include "elst.h"
 #ifndef DISABLED_LEGACY_ENGINE
 #include "fontinfo.h"
-#endif  // ndef DISABLED_LEGACY_ENGINE
-#include <tesseract/genericvector.h>
+#endif  // undef DISABLED_LEGACY_ENGINE
 #include "matrix.h"
-#include <tesseract/unichar.h>
 #include "unicharset.h"
 #include "werd.h"
+
+#include <tesseract/genericvector.h>
+#include <tesseract/unichar.h>
+
+#include <cassert>
+#include <cfloat>      // for FLT_MAX
+
+namespace tesseract {
 
 class MATRIX;
 struct TBLOB;
@@ -92,10 +96,10 @@ class BLOB_CHOICE: public ELIST_LINK
       return fontinfo_id2_;
     }
   #ifndef DISABLED_LEGACY_ENGINE
-    const GenericVector<tesseract::ScoredFont>& fonts() const {
+    const GenericVector<ScoredFont>& fonts() const {
       return fonts_;
     }
-    void set_fonts(const GenericVector<tesseract::ScoredFont>& fonts) {
+    void set_fonts(const GenericVector<ScoredFont>& fonts) {
       fonts_ = fonts;
       int score1 = 0, score2 = 0;
       fontinfo_id_ = -1;
@@ -195,7 +199,7 @@ class BLOB_CHOICE: public ELIST_LINK
   UNICHAR_ID unichar_id_;          // unichar id
 #ifndef DISABLED_LEGACY_ENGINE
   // Fonts and scores. Allowed to be empty.
-  GenericVector<tesseract::ScoredFont> fonts_;
+  GenericVector<ScoredFont> fonts_;
 #endif  // ndef DISABLED_LEGACY_ENGINE
   int16_t fontinfo_id_;              // char font information
   int16_t fontinfo_id2_;             // 2nd choice font information
@@ -249,7 +253,6 @@ enum PermuterType {
   NUM_PERMUTER_TYPES
 };
 
-namespace tesseract {
 // ScriptPos tells whether a character is subscript, superscript or normal.
 enum ScriptPos {
   SP_NORMAL,
@@ -258,9 +261,7 @@ enum ScriptPos {
   SP_DROPCAP
 };
 
-const char *ScriptPosToString(tesseract::ScriptPos script_pos);
-
-}  // namespace tesseract.
+const char *ScriptPosToString(ScriptPos script_pos);
 
 class WERD_CHOICE : public ELIST_LINK {
  public:
@@ -311,9 +312,9 @@ class WERD_CHOICE : public ELIST_LINK {
   inline int state(int index) const {
     return state_[index];
   }
-  tesseract::ScriptPos BlobPosition(int index) const {
+  ScriptPos BlobPosition(int index) const {
     if (index < 0 || index >= length_)
-      return tesseract::SP_NORMAL;
+      return SP_NORMAL;
     return script_pos_[index];
   }
   inline float rating() const {
@@ -380,7 +381,7 @@ class WERD_CHOICE : public ELIST_LINK {
     if (reserved_ > 0) {
       unichar_ids_ = GenericVector<UNICHAR_ID>::double_the_size_memcpy(
           reserved_, unichar_ids_);
-      script_pos_ = GenericVector<tesseract::ScriptPos>::double_the_size_memcpy(
+      script_pos_ = GenericVector<ScriptPos>::double_the_size_memcpy(
           reserved_, script_pos_);
       state_ = GenericVector<int>::double_the_size_memcpy(
           reserved_, state_);
@@ -389,7 +390,7 @@ class WERD_CHOICE : public ELIST_LINK {
       reserved_ *= 2;
     } else {
       unichar_ids_ = new UNICHAR_ID[1];
-      script_pos_ = new tesseract::ScriptPos[1];
+      script_pos_ = new ScriptPos[1];
       state_ = new int[1];
       certainties_ = new float[1];
       reserved_ = 1;
@@ -402,7 +403,7 @@ class WERD_CHOICE : public ELIST_LINK {
     reserved_ = reserved;
     if (reserved > 0) {
       unichar_ids_ = new UNICHAR_ID[reserved];
-      script_pos_ = new tesseract::ScriptPos[reserved];
+      script_pos_ = new ScriptPos[reserved];
       state_ = new int[reserved];
       certainties_ = new float[reserved];
     } else {
@@ -459,7 +460,7 @@ class WERD_CHOICE : public ELIST_LINK {
     unichar_ids_[index] = unichar_id;
     state_[index] = blob_count;
     certainties_[index] = certainty;
-    script_pos_[index] = tesseract::SP_NORMAL;
+    script_pos_[index] = SP_NORMAL;
     rating_ += rating;
     if (certainty < certainty_) {
       certainty_ = certainty;
@@ -549,11 +550,11 @@ class WERD_CHOICE : public ELIST_LINK {
   // NOTE: blobs_list should be the chopped_word blobs. (Fully segemented.)
   void SetScriptPositions(bool small_caps, TWERD* word, int debug = 0);
   // Sets the script_pos_ member from some source positions with a given length.
-  void SetScriptPositions(const tesseract::ScriptPos* positions, int length);
+  void SetScriptPositions(const ScriptPos* positions, int length);
   // Sets all the script_pos_ positions to the given position.
-  void SetAllScriptPositions(tesseract::ScriptPos position);
+  void SetAllScriptPositions(ScriptPos position);
 
-  static tesseract::ScriptPos ScriptPositionOf(bool print_debug,
+  static ScriptPos ScriptPositionOf(bool print_debug,
                                                const UNICHARSET& unicharset,
                                                const TBOX& blob_box,
                                                UNICHAR_ID unichar_id);
@@ -601,7 +602,7 @@ class WERD_CHOICE : public ELIST_LINK {
   // combined fragments, and allowing the language-model/segmentation-search
   // to deal with only the combined unichar_ids.
   UNICHAR_ID *unichar_ids_;  // unichar ids that represent the text of the word
-  tesseract::ScriptPos* script_pos_;  // Normal/Sub/Superscript of each unichar.
+  ScriptPos* script_pos_;  // Normal/Sub/Superscript of each unichar.
   int* state_;               // Number of blobs in each unichar.
   float* certainties_;       // Certainty of each unichar.
   int reserved_;             // size of the above arrays
@@ -647,5 +648,7 @@ void print_ratings_list(
     const UNICHARSET &current_unicharset  // unicharset that can be used
                                           // for id-to-unichar conversion
     );
+
+} // namespace tesseract
 
 #endif

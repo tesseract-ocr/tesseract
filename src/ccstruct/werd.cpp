@@ -16,14 +16,18 @@
  *
  **********************************************************************/
 
-#include "werd.h"
-#include <tesseract/helpers.h>
-#include "linlsq.h"
-
-// Include automatically generated configuration file if running autoconf.
+ // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #  include "config_auto.h"
 #endif
+
+#include "werd.h"
+
+#include "linlsq.h"
+
+#include <tesseract/helpers.h>
+
+namespace tesseract {
 
 #define FIRST_COLOUR ScrollView::RED        ///< first rainbow colour
 #define LAST_COLOUR ScrollView::AQUAMARINE  ///< last rainbow colour
@@ -574,3 +578,5 @@ bool WERD::AddSelectedOutlines(const GenericVector<bool>& wanted,
   }
   return outline_added_to_start;
 }
+
+} // namespace tesseract

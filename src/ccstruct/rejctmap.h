@@ -41,10 +41,13 @@ OF THIS IMPLIED TEMPORAL ORDERING OF THE FLAGS!!!!
 #ifndef           REJCTMAP_H
 #define           REJCTMAP_H
 
-#include <memory>
 #include "bits16.h"
 #include "errcode.h"
 #include "params.h"
+
+#include <memory>
+
+namespace tesseract {
 
 enum REJ_FLAGS {
   /* Reject modes which are NEVER overridden */
@@ -260,4 +263,7 @@ class REJMAP
     void rej_word_block_rej();  //Reject whole word
     void rej_word_row_rej();  //Reject whole word
 };
+
+} // namespace tesseract
+
 #endif

@@ -19,10 +19,7 @@
 #include <cstdlib>
 #include "clst.h"
 
-/***********************************************************************
- *  MEMBER FUNCTIONS OF CLASS: CLIST
- *  ================================
- **********************************************************************/
+namespace tesseract {
 
 /***********************************************************************
  *              CLIST::internal_deep_clear
@@ -507,3 +504,5 @@ CLIST_LINK *CLIST_ITERATOR::extract_sublist(                             //from 
   }
   return end_of_new_list;
 }
+
+} // namespace tesseract

@@ -14,12 +14,13 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
+
 #include "mfdefs.h"
 #include "emalloc.h"
+
 #include <cmath>
+
+namespace tesseract {
 
 /*----------------------------------------------------------------------------
               Public Code
@@ -42,3 +43,5 @@ MICROFEATURE NewMicroFeature() {
 void FreeMicroFeatures(MICROFEATURES MicroFeatures) {
   destroy_nodes(MicroFeatures, Efree);
 }                                /* FreeMicroFeatures */
+
+} // namespace tesseract

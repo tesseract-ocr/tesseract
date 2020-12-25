@@ -16,22 +16,23 @@
  *
  **********************************************************************/
 
-
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
 #include "ratngs.h"
 
-#include <algorithm>
-#include <string>
 #include "blobs.h"
-#include <tesseract/genericvector.h>
 #include "matrix.h"
 #include "normalis.h"  // kBlnBaselineOffset.
 #include "unicharset.h"
 
-using tesseract::ScriptPos;
+#include <tesseract/genericvector.h>
+
+#include <algorithm>
+#include <string>
+
+namespace tesseract {
 
 ELISTIZE(BLOB_CHOICE)
 ELISTIZE(WERD_CHOICE)
@@ -197,8 +198,6 @@ const char *WERD_CHOICE::permuter_name(uint8_t permuter) {
   return kPermuterTypeNames[permuter];
 }
 
-namespace tesseract {
-
 const char *ScriptPosToString(enum ScriptPos script_pos) {
   switch (script_pos) {
     case SP_NORMAL: return "NORM";
@@ -208,8 +207,6 @@ const char *ScriptPosToString(enum ScriptPos script_pos) {
   }
   return "SP_UNKNOWN";
 }
-
-}  // namespace tesseract.
 
 /**
  * WERD_CHOICE::WERD_CHOICE
@@ -852,3 +849,5 @@ void print_ratings_list(const char *msg,
   tprintf("\n");
   fflush(stdout);
 }
+
+} // namespace tesseract

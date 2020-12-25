@@ -31,6 +31,8 @@
 #include "unicharset.h"
 #include "unicharset_training_utils.h"
 
+using namespace tesseract;
+
 static STRING_PARAM_FLAG(output_unicharset, "unicharset", "Output file path");
 static INT_PARAM_FLAG(norm_mode, 1,
                       "Normalization mode: 1=Combine graphemes, "

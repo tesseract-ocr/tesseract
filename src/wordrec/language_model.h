@@ -21,7 +21,6 @@
 #ifndef TESSERACT_WORDREC_LANGUAGE_MODEL_H_
 #define TESSERACT_WORDREC_LANGUAGE_MODEL_H_
 
-#include <cmath>             // for exp
 #include "associate.h"       // for AssociateStats (ptr only), AssociateUtils
 #include "dawg.h"            // for DawgPositionVector
 #include "dict.h"            // for DawgArgs, Dict
@@ -31,7 +30,12 @@
 #include "params_model.h"    // for ParamsModel
 #include "ratngs.h"          // for BLOB_CHOICE (ptr only), BLOB_CHOICE_LIST...
 #include "stopper.h"         // for DANGERR
+
 #include <tesseract/strngs.h>          // for STRING
+
+#include <cmath>             // for exp
+
+namespace tesseract {
 
 class UNICHARSET;
 class WERD_RES;
@@ -39,8 +43,6 @@ class WERD_RES;
 struct BlamerBundle;
 
 template <typename T> class UnicityTable;
-
-namespace tesseract {
 
 class LMPainPoints;
 struct FontInfo;

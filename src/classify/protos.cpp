@@ -19,14 +19,19 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #define _USE_MATH_DEFINES       // for M_PI
+
 #include "protos.h"
-#include <cmath>                // for M_PI
-#include <cstdio>
+
 #include "emalloc.h"
 #include "tprintf.h"
 #include "classify.h"
 #include "params.h"
 #include "intproto.h"
+
+#include <cmath>                // for M_PI
+#include <cstdio>
+
+namespace tesseract {
 
 #define PROTO_INCREMENT   32
 #define CONFIG_INCREMENT  16
@@ -170,3 +175,5 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
   return (Class);
 
 }
+
+} // namespace tesseract

@@ -22,6 +22,8 @@
 
 #include          "params.h"
 
+namespace tesseract {
+
 extern BOOL_VAR_H (textord_show_initial_words, false,
 "Display separate words");
 extern BOOL_VAR_H (textord_show_new_words, false, "Display separate words");
@@ -86,4 +88,7 @@ extern double_VAR_H (textord_fpiqr_ratio, 1.5, "Pitch IQR/Gap IQR threshold");
 extern double_VAR_H (textord_max_pitch_iqr, 0.20,
 "Xh fraction noise in pitch");
 extern double_VAR_H (textord_fp_min_width, 0.5, "Min width of decent blobs");
+
+} // namespace tesseract
+
 #endif

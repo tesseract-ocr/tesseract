@@ -25,11 +25,11 @@
 #include "publictypes.h"   // for PageIteratorLevel
 #include "unichar.h"       // for StrongScriptDirection
 
+namespace tesseract {
+
 class BLOB_CHOICE_IT;
 class PAGE_RES;
 class WERD_RES;
-
-namespace tesseract {
 
 class Tesseract;
 

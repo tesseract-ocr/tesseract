@@ -90,6 +90,8 @@ static AutoWin32ConsoleOutputCP autoWin32ConsoleOutputCP(CP_UTF8);
 
 #endif   // _WIN32
 
+using namespace tesseract;
+
 static void PrintVersionInfo() {
   char* versionStrP;
 

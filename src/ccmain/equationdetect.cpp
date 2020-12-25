@@ -16,11 +16,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <algorithm>
-#include <cfloat>
-#include <limits>
-#include <memory>
-
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
@@ -33,17 +28,23 @@
 #include "colpartition.h"
 #include "colpartitiongrid.h"
 #include "colpartitionset.h"
-#include <tesseract/helpers.h>
 #include "ratngs.h"
 #include "tesseractclass.h"
+
+#include <tesseract/helpers.h>
+
+#include <algorithm>
+#include <cfloat>
+#include <limits>
+#include <memory>
+
+namespace tesseract {
 
 // Config variables.
 static BOOL_VAR(equationdetect_save_bi_image, false, "Save input bi image");
 static BOOL_VAR(equationdetect_save_spt_image, false, "Save special character image");
 static BOOL_VAR(equationdetect_save_seed_image, false, "Save the seed image");
 static BOOL_VAR(equationdetect_save_merged_image, false, "Save the merged image");
-
-namespace tesseract {
 
 ///////////////////////////////////////////////////////////////////////////
 // Utility ColParition sort functions.

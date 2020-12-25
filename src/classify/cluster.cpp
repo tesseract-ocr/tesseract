@@ -16,17 +16,22 @@
  *****************************************************************************/
 
 #define _USE_MATH_DEFINES // for M_PI
+
+#include "cluster.h"
+
+#include "emalloc.h"
+#include "genericheap.h"
+#include "kdpair.h"
+#include "matrix.h"
+#include "tprintf.h"
+
+#include <tesseract/helpers.h>
+
 #include <cfloat>       // for FLT_MAX
 #include <cmath>        // for M_PI
 #include <vector>       // for std::vector
 
-#include "cluster.h"
-#include "emalloc.h"
-#include "genericheap.h"
-#include <tesseract/helpers.h>
-#include "kdpair.h"
-#include "matrix.h"
-#include "tprintf.h"
+namespace tesseract {
 
 #define HOTELLING 1  // If true use Hotelling's test to decide where to split.
 #define FTABLE_X 10  // Size of FTable.
@@ -2417,3 +2422,5 @@ static double InvertMatrix(const float* input, int size, float* inv) {
   }
   return error_sum;
 }
+
+} // namespace tesseract

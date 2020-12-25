@@ -18,9 +18,12 @@
 
 #include "commontraining.h"     // CheckSharedLibraryVersion
 #include "dawg.h"
-#include <tesseract/serialis.h>
 #include "trie.h"
 #include "unicharset.h"
+
+#include <tesseract/serialis.h>
+
+using namespace tesseract;
 
 static tesseract::Dawg *LoadSquishedDawg(const UNICHARSET &unicharset,
                                          const char *filename) {

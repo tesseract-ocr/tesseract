@@ -21,6 +21,8 @@
 #include "errcode.h"
 #include "linlsq.h"
 
+namespace tesseract {
+
 constexpr ERRCODE EMPTY_LLSQ("Can't delete from an empty LLSQ");
 
 /**********************************************************************
@@ -256,3 +258,5 @@ FCOORD LLSQ::vector_fit() const {
   FCOORD result(cos(theta), sin(theta));
   return result;
 }
+
+} // namespace tesseract

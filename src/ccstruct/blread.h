@@ -20,8 +20,11 @@
 #ifndef BLREAD_H
 #define BLREAD_H
 
-#include <cstdint>      // for int32_t
 #include <tesseract/strngs.h>     // for STRING
+
+#include <cstdint>      // for int32_t
+
+namespace tesseract {
 
 class BLOCK_LIST;
 
@@ -32,5 +35,7 @@ bool read_unlv_file(                    //print list of sides
                      BLOCK_LIST *blocks  //output list
                     );
 void FullPageBlock(int width, int height, BLOCK_LIST *blocks);
+
+} // namespace tesseract
 
 #endif

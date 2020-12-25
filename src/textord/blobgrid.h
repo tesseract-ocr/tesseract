@@ -24,9 +24,9 @@
 #include "bbgrid.h"
 #include "blobbox.h"
 
-CLISTIZEH(BLOBNBOX)
-
 namespace tesseract {
+
+CLISTIZEH(BLOBNBOX)
 
 using BlobGridSearch = GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>;
 

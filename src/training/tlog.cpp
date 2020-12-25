@@ -20,4 +20,6 @@
 
 #include "tlog.h"
 
+using namespace tesseract;
+
 INT_PARAM_FLAG(tlog_level, 0, "Minimum logging level for tlog() output");

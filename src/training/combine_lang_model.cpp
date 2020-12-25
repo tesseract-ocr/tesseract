@@ -22,6 +22,8 @@
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
 
+using namespace tesseract;
+
 static STRING_PARAM_FLAG(input_unicharset, "",
                          "Filename with unicharset to complete and use in encoding");
 static STRING_PARAM_FLAG(script_dir, "",

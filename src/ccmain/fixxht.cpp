@@ -17,12 +17,13 @@
  *
  **********************************************************************/
 
-#include <algorithm>
-#include <cstring>
-#include <cctype>
 #include "params.h"
 #include "float2int.h"
 #include "tesseractclass.h"
+
+#include <algorithm>
+#include <cstring>
+#include <cctype>
 
 namespace tesseract {
 

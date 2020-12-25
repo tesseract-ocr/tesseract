@@ -14,15 +14,17 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*-----------------------------------------------------------------------------
-          Include Files and Type Defines
------------------------------------------------------------------------------*/
+
 #include "featdefs.h"
-#include <cstring>
-#include <cstdio>
+
 #include "emalloc.h"
 #include "picofeat.h"  // for PicoFeatureLength
 #include "scanutils.h"
+
+#include <cstring>
+#include <cstdio>
+
+namespace tesseract {
 
 #define PICO_FEATURE_LENGTH 0.05
 
@@ -275,3 +277,5 @@ uint32_t ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
   ASSERT_HOST(!"Illegal short name for a feature");
   return 0;
 }
+
+} // namespace tesseract

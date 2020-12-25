@@ -20,14 +20,20 @@
 #ifndef COUTLN_H
 #define COUTLN_H
 
-#include <cstdint>      // for int16_t, int32_t
 #include "bits16.h"     // for BITS16
 #include "elst.h"       // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "mod128.h"     // for DIR128, DIRBITS
-#include <tesseract/platform.h>   // for DLLSYM
 #include "points.h"     // for ICOORD, FCOORD
 #include "rect.h"       // for TBOX
 #include "scrollview.h" // for ScrollView, ScrollView::Color
+
+#include <tesseract/platform.h>   // for DLLSYM
+
+#include <cstdint>      // for int16_t, int32_t
+
+struct Pix;
+
+namespace tesseract {
 
 class CRACKEDGE;
 class DENORM;
@@ -66,7 +72,6 @@ struct EdgeOffset {
 };
 
 class DLLSYM C_OUTLINE;          //forward declaration
-struct Pix;
 
 ELISTIZEH (C_OUTLINE)
 class DLLSYM C_OUTLINE:public ELIST_LINK {
@@ -290,4 +295,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     C_OUTLINE_LIST children;     // child elements
     static ICOORD step_coords[4];
 };
+
+}  // namespace tesseract
+
 #endif

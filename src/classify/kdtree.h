@@ -18,10 +18,9 @@
 #ifndef KDTREE_H
 #define KDTREE_H
 
-/*-----------------------------------------------------------------------------
-          Include Files and Type Defines
------------------------------------------------------------------------------*/
 #include "ocrfeatures.h"
+
+namespace tesseract {
 
 using void_proc = void (*)(...);
 
@@ -92,5 +91,7 @@ void Walk(KDTREE* tree, void_proc action, void* context, KDNODE* SubTree,
 void InsertNodes(KDTREE* tree, KDNODE* nodes);
 
 void FreeSubTree(KDNODE* SubTree);
+
+} // namespace tesseract
 
 #endif

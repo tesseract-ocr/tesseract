@@ -26,9 +26,8 @@
 
 #include <cmath>
 
-/*----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------*/
+namespace tesseract {
+
 /*----------------------------------------------------------------------------
               Private Code
 ----------------------------------------------------------------------------*/
@@ -79,3 +78,5 @@ FEATURE_SET ExtractMicros(TBLOB* Blob, const DENORM& cn_denorm) {
   FreeMicroFeatures(OldFeatures);
   return FeatureSet;
 }                                /* ExtractMicros */
+
+} // namespace tesseract

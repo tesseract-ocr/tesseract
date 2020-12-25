@@ -27,16 +27,16 @@
 struct Boxa;
 struct Pix;
 struct Pixa;
-class TBOX;
-class FCOORD;
-class TO_BLOCK;
-class BLOBNBOX_LIST;
 
 namespace tesseract {
 
 class ColPartitionGrid;
 class ColPartition_LIST;
 class TabFind;
+class TBOX;
+class FCOORD;
+class TO_BLOCK;
+class BLOBNBOX_LIST;
 
 // The ImageFind class is a simple static function wrapper class that
 // exposes the FindImages function and some useful helper functions.

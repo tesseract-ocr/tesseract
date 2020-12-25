@@ -24,12 +24,14 @@
 #endif
 
 #include "shapeclassifier.h"
-#include <tesseract/genericvector.h>
+
 #include "scrollview.h"
 #include "shapetable.h"
 #include "svmnode.h"
 #include "trainingsample.h"
 #include "tprintf.h"
+
+#include <tesseract/genericvector.h>
 
 namespace tesseract {
 

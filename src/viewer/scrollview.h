@@ -30,11 +30,13 @@
 
 #ifndef TESSERACT_VIEWER_SCROLLVIEW_H_
 #define TESSERACT_VIEWER_SCROLLVIEW_H_
-// TODO(rays) Move ScrollView into the tesseract namespace.
-#ifndef OCR_SCROLLVIEW_H__
 
 #include <cstdio>
 #include <mutex>
+
+struct Pix;
+
+namespace tesseract {
 
 class ScrollView;
 class SVNetwork;
@@ -199,7 +201,7 @@ class ScrollView {
 *******************************************************************************/
 
 // Draw a Pix on (x,y).
-  void Image(struct Pix* image, int x_pos, int y_pos);
+  void Image(Pix* image, int x_pos, int y_pos);
 
 // Flush buffers and update display.
   static void Update();
@@ -412,5 +414,6 @@ class ScrollView {
 #endif // !GRAPHICS_DISABLED
 };
 
-#endif  // OCR_SCROLLVIEW_H__
+} // namespace tesseract
+
 #endif  // TESSERACT_VIEWER_SCROLLVIEW_H_

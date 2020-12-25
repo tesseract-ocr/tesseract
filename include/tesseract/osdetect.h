@@ -22,6 +22,8 @@
 
 #include "platform.h"  // for TESS_API
 
+namespace tesseract {
+
 class BLOBNBOX;
 class BLOBNBOX_CLIST;
 class BLOB_CHOICE_LIST;
@@ -30,9 +32,7 @@ class UNICHARSET;
 template <typename T>
 class GenericVector;
 
-namespace tesseract {
 class Tesseract;
-}
 
 // Max number of scripts in ICU + "NULL" + Japanese and Korean + Fraktur
 const int kMaxNumberOfScripts = 116 + 1 + 2 + 1;
@@ -133,5 +133,7 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o, ScriptDetector* s,
 // The value represents the amount of clockwise rotation in degrees that must be
 // applied for the text to be upright (readable).
 TESS_API int OrientationIdToValue(const int& id);
+
+} // namespace tesseract
 
 #endif  // TESSERACT_CCMAIN_OSDETECT_H_

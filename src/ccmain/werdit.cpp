@@ -18,10 +18,13 @@
  **********************************************************************/
 
 #include "werdit.h"
+
 #include "errcode.h"   // for ASSERT_HOST
 #include "pageres.h"   // for PAGE_RES_IT, PAGE_RES (ptr only), WERD_RES
 #include "stepblob.h"  // for C_BLOB_IT, C_BLOB, C_BLOB_LIST
 #include "werd.h"      // for WERD
+
+namespace tesseract {
 
 /**********************************************************************
  * make_pseudo_word
@@ -61,3 +64,5 @@ PAGE_RES_IT* make_pseudo_word(PAGE_RES* page_res, const TBOX& selection_box) {
   }
   return nullptr;
 }
+
+} // namespace tesseract

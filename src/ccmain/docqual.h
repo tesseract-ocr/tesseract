@@ -21,6 +21,8 @@
 
 #include <cstdint>  // for int16_t
 
+namespace tesseract {
+
 class PAGE_RES_IT;
 class ROW;
 class WERD_RES;
@@ -35,5 +37,7 @@ enum GARBAGE_LEVEL
 
 int16_t word_blob_quality(WERD_RES* word);
 void reject_whole_page(PAGE_RES_IT &page_res_it);
+
+} // namespace tesseract
 
 #endif

@@ -26,7 +26,6 @@
 #include <functional>
 #include <string>
 
-// TODO(rays) Put the rest of the helpers in the namespace.
 namespace tesseract {
 
 // A simple linear congruential random number generator, using Knuth's
@@ -69,8 +68,6 @@ class TRand {
   // The current value of the seed.
   uint64_t seed_{1};
 };
-
-}  // namespace tesseract
 
 // Remove newline (if any) at the end of the string.
 inline void chomp_string(char* str) {
@@ -206,5 +203,7 @@ inline void Reverse32(void* ptr) {
 inline void Reverse64(void* ptr) {
   ReverseN(ptr, 8);
 }
+
+}  // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_HELPERS_H_

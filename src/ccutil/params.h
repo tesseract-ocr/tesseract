@@ -270,8 +270,6 @@ class DoubleParam : public Param {
   GenericVector<DoubleParam*>* params_vec_;
 };
 
-}  // namespace tesseract
-
 // Global parameter lists.
 //
 // To avoid the problem of undetermined order of static initialization
@@ -281,7 +279,7 @@ class DoubleParam : public Param {
 //
 // TODO(daria): remove GlobalParams() when all global Tesseract
 // parameters are converted to members.
-tesseract::ParamsVectors* GlobalParams();
+ParamsVectors* GlobalParams();
 
 /*************************************************************************
  * Note on defining parameters.
@@ -291,25 +289,25 @@ tesseract::ParamsVectors* GlobalParams();
  * (there is no such guarantee for parameters defined with the other macros).
  *************************************************************************/
 
-#define INT_VAR_H(name, val, comment) tesseract::IntParam name
+#define INT_VAR_H(name, val, comment) ::tesseract::IntParam name
 
-#define BOOL_VAR_H(name, val, comment) tesseract::BoolParam name
+#define BOOL_VAR_H(name, val, comment) ::tesseract::BoolParam name
 
-#define STRING_VAR_H(name, val, comment) tesseract::StringParam name
+#define STRING_VAR_H(name, val, comment) ::tesseract::StringParam name
 
-#define double_VAR_H(name, val, comment) tesseract::DoubleParam name
+#define double_VAR_H(name, val, comment) ::tesseract::DoubleParam name
 
 #define INT_VAR(name, val, comment) \
-  tesseract::IntParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::IntParam name(val, #name, comment, false, GlobalParams())
 
 #define BOOL_VAR(name, val, comment) \
-  tesseract::BoolParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::BoolParam name(val, #name, comment, false, GlobalParams())
 
 #define STRING_VAR(name, val, comment) \
-  tesseract::StringParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::StringParam name(val, #name, comment, false, GlobalParams())
 
 #define double_VAR(name, val, comment) \
-  tesseract::DoubleParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::DoubleParam name(val, #name, comment, false, GlobalParams())
 
 #define INT_MEMBER(name, val, comment, vec) \
   name(val, #name, comment, false, vec)
@@ -334,5 +332,7 @@ tesseract::ParamsVectors* GlobalParams();
 
 #define double_INIT_MEMBER(name, val, comment, vec) \
   name(val, #name, comment, true, vec)
+
+}  // namespace tesseract
 
 #endif

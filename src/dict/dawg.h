@@ -40,9 +40,8 @@
 #define NO_EDGE                (int64_t) 0xffffffffffffffffll
 #endif /*__GNUC__*/
 
-/*----------------------------------------------------------------------
-              T y p e s
-----------------------------------------------------------------------*/
+namespace tesseract {
+
 class UNICHARSET;
 
 using EDGE_RECORD = uint64_t;
@@ -50,8 +49,6 @@ using EDGE_ARRAY = EDGE_RECORD *;
 using EDGE_REF = int64_t;
 using NODE_REF = int64_t;
 using NODE_MAP = EDGE_REF *;
-
-namespace tesseract {
 
 struct NodeChild {
   UNICHAR_ID unichar_id;

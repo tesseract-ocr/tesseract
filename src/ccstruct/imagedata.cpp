@@ -23,21 +23,23 @@
 
 #include "imagedata.h"
 
-#include <cinttypes>     // for PRId64
-
-#include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 #include "boxread.h"     // for ReadMemBoxes
-#include <tesseract/helpers.h>     // for IntCastRounded, TRand, ClipToRange, Modulo
 #include "rect.h"        // for TBOX
 #include "scrollview.h"  // for ScrollView, ScrollView::CYAN, ScrollView::NONE
-#include <tesseract/serialis.h>    // for TFile
 #include "tprintf.h"     // for tprintf
+
+#include <tesseract/helpers.h>     // for IntCastRounded, TRand, ClipToRange, Modulo
+#include <tesseract/serialis.h>    // for TFile
+
+#include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
+
+#include <cinttypes>     // for PRId64
+
+namespace tesseract {
 
 // Number of documents to read ahead while training. Doesn't need to be very
 // large.
 const int kMaxReadAhead = 8;
-
-namespace tesseract {
 
 WordFeature::WordFeature() : x_(0), y_(0), dir_(0) {
 }

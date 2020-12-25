@@ -25,6 +25,8 @@
 #include          "blobbox.h"
 #include          "statistc.h"
 
+namespace tesseract {
+
 enum OVERLAP_STATE
 {
   ASSIGN,                        //assign it to row
@@ -283,4 +285,7 @@ int row_spacing_order(                    //sort function
                       const void *item2);
 
 void mark_repeated_chars(TO_ROW *row);
+
+} // namespace tesseract
+
 #endif

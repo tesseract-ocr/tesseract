@@ -20,9 +20,13 @@
 #ifndef TESSERACT_CCUTIL_UNICITY_TABLE_H_
 #define TESSERACT_CCUTIL_UNICITY_TABLE_H_
 
-#include <functional>           // for std::function
 #include "errcode.h"
+
 #include <tesseract/genericvector.h>
+
+#include <functional>           // for std::function
+
+namespace tesseract {
 
 // A class to uniquify objects, manipulating them using integers ids.
 // T requirements:
@@ -185,5 +189,7 @@ template <typename T>
 void UnicityTable<T>::move(UnicityTable<T>* from) {
   table_.move(&from->table_);
 }
+
+} // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_UNICITY_TABLE_H_

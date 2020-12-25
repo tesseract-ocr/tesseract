@@ -16,17 +16,20 @@
  *
  **********************************************************************/
 
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#include "fpchop.h"
+
 #include "blobbox.h"
 #include "statistc.h"
 #include "drawtord.h"
 #include "tovars.h"
 #include "topitch.h"
-#include "fpchop.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
+namespace tesseract {
 
 INT_VAR (textord_fp_chop_error, 2,
 "Max allowed bending of chop cells");
@@ -811,3 +814,5 @@ const C_OUTLINE_FRAG & src       //fragment to copy
   ycoord = src.ycoord;
   return *this;
 }
+
+} // namespace tesseract

@@ -17,6 +17,8 @@
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
 
+using namespace tesseract;
+
 // The directory that is searched for universal script unicharsets.
 static STRING_PARAM_FLAG(script_dir, "",
                          "Directory name for input script unicharsets/xheights");

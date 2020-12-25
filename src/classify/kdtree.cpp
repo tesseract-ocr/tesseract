@@ -26,6 +26,8 @@
 #include <cstdio>
 #include <cmath>
 
+namespace tesseract {
+
 #define Magnitude(X)    ((X) < 0 ? -(X) : (X))
 #define NodeFound(N,K,D)  (((N)->Key == (K)) && ((N)->Data == (D)))
 
@@ -536,3 +538,5 @@ void FreeSubTree(KDNODE *sub_tree) {
     free(sub_tree);
   }
 }
+
+} // namespace tesseract

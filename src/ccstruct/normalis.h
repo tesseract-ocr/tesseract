@@ -20,6 +20,10 @@
 #ifndef NORMALIS_H
 #define NORMALIS_H
 
+struct Pix;
+
+namespace tesseract {
+
 const int kBlnCellHeight = 256;     // Full-height for baseline normalization.
 const int kBlnXHeight = 128;        // x-height for baseline normalization.
 const int kBlnBaselineOffset = 64;  // offset for baseline normalization.
@@ -29,13 +33,10 @@ class FCOORD;
 class TBOX;
 class UNICHARSET;
 
-struct Pix;
 struct TBLOB;
 struct TPOINT;
 
 template <typename T> class GenericVector;
-
-namespace tesseract {
 
 // Possible normalization methods. Use NEGATIVE values as these also
 // double up as markers for the last sub-classifier.
@@ -44,8 +45,6 @@ enum NormalizationMode {
   NM_CHAR_ISOTROPIC = -2,   // Character normalization but isotropic.
   NM_CHAR_ANISOTROPIC = -1  // The original CN normalization mode.
 };
-
-}  // namespace tesseract.
 
 class DENORM {
  public:
@@ -312,5 +311,7 @@ class DENORM {
   float final_xshift_;
   float final_yshift_;
 };
+
+}  // namespace tesseract
 
 #endif

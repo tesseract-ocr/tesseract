@@ -22,15 +22,18 @@
 #endif
 
 #include "statistc.h"
-#include <cstring>
-#include <cmath>
-#include <cstdlib>
+
 #include "errcode.h"
-#include <tesseract/helpers.h>
 #include "scrollview.h"
 #include "tprintf.h"
 
-using tesseract::KDPairInc;
+#include <tesseract/helpers.h>
+
+#include <cstring>
+#include <cmath>
+#include <cstdlib>
+
+namespace tesseract {
 
 /**********************************************************************
  * STATS::STATS
@@ -772,3 +775,5 @@ void swap_entries(void *array,   // array of entries
     *ptr2++ = tmp;               // tedious!
   }
 }
+
+} // namespace tesseract

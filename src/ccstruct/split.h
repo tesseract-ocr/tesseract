@@ -19,13 +19,11 @@
 #ifndef SPLIT_H
 #define SPLIT_H
 
-/*----------------------------------------------------------------------
-              I n c l u d e s
-----------------------------------------------------------------------*/
-
 #include "blobs.h"   // for EDGEPT, TBLOB, TESSLINE
 #include "params.h"  // for BOOL_VAR_H, BoolParam
 #include "rect.h"    // for TBOX
+
+namespace tesseract {
 
 class ScrollView;
 
@@ -120,5 +118,7 @@ extern BOOL_VAR_H(wordrec_display_splits, 0, "Display splits");
 EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev);
 
 void remove_edgept(EDGEPT *point);
+
+} // namespace tesseract
 
 #endif

@@ -19,23 +19,27 @@
 #ifndef           TORDMAIN_H
 #define           TORDMAIN_H
 
-#include          <ctime>
 #include          "params.h"
 #include          "ocrblock.h"
 #include          "blobs.h"
 #include          "blobbox.h"
 
+#include          <ctime>
+
 struct Pix;
+
 namespace tesseract {
+
 class Tesseract;
 
 void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob);
 void assign_blobs_to_blocks2(Pix* pix, BLOCK_LIST *blocks,
                              TO_BLOCK_LIST *port_blocks);
-}  // namespace tesseract
 
 void tweak_row_baseline(ROW *row,
                         double blshift_maxshift,
                         double blshift_xfraction);
+
+}  // namespace tesseract
 
 #endif

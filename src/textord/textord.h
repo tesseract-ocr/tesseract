@@ -25,7 +25,10 @@
 #include "bbgrid.h"
 #include "blobbox.h"
 #include "gap_map.h"
+
 #include <tesseract/publictypes.h>  // For PageSegMode.
+
+namespace tesseract {
 
 class FCOORD;
 class BLOCK_LIST;
@@ -33,8 +36,6 @@ class PAGE_RES;
 class TO_BLOCK;
 class TO_BLOCK_LIST;
 class ScrollView;
-
-namespace tesseract {
 
 // A simple class that can be used by BBGrid to hold a word and an expanded
 // bounding box that makes it easy to find words to put diacritics.
@@ -396,6 +397,7 @@ class Textord {
   double_VAR_H(textord_blshift_maxshift, 0.00, "Max baseline shift");
   double_VAR_H(textord_blshift_xfraction, 9.99, "Min size of baseline shift");
 };
-}  // namespace tesseract.
+
+} // namespace tesseract
 
 #endif  // TESSERACT_TEXTORD_TEXTORD_H_

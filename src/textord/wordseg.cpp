@@ -16,6 +16,13 @@
  *
  **********************************************************************/
 
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#include "wordseg.h"
+
 #include "blobbox.h"
 #include "statistc.h"
 #include "drawtord.h"
@@ -26,12 +33,8 @@
 #include "cjkpitch.h"
 #include "textord.h"
 #include "fpchop.h"
-#include "wordseg.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
+namespace tesseract {
 
 BOOL_VAR(textord_fp_chopping, true, "Do fixed pitch chopping");
 BOOL_VAR(textord_force_make_prop_words, false,
@@ -618,3 +621,5 @@ WERD *make_real_word(BLOBNBOX_IT *box_it,  //iterator
 
   return word;
 }
+
+} // namespace tesseract

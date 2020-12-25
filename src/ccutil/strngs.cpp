@@ -17,16 +17,19 @@
  **********************************************************************/
 
 #include <tesseract/strngs.h>
-#include <cassert>          // for assert
-#include <cstdlib>          // for malloc, free
-#include <locale>           // for std::locale::classic
-#include <sstream>          // for std::stringstream
+
 #include "errcode.h"        // for ASSERT_HOST
+
 #include <tesseract/genericvector.h>  // for GenericVector
 #include <tesseract/helpers.h>        // for ReverseN
 #include <tesseract/serialis.h>       // for TFile
 
-using tesseract::TFile;
+#include <cassert>          // for assert
+#include <cstdlib>          // for malloc, free
+#include <locale>           // for std::locale::classic
+#include <sstream>          // for std::stringstream
+
+namespace tesseract {
 
 // Size of buffer needed to host the decimal representation of the maximum
 // possible length of an int (in 64 bits), being -<20 digits>.
@@ -499,3 +502,5 @@ STRING& STRING::operator+=(const char ch) {
   assert(InvariantOk());
   return *this;
 }
+
+} // namespace tesseract
