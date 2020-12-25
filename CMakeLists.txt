@@ -627,9 +627,11 @@ if (WIN32 AND MSVC)
     set(tesseract_rsc ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
 endif()
 
-add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${arch_files}
-    ${arch_files_opt} ${tesseract_hdr} ${tesseract_rsc}
-    )
+set(libtessfiles ${tesseract_src} ${arch_files} ${arch_files_opt} ${tesseract_hdr} ${tesseract_rsc})
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${libtessfiles})
+
+add_library                     (libtesseract ${LIBRARY_TYPE} ${libtessfiles})
 if (NOT STATIC)
 target_compile_definitions      (libtesseract
     PRIVATE -DTESS_EXPORTS
