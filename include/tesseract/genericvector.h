@@ -309,8 +309,8 @@ class GenericVector : public std::vector<T> {
   std::function<bool(const T&, const T&)> compare_cb_;
 };
 
-#ifdef _MSC_VER
-// msvc does not have ::data() in vector<bool>,
+#if defined(_MSC_VER) || defined(__APPLE__)
+// msvc stl/libc++ does not have ::data() in vector<bool>,
 // so we add custom specialization
 template <>
 class GenericVector<bool> : public std::vector<bool> {};
