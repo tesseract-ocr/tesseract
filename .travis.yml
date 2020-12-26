@@ -2,7 +2,7 @@
 
 language: cpp
 
-dist: xenial
+dist: bionic
 
 env:
   - LEPT_VER=1.78.0
