@@ -256,12 +256,12 @@ class TESS_API TessBaseAPI {
    * Includes all languages loaded by the last Init, including those loaded
    * as dependencies of other loaded languages.
    */
-  void GetLoadedLanguagesAsVector(GenericVector<STRING>* langs) const;
+  void GetLoadedLanguagesAsVector(std::vector<STRING>* langs) const;
 
   /**
    * Returns the available languages in the sorted vector of STRINGs.
    */
-  void GetAvailableLanguagesAsVector(GenericVector<STRING>* langs) const;
+  void GetAvailableLanguagesAsVector(std::vector<STRING>* langs) const;
 
   /**
    * Init only the lang model component of Tesseract. The only functions
