@@ -309,6 +309,13 @@ class GenericVector : public std::vector<T> {
   std::function<bool(const T&, const T&)> compare_cb_;
 };
 
+#ifdef _MSC_VER
+// msvc does not have ::data() in vector<bool>,
+// so we add custom specialization
+template <>
+class GenericVector<bool> : public std::vector<bool> {};
+#endif
+
 // The default FileReader loads the whole file into the vector of char,
 // returning false on error.
 inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
