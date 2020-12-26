@@ -177,6 +177,7 @@ void build(Solution &s)
     ADD_EXE(lstmeval, unicharset_training);
     ADD_EXE(lstmtraining, unicharset_training);
     ADD_EXE(set_unicharset_properties, unicharset_training);
+    ADD_EXE(merge_unicharsets, tessopt);
 
     ADD_EXE(text2image, unicharset_training);
     text2image += cppstd;

@@ -265,6 +265,16 @@ install                     (TARGETS lstmtraining RUNTIME DESTINATION bin LIBRAR
 
 
 ########################################
+# EXECUTABLE merge_unicharsets
+########################################
+
+add_executable              (merge_unicharsets merge_unicharsets.cpp)
+target_link_libraries       (merge_unicharsets libtesseract tessopt)
+project_group               (merge_unicharsets "Training Tools")
+install                     (TARGETS merge_unicharsets RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+
+
+########################################
 # EXECUTABLE set_unicharset_properties
 ########################################
 
