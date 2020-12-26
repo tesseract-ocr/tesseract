@@ -20,17 +20,18 @@
 #include "config_auto.h"
 #endif
 
+#include "pdf_ttf.h"
+#include "tprintf.h"
+
+#include <cmath>
+#include <cstring>
+#include <fstream> // for std::ifstream
 #include <locale>  // for std::locale::classic
 #include <memory>  // std::unique_ptr
 #include <sstream> // for std::stringstream
-#include <fstream> // for std::ifstream
-#include "allheaders.h"
+#include <allheaders.h>
 #include <tesseract/baseapi.h>
-#include <cmath>
 #include <tesseract/renderer.h>
-#include <cstring>
-#include "tprintf.h"
-#include "pdf_ttf.h"
 
 /*
 
@@ -625,19 +626,19 @@ bool TessPDFRenderer::BeginDocumentHandler() {
 
   stream.str("");
   stream << datadir_.c_str() << "/pdf.ttf";
-  const char* font;
+  const uint8_t* font;
   std::ifstream input(stream.str().c_str(), std::ios::in | std::ios::binary);
   std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
   auto size = buffer.size();
   if (size) {
-    font = reinterpret_cast<char*>(buffer.data());
+    font = buffer.data();
   } else {
 #if defined(DEBUG)
     tprintf("Cannot open file \"%s\"!\nUsing internal glyphless font.\n",
             stream.str().c_str());
 #endif
-    font = reinterpret_cast<char*>(pdf_ttf);
-    size = pdf_ttf_length;
+    font = pdf_ttf;
+    size = sizeof(pdf_ttf);
   }
 
   // FONTFILE2
@@ -651,7 +652,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
     "stream\n";
   AppendString(stream.str().c_str());
   objsize  = stream.str().size();
-  AppendData(font, size);
+  AppendData(reinterpret_cast<const char*>(font), size);
   objsize += size;
   AppendString(endstream_endobj);
   objsize += strlen(endstream_endobj);
