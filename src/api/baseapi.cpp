@@ -127,7 +127,7 @@ const int kMaxIntSize = 22;
 /* Add all available languages recursively.
 */
 static void addAvailableLanguages(const STRING &datadir, const STRING &base,
-                                  GenericVector<STRING>* langs)
+                                  std::vector<STRING>* langs)
 {
   auto base2 = base;
   if (!base2.empty())
@@ -278,6 +278,9 @@ void TessBaseAPI::SetInputName(const char* name) {
 
 /** Set the name of the output files. Needed only for debugging. */
 void TessBaseAPI::SetOutputName(const char* name) {
+  if (name == nullptr) {
+    name = "";
+  }
   if (output_file_ == nullptr)
     output_file_ = new STRING(name);
   else
@@ -363,6 +366,9 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
                       bool set_only_non_debug_params, FileReader reader) {
   // Default language is "eng".
   if (language == nullptr) language = "eng";
+  if (data == nullptr) {
+    data = "";
+  }
   STRING datapath = data_size == 0 ? data : language;
   // If the datapath, OcrEngineMode or the language have changed - start again.
   // Note that the language_ field stores the last requested language that was
@@ -441,7 +447,7 @@ const char* TessBaseAPI::GetInitLanguagesAsString() const {
  * as dependencies of other loaded languages.
  */
 void TessBaseAPI::GetLoadedLanguagesAsVector(
-    GenericVector<STRING>* langs) const {
+    std::vector<STRING>* langs) const {
   langs->clear();
   if (tesseract_ != nullptr) {
     langs->push_back(tesseract_->lang);
@@ -455,11 +461,11 @@ void TessBaseAPI::GetLoadedLanguagesAsVector(
  * Returns the available languages in the sorted vector of STRINGs.
  */
 void TessBaseAPI::GetAvailableLanguagesAsVector(
-    GenericVector<STRING>* langs) const {
+    std::vector<STRING>* langs) const {
   langs->clear();
   if (tesseract_ != nullptr) {
     addAvailableLanguages(tesseract_->datadir, "", langs);
-    langs->sort(CompareSTRING);
+    std::sort(langs->begin(), langs->end());
   }
 }
 
