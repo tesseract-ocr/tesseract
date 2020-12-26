@@ -26,13 +26,11 @@
 #include <cstdio>   // for FILE
 #include <cstring>  // for strncpy
 #include <string>
+#include <vector>
 
 namespace tesseract {
 
 class TFile;
-
-template <typename T>
-class GenericVector;
 
 class STRING : public std::string {
  public:
@@ -76,7 +74,7 @@ class STRING : public std::string {
   }
 
   TESS_API
-  void split(char c, GenericVector<STRING>* splited);
+  void split(char c, std::vector<STRING>* splited);
   TESS_API
   void truncate_at(int32_t index);
 

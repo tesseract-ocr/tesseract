@@ -310,7 +310,7 @@ void Classify::LearnWord(const char* fontname, WERD_RES* word) {
               word->best_state[ch]);
           if (pieces_all_natural || !prioritize_division) {
             for (frag = 0; frag < word->best_state[ch]; ++frag) {
-              GenericVector<STRING> tokens;
+              std::vector<STRING> tokens;
               word->correct_text[ch].split(' ', &tokens);
 
               tokens[0] = CHAR_FRAGMENT::to_string(

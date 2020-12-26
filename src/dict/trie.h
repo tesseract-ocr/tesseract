@@ -174,11 +174,11 @@ class Trie : public Dawg {
   // Reads a list of words from the given file.
   // Returns false on error.
   bool read_word_list(const char *filename,
-                      GenericVector<STRING>* words);
+                      std::vector<STRING>* words);
   // Adds a list of words previously read using read_word_list to the trie
   // using the given unicharset and reverse_policy to convert to unichar-ids.
   // Returns false on error.
-  bool add_word_list(const GenericVector<STRING> &words,
+  bool add_word_list(const std::vector<STRING> &words,
                      const UNICHARSET &unicharset,
                      Trie::RTLReversePolicy reverse_policy);
 
