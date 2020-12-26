@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <functional>  // for std::function
+#include <vector>
 
 namespace tesseract {
 
@@ -309,8 +310,8 @@ class GenericVector : public std::vector<T> {
   std::function<bool(const T&, const T&)> compare_cb_;
 };
 
-#if defined(_MSC_VER) || defined(__APPLE__)
-// msvc stl/libc++ does not have ::data() in vector<bool>,
+#if defined(_MSC_VER)
+// msvc stl does not have ::data() in vector<bool>,
 // so we add custom specialization
 template <>
 class GenericVector<bool> : public std::vector<bool> {};
