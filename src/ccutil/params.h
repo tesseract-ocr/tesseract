@@ -298,16 +298,16 @@ ParamsVectors* GlobalParams();
 #define double_VAR_H(name, val, comment) ::tesseract::DoubleParam name
 
 #define INT_VAR(name, val, comment) \
-  ::tesseract::IntParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::IntParam name(val, #name, comment, false, ::tesseract::GlobalParams())
 
 #define BOOL_VAR(name, val, comment) \
-  ::tesseract::BoolParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::BoolParam name(val, #name, comment, false, ::tesseract::GlobalParams())
 
 #define STRING_VAR(name, val, comment) \
-  ::tesseract::StringParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::StringParam name(val, #name, comment, false, ::tesseract::GlobalParams())
 
 #define double_VAR(name, val, comment) \
-  ::tesseract::DoubleParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::DoubleParam name(val, #name, comment, false, ::tesseract::GlobalParams())
 
 #define INT_MEMBER(name, val, comment, vec) \
   name(val, #name, comment, false, vec)
