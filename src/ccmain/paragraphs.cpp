@@ -2270,7 +2270,7 @@ void DetectParagraphs(int debug_level,
                       GenericVector<RowInfo> *row_infos,
                       GenericVector<PARA *> *row_owners,
                       PARA_LIST *paragraphs,
-                      GenericVector<ParagraphModel *> *models) {
+                      std::vector<ParagraphModel *> *models) {
   GenericVector<RowScratchRegisters> rows;
   ParagraphTheory theory(models);
 
@@ -2512,7 +2512,7 @@ static void InitializeRowInfo(bool after_recognition,
 void DetectParagraphs(int debug_level,
                       bool after_text_recognition,
                       const MutableIterator *block_start,
-                      GenericVector<ParagraphModel *> *models) {
+                      std::vector<ParagraphModel *> *models) {
   // Clear out any preconceived notions.
   if (block_start->Empty(RIL_TEXTLINE)) {
     return;

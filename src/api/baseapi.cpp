@@ -1909,7 +1909,9 @@ void TessBaseAPI::End() {
   delete block_list_;
   block_list_ = nullptr;
   if (paragraph_models_ != nullptr) {
-    paragraph_models_->delete_data_pointers();
+    for (auto model : *paragraph_models_) {
+      delete model;
+    }
     delete paragraph_models_;
     paragraph_models_ = nullptr;
   }
@@ -2174,7 +2176,9 @@ void TessBaseAPI::ClearResults() {
   else
     block_list_->clear();
   if (paragraph_models_ != nullptr) {
-    paragraph_models_->delete_data_pointers();
+    for (auto model : *paragraph_models_) {
+      delete model;
+    }
     delete paragraph_models_;
     paragraph_models_ = nullptr;
   }
@@ -2300,13 +2304,13 @@ void TessBaseAPI::DetectParagraphs(bool after_text_recognition) {
   int debug_level = 0;
   GetIntVariable("paragraph_debug_level", &debug_level);
   if (paragraph_models_ == nullptr)
-    paragraph_models_ = new GenericVector<ParagraphModel*>;
+    paragraph_models_ = new std::vector<ParagraphModel*>;
   MutableIterator *result_it = GetMutableIterator();
   do {  // Detect paragraphs for this block
-    GenericVector<ParagraphModel *> models;
+    std::vector<ParagraphModel *> models;
     ::tesseract::DetectParagraphs(debug_level, after_text_recognition,
                                   result_it, &models);
-    *paragraph_models_ += models;
+    paragraph_models_->insert(paragraph_models_->end(), models.begin(), models.end());
   } while (result_it->Next(RIL_BLOCK));
   delete result_it;
 }
