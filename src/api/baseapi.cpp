@@ -349,8 +349,8 @@ void TessBaseAPI::PrintVariables(FILE *fp) const {
  */
 int TessBaseAPI::Init(const char* datapath, const char* language,
                       OcrEngineMode oem, char **configs, int configs_size,
-                      const GenericVector<STRING> *vars_vec,
-                      const GenericVector<STRING> *vars_values,
+                      const std::vector<STRING> *vars_vec,
+                      const std::vector<STRING> *vars_values,
                       bool set_only_non_debug_params) {
   return Init(datapath, 0, language, oem, configs, configs_size, vars_vec,
               vars_values, set_only_non_debug_params, nullptr);
@@ -361,8 +361,8 @@ int TessBaseAPI::Init(const char* datapath, const char* language,
 // flagged by data_size = 0.
 int TessBaseAPI::Init(const char* data, int data_size, const char* language,
                       OcrEngineMode oem, char** configs, int configs_size,
-                      const GenericVector<STRING>* vars_vec,
-                      const GenericVector<STRING>* vars_values,
+                      const std::vector<STRING>* vars_vec,
+                      const std::vector<STRING>* vars_values,
                       bool set_only_non_debug_params, FileReader reader) {
   // Default language is "eng".
   if (language == nullptr) language = "eng";
