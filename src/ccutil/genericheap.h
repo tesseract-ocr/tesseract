@@ -54,7 +54,7 @@ namespace tesseract {
 // index and pointer can be changed arbitrarily by heap operations.
 // Revaluation can be done by making the Data type in the Pair derived from or
 // contain a DoublePtr as its first data element, making it possible to convert
-// the pointer to a Pair using KDPairInc::RecastDataPointer.
+// the pointer to a Pair using reinterpret_cast<KDPairDec*>.
 template <typename Pair>
 class GenericHeap {
  public:
