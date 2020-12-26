@@ -192,14 +192,16 @@ void TestParagraphDetection(const TextAndModel* correct, int num_rows) {
   GenericVector<RowInfo> row_infos;
   GenericVector<PARA*> row_owners;
   PARA_LIST paragraphs;
-  GenericVector<ParagraphModel*> models;
+  std::list<ParagraphModel*> models;
 
   MakeAsciiRowInfos(correct, num_rows, &row_infos);
   int debug_level(3);
   tesseract::DetectParagraphs(debug_level, &row_infos, &row_owners, &paragraphs,
                               &models);
   EvaluateParagraphDetection(correct, num_rows, row_owners);
-  models.delete_data_pointers();
+  for (auto* model : models) {
+    delete model;
+  }
 }
 
 TEST(ParagraphsTest, ListItemsIdentified) {
@@ -322,12 +324,14 @@ TEST(ParagraphsTest, TestSingleFullPageContinuation) {
   GenericVector<tesseract::RowInfo> row_infos;
   GenericVector<PARA*> row_owners;
   PARA_LIST paragraphs;
-  GenericVector<ParagraphModel*> models;
+  std::list<ParagraphModel*> models;
   models.push_back(new ParagraphModel(kLeft, 0, 20, 0, 10));
   MakeAsciiRowInfos(correct, num_rows, &row_infos);
   tesseract::DetectParagraphs(3, &row_infos, &row_owners, &paragraphs, &models);
   EvaluateParagraphDetection(correct, num_rows, row_owners);
-  models.delete_data_pointers();
+  for (auto* model : models) {
+    delete model;
+  }
 }
 
 const TextAndModel kRightAligned[] = {
