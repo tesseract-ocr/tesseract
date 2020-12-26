@@ -999,7 +999,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
   int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
   char pagename[MAX_PATH];
 
-  GenericVector<STRING> lines;
+  std::vector<STRING> lines;
   if (!flist) {
     buf->split('\n', &lines);
     if (lines.empty()) return false;

@@ -123,7 +123,7 @@ bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
 
 // Helper builds a dawg from the given words, using the unicharset as coding,
 // and reverse_policy for LTR/RTL, and overwrites file_type in the traineddata.
-static bool WriteDawg(const GenericVector<STRING>& words,
+static bool WriteDawg(const std::vector<STRING>& words,
                       const UNICHARSET& unicharset,
                       Trie::RTLReversePolicy reverse_policy,
                       TessdataType file_type, TessdataManager* traineddata) {
@@ -144,9 +144,9 @@ static bool WriteDawg(const GenericVector<STRING>& words,
 // Builds and writes the dawgs, given a set of words, punctuation
 // patterns, number patterns, to the traineddata. Encoding uses the given
 // unicharset, and the punc dawgs is reversed if lang_is_rtl.
-static bool WriteDawgs(const GenericVector<STRING>& words,
-                       const GenericVector<STRING>& puncs,
-                       const GenericVector<STRING>& numbers, bool lang_is_rtl,
+static bool WriteDawgs(const std::vector<STRING>& words,
+                       const std::vector<STRING>& puncs,
+                       const std::vector<STRING>& numbers, bool lang_is_rtl,
                        const UNICHARSET& unicharset,
                        TessdataManager* traineddata) {
   if (puncs.empty()) {
@@ -185,9 +185,9 @@ static bool WriteDawgs(const GenericVector<STRING>& words,
 int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir,
                      const std::string& version_str, const std::string& output_dir,
                      const std::string& lang, bool pass_through_recoder,
-                     const GenericVector<STRING>& words,
-                     const GenericVector<STRING>& puncs,
-                     const GenericVector<STRING>& numbers, bool lang_is_rtl,
+                     const std::vector<STRING>& words,
+                     const std::vector<STRING>& puncs,
+                     const std::vector<STRING>& numbers, bool lang_is_rtl,
                      FileReader reader, FileWriter writer) {
   // Build the traineddata file.
   TessdataManager traineddata;

@@ -20,7 +20,6 @@
 
 #include "errcode.h"        // for ASSERT_HOST
 
-#include <tesseract/genericvector.h>  // for GenericVector
 #include <tesseract/helpers.h>        // for ReverseN
 #include <tesseract/serialis.h>       // for TFile
 
@@ -87,7 +86,7 @@ void STRING::truncate_at(int32_t index) {
   resize(index);
 }
 
-void STRING::split(const char c, GenericVector<STRING> *splited) {
+void STRING::split(const char c, std::vector<STRING> *splited) {
   int start_index = 0;
   const int len = length();
   for (int i = 0; i < len; i++) {

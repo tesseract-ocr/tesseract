@@ -791,7 +791,7 @@ void Tesseract::CorrectClassifyWords(PAGE_RES* page_res) {
     for (int i = 0; i < word_res->correct_text.size(); ++i) {
       // The part before the first space is the real ground truth, and the
       // rest is the bounding box location and page number.
-      GenericVector<STRING> tokens;
+      std::vector<STRING> tokens;
       word_res->correct_text[i].split(' ', &tokens);
       UNICHAR_ID char_id = unicharset.unichar_to_id(tokens[0].c_str());
       choice->append_unichar_id_space_allocated(char_id,

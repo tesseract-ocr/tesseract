@@ -29,7 +29,7 @@ namespace tesseract {
 // Reads a file as a vector of STRING.
 // TODO: Use std::vector and std::string for LoadFileLinesToStrings.
 inline bool LoadFileLinesToStrings(const char* filename,
-                                   GenericVector<STRING>* lines) {
+                                   std::vector<STRING>* lines) {
   GenericVector<char> data;
   if (!LoadDataFromFile(filename, &data)) {
     return false;

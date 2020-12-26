@@ -74,9 +74,9 @@ bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
 int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir,
                      const std::string& version_str, const std::string& output_dir,
                      const std::string& lang, bool pass_through_recoder,
-                     const GenericVector<STRING>& words,
-                     const GenericVector<STRING>& puncs,
-                     const GenericVector<STRING>& numbers, bool lang_is_rtl,
+                     const std::vector<STRING>& words,
+                     const std::vector<STRING>& puncs,
+                     const std::vector<STRING>& numbers, bool lang_is_rtl,
                      FileReader reader, FileWriter writer);
 
 }  // namespace tesseract
