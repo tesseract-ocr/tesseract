@@ -38,7 +38,9 @@
 #include <tesseract/version.h>
 
 #include <cstdio>
-#include <functional>  // for std::function
+#include <functional> // for std::function
+#include <list>       // for std::list
+#include <vector>     // for std::vector
 
 struct Pix;
 struct Box;
@@ -815,7 +817,7 @@ class TESS_API TessBaseAPI {
   EquationDetect* equ_detect_;     ///< The equation detector.
   FileReader reader_;              ///< Reads files from any filesystem.
   ImageThresholder* thresholder_;  ///< Image thresholding module.
-  std::vector<ParagraphModel*>* paragraph_models_;
+  std::list<ParagraphModel*>* paragraph_models_;
   BLOCK_LIST* block_list_;            ///< The page layout.
   PAGE_RES* page_res_;                ///< The page-level data.
   STRING* input_file_;                ///< Name used by training code.

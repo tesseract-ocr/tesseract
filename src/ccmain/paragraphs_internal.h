@@ -193,10 +193,10 @@ class ParagraphTheory {
  public:
   // We presume models will outlive us, and that models will take ownership
   // of any ParagraphModel *'s we add.
-  explicit ParagraphTheory(std::vector<ParagraphModel *> *models)
+  explicit ParagraphTheory(std::list<ParagraphModel *> *models)
       : models_(models) {}
-  std::vector<ParagraphModel *> &models() { return *models_; }
-  const std::vector<ParagraphModel *> &models() const { return *models_; }
+  std::list<ParagraphModel *> &models() { return *models_; }
+  const std::list<ParagraphModel *> &models() const { return *models_; }
 
   // Return an existing model if one that is Comparable() can be found.
   // Else, allocate a new copy of model to save and return a pointer to it.
@@ -216,7 +216,7 @@ class ParagraphTheory {
   int IndexOf(const ParagraphModel *model) const;
 
  private:
-  std::vector<ParagraphModel *> *models_;
+  std::list<ParagraphModel *> *models_;
   GenericVectorEqEq<ParagraphModel *> models_we_added_;
 };
 
