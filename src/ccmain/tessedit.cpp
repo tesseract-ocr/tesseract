@@ -79,8 +79,8 @@ void Tesseract::read_config_file(const char* filename,
 bool Tesseract::init_tesseract_lang_data(
     const char* arg0, const char* textbase, const char* language,
     OcrEngineMode oem, char** configs, int configs_size,
-    const GenericVector<STRING>* vars_vec,
-    const GenericVector<STRING>* vars_values, bool set_only_non_debug_params,
+    const std::vector<STRING>* vars_vec,
+    const std::vector<STRING>* vars_values, bool set_only_non_debug_params,
     TessdataManager* mgr) {
   // Set the basename, compute the data directory.
   main_setup(arg0, textbase);
@@ -243,7 +243,7 @@ bool Tesseract::init_tesseract_lang_data(
 
 // Helper returns true if the given string is in the vector of strings.
 static bool IsStrInList(const STRING& str,
-                        const GenericVector<STRING>& str_list) {
+                        const std::vector<STRING>& str_list) {
   for (int i = 0; i < str_list.size(); ++i) {
     if (str_list[i] == str) return true;
   }
@@ -256,14 +256,14 @@ static bool IsStrInList(const STRING& str,
 // Langs with ~ prefix get appended to not_to_load, provided they are not in
 // there already.
 void Tesseract::ParseLanguageString(const char* lang_str,
-                                    GenericVector<STRING>* to_load,
-                                    GenericVector<STRING>* not_to_load) {
+                                    std::vector<STRING>* to_load,
+                                    std::vector<STRING>* not_to_load) {
   STRING remains(lang_str);
   while (remains.length() > 0) {
     // Find the start of the lang code and which vector to add to.
     const char* start = remains.c_str();
     while (*start == '+') ++start;
-    GenericVector<STRING>* target = to_load;
+    std::vector<STRING>* target = to_load;
     if (*start == '~') {
       target = not_to_load;
       ++start;
@@ -290,15 +290,17 @@ void Tesseract::ParseLanguageString(const char* lang_str,
 int Tesseract::init_tesseract(const char* arg0, const char* textbase,
                               const char* language, OcrEngineMode oem,
                               char** configs, int configs_size,
-                              const GenericVector<STRING>* vars_vec,
-                              const GenericVector<STRING>* vars_values,
+                              const std::vector<STRING>* vars_vec,
+                              const std::vector<STRING>* vars_values,
                               bool set_only_non_debug_params,
                               TessdataManager* mgr) {
-  GenericVector<STRING> langs_to_load;
-  GenericVector<STRING> langs_not_to_load;
+  std::vector<STRING> langs_to_load;
+  std::vector<STRING> langs_not_to_load;
   ParseLanguageString(language, &langs_to_load, &langs_not_to_load);
 
-  sub_langs_.delete_data_pointers();
+  for (auto* lang : sub_langs_) {
+    delete lang;
+  }
   sub_langs_.clear();
   // Find the first loadable lang and load into this.
   // Add any languages that this language requires
@@ -390,8 +392,8 @@ int Tesseract::init_tesseract(const char* arg0, const char* textbase,
 int Tesseract::init_tesseract_internal(const char* arg0, const char* textbase,
                                        const char* language, OcrEngineMode oem,
                                        char** configs, int configs_size,
-                                       const GenericVector<STRING>* vars_vec,
-                                       const GenericVector<STRING>* vars_values,
+                                       const std::vector<STRING>* vars_vec,
+                                       const std::vector<STRING>* vars_values,
                                        bool set_only_non_debug_params,
                                        TessdataManager* mgr) {
   if (!init_tesseract_lang_data(arg0, textbase, language, oem, configs,
