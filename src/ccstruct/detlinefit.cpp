@@ -138,21 +138,21 @@ double DetLineFit::ConstrainedFit(const FCOORD& direction,
     return 0.0;
   }
   int median_index = distances_.choose_nth_item(distances_.size() / 2);
-  *line_pt = distances_[median_index].data;
+  *line_pt = distances_[median_index].data();
   if (debug) {
     tprintf("Constrained fit to dir %g, %g = %d, %d :%d distances:\n",
             direction.x(), direction.y(),
             line_pt->x(), line_pt->y(), distances_.size());
     for (int i = 0; i < distances_.size(); ++i) {
-      tprintf("%d: %d, %d -> %g\n", i, distances_[i].data.x(),
-              distances_[i].data.y(), distances_[i].key);
+      tprintf("%d: %d, %d -> %g\n", i, distances_[i].data().x(),
+              distances_[i].data().y(), distances_[i].key());
     }
     tprintf("Result = %d\n", median_index);
   }
   // Center distances on the fitted point.
   double dist_origin = direction * *line_pt;
   for (int i = 0; i < distances_.size(); ++i) {
-    distances_[i].key -= dist_origin;
+    distances_[i].key() -= dist_origin;
   }
   return sqrt(EvaluateLineFit());
 }
@@ -218,11 +218,11 @@ double DetLineFit::ComputeUpperQuartileError() {
   if (num_errors == 0) return 0.0;
   // Get the absolute values of the errors.
   for (int i = 0; i < num_errors; ++i) {
-    if (distances_[i].key < 0) distances_[i].key = -distances_[i].key;
+    if (distances_[i].key() < 0) distances_[i].key() = -distances_[i].key();
   }
   // Now get the upper quartile distance.
   int index = distances_.choose_nth_item(3 * num_errors / 4);
-  double dist = distances_[index].key;
+  double dist = distances_[index].key();
   // The true distance is the square root of the dist squared / square_length.
   // Don't bother with the square root. Just return the square distance.
   return square_length_ > 0.0 ? dist * dist / square_length_ : 0.0;
@@ -234,7 +234,7 @@ int DetLineFit::NumberOfMisfittedPoints(double threshold) const {
   int num_dists = distances_.size();
   // Get the absolute values of the errors.
   for (int i = 0; i < num_dists; ++i) {
-    if (distances_[i].key > threshold)
+    if (distances_[i].key() > threshold)
       ++num_misfits;
   }
   return num_misfits;

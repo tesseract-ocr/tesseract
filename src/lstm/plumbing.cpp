@@ -165,7 +165,7 @@ Network* Plumbing::GetLayer(const char* id) const {
 }
 
 // Returns a pointer to the learning rate for the given layer id.
-float* Plumbing::LayerLearningRatePtr(const char* id) const {
+float* Plumbing::LayerLearningRatePtr(const char* id) {
   char* next_id;
   int index = strtol(id, &next_id, 10);
   if (index < 0 || index >= stack_.size()) return nullptr;

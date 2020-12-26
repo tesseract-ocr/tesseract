@@ -172,7 +172,8 @@ template <typename T>
 int UnicityTable<T>::push_back(T object) {
   int idx = get_id(object);
   if (idx == -1) {
-    idx = table_.push_back(object);
+    table_.push_back(object);
+    idx = size();
   }
   return idx;
 }

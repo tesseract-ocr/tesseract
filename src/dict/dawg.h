@@ -370,17 +370,14 @@ struct DawgPosition {
 
 class DawgPositionVector : public GenericVector<DawgPosition> {
  public:
-  /// Overload clear() in order to avoid allocating/deallocating memory
-  /// when clearing the vector and re-inserting entries into it later.
-  void clear() { size_used_ = 0; }
   /// Adds an entry for the given dawg_index with the given node to the vec.
   /// Returns false if the same entry already exists in the vector,
   /// true otherwise.
   inline bool add_unique(const DawgPosition &new_pos,
                          bool debug,
                          const char *debug_msg) {
-    for (int i = 0; i < size_used_; ++i) {
-      if (data_[i] == new_pos) return false;
+    for (int i = 0; i < size(); ++i) {
+      if (data()[i] == new_pos) return false;
     }
     push_back(new_pos);
     if (debug) {

@@ -39,8 +39,8 @@ const float LMPainPoints::kLooseMaxCharWhRatio = 2.5f;
 LMPainPointsType LMPainPoints::Deque(MATRIX_COORD *pp, float *priority) {
   for (int h = 0; h < LM_PPTYPE_NUM; ++h) {
     if (pain_points_heaps_[h].empty()) continue;
-    *priority = pain_points_heaps_[h].PeekTop().key;
-    *pp = pain_points_heaps_[h].PeekTop().data;
+    *priority = pain_points_heaps_[h].PeekTop().key();
+    *pp = pain_points_heaps_[h].PeekTop().data();
     pain_points_heaps_[h].Pop(nullptr);
     return static_cast<LMPainPointsType>(h);
   }
@@ -212,7 +212,7 @@ void LMPainPoints::RemapForSplit(int index) {
   for (auto & pain_points_heap : pain_points_heaps_) {
     GenericVector<MatrixCoordPair>* heap = pain_points_heap.heap();
     for (int j = 0; j < heap->size(); ++j)
-      (*heap)[j].data.MapForSplit(index);
+      (*heap)[j].data().MapForSplit(index);
   }
 }
 

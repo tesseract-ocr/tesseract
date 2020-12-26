@@ -27,7 +27,9 @@
 #include "networkio.h"
 #include "ratngs.h"
 #include "unicharcompress.h"
+
 #include <deque>
+#include <memory>
 #include <set>
 #include <tuple>
 #include <vector>
@@ -124,17 +126,9 @@ struct RecodeNode {
   // don't want to copy the whole DawgPositionVector each time, and true
   // copying isn't necessary for this struct. It does get moved around a lot
   // though inside the heap and during heap push, hence the move semantics.
-  RecodeNode(RecodeNode& src) : dawgs(nullptr) {
-    *this = src;
-    ASSERT_HOST(src.dawgs == nullptr);
-  }
-  RecodeNode& operator=(RecodeNode& src) {
-    delete dawgs;
-    memcpy(this, &src, sizeof(src));
-    src.dawgs = nullptr;
-    return *this;
-  }
-  ~RecodeNode() { delete dawgs; }
+  RecodeNode(RecodeNode &&) = default;
+  RecodeNode& operator=(RecodeNode &&) = default;
+
   // Prints details of the node.
   void Print(int null_char, const UNICHARSET& unicharset, int depth) const;
 
@@ -167,7 +161,7 @@ struct RecodeNode {
   // The previous node in this chain. Borrowed pointer.
   const RecodeNode* prev;
   // The currently active dawgs at this position. Owned pointer.
-  DawgPositionVector* dawgs;
+  std::unique_ptr<DawgPositionVector> dawgs;
   // A hash of all codes in the prefix and this->code as well. Used for
   // duplicate path removal.
   uint64_t code_hash;
@@ -220,10 +214,10 @@ class RecodeBeamSearch {
   // Extract the best charakters from the current decode iteration and block
   // those symbols for the next iteration. In contrast to tesseracts standard
   // method to chose the best overall node chain, this methods looks at a short
-  // node chain segmented by the character boundaries and chooses the best 
+  // node chain segmented by the character boundaries and chooses the best
   // option independent of the remaining node chain.
   void extractSymbolChoices(const UNICHARSET* unicharset);
-  
+
   // Generates debug output of the content of the beams after a Decode.
   void PrintBeam2(bool uids, int num_outputs, const UNICHARSET* charset,
                   bool secondary) const;
@@ -278,9 +272,8 @@ class RecodeBeamSearch {
       for (auto & beam : beams_) {
         beam.clear();
       }
-      RecodeNode empty;
       for (auto & best_initial_dawg : best_initial_dawgs_) {
-        best_initial_dawg = empty;
+        best_initial_dawg = {};
       }
     }
 
@@ -341,7 +334,7 @@ class RecodeBeamSearch {
                   const UNICHARSET* charset, bool debug = false);
 
   // Saves the most certain choices for the current time-step.
-  void SaveMostCertainChoices(const float* outputs, int num_outputs, 
+  void SaveMostCertainChoices(const float* outputs, int num_outputs,
                               const UNICHARSET* charset, int xCoord);
 
   // Calculates more accurate character boundaries which can be used to

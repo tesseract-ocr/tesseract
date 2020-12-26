@@ -508,13 +508,13 @@ int STATS::top_n_modes(int max_modes,
         int target_index = 0;
         // Linear search for the target insertion point.
         while (target_index < modes->size() &&
-               (*modes)[target_index].data >= total_count)
+               (*modes)[target_index].data() >= total_count)
           ++target_index;
         auto peak_mean =
             static_cast<float>(total_value / total_count + rangemin_);
         modes->insert(KDPairInc<float, int>(peak_mean, total_count),
                       target_index);
-        least_count = modes->back().data;
+        least_count = modes->back().data();
       }
     }
   } while (max_count > 0);
