@@ -2304,10 +2304,10 @@ void TessBaseAPI::DetectParagraphs(bool after_text_recognition) {
   int debug_level = 0;
   GetIntVariable("paragraph_debug_level", &debug_level);
   if (paragraph_models_ == nullptr)
-    paragraph_models_ = new std::vector<ParagraphModel*>;
+    paragraph_models_ = new std::list<ParagraphModel*>;
   MutableIterator *result_it = GetMutableIterator();
   do {  // Detect paragraphs for this block
-    std::vector<ParagraphModel *> models;
+    std::list<ParagraphModel *> models;
     ::tesseract::DetectParagraphs(debug_level, after_text_recognition,
                                   result_it, &models);
     paragraph_models_->insert(paragraph_models_->end(), models.begin(), models.end());
