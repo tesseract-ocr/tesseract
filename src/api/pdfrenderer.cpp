@@ -891,9 +891,9 @@ bool TessPDFRenderer::EndDocumentHandler() {
   stream << kPagesObjectNumber << " 0 obj\n<<\n  /Type /Pages\n  /Kids [ ";
   AppendString(stream.str().c_str());
   size_t pages_objsize  = stream.str().size();
-  for (size_t i = 0; i < pages_.unsigned_size(); i++) {
+  for (const auto& page : pages_) {
     stream.str("");
-    stream << pages_[i] << " 0 R ";
+    stream << page << " 0 R ";
     AppendString(stream.str().c_str());
     pages_objsize += stream.str().size();
   }
