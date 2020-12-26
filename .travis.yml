@@ -3,6 +3,7 @@
 language: cpp
 
 dist: bionic
+osx_image: xcode12.2
 
 env:
   - LEPT_VER=1.78.0
