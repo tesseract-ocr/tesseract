@@ -34,8 +34,13 @@ namespace tesseract {
 // A useful base struct to facilitate the common operation of sorting a vector
 // of simple or smart-pointer data using a separate key. Similar to STL pair.
 template <typename Key, typename Data>
-struct KDPair : public std::pair<Key, Data> {
+class KDPair : public std::pair<Key, Data> {
+  using base = std::pair<Key, Data>;
+ public:
   using std::pair<Key, Data>::pair;
+
+  using base::first;
+  using base::second;
 
   int operator==(const KDPair<Key, Data>& other) const {
     return first == other.first;
@@ -58,7 +63,8 @@ struct KDPair : public std::pair<Key, Data> {
 // Specialization of KDPair to provide operator< for sorting in increasing order
 // and recasting of data pointers for use with DoublePtr.
 template <typename Key, typename Data>
-struct KDPairInc : public KDPair<Key, Data> {
+class KDPairInc : public KDPair<Key, Data> {
+ public:
   using KDPair<Key, Data>::KDPair;
 
   // Operator< facilitates sorting in increasing order.
@@ -70,7 +76,8 @@ struct KDPairInc : public KDPair<Key, Data> {
 // Specialization of KDPair to provide operator< for sorting in decreasing order
 // and recasting of data pointers for use with DoublePtr.
 template <typename Key, typename Data>
-struct KDPairDec : public KDPair<Key, Data> {
+class KDPairDec : public KDPair<Key, Data> {
+ public:
   using KDPair<Key, Data>::KDPair;
 
   // Operator< facilitates sorting in decreasing order by using operator> on
@@ -87,14 +94,18 @@ struct KDPairDec : public KDPair<Key, Data> {
 // only a single instance of KDPtrPair holds a specific data pointer.
 template <typename Key, typename Data>
 class KDPtrPair : public std::pair<Key, std::unique_ptr<Data>> {
+  using base = std::pair<Key, std::unique_ptr<Data>>;
  public:
+  using base::first;
+  using base::second;
+
   KDPtrPair() = default;
   KDPtrPair(Key k, Data* d) : std::pair<Key, std::unique_ptr<Data>>(k, d) {}
   KDPtrPair(KDPtrPair &&src) = default;
   KDPtrPair &operator=(KDPtrPair &&src) = default;
 
   int operator==(const KDPtrPair<Key, Data>& other) const {
-    return key_ == other.key_;
+    return key() == other.key();
   }
 
   // Accessors.

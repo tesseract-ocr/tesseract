@@ -37,8 +37,19 @@ namespace tesseract {
 // sort that works.
 template <typename T>
 class GenericVector : public std::vector<T> {
+  using base = std::vector<T>;
  public:
   using std::vector<T>::vector;
+
+  using base::begin;
+  using base::end;
+  using base::data;
+  using base::capacity;
+  using base::reserve;
+  using base::resize;
+  using base::back;
+  using base::clear;
+  using base::push_back;
 
   GenericVector<T>& operator+=(const GenericVector& other);
 
@@ -61,7 +72,7 @@ class GenericVector : public std::vector<T> {
   }
 
   int size() const {
-      return vector::size();
+      return base::size();
   }
 
   // Return the object from an index.
@@ -442,7 +453,7 @@ class PointerVector : public GenericVector<T*> {
         delete GenericVector<T*>::data()[old_index];
       }
     }
-    resize(new_size);
+    GenericVector<T*>::resize(new_size);
   }
 
   // Clear the array, calling the clear callback function if any.
@@ -650,7 +661,7 @@ const T& GenericVector<T>::get(int index) const {
 template <typename T>
 T GenericVector<T>::pop_back() {
   auto b = back();
-  vector::pop_back();
+  base::pop_back();
   return b;
 }
 
@@ -666,7 +677,7 @@ void GenericVector<T>::set(const T& t, int index) {
 // at the specified index.
 template <typename T>
 void GenericVector<T>::insert(const T& t, int index) {
-  vector::insert(begin() + index, t);
+  base::insert(begin() + index, t);
 }
 
 // Removes an element at the given index and

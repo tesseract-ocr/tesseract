@@ -129,7 +129,9 @@ const int kMaxIntSize = 22;
 static void addAvailableLanguages(const STRING &datadir, const STRING &base,
                                   GenericVector<STRING>* langs)
 {
-  const STRING base2 = (base.c_str()[0] == '\0') ? base : base + "/";
+  auto base2 = base;
+  if (!base2.empty())
+    base2 += "/";
   const size_t extlen = sizeof(kTrainedDataSuffix);
 #ifdef _WIN32
     WIN32_FIND_DATA data;
