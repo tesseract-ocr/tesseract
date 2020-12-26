@@ -25,9 +25,9 @@
 #include          "normalis.h"
 #include          "werd.h"
 
-#ifndef GRAPHICS_DISABLED
-
 namespace tesseract {
+
+#ifndef GRAPHICS_DISABLED
 
 #define FXDEMOWIN     "FXDemo"
 #define FXDEMOXPOS      250
