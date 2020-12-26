@@ -310,11 +310,13 @@ class GenericVector : public std::vector<T> {
   std::function<bool(const T&, const T&)> compare_cb_;
 };
 
-#if defined(_MSC_VER)
-// msvc stl does not have ::data() in vector<bool>,
-// so we add custom specialization
+#if defined(_MSC_VER) || defined(__APPLE__)
+// MSVC stl does not have ::data() in vector<bool>,
+// so we add custom specialization.
+// On Apple there are also errors when using std::vector<bool>,
+// so we replace it with vector<int> as a workaround.
 template <>
-class GenericVector<bool> : public std::vector<bool> {};
+class GenericVector<bool> : public std::vector<int> {};
 #endif
 
 // The default FileReader loads the whole file into the vector of char,
