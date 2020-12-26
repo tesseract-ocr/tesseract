@@ -531,6 +531,13 @@ class WERD_CHOICE : public ELIST_LINK {
 
   // Returns a UTF-8 string equivalent to the current choice
   // of UNICHAR IDs.
+  STRING &unichar_string() {
+      this->string_and_lengths(&unichar_string_, &unichar_lengths_);
+      return unichar_string_;
+  }
+
+  // Returns a UTF-8 string equivalent to the current choice
+  // of UNICHAR IDs.
   const STRING &unichar_string() const {
     this->string_and_lengths(&unichar_string_, &unichar_lengths_);
     return unichar_string_;
