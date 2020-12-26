@@ -666,7 +666,7 @@ void GenericVector<T>::set(const T& t, int index) {
 // at the specified index.
 template <typename T>
 void GenericVector<T>::insert(const T& t, int index) {
-  insert(begin() + index, t);
+  vector::insert(begin() + index, t);
 }
 
 // Removes an element at the given index and
