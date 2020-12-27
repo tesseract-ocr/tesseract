@@ -25,8 +25,6 @@
 #include "unicharset.h"
 #include "unicodes.h"
 
-#include <tesseract/strngs.h>
-
 #include "allheaders.h"
 
 #include <set>
@@ -385,7 +383,7 @@ bool ResultIterator::IsAtFirstSymbolOfWord() const {
   return blob_order.size() == 0 || blob_order[0] == blob_index_;
 }
 
-void ResultIterator::AppendSuffixMarks(STRING* text) const {
+void ResultIterator::AppendSuffixMarks(std::string* text) const {
   if (!it_->word())
     return;
   bool reading_direction_is_ltr =
@@ -613,7 +611,7 @@ int ResultIterator::BlanksBeforeWord() const {
 char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   if (it_->word() == nullptr)
     return nullptr;  // Already at the end!
-  STRING text;
+  std::string text;
   switch (level) {
     case RIL_BLOCK: {
       ResultIterator pp(*this);
@@ -666,7 +664,7 @@ ResultIterator::GetBestLSTMSymbolChoices() const {
   }
 }
 
-void ResultIterator::AppendUTF8WordText(STRING* text) const {
+void ResultIterator::AppendUTF8WordText(std::string* text) const {
   if (!it_->word())
     return;
   ASSERT_HOST(it_->word()->best_choice != nullptr);
@@ -684,7 +682,7 @@ void ResultIterator::AppendUTF8WordText(STRING* text) const {
   AppendSuffixMarks(text);
 }
 
-void ResultIterator::IterateAndAppendUTF8TextlineText(STRING* text) {
+void ResultIterator::IterateAndAppendUTF8TextlineText(std::string* text) {
   if (Empty(RIL_WORD)) {
     Next(RIL_WORD);
     return;
@@ -728,7 +726,7 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(STRING* text) {
   }
 }
 
-void ResultIterator::AppendUTF8ParagraphText(STRING* text) const {
+void ResultIterator::AppendUTF8ParagraphText(std::string* text) const {
   ResultIterator it(*this);
   it.RestartParagraph();
   it.MoveToLogicalStartOfTextline();
