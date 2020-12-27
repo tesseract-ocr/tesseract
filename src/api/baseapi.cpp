@@ -425,7 +425,7 @@ const char* TessBaseAPI::GetInitLanguagesAsString() const {
 }
 
 /**
- * Returns the loaded languages in the vector of STRINGs.
+ * Returns the loaded languages in the vector of std::string.
  * Includes all languages loaded by the last Init, including those loaded
  * as dependencies of other loaded languages.
  */
@@ -441,7 +441,7 @@ void TessBaseAPI::GetLoadedLanguagesAsVector(
 }
 
 /**
- * Returns the available languages in the sorted vector of STRINGs.
+ * Returns the available languages in the sorted vector of std::string.
  */
 void TessBaseAPI::GetAvailableLanguagesAsVector(
     std::vector<std::string>* langs) const {
@@ -973,8 +973,9 @@ int TessBaseAPI::GetSourceYResolution() {
 // Seems convoluted, but is the easiest way I know of to meet multiple
 // goals. Support streaming from stdin, and also work on platforms
 // lacking fmemopen.
+// TODO: check different logic for flist/buf and simplify.
 bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
-                                       STRING *buf,
+                                       std::string *buf,
                                        const char* retry_config,
                                        int timeout_millisec,
                                        TessResultRenderer* renderer,
@@ -983,9 +984,17 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
   int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
   char pagename[MAX_PATH];
 
-  std::vector<STRING> lines;
+  std::vector<std::string> lines;
   if (!flist) {
-    buf->split('\n', &lines);
+    std::string line;
+    for (const auto ch : *buf) {
+      if (ch == '\n') {
+        lines.push_back(line);
+	line.clear();
+      } else {
+        line.push_back(ch);
+      }
+    }
     if (lines.empty()) return false;
   }
 
@@ -1193,7 +1202,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
 
   // Maybe we have a filelist
   if (r != 0 || format == IFF_UNKNOWN) {
-    STRING s;
+    std::string s;
     if (data != nullptr) {
       s = buf.c_str();
     } else {
@@ -1364,7 +1373,7 @@ char* TessBaseAPI::GetUTF8Text() {
   if (tesseract_ == nullptr ||
       (!recognition_done_ && Recognize(nullptr) < 0))
     return nullptr;
-  STRING text("");
+  std::string text("");
   ResultIterator *it = GetIterator();
   do {
     if (it->Empty(RIL_PARA)) continue;

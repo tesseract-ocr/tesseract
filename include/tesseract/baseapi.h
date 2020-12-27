@@ -57,7 +57,6 @@ class BLOCK_LIST;
 class DENORM;
 class MATRIX;
 class ROW;
-class STRING;
 class WERD;
 class ETEXT_DESC;
 struct OSResults;
@@ -841,7 +840,7 @@ class TESS_API TessBaseAPI {
 
  private:
   // A list of image filenames gets special consideration
-  bool ProcessPagesFileList(FILE* fp, STRING* buf, const char* retry_config,
+  bool ProcessPagesFileList(FILE* fp, std::string* buf, const char* retry_config,
                             int timeout_millisec, TessResultRenderer* renderer,
                             int tessedit_page_number);
   // TIFF supports multipage so gets special consideration.
