@@ -4,7 +4,6 @@
 //              iterating in proper reading order over Bi Directional
 //              (e.g. mixed Hebrew and English) text.
 // Author:      David Eger
-// Created:     Fri May 27 13:58:06 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,11 +30,6 @@
 #include <vector>  // for std::vector
 
 namespace tesseract {
-
-template <typename T>
-class GenericVector;
-template <typename T>
-class GenericVectorEqEq;
 
 class STRING;
 
@@ -140,8 +134,8 @@ class TESS_API ResultIterator : public LTRResultIterator {
    */
   static void CalculateTextlineOrder(
       bool paragraph_is_ltr,
-      const GenericVector<StrongScriptDirection>& word_dirs,
-      GenericVectorEqEq<int>* reading_order);
+      const std::vector<StrongScriptDirection>& word_dirs,
+      std::vector<int>* reading_order);
 
   static const int kMinorRunStart;
   static const int kMinorRunEnd;
@@ -176,12 +170,12 @@ class TESS_API ResultIterator : public LTRResultIterator {
    */
   void CalculateTextlineOrder(bool paragraph_is_ltr,
                               const LTRResultIterator& resit,
-                              GenericVectorEqEq<int>* indices) const;
+                              std::vector<int>* indices) const;
   /** Same as above, but the caller's ssd gets filled in if ssd != nullptr. */
   void CalculateTextlineOrder(bool paragraph_is_ltr,
                               const LTRResultIterator& resit,
-                              GenericVector<StrongScriptDirection>* ssd,
-                              GenericVectorEqEq<int>* indices) const;
+                              std::vector<StrongScriptDirection>* ssd,
+                              std::vector<int>* indices) const;
 
   /**
    * What is the index of the current word in a strict left-to-right reading
@@ -193,7 +187,7 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * Given an iterator pointing at a word, returns the logical reading order
    * of blob indices for the word.
    */
-  void CalculateBlobOrder(GenericVector<int>* blob_indices) const;
+  void CalculateBlobOrder(std::vector<int>* blob_indices) const;
 
   /** Precondition: current_paragraph_is_ltr_ is set. */
   void MoveToLogicalStartOfTextline();
