@@ -2313,8 +2313,8 @@ int TessBaseAPI::NumDawgs() const {
 }
 
 /** Escape a char string - remove <>&"' with HTML codes. */
-STRING HOcrEscape(const char* text) {
-  STRING ret;
+std::string HOcrEscape(const char* text) {
+  std::string ret;
   const char *ptr;
   for (ptr = text; *ptr; ptr++) {
     switch (*ptr) {
