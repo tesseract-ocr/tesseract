@@ -16,7 +16,7 @@
  *
  **********************************************************************/
 
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 #include "errcode.h"        // for ASSERT_HOST
 

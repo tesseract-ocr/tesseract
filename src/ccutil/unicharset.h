@@ -25,7 +25,7 @@
 #include "genericvector.h"
 #include <tesseract/helpers.h>
 #include <tesseract/serialis.h>
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include <tesseract/unichar.h>
 
 #include <functional>           // for std::function

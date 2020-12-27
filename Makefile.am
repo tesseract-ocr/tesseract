@@ -59,7 +59,6 @@ pkginclude_HEADERS += include/tesseract/publictypes.h
 pkginclude_HEADERS += include/tesseract/renderer.h
 pkginclude_HEADERS += include/tesseract/resultiterator.h
 pkginclude_HEADERS += include/tesseract/serialis.h
-pkginclude_HEADERS += include/tesseract/strngs.h
 pkginclude_HEADERS += include/tesseract/thresholder.h
 pkginclude_HEADERS += include/tesseract/unichar.h
 
@@ -335,6 +334,7 @@ noinst_HEADERS += src/ccutil/params.h
 noinst_HEADERS += src/ccutil/qrsequence.h
 noinst_HEADERS += src/ccutil/sorthelper.h
 noinst_HEADERS += src/ccutil/scanutils.h
+noinst_HEADERS += src/ccutil/strngs.h
 noinst_HEADERS += src/ccutil/tessdatamanager.h
 noinst_HEADERS += src/ccutil/tprintf.h
 noinst_HEADERS += src/ccutil/unicharcompress.h

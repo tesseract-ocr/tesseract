@@ -27,7 +27,7 @@
 #include "lm_consistency.h"  // for LMConsistencyInfo
 #include "ratngs.h"          // for BLOB_CHOICE, PermuterType
 #include "stopper.h"         // for DANGERR
-#include <tesseract/strngs.h>          // for STRING
+#include "strngs.h"          // for STRING
 #include <tesseract/unichar.h>         // for UNICHAR_ID
 #include "unicharset.h"      // for UNICHARSET
 

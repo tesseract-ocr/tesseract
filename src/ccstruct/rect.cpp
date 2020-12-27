@@ -23,7 +23,7 @@
 
 #include "rect.h"
 
-#include <tesseract/strngs.h>     // for STRING
+#include "strngs.h"     // for STRING
 
 namespace tesseract {
 

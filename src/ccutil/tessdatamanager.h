@@ -21,7 +21,7 @@
 
 #include <string>
 #include "genericvector.h"
-#include <tesseract/strngs.h>             // for STRING
+#include "strngs.h"             // for STRING
 
 static const char kTrainedDataSuffix[] = "traineddata";
 

@@ -21,7 +21,7 @@
 #include "commontraining.h"
 #include "genericvector.h"
 #include "lstmtester.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "tprintf.h"
 
 using namespace tesseract;

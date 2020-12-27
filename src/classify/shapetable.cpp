@@ -25,7 +25,7 @@
 #include "bitvector.h"
 #include "fontinfo.h"
 #include "intfeaturespace.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "unicharset.h"
 #include "unicity_table.h"
 

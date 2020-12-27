@@ -25,7 +25,7 @@
 #include "blobbox.h"
 #include "tabvector.h"
 
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 namespace tesseract {
 

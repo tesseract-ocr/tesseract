@@ -25,7 +25,7 @@
 #include <unordered_map>
 
 #include <tesseract/serialis.h>
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "unicharset.h"
 
 namespace tesseract {

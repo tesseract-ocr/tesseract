@@ -26,7 +26,7 @@
 #include "commontraining.h"
 #include "mastertrainer.h"
 #include "params.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 using namespace tesseract;
 

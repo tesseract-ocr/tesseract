@@ -25,7 +25,7 @@
 #include "rect.h"
 
 #include "genericvector.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 struct Pix;
 

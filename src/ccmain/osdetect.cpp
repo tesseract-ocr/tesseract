@@ -32,7 +32,7 @@
 #include "tesseractclass.h"
 #include "textord.h"
 
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 #include <algorithm>
 #include <cmath>        // for std::fabs

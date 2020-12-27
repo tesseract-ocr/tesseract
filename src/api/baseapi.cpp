@@ -62,7 +62,7 @@
 #include <tesseract/baseapi.h>
 #include <tesseract/renderer.h>          // for TessResultRenderer
 #include <tesseract/resultiterator.h>    // for ResultIterator
-#include <tesseract/strngs.h>            // for STRING
+#include "strngs.h"            // for STRING
 #include <tesseract/thresholder.h>       // for ImageThresholder
 #include <tesseract/helpers.h>           // for IntCastRounded, chomp_string
 #include <tesseract/ocrclass.h>          // for ETEXT_DESC

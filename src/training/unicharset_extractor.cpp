@@ -27,7 +27,7 @@
 #include "genericvector.h"
 #include "lang_model_helpers.h"
 #include "normstrngs.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "unicharset.h"
 #include "unicharset_training_utils.h"
 

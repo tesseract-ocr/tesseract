@@ -722,7 +722,6 @@ install(FILES
     include/tesseract/ocrclass.h
     include/tesseract/platform.h
     include/tesseract/serialis.h
-    include/tesseract/strngs.h
     include/tesseract/unichar.h
 
     #${CMAKE_CURRENT_BINARY_DIR}/src/endianness.h

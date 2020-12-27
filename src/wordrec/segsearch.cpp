@@ -26,7 +26,7 @@
 #include "pageres.h"         // for WERD_RES
 #include "params.h"          // for BoolParam, IntParam, DoubleParam
 #include "ratngs.h"          // for BLOB_CHOICE_LIST, BLOB_CHOICE_IT
-#include <tesseract/strngs.h>          // for STRING
+#include "strngs.h"          // for STRING
 #include "tprintf.h"         // for tprintf
 #include "wordrec.h"         // for Wordrec, SegSearchPending (ptr only)
 

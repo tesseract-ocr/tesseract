@@ -21,7 +21,7 @@
 #include <mutex>
 #include "genericvector.h"
 #include "lstmtrainer.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 namespace tesseract {
 

@@ -40,7 +40,7 @@
 #include "ratngs.h"               // for WERD_CHOICE
 #include "rect.h"                 // for TBOX
 #include "statistc.h"             // for STATS
-#include <tesseract/strngs.h>               // for STRING
+#include "strngs.h"               // for STRING
 #include "tprintf.h"              // for tprintf
 #include <tesseract/unichar.h>              // for UNICHAR, UNICHAR_ID
 #include "unicharset.h"           // for UNICHARSET
