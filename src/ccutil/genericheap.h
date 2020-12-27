@@ -54,7 +54,7 @@ namespace tesseract {
 // index and pointer can be changed arbitrarily by heap operations.
 // Revaluation can be done by making the Data type in the Pair derived from or
 // contain a DoublePtr as its first data element, making it possible to convert
-// the pointer to a Pair using reinterpret_cast<KDPairDec*>.
+// the pointer to a Pair using KDPairInc::RecastDataPointer.
 template <typename Pair>
 class GenericHeap {
  public:
@@ -99,10 +99,10 @@ class GenericHeap {
     // location for the new *entry. To avoid needing a default constructor
     // for primitive types, and to allow for use of DoublePtr in the Pair
     // somewhere, we have to incur a double copy here.
-    heap_.push_back(std::move(*entry));
-    *entry = std::move(heap_.back());
+    heap_.push_back(*entry);
+    *entry = heap_.back();
     hole_index = SiftUp(hole_index, *entry);
-    heap_[hole_index] = std::move(*entry);
+    heap_[hole_index] = *entry;
   }
 
   // Get the value of the top (smallest, defined by operator< ) element.
@@ -121,14 +121,14 @@ class GenericHeap {
     if (new_size < 0)
       return false;  // Already empty.
     if (entry != nullptr)
-      *entry = std::move(heap_[0]);
+      *entry = heap_[0];
     if (new_size > 0) {
       // Sift the hole at the start of the heap_ downwards to match the last
       // element.
-      auto hole_pair = std::move(heap_[new_size]);
+      Pair hole_pair = heap_[new_size];
       heap_.truncate(new_size);
       int hole_index = SiftDown(0, hole_pair);
-      heap_[hole_index] = std::move(hole_pair);
+      heap_[hole_index] = hole_pair;
     } else {
       heap_.truncate(new_size);
     }
@@ -143,13 +143,13 @@ class GenericHeap {
     if (worst_index < 0) return false;  // It cannot be empty!
     // Extract the worst element from the heap, leaving a hole at worst_index.
     if (entry != nullptr)
-      *entry = std::move(heap_[worst_index]);
+      *entry = heap_[worst_index];
     int heap_size = heap_.size() - 1;
     if (heap_size > 0) {
       // Sift the hole upwards to match the last element of the heap_
-      auto hole_pair = std::move(heap_[heap_size]);
+      Pair hole_pair = heap_[heap_size];
       int hole_index = SiftUp(worst_index, hole_pair);
-      heap_[hole_index] = std::move(hole_pair);
+      heap_[hole_index] = hole_pair;
     }
     heap_.truncate(heap_size);
     return true;
@@ -182,10 +182,10 @@ class GenericHeap {
   // Time = O(log n).
   void Reshuffle(Pair* pair) {
     int index = pair - &heap_[0];
-    auto hole_pair = std::move(heap_[index]);
+    Pair hole_pair = heap_[index];
     index = SiftDown(index, hole_pair);
     index = SiftUp(index, hole_pair);
-    heap_[index] = std::move(hole_pair);
+    heap_[index] = hole_pair;
   }
 
  private:
@@ -195,7 +195,7 @@ class GenericHeap {
   int SiftUp(int hole_index, const Pair& pair) {
     int parent;
     while (hole_index > 0 && pair < heap_[parent = ParentNode(hole_index)]) {
-      heap_[hole_index] = std::move(heap_[parent]);
+      heap_[hole_index] = heap_[parent];
       hole_index = parent;
     }
     return hole_index;
@@ -211,7 +211,7 @@ class GenericHeap {
       if (child + 1 < heap_size && heap_[child + 1] < heap_[child])
         ++child;
       if (heap_[child] < pair) {
-        heap_[hole_index] = std::move(heap_[child]);
+        heap_[hole_index] = heap_[child];
         hole_index = child;
       } else {
         break;
