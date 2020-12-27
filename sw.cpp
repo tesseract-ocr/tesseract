@@ -105,63 +105,63 @@ void build(Solution &s)
     //
     auto &tesseract = tess.addExecutable("tesseract");
     {
-    tesseract += cppstd;
-    tesseract += "src/api/tesseractmain.cpp";
-    tesseract += libtesseract;
+        tesseract += cppstd;
+        tesseract += "src/api/tesseractmain.cpp";
+        tesseract += libtesseract;
     }
 
     //
     auto &tessopt = tess.addStaticLibrary("tessopt");
     {
-    tessopt += cppstd;
-    tessopt += "src/training/tessopt.*"_rr;
-    tessopt.Public += libtesseract;
+        tessopt += cppstd;
+        tessopt += "src/training/tessopt.*"_rr;
+        tessopt.Public += libtesseract;
     }
 
     //
     auto &common_training = tess.addStaticLibrary("common_training");
     {
-    common_training += cppstd;
-    common_training +=
-        "src/training/commandlineflags.cpp",
-        "src/training/commandlineflags.h",
-        "src/training/commontraining.cpp",
-        "src/training/commontraining.h",
-        "src/training/ctc.cpp",
-        "src/training/ctc.h",
-        "src/training/errorcounter.cpp",
-        "src/training/errorcounter.h",
-        "src/training/intfeaturedist.cpp",
-        "src/training/intfeaturedist.h",
-        "src/training/intfeaturemap.cpp",
-        "src/training/intfeaturemap.h",
-        "src/training/mastertrainer.cpp",
-        "src/training/mastertrainer.h",
-        "src/training/networkbuilder.cpp",
-        "src/training/networkbuilder.h",
-        "src/training/sampleiterator.cpp",
-        "src/training/sampleiterator.h",
-        "src/training/trainingsampleset.cpp",
-        "src/training/trainingsampleset.h";
-    common_training.Public += tessopt;
+        common_training += cppstd;
+        common_training +=
+            "src/training/commandlineflags.cpp",
+            "src/training/commandlineflags.h",
+            "src/training/commontraining.cpp",
+            "src/training/commontraining.h",
+            "src/training/ctc.cpp",
+            "src/training/ctc.h",
+            "src/training/errorcounter.cpp",
+            "src/training/errorcounter.h",
+            "src/training/intfeaturedist.cpp",
+            "src/training/intfeaturedist.h",
+            "src/training/intfeaturemap.cpp",
+            "src/training/intfeaturemap.h",
+            "src/training/mastertrainer.cpp",
+            "src/training/mastertrainer.h",
+            "src/training/networkbuilder.cpp",
+            "src/training/networkbuilder.h",
+            "src/training/sampleiterator.cpp",
+            "src/training/sampleiterator.h",
+            "src/training/trainingsampleset.cpp",
+            "src/training/trainingsampleset.h";
+        common_training.Public += tessopt;
     }
 
     //
     auto &unicharset_training = tess.addStaticLibrary("unicharset_training");
     {
-    unicharset_training += cppstd;
-    unicharset_training +=
-        "src/training/fileio.*"_rr,
-        "src/training/icuerrorcode.*"_rr,
-        "src/training/icuerrorcode.h",
-        "src/training/lang_model_helpers.*"_rr,
-        "src/training/lstmtester.*"_rr,
-        "src/training/lstmtrainer.*"_rr,
-        "src/training/normstrngs.*"_rr,
-        "src/training/unicharset_training_utils.*"_rr,
-        "src/training/validat.*"_rr;
-    unicharset_training.Public += common_training;
-    unicharset_training.Public += "org.sw.demo.unicode.icu.i18n"_dep;
+        unicharset_training += cppstd;
+        unicharset_training +=
+            "src/training/fileio.*"_rr,
+            "src/training/icuerrorcode.*"_rr,
+            "src/training/icuerrorcode.h",
+            "src/training/lang_model_helpers.*"_rr,
+            "src/training/lstmtester.*"_rr,
+            "src/training/lstmtrainer.*"_rr,
+            "src/training/normstrngs.*"_rr,
+            "src/training/unicharset_training_utils.*"_rr,
+            "src/training/validat.*"_rr;
+        unicharset_training.Public += common_training;
+        unicharset_training.Public += "org.sw.demo.unicode.icu.i18n"_dep;
     }
 
     //
@@ -187,28 +187,133 @@ void build(Solution &s)
     ADD_EXE(set_unicharset_properties, unicharset_training);
     ADD_EXE(merge_unicharsets, tessopt);
 
-    ADD_EXE(text2image, unicharset_training);
+    //
+    auto &pango_training = tess.addStaticLibrary("pango_training");
     {
-    text2image += cppstd;
-    text2image +=
-        "src/training/boxchar.cpp",
-        "src/training/boxchar.h",
-        "src/training/degradeimage.cpp",
-        "src/training/degradeimage.h",
-        "src/training/icuerrorcode.h",
-        "src/training/ligature_table.cpp",
-        "src/training/ligature_table.h",
-        "src/training/normstrngs.cpp",
-        "src/training/normstrngs.h",
-        "src/training/pango_font_info.cpp",
-        "src/training/pango_font_info.h",
-        "src/training/stringrenderer.cpp",
-        "src/training/stringrenderer.h",
-        "src/training/text2image.cpp",
-        "src/training/tlog.cpp",
-        "src/training/tlog.h",
-        "src/training/util.h";
-    text2image.Public += "org.sw.demo.gnome.pango.pangocairo"_dep;
+        pango_training += cppstd;
+        pango_training +=
+            "src/training/boxchar.cpp",
+            "src/training/boxchar.h",
+            "src/training/ligature_table.cpp",
+            "src/training/ligature_table.h",
+            "src/training/pango_font_info.cpp",
+            "src/training/pango_font_info.h",
+            "src/training/stringrenderer.cpp",
+            "src/training/stringrenderer.h",
+            "src/training/tlog.cpp",
+            "src/training/tlog.h"
+            ;
+        pango_training.Public += unicharset_training;
+        pango_training.Public += "org.sw.demo.gnome.pango.pangocairo"_dep;
+    }
+
+    ADD_EXE(text2image, pango_training);
+    {
+        text2image += cppstd;
+        text2image +=
+            "src/training/degradeimage.cpp",
+            "src/training/degradeimage.h",
+            "src/training/icuerrorcode.h",
+            "src/training/normstrngs.cpp",
+            "src/training/normstrngs.h",
+            "src/training/text2image.cpp",
+            "src/training/util.h"
+            ;
+    }
+
+    auto &test = tess.addDirectory("test");
+    test.Scope = TargetScope::Test;
+
+    auto add_test = [&test, &s, &cppstd, &libtesseract, &pango_training](const String &name) -> decltype(auto)
+    {
+        auto &t = test.addTarget<ExecutableTarget>(name);
+        t += cppstd;
+        t += path("unittest/" + name + "_test.cc");
+
+        auto datadir = test.SourceDir / "tessdata_unittest";
+        t += Definition("TESSBIN_DIR=\"" + ""s + "\"");
+
+        t += Definition("TESTING_DIR=\"" + to_printable_string(normalize_path(test.SourceDir / "test/testing")) + "\"");
+        t += Definition("TESTDATA_DIR=\"" + to_printable_string(normalize_path(test.SourceDir / "test/testdata")) + "\"");
+
+        t += Definition("LANGDATA_DIR=\"" + to_printable_string(normalize_path(datadir / "langdata_lstm")) + "\"");
+        t += Definition("TESSDATA_DIR=\"" + to_printable_string(normalize_path(datadir / "tessdata")) + "\"");
+        t += Definition("TESSDATA_BEST_DIR=\"" + to_printable_string(normalize_path(datadir / "tessdata_best")) + "\"");
+
+        // we push all deps to all tests simplify things
+        t += pango_training;
+        t += "org.sw.demo.google.googletest.gmock.main"_dep;
+        t += "org.sw.demo.google.googletest.gtest.main"_dep;
+        t += "org.sw.demo.google.abseil"_dep;
+
+        if (t.getCompilerType() == CompilerType::MSVC)
+            t.CompileOptions.push_back("-utf-8");
+
+        libtesseract.addTest(t, name);
+
+        return t;
+    };
+
+    Strings tests{
+        "apiexample",
+        "applybox",
+        "baseapi",
+        "bitvector",
+        "cleanapi",
+        "colpartition",
+        "commandlineflags",
+        "dawg",
+        "denorm",
+        "equationdetect",
+        "fileio",
+        "heap",
+        "imagedata",
+        "indexmapbidi",
+        "intfeaturemap",
+        "intsimdmatrix",
+        "lang_model",
+        "layout",
+        "ligature_table",
+        "linlsq",
+        "lstm_recode",
+        "lstm_squashed",
+        "lstm",
+        "lstmtrainer",
+        "loadlang",
+        "mastertrainer",
+        "matrix",
+        "normstrngs",
+        "nthitem",
+        "osd",
+        "pagesegmode",
+        "pango_font_info",
+        "paragraphs",
+        "params_model",
+        "progress",
+        "qrsequence",
+        "recodebeam",
+        "rect",
+        "resultiterator",
+        "scanutils",
+        "shapetable",
+        "stats",
+        "stringrenderer",
+        "tablefind",
+        "tablerecog",
+        "tabvector",
+        "textlineprojection",
+        "tfile",
+        "unichar",
+        "unicharcompress",
+        "unicharset",
+        "validate_grapheme",
+        "validate_indic",
+        "validate_khmer",
+        "validate_myanmar",
+        "validator",
+    };
+    for (auto t : tests)
+        add_test(t);
 }
 
 void check(Checker &c)
