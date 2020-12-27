@@ -21,16 +21,15 @@
 
 #include "boxchar.h"
 
-#include <cstddef>
-#include <algorithm>
-#include <vector>
-
 #include "fileio.h"
-#include "genericvector.h"
 #include "normstrngs.h"
 #include "tprintf.h"
 #include "unicharset.h"
 #include "unicode/uchar.h"  // from libicu
+
+#include <algorithm>
+#include <cstddef>
+#include <vector>
 
 // Absolute Ratio of dx:dy or dy:dx to be a newline.
 const int kMinNewlineRatio = 5;

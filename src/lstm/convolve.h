@@ -20,7 +20,6 @@
 #ifndef TESSERACT_LSTM_CONVOLVE_H_
 #define TESSERACT_LSTM_CONVOLVE_H_
 
-#include "genericvector.h"
 #include "matrix.h"
 #include "network.h"
 

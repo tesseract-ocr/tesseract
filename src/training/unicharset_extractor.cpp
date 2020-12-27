@@ -20,16 +20,15 @@
 // normalizes the text according to command-line options and generates
 // a unicharset.
 
-#include <cstdlib>
 #include "boxread.h"
 #include "commandlineflags.h"
 #include "commontraining.h"     // CheckSharedLibraryVersion
-#include "genericvector.h"
 #include "lang_model_helpers.h"
 #include "normstrngs.h"
 #include "strngs.h"
 #include "unicharset.h"
 #include "unicharset_training_utils.h"
+#include <cstdlib>
 
 using namespace tesseract;
 
