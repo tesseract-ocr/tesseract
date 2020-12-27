@@ -853,7 +853,7 @@ class TESS_API TessBaseAPI {
 };  // class TessBaseAPI.
 
 /** Escape a char string - remove &<>"' with HTML codes. */
-STRING HOcrEscape(const char* text);
+std::string HOcrEscape(const char* text);
 
 }  // namespace tesseract
 
