@@ -18,7 +18,6 @@
 #ifndef TESSERACT_API_RENDERER_H_
 #define TESSERACT_API_RENDERER_H_
 
-#include "genericvector.h"
 #include "platform.h"
 
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
