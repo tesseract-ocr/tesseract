@@ -23,6 +23,9 @@
 #include "pdf_ttf.h"
 #include "tprintf.h"
 
+#include <tesseract/baseapi.h>
+#include <tesseract/helpers.h>  // for Swap
+#include <tesseract/renderer.h>
 #include <cmath>
 #include <cstring>
 #include <fstream> // for std::ifstream
@@ -30,8 +33,6 @@
 #include <memory>  // std::unique_ptr
 #include <sstream> // for std::stringstream
 #include <allheaders.h>
-#include <tesseract/baseapi.h>
-#include <tesseract/renderer.h>
 
 /*
 
