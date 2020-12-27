@@ -235,13 +235,6 @@ TESS_API BOOL TessBaseAPIPrintVariablesToFile(const TessBaseAPI* handle,
 TESS_API BOOL TessBaseAPIGetVariableAsString(TessBaseAPI* handle,
                                              const char* name, tesseract::STRING* val);
 
-TESS_API int TessBaseAPIInit(TessBaseAPI* handle, const char* datapath,
-                             const char* language, TessOcrEngineMode mode,
-                             char** configs, int configs_size,
-                             const tesseract::STRING* vars_vec, size_t vars_vec_size,
-                             const tesseract::STRING* vars_values, size_t vars_values_size,
-                             BOOL set_only_init_params);
-
 #endif  // def TESS_CAPI_INCLUDE_BASEAPI
 
 TESS_API int TessBaseAPIInit1(TessBaseAPI* handle, const char* datapath,
