@@ -26,11 +26,7 @@ DECLARE_STRING_PARAM_FLAG(fonts_dir);
 DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
 DECLARE_BOOL_PARAM_FLAG(use_only_legacy_fonts);
 
-namespace {
-
-using tesseract::File;
-using tesseract::FontUtils;
-using tesseract::PangoFontInfo;
+namespace tesseract {
 
 // Fonts in testdata directory
 const char* kExpectedFontNames[] = {

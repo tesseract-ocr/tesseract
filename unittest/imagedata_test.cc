@@ -19,11 +19,7 @@
 #include "include_gunit.h"
 #include "log.h"
 
-using tesseract::DocumentCache;
-using tesseract::DocumentData;
-using tesseract::ImageData;
-
-namespace {
+namespace tesseract {
 
 // Tests the caching mechanism of DocumentData/ImageData.
 

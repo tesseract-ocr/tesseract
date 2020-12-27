@@ -27,7 +27,7 @@ BOOL_PARAM_FLAG(bar_bool, false, "Bool flag for testing");
 // in commontraining.cpp.
 STRING_PARAM_FLAG(q, "", "Single character name");
 
-namespace {
+namespace tesseract {
 
 class CommandlineflagsTest : public ::testing::Test {
  protected:

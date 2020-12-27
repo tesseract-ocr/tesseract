@@ -10,14 +10,10 @@
 #include "log.h"                        // for LOG
 #include "absl/strings/str_format.h"        // for absl::StrFormat
 
-namespace {
+namespace tesseract {
 
 // DEFINE_string(tess_config, "", "config file for tesseract");
 // DEFINE_bool(visual_test, false, "Runs a visual test using scrollview");
-
-using tesseract::PageIterator;
-using tesseract::PageIteratorLevel;
-using tesseract::ResultIterator;
 
 // Helper functions for converting to STL vectors
 template <typename T>

@@ -25,11 +25,7 @@
 #include <tesseract/resultiterator.h>
 #include "stepblob.h"
 
-namespace {
-
-using tesseract::MutableIterator;
-using tesseract::PageIteratorLevel;
-using tesseract::ResultIterator;
+namespace tesseract {
 
 /** String name for each block type. Keep in sync with PolyBlockType. */
 static const char* kPolyBlockNames[] = {

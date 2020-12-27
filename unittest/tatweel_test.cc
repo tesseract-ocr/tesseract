@@ -21,7 +21,7 @@
 #include "unicharset.h"
 #include "util/utf8/unicodetext.h"  // for UnicodeText
 
-namespace {
+namespace tesseract {
 
 // Replacement for std::filesystem::exists (C++-17)
 static bool file_exists(const char* filename) {

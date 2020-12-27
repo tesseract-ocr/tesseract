@@ -17,11 +17,7 @@
 
 #include "include_gunit.h"
 
-using tesseract::ColPartition;
-using tesseract::ColPartition_LIST;
-using tesseract::ColPartitionGrid;
-
-namespace {
+namespace tesseract {
 
 class TestableTableFinder : public tesseract::TableFinder {
  public:

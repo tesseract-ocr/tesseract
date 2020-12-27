@@ -22,7 +22,6 @@
 #include "include_gunit.h"
 
 namespace tesseract {
-namespace {
 
 #if defined(MISSING_CODE)
 static std::string EncodeAsUTF8(const char32 ch32) {
@@ -421,5 +420,4 @@ TEST(NormstrngsTest, FullwidthToHalfwidth) {
 #endif
 }
 
-}  // namespace
 }  // namespace tesseract

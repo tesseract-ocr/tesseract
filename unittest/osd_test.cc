@@ -26,7 +26,7 @@
 #include "include_gunit.h"
 #include "allheaders.h"
 
-namespace {
+namespace tesseract {
 
 class TestClass : public testing::Test {
  protected:

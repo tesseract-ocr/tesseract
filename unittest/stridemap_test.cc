@@ -13,13 +13,7 @@
 #include "include_gunit.h"
 #include "stridemap.h"
 
-using tesseract::FD_BATCH;
-using tesseract::FD_HEIGHT;
-using tesseract::FD_WIDTH;
-using tesseract::FlexDimensions;
-using tesseract::StrideMap;
-
-namespace {
+namespace tesseract {
 
 class StridemapTest : public ::testing::Test {
  protected:

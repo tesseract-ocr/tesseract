@@ -30,7 +30,7 @@ DECLARE_BOOL_PARAM_FLAG(use_only_legacy_fonts);
 DECLARE_STRING_PARAM_FLAG(fonts_dir);
 DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
 
-namespace {
+namespace tesseract {
 
 const char kEngText[] = "the quick brown fox jumps over the lazy dog";
 const char kHinText[] = "पिताने विवाह की | हो गई उद्विग्न वह सोचा";
@@ -44,9 +44,6 @@ const char kMixedText[] = "والفكر 123 والصراع abc";
 const char kEngNonLigatureText[] = "fidelity";
 // Same as kEngNonLigatureText, but with "fi" replaced with its ligature.
 const char kEngLigatureText[] = "ﬁdelity";
-
-using tesseract::BoxChar;
-using tesseract::StringRenderer;
 
 static PangoFontMap* font_map;
 

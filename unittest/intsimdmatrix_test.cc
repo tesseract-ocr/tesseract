@@ -25,7 +25,6 @@
 #include "tprintf.h"
 
 namespace tesseract {
-namespace {
 
 class IntSimdMatrixTest : public ::testing::Test {
  protected:
@@ -133,5 +132,4 @@ TEST_F(IntSimdMatrixTest, AVX2) {
 #endif
 }
 
-}  // namespace
 }  // namespace tesseract

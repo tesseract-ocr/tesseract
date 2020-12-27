@@ -18,9 +18,7 @@
 
 #include "include_gunit.h"
 
-namespace {
-
-using tesseract::ResultIterator;
+namespace tesseract {
 
 const char* kTruthTextWords = "To simple burn running of goods lately.\n";
 const char* kTruthTextLine = "Tosimpleburnrunningofgoodslately.\n";

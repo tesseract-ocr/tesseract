@@ -14,7 +14,6 @@
 #include "lstm_test.h"
 
 namespace tesseract {
-namespace {
 
 TEST_F(LSTMTrainerTest, EncodesEng) {
   TestEncodeDecodeBoth("eng",
@@ -103,5 +102,4 @@ TEST_F(LSTMTrainerTest, ConvertModel) {
   pixDestroy(&src_pix);
 }
 
-}  // namespace
 }  // namespace tesseract

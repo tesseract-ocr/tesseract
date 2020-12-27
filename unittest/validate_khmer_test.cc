@@ -14,7 +14,6 @@
 #include "normstrngs_test.h"
 
 namespace tesseract {
-namespace {
 
 // Test some random Khmer words.
 TEST(ValidateKhmerTest, GoodKhmerWords) {
@@ -48,5 +47,4 @@ TEST(ValidateKhmerTest, BadKhmerWords) {
                                    &result));
 }
 
-}  // namespace
 }  // namespace tesseract

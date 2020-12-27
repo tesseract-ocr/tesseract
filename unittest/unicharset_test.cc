@@ -17,7 +17,7 @@
 
 using testing::ElementsAreArray;
 
-namespace {
+namespace tesseract {
 
 class UnicharsetTest : public ::testing::Test {
  protected:

@@ -18,11 +18,7 @@
 DECLARE_STRING_PARAM_FLAG(fonts_dir);
 DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
 
-namespace {
-
-using tesseract::File;
-using tesseract::LigatureTable;
-using tesseract::PangoFontInfo;
+namespace tesseract {
 
 const char kEngNonLigatureText[] = "fidelity effigy ſteep";
 // Same as above text, but with "fi" in the first word and "ffi" in the second

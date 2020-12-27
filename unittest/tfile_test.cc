@@ -14,9 +14,7 @@
 
 #include "include_gunit.h"
 
-using tesseract::TFile;
-
-namespace {
+namespace tesseract {
 
 // Tests TFile and GenericVector serialization by serializing and
 // writing/reading.

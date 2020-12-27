@@ -17,11 +17,9 @@
 
 #include "include_gunit.h"
 
-using tesseract::BitVector;
-
 const int kPrimeLimit = 1000;
 
-namespace {
+namespace tesseract {
 
 class BitVectorTest : public testing::Test {
  protected:

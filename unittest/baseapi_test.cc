@@ -26,7 +26,7 @@
 #include "ocrblock.h"   // for class BLOCK
 #include "pageres.h"
 
-namespace {
+namespace tesseract {
 
 using ::testing::ContainsRegex;
 using ::testing::HasSubstr;

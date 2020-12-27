@@ -14,7 +14,7 @@
 #include "include_gunit.h"
 #include "scanutils.h"
 
-namespace {
+namespace tesseract {
 
 class ScanutilsTest : public ::testing::Test {
  protected:

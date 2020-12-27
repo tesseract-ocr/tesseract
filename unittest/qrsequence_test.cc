@@ -18,7 +18,7 @@
 #include "log.h"
 #include "qrsequence.h"
 
-namespace {
+namespace tesseract {
 
 class TestableQRSequenceGenerator : public QRSequenceGenerator {
  public:
