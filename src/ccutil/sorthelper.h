@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCUTIL_SORTHELPER_H_
 #define TESSERACT_CCUTIL_SORTHELPER_H_
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 #include <cstdlib>
 

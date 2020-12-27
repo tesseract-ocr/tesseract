@@ -20,7 +20,7 @@
 #endif
 
 #include <tesseract/capi.h>
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/strngs.h>
 
 namespace tesseract {

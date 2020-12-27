@@ -43,7 +43,7 @@
 #include "textord.h"                // for Textord
 #include "wordrec.h"                // for Wordrec
 
-#include <tesseract/genericvector.h>          // for GenericVector, PointerVector
+#include "genericvector.h"          // for GenericVector, PointerVector
 #include <tesseract/publictypes.h>            // for OcrEngineMode, PageSegMode, OEM_L...
 #include <tesseract/strngs.h>                 // for STRING
 #include <tesseract/unichar.h>                // for UNICHAR_ID

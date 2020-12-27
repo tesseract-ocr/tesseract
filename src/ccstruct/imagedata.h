@@ -21,7 +21,7 @@
 
 #include "points.h"             // for FCOORD
 
-#include <tesseract/genericvector.h>      // for GenericVector, PointerVector, FileReader
+#include "genericvector.h"      // for GenericVector, PointerVector, FileReader
 #include <tesseract/strngs.h>   // for STRING
 
 #include <mutex>                // for std::mutex

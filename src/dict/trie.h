@@ -21,7 +21,7 @@
 
 #include "dawg.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 namespace tesseract {
 

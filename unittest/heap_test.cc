@@ -14,9 +14,8 @@
 
 #include "doubleptr.h"
 #include "genericheap.h"
+#include "genericvector.h"
 #include "kdpair.h"
-
-#include <tesseract/genericvector.h>
 
 #include <string>
 #include <utility>

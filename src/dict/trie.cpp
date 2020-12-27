@@ -24,7 +24,7 @@
 
 #include "dawg.h"
 #include "dict.h"
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/helpers.h>
 #include "kdpair.h"
 

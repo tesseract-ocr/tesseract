@@ -59,7 +59,7 @@
 #include "unicharset.h"         // for UNICHARSET, CHAR_FRAGMENT, UNICHAR_SPACE
 #include "unicity_table.h"      // for UnicityTable
 
-#include <tesseract/genericvector.h>      // for GenericVector
+#include "genericvector.h"      // for GenericVector
 #include <tesseract/helpers.h>            // for IntCastRounded, ClipToRange
 #include <tesseract/serialis.h>           // for TFile
 #include <tesseract/strngs.h>             // for STRING

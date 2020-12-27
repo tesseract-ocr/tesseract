@@ -25,7 +25,7 @@
 
 #include "points.h"         // for operator+=, FCOORD, ICOORD
 
-#include <tesseract/genericvector.h>  // for GenericVector
+#include "genericvector.h"  // for GenericVector
 
 #include "allheaders.h"     // for pixCreate, pixGetDepth
 

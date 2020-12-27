@@ -19,8 +19,8 @@
 #ifndef TESSERACT_CCUTIL_GENERICVECTOR_H_
 #define TESSERACT_CCUTIL_GENERICVECTOR_H_
 
-#include "helpers.h"
-#include "serialis.h"
+#include <tesseract/helpers.h>
+#include <tesseract/serialis.h>
 
 #include <algorithm>
 #include <cassert>

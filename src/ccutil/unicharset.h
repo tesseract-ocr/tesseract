@@ -22,7 +22,7 @@
 #include "errcode.h"
 #include "unicharmap.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/helpers.h>
 #include <tesseract/serialis.h>
 #include <tesseract/strngs.h>

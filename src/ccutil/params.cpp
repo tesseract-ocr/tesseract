@@ -21,7 +21,7 @@
 #include "host.h"           // tesseract/platform.h, windows.h for MAX_PATH
 #include "tprintf.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 #include <climits>          // for INT_MIN, INT_MAX
 #include <cmath>            // for NAN, std::isnan

@@ -23,7 +23,7 @@
 #include <cstdio>
 #include <vector>
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/helpers.h>
 #include "static_shape.h"
 #include "stridemap.h"

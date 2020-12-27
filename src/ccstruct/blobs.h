@@ -26,7 +26,7 @@
 #include "rect.h"              // for TBOX
 #include "scrollview.h"        // for ScrollView, ScrollView::Color
 
-#include <tesseract/genericvector.h>     // for GenericVector
+#include "genericvector.h"     // for GenericVector
 #include <tesseract/publictypes.h>       // for OcrEngineMode
 
 #include <cstdint>             // for int16_t

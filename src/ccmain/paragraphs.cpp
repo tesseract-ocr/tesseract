@@ -24,7 +24,7 @@
 #include <cstring>                // for strchr, strlen
 #include <algorithm>              // for max
 #include <memory>                 // for unique_ptr
-#include <tesseract/genericvector.h>        // for GenericVector, GenericVectorEqEq
+#include "genericvector.h"        // for GenericVector, GenericVectorEqEq
 #include <tesseract/helpers.h>              // for UpdateRange, ClipToRange
 #include "host.h"                 // for NearlyEqual
 #include "mutableiterator.h"      // for MutableIterator
