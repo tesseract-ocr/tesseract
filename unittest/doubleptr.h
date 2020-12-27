@@ -44,22 +44,22 @@ class DoublePtr {
   // Copy constructor steals the partner off src and is therefore a non
   // const reference arg.
   // Copying a const DoublePtr generates a compiler error.
-  DoublePtr(DoublePtr& src) {
+  DoublePtr(const DoublePtr& src) {
     other_end_ = src.other_end_;
     if (other_end_ != nullptr) {
       other_end_->other_end_ = this;
-      src.other_end_ = nullptr;
+      ((DoublePtr&)src).other_end_ = nullptr;
     }
   }
   // Operator= steals the partner off src, and therefore needs src to be a non-
   // const reference.
   // Assigning from a const DoublePtr generates a compiler error.
-  void operator=(DoublePtr& src) {
+  void operator=(const DoublePtr& src) {
     Disconnect();
     other_end_ = src.other_end_;
     if (other_end_ != nullptr) {
       other_end_->other_end_ = this;
-      src.other_end_ = nullptr;
+      ((DoublePtr&)src).other_end_ = nullptr;
     }
   }
 
