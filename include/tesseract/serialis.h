@@ -23,11 +23,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <vector>   // std::vector
 
 namespace tesseract {
-
-template <typename T>
-class GenericVector;
 
 /***********************************************************************
   QUOTE_IT   MACRO DEFINITION
@@ -43,13 +41,16 @@ constexpr size_t countof(T const (&)[N]) noexcept {
   return N;
 }
 
-// Function to read a GenericVector<char> from a whole file.
+// Function to read a std::vector<char> from a whole file.
 // Returns false on failure.
-using FileReader = bool (*)(const char* filename, GenericVector<char>* data);
-// Function to write a GenericVector<char> to a whole file.
+using FileReader = bool (*)(const char* filename, std::vector<char>* data);
+// Function to write a std::vector<char> to a whole file.
 // Returns false on failure.
-using FileWriter = bool (*)(const GenericVector<char>& data,
+using FileWriter = bool (*)(const std::vector<char>& data,
                             const char* filename);
+
+bool LoadDataFromFile(const char* filename, std::vector<char>* data);
+bool SaveDataToFile(const std::vector<char>& data, const char* filename);
 
 // Deserialize data from file.
 bool DeSerialize(FILE* fp, char* data, size_t n = 1);
@@ -137,7 +138,7 @@ class TFile {
   // Open for writing. Either supply a non-nullptr data with OpenWrite before
   // calling FWrite, (no close required), or supply a nullptr data to OpenWrite
   // and call CloseWrite to write to a file after the FWrites.
-  void OpenWrite(GenericVector<char>* data);
+  void OpenWrite(std::vector<char>* data);
   bool CloseWrite(const char* filename, FileWriter writer);
 
   // Replicates fwrite, returning the number of items written.
@@ -146,7 +147,7 @@ class TFile {
 
  private:
   // The buffered data from the file.
-  GenericVector<char>* data_;
+  std::vector<char>* data_;
   // The number of bytes used so far.
   int offset_;
   // True if the data_ pointer is owned by *this.

@@ -100,7 +100,7 @@ LSTMTrainer::~LSTMTrainer() {
 // false in case of failure.
 bool LSTMTrainer::TryLoadingCheckpoint(const char* filename,
                                        const char* old_traineddata) {
-  GenericVector<char> data;
+  std::vector<char> data;
   if (!LoadDataFromFile(filename, &data)) return false;
   tprintf("Loaded file %s, unpacking...\n", filename);
   if (!ReadTrainingDump(data, this)) return false;
