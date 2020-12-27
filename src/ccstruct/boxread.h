@@ -19,7 +19,7 @@
 #ifndef TESSERACT_CCUTIL_BOXREAD_H_
 #define TESSERACT_CCUTIL_BOXREAD_H_
 
-#include <tesseract/strngs.h>  // for STRING
+#include "strngs.h"  // for STRING
 
 #include <cstdio>    // for FILE
 

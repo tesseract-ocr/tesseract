@@ -21,7 +21,7 @@
 #include "genericvector.h"
 #include "include_gunit.h"
 #include "stringrenderer.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 BOOL_PARAM_FLAG(display, false, "Display image for inspection");
 

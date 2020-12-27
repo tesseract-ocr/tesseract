@@ -25,7 +25,7 @@
 #include "commontraining.h"
 #include "mastertrainer.h"
 #include "params.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "tessclassifier.h"
 #include "tesseractclass.h"
 

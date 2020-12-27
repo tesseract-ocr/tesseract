@@ -19,7 +19,7 @@
 
 #include <tesseract/baseapi.h>
 #include <tesseract/renderer.h>
-#include <tesseract/strngs.h> // for STRING
+#include "strngs.h" // for STRING
 
 #include <memory>
 #include <sstream>  // for std::stringstream

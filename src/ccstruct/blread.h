@@ -20,7 +20,7 @@
 #ifndef BLREAD_H
 #define BLREAD_H
 
-#include <tesseract/strngs.h>     // for STRING
+#include "strngs.h"     // for STRING
 
 #include <cstdint>      // for int32_t
 

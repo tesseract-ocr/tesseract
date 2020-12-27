@@ -20,7 +20,7 @@
 #define PARAMS_H
 
 #include "genericvector.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 #include <cstdio>
 

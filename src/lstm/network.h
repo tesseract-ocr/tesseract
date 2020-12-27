@@ -24,7 +24,7 @@
 #include "tprintf.h"
 
 #include <tesseract/serialis.h>
-#include <tesseract/strngs.h>             // for STRING
+#include "strngs.h"             // for STRING
 #include "genericvector.h"
 #include <tesseract/helpers.h>
 

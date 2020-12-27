@@ -21,7 +21,7 @@
 #define TESSERACT_WORDREC_PARAMS_TRAINING_FEATDEF_H_
 
 #include "genericvector.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 namespace tesseract {
 

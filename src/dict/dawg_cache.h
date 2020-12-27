@@ -22,7 +22,7 @@
 
 #include "dawg.h"
 #include "object_cache.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "tessdatamanager.h"
 
 namespace tesseract {

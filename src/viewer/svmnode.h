@@ -27,7 +27,7 @@
 #ifndef TESSERACT_VIEWER_SVMNODE_H_
 #define TESSERACT_VIEWER_SVMNODE_H_
 
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 namespace tesseract {
 

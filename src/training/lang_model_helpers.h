@@ -18,7 +18,7 @@
 #include <string>
 #include "genericvector.h"
 #include <tesseract/serialis.h>
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "tessdatamanager.h"
 #include "unicharset.h"
 

@@ -27,7 +27,7 @@
 #include "params.h"
 #include "recodebeam.h"
 #include "series.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "unicharcompress.h"
 
 class BLOB_CHOICE_IT;

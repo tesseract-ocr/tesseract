@@ -33,7 +33,7 @@
 #include "errcode.h"
 #include <tesseract/helpers.h>
 #include <tesseract/serialis.h>
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include <tesseract/version.h>
 #include "tprintf.h"
 #include "params.h"

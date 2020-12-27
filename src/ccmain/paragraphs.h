@@ -21,7 +21,7 @@
 #define TESSERACT_CCMAIN_PARAGRAPHS_H_
 
 #include "rect.h"    // for TBOX
-#include <tesseract/strngs.h>  // for STRING
+#include "strngs.h"  // for STRING
 #include <list>
 
 namespace tesseract {
