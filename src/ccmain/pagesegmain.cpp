@@ -98,7 +98,7 @@ static Pix* RemoveEnclosingCircle(Pix* pixs) {
  * pix_binary_ is used as the source image and should not be nullptr.
  * On return the blocks list owns all the constructed page layout.
  */
-int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
+int Tesseract::SegmentPage(const char* input_file, BLOCK_LIST* blocks,
                            Tesseract* osd_tess, OSResults* osr) {
   ASSERT_HOST(pix_binary_ != nullptr);
   int width = pixGetWidth(pix_binary_);
@@ -108,8 +108,8 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
       static_cast<int>(tessedit_pageseg_mode));
   // If a UNLV zone file can be found, use that instead of segmentation.
   if (!PSM_COL_FIND_ENABLED(pageseg_mode) &&
-      input_file != nullptr && input_file->length() > 0) {
-    STRING name = *input_file;
+      input_file != nullptr && input_file[0] != '\0') {
+    STRING name = input_file;
     const char* lastdot = strrchr(name.c_str(), '.');
     if (lastdot != nullptr)
       name[lastdot - name.c_str()] = '\0';
