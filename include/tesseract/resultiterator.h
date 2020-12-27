@@ -31,8 +31,6 @@
 
 namespace tesseract {
 
-class STRING;
-
 class Tesseract;
 
 class TESS_API ResultIterator : public LTRResultIterator {
@@ -208,10 +206,10 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * Append any extra marks that should be appended to this word when printed.
    * Mostly, these are Unicode BiDi control characters.
    */
-  void AppendSuffixMarks(STRING* text) const;
+  void AppendSuffixMarks(std::string* text) const;
 
   /** Appends the current word in reading order to the given buffer.*/
-  void AppendUTF8WordText(STRING* text) const;
+  void AppendUTF8WordText(std::string* text) const;
 
   /**
    * Appends the text of the current text line, *assuming this iterator is
@@ -220,7 +218,7 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * Each textline is terminated in a single newline character.
    * If the textline ends a paragraph, it gets a second terminal newline.
    */
-  void IterateAndAppendUTF8TextlineText(STRING* text);
+  void IterateAndAppendUTF8TextlineText(std::string* text);
 
   /**
    * Appends the text of the current paragraph in reading order
@@ -228,7 +226,7 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * Each textline is terminated in a single newline character, and the
    * paragraph gets an extra newline at the end.
    */
-  void AppendUTF8ParagraphText(STRING* text) const;
+  void AppendUTF8ParagraphText(std::string* text) const;
 
   /** Returns whether the bidi_debug flag is set to at least min_level. */
   bool BidiDebug(int min_level) const;
