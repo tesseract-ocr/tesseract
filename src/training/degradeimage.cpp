@@ -22,7 +22,7 @@
 
 #include <cstdlib>
 #include "allheaders.h"   // from leptonica
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/helpers.h>  // For TRand.
 #include "rect.h"
 

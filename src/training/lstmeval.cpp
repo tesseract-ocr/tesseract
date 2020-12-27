@@ -19,7 +19,7 @@
 #include "base/commandlineflags.h"
 #endif
 #include "commontraining.h"
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "lstmtester.h"
 #include <tesseract/strngs.h>
 #include "tprintf.h"

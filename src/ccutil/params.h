@@ -19,7 +19,7 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/strngs.h>
 
 #include <cstdio>

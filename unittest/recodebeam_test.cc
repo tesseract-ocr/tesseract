@@ -13,6 +13,7 @@
 #include "include_gunit.h"
 #include "log.h"                        // for LOG
 
+#include "genericvector.h"
 #include "recodebeam.h"
 #include "matrix.h"
 #include "pageres.h"
@@ -21,7 +22,6 @@
 #include "normstrngs.h"
 #include "unicharset_training_utils.h"
 
-#include <tesseract/genericvector.h>
 #include <tesseract/helpers.h>
 
 #include "absl/strings/str_format.h"        // for absl::StrFormat

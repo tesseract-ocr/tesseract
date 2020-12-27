@@ -27,7 +27,7 @@
 #include <tesseract/unichar.h>
 #include "unicharset.h"
 #include "tesseractclass.h"
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 #ifndef DISABLED_LEGACY_ENGINE
 /** Max number of blobs to classify together in FindSegmentation. */

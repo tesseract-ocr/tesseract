@@ -24,7 +24,7 @@
 #include "boxread.h"
 #include "commandlineflags.h"
 #include "commontraining.h"     // CheckSharedLibraryVersion
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "lang_model_helpers.h"
 #include "normstrngs.h"
 #include <tesseract/strngs.h>

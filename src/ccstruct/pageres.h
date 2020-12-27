@@ -30,7 +30,7 @@
 #include "unicharset.h"        // for UNICHARSET, UNICHARSET::Direction, UNI...
 #include "werd.h"              // for WERD, W_BOL, W_EOL
 
-#include <tesseract/genericvector.h>     // for GenericVector, PointerVector (ptr only)
+#include "genericvector.h"     // for GenericVector, PointerVector (ptr only)
 #include <tesseract/strngs.h>            // for STRING
 #include <tesseract/unichar.h>           // for UNICHAR_ID, INVALID_UNICHAR_ID
 

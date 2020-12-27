@@ -19,7 +19,7 @@
 #include <cstdint>           // for INT32_MAX
 #include "blamer.h"          // for BlamerBundle
 #include "errcode.h"         // for ASSERT_HOST
-#include <tesseract/genericvector.h>   // for GenericVector
+#include "genericvector.h"   // for GenericVector
 #include "lm_pain_points.h"  // for LMPainPoints, LM_PPTYPE_SHAPE, LMPainPoi...
 #include "lm_state.h"        // for BestChoiceBundle, ViterbiStateEntry
 #include "matrix.h"          // for MATRIX_COORD, MATRIX

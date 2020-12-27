@@ -30,7 +30,7 @@
 #include "tprintf.h"
 #include <tesseract/unichar.h>
 #include "unicharset.h"
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 #define MAX_AMBIG_SIZE    10
 

@@ -36,7 +36,7 @@
 #include "shapetable.h"
 #include "svmnode.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/helpers.h>
 
 #include <algorithm>

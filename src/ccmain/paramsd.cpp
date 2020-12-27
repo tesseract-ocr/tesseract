@@ -32,7 +32,7 @@
 #include "svmnode.h"         // for SVMenuNode
 #include "tesseractclass.h"  // for Tesseract
 
-#include <tesseract/genericvector.h>   // for GenericVector
+#include "genericvector.h"   // for GenericVector
 
 #include <cstdio>            // for fclose, fopen, fprintf, sprintf, FILE
 #include <cstdlib>           // for atoi

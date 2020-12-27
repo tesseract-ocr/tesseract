@@ -22,7 +22,7 @@
 
 #include "errcode.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/unichar.h>
 
 #include <cstdint>         // for uint16_t, uint32_t

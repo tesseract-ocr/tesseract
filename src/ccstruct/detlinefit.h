@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCSTRUCT_DETLINEFIT_H_
 #define TESSERACT_CCSTRUCT_DETLINEFIT_H_
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "kdpair.h"
 #include "points.h"
 

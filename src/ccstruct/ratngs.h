@@ -32,7 +32,7 @@
 #include "unicharset.h"
 #include "werd.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/unichar.h>
 
 #include <cassert>

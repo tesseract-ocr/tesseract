@@ -20,7 +20,7 @@
 #ifndef TESSERACT_WORDREC_PARAMS_TRAINING_FEATDEF_H_
 #define TESSERACT_WORDREC_PARAMS_TRAINING_FEATDEF_H_
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/strngs.h>
 
 namespace tesseract {

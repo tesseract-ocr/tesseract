@@ -31,7 +31,7 @@
 #include "trainingsample.h"
 #include "tprintf.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 namespace tesseract {
 

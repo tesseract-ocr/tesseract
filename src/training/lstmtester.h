@@ -19,7 +19,7 @@
 #define TESSERACT_TRAINING_LSTMTESTER_H_
 
 #include <mutex>
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "lstmtrainer.h"
 #include <tesseract/strngs.h>
 
