@@ -30,24 +30,29 @@ TEST(OutputBufferTest, WriteString) {
   const int kMaxBufSize = 128;
   char buffer[kMaxBufSize];
   for (int i = 0; i < kMaxBufSize; ++i) buffer[i] = '\0';
-  FILE* fp = fmemopen(buffer, kMaxBufSize, "w");
+  FILE* fp = tmpfile();
   CHECK(fp != nullptr);
 
-  {
-    std::unique_ptr<OutputBuffer> output(new OutputBuffer(fp));
-    output->WriteString("Hello ");
-    output->WriteString("world!");
-  }
-  EXPECT_STREQ("Hello world!", buffer);
+  std::unique_ptr<OutputBuffer> output(new OutputBuffer(fp));
+  output->WriteString("Hello ");
+  output->WriteString("world!");
+
+  rewind(fp);
+  auto s = "Hello world!";
+  fread(buffer, strlen(s), 1, fp);
+  EXPECT_STREQ(s, buffer);
 }
 
 TEST(InputBufferTest, Read) {
   const int kMaxBufSize = 128;
   char buffer[kMaxBufSize];
-  snprintf(buffer, kMaxBufSize, "Hello\n world!");
-  EXPECT_STREQ("Hello\n world!", buffer);
-  FILE* fp = fmemopen(buffer, kMaxBufSize, "r");
+  auto s = "Hello\n world!";
+  snprintf(buffer, kMaxBufSize, s);
+  EXPECT_STREQ(s, buffer);
+  FILE* fp = tmpfile();
   CHECK(fp != nullptr);
+  fwrite(buffer, strlen(s), 1, fp);
+  rewind(fp);
 
   std::string str;
   std::unique_ptr<InputBuffer> input(new InputBuffer(fp));

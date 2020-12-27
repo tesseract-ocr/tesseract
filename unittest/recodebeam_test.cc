@@ -9,18 +9,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+#include "include_gunit.h"
+#include "log.h"                        // for LOG
+
 #include "recodebeam.h"
 #include "matrix.h"
 #include "pageres.h"
 #include "ratngs.h"
-#include <tesseract/genericvector.h>
-#include <tesseract/helpers.h>
 #include "unicharcompress.h"
 #include "normstrngs.h"
 #include "unicharset_training_utils.h"
 
-#include "include_gunit.h"
-#include "log.h"                        // for LOG
+#include <tesseract/genericvector.h>
+#include <tesseract/helpers.h>
+
 #include "absl/strings/str_format.h"        // for absl::StrFormat
 
 namespace tesseract {
