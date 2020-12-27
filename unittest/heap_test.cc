@@ -50,20 +50,20 @@ class HeapTest : public testing::Test {
     // Also check that the indices match, except for 9, which is duplicated.
     v->sort();
     // Check that we have increasing order.
-    EXPECT_LT((*v)[0].key, v->back().key);
+    EXPECT_LT((*v)[0].key(), v->back().key());
     for (int i = 0; i < v->size(); ++i) {
-      EXPECT_EQ((*v)[i].key, heap->PeekTop().key);
+      EXPECT_EQ((*v)[i].key(), heap->PeekTop().key());
       // Indices don't necessarily match for equal keys, so don't test them.
-      if (i + 1 < v->size() && (*v)[i + 1].key == (*v)[i].key) {
-        while (i + 1 < v->size() && (*v)[i + 1].key == (*v)[i].key) {
+      if (i + 1 < v->size() && (*v)[i + 1].key() == (*v)[i].key()) {
+        while (i + 1 < v->size() && (*v)[i + 1].key() == (*v)[i].key()) {
           heap->Pop(nullptr);
           ++i;
           EXPECT_FALSE(heap->empty());
-          EXPECT_EQ((*v)[i].key, heap->PeekTop().key);
+          EXPECT_EQ((*v)[i].key(), heap->PeekTop().key());
         }
       } else {
         // The indices must also match if the key is unique.
-        EXPECT_EQ((*v)[i].data, heap->PeekTop().data);
+        EXPECT_EQ((*v)[i].data(), heap->PeekTop().data());
       }
       EXPECT_FALSE(heap->empty());
       EXPECT_TRUE(heap->Pop(nullptr));
@@ -119,8 +119,8 @@ TEST_F(HeapTest, PopWorstTest) {
   // Get the worst element off the heap.
   IntKDPair pair;
   heap.PopWorst(&pair);
-  EXPECT_EQ(pair.key, 65536);
-  EXPECT_EQ(pair.data, 6);
+  EXPECT_EQ(pair.key(), 65536);
+  EXPECT_EQ(pair.data(), 6);
   // Sort and remove the worst element from the vector.
   v.sort();
   v.truncate(v.size() - 1);
@@ -139,33 +139,33 @@ TEST_F(HeapTest, RevalueTest) {
   // Push the test data onto both the heap and the vector.
   for (size_t i = 0; i < ARRAYSIZE(test_data); ++i) {
     PtrPair h_pair;
-    h_pair.key = test_data[i];
+    h_pair.key() = test_data[i];
     PtrPair v_pair;
-    v_pair.key = test_data[i];
-    h_pair.data.Connect(&v_pair.data);
+    v_pair.key() = test_data[i];
+    h_pair.data().Connect(&v_pair.data());
     heap.Push(&h_pair);
     v.push_back(v_pair);
   }
   // Test changes both ways. Index 0 is 8, so change it to -1.
-  v[0].key = -1;
+  v[0].key() = -1;
   // v[0].data.OtherEnd() is a pointer to the data element in the appropriate
   // heap entry, wherever it may be. We can change its value via that pointer.
   // Without Reshuffle, that would be a terribly bad thing to do, as it violates
   // the heap invariant, making the heap corrupt.
-  PtrPair* pair_ptr = PtrPair::RecastDataPointer(v[0].data.OtherEnd());
-  pair_ptr->key = v[0].key;
+  PtrPair* pair_ptr = reinterpret_cast<PtrPair*>(v[0].data().OtherEnd());
+  pair_ptr->key() = v[0].key();
   heap.Reshuffle(pair_ptr);
   // Index 1 is 1. Change to 32767.
-  v[1].key = 32767;
-  pair_ptr = PtrPair::RecastDataPointer(v[1].data.OtherEnd());
-  pair_ptr->key = v[1].key;
+  v[1].key() = 32767;
+  pair_ptr = reinterpret_cast<PtrPair*>(v[1].data().OtherEnd());
+  pair_ptr->key() = v[1].key();
   heap.Reshuffle(pair_ptr);
   // After the changes, popping the heap should still match the sorted order
   // of the vector.
   v.sort();
-  EXPECT_GT(v[0].key, v.back().key);
+  EXPECT_GT(v[0].key(), v.back().key());
   for (int i = 0; i < v.size(); ++i) {
-    EXPECT_EQ(v[i].key, heap.PeekTop().key);
+    EXPECT_EQ(v[i].key(), heap.PeekTop().key());
     EXPECT_FALSE(heap.empty());
     heap.Pop(nullptr);
   }
