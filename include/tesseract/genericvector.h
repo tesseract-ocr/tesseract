@@ -61,7 +61,7 @@ class GenericVector : public std::vector<T> {
   void init_to_size(int size, const T& t);
   // Resizes to size without any initialization.
   void resize_no_init(int size) {
-    reserve(size);
+    resize(size);
   }
 
   // Workaround to avoid g++ -Wsign-compare warnings.
