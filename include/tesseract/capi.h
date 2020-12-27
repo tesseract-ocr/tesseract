@@ -233,7 +233,7 @@ TESS_API BOOL TessBaseAPIPrintVariablesToFile(const TessBaseAPI* handle,
 #ifdef TESS_CAPI_INCLUDE_BASEAPI
 
 TESS_API BOOL TessBaseAPIGetVariableAsString(TessBaseAPI* handle,
-                                             const char* name, tesseract::STRING* val);
+                                             const char* name, std::string* val);
 
 #endif  // def TESS_CAPI_INCLUDE_BASEAPI
 
