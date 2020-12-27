@@ -104,18 +104,23 @@ void build(Solution &s)
 
     //
     auto &tesseract = tess.addExecutable("tesseract");
+    {
     tesseract += cppstd;
     tesseract += "src/api/tesseractmain.cpp";
     tesseract += libtesseract;
+    }
 
     //
     auto &tessopt = tess.addStaticLibrary("tessopt");
+    {
     tessopt += cppstd;
     tessopt += "src/training/tessopt.*"_rr;
     tessopt.Public += libtesseract;
+    }
 
     //
     auto &common_training = tess.addStaticLibrary("common_training");
+    {
     common_training += cppstd;
     common_training +=
         "src/training/commandlineflags.cpp",
@@ -139,9 +144,11 @@ void build(Solution &s)
         "src/training/trainingsampleset.cpp",
         "src/training/trainingsampleset.h";
     common_training.Public += tessopt;
+    }
 
     //
     auto &unicharset_training = tess.addStaticLibrary("unicharset_training");
+    {
     unicharset_training += cppstd;
     unicharset_training +=
         "src/training/fileio.*"_rr,
@@ -155,6 +162,7 @@ void build(Solution &s)
         "src/training/validat.*"_rr;
     unicharset_training.Public += common_training;
     unicharset_training.Public += "org.sw.demo.unicode.icu.i18n"_dep;
+    }
 
     //
 #define ADD_EXE(n, ...)               \
@@ -180,6 +188,7 @@ void build(Solution &s)
     ADD_EXE(merge_unicharsets, tessopt);
 
     ADD_EXE(text2image, unicharset_training);
+    {
     text2image += cppstd;
     text2image +=
         "src/training/boxchar.cpp",
