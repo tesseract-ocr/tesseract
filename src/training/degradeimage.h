@@ -21,7 +21,7 @@
 #define TESSERACT_TRAINING_DEGRADEIMAGE_H_
 
 #include "allheaders.h"
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/helpers.h>  // For TRand.
 #include "rect.h"
 

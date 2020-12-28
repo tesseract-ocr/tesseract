@@ -3,7 +3,7 @@
 #include <string>
 #include "allheaders.h"
 #include <tesseract/baseapi.h>
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "scrollview.h"
 
 #include "include_gunit.h"

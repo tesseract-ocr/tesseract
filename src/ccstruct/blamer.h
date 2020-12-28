@@ -31,9 +31,9 @@
 #include "rect.h"                     // for TBOX
 #include "tprintf.h"                  // for tprintf
 
-#include <tesseract/genericvector.h>            // for GenericVector
+#include "genericvector.h"            // for GenericVector
 #include <tesseract/unichar.h>                  // for UNICHAR_ID
-#include <tesseract/strngs.h>                   // for STRING
+#include "strngs.h"                   // for STRING
 
 #include <cstdint>                    // for int16_t
 #include <cstring>                    // for memcpy

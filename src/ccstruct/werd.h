@@ -24,7 +24,7 @@
 #include "params.h"
 #include "stepblob.h"
 
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 namespace tesseract {
 

@@ -22,7 +22,7 @@
 
 #include "errcode.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 #include <functional>           // for std::function
 

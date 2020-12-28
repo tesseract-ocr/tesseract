@@ -18,13 +18,13 @@
 #ifndef TESSERACT_API_RENDERER_H_
 #define TESSERACT_API_RENDERER_H_
 
-#include "genericvector.h"
 #include "platform.h"
 
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
 #include <string>  // for std::string
+#include <vector>  // for std::vector
 
 struct Pix;
 
@@ -230,8 +230,8 @@ class TESS_API TessPDFRenderer : public TessResultRenderer {
   // used to make everything that isn't easily handled in a
   // streaming fashion.
   long int obj_;                     // counter for PDF objects
-  GenericVector<long int> offsets_;  // offset of every PDF object in bytes
-  GenericVector<long int> pages_;    // object number for every /Page object
+  std::vector<long int> offsets_;  // offset of every PDF object in bytes
+  std::vector<long int> pages_;    // object number for every /Page object
   std::string datadir_;              // where to find the custom font
   bool textonly_;                    // skip images if set
   // Bookkeeping only. DIY = Do It Yourself.

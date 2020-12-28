@@ -23,12 +23,12 @@
 #include "rect.h"           // for TBOX
 #include "tprintf.h"        // for tprintf
 
-#include <tesseract/genericvector.h>  // for GenericVector
 #include <tesseract/helpers.h>        // for chomp_string
-#include <tesseract/strngs.h>         // for STRING
+#include "strngs.h"         // for STRING
 #include <tesseract/unichar.h>        // for UNICHAR
 
 #include <cstring>          // for strchr, strcmp
+#include <fstream>          // for std::ifstream
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
 #include <string>           // for std::string
@@ -74,12 +74,13 @@ FILE* OpenBoxFile(const char* fname) {
 // Each of the output vectors is optional (may be nullptr).
 // Returns false if no boxes are found.
 bool ReadAllBoxes(int target_page, bool skip_blanks, const char* filename,
-                  GenericVector<TBOX>* boxes,
-                  GenericVector<STRING>* texts,
-                  GenericVector<STRING>* box_texts,
-                  GenericVector<int>* pages) {
-  GenericVector<char> box_data;
-  if (!tesseract::LoadDataFromFile(BoxFileName(filename).c_str(), &box_data))
+                  std::vector<TBOX>* boxes,
+                  std::vector<STRING>* texts,
+                  std::vector<STRING>* box_texts,
+                  std::vector<int>* pages) {
+  std::ifstream input(BoxFileName(filename).c_str(), std::ios::in | std::ios::binary);
+  std::vector<char> box_data(std::istreambuf_iterator<char>(input), {});
+  if (box_data.empty())
     return false;
   // Convert the array of bytes to a string, so it can be used by the parser.
   box_data.push_back('\0');
@@ -91,12 +92,12 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const char* filename,
 // Reads all boxes from the string. Otherwise, as ReadAllBoxes.
 bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
                   bool continue_on_failure,
-                  GenericVector<TBOX>* boxes,
-                  GenericVector<STRING>* texts,
-                  GenericVector<STRING>* box_texts,
-                  GenericVector<int>* pages) {
+                  std::vector<TBOX>* boxes,
+                  std::vector<STRING>* texts,
+                  std::vector<STRING>* box_texts,
+                  std::vector<int>* pages) {
   STRING box_str(box_data);
-  GenericVector<STRING> lines;
+  std::vector<STRING> lines;
   box_str.split('\n', &lines);
   if (lines.empty()) return false;
   int num_boxes = 0;

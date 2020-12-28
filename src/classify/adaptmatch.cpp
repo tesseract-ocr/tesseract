@@ -59,10 +59,10 @@
 #include "unicharset.h"         // for UNICHARSET, CHAR_FRAGMENT, UNICHAR_SPACE
 #include "unicity_table.h"      // for UnicityTable
 
-#include <tesseract/genericvector.h>      // for GenericVector
+#include "genericvector.h"      // for GenericVector
 #include <tesseract/helpers.h>            // for IntCastRounded, ClipToRange
 #include <tesseract/serialis.h>           // for TFile
-#include <tesseract/strngs.h>             // for STRING
+#include "strngs.h"             // for STRING
 #include <tesseract/unichar.h>            // for UNICHAR_ID, INVALID_UNICHAR_ID
 
 #include <algorithm>            // for max, min
@@ -310,7 +310,7 @@ void Classify::LearnWord(const char* fontname, WERD_RES* word) {
               word->best_state[ch]);
           if (pieces_all_natural || !prioritize_division) {
             for (frag = 0; frag < word->best_state[ch]; ++frag) {
-              GenericVector<STRING> tokens;
+              std::vector<STRING> tokens;
               word->correct_text[ch].split(' ', &tokens);
 
               tokens[0] = CHAR_FRAGMENT::to_string(

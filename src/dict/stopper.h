@@ -21,7 +21,7 @@
 #include "params.h"
 #include "ratngs.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/unichar.h>
 
 namespace tesseract {

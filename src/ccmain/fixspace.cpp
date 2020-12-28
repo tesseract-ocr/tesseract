@@ -36,7 +36,7 @@
 #include "werd.h"              // for WERD, W_EOL, W_FUZZY_NON, W_FUZZY_SP
 
 #include <tesseract/ocrclass.h>          // for ETEXT_DESC
-#include <tesseract/strngs.h>            // for STRING
+#include "strngs.h"            // for STRING
 #include <tesseract/unichar.h>           // for UNICHAR_ID
 
 #include <cstdint>             // for INT16_MAX, int16_t, int32_t

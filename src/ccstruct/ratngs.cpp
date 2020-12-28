@@ -27,7 +27,7 @@
 #include "normalis.h"  // kBlnBaselineOffset.
 #include "unicharset.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 #include <algorithm>
 #include <string>

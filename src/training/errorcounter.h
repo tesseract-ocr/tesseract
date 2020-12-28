@@ -19,7 +19,7 @@
 #include "matrix.h"
 #include "statistc.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 struct Pix;
 

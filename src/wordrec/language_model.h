@@ -31,7 +31,7 @@
 #include "ratngs.h"          // for BLOB_CHOICE (ptr only), BLOB_CHOICE_LIST...
 #include "stopper.h"         // for DANGERR
 
-#include <tesseract/strngs.h>          // for STRING
+#include "strngs.h"          // for STRING
 
 #include <cmath>             // for exp
 

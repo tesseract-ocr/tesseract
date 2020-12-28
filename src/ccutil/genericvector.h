@@ -19,8 +19,8 @@
 #ifndef TESSERACT_CCUTIL_GENERICVECTOR_H_
 #define TESSERACT_CCUTIL_GENERICVECTOR_H_
 
-#include "helpers.h"
-#include "serialis.h"
+#include <tesseract/helpers.h>
+#include <tesseract/serialis.h>
 
 #include <algorithm>
 #include <cassert>
@@ -318,41 +318,6 @@ class GenericVector : public std::vector<T> {
 template <>
 class GenericVector<bool> : public std::vector<int> {};
 #endif
-
-// The default FileReader loads the whole file into the vector of char,
-// returning false on error.
-inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
-  bool result = false;
-  FILE* fp = fopen(filename, "rb");
-  if (fp != nullptr) {
-    fseek(fp, 0, SEEK_END);
-    auto size = std::ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-    // Trying to open a directory on Linux sets size to LONG_MAX. Catch it here.
-    if (size > 0 && size < LONG_MAX) {
-      // reserve an extra byte in case caller wants to append a '\0' character
-      data->reserve(size + 1);
-      data->resize_no_init(size);
-      result = static_cast<long>(fread(&(*data)[0], 1, size, fp)) == size;
-    }
-    fclose(fp);
-  }
-  return result;
-}
-
-// The default FileWriter writes the vector of char to the filename file,
-// returning false on error.
-inline bool SaveDataToFile(const GenericVector<char>& data,
-                           const char* filename) {
-  FILE* fp = fopen(filename, "wb");
-  if (fp == nullptr) {
-    return false;
-  }
-  bool result =
-      static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
-  fclose(fp);
-  return result;
-}
 
 template <typename T>
 bool cmp_eq(T const& t1, T const& t2) {

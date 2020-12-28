@@ -100,7 +100,7 @@ LSTMTrainer::~LSTMTrainer() {
 // false in case of failure.
 bool LSTMTrainer::TryLoadingCheckpoint(const char* filename,
                                        const char* old_traineddata) {
-  GenericVector<char> data;
+  std::vector<char> data;
   if (!LoadDataFromFile(filename, &data)) return false;
   tprintf("Loaded file %s, unpacking...\n", filename);
   if (!ReadTrainingDump(data, this)) return false;
@@ -1196,7 +1196,7 @@ double LSTMTrainer::ComputeCharError(const GenericVector<int>& truth_str,
 // NOTE that this is destructive on both input strings.
 double LSTMTrainer::ComputeWordError(STRING* truth_str, STRING* ocr_str) {
   using StrMap = std::unordered_map<std::string, int, std::hash<std::string>>;
-  GenericVector<STRING> truth_words, ocr_words;
+  std::vector<STRING> truth_words, ocr_words;
   truth_str->split(' ', &truth_words);
   if (truth_words.empty()) return 0.0;
   ocr_str->split(' ', &ocr_words);

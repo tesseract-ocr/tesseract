@@ -20,8 +20,7 @@
 #endif
 
 #include <tesseract/capi.h>
-#include <tesseract/genericvector.h>
-#include <tesseract/strngs.h>
+#include <cstring>           // for strdup
 
 namespace tesseract {
 
@@ -240,7 +239,7 @@ BOOL TessBaseAPIPrintVariablesToFile(
 
 BOOL TessBaseAPIGetVariableAsString(TessBaseAPI* handle,
                                                        const char* name,
-                                                       STRING* val) {
+                                                       std::string* val) {
   return static_cast<int>(handle->GetVariableAsString(name, val));
 }
 
@@ -248,12 +247,12 @@ int TessBaseAPIInit4(
     TessBaseAPI* handle, const char* datapath, const char* language,
     TessOcrEngineMode mode, char** configs, int configs_size, char** vars_vec,
     char** vars_values, size_t vars_vec_size, BOOL set_only_non_debug_params) {
-  GenericVector<STRING> varNames;
-  GenericVector<STRING> varValues;
+  std::vector<std::string> varNames;
+  std::vector<std::string> varValues;
   if (vars_vec != nullptr && vars_values != nullptr) {
     for (size_t i = 0; i < vars_vec_size; i++) {
-      varNames.push_back(STRING(vars_vec[i]));
-      varValues.push_back(STRING(vars_values[i]));
+      varNames.push_back(vars_vec[i]);
+      varValues.push_back(vars_values[i]);
     }
   }
 
@@ -290,11 +289,11 @@ TessBaseAPIGetInitLanguagesAsString(const TessBaseAPI* handle) {
 
 char**
 TessBaseAPIGetLoadedLanguagesAsVector(const TessBaseAPI* handle) {
-  GenericVector<STRING> languages;
+  std::vector<std::string> languages;
   handle->GetLoadedLanguagesAsVector(&languages);
   char** arr = new char*[languages.size() + 1];
   for (int index = 0; index < languages.size(); ++index) {
-    arr[index] = languages[index].strdup();
+    arr[index] = strdup(languages[index].c_str());
   }
   arr[languages.size()] = nullptr;
   return arr;
@@ -302,11 +301,11 @@ TessBaseAPIGetLoadedLanguagesAsVector(const TessBaseAPI* handle) {
 
 char**
 TessBaseAPIGetAvailableLanguagesAsVector(const TessBaseAPI* handle) {
-  GenericVector<STRING> languages;
+  std::vector<std::string> languages;
   handle->GetAvailableLanguagesAsVector(&languages);
   char** arr = new char*[languages.size() + 1];
   for (int index = 0; index < languages.size(); ++index) {
-    arr[index] = languages[index].strdup();
+    arr[index] = strdup(languages[index].c_str());
   }
   arr[languages.size()] = nullptr;
   return arr;

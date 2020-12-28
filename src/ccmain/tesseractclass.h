@@ -43,9 +43,9 @@
 #include "textord.h"                // for Textord
 #include "wordrec.h"                // for Wordrec
 
-#include <tesseract/genericvector.h>          // for GenericVector, PointerVector
+#include "genericvector.h"          // for GenericVector, PointerVector
 #include <tesseract/publictypes.h>            // for OcrEngineMode, PageSegMode, OEM_L...
-#include <tesseract/strngs.h>                 // for STRING
+#include "strngs.h"                 // for STRING
 #include <tesseract/unichar.h>                // for UNICHAR_ID
 
 #include "allheaders.h"             // for pixDestroy, pixGetWidth, pixGetHe...
@@ -323,7 +323,7 @@ class Tesseract : public Wordrec {
   void PrepareForTessOCR(BLOCK_LIST* block_list, Tesseract* osd_tess,
                          OSResults* osr);
 
-  int SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
+  int SegmentPage(const char* input_file, BLOCK_LIST* blocks,
                   Tesseract* osd_tess, OSResults* osr);
   void SetupWordScripts(BLOCK_LIST* blocks);
   int AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
@@ -510,8 +510,8 @@ class Tesseract : public Wordrec {
   // See init_tesseract_internal for args.
   int init_tesseract(const char* arg0, const char* textbase,
                      const char* language, OcrEngineMode oem, char** configs,
-                     int configs_size, const GenericVector<STRING>* vars_vec,
-                     const GenericVector<STRING>* vars_values,
+                     int configs_size, const std::vector<std::string>* vars_vec,
+                     const std::vector<std::string>* vars_values,
                      bool set_only_init_params, TessdataManager* mgr);
   int init_tesseract(const char* datapath, const char* language,
                      OcrEngineMode oem) {
@@ -538,8 +538,8 @@ class Tesseract : public Wordrec {
   int init_tesseract_internal(const char* arg0, const char* textbase,
                               const char* language, OcrEngineMode oem,
                               char** configs, int configs_size,
-                              const GenericVector<STRING>* vars_vec,
-                              const GenericVector<STRING>* vars_values,
+                              const std::vector<std::string>* vars_vec,
+                              const std::vector<std::string>* vars_values,
                               bool set_only_init_params, TessdataManager* mgr);
 
   // Set the universal_id member of each font to be unique among all
@@ -555,13 +555,13 @@ class Tesseract : public Wordrec {
   bool init_tesseract_lang_data(const char* arg0, const char* textbase,
                                 const char* language, OcrEngineMode oem,
                                 char** configs, int configs_size,
-                                const GenericVector<STRING>* vars_vec,
-                                const GenericVector<STRING>* vars_values,
+                                const std::vector<std::string>* vars_vec,
+                                const std::vector<std::string>* vars_values,
                                 bool set_only_init_params,
                                 TessdataManager* mgr);
 
-  void ParseLanguageString(const char* lang_str, GenericVector<STRING>* to_load,
-                           GenericVector<STRING>* not_to_load);
+  void ParseLanguageString(const char* lang_str, std::vector<std::string>* to_load,
+                           std::vector<std::string>* not_to_load);
 
   //// pgedit.h //////////////////////////////////////////////////////////
   SVMenuNode* build_menu_new();
@@ -1144,7 +1144,7 @@ class Tesseract : public Wordrec {
   FCOORD reskew_;
   TesseractStats stats_;
   // Sub-languages to be tried in addition to this.
-  GenericVector<Tesseract*> sub_langs_;
+  std::vector<Tesseract*> sub_langs_;
   // Most recently used Tesseract out of this and sub_langs_. The default
   // language for the next word.
   Tesseract* most_recently_used_;

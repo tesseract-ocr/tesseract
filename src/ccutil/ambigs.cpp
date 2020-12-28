@@ -228,7 +228,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(
   if (version > 1) {
     // Simpler format is just wrong-string correct-string type\n.
     STRING input(buffer);
-    GenericVector<STRING> fields;
+    std::vector<STRING> fields;
     input.split(' ', &fields);
     if (fields.size() != 3) {
       if (debug_level) tprintf(kIllegalMsg, line_num);

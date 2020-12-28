@@ -25,8 +25,6 @@
 #include "unicharset.h"
 #include "unicodes.h"
 
-#include <tesseract/strngs.h>
-
 #include "allheaders.h"
 
 #include <set>
@@ -118,7 +116,7 @@ const int ResultIterator::kMinorRunEnd = -2;
 const int ResultIterator::kComplexWord = -3;
 
 void ResultIterator::CalculateBlobOrder(
-    GenericVector<int>* blob_indices) const {
+    std::vector<int>* blob_indices) const {
   bool context_is_ltr = current_paragraph_is_ltr_ ^ in_minor_direction_;
   blob_indices->clear();
   if (Empty(RIL_WORD))
@@ -220,7 +218,7 @@ void ResultIterator::CalculateBlobOrder(
   ASSERT_HOST(blob_indices->size() == word_length_);
 }
 
-static void PrintScriptDirs(const GenericVector<StrongScriptDirection>& dirs) {
+static void PrintScriptDirs(const std::vector<StrongScriptDirection>& dirs) {
   for (int i = 0; i < dirs.size(); i++) {
     switch (dirs[i]) {
       case DIR_NEUTRAL:
@@ -245,19 +243,19 @@ static void PrintScriptDirs(const GenericVector<StrongScriptDirection>& dirs) {
 
 void ResultIterator::CalculateTextlineOrder(
     bool paragraph_is_ltr, const LTRResultIterator& resit,
-    GenericVectorEqEq<int>* word_indices) const {
-  GenericVector<StrongScriptDirection> directions;
+    std::vector<int>* word_indices) const {
+  std::vector<StrongScriptDirection> directions;
   CalculateTextlineOrder(paragraph_is_ltr, resit, &directions, word_indices);
 }
 
 void ResultIterator::CalculateTextlineOrder(
     bool paragraph_is_ltr, const LTRResultIterator& resit,
-    GenericVector<StrongScriptDirection>* dirs_arg,
-    GenericVectorEqEq<int>* word_indices) const {
-  GenericVector<StrongScriptDirection> dirs;
-  GenericVector<StrongScriptDirection>* directions;
+    std::vector<StrongScriptDirection>* dirs_arg,
+    std::vector<int>* word_indices) const {
+  std::vector<StrongScriptDirection> dirs;
+  std::vector<StrongScriptDirection>* directions;
   directions = (dirs_arg != nullptr) ? dirs_arg : &dirs;
-  directions->truncate(0);
+  directions->resize(0);
 
   // A LTRResultIterator goes strictly left-to-right word order.
   LTRResultIterator ltr_it(resit);
@@ -268,15 +266,15 @@ void ResultIterator::CalculateTextlineOrder(
     directions->push_back(ltr_it.WordDirection());
   } while (ltr_it.Next(RIL_WORD) && !ltr_it.IsAtBeginningOf(RIL_TEXTLINE));
 
-  word_indices->truncate(0);
+  word_indices->resize(0);
   CalculateTextlineOrder(paragraph_is_ltr, *directions, word_indices);
 }
 
 void ResultIterator::CalculateTextlineOrder(
     bool paragraph_is_ltr,
-    const GenericVector<StrongScriptDirection>& word_dirs,
-    GenericVectorEqEq<int>* reading_order) {
-  reading_order->truncate(0);
+    const std::vector<StrongScriptDirection>& word_dirs,
+    std::vector<int>* reading_order) {
+  reading_order->resize(0);
   if (word_dirs.size() == 0)
     return;
 
@@ -385,7 +383,7 @@ bool ResultIterator::IsAtFirstSymbolOfWord() const {
   return blob_order.size() == 0 || blob_order[0] == blob_index_;
 }
 
-void ResultIterator::AppendSuffixMarks(STRING* text) const {
+void ResultIterator::AppendSuffixMarks(std::string* text) const {
   if (!it_->word())
     return;
   bool reading_direction_is_ltr =
@@ -395,12 +393,19 @@ void ResultIterator::AppendSuffixMarks(STRING* text) const {
   // If this word is at the  *end* of a minor run, insert the other
   // direction's mark;  else if this was a complex word, insert the
   // current reading order's mark.
-  GenericVectorEqEq<int> textline_order;
+  std::vector<int> textline_order;
   CalculateTextlineOrder(current_paragraph_is_ltr_, *this, &textline_order);
   int this_word_index = LTRWordIndex();
-  int i = textline_order.get_index(this_word_index);
-  if (i < 0)
+  size_t i = 0;
+  for (const auto word_index : textline_order) {
+    if (word_index == this_word_index) {
+      break;
+    }
+    i++;
+  }
+  if (i == textline_order.size()) {
     return;
+  }
 
   int last_non_word_mark = 0;
   for (i++; i < textline_order.size() && textline_order[i] < 0; i++) {
@@ -418,7 +423,7 @@ void ResultIterator::AppendSuffixMarks(STRING* text) const {
 }
 
 void ResultIterator::MoveToLogicalStartOfTextline() {
-  GenericVectorEqEq<int> word_indices;
+  std::vector<int> word_indices;
   RestartRow();
   CalculateTextlineOrder(current_paragraph_is_ltr_,
                          dynamic_cast<const LTRResultIterator&>(*this),
@@ -487,7 +492,7 @@ bool ResultIterator::Next(PageIteratorLevel level) {
     {
       if (it_->word() == nullptr)
         return Next(RIL_BLOCK);
-      GenericVectorEqEq<int> word_indices;
+      std::vector<int> word_indices;
       int this_word_index = LTRWordIndex();
       CalculateTextlineOrder(current_paragraph_is_ltr_, *this, &word_indices);
       int final_real_index = word_indices.size() - 1;
@@ -606,7 +611,7 @@ int ResultIterator::BlanksBeforeWord() const {
 char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   if (it_->word() == nullptr)
     return nullptr;  // Already at the end!
-  STRING text;
+  std::string text;
   switch (level) {
     case RIL_BLOCK: {
       ResultIterator pp(*this);
@@ -659,7 +664,7 @@ ResultIterator::GetBestLSTMSymbolChoices() const {
   }
 }
 
-void ResultIterator::AppendUTF8WordText(STRING* text) const {
+void ResultIterator::AppendUTF8WordText(std::string* text) const {
   if (!it_->word())
     return;
   ASSERT_HOST(it_->word()->best_choice != nullptr);
@@ -677,14 +682,14 @@ void ResultIterator::AppendUTF8WordText(STRING* text) const {
   AppendSuffixMarks(text);
 }
 
-void ResultIterator::IterateAndAppendUTF8TextlineText(STRING* text) {
+void ResultIterator::IterateAndAppendUTF8TextlineText(std::string* text) {
   if (Empty(RIL_WORD)) {
     Next(RIL_WORD);
     return;
   }
   if (BidiDebug(1)) {
-    GenericVectorEqEq<int> textline_order;
-    GenericVector<StrongScriptDirection> dirs;
+    std::vector<int> textline_order;
+    std::vector<StrongScriptDirection> dirs;
     CalculateTextlineOrder(current_paragraph_is_ltr_, *this, &dirs,
                            &textline_order);
     tprintf("Strong Script dirs     [%p/P=%s]: ", it_->row(),
@@ -721,7 +726,7 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(STRING* text) {
   }
 }
 
-void ResultIterator::AppendUTF8ParagraphText(STRING* text) const {
+void ResultIterator::AppendUTF8ParagraphText(std::string* text) const {
   ResultIterator it(*this);
   it.RestartParagraph();
   it.MoveToLogicalStartOfTextline();

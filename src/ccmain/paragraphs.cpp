@@ -24,7 +24,7 @@
 #include <cstring>                // for strchr, strlen
 #include <algorithm>              // for max
 #include <memory>                 // for unique_ptr
-#include <tesseract/genericvector.h>        // for GenericVector, GenericVectorEqEq
+#include "genericvector.h"        // for GenericVector, GenericVectorEqEq
 #include <tesseract/helpers.h>              // for UpdateRange, ClipToRange
 #include "host.h"                 // for NearlyEqual
 #include "mutableiterator.h"      // for MutableIterator
@@ -40,7 +40,7 @@
 #include "ratngs.h"               // for WERD_CHOICE
 #include "rect.h"                 // for TBOX
 #include "statistc.h"             // for STATS
-#include <tesseract/strngs.h>               // for STRING
+#include "strngs.h"               // for STRING
 #include "tprintf.h"              // for tprintf
 #include <tesseract/unichar.h>              // for UNICHAR, UNICHAR_ID
 #include "unicharset.h"           // for UNICHARSET
@@ -176,8 +176,9 @@ static void PrintDetectorState(const ParagraphTheory &theory,
   PrintTable(output, " ");
 
   tprintf("Active Paragraph Models:\n");
-  for (int m = 0; m < theory.models().size(); m++) {
-    tprintf(" %d: %s\n", m + 1, theory.models()[m]->ToString().c_str());
+  unsigned m = 0;
+  for (const auto& model : theory.models()) {
+    tprintf(" %d: %s\n", ++m, model->ToString().c_str());
   }
 }
 
@@ -1222,10 +1223,11 @@ static void GeometricClassify(int debug_level,
 
 // =============== Implementation of ParagraphTheory =====================
 
-const ParagraphModel *ParagraphTheory::AddModel(const ParagraphModel &model) {
-  for (int i = 0; i < models_->size(); i++) {
-    if ((*models_)[i]->Comparable(model))
-      return (*models_)[i];
+const ParagraphModel* ParagraphTheory::AddModel(const ParagraphModel &model) {
+  for (const auto& m : *models_) {
+    if (m->Comparable(model)) {
+      return m;
+    }
   }
   auto *m = new ParagraphModel(model);
   models_->push_back(m);
@@ -1234,14 +1236,14 @@ const ParagraphModel *ParagraphTheory::AddModel(const ParagraphModel &model) {
 }
 
 void ParagraphTheory::DiscardUnusedModels(const SetOfModels &used_models) {
-  for (int i = models_->size() - 1; i >= 0; i--) {
-    ParagraphModel *m = (*models_)[i];
-    if (!used_models.contains(m) && models_we_added_.contains(m)) {
-      models_->remove(i);
+  models_->remove_if([this, used_models](ParagraphModel* m) {
+    bool remove = !used_models.contains(m) && models_we_added_.contains(m);
+    if (remove) {
       models_we_added_.remove(models_we_added_.get_index(m));
       delete m;
     }
-  }
+    return remove;
+  });
 }
 
 // Examine rows[start, end) and try to determine if an existing non-centered
@@ -1249,8 +1251,7 @@ void ParagraphTheory::DiscardUnusedModels(const SetOfModels &used_models) {
 // If not, return nullptr.
 const ParagraphModel *ParagraphTheory::Fits(
     const GenericVector<RowScratchRegisters> *rows, int start, int end) const {
-  for (int m = 0; m < models_->size(); m++) {
-    const ParagraphModel *model = (*models_)[m];
+  for (const auto* model : *models_) {
     if (model->justification() != JUSTIFICATION_CENTER &&
         RowsFitModel(rows, start, end, model))
       return model;
@@ -1259,17 +1260,18 @@ const ParagraphModel *ParagraphTheory::Fits(
 }
 
 void ParagraphTheory::NonCenteredModels(SetOfModels *models) {
-  for (int m = 0; m < models_->size(); m++) {
-    const ParagraphModel *model = (*models_)[m];
+  for (const auto* model : *models_) {
     if (model->justification() != JUSTIFICATION_CENTER)
       models->push_back_new(model);
   }
 }
 
 int ParagraphTheory::IndexOf(const ParagraphModel *model) const {
-  for (int i = 0; i < models_->size(); i++) {
-    if ((*models_)[i] == model)
+  int i = 0;
+  for (const auto* m : *models_) {
+    if (m == model)
       return i;
+    i++;
   }
   return -1;
 }
@@ -2270,7 +2272,7 @@ void DetectParagraphs(int debug_level,
                       GenericVector<RowInfo> *row_infos,
                       GenericVector<PARA *> *row_owners,
                       PARA_LIST *paragraphs,
-                      GenericVector<ParagraphModel *> *models) {
+                      std::list<ParagraphModel *> *models) {
   GenericVector<RowScratchRegisters> rows;
   ParagraphTheory theory(models);
 
@@ -2512,7 +2514,7 @@ static void InitializeRowInfo(bool after_recognition,
 void DetectParagraphs(int debug_level,
                       bool after_text_recognition,
                       const MutableIterator *block_start,
-                      GenericVector<ParagraphModel *> *models) {
+                      std::list<ParagraphModel *> *models) {
   // Clear out any preconceived notions.
   if (block_start->Empty(RIL_TEXTLINE)) {
     return;

@@ -24,7 +24,7 @@
 
 #include "dict.h"
 #include <tesseract/helpers.h>
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "tprintf.h"
 
 #include <memory>

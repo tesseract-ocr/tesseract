@@ -21,7 +21,7 @@
 #include "host.h"           // tesseract/platform.h, windows.h for MAX_PATH
 #include "tprintf.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 #include <climits>          // for INT_MIN, INT_MAX
 #include <cmath>            // for NAN, std::isnan
@@ -130,7 +130,7 @@ bool ParamUtils::SetParam(const char *name, const char* value,
 
 bool ParamUtils::GetParamAsString(const char *name,
                                   const ParamsVectors* member_params,
-                                  STRING *value) {
+                                  std::string *value) {
   // Look for the parameter among string parameters.
   auto *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
                                            member_params->string_params);
