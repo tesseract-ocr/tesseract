@@ -110,8 +110,10 @@ void build(Solution &s)
         tesseract += libtesseract;
     }
 
+    auto &training = tess.addDirectory("training");
+
     //
-    auto &tessopt = tess.addStaticLibrary("tessopt");
+    auto &tessopt = training.addStaticLibrary("tessopt");
     {
         tessopt += cppstd;
         tessopt += "src/training/tessopt.*"_rr;
@@ -119,7 +121,7 @@ void build(Solution &s)
     }
 
     //
-    auto &common_training = tess.addStaticLibrary("common_training");
+    auto &common_training = training.addStaticLibrary("common_training");
     {
         common_training += cppstd;
         common_training +=
@@ -147,7 +149,7 @@ void build(Solution &s)
     }
 
     //
-    auto &unicharset_training = tess.addStaticLibrary("unicharset_training");
+    auto &unicharset_training = training.addStaticLibrary("unicharset_training");
     {
         unicharset_training += cppstd;
         unicharset_training +=
@@ -165,11 +167,11 @@ void build(Solution &s)
     }
 
     //
-#define ADD_EXE(n, ...)               \
-    auto &n = tess.addExecutable(#n); \
-    n += cppstd;                       \
-    n += "src/training/" #n ".*"_rr;  \
-    n.Public += __VA_ARGS__;          \
+#define ADD_EXE(n, ...)                     \
+    auto &n = training.addExecutable(#n);   \
+    n += cppstd;                            \
+    n += "src/training/" #n ".*"_rr;        \
+    n.Public += __VA_ARGS__;                \
     n
 
     ADD_EXE(ambiguous_words, libtesseract);
@@ -188,7 +190,7 @@ void build(Solution &s)
     ADD_EXE(merge_unicharsets, tessopt);
 
     //
-    auto &pango_training = tess.addStaticLibrary("pango_training");
+    auto &pango_training = training.addStaticLibrary("pango_training");
     {
         pango_training += cppstd;
         pango_training +=
