@@ -18,6 +18,8 @@
 #ifndef TESSERACT_ARCH_INTSIMDMATRIX_H_
 #define TESSERACT_ARCH_INTSIMDMATRIX_H_
 
+#include <tesseract/platform.h>
+
 #include <cstdint>
 #include <vector>
 
@@ -113,7 +115,7 @@ struct IntSimdMatrix {
   // Number of groups of inputs to be broadcast.
   // num_input_groups_ = num_inputs_per_register_ / num_inputs_per_group_
 
-  static const IntSimdMatrix* intSimdMatrix;
+  static TESS_API const IntSimdMatrix* intSimdMatrix;
   // Only available with NEON.
   static const IntSimdMatrix intSimdMatrixNEON;
   // Only available with AVX2 / SSE.
