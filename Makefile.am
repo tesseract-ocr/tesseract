@@ -322,7 +322,6 @@ endif
 noinst_HEADERS += src/ccutil/bits16.h
 noinst_HEADERS += src/ccutil/ccutil.h
 noinst_HEADERS += src/ccutil/clst.h
-noinst_HEADERS += src/ccutil/doubleptr.h
 noinst_HEADERS += src/ccutil/elst2.h
 noinst_HEADERS += src/ccutil/elst.h
 noinst_HEADERS += src/ccutil/errcode.h
