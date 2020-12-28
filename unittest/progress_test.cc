@@ -16,17 +16,21 @@
 
 // expects clone of tessdata_fast repo in ../../tessdata_fast
 
-#include <time.h>
+#include "include_gunit.h"
+
+#include <tesseract/baseapi.h>
+#include <tesseract/ocrclass.h>
+
+#include "allheaders.h"
+#include "gmock/gmock.h"
+
 #include <fstream>
 #include <iostream>
 #include <locale>
 #include <memory>               // std::unique_ptr
 #include <string>
-#include <tesseract/baseapi.h>
-#include "gmock/gmock.h"
-#include "include_gunit.h"
-#include "allheaders.h"
-#include <tesseract/ocrclass.h>
+
+#include <time.h>
 
 namespace tesseract {
 
