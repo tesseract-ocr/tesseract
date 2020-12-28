@@ -20,4 +20,4 @@ jobs:
 
     - name: build
       if: matrix.os != 'windows-latest'
-      run: ./sw -static -shared -config d,r build
+      run: ./sw -static -shared -config d,r build -Dwith-tests=1
