@@ -266,15 +266,12 @@ size_t TessBaseAPI::getOpenCLDevice(void **data) {
  * loading a UNLV zone file.
  */
 void TessBaseAPI::SetInputName(const char* name) {
-  input_file_ = name;
+  input_file_ = name ? name : "";
 }
 
 /** Set the name of the output files. Needed only for debugging. */
 void TessBaseAPI::SetOutputName(const char* name) {
-  if (name == nullptr) {
-    name = "";
-  }
-  output_file_ = name;
+  output_file_ = name ? name : "";
 }
 
 bool TessBaseAPI::SetVariable(const char* name, const char* value) {
