@@ -95,6 +95,9 @@ void build(Solution &s)
             libtesseract.Protected += "NOMINMAX"_def;
         }
 
+        if (libtesseract.getCompilerType() == CompilerType::MSVC)
+            libtesseract.Protected.CompileOptions.push_back("-utf-8");
+
         libtesseract.Variables["TESSERACT_MAJOR_VERSION"] = libtesseract.Variables["PACKAGE_MAJOR_VERSION"];
         libtesseract.Variables["TESSERACT_MINOR_VERSION"] = libtesseract.Variables["PACKAGE_MINOR_VERSION"];
         libtesseract.Variables["TESSERACT_MICRO_VERSION"] = libtesseract.Variables["PACKAGE_PATCH_VERSION"];
