@@ -286,7 +286,7 @@ class UNICHARSET {
   // Return true if the given unichar id exists within the set.
   // Relies on the fact that unichar ids are contiguous in the unicharset.
   bool contains_unichar_id(UNICHAR_ID unichar_id) const {
-    return unichar_id != INVALID_UNICHAR_ID && unichar_id < size_used &&
+    return unichar_id != INVALID_UNICHAR_ID && unichar_id < unichars.size() &&
         unichar_id >= 0;
   }
 
@@ -300,7 +300,7 @@ class UNICHARSET {
 
   // Delete CHAR_FRAGMENTs stored in properties of unichars array.
   void delete_pointers_in_unichars() {
-    for (int i = 0; i < size_used; ++i) {
+    for (int i = 0; i < unichars.size(); ++i) {
       delete unichars[i].properties.fragment;
       unichars[i].properties.fragment = nullptr;
     }
@@ -315,14 +315,9 @@ class UNICHARSET {
       script_table = nullptr;
       script_table_size_used = 0;
     }
-    if (unichars != nullptr) {
-      delete_pointers_in_unichars();
-      delete[] unichars;
-      unichars = nullptr;
-    }
     script_table_size_reserved = 0;
-    size_reserved = 0;
-    size_used = 0;
+    delete_pointers_in_unichars();
+    unichars.clear();
     ids.clear();
     top_bottom_set_ = false;
     script_has_upper_lower_ = false;
@@ -343,11 +338,8 @@ class UNICHARSET {
 
   // Return the size of the set (the number of different UNICHAR it holds).
   int size() const {
-    return size_used;
+    return unichars.size();
   }
-
-  // Reserve enough memory space for the given number of UNICHARS
-  void reserve(int unichars_number);
 
   // Opens the file indicated by filename and saves unicharset to that file.
   // Returns true if the operation is successful.
@@ -1006,10 +998,8 @@ class UNICHARSET {
   static const char* kCleanupMaps[][2];
   static TESS_API const char* null_script;
 
-  UNICHAR_SLOT* unichars;
+  std::vector<UNICHAR_SLOT> unichars;
   UNICHARMAP ids;
-  int size_used;
-  int size_reserved;
   char** script_table;
   int script_table_size_used;
   int script_table_size_reserved;
