@@ -48,9 +48,7 @@ INT_PARAM_FLAG(max_concurrent_instances, 0,
              "instant. The number of concurrent instances cannot exceed "
              "reps * number_of_langs_tested, which is also the default value.");
 
-using tesseract::TessBaseAPI;
-
-namespace {
+namespace tesseract {
 
 static const char* kTessLangs[] = {"eng", "vie", nullptr};
 static const char* kTessImages[] = {"HelloGoogle.tif", "viet.tif", nullptr};

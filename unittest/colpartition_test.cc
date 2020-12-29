@@ -13,9 +13,7 @@
 
 #include "include_gunit.h"
 
-using tesseract::ColPartition;
-
-namespace {
+namespace tesseract {
 
 class TestableColPartition : public ColPartition {
  public:

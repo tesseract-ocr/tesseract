@@ -18,11 +18,7 @@
 #include "fileio.h"
 #include "include_gunit.h"
 
-namespace {
-
-using tesseract::File;
-using tesseract::InputBuffer;
-using tesseract::OutputBuffer;
+namespace tesseract {
 
 TEST(FileTest, JoinPath) {
   EXPECT_EQ("/abc/def", File::JoinPath("/abc", "def"));

@@ -13,10 +13,7 @@
 #include "gmock/gmock.h"                // for testing::ElementsAreArray
 #include <tesseract/unichar.h>
 
-using tesseract::char32;
-using tesseract::UNICHAR;
-
-namespace {
+namespace tesseract {
 
 TEST(UnicharTest, Conversion) {
   // This test verifies that Unichar::UTF8ToUTF32 and Unichar::UTF32ToUTF8

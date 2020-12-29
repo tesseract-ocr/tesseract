@@ -32,7 +32,7 @@
 #include "include_gunit.h"
 #include "allheaders.h"
 
-namespace {
+namespace tesseract {
 
 class QuickTest : public testing::Test {
  protected:

@@ -17,12 +17,9 @@
 
 #include "include_gunit.h"
 
-using tesseract::IndexMap;
-using tesseract::IndexMapBiDi;
-
 const int kPrimeLimit = 1000;
 
-namespace {
+namespace tesseract {
 
 class IndexMapBiDiTest : public testing::Test {
  protected:

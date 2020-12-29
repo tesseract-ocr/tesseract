@@ -142,15 +142,6 @@ class MockClassifier : public ShapeClassifier {
   bool done_bad_font_;
 };
 
-}  // namespace tesseract
-
-namespace {
-
-using tesseract::MasterTrainer;
-using tesseract::Shape;
-using tesseract::ShapeTable;
-using tesseract::UnicharAndFonts;
-
 const double kMin1lDistance = 0.25;
 
 // The fixture for testing Tesseract.
@@ -313,4 +304,4 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
 #endif
 }
 
-}  // namespace.
+} // namespace tesseract

@@ -20,14 +20,9 @@
 #include "shapetable.h"
 #include "unicharset.h"
 
-namespace {
+namespace tesseract {
 
 #ifndef DISABLED_LEGACY_ENGINE
-
-  using tesseract::Shape;
-using tesseract::ShapeTable;
-using tesseract::TFile;
-using tesseract::UnicharAndFonts;
 
 static std::string TmpNameToPath(const std::string& name) {
   return file::JoinPath(FLAGS_test_tmpdir, name);

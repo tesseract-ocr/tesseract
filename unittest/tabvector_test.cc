@@ -15,9 +15,7 @@
 
 #include "include_gunit.h"
 
-using tesseract::TabVector;
-
-namespace {
+namespace tesseract {
 
 class TabVectorTest : public testing::Test {
  protected:

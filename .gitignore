@@ -63,7 +63,7 @@ config_auto.h
 # ignore compilation files
 build/*
 /bin
-*/.deps/*
+.deps
 .dirstamp
 /.libs
 */.libs/*

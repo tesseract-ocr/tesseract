@@ -14,7 +14,6 @@
 #include "normstrngs_test.h"
 
 namespace tesseract {
-namespace {
 
 TEST(ValidateGraphemeTest, MultipleSyllablesAreNotASingleGrapheme) {
   std::string str = "\u0c15\u0c3f\u0c15\u0c0e";  // KA - dep I - KA - ind E.
@@ -177,5 +176,4 @@ TEST(ValidateGraphemeTest, NoLonelyJoinersQuote) {
   EXPECT_EQ(glyphs[4], std::string("'"));
 }
 
-}  // namespace
 }  // namespace tesseract

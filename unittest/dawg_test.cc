@@ -21,7 +21,7 @@
 
 #include "include_gunit.h"
 
-namespace {
+namespace tesseract {
 
 // Test some basic functionality dealing with Dawgs (compressed dictionaries,
 // aka Directed Acyclic Word Graphs).

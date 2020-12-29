@@ -13,7 +13,7 @@
 
 #include "include_gunit.h"
 
-namespace {
+namespace tesseract {
 
 class TBOXTest : public testing::Test {
  public:

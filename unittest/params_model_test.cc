@@ -17,7 +17,7 @@
 #include <tesseract/serialis.h>     // TFile
 #include "tprintf.h"      // tprintf
 
-namespace {
+namespace tesseract {
 
 // Test some basic I/O of params model files (automated learning of language
 // model weights).

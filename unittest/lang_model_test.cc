@@ -22,7 +22,6 @@
 #include "unicharset_training_utils.h"
 
 namespace tesseract {
-namespace {
 
 std::string TestDataNameToPath(const std::string& name) {
   return file::JoinPath(TESTING_DIR, name);
@@ -213,5 +212,4 @@ TEST(LangModelTest, AddACharacterHindi) {
   EXPECT_TRUE(trainer2.EncodeString(kTestStringRupees, &labels2));
 }
 
-}  // namespace
 }  // namespace tesseract

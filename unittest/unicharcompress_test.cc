@@ -23,7 +23,6 @@
 #include "unicharcompress.h"
 
 namespace tesseract {
-namespace {
 
 class UnicharcompressTest : public ::testing::Test {
  protected:
@@ -254,5 +253,4 @@ TEST_F(UnicharcompressTest, GetEncodingAsString) {
   EXPECT_EQ("3\t<nul>", lines[4]);
 }
 
-}  // namespace
 }  // namespace tesseract

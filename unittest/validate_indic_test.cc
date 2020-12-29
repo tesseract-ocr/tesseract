@@ -14,7 +14,6 @@
 #include "normstrngs_test.h"
 
 namespace tesseract {
-namespace {
 
 // Though the unicode example for Telugu in section 12.7:
 // http://www.unicode.org/versions/Unicode9.0.0/ch12.pdf
@@ -229,5 +228,4 @@ TEST(ValidateIndicTest, SinhalaSpecials) {
   EXPECT_EQ(glyphs[3], std::string("\u0dcf"));
 }
 
-}  // namespace
 }  // namespace tesseract

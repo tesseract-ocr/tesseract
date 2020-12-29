@@ -24,12 +24,7 @@
 #include "tesseractclass.h"
 #include "textlineprojection.h"
 
-namespace {
-
-using tesseract::ColumnFinder;
-using tesseract::MutableIterator;
-using tesseract::Tesseract;
-using tesseract::TextlineProjection;
+namespace tesseract {
 
 // Minimum score for a STRONG_CHAIN textline.
 // NOTE: Keep in sync with textlineprojection.cc.

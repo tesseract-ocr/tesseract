@@ -28,7 +28,7 @@
 #include "allheaders.h"
 #include <tesseract/ocrclass.h>
 
-namespace {
+namespace tesseract {
 
 class QuickTest : public testing::Test {
  protected:

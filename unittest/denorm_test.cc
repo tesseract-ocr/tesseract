@@ -14,7 +14,7 @@
 
 #include "include_gunit.h"
 
-namespace {
+namespace tesseract {
 
 class DENORMTest : public testing::Test {
  protected:

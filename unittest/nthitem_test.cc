@@ -49,20 +49,20 @@ TEST_F(NthItemTest, GeneralTest) {
   // Get the min item.
   int index = v.choose_nth_item(0);
   // The result is -32767.
-  EXPECT_EQ(-32767, v[index].key);
+  EXPECT_EQ(-32767, v[index].key());
   // Get the max item.
   index = v.choose_nth_item(v.size() - 1);
   // The result is 65536.
-  EXPECT_EQ(65536, v[index].key);
+  EXPECT_EQ(65536, v[index].key());
   // Invalid items are silently truncated to valid.
   // Get the min item.
   index = v.choose_nth_item(-1);
   // The result is -32767.
-  EXPECT_EQ(-32767, v[index].key);
+  EXPECT_EQ(-32767, v[index].key());
   // Get the max item.
   index = v.choose_nth_item(v.size());
   // The result is 65536.
-  EXPECT_EQ(65536, v[index].key);
+  EXPECT_EQ(65536, v[index].key());
 }
 
 // Tests results on boring data with lots of duplication.
@@ -77,18 +77,18 @@ TEST_F(NthItemTest, BoringTest) {
   // The 3rd item is 7 but the 4th is 8..
   int index = v.choose_nth_item(3);
   // The result is 7.
-  EXPECT_EQ(7, v[index].key);
+  EXPECT_EQ(7, v[index].key());
   index = v.choose_nth_item(4);
   // The result is 8.
-  EXPECT_EQ(8, v[index].key);
+  EXPECT_EQ(8, v[index].key());
   // Get the min item.
   index = v.choose_nth_item(0);
   // The result is 7.
-  EXPECT_EQ(7, v[index].key);
+  EXPECT_EQ(7, v[index].key());
   // Get the max item.
   index = v.choose_nth_item(v.size() - 1);
   // The result is 8.
-  EXPECT_EQ(8, v[index].key);
+  EXPECT_EQ(8, v[index].key());
 }
 
 // Tests that a unique median in an odd-size array is found correctly.
@@ -99,8 +99,8 @@ TEST_F(NthItemTest, UniqueTest) {
   // Get the median item.
   int index = v.choose_nth_item(v.size() / 2);
   // The result is 6, it started out at index 11.
-  EXPECT_EQ(6, v[index].key);
-  EXPECT_EQ(11, v[index].data);
+  EXPECT_EQ(6, v[index].key());
+  EXPECT_EQ(11, v[index].data());
 }
 
 // Tests that an equal median is found correctly.
@@ -114,8 +114,8 @@ TEST_F(NthItemTest, EqualTest) {
   // Get the median item.
   int index = v.choose_nth_item(v.size() / 2);
   // The result is 7, it started out at index 4 or 12.
-  EXPECT_EQ(7, v[index].key);
-  EXPECT_TRUE(v[index].data == 4 || v[index].data == 12);
+  EXPECT_EQ(7, v[index].key());
+  EXPECT_TRUE(v[index].data() == 4 || v[index].data() == 12);
 }
 
 }  // namespace tesseract

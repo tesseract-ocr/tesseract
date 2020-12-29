@@ -14,14 +14,7 @@
 #include "stridemap.h"
 #include <tensorflow/compiler/xla/array2d.h> // for xla::Array2D
 
-using tesseract::FD_BATCH;
-using tesseract::FD_HEIGHT;
-using tesseract::FD_WIDTH;
-using tesseract::FlexDimensions;
-using tesseract::NetworkIO;
-using tesseract::StrideMap;
-
-namespace {
+namespace tesseract {
 
 class NetworkioTest : public ::testing::Test {
  protected:

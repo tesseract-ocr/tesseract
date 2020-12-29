@@ -23,16 +23,7 @@
 #include "log.h"                        // for LOG
 #include "absl/strings/str_format.h"        // for absl::StrFormat
 
-using tesseract::CCUtil;
-using tesseract::Dict;
-using tesseract::PointerVector;
-using tesseract::RecodeBeamSearch;
-using tesseract::RecodedCharID;
-using tesseract::RecodeNode;
-using tesseract::TRand;
-using tesseract::UnicharCompress;
-
-namespace {
+namespace tesseract {
 
 // Number of characters to test beam search with.
 const int kNumChars = 100;
