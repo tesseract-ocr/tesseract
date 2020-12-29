@@ -324,11 +324,6 @@ class GenericVector {
     return true;
   }
 
-  void scale(T factor) const {
-    for (int i = 0; i < size_used_; ++i) {
-      data_[i] *= factor;
-    }
-  }
  protected:
   // Internal recursive version of choose_nth_item.
   int choose_nth_item(int target_index, int start, int end, unsigned int* seed);
