@@ -441,12 +441,6 @@ bool DocumentData::SaveDocument(const char* filename, FileWriter writer) {
   }
   return true;
 }
-bool DocumentData::SaveToBuffer(GenericVector<char>* buffer) {
-  std::lock_guard<std::mutex> lock(pages_mutex_);
-  TFile fp;
-  fp.OpenWrite(buffer);
-  return pages_.Serialize(&fp);
-}
 
 // Adds the given page data to this document, counting up memory.
 void DocumentData::AddPageToDocument(ImageData* page) {

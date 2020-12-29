@@ -224,7 +224,6 @@ class DocumentData {
   void SetDocument(const char* filename, int64_t max_memory, FileReader reader);
   // Writes all the pages to the given filename. Returns false on error.
   bool SaveDocument(const char* filename, FileWriter writer);
-  bool SaveToBuffer(GenericVector<char>* buffer);
 
   // Adds the given page data to this document, counting up memory.
   void AddPageToDocument(ImageData* page);
