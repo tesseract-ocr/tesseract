@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
     tprintf("Must supply a list of training filenames! --train_listfile\n");
     return EXIT_FAILURE;
   }
-  GenericVector<STRING> filenames;
+  std::vector<STRING> filenames;
   if (!tesseract::LoadFileLinesToStrings(FLAGS_train_listfile.c_str(),
                                          &filenames)) {
     tprintf("Failed to load list of training filenames from %s\n",

@@ -140,7 +140,7 @@ bool TFile::DeSerialize(std::vector<char>& data) {
   }
   // TODO: optimize.
   data.resize(size);
-  DeSerialize(&data[0], data.size());
+  return DeSerialize(&data[0], data.size());
 }
 
 bool TFile::DeSerialize(char* buffer, size_t count) {
@@ -192,7 +192,7 @@ bool TFile::Serialize(const std::vector<char>& data) {
   if (!Serialize(&size)) {
     return false;
   }
-  Serialize(&data[0], size);
+  return Serialize(&data[0], size);
 }
 
 bool TFile::Serialize(const char* buffer, size_t count) {
