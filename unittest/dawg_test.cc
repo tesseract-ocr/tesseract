@@ -47,7 +47,7 @@ class DawgTest : public testing::Test {
     }
   }
   std::string TessBinaryPath(const std::string& name) const {
-    return file::JoinPath(TESSBIN_DIR, "src/training/" + name);
+    return file::JoinPath(TESSBIN_DIR, name);
   }
   std::string OutputNameToPath(const std::string& name) const {
     return file::JoinPath(FLAGS_test_tmpdir, name);

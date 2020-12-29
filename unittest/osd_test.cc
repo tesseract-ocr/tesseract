@@ -24,7 +24,7 @@
 #include <string>
 #include <tesseract/baseapi.h>
 #include "include_gunit.h"
-#include "leptonica/allheaders.h"
+#include "allheaders.h"
 
 namespace {
 

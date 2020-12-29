@@ -1,33 +1,16 @@
 ## run autogen.sh to create Makefile.in from this file
 ACLOCAL_AMFLAGS = -I m4
 
-if ENABLE_TRAINING
-TRAINING_SUBDIR = src/training
-training: all
-	@$(MAKE) -C src/training
-training-install: training
-	@$(MAKE) -C src/training install
-training-uninstall:
-	@$(MAKE) -C src/training uninstall
-clean-local:
-	@$(MAKE) -C src/training clean
-# Some unit tests use code from training.
-check: training
-else
-training:
-	@echo "Need to reconfigure project, so there are no errors"
-endif
-
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
 SUBDIRS = . tessdata doc unittest
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
-EXTRA_DIST += tesseract.pc.in $(TRAINING_SUBDIR) java doc
+EXTRA_DIST += tesseract.pc.in java doc
 EXTRA_DIST += CMakeLists.txt tesseract.pc.cmake cmake VERSION src/vs2010
 
-DIST_SUBDIRS = $(SUBDIRS) $(TRAINING_SUBDIR)
+DIST_SUBDIRS = $(SUBDIRS)
 
 uninstall-hook:
 	rm -rf $(DESTDIR)$(pkgincludedir)
@@ -39,7 +22,6 @@ dist-hook:
 	rm -rf `find $(distdir) -name .deps -type d`
 	-rm -f $(distdir)/*/Makefile $(distdir)/*/*/Makefile
 	rm -f `find $(distdir) -name '*~'`
-	rm -rf $(find $(distdir)/src/training -executable -type f)
 	rm -rf $(distdir)/doc/html/* $(distdir)/doc/*.log
 
 ScrollView.jar:
@@ -744,6 +726,261 @@ endif
 if ADD_RT
 tesseract_LDADD += -lrt
 endif
+
+# Rules for training tools.
+
+if ENABLE_TRAINING
+
+training: $(EXTRA_PROGRAMS) | $(PROGRAMS)
+
+training-install: $(EXTRA_PROGRAMS)
+	mkdir -p $(DESTDIR)$(bindir)
+	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install \
+	$(INSTALL) $(INSTALL_STRIP_FLAG) $(EXTRA_PROGRAMS) $(DESTDIR)$(bindir)
+
+training-uninstall:
+
+# Some unit tests use code from training.
+check: libtesseract_training.la libtesseract_tessopt.la
+
+CLEANFILES = $(EXTRA_PROGRAMS)
+
+else
+
+training:
+	@echo "Need to reconfigure project, so there are no errors"
+
+endif
+
+$(EXTRA_PROGRAMS): libtesseract.la
+
+training_CPPFLAGS := -DPANGO_ENABLE_ENGINE
+training_CPPFLAGS += -I$(top_builddir)/include
+training_CPPFLAGS += -I$(top_srcdir)/include
+training_CPPFLAGS += -I$(top_srcdir)/src/api
+training_CPPFLAGS += -I$(top_srcdir)/src/ccmain
+training_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+training_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+training_CPPFLAGS += -I$(top_srcdir)/src/lstm
+training_CPPFLAGS += -I$(top_srcdir)/src/arch
+training_CPPFLAGS += -I$(top_srcdir)/src/viewer
+training_CPPFLAGS += -I$(top_srcdir)/src/textord
+training_CPPFLAGS += -I$(top_srcdir)/src/dict
+training_CPPFLAGS += -I$(top_srcdir)/src/classify
+training_CPPFLAGS += -I$(top_srcdir)/src/wordrec
+training_CPPFLAGS += -I$(top_srcdir)/src/cutil
+training_CPPFLAGS += $(ICU_UC_CFLAGS) $(ICU_I18N_CFLAGS)
+training_CPPFLAGS += $(pango_CFLAGS)
+training_CPPFLAGS += $(cairo_CFLAGS)
+
+bin_SCRIPTS = src/training/language-specific.sh src/training/tesstrain.sh
+scripts_DATA = src/training/tesstrain_utils.sh
+scriptsdir = $(bindir)
+
+if DISABLED_LEGACY_ENGINE
+training_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
+endif
+
+# TODO: training programs can not be linked to shared library created
+# with -fvisibility
+if VISIBILITY
+AM_LDFLAGS += -all-static
+endif
+
+noinst_HEADERS += src/training/boxchar.h
+noinst_HEADERS += src/training/commandlineflags.h
+noinst_HEADERS += src/training/commontraining.h
+noinst_HEADERS += src/training/ctc.h
+noinst_HEADERS += src/training/degradeimage.h
+noinst_HEADERS += src/training/icuerrorcode.h
+noinst_HEADERS += src/training/fileio.h
+noinst_HEADERS += src/training/lang_model_helpers.h
+noinst_HEADERS += src/training/ligature_table.h
+noinst_HEADERS += src/training/lstmtester.h
+noinst_HEADERS += src/training/lstmtrainer.h
+noinst_HEADERS += src/training/networkbuilder.h
+noinst_HEADERS += src/training/normstrngs.h
+noinst_HEADERS += src/training/pango_font_info.h
+noinst_HEADERS += src/training/stringrenderer.h
+noinst_HEADERS += src/training/tessopt.h
+noinst_HEADERS += src/training/tlog.h
+noinst_HEADERS += src/training/unicharset_training_utils.h
+noinst_HEADERS += src/training/util.h
+noinst_HEADERS += src/training/validate_grapheme.h
+noinst_HEADERS += src/training/validate_indic.h
+noinst_HEADERS += src/training/validate_javanese.h
+noinst_HEADERS += src/training/validate_khmer.h
+noinst_HEADERS += src/training/validate_myanmar.h
+noinst_HEADERS += src/training/validator.h
+if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += src/training/errorcounter.h
+noinst_HEADERS += src/training/intfeaturedist.h
+noinst_HEADERS += src/training/intfeaturemap.h
+noinst_HEADERS += src/training/mastertrainer.h
+noinst_HEADERS += src/training/mergenf.h
+noinst_HEADERS += src/training/sampleiterator.h
+noinst_HEADERS += src/training/trainingsampleset.h
+endif
+
+
+EXTRA_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
+
+libtesseract_training_la_CPPFLAGS = $(training_CPPFLAGS)
+libtesseract_training_la_SOURCES = src/training/boxchar.cpp
+libtesseract_training_la_SOURCES += src/training/commandlineflags.cpp
+libtesseract_training_la_SOURCES += src/training/commontraining.cpp
+libtesseract_training_la_SOURCES += src/training/ctc.cpp
+libtesseract_training_la_SOURCES += src/training/degradeimage.cpp
+libtesseract_training_la_SOURCES += src/training/icuerrorcode.cpp
+libtesseract_training_la_SOURCES += src/training/fileio.cpp
+libtesseract_training_la_SOURCES += src/training/lang_model_helpers.cpp
+libtesseract_training_la_SOURCES += src/training/ligature_table.cpp
+libtesseract_training_la_SOURCES += src/training/lstmtester.cpp
+libtesseract_training_la_SOURCES += src/training/lstmtrainer.cpp
+libtesseract_training_la_SOURCES += src/training/networkbuilder.cpp
+libtesseract_training_la_SOURCES += src/training/normstrngs.cpp
+libtesseract_training_la_SOURCES += src/training/pango_font_info.cpp
+libtesseract_training_la_SOURCES += src/training/stringrenderer.cpp
+libtesseract_training_la_SOURCES += src/training/tlog.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset_training_utils.cpp
+libtesseract_training_la_SOURCES += src/training/validate_grapheme.cpp
+libtesseract_training_la_SOURCES += src/training/validate_indic.cpp
+libtesseract_training_la_SOURCES += src/training/validate_javanese.cpp
+libtesseract_training_la_SOURCES += src/training/validate_khmer.cpp
+libtesseract_training_la_SOURCES += src/training/validate_myanmar.cpp
+libtesseract_training_la_SOURCES += src/training/validator.cpp
+if !DISABLED_LEGACY_ENGINE
+libtesseract_training_la_SOURCES += src/training/errorcounter.cpp
+libtesseract_training_la_SOURCES += src/training/intfeaturedist.cpp
+libtesseract_training_la_SOURCES += src/training/intfeaturemap.cpp
+libtesseract_training_la_SOURCES += src/training/mastertrainer.cpp
+libtesseract_training_la_SOURCES += src/training/sampleiterator.cpp
+libtesseract_training_la_SOURCES += src/training/trainingsampleset.cpp
+endif
+
+libtesseract_tessopt_la_CPPFLAGS = $(training_CPPFLAGS)
+libtesseract_tessopt_la_SOURCES = src/training/tessopt.cpp
+
+trainingtools = combine_lang_model
+trainingtools += combine_tessdata
+trainingtools += dawg2wordlist
+trainingtools += lstmeval
+trainingtools += lstmtraining
+trainingtools += merge_unicharsets
+trainingtools += set_unicharset_properties
+trainingtools += text2image
+trainingtools += unicharset_extractor
+trainingtools += wordlist2dawg
+if !DISABLED_LEGACY_ENGINE
+trainingtools += ambiguous_words
+trainingtools += classifier_tester
+trainingtools += cntraining
+trainingtools += mftraining
+trainingtools += shapeclustering
+endif
+
+EXTRA_PROGRAMS = $(trainingtools)
+
+extralib = libtesseract.la
+extralib += $(libarchive_LIBS)
+extralib += $(LEPTONICA_LIBS)
+extralib += $(OPENCL_LDFLAGS)
+extralib += $(TENSORFLOW_LIBS)
+if T_WIN
+extralib += -lws2_32
+endif
+
+if !DISABLED_LEGACY_ENGINE
+ambiguous_words_CPPFLAGS = $(training_CPPFLAGS)
+ambiguous_words_SOURCES = src/training/ambiguous_words.cpp
+ambiguous_words_LDADD = libtesseract_training.la
+ambiguous_words_LDADD += libtesseract_tessopt.la
+ambiguous_words_LDADD += $(extralib)
+
+classifier_tester_CPPFLAGS = $(training_CPPFLAGS)
+classifier_tester_SOURCES = src/training/classifier_tester.cpp
+classifier_tester_LDADD = libtesseract_training.la
+classifier_tester_LDADD += libtesseract_tessopt.la
+classifier_tester_LDADD += $(extralib)
+
+cntraining_CPPFLAGS = $(training_CPPFLAGS)
+cntraining_SOURCES = src/training/cntraining.cpp
+cntraining_LDADD = libtesseract_training.la libtesseract_tessopt.la
+cntraining_LDADD += $(extralib)
+
+mftraining_CPPFLAGS = $(training_CPPFLAGS)
+mftraining_SOURCES = src/training/mftraining.cpp src/training/mergenf.cpp
+mftraining_LDADD = libtesseract_training.la libtesseract_tessopt.la
+mftraining_LDADD += $(ICU_UC_LIBS)
+mftraining_LDADD += $(extralib)
+
+shapeclustering_CPPFLAGS = $(training_CPPFLAGS)
+shapeclustering_SOURCES = src/training/shapeclustering.cpp
+shapeclustering_LDADD = libtesseract_training.la libtesseract_tessopt.la
+shapeclustering_LDADD += $(extralib)
+endif
+
+combine_lang_model_CPPFLAGS = $(training_CPPFLAGS)
+combine_lang_model_SOURCES = src/training/combine_lang_model.cpp
+combine_lang_model_LDADD = libtesseract_training.la
+combine_lang_model_LDADD += libtesseract_tessopt.la
+combine_lang_model_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+combine_lang_model_LDADD += $(extralib)
+
+combine_tessdata_CPPFLAGS = $(training_CPPFLAGS)
+combine_tessdata_SOURCES = src/training/combine_tessdata.cpp
+combine_tessdata_LDADD = $(extralib)
+
+dawg2wordlist_CPPFLAGS = $(training_CPPFLAGS)
+dawg2wordlist_SOURCES = src/training/dawg2wordlist.cpp
+dawg2wordlist_LDADD = libtesseract_tessopt.la
+dawg2wordlist_LDADD += $(extralib)
+
+lstmeval_CPPFLAGS = $(training_CPPFLAGS)
+lstmeval_SOURCES = src/training/lstmeval.cpp
+lstmeval_LDADD = libtesseract_training.la
+lstmeval_LDADD += libtesseract_tessopt.la
+lstmeval_LDADD += $(ICU_UC_LIBS)
+lstmeval_LDADD += $(extralib)
+
+lstmtraining_CPPFLAGS = $(training_CPPFLAGS)
+lstmtraining_SOURCES = src/training/lstmtraining.cpp
+lstmtraining_LDADD = libtesseract_training.la
+lstmtraining_LDADD += libtesseract_tessopt.la
+lstmtraining_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+lstmtraining_LDADD += $(extralib)
+
+merge_unicharsets_CPPFLAGS = $(training_CPPFLAGS)
+merge_unicharsets_SOURCES = src/training/merge_unicharsets.cpp
+merge_unicharsets_LDADD = libtesseract_tessopt.la
+merge_unicharsets_LDADD += $(extralib)
+
+set_unicharset_properties_CPPFLAGS = $(training_CPPFLAGS)
+set_unicharset_properties_SOURCES = src/training/set_unicharset_properties.cpp
+set_unicharset_properties_LDADD = libtesseract_training.la
+set_unicharset_properties_LDADD += libtesseract_tessopt.la
+set_unicharset_properties_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+set_unicharset_properties_LDADD += $(extralib)
+
+text2image_CPPFLAGS = $(training_CPPFLAGS)
+text2image_SOURCES = src/training/text2image.cpp
+text2image_LDADD = libtesseract_training.la libtesseract_tessopt.la
+text2image_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+text2image_LDADD += $(extralib)
+text2image_LDADD += $(ICU_UC_LIBS) $(cairo_LIBS)
+text2image_LDADD += $(pango_LIBS) $(pangocairo_LIBS) $(pangoft2_LIBS)
+
+unicharset_extractor_CPPFLAGS = $(training_CPPFLAGS)
+unicharset_extractor_SOURCES = src/training/unicharset_extractor.cpp
+unicharset_extractor_LDADD = libtesseract_training.la
+unicharset_extractor_LDADD += libtesseract_tessopt.la
+unicharset_extractor_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+unicharset_extractor_LDADD += $(extralib)
+
+wordlist2dawg_CPPFLAGS = $(training_CPPFLAGS)
+wordlist2dawg_SOURCES = src/training/wordlist2dawg.cpp
+wordlist2dawg_LDADD = libtesseract_tessopt.la
+wordlist2dawg_LDADD += $(extralib)
 
 # fuzzer-api is used for fuzzing tests.
 # They are run by OSS-Fuzz https://oss-fuzz.com/, but can also be run locally.

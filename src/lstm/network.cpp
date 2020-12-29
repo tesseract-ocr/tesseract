@@ -161,8 +161,9 @@ bool Network::Serialize(TFile* fp) const {
   if (!fp->Serialize(&ni_)) return false;
   if (!fp->Serialize(&no_)) return false;
   if (!fp->Serialize(&num_weights_)) return false;
-  if (!fp->Serialize(name_.c_str(), name_.length())) return false;
-  return true;
+  uint32_t length = name_.length();
+  if (!fp->Serialize(&length)) return false;
+  return fp->Serialize(name_.c_str(), length);
 }
 
 static NetworkType getNetworkType(TFile* fp) {
@@ -245,7 +246,7 @@ Network* Network::CreateFromFile(TFile* fp) {
       break;
     case NT_TENSORFLOW:
 #ifdef INCLUDE_TENSORFLOW
-      network = new TFNetwork(name);
+      network = new TFNetwork(name.c_str());
 #else
       tprintf("WARNING: TensorFlow not compiled in! -DINCLUDE_TENSORFLOW\n");
 #endif

@@ -374,11 +374,11 @@ configure_file(
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
     cmake/templates/TesseractConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/TesseractConfig.cmake
-    INSTALL_DESTINATION lib/tesseract/cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/tesseract/TesseractConfig.cmake
+    INSTALL_DESTINATION lib/cmake/tesseract
     PATH_VARS INCLUDE_DIR)
 write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/TesseractConfigVersion.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/tesseract/TesseractConfigVersion.cmake
     VERSION ${PACKAGE_VERSION}
     COMPATIBILITY SameMajorVersion)
 
@@ -592,7 +592,8 @@ if(HAVE_NEON)
                                PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
 endif(HAVE_NEON)
 
-file(GLOB tesseract_hdr
+file(GLOB_RECURSE tesseract_hdr
+    include/*
     src/arch/*.h
     src/ccmain/*.h
     src/ccstruct/*.h
@@ -618,14 +619,12 @@ set(tesseract_src ${tesseract_src}
     src/api/wordstrboxrenderer.cpp
 )
 
-if (WIN32)
-    if (MSVC)
-        include_directories(src/vs2010/tesseract)
-        set(tesseract_hdr
-            ${tesseract_hdr}
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/resource.h)
-        set(tesseract_rsc ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
-    endif()  # MSVC
+if (WIN32 AND MSVC)
+    include_directories(src/vs2010/tesseract)
+    set(tesseract_hdr
+        ${tesseract_hdr}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/resource.h)
+    set(tesseract_rsc ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
 endif()
 
 add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${arch_files}

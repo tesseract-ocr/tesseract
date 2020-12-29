@@ -15,6 +15,9 @@ TESTING_DIR=$(shell cd $(top_srcdir) && pwd)/test/testing
 # (using submodule test).
 TESTDATA_DIR=$(shell cd $(top_srcdir) && pwd)/test/testdata
 
+# Suppress some memory leaks reported by LeakSanitizer.
+export LSAN_OPTIONS=suppressions=$(top_srcdir)/unittest/tesseract_leaksanitizer.supp
+
 AM_CPPFLAGS += -DTESSBIN_DIR="\"$(abs_top_builddir)\""
 AM_CPPFLAGS += -DLANGDATA_DIR="\"$(LANGDATA_DIR)\""
 AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
@@ -39,6 +42,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/src/lstm
 AM_CPPFLAGS += -I$(top_srcdir)/src/textord
 AM_CPPFLAGS += -I$(top_srcdir)/unittest/base
 AM_CPPFLAGS += -I$(top_srcdir)/unittest/util
+AM_CPPFLAGS += $(LEPTONICA_CFLAGS)
 if ENABLE_TRAINING
 AM_CPPFLAGS += -I$(top_srcdir)/src/training
 AM_CPPFLAGS += $(pangocairo_CFLAGS)
@@ -107,8 +111,8 @@ GMOCK_LIBS =  libgmock.la libgmock_main.la
 TESS_LIBS = $(GTEST_LIBS)
 TESS_LIBS += $(top_builddir)/libtesseract.la $(libarchive_LIBS)
 TESS_LIBS += $(TENSORFLOW_LIBS)
-TRAINING_LIBS = $(top_builddir)/src/training/libtesseract_training.la
-TRAINING_LIBS += $(top_builddir)/src/training/libtesseract_tessopt.la
+TRAINING_LIBS = $(top_builddir)/libtesseract_training.la
+TRAINING_LIBS += $(top_builddir)/libtesseract_tessopt.la
 TRAINING_LIBS += $(TESS_LIBS)
 AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
                  -isystem $(top_srcdir)/googletest/googlemock/include
@@ -320,8 +324,8 @@ layout_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
 ligature_table_test_SOURCES = ligature_table_test.cc
 ligature_table_test_LDADD = $(TRAINING_LIBS)
-ligature_table_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS) -lfontconfig
-ligature_table_test_LDADD += -lpangocairo-1.0 -lpangoft2-1.0
+ligature_table_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+ligature_table_test_LDADD += $(pangocairo_LIBS) $(pangoft2_LIBS)
 ligature_table_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
 
 linlsq_test_SOURCES = linlsq_test.cc
@@ -426,7 +430,7 @@ endif # TENSORFLOW
 stringrenderer_test_SOURCES = stringrenderer_test.cc
 stringrenderer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 stringrenderer_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
-stringrenderer_test_LDADD += -lfontconfig -lpangocairo-1.0 -lpangoft2-1.0
+stringrenderer_test_LDADD += $(pangocairo_LIBS) $(pangoft2_LIBS)
 stringrenderer_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
 
 tablefind_test_SOURCES = tablefind_test.cc
