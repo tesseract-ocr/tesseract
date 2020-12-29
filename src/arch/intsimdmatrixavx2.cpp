@@ -287,7 +287,6 @@ static inline void PartialMatrixDotVector8(const int8_t *wi,
                                                  int     num_in,
                                                  double *v) {
   double *ov = v;
-  double temp[8];
   // Register containing 16-bit ones for horizontal add with 16->32 bit
   // conversion.
   __m256i ones =
