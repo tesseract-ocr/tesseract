@@ -27,9 +27,7 @@
 #include "networkio.h"
 #include "ratngs.h"
 #include "unicharcompress.h"
-
 #include <deque>
-#include <memory>
 #include <set>
 #include <tuple>
 #include <vector>
@@ -126,9 +124,17 @@ struct RecodeNode {
   // don't want to copy the whole DawgPositionVector each time, and true
   // copying isn't necessary for this struct. It does get moved around a lot
   // though inside the heap and during heap push, hence the move semantics.
-  RecodeNode(RecodeNode &&) = default;
-  RecodeNode& operator=(RecodeNode &&) = default;
-
+  RecodeNode(const RecodeNode& src) : dawgs(nullptr) {
+    *this = src;
+    ASSERT_HOST(src.dawgs == nullptr);
+  }
+  RecodeNode& operator=(const RecodeNode& src) {
+    delete dawgs;
+    memcpy(this, &src, sizeof(src));
+    ((RecodeNode&)src).dawgs = nullptr;
+    return *this;
+  }
+  ~RecodeNode() { delete dawgs; }
   // Prints details of the node.
   void Print(int null_char, const UNICHARSET& unicharset, int depth) const;
 
@@ -161,7 +167,7 @@ struct RecodeNode {
   // The previous node in this chain. Borrowed pointer.
   const RecodeNode* prev;
   // The currently active dawgs at this position. Owned pointer.
-  std::unique_ptr<DawgPositionVector> dawgs;
+  DawgPositionVector* dawgs;
   // A hash of all codes in the prefix and this->code as well. Used for
   // duplicate path removal.
   uint64_t code_hash;
@@ -272,8 +278,9 @@ class RecodeBeamSearch {
       for (auto & beam : beams_) {
         beam.clear();
       }
+      RecodeNode empty;
       for (auto & best_initial_dawg : best_initial_dawgs_) {
-        best_initial_dawg = {};
+        best_initial_dawg = empty;
       }
     }
 

@@ -1054,7 +1054,7 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
     word_start = true;
   } else if (uni_prev->dawgs != nullptr) {
     // Continuing a previous dict word.
-    dawg_args.active_dawgs = uni_prev->dawgs.get();
+    dawg_args.active_dawgs = uni_prev->dawgs;
     word_start = uni_prev->start_of_dawg;
   } else {
     return;  // Can't continue if not a dict word.
@@ -1099,7 +1099,7 @@ void RecodeBeamSearch::PushInitialDawgIfBetter(int code, int unichar_id,
     RecodeNode node(code, unichar_id, permuter, true, start, end, false, cert,
                     score, prev, initial_dawgs,
                     ComputeCodeHash(code, false, prev));
-    *best_initial_dawg = std::move(node);
+    *best_initial_dawg = node;
   }
 }
 
@@ -1144,7 +1144,7 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
     RecodeNode node(code, unichar_id, permuter, dawg_start, word_start, end,
                     dup, cert, score, prev, d, hash);
     if (UpdateHeapIfMatched(&node, heap)) return;
-    RecodePair entry(score, std::move(node));
+    RecodePair entry(score, node);
     heap->Push(&entry);
     ASSERT_HOST(entry.data().dawgs == nullptr);
     if (heap->size() > max_size) heap->Pop(&entry);
@@ -1161,7 +1161,7 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, RecodeNode* node,
     if (UpdateHeapIfMatched(node, heap)) {
       return;
     }
-    RecodePair entry(node->score, std::move(*node));
+    RecodePair entry(node->score, *node);
     heap->Push(&entry);
     ASSERT_HOST(entry.data().dawgs == nullptr);
     if (heap->size() > max_size) heap->Pop(&entry);
@@ -1184,7 +1184,7 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode* new_node,
       if (new_node->score > node.score) {
         // The new one is better. Update the entire node in the heap and
         // reshuffle.
-        node = std::move(*new_node);
+        node = *new_node;
         (*nodes)[i].key() = node.score;
         heap->Reshuffle(&(*nodes)[i]);
       }

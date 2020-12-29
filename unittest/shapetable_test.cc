@@ -72,7 +72,7 @@ TEST_F(ShapeTest, BasicTest) {
   // It should still work after file I/O.
   std::string filename = TmpNameToPath("shapefile");
   FILE* fp = fopen(filename.c_str(), "wb");
-  EXPECT_TRUE(fp != nullptr);
+  ASSERT_TRUE(fp != nullptr);
   EXPECT_TRUE(shape1.Serialize(fp));
   fclose(fp);
   TFile tfp;
