@@ -217,13 +217,6 @@ endif # ENABLE_TRAINING
 
 TESTS = $(check_PROGRAMS)
 
-.PHONY: all
-
-all: tmp
-
-tmp:
-	mkdir -p tmp
-
 # List of source files needed to build the executable:
 
 apiexample_test_SOURCES = apiexample_test.cc
@@ -502,6 +495,13 @@ $(abs_top_builddir)/test/testing/phototest.txt:
 	mkdir -p $(top_builddir)/test/testing
 	ln -s $(TESTING_DIR)/phototest.txt $(top_builddir)/test/testing/phototest.txt
 
+# Some tests require a local tmp directory.
+
+$(check_PROGRAMS): | tmp
+
+tmp:
+	mkdir -p tmp
+
 # Some tests require a well defined set of the following font files.
 
 fonts = ae_Arab.ttf
@@ -545,11 +545,11 @@ $(TESTING_DIR)/Arial_Bold_Italic.ttf:
 
 $(TESTING_DIR)/DejaVuSans-ExtraLight.ttf:
 	curl -sSL http://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2 | \
-	tar -xO dejavu-fonts-ttf-2.37/ttf/DejaVuSans-ExtraLight.ttf >$@
+	tar -xjO dejavu-fonts-ttf-2.37/ttf/DejaVuSans-ExtraLight.ttf >$@
 
 $(TESTING_DIR)/Lohit-Hindi.ttf:
 	curl -sSL https://releases.pagure.org/lohit/lohit-hindi-ttf-2.4.3.tar.gz | \
-	tar -xO lohit-hindi-ttf-2.4.3/Lohit-Hindi.ttf >$@
+	tar -xzO lohit-hindi-ttf-2.4.3/Lohit-Hindi.ttf >$@
 
 $(TESTING_DIR)/Times_New_Roman.ttf:
 	curl -sSL -o Times.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/times32.exe/download
