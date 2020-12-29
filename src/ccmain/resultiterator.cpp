@@ -360,7 +360,7 @@ void ResultIterator::MoveToLogicalStartOfWord() {
     BeginWord(0);
     return;
   }
-  GenericVector<int> blob_order;
+  std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
   if (blob_order.size() == 0 || blob_order[0] == 0)
     return;
@@ -370,7 +370,7 @@ void ResultIterator::MoveToLogicalStartOfWord() {
 bool ResultIterator::IsAtFinalSymbolOfWord() const {
   if (!it_->word())
     return true;
-  GenericVector<int> blob_order;
+  std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
   return blob_order.size() == 0 || blob_order.back() == blob_index_;
 }
@@ -378,7 +378,7 @@ bool ResultIterator::IsAtFinalSymbolOfWord() const {
 bool ResultIterator::IsAtFirstSymbolOfWord() const {
   if (!it_->word())
     return true;
-  GenericVector<int> blob_order;
+  std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
   return blob_order.size() == 0 || blob_order[0] == blob_index_;
 }
@@ -472,7 +472,7 @@ bool ResultIterator::Next(PageIteratorLevel level) {
       MoveToLogicalStartOfTextline();
       return it_->block() != nullptr;
     case RIL_SYMBOL: {
-      GenericVector<int> blob_order;
+      std::vector<int> blob_order;
       CalculateBlobOrder(&blob_order);
       int next_blob = 0;
       while (next_blob < blob_order.size() &&
@@ -674,7 +674,7 @@ void ResultIterator::AppendUTF8WordText(std::string* text) const {
     *text += reading_direction_is_ltr ? kLRM : kRLM;
   }
 
-  GenericVector<int> blob_order;
+  std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
   for (int i = 0; i < blob_order.size(); i++) {
     *text += it_->word()->BestUTF8(blob_order[i], false);

@@ -96,7 +96,7 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
 #endif
 
 bool TessdataManager::Init(const char *data_file_name) {
-  GenericVector<char> data;
+  std::vector<char> data;
   if (reader_ == nullptr) {
 #if defined(HAVE_LIBARCHIVE)
     if (LoadArchiveFile(data_file_name)) return true;
@@ -155,7 +155,7 @@ bool TessdataManager::SaveFile(const char* filename,
                                FileWriter writer) const {
   // TODO: This method supports only the proprietary file format.
   ASSERT_HOST(is_loaded_);
-  GenericVector<char> data;
+  std::vector<char> data;
   Serialize(&data);
   if (writer == nullptr)
     return SaveDataToFile(data, filename);
@@ -164,7 +164,7 @@ bool TessdataManager::SaveFile(const char* filename,
 }
 
 // Serializes to the given vector.
-void TessdataManager::Serialize(GenericVector<char> *data) const {
+void TessdataManager::Serialize(std::vector<char> *data) const {
   // TODO: This method supports only the proprietary file format.
   ASSERT_HOST(is_loaded_);
   // Compute the offset_table and total size.
@@ -178,7 +178,7 @@ void TessdataManager::Serialize(GenericVector<char> *data) const {
       offset += entries_[i].size();
     }
   }
-  data->init_to_size(offset, 0);
+  data->resize(offset, 0);
   int32_t num_entries = TESSDATA_NUM_ENTRIES;
   TFile fp;
   fp.OpenWrite(data);

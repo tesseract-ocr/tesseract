@@ -114,7 +114,7 @@ TEST_F(LSTMTrainerTest, DeterminismTest) {
   double lstm_2d_err_a = TrainIterations(kTrainerIterations);
   double act_error_a = trainer_->ActivationError();
   double char_error_a = trainer_->CharError();
-  GenericVector<char> trainer_a_data;
+  std::vector<char> trainer_a_data;
   EXPECT_TRUE(trainer_->SaveTrainingDump(NO_BEST_TRAINER, trainer_.get(),
                                          &trainer_a_data));
   SetupTrainerEng("[1,32,0,1 S4,2 L2xy16 Ct1,1,16 S8,1 Lbx100 O1c1]",

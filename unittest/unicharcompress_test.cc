@@ -57,7 +57,7 @@ class UnicharcompressTest : public ::testing::Test {
   }
   // Serializes and de-serializes compressed_ over itself.
   void SerializeAndUndo() {
-    GenericVector<char> data;
+    std::vector<char> data;
     TFile wfp;
     wfp.OpenWrite(&data);
     EXPECT_TRUE(compressed_.Serialize(&wfp));

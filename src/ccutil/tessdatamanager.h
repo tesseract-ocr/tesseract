@@ -151,7 +151,7 @@ class TessdataManager {
   // Saves to the given filename.
   bool SaveFile(const char* filename, FileWriter writer) const;
   // Serializes to the given vector.
-  void Serialize(GenericVector<char> *data) const;
+  void Serialize(std::vector<char> *data) const;
   // Resets to the initial state, keeping the reader.
   void Clear();
 

@@ -133,6 +133,16 @@ TFile::~TFile() {
     delete data_;
 }
 
+bool TFile::DeSerialize(std::vector<char>& data) {
+  uint32_t size;
+  if (!DeSerialize(&size)) {
+    return false;
+  }
+  // TODO: optimize.
+  data.resize(size);
+  DeSerialize(&data[0], data.size());
+}
+
 bool TFile::DeSerialize(char* buffer, size_t count) {
   return FRead(buffer, sizeof(*buffer), count) == count;
 }
@@ -175,6 +185,14 @@ bool TFile::DeSerialize(uint32_t* buffer, size_t count) {
 
 bool TFile::DeSerialize(uint64_t* buffer, size_t count) {
   return FReadEndian(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const std::vector<char>& data) {
+  uint32_t size = data.size();
+  if (!Serialize(&size)) {
+    return false;
+  }
+  Serialize(&data[0], size);
 }
 
 bool TFile::Serialize(const char* buffer, size_t count) {

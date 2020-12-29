@@ -370,7 +370,7 @@ class Wordrec : public Classify {
                           bool italic_blob, const GenericVector<SEAM*>& seams);
   SEAM *chop_numbered_blob(TWERD *word, int32_t blob_number,
                            bool italic_blob, const GenericVector<SEAM*>& seams);
-  SEAM *chop_overlapping_blob(const GenericVector<TBOX>& boxes,
+  SEAM *chop_overlapping_blob(const std::vector<TBOX>& boxes,
                               bool italic_blob,
                               WERD_RES *word_res, int *blob_number);
   SEAM *improve_one_blob(const GenericVector<BLOB_CHOICE*> &blob_choices,
@@ -379,7 +379,7 @@ class Wordrec : public Classify {
                          bool italic_blob,
                          WERD_RES *word,
                          int *blob_number);
-  SEAM *chop_one_blob(const GenericVector<TBOX> &boxes,
+  SEAM *chop_one_blob(const std::vector<TBOX> &boxes,
                       const GenericVector<BLOB_CHOICE*> &blob_choices,
                       WERD_RES *word_res,
                       int *blob_number);

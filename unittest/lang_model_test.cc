@@ -45,7 +45,7 @@ TEST(LangModelTest, AddACharacter) {
   LOG(INFO) << "Output dir=" << output_dir << "\n";
   std::string lang1 = "eng";
   bool pass_through_recoder = false;
-  GenericVector<STRING> words, puncs, numbers;
+  std::vector<STRING> words, puncs, numbers;
   // If these reads fail, we get a warning message and an empty list of words.
   ReadFile(file::JoinPath(eng_dir, "eng.wordlist"), nullptr)
       .split('\n', &words);
@@ -136,7 +136,7 @@ TEST(LangModelTest, AddACharacterHindi) {
   LOG(INFO) << "Output dir=" << output_dir << "\n";
   std::string lang1 = "hin";
   bool pass_through_recoder = false;
-  GenericVector<STRING> words, puncs, numbers;
+  std::vector<STRING> words, puncs, numbers;
   // If these reads fail, we get a warning message and an empty list of words.
   ReadFile(file::JoinPath(hin_dir, "hin.wordlist"), nullptr)
       .split('\n', &words);

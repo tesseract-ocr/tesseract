@@ -91,6 +91,7 @@ class TFile {
   }
 
   // Deserialize data.
+  bool DeSerialize(std::vector<char>& data);
   bool DeSerialize(char* data, size_t count = 1);
   bool DeSerialize(double* data, size_t count = 1);
   bool DeSerialize(float* data, size_t count = 1);
@@ -104,6 +105,7 @@ class TFile {
   bool DeSerialize(uint64_t* data, size_t count = 1);
 
   // Serialize data.
+  bool Serialize(const std::vector<char>& data);
   bool Serialize(const char* data, size_t count = 1);
   bool Serialize(const double* data, size_t count = 1);
   bool Serialize(const float* data, size_t count = 1);

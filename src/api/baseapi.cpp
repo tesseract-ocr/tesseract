@@ -937,7 +937,7 @@ int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
 
   while (page_res_it.word() != nullptr) {
     WERD_RES *word_res = page_res_it.word();
-    GenericVector<TBOX> boxes;
+    std::vector<TBOX> boxes;
     tesseract_->MaximallyChopWord(boxes, page_res_it.block()->block,
                                   page_res_it.row()->row, word_res);
     page_res_it.forward();
@@ -1844,7 +1844,7 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
       if (text[t] != '\0' || wordstr[w] != '\0') {
         // No match.
         delete page_res_;
-        GenericVector<TBOX> boxes;
+        std::vector<TBOX> boxes;
         page_res_ = tesseract_->SetupApplyBoxes(boxes, block_list_);
         tesseract_->ReSegmentByClassification(page_res_);
         tesseract_->TidyUp(page_res_);

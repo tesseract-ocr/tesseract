@@ -347,15 +347,15 @@ class Tesseract : public Wordrec {
   // Generates training data for training a line recognizer, eg LSTM.
   // Breaks the boxes into lines, normalizes them, converts to ImageData and
   // appends them to the given training_data.
-  void TrainFromBoxes(const GenericVector<TBOX>& boxes,
-                      const GenericVector<STRING>& texts,
+  void TrainFromBoxes(const std::vector<TBOX>& boxes,
+                      const std::vector<STRING>& texts,
                       BLOCK_LIST* block_list, DocumentData* training_data);
 
   // Returns an Imagedata containing the image of the given textline,
   // and ground truth boxes/truth text if available in the input.
   // The image is not normalized in any way.
-  ImageData* GetLineData(const TBOX& line_box, const GenericVector<TBOX>& boxes,
-                         const GenericVector<STRING>& texts, int start_box,
+  ImageData* GetLineData(const TBOX& line_box, const std::vector<TBOX>& boxes,
+                         const std::vector<STRING>& texts, int start_box,
                          int end_box, const BLOCK& block);
   // Helper gets the image of a rectangle, using the block.re_rotation() if
   // needed to get to the image, and rotating the result back to horizontal
@@ -708,12 +708,12 @@ class Tesseract : public Wordrec {
 
   // Builds a PAGE_RES from the block_list in the way required for ApplyBoxes:
   // All fuzzy spaces are removed, and all the words are maximally chopped.
-  PAGE_RES* SetupApplyBoxes(const GenericVector<TBOX>& boxes,
+  PAGE_RES* SetupApplyBoxes(const std::vector<TBOX>& boxes,
                             BLOCK_LIST* block_list);
   // Tests the chopper by exhaustively running chop_one_blob.
   // The word_res will contain filled chopped_word, seam_array, denorm,
   // box_word and best_state for the maximally chopped word.
-  void MaximallyChopWord(const GenericVector<TBOX>& boxes, BLOCK* block,
+  void MaximallyChopWord(const std::vector<TBOX>& boxes, BLOCK* block,
                          ROW* row, WERD_RES* word_res);
   // Gather consecutive blobs that match the given box into the best_state
   // and corresponding correct_text.
