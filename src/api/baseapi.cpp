@@ -974,12 +974,14 @@ Pix* TessBaseAPI::GetVisiblePdfImage() {
 const char * TessBaseAPI::GetInputName() {
   if (!input_file_.empty()) {
     return input_file_.c_str();
+  }
   return nullptr;
 }
 
 const char * TessBaseAPI::GetVisiblePdfImageFilename() {
-  if (visible_pdf_image_file_)
-    return visible_pdf_image_file_->c_str();
+  if (visible_pdf_image_file_.empty()) {
+    return visible_pdf_image_file_.c_str();
+  }
   return nullptr;
 }
 
