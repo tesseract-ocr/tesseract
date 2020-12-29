@@ -50,7 +50,7 @@ using RSCounts = std::unordered_map<int, int>;
 static bool DecodeRadicalLine(STRING* radical_data_line, RSMap* radical_map) {
   if (radical_data_line->length() == 0 || (*radical_data_line)[0] == '#')
     return true;
-  GenericVector<STRING> entries;
+  std::vector<STRING> entries;
   radical_data_line->split(' ', &entries);
   if (entries.size() < 2) return false;
   char* end = nullptr;
@@ -71,7 +71,7 @@ static bool DecodeRadicalLine(STRING* radical_data_line, RSMap* radical_map) {
 // The radical_stroke_table is non-const because it gets split and the caller
 // is unlikely to want to use it again.
 static bool DecodeRadicalTable(STRING* radical_data, RSMap* radical_map) {
-  GenericVector<STRING> lines;
+  std::vector<STRING> lines;
   radical_data->split('\n', &lines);
   for (int i = 0; i < lines.size(); ++i) {
     if (!DecodeRadicalLine(&lines[i], radical_map)) {

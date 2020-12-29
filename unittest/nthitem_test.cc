@@ -9,7 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "kdpair.h"
 
 #include "include_gunit.h"

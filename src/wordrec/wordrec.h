@@ -79,7 +79,7 @@ class Wordrec : public Classify {
 #include "seam.h"              // for SEAM (ptr only), PRIORITY
 #include "stopper.h"           // for DANGERR
 
-#include <tesseract/genericvector.h>     // for GenericVector
+#include "genericvector.h"     // for GenericVector
 
 #include <cstdint>             // for int16_t, int32_t
 

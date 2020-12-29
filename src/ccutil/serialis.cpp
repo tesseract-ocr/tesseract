@@ -16,12 +16,46 @@
  *
  **********************************************************************/
 
+#include "errcode.h"
+#include <tesseract/helpers.h>  // for ReverseN
 #include <tesseract/serialis.h>
 #include <cstdio>
-#include "errcode.h"
-#include <tesseract/genericvector.h>
 
 namespace tesseract {
+
+// The default FileReader loads the whole file into the vector of char,
+// returning false on error.
+bool LoadDataFromFile(const char* filename, std::vector<char>* data) {
+  bool result = false;
+  FILE* fp = fopen(filename, "rb");
+  if (fp != nullptr) {
+    fseek(fp, 0, SEEK_END);
+    auto size = std::ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    // Trying to open a directory on Linux sets size to LONG_MAX. Catch it here.
+    if (size > 0 && size < LONG_MAX) {
+      // reserve an extra byte in case caller wants to append a '\0' character
+      data->reserve(size + 1);
+      data->resize(size); // TODO: optimize no init
+      result = static_cast<long>(fread(&(*data)[0], 1, size, fp)) == size;
+    }
+    fclose(fp);
+  }
+  return result;
+}
+
+// The default FileWriter writes the vector of char to the filename file,
+// returning false on error.
+bool SaveDataToFile(const std::vector<char>& data, const char* filename) {
+  FILE* fp = fopen(filename, "wb");
+  if (fp == nullptr) {
+    return false;
+  }
+  bool result =
+      static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
+  fclose(fp);
+  return result;
+}
 
 bool DeSerialize(FILE* fp, char* data, size_t n) {
   return fread(data, sizeof(*data), n, fp) == n;
@@ -194,7 +228,7 @@ bool TFile::Skip(size_t count) {
 
 bool TFile::Open(const char* filename, FileReader reader) {
   if (!data_is_owned_) {
-    data_ = new GenericVector<char>;
+    data_ = new std::vector<char>;
     data_is_owned_ = true;
   }
   offset_ = 0;
@@ -209,12 +243,12 @@ bool TFile::Open(const char* filename, FileReader reader) {
 bool TFile::Open(const char* data, int size) {
   offset_ = 0;
   if (!data_is_owned_) {
-    data_ = new GenericVector<char>;
+    data_ = new std::vector<char>;
     data_is_owned_ = true;
   }
   is_writing_ = false;
   swap_ = false;
-  data_->resize_no_init(size);
+  data_->resize(size); // TODO: optimize no init
   memcpy(&(*data_)[0], data, size);
   return true;
 }
@@ -237,10 +271,10 @@ bool TFile::Open(FILE* fp, int64_t end_offset) {
   is_writing_ = false;
   swap_ = false;
   if (!data_is_owned_) {
-    data_ = new GenericVector<char>;
+    data_ = new std::vector<char>;
     data_is_owned_ = true;
   }
-  data_->resize_no_init(size);
+  data_->resize(size); // TODO: optimize no init
   return static_cast<int>(fread(&(*data_)[0], 1, size, fp)) == size;
 }
 
@@ -291,19 +325,19 @@ void TFile::Rewind() {
   offset_ = 0;
 }
 
-void TFile::OpenWrite(GenericVector<char>* data) {
+void TFile::OpenWrite(std::vector<char>* data) {
   offset_ = 0;
   if (data != nullptr) {
     if (data_is_owned_) delete data_;
     data_ = data;
     data_is_owned_ = false;
   } else if (!data_is_owned_) {
-    data_ = new GenericVector<char>;
+    data_ = new std::vector<char>;
     data_is_owned_ = true;
   }
   is_writing_ = true;
   swap_ = false;
-  data_->truncate(0);
+  data_->resize(0);
 }
 
 bool TFile::CloseWrite(const char* filename, FileWriter writer) {

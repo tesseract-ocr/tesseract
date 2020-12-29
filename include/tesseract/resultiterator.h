@@ -4,7 +4,6 @@
 //              iterating in proper reading order over Bi Directional
 //              (e.g. mixed Hebrew and English) text.
 // Author:      David Eger
-// Created:     Fri May 27 13:58:06 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,13 +30,6 @@
 #include <vector>  // for std::vector
 
 namespace tesseract {
-
-template <typename T>
-class GenericVector;
-template <typename T>
-class GenericVectorEqEq;
-
-class STRING;
 
 class Tesseract;
 
@@ -140,8 +132,8 @@ class TESS_API ResultIterator : public LTRResultIterator {
    */
   static void CalculateTextlineOrder(
       bool paragraph_is_ltr,
-      const GenericVector<StrongScriptDirection>& word_dirs,
-      GenericVectorEqEq<int>* reading_order);
+      const std::vector<StrongScriptDirection>& word_dirs,
+      std::vector<int>* reading_order);
 
   static const int kMinorRunStart;
   static const int kMinorRunEnd;
@@ -176,12 +168,12 @@ class TESS_API ResultIterator : public LTRResultIterator {
    */
   void CalculateTextlineOrder(bool paragraph_is_ltr,
                               const LTRResultIterator& resit,
-                              GenericVectorEqEq<int>* indices) const;
+                              std::vector<int>* indices) const;
   /** Same as above, but the caller's ssd gets filled in if ssd != nullptr. */
   void CalculateTextlineOrder(bool paragraph_is_ltr,
                               const LTRResultIterator& resit,
-                              GenericVector<StrongScriptDirection>* ssd,
-                              GenericVectorEqEq<int>* indices) const;
+                              std::vector<StrongScriptDirection>* ssd,
+                              std::vector<int>* indices) const;
 
   /**
    * What is the index of the current word in a strict left-to-right reading
@@ -193,7 +185,7 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * Given an iterator pointing at a word, returns the logical reading order
    * of blob indices for the word.
    */
-  void CalculateBlobOrder(GenericVector<int>* blob_indices) const;
+  void CalculateBlobOrder(std::vector<int>* blob_indices) const;
 
   /** Precondition: current_paragraph_is_ltr_ is set. */
   void MoveToLogicalStartOfTextline();
@@ -214,10 +206,10 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * Append any extra marks that should be appended to this word when printed.
    * Mostly, these are Unicode BiDi control characters.
    */
-  void AppendSuffixMarks(STRING* text) const;
+  void AppendSuffixMarks(std::string* text) const;
 
   /** Appends the current word in reading order to the given buffer.*/
-  void AppendUTF8WordText(STRING* text) const;
+  void AppendUTF8WordText(std::string* text) const;
 
   /**
    * Appends the text of the current text line, *assuming this iterator is
@@ -226,7 +218,7 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * Each textline is terminated in a single newline character.
    * If the textline ends a paragraph, it gets a second terminal newline.
    */
-  void IterateAndAppendUTF8TextlineText(STRING* text);
+  void IterateAndAppendUTF8TextlineText(std::string* text);
 
   /**
    * Appends the text of the current paragraph in reading order
@@ -234,7 +226,7 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * Each textline is terminated in a single newline character, and the
    * paragraph gets an extra newline at the end.
    */
-  void AppendUTF8ParagraphText(STRING* text) const;
+  void AppendUTF8ParagraphText(std::string* text) const;
 
   /** Returns whether the bidi_debug flag is set to at least min_level. */
   bool BidiDebug(int min_level) const;

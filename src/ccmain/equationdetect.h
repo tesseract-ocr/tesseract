@@ -21,7 +21,7 @@
 
 #include "blobbox.h"             // for BLOBNBOX (ptr only), BlobSpecialText...
 #include "equationdetectbase.h"  // for EquationDetectBase
-#include <tesseract/genericvector.h>       // for GenericVector
+#include "genericvector.h"       // for GenericVector
 #include "tesseractclass.h"      // for Tesseract
 #include <tesseract/unichar.h>             // for UNICHAR_ID
 

@@ -49,7 +49,7 @@
 #include "tprintf.h"            // for tprintf
 #include "werd.h"               // for WERD_IT, WERD, WERD_LIST, W_DONT_CHOP
 
-#include <tesseract/genericvector.h>      // for PointerVector, GenericVector
+#include "genericvector.h"      // for PointerVector, GenericVector
 
 #include "allheaders.h"         // for pixDestroy, pixGetHeight, boxCreate
 

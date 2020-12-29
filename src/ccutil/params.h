@@ -19,8 +19,8 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
-#include <tesseract/genericvector.h>
-#include <tesseract/strngs.h>
+#include "genericvector.h"
+#include "strngs.h"
 
 #include <cstdio>
 
@@ -96,7 +96,7 @@ class ParamUtils {
   // found.
   static bool GetParamAsString(const char* name,
                                const ParamsVectors* member_params,
-                               STRING* value);
+                               std::string* value);
 
   // Print parameters to the given file.
   static void PrintParams(FILE* fp, const ParamsVectors* member_params);

@@ -556,7 +556,9 @@ Tesseract::~Tesseract() {
   Clear();
   pixDestroy(&pix_original_);
   end_tesseract();
-  sub_langs_.delete_data_pointers();
+  for (auto* lang : sub_langs_) {
+    delete lang;
+  }
 #ifndef ANDROID_BUILD
   delete lstm_recognizer_;
   lstm_recognizer_ = nullptr;

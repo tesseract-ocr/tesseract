@@ -23,6 +23,9 @@
 #include "pdf_ttf.h"
 #include "tprintf.h"
 
+#include <tesseract/baseapi.h>
+#include <tesseract/helpers.h>  // for Swap
+#include <tesseract/renderer.h>
 #include <cmath>
 #include <cstring>
 #include <fstream> // for std::ifstream
@@ -30,8 +33,6 @@
 #include <memory>  // std::unique_ptr
 #include <sstream> // for std::stringstream
 #include <allheaders.h>
-#include <tesseract/baseapi.h>
-#include <tesseract/renderer.h>
 
 /*
 
@@ -908,9 +909,9 @@ bool TessPDFRenderer::EndDocumentHandler() {
   stream << kPagesObjectNumber << " 0 obj\n<<\n  /Type /Pages\n  /Kids [ ";
   AppendString(stream.str().c_str());
   size_t pages_objsize  = stream.str().size();
-  for (size_t i = 0; i < pages_.unsigned_size(); i++) {
+  for (const auto& page : pages_) {
     stream.str("");
-    stream << pages_[i] << " 0 R ";
+    stream << page << " 0 R ";
     AppendString(stream.str().c_str());
     pages_objsize += stream.str().size();
   }

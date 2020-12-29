@@ -22,7 +22,7 @@
 #include "shapetable.h"
 #include "trainingsample.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 namespace tesseract {
 

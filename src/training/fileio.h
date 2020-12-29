@@ -20,16 +20,16 @@
 #include <cstdio>
 #include <string>
 
-#include <tesseract/genericvector.h>      // for GenericVector
+#include "genericvector.h"      // for GenericVector
 #include <tesseract/platform.h>
-#include <tesseract/strngs.h>             // for STRING
+#include "strngs.h"             // for STRING
 
 namespace tesseract {
 
 // Reads a file as a vector of STRING.
 // TODO: Use std::vector and std::string for LoadFileLinesToStrings.
 inline bool LoadFileLinesToStrings(const char* filename,
-                                   GenericVector<STRING>* lines) {
+                                   std::vector<STRING>* lines) {
   GenericVector<char> data;
   if (!LoadDataFromFile(filename, &data)) {
     return false;

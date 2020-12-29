@@ -19,16 +19,13 @@
 #ifndef TESSERACT_CCUTIL_BOXREAD_H_
 #define TESSERACT_CCUTIL_BOXREAD_H_
 
-#include <tesseract/strngs.h>  // for STRING
+#include "strngs.h"  // for STRING
 
 #include <cstdio>    // for FILE
 
 namespace tesseract {
 
 class TBOX;
-
-template <typename T> class GenericVector;
-template <typename T> class GenericVector;
 
 // Size of buffer used to read a line from a box file.
 const int kBoxReadBufSize = 1024;
@@ -45,10 +42,10 @@ FILE* OpenBoxFile(const char* filename);
 // Each of the output vectors is optional (may be nullptr).
 // Returns false if no boxes are found.
 bool ReadAllBoxes(int target_page, bool skip_blanks, const char* filename,
-                  GenericVector<TBOX>* boxes,
-                  GenericVector<STRING>* texts,
-                  GenericVector<STRING>* box_texts,
-                  GenericVector<int>* pages);
+                  std::vector<TBOX>* boxes,
+                  std::vector<STRING>* texts,
+                  std::vector<STRING>* box_texts,
+                  std::vector<int>* pages);
 
 // Reads all boxes from the string. Otherwise, as ReadAllBoxes.
 // continue_on_failure allows reading to continue even if an invalid box is
@@ -56,10 +53,10 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const char* filename,
 // It otherwise gives up and returns false on encountering an invalid box.
 bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
                   bool continue_on_failure,
-                  GenericVector<TBOX>* boxes,
-                  GenericVector<STRING>* texts,
-                  GenericVector<STRING>* box_texts,
-                  GenericVector<int>* pages);
+                  std::vector<TBOX>* boxes,
+                  std::vector<STRING>* texts,
+                  std::vector<STRING>* box_texts,
+                  std::vector<int>* pages);
 
 // ReadNextBox factors out the code to interpret a line of a box
 // file so that applybox and unicharset_extractor interpret the same way.

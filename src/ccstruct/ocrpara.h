@@ -23,7 +23,7 @@
 #include "elst.h"
 
 #include <tesseract/publictypes.h>
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 namespace tesseract {
 

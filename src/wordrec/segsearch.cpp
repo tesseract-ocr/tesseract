@@ -19,14 +19,14 @@
 #include <cstdint>           // for INT32_MAX
 #include "blamer.h"          // for BlamerBundle
 #include "errcode.h"         // for ASSERT_HOST
-#include <tesseract/genericvector.h>   // for GenericVector
+#include "genericvector.h"   // for GenericVector
 #include "lm_pain_points.h"  // for LMPainPoints, LM_PPTYPE_SHAPE, LMPainPoi...
 #include "lm_state.h"        // for BestChoiceBundle, ViterbiStateEntry
 #include "matrix.h"          // for MATRIX_COORD, MATRIX
 #include "pageres.h"         // for WERD_RES
 #include "params.h"          // for BoolParam, IntParam, DoubleParam
 #include "ratngs.h"          // for BLOB_CHOICE_LIST, BLOB_CHOICE_IT
-#include <tesseract/strngs.h>          // for STRING
+#include "strngs.h"          // for STRING
 #include "tprintf.h"         // for tprintf
 #include "wordrec.h"         // for Wordrec, SegSearchPending (ptr only)
 

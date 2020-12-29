@@ -24,8 +24,8 @@
 #include "points.h"
 #include "rect.h"
 
-#include <tesseract/genericvector.h>
-#include <tesseract/strngs.h>
+#include "genericvector.h"
+#include "strngs.h"
 
 struct Pix;
 

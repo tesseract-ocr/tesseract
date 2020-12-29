@@ -23,7 +23,7 @@
 #include <memory>  // std::unique_ptr
 #include <string>  // std::string
 #include <tesseract/baseapi.h>
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/renderer.h>
 
 namespace tesseract {

@@ -20,7 +20,7 @@
 #define TESSERACT_LSTM_NETWORKSCRATCH_H_
 
 #include <mutex>
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "matrix.h"
 #include "networkio.h"
 

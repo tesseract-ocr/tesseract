@@ -22,7 +22,7 @@
 
 #include "rect.h"           // for TBOX
 
-#include <tesseract/genericvector.h>  // for GenericVector
+#include "genericvector.h"  // for GenericVector
 
 #include <functional>       // for std::function
 

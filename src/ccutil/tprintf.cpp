@@ -25,7 +25,7 @@
 
 #include "params.h"
 
-#include <tesseract/strngs.h>
+#include "strngs.h"
 
 #include <cstdio>
 #include <cstdarg>

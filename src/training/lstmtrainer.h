@@ -274,7 +274,7 @@ class LSTMTrainer : public LSTMRecognizer {
   // Reads previously saved trainer from memory. *this must always be the
   // master trainer that retains the only copy of the training data and
   // language model. trainer is the model that is restored.
-  bool ReadTrainingDump(const GenericVector<char>& data,
+  bool ReadTrainingDump(const std::vector<char>& data,
                         LSTMTrainer* trainer) const {
     if (data.empty()) return false;
     return ReadSizedTrainingDump(&data[0], data.size(), trainer);

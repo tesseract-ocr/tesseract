@@ -43,7 +43,7 @@ int16_t Tesseract::safe_dict_word(const WERD_RES *werd_res) {
 #include "docqual.h"
 #include "tesseractclass.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include <tesseract/helpers.h>
 
 #include <cctype>

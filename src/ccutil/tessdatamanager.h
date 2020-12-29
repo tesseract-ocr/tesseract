@@ -20,8 +20,8 @@
 #define TESSERACT_CCUTIL_TESSDATAMANAGER_H_
 
 #include <string>
-#include <tesseract/genericvector.h>
-#include <tesseract/strngs.h>             // for STRING
+#include "genericvector.h"
+#include "strngs.h"             // for STRING
 
 static const char kTrainedDataSuffix[] = "traineddata";
 

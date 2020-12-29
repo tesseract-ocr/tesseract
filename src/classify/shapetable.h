@@ -27,7 +27,7 @@
 #include "genericheap.h"
 #include "intmatcher.h"
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 namespace tesseract {
 

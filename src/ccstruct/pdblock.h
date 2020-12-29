@@ -22,7 +22,7 @@
 #include          "clst.h"
 #include          "polyblk.h"
 
-#include          <tesseract/strngs.h>
+#include          "strngs.h"
 
 struct Pix;
 

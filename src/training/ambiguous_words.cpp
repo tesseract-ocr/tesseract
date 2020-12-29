@@ -26,7 +26,6 @@
 
 #include <tesseract/baseapi.h>
 #include <tesseract/helpers.h>
-#include <tesseract/strngs.h>
 
 int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
@@ -41,7 +40,7 @@ int main(int argc, char** argv) {
     return 1;
   }
   int argv_offset = 0;
-  tesseract::STRING lang;
+  std::string lang;
   if (argc == 6) {
     lang = argv[2];
     argv_offset = 2;
@@ -54,8 +53,8 @@ int main(int argc, char** argv) {
 
   // Initialize Tesseract.
   tesseract::TessBaseAPI api;
-  tesseract::GenericVector<tesseract::STRING> vars_vec;
-  tesseract::GenericVector<tesseract::STRING> vars_values;
+  std::vector<std::string> vars_vec;
+  std::vector<std::string> vars_values;
   vars_vec.push_back("output_ambig_words_file");
   vars_values.push_back(output_file_str);
   api.Init(tessdata_dir, lang.c_str(), tesseract::OEM_TESSERACT_ONLY, nullptr,
