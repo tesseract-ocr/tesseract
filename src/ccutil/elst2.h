@@ -22,7 +22,7 @@
 #include <cstdio>
 #include "lsterr.h"
 
-#include <tesseract/serialis.h>
+#include "serialis.h"
 
 #include <cstdio>
 

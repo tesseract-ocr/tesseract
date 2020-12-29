@@ -24,7 +24,7 @@
 #include "convolve.h"
 
 #include "networkscratch.h"
-#include <tesseract/serialis.h>
+#include "serialis.h"
 
 namespace tesseract {
 

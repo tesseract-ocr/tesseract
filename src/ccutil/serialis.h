@@ -19,6 +19,7 @@
 #ifndef SERIALIS_H
 #define SERIALIS_H
 
+#include <tesseract/baseapi.h> // FileReader
 #include <cstdint>  // uint8_t
 #include <cstdio>
 #include <cstdlib>
@@ -41,9 +42,6 @@ constexpr size_t countof(T const (&)[N]) noexcept {
   return N;
 }
 
-// Function to read a std::vector<char> from a whole file.
-// Returns false on failure.
-using FileReader = bool (*)(const char* filename, std::vector<char>* data);
 // Function to write a std::vector<char> to a whole file.
 // Returns false on failure.
 using FileWriter = bool (*)(const std::vector<char>& data,

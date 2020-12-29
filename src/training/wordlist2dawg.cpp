@@ -24,7 +24,7 @@
 #include "dawg.h"
 #include "dict.h"
 #include <tesseract/helpers.h>
-#include <tesseract/serialis.h>
+#include "serialis.h"
 #include "trie.h"
 #include "unicharset.h"
 

@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <cstring>
 #include <tesseract/helpers.h>
-#include <tesseract/serialis.h>   // for tesseract::Serialize
+#include "serialis.h"   // for tesseract::Serialize
 
 namespace tesseract {
 
