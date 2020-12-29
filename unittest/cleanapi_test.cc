@@ -18,8 +18,7 @@
 // types included in this enum!
 enum NameTester { ABORT, OKAY, LOG, BLOB, ELIST, TBOX, TPOINT, WORD };
 
-#define ERRCODE_H  // avoid redefinition of ABORT in errcode.h
-#include "include_gunit.h"
+#include "gtest/gtest.h"
 
 namespace {
 

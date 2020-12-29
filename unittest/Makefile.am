@@ -6,7 +6,8 @@ LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata_lstm
 # Absolute path of directory 'tessdata' with traineddata files
 # (must be on same level as top source directory).
 TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
-TESSDATA_BEST_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata_best
+TESSDATA_BEST_DIR=$(TESSDATA_DIR)_best
+TESSDATA_FAST_DIR=$(TESSDATA_DIR)_fast
 
 # Absolute path of directory 'testing' with test images and ground truth texts
 # (using submodule test).
@@ -138,9 +139,7 @@ check_PROGRAMS += dawg_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += denorm_test
 if !DISABLED_LEGACY_ENGINE
-if TENSORFLOW
 check_PROGRAMS += equationdetect_test
-endif # TENSORFLOW
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += fileio_test
 check_PROGRAMS += heap_test
@@ -279,10 +278,8 @@ denorm_test_SOURCES = denorm_test.cc
 denorm_test_LDADD = $(TESS_LIBS)
 
 if !DISABLED_LEGACY_ENGINE
-if TENSORFLOW
 equationdetect_test_SOURCES = equationdetect_test.cc
 equationdetect_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
-endif # TENSORFLOW
 endif # !DISABLED_LEGACY_ENGINE
 
 fileio_test_SOURCES = fileio_test.cc
@@ -504,3 +501,70 @@ $(abs_top_builddir)/test/testing/phototest.tif: $(TESTING_DIR)/phototest.tif
 $(abs_top_builddir)/test/testing/phototest.txt:
 	mkdir -p $(top_builddir)/test/testing
 	ln -s $(TESTING_DIR)/phototest.txt $(top_builddir)/test/testing/phototest.txt
+
+# Some tests require a well defined set of the following font files.
+
+fonts = ae_Arab.ttf
+fonts += Arial_Bold_Italic.ttf
+fonts += DejaVuSans-ExtraLight.ttf
+fonts += Lohit-Hindi.ttf
+fonts += Times_New_Roman.ttf
+fonts += UnBatang.ttf
+fonts += Verdana.ttf
+
+# These tests depend on installed model files and fonts:
+#
+# apiexample_test baseapi_test lang_model_test layout_test
+# ligature_table_test loadlang_test lstm_recode_test lstm_squashed_test
+# lstm_test lstmtrainer_test mastertrainer_test osd_test
+# pagesegmode_test pango_font_info_test progress_test
+# recodebeam_test resultiterator_test stringrenderer_test
+# textlineprojection_test unicharcompress_test
+#
+# Instead of fine-tuned dependencies the following lines
+# simply require those dependencies for all tests.
+# That can be improved if necessary.
+
+$(check_PROGRAMS): | $(LANGDATA_DIR)
+$(check_PROGRAMS): | $(TESSDATA_DIR)
+$(check_PROGRAMS): | $(TESSDATA_BEST_DIR)
+$(check_PROGRAMS): | $(TESSDATA_FAST_DIR)
+$(check_PROGRAMS): | $(fonts:%=$(TESTING_DIR)/%)
+
+$(LANGDATA_DIR) $(TESSDATA_DIR) $(TESSDATA_BEST_DIR) $(TESSDATA_FAST_DIR):
+	@echo "Some unit tests require $@."
+	@echo "It can be installed manually by running this command:"
+	@echo "  git clone https://github.com/tesseract-ocr/$$(basename $@).git $@"
+	@exit 1
+
+$(TESTING_DIR)/Arial_Bold_Italic.ttf:
+	curl -sSL -o Arial.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/arial32.exe/download
+	cabextract -F Arialbi.TTF -q Arial.exe
+	rm Arial.exe
+	mv Arialbi.TTF $@
+
+$(TESTING_DIR)/DejaVuSans-ExtraLight.ttf:
+	curl -sSL http://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2 | \
+	tar -xO dejavu-fonts-ttf-2.37/ttf/DejaVuSans-ExtraLight.ttf >$@
+
+$(TESTING_DIR)/Lohit-Hindi.ttf:
+	curl -sSL https://releases.pagure.org/lohit/lohit-hindi-ttf-2.4.3.tar.gz | \
+	tar -xO lohit-hindi-ttf-2.4.3/Lohit-Hindi.ttf >$@
+
+$(TESTING_DIR)/Times_New_Roman.ttf:
+	curl -sSL -o Times.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/times32.exe/download
+	cabextract -F Times.TTF -q Times.exe
+	rm Times.exe
+	mv Times.TTF $@
+
+$(TESTING_DIR)/UnBatang.ttf:
+	curl -sSL -o $@ https://salsa.debian.org/fonts-team/fonts-unfonts-core/-/raw/master/UnBatang.ttf
+
+$(TESTING_DIR)/Verdana.ttf:
+	curl -sSL -o Verdana.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/verdan32.exe/download
+	cabextract -F Verdana.TTF -q Verdana.exe
+	rm Verdana.exe
+	mv Verdana.TTF $@
+
+$(TESTING_DIR)/ae_Arab.ttf:
+	curl -sSL -o $@ https://salsa.debian.org/fonts-team/fonts-arabeyes/-/raw/master/ae_Arab.ttf
