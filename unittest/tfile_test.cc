@@ -10,7 +10,7 @@
 // limitations under the License.
 
 #include "genericvector.h"
-#include <tesseract/serialis.h>
+#include "serialis.h"
 
 #include "include_gunit.h"
 

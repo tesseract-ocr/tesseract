@@ -23,7 +23,7 @@
 #include "static_shape.h"
 #include "tprintf.h"
 
-#include <tesseract/serialis.h>
+#include "serialis.h"
 #include "strngs.h"             // for STRING
 #include "genericvector.h"
 #include <tesseract/helpers.h>

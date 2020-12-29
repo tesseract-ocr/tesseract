@@ -29,7 +29,7 @@
 #include "tprintf.h"     // for tprintf
 
 #include <tesseract/helpers.h>     // for IntCastRounded, TRand, ClipToRange, Modulo
-#include <tesseract/serialis.h>    // for TFile
+#include "serialis.h"    // for TFile
 
 #include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 

@@ -18,7 +18,7 @@
 
 #include "errcode.h"
 #include <tesseract/helpers.h>  // for ReverseN
-#include <tesseract/serialis.h>
+#include "serialis.h"
 #include <cstdio>
 
 namespace tesseract {

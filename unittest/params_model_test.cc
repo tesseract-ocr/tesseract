@@ -14,7 +14,7 @@
 
 #include "include_gunit.h"
 #include "params_model.h"
-#include <tesseract/serialis.h>     // TFile
+#include "serialis.h"     // TFile
 #include "tprintf.h"      // tprintf
 
 namespace tesseract {

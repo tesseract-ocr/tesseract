@@ -24,7 +24,7 @@
 
 #include <unordered_map>
 
-#include <tesseract/serialis.h>
+#include "serialis.h"
 #include "strngs.h"
 #include "unicharset.h"
 
