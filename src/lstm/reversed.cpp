@@ -2,7 +2,6 @@
 // File:        reversed.cpp
 // Description: Runs a single network on time-reversed input, reversing output.
 // Author:      Ray Smith
-// Created:     Thu May 02 08:42:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +23,7 @@
 
 namespace tesseract {
 
-Reversed::Reversed(const STRING& name, NetworkType type) : Plumbing(name) {
+Reversed::Reversed(const std::string& name, NetworkType type) : Plumbing(name) {
   type_ = type;
 }
 

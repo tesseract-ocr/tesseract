@@ -27,9 +27,9 @@ namespace tesseract {
 // Max height for variable height inputs before scaling anyway.
 const int kMaxInputHeight = 48;
 
-Input::Input(const STRING& name, int ni, int no)
+Input::Input(const std::string& name, int ni, int no)
     : Network(NT_INPUT, name, ni, no), cached_x_scale_(1) {}
-Input::Input(const STRING& name, const StaticShape& shape)
+Input::Input(const std::string& name, const StaticShape& shape)
     : Network(NT_INPUT, name, shape.height(), shape.depth()),
       shape_(shape),
       cached_x_scale_(1) {

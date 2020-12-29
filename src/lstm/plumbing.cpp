@@ -22,7 +22,7 @@
 namespace tesseract {
 
 // ni_ and no_ will be set by AddToStack.
-Plumbing::Plumbing(const STRING& name)
+Plumbing::Plumbing(const std::string& name)
   : Network(NT_PARALLEL, name, 0, 0) {
 }
 

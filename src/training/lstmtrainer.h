@@ -107,7 +107,7 @@ class LSTMTrainer : public LSTMRecognizer {
   // are implemented.
   // For other args see NetworkBuilder::InitNetwork.
   // Note: Be sure to call InitCharSet before InitNetwork!
-  bool InitNetwork(const STRING& network_spec, int append_index, int net_flags,
+  bool InitNetwork(const char* network_spec, int append_index, int net_flags,
                    float weight_range, float learning_rate, float momentum,
                    float adam_beta);
   // Initializes a trainer from a serialized TFNetworkModel proto.

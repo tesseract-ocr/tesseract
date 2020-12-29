@@ -31,7 +31,7 @@
 namespace tesseract {
 
 // ni_ and no_ will be set by AddToStack.
-Parallel::Parallel(const STRING& name, NetworkType type) : Plumbing(name) {
+Parallel::Parallel(const char* name, NetworkType type) : Plumbing(name) {
   type_ = type;
 }
 
