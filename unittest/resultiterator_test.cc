@@ -358,7 +358,7 @@ TEST_F(ResultIteratorTest, ComplexTest) {
   PageIterator* it = api_.AnalyseLayout();
   EXPECT_FALSE(it == nullptr);
   // The images should rebuild almost perfectly.
-  VerifyRebuilds(400, 400, 400, 400, 650, it);
+  VerifyRebuilds(2073, 2073, 2080, 2081, 2090, it);
   delete it;
 }
 
