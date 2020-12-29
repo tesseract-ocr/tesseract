@@ -217,7 +217,7 @@ class GenericVector : public std::vector<T> {
   // to two Ts and returns negative if the first element is to appear earlier
   // in the result and positive if it is to appear later, with 0 for equal.
   void sort(int (*comparator)(const void*, const void*)) {
-    assert(data_ != nullptr);
+    assert(data() != nullptr);
     qsort(data(), size(), sizeof(*data()), comparator);
   }
 
