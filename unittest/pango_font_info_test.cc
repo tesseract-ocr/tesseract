@@ -18,7 +18,9 @@
 #include "pango_font_info.h"
 #include "absl/strings/str_cat.h"       // for absl::StrCat
 #include "gmock/gmock-matchers.h"       // for EXPECT_THAT
+#ifdef INCLUDE_TENSORFLOW
 #include "util/utf8/unicodetext.h"      // for UnicodeText
+#endif
 
 DECLARE_STRING_PARAM_FLAG(fonts_dir);
 DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
@@ -187,6 +189,7 @@ class FontUtilsTest : public ::testing::Test {
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
   }
 
+#ifdef INCLUDE_TENSORFLOW
   void CountUnicodeChars(const char* utf8_text,
                          std::unordered_map<char32, int64_t>* ch_map) {
     ch_map->clear();
@@ -201,6 +204,7 @@ class FontUtilsTest : public ::testing::Test {
       ++(*ch_map)[*it];
     }
   }
+#endif
 };
 
 TEST_F(FontUtilsTest, DoesFindAvailableFonts) {
@@ -234,6 +238,7 @@ TEST_F(FontUtilsTest, DoesListAvailableFonts) {
   }
 }
 
+#ifdef INCLUDE_TENSORFLOW
 TEST_F(FontUtilsTest, DoesFindBestFonts) {
   std::string fonts_list;
   std::unordered_map<char32, int64_t> ch_map;
@@ -252,6 +257,7 @@ TEST_F(FontUtilsTest, DoesFindBestFonts) {
   EXPECT_EQ(1, font_flags.size());
   EXPECT_STREQ("UnBatang", font_flags[0].first);
 }
+#endif
 
 TEST_F(FontUtilsTest, DoesSelectFont) {
   const char* kLangText[] = {kArabicText, kEngText, kHinText, kKorText, nullptr};
