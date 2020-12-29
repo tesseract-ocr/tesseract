@@ -18,24 +18,25 @@
 #ifndef TESSERACT_LSTM_NETWORK_H_
 #define TESSERACT_LSTM_NETWORK_H_
 
+#include "matrix.h"
+#include "networkio.h"
+#include "static_shape.h"
+#include "tprintf.h"
+
+#include <tesseract/serialis.h>
+#include <tesseract/strngs.h>             // for STRING
+#include <tesseract/genericvector.h>
+#include <tesseract/helpers.h>
+
 #include <cstdio>
 #include <cmath>
 
-#include <tesseract/genericvector.h>
-#include <tesseract/helpers.h>
-#include "matrix.h"
-#include "networkio.h"
-#include <tesseract/serialis.h>
-#include "static_shape.h"
-#include <tesseract/strngs.h>             // for STRING
-#include "tprintf.h"
-
 struct Pix;
-class ScrollView;
-class TBOX;
 
 namespace tesseract {
 
+class ScrollView;
+class TBOX;
 class ImageData;
 class NetworkScratch;
 

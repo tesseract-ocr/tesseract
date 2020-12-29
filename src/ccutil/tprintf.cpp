@@ -21,11 +21,16 @@
 #include "config_auto.h"
 #endif
 
+#include "tprintf.h"
+
+#include "params.h"
+
+#include <tesseract/strngs.h>
+
 #include <cstdio>
 #include <cstdarg>
-#include "params.h"
-#include <tesseract/strngs.h>
-#include "tprintf.h"
+
+namespace tesseract {
 
 #ifdef HAVE_MUPDF
 // for fz_error():
@@ -98,4 +103,4 @@ DLLSYM void tprintf(const char *format, ...)
 }
 
 #endif
-
+} // namespace tesseract

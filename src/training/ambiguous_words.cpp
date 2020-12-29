@@ -20,12 +20,13 @@
 ///////////////////////////////////////////////////////////////////////
 //
 
-#include <tesseract/baseapi.h>
 #include "commontraining.h"     // CheckSharedLibraryVersion
-#include <tesseract/helpers.h>
-#include <tesseract/strngs.h>
 #include "dict.h"
 #include "tesseractclass.h"
+
+#include <tesseract/baseapi.h>
+#include <tesseract/helpers.h>
+#include <tesseract/strngs.h>
 
 int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
@@ -40,7 +41,7 @@ int main(int argc, char** argv) {
     return 1;
   }
   int argv_offset = 0;
-  STRING lang;
+  tesseract::STRING lang;
   if (argc == 6) {
     lang = argv[2];
     argv_offset = 2;
@@ -53,8 +54,8 @@ int main(int argc, char** argv) {
 
   // Initialize Tesseract.
   tesseract::TessBaseAPI api;
-  GenericVector<STRING> vars_vec;
-  GenericVector<STRING> vars_values;
+  tesseract::GenericVector<tesseract::STRING> vars_vec;
+  tesseract::GenericVector<tesseract::STRING> vars_values;
   vars_vec.push_back("output_ambig_words_file");
   vars_values.push_back(output_file_str);
   api.Init(tessdata_dir, lang.c_str(), tesseract::OEM_TESSERACT_ONLY, nullptr,
@@ -62,7 +63,7 @@ int main(int argc, char** argv) {
   tesseract::Dict &dict = api.tesseract()->getDict();
   FILE *input_file = fopen(input_file_str, "rb");
   if (input_file == nullptr) {
-    tprintf("Failed to open input wordlist file %s\n", input_file_str);
+      tesseract::tprintf("Failed to open input wordlist file %s\n", input_file_str);
     exit(1);
   }
   char str[CHARS_PER_LINE];
@@ -70,8 +71,8 @@ int main(int argc, char** argv) {
   // Read word list and call Dict::NoDangerousAmbig() for each word
   // to record ambiguities in the output file.
   while (fgets(str, CHARS_PER_LINE, input_file) != nullptr) {
-    chomp_string(str);  // remove newline
-    WERD_CHOICE word(str, dict.getUnicharset());
+    tesseract::chomp_string(str);  // remove newline
+    tesseract::WERD_CHOICE word(str, dict.getUnicharset());
     dict.NoDangerousAmbig(&word, nullptr, false, nullptr);
   }
   // Clean up.

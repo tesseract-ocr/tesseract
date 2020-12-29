@@ -67,11 +67,6 @@ class TessClassifier : public ShapeClassifier {
   tesseract::Classify* classify_;
 };
 
-
 }  // namespace tesseract
-
-
-
-
 
 #endif /* THIRD_PARTY_TESSERACT_CLASSIFY_TESSCLASSIFIER_H_ */

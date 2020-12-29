@@ -16,17 +16,21 @@
  *
  **********************************************************************/
 
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "quspline.h"
-#include "allheaders.h"  // for pixRenderPolyline, pixGetDepth, pixGetHeight
-#include "pix.h"         // for L_CLEAR_PIXELS, L_SET_PIXELS, Pix (ptr only)
+
 #include "points.h"      // for ICOORD
 #include "quadlsq.h"     // for QLSQ
 #include "quadratc.h"    // for QUAD_COEFFS
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
+#include "allheaders.h"  // for pixRenderPolyline, pixGetDepth, pixGetHeight
+#include "pix.h"         // for L_CLEAR_PIXELS, L_SET_PIXELS, Pix (ptr only)
+
+namespace tesseract {
 
 #define QSPLINE_PRECISION 16     //no of steps to draw
 
@@ -407,3 +411,5 @@ void QSPLINE::plot(Pix *pix) const {
   }
   ptaDestroy(&points);
 }
+
+} // namespace tesseract

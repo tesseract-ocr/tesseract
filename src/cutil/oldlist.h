@@ -62,6 +62,8 @@
 #ifndef LIST_H
 #define LIST_H
 
+namespace tesseract {
+
 /*----------------------------------------------------------------------
                   T y p e s
 ----------------------------------------------------------------------*/
@@ -123,5 +125,7 @@ LIST push(LIST list, void* element);
 LIST push_last(LIST list, void* item);
 
 LIST search(LIST list, void* key, int_compare is_equal);
+
+} // namespace tesseract
 
 #endif

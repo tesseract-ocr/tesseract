@@ -20,11 +20,15 @@
 #define           PDBLOCK_H
 
 #include          "clst.h"
-#include          <tesseract/strngs.h>
 #include          "polyblk.h"
 
-class DLLSYM PDBLK;              //forward decl
+#include          <tesseract/strngs.h>
+
 struct Pix;
+
+namespace tesseract {
+
+class PDBLK;              //forward decl
 
 CLISTIZEH (PDBLK)
 ///page block
@@ -169,5 +173,7 @@ class DLLSYM BLOCK_LINE_IT
     PDBLK * block;               ///< block to iterate
     BLOCK_RECT_IT rect_it;       ///< rectangle iterator
 };
+
+} // namespace tesseract
 
 #endif

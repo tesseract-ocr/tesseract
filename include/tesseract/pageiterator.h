@@ -24,15 +24,16 @@
 #include "platform.h"
 #include "publictypes.h"
 
+struct Pix;
+struct Pta;
+
+namespace tesseract {
+
 struct BlamerBundle;
 class C_BLOB_IT;
 class PAGE_RES;
 class PAGE_RES_IT;
 class WERD;
-struct Pix;
-struct Pta;
-
-namespace tesseract {
 
 class Tesseract;
 

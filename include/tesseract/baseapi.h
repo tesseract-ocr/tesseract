@@ -19,17 +19,9 @@
 #ifndef TESSERACT_API_BASEAPI_H_
 #define TESSERACT_API_BASEAPI_H_
 
-#include <cstdio>
-#include <functional>  // for std::function
-
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h" // DISABLED_LEGACY_ENGINE
 #endif
-
-// To avoid collision with other typenames include the ABSOLUTE MINIMUM
-// complexity of includes here. Use forward declarations wherever possible
-// and hide includes of complex types in baseapi.cpp.
-#include "tesseract/version.h"
 
 #include "apitypes.h"
 #include "pageiterator.h"
@@ -39,6 +31,21 @@
 #include "serialis.h"
 #include "thresholder.h"
 #include "unichar.h"
+
+// To avoid collision with other typenames include the ABSOLUTE MINIMUM
+// complexity of includes here. Use forward declarations wherever possible
+// and hide includes of complex types in baseapi.cpp.
+#include <tesseract/version.h>
+
+#include <cstdio>
+#include <functional>  // for std::function
+
+struct Pix;
+struct Box;
+struct Pixa;
+struct Boxa;
+
+namespace tesseract {
 
 template <typename T>
 class GenericVector;
@@ -52,10 +59,6 @@ class MATRIX;
 class ROW;
 class STRING;
 class WERD;
-struct Pix;
-struct Box;
-struct Pixa;
-struct Boxa;
 class ETEXT_DESC;
 struct OSResults;
 class TBOX;
@@ -65,8 +68,6 @@ class WERD_CHOICE_LIST;
 struct INT_FEATURE_STRUCT;
 using INT_FEATURE = INT_FEATURE_STRUCT*;
 struct TBLOB;
-
-namespace tesseract {
 
 class Dawg;
 class Dict;
@@ -861,6 +862,7 @@ class TESS_API TessBaseAPI {
 
 /** Escape a char string - remove &<>"' with HTML codes. */
 STRING HOcrEscape(const char* text);
-}  // namespace tesseract.
+
+}  // namespace tesseract
 
 #endif  // TESSERACT_API_BASEAPI_H_

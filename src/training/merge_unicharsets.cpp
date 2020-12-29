@@ -2,7 +2,6 @@
 // File:        merge_unicharsets.cpp
 // Description: Simple tool to merge two or more unicharsets.
 // Author:      Ray Smith
-// Created:     Wed Sep 30 16:09:01 PDT 2015
 //
 // (C) Copyright 2015, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +33,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  UNICHARSET input_unicharset, result_unicharset;
+  tesseract::UNICHARSET input_unicharset, result_unicharset;
   for (int arg = 1; arg < argc - 1; ++arg) {
     // Load the input unicharset
     if (input_unicharset.load_from_file(argv[arg])) {

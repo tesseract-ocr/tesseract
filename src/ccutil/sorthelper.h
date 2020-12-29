@@ -20,8 +20,11 @@
 #ifndef TESSERACT_CCUTIL_SORTHELPER_H_
 #define TESSERACT_CCUTIL_SORTHELPER_H_
 
-#include <cstdlib>
 #include <tesseract/genericvector.h>
+
+#include <cstdlib>
+
+namespace tesseract {
 
 // Generic class to provide functions based on a <value,count> pair.
 // T is the value type.
@@ -104,5 +107,6 @@ class SortHelper {
   GenericVector<SortPair<T> > counts_;
 };
 
+} // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_SORTHELPER_H_.

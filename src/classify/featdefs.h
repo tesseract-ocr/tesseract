@@ -18,10 +18,9 @@
 #ifndef FEATDEFS_H
 #define FEATDEFS_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "ocrfeatures.h"
+
+namespace tesseract {
 
 /* Enumerate the different types of features currently defined. */
 #define NUM_FEATURE_TYPES 4
@@ -78,4 +77,7 @@ extern const FEATURE_DESC_STRUCT CharNormDesc;
 extern const FEATURE_DESC_STRUCT OutlineFeatDesc;
 extern const FEATURE_DESC_STRUCT IntFeatDesc;
 extern const FEATURE_DESC_STRUCT GeoFeatDesc;
+
+} // namespace tesseract
+
 #endif

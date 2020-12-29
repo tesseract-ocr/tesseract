@@ -63,7 +63,6 @@ class Wordrec : public Classify {
 
 #else  // DISABLED_LEGACY_ENGINE not defined
 
-#include <cstdint>             // for int16_t, int32_t
 #include <memory>
 #include "associate.h"
 #include "chop.h"              // for PointHeap, MAX_NUM_POINTS
@@ -71,7 +70,6 @@ class Wordrec : public Classify {
 #include "dict.h"
 #include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "findseam.h"          // for SeamQueue, SeamPile
-#include <tesseract/genericvector.h>     // for GenericVector
 #include "language_model.h"
 #include "matrix.h"
 #include "oldlist.h"           // for LIST
@@ -81,6 +79,12 @@ class Wordrec : public Classify {
 #include "seam.h"              // for SEAM (ptr only), PRIORITY
 #include "stopper.h"           // for DANGERR
 
+#include <tesseract/genericvector.h>     // for GenericVector
+
+#include <cstdint>             // for int16_t, int32_t
+
+namespace tesseract {
+
 class EDGEPT_CLIST;
 class MATRIX;
 class STRING;
@@ -88,9 +92,9 @@ class TBOX;
 class UNICHARSET;
 class WERD_RES;
 
-namespace tesseract { class LMPainPoints; }
-namespace tesseract { class TessdataManager; }
-namespace tesseract { struct BestChoiceBundle; }
+class LMPainPoints;
+class TessdataManager;
+struct BestChoiceBundle;
 
 struct BlamerBundle;
 struct EDGEPT;
@@ -99,8 +103,6 @@ struct SPLIT;
 struct TBLOB;
 struct TESSLINE;
 struct TWERD;
-
-namespace tesseract {
 
 // A class for storing which nodes are to be processed by the segmentation
 // search. There is a single SegSearchPending for each column in the ratings

@@ -25,14 +25,14 @@
 #include "bitvector.h"
 #include "fontinfo.h"
 #include "genericheap.h"
-#include <tesseract/genericvector.h>
 #include "intmatcher.h"
 
-class STRING;
-class UNICHARSET;
+#include <tesseract/genericvector.h>
 
 namespace tesseract {
 
+class STRING;
+class UNICHARSET;
 class ShapeTable;
 
 // Simple struct to hold a single classifier unichar selection, a corresponding

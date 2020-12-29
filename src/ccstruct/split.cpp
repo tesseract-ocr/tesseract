@@ -15,19 +15,20 @@
  ** limitations under the License.
  *
  *************************************************************************/
-/*----------------------------------------------------------------------
-              I n c l u d e s
-----------------------------------------------------------------------*/
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
 #include "split.h"
+
 #include "coutln.h"
 #include "tprintf.h"
 
 #include <algorithm>
+
+namespace tesseract {
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
@@ -312,3 +313,5 @@ void SPLIT::UnsplitOutlines() const {
   point2->vec.x = point2->next->pos.x - point2->pos.x;
   point2->vec.y = point2->next->pos.y - point2->pos.y;
 }
+
+} // namespace tesseract

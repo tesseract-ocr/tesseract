@@ -20,8 +20,9 @@
 
 #ifndef GOOGLE_TESSERACT
 
-#include <cstdlib>
 #include "params.h"
+
+#include <cstdlib>
 
 #define INT_PARAM_FLAG(name, val, comment)      \
   INT_VAR(FLAGS_##name, val, comment)

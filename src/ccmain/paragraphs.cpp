@@ -1302,8 +1302,8 @@ bool CrownCompatible(const GenericVector<RowScratchRegisters> *rows,
     tprintf("CrownCompatible() should only be called with crown models!\n");
     return false;
   }
-  RowScratchRegisters &row_a = (*rows)[a];
-  RowScratchRegisters &row_b = (*rows)[b];
+  auto &row_a = (*rows)[a];
+  auto &row_b = (*rows)[b];
   if (model == kCrownRight) {
     return NearlyEqual(row_a.rindent_ + row_a.rmargin_,
                        row_b.rindent_ + row_b.rmargin_,
@@ -2043,7 +2043,7 @@ static void SeparateSimpleLeaderLines(GenericVector<RowScratchRegisters> *rows,
 // paragraphs for them, referencing the paragraphs in row_owners.
 static void ConvertHypothesizedModelRunsToParagraphs(
     int debug_level,
-    const GenericVector<RowScratchRegisters> &rows,
+    GenericVector<RowScratchRegisters> &rows,
     GenericVector<PARA *> *row_owners,
     ParagraphTheory *theory) {
   int end = rows.size();

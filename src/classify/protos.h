@@ -19,17 +19,14 @@
 #ifndef PROTOS_H
 #define PROTOS_H
 
-/*----------------------------------------------------------------------
-              I n c l u d e s
-----------------------------------------------------------------------*/
 #include "bitvec.h"
 #include "params.h"
-#include <tesseract/unichar.h>
 #include "unicity_table.h"
 
-/*----------------------------------------------------------------------
-              T y p e s
-----------------------------------------------------------------------*/
+#include <tesseract/unichar.h>
+
+namespace tesseract {
+
 using CONFIGS = BIT_VECTOR*;
 
 typedef struct {
@@ -98,5 +95,7 @@ void FreeClassFields(CLASS_TYPE Class);
 void InitPrototypes();
 
 CLASS_TYPE NewClass(int NumProtos, int NumConfigs);
+
+} // namespace tesseract
 
 #endif

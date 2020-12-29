@@ -15,9 +15,6 @@
  ** limitations under the License.
  ******************************************************************************/
 
-/**----------------------------------------------------------------------------
-      Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "blobclass.h"
 
 #include <cstdio>
@@ -27,12 +24,13 @@
 #include "mf.h"
 #include "normfeat.h"
 
+namespace tesseract {
+
 static const char kUnknownFontName[] = "UnknownFont";
 
 static STRING_VAR(classify_font_name, kUnknownFontName,
                   "Default font name to be used in training");
 
-namespace tesseract {
 /**----------------------------------------------------------------------------
             Public Code
 ----------------------------------------------------------------------------**/
@@ -109,4 +107,4 @@ bool Classify::WriteTRFile(const char* filename) {
   return result;
 }
 
-}  // namespace tesseract.
+} // namespace tesseract

@@ -24,6 +24,10 @@
 #include          "pdblock.h"
 #include          "crakedge.h"
 
+struct Pix;
+
+namespace tesseract {
+
 class C_OUTLINE_IT;
 
 struct CrackPos {
@@ -31,8 +35,6 @@ struct CrackPos {
   int x;                     // Position of new edge.
   int y;
 };
-
-struct Pix;
 
 void block_edges(Pix *t_image,         // thresholded image
                  PDBLK *block,         // block in image
@@ -63,5 +65,7 @@ void join_edges(CRACKEDGE *edge1,            // edges to join
                 CRACKEDGE **free_cracks,
                 C_OUTLINE_IT* outline_it);
 void free_crackedges(CRACKEDGE *start);
+
+} // namespace tesseract
 
 #endif

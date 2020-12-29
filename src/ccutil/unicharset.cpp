@@ -18,6 +18,11 @@
 
 #include "unicharset.h"
 
+#include "params.h"
+
+#include <tesseract/serialis.h>
+#include <tesseract/unichar.h>
+
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -26,16 +31,10 @@
 #include <locale>     // for std::locale::classic
 #include <sstream>    // for std::istringstream, std::ostringstream
 
-#include "params.h"
-#include <tesseract/serialis.h>
-#include <tesseract/unichar.h>
-
 #undef min
 #undef max
 
-// TODO(rays) Move UNICHARSET to tesseract namespace.
-using tesseract::char32;
-using tesseract::UNICHAR;
+namespace tesseract {
 
 // Special character used in representing character fragments.
 static const char kSeparator = '|';
@@ -1135,3 +1134,5 @@ std::string UNICHARSET::CleanupString(const char* utf8_str, size_t length) {
   }
   return result;
 }
+
+} // namespace tesseract

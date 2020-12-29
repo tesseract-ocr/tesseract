@@ -22,6 +22,8 @@
 
 #include "oldlist.h"  // for LIST
 
+namespace tesseract {
+
 class ScrollView;
 
 struct EDGEPT;
@@ -40,5 +42,7 @@ void display_edgepts(LIST outlines);
 void draw_blob_edges(TBLOB *blob);
 
 void mark_outline(EDGEPT *edgept);
+
+} // namespace tesseract
 
 #endif

@@ -17,7 +17,10 @@
  **********************************************************************/
 
 #include "rejctmap.h"
+
 #include "params.h"
+
+namespace tesseract {
 
 bool REJ::perm_rejected() {  //Is char perm reject?
   return (flag (R_TESS_FAILURE) ||
@@ -446,3 +449,5 @@ void REJMAP::rej_word_row_rej() {  //Reject whole word
     if (ptr[i].accepted()) ptr[i].setrej_row_rej();
   }
 }
+
+} // namespace tesseract

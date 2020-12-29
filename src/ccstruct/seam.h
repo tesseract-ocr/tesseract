@@ -23,15 +23,11 @@
 #include "config_auto.h"
 #endif
 
-/*----------------------------------------------------------------------
-              I n c l u d e s
-----------------------------------------------------------------------*/
 #include "blobs.h"
 #include "split.h"
 
-/*----------------------------------------------------------------------
-              T y p e s
-----------------------------------------------------------------------*/
+namespace tesseract {
+
 using PRIORITY = float;          /*  PRIORITY  */
 
 class SEAM {
@@ -201,10 +197,8 @@ class SEAM {
   SPLIT splits_[kMaxNumSplits];
 };
 
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
-
 void start_seam_list(TWERD* word, GenericVector<SEAM*>* seam_array);
+
+} // namespace tesseract
 
 #endif

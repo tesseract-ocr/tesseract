@@ -376,8 +376,6 @@ void Tesseract::doc_and_block_rejection(  //reject big chunks
   }
 }
 
-}  // namespace tesseract
-
 /*************************************************************************
  * reject_whole_page()
  * Don't believe any of it - set the reject map to 00..00 in all words
@@ -394,7 +392,6 @@ void reject_whole_page(PAGE_RES_IT &page_res_it) {
   page_res_it.page_res->rejected = true;
 }
 
-namespace tesseract {
 void Tesseract::tilde_crunch(PAGE_RES_IT &page_res_it) {
   WERD_RES *word;
   GARBAGE_LEVEL garbage_level;

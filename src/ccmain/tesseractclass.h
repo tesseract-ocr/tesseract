@@ -25,38 +25,41 @@
 #ifndef TESSERACT_CCMAIN_TESSERACTCLASS_H_
 #define TESSERACT_CCMAIN_TESSERACTCLASS_H_
 
-#include <cstdint>                  // for int16_t, int32_t, uint16_t
-#include <cstdio>                   // for FILE
-
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h" // DISABLED_LEGACY_ENGINE
 #endif
 
-#include "allheaders.h"             // for pixDestroy, pixGetWidth, pixGetHe...
 #include "control.h"                // for ACCEPTABLE_WERD_TYPE
 #include "debugpixa.h"              // for DebugPixa
 #include "devanagari_processing.h"  // for ShiroRekhaSplitter
 #ifndef DISABLED_LEGACY_ENGINE
 #include "docqual.h"                // for GARBAGE_LEVEL
 #endif
-#include <tesseract/genericvector.h>          // for GenericVector, PointerVector
 #include "pageres.h"                // for WERD_RES (ptr only), PAGE_RES (pt...
 #include "params.h"                 // for BOOL_VAR_H, BoolParam, DoubleParam
 #include "points.h"                 // for FCOORD
-#include <tesseract/publictypes.h>            // for OcrEngineMode, PageSegMode, OEM_L...
 #include "ratngs.h"                 // for ScriptPos, WERD_CHOICE (ptr only)
-#include <tesseract/strngs.h>                 // for STRING
 #include "tessdatamanager.h"        // for TessdataManager
 #include "textord.h"                // for Textord
-#include <tesseract/unichar.h>                // for UNICHAR_ID
 #include "wordrec.h"                // for Wordrec
+
+#include <tesseract/genericvector.h>          // for GenericVector, PointerVector
+#include <tesseract/publictypes.h>            // for OcrEngineMode, PageSegMode, OEM_L...
+#include <tesseract/strngs.h>                 // for STRING
+#include <tesseract/unichar.h>                // for UNICHAR_ID
+
+#include "allheaders.h"             // for pixDestroy, pixGetWidth, pixGetHe...
+
+#include <cstdint>                  // for int16_t, int32_t, uint16_t
+#include <cstdio>                   // for FILE
+
+namespace tesseract {
 
 class BLOCK_LIST;
 class ETEXT_DESC;
 struct OSResults;
 class PAGE_RES;
 class PAGE_RES_IT;
-struct Pix;
 class ROW;
 class SVMenuNode;
 class TBOX;
@@ -64,6 +67,13 @@ class TO_BLOCK_LIST;
 class WERD;
 class WERD_CHOICE;
 class WERD_RES;
+
+class ColumnFinder;
+class DocumentData;
+class EquationDetect;
+class ImageData;
+class LSTMRecognizer;
+class Tesseract;
 
 // Top-level class for all tesseract global instance data.
 // This class either holds or points to all data used by an instance
@@ -103,15 +113,6 @@ class WERD_RES;
 // the type is defined so for instance:
 // BOOL_VAR_H(textord_show_blobs, false, "Display unsorted blobs");
 // goes inside the Textord class, not the cc_util class.
-
-namespace tesseract {
-
-class ColumnFinder;
-class DocumentData;
-class EquationDetect;
-class ImageData;
-class LSTMRecognizer;
-class Tesseract;
 
 // A collection of various variables for statistics and debugging.
 struct TesseractStats {

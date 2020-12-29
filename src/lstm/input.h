@@ -20,9 +20,9 @@
 
 #include "network.h"
 
-class ScrollView;
-
 namespace tesseract {
+
+class ScrollView;
 
 class Input : public Network {
  public:

@@ -18,8 +18,10 @@
 #ifndef TESSERACT_CCUTIL_HOST_H_
 #define TESSERACT_CCUTIL_HOST_H_
 
-#include <limits>
 #include <tesseract/platform.h>
+
+#include <limits>
+
 /* _WIN32 */
 #ifdef _WIN32
 #  ifndef NOMINMAX
@@ -36,10 +38,14 @@
 #undef max
 #endif  // _WIN32
 
+namespace tesseract {
+
 // Return true if x is within tolerance of y
 template<class T> bool NearlyEqual(T x, T y, T tolerance) {
   T diff = x - y;
   return diff <= tolerance && -diff <= tolerance;
 }
+
+} // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_HOST_H_

@@ -25,6 +25,8 @@
 
 #include <cstdio>
 
+namespace tesseract {
+
 class CLIST_ITERATOR;
 
 /**********************************************************************
@@ -923,5 +925,7 @@ CLISTIZEH_C.
   {                                                                          \
     delete (CLASSNAME *)link;                                                \
   }
+
+} // namespace tesseract
 
 #endif

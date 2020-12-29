@@ -20,14 +20,18 @@
 #ifndef QUSPLINE_H
 #define QUSPLINE_H
 
-#include <cstdint>             // for int32_t
 #include "scrollview.h"        // for ScrollView, ScrollView::Color
+
+#include <cstdint>             // for int32_t
+
+struct Pix;
+
+namespace tesseract {
 
 class ICOORD;
 class QUAD_COEFFS;
 class ROW;
 class TBOX;
-struct Pix;
 
 class QSPLINE
 {
@@ -97,4 +101,7 @@ class QSPLINE
     int32_t *xcoords;              //no of coords
     QUAD_COEFFS *quadratics;     //spline pieces
 };
+
+} // namespace tesseract
+
 #endif

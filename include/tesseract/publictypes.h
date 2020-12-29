@@ -19,6 +19,8 @@
 #ifndef TESSERACT_CCSTRUCT_PUBLICTYPES_H_
 #define TESSERACT_CCSTRUCT_PUBLICTYPES_H_
 
+namespace tesseract {
+
 // This file contains types that are used both by the API and internally
 // to Tesseract. In order to decouple the API from Tesseract and prevent cyclic
 // dependencies, THIS FILE SHOULD NOT DEPEND ON ANY OTHER PART OF TESSERACT.
@@ -89,7 +91,6 @@ inline bool PTIsPulloutType(PolyBlockType type) {
   return type == PT_PULLOUT_IMAGE || type == PT_PULLOUT_TEXT;
 }
 
-namespace tesseract {
 /**
  *  +------------------+  Orientation Example:
  *  | 1 Aaaa Aaaa Aaaa |  ====================

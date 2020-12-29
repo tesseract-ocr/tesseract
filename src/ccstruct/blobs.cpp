@@ -26,9 +26,9 @@
 #endif
 
 #include "blobs.h"
+
 #include "ccstruct.h"
 #include "clst.h"
-#include <tesseract/helpers.h>
 #include "linlsq.h"
 #include "normalis.h"
 #include "ocrblock.h"
@@ -37,9 +37,11 @@
 #include "polyaprx.h"
 #include "werd.h"
 
+#include <tesseract/helpers.h>
+
 #include <algorithm>
 
-using tesseract::CCStruct;
+namespace tesseract {
 
 // A Vector representing the "vertical" direction when measuring the
 // divisiblity of blobs into multiple blobs just by separating outlines.
@@ -995,3 +997,5 @@ void divide_blobs(TBLOB* blob, TBLOB* other_blob, bool italic_blob,
   if (outline1) outline1->next = nullptr;
   if (outline2) outline2->next = nullptr;
 }
+
+} // namespace tesseract

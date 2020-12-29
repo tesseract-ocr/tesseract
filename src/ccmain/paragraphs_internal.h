@@ -25,10 +25,10 @@
 // NO CODE OUTSIDE OF paragraphs.cpp AND TESTS SHOULD NEED TO ACCESS
 // DATA STRUCTURES OR FUNCTIONS IN THIS FILE.
 
+namespace tesseract {
+
 class UNICHARSET;
 class WERD_CHOICE;
-
-namespace tesseract {
 
 // Return whether the given word is likely to be a list item start word.
 bool AsciiLikelyListItem(const STRING &word);

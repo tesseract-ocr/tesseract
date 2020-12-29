@@ -22,9 +22,14 @@
 #endif
 
 #include "stepblob.h"
-#include "allheaders.h"     // for pixCreate, pixGetDepth
-#include <tesseract/genericvector.h>  // for GenericVector
+
 #include "points.h"         // for operator+=, FCOORD, ICOORD
+
+#include <tesseract/genericvector.h>  // for GenericVector
+
+#include "allheaders.h"     // for pixCreate, pixGetDepth
+
+namespace tesseract {
 
 class DENORM;
 
@@ -552,3 +557,5 @@ void C_BLOB::plot_normed(const DENORM& denorm,
                            window);
 }
 #endif
+
+} // namespace tesseract

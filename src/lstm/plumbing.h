@@ -101,7 +101,7 @@ class Plumbing : public Network {
   // Returns a pointer to the network layer corresponding to the given id.
   Network* GetLayer(const char* id) const;
   // Returns the learning rate for a specific layer of the stack.
-  float LayerLearningRate(const char* id) const {
+  float LayerLearningRate(const char* id) {
     const float* lr_ptr = LayerLearningRatePtr(id);
     ASSERT_HOST(lr_ptr != nullptr);
     return *lr_ptr;
@@ -113,7 +113,7 @@ class Plumbing : public Network {
     *lr_ptr *= factor;
   }
   // Returns a pointer to the learning rate for the given layer id.
-  float* LayerLearningRatePtr(const char* id) const;
+  float* LayerLearningRatePtr(const char* id);
 
   // Writes to the given file. Returns false in case of error.
   bool Serialize(TFile* fp) const override;

@@ -28,6 +28,8 @@
 #include "trie.h"
 #include "unicharset.h"
 
+using namespace tesseract;
+
 int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
 

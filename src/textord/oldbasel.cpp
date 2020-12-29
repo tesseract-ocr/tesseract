@@ -16,23 +16,27 @@
  *
  **********************************************************************/
 
-#include <vector>       // for std::vector
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#include "oldbasel.h"
+
 #include "ccstruct.h"
 #include "statistc.h"
 #include "quadlsq.h"
 #include "detlinefit.h"
 #include "makerow.h"
 #include "drawtord.h"
-#include "oldbasel.h"
 #include "textord.h"
 #include "tprintf.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
+#include <vector>       // for std::vector
 
 #include <algorithm>
+
+namespace tesseract {
 
 static BOOL_VAR (textord_really_old_xheight, false,
 "Use original wiseowl xheight");
@@ -68,8 +72,6 @@ static double_VAR (textord_oldbl_jumplimit, 0.15,
 #define SPLINESIZE      23
 
 #define ABS(x) ((x)<0 ? (-(x)) : (x))
-
-namespace tesseract {
 
 /**********************************************************************
  * make_old_baselines
@@ -411,9 +413,6 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
                         row->line_m(), block->line_size);
   }
 }
-
-}  // namespace tesseract.
-
 
 /**********************************************************************
  * get_blob_coords
@@ -1695,3 +1694,5 @@ void pick_x_height(TO_ROW * row,                    //row to do
   if (row->xheight == 0)
     row->xheight = -1.0f;
 }
+
+} // namespace tesseract

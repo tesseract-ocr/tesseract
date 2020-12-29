@@ -32,6 +32,8 @@
 #include <mutex>
 #include <string>
 
+namespace tesseract {
+
 /// The SVSync class provides functionality for Thread & Process Creation
 class SVSync {
  public:
@@ -98,5 +100,7 @@ class SVNetwork {
   /// Where we are at in our msg_buffer_in_
   char* buffer_ptr_;  // strtok_r, strtok_s
 };
+
+} // namespace tesseract
 
 #endif  // TESSERACT_VIEWER_SVUTIL_H_

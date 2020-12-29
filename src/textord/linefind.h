@@ -24,13 +24,13 @@
 struct Boxa;
 struct Pix;
 struct Pixa;
-class C_BLOB_LIST;
-class BLOBNBOX_LIST;
-class ICOORD;
 
 namespace tesseract {
 
 class TabVector_LIST;
+class C_BLOB_LIST;
+class BLOBNBOX_LIST;
+class ICOORD;
 
 /**
  * The LineFinder class is a simple static function wrapper class that mainly

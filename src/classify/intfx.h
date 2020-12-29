@@ -18,19 +18,17 @@
 #ifndef   INTFX_H
 #define   INTFX_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "blobs.h"
 #include "intproto.h"
 #include "normalis.h"
+
 #include <cmath>
+
+namespace tesseract {
 
 class DENORM;
 
-namespace tesseract {
 class TrainingSample;
-}
 
 struct INT_FX_RESULT_STRUCT {
   int32_t Length;                  // total length of all outlines
@@ -54,7 +52,6 @@ void InitIntegerFX();
 // theta direction in an INT_FEATURE_STRUCT.
 FCOORD FeatureDirection(uint8_t theta);
 
-namespace tesseract {
   // Generates a TrainingSample from a TBLOB. Extracts features and sets
   // the bounding box, so classifiers that operate on the image can work.
   // TODO(rays) BlobToTrainingSample must remain a global function until
@@ -63,6 +60,7 @@ namespace tesseract {
   TrainingSample* BlobToTrainingSample(
       const TBLOB& blob, bool nonlinear_norm, INT_FX_RESULT_STRUCT* fx_info,
       GenericVector<INT_FEATURE_STRUCT>* bl_features);
-}
+
+} // namespace tesseract
 
 #endif

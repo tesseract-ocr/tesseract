@@ -16,17 +16,22 @@
  *****************************************************************************/
 
 #define _USE_MATH_DEFINES // for M_PI
+
+#include "cluster.h"
+
+#include "emalloc.h"
+#include "genericheap.h"
+#include "kdpair.h"
+#include "matrix.h"
+#include "tprintf.h"
+
+#include <tesseract/helpers.h>
+
 #include <cfloat>       // for FLT_MAX
 #include <cmath>        // for M_PI
 #include <vector>       // for std::vector
 
-#include "cluster.h"
-#include "emalloc.h"
-#include "genericheap.h"
-#include <tesseract/helpers.h>
-#include "kdpair.h"
-#include "matrix.h"
-#include "tprintf.h"
+namespace tesseract {
 
 #define HOTELLING 1  // If true use Hotelling's test to decide where to split.
 #define FTABLE_X 10  // Size of FTable.
@@ -662,7 +667,7 @@ static void CreateClusterTree(CLUSTERER *Clusterer) {
 
   // form potential clusters into actual clusters - always do "best" first
   while (context.heap->Pop(&HeapEntry)) {
-    PotentialCluster = HeapEntry.data;
+    PotentialCluster = HeapEntry.data();
 
     // if main cluster of potential cluster is already in another cluster
     // then we don't need to worry about it
@@ -675,7 +680,7 @@ static void CreateClusterTree(CLUSTERER *Clusterer) {
     else if (PotentialCluster->Neighbor->Clustered) {
       PotentialCluster->Neighbor =
         FindNearestNeighbor(context.tree, PotentialCluster->Cluster,
-                            &HeapEntry.key);
+                            &HeapEntry.key());
       if (PotentialCluster->Neighbor != nullptr) {
         context.heap->Push(&HeapEntry);
       }
@@ -687,7 +692,7 @@ static void CreateClusterTree(CLUSTERER *Clusterer) {
           MakeNewCluster(Clusterer, PotentialCluster);
       PotentialCluster->Neighbor =
           FindNearestNeighbor(context.tree, PotentialCluster->Cluster,
-                              &HeapEntry.key);
+                              &HeapEntry.key());
       if (PotentialCluster->Neighbor != nullptr) {
         context.heap->Push(&HeapEntry);
       }
@@ -718,11 +723,11 @@ static void MakePotentialClusters(ClusteringContext* context,
   ClusterPair HeapEntry;
   int next = context->next;
   context->candidates[next].Cluster = Cluster;
-  HeapEntry.data = &(context->candidates[next]);
+  HeapEntry.data() = &(context->candidates[next]);
   context->candidates[next].Neighbor =
       FindNearestNeighbor(context->tree,
                           context->candidates[next].Cluster,
-                          &HeapEntry.key);
+                          &HeapEntry.key());
   if (context->candidates[next].Neighbor != nullptr) {
     context->heap->Push(&HeapEntry);
     context->next++;
@@ -2417,3 +2422,5 @@ static double InvertMatrix(const float* input, int size, float* inv) {
   }
   return error_sum;
 }
+
+} // namespace tesseract

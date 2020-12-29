@@ -19,10 +19,6 @@
 ----------------------------------------------------------------------------*/
 #include "normmatch.h"
 
-#include <cstdio>
-#include <cmath>
-#include <sstream>          // for std::istringstream
-
 #include "classify.h"
 #include "clusttool.h"
 #include "emalloc.h"
@@ -30,6 +26,12 @@
 #include "normfeat.h"
 #include "unicharset.h"
 #include "params.h"
+
+#include <cstdio>
+#include <cmath>
+#include <sstream>          // for std::istringstream
+
+namespace tesseract {
 
 struct NORM_PROTOS
 {
@@ -76,8 +78,6 @@ const double kWidthErrorWeighting = 0.125;
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine compares Features against each character
  * normalization proto for ClassId and returns the match
@@ -175,10 +175,7 @@ void Classify::FreeNormProtos() {
     NormProtos = nullptr;
   }
 }
-}  // namespace tesseract
 
-/*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine allocates a new data structure to hold
  * a set of character normalization protos.  It then fills in
@@ -230,4 +227,5 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   }
   return (NormProtos);
 }                                /* ReadNormProtos */
+
 }  // namespace tesseract

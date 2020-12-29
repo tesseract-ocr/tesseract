@@ -17,6 +17,17 @@
 ///////////////////////////////////////////////////////////////////////
 //
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#include "scrollview.h"
+
+#include "svutil.h"    // for SVNetwork
+
+#include "allheaders.h"
+
 #include <algorithm>
 #include <climits>
 #include <cstdarg>
@@ -28,15 +39,7 @@
 #include <utility>
 #include <vector>
 
-#include "allheaders.h"
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
-#include "scrollview.h"
-#include "svutil.h"    // for SVNetwork
+namespace tesseract {
 
 const int kSvPort = 8461;
 const int kMaxMsgSize = 4096;
@@ -843,3 +846,5 @@ char ScrollView::Wait() {
 }
 
 #endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract

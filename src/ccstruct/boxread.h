@@ -19,8 +19,11 @@
 #ifndef TESSERACT_CCUTIL_BOXREAD_H_
 #define TESSERACT_CCUTIL_BOXREAD_H_
 
-#include <cstdio>    // for FILE
 #include <tesseract/strngs.h>  // for STRING
+
+#include <cstdio>    // for FILE
+
+namespace tesseract {
 
 class TBOX;
 
@@ -82,5 +85,7 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
 // Creates a box file string from a unichar string, TBOX and page number.
 void MakeBoxFileStr(const char* unichar_str, const TBOX& box, int page_num,
                     STRING* box_str);
+
+} // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_BOXREAD_H_

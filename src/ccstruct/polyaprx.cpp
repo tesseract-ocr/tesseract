@@ -17,7 +17,7 @@
  **********************************************************************/
 
 #include "polyaprx.h"
-#include <cstdint>             // for INT16_MAX, int8_t
+
 #include "blobs.h"             // for EDGEPT, TPOINT, VECTOR, TESSLINE
 #include "coutln.h"            // for C_OUTLINE
 #include "errcode.h"           // for ASSERT_HOST
@@ -26,6 +26,10 @@
 #include "points.h"            // for ICOORD
 #include "rect.h"              // for TBOX
 #include "tprintf.h"           // for tprintf
+
+#include <cstdint>             // for INT16_MAX, int8_t
+
+namespace tesseract {
 
 #define FASTEDGELENGTH    256
 
@@ -583,3 +587,5 @@ void cutline(                //recursive refine
     cutline(maxpoint, last, area);
   }
 }
+
+} // namespace tesseract

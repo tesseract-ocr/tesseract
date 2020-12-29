@@ -16,12 +16,12 @@
 
 #include "blobgrid.h"      // For BlobGrid
 
-class DENORM;
 struct Pix;
-struct TPOINT;
 
 namespace tesseract {
 
+class DENORM;
+struct TPOINT;
 class ColPartition;
 
 // Simple class to encapsulate the computation of an image representing

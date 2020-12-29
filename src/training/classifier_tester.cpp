@@ -29,6 +29,8 @@
 #include "tessclassifier.h"
 #include "tesseractclass.h"
 
+using namespace tesseract;
+
 static STRING_PARAM_FLAG(classifier, "", "Classifier to test");
 static STRING_PARAM_FLAG(lang, "eng", "Language to test");
 static STRING_PARAM_FLAG(tessdata_dir, "", "Directory of traineddata files");

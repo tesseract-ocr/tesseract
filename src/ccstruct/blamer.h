@@ -20,22 +20,25 @@
 #ifndef TESSERACT_CCSTRUCT_BLAMER_H_
 #define TESSERACT_CCSTRUCT_BLAMER_H_
 
-#include <cstdint>                    // for int16_t
-#include <cstring>                    // for memcpy
-
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h" // DISABLED_LEGACY_ENGINE
 #endif
 #include "boxword.h"                  // for BoxWord
-#include <tesseract/genericvector.h>            // for GenericVector
 #ifndef DISABLED_LEGACY_ENGINE
 #include "params_training_featdef.h"  // for ParamsTrainingBundle, ParamsTra...
 #endif //  ndef DISABLED_LEGACY_ENGINE
 #include "ratngs.h"                   // for BLOB_CHOICE_LIST (ptr only)
 #include "rect.h"                     // for TBOX
-#include <tesseract/strngs.h>                   // for STRING
 #include "tprintf.h"                  // for tprintf
+
+#include <tesseract/genericvector.h>            // for GenericVector
 #include <tesseract/unichar.h>                  // for UNICHAR_ID
+#include <tesseract/strngs.h>                   // for STRING
+
+#include <cstdint>                    // for int16_t
+#include <cstring>                    // for memcpy
+
+namespace tesseract {
 
 class DENORM;
 class MATRIX;
@@ -45,9 +48,7 @@ class WERD_RES;
 struct MATRIX_COORD;
 struct TWERD;
 
-namespace tesseract {
-  class LMPainPoints;
-}
+class LMPainPoints;
 
 static const int16_t kBlamerBoxTolerance = 5;
 
@@ -348,5 +349,6 @@ struct BlamerBundle {
 #endif  // ndef DISABLED_LEGACY_ENGINE
 };
 
+} // namespace tesseract
 
 #endif  // TESSERACT_CCSTRUCT_BLAMER_H_

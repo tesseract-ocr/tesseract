@@ -18,13 +18,12 @@
 #ifndef MFOUTLINE_H
 #define MFOUTLINE_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "blobs.h"
 #include "fpoint.h"
 #include "oldlist.h"
 #include "params.h"
+
+namespace tesseract {
 
 using MFOUTLINE = LIST;
 
@@ -130,5 +129,7 @@ void ComputeDirection(MFEDGEPT* Start, MFEDGEPT* Finish, float MinSlope,
                       float MaxSlope);
 
 MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint);
+
+} // namespace tesseract
 
 #endif

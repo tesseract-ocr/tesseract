@@ -20,7 +20,10 @@
 #define TRIE_H
 
 #include "dawg.h"
+
 #include <tesseract/genericvector.h>
+
+namespace tesseract {
 
 class UNICHARSET;
 
@@ -43,8 +46,6 @@ struct TRIE_NODE_RECORD {
   EDGE_VECTOR backward_edges;
 };
 using TRIE_NODES = GenericVector<TRIE_NODE_RECORD *> ;
-
-namespace tesseract {
 
 /**
  * Concrete class for Trie data structure that allows to store a list of
@@ -425,6 +426,7 @@ class Trie : public Dawg {
   UNICHAR_ID upper_pattern_;
   bool initialized_patterns_;
 };
+
 }  // namespace tesseract
 
 #endif

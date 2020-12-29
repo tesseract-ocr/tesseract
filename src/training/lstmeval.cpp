@@ -24,6 +24,8 @@
 #include <tesseract/strngs.h>
 #include "tprintf.h"
 
+using namespace tesseract;
+
 static STRING_PARAM_FLAG(model, "", "Name of model file (training or recognition)");
 static STRING_PARAM_FLAG(traineddata, "",
                          "If model is a training checkpoint, then traineddata must "

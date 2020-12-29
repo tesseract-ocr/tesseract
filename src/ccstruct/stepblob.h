@@ -20,17 +20,20 @@
 #ifndef STEPBLOB_H
 #define STEPBLOB_H
 
-#include <cstdint>             // for int32_t, int16_t
 #include "coutln.h"            // for C_OUTLINE_LIST, C_OUTLINE
 #include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "points.h"            // for FCOORD, ICOORD (ptr only)
 #include "rect.h"              // for TBOX
 #include "scrollview.h"        // for ScrollView, ScrollView::Color
 
-class C_BLOB;
-class DENORM;
+#include <cstdint>             // for int32_t, int16_t
 
 struct Pix;
+
+namespace tesseract {
+
+class C_BLOB;
+class DENORM;
 
 ELISTIZEH(C_BLOB)
 
@@ -133,5 +136,7 @@ class C_BLOB:public ELIST_LINK
   private:
     C_OUTLINE_LIST outlines;     //master elements
 };
+
+} // namespace tesseract
 
 #endif

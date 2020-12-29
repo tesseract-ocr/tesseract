@@ -19,8 +19,11 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "seam.h"
+
 #include "blobs.h"
 #include "tprintf.h"
+
+namespace tesseract {
 
 /*----------------------------------------------------------------------
         Public Function Code
@@ -247,3 +250,5 @@ void start_seam_list(TWERD* word, GenericVector<SEAM*>* seam_array) {
     seam_array->push_back(new SEAM(0.0f, location));
   }
 }
+
+} // namespace tesseract

@@ -23,16 +23,14 @@
 #include "rect.h"    // for TBOX
 #include <tesseract/strngs.h>  // for STRING
 
-class PARA_LIST;
-class ParagraphModel;
-
-struct PARA;
-
-template <typename T> class GenericVector;
-
 namespace tesseract {
 
 class MutableIterator;
+class ParagraphModel;
+class PARA_LIST;
+struct PARA;
+
+template <typename T> class GenericVector;
 
 // This structure captures all information needed about a text line for the
 // purposes of paragraph detection.  It is meant to be exceedingly light-weight

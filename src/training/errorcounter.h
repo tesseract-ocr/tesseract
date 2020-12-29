@@ -16,16 +16,17 @@
 #ifndef THIRD_PARTY_TESSERACT_CLASSIFY_ERRORCOUNTER_H_
 #define THIRD_PARTY_TESSERACT_CLASSIFY_ERRORCOUNTER_H_
 
-#include <tesseract/genericvector.h>
 #include "matrix.h"
 #include "statistc.h"
 
-class STRING;
+#include <tesseract/genericvector.h>
+
 struct Pix;
-template <typename T> class UnicityTable;
 
 namespace tesseract {
 
+class STRING;
+template <typename T> class UnicityTable;
 struct FontInfo;
 class FontInfoTable;
 class SampleIterator;

@@ -17,10 +17,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <algorithm>
-#include <cmath>        // for std::fabs
-#include <memory>
-
 #include <tesseract/osdetect.h>
 
 #include "blobbox.h"
@@ -32,10 +28,17 @@
 #include "oldlist.h"
 #include "qrsequence.h"
 #include "ratngs.h"
-#include <tesseract/strngs.h>
 #include "tabvector.h"
 #include "tesseractclass.h"
 #include "textord.h"
+
+#include <tesseract/strngs.h>
+
+#include <algorithm>
+#include <cmath>        // for std::fabs
+#include <memory>
+
+namespace tesseract {
 
 const float kSizeRatioToReject = 2.0;
 const int kMinAcceptableBlobHeight = 10;
@@ -577,3 +580,5 @@ int OrientationIdToValue(const int& id) {
       return -1;
   }
 }
+
+} // namespace tesseract

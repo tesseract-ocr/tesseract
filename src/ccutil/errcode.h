@@ -21,6 +21,8 @@
 
 #include <tesseract/platform.h>   // for TESS_API
 
+namespace tesseract {
+
 /*Control parameters for error()*/
 enum TessErrorLogCode {
   DBG =     -1,           /*log without alert */
@@ -65,5 +67,7 @@ constexpr ERRCODE ASSERT_FAILED("Assert failed");
     tprintf(__VA_ARGS__);                                                      \
     ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d", __FILE__, __LINE__); \
   }
+
+} // namespace tesseract
 
 #endif

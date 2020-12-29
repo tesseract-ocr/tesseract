@@ -23,7 +23,10 @@
 #include "elst2.h"
 #include "params.h"
 #include "stepblob.h"
+
 #include <tesseract/strngs.h>
+
+namespace tesseract {
 
 enum WERD_FLAGS {
   W_SEGMENTED,           ///< correctly segmented
@@ -181,7 +184,16 @@ class WERD : public ELIST2_LINK {
 };
 
 ELIST2IZEH(WERD)
+
+} // namespace tesseract
+
 #include "ocrrow.h"  // placed here due to
+
+namespace tesseract {
+
 // compare words by increasing order of left edge, suitable for qsort(3)
 int word_comparator(const void* word1p, const void* word2p);
+
+} // namespace tesseract
+
 #endif

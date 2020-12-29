@@ -14,11 +14,10 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
-#include "clusttool.h"           //If remove you get cought in a loop somewhere
+
 #include "mfoutline.h"
+
+#include "clusttool.h"           //If remove you get cought in a loop somewhere
 #include "blobs.h"
 #include "mfx.h"
 #include "params.h"
@@ -27,9 +26,7 @@
 #include <cmath>
 #include <cstdio>
 
-/*----------------------------------------------------------------------------
-              Public Code
-----------------------------------------------------------------------------*/
+namespace tesseract {
 
 /*---------------------------------------------------------------------------*/
 /** Convert a blob into a list of MFOUTLINEs (float-based microfeature format).
@@ -256,7 +253,6 @@ void NormalizeOutline(MFOUTLINE Outline,
 
 
 /*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine normalizes every outline in Outlines
  * according to the currently selected normalization method.
@@ -292,7 +288,6 @@ void Classify::NormalizeOutlines(LIST Outlines,
       break;
   }
 }                                /* NormalizeOutlines */
-}  // namespace tesseract
 
 /*----------------------------------------------------------------------------
               Private Code
@@ -447,3 +442,5 @@ MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint) {
 
   return (EdgePoint);
 }
+
+} // namespace tesseract

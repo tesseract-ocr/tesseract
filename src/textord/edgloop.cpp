@@ -16,13 +16,16 @@
  *
  **********************************************************************/
 
-#include "scanedg.h"
-#include "edgloop.h"
-
-// Include automatically generated configuration file if running autoconf.
+ // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+
+#include "scanedg.h"
+
+#include "edgloop.h"
+
+namespace tesseract {
 
 #define MINEDGELENGTH   8        // min decent length
 
@@ -155,3 +158,5 @@ int16_t loop_bounding_box(                    //get bounding box
   start = realstart;             //shift it to topleft
   return length;
 }
+
+} // namespace tesseract

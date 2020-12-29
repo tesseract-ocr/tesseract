@@ -18,11 +18,10 @@
 #ifndef MFX_H
 #define MFX_H
 
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "mfdefs.h"
 #include "params.h"
+
+namespace tesseract {
 
 class DENORM;
 struct TBLOB;
@@ -41,5 +40,7 @@ extern double_VAR_H(classify_max_slope, 2.414213562,
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
 MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm);
+
+} // namespace tesseract
 
 #endif

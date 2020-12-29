@@ -25,11 +25,11 @@
 #include <algorithm>
 #include <vector>       // for std::vector
 
+namespace tesseract {
+
 static BOOL_VAR(textord_space_size_is_variable, false,
                 "If true, word delimiter spaces are assumed to have "
                 "variable width, even though characters have fixed pitch.");
-
-namespace {
 
 // Allow +/-10% error for character pitch / body size.
 static const float kFPTolerance = 0.1f;
@@ -1035,8 +1035,6 @@ void FPAnalyzer::EstimatePitch(bool pass1) {
   }
 }
 
-}  // namespace
-
 void compute_fixed_pitch_cjk(ICOORD page_tr,
                              TO_BLOCK_LIST *port_blocks) {
   FPAnalyzer analyzer(page_tr, port_blocks);
@@ -1074,3 +1072,5 @@ void compute_fixed_pitch_cjk(ICOORD page_tr,
   analyzer.OutputEstimations();
   if (textord_debug_pitch_test) analyzer.DebugOutputResult();
 }
+
+} // namespace tesseract

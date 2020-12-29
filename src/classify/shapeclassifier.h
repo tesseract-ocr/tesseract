@@ -22,12 +22,13 @@
 
 #include <tesseract/unichar.h>
 
-template <typename T> class GenericVector;
 struct Pix;
-class ScrollView;
-class UNICHARSET;
 
 namespace tesseract {
+
+template <typename T> class GenericVector;
+class ScrollView;
+class UNICHARSET;
 
 template <typename T> class PointerVector;
 struct ShapeRating;

@@ -76,10 +76,7 @@ void ParseArguments(int* argc, char ***argv) {
 #include "tprintf.h"
 #include "unicity_table.h"
 
-using tesseract::CCUtil;
-using tesseract::IntFeatureSpace;
-using tesseract::ParamUtils;
-using tesseract::ShapeTable;
+using namespace tesseract;
 
 // Global Variables.
 

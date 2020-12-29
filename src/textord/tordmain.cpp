@@ -17,15 +17,13 @@
  **********************************************************************/
 
 #define _USE_MATH_DEFINES       // for M_PI
+
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
 #include "tordmain.h"
-#include <cfloat>               // for FLT_MAX
-#include <cmath>                // for ceil, floor, M_PI
-#include <cstdint>              // for INT16_MAX, uint32_t, int32_t, int16_t
-#include "allheaders.h"         // for pixDestroy, pixGetHeight, boxCreate
+
 #include "arrayaccess.h"        // for GET_DATA_BYTE
 #include "blobbox.h"            // for BLOBNBOX_IT, BLOBNBOX, TO_BLOCK, TO_B...
 #include "ccstruct.h"           // for CCStruct, CCStruct::kXHeightFraction
@@ -34,9 +32,7 @@
 #include "drawtord.h"           // for plot_box_list, to_win, create_to_win
 #include "edgblob.h"            // for extract_edges
 #include "errcode.h"            // for ASSERT_HOST, ...
-#include <tesseract/genericvector.h>      // for PointerVector, GenericVector
 #include "makerow.h"            // for textord_test_x, textord_test_y, texto...
-#include "morph.h"              // for L_BOUNDARY_BG
 #include "ocrblock.h"           // for BLOCK_IT, BLOCK, BLOCK_LIST (ptr only)
 #include "ocrrow.h"             // for ROW, ROW_IT, ROW_LIST, tweak_row_base...
 #include "params.h"             // for DoubleParam, BoolParam, IntParam
@@ -53,11 +49,17 @@
 #include "tprintf.h"            // for tprintf
 #include "werd.h"               // for WERD_IT, WERD, WERD_LIST, W_DONT_CHOP
 
-struct Box;
+#include <tesseract/genericvector.h>      // for PointerVector, GenericVector
 
-#define MAX_NEAREST_DIST  600    //for block skew stats
+#include "allheaders.h"         // for pixDestroy, pixGetHeight, boxCreate
+
+#include <cfloat>               // for FLT_MAX
+#include <cmath>                // for ceil, floor, M_PI
+#include <cstdint>              // for INT16_MAX, uint32_t, int32_t, int16_t
 
 namespace tesseract {
+
+#define MAX_NEAREST_DIST  600    //for block skew stats
 
 CLISTIZE(WordWithBox)
 
@@ -881,8 +883,6 @@ void Textord::TransferDiacriticsToWords(BLOBNBOX_LIST* diacritic_blobs,
   }
 }
 
-}  // tesseract
-
 /**********************************************************************
  * tweak_row_baseline
  *
@@ -990,3 +990,5 @@ void tweak_row_baseline(ROW *row,
                                  //turn to spline
   row->baseline = QSPLINE(dest_index, &xstarts[0], &coeffs[0]);
 }
+
+} // namespace tesseract

@@ -17,18 +17,23 @@
  **********************************************************************/
 
 #include "boxread.h"
+
+#include "errcode.h"        // for ERRCODE, TESSEXIT
+#include "fileerr.h"        // for CANTOPENFILE
+#include "rect.h"           // for TBOX
+#include "tprintf.h"        // for tprintf
+
+#include <tesseract/genericvector.h>  // for GenericVector
+#include <tesseract/helpers.h>        // for chomp_string
+#include <tesseract/strngs.h>         // for STRING
+#include <tesseract/unichar.h>        // for UNICHAR
+
 #include <cstring>          // for strchr, strcmp
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
 #include <string>           // for std::string
-#include "errcode.h"        // for ERRCODE, TESSEXIT
-#include "fileerr.h"        // for CANTOPENFILE
-#include <tesseract/genericvector.h>  // for GenericVector
-#include <tesseract/helpers.h>        // for chomp_string
-#include "rect.h"           // for TBOX
-#include <tesseract/strngs.h>         // for STRING
-#include "tprintf.h"        // for tprintf
-#include <tesseract/unichar.h>        // for UNICHAR
+
+namespace tesseract {
 
 // Special char code used to identify multi-blob labels.
 static const char* kMultiBlobLabelCode = "WordStr";
@@ -255,3 +260,5 @@ void MakeBoxFileStr(const char* unichar_str, const TBOX& box, int page_num,
   box_str->add_str_int(" ", box.top());
   box_str->add_str_int(" ", page_num);
 }
+
+} // namespace tesseract

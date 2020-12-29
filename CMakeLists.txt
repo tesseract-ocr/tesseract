@@ -138,6 +138,8 @@ endif()
 if ("${CMAKE_CXX14_STANDARD_COMPILE_OPTION}" STREQUAL "-std=c++1y")
   set(CMAKE_CXX_STANDARD 11)
 endif()
+# temporarily
+set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -364,12 +366,6 @@ set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/inclu
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/tesseract/version.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/version.h @ONLY)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/tesseract.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/libtesseract.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc @ONLY)
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
@@ -440,20 +436,6 @@ include_directories(${LibArchive_INCLUDE_DIRS})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
-include_directories(include)
-include_directories(src/arch)
-include_directories(src/ccmain)
-include_directories(src/ccstruct)
-include_directories(src/ccutil)
-include_directories(src/classify)
-include_directories(src/cutil)
-include_directories(src/dict)
-include_directories(src/lstm)
-include_directories(src/opencl)
-include_directories(src/textord)
-include_directories(src/viewer)
-include_directories(src/wordrec)
-include_directories(src/training)
 if(ANDROID_TOOLCHAIN)
   include_directories(${ANDROID_TOOLCHAIN}/sysroot/usr/include)
   add_compile_definitions(__ANDROID_API_FUTURE__)
@@ -619,17 +601,29 @@ set(tesseract_src ${tesseract_src}
     src/api/wordstrboxrenderer.cpp
 )
 
-if (WIN32 AND MSVC)
-    include_directories(src/vs2010/tesseract)
-    set(tesseract_hdr
-        ${tesseract_hdr}
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/resource.h)
-    set(tesseract_rsc ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
-endif()
+set(libtessfiles ${tesseract_src} ${arch_files} ${arch_files_opt} ${tesseract_hdr})
 
-add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${arch_files}
-    ${arch_files_opt} ${tesseract_hdr} ${tesseract_rsc}
-    )
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${libtessfiles})
+
+add_library                     (libtesseract ${LIBRARY_TYPE} ${libtessfiles})
+target_include_directories      (libtesseract
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE src
+
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/arch>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/ccmain>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/ccstruct>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/ccutil>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/classify>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/cutil>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/dict>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/lstm>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/opencl>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/textord>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/viewer>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/wordrec>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/training>
+)
 if (NOT STATIC)
 target_compile_definitions      (libtesseract
     PRIVATE -DTESS_EXPORTS
@@ -675,12 +669,7 @@ endif()
 # EXECUTABLE tesseractmain
 ########################################
 
-set(tesseractmain_src src/api/tesseractmain.cpp)
-if (MSVC)
-    set(tesseractmain_rsc ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/tesseract.rc)
-endif()
-
-add_executable                  (tesseract ${tesseractmain_src} ${tesseractmain_rsc})
+add_executable                  (tesseract src/api/tesseractmain.cpp)
 target_link_libraries           (tesseract libtesseract)
 if (HAVE_TIFFIO_H)
     target_link_libraries(tesseract tiff)

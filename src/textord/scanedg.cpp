@@ -18,10 +18,13 @@
 
 #include "scanedg.h"
 
-#include <memory>  // std::unique_ptr
+#include "edgloop.h"
 
 #include "allheaders.h"
-#include "edgloop.h"
+
+#include <memory>  // std::unique_ptr
+
+namespace tesseract {
 
 #define WHITE_PIX     1          /*thresholded colours */
 #define BLACK_PIX     0
@@ -367,3 +370,5 @@ void free_crackedges(CRACKEDGE *start) {
     delete current;              // delete them all
   }
 }
+
+} // namespace tesseract

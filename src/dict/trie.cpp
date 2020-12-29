@@ -652,7 +652,7 @@ void Trie::sort_edges(EDGE_VECTOR *edges) {
   }
   sort_vec.sort();
   for (int i = 0; i < num_edges; ++i)
-    (*edges)[i] = sort_vec[i].data;
+    (*edges)[i] = sort_vec[i].data();
 }
 
 void Trie::reduce_node_input(NODE_REF node,

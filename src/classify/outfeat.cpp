@@ -14,9 +14,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
+
 #include "outfeat.h"
 
 #include "classify.h"
@@ -26,11 +24,12 @@
 
 #include <cstdio>
 
+namespace tesseract {
+
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-namespace tesseract {
+
 /**
  * Convert each segment in the outline to a feature
  * and return the features.
@@ -62,7 +61,6 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
   FreeOutlines(Outlines);
   return (FeatureSet);
 }                                /* ExtractOutlineFeatures */
-}  // namespace tesseract
 
 /*----------------------------------------------------------------------------
               Private Code
@@ -166,3 +164,5 @@ void NormalizeOutlineX(FEATURE_SET FeatureSet) {
     Feature->Params[OutlineFeatX] -= Origin;
   }
 }                                /* NormalizeOutlineX */
+
+}  // namespace tesseract

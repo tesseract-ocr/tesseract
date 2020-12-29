@@ -16,16 +16,20 @@
  *
  **********************************************************************/
 
-#include "allheaders.h"
-#include "pdblock.h"
-#include <cstdlib>
-#include <memory>  // std::unique_ptr
-#include <cinttypes>  // for PRId32
-
-// Include automatically generated configuration file if running autoconf.
+ // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+
+#include "pdblock.h"
+
+#include "allheaders.h"
+
+#include <cstdlib>
+#include <cinttypes>  // for PRId32
+#include <memory>  // std::unique_ptr
+
+namespace tesseract {
 
 #define BLOCK_LABEL_HEIGHT  150  //char height of block id
 
@@ -379,3 +383,5 @@ int16_t BLOCK_LINE_IT::get_line(             //get a line
   LOSTBLOCKLINE.error ("BLOCK_LINE_IT::get_line", ABORT, "Y=%d", y);
   return 0;                      //dummy to stop warning
 }
+
+} // namespace tesseract

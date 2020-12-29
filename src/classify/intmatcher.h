@@ -18,6 +18,9 @@
 #define   INTMATCHER_H
 
 #include "params.h"
+#include "intproto.h"
+
+namespace tesseract {
 
 // Character fragments could be present in the trained templaes
 // but turned on/off on the language-by-language basis or depending
@@ -30,15 +33,7 @@ extern BOOL_VAR_H(disable_character_fragments, false,
 extern INT_VAR_H(classify_integer_matcher_multiplier, 10,
                  "Integer Matcher Multiplier  0-255:   ");
 
-
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
-#include "intproto.h"
-
-namespace tesseract {
 struct UnicharRating;
-}
 
 struct CP_RESULT_STRUCT {
   CP_RESULT_STRUCT() : Rating(0.0f), Class(0) {}
@@ -164,5 +159,7 @@ class IntegerMatcher {
   uint32_t table_trunc_shift_bits_;
   uint32_t evidence_mult_mask_;
 };
+
+} // namespace tesseract
 
 #endif

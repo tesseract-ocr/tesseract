@@ -24,10 +24,10 @@
 
 #include <tesseract/platform.h>
 
+namespace tesseract {
+
 class STATS;
 class UNICHARSET;
-
-namespace tesseract {
 
 // Helper sets the character attribute properties and sets up the script table.
 // Does not set tops and bottoms.

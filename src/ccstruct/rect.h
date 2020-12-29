@@ -20,14 +20,18 @@
 #ifndef RECT_H
 #define RECT_H
 
+#include "points.h"            // for ICOORD, FCOORD
+#include "scrollview.h"        // for ScrollView, ScrollView::Color
+#include "tprintf.h"           // for tprintf
+
+#include <tesseract/platform.h>          // for DLLSYM
+
 #include <algorithm>           // for std::max, std::min
 #include <cmath>               // for std::ceil, std::floor
 #include <cstdint>             // for INT16_MAX
 #include <cstdio>              // for FILE
-#include <tesseract/platform.h>          // for DLLSYM
-#include "points.h"            // for ICOORD, FCOORD
-#include "scrollview.h"        // for ScrollView, ScrollView::Color
-#include "tprintf.h"           // for tprintf
+
+namespace tesseract {
 
 #undef max
 #undef min
@@ -504,5 +508,7 @@ inline double TBOX::y_overlap_fraction(const TBOX& other) const {
     return std::max(0.0, static_cast<double>(high - low) / height);
   }
 }
+
+}  // namespace tesseract
 
 #endif

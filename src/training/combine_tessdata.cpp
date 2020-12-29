@@ -17,10 +17,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <cerrno>
 #include "commontraining.h"     // CheckSharedLibraryVersion
 #include "lstmrecognizer.h"
 #include "tessdatamanager.h"
+
+#include <cerrno>
+
+using namespace tesseract;
 
 // Main program to combine/extract/overwrite tessdata components
 // in [lang].traineddata files.

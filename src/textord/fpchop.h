@@ -22,7 +22,9 @@
 #include          "params.h"
 #include          "blobbox.h"
 
-class C_OUTLINE_FRAG:public ELIST_LINK
+namespace tesseract {
+
+class C_OUTLINE_FRAG : public ELIST_LINK
 {
   public:
     C_OUTLINE_FRAG() {  //empty constructor
@@ -129,4 +131,7 @@ void join_segments(                         //join pieces
                    C_OUTLINE_FRAG *bottom,  //bottom of cut
                    C_OUTLINE_FRAG *top      //top of cut
                   );
+
+} // namespace tesseract
+
 #endif

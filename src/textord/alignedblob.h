@@ -23,16 +23,17 @@
 
 #include "bbgrid.h"
 #include "blobbox.h"
-#include <tesseract/strngs.h>
 #include "tabvector.h"
+
+#include <tesseract/strngs.h>
+
+namespace tesseract {
 
 extern INT_VAR_H(textord_debug_bugs, 0,
                  "Turn on output related to bugs in tab finding");
 extern INT_VAR_H(textord_debug_tabfind, 2, "Debug tab finding");
 extern BOOL_VAR_H(textord_debug_printable, false,
                   "Make debug windows printable");
-
-namespace tesseract {
 
 // Simple structure to hold the search parameters for AlignedBlob.
 // The members are mostly derived from constants, which are

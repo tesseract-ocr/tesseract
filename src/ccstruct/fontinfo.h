@@ -17,19 +17,20 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-
 #ifndef TESSERACT_CCSTRUCT_FONTINFO_H_
 #define TESSERACT_CCSTRUCT_FONTINFO_H_
 
-#include <cstdint>         // for uint16_t, uint32_t
-#include <cstdio>          // for FILE
 #include "errcode.h"
+
 #include <tesseract/genericvector.h>
 #include <tesseract/unichar.h>
 
-template <typename T> class UnicityTable;
+#include <cstdint>         // for uint16_t, uint32_t
+#include <cstdio>          // for FILE
 
 namespace tesseract {
+
+template <typename T> class UnicityTable;
 
 // Simple struct to hold a font and a score. The scores come from the low-level
 // integer matcher, so they are in the uint16_t range. Fonts are an index to

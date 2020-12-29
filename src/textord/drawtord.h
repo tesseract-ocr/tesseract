@@ -24,6 +24,8 @@
 #include          "pitsync1.h"
 #include          "blobbox.h"
 
+namespace tesseract {
+
 #define NO_SMD        "none"
 
 extern BOOL_VAR_H (textord_show_fixed_cuts, false,
@@ -95,4 +97,7 @@ void plot_row_cells(                       //draw words
                     float xshift,          //amount of shift
                     ICOORDELT_LIST *cells  //cells to draw
                    );
+
+} // namespace tesseract
+
 #endif

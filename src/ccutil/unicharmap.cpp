@@ -16,9 +16,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <tesseract/unichar.h>
 #include "unicharmap.h"
+
+#include <tesseract/unichar.h>
+
+#include <cassert>
+
+namespace tesseract {
 
 UNICHARMAP::UNICHARMAP() :
 nodes(nullptr) {
@@ -126,3 +130,6 @@ id(-1) {
 UNICHARMAP::UNICHARMAP_NODE::~UNICHARMAP_NODE() {
   delete[] children;
 }
+
+} // namespace tesseract
+

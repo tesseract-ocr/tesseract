@@ -16,15 +16,19 @@
  ** limitations under the License.
  *
  *****************************************************************************/
+
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "render.h"
+
 #include "blobs.h"
 
 #include <cmath>
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
+namespace tesseract {
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
@@ -125,3 +129,5 @@ void render_outline(ScrollView* window, TESSLINE* outline,
 }
 
 #endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract

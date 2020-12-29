@@ -74,6 +74,8 @@ class Classify : public CCStruct {
 #include "ocrfeatures.h"
 #include "unicity_table.h"
 
+namespace tesseract {
+
 class ScrollView;
 class WERD_CHOICE;
 class WERD_RES;
@@ -82,8 +84,6 @@ struct NORM_PROTOS;
 
 static const int kUnknownFontinfoId = -1;
 static const int kBlankFontinfoId = -2;
-
-namespace tesseract {
 
 class ShapeClassifier;
 struct ShapeRating;
@@ -575,7 +575,8 @@ class Classify : public CCStruct {
  public:
   bool EnableLearning = true;
 };
-}  // namespace tesseract
+
+} // namespace tesseract
 
 #endif  // DISABLED_LEGACY_ENGINE
 

@@ -27,6 +27,8 @@
 
 #include <memory>
 
+namespace tesseract {
+
 #define BUCKETSIZE      16
 
 class OL_BUCKETS
@@ -92,4 +94,7 @@ bool capture_children(                       //find children
         C_BLOB_IT* reject_it,  //dead grandchildren
         C_OUTLINE_IT* blob_it  //output outlines
 );
+
+} // namespace tesseract
+
 #endif

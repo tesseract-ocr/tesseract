@@ -22,11 +22,15 @@
 #ifndef FIXSPACE_H
 #define FIXSPACE_H
 
+namespace tesseract {
+
 class WERD_RES;
 class WERD_RES_LIST;
 
 void initialise_search(WERD_RES_LIST &src_list, WERD_RES_LIST &new_list);
 void transform_to_next_perm(WERD_RES_LIST &words);
 void fixspace_dbg(WERD_RES *word);
+
+} // namespace tesseract
 
 #endif

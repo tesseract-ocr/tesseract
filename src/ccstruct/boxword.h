@@ -20,16 +20,17 @@
 #ifndef TESSERACT_CSTRUCT_BOXWORD_H_
 #define TESSERACT_CSTRUCT_BOXWORD_H_
 
-#include <functional>       // for std::function
-#include <tesseract/genericvector.h>  // for GenericVector
 #include "rect.h"           // for TBOX
+
+#include <tesseract/genericvector.h>  // for GenericVector
+
+#include <functional>       // for std::function
+
+namespace tesseract {
 
 class BLOCK;
 class WERD;
-
 struct TWERD;
-
-namespace tesseract {
 
 // Class to hold an array of bounding boxes for an output word and
 // the bounding box of the whole word.

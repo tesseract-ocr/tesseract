@@ -16,9 +16,12 @@
  *
  **********************************************************************/
 
+#include "pitsync1.h"
+
 #include <cfloat>      // for FLT_MAX
 #include <cmath>
-#include "pitsync1.h"
+
+namespace tesseract {
 
 ELISTIZE (FPSEGPT) CLISTIZE (FPSEGPT_LIST)
 
@@ -415,3 +418,5 @@ void make_illegal_segment(                          //find segmentation
       delete segpt;
   }
 }
+
+} // namespace tesseract

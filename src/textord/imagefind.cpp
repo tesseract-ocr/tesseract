@@ -22,6 +22,7 @@
 #endif
 
 #include "imagefind.h"
+
 #include "colpartitiongrid.h"
 #include "linlsq.h"
 #include "statistc.h"
@@ -31,9 +32,9 @@
 
 #include <algorithm>
 
-static INT_VAR(textord_tabfind_show_images, false, "Show image blobs");
-
 namespace tesseract {
+
+static INT_VAR(textord_tabfind_show_images, false, "Show image blobs");
 
 // Fraction of width or height of on pixels that can be discarded from a
 // roughly rectangular image.
@@ -1361,6 +1362,5 @@ void ImageFind::FindImagePartitions(Pix* image_pix, const FCOORD& rotation,
   }
 #endif
 }
-
 
 }  // namespace tesseract.

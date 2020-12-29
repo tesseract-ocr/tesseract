@@ -19,23 +19,21 @@
 #include "config_auto.h"
 #endif
 
-/*----------------------------------------------------------------------------
-                          Include Files and Type Defines
-----------------------------------------------------------------------------*/
 #include "intmatcher.h"
 
-#include <cassert>
-#include <cmath>
 #include "fontinfo.h"
 #include "intproto.h"
 #include "scrollview.h"
 #include "float2int.h"
-#include <tesseract/helpers.h>
 #include "classify.h"
 #include "shapetable.h"
 
-using tesseract::ScoredFont;
-using tesseract::UnicharRating;
+#include <tesseract/helpers.h>
+
+#include <cassert>
+#include <cmath>
+
+namespace tesseract {
 
 /*----------------------------------------------------------------------------
                     Global Data Definitions and Declarations
@@ -85,8 +83,6 @@ static const uint8_t next_table[] = {
 };
 
 // See http://b/19318793 (#6) for a complete discussion.
-
-namespace tesseract {
 
 /**
  * Sort Key array in ascending order using heap sort
@@ -489,8 +485,6 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
   // Convert to the expected output format.
   return pruner.SetupResults(results);
 }
-
-}  // namespace tesseract
 
 /**
  * IntegerMatcher returns the best configuration and rating
@@ -1231,3 +1225,5 @@ float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
   return divisor == 0 ? 1.0f : (rating * blob_length +
       matcher_multiplier * normalization_factor / 256.0f) / divisor;
 }
+
+}  // namespace tesseract

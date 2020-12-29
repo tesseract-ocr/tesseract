@@ -21,6 +21,8 @@
 
 #include "errcode.h"    //must be last include
 
+namespace tesseract {
+
 constexpr ERRCODE DONT_CONSTRUCT_LIST_BY_COPY(
 "Can't create a list by assignment");
 constexpr ERRCODE DONT_ASSIGN_LISTS("Can't assign to lists");
@@ -40,4 +42,7 @@ constexpr ERRCODE STILL_LINKED(
     "Attempting to add an element with non nullptr links, to a list");
 
 #endif  // !NDEBUG
+
+} // namespace tesseract
+
 #endif  // TESSERACT_CCUTIL_LSTERR_H_

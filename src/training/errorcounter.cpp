@@ -17,9 +17,6 @@
 #include "config_auto.h"
 #endif
 
-#include <algorithm>
-#include <ctime>
-
 #include "errorcounter.h"
 
 #include "fontinfo.h"
@@ -29,6 +26,9 @@
 #include "trainingsample.h"
 #include "trainingsampleset.h"
 #include "unicity_table.h"
+
+#include <algorithm>
+#include <ctime>
 
 namespace tesseract {
 

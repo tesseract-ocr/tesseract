@@ -32,6 +32,8 @@
 #include "intproto.h"
 #include "params.h"
 
+using namespace tesseract;
+
 /*-------------------once in subfeat---------------------------------*/
 static double_VAR(training_angle_match_scale, 1.0, "Angle Match Scale ...");
 

@@ -21,20 +21,21 @@
 #define TESSERACT_TEXTORD_BASELINEDETECT_H_
 
 #include "detlinefit.h"
-#include <tesseract/genericvector.h>
 #include "points.h"
 #include "rect.h"
+
+#include <tesseract/genericvector.h>
 #include <tesseract/strngs.h>
 
-class BLOBNBOX_LIST;
-class TO_BLOCK;
-class TO_BLOCK_LIST;
-class TO_ROW;
 struct Pix;
 
 namespace tesseract {
 
 class Textord;
+class BLOBNBOX_LIST;
+class TO_BLOCK;
+class TO_BLOCK_LIST;
+class TO_ROW;
 
 // Class to compute and hold baseline data for a TO_ROW.
 class BaselineRow {

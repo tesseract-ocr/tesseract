@@ -13,14 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <sstream>  // for std::stringstream
-#include <tesseract/baseapi.h>
 #ifdef _WIN32
 # include "host.h"    // windows.h for MultiByteToWideChar, ...
 #endif
+
+#include <tesseract/baseapi.h>
 #include <tesseract/renderer.h>
 #include <tesseract/strngs.h> // for STRING
+
+#include <memory>
+#include <sstream>  // for std::stringstream
 
 namespace tesseract {
 

@@ -22,12 +22,15 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include <tesseract/genericvector.h>
 #include "matchdefs.h"
 #include "mfoutline.h"
 #include "protos.h"
 #include "scrollview.h"
 #include "unicharset.h"
+
+#include <tesseract/genericvector.h>
+
+namespace tesseract {
 
 class FCOORD;
 
@@ -236,13 +239,9 @@ void free_int_templates(INT_TEMPLATES templates);
 
 void ShowMatchDisplay();
 
-namespace tesseract {
-
 // Clears the given window and draws the featurespace guides for the
 // appropriate normalization method.
 void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView* window);
-
-}  // namespace tesseract.
 
 /*----------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
@@ -259,5 +258,7 @@ void InitFeatureDisplayWindowIfReqd();
 // in feature space.
 ScrollView* CreateFeatureSpaceWindow(const char* name, int xpos, int ypos);
 #endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract
 
 #endif

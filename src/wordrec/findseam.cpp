@@ -233,7 +233,7 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
     prioritize_points(outline, &point_heap);
 
   while (!point_heap.empty() && num_points < MAX_NUM_POINTS) {
-    points[num_points++] = point_heap.PeekTop().data;
+    points[num_points++] = point_heap.PeekTop().data();
     point_heap.Pop(nullptr);
   }
 

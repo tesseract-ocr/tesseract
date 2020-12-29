@@ -18,12 +18,11 @@
 #ifndef OUTFEAT_H
 #define OUTFEAT_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "ocrfeatures.h"
 #include "fpoint.h"
 #include "mfoutline.h"
+
+namespace tesseract {
 
 typedef enum {
   OutlineFeatX,
@@ -44,5 +43,7 @@ void AddOutlineFeatureToSet(FPOINT *Start,
 void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet);
 
 void NormalizeOutlineX(FEATURE_SET FeatureSet);
+
+} // namespace tesseract
 
 #endif

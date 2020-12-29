@@ -50,10 +50,7 @@
 #include "tprintf.h"
 #include "unicity_table.h"
 
-using tesseract::IndexMapBiDi;
-using tesseract::MasterTrainer;
-using tesseract::Shape;
-using tesseract::ShapeTable;
+using namespace tesseract;
 
 /*----------------------------------------------------------------------------
             Public Code

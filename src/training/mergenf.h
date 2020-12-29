@@ -54,23 +54,23 @@ typedef struct {
 /**----------------------------------------------------------------------------
      Public Function Prototypes
 ----------------------------------------------------------------------------**/
-float CompareProtos(PROTO p1, PROTO p2);
+float CompareProtos(tesseract::PROTO p1, tesseract::PROTO p2);
 
-void ComputeMergedProto(PROTO p1, PROTO p2, float w1, float w2,
-                        PROTO MergedProto);
+void ComputeMergedProto(tesseract::PROTO p1, tesseract::PROTO p2, float w1, float w2,
+                        tesseract::PROTO MergedProto);
 
-int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
-                             PROTOTYPE* Prototype);
+int FindClosestExistingProto(tesseract::CLASS_TYPE Class, int NumMerged[],
+                             tesseract::PROTOTYPE* Prototype);
 
-void MakeNewFromOld(PROTO New, PROTOTYPE* Old);
+void MakeNewFromOld(tesseract::PROTO New, tesseract::PROTOTYPE* Old);
 
-float SubfeatureEvidence(FEATURE Feature, PROTO Proto);
+float SubfeatureEvidence(tesseract::FEATURE Feature, tesseract::PROTO Proto);
 
 double EvidenceOf(double Similarity);
 
-bool DummyFastMatch(FEATURE Feature, PROTO Proto);
+bool DummyFastMatch(tesseract::FEATURE Feature, tesseract::PROTO Proto);
 
-void ComputePaddedBoundingBox(PROTO Proto, float TangentPad,
+void ComputePaddedBoundingBox(tesseract::PROTO Proto, float TangentPad,
                               float OrthogonalPad, FRECT* BoundingBox);
 
 bool PointInside(FRECT* Rectangle, float X, float Y);

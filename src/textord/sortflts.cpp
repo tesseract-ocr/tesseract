@@ -18,6 +18,8 @@
 
 #include          "sortflts.h"
 
+namespace tesseract {
+
 ELISTIZE (SORTED_FLOAT)
 /**
  * @name SORTED_FLOATS::add
@@ -75,3 +77,5 @@ int32_t index                      //to list
   it.move_to_first ();
   return it.data_relative (index)->entry;
 }
+
+} // namespace tesseract

@@ -22,9 +22,7 @@
  **********************************************************************/
 
 #include "pageres.h"
-#include <cassert>         // for assert
-#include <cstdint>         // for INT32_MAX
-#include <cstring>         // for strlen
+
 #include "blamer.h"        // for BlamerBundle
 #include "blobs.h"         // for TWERD, TBLOB
 #include "boxword.h"       // for BoxWord
@@ -33,12 +31,19 @@
 #include "ocrrow.h"        // for ROW, ROW_IT
 #include "pdblock.h"       // for PDBLK
 #include "polyblk.h"       // for POLY_BLOCK
-#include <tesseract/publictypes.h>   // for OcrEngineMode, OEM_LSTM_ONLY
 #include "seam.h"          // for SEAM, start_seam_list
 #include "stepblob.h"      // for C_BLOB_IT, C_BLOB, C_BLOB_LIST
 #include "tprintf.h"       // for tprintf
 
+#include <tesseract/publictypes.h>   // for OcrEngineMode, OEM_LSTM_ONLY
+
+#include <cassert>         // for assert
+#include <cstdint>         // for INT32_MAX
+#include <cstring>         // for strlen
+
 struct Pix;
+
+namespace tesseract {
 
 ELISTIZE (BLOCK_RES)
 CLISTIZE (BLOCK_RES) ELISTIZE (ROW_RES) ELISTIZE (WERD_RES)
@@ -1680,3 +1685,5 @@ void PAGE_RES_IT::rej_stat_word() {
   if (chars_in_word == rejects_in_word)
     row_res->whole_word_rej_count += rejects_in_word;
 }
+
+} // namespace tesseract

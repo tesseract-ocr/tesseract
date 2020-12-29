@@ -20,9 +20,12 @@
 #include "config_auto.h"
 #endif
 
+#include          "drawtord.h"
+
 #include          "pithsync.h"
 #include          "topitch.h"
-#include          "drawtord.h"
+
+namespace tesseract {
 
 #define TO_WIN_XPOS     0       //default window pos
 #define TO_WIN_YPOS     0
@@ -416,3 +419,5 @@ void plot_row_cells(                       //draw words
 }
 
 #endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract

@@ -19,14 +19,18 @@
 #ifndef TESSERACT_CCUTIL_UNICHARSET_H_
 #define TESSERACT_CCUTIL_UNICHARSET_H_
 
-#include <functional>           // for std::function
 #include "errcode.h"
+#include "unicharmap.h"
+
 #include <tesseract/genericvector.h>
 #include <tesseract/helpers.h>
 #include <tesseract/serialis.h>
 #include <tesseract/strngs.h>
 #include <tesseract/unichar.h>
-#include "unicharmap.h"
+
+#include <functional>           // for std::function
+
+namespace tesseract {
 
 // Enum holding special values of unichar_id. Every unicharset has these.
 // Warning! Keep in sync with kSpecialUnicharCodes.
@@ -1035,5 +1039,7 @@ class UNICHARSET {
   // The most frequently occurring script in the charset.
   int default_sid_;
 };
+
+} // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_UNICHARSET_H_

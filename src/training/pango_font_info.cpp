@@ -45,6 +45,8 @@
 #include "pango/pangocairo.h"
 #include "pango/pangofc-font.h"
 
+using namespace tesseract;
+
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp",
                   "Overrides fontconfig default temporary dir");
 

@@ -19,29 +19,32 @@
 -----------------------------------------------------------------------------*/
 
 #define _USE_MATH_DEFINES  // for M_PI
-#include <algorithm>
-#include <cmath>           // for M_PI, std::floor
-#include <cstdio>
-#include <cassert>
-
-#include "classify.h"
-#include "emalloc.h"
-#include "fontinfo.h"
-#include <tesseract/genericvector.h>
-#include <tesseract/helpers.h>
-#include "intproto.h"
-#include "mfoutline.h"
-#include "picofeat.h"
-#include "points.h"
-#include "shapetable.h"
-#include "svmnode.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
-using tesseract::FontSet;
+#include "intproto.h"
+
+#include "classify.h"
+#include "emalloc.h"
+#include "fontinfo.h"
+#include "mfoutline.h"
+#include "picofeat.h"
+#include "points.h"
+#include "shapetable.h"
+#include "svmnode.h"
+
+#include <tesseract/genericvector.h>
+#include <tesseract/helpers.h>
+
+#include <algorithm>
+#include <cmath>           // for M_PI, std::floor
+#include <cstdio>
+#include <cassert>
+
+namespace tesseract {
 
 /* match debug display constants*/
 #define PROTO_PRUNER_SCALE  (4.0)
@@ -75,8 +78,6 @@ typedef struct
   int16_t YInit;
   int16_t Delta;
 }
-
-
 FILL_SWITCH;
 
 typedef struct
@@ -88,8 +89,6 @@ typedef struct
   int16_t StartDelta, EndDelta;
   FILL_SWITCH Switch[MAX_NUM_SWITCHES];
 }
-
-
 TABLE_FILLER;
 
 typedef struct
@@ -98,8 +97,6 @@ typedef struct
   int8_t YStart, YEnd;
   uint8_t AngleStart, AngleEnd;
 }
-
-
 FILL_SPEC;
 
 
@@ -496,8 +493,6 @@ void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class) {
   Class->ConfigLengths[ConfigId] = TotalLength;
 }                                /* ConvertConfig */
 
-
-namespace tesseract {
 /**
  * This routine converts Proto to integer format and
  * installs it as ProtoId in Class.
@@ -591,8 +586,6 @@ INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
   }
   return (IntTemplates);
 }                                /* CreateIntTemplates */
-}  // namespace tesseract
-
 
 #ifndef GRAPHICS_DISABLED
 /**
@@ -722,8 +715,6 @@ void free_int_templates(INT_TEMPLATES templates) {
   Efree(templates);
 }
 
-
-namespace tesseract {
 /**
  * This routine reads a set of integer templates from
  * File.  File must already be open and must be in the
@@ -1091,8 +1082,6 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
                               std::bind(write_spacing_info, _1, _2));
   this->fontset_table_.write(File, std::bind(write_set, _1, _2));
 }                                /* WriteIntTemplates */
-} // namespace tesseract
-
 
 /*-----------------------------------------------------------------------------
               Private Code
@@ -1260,7 +1249,6 @@ void FillPPLinearBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
 
 /*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-namespace tesseract {
 /**
  * This routine prompts the user with Prompt and waits
  * for the user to enter something in the debug window.
@@ -1333,7 +1321,6 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
   return 0;
 }                                /* GetClassToDebug */
 
-}  // namespace tesseract
 #endif
 
 /**
@@ -1754,3 +1741,5 @@ ScrollView* CreateFeatureSpaceWindow(const char* name, int xpos, int ypos) {
   return new ScrollView(name, xpos, ypos, 520, 520, 260, 260, true);
 }
 #endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract

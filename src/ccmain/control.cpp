@@ -1007,9 +1007,9 @@ void Tesseract::AssignDiacriticsToOverlappingBlobs(
     GenericVector<bool>* overlapped_any_blob,
     GenericVector<C_BLOB*>* target_blobs) {
   GenericVector<bool> blob_wanted;
-  word_wanted->init_to_size(outlines.size(), false);
-  overlapped_any_blob->init_to_size(outlines.size(), false);
-  target_blobs->init_to_size(outlines.size(), nullptr);
+  word_wanted->resize(outlines.size(), false);
+  overlapped_any_blob->resize(outlines.size(), false);
+  target_blobs->resize(outlines.size(), nullptr);
   // For each real blob, find the outlines that seriously overlap it.
   // A single blob could be several merged characters, so there can be quite
   // a few outlines overlapping, and the full engine needs to be used to chop
@@ -1018,7 +1018,7 @@ void Tesseract::AssignDiacriticsToOverlappingBlobs(
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     C_BLOB* blob = blob_it.data();
     const TBOX blob_box = blob->bounding_box();
-    blob_wanted.init_to_size(outlines.size(), false);
+    blob_wanted.resize(outlines.size(), false);
     int num_blob_outlines = 0;
     for (int i = 0; i < outlines.size(); ++i) {
       if (blob_box.major_x_overlap(outlines[i]->bounding_box()) &&
@@ -1059,13 +1059,13 @@ void Tesseract::AssignDiacriticsToNewBlobs(
     PAGE_RES_IT* pr_it, GenericVector<bool>* word_wanted,
     GenericVector<C_BLOB*>* target_blobs) {
   GenericVector<bool> blob_wanted;
-  word_wanted->init_to_size(outlines.size(), false);
-  target_blobs->init_to_size(outlines.size(), nullptr);
+  word_wanted->resize(outlines.size(), false);
+  target_blobs->resize(outlines.size(), nullptr);
   // Check for outlines that need to be turned into stand-alone blobs.
   for (int i = 0; i < outlines.size(); ++i) {
     if (outlines[i] == nullptr) continue;
     // Get a set of adjacent outlines that don't overlap any existing blob.
-    blob_wanted.init_to_size(outlines.size(), false);
+    blob_wanted.resize(outlines.size(), false);
     int num_blob_outlines = 0;
     TBOX total_ol_box(outlines[i]->bounding_box());
     while (i < outlines.size() && outlines[i] != nullptr) {

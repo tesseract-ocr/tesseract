@@ -14,11 +14,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *****************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
 
 #include "mfx.h"
+
 #include "mfdefs.h"
 #include "mfoutline.h"
 #include "clusttool.h"          //NEEDED
@@ -26,9 +24,7 @@
 #include "normalis.h"
 #include "params.h"
 
-/*----------------------------------------------------------------------------
-          Variables
-----------------------------------------------------------------------------*/
+namespace tesseract {
 
 /* old numbers corresponded to 10.0 degrees and 80.0 degrees */
 double_VAR(classify_min_slope, 0.414213562,
@@ -152,3 +148,5 @@ MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
 
   return NewFeature;
 }                                /* ExtractMicroFeature */
+
+} // namespace tesseract
