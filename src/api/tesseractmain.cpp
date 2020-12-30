@@ -627,7 +627,7 @@ int main(int argc, char** argv) {
   static std::vector<std::string> vars_vec;
   static std::vector<std::string> vars_values;
 
-#if !defined(DEBUG)
+#if defined(NDEBUG)
   // Disable debugging and informational messages from Leptonica.
   setMsgSeverity(L_SEVERITY_ERROR);
 #endif

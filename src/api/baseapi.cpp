@@ -205,7 +205,7 @@ TessBaseAPI::TessBaseAPI()
       rect_height_(0),
       image_width_(0),
       image_height_(0) {
-#if defined(DEBUG)
+#if !defined(NDEBUG)
   // The Tesseract executables would use the "C" locale by default,
   // but other software which is linked against the Tesseract library
   // typically uses the locale from the user's environment.
