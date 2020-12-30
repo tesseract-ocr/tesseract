@@ -986,7 +986,7 @@ wordlist2dawg_LDADD += $(extralib)
 # This is used by OSS-Fuzz.
 LIB_FUZZING_ENGINE ?= -fsanitize=fuzzer
 
-fuzzer-api: all
+fuzzer-api: libtesseract.la
 fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
 	$(CXX) $(CXXFLAGS) -g $(LIB_FUZZING_ENGINE) \
           -I $(top_srcdir)/include \
