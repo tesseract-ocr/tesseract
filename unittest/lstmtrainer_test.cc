@@ -77,6 +77,7 @@ TEST_F(LSTMTrainerTest, ConvertModel) {
       file::JoinPath(TESSDATA_BEST_DIR, "fra.traineddata");
   CHECK(mgr.Init(fra_data.c_str()));
   LOG(INFO) << "Load " << fra_data  << "\n";
+  file::MakeTmpdir();
   std::string model_path = file::JoinPath(FLAGS_test_tmpdir, "fra.lstm");
   CHECK(mgr.ExtractToFile(model_path.c_str()));
   LOG(INFO) << "Extract " << model_path << "\n";

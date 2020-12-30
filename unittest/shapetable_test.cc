@@ -56,6 +56,7 @@ class ShapeTest : public testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 };
 
@@ -70,11 +71,6 @@ TEST_F(ShapeTest, BasicTest) {
   Setup352(101, &shape1);
   Expect352(101, shape1);
   // It should still work after file I/O.
-#if defined(_WIN32)
-  _mkdir(FLAGS_test_tmpdir);
-#else
-  mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
-#endif
   std::string filename = TmpNameToPath("shapefile");
   FILE* fp = fopen(filename.c_str(), "wb");
   ASSERT_TRUE(fp != nullptr);

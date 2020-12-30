@@ -28,6 +28,7 @@ class UnicharcompressTest : public ::testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
   // Loads and compresses the given unicharset.

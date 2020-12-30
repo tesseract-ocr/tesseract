@@ -44,6 +44,7 @@ class ResultIteratorTest : public testing::Test {
     return file::JoinPath(TESSDATA_DIR, "");
   }
   std::string OutputNameToPath(const std::string& name) {
+    file::MakeTmpdir();
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 

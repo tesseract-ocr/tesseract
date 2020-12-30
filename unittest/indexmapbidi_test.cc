@@ -25,6 +25,7 @@ class IndexMapBiDiTest : public testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
  public:
@@ -78,11 +79,6 @@ TEST_F(IndexMapBiDiTest, Primes) {
   IndexMap base_map;
   base_map.CopyFrom(map);
   TestPrimes(base_map);
-#if defined(_WIN32)
-  _mkdir(FLAGS_test_tmpdir);
-#else
-  mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
-#endif
   // Test file i/o too.
   std::string filename = OutputNameToPath("primesmap");
   FILE* fp = fopen(filename.c_str(), "wb");

@@ -47,12 +47,7 @@ class LSTMTrainerTest : public testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
-
-#if defined(_WIN32)
-    _mkdir(FLAGS_test_tmpdir);
-#else
-    mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
-#endif
+    file::MakeTmpdir();
   }
 
   LSTMTrainerTest() {}
