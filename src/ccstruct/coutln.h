@@ -71,10 +71,10 @@ struct EdgeOffset {
   uint8_t direction;
 };
 
-class DLLSYM C_OUTLINE;          //forward declaration
+class C_OUTLINE;          //forward declaration
 
 ELISTIZEH (C_OUTLINE)
-class DLLSYM C_OUTLINE:public ELIST_LINK {
+class C_OUTLINE:public ELIST_LINK {
  public:
   C_OUTLINE() {
     stepcount = 0;

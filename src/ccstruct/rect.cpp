@@ -193,7 +193,7 @@ bool TBOX::DeSerialize(bool swap, FILE* fp) {
  * Extend one box to include the other  (In place union)
  **********************************************************************/
 
-DLLSYM TBOX &
+TBOX &
 operator+= (                     //bounding bounding bx
 TBOX & op1,                       //operands
 const TBOX & op2) {

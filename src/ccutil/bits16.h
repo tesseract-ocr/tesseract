@@ -22,7 +22,7 @@
 #include <cstdint>    // for uint8_t, ...
 #include <tesseract/platform.h> // for DLLSYM
 
-class DLLSYM BITS16 {
+class BITS16 {
  public:
   uint16_t val = 0;
 

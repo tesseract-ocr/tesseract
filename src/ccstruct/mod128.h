@@ -28,7 +28,7 @@ namespace tesseract {
 #define DIRBITS       7          //no of bits used
 #define DIRSCALE      1000       //length of vector
 
-class DLLSYM DIR128
+class DIR128
 {
   public:
     DIR128() = default;

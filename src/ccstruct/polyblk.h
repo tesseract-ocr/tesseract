@@ -27,7 +27,7 @@
 
 namespace tesseract {
 
-class DLLSYM POLY_BLOCK {
+class POLY_BLOCK {
  public:
   POLY_BLOCK() = default;
   // Initialize from box coordinates.
@@ -91,7 +91,7 @@ class DLLSYM POLY_BLOCK {
 };
 
 // Class to iterate the scanlines of a polygon.
-class DLLSYM PB_LINE_IT {
+class PB_LINE_IT {
  public:
   PB_LINE_IT(POLY_BLOCK *blkptr) {
     block = blkptr;

@@ -18,7 +18,6 @@
 #ifndef TESSERACT_CCUTIL_PLATFORM_H_
 #define TESSERACT_CCUTIL_PLATFORM_H_
 
-#define DLLSYM
 #ifndef _WIN32
 #  ifdef __cplusplus
 #    include <climits>

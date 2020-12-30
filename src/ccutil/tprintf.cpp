@@ -37,7 +37,7 @@ namespace tesseract {
 static STRING_VAR(debug_file, "", "File to send tprintf output to");
 
 // Trace printf
-DLLSYM void tprintf(const char *format, ...)
+void tprintf(const char *format, ...)
 {
   const char* debug_file_name = debug_file.c_str();
   static FILE *debugfp = nullptr;   // debug file
