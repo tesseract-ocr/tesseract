@@ -28,7 +28,6 @@
 #include "platform.h"
 #include "publictypes.h"
 #include "resultiterator.h"
-#include "serialis.h"
 #include "thresholder.h"
 #include "unichar.h"
 
@@ -79,6 +78,10 @@ class TessResultRenderer;
 class Tesseract;
 class Trie;
 class Wordrec;
+
+// Function to read a std::vector<char> from a whole file.
+// Returns false on failure.
+using FileReader = bool (*)(const char* filename, std::vector<char>* data);
 
 using DictFunc = int (Dict::*)(void*, const UNICHARSET&, UNICHAR_ID,
                                bool) const;

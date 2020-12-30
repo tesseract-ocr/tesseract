@@ -21,7 +21,7 @@
 #include "trie.h"
 #include "unicharset.h"
 
-#include <tesseract/serialis.h>
+#include "serialis.h"
 
 using namespace tesseract;
 

@@ -21,7 +21,7 @@
 #include "errcode.h"        // for ASSERT_HOST
 
 #include <tesseract/helpers.h>        // for ReverseN
-#include <tesseract/serialis.h>       // for TFile
+#include "serialis.h"       // for TFile
 
 #include <cassert>          // for assert
 #include <cstdlib>          // for malloc, free

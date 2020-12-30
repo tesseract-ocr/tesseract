@@ -29,7 +29,7 @@
 #include "kdpair.h"     // for KDPairInc
 #include "points.h"     // for ICOORD
 
-#include <tesseract/serialis.h>   // for TFile
+#include "serialis.h"   // for TFile
 
 #include <algorithm>    // for max, min
 #include <cmath>        // for sqrt, fabs, isfinite

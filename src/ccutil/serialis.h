@@ -19,6 +19,7 @@
 #ifndef SERIALIS_H
 #define SERIALIS_H
 
+#include <tesseract/baseapi.h> // FileReader
 #include <cstdint>  // uint8_t
 #include <cstdio>
 #include <cstdlib>

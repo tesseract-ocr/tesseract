@@ -20,7 +20,7 @@
 
 #include "params.h"
 
-#include <tesseract/serialis.h>
+#include "serialis.h"
 #include <tesseract/unichar.h>
 
 #include <algorithm>

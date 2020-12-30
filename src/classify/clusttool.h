@@ -20,7 +20,7 @@
 
 #include "cluster.h"
 
-#include <tesseract/serialis.h>
+#include "serialis.h"
 
 #include <cstdio>
 

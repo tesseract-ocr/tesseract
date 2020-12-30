@@ -61,7 +61,7 @@
 
 #include "genericvector.h"      // for GenericVector
 #include <tesseract/helpers.h>            // for IntCastRounded, ClipToRange
-#include <tesseract/serialis.h>           // for TFile
+#include "serialis.h"           // for TFile
 #include "strngs.h"             // for STRING
 #include <tesseract/unichar.h>            // for UNICHAR_ID, INVALID_UNICHAR_ID
 

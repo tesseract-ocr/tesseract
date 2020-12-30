@@ -21,7 +21,7 @@
 #include "points.h"
 
 #include <tesseract/helpers.h>
-#include <tesseract/serialis.h>
+#include "serialis.h"
 
 #include <algorithm>
 #include <cmath>                // for M_PI
