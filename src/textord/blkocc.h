@@ -25,7 +25,7 @@
 
 namespace tesseract {
 
-struct C_BLOB;
+class C_BLOB;
 
 /***************************************************************************
 CLASS REGION_OCC
