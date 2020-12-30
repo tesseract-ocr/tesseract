@@ -9,14 +9,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <string>
-#include <utility>
-#include "allheaders.h"
+#include "include_gunit.h"
+
 #include "colpartitiongrid.h"
 #include "equationdetect.h"
 #include "tesseractclass.h"
-#include "include_gunit.h"
+
+#include "allheaders.h"
+
+#include <memory>
+#include <string>
+#include <utility>
 
 namespace tesseract {
 
