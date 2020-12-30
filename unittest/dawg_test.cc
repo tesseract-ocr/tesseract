@@ -9,17 +9,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cstdlib>      // for system
-#include <fstream>      // for ifstream
-#include <set>
-#include <string>
-#include <vector>
+#include "include_gunit.h"
 
 #include "ratngs.h"
 #include "unicharset.h"
 #include "trie.h"
 
-#include "include_gunit.h"
+#include <cstdlib>      // for system
+#include <fstream>      // for ifstream
+#include <set>
+#include <string>
+#include <vector>
+#include <sys/stat.h>
 
 #ifndef SW_TESTING
 #define wordlist2dawg_prog "wordlist2dawg"
