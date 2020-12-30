@@ -44,7 +44,9 @@ constexpr size_t countof(T const (&)[N]) noexcept {
 
 // Function to read a std::vector<char> from a whole file.
 // Returns false on failure.
-using FileReader = bool (*)(const char* filename, std::vector<char>* data);
+// using FileReader = bool (*)(const char* filename, std::vector<char>* data);
+// ^-- imported from baseapi.h
+
 // Function to write a std::vector<char> to a whole file.
 // Returns false on failure.
 using FileWriter = bool (*)(const std::vector<char>& data,
