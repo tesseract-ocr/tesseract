@@ -36,7 +36,6 @@
 #include <vector>     // for std::vector
 
 struct Pix;
-struct Box;
 struct Pixa;
 struct Boxa;
 
