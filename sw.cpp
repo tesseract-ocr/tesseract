@@ -223,6 +223,9 @@ void build(Solution &s)
             ;
     }
 
+    if (!s.getExternalVariables()["with-tests"])
+        return;
+
     auto &test = tess.addDirectory("test");
     test.Scope = TargetScope::Test;
 
