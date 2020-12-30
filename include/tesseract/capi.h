@@ -58,8 +58,6 @@ typedef tesseract::ImageThresholder TessImageThresholder;
 typedef tesseract::PageIteratorLevel TessPageIteratorLevel;
 typedef tesseract::DictFunc TessDictFunc;
 typedef tesseract::ProbabilityInContextFunc TessProbabilityInContextFunc;
-// typedef tesseract::ParamsModelClassifyFunc TessParamsModelClassifyFunc;
-typedef tesseract::FillLatticeFunc TessFillLatticeFunc;
 typedef tesseract::Dawg TessDawg;
 typedef tesseract::Orientation TessOrientation;
 typedef tesseract::ParagraphJustification TessParagraphJustification;

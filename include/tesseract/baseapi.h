@@ -80,10 +80,6 @@ using DictFunc = int (Dict::*)(void*, const UNICHARSET&, UNICHAR_ID,
                                bool) const;
 using ProbabilityInContextFunc = double (Dict::*)(const char*, const char*, int,
                                                   const char*, int);
-using ParamsModelClassifyFunc = float (Dict::*)(const char*, void*);
-using FillLatticeFunc = void (Wordrec::*)(const MATRIX&,
-                                          const WERD_CHOICE_LIST&,
-                                          const UNICHARSET&, BlamerBundle*);
 
 /**
  * Base class for all tesseract APIs.
