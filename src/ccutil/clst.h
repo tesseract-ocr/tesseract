@@ -877,22 +877,28 @@ CLISTIZEH_C.
                                                                              \
     CLASSNAME##_C_IT(CLASSNAME##_CLIST *list) : CLIST_ITERATOR(list) {}      \
                                                                              \
-    CLASSNAME *data() { return (CLASSNAME *)CLIST_ITERATOR::data(); }        \
-                                                                             \
-    CLASSNAME *data_relative(int8_t offset) {                                  \
-      return (CLASSNAME *)CLIST_ITERATOR::data_relative(offset);             \
+    CLASSNAME* data() {                                                      \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::data());                \
     }                                                                        \
                                                                              \
-    CLASSNAME *forward() { return (CLASSNAME *)CLIST_ITERATOR::forward(); }  \
-                                                                             \
-    CLASSNAME *extract() { return (CLASSNAME *)CLIST_ITERATOR::extract(); }  \
-                                                                             \
-    CLASSNAME *move_to_first() {                                             \
-      return (CLASSNAME *)CLIST_ITERATOR::move_to_first();                   \
+    CLASSNAME* data_relative(int8_t offset) {                                \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::data_relative(offset)); \
     }                                                                        \
                                                                              \
-    CLASSNAME *move_to_last() {                                              \
-      return (CLASSNAME *)CLIST_ITERATOR::move_to_last();                    \
+    CLASSNAME* forward() {                                                   \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::forward());             \
+    }                                                                        \
+                                                                             \
+    CLASSNAME* extract() {                                                   \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::extract());             \
+    }                                                                        \
+                                                                             \
+    CLASSNAME* move_to_first() {                                             \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::move_to_first());       \
+    }                                                                        \
+                                                                             \
+    CLASSNAME* move_to_last() {                                              \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::move_to_last());        \
     }                                                                        \
   };
 
@@ -923,7 +929,7 @@ CLISTIZEH_C.
   DLLSYM void CLASSNAME##_c1_zapper(            /*delete a link*/            \
                                     void *link) /*link to delete*/           \
   {                                                                          \
-    delete (CLASSNAME *)link;                                                \
+    delete static_cast<CLASSNAME*>(link);                                    \
   }
 
 } // namespace tesseract

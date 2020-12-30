@@ -41,11 +41,7 @@ TEST(LangModelTest, AddACharacter) {
   UNICHARSET unicharset;
   EXPECT_TRUE(unicharset.load_from_file(unicharset_path.c_str()));
   std::string version_str = "TestVersion";
-#if defined(_WIN32)
-  _mkdir(FLAGS_test_tmpdir);
-#else
-  mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
-#endif
+  file::MakeTmpdir();
   std::string output_dir = FLAGS_test_tmpdir;
   LOG(INFO) << "Output dir=" << output_dir << "\n";
   std::string lang1 = "eng";
@@ -137,11 +133,7 @@ TEST(LangModelTest, AddACharacterHindi) {
   UNICHARSET unicharset;
   EXPECT_TRUE(unicharset.load_from_file(unicharset_path.c_str()));
   std::string version_str = "TestVersion";
-#if defined(_WIN32)
-  _mkdir(FLAGS_test_tmpdir);
-#else
-  mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
-#endif
+  file::MakeTmpdir();
   std::string output_dir = FLAGS_test_tmpdir;
   LOG(INFO) << "Output dir=" << output_dir << "\n";
   std::string lang1 = "hin";

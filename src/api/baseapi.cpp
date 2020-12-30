@@ -893,40 +893,6 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   return result;
 }
 
-#ifndef DISABLED_LEGACY_ENGINE
-/** Tests the chopper by exhaustively running chop_one_blob. */
-int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
-  if (tesseract_ == nullptr)
-    return -1;
-  if (thresholder_ == nullptr || thresholder_->IsEmpty()) {
-    tprintf("Please call SetImage before attempting recognition.\n");
-    return -1;
-  }
-  if (page_res_ != nullptr)
-    ClearResults();
-  if (FindLines() != 0)
-    return -1;
-  // Additional conditions under which chopper test cannot be run
-  if (tesseract_->interactive_display_mode) return -1;
-
-  recognition_done_ = true;
-
-  page_res_ = new PAGE_RES(false, block_list_,
-                           &(tesseract_->prev_word_best_choice_));
-
-  PAGE_RES_IT page_res_it(page_res_);
-
-  while (page_res_it.word() != nullptr) {
-    WERD_RES *word_res = page_res_it.word();
-    std::vector<TBOX> boxes;
-    tesseract_->MaximallyChopWord(boxes, page_res_it.block()->block,
-                                  page_res_it.row()->row, word_res);
-    page_res_it.forward();
-  }
-  return 0;
-}
-#endif  // ndef DISABLED_LEGACY_ENGINE
-
 // Takes ownership of the input pix.
 void TessBaseAPI::SetInputImage(Pix* pix) { tesseract_->set_pix_original(pix); }
 

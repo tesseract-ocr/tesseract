@@ -35,6 +35,7 @@ class DawgTest : public testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
   void LoadWordlist(const std::string& filename, std::set<std::string>* words) const {
@@ -74,11 +75,6 @@ class DawgTest : public testing::Test {
     std::string orig_wordlist = file::JoinPath(TESTING_DIR, wordlist_filename);
     std::string output_dawg = OutputNameToPath(wordlist_filename + ".dawg");
     std::string output_wordlist = OutputNameToPath(wordlist_filename);
-#if defined(_WIN32)
-    _mkdir(FLAGS_test_tmpdir);
-#else
-    mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
-#endif
     LoadWordlist(orig_wordlist, &orig_words);
     EXPECT_EQ(
         RunCommand(wordlist2dawg_prog, orig_wordlist, output_dawg, unicharset), 0);

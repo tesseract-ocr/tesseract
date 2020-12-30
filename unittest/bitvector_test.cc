@@ -25,6 +25,7 @@ class BitVectorTest : public testing::Test {
  protected:
   void SetUp() override {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
  public:
@@ -117,11 +118,6 @@ TEST_F(BitVectorTest, Primes) {
   map3 = map;
   TestPrimes(map3);
   // Test file i/o too.
-#if defined(_WIN32)
-  _mkdir(FLAGS_test_tmpdir);
-#else
-  mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
-#endif
   std::string filename = OutputNameToPath("primesbitvector");
   FILE* fp = fopen(filename.c_str(), "wb");
   ASSERT_TRUE(fp != nullptr);
