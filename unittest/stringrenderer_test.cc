@@ -18,7 +18,6 @@
 #include "boxchar.h"
 #include "boxread.h"
 #include "commandlineflags.h"
-#include "genericvector.h"
 #include "include_gunit.h"
 #include "stringrenderer.h"
 #include "strngs.h"
@@ -227,7 +226,7 @@ TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
   std::string boxes_str = renderer_->GetBoxesStr();
   // Decode to get the box text strings.
   EXPECT_FALSE(boxes_str.empty());
-  GenericVector<STRING> texts;
+  std::vector<STRING> texts;
   EXPECT_TRUE(ReadMemBoxes(0, false, boxes_str.c_str(), false, nullptr, &texts,
                            nullptr, nullptr));
   std::string ltr_str;

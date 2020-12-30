@@ -97,7 +97,7 @@ TEST_F(ImagedataTest, CachesMultiDocs) {
   // Number of pages in each document.
   const std::vector<int> kNumPages = {6, 5, 7};
   std::vector<std::vector<std::string>> page_texts;
-  GenericVector<STRING> filenames;
+  std::vector<STRING> filenames;
   for (size_t d = 0; d < kNumPages.size(); ++d) {
     page_texts.emplace_back(std::vector<std::string>());
     std::string filename = MakeFakeDoc(kNumPages[d], d, &page_texts.back());

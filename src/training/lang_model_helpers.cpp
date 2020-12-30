@@ -34,7 +34,7 @@ namespace tesseract {
 // can do its own thing. If lang is empty, returns true but does nothing.
 // NOTE that suffix should contain any required . for the filename.
 bool WriteFile(const std::string& output_dir, const std::string& lang,
-               const std::string& suffix, const GenericVector<char>& data,
+               const std::string& suffix, const std::vector<char>& data,
                FileWriter writer) {
   if (lang.empty()) return true;
   std::string dirname = output_dir + "/" + lang;
@@ -56,7 +56,7 @@ bool WriteFile(const std::string& output_dir, const std::string& lang,
 // On failure emits a warning message and returns and empty STRING.
 STRING ReadFile(const std::string& filename, FileReader reader) {
   if (filename.empty()) return STRING();
-  GenericVector<char> data;
+  std::vector<char> data;
   bool read_result;
   if (reader == nullptr)
     read_result = LoadDataFromFile(filename.c_str(), &data);
@@ -71,7 +71,7 @@ STRING ReadFile(const std::string& filename, FileReader reader) {
 bool WriteUnicharset(const UNICHARSET& unicharset, const std::string& output_dir,
                      const std::string& lang, FileWriter writer,
                      TessdataManager* traineddata) {
-  GenericVector<char> unicharset_data;
+  std::vector<char> unicharset_data;
   TFile fp;
   fp.OpenWrite(&unicharset_data);
   if (!unicharset.save_to_file(&fp)) return false;
@@ -107,13 +107,13 @@ bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
     }
   }
   TFile fp;
-  GenericVector<char> recoder_data;
+  std::vector<char> recoder_data;
   fp.OpenWrite(&recoder_data);
   if (!recoder.Serialize(&fp)) return false;
   traineddata->OverwriteEntry(TESSDATA_LSTM_RECODER, &recoder_data[0],
                               recoder_data.size());
   STRING encoding = recoder.GetEncodingAsString(unicharset);
-  recoder_data.init_to_size(encoding.length(), 0);
+  recoder_data.resize(encoding.length(), 0);
   memcpy(&recoder_data[0], &encoding[0], encoding.length());
   STRING suffix;
   suffix.add_str_int(".charset_size=", recoder.code_range());
@@ -134,7 +134,7 @@ static bool WriteDawg(const std::vector<STRING>& words,
   std::unique_ptr<SquishedDawg> dawg(trie.trie_to_dawg());
   if (dawg == nullptr || dawg->NumEdges() == 0) return false;
   TFile fp;
-  GenericVector<char> dawg_data;
+  std::vector<char> dawg_data;
   fp.OpenWrite(&dawg_data);
   if (!dawg->write_squished_dawg(&fp)) return false;
   traineddata->OverwriteEntry(file_type, &dawg_data[0], dawg_data.size());
@@ -228,7 +228,7 @@ int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir
   }
 
   // Traineddata file.
-  GenericVector<char> traineddata_data;
+  std::vector<char> traineddata_data;
   traineddata.Serialize(&traineddata_data);
   if (!WriteFile(output_dir, lang, ".traineddata", traineddata_data, writer)) {
     tprintf("Error writing output traineddata file!!\n");

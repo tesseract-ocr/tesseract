@@ -192,7 +192,7 @@ void TestParagraphDetection(const TextAndModel* correct, int num_rows) {
   GenericVector<RowInfo> row_infos;
   GenericVector<PARA*> row_owners;
   PARA_LIST paragraphs;
-  std::list<ParagraphModel*> models;
+  std::vector<ParagraphModel*> models;
 
   MakeAsciiRowInfos(correct, num_rows, &row_infos);
   int debug_level(3);
@@ -324,7 +324,7 @@ TEST(ParagraphsTest, TestSingleFullPageContinuation) {
   GenericVector<tesseract::RowInfo> row_infos;
   GenericVector<PARA*> row_owners;
   PARA_LIST paragraphs;
-  std::list<ParagraphModel*> models;
+  std::vector<ParagraphModel*> models;
   models.push_back(new ParagraphModel(kLeft, 0, 20, 0, 10));
   MakeAsciiRowInfos(correct, num_rows, &row_infos);
   tesseract::DetectParagraphs(3, &row_infos, &row_owners, &paragraphs, &models);
