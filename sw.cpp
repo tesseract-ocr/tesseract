@@ -95,6 +95,9 @@ void build(Solution &s)
             libtesseract.Protected += "NOMINMAX"_def;
         }
 
+        if (libtesseract.getCompilerType() == CompilerType::MSVC)
+            libtesseract.Protected.CompileOptions.push_back("-utf-8");
+
         libtesseract.Variables["TESSERACT_MAJOR_VERSION"] = libtesseract.Variables["PACKAGE_MAJOR_VERSION"];
         libtesseract.Variables["TESSERACT_MINOR_VERSION"] = libtesseract.Variables["PACKAGE_MINOR_VERSION"];
         libtesseract.Variables["TESSERACT_MICRO_VERSION"] = libtesseract.Variables["PACKAGE_PATCH_VERSION"];
@@ -226,99 +229,105 @@ void build(Solution &s)
     if (!s.getExternalVariables()["with-tests"])
         return;
 
-    auto &test = tess.addDirectory("test");
-    test.Scope = TargetScope::Test;
-
-    auto add_test = [&test, &s, &cppstd, &libtesseract, &pango_training](const String &name) -> decltype(auto)
     {
-        auto &t = test.addTarget<ExecutableTarget>(name);
-        t += cppstd;
-        t += path("unittest/" + name + "_test.cc");
+        auto &test = tess.addDirectory("test");
+        test.Scope = TargetScope::Test;
 
-        auto datadir = test.SourceDir / "tessdata_unittest";
-        t += Definition("TESSBIN_DIR=\"" + ""s + "\"");
+        auto add_test = [&test, &s, &cppstd, &libtesseract, &pango_training](const String &name) -> decltype(auto)
+        {
+            auto &t = test.addTarget<ExecutableTarget>(name);
+            t += cppstd;
+            t += path("unittest/" + name + "_test.cc");
 
-        t += Definition("TESTING_DIR=\"" + to_printable_string(normalize_path(test.SourceDir / "test/testing")) + "\"");
-        t += Definition("TESTDATA_DIR=\"" + to_printable_string(normalize_path(test.SourceDir / "test/testdata")) + "\"");
+            t += "SW_TESTING"_def;
 
-        t += Definition("LANGDATA_DIR=\"" + to_printable_string(normalize_path(datadir / "langdata_lstm")) + "\"");
-        t += Definition("TESSDATA_DIR=\"" + to_printable_string(normalize_path(datadir / "tessdata")) + "\"");
-        t += Definition("TESSDATA_BEST_DIR=\"" + to_printable_string(normalize_path(datadir / "tessdata_best")) + "\"");
+            auto datadir = test.SourceDir / "tessdata_unittest";
+            t += Definition("TESSBIN_DIR=\"" + ""s + "\"");
 
-        // we push all deps to all tests simplify things
-        t += pango_training;
-        t += "org.sw.demo.google.googletest.gmock.main"_dep;
-        t += "org.sw.demo.google.googletest.gtest.main"_dep;
-        t += "org.sw.demo.google.abseil"_dep;
+            t += Definition("TESTING_DIR=\"" + to_printable_string(normalize_path(test.SourceDir / "test/testing")) + "\"");
+            t += Definition("TESTDATA_DIR=\"" + to_printable_string(normalize_path(test.SourceDir / "test/testdata")) + "\"");
 
-        if (t.getCompilerType() == CompilerType::MSVC)
-            t.CompileOptions.push_back("-utf-8");
+            t += Definition("LANGDATA_DIR=\"" + to_printable_string(normalize_path(datadir / "langdata_lstm")) + "\"");
+            t += Definition("TESSDATA_DIR=\"" + to_printable_string(normalize_path(datadir / "tessdata")) + "\"");
+            t += Definition("TESSDATA_BEST_DIR=\"" + to_printable_string(normalize_path(datadir / "tessdata_best")) + "\"");
 
-        libtesseract.addTest(t, name);
+            // we push all deps to all tests simplify things
+            t += pango_training;
+            t += "org.sw.demo.google.googletest.gmock.main"_dep;
+            t += "org.sw.demo.google.googletest.gtest.main"_dep;
+            t += "org.sw.demo.google.abseil"_dep;
 
-        return t;
-    };
+            if (t.getCompilerType() == CompilerType::MSVC)
+                t.CompileOptions.push_back("-utf-8");
 
-    Strings tests{
-        "apiexample",
-        "applybox",
-        "baseapi",
-        "bitvector",
-        "cleanapi",
-        "colpartition",
-        "commandlineflags",
-        "dawg",
-        "denorm",
-        "equationdetect",
-        "fileio",
-        "heap",
-        "imagedata",
-        "indexmapbidi",
-        "intfeaturemap",
-        "intsimdmatrix",
-        "lang_model",
-        "layout",
-        "ligature_table",
-        "linlsq",
-        "lstm_recode",
-        "lstm_squashed",
-        "lstm",
-        "lstmtrainer",
-        "loadlang",
-        "mastertrainer",
-        "matrix",
-        "normstrngs",
-        "nthitem",
-        "osd",
-        "pagesegmode",
-        "pango_font_info",
-        "paragraphs",
-        "params_model",
-        "progress",
-        "qrsequence",
-        "recodebeam",
-        "rect",
-        "resultiterator",
-        "scanutils",
-        "shapetable",
-        "stats",
-        "stringrenderer",
-        "tablefind",
-        "tablerecog",
-        "tabvector",
-        "textlineprojection",
-        "tfile",
-        "unichar",
-        "unicharcompress",
-        "unicharset",
-        "validate_grapheme",
-        "validate_indic",
-        "validate_khmer",
-        "validate_myanmar",
-        "validator",
-    };
-    for (auto t : tests)
-        add_test(t);
+            libtesseract.addTest(t, name);
+
+            return t;
+        };
+
+        Strings tests{
+            "apiexample",
+            "applybox",
+            "baseapi",
+            "bitvector",
+            "cleanapi",
+            "colpartition",
+            "commandlineflags",
+            "denorm",
+            "equationdetect",
+            "fileio",
+            "heap",
+            "imagedata",
+            "indexmapbidi",
+            "intfeaturemap",
+            "intsimdmatrix",
+            "lang_model",
+            "layout",
+            "ligature_table",
+            "linlsq",
+            "lstm_recode",
+            "lstm_squashed",
+            "lstm",
+            "lstmtrainer",
+            "loadlang",
+            "mastertrainer",
+            "matrix",
+            "normstrngs",
+            "nthitem",
+            "osd",
+            "pagesegmode",
+            "pango_font_info",
+            "paragraphs",
+            "params_model",
+            "progress",
+            "qrsequence",
+            "recodebeam",
+            "rect",
+            "resultiterator",
+            "scanutils",
+            "shapetable",
+            "stats",
+            "stringrenderer",
+            "tablefind",
+            "tablerecog",
+            "tabvector",
+            "textlineprojection",
+            "tfile",
+            "unichar",
+            "unicharcompress",
+            "unicharset",
+            "validate_grapheme",
+            "validate_indic",
+            "validate_khmer",
+            "validate_myanmar",
+            "validator",
+        };
+        for (auto t : tests)
+            add_test(t);
+        auto &dt = add_test("dawg");
+        dt += Definition("wordlist2dawg_prog=\"" + to_printable_string(normalize_path(wordlist2dawg.getOutputFile())) + "\"");
+        dt += Definition("dawg2wordlist_prog=\"" + to_printable_string(normalize_path(dawg2wordlist.getOutputFile())) + "\"");
+    }
 }
 
 void check(Checker &c)

@@ -21,6 +21,11 @@
 
 #include "include_gunit.h"
 
+#ifndef SW_TESTING
+#define wordlist2dawg_prog "wordlist2dawg"
+#define dawg2wordlist_prog "dawg2wordlist"
+#endif
+
 namespace tesseract {
 
 // Test some basic functionality dealing with Dawgs (compressed dictionaries,
@@ -68,11 +73,12 @@ class DawgTest : public testing::Test {
     std::string orig_wordlist = file::JoinPath(TESTING_DIR, wordlist_filename);
     std::string output_dawg = OutputNameToPath(wordlist_filename + ".dawg");
     std::string output_wordlist = OutputNameToPath(wordlist_filename);
+    mkdir(FLAGS_test_tmpdir);
     LoadWordlist(orig_wordlist, &orig_words);
     EXPECT_EQ(
-        RunCommand("wordlist2dawg", orig_wordlist, output_dawg, unicharset), 0);
+        RunCommand(wordlist2dawg_prog, orig_wordlist, output_dawg, unicharset), 0);
     EXPECT_EQ(
-        RunCommand("dawg2wordlist", unicharset, output_dawg, output_wordlist),
+        RunCommand(dawg2wordlist_prog, unicharset, output_dawg, output_wordlist),
         0);
     LoadWordlist(output_wordlist, &roundtrip_words);
     EXPECT_EQ(orig_words, roundtrip_words);

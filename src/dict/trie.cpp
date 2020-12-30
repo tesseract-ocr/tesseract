@@ -269,17 +269,14 @@ NODE_REF Trie::new_dawg_node() {
   return nodes_.size() - 1;
 }
 
-// Sort function to sort words by decreasing order of length.
-static int sort_strings_by_dec_length(STRING& s1, STRING& s2) {
-  return s2.length() - s1.length();
-}
-
 bool Trie::read_and_add_word_list(const char *filename,
                                   const UNICHARSET &unicharset,
                                   Trie::RTLReversePolicy reverse_policy) {
   std::vector<STRING> word_list;
   if (!read_word_list(filename, &word_list)) return false;
-  std::sort(word_list.begin(), word_list.end(), sort_strings_by_dec_length);
+  std::sort(word_list.begin(), word_list.end(), [](auto &s1, auto &s2) {
+      return s1.size() > s2.size();
+  });
   return add_word_list(word_list, unicharset, reverse_policy);
 }
 

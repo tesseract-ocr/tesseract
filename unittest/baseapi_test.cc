@@ -9,22 +9,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "absl/strings/ascii.h"
-#include "absl/strings/str_cat.h"
-#include "allheaders.h"
-
 #include "include_gunit.h"
-#include "gmock/gmock-matchers.h"
 
-#include <tesseract/baseapi.h>
 #include "cycletimer.h" // for CycleTimer
 #include "log.h"        // for LOG
 #include "ocrblock.h"   // for class BLOCK
 #include "pageres.h"
+
+#include <tesseract/baseapi.h>
+
+#include "allheaders.h"
+#include "absl/strings/ascii.h"
+#include "absl/strings/str_cat.h"
+#include "gmock/gmock-matchers.h"
+
+#include <memory>
+#include <regex>
+#include <string>
+#include <vector>
 
 namespace tesseract {
 
@@ -147,8 +149,8 @@ TEST_F(TesseractTest, HOCRContainsBaseline) {
   char* result = api.GetHOCRText(0);
   EXPECT_TRUE(result != nullptr);
   EXPECT_THAT(result, HasSubstr("Hello"));
-  EXPECT_THAT(result, ContainsRegex("<span class='ocr_line'[^>]* "
-                                    "baseline [-.0-9]+ [-.0-9]+"));
+  EXPECT_TRUE(std::regex_search(result, std::regex{ "<span class='ocr_line'[^>]* baseline [-.0-9]+ [-.0-9]+" }));
+
   delete[] result;
   pixDestroy(&src_pix);
 }

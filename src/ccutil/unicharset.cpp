@@ -175,10 +175,7 @@ void UNICHARSET::UNICHAR_PROPERTIES::CopyFrom(const UNICHAR_PROPERTIES& src) {
 }
 
 UNICHARSET::UNICHARSET() :
-    unichars(nullptr),
     ids(),
-    size_used(0),
-    size_reserved(0),
     script_table(nullptr),
     script_table_size_used(0) {
   clear();
@@ -191,20 +188,6 @@ UNICHARSET::UNICHARSET() :
 
 UNICHARSET::~UNICHARSET() {
   clear();
-}
-
-void UNICHARSET::reserve(int unichars_number) {
-  if (unichars_number > size_reserved) {
-    auto* unichars_new = new UNICHAR_SLOT[unichars_number];
-    for (int i = 0; i < size_used; ++i)
-      unichars_new[i] = unichars[i];
-    for (int j = size_used; j < unichars_number; ++j) {
-      unichars_new[j].properties.script_id = add_script(null_script);
-    }
-    delete[] unichars;
-    unichars = unichars_new;
-    size_reserved = unichars_number;
-  }
 }
 
 UNICHAR_ID
@@ -395,7 +378,7 @@ bool UNICHARSET::get_isprivate(UNICHAR_ID unichar_id) const {
 
 // Sets all ranges to empty, so they can be expanded to set the values.
 void UNICHARSET::set_ranges_empty() {
-  for (int id = 0; id < size_used; ++id) {
+  for (int id = 0; id < unichars.size(); ++id) {
     unichars[id].properties.SetRangesEmpty();
   }
 }
@@ -405,7 +388,7 @@ void UNICHARSET::set_ranges_empty() {
 // are correctly accounted for.
 void UNICHARSET::PartialSetPropertiesFromOther(int start_index,
                                                const UNICHARSET& src) {
-  for (int ch = start_index; ch < size_used; ++ch) {
+  for (int ch = start_index; ch < unichars.size(); ++ch) {
     const char* utf8 = id_to_unichar(ch);
     UNICHAR_PROPERTIES properties;
     if (src.GetStrProperties(utf8, &properties)) {
@@ -434,7 +417,7 @@ void UNICHARSET::PartialSetPropertiesFromOther(int start_index,
 // src unicharset with ranges in it. The unicharsets don't have to be the
 // same, and graphemes are correctly accounted for.
 void UNICHARSET::ExpandRangesFromOther(const UNICHARSET& src) {
-  for (int ch = 0; ch < size_used; ++ch) {
+  for (int ch = 0; ch < unichars.size(); ++ch) {
     const char* utf8 = id_to_unichar(ch);
     UNICHAR_PROPERTIES properties;
     if (src.GetStrProperties(utf8, &properties)) {
@@ -448,7 +431,7 @@ void UNICHARSET::ExpandRangesFromOther(const UNICHARSET& src) {
 // ids will not be present in this if not in src. Does NOT reorder the set!
 void UNICHARSET::CopyFrom(const UNICHARSET& src) {
   clear();
-  for (int ch = 0; ch < src.size_used; ++ch) {
+  for (int ch = 0; ch < src.unichars.size(); ++ch) {
     const UNICHAR_PROPERTIES& src_props = src.unichars[ch].properties;
     const char* utf8 = src.id_to_unichar(ch);
     unichar_insert_backwards_compatible(utf8);
@@ -463,11 +446,11 @@ void UNICHARSET::CopyFrom(const UNICHARSET& src) {
 // SetPropertiesFromOther, otherwise expand the ranges, as in
 // ExpandRangesFromOther.
 void UNICHARSET::AppendOtherUnicharset(const UNICHARSET& src) {
-  int initial_used = size_used;
-  for (int ch = 0; ch < src.size_used; ++ch) {
+  int initial_used = unichars.size();
+  for (int ch = 0; ch < src.unichars.size(); ++ch) {
     const UNICHAR_PROPERTIES& src_props = src.unichars[ch].properties;
     const char* utf8 = src.id_to_unichar(ch);
-    int id = size_used;
+    int id = unichars.size();
     if (contains_unichar(utf8)) {
       id = unichar_to_id(utf8);
       // Just expand current ranges.
@@ -635,12 +618,7 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr,
     if (!old_style_included_ &&
         encode_string(str, true, &encoding, nullptr, nullptr))
       return;
-    if (size_used == size_reserved) {
-      if (size_used == 0)
-        reserve(8);
-      else
-        reserve(2 * size_used);
-    }
+    auto &u = unichars.emplace_back();
     int index = 0;
     do {
       if (index >= UNICHAR_LEN) {
@@ -648,24 +626,23 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr,
                 unichar_repr);
         return;
       }
-      unichars[size_used].representation[index++] = *str++;
+      u.representation[index++] = *str++;
     } while (*str != '\0');
-    unichars[size_used].representation[index] = '\0';
-    this->set_script(size_used, null_script);
+    u.representation[index] = '\0';
+    this->set_script(unichars.size() - 1, null_script);
     // If the given unichar_repr represents a fragmented character, set
     // fragment property to a pointer to CHAR_FRAGMENT class instance with
     // information parsed from the unichar representation. Use the script
     // of the base unichar for the fragmented character if possible.
     CHAR_FRAGMENT* frag =
-        CHAR_FRAGMENT::parse_from_string(unichars[size_used].representation);
-    this->unichars[size_used].properties.fragment = frag;
+        CHAR_FRAGMENT::parse_from_string(u.representation);
+    u.properties.fragment = frag;
     if (frag != nullptr && this->contains_unichar(frag->get_unichar())) {
-      this->unichars[size_used].properties.script_id =
+      u.properties.script_id =
         this->get_script(frag->get_unichar());
     }
-    this->unichars[size_used].properties.enabled = true;
-    ids.insert(unichars[size_used].representation, size_used);
-    ++size_used;
+    u.properties.enabled = true;
+    ids.insert(u.representation, unichars.size() - 1);
   }
 }
 
@@ -768,7 +745,6 @@ bool UNICHARSET::load_via_fgets(std::function<char*(char*, int)> fgets_cb,
       sscanf(buffer, "%d", &unicharset_size) != 1) {
     return false;
   }
-  this->reserve(unicharset_size);
   for (UNICHAR_ID id = 0; id < unicharset_size; ++id) {
     char unichar[256];
     unsigned int properties;
@@ -892,7 +868,7 @@ void UNICHARSET::post_load_setup() {
   int x_height_alphas = 0;
   int cap_height_alphas = 0;
   top_bottom_set_ = false;
-  for (UNICHAR_ID id = 0; id < size_used; ++id) {
+  for (UNICHAR_ID id = 0; id < unichars.size(); ++id) {
     int min_bottom = 0;
     int max_bottom = UINT8_MAX;
     int min_top = 0;
@@ -934,7 +910,7 @@ void UNICHARSET::post_load_setup() {
   // not the common script, as that still contains some "alphas".
   int* script_counts = new int[script_table_size_used];
   memset(script_counts, 0, sizeof(*script_counts) * script_table_size_used);
-  for (int id = 0; id < size_used; ++id) {
+  for (int id = 0; id < unichars.size(); ++id) {
     if (get_isalpha(id)) {
       ++script_counts[get_script(id)];
     }
@@ -954,7 +930,7 @@ void UNICHARSET::post_load_setup() {
 bool UNICHARSET::major_right_to_left() const {
   int ltr_count = 0;
   int rtl_count = 0;
-  for (int id = 0; id < size_used; ++id) {
+  for (int id = 0; id < unichars.size(); ++id) {
     int dir = get_direction(id);
     if (dir == UNICHARSET::U_LEFT_TO_RIGHT) ltr_count++;
     if (dir == UNICHARSET::U_RIGHT_TO_LEFT ||
@@ -973,7 +949,7 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
                                          const char* unblacklist) {
   bool def_enabled = whitelist == nullptr || whitelist[0] == '\0';
   // Set everything to default
-  for (int ch = 0; ch < size_used; ++ch)
+  for (int ch = 0; ch < unichars.size(); ++ch)
     unichars[ch].properties.enabled = def_enabled;
   if (!def_enabled) {
     // Enable the whitelist.
@@ -1009,7 +985,7 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
 bool UNICHARSET::AnyRepeatedUnicodes() const {
   int start_id = 0;
   if (has_special_codes()) start_id = SPECIAL_UNICHAR_CODES_COUNT;
-  for (int id = start_id; id < size_used; ++id) {
+  for (int id = start_id; id < unichars.size(); ++id) {
     // Convert to unicodes.
     std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(get_normed_unichar(id));
     for (size_t u = 1; u < unicodes.size(); ++u) {
