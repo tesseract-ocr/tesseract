@@ -217,7 +217,7 @@ class GenericVector {
   // Reverses the elements of the vector.
   void reverse() {
     for (int i = 0; i < size_used_ / 2; ++i) {
-      Swap(&data_[i], &data_[size_used_ - 1 - i]);
+      std::swap(data_[i], data_[size_used_ - 1 - i]);
     }
   }
 

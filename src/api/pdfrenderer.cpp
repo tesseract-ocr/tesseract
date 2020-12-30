@@ -227,8 +227,8 @@ static void GetWordBaseline(int writing_direction, int ppi, int height,
                             int line_x1, int line_y1, int line_x2, int line_y2,
                             double *x0, double *y0, double *length) {
   if (writing_direction == WRITING_DIRECTION_RIGHT_TO_LEFT) {
-    Swap(&word_x1, &word_x2);
-    Swap(&word_y1, &word_y2);
+    std::swap(word_x1, word_x2);
+    std::swap(word_y1, word_y2);
   }
   double word_length;
   double x, y;

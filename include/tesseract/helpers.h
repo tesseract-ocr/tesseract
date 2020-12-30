@@ -85,15 +85,6 @@ inline void SkipNewline(FILE* file) {
   }
 }
 
-// Swaps the two args pointed to by the pointers.
-// Operator= and copy constructor must work on T.
-template <typename T>
-inline void Swap(T* p1, T* p2) {
-  T tmp(*p2);
-  *p2 = *p1;
-  *p1 = tmp;
-}
-
 // return the smallest multiple of block_size greater than or equal to n.
 inline int RoundUp(int n, int block_size) {
   return block_size * ((n + block_size - 1) / block_size);
