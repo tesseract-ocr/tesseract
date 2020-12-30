@@ -30,9 +30,6 @@
 #include "thresholder.h"
 #include "unichar.h"
 
-// To avoid collision with other typenames include the ABSOLUTE MINIMUM
-// complexity of includes here. Use forward declarations wherever possible
-// and hide includes of complex types in baseapi.cpp.
 #include <tesseract/version.h>
 
 #include <cstdio>
