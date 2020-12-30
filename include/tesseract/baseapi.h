@@ -42,23 +42,11 @@ struct Boxa;
 namespace tesseract {
 
 class PAGE_RES;
-class PAGE_RES_IT;
 class ParagraphModel;
-struct BlamerBundle;
 class BLOCK_LIST;
-class DENORM;
-class MATRIX;
-class ROW;
-class WERD;
 class ETEXT_DESC;
 struct OSResults;
-class TBOX;
 class UNICHARSET;
-class WERD_CHOICE_LIST;
-
-struct INT_FEATURE_STRUCT;
-using INT_FEATURE = INT_FEATURE_STRUCT*;
-struct TBLOB;
 
 class Dawg;
 class Dict;
@@ -69,8 +57,6 @@ class ResultIterator;
 class MutableIterator;
 class TessResultRenderer;
 class Tesseract;
-class Trie;
-class Wordrec;
 
 // Function to read a std::vector<char> from a whole file.
 // Returns false on failure.
