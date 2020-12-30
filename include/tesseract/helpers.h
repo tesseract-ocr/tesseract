@@ -24,19 +24,17 @@
 #include <cstdio>
 #include <cstring>
 #include <functional>
+#include <random>
 #include <string>
 
 namespace tesseract {
 
-// A simple linear congruential random number generator, using Knuth's
-// constants from:
-// http://en.wikipedia.org/wiki/Linear_congruential_generator.
+// A simple linear congruential random number generator.
 class TRand {
  public:
-  TRand() = default;
   // Sets the seed to the given value.
   void set_seed(uint64_t seed) {
-    seed_ = seed;
+    e.seed(seed);
   }
   // Sets the seed using a hash of a string.
   void set_seed(const std::string& str) {
@@ -46,8 +44,7 @@ class TRand {
 
   // Returns an integer in the range 0 to INT32_MAX.
   int32_t IntRand() {
-    Iterate();
-    return seed_ >> 33;
+    return e();
   }
   // Returns a floating point value in the range [-range, range].
   double SignedRand(double range) {
@@ -59,14 +56,7 @@ class TRand {
   }
 
  private:
-  // Steps the generator to the next value.
-  void Iterate() {
-    seed_ *= 6364136223846793005ULL;
-    seed_ += 1442695040888963407ULL;
-  }
-
-  // The current value of the seed.
-  uint64_t seed_{1};
+  std::minstd_rand e;
 };
 
 // Remove newline (if any) at the end of the string.
