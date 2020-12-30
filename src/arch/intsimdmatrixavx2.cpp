@@ -2,7 +2,6 @@
 // File:        intsimdmatrixavx2.cpp
 // Description: matrix-vector product for 8-bit data on avx2.
 // Author:      Ray Smith
-// Created:     Fri Aug 04 13:26:20 PST 2017
 //
 // (C) Copyright 2017, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,12 +97,11 @@ static inline void ExtractResults8(__m256i result,
   __m256i bias_scale = _mm256_set_epi32(127,127,127,127,127,127,127,127);
   __m256d scale0123 = _mm256_loadu_pd(scales);
   __m256d scale4567 = _mm256_loadu_pd(scales+4);
-  __m256d bias0123, bias4567, res0123, res4567;
   w256 = _mm256_mullo_epi32(w256, bias_scale); // 8x32 <bias * 127>
   result = _mm256_add_epi32(result, w256); // result += bias * 127
-  res0123 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result));
+  __m256d res0123 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result));
   result = _mm256_permute4x64_epi64(result, 2+(3<<2));
-  res4567 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result));
+  __m256d res4567 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result));
   res0123 = _mm256_mul_pd(res0123, scale0123);
   res4567 = _mm256_mul_pd(res4567, scale4567);
   _mm256_storeu_pd(v, res0123);
@@ -121,12 +119,11 @@ static inline void ExtractResults16(__m256i result0,
   __m256i w256 = _mm256_cvtepi8_epi32(w8); // 8x32bit vals in 256bit reg
   __m256d scale0123 = _mm256_loadu_pd(scales);
   __m256d scale4567 = _mm256_loadu_pd(scales+4);
-  __m256d bias0123, bias4567, res0123, res4567;
   w256 = _mm256_mullo_epi32(w256, bias_scale); // 8x32 <bias * 127>
   result0 = _mm256_add_epi32(result0, w256); // result += bias * 127
-  res0123 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result0));
+  __m256d res0123 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result0));
   result0 = _mm256_permute4x64_epi64(result0, 2+(3<<2));
-  res4567 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result0));
+  __m256d res4567 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result0));
   res0123 = _mm256_mul_pd(res0123, scale0123);
   res4567 = _mm256_mul_pd(res4567, scale4567);
   _mm256_storeu_pd(v, res0123);
@@ -286,8 +283,6 @@ static inline void PartialMatrixDotVector8(const int8_t *wi,
                                            const int8_t *u,
                                                  int     num_in,
                                                  double *v) {
-  double *ov = v;
-  double temp[8];
   // Register containing 16-bit ones for horizontal add with 16->32 bit
   // conversion.
   __m256i ones =
