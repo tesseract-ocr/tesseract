@@ -267,7 +267,7 @@ void LSTMTrainer::DebugNetwork() {
 // Loads a set of lstmf files that were created using the lstm.train config to
 // tesseract into memory ready for training. Returns false if nothing was
 // loaded.
-bool LSTMTrainer::LoadAllTrainingData(const GenericVector<STRING>& filenames,
+bool LSTMTrainer::LoadAllTrainingData(const std::vector<STRING>& filenames,
                                       CachingStrategy cache_strategy,
                                       bool randomly_rotate) {
   randomly_rotate_ = randomly_rotate;
@@ -302,7 +302,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
     }
   }
   bool result = true;  // Something interesting happened.
-  GenericVector<char> rec_model_data;
+  std::vector<char> rec_model_data;
   if (error_rate < best_error_rate_) {
     SaveRecognitionDump(&rec_model_data);
     log_msg->add_str_double(" New best char error = ", error_rate);
@@ -335,7 +335,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
       // Error rate has ballooned. Go back to the best model.
       *log_msg += "\nDivergence! ";
       // Copy best_trainer_ before reading it, as it will get overwritten.
-      GenericVector<char> revert_data(best_trainer_);
+      std::vector<char> revert_data(best_trainer_);
       if (ReadTrainingDump(revert_data, this)) {
         LogIterations("Reverted to", log_msg);
         ReduceLearningRates(this, log_msg);
@@ -354,7 +354,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
   }
   if (checkpoint_name_.length() > 0) {
     // Write a current checkpoint.
-    GenericVector<char> checkpoint;
+    std::vector<char> checkpoint;
     if (!SaveTrainingDump(FULL, this, &checkpoint) ||
         !SaveDataToFile(checkpoint, checkpoint_name_.c_str())) {
       *log_msg += " failed to write checkpoint.";
@@ -420,14 +420,14 @@ bool LSTMTrainer::Serialize(SerializeAmount serialize_amount,
   if (!fp->Serialize(&worst_error_rates_[0], countof(worst_error_rates_))) return false;
   if (!fp->Serialize(&worst_iteration_)) return false;
   if (!fp->Serialize(&stall_iteration_)) return false;
-  if (!best_model_data_.Serialize(fp)) return false;
-  if (!worst_model_data_.Serialize(fp)) return false;
-  if (serialize_amount != NO_BEST_TRAINER && !best_trainer_.Serialize(fp))
+  if (!fp->Serialize(best_model_data_)) return false;
+  if (!fp->Serialize(worst_model_data_)) return false;
+  if (serialize_amount != NO_BEST_TRAINER && !fp->Serialize(best_trainer_))
     return false;
-  GenericVector<char> sub_data;
+  std::vector<char> sub_data;
   if (sub_trainer_ != nullptr && !SaveTrainingDump(LIGHT, sub_trainer_, &sub_data))
     return false;
-  if (!sub_data.Serialize(fp)) return false;
+  if (!fp->Serialize(sub_data)) return false;
   if (!best_error_history_.Serialize(fp)) return false;
   if (!best_error_iterations_.Serialize(fp)) return false;
   return fp->Serialize(&improvement_steps_);
@@ -464,11 +464,11 @@ bool LSTMTrainer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
   if (!fp->DeSerialize(&worst_error_rates_[0], countof(worst_error_rates_))) return false;
   if (!fp->DeSerialize(&worst_iteration_)) return false;
   if (!fp->DeSerialize(&stall_iteration_)) return false;
-  if (!best_model_data_.DeSerialize(fp)) return false;
-  if (!worst_model_data_.DeSerialize(fp)) return false;
-  if (amount != NO_BEST_TRAINER && !best_trainer_.DeSerialize(fp)) return false;
-  GenericVector<char> sub_data;
-  if (!sub_data.DeSerialize(fp)) return false;
+  if (!fp->DeSerialize(best_model_data_)) return false;
+  if (!fp->DeSerialize(worst_model_data_)) return false;
+  if (amount != NO_BEST_TRAINER && !fp->DeSerialize(best_trainer_)) return false;
+  std::vector<char> sub_data;
+  if (!fp->DeSerialize(sub_data)) return false;
   delete sub_trainer_;
   if (sub_data.empty()) {
     sub_trainer_ = nullptr;
@@ -542,7 +542,7 @@ SubTrainerResult LSTMTrainer::UpdateSubtrainer(STRING* log_msg) {
     if (sub_error < best_error_rate_ &&
         sub_margin >= kSubTrainerMarginFraction) {
       // The sub_trainer_ has won the race to a new best. Switch to it.
-      GenericVector<char> updated_trainer;
+      std::vector<char> updated_trainer;
       SaveTrainingDump(LIGHT, sub_trainer_, &updated_trainer);
       ReadTrainingDump(updated_trainer, this);
       log_msg->add_str_int(" Sub trainer wins at iteration ",
@@ -594,7 +594,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
     ok_sums[i].init_to_size(num_layers, 0.0);
   }
   double momentum_factor = 1.0 / (1.0 - momentum_);
-  GenericVector<char> orig_trainer;
+  std::vector<char> orig_trainer;
   samples_trainer->SaveTrainingDump(LIGHT, this, &orig_trainer);
   for (int i = 0; i < num_layers; ++i) {
     Network* layer = GetLayer(layers[i]);
@@ -624,7 +624,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
           copy_trainer.TrainOnLine(samples_trainer, true);
       if (trainingdata == nullptr) continue;
       // We'll now use this trainer again for each layer.
-      GenericVector<char> updated_trainer;
+      std::vector<char> updated_trainer;
       samples_trainer->SaveTrainingDump(LIGHT, &copy_trainer, &updated_trainer);
       for (int i = 0; i < num_layers; ++i) {
         if (num_weights[i] == 0) continue;
@@ -871,7 +871,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
 // actually serialized.
 bool LSTMTrainer::SaveTrainingDump(SerializeAmount serialize_amount,
                                    const LSTMTrainer* trainer,
-                                   GenericVector<char>* data) const {
+                                   std::vector<char>* data) const {
   TFile fp;
   fp.OpenWrite(data);
   return trainer->Serialize(serialize_amount, &mgr_, &fp);
@@ -891,7 +891,7 @@ bool LSTMTrainer::ReadLocalTrainingDump(const TessdataManager* mgr,
 
 // Writes the full recognition traineddata to the given filename.
 bool LSTMTrainer::SaveTraineddata(const char* filename) {
-  GenericVector<char> recognizer_data;
+  std::vector<char> recognizer_data;
   SaveRecognitionDump(&recognizer_data);
   mgr_.OverwriteEntry(TESSDATA_LSTM, &recognizer_data[0],
                       recognizer_data.size());
@@ -899,7 +899,7 @@ bool LSTMTrainer::SaveTraineddata(const char* filename) {
 }
 
 // Writes the recognizer to memory, so that it can be used for testing later.
-void LSTMTrainer::SaveRecognitionDump(GenericVector<char>* data) const {
+void LSTMTrainer::SaveRecognitionDump(std::vector<char>* data) const {
   TFile fp;
   fp.OpenWrite(data);
   network_->SetEnableTraining(TS_TEMP_DISABLE);
@@ -1260,7 +1260,7 @@ void LSTMTrainer::RollErrorBuffers() {
 // Tester is an externally supplied callback function that tests on some
 // data set with a given model and records the error rates in a graph.
 STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
-                                     const GenericVector<char>& model_data,
+                                     const std::vector<char>& model_data,
                                      TestCallback tester) {
   if (error_rate > best_error_rate_
       && iteration < best_iteration_ + kErrorGraphInterval) {
@@ -1287,7 +1287,7 @@ STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
                           worst_model_data_.size());
       result = tester(worst_iteration_, worst_error_rates_, mgr_,
                       CurrentTrainingStage());
-      worst_model_data_.truncate(0);
+      worst_model_data_.clear();
       best_model_data_ = model_data;
     }
     best_error_rate_ = error_rate;
@@ -1322,7 +1322,7 @@ STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
                         CurrentTrainingStage());
       }
       if (result.length() > 0)
-        best_model_data_.truncate(0);
+        best_model_data_.clear();
       worst_model_data_ = model_data;
     }
   }

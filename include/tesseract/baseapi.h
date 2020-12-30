@@ -37,8 +37,6 @@
 #include <tesseract/version.h>
 
 #include <cstdio>
-#include <functional> // for std::function
-#include <list>       // for std::list
 #include <vector>     // for std::vector
 
 struct Pix;
@@ -91,8 +89,6 @@ using ParamsModelClassifyFunc = float (Dict::*)(const char*, void*);
 using FillLatticeFunc = void (Wordrec::*)(const MATRIX&,
                                           const WERD_CHOICE_LIST&,
                                           const UNICHARSET&, BlamerBundle*);
-using TruthCallback =
-    std::function<void(const UNICHARSET&, int, PageIterator*, Pix*)>;
 
 /**
  * Base class for all tesseract APIs.
@@ -506,11 +502,6 @@ class TESS_API TessBaseAPI {
    * Recognize() or TesseractRect(). (Recognize is called implicitly if needed.)
    */
 
-#ifndef DISABLED_LEGACY_ENGINE
-  /** Variant on Recognize used for testing chopper. */
-  int RecognizeForChopTest(ETEXT_DESC* monitor);
-#endif
-
   /**
    * Turns images into symbolic text.
    *
@@ -766,10 +757,6 @@ class TESS_API TessBaseAPI {
     return last_oem_requested_;
   }
 
-  void InitTruthCallback(TruthCallback cb) {
-    truth_cb_ = cb;
-  }
-
   void set_min_orientation_margin(double margin);
   /* @} */
 
@@ -823,7 +810,7 @@ class TESS_API TessBaseAPI {
 #endif
   FileReader reader_;                 ///< Reads files from any filesystem.
   ImageThresholder* thresholder_;     ///< Image thresholding module.
-  std::list<ParagraphModel*>* paragraph_models_;
+  std::vector<ParagraphModel*>* paragraph_models_;
   BLOCK_LIST* block_list_;            ///< The page layout.
   PAGE_RES* page_res_;                ///< The page-level data.
   std::string input_file_;            ///< Name used by training code.
@@ -834,7 +821,6 @@ class TESS_API TessBaseAPI {
   std::string language_;              ///< Last initialized language.
   OcrEngineMode last_oem_requested_;  ///< Last ocr language mode requested.
   bool recognition_done_;             ///< page_res_ contains recognition data.
-  TruthCallback truth_cb_;            ///< fxn for setting truth_* in WERD_RES
 
   /**
    * @defgroup ThresholderParams Thresholder Parameters

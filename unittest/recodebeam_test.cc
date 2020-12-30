@@ -65,6 +65,7 @@ class RecodeBeamTest : public ::testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
   RecodeBeamTest() : lstm_dict_(&ccutil_) {}

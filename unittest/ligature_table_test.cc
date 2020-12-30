@@ -35,6 +35,8 @@ class LigatureTableTest : public ::testing::Test {
  void SetUp() override {
     static std::locale system_locale("");
     std::locale::global(system_locale);
+    file::MakeTmpdir();
+
     lig_table_ = LigatureTable::Get();
     if (!font_map) {
       font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);

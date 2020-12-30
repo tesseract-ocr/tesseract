@@ -80,7 +80,7 @@ static Pix* RemoveEnclosingCircle(Pix* pixs) {
     if (i == 1 || count > max_count) {
       max_count = count;
       min_count = count;
-    } else if (i > 1 && count < min_count) {
+    } else if (count < min_count) {
       min_count = count;
       pixDestroy(&pixout);
       pixout = pixCopy(nullptr, pixt);  // Save the best.
@@ -249,7 +249,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
 // allowed_ids.
 static void AddAllScriptsConverted(const UNICHARSET& sid_set,
                                    const UNICHARSET& osd_set,
-                                   GenericVector<int>* allowed_ids) {
+                                   std::vector<int>* allowed_ids) {
   for (int i = 0; i < sid_set.get_script_table_size(); ++i) {
     if (i != sid_set.null_sid()) {
       const char* script = sid_set.get_script_from_script_id(i);
@@ -357,7 +357,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
                                           to_block, &osd_blobs);
     }
     if (PSM_OSD_ENABLED(pageseg_mode) && osd_tess != nullptr && osr != nullptr) {
-      GenericVector<int> osd_scripts;
+      std::vector<int> osd_scripts;
       if (osd_tess != this) {
         // We are running osd as part of layout analysis, so constrain the
         // scripts to those allowed by *this.

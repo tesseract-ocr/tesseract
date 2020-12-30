@@ -34,6 +34,7 @@ const int kMinStrongTextValue = 6;
 class TextlineProjectionTest : public testing::Test {
  protected:
   std::string OutputNameToPath(const std::string& name) {
+    file::MakeTmpdir();
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 

@@ -28,6 +28,12 @@ void ToVector(const GenericVectorEqEq<T>& from, std::vector<T>* to) {
   for (int i = 0; i < from.size(); i++) to->push_back(from[i]);
 }
 
+template <typename T>
+void ToVector(const std::vector<T>& from, std::vector<T>* to) {
+  to->clear();
+  for (int i = 0; i < from.size(); i++) to->push_back(from[i]);
+}
+
 // The fixture for testing Tesseract.
 class ResultIteratorTest : public testing::Test {
  protected:
@@ -38,6 +44,7 @@ class ResultIteratorTest : public testing::Test {
     return file::JoinPath(TESSDATA_DIR, "");
   }
   std::string OutputNameToPath(const std::string& name) {
+    file::MakeTmpdir();
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
@@ -167,12 +174,12 @@ class ResultIteratorTest : public testing::Test {
                                   const StrongScriptDirection* word_dirs,
                                   int num_words, int* expected_reading_order,
                                   int num_reading_order_entries) const {
-    GenericVector<StrongScriptDirection> gv_word_dirs;
+    std::vector<StrongScriptDirection> gv_word_dirs;
     for (int i = 0; i < num_words; i++) {
       gv_word_dirs.push_back(word_dirs[i]);
     }
 
-    GenericVectorEqEq<int> output;
+    std::vector<int> output;
     ResultIterator::CalculateTextlineOrder(in_ltr_context, gv_word_dirs,
                                            &output);
     // STL vector can be used with EXPECT_EQ, so convert...
@@ -191,17 +198,17 @@ class ResultIteratorTest : public testing::Test {
   void VerifySaneTextlineOrder(bool in_ltr_context,
                                const StrongScriptDirection* word_dirs,
                                int num_words) const {
-    GenericVector<StrongScriptDirection> gv_word_dirs;
+    std::vector<StrongScriptDirection> gv_word_dirs;
     for (int i = 0; i < num_words; i++) {
       gv_word_dirs.push_back(word_dirs[i]);
     }
 
-    GenericVectorEqEq<int> output;
+    std::vector<int> output;
     ResultIterator::CalculateTextlineOrder(in_ltr_context, gv_word_dirs,
                                            &output);
     ASSERT_GE(output.size(), num_words);
-    GenericVector<int> output_copy(output);
-    output_copy.sort();
+    std::vector<int> output_copy(output);
+    std::sort(output_copy.begin(), output_copy.end());
     bool sane = true;
     int j = 0;
     while (j < output_copy.size() && output_copy[j] < 0) j++;

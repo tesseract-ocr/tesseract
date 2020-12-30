@@ -181,9 +181,9 @@ class ImageData {
 
   // Adds the supplied boxes and transcriptions that correspond to the correct
   // page number.
-  void AddBoxes(const GenericVector<TBOX>& boxes,
-                const GenericVector<STRING>& texts,
-                const GenericVector<int>& box_pages);
+  void AddBoxes(const std::vector<TBOX>& boxes,
+                const std::vector<STRING>& texts,
+                const std::vector<int>& box_pages);
 
  private:
   // Saves the given Pix as a PNG-encoded string and destroys it.
@@ -335,7 +335,7 @@ class DocumentCache {
   }
   // Adds all the documents in the list of filenames, counting memory.
   // The reader is used to read the files.
-  bool LoadDocuments(const GenericVector<STRING>& filenames,
+  bool LoadDocuments(const std::vector<STRING>& filenames,
                      CachingStrategy cache_strategy, FileReader reader);
 
   // Adds document to the cache.

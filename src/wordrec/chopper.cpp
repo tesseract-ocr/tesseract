@@ -264,7 +264,7 @@ SEAM *Wordrec::chop_numbered_blob(TWERD *word, int32_t blob_number,
 }
 
 
-SEAM *Wordrec::chop_overlapping_blob(const GenericVector<TBOX>& boxes,
+SEAM *Wordrec::chop_overlapping_blob(const std::vector<TBOX>& boxes,
                                      bool italic_blob, WERD_RES *word_res,
                                      int *blob_number) {
   TWERD *word = word_res->chopped_word;
@@ -362,7 +362,7 @@ SEAM* Wordrec::improve_one_blob(const GenericVector<BLOB_CHOICE*>& blob_choices,
  * the worst blobs and try to divide it up to improve the ratings.
  * Used for testing chopper.
  */
-SEAM* Wordrec::chop_one_blob(const GenericVector<TBOX>& boxes,
+SEAM* Wordrec::chop_one_blob(const std::vector<TBOX>& boxes,
                              const GenericVector<BLOB_CHOICE*>& blob_choices,
                              WERD_RES* word_res,
                              int* blob_number) {

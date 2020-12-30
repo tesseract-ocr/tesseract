@@ -991,7 +991,7 @@ LIB_FUZZING_ENGINE ?= -fsanitize=fuzzer
 
 .PHONY: fuzzers
 fuzzers: fast fuzzer-api fuzzer-api-256x512 fuzzer-api-512x256
-fuzzer-api: all
+fuzzer-api: libtesseract.la
 fuzzer-api-256x512 \
 fuzzer-api-512x256: fuzzer-api
 	ln -sf $< $@

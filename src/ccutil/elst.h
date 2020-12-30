@@ -913,7 +913,7 @@ class DLLSYM CLASSNAME##_IT : public ELIST_ITERATOR {                         \
     return reinterpret_cast<CLASSNAME*>(ELIST_ITERATOR::data());              \
   }                                                                           \
                                                                               \
-  CLASSNAME* data_relative(int8_t offset) {                                     \
+  CLASSNAME* data_relative(int8_t offset) {                                   \
     return reinterpret_cast<CLASSNAME*>(ELIST_ITERATOR::data_relative(offset));\
   }                                                                           \
                                                                               \

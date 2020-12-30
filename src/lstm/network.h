@@ -20,12 +20,10 @@
 
 #include "matrix.h"
 #include "networkio.h"
-#include "static_shape.h"
-#include "tprintf.h"
-
 #include "serialis.h"
+#include "static_shape.h"
 #include "strngs.h"             // for STRING
-#include "genericvector.h"
+#include "tprintf.h"
 #include <tesseract/helpers.h>
 
 #include <cstdio>

@@ -1236,14 +1236,19 @@ const ParagraphModel* ParagraphTheory::AddModel(const ParagraphModel &model) {
 }
 
 void ParagraphTheory::DiscardUnusedModels(const SetOfModels &used_models) {
-  models_->remove_if([this, used_models](ParagraphModel* m) {
-    bool remove = !used_models.contains(m) && models_we_added_.contains(m);
-    if (remove) {
-      models_we_added_.remove(models_we_added_.get_index(m));
+  size_t w = 0;
+  for (size_t r = 0; r < models_->size(); r++) {
+    ParagraphModel* m = (*models_)[r];
+    if (!used_models.contains(m) && models_we_added_.contains(m)) {
       delete m;
+    } else {
+      if (r > w) {
+        (*models_)[w] = m;
+      }
+      w++;
     }
-    return remove;
-  });
+  }
+  models_->resize(w);
 }
 
 // Examine rows[start, end) and try to determine if an existing non-centered
@@ -2269,10 +2274,10 @@ void CanonicalizeDetectionResults(
 //   models - the list of paragraph models referenced by the PARA objects.
 //            caller is responsible for deleting the models.
 void DetectParagraphs(int debug_level,
-                      GenericVector<RowInfo> *row_infos,
+                      std::vector<RowInfo> *row_infos,
                       GenericVector<PARA *> *row_owners,
                       PARA_LIST *paragraphs,
-                      std::list<ParagraphModel *> *models) {
+                      std::vector<ParagraphModel *> *models) {
   GenericVector<RowScratchRegisters> rows;
   ParagraphTheory theory(models);
 
@@ -2514,7 +2519,7 @@ static void InitializeRowInfo(bool after_recognition,
 void DetectParagraphs(int debug_level,
                       bool after_text_recognition,
                       const MutableIterator *block_start,
-                      std::list<ParagraphModel *> *models) {
+                      std::vector<ParagraphModel *> *models) {
   // Clear out any preconceived notions.
   if (block_start->Empty(RIL_TEXTLINE)) {
     return;
@@ -2529,7 +2534,7 @@ void DetectParagraphs(int debug_level,
   if (row.Empty(RIL_TEXTLINE))
     return;  // end of input already.
 
-  GenericVector<RowInfo> row_infos;
+  std::vector<RowInfo> row_infos;
   do {
     if (!row.PageResIt()->row())
       continue;  // empty row.

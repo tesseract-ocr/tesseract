@@ -135,7 +135,7 @@ class LSTMTrainer : public LSTMRecognizer {
   int learning_iteration() const { return learning_iteration_; }
   int32_t improvement_steps() const { return improvement_steps_; }
   void set_perfect_delay(int delay) { perfect_delay_ = delay; }
-  const GenericVector<char>& best_trainer() const { return best_trainer_; }
+  const std::vector<char>& best_trainer() const { return best_trainer_; }
   // Returns the error that was just calculated by PrepareForBackward.
   double NewSingleError(ErrorTypes type) const {
     return error_buffers_[type][training_iteration() % kRollingBufferSize_];
@@ -167,7 +167,7 @@ class LSTMTrainer : public LSTMRecognizer {
   // Loads a set of lstmf files that were created using the lstm.train config to
   // tesseract into memory ready for training. Returns false if nothing was
   // loaded.
-  bool LoadAllTrainingData(const GenericVector<STRING>& filenames,
+  bool LoadAllTrainingData(const std::vector<STRING>& filenames,
                            CachingStrategy cache_strategy,
                            bool randomly_rotate);
 
@@ -269,7 +269,7 @@ class LSTMTrainer : public LSTMRecognizer {
   // actually serialized.
   bool SaveTrainingDump(SerializeAmount serialize_amount,
                         const LSTMTrainer* trainer,
-                        GenericVector<char>* data) const;
+                        std::vector<char>* data) const;
 
   // Reads previously saved trainer from memory. *this must always be the
   // master trainer that retains the only copy of the training data and
@@ -294,7 +294,7 @@ class LSTMTrainer : public LSTMRecognizer {
   bool SaveTraineddata(const char* filename);
 
   // Writes the recognizer to memory, so that it can be used for testing later.
-  void SaveRecognitionDump(GenericVector<char>* data) const;
+  void SaveRecognitionDump(std::vector<char>* data) const;
 
   // Returns a suitable filename for a training dump, based on the model_base_,
   // the iteration and the error rates.
@@ -375,7 +375,7 @@ class LSTMTrainer : public LSTMRecognizer {
   // Given that error_rate is either a new min or max, updates the best/worst
   // error rates, and record of progress.
   STRING UpdateErrorGraph(int iteration, double error_rate,
-                          const GenericVector<char>& model_data,
+                          const std::vector<char>& model_data,
                           TestCallback tester);
 
  protected:
@@ -420,10 +420,10 @@ class LSTMTrainer : public LSTMRecognizer {
   // Iteration at which the process will be thought stalled.
   int stall_iteration_;
   // Saved recognition models for computing test error for graph points.
-  GenericVector<char> best_model_data_;
-  GenericVector<char> worst_model_data_;
+  std::vector<char> best_model_data_;
+  std::vector<char> worst_model_data_;
   // Saved trainer for reverting back to last known best.
-  GenericVector<char> best_trainer_;
+  std::vector<char> best_trainer_;
   // A subsidiary trainer running with a different learning rate until either
   // *this or sub_trainer_ hits a new best.
   LSTMTrainer* sub_trainer_;

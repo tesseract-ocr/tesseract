@@ -25,6 +25,7 @@ class IndexMapBiDiTest : public testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
  public:

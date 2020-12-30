@@ -153,7 +153,7 @@ void Tesseract::SetupAllWordsPassN(int pass_n,
                                    const TBOX* target_word_box,
                                    const char* word_config,
                                    PAGE_RES* page_res,
-                                   GenericVector<WordData>* words) {
+                                   std::vector<WordData>* words) {
   // Prepare all the words.
   PAGE_RES_IT page_res_it(page_res);
   for (page_res_it.restart_page(); page_res_it.word() != nullptr;
@@ -210,7 +210,7 @@ void Tesseract::SetupWordPassN(int pass_n, WordData* word) {
 // Runs word recognition on all the words.
 bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
                                    PAGE_RES_IT* pr_it,
-                                   GenericVector<WordData>* words) {
+                                   std::vector<WordData>* words) {
   // TODO(rays) Before this loop can be parallelized (it would yield a massive
   // speed-up) all remaining member globals need to be converted to local/heap
   // (eg set_pass1 and set_pass2) and an intermediate adaption pass needs to be
@@ -336,7 +336,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
 
     // Set up all words ready for recognition, so that if parallelism is on
     // all the input and output classes are ready to run the classifier.
-    GenericVector<WordData> words;
+    std::vector<WordData> words;
     SetupAllWordsPassN(1, target_word_box, word_config, page_res, &words);
     #ifndef DISABLED_LEGACY_ENGINE
     if (tessedit_parallelize) {
@@ -386,7 +386,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
   if (tessedit_tess_adaption_mode != 0x0 && !tessedit_test_adaption &&
       AnyTessLang()) {
     page_res_it.restart_page();
-    GenericVector<WordData> words;
+    std::vector<WordData> words;
     SetupAllWordsPassN(2, target_word_box, word_config, page_res, &words);
     if (tessedit_parallelize) {
       PrerecAllWordsPar(words);
@@ -1006,7 +1006,7 @@ void Tesseract::AssignDiacriticsToOverlappingBlobs(
     PAGE_RES_IT* pr_it, GenericVector<bool>* word_wanted,
     GenericVector<bool>* overlapped_any_blob,
     GenericVector<C_BLOB*>* target_blobs) {
-  GenericVector<bool> blob_wanted;
+  std::vector<bool> blob_wanted;
   word_wanted->resize(outlines.size(), false);
   overlapped_any_blob->resize(outlines.size(), false);
   target_blobs->resize(outlines.size(), nullptr);
@@ -1058,7 +1058,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(
     const GenericVector<C_OUTLINE*>& outlines, int pass, WERD* real_word,
     PAGE_RES_IT* pr_it, GenericVector<bool>* word_wanted,
     GenericVector<C_BLOB*>* target_blobs) {
-  GenericVector<bool> blob_wanted;
+  std::vector<bool> blob_wanted;
   word_wanted->resize(outlines.size(), false);
   target_blobs->resize(outlines.size(), nullptr);
   // Check for outlines that need to be turned into stand-alone blobs.
@@ -1133,7 +1133,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(
 bool Tesseract::SelectGoodDiacriticOutlines(
     int pass, float certainty_threshold, PAGE_RES_IT* pr_it, C_BLOB* blob,
     const GenericVector<C_OUTLINE*>& outlines, int num_outlines,
-    GenericVector<bool>* ok_outlines) {
+    std::vector<bool>* ok_outlines) {
   STRING best_str;
   float target_cert = certainty_threshold;
   if (blob != nullptr) {
@@ -1146,10 +1146,10 @@ bool Tesseract::SelectGoodDiacriticOutlines(
     }
     target_cert -= (target_cert - certainty_threshold) * noise_cert_factor;
   }
-  GenericVector<bool> test_outlines = *ok_outlines;
+  std::vector<bool> test_outlines = *ok_outlines;
   // Start with all the outlines in.
   STRING all_str;
-  GenericVector<bool> best_outlines = *ok_outlines;
+  std::vector<bool> best_outlines = *ok_outlines;
   float best_cert = ClassifyBlobPlusOutlines(test_outlines, outlines, pass,
                                              pr_it, blob, &all_str);
   if (debug_noise_removal) {
@@ -1178,7 +1178,7 @@ bool Tesseract::SelectGoodDiacriticOutlines(
           TBOX ol_box;
           for (int j = 0; j < outlines.size(); ++j) {
             if (test_outlines[j]) ol_box += outlines[j]->bounding_box();
-            tprintf("%d", test_outlines[j]);
+            tprintf("%c", test_outlines[j] ? 'T' : 'F');
           }
           tprintf(" blob classified as %s=%g, delta=%g) at:", str.c_str(),
                   cert, cert - target_cert);
@@ -1203,7 +1203,7 @@ bool Tesseract::SelectGoodDiacriticOutlines(
     if (debug_noise_removal) {
       tprintf("%s noise combination ", blob ? "Adding" : "New");
       for (int i = 0; i < best_outlines.size(); ++i) {
-        tprintf("%d", best_outlines[i]);
+        tprintf("%c", best_outlines[i] ? 'T' : 'F');
       }
       tprintf(" yields certainty %g, beating target of %g\n", best_cert,
               target_cert);
@@ -1217,7 +1217,7 @@ bool Tesseract::SelectGoodDiacriticOutlines(
 // Classifies the given blob plus the outlines flagged by ok_outlines, undoes
 // the inclusion of the outlines, and returns the certainty of the raw choice.
 float Tesseract::ClassifyBlobPlusOutlines(
-    const GenericVector<bool>& ok_outlines,
+    const std::vector<bool>& ok_outlines,
     const GenericVector<C_OUTLINE*>& outlines, int pass_n, PAGE_RES_IT* pr_it,
     C_BLOB* blob, STRING* best_str) {
   C_OUTLINE_IT ol_it;

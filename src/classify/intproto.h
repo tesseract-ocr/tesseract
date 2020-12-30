@@ -2,7 +2,6 @@
  ** Filename:    intproto.h
  ** Purpose:     Definition of data structures for integer protos.
  ** Author:      Dan Johnson
- ** History:     Thu Feb  7 12:58:45 1991, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,8 +26,6 @@
 #include "protos.h"
 #include "scrollview.h"
 #include "unicharset.h"
-
-#include "genericvector.h"
 
 namespace tesseract {
 

@@ -922,24 +922,32 @@ ELIST2IZEH_C.
    public:                                                                     \
     CLASSNAME##_IT(CLASSNAME##_LIST *list) : ELIST2_ITERATOR(list) {}          \
                                                                                \
-    CLASSNAME *data() { return (CLASSNAME *)ELIST2_ITERATOR::data(); }         \
-                                                                               \
-    CLASSNAME *data_relative(int8_t offset) {                                  \
-      return (CLASSNAME *)ELIST2_ITERATOR::data_relative(offset);              \
+    CLASSNAME* data() {                                                        \
+      return reinterpret_cast<CLASSNAME*>(ELIST2_ITERATOR::data());            \
     }                                                                          \
                                                                                \
-    CLASSNAME *forward() { return (CLASSNAME *)ELIST2_ITERATOR::forward(); }   \
-                                                                               \
-    CLASSNAME *backward() { return (CLASSNAME *)ELIST2_ITERATOR::backward(); } \
-                                                                               \
-    CLASSNAME *extract() { return (CLASSNAME *)ELIST2_ITERATOR::extract(); }   \
-                                                                               \
-    CLASSNAME *move_to_first() {                                               \
-      return (CLASSNAME *)ELIST2_ITERATOR::move_to_first();                    \
+    CLASSNAME* data_relative(int8_t offset) {                                  \
+      return reinterpret_cast<CLASSNAME*>(ELIST2_ITERATOR::data_relative(offset)); \
     }                                                                          \
                                                                                \
-    CLASSNAME *move_to_last() {                                                \
-      return (CLASSNAME *)ELIST2_ITERATOR::move_to_last();                     \
+    CLASSNAME* forward() {                                                     \
+      return reinterpret_cast<CLASSNAME*>(ELIST2_ITERATOR::forward());         \
+    }                                                                          \
+                                                                               \
+    CLASSNAME* backward() {                                                    \
+      return reinterpret_cast<CLASSNAME*>(ELIST2_ITERATOR::backward());        \
+    }                                                                          \
+                                                                               \
+    CLASSNAME* extract() {                                                     \
+      return reinterpret_cast<CLASSNAME*>(ELIST2_ITERATOR::extract());         \
+    }                                                                          \
+                                                                               \
+    CLASSNAME* move_to_first() {                                               \
+      return reinterpret_cast<CLASSNAME*>(ELIST2_ITERATOR::move_to_first());   \
+    }                                                                          \
+                                                                               \
+    CLASSNAME* move_to_last() {                                                \
+      return reinterpret_cast<CLASSNAME*>(ELIST2_ITERATOR::move_to_last());    \
     }                                                                          \
    private:                                                                    \
     CLASSNAME##_IT();                                                          \
@@ -971,7 +979,7 @@ ELIST2IZEH_C.
   DLLSYM void CLASSNAME##_zapper(                   /*delete a link*/         \
                                  ELIST2_LINK *link) /*link to delete*/        \
   {                                                                           \
-    delete (CLASSNAME *)link;                                                 \
+    delete reinterpret_cast<CLASSNAME*>(link);                                \
   }                                                                           \
                                                                               \
   /* Become a deep copy of src_list*/                                         \

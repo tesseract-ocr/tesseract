@@ -2,7 +2,6 @@
 // File:        apitypes.h
 // Description: Types used in both the API and internally
 // Author:      Ray Smith
-// Created:     Wed Mar 03 09:22:53 PST 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");

@@ -18,12 +18,11 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-
+#include "serialis.h" // Serialize
 #include <cstring>
 #include <memory>  // std::unique_ptr
 #include <string>  // std::string
 #include <tesseract/baseapi.h>
-#include "genericvector.h"
 #include <tesseract/renderer.h>
 
 namespace tesseract {

@@ -15,12 +15,11 @@
 #ifndef TESSERACT_TRAINING_LANG_MODEL_HELPERS_H_
 #define TESSERACT_TRAINING_LANG_MODEL_HELPERS_H_
 
-#include <string>
-#include "genericvector.h"
 #include "serialis.h"
 #include "strngs.h"
 #include "tessdatamanager.h"
 #include "unicharset.h"
+#include <string>
 
 namespace tesseract {
 
@@ -30,7 +29,7 @@ namespace tesseract {
 // can do its own thing. If lang is empty, returns true but does nothing.
 // NOTE that suffix should contain any required . for the filename.
 bool WriteFile(const std::string& output_dir, const std::string& lang,
-               const std::string& suffix, const GenericVector<char>& data,
+               const std::string& suffix, const std::vector<char>& data,
                FileWriter writer);
 // Helper reads a file with optional reader and returns a STRING.
 // On failure emits a warning message and returns and empty STRING.

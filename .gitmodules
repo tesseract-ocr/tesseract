@@ -1,9 +1,9 @@
 [submodule "abseil"]
 	path = abseil
-	url = https://github.com/abseil/abseil-cpp.git
+	url = https://github.com/GerHobbelt/abseil-cpp.git
 [submodule "googletest"]
 	path = googletest
-	url = https://github.com/google/googletest.git
+	url = https://github.com/GerHobbelt/googletest.git
 [submodule "test"]
 	path = test
-	url = https://github.com/tesseract-ocr/test.git
+	url = https://github.com/GerHobbelt/tesseract-ocr-test.git

@@ -610,21 +610,6 @@ const std::vector<std::string>& FontUtils::ListAvailableFonts() {
   return available_fonts_;
 }
 
-
-static void CharCoverageMapToBitmap(PangoCoverage* coverage,
-                                    std::vector<bool>* unichar_bitmap) {
-  const int kMinUnicodeValue = 33;
-  const int kMaxUnicodeValue = 0x10FFFF;
-  unichar_bitmap->resize(kMaxUnicodeValue + 1, false);
-  // Mark off characters that the font can render.
-  for (int i = kMinUnicodeValue; i <= kMaxUnicodeValue; ++i) {
-    if (IsInterchangeValid(i)) {
-      (*unichar_bitmap)[i]
-          = (pango_coverage_get(coverage, i) == PANGO_COVERAGE_EXACT);
-    }
-  }
-}
-
 // Utilities written to be backward compatible with StringRender
 
 /* static */
