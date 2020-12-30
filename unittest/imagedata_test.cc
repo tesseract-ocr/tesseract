@@ -51,6 +51,11 @@ class ImagedataTest : public ::testing::Test {
       EXPECT_EQ(kImageSize, imagedata->MemoryUsed());
       write_doc.AddPageToDocument(imagedata);
     }
+#if defined(_WIN32)
+    _mkdir(FLAGS_test_tmpdir);
+#else
+    mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
+#endif
     // Write it to a file.
     std::string filename = file::JoinPath(
         FLAGS_test_tmpdir, absl::StrCat("documentdata", doc_id, ".lstmf"));

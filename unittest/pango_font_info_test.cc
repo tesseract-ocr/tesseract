@@ -64,6 +64,13 @@ class PangoFontInfoTest : public ::testing::Test {
   void SetUp() override {
     static std::locale system_locale("");
     std::locale::global(system_locale);
+
+#if defined(_WIN32)
+    _mkdir(FLAGS_test_tmpdir);
+#else
+    mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
+#endif
+
     if (!font_map) {
       font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
     }
@@ -184,6 +191,13 @@ TEST_F(PangoFontInfoTest, CanDropUncoveredChars) {
 
 class FontUtilsTest : public ::testing::Test {
  protected:
+  void SetUp() override {
+#if defined(_WIN32)
+      _mkdir(FLAGS_test_tmpdir);
+#else
+      mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
+#endif
+  }
   // Creates a fake fonts.conf file that points to the testdata fonts for
   // fontconfig to initialize with.
   static void SetUpTestCase() {
