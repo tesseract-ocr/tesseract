@@ -22,18 +22,14 @@
 
 #include <tesseract/unichar.h>
 
+#include <unordered_map>
+
 namespace tesseract {
 
 // A UNICHARMAP stores unique unichars. Each of them is associated with one
 // UNICHAR_ID.
-class UNICHARMAP {
+class UNICHARMAP : public std::unordered_map<std::string, UNICHAR_ID> {
  public:
-
-  // Create an empty UNICHARMAP
-  UNICHARMAP();
-
-  ~UNICHARMAP();
-
   // Insert the given unichar represention in the UNICHARMAP and associate it
   // with the given id. The length of the representation MUST be non-zero.
   void insert(const char* const unichar_repr, UNICHAR_ID id);
@@ -52,24 +48,6 @@ class UNICHARMAP {
   // Return the minimum number of characters that must be used from this string
   // to obtain a match in the UNICHARMAP.
   int minmatch(const char* const unichar_repr) const;
-
-  // Clear the UNICHARMAP. All previous data is lost.
-  void clear();
-
- private:
-
-  // The UNICHARMAP is represented as a tree whose nodes are of type
-  // UNICHARMAP_NODE.
-  struct UNICHARMAP_NODE {
-
-    UNICHARMAP_NODE();
-    ~UNICHARMAP_NODE();
-
-    UNICHARMAP_NODE* children;
-    UNICHAR_ID id;
-  };
-
-  UNICHARMAP_NODE* nodes;
 };
 
 } // namespace tesseract
