@@ -35,7 +35,7 @@ struct BlobData {
   BLOB_CHOICE_LIST** choices = nullptr;
 };
 
-void Tesseract::PrerecAllWordsPar(const GenericVector<WordData>& words) {
+void Tesseract::PrerecAllWordsPar(const std::vector<WordData>& words) {
   // Prepare all the blobs.
   GenericVector<BlobData> blobs;
   for (int w = 0; w < words.size(); ++w) {

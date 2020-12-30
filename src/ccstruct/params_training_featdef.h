@@ -2,7 +2,6 @@
 // File:        params_training_featdef.h
 // Description: Feature definitions for params training.
 // Author:      Rika Antonova
-// Created:     Mon Nov 28 11:26:42 PDT 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +19,8 @@
 #ifndef TESSERACT_WORDREC_PARAMS_TRAINING_FEATDEF_H_
 #define TESSERACT_WORDREC_PARAMS_TRAINING_FEATDEF_H_
 
-#include "genericvector.h"
 #include "strngs.h"
+#include <vector>
 
 namespace tesseract {
 
@@ -124,7 +123,7 @@ struct ParamsTrainingHypothesis {
 };
 
 // A list of hypotheses explored during one run of segmentation search.
-using ParamsTrainingHypothesisList = GenericVector<ParamsTrainingHypothesis>;
+using ParamsTrainingHypothesisList = std::vector<ParamsTrainingHypothesis>;
 
 // A bundle that accumulates all of the hypothesis lists explored during all
 // of the runs of segmentation search on a word (e.g. a list of hypotheses
@@ -146,7 +145,7 @@ class ParamsTrainingBundle {
     return hyp_list_vec.back().back();
   }
 
-  GenericVector<ParamsTrainingHypothesisList> hyp_list_vec;
+  std::vector<ParamsTrainingHypothesisList> hyp_list_vec;
 };
 
 }  // namespace tesseract

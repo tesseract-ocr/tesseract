@@ -28,6 +28,7 @@ class UnicharcompressTest : public ::testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
   // Loads and compresses the given unicharset.
@@ -57,7 +58,7 @@ class UnicharcompressTest : public ::testing::Test {
   }
   // Serializes and de-serializes compressed_ over itself.
   void SerializeAndUndo() {
-    GenericVector<char> data;
+    std::vector<char> data;
     TFile wfp;
     wfp.OpenWrite(&data);
     EXPECT_TRUE(compressed_.Serialize(&wfp));

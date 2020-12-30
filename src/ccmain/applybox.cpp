@@ -113,8 +113,8 @@ static void clear_any_old_text(BLOCK_LIST *block_list) {
 PAGE_RES* Tesseract::ApplyBoxes(const char* filename,
                                 bool find_segmentation,
                                 BLOCK_LIST *block_list) {
-  GenericVector<TBOX> boxes;
-  GenericVector<STRING> texts, full_texts;
+  std::vector<TBOX> boxes;
+  std::vector<STRING> texts, full_texts;
   if (!ReadAllBoxes(applybox_page, true, filename, &boxes, &texts, &full_texts,
                     nullptr)) {
     return nullptr;  // Can't do it.
@@ -205,7 +205,7 @@ void Tesseract::PreenXHeights(BLOCK_LIST *block_list) {
 
 /// Builds a PAGE_RES from the block_list in the way required for ApplyBoxes:
 /// All fuzzy spaces are removed, and all the words are maximally chopped.
-PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
+PAGE_RES* Tesseract::SetupApplyBoxes(const std::vector<TBOX>& boxes,
                                      BLOCK_LIST *block_list) {
   PreenXHeights(block_list);
   // Strip all fuzzy space markers to simplify the PAGE_RES.
@@ -241,7 +241,7 @@ PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
 /// Tests the chopper by exhaustively running chop_one_blob.
 /// The word_res will contain filled chopped_word, seam_array, denorm,
 /// box_word and best_state for the maximally chopped word.
-void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
+void Tesseract::MaximallyChopWord(const std::vector<TBOX>& boxes,
                                   BLOCK* block, ROW* row,
                                   WERD_RES* word_res) {
   if (!word_res->SetupForRecognition(unicharset, this, BestPix(),

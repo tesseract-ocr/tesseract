@@ -377,7 +377,7 @@ class DawgPositionVector : public GenericVector<DawgPosition> {
                          bool debug,
                          const char *debug_msg) {
     for (int i = 0; i < size(); ++i) {
-      if (data()[i] == new_pos) return false;
+      if (data_[i] == new_pos) return false;
     }
     push_back(new_pos);
     if (debug) {

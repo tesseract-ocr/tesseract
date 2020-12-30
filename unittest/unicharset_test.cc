@@ -133,7 +133,7 @@ TEST(UnicharsetTest, MultibyteBigrams) {
   // It is added if we force it to be.
   u.unichar_insert("\u0ccd\u0cad", OldUncleanUnichars::kTrue);
   EXPECT_EQ(u.size(), 8);
-  GenericVector<char> data;
+  std::vector<char> data;
   tesseract::TFile fp;
   fp.OpenWrite(&data);
   u.save_to_file(&fp);

@@ -25,6 +25,7 @@ class BitVectorTest : public testing::Test {
  protected:
   void SetUp() override {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
  public:
@@ -119,11 +120,11 @@ TEST_F(BitVectorTest, Primes) {
   // Test file i/o too.
   std::string filename = OutputNameToPath("primesbitvector");
   FILE* fp = fopen(filename.c_str(), "wb");
-  CHECK(fp != nullptr);
+  ASSERT_TRUE(fp != nullptr);
   EXPECT_TRUE(map.Serialize(fp));
   fclose(fp);
   fp = fopen(filename.c_str(), "rb");
-  CHECK(fp != nullptr);
+  ASSERT_TRUE(fp != nullptr);
   BitVector read_map;
   EXPECT_TRUE(read_map.DeSerialize(false, fp));
   fclose(fp);

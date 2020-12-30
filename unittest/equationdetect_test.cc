@@ -9,21 +9,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <string>
-#include <utility>
-#include "allheaders.h"
+#include "include_gunit.h"
+
 #include "colpartitiongrid.h"
 #include "equationdetect.h"
 #include "tesseractclass.h"
-#include "include_gunit.h"
+
+#include "allheaders.h"
+
+#include <memory>
+#include <string>
+#include <utility>
+
+#define ENABLE_IdentifySpecialText_TEST 0
+#if ENABLE_IdentifySpecialText_TEST
+#define EQU_TRAINEDDATA_NAME "equ"
+#else
+#define EQU_TRAINEDDATA_NAME "equINTENTIONALLY_MISSING_FILE"
+#endif
 
 namespace tesseract {
 
 class TestableEquationDetect : public EquationDetect {
  public:
   TestableEquationDetect(const char* tessdata, Tesseract* lang_tesseract)
-      : EquationDetect(tessdata, "equ") {
+      : EquationDetect(tessdata, EQU_TRAINEDDATA_NAME) {
     SetLangTesseract(lang_tesseract);
   }
 
@@ -175,7 +185,7 @@ class EquationFinderTest : public testing::Test {
 };
 
 TEST_F(EquationFinderTest, IdentifySpecialText) {
-#if 1
+#if !ENABLE_IdentifySpecialText_TEST
   GTEST_SKIP();
 #else // TODO: missing equ_gt1.tif
   // Load Image.

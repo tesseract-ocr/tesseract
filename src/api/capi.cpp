@@ -458,13 +458,6 @@ int TessBaseAPIRecognize(TessBaseAPI* handle,
   return handle->Recognize(monitor);
 }
 
-#ifndef DISABLED_LEGACY_ENGINE
-int TessBaseAPIRecognizeForChopTest(TessBaseAPI* handle,
-                                                       ETEXT_DESC* monitor) {
-  return handle->RecognizeForChopTest(monitor);
-}
-#endif
-
 BOOL TessBaseAPIProcessPages(TessBaseAPI* handle,
                                                 const char* filename,
                                                 const char* retry_config,
@@ -611,11 +604,6 @@ int TessBaseAPINumDawgs(const TessBaseAPI* handle) {
 
 TessOcrEngineMode TessBaseAPIOem(const TessBaseAPI* handle) {
   return handle->oem();
-}
-
-void TessBaseAPIInitTruthCallback(TessBaseAPI* handle,
-                                                     TessTruthCallback cb) {
-  handle->InitTruthCallback(cb);
 }
 
 void TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle,

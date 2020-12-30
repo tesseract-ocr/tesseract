@@ -334,7 +334,7 @@ class Tesseract : public Wordrec {
       OSResults* osr, TO_BLOCK_LIST* to_blocks, Pix** photo_mask_pix,
       Pix** music_mask_pix);
   // par_control.cpp
-  void PrerecAllWordsPar(const GenericVector<WordData>& words);
+  void PrerecAllWordsPar(const std::vector<WordData>& words);
 
   //// linerec.cpp
   // Generates training data for training a line recognizer, eg LSTM.
@@ -347,15 +347,15 @@ class Tesseract : public Wordrec {
   // Generates training data for training a line recognizer, eg LSTM.
   // Breaks the boxes into lines, normalizes them, converts to ImageData and
   // appends them to the given training_data.
-  void TrainFromBoxes(const GenericVector<TBOX>& boxes,
-                      const GenericVector<STRING>& texts,
+  void TrainFromBoxes(const std::vector<TBOX>& boxes,
+                      const std::vector<STRING>& texts,
                       BLOCK_LIST* block_list, DocumentData* training_data);
 
   // Returns an Imagedata containing the image of the given textline,
   // and ground truth boxes/truth text if available in the input.
   // The image is not normalized in any way.
-  ImageData* GetLineData(const TBOX& line_box, const GenericVector<TBOX>& boxes,
-                         const GenericVector<STRING>& texts, int start_box,
+  ImageData* GetLineData(const TBOX& line_box, const std::vector<TBOX>& boxes,
+                         const std::vector<STRING>& texts, int start_box,
                          int end_box, const BLOCK& block);
   // Helper gets the image of a rectangle, using the block.re_rotation() if
   // needed to get to the image, and rotating the result back to horizontal
@@ -380,12 +380,12 @@ class Tesseract : public Wordrec {
   // Sets up the words ready for whichever engine is to be run
   void SetupAllWordsPassN(int pass_n, const TBOX* target_word_box,
                           const char* word_config, PAGE_RES* page_res,
-                          GenericVector<WordData>* words);
+                          std::vector<WordData>* words);
   // Sets up the single word ready for whichever engine is to be run.
   void SetupWordPassN(int pass_n, WordData* word);
   // Runs word recognition on all the words.
   bool RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor, PAGE_RES_IT* pr_it,
-                          GenericVector<WordData>* words);
+                          std::vector<WordData>* words);
   bool recog_all_words(PAGE_RES* page_res, ETEXT_DESC* monitor,
                        const TBOX* target_word_box, const char* word_config,
                        int dopasses);
@@ -428,10 +428,10 @@ class Tesseract : public Wordrec {
                                    PAGE_RES_IT* pr_it, C_BLOB* blob,
                                    const GenericVector<C_OUTLINE*>& outlines,
                                    int num_outlines,
-                                   GenericVector<bool>* ok_outlines);
+                                   std::vector<bool>* ok_outlines);
   // Classifies the given blob plus the outlines flagged by ok_outlines, undoes
   // the inclusion of the outlines, and returns the certainty of the raw choice.
-  float ClassifyBlobPlusOutlines(const GenericVector<bool>& ok_outlines,
+  float ClassifyBlobPlusOutlines(const std::vector<bool>& ok_outlines,
                                  const GenericVector<C_OUTLINE*>& outlines,
                                  int pass_n, PAGE_RES_IT* pr_it, C_BLOB* blob,
                                  STRING* best_str);
@@ -708,12 +708,12 @@ class Tesseract : public Wordrec {
 
   // Builds a PAGE_RES from the block_list in the way required for ApplyBoxes:
   // All fuzzy spaces are removed, and all the words are maximally chopped.
-  PAGE_RES* SetupApplyBoxes(const GenericVector<TBOX>& boxes,
+  PAGE_RES* SetupApplyBoxes(const std::vector<TBOX>& boxes,
                             BLOCK_LIST* block_list);
   // Tests the chopper by exhaustively running chop_one_blob.
   // The word_res will contain filled chopped_word, seam_array, denorm,
   // box_word and best_state for the maximally chopped word.
-  void MaximallyChopWord(const GenericVector<TBOX>& boxes, BLOCK* block,
+  void MaximallyChopWord(const std::vector<TBOX>& boxes, BLOCK* block,
                          ROW* row, WERD_RES* word_res);
   // Gather consecutive blobs that match the given box into the best_state
   // and corresponding correct_text.

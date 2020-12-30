@@ -9,17 +9,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cstdlib>      // for system
-#include <fstream>      // for ifstream
-#include <set>
-#include <string>
-#include <vector>
+#include "include_gunit.h"
 
 #include "ratngs.h"
 #include "unicharset.h"
 #include "trie.h"
 
-#include "include_gunit.h"
+#include <cstdlib>      // for system
+#include <fstream>      // for ifstream
+#include <set>
+#include <string>
+#include <vector>
+#include <sys/stat.h>
 
 #ifndef SW_TESTING
 #define wordlist2dawg_prog "wordlist2dawg"
@@ -34,6 +35,7 @@ class DawgTest : public testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
   void LoadWordlist(const std::string& filename, std::set<std::string>* words) const {
@@ -73,7 +75,6 @@ class DawgTest : public testing::Test {
     std::string orig_wordlist = file::JoinPath(TESTING_DIR, wordlist_filename);
     std::string output_dawg = OutputNameToPath(wordlist_filename + ".dawg");
     std::string output_wordlist = OutputNameToPath(wordlist_filename);
-    mkdir(FLAGS_test_tmpdir);
     LoadWordlist(orig_wordlist, &orig_words);
     EXPECT_EQ(
         RunCommand(wordlist2dawg_prog, orig_wordlist, output_dawg, unicharset), 0);

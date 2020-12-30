@@ -47,6 +47,7 @@ class LSTMTrainerTest : public testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
   LSTMTrainerTest() {}
@@ -78,7 +79,7 @@ class LSTMTrainerTest : public testing::Test {
     ASSERT_TRUE(unicharset.load_from_file(unicharset_name.c_str(), false));
     std::string script_dir = file::JoinPath(
         LANGDATA_DIR, "");
-    GenericVector<STRING> words;
+    std::vector<STRING> words;
     EXPECT_EQ(0, CombineLangModel(unicharset, script_dir, "", FLAGS_test_tmpdir,
                                   kLang, !recode, words, words, words, false,
                                   nullptr, nullptr));
@@ -95,7 +96,7 @@ class LSTMTrainerTest : public testing::Test {
     if (layer_specific) net_mode |= NF_LAYER_SPECIFIC_LR;
     EXPECT_TRUE(trainer_->InitNetwork(network_spec.c_str(), -1, net_mode, 0.1,
                                       learning_rate, 0.9, 0.999));
-    GenericVector<STRING> filenames;
+    std::vector<STRING> filenames;
     filenames.push_back(STRING(TestDataNameToPath(lstmf_file).c_str()));
     EXPECT_TRUE(trainer_->LoadAllTrainingData(filenames, CS_SEQUENTIAL, false));
     LOG(INFO) << "Setup network:" << model_name << "\n" ;
@@ -151,7 +152,7 @@ class LSTMTrainerTest : public testing::Test {
   // within 1% of the error rate. Returns the increase in error from float to
   // int.
   double TestIntMode(int test_iterations) {
-    GenericVector<char> trainer_data;
+    std::vector<char> trainer_data;
     EXPECT_TRUE(trainer_->SaveTrainingDump(NO_BEST_TRAINER, trainer_.get(),
                                            &trainer_data));
     // Get the error on the next few iterations in float mode.

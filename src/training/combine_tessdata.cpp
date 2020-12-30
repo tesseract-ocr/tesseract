@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
       return EXIT_FAILURE;
     }
     recognizer.ConvertToInt();
-    GenericVector<char> lstm_data;
+    std::vector<char> lstm_data;
     fp.OpenWrite(&lstm_data);
     ASSERT_HOST(recognizer.Serialize(&tm, &fp));
     tm.OverwriteEntry(tesseract::TESSDATA_LSTM, &lstm_data[0],

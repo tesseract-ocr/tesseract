@@ -18,10 +18,10 @@
 #ifndef TESSERACT_TRAINING_LSTMTESTER_H_
 #define TESSERACT_TRAINING_LSTMTESTER_H_
 
-#include <mutex>
-#include "genericvector.h"
 #include "lstmtrainer.h"
 #include "strngs.h"
+#include <mutex>
+#include <vector>
 
 namespace tesseract {
 
@@ -38,7 +38,7 @@ class LSTMTester {
   // Loads a set of lstmf files that were created using the lstm.train config to
   // tesseract into memory ready for testing. Returns false if nothing was
   // loaded.
-  bool LoadAllEvalData(const GenericVector<STRING>& filenames);
+  bool LoadAllEvalData(const std::vector<STRING>& filenames);
 
   // Runs an evaluation asynchronously on the stored eval data and returns a
   // string describing the results of the previous test. Args match TestCallback

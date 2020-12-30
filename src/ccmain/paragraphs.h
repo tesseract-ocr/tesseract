@@ -88,10 +88,10 @@ class RowInfo {
 //   models - the list of paragraph models referenced by the PARA objects.
 //            caller is responsible for deleting the models.
 void DetectParagraphs(int debug_level,
-                      GenericVector<RowInfo> *row_infos,
+                      std::vector<RowInfo> *row_infos,
                       GenericVector<PARA *> *row_owners,
                       PARA_LIST *paragraphs,
-                      std::list<ParagraphModel *> *models);
+                      std::vector<ParagraphModel *> *models);
 
 // Given a MutableIterator to the start of a block, run DetectParagraphs on
 // that block and commit the results to the underlying ROW and BLOCK structs,
@@ -101,7 +101,7 @@ void DetectParagraphs(int debug_level,
 void DetectParagraphs(int debug_level,
                       bool after_text_recognition,
                       const MutableIterator *block_start,
-                      std::list<ParagraphModel *> *models);
+                      std::vector<ParagraphModel *> *models);
 
 }  // namespace
 

@@ -331,9 +331,9 @@ void ImageData::Display() const {
 
 // Adds the supplied boxes and transcriptions that correspond to the correct
 // page number.
-void ImageData::AddBoxes(const GenericVector<TBOX>& boxes,
-                         const GenericVector<STRING>& texts,
-                         const GenericVector<int>& box_pages) {
+void ImageData::AddBoxes(const std::vector<TBOX>& boxes,
+                         const std::vector<STRING>& texts,
+                         const std::vector<int>& box_pages) {
   // Copy the boxes and make the transcription.
   for (int i = 0; i < box_pages.size(); ++i) {
     if (page_number_ >= 0 && box_pages[i] != page_number_) continue;
@@ -378,9 +378,9 @@ Pix* ImageData::GetPixInternal(const GenericVector<char>& image_data) {
 // match the page number. Returns false on error.
 bool ImageData::AddBoxes(const char* box_text) {
   if (box_text != nullptr && box_text[0] != '\0') {
-    GenericVector<TBOX> boxes;
-    GenericVector<STRING> texts;
-    GenericVector<int> box_pages;
+    std::vector<TBOX> boxes;
+    std::vector<STRING> texts;
+    std::vector<int> box_pages;
     if (ReadMemBoxes(page_number_, /*skip_blanks*/ false, box_text,
                      /*continue_on_failure*/ true, &boxes, &texts, nullptr,
                      &box_pages)) {
@@ -587,7 +587,7 @@ DocumentCache::~DocumentCache() {}
 
 // Adds all the documents in the list of filenames, counting memory.
 // The reader is used to read the files.
-bool DocumentCache::LoadDocuments(const GenericVector<STRING>& filenames,
+bool DocumentCache::LoadDocuments(const std::vector<STRING>& filenames,
                                   CachingStrategy cache_strategy,
                                   FileReader reader) {
   cache_strategy_ = cache_strategy;

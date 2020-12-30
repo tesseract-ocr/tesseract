@@ -185,13 +185,6 @@ static void addAvailableLanguages(const std::string& datadir, const std::string&
 #endif
 }
 
-// Compare two STRING values (used for sorting).
-static int CompareSTRING(const void* p1, const void* p2) {
-  const auto* s1 = static_cast<const STRING*>(p1);
-  const auto* s2 = static_cast<const STRING*>(p2);
-  return strcmp(s1->c_str(), s2->c_str());
-}
-
 TessBaseAPI::TessBaseAPI()
     : tesseract_(nullptr),
       osd_tesseract_(nullptr),
@@ -209,7 +202,6 @@ TessBaseAPI::TessBaseAPI()
       visible_pdf_image_(nullptr),
       last_oem_requested_(OEM_DEFAULT),
       recognition_done_(false),
-      truth_cb_(nullptr),
       rect_left_(0),
       rect_top_(0),
       rect_width_(0),
@@ -872,17 +864,6 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   }
 #endif  // ndef DISABLED_LEGACY_ENGINE
 
-  if (truth_cb_ != nullptr) {
-    tesseract_->wordrec_run_blamer.set_value(true);
-    auto *page_it = new PageIterator(
-            page_res_, tesseract_, thresholder_->GetScaleFactor(),
-            thresholder_->GetScaledYResolution(),
-            rect_left_, rect_top_, rect_width_, rect_height_);
-    truth_cb_(tesseract_->getDict().getUnicharset(),
-              image_height_, page_it, this->tesseract()->pix_grey());
-    delete page_it;
-  }
-
   int result = 0;
   if (tesseract_->interactive_display_mode) {
     #ifndef GRAPHICS_DISABLED
@@ -919,40 +900,6 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   }
   return result;
 }
-
-#ifndef DISABLED_LEGACY_ENGINE
-/** Tests the chopper by exhaustively running chop_one_blob. */
-int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
-  if (tesseract_ == nullptr)
-    return -1;
-  if (thresholder_ == nullptr || thresholder_->IsEmpty()) {
-    tprintf("ERROR: Please call SetImage before attempting recognition.\n");
-    return -1;
-  }
-  if (page_res_ != nullptr)
-    ClearResults();
-  if (FindLines() != 0)
-    return -1;
-  // Additional conditions under which chopper test cannot be run
-  if (tesseract_->interactive_display_mode) return -1;
-
-  recognition_done_ = true;
-
-  page_res_ = new PAGE_RES(false, block_list_,
-                           &(tesseract_->prev_word_best_choice_));
-
-  PAGE_RES_IT page_res_it(page_res_);
-
-  while (page_res_it.word() != nullptr) {
-    WERD_RES *word_res = page_res_it.word();
-    GenericVector<TBOX> boxes;
-    tesseract_->MaximallyChopWord(boxes, page_res_it.block()->block,
-                                  page_res_it.row()->row, word_res);
-    page_res_it.forward();
-  }
-  return 0;
-}
-#endif  // ndef DISABLED_LEGACY_ENGINE
 
 // Takes ownership of the input pix.
 void TessBaseAPI::SetInputImage(Pix* pix) { tesseract_->set_pix_original(pix); }
@@ -1871,7 +1818,7 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
       if (text[t] != '\0' || wordstr[w] != '\0') {
         // No match.
         delete page_res_;
-        GenericVector<TBOX> boxes;
+        std::vector<TBOX> boxes;
         page_res_ = tesseract_->SetupApplyBoxes(boxes, block_list_);
         tesseract_->ReSegmentByClassification(page_res_);
         tesseract_->TidyUp(page_res_);
@@ -2323,10 +2270,10 @@ void TessBaseAPI::DetectParagraphs(bool after_text_recognition) {
   int debug_level = 0;
   GetIntVariable("paragraph_debug_level", &debug_level);
   if (paragraph_models_ == nullptr)
-    paragraph_models_ = new std::list<ParagraphModel*>;
+    paragraph_models_ = new std::vector<ParagraphModel*>;
   MutableIterator *result_it = GetMutableIterator();
   do {  // Detect paragraphs for this block
-    std::list<ParagraphModel *> models;
+    std::vector<ParagraphModel *> models;
     ::tesseract::DetectParagraphs(debug_level, after_text_recognition,
                                   result_it, &models);
     paragraph_models_->insert(paragraph_models_->end(), models.begin(), models.end());

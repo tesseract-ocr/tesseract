@@ -61,7 +61,6 @@ typedef tesseract::ProbabilityInContextFunc TessProbabilityInContextFunc;
 // typedef tesseract::ParamsModelClassifyFunc TessParamsModelClassifyFunc;
 typedef tesseract::FillLatticeFunc TessFillLatticeFunc;
 typedef tesseract::Dawg TessDawg;
-typedef tesseract::TruthCallback TessTruthCallback;
 typedef tesseract::Orientation TessOrientation;
 typedef tesseract::ParagraphJustification TessParagraphJustification;
 typedef tesseract::WritingDirection TessWritingDirection;
@@ -327,11 +326,6 @@ TESS_API TessPageIterator* TessBaseAPIAnalyseLayout(TessBaseAPI* handle);
 
 TESS_API int TessBaseAPIRecognize(TessBaseAPI* handle, ETEXT_DESC* monitor);
 
-#ifndef DISABLED_LEGACY_ENGINE
-TESS_API int TessBaseAPIRecognizeForChopTest(TessBaseAPI* handle,
-                                             ETEXT_DESC* monitor);
-#endif
-
 TESS_API BOOL TessBaseAPIProcessPages(TessBaseAPI* handle, const char* filename,
                                       const char* retry_config,
                                       int timeout_millisec,
@@ -406,9 +400,6 @@ TESS_API const TessDawg* TessBaseAPIGetDawg(const TessBaseAPI* handle, int i);
 TESS_API int TessBaseAPINumDawgs(const TessBaseAPI* handle);
 
 TESS_API TessOcrEngineMode TessBaseAPIOem(const TessBaseAPI* handle);
-
-TESS_API void TessBaseAPIInitTruthCallback(TessBaseAPI* handle,
-                                           TessTruthCallback cb);
 
 TESS_API void TessBaseGetBlockTextOrientations(TessBaseAPI* handle,
                                                int** block_orientation,
