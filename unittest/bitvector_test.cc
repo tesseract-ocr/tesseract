@@ -117,13 +117,18 @@ TEST_F(BitVectorTest, Primes) {
   map3 = map;
   TestPrimes(map3);
   // Test file i/o too.
+#if defined(_WIN32)
+  _mkdir(FLAGS_test_tmpdir);
+#else
+  mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
+#endif
   std::string filename = OutputNameToPath("primesbitvector");
   FILE* fp = fopen(filename.c_str(), "wb");
-  CHECK(fp != nullptr);
+  ASSERT_TRUE(fp != nullptr);
   EXPECT_TRUE(map.Serialize(fp));
   fclose(fp);
   fp = fopen(filename.c_str(), "rb");
-  CHECK(fp != nullptr);
+  ASSERT_TRUE(fp != nullptr);
   BitVector read_map;
   EXPECT_TRUE(read_map.DeSerialize(false, fp));
   fclose(fp);
