@@ -18,19 +18,6 @@
 #ifndef TESSERACT_CCUTIL_PLATFORM_H_
 #define TESSERACT_CCUTIL_PLATFORM_H_
 
-#ifndef _WIN32
-#  ifdef __cplusplus
-#    include <climits>
-#  else /* C compiler*/
-#    include <limits.h>
-#  endif /* __cplusplus */
-#  ifndef PATH_MAX
-#    define MAX_PATH 4096
-#  else
-#    define MAX_PATH PATH_MAX
-#  endif
-#endif
-
 #if defined(_WIN32) || defined(__CYGWIN__)
 #  if defined(TESS_EXPORTS)
 #    define TESS_API __declspec(dllexport)

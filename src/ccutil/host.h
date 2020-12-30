@@ -35,6 +35,19 @@
 #undef max
 #endif  // _WIN32
 
+#ifndef _WIN32
+#  ifdef __cplusplus
+#    include <climits>
+#  else /* C compiler*/
+#    include <limits.h>
+#  endif /* __cplusplus */
+#  ifndef PATH_MAX
+#    define MAX_PATH 4096
+#  else
+#    define MAX_PATH PATH_MAX
+#  endif
+#endif
+
 namespace tesseract {
 
 // Return true if x is within tolerance of y
