@@ -185,13 +185,6 @@ static void addAvailableLanguages(const std::string& datadir, const std::string&
 #endif
 }
 
-// Compare two STRING values (used for sorting).
-static int CompareSTRING(const void* p1, const void* p2) {
-  const auto* s1 = static_cast<const STRING*>(p1);
-  const auto* s2 = static_cast<const STRING*>(p2);
-  return strcmp(s1->c_str(), s2->c_str());
-}
-
 TessBaseAPI::TessBaseAPI()
     : tesseract_(nullptr),
       osd_tesseract_(nullptr),
