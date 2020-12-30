@@ -2274,7 +2274,7 @@ void CanonicalizeDetectionResults(
 //   models - the list of paragraph models referenced by the PARA objects.
 //            caller is responsible for deleting the models.
 void DetectParagraphs(int debug_level,
-                      GenericVector<RowInfo> *row_infos,
+                      std::vector<RowInfo> *row_infos,
                       GenericVector<PARA *> *row_owners,
                       PARA_LIST *paragraphs,
                       std::vector<ParagraphModel *> *models) {
@@ -2534,7 +2534,7 @@ void DetectParagraphs(int debug_level,
   if (row.Empty(RIL_TEXTLINE))
     return;  // end of input already.
 
-  GenericVector<RowInfo> row_infos;
+  std::vector<RowInfo> row_infos;
   do {
     if (!row.PageResIt()->row())
       continue;  // empty row.

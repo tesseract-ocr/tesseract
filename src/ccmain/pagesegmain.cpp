@@ -80,7 +80,7 @@ static Pix* RemoveEnclosingCircle(Pix* pixs) {
     if (i == 1 || count > max_count) {
       max_count = count;
       min_count = count;
-    } else if (i > 1 && count < min_count) {
+    } else if (count < min_count) {
       min_count = count;
       pixDestroy(&pixout);
       pixout = pixCopy(nullptr, pixt);  // Save the best.
