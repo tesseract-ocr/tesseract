@@ -334,7 +334,7 @@ class Tesseract : public Wordrec {
       OSResults* osr, TO_BLOCK_LIST* to_blocks, Pix** photo_mask_pix,
       Pix** music_mask_pix);
   // par_control.cpp
-  void PrerecAllWordsPar(const GenericVector<WordData>& words);
+  void PrerecAllWordsPar(const std::vector<WordData>& words);
 
   //// linerec.cpp
   // Generates training data for training a line recognizer, eg LSTM.
@@ -380,12 +380,12 @@ class Tesseract : public Wordrec {
   // Sets up the words ready for whichever engine is to be run
   void SetupAllWordsPassN(int pass_n, const TBOX* target_word_box,
                           const char* word_config, PAGE_RES* page_res,
-                          GenericVector<WordData>* words);
+                          std::vector<WordData>* words);
   // Sets up the single word ready for whichever engine is to be run.
   void SetupWordPassN(int pass_n, WordData* word);
   // Runs word recognition on all the words.
   bool RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor, PAGE_RES_IT* pr_it,
-                          GenericVector<WordData>* words);
+                          std::vector<WordData>* words);
   bool recog_all_words(PAGE_RES* page_res, ETEXT_DESC* monitor,
                        const TBOX* target_word_box, const char* word_config,
                        int dopasses);
