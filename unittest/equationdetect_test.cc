@@ -21,12 +21,19 @@
 #include <string>
 #include <utility>
 
+#define ENABLE_IdentifySpecialText_TEST 0
+#if ENABLE_IdentifySpecialText_TEST
+#define EQU_TRAINEDDATA_NAME "equ"
+#else
+#define EQU_TRAINEDDATA_NAME "equINTENTIONALLY_MISSING_FILE"
+#endif
+
 namespace tesseract {
 
 class TestableEquationDetect : public EquationDetect {
  public:
   TestableEquationDetect(const char* tessdata, Tesseract* lang_tesseract)
-      : EquationDetect(tessdata, "equ") {
+      : EquationDetect(tessdata, EQU_TRAINEDDATA_NAME) {
     SetLangTesseract(lang_tesseract);
   }
 
@@ -178,7 +185,7 @@ class EquationFinderTest : public testing::Test {
 };
 
 TEST_F(EquationFinderTest, IdentifySpecialText) {
-#if 1
+#if !ENABLE_IdentifySpecialText_TEST
   GTEST_SKIP();
 #else // TODO: missing equ_gt1.tif
   // Load Image.
