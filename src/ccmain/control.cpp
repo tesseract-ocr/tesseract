@@ -1178,7 +1178,7 @@ bool Tesseract::SelectGoodDiacriticOutlines(
           TBOX ol_box;
           for (int j = 0; j < outlines.size(); ++j) {
             if (test_outlines[j]) ol_box += outlines[j]->bounding_box();
-            tprintf("%d", test_outlines[j]);
+            tprintf("%c", test_outlines[j] ? 'T' : 'F');
           }
           tprintf(" blob classified as %s=%g, delta=%g) at:", str.c_str(),
                   cert, cert - target_cert);
@@ -1203,7 +1203,7 @@ bool Tesseract::SelectGoodDiacriticOutlines(
     if (debug_noise_removal) {
       tprintf("%s noise combination ", blob ? "Adding" : "New");
       for (int i = 0; i < best_outlines.size(); ++i) {
-        tprintf("%d", best_outlines[i]);
+        tprintf("%c", best_outlines[i] ? 'T' : 'F');
       }
       tprintf(" yields certainty %g, beating target of %g\n", best_cert,
               target_cert);
