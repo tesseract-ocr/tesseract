@@ -326,11 +326,6 @@ TESS_API TessPageIterator* TessBaseAPIAnalyseLayout(TessBaseAPI* handle);
 
 TESS_API int TessBaseAPIRecognize(TessBaseAPI* handle, ETEXT_DESC* monitor);
 
-#ifndef DISABLED_LEGACY_ENGINE
-TESS_API int TessBaseAPIRecognizeForChopTest(TessBaseAPI* handle,
-                                             ETEXT_DESC* monitor);
-#endif
-
 TESS_API BOOL TessBaseAPIProcessPages(TessBaseAPI* handle, const char* filename,
                                       const char* retry_config,
                                       int timeout_millisec,

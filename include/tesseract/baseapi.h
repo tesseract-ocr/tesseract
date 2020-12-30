@@ -498,11 +498,6 @@ class TESS_API TessBaseAPI {
    * Recognize() or TesseractRect(). (Recognize is called implicitly if needed.)
    */
 
-#ifndef DISABLED_LEGACY_ENGINE
-  /** Variant on Recognize used for testing chopper. */
-  int RecognizeForChopTest(ETEXT_DESC* monitor);
-#endif
-
   /**
    * Turns images into symbolic text.
    *
