@@ -31,8 +31,6 @@
 
 namespace tesseract {
 
-class Tesseract;
-
 class TESS_API ResultIterator : public LTRResultIterator {
  public:
   static ResultIterator* StartOfParagraph(const LTRResultIterator& resit);
