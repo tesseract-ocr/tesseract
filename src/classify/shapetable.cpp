@@ -716,8 +716,8 @@ int ShapeTable::AddUnicharToResults(
   int result_index = unichar_map->get(unichar_id);
   if (result_index < 0) {
     UnicharRating result(unichar_id, rating);
-    results->push_back(result);
     result_index = results->size();
+    results->push_back(result);
     (*unichar_map)[unichar_id] = result_index;
   }
   return result_index;
