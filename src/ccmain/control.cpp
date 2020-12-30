@@ -1006,7 +1006,7 @@ void Tesseract::AssignDiacriticsToOverlappingBlobs(
     PAGE_RES_IT* pr_it, GenericVector<bool>* word_wanted,
     GenericVector<bool>* overlapped_any_blob,
     GenericVector<C_BLOB*>* target_blobs) {
-  GenericVector<bool> blob_wanted;
+  std::vector<bool> blob_wanted;
   word_wanted->resize(outlines.size(), false);
   overlapped_any_blob->resize(outlines.size(), false);
   target_blobs->resize(outlines.size(), nullptr);
@@ -1058,7 +1058,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(
     const GenericVector<C_OUTLINE*>& outlines, int pass, WERD* real_word,
     PAGE_RES_IT* pr_it, GenericVector<bool>* word_wanted,
     GenericVector<C_BLOB*>* target_blobs) {
-  GenericVector<bool> blob_wanted;
+  std::vector<bool> blob_wanted;
   word_wanted->resize(outlines.size(), false);
   target_blobs->resize(outlines.size(), nullptr);
   // Check for outlines that need to be turned into stand-alone blobs.
@@ -1133,7 +1133,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(
 bool Tesseract::SelectGoodDiacriticOutlines(
     int pass, float certainty_threshold, PAGE_RES_IT* pr_it, C_BLOB* blob,
     const GenericVector<C_OUTLINE*>& outlines, int num_outlines,
-    GenericVector<bool>* ok_outlines) {
+    std::vector<bool>* ok_outlines) {
   STRING best_str;
   float target_cert = certainty_threshold;
   if (blob != nullptr) {
@@ -1146,10 +1146,10 @@ bool Tesseract::SelectGoodDiacriticOutlines(
     }
     target_cert -= (target_cert - certainty_threshold) * noise_cert_factor;
   }
-  GenericVector<bool> test_outlines = *ok_outlines;
+  std::vector<bool> test_outlines = *ok_outlines;
   // Start with all the outlines in.
   STRING all_str;
-  GenericVector<bool> best_outlines = *ok_outlines;
+  std::vector<bool> best_outlines = *ok_outlines;
   float best_cert = ClassifyBlobPlusOutlines(test_outlines, outlines, pass,
                                              pr_it, blob, &all_str);
   if (debug_noise_removal) {
@@ -1217,7 +1217,7 @@ bool Tesseract::SelectGoodDiacriticOutlines(
 // Classifies the given blob plus the outlines flagged by ok_outlines, undoes
 // the inclusion of the outlines, and returns the certainty of the raw choice.
 float Tesseract::ClassifyBlobPlusOutlines(
-    const GenericVector<bool>& ok_outlines,
+    const std::vector<bool>& ok_outlines,
     const GenericVector<C_OUTLINE*>& outlines, int pass_n, PAGE_RES_IT* pr_it,
     C_BLOB* blob, STRING* best_str) {
   C_OUTLINE_IT ol_it;

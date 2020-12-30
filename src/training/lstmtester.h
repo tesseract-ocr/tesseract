@@ -18,10 +18,10 @@
 #ifndef TESSERACT_TRAINING_LSTMTESTER_H_
 #define TESSERACT_TRAINING_LSTMTESTER_H_
 
-#include "genericvector.h"
 #include "lstmtrainer.h"
 #include "strngs.h"
 #include <mutex>
+#include <vector>
 
 namespace tesseract {
 
