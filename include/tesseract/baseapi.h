@@ -37,7 +37,6 @@
 #include <tesseract/version.h>
 
 #include <cstdio>
-#include <functional> // for std::function
 #include <vector>     // for std::vector
 
 struct Pix;
@@ -90,8 +89,6 @@ using ParamsModelClassifyFunc = float (Dict::*)(const char*, void*);
 using FillLatticeFunc = void (Wordrec::*)(const MATRIX&,
                                           const WERD_CHOICE_LIST&,
                                           const UNICHARSET&, BlamerBundle*);
-using TruthCallback =
-    std::function<void(const UNICHARSET&, int, PageIterator*, Pix*)>;
 
 /**
  * Base class for all tesseract APIs.
@@ -761,10 +758,6 @@ class TESS_API TessBaseAPI {
     return last_oem_requested_;
   }
 
-  void InitTruthCallback(TruthCallback cb) {
-    truth_cb_ = cb;
-  }
-
   void set_min_orientation_margin(double margin);
   /* @} */
 
@@ -825,7 +818,6 @@ class TESS_API TessBaseAPI {
   std::string language_;              ///< Last initialized language.
   OcrEngineMode last_oem_requested_;  ///< Last ocr language mode requested.
   bool recognition_done_;             ///< page_res_ contains recognition data.
-  TruthCallback truth_cb_;            ///< fxn for setting truth_* in WERD_RES
 
   /**
    * @defgroup ThresholderParams Thresholder Parameters

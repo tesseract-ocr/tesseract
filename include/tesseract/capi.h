@@ -61,7 +61,6 @@ typedef tesseract::ProbabilityInContextFunc TessProbabilityInContextFunc;
 // typedef tesseract::ParamsModelClassifyFunc TessParamsModelClassifyFunc;
 typedef tesseract::FillLatticeFunc TessFillLatticeFunc;
 typedef tesseract::Dawg TessDawg;
-typedef tesseract::TruthCallback TessTruthCallback;
 typedef tesseract::Orientation TessOrientation;
 typedef tesseract::ParagraphJustification TessParagraphJustification;
 typedef tesseract::WritingDirection TessWritingDirection;
@@ -406,9 +405,6 @@ TESS_API const TessDawg* TessBaseAPIGetDawg(const TessBaseAPI* handle, int i);
 TESS_API int TessBaseAPINumDawgs(const TessBaseAPI* handle);
 
 TESS_API TessOcrEngineMode TessBaseAPIOem(const TessBaseAPI* handle);
-
-TESS_API void TessBaseAPIInitTruthCallback(TessBaseAPI* handle,
-                                           TessTruthCallback cb);
 
 TESS_API void TessBaseGetBlockTextOrientations(TessBaseAPI* handle,
                                                int** block_orientation,

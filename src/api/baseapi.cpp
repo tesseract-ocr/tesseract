@@ -199,7 +199,6 @@ TessBaseAPI::TessBaseAPI()
       page_res_(nullptr),
       last_oem_requested_(OEM_DEFAULT),
       recognition_done_(false),
-      truth_cb_(nullptr),
       rect_left_(0),
       rect_top_(0),
       rect_width_(0),
@@ -856,17 +855,6 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
     return 0;
   }
 #endif  // ndef DISABLED_LEGACY_ENGINE
-
-  if (truth_cb_ != nullptr) {
-    tesseract_->wordrec_run_blamer.set_value(true);
-    auto *page_it = new PageIterator(
-            page_res_, tesseract_, thresholder_->GetScaleFactor(),
-            thresholder_->GetScaledYResolution(),
-            rect_left_, rect_top_, rect_width_, rect_height_);
-    truth_cb_(tesseract_->getDict().getUnicharset(),
-              image_height_, page_it, this->tesseract()->pix_grey());
-    delete page_it;
-  }
 
   int result = 0;
   if (tesseract_->interactive_display_mode) {
