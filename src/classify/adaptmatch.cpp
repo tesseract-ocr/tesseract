@@ -60,9 +60,9 @@
 #include "unicity_table.h"      // for UnicityTable
 
 #include "genericvector.h"      // for GenericVector
-#include <tesseract/helpers.h>            // for IntCastRounded, ClipToRange
 #include "serialis.h"           // for TFile
 #include "strngs.h"             // for STRING
+#include <tesseract/helpers.h>            // for IntCastRounded, ClipToRange
 #include <tesseract/unichar.h>            // for UNICHAR_ID, INVALID_UNICHAR_ID
 
 #include <algorithm>            // for max, min

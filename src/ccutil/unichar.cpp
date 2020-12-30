@@ -16,10 +16,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <tesseract/unichar.h>
 #include "errcode.h"
-#include "genericvector.h"
 #include "tprintf.h"
+#include <tesseract/unichar.h>
 
 #define UNI_MAX_LEGAL_UTF32 0x0010FFFF
 

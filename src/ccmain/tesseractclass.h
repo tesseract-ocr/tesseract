@@ -428,10 +428,10 @@ class Tesseract : public Wordrec {
                                    PAGE_RES_IT* pr_it, C_BLOB* blob,
                                    const GenericVector<C_OUTLINE*>& outlines,
                                    int num_outlines,
-                                   GenericVector<bool>* ok_outlines);
+                                   std::vector<bool>* ok_outlines);
   // Classifies the given blob plus the outlines flagged by ok_outlines, undoes
   // the inclusion of the outlines, and returns the certainty of the raw choice.
-  float ClassifyBlobPlusOutlines(const GenericVector<bool>& ok_outlines,
+  float ClassifyBlobPlusOutlines(const std::vector<bool>& ok_outlines,
                                  const GenericVector<C_OUTLINE*>& outlines,
                                  int pass_n, PAGE_RES_IT* pr_it, C_BLOB* blob,
                                  STRING* best_str);

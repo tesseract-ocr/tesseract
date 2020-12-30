@@ -15,7 +15,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "matrix.h"
-#include "genericvector.h"
 #include "include_gunit.h"
 
 namespace tesseract {
