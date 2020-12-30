@@ -37,7 +37,6 @@
 #include <tesseract/version.h>
 
 #include <cstdio>
-#include <functional> // for std::function
 #include <vector>     // for std::vector
 
 struct Pix;
