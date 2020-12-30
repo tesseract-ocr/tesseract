@@ -50,6 +50,11 @@ class ParamsModelTest : public testing::Test {
   void TestParamsModelRoundTrip(const std::string& params_model_filename) const {
     tesseract::ParamsModel orig_model;
     tesseract::ParamsModel duplicate_model;
+#if defined(_WIN32)
+    _mkdir(FLAGS_test_tmpdir);
+#else
+    mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
+#endif
     std::string orig_file = TestDataNameToPath(params_model_filename);
     std::string out_file = OutputNameToPath(params_model_filename);
 
