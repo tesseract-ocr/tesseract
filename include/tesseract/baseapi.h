@@ -23,7 +23,6 @@
 #include "config_auto.h" // DISABLED_LEGACY_ENGINE
 #endif
 
-#include "apitypes.h"
 #include "pageiterator.h"
 #include "platform.h"
 #include "publictypes.h"
