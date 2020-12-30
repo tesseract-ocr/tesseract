@@ -613,11 +613,6 @@ TessOcrEngineMode TessBaseAPIOem(const TessBaseAPI* handle) {
   return handle->oem();
 }
 
-void TessBaseAPIInitTruthCallback(TessBaseAPI* handle,
-                                                     TessTruthCallback cb) {
-  handle->InitTruthCallback(cb);
-}
-
 void TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle,
                                                            double margin) {
   handle->set_min_orientation_margin(margin);
