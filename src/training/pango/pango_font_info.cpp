@@ -45,6 +45,8 @@
 #include "pango/pangocairo.h"
 #include "pango/pangofc-font.h"
 
+#define DISABLE_HEAP_LEAK_CHECK
+
 using namespace tesseract;
 
 namespace tesseract {

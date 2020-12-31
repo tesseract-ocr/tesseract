@@ -39,6 +39,8 @@
 #include "unicode/uchar.h"  // from libicu
 #include "util.h"
 
+#define DISABLE_HEAP_LEAK_CHECK
+
 namespace tesseract {
 
 static const int kDefaultOutputResolution = 300;

@@ -126,27 +126,8 @@ void build(Solution &s)
     {
         common_training += "TESS_COMMON_TRAINING_API"_api;
         common_training += cppstd;
-        common_training +=
-            "src/training/commandlineflags.cpp",
-            "src/training/commandlineflags.h",
-            "src/training/commontraining.cpp",
-            "src/training/commontraining.h",
-            "src/training/ctc.cpp",
-            "src/training/ctc.h",
-            "src/training/errorcounter.cpp",
-            "src/training/errorcounter.h",
-            "src/training/intfeaturedist.cpp",
-            "src/training/intfeaturedist.h",
-            "src/training/intfeaturemap.cpp",
-            "src/training/intfeaturemap.h",
-            "src/training/mastertrainer.cpp",
-            "src/training/mastertrainer.h",
-            "src/training/networkbuilder.cpp",
-            "src/training/networkbuilder.h",
-            "src/training/sampleiterator.cpp",
-            "src/training/sampleiterator.h",
-            "src/training/trainingsampleset.cpp",
-            "src/training/trainingsampleset.h";
+        common_training += "src/training/common/.*"_rr;
+        common_training.Public += "src/training/common"_idir;
         common_training.Public += tessopt;
     }
 
@@ -155,16 +136,8 @@ void build(Solution &s)
     {
         unicharset_training += "TESS_UNICHARSET_TRAINING_API"_api;
         unicharset_training += cppstd;
-        unicharset_training +=
-            "src/training/fileio.*"_rr,
-            "src/training/icuerrorcode.*"_rr,
-            "src/training/icuerrorcode.h",
-            "src/training/lang_model_helpers.*"_rr,
-            "src/training/lstmtester.*"_rr,
-            "src/training/lstmtrainer.*"_rr,
-            "src/training/normstrngs.*"_rr,
-            "src/training/unicharset_training_utils.*"_rr,
-            "src/training/validat.*"_rr;
+        unicharset_training += "src/training/unicharset/.*"_rr;
+        unicharset_training.Public += "src/training/unicharset"_idir;
         unicharset_training.Public += common_training;
         unicharset_training.Public += "org.sw.demo.unicode.icu.i18n"_dep;
     }
@@ -197,18 +170,8 @@ void build(Solution &s)
     {
         pango_training += "TESS_PANGO_TRAINING_API"_api;
         pango_training += cppstd;
-        pango_training +=
-            "src/training/boxchar.cpp",
-            "src/training/boxchar.h",
-            "src/training/ligature_table.cpp",
-            "src/training/ligature_table.h",
-            "src/training/pango_font_info.cpp",
-            "src/training/pango_font_info.h",
-            "src/training/stringrenderer.cpp",
-            "src/training/stringrenderer.h",
-            "src/training/tlog.cpp",
-            "src/training/tlog.h"
-            ;
+        pango_training += "src/training/pango/.*"_rr;
+        pango_training.Public += "src/training/pango"_idir;
         pango_training.Public += unicharset_training;
         pango_training.Public += "org.sw.demo.gnome.pango.pangocairo"_dep;
     }
