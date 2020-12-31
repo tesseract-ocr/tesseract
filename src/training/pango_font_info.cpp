@@ -50,7 +50,6 @@ using namespace tesseract;
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp",
                   "Overrides fontconfig default temporary dir");
 
-using std::pair;
 STRING_PARAM_FLAG(fonts_dir, "",
                   "If empty it uses system default. Otherwise it overrides"
                   " system default font location");
