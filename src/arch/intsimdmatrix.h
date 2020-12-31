@@ -117,10 +117,10 @@ struct IntSimdMatrix {
 
   static TESS_API const IntSimdMatrix* intSimdMatrix;
   // Only available with NEON.
-  static const IntSimdMatrix intSimdMatrixNEON;
+  static TESS_API const IntSimdMatrix intSimdMatrixNEON;
   // Only available with AVX2 / SSE.
-  static const IntSimdMatrix intSimdMatrixAVX2;
-  static const IntSimdMatrix intSimdMatrixSSE;
+  static TESS_API const IntSimdMatrix intSimdMatrixAVX2;
+  static TESS_API const IntSimdMatrix intSimdMatrixSSE;
 };
 
 }  // namespace tesseract
