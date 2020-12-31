@@ -23,7 +23,8 @@ before_build:
 
 build_script:
   - sw -version
-  - sw -show-output -platform %platform% -config d,r build -Dwith-tests=1
+  # debug build causes long builds (> 1h), appveyor drops them
+  - sw -show-output -platform %platform% -config r build -Dwith-tests=1
 
 after_build:
   - 7z a tesseract.zip %APPVEYOR_BUILD_FOLDER%\.sw\out\**\*.exe %APPVEYOR_BUILD_FOLDER%\.sw\out\**\*.dll
