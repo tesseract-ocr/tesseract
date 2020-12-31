@@ -173,7 +173,7 @@ enum IntmatcherDebugAction {
 #define PPrunerMaskFor(I) (1 << PPrunerBitIndexFor(I))
 
 #define MaxNumClassesIn(T) (T->NumClassPruners * CLASSES_PER_CP)
-#define LegalClassId(c) ((c) >= 0 && (c) <= MAX_CLASS_ID)
+#define LegalClassId(c) ((c) >= 0 && (c) < MAX_NUM_CLASSES)
 #define UnusedClassIdIn(T, c) ((T)->Class[c] == nullptr)
 #define ClassForClassId(T, c) ((T)->Class[c])
 #define ClassPrunersFor(T) ((T)->ClassPruner)
