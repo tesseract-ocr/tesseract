@@ -20,7 +20,7 @@
 #define BITS16_H
 
 #include <cstdint>    // for uint8_t, ...
-#include <tesseract/platform.h> // for DLLSYM
+#include <tesseract/export.h> // for DLLSYM
 
 class BITS16 {
  public:

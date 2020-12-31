@@ -31,7 +31,7 @@
 #ifndef TESSERACT_VIEWER_SCROLLVIEW_H_
 #define TESSERACT_VIEWER_SCROLLVIEW_H_
 
-#include <tesseract/platform.h>
+#include <tesseract/export.h>
 
 #include <cstdio>
 #include <mutex>

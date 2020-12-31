@@ -24,7 +24,7 @@
 #endif
 
 #include "pageiterator.h"
-#include "platform.h"
+#include "export.h"
 #include "publictypes.h"
 #include "resultiterator.h"
 #include "thresholder.h"

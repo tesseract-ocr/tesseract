@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCUTIL_TPRINTF_H
 #define TESSERACT_CCUTIL_TPRINTF_H
 
-#include <tesseract/platform.h>   // for TESS_API
+#include <tesseract/export.h>   // for TESS_API
 
 namespace tesseract {
 

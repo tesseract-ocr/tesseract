@@ -18,7 +18,7 @@
 #ifndef TESSERACT_API_RENDERER_H_
 #define TESSERACT_API_RENDERER_H_
 
-#include "platform.h"
+#include "export.h"
 
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible

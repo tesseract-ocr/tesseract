@@ -22,7 +22,7 @@
 
 #include "export.h"
 
-#include <tesseract/platform.h>
+#include <tesseract/export.h>
 
 #include <string>
 

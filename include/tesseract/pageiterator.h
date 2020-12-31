@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCMAIN_PAGEITERATOR_H_
 #define TESSERACT_CCMAIN_PAGEITERATOR_H_
 
-#include "platform.h"
+#include "export.h"
 #include "publictypes.h"
 
 struct Pix;

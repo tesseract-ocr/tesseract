@@ -18,7 +18,7 @@
 #ifndef TESSERACT_ARCH_INTSIMDMATRIX_H_
 #define TESSERACT_ARCH_INTSIMDMATRIX_H_
 
-#include <tesseract/platform.h>
+#include <tesseract/export.h>
 
 #include <cstdint>
 #include <vector>

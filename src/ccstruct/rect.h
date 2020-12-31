@@ -24,7 +24,7 @@
 #include "scrollview.h"        // for ScrollView, ScrollView::Color
 #include "tprintf.h"           // for tprintf
 
-#include <tesseract/platform.h>          // for DLLSYM
+#include <tesseract/export.h>          // for DLLSYM
 
 #include <algorithm>           // for std::max, std::min
 #include <cmath>               // for std::ceil, std::floor

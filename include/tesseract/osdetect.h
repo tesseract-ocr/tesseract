@@ -20,7 +20,8 @@
 #ifndef TESSERACT_CCMAIN_OSDETECT_H_
 #define TESSERACT_CCMAIN_OSDETECT_H_
 
-#include "platform.h" // for TESS_API
+#include "export.h" // for TESS_API
+
 #include <vector>     // for std::vector
 
 namespace tesseract {

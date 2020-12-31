@@ -32,7 +32,7 @@
 #  include <stdbool.h>
 #  include <stdio.h>
 
-#  include "platform.h"
+#  include "export.h"
 #endif
 
 #ifdef __cplusplus

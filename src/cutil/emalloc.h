@@ -18,7 +18,7 @@
 #ifndef EMALLOC_H
 #define EMALLOC_H
 
-#include <tesseract/platform.h>
+#include <tesseract/export.h>
 
 namespace tesseract {
 

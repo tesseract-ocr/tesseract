@@ -15,7 +15,7 @@
 #ifndef TESSERACT_CCUTIL_SCANUTILS_H_
 #define TESSERACT_CCUTIL_SCANUTILS_H_
 
-#include <tesseract/platform.h>
+#include <tesseract/export.h>
 
 #include <cstdio>       // for FILE
 
