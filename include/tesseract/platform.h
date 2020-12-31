@@ -29,7 +29,9 @@
 #  endif
 # else
 #  if defined(TESS_EXPORTS) || defined(TESS_IMPORTS)
-#      define TESS_API __attribute__((visibility("default")))
+#    define TESS_API __attribute__((visibility("default")))
+#  else
+#    define TESS_API
 #  endif
 # endif
 #endif

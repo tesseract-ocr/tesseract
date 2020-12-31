@@ -1334,10 +1334,7 @@ ParagraphModelSmearer::ParagraphModelSmearer(
     row_end_ = 0;
     return;
   }
-  SetOfModels no_models;
-  for (int row = row_start - 1; row <= row_end; row++) {
-    open_models_.push_back(no_models);
-  }
+  open_models_.resize(open_models_.size() + row_end - row_start + 2);
 }
 
 // see paragraphs_internal.h
