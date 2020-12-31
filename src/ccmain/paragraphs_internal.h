@@ -273,7 +273,7 @@ class ParagraphModelSmearer {
   //                to fit the same model.
   // TODO(eger): Think about whether we can get rid of "Open" models and just
   //   use the current hypotheses on RowScratchRegisters.
-  std::vector<SetOfModels> open_models_;
+  GenericVector<SetOfModels> open_models_;
 };
 
 // Clear all hypotheses about lines [start, end) and reset the margins to the
