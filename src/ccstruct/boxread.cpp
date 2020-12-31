@@ -27,13 +27,12 @@
 #include "helpers.h"        // for chomp_string
 #include <tesseract/unichar.h>        // for UNICHAR
 
+#include <climits>          // for INT_MAX
 #include <cstring>          // for strchr, strcmp
 #include <fstream>          // for std::ifstream
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
 #include <string>           // for std::string
-
-#include <limits.h>         // for INT_MAX
 
 namespace tesseract {
 
