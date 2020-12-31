@@ -306,14 +306,14 @@ file(GLOB pango_training_src
 )
 
 add_library                 (pango_training ${pango_training_src})
-target_link_libraries       (pango_training unicharset_training)
+target_link_libraries       (pango_training PUBLIC unicharset_training)
 if (SW_BUILD)
-target_link_libraries       (pango_training org.sw.demo.gnome.pango.pangocairo)
+target_link_libraries       (pango_training PUBLIC org.sw.demo.gnome.pango.pangocairo)
 else()
 if (PKG_CONFIG_FOUND)
 target_include_directories  (pango_training BEFORE PRIVATE ${Cairo_INCLUDE_DIRS} ${Pango_INCLUDE_DIRS})
 target_compile_definitions  (pango_training PRIVATE -DPANGO_ENABLE_ENGINE)
-target_link_libraries       (pango_training
+target_link_libraries       (pango_training PUBLIC
     ${Pango_LIBRARIES}
     ${Cairo_LIBRARIES}
     ${PangoCairo_LIBRARIES}
