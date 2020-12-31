@@ -310,14 +310,14 @@ class GenericVector {
   }
   // Returns true if all elements of *this are within the given range.
   // Only uses operator<
-  bool WithinBounds(const T& rangemin, const T& rangemax) const {
+  /*bool WithinBounds(const T& rangemin, const T& rangemax) const {
     for (int i = 0; i < size_used_; ++i) {
       if (data_[i] < rangemin || rangemax < data_[i]) {
         return false;
       }
     }
     return true;
-  }
+  }*/
 
  protected:
   // Internal recursive version of choose_nth_item.

@@ -61,7 +61,7 @@ class GenericVector;
 // NOTE that, although the subclasses execute on different SIMD hardware, no
 // virtual methods are needed, as the constructor sets up everything that
 // is required to allow the base class implementation to do all the work.
-struct IntSimdMatrix {
+struct TESS_API IntSimdMatrix {
   // Computes a reshaped copy of the weight matrix w.
   void Init(const GENERIC_2D_ARRAY<int8_t>& w,
             std::vector<int8_t>& shaped_w,
@@ -115,12 +115,12 @@ struct IntSimdMatrix {
   // Number of groups of inputs to be broadcast.
   // num_input_groups_ = num_inputs_per_register_ / num_inputs_per_group_
 
-  static TESS_API const IntSimdMatrix* intSimdMatrix;
+  static const IntSimdMatrix* intSimdMatrix;
   // Only available with NEON.
-  static TESS_API const IntSimdMatrix intSimdMatrixNEON;
+  static const IntSimdMatrix intSimdMatrixNEON;
   // Only available with AVX2 / SSE.
-  static TESS_API const IntSimdMatrix intSimdMatrixAVX2;
-  static TESS_API const IntSimdMatrix intSimdMatrixSSE;
+  static const IntSimdMatrix intSimdMatrixAVX2;
+  static const IntSimdMatrix intSimdMatrixSSE;
 };
 
 }  // namespace tesseract

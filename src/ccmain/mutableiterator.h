@@ -40,7 +40,7 @@ class Tesseract;
 // ResultIterator adds text-specific methods for access to OCR output.
 // MutableIterator adds access to internal data structures.
 
-class MutableIterator : public ResultIterator {
+class TESS_API MutableIterator : public ResultIterator {
  public:
   // See argument descriptions in ResultIterator()
   MutableIterator(PAGE_RES* page_res, Tesseract* tesseract,

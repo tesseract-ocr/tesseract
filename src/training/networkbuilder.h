@@ -31,7 +31,7 @@ class Network;
 class Parallel;
 class TRand;
 
-class NetworkBuilder {
+class TESS_COMMON_TRAINING_API NetworkBuilder {
  public:
   explicit NetworkBuilder(int num_softmax_outputs)
       : num_softmax_outputs_(num_softmax_outputs) {}

@@ -33,7 +33,6 @@
 #include "host.h"       // includes windows.h for BOOL, ...
 #include "tprintf.h"
 
-
 namespace tesseract {
 
 ///////////////////////////////////////////////////////////////////////////////

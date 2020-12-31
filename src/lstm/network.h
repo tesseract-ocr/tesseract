@@ -277,6 +277,7 @@ class Network {
   void DisplayBackward(const NetworkIO& matrix);
 
   // Creates the window if needed, otherwise clears it.
+  TESS_API
   static void ClearWindow(bool tess_coords, const char* window_name,
                           int width, int height, ScrollView** window);
 

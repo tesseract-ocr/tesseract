@@ -114,7 +114,7 @@ ELISTIZEH(PARA)
 // |you can try to identify source  |
 // |code.  Ouch!                    |
 // +--------------------------------+
-class ParagraphModel {
+class TESS_API ParagraphModel {
  public:
   ParagraphModel(tesseract::ParagraphJustification justification,
                  int margin,

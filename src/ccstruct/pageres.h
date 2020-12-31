@@ -164,7 +164,7 @@ enum CRUNCH_MODE
 
 // WERD_RES is a collection of publicly accessible members that gathers
 // information about a word result.
-class WERD_RES : public ELIST_LINK {
+class TESS_API WERD_RES : public ELIST_LINK {
  public:
   // Which word is which?
   // There are 3 coordinate spaces in use here: a possibly rotated pixel space,
@@ -673,7 +673,7 @@ class WERD_RES : public ELIST_LINK {
  * PAGE_RES_IT - Page results iterator
  *************************************************************************/
 
-class PAGE_RES_IT {
+class TESS_API PAGE_RES_IT {
  public:
   PAGE_RES * page_res;         // page being iterated
 

@@ -76,7 +76,7 @@ using TestCallback = std::function<STRING(int, const double*, const TessdataMana
 // ideal target outputs from the transcription. A box file is used if it is
 // available, otherwise estimates of the char widths from the unicharset are
 // used to guide a DP search for the best fit to the transcription.
-class LSTMTrainer : public LSTMRecognizer {
+class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
  public:
   LSTMTrainer();
   LSTMTrainer(const char* model_base, const char* checkpoint_name,

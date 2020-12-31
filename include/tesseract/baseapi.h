@@ -736,7 +736,7 @@ class TESS_API TessBaseAPI {
  protected:
   /** Common code for setting the image. Returns true if Init has been called.
    */
-  TESS_LOCAL bool InternalSetImage();
+  bool InternalSetImage();
 
   /**
    * Run the thresholder to make the thresholded image. If pix is not nullptr,
@@ -748,7 +748,7 @@ class TESS_API TessBaseAPI {
    * Find lines from the image making the BLOCK_LIST.
    * @return 0 on success.
    */
-  TESS_LOCAL int FindLines();
+  int FindLines();
 
   /** Delete the pageres and block list ready for a new page. */
   void ClearResults();
@@ -758,7 +758,7 @@ class TESS_API TessBaseAPI {
    * to ignore all BiDi smarts at that point.
    * delete once you're done with it.
    */
-  TESS_LOCAL LTRResultIterator* GetLTRIterator();
+  LTRResultIterator* GetLTRIterator();
 
   /**
    * Return the length of the output text string, as UTF8, assuming
@@ -766,12 +766,12 @@ class TESS_API TessBaseAPI {
    * and assuming a single character reject marker for each rejected character.
    * Also return the number of recognized blobs in blob_count.
    */
-  TESS_LOCAL int TextLength(int* blob_count);
+  int TextLength(int* blob_count);
 
   //// paragraphs.cpp ////////////////////////////////////////////////////
-  TESS_LOCAL void DetectParagraphs(bool after_text_recognition);
+  void DetectParagraphs(bool after_text_recognition);
 
-  TESS_LOCAL const PAGE_RES* GetPageRes() const {
+  const PAGE_RES* GetPageRes() const {
     return page_res_;
   }
 

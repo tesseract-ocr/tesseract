@@ -36,7 +36,7 @@ namespace tesseract {
 // Class to contain all the input/output of a network, allowing for fixed or
 // variable-strided 2d to 1d mapping, and float or int8_t values. Provides
 // enough calculating functions to hide the detail of the implementation.
-class NetworkIO {
+class TESS_API NetworkIO {
  public:
   NetworkIO() : int_mode_(false) {}
   // Resizes the array (and stride), avoiding realloc if possible, to the given

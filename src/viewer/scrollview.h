@@ -95,8 +95,7 @@ class SVEventHandler {
 // Each ScrollView class instance represents one window, and stuff is drawn in
 // the window through method calls on the class. The constructor is used to
 // create the class instance (and the window).
-
-class ScrollView {
+class TESS_API ScrollView {
  public:
 // Color enum for pens and brushes.
   enum Color {

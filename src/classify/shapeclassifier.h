@@ -38,7 +38,7 @@ class TrainingSampleSet;
 struct UnicharRating;
 
 // Interface base class for classifiers that produce ShapeRating results.
-class ShapeClassifier {
+class TESS_API ShapeClassifier {
  public:
   virtual ~ShapeClassifier() = default;
 

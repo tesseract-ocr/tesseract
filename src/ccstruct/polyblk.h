@@ -27,7 +27,7 @@
 
 namespace tesseract {
 
-class POLY_BLOCK {
+class TESS_API POLY_BLOCK {
  public:
   POLY_BLOCK() = default;
   // Initialize from box coordinates.

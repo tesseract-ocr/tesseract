@@ -24,6 +24,7 @@
 #include "errcode.h"
 #include "tprintf.h"
 
+TESS_PANGO_TRAINING_API
 DECLARE_INT_PARAM_FLAG(tlog_level);
 
 // Variant guarded by the numeric logging level parameter FLAGS_tlog_level

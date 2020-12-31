@@ -49,7 +49,7 @@ enum class OldUncleanUnichars {
   kTrue,
 };
 
-class CHAR_FRAGMENT {
+class TESS_API CHAR_FRAGMENT {
  public:
   // Minimum number of characters used for fragment representation.
   static const int kMinLen = 6;
@@ -146,15 +146,15 @@ class CHAR_FRAGMENT {
 // The UNICHARSET class is an utility class for Tesseract that holds the
 // set of characters that are used by the engine. Each character is identified
 // by a unique number, from 0 to (size - 1).
-class UNICHARSET {
+class TESS_API UNICHARSET {
  public:
   // Custom list of characters and their ligature forms (UTF8)
   // These map to unicode values in the private use area (PUC) and are supported
   // by only few font families (eg. Wyld, Adobe Caslon Pro).
-  static TESS_API const char* kCustomLigatures[][2];
+  static const char* kCustomLigatures[][2];
 
   // List of strings for the SpecialUnicharCodes. Keep in sync with the enum.
-  static TESS_API const char* kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT];
+  static const char* kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT];
 
   // ICU 2.0 UCharDirection enum (from icu/include/unicode/uchar.h)
   enum Direction {
@@ -893,7 +893,7 @@ class UNICHARSET {
 
  private:
 
-  struct UNICHAR_PROPERTIES {
+  struct TESS_API UNICHAR_PROPERTIES {
     UNICHAR_PROPERTIES();
     // Initializes all properties to sensible default values.
     void Init();
@@ -996,7 +996,7 @@ class UNICHARSET {
   // The substitutions clean up text that should exists for rendering of
   // synthetic data, but not in the recognition set.
   static const char* kCleanupMaps[][2];
-  static TESS_API const char* null_script;
+  static const char* null_script;
 
   std::vector<UNICHAR_SLOT> unichars;
   UNICHARMAP ids;

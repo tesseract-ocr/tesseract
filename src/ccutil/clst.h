@@ -69,7 +69,7 @@ class CLIST_LINK
  * Generic list class for singly linked CONS cell lists
  **********************************************************************/
 
-class CLIST
+class TESS_API CLIST
 {
   friend class CLIST_ITERATOR;
 
@@ -144,7 +144,7 @@ class CLIST
  *links
  **********************************************************************/
 
-class CLIST_ITERATOR
+class TESS_API CLIST_ITERATOR
 {
   friend void CLIST::assign_to_sublist(CLIST_ITERATOR *, CLIST_ITERATOR *);
 

@@ -25,7 +25,7 @@
 
 namespace tesseract {
 
-class LSTMTester {
+class TESS_UNICHARSET_TRAINING_API LSTMTester {
  public:
   LSTMTester(int64_t max_memory);
 

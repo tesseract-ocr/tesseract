@@ -50,7 +50,7 @@ enum TrainingFlags {
 
 // Top-level line recognizer class for LSTM-based networks.
 // Note that a sub-class, LSTMTrainer is used for training.
-class LSTMRecognizer {
+class TESS_API LSTMRecognizer {
  public:
   LSTMRecognizer();
   LSTMRecognizer(const STRING language_data_path_prefix);

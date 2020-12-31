@@ -47,7 +47,7 @@ struct ParamsVectors {
 };
 
 // Utility functions for working with Tesseract parameters.
-class ParamUtils {
+class TESS_API ParamUtils {
  public:
   // Reads a file of parameter definitions and set/modify the values therein.
   // If the filename begins with a + or -, the BoolVariables will be
@@ -279,6 +279,7 @@ class DoubleParam : public Param {
 //
 // TODO(daria): remove GlobalParams() when all global Tesseract
 // parameters are converted to members.
+TESS_API
 ParamsVectors* GlobalParams();
 
 /*************************************************************************

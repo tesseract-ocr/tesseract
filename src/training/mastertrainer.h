@@ -66,7 +66,7 @@ struct ShapeDist {
 // Initially supports shape clustering and mftrainining.
 // Other important features of the MasterTrainer are conditioning the data
 // by outlier elimination, replication with perturbation, and serialization.
-class MasterTrainer {
+class TESS_COMMON_TRAINING_API MasterTrainer {
  public:
   MasterTrainer(NormalizationMode norm_mode, bool shape_analysis,
                 bool replicate_samples, int debug_level);

@@ -125,7 +125,7 @@ class RecodedCharID {
 // position). For non-CJK, the same code value CAN be used in multiple
 // positions, eg the ff ligature is converted to <f> <nullchar> <f>, where <f>
 // is the same code as is used for the single f.
-class UnicharCompress {
+class TESS_API UnicharCompress {
  public:
   UnicharCompress();
   UnicharCompress(const UnicharCompress& src);

@@ -12,9 +12,8 @@
 // limitations under the License.
 
 #define _USE_MATH_DEFINES       // for M_PI
+
 #include "commontraining.h"
-#include <algorithm>
-#include <cmath>                // for M_PI
 
 #ifdef DISABLED_LEGACY_ENGINE
 
@@ -32,6 +31,8 @@ STRING_PARAM_FLAG(U, "unicharset", "File to load unicharset from");
 STRING_PARAM_FLAG(O, "", "File to write unicharset to");
 STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
 STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
+STRING_PARAM_FLAG(fonts_dir, "", "");
+STRING_PARAM_FLAG(fontconfig_tmpdir, "", "");
 
 /**
  * This routine parses the command line arguments that were
@@ -96,6 +97,8 @@ STRING_PARAM_FLAG(U, "unicharset", "File to load unicharset from");
 STRING_PARAM_FLAG(O, "", "File to write unicharset to");
 STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
 STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
+STRING_PARAM_FLAG(fonts_dir, "", "");
+STRING_PARAM_FLAG(fontconfig_tmpdir, "", "");
 static DOUBLE_PARAM_FLAG(clusterconfig_min_samples_fraction, Config.MinSamples,
                          "Min number of samples per proto as % of total");
 static DOUBLE_PARAM_FLAG(clusterconfig_max_illegal, Config.MaxIllegal,

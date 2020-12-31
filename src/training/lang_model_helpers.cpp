@@ -12,19 +12,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #include "lang_model_helpers.h"
 
-#if defined(_WIN32)
-#include <direct.h>
-#endif
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <cstdlib>
 #include "dawg.h"
 #include "fileio.h"
 #include "tessdatamanager.h"
 #include "trie.h"
 #include "unicharcompress.h"
+
+#include <cstdlib>
+
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#if defined(_WIN32)
+#include <direct.h>
+#endif
 
 namespace tesseract {
 

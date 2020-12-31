@@ -104,7 +104,7 @@ struct FloatWordFeature {
 // The text transcription is the ground truth UTF-8 text for the image.
 // Character boxes are optional and indicate the desired segmentation of
 // the text into recognition units.
-class ImageData {
+class TESS_API ImageData {
  public:
   ImageData();
   // Takes ownership of the pix.
@@ -213,19 +213,24 @@ class ImageData {
 // A collection of ImageData that knows roughly how much memory it is using.
 class DocumentData {
  public:
+  TESS_API
   explicit DocumentData(const STRING& name);
+  TESS_API
   ~DocumentData();
 
   // Reads all the pages in the given lstmf filename to the cache. The reader
   // is used to read the file.
+  TESS_API
   bool LoadDocument(const char* filename, int start_page, int64_t max_memory,
                     FileReader reader);
   // Sets up the document, without actually loading it.
   void SetDocument(const char* filename, int64_t max_memory, FileReader reader);
   // Writes all the pages to the given filename. Returns false on error.
+  TESS_API
   bool SaveDocument(const char* filename, FileWriter writer);
 
   // Adds the given page data to this document, counting up memory.
+  TESS_API
   void AddPageToDocument(ImageData* page);
 
   const STRING& document_name() const {
@@ -257,6 +262,7 @@ class DocumentData {
   void LoadPageInBackground(int index);
   // Returns a pointer to the page with the given index, modulo the total
   // number of pages. Blocks until the background load is completed.
+  TESS_API
   const ImageData* GetPage(int index);
   // Returns true if the requested page is available, and provides a pointer,
   // which may be nullptr if the document is empty. May block, even though it
@@ -325,7 +331,9 @@ class DocumentData {
 // content.
 class DocumentCache {
  public:
+  TESS_API
   explicit DocumentCache(int64_t max_memory);
+  TESS_API
   ~DocumentCache();
 
   // Deletes all existing documents from the cache.
@@ -335,6 +343,7 @@ class DocumentCache {
   }
   // Adds all the documents in the list of filenames, counting memory.
   // The reader is used to read the files.
+  TESS_API
   bool LoadDocuments(const std::vector<STRING>& filenames,
                      CachingStrategy cache_strategy, FileReader reader);
 
@@ -358,16 +367,19 @@ class DocumentCache {
   }
   // Returns the total number of pages in an epoch. For CS_ROUND_ROBIN cache
   // strategy, could take a long time.
+  TESS_API
   int TotalPages();
 
  private:
   // Returns a page by serial number, selecting them in a round-robin fashion
   // from all the documents. Highly disk-intensive, but doesn't need samples
   // to be shuffled between files to begin with.
+  TESS_API
   const ImageData* GetPageRoundRobin(int serial);
   // Returns a page by serial number, selecting them in sequence from each file.
   // Requires the samples to be shuffled between the files to give a random or
   // uniform distribution of data. Less disk-intensive than GetPageRoundRobin.
+  TESS_API
   const ImageData* GetPageSequential(int serial);
 
   // Helper counts the number of adjacent cached neighbour documents_ of index

@@ -36,7 +36,7 @@ namespace tesseract {
 
 /* ccmain/tstruct.cpp */
 
-class Wordrec : public Classify {
+class TESS_API Wordrec : public Classify {
  public:
   // config parameters
 
@@ -190,7 +190,7 @@ class FRAGMENT:public ELIST_LINK
 ELISTIZEH(FRAGMENT)
 
 
-class Wordrec : public Classify {
+class TESS_API Wordrec : public Classify {
  public:
   // config parameters *******************************************************
   BOOL_VAR_H(merge_fragments_in_matrix, true,

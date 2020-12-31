@@ -319,7 +319,7 @@ class TESS_API PageIterator {
    * Sets up the internal data for iterating the blobs of a new word, then
    * moves the iterator to the given offset.
    */
-  TESS_LOCAL void BeginWord(int offset);
+  void BeginWord(int offset);
 
   /** Pointer to the page_res owned by the API. */
   PAGE_RES* page_res_;

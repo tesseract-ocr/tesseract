@@ -47,7 +47,9 @@ constexpr size_t countof(T const (&)[N]) noexcept {
 using FileWriter = bool (*)(const std::vector<char>& data,
                             const char* filename);
 
+TESS_API
 bool LoadDataFromFile(const char* filename, std::vector<char>* data);
+TESS_API
 bool SaveDataToFile(const std::vector<char>& data, const char* filename);
 
 // Deserialize data from file.
@@ -64,7 +66,7 @@ bool Serialize(FILE *fp, const T *data, size_t n = 1) {
 
 // Simple file class.
 // Allows for portable file input from memory and from foreign file systems.
-class TFile {
+class TESS_API TFile {
  public:
   TFile();
   ~TFile();

@@ -27,6 +27,7 @@
  * @note Note that scientific floating-point notation is not supported.
  *
  */
+TESS_API
 int tfscanf(FILE* stream, const char *format, ...);
 
 #endif  // TESSERACT_CCUTIL_SCANUTILS_H_

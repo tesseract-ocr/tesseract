@@ -31,6 +31,7 @@ class UNICHARSET;
 
 // Helper sets the character attribute properties and sets up the script table.
 // Does not set tops and bottoms.
+TESS_UNICHARSET_TRAINING_API
 void SetupBasicProperties(bool report_errors, bool decompose,
                           UNICHARSET* unicharset);
 // Default behavior is to compose, until it is proven that decomposed benefits
@@ -39,6 +40,7 @@ inline void SetupBasicProperties(bool report_errors, UNICHARSET* unicharset) {
   SetupBasicProperties(report_errors, false, unicharset);
 }
 // Helper sets the properties from universal script unicharsets, if found.
+TESS_UNICHARSET_TRAINING_API
 void SetScriptProperties(const std::string& script_dir, UNICHARSET* unicharset);
 // Helper gets the combined x-heights string.
 std::string GetXheightString(const std::string& script_dir, const UNICHARSET& unicharset);
@@ -48,6 +50,7 @@ std::string GetXheightString(const std::string& script_dir, const UNICHARSET& un
 // script_dir directory, then the tops and bottoms are expanded using the
 // script unicharset.
 // If non-empty, xheight data for the fonts are written to the xheights_file.
+TESS_UNICHARSET_TRAINING_API
 void SetPropertiesForInputFile(const std::string& script_dir,
                                const std::string& input_unicharset_file,
                                const std::string& output_unicharset_file,

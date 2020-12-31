@@ -28,11 +28,13 @@ namespace tesseract {
 // Default writer will overwrite any existing file, but a supplied writer
 // can do its own thing. If lang is empty, returns true but does nothing.
 // NOTE that suffix should contain any required . for the filename.
+TESS_UNICHARSET_TRAINING_API
 bool WriteFile(const std::string& output_dir, const std::string& lang,
                const std::string& suffix, const std::vector<char>& data,
                FileWriter writer);
 // Helper reads a file with optional reader and returns a STRING.
 // On failure emits a warning message and returns and empty STRING.
+TESS_UNICHARSET_TRAINING_API
 STRING ReadFile(const std::string& filename, FileReader reader);
 
 // Helper writes the unicharset to file and to the traineddata.
@@ -70,6 +72,7 @@ bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
 // puncs must be non-empty.
 // lang_is_rtl indicates that the language is generally written from right
 // to left (eg Arabic/Hebrew).
+TESS_UNICHARSET_TRAINING_API
 int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir,
                      const std::string& version_str, const std::string& output_dir,
                      const std::string& lang, bool pass_through_recoder,

@@ -28,7 +28,7 @@ namespace tesseract {
 class TFile;
 
 // Represents the learned weights for a given language.
-class ParamsModel {
+class TESS_API ParamsModel {
  public:
   // Enum for expressing OCR pass.
   enum PassEnum {

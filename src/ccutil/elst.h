@@ -107,7 +107,7 @@ class ELIST_LINK
  * Generic list class for singly linked lists with embedded links
  **********************************************************************/
 
-class ELIST
+class TESS_API ELIST
 {
   friend class ELIST_ITERATOR;
 
@@ -181,7 +181,7 @@ class ELIST
  *                          Generic iterator class for singly linked lists with embedded links
  **********************************************************************/
 
-class ELIST_ITERATOR
+class TESS_API ELIST_ITERATOR
 {
   friend void ELIST::assign_to_sublist(ELIST_ITERATOR *, ELIST_ITERATOR *);
 
@@ -849,7 +849,7 @@ ELISTIZEH_C.
 
 #define ELISTIZEH_A(CLASSNAME)                                                \
                                                                               \
-extern void CLASSNAME##_zapper(ELIST_LINK* link);
+TESS_API extern void CLASSNAME##_zapper(ELIST_LINK* link);
 
 #define ELISTIZEH_B(CLASSNAME)                                                \
                                                                               \

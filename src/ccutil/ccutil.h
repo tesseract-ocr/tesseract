@@ -41,7 +41,7 @@
 
 namespace tesseract {
 
-class CCUtil {
+class TESS_API CCUtil {
  public:
   CCUtil();
   virtual ~CCUtil();

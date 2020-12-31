@@ -24,11 +24,6 @@
 
 BOOL_PARAM_FLAG(display, false, "Display image for inspection");
 
-// Flags defined in pango_font_info.cpp
-DECLARE_BOOL_PARAM_FLAG(use_only_legacy_fonts);
-DECLARE_STRING_PARAM_FLAG(fonts_dir);
-DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
-
 namespace tesseract {
 
 const char kEngText[] = "the quick brown fox jumps over the lazy dog";

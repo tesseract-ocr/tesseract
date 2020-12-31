@@ -46,7 +46,7 @@ enum NormalizationMode {
   NM_CHAR_ANISOTROPIC = -1  // The original CN normalization mode.
 };
 
-class DENORM {
+class TESS_API DENORM {
  public:
   DENORM();
 

@@ -285,5 +285,4 @@ class TrainingSampleSet {
 
 }  // namespace tesseract.
 
-
 #endif  // TRAININGSAMPLESETSET_H_

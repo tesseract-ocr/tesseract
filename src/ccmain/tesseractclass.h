@@ -175,7 +175,7 @@ struct WordData {
 using WordRecognizer = void (Tesseract::*)(const WordData&, WERD_RES**,
                                            PointerVector<WERD_RES>*);
 
-class Tesseract : public Wordrec {
+class TESS_API Tesseract : public Wordrec {
  public:
   Tesseract();
   ~Tesseract() override;

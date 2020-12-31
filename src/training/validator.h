@@ -68,7 +68,7 @@ enum class ViramaScript : char32 {
 
 // Base class offers a validation API and protected methods to allow subclasses
 // to easily build the validated/segmented output.
-class Validator {
+class TESS_UNICHARSET_TRAINING_API Validator {
  public:
   // Validates and cleans the src vector of unicodes to the *dest, according to
   // g_mode. In the case of kSingleString, a single vector containing the whole

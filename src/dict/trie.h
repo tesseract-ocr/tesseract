@@ -53,7 +53,7 @@ using TRIE_NODES = GenericVector<TRIE_NODE_RECORD *> ;
  * This class stores a vector of pointers to TRIE_NODE_RECORDs, each of
  * which has a vector of forward and backward edges.
  */
-class Trie : public Dawg {
+class TESS_API Trie : public Dawg {
  public:
   enum RTLReversePolicy {
     RRP_DO_NO_REVERSE,

@@ -40,7 +40,7 @@ inline bool LoadFileLinesToStrings(const char* filename,
 }
 
 // A class to manipulate FILE*s.
-class File {
+class TESS_UNICHARSET_TRAINING_API File {
  public:
   // Try to open the file 'filename' in mode 'mode'.
   // Stop the program if it cannot open it.
@@ -66,7 +66,7 @@ class File {
 };
 
 // A class to manipulate Files for reading.
-class InputBuffer {
+class TESS_UNICHARSET_TRAINING_API InputBuffer {
  public:
   explicit InputBuffer(FILE* stream);
   // 'size' is ignored.
@@ -88,7 +88,7 @@ class InputBuffer {
 };
 
 // A class to manipulate Files for writing.
-class OutputBuffer {
+class TESS_UNICHARSET_TRAINING_API OutputBuffer {
  public:
   explicit OutputBuffer(FILE* stream);
   // 'size' is ignored.

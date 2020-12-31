@@ -9,11 +9,11 @@ void build(Solution &s)
     {
         libtesseract.setChecks("libtesseract");
 
-        libtesseract.ExportAllSymbols = true;
         libtesseract.PackageDefinitions = true;
 
         libtesseract += cppstd;
 
+        libtesseract += "TESS_API"_api;
         libtesseract += "include/.*"_rr;
         libtesseract += "src/.*"_rr;
         libtesseract -= "src/lstm/.*\\.cc"_rr;
@@ -83,8 +83,6 @@ void build(Solution &s)
         libtesseract.Public += "HAVE_CONFIG_H"_d;
         libtesseract.Public += "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1"_d;
         libtesseract.Public += "HAVE_LIBARCHIVE"_d;
-        libtesseract.Interface += sw::Shared, "TESS_IMPORTS"_d;
-        libtesseract.Private += sw::Shared, "TESS_EXPORTS"_d;
 
         libtesseract.Public += "org.sw.demo.danbloomberg.leptonica"_dep;
         libtesseract.Public += "org.sw.demo.libarchive.libarchive"_dep;
@@ -124,8 +122,9 @@ void build(Solution &s)
     }
 
     //
-    auto &common_training = training.addStaticLibrary("common_training");
+    auto &common_training = training.addLibrary("common_training");
     {
+        common_training += "TESS_COMMON_TRAINING_API"_api;
         common_training += cppstd;
         common_training +=
             "src/training/commandlineflags.cpp",
@@ -152,8 +151,9 @@ void build(Solution &s)
     }
 
     //
-    auto &unicharset_training = training.addStaticLibrary("unicharset_training");
+    auto &unicharset_training = training.addLibrary("unicharset_training");
     {
+        unicharset_training += "TESS_UNICHARSET_TRAINING_API"_api;
         unicharset_training += cppstd;
         unicharset_training +=
             "src/training/fileio.*"_rr,
@@ -177,24 +177,25 @@ void build(Solution &s)
     n.Public += __VA_ARGS__;                \
     n
 
-    ADD_EXE(ambiguous_words, libtesseract);
+    ADD_EXE(ambiguous_words, common_training);
     ADD_EXE(classifier_tester, common_training);
     ADD_EXE(combine_lang_model, unicharset_training);
-    ADD_EXE(combine_tessdata, libtesseract);
+    ADD_EXE(combine_tessdata, common_training);
     ADD_EXE(cntraining, common_training);
-    ADD_EXE(dawg2wordlist, libtesseract);
+    ADD_EXE(dawg2wordlist, common_training);
     ADD_EXE(mftraining, common_training) += "src/training/mergenf.*"_rr;
     ADD_EXE(shapeclustering, common_training);
     ADD_EXE(unicharset_extractor, unicharset_training);
-    ADD_EXE(wordlist2dawg, libtesseract);
+    ADD_EXE(wordlist2dawg, common_training);
     ADD_EXE(lstmeval, unicharset_training);
     ADD_EXE(lstmtraining, unicharset_training);
     ADD_EXE(set_unicharset_properties, unicharset_training);
-    ADD_EXE(merge_unicharsets, tessopt);
+    ADD_EXE(merge_unicharsets, common_training);
 
     //
-    auto &pango_training = training.addStaticLibrary("pango_training");
+    auto &pango_training = training.addLibrary("pango_training");
     {
+        pango_training += "TESS_PANGO_TRAINING_API"_api;
         pango_training += cppstd;
         pango_training +=
             "src/training/boxchar.cpp",
@@ -218,9 +219,6 @@ void build(Solution &s)
         text2image +=
             "src/training/degradeimage.cpp",
             "src/training/degradeimage.h",
-            "src/training/icuerrorcode.h",
-            "src/training/normstrngs.cpp",
-            "src/training/normstrngs.h",
             "src/training/text2image.cpp",
             "src/training/util.h"
             ;
@@ -229,6 +227,7 @@ void build(Solution &s)
     if (!s.getExternalVariables()["with-tests"])
         return;
 
+    // tests
     {
         auto &test = tess.addDirectory("test");
         test.Scope = TargetScope::Test;

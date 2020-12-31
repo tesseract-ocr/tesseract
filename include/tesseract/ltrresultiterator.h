@@ -183,7 +183,7 @@ class TESS_API LTRResultIterator : public PageIterator {
 };
 
 // Class to iterate over the classifier choices for a single RIL_SYMBOL.
-class ChoiceIterator {
+class TESS_API ChoiceIterator {
  public:
   // Construction is from a LTRResultIterator that points to the symbol of
   // interest. The ChoiceIterator allows a one-shot iteration over the

@@ -21,12 +21,14 @@
 
 #include "trainingsample.h"
 
-#include <cmath>                // for M_PI
-#include "allheaders.h"
+#include "intfeaturespace.h"
 #include "helpers.h"
-#include "intfeaturemap.h"
 #include "normfeat.h"
 #include "shapetable.h"
+
+#include "allheaders.h"
+
+#include <cmath>                // for M_PI
 
 namespace tesseract {
 
@@ -279,17 +281,6 @@ void TrainingSample::IndexFeatures(const IntFeatureSpace& feature_space) {
                                      &mapped_features_);
   features_are_indexed_ = true;
   features_are_mapped_ = false;
-}
-
-// Sets the mapped_features_ from the features using the provided
-// feature_map.
-void TrainingSample::MapFeatures(const IntFeatureMap& feature_map) {
-  GenericVector<int> indexed_features;
-  feature_map.feature_space().IndexAndSortFeatures(features_, num_features_,
-                                                   &indexed_features);
-  feature_map.MapIndexedFeatures(indexed_features, &mapped_features_);
-  features_are_indexed_ = false;
-  features_are_mapped_ = true;
 }
 
 // Returns a pix representing the sample. (Int features only.)

@@ -82,18 +82,24 @@ using CLASSES = CLASS_STRUCT*;
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
+TESS_API
 int AddConfigToClass(CLASS_TYPE Class);
 
+TESS_API
 int AddProtoToClass(CLASS_TYPE Class);
 
+TESS_API
 void FillABC(PROTO Proto);
 
+TESS_API
 void FreeClass(CLASS_TYPE Class);
 
+TESS_API
 void FreeClassFields(CLASS_TYPE Class);
 
 void InitPrototypes();
 
+TESS_API
 CLASS_TYPE NewClass(int NumProtos, int NumConfigs);
 
 } // namespace tesseract

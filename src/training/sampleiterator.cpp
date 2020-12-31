@@ -15,6 +15,8 @@
 
 #include "sampleiterator.h"
 
+#include "intfeaturemap.h"
+
 #include "indexmapbidi.h"
 #include "shapetable.h"
 #include "trainingsample.h"
@@ -206,12 +208,24 @@ int SampleIterator::SparseCharsetSize() const {
                               : sample_set_->charsetsize());
 }
 
+
+// Sets the mapped_features_ from the features using the provided
+// feature_map.
+static void MapFeatures(TrainingSample &s, const IntFeatureMap& feature_map) {
+    GenericVector<int> indexed_features;
+    feature_map.feature_space().IndexAndSortFeatures(s.features(), s.num_features(),
+        &indexed_features);
+    feature_map.MapIndexedFeatures(indexed_features, &s.mapped_features_);
+    s.features_are_indexed_ = false;
+    s.features_are_mapped_ = true;
+}
+
 // Apply the supplied feature_space/feature_map transform to all samples
 // accessed by this iterator.
 void SampleIterator::MapSampleFeatures(const IntFeatureMap& feature_map) {
   for (Begin(); !AtEnd(); Next()) {
     TrainingSample* sample = MutableSample();
-    sample->MapFeatures(feature_map);
+    MapFeatures(*sample, feature_map);
   }
 }
 

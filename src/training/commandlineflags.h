@@ -41,15 +41,25 @@
 
 // Flags from commontraining.cpp
 // Command line arguments for font_properties, xheights and unicharset.
+TESS_COMMON_TRAINING_API
 DECLARE_INT_PARAM_FLAG(debug_level);
+TESS_COMMON_TRAINING_API
 DECLARE_STRING_PARAM_FLAG(D);
+TESS_COMMON_TRAINING_API
 DECLARE_STRING_PARAM_FLAG(F);
+TESS_COMMON_TRAINING_API
 DECLARE_STRING_PARAM_FLAG(O);
+TESS_COMMON_TRAINING_API
 DECLARE_STRING_PARAM_FLAG(U);
+TESS_COMMON_TRAINING_API
 DECLARE_STRING_PARAM_FLAG(X);
+TESS_COMMON_TRAINING_API
 DECLARE_STRING_PARAM_FLAG(fonts_dir);
+TESS_COMMON_TRAINING_API
 DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
+TESS_COMMON_TRAINING_API
 DECLARE_STRING_PARAM_FLAG(output_trainer);
+TESS_COMMON_TRAINING_API
 DECLARE_STRING_PARAM_FLAG(test_ch);
 
 namespace tesseract {
@@ -63,6 +73,7 @@ namespace tesseract {
 // eg. If the input *argv is
 // { "program", "--foo=4", "--bar=true", "file1", "file2" } with *argc = 5, the
 // output *argv is { "program", "file1", "file2" } with *argc = 3
+TESS_COMMON_TRAINING_API
 void ParseCommandLineFlags(const char* usage, int* argc,
                            char*** argv, const bool remove_flags);
 

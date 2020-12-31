@@ -15,9 +15,6 @@
 #include "ligature_table.h"
 #include "pango_font_info.h"
 
-DECLARE_STRING_PARAM_FLAG(fonts_dir);
-DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
-
 namespace tesseract {
 
 const char kEngNonLigatureText[] = "fidelity effigy ſteep";

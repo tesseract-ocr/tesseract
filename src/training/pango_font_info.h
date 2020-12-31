@@ -37,7 +37,7 @@ namespace tesseract {
 
 // Data holder class for a font, intended to avoid having to work with Pango or
 // FontConfig-specific objects directly.
-class PangoFontInfo {
+class TESS_PANGO_TRAINING_API PangoFontInfo {
  public:
   enum FontTypeEnum {
     UNKNOWN,
@@ -143,7 +143,7 @@ class PangoFontInfo {
 
 // Static utility methods for querying font availability and font-selection
 // based on codepoint coverage.
-class FontUtils {
+class TESS_PANGO_TRAINING_API FontUtils {
  public:
   // Returns true if the font of the given description name is available in the
   // target directory specified by --fonts_dir

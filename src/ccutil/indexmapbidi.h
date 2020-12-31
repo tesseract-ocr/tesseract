@@ -39,7 +39,7 @@ class IndexMapBiDi;
 // IndexMapBiDi below.
 // NOTE: there are currently no methods to setup an IndexMap on its own!
 // It must be initialized by copying from an IndexMapBiDi or by DeSerialize.
-class IndexMap {
+class TESS_API IndexMap {
  public:
   virtual ~IndexMap();
 
@@ -99,7 +99,7 @@ class IndexMap {
 //    for ... Merge(index1, index2);
 //    CompleteMerges();
 //    Allows a many-to-one mapping by merging compact space indices.
-class IndexMapBiDi : public IndexMap {
+class TESS_API IndexMapBiDi : public IndexMap {
  public:
   ~IndexMapBiDi() override;
 

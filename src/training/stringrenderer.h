@@ -47,7 +47,7 @@ namespace tesseract {
 
 class BoxChar;
 
-class StringRenderer {
+class TESS_PANGO_TRAINING_API StringRenderer {
  public:
   StringRenderer(const std::string& font_desc, int page_width, int page_height);
   ~StringRenderer();

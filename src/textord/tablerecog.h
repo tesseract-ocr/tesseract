@@ -69,7 +69,7 @@ namespace tesseract {
 //      // etc.
 //    }
 //
-class StructuredTable {
+class TESS_API StructuredTable {
  public:
   StructuredTable();
   ~StructuredTable() = default;
@@ -254,7 +254,7 @@ class StructuredTable {
   int max_text_height_;
 };
 
-class TableRecognizer {
+class TESS_API TableRecognizer {
  public:
   TableRecognizer();
   ~TableRecognizer();

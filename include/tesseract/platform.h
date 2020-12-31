@@ -15,10 +15,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCUTIL_PLATFORM_H_
-#define TESSERACT_CCUTIL_PLATFORM_H_
+#ifndef TESSERACT_PLATFORM_H_
+#define TESSERACT_PLATFORM_H_
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#ifndef TESS_API
+# if defined(_WIN32) || defined(__CYGWIN__)
 #  if defined(TESS_EXPORTS)
 #    define TESS_API __declspec(dllexport)
 #  elif defined(TESS_IMPORTS)
@@ -26,20 +27,11 @@
 #  else
 #    define TESS_API
 #  endif
-#  define TESS_LOCAL
-#else
-#  if __GNUC__ >= 4
-#    if defined(TESS_EXPORTS) || defined(TESS_IMPORTS)
+# else
+#  if defined(TESS_EXPORTS) || defined(TESS_IMPORTS)
 #      define TESS_API __attribute__((visibility("default")))
-#      define TESS_LOCAL __attribute__((visibility("hidden")))
-#    else
-#      define TESS_API
-#      define TESS_LOCAL
-#    endif
-#  else
-#    define TESS_API
-#    define TESS_LOCAL
 #  endif
+# endif
 #endif
 
-#endif  // TESSERACT_CCUTIL_PLATFORM_H_
+#endif  // TESSERACT_PLATFORM_H_

@@ -20,8 +20,11 @@
 
 namespace tesseract {
 
+TESS_API
 void *Emalloc(int Size);
+TESS_API
 void *Erealloc(void *ptr, int size);
+TESS_API
 void Efree(void *ptr);
 
 } // namespace tesseract

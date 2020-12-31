@@ -88,7 +88,7 @@ class ELIST2_LINK
  * Generic list class for doubly linked lists with embedded links
  **********************************************************************/
 
-class ELIST2
+class TESS_API ELIST2
 {
   friend class ELIST2_ITERATOR;
 
@@ -151,7 +151,7 @@ class ELIST2
  *links
  **********************************************************************/
 
-class ELIST2_ITERATOR
+class TESS_API ELIST2_ITERATOR
 {
   friend void ELIST2::assign_to_sublist(ELIST2_ITERATOR *, ELIST2_ITERATOR *);
 
@@ -858,7 +858,7 @@ ELIST2IZEH_C.
 
 #define ELIST2IZEH_A(CLASSNAME)                                               \
                                                                               \
-  extern void CLASSNAME##_zapper(                    /*delete a link*/ \
+  TESS_API extern void CLASSNAME##_zapper(                    /*delete a link*/ \
                                         ELIST2_LINK *link); /*link to delete*/
 
 #define ELIST2IZEH_B(CLASSNAME)                                            \

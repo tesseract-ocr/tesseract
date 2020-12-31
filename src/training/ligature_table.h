@@ -35,7 +35,7 @@ class PangoFontInfo;  // defined in pango_font_info.h
 // Map to substitute strings for ligatures.
 using LigHash = std::unordered_map<std::string, std::string>;
 
-class LigatureTable {
+class TESS_PANGO_TRAINING_API LigatureTable {
  public:
   // Get a static instance of this class.
   static LigatureTable* Get();

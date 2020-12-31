@@ -99,7 +99,7 @@ enum CharSegmentationType {
   CST_NGRAM      // Multiple characters.
 };
 
-class Classify : public CCStruct {
+class TESS_API Classify : public CCStruct {
  public:
   Classify();
   ~Classify() override;

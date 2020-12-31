@@ -189,7 +189,8 @@ class ICOORDELT : public ELIST_LINK, public ICOORD
 };
 
 ELISTIZEH (ICOORDELT)
-class FCOORD
+
+class TESS_API FCOORD
 {
   public:
     ///empty constructor

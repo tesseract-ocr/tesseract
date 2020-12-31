@@ -27,7 +27,7 @@
 namespace tesseract {
 
 // Class to encapsulate CTC and simple target generation.
-class CTC {
+class TESS_COMMON_TRAINING_API CTC {
  public:
   // Normalizes the probabilities such that no target has a prob below min_prob,
   // and, provided that the initial total is at least min_total_prob, then all

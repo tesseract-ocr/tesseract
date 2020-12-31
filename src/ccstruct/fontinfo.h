@@ -146,26 +146,34 @@ struct FontSet {
 // are replaced.
 class FontInfoTable : public GenericVector<FontInfo> {
  public:
+  TESS_API // when you remove inheritance from GenericVector, move this on class level
   FontInfoTable();
+  TESS_API
   ~FontInfoTable();
 
   // Writes to the given file. Returns false in case of error.
+  TESS_API
   bool Serialize(FILE* fp) const;
   // Reads from the given file. Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
+  TESS_API
   bool DeSerialize(TFile* fp);
 
   // Returns true if the given set of fonts includes one with the same
   // properties as font_id.
+  TESS_API
   bool SetContainsFontProperties(
       int font_id, const GenericVector<ScoredFont>& font_set) const;
   // Returns true if the given set of fonts includes multiple properties.
+  TESS_API
   bool SetContainsMultipleFontProperties(
       const GenericVector<ScoredFont>& font_set) const;
 
   // Moves any non-empty FontSpacingInfo entries from other to this.
+  TESS_API
   void MoveSpacingInfoFrom(FontInfoTable* other);
   // Moves this to the target unicity table.
+  TESS_API
   void MoveTo(UnicityTable<FontInfo>* target);
 };
 

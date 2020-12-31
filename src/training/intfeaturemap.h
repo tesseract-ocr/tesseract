@@ -45,7 +45,7 @@ static const int kNumOffsetMaps = 2;
 // Although the transformations are reversible, the inverses are lossy and do
 // not return the exact input INT_FEATURE_STRUCT, due to the many->one nature
 // of both transformations.
-class IntFeatureMap {
+class TESS_COMMON_TRAINING_API IntFeatureMap {
  public:
   IntFeatureMap();
   ~IntFeatureMap();
