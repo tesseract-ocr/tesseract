@@ -1,4 +1,8 @@
 ## run autogen.sh to create Makefile.in from this file
+
+# Be less noisy by default. Can be overridden with `make V=1`.
+V = 0
+
 ACLOCAL_AMFLAGS = -I m4
 
 if ENABLE_TRAINING
