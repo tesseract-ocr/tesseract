@@ -81,6 +81,7 @@ AM_CXXFLAGS = $(OPENMP_CXXFLAGS)
 # Rules for src/api.
 
 libtesseract_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_la_CPPFLAGS += -DTESS_COMMON_TRAINING_API=
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/arch
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/ccmain
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
@@ -91,7 +92,7 @@ libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/dict
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/lstm
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/textord
-libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/training
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/training/common
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 libtesseract_la_CPPFLAGS += $(libcurl_CFLAGS)
@@ -757,8 +758,15 @@ endif
 $(EXTRA_PROGRAMS): libtesseract.la
 
 training_CPPFLAGS := -DPANGO_ENABLE_ENGINE
+training_CPPFLAGS += -DTESS_COMMON_TRAINING_API=
+training_CPPFLAGS += -DTESS_PANGO_TRAINING_API=
+training_CPPFLAGS += -DTESS_UNICHARSET_TRAINING_API=
 training_CPPFLAGS += -I$(top_builddir)/include
 training_CPPFLAGS += -I$(top_srcdir)/include
+training_CPPFLAGS += -I$(top_srcdir)/src/training
+training_CPPFLAGS += -I$(top_srcdir)/src/training/common
+training_CPPFLAGS += -I$(top_srcdir)/src/training/pango
+training_CPPFLAGS += -I$(top_srcdir)/src/training/unicharset
 training_CPPFLAGS += -I$(top_srcdir)/src/api
 training_CPPFLAGS += -I$(top_srcdir)/src/ccmain
 training_CPPFLAGS += -I$(top_srcdir)/src/ccutil
@@ -789,75 +797,75 @@ if VISIBILITY
 AM_LDFLAGS += -all-static
 endif
 
-noinst_HEADERS += src/training/boxchar.h
-noinst_HEADERS += src/training/commandlineflags.h
-noinst_HEADERS += src/training/commontraining.h
-noinst_HEADERS += src/training/ctc.h
+noinst_HEADERS += src/training/pango/boxchar.h
+noinst_HEADERS += src/training/common/commandlineflags.h
+noinst_HEADERS += src/training/common/commontraining.h
+noinst_HEADERS += src/training/common/ctc.h
 noinst_HEADERS += src/training/degradeimage.h
-noinst_HEADERS += src/training/icuerrorcode.h
-noinst_HEADERS += src/training/fileio.h
-noinst_HEADERS += src/training/lang_model_helpers.h
-noinst_HEADERS += src/training/ligature_table.h
-noinst_HEADERS += src/training/lstmtester.h
-noinst_HEADERS += src/training/lstmtrainer.h
-noinst_HEADERS += src/training/networkbuilder.h
-noinst_HEADERS += src/training/normstrngs.h
-noinst_HEADERS += src/training/pango_font_info.h
-noinst_HEADERS += src/training/stringrenderer.h
+noinst_HEADERS += src/training/unicharset/icuerrorcode.h
+noinst_HEADERS += src/training/unicharset/fileio.h
+noinst_HEADERS += src/training/unicharset/lang_model_helpers.h
+noinst_HEADERS += src/training/pango/ligature_table.h
+noinst_HEADERS += src/training/unicharset/lstmtester.h
+noinst_HEADERS += src/training/unicharset/lstmtrainer.h
+noinst_HEADERS += src/training/common/networkbuilder.h
+noinst_HEADERS += src/training/unicharset/normstrngs.h
+noinst_HEADERS += src/training/pango/pango_font_info.h
+noinst_HEADERS += src/training/pango/stringrenderer.h
 noinst_HEADERS += src/training/tessopt.h
-noinst_HEADERS += src/training/tlog.h
-noinst_HEADERS += src/training/unicharset_training_utils.h
+noinst_HEADERS += src/training/pango/tlog.h
+noinst_HEADERS += src/training/unicharset/unicharset_training_utils.h
 noinst_HEADERS += src/training/util.h
-noinst_HEADERS += src/training/validate_grapheme.h
-noinst_HEADERS += src/training/validate_indic.h
-noinst_HEADERS += src/training/validate_javanese.h
-noinst_HEADERS += src/training/validate_khmer.h
-noinst_HEADERS += src/training/validate_myanmar.h
-noinst_HEADERS += src/training/validator.h
+noinst_HEADERS += src/training/unicharset/validate_grapheme.h
+noinst_HEADERS += src/training/unicharset/validate_indic.h
+noinst_HEADERS += src/training/unicharset/validate_javanese.h
+noinst_HEADERS += src/training/unicharset/validate_khmer.h
+noinst_HEADERS += src/training/unicharset/validate_myanmar.h
+noinst_HEADERS += src/training/unicharset/validator.h
 if !DISABLED_LEGACY_ENGINE
-noinst_HEADERS += src/training/errorcounter.h
-noinst_HEADERS += src/training/intfeaturedist.h
-noinst_HEADERS += src/training/intfeaturemap.h
-noinst_HEADERS += src/training/mastertrainer.h
+noinst_HEADERS += src/training/common/errorcounter.h
+noinst_HEADERS += src/training/common/intfeaturedist.h
+noinst_HEADERS += src/training/common/intfeaturemap.h
+noinst_HEADERS += src/training/common/mastertrainer.h
 noinst_HEADERS += src/training/mergenf.h
-noinst_HEADERS += src/training/sampleiterator.h
-noinst_HEADERS += src/training/trainingsampleset.h
+noinst_HEADERS += src/training/common/sampleiterator.h
+noinst_HEADERS += src/training/common/trainingsampleset.h
 endif
 
 
 EXTRA_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
 libtesseract_training_la_CPPFLAGS = $(training_CPPFLAGS)
-libtesseract_training_la_SOURCES = src/training/boxchar.cpp
-libtesseract_training_la_SOURCES += src/training/commandlineflags.cpp
-libtesseract_training_la_SOURCES += src/training/commontraining.cpp
-libtesseract_training_la_SOURCES += src/training/ctc.cpp
+libtesseract_training_la_SOURCES = src/training/pango/boxchar.cpp
+libtesseract_training_la_SOURCES += src/training/common/commandlineflags.cpp
+libtesseract_training_la_SOURCES += src/training/common/commontraining.cpp
+libtesseract_training_la_SOURCES += src/training/common/ctc.cpp
 libtesseract_training_la_SOURCES += src/training/degradeimage.cpp
-libtesseract_training_la_SOURCES += src/training/icuerrorcode.cpp
-libtesseract_training_la_SOURCES += src/training/fileio.cpp
-libtesseract_training_la_SOURCES += src/training/lang_model_helpers.cpp
-libtesseract_training_la_SOURCES += src/training/ligature_table.cpp
-libtesseract_training_la_SOURCES += src/training/lstmtester.cpp
-libtesseract_training_la_SOURCES += src/training/lstmtrainer.cpp
-libtesseract_training_la_SOURCES += src/training/networkbuilder.cpp
-libtesseract_training_la_SOURCES += src/training/normstrngs.cpp
-libtesseract_training_la_SOURCES += src/training/pango_font_info.cpp
-libtesseract_training_la_SOURCES += src/training/stringrenderer.cpp
-libtesseract_training_la_SOURCES += src/training/tlog.cpp
-libtesseract_training_la_SOURCES += src/training/unicharset_training_utils.cpp
-libtesseract_training_la_SOURCES += src/training/validate_grapheme.cpp
-libtesseract_training_la_SOURCES += src/training/validate_indic.cpp
-libtesseract_training_la_SOURCES += src/training/validate_javanese.cpp
-libtesseract_training_la_SOURCES += src/training/validate_khmer.cpp
-libtesseract_training_la_SOURCES += src/training/validate_myanmar.cpp
-libtesseract_training_la_SOURCES += src/training/validator.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/icuerrorcode.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/fileio.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/lang_model_helpers.cpp
+libtesseract_training_la_SOURCES += src/training/pango/ligature_table.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/lstmtester.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/lstmtrainer.cpp
+libtesseract_training_la_SOURCES += src/training/common/networkbuilder.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/normstrngs.cpp
+libtesseract_training_la_SOURCES += src/training/pango/pango_font_info.cpp
+libtesseract_training_la_SOURCES += src/training/pango/stringrenderer.cpp
+libtesseract_training_la_SOURCES += src/training/pango/tlog.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/unicharset_training_utils.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validate_grapheme.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validate_indic.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validate_javanese.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validate_khmer.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validate_myanmar.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validator.cpp
 if !DISABLED_LEGACY_ENGINE
-libtesseract_training_la_SOURCES += src/training/errorcounter.cpp
-libtesseract_training_la_SOURCES += src/training/intfeaturedist.cpp
-libtesseract_training_la_SOURCES += src/training/intfeaturemap.cpp
-libtesseract_training_la_SOURCES += src/training/mastertrainer.cpp
-libtesseract_training_la_SOURCES += src/training/sampleiterator.cpp
-libtesseract_training_la_SOURCES += src/training/trainingsampleset.cpp
+libtesseract_training_la_SOURCES += src/training/common/errorcounter.cpp
+libtesseract_training_la_SOURCES += src/training/common/intfeaturedist.cpp
+libtesseract_training_la_SOURCES += src/training/common/intfeaturemap.cpp
+libtesseract_training_la_SOURCES += src/training/common/mastertrainer.cpp
+libtesseract_training_la_SOURCES += src/training/common/sampleiterator.cpp
+libtesseract_training_la_SOURCES += src/training/common/trainingsampleset.cpp
 endif
 
 libtesseract_tessopt_la_CPPFLAGS = $(training_CPPFLAGS)
