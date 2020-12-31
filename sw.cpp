@@ -182,8 +182,7 @@ void build(Solution &s)
         text2image +=
             "src/training/degradeimage.cpp",
             "src/training/degradeimage.h",
-            "src/training/text2image.cpp",
-            "src/training/util.h"
+            "src/training/text2image.cpp"
             ;
     }
 
