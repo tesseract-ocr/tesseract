@@ -21,10 +21,10 @@
 #include "errcode.h"        // for ERRCODE, TESSEXIT
 #include "fileerr.h"        // for CANTOPENFILE
 #include "rect.h"           // for TBOX
+#include "strngs.h"         // for STRING
 #include "tprintf.h"        // for tprintf
 
 #include <tesseract/helpers.h>        // for chomp_string
-#include "strngs.h"         // for STRING
 #include <tesseract/unichar.h>        // for UNICHAR
 
 #include <cstring>          // for strchr, strcmp
@@ -32,6 +32,8 @@
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
 #include <string>           // for std::string
+
+#include <limits.h>         // for INT_MAX
 
 namespace tesseract {
 
