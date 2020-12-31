@@ -63,7 +63,7 @@ endif()
 # LIBRARY tessopt
 ########################################
 
-add_library                 (tessopt tessopt.cpp tessopt.h)
+add_library                 (tessopt STATIC tessopt.cpp tessopt.h)
 project_group               (tessopt "Training Tools")
 
 
