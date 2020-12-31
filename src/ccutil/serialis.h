@@ -51,24 +51,16 @@ bool LoadDataFromFile(const char* filename, std::vector<char>* data);
 bool SaveDataToFile(const std::vector<char>& data, const char* filename);
 
 // Deserialize data from file.
-bool DeSerialize(FILE* fp, char* data, size_t n = 1);
-bool DeSerialize(FILE* fp, float* data, size_t n = 1);
-bool DeSerialize(FILE* fp, int8_t* data, size_t n = 1);
-bool DeSerialize(FILE* fp, int16_t* data, size_t n = 1);
-bool DeSerialize(FILE* fp, int32_t* data, size_t n = 1);
-bool DeSerialize(FILE* fp, uint8_t* data, size_t n = 1);
-bool DeSerialize(FILE* fp, uint16_t* data, size_t n = 1);
-bool DeSerialize(FILE* fp, uint32_t* data, size_t n = 1);
+template <typename T>
+bool DeSerialize(FILE *fp, T *data, size_t n = 1) {
+    return fread((void *)data, sizeof(T), n, fp) == n;
+}
 
 // Serialize data to file.
-bool Serialize(FILE* fp, const char* data, size_t n = 1);
-bool Serialize(FILE* fp, const float* data, size_t n = 1);
-bool Serialize(FILE* fp, const int8_t* data, size_t n = 1);
-bool Serialize(FILE* fp, const int16_t* data, size_t n = 1);
-bool Serialize(FILE* fp, const int32_t* data, size_t n = 1);
-bool Serialize(FILE* fp, const uint8_t* data, size_t n = 1);
-bool Serialize(FILE* fp, const uint16_t* data, size_t n = 1);
-bool Serialize(FILE* fp, const uint32_t* data, size_t n = 1);
+template <typename T>
+bool Serialize(FILE *fp, const T *data, size_t n = 1) {
+    return fwrite(data, sizeof(T), n, fp) == n;
+}
 
 // Simple file class.
 // Allows for portable file input from memory and from foreign file systems.
