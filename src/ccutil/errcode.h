@@ -51,11 +51,7 @@ class TESS_API ERRCODE {           // error handler class
 
 constexpr ERRCODE ASSERT_FAILED("Assert failed");
 
-#if defined __cplusplus
-# define DO_NOTHING static_cast<void>(0)
-#else
-# define DO_NOTHING (void)(0)
-#endif
+#define DO_NOTHING static_cast<void>(0)
 
 #define ASSERT_HOST(x) (x) \
   ? DO_NOTHING \

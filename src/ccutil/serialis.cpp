@@ -22,8 +22,8 @@
 
 #include "helpers.h"  // for ReverseN
 
+#include <climits>    // for INT_MAX
 #include <cstdio>
-#include <limits.h>         // for INT_MAX
 
 namespace tesseract {
 

@@ -20,6 +20,7 @@
 
 #include <tesseract/platform.h>
 
+#include <climits>
 #include <limits>
 
 /* _WIN32 */
@@ -36,11 +37,6 @@
 #endif  // _WIN32
 
 #ifndef _WIN32
-#  ifdef __cplusplus
-#    include <climits>
-#  else /* C compiler*/
-#    include <limits.h>
-#  endif /* __cplusplus */
 #  ifndef PATH_MAX
 #    define MAX_PATH 4096
 #  else
