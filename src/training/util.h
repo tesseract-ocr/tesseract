@@ -19,41 +19,6 @@
 #ifndef TESSERACT_TRAINING_UTIL_H_
 #define TESSERACT_TRAINING_UTIL_H_
 
-#include <cstddef>
-#include <cstdlib>
-#include <string>
-#include <vector>
-
-#include <tesseract/platform.h>
-
-// StringHash is the hashing functor needed by the stl hash map.
-#ifndef COMPILER_MSVC
-struct StringHash {
-  size_t operator()(const std::string& s) const {
-    size_t hash_code = 0;
-    const uint8_t* str = reinterpret_cast<const uint8_t*>(s.c_str());
-    for (unsigned ch = 0; str[ch] != 0; ++ch) {
-      hash_code += str[ch] << (ch % 24);
-    }
-    return hash_code;
-  }
-};
-#else  // COMPILER_MSVC
-struct StringHash : public stdext::hash_compare <std::string> {
-  size_t operator()(const std::string& s) const {
-    size_t hash_code = 0;
-    const uint8_t* str = reinterpret_cast<const uint8_t*>(s.c_str());
-    for (unsigned ch = 0; str[ch] != 0; ++ch) {
-      hash_code += str[ch] << (ch % 24);
-    }
-    return hash_code;
-  }
-  bool operator()(const std::string& s1, const std::string& s2) const {
-    return s1 == s2;
-  }
-};
-#endif  // !COMPILER_MSVC
-
 #define DISABLE_HEAP_LEAK_CHECK {}
 
 #endif  // TESSERACT_TRAINING_UTIL_H_
