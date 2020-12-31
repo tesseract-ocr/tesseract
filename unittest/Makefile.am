@@ -1,5 +1,8 @@
 # Makefile for Tesseract unit tests
 
+# Be less noisy by default. Can be overridden with `make V=1`.
+V = 0
+
 # Absolute path of directory 'langdata'.
 LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata_lstm
 
