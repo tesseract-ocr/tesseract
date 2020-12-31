@@ -29,6 +29,9 @@ AM_CPPFLAGS += -DPANGO_ENABLE_ENGINE
 if DISABLED_LEGACY_ENGINE
 AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
 endif # DISABLED_LEGACY_ENGINE
+AM_CPPFLAGS += -DTESS_COMMON_TRAINING_API=
+AM_CPPFLAGS += -DTESS_PANGO_TRAINING_API=
+AM_CPPFLAGS += -DTESS_UNICHARSET_TRAINING_API=
 AM_CPPFLAGS += -I$(top_builddir)/include
 AM_CPPFLAGS += -I$(top_srcdir)/include
 AM_CPPFLAGS += -I$(top_srcdir)/src/arch
@@ -46,6 +49,9 @@ AM_CPPFLAGS += -I$(top_srcdir)/unittest/util
 AM_CPPFLAGS += $(LEPTONICA_CFLAGS)
 if ENABLE_TRAINING
 AM_CPPFLAGS += -I$(top_srcdir)/src/training
+AM_CPPFLAGS += -I$(top_srcdir)/src/training/common
+AM_CPPFLAGS += -I$(top_srcdir)/src/training/pango
+AM_CPPFLAGS += -I$(top_srcdir)/src/training/unicharset
 AM_CPPFLAGS += $(pangocairo_CFLAGS)
 endif # ENABLE_TRAINING
 AM_CPPFLAGS += -I$(top_srcdir)/src/viewer

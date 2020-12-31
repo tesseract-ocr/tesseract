@@ -815,7 +815,6 @@ noinst_HEADERS += src/training/pango/stringrenderer.h
 noinst_HEADERS += src/training/tessopt.h
 noinst_HEADERS += src/training/pango/tlog.h
 noinst_HEADERS += src/training/unicharset/unicharset_training_utils.h
-noinst_HEADERS += src/training/util.h
 noinst_HEADERS += src/training/unicharset/validate_grapheme.h
 noinst_HEADERS += src/training/unicharset/validate_indic.h
 noinst_HEADERS += src/training/unicharset/validate_javanese.h
