@@ -311,8 +311,8 @@ if (SW_BUILD)
 target_link_libraries       (pango_training PUBLIC org.sw.demo.gnome.pango.pangocairo)
 else()
 if (PKG_CONFIG_FOUND)
-target_include_directories  (pango_training BEFORE PRIVATE ${Cairo_INCLUDE_DIRS} ${Pango_INCLUDE_DIRS})
-target_compile_definitions  (pango_training PRIVATE -DPANGO_ENABLE_ENGINE)
+target_include_directories  (pango_training BEFORE PUBLIC ${Cairo_INCLUDE_DIRS} ${Pango_INCLUDE_DIRS})
+target_compile_definitions  (pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
 target_link_libraries       (pango_training PUBLIC
     ${Pango_LIBRARIES}
     ${Cairo_LIBRARIES}
