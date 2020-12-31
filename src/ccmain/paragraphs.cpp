@@ -673,7 +673,7 @@ class SimpleClusterer {
 
  private:
   int max_cluster_width_;
-  GenericVectorEqEq<int> values_;
+  GenericVector<int> values_;
 };
 
 // Return the index of the cluster closest to value.

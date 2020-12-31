@@ -38,7 +38,6 @@ bool FontInfo::DeSerialize(TFile* fp) {
 
 FontInfoTable::FontInfoTable() {
   using namespace std::placeholders; // for _1, _2
-  set_compare_callback(std::bind(CompareFontInfo, _1, _2));
   set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
 }
 
@@ -84,7 +83,6 @@ bool FontInfoTable::SetContainsMultipleFontProperties(
 // Moves any non-empty FontSpacingInfo entries from other to this.
 void FontInfoTable::MoveSpacingInfoFrom(FontInfoTable* other) {
   using namespace std::placeholders; // for _1, _2
-  set_compare_callback(std::bind(CompareFontInfo, _1, _2));
   set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
   for (int i = 0; i < other->size(); ++i) {
     GenericVector<FontSpacingInfo*>* spacing_vec = other->get(i).spacing_vec;
@@ -107,7 +105,6 @@ void FontInfoTable::MoveSpacingInfoFrom(FontInfoTable* other) {
 void FontInfoTable::MoveTo(UnicityTable<FontInfo>* target) {
   target->clear();
   using namespace std::placeholders; // for _1, _2
-  target->set_compare_callback(std::bind(CompareFontInfo, _1, _2));
   target->set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
   for (int i = 0; i < size(); ++i) {
     // Bit copy the FontInfo and steal all the pointers.
@@ -115,26 +112,6 @@ void FontInfoTable::MoveTo(UnicityTable<FontInfo>* target) {
     get(i).name = nullptr;
     get(i).spacing_vec = nullptr;
   }
-}
-
-
-// Compare FontInfo structures.
-bool CompareFontInfo(const FontInfo& fi1, const FontInfo& fi2) {
-  // The font properties are required to be the same for two font with the same
-  // name, so there is no need to test them.
-  // Consequently, querying the table with only its font name as information is
-  // enough to retrieve its properties.
-  return strcmp(fi1.name, fi2.name) == 0;
-}
-// Compare FontSet structures.
-bool CompareFontSet(const FontSet& fs1, const FontSet& fs2) {
-  if (fs1.size != fs2.size)
-    return false;
-  for (int i = 0; i < fs1.size; ++i) {
-    if (fs1.configs[i] != fs2.configs[i])
-      return false;
-  }
-  return true;
 }
 
 // Callbacks for GenericVector.

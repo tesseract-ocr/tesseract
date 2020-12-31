@@ -54,7 +54,7 @@ struct CLASS_STRUCT {
   int16_t MaxNumConfigs;
   PROTO Prototypes;
   CONFIGS Configurations;
-  UnicityTableEqEq<int> font_set;
+  UnicityTable<int> font_set;
 };
 using CLASS_TYPE = CLASS_STRUCT*;
 using CLASSES = CLASS_STRUCT*;

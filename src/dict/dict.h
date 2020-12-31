@@ -546,7 +546,7 @@ class TESS_API Dict {
   // matching.  The first member of each list is taken as canonical.  For
   // example, the first list contains hyphens and dashes with the first symbol
   // being the ASCII hyphen minus.
-  std::vector<GenericVectorEqEq<UNICHAR_ID> > equivalent_symbols_;
+  std::vector<GenericVector<UNICHAR_ID> > equivalent_symbols_;
   // Dawg Cache reference - this is who we ask to allocate/deallocate dawgs.
   DawgCache *dawg_cache_;
   bool dawg_cache_is_ours_;  // we should delete our own dawg_cache_

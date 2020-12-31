@@ -47,13 +47,6 @@
 
 using namespace tesseract;
 
-STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp",
-                  "Overrides fontconfig default temporary dir");
-
-STRING_PARAM_FLAG(fonts_dir, "",
-                  "If empty it uses system default. Otherwise it overrides"
-                  " system default font location");
-
 namespace tesseract {
 
 // Default assumed output resolution. Required only for providing font metrics

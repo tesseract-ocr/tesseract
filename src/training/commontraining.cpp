@@ -31,8 +31,8 @@ STRING_PARAM_FLAG(U, "unicharset", "File to load unicharset from");
 STRING_PARAM_FLAG(O, "", "File to write unicharset to");
 STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
 STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
-STRING_PARAM_FLAG(fonts_dir, "", "");
-STRING_PARAM_FLAG(fontconfig_tmpdir, "", "");
+STRING_PARAM_FLAG(fonts_dir, "", "If empty it uses system default. Otherwise it overrides system default font location");
+STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp", "Overrides fontconfig default temporary dir");
 
 /**
  * This routine parses the command line arguments that were
@@ -741,7 +741,7 @@ CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
   CLASS_STRUCT* float_classes = new CLASS_STRUCT[unicharset.size()];
   iterate(LabeledClassList)
   {
-    UnicityTableEqEq<int>   font_set;
+    UnicityTable<int>   font_set;
     MergeClass = reinterpret_cast<MERGE_CLASS>first_node (LabeledClassList);
     Class = &float_classes[unicharset.unichar_to_id(MergeClass->Label)];
     NumProtos = MergeClass->Class->NumProtos;

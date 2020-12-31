@@ -23,12 +23,6 @@ void ToVector(const GenericVector<T>& from, std::vector<T>* to) {
 }
 
 template <typename T>
-void ToVector(const GenericVectorEqEq<T>& from, std::vector<T>* to) {
-  to->clear();
-  for (int i = 0; i < from.size(); i++) to->push_back(from[i]);
-}
-
-template <typename T>
 void ToVector(const std::vector<T>& from, std::vector<T>* to) {
   to->clear();
   for (int i = 0; i < from.size(); i++) to->push_back(from[i]);

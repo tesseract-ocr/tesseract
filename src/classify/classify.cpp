@@ -172,9 +172,7 @@ Classify::Classify()
       im_(&classify_debug_level),
       dict_(this) {
   using namespace std::placeholders; // for _1, _2
-  fontinfo_table_.set_compare_callback(std::bind(CompareFontInfo, _1, _2));
   fontinfo_table_.set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
-  fontset_table_.set_compare_callback(std::bind(CompareFontSet, _1, _2));
   fontset_table_.set_clear_callback(std::bind(FontSetDeleteCallback, _1));
 
   InitFeatureDefs(&feature_defs_);
