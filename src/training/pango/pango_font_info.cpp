@@ -26,24 +26,26 @@
 #undef __STRICT_ANSI__
 #endif
 
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#ifndef _MSC_VER
-#include <sys/param.h>
-#endif
-#include <algorithm>
-
 #include "pango_font_info.h"
 #include "commandlineflags.h"
 #include "fileio.h"
 #include "normstrngs.h"
 #include "tlog.h"
+
 #include <tesseract/unichar.h>
-#include "util.h"
+
 #include "pango/pango.h"
 #include "pango/pangocairo.h"
 #include "pango/pangofc-font.h"
+
+#include <algorithm>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+
+#ifndef _MSC_VER
+#include <sys/param.h>
+#endif
 
 #define DISABLE_HEAP_LEAK_CHECK
 

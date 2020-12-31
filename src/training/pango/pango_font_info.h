@@ -23,10 +23,10 @@
 #include "export.h"
 
 #include "commandlineflags.h"
+
 #include "pango/pango-font.h"
 #include "pango/pango.h"
 #include "pango/pangocairo.h"
-#include "util.h"
 
 #include <string>
 #include <unordered_map>

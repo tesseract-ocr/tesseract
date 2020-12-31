@@ -20,6 +20,18 @@
 
 #include "stringrenderer.h"
 
+#include "allheaders.h"     // from leptonica
+#include "boxchar.h"
+#include "ligature_table.h"
+#include "normstrngs.h"
+#include "tlog.h"
+
+#include <tesseract/unichar.h>
+
+#include "pango/pango-font.h"
+#include "pango/pango-glyph-item.h"
+#include "unicode/uchar.h"  // from libicu
+
 #include <cassert>
 #include <cstdio>
 #include <cstring>
@@ -27,17 +39,6 @@
 #include <map>
 #include <utility>
 #include <vector>
-
-#include "allheaders.h"     // from leptonica
-#include "boxchar.h"
-#include "ligature_table.h"
-#include "normstrngs.h"
-#include "pango/pango-font.h"
-#include "pango/pango-glyph-item.h"
-#include "tlog.h"
-#include <tesseract/unichar.h>
-#include "unicode/uchar.h"  // from libicu
-#include "util.h"
 
 #define DISABLE_HEAP_LEAK_CHECK
 
