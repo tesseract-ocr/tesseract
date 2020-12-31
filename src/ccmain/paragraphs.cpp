@@ -97,15 +97,15 @@ static STRING StrOf(int num) {
 
 // Given a row-major matrix of unicode text and a column separator, print
 // a formatted table.  For ASCII, we get good column alignment.
-static void PrintTable(const GenericVector<GenericVector<STRING> > &rows,
+static void PrintTable(const std::vector<std::vector<STRING> > &rows,
                        const STRING &colsep) {
-  GenericVector<int> max_col_widths;
-  for (int r = 0; r < rows.size(); r++) {
-    int num_columns = rows[r].size();
+  std::vector<int> max_col_widths;
+  for (const auto& row : rows) {
+    int num_columns = row.size();
     for (int c = 0; c < num_columns; c++) {
       int num_unicodes = 0;
-      for (int i = 0; i < rows[r][c].size(); i++) {
-        if ((rows[r][c][i] & 0xC0) != 0x80) num_unicodes++;
+      for (int i = 0; i < row[c].size(); i++) {
+        if ((row[c][i] & 0xC0) != 0x80) num_unicodes++;
       }
       if (c >= max_col_widths.size()) {
         max_col_widths.push_back(num_unicodes);
@@ -116,7 +116,7 @@ static void PrintTable(const GenericVector<GenericVector<STRING> > &rows,
     }
   }
 
-  GenericVector<STRING> col_width_patterns;
+  std::vector<STRING> col_width_patterns;
   for (int c = 0; c < max_col_widths.size(); c++) {
     col_width_patterns.push_back(
         STRING("%-") + StrOf(max_col_widths[c]) + "s");
@@ -141,8 +141,8 @@ static STRING RtlEmbed(const STRING &word, bool rtlify) {
 // Print the current thoughts of the paragraph detector.
 static void PrintDetectorState(const ParagraphTheory &theory,
                                const GenericVector<RowScratchRegisters> &rows) {
-  GenericVector<GenericVector<STRING> > output;
-  output.push_back(GenericVector<STRING>());
+  std::vector<std::vector<STRING> > output;
+  output.push_back(std::vector<STRING>());
   output.back().push_back("#row");
   output.back().push_back("space");
   output.back().push_back("..");
@@ -152,8 +152,8 @@ static void PrintDetectorState(const ParagraphTheory &theory,
   output.back().push_back("text");
 
   for (int i = 0; i < rows.size(); i++) {
-    output.push_back(GenericVector<STRING>());
-    GenericVector<STRING> &row = output.back();
+    output.push_back(std::vector<STRING>());
+    std::vector<STRING> &row = output.back();
     const RowInfo& ri = *rows[i].ri_;
     row.push_back(StrOf(i));
     row.push_back(StrOf(ri.average_interword_space));
@@ -488,13 +488,13 @@ void RightWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd,
 // =============== Implementation of RowScratchRegisters =====================
 /* static */
 void RowScratchRegisters::AppendDebugHeaderFields(
-    GenericVector<STRING> *header) {
+    std::vector<STRING> *header) {
   header->push_back("[lmarg,lind;rind,rmarg]");
   header->push_back("model");
 }
 
 void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
-                                          GenericVector<STRING> *dbg) const {
+                                          std::vector<STRING> *dbg) const {
   char s[30];
   snprintf(s, sizeof(s), "[%3d,%3d;%3d,%3d]",
            lmargin_, lindent_, rindent_, rmargin_);

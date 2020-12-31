@@ -164,11 +164,11 @@ class RowScratchRegisters {
   }
 
   // Append header fields to a vector of row headings.
-  static void AppendDebugHeaderFields(GenericVector<STRING> *header);
+  static void AppendDebugHeaderFields(std::vector<STRING> *header);
 
   // Append data for this row to a vector of debug strings.
   void AppendDebugInfo(const ParagraphTheory &theory,
-                       GenericVector<STRING> *dbg) const;
+                       std::vector<STRING> *dbg) const;
 
   const RowInfo *ri_;
 
@@ -270,7 +270,7 @@ class ParagraphModelSmearer {
   //                to fit the same model.
   // TODO(eger): Think about whether we can get rid of "Open" models and just
   //   use the current hypotheses on RowScratchRegisters.
-  GenericVector<SetOfModels> open_models_;
+  std::vector<SetOfModels> open_models_;
 };
 
 // Clear all hypotheses about lines [start, end) and reset the margins to the
