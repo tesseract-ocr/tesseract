@@ -50,20 +50,10 @@ using namespace tesseract;
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp",
                   "Overrides fontconfig default temporary dir");
 
-#ifdef GOOGLE_TESSERACT
-#include "ocr/trainingdata/typesetting/legacy_fonts.h"
-BOOL_PARAM_FLAG(use_only_legacy_fonts, false,
-                "Overrides --fonts_dir and sets the known universe of fonts to"
-                "the list in legacy_fonts.h");
-
-STRING_PARAM_FLAG(fonts_dir, "/auto/ocr-data/tesstraining/fonts",
-                  "Overrides system default font location");
-#else
 using std::pair;
 STRING_PARAM_FLAG(fonts_dir, "",
                   "If empty it uses system default. Otherwise it overrides"
                   " system default font location");
-#endif
 
 namespace tesseract {
 
@@ -565,19 +555,6 @@ const std::vector<std::string>& FontUtils::ListAvailableFonts() {
   if (!available_fonts_.empty()) {
     return available_fonts_;
   }
-#ifdef GOOGLE_TESSERACT
-  if (FLAGS_use_only_legacy_fonts) {
-    // Restrict view to list of fonts in legacy_fonts.h
-    tprintf("Using list of legacy fonts only\n");
-    const int kNumFontLists = 4;
-    for (int i = 0; i < kNumFontLists; ++i) {
-      for (int j = 0; kFontlists[i][j] != nullptr; ++j) {
-        available_fonts_.push_back(kFontlists[i][j]);
-      }
-    }
-    return available_fonts_;
-  }
-#endif
 
   PangoFontFamily** families = nullptr;
   int n_families = 0;

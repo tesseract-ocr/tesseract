@@ -63,11 +63,6 @@ class StringRendererTest : public ::testing::Test {
     l_chooseDisplayProg(L_DISPLAY_WITH_XZGV);
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
-#ifdef GOOGLE_TESSERACT
-    FLAGS_use_only_legacy_fonts = false;
-    // Needed for reliable heapchecking of pango layout structures.
-    FLAGS_heap_check_max_pointer_offset = -1;
-#endif
   }
 
   void DisplayClusterBoxes(Pix* pix) {

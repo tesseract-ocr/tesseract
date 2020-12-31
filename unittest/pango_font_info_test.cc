@@ -77,9 +77,6 @@ class PangoFontInfoTest : public ::testing::Test {
   static void SetUpTestCase() {
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
-#ifdef GOOGLE_TESSERACT
-    FLAGS_use_only_legacy_fonts = false;
-#endif
   }
 
   PangoFontInfo font_info_;

@@ -16,8 +16,6 @@
 #include "errcode.h"
 #include "tprintf.h"            // for tprintf
 
-#ifndef GOOGLE_TESSERACT
-
 namespace tesseract {
 static bool IntFlagExists(const char* flag_name, int32_t* value) {
   STRING full_flag_name("FLAGS_");
@@ -335,18 +333,5 @@ void ParseCommandLineFlags(const char* usage,
     (*argc) -= (i - 1);
   }
 }
+
 }  // namespace tesseract
-
-#else
-
-#include "base/init_google.h"
-
-namespace tesseract {
-void ParseCommandLineFlags(const char* usage,
-                           int* argc, char*** argv,
-                           const bool remove_flags) {
-  InitGoogle(usage, argc, argv, remove_flags);
-}
-}  // namespace tesseract
-
-#endif

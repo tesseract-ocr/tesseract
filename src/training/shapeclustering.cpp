@@ -20,9 +20,6 @@
 #include "config_auto.h"
 #endif
 
-#ifdef GOOGLE_TESSERACT
-#include "base/commandlineflags.h"
-#endif
 #include "commontraining.h"
 #include "mastertrainer.h"
 #include "params.h"

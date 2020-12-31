@@ -18,8 +18,6 @@
 #ifndef TESSERACT_TRAINING_COMMANDLINEFLAGS_H_
 #define TESSERACT_TRAINING_COMMANDLINEFLAGS_H_
 
-#ifndef GOOGLE_TESSERACT
-
 #include "params.h"
 
 #include <cstdlib>
@@ -40,28 +38,6 @@
   STRING_VAR(FLAGS_##name, val, comment)
 #define DECLARE_STRING_PARAM_FLAG(name)         \
   extern STRING_VAR_H(FLAGS_##name, "", "")
-
-#else
-
-#include "base/commandlineflags.h"
-#define INT_PARAM_FLAG(name, val, comment) \
-  DEFINE_int32(name, val, comment)
-#define DECLARE_INT_PARAM_FLAG(name) \
-  DECLARE_int32(name)
-#define DOUBLE_PARAM_FLAG(name, val, comment) \
-  DEFINE_double(name, val, comment)
-#define DECLARE_DOUBLE_PARAM_FLAG(name) \
-  DECLARE_double(name)
-#define BOOL_PARAM_FLAG(name, val, comment) \
-  DEFINE_bool(name, val, comment)
-#define DECLARE_BOOL_PARAM_FLAG(name) \
-  DECLARE_bool(name)
-#define STRING_PARAM_FLAG(name, val, comment) \
-  DEFINE_string(name, val, comment)
-#define DECLARE_STRING_PARAM_FLAG(name) \
-  DECLARE_string(name)
-
-#endif
 
 // Flags from commontraining.cpp
 // Command line arguments for font_properties, xheights and unicharset.
