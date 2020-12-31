@@ -20,9 +20,11 @@
 #ifndef TESSERACT_TRAINING_UNICHARSET_TRAINING_UTILS_H_
 #define TESSERACT_TRAINING_UNICHARSET_TRAINING_UTILS_H_
 
-#include <string>
+#include "export.h"
 
 #include <tesseract/platform.h>
+
+#include <string>
 
 namespace tesseract {
 

@@ -21,6 +21,7 @@
 #ifndef TESSERACT_CLASSIFY_INTFEATUREMAP_H_
 #define TESSERACT_CLASSIFY_INTFEATUREMAP_H_
 
+#include "export.h"
 #include "intfeaturespace.h"
 #include "indexmapbidi.h"
 #include "intproto.h"

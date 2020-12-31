@@ -28,13 +28,15 @@
 #ifndef TESSERACT_TRAINING_STRINGRENDERER_H_
 #define TESSERACT_TRAINING_STRINGRENDERER_H_
 
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "export.h"
 
 #include "pango_font_info.h"
 #include "pango/pango-layout.h"
 #include "pango/pangocairo.h"
+
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 struct Boxa;
 struct Pix;

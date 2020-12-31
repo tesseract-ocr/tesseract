@@ -22,9 +22,8 @@
 #ifndef TESSERACT_TRAINING_MASTERTRAINER_H_
 #define TESSERACT_TRAINING_MASTERTRAINER_H_
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
+#include "export.h"
+
 #include "classify.h"
 #include "cluster.h"
 #include "intfx.h"

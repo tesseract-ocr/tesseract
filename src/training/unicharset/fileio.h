@@ -16,13 +16,16 @@
 #ifndef TESSERACT_TRAINING_FILEIO_H_
 #define TESSERACT_TRAINING_FILEIO_H_
 
+#include "export.h"
+
+#include "genericvector.h"      // for GenericVector
+#include "strngs.h"             // for STRING
+
+#include <tesseract/platform.h>
+
 #include <cstddef>
 #include <cstdio>
 #include <string>
-
-#include "genericvector.h"      // for GenericVector
-#include <tesseract/platform.h>
-#include "strngs.h"             // for STRING
 
 namespace tesseract {
 

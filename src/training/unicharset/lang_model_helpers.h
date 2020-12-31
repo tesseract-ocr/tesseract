@@ -15,10 +15,13 @@
 #ifndef TESSERACT_TRAINING_LANG_MODEL_HELPERS_H_
 #define TESSERACT_TRAINING_LANG_MODEL_HELPERS_H_
 
+#include "export.h"
+
 #include "serialis.h"
 #include "strngs.h"
 #include "tessdatamanager.h"
 #include "unicharset.h"
+
 #include <string>
 
 namespace tesseract {

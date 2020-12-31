@@ -18,10 +18,13 @@
 #ifndef TESSERACT_LSTM_LSTMTRAINER_H_
 #define TESSERACT_LSTM_LSTMTRAINER_H_
 
-#include <functional>        // for std::function
+#include "export.h"
+
 #include "imagedata.h"
 #include "lstmrecognizer.h"
 #include "rect.h"
+
+#include <functional>        // for std::function
 
 namespace tesseract {
 

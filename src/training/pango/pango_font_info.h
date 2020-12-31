@@ -20,16 +20,18 @@
 #ifndef TESSERACT_TRAINING_PANGO_FONT_INFO_H_
 #define TESSERACT_TRAINING_PANGO_FONT_INFO_H_
 
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
+#include "export.h"
 
 #include "commandlineflags.h"
 #include "pango/pango-font.h"
 #include "pango/pango.h"
 #include "pango/pangocairo.h"
 #include "util.h"
+
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 using char32 = signed int;
 

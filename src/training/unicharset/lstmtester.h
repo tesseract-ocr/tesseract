@@ -18,8 +18,11 @@
 #ifndef TESSERACT_TRAINING_LSTMTESTER_H_
 #define TESSERACT_TRAINING_LSTMTESTER_H_
 
+#include "export.h"
+
 #include "lstmtrainer.h"
 #include "strngs.h"
+
 #include <mutex>
 #include <vector>
 

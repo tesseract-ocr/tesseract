@@ -20,9 +20,12 @@
 #ifndef TESSERACT_TRAINING_VALIDATOR_H_
 #define TESSERACT_TRAINING_VALIDATOR_H_
 
+#include "export.h"
+
+#include <tesseract/unichar.h>
+
 #include <memory>
 #include <vector>
-#include <tesseract/unichar.h>
 
 namespace tesseract {
 

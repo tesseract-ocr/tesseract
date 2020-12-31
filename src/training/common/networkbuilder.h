@@ -19,6 +19,7 @@
 #ifndef TESSERACT_LSTM_NETWORKBUILDER_H_
 #define TESSERACT_LSTM_NETWORKBUILDER_H_
 
+#include "export.h"
 #include "static_shape.h"
 #include "stridemap.h"
 

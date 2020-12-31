@@ -21,10 +21,12 @@
 #ifndef TESSERACT_CCUTIL_NORMSTRNGS_H_
 #define TESSERACT_CCUTIL_NORMSTRNGS_H_
 
-#include <string>
-#include <vector>
+#include "export.h"
 
 #include "validator.h"
+
+#include <string>
+#include <vector>
 
 namespace tesseract {
 

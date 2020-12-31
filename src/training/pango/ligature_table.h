@@ -22,11 +22,11 @@
 #ifndef TRAININGDATA_LIGATURE_TABLE_H_
 #define TRAININGDATA_LIGATURE_TABLE_H_
 
+#include "export.h"
+
 #include <memory>
 #include <string>
 #include <unordered_map>
-
-#include "util.h"
 
 namespace tesseract {
 

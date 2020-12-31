@@ -18,6 +18,7 @@
 #include "config_auto.h"
 #endif
 
+#include "export.h"
 #include "commandlineflags.h"
 #include "tprintf.h"
 

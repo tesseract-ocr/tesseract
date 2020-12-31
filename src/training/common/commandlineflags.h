@@ -18,6 +18,7 @@
 #ifndef TESSERACT_TRAINING_COMMANDLINEFLAGS_H_
 #define TESSERACT_TRAINING_COMMANDLINEFLAGS_H_
 
+#include "export.h"
 #include "params.h"
 
 #include <cstdlib>

@@ -20,6 +20,8 @@
 #ifndef TESSERACT_TRAINING_TLOG_H_
 #define TESSERACT_TRAINING_TLOG_H_
 
+#include "export.h"
+
 #include "commandlineflags.h"
 #include "errcode.h"
 #include "tprintf.h"

@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "networkbuilder.h"
+
 #include "convolve.h"
 #include "fullyconnected.h"
 #include "input.h"

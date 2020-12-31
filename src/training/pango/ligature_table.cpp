@@ -21,8 +21,6 @@
 
 #include "ligature_table.h"
 
-#include <utility>
-
 #include "pango_font_info.h"
 #include "tlog.h"
 #include <tesseract/unichar.h>
@@ -31,6 +29,8 @@
 #include "unicode/normlzr.h"    // from libicu
 #include "unicode/unistr.h"     // from libicu
 #include "unicode/utypes.h"     // from libicu
+
+#include <utility>
 
 namespace tesseract {
 
