@@ -23,7 +23,7 @@
 #include "dawg.h"
 
 #include "dict.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "strngs.h"
 #include "tprintf.h"
 

@@ -20,7 +20,7 @@
 
 #include "errcode.h"
 
-#include <tesseract/helpers.h>  // for ReverseN
+#include "helpers.h"  // for ReverseN
 
 #include <cstdio>
 #include <limits.h>         // for INT_MAX

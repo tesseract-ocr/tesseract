@@ -22,7 +22,7 @@
 #include "bitvector.h"
 #include <algorithm>
 #include <cstring>
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "serialis.h"   // for tesseract::Serialize
 
 namespace tesseract {

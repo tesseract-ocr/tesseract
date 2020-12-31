@@ -700,25 +700,19 @@ install(EXPORT TesseractTargets NAMESPACE Tesseract:: DESTINATION lib/cmake/tess
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake DESTINATION lib)
 
 install(FILES
-    # from api/makefile.am
-    include/tesseract/apitypes.h
     include/tesseract/baseapi.h
     include/tesseract/capi.h
     include/tesseract/renderer.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/version.h
 
-    #from ccmain/makefile.am
     include/tesseract/thresholder.h
     include/tesseract/ltrresultiterator.h
     include/tesseract/pageiterator.h
     include/tesseract/resultiterator.h
     include/tesseract/osdetect.h
 
-    #from ccstruct/makefile.am
     include/tesseract/publictypes.h
 
-    #from ccutil/makefile.am
-    include/tesseract/helpers.h
     include/tesseract/ocrclass.h
     include/tesseract/platform.h
     include/tesseract/unichar.h

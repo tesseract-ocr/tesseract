@@ -20,7 +20,7 @@
 #define TESSERACT_CCUTIL_GENERICVECTOR_H_
 
 #include "serialis.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <algorithm>
 #include <cassert>

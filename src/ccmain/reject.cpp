@@ -44,7 +44,7 @@ int16_t Tesseract::safe_dict_word(const WERD_RES *werd_res) {
 #include "tesseractclass.h"
 
 #include "genericvector.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <cctype>
 #include <cerrno>

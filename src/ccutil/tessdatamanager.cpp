@@ -31,7 +31,7 @@
 #endif
 
 #include "errcode.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "serialis.h"
 #include "strngs.h"
 #include <tesseract/version.h>

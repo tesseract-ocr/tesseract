@@ -25,7 +25,7 @@
 #include <cctype>
 #include <cmath>
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 namespace tesseract {
 

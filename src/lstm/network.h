@@ -24,7 +24,7 @@
 #include "static_shape.h"
 #include "strngs.h"             // for STRING
 #include "tprintf.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <cstdio>
 #include <cmath>

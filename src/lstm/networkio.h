@@ -24,7 +24,7 @@
 #include <vector>
 
 #include "genericvector.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "static_shape.h"
 #include "stridemap.h"
 #include "weightmatrix.h"

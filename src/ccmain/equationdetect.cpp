@@ -31,7 +31,7 @@
 #include "ratngs.h"
 #include "tesseractclass.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <algorithm>
 #include <cfloat>

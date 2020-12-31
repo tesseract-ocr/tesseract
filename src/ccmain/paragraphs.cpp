@@ -25,7 +25,7 @@
 #include <algorithm>              // for max
 #include <memory>                 // for unique_ptr
 #include "genericvector.h"        // for GenericVector, GenericVectorEqEq
-#include <tesseract/helpers.h>              // for UpdateRange, ClipToRange
+#include "helpers.h"              // for UpdateRange, ClipToRange
 #include "host.h"                 // for NearlyEqual
 #include "mutableiterator.h"      // for MutableIterator
 #include "ocrblock.h"             // for BLOCK

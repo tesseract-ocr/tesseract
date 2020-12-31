@@ -28,7 +28,7 @@
 #include "scrollview.h"  // for ScrollView, ScrollView::CYAN, ScrollView::NONE
 #include "tprintf.h"     // for tprintf
 
-#include <tesseract/helpers.h>     // for IntCastRounded, TRand, ClipToRange, Modulo
+#include "helpers.h"     // for IntCastRounded, TRand, ClipToRange, Modulo
 #include "serialis.h"    // for TFile
 
 #include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...

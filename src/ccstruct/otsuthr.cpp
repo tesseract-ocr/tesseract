@@ -21,7 +21,7 @@
 
 #include <cstring>
 #include "allheaders.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #if defined(USE_OPENCL)
 #include "openclwrapper.h" // for OpenclDevice
 #endif

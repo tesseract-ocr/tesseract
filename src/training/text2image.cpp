@@ -43,7 +43,7 @@
 #include "degradeimage.h"
 #include "errcode.h"
 #include "fileio.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "normstrngs.h"
 #include "stringrenderer.h"
 #include "tlog.h"

@@ -25,7 +25,7 @@
 #define TESSERACT_CCSTRUCT_MATRIX_H_
 
 #include "errcode.h"    // for ASSERT_HOST
-#include <tesseract/helpers.h>    // for ReverseN, ClipToRange
+#include "helpers.h"    // for ReverseN, ClipToRange
 #include "kdpair.h"     // for KDPairInc
 #include "points.h"     // for ICOORD
 

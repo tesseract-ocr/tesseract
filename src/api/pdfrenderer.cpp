@@ -24,7 +24,7 @@
 #include "tprintf.h"
 
 #include <tesseract/baseapi.h>
-#include <tesseract/helpers.h>  // for Swap
+#include "helpers.h"  // for Swap
 #include <tesseract/renderer.h>
 #include <cmath>
 #include <cstring>

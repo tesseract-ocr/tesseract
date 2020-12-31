@@ -19,7 +19,7 @@
 #define TESSERACT_LSTM_LSTMRECOGNIZER_H_
 
 #include "ccutil.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "imagedata.h"
 #include "matrix.h"
 #include "network.h"

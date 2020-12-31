@@ -26,7 +26,7 @@
 #include "reject.h"
 #endif
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <cctype>
 #include <cerrno>

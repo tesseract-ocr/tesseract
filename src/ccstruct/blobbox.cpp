@@ -28,7 +28,7 @@
 #include "host.h"        // for NearlyEqual
 #include "points.h"      // for operator+=, ICOORD::rotate
 
-#include <tesseract/helpers.h>     // for UpdateRange, IntCastRounded
+#include "helpers.h"     // for UpdateRange, IntCastRounded
 
 #include "allheaders.h"  // for pixGetHeight, pixGetPixel
 

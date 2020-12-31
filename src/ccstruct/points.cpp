@@ -20,7 +20,7 @@
 
 #include "points.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "serialis.h"
 
 #include <algorithm>

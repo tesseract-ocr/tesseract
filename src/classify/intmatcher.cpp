@@ -28,7 +28,7 @@
 #include "classify.h"
 #include "shapetable.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <cassert>
 #include <cmath>

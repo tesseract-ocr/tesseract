@@ -28,7 +28,6 @@ namespace tesseract {
 // but not for the low-level tesseract code to include top-level API code.
 // This file should not use other Tesseract types, as that would drag
 // their includes into the API-level.
-// API-level code should include apitypes.h in preference to this file.
 
 /** Number of printers' points in an inch. The unit of the pointsize return. */
 constexpr int kPointsPerInch = 72;

@@ -37,7 +37,7 @@
 #include "polyaprx.h"
 #include "werd.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <algorithm>
 

@@ -20,7 +20,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "tprintf.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include "functions.h"
 #include "lang_model_helpers.h"

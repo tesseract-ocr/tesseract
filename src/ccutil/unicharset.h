@@ -23,7 +23,7 @@
 #include "unicharmap.h"
 
 #include "genericvector.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "serialis.h"
 #include "strngs.h"
 #include <tesseract/unichar.h>

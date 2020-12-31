@@ -24,7 +24,7 @@
 #include "strngs.h"         // for STRING
 #include "tprintf.h"        // for tprintf
 
-#include <tesseract/helpers.h>        // for chomp_string
+#include "helpers.h"        // for chomp_string
 #include <tesseract/unichar.h>        // for UNICHAR
 
 #include <cstring>          // for strchr, strcmp

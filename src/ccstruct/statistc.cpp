@@ -27,7 +27,7 @@
 #include "scrollview.h"
 #include "tprintf.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <cstring>
 #include <cmath>

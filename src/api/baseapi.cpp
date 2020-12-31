@@ -65,7 +65,7 @@
 #include <tesseract/resultiterator.h>    // for ResultIterator
 #include "strngs.h"            // for STRING
 #include <tesseract/thresholder.h>       // for ImageThresholder
-#include <tesseract/helpers.h>           // for IntCastRounded, chomp_string
+#include "helpers.h"           // for IntCastRounded, chomp_string
 #include <tesseract/ocrclass.h>          // for ETEXT_DESC
 #include <tesseract/osdetect.h>          // for OSResults, OSBestResult, OrientationId...
 
