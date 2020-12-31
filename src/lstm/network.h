@@ -101,7 +101,7 @@ enum TrainingState {
 // Base class for network types. Not quite an abstract base class, but almost.
 // Most of the time no isolated Network exists, except prior to
 // deserialization.
-class Network {
+class TESS_API Network {
  public:
   Network();
   Network(NetworkType type, const std::string& name, int ni, int no);
@@ -277,7 +277,6 @@ class Network {
   void DisplayBackward(const NetworkIO& matrix);
 
   // Creates the window if needed, otherwise clears it.
-  TESS_API
   static void ClearWindow(bool tess_coords, const char* window_name,
                           int width, int height, ScrollView** window);
 

@@ -26,7 +26,7 @@ namespace tesseract {
 
 // A UNICHARMAP stores unique unichars. Each of them is associated with one
 // UNICHAR_ID.
-class UNICHARMAP {
+class TESS_API UNICHARMAP {
  public:
 
   // Create an empty UNICHARMAP
