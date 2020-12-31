@@ -20,6 +20,8 @@
 #ifndef NORMALIS_H
 #define NORMALIS_H
 
+#include <tesseract/platform.h>
+
 struct Pix;
 
 namespace tesseract {

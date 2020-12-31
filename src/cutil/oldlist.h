@@ -62,6 +62,8 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include <tesseract/platform.h>
+
 namespace tesseract {
 
 /*----------------------------------------------------------------------

@@ -18,6 +18,8 @@
 #ifndef EMALLOC_H
 #define EMALLOC_H
 
+#include <tesseract/platform.h>
+
 namespace tesseract {
 
 TESS_API
