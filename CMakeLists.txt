@@ -147,6 +147,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(LIBRARY_TYPE SHARED)
 if (STATIC)
     set(LIBRARY_TYPE)
+else()
+    set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 endif()
 
 # LTO
