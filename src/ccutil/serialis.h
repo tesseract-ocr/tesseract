@@ -53,13 +53,13 @@ bool SaveDataToFile(const std::vector<char>& data, const char* filename);
 // Deserialize data from file.
 template <typename T>
 bool DeSerialize(FILE *fp, T *data, size_t n = 1) {
-    return fread((void *)data, sizeof(T), n, fp) == n;
+  return fread(data, sizeof(T), n, fp) == n;
 }
 
 // Serialize data to file.
 template <typename T>
 bool Serialize(FILE *fp, const T *data, size_t n = 1) {
-    return fwrite(data, sizeof(T), n, fp) == n;
+  return fwrite(data, sizeof(T), n, fp) == n;
 }
 
 // Simple file class.
