@@ -56,3 +56,4 @@ script:
   - cd build
   - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
   - make
+  - make install
