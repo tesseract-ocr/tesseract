@@ -18,22 +18,10 @@
 #ifndef API_CAPI_H_
 #define API_CAPI_H_
 
-#if defined(TESSERACT_API_BASEAPI_H_) && !defined(TESS_CAPI_INCLUDE_BASEAPI)
-#  define TESS_CAPI_INCLUDE_BASEAPI
-#endif
-
-#ifdef TESS_CAPI_INCLUDE_BASEAPI
-#  include "baseapi.h"
-#  include "ocrclass.h"
-#  include "pageiterator.h"
-#  include "renderer.h"
-#  include "resultiterator.h"
-#else
 #  include <stdbool.h>
 #  include <stdio.h>
 
 #  include "export.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,7 +33,7 @@ extern "C" {
 #  define FALSE 0
 #endif
 
-#ifdef TESS_CAPI_INCLUDE_BASEAPI
+#ifdef __cplusplus
 typedef tesseract::TessResultRenderer TessResultRenderer;
 typedef tesseract::TessBaseAPI TessBaseAPI;
 typedef tesseract::PageIterator TessPageIterator;

@@ -15,14 +15,19 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESS_CAPI_INCLUDE_BASEAPI
-#  define TESS_CAPI_INCLUDE_BASEAPI
-#endif
+#include <tesseract/baseapi.h>
+#include <tesseract/ocrclass.h>
+#include <tesseract/pageiterator.h>
+#include <tesseract/renderer.h>
+#include <tesseract/resultiterator.h>
 
+// before capi.h
+using namespace tesseract;
+
+// after public headers
 #include <tesseract/capi.h>
-#include <cstring>           // for strdup
 
-namespace tesseract {
+#include <cstring>           // for strdup
 
 const char* TessVersion() {
   return TessBaseAPI::Version();
@@ -853,5 +858,3 @@ void TessMonitorSetDeadlineMSecs(ETEXT_DESC* monitor,
                                                     int deadline) {
   monitor->set_deadline_msecs(deadline);
 }
-
-} // namespace tesseract
