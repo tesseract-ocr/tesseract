@@ -18,10 +18,10 @@
 #ifndef API_CAPI_H_
 #define API_CAPI_H_
 
-#  include <stdbool.h>
-#  include <stdio.h>
+#include "export.h"
 
-#  include "export.h"
+#include <stdbool.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
