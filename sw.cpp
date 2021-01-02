@@ -194,8 +194,20 @@ void build(Solution &s)
         auto &test = tess.addDirectory("test");
         test.Scope = TargetScope::Test;
 
-        auto add_test = [&test, &s, &cppstd, &libtesseract, &pango_training](const String &name) -> decltype(auto)
+        String skipped_tests_str;
+        if (s.getExternalVariables()["skip-tests"])
+            skipped_tests_str = s.getExternalVariables()["skip-tests"].getValue();
+        auto skipped_tests = split_string(skipped_tests_str, ",");
+
+        auto add_test = [&test, &s, &cppstd, &libtesseract, &pango_training, &skipped_tests](const String &name) -> ExecutableTarget*
         {
+            for (auto &st : skipped_tests)
+            {
+                std::regex r(st);
+                if (std::regex_match(name, r))
+                    return {};
+            }
+
             auto &t = test.addTarget<ExecutableTarget>(name);
             t += cppstd;
             t += FileRegex("unittest", name + "_test.*", false);
@@ -203,6 +215,8 @@ void build(Solution &s)
             t += "SW_TESTING"_def;
 
             auto datadir = test.SourceDir / "tessdata_unittest";
+            if (s.getExternalVariables()["test-data-dir"])
+                datadir = fs::current_path() / s.getExternalVariables()["test-data-dir"].getValue();
             t += Definition("TESSBIN_DIR=\"" + ""s + "\"");
 
             t += Definition("TESTING_DIR=\"" + to_printable_string(normalize_path(test.SourceDir / "test/testing")) + "\"");
@@ -223,7 +237,7 @@ void build(Solution &s)
 
             libtesseract.addTest(t, name);
 
-            return t;
+            return &t;
         };
 
         Strings tests{
@@ -291,9 +305,12 @@ void build(Solution &s)
         };
         for (auto t : tests)
             add_test(t);
-        auto &dt = add_test("dawg");
-        dt += Definition("wordlist2dawg_prog=\"" + to_printable_string(normalize_path(wordlist2dawg.getOutputFile())) + "\"");
-        dt += Definition("dawg2wordlist_prog=\"" + to_printable_string(normalize_path(dawg2wordlist.getOutputFile())) + "\"");
+        auto dt = add_test("dawg");
+        if (dt)
+        {
+            *dt += Definition("wordlist2dawg_prog=\"" + to_printable_string(normalize_path(wordlist2dawg.getOutputFile())) + "\"");
+            *dt += Definition("dawg2wordlist_prog=\"" + to_printable_string(normalize_path(dawg2wordlist.getOutputFile())) + "\"");
+        }
     }
 }
 
