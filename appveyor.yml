@@ -26,12 +26,18 @@ build_script:
   # debug build causes long builds (> 1h), appveyor drops them
   - sw -show-output -platform %platform% -config r build -Dwith-tests=1
   # test
-  - git clone https://github.com/egorpugin/tessdata tessdata_unittest123
-  - sw -show-output -platform %platform% -config r test -Dwith-tests=1 -Dskip-tests=lstm.* -Dtest-data-dir=tessdata_unittest123
+  - git clone https://github.com/egorpugin/tessdata tessdata_unittest
+  - sw -show-output -platform %platform% -config r test -Dwith-tests=1 -Dskip-tests=lstm.*
 
 after_build:
   - 7z a tesseract.zip %APPVEYOR_BUILD_FOLDER%\.sw\out\**\*.exe %APPVEYOR_BUILD_FOLDER%\.sw\out\**\*.dll
   #- 7z a tesseract.zip %APPVEYOR_BUILD_FOLDER%\.sw\Windows_*_Shared_Release_MSVC_*\*.exe %APPVEYOR_BUILD_FOLDER%\.sw\Windows_*_Shared_Release_MSVC_*\*.dll
+
+  # gather tests
+  -
+    ps: $wc = New-Object 'System.Net.WebClient'
+  -
+    ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\sw\test\results.xml))
 
 artifacts:
   - path: tesseract.zip
