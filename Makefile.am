@@ -1007,6 +1007,7 @@ fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
           -I $(top_srcdir)/src/ccmain \
           -I $(top_srcdir)/src/ccstruct \
           -I $(top_srcdir)/src/ccutil \
+          $(OPENMP_CXXFLAGS) \
           $< \
           $(builddir)/.libs/libtesseract.a \
           $(LEPTONICA_LIBS) \
