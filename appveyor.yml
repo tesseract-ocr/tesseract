@@ -25,8 +25,7 @@ build_script:
   - sw -version
   # debug build causes long builds (> 1h), appveyor drops them
   - sw -show-output -platform %platform% -config r build -Dwith-tests=1
-
-test:
+  # test
   - git clone https://github.com/egorpugin/tessdata tessdata_unittest123
   - sw -show-output -platform %platform% -config r test -Dwith-tests=1 -Dskip-tests=lstm.* -Dtest-data-dir=tessdata_unittest123
 
