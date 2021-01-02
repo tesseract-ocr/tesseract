@@ -23,11 +23,12 @@ before_build:
 
 build_script:
   - sw -version
+  # -show-output - show command output
   # debug build causes long builds (> 1h), appveyor drops them
-  - sw -show-output -platform %platform% -config r build -Dwith-tests=1
+  - sw -platform %platform% -config r build -Dwith-tests=1
   # test
   - git clone https://github.com/egorpugin/tessdata tessdata_unittest
-  - sw -show-output -platform %platform% -config r test -Dwith-tests=1 -Dskip-tests=lstm.*
+  - sw -platform %platform% -config r test -Dwith-tests=1 -Dskip-tests=lstm,lstm_.*
 
 after_build:
   - 7z a tesseract.zip %APPVEYOR_BUILD_FOLDER%\.sw\out\**\*.exe %APPVEYOR_BUILD_FOLDER%\.sw\out\**\*.dll
