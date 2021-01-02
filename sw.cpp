@@ -199,15 +199,8 @@ void build(Solution &s)
             skipped_tests_str = s.getExternalVariables()["skip-tests"].getValue();
         auto skipped_tests = split_string(skipped_tests_str, ",");
 
-        auto add_test = [&test, &s, &cppstd, &libtesseract, &pango_training, &skipped_tests](const String &name) -> ExecutableTarget*
+        auto add_test = [&test, &s, &cppstd, &libtesseract, &pango_training, &skipped_tests](const String &name) -> decltype(auto)
         {
-            for (auto &st : skipped_tests)
-            {
-                std::regex r(st);
-                if (std::regex_match(name, r))
-                    return {};
-            }
-
             auto &t = test.addTarget<ExecutableTarget>(name);
             t += cppstd;
             t += FileRegex("unittest", name + "_test.*", false);
@@ -235,12 +228,22 @@ void build(Solution &s)
             if (t.getCompilerType() == CompilerType::MSVC)
                 t.CompileOptions.push_back("-utf-8");
 
-            libtesseract.addTest(t, name);
+            auto tst = libtesseract.addTest(t, name);
+            for (auto &st : skipped_tests)
+            {
+                std::regex r(st);
+                if (std::regex_match(name, r))
+                {
+                    tst.skip(true);
+                    break;
+                }
+            }
 
-            return &t;
+            return t;
         };
 
-        Strings tests{
+        Strings tests
+        {
             "apiexample",
             "applybox",
             "baseapi",
@@ -305,12 +308,9 @@ void build(Solution &s)
         };
         for (auto t : tests)
             add_test(t);
-        auto dt = add_test("dawg");
-        if (dt)
-        {
-            *dt += Definition("wordlist2dawg_prog=\"" + to_printable_string(normalize_path(wordlist2dawg.getOutputFile())) + "\"");
-            *dt += Definition("dawg2wordlist_prog=\"" + to_printable_string(normalize_path(dawg2wordlist.getOutputFile())) + "\"");
-        }
+        auto &dt = add_test("dawg");
+        dt += Definition("wordlist2dawg_prog=\"" + to_printable_string(normalize_path(wordlist2dawg.getOutputFile())) + "\"");
+        dt += Definition("dawg2wordlist_prog=\"" + to_printable_string(normalize_path(dawg2wordlist.getOutputFile())) + "\"");
     }
 }
 
