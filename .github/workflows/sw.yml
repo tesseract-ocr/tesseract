@@ -22,11 +22,13 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: ./sw -static -shared -config d,r build -Dwith-tests=1
 
+    - name: download test data
+      if: matrix.os != 'windows-latest'
+      run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
+
     - name: test
       if: matrix.os != 'windows-latest'
-      run:
-        - git clone https://github.com/egorpugin/tessdata tessdata_unittest
-        - ./sw -static -shared -config d,r test -Dwith-tests=1 -Dskip-tests=lstm.*
+      run: ./sw -static -shared -config d,r test -Dwith-tests=1 -Dskip-tests=lstm.*
 
     - name: Publish Unit Test Results
       if: matrix.os != 'windows-latest'
