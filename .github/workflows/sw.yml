@@ -28,7 +28,7 @@ jobs:
 
     - name: test
       if: matrix.os != 'windows-latest'
-      run: ./sw -static -shared -config d,r test -Dwith-tests=1 -Dskip-tests=lstm.*
+      run: ./sw -static -shared -config d,r test -Dwith-tests=1 -Dskip-tests=lstm,lstm_.*
 
     - name: Upload Unit Test Results
       if: always()
