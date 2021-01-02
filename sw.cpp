@@ -198,7 +198,7 @@ void build(Solution &s)
         {
             auto &t = test.addTarget<ExecutableTarget>(name);
             t += cppstd;
-            t += path("unittest/" + name + "_test.cc");
+            t += FileRegex("unittest", name + "_test.*", false);
 
             t += "SW_TESTING"_def;
 
@@ -232,6 +232,8 @@ void build(Solution &s)
             "baseapi",
             "baseapi_thread",
             "bitvector",
+            "capiexample",
+            "capiexample_c",
             "cleanapi",
             "colpartition",
             "commandlineflags",

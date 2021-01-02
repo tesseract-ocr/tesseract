@@ -15,16 +15,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <tesseract/baseapi.h>
-#include <tesseract/ocrclass.h>
-#include <tesseract/pageiterator.h>
-#include <tesseract/renderer.h>
-#include <tesseract/resultiterator.h>
-
-// before capi.h
-using namespace tesseract;
-
-// after public headers
 #include <tesseract/capi.h>
 
 #include <cstring>           // for strdup
