@@ -36,7 +36,7 @@ after_build:
 on_finish:
   # gather tests
   - ps: $wc = New-Object 'System.Net.WebClient'
-  - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\sw\test\results.xml))
+  - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\.sw\test\results.xml))
 
 artifacts:
   - path: tesseract.zip
