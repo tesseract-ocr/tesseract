@@ -30,7 +30,7 @@ jobs:
 
     - name: test
       if: matrix.os != 'windows-latest'
-      run: ./sw -static -shared -config d,r test -Dwith-tests=1 -Dskip-tests=lstm,lstm_.*
+      run: ./sw -static -shared -config d,r test -Dwith-tests=1 -Dskip-tests=lstm,lstm_recode
 
     - name: Upload Unit Test Results
       if: always()
@@ -57,7 +57,7 @@ jobs:
           path: artifacts
 
       - name: Publish Unit Test Results
-        if: matrix.os != 'windows-latest'
+        if: matrix.os == 'ubuntu-20.04'
         uses: EnricoMi/publish-unit-test-result-action@v1.6
         with:
           check_name: Unit Test Results
