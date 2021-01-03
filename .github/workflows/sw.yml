@@ -3,7 +3,7 @@ name: sw
 on: [push, pull_request]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -24,12 +24,19 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: ./sw -static -shared -config d,r build -Dwith-tests=1
 
-    - name: download test data
-      if: matrix.os != 'windows-latest'
-      run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
+  test:
+    runs-on: ${{ matrix.os }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-20.04, macOS-latest]
 
+    steps:
+    - name: download test data
+      run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
+      
     - name: test
-      if: matrix.os != 'windows-latest'
       run: ./sw -static -shared -config d,r test -Dwith-tests=1 -Dskip-tests=lstm,lstm_recode
 
     - name: Upload Unit Test Results
@@ -41,7 +48,7 @@ jobs:
                 
   publish-test-results:
     name: "Publish Unit Tests Results"
-    needs: build-and-test
+    needs: test
     runs-on: ${{ matrix.os }}
     # the build-and-test job might be skipped, we don't need to run this job then
     if: success() || failure()
