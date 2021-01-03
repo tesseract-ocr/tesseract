@@ -297,7 +297,7 @@ layout_test_SOURCES = layout_test.cc
 layout_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
 ligature_table_test_SOURCES = ligature_table_test.cc
-ligature_table_test_LDADD = $(TRAINING_LIBS)
+ligature_table_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 ligature_table_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 ligature_table_test_LDADD += $(pangocairo_LIBS) $(pangoft2_LIBS)
 ligature_table_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
