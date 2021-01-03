@@ -160,6 +160,7 @@ check_PROGRAMS += lang_model_test
 check_PROGRAMS += layout_test
 check_PROGRAMS += ligature_table_test
 check_PROGRAMS += linlsq_test
+check_PROGRAMS += list_test
 if ENABLE_TRAINING
 check_PROGRAMS += lstm_recode_test
 check_PROGRAMS += lstm_squashed_test
@@ -304,6 +305,9 @@ ligature_table_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
 
 linlsq_test_SOURCES = linlsq_test.cc
 linlsq_test_LDADD = $(TESS_LIBS)
+
+list_test_SOURCES = list_test.cc
+list_test_LDADD = $(TESS_LIBS)
 
 loadlang_test_SOURCES = loadlang_test.cc
 loadlang_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
