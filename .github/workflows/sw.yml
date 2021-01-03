@@ -33,6 +33,8 @@ jobs:
         os: [windows-latest, ubuntu-20.04, macOS-latest]
 
     steps:
+    - uses: egorpugin/sw-action@master
+      
     - name: download test data
       run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
       
