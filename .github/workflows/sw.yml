@@ -24,15 +24,6 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: ./sw -static -shared -config d,r build -Dwith-tests=1
 
-  test:
-    runs-on: ${{ matrix.os }}
-    needs: build
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-20.04, macOS-latest]
-
-    steps:
     - name: download test data
       run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
       
@@ -43,30 +34,16 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: Unit Test Results
+        name: Test Results
         path: .sw/test/results.xml
-                
-  publish-test-results:
-    name: "Publish Unit Tests Results"
-    needs: test
-    runs-on: ${{ matrix.os }}
-    # the build-and-test job might be skipped, we don't need to run this job then
-    if: success() || failure()
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-20.04, macOS-latest]
 
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          path: artifacts
-
-      - name: Publish Unit Test Results
-        if: matrix.os == 'ubuntu-20.04'
-        uses: EnricoMi/publish-unit-test-result-action@v1.6
-        with:
-          check_name: Unit Test Results
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          files: .sw/test/results.xml
+    - name: Unit Test Results 111
+      uses: EnricoMi/publish-unit-test-result-action@v1.6
+      if: always()
+      with:
+        check_name: Unit Test Results
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        files: .sw/test/results.xml
+        report_individual_runs: true
+        deduplicate_classes_by_file_name: false
+        log_level: DEBUG
