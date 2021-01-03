@@ -52,6 +52,6 @@ jobs:
       if: always()
       uses: mikepenz/action-junit-report@v1
       with:
-        check_name: test (${{ matrix.os }})
+        check_name: test results (${{ matrix.os }})
         report_paths: .sw/test/results.xml
         github_token: ${{ secrets.GITHUB_TOKEN }}
