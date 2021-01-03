@@ -266,6 +266,7 @@ void build(Solution &s)
             "layout",
             "ligature_table",
             "linlsq",
+            "list",
             "lstm_recode",
             "lstm_squashed",
             "lstm",
