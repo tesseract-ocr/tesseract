@@ -28,7 +28,7 @@ jobs:
       run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
       
     - name: test
-      run: ./sw -static -shared -config d,r test -Dwith-tests=1 -Dskip-tests=lstm,lstm_recode
+      run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
 
     - name: Upload Unit Test Results
       if: always()
