@@ -46,6 +46,7 @@ jobs:
     # the build-and-test job might be skipped, we don't need to run this job then
     if: success() || failure()
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-20.04, macOS-latest]
 
