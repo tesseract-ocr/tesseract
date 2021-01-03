@@ -37,13 +37,10 @@ jobs:
         name: Test Results
         path: .sw/test/results.xml
 
-    - name: Unit Test Results 111
-      uses: EnricoMi/publish-unit-test-result-action@v1.6
+    - name: Publish Test Report
       if: always()
+      uses: mikepenz/action-junit-report@v1
       with:
-        check_name: Unit Test Results
+        check_name: test (${{ matrix.os }})
+        report_paths: .sw/test/results.xml
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        files: .sw/test/results.xml
-        report_individual_runs: true
-        deduplicate_classes_by_file_name: false
-        log_level: DEBUG
