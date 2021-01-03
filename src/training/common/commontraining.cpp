@@ -34,6 +34,8 @@ STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
 STRING_PARAM_FLAG(fonts_dir, "", "If empty it uses system default. Otherwise it overrides system default font location");
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp", "Overrides fontconfig default temporary dir");
 
+using namespace tesseract;
+
 /**
  * This routine parses the command line arguments that were
  * passed to the program and uses them to set relevant
