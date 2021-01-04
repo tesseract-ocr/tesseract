@@ -86,50 +86,6 @@ bool TFile::DeSerialize(std::vector<char>& data) {
   return true;
 }
 
-bool TFile::DeSerialize(char* buffer, size_t count) {
-  return FRead(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(double* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(float* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(int8_t* buffer, size_t count) {
-  return FRead(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(int16_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(int32_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(int64_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(uint8_t* buffer, size_t count) {
-  return FRead(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(uint16_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(uint32_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(uint64_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
 bool TFile::Serialize(const std::vector<char>& data) {
   uint32_t size = data.size();
   if (!Serialize(&size)) {
@@ -138,50 +94,6 @@ bool TFile::Serialize(const std::vector<char>& data) {
   return Serialize(&data[0], size);
   }
   return true;
-}
-
-bool TFile::Serialize(const char* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const double* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const float* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const int8_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const int16_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const int32_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const int64_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const uint8_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const uint16_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const uint32_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const uint64_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
 }
 
 bool TFile::Skip(size_t count) {
