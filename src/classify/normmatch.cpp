@@ -208,6 +208,7 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   char line[kMaxLineSize];
   while (fp->FGets(line, kMaxLineSize) != nullptr) {
     std::istringstream stream(line);
+    stream.imbue(std::locale::classic());
     stream >> unichar >> NumProtos;
     if (stream.fail()) {
       continue;
