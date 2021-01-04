@@ -166,7 +166,7 @@ char* TFile::FGets(char* buffer, int buffer_size) {
 
 int TFile::FReadEndian(void* buffer, size_t size, int count) {
   int num_read = FRead(buffer, size, count);
-  if (swap_) {
+  if (swap_ && size != 1) {
     char* char_buffer = static_cast<char*>(buffer);
     for (int i = 0; i < num_read; ++i, char_buffer += size) {
       ReverseN(char_buffer, size);
