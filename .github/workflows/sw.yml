@@ -24,34 +24,24 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: ./sw -static -shared -config d,r build -Dwith-tests=1
 
-  test:
-    runs-on: ${{ matrix.os }}
-    needs: build
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-20.04, macOS-latest]
-
-    steps:
-    - uses: egorpugin/sw-action@master
-      
     - name: download test data
       run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
       
     - name: test
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
+      continue-on-error: true
 
     - name: Upload Unit Test Results
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: Test Results
+        name: Test Results ${{ matrix.os }}
         path: .sw/test/results.xml
 
     - name: Publish Test Report
       if: always()
       uses: mikepenz/action-junit-report@v1
       with:
-        check_name: test results (${{ matrix.os }})
+        check_name: test (${{ matrix.os }})
         report_paths: .sw/test/results.xml
         github_token: ${{ secrets.GITHUB_TOKEN }}
