@@ -9,18 +9,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <string>
+#include "include_gunit.h"
 
-#include "absl/strings/str_split.h"  // for absl::StrSplit
-
-#include "allheaders.h"
 #include "boxchar.h"
 #include "boxread.h"
 #include "commandlineflags.h"
-#include "include_gunit.h"
 #include "stringrenderer.h"
 #include "strngs.h"
+
+#include "absl/strings/str_split.h"  // for absl::StrSplit
+#include "allheaders.h"
+
+#include <memory>
+#include <string>
 
 BOOL_PARAM_FLAG(display, false, "Display image for inspection");
 
