@@ -35,7 +35,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: Test Results ${{ matrix.os }}
+        name: Test Results (${{ matrix.os }})
         path: .sw/test/results.xml
 
     - name: Publish Test Report
