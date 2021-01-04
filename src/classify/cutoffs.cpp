@@ -53,9 +53,14 @@ void Classify::ReadNewCutoffs(TFile* fp, uint16_t* Cutoffs) {
   char line[kMaxLineSize];
   while (fp->FGets(line, kMaxLineSize) != nullptr) {
     std::string Class;
+    auto p = line;
+    while (*p != ' ' && p - line < kMaxLineSize)
+        Class.push_back(*p++);
     CLASS_ID ClassId;
-    std::istringstream stream(line);
-    stream >> Class >> Cutoff;
+    // do not use stream to extract Class as it may contain unicode spaces (0xA0)
+    // they are eaten by stream, but they are a part of Class
+    std::istringstream stream(p);
+    stream >> Cutoff;
     if (stream.fail()) {
       break;
     }
