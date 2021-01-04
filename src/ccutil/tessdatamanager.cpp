@@ -74,7 +74,7 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
           if (TessdataTypeFromFileName(component, &type)) {
             int64_t size = archive_entry_size(ae);
             if (size > 0) {
-              entries_[type].resize_no_init(size);
+              entries_[type].resize(size);
               if (archive_read_data(a, &entries_[type][0], size) == size) {
                 is_loaded_ = true;
               }
@@ -126,7 +126,7 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
       unsigned j = i + 1;
       while (j < num_entries && offset_table[j] == -1) ++j;
       if (j < num_entries) entry_size = offset_table[j] - offset_table[i];
-      entries_[i].resize_no_init(entry_size);
+      entries_[i].resize(entry_size);
       if (!fp.DeSerialize(&entries_[i][0], entry_size)) return false;
     }
   }
@@ -141,7 +141,7 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
 void TessdataManager::OverwriteEntry(TessdataType type, const char *data,
                                      int size) {
   is_loaded_ = true;
-  entries_[type].resize_no_init(size);
+  entries_[type].resize(size);
   memcpy(&entries_[type][0], data, size);
 }
 
@@ -233,7 +233,7 @@ std::string TessdataManager::VersionString() const {
 
 // Sets the version string to the given v_str.
 void TessdataManager::SetVersionString(const std::string &v_str) {
-  entries_[TESSDATA_VERSION].resize_no_init(v_str.size());
+  entries_[TESSDATA_VERSION].resize(v_str.size());
   memcpy(&entries_[TESSDATA_VERSION][0], v_str.data(), v_str.size());
 }
 
