@@ -83,11 +83,6 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
         }
       }
       result = is_loaded_;
-#if !defined(NDEBUG)
-    } else {
-      tprintf("archive_read_open_filename(...,%s,...) failed, %s\n",
-              filename, strerror(archive_errno(a)));
-#endif
     }
     archive_read_free(a);
   }
