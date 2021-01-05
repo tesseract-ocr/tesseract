@@ -785,7 +785,7 @@ int Dict::valid_word(const WERD_CHOICE& word, bool numbers_ok) const {
   if (word_ptr->length() == 0) return NO_PERM;
   // Allocate vectors for holding current and updated
   // active_dawgs and initialize them.
-  auto* active_dawgs = new DawgPositionVector[2];
+  DawgPositionVector active_dawgs[2];
   init_active_dawgs(&(active_dawgs[0]), false);
   DawgArgs dawg_args(&(active_dawgs[0]), &(active_dawgs[1]), NO_PERM);
   int last_index = word_ptr->length() - 1;
@@ -803,7 +803,6 @@ int Dict::valid_word(const WERD_CHOICE& word, bool numbers_ok) const {
       dawg_args.active_dawgs = &(active_dawgs[0]);
     }
   }
-  delete[] active_dawgs;
   return valid_word_permuter(dawg_args.permuter, numbers_ok)
              ? dawg_args.permuter
              : NO_PERM;
