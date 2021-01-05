@@ -27,7 +27,6 @@ jobs:
     - name: download test data
       if: matrix.os != 'windows-latest'
       run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
-        - cp tessdata_unittest/fonts/* test/testing/
           
     - name: copy fonts
       if: matrix.os != 'windows-latest'
