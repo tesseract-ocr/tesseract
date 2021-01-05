@@ -440,15 +440,12 @@ if $have_asciidoc && $have_xsltproc; then
   if $have_brew; then
     brew_prefix=$(brew --prefix)
     catalog_file=$brew_prefix/etc/xml/catalog
-    AC_CHECK_FILE($catalog_file,
-      [
-        AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], true)
-        XML_CATALOG_FILES=file:$catalog_file
-      ],
-      [
-        AC_MSG_ERROR([Missing file $catalog_file.])
-      ]
-    )
+    if test -f $catalog_file; then
+      AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], true)
+      XML_CATALOG_FILES=file:$catalog_file
+    else
+      AC_MSG_WARN([Missing file $catalog_file.])
+    fi
   fi
   AC_SUBST([XML_CATALOG_FILES])
 else
