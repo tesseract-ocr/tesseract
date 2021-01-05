@@ -143,7 +143,7 @@ class TESS_API Classify : public CCStruct {
                    int keep_this, const INT_FEATURE_STRUCT* features,
                    const uint8_t* normalization_factors,
                    const uint16_t* expected_num_features,
-                   GenericVector<CP_RESULT_STRUCT>* results);
+                   std::vector<CP_RESULT_STRUCT>* results);
   void ReadNewCutoffs(TFile* fp, uint16_t* Cutoffs);
   void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
@@ -199,7 +199,7 @@ class TESS_API Classify : public CCStruct {
                      int debug,
                      int matcher_multiplier,
                      const TBOX& blob_box,
-                     const GenericVector<CP_RESULT_STRUCT>& results,
+                     const std::vector<CP_RESULT_STRUCT>& results,
                      ADAPT_RESULTS* final_results);
   // Converts configs to fonts, and if the result is not adapted, and a
   // shape_table_ is present, the shape is expanded to include all
@@ -290,7 +290,7 @@ class TESS_API Classify : public CCStruct {
   // a GenericVector of ShapeRating without conversion to classes.
   int CharNormTrainingSample(bool pruner_only, int keep_this,
                              const TrainingSample& sample,
-                             GenericVector<UnicharRating>* results);
+                             std::vector<UnicharRating>* results);
   UNICHAR_ID *GetAmbiguities(TBLOB *Blob, CLASS_ID CorrectClass);
   void DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results);
   void AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,

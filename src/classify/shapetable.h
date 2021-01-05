@@ -84,7 +84,7 @@ struct UnicharRating {
   // Unsorted collection of fontinfo ids and scores. Note that a raw result
   // from the IntegerMatch will contain config ids, that require transforming
   // to fontinfo ids via fontsets and (possibly) shapetable.
-  GenericVector<ScoredFont> fonts;
+  std::vector<ScoredFont> fonts;
 };
 
 // Classifier result from a low-level classification is an index into some
@@ -380,14 +380,14 @@ class TESS_API ShapeTable {
   // each unichar, or -1 if the unichar is not yet included in results.
   void AddShapeToResults(const ShapeRating& shape_rating,
                          GenericVector<int>* unichar_map,
-                         GenericVector<UnicharRating>* results) const;
+                         std::vector<UnicharRating>* results) const;
 
  private:
   // Adds the given unichar_id to the results if needed, updating unichar_map
   // and returning the index of unichar in results.
   int AddUnicharToResults(int unichar_id, float rating,
                           GenericVector<int>* unichar_map,
-                          GenericVector<UnicharRating>* results) const;
+                          std::vector<UnicharRating>* results) const;
 
   // Pointer to a provided unicharset used only by the Debugstr member.
   const UNICHARSET* unicharset_;

@@ -1968,7 +1968,7 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   for (int b = 0; b < word->best_choice->length(); ++b) {
     const BLOB_CHOICE* choice = word->GetBlobChoice(b);
     if (choice == nullptr) continue;
-    const GenericVector<ScoredFont>& fonts = choice->fonts();
+    auto &fonts = choice->fonts();
     for (int f = 0; f < fonts.size(); ++f) {
       const int fontinfo_id = fonts[f].fontinfo_id;
       if (0 <= fontinfo_id && fontinfo_id < fontinfo_size) {

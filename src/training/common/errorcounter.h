@@ -166,12 +166,12 @@ class ErrorCounter {
   // between unichar_ids and shape_ids in the results
   bool AccumulateErrors(bool debug, CountTypes boosting_mode,
                         const FontInfoTable& font_table,
-                        const GenericVector<UnicharRating>& results,
+                        const std::vector<UnicharRating>& results,
                         TrainingSample* sample);
 
   // Accumulates counts for junk. Counts only whether the junk was correctly
   // rejected or not.
-  bool AccumulateJunk(bool debug, const GenericVector<UnicharRating>& results,
+  bool AccumulateJunk(bool debug, const std::vector<UnicharRating>& results,
                       TrainingSample* sample);
 
   // Creates a report of the error rate. The report_level controls the detail

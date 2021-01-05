@@ -96,10 +96,10 @@ class BLOB_CHOICE: public ELIST_LINK
       return fontinfo_id2_;
     }
   #ifndef DISABLED_LEGACY_ENGINE
-    const GenericVector<ScoredFont>& fonts() const {
+    const std::vector<ScoredFont>& fonts() const {
       return fonts_;
     }
-    void set_fonts(const GenericVector<ScoredFont>& fonts) {
+    void set_fonts(const std::vector<ScoredFont>& fonts) {
       fonts_ = fonts;
       int score1 = 0, score2 = 0;
       fontinfo_id_ = -1;
@@ -199,7 +199,7 @@ class BLOB_CHOICE: public ELIST_LINK
   UNICHAR_ID unichar_id_;          // unichar id
 #ifndef DISABLED_LEGACY_ENGINE
   // Fonts and scores. Allowed to be empty.
-  GenericVector<ScoredFont> fonts_;
+  std::vector<ScoredFont> fonts_;
 #endif  // ndef DISABLED_LEGACY_ENGINE
   int16_t fontinfo_id_;              // char font information
   int16_t fontinfo_id2_;             // 2nd choice font information

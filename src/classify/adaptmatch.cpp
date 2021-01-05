@@ -95,7 +95,7 @@ struct ADAPT_RESULTS {
   int best_match_index;
   float best_rating;
   GenericVector<UnicharRating> match;
-  GenericVector<CP_RESULT_STRUCT> CPResults;
+  std::vector<CP_RESULT_STRUCT> CPResults;
 
   /// Initializes data members to the default values. Sets the initial
   /// rating of each class to be the worst possible rating (1.0).
@@ -1099,7 +1099,7 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
                              int debug,
                              int matcher_multiplier,
                              const TBOX& blob_box,
-                             const GenericVector<CP_RESULT_STRUCT>& results,
+                             const std::vector<CP_RESULT_STRUCT>& results,
                              ADAPT_RESULTS* final_results) {
   int top = blob_box.top();
   int bottom = blob_box.bottom();
@@ -1173,7 +1173,7 @@ void Classify::ExpandShapesAndApplyCorrections(
           if (r == mapped_results.size()) {
             mapped_results.push_back(*int_result);
             mapped_results[r].unichar_id = unichar_id;
-            mapped_results[r].fonts.truncate(0);
+            mapped_results[r].fonts.resize(0);
           }
           for (int i = 0; i < shape[c].font_ids.size(); ++i) {
             mapped_results[r].fonts.push_back(
@@ -1320,7 +1320,7 @@ int Classify::CharNormClassifier(TBLOB *blob,
   // This is the length that is used for scaling ratings vs certainty.
   adapt_results->BlobLength =
       IntCastRounded(sample.outline_length() / kStandardFeatureLength);
-  GenericVector<UnicharRating> unichar_results;
+  std::vector<UnicharRating> unichar_results;
   static_classifier_->UnicharClassifySample(sample, blob->denorm().pix(), 0,
                                             -1, &unichar_results);
   // Convert results to the format used internally by AdaptiveClassifier.
@@ -1335,7 +1335,7 @@ int Classify::CharNormClassifier(TBLOB *blob,
 int Classify::CharNormTrainingSample(bool pruner_only,
                                      int keep_this,
                                      const TrainingSample& sample,
-                                     GenericVector<UnicharRating>* results) {
+                                     std::vector<UnicharRating>* results) {
   results->clear();
   auto* adapt_results = new ADAPT_RESULTS();
   adapt_results->Initialize();
@@ -1363,7 +1363,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
   delete [] pruner_norm_array;
   if (keep_this >= 0) {
     adapt_results->CPResults[0].Class = keep_this;
-    adapt_results->CPResults.truncate(1);
+    adapt_results->CPResults.resize(1);
   }
   if (pruner_only) {
     // Convert pruner results to output format.
@@ -1383,7 +1383,14 @@ int Classify::CharNormTrainingSample(bool pruner_only,
       results->push_back(adapt_results->match[i]);
     }
     if (results->size() > 1) {
-      results->sort(&UnicharRating::SortDescendingRating);
+      std::sort(results->begin(), results->end(), [](auto &a, auto &b)
+      {
+        if (a.rating != b.rating) {
+          return a.rating > b.rating;
+        } else {
+          return a.unichar_id < b.unichar_id;
+        }
+      });
     }
   }
   delete [] char_norm_array;

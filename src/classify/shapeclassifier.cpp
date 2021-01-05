@@ -40,9 +40,9 @@ namespace tesseract {
 // Default implementation calls the ShapeRating version.
 int ShapeClassifier::UnicharClassifySample(
     const TrainingSample& sample, Pix* page_pix, int debug,
-    UNICHAR_ID keep_this, GenericVector<UnicharRating>* results) {
-  results->truncate(0);
-  GenericVector<ShapeRating> shape_results;
+    UNICHAR_ID keep_this, std::vector<UnicharRating>* results) {
+  results->resize(0);
+  std::vector<ShapeRating> shape_results;
   int num_shape_results = ClassifySample(sample, page_pix, debug, keep_this,
                                          &shape_results);
   const ShapeTable* shapes = GetShapeTable();
@@ -59,7 +59,7 @@ int ShapeClassifier::UnicharClassifySample(
 // Default implementation aborts.
 int ShapeClassifier::ClassifySample(const TrainingSample& sample, Pix* page_pix,
                            int debug, int keep_this,
-                           GenericVector<ShapeRating>* results) {
+    std::vector<ShapeRating>* results) {
   ASSERT_HOST("Must implement ClassifySample!" == nullptr);
   return 0;
 }
@@ -71,7 +71,7 @@ int ShapeClassifier::ClassifySample(const TrainingSample& sample, Pix* page_pix,
 int ShapeClassifier::BestShapeForUnichar(const TrainingSample& sample,
                                          Pix* page_pix, UNICHAR_ID unichar_id,
                                          ShapeRating* result) {
-  GenericVector<ShapeRating> results;
+    std::vector<ShapeRating> results;
   const ShapeTable* shapes = GetShapeTable();
   int num_results = ClassifySample(sample, page_pix, 0, unichar_id, &results);
   for (int r = 0; r < num_results; ++r) {
@@ -116,7 +116,7 @@ void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
     RenderIntFeature(debug_win, &features[f], ScrollView::GREEN);
   }
   debug_win->Update();
-  GenericVector<UnicharRating> results;
+  std::vector<UnicharRating> results;
   // Debug classification until the user quits.
   const UNICHARSET& unicharset = GetUnicharset();
   SVEvent* ev;
@@ -174,7 +174,7 @@ int ShapeClassifier::DisplayClassifyAs(
 
 // Prints debug information on the results.
 void ShapeClassifier::UnicharPrintResults(
-    const char* context, const GenericVector<UnicharRating>& results) const {
+    const char* context, const std::vector<UnicharRating>& results) const {
   tprintf("%s\n", context);
   for (int i = 0; i < results.size(); ++i) {
     tprintf("%g: c_id=%d=%s", results[i].rating, results[i].unichar_id,
@@ -189,7 +189,7 @@ void ShapeClassifier::UnicharPrintResults(
   }
 }
 void ShapeClassifier::PrintResults(
-    const char* context, const GenericVector<ShapeRating>& results) const {
+    const char* context, const std::vector<ShapeRating>& results) const {
   tprintf("%s\n", context);
   for (int i = 0; i < results.size(); ++i) {
     tprintf("%g:", results[i].rating);
@@ -204,8 +204,8 @@ void ShapeClassifier::PrintResults(
 // Removes any result that has all its unichars covered by a better choice,
 // regardless of font.
 void ShapeClassifier::FilterDuplicateUnichars(
-    GenericVector<ShapeRating>* results) const {
-  GenericVector<ShapeRating> filtered_results;
+    std::vector<ShapeRating>* results) const {
+    std::vector<ShapeRating> filtered_results;
   // Copy results to filtered results and knock out duplicate unichars.
   const ShapeTable* shapes = GetShapeTable();
   for (int r = 0; r < results->size(); ++r) {

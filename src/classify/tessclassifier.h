@@ -43,7 +43,7 @@ class TESS_API TessClassifier : public ShapeClassifier {
   // See ShapeClassifier for a full description.
   int UnicharClassifySample(const TrainingSample& sample, Pix* page_pix,
                                     int debug, UNICHAR_ID keep_this,
-                                    GenericVector<UnicharRating>* results) override;
+                                    std::vector<UnicharRating>* results) override;
   // Provides access to the ShapeTable that this classifier works with.
   const ShapeTable* GetShapeTable() const override;
   // Provides access to the UNICHARSET that this classifier works with.

@@ -64,12 +64,12 @@ class TESS_API ShapeClassifier {
   // be overridden by a classifier in order for it to do anything.
   virtual int UnicharClassifySample(const TrainingSample& sample, Pix* page_pix,
                                     int debug, UNICHAR_ID keep_this,
-                                    GenericVector<UnicharRating>* results);
+                                    std::vector<UnicharRating>* results);
 
  protected:
   virtual int ClassifySample(const TrainingSample& sample, Pix* page_pix,
                              int debug, UNICHAR_ID keep_this,
-                             GenericVector<ShapeRating>* results);
+                             std::vector<ShapeRating>* results);
 
  public:
   // Returns the shape that contains unichar_id that has the best result.
@@ -107,14 +107,14 @@ class TESS_API ShapeClassifier {
   // Prints debug information on the results. context is some introductory/title
   // message.
   virtual void UnicharPrintResults(
-      const char* context, const GenericVector<UnicharRating>& results) const;
+      const char* context, const std::vector<UnicharRating>& results) const;
   virtual void PrintResults(const char* context,
-                            const GenericVector<ShapeRating>& results) const;
+                            const std::vector<ShapeRating>& results) const;
 
  protected:
   // Removes any result that has all its unichars covered by a better choice,
   // regardless of font.
-  void FilterDuplicateUnichars(GenericVector<ShapeRating>* results) const;
+  void FilterDuplicateUnichars(std::vector<ShapeRating>* results) const;
 };
 
 }  // namespace tesseract.
