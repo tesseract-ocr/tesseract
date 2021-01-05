@@ -21,13 +21,6 @@
 // TrainingSampleSet, TrainingSample can all serialize/deserialize correctly
 // enough to reproduce the same results.
 
-#include <string>
-#include <utility>
-#include <vector>
-
-#include "absl/strings/numbers.h"       // for safe_strto32
-#include "absl/strings/str_split.h"     // for absl::StrSplit
-
 #include "include_gunit.h"
 
 #include "genericvector.h"
@@ -40,6 +33,15 @@
 #include "trainingsample.h"
 #include "commontraining.h"
 #include "tessopt.h"                    // tessoptind
+
+#include "absl/strings/numbers.h"       // for safe_strto32
+#include "absl/strings/str_split.h"     // for absl::StrSplit
+
+#include <string>
+#include <utility>
+#include <vector>
+
+using namespace tesseract;
 
 // Specs of the MockClassifier.
 static const int kNumTopNErrs = 10;
@@ -62,8 +64,6 @@ static bool safe_strto32(const std::string& str, int* pResult)
   return true;
 }
 #endif
-
-namespace tesseract {
 
 // Mock ShapeClassifier that cheats by looking at the correct answer, and
 // creates a specific pattern of errors that can be tested.
@@ -304,5 +304,3 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
   delete shape_classifier;
 #endif
 }
-
-} // namespace tesseract
