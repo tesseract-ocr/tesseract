@@ -124,7 +124,7 @@ class ErrorCounter {
   static double ComputeErrorRate(ShapeClassifier* classifier,
                                  int report_level, CountTypes boosting_mode,
                                  const FontInfoTable& fontinfo_table,
-                                 const GenericVector<Pix*>& page_images,
+                                 const std::vector<Pix*>& page_images,
                                  SampleIterator* it,
                                  double* unichar_error,
                                  double* scaled_error,
@@ -139,7 +139,7 @@ class ErrorCounter {
                              ShapeClassifier* old_classifier,
                              CountTypes boosting_mode,
                              const FontInfoTable& fontinfo_table,
-                             const GenericVector<Pix*>& page_images,
+                             const std::vector<Pix*>& page_images,
                              SampleIterator* it);
 
  private:

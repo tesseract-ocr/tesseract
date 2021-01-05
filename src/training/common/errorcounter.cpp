@@ -44,7 +44,7 @@ const double kRatingEpsilon = 1.0 / 32;
 double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
     int report_level, CountTypes boosting_mode,
     const FontInfoTable& fontinfo_table,
-    const GenericVector<Pix*>& page_images, SampleIterator* it,
+    const std::vector<Pix*>& page_images, SampleIterator* it,
     double* unichar_error,  double* scaled_error, STRING* fonts_report) {
   const int fontsize = it->sample_set()->NumFonts();
   ErrorCounter counter(classifier->GetUnicharset(), fontsize);
@@ -114,7 +114,7 @@ void ErrorCounter::DebugNewErrors(
     ShapeClassifier* new_classifier, ShapeClassifier* old_classifier,
     CountTypes boosting_mode,
     const FontInfoTable& fontinfo_table,
-    const GenericVector<Pix*>& page_images, SampleIterator* it) {
+    const std::vector<Pix*>& page_images, SampleIterator* it) {
   int fontsize = it->sample_set()->NumFonts();
   ErrorCounter old_counter(old_classifier->GetUnicharset(), fontsize);
   ErrorCounter new_counter(new_classifier->GetUnicharset(), fontsize);

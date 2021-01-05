@@ -298,9 +298,9 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
   // Vector of Pix pointers used for classifiers that need the image.
   // Indexed by page_num_ in the samples.
   // These images are owned by the trainer and need to be pixDestroyed.
-  GenericVector<Pix*> page_images_;
+  std::vector<Pix*> page_images_;
   // Vector of filenames of loaded tr files.
-  GenericVector<STRING> tr_filenames_;
+  std::vector<STRING> tr_filenames_;
 };
 
 }  // namespace tesseract.
