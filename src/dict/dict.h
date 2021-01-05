@@ -411,21 +411,6 @@ class TESS_API Dict {
     (void)character_bytes;
     return 0.0;
   }
-  double ngram_probability_in_context(const char* lang,
-                                      const char* context,
-                                      int context_bytes,
-                                      const char* character,
-                                      int character_bytes);
-
-  // Interface with params model.
-  float (Dict::*params_model_classify_)(const char *lang, void *path);
-  float ParamsModelClassify(const char *lang, void *path);
-  // Call params_model_classify_ member function.
-  float CallParamsModelClassify(void *path) {
-    ASSERT_HOST(params_model_classify_ != nullptr);  // ASSERT_HOST -> assert
-    return (this->*params_model_classify_)(
-        getCCUtil()->lang.c_str(), path);
-  }
 
   inline void SetWildcardID(UNICHAR_ID id) { wildcard_unichar_id_ = id; }
   inline UNICHAR_ID WildcardID() const { return wildcard_unichar_id_; }

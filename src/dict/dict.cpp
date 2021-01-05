@@ -30,7 +30,6 @@ class Image;
 Dict::Dict(CCUtil* ccutil)
     : letter_is_okay_(&tesseract::Dict::def_letter_is_okay),
       probability_in_context_(&tesseract::Dict::def_probability_in_context),
-      params_model_classify_(nullptr),
       ccutil_(ccutil),
       wildcard_unichar_id_(INVALID_UNICHAR_ID),
       apostrophe_unichar_id_(INVALID_UNICHAR_ID),
