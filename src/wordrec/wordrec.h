@@ -475,8 +475,7 @@ class TESS_API Wordrec : public Classify {
   // This variable is modified by PAGE_RES_IT when iterating over
   // words to OCR on the page.
   WERD_CHOICE *prev_word_best_choice_;
-  // Sums of blame reasons computed by the blamer.
-  GenericVector<int> blame_reasons_;
+
   // Function used to fill char choice lattices.
   void (Wordrec::*fill_lattice_)(const MATRIX &ratings,
                                  const WERD_CHOICE_LIST &best_choices,
