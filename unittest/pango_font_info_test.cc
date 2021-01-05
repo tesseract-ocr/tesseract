@@ -73,6 +73,8 @@ class PangoFontInfoTest : public ::testing::Test {
   static void SetUpTestCase() {
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
+    file::MakeTmpdir();
+    PangoFontInfo::SoftInitFontConfig(); // init early
   }
 
   PangoFontInfo font_info_;
