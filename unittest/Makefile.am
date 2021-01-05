@@ -122,7 +122,6 @@ TESS_LIBS = $(GTEST_LIBS)
 TESS_LIBS += $(top_builddir)/libtesseract.la $(libarchive_LIBS)
 TESS_LIBS += $(TENSORFLOW_LIBS)
 TRAINING_LIBS = $(top_builddir)/libtesseract_training.la
-TRAINING_LIBS += $(top_builddir)/libtesseract_tessopt.la
 TRAINING_LIBS += $(TESS_LIBS)
 AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
                  -isystem $(top_srcdir)/googletest/googlemock/include

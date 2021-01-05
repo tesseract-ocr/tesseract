@@ -18,7 +18,6 @@
 #ifdef DISABLED_LEGACY_ENGINE
 
 #include "params.h"
-#include "tessopt.h"
 #include "tprintf.h"
 
 INT_PARAM_FLAG(debug_level, 0, "Level of Trainer debugging");
