@@ -22,7 +22,7 @@ BUILDDIR=bin/ndebug/$HOST-$TAG
 PKG_ARCH=mingw64-${ARCH/_/-}
 
 # Install cygwin key and add cygwin sources.
-curl -s https://qemu.weilnetz.de/debian/gpg.key | sudo apt-key add -
+sudo curl -o /etc/apt/trusted.gpg.d/weilnetz.gpg https://qemu.weilnetz.de/debian/weilnetz.gpg
 echo deb https://qemu.weilnetz.de/debian/ testing contrib | \
   sudo tee /etc/apt/sources.list.d/cygwin.list
 
@@ -39,8 +39,6 @@ sudo apt-get install --no-install-recommends \
 for dll in $DLLS; do
   ln -sf /usr/lib/gcc/$HOST/*-posix/$dll dll/$HOST
 done
-
-file dll/$HOST/*
 
 TAG=5.0.0-alpha.$(date +%Y%m%d)
 
