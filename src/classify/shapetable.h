@@ -51,18 +51,6 @@ struct UnicharRating {
             fonts.size());
   }
 
-  // Sort function to sort ratings appropriately by descending rating.
-  static int SortDescendingRating(const void* t1, const void* t2) {
-    const auto* a = static_cast<const UnicharRating*>(t1);
-    const auto* b = static_cast<const UnicharRating*>(t2);
-    if (a->rating > b->rating) {
-      return -1;
-    } else if (a->rating < b->rating) {
-      return 1;
-    } else {
-      return a->unichar_id - b->unichar_id;
-    }
-  }
   // Helper function to get the index of the first result with the required
   // unichar_id. If the results are sorted by rating, this will also be the
   // best result with the required unichar_id.
@@ -97,18 +85,6 @@ struct ShapeRating {
     : shape_id(s), rating(r), raw(1.0f), font(0.0f),
       joined(false), broken(false) {}
 
-  // Sort function to sort ratings appropriately by descending rating.
-  static int SortDescendingRating(const void* t1, const void* t2) {
-    const auto* a = static_cast<const ShapeRating*>(t1);
-    const auto* b = static_cast<const ShapeRating*>(t2);
-    if (a->rating > b->rating) {
-      return -1;
-    } else if (a->rating < b->rating) {
-      return 1;
-    } else {
-      return a->shape_id - b->shape_id;
-    }
-  }
   // Helper function to get the index of the first result with the required
   // unichar_id. If the results are sorted by rating, this will also be the
   // best result with the required unichar_id.

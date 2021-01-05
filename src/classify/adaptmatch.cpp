@@ -94,7 +94,7 @@ struct ADAPT_RESULTS {
   UNICHAR_ID best_unichar_id;
   int best_match_index;
   float best_rating;
-  GenericVector<UnicharRating> match;
+  std::vector<UnicharRating> match;
   std::vector<CP_RESULT_STRUCT> CPResults;
 
   /// Initializes data members to the default values. Sets the initial
@@ -124,6 +124,15 @@ struct PROTO_KEY {
   CLASS_ID ClassId;
   int ConfigId;
 };
+
+// Sort function to sort ratings appropriately by descending rating.
+static bool SortDescendingRating(const UnicharRating &a, const UnicharRating &b) {
+  if (a.rating != b.rating) {
+    return a.rating > b.rating;
+  } else {
+    return a.unichar_id < b.unichar_id;
+  }
+}
 
 /*-----------------------------------------------------------------------------
           Private Macros
@@ -196,7 +205,7 @@ void Classify::AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices) {
   DoAdaptiveMatch(Blob, Results);
 
   RemoveBadMatches(Results);
-  Results->match.sort(&UnicharRating::SortDescendingRating);
+  std::sort(Results->match.begin(), Results->match.end(), SortDescendingRating);
   RemoveExtraPuncs(Results);
   Results->ComputeBest();
   ConvertMatchesToChoices(Blob->denorm(), Blob->bounding_box(), Results,
@@ -1383,14 +1392,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
       results->push_back(adapt_results->match[i]);
     }
     if (results->size() > 1) {
-      std::sort(results->begin(), results->end(), [](auto &a, auto &b)
-      {
-        if (a.rating != b.rating) {
-          return a.rating > b.rating;
-        } else {
-          return a.unichar_id < b.unichar_id;
-        }
-      });
+      std::sort(results->begin(), results->end(), SortDescendingRating);
     }
   }
   delete [] char_norm_array;
@@ -1496,7 +1498,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
     choices_length++;
     if (choices_length >= max_matches) break;
   }
-  Results->match.truncate(choices_length);
+  Results->match.resize(choices_length);
 }  // ConvertMatchesToChoices
 
 
@@ -1624,7 +1626,7 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
   CharNormClassifier(Blob, *sample, Results);
   delete sample;
   RemoveBadMatches(Results);
-  Results->match.sort(&UnicharRating::SortDescendingRating);
+  std::sort(Results->match.begin(), Results->match.end(), SortDescendingRating);
 
   /* copy the class id's into an string of ambiguities - don't copy if
      the correct class is the only class id matched */
@@ -2092,7 +2094,7 @@ void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
       }
     }
   }
-  Results->match.truncate(NextGood);
+  Results->match.resize(NextGood);
 }                              /* RemoveBadMatches */
 
 /*----------------------------------------------------------------------------*/
@@ -2137,7 +2139,7 @@ void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
       }
     }
   }
-  Results->match.truncate(NextGood);
+  Results->match.resize(NextGood);
 }                              /* RemoveExtraPuncs */
 
 /*---------------------------------------------------------------------------*/
