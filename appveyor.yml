@@ -29,6 +29,7 @@ build_script:
   - sw -platform %platform% -config r build -Dwith-tests=1
   # test
   - git clone https://github.com/egorpugin/tessdata tessdata_unittest
+  - ps: Copy-Item -Path "tessdata_unittest\fonts\*" -Destination "test\testing" -Recurse
   - sw -platform %platform% -config r test -Dwith-tests=1 -Dskip-tests=lstm,lstm_recode
 
 after_build:

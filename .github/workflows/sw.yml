@@ -26,8 +26,10 @@ jobs:
 
     - name: download test data
       if: matrix.os != 'windows-latest'
-      run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
-      
+      run:
+        - git clone https://github.com/egorpugin/tessdata tessdata_unittest
+        - cp tessdata_unittest/fonts/* test/testing/
+
     - name: test
       if: matrix.os != 'windows-latest'
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
