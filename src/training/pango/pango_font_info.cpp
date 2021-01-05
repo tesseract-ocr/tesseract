@@ -317,6 +317,8 @@ bool PangoFontInfo::GetSpacingProperties(const std::string& utf8_char,
                                          int* x_bearing, int* x_advance) const {
   // Convert to equivalent PangoFont structure
   PangoFont* font = ToPangoFont();
+  if (!font)
+    return false;
   // Find the glyph index in the font for the supplied utf8 character.
   int total_advance = 0;
   int min_bearing = 0;
