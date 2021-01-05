@@ -34,14 +34,14 @@ jobs:
       continue-on-error: true
 
     - name: Upload Unit Test Results
-      if: always()
+      if: always() && matrix.os != 'windows-latest'
       uses: actions/upload-artifact@v2
       with:
         name: Test Results (${{ matrix.os }})
         path: .sw/test/results.xml
 
     - name: Publish Test Report
-      if: always()
+      if: always() && matrix.os != 'windows-latest'
       uses: mikepenz/action-junit-report@v1
       with:
         check_name: test (${{ matrix.os }})
