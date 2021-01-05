@@ -32,7 +32,6 @@
 #include "shapetable.h"
 #include "trainingsample.h"
 #include "commontraining.h"
-#include "tessopt.h"                    // tessoptind
 
 #include "absl/strings/numbers.h"       // for safe_strto32
 #include "absl/strings/str_split.h"     // for absl::StrSplit
@@ -184,7 +183,6 @@ class MasterTrainerTest : public testing::Test {
     delete master_trainer_;
     delete shape_table_;
     shape_table_ = nullptr;
-    tessoptind = 0;
     master_trainer_ =
         LoadTrainingData(argc, argv, false, &shape_table_, &file_prefix);
     EXPECT_TRUE(master_trainer_ != nullptr);

@@ -114,21 +114,13 @@ void build(Solution &s)
     auto &training = tess.addDirectory("training");
 
     //
-    auto &tessopt = training.addStaticLibrary("tessopt");
-    {
-        tessopt += cppstd;
-        tessopt += "src/training/tessopt.*"_rr;
-        tessopt.Public += libtesseract;
-    }
-
-    //
     auto &common_training = training.addLibrary("common_training");
     {
         common_training += "TESS_COMMON_TRAINING_API"_api;
         common_training += cppstd;
         common_training += "src/training/common/.*"_rr;
         common_training.Public += "src/training/common"_idir;
-        common_training.Public += tessopt;
+        common_training.Public += libtesseract;
     }
 
     //

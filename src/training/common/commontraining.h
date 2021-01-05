@@ -127,7 +127,7 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char* const * ar
 }  // namespace tesseract.
 
 TESS_COMMON_TRAINING_API
-const char *GetNextFilename(int argc, const char* const * argv);
+const char *GetNextFilename(int argc, const char* const * argv, int &tessoptind);
 
 LABELEDLIST FindList(
     tesseract::LIST        List,

@@ -75,7 +75,6 @@ void ParseArguments(int* argc, char ***argv) {
 #include "params.h"
 #include "shapetable.h"
 #include "tessdatamanager.h"
-#include "tessopt.h"
 #include "tprintf.h"
 #include "unicity_table.h"
 
@@ -130,9 +129,6 @@ void ParseArguments(int* argc, char ***argv) {
   }
   usage += " [.tr files ...]";
   tesseract::ParseCommandLineFlags(usage.c_str(), argc, argv, true);
-  // Record the index of the first non-flag argument to 1, since we set
-  // remove_flags to true when parsing the flags.
-  tessoptind = 1;
   // Set some global values based on the flags.
   Config.MinSamples =
           std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_min_samples_fraction)));
@@ -253,7 +249,8 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char* const * ar
   trainer->SetFeatureSpace(fs);
   const char* page_name;
   // Load training data from .tr files on the command line.
-  while ((page_name = GetNextFilename(argc, argv)) != nullptr) {
+  int tessoptind = 0;
+  while ((page_name = GetNextFilename(argc, argv, tessoptind)) != nullptr) {
     tprintf("Reading %s ...\n", page_name);
     trainer->ReadTrainingSamples(page_name, feature_defs, false);
 
@@ -319,7 +316,7 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char* const * ar
  * - tessoptind defined by tessopt sys call
  * @return Next command line argument or nullptr.
  */
-const char *GetNextFilename(int argc, const char* const * argv) {
+const char *GetNextFilename(int argc, const char* const * argv, int &tessoptind) {
   if (tessoptind < argc)
     return argv[tessoptind++];
   else
