@@ -184,7 +184,7 @@ class TESS_API Classify : public CCStruct {
                         int FontinfoId,
                         ADAPT_CLASS Class,
                         ADAPT_TEMPLATES Templates);
-  void AmbigClassifier(const GenericVector<INT_FEATURE_STRUCT>& int_features,
+  void AmbigClassifier(const std::vector<INT_FEATURE_STRUCT>& int_features,
                        const INT_FX_RESULT_STRUCT& fx_info,
                        const TBLOB *blob,
                        INT_TEMPLATES templates,
@@ -279,7 +279,7 @@ class TESS_API Classify : public CCStruct {
   // unichar-id!). Uses a search, so not fast.
   int ShapeIDToClassID(int shape_id) const;
   UNICHAR_ID *BaselineClassifier(
-      TBLOB *Blob, const GenericVector<INT_FEATURE_STRUCT>& int_features,
+      TBLOB *Blob, const std::vector<INT_FEATURE_STRUCT>& int_features,
       const INT_FX_RESULT_STRUCT& fx_info,
       ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results);
   int CharNormClassifier(TBLOB *blob,
@@ -365,8 +365,8 @@ class TESS_API Classify : public CCStruct {
   // after the second outline, there were (*outline_cn_counts)[1] features etc.
   static void ExtractFeatures(const TBLOB& blob,
                               bool nonlinear_norm,
-                              GenericVector<INT_FEATURE_STRUCT>* bl_features,
-                              GenericVector<INT_FEATURE_STRUCT>* cn_features,
+                              std::vector<INT_FEATURE_STRUCT>* bl_features,
+                              std::vector<INT_FEATURE_STRUCT>* cn_features,
                               INT_FX_RESULT_STRUCT* results,
                               GenericVector<int>* outline_cn_counts);
   /* float2int.cpp ************************************************************/

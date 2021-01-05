@@ -953,8 +953,8 @@ void Tesseract::blob_feature_display(PAGE_RES* page_res,
     TWERD* bln_word = word_res->chopped_word;
     TBLOB* bln_blob = bln_word->blobs[0];
     INT_FX_RESULT_STRUCT fx_info;
-    GenericVector<INT_FEATURE_STRUCT> bl_features;
-    GenericVector<INT_FEATURE_STRUCT> cn_features;
+    std::vector<INT_FEATURE_STRUCT> bl_features;
+    std::vector<INT_FEATURE_STRUCT> cn_features;
     Classify::ExtractFeatures(*bln_blob, classify_nonlinear_norm, &bl_features,
                               &cn_features, &fx_info, nullptr);
     // Display baseline features.

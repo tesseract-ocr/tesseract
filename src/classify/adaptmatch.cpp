@@ -960,7 +960,7 @@ void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
 
 void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*blob, classify_nonlinear_norm, &fx_info,
                            &bl_features);
@@ -1058,7 +1058,7 @@ void Classify::AddNewResult(const UnicharRating& new_result,
  * @param fx_info
  */
 void Classify::AmbigClassifier(
-    const GenericVector<INT_FEATURE_STRUCT>& int_features,
+    const std::vector<INT_FEATURE_STRUCT>& int_features,
     const INT_FX_RESULT_STRUCT& fx_info,
     const TBLOB *blob,
     INT_TEMPLATES templates,
@@ -1278,7 +1278,7 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id,
  * @return Array of possible ambiguous chars that should be checked.
  */
 UNICHAR_ID *Classify::BaselineClassifier(
-    TBLOB *Blob, const GenericVector<INT_FEATURE_STRUCT>& int_features,
+    TBLOB *Blob, const std::vector<INT_FEATURE_STRUCT>& int_features,
     const INT_FX_RESULT_STRUCT& fx_info,
     ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results) {
   if (int_features.empty()) return nullptr;
@@ -1515,7 +1515,7 @@ void Classify::DebugAdaptiveClassifier(TBLOB *blob,
                                        ADAPT_RESULTS *Results) {
   if (static_classifier_ == nullptr) return;
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*blob, false, &fx_info, &bl_features);
   if (sample == nullptr) return;
@@ -1548,7 +1548,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
   UNICHAR_ID *Ambiguities;
 
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*Blob, classify_nonlinear_norm, &fx_info,
                            &bl_features);
@@ -1614,7 +1614,7 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
 
   Results->Initialize();
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*Blob, classify_nonlinear_norm, &fx_info,
                            &bl_features);

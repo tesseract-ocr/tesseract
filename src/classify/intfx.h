@@ -61,7 +61,7 @@ FCOORD FeatureDirection(uint8_t theta);
 // made a member of Classify.
 TrainingSample* BlobToTrainingSample(
     const TBLOB& blob, bool nonlinear_norm, INT_FX_RESULT_STRUCT* fx_info,
-    GenericVector<INT_FEATURE_STRUCT>* bl_features);
+    std::vector<INT_FEATURE_STRUCT>* bl_features);
 
 } // namespace tesseract
 
