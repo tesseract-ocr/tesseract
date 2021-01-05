@@ -26,7 +26,6 @@ struct Pix;
 
 namespace tesseract {
 
-template <typename T> class GenericVector;
 class ScrollView;
 class UNICHARSET;
 
