@@ -45,7 +45,6 @@
 #include "oldlist.h"
 #include "protos.h"
 #include "shapetable.h"
-#include "tessopt.h"
 #include "tprintf.h"
 #include "unicity_table.h"
 

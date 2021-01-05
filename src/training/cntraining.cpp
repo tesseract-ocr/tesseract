@@ -21,7 +21,6 @@
 ----------------------------------------------------------------------------*/
 #include "oldlist.h"
 #include "featdefs.h"
-#include "tessopt.h"
 #include "ocrfeatures.h"
 #include "clusttool.h"
 #include "cluster.h"
