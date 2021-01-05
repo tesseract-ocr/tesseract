@@ -121,7 +121,7 @@ WERD::WERD(C_BLOB_LIST *blob_list, ///< In word order
   while (!end_it.at_last()) {
     end_it.forward(); // move to last
   }
-  (reinterpret_cast<C_BLOB_LIST *>(&cblobs))->assign_to_sublist(&start_it, &end_it);
+  cblobs.assign_to_sublist(&start_it, &end_it);
   // move to our list
   blanks = clone->blanks;
   //      fprintf(stderr,"Wrong constructor!!!!\n");
