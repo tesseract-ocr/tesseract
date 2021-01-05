@@ -59,6 +59,8 @@ class StringRendererTest : public ::testing::Test {
     l_chooseDisplayProg(L_DISPLAY_WITH_XZGV);
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
+    file::MakeTmpdir();
+    PangoFontInfo::SoftInitFontConfig(); // init early
   }
 
   void DisplayClusterBoxes(Pix* pix) {
