@@ -65,7 +65,6 @@ void ParseArguments(int* argc, char ***argv) {
 #include "classify.h"
 #include "cluster.h"
 #include "clusttool.h"
-#include "emalloc.h"
 #include "featdefs.h"
 #include "fontinfo.h"
 #include "intfeaturespace.h"
@@ -353,8 +352,8 @@ LABELEDLIST FindList(LIST List, char* Label) {
 LABELEDLIST NewLabeledList(const char* Label) {
   LABELEDLIST LabeledList;
 
-  LabeledList = static_cast<LABELEDLIST>(Emalloc (sizeof (LABELEDLISTNODE)));
-  LabeledList->Label = static_cast<char*>(Emalloc (strlen (Label)+1));
+  LabeledList = static_cast<LABELEDLIST>(malloc (sizeof (LABELEDLISTNODE)));
+  LabeledList->Label = static_cast<char*>(malloc (strlen (Label)+1));
   strcpy (LabeledList->Label, Label);
   LabeledList->List = NIL_LIST;
   LabeledList->SampleCount = 0;
@@ -504,7 +503,7 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
   iterate(FeatureList) {
     FeatureSet = reinterpret_cast<FEATURE_SET>first_node(FeatureList);
     for (i = 0; i < FeatureSet->MaxNumFeatures; i++) {
-      if (Sample == nullptr) Sample = static_cast<float*>(Emalloc(N * sizeof(float)));
+      if (Sample == nullptr) Sample = static_cast<float*>(malloc(N * sizeof(float)));
       for (j = 0; j < N; j++)
         Sample[j] = FeatureSet->Features[i]->Params[j];
       MakeSample (Clusterer, Sample, CharID);
@@ -622,9 +621,9 @@ LIST RemoveInsignificantProtos(
     if ((Proto->Significant && KeepSigProtos) ||
         (!Proto->Significant && KeepInsigProtos))
     {
-      NewProto = static_cast<PROTOTYPE *>(Emalloc(sizeof(PROTOTYPE)));
+      NewProto = static_cast<PROTOTYPE *>(malloc(sizeof(PROTOTYPE)));
 
-      NewProto->Mean = static_cast<float *>(Emalloc(N * sizeof(float)));
+      NewProto->Mean = static_cast<float *>(malloc(N * sizeof(float)));
       NewProto->Significant = Proto->Significant;
       NewProto->Style = Proto->Style;
       NewProto->NumSamples = Proto->NumSamples;
@@ -634,7 +633,7 @@ LIST RemoveInsignificantProtos(
       for (i=0; i < N; i++)
         NewProto->Mean[i] = Proto->Mean[i];
       if (Proto->Variance.Elliptical != nullptr) {
-        NewProto->Variance.Elliptical = static_cast<float *>(Emalloc(N * sizeof(float)));
+        NewProto->Variance.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
         for (i=0; i < N; i++)
           NewProto->Variance.Elliptical[i] = Proto->Variance.Elliptical[i];
       }
@@ -642,7 +641,7 @@ LIST RemoveInsignificantProtos(
         NewProto->Variance.Elliptical = nullptr;
       //---------------------------------------------
       if (Proto->Magnitude.Elliptical != nullptr) {
-        NewProto->Magnitude.Elliptical = static_cast<float *>(Emalloc(N * sizeof(float)));
+        NewProto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
         for (i=0; i < N; i++)
           NewProto->Magnitude.Elliptical[i] = Proto->Magnitude.Elliptical[i];
       }
@@ -650,7 +649,7 @@ LIST RemoveInsignificantProtos(
         NewProto->Magnitude.Elliptical = nullptr;
       //------------------------------------------------
       if (Proto->Weight.Elliptical != nullptr) {
-        NewProto->Weight.Elliptical = static_cast<float *>(Emalloc(N * sizeof(float)));
+        NewProto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
         for (i=0; i < N; i++)
           NewProto->Weight.Elliptical[i] = Proto->Weight.Elliptical[i];
       }
@@ -685,7 +684,7 @@ MERGE_CLASS NewLabeledClass(const char* Label) {
   MERGE_CLASS MergeClass;
 
   MergeClass = new MERGE_CLASS_NODE;
-  MergeClass->Label = static_cast<char*>(Emalloc (strlen (Label)+1));
+  MergeClass->Label = static_cast<char*>(malloc (strlen (Label)+1));
   strcpy (MergeClass->Label, Label);
   MergeClass->Class = NewClass (MAX_NUM_PROTOS, MAX_NUM_CONFIGS);
   return (MergeClass);
@@ -741,7 +740,7 @@ CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
     font_set.move(&MergeClass->Class->font_set);
     Class->NumProtos = NumProtos;
     Class->MaxNumProtos = NumProtos;
-    Class->Prototypes = static_cast<PROTO>(Emalloc (sizeof(PROTO_STRUCT) * NumProtos));
+    Class->Prototypes = static_cast<PROTO>(malloc (sizeof(PROTO_STRUCT) * NumProtos));
     for(i=0; i < NumProtos; i++)
     {
       NewProto = ProtoIn(Class, i);
@@ -762,7 +761,7 @@ CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
     Class->NumConfigs = NumConfigs;
     Class->MaxNumConfigs = NumConfigs;
     Class->font_set.move(&font_set);
-    Class->Configurations = static_cast<BIT_VECTOR*>(Emalloc (sizeof(BIT_VECTOR) * NumConfigs));
+    Class->Configurations = static_cast<BIT_VECTOR*>(malloc (sizeof(BIT_VECTOR) * NumConfigs));
     NumWords = WordsInVectorOfSize(NumProtos);
     for(i=0; i < NumConfigs; i++)
     {

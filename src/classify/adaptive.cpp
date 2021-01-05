@@ -18,7 +18,6 @@
 
 #include "adaptive.h"
 
-#include "emalloc.h"
 #include "classify.h"
 
 #include <cassert>
@@ -100,7 +99,7 @@ static void FreePermConfig(PERM_CONFIG Config) {
 ADAPT_CLASS NewAdaptedClass() {
   ADAPT_CLASS Class;
 
-  Class = static_cast<ADAPT_CLASS>(Emalloc (sizeof (ADAPT_CLASS_STRUCT)));
+  Class = static_cast<ADAPT_CLASS>(malloc (sizeof (ADAPT_CLASS_STRUCT)));
   Class->NumPermConfigs = 0;
   Class->MaxNumTimesSeen = 0;
   Class->TempProtos = NIL_LIST;
@@ -131,7 +130,7 @@ void free_adapted_class(ADAPT_CLASS adapt_class) {
   FreeBitVector (adapt_class->PermProtos);
   FreeBitVector (adapt_class->PermConfigs);
   destroy_nodes (adapt_class->TempProtos, FreeTempProto);
-  Efree(adapt_class);
+  free(adapt_class);
 }
 
 
@@ -148,7 +147,7 @@ void free_adapted_class(ADAPT_CLASS adapt_class) {
 ADAPT_TEMPLATES Classify::NewAdaptedTemplates(bool InitFromUnicharset) {
   ADAPT_TEMPLATES Templates;
 
-  Templates = static_cast<ADAPT_TEMPLATES>(Emalloc (sizeof (ADAPT_TEMPLATES_STRUCT)));
+  Templates = static_cast<ADAPT_TEMPLATES>(malloc (sizeof (ADAPT_TEMPLATES_STRUCT)));
 
   Templates->Templates = NewIntTemplates ();
   Templates->NumPermClasses = 0;
@@ -180,7 +179,7 @@ void free_adapted_templates(ADAPT_TEMPLATES templates) {
     for (int i = 0; i < (templates->Templates)->NumClasses; i++)
       free_adapted_class (templates->Class[i]);
     free_int_templates (templates->Templates);
-    Efree(templates);
+    free(templates);
   }
 }
 
@@ -278,7 +277,7 @@ ADAPT_CLASS ReadAdaptedClass(TFile *fp) {
   ADAPT_CLASS Class;
 
   /* first read high level adapted class structure */
-  Class = static_cast<ADAPT_CLASS>(Emalloc (sizeof (ADAPT_CLASS_STRUCT)));
+  Class = static_cast<ADAPT_CLASS>(malloc (sizeof (ADAPT_CLASS_STRUCT)));
   fp->FRead(Class, sizeof(ADAPT_CLASS_STRUCT), 1);
 
   /* then read in the definitions of the permanent protos and configs */
@@ -325,7 +324,7 @@ ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(TFile *fp) {
   ADAPT_TEMPLATES Templates;
 
   /* first read the high level adaptive template struct */
-  Templates = static_cast<ADAPT_TEMPLATES>(Emalloc (sizeof (ADAPT_TEMPLATES_STRUCT)));
+  Templates = static_cast<ADAPT_TEMPLATES>(malloc (sizeof (ADAPT_TEMPLATES_STRUCT)));
   fp->FRead(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1);
 
   /* then read in the basic integer templates */

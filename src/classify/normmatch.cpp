@@ -21,7 +21,6 @@
 
 #include "classify.h"
 #include "clusttool.h"
-#include "emalloc.h"
 #include "helpers.h"
 #include "normfeat.h"
 #include "unicharset.h"
@@ -169,9 +168,9 @@ void Classify::FreeNormProtos() {
   if (NormProtos != nullptr) {
     for (int i = 0; i < NormProtos->NumProtos; i++)
       FreeProtoList(&NormProtos->Protos[i]);
-    Efree(NormProtos->Protos);
-    Efree(NormProtos->ParamDesc);
-    Efree(NormProtos);
+    free(NormProtos->Protos);
+    free(NormProtos->ParamDesc);
+    free(NormProtos);
     NormProtos = nullptr;
   }
 }
@@ -193,9 +192,9 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   int NumProtos;
 
   /* allocate and initialization data structure */
-  NormProtos = static_cast<NORM_PROTOS *>(Emalloc (sizeof (NORM_PROTOS)));
+  NormProtos = static_cast<NORM_PROTOS *>(malloc (sizeof (NORM_PROTOS)));
   NormProtos->NumProtos = unicharset.size();
-  NormProtos->Protos = static_cast<LIST *>(Emalloc (NormProtos->NumProtos * sizeof(LIST)));
+  NormProtos->Protos = static_cast<LIST *>(malloc (NormProtos->NumProtos * sizeof(LIST)));
   for (i = 0; i < NormProtos->NumProtos; i++)
     NormProtos->Protos[i] = NIL_LIST;
 

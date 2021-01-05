@@ -17,7 +17,6 @@
 
 #include "featdefs.h"
 
-#include "emalloc.h"
 #include "picofeat.h"  // for PicoFeatureLength
 #include "scanutils.h"
 
@@ -132,7 +131,7 @@ void FreeCharDescription(CHAR_DESC CharDesc) {
   if (CharDesc) {
     for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)
       FreeFeatureSet (CharDesc->FeatureSets[i]);
-    Efree(CharDesc);
+    free(CharDesc);
   }
 }                                /* FreeCharDescription */
 
@@ -149,7 +148,7 @@ void FreeCharDescription(CHAR_DESC CharDesc) {
  */
 CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
   CHAR_DESC CharDesc;
-  CharDesc = static_cast<CHAR_DESC>(Emalloc (sizeof (CHAR_DESC_STRUCT)));
+  CharDesc = static_cast<CHAR_DESC>(malloc (sizeof (CHAR_DESC_STRUCT)));
   CharDesc->NumFeatureSets = FeatureDefs.NumFeatureTypes;
 
   for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)

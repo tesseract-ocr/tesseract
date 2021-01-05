@@ -19,8 +19,6 @@
 
 #include "clusttool.h"
 
-#include "emalloc.h"
-
 #include <cmath>            // for M_PI, std::isnan
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
@@ -54,7 +52,7 @@ static float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
   bool needs_free = false;
 
   if (Buffer == nullptr) {
-    Buffer = static_cast<float *>(Emalloc(N * sizeof(float)));
+    Buffer = static_cast<float *>(malloc(N * sizeof(float)));
     needs_free = true;
   }
 
@@ -66,7 +64,7 @@ static float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
     stream >> f;
     if (std::isnan(f)) {
       tprintf("Read of %u floats failed!\n", N);
-      if (needs_free) Efree(Buffer);
+      if (needs_free) free(Buffer);
       return nullptr;
     }
     Buffer[i] = f;
@@ -142,7 +140,7 @@ uint16_t ReadSampleSize(TFile *fp) {
 PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
   PARAM_DESC *ParamDesc;
 
-  ParamDesc = static_cast<PARAM_DESC *>(Emalloc (N * sizeof (PARAM_DESC)));
+  ParamDesc = static_cast<PARAM_DESC *>(malloc (N * sizeof (PARAM_DESC)));
   for (int i = 0; i < N; i++) {
     const int kMaxLineSize = TOKENSIZE * 4;
     char line[kMaxLineSize];
@@ -189,7 +187,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
     tprintf("Invalid prototype: %s\n", line);
     return nullptr;
   }
-  Proto = static_cast<PROTOTYPE *>(Emalloc(sizeof(PROTOTYPE)));
+  Proto = static_cast<PROTOTYPE *>(malloc(sizeof(PROTOTYPE)));
   Proto->Cluster = nullptr;
   Proto->Significant = (sig_token[0] == 's');
 
@@ -227,8 +225,8 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
     case elliptical:
       Proto->Variance.Elliptical = ReadNFloats(fp, N, nullptr);
       ASSERT_HOST(Proto->Variance.Elliptical != nullptr);
-      Proto->Magnitude.Elliptical = static_cast<float *>(Emalloc(N * sizeof(float)));
-      Proto->Weight.Elliptical = static_cast<float *>(Emalloc(N * sizeof(float)));
+      Proto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
+      Proto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
       Proto->TotalMagnitude = 1.0;
       for (i = 0; i < N; i++) {
         Proto->Magnitude.Elliptical[i] =
@@ -240,7 +238,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->Distrib = nullptr;
       break;
     default:
-      Efree(Proto);
+      free(Proto);
       tprintf("Invalid prototype style\n");
       return nullptr;
   }
