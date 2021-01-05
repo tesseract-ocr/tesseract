@@ -227,6 +227,13 @@ void build(Solution &s)
             if (t.getCompilerType() == CompilerType::MSVC)
                 t.CompileOptions.push_back("-utf-8");
 
+            auto win_or_mingw =
+              t.getBuildSettings().TargetOS.Type == OSType::Windows ||
+              t.getBuildSettings().TargetOS.Type == OSType::Mingw
+              ;
+            if (!win_or_mingw)
+              t += "pthread"_slib;
+
             auto tst = libtesseract.addTest(t, name);
             for (auto &st : skipped_tests)
             {
