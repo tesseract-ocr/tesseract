@@ -20,7 +20,6 @@
 #define TESSERACT_TRAINING_TESSOPT_H_
 
 extern int tessoptind;
-extern char *tessoptarg;
 
 //parse args
 int tessopt(

@@ -23,7 +23,6 @@
 #include <cstdio>
 
 int tessoptind;
-char *tessoptarg;
 
 /**********************************************************************
  * tessopt
@@ -45,11 +44,9 @@ int tessopt(
     if (arg == nullptr || *arg == ':')
       return '?';                //dud option
     tessoptind++;
-    tessoptarg = argv[tessoptind];
     if (arg[1] == ':') {
       if (argv[tessoptind - 1][2] != '\0')
-                                 //immediately after
-        tessoptarg = argv[tessoptind - 1] + 2;
+        ;
       else
         tessoptind++;
     }
