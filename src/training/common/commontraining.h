@@ -24,6 +24,8 @@
 
 #include <tesseract/baseapi.h>
 
+#include <memory>
+
 TESS_COMMON_TRAINING_API
 void ParseArguments(int* argc, char*** argv);
 
@@ -117,7 +119,7 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table);
 // If shape_table is not nullptr, but failed to load, make a fake flat one,
 // as shape clustering was not run.
 TESS_COMMON_TRAINING_API
-MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
+std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char* const * argv,
                                 bool replication,
                                 ShapeTable** shape_table,
                                 STRING* file_prefix);

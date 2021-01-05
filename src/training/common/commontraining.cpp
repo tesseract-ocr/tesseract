@@ -210,7 +210,7 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table) {
  * If shape_table is not nullptr, but failed to load, make a fake flat one,
  * as shape clustering was not run.
  */
-MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
+std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char* const * argv,
                                 bool replication,
                                 ShapeTable** shape_table,
                                 STRING* file_prefix) {
@@ -232,7 +232,7 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
   } else {
     shape_analysis = true;
   }
-  MasterTrainer* trainer = new MasterTrainer(NM_CHAR_ANISOTROPIC,
+  auto trainer = std::make_unique<MasterTrainer>(NM_CHAR_ANISOTROPIC,
                                              shape_analysis,
                                              replication,
                                              FLAGS_debug_level);
@@ -242,14 +242,12 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
   // Get basic font information from font_properties.
   if (!FLAGS_F.empty()) {
     if (!trainer->LoadFontInfo(FLAGS_F.c_str())) {
-      delete trainer;
-      return nullptr;
+      return {};
     }
   }
   if (!FLAGS_X.empty()) {
     if (!trainer->LoadXHeights(FLAGS_X.c_str())) {
-      delete trainer;
-      return nullptr;
+      return {};
     }
   }
   trainer->SetFeatureSpace(fs);
@@ -292,8 +290,7 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
   if (!FLAGS_O.empty() &&
       !trainer->unicharset().save_to_file(FLAGS_O.c_str())) {
     fprintf(stderr, "Failed to save unicharset to file %s\n", FLAGS_O.c_str());
-    delete trainer;
-    return nullptr;
+    return {};
   }
   if (shape_table != nullptr) {
     // If we previously failed to load a shapetable, then shape clustering

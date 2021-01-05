@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
   STRING file_prefix;
-  tesseract::MasterTrainer* trainer =
+  auto trainer =
       tesseract::LoadTrainingData(argc, argv, false, nullptr, &file_prefix);
   tesseract::TessBaseAPI* api;
   // Decode the classifier string.
@@ -131,7 +131,6 @@ int main(int argc, char **argv) {
                                    shape_classifier, nullptr);
   delete shape_classifier;
   delete api;
-  delete trainer;
 
   return 0;
 } /* main */
