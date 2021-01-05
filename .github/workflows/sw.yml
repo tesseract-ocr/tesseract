@@ -37,15 +37,21 @@ jobs:
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
       continue-on-error: true
 
+    - name: test
+      if: matrix.os == 'windows-latest'
+      # release only
+      run: ./sw -static -shared -config r test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
+      continue-on-error: true
+
     - name: Upload Unit Test Results
-      if: always() && matrix.os != 'windows-latest'
+      if: always()
       uses: actions/upload-artifact@v2
       with:
         name: Test Results (${{ matrix.os }})
         path: .sw/test/results.xml
 
     - name: Publish Test Report
-      if: always() && matrix.os != 'windows-latest'
+      if: always()
       uses: mikepenz/action-junit-report@v1
       with:
         check_name: test (${{ matrix.os }})
