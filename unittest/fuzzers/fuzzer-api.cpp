@@ -1,5 +1,5 @@
 #include <tesseract/baseapi.h>
-#include "leptonica/allheaders.h"
+#include <allheaders.h>
 
 #include <libgen.h>     // for dirname
 #include <cstdio>       // for printf
