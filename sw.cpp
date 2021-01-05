@@ -132,6 +132,13 @@ void build(Solution &s)
         unicharset_training.Public += "src/training/unicharset"_idir;
         unicharset_training.Public += common_training;
         unicharset_training.Public += "org.sw.demo.unicode.icu.i18n"_dep;
+
+        auto win_or_mingw =
+          unicharset_training.getBuildSettings().TargetOS.Type == OSType::Windows ||
+          unicharset_training.getBuildSettings().TargetOS.Type == OSType::Mingw
+          ;
+        if (!win_or_mingw)
+          unicharset_training += "pthread"_slib;
     }
 
     //
