@@ -31,7 +31,12 @@ jobs:
     - name: copy fonts
       if: matrix.os != 'windows-latest'
       run: cp tessdata_unittest/fonts/* test/testing/
-
+          
+    - name: copy fonts
+      if: matrix.os == 'windows-latest'
+      run: Copy-Item -Path "tessdata_unittest\fonts\*" -Destination "test\testing" -Recurse
+      shell: pwsh
+    
     - name: test
       if: matrix.os != 'windows-latest'
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
