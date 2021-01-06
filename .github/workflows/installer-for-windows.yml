@@ -10,7 +10,7 @@ on:
 jobs:
   build32:
     if: github.repository == 'UB-Mannheim/tesseract'
-    runs-on: [ubuntu-latest]
+    runs-on: [ubuntu-20.04]
     steps:
     - uses: actions/checkout@v2
     - name: Build Tesseract installer (32 bit)
@@ -22,7 +22,7 @@ jobs:
 
   build64:
     if: github.repository == 'UB-Mannheim/tesseract'
-    runs-on: [ubuntu-latest]
+    runs-on: [ubuntu-20.04]
     steps:
     - uses: actions/checkout@v2
     - name: Build Tesseract installer (64 bit)
