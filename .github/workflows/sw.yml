@@ -44,7 +44,7 @@ jobs:
     - name: test
       if: matrix.os == 'windows-latest'
       # release only
-      run: ./sw -static -shared -config r test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
+      run: ./sw test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
       continue-on-error: true
 
     - name: Upload Unit Test Results
