@@ -1,0 +1,54 @@
+#! /bin/sh
+# pkg-config wrapper for cross-building
+# Sets pkg-config search path to search multiarch and historical cross-compiling paths.
+
+# If the user has already set PKG_CONFIG_LIBDIR, believe it (even if empty):
+# it's documented to be an override
+if [ x"${PKG_CONFIG_LIBDIR+set}" = x ]; then
+  # GNU triplet for the compiler, e.g. i486-linux-gnu for Debian i386,
+  # i686-linux-gnu for Ubuntu i386
+  basename="$(basename "$0")"
+  triplet="${basename%-pkg-config}"
+  # Normalized multiarch path if any, e.g. i386-linux-gnu for i386
+  dpkg-architecture >/dev/null 2>&1
+  if [ "$?" != 0 ]; then
+      # dpkg-architecture is missing.
+      echo "Please install dpkg-dev to use pkg-config when cross-building" >&2
+      exit 1
+  fi
+  multiarch="$(dpkg-architecture -t"${triplet}" -qDEB_HOST_MULTIARCH 2>/dev/null)"
+  # Native multiarch path
+  native_multiarch="$(cat /usr/lib/pkg-config.multiarch)"
+
+  # This can be used for native builds as well, in that case, just exec pkg-config "$@" directly.
+  if [ "$native_multiarch" = "$multiarch" ]; then
+     exec pkg-config "$@"
+  fi
+
+  PKG_CONFIG_LIBDIR="/usr/local/${triplet}/lib/pkgconfig"
+  # For a native build we would also want to append /usr/local/lib/pkgconfig
+  # at this point; but this is a cross-building script, so don't
+  PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:/usr/local/share/pkgconfig"
+
+  if [ -n "$multiarch" ]; then
+    PKG_CONFIG_LIBDIR="/usr/local/lib/${multiarch}/pkgconfig:$PKG_CONFIG_LIBDIR"
+    PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:/usr/lib/${multiarch}/pkgconfig"
+  fi
+
+  PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:/usr/${triplet}/lib/pkgconfig"
+  # For a native build we would also want to append /usr/lib/pkgconfig
+  # at this point; but this is a cross-building script, so don't
+  # If you want to allow use of un-multiarched -dev packages for crossing
+  # (at the risk of finding build-arch stuff you didn't want, if not in a clean chroot)
+  # Uncomment the next line:
+  # PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:/usr/lib/pkgconfig"
+  # ... but on Ubuntu we rely cross-building with non-multiarch libraries:
+  if dpkg-vendor --derives-from Ubuntu; then
+      PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:/usr/lib/pkgconfig"
+  fi
+  PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:/usr/share/pkgconfig"
+
+  export PKG_CONFIG_LIBDIR
+fi
+
+exec pkg-config "$@"
