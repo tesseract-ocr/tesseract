@@ -7,6 +7,8 @@
 set -e
 set -x
 
+LANG=C.UTF-8
+
 ARCH=$1
 DLLS="libgcc_s_sjlj-1.dll libgomp-1.dll libstdc++-6.dll"
 
@@ -28,13 +30,16 @@ echo deb https://qemu.weilnetz.de/debian/ testing contrib | \
 
 # Install packages.
 sudo apt-get update
-sudo apt-get install --no-install-recommends \
+sudo apt-get install --assume-yes --no-install-recommends \
   asciidoc xsltproc docbook-xsl \
+  automake dpkg-dev libtool pkg-config default-jdk-headless \
   mingw-w64-tools nsis g++-mingw-w64-${ARCH/_/-} \
   $PKG_ARCH-liblept5 $PKG_ARCH-curl \
   $PKG_ARCH-libarchive $PKG_ARCH-giflib $PKG_ARCH-libpng \
-  $PKG_ARCH-libwebp $PKG_ARCH-openjpeg2 $PKG_ARCH-tiff \
+  $PKG_ARCH-libwebp $PKG_ARCH-openjpeg2 $PKG_ARCH-openssl $PKG_ARCH-tiff \
   $PKG_ARCH-pango1.0 $PKG_ARCH-icu
+
+sudo ln -sf $PWD/.github/workflows/pkg-config-crosswrapper /usr/bin/$HOST-pkg-config
 
 for dll in $DLLS; do
   ln -sf /usr/lib/gcc/$HOST/*-posix/$dll dll/$HOST
