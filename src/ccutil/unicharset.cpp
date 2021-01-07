@@ -212,8 +212,8 @@ UNICHAR_ID UNICHARSET::unichar_to_id(const char* const unichar_repr,
 // WARNING: this function now encodes the whole string for precision.
 // Use encode_string in preference to repeatedly calling step.
 int UNICHARSET::step(const char* str) const {
-  GenericVector<UNICHAR_ID> encoding;
-  GenericVector<char> lengths;
+  std::vector<UNICHAR_ID> encoding;
+  std::vector<char> lengths;
   encode_string(str, true, &encoding, &lengths, nullptr);
   if (encoding.empty() || encoding[0] == INVALID_UNICHAR_ID) return 0;
   return lengths[0];
@@ -224,7 +224,7 @@ int UNICHARSET::step(const char* str) const {
 // into the second (return) argument.
 bool UNICHARSET::encodable_string(const char *str,
                                   int *first_bad_position) const {
-  GenericVector<UNICHAR_ID> encoding;
+  std::vector<UNICHAR_ID> encoding;
   return encode_string(str, true, &encoding, nullptr, first_bad_position);
 }
 
@@ -238,13 +238,13 @@ bool UNICHARSET::encodable_string(const char *str,
 // that do not belong in the unicharset, or encoding may fail.
 // Use CleanupString to perform the cleaning.
 bool UNICHARSET::encode_string(const char* str, bool give_up_on_failure,
-                               GenericVector<UNICHAR_ID>* encoding,
-                               GenericVector<char>* lengths,
+                               std::vector<UNICHAR_ID>* encoding,
+                               std::vector<char>* lengths,
                                int* encoded_length) const {
-  GenericVector<UNICHAR_ID> working_encoding;
-  GenericVector<char> working_lengths;
-  GenericVector<char> best_lengths;
-  encoding->truncate(0);  // Just in case str is empty.
+  std::vector<UNICHAR_ID> working_encoding;
+  std::vector<char> working_lengths;
+  std::vector<char> best_lengths;
+  encoding->resize(0);  // Just in case str is empty.
   int str_length = strlen(str);
   int str_pos = 0;
   bool perfect = true;
@@ -352,13 +352,13 @@ STRING UNICHARSET::debug_str(UNICHAR_ID id) const {
 // Sets the normed_ids vector from the normed string. normed_ids is not
 // stored in the file, and needs to be set when the UNICHARSET is loaded.
 void UNICHARSET::set_normed_ids(UNICHAR_ID unichar_id) {
-  unichars[unichar_id].properties.normed_ids.truncate(0);
+  unichars[unichar_id].properties.normed_ids.resize(0);
   if (unichar_id == UNICHAR_SPACE && id_to_unichar(unichar_id)[0] == ' ') {
     unichars[unichar_id].properties.normed_ids.push_back(UNICHAR_SPACE);
   } else if (!encode_string(unichars[unichar_id].properties.normed.c_str(),
                             true, &unichars[unichar_id].properties.normed_ids,
                             nullptr, nullptr)) {
-    unichars[unichar_id].properties.normed_ids.truncate(0);
+    unichars[unichar_id].properties.normed_ids.resize(0);
     unichars[unichar_id].properties.normed_ids.push_back(unichar_id);
   }
 }
@@ -481,11 +481,11 @@ bool UNICHARSET::SizesDistinct(UNICHAR_ID id1, UNICHAR_ID id2) const {
 // the overall process of encoding a partially failed string more efficient.
 // See unicharset.h for definition of the args.
 void UNICHARSET::encode_string(const char* str, int str_index, int str_length,
-                               GenericVector<UNICHAR_ID>* encoding,
-                               GenericVector<char>* lengths,
+                               std::vector<UNICHAR_ID>* encoding,
+                               std::vector<char>* lengths,
                                int* best_total_length,
-                               GenericVector<UNICHAR_ID>* best_encoding,
-                               GenericVector<char>* best_lengths) const {
+                               std::vector<UNICHAR_ID>* best_encoding,
+                               std::vector<char>* best_lengths) const {
   if (str_index > *best_total_length) {
     // This is the best result so far.
     *best_total_length = str_index;
@@ -509,8 +509,8 @@ void UNICHARSET::encode_string(const char* str, int str_index, int str_length,
       if (*best_total_length == str_length)
         return;  // Tail recursion success!
       // Failed with that length, truncate back and try again.
-      encoding->truncate(encoding_index);
-      lengths->truncate(encoding_index);
+      encoding->resize(encoding_index);
+      lengths->resize(encoding_index);
     }
     int step = UNICHAR::utf8_step(str + str_index + length);
     if (step == 0) step = 1;
@@ -528,7 +528,7 @@ bool UNICHARSET::GetStrProperties(const char* utf8_str,
   props->Init();
   props->SetRangesEmpty();
   int total_unicodes = 0;
-  GenericVector<UNICHAR_ID> encoding;
+  std::vector<UNICHAR_ID> encoding;
   if (!encode_string(utf8_str, true, &encoding, nullptr, nullptr))
     return false;  // Some part was invalid.
   for (int i = 0; i < encoding.size(); ++i) {
@@ -611,7 +611,7 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr,
       old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
   if (!cleaned.empty() && !ids.contains(cleaned.data(), cleaned.size())) {
     const char* str = cleaned.c_str();
-    GenericVector<int> encoding;
+    std::vector<int> encoding;
     if (!old_style_included_ &&
         encode_string(str, true, &encoding, nullptr, nullptr))
       return;
@@ -950,7 +950,7 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
     unichars[ch].properties.enabled = def_enabled;
   if (!def_enabled) {
     // Enable the whitelist.
-    GenericVector<UNICHAR_ID> encoding;
+    std::vector<UNICHAR_ID> encoding;
     encode_string(whitelist, false, &encoding, nullptr, nullptr);
     for (int i = 0; i < encoding.size(); ++i) {
       if (encoding[i] != INVALID_UNICHAR_ID)
@@ -959,7 +959,7 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
   }
   if (blacklist != nullptr && blacklist[0] != '\0') {
     // Disable the blacklist.
-    GenericVector<UNICHAR_ID> encoding;
+    std::vector<UNICHAR_ID> encoding;
     encode_string(blacklist, false, &encoding, nullptr, nullptr);
     for (int i = 0; i < encoding.size(); ++i) {
       if (encoding[i] != INVALID_UNICHAR_ID)
@@ -968,7 +968,7 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
   }
   if (unblacklist != nullptr && unblacklist[0] != '\0') {
     // Re-enable the unblacklist.
-    GenericVector<UNICHAR_ID> encoding;
+    std::vector<UNICHAR_ID> encoding;
     encode_string(unblacklist, false, &encoding, nullptr, nullptr);
     for (int i = 0; i < encoding.size(); ++i) {
       if (encoding[i] != INVALID_UNICHAR_ID)

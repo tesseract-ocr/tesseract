@@ -221,7 +221,7 @@ void Tesseract::ambigs_classify_and_output(const char* label,
   ASSERT_HOST(best_choice != nullptr);
 
   // Compute the number of unichars in the label.
-  GenericVector<UNICHAR_ID> encoding;
+  std::vector<UNICHAR_ID> encoding;
   if (!unicharset.encode_string(label, true, &encoding, nullptr, nullptr)) {
     tprintf("Not outputting illegal unichar %s\n", label);
     return;

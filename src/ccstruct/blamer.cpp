@@ -78,8 +78,8 @@ void BlamerBundle::SetWordTruth(const UNICHARSET& unicharset,
   truth_word_.InsertBox(0, word_box);
   truth_has_char_boxes_ = false;
   // Encode the string as UNICHAR_IDs.
-  GenericVector<UNICHAR_ID> encoding;
-  GenericVector<char> lengths;
+  std::vector<UNICHAR_ID> encoding;
+  std::vector<char> lengths;
   unicharset.encode_string(truth_str, false, &encoding, &lengths, nullptr);
   int total_length = 0;
   for (int i = 0; i < encoding.size(); total_length += lengths[i++]) {

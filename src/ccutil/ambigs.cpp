@@ -130,7 +130,7 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET& encoder_set,
     }
     // Update ambigs_for_adaption_.
     if (use_ambigs_for_adaption) {
-      GenericVector<UNICHAR_ID> encoding;
+      std::vector<UNICHAR_ID> encoding;
       // Silently ignore invalid strings, as before, so it is safe to use a
       // universal ambigs file.
       if (unicharset->encode_string(replacement_string, true, &encoding,
@@ -235,7 +235,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(
       return false;
     }
     // Encode wrong-string.
-    GenericVector<UNICHAR_ID> unichars;
+    std::vector<UNICHAR_ID> unichars;
     if (!unicharset.encode_string(fields[0].c_str(), true, &unichars, nullptr,
                                   nullptr)) {
       return false;

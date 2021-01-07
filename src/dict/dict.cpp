@@ -824,24 +824,24 @@ bool Dict::valid_bigram(const WERD_CHOICE& word1,
   if (w2start >= w2end) return word2.length() < 3;
 
   const UNICHARSET& uchset = getUnicharset();
-  GenericVector<UNICHAR_ID> bigram_string;
+  std::vector<UNICHAR_ID> bigram_string;
   bigram_string.reserve(w1end + w2end + 1);
   for (int i = w1start; i < w1end; i++) {
-    const GenericVector<UNICHAR_ID>& normed_ids =
+    const auto &normed_ids =
         getUnicharset().normed_ids(word1.unichar_id(i));
     if (normed_ids.size() == 1 && uchset.get_isdigit(normed_ids[0]))
       bigram_string.push_back(question_unichar_id_);
     else
-      bigram_string += normed_ids;
+      bigram_string.insert(bigram_string.end(), normed_ids.begin(), normed_ids.end());
   }
   bigram_string.push_back(UNICHAR_SPACE);
   for (int i = w2start; i < w2end; i++) {
-    const GenericVector<UNICHAR_ID>& normed_ids =
+    const auto &normed_ids =
         getUnicharset().normed_ids(word2.unichar_id(i));
     if (normed_ids.size() == 1 && uchset.get_isdigit(normed_ids[0]))
       bigram_string.push_back(question_unichar_id_);
     else
-      bigram_string += normed_ids;
+      bigram_string.insert(bigram_string.end(), normed_ids.begin(), normed_ids.end());
   }
   WERD_CHOICE normalized_word(&uchset, bigram_string.size());
   for (int i = 0; i < bigram_string.size(); ++i) {

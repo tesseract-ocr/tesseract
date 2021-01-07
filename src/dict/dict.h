@@ -116,7 +116,7 @@ class TESS_API Dict {
   inline bool compound_marker(UNICHAR_ID unichar_id) {
     const UNICHARSET& unicharset = getUnicharset();
     ASSERT_HOST(unicharset.contains_unichar_id(unichar_id));
-    const GenericVector<UNICHAR_ID>& normed_ids =
+    const auto &normed_ids =
         unicharset.normed_ids(unichar_id);
     return normed_ids.size() == 1 &&
         (normed_ids[0] == hyphen_unichar_id_ ||
@@ -127,7 +127,7 @@ class TESS_API Dict {
   inline bool is_apostrophe(UNICHAR_ID unichar_id) {
     const UNICHARSET& unicharset = getUnicharset();
     ASSERT_HOST(unicharset.contains_unichar_id(unichar_id));
-    const GenericVector<UNICHAR_ID>& normed_ids =
+    const auto &normed_ids =
         unicharset.normed_ids(unichar_id);
     return normed_ids.size() == 1 && normed_ids[0] == apostrophe_unichar_id_;
   }
@@ -157,7 +157,7 @@ class TESS_API Dict {
     if (!last_word_on_line_ || first_pos)
       return false;
     ASSERT_HOST(unicharset->contains_unichar_id(unichar_id));
-    const GenericVector<UNICHAR_ID>& normed_ids =
+    const auto &normed_ids =
         unicharset->normed_ids(unichar_id);
     return normed_ids.size() == 1 && normed_ids[0] == hyphen_unichar_id_;
   }

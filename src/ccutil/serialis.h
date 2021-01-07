@@ -98,6 +98,34 @@ class TESS_API TFile {
       return FWrite(data, sizeof(T), count) == count;
   }
 
+  template <typename T>
+  bool Serialize(const std::vector<T>& data) {
+    auto size_used_ = data.size();
+    if (FWrite(&size_used_, sizeof(size_used_), 1) != 1) {
+      return false;
+    }
+    if (FWrite(data.data(), sizeof(T), size_used_) != size_used_) {
+      return false;
+    }
+    return true;
+  }
+
+  template <typename T>
+  bool DeSerialize(std::vector<T>& data) {
+    uint32_t reserved;
+    if (FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
+      return false;
+    }
+    // Arbitrarily limit the number of elements to protect against bad data.
+    const uint32_t limit = 50000000;
+    //assert(reserved <= limit);
+    if (reserved > limit) {
+      return false;
+    }
+    data.reserve(reserved);
+    return FReadEndian(data.data(), sizeof(T), reserved) == reserved;
+  }
+
   // Skip data.
   bool Skip(size_t count);
 

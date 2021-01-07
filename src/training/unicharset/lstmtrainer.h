@@ -183,8 +183,8 @@ class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
   // returns a log message to indicate progress. Returns false if nothing
   // interesting happened.
   bool MaintainCheckpointsSpecific(int iteration,
-                                   const GenericVector<char>* train_model,
-                                   const GenericVector<char>* rec_model,
+                                   const std::vector<char>* train_model,
+                                   const std::vector<char>* rec_model,
                                    TestCallback tester, STRING* log_msg);
   // Builds a string containing a progress message with current error rates.
   void PrepareLogMsg(STRING* log_msg) const;
@@ -232,14 +232,14 @@ class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
 
   // Converts the string to integer class labels, with appropriate null_char_s
   // in between if not in SimpleTextOutput mode. Returns false on failure.
-  bool EncodeString(const STRING& str, GenericVector<int>* labels) const {
+  bool EncodeString(const STRING& str, std::vector<int>* labels) const {
     return EncodeString(str, GetUnicharset(), IsRecoding() ? &recoder_ : nullptr,
                         SimpleTextOutput(), null_char_, labels);
   }
   // Static version operates on supplied unicharset, encoder, simple_text.
   static bool EncodeString(const STRING& str, const UNICHARSET& unicharset,
                            const UnicharCompress* recoder, bool simple_text,
-                           int null_char, GenericVector<int>* labels);
+                           int null_char, std::vector<int>* labels);
 
   // Performs forward-backward on the given trainingdata.
   // Returns the sample that was used or nullptr if the next sample was deemed
@@ -327,7 +327,7 @@ class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
   bool DebugLSTMTraining(const NetworkIO& inputs,
                          const ImageData& trainingdata,
                          const NetworkIO& fwd_outputs,
-                         const GenericVector<int>& truth_labels,
+                         const std::vector<int>& truth_labels,
                          const NetworkIO& outputs);
   // Displays the network targets as line a line graph.
   void DisplayTargets(const NetworkIO& targets, const char* window_name,
@@ -336,13 +336,13 @@ class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
   // Builds a no-compromises target where the first positions should be the
   // truth labels and the rest is padded with the null_char_.
   bool ComputeTextTargets(const NetworkIO& outputs,
-                          const GenericVector<int>& truth_labels,
+                          const std::vector<int>& truth_labels,
                           NetworkIO* targets);
 
   // Builds a target using standard CTC. truth_labels should be pre-padded with
   // nulls wherever desired. They don't have to be between all labels.
   // outputs is input-output, as it gets clipped to minimum probability.
-  bool ComputeCTCTargets(const GenericVector<int>& truth_labels,
+  bool ComputeCTCTargets(const std::vector<int>& truth_labels,
                          NetworkIO* outputs, NetworkIO* targets);
 
   // Computes network errors, and stores the results in the rolling buffers,
@@ -362,8 +362,8 @@ class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
   double ComputeWinnerError(const NetworkIO& deltas);
 
   // Computes a very simple bag of chars char error rate.
-  double ComputeCharError(const GenericVector<int>& truth_str,
-                          const GenericVector<int>& ocr_str);
+  double ComputeCharError(const std::vector<int>& truth_str,
+                          const std::vector<int>& ocr_str);
   // Computes a very simple bag of words word recall error rate.
   // NOTE that this is destructive on both input strings.
   double ComputeWordError(STRING* truth_str, STRING* ocr_str);
@@ -436,8 +436,8 @@ class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
   int training_stage_;
   // History of best error rate against iteration. Used for computing the
   // number of steps to each 2% improvement.
-  GenericVector<double> best_error_history_;
-  GenericVector<int> best_error_iterations_;
+  std::vector<double> best_error_history_;
+  std::vector<int> best_error_iterations_;
   // Number of iterations since the best_error_rate_ was 2% more than it is now.
   int32_t improvement_steps_;
   // Number of iterations that yielded a non-zero delta error and thus provided
@@ -458,7 +458,7 @@ class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
   // Rolling buffers storing recent training errors are indexed by
   // training_iteration % kRollingBufferSize_.
   static const int kRollingBufferSize_ = 1000;
-  GenericVector<double> error_buffers_[ET_COUNT];
+  std::vector<double> error_buffers_[ET_COUNT];
   // Rounded mean percent trailing training errors in the buffers.
   double error_rates_[ET_COUNT];    // RMS training error.
   // Traineddata file with optional dawgs + UNICHARSET and recoder.

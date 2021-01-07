@@ -129,7 +129,7 @@ class RecodeBeamTest : public ::testing::Test {
     beam_search.Decode(output, 3.5, -0.125, -25.0, nullptr);
     // Uncomment and/or change nullptr above to &ccutil_.unicharset to debug:
     // beam_search.DebugBeams(ccutil_.unicharset);
-    GenericVector<int> labels, xcoords;
+    std::vector<int> labels, xcoords;
     beam_search.ExtractBestPathAsLabels(&labels, &xcoords);
     LOG(INFO) << "Labels size = " << labels.size() << " coords "
               << xcoords.size() << "\n";
@@ -159,8 +159,8 @@ class RecodeBeamTest : public ::testing::Test {
     EXPECT_EQ(truth_utf8, decoded);
 
     // Check that ExtractBestPathAsUnicharIds does the same thing.
-    GenericVector<int> unichar_ids;
-    GenericVector<float> certainties, ratings;
+    std::vector<int> unichar_ids;
+    std::vector<float> certainties, ratings;
     beam_search.ExtractBestPathAsUnicharIds(false, &ccutil_.unicharset,
                                             &unichar_ids, &certainties,
                                             &ratings, &xcoords);
@@ -253,7 +253,7 @@ class RecodeBeamTest : public ::testing::Test {
   int EncodeUTF8(const char* utf8_str, float score, int start_t, TRand* random,
                  GENERIC_2D_ARRAY<float>* outputs) {
     int t = start_t;
-    GenericVector<int> unichar_ids;
+    std::vector<int> unichar_ids;
     EXPECT_TRUE(ccutil_.unicharset.encode_string(utf8_str, true, &unichar_ids,
                                                  nullptr, nullptr));
     if (unichar_ids.empty() || utf8_str[0] == '\0') {

@@ -227,8 +227,8 @@ class TESS_API UNICHARSET {
   // that do not belong in the unicharset, or encoding may fail.
   // Use CleanupString to perform the cleaning.
   bool encode_string(const char* str, bool give_up_on_failure,
-                     GenericVector<UNICHAR_ID>* encoding,
-                     GenericVector<char>* lengths,
+                     std::vector<UNICHAR_ID>* encoding,
+                     std::vector<char>* lengths,
                      int* encoded_length) const;
 
   // Return the unichar representation corresponding to the given UNICHAR_ID
@@ -467,7 +467,7 @@ class TESS_API UNICHARSET {
   // Record normalized version of unichar with the given unichar_id.
   void set_normed(UNICHAR_ID unichar_id, const char* normed) {
     unichars[unichar_id].properties.normed = normed;
-    unichars[unichar_id].properties.normed_ids.truncate(0);
+    unichars[unichar_id].properties.normed_ids.resize(0);
   }
   // Sets the normed_ids vector from the normed string. normed_ids is not
   // stored in the file, and needs to be set when the UNICHARSET is loaded.
@@ -818,7 +818,7 @@ class TESS_API UNICHARSET {
   // Returns a vector of UNICHAR_IDs that represent the ids of the normalized
   // version of the given id. There may be more than one UNICHAR_ID in the
   // vector if unichar_id represents a ligature.
-  const GenericVector<UNICHAR_ID>& normed_ids(UNICHAR_ID unichar_id) const {
+  const std::vector<UNICHAR_ID>& normed_ids(UNICHAR_ID unichar_id) const {
     return unichars[unichar_id].properties.normed_ids;
   }
 
@@ -946,7 +946,7 @@ class TESS_API UNICHARSET {
     // A string of unichar_ids that represent the corresponding normed string.
     // For awkward characters like em-dash, this gives hyphen.
     // For ligatures, this gives the string of normal unichars.
-    GenericVector<UNICHAR_ID> normed_ids;
+    std::vector<UNICHAR_ID> normed_ids;
     STRING normed;  // normalized version of this unichar
     // Contains meta information about the fragment if a unichar represents
     // a fragment of a character, otherwise should be set to nullptr.
@@ -972,11 +972,11 @@ class TESS_API UNICHARSET {
   // best_encoding contains the encoding that used the longest part of str.
   // best_lengths (may be null) contains the lengths of best_encoding.
   void encode_string(const char* str, int str_index, int str_length,
-                     GenericVector<UNICHAR_ID>* encoding,
-                     GenericVector<char>* lengths,
+                     std::vector<UNICHAR_ID>* encoding,
+                     std::vector<char>* lengths,
                      int* best_total_length,
-                     GenericVector<UNICHAR_ID>* best_encoding,
-                     GenericVector<char>* best_lengths) const;
+                     std::vector<UNICHAR_ID>* best_encoding,
+                     std::vector<char>* best_lengths) const;
 
   // Gets the properties for a grapheme string, combining properties for
   // multiple characters in a meaningful way where possible.
