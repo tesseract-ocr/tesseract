@@ -17,6 +17,7 @@
  **********************************************************************/
 
 #include "paragraphs.h"
+
 #include <cctype>                 // for isspace
 #include <cmath>                  // for abs
 #include <cstdio>                 // for snprintf
@@ -44,8 +45,10 @@
 #include "tprintf.h"              // for tprintf
 #include <tesseract/unichar.h>              // for UNICHAR, UNICHAR_ID
 #include "unicharset.h"           // for UNICHARSET
-#include "unicodes.h"             // for kPDF, kRLE
 #include "werd.h"                 // for WERD, W_REP_CHAR
+
+static const char * const kRLE = "\u202A";  // Right-to-Left Embedding
+static const char * const kPDF = "\u202C";  // Pop Directional Formatting
 
 namespace tesseract {
 

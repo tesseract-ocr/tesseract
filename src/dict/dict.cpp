@@ -19,7 +19,6 @@
 #include <cstdio>
 
 #include "dict.h"
-#include "unicodes.h"
 
 #include "tprintf.h"
 
