@@ -345,7 +345,6 @@ noinst_HEADERS += src/ccutil/unicharcompress.h
 noinst_HEADERS += src/ccutil/unicharmap.h
 noinst_HEADERS += src/ccutil/unicharset.h
 noinst_HEADERS += src/ccutil/unicity_table.h
-noinst_HEADERS += src/ccutil/unicodes.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/ccutil/ambigs.h
 noinst_HEADERS += src/ccutil/bitvector.h
@@ -370,7 +369,6 @@ libtesseract_ccutil_la_SOURCES += src/ccutil/unichar.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/unicharcompress.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/unicharmap.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/unicharset.cpp
-libtesseract_ccutil_la_SOURCES += src/ccutil/unicodes.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/params.cpp
 if !DISABLED_LEGACY_ENGINE
 libtesseract_ccutil_la_SOURCES += src/ccutil/ambigs.cpp
