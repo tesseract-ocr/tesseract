@@ -90,13 +90,13 @@ WERD::WERD(C_BLOB_LIST* blob_list, uint8_t blank_count, const char* text)
     }
   }
 
-  flags.set_bit(W_INVERSE, (inverted_vote > non_inverted_vote));
+  flags.set(W_INVERSE, (inverted_vote > non_inverted_vote));
 
   start_it.set_to_list(&cblobs);
   if (start_it.empty()) return;
   for (start_it.mark_cycle_pt(); !start_it.cycled_list(); start_it.forward()) {
     c_outline_it.set_to_list(start_it.data()->out_list());
-    if (c_outline_it.data()->flag(COUT_INVERSE) != flags.bit(W_INVERSE))
+    if (c_outline_it.data()->flag(COUT_INVERSE) != flags[W_INVERSE])
       rej_cblob_it.add_after_then_move(start_it.extract());
   }
 }
@@ -257,21 +257,21 @@ void WERD::copy_on(WERD* other) {
 void WERD::print() {
   tprintf("Blanks= %d\n", blanks);
   bounding_box().print();
-  tprintf("Flags = %d = 0%o\n", flags.val, flags.val);
-  tprintf("   W_SEGMENTED = %s\n", flags.bit(W_SEGMENTED) ? "TRUE" : "FALSE");
-  tprintf("   W_ITALIC = %s\n", flags.bit(W_ITALIC) ? "TRUE" : "FALSE");
-  tprintf("   W_BOL = %s\n", flags.bit(W_BOL) ? "TRUE" : "FALSE");
-  tprintf("   W_EOL = %s\n", flags.bit(W_EOL) ? "TRUE" : "FALSE");
+  tprintf("Flags = %d = 0%o\n", flags.to_ulong(), flags.to_ulong());
+  tprintf("   W_SEGMENTED = %s\n", flags[W_SEGMENTED] ? "TRUE" : "FALSE");
+  tprintf("   W_ITALIC = %s\n", flags[W_ITALIC] ? "TRUE" : "FALSE");
+  tprintf("   W_BOL = %s\n", flags[W_BOL] ? "TRUE" : "FALSE");
+  tprintf("   W_EOL = %s\n", flags[W_EOL] ? "TRUE" : "FALSE");
   tprintf("   W_NORMALIZED = %s\n",
-          flags.bit(W_NORMALIZED) ? "TRUE" : "FALSE");
+          flags[W_NORMALIZED] ? "TRUE" : "FALSE");
   tprintf("   W_SCRIPT_HAS_XHEIGHT = %s\n",
-          flags.bit(W_SCRIPT_HAS_XHEIGHT) ? "TRUE" : "FALSE");
+          flags[W_SCRIPT_HAS_XHEIGHT] ? "TRUE" : "FALSE");
   tprintf("   W_SCRIPT_IS_LATIN = %s\n",
-          flags.bit(W_SCRIPT_IS_LATIN) ? "TRUE" : "FALSE");
-  tprintf("   W_DONT_CHOP = %s\n", flags.bit(W_DONT_CHOP) ? "TRUE" : "FALSE");
-  tprintf("   W_REP_CHAR = %s\n", flags.bit(W_REP_CHAR) ? "TRUE" : "FALSE");
-  tprintf("   W_FUZZY_SP = %s\n", flags.bit(W_FUZZY_SP) ? "TRUE" : "FALSE");
-  tprintf("   W_FUZZY_NON = %s\n", flags.bit(W_FUZZY_NON) ? "TRUE" : "FALSE");
+          flags[W_SCRIPT_IS_LATIN] ? "TRUE" : "FALSE");
+  tprintf("   W_DONT_CHOP = %s\n", flags[W_DONT_CHOP] ? "TRUE" : "FALSE");
+  tprintf("   W_REP_CHAR = %s\n", flags[W_REP_CHAR] ? "TRUE" : "FALSE");
+  tprintf("   W_FUZZY_SP = %s\n", flags[W_FUZZY_SP] ? "TRUE" : "FALSE");
+  tprintf("   W_FUZZY_NON = %s\n", flags[W_FUZZY_NON] ? "TRUE" : "FALSE");
   tprintf("Correct= %s\n", correct.c_str());
   tprintf("Rejected cblob count = %d\n", rej_cblobs.length());
   tprintf("Script = %d\n", script_id_);

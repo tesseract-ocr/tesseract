@@ -117,12 +117,12 @@ class TESS_API WERD : public ELIST2_LINK {
   const char* text() const { return correct.c_str(); }
   void set_text(const char* new_text) { correct = new_text; }
 
-  bool flag(WERD_FLAGS mask) const { return flags.bit(mask); }
-  void set_flag(WERD_FLAGS mask, bool value) { flags.set_bit(mask, value); }
+  bool flag(WERD_FLAGS mask) const { return flags[mask]; }
+  void set_flag(WERD_FLAGS mask, bool value) { flags.set(mask, value); }
 
-  bool display_flag(uint8_t flag) const { return disp_flags.bit(flag); }
+  bool display_flag(uint8_t flag) const { return disp_flags[flag]; }
   void set_display_flag(uint8_t flag, bool value) {
-    disp_flags.set_bit(flag, value);
+    disp_flags.set(flag, value);
   }
 
   WERD* shallow_copy();  // shallow copy word

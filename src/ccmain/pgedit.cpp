@@ -384,7 +384,7 @@ void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
   stillRunning = true;
 
   build_image_window(width, height);
-  word_display_mode.turn_on_bit(DF_EDGE_STEP);
+  word_display_mode.set(DF_EDGE_STEP);
   do_re_display(&tesseract::Tesseract::word_set_display);
 #ifndef GRAPHICS_DISABLED
   pe = new ParamsEditor(this, image_win);
@@ -463,45 +463,45 @@ bool Tesseract::process_cmd_win_event(                 // UI command semantics
       break;
     case BOUNDING_BOX_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_BOX);
+        word_display_mode.set(DF_BOX);
       else
-        word_display_mode.turn_off_bit(DF_BOX);
+        word_display_mode.reset(DF_BOX);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case BLAMER_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_BLAMER);
+        word_display_mode.set(DF_BLAMER);
       else
-        word_display_mode.turn_off_bit(DF_BLAMER);
+        word_display_mode.reset(DF_BLAMER);
       do_re_display(&tesseract::Tesseract::word_display);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case CORRECT_TEXT_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_TEXT);
+        word_display_mode.set(DF_TEXT);
       else
-        word_display_mode.turn_off_bit(DF_TEXT);
+        word_display_mode.reset(DF_TEXT);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case POLYGONAL_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_POLYGONAL);
+        word_display_mode.set(DF_POLYGONAL);
       else
-        word_display_mode.turn_off_bit(DF_POLYGONAL);
+        word_display_mode.reset(DF_POLYGONAL);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case BL_NORM_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_BN_POLYGONAL);
+        word_display_mode.set(DF_BN_POLYGONAL);
       else
-        word_display_mode.turn_off_bit(DF_BN_POLYGONAL);
+        word_display_mode.reset(DF_BN_POLYGONAL);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case BITMAP_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_EDGE_STEP);
+        word_display_mode.set(DF_EDGE_STEP);
       else
-        word_display_mode.turn_off_bit(DF_EDGE_STEP);
+        word_display_mode.reset(DF_EDGE_STEP);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case UNIFORM_DISP_CMD_EVENT:
@@ -924,13 +924,13 @@ bool Tesseract::word_dumper(PAGE_RES_IT* pr_it) {
  */
 bool Tesseract::word_set_display(PAGE_RES_IT* pr_it) {
   WERD* word = pr_it->word()->word;
-  word->set_display_flag(DF_BOX, word_display_mode.bit(DF_BOX));
-  word->set_display_flag(DF_TEXT, word_display_mode.bit(DF_TEXT));
-  word->set_display_flag(DF_POLYGONAL, word_display_mode.bit(DF_POLYGONAL));
-  word->set_display_flag(DF_EDGE_STEP, word_display_mode.bit(DF_EDGE_STEP));
+  word->set_display_flag(DF_BOX, word_display_mode[DF_BOX]);
+  word->set_display_flag(DF_TEXT, word_display_mode[DF_TEXT]);
+  word->set_display_flag(DF_POLYGONAL, word_display_mode[DF_POLYGONAL]);
+  word->set_display_flag(DF_EDGE_STEP, word_display_mode[DF_EDGE_STEP]);
   word->set_display_flag(DF_BN_POLYGONAL,
-    word_display_mode.bit(DF_BN_POLYGONAL));
-  word->set_display_flag(DF_BLAMER, word_display_mode.bit(DF_BLAMER));
+    word_display_mode[DF_BN_POLYGONAL]);
+  word->set_display_flag(DF_BLAMER, word_display_mode[DF_BLAMER]);
   return word_display(pr_it);
 }
 

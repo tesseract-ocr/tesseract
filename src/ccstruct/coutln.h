@@ -102,12 +102,12 @@ class C_OUTLINE:public ELIST_LINK {
 
     bool flag(                               //test flag
                C_OUTLINE_FLAGS mask) const {  //flag to test
-      return flags.bit(mask);
+      return flags[mask];
     }
     void set_flag(                       //set flag value
             C_OUTLINE_FLAGS mask,  //flag to test
             bool value) {         //value to set
-      flags.set_bit(mask, value);
+      flags.set(mask, value);
     }
 
     C_OUTLINE_LIST *child() {  //get child list
