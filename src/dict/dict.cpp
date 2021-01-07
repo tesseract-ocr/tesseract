@@ -16,11 +16,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <cstdio>
-
 #include "dict.h"
 
 #include "tprintf.h"
+
+#include <cstdio>
 
 namespace tesseract {
 
