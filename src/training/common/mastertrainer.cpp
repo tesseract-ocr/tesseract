@@ -367,7 +367,7 @@ bool MasterTrainer::LoadFontInfo(const char* filename) {
 // Returns false on failure.
 bool MasterTrainer::LoadXHeights(const char* filename) {
   tprintf("fontinfo table is of size %d\n", fontinfo_table_.size());
-  xheights_.init_to_size(fontinfo_table_.size(), -1);
+  xheights_.resize(fontinfo_table_.size(), -1);
   if (filename == nullptr) return true;
   FILE *f = fopen(filename, "rb");
   if (f == nullptr) {

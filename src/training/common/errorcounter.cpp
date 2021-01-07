@@ -168,8 +168,8 @@ ErrorCounter::ErrorCounter(const UNICHARSET& unicharset, int fontsize)
     ok_score_hist_(0, 101), bad_score_hist_(0, 101),
     unicharset_(unicharset) {
   Counts empty_counts;
-  font_counts_.init_to_size(fontsize, empty_counts);
-  multi_unichar_counts_.init_to_size(unicharset.size(), 0);
+  font_counts_.resize(fontsize, empty_counts);
+  multi_unichar_counts_.resize(unicharset.size(), 0);
 }
 
 // Accumulates the errors from the classifier results on a single sample.
