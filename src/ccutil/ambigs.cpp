@@ -19,9 +19,10 @@
 
 #include "ambigs.h"
 
-#include <cstdio>
 #include "helpers.h"
 #include "universalambigs.h"
+
+#include <cstdio>
 
 #if defined(_WIN32) && !defined(__GNUC__)
 #define strtok_r(str, delim, saveptr) strtok_s(str, delim, saveptr)
