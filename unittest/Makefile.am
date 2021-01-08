@@ -9,8 +9,6 @@ LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata_lstm
 # Absolute path of directory 'tessdata' with traineddata files
 # (must be on same level as top source directory).
 TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
-TESSDATA_BEST_DIR=$(TESSDATA_DIR)_best
-TESSDATA_FAST_DIR=$(TESSDATA_DIR)_fast
 
 # Absolute path of directory 'testing' with test images and ground truth texts
 # (using submodule test).
@@ -25,7 +23,6 @@ export LSAN_OPTIONS=suppressions=$(top_srcdir)/unittest/tesseract_leaksanitizer.
 AM_CPPFLAGS += -DTESSBIN_DIR="\"$(abs_top_builddir)\""
 AM_CPPFLAGS += -DLANGDATA_DIR="\"$(LANGDATA_DIR)\""
 AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
-AM_CPPFLAGS += -DTESSDATA_BEST_DIR="\"$(TESSDATA_BEST_DIR)\""
 AM_CPPFLAGS += -DTESTING_DIR="\"$(TESTING_DIR)\""
 AM_CPPFLAGS += -DTESTDATA_DIR="\"$(TESTDATA_DIR)\""
 AM_CPPFLAGS += -DPANGO_ENABLE_ENGINE
