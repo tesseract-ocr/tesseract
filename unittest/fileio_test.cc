@@ -47,7 +47,7 @@ TEST(InputBufferTest, Read) {
   const int kMaxBufSize = 128;
   char buffer[kMaxBufSize];
   auto s = "Hello\n world!";
-  snprintf(buffer, kMaxBufSize, s);
+  strncpy(buffer, s, kMaxBufSize);
   EXPECT_STREQ(s, buffer);
   FILE* fp = tmpfile();
   CHECK(fp != nullptr);
