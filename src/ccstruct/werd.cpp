@@ -257,7 +257,7 @@ void WERD::copy_on(WERD* other) {
 void WERD::print() {
   tprintf("Blanks= %d\n", blanks);
   bounding_box().print();
-  tprintf("Flags = %d = 0%o\n", flags.to_ulong(), flags.to_ulong());
+  tprintf("Flags = %lu = 0%lo\n", flags.to_ulong(), flags.to_ulong());
   tprintf("   W_SEGMENTED = %s\n", flags[W_SEGMENTED] ? "TRUE" : "FALSE");
   tprintf("   W_ITALIC = %s\n", flags[W_ITALIC] ? "TRUE" : "FALSE");
   tprintf("   W_BOL = %s\n", flags[W_BOL] ? "TRUE" : "FALSE");
