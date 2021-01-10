@@ -212,7 +212,7 @@ SIMDDetect::SIMDDetect() {
     // SSE detected.
     SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
 #endif
-#if defined(HAVE_NEON)
+#if defined(HAVE_NEON) || defined(__aarch64__)
   } else if (neon_available_) {
     // NEON detected.
     SetDotProduct(DotProduct, &IntSimdMatrix::intSimdMatrixNEON);
