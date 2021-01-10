@@ -1,6 +1,11 @@
 name: sw
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    # every day
+    - cron: 0 0 * * *
 
 jobs:
   build:
@@ -10,7 +15,7 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-20.04, macOS-latest]
 
-    steps:
+    steps:          
     - uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -39,6 +44,11 @@ jobs:
     - name: test
       if: matrix.os != 'windows-latest'
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
+      continue-on-error: true
+    
+    - name: test-nightly
+      if: matrix.os != 'windows-latest' && github.event.schedule=='0 0 * * *'
+      run: ./sw -static -shared -config "d,r" test -Dwith-tests=1
       continue-on-error: true
 
     # windows tests hang here for some reason, investigate
