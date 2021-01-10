@@ -45,10 +45,6 @@ static PangoFontMap* font_map;
 class StringRendererTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    static std::locale system_locale("");
-    std::locale::global(system_locale);
-    file::MakeTmpdir();
-
     if (!font_map) {
       font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
     }
@@ -56,6 +52,9 @@ class StringRendererTest : public ::testing::Test {
   }
 
   static void SetUpTestCase() {
+    static std::locale system_locale("");
+    std::locale::global(system_locale);
+
     l_chooseDisplayProg(L_DISPLAY_WITH_XZGV);
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
@@ -225,7 +224,7 @@ TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
   EXPECT_TRUE(ReadMemBoxes(0, false, boxes_str.c_str(), false, nullptr, &texts,
                            nullptr, nullptr));
   std::string ltr_str;
-  for (int i = 0; i < texts.size(); ++i) {
+  for (size_t i = 0; i < texts.size(); ++i) {
     ltr_str += texts[i].c_str();
   }
   // The string should come out perfectly reversed, despite there being a
