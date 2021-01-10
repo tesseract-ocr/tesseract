@@ -58,10 +58,6 @@ static PangoFontMap* font_map;
 class PangoFontInfoTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    static std::locale system_locale("");
-    std::locale::global(system_locale);
-    file::MakeTmpdir();
-
     if (!font_map) {
       font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
     }
@@ -71,6 +67,9 @@ class PangoFontInfoTest : public ::testing::Test {
   // Creates a fake fonts.conf file that points to the testdata fonts for
   // fontconfig to initialize with.
   static void SetUpTestCase() {
+    static std::locale system_locale("");
+    std::locale::global(system_locale);
+
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
     file::MakeTmpdir();
