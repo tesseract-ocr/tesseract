@@ -6,13 +6,17 @@ on:
     - cron: 15 2 * * *
 
 jobs:
-  gcc-linux:
+  build-gcc-linux:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-16.04, ubuntu-18.04, ubuntu-20.04 ]
-        gcc_version: [ 11, 10, 9, 8, 7, 6, 5 ]
+        os: [ ubuntu-18.04, ubuntu-20.04 ]
+        gcc_version: [ 10, 9, 8, 7, 6, 5 ]
+        build_type: [ Release, Debug ]
+        exclude:
+             - { gcc_version: 5, os: ubuntu-20.04 }
+             - { gcc_version: 6, os: ubuntu-20.04 }
 
     steps:
       - name: Install compiler
@@ -20,7 +24,7 @@ jobs:
           sudo apt-get install -y gcc-${{ matrix.gcc_version }} g++-${{ matrix.gcc_version }}
           
       - name: Install dependencies
-        run: sudo apt-get install libleptonica-dev libpango1.0-dev cabextract -y
+        run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -33,55 +37,42 @@ jobs:
       - name: Configure
         run: |
              mkdir build && cd build
-             cmake -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_BUILD_TYPE=Debug ..
+             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         
       - name: Build
-        run: cmake --build build --config Debug
+        run: cmake --build build --config ${{ matrix.build_type }}
 
-  clang-linux:
+  build-clang-linux:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-20.04 ]
-        clang_version: [ 10, 9, 8, 7, 6 ]
+        os: [ ubuntu-18.04, ubuntu-20.04 ]
+        gcc_version: [ 11, 10, 9, 8, 7, 6, 5, 4 ]
+        build_type: [ Release, Debug ]
 
     steps:
       - name: Install compiler
         run: |
           sudo apt-get install -y clang-${{ matrix.clang_version }}
 
+      - name: Install dependencies
+        run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
+
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Build and run
         run: |
-          export CC=clang-${{ matrix.clang_version }}
-          export CXX=clang++-${{ matrix.clang_version }}
-          cmake -D BUILD_TESTS=ON ./
-          make
-          ./test/etl_tests
-
-    steps:
-    - uses: actions/checkout@v2
-
+          export CC=gcc-${{ matrix.clang_version }}
+          export CXX=g++-${{ matrix.clang_version }}
+          
+      - name: Configure
+        run: |
+             mkdir build && cd build
+             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         
-
-      
-      
-    - name: autoconf
-      run: ./autogen.sh
-
-    - name: configure
-      run: ./configure --enable-openmp --disable-shared --disable-debug --disable-opencl --disable-graphics --disable-legacy --with-tensorflow=no 'CXXFLAGS=-g -O2 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -fstack-protector-strong -ftrapv'
-      
-    - name: make
-      run: make training -j 8
-      
-    - name: make check
-      run: make check -j 4
-      
-    - name: display test report
-      run: git log -1 && cat unittest/test-suite.log
-      if: success() || failure()
-      
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build_type }}
+        
+                               
