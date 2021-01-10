@@ -20,8 +20,7 @@ jobs:
 
     steps:
       - name: Install compiler
-        run: |
-          sudo apt-get install -y gcc-${{ matrix.gcc_version }} g++-${{ matrix.gcc_version }}
+        run: sudo apt-get install -y gcc-${{ matrix.gcc_version }} g++-${{ matrix.gcc_version }}
           
       - name: Install dependencies
         run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
@@ -53,8 +52,7 @@ jobs:
 
     steps:
       - name: Install compiler
-        run: |
-          sudo apt-get install -y clang-${{ matrix.clang_version }}
+        run: sudo apt-get install -y clang-${{ matrix.clang_version }}
 
       - name: Install dependencies
         run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
@@ -75,4 +73,16 @@ jobs:
       - name: Build
         run: cmake --build build --config ${{ matrix.build_type }}
         
-                               
+  build-windows:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, windows-2016]
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: configure
+      run: mkdir build && cd build && cmake ..
+    - name: build
+      run: cmake --build build --config Debug                               
