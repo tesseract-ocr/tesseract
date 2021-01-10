@@ -21,6 +21,7 @@
 #define TESSERACT_CCUTIL_HELPERS_H_
 
 #include <cassert>
+#include <cmath>      // std::isfinite
 #include <cstdio>
 #include <cstring>
 #include <functional>
@@ -150,11 +151,13 @@ inline int DivRounded(int a, int b) {
 
 // Return a double cast to int with rounding.
 inline int IntCastRounded(double x) {
+  assert(std::isfinite(x));
   return x >= 0.0 ? static_cast<int>(x + 0.5) : -static_cast<int>(-x + 0.5);
 }
 
 // Return a float cast to int with rounding.
 inline int IntCastRounded(float x) {
+  assert(std::isfinite(x));
   return x >= 0.0F ? static_cast<int>(x + 0.5F) : -static_cast<int>(-x + 0.5F);
 }
 
