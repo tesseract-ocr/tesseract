@@ -5,9 +5,9 @@ V = 0
 
 ACLOCAL_AMFLAGS = -I m4
 
-.PHONY: doc install-langs ScrollView.jar install-jars training
+.PHONY: doc html install-langs ScrollView.jar install-jars pdf training
 
-SUBDIRS = . tessdata doc unittest
+SUBDIRS = . tessdata unittest
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
@@ -998,3 +998,56 @@ fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
           $(libarchive_LIBS) \
           $(libcurl_LIBS) \
           -o $@
+
+if ASCIIDOC
+
+man_MANS = doc/combine_lang_model.1
+man_MANS += doc/combine_tessdata.1
+man_MANS += doc/dawg2wordlist.1
+man_MANS += doc/lstmeval.1
+man_MANS += doc/lstmtraining.1
+man_MANS += doc/merge_unicharsets.1
+man_MANS += doc/set_unicharset_properties.1
+man_MANS += doc/tesseract.1
+man_MANS += doc/text2image.1
+man_MANS += doc/unicharset.5
+man_MANS += doc/unicharset_extractor.1
+man_MANS += doc/wordlist2dawg.1
+
+if !DISABLED_LEGACY_ENGINE
+man_MANS += doc/ambiguous_words.1
+man_MANS += doc/classifier_tester.1
+man_MANS += doc/cntraining.1
+man_MANS += doc/mftraining.1
+man_MANS += doc/shapeclustering.1
+man_MANS += doc/unicharambigs.5
+endif
+
+man_xslt = http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl
+
+EXTRA_DIST += $(man_MANS) doc/Doxyfile
+
+html: ${man_MANS:%=%.html}
+pdf: ${man_MANS:%=%.pdf}
+
+SUFFIXES = .asc .html .pdf
+
+.asc:
+if HAVE_XML_CATALOG_FILES
+	asciidoc -b docbook -d manpage -o - $< | \
+	XML_CATALOG_FILES=$(XML_CATALOG_FILES) xsltproc --nonet $(man_xslt) -
+else
+	asciidoc -b docbook -d manpage -o - $< | \
+	xsltproc --nonet $(man_xslt) -
+endif
+
+.asc.html:
+	asciidoc -b html5 -o $@ $<
+
+.asc.pdf:
+	asciidoc -b docbook -d manpage -o $*.dbk $<
+	docbook2pdf -o doc $*.dbk
+
+MAINTAINERCLEANFILES = $(man_MANS) Doxyfile
+
+endif
