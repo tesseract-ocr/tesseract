@@ -188,14 +188,12 @@ if(HAVE_SSE4_1)
     add_definitions("-DHAVE_SSE4_1")
 endif()
 
-if(NOT APPLE)
-    # NEON support relies on getauxval, which is not available on OSX, only on Linux and Android
-    CHECK_CXX_COMPILER_FLAG("-mfpu=neon" HAVE_NEON)
-    if(HAVE_NEON)
-        set(NEON_COMPILE_FLAGS "-mfpu=neon")
-        add_definitions("-DHAVE_NEON")
-    endif()
-endif(NOT APPLE)
+# NEON support relies on getauxval
+CHECK_CXX_COMPILER_FLAG("-mfpu=neon" HAVE_NEON)
+if(HAVE_NEON)
+    set(NEON_COMPILE_FLAGS "-mfpu=neon")
+    add_definitions("-DHAVE_NEON")
+endif()
 
 if(MSVC)
     if(NOT HAVE_AVX)
