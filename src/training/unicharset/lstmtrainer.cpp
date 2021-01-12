@@ -694,7 +694,7 @@ bool LSTMTrainer::EncodeString(const STRING& str, const UNICHARSET& unicharset,
   }
   int err_index;
   std::vector<int> internal_labels;
-  labels->resize(0);
+  labels->clear();
   if (!simple_text) labels->push_back(null_char);
   std::string cleaned = unicharset.CleanupString(str.c_str());
   if (unicharset.encode_string(cleaned.c_str(), true, &internal_labels, nullptr,

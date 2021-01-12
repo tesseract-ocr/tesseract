@@ -270,7 +270,7 @@ int PangoFontInfo::DropUncoveredChars(std::string* utf8_text) const {
   if (font == nullptr) {
     // Font not found, drop all characters.
     num_dropped_chars = utf8_text->length();
-    utf8_text->resize(0);
+    utf8_text->clear();
     return num_dropped_chars;
   }
   PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);

@@ -1190,7 +1190,7 @@ int IntegerMatcher::FindBestMatch(
     UnicharRating* result) {
   int best_match = 0;
   result->config = 0;
-  result->fonts.resize(0);
+  result->fonts.clear();
   result->fonts.reserve(class_template->NumConfigs);
 
   /* Find best match */

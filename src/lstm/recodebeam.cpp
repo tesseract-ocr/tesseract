@@ -192,8 +192,8 @@ void RecodeBeamSearch::calculateCharBoundaries(std::vector<int>* starts,
 // Returns the best path as labels/scores/xcoords similar to simple CTC.
 void RecodeBeamSearch::ExtractBestPathAsLabels(
     std::vector<int>* labels, std::vector<int>* xcoords) const {
-  labels->resize(0);
-  xcoords->resize(0);
+  labels->clear();
+  xcoords->clear();
   GenericVector<const RecodeNode*> best_nodes;
   ExtractBestPaths(&best_nodes, nullptr);
   // Now just run CTC on the best nodes.
@@ -547,10 +547,10 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
   std::vector<int>* unichar_ids, std::vector<float>* certs,
   std::vector<float>* ratings, std::vector<int>* xcoords,
     std::vector<int>* character_boundaries) {
-  unichar_ids->resize(0);
-  certs->resize(0);
-  ratings->resize(0);
-  xcoords->resize(0);
+  unichar_ids->clear();
+  certs->clear();
+  ratings->clear();
+  xcoords->clear();
   std::vector<int> starts;
   std::vector<int> ends;
   // Backtrack extracting only valid, non-duplicate unichar-ids.

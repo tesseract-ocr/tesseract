@@ -74,7 +74,7 @@ static int Main(int argc, char** argv) {
       tprintf("Extracting unicharset from box file %s\n", argv[arg]);
     } else {
       tprintf("Extracting unicharset from plain text file %s\n", argv[arg]);
-      texts.resize(0);
+      texts.clear();
       file_data.split('\n', &texts);
     }
     AddStringsToUnicharset(texts, FLAGS_norm_mode, &unicharset);

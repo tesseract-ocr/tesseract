@@ -212,7 +212,7 @@ void TFile::OpenWrite(std::vector<char>* data) {
   }
   is_writing_ = true;
   swap_ = false;
-  data_->resize(0);
+  data_->clear();
 }
 
 bool TFile::CloseWrite(const char* filename, FileWriter writer) {

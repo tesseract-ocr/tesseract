@@ -488,8 +488,8 @@ void LSTMRecognizer::LabelsViaReEncode(const NetworkIO& output,
 void LSTMRecognizer::LabelsViaSimpleText(const NetworkIO& output,
                                          std::vector<int>* labels,
                                          std::vector<int>* xcoords) {
-  labels->resize(0);
-  xcoords->resize(0);
+  labels->clear();
+  xcoords->clear();
   const int width = output.Width();
   for (int t = 0; t < width; ++t) {
     float score = 0.0f;

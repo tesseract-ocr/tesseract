@@ -1182,7 +1182,7 @@ void Classify::ExpandShapesAndApplyCorrections(
           if (r == mapped_results.size()) {
             mapped_results.push_back(*int_result);
             mapped_results[r].unichar_id = unichar_id;
-            mapped_results[r].fonts.resize(0);
+            mapped_results[r].fonts.clear();
           }
           for (int i = 0; i < shape[c].font_ids.size(); ++i) {
             mapped_results[r].fonts.push_back(

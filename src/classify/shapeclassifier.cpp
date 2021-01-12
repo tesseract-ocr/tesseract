@@ -41,7 +41,7 @@ namespace tesseract {
 int ShapeClassifier::UnicharClassifySample(
     const TrainingSample& sample, Pix* page_pix, int debug,
     UNICHAR_ID keep_this, std::vector<UnicharRating>* results) {
-  results->resize(0);
+  results->clear();
   std::vector<ShapeRating> shape_results;
   int num_shape_results = ClassifySample(sample, page_pix, debug, keep_this,
                                          &shape_results);

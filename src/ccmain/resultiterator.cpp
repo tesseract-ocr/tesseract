@@ -257,7 +257,7 @@ void ResultIterator::CalculateTextlineOrder(
   std::vector<StrongScriptDirection> dirs;
   std::vector<StrongScriptDirection>* directions;
   directions = (dirs_arg != nullptr) ? dirs_arg : &dirs;
-  directions->resize(0);
+  directions->clear();
 
   // A LTRResultIterator goes strictly left-to-right word order.
   LTRResultIterator ltr_it(resit);
@@ -268,7 +268,7 @@ void ResultIterator::CalculateTextlineOrder(
     directions->push_back(ltr_it.WordDirection());
   } while (ltr_it.Next(RIL_WORD) && !ltr_it.IsAtBeginningOf(RIL_TEXTLINE));
 
-  word_indices->resize(0);
+  word_indices->clear();
   CalculateTextlineOrder(paragraph_is_ltr, *directions, word_indices);
 }
 
@@ -276,7 +276,7 @@ void ResultIterator::CalculateTextlineOrder(
     bool paragraph_is_ltr,
     const std::vector<StrongScriptDirection>& word_dirs,
     std::vector<int>* reading_order) {
-  reading_order->resize(0);
+  reading_order->clear();
   if (word_dirs.size() == 0)
     return;
 

@@ -467,7 +467,7 @@ class TESS_API UNICHARSET {
   // Record normalized version of unichar with the given unichar_id.
   void set_normed(UNICHAR_ID unichar_id, const char* normed) {
     unichars[unichar_id].properties.normed = normed;
-    unichars[unichar_id].properties.normed_ids.resize(0);
+    unichars[unichar_id].properties.normed_ids.clear();
   }
   // Sets the normed_ids vector from the normed string. normed_ids is not
   // stored in the file, and needs to be set when the UNICHARSET is loaded.
