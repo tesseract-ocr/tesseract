@@ -73,6 +73,42 @@ TFile::~TFile() {
     delete data_;
 }
 
+template <typename T>
+bool TFile::DeSerialize(std::vector<T>& data) {
+  uint32_t size;
+  if (!DeSerialize(&size)) {
+    return false;
+  }
+  // Arbitrarily limit the number of elements to protect against bad data.
+  const uint32_t limit = 50000000;
+  assert(size <= limit);
+  if (size > limit) {
+    return false;
+  } else if (size > 0) {
+    // TODO: optimize.
+    data.reserve(size);
+    return DeSerialize(&data[0], size);
+  }
+  data.clear();
+  return true;
+}
+
+template <typename T>
+bool TFile::Serialize(const std::vector<T>& data) {
+  uint32_t size = data.size();
+  if (!Serialize(&size)) {
+    return false;
+  } else if (size > 0) {
+    return Serialize(&data[0], size);
+  }
+  return true;
+}
+
+template bool TFile::DeSerialize(std::vector<double>& data);
+template bool TFile::DeSerialize(std::vector<int32_t>& data);
+template bool TFile::Serialize(const std::vector<double>& data);
+template bool TFile::Serialize(const std::vector<int32_t>& data);
+
 bool TFile::DeSerialize(std::vector<char>& data) {
   uint32_t size;
   if (!DeSerialize(&size)) {
@@ -91,7 +127,7 @@ bool TFile::Serialize(const std::vector<char>& data) {
   if (!Serialize(&size)) {
     return false;
   } else if (size > 0) {
-  return Serialize(&data[0], size);
+    return Serialize(&data[0], size);
   }
   return true;
 }
