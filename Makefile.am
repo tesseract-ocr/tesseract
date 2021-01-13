@@ -1043,10 +1043,10 @@ SUFFIXES = .asc .html .pdf
 .asc:
 if HAVE_XML_CATALOG_FILES
 	asciidoc -b docbook -d manpage -o - $< | \
-	XML_CATALOG_FILES=$(XML_CATALOG_FILES) xsltproc --nonet $(man_xslt) -
+	XML_CATALOG_FILES=$(XML_CATALOG_FILES) xsltproc --nonet -o $@ $(man_xslt) -
 else
 	asciidoc -b docbook -d manpage -o - $< | \
-	xsltproc --nonet $(man_xslt) -
+	xsltproc --nonet -o $@ $(man_xslt) -
 endif
 
 .asc.html:
