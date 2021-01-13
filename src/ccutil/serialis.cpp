@@ -104,10 +104,10 @@ bool TFile::Serialize(const std::vector<T>& data) {
   return true;
 }
 
-template bool TFile::DeSerialize(std::vector<double>& data);
-template bool TFile::DeSerialize(std::vector<int32_t>& data);
-template bool TFile::Serialize(const std::vector<double>& data);
-template bool TFile::Serialize(const std::vector<int32_t>& data);
+TESS_API template bool TFile::DeSerialize(std::vector<double>& data);
+TESS_API template bool TFile::DeSerialize(std::vector<int32_t>& data);
+TESS_API template bool TFile::Serialize(const std::vector<double>& data);
+TESS_API template bool TFile::Serialize(const std::vector<int32_t>& data);
 
 bool TFile::DeSerialize(std::vector<char>& data) {
   uint32_t size;
