@@ -1398,7 +1398,6 @@ void Tesseract::classify_word_pass1(const WordData& word_data,
   BLOCK* block = word_data.block;
   prev_word_best_choice_ = word_data.prev_word != nullptr
       ? word_data.prev_word->word->best_choice : nullptr;
-#ifndef ANDROID_BUILD
 #ifdef DISABLED_LEGACY_ENGINE
   if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
 #else
@@ -1423,9 +1422,8 @@ void Tesseract::classify_word_pass1(const WordData& word_data,
                                     classify_bln_numeric_mode,
                                     textord_use_cjk_fp_model,
                                     poly_allow_detailed_fx, row, block);
-#endif  // ndef DISABLED_LEGACY_ENGINE
+  #endif  // ndef DISABLED_LEGACY_ENGINE
   }
-#endif  // ndef ANDROID_BUILD
 
 #ifndef DISABLED_LEGACY_ENGINE
   WERD_RES* word = *in_word;
