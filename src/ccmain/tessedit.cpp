@@ -36,9 +36,7 @@
 #  include "intmatcher.h"
 #  include "reject.h"
 #endif
-#ifndef ANDROID_BUILD
-#  include "lstmrecognizer.h"
-#endif
+#include "lstmrecognizer.h"
 
 namespace tesseract {
 
@@ -170,13 +168,12 @@ bool Tesseract::init_tesseract_lang_data(
 // The various OcrEngineMode settings (see tesseract/publictypes.h) determine which
 // engine-specific data files need to be loaded.
 // If LSTM_ONLY is requested, the base Tesseract files are *Not* required.
-#ifndef ANDROID_BUILD
-#  ifdef DISABLED_LEGACY_ENGINE
+#ifdef DISABLED_LEGACY_ENGINE
   if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
-#  else
+#else
   if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY ||
       tessedit_ocr_engine_mode == OEM_TESSERACT_LSTM_COMBINED) {
-#  endif  // ndef DISABLED_LEGACY_ENGINE
+#endif  // ndef DISABLED_LEGACY_ENGINE
     if (mgr->IsComponentAvailable(TESSDATA_LSTM)) {
       lstm_recognizer_ = new LSTMRecognizer(language_data_path_prefix);
       ASSERT_HOST(lstm_recognizer_->Load(
@@ -186,14 +183,11 @@ bool Tesseract::init_tesseract_lang_data(
       tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
     }
   }
-#endif  // ndef ANDROID_BUILD
 
   // Load the unicharset
   if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
     // Avoid requiring a unicharset when we aren't running base tesseract.
-#ifndef ANDROID_BUILD
     unicharset.CopyFrom(lstm_recognizer_->GetUnicharset());
-#endif  // ndef ANDROID_BUILD
   }
 #ifndef DISABLED_LEGACY_ENGINE
   else if (!mgr->GetComponent(TESSDATA_UNICHARSET, &fp) ||

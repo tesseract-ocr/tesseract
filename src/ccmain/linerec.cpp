@@ -20,10 +20,8 @@
 #include "allheaders.h"
 #include "boxread.h"
 #include "imagedata.h"
-#ifndef ANDROID_BUILD
 #include "lstmrecognizer.h"
 #include "recodebeam.h"
-#endif
 #include "pageres.h"
 #include "tprintf.h"
 
@@ -222,7 +220,6 @@ ImageData* Tesseract::GetRectImage(const TBOX& box, const BLOCK& block,
   return new ImageData(vertical_text, box_pix);
 }
 
-#ifndef ANDROID_BUILD
 // Recognizes a word or group of words, converting to WERD_RES in *words.
 // Analogous to classify_word_pass1, but can handle a group of words as well.
 void Tesseract::LSTMRecognizeWord(const BLOCK& block, ROW *row, WERD_RES *word,
@@ -306,6 +303,5 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
     }
   }
 }
-#endif  // ANDROID_BUILD
 
 }  // namespace tesseract.
