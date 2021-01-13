@@ -31,7 +31,7 @@ echo deb https://qemu.weilnetz.de/debian/ testing contrib | \
 # Install packages.
 sudo apt-get update
 sudo apt-get install --assume-yes --no-install-recommends \
-  asciidoc xsltproc docbook-xsl \
+  asciidoc xsltproc docbook-xml docbook-xsl \
   automake dpkg-dev libtool pkg-config default-jdk-headless \
   mingw-w64-tools nsis g++-mingw-w64-${ARCH/_/-} \
   $PKG_ARCH-liblept5 $PKG_ARCH-curl \
