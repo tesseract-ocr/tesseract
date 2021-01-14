@@ -268,7 +268,7 @@ class TESS_API LSTMRecognizer {
   UnicharCompress recoder_;
 
   // ==Training parameters that are serialized to provide a record of them.==
-  STRING network_str_;
+  std::string network_str_;
   // Flags used to determine the training method of the network.
   // See enum TrainingFlags above.
   int32_t training_flags_;
