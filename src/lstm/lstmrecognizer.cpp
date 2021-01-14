@@ -47,7 +47,7 @@ const double kDictRatio = 2.25;
 // Default certainty offset to give the dictionary a chance.
 const double kCertOffset = -0.085;
 
-LSTMRecognizer::LSTMRecognizer(const STRING language_data_path_prefix)
+LSTMRecognizer::LSTMRecognizer(const char* language_data_path_prefix)
     : LSTMRecognizer::LSTMRecognizer() {
   ccutil_.language_data_path_prefix = language_data_path_prefix;
 }
