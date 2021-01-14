@@ -1,0 +1,54 @@
+name: dailyunittest
+
+on:
+  schedule:
+    # every day at  11:15 AM UTC
+    - cron: 15 11 * * *
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        options: [disable-legacy, fsanitize]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        
+    - name: install dependencies
+      run: mkdir -p m4 && sudo apt-get install autoconf-archive libleptonica-dev libpango1.0-dev cabextract -y
+      
+    - name: download fonts, tessdata and langdata required for tests
+      run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
+      
+    - name: copy fonts and move tessdata
+      run: cp tessdata_unittest/fonts/* test/testing/ && mv tessdata_unittest/* ../ && ls  ../
+      
+    - name: autoconf
+      run: ./autogen.sh
+
+    - name: config disable-legacy options
+      if: matrix.options == 'disable-legacy'
+      run: ac_configure_extra_args="$ac_configure_extra_args --enable-openmp --disable-shared --with-tensorflow=no --disable-debug  --disable-opencl --disable-legacy "
+      
+    - name: config fsanitize options
+      if: matrix.options == 'fsanitize'
+      run: ac_configure_extra_args="$ac_configure_extra_args --enable-openmp --disable-shared --with-tensorflow=no --disable-debug  --disable-opencl -fsanitize=address,undefined -fstack-protector-strong -ftrapv"
+      
+    - name: configure
+      run: ./configure  $ac_configure_extra_args
+      
+    - name: make
+      run: make training -j 8
+      
+    - name: make check
+      run: make check -j 4
+      
+    - name: display test report
+      run: cat unittest/test-suite.log
+      if: success() || failure()
+      
