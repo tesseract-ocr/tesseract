@@ -2,8 +2,8 @@ name: dailyunittest
 
 on:
   schedule:
-    # every day at  11:15 AM UTC
-    - cron: 15 11 * * *
+    # every day at  1:15 AM UTC
+    - cron: 15 1 * * *
 
 jobs:
   build:
@@ -12,7 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        options: [disable-legacy, fsanitize]
 
     steps:
     - uses: actions/checkout@v2
@@ -31,16 +30,8 @@ jobs:
     - name: autoconf
       run: ./autogen.sh
 
-    - name: config disable-legacy options
-      if: matrix.options == 'disable-legacy'
-      run: ac_configure_extra_args="$ac_configure_extra_args --enable-openmp --disable-shared --with-tensorflow=no --disable-debug  --disable-opencl --disable-legacy "
-      
-    - name: config fsanitize options
-      if: matrix.options == 'fsanitize'
-      run: ac_configure_extra_args="$ac_configure_extra_args --enable-openmp --disable-shared --with-tensorflow=no --disable-debug  --disable-opencl -fsanitize=address,undefined -fstack-protector-strong -ftrapv"
-      
     - name: configure
-      run: ./configure  $ac_configure_extra_args
+      run: ./configure --enable-openmp --disable-shared --disable-debug --disable-opencl --disable-graphics --disable-legacy --with-tensorflow=no 'CXXFLAGS=-g -O2 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -fstack-protector-strong -ftrapv'
       
     - name: make
       run: make training -j 8
@@ -49,6 +40,6 @@ jobs:
       run: make check -j 4
       
     - name: display test report
-      run: cat unittest/test-suite.log
+      run: git log -1 && cat unittest/test-suite.log
       if: success() || failure()
       
