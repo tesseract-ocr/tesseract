@@ -57,9 +57,16 @@ class TESS_API LSTMRecognizer {
   ~LSTMRecognizer();
 
   int NumOutputs() const { return network_->NumOutputs(); }
+
+  // Return the training iterations.
   int training_iteration() const { return training_iteration_; }
+
+  // Return the sample iterations.
   int sample_iteration() const { return sample_iteration_; }
-  double learning_rate() const { return learning_rate_; }
+
+  // Return the learning rate.
+  float learning_rate() const { return learning_rate_; }
+
   LossType OutputLossType() const {
     if (network_ == nullptr) return LT_NONE;
     StaticShape shape;
@@ -107,6 +114,16 @@ class TESS_API LSTMRecognizer {
     return network_str_.c_str();
   }
 
+  // Return the adam beta.
+  float GetAdamBeta() const {
+    return adam_beta_;
+  }
+
+  // Return the momentum.
+  float GetMomentum() const {
+    return momentum_;
+  }
+
   // Multiplies the all the learning rate(s) by the given factor.
   void ScaleLearningRate(double factor) {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
@@ -148,6 +165,8 @@ class TESS_API LSTMRecognizer {
   void SetIteration(int iteration) { sample_iteration_ = iteration; }
   // Accessors for textline image normalization.
   int NumInputs() const { return network_->NumInputs(); }
+
+  // Return the null char index.
   int null_char() const { return null_char_; }
 
   // Loads a model from mgr, including the dictionary only if lang is not null.

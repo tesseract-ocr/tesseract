@@ -187,7 +187,16 @@ int main(int argc, char **argv) {
         tprintf("Failed to deserialize LSTM in %s!\n", argv[2]);
         return EXIT_FAILURE;
       }
-      std::cout << recognizer.GetNetwork() << '\n';
+      std::cout << "LSTM: network=" << recognizer.GetNetwork()
+                << ", int_mode=" << recognizer.IsIntMode()
+                << ", recoding=" << recognizer.IsRecoding()
+                << ", iteration=" << recognizer.training_iteration()
+                << ", sample_iteration=" << recognizer.sample_iteration()
+                << ", null_char=" << recognizer.null_char()
+                << ", learning_rate=" << recognizer.learning_rate()
+                << ", momentum=" << recognizer.GetMomentum()
+                << ", adam_beta=" << recognizer.GetAdamBeta()
+                << '\n';
     }
     return EXIT_SUCCESS;
   } else {
