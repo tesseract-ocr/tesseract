@@ -101,6 +101,12 @@ class TESS_API LSTMRecognizer {
       return learning_rate_;
     }
   }
+
+  // Return the network string.
+  const char* GetNetwork() const {
+    return network_str_.c_str();
+  }
+
   // Multiplies the all the learning rate(s) by the given factor.
   void ScaleLearningRate(double factor) {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
