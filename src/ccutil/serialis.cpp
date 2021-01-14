@@ -86,7 +86,7 @@ bool TFile::DeSerialize(std::vector<T>& data) {
     return false;
   } else if (size > 0) {
     // TODO: optimize.
-    data.reserve(size);
+    data.resize(size);
     return DeSerialize(&data[0], size);
   }
   data.clear();
