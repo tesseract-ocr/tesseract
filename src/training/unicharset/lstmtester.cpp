@@ -107,8 +107,8 @@ STRING LSTMTester::RunEvalSync(int iteration, const double* training_errors,
       ++error_count;
       if (verbosity > 1 || (verbosity > 0 && result != PERFECT)) {
         tprintf("Truth:%s\n", trainingdata->transcription().c_str());
-        GenericVector<int> ocr_labels;
-        GenericVector<int> xcoords;
+        std::vector<int> ocr_labels;
+        std::vector<int> xcoords;
         trainer.LabelsFromOutputs(fwd_outputs, &ocr_labels, &xcoords);
         STRING ocr_text = trainer.DecodeLabels(ocr_labels);
         tprintf("OCR  :%s\n", ocr_text.c_str());

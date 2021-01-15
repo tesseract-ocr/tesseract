@@ -55,6 +55,7 @@ void Classify::ReadNewCutoffs(TFile* fp, uint16_t* Cutoffs) {
     std::string Class;
     CLASS_ID ClassId;
     std::istringstream stream(line);
+    stream.imbue(std::locale::classic());
     stream >> Class >> Cutoff;
     if (stream.fail()) {
       break;

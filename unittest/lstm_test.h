@@ -172,7 +172,7 @@ class LSTMTrainerTest : public testing::Test {
     std::string lstmf_name = lang +  ".Arial_Unicode_MS.exp0.lstmf";
     SetupTrainer("[1,1,0,32 Lbx100 O1c1]", "bidi-lstm", unicharset_name,
                  lstmf_name, recode, true, 5e-4, true, lang);
-    GenericVector<int> labels;
+    std::vector<int> labels;
     EXPECT_TRUE(trainer_->EncodeString(str.c_str(), &labels));
     STRING decoded = trainer_->DecodeLabels(labels);
     std::string decoded_str(&decoded[0], decoded.length());

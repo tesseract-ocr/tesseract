@@ -191,9 +191,9 @@ void RecodeBeamSearch::calculateCharBoundaries(std::vector<int>* starts,
 
 // Returns the best path as labels/scores/xcoords similar to simple CTC.
 void RecodeBeamSearch::ExtractBestPathAsLabels(
-    GenericVector<int>* labels, GenericVector<int>* xcoords) const {
-  labels->truncate(0);
-  xcoords->truncate(0);
+    std::vector<int>* labels, std::vector<int>* xcoords) const {
+  labels->clear();
+  xcoords->clear();
   GenericVector<const RecodeNode*> best_nodes;
   ExtractBestPaths(&best_nodes, nullptr);
   // Now just run CTC on the best nodes.
@@ -214,9 +214,9 @@ void RecodeBeamSearch::ExtractBestPathAsLabels(
 // Returns the best path as unichar-ids/certs/ratings/xcoords skipping
 // duplicates, nulls and intermediate parts.
 void RecodeBeamSearch::ExtractBestPathAsUnicharIds(
-    bool debug, const UNICHARSET* unicharset, GenericVector<int>* unichar_ids,
-    GenericVector<float>* certs, GenericVector<float>* ratings,
-    GenericVector<int>* xcoords) const {
+    bool debug, const UNICHARSET* unicharset, std::vector<int>* unichar_ids,
+    std::vector<float>* certs, std::vector<float>* ratings,
+    std::vector<int>* xcoords) const {
   GenericVector<const RecodeNode*> best_nodes;
   ExtractBestPaths(&best_nodes, nullptr);
   ExtractPathAsUnicharIds(best_nodes, unichar_ids, certs, ratings, xcoords);
@@ -234,10 +234,10 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
                                               PointerVector<WERD_RES>* words,
                                               int lstm_choice_mode) {
   words->truncate(0);
-  GenericVector<int> unichar_ids;
-  GenericVector<float> certs;
-  GenericVector<float> ratings;
-  GenericVector<int> xcoords;
+  std::vector<int> unichar_ids;
+  std::vector<float> certs;
+  std::vector<float> ratings;
+  std::vector<int> xcoords;
   GenericVector<const RecodeNode*> best_nodes;
   GenericVector<const RecodeNode*> second_nodes;
   character_boundaries_.clear();
@@ -406,10 +406,10 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET* unicharset) {
   }
   character_boundaries_[0] = 0;
   for (int j = 1; j < character_boundaries_.size(); ++j) {
-    GenericVector<int> unichar_ids;
-    GenericVector<float> certs;
-    GenericVector<float> ratings;
-    GenericVector<int> xcoords;
+    std::vector<int> unichar_ids;
+    std::vector<float> certs;
+    std::vector<float> ratings;
+    std::vector<int> xcoords;
     int backpath = character_boundaries_[j] - character_boundaries_[j - 1];
     heaps = currentBeam->get(character_boundaries_[j] - 1)->beams_->heap();
     GenericVector<const RecodeNode*> best_nodes;
@@ -544,13 +544,13 @@ void RecodeBeamSearch::DebugBeamPos(const UNICHARSET& unicharset,
 /* static */
 void RecodeBeamSearch::ExtractPathAsUnicharIds(
     const GenericVector<const RecodeNode*>& best_nodes,
-    GenericVector<int>* unichar_ids, GenericVector<float>* certs,
-    GenericVector<float>* ratings, GenericVector<int>* xcoords,
+  std::vector<int>* unichar_ids, std::vector<float>* certs,
+  std::vector<float>* ratings, std::vector<int>* xcoords,
     std::vector<int>* character_boundaries) {
-  unichar_ids->truncate(0);
-  certs->truncate(0);
-  ratings->truncate(0);
-  xcoords->truncate(0);
+  unichar_ids->clear();
+  certs->clear();
+  ratings->clear();
+  xcoords->clear();
   std::vector<int> starts;
   std::vector<int> ends;
   // Backtrack extracting only valid, non-duplicate unichar-ids.
@@ -609,7 +609,7 @@ WERD_RES* RecodeBeamSearch::InitializeWord(bool leading_space,
                                            const TBOX& line_box, int word_start,
                                            int word_end, float space_certainty,
                                            const UNICHARSET* unicharset,
-                                           const GenericVector<int>& xcoords,
+                                           const std::vector<int>& xcoords,
                                            float scale_factor) {
   // Make a fake blob for each non-zero label.
   C_BLOB_LIST blobs;
@@ -641,7 +641,7 @@ WERD_RES* RecodeBeamSearch::InitializeWord(bool leading_space,
 // is one of the top_n.
 void RecodeBeamSearch::ComputeTopN(const float* outputs, int num_outputs,
                                    int top_n) {
-  top_n_flags_.init_to_size(num_outputs, TN_ALSO_RAN);
+  top_n_flags_.resize(num_outputs, TN_ALSO_RAN);
   top_code_ = -1;
   second_code_ = -1;
   top_heap_.clear();
@@ -671,7 +671,7 @@ void RecodeBeamSearch::ComputeTopN(const float* outputs, int num_outputs,
 void RecodeBeamSearch::ComputeSecTopN(std::unordered_set<int>* exList,
                                       const float* outputs, int num_outputs,
                                       int top_n) {
-  top_n_flags_.init_to_size(num_outputs, TN_ALSO_RAN);
+  top_n_flags_.resize(num_outputs, TN_ALSO_RAN);
   top_code_ = -1;
   second_code_ = -1;
   top_heap_.clear();
@@ -1296,9 +1296,9 @@ void RecodeBeamSearch::DebugPath(
 // Helper prints debug information on the given unichar path.
 void RecodeBeamSearch::DebugUnicharPath(
     const UNICHARSET* unicharset, const GenericVector<const RecodeNode*>& path,
-    const GenericVector<int>& unichar_ids, const GenericVector<float>& certs,
-    const GenericVector<float>& ratings,
-    const GenericVector<int>& xcoords) const {
+    const std::vector<int>& unichar_ids, const std::vector<float>& certs,
+    const std::vector<float>& ratings,
+    const std::vector<int>& xcoords) const {
   int num_ids = unichar_ids.size();
   double total_rating = 0.0;
   for (int c = 0; c < num_ids; ++c) {

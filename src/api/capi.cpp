@@ -15,14 +15,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESS_CAPI_INCLUDE_BASEAPI
-#  define TESS_CAPI_INCLUDE_BASEAPI
-#endif
-
 #include <tesseract/capi.h>
-#include <cstring>           // for strdup
 
-namespace tesseract {
+#include <cstring>           // for strdup
 
 const char* TessVersion() {
   return TessBaseAPI::Version();
@@ -237,12 +232,6 @@ BOOL TessBaseAPIPrintVariablesToFile(
   return FALSE;
 }
 
-BOOL TessBaseAPIGetVariableAsString(TessBaseAPI* handle,
-                                                       const char* name,
-                                                       std::string* val) {
-  return static_cast<int>(handle->GetVariableAsString(name, val));
-}
-
 int TessBaseAPIInit4(
     TessBaseAPI* handle, const char* datapath, const char* language,
     TessOcrEngineMode mode, const char** configs, int configs_size, char** vars_vec,
@@ -381,11 +370,6 @@ void TessBaseAPISetRectangle(TessBaseAPI* handle, int left,
                                                 int top, int width,
                                                 int height) {
   handle->SetRectangle(left, top, width, height);
-}
-
-void TessBaseAPISetThresholder(
-    TessBaseAPI* handle, TessImageThresholder* thresholder) {
-  handle->SetThresholder(thresholder);
 }
 
 struct Pix*
@@ -560,60 +544,14 @@ BOOL TessBaseAPIGetTextDirection(TessBaseAPI* handle,
   return static_cast<int>(handle->GetTextDirection(out_offset, out_slope));
 }
 
-void TessBaseAPISetDictFunc(TessBaseAPI* handle,
-                                               TessDictFunc f) {
-  handle->SetDictFunc(f);
-}
-
-void
-TessBaseAPIClearPersistentCache(TessBaseAPI* /*handle*/) {
-  TessBaseAPI::ClearPersistentCache();
-}
-
-void TessBaseAPISetProbabilityInContextFunc(
-    TessBaseAPI* handle, TessProbabilityInContextFunc f) {
-  handle->SetProbabilityInContextFunc(f);
-}
-
-#ifndef DISABLED_LEGACY_ENGINE
-
-BOOL TessBaseAPIDetectOrientationScript(
-    TessBaseAPI* handle, int* orient_deg, float* orient_conf,
-    const char** script_name, float* script_conf) {
-  bool success;
-  success = handle->DetectOrientationScript(orient_deg, orient_conf,
-                                            script_name, script_conf);
-  return static_cast<BOOL>(success);
-}
-
-#endif  // ndef DISABLED_LEGACY_ENGINE
-
 const char* TessBaseAPIGetUnichar(TessBaseAPI* handle,
                                                      int unichar_id) {
   return handle->GetUnichar(unichar_id);
 }
 
-const TessDawg* TessBaseAPIGetDawg(const TessBaseAPI* handle,
-                                                      int i) {
-  return handle->GetDawg(i);
-}
-
-int TessBaseAPINumDawgs(const TessBaseAPI* handle) {
-  return handle->NumDawgs();
-}
-
-TessOcrEngineMode TessBaseAPIOem(const TessBaseAPI* handle) {
-  return handle->oem();
-}
-
 void TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle,
                                                            double margin) {
   handle->set_min_orientation_margin(margin);
-}
-
-void TessBaseGetBlockTextOrientations(
-    TessBaseAPI* handle, int** block_orientation, bool** vertical_writing) {
-  handle->GetBlockTextOrientations(block_orientation, vertical_writing);
 }
 
 void TessPageIteratorDelete(TessPageIterator* handle) {
@@ -853,5 +791,3 @@ void TessMonitorSetDeadlineMSecs(ETEXT_DESC* monitor,
                                                     int deadline) {
   monitor->set_deadline_msecs(deadline);
 }
-
-} // namespace tesseract

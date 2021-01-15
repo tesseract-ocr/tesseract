@@ -31,6 +31,7 @@ cp -R $SRC/tessdata $OUT
 # Default fuzzer (image dimension 100 x 100).
 $CXX $CXXFLAGS \
     -I $SRC/tesseract/include \
+    -I/usr/local/include/leptonica \
      $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api \
      $SRC/tesseract/.libs/libtesseract.a \
      /usr/local/lib/liblept.a \

@@ -80,6 +80,7 @@ __pycache__
 
 # tessdata
 *.traineddata
+tessdata_*
 
 # OpenCL
 tesseract_opencl_profile_devices.dat

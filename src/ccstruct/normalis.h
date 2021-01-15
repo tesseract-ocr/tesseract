@@ -20,7 +20,7 @@
 #ifndef NORMALIS_H
 #define NORMALIS_H
 
-#include <tesseract/platform.h>
+#include <tesseract/export.h>
 
 struct Pix;
 

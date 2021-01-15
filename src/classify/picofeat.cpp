@@ -214,7 +214,7 @@ void NormalizePicoX(FEATURE_SET FeatureSet) {
 FEATURE_SET Classify::ExtractIntCNFeatures(
     const TBLOB& blob, const INT_FX_RESULT_STRUCT& fx_info) {
   INT_FX_RESULT_STRUCT local_fx_info(fx_info);
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
       blob, false, &local_fx_info, &bl_features);
   if (sample == nullptr) return nullptr;
@@ -244,7 +244,7 @@ FEATURE_SET Classify::ExtractIntCNFeatures(
 FEATURE_SET Classify::ExtractIntGeoFeatures(
     const TBLOB& blob, const INT_FX_RESULT_STRUCT& fx_info) {
   INT_FX_RESULT_STRUCT local_fx_info(fx_info);
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
       blob, false, &local_fx_info, &bl_features);
   if (sample == nullptr) return nullptr;

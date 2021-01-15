@@ -114,21 +114,13 @@ void build(Solution &s)
     auto &training = tess.addDirectory("training");
 
     //
-    auto &tessopt = training.addStaticLibrary("tessopt");
-    {
-        tessopt += cppstd;
-        tessopt += "src/training/tessopt.*"_rr;
-        tessopt.Public += libtesseract;
-    }
-
-    //
     auto &common_training = training.addLibrary("common_training");
     {
         common_training += "TESS_COMMON_TRAINING_API"_api;
         common_training += cppstd;
         common_training += "src/training/common/.*"_rr;
         common_training.Public += "src/training/common"_idir;
-        common_training.Public += tessopt;
+        common_training.Public += libtesseract;
     }
 
     //
@@ -140,6 +132,13 @@ void build(Solution &s)
         unicharset_training.Public += "src/training/unicharset"_idir;
         unicharset_training.Public += common_training;
         unicharset_training.Public += "org.sw.demo.unicode.icu.i18n"_dep;
+
+        auto win_or_mingw =
+          unicharset_training.getBuildSettings().TargetOS.Type == OSType::Windows ||
+          unicharset_training.getBuildSettings().TargetOS.Type == OSType::Mingw
+          ;
+        if (!win_or_mingw)
+          unicharset_training += "pthread"_slib;
     }
 
     //
@@ -194,15 +193,22 @@ void build(Solution &s)
         auto &test = tess.addDirectory("test");
         test.Scope = TargetScope::Test;
 
-        auto add_test = [&test, &s, &cppstd, &libtesseract, &pango_training](const String &name) -> decltype(auto)
+        String skipped_tests_str;
+        if (s.getExternalVariables()["skip-tests"])
+            skipped_tests_str = s.getExternalVariables()["skip-tests"].getValue();
+        auto skipped_tests = split_string(skipped_tests_str, ",");
+
+        auto add_test = [&test, &s, &cppstd, &libtesseract, &pango_training, &skipped_tests](const String &name) -> decltype(auto)
         {
             auto &t = test.addTarget<ExecutableTarget>(name);
             t += cppstd;
-            t += path("unittest/" + name + "_test.cc");
+            t += FileRegex("unittest", name + "_test.*", false);
 
             t += "SW_TESTING"_def;
 
             auto datadir = test.SourceDir / "tessdata_unittest";
+            if (s.getExternalVariables()["test-data-dir"])
+                datadir = fs::current_path() / s.getExternalVariables()["test-data-dir"].getValue();
             t += Definition("TESSBIN_DIR=\"" + ""s + "\"");
 
             t += Definition("TESTING_DIR=\"" + to_printable_string(normalize_path(test.SourceDir / "test/testing")) + "\"");
@@ -221,17 +227,36 @@ void build(Solution &s)
             if (t.getCompilerType() == CompilerType::MSVC)
                 t.CompileOptions.push_back("-utf-8");
 
-            libtesseract.addTest(t, name);
+            auto win_or_mingw =
+              t.getBuildSettings().TargetOS.Type == OSType::Windows ||
+              t.getBuildSettings().TargetOS.Type == OSType::Mingw
+              ;
+            if (!win_or_mingw)
+              t += "pthread"_slib;
+
+            auto tst = libtesseract.addTest(t, name);
+            for (auto &st : skipped_tests)
+            {
+                std::regex r(st);
+                if (std::regex_match(name, r))
+                {
+                    tst.skip(true);
+                    break;
+                }
+            }
 
             return t;
         };
 
-        Strings tests{
+        Strings tests
+        {
             "apiexample",
             "applybox",
             "baseapi",
             "baseapi_thread",
             "bitvector",
+            "capiexample",
+            "capiexample_c",
             "cleanapi",
             "colpartition",
             "commandlineflags",
@@ -247,6 +272,7 @@ void build(Solution &s)
             "layout",
             "ligature_table",
             "linlsq",
+            "list",
             "lstm_recode",
             "lstm_squashed",
             "lstm",

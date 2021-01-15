@@ -18,7 +18,7 @@
 #ifndef TESSERACT_ARCH_INTSIMDMATRIX_H_
 #define TESSERACT_ARCH_INTSIMDMATRIX_H_
 
-#include <tesseract/platform.h>
+#include <tesseract/export.h>
 
 #include <cstdint>
 #include <vector>
@@ -27,8 +27,6 @@ namespace tesseract {
 
 template <class T>
 class GENERIC_2D_ARRAY;
-template <typename T>
-class GenericVector;
 
 // Base class for a SIMD function to multiply a matrix by a vector, with sources
 // of 8-bit signed integer, and result in a double, after appropriate scaling.

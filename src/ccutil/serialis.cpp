@@ -73,6 +73,42 @@ TFile::~TFile() {
     delete data_;
 }
 
+template <typename T>
+bool TFile::DeSerialize(std::vector<T>& data) {
+  uint32_t size;
+  if (!DeSerialize(&size)) {
+    return false;
+  }
+  // Arbitrarily limit the number of elements to protect against bad data.
+  const uint32_t limit = 50000000;
+  assert(size <= limit);
+  if (size > limit) {
+    return false;
+  } else if (size > 0) {
+    // TODO: optimize.
+    data.reserve(size);
+    return DeSerialize(&data[0], size);
+  }
+  data.clear();
+  return true;
+}
+
+template <typename T>
+bool TFile::Serialize(const std::vector<T>& data) {
+  uint32_t size = data.size();
+  if (!Serialize(&size)) {
+    return false;
+  } else if (size > 0) {
+    return Serialize(&data[0], size);
+  }
+  return true;
+}
+
+template bool TFile::DeSerialize(std::vector<double>& data);
+template bool TFile::DeSerialize(std::vector<int32_t>& data);
+template bool TFile::Serialize(const std::vector<double>& data);
+template bool TFile::Serialize(const std::vector<int32_t>& data);
+
 bool TFile::DeSerialize(std::vector<char>& data) {
   uint32_t size;
   if (!DeSerialize(&size)) {
@@ -86,102 +122,14 @@ bool TFile::DeSerialize(std::vector<char>& data) {
   return true;
 }
 
-bool TFile::DeSerialize(char* buffer, size_t count) {
-  return FRead(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(double* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(float* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(int8_t* buffer, size_t count) {
-  return FRead(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(int16_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(int32_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(int64_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(uint8_t* buffer, size_t count) {
-  return FRead(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(uint16_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(uint32_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::DeSerialize(uint64_t* buffer, size_t count) {
-  return FReadEndian(buffer, sizeof(*buffer), count) == count;
-}
-
 bool TFile::Serialize(const std::vector<char>& data) {
   uint32_t size = data.size();
   if (!Serialize(&size)) {
     return false;
   } else if (size > 0) {
-  return Serialize(&data[0], size);
+    return Serialize(&data[0], size);
   }
   return true;
-}
-
-bool TFile::Serialize(const char* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const double* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const float* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const int8_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const int16_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const int32_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const int64_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const uint8_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const uint16_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const uint32_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
-}
-
-bool TFile::Serialize(const uint64_t* buffer, size_t count) {
-  return FWrite(buffer, sizeof(*buffer), count) == count;
 }
 
 bool TFile::Skip(size_t count) {
@@ -254,7 +202,7 @@ char* TFile::FGets(char* buffer, int buffer_size) {
 
 int TFile::FReadEndian(void* buffer, size_t size, int count) {
   int num_read = FRead(buffer, size, count);
-  if (swap_) {
+  if (swap_ && size != 1) {
     char* char_buffer = static_cast<char*>(buffer);
     for (int i = 0; i < num_read; ++i, char_buffer += size) {
       ReverseN(char_buffer, size);
@@ -300,7 +248,7 @@ void TFile::OpenWrite(std::vector<char>* data) {
   }
   is_writing_ = true;
   swap_ = false;
-  data_->resize(0);
+  data_->clear();
 }
 
 bool TFile::CloseWrite(const char* filename, FileWriter writer) {

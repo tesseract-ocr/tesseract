@@ -22,7 +22,7 @@
 #include "elst.h"
 #include "errcode.h"            // for ASSERT_HOST
 
-#include <tesseract/platform.h>           // for DLLSYM
+#include <tesseract/export.h>           // for DLLSYM
 
 #include <cmath>                // for sqrt, atan2
 #include <cstdio>

@@ -19,39 +19,8 @@
 #ifndef BITS16_H
 #define BITS16_H
 
-#include <cstdint>    // for uint8_t, ...
-#include <tesseract/platform.h> // for DLLSYM
+#include <bitset>
 
-class BITS16 {
- public:
-  uint16_t val = 0;
-
-  BITS16() = default;
-  BITS16(uint16_t init) : val(init) {}
-
-  void turn_on_bit(       // flip specified bit
-      uint8_t bit_num) {  // bit to flip 0..7
-    val = static_cast<uint16_t>(val | 01 << bit_num);
-  }
-
-  void turn_off_bit(      // flip specified bit
-      uint8_t bit_num) {  // bit to flip 0..7
-    val = static_cast<uint16_t>(val & ~(01 << bit_num));
-  }
-
-  void set_bit(         // flip specified bit
-      uint8_t bit_num,  // bit to flip 0..7
-      bool value) {     // value to flip to
-    if (value)
-      val = static_cast<uint16_t>(val | 01 << bit_num);
-    else
-      val = static_cast<uint16_t>(val & ~(01 << bit_num));
-  }
-
-  bool bit(                     // access bit
-      uint8_t bit_num) const {  // bit to access
-    return (val >> bit_num) & 01;
-  }
-};
+using BITS16 = std::bitset<16>;
 
 #endif

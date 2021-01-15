@@ -21,7 +21,7 @@
 #include "genericvector.h"      // for GenericVector
 #include "strngs.h"             // for STRING
 
-#include <tesseract/platform.h>
+#include <tesseract/export.h>
 
 #include <cstddef>
 #include <cstdio>

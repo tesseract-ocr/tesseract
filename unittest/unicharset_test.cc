@@ -49,7 +49,7 @@ TEST(UnicharsetTest, Basics) {
   EXPECT_EQ(u.unichar_to_id("\ufb01"), INVALID_UNICHAR_ID);
   // The fi pair has no valid id.
   EXPECT_EQ(u.unichar_to_id("fi"), INVALID_UNICHAR_ID);
-  GenericVector<int> labels;
+  std::vector<int> labels;
   EXPECT_TRUE(u.encode_string("affine", true, &labels, nullptr, nullptr));
   std::vector<int> v(&labels[0], &labels[0] + labels.size());
   EXPECT_THAT(v, ElementsAreArray({3, 4, 4, 5, 7, 6}));
@@ -93,13 +93,13 @@ TEST(UnicharsetTest, Multibyte) {
   EXPECT_EQ(u.unichar_to_id("fi"), 6);
   // The fi ligature is findable.
   EXPECT_EQ(u.unichar_to_id("\ufb01"), 6);
-  GenericVector<int> labels;
+  std::vector<int> labels;
   EXPECT_TRUE(u.encode_string("\u0627\u062c\u062c\u062f\u0635\u062b", true,
                               &labels, nullptr, nullptr));
   std::vector<int> v(&labels[0], &labels[0] + labels.size());
   EXPECT_THAT(v, ElementsAreArray({3, 4, 4, 5, 8, 7}));
   // With the fi ligature the fi is picked out.
-  GenericVector<char> lengths;
+  std::vector<char> lengths;
   int encoded_length;
   std::string src_str = "\u0627\u062c\ufb01\u0635\u062b";
   // src_str has to be pre-cleaned for lengths to be correct.

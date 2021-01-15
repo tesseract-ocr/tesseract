@@ -24,6 +24,8 @@
 
 #include <tesseract/baseapi.h>
 
+#include <memory>
+
 TESS_COMMON_TRAINING_API
 void ParseArguments(int* argc, char*** argv);
 
@@ -98,7 +100,7 @@ using MERGE_CLASS = MERGE_CLASS_NODE*;
 namespace tesseract {
 
 // Helper loads shape table from the given file.
-ShapeTable* LoadShapeTable(const STRING& file_prefix);
+std::unique_ptr<ShapeTable> LoadShapeTable(const STRING& file_prefix);
 // Helper to write the shape_table.
 TESS_COMMON_TRAINING_API
 void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table);
@@ -117,15 +119,16 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table);
 // If shape_table is not nullptr, but failed to load, make a fake flat one,
 // as shape clustering was not run.
 TESS_COMMON_TRAINING_API
-MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
+std::pair<std::unique_ptr<MasterTrainer>, std::unique_ptr<ShapeTable>>
+LoadTrainingData(int argc, const char* const * argv,
                                 bool replication,
-                                ShapeTable** shape_table,
+                                bool shape_analysis,
                                 STRING* file_prefix);
 
 }  // namespace tesseract.
 
 TESS_COMMON_TRAINING_API
-const char *GetNextFilename(int argc, const char* const * argv);
+const char *GetNextFilename(int argc, const char* const * argv, int &tessoptind);
 
 LABELEDLIST FindList(
     tesseract::LIST        List,

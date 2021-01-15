@@ -27,7 +27,7 @@
 #include "rect.h"       // for TBOX
 #include "scrollview.h" // for ScrollView, ScrollView::Color
 
-#include <tesseract/platform.h>   // for DLLSYM
+#include <tesseract/export.h>   // for DLLSYM
 
 #include <cstdint>      // for int16_t, int32_t
 
@@ -102,12 +102,12 @@ class C_OUTLINE:public ELIST_LINK {
 
     bool flag(                               //test flag
                C_OUTLINE_FLAGS mask) const {  //flag to test
-      return flags.bit(mask);
+      return flags[mask];
     }
     void set_flag(                       //set flag value
             C_OUTLINE_FLAGS mask,  //flag to test
             bool value) {         //value to set
-      flags.set_bit(mask, value);
+      flags.set(mask, value);
     }
 
     C_OUTLINE_LIST *child() {  //get child list

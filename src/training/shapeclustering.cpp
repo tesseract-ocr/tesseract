@@ -49,9 +49,7 @@ int main(int argc, char **argv) {
   ParseArguments(&argc, &argv);
 
   STRING file_prefix;
-  tesseract::MasterTrainer* trainer =
-      tesseract::LoadTrainingData(argc, argv, false, nullptr, &file_prefix);
-
+  auto [trainer,_] = tesseract::LoadTrainingData(argc, argv, false, false, &file_prefix);
   if (!trainer)
     return 1;
 
@@ -70,7 +68,6 @@ int main(int argc, char **argv) {
   }
   trainer->SetupMasterShapes();
   WriteShapeTable(file_prefix, trainer->master_shapes());
-  delete trainer;
 
   return 0;
 } /* main */

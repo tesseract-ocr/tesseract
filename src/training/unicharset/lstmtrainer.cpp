@@ -201,7 +201,7 @@ void LSTMTrainer::InitIterations() {
   for (int i = 0; i < ET_COUNT; ++i) {
     best_error_rates_[i] = 100.0;
     worst_error_rates_[i] = 0.0;
-    error_buffers_[i].init_to_size(kRollingBufferSize_, 0.0);
+    error_buffers_[i].resize(kRollingBufferSize_, 0.0);
     error_rates_[i] = 100.0;
   }
   error_rate_of_last_saved_best_ = kMinStartedErrorRate;
@@ -222,7 +222,7 @@ Trainability LSTMTrainer::GridSearchDictParams(
     return result;
 
   // Encode/decode the truth to get the normalization.
-  GenericVector<int> truth_labels, ocr_labels, xcoords;
+  std::vector<int> truth_labels, ocr_labels, xcoords;
   ASSERT_HOST(EncodeString(trainingdata->transcription(), &truth_labels));
   // NO-dict error.
   RecodeBeamSearch base_search(recoder_, null_char_, SimpleTextOutput(), nullptr);
@@ -406,7 +406,7 @@ bool LSTMTrainer::Serialize(SerializeAmount serialize_amount,
   if (!fp->Serialize(&perfect_delay_)) return false;
   if (!fp->Serialize(&last_perfect_training_iteration_)) return false;
   for (const auto & error_buffer : error_buffers_) {
-    if (!error_buffer.Serialize(fp)) return false;
+    if (!fp->Serialize(error_buffer)) return false;
   }
   if (!fp->Serialize(&error_rates_[0], countof(error_rates_))) return false;
   if (!fp->Serialize(&training_stage_)) return false;
@@ -428,8 +428,8 @@ bool LSTMTrainer::Serialize(SerializeAmount serialize_amount,
   if (sub_trainer_ != nullptr && !SaveTrainingDump(LIGHT, sub_trainer_, &sub_data))
     return false;
   if (!fp->Serialize(sub_data)) return false;
-  if (!best_error_history_.Serialize(fp)) return false;
-  if (!best_error_iterations_.Serialize(fp)) return false;
+  if (!fp->Serialize(best_error_history_)) return false;
+  if (!fp->Serialize(best_error_iterations_)) return false;
   return fp->Serialize(&improvement_steps_);
 }
 
@@ -450,7 +450,7 @@ bool LSTMTrainer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
   if (!fp->DeSerialize(&perfect_delay_)) return false;
   if (!fp->DeSerialize(&last_perfect_training_iteration_)) return false;
   for (auto & error_buffer : error_buffers_) {
-    if (!error_buffer.DeSerialize(fp)) return false;
+    if (!fp->DeSerialize(error_buffer)) return false;
   }
   if (!fp->DeSerialize(&error_rates_[0], countof(error_rates_))) return false;
   if (!fp->DeSerialize(&training_stage_)) return false;
@@ -476,8 +476,8 @@ bool LSTMTrainer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
     sub_trainer_ = new LSTMTrainer();
     if (!ReadTrainingDump(sub_data, sub_trainer_)) return false;
   }
-  if (!best_error_history_.DeSerialize(fp)) return false;
-  if (!best_error_iterations_.DeSerialize(fp)) return false;
+  if (!fp->DeSerialize(best_error_history_)) return false;
+  if (!fp->DeSerialize(best_error_iterations_)) return false;
   return fp->DeSerialize(&improvement_steps_);
 }
 
@@ -583,15 +583,15 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
     LR_SAME,  // Learning rate will stay the same.
     LR_COUNT  // Size of arrays.
   };
-  GenericVector<STRING> layers = EnumerateLayers();
+  std::vector<STRING> layers = EnumerateLayers();
   int num_layers = layers.size();
-  GenericVector<int> num_weights;
-  num_weights.init_to_size(num_layers, 0);
-  GenericVector<double> bad_sums[LR_COUNT];
-  GenericVector<double> ok_sums[LR_COUNT];
+  std::vector<int> num_weights;
+  num_weights.resize(num_layers, 0);
+  std::vector<double> bad_sums[LR_COUNT];
+  std::vector<double> ok_sums[LR_COUNT];
   for (int i = 0; i < LR_COUNT; ++i) {
-    bad_sums[i].init_to_size(num_layers, 0.0);
-    ok_sums[i].init_to_size(num_layers, 0.0);
+    bad_sums[i].resize(num_layers, 0.0);
+    ok_sums[i].resize(num_layers, 0.0);
   }
   double momentum_factor = 1.0 / (1.0 - momentum_);
   std::vector<char> orig_trainer;
@@ -687,14 +687,14 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
 /* static */
 bool LSTMTrainer::EncodeString(const STRING& str, const UNICHARSET& unicharset,
                                const UnicharCompress* recoder, bool simple_text,
-                               int null_char, GenericVector<int>* labels) {
+                               int null_char, std::vector<int>* labels) {
   if (str.c_str() == nullptr || str.length() <= 0) {
     tprintf("Empty truth string!\n");
     return false;
   }
   int err_index;
-  GenericVector<int> internal_labels;
-  labels->truncate(0);
+  std::vector<int> internal_labels;
+  labels->clear();
   if (!simple_text) labels->push_back(null_char);
   std::string cleaned = unicharset.CleanupString(str.c_str());
   if (unicharset.encode_string(cleaned.c_str(), true, &internal_labels, nullptr,
@@ -775,7 +775,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   // Ensure repeatability of random elements even across checkpoints.
   bool debug = debug_interval_ > 0 &&
       training_iteration() % debug_interval_ == 0;
-  GenericVector<int> truth_labels;
+  std::vector<int> truth_labels;
   if (!EncodeString(trainingdata->transcription(), &truth_labels)) {
     tprintf("Can't encode transcription: '%s' in language '%s'\n",
             trainingdata->transcription().c_str(),
@@ -796,7 +796,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
         if (truth_labels[c] != UNICHAR_SPACE && truth_labels[c] != null_char_)
           ++truth_labels[c];
       }
-      truth_labels.reverse();
+      std::reverse(truth_labels.begin(), truth_labels.end());
     }
   }
   int w = 0;
@@ -832,8 +832,8 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
     tprintf("Logistic outputs not implemented yet!\n");
     return UNENCODABLE;
   }
-  GenericVector<int> ocr_labels;
-  GenericVector<int> xcoords;
+  std::vector<int> ocr_labels;
+  std::vector<int> xcoords;
   LabelsFromOutputs(*fwd_outputs, &ocr_labels, &xcoords);
   // CTC does not produce correct target labels to begin with.
   if (loss_type != LT_CTC) {
@@ -1003,7 +1003,7 @@ void LSTMTrainer::EmptyConstructor() {
 bool LSTMTrainer::DebugLSTMTraining(const NetworkIO& inputs,
                                     const ImageData& trainingdata,
                                     const NetworkIO& fwd_outputs,
-                                    const GenericVector<int>& truth_labels,
+                                    const std::vector<int>& truth_labels,
                                     const NetworkIO& outputs) {
   const STRING& truth_text = DecodeLabels(truth_labels);
   if (truth_text.c_str() == nullptr || truth_text.length() <= 0) {
@@ -1012,8 +1012,8 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO& inputs,
   }
   if (debug_interval_ != 0) {
     // Get class labels, xcoords and string.
-    GenericVector<int> labels;
-    GenericVector<int> xcoords;
+    std::vector<int> labels;
+    std::vector<int> xcoords;
     LabelsFromOutputs(outputs, &labels, &xcoords);
     STRING text = DecodeLabels(labels);
     tprintf("Iteration %d: GROUND  TRUTH : %s\n",
@@ -1079,7 +1079,7 @@ void LSTMTrainer::DisplayTargets(const NetworkIO& targets,
 // Builds a no-compromises target where the first positions should be the
 // truth labels and the rest is padded with the null_char_.
 bool LSTMTrainer::ComputeTextTargets(const NetworkIO& outputs,
-                                     const GenericVector<int>& truth_labels,
+                                     const std::vector<int>& truth_labels,
                                      NetworkIO* targets) {
   if (truth_labels.size() > targets->Width()) {
     tprintf("Error: transcription %s too long to fit into target of width %d\n",
@@ -1098,7 +1098,7 @@ bool LSTMTrainer::ComputeTextTargets(const NetworkIO& outputs,
 // Builds a target using standard CTC. truth_labels should be pre-padded with
 // nulls wherever desired. They don't have to be between all labels.
 // outputs is input-output, as it gets clipped to minimum probability.
-bool LSTMTrainer::ComputeCTCTargets(const GenericVector<int>& truth_labels,
+bool LSTMTrainer::ComputeCTCTargets(const std::vector<int>& truth_labels,
                                     NetworkIO* outputs, NetworkIO* targets) {
   // Bottom-clip outputs to a minimum probability.
   CTC::NormalizeProbs(outputs);
@@ -1166,10 +1166,10 @@ double LSTMTrainer::ComputeWinnerError(const NetworkIO& deltas) {
 }
 
 // Computes a very simple bag of chars char error rate.
-double LSTMTrainer::ComputeCharError(const GenericVector<int>& truth_str,
-                                     const GenericVector<int>& ocr_str) {
-  GenericVector<int> label_counts;
-  label_counts.init_to_size(NumOutputs(), 0);
+double LSTMTrainer::ComputeCharError(const std::vector<int>& truth_str,
+                                     const std::vector<int>& ocr_str) {
+  std::vector<int> label_counts;
+  label_counts.resize(NumOutputs(), 0);
   int truth_size = 0;
   for (int i = 0; i < truth_str.size(); ++i) {
     if (truth_str[i] != null_char_) {
@@ -1231,7 +1231,7 @@ void LSTMTrainer::UpdateErrorBuffer(double new_error, ErrorTypes type) {
   int index = training_iteration_ % kRollingBufferSize_;
   error_buffers_[type][index] = new_error;
   // Compute the mean error.
-  int mean_count = std::min(training_iteration_ + 1, error_buffers_[type].size());
+  int mean_count = std::min<int>(training_iteration_ + 1, error_buffers_[type].size());
   double buffer_sum = 0.0;
   for (int i = 0; i < mean_count; ++i) buffer_sum += error_buffers_[type][i];
   double mean = buffer_sum / mean_count;

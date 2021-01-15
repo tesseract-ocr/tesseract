@@ -46,23 +46,11 @@ struct UnicharRating {
 
   // Print debug info.
   void Print() const {
-    tprintf("Unichar-id=%d, rating=%g, adapted=%d, config=%d, misses=%d,"
-            " %d fonts\n", unichar_id, rating, adapted, config, feature_misses,
+    tprintf("Unichar-id=%d, rating=%g, adapted=%d, config=%d, misses=%u,"
+            " %zu fonts\n", unichar_id, rating, adapted, config, feature_misses,
             fonts.size());
   }
 
-  // Sort function to sort ratings appropriately by descending rating.
-  static int SortDescendingRating(const void* t1, const void* t2) {
-    const auto* a = static_cast<const UnicharRating*>(t1);
-    const auto* b = static_cast<const UnicharRating*>(t2);
-    if (a->rating > b->rating) {
-      return -1;
-    } else if (a->rating < b->rating) {
-      return 1;
-    } else {
-      return a->unichar_id - b->unichar_id;
-    }
-  }
   // Helper function to get the index of the first result with the required
   // unichar_id. If the results are sorted by rating, this will also be the
   // best result with the required unichar_id.
@@ -84,7 +72,7 @@ struct UnicharRating {
   // Unsorted collection of fontinfo ids and scores. Note that a raw result
   // from the IntegerMatch will contain config ids, that require transforming
   // to fontinfo ids via fontsets and (possibly) shapetable.
-  GenericVector<ScoredFont> fonts;
+  std::vector<ScoredFont> fonts;
 };
 
 // Classifier result from a low-level classification is an index into some
@@ -97,18 +85,6 @@ struct ShapeRating {
     : shape_id(s), rating(r), raw(1.0f), font(0.0f),
       joined(false), broken(false) {}
 
-  // Sort function to sort ratings appropriately by descending rating.
-  static int SortDescendingRating(const void* t1, const void* t2) {
-    const auto* a = static_cast<const ShapeRating*>(t1);
-    const auto* b = static_cast<const ShapeRating*>(t2);
-    if (a->rating > b->rating) {
-      return -1;
-    } else if (a->rating < b->rating) {
-      return 1;
-    } else {
-      return a->shape_id - b->shape_id;
-    }
-  }
   // Helper function to get the index of the first result with the required
   // unichar_id. If the results are sorted by rating, this will also be the
   // best result with the required unichar_id.
@@ -380,14 +356,14 @@ class TESS_API ShapeTable {
   // each unichar, or -1 if the unichar is not yet included in results.
   void AddShapeToResults(const ShapeRating& shape_rating,
                          GenericVector<int>* unichar_map,
-                         GenericVector<UnicharRating>* results) const;
+                         std::vector<UnicharRating>* results) const;
 
  private:
   // Adds the given unichar_id to the results if needed, updating unichar_map
   // and returning the index of unichar in results.
   int AddUnicharToResults(int unichar_id, float rating,
                           GenericVector<int>* unichar_map,
-                          GenericVector<UnicharRating>* results) const;
+                          std::vector<UnicharRating>* results) const;
 
   // Pointer to a provided unicharset used only by the Debugstr member.
   const UNICHARSET* unicharset_;

@@ -94,8 +94,8 @@ struct ADAPT_RESULTS {
   UNICHAR_ID best_unichar_id;
   int best_match_index;
   float best_rating;
-  GenericVector<UnicharRating> match;
-  GenericVector<CP_RESULT_STRUCT> CPResults;
+  std::vector<UnicharRating> match;
+  std::vector<CP_RESULT_STRUCT> CPResults;
 
   /// Initializes data members to the default values. Sets the initial
   /// rating of each class to be the worst possible rating (1.0).
@@ -124,6 +124,15 @@ struct PROTO_KEY {
   CLASS_ID ClassId;
   int ConfigId;
 };
+
+// Sort function to sort ratings appropriately by descending rating.
+static bool SortDescendingRating(const UnicharRating &a, const UnicharRating &b) {
+  if (a.rating != b.rating) {
+    return a.rating > b.rating;
+  } else {
+    return a.unichar_id < b.unichar_id;
+  }
+}
 
 /*-----------------------------------------------------------------------------
           Private Macros
@@ -196,7 +205,7 @@ void Classify::AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices) {
   DoAdaptiveMatch(Blob, Results);
 
   RemoveBadMatches(Results);
-  Results->match.sort(&UnicharRating::SortDescendingRating);
+  std::sort(Results->match.begin(), Results->match.end(), SortDescendingRating);
   RemoveExtraPuncs(Results);
   Results->ComputeBest();
   ConvertMatchesToChoices(Blob->denorm(), Blob->bounding_box(), Results,
@@ -951,7 +960,7 @@ void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
 
 void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*blob, classify_nonlinear_norm, &fx_info,
                            &bl_features);
@@ -1049,7 +1058,7 @@ void Classify::AddNewResult(const UnicharRating& new_result,
  * @param fx_info
  */
 void Classify::AmbigClassifier(
-    const GenericVector<INT_FEATURE_STRUCT>& int_features,
+    const std::vector<INT_FEATURE_STRUCT>& int_features,
     const INT_FX_RESULT_STRUCT& fx_info,
     const TBLOB *blob,
     INT_TEMPLATES templates,
@@ -1099,7 +1108,7 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
                              int debug,
                              int matcher_multiplier,
                              const TBOX& blob_box,
-                             const GenericVector<CP_RESULT_STRUCT>& results,
+                             const std::vector<CP_RESULT_STRUCT>& results,
                              ADAPT_RESULTS* final_results) {
   int top = blob_box.top();
   int bottom = blob_box.bottom();
@@ -1173,7 +1182,7 @@ void Classify::ExpandShapesAndApplyCorrections(
           if (r == mapped_results.size()) {
             mapped_results.push_back(*int_result);
             mapped_results[r].unichar_id = unichar_id;
-            mapped_results[r].fonts.truncate(0);
+            mapped_results[r].fonts.clear();
           }
           for (int i = 0; i < shape[c].font_ids.size(); ++i) {
             mapped_results[r].fonts.push_back(
@@ -1269,7 +1278,7 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id,
  * @return Array of possible ambiguous chars that should be checked.
  */
 UNICHAR_ID *Classify::BaselineClassifier(
-    TBLOB *Blob, const GenericVector<INT_FEATURE_STRUCT>& int_features,
+    TBLOB *Blob, const std::vector<INT_FEATURE_STRUCT>& int_features,
     const INT_FX_RESULT_STRUCT& fx_info,
     ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results) {
   if (int_features.empty()) return nullptr;
@@ -1320,7 +1329,7 @@ int Classify::CharNormClassifier(TBLOB *blob,
   // This is the length that is used for scaling ratings vs certainty.
   adapt_results->BlobLength =
       IntCastRounded(sample.outline_length() / kStandardFeatureLength);
-  GenericVector<UnicharRating> unichar_results;
+  std::vector<UnicharRating> unichar_results;
   static_classifier_->UnicharClassifySample(sample, blob->denorm().pix(), 0,
                                             -1, &unichar_results);
   // Convert results to the format used internally by AdaptiveClassifier.
@@ -1335,7 +1344,7 @@ int Classify::CharNormClassifier(TBLOB *blob,
 int Classify::CharNormTrainingSample(bool pruner_only,
                                      int keep_this,
                                      const TrainingSample& sample,
-                                     GenericVector<UnicharRating>* results) {
+                                     std::vector<UnicharRating>* results) {
   results->clear();
   auto* adapt_results = new ADAPT_RESULTS();
   adapt_results->Initialize();
@@ -1363,7 +1372,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
   delete [] pruner_norm_array;
   if (keep_this >= 0) {
     adapt_results->CPResults[0].Class = keep_this;
-    adapt_results->CPResults.truncate(1);
+    adapt_results->CPResults.resize(1);
   }
   if (pruner_only) {
     // Convert pruner results to output format.
@@ -1383,7 +1392,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
       results->push_back(adapt_results->match[i]);
     }
     if (results->size() > 1) {
-      results->sort(&UnicharRating::SortDescendingRating);
+      std::sort(results->begin(), results->end(), SortDescendingRating);
     }
   }
   delete [] char_norm_array;
@@ -1489,7 +1498,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
     choices_length++;
     if (choices_length >= max_matches) break;
   }
-  Results->match.truncate(choices_length);
+  Results->match.resize(choices_length);
 }  // ConvertMatchesToChoices
 
 
@@ -1506,7 +1515,7 @@ void Classify::DebugAdaptiveClassifier(TBLOB *blob,
                                        ADAPT_RESULTS *Results) {
   if (static_classifier_ == nullptr) return;
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*blob, false, &fx_info, &bl_features);
   if (sample == nullptr) return;
@@ -1539,7 +1548,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
   UNICHAR_ID *Ambiguities;
 
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*Blob, classify_nonlinear_norm, &fx_info,
                            &bl_features);
@@ -1605,7 +1614,7 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
 
   Results->Initialize();
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*Blob, classify_nonlinear_norm, &fx_info,
                            &bl_features);
@@ -1617,7 +1626,7 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
   CharNormClassifier(Blob, *sample, Results);
   delete sample;
   RemoveBadMatches(Results);
-  Results->match.sort(&UnicharRating::SortDescendingRating);
+  std::sort(Results->match.begin(), Results->match.end(), SortDescendingRating);
 
   /* copy the class id's into an string of ambiguities - don't copy if
      the correct class is the only class id matched */
@@ -2085,7 +2094,7 @@ void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
       }
     }
   }
-  Results->match.truncate(NextGood);
+  Results->match.resize(NextGood);
 }                              /* RemoveBadMatches */
 
 /*----------------------------------------------------------------------------*/
@@ -2130,7 +2139,7 @@ void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
       }
     }
   }
-  Results->match.truncate(NextGood);
+  Results->match.resize(NextGood);
 }                              /* RemoveExtraPuncs */
 
 /*---------------------------------------------------------------------------*/

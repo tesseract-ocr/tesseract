@@ -44,11 +44,11 @@ const double kRatingEpsilon = 1.0 / 32;
 double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
     int report_level, CountTypes boosting_mode,
     const FontInfoTable& fontinfo_table,
-    const GenericVector<Pix*>& page_images, SampleIterator* it,
+    const std::vector<Pix*>& page_images, SampleIterator* it,
     double* unichar_error,  double* scaled_error, STRING* fonts_report) {
   const int fontsize = it->sample_set()->NumFonts();
   ErrorCounter counter(classifier->GetUnicharset(), fontsize);
-  GenericVector<UnicharRating> results;
+  std::vector<UnicharRating> results;
 
   clock_t start = clock();
   unsigned total_samples = 0;
@@ -114,11 +114,11 @@ void ErrorCounter::DebugNewErrors(
     ShapeClassifier* new_classifier, ShapeClassifier* old_classifier,
     CountTypes boosting_mode,
     const FontInfoTable& fontinfo_table,
-    const GenericVector<Pix*>& page_images, SampleIterator* it) {
+    const std::vector<Pix*>& page_images, SampleIterator* it) {
   int fontsize = it->sample_set()->NumFonts();
   ErrorCounter old_counter(old_classifier->GetUnicharset(), fontsize);
   ErrorCounter new_counter(new_classifier->GetUnicharset(), fontsize);
-  GenericVector<UnicharRating> results;
+  std::vector<UnicharRating> results;
 
   int total_samples = 0;
   int error_samples = 25;
@@ -168,8 +168,8 @@ ErrorCounter::ErrorCounter(const UNICHARSET& unicharset, int fontsize)
     ok_score_hist_(0, 101), bad_score_hist_(0, 101),
     unicharset_(unicharset) {
   Counts empty_counts;
-  font_counts_.init_to_size(fontsize, empty_counts);
-  multi_unichar_counts_.init_to_size(unicharset.size(), 0);
+  font_counts_.resize(fontsize, empty_counts);
+  multi_unichar_counts_.resize(unicharset.size(), 0);
 }
 
 // Accumulates the errors from the classifier results on a single sample.
@@ -181,7 +181,7 @@ ErrorCounter::ErrorCounter(const UNICHARSET& unicharset, int fontsize)
 // between unichar_ids and shape_ids in the results
 bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
                                     const FontInfoTable& font_table,
-                                    const GenericVector<UnicharRating>& results,
+                                    const std::vector<UnicharRating>& results,
                                     TrainingSample* sample) {
   int num_results = results.size();
   int answer_actual_rank = -1;
@@ -306,7 +306,7 @@ bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
 // Accumulates counts for junk. Counts only whether the junk was correctly
 // rejected or not.
 bool ErrorCounter::AccumulateJunk(bool debug,
-                                  const GenericVector<UnicharRating>& results,
+                                  const std::vector<UnicharRating>& results,
                                   TrainingSample* sample) {
   // For junk we accept no answer, or an explicit shape answer matching the
   // class id of the sample.

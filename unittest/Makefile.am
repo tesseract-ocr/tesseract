@@ -9,8 +9,6 @@ LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata_lstm
 # Absolute path of directory 'tessdata' with traineddata files
 # (must be on same level as top source directory).
 TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
-TESSDATA_BEST_DIR=$(TESSDATA_DIR)_best
-TESSDATA_FAST_DIR=$(TESSDATA_DIR)_fast
 
 # Absolute path of directory 'testing' with test images and ground truth texts
 # (using submodule test).
@@ -25,7 +23,6 @@ export LSAN_OPTIONS=suppressions=$(top_srcdir)/unittest/tesseract_leaksanitizer.
 AM_CPPFLAGS += -DTESSBIN_DIR="\"$(abs_top_builddir)\""
 AM_CPPFLAGS += -DLANGDATA_DIR="\"$(LANGDATA_DIR)\""
 AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
-AM_CPPFLAGS += -DTESSDATA_BEST_DIR="\"$(TESSDATA_BEST_DIR)\""
 AM_CPPFLAGS += -DTESTING_DIR="\"$(TESTING_DIR)\""
 AM_CPPFLAGS += -DTESTDATA_DIR="\"$(TESTDATA_DIR)\""
 AM_CPPFLAGS += -DPANGO_ENABLE_ENGINE
@@ -122,7 +119,6 @@ TESS_LIBS = $(GTEST_LIBS)
 TESS_LIBS += $(top_builddir)/libtesseract.la $(libarchive_LIBS)
 TESS_LIBS += $(TENSORFLOW_LIBS)
 TRAINING_LIBS = $(top_builddir)/libtesseract_training.la
-TRAINING_LIBS += $(top_builddir)/libtesseract_tessopt.la
 TRAINING_LIBS += $(TESS_LIBS)
 AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
                  -isystem $(top_srcdir)/googletest/googlemock/include
@@ -160,6 +156,7 @@ check_PROGRAMS += lang_model_test
 check_PROGRAMS += layout_test
 check_PROGRAMS += ligature_table_test
 check_PROGRAMS += linlsq_test
+check_PROGRAMS += list_test
 if ENABLE_TRAINING
 check_PROGRAMS += lstm_recode_test
 check_PROGRAMS += lstm_squashed_test
@@ -310,13 +307,16 @@ layout_test_SOURCES = layout_test.cc
 layout_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
 ligature_table_test_SOURCES = ligature_table_test.cc
-ligature_table_test_LDADD = $(TRAINING_LIBS)
+ligature_table_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 ligature_table_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 ligature_table_test_LDADD += $(pangocairo_LIBS) $(pangoft2_LIBS)
 ligature_table_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
 
 linlsq_test_SOURCES = linlsq_test.cc
 linlsq_test_LDADD = $(TESS_LIBS)
+
+list_test_SOURCES = list_test.cc
+list_test_LDADD = $(TESS_LIBS)
 
 loadlang_test_SOURCES = loadlang_test.cc
 loadlang_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)

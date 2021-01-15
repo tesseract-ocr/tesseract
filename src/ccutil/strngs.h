@@ -19,7 +19,7 @@
 #ifndef STRNGS_H
 #define STRNGS_H
 
-#include <tesseract/platform.h>  // for TESS_API
+#include <tesseract/export.h>  // for TESS_API
 
 #include <cassert>  // for assert
 #include <cstdint>  // for uint32_t

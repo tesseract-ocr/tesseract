@@ -76,10 +76,10 @@ class TESS_API LSTMRecognizer {
   bool IsTensorFlow() const { return network_->type() == NT_TENSORFLOW; }
   // Returns a vector of layer ids that can be passed to other layer functions
   // to access a specific layer.
-  GenericVector<STRING> EnumerateLayers() const {
+  std::vector<STRING> EnumerateLayers() const {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     auto* series = static_cast<Series*>(network_);
-    GenericVector<STRING> layers;
+    std::vector<STRING> layers;
     series->EnumerateLayers(nullptr, &layers);
     return layers;
   }
@@ -106,7 +106,7 @@ class TESS_API LSTMRecognizer {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     learning_rate_ *= factor;
     if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
-      GenericVector<STRING> layers = EnumerateLayers();
+      std::vector<STRING> layers = EnumerateLayers();
       for (int i = 0; i < layers.size(); ++i) {
         ScaleLayerLearningRate(layers[i], factor);
       }
@@ -198,19 +198,19 @@ class TESS_API LSTMRecognizer {
 
   // Converts an array of labels to utf-8, whether or not the labels are
   // augmented with character boundaries.
-  STRING DecodeLabels(const GenericVector<int>& labels);
+  STRING DecodeLabels(const std::vector<int>& labels);
 
   // Displays the forward results in a window with the characters and
   // boundaries as determined by the labels and label_coords.
-  void DisplayForward(const NetworkIO& inputs, const GenericVector<int>& labels,
-                      const GenericVector<int>& label_coords,
+  void DisplayForward(const NetworkIO& inputs, const std::vector<int>& labels,
+                      const std::vector<int>& label_coords,
                       const char* window_name, ScrollView** window);
   // Converts the network output to a sequence of labels. Outputs labels, scores
   // and start xcoords of each char, and each null_char_, with an additional
   // final xcoord for the end of the output.
   // The conversion method is determined by internal state.
-  void LabelsFromOutputs(const NetworkIO& outputs, GenericVector<int>* labels,
-                         GenericVector<int>* xcoords);
+  void LabelsFromOutputs(const NetworkIO& outputs, std::vector<int>* labels,
+                         std::vector<int>* xcoords);
 
  protected:
   // Sets the random seed from the sample_iteration_;
@@ -222,15 +222,15 @@ class TESS_API LSTMRecognizer {
 
   // Displays the labels and cuts at the corresponding xcoords.
   // Size of labels should match xcoords.
-  void DisplayLSTMOutput(const GenericVector<int>& labels,
-                         const GenericVector<int>& xcoords, int height,
+  void DisplayLSTMOutput(const std::vector<int>& labels,
+                         const std::vector<int>& xcoords, int height,
                          ScrollView* window);
 
   // Prints debug output detailing the activation path that is implied by the
   // xcoords.
   void DebugActivationPath(const NetworkIO& outputs,
-                           const GenericVector<int>& labels,
-                           const GenericVector<int>& xcoords);
+                           const std::vector<int>& labels,
+                           const std::vector<int>& xcoords);
 
   // Prints debug output detailing activations and 2nd choice over a range
   // of positions.
@@ -239,17 +239,17 @@ class TESS_API LSTMRecognizer {
 
   // As LabelsViaCTC except that this function constructs the best path that
   // contains only legal sequences of subcodes for recoder_.
-  void LabelsViaReEncode(const NetworkIO& output, GenericVector<int>* labels,
-                         GenericVector<int>* xcoords);
+  void LabelsViaReEncode(const NetworkIO& output, std::vector<int>* labels,
+                         std::vector<int>* xcoords);
   // Converts the network output to a sequence of labels, with scores, using
   // the simple character model (each position is a char, and the null_char_ is
   // mainly intended for tail padding.)
-  void LabelsViaSimpleText(const NetworkIO& output, GenericVector<int>* labels,
-                           GenericVector<int>* xcoords);
+  void LabelsViaSimpleText(const NetworkIO& output, std::vector<int>* labels,
+                           std::vector<int>* xcoords);
 
   // Returns a string corresponding to the label starting at start. Sets *end
   // to the next start and if non-null, *decoded to the unichar id.
-  const char* DecodeLabel(const GenericVector<int>& labels, int start, int* end,
+  const char* DecodeLabel(const std::vector<int>& labels, int start, int* end,
                           int* decoded);
 
   // Returns a string corresponding to a given single label id, falling back to

@@ -18,7 +18,7 @@
 
 #include "params.h"
 
-#include "host.h"           // tesseract/platform.h, windows.h for MAX_PATH
+#include "host.h"           // tesseract/export.h, windows.h for MAX_PATH
 #include "tprintf.h"
 
 #include <climits>          // for INT_MIN, INT_MAX

@@ -843,7 +843,7 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
   // Call LetterIsOkay().
   // Use the normalized IDs so that all shapes of ' can be allowed in words
   // like don't.
-  const GenericVector<UNICHAR_ID>& normed_ids =
+  const auto &normed_ids =
       dict_->getUnicharset().normed_ids(b.unichar_id());
   DawgPositionVector tmp_active_dawgs;
   for (int i = 0; i < normed_ids.size(); ++i) {

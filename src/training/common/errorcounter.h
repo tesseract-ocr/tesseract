@@ -16,10 +16,9 @@
 #ifndef THIRD_PARTY_TESSERACT_CLASSIFY_ERRORCOUNTER_H_
 #define THIRD_PARTY_TESSERACT_CLASSIFY_ERRORCOUNTER_H_
 
+#include "genericvector.h"
 #include "matrix.h"
 #include "statistc.h"
-
-#include "genericvector.h"
 
 struct Pix;
 
@@ -124,7 +123,7 @@ class ErrorCounter {
   static double ComputeErrorRate(ShapeClassifier* classifier,
                                  int report_level, CountTypes boosting_mode,
                                  const FontInfoTable& fontinfo_table,
-                                 const GenericVector<Pix*>& page_images,
+                                 const std::vector<Pix*>& page_images,
                                  SampleIterator* it,
                                  double* unichar_error,
                                  double* scaled_error,
@@ -139,7 +138,7 @@ class ErrorCounter {
                              ShapeClassifier* old_classifier,
                              CountTypes boosting_mode,
                              const FontInfoTable& fontinfo_table,
-                             const GenericVector<Pix*>& page_images,
+                             const std::vector<Pix*>& page_images,
                              SampleIterator* it);
 
  private:
@@ -166,12 +165,12 @@ class ErrorCounter {
   // between unichar_ids and shape_ids in the results
   bool AccumulateErrors(bool debug, CountTypes boosting_mode,
                         const FontInfoTable& font_table,
-                        const GenericVector<UnicharRating>& results,
+                        const std::vector<UnicharRating>& results,
                         TrainingSample* sample);
 
   // Accumulates counts for junk. Counts only whether the junk was correctly
   // rejected or not.
-  bool AccumulateJunk(bool debug, const GenericVector<UnicharRating>& results,
+  bool AccumulateJunk(bool debug, const std::vector<UnicharRating>& results,
                       TrainingSample* sample);
 
   // Creates a report of the error rate. The report_level controls the detail
@@ -209,13 +208,13 @@ class ErrorCounter {
   // Difference in result rating to be thought of as an "equal" choice.
   double rating_epsilon_;
   // Vector indexed by font_id from the samples of error accumulators.
-  GenericVector<Counts> font_counts_;
+  std::vector<Counts> font_counts_;
   // Counts of the results that map each unichar_id (from samples) to an
   // incorrect shape_id.
   GENERIC_2D_ARRAY<int> unichar_counts_;
   // Count of the number of times each shape_id occurs, is correct, and multi-
   // unichar.
-  GenericVector<int> multi_unichar_counts_;
+  std::vector<int> multi_unichar_counts_;
   // Histogram of scores (as percent) for correct answers.
   STATS ok_score_hist_;
   // Histogram of scores (as percent) for incorrect answers.

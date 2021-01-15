@@ -30,10 +30,6 @@ static PangoFontMap* font_map;
 class LigatureTableTest : public ::testing::Test {
  protected:
  void SetUp() override {
-    static std::locale system_locale("");
-    std::locale::global(system_locale);
-    file::MakeTmpdir();
-
     lig_table_ = LigatureTable::Get();
     if (!font_map) {
       font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
@@ -42,8 +38,13 @@ class LigatureTableTest : public ::testing::Test {
   }
 
   static void SetUpTestCase() {
+    static std::locale system_locale("");
+    std::locale::global(system_locale);
+
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
+    file::MakeTmpdir();
+    PangoFontInfo::SoftInitFontConfig(); // init early
   }
   LigatureTable* lig_table_;
 };

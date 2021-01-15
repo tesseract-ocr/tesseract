@@ -50,7 +50,7 @@ class TESS_COMMON_TRAINING_API CTC {
   // normalized with NormalizeProbs.
   // On return targets is filled with the computed targets.
   // Returns false if there is insufficient time for the labels.
-  static bool ComputeCTCTargets(const GenericVector<int>& truth_labels,
+  static bool ComputeCTCTargets(const std::vector<int>& truth_labels,
                                 int null_char,
                                 const GENERIC_2D_ARRAY<float>& outputs,
                                 NetworkIO* targets);
@@ -58,7 +58,7 @@ class TESS_COMMON_TRAINING_API CTC {
  private:
   // Constructor is private as the instance only holds information specific to
   // the current labels, outputs etc, and is built by the static function.
-  CTC(const GenericVector<int>& labels, int null_char,
+  CTC(const std::vector<int>& labels, int null_char,
       const GENERIC_2D_ARRAY<float>& outputs);
 
   // Computes vectors of min and max label index for each timestep, based on
@@ -69,8 +69,8 @@ class TESS_COMMON_TRAINING_API CTC {
   void ComputeSimpleTargets(GENERIC_2D_ARRAY<float>* targets) const;
   // Computes mean positions and half widths of the simple targets by spreading
   // the labels even over the available timesteps.
-  void ComputeWidthsAndMeans(GenericVector<float>* half_widths,
-                             GenericVector<int>* means) const;
+  void ComputeWidthsAndMeans(std::vector<float>* half_widths,
+                             std::vector<int>* means) const;
   // Calculates and returns a suitable fraction of the simple targets to add
   // to the network outputs.
   float CalculateBiasFraction();
@@ -110,7 +110,7 @@ class TESS_COMMON_TRAINING_API CTC {
   static const double kMinTotalFinalProb_;
 
   // The truth label indices that are to be matched to outputs_.
-  const GenericVector<int>& labels_;
+  const std::vector<int>& labels_;
   // The network outputs.
   GENERIC_2D_ARRAY<float> outputs_;
   // The null or "blank" label.
@@ -122,8 +122,8 @@ class TESS_COMMON_TRAINING_API CTC {
   // Number of labels in labels_.
   int num_labels_;
   // Min and max valid label indices for each timestep.
-  GenericVector<int> min_labels_;
-  GenericVector<int> max_labels_;
+  std::vector<int> min_labels_;
+  std::vector<int> max_labels_;
 };
 
 }  // namespace tesseract

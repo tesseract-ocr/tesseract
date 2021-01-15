@@ -91,31 +91,19 @@ class TESS_API TFile {
 
   // Deserialize data.
   bool DeSerialize(std::vector<char>& data);
-  bool DeSerialize(char* data, size_t count = 1);
-  bool DeSerialize(double* data, size_t count = 1);
-  bool DeSerialize(float* data, size_t count = 1);
-  bool DeSerialize(int8_t* data, size_t count = 1);
-  bool DeSerialize(int16_t* data, size_t count = 1);
-  bool DeSerialize(int32_t* data, size_t count = 1);
-  bool DeSerialize(int64_t* data, size_t count = 1);
-  bool DeSerialize(uint8_t* data, size_t count = 1);
-  bool DeSerialize(uint16_t* data, size_t count = 1);
-  bool DeSerialize(uint32_t* data, size_t count = 1);
-  bool DeSerialize(uint64_t* data, size_t count = 1);
+  template <typename T> bool DeSerialize(std::vector<T>& data);
+  template <typename T>
+  bool DeSerialize(T *data, size_t count = 1) {
+      return FReadEndian(data, sizeof(T), count) == count;
+  }
 
   // Serialize data.
   bool Serialize(const std::vector<char>& data);
-  bool Serialize(const char* data, size_t count = 1);
-  bool Serialize(const double* data, size_t count = 1);
-  bool Serialize(const float* data, size_t count = 1);
-  bool Serialize(const int8_t* data, size_t count = 1);
-  bool Serialize(const int16_t* data, size_t count = 1);
-  bool Serialize(const int32_t* data, size_t count = 1);
-  bool Serialize(const int64_t* data, size_t count = 1);
-  bool Serialize(const uint8_t* data, size_t count = 1);
-  bool Serialize(const uint16_t* data, size_t count = 1);
-  bool Serialize(const uint32_t* data, size_t count = 1);
-  bool Serialize(const uint64_t* data, size_t count = 1);
+  template <typename T> bool Serialize(const std::vector<T>& data);
+  template <typename T>
+  bool Serialize(const T *data, size_t count = 1) {
+      return FWrite(data, sizeof(T), count) == count;
+  }
 
   // Skip data.
   bool Skip(size_t count);

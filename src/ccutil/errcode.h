@@ -19,7 +19,7 @@
 #ifndef ERRCODE_H
 #define ERRCODE_H
 
-#include <tesseract/platform.h>   // for TESS_API
+#include <tesseract/export.h>   // for TESS_API
 
 namespace tesseract {
 

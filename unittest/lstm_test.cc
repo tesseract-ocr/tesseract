@@ -208,7 +208,7 @@ TEST_F(LSTMTrainerTest, TestLayerAccess) {
                                        128 * (4 * (128 + 32 + 1)),
                                        112 * (2 * 128 + 1)};
 
-  GenericVector<STRING> layers = trainer_->EnumerateLayers();
+  auto layers = trainer_->EnumerateLayers();
   EXPECT_EQ(kNumLayers, layers.size());
   for (int i = 0; i < kNumLayers && i < layers.size(); ++i) {
     EXPECT_STREQ(kLayerIds[i], layers[i].c_str());

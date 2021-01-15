@@ -17,9 +17,7 @@
 
 #include "ocrfeatures.h"
 
-#include "emalloc.h"
 #include "scanutils.h"
-
 #include "strngs.h"             // for STRING
 
 #include <cassert>
@@ -96,7 +94,7 @@ FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
 FEATURE_SET NewFeatureSet(int NumFeatures) {
   FEATURE_SET FeatureSet;
 
-  FeatureSet = static_cast<FEATURE_SET>(Emalloc (sizeof (FEATURE_SET_STRUCT) +
+  FeatureSet = static_cast<FEATURE_SET>(malloc (sizeof (FEATURE_SET_STRUCT) +
     (NumFeatures - 1) * sizeof (FEATURE)));
   FeatureSet->MaxNumFeatures = NumFeatures;
   FeatureSet->NumFeatures = 0;

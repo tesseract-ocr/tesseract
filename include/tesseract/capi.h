@@ -18,22 +18,18 @@
 #ifndef API_CAPI_H_
 #define API_CAPI_H_
 
-#if defined(TESSERACT_API_BASEAPI_H_) && !defined(TESS_CAPI_INCLUDE_BASEAPI)
-#  define TESS_CAPI_INCLUDE_BASEAPI
+#include "export.h"
+
+#ifdef __cplusplus
+#include <tesseract/baseapi.h>
+#include <tesseract/ocrclass.h>
+#include <tesseract/pageiterator.h>
+#include <tesseract/renderer.h>
+#include <tesseract/resultiterator.h>
 #endif
 
-#ifdef TESS_CAPI_INCLUDE_BASEAPI
-#  include "baseapi.h"
-#  include "ocrclass.h"
-#  include "pageiterator.h"
-#  include "renderer.h"
-#  include "resultiterator.h"
-#else
-#  include <stdbool.h>
-#  include <stdio.h>
-
-#  include "platform.h"
-#endif
+#include <stdbool.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,7 +41,7 @@ extern "C" {
 #  define FALSE 0
 #endif
 
-#ifdef TESS_CAPI_INCLUDE_BASEAPI
+#ifdef __cplusplus
 typedef tesseract::TessResultRenderer TessResultRenderer;
 typedef tesseract::TessBaseAPI TessBaseAPI;
 typedef tesseract::PageIterator TessPageIterator;
@@ -227,13 +223,6 @@ TESS_API void TessBaseAPIPrintVariables(const TessBaseAPI* handle, FILE* fp);
 TESS_API BOOL TessBaseAPIPrintVariablesToFile(const TessBaseAPI* handle,
                                               const char* filename);
 
-#ifdef TESS_CAPI_INCLUDE_BASEAPI
-
-TESS_API BOOL TessBaseAPIGetVariableAsString(TessBaseAPI* handle,
-                                             const char* name, std::string* val);
-
-#endif  // def TESS_CAPI_INCLUDE_BASEAPI
-
 TESS_API int TessBaseAPIInit1(TessBaseAPI* handle, const char* datapath,
                               const char* language, TessOcrEngineMode oem,
                               const char** configs, int configs_size);
@@ -285,11 +274,6 @@ TESS_API void TessBaseAPISetSourceResolution(TessBaseAPI* handle, int ppi);
 
 TESS_API void TessBaseAPISetRectangle(TessBaseAPI* handle, int left, int top,
                                       int width, int height);
-
-#ifdef TESS_CAPI_INCLUDE_BASEAPI
-TESS_API void TessBaseAPISetThresholder(TessBaseAPI* handle,
-                                        TessImageThresholder* thresholder);
-#endif
 
 TESS_API struct Pix* TessBaseAPIGetThresholdedImage(TessBaseAPI* handle);
 TESS_API struct Boxa* TessBaseAPIGetRegions(TessBaseAPI* handle,
@@ -367,43 +351,10 @@ TESS_API int TessBaseAPIIsValidWord(TessBaseAPI* handle, const char* word);
 TESS_API BOOL TessBaseAPIGetTextDirection(TessBaseAPI* handle, int* out_offset,
                                           float* out_slope);
 
-#ifdef TESS_CAPI_INCLUDE_BASEAPI
-
-TESS_API void TessBaseAPISetDictFunc(TessBaseAPI* handle, TessDictFunc f);
-
-TESS_API void TessBaseAPIClearPersistentCache(TessBaseAPI* handle);
-
-TESS_API void TessBaseAPISetProbabilityInContextFunc(
-    TessBaseAPI* handle, TessProbabilityInContextFunc f);
-
-// Call TessDeleteText(*best_script_name) to free memory allocated by this
-// function
-TESS_API BOOL TessBaseAPIDetectOrientationScript(TessBaseAPI* handle,
-                                                 int* orient_deg,
-                                                 float* orient_conf,
-                                                 const char** script_name,
-                                                 float* script_conf);
-
-#endif  // def TESS_CAPI_INCLUDE_BASEAPI
-
 TESS_API const char* TessBaseAPIGetUnichar(TessBaseAPI* handle, int unichar_id);
 
 TESS_API void TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle,
                                                  double margin);
-
-#ifdef TESS_CAPI_INCLUDE_BASEAPI
-
-TESS_API const TessDawg* TessBaseAPIGetDawg(const TessBaseAPI* handle, int i);
-
-TESS_API int TessBaseAPINumDawgs(const TessBaseAPI* handle);
-
-TESS_API TessOcrEngineMode TessBaseAPIOem(const TessBaseAPI* handle);
-
-TESS_API void TessBaseGetBlockTextOrientations(TessBaseAPI* handle,
-                                               int** block_orientation,
-                                               bool** vertical_writing);
-
-#endif
 
 /* Page iterator */
 

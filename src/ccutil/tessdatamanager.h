@@ -244,7 +244,7 @@ class TESS_API TessdataManager {
   // True if the bytes need swapping.
   bool swap_;
   // Contents of each element of the traineddata file.
-  GenericVector<char> entries_[TESSDATA_NUM_ENTRIES];
+  std::vector<char> entries_[TESSDATA_NUM_ENTRIES];
 };
 
 }  // namespace tesseract

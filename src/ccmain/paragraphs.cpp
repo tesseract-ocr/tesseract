@@ -17,13 +17,7 @@
  **********************************************************************/
 
 #include "paragraphs.h"
-#include <cctype>                 // for isspace
-#include <cmath>                  // for abs
-#include <cstdio>                 // for snprintf
-#include <cstdlib>                // for abs
-#include <cstring>                // for strchr, strlen
-#include <algorithm>              // for max
-#include <memory>                 // for unique_ptr
+
 #include "genericvector.h"        // for GenericVector, GenericVectorEqEq
 #include "helpers.h"              // for UpdateRange, ClipToRange
 #include "host.h"                 // for NearlyEqual
@@ -31,21 +25,32 @@
 #include "ocrblock.h"             // for BLOCK
 #include "ocrpara.h"              // for ParagraphModel, PARA, PARA_IT, PARA...
 #include "ocrrow.h"               // for ROW
-#include <tesseract/pageiterator.h>         // for PageIterator
 #include "pageres.h"              // for PAGE_RES_IT, WERD_RES, ROW_RES, BLO...
 #include "paragraphs_internal.h"  // for RowScratchRegisters, SetOfModels
 #include "pdblock.h"              // for PDBLK
 #include "polyblk.h"              // for POLY_BLOCK
-#include <tesseract/publictypes.h>          // for JUSTIFICATION_LEFT, JUSTIFICATION_R...
 #include "ratngs.h"               // for WERD_CHOICE
 #include "rect.h"                 // for TBOX
 #include "statistc.h"             // for STATS
 #include "strngs.h"               // for STRING
 #include "tprintf.h"              // for tprintf
-#include <tesseract/unichar.h>              // for UNICHAR, UNICHAR_ID
 #include "unicharset.h"           // for UNICHARSET
-#include "unicodes.h"             // for kPDF, kRLE
 #include "werd.h"                 // for WERD, W_REP_CHAR
+
+#include <tesseract/pageiterator.h>         // for PageIterator
+#include <tesseract/publictypes.h>          // for JUSTIFICATION_LEFT, JUSTIFICATION_R...
+#include <tesseract/unichar.h>              // for UNICHAR, UNICHAR_ID
+
+#include <cctype>                 // for isspace
+#include <cmath>                  // for abs
+#include <cstdio>                 // for snprintf
+#include <cstdlib>                // for abs
+#include <cstring>                // for strchr, strlen
+#include <algorithm>              // for max
+#include <memory>                 // for unique_ptr
+
+static const char * const kRLE = "\u202A";  // Right-to-Left Embedding
+static const char * const kPDF = "\u202C";  // Pop Directional Formatting
 
 namespace tesseract {
 

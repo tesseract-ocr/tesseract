@@ -59,13 +59,6 @@ if (NOT SW_BUILD)
     find_package(ICU 52.1 COMPONENTS uc i18n)
 endif()
 
-########################################
-# LIBRARY tessopt
-########################################
-
-add_library                 (tessopt STATIC tessopt.cpp tessopt.h)
-project_group               (tessopt "Training Tools")
-
 
 ########################################
 # LIBRARY common_training
@@ -101,7 +94,7 @@ endif()
 
 add_library                 (common_training ${common_training_src})
 target_include_directories  (common_training PUBLIC common ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries       (common_training PUBLIC libtesseract tessopt)
+target_link_libraries       (common_training PUBLIC libtesseract)
 generate_export_header      (common_training EXPORT_MACRO_NAME TESS_COMMON_TRAINING_API)
 project_group               (common_training "Training Tools")
 

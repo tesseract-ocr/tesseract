@@ -16,12 +16,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <cstdio>
-
 #include "dict.h"
-#include "unicodes.h"
 
 #include "tprintf.h"
+
+#include <cstdio>
 
 namespace tesseract {
 
@@ -30,7 +29,6 @@ class Image;
 Dict::Dict(CCUtil* ccutil)
     : letter_is_okay_(&tesseract::Dict::def_letter_is_okay),
       probability_in_context_(&tesseract::Dict::def_probability_in_context),
-      params_model_classify_(nullptr),
       ccutil_(ccutil),
       wildcard_unichar_id_(INVALID_UNICHAR_ID),
       apostrophe_unichar_id_(INVALID_UNICHAR_ID),
@@ -786,7 +784,7 @@ int Dict::valid_word(const WERD_CHOICE& word, bool numbers_ok) const {
   if (word_ptr->length() == 0) return NO_PERM;
   // Allocate vectors for holding current and updated
   // active_dawgs and initialize them.
-  auto* active_dawgs = new DawgPositionVector[2];
+  DawgPositionVector active_dawgs[2];
   init_active_dawgs(&(active_dawgs[0]), false);
   DawgArgs dawg_args(&(active_dawgs[0]), &(active_dawgs[1]), NO_PERM);
   int last_index = word_ptr->length() - 1;
@@ -804,7 +802,6 @@ int Dict::valid_word(const WERD_CHOICE& word, bool numbers_ok) const {
       dawg_args.active_dawgs = &(active_dawgs[0]);
     }
   }
-  delete[] active_dawgs;
   return valid_word_permuter(dawg_args.permuter, numbers_ok)
              ? dawg_args.permuter
              : NO_PERM;
@@ -826,24 +823,24 @@ bool Dict::valid_bigram(const WERD_CHOICE& word1,
   if (w2start >= w2end) return word2.length() < 3;
 
   const UNICHARSET& uchset = getUnicharset();
-  GenericVector<UNICHAR_ID> bigram_string;
+  std::vector<UNICHAR_ID> bigram_string;
   bigram_string.reserve(w1end + w2end + 1);
   for (int i = w1start; i < w1end; i++) {
-    const GenericVector<UNICHAR_ID>& normed_ids =
+    const auto &normed_ids =
         getUnicharset().normed_ids(word1.unichar_id(i));
     if (normed_ids.size() == 1 && uchset.get_isdigit(normed_ids[0]))
       bigram_string.push_back(question_unichar_id_);
     else
-      bigram_string += normed_ids;
+      bigram_string.insert(bigram_string.end(), normed_ids.begin(), normed_ids.end());
   }
   bigram_string.push_back(UNICHAR_SPACE);
   for (int i = w2start; i < w2end; i++) {
-    const GenericVector<UNICHAR_ID>& normed_ids =
+    const auto &normed_ids =
         getUnicharset().normed_ids(word2.unichar_id(i));
     if (normed_ids.size() == 1 && uchset.get_isdigit(normed_ids[0]))
       bigram_string.push_back(question_unichar_id_);
     else
-      bigram_string += normed_ids;
+      bigram_string.insert(bigram_string.end(), normed_ids.begin(), normed_ids.end());
   }
   WERD_CHOICE normalized_word(&uchset, bigram_string.size());
   for (int i = 0; i < bigram_string.size(); ++i) {

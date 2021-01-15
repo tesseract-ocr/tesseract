@@ -392,9 +392,9 @@ class ClassPruner {
 
   /// Copies the pruned, sorted classes into the output results and returns
   /// the number of classes.
-  int SetupResults(GenericVector<CP_RESULT_STRUCT>* results) const {
+  int SetupResults(std::vector<CP_RESULT_STRUCT>* results) const {
     CP_RESULT_STRUCT empty;
-    results->init_to_size(num_classes_, empty);
+    results->resize(num_classes_, empty);
     for (int c = 0; c < num_classes_; ++c) {
       (*results)[c].Class = sort_index_[num_classes_ - c];
       (*results)[c].Rating = 1.0f - sort_key_[num_classes_ - c] /
@@ -449,7 +449,7 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
                            const INT_FEATURE_STRUCT* features,
                            const uint8_t* normalization_factors,
                            const uint16_t* expected_num_features,
-                           GenericVector<CP_RESULT_STRUCT>* results) {
+                           std::vector<CP_RESULT_STRUCT>* results) {
   ClassPruner pruner(int_templates->NumClasses);
   // Compute initial match scores for all classes.
   pruner.ComputeScores(int_templates, num_features, features);
@@ -1192,7 +1192,7 @@ int IntegerMatcher::FindBestMatch(
     UnicharRating* result) {
   int best_match = 0;
   result->config = 0;
-  result->fonts.truncate(0);
+  result->fonts.clear();
   result->fonts.reserve(class_template->NumConfigs);
 
   /* Find best match */

@@ -177,11 +177,11 @@ class FontInfoTable : public GenericVector<FontInfo> {
   // properties as font_id.
   TESS_API
   bool SetContainsFontProperties(
-      int font_id, const GenericVector<ScoredFont>& font_set) const;
+      int font_id, const std::vector<ScoredFont>& font_set) const;
   // Returns true if the given set of fonts includes multiple properties.
   TESS_API
   bool SetContainsMultipleFontProperties(
-      const GenericVector<ScoredFont>& font_set) const;
+      const std::vector<ScoredFont>& font_set) const;
 
   // Moves any non-empty FontSpacingInfo entries from other to this.
   TESS_API

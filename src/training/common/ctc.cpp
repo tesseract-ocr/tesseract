@@ -15,18 +15,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
-#include "ctc.h"
 
-#include <algorithm>
-#include <cfloat>      // for FLT_MAX
-#include <memory>
+#include "ctc.h"
 
 #include "genericvector.h"
 #include "matrix.h"
 #include "networkio.h"
-
 #include "network.h"
 #include "scrollview.h"
+
+#include <algorithm>
+#include <cfloat>      // for FLT_MAX
+#include <memory>
 
 namespace tesseract {
 
@@ -51,7 +51,7 @@ const double CTC::kMinTotalFinalProb_ = 1e-6;
 // On return targets is filled with the computed targets.
 // Returns false if there is insufficient time for the labels.
 /* static */
-bool CTC::ComputeCTCTargets(const GenericVector<int>& labels, int null_char,
+bool CTC::ComputeCTCTargets(const std::vector<int>& labels, int null_char,
                             const GENERIC_2D_ARRAY<float>& outputs,
                             NetworkIO* targets) {
   std::unique_ptr<CTC> ctc(new CTC(labels, null_char, outputs));
@@ -80,7 +80,7 @@ bool CTC::ComputeCTCTargets(const GenericVector<int>& labels, int null_char,
   return true;
 }
 
-CTC::CTC(const GenericVector<int>& labels, int null_char,
+CTC::CTC(const std::vector<int>& labels, int null_char,
          const GENERIC_2D_ARRAY<float>& outputs)
     : labels_(labels), outputs_(outputs), null_char_(null_char) {
   num_timesteps_ = outputs.dim1();
@@ -91,8 +91,8 @@ CTC::CTC(const GenericVector<int>& labels, int null_char,
 // Computes vectors of min and max label index for each timestep, based on
 // whether skippability of nulls makes it possible to complete a valid path.
 bool CTC::ComputeLabelLimits() {
-  min_labels_.init_to_size(num_timesteps_, 0);
-  max_labels_.init_to_size(num_timesteps_, 0);
+  min_labels_.resize(num_timesteps_, 0);
+  max_labels_.resize(num_timesteps_, 0);
   int min_u = num_labels_ - 1;
   if (labels_[min_u] == null_char_) --min_u;
   for (int t = num_timesteps_ - 1; t >= 0; --t) {
@@ -125,8 +125,8 @@ bool CTC::ComputeLabelLimits() {
 void CTC::ComputeSimpleTargets(GENERIC_2D_ARRAY<float>* targets) const {
   // Initialize all targets to zero.
   targets->Resize(num_timesteps_, num_classes_, 0.0f);
-  GenericVector<float> half_widths;
-  GenericVector<int> means;
+  std::vector<float> half_widths;
+  std::vector<int> means;
   ComputeWidthsAndMeans(&half_widths, &means);
   for (int l = 0; l < num_labels_; ++l) {
     int label = labels_[l];
@@ -166,8 +166,8 @@ void CTC::ComputeSimpleTargets(GENERIC_2D_ARRAY<float>* targets) const {
 
 // Computes mean positions and half widths of the simple targets by spreading
 // the labels evenly over the available timesteps.
-void CTC::ComputeWidthsAndMeans(GenericVector<float>* half_widths,
-                                GenericVector<int>* means) const {
+void CTC::ComputeWidthsAndMeans(std::vector<float>* half_widths,
+                                std::vector<int>* means) const {
   // Count the number of labels of each type, in regexp terms, counts plus
   // (non-null or necessary null, which must occur at least once) and star
   // (optional null).

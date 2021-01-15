@@ -36,7 +36,7 @@ TEST_F(LSTMTrainerTest, MapCoder) {
   deu_trainer.InitCharSet(TestDataNameToPath("deu/deu.traineddata"));
   // A string that uses characters common to French and German.
   std::string kTestStr = "The quick brown 'fox' jumps over: the lazy dog!";
-  GenericVector<int> deu_labels;
+  std::vector<int> deu_labels;
   EXPECT_TRUE(deu_trainer.EncodeString(kTestStr.c_str(), &deu_labels));
   // The french trainer cannot decode them correctly.
   STRING badly_decoded = fra_trainer.DecodeLabels(deu_labels);
@@ -44,12 +44,12 @@ TEST_F(LSTMTrainerTest, MapCoder) {
   LOG(INFO) << "bad_str fra=" << bad_str << "\n";
   EXPECT_NE(kTestStr, bad_str);
   // Encode the string as fra.
-  GenericVector<int> fra_labels;
+  std::vector<int> fra_labels;
   EXPECT_TRUE(fra_trainer.EncodeString(kTestStr.c_str(), &fra_labels));
   // Use the mapper to compute what the labels are as deu.
   std::vector<int> mapping = fra_trainer.MapRecoder(deu_trainer.GetUnicharset(),
                                                     deu_trainer.GetRecoder());
-  GenericVector<int> mapped_fra_labels(fra_labels.size(), -1);
+  std::vector<int> mapped_fra_labels(fra_labels.size(), -1);
   for (int i = 0; i < fra_labels.size(); ++i) {
     mapped_fra_labels[i] = mapping[fra_labels[i]];
     EXPECT_NE(-1, mapped_fra_labels[i]) << "i=" << i << ", ch=" << kTestStr[i];
@@ -74,7 +74,7 @@ TEST_F(LSTMTrainerTest, ConvertModel) {
   // Load the fra traineddata, strip out the model, and save to a tmp file.
   TessdataManager mgr;
   std::string fra_data =
-      file::JoinPath(TESSDATA_BEST_DIR, "fra.traineddata");
+      file::JoinPath(TESSDATA_DIR "_best", "fra.traineddata");
   CHECK(mgr.Init(fra_data.c_str()));
   LOG(INFO) << "Load " << fra_data  << "\n";
   file::MakeTmpdir();

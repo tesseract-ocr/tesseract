@@ -78,8 +78,8 @@ FCOORD FeatureDirection(uint8_t theta) {
 // is now a member of Classify.
 TrainingSample* BlobToTrainingSample(
     const TBLOB& blob, bool nonlinear_norm, INT_FX_RESULT_STRUCT* fx_info,
-    GenericVector<INT_FEATURE_STRUCT>* bl_features) {
-  GenericVector<INT_FEATURE_STRUCT> cn_features;
+    std::vector<INT_FEATURE_STRUCT>* bl_features) {
+  std::vector<INT_FEATURE_STRUCT> cn_features;
   Classify::ExtractFeatures(blob, nonlinear_norm, bl_features,
                             &cn_features, fx_info, nullptr);
   // TODO(rays) Use blob->PreciseBoundingBox() instead.
@@ -234,7 +234,7 @@ static FCOORD MeanDirectionVector(const LLSQ& point_diffs, const LLSQ& dirs,
 // Features are spaced at feature_length intervals.
 static int ComputeFeatures(const FCOORD& start_pt, const FCOORD& end_pt,
                            double feature_length,
-                           GenericVector<INT_FEATURE_STRUCT>* features) {
+                           std::vector<INT_FEATURE_STRUCT>* features) {
   FCOORD feature_vector(end_pt - start_pt);
   if (feature_vector.x() == 0.0f && feature_vector.y() == 0.0f) return 0;
   // Compute theta for the feature based on its direction.
@@ -328,7 +328,7 @@ static int GatherPoints(const C_OUTLINE* outline, double feature_length,
 static void ExtractFeaturesFromRun(
     const EDGEPT* startpt, const EDGEPT* lastpt,
     const DENORM& denorm, double feature_length, bool force_poly,
-    GenericVector<INT_FEATURE_STRUCT>* features) {
+    std::vector<INT_FEATURE_STRUCT>* features) {
   const EDGEPT* endpt = lastpt->next;
   const C_OUTLINE* outline = startpt->src_outline;
   if (outline != nullptr && !force_poly) {
@@ -443,8 +443,8 @@ static void ExtractFeaturesFromRun(
 // after the second outline, there were (*outline_cn_counts)[1] features etc.
 void Classify::ExtractFeatures(const TBLOB& blob,
                                bool nonlinear_norm,
-                               GenericVector<INT_FEATURE_STRUCT>* bl_features,
-                               GenericVector<INT_FEATURE_STRUCT>* cn_features,
+                               std::vector<INT_FEATURE_STRUCT>* bl_features,
+                               std::vector<INT_FEATURE_STRUCT>* cn_features,
                                INT_FX_RESULT_STRUCT* results,
                                GenericVector<int>* outline_cn_counts) {
   DENORM bl_denorm, cn_denorm;

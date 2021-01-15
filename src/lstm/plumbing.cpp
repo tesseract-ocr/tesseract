@@ -137,7 +137,7 @@ void Plumbing::DebugWeights() {
 
 // Returns a set of strings representing the layer-ids of all layers below.
 void Plumbing::EnumerateLayers(const STRING* prefix,
-                               GenericVector<STRING>* layers) const {
+                               std::vector<STRING>* layers) const {
   for (int i = 0; i < stack_.size(); ++i) {
     STRING layer_name;
     if (prefix) layer_name = *prefix;

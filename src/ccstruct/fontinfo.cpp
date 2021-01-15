@@ -58,7 +58,7 @@ bool FontInfoTable::DeSerialize(TFile* fp) {
 // Returns true if the given set of fonts includes one with the same
 // properties as font_id.
 bool FontInfoTable::SetContainsFontProperties(
-    int font_id, const GenericVector<ScoredFont>& font_set) const {
+    int font_id, const std::vector<ScoredFont>& font_set) const {
   uint32_t properties = get(font_id).properties;
   for (int f = 0; f < font_set.size(); ++f) {
     if (get(font_set[f].fontinfo_id).properties == properties)
@@ -69,7 +69,7 @@ bool FontInfoTable::SetContainsFontProperties(
 
 // Returns true if the given set of fonts includes multiple properties.
 bool FontInfoTable::SetContainsMultipleFontProperties(
-    const GenericVector<ScoredFont>& font_set) const {
+    const std::vector<ScoredFont>& font_set) const {
   if (font_set.empty()) return false;
   int first_font = font_set[0].fontinfo_id;
   uint32_t properties = get(first_font).properties;

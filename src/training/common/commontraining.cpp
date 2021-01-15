@@ -18,7 +18,6 @@
 #ifdef DISABLED_LEGACY_ENGINE
 
 #include "params.h"
-#include "tessopt.h"
 #include "tprintf.h"
 
 INT_PARAM_FLAG(debug_level, 0, "Level of Trainer debugging");
@@ -33,6 +32,8 @@ STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
 STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
 STRING_PARAM_FLAG(fonts_dir, "", "If empty it uses system default. Otherwise it overrides system default font location");
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp", "Overrides fontconfig default temporary dir");
+
+using namespace tesseract;
 
 /**
  * This routine parses the command line arguments that were
@@ -63,7 +64,6 @@ void ParseArguments(int* argc, char ***argv) {
 #include "classify.h"
 #include "cluster.h"
 #include "clusttool.h"
-#include "emalloc.h"
 #include "featdefs.h"
 #include "fontinfo.h"
 #include "intfeaturespace.h"
@@ -73,7 +73,6 @@ void ParseArguments(int* argc, char ***argv) {
 #include "params.h"
 #include "shapetable.h"
 #include "tessdatamanager.h"
-#include "tessopt.h"
 #include "tprintf.h"
 #include "unicity_table.h"
 
@@ -128,9 +127,6 @@ void ParseArguments(int* argc, char ***argv) {
   }
   usage += " [.tr files ...]";
   tesseract::ParseCommandLineFlags(usage.c_str(), argc, argv, true);
-  // Record the index of the first non-flag argument to 1, since we set
-  // remove_flags to true when parsing the flags.
-  tessoptind = 1;
   // Set some global values based on the flags.
   Config.MinSamples =
           std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_min_samples_fraction)));
@@ -151,16 +147,14 @@ void ParseArguments(int* argc, char ***argv) {
 
 namespace tesseract {
 // Helper loads shape table from the given file.
-ShapeTable* LoadShapeTable(const STRING& file_prefix) {
-  ShapeTable* shape_table = nullptr;
+std::unique_ptr<ShapeTable> LoadShapeTable(const STRING& file_prefix) {
+  std::unique_ptr<ShapeTable> shape_table;
   STRING shape_table_file = file_prefix;
   shape_table_file += kShapeTableFileSuffix;
   TFile shape_fp;
   if (shape_fp.Open(shape_table_file.c_str(), nullptr)) {
-    shape_table = new ShapeTable;
+    shape_table = std::make_unique<ShapeTable>();
     if (!shape_table->DeSerialize(&shape_fp)) {
-      delete shape_table;
-      shape_table = nullptr;
       tprintf("Error: Failed to read shape table %s\n",
               shape_table_file.c_str());
     } else {
@@ -208,9 +202,10 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table) {
  * If shape_table is not nullptr, but failed to load, make a fake flat one,
  * as shape clustering was not run.
  */
-MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
+std::pair<std::unique_ptr<MasterTrainer>, std::unique_ptr<ShapeTable>>
+LoadTrainingData(int argc, const char* const * argv,
                                 bool replication,
-                                ShapeTable** shape_table,
+                                bool shape_analysis,
                                 STRING* file_prefix) {
   InitFeatureDefs(&feature_defs);
   InitIntegerFX();
@@ -223,14 +218,11 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
   // a shape_table written by a previous shape clustering, then
   // shape_analysis will be true, meaning that the MasterTrainer will replace
   // some members of the unicharset with their fragments.
-  bool shape_analysis = false;
-  if (shape_table != nullptr) {
-    *shape_table = LoadShapeTable(*file_prefix);
-    if (*shape_table != nullptr) shape_analysis = true;
-  } else {
-    shape_analysis = true;
+  std::unique_ptr<ShapeTable> shape_table;
+  if (shape_analysis) {
+    shape_table = LoadShapeTable(*file_prefix);
   }
-  MasterTrainer* trainer = new MasterTrainer(NM_CHAR_ANISOTROPIC,
+  auto trainer = std::make_unique<MasterTrainer>(NM_CHAR_ANISOTROPIC,
                                              shape_analysis,
                                              replication,
                                              FLAGS_debug_level);
@@ -240,20 +232,19 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
   // Get basic font information from font_properties.
   if (!FLAGS_F.empty()) {
     if (!trainer->LoadFontInfo(FLAGS_F.c_str())) {
-      delete trainer;
-      return nullptr;
+      return {};
     }
   }
   if (!FLAGS_X.empty()) {
     if (!trainer->LoadXHeights(FLAGS_X.c_str())) {
-      delete trainer;
-      return nullptr;
+      return {};
     }
   }
   trainer->SetFeatureSpace(fs);
   const char* page_name;
   // Load training data from .tr files on the command line.
-  while ((page_name = GetNextFilename(argc, argv)) != nullptr) {
+  int tessoptind = 0;
+  while ((page_name = GetNextFilename(argc, argv, tessoptind)) != nullptr) {
     tprintf("Reading %s ...\n", page_name);
     trainer->ReadTrainingSamples(page_name, feature_defs, false);
 
@@ -290,21 +281,20 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
   if (!FLAGS_O.empty() &&
       !trainer->unicharset().save_to_file(FLAGS_O.c_str())) {
     fprintf(stderr, "Failed to save unicharset to file %s\n", FLAGS_O.c_str());
-    delete trainer;
-    return nullptr;
+    return {};
   }
-  if (shape_table != nullptr) {
+  if (shape_analysis) {
     // If we previously failed to load a shapetable, then shape clustering
     // wasn't run so make a flat one now.
-    if (*shape_table == nullptr) {
-      *shape_table = new ShapeTable;
-      trainer->SetupFlatShapeTable(*shape_table);
+    if (!shape_table) {
+      shape_table = std::make_unique<ShapeTable>();
+      trainer->SetupFlatShapeTable(shape_table.get());
       tprintf("Flat shape table summary: %s\n",
-              (*shape_table)->SummaryStr().c_str());
+              shape_table->SummaryStr().c_str());
     }
-    (*shape_table)->set_unicharset(trainer->unicharset());
+    shape_table->set_unicharset(trainer->unicharset());
   }
-  return trainer;
+  return { std::move(trainer), std::move(shape_table) };
 }
 
 }  // namespace tesseract.
@@ -320,7 +310,7 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
  * - tessoptind defined by tessopt sys call
  * @return Next command line argument or nullptr.
  */
-const char *GetNextFilename(int argc, const char* const * argv) {
+const char *GetNextFilename(int argc, const char* const * argv, int &tessoptind) {
   if (tessoptind < argc)
     return argv[tessoptind++];
   else
@@ -361,8 +351,8 @@ LABELEDLIST FindList(LIST List, char* Label) {
 LABELEDLIST NewLabeledList(const char* Label) {
   LABELEDLIST LabeledList;
 
-  LabeledList = static_cast<LABELEDLIST>(Emalloc (sizeof (LABELEDLISTNODE)));
-  LabeledList->Label = static_cast<char*>(Emalloc (strlen (Label)+1));
+  LabeledList = static_cast<LABELEDLIST>(malloc (sizeof (LABELEDLISTNODE)));
+  LabeledList->Label = static_cast<char*>(malloc (strlen (Label)+1));
   strcpy (LabeledList->Label, Label);
   LabeledList->List = NIL_LIST;
   LabeledList->SampleCount = 0;
@@ -512,7 +502,7 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
   iterate(FeatureList) {
     FeatureSet = reinterpret_cast<FEATURE_SET>first_node(FeatureList);
     for (i = 0; i < FeatureSet->MaxNumFeatures; i++) {
-      if (Sample == nullptr) Sample = static_cast<float*>(Emalloc(N * sizeof(float)));
+      if (Sample == nullptr) Sample = static_cast<float*>(malloc(N * sizeof(float)));
       for (j = 0; j < N; j++)
         Sample[j] = FeatureSet->Features[i]->Params[j];
       MakeSample (Clusterer, Sample, CharID);
@@ -630,9 +620,9 @@ LIST RemoveInsignificantProtos(
     if ((Proto->Significant && KeepSigProtos) ||
         (!Proto->Significant && KeepInsigProtos))
     {
-      NewProto = static_cast<PROTOTYPE *>(Emalloc(sizeof(PROTOTYPE)));
+      NewProto = static_cast<PROTOTYPE *>(malloc(sizeof(PROTOTYPE)));
 
-      NewProto->Mean = static_cast<float *>(Emalloc(N * sizeof(float)));
+      NewProto->Mean = static_cast<float *>(malloc(N * sizeof(float)));
       NewProto->Significant = Proto->Significant;
       NewProto->Style = Proto->Style;
       NewProto->NumSamples = Proto->NumSamples;
@@ -642,7 +632,7 @@ LIST RemoveInsignificantProtos(
       for (i=0; i < N; i++)
         NewProto->Mean[i] = Proto->Mean[i];
       if (Proto->Variance.Elliptical != nullptr) {
-        NewProto->Variance.Elliptical = static_cast<float *>(Emalloc(N * sizeof(float)));
+        NewProto->Variance.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
         for (i=0; i < N; i++)
           NewProto->Variance.Elliptical[i] = Proto->Variance.Elliptical[i];
       }
@@ -650,7 +640,7 @@ LIST RemoveInsignificantProtos(
         NewProto->Variance.Elliptical = nullptr;
       //---------------------------------------------
       if (Proto->Magnitude.Elliptical != nullptr) {
-        NewProto->Magnitude.Elliptical = static_cast<float *>(Emalloc(N * sizeof(float)));
+        NewProto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
         for (i=0; i < N; i++)
           NewProto->Magnitude.Elliptical[i] = Proto->Magnitude.Elliptical[i];
       }
@@ -658,7 +648,7 @@ LIST RemoveInsignificantProtos(
         NewProto->Magnitude.Elliptical = nullptr;
       //------------------------------------------------
       if (Proto->Weight.Elliptical != nullptr) {
-        NewProto->Weight.Elliptical = static_cast<float *>(Emalloc(N * sizeof(float)));
+        NewProto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
         for (i=0; i < N; i++)
           NewProto->Weight.Elliptical[i] = Proto->Weight.Elliptical[i];
       }
@@ -693,7 +683,7 @@ MERGE_CLASS NewLabeledClass(const char* Label) {
   MERGE_CLASS MergeClass;
 
   MergeClass = new MERGE_CLASS_NODE;
-  MergeClass->Label = static_cast<char*>(Emalloc (strlen (Label)+1));
+  MergeClass->Label = static_cast<char*>(malloc (strlen (Label)+1));
   strcpy (MergeClass->Label, Label);
   MergeClass->Class = NewClass (MAX_NUM_PROTOS, MAX_NUM_CONFIGS);
   return (MergeClass);
@@ -749,7 +739,7 @@ CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
     font_set.move(&MergeClass->Class->font_set);
     Class->NumProtos = NumProtos;
     Class->MaxNumProtos = NumProtos;
-    Class->Prototypes = static_cast<PROTO>(Emalloc (sizeof(PROTO_STRUCT) * NumProtos));
+    Class->Prototypes = static_cast<PROTO>(malloc (sizeof(PROTO_STRUCT) * NumProtos));
     for(i=0; i < NumProtos; i++)
     {
       NewProto = ProtoIn(Class, i);
@@ -770,7 +760,7 @@ CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
     Class->NumConfigs = NumConfigs;
     Class->MaxNumConfigs = NumConfigs;
     Class->font_set.move(&font_set);
-    Class->Configurations = static_cast<BIT_VECTOR*>(Emalloc (sizeof(BIT_VECTOR) * NumConfigs));
+    Class->Configurations = static_cast<BIT_VECTOR*>(malloc (sizeof(BIT_VECTOR) * NumConfigs));
     NumWords = WordsInVectorOfSize(NumProtos);
     for(i=0; i < NumConfigs; i++)
     {

@@ -45,7 +45,6 @@
 #include "oldlist.h"
 #include "protos.h"
 #include "shapetable.h"
-#include "tessopt.h"
 #include "tprintf.h"
 #include "unicity_table.h"
 
@@ -203,12 +202,11 @@ int main (int argc, char **argv) {
 
   ParseArguments(&argc, &argv);
 
-  ShapeTable* shape_table = nullptr;
   STRING file_prefix;
   // Load the training data.
-  MasterTrainer* trainer = tesseract::LoadTrainingData(argc, argv,
+  auto [trainer,shape_table] = tesseract::LoadTrainingData(argc, argv,
                                                        false,
-                                                       &shape_table,
+                                                       true,
                                                        &file_prefix);
   if (trainer == nullptr) return 1;  // Failed.
 
@@ -217,7 +215,7 @@ int main (int argc, char **argv) {
   // with the same list of unichars becomes a different class and the configs
   // represent the different combinations of fonts.
   IndexMapBiDi config_map;
-  SetupConfigMap(shape_table, &config_map);
+  SetupConfigMap(shape_table.get(), &config_map);
 
   WriteShapeTable(file_prefix, *shape_table);
   // If the shape_table is flat, then either we didn't run shape clustering, or
@@ -254,7 +252,7 @@ int main (int argc, char **argv) {
     }
     const char* class_label = unicharset->id_to_unichar(unichar_id);
     mf_classes = ClusterOneConfig(s, class_label, mf_classes, *shape_table,
-                                  trainer);
+                                  trainer.get());
   }
   STRING inttemp_file = file_prefix;
   inttemp_file += "inttemp";
@@ -271,8 +269,6 @@ int main (int argc, char **argv) {
   }
   delete [] float_classes;
   FreeLabeledClassList(mf_classes);
-  delete trainer;
-  delete shape_table;
   printf("Done!\n");
   if (!FLAGS_test_ch.empty()) {
     // If we are displaying debug window(s), wait for the user to look at them.

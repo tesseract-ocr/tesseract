@@ -21,7 +21,6 @@
 ----------------------------------------------------------------------------*/
 #include "oldlist.h"
 #include "featdefs.h"
-#include "tessopt.h"
 #include "ocrfeatures.h"
 #include "clusttool.h"
 #include "cluster.h"
@@ -121,7 +120,8 @@ int main(int argc, char *argv[]) {
 
   ParseArguments(&argc, &argv);
   int num_fonts = 0;
-  while ((PageName = GetNextFilename(argc, argv)) != nullptr) {
+  int tessoptind = 1;
+  while ((PageName = GetNextFilename(argc, argv, tessoptind)) != nullptr) {
     printf("Reading %s ...\n", PageName);
     FILE *TrainingPage = fopen(PageName, "rb");
     ASSERT_HOST(TrainingPage);

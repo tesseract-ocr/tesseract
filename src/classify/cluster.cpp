@@ -19,7 +19,6 @@
 
 #include "cluster.h"
 
-#include "emalloc.h"
 #include "genericheap.h"
 #include "kdpair.h"
 #include "matrix.h"
@@ -383,7 +382,7 @@ MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
   int i;
 
   // allocate main clusterer data structure and init simple fields
-  Clusterer = static_cast<CLUSTERER *>(Emalloc (sizeof (CLUSTERER)));
+  Clusterer = static_cast<CLUSTERER *>(malloc (sizeof (CLUSTERER)));
   Clusterer->SampleSize = SampleSize;
   Clusterer->NumberOfSamples = 0;
   Clusterer->NumChar = 0;
@@ -394,7 +393,7 @@ MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
 
   // maintain a copy of param descriptors in the clusterer data structure
   Clusterer->ParamDesc =
-    static_cast<PARAM_DESC *>(Emalloc (SampleSize * sizeof (PARAM_DESC)));
+    static_cast<PARAM_DESC *>(malloc (SampleSize * sizeof (PARAM_DESC)));
   for (i = 0; i < SampleSize; i++) {
     Clusterer->ParamDesc[i].Circular = ParamDesc[i].Circular;
     Clusterer->ParamDesc[i].NonEssential = ParamDesc[i].NonEssential;
@@ -441,7 +440,7 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const float* Feature,
   ASSERT_HOST(Clusterer->Root == nullptr);
 
   // allocate the new sample and initialize it
-  Sample = static_cast<SAMPLE *>(Emalloc (sizeof (SAMPLE) +
+  Sample = static_cast<SAMPLE *>(malloc (sizeof (SAMPLE) +
     (Clusterer->SampleSize -
     1) * sizeof (float)));
   Sample->Clustered = false;
@@ -660,7 +659,7 @@ static void CreateClusterTree(CLUSTERER *Clusterer) {
   // each sample and its nearest neighbor form a "potential" cluster
   // save these in a heap with the "best" potential clusters on top
   context.tree = Clusterer->KDTree;
-  context.candidates = static_cast<TEMPCLUSTER *>(Emalloc(Clusterer->NumberOfSamples * sizeof(TEMPCLUSTER)));
+  context.candidates = static_cast<TEMPCLUSTER *>(malloc(Clusterer->NumberOfSamples * sizeof(TEMPCLUSTER)));
   context.next = 0;
   context.heap = new ClusterHeap(Clusterer->NumberOfSamples);
   KDWalk(context.tree, reinterpret_cast<void_proc>(MakePotentialClusters), &context);
@@ -788,7 +787,7 @@ static CLUSTER* MakeNewCluster(CLUSTERER* Clusterer,
   CLUSTER *Cluster;
 
   // allocate the new cluster and initialize it
-  Cluster = static_cast<CLUSTER *>(Emalloc(
+  Cluster = static_cast<CLUSTER *>(malloc(
       sizeof(CLUSTER) + (Clusterer->SampleSize - 1) * sizeof(float)));
   Cluster->Clustered = false;
   Cluster->Prototype = false;
@@ -1335,13 +1334,13 @@ ComputeStatistics (int16_t N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
   uint32_t SampleCountAdjustedForBias;
 
   // allocate memory to hold the statistics results
-  Statistics = static_cast<STATISTICS *>(Emalloc (sizeof (STATISTICS)));
-  Statistics->CoVariance = static_cast<float *>(Emalloc(sizeof(float) * N * N));
-  Statistics->Min = static_cast<float *>(Emalloc (N * sizeof (float)));
-  Statistics->Max = static_cast<float *>(Emalloc (N * sizeof (float)));
+  Statistics = static_cast<STATISTICS *>(malloc (sizeof (STATISTICS)));
+  Statistics->CoVariance = static_cast<float *>(malloc(sizeof(float) * N * N));
+  Statistics->Min = static_cast<float *>(malloc (N * sizeof (float)));
+  Statistics->Max = static_cast<float *>(malloc (N * sizeof (float)));
 
   // allocate temporary memory to hold the sample to mean distances
-  Distance = static_cast<float *>(Emalloc (N * sizeof (float)));
+  Distance = static_cast<float *>(malloc (N * sizeof (float)));
 
   // initialize the statistics
   Statistics->AvgVariance = 1.0;
@@ -1447,9 +1446,9 @@ static PROTOTYPE* NewEllipticalProto(int16_t N, CLUSTER* Cluster,
   int i;
 
   Proto = NewSimpleProto (N, Cluster);
-  Proto->Variance.Elliptical = static_cast<float *>(Emalloc (N * sizeof (float)));
-  Proto->Magnitude.Elliptical = static_cast<float *>(Emalloc (N * sizeof (float)));
-  Proto->Weight.Elliptical = static_cast<float *>(Emalloc (N * sizeof (float)));
+  Proto->Variance.Elliptical = static_cast<float *>(malloc (N * sizeof (float)));
+  Proto->Magnitude.Elliptical = static_cast<float *>(malloc (N * sizeof (float)));
+  Proto->Weight.Elliptical = static_cast<float *>(malloc (N * sizeof (float)));
 
   CoVariance = Statistics->CoVariance;
   Proto->TotalMagnitude = 1.0;
@@ -1487,7 +1486,7 @@ static PROTOTYPE* NewMixedProto(int16_t N, CLUSTER* Cluster,
   int i;
 
   Proto = NewEllipticalProto (N, Cluster, Statistics);
-  Proto->Distrib = static_cast<DISTRIBUTION *>(Emalloc (N * sizeof (DISTRIBUTION)));
+  Proto->Distrib = static_cast<DISTRIBUTION *>(malloc (N * sizeof (DISTRIBUTION)));
 
   for (i = 0; i < N; i++) {
     Proto->Distrib[i] = normal;
@@ -1508,8 +1507,8 @@ static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
   PROTOTYPE *Proto;
   int i;
 
-  Proto = static_cast<PROTOTYPE *>(Emalloc (sizeof (PROTOTYPE)));
-  Proto->Mean = static_cast<float *>(Emalloc (N * sizeof (float)));
+  Proto = static_cast<PROTOTYPE *>(malloc (sizeof (PROTOTYPE)));
+  Proto->Mean = static_cast<float *>(malloc (N * sizeof (float)));
 
   for (i = 0; i < N; i++)
     Proto->Mean[i] = Cluster->Mean[i];
@@ -1650,14 +1649,14 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
   bool Symmetrical;
 
   // allocate memory needed for data structure
-  Buckets = static_cast<BUCKETS *>(Emalloc(sizeof(BUCKETS)));
+  Buckets = static_cast<BUCKETS *>(malloc(sizeof(BUCKETS)));
   Buckets->NumberOfBuckets = OptimumNumberOfBuckets(SampleCount);
   Buckets->SampleCount = SampleCount;
   Buckets->Confidence = Confidence;
   Buckets->Count =
-      static_cast<uint32_t *>(Emalloc(Buckets->NumberOfBuckets * sizeof(uint32_t)));
+      static_cast<uint32_t *>(malloc(Buckets->NumberOfBuckets * sizeof(uint32_t)));
   Buckets->ExpectedCount = static_cast<float *>(
-      Emalloc(Buckets->NumberOfBuckets * sizeof(float)));
+      malloc(Buckets->NumberOfBuckets * sizeof(float)));
 
   // initialize simple fields
   Buckets->Distribution = Distribution;
@@ -2043,9 +2042,9 @@ static void FreeStatistics(STATISTICS *Statistics) {
  * @param buckets  pointer to data structure to be freed
  */
 static void FreeBuckets(BUCKETS *buckets) {
-  Efree(buckets->Count);
-  Efree(buckets->ExpectedCount);
-  Efree(buckets);
+  free(buckets->Count);
+  free(buckets->ExpectedCount);
+  free(buckets);
 }                                // FreeBuckets
 
 /**
@@ -2156,7 +2155,7 @@ static int AlphaMatch(void *arg1,    //CHISTRUCT                             *Ch
 static CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha) {
   CHISTRUCT *NewChiStruct;
 
-  NewChiStruct = static_cast<CHISTRUCT *>(Emalloc (sizeof (CHISTRUCT)));
+  NewChiStruct = static_cast<CHISTRUCT *>(malloc (sizeof (CHISTRUCT)));
   NewChiStruct->DegreesOfFreedom = DegreesOfFreedom;
   NewChiStruct->Alpha = Alpha;
   return (NewChiStruct);

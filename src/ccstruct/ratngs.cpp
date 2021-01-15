@@ -217,8 +217,8 @@ const char *ScriptPosToString(enum ScriptPos script_pos) {
 WERD_CHOICE::WERD_CHOICE(const char *src_string,
                          const UNICHARSET &unicharset)
     : unicharset_(&unicharset){
-  GenericVector<UNICHAR_ID> encoding;
-  GenericVector<char> lengths;
+  std::vector<UNICHAR_ID> encoding;
+  std::vector<char> lengths;
   std::string cleaned = unicharset.CleanupString(src_string);
   if (unicharset.encode_string(cleaned.c_str(), true, &encoding, &lengths,
                                nullptr)) {

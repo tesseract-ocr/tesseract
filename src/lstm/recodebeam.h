@@ -198,15 +198,15 @@ class TESS_API RecodeBeamSearch {
                             int lstm_choice_mode = 0);
 
   // Returns the best path as labels/scores/xcoords similar to simple CTC.
-  void ExtractBestPathAsLabels(GenericVector<int>* labels,
-                               GenericVector<int>* xcoords) const;
+  void ExtractBestPathAsLabels(std::vector<int>* labels,
+                               std::vector<int>* xcoords) const;
   // Returns the best path as unichar-ids/certs/ratings/xcoords skipping
   // duplicates, nulls and intermediate parts.
   void ExtractBestPathAsUnicharIds(bool debug, const UNICHARSET* unicharset,
-                                   GenericVector<int>* unichar_ids,
-                                   GenericVector<float>* certs,
-                                   GenericVector<float>* ratings,
-                                   GenericVector<int>* xcoords) const;
+                                   std::vector<int>* unichar_ids,
+                                   std::vector<float>* certs,
+                                   std::vector<float>* ratings,
+                                   std::vector<int>* xcoords) const;
 
   // Returns the best path as a set of WERD_RES.
   void ExtractBestPathAsWords(const TBOX& line_box, float scale_factor,
@@ -310,8 +310,8 @@ class TESS_API RecodeBeamSearch {
   // duplicates, nulls and intermediate parts.
   static void ExtractPathAsUnicharIds(
       const GenericVector<const RecodeNode*>& best_nodes,
-      GenericVector<int>* unichar_ids, GenericVector<float>* certs,
-      GenericVector<float>* ratings, GenericVector<int>* xcoords,
+      std::vector<int>* unichar_ids, std::vector<float>* certs,
+      std::vector<float>* ratings, std::vector<int>* xcoords,
       std::vector<int>* character_boundaries = nullptr);
 
   // Sets up a word with the ratings matrix and fake blobs with boxes in the
@@ -319,7 +319,7 @@ class TESS_API RecodeBeamSearch {
   WERD_RES* InitializeWord(bool leading_space, const TBOX& line_box,
                            int word_start, int word_end, float space_certainty,
                            const UNICHARSET* unicharset,
-                           const GenericVector<int>& xcoords,
+                           const std::vector<int>& xcoords,
                            float scale_factor);
 
   // Fills top_n_flags_ with bools that are true iff the corresponding output
@@ -415,10 +415,10 @@ class TESS_API RecodeBeamSearch {
   // Helper prints debug information on the given unichar path.
   void DebugUnicharPath(const UNICHARSET* unicharset,
                         const GenericVector<const RecodeNode*>& path,
-                        const GenericVector<int>& unichar_ids,
-                        const GenericVector<float>& certs,
-                        const GenericVector<float>& ratings,
-                        const GenericVector<int>& xcoords) const;
+                        const std::vector<int>& unichar_ids,
+                        const std::vector<float>& certs,
+                        const std::vector<float>& ratings,
+                        const std::vector<int>& xcoords) const;
 
   static const int kBeamWidths[RecodedCharID::kMaxCodeLen + 1];
 
@@ -432,7 +432,7 @@ class TESS_API RecodeBeamSearch {
   int beam_size_;
   // A flag to indicate which outputs are the top-n choices. Current timestep
   // only.
-  GenericVector<TopNState> top_n_flags_;
+  std::vector<TopNState> top_n_flags_;
   // A record of the highest and second scoring codes.
   int top_code_;
   int second_code_;

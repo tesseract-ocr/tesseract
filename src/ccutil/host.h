@@ -18,7 +18,7 @@
 #ifndef TESSERACT_CCUTIL_HOST_H_
 #define TESSERACT_CCUTIL_HOST_H_
 
-#include <tesseract/platform.h>
+#include <tesseract/export.h>
 
 #include <climits>
 #include <limits>

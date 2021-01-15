@@ -19,7 +19,7 @@
 #ifndef TESSERACT_CCUTIL_BITVECTOR_H_
 #define TESSERACT_CCUTIL_BITVECTOR_H_
 
-#include <tesseract/platform.h>
+#include <tesseract/export.h>
 
 #include <cassert>
 #include <cstdint>      // for uint8_t

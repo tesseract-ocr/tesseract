@@ -21,13 +21,6 @@
 // TrainingSampleSet, TrainingSample can all serialize/deserialize correctly
 // enough to reproduce the same results.
 
-#include <string>
-#include <utility>
-#include <vector>
-
-#include "absl/strings/numbers.h"       // for safe_strto32
-#include "absl/strings/str_split.h"     // for absl::StrSplit
-
 #include "include_gunit.h"
 
 #include "genericvector.h"
@@ -39,7 +32,15 @@
 #include "shapetable.h"
 #include "trainingsample.h"
 #include "commontraining.h"
-#include "tessopt.h"                    // tessoptind
+
+#include "absl/strings/numbers.h"       // for safe_strto32
+#include "absl/strings/str_split.h"     // for absl::StrSplit
+
+#include <string>
+#include <utility>
+#include <vector>
+
+using namespace tesseract;
 
 // Specs of the MockClassifier.
 static const int kNumTopNErrs = 10;
@@ -63,8 +64,6 @@ static bool safe_strto32(const std::string& str, int* pResult)
 }
 #endif
 
-namespace tesseract {
-
 // Mock ShapeClassifier that cheats by looking at the correct answer, and
 // creates a specific pattern of errors that can be tested.
 class MockClassifier : public ShapeClassifier {
@@ -85,9 +84,9 @@ class MockClassifier : public ShapeClassifier {
   // If keep_this (a shape index) is >= 0, then the results should always
   // contain keep_this, and (if possible) anything of intermediate confidence.
   // The return value is the number of classes saved in results.
-  virtual int ClassifySample(const TrainingSample& sample, Pix* page_pix,
+  int ClassifySample(const TrainingSample& sample, Pix* page_pix,
                              int debug, UNICHAR_ID keep_this,
-                             GenericVector<ShapeRating>* results) {
+                             std::vector<ShapeRating>* results) override {
     results->clear();
     // Everything except the first kNumNonReject is a reject.
     if (++num_done_ > kNumNonReject) return 0;
@@ -127,7 +126,7 @@ class MockClassifier : public ShapeClassifier {
     return results->size();
   }
   // Provides access to the ShapeTable that this classifier works with.
-  virtual const ShapeTable* GetShapeTable() const { return shape_table_; }
+  const ShapeTable* GetShapeTable() const override { return shape_table_; }
 
  private:
   // Borrowed pointer to the ShapeTable.
@@ -160,15 +159,6 @@ class MasterTrainerTest : public testing::Test {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
-  MasterTrainerTest() {
-    shape_table_ = nullptr;
-    master_trainer_ = nullptr;
-  }
-  ~MasterTrainerTest() {
-    delete master_trainer_;
-    delete shape_table_;
-  }
-
   // Initializes the master_trainer_ and shape_table_.
   // if load_from_tmp, then reloads a master trainer that was saved by a
   // previous call in which it was false.
@@ -181,12 +171,9 @@ class MasterTrainerTest : public testing::Test {
     const char* argv[] = {tr_file_name.c_str()};
     int argc = 1;
     STRING file_prefix;
-    delete master_trainer_;
-    delete shape_table_;
-    shape_table_ = nullptr;
-    tessoptind = 0;
-    master_trainer_ =
-        LoadTrainingData(argc, argv, false, &shape_table_, &file_prefix);
+    auto [m,s] = LoadTrainingData(argc, argv, false, true, &file_prefix);
+    master_trainer_ = std::move(m);
+    shape_table_ = std::move(s);
     EXPECT_TRUE(master_trainer_ != nullptr);
     EXPECT_TRUE(shape_table_ != nullptr);
   }
@@ -239,8 +226,8 @@ class MasterTrainerTest : public testing::Test {
   }
 
   // Objects declared here can be used by all tests in the test case for Foo.
-  ShapeTable* shape_table_;
-  MasterTrainer* master_trainer_;
+  std::unique_ptr<ShapeTable> shape_table_;
+  std::unique_ptr<MasterTrainer> master_trainer_;
 #endif
 };
 
@@ -270,12 +257,11 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
   // count junk.
   if (shape_table_->FindShape(0, -1) < 0) shape_table_->AddShape(0, 0);
   // Make a mock classifier.
-  tesseract::ShapeClassifier* shape_classifier =
-      new tesseract::MockClassifier(shape_table_);
+  auto shape_classifier = std::make_unique<MockClassifier>(shape_table_.get());
   // Get the accuracy report.
   STRING accuracy_report;
   master_trainer_->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR, 0,
-                                           false, shape_classifier,
+                                           false, shape_classifier.get(),
                                            &accuracy_report);
   LOG(INFO) << accuracy_report.c_str();
   std::string result_string = accuracy_report.c_str();
@@ -300,9 +286,5 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
             result_values[tesseract::CT_OK_MULTI_UNICHAR]);
   EXPECT_EQ(num_samples - kNumNonReject, result_values[tesseract::CT_REJECT]);
   EXPECT_EQ(kNumAnswers, result_values[tesseract::CT_NUM_RESULTS]);
-
-  delete shape_classifier;
 #endif
 }
-
-} // namespace tesseract

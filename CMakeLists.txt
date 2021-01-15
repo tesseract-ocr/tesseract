@@ -302,10 +302,10 @@ add_definitions("-DCMAKE_BUILD")
 
 if (SW_BUILD)
     find_package(SW REQUIRED)
-    if (STATIC)
-        set(SW_BUILD_SHARED_LIBS 0)
-    else()
+    if (BUILD_SHARED_LIBS)
         set(SW_BUILD_SHARED_LIBS 1)
+    else()
+        set(SW_BUILD_SHARED_LIBS 0)
     endif()
     sw_add_package(
         org.sw.demo.danbloomberg.leptonica
@@ -625,12 +625,12 @@ target_include_directories      (libtesseract
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/wordrec>
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/training>
 )
-if (NOT STATIC)
+if (BUILD_SHARED_LIBS)
 target_compile_definitions      (libtesseract
     PRIVATE -DTESS_EXPORTS
     INTERFACE -DTESS_IMPORTS
 )
-generate_export_header          (libtesseract EXPORT_MACRO_NAME TESS_API)
+#generate_export_header          (libtesseract EXPORT_MACRO_NAME TESS_API)
 endif()
 target_link_libraries           (libtesseract PRIVATE ${LIB_Ws2_32} ${LIB_pthread})
 if(OpenMP_CXX_FOUND)
@@ -715,7 +715,7 @@ install(FILES
     include/tesseract/publictypes.h
 
     include/tesseract/ocrclass.h
-    include/tesseract/platform.h
+    include/tesseract/export.h
     include/tesseract/unichar.h
 
     #${CMAKE_CURRENT_BINARY_DIR}/src/endianness.h

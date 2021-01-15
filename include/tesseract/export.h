@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        platform.h
+// File:        export.h
 // Description: Place holder
 //
 // (C) Copyright 2006, Google Inc.
