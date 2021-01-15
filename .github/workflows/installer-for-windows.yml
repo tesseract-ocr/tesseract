@@ -1,0 +1,33 @@
+# GitHub actions - Create Tesseract installer for Windows
+
+name: Cross build for Windows
+
+on:
+  push:
+    branches:
+    - 'windows'
+
+jobs:
+  build32:
+    if: github.repository == 'UB-Mannheim/tesseract'
+    runs-on: [ubuntu-20.04]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build Tesseract installer (32 bit)
+      run: .github/workflows/build.sh i686
+    - uses: actions/upload-artifact@v1
+      with:
+        name: Tesseract Installer for Windows (32 bit)
+        path: dist
+
+  build64:
+    if: github.repository == 'UB-Mannheim/tesseract'
+    runs-on: [ubuntu-20.04]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build Tesseract installer (64 bit)
+      run: .github/workflows/build.sh x86_64
+    - uses: actions/upload-artifact@v1
+      with:
+        name: Tesseract Installer for Windows (64 bit)
+        path: dist

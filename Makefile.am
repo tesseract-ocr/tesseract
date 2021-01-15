@@ -8,6 +8,9 @@ ACLOCAL_AMFLAGS = -I m4
 .PHONY: doc html install-langs ScrollView.jar install-jars pdf training
 
 SUBDIRS = . tessdata unittest
+if MINGW
+SUBDIRS += nsis
+endif
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
@@ -45,6 +48,11 @@ doc-pack: doc
 
 doc-clean:
 	rm -rf $(top_builddir)/doc/html/*
+
+if MINGW
+winsetup: training ScrollView.jar
+	@cd "$(top_builddir)/nsis" && $(MAKE) winsetup
+endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tesseract.pc
