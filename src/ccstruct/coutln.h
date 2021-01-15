@@ -27,7 +27,7 @@
 #include "rect.h"       // for TBOX
 #include "scrollview.h" // for ScrollView, ScrollView::Color
 
-#include <tesseract/export.h>   // for DLLSYM
+#include <tesseract/export.h>   // for TESS_API
 
 #include <cstdint>      // for int16_t, int32_t
 

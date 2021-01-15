@@ -47,7 +47,7 @@ extern "C" {
 }
 #endif
 
-DLLSYM void tprintf(const char* format, ...) {
+TESS_API void tprintf(const char* format, ...) {
   va_list args;
   va_start(args, format);
 
@@ -67,8 +67,7 @@ DLLSYM void tprintf(const char* format, ...) {
 static STRING_VAR(debug_file, "", "File to send tprintf output to");
 
 // Trace printf
-void tprintf(const char *format, ...)
-{
+TESS_API void tprintf(const char* format, ...) {
   const char* debug_file_name = debug_file.c_str();
   static FILE *debugfp = nullptr;   // debug file
 

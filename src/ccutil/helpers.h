@@ -28,7 +28,7 @@
 #include <random>
 #include <string>
 
-#include <tesseract/platform.h>   // for __attribute__
+#include <tesseract/export.h>   // for __attribute__
 
 
 namespace tesseract {

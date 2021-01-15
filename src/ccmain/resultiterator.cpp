@@ -29,8 +29,8 @@
 #include <set>
 #include <vector>
 
-static const char * const kLRM = "\u200E";  // Left-to-Right Mark
-static const char * const kRLM = "\u200F";  // Right-to-Left Mark
+static const char * const kLRM = u8"\u200E";  // Left-to-Right Mark
+static const char * const kRLM = u8"\u200F";  // Right-to-Left Mark
 
 namespace tesseract {
 

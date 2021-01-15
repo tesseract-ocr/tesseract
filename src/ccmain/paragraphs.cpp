@@ -49,8 +49,8 @@
 #include <algorithm>              // for max
 #include <memory>                 // for unique_ptr
 
-static const char * const kRLE = "\u202A";  // Right-to-Left Embedding
-static const char * const kPDF = "\u202C";  // Pop Directional Formatting
+static const char * const kRLE = u8"\u202A";  // Right-to-Left Embedding
+static const char * const kPDF = u8"\u202C";  // Pop Directional Formatting
 
 namespace tesseract {
 

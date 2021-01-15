@@ -31,13 +31,10 @@
 #ifndef TESSERACT_VIEWER_SCROLLVIEW_H_
 #define TESSERACT_VIEWER_SCROLLVIEW_H_
 
-#include <tesseract/export.h>
+#include <tesseract/export.h>   // for TS_PRINTFLIKE and TS_FORMAT_STRING
 
 #include <cstdio>
 #include <mutex>
-
-#include <tesseract/platform.h>   // for TS_PRINTFLIKE and TS_FORMAT_STRING
-
 
 struct Pix;
 
