@@ -86,7 +86,7 @@ bool TFile::DeSerialize(std::vector<T>& data) {
     return false;
   } else if (size > 0) {
     // TODO: optimize.
-    data.reserve(size);
+    data.resize(size);
     return DeSerialize(&data[0], size);
   }
   data.clear();
@@ -104,10 +104,10 @@ bool TFile::Serialize(const std::vector<T>& data) {
   return true;
 }
 
-template bool TFile::DeSerialize(std::vector<double>& data);
-template bool TFile::DeSerialize(std::vector<int32_t>& data);
-template bool TFile::Serialize(const std::vector<double>& data);
-template bool TFile::Serialize(const std::vector<int32_t>& data);
+template TESS_API bool TFile::DeSerialize(std::vector<double>& data);
+template TESS_API bool TFile::DeSerialize(std::vector<int32_t>& data);
+template TESS_API bool TFile::Serialize(const std::vector<double>& data);
+template TESS_API bool TFile::Serialize(const std::vector<int32_t>& data);
 
 bool TFile::DeSerialize(std::vector<char>& data) {
   uint32_t size;

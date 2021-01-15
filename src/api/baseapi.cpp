@@ -1019,7 +1019,6 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
                                             int timeout_millisec,
                                             TessResultRenderer* renderer,
                                             int tessedit_page_number) {
-#ifndef ANDROID_BUILD
   Pix *pix = nullptr;
   int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
   size_t offset = 0;
@@ -1045,9 +1044,6 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
     if (!offset) break;
   }
   return true;
-#else
-  return false;
-#endif
 }
 
 // Master ProcessPages calls ProcessPagesInternal and then does any post-
@@ -1263,10 +1259,8 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
   }
 
   if (tesseract_->tessedit_write_images) {
-#ifndef ANDROID_BUILD
     Pix* page_pix = GetThresholdedImage();
     pixWrite("tessinput.tif", page_pix, IFF_TIFF_G4);
-#endif  // ANDROID_BUILD
   }
 
   if (failed && retry_config != nullptr && retry_config[0] != '\0') {

@@ -437,7 +437,7 @@ class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
   // History of best error rate against iteration. Used for computing the
   // number of steps to each 2% improvement.
   std::vector<double> best_error_history_;
-  std::vector<int> best_error_iterations_;
+  std::vector<int32_t> best_error_iterations_;
   // Number of iterations since the best_error_rate_ was 2% more than it is now.
   int32_t improvement_steps_;
   // Number of iterations that yielded a non-zero delta error and thus provided

@@ -1,0 +1,45 @@
+name: dailyunittest
+
+on:
+  schedule:
+    # every day at  1:15 AM UTC
+    - cron: 15 1 * * *
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        
+    - name: install dependencies
+      run: mkdir -p m4 && sudo apt-get install autoconf-archive libleptonica-dev libpango1.0-dev cabextract -y
+      
+    - name: download fonts, tessdata and langdata required for tests
+      run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
+      
+    - name: copy fonts and move tessdata
+      run: cp tessdata_unittest/fonts/* test/testing/ && mv tessdata_unittest/* ../ && ls  ../
+      
+    - name: autoconf
+      run: ./autogen.sh
+
+    - name: configure
+      run: ./configure --enable-openmp --disable-shared --disable-debug --disable-opencl --disable-graphics --disable-legacy --with-tensorflow=no 'CXXFLAGS=-g -O2 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -fstack-protector-strong -ftrapv'
+      
+    - name: make
+      run: make training -j 8
+      
+    - name: make check
+      run: make check -j 4
+      
+    - name: display test report
+      run: git log -1 && cat unittest/test-suite.log
+      if: success() || failure()
+      

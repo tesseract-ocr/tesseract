@@ -155,32 +155,6 @@ TEST_F(TesseractTest, HOCRContainsBaseline) {
   pixDestroy(&src_pix);
 }
 
-// A provided document we once misread "RICK SNYDER" as "FUCK SNYDER"
-// causing a bit of an embarrassment.  This was due to bad baseline fitting
-// which has been addressed by both better baseline finding and by
-// better algorithms to deal with baseline and xheight consistency.
-TEST_F(TesseractTest, RickSnyderNotFuckSnyder) {
-  tesseract::TessBaseAPI api;
-  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) == -1) {
-    // eng.traineddata not found.
-    GTEST_SKIP();
-    return;
-  }
-  api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
-#if 0 // TODO: rick_snyder.jpeg is missing
-  Pix* src_pix = pixRead(TestDataNameToPath("rick_snyder.jpeg").c_str());
-  CHECK(src_pix);
-  api.SetImage(src_pix);
-  char* result = api.GetHOCRText(0);
-  EXPECT_TRUE(result != nullptr);
-  EXPECT_THAT(result, Not(HasSubstr("FUCK")));
-  delete[] result;
-  pixDestroy(&src_pix);
-#else
-  GTEST_SKIP();
-#endif
-}
-
 // Tests that Tesseract gets exactly the right answer on some page numbers.
 TEST_F(TesseractTest, AdaptToWordStrTest) {
 #ifdef DISABLED_LEGACY_ENGINE
