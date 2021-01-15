@@ -21,12 +21,13 @@
 #include "errcode.h"        // for ERRCODE, TESSEXIT
 #include "fileerr.h"        // for CANTOPENFILE
 #include "rect.h"           // for TBOX
+#include "strngs.h"         // for STRING
 #include "tprintf.h"        // for tprintf
 
-#include <tesseract/helpers.h>        // for chomp_string
-#include "strngs.h"         // for STRING
+#include "helpers.h"        // for chomp_string
 #include <tesseract/unichar.h>        // for UNICHAR
 
+#include <climits>          // for INT_MAX
 #include <cstring>          // for strchr, strcmp
 #include <fstream>          // for std::ifstream
 #include <locale>           // for std::locale::classic
@@ -245,8 +246,8 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
     used += new_used;
   }
   *utf8_str = uch;
-  if (x_min > x_max) Swap(&x_min, &x_max);
-  if (y_min > y_max) Swap(&y_min, &y_max);
+  if (x_min > x_max) std::swap(x_min, x_max);
+  if (y_min > y_max) std::swap(y_min, y_max);
   bounding_box->set_to_given_coords(x_min, y_min, x_max, y_max);
   return true;  // Successfully read a box.
 }

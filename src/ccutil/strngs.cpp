@@ -20,7 +20,7 @@
 
 #include "errcode.h"        // for ASSERT_HOST
 
-#include <tesseract/helpers.h>        // for ReverseN
+#include "helpers.h"        // for ReverseN
 #include "serialis.h"       // for TFile
 
 #include <cassert>          // for assert

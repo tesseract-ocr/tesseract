@@ -37,6 +37,7 @@
 #include "equationdetect.h"    // for EquationDetect
 #endif
 #include "errcode.h"           // for ASSERT_HOST
+#include "host.h"              // for MAX_PATH
 #include "imageio.h"           // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...
 #ifndef DISABLED_LEGACY_ENGINE
 #include "intfx.h"             // for INT_FX_RESULT_STRUCT
@@ -64,7 +65,7 @@
 #include <tesseract/resultiterator.h>    // for ResultIterator
 #include "strngs.h"            // for STRING
 #include <tesseract/thresholder.h>       // for ImageThresholder
-#include <tesseract/helpers.h>           // for IntCastRounded, chomp_string
+#include "helpers.h"           // for IntCastRounded, chomp_string
 #include <tesseract/ocrclass.h>          // for ETEXT_DESC
 #include <tesseract/osdetect.h>          // for OSResults, OSBestResult, OrientationId...
 
@@ -208,7 +209,7 @@ TessBaseAPI::TessBaseAPI()
       rect_height_(0),
       image_width_(0),
       image_height_(0) {
-#if defined(DEBUG)
+#if !defined(NDEBUG)
   // The Tesseract executables would use the "C" locale by default,
   // but other software which is linked against the Tesseract library
   // typically uses the locale from the user's environment.

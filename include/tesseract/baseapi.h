@@ -23,7 +23,6 @@
 #include "config_auto.h" // DISABLED_LEGACY_ENGINE
 #endif
 
-#include "apitypes.h"
 #include "pageiterator.h"
 #include "platform.h"
 #include "publictypes.h"
@@ -31,39 +30,23 @@
 #include "thresholder.h"
 #include "unichar.h"
 
-// To avoid collision with other typenames include the ABSOLUTE MINIMUM
-// complexity of includes here. Use forward declarations wherever possible
-// and hide includes of complex types in baseapi.cpp.
 #include <tesseract/version.h>
 
 #include <cstdio>
 #include <vector>     // for std::vector
 
 struct Pix;
-struct Box;
 struct Pixa;
 struct Boxa;
 
 namespace tesseract {
 
 class PAGE_RES;
-class PAGE_RES_IT;
 class ParagraphModel;
-struct BlamerBundle;
 class BLOCK_LIST;
-class DENORM;
-class MATRIX;
-class ROW;
-class WERD;
 class ETEXT_DESC;
 struct OSResults;
-class TBOX;
 class UNICHARSET;
-class WERD_CHOICE_LIST;
-
-struct INT_FEATURE_STRUCT;
-using INT_FEATURE = INT_FEATURE_STRUCT*;
-struct TBLOB;
 
 class Dawg;
 class Dict;
@@ -74,8 +57,6 @@ class ResultIterator;
 class MutableIterator;
 class TessResultRenderer;
 class Tesseract;
-class Trie;
-class Wordrec;
 
 // Function to read a std::vector<char> from a whole file.
 // Returns false on failure.
@@ -85,10 +66,6 @@ using DictFunc = int (Dict::*)(void*, const UNICHARSET&, UNICHAR_ID,
                                bool) const;
 using ProbabilityInContextFunc = double (Dict::*)(const char*, const char*, int,
                                                   const char*, int);
-using ParamsModelClassifyFunc = float (Dict::*)(const char*, void*);
-using FillLatticeFunc = void (Wordrec::*)(const MATRIX&,
-                                          const WERD_CHOICE_LIST&,
-                                          const UNICHARSET&, BlamerBundle*);
 
 /**
  * Base class for all tesseract APIs.
@@ -763,7 +740,7 @@ class TESS_API TessBaseAPI {
  protected:
   /** Common code for setting the image. Returns true if Init has been called.
    */
-  TESS_LOCAL bool InternalSetImage();
+  bool InternalSetImage();
 
   /**
    * Run the thresholder to make the thresholded image. If pix is not nullptr,
@@ -775,7 +752,7 @@ class TESS_API TessBaseAPI {
    * Find lines from the image making the BLOCK_LIST.
    * @return 0 on success.
    */
-  TESS_LOCAL int FindLines();
+  int FindLines();
 
   /** Delete the pageres and block list ready for a new page. */
   void ClearResults();
@@ -785,7 +762,7 @@ class TESS_API TessBaseAPI {
    * to ignore all BiDi smarts at that point.
    * delete once you're done with it.
    */
-  TESS_LOCAL LTRResultIterator* GetLTRIterator();
+  LTRResultIterator* GetLTRIterator();
 
   /**
    * Return the length of the output text string, as UTF8, assuming
@@ -793,12 +770,12 @@ class TESS_API TessBaseAPI {
    * and assuming a single character reject marker for each rejected character.
    * Also return the number of recognized blobs in blob_count.
    */
-  TESS_LOCAL int TextLength(int* blob_count);
+  int TextLength(int* blob_count);
 
   //// paragraphs.cpp ////////////////////////////////////////////////////
-  TESS_LOCAL void DetectParagraphs(bool after_text_recognition);
+  void DetectParagraphs(bool after_text_recognition);
 
-  TESS_LOCAL const PAGE_RES* GetPageRes() const {
+  const PAGE_RES* GetPageRes() const {
     return page_res_;
   }
 

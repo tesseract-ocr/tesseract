@@ -87,6 +87,7 @@ class RowInfo {
 //   paragraphs - this is the actual list of PARA objects.
 //   models - the list of paragraph models referenced by the PARA objects.
 //            caller is responsible for deleting the models.
+TESS_API
 void DetectParagraphs(int debug_level,
                       std::vector<RowInfo> *row_infos,
                       GenericVector<PARA *> *row_owners,
@@ -98,6 +99,7 @@ void DetectParagraphs(int debug_level,
 // saving the ParagraphModels in models.  Caller owns the models.
 // We use unicharset during the function to answer questions such as "is the
 // first letter of this word upper case?"
+TESS_API
 void DetectParagraphs(int debug_level,
                       bool after_text_recognition,
                       const MutableIterator *block_start,

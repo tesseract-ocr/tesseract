@@ -39,7 +39,7 @@ class CLIST_ITERATOR;
  *  walks the list.
  **********************************************************************/
 
-class DLLSYM CLIST_LINK
+class CLIST_LINK
 {
   friend class CLIST_ITERATOR;
   friend class CLIST;
@@ -69,7 +69,7 @@ class DLLSYM CLIST_LINK
  * Generic list class for singly linked CONS cell lists
  **********************************************************************/
 
-class DLLSYM CLIST
+class TESS_API CLIST
 {
   friend class CLIST_ITERATOR;
 
@@ -144,7 +144,7 @@ class DLLSYM CLIST
  *links
  **********************************************************************/
 
-class DLLSYM CLIST_ITERATOR
+class TESS_API CLIST_ITERATOR
 {
   friend void CLIST::assign_to_sublist(CLIST_ITERATOR *, CLIST_ITERATOR *);
 
@@ -816,10 +816,10 @@ CLISTIZEH_C.
 
 #define CLISTIZEH_A(CLASSNAME)                                             \
                                                                            \
-  extern DLLSYM void CLASSNAME##_c1_zapper(             /*delete a link*/  \
+  extern void CLASSNAME##_c1_zapper(             /*delete a link*/  \
                                            void *link); /*link to delete*/ \
                                                                            \
-  extern DLLSYM void                                                       \
+  extern void                                                       \
       *CLASSNAME##_c1_copier(                    /*deep copy a link*/      \
                              void *old_element); /*source link */
 
@@ -834,7 +834,7 @@ CLISTIZEH_C.
   *                                                                         \
   **********************************************************************/   \
                                                                             \
-  class DLLSYM CLASSNAME##_CLIST : public CLIST {                           \
+  class CLASSNAME##_CLIST : public CLIST {                           \
    public:                                                                  \
     CLASSNAME##_CLIST() : CLIST() {}                                        \
     /* constructor */                                                       \
@@ -871,7 +871,7 @@ CLISTIZEH_C.
   *  class of that class")                                                   \
   **********************************************************************/    \
                                                                              \
-  class DLLSYM CLASSNAME##_C_IT : public CLIST_ITERATOR {                    \
+  class CLASSNAME##_C_IT : public CLIST_ITERATOR {                    \
    public:                                                                   \
     CLASSNAME##_C_IT() : CLIST_ITERATOR() {}                                 \
                                                                              \
@@ -926,7 +926,7 @@ CLISTIZEH_C.
   *  though we don't use a virtual destructor function.                      \
   **********************************************************************/    \
                                                                              \
-  DLLSYM void CLASSNAME##_c1_zapper(            /*delete a link*/            \
+  void CLASSNAME##_c1_zapper(            /*delete a link*/            \
                                     void *link) /*link to delete*/           \
   {                                                                          \
     delete static_cast<CLASSNAME*>(link);                                    \

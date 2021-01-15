@@ -1,5 +1,8 @@
 # Makefile for Tesseract unit tests
 
+# Be less noisy by default. Can be overridden with `make V=1`.
+V = 0
+
 # Absolute path of directory 'langdata'.
 LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata_lstm
 
@@ -29,6 +32,9 @@ AM_CPPFLAGS += -DPANGO_ENABLE_ENGINE
 if DISABLED_LEGACY_ENGINE
 AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
 endif # DISABLED_LEGACY_ENGINE
+AM_CPPFLAGS += -DTESS_COMMON_TRAINING_API=
+AM_CPPFLAGS += -DTESS_PANGO_TRAINING_API=
+AM_CPPFLAGS += -DTESS_UNICHARSET_TRAINING_API=
 AM_CPPFLAGS += -I$(top_builddir)/include
 AM_CPPFLAGS += -I$(top_srcdir)/include
 AM_CPPFLAGS += -I$(top_srcdir)/src/arch
@@ -46,6 +52,9 @@ AM_CPPFLAGS += -I$(top_srcdir)/unittest/util
 AM_CPPFLAGS += $(LEPTONICA_CFLAGS)
 if ENABLE_TRAINING
 AM_CPPFLAGS += -I$(top_srcdir)/src/training
+AM_CPPFLAGS += -I$(top_srcdir)/src/training/common
+AM_CPPFLAGS += -I$(top_srcdir)/src/training/pango
+AM_CPPFLAGS += -I$(top_srcdir)/src/training/unicharset
 AM_CPPFLAGS += $(pangocairo_CFLAGS)
 endif # ENABLE_TRAINING
 AM_CPPFLAGS += -I$(top_srcdir)/src/viewer
@@ -124,9 +133,7 @@ if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += applybox_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += baseapi_test
-if TENSORFLOW
 check_PROGRAMS += baseapi_thread_test
-endif # TENSORFLOW
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += bitvector_test
 endif # !DISABLED_LEGACY_ENGINE
@@ -164,9 +171,7 @@ if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += mastertrainer_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += matrix_test
-if TENSORFLOW
 check_PROGRAMS += networkio_test
-endif # TENSORFLOW
 if ENABLE_TRAINING
 check_PROGRAMS += normstrngs_test
 endif # ENABLE_TRAINING
@@ -192,16 +197,12 @@ if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += shapetable_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += stats_test
-if TENSORFLOW
 check_PROGRAMS += stridemap_test
-endif # TENSORFLOW
 check_PROGRAMS += stringrenderer_test
 check_PROGRAMS += tablefind_test
 check_PROGRAMS += tablerecog_test
 check_PROGRAMS += tabvector_test
-if TENSORFLOW
 check_PROGRAMS += tatweel_test
-endif # TENSORFLOW
 check_PROGRAMS += textlineprojection_test
 check_PROGRAMS += tfile_test
 if ENABLE_TRAINING
@@ -244,11 +245,9 @@ $(top_srcdir)/abseil/absl/strings/ascii.h:
 $(top_srcdir)/googletest/googletest/include/gtest/gtest.h:
 	cd $(top_srcdir) && git submodule update --init googletest
 
-if TENSORFLOW
 baseapi_thread_test_SOURCES = baseapi_thread_test.cc
 baseapi_thread_test_LDADD = $(ABSEIL_LIBS)
 baseapi_thread_test_LDADD += $(TESS_LIBS) $(LEPTONICA_LIBS)
-endif # TENSORFLOW
 
 if !DISABLED_LEGACY_ENGINE
 bitvector_test_SOURCES = bitvector_test.cc
@@ -342,10 +341,8 @@ endif # !DISABLED_LEGACY_ENGINE
 matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(TESS_LIBS)
 
-if TENSORFLOW
 networkio_test_SOURCES = networkio_test.cc
 networkio_test_LDADD = $(TESS_LIBS)
-endif # TENSORFLOW
 
 normstrngs_test_SOURCES = normstrngs_test.cc
 if TENSORFLOW
@@ -411,10 +408,8 @@ endif # !DISABLED_LEGACY_ENGINE
 stats_test_SOURCES = stats_test.cc
 stats_test_LDADD = $(TESS_LIBS)
 
-if TENSORFLOW
 stridemap_test_SOURCES = stridemap_test.cc
 stridemap_test_LDADD = $(TESS_LIBS)
-endif # TENSORFLOW
 
 stringrenderer_test_SOURCES = stringrenderer_test.cc
 stringrenderer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
@@ -431,12 +426,12 @@ tablerecog_test_LDADD = $(TESS_LIBS)
 tabvector_test_SOURCES = tabvector_test.cc
 tabvector_test_LDADD = $(TESS_LIBS)
 
-if TENSORFLOW
 tatweel_test_SOURCES = tatweel_test.cc
+if TENSORFLOW
 tatweel_test_SOURCES += third_party/utf/rune.c
 tatweel_test_SOURCES += util/utf8/unicodetext.cc util/utf8/unilib.cc
-tatweel_test_LDADD = $(TRAINING_LIBS)
 endif # TENSORFLOW
+tatweel_test_LDADD = $(TRAINING_LIBS)
 
 textlineprojection_test_SOURCES = textlineprojection_test.cc
 textlineprojection_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)

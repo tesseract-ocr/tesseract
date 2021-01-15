@@ -15,21 +15,25 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCUTIL_PLATFORM_H_
-#define TESSERACT_CCUTIL_PLATFORM_H_
+#ifndef TESSERACT_PLATFORM_H_
+#define TESSERACT_PLATFORM_H_
 
-#define DLLSYM
-#ifndef _WIN32
-#  ifdef __cplusplus
-#    include <climits>
-#  else /* C compiler*/
-#    include <limits.h>
-#  endif /* __cplusplus */
-#  ifndef PATH_MAX
-#    define MAX_PATH 4096
+#ifndef TESS_API
+# if defined(_WIN32) || defined(__CYGWIN__)
+#  if defined(TESS_EXPORTS)
+#    define TESS_API __declspec(dllexport)
+#  elif defined(TESS_IMPORTS)
+#    define TESS_API __declspec(dllimport)
 #  else
-#    define MAX_PATH PATH_MAX
+#    define TESS_API
 #  endif
+# else
+#  if defined(TESS_EXPORTS) || defined(TESS_IMPORTS)
+#    define TESS_API __attribute__((visibility("default")))
+#  else
+#    define TESS_API
+#  endif
+# endif
 #endif
 
 #if !defined(__GNUC__)
@@ -47,8 +51,7 @@
 #    define TS_PRINTFLIKE(F, V)
 #  endif
 #endif
-/* https://stackoverflow.com/questions/2354784/attribute-formatprintf-1-2-for-msvc/6849629#6849629
- */
+/* https://stackoverflow.com/questions/2354784/attribute-formatprintf-1-2-for-msvc/6849629#6849629 */
 #undef FZ_FORMAT_STRING
 #if _MSC_VER >= 1400
 #  include <sal.h>
@@ -61,28 +64,5 @@
 #  define TS_FORMAT_STRING(p) p
 #endif /* _MSC_VER */
 
-#if defined(_WIN32) || defined(__CYGWIN__)
-#  if defined(TESS_EXPORTS)
-#    define TESS_API __declspec(dllexport)
-#  elif defined(TESS_IMPORTS)
-#    define TESS_API __declspec(dllimport)
-#  else
-#    define TESS_API
-#  endif
-#  define TESS_LOCAL
-#else
-#  if __GNUC__ >= 4
-#    if defined(TESS_EXPORTS) || defined(TESS_IMPORTS)
-#      define TESS_API __attribute__((visibility("default")))
-#      define TESS_LOCAL __attribute__((visibility("hidden")))
-#    else
-#      define TESS_API
-#      define TESS_LOCAL
-#    endif
-#  else
-#    define TESS_API
-#    define TESS_LOCAL
-#  endif
-#endif
 
-#endif  // TESSERACT_CCUTIL_PLATFORM_H_
+#endif  // TESSERACT_PLATFORM_H_

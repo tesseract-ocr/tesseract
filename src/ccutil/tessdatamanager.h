@@ -123,8 +123,7 @@ static const char *const kTessdataFileSuffixes[] = {
  */
 static const int kMaxNumTessdataEntries = 1000;
 
-
-class TessdataManager {
+class TESS_API TessdataManager {
  public:
   TessdataManager();
   explicit TessdataManager(FileReader reader);

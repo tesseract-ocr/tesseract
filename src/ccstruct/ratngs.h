@@ -263,7 +263,7 @@ enum ScriptPos {
 
 const char *ScriptPosToString(ScriptPos script_pos);
 
-class WERD_CHOICE : public ELIST_LINK {
+class TESS_API WERD_CHOICE : public ELIST_LINK {
  public:
   static const float kBadRating;
   static const char *permuter_name(uint8_t permuter);

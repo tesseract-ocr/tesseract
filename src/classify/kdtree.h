@@ -81,6 +81,7 @@ void FreeKDNode(KDNODE* Node);
 
 float DistanceSquared(int k, PARAM_DESC* dim, float p1[], float p2[]);
 
+TESS_API
 float ComputeDistance(int k, PARAM_DESC* dim, float p1[], float p2[]);
 
 int QueryInSearch(KDTREE* tree);

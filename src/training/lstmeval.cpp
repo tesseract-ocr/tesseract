@@ -15,9 +15,6 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#ifdef GOOGLE_TESSERACT
-#include "base/commandlineflags.h"
-#endif
 #include "commontraining.h"
 #include "genericvector.h"
 #include "lstmtester.h"

@@ -24,7 +24,7 @@
 #include "static_shape.h"
 #include "strngs.h"             // for STRING
 #include "tprintf.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <cstdio>
 #include <cmath>
@@ -101,7 +101,7 @@ enum TrainingState {
 // Base class for network types. Not quite an abstract base class, but almost.
 // Most of the time no isolated Network exists, except prior to
 // deserialization.
-class Network {
+class TESS_API Network {
  public:
   Network();
   Network(NetworkType type, const std::string& name, int ni, int no);

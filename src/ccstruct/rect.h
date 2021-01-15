@@ -38,7 +38,7 @@ namespace tesseract {
 
 class STRING;
 
-class DLLSYM TBOX  {  // bounding box
+class TESS_API TBOX  {  // bounding box
   public:
     TBOX ():       // empty constructor making a null box
     bot_left (INT16_MAX, INT16_MAX), top_right (-INT16_MAX, -INT16_MAX) {

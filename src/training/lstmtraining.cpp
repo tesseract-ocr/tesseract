@@ -15,9 +15,6 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#ifdef GOOGLE_TESSERACT
-#include "base/commandlineflags.h"
-#endif
 #include <cerrno>
 #include "commontraining.h"
 #include "fileio.h"             // for LoadFileLinesToStrings

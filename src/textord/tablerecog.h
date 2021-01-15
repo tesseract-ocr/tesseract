@@ -69,7 +69,7 @@ namespace tesseract {
 //      // etc.
 //    }
 //
-class StructuredTable {
+class TESS_API StructuredTable {
  public:
   StructuredTable();
   ~StructuredTable() = default;
@@ -240,8 +240,8 @@ class StructuredTable {
   // bounding box is a convenient external representation.
   // cell_x_ and cell_y_ indicate the grid lines.
   TBOX bounding_box_;              // Bounding box
-  GenericVectorEqEq<int> cell_x_;  // Locations of vertical divisions (sorted)
-  GenericVectorEqEq<int> cell_y_;  // Locations of horizontal divisions (sorted)
+  GenericVector<int> cell_x_;  // Locations of vertical divisions (sorted)
+  GenericVector<int> cell_y_;  // Locations of horizontal divisions (sorted)
   bool is_lined_;                  // Is the table backed up by a line structure
   // Table margins, set via CalculateMargins
   int space_above_;
@@ -254,7 +254,7 @@ class StructuredTable {
   int max_text_height_;
 };
 
-class TableRecognizer {
+class TESS_API TableRecognizer {
  public:
   TableRecognizer();
   ~TableRecognizer();

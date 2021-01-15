@@ -25,7 +25,7 @@
 #include "dawg.h"
 #include "dict.h"
 #include "genericvector.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "kdpair.h"
 
 namespace tesseract {

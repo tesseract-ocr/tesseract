@@ -102,10 +102,13 @@ DefineFeature (Name, NumLinear, NumCircular, ShortName, ParamName)
 ----------------------------------------------------------------------*/
 bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature);
 
+TESS_API
 void FreeFeature(FEATURE Feature);
 
+TESS_API
 void FreeFeatureSet(FEATURE_SET FeatureSet);
 
+TESS_API
 FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc);
 
 FEATURE_SET NewFeatureSet(int NumFeatures);

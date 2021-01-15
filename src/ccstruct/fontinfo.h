@@ -64,6 +64,10 @@ struct FontInfo {
   FontInfo() : name(nullptr), properties(0), universal_id(0), spacing_vec(nullptr) {}
   ~FontInfo() = default;
 
+  bool operator==(const FontInfo &rhs) const {
+    return strcmp(name, rhs.name) == 0;
+  }
+
   // Writes to the given file. Returns false in case of error.
   bool Serialize(FILE* fp) const;
   // Reads from the given file. Returns false in case of error.
@@ -138,6 +142,16 @@ struct FontInfo {
 struct FontSet {
   int           size;
   int*          configs;  // FontInfo ids
+
+  bool operator==(const FontSet &rhs) const {
+    if (size != rhs.size)
+        return false;
+    for (int i = 0; i < size; ++i) {
+        if (configs[i] != rhs.configs[i])
+            return false;
+    }
+    return true;
+  }
 };
 
 // Class that adds a bit of functionality on top of GenericVector to
@@ -146,33 +160,37 @@ struct FontSet {
 // are replaced.
 class FontInfoTable : public GenericVector<FontInfo> {
  public:
+  TESS_API // when you remove inheritance from GenericVector, move this on class level
   FontInfoTable();
+  TESS_API
   ~FontInfoTable();
 
   // Writes to the given file. Returns false in case of error.
+  TESS_API
   bool Serialize(FILE* fp) const;
   // Reads from the given file. Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
+  TESS_API
   bool DeSerialize(TFile* fp);
 
   // Returns true if the given set of fonts includes one with the same
   // properties as font_id.
+  TESS_API
   bool SetContainsFontProperties(
       int font_id, const GenericVector<ScoredFont>& font_set) const;
   // Returns true if the given set of fonts includes multiple properties.
+  TESS_API
   bool SetContainsMultipleFontProperties(
       const GenericVector<ScoredFont>& font_set) const;
 
   // Moves any non-empty FontSpacingInfo entries from other to this.
+  TESS_API
   void MoveSpacingInfoFrom(FontInfoTable* other);
   // Moves this to the target unicity table.
+  TESS_API
   void MoveTo(UnicityTable<FontInfo>* target);
 };
 
-// Compare FontInfo structures.
-bool CompareFontInfo(const FontInfo& fi1, const FontInfo& fi2);
-// Compare FontSet structures.
-bool CompareFontSet(const FontSet& fs1, const FontSet& fs2);
 // Deletion callbacks for GenericVector.
 void FontInfoDeleteCallback(FontInfo f);
 void FontSetDeleteCallback(FontSet fs);

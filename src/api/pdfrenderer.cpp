@@ -24,7 +24,7 @@
 #include "tprintf.h"
 
 #include <tesseract/baseapi.h>
-#include <tesseract/helpers.h>  // for Swap
+#include "helpers.h"  // for Swap
 #include <tesseract/renderer.h>
 #include <cmath>
 #include <cstring>
@@ -227,8 +227,8 @@ static void GetWordBaseline(int writing_direction, int ppi, int height,
                             int line_x1, int line_y1, int line_x2, int line_y2,
                             double *x0, double *y0, double *length) {
   if (writing_direction == WRITING_DIRECTION_RIGHT_TO_LEFT) {
-    Swap(&word_x1, &word_x2);
-    Swap(&word_y1, &word_y2);
+    std::swap(word_x1, word_x2);
+    std::swap(word_y1, word_y2);
   }
   double word_length;
   double x, y;
@@ -634,7 +634,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   if (size) {
     font = buffer.data();
   } else {
-#if defined(DEBUG)
+#if !defined(NDEBUG)
     tprintf("ERROR: Cannot open file \"%s\"!\nUsing internal glyphless font.\n",
             stream.str().c_str());
 #endif

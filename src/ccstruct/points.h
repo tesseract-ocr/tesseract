@@ -162,7 +162,7 @@ class ICOORD
     int16_t ycoord;                ///< y value
 };
 
-class DLLSYM ICOORDELT : public ELIST_LINK, public ICOORD
+class ICOORDELT : public ELIST_LINK, public ICOORD
                                  //embedded coord list
 {
   public:
@@ -189,7 +189,8 @@ class DLLSYM ICOORDELT : public ELIST_LINK, public ICOORD
 };
 
 ELISTIZEH (ICOORDELT)
-class DLLSYM FCOORD
+
+class TESS_API FCOORD
 {
   public:
     ///empty constructor

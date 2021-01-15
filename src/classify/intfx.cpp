@@ -29,7 +29,7 @@
 #include "statistc.h"
 #include "trainingsample.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include "allheaders.h"
 

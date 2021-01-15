@@ -21,7 +21,7 @@
 ----------------------------------------------------------------------*/
 
 #include "blobs.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "matrix.h"
 #include "ratngs.h"
 #include "seam.h"

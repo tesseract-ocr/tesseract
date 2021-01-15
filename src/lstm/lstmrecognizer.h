@@ -19,7 +19,7 @@
 #define TESSERACT_LSTM_LSTMRECOGNIZER_H_
 
 #include "ccutil.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "imagedata.h"
 #include "matrix.h"
 #include "network.h"
@@ -50,7 +50,7 @@ enum TrainingFlags {
 
 // Top-level line recognizer class for LSTM-based networks.
 // Note that a sub-class, LSTMTrainer is used for training.
-class LSTMRecognizer {
+class TESS_API LSTMRecognizer {
  public:
   LSTMRecognizer();
   LSTMRecognizer(const STRING language_data_path_prefix);

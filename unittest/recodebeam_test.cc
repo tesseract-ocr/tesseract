@@ -22,7 +22,7 @@
 #include "normstrngs.h"
 #include "unicharset_training_utils.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include "absl/strings/str_format.h"        // for absl::StrFormat
 

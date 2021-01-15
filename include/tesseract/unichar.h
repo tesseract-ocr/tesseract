@@ -55,7 +55,7 @@ using char32 = signed int;
 // a single Unicode character (stored as between 1 and 4 utf8 bytes) or
 // multiple Unicode characters representing the NFKC expansion of a ligature
 // such as fi, ffl etc. These are also stored as utf8.
-class UNICHAR {
+class TESS_API UNICHAR {
  public:
   UNICHAR() {
     memset(chars, 0, UNICHAR_LEN);
@@ -105,7 +105,7 @@ class UNICHAR {
   //     int char_len = it.get_utf8(buf); buf[char_len] = '\0';
   //     tprintf("Char = %s\n", buf);
   //   }
-  class const_iterator {
+  class TESS_API const_iterator {
     using CI = const_iterator;
 
    public:

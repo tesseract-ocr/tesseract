@@ -438,9 +438,7 @@ void Tesseract::SetupUniversalFontIds() {
   // Note that we can get away with bitwise copying FontInfo in
   // all_fonts, as it is a temporary structure and we avoid setting the
   // delete callback.
-  using namespace std::placeholders; // for _1, _2
   UnicityTable<FontInfo> all_fonts;
-  all_fonts.set_compare_callback(std::bind(CompareFontInfo, _1, _2));
 
   // Create the universal ID table.
   CollectFonts(get_fontinfo_table(), &all_fonts);

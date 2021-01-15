@@ -144,9 +144,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(LIBRARY_TYPE SHARED)
-if (STATIC)
-    set(LIBRARY_TYPE)
+if (BUILD_SHARED_LIBS)
+    set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 endif()
 
 # LTO
@@ -245,7 +244,7 @@ elseif(MSVC)
     endif()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /wd4244 /wd4305 /wd4267")
     # Don't use /Wall because it generates too many warnings.
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /W4 /bigobj")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /W0 /bigobj")
     # MT flag
     if(WIN32_MT_BUILD)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -283,7 +282,6 @@ if (OPENMP_BUILD)
     endif()
 endif()
 
-
 if (CYGWIN)
     add_definitions(-D__CYGWIN__)
 elseif(UNIX)
@@ -293,6 +291,8 @@ elseif(UNIX)
 elseif(WIN32)
     set(LIB_Ws2_32 Ws2_32)
 endif()
+
+add_definitions("-DCMAKE_BUILD")
 
 ###############################################################################
 #
@@ -368,6 +368,7 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/version.h @ONLY)
 
 include(CMakePackageConfigHelpers)
+include(GenerateExportHeader)
 configure_package_config_file(
     cmake/templates/TesseractConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/cmake/tesseract/TesseractConfig.cmake
@@ -605,7 +606,7 @@ set(libtessfiles ${tesseract_src} ${arch_files} ${arch_files_opt} ${tesseract_hd
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${libtessfiles})
 
-add_library                     (libtesseract ${LIBRARY_TYPE} ${libtessfiles})
+add_library                     (libtesseract ${libtessfiles})
 target_include_directories      (libtesseract
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE src
@@ -629,7 +630,7 @@ target_compile_definitions      (libtesseract
     PRIVATE -DTESS_EXPORTS
     INTERFACE -DTESS_IMPORTS
 )
-set_target_properties           (libtesseract PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS True)
+generate_export_header          (libtesseract EXPORT_MACRO_NAME TESS_API)
 endif()
 target_link_libraries           (libtesseract PRIVATE ${LIB_Ws2_32} ${LIB_pthread})
 if(OpenMP_CXX_FOUND)
@@ -700,25 +701,19 @@ install(EXPORT TesseractTargets NAMESPACE Tesseract:: DESTINATION lib/cmake/tess
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake DESTINATION lib)
 
 install(FILES
-    # from api/makefile.am
-    include/tesseract/apitypes.h
     include/tesseract/baseapi.h
     include/tesseract/capi.h
     include/tesseract/renderer.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/version.h
 
-    #from ccmain/makefile.am
     include/tesseract/thresholder.h
     include/tesseract/ltrresultiterator.h
     include/tesseract/pageiterator.h
     include/tesseract/resultiterator.h
     include/tesseract/osdetect.h
 
-    #from ccstruct/makefile.am
     include/tesseract/publictypes.h
 
-    #from ccutil/makefile.am
-    include/tesseract/helpers.h
     include/tesseract/ocrclass.h
     include/tesseract/platform.h
     include/tesseract/unichar.h

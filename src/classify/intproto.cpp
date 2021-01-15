@@ -36,7 +36,7 @@
 #include "shapetable.h"
 #include "svmnode.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <algorithm>
 #include <cmath>           // for M_PI, std::floor

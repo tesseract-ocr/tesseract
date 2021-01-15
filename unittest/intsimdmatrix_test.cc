@@ -92,7 +92,7 @@ class IntSimdMatrixTest : public ::testing::Test {
       }
     }
     // Compare sum of all results with expected value.
-    EXPECT_FLOAT_EQ(total, -423243.392011);
+    EXPECT_FLOAT_EQ(total, 337849.39354684710);
   }
 
   TRand random_;

@@ -36,7 +36,6 @@ namespace tesseract {
 template <typename T>
 class UnicityTable {
  public:
-  UnicityTable();
   /// Clear the structures and deallocate internal structures.
   ~UnicityTable();
 
@@ -73,13 +72,6 @@ class UnicityTable {
     table_.set_clear_callback(cb);
   }
 
-  /// Add a callback to be called to compare the elements when needed (contains,
-  /// get_id, ...)
-  void set_compare_callback(std::function<bool(const T&, const T&)> cb) {
-    table_.set_compare_callback(cb);
-    compare_cb_ = cb;
-  }
-
   /// Clear the table, calling the callback function if any.
   /// All the owned Callbacks are also deleted.
   /// If you don't want the Callbacks to be deleted, before calling clear, set
@@ -103,24 +95,7 @@ class UnicityTable {
 
  private:
   GenericVector<T> table_;
-  std::function<bool(const T&, const T&)> compare_cb_;
 };
-
-template <typename T>
-class UnicityTableEqEq : public UnicityTable<T> {
- public:
-  UnicityTableEqEq() {
-    using namespace std::placeholders;  // for _1, _2
-    UnicityTable<T>::set_compare_callback(
-      std::bind(tesseract::cmp_eq<T>, _1, _2));
-  }
-};
-
-template <typename T>
-UnicityTable<T>::UnicityTable() :
-  compare_cb_(nullptr) {
-}
-
 
 template <typename T>
 UnicityTable<T>::~UnicityTable() {

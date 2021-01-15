@@ -35,7 +35,7 @@ class IndexMap;
 
 // Down-sampling quantization of the INT_FEATURE_STRUCT feature space and
 // conversion to a single scalar index value, used as a binary feature space.
-class IntFeatureSpace {
+class TESS_API IntFeatureSpace {
  public:
   IntFeatureSpace();
   // Default copy constructors and assignment OK!

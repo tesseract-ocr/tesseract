@@ -27,8 +27,9 @@ namespace tesseract {
 
 class BLOCK;                     //forward decl
 
-ELISTIZEH (BLOCK)
-class BLOCK : public ELIST_LINK
+ELISTIZEH(BLOCK)
+
+class TESS_API BLOCK : public ELIST_LINK
 //page block
 {
   friend class BLOCK_RECT_IT;     //block iterator

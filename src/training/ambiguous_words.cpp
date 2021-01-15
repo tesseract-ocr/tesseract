@@ -25,7 +25,7 @@
 #include "tesseractclass.h"
 
 #include <tesseract/baseapi.h>
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();

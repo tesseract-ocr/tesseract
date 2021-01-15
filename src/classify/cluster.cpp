@@ -25,7 +25,7 @@
 #include "matrix.h"
 #include "tprintf.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <cfloat>       // for FLT_MAX
 #include <cmath>        // for M_PI

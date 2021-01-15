@@ -20,7 +20,7 @@
 #define TESSERACT_CCUTIL_GENERICVECTOR_H_
 
 #include "serialis.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <algorithm>
 #include <cassert>
@@ -102,8 +102,6 @@ class GenericVector {
   T pop_back();
 
   // Return the index of the T object.
-  // This method NEEDS a compare_callback to be passed to
-  // set_compare_callback.
   int get_index(const T& object) const;
 
   // Return true if T is in the array
@@ -146,12 +144,6 @@ class GenericVector {
   // their ownership.
   void set_clear_callback(std::function<void(T)> cb) {
     clear_cb_ = cb;
-  }
-
-  // Add a callback to be called to compare the elements when needed (contains,
-  // get_id, ...)
-  void set_compare_callback(std::function<bool(const T&, const T&)> cb) {
-    compare_cb_ = cb;
   }
 
   // Clear the array, calling the clear callback function if any.
@@ -225,7 +217,7 @@ class GenericVector {
   // Reverses the elements of the vector.
   void reverse() {
     for (int i = 0; i < size_used_ / 2; ++i) {
-      Swap(&data_[i], &data_[size_used_ - 1 - i]);
+      std::swap(data_[i], data_[size_used_ - 1 - i]);
     }
   }
 
@@ -318,14 +310,14 @@ class GenericVector {
   }
   // Returns true if all elements of *this are within the given range.
   // Only uses operator<
-  bool WithinBounds(const T& rangemin, const T& rangemax) const {
+  /*bool WithinBounds(const T& rangemin, const T& rangemax) const {
     for (int i = 0; i < size_used_; ++i) {
       if (data_[i] < rangemin || rangemax < data_[i]) {
         return false;
       }
     }
     return true;
-  }
+  }*/
 
  protected:
   // Internal recursive version of choose_nth_item.
@@ -342,7 +334,6 @@ class GenericVector {
   int32_t size_reserved_{};
   T* data_;
   std::function<void(T)> clear_cb_;
-  std::function<bool(const T&, const T&)> compare_cb_;
 };
 
 // The default FileReader loads the whole file into the vector of char,
@@ -654,22 +645,6 @@ class PointerVector : public GenericVector<T*> {
   }
 };
 
-// A useful vector that uses operator== to do comparisons.
-template <typename T>
-class GenericVectorEqEq : public GenericVector<T> {
- public:
-  GenericVectorEqEq() {
-    using namespace std::placeholders;  // for _1
-    GenericVector<T>::set_compare_callback(
-        std::bind(cmp_eq<T>, _1, _2));
-  }
-  explicit GenericVectorEqEq(int size) : GenericVector<T>(size) {
-    using namespace std::placeholders;  // for _1
-    GenericVector<T>::set_compare_callback(
-        std::bind(cmp_eq<T>, _1, _2));
-  }
-};
-
 template <typename T>
 void GenericVector<T>::init(int size) {
   size_used_ = 0;
@@ -684,7 +659,6 @@ void GenericVector<T>::init(int size) {
     size_reserved_ = size;
   }
   clear_cb_ = nullptr;
-  compare_cb_ = nullptr;
 }
 
 template <typename T>
@@ -804,8 +778,7 @@ T GenericVector<T>::contains_index(int index) const {
 template <typename T>
 int GenericVector<T>::get_index(const T& object) const {
   for (int i = 0; i < size_used_; ++i) {
-    assert(compare_cb_ != nullptr);
-    if (compare_cb_(object, data_[i])) {
+    if (object == data_[i]) {
       return i;
     }
   }
@@ -889,7 +862,6 @@ void GenericVector<T>::clear() {
   size_used_ = 0;
   size_reserved_ = 0;
   clear_cb_ = nullptr;
-  compare_cb_ = nullptr;
 }
 
 template <typename T>
@@ -1113,11 +1085,9 @@ void GenericVector<T>::move(GenericVector<T>* from) {
   this->data_ = from->data_;
   this->size_reserved_ = from->size_reserved_;
   this->size_used_ = from->size_used_;
-  this->compare_cb_ = from->compare_cb_;
   this->clear_cb_ = from->clear_cb_;
   from->data_ = nullptr;
   from->clear_cb_ = nullptr;
-  from->compare_cb_ = nullptr;
   from->size_used_ = 0;
   from->size_reserved_ = 0;
 }

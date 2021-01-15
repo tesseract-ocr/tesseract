@@ -21,7 +21,7 @@
 
 #include "allheaders.h"
 #include "blobs.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "matrix.h"
 #include "ocrblock.h"
 #include "unicharset.h"

@@ -355,8 +355,8 @@ bool StructuredTable::VerifyWhitespacedTable() {
 // in the middle of the two nearest partitions.
 void StructuredTable::FindWhitespacedColumns() {
   // Set of the extents of all partitions on the page.
-  GenericVectorEqEq<int> left_sides;
-  GenericVectorEqEq<int> right_sides;
+  GenericVector<int> left_sides;
+  GenericVector<int> right_sides;
 
   // Look at each text partition. We want to find the partitions
   // that have extremal left/right sides. These will give us a basis
@@ -400,8 +400,8 @@ void StructuredTable::FindWhitespacedColumns() {
 // in the middle of the two nearest partitions.
 void StructuredTable::FindWhitespacedRows() {
   // Set of the extents of all partitions on the page.
-  GenericVectorEqEq<int> bottom_sides;
-  GenericVectorEqEq<int> top_sides;
+  GenericVector<int> bottom_sides;
+  GenericVector<int> top_sides;
   // We will be "shrinking" partitions, so keep the min/max around to
   // make sure the bottom/top lines do not intersect text.
   int min_bottom = INT32_MAX;

@@ -125,7 +125,7 @@ class RecodedCharID {
 // position). For non-CJK, the same code value CAN be used in multiple
 // positions, eg the ff ligature is converted to <f> <nullchar> <f>, where <f>
 // is the same code as is used for the single f.
-class UnicharCompress {
+class TESS_API UnicharCompress {
  public:
   UnicharCompress();
   UnicharCompress(const UnicharCompress& src);
@@ -222,12 +222,12 @@ class UnicharCompress {
   GenericVector<bool> is_valid_start_;
   // Maps a prefix code to a list of valid next codes.
   // The map owns the vectors.
-  std::unordered_map<RecodedCharID, GenericVectorEqEq<int>*,
+  std::unordered_map<RecodedCharID, GenericVector<int>*,
                      RecodedCharID::RecodedCharIDHash>
       next_codes_;
   // Maps a prefix code to a list of valid final codes.
   // The map owns the vectors.
-  std::unordered_map<RecodedCharID, GenericVectorEqEq<int>*,
+  std::unordered_map<RecodedCharID, GenericVector<int>*,
                      RecodedCharID::RecodedCharIDHash>
       final_codes_;
   // Max of any value in encoder_ + 1.

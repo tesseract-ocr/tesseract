@@ -78,7 +78,7 @@ lists.
  *  walks the list.
  **********************************************************************/
 
-class DLLSYM ELIST_LINK
+class ELIST_LINK
 {
   friend class ELIST_ITERATOR;
   friend class ELIST;
@@ -107,7 +107,7 @@ class DLLSYM ELIST_LINK
  * Generic list class for singly linked lists with embedded links
  **********************************************************************/
 
-class DLLSYM ELIST
+class TESS_API ELIST
 {
   friend class ELIST_ITERATOR;
 
@@ -181,7 +181,7 @@ class DLLSYM ELIST
  *                          Generic iterator class for singly linked lists with embedded links
  **********************************************************************/
 
-class DLLSYM ELIST_ITERATOR
+class TESS_API ELIST_ITERATOR
 {
   friend void ELIST::assign_to_sublist(ELIST_ITERATOR *, ELIST_ITERATOR *);
 
@@ -849,7 +849,7 @@ ELISTIZEH_C.
 
 #define ELISTIZEH_A(CLASSNAME)                                                \
                                                                               \
-extern DLLSYM void CLASSNAME##_zapper(ELIST_LINK* link);
+TESS_API extern void CLASSNAME##_zapper(ELIST_LINK* link);
 
 #define ELISTIZEH_B(CLASSNAME)                                                \
                                                                               \
@@ -860,7 +860,7 @@ extern DLLSYM void CLASSNAME##_zapper(ELIST_LINK* link);
 *                                                                             \
 **********************************************************************/       \
                                                                               \
-class DLLSYM CLASSNAME##_LIST : public ELIST {                                \
+class CLASSNAME##_LIST : public ELIST {                                \
  public:                                                                      \
   CLASSNAME##_LIST():ELIST() {}                                               \
                                                                               \
@@ -901,7 +901,7 @@ private:                                                                      \
 *  class of that class")                                                      \
 **********************************************************************/       \
                                                                               \
-class DLLSYM CLASSNAME##_IT : public ELIST_ITERATOR {                         \
+class CLASSNAME##_IT : public ELIST_ITERATOR {                         \
  public:                                                                      \
   CLASSNAME##_IT():ELIST_ITERATOR(){}                                         \
                                                                               \
@@ -958,7 +958,7 @@ ELISTIZEH_C(CLASSNAME)
   *  though we don't use a virtual destructor function.                       \
   **********************************************************************/     \
                                                                               \
-  DLLSYM void CLASSNAME##_zapper(ELIST_LINK *link) {                          \
+  void CLASSNAME##_zapper(ELIST_LINK *link) {                          \
     delete reinterpret_cast<CLASSNAME *>(link);                               \
   }                                                                           \
                                                                               \

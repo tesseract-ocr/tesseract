@@ -28,7 +28,7 @@ namespace tesseract {
 
 template <typename T> class GenericVector;
 
-class LLSQ {
+class TESS_API LLSQ {
  public:
   LLSQ() {  // constructor
     clear();  // set to zeros

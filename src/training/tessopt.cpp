@@ -17,9 +17,10 @@
  *
  **********************************************************************/
 
+#include "tessopt.h"
+
 #include <cstring>
 #include <cstdio>
-#include "tessopt.h"
 
 int tessoptind;
 char *tessoptarg;
@@ -30,10 +31,10 @@ char *tessoptarg;
  * parse command line args.
  **********************************************************************/
 
-int tessopt (                         //parse args
-int32_t argc,                      //arg count
-char *argv[],                    //args
-const char *arglist                    //string of arg chars
+int tessopt(
+    int argc,
+    char *argv[],
+    const char *arglist  //string of arg chars
 ) {
   const char *arg;                     //arg char
 

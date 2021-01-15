@@ -15,7 +15,7 @@
 
 #include "errcode.h"  // for ASSERT_HOST
 #include "fileio.h"   // for tesseract::File
-
+#include "log.h"      // for LOG
 #include "gtest/gtest.h"
 
 const char* FLAGS_test_tmpdir = "./tmp";
@@ -63,7 +63,9 @@ public:
 
 // /usr/include/tensorflow/core/platform/default/logging.h defines the CHECK* macros.
 #if !defined(CHECK)
-#define CHECK(test) ASSERT_HOST(test)
+#define CHECK(condition)              \
+  if (!(condition)) \
+    LOG(FATAL) << "Check failed: " #condition " "
 #define CHECK_EQ(test, value) CHECK((test) == (value))
 #define CHECK_GT(test, value) CHECK((test) > (value))
 #define CHECK_LT(test, value) CHECK((test) < (value))

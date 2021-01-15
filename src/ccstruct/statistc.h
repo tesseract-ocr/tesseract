@@ -29,7 +29,7 @@ template <typename T> class GenericVector;
 
 // Simple histogram-based statistics for integer values in a known
 // range, such that the range is small compared to the number of samples.
-class STATS {
+class TESS_API STATS {
  public:
   // The histogram buckets are in the range
   // [min_bucket_value, max_bucket_value_plus_1 - 1] i.e.

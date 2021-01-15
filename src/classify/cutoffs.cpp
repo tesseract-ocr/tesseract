@@ -23,7 +23,7 @@
 #include <string>     // for std::string
 
 #include "classify.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "serialis.h"
 #include <tesseract/unichar.h>
 

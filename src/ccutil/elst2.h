@@ -58,7 +58,7 @@ i)  The duplication in source does not affect the run time code size - the
  *  walks the list.
  **********************************************************************/
 
-class DLLSYM ELIST2_LINK
+class ELIST2_LINK
 {
   friend class ELIST2_ITERATOR;
   friend class ELIST2;
@@ -88,7 +88,7 @@ class DLLSYM ELIST2_LINK
  * Generic list class for doubly linked lists with embedded links
  **********************************************************************/
 
-class DLLSYM ELIST2
+class TESS_API ELIST2
 {
   friend class ELIST2_ITERATOR;
 
@@ -151,7 +151,7 @@ class DLLSYM ELIST2
  *links
  **********************************************************************/
 
-class DLLSYM ELIST2_ITERATOR
+class TESS_API ELIST2_ITERATOR
 {
   friend void ELIST2::assign_to_sublist(ELIST2_ITERATOR *, ELIST2_ITERATOR *);
 
@@ -858,7 +858,7 @@ ELIST2IZEH_C.
 
 #define ELIST2IZEH_A(CLASSNAME)                                               \
                                                                               \
-  extern DLLSYM void CLASSNAME##_zapper(                    /*delete a link*/ \
+  TESS_API extern void CLASSNAME##_zapper(                    /*delete a link*/ \
                                         ELIST2_LINK *link); /*link to delete*/
 
 #define ELIST2IZEH_B(CLASSNAME)                                            \
@@ -872,7 +872,7 @@ ELIST2IZEH_C.
   *                                                                        \
   **********************************************************************/  \
                                                                            \
-  class DLLSYM CLASSNAME##_LIST : public ELIST2 {                          \
+  class CLASSNAME##_LIST : public ELIST2 {                          \
    public:                                                                 \
     CLASSNAME##_LIST() : ELIST2() {}                                       \
     /* constructor */                                                      \
@@ -918,7 +918,7 @@ ELIST2IZEH_C.
   *  class of that class")                                                     \
   **********************************************************************/      \
                                                                                \
-  class DLLSYM CLASSNAME##_IT : public ELIST2_ITERATOR {                       \
+  class CLASSNAME##_IT : public ELIST2_ITERATOR {                       \
    public:                                                                     \
     CLASSNAME##_IT(CLASSNAME##_LIST *list) : ELIST2_ITERATOR(list) {}          \
                                                                                \
@@ -976,7 +976,7 @@ ELIST2IZEH_C.
   *  though we don't use a virtual destructor function.                       \
   **********************************************************************/     \
                                                                               \
-  DLLSYM void CLASSNAME##_zapper(                   /*delete a link*/         \
+  void CLASSNAME##_zapper(                   /*delete a link*/         \
                                  ELIST2_LINK *link) /*link to delete*/        \
   {                                                                           \
     delete reinterpret_cast<CLASSNAME*>(link);                                \

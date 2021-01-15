@@ -30,6 +30,7 @@ namespace tesseract {
 // input stride is a multiple of the y_scale factor!
 class Reconfig : public Network {
  public:
+  TESS_API
   Reconfig(const char* name, int ni, int x_scale, int y_scale);
   ~Reconfig() override = default;
 

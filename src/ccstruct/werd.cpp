@@ -25,7 +25,7 @@
 
 #include "linlsq.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 namespace tesseract {
 

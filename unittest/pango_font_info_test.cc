@@ -22,10 +22,6 @@
 #include "util/utf8/unicodetext.h"      // for UnicodeText
 #endif
 
-DECLARE_STRING_PARAM_FLAG(fonts_dir);
-DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
-DECLARE_BOOL_PARAM_FLAG(use_only_legacy_fonts);
-
 namespace tesseract {
 
 // Fonts in testdata directory
@@ -77,9 +73,6 @@ class PangoFontInfoTest : public ::testing::Test {
   static void SetUpTestCase() {
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
-#ifdef GOOGLE_TESSERACT
-    FLAGS_use_only_legacy_fonts = false;
-#endif
   }
 
   PangoFontInfo font_info_;

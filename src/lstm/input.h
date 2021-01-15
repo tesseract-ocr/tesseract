@@ -26,7 +26,9 @@ class ScrollView;
 
 class Input : public Network {
  public:
+  TESS_API
   Input(const std::string& name, int ni, int no);
+  TESS_API
   Input(const std::string& name, const StaticShape& shape);
   ~Input() override = default;
 

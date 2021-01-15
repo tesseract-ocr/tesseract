@@ -50,8 +50,10 @@ using FEATURE_DEFS = FEATURE_DEFS_STRUCT *;
 /*----------------------------------------------------------------------
     Generic functions for manipulating character descriptions
 ----------------------------------------------------------------------*/
+TESS_API
 void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs);
 
+TESS_API
 void FreeCharDescription(CHAR_DESC CharDesc);
 
 CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs);
@@ -62,9 +64,11 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
 void WriteCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs,
                           CHAR_DESC CharDesc, STRING* str);
 
+TESS_API
 CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
                               FILE *File);
 
+TESS_API
 uint32_t ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
                                 const char *ShortName);
 

@@ -30,7 +30,7 @@
 #include "errcode.h"      // for ASSERT_HOST
 #include "normalis.h"     // for DENORM
 
-#include <tesseract/helpers.h>      // for ClipToRange, IntCastRounded, Modulo
+#include "helpers.h"      // for ClipToRange, IntCastRounded, Modulo
 
 #include "allheaders.h"   // for pixSetPixel, pixGetData, pixRasterop, pixGe...
 #include "pix.h"          // for Pix (ptr only), PIX_DST, PIX_NOT

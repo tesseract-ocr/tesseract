@@ -25,7 +25,7 @@
 #include "allheaders.h"
 #include "dict.h"
 #include "genericheap.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "imagedata.h"
 #include "input.h"
 #include "lstm.h"

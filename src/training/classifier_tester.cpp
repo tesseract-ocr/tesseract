@@ -18,9 +18,6 @@
 
 #include <algorithm>
 #include <cstdio>
-#ifdef GOOGLE_TESSERACT
-#include "base/commandlineflags.h"
-#endif  // GOOGLE_TESSERACT
 #include <tesseract/baseapi.h>
 #include "commontraining.h"
 #include "mastertrainer.h"

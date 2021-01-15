@@ -31,7 +31,7 @@
 #endif
 
 #include "errcode.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "serialis.h"
 #include "strngs.h"
 #include <tesseract/version.h>
@@ -83,7 +83,7 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
         }
       }
       result = is_loaded_;
-#if defined(DEBUG)
+#if !defined(NDEBUG)
     } else {
       tprintf("ERROR: archive_read_open_filename(...,%s,...) failed, %s\n",
               filename, strerror(archive_errno(a)));
@@ -309,7 +309,7 @@ bool TessdataManager::TessdataTypeFromFileSuffix(const char *suffix,
       return true;
     }
   }
-#if defined(DEBUG)
+#if !defined(NDEBUG)
   tprintf("ERROR: TessdataManager can't determine which tessdata"
          " component is represented by %s\n", suffix);
 #endif

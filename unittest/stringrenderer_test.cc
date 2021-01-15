@@ -24,11 +24,6 @@
 
 BOOL_PARAM_FLAG(display, false, "Display image for inspection");
 
-// Flags defined in pango_font_info.cpp
-DECLARE_BOOL_PARAM_FLAG(use_only_legacy_fonts);
-DECLARE_STRING_PARAM_FLAG(fonts_dir);
-DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
-
 namespace tesseract {
 
 const char kEngText[] = "the quick brown fox jumps over the lazy dog";
@@ -63,11 +58,6 @@ class StringRendererTest : public ::testing::Test {
     l_chooseDisplayProg(L_DISPLAY_WITH_XZGV);
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
-#ifdef GOOGLE_TESSERACT
-    FLAGS_use_only_legacy_fonts = false;
-    // Needed for reliable heapchecking of pango layout structures.
-    FLAGS_heap_check_max_pointer_offset = -1;
-#endif
   }
 
   void DisplayClusterBoxes(Pix* pix) {

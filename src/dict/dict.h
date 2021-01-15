@@ -91,7 +91,7 @@ struct DawgArgs {
   bool valid_end;
 };
 
-class Dict {
+class TESS_API Dict {
  public:
   Dict(CCUtil* image_ptr);
   ~Dict();
@@ -313,7 +313,7 @@ class Dict {
 
   /// Initialize Dict class - load dawgs from [lang].traineddata and
   /// user-specified wordlist and parttern list.
-  static TESS_API DawgCache *GlobalDawgCache();
+  static DawgCache *GlobalDawgCache();
   // Sets up ready for a Load or LoadLSTM.
   void SetupForLoad(DawgCache *dawg_cache);
   // Loads the dawgs needed by Tesseract. Call FinishLoad() after.
@@ -546,7 +546,7 @@ class Dict {
   // matching.  The first member of each list is taken as canonical.  For
   // example, the first list contains hyphens and dashes with the first symbol
   // being the ASCII hyphen minus.
-  GenericVector<GenericVectorEqEq<UNICHAR_ID> > equivalent_symbols_;
+  std::vector<GenericVector<UNICHAR_ID> > equivalent_symbols_;
   // Dawg Cache reference - this is who we ask to allocate/deallocate dawgs.
   DawgCache *dawg_cache_;
   bool dawg_cache_is_ours_;  // we should delete our own dawg_cache_

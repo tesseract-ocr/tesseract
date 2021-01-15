@@ -22,7 +22,7 @@
 #include "classify.h"
 #include "clusttool.h"
 #include "emalloc.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "normfeat.h"
 #include "unicharset.h"
 #include "params.h"

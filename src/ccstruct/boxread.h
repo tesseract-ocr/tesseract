@@ -32,6 +32,7 @@ const int kBoxReadBufSize = 1024;
 
 // Open the boxfile based on the given image filename.
 // Returns nullptr if the box file cannot be opened.
+TESS_API
 FILE* OpenBoxFile(const char* filename);
 
 // Reads all boxes from the given filename.
@@ -51,6 +52,7 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const char* filename,
 // continue_on_failure allows reading to continue even if an invalid box is
 // encountered and will return true if it succeeds in reading some boxes.
 // It otherwise gives up and returns false on encountering an invalid box.
+TESS_API
 bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
                   bool continue_on_failure,
                   std::vector<TBOX>* boxes,
@@ -66,20 +68,24 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
 // for valid utf-8 and allows space or tab between fields.
 // utf8_str is set with the unichar string, and bounding box with the box.
 // If there are page numbers in the file, it reads them all.
+TESS_API
 bool ReadNextBox(int *line_number, FILE* box_file,
                  STRING* utf8_str, TBOX* bounding_box);
 // As ReadNextBox above, but get a specific page number. (0-based)
 // Use -1 to read any page number. Files without page number all
 // read as if they are page 0.
+TESS_API
 bool ReadNextBox(int target_page, int *line_number, FILE* box_file,
                  STRING* utf8_str, TBOX* bounding_box);
 
 // Parses the given box file string into a page_number, utf8_str, and
 // bounding_box. Returns true on a successful parse.
+TESS_API
 bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
                      STRING* utf8_str, TBOX* bounding_box);
 
 // Creates a box file string from a unichar string, TBOX and page number.
+TESS_API
 void MakeBoxFileStr(const char* unichar_str, const TBOX& box, int page_num,
                     STRING* box_str);
 

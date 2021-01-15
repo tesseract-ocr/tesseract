@@ -31,7 +31,7 @@
 #include "blobbox.h"
 #include "detlinefit.h"
 #include "drawtord.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "linlsq.h"
 #include "makerow.h"
 #include "textord.h"

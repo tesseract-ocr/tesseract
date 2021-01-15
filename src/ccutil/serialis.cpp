@@ -16,9 +16,13 @@
  *
  **********************************************************************/
 
-#include "errcode.h"
-#include <tesseract/helpers.h>  // for ReverseN
 #include "serialis.h"
+
+#include "errcode.h"
+
+#include "helpers.h"  // for ReverseN
+
+#include <climits>    // for INT_MAX
 #include <cstdio>
 
 namespace tesseract {
@@ -55,70 +59,6 @@ bool SaveDataToFile(const std::vector<char>& data, const char* filename) {
       static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
   fclose(fp);
   return result;
-}
-
-bool DeSerialize(FILE* fp, char* data, size_t n) {
-  return fread(data, sizeof(*data), n, fp) == n;
-}
-
-bool DeSerialize(FILE* fp, float* data, size_t n) {
-  return fread(data, sizeof(*data), n, fp) == n;
-}
-
-bool DeSerialize(FILE* fp, int8_t* data, size_t n) {
-  return fread(data, sizeof(*data), n, fp) == n;
-}
-
-bool DeSerialize(FILE* fp, int16_t* data, size_t n) {
-  return fread(data, sizeof(*data), n, fp) == n;
-}
-
-bool DeSerialize(FILE* fp, int32_t* data, size_t n) {
-  return fread(data, sizeof(*data), n, fp) == n;
-}
-
-bool DeSerialize(FILE* fp, uint8_t* data, size_t n) {
-  return fread(data, sizeof(*data), n, fp) == n;
-}
-
-bool DeSerialize(FILE* fp, uint16_t* data, size_t n) {
-  return fread(data, sizeof(*data), n, fp) == n;
-}
-
-bool DeSerialize(FILE* fp, uint32_t* data, size_t n) {
-  return fread(data, sizeof(*data), n, fp) == n;
-}
-
-bool Serialize(FILE* fp, const char* data, size_t n) {
-  return fwrite(data, sizeof(*data), n, fp) == n;
-}
-
-bool Serialize(FILE* fp, const float* data, size_t n) {
-  return fwrite(data, sizeof(*data), n, fp) == n;
-}
-
-bool Serialize(FILE* fp, const int8_t* data, size_t n) {
-  return fwrite(data, sizeof(*data), n, fp) == n;
-}
-
-bool Serialize(FILE* fp, const int16_t* data, size_t n) {
-  return fwrite(data, sizeof(*data), n, fp) == n;
-}
-
-bool Serialize(FILE* fp, const int32_t* data, size_t n) {
-  return fwrite(data, sizeof(*data), n, fp) == n;
-}
-
-bool Serialize(FILE* fp, const uint8_t* data, size_t n) {
-  return fwrite(data, sizeof(*data), n, fp) == n;
-}
-
-bool Serialize(FILE* fp, const uint16_t* data, size_t n) {
-  return fwrite(data, sizeof(*data), n, fp) == n;
-}
-
-bool Serialize(FILE* fp, const uint32_t* data, size_t n) {
-  return fwrite(data, sizeof(*data), n, fp) == n;
 }
 
 TFile::TFile()

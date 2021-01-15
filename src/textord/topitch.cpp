@@ -32,7 +32,7 @@
 #include "tovars.h"
 #include "wordseg.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #include <memory>
 

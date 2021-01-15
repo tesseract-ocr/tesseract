@@ -32,8 +32,10 @@ PARAM_DESC *ReadParamDesc(tesseract::TFile *fp, uint16_t N);
 
 PROTOTYPE *ReadPrototype(tesseract::TFile *fp, uint16_t N);
 
+TESS_API
 void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]);
 
+TESS_API
 void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto);
 
 } // namespace tesseract

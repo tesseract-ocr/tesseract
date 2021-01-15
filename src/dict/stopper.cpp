@@ -26,7 +26,7 @@
 #endif
 #include "ccutil.h"
 #include "dict.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "matchdefs.h"
 #include "pageres.h"
 #include "params.h"

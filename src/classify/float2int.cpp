@@ -22,7 +22,7 @@
 #include "classify.h"
 #include "picofeat.h"
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 #define MAX_INT_CHAR_NORM (INT_CHAR_NORM_RANGE - 1)
 

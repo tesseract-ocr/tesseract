@@ -56,7 +56,7 @@ enum DISPLAY_FLAGS {
 
 class ROW;  // forward decl
 
-class WERD : public ELIST2_LINK {
+class TESS_API WERD : public ELIST2_LINK {
  public:
   WERD() = default;
   // WERD constructed with:

@@ -103,7 +103,7 @@ class PDBLK {
   int index_;                ///< Serial number of this block.
 };
 
-class DLLSYM BLOCK_RECT_IT       //rectangle iterator
+class BLOCK_RECT_IT       //rectangle iterator
 {
   public:
     ///constructor
@@ -145,7 +145,7 @@ class DLLSYM BLOCK_RECT_IT       //rectangle iterator
 };
 
 ///rectangle iterator
-class DLLSYM BLOCK_LINE_IT
+class BLOCK_LINE_IT
 {
   public:
     ///constructor

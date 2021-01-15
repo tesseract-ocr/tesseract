@@ -108,7 +108,7 @@ static const char kWildcard[] = "*";
 /// (since they use only the public methods of SquishedDawg and Trie
 /// classes that are inherited from the Dawg base class).
 //
-class Dawg {
+class TESS_API Dawg {
  public:
   /// Magic number to determine endianness when reading the Dawg from file.
   static const int16_t kDawgMagicNumber = 42;
@@ -397,7 +397,7 @@ class DawgPositionVector : public GenericVector<DawgPosition> {
 /// is stored as a contiguous EDGE_ARRAY (read from file or given as an
 /// argument to the constructor).
 //
-class SquishedDawg : public Dawg {
+class TESS_API SquishedDawg : public Dawg {
  public:
   SquishedDawg(DawgType type, const STRING &lang, PermuterType perm,
                int debug_level)

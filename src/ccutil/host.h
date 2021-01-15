@@ -20,6 +20,7 @@
 
 #include <tesseract/platform.h>
 
+#include <climits>
 #include <limits>
 
 /* _WIN32 */
@@ -37,6 +38,14 @@
 #undef min
 #undef max
 #endif  // _WIN32
+
+#ifndef _WIN32
+#  ifndef PATH_MAX
+#    define MAX_PATH 4096
+#  else
+#    define MAX_PATH PATH_MAX
+#  endif
+#endif
 
 namespace tesseract {
 

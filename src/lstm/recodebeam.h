@@ -177,7 +177,7 @@ using RecodePair = KDPairInc<double, RecodeNode>;
 using RecodeHeap = GenericHeap<RecodePair>;
 
 // Class that holds the entire beam search for recognition of a text line.
-class RecodeBeamSearch {
+class TESS_API RecodeBeamSearch {
  public:
   // Borrows the pointer, which is expected to survive until *this is deleted.
   RecodeBeamSearch(const UnicharCompress& recoder, int null_char,

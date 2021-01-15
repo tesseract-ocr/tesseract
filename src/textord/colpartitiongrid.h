@@ -29,7 +29,7 @@ class TabFind;
 
 // ColPartitionGrid is a BBGrid of ColPartition.
 // It collects functions that work on the grid.
-class ColPartitionGrid : public BBGrid<ColPartition,
+class TESS_API ColPartitionGrid : public BBGrid<ColPartition,
                                        ColPartition_CLIST,
                                        ColPartition_C_IT> {
  public:

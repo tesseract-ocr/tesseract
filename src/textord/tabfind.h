@@ -49,7 +49,7 @@ const int kColumnWidthFactor = 20;
  * rule/separator lines, and tabstop boundaries, (when available), so
  * as the holder of the list of TabVectors this class provides the functions.
  */
-class TabFind : public AlignedBlob {
+class TESS_API TabFind : public AlignedBlob {
  public:
   TabFind(int gridsize, const ICOORD& bleft, const ICOORD& tright,
           TabVector_LIST* vlines, int vertical_x, int vertical_y,

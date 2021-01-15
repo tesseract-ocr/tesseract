@@ -46,6 +46,7 @@ class LSTM : public Network {
   // 2-d and bidi softmax LSTMs are not rejected, but are impossible to build
   // in the conventional way because the output feedback both forwards and
   // backwards in time does become impossible.
+  TESS_API
   LSTM(const std::string& name, int num_inputs, int num_states, int num_outputs,
        bool two_dimensional, NetworkType type);
   ~LSTM() override;

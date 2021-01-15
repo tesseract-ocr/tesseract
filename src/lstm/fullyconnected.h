@@ -26,6 +26,7 @@ namespace tesseract {
 // C++ Implementation of the Softmax (output) class from lstm.py.
 class FullyConnected : public Network {
  public:
+  TESS_API
   FullyConnected(const std::string& name, int ni, int no, NetworkType type);
   ~FullyConnected() override = default;
 
