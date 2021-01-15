@@ -200,7 +200,9 @@ check_PROGRAMS += tablefind_test
 check_PROGRAMS += tablerecog_test
 check_PROGRAMS += tabvector_test
 check_PROGRAMS += tatweel_test
+if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += textlineprojection_test
+endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += tfile_test
 if ENABLE_TRAINING
 check_PROGRAMS += unichar_test

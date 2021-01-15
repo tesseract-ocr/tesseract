@@ -127,6 +127,24 @@ bool TFile::Serialize(const std::string& data) {
   return Serialize(&size) && Serialize(data.c_str(), size);
 }
 
+bool TFile::DeSerialize(std::string& data) {
+  uint32_t size;
+  if (!DeSerialize(&size)) {
+    return false;
+  } else if (size > 0) {
+    // TODO: optimize.
+    data.resize(size);
+    return DeSerialize(&data[0], size);
+  }
+  data.clear();
+  return true;
+}
+
+bool TFile::Serialize(const std::string& data) {
+  uint32_t size = data.size();
+  return Serialize(&size) && Serialize(data.c_str(), size);
+}
+
 bool TFile::DeSerialize(std::vector<char>& data) {
   uint32_t size;
   if (!DeSerialize(&size)) {
