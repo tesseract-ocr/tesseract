@@ -47,7 +47,7 @@ const double kDictRatio = 2.25;
 // Default certainty offset to give the dictionary a chance.
 const double kCertOffset = -0.085;
 
-LSTMRecognizer::LSTMRecognizer(const STRING language_data_path_prefix)
+LSTMRecognizer::LSTMRecognizer(const char* language_data_path_prefix)
     : LSTMRecognizer::LSTMRecognizer() {
   ccutil_.language_data_path_prefix = language_data_path_prefix;
 }
@@ -90,7 +90,7 @@ bool LSTMRecognizer::Serialize(const TessdataManager* mgr, TFile* fp) const {
                           !mgr->IsComponentAvailable(TESSDATA_LSTM_UNICHARSET);
   if (!network_->Serialize(fp)) return false;
   if (include_charsets && !GetUnicharset().save_to_file(fp)) return false;
-  if (!network_str_.Serialize(fp)) return false;
+  if (!fp->Serialize(network_str_)) return false;
   if (!fp->Serialize(&training_flags_)) return false;
   if (!fp->Serialize(&training_iteration_)) return false;
   if (!fp->Serialize(&sample_iteration_)) return false;
@@ -112,7 +112,7 @@ bool LSTMRecognizer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
                           !mgr->IsComponentAvailable(TESSDATA_LSTM_UNICHARSET);
   if (include_charsets && !ccutil_.unicharset.load_from_file(fp, false))
     return false;
-  if (!network_str_.DeSerialize(fp)) return false;
+  if (!fp->DeSerialize(network_str_)) return false;
   if (!fp->DeSerialize(&training_flags_)) return false;
   if (!fp->DeSerialize(&training_iteration_)) return false;
   if (!fp->DeSerialize(&sample_iteration_)) return false;

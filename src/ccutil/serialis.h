@@ -90,6 +90,7 @@ class TESS_API TFile {
   }
 
   // Deserialize data.
+  bool DeSerialize(std::string& data);
   bool DeSerialize(std::vector<char>& data);
   template <typename T> bool DeSerialize(std::vector<T>& data);
   template <typename T>
@@ -98,6 +99,7 @@ class TESS_API TFile {
   }
 
   // Serialize data.
+  bool Serialize(const std::string& data);
   bool Serialize(const std::vector<char>& data);
   template <typename T> bool Serialize(const std::vector<T>& data);
   template <typename T>
