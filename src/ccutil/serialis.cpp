@@ -137,10 +137,13 @@ bool TFile::DeSerialize(std::vector<char>& data) {
   uint32_t size;
   if (!DeSerialize(&size)) {
     return false;
+  } else if (size > 0) {
+    // TODO: optimize.
+    data.resize(size);
+    return DeSerialize(&data[0], data.size());
   }
-  // TODO: optimize.
-  data.resize(size);
-  return DeSerialize(&data[0], data.size());
+  data.clear();
+  return true;
 }
 
 bool TFile::DeSerialize(char* buffer, size_t count) {
@@ -191,8 +194,10 @@ bool TFile::Serialize(const std::vector<char>& data) {
   uint32_t size = data.size();
   if (!Serialize(&size)) {
     return false;
-  }
+  } else if (size > 0) {
   return Serialize(&data[0], size);
+  }
+  return true;
 }
 
 bool TFile::Serialize(const char* buffer, size_t count) {

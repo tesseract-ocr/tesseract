@@ -742,6 +742,9 @@ training-uninstall:
 # Some unit tests use code from training.
 check: libtesseract_training.la libtesseract_tessopt.la
 
+# dawg_test runs dawg2wordlist and wordlist2dawg.
+check: dawg2wordlist wordlist2dawg
+
 CLEANFILES = $(EXTRA_PROGRAMS)
 
 else
