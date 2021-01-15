@@ -393,8 +393,7 @@ class ClassPruner {
   /// Copies the pruned, sorted classes into the output results and returns
   /// the number of classes.
   int SetupResults(std::vector<CP_RESULT_STRUCT>* results) const {
-    CP_RESULT_STRUCT empty;
-    results->resize(num_classes_, empty);
+    results->resize(num_classes_);
     for (int c = 0; c < num_classes_; ++c) {
       (*results)[c].Class = sort_index_[num_classes_ - c];
       (*results)[c].Rating = 1.0f - sort_key_[num_classes_ - c] /
