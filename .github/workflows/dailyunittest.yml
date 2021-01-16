@@ -11,7 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-20.04 ]
+        legacy: [ enable, disable ]
 
     steps:
     - uses: actions/checkout@v2
@@ -31,7 +32,7 @@ jobs:
       run: ./autogen.sh
 
     - name: configure
-      run: ./configure --enable-openmp --disable-shared --disable-debug --disable-opencl --disable-graphics --disable-legacy --with-tensorflow=no 'CXXFLAGS=-g -O2 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -fstack-protector-strong -ftrapv'
+      run: ./configure --enable-openmp --disable-shared --disable-debug --disable-opencl --disable-graphics --${{ matrix.legacy }}-legacy --with-tensorflow=no 'CXXFLAGS=-g -O2 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -fstack-protector-strong -ftrapv'
       
     - name: make
       run: make training -j 8
@@ -40,6 +41,6 @@ jobs:
       run: make check -j 4
       
     - name: display test report
-      run: git log -1 && cat unittest/test-suite.log
+      run: git log -1 && tesseract -v && cat unittest/test-suite.log
       if: success() || failure()
       
