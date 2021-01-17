@@ -47,7 +47,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-18.04, ubuntu-20.04 ]
-        gcc_version: [ 11, 10, 9, 8, 7, 6, 5, 4 ]
+        clang_version: [ 11, 10, 9, 8, 7, 6, 5, 4 ]
         build_type: [ Release, Debug ]
 
     steps:
@@ -62,8 +62,7 @@ jobs:
 
       - name: Build and run
         run: |
-          export CC=gcc-${{ matrix.clang_version }}
-          export CXX=g++-${{ matrix.clang_version }}
+          export CC=clang-${{ matrix.clang_version }}
           
       - name: Configure
         run: |
@@ -78,11 +77,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, windows-2016]
-    
+        os: [windows-latest]
+        build_type: [ Release, Debug ]
+        
     steps:
-    - uses: actions/checkout@v1
-    - name: configure
-      run: mkdir build && cd build && cmake ..
-    - name: build
-      run: cmake --build build --config Debug                               
+      - name: Checkout
+        uses: actions/checkout@v2
+    
+      - name: Configure
+        run: |
+             mkdir build && cd build
+             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+        
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build_type }}
