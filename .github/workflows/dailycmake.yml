@@ -20,8 +20,7 @@ jobs:
 
     steps:
       - name: Install compiler
-        run: |
-          sudo apt-get install -y gcc-${{ matrix.gcc_version }} g++-${{ matrix.gcc_version }}
+        run: sudo apt-get install -y gcc-${{ matrix.gcc_version }} g++-${{ matrix.gcc_version }}
           
       - name: Install dependencies
         run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
@@ -48,13 +47,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-18.04, ubuntu-20.04 ]
-        gcc_version: [ 11, 10, 9, 8, 7, 6, 5, 4 ]
+        clang_version: [ 11, 10, 9, 8, 7, 6, 5, 4 ]
         build_type: [ Release, Debug ]
 
     steps:
       - name: Install compiler
-        run: |
-          sudo apt-get install -y clang-${{ matrix.clang_version }}
+        run: sudo apt-get install -y clang-${{ matrix.clang_version }}
 
       - name: Install dependencies
         run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
@@ -64,8 +62,7 @@ jobs:
 
       - name: Build and run
         run: |
-          export CC=gcc-${{ matrix.clang_version }}
-          export CXX=g++-${{ matrix.clang_version }}
+          export CC=clang-${{ matrix.clang_version }}
           
       - name: Configure
         run: |
@@ -75,4 +72,22 @@ jobs:
       - name: Build
         run: cmake --build build --config ${{ matrix.build_type }}
         
-                               
+  build-windows:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        build_type: [ Release, Debug ]
+        
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+    
+      - name: Configure
+        run: |
+             mkdir build && cd build
+             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+        
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build_type }}
