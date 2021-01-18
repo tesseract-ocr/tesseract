@@ -75,7 +75,6 @@ jobs:
         run: cmake --build build --config ${{ matrix.build_type }}
         
   build-windows:
-
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -85,6 +84,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - uses: egorpugin/sw-action@master
     
       - name: Configure
         run: |
