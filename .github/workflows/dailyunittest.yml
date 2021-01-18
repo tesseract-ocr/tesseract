@@ -2,8 +2,8 @@ name: dailyunittest
 
 on:
   schedule:
-    # every day at  1:15 AM UTC
-    - cron: 15 1 * * *
+    # every day at  8:15 AM UTC
+    - cron: 15 8 * * *
 
 jobs:
   build-linux:
@@ -63,13 +63,13 @@ jobs:
         
     - name: Install Dependencies
       run: |
-        sudo port install 
+        sudo port install \
                   autoconf autoconf-archive \
                   automake \
                   libtool \
                   pkgconfig \
-                  leptonica \
-                  cabextract 
+                  leptonica 
+        sudo port install cabextract abseil
         sudo port install cairo pango icu +devel
         
     - name: Setup

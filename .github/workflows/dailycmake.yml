@@ -47,8 +47,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-18.04, ubuntu-20.04 ]
-        clang_version: [ 11, 10, 9, 8, 7, 6, 5, 4 ]
+        clang_version: [ 11, 10, 9, 8, 7 ]
         build_type: [ Release, Debug ]
+        exclude:
+          - { gcc_version: 11, os: ubuntu-18.04 }
 
     steps:
       - name: Install compiler
