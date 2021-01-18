@@ -2,11 +2,11 @@ name: dailyunittest
 
 on:
   schedule:
-    # every day at  8:15 AM UTC
-    - cron: 15 8 * * *
+    # every day
+    - cron: 0 0 * * *
 
 jobs:
-  build-linux:
+  test-linux:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -44,7 +44,7 @@ jobs:
       run: git log -1 && cat unittest/test-suite.log
       if: success() || failure()
       
-  build-macos:
+  test-macports:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -63,45 +63,95 @@ jobs:
         
     - name: Install Dependencies
       run: |
-        sudo port install \
-                  autoconf autoconf-archive \
+           sudo port install autoconf autoconf-archive \
                   automake \
                   libtool \
                   pkgconfig \
                   leptonica 
-        sudo port install cabextract abseil
-        sudo port install cairo pango icu +devel
+           sudo port install cabextract abseil
+           sudo port install cairo pango 
+           sudo port install icu +devel
         
     - name: Setup
       run: |
-        mkdir -p m4
-        export CC=${{ matrix.compiler }}
-        export CXX=${{ matrix.compiler }}
-        ./autogen.sh
+           mkdir -p m4
+           export CC=${{ matrix.compiler }}
+           export CXX=${{ matrix.compiler }}
+           ./autogen.sh
         
     - name: Configure
       run: |
-        ./configure
+           ./configure
         
     - name: Make
       run: |
-        make
+           make
         
     - name: Make Training
       run: |
-        make training
-        sudo make install training-install
+           make training
+           sudo make install training-install
       
-    - name: Download fonts, tessdata and langdata required for tests
-      run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
+    - name: Get fonts, tessdata and langdata required for unit tests
+      run: |
+           git clone https://github.com/egorpugin/tessdata tessdata_unittest
+           cp tessdata_unittest/fonts/* test/testing/
+           mv tessdata_unittest/* ../
       
-    - name: Copy fonts and move tessdata
-      run: cp tessdata_unittest/fonts/* test/testing/ && mv tessdata_unittest/* ../ && ls  ../
+    - name: Make and run Unit Tests
+      run: make check
       
-    - name: Make check
-      run: make check -j 4
+    - name: Display Unit Tests Report
+      run: git log -1 && cat unittest/test-suite.log
+      if: success() || failure()
+
+  test-homebrew:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-10.15, macos-11.0]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        
+    - name: install dependencies
+      run: |
+           brew install cabextract abseil
+           brew install automake autoconf-archive
+           brew install libarchive
+           brew install leptonica
+           brew install cairo pango
+                      
+    - name: Setup
+      run: |
+           mkdir -p m4
+           ./autogen.sh
+        
+    - name: Configure
+      run: |
+           ./configure '--disable-shared' '--with-pic' 'CXX=clang++' 'CXXFLAGS=-g -O2' 'PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig'
+        
+    - name: Make Tesseract and Training Tools
+      run: |
+            make training
+        
+    - name: Install Tesseract and Training Tools
+      run: |
+           sudo make install training-install
       
-    - name: Display Test-Suite report
+    - name: Get fonts, tessdata and langdata required for unit tests
+      run: |
+           git clone https://github.com/egorpugin/tessdata tessdata_unittest
+           cp tessdata_unittest/fonts/* test/testing/
+           mv tessdata_unittest/* ../
+      
+    - name: Make and run Unit Tests
+      run: make check
+      
+    - name: Display Unit Tests Report
       run: git log -1 && cat unittest/test-suite.log
       if: success() || failure()
       
