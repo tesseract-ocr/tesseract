@@ -1,7 +1,6 @@
 name: dailyunittest
 
 on:
-  push:
   schedule:
     # every day
     - cron: 0 0 * * *
