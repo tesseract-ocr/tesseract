@@ -1,8 +1,8 @@
 name: sw
 
 on:
-  push:
-  pull_request:
+  #push:
+  #pull_request:
   schedule:
     # every day
     - cron: 0 0 * * *
