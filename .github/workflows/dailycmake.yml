@@ -1,9 +1,10 @@
 name: dailycmake
 
 on:
+  #push:
   schedule:
-    # every day at 2:15 AM UTC
-    - cron: 15 2 * * *
+    # every day
+    - cron: 15 10 * * *
 
 jobs:
   build-gcc-linux:
@@ -50,7 +51,7 @@ jobs:
         clang_version: [ 11, 10, 9, 8, 7 ]
         build_type: [ Release, Debug ]
         exclude:
-          - { gcc_version: 11, os: ubuntu-18.04 }
+          - { clang_version: 11, os: ubuntu-18.04 }
 
     steps:
       - name: Install compiler
@@ -65,6 +66,7 @@ jobs:
       - name: Build and run
         run: |
           export CC=clang-${{ matrix.clang_version }}
+          export CXX=clang++-${{ matrix.clang_version }}
           
       - name: Configure
         run: |
@@ -77,8 +79,30 @@ jobs:
   build-windows:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest]
+        build_type: [ Release, Debug ]
+        
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: egorpugin/sw-action@master
+    
+      - name: Configure
+        run: |
+             mkdir build && cd build
+             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+        
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build_type }}
+
+  build-macos:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest]
         build_type: [ Release, Debug ]
         
     steps:

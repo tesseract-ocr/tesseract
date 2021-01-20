@@ -3,7 +3,7 @@ name: dailyunittest
 on:
   schedule:
     # every day
-    - cron: 0 0 * * *
+    - cron: 8 0 * * *
 
 jobs:
   test-linux:
@@ -11,8 +11,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-18.04, ubuntu-20.04 ]
         compiler: [ g++, clang++ ]
+        os: [ ubuntu-18.04, ubuntu-20.04 ]
+        exclude:
+           - { compiler: clang++, os: ubuntu-18.04 } # LSTMTrainerTest.DeterminismTest
 
     steps:
     - uses: actions/checkout@v2
@@ -64,7 +66,7 @@ jobs:
     - name: Display Unit Tests Report
       run: |
            git log -1
-           ls /Users/runner/work/testactions/testactions/test/testdata/
+           ${{ matrix.compiler }} --version
            cat unittest/test-suite.log
       if: always()
 
@@ -73,8 +75,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-10.15, macos-11.0 ]
         compiler: [ g++, clang++ ]
+        os: [ macos-10.15 ]
         
     steps:
     - uses: actions/checkout@v2
@@ -133,8 +135,8 @@ jobs:
       
     - name: Display Unit Tests Report
       run: |
+           ${{ matrix.compiler }} --version
            git log -1
-           ls /Users/runner/work/testactions/testactions/test/testdata/
            cat unittest/test-suite.log
       if: always()
       
@@ -143,8 +145,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-10.15 ]
         compiler: [ g++, clang++ ]
+        os: [ macos-10.15 ]
         
     steps:
     - uses: actions/checkout@v2
@@ -203,15 +205,18 @@ jobs:
            tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
            tesseract test/testing/devatest.png - -l hin+eng  --tessdata-dir ../tessdata
 
-    - name: Make and run Unit Tests
-      run: |
-           make check
-      continue-on-error: true
+# Unittests build on macports fails because of abseil LinkerInitialized related errors.
+
+#    - name: Make and run Unit Tests
+#      run: |
+#           make check
+#      continue-on-error: true
       
-    - name: Display Unit Tests Report
+    - name: Unit Tests Not Run
       run: |
+           ${{ matrix.compiler }} --version
            git log -1
-           ls /Users/runner/work/testactions/testactions/test/testdata/
-           cat unittest/test-suite.log
+#           cat unittest/test-suite.log
       if: always()
       
+
