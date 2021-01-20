@@ -12,7 +12,7 @@ SUBDIRS = . tessdata unittest
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
 EXTRA_DIST += tesseract.pc.in java doc
-EXTRA_DIST += CMakeLists.txt tesseract.pc.cmake cmake VERSION src/vs2010
+EXTRA_DIST += CMakeLists.txt tesseract.pc.cmake cmake VERSION
 
 DIST_SUBDIRS = $(SUBDIRS)
 
