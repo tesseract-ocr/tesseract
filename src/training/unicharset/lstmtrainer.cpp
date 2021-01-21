@@ -104,7 +104,6 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char* filename,
   if (!LoadDataFromFile(filename, &data)) return false;
   tprintf("Loaded file %s, unpacking...\n", filename);
   if (!ReadTrainingDump(data, this)) return false;
-  StaticShape shape = network_->OutputShape(network_->InputShape());
   if (((old_traineddata == nullptr || *old_traineddata == '\0') &&
        network_->NumOutputs() == recoder_.code_range()) ||
       filename == old_traineddata) {
