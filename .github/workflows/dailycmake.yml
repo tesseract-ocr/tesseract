@@ -1,13 +1,13 @@
-name: dailycmake
+name: linuxonly
 
 on:
   #push:
   schedule:
     # every day
-    - cron: 15 10 * * *
+    - cron: 0 0 * * *
 
 jobs:
-  build-gcc-linux:
+  build-gcc:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -28,30 +28,23 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Build and run
-        run: |
-          export CC=gcc-${{ matrix.gcc_version }}
-          export CXX=g++-${{ matrix.gcc_version }}
-          
+         
       - name: Configure
         run: |
              mkdir build && cd build
-             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+             cmake -D CMAKE_C_COMPILER=gcc-${{ matrix.gcc_version }} -D CMAKE_CXX_COMPILER=g++-${{ matrix.gcc_version }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         
       - name: Build
         run: cmake --build build --config ${{ matrix.build_type }}
 
-  build-clang-linux:
+  build-clang:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ ubuntu-18.04, ubuntu-20.04 ]
-        clang_version: [ 11, 10, 9, 8, 7 ]
+        clang_version: [ 10, 9, 8, 7 ]
         build_type: [ Release, Debug ]
-        exclude:
-          - { clang_version: 11, os: ubuntu-18.04 }
 
     steps:
       - name: Install compiler
@@ -62,58 +55,12 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Build and run
-        run: |
-          export CC=clang-${{ matrix.clang_version }}
-          export CXX=clang++-${{ matrix.clang_version }}
-          
+         
       - name: Configure
         run: |
              mkdir build && cd build
-             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+             cmake -D CMAKE_C_COMPILER=clang-${{ matrix.clang_version }} -D CMAKE_CXX_COMPILER=clang++-${{ matrix.clang_version }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         
       - name: Build
         run: cmake --build build --config ${{ matrix.build_type }}
         
-  build-windows:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest]
-        build_type: [ Release, Debug ]
-        
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - uses: egorpugin/sw-action@master
-    
-      - name: Configure
-        run: |
-             mkdir build && cd build
-             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
-        
-      - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }}
-
-  build-macos:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest]
-        build_type: [ Release, Debug ]
-        
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - uses: egorpugin/sw-action@master
-    
-      - name: Configure
-        run: |
-             mkdir build && cd build
-             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
-        
-      - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }}
