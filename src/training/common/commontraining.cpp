@@ -147,14 +147,16 @@ void ParseArguments(int* argc, char ***argv) {
 
 namespace tesseract {
 // Helper loads shape table from the given file.
-std::unique_ptr<ShapeTable> LoadShapeTable(const STRING& file_prefix) {
-  std::unique_ptr<ShapeTable> shape_table;
+ShapeTable* LoadShapeTable(const STRING& file_prefix) {
+  ShapeTable* shape_table = nullptr;
   STRING shape_table_file = file_prefix;
   shape_table_file += kShapeTableFileSuffix;
   TFile shape_fp;
   if (shape_fp.Open(shape_table_file.c_str(), nullptr)) {
-    shape_table = std::make_unique<ShapeTable>();
+    shape_table = new ShapeTable;
     if (!shape_table->DeSerialize(&shape_fp)) {
+      delete shape_table;
+      shape_table = nullptr;
       tprintf("Error: Failed to read shape table %s\n",
               shape_table_file.c_str());
     } else {
@@ -202,10 +204,9 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table) {
  * If shape_table is not nullptr, but failed to load, make a fake flat one,
  * as shape clustering was not run.
  */
-std::pair<std::unique_ptr<MasterTrainer>, std::unique_ptr<ShapeTable>>
-LoadTrainingData(int argc, const char* const * argv,
+std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char* const * argv,
                                 bool replication,
-                                bool shape_analysis,
+                                ShapeTable** shape_table,
                                 STRING* file_prefix) {
   InitFeatureDefs(&feature_defs);
   InitIntegerFX();
@@ -218,9 +219,12 @@ LoadTrainingData(int argc, const char* const * argv,
   // a shape_table written by a previous shape clustering, then
   // shape_analysis will be true, meaning that the MasterTrainer will replace
   // some members of the unicharset with their fragments.
-  std::unique_ptr<ShapeTable> shape_table;
-  if (shape_analysis) {
-    shape_table = LoadShapeTable(*file_prefix);
+  bool shape_analysis = false;
+  if (shape_table != nullptr) {
+    *shape_table = LoadShapeTable(*file_prefix);
+    if (*shape_table != nullptr) shape_analysis = true;
+  } else {
+    shape_analysis = true;
   }
   auto trainer = std::make_unique<MasterTrainer>(NM_CHAR_ANISOTROPIC,
                                              shape_analysis,
@@ -283,18 +287,19 @@ LoadTrainingData(int argc, const char* const * argv,
     fprintf(stderr, "Failed to save unicharset to file %s\n", FLAGS_O.c_str());
     return {};
   }
-  if (shape_analysis) {
+
+  if (shape_table != nullptr) {
     // If we previously failed to load a shapetable, then shape clustering
     // wasn't run so make a flat one now.
-    if (!shape_table) {
-      shape_table = std::make_unique<ShapeTable>();
-      trainer->SetupFlatShapeTable(shape_table.get());
+    if (*shape_table == nullptr) {
+      *shape_table = new ShapeTable;
+      trainer->SetupFlatShapeTable(*shape_table);
       tprintf("Flat shape table summary: %s\n",
-              shape_table->SummaryStr().c_str());
+              (*shape_table)->SummaryStr().c_str());
     }
-    shape_table->set_unicharset(trainer->unicharset());
+    (*shape_table)->set_unicharset(trainer->unicharset());
   }
-  return { std::move(trainer), std::move(shape_table) };
+  return trainer;
 }
 
 }  // namespace tesseract.
