@@ -16,7 +16,6 @@
 #ifndef THIRD_PARTY_TESSERACT_CLASSIFY_ERRORCOUNTER_H_
 #define THIRD_PARTY_TESSERACT_CLASSIFY_ERRORCOUNTER_H_
 
-#include "genericvector.h"
 #include "matrix.h"
 #include "statistc.h"
 

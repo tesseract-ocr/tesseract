@@ -19,9 +19,10 @@
 #ifndef TESSERACT_CCUTIL_TESSDATAMANAGER_H_
 #define TESSERACT_CCUTIL_TESSDATAMANAGER_H_
 
-#include <string>
-#include "genericvector.h"
-#include "strngs.h"             // for STRING
+#include "serialis.h"          // FileWriter
+#include <tesseract/baseapi.h> // FileReader
+#include <string>              // std::string
+#include <vector>              // std::vector
 
 static const char kTrainedDataSuffix[] = "traineddata";
 

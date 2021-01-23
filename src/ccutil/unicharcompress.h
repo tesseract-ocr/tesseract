@@ -4,7 +4,6 @@
 //              place of a single large code for CJK, similarly for Indic,
 //              and dissection of ligatures for other scripts.
 // Author:      Ray Smith
-// Created:     Wed Mar 04 14:45:01 PST 2015
 //
 // (C) Copyright 2015, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,11 +21,12 @@
 #ifndef TESSERACT_CCUTIL_UNICHARCOMPRESS_H_
 #define TESSERACT_CCUTIL_UNICHARCOMPRESS_H_
 
-#include <unordered_map>
 
+#include "genericvector.h" // GenericVector
 #include "serialis.h"
 #include "strngs.h"
 #include "unicharset.h"
+#include <unordered_map>
 
 namespace tesseract {
 
