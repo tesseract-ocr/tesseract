@@ -109,7 +109,7 @@ int Tesseract::SegmentPage(const char* input_file, BLOCK_LIST* blocks,
   // If a UNLV zone file can be found, use that instead of segmentation.
   if (!PSM_COL_FIND_ENABLED(pageseg_mode) &&
       input_file != nullptr && input_file[0] != '\0') {
-    STRING name = input_file;
+    std::string name = input_file;
     const char* lastdot = strrchr(name.c_str(), '.');
     if (lastdot != nullptr)
       name[lastdot - name.c_str()] = '\0';
