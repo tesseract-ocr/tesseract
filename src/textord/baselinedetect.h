@@ -3,7 +3,6 @@
 // Description: Initial Baseline Determination.
 // Copyright 2012 Google Inc. All Rights Reserved.
 // Author:      rays@google.com (Ray Smith)
-// Created:     Mon Apr 30 10:03:19 PDT 2012
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +24,6 @@
 #include "rect.h"
 
 #include "genericvector.h"
-#include "strngs.h"
 
 struct Pix;
 

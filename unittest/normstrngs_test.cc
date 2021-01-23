@@ -13,7 +13,6 @@
 #include "include_gunit.h"
 #include "normstrngs.h"
 #include "normstrngs_test.h"
-#include "strngs.h"
 #include <tesseract/unichar.h>
 #ifdef INCLUDE_TENSORFLOW
 #include "util/utf8/unilib.h"           // for UniLib
