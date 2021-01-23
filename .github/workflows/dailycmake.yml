@@ -3,91 +3,54 @@ name: dailycmake
 on:
   #push:
   schedule:
-    # every day
-    - cron: 15 10 * * *
+    - cron: 0 10 * * *
 
 jobs:
-  build-gcc-linux:
+  linux:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ ubuntu-18.04, ubuntu-20.04 ]
-        gcc_version: [ 10, 9, 8, 7, 6, 5 ]
-        build_type: [ Release, Debug ]
-        exclude:
-             - { gcc_version: 5, os: ubuntu-20.04 }
-             - { gcc_version: 6, os: ubuntu-20.04 }
+        compiler: [ g++, clang++ ]
+        compiler_version: [ 7, 8, 9, 10 ]
+        build_type: [ Release ]
 
     steps:
       - name: Install compiler
-        run: sudo apt-get install -y gcc-${{ matrix.gcc_version }} g++-${{ matrix.gcc_version }}
+        run: sudo apt-get install -y ${{ matrix.compiler }}-${{ matrix.compiler_version }}
           
       - name: Install dependencies
         run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
 
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Build and run
-        run: |
-          export CC=gcc-${{ matrix.gcc_version }}
-          export CXX=g++-${{ matrix.gcc_version }}
-          
+        
       - name: Configure
         run: |
              mkdir build && cd build
-             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+             cmake -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}-${{ matrix.compiler_version }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         
       - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }}
-
-  build-clang-linux:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-18.04, ubuntu-20.04 ]
-        clang_version: [ 11, 10, 9, 8, 7 ]
-        build_type: [ Release, Debug ]
-        exclude:
-          - { clang_version: 11, os: ubuntu-18.04 }
-
-    steps:
-      - name: Install compiler
-        run: sudo apt-get install -y clang-${{ matrix.clang_version }}
-
-      - name: Install dependencies
-        run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
-
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Build and run
         run: |
-          export CC=clang-${{ matrix.clang_version }}
-          export CXX=clang++-${{ matrix.clang_version }}
-          
-      - name: Configure
+             cmake --build build --config ${{ matrix.build_type }}
+             
+      - name: Display Compiler Version
         run: |
-             mkdir build && cd build
-             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
-        
-      - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }}
-        
-  build-windows:
+             ${{ matrix.compiler }}-${{ matrix.compiler_version }} -v
+        if: always()
+             
+  windows:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest]
-        build_type: [ Release, Debug ]
+        build_type: [ Release ]
         
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - uses: egorpugin/sw-action@master
     
       - name: Configure
         run: |
@@ -95,25 +58,33 @@ jobs:
              cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         
       - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }}
+        run: |
+             cmake --build build --config ${{ matrix.build_type }}
 
-  build-macos:
+  macos:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest]
-        build_type: [ Release, Debug ]
+        build_type: [ Release ]
         
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - uses: egorpugin/sw-action@master
+      
+      - name: Install dependencies
+        run: |
+             brew install leptonica pango libarchive
     
       - name: Configure
         run: |
              mkdir build && cd build
-             cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+             export 'PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig'
+             export LDFLAGS="-L/usr/local/opt/libarchive/lib"
+             export CPPFLAGS="-I/usr/local/opt/libarchive/include"
+             cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         
       - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }}
+        run: |
+             cmake --build build --config ${{ matrix.build_type }}
