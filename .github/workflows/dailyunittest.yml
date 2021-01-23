@@ -1,9 +1,9 @@
 name: dailyunittest
 
 on:
+  #push:
   schedule:
-    # every day
-    - cron: 8 0 * * *
+    - cron: 0 0 * * *
 
 jobs:
   test-linux:
@@ -13,8 +13,6 @@ jobs:
       matrix:
         compiler: [ g++, clang++ ]
         os: [ ubuntu-18.04, ubuntu-20.04 ]
-        exclude:
-           - { compiler: clang++, os: ubuntu-18.04 } # LSTMTrainerTest.DeterminismTest
 
     steps:
     - uses: actions/checkout@v2
@@ -32,7 +30,7 @@ jobs:
            ./autogen.sh
 
     - name: Configure
-      run: ./configure '--disable-shared' 'CXX=${{ matrix.compiler }}' 'CXXFLAGS=-g -O2'
+      run: ./configure '--disable-shared' 'CXX=${{ matrix.compiler }}' 'CXXFLAGS=-g -O2 -fsanitize=address,undefined'
       
     - name: Make and Install Tesseract and Training Tools
       run: |
@@ -85,11 +83,11 @@ jobs:
         
     - name: install dependencies
       run: |
-           brew install cabextract abseil
            brew install automake autoconf-archive
            brew install libarchive
            brew install leptonica
            brew install cairo pango
+           brew install cabextract abseil
                       
     - name: Setup
       run: |
@@ -140,7 +138,7 @@ jobs:
            cat unittest/test-suite.log
       if: always()
       
-  test-macports:
+  build-macports:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -159,14 +157,15 @@ jobs:
         
     - name: Install Dependencies
       run: |
-           sudo port install autoconf autoconf-archive \
+           sudo port install \
+                  autoconf autoconf-archive \
                   automake \
                   libtool \
                   pkgconfig \
                   leptonica 
-           sudo port install cabextract abseil
            sudo port install cairo pango 
            sudo port install icu +devel
+           sudo port install cabextract abseil
         
     - name: Setup
       run: |
@@ -219,4 +218,3 @@ jobs:
 #           cat unittest/test-suite.log
       if: always()
       
-
