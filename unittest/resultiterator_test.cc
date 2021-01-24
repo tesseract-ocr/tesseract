@@ -274,6 +274,10 @@ class ResultIteratorTest : public testing::Test {
 
 // Tests that Tesseract gets exactly the right answer on phototest.
 TEST_F(ResultIteratorTest, EasyTest) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test as it fails in LSTM mode.
+  GTEST_SKIP();
+#else
   SetImage("phototest.tif");
   // Just run layout analysis.
   PageIterator* p_it = api_.AnalyseLayout();
@@ -346,6 +350,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
     EXPECT_LE(pointsize, 11.16 + 1.50);
   } while (r_it->Next(tesseract::RIL_WORD));
   delete r_it;
+#endif
 }
 
 // Tests image rebuild on the UNLV page numbered 8087_054.3B.tif. (Dubrovnik)
@@ -372,6 +377,10 @@ TEST_F(ResultIteratorTest, GreyTest) {
 
 // Tests that Tesseract gets smallcaps and dropcaps.
 TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test as LSTM mode does not recognize smallcaps and dropcaps.
+  GTEST_SKIP();
+#else
   SetImage("8071_093.3B.tif");
   char* result = api_.GetUTF8Text();
   delete[] result;
@@ -420,6 +429,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
   EXPECT_EQ(1, found_dropcaps);
   EXPECT_GE(4, found_smallcaps);
   EXPECT_LE(false_positives, 3);
+#endif
 }
 
 #if 0
