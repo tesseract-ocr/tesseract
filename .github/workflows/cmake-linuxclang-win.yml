@@ -1,0 +1,70 @@
+name: cmake-linuxclang-win
+
+on:
+  #push:
+  schedule:
+    - cron: 0 2 25 * *
+
+# All these jobs are currently failing 
+# Run once a month on 25th
+
+jobs:
+
+  clang-linux:
+    runs-on: ${{ matrix.cfg.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+          - { os: ubuntu-18.04, cc: clang-7,  cxx: clang++-7 }
+          - { os: ubuntu-18.04, cc: clang-8,  cxx: clang++-8 }
+          - { os: ubuntu-18.04, cc: clang-9,  cxx: clang++-9 }
+          - { os: ubuntu-18.04, cc: clang-10, cxx: clang++-10 }
+          - { os: ubuntu-20.04, cc: clang-8,  cxx: clang++-8 }
+          - { os: ubuntu-20.04, cc: clang-9,  cxx: clang++-9 }
+          - { os: ubuntu-20.04, cc: clang-10, cxx: clang++-10 }
+          
+    steps:
+      - name: Install compiler
+        run: |
+              sudo apt-get install -y \
+              ${{ matrix.cfg.cc }} \
+              ${{ matrix.cfg.cxx }}
+          
+      - name: Install dependencies
+        run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Configure
+        run: |
+             mkdir build && cd build
+             cmake -DCMAKE_CC_COMPILER=${{ matrix.cfg.cc }} \
+                   -DCMAKE_CXX_COMPILER=${{ matrix.cfg.cxx }} \
+                   -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build
+        run: |
+             cmake --build build --config Release
+
+  windows:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+    
+      - name: Configure
+        run: |
+             mkdir build && cd build
+             cmake -DCMAKE_BUILD_TYPE=Release ..
+        
+      - name: Build
+        run: |
+             cmake --build build --config Release
+             
