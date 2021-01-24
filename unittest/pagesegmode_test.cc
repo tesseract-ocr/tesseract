@@ -99,8 +99,8 @@ TEST_F(PageSegModeTest, WordTest) {
                    "What should", 237, 393, 256, 36);
     // Test a random pair of words as a word
 #ifdef DISABLED_LEGACY_ENGINE
-  // Skip check as LSTM mode does not recognize smallcaps and dropcaps.
-    LOG(INFO) << "Skip What should test in LSTM Mode '\n';
+  // Skip check as LSTM mode adds a space.
+    LOG(INFO) << "Skip `Whatshould` test in LSTM Mode \n";
 #else
     VerifyRectText(tesseract::PSM_SINGLE_WORD,
                    "Whatshould", 237, 393, 256, 36);
