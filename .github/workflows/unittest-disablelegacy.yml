@@ -1,5 +1,5 @@
-name: disablelegacy
-
+name: unittest-disablelegacy
+# autotools build on ubuntu, unittests with disabled legacy engine.
 on:
   #push:
   schedule:
@@ -11,7 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        compiler: [ g++, clang++ ]
+        os: [ ubuntu-18.04, ubuntu-20.04 ]
 
     steps:
     - uses: actions/checkout@v2
@@ -29,7 +30,8 @@ jobs:
            ./autogen.sh
 
     - name: Configure
-      run: ./configure '--disable-shared' '--disable-legacy'
+      run: |
+           ./configure '--disable-shared' '--disable-legacy' 'CXX=${{ matrix.compiler }}'
       
     - name: Make and Install Tesseract
       run: |
@@ -43,6 +45,7 @@ jobs:
       
     - name: Display Version
       run: |
+           ${{ matrix.compiler }} --version
            tesseract -v
            lstmtraining -v
            text2image -v
@@ -66,5 +69,6 @@ jobs:
     - name: Display Unit Tests Report
       run: |
            git log -3
+           ${{ matrix.compiler }} --version     
            cat unittest/test-suite.log
       if: always()
