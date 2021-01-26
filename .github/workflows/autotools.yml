@@ -1,5 +1,5 @@
 name: autotools
-
+# autotools build of tesseract and training tools on ubuntu, macos homebrew and macports.
 on:
   #push:
   schedule:
@@ -34,7 +34,8 @@ jobs:
            ./autogen.sh
 
     - name: Configure
-      run: ./configure '--disable-shared' 'CXX=${{ matrix.compiler }}-${{ matrix.compiler_version }}' 'CXXFLAGS=-g -O2'
+      run: |
+           ./configure '--disable-shared' 'CXX=${{ matrix.compiler }}-${{ matrix.compiler_version }}' 'CXXFLAGS=-g -O2'
       
     - name: Make and Install Tesseract
       run: |
@@ -71,7 +72,7 @@ jobs:
       fail-fast: false
       matrix:
         compiler: [ g++, clang++ ]
-        os: [ macos-10.15, macos-11.0 ]
+        os: [ macos-10.15 ]
         
     steps:
     - uses: actions/checkout@v2

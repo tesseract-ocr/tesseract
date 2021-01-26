@@ -1,11 +1,11 @@
-name: cmake-linuxgcc-mac
-
+name: cmake
+# cmake build of tesseract and training tools with gcc on ubuntu.
+# cmake build of tesseract and training tools macos homebrew.
+# does not build lstm related training tools on macos - icu and ltiff errors.
 on:
   #push:
   schedule:
-    - cron: 0 3 25 * *
-
-# Run once a month on 25th
+    - cron: 0 21 * * *
 
 jobs:
   linux:

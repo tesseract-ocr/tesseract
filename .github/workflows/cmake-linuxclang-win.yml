@@ -1,12 +1,14 @@
 name: cmake-linuxclang-win
-
+# cmake build of tesseract and training tools with clang on ubuntu.
+# src/arch/simddetect.cpp:46:10: fatal error: 'asm/hwcap.h' file not found
+# cmake build of tesseract and training tools on windows.
+# fails, SW program / lept.
 on:
   #push:
   schedule:
-    - cron: 0 2 25 * *
+    - cron: 0 22 * * *
 
 # All these jobs are currently failing 
-# Run once a month on 25th
 
 jobs:
 
@@ -16,20 +18,9 @@ jobs:
       fail-fast: false
       matrix:
         cfg:
-          - { os: ubuntu-18.04, cc: clang-7,  cxx: clang++-7 }
-          - { os: ubuntu-18.04, cc: clang-8,  cxx: clang++-8 }
-          - { os: ubuntu-18.04, cc: clang-9,  cxx: clang++-9 }
-          - { os: ubuntu-18.04, cc: clang-10, cxx: clang++-10 }
-          - { os: ubuntu-20.04, cc: clang-8,  cxx: clang++-8 }
-          - { os: ubuntu-20.04, cc: clang-9,  cxx: clang++-9 }
-          - { os: ubuntu-20.04, cc: clang-10, cxx: clang++-10 }
+          - { os: ubuntu-latest, cc: clang,  cxx: clang++ }
           
     steps:
-      - name: Install compiler
-        run: |
-              sudo apt-get install -y \
-              ${{ matrix.cfg.cc }} \
-              ${{ matrix.cfg.cxx }}
           
       - name: Install dependencies
         run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
@@ -58,13 +49,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+              submodules: recursive
+      - uses: egorpugin/sw-action@master
     
       - name: Configure
         run: |
              mkdir build && cd build
-             cmake -DCMAKE_BUILD_TYPE=Release ..
+             cmake -DSW_BUILD=OFF -DBUILD_TRAINING_TOOLS=OFF -DCMAKE_BUILD_TYPE=Release ..
         
       - name: Build
         run: |
-             cmake --build build --config Release
+             cmake --build build --config Release  --target install
              
