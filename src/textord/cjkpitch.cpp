@@ -22,7 +22,7 @@
 #include "topitch.h"
 #include "tovars.h"
 
-#include <algorithm>
+#include <algorithm>    // for std::sort
 #include <vector>       // for std::vector
 
 namespace tesseract {
@@ -41,8 +41,8 @@ static const float kFixedPitchThreshold = 0.35f;
 // rank statistics for a small collection of float values.
 class SimpleStats {
  public:
-  SimpleStats(): finalized_(false), values_() { }
-  ~SimpleStats() { }
+  SimpleStats() = default;
+  ~SimpleStats() = default;
 
   void Clear() {
     values_.clear();
@@ -55,19 +55,19 @@ class SimpleStats {
   }
 
   void Finish() {
-    values_.sort(float_compare);
+    std::sort(values_.begin(), values_.end());
     finalized_ = true;
   }
 
   float ile(double frac) {
     if (!finalized_) Finish();
-    if (values_.empty()) return 0.0;
+    if (values_.empty()) return 0.0f;
     if (frac >= 1.0) return values_.back();
     if (frac <= 0.0 || values_.size() == 1) return values_[0];
     int index = static_cast<int>((values_.size() - 1) * frac);
     float reminder = (values_.size() - 1) * frac - index;
 
-    return values_[index] * (1.0 - reminder) +
+    return values_[index] * (1.0f - reminder) +
         values_[index + 1] * reminder;
   }
 
@@ -77,7 +77,7 @@ class SimpleStats {
 
   float minimum() {
     if (!finalized_) Finish();
-    if (values_.empty()) return 0.0;
+    if (values_.empty()) return 0.0f;
     return values_[0];
   }
 
@@ -86,14 +86,8 @@ class SimpleStats {
   }
 
  private:
-  static int float_compare(const void* a, const void* b) {
-    const auto* f_a = static_cast<const float*>(a);
-    const auto* f_b = static_cast<const float*>(b);
-    return (*f_a > *f_b) ? 1 : ((*f_a < *f_b) ? -1 : 0);
-  }
-
-  bool finalized_;
-  GenericVector<float> values_;
+  bool finalized_ = false;
+  std::vector<float> values_;
 };
 
 // statistics for a small collection of float pairs (x, y).
