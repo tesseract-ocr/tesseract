@@ -72,7 +72,7 @@ TEST_P(OSDTest, MatchOrientationDegrees) {
 #endif
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     TessdataEngEuroHebrew, OSDTest,
     ::testing::Combine(::testing::Values(0),
                        ::testing::Values(TESTING_DIR "/phototest.tif",
@@ -80,7 +80,7 @@ INSTANTIATE_TEST_CASE_P(
                                          TESTING_DIR "/hebrew.png"),
                        ::testing::Values(TESSDATA_DIR)));
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     TessdataBestEngEuroHebrew, OSDTest,
     ::testing::Combine(::testing::Values(0),
                        ::testing::Values(TESTING_DIR "/phototest.tif",
@@ -88,7 +88,7 @@ INSTANTIATE_TEST_CASE_P(
                                          TESTING_DIR "/hebrew.png"),
                        ::testing::Values(TESSDATA_DIR "_best")));
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     TessdataFastEngEuroHebrew, OSDTest,
     ::testing::Combine(::testing::Values(0),
                        ::testing::Values(TESTING_DIR "/phototest.tif",
@@ -96,35 +96,35 @@ INSTANTIATE_TEST_CASE_P(
                                          TESTING_DIR "/hebrew.png"),
                        ::testing::Values(TESSDATA_DIR "_fast")));
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     TessdataFastRotated90, OSDTest,
     ::testing::Combine(::testing::Values(90),
                        ::testing::Values(TESTING_DIR
                                          "/phototest-rotated-R.png"),
                        ::testing::Values(TESSDATA_DIR "_fast")));
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     TessdataFastRotated180, OSDTest,
     ::testing::Combine(::testing::Values(180),
                        ::testing::Values(TESTING_DIR
                                          "/phototest-rotated-180.png"),
                        ::testing::Values(TESSDATA_DIR "_fast")));
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     TessdataFastRotated270, OSDTest,
     ::testing::Combine(::testing::Values(270),
                        ::testing::Values(TESTING_DIR
                                          "/phototest-rotated-L.png"),
                        ::testing::Values(TESSDATA_DIR "_fast")));
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     TessdataFastDevaRotated270, OSDTest,
     ::testing::Combine(::testing::Values(270),
                        ::testing::Values(TESTING_DIR
                                          "/devatest-rotated-270.png"),
                        ::testing::Values(TESSDATA_DIR "_fast")));
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     TessdataFastDeva, OSDTest,
     ::testing::Combine(::testing::Values(0),
                        ::testing::Values(TESTING_DIR "/devatest.png"),

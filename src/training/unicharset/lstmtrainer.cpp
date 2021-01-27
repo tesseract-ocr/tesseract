@@ -813,19 +813,22 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   bool invert = trainingdata->boxes().empty();
   if (!RecognizeLine(*trainingdata, invert, debug, invert, upside_down,
                      &image_scale, &inputs, fwd_outputs)) {
-    tprintf("Image not trainable\n");
+    tprintf("Image %s not trainable\n",
+            trainingdata->imagefilename().c_str());
     return UNENCODABLE;
   }
   targets->Resize(*fwd_outputs, network_->NumOutputs());
   LossType loss_type = OutputLossType();
   if (loss_type == LT_SOFTMAX) {
     if (!ComputeTextTargets(*fwd_outputs, truth_labels, targets)) {
-      tprintf("Compute simple targets failed!\n");
+      tprintf("Compute simple targets failed for %s!\n",
+              trainingdata->imagefilename().c_str());
       return UNENCODABLE;
     }
   } else if (loss_type == LT_CTC) {
     if (!ComputeCTCTargets(truth_labels, fwd_outputs, targets)) {
-      tprintf("Compute CTC targets failed!\n");
+      tprintf("Compute CTC targets failed for %s!\n",
+              trainingdata->imagefilename().c_str());
       return UNENCODABLE;
     }
   } else {
