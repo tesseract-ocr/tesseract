@@ -69,7 +69,7 @@ jobs:
       run: |
            git log -1
            ${{ matrix.compiler }} --version
-           cat unittest/test-suite.log
+           cat test-suite.log
       if: always()
 
   macos-brew:

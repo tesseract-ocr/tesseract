@@ -70,5 +70,5 @@ jobs:
       run: |
            git log -3
            ${{ matrix.compiler }} --version     
-           cat unittest/test-suite.log
+           cat test-suite.log
       if: always()
