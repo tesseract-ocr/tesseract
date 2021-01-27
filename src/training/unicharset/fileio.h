@@ -17,8 +17,7 @@
 #define TESSERACT_TRAINING_FILEIO_H_
 
 #include "export.h"
-
-#include "genericvector.h"      // for GenericVector
+#include "serialis.h"           // for LoadDataFromFile
 #include "strngs.h"             // for STRING
 
 #include <tesseract/export.h>
@@ -33,7 +32,7 @@ namespace tesseract {
 // TODO: Use std::vector and std::string for LoadFileLinesToStrings.
 inline bool LoadFileLinesToStrings(const char* filename,
                                    std::vector<STRING>* lines) {
-  GenericVector<char> data;
+  std::vector<char> data;
   if (!LoadDataFromFile(filename, &data)) {
     return false;
   }

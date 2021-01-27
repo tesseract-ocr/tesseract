@@ -22,8 +22,6 @@
 #include          "clst.h"
 #include          "polyblk.h"
 
-#include          "strngs.h"
-
 struct Pix;
 
 namespace tesseract {

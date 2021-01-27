@@ -193,11 +193,9 @@ static void remove_nontext_regions(tesseract::Tesseract *tess,
 int orientation_and_script_detection(const char* filename,
                                      OSResults* osr,
                                      tesseract::Tesseract* tess) {
-  STRING name = filename;        //truncated name
-  const char *lastdot;           //of name
-  TBOX page_box;
+  std::string name = filename;   //truncated name
 
-  lastdot = strrchr(name.c_str(), '.');
+  const char* lastdot = strrchr(name.c_str(), '.');
   if (lastdot != nullptr)
     name[lastdot-name.c_str()] = '\0';
 
@@ -218,10 +216,7 @@ int orientation_and_script_detection(const char* filename,
     tess->mutable_textord()->find_components(tess->pix_binary(),
                                              &blocks, &port_blocks);
   } else {
-    page_box.set_left(0);
-    page_box.set_bottom(0);
-    page_box.set_right(width);
-    page_box.set_top(height);
+    TBOX page_box(0, 0, width, height);
     // Filter_blobs sets up the TO_BLOCKs the same as find_components does.
     tess->mutable_textord()->filter_blobs(page_box.topright(),
                                           &port_blocks, true);

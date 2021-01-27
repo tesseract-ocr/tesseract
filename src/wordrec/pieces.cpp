@@ -215,16 +215,16 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
         if (yshift < negative_yshift) negative_yshift = yshift;
         // Use the min font rating over the parts.
         // TODO(rays) font lists are unsorted. Need to be faster?
-        auto &frag_fonts = choice_lists_it[i].data()->fonts();
-        for (int f = 0; f < frag_fonts.size(); ++f) {
+        const auto& frag_fonts = choice_lists_it[i].data()->fonts();
+        for (auto frag_font : frag_fonts) {
           int merged_f = 0;
-          for (merged_f = 0; merged_f < merged_fonts.size() &&
-               merged_fonts[merged_f].fontinfo_id != frag_fonts[f].fontinfo_id;
+          for (; merged_f < merged_fonts.size() &&
+               merged_fonts[merged_f].fontinfo_id != frag_font.fontinfo_id;
                ++merged_f) {}
           if (merged_f == merged_fonts.size()) {
-            merged_fonts.push_back(frag_fonts[f]);
-          } else if (merged_fonts[merged_f].score > frag_fonts[f].score) {
-            merged_fonts[merged_f].score = frag_fonts[f].score;
+            merged_fonts.push_back(frag_font);
+          } else if (merged_fonts[merged_f].score > frag_font.score) {
+            merged_fonts[merged_f].score = frag_font.score;
           }
         }
       }

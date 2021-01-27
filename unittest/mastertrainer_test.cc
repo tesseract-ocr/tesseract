@@ -23,7 +23,6 @@
 
 #include "include_gunit.h"
 
-#include "genericvector.h"
 #include "log.h"                        // for LOG
 #include "unicharset.h"
 #include "errorcounter.h"
@@ -159,6 +158,14 @@ class MasterTrainerTest : public testing::Test {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
+  MasterTrainerTest() {
+    shape_table_ = nullptr;
+    master_trainer_ = nullptr;
+  }
+  ~MasterTrainerTest() {
+    delete shape_table_;
+  }
+
   // Initializes the master_trainer_ and shape_table_.
   // if load_from_tmp, then reloads a master trainer that was saved by a
   // previous call in which it was false.
@@ -171,9 +178,10 @@ class MasterTrainerTest : public testing::Test {
     const char* argv[] = {tr_file_name.c_str()};
     int argc = 1;
     STRING file_prefix;
-    auto [m,s] = LoadTrainingData(argc, argv, false, true, &file_prefix);
-    master_trainer_ = std::move(m);
-    shape_table_ = std::move(s);
+    delete shape_table_;
+    shape_table_ = nullptr;
+    master_trainer_ =
+        LoadTrainingData(argc, argv, false, &shape_table_, &file_prefix);
     EXPECT_TRUE(master_trainer_ != nullptr);
     EXPECT_TRUE(shape_table_ != nullptr);
   }
@@ -226,7 +234,7 @@ class MasterTrainerTest : public testing::Test {
   }
 
   // Objects declared here can be used by all tests in the test case for Foo.
-  std::unique_ptr<ShapeTable> shape_table_;
+  ShapeTable* shape_table_;
   std::unique_ptr<MasterTrainer> master_trainer_;
 #endif
 };
@@ -257,7 +265,7 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
   // count junk.
   if (shape_table_->FindShape(0, -1) < 0) shape_table_->AddShape(0, 0);
   // Make a mock classifier.
-  auto shape_classifier = std::make_unique<MockClassifier>(shape_table_.get());
+  auto shape_classifier = std::make_unique<MockClassifier>(shape_table_);
   // Get the accuracy report.
   STRING accuracy_report;
   master_trainer_->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR, 0,

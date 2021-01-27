@@ -20,7 +20,6 @@
 #define TESSERACT_LSTM_CTC_H_
 
 #include "export.h"
-#include "genericvector.h"
 #include "network.h"
 #include "networkio.h"
 #include "scrollview.h"

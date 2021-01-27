@@ -22,7 +22,6 @@
 #include "errcode.h"
 #include "unicharmap.h"
 
-#include "genericvector.h"
 #include "helpers.h"
 #include "serialis.h"
 #include "strngs.h"

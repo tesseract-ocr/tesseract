@@ -1,0 +1,100 @@
+name: cmake
+# cmake build of tesseract and training tools with gcc on ubuntu.
+# cmake build of tesseract and training tools macos homebrew.
+# does not build lstm related training tools on macos - icu and ltiff errors.
+on:
+  #push:
+  schedule:
+    - cron: 0 21 * * *
+
+jobs:
+  linux:
+    runs-on: ${{ matrix.cfg.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+          - { os: ubuntu-18.04, cc: gcc-7,  cxx: g++-7 }
+          - { os: ubuntu-18.04, cc: gcc-8,  cxx: g++-8 }
+          - { os: ubuntu-18.04, cc: gcc-9,  cxx: g++-9 }
+          - { os: ubuntu-18.04, cc: gcc-10, cxx: g++-10 }
+          - { os: ubuntu-20.04, cc: gcc-7,  cxx: g++-7 }
+          - { os: ubuntu-20.04, cc: gcc-8,  cxx: g++-8 }
+          - { os: ubuntu-20.04, cc: gcc-9,  cxx: g++-9 }
+          - { os: ubuntu-20.04, cc: gcc-10, cxx: g++-10 }
+          
+    steps:
+      - name: Install compiler
+        run: |
+              sudo apt-get install -y \
+              ${{ matrix.cfg.cc }} \
+              ${{ matrix.cfg.cxx }}
+          
+      - name: Install dependencies
+        run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Configure
+        run: |
+             mkdir build && cd build
+             cmake -DCMAKE_CC_COMPILER=${{ matrix.cfg.cc }} \
+                   -DCMAKE_CXX_COMPILER=${{ matrix.cfg.cxx }} \
+                   -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build
+        run: |
+             cmake --build build --config Release
+
+
+  macos:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }} 
+    strategy:
+      fail-fast: false
+      matrix:
+        config: 
+        - {
+            name: "macOS Latest Clang",
+            os: macos-latest,
+            build_type: "Release",
+            cc: "clang",
+            cxx: "clang++",
+            generators: "Ninja"
+          }
+        - {
+            name: "macOS Latest gcc",
+            os: macos-latest,
+            build_type: "Release",
+            cc: "gcc",
+            cxx: "g++",
+            generators: "Ninja"
+          }
+          
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies on macos
+        run: |
+          brew install cmake ninja leptonica pango libarchive icu4c
+          ninja --version
+          cmake --version
+          
+      - name: Configure
+        shell: bash
+        run: |
+          mkdir build
+          mkdir instdir
+          cmake \
+            -S . \
+            -B build \
+            -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} \
+            -G "${{ matrix.config.generators }}" \
+            -DCMAKE_C_COMPILER=${{ matrix.config.cc }}  \
+            -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+            -DCMAKE_INSTALL_PREFIX:PATH=instdir
+            
+      - name: Build
+        shell: bash
+        run: cmake --build build --config ${{ matrix.config.build_type }}

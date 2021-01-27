@@ -3,7 +3,6 @@
 // Description: A class to find vertically aligned blobs in a BBGrid,
 //              and a struct to hold control parameters.
 // Author:      Ray Smith
-// Created:     Fri Mar 21 15:03:01 PST 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +23,6 @@
 #include "bbgrid.h"
 #include "blobbox.h"
 #include "tabvector.h"
-
-#include "strngs.h"
 
 namespace tesseract {
 
