@@ -1122,7 +1122,7 @@ check_LTLIBRARIES = libgtest.la libgtest_main.la libgmock.la libgmock_main.la
 libgtest_la_SOURCES = googletest/googletest/src/gtest-all.cc
 libgtest_la_CPPFLAGS = -I$(top_srcdir)/googletest/googletest/include -I$(top_srcdir)/googletest/googletest -pthread
 libgtest_main_la_SOURCES = googletest/googletest/src/gtest_main.cc
-## libgtest_main_la_LIBADD = libgtest.la
+libgtest_main_la_CPPFLAGS = $(libgtest_la_CPPFLAGS)
 
 # Build Abseil (needed for some unit tests).
 check_LTLIBRARIES += libabseil.la
@@ -1153,6 +1153,7 @@ libabseil_la_SOURCES += abseil/absl/strings/str_split.cc
 libabseil_la_SOURCES += abseil/absl/strings/string_view.cc
 libabseil_la_SOURCES += abseil/absl/time/clock.cc
 libabseil_la_SOURCES += abseil/absl/time/duration.cc
+libabseil_la_CPPFLAGS = -I$(top_srcdir)/abseil
 
 GMOCK_INCLUDES = -I$(top_srcdir)/googletest/googlemock/include \
                  -I$(top_srcdir)/googletest/googlemock \
