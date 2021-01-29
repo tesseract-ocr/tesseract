@@ -1,14 +1,14 @@
 name: cmake-linuxclang-win
 # cmake build of tesseract and training tools with clang on ubuntu.
 # src/arch/simddetect.cpp:46:10: fatal error: 'asm/hwcap.h' file not found
-# cmake build of tesseract and training tools on windows.
-# fails, SW program / lept.
+# cmake build of tesseract and training tools on windows FAILS.
+
 on:
   #push:
   schedule:
-    - cron: 0 22 * * *
+    - cron: 0 0 1 * *
 
-# All these jobs are currently failing 
+# All these jobs are currently failing.
 
 jobs:
 
@@ -39,26 +39,41 @@ jobs:
         run: |
              cmake --build build --config Release
 
-  windows:
-    runs-on: ${{ matrix.os }}
+  build:
     strategy:
-      fail-fast: false
       matrix:
-        os: [windows-latest]
-        
+        os: [ 'windows-latest' ]
+    runs-on: ${{ matrix.os }}
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-              submodules: recursive
-      - uses: egorpugin/sw-action@master
+    - name: Install Dependencies (Windows)
+      run: choco install ninja pkgconfiglite
+      
+    - name: Install leptonica (Windows)
+      run: |
+           git clone https://github.com/DanBloomberg/leptonica.git
+           cmake .. -G Ninja -Hleptonica -Bleptonica/build \
+            -DCMAKE_INSTALL_PREFIX=inst \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_MODULE_LINKER_FLAGS=-whole-archive \
+            -DBUILD_SHARED_LIBS=ON \
+            -DSW_BUILD=OFF
+           cmake --build leptonica/build --config Release --target install
+      
+    - name: Get Sources        
+      uses: actions/checkout@v2
     
-      - name: Configure
-        run: |
-             mkdir build && cd build
-             cmake -DSW_BUILD=OFF -DBUILD_TRAINING_TOOLS=OFF -DCMAKE_BUILD_TYPE=Release ..
-        
-      - name: Build
-        run: |
-             cmake --build build --config Release  --target install
-             
+    - name: Setup CMake
+      run: |
+        cmake .. -GNinja -S . -Bbuild \
+         -DBUILD_TRAINING_TOOLS=OFF \
+         -DSW_BUILD=OFF \
+         -DCMAKE_INSTALL_PREFIX=inst \
+         -DCMAKE_PREFIX_PATH=inst \
+         -DCMAKE_BUILD_TYPE=Release \
+         -DCMAKE_MODULE_LINKER_FLAGS=-whole-archive
+      shell: bash
+      
+    - name: Build
+      run: |
+           cmake --build build --config Release --target install

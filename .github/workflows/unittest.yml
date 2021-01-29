@@ -1,0 +1,101 @@
+name: unittest
+# autotools build on ubuntu and macos homebrew, unittests with address sanitizers.
+# LSTMTrainerTest.DeterminismTest fails on Ubuntu 18.04 clang++-9 Issue #3258
+on:
+  #push:
+  schedule:
+    - cron: 0 19 * * *
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { name: ubuntu-18.04-gcc-unittest, os: ubuntu-18.04, cc: gcc,  cxx: g++ }
+          - { name: ubuntu-20.04-gcc-unittest, os: ubuntu-20.04, cc: gcc,  cxx: g++ }
+          - { name: ubuntu-20.04-clang-unittest, os: ubuntu-20.04, cc: clang,  cxx: clang++ }
+          - { name: macos-10.15-gcc-unittest, os: macos-10.15, cc: gcc, cxx: g++ }
+          - { name: macos-10.15-clang-unittest, os: macos-10.15, cc: clang, cxx: clang++ }
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Install dependencies (Linux)
+      run: |
+           sudo apt-get install autoconf-archive libleptonica-dev libpango1.0-dev -y
+           sudo apt-get install cabextract -y
+      if: runner.os == 'Linux'
+
+    - name: Install dependencies (MacOS Homebrew)
+      run: |
+           brew install automake autoconf-archive libarchive
+           brew install leptonica cairo pango
+           brew install cabextract abseil
+      if: runner.os == 'macOS'
+           
+    - name: Setup
+      run: |
+           mkdir -p m4
+           ./autogen.sh
+
+    - name: Configure (Linux)
+      run: |
+           ./configure '--disable-shared' \
+                'CC=${{ matrix.config.cc }}' \
+                'CXX=${{ matrix.config.cxx }}' \
+                'CXXFLAGS=-g -O2 -fsanitize=address,undefined'
+      if: runner.os == 'Linux'
+
+    - name: Configure (MacOS Homebrew)
+      run: |
+           ./configure '--disable-shared' '--with-pic' \
+                'CC=${{ matrix.config.cc }}' \
+                'CXX=${{ matrix.config.cxx }}' \
+                'CXXFLAGS=-g -O2 -fsanitize=address,undefined' \
+                'PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig'
+      if: runner.os == 'macOS'
+
+    - name: Make and Install Tesseract
+      run: |
+           make -j 8
+           sudo make install
+
+    - name: Make and Install Training Tools
+      run: |
+           make training -j 8
+           sudo make training-install
+      
+    - name: Display Version
+      run: |
+           ${{ matrix.config.cxx }} --version
+           tesseract -v
+           lstmtraining -v
+           text2image -v
+      if: success() || failure()
+        
+    - name: Download fonts, tessdata and langdata required for tests
+      run: |
+           git clone https://github.com/egorpugin/tessdata tessdata_unittest
+           cp tessdata_unittest/fonts/* test/testing/ 
+           mv tessdata_unittest/* ../
+      
+    - name: Run Tesseract on phototest.tif and devatest.png
+      run: |
+           tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
+           tesseract test/testing/devatest.png - -l hin+eng  --tessdata-dir ../tessdata
+
+    - name: Make and run Unit Tests
+      run: |
+           make check -j 4
+      
+    - name: Display Unit Tests Report
+      run: |
+           cat test-suite.log
+           ${{ matrix.config.cxx }} --version
+           git log -3 --pretty=format:'%h %ad %s | %an' 
+      if: always()
