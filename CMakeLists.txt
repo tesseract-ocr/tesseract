@@ -361,7 +361,7 @@ include(Configure)
 
 configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 
-set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/include/tesseract")
+set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/tesseract/version.h.in
