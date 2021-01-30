@@ -173,7 +173,6 @@ jobs:
       
     - name: Display Version
       run: |
-           ${{ matrix.compiler }} --version
            tesseract -v
            lstmtraining -v
            text2image -v
@@ -189,3 +188,9 @@ jobs:
       run: |
            tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
            tesseract test/testing/raaj.tif - -l hin  --tessdata-dir ../tessdata
+
+    - name: Display Compiler Version
+      run: |
+           ${{ matrix.compiler }} --version
+           git log -3 --pretty=format:'%h %ad %s | %an' 
+      if: always()

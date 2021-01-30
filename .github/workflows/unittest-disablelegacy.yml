@@ -1,9 +1,11 @@
 name: unittest-disablelegacy
 # autotools build on ubuntu, unittests with disabled legacy engine.
+# currently some unittests are failing with disabled legacy engine.
+
 on:
   #push:
   schedule:
-    - cron: 0 18 * * *
+    - cron: 0 0 1 * *
 
 jobs:
   linux:
