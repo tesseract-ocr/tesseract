@@ -164,6 +164,24 @@ if(COMPILER_SUPPORTS_MARCH_NATIVE)
     set(MARCH_NATIVE_OPT ON)
 endif()
 
+# Flags for SIMD support
+set(HAVE_AVX FALSE)
+set(HAVE_AVX2 FALSE)
+set(HAVE_FMA FALSE)
+set(HAVE_SSE4_1 FALSE)
+set(HAVE_NEON FALSE)
+
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64.*|AARCH64.*")
+ set(AARCH64 TRUE)
+endif()
+
+if(AARCH64)
+
+add_definitions("-DHAVE_NEON")
+set(HAVE_NEON TRUE)
+
+else()
+
 CHECK_CXX_COMPILER_FLAG("-mavx" HAVE_AVX)
 if(HAVE_AVX)
     set(AVX_COMPILE_FLAGS "-mavx")
@@ -219,6 +237,8 @@ if(MSVC)
         add_definitions("-DHAVE_SSE4_1")
     endif()
 endif(MSVC)
+
+endif(AARCH64)
 
 # auto optimize - used only for information about available vectors
 include(OptimizeForArchitecture)
