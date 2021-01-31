@@ -56,7 +56,11 @@ endif()
 # experimental
 
 if (NOT SW_BUILD)
-    find_package(ICU 52.1 COMPONENTS uc i18n)
+    if (PKG_CONFIG_FOUND)
+        pkg_check_modules(ICU REQUIRED icu-uc icu-i18n)
+    else()
+        find_package(ICU 52.1 COMPONENTS uc i18n)
+    endif()
 endif()
 
 
@@ -206,7 +210,7 @@ add_library                 (unicharset_training ${unicharset_training_src})
 if (SW_BUILD)
 target_link_libraries       (unicharset_training PUBLIC common_training org.sw.demo.unicode.icu.i18n)
 else()
-target_link_libraries       (unicharset_training PUBLIC common_training ${ICU_LIBRARIES})
+target_link_libraries       (unicharset_training PUBLIC common_training ${ICU_LINK_LIBRARIES})
 endif()
 target_include_directories  (unicharset_training PUBLIC unicharset ${CMAKE_CURRENT_BINARY_DIR})
 generate_export_header      (unicharset_training EXPORT_MACRO_NAME TESS_UNICHARSET_TRAINING_API)
@@ -307,11 +311,11 @@ if (PKG_CONFIG_FOUND)
 target_include_directories  (pango_training BEFORE PUBLIC ${Cairo_INCLUDE_DIRS} ${Pango_INCLUDE_DIRS})
 target_compile_definitions  (pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
 target_link_libraries       (pango_training PUBLIC
-    ${Pango_LIBRARIES}
-    ${Cairo_LIBRARIES}
-    ${PangoCairo_LIBRARIES}
-    ${PangoFt2_LIBRARIES}
-    ${FontConfig_LIBRARIES}
+    ${Pango_LINK_LIBRARIES}
+    ${Cairo_LINK_LIBRARIES}
+    ${PangoCairo_LINK_LIBRARIES}
+    ${PangoFt2_LINK_LIBRARIES}
+    ${FontConfig_LINK_LIBRARIES}
 )
 endif()
 endif()

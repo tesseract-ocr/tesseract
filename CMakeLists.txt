@@ -350,7 +350,12 @@ else()
         message(FATAL_ERROR "Cannot find required library Leptonica. Quitting!")
     endif(NOT Leptonica_FOUND)
 
-    find_package(LibArchive)
+    # Check for optional libarchive.
+    if(PKG_CONFIG_EXECUTABLE)
+        pkg_check_modules(LibArchive libarchive)
+    else()
+        find_package(LibArchive)
+    endif()
     if(LibArchive_FOUND)
         set(HAVE_LIBARCHIVE ON)
     endif()
