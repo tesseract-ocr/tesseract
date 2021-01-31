@@ -591,8 +591,10 @@ if(HAVE_SSE4_1)
 endif(HAVE_SSE4_1)
 if(HAVE_NEON)
    list(APPEND arch_files_opt src/arch/intsimdmatrixneon.cpp)
-   set_source_files_properties(src/arch/intsimdmatrixneon.cpp
-                               PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
+   if(NEON_COMPILE_FLAGS)
+       set_source_files_properties(src/arch/intsimdmatrixneon.cpp
+                                   PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
+   endif()
 endif(HAVE_NEON)
 
 file(GLOB_RECURSE tesseract_hdr
