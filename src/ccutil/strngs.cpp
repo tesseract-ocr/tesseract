@@ -59,7 +59,7 @@ bool STRING::DeSerialize(bool swap, FILE* fp) {
   // Arbitrarily limit the number of characters to protect against bad data.
   if (len > UINT16_MAX) return false;
   truncate_at(len);
-  return tesseract::DeSerialize(fp, data(), len);
+  return tesseract::DeSerialize(fp, (char *)data(), len);
 }
 
 // Reads from the given file. Returns false in case of error.
@@ -68,7 +68,7 @@ bool STRING::DeSerialize(TFile* fp) {
   uint32_t len;
   if (!fp->DeSerialize(&len)) return false;
   truncate_at(len);
-  return fp->DeSerialize(data(), len);
+  return fp->DeSerialize((char *)data(), len);
 }
 
 // As DeSerialize, but only seeks past the data - hence a static method.

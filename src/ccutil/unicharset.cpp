@@ -615,7 +615,8 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr,
     if (!old_style_included_ &&
         encode_string(str, true, &encoding, nullptr, nullptr))
       return;
-    auto &u = unichars.emplace_back();
+    unichars.emplace_back();
+    auto &u = unichars.at(unichars.size()-1);
     int index = 0;
     do {
       if (index >= UNICHAR_LEN) {
