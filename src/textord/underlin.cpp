@@ -18,6 +18,8 @@
 
 #include "underlin.h"
 
+namespace tesseract {
+
 double_VAR (textord_underline_offset, 0.1, "Fraction of x to ignore");
 BOOL_VAR (textord_restore_underlines, true, "Chop underlines & put back");
 
@@ -272,3 +274,5 @@ void vertical_cunderline_projection(                        //project outlines
       lower_proj, middle_proj, upper_proj);
   }
 }
+
+} // namespace tesseract

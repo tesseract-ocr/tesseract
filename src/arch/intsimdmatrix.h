@@ -18,15 +18,15 @@
 #ifndef TESSERACT_ARCH_INTSIMDMATRIX_H_
 #define TESSERACT_ARCH_INTSIMDMATRIX_H_
 
+#include <tesseract/export.h>
+
 #include <cstdint>
 #include <vector>
 
+namespace tesseract {
+
 template <class T>
 class GENERIC_2D_ARRAY;
-template <typename T>
-class GenericVector;
-
-namespace tesseract {
 
 // Base class for a SIMD function to multiply a matrix by a vector, with sources
 // of 8-bit signed integer, and result in a double, after appropriate scaling.
@@ -59,11 +59,11 @@ namespace tesseract {
 // NOTE that, although the subclasses execute on different SIMD hardware, no
 // virtual methods are needed, as the constructor sets up everything that
 // is required to allow the base class implementation to do all the work.
-struct IntSimdMatrix {
+struct TESS_API IntSimdMatrix {
   // Computes a reshaped copy of the weight matrix w.
   void Init(const GENERIC_2D_ARRAY<int8_t>& w,
             std::vector<int8_t>& shaped_w,
-            GenericVector<double>& scales) const;
+            int32_t& rounded_num_out) const;
 
   // Rounds the size up to a multiple of the input register size (in int8_t).
   int RoundInputs(int size) const {
@@ -80,7 +80,7 @@ struct IntSimdMatrix {
   // implement the bias, but it doesn't actually have it.
   // Computes the base C++ implementation.
   static void MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
-                              const GenericVector<double>& scales,
+                              const std::vector<double>& scales,
                               const int8_t* u, double* v);
 
   // Rounds the input up to a multiple of the given factor.

@@ -42,5 +42,4 @@ TEST_F(LSTMTrainerTest, EncodeDecodeBothTestKor) {
   TestEncodeDecodeBoth("kor", "한국어 위키백과에 오신 것을 환영합니다!");
 }
 
-
 }  // namespace tesseract.

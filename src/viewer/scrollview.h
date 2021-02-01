@@ -30,11 +30,15 @@
 
 #ifndef TESSERACT_VIEWER_SCROLLVIEW_H_
 #define TESSERACT_VIEWER_SCROLLVIEW_H_
-// TODO(rays) Move ScrollView into the tesseract namespace.
-#ifndef OCR_SCROLLVIEW_H__
+
+#include <tesseract/export.h>
 
 #include <cstdio>
 #include <mutex>
+
+struct Pix;
+
+namespace tesseract {
 
 class ScrollView;
 class SVNetwork;
@@ -93,8 +97,7 @@ class SVEventHandler {
 // Each ScrollView class instance represents one window, and stuff is drawn in
 // the window through method calls on the class. The constructor is used to
 // create the class instance (and the window).
-
-class ScrollView {
+class TESS_API ScrollView {
  public:
 // Color enum for pens and brushes.
   enum Color {
@@ -199,7 +202,7 @@ class ScrollView {
 *******************************************************************************/
 
 // Draw a Pix on (x,y).
-  void Image(struct Pix* image, int x_pos, int y_pos);
+  void Image(Pix* image, int x_pos, int y_pos);
 
 // Flush buffers and update display.
   static void Update();
@@ -412,5 +415,6 @@ class ScrollView {
 #endif // !GRAPHICS_DISABLED
 };
 
-#endif  // OCR_SCROLLVIEW_H__
+} // namespace tesseract
+
 #endif  // TESSERACT_VIEWER_SCROLLVIEW_H_

@@ -18,12 +18,16 @@
 
 #define _USE_MATH_DEFINES       // for M_PI
 
+#include "points.h"
+
+#include "helpers.h"
+#include "serialis.h"
+
 #include <algorithm>
 #include <cmath>                // for M_PI
 #include <cstdlib>
-#include <tesseract/helpers.h>
-#include <tesseract/serialis.h>
-#include "points.h"
+
+namespace tesseract {
 
 ELISTIZE (ICOORDELT)           //turn to list
 bool FCOORD::normalise() {  //Convert to unit vec
@@ -140,3 +144,5 @@ FCOORD FCOORD::nearest_pt_on_line(const FCOORD& line_point,
   double lambda = point_vector % dir_vector / dir_vector.sqlength();
   return line_point + (dir_vector * lambda);
 }
+
+} // namespace tesseract

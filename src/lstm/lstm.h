@@ -2,7 +2,6 @@
 // File:        lstm.h
 // Description: Long-term-short-term-memory Recurrent neural network.
 // Author:      Ray Smith
-// Created:     Wed May 01 17:33:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,7 +46,8 @@ class LSTM : public Network {
   // 2-d and bidi softmax LSTMs are not rejected, but are impossible to build
   // in the conventional way because the output feedback both forwards and
   // backwards in time does become impossible.
-  LSTM(const STRING& name, int num_inputs, int num_states, int num_outputs,
+  TESS_API
+  LSTM(const std::string& name, int num_inputs, int num_states, int num_outputs,
        bool two_dimensional, NetworkType type);
   ~LSTM() override;
 

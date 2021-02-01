@@ -21,15 +21,15 @@
 #define TESSERACT_CCMAIN_LTR_RESULT_ITERATOR_H_
 
 #include "pageiterator.h"  // for PageIterator
-#include "platform.h"      // for TESS_API
+#include "export.h"      // for TESS_API
 #include "publictypes.h"   // for PageIteratorLevel
 #include "unichar.h"       // for StrongScriptDirection
+
+namespace tesseract {
 
 class BLOB_CHOICE_IT;
 class PAGE_RES;
 class WERD_RES;
-
-namespace tesseract {
 
 class Tesseract;
 
@@ -40,7 +40,7 @@ class Tesseract;
 // therefore can only be used while the TessBaseAPI class still exists and
 // has not been subjected to a call of Init, SetImage, Recognize, Clear, End
 // DetectOS, or anything else that changes the internal PAGE_RES.
-// See apitypes.h for the definition of PageIteratorLevel.
+// See tesseract/publictypes.h for the definition of PageIteratorLevel.
 // See also base class PageIterator, which contains the bulk of the interface.
 // LTRResultIterator adds text-specific methods for access to OCR output.
 
@@ -183,7 +183,7 @@ class TESS_API LTRResultIterator : public PageIterator {
 };
 
 // Class to iterate over the classifier choices for a single RIL_SYMBOL.
-class ChoiceIterator {
+class TESS_API ChoiceIterator {
  public:
   // Construction is from a LTRResultIterator that points to the symbol of
   // interest. The ChoiceIterator allows a one-shot iteration over the

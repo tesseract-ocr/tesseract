@@ -20,8 +20,12 @@
 #ifndef           BLKOCC_H
 #define           BLKOCC_H
 
-#include                   "params.h"
+#include          "params.h"
 #include          "elst.h"
+
+namespace tesseract {
+
+class C_BLOB;
 
 /***************************************************************************
 CLASS REGION_OCC
@@ -40,7 +44,7 @@ CLASS REGION_OCC
 
 ****************************************************************************/
 
-class REGION_OCC:public ELIST_LINK
+class REGION_OCC : public ELIST_LINK
 {
   public:
     float min_x;                 //Lowest x in region
@@ -243,5 +247,7 @@ bool test_underline(                   //look for underlines
         int16_t baseline,    //coords of baseline
         int16_t xheight      //height of line
 );
+
+} // namespace tesseract
 
 #endif

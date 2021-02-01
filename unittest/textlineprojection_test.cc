@@ -24,12 +24,7 @@
 #include "tesseractclass.h"
 #include "textlineprojection.h"
 
-namespace {
-
-using tesseract::ColumnFinder;
-using tesseract::MutableIterator;
-using tesseract::Tesseract;
-using tesseract::TextlineProjection;
+namespace tesseract {
 
 // Minimum score for a STRONG_CHAIN textline.
 // NOTE: Keep in sync with textlineprojection.cc.
@@ -39,6 +34,7 @@ const int kMinStrongTextValue = 6;
 class TextlineProjectionTest : public testing::Test {
  protected:
   std::string OutputNameToPath(const std::string& name) {
+    file::MakeTmpdir();
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 

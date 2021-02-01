@@ -22,6 +22,8 @@
 #include "params.h"     // for BOOL_VAR_H, BoolParam
 #include "scrollview.h" // ScrollView
 
+namespace tesseract {
+
 struct EDGEPT;
 struct TBLOB;
 struct TESSLINE;
@@ -48,5 +50,7 @@ void render_blob(ScrollView* window, TBLOB *blob, ScrollView::Color color);
 void render_edgepts(ScrollView* window, EDGEPT *edgept, ScrollView::Color color);
 
 void render_outline(ScrollView* window, TESSLINE* outline, ScrollView::Color color);
+
+} // namespace tesseract
 
 #endif

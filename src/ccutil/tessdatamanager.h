@@ -19,9 +19,10 @@
 #ifndef TESSERACT_CCUTIL_TESSDATAMANAGER_H_
 #define TESSERACT_CCUTIL_TESSDATAMANAGER_H_
 
-#include <string>
-#include <tesseract/genericvector.h>
-#include <tesseract/strngs.h>             // for STRING
+#include "serialis.h"          // FileWriter
+#include <tesseract/baseapi.h> // FileReader
+#include <string>              // std::string
+#include <vector>              // std::vector
 
 static const char kTrainedDataSuffix[] = "traineddata";
 
@@ -123,8 +124,7 @@ static const char *const kTessdataFileSuffixes[] = {
  */
 static const int kMaxNumTessdataEntries = 1000;
 
-
-class TessdataManager {
+class TESS_API TessdataManager {
  public:
   TessdataManager();
   explicit TessdataManager(FileReader reader);
@@ -151,7 +151,7 @@ class TessdataManager {
   // Saves to the given filename.
   bool SaveFile(const char* filename, FileWriter writer) const;
   // Serializes to the given vector.
-  void Serialize(GenericVector<char> *data) const;
+  void Serialize(std::vector<char> *data) const;
   // Resets to the initial state, keeping the reader.
   void Clear();
 
@@ -245,7 +245,7 @@ class TessdataManager {
   // True if the bytes need swapping.
   bool swap_;
   // Contents of each element of the traineddata file.
-  GenericVector<char> entries_[TESSDATA_NUM_ENTRIES];
+  std::vector<char> entries_[TESSDATA_NUM_ENTRIES];
 };
 
 }  // namespace tesseract

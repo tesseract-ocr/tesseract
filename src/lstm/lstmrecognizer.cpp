@@ -2,7 +2,6 @@
 // File:        lstmrecognizer.cpp
 // Description: Top-level line recognizer class for LSTM-based networks.
 // Author:      Ray Smith
-// Created:     Thu May 02 10:59:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +25,7 @@
 #include "allheaders.h"
 #include "dict.h"
 #include "genericheap.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "imagedata.h"
 #include "input.h"
 #include "lstm.h"
@@ -48,7 +47,7 @@ const double kDictRatio = 2.25;
 // Default certainty offset to give the dictionary a chance.
 const double kCertOffset = -0.085;
 
-LSTMRecognizer::LSTMRecognizer(const STRING language_data_path_prefix)
+LSTMRecognizer::LSTMRecognizer(const char* language_data_path_prefix)
     : LSTMRecognizer::LSTMRecognizer() {
   ccutil_.language_data_path_prefix = language_data_path_prefix;
 }
@@ -91,7 +90,7 @@ bool LSTMRecognizer::Serialize(const TessdataManager* mgr, TFile* fp) const {
                           !mgr->IsComponentAvailable(TESSDATA_LSTM_UNICHARSET);
   if (!network_->Serialize(fp)) return false;
   if (include_charsets && !GetUnicharset().save_to_file(fp)) return false;
-  if (!network_str_.Serialize(fp)) return false;
+  if (!fp->Serialize(network_str_)) return false;
   if (!fp->Serialize(&training_flags_)) return false;
   if (!fp->Serialize(&training_iteration_)) return false;
   if (!fp->Serialize(&sample_iteration_)) return false;
@@ -113,7 +112,7 @@ bool LSTMRecognizer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
                           !mgr->IsComponentAvailable(TESSDATA_LSTM_UNICHARSET);
   if (include_charsets && !ccutil_.unicharset.load_from_file(fp, false))
     return false;
-  if (!network_str_.DeSerialize(fp)) return false;
+  if (!fp->DeSerialize(network_str_)) return false;
   if (!fp->DeSerialize(&training_flags_)) return false;
   if (!fp->DeSerialize(&training_iteration_)) return false;
   if (!fp->DeSerialize(&sample_iteration_)) return false;
@@ -291,7 +290,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   // Check for auto inversion.
   float pos_min, pos_mean, pos_sd;
   OutputStats(*outputs, &pos_min, &pos_mean, &pos_sd);
-  if (invert && pos_min < 0.5) {
+  if (invert && pos_mean < 0.5) {
     // Run again inverted and see if it is any better.
     NetworkIO inv_inputs, inv_outputs;
     inv_inputs.set_int_mode(IsIntMode());
@@ -303,7 +302,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                       &inv_outputs);
     float inv_min, inv_mean, inv_sd;
     OutputStats(inv_outputs, &inv_min, &inv_mean, &inv_sd);
-    if (inv_min > pos_min && inv_mean > pos_mean && inv_sd < pos_sd) {
+    if (inv_mean > pos_mean) {
       // Inverted did better. Use inverted data.
       if (debug) {
         tprintf("Inverting image: old min=%g, mean=%g, sd=%g, inv %g,%g,%g\n",
@@ -320,7 +319,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   }
   pixDestroy(&pix);
   if (debug) {
-    GenericVector<int> labels, coords;
+    std::vector<int> labels, coords;
     LabelsFromOutputs(*outputs, &labels, &coords);
 #ifndef GRAPHICS_DISABLED
     DisplayForward(*inputs, labels, coords, "LSTMForward", &debug_win_);
@@ -332,7 +331,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
 
 // Converts an array of labels to utf-8, whether or not the labels are
 // augmented with character boundaries.
-STRING LSTMRecognizer::DecodeLabels(const GenericVector<int>& labels) {
+STRING LSTMRecognizer::DecodeLabels(const std::vector<int>& labels) {
   STRING result;
   int end = 1;
   for (int start = 0; start < labels.size(); start = end) {
@@ -350,8 +349,8 @@ STRING LSTMRecognizer::DecodeLabels(const GenericVector<int>& labels) {
 // Displays the forward results in a window with the characters and
 // boundaries as determined by the labels and label_coords.
 void LSTMRecognizer::DisplayForward(const NetworkIO& inputs,
-                                    const GenericVector<int>& labels,
-                                    const GenericVector<int>& label_coords,
+                                    const std::vector<int>& labels,
+                                    const std::vector<int>& label_coords,
                                     const char* window_name,
                                     ScrollView** window) {
   Pix* input_pix = inputs.ToPix();
@@ -363,8 +362,8 @@ void LSTMRecognizer::DisplayForward(const NetworkIO& inputs,
 
 // Displays the labels and cuts at the corresponding xcoords.
 // Size of labels should match xcoords.
-void LSTMRecognizer::DisplayLSTMOutput(const GenericVector<int>& labels,
-                                       const GenericVector<int>& xcoords,
+void LSTMRecognizer::DisplayLSTMOutput(const std::vector<int>& labels,
+                                       const std::vector<int>& xcoords,
                                        int height, ScrollView* window) {
   int x_scale = network_->XScaleFactor();
   window->TextAttributes("Arial", height / 4, false, false, false);
@@ -391,8 +390,8 @@ void LSTMRecognizer::DisplayLSTMOutput(const GenericVector<int>& labels,
 // Prints debug output detailing the activation path that is implied by the
 // label_coords.
 void LSTMRecognizer::DebugActivationPath(const NetworkIO& outputs,
-                                         const GenericVector<int>& labels,
-                                         const GenericVector<int>& xcoords) {
+                                         const std::vector<int>& labels,
+                                         const std::vector<int>& xcoords) {
   if (xcoords[0] > 0)
     DebugActivationRange(outputs, "<null>", null_char_, 0, xcoords[0]);
   int end = 1;
@@ -461,8 +460,8 @@ static bool NullIsBest(const NetworkIO& output, float null_thr,
 // final xcoord for the end of the output.
 // The conversion method is determined by internal state.
 void LSTMRecognizer::LabelsFromOutputs(const NetworkIO& outputs,
-                                       GenericVector<int>* labels,
-                                       GenericVector<int>* xcoords) {
+                                       std::vector<int>* labels,
+                                       std::vector<int>* xcoords) {
   if (SimpleTextOutput()) {
     LabelsViaSimpleText(outputs, labels, xcoords);
   } else {
@@ -473,8 +472,8 @@ void LSTMRecognizer::LabelsFromOutputs(const NetworkIO& outputs,
 // As LabelsViaCTC except that this function constructs the best path that
 // contains only legal sequences of subcodes for CJK.
 void LSTMRecognizer::LabelsViaReEncode(const NetworkIO& output,
-                                       GenericVector<int>* labels,
-                                       GenericVector<int>* xcoords) {
+                                       std::vector<int>* labels,
+                                       std::vector<int>* xcoords) {
   if (search_ == nullptr) {
     search_ =
         new RecodeBeamSearch(recoder_, null_char_, SimpleTextOutput(), dict_);
@@ -487,10 +486,10 @@ void LSTMRecognizer::LabelsViaReEncode(const NetworkIO& output,
 // the simple character model (each position is a char, and the null_char_ is
 // mainly intended for tail padding.)
 void LSTMRecognizer::LabelsViaSimpleText(const NetworkIO& output,
-                                         GenericVector<int>* labels,
-                                         GenericVector<int>* xcoords) {
-  labels->truncate(0);
-  xcoords->truncate(0);
+                                         std::vector<int>* labels,
+                                         std::vector<int>* xcoords) {
+  labels->clear();
+  xcoords->clear();
   const int width = output.Width();
   for (int t = 0; t < width; ++t) {
     float score = 0.0f;
@@ -505,7 +504,7 @@ void LSTMRecognizer::LabelsViaSimpleText(const NetworkIO& output,
 
 // Returns a string corresponding to the label starting at start. Sets *end
 // to the next start and if non-null, *decoded to the unichar id.
-const char* LSTMRecognizer::DecodeLabel(const GenericVector<int>& labels,
+const char* LSTMRecognizer::DecodeLabel(const std::vector<int>& labels,
                                         int start, int* end, int* decoded) {
   *end = start + 1;
   if (IsRecoding()) {

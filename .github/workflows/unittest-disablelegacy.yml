@@ -1,0 +1,76 @@
+name: unittest-disablelegacy
+# autotools build on ubuntu, unittests with disabled legacy engine.
+# currently some unittests are failing with disabled legacy engine.
+
+on:
+  #push:
+  schedule:
+    - cron: 0 0 1 * *
+
+jobs:
+  linux:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [ g++, clang++ ]
+        os: [ ubuntu-18.04, ubuntu-20.04 ]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        
+    - name: Install dependencies
+      run: |
+           sudo apt-get install autoconf-archive libleptonica-dev libpango1.0-dev -y
+           sudo apt-get install cabextract -y
+
+    - name: Setup
+      run: |
+           mkdir -p m4
+           ./autogen.sh
+
+    - name: Configure
+      run: |
+           ./configure '--disable-shared' '--disable-legacy' 'CXX=${{ matrix.compiler }}'
+      
+    - name: Make and Install Tesseract
+      run: |
+           make -j 8
+           sudo make install install
+
+    - name: Make and Install Training Tools
+      run: |
+           make training -j 8
+           sudo make install training-install
+      
+    - name: Display Version
+      run: |
+           ${{ matrix.compiler }} --version
+           tesseract -v
+           lstmtraining -v
+           text2image -v
+      if: success() || failure()
+        
+    - name: Download fonts, tessdata and langdata required for tests
+      run: |
+           git clone https://github.com/egorpugin/tessdata tessdata_unittest
+           cp tessdata_unittest/fonts/* test/testing/ 
+           mv tessdata_unittest/* ../
+      
+    - name: Run Tesseract on phototest.tif and devatest.png
+      run: |
+           tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
+           tesseract test/testing/devatest.png - -l hin+eng  --tessdata-dir ../tessdata
+
+    - name: Make and run Unit Tests
+      run: |
+           make check -j 4
+      
+    - name: Display Unit Tests Report
+      run: |
+           git log -3
+           ${{ matrix.compiler }} --version     
+           cat test-suite.log
+      if: always()

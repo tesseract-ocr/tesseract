@@ -27,7 +27,8 @@ namespace tesseract {
 class Parallel : public Plumbing {
  public:
   // ni_ and no_ will be set by AddToStack.
-  Parallel(const STRING& name, NetworkType type);
+  TESS_API
+  Parallel(const char* name, NetworkType type);
   ~Parallel() override = default;
 
   // Returns the shape output from the network given an input shape (which may

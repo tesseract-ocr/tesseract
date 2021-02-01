@@ -27,7 +27,7 @@
 #include <tesseract/unichar.h>
 #include "unicharset.h"
 #include "tesseractclass.h"
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 #ifndef DISABLED_LEGACY_ENGINE
 /** Max number of blobs to classify together in FindSegmentation. */
@@ -113,8 +113,8 @@ static void clear_any_old_text(BLOCK_LIST *block_list) {
 PAGE_RES* Tesseract::ApplyBoxes(const char* filename,
                                 bool find_segmentation,
                                 BLOCK_LIST *block_list) {
-  GenericVector<TBOX> boxes;
-  GenericVector<STRING> texts, full_texts;
+  std::vector<TBOX> boxes;
+  std::vector<STRING> texts, full_texts;
   if (!ReadAllBoxes(applybox_page, true, filename, &boxes, &texts, &full_texts,
                     nullptr)) {
     return nullptr;  // Can't do it.
@@ -205,7 +205,7 @@ void Tesseract::PreenXHeights(BLOCK_LIST *block_list) {
 
 /// Builds a PAGE_RES from the block_list in the way required for ApplyBoxes:
 /// All fuzzy spaces are removed, and all the words are maximally chopped.
-PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
+PAGE_RES* Tesseract::SetupApplyBoxes(const std::vector<TBOX>& boxes,
                                      BLOCK_LIST *block_list) {
   PreenXHeights(block_list);
   // Strip all fuzzy space markers to simplify the PAGE_RES.
@@ -241,7 +241,7 @@ PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
 /// Tests the chopper by exhaustively running chop_one_blob.
 /// The word_res will contain filled chopped_word, seam_array, denorm,
 /// box_word and best_state for the maximally chopped word.
-void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
+void Tesseract::MaximallyChopWord(const std::vector<TBOX>& boxes,
                                   BLOCK* block, ROW* row,
                                   WERD_RES* word_res) {
   if (!word_res->SetupForRecognition(unicharset, this, BestPix(),
@@ -791,7 +791,7 @@ void Tesseract::CorrectClassifyWords(PAGE_RES* page_res) {
     for (int i = 0; i < word_res->correct_text.size(); ++i) {
       // The part before the first space is the real ground truth, and the
       // rest is the bounding box location and page number.
-      GenericVector<STRING> tokens;
+      std::vector<STRING> tokens;
       word_res->correct_text[i].split(' ', &tokens);
       UNICHAR_ID char_id = unicharset.unichar_to_id(tokens[0].c_str());
       choice->append_unichar_id_space_allocated(char_id,

@@ -2,7 +2,6 @@
 // File:        intsimdmatrix.cpp
 // Description: Base class for 8-bit int SIMD matrix multipliers.
 // Author:      Ray Smith
-// Created:     Tue Aug 15 08:01:32 PST 2017
 //
 // (C) Copyright 2017, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +16,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "intsimdmatrix.h"
-#include <tesseract/genericvector.h>      // for GenericVector
 #include "matrix.h"             // for GENERIC_2D_ARRAY
 #include "simddetect.h"         // for SIMDDetect
 
@@ -28,15 +26,14 @@ const IntSimdMatrix* IntSimdMatrix::intSimdMatrix = nullptr;
 // Computes a reshaped copy of the weight matrix w.
 void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w,
                          std::vector<int8_t>& shaped_w,
-                         GenericVector<double>& scales) const {
+                         int32_t& rounded_num_out) const {
   const int num_out = w.dim1();
   const int num_in = w.dim2() - 1;
   // The rounded-up sizes of the reshaped weight matrix, excluding biases.
   int rounded_num_in = Roundup(num_in, num_inputs_per_group_);
-  int rounded_num_out = RoundOutputs(num_out);
+  rounded_num_out = RoundOutputs(num_out);
   // Add the bias and compute the required size.
   shaped_w.resize((rounded_num_in + 1) * rounded_num_out, 0);
-  scales.resize_no_init(rounded_num_out);
   int shaped_index = 0;
   int output = 0;
   // Each number of registers needs a different format! Iterates over the
@@ -79,7 +76,7 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w,
 // u is imagined to have an extra element at the end with value 1, to
 // implement the bias, but it doesn't actually have it.
 void IntSimdMatrix::MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
-                                    const GenericVector<double>& scales,
+                                    const std::vector<double>& scales,
                                     const int8_t* u, double* v) {
   int num_out = w.dim1();
   int num_in = w.dim2() - 1;

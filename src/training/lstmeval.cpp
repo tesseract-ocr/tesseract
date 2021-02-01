@@ -15,14 +15,13 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#ifdef GOOGLE_TESSERACT
-#include "base/commandlineflags.h"
-#endif
 #include "commontraining.h"
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "lstmtester.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "tprintf.h"
+
+using namespace tesseract;
 
 static STRING_PARAM_FLAG(model, "", "Name of model file (training or recognition)");
 static STRING_PARAM_FLAG(traineddata, "",

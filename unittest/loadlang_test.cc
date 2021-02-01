@@ -21,7 +21,7 @@
 #include <tesseract/baseapi.h>
 #include "include_gunit.h"
 
-namespace {
+namespace tesseract {
 
 class QuickTest : public testing::Test {
  protected:
@@ -172,11 +172,11 @@ TEST_P(LoadLanguage, vie) { LangLoader("vie", GetParam()); }
 TEST_P(LoadLanguage, yid) { LangLoader("yid", GetParam()); }
 TEST_P(LoadLanguage, yor) { LangLoader("yor", GetParam()); }
 
-INSTANTIATE_TEST_CASE_P(DISABLED_Tessdata_fast, LoadLanguage,
+INSTANTIATE_TEST_SUITE_P(DISABLED_Tessdata_fast, LoadLanguage,
                         ::testing::Values(TESSDATA_DIR "_fast"));
-INSTANTIATE_TEST_CASE_P(DISABLED_Tessdata_best, LoadLanguage,
+INSTANTIATE_TEST_SUITE_P(DISABLED_Tessdata_best, LoadLanguage,
                         ::testing::Values(TESSDATA_DIR "_best"));
-INSTANTIATE_TEST_CASE_P(DISABLED_Tessdata, LoadLanguage,
+INSTANTIATE_TEST_SUITE_P(DISABLED_Tessdata, LoadLanguage,
                         ::testing::Values(TESSDATA_DIR));
 
 // For all scripts
@@ -228,11 +228,11 @@ TEST_P(LoadScript, Thai) { LangLoader("script/Thai", GetParam()); }
 TEST_P(LoadScript, Tibetan) { LangLoader("script/Tibetan", GetParam()); }
 TEST_P(LoadScript, Vietnamese) { LangLoader("script/Vietnamese", GetParam()); }
 
-INSTANTIATE_TEST_CASE_P(DISABLED_Tessdata_fast, LoadScript,
+INSTANTIATE_TEST_SUITE_P(DISABLED_Tessdata_fast, LoadScript,
                         ::testing::Values(TESSDATA_DIR "_fast"));
-INSTANTIATE_TEST_CASE_P(DISABLED_Tessdata_best, LoadScript,
+INSTANTIATE_TEST_SUITE_P(DISABLED_Tessdata_best, LoadScript,
                         ::testing::Values(TESSDATA_DIR "_best"));
-INSTANTIATE_TEST_CASE_P(DISABLED_Tessdata, LoadScript,
+INSTANTIATE_TEST_SUITE_P(DISABLED_Tessdata, LoadScript,
                         ::testing::Values(TESSDATA_DIR));
 
 class LoadLang : public QuickTest {};

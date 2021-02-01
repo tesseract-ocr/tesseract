@@ -22,7 +22,7 @@
 namespace tesseract {
 
 // ni_ and no_ will be set by AddToStack.
-Plumbing::Plumbing(const STRING& name)
+Plumbing::Plumbing(const std::string& name)
   : Network(NT_PARALLEL, name, 0, 0) {
 }
 
@@ -137,7 +137,7 @@ void Plumbing::DebugWeights() {
 
 // Returns a set of strings representing the layer-ids of all layers below.
 void Plumbing::EnumerateLayers(const STRING* prefix,
-                               GenericVector<STRING>* layers) const {
+                               std::vector<STRING>* layers) const {
   for (int i = 0; i < stack_.size(); ++i) {
     STRING layer_name;
     if (prefix) layer_name = *prefix;
@@ -165,7 +165,7 @@ Network* Plumbing::GetLayer(const char* id) const {
 }
 
 // Returns a pointer to the learning rate for the given layer id.
-float* Plumbing::LayerLearningRatePtr(const char* id) const {
+float* Plumbing::LayerLearningRatePtr(const char* id) {
   char* next_id;
   int index = strtol(id, &next_id, 10);
   if (index < 0 || index >= stack_.size()) return nullptr;

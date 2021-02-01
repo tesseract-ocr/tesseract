@@ -24,7 +24,7 @@
 #ifndef TESSERACT_CCUTIL_KDPAIR_H_
 #define TESSERACT_CCUTIL_KDPAIR_H_
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 
 namespace tesseract {
 
@@ -33,17 +33,22 @@ namespace tesseract {
 template <typename Key, typename Data>
 struct KDPair {
   KDPair() = default;
-  KDPair(Key k, Data d) : data(d), key(k) {}
+  KDPair(Key k, Data d) : data_(d), key_(k) {}
 
   int operator==(const KDPair<Key, Data>& other) const {
-    return key == other.key;
+    return key_ == other.key_;
   }
+
+  Data &data() { return data_; }
+  const Data &data() const { return data_; }
+  Key &key() { return key_; }
+  const Key &key() const { return key_; }
 
   // WARNING! Keep data as the first element! KDPairInc and KDPairDec depend
   // on the order of these elements so they can downcast pointers appropriately
   // for use by GenericHeap::Reshuffle.
-  Data data;
-  Key key;
+  Data data_;
+  Key key_;
 };
 // Specialization of KDPair to provide operator< for sorting in increasing order
 // and recasting of data pointers for use with DoublePtr.
@@ -53,7 +58,7 @@ struct KDPairInc : public KDPair<Key, Data> {
   KDPairInc(Key k, Data d) : KDPair<Key, Data>(k, d) {}
   // Operator< facilitates sorting in increasing order.
   int operator<(const KDPairInc<Key, Data>& other) const {
-    return this->key < other.key;
+    return this->key() < other.key();
   }
   // Returns the input Data pointer recast to a KDPairInc pointer.
   // Just casts a pointer to the first element to a pointer to the whole struct.
@@ -70,7 +75,7 @@ struct KDPairDec : public KDPair<Key, Data> {
   // Operator< facilitates sorting in decreasing order by using operator> on
   // the key values.
   int operator<(const KDPairDec<Key, Data>& other) const {
-    return this->key > other.key;
+    return this->key() > other.key();
   }
   // Returns the input Data pointer recast to a KDPairDec pointer.
   // Just casts a pointer to the first element to a pointer to the whole struct.
@@ -91,8 +96,8 @@ class KDPtrPair {
   KDPtrPair(Key k, Data* d) : data_(d), key_(k) {}
   // Copy constructor steals the pointer from src and nulls it in src, thereby
   // moving the (single) ownership of the data.
-  KDPtrPair(KDPtrPair& src) : data_(src.data_), key_(src.key_) {
-    src.data_ = nullptr;
+  KDPtrPair(const KDPtrPair& src) : data_(src.data_), key_(src.key_) {
+    ((KDPtrPair&)src).data_ = nullptr;
   }
   // Destructor deletes data, assuming it is the sole owner.
   ~KDPtrPair() {
@@ -101,10 +106,10 @@ class KDPtrPair {
   }
   // Operator= steals the pointer from src and nulls it in src, thereby
   // moving the (single) ownership of the data.
-  void operator=(KDPtrPair& src) {
+  void operator=(const KDPtrPair& src) {
     delete this->data_;
     this->data_ = src.data_;
-    src.data_ = nullptr;
+    ((KDPtrPair&)src).data_ = nullptr;
     this->key_ = src.key_;
   }
 
@@ -147,8 +152,8 @@ struct KDPtrPairInc : public KDPtrPair<Key, Data> {
   // constructors and operator=.
   KDPtrPairInc() : KDPtrPair<Key, Data>() {}
   KDPtrPairInc(Key k, Data* d) : KDPtrPair<Key, Data>(k, d) {}
-  KDPtrPairInc(KDPtrPairInc& src) : KDPtrPair<Key, Data>(src) {}
-  void operator=(KDPtrPairInc& src) {
+  KDPtrPairInc(const KDPtrPairInc& src) : KDPtrPair<Key, Data>(src) {}
+  void operator=(const KDPtrPairInc& src) {
     KDPtrPair<Key, Data>::operator=(src);
   }
   // Operator< facilitates sorting in increasing order.
@@ -164,8 +169,8 @@ struct KDPtrPairDec : public KDPtrPair<Key, Data> {
   // constructors and operator=.
   KDPtrPairDec() : KDPtrPair<Key, Data>() {}
   KDPtrPairDec(Key k, Data* d) : KDPtrPair<Key, Data>(k, d) {}
-  KDPtrPairDec(KDPtrPairDec& src) : KDPtrPair<Key, Data>(src) {}
-  void operator=(KDPtrPairDec& src) {
+  KDPtrPairDec(const KDPtrPairDec& src) : KDPtrPair<Key, Data>(src) {}
+  void operator=(const KDPtrPairDec& src) {
     KDPtrPair<Key, Data>::operator=(src);
   }
   // Operator< facilitates sorting in decreasing order by using operator> on

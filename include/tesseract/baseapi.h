@@ -19,54 +19,34 @@
 #ifndef TESSERACT_API_BASEAPI_H_
 #define TESSERACT_API_BASEAPI_H_
 
-#include <cstdio>
-#include <functional>  // for std::function
-
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h" // DISABLED_LEGACY_ENGINE
 #endif
 
-// To avoid collision with other typenames include the ABSOLUTE MINIMUM
-// complexity of includes here. Use forward declarations wherever possible
-// and hide includes of complex types in baseapi.cpp.
-#include <tesseract/version.h>
-
-#include "apitypes.h"
 #include "pageiterator.h"
-#include "platform.h"
+#include "export.h"
 #include "publictypes.h"
 #include "resultiterator.h"
-#include "serialis.h"
 #include "thresholder.h"
 #include "unichar.h"
 
-template <typename T>
-class GenericVector;
-class PAGE_RES;
-class PAGE_RES_IT;
-class ParagraphModel;
-struct BlamerBundle;
-class BLOCK_LIST;
-class DENORM;
-class MATRIX;
-class ROW;
-class STRING;
-class WERD;
+#include <tesseract/version.h>
+
+#include <cstdio>
+#include <vector>     // for std::vector
+
 struct Pix;
-struct Box;
 struct Pixa;
 struct Boxa;
-class ETEXT_DESC;
-struct OSResults;
-class TBOX;
-class UNICHARSET;
-class WERD_CHOICE_LIST;
-
-struct INT_FEATURE_STRUCT;
-using INT_FEATURE = INT_FEATURE_STRUCT*;
-struct TBLOB;
 
 namespace tesseract {
+
+class PAGE_RES;
+class ParagraphModel;
+class BLOCK_LIST;
+class ETEXT_DESC;
+struct OSResults;
+class UNICHARSET;
 
 class Dawg;
 class Dict;
@@ -77,19 +57,15 @@ class ResultIterator;
 class MutableIterator;
 class TessResultRenderer;
 class Tesseract;
-class Trie;
-class Wordrec;
+
+// Function to read a std::vector<char> from a whole file.
+// Returns false on failure.
+using FileReader = bool (*)(const char* filename, std::vector<char>* data);
 
 using DictFunc = int (Dict::*)(void*, const UNICHARSET&, UNICHAR_ID,
                                bool) const;
 using ProbabilityInContextFunc = double (Dict::*)(const char*, const char*, int,
                                                   const char*, int);
-using ParamsModelClassifyFunc = float (Dict::*)(const char*, void*);
-using FillLatticeFunc = void (Wordrec::*)(const MATRIX&,
-                                          const WERD_CHOICE_LIST&,
-                                          const UNICHARSET&, BlamerBundle*);
-using TruthCallback =
-    std::function<void(const UNICHARSET&, int, PageIterator*, Pix*)>;
 
 /**
  * Base class for all tesseract APIs.
@@ -181,7 +157,7 @@ class TESS_API TessBaseAPI {
   /**
    * Get value of named variable as a string, if it exists.
    */
-  bool GetVariableAsString(const char* name, STRING* val);
+  bool GetVariableAsString(const char* name, std::string* val);
 
   /**
    * Instances are now mostly thread-safe and totally independent,
@@ -222,8 +198,8 @@ class TESS_API TessBaseAPI {
    */
   int Init(const char* datapath, const char* language, OcrEngineMode mode,
            char** configs, int configs_size,
-           const GenericVector<STRING>* vars_vec,
-           const GenericVector<STRING>* vars_values,
+           const std::vector<std::string>* vars_vec,
+           const std::vector<std::string>* vars_values,
            bool set_only_non_debug_params);
   int Init(const char* datapath, const char* language, OcrEngineMode oem) {
     return Init(datapath, language, oem, nullptr, 0, nullptr, nullptr, false);
@@ -236,8 +212,8 @@ class TESS_API TessBaseAPI {
   // data[data_size] array, and/or reads data via a FileReader.
   int Init(const char* data, int data_size, const char* language,
            OcrEngineMode mode, char** configs, int configs_size,
-           const GenericVector<STRING>* vars_vec,
-           const GenericVector<STRING>* vars_values,
+           const std::vector<std::string>* vars_vec,
+           const std::vector<std::string>* vars_values,
            bool set_only_non_debug_params, FileReader reader);
 
   /**
@@ -251,16 +227,16 @@ class TESS_API TessBaseAPI {
   const char* GetInitLanguagesAsString() const;
 
   /**
-   * Returns the loaded languages in the vector of STRINGs.
+   * Returns the loaded languages in the vector of std::string.
    * Includes all languages loaded by the last Init, including those loaded
    * as dependencies of other loaded languages.
    */
-  void GetLoadedLanguagesAsVector(GenericVector<STRING>* langs) const;
+  void GetLoadedLanguagesAsVector(std::vector<std::string>* langs) const;
 
   /**
-   * Returns the available languages in the sorted vector of STRINGs.
+   * Returns the available languages in the sorted vector of std::string.
    */
-  void GetAvailableLanguagesAsVector(GenericVector<STRING>* langs) const;
+  void GetAvailableLanguagesAsVector(std::vector<std::string>* langs) const;
 
   /**
    * Init only the lang model component of Tesseract. The only functions
@@ -498,11 +474,6 @@ class TESS_API TessBaseAPI {
    * Methods to retrieve information after SetAndThresholdImage(),
    * Recognize() or TesseractRect(). (Recognize is called implicitly if needed.)
    */
-
-#ifndef DISABLED_LEGACY_ENGINE
-  /** Variant on Recognize used for testing chopper. */
-  int RecognizeForChopTest(ETEXT_DESC* monitor);
-#endif
 
   /**
    * Turns images into symbolic text.
@@ -759,29 +730,25 @@ class TESS_API TessBaseAPI {
     return last_oem_requested_;
   }
 
-  void InitTruthCallback(TruthCallback cb) {
-    truth_cb_ = cb;
-  }
-
   void set_min_orientation_margin(double margin);
   /* @} */
 
  protected:
   /** Common code for setting the image. Returns true if Init has been called.
    */
-  TESS_LOCAL bool InternalSetImage();
+  bool InternalSetImage();
 
   /**
    * Run the thresholder to make the thresholded image. If pix is not nullptr,
    * the source is thresholded to pix instead of the internal IMAGE.
    */
-  TESS_LOCAL virtual bool Threshold(Pix** pix);
+  virtual bool Threshold(Pix** pix);
 
   /**
    * Find lines from the image making the BLOCK_LIST.
    * @return 0 on success.
    */
-  TESS_LOCAL int FindLines();
+  int FindLines();
 
   /** Delete the pageres and block list ready for a new page. */
   void ClearResults();
@@ -791,7 +758,7 @@ class TESS_API TessBaseAPI {
    * to ignore all BiDi smarts at that point.
    * delete once you're done with it.
    */
-  TESS_LOCAL LTRResultIterator* GetLTRIterator();
+  LTRResultIterator* GetLTRIterator();
 
   /**
    * Return the length of the output text string, as UTF8, assuming
@@ -799,12 +766,12 @@ class TESS_API TessBaseAPI {
    * and assuming a single character reject marker for each rejected character.
    * Also return the number of recognized blobs in blob_count.
    */
-  TESS_LOCAL int TextLength(int* blob_count);
+  int TextLength(int* blob_count);
 
   //// paragraphs.cpp ////////////////////////////////////////////////////
-  TESS_LOCAL void DetectParagraphs(bool after_text_recognition);
+  void DetectParagraphs(bool after_text_recognition);
 
-  TESS_LOCAL const PAGE_RES* GetPageRes() const {
+  const PAGE_RES* GetPageRes() const {
     return page_res_;
   }
 
@@ -814,16 +781,15 @@ class TESS_API TessBaseAPI {
   EquationDetect* equ_detect_;     ///< The equation detector.
   FileReader reader_;              ///< Reads files from any filesystem.
   ImageThresholder* thresholder_;  ///< Image thresholding module.
-  GenericVector<ParagraphModel*>* paragraph_models_;
+  std::vector<ParagraphModel*>* paragraph_models_;
   BLOCK_LIST* block_list_;            ///< The page layout.
   PAGE_RES* page_res_;                ///< The page-level data.
-  STRING* input_file_;                ///< Name used by training code.
-  STRING* output_file_;               ///< Name used by debug code.
-  STRING* datapath_;                  ///< Current location of tessdata.
-  STRING* language_;                  ///< Last initialized language.
+  std::string input_file_;            ///< Name used by training code.
+  std::string output_file_;           ///< Name used by debug code.
+  std::string datapath_;              ///< Current location of tessdata.
+  std::string language_;              ///< Last initialized language.
   OcrEngineMode last_oem_requested_;  ///< Last ocr language mode requested.
   bool recognition_done_;             ///< page_res_ contains recognition data.
-  TruthCallback truth_cb_;            ///< fxn for setting truth_* in WERD_RES
 
   /**
    * @defgroup ThresholderParams Thresholder Parameters
@@ -840,7 +806,7 @@ class TESS_API TessBaseAPI {
 
  private:
   // A list of image filenames gets special consideration
-  bool ProcessPagesFileList(FILE* fp, STRING* buf, const char* retry_config,
+  bool ProcessPagesFileList(FILE* fp, std::string* buf, const char* retry_config,
                             int timeout_millisec, TessResultRenderer* renderer,
                             int tessedit_page_number);
   // TIFF supports multipage so gets special consideration.
@@ -852,7 +818,8 @@ class TESS_API TessBaseAPI {
 };  // class TessBaseAPI.
 
 /** Escape a char string - remove &<>"' with HTML codes. */
-STRING HOcrEscape(const char* text);
-}  // namespace tesseract.
+std::string HOcrEscape(const char* text);
+
+}  // namespace tesseract
 
 #endif  // TESSERACT_API_BASEAPI_H_

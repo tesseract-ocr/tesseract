@@ -18,10 +18,9 @@
 #ifndef KDTREE_H
 #define KDTREE_H
 
-/*-----------------------------------------------------------------------------
-          Include Files and Type Defines
------------------------------------------------------------------------------*/
 #include "ocrfeatures.h"
+
+namespace tesseract {
 
 using void_proc = void (*)(...);
 
@@ -82,6 +81,7 @@ void FreeKDNode(KDNODE* Node);
 
 float DistanceSquared(int k, PARAM_DESC* dim, float p1[], float p2[]);
 
+TESS_API
 float ComputeDistance(int k, PARAM_DESC* dim, float p1[], float p2[]);
 
 int QueryInSearch(KDTREE* tree);
@@ -92,5 +92,7 @@ void Walk(KDTREE* tree, void_proc action, void* context, KDNODE* SubTree,
 void InsertNodes(KDTREE* tree, KDNODE* nodes);
 
 void FreeSubTree(KDNODE* SubTree);
+
+} // namespace tesseract
 
 #endif

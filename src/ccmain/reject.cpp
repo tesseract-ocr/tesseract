@@ -21,6 +21,8 @@
 #include "config_auto.h"
 #endif
 
+#include "reject.h"
+
 #ifdef DISABLED_LEGACY_ENGINE
 
 #include "tesseractclass.h"
@@ -37,16 +39,18 @@ int16_t Tesseract::safe_dict_word(const WERD_RES *werd_res) {
 #else
 
 #include "tessvars.h"
+#include "control.h"
+#include "docqual.h"
+#include "tesseractclass.h"
+
+#include "genericvector.h"
+#include "helpers.h"
+
 #include <cctype>
 #include <cerrno>
 #include <cstring>
-#include <tesseract/genericvector.h>
-#include "reject.h"
-#include "control.h"
-#include "docqual.h"
-#include <tesseract/helpers.h>
 
-#include "tesseractclass.h"
+namespace tesseract {
 
 CLISTIZEH (STRING) CLISTIZE (STRING)
 
@@ -56,7 +60,6 @@ CLISTIZEH (STRING) CLISTIZE (STRING)
  * Set the done flag based on the word acceptability criteria
  *************************************************************************/
 
-namespace tesseract {
 void Tesseract::set_done(WERD_RES *word, int16_t pass) {
   word->done = word->tess_accepted &&
       (strchr(word->best_choice->unichar_string().c_str(), ' ') == nullptr);
@@ -175,8 +178,6 @@ void Tesseract::make_reject_map(WERD_RES *word, ROW *row, int16_t pass) {
   flip_hyphens(word);
   check_debug_pt(word, 20);
 }
-}  // namespace tesseract
-
 
 void reject_blanks(WERD_RES *word) {
   int16_t i;
@@ -190,7 +191,6 @@ void reject_blanks(WERD_RES *word) {
   }
 }
 
-namespace tesseract {
 void Tesseract::reject_I_1_L(WERD_RES *word) {
   int16_t i;
   int16_t offset;
@@ -204,8 +204,6 @@ void Tesseract::reject_I_1_L(WERD_RES *word) {
     }
   }
 }
-}  // namespace tesseract
-
 
 void reject_poor_matches(WERD_RES *word) {
   float threshold = compute_reject_threshold(word->best_choice);
@@ -260,7 +258,6 @@ float compute_reject_threshold(WERD_CHOICE* word) {
  * If the word is perilously close to the edge of the image, reject those blobs
  * in the word which are too close to the edge as they could be clipped.
  *************************************************************************/
-namespace tesseract {
 void Tesseract::reject_edge_blobs(WERD_RES *word) {
   TBOX word_box = word->word->bounding_box();
   // Use the box_word as it is already denormed back to image coordinates.

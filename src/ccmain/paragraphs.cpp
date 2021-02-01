@@ -17,6 +17,30 @@
  **********************************************************************/
 
 #include "paragraphs.h"
+
+#include "genericvector.h"        // for GenericVector, GenericVectorEqEq
+#include "helpers.h"              // for UpdateRange, ClipToRange
+#include "host.h"                 // for NearlyEqual
+#include "mutableiterator.h"      // for MutableIterator
+#include "ocrblock.h"             // for BLOCK
+#include "ocrpara.h"              // for ParagraphModel, PARA, PARA_IT, PARA...
+#include "ocrrow.h"               // for ROW
+#include "pageres.h"              // for PAGE_RES_IT, WERD_RES, ROW_RES, BLO...
+#include "paragraphs_internal.h"  // for RowScratchRegisters, SetOfModels
+#include "pdblock.h"              // for PDBLK
+#include "polyblk.h"              // for POLY_BLOCK
+#include "ratngs.h"               // for WERD_CHOICE
+#include "rect.h"                 // for TBOX
+#include "statistc.h"             // for STATS
+#include "strngs.h"               // for STRING
+#include "tprintf.h"              // for tprintf
+#include "unicharset.h"           // for UNICHARSET
+#include "werd.h"                 // for WERD, W_REP_CHAR
+
+#include <tesseract/pageiterator.h>         // for PageIterator
+#include <tesseract/publictypes.h>          // for JUSTIFICATION_LEFT, JUSTIFICATION_R...
+#include <tesseract/unichar.h>              // for UNICHAR, UNICHAR_ID
+
 #include <cctype>                 // for isspace
 #include <cmath>                  // for abs
 #include <cstdio>                 // for snprintf
@@ -24,28 +48,9 @@
 #include <cstring>                // for strchr, strlen
 #include <algorithm>              // for max
 #include <memory>                 // for unique_ptr
-#include <tesseract/genericvector.h>        // for GenericVector, GenericVectorEqEq
-#include <tesseract/helpers.h>              // for UpdateRange, ClipToRange
-#include "host.h"                 // for NearlyEqual
-#include "mutableiterator.h"      // for MutableIterator
-#include "ocrblock.h"             // for BLOCK
-#include "ocrpara.h"              // for ParagraphModel, PARA, PARA_IT, PARA...
-#include "ocrrow.h"               // for ROW
-#include <tesseract/pageiterator.h>         // for PageIterator
-#include "pageres.h"              // for PAGE_RES_IT, WERD_RES, ROW_RES, BLO...
-#include "paragraphs_internal.h"  // for RowScratchRegisters, SetOfModels
-#include "pdblock.h"              // for PDBLK
-#include "polyblk.h"              // for POLY_BLOCK
-#include <tesseract/publictypes.h>          // for JUSTIFICATION_LEFT, JUSTIFICATION_R...
-#include "ratngs.h"               // for WERD_CHOICE
-#include "rect.h"                 // for TBOX
-#include "statistc.h"             // for STATS
-#include <tesseract/strngs.h>               // for STRING
-#include "tprintf.h"              // for tprintf
-#include <tesseract/unichar.h>              // for UNICHAR, UNICHAR_ID
-#include "unicharset.h"           // for UNICHARSET
-#include "unicodes.h"             // for kPDF, kRLE
-#include "werd.h"                 // for WERD, W_REP_CHAR
+
+static const char * const kRLE = "\u202A";  // Right-to-Left Embedding
+static const char * const kPDF = "\u202C";  // Pop Directional Formatting
 
 namespace tesseract {
 
@@ -97,15 +102,15 @@ static STRING StrOf(int num) {
 
 // Given a row-major matrix of unicode text and a column separator, print
 // a formatted table.  For ASCII, we get good column alignment.
-static void PrintTable(const GenericVector<GenericVector<STRING> > &rows,
+static void PrintTable(const std::vector<std::vector<STRING> > &rows,
                        const STRING &colsep) {
-  GenericVector<int> max_col_widths;
-  for (int r = 0; r < rows.size(); r++) {
-    int num_columns = rows[r].size();
+  std::vector<int> max_col_widths;
+  for (const auto& row : rows) {
+    int num_columns = row.size();
     for (int c = 0; c < num_columns; c++) {
       int num_unicodes = 0;
-      for (int i = 0; i < rows[r][c].size(); i++) {
-        if ((rows[r][c][i] & 0xC0) != 0x80) num_unicodes++;
+      for (int i = 0; i < row[c].size(); i++) {
+        if ((row[c][i] & 0xC0) != 0x80) num_unicodes++;
       }
       if (c >= max_col_widths.size()) {
         max_col_widths.push_back(num_unicodes);
@@ -116,7 +121,7 @@ static void PrintTable(const GenericVector<GenericVector<STRING> > &rows,
     }
   }
 
-  GenericVector<STRING> col_width_patterns;
+  std::vector<STRING> col_width_patterns;
   for (int c = 0; c < max_col_widths.size(); c++) {
     col_width_patterns.push_back(
         STRING("%-") + StrOf(max_col_widths[c]) + "s");
@@ -141,8 +146,8 @@ static STRING RtlEmbed(const STRING &word, bool rtlify) {
 // Print the current thoughts of the paragraph detector.
 static void PrintDetectorState(const ParagraphTheory &theory,
                                const GenericVector<RowScratchRegisters> &rows) {
-  GenericVector<GenericVector<STRING> > output;
-  output.push_back(GenericVector<STRING>());
+  std::vector<std::vector<STRING> > output;
+  output.push_back(std::vector<STRING>());
   output.back().push_back("#row");
   output.back().push_back("space");
   output.back().push_back("..");
@@ -152,8 +157,8 @@ static void PrintDetectorState(const ParagraphTheory &theory,
   output.back().push_back("text");
 
   for (int i = 0; i < rows.size(); i++) {
-    output.push_back(GenericVector<STRING>());
-    GenericVector<STRING> &row = output.back();
+    output.push_back(std::vector<STRING>());
+    std::vector<STRING> &row = output.back();
     const RowInfo& ri = *rows[i].ri_;
     row.push_back(StrOf(i));
     row.push_back(StrOf(ri.average_interword_space));
@@ -176,8 +181,9 @@ static void PrintDetectorState(const ParagraphTheory &theory,
   PrintTable(output, " ");
 
   tprintf("Active Paragraph Models:\n");
-  for (int m = 0; m < theory.models().size(); m++) {
-    tprintf(" %d: %s\n", m + 1, theory.models()[m]->ToString().c_str());
+  unsigned m = 0;
+  for (const auto& model : theory.models()) {
+    tprintf(" %d: %s\n", ++m, model->ToString().c_str());
   }
 }
 
@@ -487,13 +493,13 @@ void RightWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd,
 // =============== Implementation of RowScratchRegisters =====================
 /* static */
 void RowScratchRegisters::AppendDebugHeaderFields(
-    GenericVector<STRING> *header) {
+    std::vector<STRING> *header) {
   header->push_back("[lmarg,lind;rind,rmarg]");
   header->push_back("model");
 }
 
 void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
-                                          GenericVector<STRING> *dbg) const {
+                                          std::vector<STRING> *dbg) const {
   char s[30];
   snprintf(s, sizeof(s), "[%3d,%3d;%3d,%3d]",
            lmargin_, lindent_, rindent_, rmargin_);
@@ -672,7 +678,7 @@ class SimpleClusterer {
 
  private:
   int max_cluster_width_;
-  GenericVectorEqEq<int> values_;
+  GenericVector<int> values_;
 };
 
 // Return the index of the cluster closest to value.
@@ -1222,10 +1228,11 @@ static void GeometricClassify(int debug_level,
 
 // =============== Implementation of ParagraphTheory =====================
 
-const ParagraphModel *ParagraphTheory::AddModel(const ParagraphModel &model) {
-  for (int i = 0; i < models_->size(); i++) {
-    if ((*models_)[i]->Comparable(model))
-      return (*models_)[i];
+const ParagraphModel* ParagraphTheory::AddModel(const ParagraphModel &model) {
+  for (const auto& m : *models_) {
+    if (m->Comparable(model)) {
+      return m;
+    }
   }
   auto *m = new ParagraphModel(model);
   models_->push_back(m);
@@ -1234,14 +1241,19 @@ const ParagraphModel *ParagraphTheory::AddModel(const ParagraphModel &model) {
 }
 
 void ParagraphTheory::DiscardUnusedModels(const SetOfModels &used_models) {
-  for (int i = models_->size() - 1; i >= 0; i--) {
-    ParagraphModel *m = (*models_)[i];
+  size_t w = 0;
+  for (size_t r = 0; r < models_->size(); r++) {
+    ParagraphModel* m = (*models_)[r];
     if (!used_models.contains(m) && models_we_added_.contains(m)) {
-      models_->remove(i);
-      models_we_added_.remove(models_we_added_.get_index(m));
       delete m;
+    } else {
+      if (r > w) {
+        (*models_)[w] = m;
+      }
+      w++;
     }
   }
+  models_->resize(w);
 }
 
 // Examine rows[start, end) and try to determine if an existing non-centered
@@ -1249,8 +1261,7 @@ void ParagraphTheory::DiscardUnusedModels(const SetOfModels &used_models) {
 // If not, return nullptr.
 const ParagraphModel *ParagraphTheory::Fits(
     const GenericVector<RowScratchRegisters> *rows, int start, int end) const {
-  for (int m = 0; m < models_->size(); m++) {
-    const ParagraphModel *model = (*models_)[m];
+  for (const auto* model : *models_) {
     if (model->justification() != JUSTIFICATION_CENTER &&
         RowsFitModel(rows, start, end, model))
       return model;
@@ -1259,17 +1270,18 @@ const ParagraphModel *ParagraphTheory::Fits(
 }
 
 void ParagraphTheory::NonCenteredModels(SetOfModels *models) {
-  for (int m = 0; m < models_->size(); m++) {
-    const ParagraphModel *model = (*models_)[m];
+  for (const auto* model : *models_) {
     if (model->justification() != JUSTIFICATION_CENTER)
       models->push_back_new(model);
   }
 }
 
 int ParagraphTheory::IndexOf(const ParagraphModel *model) const {
-  for (int i = 0; i < models_->size(); i++) {
-    if ((*models_)[i] == model)
+  int i = 0;
+  for (const auto* m : *models_) {
+    if (m == model)
       return i;
+    i++;
   }
   return -1;
 }
@@ -1302,8 +1314,8 @@ bool CrownCompatible(const GenericVector<RowScratchRegisters> *rows,
     tprintf("CrownCompatible() should only be called with crown models!\n");
     return false;
   }
-  RowScratchRegisters &row_a = (*rows)[a];
-  RowScratchRegisters &row_b = (*rows)[b];
+  auto &row_a = (*rows)[a];
+  auto &row_b = (*rows)[b];
   if (model == kCrownRight) {
     return NearlyEqual(row_a.rindent_ + row_a.rmargin_,
                        row_b.rindent_ + row_b.rmargin_,
@@ -1327,10 +1339,7 @@ ParagraphModelSmearer::ParagraphModelSmearer(
     row_end_ = 0;
     return;
   }
-  SetOfModels no_models;
-  for (int row = row_start - 1; row <= row_end; row++) {
-    open_models_.push_back(no_models);
-  }
+  open_models_.resize(open_models_.size() + row_end - row_start + 2);
 }
 
 // see paragraphs_internal.h
@@ -2043,7 +2052,7 @@ static void SeparateSimpleLeaderLines(GenericVector<RowScratchRegisters> *rows,
 // paragraphs for them, referencing the paragraphs in row_owners.
 static void ConvertHypothesizedModelRunsToParagraphs(
     int debug_level,
-    const GenericVector<RowScratchRegisters> &rows,
+    GenericVector<RowScratchRegisters> &rows,
     GenericVector<PARA *> *row_owners,
     ParagraphTheory *theory) {
   int end = rows.size();
@@ -2267,10 +2276,10 @@ void CanonicalizeDetectionResults(
 //   models - the list of paragraph models referenced by the PARA objects.
 //            caller is responsible for deleting the models.
 void DetectParagraphs(int debug_level,
-                      GenericVector<RowInfo> *row_infos,
+                      std::vector<RowInfo> *row_infos,
                       GenericVector<PARA *> *row_owners,
                       PARA_LIST *paragraphs,
-                      GenericVector<ParagraphModel *> *models) {
+                      std::vector<ParagraphModel *> *models) {
   GenericVector<RowScratchRegisters> rows;
   ParagraphTheory theory(models);
 
@@ -2512,7 +2521,7 @@ static void InitializeRowInfo(bool after_recognition,
 void DetectParagraphs(int debug_level,
                       bool after_text_recognition,
                       const MutableIterator *block_start,
-                      GenericVector<ParagraphModel *> *models) {
+                      std::vector<ParagraphModel *> *models) {
   // Clear out any preconceived notions.
   if (block_start->Empty(RIL_TEXTLINE)) {
     return;
@@ -2527,7 +2536,7 @@ void DetectParagraphs(int debug_level,
   if (row.Empty(RIL_TEXTLINE))
     return;  // end of input already.
 
-  GenericVector<RowInfo> row_infos;
+  std::vector<RowInfo> row_infos;
   do {
     if (!row.PageResIt()->row())
       continue;  // empty row.

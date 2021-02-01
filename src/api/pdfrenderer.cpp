@@ -20,15 +20,19 @@
 #include "config_auto.h"
 #endif
 
+#include "pdf_ttf.h"
+#include "tprintf.h"
+
+#include <tesseract/baseapi.h>
+#include "helpers.h"  // for Swap
+#include <tesseract/renderer.h>
+#include <cmath>
+#include <cstring>
+#include <fstream> // for std::ifstream
 #include <locale>  // for std::locale::classic
 #include <memory>  // std::unique_ptr
 #include <sstream> // for std::stringstream
-#include "allheaders.h"
-#include <tesseract/baseapi.h>
-#include <cmath>
-#include <tesseract/renderer.h>
-#include <cstring>
-#include "tprintf.h"
+#include <allheaders.h>
 
 /*
 
@@ -223,8 +227,8 @@ static void GetWordBaseline(int writing_direction, int ppi, int height,
                             int line_x1, int line_y1, int line_x2, int line_y2,
                             double *x0, double *y0, double *length) {
   if (writing_direction == WRITING_DIRECTION_RIGHT_TO_LEFT) {
-    Swap(&word_x1, &word_x2);
-    Swap(&word_y1, &word_y2);
+    std::swap(word_x1, word_x2);
+    std::swap(word_y1, word_y2);
   }
   double word_length;
   double x, y;
@@ -623,24 +627,21 @@ bool TessPDFRenderer::BeginDocumentHandler() {
 
   stream.str("");
   stream << datadir_.c_str() << "/pdf.ttf";
-  FILE *fp = fopen(stream.str().c_str(), "rb");
-  if (!fp) {
-    tprintf("Cannot open file \"%s\"!\n", stream.str().c_str());
-    return false;
+  const uint8_t* font;
+  std::ifstream input(stream.str().c_str(), std::ios::in | std::ios::binary);
+  std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
+  auto size = buffer.size();
+  if (size) {
+    font = buffer.data();
+  } else {
+#if !defined(NDEBUG)
+    tprintf("Cannot open file \"%s\"!\nUsing internal glyphless font.\n",
+            stream.str().c_str());
+#endif
+    font = pdf_ttf;
+    size = sizeof(pdf_ttf);
   }
-  fseek(fp, 0, SEEK_END);
-  auto size = std::ftell(fp);
-  if (size < 0) {
-    fclose(fp);
-    return false;
-  }
-  fseek(fp, 0, SEEK_SET);
-  const std::unique_ptr<char[]> buffer(new char[size]);
-  if (!tesseract::DeSerialize(fp, buffer.get(), size)) {
-    fclose(fp);
-    return false;
-  }
-  fclose(fp);
+
   // FONTFILE2
   stream.str("");
   stream <<
@@ -652,7 +653,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
     "stream\n";
   AppendString(stream.str().c_str());
   objsize  = stream.str().size();
-  AppendData(buffer.get(), size);
+  AppendData(reinterpret_cast<const char*>(font), size);
   objsize += size;
   AppendString(endstream_endobj);
   objsize += strlen(endstream_endobj);
@@ -891,9 +892,9 @@ bool TessPDFRenderer::EndDocumentHandler() {
   stream << kPagesObjectNumber << " 0 obj\n<<\n  /Type /Pages\n  /Kids [ ";
   AppendString(stream.str().c_str());
   size_t pages_objsize  = stream.str().size();
-  for (size_t i = 0; i < pages_.unsigned_size(); i++) {
+  for (const auto& page : pages_) {
     stream.str("");
-    stream << pages_[i] << " 0 R ";
+    stream << page << " 0 R ";
     AppendString(stream.str().c_str());
     pages_objsize += stream.str().size();
   }
@@ -904,7 +905,7 @@ bool TessPDFRenderer::EndDocumentHandler() {
   offsets_.back() += pages_objsize;    // manipulation #2
 
   // INFO
-  STRING utf16_title = "FEFF";  // byte_order_marker
+  std::string utf16_title = "FEFF";  // byte_order_marker
   std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(title());
   char utf16[kMaxBytesPerCodepoint];
   for (char32 code : unicodes) {

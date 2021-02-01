@@ -18,11 +18,10 @@
 #ifndef MF_H
 #define MF_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "ocrfeatures.h"
 #include "blobs.h"
+
+namespace tesseract {
 
 typedef enum {
   MFXPosition, MFYPosition,
@@ -35,5 +34,7 @@ typedef float MicroFeature[MFCount];
           Private Function Prototypes
 -----------------------------------------------------------------------------*/
 FEATURE_SET ExtractMicros(TBLOB* Blob, const DENORM& cn_denorm);
+
+} // namespace tesseract
 
 #endif

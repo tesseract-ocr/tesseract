@@ -25,7 +25,7 @@
 #include "bitvector.h"
 #include "fontinfo.h"
 #include "intfeaturespace.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "unicharset.h"
 #include "unicity_table.h"
 
@@ -132,7 +132,7 @@ bool Shape::ContainsUnicharAndFont(int unichar_id, int font_id) const {
   for (int c = 0; c < unichars_.size(); ++c) {
     if (unichars_[c].unichar_id == unichar_id) {
       // Found the unichar, so look for the font.
-      GenericVector<int>& font_list = unichars_[c].font_ids;
+      auto &font_list = unichars_[c].font_ids;
       for (int f = 0; f < font_list.size(); ++f) {
         if (font_list[f] == font_id)
           return true;
@@ -156,7 +156,7 @@ bool Shape::ContainsUnichar(int unichar_id) const {
 // Returns true if the shape contains the given font, ignoring unichar_id.
 bool Shape::ContainsFont(int font_id) const {
   for (int c = 0; c < unichars_.size(); ++c) {
-    GenericVector<int>& font_list = unichars_[c].font_ids;
+      auto &font_list = unichars_[c].font_ids;
     for (int f = 0; f < font_list.size(); ++f) {
       if (font_list[f] == font_id)
         return true;
@@ -169,7 +169,7 @@ bool Shape::ContainsFont(int font_id) const {
 bool Shape::ContainsFontProperties(const FontInfoTable& font_table,
                                    uint32_t properties) const {
   for (int c = 0; c < unichars_.size(); ++c) {
-    GenericVector<int>& font_list = unichars_[c].font_ids;
+      auto &font_list = unichars_[c].font_ids;
     for (int f = 0; f < font_list.size(); ++f) {
       if (font_table.get(font_list[f]).properties == properties)
         return true;
@@ -183,7 +183,7 @@ bool Shape::ContainsMultipleFontProperties(
     const FontInfoTable& font_table) const {
   uint32_t properties = font_table.get(unichars_[0].font_ids[0]).properties;
   for (int c = 0; c < unichars_.size(); ++c) {
-    GenericVector<int>& font_list = unichars_[c].font_ids;
+      auto &font_list = unichars_[c].font_ids;
     for (int f = 0; f < font_list.size(); ++f) {
       if (font_table.get(font_list[f]).properties != properties)
         return true;
@@ -686,7 +686,7 @@ int ShapeTable::NumMasterShapes() const {
 // each unichar, or -1 if the unichar is not yet included in results.
 void ShapeTable::AddShapeToResults(const ShapeRating& shape_rating,
                                    GenericVector<int>* unichar_map,
-                                   GenericVector<UnicharRating>* results)const {
+                                   std::vector<UnicharRating>* results) const {
   if (shape_rating.joined) {
     AddUnicharToResults(UNICHAR_JOINED, shape_rating.rating, unichar_map,
                         results);
@@ -712,11 +712,12 @@ void ShapeTable::AddShapeToResults(const ShapeRating& shape_rating,
 // and returning the index of unichar in results.
 int ShapeTable::AddUnicharToResults(
     int unichar_id, float rating, GenericVector<int>* unichar_map,
-    GenericVector<UnicharRating>* results) const {
+    std::vector<UnicharRating>* results) const {
   int result_index = unichar_map->get(unichar_id);
   if (result_index < 0) {
     UnicharRating result(unichar_id, rating);
-    result_index = results->push_back(result);
+    result_index = results->size();
+    results->push_back(result);
     (*unichar_map)[unichar_id] = result_index;
   }
   return result_index;

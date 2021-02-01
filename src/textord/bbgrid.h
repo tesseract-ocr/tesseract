@@ -49,7 +49,7 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class GridSearch;
 
 // The GridBase class is the base class for BBGrid and IntGrid.
 // It holds the geometry and scale of the grid.
-class GridBase {
+class TESS_API GridBase {
  public:
   GridBase() = default;
   GridBase(int gridsize, const ICOORD& bleft, const ICOORD& tright);

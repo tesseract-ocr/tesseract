@@ -19,9 +19,10 @@
 
 #include "ambigs.h"
 
-#include <cstdio>
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "universalambigs.h"
+
+#include <cstdio>
 
 #if defined(_WIN32) && !defined(__GNUC__)
 #define strtok_r(str, delim, saveptr) strtok_s(str, delim, saveptr)
@@ -130,7 +131,7 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET& encoder_set,
     }
     // Update ambigs_for_adaption_.
     if (use_ambigs_for_adaption) {
-      GenericVector<UNICHAR_ID> encoding;
+      std::vector<UNICHAR_ID> encoding;
       // Silently ignore invalid strings, as before, so it is safe to use a
       // universal ambigs file.
       if (unicharset->encode_string(replacement_string, true, &encoding,
@@ -228,14 +229,14 @@ bool UnicharAmbigs::ParseAmbiguityLine(
   if (version > 1) {
     // Simpler format is just wrong-string correct-string type\n.
     STRING input(buffer);
-    GenericVector<STRING> fields;
+    std::vector<STRING> fields;
     input.split(' ', &fields);
     if (fields.size() != 3) {
       if (debug_level) tprintf(kIllegalMsg, line_num);
       return false;
     }
     // Encode wrong-string.
-    GenericVector<UNICHAR_ID> unichars;
+    std::vector<UNICHAR_ID> unichars;
     if (!unicharset.encode_string(fields[0].c_str(), true, &unichars, nullptr,
                                   nullptr)) {
       return false;

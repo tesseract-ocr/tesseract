@@ -15,18 +15,14 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
+
 #include "normfeat.h"
 
 #include "intfx.h"
 #include "featdefs.h"
 #include "mfoutline.h"
 
-/*----------------------------------------------------------------------------
-              Public Code
-----------------------------------------------------------------------------*/
+namespace tesseract {
 
 /** Return the length of the outline in baseline normalized form. */
 float ActualOutlineLength(FEATURE Feature) {
@@ -73,3 +69,5 @@ FEATURE_SET ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT& fx_info) {
 
   return feature_set;
 }                                /* ExtractCharNormFeatures */
+
+} // namespace tesseract

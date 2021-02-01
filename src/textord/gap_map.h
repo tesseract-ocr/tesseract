@@ -13,6 +13,8 @@
 
 #include "blobbox.h"
 
+namespace tesseract {
+
 class GAPMAP
 {
   public:
@@ -45,5 +47,7 @@ extern BOOL_VAR_H (gapmap_use_ends, false,
 extern BOOL_VAR_H (gapmap_no_isolated_quanta, false,
 "Ensure gaps not less than 2quanta wide");
 extern double_VAR_H (gapmap_big_gaps, 1.75, "xht multiplier");
+
+} // namespace tesseract
 
 #endif

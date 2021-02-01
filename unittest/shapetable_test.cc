@@ -16,18 +16,13 @@
 
 #include "include_gunit.h"
 
-#include <tesseract/serialis.h>
+#include "serialis.h"
 #include "shapetable.h"
 #include "unicharset.h"
 
-namespace {
+namespace tesseract {
 
 #ifndef DISABLED_LEGACY_ENGINE
-
-  using tesseract::Shape;
-using tesseract::ShapeTable;
-using tesseract::TFile;
-using tesseract::UnicharAndFonts;
 
 static std::string TmpNameToPath(const std::string& name) {
   return file::JoinPath(FLAGS_test_tmpdir, name);
@@ -61,6 +56,7 @@ class ShapeTest : public testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 };
 
@@ -77,7 +73,7 @@ TEST_F(ShapeTest, BasicTest) {
   // It should still work after file I/O.
   std::string filename = TmpNameToPath("shapefile");
   FILE* fp = fopen(filename.c_str(), "wb");
-  EXPECT_TRUE(fp != nullptr);
+  ASSERT_TRUE(fp != nullptr);
   EXPECT_TRUE(shape1.Serialize(fp));
   fclose(fp);
   TFile tfp;

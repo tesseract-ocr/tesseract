@@ -20,6 +20,8 @@
 #include "tovars.h"
 #include "params.h"
 
+namespace tesseract {
+
 BOOL_VAR (textord_show_initial_words, false, "Display separate words");
 BOOL_VAR (textord_show_new_words, false, "Display separate words");
 BOOL_VAR (textord_show_fixed_words, false,
@@ -79,3 +81,5 @@ double_VAR (textord_spacesize_ratioprop, 2.0,
 double_VAR (textord_fpiqr_ratio, 1.5, "Pitch IQR/Gap IQR threshold");
 double_VAR (textord_max_pitch_iqr, 0.20, "Xh fraction noise in pitch");
 double_VAR (textord_fp_min_width, 0.5, "Min width of decent blobs");
+
+} // namespace tesseract

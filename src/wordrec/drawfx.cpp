@@ -21,10 +21,14 @@
 #endif
 
 #include          "drawfx.h"
+
 #include          "normalis.h"
 #include          "werd.h"
 
+namespace tesseract {
+
 #ifndef GRAPHICS_DISABLED
+
 #define FXDEMOWIN     "FXDemo"
 #define FXDEMOXPOS      250
 #define FXDEMOYPOS      0
@@ -77,3 +81,5 @@ void clear_fx_win() {  //make features win
 
 void create_fxdebug_win() {  //make gradients win
 }
+
+} // namespace tesseract

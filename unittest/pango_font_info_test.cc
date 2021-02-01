@@ -18,17 +18,11 @@
 #include "pango_font_info.h"
 #include "absl/strings/str_cat.h"       // for absl::StrCat
 #include "gmock/gmock-matchers.h"       // for EXPECT_THAT
+#ifdef INCLUDE_TENSORFLOW
 #include "util/utf8/unicodetext.h"      // for UnicodeText
+#endif
 
-DECLARE_STRING_PARAM_FLAG(fonts_dir);
-DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
-DECLARE_BOOL_PARAM_FLAG(use_only_legacy_fonts);
-
-namespace {
-
-using tesseract::File;
-using tesseract::FontUtils;
-using tesseract::PangoFontInfo;
+namespace tesseract {
 
 // Fonts in testdata directory
 const char* kExpectedFontNames[] = {
@@ -59,21 +53,27 @@ const char* kBadlyFormedHinWords[] = {
   "प्रंात", nullptr
 };
 
+static PangoFontMap* font_map;
+
 class PangoFontInfoTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    static std::locale system_locale("");
-    std::locale::global(system_locale);
+    if (!font_map) {
+      font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
+    }
+    pango_cairo_font_map_set_default(PANGO_CAIRO_FONT_MAP(font_map));
   }
 
   // Creates a fake fonts.conf file that points to the testdata fonts for
   // fontconfig to initialize with.
   static void SetUpTestCase() {
+    static std::locale system_locale("");
+    std::locale::global(system_locale);
+
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
-#ifdef GOOGLE_TESSERACT
-    FLAGS_use_only_legacy_fonts = false;
-#endif
+    file::MakeTmpdir();
+    PangoFontInfo::SoftInitFontConfig(); // init early
   }
 
   PangoFontInfo font_info_;
@@ -180,13 +180,21 @@ TEST_F(PangoFontInfoTest, CanDropUncoveredChars) {
 
 class FontUtilsTest : public ::testing::Test {
  protected:
+  void SetUp() override {
+    file::MakeTmpdir();
+  }
   // Creates a fake fonts.conf file that points to the testdata fonts for
   // fontconfig to initialize with.
   static void SetUpTestCase() {
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
+    if (!font_map) {
+      font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
+    }
+    pango_cairo_font_map_set_default(PANGO_CAIRO_FONT_MAP(font_map));
   }
 
+#ifdef INCLUDE_TENSORFLOW
   void CountUnicodeChars(const char* utf8_text,
                          std::unordered_map<char32, int64_t>* ch_map) {
     ch_map->clear();
@@ -201,6 +209,7 @@ class FontUtilsTest : public ::testing::Test {
       ++(*ch_map)[*it];
     }
   }
+#endif
 };
 
 TEST_F(FontUtilsTest, DoesFindAvailableFonts) {
@@ -234,6 +243,7 @@ TEST_F(FontUtilsTest, DoesListAvailableFonts) {
   }
 }
 
+#ifdef INCLUDE_TENSORFLOW
 TEST_F(FontUtilsTest, DoesFindBestFonts) {
   std::string fonts_list;
   std::unordered_map<char32, int64_t> ch_map;
@@ -252,6 +262,7 @@ TEST_F(FontUtilsTest, DoesFindBestFonts) {
   EXPECT_EQ(1, font_flags.size());
   EXPECT_STREQ("UnBatang", font_flags[0].first);
 }
+#endif
 
 TEST_F(FontUtilsTest, DoesSelectFont) {
   const char* kLangText[] = {kArabicText, kEngText, kHinText, kKorText, nullptr};

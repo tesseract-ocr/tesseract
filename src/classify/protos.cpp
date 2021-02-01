@@ -19,14 +19,18 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #define _USE_MATH_DEFINES       // for M_PI
+
 #include "protos.h"
-#include <cmath>                // for M_PI
-#include <cstdio>
-#include "emalloc.h"
+
 #include "tprintf.h"
 #include "classify.h"
 #include "params.h"
 #include "intproto.h"
+
+#include <cmath>                // for M_PI
+#include <cstdio>
+
+namespace tesseract {
 
 #define PROTO_INCREMENT   32
 #define CONFIG_INCREMENT  16
@@ -57,7 +61,7 @@ int AddConfigToClass(CLASS_TYPE Class) {
       CONFIG_INCREMENT) * CONFIG_INCREMENT);
 
     Class->Configurations =
-      static_cast<CONFIGS>(Erealloc (Class->Configurations,
+      static_cast<CONFIGS>(realloc (Class->Configurations,
       sizeof (BIT_VECTOR) * NewNumConfigs));
 
     Class->MaxNumConfigs = NewNumConfigs;
@@ -85,7 +89,7 @@ int AddProtoToClass(CLASS_TYPE Class) {
     int NewNumProtos = (((Class->MaxNumProtos + PROTO_INCREMENT) /
       PROTO_INCREMENT) * PROTO_INCREMENT);
 
-    Class->Prototypes = static_cast<PROTO>(Erealloc (Class->Prototypes,
+    Class->Prototypes = static_cast<PROTO>(realloc (Class->Prototypes,
       sizeof (PROTO_STRUCT) *
       NewNumProtos));
 
@@ -158,10 +162,10 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
   Class = new CLASS_STRUCT;
 
   if (NumProtos > 0)
-    Class->Prototypes = static_cast<PROTO>(Emalloc (NumProtos * sizeof (PROTO_STRUCT)));
+    Class->Prototypes = static_cast<PROTO>(malloc (NumProtos * sizeof (PROTO_STRUCT)));
 
   if (NumConfigs > 0)
-    Class->Configurations = static_cast<CONFIGS>(Emalloc (NumConfigs *
+    Class->Configurations = static_cast<CONFIGS>(malloc (NumConfigs *
       sizeof (BIT_VECTOR)));
   Class->MaxNumProtos = NumProtos;
   Class->MaxNumConfigs = NumConfigs;
@@ -170,3 +174,5 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
   return (Class);
 
 }
+
+} // namespace tesseract

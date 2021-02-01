@@ -16,6 +16,11 @@
  *
  **********************************************************************/
 
+#include "params.h"
+
+#include "host.h"           // tesseract/export.h, windows.h for MAX_PATH
+#include "tprintf.h"
+
 #include <climits>          // for INT_MIN, INT_MAX
 #include <cmath>            // for NAN, std::isnan
 #include <cstdio>
@@ -24,17 +29,12 @@
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
 
-#include <tesseract/genericvector.h>
-#include "host.h"           // tesseract/platform.h, windows.h for MAX_PATH
-#include "tprintf.h"
-#include "params.h"
+namespace tesseract {
 
 tesseract::ParamsVectors *GlobalParams() {
-  static tesseract::ParamsVectors global_params = tesseract::ParamsVectors();
-  return &global_params;
+    static tesseract::ParamsVectors global_params = tesseract::ParamsVectors();
+    return &global_params;
 }
-
-namespace tesseract {
 
 bool ParamUtils::ReadParamsFile(const char *file,
                                 SetParamConstraint constraint,
@@ -128,7 +128,7 @@ bool ParamUtils::SetParam(const char *name, const char* value,
 
 bool ParamUtils::GetParamAsString(const char *name,
                                   const ParamsVectors* member_params,
-                                  STRING *value) {
+                                  std::string *value) {
   // Look for the parameter among string parameters.
   auto *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
                                            member_params->string_params);

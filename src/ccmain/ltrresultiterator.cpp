@@ -19,10 +19,12 @@
 
 #include <tesseract/ltrresultiterator.h>
 
-#include "allheaders.h"
 #include "pageres.h"
-#include <tesseract/strngs.h>
 #include "tesseractclass.h"
+
+#include "allheaders.h"
+
+#include "strngs.h"
 
 namespace tesseract {
 

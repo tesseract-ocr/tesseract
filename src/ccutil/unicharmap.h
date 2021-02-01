@@ -22,9 +22,11 @@
 
 #include <tesseract/unichar.h>
 
+namespace tesseract {
+
 // A UNICHARMAP stores unique unichars. Each of them is associated with one
 // UNICHAR_ID.
-class UNICHARMAP {
+class TESS_API UNICHARMAP {
  public:
 
   // Create an empty UNICHARMAP
@@ -69,5 +71,7 @@ class UNICHARMAP {
 
   UNICHARMAP_NODE* nodes;
 };
+
+} // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_UNICHARMAP_H_

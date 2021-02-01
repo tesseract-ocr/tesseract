@@ -24,13 +24,13 @@
 #include "bbgrid.h"
 #include "blobbox.h"
 
-CLISTIZEH(BLOBNBOX)
-
 namespace tesseract {
+
+CLISTIZEH(BLOBNBOX)
 
 using BlobGridSearch = GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>;
 
-class BlobGrid : public BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> {
+class TESS_API BlobGrid : public BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> {
  public:
   BlobGrid(int gridsize, const ICOORD& bleft, const ICOORD& tright);
   ~BlobGrid() override;

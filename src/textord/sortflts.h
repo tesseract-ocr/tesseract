@@ -21,7 +21,9 @@
 
 #include          "elst.h"
 
-class SORTED_FLOAT:public ELIST_LINK
+namespace tesseract {
+
+class SORTED_FLOAT : public ELIST_LINK
 {
   friend class SORTED_FLOATS;
 
@@ -68,4 +70,7 @@ class SORTED_FLOATS
     SORTED_FLOAT_LIST list;      //list of floats
     SORTED_FLOAT_IT it;          //iterator built-in
 };
+
+} // namespace tesseract
+
 #endif

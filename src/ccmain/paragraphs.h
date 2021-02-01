@@ -21,18 +21,17 @@
 #define TESSERACT_CCMAIN_PARAGRAPHS_H_
 
 #include "rect.h"    // for TBOX
-#include <tesseract/strngs.h>  // for STRING
-
-class PARA_LIST;
-class ParagraphModel;
-
-struct PARA;
-
-template <typename T> class GenericVector;
+#include "strngs.h"  // for STRING
+#include <list>
 
 namespace tesseract {
 
 class MutableIterator;
+class ParagraphModel;
+class PARA_LIST;
+struct PARA;
+
+template <typename T> class GenericVector;
 
 // This structure captures all information needed about a text line for the
 // purposes of paragraph detection.  It is meant to be exceedingly light-weight
@@ -88,21 +87,23 @@ class RowInfo {
 //   paragraphs - this is the actual list of PARA objects.
 //   models - the list of paragraph models referenced by the PARA objects.
 //            caller is responsible for deleting the models.
+TESS_API
 void DetectParagraphs(int debug_level,
-                      GenericVector<RowInfo> *row_infos,
+                      std::vector<RowInfo> *row_infos,
                       GenericVector<PARA *> *row_owners,
                       PARA_LIST *paragraphs,
-                      GenericVector<ParagraphModel *> *models);
+                      std::vector<ParagraphModel *> *models);
 
 // Given a MutableIterator to the start of a block, run DetectParagraphs on
 // that block and commit the results to the underlying ROW and BLOCK structs,
 // saving the ParagraphModels in models.  Caller owns the models.
 // We use unicharset during the function to answer questions such as "is the
 // first letter of this word upper case?"
+TESS_API
 void DetectParagraphs(int debug_level,
                       bool after_text_recognition,
                       const MutableIterator *block_start,
-                      GenericVector<ParagraphModel *> *models);
+                      std::vector<ParagraphModel *> *models);
 
 }  // namespace
 

@@ -15,18 +15,17 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#ifdef GOOGLE_TESSERACT
-#include "base/commandlineflags.h"
-#endif
 #include <cerrno>
 #include "commontraining.h"
 #include "fileio.h"             // for LoadFileLinesToStrings
 #include "lstmtester.h"
 #include "lstmtrainer.h"
 #include "params.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
+
+using namespace tesseract;
 
 static INT_PARAM_FLAG(debug_interval, 0, "How often to display the alignment.");
 static STRING_PARAM_FLAG(net_spec, "", "Network specification");
@@ -134,7 +133,7 @@ int main(int argc, char **argv) {
     tprintf("Must supply a list of training filenames! --train_listfile\n");
     return EXIT_FAILURE;
   }
-  GenericVector<STRING> filenames;
+  std::vector<STRING> filenames;
   if (!tesseract::LoadFileLinesToStrings(FLAGS_train_listfile.c_str(),
                                          &filenames)) {
     tprintf("Failed to load list of training filenames from %s\n",
@@ -201,12 +200,21 @@ int main(int argc, char **argv) {
     }
     tester_callback = std::bind(&tesseract::LSTMTester::RunEvalAsync, &tester, _1, _2, _3, _4);
   }
+
+  int max_iterations = FLAGS_max_iterations;
+  if (max_iterations < 0) {
+    // A negative value is interpreted as epochs
+    max_iterations = filenames.size() * (-max_iterations);
+  } else if (max_iterations == 0) {
+    // "Infinite" iterations.
+    max_iterations = INT_MAX;
+  }
+
   do {
     // Train a few.
     int iteration = trainer.training_iteration();
     for (int target_iteration = iteration + kNumPagesPerBatch;
-         iteration < target_iteration &&
-         (iteration < FLAGS_max_iterations || FLAGS_max_iterations == 0);
+         iteration < target_iteration && iteration < max_iterations;
          iteration = trainer.training_iteration()) {
       trainer.TrainOnLine(&trainer, false);
     }
@@ -214,8 +222,7 @@ int main(int argc, char **argv) {
     trainer.MaintainCheckpoints(tester_callback, &log_str);
     tprintf("%s\n", log_str.c_str());
   } while (trainer.best_error_rate() > FLAGS_target_error_rate &&
-           (trainer.training_iteration() < FLAGS_max_iterations ||
-            FLAGS_max_iterations == 0));
+           (trainer.training_iteration() < max_iterations));
   tprintf("Finished! Error rate = %g\n", trainer.best_error_rate());
   return EXIT_SUCCESS;
 } /* main */

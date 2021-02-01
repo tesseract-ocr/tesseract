@@ -19,7 +19,7 @@
 #define TESSERACT_LSTM_LSTMRECOGNIZER_H_
 
 #include "ccutil.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "imagedata.h"
 #include "matrix.h"
 #include "network.h"
@@ -27,7 +27,7 @@
 #include "params.h"
 #include "recodebeam.h"
 #include "series.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "unicharcompress.h"
 
 class BLOB_CHOICE_IT;
@@ -50,16 +50,23 @@ enum TrainingFlags {
 
 // Top-level line recognizer class for LSTM-based networks.
 // Note that a sub-class, LSTMTrainer is used for training.
-class LSTMRecognizer {
+class TESS_API LSTMRecognizer {
  public:
   LSTMRecognizer();
-  LSTMRecognizer(const STRING language_data_path_prefix);
+  LSTMRecognizer(const char* language_data_path_prefix);
   ~LSTMRecognizer();
 
   int NumOutputs() const { return network_->NumOutputs(); }
+
+  // Return the training iterations.
   int training_iteration() const { return training_iteration_; }
+
+  // Return the sample iterations.
   int sample_iteration() const { return sample_iteration_; }
-  double learning_rate() const { return learning_rate_; }
+
+  // Return the learning rate.
+  float learning_rate() const { return learning_rate_; }
+
   LossType OutputLossType() const {
     if (network_ == nullptr) return LT_NONE;
     StaticShape shape;
@@ -76,10 +83,10 @@ class LSTMRecognizer {
   bool IsTensorFlow() const { return network_->type() == NT_TENSORFLOW; }
   // Returns a vector of layer ids that can be passed to other layer functions
   // to access a specific layer.
-  GenericVector<STRING> EnumerateLayers() const {
+  std::vector<STRING> EnumerateLayers() const {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     auto* series = static_cast<Series*>(network_);
-    GenericVector<STRING> layers;
+    std::vector<STRING> layers;
     series->EnumerateLayers(nullptr, &layers);
     return layers;
   }
@@ -101,12 +108,28 @@ class LSTMRecognizer {
       return learning_rate_;
     }
   }
+
+  // Return the network string.
+  const char* GetNetwork() const {
+    return network_str_.c_str();
+  }
+
+  // Return the adam beta.
+  float GetAdamBeta() const {
+    return adam_beta_;
+  }
+
+  // Return the momentum.
+  float GetMomentum() const {
+    return momentum_;
+  }
+
   // Multiplies the all the learning rate(s) by the given factor.
   void ScaleLearningRate(double factor) {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     learning_rate_ *= factor;
     if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
-      GenericVector<STRING> layers = EnumerateLayers();
+      std::vector<STRING> layers = EnumerateLayers();
       for (int i = 0; i < layers.size(); ++i) {
         ScaleLayerLearningRate(layers[i], factor);
       }
@@ -142,6 +165,8 @@ class LSTMRecognizer {
   void SetIteration(int iteration) { sample_iteration_ = iteration; }
   // Accessors for textline image normalization.
   int NumInputs() const { return network_->NumInputs(); }
+
+  // Return the null char index.
   int null_char() const { return null_char_; }
 
   // Loads a model from mgr, including the dictionary only if lang is not null.
@@ -198,19 +223,19 @@ class LSTMRecognizer {
 
   // Converts an array of labels to utf-8, whether or not the labels are
   // augmented with character boundaries.
-  STRING DecodeLabels(const GenericVector<int>& labels);
+  STRING DecodeLabels(const std::vector<int>& labels);
 
   // Displays the forward results in a window with the characters and
   // boundaries as determined by the labels and label_coords.
-  void DisplayForward(const NetworkIO& inputs, const GenericVector<int>& labels,
-                      const GenericVector<int>& label_coords,
+  void DisplayForward(const NetworkIO& inputs, const std::vector<int>& labels,
+                      const std::vector<int>& label_coords,
                       const char* window_name, ScrollView** window);
   // Converts the network output to a sequence of labels. Outputs labels, scores
   // and start xcoords of each char, and each null_char_, with an additional
   // final xcoord for the end of the output.
   // The conversion method is determined by internal state.
-  void LabelsFromOutputs(const NetworkIO& outputs, GenericVector<int>* labels,
-                         GenericVector<int>* xcoords);
+  void LabelsFromOutputs(const NetworkIO& outputs, std::vector<int>* labels,
+                         std::vector<int>* xcoords);
 
  protected:
   // Sets the random seed from the sample_iteration_;
@@ -222,15 +247,15 @@ class LSTMRecognizer {
 
   // Displays the labels and cuts at the corresponding xcoords.
   // Size of labels should match xcoords.
-  void DisplayLSTMOutput(const GenericVector<int>& labels,
-                         const GenericVector<int>& xcoords, int height,
+  void DisplayLSTMOutput(const std::vector<int>& labels,
+                         const std::vector<int>& xcoords, int height,
                          ScrollView* window);
 
   // Prints debug output detailing the activation path that is implied by the
   // xcoords.
   void DebugActivationPath(const NetworkIO& outputs,
-                           const GenericVector<int>& labels,
-                           const GenericVector<int>& xcoords);
+                           const std::vector<int>& labels,
+                           const std::vector<int>& xcoords);
 
   // Prints debug output detailing activations and 2nd choice over a range
   // of positions.
@@ -239,17 +264,17 @@ class LSTMRecognizer {
 
   // As LabelsViaCTC except that this function constructs the best path that
   // contains only legal sequences of subcodes for recoder_.
-  void LabelsViaReEncode(const NetworkIO& output, GenericVector<int>* labels,
-                         GenericVector<int>* xcoords);
+  void LabelsViaReEncode(const NetworkIO& output, std::vector<int>* labels,
+                         std::vector<int>* xcoords);
   // Converts the network output to a sequence of labels, with scores, using
   // the simple character model (each position is a char, and the null_char_ is
   // mainly intended for tail padding.)
-  void LabelsViaSimpleText(const NetworkIO& output, GenericVector<int>* labels,
-                           GenericVector<int>* xcoords);
+  void LabelsViaSimpleText(const NetworkIO& output, std::vector<int>* labels,
+                           std::vector<int>* xcoords);
 
   // Returns a string corresponding to the label starting at start. Sets *end
   // to the next start and if non-null, *decoded to the unichar id.
-  const char* DecodeLabel(const GenericVector<int>& labels, int start, int* end,
+  const char* DecodeLabel(const std::vector<int>& labels, int start, int* end,
                           int* decoded);
 
   // Returns a string corresponding to a given single label id, falling back to
@@ -268,7 +293,7 @@ class LSTMRecognizer {
   UnicharCompress recoder_;
 
   // ==Training parameters that are serialized to provide a record of them.==
-  STRING network_str_;
+  std::string network_str_;
   // Flags used to determine the training method of the network.
   // See enum TrainingFlags above.
   int32_t training_flags_;

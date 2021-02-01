@@ -16,14 +16,18 @@
  *
  **********************************************************************/
 
-#include <cmath>
-#include <cfloat>       // for FLT_MAX
-#include <vector>       // for std::vector
+#include "pithsync.h"
+
 #include "makerow.h"
 #include "pitsync1.h"
 #include "topitch.h"
-#include "pithsync.h"
 #include "tprintf.h"
+
+#include <cmath>
+#include <cfloat>       // for FLT_MAX
+#include <vector>       // for std::vector
+
+namespace tesseract {
 
 /**********************************************************************
  * FPCUTPT::setup
@@ -685,3 +689,5 @@ double check_pitch_sync3(                          //find segmentation
       seg_it.data ()->squares (), seg_it.data ()->sum (), best_count);
   return seg_it.data ()->squares () - mean_sum;
 }
+
+} // namespace tesseract

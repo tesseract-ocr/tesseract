@@ -15,18 +15,22 @@
  *
  **********************************************************************/
 
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "polyblk.h"
+
 #include "elst.h"
+
 #include <cctype>
 #include <cinttypes>  // PRId32
 #include <cmath>
 #include <cstdio>
 #include <memory>     // std::unique_ptr
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
+namespace tesseract {
 
 #define INTERSECTING INT16_MAX
 
@@ -415,3 +419,5 @@ ScrollView::Color POLY_BLOCK::ColorForPolyBlockType(PolyBlockType type) {
   return ScrollView::WHITE;
 }
 #endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract

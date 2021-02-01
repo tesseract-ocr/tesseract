@@ -47,7 +47,7 @@ class TempColumn_LIST;
 class EquationDetectBase;
 
 // The ColumnFinder class finds columns in the grid.
-class ColumnFinder : public TabFind {
+class TESS_API ColumnFinder : public TabFind {
  public:
   // Gridsize is an estimate of the text size in the image. A suitable value
   // is in TO_BLOCK::line_size after find_components has been used to make

@@ -50,7 +50,7 @@ using RSCounts = std::unordered_map<int, int>;
 static bool DecodeRadicalLine(STRING* radical_data_line, RSMap* radical_map) {
   if (radical_data_line->length() == 0 || (*radical_data_line)[0] == '#')
     return true;
-  GenericVector<STRING> entries;
+  std::vector<STRING> entries;
   radical_data_line->split(' ', &entries);
   if (entries.size() < 2) return false;
   char* end = nullptr;
@@ -71,7 +71,7 @@ static bool DecodeRadicalLine(STRING* radical_data_line, RSMap* radical_map) {
 // The radical_stroke_table is non-const because it gets split and the caller
 // is unlikely to want to use it again.
 static bool DecodeRadicalTable(STRING* radical_data, RSMap* radical_map) {
-  GenericVector<STRING> lines;
+  std::vector<STRING> lines;
   radical_data->split('\n', &lines);
   for (int i = 0; i < lines.size(); ++i) {
     if (!DecodeRadicalLine(&lines[i], radical_map)) {
@@ -372,7 +372,7 @@ void UnicharCompress::ComputeCodeRange() {
 // Initializes the decoding hash_map from the encoding array.
 void UnicharCompress::SetupDecoder() {
   Cleanup();
-  is_valid_start_.init_to_size(code_range_, false);
+  is_valid_start_.resize(code_range_, false);
   for (int c = 0; c < encoder_.size(); ++c) {
     const RecodedCharID& code = encoder_[c];
     decoder_[code] = c;
@@ -382,14 +382,14 @@ void UnicharCompress::SetupDecoder() {
     prefix.Truncate(len);
     auto final_it = final_codes_.find(prefix);
     if (final_it == final_codes_.end()) {
-      auto* code_list = new GenericVectorEqEq<int>;
+      auto* code_list = new GenericVector<int>;
       code_list->push_back(code(len));
       final_codes_[prefix] = code_list;
       while (--len >= 0) {
         prefix.Truncate(len);
         auto next_it = next_codes_.find(prefix);
         if (next_it == next_codes_.end()) {
-          auto* code_list = new GenericVectorEqEq<int>;
+          auto* code_list = new GenericVector<int>;
           code_list->push_back(code(len));
           next_codes_[prefix] = code_list;
         } else {

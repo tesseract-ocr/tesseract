@@ -19,7 +19,9 @@
 #ifndef ERRCODE_H
 #define ERRCODE_H
 
-#include <tesseract/platform.h>   // for TESS_API
+#include <tesseract/export.h>   // for TESS_API
+
+namespace tesseract {
 
 /*Control parameters for error()*/
 enum TessErrorLogCode {
@@ -49,11 +51,7 @@ class TESS_API ERRCODE {           // error handler class
 
 constexpr ERRCODE ASSERT_FAILED("Assert failed");
 
-#if defined __cplusplus
-# define DO_NOTHING static_cast<void>(0)
-#else
-# define DO_NOTHING (void)(0)
-#endif
+#define DO_NOTHING static_cast<void>(0)
 
 #define ASSERT_HOST(x) (x) \
   ? DO_NOTHING \
@@ -64,5 +62,7 @@ constexpr ERRCODE ASSERT_FAILED("Assert failed");
     tprintf(__VA_ARGS__);                                                      \
     ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d", __FILE__, __LINE__); \
   }
+
+} // namespace tesseract
 
 #endif

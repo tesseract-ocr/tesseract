@@ -17,10 +17,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <algorithm>
-#include <cmath>        // for std::fabs
-#include <memory>
-
 #include <tesseract/osdetect.h>
 
 #include "blobbox.h"
@@ -32,10 +28,17 @@
 #include "oldlist.h"
 #include "qrsequence.h"
 #include "ratngs.h"
-#include <tesseract/strngs.h>
 #include "tabvector.h"
 #include "tesseractclass.h"
 #include "textord.h"
+
+#include "strngs.h"
+
+#include <algorithm>
+#include <cmath>        // for std::fabs
+#include <memory>
+
+namespace tesseract {
 
 const float kSizeRatioToReject = 2.0;
 const int kMinAcceptableBlobHeight = 10;
@@ -190,11 +193,9 @@ static void remove_nontext_regions(tesseract::Tesseract *tess,
 int orientation_and_script_detection(const char* filename,
                                      OSResults* osr,
                                      tesseract::Tesseract* tess) {
-  STRING name = filename;        //truncated name
-  const char *lastdot;           //of name
-  TBOX page_box;
+  std::string name = filename;   //truncated name
 
-  lastdot = strrchr(name.c_str(), '.');
+  const char* lastdot = strrchr(name.c_str(), '.');
   if (lastdot != nullptr)
     name[lastdot-name.c_str()] = '\0';
 
@@ -215,10 +216,7 @@ int orientation_and_script_detection(const char* filename,
     tess->mutable_textord()->find_components(tess->pix_binary(),
                                              &blocks, &port_blocks);
   } else {
-    page_box.set_left(0);
-    page_box.set_bottom(0);
-    page_box.set_right(width);
-    page_box.set_top(height);
+    TBOX page_box(0, 0, width, height);
     // Filter_blobs sets up the TO_BLOCKs the same as find_components does.
     tess->mutable_textord()->filter_blobs(page_box.topright(),
                                           &port_blocks, true);
@@ -275,7 +273,7 @@ int os_detect(TO_BLOCK_LIST* port_blocks, OSResults* osr,
 // If allowed_scripts is non-null and non-empty, it is a list of scripts that
 // constrains both orientation and script detection to consider only scripts
 // from the list.
-int os_detect_blobs(const GenericVector<int>* allowed_scripts,
+int os_detect_blobs(const std::vector<int>* allowed_scripts,
                     BLOBNBOX_CLIST* blob_list, OSResults* osr,
                     tesseract::Tesseract* tess) {
   OSResults osr_;
@@ -372,7 +370,7 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
 
 
 OrientationDetector::OrientationDetector(
-    const GenericVector<int>* allowed_scripts, OSResults* osr) {
+    const std::vector<int>* allowed_scripts, OSResults* osr) {
   osr_ = osr;
   allowed_scripts_ = allowed_scripts;
 }
@@ -450,7 +448,7 @@ int OrientationDetector::get_orientation() {
 }
 
 
-ScriptDetector::ScriptDetector(const GenericVector<int>* allowed_scripts,
+ScriptDetector::ScriptDetector(const std::vector<int>* allowed_scripts,
                                OSResults* osr, tesseract::Tesseract* tess) {
   osr_ = osr;
   tess_ = tess;
@@ -577,3 +575,5 @@ int OrientationIdToValue(const int& id) {
       return -1;
   }
 }
+
+} // namespace tesseract

@@ -18,15 +18,13 @@
 #ifndef FEATURES_H
 #define FEATURES_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "blobs.h"
 
 #include <cstdio>
 
+namespace tesseract {
+
 class DENORM;
-struct INT_FX_RESULT_STRUCT;
 
 #undef Min
 #undef Max
@@ -104,10 +102,13 @@ DefineFeature (Name, NumLinear, NumCircular, ShortName, ParamName)
 ----------------------------------------------------------------------*/
 bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature);
 
+TESS_API
 void FreeFeature(FEATURE Feature);
 
+TESS_API
 void FreeFeatureSet(FEATURE_SET FeatureSet);
 
+TESS_API
 FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc);
 
 FEATURE_SET NewFeatureSet(int NumFeatures);
@@ -115,5 +116,7 @@ FEATURE_SET NewFeatureSet(int NumFeatures);
 FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc);
 
 void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str);
+
+} // namespace tesseract
 
 #endif

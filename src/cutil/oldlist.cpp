@@ -55,9 +55,13 @@
 
 ******************************************************************************/
 #include "oldlist.h"
+
+#include "errcode.h"    // for ASSERT_HOST
+
 #include <cstdio>
 #include <cstring>      // for strcmp
-#include "errcode.h"    // for ASSERT_HOST
+
+namespace tesseract {
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -215,3 +219,5 @@ LIST search(LIST list, void *key, int_compare is_equal) {
   iterate(list) if ((*is_equal)(first_node(list), key)) return (list);
   return (NIL_LIST);
 }
+
+} // namespace tesseract

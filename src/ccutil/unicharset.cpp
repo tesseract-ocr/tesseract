@@ -18,6 +18,11 @@
 
 #include "unicharset.h"
 
+#include "params.h"
+
+#include "serialis.h"
+#include <tesseract/unichar.h>
+
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -26,13 +31,7 @@
 #include <locale>     // for std::locale::classic
 #include <sstream>    // for std::istringstream, std::ostringstream
 
-#include "params.h"
-#include <tesseract/serialis.h>
-#include <tesseract/unichar.h>
-
-// TODO(rays) Move UNICHARSET to tesseract namespace.
-using tesseract::char32;
-using tesseract::UNICHAR;
+namespace tesseract {
 
 // Special character used in representing character fragments.
 static const char kSeparator = '|';
@@ -173,10 +172,7 @@ void UNICHARSET::UNICHAR_PROPERTIES::CopyFrom(const UNICHAR_PROPERTIES& src) {
 }
 
 UNICHARSET::UNICHARSET() :
-    unichars(nullptr),
     ids(),
-    size_used(0),
-    size_reserved(0),
     script_table(nullptr),
     script_table_size_used(0) {
   clear();
@@ -189,20 +185,6 @@ UNICHARSET::UNICHARSET() :
 
 UNICHARSET::~UNICHARSET() {
   clear();
-}
-
-void UNICHARSET::reserve(int unichars_number) {
-  if (unichars_number > size_reserved) {
-    auto* unichars_new = new UNICHAR_SLOT[unichars_number];
-    for (int i = 0; i < size_used; ++i)
-      unichars_new[i] = unichars[i];
-    for (int j = size_used; j < unichars_number; ++j) {
-      unichars_new[j].properties.script_id = add_script(null_script);
-    }
-    delete[] unichars;
-    unichars = unichars_new;
-    size_reserved = unichars_number;
-  }
 }
 
 UNICHAR_ID
@@ -230,8 +212,8 @@ UNICHAR_ID UNICHARSET::unichar_to_id(const char* const unichar_repr,
 // WARNING: this function now encodes the whole string for precision.
 // Use encode_string in preference to repeatedly calling step.
 int UNICHARSET::step(const char* str) const {
-  GenericVector<UNICHAR_ID> encoding;
-  GenericVector<char> lengths;
+  std::vector<UNICHAR_ID> encoding;
+  std::vector<char> lengths;
   encode_string(str, true, &encoding, &lengths, nullptr);
   if (encoding.empty() || encoding[0] == INVALID_UNICHAR_ID) return 0;
   return lengths[0];
@@ -242,7 +224,7 @@ int UNICHARSET::step(const char* str) const {
 // into the second (return) argument.
 bool UNICHARSET::encodable_string(const char *str,
                                   int *first_bad_position) const {
-  GenericVector<UNICHAR_ID> encoding;
+  std::vector<UNICHAR_ID> encoding;
   return encode_string(str, true, &encoding, nullptr, first_bad_position);
 }
 
@@ -256,13 +238,13 @@ bool UNICHARSET::encodable_string(const char *str,
 // that do not belong in the unicharset, or encoding may fail.
 // Use CleanupString to perform the cleaning.
 bool UNICHARSET::encode_string(const char* str, bool give_up_on_failure,
-                               GenericVector<UNICHAR_ID>* encoding,
-                               GenericVector<char>* lengths,
+                               std::vector<UNICHAR_ID>* encoding,
+                               std::vector<char>* lengths,
                                int* encoded_length) const {
-  GenericVector<UNICHAR_ID> working_encoding;
-  GenericVector<char> working_lengths;
-  GenericVector<char> best_lengths;
-  encoding->truncate(0);  // Just in case str is empty.
+  std::vector<UNICHAR_ID> working_encoding;
+  std::vector<char> working_lengths;
+  std::vector<char> best_lengths;
+  encoding->clear();  // Just in case str is empty.
   int str_length = strlen(str);
   int str_pos = 0;
   bool perfect = true;
@@ -370,13 +352,13 @@ STRING UNICHARSET::debug_str(UNICHAR_ID id) const {
 // Sets the normed_ids vector from the normed string. normed_ids is not
 // stored in the file, and needs to be set when the UNICHARSET is loaded.
 void UNICHARSET::set_normed_ids(UNICHAR_ID unichar_id) {
-  unichars[unichar_id].properties.normed_ids.truncate(0);
+  unichars[unichar_id].properties.normed_ids.clear();
   if (unichar_id == UNICHAR_SPACE && id_to_unichar(unichar_id)[0] == ' ') {
     unichars[unichar_id].properties.normed_ids.push_back(UNICHAR_SPACE);
   } else if (!encode_string(unichars[unichar_id].properties.normed.c_str(),
                             true, &unichars[unichar_id].properties.normed_ids,
                             nullptr, nullptr)) {
-    unichars[unichar_id].properties.normed_ids.truncate(0);
+    unichars[unichar_id].properties.normed_ids.clear();
     unichars[unichar_id].properties.normed_ids.push_back(unichar_id);
   }
 }
@@ -393,7 +375,7 @@ bool UNICHARSET::get_isprivate(UNICHAR_ID unichar_id) const {
 
 // Sets all ranges to empty, so they can be expanded to set the values.
 void UNICHARSET::set_ranges_empty() {
-  for (int id = 0; id < size_used; ++id) {
+  for (int id = 0; id < unichars.size(); ++id) {
     unichars[id].properties.SetRangesEmpty();
   }
 }
@@ -403,7 +385,7 @@ void UNICHARSET::set_ranges_empty() {
 // are correctly accounted for.
 void UNICHARSET::PartialSetPropertiesFromOther(int start_index,
                                                const UNICHARSET& src) {
-  for (int ch = start_index; ch < size_used; ++ch) {
+  for (int ch = start_index; ch < unichars.size(); ++ch) {
     const char* utf8 = id_to_unichar(ch);
     UNICHAR_PROPERTIES properties;
     if (src.GetStrProperties(utf8, &properties)) {
@@ -432,7 +414,7 @@ void UNICHARSET::PartialSetPropertiesFromOther(int start_index,
 // src unicharset with ranges in it. The unicharsets don't have to be the
 // same, and graphemes are correctly accounted for.
 void UNICHARSET::ExpandRangesFromOther(const UNICHARSET& src) {
-  for (int ch = 0; ch < size_used; ++ch) {
+  for (int ch = 0; ch < unichars.size(); ++ch) {
     const char* utf8 = id_to_unichar(ch);
     UNICHAR_PROPERTIES properties;
     if (src.GetStrProperties(utf8, &properties)) {
@@ -446,7 +428,7 @@ void UNICHARSET::ExpandRangesFromOther(const UNICHARSET& src) {
 // ids will not be present in this if not in src. Does NOT reorder the set!
 void UNICHARSET::CopyFrom(const UNICHARSET& src) {
   clear();
-  for (int ch = 0; ch < src.size_used; ++ch) {
+  for (int ch = 0; ch < src.unichars.size(); ++ch) {
     const UNICHAR_PROPERTIES& src_props = src.unichars[ch].properties;
     const char* utf8 = src.id_to_unichar(ch);
     unichar_insert_backwards_compatible(utf8);
@@ -461,11 +443,11 @@ void UNICHARSET::CopyFrom(const UNICHARSET& src) {
 // SetPropertiesFromOther, otherwise expand the ranges, as in
 // ExpandRangesFromOther.
 void UNICHARSET::AppendOtherUnicharset(const UNICHARSET& src) {
-  int initial_used = size_used;
-  for (int ch = 0; ch < src.size_used; ++ch) {
+  int initial_used = unichars.size();
+  for (int ch = 0; ch < src.unichars.size(); ++ch) {
     const UNICHAR_PROPERTIES& src_props = src.unichars[ch].properties;
     const char* utf8 = src.id_to_unichar(ch);
-    int id = size_used;
+    int id = unichars.size();
     if (contains_unichar(utf8)) {
       id = unichar_to_id(utf8);
       // Just expand current ranges.
@@ -499,11 +481,11 @@ bool UNICHARSET::SizesDistinct(UNICHAR_ID id1, UNICHAR_ID id2) const {
 // the overall process of encoding a partially failed string more efficient.
 // See unicharset.h for definition of the args.
 void UNICHARSET::encode_string(const char* str, int str_index, int str_length,
-                               GenericVector<UNICHAR_ID>* encoding,
-                               GenericVector<char>* lengths,
+                               std::vector<UNICHAR_ID>* encoding,
+                               std::vector<char>* lengths,
                                int* best_total_length,
-                               GenericVector<UNICHAR_ID>* best_encoding,
-                               GenericVector<char>* best_lengths) const {
+                               std::vector<UNICHAR_ID>* best_encoding,
+                               std::vector<char>* best_lengths) const {
   if (str_index > *best_total_length) {
     // This is the best result so far.
     *best_total_length = str_index;
@@ -527,8 +509,8 @@ void UNICHARSET::encode_string(const char* str, int str_index, int str_length,
       if (*best_total_length == str_length)
         return;  // Tail recursion success!
       // Failed with that length, truncate back and try again.
-      encoding->truncate(encoding_index);
-      lengths->truncate(encoding_index);
+      encoding->resize(encoding_index);
+      lengths->resize(encoding_index);
     }
     int step = UNICHAR::utf8_step(str + str_index + length);
     if (step == 0) step = 1;
@@ -546,7 +528,7 @@ bool UNICHARSET::GetStrProperties(const char* utf8_str,
   props->Init();
   props->SetRangesEmpty();
   int total_unicodes = 0;
-  GenericVector<UNICHAR_ID> encoding;
+  std::vector<UNICHAR_ID> encoding;
   if (!encode_string(utf8_str, true, &encoding, nullptr, nullptr))
     return false;  // Some part was invalid.
   for (int i = 0; i < encoding.size(); ++i) {
@@ -629,16 +611,11 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr,
       old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
   if (!cleaned.empty() && !ids.contains(cleaned.data(), cleaned.size())) {
     const char* str = cleaned.c_str();
-    GenericVector<int> encoding;
+    std::vector<int> encoding;
     if (!old_style_included_ &&
         encode_string(str, true, &encoding, nullptr, nullptr))
       return;
-    if (size_used == size_reserved) {
-      if (size_used == 0)
-        reserve(8);
-      else
-        reserve(2 * size_used);
-    }
+    auto &u = unichars.emplace_back();
     int index = 0;
     do {
       if (index >= UNICHAR_LEN) {
@@ -646,24 +623,23 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr,
                 unichar_repr);
         return;
       }
-      unichars[size_used].representation[index++] = *str++;
+      u.representation[index++] = *str++;
     } while (*str != '\0');
-    unichars[size_used].representation[index] = '\0';
-    this->set_script(size_used, null_script);
+    u.representation[index] = '\0';
+    this->set_script(unichars.size() - 1, null_script);
     // If the given unichar_repr represents a fragmented character, set
     // fragment property to a pointer to CHAR_FRAGMENT class instance with
     // information parsed from the unichar representation. Use the script
     // of the base unichar for the fragmented character if possible.
     CHAR_FRAGMENT* frag =
-        CHAR_FRAGMENT::parse_from_string(unichars[size_used].representation);
-    this->unichars[size_used].properties.fragment = frag;
+        CHAR_FRAGMENT::parse_from_string(u.representation);
+    u.properties.fragment = frag;
     if (frag != nullptr && this->contains_unichar(frag->get_unichar())) {
-      this->unichars[size_used].properties.script_id =
+      u.properties.script_id =
         this->get_script(frag->get_unichar());
     }
-    this->unichars[size_used].properties.enabled = true;
-    ids.insert(unichars[size_used].representation, size_used);
-    ++size_used;
+    u.properties.enabled = true;
+    ids.insert(u.representation, unichars.size() - 1);
   }
 }
 
@@ -766,7 +742,6 @@ bool UNICHARSET::load_via_fgets(std::function<char*(char*, int)> fgets_cb,
       sscanf(buffer, "%d", &unicharset_size) != 1) {
     return false;
   }
-  this->reserve(unicharset_size);
   for (UNICHAR_ID id = 0; id < unicharset_size; ++id) {
     char unichar[256];
     unsigned int properties;
@@ -890,7 +865,7 @@ void UNICHARSET::post_load_setup() {
   int x_height_alphas = 0;
   int cap_height_alphas = 0;
   top_bottom_set_ = false;
-  for (UNICHAR_ID id = 0; id < size_used; ++id) {
+  for (UNICHAR_ID id = 0; id < unichars.size(); ++id) {
     int min_bottom = 0;
     int max_bottom = UINT8_MAX;
     int min_top = 0;
@@ -932,7 +907,7 @@ void UNICHARSET::post_load_setup() {
   // not the common script, as that still contains some "alphas".
   int* script_counts = new int[script_table_size_used];
   memset(script_counts, 0, sizeof(*script_counts) * script_table_size_used);
-  for (int id = 0; id < size_used; ++id) {
+  for (int id = 0; id < unichars.size(); ++id) {
     if (get_isalpha(id)) {
       ++script_counts[get_script(id)];
     }
@@ -952,7 +927,7 @@ void UNICHARSET::post_load_setup() {
 bool UNICHARSET::major_right_to_left() const {
   int ltr_count = 0;
   int rtl_count = 0;
-  for (int id = 0; id < size_used; ++id) {
+  for (int id = 0; id < unichars.size(); ++id) {
     int dir = get_direction(id);
     if (dir == UNICHARSET::U_LEFT_TO_RIGHT) ltr_count++;
     if (dir == UNICHARSET::U_RIGHT_TO_LEFT ||
@@ -971,11 +946,11 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
                                          const char* unblacklist) {
   bool def_enabled = whitelist == nullptr || whitelist[0] == '\0';
   // Set everything to default
-  for (int ch = 0; ch < size_used; ++ch)
+  for (int ch = 0; ch < unichars.size(); ++ch)
     unichars[ch].properties.enabled = def_enabled;
   if (!def_enabled) {
     // Enable the whitelist.
-    GenericVector<UNICHAR_ID> encoding;
+    std::vector<UNICHAR_ID> encoding;
     encode_string(whitelist, false, &encoding, nullptr, nullptr);
     for (int i = 0; i < encoding.size(); ++i) {
       if (encoding[i] != INVALID_UNICHAR_ID)
@@ -984,7 +959,7 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
   }
   if (blacklist != nullptr && blacklist[0] != '\0') {
     // Disable the blacklist.
-    GenericVector<UNICHAR_ID> encoding;
+    std::vector<UNICHAR_ID> encoding;
     encode_string(blacklist, false, &encoding, nullptr, nullptr);
     for (int i = 0; i < encoding.size(); ++i) {
       if (encoding[i] != INVALID_UNICHAR_ID)
@@ -993,7 +968,7 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
   }
   if (unblacklist != nullptr && unblacklist[0] != '\0') {
     // Re-enable the unblacklist.
-    GenericVector<UNICHAR_ID> encoding;
+    std::vector<UNICHAR_ID> encoding;
     encode_string(unblacklist, false, &encoding, nullptr, nullptr);
     for (int i = 0; i < encoding.size(); ++i) {
       if (encoding[i] != INVALID_UNICHAR_ID)
@@ -1007,7 +982,7 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
 bool UNICHARSET::AnyRepeatedUnicodes() const {
   int start_id = 0;
   if (has_special_codes()) start_id = SPECIAL_UNICHAR_CODES_COUNT;
-  for (int id = start_id; id < size_used; ++id) {
+  for (int id = start_id; id < unichars.size(); ++id) {
     // Convert to unicodes.
     std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(get_normed_unichar(id));
     for (size_t u = 1; u < unicodes.size(); ++u) {
@@ -1132,3 +1107,5 @@ std::string UNICHARSET::CleanupString(const char* utf8_str, size_t length) {
   }
   return result;
 }
+
+} // namespace tesseract

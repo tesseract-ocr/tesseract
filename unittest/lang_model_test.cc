@@ -22,7 +22,6 @@
 #include "unicharset_training_utils.h"
 
 namespace tesseract {
-namespace {
 
 std::string TestDataNameToPath(const std::string& name) {
   return file::JoinPath(TESTING_DIR, name);
@@ -42,11 +41,12 @@ TEST(LangModelTest, AddACharacter) {
   UNICHARSET unicharset;
   EXPECT_TRUE(unicharset.load_from_file(unicharset_path.c_str()));
   std::string version_str = "TestVersion";
+  file::MakeTmpdir();
   std::string output_dir = FLAGS_test_tmpdir;
   LOG(INFO) << "Output dir=" << output_dir << "\n";
   std::string lang1 = "eng";
   bool pass_through_recoder = false;
-  GenericVector<STRING> words, puncs, numbers;
+  std::vector<STRING> words, puncs, numbers;
   // If these reads fail, we get a warning message and an empty list of words.
   ReadFile(file::JoinPath(eng_dir, "eng.wordlist"), nullptr)
       .split('\n', &words);
@@ -66,7 +66,7 @@ TEST(LangModelTest, AddACharacter) {
       file::JoinPath(output_dir, lang1, absl::StrCat(lang1, ".traineddata"));
   LSTMTrainer trainer1;
   trainer1.InitCharSet(traineddata1);
-  GenericVector<int> labels1;
+  std::vector<int> labels1;
   EXPECT_TRUE(trainer1.EncodeString(kTestString, &labels1));
   STRING test1_decoded = trainer1.DecodeLabels(labels1);
   std::string test1_str(&test1_decoded[0], test1_decoded.length());
@@ -89,13 +89,13 @@ TEST(LangModelTest, AddACharacter) {
       file::JoinPath(output_dir, lang2, absl::StrCat(lang2, ".traineddata"));
   LSTMTrainer trainer2;
   trainer2.InitCharSet(traineddata2);
-  GenericVector<int> labels2;
+  std::vector<int> labels2;
   EXPECT_TRUE(trainer2.EncodeString(kTestString, &labels2));
   STRING test2_decoded = trainer2.DecodeLabels(labels2);
   std::string test2_str(&test2_decoded[0], test2_decoded.length());
   LOG(INFO) << "Labels2=" << test2_str << "\n";
   // encode kTestStringRupees.
-  GenericVector<int> labels3;
+  std::vector<int> labels3;
   EXPECT_TRUE(trainer2.EncodeString(kTestStringRupees, &labels3));
   STRING test3_decoded = trainer2.DecodeLabels(labels3);
   std::string test3_str(&test3_decoded[0], test3_decoded.length());
@@ -133,11 +133,12 @@ TEST(LangModelTest, AddACharacterHindi) {
   UNICHARSET unicharset;
   EXPECT_TRUE(unicharset.load_from_file(unicharset_path.c_str()));
   std::string version_str = "TestVersion";
+  file::MakeTmpdir();
   std::string output_dir = FLAGS_test_tmpdir;
   LOG(INFO) << "Output dir=" << output_dir << "\n";
   std::string lang1 = "hin";
   bool pass_through_recoder = false;
-  GenericVector<STRING> words, puncs, numbers;
+  std::vector<STRING> words, puncs, numbers;
   // If these reads fail, we get a warning message and an empty list of words.
   ReadFile(file::JoinPath(hin_dir, "hin.wordlist"), nullptr)
       .split('\n', &words);
@@ -157,7 +158,7 @@ TEST(LangModelTest, AddACharacterHindi) {
       file::JoinPath(output_dir, lang1, absl::StrCat(lang1, ".traineddata"));
   LSTMTrainer trainer1;
   trainer1.InitCharSet(traineddata1);
-  GenericVector<int> labels1;
+  std::vector<int> labels1;
   EXPECT_TRUE(trainer1.EncodeString(kTestString, &labels1));
   STRING test1_decoded = trainer1.DecodeLabels(labels1);
   std::string test1_str(&test1_decoded[0], test1_decoded.length());
@@ -180,13 +181,13 @@ TEST(LangModelTest, AddACharacterHindi) {
       file::JoinPath(output_dir, lang2, absl::StrCat(lang2, ".traineddata"));
   LSTMTrainer trainer2;
   trainer2.InitCharSet(traineddata2);
-  GenericVector<int> labels2;
+  std::vector<int> labels2;
   EXPECT_TRUE(trainer2.EncodeString(kTestString, &labels2));
   STRING test2_decoded = trainer2.DecodeLabels(labels2);
   std::string test2_str(&test2_decoded[0], test2_decoded.length());
   LOG(INFO) << "Labels2=" << test2_str << "\n";
   // encode kTestStringRupees.
-  GenericVector<int> labels3;
+  std::vector<int> labels3;
   EXPECT_TRUE(trainer2.EncodeString(kTestStringRupees, &labels3));
   STRING test3_decoded = trainer2.DecodeLabels(labels3);
   std::string test3_str(&test3_decoded[0], test3_decoded.length());
@@ -213,5 +214,4 @@ TEST(LangModelTest, AddACharacterHindi) {
   EXPECT_TRUE(trainer2.EncodeString(kTestStringRupees, &labels2));
 }
 
-}  // namespace
 }  // namespace tesseract

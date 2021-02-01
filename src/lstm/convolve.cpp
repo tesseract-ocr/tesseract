@@ -24,11 +24,11 @@
 #include "convolve.h"
 
 #include "networkscratch.h"
-#include <tesseract/serialis.h>
+#include "serialis.h"
 
 namespace tesseract {
 
-Convolve::Convolve(const STRING& name, int ni, int half_x, int half_y)
+Convolve::Convolve(const std::string& name, int ni, int half_x, int half_y)
   : Network(NT_CONVOLVE, name, ni, ni * (2*half_x + 1) * (2*half_y + 1)),
     half_x_(half_x), half_y_(half_y) {
 }

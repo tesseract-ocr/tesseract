@@ -14,9 +14,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
+
 #include "picofeat.h"
 
 #include "classify.h"
@@ -29,6 +27,8 @@
 
 #include <cmath>
 #include <cstdio>
+
+namespace tesseract {
 
 /*---------------------------------------------------------------------------
           Variables
@@ -51,7 +51,6 @@ void NormalizePicoX(FEATURE_SET FeatureSet);
               Public Code
 ----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * Operation: Dummy for now.
  *
@@ -81,7 +80,6 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
   return (FeatureSet);
 
 }                                /* ExtractPicoFeatures */
-}  // namespace tesseract
 
 /*----------------------------------------------------------------------------
               Private Code
@@ -207,7 +205,6 @@ void NormalizePicoX(FEATURE_SET FeatureSet) {
   }
 }                                /* NormalizePicoX */
 
-namespace tesseract {
 /*---------------------------------------------------------------------------*/
 /**
  * @param blob blob to extract features from
@@ -217,7 +214,7 @@ namespace tesseract {
 FEATURE_SET Classify::ExtractIntCNFeatures(
     const TBLOB& blob, const INT_FX_RESULT_STRUCT& fx_info) {
   INT_FX_RESULT_STRUCT local_fx_info(fx_info);
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
       blob, false, &local_fx_info, &bl_features);
   if (sample == nullptr) return nullptr;
@@ -247,7 +244,7 @@ FEATURE_SET Classify::ExtractIntCNFeatures(
 FEATURE_SET Classify::ExtractIntGeoFeatures(
     const TBLOB& blob, const INT_FX_RESULT_STRUCT& fx_info) {
   INT_FX_RESULT_STRUCT local_fx_info(fx_info);
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
       blob, false, &local_fx_info, &bl_features);
   if (sample == nullptr) return nullptr;

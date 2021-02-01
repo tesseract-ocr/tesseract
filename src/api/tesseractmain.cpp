@@ -90,6 +90,8 @@ static AutoWin32ConsoleOutputCP autoWin32ConsoleOutputCP(CP_UTF8);
 
 #endif   // _WIN32
 
+using namespace tesseract;
+
 static void PrintVersionInfo() {
   char* versionStrP;
 
@@ -135,7 +137,7 @@ static void PrintVersionInfo() {
     }
   }
 #endif
-#if defined(HAVE_NEON)
+#if defined(HAVE_NEON) || defined(__aarch64__)
   if (tesseract::SIMDDetect::IsNEONAvailable()) printf(" Found NEON\n");
 #else
   if (tesseract::SIMDDetect::IsAVX512BWAvailable()) printf(" Found AVX512BW\n");
@@ -297,12 +299,11 @@ static void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
 }
 
 static void PrintLangsList(tesseract::TessBaseAPI* api) {
-  GenericVector<STRING> languages;
+  std::vector<std::string> languages;
   api->GetAvailableLanguagesAsVector(&languages);
-  printf("List of available languages (%d):\n", languages.size());
-  for (int index = 0; index < languages.size(); ++index) {
-    STRING& string = languages[index];
-    printf("%s\n", string.c_str());
+  printf("List of available languages (%zu):\n", languages.size());
+  for (const auto& language : languages) {
+    printf("%s\n", language.c_str());
   }
   api->End();
 }
@@ -343,8 +344,8 @@ static void checkArgValues(int arg, const char* mode, int count) {
 static void ParseArgs(const int argc, char** argv, const char** lang,
                       const char** image, const char** outputbase,
                       const char** datapath, l_int32* dpi, bool* list_langs,
-                      bool* print_parameters, GenericVector<STRING>* vars_vec,
-                      GenericVector<STRING>* vars_values, l_int32* arg_i,
+                      bool* print_parameters, std::vector<std::string>* vars_vec,
+                      std::vector<std::string>* vars_values, l_int32* arg_i,
                       tesseract::PageSegMode* pagesegmode,
                       tesseract::OcrEngineMode* enginemode) {
   bool noocr = false;
@@ -623,10 +624,10 @@ int main(int argc, char** argv) {
   /* main() calls functions like ParseArgs which call exit().
    * This results in memory leaks if vars_vec and vars_values are
    * declared as auto variables (destructor is not called then). */
-  static GenericVector<STRING> vars_vec;
-  static GenericVector<STRING> vars_values;
+  static std::vector<std::string> vars_vec;
+  static std::vector<std::string> vars_values;
 
-#if !defined(DEBUG)
+#if defined(NDEBUG)
   // Disable debugging and informational messages from Leptonica.
   setMsgSeverity(L_SEVERITY_ERROR);
 #endif

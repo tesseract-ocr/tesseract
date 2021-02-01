@@ -36,6 +36,8 @@
 #include "params_training_featdef.h"
 #endif  // ndef DISABLED_LEGACY_ENGINE
 
+namespace tesseract {
+
 class MATRIX;
 class WERD_RES;
 
@@ -51,8 +53,6 @@ struct CHAR_FRAGMENT_INFO {
   float rating;
   float certainty;
 };
-
-namespace tesseract {
 
 using DawgVector = GenericVector<Dawg *>;
 
@@ -91,7 +91,7 @@ struct DawgArgs {
   bool valid_end;
 };
 
-class Dict {
+class TESS_API Dict {
  public:
   Dict(CCUtil* image_ptr);
   ~Dict();
@@ -116,7 +116,7 @@ class Dict {
   inline bool compound_marker(UNICHAR_ID unichar_id) {
     const UNICHARSET& unicharset = getUnicharset();
     ASSERT_HOST(unicharset.contains_unichar_id(unichar_id));
-    const GenericVector<UNICHAR_ID>& normed_ids =
+    const auto &normed_ids =
         unicharset.normed_ids(unichar_id);
     return normed_ids.size() == 1 &&
         (normed_ids[0] == hyphen_unichar_id_ ||
@@ -127,7 +127,7 @@ class Dict {
   inline bool is_apostrophe(UNICHAR_ID unichar_id) {
     const UNICHARSET& unicharset = getUnicharset();
     ASSERT_HOST(unicharset.contains_unichar_id(unichar_id));
-    const GenericVector<UNICHAR_ID>& normed_ids =
+    const auto &normed_ids =
         unicharset.normed_ids(unichar_id);
     return normed_ids.size() == 1 && normed_ids[0] == apostrophe_unichar_id_;
   }
@@ -157,7 +157,7 @@ class Dict {
     if (!last_word_on_line_ || first_pos)
       return false;
     ASSERT_HOST(unicharset->contains_unichar_id(unichar_id));
-    const GenericVector<UNICHAR_ID>& normed_ids =
+    const auto &normed_ids =
         unicharset->normed_ids(unichar_id);
     return normed_ids.size() == 1 && normed_ids[0] == hyphen_unichar_id_;
   }
@@ -313,7 +313,7 @@ class Dict {
 
   /// Initialize Dict class - load dawgs from [lang].traineddata and
   /// user-specified wordlist and parttern list.
-  static TESS_API DawgCache *GlobalDawgCache();
+  static DawgCache *GlobalDawgCache();
   // Sets up ready for a Load or LoadLSTM.
   void SetupForLoad(DawgCache *dawg_cache);
   // Loads the dawgs needed by Tesseract. Call FinishLoad() after.
@@ -410,21 +410,6 @@ class Dict {
     (void)character;
     (void)character_bytes;
     return 0.0;
-  }
-  double ngram_probability_in_context(const char* lang,
-                                      const char* context,
-                                      int context_bytes,
-                                      const char* character,
-                                      int character_bytes);
-
-  // Interface with params model.
-  float (Dict::*params_model_classify_)(const char *lang, void *path);
-  float ParamsModelClassify(const char *lang, void *path);
-  // Call params_model_classify_ member function.
-  float CallParamsModelClassify(void *path) {
-    ASSERT_HOST(params_model_classify_ != nullptr);  // ASSERT_HOST -> assert
-    return (this->*params_model_classify_)(
-        getCCUtil()->lang.c_str(), path);
   }
 
   inline void SetWildcardID(UNICHAR_ID id) { wildcard_unichar_id_ = id; }
@@ -546,7 +531,7 @@ class Dict {
   // matching.  The first member of each list is taken as canonical.  For
   // example, the first list contains hyphens and dashes with the first symbol
   // being the ASCII hyphen minus.
-  GenericVector<GenericVectorEqEq<UNICHAR_ID> > equivalent_symbols_;
+  std::vector<GenericVector<UNICHAR_ID> > equivalent_symbols_;
   // Dawg Cache reference - this is who we ask to allocate/deallocate dawgs.
   DawgCache *dawg_cache_;
   bool dawg_cache_is_ours_;  // we should delete our own dawg_cache_
@@ -660,6 +645,7 @@ class Dict {
               " are specified, since overly generic patterns can result in"
               " dawg search exploring an overly large number of options.");
 };
+
 }  // namespace tesseract
 
 #endif  // THIRD_PARTY_TESSERACT_DICT_DICT_H_

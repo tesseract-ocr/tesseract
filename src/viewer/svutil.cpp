@@ -25,6 +25,7 @@
 #endif
 
 #include "svutil.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -57,6 +58,8 @@
 #endif /* _WIN32 && !__GNUC__ */
 
 #ifndef GRAPHICS_DISABLED
+
+namespace tesseract {
 
 const int kMaxMsgSize = 4096;
 
@@ -335,5 +338,7 @@ SVNetwork::~SVNetwork() {
   Close();
   delete[] msg_buffer_in_;
 }
+
+} // namespace tesseract
 
 #endif // !GRAPHICS_DISABLED

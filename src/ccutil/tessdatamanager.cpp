@@ -31,9 +31,8 @@
 #endif
 
 #include "errcode.h"
-#include <tesseract/helpers.h>
-#include <tesseract/serialis.h>
-#include <tesseract/strngs.h>
+#include "helpers.h"
+#include "serialis.h"
 #include <tesseract/version.h>
 #include "tprintf.h"
 #include "params.h"
@@ -74,7 +73,7 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
           if (TessdataTypeFromFileName(component, &type)) {
             int64_t size = archive_entry_size(ae);
             if (size > 0) {
-              entries_[type].resize_no_init(size);
+              entries_[type].resize(size);
               if (archive_read_data(a, &entries_[type][0], size) == size) {
                 is_loaded_ = true;
               }
@@ -83,11 +82,6 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
         }
       }
       result = is_loaded_;
-#if defined(DEBUG)
-    } else {
-      tprintf("archive_read_open_filename(...,%s,...) failed, %s\n",
-              filename, strerror(archive_errno(a)));
-#endif
     }
     archive_read_free(a);
   }
@@ -96,7 +90,7 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
 #endif
 
 bool TessdataManager::Init(const char *data_file_name) {
-  GenericVector<char> data;
+  std::vector<char> data;
   if (reader_ == nullptr) {
 #if defined(HAVE_LIBARCHIVE)
     if (LoadArchiveFile(data_file_name)) return true;
@@ -131,7 +125,7 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
       unsigned j = i + 1;
       while (j < num_entries && offset_table[j] == -1) ++j;
       if (j < num_entries) entry_size = offset_table[j] - offset_table[i];
-      entries_[i].resize_no_init(entry_size);
+      entries_[i].resize(entry_size);
       if (!fp.DeSerialize(&entries_[i][0], entry_size)) return false;
     }
   }
@@ -146,7 +140,7 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
 void TessdataManager::OverwriteEntry(TessdataType type, const char *data,
                                      int size) {
   is_loaded_ = true;
-  entries_[type].resize_no_init(size);
+  entries_[type].resize(size);
   memcpy(&entries_[type][0], data, size);
 }
 
@@ -155,7 +149,7 @@ bool TessdataManager::SaveFile(const char* filename,
                                FileWriter writer) const {
   // TODO: This method supports only the proprietary file format.
   ASSERT_HOST(is_loaded_);
-  GenericVector<char> data;
+  std::vector<char> data;
   Serialize(&data);
   if (writer == nullptr)
     return SaveDataToFile(data, filename);
@@ -164,7 +158,7 @@ bool TessdataManager::SaveFile(const char* filename,
 }
 
 // Serializes to the given vector.
-void TessdataManager::Serialize(GenericVector<char> *data) const {
+void TessdataManager::Serialize(std::vector<char> *data) const {
   // TODO: This method supports only the proprietary file format.
   ASSERT_HOST(is_loaded_);
   // Compute the offset_table and total size.
@@ -178,7 +172,7 @@ void TessdataManager::Serialize(GenericVector<char> *data) const {
       offset += entries_[i].size();
     }
   }
-  data->init_to_size(offset, 0);
+  data->resize(offset, 0);
   int32_t num_entries = TESSDATA_NUM_ENTRIES;
   TFile fp;
   fp.OpenWrite(data);
@@ -202,10 +196,10 @@ void TessdataManager::Clear() {
 // Prints a directory of contents.
 void TessdataManager::Directory() const {
   tprintf("Version string:%s\n", VersionString().c_str());
-  int offset = TESSDATA_NUM_ENTRIES * sizeof(int64_t);
+  auto offset = TESSDATA_NUM_ENTRIES * sizeof(int64_t);
   for (unsigned i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
     if (!entries_[i].empty()) {
-      tprintf("%d:%s:size=%d, offset=%d\n", i, kTessdataFileSuffixes[i],
+      tprintf("%u:%s:size=%zu, offset=%zu\n", i, kTessdataFileSuffixes[i],
               entries_[i].size(), offset);
       offset += entries_[i].size();
     }
@@ -238,7 +232,7 @@ std::string TessdataManager::VersionString() const {
 
 // Sets the version string to the given v_str.
 void TessdataManager::SetVersionString(const std::string &v_str) {
-  entries_[TESSDATA_VERSION].resize_no_init(v_str.size());
+  entries_[TESSDATA_VERSION].resize(v_str.size());
   memcpy(&entries_[TESSDATA_VERSION][0], v_str.data(), v_str.size());
 }
 
@@ -309,7 +303,7 @@ bool TessdataManager::TessdataTypeFromFileSuffix(const char *suffix,
       return true;
     }
   }
-#if defined(DEBUG)
+#if !defined(NDEBUG)
   tprintf("TessdataManager can't determine which tessdata"
          " component is represented by %s\n", suffix);
 #endif

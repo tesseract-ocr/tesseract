@@ -22,15 +22,18 @@
 #endif
 
 #include "statistc.h"
-#include <cstring>
-#include <cmath>
-#include <cstdlib>
+
 #include "errcode.h"
-#include <tesseract/helpers.h>
 #include "scrollview.h"
 #include "tprintf.h"
 
-using tesseract::KDPairInc;
+#include "helpers.h"
+
+#include <cstring>
+#include <cmath>
+#include <cstdlib>
+
+namespace tesseract {
 
 /**********************************************************************
  * STATS::STATS
@@ -505,13 +508,13 @@ int STATS::top_n_modes(int max_modes,
         int target_index = 0;
         // Linear search for the target insertion point.
         while (target_index < modes->size() &&
-               (*modes)[target_index].data >= total_count)
+               (*modes)[target_index].data() >= total_count)
           ++target_index;
         auto peak_mean =
             static_cast<float>(total_value / total_count + rangemin_);
         modes->insert(KDPairInc<float, int>(peak_mean, total_count),
                       target_index);
-        least_count = modes->back().data;
+        least_count = modes->back().data();
       }
     }
   } while (max_count > 0);
@@ -772,3 +775,5 @@ void swap_entries(void *array,   // array of entries
     *ptr2++ = tmp;               // tedious!
   }
 }
+
+} // namespace tesseract

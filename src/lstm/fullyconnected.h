@@ -2,7 +2,6 @@
 // File:        fullyconnected.h
 // Description: Simple feed-forward layer with various non-linearities.
 // Author:      Ray Smith
-// Created:     Wed Feb 26 14:46:06 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +26,8 @@ namespace tesseract {
 // C++ Implementation of the Softmax (output) class from lstm.py.
 class FullyConnected : public Network {
  public:
-  FullyConnected(const STRING& name, int ni, int no, NetworkType type);
+  TESS_API
+  FullyConnected(const std::string& name, int ni, int no, NetworkType type);
   ~FullyConnected() override = default;
 
   // Returns the shape output from the network given an input shape (which may

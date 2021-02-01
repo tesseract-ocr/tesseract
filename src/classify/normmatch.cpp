@@ -19,17 +19,18 @@
 ----------------------------------------------------------------------------*/
 #include "normmatch.h"
 
+#include "classify.h"
+#include "clusttool.h"
+#include "helpers.h"
+#include "normfeat.h"
+#include "unicharset.h"
+#include "params.h"
+
 #include <cstdio>
 #include <cmath>
 #include <sstream>          // for std::istringstream
 
-#include "classify.h"
-#include "clusttool.h"
-#include "emalloc.h"
-#include <tesseract/helpers.h>
-#include "normfeat.h"
-#include "unicharset.h"
-#include "params.h"
+namespace tesseract {
 
 struct NORM_PROTOS
 {
@@ -76,8 +77,6 @@ const double kWidthErrorWeighting = 0.125;
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine compares Features against each character
  * normalization proto for ClassId and returns the match
@@ -169,16 +168,13 @@ void Classify::FreeNormProtos() {
   if (NormProtos != nullptr) {
     for (int i = 0; i < NormProtos->NumProtos; i++)
       FreeProtoList(&NormProtos->Protos[i]);
-    Efree(NormProtos->Protos);
-    Efree(NormProtos->ParamDesc);
-    Efree(NormProtos);
+    free(NormProtos->Protos);
+    free(NormProtos->ParamDesc);
+    free(NormProtos);
     NormProtos = nullptr;
   }
 }
-}  // namespace tesseract
 
-/*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine allocates a new data structure to hold
  * a set of character normalization protos.  It then fills in
@@ -196,9 +192,9 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   int NumProtos;
 
   /* allocate and initialization data structure */
-  NormProtos = static_cast<NORM_PROTOS *>(Emalloc (sizeof (NORM_PROTOS)));
+  NormProtos = static_cast<NORM_PROTOS *>(malloc (sizeof (NORM_PROTOS)));
   NormProtos->NumProtos = unicharset.size();
-  NormProtos->Protos = static_cast<LIST *>(Emalloc (NormProtos->NumProtos * sizeof(LIST)));
+  NormProtos->Protos = static_cast<LIST *>(malloc (NormProtos->NumProtos * sizeof(LIST)));
   for (i = 0; i < NormProtos->NumProtos; i++)
     NormProtos->Protos[i] = NIL_LIST;
 
@@ -211,6 +207,7 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   char line[kMaxLineSize];
   while (fp->FGets(line, kMaxLineSize) != nullptr) {
     std::istringstream stream(line);
+    stream.imbue(std::locale::classic());
     stream >> unichar >> NumProtos;
     if (stream.fail()) {
       continue;
@@ -230,4 +227,5 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   }
   return (NormProtos);
 }                                /* ReadNormProtos */
+
 }  // namespace tesseract

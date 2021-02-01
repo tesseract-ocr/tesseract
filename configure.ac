@@ -28,8 +28,8 @@ AM_INIT_AUTOMAKE([foreign subdir-objects])
 
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
-PACKAGE_YEAR=2018
-PACKAGE_DATE="10/29"
+PACKAGE_YEAR=2020
+PACKAGE_DATE="12/31"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 
@@ -72,7 +72,6 @@ AC_CONFIG_HEADERS([config_auto.h:config/config.h.in])
 
 # default conditional
 AM_CONDITIONAL([T_WIN], false)
-AM_CONDITIONAL([OSX], false)
 AM_CONDITIONAL([GRAPHICS_DISABLED], false)
 AC_SUBST([AM_CPPFLAGS])
 
@@ -430,8 +429,24 @@ AC_SEARCH_LIBS([pthread_create], [pthread])
 
 AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
 AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
+# MacOS with Homebrew requires the environment variable
+# XML_CATALOG_FILES for xsltproc.
+AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], false)
 if $have_asciidoc && $have_xsltproc; then
   AM_CONDITIONAL([ASCIIDOC], true)
+  XML_CATALOG_FILES=
+  AC_CHECK_PROG([have_brew], brew, true, false)
+  if $have_brew; then
+    brew_prefix=$(brew --prefix)
+    catalog_file=$brew_prefix/etc/xml/catalog
+    if test -f $catalog_file; then
+      AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], true)
+      XML_CATALOG_FILES=file:$catalog_file
+    else
+      AC_MSG_WARN([Missing file $catalog_file.])
+    fi
+  fi
+  AC_SUBST([XML_CATALOG_FILES])
 else
   AM_CONDITIONAL([ASCIIDOC], false)
 fi
@@ -509,15 +524,12 @@ AC_CONFIG_FILES([Makefile tesseract.pc])
 AC_CONFIG_FILES([tessdata/Makefile])
 AC_CONFIG_FILES([tessdata/configs/Makefile])
 AC_CONFIG_FILES([tessdata/tessconfigs/Makefile])
-AC_CONFIG_FILES([unittest/Makefile])
 AC_CONFIG_FILES([java/Makefile])
 AC_CONFIG_FILES([java/com/Makefile])
 AC_CONFIG_FILES([java/com/google/Makefile])
 AC_CONFIG_FILES([java/com/google/scrollview/Makefile])
 AC_CONFIG_FILES([java/com/google/scrollview/events/Makefile])
 AC_CONFIG_FILES([java/com/google/scrollview/ui/Makefile])
-AC_CONFIG_FILES([doc/Makefile])
-AM_COND_IF([ENABLE_TRAINING], [AC_CONFIG_FILES(src/training/Makefile)])
 AC_OUTPUT
 
 # Final message

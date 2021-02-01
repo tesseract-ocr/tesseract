@@ -18,16 +18,15 @@
 
 #include <algorithm>
 #include <cstdio>
-#ifdef GOOGLE_TESSERACT
-#include "base/commandlineflags.h"
-#endif  // GOOGLE_TESSERACT
 #include <tesseract/baseapi.h>
 #include "commontraining.h"
 #include "mastertrainer.h"
 #include "params.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "tessclassifier.h"
 #include "tesseractclass.h"
+
+using namespace tesseract;
 
 static STRING_PARAM_FLAG(classifier, "", "Classifier to test");
 static STRING_PARAM_FLAG(lang, "eng", "Language to test");
@@ -111,8 +110,8 @@ int main(int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
   STRING file_prefix;
-  tesseract::MasterTrainer* trainer =
-      tesseract::LoadTrainingData(argc, argv, false, nullptr, &file_prefix);
+  auto trainer =
+    tesseract::LoadTrainingData(argc, argv, false, nullptr, &file_prefix);
   tesseract::TessBaseAPI* api;
   // Decode the classifier string.
   tesseract::ShapeClassifier* shape_classifier = InitializeClassifier(
@@ -132,7 +131,6 @@ int main(int argc, char **argv) {
                                    shape_classifier, nullptr);
   delete shape_classifier;
   delete api;
-  delete trainer;
 
   return 0;
 } /* main */

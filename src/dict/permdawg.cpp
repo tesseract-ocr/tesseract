@@ -62,7 +62,7 @@ void Dict::go_deeper_dawg_fxn(
     }
     int num_unigrams = 0;
     word->remove_last_unichar_id();
-    GenericVector<UNICHAR_ID> encoding;
+    std::vector<UNICHAR_ID> encoding;
     const char *ngram_str = getUnicharset().id_to_unichar(orig_uch_id);
     // Since the string came out of the unicharset, failure is impossible.
     ASSERT_HOST(getUnicharset().encode_string(ngram_str, true, &encoding, nullptr,

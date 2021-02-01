@@ -28,8 +28,11 @@
 #ifndef GRAPHICS_DISABLED
 #include "scrollview.h"
 #include "svmnode.h"
+
 #include <cstdlib>
 #include <iostream>
+
+namespace tesseract {
 
 // The current color values we use, initially white (== ScrollView::WHITE).
 static int rgb[3] = { 255, 255, 255 };
@@ -225,11 +228,14 @@ SVPaint::SVPaint(const char *server_name) {
   // (3) The main thread which waits on window_ for a DESTROY event (blocked)
 }
 
+} // namespace tesseract
+
 // If a parameter is given, we try to connect to the given server.
 // This enables us to test the remote capabilities of ScrollView.
 int main(int argc, char** argv) {
   const char* server_name;
   if (argc > 1) { server_name = argv[1]; } else { server_name = "localhost"; }
-  SVPaint svp(server_name);
+  tesseract::SVPaint svp(server_name);
 }
+
 #endif // !GRAPHICS_DISABLED

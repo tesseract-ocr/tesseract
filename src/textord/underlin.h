@@ -21,6 +21,8 @@
 
 #include          "fpchop.h"
 
+namespace tesseract {
+
 extern double_VAR_H (textord_underline_offset, 0.1,
 "Fraction of x to ignore");
 extern BOOL_VAR_H (textord_restore_underlines, false,
@@ -48,4 +50,7 @@ void vertical_cunderline_projection(                        //project outlines
                                     STATS *middle_proj,     //centre region
                                     STATS *upper_proj       //top region
                                    );
+
+} // namespace tesseract
+
 #endif

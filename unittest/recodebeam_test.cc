@@ -9,30 +9,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+#include "include_gunit.h"
+#include "log.h"                        // for LOG
+
+#include "genericvector.h"
 #include "recodebeam.h"
 #include "matrix.h"
 #include "pageres.h"
 #include "ratngs.h"
-#include <tesseract/genericvector.h>
-#include <tesseract/helpers.h>
 #include "unicharcompress.h"
 #include "normstrngs.h"
 #include "unicharset_training_utils.h"
 
-#include "include_gunit.h"
-#include "log.h"                        // for LOG
+#include "helpers.h"
+
 #include "absl/strings/str_format.h"        // for absl::StrFormat
 
-using tesseract::CCUtil;
-using tesseract::Dict;
-using tesseract::PointerVector;
-using tesseract::RecodeBeamSearch;
-using tesseract::RecodedCharID;
-using tesseract::RecodeNode;
-using tesseract::TRand;
-using tesseract::UnicharCompress;
-
-namespace {
+namespace tesseract {
 
 // Number of characters to test beam search with.
 const int kNumChars = 100;
@@ -71,6 +65,7 @@ class RecodeBeamTest : public ::testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
   RecodeBeamTest() : lstm_dict_(&ccutil_) {}
@@ -134,7 +129,7 @@ class RecodeBeamTest : public ::testing::Test {
     beam_search.Decode(output, 3.5, -0.125, -25.0, nullptr);
     // Uncomment and/or change nullptr above to &ccutil_.unicharset to debug:
     // beam_search.DebugBeams(ccutil_.unicharset);
-    GenericVector<int> labels, xcoords;
+    std::vector<int> labels, xcoords;
     beam_search.ExtractBestPathAsLabels(&labels, &xcoords);
     LOG(INFO) << "Labels size = " << labels.size() << " coords "
               << xcoords.size() << "\n";
@@ -164,8 +159,8 @@ class RecodeBeamTest : public ::testing::Test {
     EXPECT_EQ(truth_utf8, decoded);
 
     // Check that ExtractBestPathAsUnicharIds does the same thing.
-    GenericVector<int> unichar_ids;
-    GenericVector<float> certainties, ratings;
+    std::vector<int> unichar_ids;
+    std::vector<float> certainties, ratings;
     beam_search.ExtractBestPathAsUnicharIds(false, &ccutil_.unicharset,
                                             &unichar_ids, &certainties,
                                             &ratings, &xcoords);
@@ -258,7 +253,7 @@ class RecodeBeamTest : public ::testing::Test {
   int EncodeUTF8(const char* utf8_str, float score, int start_t, TRand* random,
                  GENERIC_2D_ARRAY<float>* outputs) {
     int t = start_t;
-    GenericVector<int> unichar_ids;
+    std::vector<int> unichar_ids;
     EXPECT_TRUE(ccutil_.unicharset.encode_string(utf8_str, true, &unichar_ids,
                                                  nullptr, nullptr));
     if (unichar_ids.empty() || utf8_str[0] == '\0') {

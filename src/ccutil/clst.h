@@ -21,9 +21,11 @@
 
 #include "lsterr.h"
 
-#include <tesseract/serialis.h>
+#include "serialis.h"
 
 #include <cstdio>
+
+namespace tesseract {
 
 class CLIST_ITERATOR;
 
@@ -37,7 +39,7 @@ class CLIST_ITERATOR;
  *  walks the list.
  **********************************************************************/
 
-class DLLSYM CLIST_LINK
+class CLIST_LINK
 {
   friend class CLIST_ITERATOR;
   friend class CLIST;
@@ -67,7 +69,7 @@ class DLLSYM CLIST_LINK
  * Generic list class for singly linked CONS cell lists
  **********************************************************************/
 
-class DLLSYM CLIST
+class TESS_API CLIST
 {
   friend class CLIST_ITERATOR;
 
@@ -142,7 +144,7 @@ class DLLSYM CLIST
  *links
  **********************************************************************/
 
-class DLLSYM CLIST_ITERATOR
+class TESS_API CLIST_ITERATOR
 {
   friend void CLIST::assign_to_sublist(CLIST_ITERATOR *, CLIST_ITERATOR *);
 
@@ -814,10 +816,10 @@ CLISTIZEH_C.
 
 #define CLISTIZEH_A(CLASSNAME)                                             \
                                                                            \
-  extern DLLSYM void CLASSNAME##_c1_zapper(             /*delete a link*/  \
+  extern void CLASSNAME##_c1_zapper(             /*delete a link*/  \
                                            void *link); /*link to delete*/ \
                                                                            \
-  extern DLLSYM void                                                       \
+  extern void                                                       \
       *CLASSNAME##_c1_copier(                    /*deep copy a link*/      \
                              void *old_element); /*source link */
 
@@ -832,7 +834,7 @@ CLISTIZEH_C.
   *                                                                         \
   **********************************************************************/   \
                                                                             \
-  class DLLSYM CLASSNAME##_CLIST : public CLIST {                           \
+  class CLASSNAME##_CLIST : public CLIST {                           \
    public:                                                                  \
     CLASSNAME##_CLIST() : CLIST() {}                                        \
     /* constructor */                                                       \
@@ -869,28 +871,34 @@ CLISTIZEH_C.
   *  class of that class")                                                   \
   **********************************************************************/    \
                                                                              \
-  class DLLSYM CLASSNAME##_C_IT : public CLIST_ITERATOR {                    \
+  class CLASSNAME##_C_IT : public CLIST_ITERATOR {                    \
    public:                                                                   \
     CLASSNAME##_C_IT() : CLIST_ITERATOR() {}                                 \
                                                                              \
     CLASSNAME##_C_IT(CLASSNAME##_CLIST *list) : CLIST_ITERATOR(list) {}      \
                                                                              \
-    CLASSNAME *data() { return (CLASSNAME *)CLIST_ITERATOR::data(); }        \
-                                                                             \
-    CLASSNAME *data_relative(int8_t offset) {                                  \
-      return (CLASSNAME *)CLIST_ITERATOR::data_relative(offset);             \
+    CLASSNAME* data() {                                                      \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::data());                \
     }                                                                        \
                                                                              \
-    CLASSNAME *forward() { return (CLASSNAME *)CLIST_ITERATOR::forward(); }  \
-                                                                             \
-    CLASSNAME *extract() { return (CLASSNAME *)CLIST_ITERATOR::extract(); }  \
-                                                                             \
-    CLASSNAME *move_to_first() {                                             \
-      return (CLASSNAME *)CLIST_ITERATOR::move_to_first();                   \
+    CLASSNAME* data_relative(int8_t offset) {                                \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::data_relative(offset)); \
     }                                                                        \
                                                                              \
-    CLASSNAME *move_to_last() {                                              \
-      return (CLASSNAME *)CLIST_ITERATOR::move_to_last();                    \
+    CLASSNAME* forward() {                                                   \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::forward());             \
+    }                                                                        \
+                                                                             \
+    CLASSNAME* extract() {                                                   \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::extract());             \
+    }                                                                        \
+                                                                             \
+    CLASSNAME* move_to_first() {                                             \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::move_to_first());       \
+    }                                                                        \
+                                                                             \
+    CLASSNAME* move_to_last() {                                              \
+      return static_cast<CLASSNAME*>(CLIST_ITERATOR::move_to_last());        \
     }                                                                        \
   };
 
@@ -918,10 +926,12 @@ CLISTIZEH_C.
   *  though we don't use a virtual destructor function.                      \
   **********************************************************************/    \
                                                                              \
-  DLLSYM void CLASSNAME##_c1_zapper(            /*delete a link*/            \
+  void CLASSNAME##_c1_zapper(            /*delete a link*/            \
                                     void *link) /*link to delete*/           \
   {                                                                          \
-    delete (CLASSNAME *)link;                                                \
+    delete static_cast<CLASSNAME*>(link);                                    \
   }
+
+} // namespace tesseract
 
 #endif

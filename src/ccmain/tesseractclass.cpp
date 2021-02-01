@@ -45,9 +45,7 @@
 #ifndef DISABLED_LEGACY_ENGINE
 #include "equationdetect.h"
 #endif
-#ifndef ANDROID_BUILD
 #include "lstmrecognizer.h"
-#endif
 
 namespace tesseract {
 
@@ -546,9 +544,7 @@ Tesseract::Tesseract()
       most_recently_used_(this),
       font_table_size_(0),
       equ_detect_(nullptr),
-#ifndef ANDROID_BUILD
       lstm_recognizer_(nullptr),
-#endif
       train_line_page_num_(0) {
 }
 
@@ -556,11 +552,11 @@ Tesseract::~Tesseract() {
   Clear();
   pixDestroy(&pix_original_);
   end_tesseract();
-  sub_langs_.delete_data_pointers();
-#ifndef ANDROID_BUILD
+  for (auto* lang : sub_langs_) {
+    delete lang;
+  }
   delete lstm_recognizer_;
   lstm_recognizer_ = nullptr;
-#endif
 }
 
 Dict& Tesseract::getDict() {

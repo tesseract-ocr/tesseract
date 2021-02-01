@@ -14,10 +14,10 @@
 
 #include "include_gunit.h"
 #include "params_model.h"
-#include <tesseract/serialis.h>     // TFile
+#include "serialis.h"     // TFile
 #include "tprintf.h"      // tprintf
 
-namespace {
+namespace tesseract {
 
 // Test some basic I/O of params model files (automated learning of language
 // model weights).
@@ -50,6 +50,7 @@ class ParamsModelTest : public testing::Test {
   void TestParamsModelRoundTrip(const std::string& params_model_filename) const {
     tesseract::ParamsModel orig_model;
     tesseract::ParamsModel duplicate_model;
+    file::MakeTmpdir();
     std::string orig_file = TestDataNameToPath(params_model_filename);
     std::string out_file = OutputNameToPath(params_model_filename);
 

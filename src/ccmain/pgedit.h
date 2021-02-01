@@ -22,12 +22,12 @@
 #include "params.h"      // for INT_VAR_H, IntParam, STRING_VAR_H, StringParam
 #include "scrollview.h"  // for SVEvent (ptr only), SVEventHandler, ScrollView
 
+namespace tesseract {
+
 class BLOCK_LIST;
 class PAGE_RES;
 
-namespace tesseract {
-  class Tesseract;
-}
+class Tesseract;
 
 // A small event handler class to process incoming events to
 // this window.
@@ -65,5 +65,7 @@ extern INT_VAR_H (editor_word_ypos, 510, "Word window Y Pos");
 extern INT_VAR_H (editor_word_height, 240, "Word window height");
 extern INT_VAR_H (editor_word_width, 655, "Word window width");
 extern double_VAR_H (editor_smd_scale_factor, 1.0, "Scaling for smd image");
+
+} // namespace tesseract
 
 #endif

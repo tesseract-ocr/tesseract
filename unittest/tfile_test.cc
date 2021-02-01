@@ -9,16 +9,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <tesseract/genericvector.h>
-#include <tesseract/serialis.h>
+#include "genericvector.h"
+#include "serialis.h"
 
 #include "include_gunit.h"
 
-using tesseract::TFile;
+namespace tesseract {
 
-namespace {
-
-// Tests TFile and GenericVector serialization by serializing and
+// Tests TFile and std::vector serialization by serializing and
 // writing/reading.
 
 class TfileTest : public ::testing::Test {
@@ -117,7 +115,7 @@ TEST_F(TfileTest, Serialize) {
   // This test verifies that Tfile can serialize a class.
   MathData m1;
   m1.Setup();
-  GenericVector<char> data;
+  std::vector<char> data;
   TFile fpw;
   fpw.OpenWrite(&data);
   EXPECT_TRUE(m1.Serialize(&fpw));
@@ -138,7 +136,7 @@ TEST_F(TfileTest, FGets) {
   MathData m1;
   std::string line_str = "This is a textline with a newline\n";
   m1.Setup();
-  GenericVector<char> data;
+  std::vector<char> data;
   TFile fpw;
   fpw.OpenWrite(&data);
   EXPECT_TRUE(m1.Serialize(&fpw));
@@ -163,7 +161,7 @@ TEST_F(TfileTest, BigEndian) {
   // This test verifies that Tfile can auto-reverse big-endian data.
   MathData m1;
   m1.Setup();
-  GenericVector<char> data;
+  std::vector<char> data;
   TFile fpw;
   fpw.OpenWrite(&data);
   EXPECT_TRUE(m1.SerializeBigEndian(&fpw));

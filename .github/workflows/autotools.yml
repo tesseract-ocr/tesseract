@@ -1,0 +1,196 @@
+name: autotools
+# autotools build of tesseract and training tools on ubuntu, macos homebrew and macports.
+on:
+  #push:
+  schedule:
+    - cron: 0 20 * * *
+
+jobs:
+  linux:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [ g++, clang++ ]
+        compiler_version: [ 7, 8, 9, 10 ]
+        os: [ ubuntu-18.04, ubuntu-20.04 ]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Install compiler
+      run: |
+           sudo apt-get install -y ${{ matrix.compiler }}-${{ matrix.compiler_version }}
+        
+    - name: Install dependencies
+      run: |
+           sudo apt-get install autoconf-archive libleptonica-dev libpango1.0-dev -y
+
+    - name: Setup
+      run: |
+           mkdir -p m4
+           ./autogen.sh
+
+    - name: Configure
+      run: |
+           ./configure '--disable-shared' 'CXX=${{ matrix.compiler }}-${{ matrix.compiler_version }}' 'CXXFLAGS=-g -O2'
+      
+    - name: Make and Install Tesseract
+      run: |
+           make -j 8
+           sudo make install install
+
+    - name: Make and Install Training Tools
+      run: |
+           make training -j 8
+           sudo make install training-install
+      
+    - name: Display Version
+      run: |
+           ${{ matrix.compiler }}-${{ matrix.compiler_version }} --version
+           tesseract -v
+           lstmtraining -v
+           text2image -v
+      if: success() || failure()
+        
+    - name: Download fonts, tessdata and langdata required for tests
+      run: |
+           git clone https://github.com/egorpugin/tessdata tessdata_unittest
+           cp tessdata_unittest/fonts/* test/testing/ 
+           mv tessdata_unittest/* ../
+      
+    - name: Run Tesseract on phototest.tif and raaj.tif
+      run: |
+           tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
+           tesseract test/testing/raaj.tif - -l hin  --tessdata-dir ../tessdata
+
+  homebrew:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [ g++, clang++ ]
+        os: [ macos-10.15 ]
+        
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+           
+    - name: install dependencies
+      run: |
+           brew install automake autoconf-archive
+           brew install libarchive
+           brew install leptonica
+           brew install cairo pango
+                      
+    - name: Setup
+      run: |
+           mkdir -p m4
+           ./autogen.sh
+        
+    - name: Configure
+      run: |
+           ./configure '--disable-shared' '--with-pic' 'CXX=${{ matrix.compiler }}' 'CXXFLAGS=-g -O2' 'PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig'
+        
+    - name: Make and Install Tesseract
+      run: |
+           make -j 8
+           sudo make install install
+
+    - name: Make and Install Training Tools
+      run: |
+           make training -j 8
+           sudo make install training-install
+
+    - name: Display Version
+      run: |
+           ${{ matrix.compiler }} --version
+           tesseract -v
+           lstmtraining -v
+           text2image -v
+      if: success() || failure()
+        
+    - name: Get fonts, tessdata and langdata required for unit tests
+      run: |
+           git clone https://github.com/egorpugin/tessdata tessdata_unittest
+           cp tessdata_unittest/fonts/* test/testing/
+           mv tessdata_unittest/* ../
+            
+    - name: Run Tesseract on phototest.tif and raaj.tif
+      run: |
+           tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
+           tesseract test/testing/raaj.tif - -l hin  --tessdata-dir ../tessdata
+      
+  macports:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [ g++, clang++ ]
+        os: [ macos-10.15 ]
+        
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        
+    - name: Install Macports
+      run: |
+        curl -LO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci; source ./macports-ci install
+
+    - name: Install Dependencies
+      run: |
+           sudo port install \
+                  autoconf autoconf-archive \
+                  automake \
+                  libtool \
+                  pkgconfig \
+                  leptonica 
+           sudo port install cairo pango 
+           sudo port install icu +devel
+        
+    - name: Setup
+      run: |
+           mkdir -p m4
+           ./autogen.sh
+        
+    - name: Configure
+      run: |
+           ./configure  '--disable-shared' '--with-pic' 'CXX=${{ matrix.compiler }}' 'CXXFLAGS=-g -O2' 
+        
+    - name: Make and Install Tesseract
+      run: |
+           make -j 8
+           sudo make install install
+
+    - name: Make and Install Training Tools
+      run: |
+           make training -j 8
+           sudo make install training-install
+      
+    - name: Display Version
+      run: |
+           tesseract -v
+           lstmtraining -v
+           text2image -v
+      if: success() || failure()
+
+    - name: Get fonts, tessdata and langdata required for unit tests
+      run: |
+           git clone https://github.com/egorpugin/tessdata tessdata_unittest
+           cp tessdata_unittest/fonts/* test/testing/
+           mv tessdata_unittest/* ../
+      
+    - name: Run Tesseract on phototest.tif and raaj.tif
+      run: |
+           tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
+           tesseract test/testing/raaj.tif - -l hin  --tessdata-dir ../tessdata
+
+    - name: Display Compiler Version
+      run: |
+           ${{ matrix.compiler }} --version
+           git log -3 --pretty=format:'%h %ad %s | %an' 
+      if: always()

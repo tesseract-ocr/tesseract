@@ -17,18 +17,17 @@
  *
  ******************************************************************************/
 
-/*
-----------------------------------------------------------------------
-              I n c l u d e s
-----------------------------------------------------------------------
-*/
+#include "blkocc.h"
+
+#include "drawtord.h"
+#include "errcode.h"
 
 #include <cctype>
 #include <cmath>
-#include "errcode.h"
-#include "drawtord.h"
-#include "blkocc.h"
-#include <tesseract/helpers.h>
+
+#include "helpers.h"
+
+namespace tesseract {
 
 double_VAR(textord_underline_threshold, 0.5, "Fraction of width occupied");
 
@@ -162,3 +161,5 @@ static void horizontal_coutline_projection(                     //project outlin
     horizontal_coutline_projection (out_it.data (), stats);
   }
 }
+
+} // namespace tesseract

@@ -80,7 +80,7 @@ static Pix* RemoveEnclosingCircle(Pix* pixs) {
     if (i == 1 || count > max_count) {
       max_count = count;
       min_count = count;
-    } else if (i > 1 && count < min_count) {
+    } else if (count < min_count) {
       min_count = count;
       pixDestroy(&pixout);
       pixout = pixCopy(nullptr, pixt);  // Save the best.
@@ -98,7 +98,7 @@ static Pix* RemoveEnclosingCircle(Pix* pixs) {
  * pix_binary_ is used as the source image and should not be nullptr.
  * On return the blocks list owns all the constructed page layout.
  */
-int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
+int Tesseract::SegmentPage(const char* input_file, BLOCK_LIST* blocks,
                            Tesseract* osd_tess, OSResults* osr) {
   ASSERT_HOST(pix_binary_ != nullptr);
   int width = pixGetWidth(pix_binary_);
@@ -108,8 +108,8 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
       static_cast<int>(tessedit_pageseg_mode));
   // If a UNLV zone file can be found, use that instead of segmentation.
   if (!PSM_COL_FIND_ENABLED(pageseg_mode) &&
-      input_file != nullptr && input_file->length() > 0) {
-    STRING name = *input_file;
+      input_file != nullptr && input_file[0] != '\0') {
+    std::string name = input_file;
     const char* lastdot = strrchr(name.c_str(), '.');
     if (lastdot != nullptr)
       name[lastdot - name.c_str()] = '\0';
@@ -249,7 +249,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
 // allowed_ids.
 static void AddAllScriptsConverted(const UNICHARSET& sid_set,
                                    const UNICHARSET& osd_set,
-                                   GenericVector<int>* allowed_ids) {
+                                   std::vector<int>* allowed_ids) {
   for (int i = 0; i < sid_set.get_script_table_size(); ++i) {
     if (i != sid_set.null_sid()) {
       const char* script = sid_set.get_script_from_script_id(i);
@@ -357,7 +357,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
                                           to_block, &osd_blobs);
     }
     if (PSM_OSD_ENABLED(pageseg_mode) && osd_tess != nullptr && osr != nullptr) {
-      GenericVector<int> osd_scripts;
+      std::vector<int> osd_scripts;
       if (osd_tess != this) {
         // We are running osd as part of layout analysis, so constrain the
         // scripts to those allowed by *this.

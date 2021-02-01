@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 #define TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "intproto.h"
 
 // Extent of x,y,theta in the input feature space. [0,255].
@@ -35,7 +35,7 @@ class IndexMap;
 
 // Down-sampling quantization of the INT_FEATURE_STRUCT feature space and
 // conversion to a single scalar index value, used as a binary feature space.
-class IntFeatureSpace {
+class TESS_API IntFeatureSpace {
  public:
   IntFeatureSpace();
   // Default copy constructors and assignment OK!

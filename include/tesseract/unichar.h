@@ -19,13 +19,14 @@
 #ifndef TESSERACT_CCUTIL_UNICHAR_H_
 #define TESSERACT_CCUTIL_UNICHAR_H_
 
-#include <memory.h>
+#include "export.h"
 
 #include <cstring>
 #include <string>
 #include <vector>
+#include <memory.h>
 
-#include "platform.h"
+namespace tesseract {
 
 // Maximum number of characters that can be stored in a UNICHAR. Must be
 // at least 4. Must not exceed 31 without changing the coding of length.
@@ -48,15 +49,13 @@ enum StrongScriptDirection {
                           // and right-to-left characters.
 };
 
-namespace tesseract {
-
 using char32 = signed int;
 
 // The UNICHAR class holds a single classification result. This may be
 // a single Unicode character (stored as between 1 and 4 utf8 bytes) or
 // multiple Unicode characters representing the NFKC expansion of a ligature
 // such as fi, ffl etc. These are also stored as utf8.
-class UNICHAR {
+class TESS_API UNICHAR {
  public:
   UNICHAR() {
     memset(chars, 0, UNICHAR_LEN);
@@ -106,7 +105,7 @@ class UNICHAR {
   //     int char_len = it.get_utf8(buf); buf[char_len] = '\0';
   //     tprintf("Char = %s\n", buf);
   //   }
-  class const_iterator {
+  class TESS_API const_iterator {
     using CI = const_iterator;
 
    public:

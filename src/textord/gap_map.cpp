@@ -8,8 +8,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "statistc.h"
 #include "gap_map.h"
+
+#include "statistc.h"
+
+namespace tesseract {
 
 BOOL_VAR(gapmap_debug, false, "Say which blocks have tables");
 BOOL_VAR(gapmap_use_ends, false, "Use large space at start and end of rows");
@@ -182,3 +185,5 @@ bool GAPMAP::table_gap(             //Is gap a table?
       tab_found = true;
   return tab_found;
 }
+
+} // namespace tesseract

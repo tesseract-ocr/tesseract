@@ -17,12 +17,12 @@
 #ifndef ADAPTIVE_H
 #define ADAPTIVE_H
 
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
-#include <cstdio>
 #include "intproto.h"
 #include "oldlist.h"
+
+#include <cstdio>
+
+namespace tesseract {
 
 typedef struct {
   uint16_t ProtoId;
@@ -122,5 +122,7 @@ void WriteAdaptedClass(FILE* File, ADAPT_CLASS Class, int NumConfigs);
 void WritePermConfig(FILE* File, PERM_CONFIG Config);
 
 void WriteTempConfig(FILE* File, TEMP_CONFIG Config);
+
+} // namespace tesseract
 
 #endif

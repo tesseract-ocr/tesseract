@@ -27,7 +27,8 @@ namespace tesseract {
 class Series : public Plumbing {
  public:
   // ni_ and no_ will be set by AddToStack.
-  explicit Series(const STRING& name);
+  TESS_API
+  explicit Series(const char* name);
   ~Series() override = default;
 
   // Returns the shape output from the network given an input shape (which may
@@ -81,10 +82,12 @@ class Series : public Plumbing {
   // Splits the series after the given index, returning the two parts and
   // deletes itself. The first part, up to network with index last_start, goes
   // into start, and the rest goes into end.
+  TESS_API
   void SplitAt(int last_start, Series** start, Series** end);
 
   // Appends the elements of the src series to this, removing from src and
   // deleting it.
+  TESS_API
   void AppendSeries(Network* src);
 };
 

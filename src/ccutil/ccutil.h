@@ -35,13 +35,13 @@
 #ifdef _WIN32
 #include "host.h" // windows.h for HANDLE, ...
 #endif
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "params.h"
 #include "unicharset.h"
 
 namespace tesseract {
 
-class CCUtil {
+class TESS_API CCUtil {
  public:
   CCUtil();
   virtual ~CCUtil();

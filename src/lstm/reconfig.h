@@ -19,7 +19,6 @@
 #ifndef TESSERACT_LSTM_RECONFIG_H_
 #define TESSERACT_LSTM_RECONFIG_H_
 
-#include <tesseract/genericvector.h>
 #include "matrix.h"
 #include "network.h"
 
@@ -31,7 +30,8 @@ namespace tesseract {
 // input stride is a multiple of the y_scale factor!
 class Reconfig : public Network {
  public:
-  Reconfig(const STRING& name, int ni, int x_scale, int y_scale);
+  TESS_API
+  Reconfig(const char* name, int ni, int x_scale, int y_scale);
   ~Reconfig() override = default;
 
   // Returns the shape output from the network given an input shape (which may

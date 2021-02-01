@@ -3,7 +3,6 @@
 // Description: Iterator for tesseract page structure that avoids using
 //              tesseract internal data structures.
 // Author:      Ray Smith
-// Created:     Fri Feb 26 11:01:06 PST 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,18 +20,19 @@
 #ifndef TESSERACT_CCMAIN_PAGEITERATOR_H_
 #define TESSERACT_CCMAIN_PAGEITERATOR_H_
 
-#include "platform.h"
+#include "export.h"
 #include "publictypes.h"
+
+struct Pix;
+struct Pta;
+
+namespace tesseract {
 
 struct BlamerBundle;
 class C_BLOB_IT;
 class PAGE_RES;
 class PAGE_RES_IT;
 class WERD;
-struct Pix;
-struct Pta;
-
-namespace tesseract {
 
 class Tesseract;
 
@@ -44,7 +44,7 @@ class Tesseract;
  * therefore can only be used while the TessBaseAPI class still exists and
  * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
  * DetectOS, or anything else that changes the internal PAGE_RES.
- * See apitypes.h for the definition of PageIteratorLevel.
+ * See tesseract/publictypes.h for the definition of PageIteratorLevel.
  * See also ResultIterator, derived from PageIterator, which adds in the
  * ability to access OCR output with text-specific methods.
  */
@@ -218,8 +218,8 @@ class TESS_API PageIterator {
   bool Empty(PageIteratorLevel level) const;
 
   /**
-   * Returns the type of the current block. See apitypes.h for
-   * PolyBlockType.
+   * Returns the type of the current block.
+   * See tesseract/publictypes.h for PolyBlockType.
    */
   PolyBlockType BlockType() const;
 
@@ -319,7 +319,7 @@ class TESS_API PageIterator {
    * Sets up the internal data for iterating the blobs of a new word, then
    * moves the iterator to the given offset.
    */
-  TESS_LOCAL void BeginWord(int offset);
+  void BeginWord(int offset);
 
   /** Pointer to the page_res owned by the API. */
   PAGE_RES* page_res_;

@@ -24,8 +24,8 @@
 
 #include "dawg.h"
 #include "dict.h"
-#include <tesseract/genericvector.h>
-#include <tesseract/helpers.h>
+#include "genericvector.h"
+#include "helpers.h"
 #include "kdpair.h"
 
 namespace tesseract {
@@ -269,24 +269,19 @@ NODE_REF Trie::new_dawg_node() {
   return nodes_.size() - 1;
 }
 
-// Sort function to sort words by decreasing order of length.
-static int sort_strings_by_dec_length(const void* v1, const void* v2) {
-  const auto *s1 = static_cast<const STRING *>(v1);
-  const auto *s2 = static_cast<const STRING *>(v2);
-  return s2->length() - s1->length();
-}
-
 bool Trie::read_and_add_word_list(const char *filename,
                                   const UNICHARSET &unicharset,
                                   Trie::RTLReversePolicy reverse_policy) {
-  GenericVector<STRING> word_list;
+  std::vector<STRING> word_list;
   if (!read_word_list(filename, &word_list)) return false;
-  word_list.sort(sort_strings_by_dec_length);
+  std::sort(word_list.begin(), word_list.end(), [](auto &s1, auto &s2) {
+      return s1.size() > s2.size();
+  });
   return add_word_list(word_list, unicharset, reverse_policy);
 }
 
 bool Trie::read_word_list(const char *filename,
-                          GenericVector<STRING>* words) {
+                          std::vector<STRING>* words) {
   FILE *word_file;
   char line_str[CHARS_PER_LINE];
   int  word_count = 0;
@@ -308,7 +303,7 @@ bool Trie::read_word_list(const char *filename,
   return true;
 }
 
-bool Trie::add_word_list(const GenericVector<STRING> &words,
+bool Trie::add_word_list(const std::vector<STRING> &words,
                          const UNICHARSET &unicharset,
                          Trie::RTLReversePolicy reverse_policy) {
   for (int i = 0; i < words.size(); ++i) {
@@ -652,7 +647,7 @@ void Trie::sort_edges(EDGE_VECTOR *edges) {
   }
   sort_vec.sort();
   for (int i = 0; i < num_edges; ++i)
-    (*edges)[i] = sort_vec[i].data;
+    (*edges)[i] = sort_vec[i].data();
 }
 
 void Trie::reduce_node_input(NODE_REF node,

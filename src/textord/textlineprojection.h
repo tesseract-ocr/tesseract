@@ -16,12 +16,12 @@
 
 #include "blobgrid.h"      // For BlobGrid
 
-class DENORM;
 struct Pix;
-struct TPOINT;
 
 namespace tesseract {
 
+class DENORM;
+struct TPOINT;
 class ColPartition;
 
 // Simple class to encapsulate the computation of an image representing
@@ -30,7 +30,7 @@ class ColPartition;
 // horizontally (vertically for components on a vertically written textline)
 // and count the number of smeared components in an image, then the resulting
 // image shows the density of the textlines at each image position.
-class TextlineProjection {
+class TESS_API TextlineProjection {
  public:
   // The down-scaling factor is computed to obtain a projection resolution
   // of about 100 dpi, whatever the input.

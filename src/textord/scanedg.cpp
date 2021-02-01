@@ -18,15 +18,44 @@
 
 #include "scanedg.h"
 
-#include <memory>  // std::unique_ptr
+#include "crakedge.h"
+#include "edgloop.h"
+#include "pdblock.h"
 
 #include "allheaders.h"
-#include "edgloop.h"
+
+#include <memory>  // std::unique_ptr
+
+namespace tesseract {
 
 #define WHITE_PIX     1          /*thresholded colours */
 #define BLACK_PIX     0
 // Flips between WHITE_PIX and BLACK_PIX.
 #define FLIP_COLOUR(pix)  (1-(pix))
+
+struct CrackPos {
+  CRACKEDGE** free_cracks;   // Freelist for fast allocation.
+  int x;                     // Position of new edge.
+  int y;
+};
+
+static void free_crackedges(CRACKEDGE* start);
+
+static void join_edges(CRACKEDGE* edge1, CRACKEDGE* edge2,
+                       CRACKEDGE** free_cracks,
+                       C_OUTLINE_IT* outline_it);
+
+static void line_edges(int16_t x, int16_t y, int16_t xext, uint8_t uppercolour,
+                       uint8_t* bwpos,
+                       CRACKEDGE** prevline, CRACKEDGE** free_cracks,
+                       C_OUTLINE_IT* outline_it);
+
+static void make_margins(PDBLK* block, BLOCK_LINE_IT* line_it,
+                         uint8_t* pixels, uint8_t margin,
+                         int16_t left, int16_t right, int16_t y);
+
+static CRACKEDGE* h_edge(int sign, CRACKEDGE* join, CrackPos* pos);
+static CRACKEDGE* v_edge(int sign, CRACKEDGE* join, CrackPos* pos);
 
 /**********************************************************************
  * block_edges
@@ -84,6 +113,7 @@ void block_edges(Pix *t_pix,           // thresholded image
  * Get an image line and set to margin non-text pixels.
  **********************************************************************/
 
+static
 void make_margins(                         //get a line
                   PDBLK *block,            //block in image
                   BLOCK_LINE_IT *line_it,  //for old style
@@ -139,6 +169,7 @@ void make_margins(                         //get a line
  * When edges close into loops, send them for approximation.
  **********************************************************************/
 
+static
 void line_edges(int16_t x,                         // coord of line start
                 int16_t y,                         // coord of line
                 int16_t xext,                      // width of line
@@ -222,6 +253,7 @@ void line_edges(int16_t x,                         // coord of line start
  * Create a new horizontal CRACKEDGE and join it to the given edge.
  **********************************************************************/
 
+static
 CRACKEDGE *h_edge(int sign,                       // sign of edge
                   CRACKEDGE* join,                // edge to join to
                   CrackPos* pos) {
@@ -273,6 +305,7 @@ CRACKEDGE *h_edge(int sign,                       // sign of edge
  * Create a new vertical CRACKEDGE and join it to the given edge.
  **********************************************************************/
 
+static
 CRACKEDGE *v_edge(int sign,                       // sign of edge
                   CRACKEDGE* join,
                   CrackPos* pos) {
@@ -325,6 +358,7 @@ CRACKEDGE *v_edge(int sign,                       // sign of edge
  * closed loop is formed.
  **********************************************************************/
 
+static
 void join_edges(CRACKEDGE *edge1,  // edges to join
                 CRACKEDGE *edge2,   // no specific order
                 CRACKEDGE **free_cracks,
@@ -358,7 +392,7 @@ void join_edges(CRACKEDGE *edge1,  // edges to join
  * Really free the CRACKEDGEs by giving them back to delete.
  **********************************************************************/
 
-void free_crackedges(CRACKEDGE *start) {
+static void free_crackedges(CRACKEDGE *start) {
   CRACKEDGE *current;            // current edge to free
   CRACKEDGE *next;               // next one to free
 
@@ -367,3 +401,5 @@ void free_crackedges(CRACKEDGE *start) {
     delete current;              // delete them all
   }
 }
+
+} // namespace tesseract

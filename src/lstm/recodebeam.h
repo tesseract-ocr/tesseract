@@ -124,14 +124,14 @@ struct RecodeNode {
   // don't want to copy the whole DawgPositionVector each time, and true
   // copying isn't necessary for this struct. It does get moved around a lot
   // though inside the heap and during heap push, hence the move semantics.
-  RecodeNode(RecodeNode& src) : dawgs(nullptr) {
+  RecodeNode(const RecodeNode& src) : dawgs(nullptr) {
     *this = src;
     ASSERT_HOST(src.dawgs == nullptr);
   }
-  RecodeNode& operator=(RecodeNode& src) {
+  RecodeNode& operator=(const RecodeNode& src) {
     delete dawgs;
     memcpy(this, &src, sizeof(src));
-    src.dawgs = nullptr;
+    ((RecodeNode&)src).dawgs = nullptr;
     return *this;
   }
   ~RecodeNode() { delete dawgs; }
@@ -177,7 +177,7 @@ using RecodePair = KDPairInc<double, RecodeNode>;
 using RecodeHeap = GenericHeap<RecodePair>;
 
 // Class that holds the entire beam search for recognition of a text line.
-class RecodeBeamSearch {
+class TESS_API RecodeBeamSearch {
  public:
   // Borrows the pointer, which is expected to survive until *this is deleted.
   RecodeBeamSearch(const UnicharCompress& recoder, int null_char,
@@ -198,15 +198,15 @@ class RecodeBeamSearch {
                             int lstm_choice_mode = 0);
 
   // Returns the best path as labels/scores/xcoords similar to simple CTC.
-  void ExtractBestPathAsLabels(GenericVector<int>* labels,
-                               GenericVector<int>* xcoords) const;
+  void ExtractBestPathAsLabels(std::vector<int>* labels,
+                               std::vector<int>* xcoords) const;
   // Returns the best path as unichar-ids/certs/ratings/xcoords skipping
   // duplicates, nulls and intermediate parts.
   void ExtractBestPathAsUnicharIds(bool debug, const UNICHARSET* unicharset,
-                                   GenericVector<int>* unichar_ids,
-                                   GenericVector<float>* certs,
-                                   GenericVector<float>* ratings,
-                                   GenericVector<int>* xcoords) const;
+                                   std::vector<int>* unichar_ids,
+                                   std::vector<float>* certs,
+                                   std::vector<float>* ratings,
+                                   std::vector<int>* xcoords) const;
 
   // Returns the best path as a set of WERD_RES.
   void ExtractBestPathAsWords(const TBOX& line_box, float scale_factor,
@@ -220,10 +220,10 @@ class RecodeBeamSearch {
   // Extract the best charakters from the current decode iteration and block
   // those symbols for the next iteration. In contrast to tesseracts standard
   // method to chose the best overall node chain, this methods looks at a short
-  // node chain segmented by the character boundaries and chooses the best 
+  // node chain segmented by the character boundaries and chooses the best
   // option independent of the remaining node chain.
   void extractSymbolChoices(const UNICHARSET* unicharset);
-  
+
   // Generates debug output of the content of the beams after a Decode.
   void PrintBeam2(bool uids, int num_outputs, const UNICHARSET* charset,
                   bool secondary) const;
@@ -310,8 +310,8 @@ class RecodeBeamSearch {
   // duplicates, nulls and intermediate parts.
   static void ExtractPathAsUnicharIds(
       const GenericVector<const RecodeNode*>& best_nodes,
-      GenericVector<int>* unichar_ids, GenericVector<float>* certs,
-      GenericVector<float>* ratings, GenericVector<int>* xcoords,
+      std::vector<int>* unichar_ids, std::vector<float>* certs,
+      std::vector<float>* ratings, std::vector<int>* xcoords,
       std::vector<int>* character_boundaries = nullptr);
 
   // Sets up a word with the ratings matrix and fake blobs with boxes in the
@@ -319,7 +319,7 @@ class RecodeBeamSearch {
   WERD_RES* InitializeWord(bool leading_space, const TBOX& line_box,
                            int word_start, int word_end, float space_certainty,
                            const UNICHARSET* unicharset,
-                           const GenericVector<int>& xcoords,
+                           const std::vector<int>& xcoords,
                            float scale_factor);
 
   // Fills top_n_flags_ with bools that are true iff the corresponding output
@@ -341,7 +341,7 @@ class RecodeBeamSearch {
                   const UNICHARSET* charset, bool debug = false);
 
   // Saves the most certain choices for the current time-step.
-  void SaveMostCertainChoices(const float* outputs, int num_outputs, 
+  void SaveMostCertainChoices(const float* outputs, int num_outputs,
                               const UNICHARSET* charset, int xCoord);
 
   // Calculates more accurate character boundaries which can be used to
@@ -415,10 +415,10 @@ class RecodeBeamSearch {
   // Helper prints debug information on the given unichar path.
   void DebugUnicharPath(const UNICHARSET* unicharset,
                         const GenericVector<const RecodeNode*>& path,
-                        const GenericVector<int>& unichar_ids,
-                        const GenericVector<float>& certs,
-                        const GenericVector<float>& ratings,
-                        const GenericVector<int>& xcoords) const;
+                        const std::vector<int>& unichar_ids,
+                        const std::vector<float>& certs,
+                        const std::vector<float>& ratings,
+                        const std::vector<int>& xcoords) const;
 
   static const int kBeamWidths[RecodedCharID::kMaxCodeLen + 1];
 
@@ -432,7 +432,7 @@ class RecodeBeamSearch {
   int beam_size_;
   // A flag to indicate which outputs are the top-n choices. Current timestep
   // only.
-  GenericVector<TopNState> top_n_flags_;
+  std::vector<TopNState> top_n_flags_;
   // A record of the highest and second scoring codes.
   int top_code_;
   int second_code_;

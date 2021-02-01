@@ -20,22 +20,25 @@
 #ifndef TESSERACT_CCSTRUCT_BLAMER_H_
 #define TESSERACT_CCSTRUCT_BLAMER_H_
 
-#include <cstdint>                    // for int16_t
-#include <cstring>                    // for memcpy
-
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h" // DISABLED_LEGACY_ENGINE
 #endif
 #include "boxword.h"                  // for BoxWord
-#include <tesseract/genericvector.h>            // for GenericVector
 #ifndef DISABLED_LEGACY_ENGINE
 #include "params_training_featdef.h"  // for ParamsTrainingBundle, ParamsTra...
 #endif //  ndef DISABLED_LEGACY_ENGINE
 #include "ratngs.h"                   // for BLOB_CHOICE_LIST (ptr only)
 #include "rect.h"                     // for TBOX
-#include <tesseract/strngs.h>                   // for STRING
 #include "tprintf.h"                  // for tprintf
+
+#include "genericvector.h"            // for GenericVector
 #include <tesseract/unichar.h>                  // for UNICHAR_ID
+#include "strngs.h"                   // for STRING
+
+#include <cstdint>                    // for int16_t
+#include <cstring>                    // for memcpy
+
+namespace tesseract {
 
 class DENORM;
 class MATRIX;
@@ -45,9 +48,7 @@ class WERD_RES;
 struct MATRIX_COORD;
 struct TWERD;
 
-namespace tesseract {
-  class LMPainPoints;
-}
+class LMPainPoints;
 
 static const int16_t kBlamerBoxTolerance = 5;
 
@@ -309,14 +310,21 @@ struct BlamerBundle {
  private:
   // Set to true when bounding boxes for individual unichars are recorded.
   bool truth_has_char_boxes_;
+  // Variables used by the segmentation search when looking for the blame.
+  // Set to true while segmentation search is continued after the usual
+  // termination condition in order to look for the blame.
+  bool segsearch_is_looking_for_blame_;
+  // Set to true if best choice is a dictionary word and
+  // classifier's top choice.
+  bool best_choice_is_dict_and_top_choice_;
+  // Tolerance for bounding box comparisons in normalized space.
+  int norm_box_tolerance_;
   // The true_word (in the original image coordinate space) contains ground
   // truth bounding boxes for this WERD_RES.
   tesseract::BoxWord truth_word_;
   // Same as above, but in normalized coordinates
   // (filled in by WERD_RES::SetupForRecognition()).
   tesseract::BoxWord norm_truth_word_;
-  // Tolerance for bounding box comparisons in normalized space.
-  int norm_box_tolerance_;
   // Contains ground truth unichar for each of the bounding boxes in truth_word.
   GenericVector<STRING> truth_text_;
   // The reason for incorrect OCR result.
@@ -325,28 +333,22 @@ struct BlamerBundle {
   STRING debug_;
   // Misadaption debug information (filled in if this word was misadapted to).
   STRING misadaption_debug_;
-  // Variables used by the segmentation search when looking for the blame.
-  // Set to true while segmentation search is continued after the usual
-  // termination condition in order to look for the blame.
-  bool segsearch_is_looking_for_blame_;
-  // Best rating for correctly segmented path
-  // (set and used by SegSearch when looking for blame).
-  float best_correctly_segmented_rating_;
   // Vectors populated by SegSearch to indicate column and row indices that
   // correspond to blobs with correct bounding boxes.
   GenericVector<int> correct_segmentation_cols_;
   GenericVector<int> correct_segmentation_rows_;
-  // Set to true if best choice is a dictionary word and
-  // classifier's top choice.
-  bool best_choice_is_dict_and_top_choice_;
+  // Best rating for correctly segmented path
+  // (set and used by SegSearch when looking for blame).
+  float best_correctly_segmented_rating_;
+  int lattice_size_;  // size of lattice_data in bytes
   // Serialized segmentation search lattice.
   char *lattice_data_;
-  int lattice_size_;  // size of lattice_data in bytes
   // Information about hypotheses (paths) explored by the segmentation search.
 #ifndef DISABLED_LEGACY_ENGINE
   tesseract::ParamsTrainingBundle params_training_bundle_;
 #endif  // ndef DISABLED_LEGACY_ENGINE
 };
 
+} // namespace tesseract
 
 #endif  // TESSERACT_CCSTRUCT_BLAMER_H_

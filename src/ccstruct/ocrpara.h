@@ -20,9 +20,12 @@
 #ifndef TESSERACT_CCSTRUCT_OCRPARA_H_
 #define TESSERACT_CCSTRUCT_OCRPARA_H_
 
-#include <tesseract/publictypes.h>
 #include "elst.h"
-#include <tesseract/strngs.h>
+
+#include <tesseract/publictypes.h>
+#include "strngs.h"
+
+namespace tesseract {
 
 class ParagraphModel;
 
@@ -111,7 +114,7 @@ ELISTIZEH(PARA)
 // |you can try to identify source  |
 // |code.  Ouch!                    |
 // +--------------------------------+
-class ParagraphModel {
+class TESS_API ParagraphModel {
  public:
   ParagraphModel(tesseract::ParagraphJustification justification,
                  int margin,
@@ -187,5 +190,7 @@ class ParagraphModel {
   int body_indent_;
   int tolerance_;
 };
+
+} // namespace tesseract
 
 #endif  // TESSERACT_CCSTRUCT_OCRPARA_H_

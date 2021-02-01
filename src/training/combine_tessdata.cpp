@@ -17,10 +17,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <cerrno>
 #include "commontraining.h"     // CheckSharedLibraryVersion
 #include "lstmrecognizer.h"
 #include "tessdatamanager.h"
+
+#include <cerrno>
+#include <iostream>             // std::cout
+
+using namespace tesseract;
 
 // Main program to combine/extract/overwrite tessdata components
 // in [lang].traineddata files.
@@ -159,7 +163,7 @@ int main(int argc, char **argv) {
       return EXIT_FAILURE;
     }
     recognizer.ConvertToInt();
-    GenericVector<char> lstm_data;
+    std::vector<char> lstm_data;
     fp.OpenWrite(&lstm_data);
     ASSERT_HOST(recognizer.Serialize(&tm, &fp));
     tm.OverwriteEntry(tesseract::TESSDATA_LSTM, &lstm_data[0],
@@ -171,6 +175,30 @@ int main(int argc, char **argv) {
   } else if (argc == 3 && strcmp(argv[1], "-d") == 0) {
     // Initialize TessdataManager with the data in the given traineddata file.
     tm.Init(argv[2]);
+  } else if (argc == 3 && strcmp(argv[1], "-l") == 0) {
+    if (!tm.Init(argv[2])) {
+      tprintf("Failed to read %s\n", argv[2]);
+      return EXIT_FAILURE;
+    }
+    tesseract::TFile fp;
+    if (tm.GetComponent(tesseract::TESSDATA_LSTM, &fp)) {
+      tesseract::LSTMRecognizer recognizer;
+      if (!recognizer.DeSerialize(&tm, &fp)) {
+        tprintf("Failed to deserialize LSTM in %s!\n", argv[2]);
+        return EXIT_FAILURE;
+      }
+      std::cout << "LSTM: network=" << recognizer.GetNetwork()
+                << ", int_mode=" << recognizer.IsIntMode()
+                << ", recoding=" << recognizer.IsRecoding()
+                << ", iteration=" << recognizer.training_iteration()
+                << ", sample_iteration=" << recognizer.sample_iteration()
+                << ", null_char=" << recognizer.null_char()
+                << ", learning_rate=" << recognizer.learning_rate()
+                << ", momentum=" << recognizer.GetMomentum()
+                << ", adam_beta=" << recognizer.GetAdamBeta()
+                << '\n';
+    }
+    return EXIT_SUCCESS;
   } else {
     printf("Usage for combining tessdata components:\n"
            "  %s language_data_path_prefix\n"
@@ -185,10 +213,13 @@ int main(int argc, char **argv) {
            argv[0], argv[0]);
     printf("Usage for unpacking all tessdata components:\n"
            "  %s -u traineddata_file output_path_prefix\n"
-           "  (e.g. %s -u eng.traineddata tmp/eng.)\n", argv[0], argv[0]);
+           "  (e.g. %s -u eng.traineddata tmp/eng.)\n\n", argv[0], argv[0]);
+    printf("Usage for listing the network information\n"
+           "  %s -l traineddata_file\n"
+           "  (e.g. %s -l eng.traineddata)\n\n", argv[0], argv[0]);
     printf(
         "Usage for listing directory of components:\n"
-        "  %s -d traineddata_file\n",
+        "  %s -d traineddata_file\n\n",
         argv[0]);
     printf(
         "Usage for compacting LSTM component to int:\n"

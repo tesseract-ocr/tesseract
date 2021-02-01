@@ -19,8 +19,8 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
-#include <tesseract/genericvector.h>
-#include <tesseract/strngs.h>
+#include "genericvector.h"
+#include "strngs.h"
 
 #include <cstdio>
 
@@ -47,7 +47,7 @@ struct ParamsVectors {
 };
 
 // Utility functions for working with Tesseract parameters.
-class ParamUtils {
+class TESS_API ParamUtils {
  public:
   // Reads a file of parameter definitions and set/modify the values therein.
   // If the filename begins with a + or -, the BoolVariables will be
@@ -96,7 +96,7 @@ class ParamUtils {
   // found.
   static bool GetParamAsString(const char* name,
                                const ParamsVectors* member_params,
-                               STRING* value);
+                               std::string* value);
 
   // Print parameters to the given file.
   static void PrintParams(FILE* fp, const ParamsVectors* member_params);
@@ -270,8 +270,6 @@ class DoubleParam : public Param {
   GenericVector<DoubleParam*>* params_vec_;
 };
 
-}  // namespace tesseract
-
 // Global parameter lists.
 //
 // To avoid the problem of undetermined order of static initialization
@@ -281,7 +279,8 @@ class DoubleParam : public Param {
 //
 // TODO(daria): remove GlobalParams() when all global Tesseract
 // parameters are converted to members.
-tesseract::ParamsVectors* GlobalParams();
+TESS_API
+ParamsVectors* GlobalParams();
 
 /*************************************************************************
  * Note on defining parameters.
@@ -291,25 +290,25 @@ tesseract::ParamsVectors* GlobalParams();
  * (there is no such guarantee for parameters defined with the other macros).
  *************************************************************************/
 
-#define INT_VAR_H(name, val, comment) tesseract::IntParam name
+#define INT_VAR_H(name, val, comment) ::tesseract::IntParam name
 
-#define BOOL_VAR_H(name, val, comment) tesseract::BoolParam name
+#define BOOL_VAR_H(name, val, comment) ::tesseract::BoolParam name
 
-#define STRING_VAR_H(name, val, comment) tesseract::StringParam name
+#define STRING_VAR_H(name, val, comment) ::tesseract::StringParam name
 
-#define double_VAR_H(name, val, comment) tesseract::DoubleParam name
+#define double_VAR_H(name, val, comment) ::tesseract::DoubleParam name
 
 #define INT_VAR(name, val, comment) \
-  tesseract::IntParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::IntParam name(val, #name, comment, false, ::tesseract::GlobalParams())
 
 #define BOOL_VAR(name, val, comment) \
-  tesseract::BoolParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::BoolParam name(val, #name, comment, false, ::tesseract::GlobalParams())
 
 #define STRING_VAR(name, val, comment) \
-  tesseract::StringParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::StringParam name(val, #name, comment, false, ::tesseract::GlobalParams())
 
 #define double_VAR(name, val, comment) \
-  tesseract::DoubleParam name(val, #name, comment, false, GlobalParams())
+  ::tesseract::DoubleParam name(val, #name, comment, false, ::tesseract::GlobalParams())
 
 #define INT_MEMBER(name, val, comment, vec) \
   name(val, #name, comment, false, vec)
@@ -334,5 +333,7 @@ tesseract::ParamsVectors* GlobalParams();
 
 #define double_INIT_MEMBER(name, val, comment, vec) \
   name(val, #name, comment, true, vec)
+
+}  // namespace tesseract
 
 #endif

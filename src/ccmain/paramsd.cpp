@@ -27,6 +27,13 @@
 #ifndef GRAPHICS_DISABLED
 
 #include "paramsd.h"
+#include "params.h"          // for ParamsVectors, StringParam, BoolParam
+#include "scrollview.h"      // for SVEvent, ScrollView, SVET_POPUP
+#include "svmnode.h"         // for SVMenuNode
+#include "tesseractclass.h"  // for Tesseract
+
+#include "genericvector.h"   // for GenericVector
+
 #include <cstdio>            // for fclose, fopen, fprintf, sprintf, FILE
 #include <cstdlib>           // for atoi
 #include <cstring>           // for strcmp, strcspn, strlen, strncpy
@@ -35,11 +42,8 @@
 #include <memory>            // for unique_ptr
 #include <sstream>           // for std::stringstream
 #include <utility>           // for pair
-#include <tesseract/genericvector.h>   // for GenericVector
-#include "params.h"          // for ParamsVectors, StringParam, BoolParam
-#include "scrollview.h"      // for SVEvent, ScrollView, SVET_POPUP
-#include "svmnode.h"         // for SVMenuNode
-#include "tesseractclass.h"  // for Tesseract
+
+namespace tesseract {
 
 #define VARDIR        "configs/" /*parameters files */
 #define MAX_ITEMS_IN_SUBMENU 30
@@ -355,4 +359,7 @@ void ParamsEditor::WriteParams(char *filename,
   }
   fclose(fp);
 }
+
+} // namespace tesseract
+
 #endif // !GRAPHICS_DISABLED

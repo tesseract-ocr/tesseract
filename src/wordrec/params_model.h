@@ -19,16 +19,16 @@
 #ifndef TESSERACT_WORDREC_PARAMS_MODEL_H_
 #define TESSERACT_WORDREC_PARAMS_MODEL_H_
 
-#include <tesseract/genericvector.h>              // for GenericVector
+#include "genericvector.h"              // for GenericVector
 #include "params_training_featdef.h"    // for PTRAIN_NUM_FEATURE_TYPES
-#include <tesseract/strngs.h>                     // for STRING
+#include "strngs.h"                     // for STRING
 
 namespace tesseract {
 
 class TFile;
 
 // Represents the learned weights for a given language.
-class ParamsModel {
+class TESS_API ParamsModel {
  public:
   // Enum for expressing OCR pass.
   enum PassEnum {

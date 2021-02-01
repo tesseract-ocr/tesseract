@@ -15,10 +15,9 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "matrix.h"
-#include <tesseract/genericvector.h>
 #include "include_gunit.h"
 
-namespace {
+namespace tesseract {
 
 class MatrixTest : public ::testing::Test {
  protected:

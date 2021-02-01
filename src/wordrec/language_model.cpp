@@ -151,7 +151,7 @@ void LanguageModel::InitForWord(const WERD_CHOICE *prev_word,
   // Fill prev_word_str_ with the last language_model_ngram_order
   // unichars from prev_word.
   if (language_model_ngram_on) {
-    if (prev_word != nullptr && prev_word->unichar_string() != nullptr) {
+    if (prev_word != nullptr && !prev_word->unichar_string().empty()) {
       prev_word_str_ = prev_word->unichar_string();
       if (language_model_ngram_space_delimited_language) prev_word_str_ += ' ';
     } else {
@@ -843,7 +843,7 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
   // Call LetterIsOkay().
   // Use the normalized IDs so that all shapes of ' can be allowed in words
   // like don't.
-  const GenericVector<UNICHAR_ID>& normed_ids =
+  const auto &normed_ids =
       dict_->getUnicharset().normed_ids(b.unichar_id());
   DawgPositionVector tmp_active_dawgs;
   for (int i = 0; i < normed_ids.size(); ++i) {

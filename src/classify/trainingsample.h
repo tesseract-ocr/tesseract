@@ -50,7 +50,7 @@ static const int kSampleScaleSize = 3;
 static const int kSampleRandomSize = kSampleYShiftSize * kSampleScaleSize - 2;
 // ASSERT_IS_PRIME(kSampleRandomSize) !!
 
-class TrainingSample : public ELIST_LINK {
+class TESS_API TrainingSample : public ELIST_LINK {
  public:
   TrainingSample()
     : class_id_(INVALID_UNICHAR_ID), font_id_(0), page_num_(0),
@@ -97,9 +97,6 @@ class TrainingSample : public ELIST_LINK {
   // Sets the mapped_features_ from the features_ using the provided
   // feature_space to the indexed versions of the features.
   void IndexFeatures(const IntFeatureSpace& feature_space);
-  // Sets the mapped_features_ from the features_ using the provided
-  // feature_map.
-  void MapFeatures(const IntFeatureMap& feature_map);
 
   // Returns a pix representing the sample. (Int features only.)
   Pix* RenderToPix(const UNICHARSET* unicharset) const;
@@ -231,10 +228,15 @@ class TrainingSample : public ELIST_LINK {
   double max_dist_;
   // Global index of this sample.
   int sample_index_;
+public:
+  // both are used in training tools
+  // hide after refactoring
+
   // Indexed/mapped features, as indicated by the bools below.
   GenericVector<int> mapped_features_;
   bool features_are_indexed_;
   bool features_are_mapped_;
+private:
   // True if the last classification was an error by the current definition.
   bool is_error_;
 

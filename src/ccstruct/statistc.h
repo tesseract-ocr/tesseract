@@ -23,12 +23,13 @@
 #include "kdpair.h"
 #include "scrollview.h"
 
-template <typename T> class GenericVector;
+namespace tesseract {
 
+template <typename T> class GenericVector;
 
 // Simple histogram-based statistics for integer values in a known
 // range, such that the range is small compared to the number of samples.
-class STATS {
+class TESS_API STATS {
  public:
   // The histogram buckets are in the range
   // [min_bucket_value, max_bucket_value_plus_1 - 1] i.e.
@@ -113,7 +114,7 @@ class STATS {
 // Returns the actual number of modes found.
   int top_n_modes(
       int max_modes,
-      GenericVector<tesseract::KDPairInc<float, int> >* modes) const;
+      GenericVector<KDPairInc<float, int> >* modes) const;
 
   // Prints a summary and table of the histogram.
   void print() const;
@@ -163,5 +164,7 @@ void swap_entries(void *array,   // array of entries
                   size_t size,   // size of entry
                   int32_t index1,  // entries to swap
                   int32_t index2);
+
+} // namespace tesseract
 
 #endif  // TESSERACT_CCSTRUCT_STATISTC_H_

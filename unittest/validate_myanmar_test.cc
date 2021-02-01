@@ -14,7 +14,6 @@
 #include "normstrngs_test.h"
 
 namespace tesseract {
-namespace {
 
 // Test some random Myanmar words.
 TEST(ValidateMyanmarTest, GoodMyanmarWords) {
@@ -52,5 +51,4 @@ TEST(ValidateMyanmarTest, BadMyanmarWords) {
   EXPECT_EQ(str, result);
 }
 
-}  // namespace
 }  // namespace tesseract

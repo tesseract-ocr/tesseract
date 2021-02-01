@@ -28,7 +28,8 @@ namespace tesseract {
 // Backprop propagates only to the position that was the max.
 class Maxpool : public Reconfig {
  public:
-  Maxpool(const STRING& name, int ni, int x_scale, int y_scale);
+  TESS_API
+  Maxpool(const char* name, int ni, int x_scale, int y_scale);
   ~Maxpool() override = default;
 
   // Accessors.

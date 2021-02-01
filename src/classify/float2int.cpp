@@ -14,21 +14,18 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*-----------------------------------------------------------------------------
-          Include Files and Type Defines
------------------------------------------------------------------------------*/
+
 #include "float2int.h"
+
 #include "normmatch.h"
 #include "mfoutline.h"
 #include "classify.h"
-#include <tesseract/helpers.h>
 #include "picofeat.h"
+
+#include "helpers.h"
 
 #define MAX_INT_CHAR_NORM (INT_CHAR_NORM_RANGE - 1)
 
-/*-----------------------------------------------------------------------------
-              Public Code
------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
 
@@ -108,4 +105,5 @@ void Classify::ComputeIntFeatures(FEATURE_SET Features,
     IntFeatures[Fid].CP_misses = 0;
   }
 }                                /* ComputeIntFeatures */
+
 }  // namespace tesseract

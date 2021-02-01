@@ -3,7 +3,6 @@
 // Description: Base class for networks that organize other networks
 //              eg series or parallel.
 // Author:      Ray Smith
-// Created:     Mon May 12 08:11:36 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +19,7 @@
 #ifndef TESSERACT_LSTM_PLUMBING_H_
 #define TESSERACT_LSTM_PLUMBING_H_
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "matrix.h"
 #include "network.h"
 
@@ -30,7 +29,7 @@ namespace tesseract {
 class Plumbing : public Network {
  public:
   // ni_ and no_ will be set by AddToStack.
-  explicit Plumbing(const STRING& name);
+  explicit Plumbing(const std::string& name);
   ~Plumbing() override = default;
 
   // Returns the required shape input to the network.
@@ -97,12 +96,14 @@ class Plumbing : public Network {
     return stack_;
   }
   // Returns a set of strings representing the layer-ids of all layers below.
+  TESS_API
   void EnumerateLayers(const STRING* prefix,
-                       GenericVector<STRING>* layers) const;
+                       std::vector<STRING>* layers) const;
   // Returns a pointer to the network layer corresponding to the given id.
+  TESS_API
   Network* GetLayer(const char* id) const;
   // Returns the learning rate for a specific layer of the stack.
-  float LayerLearningRate(const char* id) const {
+  float LayerLearningRate(const char* id) {
     const float* lr_ptr = LayerLearningRatePtr(id);
     ASSERT_HOST(lr_ptr != nullptr);
     return *lr_ptr;
@@ -114,7 +115,8 @@ class Plumbing : public Network {
     *lr_ptr *= factor;
   }
   // Returns a pointer to the learning rate for the given layer id.
-  float* LayerLearningRatePtr(const char* id) const;
+  TESS_API
+  float* LayerLearningRatePtr(const char* id);
 
   // Writes to the given file. Returns false in case of error.
   bool Serialize(TFile* fp) const override;

@@ -13,7 +13,6 @@
 #include "include_gunit.h"
 #include "normstrngs.h"
 #include "normstrngs_test.h"
-#include <tesseract/strngs.h>
 #include <tesseract/unichar.h>
 #ifdef INCLUDE_TENSORFLOW
 #include "util/utf8/unilib.h"           // for UniLib
@@ -22,7 +21,6 @@
 #include "include_gunit.h"
 
 namespace tesseract {
-namespace {
 
 #if defined(MISSING_CODE)
 static std::string EncodeAsUTF8(const char32 ch32) {
@@ -421,5 +419,4 @@ TEST(NormstrngsTest, FullwidthToHalfwidth) {
 #endif
 }
 
-}  // namespace
 }  // namespace tesseract

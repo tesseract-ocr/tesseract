@@ -16,11 +16,14 @@
  *
  **********************************************************************/
 
+#include "errcode.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstdarg>
 #include <cstring>
-#include "errcode.h"
+
+namespace tesseract {
 
 constexpr ERRCODE BADERRACTION("Illegal error action");
 #define MAX_MSG       1024
@@ -90,3 +93,5 @@ const char *format, ...          // special message
       BADERRACTION.error ("error", ABORT, nullptr);
   }
 }
+
+} // namespace tesseract

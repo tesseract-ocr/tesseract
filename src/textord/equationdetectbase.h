@@ -29,7 +29,7 @@ namespace tesseract {
 class ColPartitionGrid;
 class ColPartitionSet;
 
-class EquationDetectBase {
+class TESS_API EquationDetectBase {
  public:
   EquationDetectBase() = default;
   virtual ~EquationDetectBase();

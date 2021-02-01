@@ -127,7 +127,7 @@ using ColSegmentGridSearch = GridSearch<ColSegment,
 //   finder.InsertCleanPartitions(/* grid info */)
 //   finder.LocateTables(/* ColPartitions and Columns */);
 //   finder.Update TODO(nbeato)
-class TableFinder {
+class TESS_API TableFinder {
  public:
   // Constructor is simple initializations
   TableFinder();

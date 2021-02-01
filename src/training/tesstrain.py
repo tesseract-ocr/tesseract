@@ -76,7 +76,7 @@ def main():
     phase_UP_generate_unicharset(ctx)
 
     if ctx.linedata:
-        phase_E_extract_features(ctx, ["--psm", "6", "lstm.train"], "lstmf")
+        phase_E_extract_features(ctx, ["lstm.train"], "lstmf")
         make_lstmdata(ctx)
 
     log.removeHandler(logfile)

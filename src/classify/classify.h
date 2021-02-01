@@ -74,6 +74,8 @@ class Classify : public CCStruct {
 #include "ocrfeatures.h"
 #include "unicity_table.h"
 
+namespace tesseract {
+
 class ScrollView;
 class WERD_CHOICE;
 class WERD_RES;
@@ -82,8 +84,6 @@ struct NORM_PROTOS;
 
 static const int kUnknownFontinfoId = -1;
 static const int kBlankFontinfoId = -2;
-
-namespace tesseract {
 
 class ShapeClassifier;
 struct ShapeRating;
@@ -99,7 +99,7 @@ enum CharSegmentationType {
   CST_NGRAM      // Multiple characters.
 };
 
-class Classify : public CCStruct {
+class TESS_API Classify : public CCStruct {
  public:
   Classify();
   ~Classify() override;
@@ -143,7 +143,7 @@ class Classify : public CCStruct {
                    int keep_this, const INT_FEATURE_STRUCT* features,
                    const uint8_t* normalization_factors,
                    const uint16_t* expected_num_features,
-                   GenericVector<CP_RESULT_STRUCT>* results);
+                   std::vector<CP_RESULT_STRUCT>* results);
   void ReadNewCutoffs(TFile* fp, uint16_t* Cutoffs);
   void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
@@ -184,7 +184,7 @@ class Classify : public CCStruct {
                         int FontinfoId,
                         ADAPT_CLASS Class,
                         ADAPT_TEMPLATES Templates);
-  void AmbigClassifier(const GenericVector<INT_FEATURE_STRUCT>& int_features,
+  void AmbigClassifier(const std::vector<INT_FEATURE_STRUCT>& int_features,
                        const INT_FX_RESULT_STRUCT& fx_info,
                        const TBLOB *blob,
                        INT_TEMPLATES templates,
@@ -199,7 +199,7 @@ class Classify : public CCStruct {
                      int debug,
                      int matcher_multiplier,
                      const TBOX& blob_box,
-                     const GenericVector<CP_RESULT_STRUCT>& results,
+                     const std::vector<CP_RESULT_STRUCT>& results,
                      ADAPT_RESULTS* final_results);
   // Converts configs to fonts, and if the result is not adapted, and a
   // shape_table_ is present, the shape is expanded to include all
@@ -279,7 +279,7 @@ class Classify : public CCStruct {
   // unichar-id!). Uses a search, so not fast.
   int ShapeIDToClassID(int shape_id) const;
   UNICHAR_ID *BaselineClassifier(
-      TBLOB *Blob, const GenericVector<INT_FEATURE_STRUCT>& int_features,
+      TBLOB *Blob, const std::vector<INT_FEATURE_STRUCT>& int_features,
       const INT_FX_RESULT_STRUCT& fx_info,
       ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results);
   int CharNormClassifier(TBLOB *blob,
@@ -290,7 +290,7 @@ class Classify : public CCStruct {
   // a GenericVector of ShapeRating without conversion to classes.
   int CharNormTrainingSample(bool pruner_only, int keep_this,
                              const TrainingSample& sample,
-                             GenericVector<UnicharRating>* results);
+                             std::vector<UnicharRating>* results);
   UNICHAR_ID *GetAmbiguities(TBLOB *Blob, CLASS_ID CorrectClass);
   void DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results);
   void AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
@@ -365,8 +365,8 @@ class Classify : public CCStruct {
   // after the second outline, there were (*outline_cn_counts)[1] features etc.
   static void ExtractFeatures(const TBLOB& blob,
                               bool nonlinear_norm,
-                              GenericVector<INT_FEATURE_STRUCT>* bl_features,
-                              GenericVector<INT_FEATURE_STRUCT>* cn_features,
+                              std::vector<INT_FEATURE_STRUCT>* bl_features,
+                              std::vector<INT_FEATURE_STRUCT>* cn_features,
                               INT_FX_RESULT_STRUCT* results,
                               GenericVector<int>* outline_cn_counts);
   /* float2int.cpp ************************************************************/
@@ -575,7 +575,8 @@ class Classify : public CCStruct {
  public:
   bool EnableLearning = true;
 };
-}  // namespace tesseract
+
+} // namespace tesseract
 
 #endif  // DISABLED_LEGACY_ENGINE
 

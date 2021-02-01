@@ -15,12 +15,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESS_CAPI_INCLUDE_BASEAPI
-#  define TESS_CAPI_INCLUDE_BASEAPI
-#endif
 #include <tesseract/capi.h>
-#include <tesseract/genericvector.h>
-#include <tesseract/strngs.h>
+
+#include <cstring>           // for strdup
 
 const char* TessVersion() {
   return TessBaseAPI::Version();
@@ -235,22 +232,16 @@ BOOL TessBaseAPIPrintVariablesToFile(
   return FALSE;
 }
 
-BOOL TessBaseAPIGetVariableAsString(TessBaseAPI* handle,
-                                                       const char* name,
-                                                       STRING* val) {
-  return static_cast<int>(handle->GetVariableAsString(name, val));
-}
-
 int TessBaseAPIInit4(
     TessBaseAPI* handle, const char* datapath, const char* language,
     TessOcrEngineMode mode, char** configs, int configs_size, char** vars_vec,
     char** vars_values, size_t vars_vec_size, BOOL set_only_non_debug_params) {
-  GenericVector<STRING> varNames;
-  GenericVector<STRING> varValues;
+  std::vector<std::string> varNames;
+  std::vector<std::string> varValues;
   if (vars_vec != nullptr && vars_values != nullptr) {
     for (size_t i = 0; i < vars_vec_size; i++) {
-      varNames.push_back(STRING(vars_vec[i]));
-      varValues.push_back(STRING(vars_values[i]));
+      varNames.push_back(vars_vec[i]);
+      varValues.push_back(vars_values[i]);
     }
   }
 
@@ -287,11 +278,11 @@ TessBaseAPIGetInitLanguagesAsString(const TessBaseAPI* handle) {
 
 char**
 TessBaseAPIGetLoadedLanguagesAsVector(const TessBaseAPI* handle) {
-  GenericVector<STRING> languages;
+  std::vector<std::string> languages;
   handle->GetLoadedLanguagesAsVector(&languages);
   char** arr = new char*[languages.size() + 1];
   for (int index = 0; index < languages.size(); ++index) {
-    arr[index] = languages[index].strdup();
+    arr[index] = strdup(languages[index].c_str());
   }
   arr[languages.size()] = nullptr;
   return arr;
@@ -299,11 +290,11 @@ TessBaseAPIGetLoadedLanguagesAsVector(const TessBaseAPI* handle) {
 
 char**
 TessBaseAPIGetAvailableLanguagesAsVector(const TessBaseAPI* handle) {
-  GenericVector<STRING> languages;
+  std::vector<std::string> languages;
   handle->GetAvailableLanguagesAsVector(&languages);
   char** arr = new char*[languages.size() + 1];
   for (int index = 0; index < languages.size(); ++index) {
-    arr[index] = languages[index].strdup();
+    arr[index] = strdup(languages[index].c_str());
   }
   arr[languages.size()] = nullptr;
   return arr;
@@ -381,11 +372,6 @@ void TessBaseAPISetRectangle(TessBaseAPI* handle, int left,
   handle->SetRectangle(left, top, width, height);
 }
 
-void TessBaseAPISetThresholder(
-    TessBaseAPI* handle, TessImageThresholder* thresholder) {
-  handle->SetThresholder(thresholder);
-}
-
 struct Pix*
 TessBaseAPIGetThresholdedImage(TessBaseAPI* handle) {
   return handle->GetThresholdedImage();
@@ -455,13 +441,6 @@ int TessBaseAPIRecognize(TessBaseAPI* handle,
                                             ETEXT_DESC* monitor) {
   return handle->Recognize(monitor);
 }
-
-#ifndef DISABLED_LEGACY_ENGINE
-int TessBaseAPIRecognizeForChopTest(TessBaseAPI* handle,
-                                                       ETEXT_DESC* monitor) {
-  return handle->RecognizeForChopTest(monitor);
-}
-#endif
 
 BOOL TessBaseAPIProcessPages(TessBaseAPI* handle,
                                                 const char* filename,
@@ -565,65 +544,14 @@ BOOL TessBaseAPIGetTextDirection(TessBaseAPI* handle,
   return static_cast<int>(handle->GetTextDirection(out_offset, out_slope));
 }
 
-void TessBaseAPISetDictFunc(TessBaseAPI* handle,
-                                               TessDictFunc f) {
-  handle->SetDictFunc(f);
-}
-
-void
-TessBaseAPIClearPersistentCache(TessBaseAPI* /*handle*/) {
-  TessBaseAPI::ClearPersistentCache();
-}
-
-void TessBaseAPISetProbabilityInContextFunc(
-    TessBaseAPI* handle, TessProbabilityInContextFunc f) {
-  handle->SetProbabilityInContextFunc(f);
-}
-
-#ifndef DISABLED_LEGACY_ENGINE
-
-BOOL TessBaseAPIDetectOrientationScript(
-    TessBaseAPI* handle, int* orient_deg, float* orient_conf,
-    const char** script_name, float* script_conf) {
-  bool success;
-  success = handle->DetectOrientationScript(orient_deg, orient_conf,
-                                            script_name, script_conf);
-  return static_cast<BOOL>(success);
-}
-
-#endif  // ndef DISABLED_LEGACY_ENGINE
-
 const char* TessBaseAPIGetUnichar(TessBaseAPI* handle,
                                                      int unichar_id) {
   return handle->GetUnichar(unichar_id);
 }
 
-const TessDawg* TessBaseAPIGetDawg(const TessBaseAPI* handle,
-                                                      int i) {
-  return handle->GetDawg(i);
-}
-
-int TessBaseAPINumDawgs(const TessBaseAPI* handle) {
-  return handle->NumDawgs();
-}
-
-TessOcrEngineMode TessBaseAPIOem(const TessBaseAPI* handle) {
-  return handle->oem();
-}
-
-void TessBaseAPIInitTruthCallback(TessBaseAPI* handle,
-                                                     TessTruthCallback cb) {
-  handle->InitTruthCallback(cb);
-}
-
 void TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle,
                                                            double margin) {
   handle->set_min_orientation_margin(margin);
-}
-
-void TessBaseGetBlockTextOrientations(
-    TessBaseAPI* handle, int** block_orientation, bool** vertical_writing) {
-  handle->GetBlockTextOrientations(block_orientation, vertical_writing);
 }
 
 void TessPageIteratorDelete(TessPageIterator* handle) {

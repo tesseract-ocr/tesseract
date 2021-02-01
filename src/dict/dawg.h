@@ -40,9 +40,8 @@
 #define NO_EDGE                (int64_t) 0xffffffffffffffffll
 #endif /*__GNUC__*/
 
-/*----------------------------------------------------------------------
-              T y p e s
-----------------------------------------------------------------------*/
+namespace tesseract {
+
 class UNICHARSET;
 
 using EDGE_RECORD = uint64_t;
@@ -50,8 +49,6 @@ using EDGE_ARRAY = EDGE_RECORD *;
 using EDGE_REF = int64_t;
 using NODE_REF = int64_t;
 using NODE_MAP = EDGE_REF *;
-
-namespace tesseract {
 
 struct NodeChild {
   UNICHAR_ID unichar_id;
@@ -111,7 +108,7 @@ static const char kWildcard[] = "*";
 /// (since they use only the public methods of SquishedDawg and Trie
 /// classes that are inherited from the Dawg base class).
 //
-class Dawg {
+class TESS_API Dawg {
  public:
   /// Magic number to determine endianness when reading the Dawg from file.
   static const int16_t kDawgMagicNumber = 42;
@@ -373,16 +370,13 @@ struct DawgPosition {
 
 class DawgPositionVector : public GenericVector<DawgPosition> {
  public:
-  /// Overload clear() in order to avoid allocating/deallocating memory
-  /// when clearing the vector and re-inserting entries into it later.
-  void clear() { size_used_ = 0; }
   /// Adds an entry for the given dawg_index with the given node to the vec.
   /// Returns false if the same entry already exists in the vector,
   /// true otherwise.
   inline bool add_unique(const DawgPosition &new_pos,
                          bool debug,
                          const char *debug_msg) {
-    for (int i = 0; i < size_used_; ++i) {
+    for (int i = 0; i < size(); ++i) {
       if (data_[i] == new_pos) return false;
     }
     push_back(new_pos);
@@ -403,7 +397,7 @@ class DawgPositionVector : public GenericVector<DawgPosition> {
 /// is stored as a contiguous EDGE_ARRAY (read from file or given as an
 /// argument to the constructor).
 //
-class SquishedDawg : public Dawg {
+class TESS_API SquishedDawg : public Dawg {
  public:
   SquishedDawg(DawgType type, const STRING &lang, PermuterType perm,
                int debug_level)

@@ -22,7 +22,7 @@
 #include "ccutil.h" // for CCUtil
 
 namespace tesseract {
-class CCStruct : public CCUtil {
+class TESS_API CCStruct : public CCUtil {
  public:
   CCStruct() = default;
   ~CCStruct() override;

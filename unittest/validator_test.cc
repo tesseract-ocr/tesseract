@@ -15,7 +15,6 @@
 #include "include_gunit.h"
 
 namespace tesseract {
-namespace {
 
 class TestableValidator : public Validator {
  public:
@@ -74,5 +73,4 @@ TEST(ValidatorTest, Idempotency) {
   EXPECT_THAT(result4[0], testing::ElementsAreArray(result3[0]));
 }
 
-}  // namespace
 }  // namespace tesseract

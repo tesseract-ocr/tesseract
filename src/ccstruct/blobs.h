@@ -20,18 +20,21 @@
 #ifndef BLOBS_H
 #define BLOBS_H
 
-/*----------------------------------------------------------------------
-              I n c l u d e s
-----------------------------------------------------------------------*/
-#include <cstdint>             // for int16_t
-#include <cstring>             // for memcpy, memset
 #include "clst.h"              // for CLIST_ITERATOR, CLISTIZEH
-#include <tesseract/genericvector.h>     // for GenericVector
 #include "normalis.h"          // for DENORM
 #include "points.h"            // for FCOORD, ICOORD
-#include <tesseract/publictypes.h>       // for OcrEngineMode
 #include "rect.h"              // for TBOX
 #include "scrollview.h"        // for ScrollView, ScrollView::Color
+
+#include "genericvector.h"     // for GenericVector
+#include <tesseract/publictypes.h>       // for OcrEngineMode
+
+#include <cstdint>             // for int16_t
+#include <cstring>             // for memcpy, memset
+
+struct Pix;
+
+namespace tesseract {
 
 class BLOCK;
 class C_BLOB;
@@ -39,8 +42,6 @@ class C_OUTLINE;
 class LLSQ;
 class ROW;
 class WERD;
-
-struct Pix;
 
 /*----------------------------------------------------------------------
               T y p e s
@@ -467,5 +468,7 @@ bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT* location);
 
 void divide_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
                   const TPOINT& location);
+
+} // namespace tesseract
 
 #endif

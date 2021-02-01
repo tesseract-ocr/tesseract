@@ -22,11 +22,15 @@
 #include "config_auto.h"
 #endif
 
-#include "allheaders.h"
-#include "debugpixa.h"
 #include "devanagari_processing.h"
+
+#include "debugpixa.h"
 #include "statistc.h"
 #include "tordmain.h"
+
+#include "allheaders.h"
+
+namespace tesseract {
 
 // Flags controlling the debugging information for shiro-rekha splitting
 // strategies.
@@ -35,8 +39,6 @@ INT_VAR(devanagari_split_debuglevel, 0,
 
 BOOL_VAR(devanagari_split_debugimage, 0,
          "Whether to create a debug image for split shiro-rekha process.");
-
-namespace tesseract {
 
 ShiroRekhaSplitter::ShiroRekhaSplitter() {
   orig_pix_ = nullptr;

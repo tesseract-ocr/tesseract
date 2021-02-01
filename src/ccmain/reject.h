@@ -20,6 +20,8 @@
 #ifndef REJECT_H
 #define REJECT_H
 
+namespace tesseract {
+
 class WERD_CHOICE;
 class WERD_RES;
 
@@ -31,5 +33,7 @@ void dont_allow_1Il(WERD_RES *word);
 void flip_hyphens(WERD_RES *word);
 void flip_0O(WERD_RES *word);
 bool non_0_digit(const char* str, int length);
+
+} // namespace tesseract
 
 #endif

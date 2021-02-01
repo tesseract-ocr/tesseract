@@ -16,6 +16,13 @@
  *
  **********************************************************************/
 
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#include "topitch.h"
+
 #include "blobbox.h"
 #include "statistc.h"
 #include "drawtord.h"
@@ -24,15 +31,12 @@
 #include "pithsync.h"
 #include "tovars.h"
 #include "wordseg.h"
-#include "topitch.h"
-#include <tesseract/helpers.h>
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
+#include "helpers.h"
 
 #include <memory>
+
+namespace tesseract {
 
 static BOOL_VAR (textord_all_prop, false, "All doc is proportial text");
 BOOL_VAR (textord_debug_pitch_test, false,
@@ -1839,3 +1843,5 @@ void plot_fp_word(                  //draw block of words
   }
 }
 #endif
+
+} // namespace tesseract

@@ -16,18 +16,21 @@
  *
  **********************************************************************/
 
-#include <cctype>
-#include <cerrno>
-#include <cstring>
-#include "control.h"
-#include <tesseract/helpers.h>
 #include "output.h"
+
+#include "control.h"
 #include "tesseractclass.h"
 #include "tessvars.h"
 #ifndef DISABLED_LEGACY_ENGINE
 #include "docqual.h"
 #include "reject.h"
 #endif
+
+#include "helpers.h"
+
+#include <cctype>
+#include <cerrno>
+#include <cstring>
 
 #define CTRL_NEWLINE    '\012'   //newline
 #define CTRL_HARDLINE   '\015'   //cr
@@ -201,7 +204,6 @@ void Tesseract::write_results(PAGE_RES_IT& page_res_it,
     }
   }
 }
-}  // namespace tesseract
 
 /**********************************************************************
  * determine_newline_type
@@ -247,7 +249,6 @@ char determine_newline_type(                   //test line ends
  * Return the first accepted character from the repetition string. This is the
  * character which is repeated - as determined earlier by fix_rep_char()
  *************************************************************************/
-namespace tesseract {
 UNICHAR_ID Tesseract::get_rep_char(WERD_RES *word) {  // what char is repeated?
   int i;
   for (i = 0; ((i < word->reject_map.length()) &&

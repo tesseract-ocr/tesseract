@@ -18,7 +18,7 @@
 #include "log.h"
 #include "qrsequence.h"
 
-namespace {
+namespace tesseract {
 
 class TestableQRSequenceGenerator : public QRSequenceGenerator {
  public:
@@ -64,6 +64,6 @@ TEST_P(QRSequenceGeneratorTest, GeneratesValidSequence) {
 }
 
 // Run a parameterized test using the following range sizes.
-INSTANTIATE_TEST_CASE_P(RangeTest, QRSequenceGeneratorTest,
+INSTANTIATE_TEST_SUITE_P(RangeTest, QRSequenceGeneratorTest,
                         ::testing::Values(2, 7, 8, 9, 16, 1e2, 1e4, 1e6));
 }  // namespace

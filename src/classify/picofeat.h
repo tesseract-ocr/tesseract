@@ -19,11 +19,10 @@
 #ifndef PICOFEAT_H
 #define PICOFEAT_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "ocrfeatures.h"
 #include "params.h"
+
+namespace tesseract {
 
 // Enum for the order/type of params in IntFeatDesc.
 enum IntParams {
@@ -60,5 +59,7 @@ extern double_VAR_H(classify_pico_feature_length, 0.05, "Pico Feature Length");
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
 extern TESS_API float PicoFeatureLength;
+
+} // namespace tesseract
 
 #endif

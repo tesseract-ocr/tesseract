@@ -14,16 +14,13 @@
 
 #include "include_gunit.h"
 
-using tesseract::IntFeatureMap;
-using tesseract::IntFeatureSpace;
-
 // Random re-quantization to test that they don't have to be easy.
 // WARNING! Change these and change the expected_misses calculation below.
 const int kXBuckets = 16;
 const int kYBuckets = 24;
 const int kThetaBuckets = 13;
 
-namespace {
+namespace tesseract {
 
 class IntFeatureMapTest : public testing::Test {
  protected:

@@ -19,19 +19,21 @@
 #ifndef TESSERACT_IMAGE_IMAGEDATA_H_
 #define TESSERACT_IMAGE_IMAGEDATA_H_
 
+#include "points.h"             // for FCOORD
+
+#include "genericvector.h"      // for GenericVector, PointerVector, FileReader
+#include "strngs.h"   // for STRING
+
 #include <mutex>                // for std::mutex
 #include <thread>               // for std::thread
-#include <tesseract/genericvector.h>      // for GenericVector, PointerVector, FileReader
-#include "points.h"             // for FCOORD
-#include <tesseract/strngs.h>   // for STRING
 
-class ScrollView;
-class TBOX;
 struct Pix;
 
 namespace tesseract {
 
 class TFile;
+class ScrollView;
+class TBOX;
 
 // Amount of padding to apply in output pixels in feature mode.
 const int kFeaturePadding = 2;
@@ -102,7 +104,7 @@ struct FloatWordFeature {
 // The text transcription is the ground truth UTF-8 text for the image.
 // Character boxes are optional and indicate the desired segmentation of
 // the text into recognition units.
-class ImageData {
+class TESS_API ImageData {
  public:
   ImageData();
   // Takes ownership of the pix.
@@ -179,9 +181,9 @@ class ImageData {
 
   // Adds the supplied boxes and transcriptions that correspond to the correct
   // page number.
-  void AddBoxes(const GenericVector<TBOX>& boxes,
-                const GenericVector<STRING>& texts,
-                const GenericVector<int>& box_pages);
+  void AddBoxes(const std::vector<TBOX>& boxes,
+                const std::vector<STRING>& texts,
+                const std::vector<int>& box_pages);
 
  private:
   // Saves the given Pix as a PNG-encoded string and destroys it.
@@ -211,20 +213,24 @@ class ImageData {
 // A collection of ImageData that knows roughly how much memory it is using.
 class DocumentData {
  public:
+  TESS_API
   explicit DocumentData(const STRING& name);
+  TESS_API
   ~DocumentData();
 
   // Reads all the pages in the given lstmf filename to the cache. The reader
   // is used to read the file.
+  TESS_API
   bool LoadDocument(const char* filename, int start_page, int64_t max_memory,
                     FileReader reader);
   // Sets up the document, without actually loading it.
   void SetDocument(const char* filename, int64_t max_memory, FileReader reader);
   // Writes all the pages to the given filename. Returns false on error.
+  TESS_API
   bool SaveDocument(const char* filename, FileWriter writer);
-  bool SaveToBuffer(GenericVector<char>* buffer);
 
   // Adds the given page data to this document, counting up memory.
+  TESS_API
   void AddPageToDocument(ImageData* page);
 
   const STRING& document_name() const {
@@ -256,6 +262,7 @@ class DocumentData {
   void LoadPageInBackground(int index);
   // Returns a pointer to the page with the given index, modulo the total
   // number of pages. Blocks until the background load is completed.
+  TESS_API
   const ImageData* GetPage(int index);
   // Returns true if the requested page is available, and provides a pointer,
   // which may be nullptr if the document is empty. May block, even though it
@@ -324,7 +331,9 @@ class DocumentData {
 // content.
 class DocumentCache {
  public:
+  TESS_API
   explicit DocumentCache(int64_t max_memory);
+  TESS_API
   ~DocumentCache();
 
   // Deletes all existing documents from the cache.
@@ -334,7 +343,8 @@ class DocumentCache {
   }
   // Adds all the documents in the list of filenames, counting memory.
   // The reader is used to read the files.
-  bool LoadDocuments(const GenericVector<STRING>& filenames,
+  TESS_API
+  bool LoadDocuments(const std::vector<STRING>& filenames,
                      CachingStrategy cache_strategy, FileReader reader);
 
   // Adds document to the cache.
@@ -357,16 +367,19 @@ class DocumentCache {
   }
   // Returns the total number of pages in an epoch. For CS_ROUND_ROBIN cache
   // strategy, could take a long time.
+  TESS_API
   int TotalPages();
 
  private:
   // Returns a page by serial number, selecting them in a round-robin fashion
   // from all the documents. Highly disk-intensive, but doesn't need samples
   // to be shuffled between files to begin with.
+  TESS_API
   const ImageData* GetPageRoundRobin(int serial);
   // Returns a page by serial number, selecting them in sequence from each file.
   // Requires the samples to be shuffled between the files to give a random or
   // uniform distribution of data. Less disk-intensive than GetPageRoundRobin.
+  TESS_API
   const ImageData* GetPageSequential(int serial);
 
   // Helper counts the number of adjacent cached neighbour documents_ of index

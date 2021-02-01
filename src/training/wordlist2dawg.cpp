@@ -23,10 +23,12 @@
 #include "commontraining.h"     // CheckSharedLibraryVersion
 #include "dawg.h"
 #include "dict.h"
-#include <tesseract/helpers.h>
-#include <tesseract/serialis.h>
+#include "helpers.h"
+#include "serialis.h"
 #include "trie.h"
 #include "unicharset.h"
+
+using namespace tesseract;
 
 int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();

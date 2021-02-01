@@ -2,7 +2,6 @@
  ** Filename:    intproto.h
  ** Purpose:     Definition of data structures for integer protos.
  ** Author:      Dan Johnson
- ** History:     Thu Feb  7 12:58:45 1991, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,12 +21,13 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include <tesseract/genericvector.h>
 #include "matchdefs.h"
 #include "mfoutline.h"
 #include "protos.h"
 #include "scrollview.h"
 #include "unicharset.h"
+
+namespace tesseract {
 
 class FCOORD;
 
@@ -173,7 +173,7 @@ enum IntmatcherDebugAction {
 #define PPrunerMaskFor(I) (1 << PPrunerBitIndexFor(I))
 
 #define MaxNumClassesIn(T) (T->NumClassPruners * CLASSES_PER_CP)
-#define LegalClassId(c) ((c) >= 0 && (c) <= MAX_CLASS_ID)
+#define LegalClassId(c) ((c) >= 0 && (c) < MAX_NUM_CLASSES)
 #define UnusedClassIdIn(T, c) ((T)->Class[c] == nullptr)
 #define ClassForClassId(T, c) ((T)->Class[c])
 #define ClassPrunersFor(T) ((T)->ClassPruner)
@@ -232,20 +232,19 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs);
 
 INT_TEMPLATES NewIntTemplates();
 
+TESS_API
 void free_int_templates(INT_TEMPLATES templates);
 
 void ShowMatchDisplay();
 
-namespace tesseract {
-
 // Clears the given window and draws the featurespace guides for the
 // appropriate normalization method.
+TESS_API
 void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView* window);
-
-}  // namespace tesseract.
 
 /*----------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
+TESS_API
 void RenderIntFeature(ScrollView* window, const INT_FEATURE_STRUCT* Feature,
                       ScrollView::Color color);
 
@@ -257,7 +256,10 @@ void InitFeatureDisplayWindowIfReqd();
 
 // Creates a window of the appropriate size for displaying elements
 // in feature space.
+TESS_API
 ScrollView* CreateFeatureSpaceWindow(const char* name, int xpos, int ypos);
 #endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract
 
 #endif

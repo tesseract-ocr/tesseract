@@ -18,6 +18,8 @@
 
 #include "mod128.h"
 
+namespace tesseract {
+
 static const int16_t idirtab[] = {
   1000, 0, 998, 49, 995, 98, 989, 146,
   980, 195, 970, 242, 956, 290, 941, 336,
@@ -85,3 +87,5 @@ DIR128::DIR128(                 //from fcoord
   while (high - low > 1);
   dir = low;
 }
+
+} // namespace tesseract

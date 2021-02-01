@@ -20,18 +20,22 @@
 #ifndef RECT_H
 #define RECT_H
 
-#include <algorithm>           // for std::max, std::min
-#include <cmath>               // for std::ceil, std::floor
-#include <cstdint>             // for INT16_MAX
-#include <cstdio>              // for FILE
-#include <tesseract/platform.h>          // for DLLSYM
 #include "points.h"            // for ICOORD, FCOORD
 #include "scrollview.h"        // for ScrollView, ScrollView::Color
 #include "tprintf.h"           // for tprintf
 
+#include <tesseract/export.h>          // for DLLSYM
+
+#include <algorithm>           // for std::max, std::min
+#include <cmath>               // for std::ceil, std::floor
+#include <cstdint>             // for INT16_MAX
+#include <cstdio>              // for FILE
+
+namespace tesseract {
+
 class STRING;
 
-class DLLSYM TBOX  {  // bounding box
+class TESS_API TBOX  {  // bounding box
   public:
     TBOX ():       // empty constructor making a null box
     bot_left (INT16_MAX, INT16_MAX), top_right (-INT16_MAX, -INT16_MAX) {
@@ -497,5 +501,7 @@ inline double TBOX::y_overlap_fraction(const TBOX& other) const {
     return std::max(0.0, static_cast<double>(high - low) / height);
   }
 }
+
+}  // namespace tesseract
 
 #endif

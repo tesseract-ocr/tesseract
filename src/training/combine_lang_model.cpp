@@ -22,6 +22,8 @@
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
 
+using namespace tesseract;
+
 static STRING_PARAM_FLAG(input_unicharset, "",
                          "Filename with unicharset to complete and use in encoding");
 static STRING_PARAM_FLAG(script_dir, "",
@@ -51,7 +53,7 @@ int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
 
-  GenericVector<STRING> words, puncs, numbers;
+  std::vector<STRING> words, puncs, numbers;
   // If these reads fail, we get a warning message and an empty list of words.
   tesseract::ReadFile(FLAGS_words.c_str(), nullptr).split('\n', &words);
   tesseract::ReadFile(FLAGS_puncs.c_str(), nullptr).split('\n', &puncs);

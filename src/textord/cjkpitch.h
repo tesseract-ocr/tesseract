@@ -22,6 +22,8 @@
 
 #include          "blobbox.h"
 
+namespace tesseract {
+
 // Function to test "fixed-pitchness" of the input text and estimating
 // character pitch parameters for it, based on CJK fixed-pitch layout
 // model.
@@ -67,5 +69,7 @@
 // make_prop_words() even if they are fixed pitched.
 void compute_fixed_pitch_cjk(ICOORD page_tr,               // top right
                              TO_BLOCK_LIST *port_blocks);  // input list
+
+} // namespace tesseract
 
 #endif  // CJKPITCH_H_

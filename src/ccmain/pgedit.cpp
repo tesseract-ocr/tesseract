@@ -23,9 +23,6 @@
 
 #include "pgedit.h"
 
-#include <cctype>
-#include <cmath>
-
 #include "blread.h"
 #include "control.h"
 #include "paramsd.h"
@@ -37,7 +34,11 @@
 #include "tesseractclass.h"
 #include "werdit.h"
 
+#include <cctype>
+#include <cmath>
+
 #ifndef GRAPHICS_DISABLED
+namespace tesseract {
 #define ASC_HEIGHT     (2 * kBlnBaselineOffset + kBlnXHeight)
 #define X_HEIGHT       (kBlnBaselineOffset + kBlnXHeight)
 #define BL_HEIGHT     kBlnBaselineOffset
@@ -294,7 +295,6 @@ void PGEventHandler::Notify(const SVEvent* event) {
  *
  *  Construct the menu tree used by the command window
  */
-namespace tesseract {
 SVMenuNode *Tesseract::build_menu_new() {
   SVMenuNode* parent_menu;
   auto* root_menu_item = new SVMenuNode();
@@ -384,7 +384,7 @@ void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
   stillRunning = true;
 
   build_image_window(width, height);
-  word_display_mode.turn_on_bit(DF_EDGE_STEP);
+  word_display_mode.set(DF_EDGE_STEP);
   do_re_display(&tesseract::Tesseract::word_set_display);
 #ifndef GRAPHICS_DISABLED
   pe = new ParamsEditor(this, image_win);
@@ -402,7 +402,6 @@ void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
   image_win->AwaitEvent(SVET_DESTROY);
   image_win->AddEventHandler(nullptr);
 }
-}  // namespace tesseract
 
 /**
  *  process_cmd_win_event()
@@ -411,7 +410,6 @@ void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
  * (Just call the appropriate command handler)
  */
 
-namespace tesseract {
 bool Tesseract::process_cmd_win_event(                 // UI command semantics
         int32_t cmd_event,  // which menu item?
         char* new_value   // any prompt data
@@ -465,45 +463,45 @@ bool Tesseract::process_cmd_win_event(                 // UI command semantics
       break;
     case BOUNDING_BOX_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_BOX);
+        word_display_mode.set(DF_BOX);
       else
-        word_display_mode.turn_off_bit(DF_BOX);
+        word_display_mode.reset(DF_BOX);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case BLAMER_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_BLAMER);
+        word_display_mode.set(DF_BLAMER);
       else
-        word_display_mode.turn_off_bit(DF_BLAMER);
+        word_display_mode.reset(DF_BLAMER);
       do_re_display(&tesseract::Tesseract::word_display);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case CORRECT_TEXT_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_TEXT);
+        word_display_mode.set(DF_TEXT);
       else
-        word_display_mode.turn_off_bit(DF_TEXT);
+        word_display_mode.reset(DF_TEXT);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case POLYGONAL_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_POLYGONAL);
+        word_display_mode.set(DF_POLYGONAL);
       else
-        word_display_mode.turn_off_bit(DF_POLYGONAL);
+        word_display_mode.reset(DF_POLYGONAL);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case BL_NORM_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_BN_POLYGONAL);
+        word_display_mode.set(DF_BN_POLYGONAL);
       else
-        word_display_mode.turn_off_bit(DF_BN_POLYGONAL);
+        word_display_mode.reset(DF_BN_POLYGONAL);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case BITMAP_CMD_EVENT:
       if (new_value[0] == 'T')
-        word_display_mode.turn_on_bit(DF_EDGE_STEP);
+        word_display_mode.set(DF_EDGE_STEP);
       else
-        word_display_mode.turn_off_bit(DF_EDGE_STEP);
+        word_display_mode.reset(DF_EDGE_STEP);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case UNIFORM_DISP_CMD_EVENT:
@@ -668,7 +666,6 @@ void Tesseract::debug_word(PAGE_RES* page_res, const TBOX &selection_box) {
 #endif
   recog_all_words(page_res, nullptr, &selection_box, word_config_.c_str(), 0);
 }
-}  // namespace tesseract
 
 
 /**********************************************************************
@@ -690,9 +687,7 @@ void Tesseract::debug_word(PAGE_RES* page_res, const TBOX &selection_box) {
  * Blank display of word then redisplay word according to current display mode
  * settings
  */
-#endif // !GRAPHICS_DISABLED
-namespace tesseract {
-#ifndef GRAPHICS_DISABLED
+
 bool Tesseract::word_blank_and_set_display(PAGE_RES_IT* pr_it) {
   pr_it->word()->word->bounding_box().plot(image_win, ScrollView::BLACK,
                                            ScrollView::BLACK);
@@ -894,8 +889,10 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
       editor_image_word_bb_color));
   return true;
 }
+}  // namespace tesseract
 #endif // !GRAPHICS_DISABLED
 
+namespace tesseract {
 /**
  * word_dumper()
  *
@@ -927,13 +924,13 @@ bool Tesseract::word_dumper(PAGE_RES_IT* pr_it) {
  */
 bool Tesseract::word_set_display(PAGE_RES_IT* pr_it) {
   WERD* word = pr_it->word()->word;
-  word->set_display_flag(DF_BOX, word_display_mode.bit(DF_BOX));
-  word->set_display_flag(DF_TEXT, word_display_mode.bit(DF_TEXT));
-  word->set_display_flag(DF_POLYGONAL, word_display_mode.bit(DF_POLYGONAL));
-  word->set_display_flag(DF_EDGE_STEP, word_display_mode.bit(DF_EDGE_STEP));
+  word->set_display_flag(DF_BOX, word_display_mode[DF_BOX]);
+  word->set_display_flag(DF_TEXT, word_display_mode[DF_TEXT]);
+  word->set_display_flag(DF_POLYGONAL, word_display_mode[DF_POLYGONAL]);
+  word->set_display_flag(DF_EDGE_STEP, word_display_mode[DF_EDGE_STEP]);
   word->set_display_flag(DF_BN_POLYGONAL,
-    word_display_mode.bit(DF_BN_POLYGONAL));
-  word->set_display_flag(DF_BLAMER, word_display_mode.bit(DF_BLAMER));
+    word_display_mode[DF_BN_POLYGONAL]);
+  word->set_display_flag(DF_BLAMER, word_display_mode[DF_BLAMER]);
   return word_display(pr_it);
 }
 
@@ -956,8 +953,8 @@ void Tesseract::blob_feature_display(PAGE_RES* page_res,
     TWERD* bln_word = word_res->chopped_word;
     TBLOB* bln_blob = bln_word->blobs[0];
     INT_FX_RESULT_STRUCT fx_info;
-    GenericVector<INT_FEATURE_STRUCT> bl_features;
-    GenericVector<INT_FEATURE_STRUCT> cn_features;
+    std::vector<INT_FEATURE_STRUCT> bl_features;
+    std::vector<INT_FEATURE_STRUCT> cn_features;
     Classify::ExtractFeatures(*bln_blob, classify_nonlinear_norm, &bl_features,
                               &cn_features, &fx_info, nullptr);
     // Display baseline features.
@@ -978,7 +975,6 @@ void Tesseract::blob_feature_display(PAGE_RES* page_res,
   }
 #endif  // ndef DISABLED_LEGACY_ENGINE
 }
-
 
 #endif // !GRAPHICS_DISABLED
 

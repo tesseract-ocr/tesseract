@@ -9,28 +9,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <string>
+#include "include_gunit.h"
 
-#include "absl/strings/str_split.h"  // for absl::StrSplit
-
-#include "allheaders.h"
 #include "boxchar.h"
 #include "boxread.h"
 #include "commandlineflags.h"
-#include <tesseract/genericvector.h>
-#include "include_gunit.h"
 #include "stringrenderer.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
+
+#include "absl/strings/str_split.h"  // for absl::StrSplit
+#include "allheaders.h"
+
+#include <memory>
+#include <string>
 
 BOOL_PARAM_FLAG(display, false, "Display image for inspection");
 
-// Flags defined in pango_font_info.cpp
-DECLARE_BOOL_PARAM_FLAG(use_only_legacy_fonts);
-DECLARE_STRING_PARAM_FLAG(fonts_dir);
-DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
-
-namespace {
+namespace tesseract {
 
 const char kEngText[] = "the quick brown fox jumps over the lazy dog";
 const char kHinText[] = "पिताने विवाह की | हो गई उद्विग्न वह सोचा";
@@ -45,25 +40,26 @@ const char kEngNonLigatureText[] = "fidelity";
 // Same as kEngNonLigatureText, but with "fi" replaced with its ligature.
 const char kEngLigatureText[] = "ﬁdelity";
 
-using tesseract::BoxChar;
-using tesseract::StringRenderer;
+static PangoFontMap* font_map;
 
 class StringRendererTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    static std::locale system_locale("");
-    std::locale::global(system_locale);
+    if (!font_map) {
+      font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
+    }
+    pango_cairo_font_map_set_default(PANGO_CAIRO_FONT_MAP(font_map));
   }
 
   static void SetUpTestCase() {
+    static std::locale system_locale("");
+    std::locale::global(system_locale);
+
     l_chooseDisplayProg(L_DISPLAY_WITH_XZGV);
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
-#ifdef GOOGLE_TESSERACT
-    FLAGS_use_only_legacy_fonts = false;
-    // Needed for reliable heapchecking of pango layout structures.
-    FLAGS_heap_check_max_pointer_offset = -1;
-#endif
+    file::MakeTmpdir();
+    PangoFontInfo::SoftInitFontConfig(); // init early
   }
 
   void DisplayClusterBoxes(Pix* pix) {
@@ -224,11 +220,11 @@ TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
   std::string boxes_str = renderer_->GetBoxesStr();
   // Decode to get the box text strings.
   EXPECT_FALSE(boxes_str.empty());
-  GenericVector<STRING> texts;
+  std::vector<STRING> texts;
   EXPECT_TRUE(ReadMemBoxes(0, false, boxes_str.c_str(), false, nullptr, &texts,
                            nullptr, nullptr));
   std::string ltr_str;
-  for (int i = 0; i < texts.size(); ++i) {
+  for (size_t i = 0; i < texts.size(); ++i) {
     ltr_str += texts[i].c_str();
   }
   // The string should come out perfectly reversed, despite there being a

@@ -26,6 +26,20 @@
  *
  **********************************************************************/
 
+#include "boxchar.h"
+#include "commandlineflags.h"
+#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "degradeimage.h"
+#include "errcode.h"
+#include "fileio.h"
+#include "helpers.h"
+#include "normstrngs.h"
+#include "stringrenderer.h"
+#include "tlog.h"
+#include "unicharset.h"
+
+#include "allheaders.h"  // from leptonica
+
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
@@ -36,22 +50,11 @@
 #include <utility>
 #include <vector>
 
-#include "allheaders.h"  // from leptonica
-#include "boxchar.h"
-#include "commandlineflags.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
-#include "degradeimage.h"
-#include "errcode.h"
-#include "fileio.h"
-#include <tesseract/helpers.h>
-#include "normstrngs.h"
-#include "stringrenderer.h"
-#include "tlog.h"
-#include "unicharset.h"
-#include "util.h"
 #ifdef _MSC_VER
 #  define putenv(s) _putenv(s)
 #endif
+
+using namespace tesseract;
 
 // A number with which to initialize the random number generator.
 const int kRandomSeed = 0x18273645;

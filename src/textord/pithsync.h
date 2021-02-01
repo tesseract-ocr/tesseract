@@ -23,6 +23,8 @@
 #include          "params.h"
 #include          "statistc.h"
 
+namespace tesseract {
+
 class FPSEGPT_LIST;
 
 class FPCUTPT
@@ -128,4 +130,7 @@ double check_pitch_sync3(                          //find segmentation
                          int16_t start,              //start of good range
                          int16_t end                 //end of good range
                         );
+
+} // namespace tesseract
+
 #endif

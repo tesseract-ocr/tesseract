@@ -20,14 +20,20 @@
 #ifndef COUTLN_H
 #define COUTLN_H
 
-#include <cstdint>      // for int16_t, int32_t
 #include "bits16.h"     // for BITS16
 #include "elst.h"       // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "mod128.h"     // for DIR128, DIRBITS
-#include <tesseract/platform.h>   // for DLLSYM
 #include "points.h"     // for ICOORD, FCOORD
 #include "rect.h"       // for TBOX
 #include "scrollview.h" // for ScrollView, ScrollView::Color
+
+#include <tesseract/export.h>   // for DLLSYM
+
+#include <cstdint>      // for int16_t, int32_t
+
+struct Pix;
+
+namespace tesseract {
 
 class CRACKEDGE;
 class DENORM;
@@ -65,11 +71,10 @@ struct EdgeOffset {
   uint8_t direction;
 };
 
-class DLLSYM C_OUTLINE;          //forward declaration
-struct Pix;
+class C_OUTLINE;          //forward declaration
 
 ELISTIZEH (C_OUTLINE)
-class DLLSYM C_OUTLINE:public ELIST_LINK {
+class C_OUTLINE:public ELIST_LINK {
  public:
   C_OUTLINE() {
     stepcount = 0;
@@ -97,12 +102,12 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
 
     bool flag(                               //test flag
                C_OUTLINE_FLAGS mask) const {  //flag to test
-      return flags.bit(mask);
+      return flags[mask];
     }
     void set_flag(                       //set flag value
             C_OUTLINE_FLAGS mask,  //flag to test
             bool value) {         //value to set
-      flags.set_bit(mask, value);
+      flags.set(mask, value);
     }
 
     C_OUTLINE_LIST *child() {  //get child list
@@ -290,4 +295,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     C_OUTLINE_LIST children;     // child elements
     static ICOORD step_coords[4];
 };
+
+}  // namespace tesseract
+
 #endif

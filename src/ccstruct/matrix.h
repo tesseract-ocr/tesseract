@@ -24,16 +24,20 @@
 #ifndef TESSERACT_CCSTRUCT_MATRIX_H_
 #define TESSERACT_CCSTRUCT_MATRIX_H_
 
+#include "errcode.h"    // for ASSERT_HOST
+#include "helpers.h"    // for ReverseN, ClipToRange
+#include "kdpair.h"     // for KDPairInc
+#include "points.h"     // for ICOORD
+
+#include "serialis.h"   // for TFile
+
 #include <algorithm>    // for max, min
 #include <cmath>        // for sqrt, fabs, isfinite
 #include <cstdint>      // for int32_t
 #include <cstdio>       // for FILE
 #include <cstring>      // for memcpy
-#include "errcode.h"    // for ASSERT_HOST
-#include <tesseract/helpers.h>    // for ReverseN, ClipToRange
-#include "kdpair.h"     // for KDPairInc
-#include "points.h"     // for ICOORD
-#include <tesseract/serialis.h>   // for TFile
+
+namespace tesseract {
 
 class BLOB_CHOICE_LIST;
 class UNICHARSET;
@@ -148,7 +152,7 @@ class GENERIC_2D_ARRAY {
     return tesseract::Serialize(fp, &array_[0], size);
   }
 
-  bool Serialize(tesseract::TFile* fp) const {
+  bool Serialize(TFile* fp) const {
     if (!SerializeSize(fp)) return false;
     if (!fp->Serialize(&empty_)) return false;
     int size = num_elements();
@@ -171,7 +175,7 @@ class GENERIC_2D_ARRAY {
     return true;
   }
 
-  bool DeSerialize(tesseract::TFile* fp) {
+  bool DeSerialize(TFile* fp) {
     return DeSerializeSize(fp) &&
            fp->DeSerialize(&empty_) &&
            fp->DeSerialize(&array_[0], num_elements());
@@ -469,7 +473,7 @@ class GENERIC_2D_ARRAY {
     size = dim2_;
     return tesseract::Serialize(fp, &size);
   }
-  bool SerializeSize(tesseract::TFile* fp) const {
+  bool SerializeSize(TFile* fp) const {
     uint32_t size = dim1_;
     if (!fp->Serialize(&size)) return false;
     size = dim2_;
@@ -491,7 +495,7 @@ class GENERIC_2D_ARRAY {
     Resize(size1, size2, empty_);
     return true;
   }
-  bool DeSerializeSize(tesseract::TFile* fp) {
+  bool DeSerializeSize(TFile* fp) {
     int32_t size1, size2;
     if (!fp->DeSerialize(&size1)) return false;
     if (!fp->DeSerialize(&size2)) return false;
@@ -635,6 +639,8 @@ struct MATRIX_COORD {
 };
 
 // The MatrixCoordPair contains a MATRIX_COORD and its priority.
-using MatrixCoordPair = tesseract::KDPairInc<float, MATRIX_COORD>;
+using MatrixCoordPair = KDPairInc<float, MATRIX_COORD>;
+
+}  // namespace tesseract
 
 #endif  // TESSERACT_CCSTRUCT_MATRIX_H_

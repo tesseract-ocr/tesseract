@@ -3,7 +3,6 @@
 // Description: Initial Baseline Determination.
 // Copyright 2012 Google Inc. All Rights Reserved.
 // Author:      rays@google.com (Ray Smith)
-// Created:     Mon Apr 30 10:03:19 PDT 2012
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,20 +20,20 @@
 #define TESSERACT_TEXTORD_BASELINEDETECT_H_
 
 #include "detlinefit.h"
-#include <tesseract/genericvector.h>
 #include "points.h"
 #include "rect.h"
-#include <tesseract/strngs.h>
 
-class BLOBNBOX_LIST;
-class TO_BLOCK;
-class TO_BLOCK_LIST;
-class TO_ROW;
+#include "genericvector.h"
+
 struct Pix;
 
 namespace tesseract {
 
 class Textord;
+class BLOBNBOX_LIST;
+class TO_BLOCK;
+class TO_BLOCK_LIST;
+class TO_ROW;
 
 // Class to compute and hold baseline data for a TO_ROW.
 class BaselineRow {

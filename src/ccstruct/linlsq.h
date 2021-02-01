@@ -20,12 +20,15 @@
 #ifndef TESSERACT_CCSTRUCT_LINLSQ_H_
 #define TESSERACT_CCSTRUCT_LINLSQ_H_
 
-#include <cstdint>      // for int32_t
 #include "points.h"     // for FCOORD
+
+#include <cstdint>      // for int32_t
+
+namespace tesseract {
 
 template <typename T> class GenericVector;
 
-class LLSQ {
+class TESS_API LLSQ {
  public:
   LLSQ() {  // constructor
     clear();  // set to zeros
@@ -132,5 +135,6 @@ template<typename T> T MedianOfCircularValues(T modulus, GenericVector<T>* v) {
   return (*v)[median_index];
 }
 
+} // namespace tesseract
 
 #endif  // TESSERACT_CCSTRUCT_LINLSQ_H_

@@ -20,13 +20,12 @@
 #include "config_auto.h"
 #endif
 
-#ifdef GOOGLE_TESSERACT
-#include "base/commandlineflags.h"
-#endif
 #include "commontraining.h"
 #include "mastertrainer.h"
 #include "params.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
+
+using namespace tesseract;
 
 static INT_PARAM_FLAG(display_cloud_font, -1,
                       "Display cloud of this font, canonical_class1");
@@ -50,7 +49,7 @@ int main(int argc, char **argv) {
   ParseArguments(&argc, &argv);
 
   STRING file_prefix;
-  tesseract::MasterTrainer* trainer =
+  auto trainer =
       tesseract::LoadTrainingData(argc, argv, false, nullptr, &file_prefix);
 
   if (!trainer)
@@ -71,7 +70,6 @@ int main(int argc, char **argv) {
   }
   trainer->SetupMasterShapes();
   WriteShapeTable(file_prefix, trainer->master_shapes());
-  delete trainer;
 
   return 0;
 } /* main */

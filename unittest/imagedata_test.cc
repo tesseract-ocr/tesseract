@@ -19,11 +19,7 @@
 #include "include_gunit.h"
 #include "log.h"
 
-using tesseract::DocumentCache;
-using tesseract::DocumentData;
-using tesseract::ImageData;
-
-namespace {
+namespace tesseract {
 
 // Tests the caching mechanism of DocumentData/ImageData.
 
@@ -31,6 +27,7 @@ class ImagedataTest : public ::testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
   ImagedataTest() {}
@@ -101,7 +98,7 @@ TEST_F(ImagedataTest, CachesMultiDocs) {
   // Number of pages in each document.
   const std::vector<int> kNumPages = {6, 5, 7};
   std::vector<std::vector<std::string>> page_texts;
-  GenericVector<STRING> filenames;
+  std::vector<STRING> filenames;
   for (size_t d = 0; d < kNumPages.size(); ++d) {
     page_texts.emplace_back(std::vector<std::string>());
     std::string filename = MakeFakeDoc(kNumPages[d], d, &page_texts.back());

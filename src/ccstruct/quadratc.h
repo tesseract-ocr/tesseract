@@ -22,6 +22,8 @@
 
 #include "points.h"
 
+namespace tesseract {
+
 class QUAD_COEFFS
 {
   public:
@@ -59,4 +61,7 @@ class QUAD_COEFFS
     float c;                     //constant
   private:
 };
+
+} // namespace tesseract
+
 #endif

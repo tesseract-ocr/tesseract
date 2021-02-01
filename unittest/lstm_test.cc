@@ -114,7 +114,7 @@ TEST_F(LSTMTrainerTest, DeterminismTest) {
   double lstm_2d_err_a = TrainIterations(kTrainerIterations);
   double act_error_a = trainer_->ActivationError();
   double char_error_a = trainer_->CharError();
-  GenericVector<char> trainer_a_data;
+  std::vector<char> trainer_a_data;
   EXPECT_TRUE(trainer_->SaveTrainingDump(NO_BEST_TRAINER, trainer_.get(),
                                          &trainer_a_data));
   SetupTrainerEng("[1,32,0,1 S4,2 L2xy16 Ct1,1,16 S8,1 Lbx100 O1c1]",
@@ -208,7 +208,7 @@ TEST_F(LSTMTrainerTest, TestLayerAccess) {
                                        128 * (4 * (128 + 32 + 1)),
                                        112 * (2 * 128 + 1)};
 
-  GenericVector<STRING> layers = trainer_->EnumerateLayers();
+  auto layers = trainer_->EnumerateLayers();
   EXPECT_EQ(kNumLayers, layers.size());
   for (int i = 0; i < kNumLayers && i < layers.size(); ++i) {
     EXPECT_STREQ(kLayerIds[i], layers[i].c_str());

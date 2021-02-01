@@ -16,10 +16,14 @@
  *
  **********************************************************************/
 
+#include "quadlsq.h"
+
+#include "tprintf.h"
+
 #include <cstdio>
 #include <cmath>
-#include "quadlsq.h"
-#include "tprintf.h"
+
+namespace tesseract {
 
 // Minimum variance in least squares before backing off to a lower degree.
 const long double kMinVariance = 1.0L / 1024;
@@ -140,3 +144,5 @@ void QLSQ::fit(int degree) {
   }
   c = (sigy - a * sigxx - b * sigx) / n;
 }
+
+} // namespace tesseract

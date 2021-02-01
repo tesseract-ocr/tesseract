@@ -25,7 +25,6 @@
 
 namespace tesseract {
 class Tesseract;
-}
 
 extern BOOL_VAR_H (textord_fp_chopping, true, "Do fixed pitch chopping");
 extern BOOL_VAR_H(textord_force_make_prop_words, false,
@@ -73,4 +72,7 @@ WERD *make_real_word(                      //make a WERD
         bool bol,            //start of line
         uint8_t blanks          //no of blanks
 );
+
+} // namespace tesseract
+
 #endif

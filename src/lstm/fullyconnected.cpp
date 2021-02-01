@@ -39,7 +39,7 @@ const int kNumThreads = 1;
 
 namespace tesseract {
 
-FullyConnected::FullyConnected(const STRING& name, int ni, int no,
+FullyConnected::FullyConnected(const std::string& name, int ni, int no,
                                NetworkType type)
   : Network(type, name, ni, no), external_source_(nullptr), int_mode_(false) {
 }

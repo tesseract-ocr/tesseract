@@ -19,6 +19,8 @@
 #ifndef TESSERACT_CCUTIL_BITVECTOR_H_
 #define TESSERACT_CCUTIL_BITVECTOR_H_
 
+#include <tesseract/export.h>
+
 #include <cassert>
 #include <cstdint>      // for uint8_t
 #include <cstdio>
@@ -27,7 +29,7 @@ namespace tesseract {
 
 // Trivial class to encapsulate a fixed-length array of bits, with
 // Serialize/DeSerialize. Replaces the old macros.
-class BitVector {
+class TESS_API BitVector {
  public:
   // Fast lookup table to get the first least significant set bit in a byte.
   // For zero, the table has 255, but since it is a special case, most code

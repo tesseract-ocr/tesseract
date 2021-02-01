@@ -3,21 +3,17 @@
 #include <string>
 #include "allheaders.h"
 #include <tesseract/baseapi.h>
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "scrollview.h"
 
 #include "include_gunit.h"
 #include "log.h"                        // for LOG
 #include "absl/strings/str_format.h"        // for absl::StrFormat
 
-namespace {
+namespace tesseract {
 
 // DEFINE_string(tess_config, "", "config file for tesseract");
 // DEFINE_bool(visual_test, false, "Runs a visual test using scrollview");
-
-using tesseract::PageIterator;
-using tesseract::PageIteratorLevel;
-using tesseract::ResultIterator;
 
 // Helper functions for converting to STL vectors
 template <typename T>
@@ -27,7 +23,7 @@ void ToVector(const GenericVector<T>& from, std::vector<T>* to) {
 }
 
 template <typename T>
-void ToVector(const GenericVectorEqEq<T>& from, std::vector<T>* to) {
+void ToVector(const std::vector<T>& from, std::vector<T>* to) {
   to->clear();
   for (int i = 0; i < from.size(); i++) to->push_back(from[i]);
 }
@@ -42,6 +38,7 @@ class ResultIteratorTest : public testing::Test {
     return file::JoinPath(TESSDATA_DIR, "");
   }
   std::string OutputNameToPath(const std::string& name) {
+    file::MakeTmpdir();
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
@@ -171,12 +168,12 @@ class ResultIteratorTest : public testing::Test {
                                   const StrongScriptDirection* word_dirs,
                                   int num_words, int* expected_reading_order,
                                   int num_reading_order_entries) const {
-    GenericVector<StrongScriptDirection> gv_word_dirs;
+    std::vector<StrongScriptDirection> gv_word_dirs;
     for (int i = 0; i < num_words; i++) {
       gv_word_dirs.push_back(word_dirs[i]);
     }
 
-    GenericVectorEqEq<int> output;
+    std::vector<int> output;
     ResultIterator::CalculateTextlineOrder(in_ltr_context, gv_word_dirs,
                                            &output);
     // STL vector can be used with EXPECT_EQ, so convert...
@@ -195,17 +192,17 @@ class ResultIteratorTest : public testing::Test {
   void VerifySaneTextlineOrder(bool in_ltr_context,
                                const StrongScriptDirection* word_dirs,
                                int num_words) const {
-    GenericVector<StrongScriptDirection> gv_word_dirs;
+    std::vector<StrongScriptDirection> gv_word_dirs;
     for (int i = 0; i < num_words; i++) {
       gv_word_dirs.push_back(word_dirs[i]);
     }
 
-    GenericVectorEqEq<int> output;
+    std::vector<int> output;
     ResultIterator::CalculateTextlineOrder(in_ltr_context, gv_word_dirs,
                                            &output);
     ASSERT_GE(output.size(), num_words);
-    GenericVector<int> output_copy(output);
-    output_copy.sort();
+    std::vector<int> output_copy(output);
+    std::sort(output_copy.begin(), output_copy.end());
     bool sane = true;
     int j = 0;
     while (j < output_copy.size() && output_copy[j] < 0) j++;
@@ -358,7 +355,7 @@ TEST_F(ResultIteratorTest, ComplexTest) {
   PageIterator* it = api_.AnalyseLayout();
   EXPECT_FALSE(it == nullptr);
   // The images should rebuild almost perfectly.
-  VerifyRebuilds(400, 400, 400, 400, 650, it);
+  VerifyRebuilds(2073, 2073, 2080, 2081, 2090, it);
   delete it;
 }
 

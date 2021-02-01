@@ -20,14 +20,16 @@
 
 #include "network.h"
 
-class ScrollView;
-
 namespace tesseract {
+
+class ScrollView;
 
 class Input : public Network {
  public:
-  Input(const STRING& name, int ni, int no);
-  Input(const STRING& name, const StaticShape& shape);
+  TESS_API
+  Input(const std::string& name, int ni, int no);
+  TESS_API
+  Input(const std::string& name, const StaticShape& shape);
   ~Input() override = default;
 
   STRING spec() const override {

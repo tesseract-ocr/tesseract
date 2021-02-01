@@ -17,9 +17,13 @@
  **********************************************************************/
 
 #include "blread.h"
-#include <cstdio>       // for fclose, fopen, FILE
+
 #include "ocrblock.h"   // for BLOCK_IT, BLOCK, BLOCK_LIST (ptr only)
 #include "scanutils.h"  // for tfscanf
+
+#include <cstdio>       // for fclose, fopen, FILE
+
+namespace tesseract {
 
 #define UNLV_EXT  ".uzn"  // unlv zone file
 
@@ -30,10 +34,10 @@
  **********************************************************************/
 
 bool read_unlv_file(                    //print list of sides
-                     STRING name,        //basename of file
-                     int32_t xsize,        //image size
-                     int32_t ysize,        //image size
-                     BLOCK_LIST *blocks  //output list
+                     std::string& name, //basename of file
+                     int32_t xsize,     //image size
+                     int32_t ysize,     //image size
+                     BLOCK_LIST* blocks //output list
                     ) {
   FILE *pdfp;                    //file pointer
   BLOCK *block;                  //current block
@@ -66,3 +70,5 @@ void FullPageBlock(int width, int height, BLOCK_LIST *blocks) {
   auto* block = new BLOCK("", true, 0, 0, 0, 0, width, height);
   block_it.add_to_end(block);
 }
+
+} // namespace tesseract

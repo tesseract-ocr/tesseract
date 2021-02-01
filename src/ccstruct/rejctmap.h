@@ -41,10 +41,13 @@ OF THIS IMPLIED TEMPORAL ORDERING OF THE FLAGS!!!!
 #ifndef           REJCTMAP_H
 #define           REJCTMAP_H
 
-#include <memory>
 #include "bits16.h"
 #include "errcode.h"
 #include "params.h"
+
+#include <memory>
+
+namespace tesseract {
 
 enum REJ_FLAGS {
   /* Reject modes which are NEVER overridden */
@@ -101,9 +104,9 @@ class REJ
 
   void set_flag(REJ_FLAGS rej_flag) {
     if (rej_flag < 16)
-      flags1.turn_on_bit (rej_flag);
+      flags1.set(rej_flag);
     else
-      flags2.turn_on_bit (rej_flag - 16);
+      flags2.set(rej_flag - 16);
   }
 
   bool rej_before_nn_accept();
@@ -131,9 +134,9 @@ class REJ
 
     bool flag(REJ_FLAGS rej_flag) {
       if (rej_flag < 16)
-        return flags1.bit (rej_flag);
+        return flags1[rej_flag];
       else
-        return flags2.bit (rej_flag - 16);
+        return flags2[rej_flag - 16];
     }
 
     char display_char() {
@@ -260,4 +263,7 @@ class REJMAP
     void rej_word_block_rej();  //Reject whole word
     void rej_word_row_rej();  //Reject whole word
 };
+
+} // namespace tesseract
+
 #endif

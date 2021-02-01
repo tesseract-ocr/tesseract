@@ -23,6 +23,8 @@
 #include "points.h"
 #include "mod128.h"
 
+namespace tesseract {
+
 class CRACKEDGE {
  public:
   CRACKEDGE() = default;
@@ -34,4 +36,7 @@ class CRACKEDGE {
   CRACKEDGE *prev;             /*previous point */
   CRACKEDGE *next;             /*next point */
 };
+
+} // namespace tesseract
+
 #endif

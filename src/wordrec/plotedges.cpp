@@ -17,16 +17,19 @@
  *
  *****************************************************************************/
 
-#include "plotedges.h"
-#include "render.h"
-#include "split.h"
-
-// Include automatically generated configuration file if running autoconf.
+ // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
+#include "plotedges.h"
+
+#include "render.h"
+#include "split.h"
+
 #ifndef GRAPHICS_DISABLED
+
+namespace tesseract {
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
@@ -106,5 +109,7 @@ void mark_outline(EDGEPT *edgept) {  /* Start of point list */
 
   window->Update();
 }
+
+} // namespace tesseract
 
 #endif // !GRAPHICS_DISABLED

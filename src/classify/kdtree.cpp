@@ -19,12 +19,13 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 #include "kdtree.h"
-#include "emalloc.h"
 
 #include <algorithm>
 #include <cfloat>      // for FLT_MAX
 #include <cstdio>
 #include <cmath>
+
+namespace tesseract {
 
 #define Magnitude(X)    ((X) < 0 ? -(X) : (X))
 #define NodeFound(N,K,D)  (((N)->Key == (K)) && ((N)->Data == (D)))
@@ -178,7 +179,7 @@ void KDTreeSearch::Search(int *result_count,
 /// @param KeySize  # of dimensions in the K-D tree
 /// @param KeyDesc  array of params to describe key dimensions
 KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
-  auto *KDTree = static_cast<KDTREE *>(Emalloc(
+  auto *KDTree = static_cast<KDTREE *>(malloc(
       sizeof(KDTREE) + (KeySize - 1) * sizeof(PARAM_DESC)));
   for (int i = 0; i < KeySize; i++) {
     KDTree->KeyDesc[i].NonEssential = KeyDesc[i].NonEssential;
@@ -352,7 +353,7 @@ void FreeKDTree(KDTREE *Tree) {
 KDNODE *MakeKDNode(KDTREE *tree, float Key[], void *Data, int Index) {
   KDNODE *NewNode;
 
-  NewNode = static_cast<KDNODE *>(Emalloc (sizeof (KDNODE)));
+  NewNode = static_cast<KDNODE *>(malloc (sizeof (KDNODE)));
 
   NewNode->Key = Key;
   NewNode->Data = Data;
@@ -536,3 +537,5 @@ void FreeSubTree(KDNODE *sub_tree) {
     free(sub_tree);
   }
 }
+
+} // namespace tesseract

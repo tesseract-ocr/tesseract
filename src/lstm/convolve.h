@@ -20,7 +20,6 @@
 #ifndef TESSERACT_LSTM_CONVOLVE_H_
 #define TESSERACT_LSTM_CONVOLVE_H_
 
-#include <tesseract/genericvector.h>
 #include "matrix.h"
 #include "network.h"
 
@@ -33,7 +32,8 @@ class Convolve : public Network {
  public:
   // The area of convolution is 2*half_x + 1 by 2*half_y + 1, forcing it to
   // always be odd, so the center is the current pixel.
-  Convolve(const STRING& name, int ni, int half_x, int half_y);
+  TESS_API
+  Convolve(const std::string& name, int ni, int half_x, int half_y);
   ~Convolve() override = default;
 
   STRING spec() const override {

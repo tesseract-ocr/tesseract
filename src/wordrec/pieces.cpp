@@ -21,7 +21,7 @@
 ----------------------------------------------------------------------*/
 
 #include "blobs.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "matrix.h"
 #include "ratngs.h"
 #include "seam.h"
@@ -188,8 +188,7 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
     if (same_unichar) {
       // Add the merged character to the result
       UNICHAR_ID merged_unichar_id = first_unichar_id;
-      GenericVector<ScoredFont> merged_fonts =
-          choice_lists_it[0].data()->fonts();
+      auto merged_fonts = choice_lists_it[0].data()->fonts();
       float merged_min_xheight = choice_lists_it[0].data()->min_xheight();
       float merged_max_xheight = choice_lists_it[0].data()->max_xheight();
       float positive_yshift = 0, negative_yshift = 0;
@@ -216,17 +215,16 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
         if (yshift < negative_yshift) negative_yshift = yshift;
         // Use the min font rating over the parts.
         // TODO(rays) font lists are unsorted. Need to be faster?
-        const GenericVector<ScoredFont>& frag_fonts =
-            choice_lists_it[i].data()->fonts();
-        for (int f = 0; f < frag_fonts.size(); ++f) {
+        const auto& frag_fonts = choice_lists_it[i].data()->fonts();
+        for (auto frag_font : frag_fonts) {
           int merged_f = 0;
-          for (merged_f = 0; merged_f < merged_fonts.size() &&
-               merged_fonts[merged_f].fontinfo_id != frag_fonts[f].fontinfo_id;
+          for (; merged_f < merged_fonts.size() &&
+               merged_fonts[merged_f].fontinfo_id != frag_font.fontinfo_id;
                ++merged_f) {}
           if (merged_f == merged_fonts.size()) {
-            merged_fonts.push_back(frag_fonts[f]);
-          } else if (merged_fonts[merged_f].score > frag_fonts[f].score) {
-            merged_fonts[merged_f].score = frag_fonts[f].score;
+            merged_fonts.push_back(frag_font);
+          } else if (merged_fonts[merged_f].score > frag_font.score) {
+            merged_fonts[merged_f].score = frag_font.score;
           }
         }
       }

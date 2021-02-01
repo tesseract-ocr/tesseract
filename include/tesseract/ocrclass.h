@@ -29,6 +29,8 @@
 #include <chrono>
 #include <ctime>
 
+namespace tesseract {
+
 /**********************************************************************
  * EANYCODE_CHAR
  * Description of a single character. The character code is defined by
@@ -149,5 +151,7 @@ class ETEXT_DESC {  // output header
     return true;
   }
 };
+
+} // namespace tesseract
 
 #endif  // CCUTIL_OCRCLASS_H_

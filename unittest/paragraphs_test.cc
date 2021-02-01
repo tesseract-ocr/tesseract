@@ -18,22 +18,20 @@
 #include "include_gunit.h"              // for TEST
 #include "log.h"                        // for LOG
 
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 // ccmain
 #include "paragraphs.h"
 #include "paragraphs_internal.h"
 // ccstruct
 #include "ocrpara.h"
 
-namespace {  // anonymous namespace
+namespace tesseract {
 
 // Functions for making monospace ASCII trial text for the paragraph detector.
-const tesseract::ParagraphJustification kLeft = tesseract::JUSTIFICATION_LEFT;
-const tesseract::ParagraphJustification kCenter =
-    tesseract::JUSTIFICATION_CENTER;
-const tesseract::ParagraphJustification kRight = tesseract::JUSTIFICATION_RIGHT;
-const tesseract::ParagraphJustification kUnknown =
-    tesseract::JUSTIFICATION_UNKNOWN;
+const ParagraphJustification kLeft = JUSTIFICATION_LEFT;
+const ParagraphJustification kCenter = JUSTIFICATION_CENTER;
+const ParagraphJustification kRight = JUSTIFICATION_RIGHT;
+const ParagraphJustification kUnknown = JUSTIFICATION_UNKNOWN;
 
 enum TextModelInputType {
   PCONT = 0,   // Continuation line of a paragraph (default).
@@ -53,8 +51,7 @@ struct TextAndModel {
 
 // Imagine that the given text is typewriter ASCII with each character ten
 // pixels wide and twenty pixels high and return an appropriate row_info.
-void AsciiToRowInfo(const char* text, int row_number,
-                    tesseract::RowInfo* info) {
+void AsciiToRowInfo(const char* text, int row_number, RowInfo* info) {
   const int kCharWidth = 10;
   const int kLineSpace = 30;
   info->text = text;
@@ -94,18 +91,18 @@ void AsciiToRowInfo(const char* text, int row_number,
       TBOX(info->pix_ldistance, bottom, info->pix_ldistance + lword_width, top);
   info->rword_box = TBOX(row_right - info->pix_rdistance - rword_width, bottom,
                          row_right - info->pix_rdistance, top);
-  tesseract::LeftWordAttributes(
+  LeftWordAttributes(
       nullptr, nullptr, info->lword_text, &info->lword_indicates_list_item,
       &info->lword_likely_starts_idea, &info->lword_likely_ends_idea);
-  tesseract::RightWordAttributes(
+  RightWordAttributes(
       nullptr, nullptr, info->rword_text, &info->rword_indicates_list_item,
       &info->rword_likely_starts_idea, &info->rword_likely_ends_idea);
 }
 
 void MakeAsciiRowInfos(const TextAndModel* row_infos, int n,
-                       GenericVector<tesseract::RowInfo>* output) {
+                       std::vector<RowInfo>* output) {
   output->clear();
-  tesseract::RowInfo info;
+  RowInfo info;
   for (int i = 0; i < n; i++) {
     AsciiToRowInfo(row_infos[i].ascii, i, &info);
     output->push_back(info);
@@ -192,17 +189,19 @@ void EvaluateParagraphDetection(const TextAndModel* correct, int n,
 }
 
 void TestParagraphDetection(const TextAndModel* correct, int num_rows) {
-  GenericVector<tesseract::RowInfo> row_infos;
+  std::vector<RowInfo> row_infos;
   GenericVector<PARA*> row_owners;
   PARA_LIST paragraphs;
-  GenericVector<ParagraphModel*> models;
+  std::vector<ParagraphModel*> models;
 
   MakeAsciiRowInfos(correct, num_rows, &row_infos);
   int debug_level(3);
   tesseract::DetectParagraphs(debug_level, &row_infos, &row_owners, &paragraphs,
                               &models);
   EvaluateParagraphDetection(correct, num_rows, row_owners);
-  models.delete_data_pointers();
+  for (auto* model : models) {
+    delete model;
+  }
 }
 
 TEST(ParagraphsTest, ListItemsIdentified) {
@@ -322,15 +321,17 @@ const TextAndModel kSingleFullPageContinuation[] = {
 TEST(ParagraphsTest, TestSingleFullPageContinuation) {
   const TextAndModel* correct = kSingleFullPageContinuation;
   int num_rows = ABSL_ARRAYSIZE(kSingleFullPageContinuation);
-  GenericVector<tesseract::RowInfo> row_infos;
+  std::vector<RowInfo> row_infos;
   GenericVector<PARA*> row_owners;
   PARA_LIST paragraphs;
-  GenericVector<ParagraphModel*> models;
+  std::vector<ParagraphModel*> models;
   models.push_back(new ParagraphModel(kLeft, 0, 20, 0, 10));
   MakeAsciiRowInfos(correct, num_rows, &row_infos);
   tesseract::DetectParagraphs(3, &row_infos, &row_owners, &paragraphs, &models);
   EvaluateParagraphDetection(correct, num_rows, row_owners);
-  models.delete_data_pointers();
+  for (auto* model : models) {
+    delete model;
+  }
 }
 
 const TextAndModel kRightAligned[] = {

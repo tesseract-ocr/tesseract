@@ -26,12 +26,11 @@
 #include "matrix.h"       // for MATRIX_COORD (ptr only), MatrixCoordPair
 #include "stopper.h"      // for DANGERR
 
-class WERD_RES;
-
 namespace tesseract {
 
 class Dict;
 struct ViterbiStateEntry;
+class WERD_RES;
 
 // Heap of pain points used for determining where to chop/join.
 using PainPointHeap = GenericHeap<MatrixCoordPair>;

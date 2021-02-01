@@ -19,14 +19,17 @@
 #ifndef TESSERACT_CCUTIL_UNICHARSET_H_
 #define TESSERACT_CCUTIL_UNICHARSET_H_
 
-#include <functional>           // for std::function
 #include "errcode.h"
-#include <tesseract/genericvector.h>
-#include <tesseract/helpers.h>
-#include <tesseract/serialis.h>
-#include <tesseract/strngs.h>
-#include <tesseract/unichar.h>
 #include "unicharmap.h"
+
+#include "helpers.h"
+#include "serialis.h"
+#include "strngs.h"
+#include <tesseract/unichar.h>
+
+#include <functional>           // for std::function
+
+namespace tesseract {
 
 // Enum holding special values of unichar_id. Every unicharset has these.
 // Warning! Keep in sync with kSpecialUnicharCodes.
@@ -45,7 +48,7 @@ enum class OldUncleanUnichars {
   kTrue,
 };
 
-class CHAR_FRAGMENT {
+class TESS_API CHAR_FRAGMENT {
  public:
   // Minimum number of characters used for fragment representation.
   static const int kMinLen = 6;
@@ -142,15 +145,15 @@ class CHAR_FRAGMENT {
 // The UNICHARSET class is an utility class for Tesseract that holds the
 // set of characters that are used by the engine. Each character is identified
 // by a unique number, from 0 to (size - 1).
-class UNICHARSET {
+class TESS_API UNICHARSET {
  public:
   // Custom list of characters and their ligature forms (UTF8)
   // These map to unicode values in the private use area (PUC) and are supported
   // by only few font families (eg. Wyld, Adobe Caslon Pro).
-  static TESS_API const char* kCustomLigatures[][2];
+  static const char* kCustomLigatures[][2];
 
   // List of strings for the SpecialUnicharCodes. Keep in sync with the enum.
-  static TESS_API const char* kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT];
+  static const char* kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT];
 
   // ICU 2.0 UCharDirection enum (from icu/include/unicode/uchar.h)
   enum Direction {
@@ -223,8 +226,8 @@ class UNICHARSET {
   // that do not belong in the unicharset, or encoding may fail.
   // Use CleanupString to perform the cleaning.
   bool encode_string(const char* str, bool give_up_on_failure,
-                     GenericVector<UNICHAR_ID>* encoding,
-                     GenericVector<char>* lengths,
+                     std::vector<UNICHAR_ID>* encoding,
+                     std::vector<char>* lengths,
                      int* encoded_length) const;
 
   // Return the unichar representation corresponding to the given UNICHAR_ID
@@ -282,7 +285,7 @@ class UNICHARSET {
   // Return true if the given unichar id exists within the set.
   // Relies on the fact that unichar ids are contiguous in the unicharset.
   bool contains_unichar_id(UNICHAR_ID unichar_id) const {
-    return unichar_id != INVALID_UNICHAR_ID && unichar_id < size_used &&
+    return unichar_id != INVALID_UNICHAR_ID && unichar_id < unichars.size() &&
         unichar_id >= 0;
   }
 
@@ -296,7 +299,7 @@ class UNICHARSET {
 
   // Delete CHAR_FRAGMENTs stored in properties of unichars array.
   void delete_pointers_in_unichars() {
-    for (int i = 0; i < size_used; ++i) {
+    for (int i = 0; i < unichars.size(); ++i) {
       delete unichars[i].properties.fragment;
       unichars[i].properties.fragment = nullptr;
     }
@@ -311,14 +314,9 @@ class UNICHARSET {
       script_table = nullptr;
       script_table_size_used = 0;
     }
-    if (unichars != nullptr) {
-      delete_pointers_in_unichars();
-      delete[] unichars;
-      unichars = nullptr;
-    }
     script_table_size_reserved = 0;
-    size_reserved = 0;
-    size_used = 0;
+    delete_pointers_in_unichars();
+    unichars.clear();
     ids.clear();
     top_bottom_set_ = false;
     script_has_upper_lower_ = false;
@@ -339,11 +337,8 @@ class UNICHARSET {
 
   // Return the size of the set (the number of different UNICHAR it holds).
   int size() const {
-    return size_used;
+    return unichars.size();
   }
-
-  // Reserve enough memory space for the given number of UNICHARS
-  void reserve(int unichars_number);
 
   // Opens the file indicated by filename and saves unicharset to that file.
   // Returns true if the operation is successful.
@@ -471,7 +466,7 @@ class UNICHARSET {
   // Record normalized version of unichar with the given unichar_id.
   void set_normed(UNICHAR_ID unichar_id, const char* normed) {
     unichars[unichar_id].properties.normed = normed;
-    unichars[unichar_id].properties.normed_ids.truncate(0);
+    unichars[unichar_id].properties.normed_ids.clear();
   }
   // Sets the normed_ids vector from the normed string. normed_ids is not
   // stored in the file, and needs to be set when the UNICHARSET is loaded.
@@ -822,7 +817,7 @@ class UNICHARSET {
   // Returns a vector of UNICHAR_IDs that represent the ids of the normalized
   // version of the given id. There may be more than one UNICHAR_ID in the
   // vector if unichar_id represents a ligature.
-  const GenericVector<UNICHAR_ID>& normed_ids(UNICHAR_ID unichar_id) const {
+  const std::vector<UNICHAR_ID>& normed_ids(UNICHAR_ID unichar_id) const {
     return unichars[unichar_id].properties.normed_ids;
   }
 
@@ -897,7 +892,7 @@ class UNICHARSET {
 
  private:
 
-  struct UNICHAR_PROPERTIES {
+  struct TESS_API UNICHAR_PROPERTIES {
     UNICHAR_PROPERTIES();
     // Initializes all properties to sensible default values.
     void Init();
@@ -950,7 +945,7 @@ class UNICHARSET {
     // A string of unichar_ids that represent the corresponding normed string.
     // For awkward characters like em-dash, this gives hyphen.
     // For ligatures, this gives the string of normal unichars.
-    GenericVector<UNICHAR_ID> normed_ids;
+    std::vector<UNICHAR_ID> normed_ids;
     STRING normed;  // normalized version of this unichar
     // Contains meta information about the fragment if a unichar represents
     // a fragment of a character, otherwise should be set to nullptr.
@@ -976,11 +971,11 @@ class UNICHARSET {
   // best_encoding contains the encoding that used the longest part of str.
   // best_lengths (may be null) contains the lengths of best_encoding.
   void encode_string(const char* str, int str_index, int str_length,
-                     GenericVector<UNICHAR_ID>* encoding,
-                     GenericVector<char>* lengths,
+                     std::vector<UNICHAR_ID>* encoding,
+                     std::vector<char>* lengths,
                      int* best_total_length,
-                     GenericVector<UNICHAR_ID>* best_encoding,
-                     GenericVector<char>* best_lengths) const;
+                     std::vector<UNICHAR_ID>* best_encoding,
+                     std::vector<char>* best_lengths) const;
 
   // Gets the properties for a grapheme string, combining properties for
   // multiple characters in a meaningful way where possible.
@@ -1000,12 +995,10 @@ class UNICHARSET {
   // The substitutions clean up text that should exists for rendering of
   // synthetic data, but not in the recognition set.
   static const char* kCleanupMaps[][2];
-  static TESS_API const char* null_script;
+  static const char* null_script;
 
-  UNICHAR_SLOT* unichars;
+  std::vector<UNICHAR_SLOT> unichars;
   UNICHARMAP ids;
-  int size_used;
-  int size_reserved;
   char** script_table;
   int script_table_size_used;
   int script_table_size_reserved;
@@ -1035,5 +1028,7 @@ class UNICHARSET {
   // The most frequently occurring script in the charset.
   int default_sid_;
 };
+
+} // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_UNICHARSET_H_

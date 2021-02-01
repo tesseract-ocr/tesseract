@@ -22,19 +22,22 @@
 #endif
 
 #include "blobbox.h"
-#include <algorithm>     // for max, min
-#include <cstdint>       // for INT32_MAX, INT16_MAX
-#include "allheaders.h"  // for pixGetHeight, pixGetPixel
 #include "blobs.h"       // for TPOINT
 #include "coutln.h"      // for C_OUTLINE_IT, C_OUTLINE, C_OUTLINE_LIST
 #include "environ.h"     // for l_uint32
-#include <tesseract/helpers.h>     // for UpdateRange, IntCastRounded
 #include "host.h"        // for NearlyEqual
 #include "points.h"      // for operator+=, ICOORD::rotate
 
-struct Pix;
+#include "helpers.h"     // for UpdateRange, IntCastRounded
+
+#include "allheaders.h"  // for pixGetHeight, pixGetPixel
+
+#include <algorithm>     // for max, min
+#include <cstdint>       // for INT32_MAX, INT16_MAX
 
 #define PROJECTION_MARGIN 10     //arbitrary
+
+namespace tesseract {
 
 ELISTIZE(BLOBNBOX)
 ELIST2IZE(TO_ROW)
@@ -1093,3 +1096,5 @@ void plot_blob_list(ScrollView* win,                   // window to draw in
   }
 }
 #endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract

@@ -23,21 +23,23 @@
 
 #include "imagedata.h"
 
-#include <cinttypes>     // for PRId64
-
-#include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 #include "boxread.h"     // for ReadMemBoxes
-#include <tesseract/helpers.h>     // for IntCastRounded, TRand, ClipToRange, Modulo
 #include "rect.h"        // for TBOX
 #include "scrollview.h"  // for ScrollView, ScrollView::CYAN, ScrollView::NONE
-#include <tesseract/serialis.h>    // for TFile
 #include "tprintf.h"     // for tprintf
+
+#include "helpers.h"     // for IntCastRounded, TRand, ClipToRange, Modulo
+#include "serialis.h"    // for TFile
+
+#include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
+
+#include <cinttypes>     // for PRId64
+
+namespace tesseract {
 
 // Number of documents to read ahead while training. Doesn't need to be very
 // large.
 const int kMaxReadAhead = 8;
-
-namespace tesseract {
 
 WordFeature::WordFeature() : x_(0), y_(0), dir_(0) {
 }
@@ -329,9 +331,9 @@ void ImageData::Display() const {
 
 // Adds the supplied boxes and transcriptions that correspond to the correct
 // page number.
-void ImageData::AddBoxes(const GenericVector<TBOX>& boxes,
-                         const GenericVector<STRING>& texts,
-                         const GenericVector<int>& box_pages) {
+void ImageData::AddBoxes(const std::vector<TBOX>& boxes,
+                         const std::vector<STRING>& texts,
+                         const std::vector<int>& box_pages) {
   // Copy the boxes and make the transcription.
   for (int i = 0; i < box_pages.size(); ++i) {
     if (page_number_ >= 0 && box_pages[i] != page_number_) continue;
@@ -376,9 +378,9 @@ Pix* ImageData::GetPixInternal(const GenericVector<char>& image_data) {
 // match the page number. Returns false on error.
 bool ImageData::AddBoxes(const char* box_text) {
   if (box_text != nullptr && box_text[0] != '\0') {
-    GenericVector<TBOX> boxes;
-    GenericVector<STRING> texts;
-    GenericVector<int> box_pages;
+    std::vector<TBOX> boxes;
+    std::vector<STRING> texts;
+    std::vector<int> box_pages;
     if (ReadMemBoxes(page_number_, /*skip_blanks*/ false, box_text,
                      /*continue_on_failure*/ true, &boxes, &texts, nullptr,
                      &box_pages)) {
@@ -438,12 +440,6 @@ bool DocumentData::SaveDocument(const char* filename, FileWriter writer) {
     return false;
   }
   return true;
-}
-bool DocumentData::SaveToBuffer(GenericVector<char>* buffer) {
-  std::lock_guard<std::mutex> lock(pages_mutex_);
-  TFile fp;
-  fp.OpenWrite(buffer);
-  return pages_.Serialize(&fp);
 }
 
 // Adds the given page data to this document, counting up memory.
@@ -591,7 +587,7 @@ DocumentCache::~DocumentCache() {}
 
 // Adds all the documents in the list of filenames, counting memory.
 // The reader is used to read the files.
-bool DocumentCache::LoadDocuments(const GenericVector<STRING>& filenames,
+bool DocumentCache::LoadDocuments(const std::vector<STRING>& filenames,
                                   CachingStrategy cache_strategy,
                                   FileReader reader) {
   cache_strategy_ = cache_strategy;

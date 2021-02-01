@@ -1,0 +1,96 @@
+name: cmake
+# cmake build of tesseract and training tools with gcc on ubuntu.
+# cmake build of tesseract and training tools macos homebrew using Ninja.
+# does not build lstm related training tools on macos - icu and ltiff errors.
+on:
+  #push:
+  schedule:
+    - cron: 0 21 * * *
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { name: ubuntu-18.04-gcc-cmake-build, os: ubuntu-18.04, cc: gcc,  cxx: g++ }
+          - { name: ubuntu-20.04-gcc-cmake-build, os: ubuntu-20.04, cc: gcc, cxx: g++ }
+          - { name: macos-10.15-gcc-cmake-build, os: macos-10.15, cc: gcc, cxx: g++ }
+          - { name: macos-10.15-clang-cmake-build, os: macos-10.15, cc: clang, cxx: clang++ }
+
+    steps:
+      - name: Install dependencies on Linux
+        run: |
+             sudo apt-get install libleptonica-dev libpango1.0-dev -y
+        if: runner.os == 'Linux'
+
+      - name: Install dependencies on macos
+        run: |
+             brew install cmake ninja leptonica pango libarchive icu4c
+             ninja --version
+             cmake --version
+        if: runner.os == 'macOS'
+        
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+             submodules: recursive
+        
+      - name: Configure (Linux)
+        run: |
+             mkdir build && cd build
+             cmake -DCMAKE_CC_COMPILER=${{ matrix.config.cc }} \
+                   -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+                   -DCMAKE_INSTALL_PREFIX=inst \
+                   -DCMAKE_BUILD_TYPE=Release ..
+        if: runner.os == 'Linux'
+
+      - name: Configure (macOS)
+        shell: bash
+        run: |
+             mkdir build
+             mkdir inst
+             cmake \
+               -S . \
+               -B build \
+               -DCMAKE_BUILD_TYPE=Release \
+               -G Ninja \
+               -DCMAKE_C_COMPILER=${{ matrix.config.cc }}  \
+               -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+               -DCMAKE_INSTALL_PREFIX:PATH=inst
+        if: runner.os == 'macOS'
+                
+      - name: Build
+        run: |
+             cmake --build build --config Release --target install
+
+      - name: Display Tesseract Version
+        run: |
+             build/inst/bin/tesseract -v
+        
+      - name: Download fonts, tessdata and langdata required for tests
+        run: |
+             git clone https://github.com/egorpugin/tessdata tessdata_unittest
+             cp tessdata_unittest/fonts/* test/testing/ 
+             mv tessdata_unittest/* ../
+      
+      - name: Run Tesseract on phototest.tif and raaj.tif
+        run: |
+             build/inst/bin/tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
+             build/inst/bin/tesseract test/testing/raaj.tif - -l hin  --tessdata-dir ../tessdata
+
+      - name: Display Training Tools Version (not built for macOS)
+        run: |
+             build/inst/bin/lstmtraining -v
+             build/inst/bin/text2image -v
+        continue-on-error: true
+
+      - name: Display Compiler Version
+        run: |
+             ${{ matrix.config.cc }} --version
+             ${{ matrix.config.cxx }} --version
+             git log -3 --pretty=format:'%h %ad %s | %an' 
+        if: always()
+        

@@ -19,23 +19,21 @@
 #include "config_auto.h"
 #endif
 
-/*----------------------------------------------------------------------------
-                          Include Files and Type Defines
-----------------------------------------------------------------------------*/
 #include "intmatcher.h"
 
-#include <cassert>
-#include <cmath>
 #include "fontinfo.h"
 #include "intproto.h"
 #include "scrollview.h"
 #include "float2int.h"
-#include <tesseract/helpers.h>
 #include "classify.h"
 #include "shapetable.h"
 
-using tesseract::ScoredFont;
-using tesseract::UnicharRating;
+#include "helpers.h"
+
+#include <cassert>
+#include <cmath>
+
+namespace tesseract {
 
 /*----------------------------------------------------------------------------
                     Global Data Definitions and Declarations
@@ -85,8 +83,6 @@ static const uint8_t next_table[] = {
 };
 
 // See http://b/19318793 (#6) for a complete discussion.
-
-namespace tesseract {
 
 /**
  * Sort Key array in ascending order using heap sort
@@ -396,9 +392,8 @@ class ClassPruner {
 
   /// Copies the pruned, sorted classes into the output results and returns
   /// the number of classes.
-  int SetupResults(GenericVector<CP_RESULT_STRUCT>* results) const {
-    CP_RESULT_STRUCT empty;
-    results->init_to_size(num_classes_, empty);
+  int SetupResults(std::vector<CP_RESULT_STRUCT>* results) const {
+    results->resize(num_classes_);
     for (int c = 0; c < num_classes_; ++c) {
       (*results)[c].Class = sort_index_[num_classes_ - c];
       (*results)[c].Rating = 1.0f - sort_key_[num_classes_ - c] /
@@ -453,7 +448,7 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
                            const INT_FEATURE_STRUCT* features,
                            const uint8_t* normalization_factors,
                            const uint16_t* expected_num_features,
-                           GenericVector<CP_RESULT_STRUCT>* results) {
+                           std::vector<CP_RESULT_STRUCT>* results) {
   ClassPruner pruner(int_templates->NumClasses);
   // Compute initial match scores for all classes.
   pruner.ComputeScores(int_templates, num_features, features);
@@ -489,8 +484,6 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
   // Convert to the expected output format.
   return pruner.SetupResults(results);
 }
-
-}  // namespace tesseract
 
 /**
  * IntegerMatcher returns the best configuration and rating
@@ -1196,7 +1189,7 @@ int IntegerMatcher::FindBestMatch(
     UnicharRating* result) {
   int best_match = 0;
   result->config = 0;
-  result->fonts.truncate(0);
+  result->fonts.clear();
   result->fonts.reserve(class_template->NumConfigs);
 
   /* Find best match */
@@ -1229,3 +1222,5 @@ float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
   return divisor == 0 ? 1.0f : (rating * blob_length +
       matcher_multiplier * normalization_factor / 256.0f) / divisor;
 }
+
+}  // namespace tesseract

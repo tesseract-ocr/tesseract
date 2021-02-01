@@ -20,7 +20,10 @@
 #define TRIE_H
 
 #include "dawg.h"
-#include <tesseract/genericvector.h>
+
+#include "genericvector.h"
+
+namespace tesseract {
 
 class UNICHARSET;
 
@@ -44,15 +47,13 @@ struct TRIE_NODE_RECORD {
 };
 using TRIE_NODES = GenericVector<TRIE_NODE_RECORD *> ;
 
-namespace tesseract {
-
 /**
  * Concrete class for Trie data structure that allows to store a list of
  * words (extends Dawg base class) as well as dynamically add new words.
  * This class stores a vector of pointers to TRIE_NODE_RECORDs, each of
  * which has a vector of forward and backward edges.
  */
-class Trie : public Dawg {
+class TESS_API Trie : public Dawg {
  public:
   enum RTLReversePolicy {
     RRP_DO_NO_REVERSE,
@@ -173,11 +174,11 @@ class Trie : public Dawg {
   // Reads a list of words from the given file.
   // Returns false on error.
   bool read_word_list(const char *filename,
-                      GenericVector<STRING>* words);
+                      std::vector<STRING>* words);
   // Adds a list of words previously read using read_word_list to the trie
   // using the given unicharset and reverse_policy to convert to unichar-ids.
   // Returns false on error.
-  bool add_word_list(const GenericVector<STRING> &words,
+  bool add_word_list(const std::vector<STRING> &words,
                      const UNICHARSET &unicharset,
                      Trie::RTLReversePolicy reverse_policy);
 
@@ -425,6 +426,7 @@ class Trie : public Dawg {
   UNICHAR_ID upper_pattern_;
   bool initialized_patterns_;
 };
+
 }  // namespace tesseract
 
 #endif

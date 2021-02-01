@@ -18,17 +18,18 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "recodebeam.h"
+
+#include "networkio.h"
+#include "pageres.h"
+#include "unicharcompress.h"
+
+#include <algorithm>
 #include <deque>
 #include <map>
 #include <set>
 #include <tuple>
 #include <unordered_set>
 #include <vector>
-#include "networkio.h"
-#include "pageres.h"
-#include "unicharcompress.h"
-
-#include <algorithm>
 
 namespace tesseract {
 
@@ -190,9 +191,9 @@ void RecodeBeamSearch::calculateCharBoundaries(std::vector<int>* starts,
 
 // Returns the best path as labels/scores/xcoords similar to simple CTC.
 void RecodeBeamSearch::ExtractBestPathAsLabels(
-    GenericVector<int>* labels, GenericVector<int>* xcoords) const {
-  labels->truncate(0);
-  xcoords->truncate(0);
+    std::vector<int>* labels, std::vector<int>* xcoords) const {
+  labels->clear();
+  xcoords->clear();
   GenericVector<const RecodeNode*> best_nodes;
   ExtractBestPaths(&best_nodes, nullptr);
   // Now just run CTC on the best nodes.
@@ -213,9 +214,9 @@ void RecodeBeamSearch::ExtractBestPathAsLabels(
 // Returns the best path as unichar-ids/certs/ratings/xcoords skipping
 // duplicates, nulls and intermediate parts.
 void RecodeBeamSearch::ExtractBestPathAsUnicharIds(
-    bool debug, const UNICHARSET* unicharset, GenericVector<int>* unichar_ids,
-    GenericVector<float>* certs, GenericVector<float>* ratings,
-    GenericVector<int>* xcoords) const {
+    bool debug, const UNICHARSET* unicharset, std::vector<int>* unichar_ids,
+    std::vector<float>* certs, std::vector<float>* ratings,
+    std::vector<int>* xcoords) const {
   GenericVector<const RecodeNode*> best_nodes;
   ExtractBestPaths(&best_nodes, nullptr);
   ExtractPathAsUnicharIds(best_nodes, unichar_ids, certs, ratings, xcoords);
@@ -233,10 +234,10 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
                                               PointerVector<WERD_RES>* words,
                                               int lstm_choice_mode) {
   words->truncate(0);
-  GenericVector<int> unichar_ids;
-  GenericVector<float> certs;
-  GenericVector<float> ratings;
-  GenericVector<int> xcoords;
+  std::vector<int> unichar_ids;
+  std::vector<float> certs;
+  std::vector<float> ratings;
+  std::vector<int> xcoords;
   GenericVector<const RecodeNode*> best_nodes;
   GenericVector<const RecodeNode*> second_nodes;
   character_boundaries_.clear();
@@ -329,7 +330,7 @@ void RecodeBeamSearch::PrintBeam2(bool uids, int num_outputs,
         beam->get(step)->beams_->heap();
     for (int node = 0; node < heaps->size(); ++node) {
       int backtracker = 0;
-      const RecodeNode* curr = &heaps->get(node).data;
+      const RecodeNode* curr = &heaps->get(node).data();
       while (curr != nullptr && !visited.count(curr)) {
         visited.insert(curr);
         topology[step - backtracker].push_back(curr);
@@ -405,10 +406,10 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET* unicharset) {
   }
   character_boundaries_[0] = 0;
   for (int j = 1; j < character_boundaries_.size(); ++j) {
-    GenericVector<int> unichar_ids;
-    GenericVector<float> certs;
-    GenericVector<float> ratings;
-    GenericVector<int> xcoords;
+    std::vector<int> unichar_ids;
+    std::vector<float> certs;
+    std::vector<float> ratings;
+    std::vector<int> xcoords;
     int backpath = character_boundaries_[j] - character_boundaries_[j - 1];
     heaps = currentBeam->get(character_boundaries_[j] - 1)->beams_->heap();
     GenericVector<const RecodeNode*> best_nodes;
@@ -417,7 +418,7 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET* unicharset) {
     for (int i = 0; i < heaps->size(); ++i) {
       bool validChar = false;
       int backcounter = 0;
-      const RecodeNode* node = &heaps->get(i).data;
+      const RecodeNode* node = &heaps->get(i).data();
       while (node != nullptr && backcounter < backpath) {
         if (node->code != null_char_ && node->unichar_id != INVALID_UNICHAR_ID) {
           validChar = true;
@@ -426,7 +427,7 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET* unicharset) {
         node = node->prev;
         ++backcounter;
       }
-      if (validChar) best.push_back(&heaps->get(i).data);
+      if (validChar) best.push_back(&heaps->get(i).data());
     }
     // find the best rated segmented node chain and extract the unichar id.
     if (!best.empty()) {
@@ -516,7 +517,7 @@ void RecodeBeamSearch::DebugBeamPos(const UNICHARSET& unicharset,
   const RecodeNode* null_best = nullptr;
   int heap_size = heap.size();
   for (int i = 0; i < heap_size; ++i) {
-    const RecodeNode* node = &heap.get(i).data;
+    const RecodeNode* node = &heap.get(i).data();
     if (node->unichar_id == INVALID_UNICHAR_ID) {
       if (null_best == nullptr || null_best->score < node->score)
         null_best = node;
@@ -543,13 +544,13 @@ void RecodeBeamSearch::DebugBeamPos(const UNICHARSET& unicharset,
 /* static */
 void RecodeBeamSearch::ExtractPathAsUnicharIds(
     const GenericVector<const RecodeNode*>& best_nodes,
-    GenericVector<int>* unichar_ids, GenericVector<float>* certs,
-    GenericVector<float>* ratings, GenericVector<int>* xcoords,
+  std::vector<int>* unichar_ids, std::vector<float>* certs,
+  std::vector<float>* ratings, std::vector<int>* xcoords,
     std::vector<int>* character_boundaries) {
-  unichar_ids->truncate(0);
-  certs->truncate(0);
-  ratings->truncate(0);
-  xcoords->truncate(0);
+  unichar_ids->clear();
+  certs->clear();
+  ratings->clear();
+  xcoords->clear();
   std::vector<int> starts;
   std::vector<int> ends;
   // Backtrack extracting only valid, non-duplicate unichar-ids.
@@ -608,7 +609,7 @@ WERD_RES* RecodeBeamSearch::InitializeWord(bool leading_space,
                                            const TBOX& line_box, int word_start,
                                            int word_end, float space_certainty,
                                            const UNICHARSET* unicharset,
-                                           const GenericVector<int>& xcoords,
+                                           const std::vector<int>& xcoords,
                                            float scale_factor) {
   // Make a fake blob for each non-zero label.
   C_BLOB_LIST blobs;
@@ -640,12 +641,12 @@ WERD_RES* RecodeBeamSearch::InitializeWord(bool leading_space,
 // is one of the top_n.
 void RecodeBeamSearch::ComputeTopN(const float* outputs, int num_outputs,
                                    int top_n) {
-  top_n_flags_.init_to_size(num_outputs, TN_ALSO_RAN);
+  top_n_flags_.resize(num_outputs, TN_ALSO_RAN);
   top_code_ = -1;
   second_code_ = -1;
   top_heap_.clear();
   for (int i = 0; i < num_outputs; ++i) {
-    if (top_heap_.size() < top_n || outputs[i] > top_heap_.PeekTop().key) {
+    if (top_heap_.size() < top_n || outputs[i] > top_heap_.PeekTop().key()) {
       TopPair entry(outputs[i], i);
       top_heap_.Push(&entry);
       if (top_heap_.size() > top_n) top_heap_.Pop(&entry);
@@ -655,13 +656,13 @@ void RecodeBeamSearch::ComputeTopN(const float* outputs, int num_outputs,
     TopPair entry;
     top_heap_.Pop(&entry);
     if (top_heap_.size() > 1) {
-      top_n_flags_[entry.data] = TN_TOPN;
+      top_n_flags_[entry.data()] = TN_TOPN;
     } else {
-      top_n_flags_[entry.data] = TN_TOP2;
+      top_n_flags_[entry.data()] = TN_TOP2;
       if (top_heap_.empty())
-        top_code_ = entry.data;
+        top_code_ = entry.data();
       else
-        second_code_ = entry.data;
+        second_code_ = entry.data();
     }
   }
   top_n_flags_[null_char_] = TN_TOP2;
@@ -670,12 +671,12 @@ void RecodeBeamSearch::ComputeTopN(const float* outputs, int num_outputs,
 void RecodeBeamSearch::ComputeSecTopN(std::unordered_set<int>* exList,
                                       const float* outputs, int num_outputs,
                                       int top_n) {
-  top_n_flags_.init_to_size(num_outputs, TN_ALSO_RAN);
+  top_n_flags_.resize(num_outputs, TN_ALSO_RAN);
   top_code_ = -1;
   second_code_ = -1;
   top_heap_.clear();
   for (int i = 0; i < num_outputs; ++i) {
-    if ((top_heap_.size() < top_n || outputs[i] > top_heap_.PeekTop().key)
+    if ((top_heap_.size() < top_n || outputs[i] > top_heap_.PeekTop().key())
         && !exList->count(i)) {
       TopPair entry(outputs[i], i);
       top_heap_.Push(&entry);
@@ -686,13 +687,13 @@ void RecodeBeamSearch::ComputeSecTopN(std::unordered_set<int>* exList,
     TopPair entry;
     top_heap_.Pop(&entry);
     if (top_heap_.size() > 1) {
-      top_n_flags_[entry.data] = TN_TOPN;
+      top_n_flags_[entry.data()] = TN_TOPN;
     } else {
-      top_n_flags_[entry.data] = TN_TOP2;
+      top_n_flags_[entry.data()] = TN_TOP2;
       if (top_heap_.empty())
-        top_code_ = entry.data;
+        top_code_ = entry.data();
       else
-        second_code_ = entry.data;
+        second_code_ = entry.data();
     }
   }
   top_n_flags_[null_char_] = TN_TOP2;
@@ -723,14 +724,14 @@ void RecodeBeamSearch::DecodeStep(const float* outputs, int t,
       int beam_index = BeamIndex(true, NC_ANYTHING, 0);
       for (int i = prev->beams_[beam_index].size() - 1; i >= 0; --i) {
         GenericVector<const RecodeNode*> path;
-        ExtractPath(&prev->beams_[beam_index].get(i).data, &path);
+        ExtractPath(&prev->beams_[beam_index].get(i).data(), &path);
         tprintf("Step %d: Dawg beam %d:\n", t, i);
         DebugPath(charset, path);
       }
       beam_index = BeamIndex(false, NC_ANYTHING, 0);
       for (int i = prev->beams_[beam_index].size() - 1; i >= 0; --i) {
         GenericVector<const RecodeNode*> path;
-        ExtractPath(&prev->beams_[beam_index].get(i).data, &path);
+        ExtractPath(&prev->beams_[beam_index].get(i).data(), &path);
         tprintf("Step %d: Non-Dawg beam %d:\n", t, i);
         DebugPath(charset, path);
       }
@@ -747,7 +748,7 @@ void RecodeBeamSearch::DecodeStep(const float* outputs, int t,
         // best first, but it comes before a lot of the worst, so it is slightly
         // more efficient than going forwards.
         for (int i = prev->beams_[index].size() - 1; i >= 0; --i) {
-          ContinueContext(&prev->beams_[index].get(i).data, index, outputs, top_n,
+          ContinueContext(&prev->beams_[index].get(i).data(), index, outputs, top_n,
                           charset, dict_ratio, cert_offset, worst_dict_cert, step);
         }
       }
@@ -791,14 +792,14 @@ void RecodeBeamSearch::DecodeSecondaryStep(const float* outputs, int t,
       int beam_index = BeamIndex(true, NC_ANYTHING, 0);
       for (int i = prev->beams_[beam_index].size() - 1; i >= 0; --i) {
         GenericVector<const RecodeNode*> path;
-        ExtractPath(&prev->beams_[beam_index].get(i).data, &path);
+        ExtractPath(&prev->beams_[beam_index].get(i).data(), &path);
         tprintf("Step %d: Dawg beam %d:\n", t, i);
         DebugPath(charset, path);
       }
       beam_index = BeamIndex(false, NC_ANYTHING, 0);
       for (int i = prev->beams_[beam_index].size() - 1; i >= 0; --i) {
         GenericVector<const RecodeNode*> path;
-        ExtractPath(&prev->beams_[beam_index].get(i).data, &path);
+        ExtractPath(&prev->beams_[beam_index].get(i).data(), &path);
         tprintf("Step %d: Non-Dawg beam %d:\n", t, i);
         DebugPath(charset, path);
       }
@@ -815,7 +816,7 @@ void RecodeBeamSearch::DecodeSecondaryStep(const float* outputs, int t,
         // best first, but it comes before a lot of the worst, so it is slightly
         // more efficient than going forwards.
         for (int i = prev->beams_[index].size() - 1; i >= 0; --i) {
-          ContinueContext(&prev->beams_[index].get(i).data, index, outputs,
+          ContinueContext(&prev->beams_[index].get(i).data(), index, outputs,
                           top_n, charset, dict_ratio, cert_offset,
                           worst_dict_cert, step);
         }
@@ -1015,9 +1016,9 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
   float score = cert;
   if (prev != nullptr) score += prev->score;
   if (dawg_heap->size() >= kBeamWidths[0] &&
-      score <= dawg_heap->PeekTop().data.score &&
+      score <= dawg_heap->PeekTop().data().score &&
       nodawg_heap->size() >= kBeamWidths[0] &&
-      score <= nodawg_heap->PeekTop().data.score) {
+      score <= nodawg_heap->PeekTop().data().score) {
     return;
   }
   const RecodeNode* uni_prev = prev;
@@ -1138,14 +1139,14 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
                                         RecodeHeap* heap) {
   float score = cert;
   if (prev != nullptr) score += prev->score;
-  if (heap->size() < max_size || score > heap->PeekTop().data.score) {
+  if (heap->size() < max_size || score > heap->PeekTop().data().score) {
     uint64_t hash = ComputeCodeHash(code, dup, prev);
     RecodeNode node(code, unichar_id, permuter, dawg_start, word_start, end,
                     dup, cert, score, prev, d, hash);
     if (UpdateHeapIfMatched(&node, heap)) return;
     RecodePair entry(score, node);
     heap->Push(&entry);
-    ASSERT_HOST(entry.data.dawgs == nullptr);
+    ASSERT_HOST(entry.data().dawgs == nullptr);
     if (heap->size() > max_size) heap->Pop(&entry);
   } else {
     delete d;
@@ -1156,13 +1157,13 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
 // or if better than the current worst element if already full.
 void RecodeBeamSearch::PushHeapIfBetter(int max_size, RecodeNode* node,
                                         RecodeHeap* heap) {
-  if (heap->size() < max_size || node->score > heap->PeekTop().data.score) {
+  if (heap->size() < max_size || node->score > heap->PeekTop().data().score) {
     if (UpdateHeapIfMatched(node, heap)) {
       return;
     }
     RecodePair entry(node->score, *node);
     heap->Push(&entry);
-    ASSERT_HOST(entry.data.dawgs == nullptr);
+    ASSERT_HOST(entry.data().dawgs == nullptr);
     if (heap->size() > max_size) heap->Pop(&entry);
   }
 }
@@ -1176,7 +1177,7 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode* new_node,
   // every time a heap reshuffle happens, and that would be a lot of overhead.
   GenericVector<RecodePair>* nodes = heap->heap();
   for (int i = 0; i < nodes->size(); ++i) {
-    RecodeNode& node = (*nodes)[i].data;
+    RecodeNode& node = (*nodes)[i].data();
     if (node.code == new_node->code && node.code_hash == new_node->code_hash &&
         node.permuter == new_node->permuter &&
         node.start_of_dawg == new_node->start_of_dawg) {
@@ -1184,7 +1185,7 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode* new_node,
         // The new one is better. Update the entire node in the heap and
         // reshuffle.
         node = *new_node;
-        (*nodes)[i].key = node.score;
+        (*nodes)[i].key() = node.score;
         heap->Reshuffle(&(*nodes)[i]);
       }
       return true;
@@ -1225,7 +1226,7 @@ void RecodeBeamSearch::ExtractBestPaths(
       int beam_index = BeamIndex(is_dawg, cont, 0);
       int heap_size = last_beam->beams_[beam_index].size();
       for (int h = 0; h < heap_size; ++h) {
-        const RecodeNode* node = &last_beam->beams_[beam_index].get(h).data;
+        const RecodeNode* node = &last_beam->beams_[beam_index].get(h).data();
         if (is_dawg) {
           // dawg_node may be a null_char, or duplicate, so scan back to the
           // last valid unichar_id.
@@ -1294,9 +1295,9 @@ void RecodeBeamSearch::DebugPath(
 // Helper prints debug information on the given unichar path.
 void RecodeBeamSearch::DebugUnicharPath(
     const UNICHARSET* unicharset, const GenericVector<const RecodeNode*>& path,
-    const GenericVector<int>& unichar_ids, const GenericVector<float>& certs,
-    const GenericVector<float>& ratings,
-    const GenericVector<int>& xcoords) const {
+    const std::vector<int>& unichar_ids, const std::vector<float>& certs,
+    const std::vector<float>& ratings,
+    const std::vector<int>& xcoords) const {
   int num_ids = unichar_ids.size();
   double total_rating = 0.0;
   for (int c = 0; c < num_ids; ++c) {

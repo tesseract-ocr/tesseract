@@ -18,11 +18,11 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-
+#include "serialis.h" // Serialize
 #include <cstring>
 #include <memory>  // std::unique_ptr
+#include <string>  // std::string
 #include <tesseract/baseapi.h>
-#include <tesseract/genericvector.h>
 #include <tesseract/renderer.h>
 
 namespace tesseract {
@@ -38,7 +38,7 @@ TessResultRenderer::TessResultRenderer(const char *outputbase,
       next_(nullptr),
       happy_(true) {
   if (strcmp(outputbase, "-") && strcmp(outputbase, "stdout")) {
-    STRING outfile = STRING(outputbase) + STRING(".") + STRING(file_extension_);
+    std::string outfile = std::string(outputbase) + "." + extension;
     fout_ = fopen(outfile.c_str(), "wb");
     if (fout_ == nullptr) {
       happy_ = false;

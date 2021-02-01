@@ -36,7 +36,7 @@ namespace tesseract {
 
 /* ccmain/tstruct.cpp */
 
-class Wordrec : public Classify {
+class TESS_API Wordrec : public Classify {
  public:
   // config parameters
 
@@ -63,7 +63,6 @@ class Wordrec : public Classify {
 
 #else  // DISABLED_LEGACY_ENGINE not defined
 
-#include <cstdint>             // for int16_t, int32_t
 #include <memory>
 #include "associate.h"
 #include "chop.h"              // for PointHeap, MAX_NUM_POINTS
@@ -71,7 +70,6 @@ class Wordrec : public Classify {
 #include "dict.h"
 #include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "findseam.h"          // for SeamQueue, SeamPile
-#include <tesseract/genericvector.h>     // for GenericVector
 #include "language_model.h"
 #include "matrix.h"
 #include "oldlist.h"           // for LIST
@@ -81,6 +79,12 @@ class Wordrec : public Classify {
 #include "seam.h"              // for SEAM (ptr only), PRIORITY
 #include "stopper.h"           // for DANGERR
 
+#include "genericvector.h"     // for GenericVector
+
+#include <cstdint>             // for int16_t, int32_t
+
+namespace tesseract {
+
 class EDGEPT_CLIST;
 class MATRIX;
 class STRING;
@@ -88,9 +92,9 @@ class TBOX;
 class UNICHARSET;
 class WERD_RES;
 
-namespace tesseract { class LMPainPoints; }
-namespace tesseract { class TessdataManager; }
-namespace tesseract { struct BestChoiceBundle; }
+class LMPainPoints;
+class TessdataManager;
+struct BestChoiceBundle;
 
 struct BlamerBundle;
 struct EDGEPT;
@@ -99,8 +103,6 @@ struct SPLIT;
 struct TBLOB;
 struct TESSLINE;
 struct TWERD;
-
-namespace tesseract {
 
 // A class for storing which nodes are to be processed by the segmentation
 // search. There is a single SegSearchPending for each column in the ratings
@@ -188,7 +190,7 @@ class FRAGMENT:public ELIST_LINK
 ELISTIZEH(FRAGMENT)
 
 
-class Wordrec : public Classify {
+class TESS_API Wordrec : public Classify {
  public:
   // config parameters *******************************************************
   BOOL_VAR_H(merge_fragments_in_matrix, true,
@@ -368,7 +370,7 @@ class Wordrec : public Classify {
                           bool italic_blob, const GenericVector<SEAM*>& seams);
   SEAM *chop_numbered_blob(TWERD *word, int32_t blob_number,
                            bool italic_blob, const GenericVector<SEAM*>& seams);
-  SEAM *chop_overlapping_blob(const GenericVector<TBOX>& boxes,
+  SEAM *chop_overlapping_blob(const std::vector<TBOX>& boxes,
                               bool italic_blob,
                               WERD_RES *word_res, int *blob_number);
   SEAM *improve_one_blob(const GenericVector<BLOB_CHOICE*> &blob_choices,
@@ -377,7 +379,7 @@ class Wordrec : public Classify {
                          bool italic_blob,
                          WERD_RES *word,
                          int *blob_number);
-  SEAM *chop_one_blob(const GenericVector<TBOX> &boxes,
+  SEAM *chop_one_blob(const std::vector<TBOX> &boxes,
                       const GenericVector<BLOB_CHOICE*> &blob_choices,
                       WERD_RES *word_res,
                       int *blob_number);
@@ -473,8 +475,7 @@ class Wordrec : public Classify {
   // This variable is modified by PAGE_RES_IT when iterating over
   // words to OCR on the page.
   WERD_CHOICE *prev_word_best_choice_;
-  // Sums of blame reasons computed by the blamer.
-  GenericVector<int> blame_reasons_;
+
   // Function used to fill char choice lattices.
   void (Wordrec::*fill_lattice_)(const MATRIX &ratings,
                                  const WERD_CHOICE_LIST &best_choices,

@@ -9,19 +9,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cstdlib>      // for system
-#include <fstream>      // for ifstream
-#include <set>
-#include <string>
-#include <vector>
+#include "include_gunit.h"
 
 #include "ratngs.h"
 #include "unicharset.h"
 #include "trie.h"
 
-#include "include_gunit.h"
+#include <cstdlib>      // for system
+#include <fstream>      // for ifstream
+#include <set>
+#include <string>
+#include <vector>
+#include <sys/stat.h>
 
-namespace {
+#ifndef SW_TESTING
+#define wordlist2dawg_prog "wordlist2dawg"
+#define dawg2wordlist_prog "dawg2wordlist"
+#endif
+
+namespace tesseract {
 
 // Test some basic functionality dealing with Dawgs (compressed dictionaries,
 // aka Directed Acyclic Word Graphs).
@@ -29,6 +35,7 @@ class DawgTest : public testing::Test {
  protected:
   void SetUp() {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
   void LoadWordlist(const std::string& filename, std::set<std::string>* words) const {
@@ -47,7 +54,7 @@ class DawgTest : public testing::Test {
     }
   }
   std::string TessBinaryPath(const std::string& name) const {
-    return file::JoinPath(TESSBIN_DIR, "src/training/" + name);
+    return file::JoinPath(TESSBIN_DIR, name);
   }
   std::string OutputNameToPath(const std::string& name) const {
     return file::JoinPath(FLAGS_test_tmpdir, name);
@@ -70,9 +77,9 @@ class DawgTest : public testing::Test {
     std::string output_wordlist = OutputNameToPath(wordlist_filename);
     LoadWordlist(orig_wordlist, &orig_words);
     EXPECT_EQ(
-        RunCommand("wordlist2dawg", orig_wordlist, output_dawg, unicharset), 0);
+        RunCommand(wordlist2dawg_prog, orig_wordlist, output_dawg, unicharset), 0);
     EXPECT_EQ(
-        RunCommand("dawg2wordlist", unicharset, output_dawg, output_wordlist),
+        RunCommand(dawg2wordlist_prog, unicharset, output_dawg, output_wordlist),
         0);
     LoadWordlist(output_wordlist, &roundtrip_words);
     EXPECT_EQ(orig_words, roundtrip_words);

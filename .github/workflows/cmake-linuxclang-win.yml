@@ -1,0 +1,79 @@
+name: cmake-linuxclang-win
+# cmake build of tesseract and training tools with clang on ubuntu.
+# src/arch/simddetect.cpp:46:10: fatal error: 'asm/hwcap.h' file not found
+# cmake build of tesseract and training tools on windows FAILS.
+
+on:
+  #push:
+  schedule:
+    - cron: 0 0 1 * *
+
+# All these jobs are currently failing.
+
+jobs:
+
+  clang-linux:
+    runs-on: ${{ matrix.cfg.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+          - { os: ubuntu-latest, cc: clang,  cxx: clang++ }
+          
+    steps:
+          
+      - name: Install dependencies
+        run: sudo apt-get install libleptonica-dev libpango1.0-dev -y
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Configure
+        run: |
+             mkdir build && cd build
+             cmake -DCMAKE_CC_COMPILER=${{ matrix.cfg.cc }} \
+                   -DCMAKE_CXX_COMPILER=${{ matrix.cfg.cxx }} \
+                   -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build
+        run: |
+             cmake --build build --config Release
+
+  build:
+    strategy:
+      matrix:
+        os: [ 'windows-latest' ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Install Dependencies (Windows)
+      run: choco install ninja pkgconfiglite
+      
+    - name: Install leptonica (Windows)
+      run: |
+           git clone https://github.com/DanBloomberg/leptonica.git
+           cmake .. -G Ninja -Hleptonica -Bleptonica/build \
+            -DCMAKE_INSTALL_PREFIX=inst \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_MODULE_LINKER_FLAGS=-whole-archive \
+            -DBUILD_SHARED_LIBS=ON \
+            -DSW_BUILD=OFF
+           cmake --build leptonica/build --config Release --target install
+      
+    - name: Get Sources        
+      uses: actions/checkout@v2
+    
+    - name: Setup CMake
+      run: |
+        cmake .. -GNinja -S . -Bbuild \
+         -DBUILD_TRAINING_TOOLS=OFF \
+         -DSW_BUILD=OFF \
+         -DCMAKE_INSTALL_PREFIX=inst \
+         -DCMAKE_PREFIX_PATH=inst \
+         -DCMAKE_BUILD_TYPE=Release \
+         -DCMAKE_MODULE_LINKER_FLAGS=-whole-archive
+      shell: bash
+      
+    - name: Build
+      run: |
+           cmake --build build --config Release --target install

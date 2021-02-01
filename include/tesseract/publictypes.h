@@ -19,6 +19,8 @@
 #ifndef TESSERACT_CCSTRUCT_PUBLICTYPES_H_
 #define TESSERACT_CCSTRUCT_PUBLICTYPES_H_
 
+namespace tesseract {
+
 // This file contains types that are used both by the API and internally
 // to Tesseract. In order to decouple the API from Tesseract and prevent cyclic
 // dependencies, THIS FILE SHOULD NOT DEPEND ON ANY OTHER PART OF TESSERACT.
@@ -26,7 +28,6 @@
 // but not for the low-level tesseract code to include top-level API code.
 // This file should not use other Tesseract types, as that would drag
 // their includes into the API-level.
-// API-level code should include apitypes.h in preference to this file.
 
 /** Number of printers' points in an inch. The unit of the pointsize return. */
 constexpr int kPointsPerInch = 72;
@@ -89,7 +90,6 @@ inline bool PTIsPulloutType(PolyBlockType type) {
   return type == PT_PULLOUT_IMAGE || type == PT_PULLOUT_TEXT;
 }
 
-namespace tesseract {
 /**
  *  +------------------+  Orientation Example:
  *  | 1 Aaaa Aaaa Aaaa |  ====================

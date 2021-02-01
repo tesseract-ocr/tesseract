@@ -36,7 +36,6 @@
 #include "commontraining.h"
 #include "featdefs.h"
 #include "fontinfo.h"
-#include <tesseract/genericvector.h>
 #include "indexmapbidi.h"
 #include "intproto.h"
 #include "mastertrainer.h"
@@ -46,14 +45,10 @@
 #include "oldlist.h"
 #include "protos.h"
 #include "shapetable.h"
-#include "tessopt.h"
 #include "tprintf.h"
 #include "unicity_table.h"
 
-using tesseract::IndexMapBiDi;
-using tesseract::MasterTrainer;
-using tesseract::Shape;
-using tesseract::ShapeTable;
+using namespace tesseract;
 
 /*----------------------------------------------------------------------------
             Public Code
@@ -210,7 +205,7 @@ int main (int argc, char **argv) {
   ShapeTable* shape_table = nullptr;
   STRING file_prefix;
   // Load the training data.
-  MasterTrainer* trainer = tesseract::LoadTrainingData(argc, argv,
+  auto trainer = tesseract::LoadTrainingData(argc, argv,
                                                        false,
                                                        &shape_table,
                                                        &file_prefix);
@@ -258,7 +253,7 @@ int main (int argc, char **argv) {
     }
     const char* class_label = unicharset->id_to_unichar(unichar_id);
     mf_classes = ClusterOneConfig(s, class_label, mf_classes, *shape_table,
-                                  trainer);
+                                  trainer.get());
   }
   STRING inttemp_file = file_prefix;
   inttemp_file += "inttemp";
@@ -275,7 +270,6 @@ int main (int argc, char **argv) {
   }
   delete [] float_classes;
   FreeLabeledClassList(mf_classes);
-  delete trainer;
   delete shape_table;
   printf("Done!\n");
   if (!FLAGS_test_ch.empty()) {

@@ -22,6 +22,8 @@
 
 #include "points.h"
 
+namespace tesseract {
+
 class QLSQ
 {
   public:
@@ -64,4 +66,7 @@ class QLSQ
     long double sigxxy;          //sum xsquared y
     long double sigxxxx;         //sum x fourth
 };
+
+} // namespace tesseract
+
 #endif

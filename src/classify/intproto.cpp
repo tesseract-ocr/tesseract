@@ -19,29 +19,30 @@
 -----------------------------------------------------------------------------*/
 
 #define _USE_MATH_DEFINES  // for M_PI
-#include <algorithm>
-#include <cmath>           // for M_PI, std::floor
-#include <cstdio>
-#include <cassert>
-
-#include "classify.h"
-#include "emalloc.h"
-#include "fontinfo.h"
-#include <tesseract/genericvector.h>
-#include <tesseract/helpers.h>
-#include "intproto.h"
-#include "mfoutline.h"
-#include "picofeat.h"
-#include "points.h"
-#include "shapetable.h"
-#include "svmnode.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
-using tesseract::FontSet;
+#include "intproto.h"
+
+#include "classify.h"
+#include "fontinfo.h"
+#include "mfoutline.h"
+#include "picofeat.h"
+#include "points.h"
+#include "shapetable.h"
+#include "svmnode.h"
+
+#include "helpers.h"
+
+#include <algorithm>
+#include <cmath>           // for M_PI, std::floor
+#include <cstdio>
+#include <cassert>
+
+namespace tesseract {
 
 /* match debug display constants*/
 #define PROTO_PRUNER_SCALE  (4.0)
@@ -75,8 +76,6 @@ typedef struct
   int16_t YInit;
   int16_t Delta;
 }
-
-
 FILL_SWITCH;
 
 typedef struct
@@ -88,8 +87,6 @@ typedef struct
   int16_t StartDelta, EndDelta;
   FILL_SWITCH Switch[MAX_NUM_SWITCHES];
 }
-
-
 TABLE_FILLER;
 
 typedef struct
@@ -98,8 +95,6 @@ typedef struct
   int8_t YStart, YEnd;
   uint8_t AngleStart, AngleEnd;
 }
-
-
 FILL_SPEC;
 
 
@@ -314,13 +309,13 @@ int AddIntProto(INT_CLASS Class) {
   if (Class->NumProtos > MaxNumIntProtosIn(Class)) {
     ProtoSetId = Class->NumProtoSets++;
 
-    ProtoSet = static_cast<PROTO_SET>(Emalloc(sizeof(PROTO_SET_STRUCT)));
+    ProtoSet = static_cast<PROTO_SET>(malloc(sizeof(PROTO_SET_STRUCT)));
     Class->ProtoSets[ProtoSetId] = ProtoSet;
     memset(ProtoSet, 0, sizeof(*ProtoSet));
 
     /* reallocate space for the proto lengths and install in class */
     Class->ProtoLengths =
-      static_cast<uint8_t *>(Erealloc(Class->ProtoLengths,
+      static_cast<uint8_t *>(realloc(Class->ProtoLengths,
                         MaxNumIntProtosIn(Class) * sizeof(uint8_t)));
     memset(&Class->ProtoLengths[Index], 0,
            sizeof(*Class->ProtoLengths) * (MaxNumIntProtosIn(Class) - Index));
@@ -496,8 +491,6 @@ void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class) {
   Class->ConfigLengths[ConfigId] = TotalLength;
 }                                /* ConvertConfig */
 
-
-namespace tesseract {
 /**
  * This routine converts Proto to integer format and
  * installs it as ProtoId in Class.
@@ -591,8 +584,6 @@ INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
   }
   return (IntTemplates);
 }                                /* CreateIntTemplates */
-}  // namespace tesseract
-
 
 #ifndef GRAPHICS_DISABLED
 /**
@@ -647,7 +638,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
 
   assert(MaxNumConfigs <= MAX_NUM_CONFIGS);
 
-  Class = static_cast<INT_CLASS>(Emalloc(sizeof(INT_CLASS_STRUCT)));
+  Class = static_cast<INT_CLASS>(malloc(sizeof(INT_CLASS_STRUCT)));
   Class->NumProtoSets = ((MaxNumProtos + PROTOS_PER_PROTO_SET - 1) /
                             PROTOS_PER_PROTO_SET);
 
@@ -658,7 +649,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
 
   for (i = 0; i < Class->NumProtoSets; i++) {
     /* allocate space for a proto set, install in class, and initialize */
-    ProtoSet = static_cast<PROTO_SET>(Emalloc(sizeof(PROTO_SET_STRUCT)));
+    ProtoSet = static_cast<PROTO_SET>(malloc(sizeof(PROTO_SET_STRUCT)));
     memset(ProtoSet, 0, sizeof(*ProtoSet));
     Class->ProtoSets[i] = ProtoSet;
 
@@ -666,7 +657,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
   }
   if (MaxNumIntProtosIn (Class) > 0) {
     Class->ProtoLengths =
-      static_cast<uint8_t *>(Emalloc(MaxNumIntProtosIn (Class) * sizeof (uint8_t)));
+      static_cast<uint8_t *>(malloc(MaxNumIntProtosIn (Class) * sizeof (uint8_t)));
     memset(Class->ProtoLengths, 0,
            MaxNumIntProtosIn(Class) * sizeof(*Class->ProtoLengths));
   } else {
@@ -682,12 +673,12 @@ static void free_int_class(INT_CLASS int_class) {
   int i;
 
   for (i = 0; i < int_class->NumProtoSets; i++) {
-    Efree (int_class->ProtoSets[i]);
+    free (int_class->ProtoSets[i]);
   }
   if (int_class->ProtoLengths != nullptr) {
-    Efree (int_class->ProtoLengths);
+    free (int_class->ProtoLengths);
   }
-  Efree(int_class);
+  free(int_class);
 }
 
 /**
@@ -700,7 +691,7 @@ INT_TEMPLATES NewIntTemplates() {
   INT_TEMPLATES T;
   int i;
 
-  T = static_cast<INT_TEMPLATES>(Emalloc (sizeof (INT_TEMPLATES_STRUCT)));
+  T = static_cast<INT_TEMPLATES>(malloc (sizeof (INT_TEMPLATES_STRUCT)));
   T->NumClasses = 0;
   T->NumClassPruners = 0;
 
@@ -719,11 +710,9 @@ void free_int_templates(INT_TEMPLATES templates) {
     free_int_class(templates->Class[i]);
   for (i = 0; i < templates->NumClassPruners; i++)
     delete templates->ClassPruners[i];
-  Efree(templates);
+  free(templates);
 }
 
-
-namespace tesseract {
 /**
  * This routine reads a set of integer templates from
  * File.  File must already be open and must be in the
@@ -860,7 +849,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   /* then read in each class */
   for (i = 0; i < Templates->NumClasses; i++) {
     /* first read in the high level struct for the class */
-    Class = static_cast<INT_CLASS>(Emalloc (sizeof (INT_CLASS_STRUCT)));
+    Class = static_cast<INT_CLASS>(malloc (sizeof (INT_CLASS_STRUCT)));
     if (fp->FReadEndian(&Class->NumProtos, sizeof(Class->NumProtos), 1) != 1 ||
         fp->FRead(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1) != 1 ||
         fp->FRead(&Class->NumConfigs, sizeof(Class->NumConfigs), 1) != 1)
@@ -888,7 +877,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     /* then read in the proto lengths */
     Lengths = nullptr;
     if (MaxNumIntProtosIn (Class) > 0) {
-      Lengths = static_cast<uint8_t *>(Emalloc(sizeof(uint8_t) * MaxNumIntProtosIn(Class)));
+      Lengths = static_cast<uint8_t *>(malloc(sizeof(uint8_t) * MaxNumIntProtosIn(Class)));
       if (fp->FRead(Lengths, sizeof(uint8_t), MaxNumIntProtosIn(Class)) !=
           MaxNumIntProtosIn(Class))
         tprintf("Bad read of inttemp!\n");
@@ -897,7 +886,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
 
     /* then read in the proto sets */
     for (j = 0; j < Class->NumProtoSets; j++) {
-      ProtoSet = static_cast<PROTO_SET>(Emalloc(sizeof(PROTO_SET_STRUCT)));
+      ProtoSet = static_cast<PROTO_SET>(malloc(sizeof(PROTO_SET_STRUCT)));
       int num_buckets = NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR;
       if (fp->FReadEndian(&ProtoSet->ProtoPruner,
                           sizeof(ProtoSet->ProtoPruner[0][0][0]),
@@ -1091,8 +1080,6 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
                               std::bind(write_spacing_info, _1, _2));
   this->fontset_table_.write(File, std::bind(write_set, _1, _2));
 }                                /* WriteIntTemplates */
-} // namespace tesseract
-
 
 /*-----------------------------------------------------------------------------
               Private Code
@@ -1260,7 +1247,6 @@ void FillPPLinearBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
 
 /*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-namespace tesseract {
 /**
  * This routine prompts the user with Prompt and waits
  * for the user to enter something in the debug window.
@@ -1333,7 +1319,6 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
   return 0;
 }                                /* GetClassToDebug */
 
-}  // namespace tesseract
 #endif
 
 /**
@@ -1754,3 +1739,5 @@ ScrollView* CreateFeatureSpaceWindow(const char* name, int xpos, int ypos) {
   return new ScrollView(name, xpos, ypos, 520, 520, 260, 260, true);
 }
 #endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract

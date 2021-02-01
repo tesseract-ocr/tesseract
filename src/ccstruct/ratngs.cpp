@@ -16,22 +16,23 @@
  *
  **********************************************************************/
 
-
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
 #include "ratngs.h"
 
-#include <algorithm>
-#include <string>
 #include "blobs.h"
-#include <tesseract/genericvector.h>
 #include "matrix.h"
 #include "normalis.h"  // kBlnBaselineOffset.
 #include "unicharset.h"
 
-using tesseract::ScriptPos;
+#include "genericvector.h"
+
+#include <algorithm>
+#include <string>
+
+namespace tesseract {
 
 ELISTIZE(BLOB_CHOICE)
 ELISTIZE(WERD_CHOICE)
@@ -197,8 +198,6 @@ const char *WERD_CHOICE::permuter_name(uint8_t permuter) {
   return kPermuterTypeNames[permuter];
 }
 
-namespace tesseract {
-
 const char *ScriptPosToString(enum ScriptPos script_pos) {
   switch (script_pos) {
     case SP_NORMAL: return "NORM";
@@ -209,8 +208,6 @@ const char *ScriptPosToString(enum ScriptPos script_pos) {
   return "SP_UNKNOWN";
 }
 
-}  // namespace tesseract.
-
 /**
  * WERD_CHOICE::WERD_CHOICE
  *
@@ -220,8 +217,8 @@ const char *ScriptPosToString(enum ScriptPos script_pos) {
 WERD_CHOICE::WERD_CHOICE(const char *src_string,
                          const UNICHARSET &unicharset)
     : unicharset_(&unicharset){
-  GenericVector<UNICHAR_ID> encoding;
-  GenericVector<char> lengths;
+  std::vector<UNICHAR_ID> encoding;
+  std::vector<char> lengths;
   std::string cleaned = unicharset.CleanupString(src_string);
   if (unicharset.encode_string(cleaned.c_str(), true, &encoding, &lengths,
                                nullptr)) {
@@ -852,3 +849,5 @@ void print_ratings_list(const char *msg,
   tprintf("\n");
   fflush(stdout);
 }
+
+} // namespace tesseract

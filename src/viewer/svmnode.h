@@ -2,7 +2,6 @@
 // File:        svmnode.h
 // description_: ScrollView Menu Node
 // Author:      Joern Wanke
-// Created:     Thu Nov 29 2007
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +27,9 @@
 #ifndef TESSERACT_VIEWER_SVMNODE_H_
 #define TESSERACT_VIEWER_SVMNODE_H_
 
-#include <tesseract/strngs.h>
+#include "strngs.h"
+
+namespace tesseract {
 
 class ScrollView;
 
@@ -80,17 +81,19 @@ class SVMenuNode {
   SVMenuNode* next_;
   // Whether this menu node actually is a flag.
   bool is_check_box_entry_;
+  // The value of the flag (if this menu node is a flag).
+  bool toggle_value_;
 
   // The command event associated with a specific menu node. Should be unique.
   int cmd_event_;
   // The caption associated with a specific menu node.
   STRING text_;
-  // The value of the flag (if this menu node is a flag).
-  bool toggle_value_;
   // The value of the menu node. (optional)
   STRING value_;
   // A description_ of the value. (optional)
   STRING description_;
 };
+
+} // namespace tesseract
 
 #endif  // TESSERACT_VIEWER_SVMNODE_H_

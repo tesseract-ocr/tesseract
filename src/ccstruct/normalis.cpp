@@ -19,16 +19,18 @@
 
 #include "normalis.h"
 
-#include <cfloat>        // for FLT_MAX
-#include <cstdlib>
-
 #include "allheaders.h"
 #include "blobs.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "matrix.h"
 #include "ocrblock.h"
 #include "unicharset.h"
 #include "werd.h"
+
+#include <cfloat>        // for FLT_MAX
+#include <cstdlib>
+
+namespace tesseract {
 
 // Tolerance in pixels used for baseline and xheight on non-upper/lower scripts.
 const int kSloppyTolerance = 4;
@@ -565,3 +567,5 @@ void DENORM::Init() {
   final_xshift_ = 0.0f;
   final_yshift_ = static_cast<float>(kBlnBaselineOffset);
 }
+
+} // namespace tesseract

@@ -22,13 +22,6 @@
 #include "config_auto.h"
 #endif
 
-#include <algorithm>            // for max, min
-#include <cassert>              // for assert
-#include <cmath>                // for fabs
-#include <cstdint>              // for INT32_MAX, UINT8_MAX
-#include <cstdio>               // for fflush, fclose, fopen, stdout, FILE
-#include <cstdlib>              // for malloc
-#include <cstring>              // for strstr, memset, strcmp
 #include "adaptive.h"           // for ADAPT_CLASS, free_adapted_templates
 #include "ambigs.h"             // for UnicharIdVector, UnicharAmbigs
 #include "bitvec.h"             // for FreeBitVector, NewBitVector, BIT_VECTOR
@@ -39,8 +32,6 @@
 #include "featdefs.h"           // for CharNormDesc
 #include "float2int.h"          // for BASELINE_Y_SHIFT
 #include "fontinfo.h"           // for ScoredFont, FontSet
-#include <tesseract/genericvector.h>      // for GenericVector
-#include <tesseract/helpers.h>            // for IntCastRounded, ClipToRange
 #include "intfx.h"              // for BlobToTrainingSample, INT_FX_RESULT_S...
 #include "intmatcher.h"         // for CP_RESULT_STRUCT, IntegerMatcher
 #include "intproto.h"           // for INT_FEATURE_STRUCT, (anonymous), Clas...
@@ -59,17 +50,30 @@
 #include "rect.h"               // for TBOX
 #include "scrollview.h"         // for ScrollView, ScrollView::BROWN, Scroll...
 #include "seam.h"               // for SEAM
-#include <tesseract/serialis.h>           // for TFile
 #include "shapeclassifier.h"    // for ShapeClassifier
 #include "shapetable.h"         // for UnicharRating, ShapeTable, Shape, Uni...
-#include <tesseract/strngs.h>             // for STRING
 #include "tessclassifier.h"     // for TessClassifier
 #include "tessdatamanager.h"    // for TessdataManager, TESSDATA_INTTEMP
 #include "tprintf.h"            // for tprintf
 #include "trainingsample.h"     // for TrainingSample
-#include <tesseract/unichar.h>            // for UNICHAR_ID, INVALID_UNICHAR_ID
 #include "unicharset.h"         // for UNICHARSET, CHAR_FRAGMENT, UNICHAR_SPACE
 #include "unicity_table.h"      // for UnicityTable
+
+#include "genericvector.h"      // for GenericVector
+#include "serialis.h"           // for TFile
+#include "strngs.h"             // for STRING
+#include "helpers.h"            // for IntCastRounded, ClipToRange
+#include <tesseract/unichar.h>            // for UNICHAR_ID, INVALID_UNICHAR_ID
+
+#include <algorithm>            // for max, min
+#include <cassert>              // for assert
+#include <cmath>                // for fabs
+#include <cstdint>              // for INT32_MAX, UINT8_MAX
+#include <cstdio>               // for fflush, fclose, fopen, stdout, FILE
+#include <cstdlib>              // for malloc
+#include <cstring>              // for strstr, memset, strcmp
+
+namespace tesseract {
 
 #define ADAPT_TEMPLATE_SUFFIX ".a"
 
@@ -84,17 +88,14 @@
 
 #define WORST_POSSIBLE_RATING (0.0f)
 
-using tesseract::UnicharRating;
-using tesseract::ScoredFont;
-
 struct ADAPT_RESULTS {
   int32_t BlobLength;
   bool HasNonfragment;
   UNICHAR_ID best_unichar_id;
   int best_match_index;
   float best_rating;
-  GenericVector<UnicharRating> match;
-  GenericVector<CP_RESULT_STRUCT> CPResults;
+  std::vector<UnicharRating> match;
+  std::vector<CP_RESULT_STRUCT> CPResults;
 
   /// Initializes data members to the default values. Sets the initial
   /// rating of each class to be the worst possible rating (1.0).
@@ -123,6 +124,15 @@ struct PROTO_KEY {
   CLASS_ID ClassId;
   int ConfigId;
 };
+
+// Sort function to sort ratings appropriately by descending rating.
+static bool SortDescendingRating(const UnicharRating &a, const UnicharRating &b) {
+  if (a.rating != b.rating) {
+    return a.rating > b.rating;
+  } else {
+    return a.unichar_id < b.unichar_id;
+  }
+}
 
 /*-----------------------------------------------------------------------------
           Private Macros
@@ -162,8 +172,6 @@ void SetAdaptiveThreshold(float Threshold);
 /*-----------------------------------------------------------------------------
               Public Code
 -----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine calls the adaptive matcher
  * which returns (in an array) the class id of each
@@ -197,7 +205,7 @@ void Classify::AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices) {
   DoAdaptiveMatch(Blob, Results);
 
   RemoveBadMatches(Results);
-  Results->match.sort(&UnicharRating::SortDescendingRating);
+  std::sort(Results->match.begin(), Results->match.end(), SortDescendingRating);
   RemoveExtraPuncs(Results);
   Results->ComputeBest();
   ConvertMatchesToChoices(Blob->denorm(), Blob->bounding_box(), Results,
@@ -311,7 +319,7 @@ void Classify::LearnWord(const char* fontname, WERD_RES* word) {
               word->best_state[ch]);
           if (pieces_all_natural || !prioritize_division) {
             for (frag = 0; frag < word->best_state[ch]; ++frag) {
-              GenericVector<STRING> tokens;
+              std::vector<STRING> tokens;
               word->correct_text[ch].split(' ', &tokens);
 
               tokens[0] = CHAR_FRAGMENT::to_string(
@@ -952,7 +960,7 @@ void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
 
 void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*blob, classify_nonlinear_norm, &fx_info,
                            &bl_features);
@@ -1050,7 +1058,7 @@ void Classify::AddNewResult(const UnicharRating& new_result,
  * @param fx_info
  */
 void Classify::AmbigClassifier(
-    const GenericVector<INT_FEATURE_STRUCT>& int_features,
+    const std::vector<INT_FEATURE_STRUCT>& int_features,
     const INT_FX_RESULT_STRUCT& fx_info,
     const TBLOB *blob,
     INT_TEMPLATES templates,
@@ -1100,7 +1108,7 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
                              int debug,
                              int matcher_multiplier,
                              const TBOX& blob_box,
-                             const GenericVector<CP_RESULT_STRUCT>& results,
+                             const std::vector<CP_RESULT_STRUCT>& results,
                              ADAPT_RESULTS* final_results) {
   int top = blob_box.top();
   int bottom = blob_box.bottom();
@@ -1174,7 +1182,7 @@ void Classify::ExpandShapesAndApplyCorrections(
           if (r == mapped_results.size()) {
             mapped_results.push_back(*int_result);
             mapped_results[r].unichar_id = unichar_id;
-            mapped_results[r].fonts.truncate(0);
+            mapped_results[r].fonts.clear();
           }
           for (int i = 0; i < shape[c].font_ids.size(); ++i) {
             mapped_results[r].fonts.push_back(
@@ -1270,7 +1278,7 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id,
  * @return Array of possible ambiguous chars that should be checked.
  */
 UNICHAR_ID *Classify::BaselineClassifier(
-    TBLOB *Blob, const GenericVector<INT_FEATURE_STRUCT>& int_features,
+    TBLOB *Blob, const std::vector<INT_FEATURE_STRUCT>& int_features,
     const INT_FX_RESULT_STRUCT& fx_info,
     ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results) {
   if (int_features.empty()) return nullptr;
@@ -1321,7 +1329,7 @@ int Classify::CharNormClassifier(TBLOB *blob,
   // This is the length that is used for scaling ratings vs certainty.
   adapt_results->BlobLength =
       IntCastRounded(sample.outline_length() / kStandardFeatureLength);
-  GenericVector<UnicharRating> unichar_results;
+  std::vector<UnicharRating> unichar_results;
   static_classifier_->UnicharClassifySample(sample, blob->denorm().pix(), 0,
                                             -1, &unichar_results);
   // Convert results to the format used internally by AdaptiveClassifier.
@@ -1336,7 +1344,7 @@ int Classify::CharNormClassifier(TBLOB *blob,
 int Classify::CharNormTrainingSample(bool pruner_only,
                                      int keep_this,
                                      const TrainingSample& sample,
-                                     GenericVector<UnicharRating>* results) {
+                                     std::vector<UnicharRating>* results) {
   results->clear();
   auto* adapt_results = new ADAPT_RESULTS();
   adapt_results->Initialize();
@@ -1364,7 +1372,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
   delete [] pruner_norm_array;
   if (keep_this >= 0) {
     adapt_results->CPResults[0].Class = keep_this;
-    adapt_results->CPResults.truncate(1);
+    adapt_results->CPResults.resize(1);
   }
   if (pruner_only) {
     // Convert pruner results to output format.
@@ -1384,7 +1392,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
       results->push_back(adapt_results->match[i]);
     }
     if (results->size() > 1) {
-      results->sort(&UnicharRating::SortDescendingRating);
+      std::sort(results->begin(), results->end(), SortDescendingRating);
     }
   }
   delete [] char_norm_array;
@@ -1490,7 +1498,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
     choices_length++;
     if (choices_length >= max_matches) break;
   }
-  Results->match.truncate(choices_length);
+  Results->match.resize(choices_length);
 }  // ConvertMatchesToChoices
 
 
@@ -1507,7 +1515,7 @@ void Classify::DebugAdaptiveClassifier(TBLOB *blob,
                                        ADAPT_RESULTS *Results) {
   if (static_classifier_ == nullptr) return;
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*blob, false, &fx_info, &bl_features);
   if (sample == nullptr) return;
@@ -1540,7 +1548,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
   UNICHAR_ID *Ambiguities;
 
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*Blob, classify_nonlinear_norm, &fx_info,
                            &bl_features);
@@ -1606,7 +1614,7 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
 
   Results->Initialize();
   INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample* sample =
       BlobToTrainingSample(*Blob, classify_nonlinear_norm, &fx_info,
                            &bl_features);
@@ -1618,7 +1626,7 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
   CharNormClassifier(Blob, *sample, Results);
   delete sample;
   RemoveBadMatches(Results);
-  Results->match.sort(&UnicharRating::SortDescendingRating);
+  std::sort(Results->match.begin(), Results->match.end(), SortDescendingRating);
 
   /* copy the class id's into an string of ambiguities - don't copy if
      the correct class is the only class id matched */
@@ -1971,7 +1979,6 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
     tprintf("'.\n");
   }
 }                              /* MakePermanent */
-}  // namespace tesseract
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -2011,7 +2018,6 @@ int MakeTempProtoPerm(void *item1, void *item2) {
 }                              /* MakeTempProtoPerm */
 
 /*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine writes the matches in Results to File.
  *
@@ -2088,7 +2094,7 @@ void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
       }
     }
   }
-  Results->match.truncate(NextGood);
+  Results->match.resize(NextGood);
 }                              /* RemoveBadMatches */
 
 /*----------------------------------------------------------------------------*/
@@ -2133,7 +2139,7 @@ void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
       }
     }
   }
-  Results->match.truncate(NextGood);
+  Results->match.resize(NextGood);
 }                              /* RemoveExtraPuncs */
 
 /*---------------------------------------------------------------------------*/

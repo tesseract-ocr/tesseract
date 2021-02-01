@@ -31,7 +31,7 @@
 #include "blobbox.h"
 #include "detlinefit.h"
 #include "drawtord.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "linlsq.h"
 #include "makerow.h"
 #include "textord.h"
@@ -323,12 +323,12 @@ void BaselineRow::SetupBlobDisplacements(const FCOORD& direction) {
   if (debug) {
     for (int i = 0; i < scaled_modes.size(); ++i) {
       tprintf("Top mode = %g * %d\n",
-              scaled_modes[i].key * disp_quant_factor_, scaled_modes[i].data);
+              scaled_modes[i].key * disp_quant_factor_, scaled_modes[i].data());
     }
   }
 #endif
   for (int i = 0; i < scaled_modes.size(); ++i)
-    displacement_modes_.push_back(disp_quant_factor_ * scaled_modes[i].key);
+    displacement_modes_.push_back(disp_quant_factor_ * scaled_modes[i].key());
 }
 
 // Fits a line in the given direction to blobs that are close to the given

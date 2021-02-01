@@ -25,19 +25,21 @@
 // A SVMenuNode can both be used in the context_ of popup menus as well as
 // menu bars.
 
-#include <cstring>
-#include <iostream>
-
-#include "svmnode.h"
-
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
+#include "svmnode.h"
+
+#include <cstring>
+#include <iostream>
+
 #ifndef GRAPHICS_DISABLED
 
 #include "scrollview.h"
+
+namespace tesseract {
 
 // Create the empty root menu node. with just a caption. All other nodes should
 // be added to this or one of the submenus.
@@ -139,5 +141,7 @@ void SVMenuNode::BuildMenu(ScrollView* sv, bool menu_bar) {
     next_->BuildMenu(sv, menu_bar); delete next_;
   }
 }
+
+} // namespace tesseract
 
 #endif // !GRAPHICS_DISABLED

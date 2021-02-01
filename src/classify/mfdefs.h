@@ -24,6 +24,8 @@
 #include "matchdefs.h"
 #include "oldlist.h"
 
+namespace tesseract {
+
 /* definition of a list of micro-features */
 using MICROFEATURES = LIST;
 
@@ -53,4 +55,7 @@ using MICROFEATURE = float*;
 MICROFEATURE NewMicroFeature();
 
 void FreeMicroFeatures(MICROFEATURES MicroFeatures);
+
+} // namespace tesseract
+
 #endif

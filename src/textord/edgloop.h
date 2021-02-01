@@ -25,6 +25,8 @@
 #include          "coutln.h"
 #include          "crakedge.h"
 
+namespace tesseract {
+
 #define BUCKETSIZE      16
 
 void complete_edge(CRACKEDGE *start,  //start of loop
@@ -36,4 +38,7 @@ int16_t loop_bounding_box(                    //get bounding box
                         CRACKEDGE *&start,  //edge loop
                         ICOORD &botleft,    //bounding box
                         ICOORD &topright);
+
+} // namespace tesseract
+
 #endif

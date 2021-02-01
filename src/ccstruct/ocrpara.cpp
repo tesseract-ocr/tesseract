@@ -16,10 +16,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <cstdio>
 
 #include "ocrpara.h"
+
 #include "host.h"  // For NearlyEqual()
+
+#include <cstdio>
+
+namespace tesseract {
 
 ELISTIZE(PARA)
 
@@ -97,3 +101,5 @@ STRING ParagraphModel::ToString() const {
            margin_, first_indent_, body_indent_, alignment.c_str());
   return STRING(buffer);
 }
+
+} // namespace tesseract

@@ -16,17 +16,20 @@
  *
  **********************************************************************/
 
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#include "fpchop.h"
+
 #include "blobbox.h"
 #include "statistc.h"
 #include "drawtord.h"
 #include "tovars.h"
 #include "topitch.h"
-#include "fpchop.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
+namespace tesseract {
 
 INT_VAR (textord_fp_chop_error, 2,
 "Max allowed bending of chop cells");
@@ -34,8 +37,71 @@ double_VAR (textord_fp_chop_snap, 0.5,
 "Max distance of chop pt from vertex");
 
 ELISTIZE(C_OUTLINE_FRAG)
-//#undef ASSERT_HOST
-//#define ASSERT_HOST(x) if (!(x)) AfxMessageBox(#x);
+
+static WERD* add_repeated_word(
+  WERD_IT* rep_it,
+  int16_t& rep_left,
+  int16_t& prev_chop_coord,
+  uint8_t& blanks,
+  float pitch,
+  WERD_IT* word_it
+);
+
+static void fixed_chop_cblob(
+  C_BLOB* blob,
+  int16_t chop_coord,
+  float pitch_error,
+  C_OUTLINE_LIST* left_outlines,
+  C_OUTLINE_LIST* right_outlines
+);
+
+static void fixed_split_coutline(
+  C_OUTLINE* srcline,
+  int16_t chop_coord,
+  float pitch_error,
+  C_OUTLINE_IT* left_it,
+  C_OUTLINE_IT* right_it
+);
+
+static bool fixed_chop_coutline(
+        C_OUTLINE* srcline,
+        int16_t chop_coord,
+        float pitch_error,
+        C_OUTLINE_FRAG_LIST* left_frags,
+        C_OUTLINE_FRAG_LIST* right_frags
+);
+
+static void save_chop_cfragment(
+  int16_t head_index,
+  ICOORD head_pos,
+  int16_t tail_index,
+  ICOORD tail_pos,
+  C_OUTLINE* srcline,
+  C_OUTLINE_FRAG_LIST* frags
+);
+
+static void add_frag_to_list(
+  C_OUTLINE_FRAG* frag,
+  C_OUTLINE_FRAG_LIST* frags
+);
+
+static void close_chopped_cfragments(
+  C_OUTLINE_FRAG_LIST* frags,
+  C_OUTLINE_LIST* children,
+  float pitch_error,
+  C_OUTLINE_IT* dest_it
+);
+
+static C_OUTLINE* join_chopped_fragments(
+  C_OUTLINE_FRAG* bottom,
+  C_OUTLINE_FRAG* top
+);
+
+static void join_segments(
+  C_OUTLINE_FRAG* bottom,
+  C_OUTLINE_FRAG* top
+);
+
 /**********************************************************************
  * fixed_pitch_words
  *
@@ -197,6 +263,7 @@ ROW *fixed_pitch_words(                 //find lines
  * Add repeated word into the row at the given point.
  **********************************************************************/
 
+static
 WERD *add_repeated_word(                         //move repeated word
                         WERD_IT *rep_it,         //repeated words
                         int16_t &rep_left,         //left edge of word
@@ -263,6 +330,7 @@ void split_to_blob(                                 //split the blob
  * produce a list of outlines left of the chop point and more to the right.
  **********************************************************************/
 
+static
 void fixed_chop_cblob(                                //split the blob
                       C_BLOB *blob,                   //blob to split
                       int16_t chop_coord,               //place to chop
@@ -309,6 +377,7 @@ void fixed_chop_cblob(                                //split the blob
  * fall either side of the chop line into the appropriate list.
  **********************************************************************/
 
+static
 void fixed_split_coutline(                        //chop the outline
                           C_OUTLINE *srcline,     //source outline
                           int16_t chop_coord,       //place to chop
@@ -391,6 +460,7 @@ void fixed_split_coutline(                        //chop the outline
  * If the coutline lies too heavily to one side to chop, false is returned.
  **********************************************************************/
 
+static
 bool fixed_chop_coutline(                                  //chop the outline
         C_OUTLINE* srcline,               //source outline
         int16_t chop_coord,                 //place to chop
@@ -508,6 +578,7 @@ bool fixed_chop_coutline(                                  //chop the outline
  * Store the given fragment in the given fragment list.
  **********************************************************************/
 
+static
 void save_chop_cfragment(                            //chop the outline
                          int16_t head_index,           //head of fragment
                          ICOORD head_pos,            //head of fragment
@@ -599,6 +670,7 @@ C_OUTLINE_FRAG::C_OUTLINE_FRAG(                       //record fragment
  * them in ascending ycoord order.
  **********************************************************************/
 
+static
 void add_frag_to_list(                            //ordered add
                       C_OUTLINE_FRAG *frag,       //fragment to add
                       C_OUTLINE_FRAG_LIST *frags  //fragment list
@@ -628,6 +700,7 @@ void add_frag_to_list(                            //ordered add
  * Each outline made soaks up any of the child outlines which it encloses.
  **********************************************************************/
 
+static
 void close_chopped_cfragments(                             //chop the outline
                               C_OUTLINE_FRAG_LIST *frags,  //list to clear
                               C_OUTLINE_LIST *children,    //potential children
@@ -689,6 +762,7 @@ void close_chopped_cfragments(                             //chop the outline
  * operand keeps responsibility for the fragment.
  **********************************************************************/
 
+static
 C_OUTLINE *join_chopped_fragments(                         //join pieces
                                   C_OUTLINE_FRAG *bottom,  //bottom of cut
                                   C_OUTLINE_FRAG *top      //top of cut
@@ -726,6 +800,7 @@ C_OUTLINE *join_chopped_fragments(                         //join pieces
  * the first and the gap between them is closed.
  **********************************************************************/
 
+static
 void join_segments(                         //join pieces
                    C_OUTLINE_FRAG *bottom,  //bottom of cut
                    C_OUTLINE_FRAG *top      //top of cut
@@ -811,3 +886,5 @@ const C_OUTLINE_FRAG & src       //fragment to copy
   ycoord = src.ycoord;
   return *this;
 }
+
+} // namespace tesseract

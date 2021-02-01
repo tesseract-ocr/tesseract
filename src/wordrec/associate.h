@@ -28,9 +28,9 @@
 #include "seam.h"
 #include "split.h"
 
-class WERD_RES;
-
 namespace tesseract {
+
+class WERD_RES;
 
 // Statisitcs about character widths, gaps and seams.
 struct AssociateStats {

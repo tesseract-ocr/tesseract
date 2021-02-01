@@ -20,16 +20,17 @@
 // normalizes the text according to command-line options and generates
 // a unicharset.
 
-#include <cstdlib>
 #include "boxread.h"
 #include "commandlineflags.h"
 #include "commontraining.h"     // CheckSharedLibraryVersion
-#include <tesseract/genericvector.h>
 #include "lang_model_helpers.h"
 #include "normstrngs.h"
-#include <tesseract/strngs.h>
+#include "strngs.h"
 #include "unicharset.h"
 #include "unicharset_training_utils.h"
+#include <cstdlib>
+
+using namespace tesseract;
 
 static STRING_PARAM_FLAG(output_unicharset, "unicharset", "Output file path");
 static INT_PARAM_FLAG(norm_mode, 1,
@@ -40,7 +41,7 @@ namespace tesseract {
 
 // Helper normalizes and segments the given strings according to norm_mode, and
 // adds the segmented parts to unicharset.
-static void AddStringsToUnicharset(const GenericVector<STRING>& strings,
+static void AddStringsToUnicharset(const std::vector<STRING>& strings,
                                    int norm_mode, UNICHARSET* unicharset) {
   for (int i = 0; i < strings.size(); ++i) {
     std::vector<std::string> normalized;
@@ -66,14 +67,14 @@ static int Main(int argc, char** argv) {
   for (int arg = 1; arg < argc; ++arg) {
     STRING file_data = tesseract::ReadFile(argv[arg], /*reader*/ nullptr);
     if (file_data.length() == 0) continue;
-    GenericVector<STRING> texts;
+    std::vector<STRING> texts;
     if (ReadMemBoxes(-1, /*skip_blanks*/ true, &file_data[0],
                      /*continue_on_failure*/ false, /*boxes*/ nullptr,
                      &texts, /*box_texts*/ nullptr, /*pages*/ nullptr)) {
       tprintf("Extracting unicharset from box file %s\n", argv[arg]);
     } else {
       tprintf("Extracting unicharset from plain text file %s\n", argv[arg]);
-      texts.truncate(0);
+      texts.clear();
       file_data.split('\n', &texts);
     }
     AddStringsToUnicharset(texts, FLAGS_norm_mode, &unicharset);

@@ -9,17 +9,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifdef INCLUDE_TENSORFLOW
 #include <tensorflow/compiler/xla/array2d.h> // for xla::Array2D
+#else
+#include <array> // std::array
+#endif
 #include "include_gunit.h"
 #include "stridemap.h"
 
-using tesseract::FD_BATCH;
-using tesseract::FD_HEIGHT;
-using tesseract::FD_WIDTH;
-using tesseract::FlexDimensions;
-using tesseract::StrideMap;
+namespace tesseract {
 
-namespace {
+#if !defined(INCLUDE_TENSORFLOW) && 0
+namespace xla {
+
+template <typename T>
+class Array2D : public std::vector<T> {
+ public:
+  Array2D() : std::vector<T>(std::vector<int64_t>{0, 0}) {}
+
+  Array2D(const int64_t n1, const int64_t n2)
+      : std::vector<T>(std::vector<int64_t>{n1, n2}) {}
+
+  Array2D(const int64_t n1, const int64_t n2, const T value)
+      : std::vector<T>({n1, n2}, value) {}
+};
+}
+#endif
 
 class StridemapTest : public ::testing::Test {
  protected:
@@ -27,6 +42,7 @@ class StridemapTest : public ::testing::Test {
     std::locale::global(std::locale(""));
   }
 
+#ifdef INCLUDE_TENSORFLOW
   // Sets up an Array2d object of the given size, initialized to increasing
   // values starting with start.
   std::unique_ptr<xla::Array2D<int>> SetupArray(int ysize, int xsize, int start) {
@@ -34,16 +50,22 @@ class StridemapTest : public ::testing::Test {
     int value = start;
     for (int y = 0; y < ysize; ++y) {
       for (int x = 0; x < xsize; ++x) {
+#ifdef INCLUDE_TENSORFLOW
         (*a)(y, x) = value++;
+#else
+        a[y][x] = value++;
+#endif
       }
     }
     return a;
   }
+#endif
 };
 
 TEST_F(StridemapTest, Indexing) {
   // This test verifies that with a batch of arrays of different sizes, the
   // iteration index each of them in turn, without going out of bounds.
+#ifdef INCLUDE_TENSORFLOW
   std::vector<std::unique_ptr<xla::Array2D<int>>> arrays;
   arrays.push_back(SetupArray(3, 4, 0));
   arrays.push_back(SetupArray(4, 5, 12));
@@ -106,11 +128,16 @@ TEST_F(StridemapTest, Indexing) {
     EXPECT_FALSE(copy.AddOffset(-10, FD_HEIGHT));
     EXPECT_TRUE(index.IsValid());
   } while (index.Decrement());
+#else
+  LOG(INFO) << "Skip test because of missing xla::Array2D";
+  GTEST_SKIP();
+#endif
 }
 
 TEST_F(StridemapTest, Scaling) {
   // This test verifies that with a batch of arrays of different sizes, the
   // scaling/reduction functions work as expected.
+#ifdef INCLUDE_TENSORFLOW
   std::vector<std::unique_ptr<xla::Array2D<int>>> arrays;
   arrays.push_back(SetupArray(3, 4, 0));   // 0-11
   arrays.push_back(SetupArray(4, 5, 12));  // 12-31
@@ -183,6 +210,10 @@ TEST_F(StridemapTest, Scaling) {
               expected_value);
   } while (index.Increment());
   EXPECT_EQ(pos, values_x_to_1.size());
+#else
+  LOG(INFO) << "Skip test because of missing xla::Array2D";
+  GTEST_SKIP();
+#endif
 }
 
 }  // namespace

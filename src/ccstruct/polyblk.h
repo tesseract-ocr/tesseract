@@ -18,13 +18,16 @@
 #ifndef POLYBLK_H
 #define POLYBLK_H
 
-#include <tesseract/publictypes.h>
 #include "elst.h"
 #include "points.h"
 #include "rect.h"
 #include "scrollview.h"
 
-class DLLSYM POLY_BLOCK {
+#include <tesseract/publictypes.h>
+
+namespace tesseract {
+
+class TESS_API POLY_BLOCK {
  public:
   POLY_BLOCK() = default;
   // Initialize from box coordinates.
@@ -88,7 +91,7 @@ class DLLSYM POLY_BLOCK {
 };
 
 // Class to iterate the scanlines of a polygon.
-class DLLSYM PB_LINE_IT {
+class PB_LINE_IT {
  public:
   PB_LINE_IT(POLY_BLOCK *blkptr) {
     block = blkptr;
@@ -107,4 +110,7 @@ class DLLSYM PB_LINE_IT {
  private:
   POLY_BLOCK * block;
 };
+
+} // namespace tesseract
+
 #endif

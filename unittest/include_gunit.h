@@ -15,12 +15,21 @@
 
 #include "errcode.h"  // for ASSERT_HOST
 #include "fileio.h"   // for tesseract::File
+#include "log.h"      // for LOG
 #include "gtest/gtest.h"
 
 const char* FLAGS_test_tmpdir = "./tmp";
 
 class file : public tesseract::File {
 public:
+
+  static void MakeTmpdir() {
+#if defined(_WIN32)
+    _mkdir(FLAGS_test_tmpdir);
+#else
+    mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
+#endif
+  }
 
 // Create a file and write a string to it.
   static bool WriteStringToFile(const std::string& contents, const std::string& filename) {
@@ -54,7 +63,9 @@ public:
 
 // /usr/include/tensorflow/core/platform/default/logging.h defines the CHECK* macros.
 #if !defined(CHECK)
-#define CHECK(test) ASSERT_HOST(test)
+#define CHECK(condition)              \
+  if (!(condition)) \
+    LOG(FATAL) << "Check failed: " #condition " "
 #define CHECK_EQ(test, value) CHECK((test) == (value))
 #define CHECK_GT(test, value) CHECK((test) > (value))
 #define CHECK_LT(test, value) CHECK((test) < (value))

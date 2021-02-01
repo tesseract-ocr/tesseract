@@ -19,24 +19,30 @@
 #ifndef PAGERES_H
 #define PAGERES_H
 
-#include <cstdint>             // for int32_t, int16_t
-#include <functional>          // for std::function
-#include <set>                 // for std::pair
-#include <vector>              // for std::vector
-#include <sys/types.h>         // for int8_t
 #include "blamer.h"            // for BlamerBundle (ptr only), IRR_NUM_REASONS
 #include "clst.h"              // for CLIST_ITERATOR, CLISTIZEH
 #include "elst.h"              // for ELIST_ITERATOR, ELIST_LINK, ELISTIZEH
-#include <tesseract/genericvector.h>     // for GenericVector, PointerVector (ptr only)
 #include "matrix.h"            // for MATRIX
 #include "normalis.h"          // for DENORM
 #include "ratngs.h"            // for WERD_CHOICE, BLOB_CHOICE (ptr only)
 #include "rect.h"              // for TBOX
 #include "rejctmap.h"          // for REJMAP
-#include <tesseract/strngs.h>            // for STRING
-#include <tesseract/unichar.h>           // for UNICHAR_ID, INVALID_UNICHAR_ID
 #include "unicharset.h"        // for UNICHARSET, UNICHARSET::Direction, UNI...
 #include "werd.h"              // for WERD, W_BOL, W_EOL
+
+#include "genericvector.h"     // for GenericVector, PointerVector (ptr only)
+#include "strngs.h"            // for STRING
+#include <tesseract/unichar.h>           // for UNICHAR_ID, INVALID_UNICHAR_ID
+
+#include <cstdint>             // for int32_t, int16_t
+#include <functional>          // for std::function
+#include <set>                 // for std::pair
+#include <vector>              // for std::vector
+#include <sys/types.h>         // for int8_t
+
+struct Pix;
+
+namespace tesseract {
 
 class BLOCK;
 class BLOCK_LIST;
@@ -46,15 +52,11 @@ class ROW_RES;
 class SEAM;
 class WERD_RES;
 
-struct Pix;
 struct TWERD;
 
-namespace tesseract {
-  class BoxWord;
-  class Tesseract;
-  struct FontInfo;
-}
-using tesseract::FontInfo;
+class BoxWord;
+class Tesseract;
+struct FontInfo;
 
 /* Forward declarations */
 
@@ -162,7 +164,7 @@ enum CRUNCH_MODE
 
 // WERD_RES is a collection of publicly accessible members that gathers
 // information about a word result.
-class WERD_RES : public ELIST_LINK {
+class TESS_API WERD_RES : public ELIST_LINK {
  public:
   // Which word is which?
   // There are 3 coordinate spaces in use here: a possibly rotated pixel space,
@@ -671,7 +673,7 @@ class WERD_RES : public ELIST_LINK {
  * PAGE_RES_IT - Page results iterator
  *************************************************************************/
 
-class PAGE_RES_IT {
+class TESS_API PAGE_RES_IT {
  public:
   PAGE_RES * page_res;         // page being iterated
 
@@ -721,7 +723,7 @@ class PAGE_RES_IT {
   // Replaces the current WERD/WERD_RES with the given words. The given words
   // contain fake blobs that indicate the position of the characters. These are
   // replaced with real blobs from the current word as much as possible.
-  void ReplaceCurrentWord(tesseract::PointerVector<WERD_RES>* words);
+  void ReplaceCurrentWord(PointerVector<WERD_RES>* words);
 
   // Deletes the current WERD_RES and its underlying WERD.
   void DeleteCurrentWord();
@@ -794,4 +796,7 @@ class PAGE_RES_IT {
   WERD_RES_IT wr_it_of_current_word;
   WERD_RES_IT wr_it_of_next_word;
 };
+
+} // namespace tesseract
+
 #endif

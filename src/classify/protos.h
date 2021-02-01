@@ -19,17 +19,14 @@
 #ifndef PROTOS_H
 #define PROTOS_H
 
-/*----------------------------------------------------------------------
-              I n c l u d e s
-----------------------------------------------------------------------*/
 #include "bitvec.h"
 #include "params.h"
-#include <tesseract/unichar.h>
 #include "unicity_table.h"
 
-/*----------------------------------------------------------------------
-              T y p e s
-----------------------------------------------------------------------*/
+#include <tesseract/unichar.h>
+
+namespace tesseract {
+
 using CONFIGS = BIT_VECTOR*;
 
 typedef struct {
@@ -47,17 +44,17 @@ struct CLASS_STRUCT {
   CLASS_STRUCT()
       : NumProtos(0),
         MaxNumProtos(0),
-        Prototypes(nullptr),
         NumConfigs(0),
         MaxNumConfigs(0),
+        Prototypes(nullptr),
         Configurations(nullptr) {}
   int16_t NumProtos;
   int16_t MaxNumProtos;
-  PROTO Prototypes;
   int16_t NumConfigs;
   int16_t MaxNumConfigs;
+  PROTO Prototypes;
   CONFIGS Configurations;
-  UnicityTableEqEq<int> font_set;
+  UnicityTable<int> font_set;
 };
 using CLASS_TYPE = CLASS_STRUCT*;
 using CLASSES = CLASS_STRUCT*;
@@ -85,18 +82,26 @@ using CLASSES = CLASS_STRUCT*;
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
+TESS_API
 int AddConfigToClass(CLASS_TYPE Class);
 
+TESS_API
 int AddProtoToClass(CLASS_TYPE Class);
 
+TESS_API
 void FillABC(PROTO Proto);
 
+TESS_API
 void FreeClass(CLASS_TYPE Class);
 
+TESS_API
 void FreeClassFields(CLASS_TYPE Class);
 
 void InitPrototypes();
 
+TESS_API
 CLASS_TYPE NewClass(int NumProtos, int NumConfigs);
+
+} // namespace tesseract
 
 #endif

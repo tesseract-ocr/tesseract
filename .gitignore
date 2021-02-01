@@ -63,7 +63,7 @@ config_auto.h
 # ignore compilation files
 build/*
 /bin
-*/.deps/*
+.deps
 .dirstamp
 /.libs
 */.libs/*
@@ -80,6 +80,7 @@ __pycache__
 
 # tessdata
 *.traineddata
+tessdata_*
 
 # OpenCL
 tesseract_opencl_profile_devices.dat
