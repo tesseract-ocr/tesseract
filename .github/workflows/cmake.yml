@@ -1,7 +1,7 @@
 name: cmake
 # cmake build of tesseract and training tools with gcc on ubuntu.
 # cmake build of tesseract and training tools macos homebrew using Ninja.
-# does not build lstm related training tools on macos - icu and ltiff errors.
+# test command line version of tesseract.
 on:
   #push:
   schedule:
@@ -15,18 +15,37 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: ubuntu-18.04-gcc-cmake-build, os: ubuntu-18.04, cc: gcc,  cxx: g++ }
-          - { name: ubuntu-20.04-gcc-cmake-build, os: ubuntu-20.04, cc: gcc, cxx: g++ }
-          - { name: macos-10.15-gcc-cmake-build, os: macos-10.15, cc: gcc, cxx: g++ }
           - { name: macos-10.15-clang-cmake-build, os: macos-10.15, cc: clang, cxx: clang++ }
-
+          - { name: macos-10.15-gcc-cmake-build, os: macos-10.15, cc: gcc, cxx: g++ }
+          - { name: ubuntu-18.04-clang-7-cmake-build, os: ubuntu-18.04, cc: clang-7,  cxx: clang++-7 }
+          - { name: ubuntu-18.04-clang-8-cmake-build, os: ubuntu-18.04, cc: clang-8,  cxx: clang++-8 }
+          - { name: ubuntu-18.04-clang-9-cmake-build, os: ubuntu-18.04, cc: clang-9,  cxx: clang++-9 }
+          - { name: ubuntu-18.04-clang-10-cmake-build, os: ubuntu-18.04, cc: clang-10,  cxx: clang++-10 }
+          - { name: ubuntu-18.04-gcc-7-cmake-build, os: ubuntu-18.04, cc: gcc-7,  cxx: g++-7 }
+          - { name: ubuntu-18.04-gcc-8-cmake-build, os: ubuntu-18.04, cc: gcc-8,  cxx: g++-8 }
+          - { name: ubuntu-18.04-gcc-9-cmake-build, os: ubuntu-18.04, cc: gcc-9,  cxx: g++-9 }
+          - { name: ubuntu-18.04-gcc-10-cmake-build, os: ubuntu-18.04, cc: gcc-10,  cxx: g++-10 }
+          - { name: ubuntu-20.04-clang-7-cmake-build, os: ubuntu-20.04, cc: clang-7, cxx: clang++-7 }
+          - { name: ubuntu-20.04-clang-8-cmake-build, os: ubuntu-20.04, cc: clang-8, cxx: clang++-8 }
+          - { name: ubuntu-20.04-clang-9-cmake-build, os: ubuntu-20.04, cc: clang-9, cxx: clang++-9 }
+          - { name: ubuntu-20.04-clang-10-cmake-build, os: ubuntu-20.04, cc: clang-10, cxx: clang++-10 }
+          - { name: ubuntu-20.04-gcc-7-cmake-build, os: ubuntu-20.04, cc: gcc-7, cxx: g++-7 }
+          - { name: ubuntu-20.04-gcc-8-cmake-build, os: ubuntu-20.04, cc: gcc-8, cxx: g++-8 }
+          - { name: ubuntu-20.04-gcc-9-cmake-build, os: ubuntu-20.04, cc: gcc-9, cxx: g++-9 }
+          - { name: ubuntu-20.04-gcc-10-cmake-build, os: ubuntu-20.04, cc: gcc-10, cxx: g++-10 }
+          
     steps:
+      - name: Install compilers on Linux
+        run: |
+             sudo apt-get install ${{ matrix.config.cc }} ${{ matrix.config.cxx }} -y
+        if: runner.os == 'Linux'
+
       - name: Install dependencies on Linux
         run: |
              sudo apt-get install libleptonica-dev libpango1.0-dev -y
         if: runner.os == 'Linux'
 
-      - name: Install dependencies on macos
+      - name: Install dependencies on macOS
         run: |
              brew install cmake ninja leptonica pango libarchive icu4c
              ninja --version
@@ -50,6 +69,8 @@ jobs:
       - name: Configure (macOS)
         shell: bash
         run: |
+             set -e
+             export PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig:$PKG_CONFIG_PATH
              mkdir build
              mkdir inst
              cmake \
@@ -81,11 +102,10 @@ jobs:
              build/inst/bin/tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
              build/inst/bin/tesseract test/testing/raaj.tif - -l hin  --tessdata-dir ../tessdata
 
-      - name: Display Training Tools Version (not built for macOS)
+      - name: Display Training Tools Version
         run: |
              build/inst/bin/lstmtraining -v
              build/inst/bin/text2image -v
-        continue-on-error: true
 
       - name: Display Compiler Version
         run: |
