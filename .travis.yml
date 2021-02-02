@@ -2,58 +2,59 @@
 
 language: cpp
 
-dist: bionic
-#osx_image: xcode12.2
-
-env:
-  - LEPT_VER=1.78.0
-
 notifications:
   email: false
 
 sudo: false
 
-os:
-  - linux
-  - osx
-
-addons:
-  apt:
-    sources:
-    #- ubuntu-toolchain-r-test
-    packages:
-      - libarchive-dev
-      - libpango1.0-dev
-    #- g++-6
-
-#matrix:
-  #include:
-    #- os: osx
-      #install:
-      #script: brew install tesseract --HEAD
-      #cache:
-        #directories:
-          #- $HOME/Library/Caches/Homebrew
-  #allow_failures:
-    #- script: brew install tesseract --HEAD
-
-cache:
-  directories:
-  - leptonica-$LEPT_VER
-
-before_install:
-  - if [[ $TRAVIS_OS_NAME == linux   ]]; then LINUX=true; fi
-  - if [[ $TRAVIS_OS_NAME == osx     ]]; then OSX=true; fi
-
-install:
-  #- if [[ $LINUX && "$CXX" = "g++" ]]; then export CXX="g++-6" CC="gcc-6"; fi
-  - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
-  - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
-  - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
-
-script:
-  - mkdir build
-  - cd build
-  - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
-  - make
-  - sudo make install
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode12.2
+      before_cache:
+       - brew cleanup
+      cache:
+        ccache: true
+        directories:
+          - $HOME/Library/Caches/Homebrew
+      before_install: 
+        - brew install ccache
+      install:
+        - brew install ninja libtiff leptonica libarchive pango cairo icu4c
+      script:
+        - |
+          export PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:/$(brew --prefix)/opt/libffi/lib/pkgconfig:$PKG_CONFIG_PATH
+          mkdir build
+          mkdir inst
+          cmake \
+               -S . \
+               -B build \
+               -DCMAKE_BUILD_TYPE=Release \
+               -G Ninja \
+               -DCMAKE_INSTALL_PREFIX:PATH=inst
+          cmake --build build --config Release --target install
+  
+    - os: linux
+      dist: bionic
+      addons:
+        apt:
+          packages:
+            - libarchive-dev
+            - libpango1.0-dev
+            - libicu-dev
+      env:
+         - LEPT_VER=1.80.0
+      cache:
+        directories:
+        - leptonica-$LEPT_VER
+      install:
+        - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
+        - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
+        - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
+      script:
+        - mkdir build
+        - cd build
+        - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
+        - make
+        - sudo make install
+        
