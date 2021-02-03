@@ -1,6 +1,6 @@
 name: cmake
-# cmake build of tesseract and training tools with gcc on ubuntu.
-# cmake build of tesseract and training tools macos homebrew using Ninja.
+# cmake build of tesseract and training tools with gcc and clang on ubuntu.
+# cmake build of tesseract and training tools with gcc and clang on macOS homebrew using Ninja.
 # test command line version of tesseract.
 on:
   #push:
@@ -70,7 +70,7 @@ jobs:
         shell: bash
         run: |
              set -e
-             export PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig:$PKG_CONFIG_PATH
+             export PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:/$(brew --prefix)/opt/libffi/lib/pkgconfig:$PKG_CONFIG_PATH
              mkdir build
              mkdir inst
              cmake \
@@ -113,4 +113,3 @@ jobs:
              ${{ matrix.config.cxx }} --version
              git log -3 --pretty=format:'%h %ad %s | %an' 
         if: always()
-        

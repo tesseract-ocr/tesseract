@@ -1,0 +1,45 @@
+name: vcpkg
+# cmake build of tesseract and training tools using vcpkg.
+# Building training tools without sw is not supported on windows with cmake.
+# Fails to build currently. 
+# Requested port update https://github.com/microsoft/vcpkg/issues/16019.
+on:
+  #push:
+  schedule:
+    - cron: 0 0 2 3 *
+jobs: 
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+      
+    steps:
+      - run: |
+             git clone https://github.com/microsoft/vcpkg
+             cp vcpkg/ports/tesseract vcpkg/ports/tesseract5 -r
+             sed -i -e "s/REF 4.1.1/HEAD_REF master/" vcpkg/ports/tesseract5/portfile.cmake
+             sed -i -e '/SHA512/d' vcpkg/ports/tesseract5/portfile.cmake
+             sed -i -e '/fixup/d' vcpkg/ports/tesseract5/portfile.cmake
+             sed -i -e 's/Source: tesseract/Source: tesseract5/' vcpkg/ports/tesseract5/CONTROL
+             sed -i -e 's/4.1.1/5.0.0-alpha/' vcpkg/ports/tesseract5/CONTROL
+             sed -i -e 's/: 6/: 1/' vcpkg/ports/tesseract5/CONTROL
+             cat vcpkg/ports/tesseract5/portfile.cmake
+   
+      - name: Build (Linux)
+        run: |
+             vcpkg/bootstrap-vcpkg.sh
+             vcpkg/vcpkg integrate install
+             vcpkg/vcpkg list tess
+             vcpkg/vcpkg install tesseract5:x64-linux --head
+        if: runner.os == 'Linux'
+        
+      - name: Build (Windows)
+        run: |
+             vcpkg/bootstrap-vcpkg.bat
+             vcpkg/vcpkg integrate install
+             vcpkg/vcpkg list tess
+             vcpkg/vcpkg install tesseract5:x64-windows --head
+        if: runner.os == 'Windows'
+
