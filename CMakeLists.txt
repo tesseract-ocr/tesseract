@@ -164,6 +164,24 @@ if(COMPILER_SUPPORTS_MARCH_NATIVE)
     set(MARCH_NATIVE_OPT ON)
 endif()
 
+# Flags for SIMD support
+set(HAVE_AVX FALSE)
+set(HAVE_AVX2 FALSE)
+set(HAVE_FMA FALSE)
+set(HAVE_SSE4_1 FALSE)
+set(HAVE_NEON FALSE)
+
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64.*|AARCH64.*")
+ set(AARCH64 TRUE)
+endif()
+
+if(AARCH64)
+
+add_definitions("-DHAVE_NEON")
+set(HAVE_NEON TRUE)
+
+else()
+
 CHECK_CXX_COMPILER_FLAG("-mavx" HAVE_AVX)
 if(HAVE_AVX)
     set(AVX_COMPILE_FLAGS "-mavx")
@@ -219,6 +237,8 @@ if(MSVC)
         add_definitions("-DHAVE_SSE4_1")
     endif()
 endif(MSVC)
+
+endif(AARCH64)
 
 # auto optimize - used only for information about available vectors
 include(OptimizeForArchitecture)
@@ -330,7 +350,12 @@ else()
         message(FATAL_ERROR "Cannot find required library Leptonica. Quitting!")
     endif(NOT Leptonica_FOUND)
 
-    find_package(LibArchive)
+    # Check for optional libarchive.
+    if(PKG_CONFIG_EXECUTABLE)
+        pkg_check_modules(LibArchive libarchive)
+    else()
+        find_package(LibArchive)
+    endif()
     if(LibArchive_FOUND)
         set(HAVE_LIBARCHIVE ON)
     endif()
@@ -361,7 +386,7 @@ include(Configure)
 
 configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 
-set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/include/tesseract")
+set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/tesseract/version.h.in
@@ -571,8 +596,10 @@ if(HAVE_SSE4_1)
 endif(HAVE_SSE4_1)
 if(HAVE_NEON)
    list(APPEND arch_files_opt src/arch/intsimdmatrixneon.cpp)
-   set_source_files_properties(src/arch/intsimdmatrixneon.cpp
-                               PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
+   if(NEON_COMPILE_FLAGS)
+       set_source_files_properties(src/arch/intsimdmatrixneon.cpp
+                                   PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
+   endif()
 endif(HAVE_NEON)
 
 file(GLOB_RECURSE tesseract_hdr
