@@ -462,11 +462,24 @@ AC_CHECK_TYPES([long long int])
 # Test auxiliary packages
 # ----------------------------------------
 
-PKG_CHECK_MODULES([libcurl], [libcurl], [have_libcurl=true], [have_libcurl=false])
-AM_CONDITIONAL([HAVE_LIBCURL], $have_libcurl)
-if $have_libcurl; then
-  AC_DEFINE([HAVE_LIBCURL], [1], [Enable libcurl])
-fi
+AC_ARG_WITH([curl],
+            AS_HELP_STRING([--with-curl],
+                           [Build with libcurl which supports processing an image URL @<:@default=check@:>@]
+))
+
+AM_CONDITIONAL([HAVE_LIBCURL], false)
+AS_IF([test "x$with_curl" != xno], [
+  PKG_CHECK_MODULES([libcurl], [libcurl], [have_libcurl=true], [have_libcurl=false])
+  AM_CONDITIONAL([HAVE_LIBCURL], $have_libcurl)
+  if $have_libcurl; then
+    AC_DEFINE([HAVE_LIBCURL], [1], [Enable libcurl])
+  else
+    AS_IF([test "x$with_curl" != xcheck], [
+      AC_MSG_FAILURE(
+        [--with-curl was given, but test for libcurl failed])
+    ])
+  fi
+])
 
 PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.74], [have_lept=true], [have_lept=false])
 if $have_lept; then
