@@ -475,12 +475,25 @@ else
   AC_MSG_ERROR([Leptonica 1.74 or higher is required. Try to install libleptonica-dev package.])
 fi
 
-PKG_CHECK_MODULES([libarchive], [libarchive], [have_libarchive=true], [have_libarchive=false])
-AM_CONDITIONAL([HAVE_LIBARCHIVE], [$have_libarchive])
-if $have_libarchive; then
-  AC_DEFINE([HAVE_LIBARCHIVE], [1], [Enable libarchive])
-  CPPFLAGS="$CPPFLAGS $libarchive_CFLAGS"
-fi
+AC_ARG_WITH([archive],
+            AS_HELP_STRING([--with-archive],
+                           [Build with libarchive which supports compressed model files @<:@default=check@:>@]
+))
+
+AM_CONDITIONAL([HAVE_LIBARCHIVE], false)
+AS_IF([test "x$with_archive" != xno], [
+  PKG_CHECK_MODULES([libarchive], [libarchive], [have_libarchive=true], [have_libarchive=false])
+  AM_CONDITIONAL([HAVE_LIBARCHIVE], [$have_libarchive])
+  if $have_libarchive; then
+    AC_DEFINE([HAVE_LIBARCHIVE], [1], [Enable libarchive])
+    CPPFLAGS="$CPPFLAGS $libarchive_CFLAGS"
+  else
+    AS_IF([test "x$with_archive" != xcheck], [
+      AC_MSG_FAILURE(
+        [--with-archive was given, but test for libarchive failed])
+    ])
+  fi
+])
 
 AM_CONDITIONAL([ENABLE_TRAINING], true)
 
