@@ -246,12 +246,12 @@ fi
 # Configure arguments which allow disabling some optional libraries.
 AC_ARG_WITH([archive],
             AS_HELP_STRING([--with-archive],
-                           [Build with libarchive which supports compressed model files @<:@default=check@:>@]
-))
+                           [Build with libarchive which supports compressed model files @<:@default=check@:>@]),
+            [], [with_archive=check])
 AC_ARG_WITH([curl],
             AS_HELP_STRING([--with-curl],
-                           [Build with libcurl which supports processing an image URL @<:@default=check@:>@]
-))
+                           [Build with libcurl which supports processing an image URL @<:@default=check@:>@]),
+            [], [with_curl=check])
 AC_ARG_WITH([tensorflow],
   AS_HELP_STRING([--with-tensorflow],
                  [support TensorFlow @<:@default=check@:>@]),
