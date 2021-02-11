@@ -427,29 +427,37 @@ AC_SEARCH_LIBS([pthread_create], [pthread])
 # Check for programs needed to build documentation.
 # ----------------------------------------
 
-AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
-AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
-# MacOS with Homebrew requires the environment variable
-# XML_CATALOG_FILES for xsltproc.
+AM_CONDITIONAL([ASCIIDOC], false)
 AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], false)
-if $have_asciidoc && $have_xsltproc; then
-  AM_CONDITIONAL([ASCIIDOC], true)
-  XML_CATALOG_FILES=
-  AC_CHECK_PROG([have_brew], brew, true, false)
-  if $have_brew; then
-    brew_prefix=$(brew --prefix)
-    catalog_file=$brew_prefix/etc/xml/catalog
-    if test -f $catalog_file; then
-      AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], true)
-      XML_CATALOG_FILES=file:$catalog_file
-    else
-      AC_MSG_WARN([Missing file $catalog_file.])
+AC_ARG_ENABLE([doc],
+              AS_HELP_STRING([--disable-doc], [disable build of documentation]))
+AS_IF([test "$enable_doc" != "no"], [
+  AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
+  AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
+  # MacOS with Homebrew requires the environment variable
+  # XML_CATALOG_FILES for xsltproc.
+  if $have_asciidoc && $have_xsltproc; then
+    AM_CONDITIONAL([ASCIIDOC], true)
+    XML_CATALOG_FILES=
+    AC_CHECK_PROG([have_brew], brew, true, false)
+    if $have_brew; then
+      brew_prefix=$(brew --prefix)
+      catalog_file=$brew_prefix/etc/xml/catalog
+      if test -f $catalog_file; then
+        AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], true)
+        XML_CATALOG_FILES=file:$catalog_file
+      else
+        AC_MSG_WARN([Missing file $catalog_file.])
+      fi
     fi
+    AC_SUBST([XML_CATALOG_FILES])
+  else
+    AS_IF([test "x$enable_doc" != xcheck], [
+      AC_MSG_FAILURE(
+        [--enable-doc was given, but test for asciidoc and xsltproc failed])
+    ])
   fi
-  AC_SUBST([XML_CATALOG_FILES])
-else
-  AM_CONDITIONAL([ASCIIDOC], false)
-fi
+])
 
 # ----------------------------------------
 # Checks for typedefs, structures, and compiler characteristics.
@@ -568,13 +576,15 @@ echo "$ sudo make install"
 echo "$ sudo ldconfig"
 echo ""
 
-AM_COND_IF([ASCIIDOC],
-  [
-   echo "This will also build the documentation."
+AM_COND_IF([ASCIIDOC], [
+  echo "This will also build the documentation."
+], [
+  AS_IF([test "$enable_doc" = "no"], [
+    echo "Documentation will not be built because it was disabled."
   ], [
-   echo "Documentation will not be built because asciidoc or xsltproc is missing."
-  ]
-)
+    echo "Documentation will not be built because asciidoc or xsltproc is missing."
+  ])
+])
 
 # echo "$ sudo make install LANGS=\"eng ara deu\""
 # echo "  Or:"
