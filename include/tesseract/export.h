@@ -40,15 +40,12 @@
 # endif
 #endif
 
-#if !defined(__GNUC__)
-# define __attribute__(attr) /* compiler without support for __attribute__ */
-#endif
-
 /* GCC can do type checking of printf strings */
 #ifdef __printflike
 #  define TS_PRINTFLIKE(F, V) __printflike(F, V)
 #else
 #  if defined(__GNUC__) && \
+      !defined(__clang__) && \
       (__GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 7)
 #    define TS_PRINTFLIKE(F, V) __attribute__((format(gnu_printf, F, V)))
 #  else
