@@ -243,11 +243,21 @@ if test "$enable_opencl" = "yes"; then
   ])
 fi
 
-# Check whether to build with support for TensorFlow.
+# Configure arguments which allow disabling some optional libraries.
+AC_ARG_WITH([archive],
+            AS_HELP_STRING([--with-archive],
+                           [Build with libarchive which supports compressed model files @<:@default=check@:>@]
+))
+AC_ARG_WITH([curl],
+            AS_HELP_STRING([--with-curl],
+                           [Build with libcurl which supports processing an image URL @<:@default=check@:>@]
+))
 AC_ARG_WITH([tensorflow],
   AS_HELP_STRING([--with-tensorflow],
                  [support TensorFlow @<:@default=check@:>@]),
   [], [with_tensorflow=check])
+
+# Check whether to build with support for TensorFlow.
 AM_CONDITIONAL([TENSORFLOW], false)
 TENSORFLOW_LIBS=
 AS_IF([test "x$with_tensorflow" != xno],
@@ -470,11 +480,6 @@ AC_CHECK_TYPES([long long int])
 # Test auxiliary packages
 # ----------------------------------------
 
-AC_ARG_WITH([curl],
-            AS_HELP_STRING([--with-curl],
-                           [Build with libcurl which supports processing an image URL @<:@default=check@:>@]
-))
-
 AM_CONDITIONAL([HAVE_LIBCURL], false)
 AS_IF([test "x$with_curl" != xno], [
   PKG_CHECK_MODULES([libcurl], [libcurl], [have_libcurl=true], [have_libcurl=false])
@@ -495,11 +500,6 @@ if $have_lept; then
 else
   AC_MSG_ERROR([Leptonica 1.74 or higher is required. Try to install libleptonica-dev package.])
 fi
-
-AC_ARG_WITH([archive],
-            AS_HELP_STRING([--with-archive],
-                           [Build with libarchive which supports compressed model files @<:@default=check@:>@]
-))
 
 AM_CONDITIONAL([HAVE_LIBARCHIVE], false)
 AS_IF([test "x$with_archive" != xno], [
