@@ -1,32 +1,56 @@
 name: autotools
 # autotools build of tesseract and training tools on ubuntu, macos homebrew and macports.
+
 on:
   #push:
   schedule:
     - cron: 0 20 * * *
 
 jobs:
+###########################################################################
   linux:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ g++, clang++ ]
-        compiler_version: [ 7, 8, 9, 10 ]
-        os: [ ubuntu-18.04, ubuntu-20.04 ]
+        config:
+          - { name: ubuntu-18.04-clang-7-autotools, os: ubuntu-18.04, cc: clang-7,  cxx: clang++-7 }
+          - { name: ubuntu-18.04-clang-8-autotools, os: ubuntu-18.04, cc: clang-8,  cxx: clang++-8 } #installed
+          - { name: ubuntu-18.04-clang-9-autotools, os: ubuntu-18.04, cc: clang-9,  cxx: clang++-9 } #installed
+          - { name: ubuntu-18.04-clang-10-autotools, os: ubuntu-18.04, cc: clang-10,  cxx: clang++-10 }
+          
+          - { name: ubuntu-18.04-gcc-7-autotools, os: ubuntu-18.04, cc: gcc-7,  cxx: g++-7 } #installed
+          - { name: ubuntu-18.04-gcc-8-autotools, os: ubuntu-18.04, cc: gcc-8,  cxx: g++-8 } #installed
+          - { name: ubuntu-18.04-gcc-9-autotools, os: ubuntu-18.04, cc: gcc-9,  cxx: g++-9 } #installed
+          - { name: ubuntu-18.04-gcc-10-autotools, os: ubuntu-18.04, cc: gcc-10,  cxx: g++-10 } #installed
+          
+          - { name: ubuntu-20.04-clang-7-autotools, os: ubuntu-20.04, cc: clang-7, cxx: clang++-7 }
+          - { name: ubuntu-20.04-clang-8-autotools, os: ubuntu-20.04, cc: clang-8, cxx: clang++-8 } #installed
+          - { name: ubuntu-20.04-clang-9-autotools, os: ubuntu-20.04, cc: clang-9, cxx: clang++-9 } #installed
+          - { name: ubuntu-20.04-clang-10-autotools, os: ubuntu-20.04, cc: clang-10, cxx: clang++-10 } #installed
+          
+          - { name: ubuntu-20.04-gcc-7-autotools, os: ubuntu-20.04, cc: gcc-7, cxx: g++-7 } #installed
+          - { name: ubuntu-20.04-gcc-8-autotools, os: ubuntu-20.04, cc: gcc-8, cxx: g++-8 } #installed
+          - { name: ubuntu-20.04-gcc-9-autotools, os: ubuntu-20.04, cc: gcc-9, cxx: g++-9 } #installed
+          - { name: ubuntu-20.04-gcc-10-autotools, os: ubuntu-20.04, cc: gcc-10, cxx: g++-10 } #installed
 
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
 
-    - name: Install compiler
+    - name: Install Compiler
       run: |
-           sudo apt-get install -y ${{ matrix.compiler }}-${{ matrix.compiler_version }}
+           sudo apt-get install -y ${{ matrix.config.cxx }} ${{ matrix.config.cc }}
         
     - name: Install dependencies
       run: |
-           sudo apt-get install autoconf-archive libleptonica-dev libpango1.0-dev -y
+           sudo apt-get install \
+              autoconf-archive \
+              libleptonica-dev \
+              libpango1.0-dev \
+              libarchive-dev \
+              libcurl4-openssl-dev libcurl4 curl -y
 
     - name: Setup
       run: |
@@ -35,7 +59,7 @@ jobs:
 
     - name: Configure
       run: |
-           ./configure '--disable-shared' 'CXX=${{ matrix.compiler }}-${{ matrix.compiler_version }}' 'CXXFLAGS=-g -O2'
+           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
       
     - name: Make and Install Tesseract
       run: |
@@ -47,9 +71,8 @@ jobs:
            make training -j 8
            sudo make install training-install
       
-    - name: Display Version
+    - name: Display Tesseract and Training Tools Version
       run: |
-           ${{ matrix.compiler }}-${{ matrix.compiler_version }} --version
            tesseract -v
            lstmtraining -v
            text2image -v
@@ -60,41 +83,69 @@ jobs:
            git clone https://github.com/egorpugin/tessdata tessdata_unittest
            cp tessdata_unittest/fonts/* test/testing/ 
            mv tessdata_unittest/* ../
-      
-    - name: Run Tesseract on phototest.tif and raaj.tif
+           
+    - name: List languages in different test tessdata-dir
       run: |
-           tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
-           tesseract test/testing/raaj.tif - -l hin  --tessdata-dir ../tessdata
+           tesseract  --list-langs --tessdata-dir ../tessdata
+           tesseract  --list-langs --tessdata-dir ../tessdata_best
+           tesseract  --list-langs --tessdata-dir ../tessdata_fast
+        
+    - name: Run Tesseract on test images in different languages
+      run: |
+           tesseract test/testing/phototest.tif - --oem 1  --tessdata-dir ../tessdata
+           tesseract test/testing/raaj.tif - -l hin --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/viet.tif - -l vie --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/hebrew.png - -l heb --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/eurotext.tif - -l fra --oem 1 --tessdata-dir ../tessdata_best
+           tesseract test/testing/arabic.tif - -l ara --oem 1 --psm 6  --tessdata-dir ../tessdata
+
+    - name: Run Tesseract basicapitest
+      run: |
+           export CXXFLAGS="-std=c++11"
+           cd basicapitest
+           ${{ matrix.config.cxx }} basicapitest.cpp `pkg-config --cflags --libs tesseract lept `  -pthread  -o basicapitest 
+           ./basicapitest
+      
+    - name: Display Compiler Version
+      run: |
+           ${{ matrix.config.cxx }} --version
+           git log -3 --pretty=format:'%h %ad %s | %an' 
+      if: always()
+
+###########################################################################
 
   homebrew:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ g++, clang++ ]
-        os: [ macos-10.15 ]
+        config:
+          - { name: macos-10.15-clang-12-autotools, os: macos-10.15, cc: clang, cxx: clang++ } # default clang-12
+          - { name: macos-10.15-gcc-8-autotools, os: macos-10.15, cc: gcc-8, cxx: g++-8 } #installed
+          - { name: macos-10.15-gcc-9-autotools, os: macos-10.15, cc: gcc-9, cxx: g++-9 } #installed
+          - { name: macos-10.15-gcc-10-autotools, os: macos-10.15, cc: gcc-10, cxx: g++-10 } #installed
         
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-           
-    - name: install dependencies
+        
+    - name: Install dependencies
       run: |
            brew install automake autoconf-archive
-           brew install libarchive
            brew install leptonica
-           brew install cairo pango
+           brew install cairo pango icu4c
                       
     - name: Setup
       run: |
            mkdir -p m4
            ./autogen.sh
         
-    - name: Configure
+    - name: Configure Tesseract
       run: |
-           ./configure '--disable-shared' '--with-pic' 'CXX=${{ matrix.compiler }}' 'CXXFLAGS=-g -O2' 'PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig'
-        
+           export PKG_CONFIG_PATH="$(brew --config)/opt/libarchive/lib/pkgconfig:$(brew --config)/opt/icu4c/lib/pkgconfig:$(brew --config)/opt/libffi/lib/pkgconfig"
+           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2' "PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/opt/libffi/lib/pkgconfig"
+
     - name: Make and Install Tesseract
       run: |
            make -j 8
@@ -105,9 +156,9 @@ jobs:
            make training -j 8
            sudo make install training-install
 
-    - name: Display Version
+    - name: Display Tesseract and Training Tools Version
       run: |
-           ${{ matrix.compiler }} --version
+           ${{ matrix.config.cxx }} --version
            tesseract -v
            lstmtraining -v
            text2image -v
@@ -119,18 +170,46 @@ jobs:
            cp tessdata_unittest/fonts/* test/testing/
            mv tessdata_unittest/* ../
             
-    - name: Run Tesseract on phototest.tif and raaj.tif
+    - name: List languages in different test tessdata-dir
       run: |
-           tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
-           tesseract test/testing/raaj.tif - -l hin  --tessdata-dir ../tessdata
+           tesseract  --list-langs --tessdata-dir ../tessdata
+           tesseract  --list-langs --tessdata-dir ../tessdata_best
+           tesseract  --list-langs --tessdata-dir ../tessdata_fast
+        
+    - name: Run Tesseract on test images in different languages
+      run: |
+           tesseract test/testing/phototest.tif - --oem 1  --tessdata-dir ../tessdata
+           tesseract test/testing/raaj.tif - -l hin --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/viet.tif - -l vie --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/hebrew.png - -l heb --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/eurotext.tif - -l fra --oem 1 --tessdata-dir ../tessdata_best
+           tesseract test/testing/arabic.tif - -l ara --oem 1 --psm 6  --tessdata-dir ../tessdata
+
+    - name: Run Tesseract basicapitest
+      run: |
+           export "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig"
+           cd basicapitest
+           ${{ matrix.config.cxx }} -o basicapitest basicapitest.cpp -I/usr/local/include -L/usr/local/lib `pkg-config --cflags --libs tesseract lept ` -pthread -std=c++11 
+           ./basicapitest
       
+    - name: Display Compiler Version
+      run: |
+           ${{ matrix.config.cxx }} --version
+           git log -3 --pretty=format:'%h %ad %s | %an' 
+      if: always()
+
+###########################################################################
+
   macports:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ g++, clang++ ]
-        os: [ macos-10.15 ]
+        config:
+          - { name: macos-10.15-clang-12-autotools, os: macos-10.15, cc: clang, cxx: clang++ } # defualt clang-12
+          - { name: macos-10.15-gcc-8-autotools, os: macos-10.15, cc: gcc-8, cxx: g++-8 } #installed
+          - { name: macos-10.15-gcc-9-autotools, os: macos-10.15, cc: gcc-9, cxx: g++-9 } #installed
+          - { name: macos-10.15-gcc-10-autotools, os: macos-10.15, cc: gcc-10, cxx: g++-10 } #installed
         
     steps:
     - uses: actions/checkout@v2
@@ -143,12 +222,8 @@ jobs:
 
     - name: Install Dependencies
       run: |
-           sudo port install \
-                  autoconf autoconf-archive \
-                  automake \
-                  libtool \
-                  pkgconfig \
-                  leptonica 
+           sudo port install autoconf autoconf-archive automake libtool pkgconfig
+           sudo port install leptonica libomp
            sudo port install cairo pango 
            sudo port install icu +devel
         
@@ -157,9 +232,9 @@ jobs:
            mkdir -p m4
            ./autogen.sh
         
-    - name: Configure
+    - name: Configure Tesseract
       run: |
-           ./configure  '--disable-shared' '--with-pic' 'CXX=${{ matrix.compiler }}' 'CXXFLAGS=-g -O2' 
+           ./configure  '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2' 
         
     - name: Make and Install Tesseract
       run: |
@@ -178,19 +253,36 @@ jobs:
            text2image -v
       if: success() || failure()
 
-    - name: Get fonts, tessdata and langdata required for unit tests
+    - name: Get fonts, tessdata and langdata required for tests
       run: |
            git clone https://github.com/egorpugin/tessdata tessdata_unittest
            cp tessdata_unittest/fonts/* test/testing/
            mv tessdata_unittest/* ../
-      
-    - name: Run Tesseract on phototest.tif and raaj.tif
+           
+    - name: List languages in different test tessdata-dir
       run: |
-           tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
-           tesseract test/testing/raaj.tif - -l hin  --tessdata-dir ../tessdata
+           tesseract  --list-langs --tessdata-dir ../tessdata
+           tesseract  --list-langs --tessdata-dir ../tessdata_best
+           tesseract  --list-langs --tessdata-dir ../tessdata_fast
+        
+    - name: Run Tesseract on test images in different languages
+      run: |
+           tesseract test/testing/phototest.tif - --oem 1  --tessdata-dir ../tessdata
+           tesseract test/testing/raaj.tif - -l hin --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/viet.tif - -l vie --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/hebrew.png - -l heb --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/eurotext.tif - -l fra --oem 1 --tessdata-dir ../tessdata_best
+           tesseract test/testing/arabic.tif - -l ara --oem 1 --psm 6  --tessdata-dir ../tessdata
 
+    - name: Run Tesseract basicapitest 
+      run: |
+           export "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig"
+           cd basicapitest
+           ${{ matrix.config.cxx }} -o basicapitest basicapitest.cpp -I/opt/local/include -L/opt/local/lib -I/usr/local/include -L/usr/local/lib `pkg-config --cflags --libs tesseract lept ` -pthread -std=c++11 
+           ./basicapitest
+      
     - name: Display Compiler Version
       run: |
-           ${{ matrix.compiler }} --version
+           ${{ matrix.config.cxx }} --version
            git log -3 --pretty=format:'%h %ad %s | %an' 
       if: always()
