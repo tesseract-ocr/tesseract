@@ -440,7 +440,9 @@ AC_SEARCH_LIBS([pthread_create], [pthread])
 AM_CONDITIONAL([ASCIIDOC], false)
 AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], false)
 AC_ARG_ENABLE([doc],
-              AS_HELP_STRING([--disable-doc], [disable build of documentation]))
+              AS_HELP_STRING([--disable-doc], [disable build of documentation])
+              [],
+              [: m4_divert_text([DEFAULTS], [enable_doc=check])])
 AS_IF([test "$enable_doc" != "no"], [
   AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
   AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
