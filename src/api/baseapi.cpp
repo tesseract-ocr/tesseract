@@ -940,6 +940,10 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
         line.push_back(ch);
       }
     }
+    if (!line.empty()) {
+      // Add last line without terminating LF.
+      lines.push_back(line);
+    }
     if (lines.empty()) return false;
   }
 
