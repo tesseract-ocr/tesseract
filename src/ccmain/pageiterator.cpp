@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <tesseract/pageiterator.h>
-#include "allheaders.h"
+#include <allheaders.h>
 #include "helpers.h"
 #include "pageres.h"
 #include "tesseractclass.h"

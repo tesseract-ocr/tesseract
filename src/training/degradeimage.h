@@ -20,7 +20,7 @@
 #ifndef TESSERACT_TRAINING_DEGRADEIMAGE_H_
 #define TESSERACT_TRAINING_DEGRADEIMAGE_H_
 
-#include "allheaders.h"
+#include <allheaders.h>
 #include "genericvector.h"
 #include "helpers.h"  // For TRand.
 #include "rect.h"

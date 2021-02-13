@@ -48,7 +48,7 @@
 #include "strngs.h"                 // for STRING
 #include <tesseract/unichar.h>                // for UNICHAR_ID
 
-#include "allheaders.h"             // for pixDestroy, pixGetWidth, pixGetHe...
+#include <allheaders.h>             // for pixDestroy, pixGetWidth, pixGetHe...
 
 #include <cstdint>                  // for int16_t, int32_t, uint16_t
 #include <cstdio>                   // for FILE

@@ -30,7 +30,7 @@
 #include <string>
 #include <tesseract/baseapi.h>
 #include "include_gunit.h"
-#include "allheaders.h"
+#include <allheaders.h>
 
 namespace tesseract {
 

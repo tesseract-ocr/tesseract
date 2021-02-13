@@ -30,7 +30,7 @@
 
 #include "helpers.h"     // for UpdateRange, IntCastRounded
 
-#include "allheaders.h"  // for pixGetHeight, pixGetPixel
+#include <allheaders.h>  // for pixGetHeight, pixGetPixel
 
 #include <algorithm>     // for max, min
 #include <cstdint>       // for INT32_MAX, INT16_MAX

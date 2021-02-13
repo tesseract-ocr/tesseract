@@ -27,7 +27,7 @@
 #include "rect.h"
 #include "scrollview.h"
 
-#include "allheaders.h"
+#include <allheaders.h>
 
 class BLOCK;
 

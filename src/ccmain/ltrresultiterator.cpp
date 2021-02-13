@@ -22,7 +22,7 @@
 #include "pageres.h"
 #include "tesseractclass.h"
 
-#include "allheaders.h"
+#include <allheaders.h>
 
 #include "strngs.h"
 

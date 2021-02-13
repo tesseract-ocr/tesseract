@@ -1,7 +1,7 @@
 #ifndef TESSERACT_CCSTRUCT_DEBUGPIXA_H_
 #define TESSERACT_CCSTRUCT_DEBUGPIXA_H_
 
-#include "allheaders.h"
+#include <allheaders.h>
 
 namespace tesseract {
 

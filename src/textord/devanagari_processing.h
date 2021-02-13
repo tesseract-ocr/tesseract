@@ -13,7 +13,7 @@
 #ifndef TESSERACT_TEXTORD_DEVNAGARI_PROCESSING_H_
 #define TESSERACT_TEXTORD_DEVNAGARI_PROCESSING_H_
 
-#include "allheaders.h"
+#include <allheaders.h>
 #include "ocrblock.h"
 #include "params.h"
 

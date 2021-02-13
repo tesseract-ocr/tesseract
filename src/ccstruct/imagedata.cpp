@@ -31,7 +31,7 @@
 #include "helpers.h"     // for IntCastRounded, TRand, ClipToRange, Modulo
 #include "serialis.h"    // for TFile
 
-#include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
+#include <allheaders.h>  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 
 #include <cinttypes>     // for PRId64
 

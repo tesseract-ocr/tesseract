@@ -27,7 +27,7 @@
 #include "quadlsq.h"     // for QLSQ
 #include "quadratc.h"    // for QUAD_COEFFS
 
-#include "allheaders.h"  // for pixRenderPolyline, pixGetDepth, pixGetHeight
+#include <allheaders.h>  // for pixRenderPolyline, pixGetDepth, pixGetHeight
 #include "pix.h"         // for L_CLEAR_PIXELS, L_SET_PIXELS, Pix (ptr only)
 
 namespace tesseract {

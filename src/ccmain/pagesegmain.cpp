@@ -29,7 +29,7 @@
 #include "config_auto.h"
 #endif
 
-#include "allheaders.h"
+#include <allheaders.h>
 #include "blobbox.h"
 #include "blread.h"
 #include "colfind.h"

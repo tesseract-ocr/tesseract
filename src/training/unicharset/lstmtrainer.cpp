@@ -25,7 +25,7 @@
 #include "lstmtrainer.h"
 #include <string>
 
-#include "allheaders.h"
+#include <allheaders.h>
 #include "boxread.h"
 #include "ctc.h"
 #include "imagedata.h"

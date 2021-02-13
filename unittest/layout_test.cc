@@ -14,7 +14,7 @@
 
 #include "include_gunit.h"
 
-#include "allheaders.h"
+#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include "coutln.h"
 #include "log.h"                        // for LOG

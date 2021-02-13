@@ -15,7 +15,7 @@
 #include <unistd.h>     // for access
 #endif
 #include <string>
-#include "allheaders.h"
+#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include "helpers.h"
 #include "log.h"

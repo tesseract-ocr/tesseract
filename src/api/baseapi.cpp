@@ -80,7 +80,7 @@
 #include <sstream>             // for std::stringstream
 #include <vector>              // for std::vector
 
-#include "allheaders.h"        // for pixDestroy, boxCreate, boxaAddBox, box...
+#include <allheaders.h>        // for pixDestroy, boxCreate, boxaAddBox, box...
 #ifdef HAVE_LIBCURL
 #include <curl/curl.h>
 #endif

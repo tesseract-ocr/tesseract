@@ -1,7 +1,7 @@
 
 #include <tesseract/resultiterator.h>
 #include <string>
-#include "allheaders.h"
+#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include "genericvector.h"
 #include "scrollview.h"

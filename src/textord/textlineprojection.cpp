@@ -16,7 +16,7 @@
 #endif
 
 #include "textlineprojection.h"
-#include "allheaders.h"
+#include <allheaders.h>
 #include "bbgrid.h"         // Base class.
 #include "blobbox.h"        // BlobNeighourDir.
 #include "blobs.h"

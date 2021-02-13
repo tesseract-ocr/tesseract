@@ -31,7 +31,7 @@
 #include "openclwrapper.h" // for OpenclDevice
 #endif
 
-#include "allheaders.h"
+#include <allheaders.h>
 
 #include <algorithm>
 

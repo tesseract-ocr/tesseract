@@ -20,7 +20,7 @@
 
 #include "stringrenderer.h"
 
-#include "allheaders.h"     // from leptonica
+#include <allheaders.h>     // from leptonica
 #include "boxchar.h"
 #include "ligature_table.h"
 #include "normstrngs.h"

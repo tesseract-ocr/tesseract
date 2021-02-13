@@ -19,7 +19,7 @@
 
 #include "tfnetwork.h"
 
-#include "allheaders.h"
+#include <allheaders.h>
 #include "input.h"
 #include "networkscratch.h"
 

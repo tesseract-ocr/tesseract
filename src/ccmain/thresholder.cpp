@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "allheaders.h"
+#include <allheaders.h>
 
 #include <tesseract/thresholder.h>
 
