@@ -1,6 +1,6 @@
 name: autotools
 # autotools build of tesseract and training tools on ubuntu, macos homebrew and macports.
-
+# run command line tests, basicapitest and unittests.
 on:
   #push:
   schedule:
@@ -15,25 +15,25 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: ubuntu-18.04-clang-7-autotools, os: ubuntu-18.04, cc: clang-7,  cxx: clang++-7 }
-          - { name: ubuntu-18.04-clang-8-autotools, os: ubuntu-18.04, cc: clang-8,  cxx: clang++-8 } #installed
-          - { name: ubuntu-18.04-clang-9-autotools, os: ubuntu-18.04, cc: clang-9,  cxx: clang++-9 } #installed
-          - { name: ubuntu-18.04-clang-10-autotools, os: ubuntu-18.04, cc: clang-10,  cxx: clang++-10 }
+          - { name: ubuntu-18.04-clang-7-autotools, os: ubuntu-18.04, cxx: clang++-7 }
+          - { name: ubuntu-18.04-clang-8-autotools, os: ubuntu-18.04, cxx: clang++-8 } #installed
+          - { name: ubuntu-18.04-clang-9-autotools, os: ubuntu-18.04, cxx: clang++-9 } #installed
+          - { name: ubuntu-18.04-clang-10-autotools, os: ubuntu-18.04, cxx: clang++-10 }
 
-          - { name: ubuntu-18.04-gcc-7-autotools, os: ubuntu-18.04, cc: gcc-7,  cxx: g++-7 } #installed
-          - { name: ubuntu-18.04-gcc-8-autotools, os: ubuntu-18.04, cc: gcc-8,  cxx: g++-8 } #installed
-          - { name: ubuntu-18.04-gcc-9-autotools, os: ubuntu-18.04, cc: gcc-9,  cxx: g++-9 } #installed
-          - { name: ubuntu-18.04-gcc-10-autotools, os: ubuntu-18.04, cc: gcc-10,  cxx: g++-10 } #installed
+          - { name: ubuntu-18.04-gcc-7-autotools, os: ubuntu-18.04, cxx: g++-7 } #installed
+          - { name: ubuntu-18.04-gcc-8-autotools, os: ubuntu-18.04, cxx: g++-8 } #installed
+          - { name: ubuntu-18.04-gcc-9-autotools, os: ubuntu-18.04, cxx: g++-9 } #installed
+          - { name: ubuntu-18.04-gcc-10-autotools, os: ubuntu-18.04, cxx: g++-10 } #installed
 
-          - { name: ubuntu-20.04-clang-7-autotools, os: ubuntu-20.04, cc: clang-7, cxx: clang++-7 }
-          - { name: ubuntu-20.04-clang-8-autotools, os: ubuntu-20.04, cc: clang-8, cxx: clang++-8 } #installed
-          - { name: ubuntu-20.04-clang-9-autotools, os: ubuntu-20.04, cc: clang-9, cxx: clang++-9 } #installed
-          - { name: ubuntu-20.04-clang-10-autotools, os: ubuntu-20.04, cc: clang-10, cxx: clang++-10 } #installed
+          - { name: ubuntu-20.04-clang-7-autotools, os: ubuntu-20.04, cxx: clang++-7 }
+          - { name: ubuntu-20.04-clang-8-autotools, os: ubuntu-20.04, cxx: clang++-8 } #installed
+          - { name: ubuntu-20.04-clang-9-autotools, os: ubuntu-20.04, cxx: clang++-9 } #installed
+          - { name: ubuntu-20.04-clang-10-autotools, os: ubuntu-20.04, cxx: clang++-10 } #installed
 
-          - { name: ubuntu-20.04-gcc-7-autotools, os: ubuntu-20.04, cc: gcc-7, cxx: g++-7 } #installed
-          - { name: ubuntu-20.04-gcc-8-autotools, os: ubuntu-20.04, cc: gcc-8, cxx: g++-8 } #installed
-          - { name: ubuntu-20.04-gcc-9-autotools, os: ubuntu-20.04, cc: gcc-9, cxx: g++-9 } #installed
-          - { name: ubuntu-20.04-gcc-10-autotools, os: ubuntu-20.04, cc: gcc-10, cxx: g++-10 } #installed
+          - { name: ubuntu-20.04-gcc-7-autotools, os: ubuntu-20.04, cxx: g++-7 } #installed
+          - { name: ubuntu-20.04-gcc-8-autotools, os: ubuntu-20.04, cxx: g++-8 } #installed
+          - { name: ubuntu-20.04-gcc-9-autotools, os: ubuntu-20.04, cxx: g++-9 } #installed
+          - { name: ubuntu-20.04-gcc-10-autotools, os: ubuntu-20.04, cxx: g++-10 } #installed
 
     steps:
     - uses: actions/checkout@v2
@@ -48,7 +48,7 @@ jobs:
 
     - name: Install Compiler
       run: |
-           sudo apt-get install -y ${{ matrix.config.cxx }} ${{ matrix.config.cc }}
+           sudo apt-get install -y ${{ matrix.config.cxx }}
 
     - name: Install dependencies
       run: |
@@ -80,7 +80,7 @@ jobs:
       run: |
            make check
 
-    - name: Display Tesseract and Training Tools Version
+    - name: Display Version for tesseract, lstmtraining, text2image
       run: |
            tesseract -v
            lstmtraining -v
@@ -128,10 +128,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-10.15-clang-12-autotools, os: macos-10.15, cc: clang, cxx: clang++ } # default clang-12
-          - { name: macos-10.15-gcc-8-autotools, os: macos-10.15, cc: gcc-8, cxx: g++-8 } #installed
-          - { name: macos-10.15-gcc-9-autotools, os: macos-10.15, cc: gcc-9, cxx: g++-9 } #installed
-          - { name: macos-10.15-gcc-10-autotools, os: macos-10.15, cc: gcc-10, cxx: g++-10 } #installed
+          - { name: macos-10.15-clang-12-autotools, os: macos-10.15, cxx: clang++ }
+          - { name: macos-10.15-gcc-10-autotools, os: macos-10.15, cxx: g++-10 }
 
     steps:
     - uses: actions/checkout@v2
@@ -152,7 +150,7 @@ jobs:
            brew install cabextract
            brew install libarchive curl
 
-    - name: Setup
+    - name: Setup Tesseract
       run: |
            mkdir -p m4
            ./autogen.sh
@@ -170,14 +168,21 @@ jobs:
            make training -j 8
            sudo make install training-install
 
-    - name: Make and run Unit Tests (Fails with gcc)
+    - name: Make and run Unit Tests (clang)
+      if: startsWith(matrix.config.cxx, 'clang')
       run: |
            make check
-      continue-on-error: true
       
-    - name: Display Tesseract and Training Tools Version
+    - name: Make and run Unit Tests (unset LANG needed for g++-8, g++-9, g++-10 on macOS)
+      if: startsWith(matrix.config.cxx, 'g')
+      shell: bash
       run: |
-           ${{ matrix.config.cxx }} --version
+           unset LANG LC_ALL LC_CTYPE 
+           locale
+           make check
+
+    - name: Display Version for tesseract, lstmtraining, text2image
+      run: |
            tesseract -v
            lstmtraining -v
            text2image -v
@@ -215,7 +220,7 @@ jobs:
       run: |
            cat test-suite.log
       if: always()
-
+      
 # ============================================================================================
 
   ports:
@@ -224,10 +229,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-10.15-clang-12-autotools, os: macos-10.15, cc: clang, cxx: clang++ } # defualt clang-12
-          - { name: macos-10.15-gcc-8-autotools, os: macos-10.15, cc: gcc-8, cxx: g++-8 } #installed
-          - { name: macos-10.15-gcc-9-autotools, os: macos-10.15, cc: gcc-9, cxx: g++-9 } #installed
-          - { name: macos-10.15-gcc-10-autotools, os: macos-10.15, cc: gcc-10, cxx: g++-10 } #installed
+          - { name: macos-10.15-clang-12-autotools, os: macos-10.15, cxx: clang++ }
 
     steps:
     - uses: actions/checkout@v2
@@ -247,12 +249,12 @@ jobs:
     - name: Install Dependencies
       run: |
            sudo port install autoconf autoconf-archive automake libtool pkgconfig
-           sudo port install leptonica libomp
+           sudo port install leptonica
            sudo port install cairo pango
            sudo port install icu +devel
            sudo port install cabextract libarchive curl
 
-    - name: Setup
+    - name: Setup Tesseract
       run: |
            mkdir -p m4
            ./autogen.sh
@@ -271,12 +273,12 @@ jobs:
            make training -j 8
            sudo make install training-install
 
-    - name: Make and run Unit Tests (Fails with gcc)
+    - name: Make and run Unit Tests (clang)
+      if: startsWith(matrix.config.cxx, 'clang')
       run: |
            make check
-      continue-on-error: true
-      
-    - name: Display Version
+
+    - name: Display Version for tesseract, lstmtraining, text2image
       run: |
            tesseract -v
            lstmtraining -v
@@ -315,4 +317,4 @@ jobs:
       run: |
            cat test-suite.log
       if: always()
-
+      
