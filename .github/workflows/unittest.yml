@@ -1,24 +1,25 @@
 name: unittest
-# autotools build on ubuntu and macos homebrew, unittests with address sanitizers.
-# LSTMTrainerTest.DeterminismTest fails on Ubuntu 18.04 clang++-9 Issue #3258
+# autotools build on ubuntu and macOS homebrew.
+# unittests with address sanitizers.
+# [  FAILED  ] LSTMTrainerTest.DeterminismTest - clang version 9.0.0-2~ubuntu18.04.2
 on:
   #push:
   schedule:
     - cron: 0 19 * * *
 
 jobs:
-  build:
+  sanitizers:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
         config:
-          - { name: ubuntu-18.04-gcc-unittest, os: ubuntu-18.04, cc: gcc,  cxx: g++ }
-          - { name: ubuntu-20.04-gcc-unittest, os: ubuntu-20.04, cc: gcc,  cxx: g++ }
-          - { name: ubuntu-20.04-clang-unittest, os: ubuntu-20.04, cc: clang,  cxx: clang++ }
-          - { name: macos-10.15-gcc-unittest, os: macos-10.15, cc: gcc, cxx: g++ }
-          - { name: macos-10.15-clang-unittest, os: macos-10.15, cc: clang, cxx: clang++ }
+          - { name: macos-10.15-clang-unittest, os: macos-10.15, cxx: clang++ }
+          - { name: ubuntu-18.04-clang-8-unittest, os: ubuntu-18.04, cxx: clang++-8 }
+          - { name: ubuntu-18.04-gcc-unittest, os: ubuntu-18.04, cxx: g++ }
+          - { name: ubuntu-20.04-clang-10-unittest, os: ubuntu-20.04, cxx: clang++-10 }
+          - { name: ubuntu-20.04-gcc-unittest, os: ubuntu-20.04, cxx: g++ }
 
     steps:
     - uses: actions/checkout@v2
@@ -46,7 +47,6 @@ jobs:
     - name: Configure (Linux)
       run: |
            ./configure '--disable-shared' \
-                'CC=${{ matrix.config.cc }}' \
                 'CXX=${{ matrix.config.cxx }}' \
                 'CXXFLAGS=-g -O2 -fsanitize=address,undefined'
       if: runner.os == 'Linux'
@@ -54,10 +54,9 @@ jobs:
     - name: Configure (MacOS Homebrew)
       run: |
            ./configure '--disable-shared' '--with-pic' \
-                'CC=${{ matrix.config.cc }}' \
                 'CXX=${{ matrix.config.cxx }}' \
                 'CXXFLAGS=-g -O2 -fsanitize=address,undefined' \
-                'PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/libarchive/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig'
+                "PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/opt/libffi/lib/pkgconfig"
       if: runner.os == 'macOS'
 
     - name: Make and Install Tesseract

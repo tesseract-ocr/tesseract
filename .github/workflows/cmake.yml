@@ -1,15 +1,13 @@
 name: cmake
-# cmake build of tesseract and training tools with gcc and clang on ubuntu.
-# cmake build of tesseract and training tools with gcc and clang on macOS homebrew using Ninja.
+# cmake build of tesseract and training tools on ubuntu and macOS homebrew using Ninja.
 # test command line version of tesseract. run basicapitest.
-
 on:
   #push:
   schedule:
     - cron: 0 21 * * *
 
 jobs:
-  build:
+  basictests:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     strategy:
@@ -17,36 +15,36 @@ jobs:
       matrix:
         config:
           
-          - { name: macos-10.15-clang-12-cmake, os: macos-10.15, cc: clang, cxx: clang++ } # defualt
-          - { name: macos-10.15-clang-11-cmake, os: macos-10.15, cc: '$(brew --prefix llvm)/bin/clang', cxx: '$(brew --prefix llvm)/bin/clang++' }  #installed
-          - { name: macos-10.15-gcc-8-cmake, os: macos-10.15, cc: gcc-8, cxx: g++-8 } #installed
-          - { name: macos-10.15-gcc-9-cmake, os: macos-10.15, cc: gcc-9, cxx: g++-9 } #installed
-          - { name: macos-10.15-gcc-10-cmake, os: macos-10.15, cc: gcc-10, cxx: g++-10 } #installed
+          - { name: macos-10.15-clang-12-cmake, os: macos-10.15, cxx: clang++ } # defualt
+          - { name: macos-10.15-clang-11-cmake, os: macos-10.15, cxx: '$(brew --prefix llvm)/bin/clang++' }  #installed
+          - { name: macos-10.15-gcc-8-cmake, os: macos-10.15, cxx: g++-8 } #installed
+          - { name: macos-10.15-gcc-9-cmake, os: macos-10.15, cxx: g++-9 } #installed
+          - { name: macos-10.15-gcc-10-cmake, os: macos-10.15, cxx: g++-10 } #installed
           
-          - { name: ubuntu-18.04-clang-7-cmake, os: ubuntu-18.04, cc: clang-7,  cxx: clang++-7 }
-          - { name: ubuntu-18.04-clang-8-cmake, os: ubuntu-18.04, cc: clang-8,  cxx: clang++-8 } #installed
-          - { name: ubuntu-18.04-clang-9-cmake, os: ubuntu-18.04, cc: clang-9,  cxx: clang++-9 } #installed
-          - { name: ubuntu-18.04-clang-10-cmake, os: ubuntu-18.04, cc: clang-10,  cxx: clang++-10 }
+          - { name: ubuntu-18.04-clang-7-cmake, os: ubuntu-18.04, cxx: clang++-7 }
+          - { name: ubuntu-18.04-clang-8-cmake, os: ubuntu-18.04, cxx: clang++-8 } #installed
+          - { name: ubuntu-18.04-clang-9-cmake, os: ubuntu-18.04, cxx: clang++-9 } #installed
+          - { name: ubuntu-18.04-clang-10-cmake, os: ubuntu-18.04, cxx: clang++-10 }
           
-          - { name: ubuntu-18.04-gcc-7-cmake, os: ubuntu-18.04, cc: gcc-7,  cxx: g++-7 } #installed
-          - { name: ubuntu-18.04-gcc-8-cmake, os: ubuntu-18.04, cc: gcc-8,  cxx: g++-8 } #installed
-          - { name: ubuntu-18.04-gcc-9-cmake, os: ubuntu-18.04, cc: gcc-9,  cxx: g++-9 } #installed
-          - { name: ubuntu-18.04-gcc-10-cmake, os: ubuntu-18.04, cc: gcc-10,  cxx: g++-10 } #installed
+          - { name: ubuntu-18.04-gcc-7-cmake, os: ubuntu-18.04, cxx: g++-7 } #installed
+          - { name: ubuntu-18.04-gcc-8-cmake, os: ubuntu-18.04, cxx: g++-8 } #installed
+          - { name: ubuntu-18.04-gcc-9-cmake, os: ubuntu-18.04, cxx: g++-9 } #installed
+          - { name: ubuntu-18.04-gcc-10-cmake, os: ubuntu-18.04, cxx: g++-10 } #installed
           
-          - { name: ubuntu-20.04-clang-7-cmake, os: ubuntu-20.04, cc: clang-7, cxx: clang++-7 }
-          - { name: ubuntu-20.04-clang-8-cmake, os: ubuntu-20.04, cc: clang-8, cxx: clang++-8 } #installed
-          - { name: ubuntu-20.04-clang-9-cmake, os: ubuntu-20.04, cc: clang-9, cxx: clang++-9 } #installed
-          - { name: ubuntu-20.04-clang-10-cmake, os: ubuntu-20.04, cc: clang-10, cxx: clang++-10 } #installed
+          - { name: ubuntu-20.04-clang-7-cmake, os: ubuntu-20.04, cxx: clang++-7 }
+          - { name: ubuntu-20.04-clang-8-cmake, os: ubuntu-20.04, cxx: clang++-8 } #installed
+          - { name: ubuntu-20.04-clang-9-cmake, os: ubuntu-20.04, cxx: clang++-9 } #installed
+          - { name: ubuntu-20.04-clang-10-cmake, os: ubuntu-20.04, cxx: clang++-10 } #installed
           
-          - { name: ubuntu-20.04-gcc-7-cmake, os: ubuntu-20.04, cc: gcc-7, cxx: g++-7 } #installed
-          - { name: ubuntu-20.04-gcc-8-cmake, os: ubuntu-20.04, cc: gcc-8, cxx: g++-8 } #installed
-          - { name: ubuntu-20.04-gcc-9-cmake, os: ubuntu-20.04, cc: gcc-9, cxx: g++-9 } #installed
-          - { name: ubuntu-20.04-gcc-10-cmake, os: ubuntu-20.04, cc: gcc-10, cxx: g++-10 } #installed
+          - { name: ubuntu-20.04-gcc-7-cmake, os: ubuntu-20.04, cxx: g++-7 } #installed
+          - { name: ubuntu-20.04-gcc-8-cmake, os: ubuntu-20.04, cxx: g++-8 } #installed
+          - { name: ubuntu-20.04-gcc-9-cmake, os: ubuntu-20.04, cxx: g++-9 } #installed
+          - { name: ubuntu-20.04-gcc-10-cmake, os: ubuntu-20.04, cxx: g++-10 } #installed
           
     steps:
       - name: Install compilers on Linux
         run: |
-             sudo apt-get install ${{ matrix.config.cc }} ${{ matrix.config.cxx }} -y
+             sudo apt-get install ${{ matrix.config.cxx }} -y
         if: runner.os == 'Linux'
        
 # sudo apt-get install libarchive-dev libcurl4-openssl-dev libcurl4 curl -y       
@@ -84,7 +82,6 @@ jobs:
                -G Ninja \
                -DCMAKE_BUILD_TYPE=Release \
                -DOPENMP_BUILD=OFF \
-               -DCMAKE_C_COMPILER=${{ matrix.config.cc }}  \
                -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
                -DCMAKE_INSTALL_PREFIX:PATH=inst
         if: runner.os == 'Linux'
@@ -102,7 +99,6 @@ jobs:
                -G Ninja \
                -DCMAKE_BUILD_TYPE=Release \
                -DOPENMP_BUILD=OFF \
-               -DCMAKE_C_COMPILER=${{ matrix.config.cc }}  \
                -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
                -DCMAKE_INSTALL_PREFIX:PATH=inst
         if: runner.os == 'macOS'
@@ -150,7 +146,6 @@ jobs:
       
       - name: Display Compiler Version
         run: |
-             ${{ matrix.config.cc }} --version
              ${{ matrix.config.cxx }} --version
              git log -3 --pretty=format:'%h %ad %s | %an' 
         if: always()
