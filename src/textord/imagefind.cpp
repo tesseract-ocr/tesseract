@@ -28,7 +28,7 @@
 #include "statistc.h"
 #include "params.h"
 
-#include "allheaders.h"
+#include <allheaders.h>
 
 #include <algorithm>
 

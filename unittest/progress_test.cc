@@ -21,7 +21,7 @@
 #include <tesseract/baseapi.h>
 #include <tesseract/ocrclass.h>
 
-#include "allheaders.h"
+#include <allheaders.h>
 #include "gmock/gmock.h"
 
 #include <fstream>

@@ -10,7 +10,7 @@
 // limitations under the License.
 
 #include <string>
-#include "allheaders.h"
+#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include "boxread.h"
 #include "rect.h"

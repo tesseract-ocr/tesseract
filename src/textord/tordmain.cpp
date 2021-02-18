@@ -51,7 +51,7 @@
 
 #include "genericvector.h"      // for PointerVector, GenericVector
 
-#include "allheaders.h"         // for pixDestroy, pixGetHeight, boxCreate
+#include <allheaders.h>         // for pixDestroy, pixGetHeight, boxCreate
 
 #include <cfloat>               // for FLT_MAX
 #include <cmath>                // for ceil, floor, M_PI

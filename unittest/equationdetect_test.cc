@@ -15,7 +15,7 @@
 #include "equationdetect.h"
 #include "tesseractclass.h"
 
-#include "allheaders.h"
+#include <allheaders.h>
 
 #include <memory>
 #include <string>

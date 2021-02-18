@@ -21,7 +21,7 @@
 #include "degradeimage.h"
 
 #include <cstdlib>
-#include "allheaders.h"   // from leptonica
+#include <allheaders.h>   // from leptonica
 #include "genericvector.h"
 #include "helpers.h"  // For TRand.
 #include "rect.h"

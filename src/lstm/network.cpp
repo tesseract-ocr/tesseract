@@ -26,7 +26,7 @@
 
 // This base class needs to know about all its sub-classes because of the
 // factory deserializing method: CreateFromFile.
-#include "allheaders.h"
+#include <allheaders.h>
 #include "convolve.h"
 #include "fullyconnected.h"
 #include "input.h"

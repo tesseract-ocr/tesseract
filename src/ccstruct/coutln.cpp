@@ -32,7 +32,7 @@
 
 #include "helpers.h"      // for ClipToRange, IntCastRounded, Modulo
 
-#include "allheaders.h"   // for pixSetPixel, pixGetData, pixRasterop, pixGe...
+#include <allheaders.h>   // for pixSetPixel, pixGetData, pixRasterop, pixGe...
 #include "pix.h"          // for Pix (ptr only), PIX_DST, PIX_NOT
 
 #include <algorithm>      // for max, min

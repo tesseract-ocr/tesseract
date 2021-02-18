@@ -20,7 +20,7 @@
 #include "otsuthr.h"
 
 #include <cstring>
-#include "allheaders.h"
+#include <allheaders.h>
 #include "helpers.h"
 #if defined(USE_OPENCL)
 #include "openclwrapper.h" // for OpenclDevice

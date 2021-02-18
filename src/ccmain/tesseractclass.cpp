@@ -40,7 +40,7 @@
 
 #include "tesseractclass.h"
 
-#include "allheaders.h"
+#include <allheaders.h>
 #include "edgblob.h"
 #ifndef DISABLED_LEGACY_ENGINE
 #include "equationdetect.h"

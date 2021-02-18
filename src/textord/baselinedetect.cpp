@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <cfloat>               // for FLT_MAX
 #include <cmath>                // for M_PI
-#include "allheaders.h"
+#include <allheaders.h>
 #include "blobbox.h"
 #include "detlinefit.h"
 #include "drawtord.h"

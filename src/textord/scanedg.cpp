@@ -22,7 +22,7 @@
 #include "edgloop.h"
 #include "pdblock.h"
 
-#include "allheaders.h"
+#include <allheaders.h>
 
 #include <memory>  // std::unique_ptr
 

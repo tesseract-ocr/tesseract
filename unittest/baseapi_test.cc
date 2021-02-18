@@ -18,7 +18,7 @@
 
 #include <tesseract/baseapi.h>
 
-#include "allheaders.h"
+#include <allheaders.h>
 #include "absl/strings/ascii.h"
 #include "absl/strings/str_cat.h"
 #include "gmock/gmock-matchers.h"

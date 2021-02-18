@@ -17,7 +17,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "allheaders.h"
+#include <allheaders.h>
 #include "blobbox.h"
 #include "equationdetectbase.h"
 

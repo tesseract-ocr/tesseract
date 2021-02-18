@@ -20,7 +20,7 @@
 #include <algorithm>
 
 #include "trainingsampleset.h"
-#include "allheaders.h"
+#include <allheaders.h>
 #include "boxread.h"
 #include "fontinfo.h"
 #include "indexmapbidi.h"

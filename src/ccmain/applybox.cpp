@@ -20,7 +20,7 @@
 #include <cctype>
 #include <cerrno>
 #include <cstring>
-#include "allheaders.h"
+#include <allheaders.h>
 #include "boxread.h"
 #endif  // ndef DISABLED_LEGACY_ENGINE
 #include "pageres.h"

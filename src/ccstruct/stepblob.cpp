@@ -27,7 +27,7 @@
 
 #include "genericvector.h"  // for GenericVector
 
-#include "allheaders.h"     // for pixCreate, pixGetDepth
+#include <allheaders.h>     // for pixCreate, pixGetDepth
 
 namespace tesseract {
 
