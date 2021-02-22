@@ -41,7 +41,7 @@ FILE* Tesseract::init_recog_training(const char* filename) {
     getDict().stopper_no_acceptable_choices.set_value(1);
   }
 
-  STRING output_fname = filename;
+  std::string output_fname = filename;
   const char* lastdot = strrchr(output_fname.c_str(), '.');
   if (lastdot != nullptr)
     output_fname[lastdot - output_fname.c_str()] = '\0';

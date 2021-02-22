@@ -200,7 +200,7 @@ class TESS_API BLOCK : public ELIST_LINK
   int16_t font_class = 0;      ///< correct font class
   int32_t xheight = 0;         ///< height of chars
   float cell_over_xheight_ = 0.0f; ///< Ratio of cell height to xheight.
-  STRING filename;             ///< name of block
+  std::string filename;        ///< name of block
   ROW_LIST rows;               ///< rows in block
   PARA_LIST paras_;            ///< paragraphs of block
   C_BLOB_LIST c_blobs;         ///< before textord
