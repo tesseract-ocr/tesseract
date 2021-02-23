@@ -27,10 +27,9 @@
 #include "normalis.h"  // kBlnBaselineOffset.
 #include "unicharset.h"
 
-#include "genericvector.h"
-
 #include <algorithm>
 #include <string>
+#include <vector>
 
 namespace tesseract {
 
@@ -764,9 +763,9 @@ void WERD_CHOICE::DisplaySegmentation(TWERD* word) {
   const int kNumColors = 6;
   static ScrollView *segm_window = nullptr;
   // Check the state against the static prev_drawn_state.
-  static GenericVector<int> prev_drawn_state;
+  static std::vector<int> prev_drawn_state;
   bool already_done = prev_drawn_state.size() == length_;
-  if (!already_done) prev_drawn_state.init_to_size(length_, 0);
+  if (!already_done) prev_drawn_state.resize(length_);
   for (int i = 0; i < length_; ++i) {
     if (prev_drawn_state[i] != state_[i]) {
       already_done = false;
