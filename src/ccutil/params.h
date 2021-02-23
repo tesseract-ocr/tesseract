@@ -19,10 +19,10 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
-#include "genericvector.h"
 #include "strngs.h"
 
 #include <cstdio>
+#include <vector>
 
 namespace tesseract {
 
@@ -40,10 +40,10 @@ enum SetParamConstraint {
 };
 
 struct ParamsVectors {
-  GenericVector<IntParam*> int_params;
-  GenericVector<BoolParam*> bool_params;
-  GenericVector<StringParam*> string_params;
-  GenericVector<DoubleParam*> double_params;
+  std::vector<IntParam*> int_params;
+  std::vector<BoolParam*> bool_params;
+  std::vector<StringParam*> string_params;
+  std::vector<DoubleParam*> double_params;
 };
 
 // Utility functions for working with Tesseract parameters.
@@ -71,24 +71,23 @@ class TESS_API ParamUtils {
   // appropriate type) if it was found in the vector obtained from
   // GlobalParams() or in the given member_params.
   template <class T>
-  static T* FindParam(const char* name, const GenericVector<T*>& global_vec,
-                      const GenericVector<T*>& member_vec) {
-    int i;
-    for (i = 0; i < global_vec.size(); ++i) {
-      if (strcmp(global_vec[i]->name_str(), name) == 0) return global_vec[i];
+  static T* FindParam(const char* name, const std::vector<T*>& global_vec,
+                      const std::vector<T*>& member_vec) {
+    for (auto* param : global_vec) {
+      if (strcmp(param->name_str(), name) == 0) return param;
     }
-    for (i = 0; i < member_vec.size(); ++i) {
-      if (strcmp(member_vec[i]->name_str(), name) == 0) return member_vec[i];
+    for (auto* param : member_vec) {
+      if (strcmp(param->name_str(), name) == 0) return param;
     }
     return nullptr;
   }
   // Removes the given pointer to the param from the given vector.
   template <class T>
-  static void RemoveParam(T* param_ptr, GenericVector<T*>* vec) {
-    for (int i = 0; i < vec->size(); ++i) {
-      if ((*vec)[i] == param_ptr) {
-        vec->remove(i);
-        return;
+  static void RemoveParam(T* param_ptr, std::vector<T*>* vec) {
+    for (auto it = vec->begin(); it != vec->end(); ++it) {
+      if (*it == param_ptr) {
+        vec->erase(it);
+        break;
       }
     }
   }
@@ -151,11 +150,11 @@ class IntParam : public Param {
   void set_value(int32_t value) { value_ = value; }
   void ResetToDefault() { value_ = default_; }
   void ResetFrom(const ParamsVectors* vec) {
-    for (int i = 0; i < vec->int_params.size(); ++i) {
-      if (strcmp(vec->int_params[i]->name_str(), name_) == 0) {
+    for (auto* param : vec->int_params) {
+      if (strcmp(param->name_str(), name_) == 0) {
         // printf("overriding param %s=%d by =%d\n", name_, value_,
-        // *vec->int_params[i]);
-        value_ = *vec->int_params[i];
+        // param);
+        value_ = *param;
         break;
       }
     }
@@ -165,7 +164,7 @@ class IntParam : public Param {
   int32_t value_;
   int32_t default_;
   // Pointer to the vector that contains this param (not owned by this class).
-  GenericVector<IntParam*>* params_vec_;
+  std::vector<IntParam*>* params_vec_;
 };
 
 class BoolParam : public Param {
@@ -184,11 +183,11 @@ class BoolParam : public Param {
   void set_value(bool value) { value_ = value; }
   void ResetToDefault() { value_ = default_; }
   void ResetFrom(const ParamsVectors* vec) {
-    for (int i = 0; i < vec->bool_params.size(); ++i) {
-      if (strcmp(vec->bool_params[i]->name_str(), name_) == 0) {
+    for (auto* param : vec->bool_params) {
+      if (strcmp(param->name_str(), name_) == 0) {
         // printf("overriding param %s=%s by =%s\n", name_, value_ ? "true" :
-        // "false", *vec->bool_params[i] ? "true" : "false");
-        value_ = *vec->bool_params[i];
+        // "false", *param ? "true" : "false");
+        value_ = *param;
         break;
       }
     }
@@ -198,7 +197,7 @@ class BoolParam : public Param {
   bool value_;
   bool default_;
   // Pointer to the vector that contains this param (not owned by this class).
-  GenericVector<BoolParam*>* params_vec_;
+  std::vector<BoolParam*>* params_vec_;
 };
 
 class StringParam : public Param {
@@ -220,11 +219,11 @@ class StringParam : public Param {
   void set_value(const STRING& value) { value_ = value; }
   void ResetToDefault() { value_ = default_; }
   void ResetFrom(const ParamsVectors* vec) {
-    for (int i = 0; i < vec->string_params.size(); ++i) {
-      if (strcmp(vec->string_params[i]->name_str(), name_) == 0) {
+    for (auto* param : vec->string_params) {
+      if (strcmp(param->name_str(), name_) == 0) {
         // printf("overriding param %s=%s by =%s\n", name_, value_,
-        // vec->string_params[i]->c_str());
-        value_ = *vec->string_params[i];
+        // param->c_str());
+        value_ = *param;
         break;
       }
     }
@@ -234,7 +233,7 @@ class StringParam : public Param {
   STRING value_;
   STRING default_;
   // Pointer to the vector that contains this param (not owned by this class).
-  GenericVector<StringParam*>* params_vec_;
+  std::vector<StringParam*>* params_vec_;
 };
 
 class DoubleParam : public Param {
@@ -253,11 +252,11 @@ class DoubleParam : public Param {
   void set_value(double value) { value_ = value; }
   void ResetToDefault() { value_ = default_; }
   void ResetFrom(const ParamsVectors* vec) {
-    for (int i = 0; i < vec->double_params.size(); ++i) {
-      if (strcmp(vec->double_params[i]->name_str(), name_) == 0) {
+    for (auto* param : vec->double_params) {
+      if (strcmp(param->name_str(), name_) == 0) {
         // printf("overriding param %s=%f by =%f\n", name_, value_,
-        // *vec->double_params[i]);
-        value_ = *vec->double_params[i];
+        // *param);
+        value_ = *param;
         break;
       }
     }
@@ -267,7 +266,7 @@ class DoubleParam : public Param {
   double value_;
   double default_;
   // Pointer to the vector that contains this param (not owned by this class).
-  GenericVector<DoubleParam*>* params_vec_;
+  std::vector<DoubleParam*>* params_vec_;
 };
 
 // Global parameter lists.
