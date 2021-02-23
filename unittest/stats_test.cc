@@ -24,7 +24,7 @@ class STATSTest : public testing::Test {
   void SetUp() {
     std::locale::global(std::locale(""));
     stats_.set_range(0, 16);
-    for (size_t i = 0; i < ARRAYSIZE(kTestData); ++i)
+    for (size_t i = 0; i < countof(kTestData); ++i)
       stats_.add(i, kTestData[i]);
   }
 

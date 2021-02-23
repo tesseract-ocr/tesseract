@@ -112,13 +112,13 @@ TEST(NormstrngsTest, DetectsCorrectText) {
 }
 
 TEST(NormstrngsTest, DetectsIncorrectText) {
-  for (size_t i = 0; i < ARRAYSIZE(kBadlyFormedHinWords); ++i) {
+  for (size_t i = 0; i < countof(kBadlyFormedHinWords); ++i) {
     EXPECT_FALSE(NormalizeUTF8String(UnicodeNormMode::kNFKC, OCRNorm::kNone,
                                      GraphemeNorm::kNormalize,
                                      kBadlyFormedHinWords[i], nullptr))
         << kBadlyFormedHinWords[i];
   }
-  for (size_t i = 0; i < ARRAYSIZE(kBadlyFormedThaiWords); ++i) {
+  for (size_t i = 0; i < countof(kBadlyFormedThaiWords); ++i) {
     EXPECT_FALSE(NormalizeUTF8String(UnicodeNormMode::kNFKC, OCRNorm::kNone,
                                      GraphemeNorm::kNormalize,
                                      kBadlyFormedThaiWords[i], nullptr))

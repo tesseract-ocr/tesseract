@@ -486,12 +486,12 @@ TEST_F(ResultIteratorTest, DualStartTextlineOrderTest) {
                                      7, 6,
                                      5, ResultIterator::kMinorRunEnd};
 
-  ExpectTextlineReadingOrder(true, word_dirs, ABSL_ARRAYSIZE(word_dirs),
+  ExpectTextlineReadingOrder(true, word_dirs, countof(word_dirs),
                              reading_order_ltr_context,
-                             ABSL_ARRAYSIZE(reading_order_ltr_context));
-  ExpectTextlineReadingOrder(false, word_dirs, ABSL_ARRAYSIZE(word_dirs),
+                             countof(reading_order_ltr_context));
+  ExpectTextlineReadingOrder(false, word_dirs, countof(word_dirs),
                              reading_order_rtl_context,
-                             ABSL_ARRAYSIZE(reading_order_rtl_context));
+                             countof(reading_order_rtl_context));
 }
 
 // Tests that clearly left-direction text (with no right-to-left indications)
@@ -506,12 +506,12 @@ TEST_F(ResultIteratorTest, LeftwardTextlineOrderTest) {
       ResultIterator::kMinorRunStart, 0, 1, 2, 3, 4, 5, 6, 7,
       ResultIterator::kMinorRunEnd};
 
-  ExpectTextlineReadingOrder(true, word_dirs, ABSL_ARRAYSIZE(word_dirs),
+  ExpectTextlineReadingOrder(true, word_dirs, countof(word_dirs),
                              reading_order_ltr_context,
-                             ABSL_ARRAYSIZE(reading_order_ltr_context));
-  ExpectTextlineReadingOrder(false, word_dirs, ABSL_ARRAYSIZE(word_dirs),
+                             countof(reading_order_ltr_context));
+  ExpectTextlineReadingOrder(false, word_dirs, countof(word_dirs),
                              reading_order_rtl_context,
-                             ABSL_ARRAYSIZE(reading_order_rtl_context));
+                             countof(reading_order_rtl_context));
 }
 
 // Test that right-direction text comes out strictly right-to-left in
@@ -520,9 +520,9 @@ TEST_F(ResultIteratorTest, RightwardTextlineOrderTest) {
   const StrongScriptDirection word_dirs[] = {dR, dR, dN, dR, dN, dN, dR, dR};
   // The order here is just right-to-left, nothing fancy.
   int reading_order_rtl_context[] = {7, 6, 5, 4, 3, 2, 1, 0};
-  ExpectTextlineReadingOrder(false, word_dirs, ABSL_ARRAYSIZE(word_dirs),
+  ExpectTextlineReadingOrder(false, word_dirs, countof(word_dirs),
                              reading_order_rtl_context,
-                             ABSL_ARRAYSIZE(reading_order_rtl_context));
+                             countof(reading_order_rtl_context));
 }
 
 TEST_F(ResultIteratorTest, TextlineOrderSanityCheck) {

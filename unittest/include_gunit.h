@@ -59,8 +59,6 @@ public:
   }
 };
 
-#define ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
-
 // /usr/include/tensorflow/core/platform/default/logging.h defines the CHECK* macros.
 #if !defined(CHECK)
 #define CHECK(condition)              \
