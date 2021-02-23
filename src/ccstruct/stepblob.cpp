@@ -25,9 +25,8 @@
 
 #include "points.h"         // for operator+=, FCOORD, ICOORD
 
-#include "genericvector.h"  // for GenericVector
-
 #include <allheaders.h>     // for pixCreate, pixGetDepth
+#include <vector>           // for std::vector
 
 namespace tesseract {
 
@@ -441,8 +440,8 @@ int16_t C_BLOB::EstimateBaselinePosition() {
   if (outlines.empty() || perimeter() > width * kMaxPerimeterWidthRatio)
     return bottom;  // This is only for non-CJK blobs.
   // Get the minimum y coordinate at each x-coordinate.
-  GenericVector<int> y_mins;
-  y_mins.init_to_size(width + 1, box.top());
+  std::vector<int> y_mins;
+  y_mins.resize(width + 1, box.top());
   C_OUTLINE_IT it(&outlines);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     C_OUTLINE* outline = it.data();

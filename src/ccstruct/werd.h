@@ -22,6 +22,7 @@
 #include "bits16.h"
 #include "elst2.h"
 #include "params.h"
+#include "genericvector.h" // GenericVector
 #include "stepblob.h"
 
 #include "strngs.h"

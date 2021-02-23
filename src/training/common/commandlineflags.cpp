@@ -11,7 +11,8 @@
 #include <cmath>                // for std::isnan, NAN
 #include <locale>               // for std::locale::classic
 #include <sstream>              // for std::stringstream
-#include <tesseract/baseapi.h>            // TessBaseAPI::Version
+#include <vector>               // for std::vector
+#include <tesseract/baseapi.h>  // TessBaseAPI::Version
 #include "commandlineflags.h"
 #include "errcode.h"
 #include "tprintf.h"            // for tprintf
@@ -20,7 +21,7 @@ namespace tesseract {
 static bool IntFlagExists(const char* flag_name, int32_t* value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
-  GenericVector<IntParam*> empty;
+  std::vector<IntParam*> empty;
   IntParam *p = ParamUtils::FindParam<IntParam>(
       full_flag_name.c_str(), GlobalParams()->int_params, empty);
   if (p == nullptr) return false;
@@ -31,7 +32,7 @@ static bool IntFlagExists(const char* flag_name, int32_t* value) {
 static bool DoubleFlagExists(const char* flag_name, double* value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
-  GenericVector<DoubleParam*> empty;
+  std::vector<DoubleParam*> empty;
   DoubleParam *p = ParamUtils::FindParam<DoubleParam>(
       full_flag_name.c_str(), GlobalParams()->double_params, empty);
   if (p == nullptr) return false;
@@ -42,7 +43,7 @@ static bool DoubleFlagExists(const char* flag_name, double* value) {
 static bool BoolFlagExists(const char* flag_name, bool* value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
-  GenericVector<BoolParam*> empty;
+  std::vector<BoolParam*> empty;
   BoolParam *p = ParamUtils::FindParam<BoolParam>(
       full_flag_name.c_str(), GlobalParams()->bool_params, empty);
   if (p == nullptr) return false;
@@ -53,7 +54,7 @@ static bool BoolFlagExists(const char* flag_name, bool* value) {
 static bool StringFlagExists(const char* flag_name, const char** value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
-  GenericVector<StringParam*> empty;
+  std::vector<StringParam*> empty;
   StringParam *p = ParamUtils::FindParam<StringParam>(
       full_flag_name.c_str(), GlobalParams()->string_params, empty);
   *value = (p != nullptr) ? p->c_str() : nullptr;
@@ -63,7 +64,7 @@ static bool StringFlagExists(const char* flag_name, const char** value) {
 static void SetIntFlagValue(const char* flag_name, const int32_t new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
-  GenericVector<IntParam*> empty;
+  std::vector<IntParam*> empty;
   IntParam *p = ParamUtils::FindParam<IntParam>(
       full_flag_name.c_str(), GlobalParams()->int_params, empty);
   ASSERT_HOST(p != nullptr);
@@ -73,7 +74,7 @@ static void SetIntFlagValue(const char* flag_name, const int32_t new_val) {
 static void SetDoubleFlagValue(const char* flag_name, const double new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
-  GenericVector<DoubleParam*> empty;
+  std::vector<DoubleParam*> empty;
   DoubleParam *p = ParamUtils::FindParam<DoubleParam>(
       full_flag_name.c_str(), GlobalParams()->double_params, empty);
   ASSERT_HOST(p != nullptr);
@@ -83,7 +84,7 @@ static void SetDoubleFlagValue(const char* flag_name, const double new_val) {
 static void SetBoolFlagValue(const char* flag_name, const bool new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
-  GenericVector<BoolParam*> empty;
+  std::vector<BoolParam*> empty;
   BoolParam *p = ParamUtils::FindParam<BoolParam>(
       full_flag_name.c_str(), GlobalParams()->bool_params, empty);
   ASSERT_HOST(p != nullptr);
@@ -93,7 +94,7 @@ static void SetBoolFlagValue(const char* flag_name, const bool new_val) {
 static void SetStringFlagValue(const char* flag_name, const char* new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
-  GenericVector<StringParam*> empty;
+  std::vector<StringParam*> empty;
   StringParam *p = ParamUtils::FindParam<StringParam>(
       full_flag_name.c_str(), GlobalParams()->string_params, empty);
   ASSERT_HOST(p != nullptr);

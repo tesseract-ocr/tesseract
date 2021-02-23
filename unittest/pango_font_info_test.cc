@@ -169,7 +169,7 @@ TEST_F(PangoFontInfoTest, CanDropUncoveredChars) {
     "\u200C",  // U+200C (ZWJ)
     "\u200D"   // U+200D (ZWNJ)
   };
-  for (size_t i = 0; i < ARRAYSIZE(kJoiners); ++i) {
+  for (size_t i = 0; i < countof(kJoiners); ++i) {
     word = kJoiners[i];
     EXPECT_EQ(0, font_info_.DropUncoveredChars(&word));
     EXPECT_STREQ(kJoiners[i], word.c_str());
@@ -253,7 +253,7 @@ TEST_F(FontUtilsTest, DoesFindBestFonts) {
   std::string best_list = FontUtils::BestFonts(ch_map, &font_flags);
   EXPECT_TRUE(best_list.size());
   // All fonts except Lohit Hindi should render English text.
-  EXPECT_EQ(ARRAYSIZE(kExpectedFontNames) - 1, font_flags.size());
+  EXPECT_EQ(countof(kExpectedFontNames) - 1, font_flags.size());
 
   CountUnicodeChars(kKorText, &ch_map);
   best_list = FontUtils::BestFonts(ch_map, &font_flags);
@@ -319,7 +319,7 @@ TEST_F(FontUtilsTest, GetAllRenderableCharacters) {
 
   // Check that none of the included fonts cover the Mongolian or Ogham space
   // characters.
-  for (size_t f = 0; f < ARRAYSIZE(kExpectedFontNames); ++f) {
+  for (size_t f = 0; f < countof(kExpectedFontNames); ++f) {
     SCOPED_TRACE(absl::StrCat("Testing ", kExpectedFontNames[f]));
     FontUtils::GetAllRenderableCharacters(kExpectedFontNames[f], &unicode_mask);
 #if 0 // TODO: check fails because DejaVu Sans Ultra-Light supports ogham

@@ -22,6 +22,7 @@
 
 #include <allheaders.h>     // from leptonica
 #include "boxchar.h"
+#include "helpers.h"        // for TRand
 #include "ligature_table.h"
 #include "normstrngs.h"
 #include "tlog.h"

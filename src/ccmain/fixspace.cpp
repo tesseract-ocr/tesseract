@@ -267,24 +267,19 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   int16_t total_score = 0;
   int16_t word_count = 0;
   int16_t done_word_count = 0;
-  int16_t word_len;
   int16_t i;
   int16_t offset;
-  WERD_RES *word;                 // current word
   int16_t prev_word_score = 0;
   bool prev_word_done = false;
   bool prev_char_1 = false;      // prev ch a "1/I/l"?
   bool prev_char_digit = false;  // prev ch 2..9 or 0
-  bool current_char_1 = false;
-  bool current_word_ok_so_far;
-  STRING punct_chars = "!\"`',.:;";
+  const char* punct_chars = "!\"`',.:;";
   bool prev_char_punct = false;
-  bool current_char_punct = false;
-  bool word_done = false;
 
   do {
-    word = word_res_it.data();
-    word_done = fixspace_thinks_word_done(word);
+    // current word
+    WERD_RES* word = word_res_it.data();
+    bool word_done = fixspace_thinks_word_done(word);
     word_count++;
     if (word->tess_failed) {
       total_score += prev_word_score;
@@ -300,8 +295,8 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
         Yes IF it didn't end in a 1 when the first char of this word is a digit
           AND it didn't end in a digit when the first char of this word is a 1
       */
-      word_len = word->reject_map.length();
-      current_word_ok_so_far = false;
+      auto word_len = word->reject_map.length();
+      bool current_word_ok_so_far = false;
       if (!((prev_char_1 && digit_or_numeric_punct(word, 0)) ||
             (prev_char_digit && (
                 (word_done &&
@@ -326,7 +321,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
       /* Add 1 to total score for every joined 1 regardless of context and
          rejtn */
       for (i = 0, prev_char_1 = false; i < word_len; i++) {
-        current_char_1 = word->best_choice->unichar_string()[i] == '1';
+        bool current_char_1 = word->best_choice->unichar_string()[i] == '1';
         if (prev_char_1 || (current_char_1 && (i > 0)))
           total_score++;
         prev_char_1 = current_char_1;
@@ -337,8 +332,9 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
       if (tessedit_prefer_joined_punct) {
         for (i = 0, offset = 0, prev_char_punct = false; i < word_len;
              offset += word->best_choice->unichar_lengths()[i++]) {
-          current_char_punct =
-            punct_chars.contains(word->best_choice->unichar_string()[offset]);
+          bool current_char_punct =
+            strchr(punct_chars,
+                   word->best_choice->unichar_string()[offset]) != nullptr;
           if (prev_char_punct || (current_char_punct && i > 0))
             total_score++;
           prev_char_punct = current_char_punct;

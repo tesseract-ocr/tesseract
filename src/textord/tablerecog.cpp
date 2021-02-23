@@ -54,8 +54,6 @@ const double kMaxRowSize = 2.5;
 // Number of filled columns required to form a strong table row.
 // For small tables, this is an absolute number.
 const double kGoodRowNumberOfColumnsSmall[] = { 2, 2, 2, 2, 2, 3, 3 };
-const int kGoodRowNumberOfColumnsSmallSize =
-    sizeof(kGoodRowNumberOfColumnsSmall) / sizeof(double) - 1;
 // For large tables, it is a relative number
 const double kGoodRowNumberOfColumnsLarge = 0.7;
 // The amount of area that must be covered in a cell by ColPartitions to
@@ -1055,11 +1053,12 @@ bool TableRecognizer::IsWeakTableRow(StructuredTable* table, int row) {
   if (!table->VerifyRowFilled(row))
     return false;
 
-  double threshold = 0.0;
-  if (table->column_count() > kGoodRowNumberOfColumnsSmallSize)
-    threshold = table->column_count() * kGoodRowNumberOfColumnsLarge;
-  else
+  double threshold;
+  if (table->column_count() < countof(kGoodRowNumberOfColumnsSmall)) {
     threshold = kGoodRowNumberOfColumnsSmall[table->column_count()];
+  } else {
+    threshold = table->column_count() * kGoodRowNumberOfColumnsLarge;
+  }
 
   return table->CountFilledCellsInRow(row) < threshold;
 }
