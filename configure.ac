@@ -326,7 +326,7 @@ case "${host_os}" in
     fi
     ;;
 esac
-AM_CONDITIONAL([USE_OPENCL], [test "$enable_opencl" = "yes"])
+AM_CONDITIONAL([OPENCL], [test "$enable_opencl" = "yes"])
 AC_SUBST([OPENCL_CPPFLAGS])
 AC_SUBST([OPENCL_LDFLAGS])
 
