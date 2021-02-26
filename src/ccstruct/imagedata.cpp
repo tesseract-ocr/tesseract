@@ -41,6 +41,8 @@ namespace tesseract {
 // large.
 const int kMaxReadAhead = 8;
 
+#if 0 // WordFeature and FloatWordFeature are currently unused
+
 WordFeature::WordFeature() : x_(0), y_(0), dir_(0) {
 }
 
@@ -116,6 +118,8 @@ int FloatWordFeature::SortByXBucket(const void* v1, const void* v2) {
   if (x_diff == 0) return f1->y - f2->y;
   return x_diff;
 }
+
+#endif
 
 ImageData::ImageData() : page_number_(-1), vertical_text_(false) {
 }

@@ -56,6 +56,8 @@ enum CachingStrategy {
   CS_ROUND_ROBIN,
 };
 
+#if 0
+
 class WordFeature {
  public:
   WordFeature();
@@ -98,6 +100,8 @@ struct FloatWordFeature {
   float dir;
   int x_bucket;
 };
+
+#endif
 
 // Class to hold information on a single image:
 // Filename, cached image as a Pix*, character boxes, text transcription.
