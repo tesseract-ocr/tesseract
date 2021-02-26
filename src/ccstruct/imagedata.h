@@ -22,7 +22,7 @@
 #include "points.h"             // for FCOORD
 
 #include "genericvector.h"      // for GenericVector, PointerVector, FileReader
-#include "strngs.h"   // for STRING
+#include "strngs.h"             // for STRING
 
 #include <mutex>                // for std::mutex
 #include <thread>               // for std::thread
@@ -362,7 +362,7 @@ class DocumentCache {
       return GetPageRoundRobin(serial);
   }
 
-  const PointerVector<DocumentData>& documents() const {
+  const std::vector<DocumentData*>& documents() const {
     return documents_;
   }
   // Returns the total number of pages in an epoch. For CS_ROUND_ROBIN cache
@@ -387,14 +387,14 @@ class DocumentCache {
   int CountNeighbourDocs(int index, int dir);
 
   // A group of pages that corresponds in some loose way to a document.
-  PointerVector<DocumentData> documents_;
+  std::vector<DocumentData*> documents_;
   // Strategy to use for caching and serializing data samples.
-  CachingStrategy cache_strategy_;
+  CachingStrategy cache_strategy_ = CS_SEQUENTIAL;
   // Number of pages in the first document, used as a divisor in
   // GetPageSequential to determine the document index.
-  int num_pages_per_doc_;
+  int num_pages_per_doc_ = 0;
   // Max memory allowed in this cache.
-  int64_t max_memory_;
+  int64_t max_memory_ = 0;
 };
 
 }  // namespace tesseract

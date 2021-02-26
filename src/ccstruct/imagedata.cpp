@@ -582,8 +582,11 @@ bool DocumentData::ReCachePages() {
 
 // A collection of DocumentData that knows roughly how much memory it is using.
 DocumentCache::DocumentCache(int64_t max_memory)
-    : num_pages_per_doc_(0), max_memory_(max_memory) {}
-DocumentCache::~DocumentCache() {}
+    : max_memory_(max_memory) {
+}
+
+DocumentCache::~DocumentCache() {
+}
 
 // Adds all the documents in the list of filenames, counting memory.
 // The reader is used to read the files.
@@ -619,9 +622,10 @@ bool DocumentCache::AddToCache(DocumentData* data) {
 
 // Finds and returns a document by name.
 DocumentData* DocumentCache::FindDocument(const STRING& document_name) const {
-  for (int i = 0; i < documents_.size(); ++i) {
-    if (documents_[i]->document_name() == document_name)
-      return documents_[i];
+  for (auto* document : documents_) {
+    if (document->document_name() == document_name) {
+      return document;
+    }
   }
   return nullptr;
 }
@@ -636,11 +640,10 @@ int DocumentCache::TotalPages() {
     return num_pages_per_doc_ * documents_.size();
   }
   int total_pages = 0;
-  int num_docs = documents_.size();
-  for (int d = 0; d < num_docs; ++d) {
+  for (auto* document : documents_) {
     // We have to load a page to make NumPages() valid.
-    documents_[d]->GetPage(0);
-    total_pages += documents_[d]->NumPages();
+    document->GetPage(0);
+    total_pages += document->NumPages();
   }
   return total_pages;
 }
@@ -683,8 +686,8 @@ const ImageData* DocumentCache::GetPageSequential(int serial) {
   // Count up total memory. Background loading makes it more complicated to
   // keep a running count.
   int64_t total_memory = 0;
-  for (int d = 0; d < num_docs; ++d) {
-    total_memory += documents_[d]->memory_used();
+  for (auto* document : documents_) {
+    total_memory += document->memory_used();
   }
   if (total_memory >= max_memory_) {
     // Find something to un-cache.
