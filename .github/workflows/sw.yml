@@ -15,7 +15,7 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-20.04, macOS-latest]
 
-    steps:          
+    steps:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -31,21 +31,21 @@ jobs:
 
     - name: download test data
       run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
-          
+
     - name: copy fonts
       if: matrix.os != 'windows-latest'
       run: cp tessdata_unittest/fonts/* test/testing/
-          
+
     - name: copy fonts
       if: matrix.os == 'windows-latest'
       run: Copy-Item -Path "tessdata_unittest\fonts\*" -Destination "test\testing" -Recurse
       shell: pwsh
-    
+
     - name: test
       if: matrix.os != 'windows-latest'
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
       continue-on-error: true
-    
+
     - name: test-nightly
       if: matrix.os != 'windows-latest' && github.event.schedule=='0 0 * * *'
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1

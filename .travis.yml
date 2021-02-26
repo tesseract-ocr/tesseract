@@ -17,7 +17,7 @@ matrix:
         ccache: true
         directories:
           - $HOME/Library/Caches/Homebrew
-      before_install: 
+      before_install:
         - brew install ccache
       install:
         - brew install ninja libtiff leptonica libarchive pango cairo icu4c
@@ -33,7 +33,7 @@ matrix:
                -G Ninja \
                -DCMAKE_INSTALL_PREFIX:PATH=inst
           cmake --build build --config Release --target install
-  
+
     - os: linux
       dist: bionic
       addons:
@@ -57,4 +57,3 @@ matrix:
         - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
         - make
         - sudo make install
-        

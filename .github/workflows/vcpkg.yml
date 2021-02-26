@@ -4,26 +4,26 @@ on:
   #push:
   schedule:
     - cron: 0 23 * * *
-    
-jobs: 
+
+jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [windows-2019]
-              
+
     steps:
       - name: Checkout Tesseract Source (--head from master branch)
         uses: actions/checkout@v2
         with:
           submodules: recursive
 
-      - name: Visual Studio Setup 
+      - name: Visual Studio Setup
         shell: cmd
         run: |
              call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-      
+
       - name: Install vcpkg
         run: |
              git clone https://github.com/microsoft/vcpkg
@@ -33,13 +33,13 @@ jobs:
       - name: Build and Install Leptonica and image libraries using vcpkg
         run: |
              vcpkg/vcpkg install leptonica:x64-windows
-             
+
       - name: Configure and Build Tesseract (--head from master branch) with cmake
         run: |
-             cmake . -B build -DCMAKE_BUILD_TYPE=Release -DSW_BUILD=OFF -DOPENMP_BUILD=OFF -DBUILD_TRAINING_TOOLS=OFF "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake" 
+             cmake . -B build -DCMAKE_BUILD_TYPE=Release -DSW_BUILD=OFF -DOPENMP_BUILD=OFF -DBUILD_TRAINING_TOOLS=OFF "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake"
              cmake --build build --config Release --target install
-             
-      - name: Display Tesseract Version 
+
+      - name: Display Tesseract Version
         run: |
              D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe --version
 
@@ -62,17 +62,17 @@ jobs:
              target_link_libraries(basicapitest libtesseract)
              EOF
              cat CMakeLists.txt
-  
+
       - name: Configure basicapitest
         run: |
              cd test
              cmake . "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake"
-  
+
       - name: Build basicapitest
         run: |
              cd test
              cmake --build .  --config Release
-             
+
       - name: Download tessdata and image files used for tests
         run: |
              git clone https://github.com/egorpugin/tessdata tessdata_unittest
@@ -91,7 +91,7 @@ jobs:
              D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  test\testing\hebrew.png - -l heb --oem 1   --tessdata-dir ..\tessdata
              D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  test\testing\eurotext.tif - -l fra --oem 1 --tessdata-dir ..\tessdata_best
              D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  test\testing\arabic.tif - -l ara --oem 1 --psm 6  --tessdata-dir ..\tessdata
-           
+
       - name: List languages in different test tessdata-dir
         run: |
              D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  --list-langs --tessdata-dir ..\tessdata

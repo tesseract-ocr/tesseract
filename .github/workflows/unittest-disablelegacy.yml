@@ -20,7 +20,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-        
+
     - name: Install dependencies
       run: |
            sudo apt-get install autoconf-archive libleptonica-dev libpango1.0-dev -y
@@ -34,7 +34,7 @@ jobs:
     - name: Configure
       run: |
            ./configure '--disable-shared' '--disable-legacy' 'CXX=${{ matrix.compiler }}'
-      
+
     - name: Make and Install Tesseract
       run: |
            make -j 8
@@ -44,7 +44,7 @@ jobs:
       run: |
            make training -j 8
            sudo make install training-install
-      
+
     - name: Display Version
       run: |
            ${{ matrix.compiler }} --version
@@ -52,13 +52,13 @@ jobs:
            lstmtraining -v
            text2image -v
       if: success() || failure()
-        
+
     - name: Download fonts, tessdata and langdata required for tests
       run: |
            git clone https://github.com/egorpugin/tessdata tessdata_unittest
-           cp tessdata_unittest/fonts/* test/testing/ 
+           cp tessdata_unittest/fonts/* test/testing/
            mv tessdata_unittest/* ../
-      
+
     - name: Run Tesseract on phototest.tif and devatest.png
       run: |
            tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
@@ -67,10 +67,10 @@ jobs:
     - name: Make and run Unit Tests
       run: |
            make check -j 4
-      
+
     - name: Display Unit Tests Report
       run: |
            git log -3
-           ${{ matrix.compiler }} --version     
+           ${{ matrix.compiler }} --version
            cat test-suite.log
       if: always()

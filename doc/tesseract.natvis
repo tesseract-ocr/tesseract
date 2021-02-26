@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?> 
+<?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="STRING">
     <DisplayString>{(char*)data_+sizeof(int)*2,s8}</DisplayString>
@@ -15,7 +15,7 @@
       </ArrayItems>
     </Expand>
   </Type>
-  
+
   <Type Name="tesseract::IntParam">
     <DisplayString>{value_}</DisplayString>
   </Type>
@@ -30,5 +30,5 @@
   <Type Name="tesseract::DoubleParam">
     <DisplayString>{value_}</DisplayString>
   </Type>
-  
+
 </AutoVisualizer>

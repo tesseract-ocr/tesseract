@@ -403,7 +403,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
           tcnt++;
         }
       }
-    } 
+    }
     // Close ocrx_word.
     if (hocr_boxes || lstm_choice_mode > 0) {
       hocr_str << "\n      ";

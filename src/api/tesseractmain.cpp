@@ -76,13 +76,13 @@ static void Win32WarningHandler(const char* module, const char* fmt,
 class AutoWin32ConsoleOutputCP {
  public:
   explicit AutoWin32ConsoleOutputCP(UINT codeCP) {
-    oldCP_ = GetConsoleOutputCP();    
+    oldCP_ = GetConsoleOutputCP();
     SetConsoleOutputCP(codeCP);
   }
-  ~AutoWin32ConsoleOutputCP() {    
-    SetConsoleOutputCP(oldCP_);    
+  ~AutoWin32ConsoleOutputCP() {
+    SetConsoleOutputCP(oldCP_);
   }
- private:  
+ private:
   UINT oldCP_;
 };
 

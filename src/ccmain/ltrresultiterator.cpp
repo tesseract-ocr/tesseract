@@ -385,7 +385,7 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
   bool lstm_choice_mode = word_res_->tesseract->lstm_choice_mode;
   rating_coefficient_ = word_res_->tesseract->lstm_rating_coefficient;
   blanks_before_word_ = result_it.BlanksBeforeWord();
-  BLOB_CHOICE_LIST* choices = nullptr; 
+  BLOB_CHOICE_LIST* choices = nullptr;
   tstep_index_ = &result_it.blob_index_;
   if (oemLSTM_ && !word_res_->CTC_symbol_choices.empty()) {
     if (!word_res_->CTC_symbol_choices[0].empty() &&

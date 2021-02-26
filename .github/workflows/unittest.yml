@@ -38,7 +38,7 @@ jobs:
            brew install leptonica cairo pango
            brew install cabextract abseil
       if: runner.os == 'macOS'
-           
+
     - name: Setup
       run: |
            mkdir -p m4
@@ -68,7 +68,7 @@ jobs:
       run: |
            make training -j 8
            sudo make training-install
-      
+
     - name: Display Version
       run: |
            ${{ matrix.config.cxx }} --version
@@ -76,13 +76,13 @@ jobs:
            lstmtraining -v
            text2image -v
       if: success() || failure()
-        
+
     - name: Download fonts, tessdata and langdata required for tests
       run: |
            git clone https://github.com/egorpugin/tessdata tessdata_unittest
-           cp tessdata_unittest/fonts/* test/testing/ 
+           cp tessdata_unittest/fonts/* test/testing/
            mv tessdata_unittest/* ../
-      
+
     - name: Run Tesseract on phototest.tif and devatest.png
       run: |
            tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
@@ -91,10 +91,10 @@ jobs:
     - name: Make and run Unit Tests
       run: |
            make check -j 4
-      
+
     - name: Display Unit Tests Report
       run: |
            cat test-suite.log
            ${{ matrix.config.cxx }} --version
-           git log -3 --pretty=format:'%h %ad %s | %an' 
+           git log -3 --pretty=format:'%h %ad %s | %an'
       if: always()
