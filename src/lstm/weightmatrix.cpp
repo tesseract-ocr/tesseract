@@ -105,7 +105,7 @@ int WeightMatrix::RemapOutputs(const std::vector<int>& code_map) {
     for (int i = 0; i < ni; ++i) means[i] += weights[i];
   }
   for (double& mean : means) mean /= old_no;
-  wf_.ResizeNoInit(new_no, ni);
+  wf_.Resize(new_no, ni, 0.0);
   InitBackward();
   for (int dest = 0; dest < new_no; ++dest) {
     int src = code_map[dest];
