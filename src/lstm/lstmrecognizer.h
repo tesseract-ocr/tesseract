@@ -20,7 +20,6 @@
 
 #include "ccutil.h"
 #include "helpers.h"
-#include "imagedata.h"
 #include "matrix.h"
 #include "network.h"
 #include "networkscratch.h"
