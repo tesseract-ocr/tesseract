@@ -71,7 +71,7 @@ class LSTMTrainerTest : public testing::Test {
   }
   void SetupTrainer(const std::string& network_spec, const std::string& model_name,
                     const std::string& unicharset_file, const std::string& lstmf_file,
-                    bool recode, bool adam, double learning_rate,
+                    bool recode, bool adam, float learning_rate,
                     bool layer_specific, const std::string& kLang) {
 //    constexpr char kLang[] = "eng";  // Exact value doesn't matter.
     std::string unicharset_name = TestDataNameToPath(unicharset_file);
@@ -92,7 +92,7 @@ class LSTMTrainerTest : public testing::Test {
     int net_mode = adam ? NF_ADAM : 0;
     // Adam needs a higher learning rate, due to not multiplying the effective
     // rate by 1/(1-momentum).
-    if (adam) learning_rate *= 20.0;
+    if (adam) learning_rate *= 20.0f;
     if (layer_specific) net_mode |= NF_LAYER_SPECIFIC_LR;
     EXPECT_TRUE(trainer_->InitNetwork(network_spec.c_str(), -1, net_mode, 0.1,
                                       learning_rate, 0.9, 0.999));
@@ -168,7 +168,7 @@ class LSTMTrainerTest : public testing::Test {
     std::string unicharset_name = lang + "/" + lang + ".unicharset";
     std::string lstmf_name = lang +  ".Arial_Unicode_MS.exp0.lstmf";
     SetupTrainer("[1,1,0,32 Lbx100 O1c1]", "bidi-lstm", unicharset_name,
-                 lstmf_name, recode, true, 5e-4, true, lang);
+                 lstmf_name, recode, true, 5e-4f, true, lang);
     std::vector<int> labels;
     EXPECT_TRUE(trainer_->EncodeString(str.c_str(), &labels));
     STRING decoded = trainer_->DecodeLabels(labels);
