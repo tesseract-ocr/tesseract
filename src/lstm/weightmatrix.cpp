@@ -335,7 +335,8 @@ void WeightMatrix::SumOuterTransposed(const TransposedArray& u,
 void WeightMatrix::Update(float learning_rate, float momentum,
                           float adam_beta, int num_samples) {
   assert(!int_mode_);
-  if (use_adam_ && num_samples > 0 && num_samples < kAdamCorrectionIterations) {
+  if (use_adam_ && momentum > 0.0f &&
+      num_samples > 0 && num_samples < kAdamCorrectionIterations) {
     learning_rate *= sqrt(1.0f - pow(adam_beta, num_samples));
     learning_rate /= 1.0f - pow(momentum, num_samples);
   }
