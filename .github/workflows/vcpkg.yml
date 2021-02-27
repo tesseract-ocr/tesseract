@@ -1,7 +1,7 @@
 name: vcpkg
 # build and test of tesseract on windows using vcpkg and cmake.
 on:
-  #push:
+  push:
   schedule:
     - cron: 0 23 * * *
 
@@ -12,6 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-2019]
+        vsversion: [2019, 2017]
 
     steps:
       - name: Checkout Tesseract Source (--head from master branch)
@@ -22,7 +23,7 @@ jobs:
       - name: Visual Studio Setup
         shell: cmd
         run: |
-             call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+             call "C:\Program Files (x86)\Microsoft Visual Studio\${{ matrix.vsversion }}\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
       - name: Install vcpkg
         run: |
