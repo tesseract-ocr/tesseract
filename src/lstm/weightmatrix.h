@@ -139,7 +139,7 @@ class WeightMatrix {
                           bool parallel);
   // Updates the weights using the given learning rate, momentum and adam_beta.
   // num_samples is used in the Adam correction factor.
-  void Update(double learning_rate, double momentum, double adam_beta,
+  void Update(float learning_rate, float momentum, float adam_beta,
               int num_samples);
   // Adds the dw_ in other to the dw_ is *this.
   void AddDeltas(const WeightMatrix& other);
