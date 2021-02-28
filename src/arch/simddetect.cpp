@@ -32,9 +32,14 @@
 
 // Comparison of execution time with different dot product implementations.
 // time DOTPRODUCT=accelerate lstm_squashed_test
+// Results for Intel Core i5 2.4 MHz:
+// DotProductGeneric      108 s
+// DotProduct (default)    60 s
+// DotProductAccelerate    78 s
+// DotProductNative        65 s
 // Results for Apple M1:
 // DotProductGeneric       64 s
-// DotProduct              60 s
+// DotProduct (default)    60 s
 // DotProductAccelerate    33 s
 // DotProductNative        30 s
 
