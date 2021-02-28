@@ -543,7 +543,7 @@ bool DocumentData::ReCachePages() {
   pages_.truncate(0);
   TFile fp;
   if (!fp.Open(document_name_.c_str(), reader_) ||
-      !PointerVector<ImageData>::DeSerializeSize(&fp, &loaded_pages) ||
+      !fp.DeSerializeSize(&loaded_pages) ||
       loaded_pages <= 0) {
     tprintf("Deserialize header failed: %s\n", document_name_.c_str());
     return false;
