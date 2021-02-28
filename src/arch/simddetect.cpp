@@ -308,6 +308,9 @@ void SIMDDetect::Update() {
 #if defined(HAVE_AVX)
         " avx"
 #endif
+#if defined(HAVE_FMA)
+        " fma"
+#endif
 #if defined(HAVE_SSE4_1)
         " sse"
 #endif
