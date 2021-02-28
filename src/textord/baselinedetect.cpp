@@ -769,14 +769,20 @@ double BaselineBlock::FitLineSpacingModel(
   *m_out = llsq.m();
   // Use the median offset rather than the mean.
   offsets.truncate(0);
-  for (int i = 0; i < positions.size(); ++i)
-    offsets.push_back(fmod(positions[i], *m_out));
-  // Get the median offset.
-  if (debug_level_ > 2) {
-    for (int i = 0; i < offsets.size(); ++i)
-      tprintf("%d: %g\n", i, offsets[i]);
+  if (*m_out != 0.0) {
+    for (int i = 0; i < positions.size(); ++i) {
+      offsets.push_back(fmod(positions[i], *m_out));
+    }
+    // Get the median offset.
+    if (debug_level_ > 2) {
+      for (int i = 0; i < offsets.size(); ++i) {
+        tprintf("%d: %g\n", i, offsets[i]);
+      }
+    }
+    *c_out = MedianOfCircularValues(*m_out, &offsets);
+  } else {
+    *c_out = 0.0;
   }
-  *c_out = MedianOfCircularValues(*m_out, &offsets);
   if (debug_level_ > 1) {
     tprintf("Median offset = %g, compared to mean of %g.\n",
             *c_out, llsq.c(*m_out));
