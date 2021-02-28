@@ -87,6 +87,7 @@ class TESS_API TFile {
   }
 
   // Deserialize data.
+  bool DeSerializeSize(int32_t* data);
   bool DeSerialize(std::string& data);
   bool DeSerialize(std::vector<char>& data);
   bool DeSerialize(TBOX& data);
