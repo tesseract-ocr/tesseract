@@ -342,6 +342,9 @@ class DocumentCache {
 
   // Deletes all existing documents from the cache.
   void Clear() {
+    for (auto* document : documents_) {
+      delete document;
+    }
     documents_.clear();
     num_pages_per_doc_ = 0;
   }

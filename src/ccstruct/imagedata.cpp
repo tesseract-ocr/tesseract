@@ -590,6 +590,9 @@ DocumentCache::DocumentCache(int64_t max_memory)
 }
 
 DocumentCache::~DocumentCache() {
+  for (auto* document : documents_) {
+    delete document;
+  }
 }
 
 // Adds all the documents in the list of filenames, counting memory.
