@@ -153,7 +153,7 @@ class TESS_API ImageData {
   const STRING& transcription() const {
     return transcription_;
   }
-  const GenericVector<TBOX>& boxes() const {
+  const std::vector<TBOX>& boxes() const {
     return boxes_;
   }
   const GenericVector<STRING>& box_texts() const {
@@ -209,7 +209,7 @@ class TESS_API ImageData {
   GenericVector<char> image_data_;   // PNG/PNM file data.
   STRING language_;                  // Language code for image.
   STRING transcription_;             // UTF-8 ground truth of image.
-  GenericVector<TBOX> boxes_;        // If non-empty boxes of the image.
+  std::vector<TBOX> boxes_;          // If non-empty boxes of the image.
   GenericVector<STRING> box_texts_;  // String for text in each box.
   bool vertical_text_;               // Image has been rotated from vertical.
 };

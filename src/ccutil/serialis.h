@@ -28,6 +28,8 @@
 
 namespace tesseract {
 
+class TBOX;
+
 /***********************************************************************
   QUOTE_IT   MACRO DEFINITION
   ===========================
@@ -87,6 +89,7 @@ class TESS_API TFile {
   // Deserialize data.
   bool DeSerialize(std::string& data);
   bool DeSerialize(std::vector<char>& data);
+  bool DeSerialize(TBOX& data);
   template <typename T> bool DeSerialize(std::vector<T>& data);
   template <typename T>
   bool DeSerialize(T *data, size_t count = 1) {
