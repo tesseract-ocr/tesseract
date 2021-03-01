@@ -41,6 +41,14 @@ bool FCOORD::normalise() {  //Convert to unit vec
   return true;
 }
 
+bool ICOORD::DeSerialize(TFile* f) {
+  return f->DeSerialize(&xcoord) && f->DeSerialize(&ycoord);
+}
+
+bool ICOORD::Serialize(TFile* f) const {
+  return f->Serialize(&xcoord) && f->Serialize(&ycoord);
+}
+
 // Set from the given x,y, shrinking the vector to fit if needed.
 void ICOORD::set_with_shrink(int x, int y) {
   // Fit the vector into an ICOORD, which is 16 bit.

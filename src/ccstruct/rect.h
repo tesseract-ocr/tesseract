@@ -307,9 +307,12 @@ class TESS_API TBOX  {  // bounding box
 #endif
     // Writes to the given file. Returns false in case of error.
     bool Serialize(FILE* fp) const;
+    bool Serialize(TFile* fp) const;
+
     // Reads from the given file. Returns false in case of error.
     // If swap is true, assumes a big/little-endian swap is needed.
     bool DeSerialize(bool swap, FILE* fp);
+    bool DeSerialize(TFile* fp);
 
     friend TBOX& operator+=(TBOX&, const TBOX&);
     // in place union
