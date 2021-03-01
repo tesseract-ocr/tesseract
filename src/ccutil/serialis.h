@@ -90,7 +90,7 @@ class TESS_API TFile {
   template <typename T> bool DeSerialize(std::vector<T>& data);
   template <typename T>
   bool DeSerialize(T *data, size_t count = 1) {
-      return FReadEndian(data, sizeof(T), count) == count;
+      return FReadEndian(data, sizeof(T), count) == static_cast<int>(count);
   }
 
   // Serialize data.
@@ -100,7 +100,7 @@ class TESS_API TFile {
   bool Serialize(const std::vector<T>& data);
   template <typename T>
   bool Serialize(const T *data, size_t count = 1) {
-      return FWrite(data, sizeof(T), count) == count;
+      return FWrite(data, sizeof(T), count) == static_cast<int>(count);
   }
   template <typename T>
   bool SerializeClasses(const std::vector<T> &data) {
