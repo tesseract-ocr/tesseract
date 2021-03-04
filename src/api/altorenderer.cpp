@@ -46,6 +46,9 @@ static void AddBoxToAlto(const ResultIterator* it, PageIteratorLevel level,
   if (level == RIL_WORD) {
     int wc = it->Confidence(RIL_WORD);
     alto_str << " WC=\"0." << wc << "\"";
+  } else if (level == RIL_SYMBOL) {
+    int gc = it->Confidence(RIL_SYMBOL);
+    alto_str << " GC=\"0." << gc << "\"";
   } else {
     alto_str << ">";
   }
@@ -57,11 +60,11 @@ static void AddBoxToAlto(const ResultIterator* it, PageIteratorLevel level,
 bool TessAltoRenderer::BeginDocumentHandler() {
   AppendString(
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v3#\" "
+      "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v4#\" "
       "xmlns:xlink=\"http://www.w3.org/1999/xlink\" "
       "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-      "xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v3# "
-      "http://www.loc.gov/alto/v3/alto-3-0.xsd\">\n"
+      "xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v4# "
+      "https://www.loc.gov/standards/alto/v4/alto-4-0.xsd\">\n"
       "\t<Description>\n"
       "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
       "\t\t<sourceImageInformation>\n"
@@ -128,7 +131,7 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
   if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0))
     return nullptr;
 
-  int lcnt = 0, tcnt = 0, bcnt = 0, wcnt = 0;
+  int lcnt = 0, tcnt = 0, bcnt = 0, wcnt = 0, scnt = 0;
 
   if (input_file_.empty()) {
     SetInputName(nullptr);
@@ -164,76 +167,109 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
       << " HEIGHT=\"" << rect_height_ << "\">\n";
 
   ResultIterator* res_it = GetIterator();
-  while (!res_it->Empty(RIL_BLOCK)) {
-    if (res_it->Empty(RIL_WORD)) {
-      res_it->Next(RIL_WORD);
-      continue;
+  for (; !res_it->Empty(RIL_BLOCK); res_it->Next(RIL_BLOCK)) {
+    alto_str << "\t\t\t\t<ComposedBlock ID=\"cblock_" << bcnt << "\"";
+    AddBoxToAlto(res_it, RIL_BLOCK, alto_str);
+    alto_str << "\n";
+    
+    const char* block_type;
+    switch (res_it->BlockType()) {
+    case PT_FLOWING_TEXT:
+    case PT_HEADING_TEXT:
+    case PT_PULLOUT_TEXT:
+    case PT_CAPTION_TEXT:
+    case PT_VERTICAL_TEXT:
+    case PT_TABLE: // nothing special here
+    case PT_EQUATION:
+    case PT_INLINE_EQUATION:
+      block_type = "TextBlock";
+      break;
+    case PT_FLOWING_IMAGE:
+    case PT_HEADING_IMAGE:
+    case PT_PULLOUT_IMAGE:
+      block_type = "Illustration";
+      break;
+    case PT_HORZ_LINE:
+    case PT_VERT_LINE:
+      block_type = "GraphicalElement";
+      break;
+    default:
+      block_type = "ComposedBlock";
     }
 
-    if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-      alto_str << "\t\t\t\t<ComposedBlock ID=\"cblock_" << bcnt << "\"";
-      AddBoxToAlto(res_it, RIL_BLOCK, alto_str);
-      alto_str << "\n";
-    }
-
-    if (res_it->IsAtBeginningOf(RIL_PARA)) {
-      alto_str << "\t\t\t\t\t<TextBlock ID=\"block_" << tcnt << "\"";
+    for (; !res_it->Empty(RIL_PARA); res_it->Next(RIL_PARA)) {
+      alto_str << "\t\t\t\t\t<" << block_type << " ID=\"block_" << tcnt << "\"";
       AddBoxToAlto(res_it, RIL_PARA, alto_str);
       alto_str << "\n";
-    }
 
-    if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      alto_str << "\t\t\t\t\t\t<TextLine ID=\"line_" << lcnt << "\"";
-      AddBoxToAlto(res_it, RIL_TEXTLINE, alto_str);
-      alto_str << "\n";
-    }
+      if (strcmp(block_type, "TextBlock") == 0) {
+        for (; !res_it->Empty(RIL_TEXTLINE); res_it->Next(RIL_TEXTLINE)) {
+          alto_str << "\t\t\t\t\t\t<TextLine ID=\"line_" << lcnt << "\"";
+          AddBoxToAlto(res_it, RIL_TEXTLINE, alto_str);
+          alto_str << "\n";
+    
+          for (; !res_it->Empty(RIL_WORD); res_it->Next(RIL_WORD)) {
+            int left = 0, top = 0, right = 0, bottom = 0;
+            if (!res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
+              int hpos = right;
+              int vpos = top;
+              res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
+              int width = left - hpos;
+              int height = bottom - top;
+              alto_str << "\n\t\t\t\t\t\t\t<SP";
+              alto_str << " HPOS=\"" << hpos << "\"";
+              alto_str << " VPOS=\"" << vpos << "\"";
+              alto_str << " WIDTH=\"" << width << "\"";
+              alto_str << " HEIGHT=\"" << height << "\"/>\n";
+            }
+            res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
 
-    alto_str << "\t\t\t\t\t\t\t<String ID=\"string_" << wcnt << "\"";
-    AddBoxToAlto(res_it, RIL_WORD, alto_str);
-    alto_str << " CONTENT=\"";
+            alto_str << "\t\t\t\t\t\t\t<String ID=\"string_" << wcnt << "\"";
+            AddBoxToAlto(res_it, RIL_WORD, alto_str);
+            alto_str << " CONTENT=\"" << HOcrEscape(res_it->GetUTF8Text(RIL_WORD)).c_str() << "\">";
 
-    bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
-    bool last_word_in_tblock = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
-    bool last_word_in_cblock = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
-
-
-    int left, top, right, bottom;
-    res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
-
-    do {
-      const std::unique_ptr<const char[]> grapheme(
-          res_it->GetUTF8Text(RIL_SYMBOL));
-      if (grapheme && grapheme[0] != 0) {
-        alto_str << HOcrEscape(grapheme.get()).c_str();
+            for (; !res_it->Empty(RIL_SYMBOL); res_it->Next(RIL_SYMBOL)) {
+              alto_str << "\n\t\t\t\t\t\t\t\t<Glyph ID=\"glyph_" << scnt << "\"";
+              AddBoxToAlto(res_it, RIL_SYMBOL, alto_str);
+              alto_str << " CONTENT=\"";
+              const std::unique_ptr<const char[]> grapheme(res_it->GetUTF8Text(RIL_SYMBOL));
+              if (grapheme && grapheme[0] != 0)
+                alto_str << HOcrEscape(grapheme.get()).c_str();
+              alto_str << "\">";
+              
+              ChoiceIterator choice_it(*res_it);
+              do  {
+                int vc = choice_it.Confidence();
+                alto_str << "\n\t\t\t\t\t\t\t\t\t<Variant VC=\"0." << vc << "\"";
+                alto_str << " CONTENT=\"";
+                const char* variant = choice_it.GetUTF8Text();
+                if (variant && variant[0] != 0)
+                  alto_str << HOcrEscape(variant).c_str();
+                alto_str << "\"/>";
+              } while (choice_it.Next());
+              alto_str << "\n\t\t\t\t\t\t\t\t</Glyph>";
+              scnt++;
+              if (res_it->IsAtFinalElement(RIL_WORD, RIL_SYMBOL))
+                break;
+            }
+            alto_str << "\n\t\t\t\t\t\t\t</String>";
+            wcnt++;
+            if (res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD))
+              break;
+          }
+          alto_str << "\n\t\t\t\t\t\t</TextLine>\n";
+          lcnt++;
+          if (res_it->IsAtFinalElement(RIL_PARA, RIL_TEXTLINE))
+            break;
+        }
       }
-      res_it->Next(RIL_SYMBOL);
-    } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
-
-    alto_str << "\"/>";
-
-    wcnt++;
-
-    if (last_word_in_line) {
-      alto_str << "\n\t\t\t\t\t\t</TextLine>\n";
-      lcnt++;
-    } else {
-      int hpos = right;
-      int vpos = top;
-      res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
-      int width = left - hpos;
-      alto_str << "<SP WIDTH=\"" << width << "\" VPOS=\"" << vpos
-               << "\" HPOS=\"" << hpos << "\"/>\n";
-    }
-
-    if (last_word_in_tblock) {
-      alto_str << "\t\t\t\t\t</TextBlock>\n";
+      alto_str << "\t\t\t\t\t</" << block_type << ">\n";
       tcnt++;
+      if (res_it->IsAtFinalElement(RIL_BLOCK, RIL_PARA))
+        break;
     }
-
-    if (last_word_in_cblock) {
-      alto_str << "\t\t\t\t</ComposedBlock>\n";
-      bcnt++;
-    }
+    alto_str << "\t\t\t\t</ComposedBlock>\n";
+    bcnt++;
   }
 
   alto_str << "\t\t\t</PrintSpace>\n"
