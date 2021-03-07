@@ -1,66 +1,45 @@
 # Travis CI configuration for Tesseract
-
-language: cpp
-
+sudo: false
 notifications:
   email: false
+language: cpp
 
-sudo: false
+os: linux
+dist: focal
+arch:
+  - amd64
+  - arm64
+  - ppc64le
+  - s390x
+compiler:
+  - gcc
+  - clang
+env:
+  - LEPT_VER=1.80.0
+cache:
+  directories:
+    - leptonica-$LEPT_VER
 
-matrix:
-  include:
-    - os: osx
-      osx_image: xcode12.2
-      before_cache:
-       - brew cleanup
-      cache:
-        ccache: true
-        directories:
-          - $HOME/Library/Caches/Homebrew
-      before_install:
-        - brew install ccache
-      install:
-        - brew install ninja libtiff leptonica libarchive pango cairo icu4c
-      script:
-        - |
-          export PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:/$(brew --prefix)/opt/libffi/lib/pkgconfig:$PKG_CONFIG_PATH
-          mkdir build
-          mkdir inst
-          cmake \
-               -S . \
-               -B build \
-               -DCMAKE_BUILD_TYPE=Release \
-               -G Ninja \
-               -DCMAKE_INSTALL_PREFIX:PATH=inst
-          cmake --build build --config Release --target install
+before_install:
+  - sudo apt-get install libpango1.0-dev libicu-dev libtiff5-dev -y
+  - rm -rf leptonica-$LEPT_VER/usr
+  
+install:
+  - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
+  - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
+  - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
 
-    - os: linux
-      dist: bionic
-      arch:
-       - amd64
-       - ppc64le
-       - s390x
-       - arm64
-      addons:
-        apt:
-          packages:
-            - libarchive-dev
-            - libpango1.0-dev
-            - libicu-dev
-      env:
-         - LEPT_VER=1.80.0
-      cache:
-        directories:
-        - leptonica-$LEPT_VER
-      install:
-        - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
-        - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
-        - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
-      script:
-        - mkdir build
-        - cd build
-        - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
-        - make
-        - sudo make install
-        - tesseract -v
+script:
+  - mkdir build
+  - cd build
+  - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
+  - make
+  - sudo make install
 
+after_script:
+  - tesseract -v
+  - text2image -v
+  - lstmtraining -v
+  - ls /home/travis/build/tesseract-ocr/tesseract/test/testing/*.tif
+  - wget https://github.com/egorpugin/tessdata/raw/master/tessdata/eng.traineddata
+  - tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng --tessdata-dir ./
