@@ -35,9 +35,8 @@ script:
   - mkdir build
   - cd build
   - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
-  - make training
+  - make
   - sudo make install
-  - sudo make training-install
 
 after_script:
   - tesseract -v
