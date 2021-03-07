@@ -5,6 +5,7 @@ notifications:
 language: cpp
 
 os: linux
+dist: bionic
 arch:
   - amd64
   - arm64
@@ -24,11 +25,6 @@ env:
 cache:
   directories:
     - leptonica-$LEPT_VER
-
-jobs:
-  allow_failures:
-    - dist: bionic
-    - dist: focal
 
 install:
   - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
