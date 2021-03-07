@@ -16,6 +16,9 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <cerrno>
+#if defined(__USE_GNU)
+#include <cfenv>                // for feenableexcept
+#endif
 #include "commontraining.h"
 #include "fileio.h"             // for LoadFileLinesToStrings
 #include "lstmtester.h"
@@ -44,6 +47,10 @@ static STRING_PARAM_FLAG(train_listfile, "",
                          "File listing training files in lstmf training format.");
 static STRING_PARAM_FLAG(eval_listfile, "",
                          "File listing eval files in lstmf training format.");
+#if defined(__USE_GNU)
+static BOOL_PARAM_FLAG(debug_float, false,
+                       "Raise error on certain float errors.");
+#endif
 static BOOL_PARAM_FLAG(stop_training, false,
                        "Just convert the training model to a runtime model.");
 static BOOL_PARAM_FLAG(convert_to_int, false,
@@ -73,6 +80,12 @@ const int kNumPagesPerBatch = 100;
 int main(int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
+#if defined(__USE_GNU)
+  if (FLAGS_debug_float) {
+    // Raise SIGFPE for unwanted floating point calculations.
+    feenableexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_INVALID);
+  }
+#endif
   if (FLAGS_model_output.empty()) {
     tprintf("Must provide a --model_output!\n");
     return EXIT_FAILURE;

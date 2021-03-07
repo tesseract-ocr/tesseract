@@ -214,7 +214,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
 // Sets up an encoder that doesn't change the unichars at all, so it just
 // passes them through unchanged.
 void UnicharCompress::SetupPassThrough(const UNICHARSET& unicharset) {
-  GenericVector<RecodedCharID> codes;
+  std::vector<RecodedCharID> codes;
   for (int u = 0; u < unicharset.size(); ++u) {
     RecodedCharID code;
     code.Set(0, u);
@@ -230,7 +230,7 @@ void UnicharCompress::SetupPassThrough(const UNICHARSET& unicharset) {
 
 // Sets up an encoder directly using the given encoding vector, which maps
 // unichar_ids to the given codes.
-void UnicharCompress::SetupDirect(const GenericVector<RecodedCharID>& codes) {
+void UnicharCompress::SetupDirect(const std::vector<RecodedCharID>& codes) {
   encoder_ = codes;
   ComputeCodeRange();
   SetupDecoder();
@@ -298,12 +298,13 @@ int UnicharCompress::DecodeUnichar(const RecodedCharID& code) const {
 
 // Writes to the given file. Returns false in case of error.
 bool UnicharCompress::Serialize(TFile* fp) const {
-  return encoder_.SerializeClasses(fp);
+  return fp->SerializeClasses(encoder_);
 }
 
 // Reads from the given file. Returns false in case of error.
 bool UnicharCompress::DeSerialize(TFile* fp) {
-  if (!encoder_.DeSerializeClasses(fp)) return false;
+  if (!fp->DeSerializeClasses(encoder_))
+    return false;
   ComputeCodeRange();
   SetupDecoder();
   return true;

@@ -22,6 +22,9 @@
 #endif
 
 #include <cerrno>               // for errno
+#if defined(__USE_GNU)
+#include <cfenv>                // for feenableexcept
+#endif
 #include <iostream>
 
 #include <allheaders.h>
@@ -617,6 +620,15 @@ static void PreloadRenderers(
  **********************************************************************/
 
 int main(int argc, char** argv) {
+#if defined(__USE_GNU)
+  // Raise SIGFPE.
+#if defined(__clang__)
+  // clang creates code which causes some FP exceptions, so don't enable those.
+  feenableexcept(FE_DIVBYZERO);
+#else
+  feenableexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_INVALID);
+#endif
+#endif
   const char* lang = nullptr;
   const char* image = nullptr;
   const char* outputbase = nullptr;

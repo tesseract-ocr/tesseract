@@ -153,7 +153,7 @@ class TESS_API UnicharCompress {
   void SetupPassThrough(const UNICHARSET& unicharset);
   // Sets up an encoder directly using the given encoding vector, which maps
   // unichar_ids to the given codes.
-  void SetupDirect(const GenericVector<RecodedCharID>& codes);
+  void SetupDirect(const std::vector<RecodedCharID>& codes);
 
   // Returns the number of different values that can be used in a code, ie
   // 1 + the maximum value that will ever be used by an RecodedCharID code in
@@ -214,10 +214,9 @@ class TESS_API UnicharCompress {
 
   // The encoder that maps a unichar-id to a sequence of small codes.
   // encoder_ is the only part that is serialized. The rest is computed on load.
-  GenericVector<RecodedCharID> encoder_;
+  std::vector<RecodedCharID> encoder_;
   // Decoder converts the output of encoder back to a unichar-id.
-  std::unordered_map<RecodedCharID, int, RecodedCharID::RecodedCharIDHash>
-      decoder_;
+  std::unordered_map<RecodedCharID, int, RecodedCharID::RecodedCharIDHash> decoder_;
   // True if the index is a valid single or start code.
   GenericVector<bool> is_valid_start_;
   // Maps a prefix code to a list of valid next codes.
