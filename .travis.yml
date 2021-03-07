@@ -42,3 +42,6 @@ after_script:
   - tesseract -v
   - text2image -v
   - lstmtraining -v
+  - ls test/testing/*.tif
+  - wget https://github.com/egorpugin/tessdata/raw/master/tessdata/eng.traineddata
+  - tesseract test/testing/phototest.tif - -l eng --tessdata-dir=./
