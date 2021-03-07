@@ -7,17 +7,16 @@ language: cpp
 os: linux
 dist: bionic
 arch:
-  - amd64
-  - arm64
-  - ppc64le
   - s390x
+  - ppc64le
+  - arm64
+  - amd64
 compiler:
   - gcc
   - clang
 addons:
   apt:
     packages:
-      - libarchive-dev
       - libpango1.0-dev
       - libicu-dev
 env:
@@ -42,6 +41,6 @@ after_script:
   - tesseract -v
   - text2image -v
   - lstmtraining -v
-  - ls test/testing/*.tif
+  - ls /home/travis/build/tesseract-ocr/tesseract/test/testing/*.tif
   - wget https://github.com/egorpugin/tessdata/raw/master/tessdata/eng.traineddata
-  - tesseract test/testing/phototest.tif - -l eng --tessdata-dir=./
+  - tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng --tessdata-dir ./
