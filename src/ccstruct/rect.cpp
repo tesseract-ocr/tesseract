@@ -23,6 +23,7 @@
 
 #include "rect.h"
 
+#include "serialis.h"   // for TFile
 #include "strngs.h"     // for STRING
 
 namespace tesseract {
@@ -56,6 +57,54 @@ TBOX::TBOX(            // constructor
       top_right = pt1;
     }
   }
+}
+
+bool TBOX::DeSerialize(TFile* f) {
+  return bot_left.DeSerialize(f) && top_right.DeSerialize(f);
+}
+
+template <>
+bool TFile::DeSerialize(std::vector<TBOX>& data) {
+  uint32_t size;
+  if (!DeSerialize(&size)) {
+    return false;
+  }
+  // Arbitrarily limit the number of elements to protect against bad data.
+  const uint32_t limit = 50000000;
+  assert(size <= limit);
+  if (size > limit) {
+    return false;
+  }
+  if (size == 0) {
+    data.clear();
+  } else {
+    // TODO: optimize.
+    data.resize(size);
+    for (auto& datum : data) {
+      if (!datum.DeSerialize(this)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+bool TBOX::Serialize(TFile* f) const {
+  return bot_left.Serialize(f) && top_right.Serialize(f);
+}
+
+template <>
+bool TFile::Serialize(const std::vector<TBOX>& data) {
+  uint32_t size = data.size();
+  if (!Serialize(&size)) {
+    return false;
+  }
+  for (auto& box : data) {
+    if (!box.Serialize(this)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 // rotate_large constructs the containing bounding box of all 4
