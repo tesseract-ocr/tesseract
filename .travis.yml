@@ -5,10 +5,6 @@ notifications:
 language: cpp
 
 os: linux
-dist:
-  - xenial
-  - bionic
-  - focal
 arch:
   - amd64
   - arm64
@@ -29,6 +25,11 @@ cache:
   directories:
     - leptonica-$LEPT_VER
 
+jobs:
+  allow_failures:
+    - dist: bionic
+    - dist: focal
+
 install:
   - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
   - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
@@ -46,29 +47,3 @@ after_script:
   - tesseract -v
   - text2image -v
   - lstmtraining -v
-
-###    - os: osx
-###osx_image: xcode12.2
-###before_cache:
-### - brew cleanup
-###cache:
-###  ccache: true
-###  directories:
-###    - $HOME/Library/Caches/Homebrew
-###before_install:
-###  - brew install ccache
-###install:
-###  - brew install ninja libtiff leptonica libarchive pango cairo icu4c
-###script:
-###  - |
-###    export PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:/$(brew --prefix)/opt/libffi/lib/pkgconfig:$PKG_CONFIG_PATH
-###    mkdir build
-###    mkdir inst
-###    cmake \
-###   -S . \
-###   -B build \
-###   -DCMAKE_BUILD_TYPE=Release \
-###   -G Ninja \
-###   -DCMAKE_INSTALL_PREFIX:PATH=inst
-###    cmake --build build --config Release --target install
-
