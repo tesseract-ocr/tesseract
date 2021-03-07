@@ -5,12 +5,12 @@ notifications:
 language: cpp
 
 os: linux
-dist: bionic
+dist: focal
 arch:
-  - s390x
-  - ppc64le
-  - arm64
   - amd64
+  - arm64
+  - ppc64le
+  - s390x
 compiler:
   - gcc
   - clang
