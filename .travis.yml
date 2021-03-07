@@ -14,17 +14,15 @@ arch:
 compiler:
   - gcc
   - clang
-addons:
-  apt:
-    packages:
-      - libpango1.0-dev
-      - libicu-dev
 env:
   - LEPT_VER=1.80.0
 cache:
   directories:
     - leptonica-$LEPT_VER
 
+before_install:
+  - sudo apt-get install libpango1.0-dev libicu-dev -y
+  
 install:
   - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
   - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
