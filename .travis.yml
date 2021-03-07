@@ -36,11 +36,16 @@ matrix:
 
     - os: linux
       dist: bionic
-      arch:
-       - amd64
-       - ppc64le
-       - s390x
-       - arm64
+      arch: s390x
+    - os: linux
+      dist: bionic
+      arch: ppc64le
+    - os: linux
+      dist: bionic
+      arch: amd64
+    - os: linux
+      dist: bionic
+      arch: arm64
       addons:
         apt:
           packages:
