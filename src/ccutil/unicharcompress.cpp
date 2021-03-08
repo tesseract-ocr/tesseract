@@ -303,8 +303,7 @@ bool UnicharCompress::Serialize(TFile* fp) const {
 
 // Reads from the given file. Returns false in case of error.
 bool UnicharCompress::DeSerialize(TFile* fp) {
-  if (!fp->DeSerialize(encoder_))
-    return false;
+  if (!fp->DeSerialize(encoder_)) return false;
   ComputeCodeRange();
   SetupDecoder();
   return true;

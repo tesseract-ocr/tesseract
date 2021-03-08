@@ -88,47 +88,6 @@ bool TFile::DeSerializeSize(int32_t* pSize) {
   return true;
 }
 
-template <typename T>
-bool TFile::DeSerialize(std::vector<T>& data) {
-  uint32_t size;
-  if (!DeSerialize(&size)) {
-    return false;
-  }
-  // Arbitrarily limit the number of elements to protect against bad data.
-  const uint32_t limit = 50000000;
-  assert(size <= limit);
-  if (size > limit) {
-    return false;
-  } else if (size > 0) {
-    // TODO: optimize.
-    data.resize(size);
-    return DeSerialize(&data[0], size);
-  }
-  data.clear();
-  return true;
-}
-
-template <typename T>
-bool TFile::Serialize(const std::vector<T>& data) {
-  uint32_t size = data.size();
-  if (!Serialize(&size)) {
-    return false;
-  } else if (size > 0) {
-    return Serialize(&data[0], size);
-  }
-  return true;
-}
-
-TESS_API template bool TFile::DeSerialize(std::vector<double>& data);
-TESS_API template bool TFile::DeSerialize(std::vector<int32_t>& data);
-TESS_API template bool TFile::Serialize(const std::vector<double>& data);
-TESS_API template bool TFile::Serialize(const std::vector<int32_t>& data);
-
-TESS_API template bool TFile::DeSerialize(RecodedCharID* data, size_t count);
-TESS_API template bool TFile::Serialize(const RecodedCharID* data, size_t count);
-TESS_API template bool TFile::DeSerialize(std::vector<RecodedCharID>& data);
-TESS_API template bool TFile::Serialize(const std::vector<RecodedCharID>& data);
-
 bool TFile::DeSerialize(std::string& data) {
   uint32_t size;
   if (!DeSerialize(&size)) {
