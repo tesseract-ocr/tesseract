@@ -83,46 +83,6 @@ static bool DecodeRadicalTable(STRING* radical_data, RSMap* radical_map) {
   return true;
 }
 
-template <>
-bool TFile::DeSerialize(std::vector<RecodedCharID>& data) {
-  uint32_t size;
-  if (!DeSerialize(&size)) {
-    return false;
-  }
-  // Arbitrarily limit the number of elements to protect against bad data.
-  const uint32_t limit = 50000000;
-  assert(size <= limit);
-  if (size > limit) {
-    return false;
-  }
-  if (size == 0) {
-    data.clear();
-  } else {
-    // TODO: optimize.
-    data.resize(size);
-    for (auto& item : data) {
-      if (!item.DeSerialize(this)) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-template <>
-bool TFile::Serialize(const std::vector<RecodedCharID>& data) {
-  uint32_t size = data.size();
-  if (!Serialize(&size)) {
-    return false;
-  }
-  for (auto& item : data) {
-    if (!item.Serialize(this)) {
-      return false;
-    }
-  }
-  return true;
-}
-
 UnicharCompress::UnicharCompress() : code_range_(0) {}
 UnicharCompress::UnicharCompress(const UnicharCompress& src) { *this = src; }
 UnicharCompress::~UnicharCompress() { Cleanup(); }

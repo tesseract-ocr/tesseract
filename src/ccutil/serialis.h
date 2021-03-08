@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <type_traits>
 #include <vector>   // std::vector
 
 namespace tesseract {
@@ -88,20 +89,63 @@ class TESS_API TFile {
   bool DeSerializeSize(int32_t* data);
   bool DeSerialize(std::string& data);
   bool DeSerialize(std::vector<char>& data);
-  template <typename T> bool DeSerialize(std::vector<T>& data);
   template <typename T>
   bool DeSerialize(T *data, size_t count = 1) {
       return FReadEndian(data, sizeof(T), count) == static_cast<int>(count);
+  }
+  template <class T>
+  bool DeSerialize(std::vector<T>& data) {
+    uint32_t size;
+    if (!DeSerialize(&size)) {
+      return false;
+    } else if (size == 0) {
+      data.clear();
+    } else if (size > 50000000) {
+      // Arbitrarily limit the number of elements to protect against bad data.
+      return false;
+    } else if constexpr (std::is_class_v<T>) {
+      // Deserialize a class.
+      // TODO: optimize.
+      data.resize(size);
+      for (auto& item : data) {
+        if (!item.DeSerialize(this)) {
+          return false;
+        }
+      }
+    } else {
+      // Deserialize a non-class.
+      // TODO: optimize.
+      data.resize(size);
+      return DeSerialize(&data[0], size);
+    }
+    return true;
   }
 
   // Serialize data.
   bool Serialize(const std::string& data);
   bool Serialize(const std::vector<char>& data);
   template <typename T>
-  bool Serialize(const std::vector<T>& data);
-  template <typename T>
   bool Serialize(const T *data, size_t count = 1) {
       return FWrite(data, sizeof(T), count) == static_cast<int>(count);
+  }
+  template <typename T>
+  bool Serialize(const std::vector<T>& data) {
+    // Serialize number of elements first.
+    uint32_t size = data.size();
+    if (!Serialize(&size)) {
+      return false;
+    } else if constexpr (std::is_class_v<T>) {
+      // Serialize a class.
+      for (auto& item : data) {
+        if (!item.Serialize(this)) {
+          return false;
+        }
+      }
+    } else if (size > 0) {
+      // Serialize a non-class.
+      return Serialize(&data[0], size);
+    }
+    return true;
   }
 
   // Skip data.
