@@ -28,6 +28,9 @@ install:
   - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
   - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
   - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
+  - wget -o eng.traineddata https://github.com/egorpugin/tessdata/raw/master/tessdata/eng.traineddata
+  - wget -o eng_best.traineddata https://github.com/tesseract-ocr/tessdata_best/raw/master/eng.traineddata
+  - wget -o eng_fast.traineddata https://github.com/tesseract-ocr/tessdata_fast/raw/master/eng.traineddata
 
 script:
   - mkdir build
@@ -35,11 +38,10 @@ script:
   - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
   - make
   - sudo make install
-  
 #after_script: # let those commands trigger build errors
   - tesseract -v
   - text2image -v
   - lstmtraining -v
-  - ls /home/travis/build/tesseract-ocr/tesseract/test/testing/*.tif
-  - wget https://github.com/egorpugin/tessdata/raw/master/tessdata/eng.traineddata
-  - tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng --tessdata-dir ./
+  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng --tessdata-dir ./
+  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng_best --tessdata-dir ./
+  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng_fast --tessdata-dir ./
