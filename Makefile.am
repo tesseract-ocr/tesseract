@@ -100,7 +100,9 @@ libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/classify
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/dict
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/lstm
+if OPENCL
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
+endif
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/textord
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/training/common
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
@@ -131,7 +133,9 @@ libtesseract_la_SOURCES += src/api/wordstrboxrenderer.cpp
 libtesseract_la_LIBADD = libtesseract_ccutil.la
 libtesseract_la_LIBADD += libtesseract_lstm.la
 libtesseract_la_LIBADD += libtesseract_native.la
+if OPENCL
 libtesseract_la_LIBADD += libtesseract_opencl.la
+endif
 
 # Rules for src/arch.
 
@@ -551,6 +555,7 @@ endif
 
 # Rules for src/opencl.
 
+if OPENCL
 libtesseract_opencl_la_CPPFLAGS = $(AM_CPPFLAGS)
 libtesseract_opencl_la_CPPFLAGS += $(OPENCL_CFLAGS)
 libtesseract_opencl_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
@@ -563,6 +568,7 @@ noinst_HEADERS += src/opencl/oclkernels.h
 noinst_LTLIBRARIES += libtesseract_opencl.la
 
 libtesseract_opencl_la_SOURCES = src/opencl/openclwrapper.cpp
+endif
 
 # Rules for src/textord.
 

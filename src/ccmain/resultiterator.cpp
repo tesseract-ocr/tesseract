@@ -141,7 +141,8 @@ void ResultIterator::CalculateBlobOrder(
 
   // Step 1: Scan for and mark European Number sequences
   //   [:ET:]*[:EN:]+(([:ES:]|[:CS:])?[:EN:]+)*[:ET:]*
-  GenericVector<int> letter_types;
+  std::vector<int> letter_types;
+  letter_types.reserve(word_length_);
   for (int i = 0; i < word_length_; i++) {
     letter_types.push_back(it_->word()->SymbolDirection(i));
   }

@@ -31,12 +31,12 @@
 #include "rect.h"                     // for TBOX
 #include "tprintf.h"                  // for tprintf
 
-#include "genericvector.h"            // for GenericVector
-#include <tesseract/unichar.h>                  // for UNICHAR_ID
+#include <tesseract/unichar.h>        // for UNICHAR_ID
 #include "strngs.h"                   // for STRING
 
 #include <cstdint>                    // for int16_t
 #include <cstring>                    // for memcpy
+#include <vector>                     // for std::vector
 
 namespace tesseract {
 
@@ -119,8 +119,9 @@ struct BlamerBundle {
   // Accessors.
   STRING TruthString() const {
     STRING truth_str;
-    for (int i = 0; i < truth_text_.size(); ++i)
-      truth_str += truth_text_[i];
+    for (auto& text : truth_text_) {
+      truth_str += text;
+    }
     return truth_str;
   }
   IncorrectResultReason incorrect_result_reason() const {
@@ -326,7 +327,7 @@ struct BlamerBundle {
   // (filled in by WERD_RES::SetupForRecognition()).
   tesseract::BoxWord norm_truth_word_;
   // Contains ground truth unichar for each of the bounding boxes in truth_word.
-  GenericVector<STRING> truth_text_;
+  std::vector<STRING> truth_text_;
   // The reason for incorrect OCR result.
   IncorrectResultReason incorrect_result_reason_;
   // Debug text associated with the blame.
@@ -335,8 +336,8 @@ struct BlamerBundle {
   STRING misadaption_debug_;
   // Vectors populated by SegSearch to indicate column and row indices that
   // correspond to blobs with correct bounding boxes.
-  GenericVector<int> correct_segmentation_cols_;
-  GenericVector<int> correct_segmentation_rows_;
+  std::vector<int> correct_segmentation_cols_;
+  std::vector<int> correct_segmentation_rows_;
   // Best rating for correctly segmented path
   // (set and used by SegSearch when looking for blame).
   float best_correctly_segmented_rating_;

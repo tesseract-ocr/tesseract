@@ -24,7 +24,6 @@
 #include "serialis.h"       // for TFile
 
 #include <cassert>          // for assert
-#include <cstdlib>          // for malloc, free
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
 

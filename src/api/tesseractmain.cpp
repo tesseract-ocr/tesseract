@@ -287,8 +287,9 @@ static void PrintHelpMessage(const char* program) {
   );
 }
 
-static int SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
-                                   const char** argv) {
+static bool SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
+                                   char** argv) {
+  bool success = true;
   char opt1[256], opt2[255];
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
@@ -297,7 +298,8 @@ static int SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
       char* p = strchr(opt1, '=');
       if (!p) {
         tprintf("ERROR: Missing '=' in configvar assignment for '%s'\n", opt1);
-        return TRUE;
+        success = false;
+        break;
       }
       *p = 0;
       strncpy(opt2, strchr(argv[i + 1], '=') + 1, sizeof(opt2) - 1);
@@ -306,11 +308,10 @@ static int SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
 
       if (!api->SetVariable(opt1, opt2)) {
         tprintf("ERROR: Could not set option: %s=%s\n", opt1, opt2);
-        return TRUE;
       }
     }
   }
-  return FALSE;
+  return success;
 }
 
 static void PrintLangsList(tesseract::TessBaseAPI* api) {
@@ -348,16 +349,16 @@ static void FixPageSegMode(tesseract::TessBaseAPI* api,
     api->SetPageSegMode(pagesegmode);
 }
 
-static int checkArgValues(int arg, const char* mode, int count) {
+static bool checkArgValues(int arg, const char* mode, int count) {
   if (arg >= count || arg < 0) {
     tprintf("ERROR: Invalid %s value, please enter a number between 0-%d\n", mode, count - 1);
-    return TRUE;
+    return false;
   }
-  return FALSE;
+  return true;
 }
 
 // NOTE: arg_i is used here to avoid ugly *i so many times in this function
-static int ParseArgs(const int argc, const char** argv, const char** lang,
+static bool ParseArgs(const int argc, const char** argv, const char** lang,
                       const char** image, const char** outputbase,
                       const char** datapath, l_int32* dpi, bool* list_langs,
                       const char **visible_pdf_image_file,
@@ -410,15 +411,17 @@ static int ParseArgs(const int argc, const char** argv, const char** lang,
       noocr = true;
       *list_langs = true;
     } else if (strcmp(argv[i], "--psm") == 0 && i + 1 < argc) {
-      if (checkArgValues(atoi(argv[i + 1]), "PSM", tesseract::PSM_COUNT))
-        return EXIT_FAILURE;
+      if (!checkArgValues(atoi(argv[i+1]), "PSM", tesseract::PSM_COUNT)) {
+        return false;
+      }
       *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
       ++i;
     } else if (strcmp(argv[i], "--oem") == 0 && i + 1 < argc) {
 #ifndef DISABLED_LEGACY_ENGINE
       int oem = atoi(argv[i + 1]);
-      if (checkArgValues(oem, "OEM", tesseract::OEM_COUNT))
-        return EXIT_FAILURE;
+      if (!checkArgValues(oem, "OEM", tesseract::OEM_COUNT)) {
+        return false;
+      }
       *enginemode = static_cast<tesseract::OcrEngineMode>(oem);
 #endif
       ++i;
@@ -436,7 +439,7 @@ static int ParseArgs(const int argc, const char** argv, const char** lang,
     } else {
       // Unexpected argument.
       tprintf("ERROR: Unknown command line argument '%s'\n", argv[i]);
-      return EXIT_FAILURE;
+      return false;
     }
   }
 
@@ -456,9 +459,10 @@ static int ParseArgs(const int argc, const char** argv, const char** lang,
 
   if (*outputbase == nullptr && noocr == false) {
     PrintHelpMessage(argv[0]);
-    return EXIT_FAILURE;
+    return false;
   }
-  return EXIT_SUCCESS;
+
+  return true;
 }
 
 static void PreloadRenderers(
@@ -652,11 +656,8 @@ extern "C" int tesseract_main(int argc, const char** argv)
 #else
   tesseract::OcrEngineMode enginemode = tesseract::OEM_DEFAULT;
 #endif
-  /* main() calls functions like ParseArgs which call exit().
-   * This results in memory leaks if vars_vec and vars_values are
-   * declared as auto variables (destructor is not called then). */
-  static std::vector<std::string> vars_vec;
-  static std::vector<std::string> vars_values;
+  std::vector<std::string> vars_vec;
+  std::vector<std::string> vars_values;
 
 #if defined(NDEBUG)
   // Disable debugging and informational messages from Leptonica.
@@ -669,12 +670,12 @@ extern "C" int tesseract_main(int argc, const char** argv)
   TIFFSetWarningHandler(Win32WarningHandler);
 #endif // HAVE_TIFFIO_H && _WIN32
 
-  ret_val = ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &dpi,
+  if (!ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &dpi,
             &list_langs, &visible_pdf_image_file,
 			&print_parameters, &vars_vec, &vars_values, &arg_i,
-            &pagesegmode, &enginemode);
-  if (ret_val)
-    return ret_val;
+                 &pagesegmode, &enginemode)) {
+    return EXIT_FAILURE;
+  }
 
   if (lang == nullptr) {
     // Set default language if none was given.
@@ -689,16 +690,16 @@ extern "C" int tesseract_main(int argc, const char** argv)
   // first TessBaseAPI must be destructed, DawgCache must be the last object.
   tesseract::Dict::GlobalDawgCache();
 
-  // Avoid memory leak caused by auto variable when return is called.
-  static tesseract::TessBaseAPI api;
+  tesseract::TessBaseAPI api;
 
   api.SetOutputName(outputbase);
 
   const int init_failed = api.Init(datapath, lang, enginemode, &(argv[arg_i]),
                              argc - arg_i, &vars_vec, &vars_values, false);
 
-  if (SetVariablesFromCLArgs(&api, argc, argv))
+  if (!SetVariablesFromCLArgs(&api, argc, argv)) {
     return EXIT_FAILURE;
+  }
 
   // SIMD settings might be overridden by config variable.
   tesseract::SIMDDetect::Update();
@@ -797,8 +798,7 @@ extern "C" int tesseract_main(int argc, const char** argv)
   }
 #endif  // def DISABLED_LEGACY_ENGINE
 
-  // Avoid memory leak caused by auto variable when exit() is called.
-  static tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
+  tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
 
   if (in_training_mode) {
     renderers.push_back(nullptr);

@@ -134,8 +134,8 @@ void BlamerBundle::FillDebugString(const STRING &msg,
                                    const WERD_CHOICE *choice,
                                    STRING *debug) {
   (*debug) += "Truth ";
-  for (int i = 0; i < this->truth_text_.size(); ++i) {
-    (*debug) += this->truth_text_[i];
+  for (auto& text : this->truth_text_) {
+    (*debug) += text;
   }
   if (!this->truth_has_char_boxes_) (*debug) += " (no char boxes)";
   if (choice != nullptr) {

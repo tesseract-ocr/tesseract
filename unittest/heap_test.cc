@@ -35,7 +35,7 @@ class HeapTest : public testing::Test {
   virtual ~HeapTest();
   // Pushes the test data onto both the heap and the KDVector.
   void PushTestData(GenericHeap<IntKDPair>* heap, KDVector* v) {
-    for (size_t i = 0; i < ARRAYSIZE(test_data); ++i) {
+    for (size_t i = 0; i < countof(test_data); ++i) {
       IntKDPair pair(test_data[i], i);
       heap->Push(&pair);
       v->push_back(pair);
@@ -138,7 +138,7 @@ TEST_F(HeapTest, RevalueTest) {
   GenericHeap<PtrPair> heap;
   GenericVector<PtrPair> v;
   // Push the test data onto both the heap and the vector.
-  for (size_t i = 0; i < ARRAYSIZE(test_data); ++i) {
+  for (size_t i = 0; i < countof(test_data); ++i) {
     PtrPair h_pair;
     h_pair.key() = test_data[i];
     PtrPair v_pair;

@@ -32,6 +32,7 @@
 
 #include "errcode.h"
 #include "helpers.h"
+#include "genericvector.h"
 #include "serialis.h"
 #include <tesseract/version.h>
 #include "tprintf.h"

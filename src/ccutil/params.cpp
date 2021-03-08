@@ -18,7 +18,9 @@
 
 #include "params.h"
 
+#include "helpers.h"        // for chomp_string
 #include "host.h"           // tesseract/export.h, windows.h for MAX_PATH
+#include "serialis.h"       // for TFile
 #include "tprintf.h"
 
 #include <climits>          // for INT_MIN, INT_MAX

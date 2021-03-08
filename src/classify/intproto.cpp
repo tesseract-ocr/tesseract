@@ -248,8 +248,9 @@ void AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class) {
 
   assert (LegalClassId (ClassId));
   if (ClassId != Templates->NumClasses) {
-    fprintf(stderr, "Please make sure that classes are added to templates");
-    fprintf(stderr, " in increasing order of ClassIds\n");
+    fprintf(stderr,
+            "Please make sure that classes are added to templates"
+            " in increasing order of ClassIds\n");
     exit(1);
   }
   ClassForClassId (Templates, ClassId) = Class;

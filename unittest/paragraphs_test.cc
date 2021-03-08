@@ -243,7 +243,7 @@ const TextAndModel kTwoSimpleParagraphs[] = {
 
 TEST(ParagraphsTest, TestSimpleParagraphDetection) {
   TestParagraphDetection(kTwoSimpleParagraphs,
-                         ABSL_ARRAYSIZE(kTwoSimpleParagraphs));
+                         countof(kTwoSimpleParagraphs));
 }
 
 const TextAndModel kFewCluesWithCrown[] = {
@@ -260,7 +260,7 @@ const TextAndModel kFewCluesWithCrown[] = {
 
 TEST(ParagraphsTest, TestFewCluesWithCrown) {
   TestParagraphDetection(kFewCluesWithCrown,
-                         ABSL_ARRAYSIZE(kFewCluesWithCrown));
+                         countof(kFewCluesWithCrown));
 }
 
 const TextAndModel kCrownedParagraph[] = {
@@ -278,7 +278,7 @@ const TextAndModel kCrownedParagraph[] = {
 };
 
 TEST(ParagraphsTest, TestCrownParagraphDetection) {
-  TestParagraphDetection(kCrownedParagraph, ABSL_ARRAYSIZE(kCrownedParagraph));
+  TestParagraphDetection(kCrownedParagraph, countof(kCrownedParagraph));
 }
 
 const TextAndModel kFlushLeftParagraphs[] = {
@@ -298,7 +298,7 @@ const TextAndModel kFlushLeftParagraphs[] = {
 
 TEST(ParagraphsText, TestRealFlushLeftParagraphs) {
   TestParagraphDetection(kFlushLeftParagraphs,
-                         ABSL_ARRAYSIZE(kFlushLeftParagraphs));
+                         countof(kFlushLeftParagraphs));
 }
 
 const TextAndModel kSingleFullPageContinuation[] = {
@@ -320,7 +320,7 @@ const TextAndModel kSingleFullPageContinuation[] = {
 
 TEST(ParagraphsTest, TestSingleFullPageContinuation) {
   const TextAndModel* correct = kSingleFullPageContinuation;
-  int num_rows = ABSL_ARRAYSIZE(kSingleFullPageContinuation);
+  int num_rows = countof(kSingleFullPageContinuation);
   std::vector<RowInfo> row_infos;
   GenericVector<PARA*> row_owners;
   PARA_LIST paragraphs;
@@ -346,7 +346,7 @@ const TextAndModel kRightAligned[] = {
 };
 
 TEST(ParagraphsTest, TestRightAlignedParagraph) {
-  TestParagraphDetection(kRightAligned, ABSL_ARRAYSIZE(kRightAligned));
+  TestParagraphDetection(kRightAligned, countof(kRightAligned));
 }
 
 const TextAndModel kTinyParagraphs[] = {
@@ -368,7 +368,7 @@ const TextAndModel kTinyParagraphs[] = {
 };
 
 TEST(ParagraphsTest, TestTinyParagraphs) {
-  TestParagraphDetection(kTinyParagraphs, ABSL_ARRAYSIZE(kTinyParagraphs));
+  TestParagraphDetection(kTinyParagraphs, countof(kTinyParagraphs));
 }
 
 const TextAndModel kComplexPage1[] = {
@@ -418,7 +418,7 @@ const TextAndModel kComplexPage1[] = {
 };
 
 TEST(ParagraphsTest, TestComplexPage1) {
-  TestParagraphDetection(kComplexPage1, ABSL_ARRAYSIZE(kComplexPage1));
+  TestParagraphDetection(kComplexPage1, countof(kComplexPage1));
 }
 
 // The same as above, but wider.
@@ -467,7 +467,7 @@ const TextAndModel kComplexPage2[] = {
 };
 
 TEST(ParagraphsTest, TestComplexPage2) {
-  TestParagraphDetection(kComplexPage2, ABSL_ARRAYSIZE(kComplexPage2));
+  TestParagraphDetection(kComplexPage2, countof(kComplexPage2));
 }
 
 const TextAndModel kSubtleCrown[] = {
@@ -483,11 +483,11 @@ const TextAndModel kSubtleCrown[] = {
 };
 
 TEST(ParagraphsTest, TestSubtleCrown) {
-  TestParagraphDetection(kSubtleCrown, ABSL_ARRAYSIZE(kSubtleCrown) - 1);
+  TestParagraphDetection(kSubtleCrown, countof(kSubtleCrown) - 1);
 }
 
 TEST(ParagraphsTest, TestStrayLineInBlock) {
-  TestParagraphDetection(kSubtleCrown, ABSL_ARRAYSIZE(kSubtleCrown));
+  TestParagraphDetection(kSubtleCrown, countof(kSubtleCrown));
 }
 
 const TextAndModel kUnlvRep3AO[] = {
@@ -531,7 +531,7 @@ const TextAndModel kUnlvRep3AO[] = {
 };
 
 TEST(ParagraphsTest, TestUnlvInsurance) {
-  TestParagraphDetection(kUnlvRep3AO, ABSL_ARRAYSIZE(kUnlvRep3AO));
+  TestParagraphDetection(kUnlvRep3AO, countof(kUnlvRep3AO));
 }
 
 // The basic outcome we want for something with a bunch of leader dots is that
@@ -556,7 +556,7 @@ const TextAndModel kTableOfContents[] = {
 };
 
 TEST(ParagraphsTest, TestSplitsOutLeaderLines) {
-  TestParagraphDetection(kTableOfContents, ABSL_ARRAYSIZE(kTableOfContents));
+  TestParagraphDetection(kTableOfContents, countof(kTableOfContents));
 }
 
 const TextAndModel kTextWithSourceCode[] = {
@@ -592,7 +592,7 @@ const TextAndModel kTextWithSourceCode[] = {
 
 TEST(ParagraphsTest, NotDistractedBySourceCode) {
   TestParagraphDetection(kTextWithSourceCode,
-                         ABSL_ARRAYSIZE(kTextWithSourceCode));
+                         countof(kTextWithSourceCode));
 }
 
 const TextAndModel kOldManAndSea[] = {
@@ -659,7 +659,7 @@ const TextAndModel kOldManAndSea[] = {
 };
 
 TEST(ParagraphsTest, NotOverlyAggressiveWithBlockQuotes) {
-  TestParagraphDetection(kOldManAndSea, ABSL_ARRAYSIZE(kOldManAndSea));
+  TestParagraphDetection(kOldManAndSea, countof(kOldManAndSea));
 }
 
 const TextAndModel kNewZealandIndex[] = {
@@ -697,7 +697,7 @@ const TextAndModel kNewZealandIndex[] = {
 };
 
 TEST(ParagraphsTest, IndexPageTest) {
-  TestParagraphDetection(kNewZealandIndex, ABSL_ARRAYSIZE(kNewZealandIndex));
+  TestParagraphDetection(kNewZealandIndex, countof(kNewZealandIndex));
 }
 
 // TODO(eger): Add some right-to-left examples, and fix the algorithm as needed.

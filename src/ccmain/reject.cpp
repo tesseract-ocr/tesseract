@@ -43,12 +43,13 @@ int16_t Tesseract::safe_dict_word(const WERD_RES *werd_res) {
 #include "docqual.h"
 #include "tesseractclass.h"
 
-#include "genericvector.h"
 #include "helpers.h"
 
+#include <algorithm>    // for std::sort
 #include <cctype>
 #include <cerrno>
 #include <cstring>
+#include <vector>       // for std::vector
 
 namespace tesseract {
 
@@ -230,12 +231,12 @@ float compute_reject_threshold(WERD_CHOICE* word) {
   float gapstart;                // bottom of gap
 
   int blob_count = word->length();
-  GenericVector<float> ratings;
-  ratings.resize_no_init(blob_count);
+  std::vector<float> ratings;
+  ratings.reserve(blob_count);
   for (int i = 0; i < blob_count; ++i) {
-    ratings[i] = word->certainty(i);
+    ratings.push_back(word->certainty(i));
   }
-  ratings.sort();
+  std::sort(ratings.begin(), ratings.end());
   gapstart = ratings[0] - 1;     // all reject if none better
   if (blob_count >= 3) {
     for (int index = 0; index < blob_count - 1; index++) {

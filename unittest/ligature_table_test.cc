@@ -85,7 +85,7 @@ TEST_F(LigatureTableTest, TestCustomLigatures) {
       "act",       "a\uE003", "publiſh",    "publi\uE006", "ſince",
       "\uE007nce", "aſleep",  "a\uE008eep", "neceſſary",   "nece\uE009ary",
   };
-  for (size_t i = 0; i < ARRAYSIZE(kTestCases); i += 2) {
+  for (size_t i = 0; i < countof(kTestCases); i += 2) {
     EXPECT_STREQ(kTestCases[i + 1],
                  lig_table_->AddLigatures(kTestCases[i], nullptr).c_str());
     EXPECT_STREQ(kTestCases[i],
@@ -101,7 +101,7 @@ TEST_F(LigatureTableTest, TestRemovesCustomLigatures) {
       "ﬁ\uE003ion",
       "ﬁction",
   };
-  for (size_t i = 0; i < ARRAYSIZE(kTestCases); i += 3) {
+  for (size_t i = 0; i < countof(kTestCases); i += 3) {
     EXPECT_STREQ(kTestCases[i + 1],
                  lig_table_->AddLigatures(kTestCases[i], nullptr).c_str());
     EXPECT_STREQ(kTestCases[i + 2],
