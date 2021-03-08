@@ -52,23 +52,33 @@
 
 #include <tiffio.h>
 
+using namespace tesseract;
+
 static void Win32ErrorHandler(const char* module, const char* fmt,
                               va_list ap) {
+  char buf[2048] = "ERROR: ";
+
   if (module != nullptr) {
-    fprintf(stderr, "%s: ", module);
+    snprintf(buf, sizeof(buf), "ERROR: %s: ", module);
   }
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, ".\n");
+  size_t off = strlen(buf);
+  vsnprintf(buf + off, sizeof(buf) - off, fmt, ap);
+  buf[sizeof(buf) - 1] = 0;			// make sure string is NUL terminated under all circumstances.
+  tprintf("%s.\n", buf);
 }
 
 static void Win32WarningHandler(const char* module, const char* fmt,
                                 va_list ap) {
+  char buf[2048] = "WARNING: ";
+
   if (module != nullptr) {
-    fprintf(stderr, "%s: ", module);
+    snprintf(buf, sizeof(buf), "WARNING: %s: ", module);
   }
-  fprintf(stderr, "Warning, ");
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, ".\n");
+  size_t off = strlen(buf);
+  vsnprintf(buf + off, sizeof(buf) - off, fmt, ap);
+  buf[sizeof(buf) - 1] =
+      0;  // make sure string is NUL terminated under all circumstances.
+  tprintf("%s.\n", buf);
 }
 
 #endif /* HAVE_TIFFIO_H */
@@ -90,47 +100,45 @@ static AutoWin32ConsoleOutputCP autoWin32ConsoleOutputCP(CP_UTF8);
 
 #endif   // _WIN32
 
-using namespace tesseract;
-
 static void PrintVersionInfo() {
   char* versionStrP;
 
-  printf("tesseract %s\n", tesseract::TessBaseAPI::Version());
+  tprintf("tesseract %s\n", tesseract::TessBaseAPI::Version());
 
   versionStrP = getLeptonicaVersion();
-  printf(" %s\n", versionStrP);
+  tprintf(" %s\n", versionStrP);
   lept_free(versionStrP);
 
   versionStrP = getImagelibVersions();
-  printf("  %s\n", versionStrP);
+  tprintf("  %s\n", versionStrP);
   lept_free(versionStrP);
 
 #ifdef USE_OPENCL
   cl_platform_id platform[4];
   cl_uint num_platforms;
 
-  printf(" OpenCL info:\n");
+  tprintf(" OpenCL info:\n");
   if (clGetPlatformIDs(4, platform, &num_platforms) == CL_SUCCESS) {
-    printf("  Found %u platform(s).\n", num_platforms);
+    tprintf("  Found %u platform(s).\n", num_platforms);
     for (unsigned n = 0; n < num_platforms; n++) {
       char info[256];
       if (clGetPlatformInfo(platform[n], CL_PLATFORM_NAME, 256, info, 0) ==
           CL_SUCCESS) {
-        printf("  Platform %u name: %s.\n", n + 1, info);
+        tprintf("  Platform %u name: %s.\n", n + 1, info);
       }
       if (clGetPlatformInfo(platform[n], CL_PLATFORM_VERSION, 256, info, 0) ==
           CL_SUCCESS) {
-        printf("  Version: %s.\n", info);
+        tprintf("  Version: %s.\n", info);
       }
       cl_device_id devices[2];
       cl_uint num_devices;
       if (clGetDeviceIDs(platform[n], CL_DEVICE_TYPE_ALL, 2, devices,
                          &num_devices) == CL_SUCCESS) {
-        printf("  Found %u device(s).\n", num_devices);
+        tprintf("  Found %u device(s).\n", num_devices);
         for (unsigned i = 0; i < num_devices; ++i) {
           if (clGetDeviceInfo(devices[i], CL_DEVICE_NAME, 256, info, 0) ==
               CL_SUCCESS) {
-            printf("    Device %u name: %s.\n", i + 1, info);
+            tprintf("    Device %u name: %s.\n", i + 1, info);
           }
         }
       }
@@ -138,27 +146,27 @@ static void PrintVersionInfo() {
   }
 #endif
 #if defined(HAVE_NEON) || defined(__aarch64__)
-  if (tesseract::SIMDDetect::IsNEONAvailable()) printf(" Found NEON\n");
+  if (tesseract::SIMDDetect::IsNEONAvailable()) tprintf(" Found NEON\n");
 #else
-  if (tesseract::SIMDDetect::IsAVX512BWAvailable()) printf(" Found AVX512BW\n");
-  if (tesseract::SIMDDetect::IsAVX512FAvailable()) printf(" Found AVX512F\n");
-  if (tesseract::SIMDDetect::IsAVX2Available()) printf(" Found AVX2\n");
-  if (tesseract::SIMDDetect::IsAVXAvailable()) printf(" Found AVX\n");
-  if (tesseract::SIMDDetect::IsFMAAvailable()) printf(" Found FMA\n");
-  if (tesseract::SIMDDetect::IsSSEAvailable()) printf(" Found SSE\n");
+  if (tesseract::SIMDDetect::IsAVX512BWAvailable()) tprintf(" Found AVX512BW\n");
+  if (tesseract::SIMDDetect::IsAVX512FAvailable()) tprintf(" Found AVX512F\n");
+  if (tesseract::SIMDDetect::IsAVX2Available()) tprintf(" Found AVX2\n");
+  if (tesseract::SIMDDetect::IsAVXAvailable()) tprintf(" Found AVX\n");
+  if (tesseract::SIMDDetect::IsFMAAvailable()) tprintf(" Found FMA\n");
+  if (tesseract::SIMDDetect::IsSSEAvailable()) tprintf(" Found SSE\n");
 #endif
 #ifdef _OPENMP
-  printf(" Found OpenMP %d\n", _OPENMP);
+  tprintf(" Found OpenMP %d\n", _OPENMP);
 #endif
 #if defined(HAVE_LIBARCHIVE)
 #  if ARCHIVE_VERSION_NUMBER >= 3002000
-  printf(" Found %s\n", archive_version_details());
+  tprintf(" Found %s\n", archive_version_details());
 #  else
-  printf(" Found %s\n", archive_version_string());
+  tprintf(" Found %s\n", archive_version_string());
 #  endif  // ARCHIVE_VERSION_NUMBER
 #endif    // HAVE_LIBARCHIVE
 #if defined(HAVE_LIBCURL)
-  printf(" Found %s\n", curl_version());
+  tprintf(" Found %s\n", curl_version());
 #endif
 }
 
@@ -287,8 +295,8 @@ static void PrintHelpMessage(const char* program) {
   );
 }
 
-static bool SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
-                                   char** argv) {
+static bool SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, const int argc,
+                                   const char** argv) {
   bool success = true;
   char opt1[256], opt2[255];
   for (int i = 0; i < argc; i++) {
