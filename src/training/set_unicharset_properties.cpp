@@ -12,10 +12,12 @@
 // object, fills it with properties about the unichars it contains and writes
 // the result back to a file.
 
-#include "commandlineflags.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "common/commandlineflags.h"
+#include "common/commontraining.h"     // CheckSharedLibraryVersion
 #include "tprintf.h"
-#include "unicharset_training_utils.h"
+#include "unicharset/unicharset_training_utils.h"
+
+#if defined(HAS_LIBICU)
 
 using namespace tesseract;
 
@@ -23,7 +25,12 @@ using namespace tesseract;
 static STRING_PARAM_FLAG(script_dir, "",
                          "Directory name for input script unicharsets/xheights");
 
-int main(int argc, char** argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_set_unicharset_properties_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
 
@@ -42,3 +49,5 @@ int main(int argc, char** argv) {
                                        FLAGS_X.c_str());
   return 0;
 }
+
+#endif

@@ -21,6 +21,7 @@
 #include "errcode.h"
 
 #include "helpers.h"  // for ReverseN
+#include "unicharcompress.h"  // for RecodedCharID
 
 #include <climits>    // for INT_MAX
 #include <cstdio>
@@ -122,6 +123,11 @@ TESS_API template bool TFile::DeSerialize(std::vector<double>& data);
 TESS_API template bool TFile::DeSerialize(std::vector<int32_t>& data);
 TESS_API template bool TFile::Serialize(const std::vector<double>& data);
 TESS_API template bool TFile::Serialize(const std::vector<int32_t>& data);
+
+TESS_API template bool TFile::DeSerialize(RecodedCharID* data, size_t count);
+TESS_API template bool TFile::Serialize(const RecodedCharID* data, size_t count);
+TESS_API template bool TFile::DeSerialize(std::vector<RecodedCharID>& data);
+TESS_API template bool TFile::Serialize(const std::vector<RecodedCharID>& data);
 
 bool TFile::DeSerialize(std::string& data) {
   uint32_t size;

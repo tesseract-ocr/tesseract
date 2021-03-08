@@ -29,6 +29,9 @@
 #define TESSERACT_TRAINING_STRINGRENDERER_H_
 
 #include "export.h"
+#include <tesseract/export.h>
+
+#if defined(PANGO_ENABLE_ENGINE)
 
 #include "pango_font_info.h"
 #include "pango/pango-layout.h"
@@ -223,5 +226,7 @@ class TESS_PANGO_TRAINING_API StringRenderer {
   void operator=(const StringRenderer&);
 };
 }  // namespace tesseract
+
+#endif
 
 #endif  // THIRD_PARTY_TESSERACT_TRAINING_STRINGRENDERER_H_

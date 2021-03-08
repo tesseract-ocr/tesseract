@@ -36,8 +36,13 @@
 #ifndef TESSERACT_CCUTIL_ICUERRORCODE_H_
 #define TESSERACT_CCUTIL_ICUERRORCODE_H_
 
+#include <tesseract/export.h>
+
 #include <cstdlib>              // for exit
 #include "tprintf.h"
+
+#if defined(HAS_LIBICU)
+
 #include "unicode/errorcode.h"  // From libicu
 
 namespace tesseract {
@@ -60,4 +65,7 @@ class IcuErrorCode : public icu::ErrorCode {
 };
 
 }  // namespace tesseract
+
+#endif
+
 #endif  // TESSERACT_CCUTIL_ICUERRORCODE_H_

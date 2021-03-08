@@ -200,7 +200,7 @@ class TESS_API TessdataManager {
    * Writes the updated traineddata file to new_traineddata_filename.
    */
   bool OverwriteComponents(const char *new_traineddata_filename,
-                            char **component_filenames,
+                            const char **component_filenames,
                             int num_new_components);
 
   /**

@@ -19,14 +19,16 @@
 #include <algorithm>
 #include <cstdio>
 #include <tesseract/baseapi.h>
-#include "commontraining.h"
-#include "mastertrainer.h"
+#include "common/commontraining.h"
+#include "common/mastertrainer.h"
 #include "params.h"
 #include "strngs.h"
 #include "tessclassifier.h"
 #include "tesseractclass.h"
 
 using namespace tesseract;
+
+#if !defined(DISABLED_LEGACY_ENGINE)
 
 static STRING_PARAM_FLAG(classifier, "", "Classifier to test");
 static STRING_PARAM_FLAG(lang, "eng", "Language to test");
@@ -42,7 +44,7 @@ static const char* names[] = {"pruner", "full"};
 
 static tesseract::ShapeClassifier* InitializeClassifier(
     const char* classifer_name, const UNICHARSET& unicharset,
-    int argc, char **argv,
+    int argc, const char **argv,
     tesseract::TessBaseAPI** api) {
   // Decode the classifier string.
   ClassifierName classifier = CN_COUNT;
@@ -106,7 +108,12 @@ static tesseract::ShapeClassifier* InitializeClassifier(
 // pruner   : Tesseract class pruner only.
 // full     : Tesseract full classifier.
 //            with an input trainer.)
-int main(int argc, char **argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_classifier_tester_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
   STRING file_prefix;
@@ -134,3 +141,5 @@ int main(int argc, char **argv) {
 
   return 0;
 } /* main */
+
+#endif

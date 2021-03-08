@@ -27,6 +27,9 @@
 #include "errcode.h"
 #include "icuerrorcode.h"
 #include <tesseract/unichar.h>
+
+#if defined(HAS_LIBICU)
+
 #include "unicode/normalizer2.h"  // From libicu
 #include "unicode/translit.h"     // From libicu
 #include "unicode/uchar.h"        // From libicu
@@ -302,3 +305,5 @@ char32 FullwidthToHalfwidth(const char32 ch) {
 }
 
 }  // namespace tesseract
+
+#endif

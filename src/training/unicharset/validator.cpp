@@ -6,6 +6,9 @@
 #include <iterator>
 
 #include "icuerrorcode.h"
+
+#if defined(HAS_LIBICU)
+
 #include "unicode/uchar.h"    // From libicu
 #include "unicode/uscript.h"  // From libicu
 #include "validate_grapheme.h"
@@ -220,3 +223,5 @@ void Validator::Clear() {
 }
 
 }  // namespace tesseract
+
+#endif

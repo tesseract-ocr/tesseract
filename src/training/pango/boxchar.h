@@ -29,6 +29,8 @@
 #include <allheaders.h>  // from Leptonica
 #include <tesseract/export.h>
 
+#if defined(PANGO_ENABLE_ENGINE)
+
 struct Box;
 
 namespace tesseract {
@@ -128,5 +130,7 @@ struct BoxCharPtrSort {
 };
 
 }  // namespace tesseract
+
+#endif
 
 #endif  // TESSERACT_TRAINING_BOXCHAR_H_

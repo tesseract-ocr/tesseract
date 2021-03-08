@@ -20,14 +20,21 @@
 ///////////////////////////////////////////////////////////////////////
 //
 
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "common/commontraining.h"     // CheckSharedLibraryVersion
 #include "dict.h"
 #include "tesseractclass.h"
 
 #include <tesseract/baseapi.h>
 #include "helpers.h"
 
-int main(int argc, char** argv) {
+#if !defined(DISABLED_LEGACY_ENGINE)
+
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_ambiguous_words_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
 
   // Parse input arguments.
@@ -77,3 +84,5 @@ int main(int argc, char** argv) {
   // Clean up.
   fclose(input_file);
 }
+
+#endif

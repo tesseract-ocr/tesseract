@@ -21,10 +21,13 @@
 
 #include "boxchar.h"
 
-#include "fileio.h"
-#include "normstrngs.h"
+#include "../unicharset/fileio.h"
+#include "../unicharset/normstrngs.h"
 #include "tprintf.h"
 #include "unicharset.h"
+
+#if defined(PANGO_ENABLE_ENGINE)
+
 #include "unicode/uchar.h"  // from libicu
 
 #include <algorithm>
@@ -343,3 +346,6 @@ std::string BoxChar::GetTesseractBoxStr(int height,
 }
 
 }  // namespace tesseract
+
+#endif
+

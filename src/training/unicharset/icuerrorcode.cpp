@@ -14,6 +14,8 @@
 
 #include "icuerrorcode.h"
 
+#if defined(HAS_LIBICU)
+
 namespace tesseract {
 
 // Destructor.
@@ -26,3 +28,5 @@ IcuErrorCode::~IcuErrorCode() {
 }
 
 }  // namespace tesseract.
+
+#endif

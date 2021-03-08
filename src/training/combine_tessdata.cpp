@@ -17,7 +17,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "common/commontraining.h"     // CheckSharedLibraryVersion
 #include "lstmrecognizer.h"
 #include "tessdatamanager.h"
 
@@ -69,7 +69,12 @@ using namespace tesseract;
 // This will create  /home/$USER/temp/eng.* files with individual tessdata
 // components from tessdata/eng.traineddata.
 //
-int main(int argc, char **argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_combine_tessdata_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
 
   int i;
@@ -80,7 +85,7 @@ int main(int argc, char **argv) {
   } else if (argc == 2) {
     printf("Combining tessdata files\n");
     STRING lang = argv[1];
-    char* last = &argv[1][strlen(argv[1])-1];
+    const char* last = &argv[1][strlen(argv[1])-1];
     if (*last != '.')
       lang += '.';
     STRING output_file = lang;
@@ -117,7 +122,7 @@ int main(int argc, char **argv) {
     } else {  // extract all the components
       for (i = 0; i < tesseract::TESSDATA_NUM_ENTRIES; ++i) {
         STRING filename = argv[3];
-        char* last = &argv[3][strlen(argv[3])-1];
+        const char* last = &argv[3][strlen(argv[3])-1];
         if (*last != '.')
           filename += '.';
         filename += tesseract::kTessdataFileSuffixes[i];

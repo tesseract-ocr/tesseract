@@ -30,6 +30,9 @@
 #include "statistc.h"
 #include <tesseract/unichar.h>
 #include "unicharset.h"
+
+#if defined(HAS_LIBICU)
+
 #include "unicode/uchar.h"    // from libicu
 #include "unicode/uscript.h"  // from libicu
 
@@ -207,3 +210,5 @@ void SetPropertiesForInputFile(const std::string& script_dir,
 }
 
 }  // namespace tesseract
+
+#endif

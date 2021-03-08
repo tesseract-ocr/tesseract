@@ -16,10 +16,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "common/commontraining.h"     // CheckSharedLibraryVersion
 #include "unicharset.h"
 
-int main(int argc, char** argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_merge_unicharsets_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
 
   if (argc > 1 && (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version"))) {

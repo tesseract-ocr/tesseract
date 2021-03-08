@@ -21,7 +21,6 @@
 #define TESSERACT_TRAINING_UNICHARSET_TRAINING_UTILS_H_
 
 #include "export.h"
-
 #include <tesseract/export.h>
 
 #include <string>

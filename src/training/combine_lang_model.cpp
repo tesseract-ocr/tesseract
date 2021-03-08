@@ -16,11 +16,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "commandlineflags.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
-#include "lang_model_helpers.h"
+#include "common/commandlineflags.h"
+#include "common/commontraining.h"     // CheckSharedLibraryVersion
+#include "unicharset/lang_model_helpers.h"
 #include "tprintf.h"
-#include "unicharset_training_utils.h"
+#include "unicharset/unicharset_training_utils.h"
+
+#if defined(HAS_LIBICU)
 
 using namespace tesseract;
 
@@ -41,7 +43,12 @@ static BOOL_PARAM_FLAG(pass_through_recoder, false,
                        "If true, the recoder is a simple pass-through of the "
                        "unicharset. Otherwise, potentially a compression of it");
 
-int main(int argc, char** argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_combine_lang_model_main(int argc, const char** argv)
+#endif
+{
   // Sets properties on the input unicharset file, and writes:
   //   rootdir/lang/lang.charset_size=ddd.txt
   //   rootdir/lang/lang.traineddata
@@ -81,3 +88,5 @@ int main(int argc, char** argv) {
       words, puncs, numbers, FLAGS_lang_is_rtl, /*reader*/ nullptr,
       /*writer*/ nullptr);
 }
+
+#endif

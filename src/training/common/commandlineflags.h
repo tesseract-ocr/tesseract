@@ -19,7 +19,10 @@
 #define TESSERACT_TRAINING_COMMANDLINEFLAGS_H_
 
 #include "export.h"
+#include <tesseract/export.h>
+#include <tesseract/version.h>
 #include "params.h"
+#include <tesseract/capi_training_tools.h>
 
 #include <cstdlib>
 
@@ -76,7 +79,7 @@ namespace tesseract {
 // output *argv is { "program", "file1", "file2" } with *argc = 3
 TESS_COMMON_TRAINING_API
 void ParseCommandLineFlags(const char* usage, int* argc,
-                           char*** argv, const bool remove_flags);
+                           const char*** argv, const bool remove_flags);
 
 }
 

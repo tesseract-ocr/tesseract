@@ -19,14 +19,14 @@
 #if defined(__USE_GNU)
 #include <cfenv>                // for feenableexcept
 #endif
-#include "commontraining.h"
-#include "fileio.h"             // for LoadFileLinesToStrings
-#include "lstmtester.h"
-#include "lstmtrainer.h"
+#include "common/commontraining.h"
+#include "unicharset/fileio.h"             // for LoadFileLinesToStrings
+#include "unicharset/lstmtester.h"
+#include "unicharset/lstmtrainer.h"
 #include "params.h"
 #include "strngs.h"
 #include "tprintf.h"
-#include "unicharset_training_utils.h"
+#include "unicharset/unicharset_training_utils.h"
 
 using namespace tesseract;
 
@@ -77,7 +77,12 @@ const int kNumPagesPerBatch = 100;
 // were previously created using tesseract with the lstm.train config file.
 // The program iterates over the inputs, feeding the data to the network,
 // until the error rate reaches a specified target or max_iterations is reached.
-int main(int argc, char **argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_lstm_training_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
 #if defined(__USE_GNU)

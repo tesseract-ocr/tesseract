@@ -270,7 +270,7 @@ bool TessdataManager::CombineDataFiles(
 
 bool TessdataManager::OverwriteComponents(
     const char *new_traineddata_filename,
-    char **component_filenames,
+    const char **component_filenames,
     int num_new_components) {
   // Open the files with the new components.
   // TODO: This method supports only the proprietary file format.

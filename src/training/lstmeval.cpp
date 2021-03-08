@@ -15,9 +15,9 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#include "commontraining.h"
+#include "common/commontraining.h"
 #include "genericvector.h"
-#include "lstmtester.h"
+#include "unicharset/lstmtester.h"
 #include "strngs.h"
 #include "tprintf.h"
 
@@ -33,7 +33,12 @@ static INT_PARAM_FLAG(max_image_MB, 2000, "Max memory to use for images.");
 static INT_PARAM_FLAG(verbosity, 1,
                       "Amount of diagnosting information to output (0-2).");
 
-int main(int argc, char **argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_lstm_eval_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
   if (FLAGS_model.empty()) {

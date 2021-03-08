@@ -163,7 +163,7 @@ static void PrintCommandLineFlags() {
 }
 
 void ParseCommandLineFlags(const char* usage,
-                           int* argc, char*** argv,
+                           int* argc, const char*** argv,
                            const bool remove_flags) {
   if (*argc == 1) {
     printf("USAGE: %s\n", usage);

@@ -370,11 +370,10 @@ static bool checkArgValues(int arg, const char* mode, int count) {
 
 //#include <filesystem>
 #include <sstream>      // std::ostringstream
-#include <unistd.h>     // access
 #include "imagedata.h"  // DocumentData
 
-static void InfoTraineddata(char** filenames) {
-  char* filename;
+static void InfoTraineddata(const char** filenames) {
+  const char* filename;
   while ((filename = *filenames++) != nullptr) {
     tesseract::TessdataManager mgr;
     if (!mgr.is_loaded() && !mgr.Init(filename)) {
@@ -390,7 +389,7 @@ static void InfoTraineddata(char** filenames) {
   }
 }
 
-static void UnpackFiles(char** filenames) {
+static void UnpackFiles(const char** filenames) {
   const char* filename;
   while ((filename = *filenames++) != nullptr) {
     printf("Extracting %s...\n", filename);

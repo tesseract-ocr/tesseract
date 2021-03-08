@@ -21,14 +21,16 @@
 // a unicharset.
 
 #include "boxread.h"
-#include "commandlineflags.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
-#include "lang_model_helpers.h"
-#include "normstrngs.h"
+#include "common/commandlineflags.h"
+#include "common/commontraining.h"     // CheckSharedLibraryVersion
+#include "unicharset/lang_model_helpers.h"
+#include "unicharset/normstrngs.h"
 #include "strngs.h"
 #include "unicharset.h"
-#include "unicharset_training_utils.h"
+#include "unicharset/unicharset_training_utils.h"
 #include <cstdlib>
+
+#if defined(HAS_LIBICU)
 
 using namespace tesseract;
 
@@ -61,7 +63,7 @@ static void AddStringsToUnicharset(const std::vector<STRING>& strings,
   }
 }
 
-static int Main(int argc, char** argv) {
+static int Main(int argc, const char** argv) {
   UNICHARSET unicharset;
   // Load input files
   for (int arg = 1; arg < argc; ++arg) {
@@ -94,7 +96,12 @@ static int Main(int argc, char** argv) {
 
 }  // namespace tesseract
 
-int main(int argc, char** argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_unicharset_extractor_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
   if (argc > 1) {
     tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
@@ -113,3 +120,5 @@ int main(int argc, char** argv) {
   }
   return tesseract::Main(argc, argv);
 }
+
+#endif

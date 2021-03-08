@@ -26,16 +26,13 @@
  *
  **********************************************************************/
 
-#include "boxchar.h"
-#include "commandlineflags.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "common/commandlineflags.h"
+#include "common/commontraining.h"     // CheckSharedLibraryVersion
 #include "degradeimage.h"
 #include "errcode.h"
-#include "fileio.h"
+#include "unicharset/fileio.h"
 #include "helpers.h"
-#include "normstrngs.h"
-#include "stringrenderer.h"
-#include "tlog.h"
+#include "unicharset/normstrngs.h"
 #include "unicharset.h"
 
 #include <allheaders.h>  // from leptonica
@@ -49,6 +46,12 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#if defined(PANGO_ENABLE_ENGINE)
+
+#include "pango/stringrenderer.h"
+#include "pango/boxchar.h"
+#include "pango/tlog.h"
 
 #ifdef _MSC_VER
 #  define putenv(s) _putenv(s)
@@ -720,7 +723,12 @@ static int Main() {
   return 0;
 }
 
-int main(int argc, char** argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_text2image_main(int argc, const char** argv)
+#endif
+{
   // Respect environment variable. could be:
   // fc (fontconfig), win32, and coretext
   // If not set force fontconfig for Mac OS.
@@ -745,3 +753,5 @@ int main(int argc, char** argv) {
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
   return Main();
 }
+
+#endif

@@ -40,6 +40,16 @@
 # endif
 #endif
 
+#ifndef TESS_COMMON_TRAINING_API
+#  define TESS_COMMON_TRAINING_API TESS_API
+#endif
+#ifndef TESS_UNICHARSET_TRAINING_API
+#  define TESS_UNICHARSET_TRAINING_API TESS_API
+#endif
+#ifndef TESS_PANGO_TRAINING_API
+#  define TESS_PANGO_TRAINING_API TESS_API
+#endif
+
 /* GCC can do type checking of printf strings */
 #ifdef __printflike
 #  define TS_PRINTFLIKE(F, V) __printflike(F, V)

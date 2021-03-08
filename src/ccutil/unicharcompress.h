@@ -184,7 +184,6 @@ class TESS_API UnicharCompress {
   // Writes to the given file. Returns false in case of error.
   bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-
   bool DeSerialize(TFile* fp);
 
   // Returns a STRING containing a text file that describes the encoding thus:

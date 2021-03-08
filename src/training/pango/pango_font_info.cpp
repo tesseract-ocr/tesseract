@@ -27,16 +27,18 @@
 #endif
 
 #include "pango_font_info.h"
-#include "commandlineflags.h"
-#include "fileio.h"
-#include "normstrngs.h"
+#include "../common/commandlineflags.h"
+#include "../unicharset/fileio.h"
+#include "../unicharset/normstrngs.h"
 #include "tlog.h"
 
 #include <tesseract/unichar.h>
 
-#include "pango/pango.h"
-#include "pango/pangocairo.h"
-#include "pango/pangofc-font.h"
+#if defined(PANGO_ENABLE_ENGINE)
+
+#include "pango.h"
+#include "pangocairo.h"
+#include "pangofc-font.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -747,3 +749,5 @@ void FontUtils::PangoFontTypeInfo() {
 }
 
 }  // namespace tesseract
+
+#endif

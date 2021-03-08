@@ -21,8 +21,9 @@
 #define TESSERACT_TRAINING_TLOG_H_
 
 #include "export.h"
+#include <tesseract/export.h>
 
-#include "commandlineflags.h"
+#include "../common/commandlineflags.h"
 #include "errcode.h"
 #include "tprintf.h"
 

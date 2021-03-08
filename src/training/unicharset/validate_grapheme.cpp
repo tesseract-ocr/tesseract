@@ -1,5 +1,8 @@
 #include "validate_grapheme.h"
 #include "tprintf.h"
+
+#if defined(HAS_LIBICU)
+
 #include "unicode/uchar.h"  // From libicu
 
 namespace tesseract {
@@ -178,3 +181,5 @@ bool ValidateGrapheme::IsBadlyFormedThai(char32 prev_ch, char32 ch) {
 }
 
 }  // namespace tesseract
+
+#endif

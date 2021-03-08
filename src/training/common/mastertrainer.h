@@ -23,6 +23,7 @@
 #define TESSERACT_TRAINING_MASTERTRAINER_H_
 
 #include "export.h"
+#include <tesseract/export.h>
 
 #include "classify.h"
 #include "cluster.h"
@@ -171,6 +172,8 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
                                 const FEATURE_DEFS_STRUCT& feature_defs,
                                 int shape_id, int* num_samples);
 
+  #if !defined(DISABLED_LEGACY_ENGINE)
+
   // Writes the given float_classes (produced by SetupForFloat2Int) as inttemp
   // to the given inttemp_file, and the corresponding pffmtable.
   // The unicharset is the original encoding of graphemes, and shape_set should
@@ -181,6 +184,8 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
                                 CLASS_STRUCT* float_classes,
                                 const char* inttemp_file,
                                 const char* pffmtable_file);
+
+  #endif
 
   const UNICHARSET& unicharset() const {
     return samples_.unicharset();

@@ -2,6 +2,9 @@
 #include "errcode.h"
 #include "icuerrorcode.h"
 #include "tprintf.h"
+
+#if defined(HAS_LIBICU)
+
 #include "unicode/uchar.h"    // From libicu
 #include "unicode/uscript.h"  // From libicu
 
@@ -166,3 +169,5 @@ bool ValidateMyanmar::IsMyanmarOther(char32 ch) {
 }
 
 }  // namespace tesseract
+
+#endif

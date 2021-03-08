@@ -46,7 +46,7 @@ using namespace tesseract;
  * @param argv command line arguments
  * @note Exceptions: Illegal options terminate the program.
  */
-void ParseArguments(int* argc, char ***argv) {
+void ParseArguments(int* argc, const char ***argv) {
   STRING usage;
   if (*argc) {
     usage += (*argv)[0];

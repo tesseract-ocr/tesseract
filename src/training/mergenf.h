@@ -27,9 +27,9 @@
 #include "picofeat.h"
 #include "protos.h"
 
-#define WORST_MATCH_ALLOWED (0.9)
-#define WORST_EVIDENCE (1.0)
-#define MAX_LENGTH_MISMATCH (2.0 * GetPicoFeatureLength())
+#define WORST_MATCH_ALLOWED (0.9f)
+#define WORST_EVIDENCE (1.0f)
+#define MAX_LENGTH_MISMATCH (2.0f * GetPicoFeatureLength())
 
 #define PROTO_SUFFIX ".mf.p"
 #define CONFIG_SUFFIX ".cl"

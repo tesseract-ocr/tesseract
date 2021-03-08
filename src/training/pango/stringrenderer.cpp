@@ -24,10 +24,12 @@
 #include "boxchar.h"
 #include "helpers.h"        // for TRand
 #include "ligature_table.h"
-#include "normstrngs.h"
+#include "../unicharset/normstrngs.h"
 #include "tlog.h"
 
 #include <tesseract/unichar.h>
+
+#if defined(PANGO_ENABLE_ENGINE)
 
 #include "pango/pango-font.h"
 #include "pango/pango-glyph-item.h"
@@ -909,3 +911,5 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage,
 }
 
 }  // namespace tesseract
+
+#endif

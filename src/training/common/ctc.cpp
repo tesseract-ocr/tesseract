@@ -32,7 +32,7 @@ namespace tesseract {
 
 // Magic constants that keep CTC stable.
 // Minimum probability limit for softmax input to ctc_loss.
-const float CTC::kMinProb_ = 1e-12;
+const float CTC::kMinProb_ = 1e-12f;
 // Maximum absolute argument to exp().
 const double CTC::kMaxExpArg_ = 80.0;
 // Minimum probability for total prob in time normalization.

@@ -27,10 +27,10 @@
 
 #include <allheaders.h>
 #include "boxread.h"
-#include "ctc.h"
+#include "../common/ctc.h"
 #include "imagedata.h"
 #include "input.h"
-#include "networkbuilder.h"
+#include "../common/networkbuilder.h"
 #include "ratngs.h"
 #include "recodebeam.h"
 #ifdef INCLUDE_TENSORFLOW

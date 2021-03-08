@@ -45,7 +45,7 @@ const int kMinClusteredShapes = 1;
 // Max number of unichars in any individual cluster.
 const int kMaxUnicharsPerCluster = 2000;
 // Mean font distance below which to merge fonts and unichars.
-const float kFontMergeDistance = 0.025;
+const float kFontMergeDistance = 0.025f;
 
 MasterTrainer::MasterTrainer(NormalizationMode norm_mode,
                              bool shape_analysis,
@@ -559,6 +559,8 @@ CLUSTERER* MasterTrainer::SetupForClustering(
   return clusterer;
 }
 
+#if !defined(DISABLED_LEGACY_ENGINE)
+
 // Writes the given float_classes (produced by SetupForFloat2Int) as inttemp
 // to the given inttemp_file, and the corresponding pffmtable.
 // The unicharset is the original encoding of graphemes, and shape_set should
@@ -629,6 +631,8 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
   free_int_templates(int_templates);
   delete classify;
 }
+
+#endif
 
 // Generate debug output relating to the canonical distance between the
 // two given UTF8 grapheme strings.

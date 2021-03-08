@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "common/commontraining.h"     // CheckSharedLibraryVersion
 #include "dawg.h"
 #include "trie.h"
 #include "unicharset.h"
@@ -69,7 +69,12 @@ static int WriteDawgAsWordlist(const UNICHARSET &unicharset,
   return fclose(out);
 }
 
-int main(int argc, char *argv[]) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_dawg2wordlist_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
 
   if (argc > 1 && (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version"))) {

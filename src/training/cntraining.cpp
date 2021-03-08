@@ -28,9 +28,11 @@
 #include <cstdio>
 #include <cmath>
 #include <tesseract/unichar.h>
-#include "commontraining.h"
+#include "common/commontraining.h"
 
 #define PROGRAM_FEATURE_TYPE "cn"
+
+#if !defined(DISABLED_LEGACY_ENGINE)
 
 using namespace tesseract;
 
@@ -102,7 +104,12 @@ static const CLUSTERCONFIG CNConfig = {
 * @param argv  array of command line arguments
 * @return 0 on success
 */
-int main(int argc, char *argv[]) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_cn_training_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
 
   // Set the global Config parameters before parsing the command line.
@@ -249,3 +256,5 @@ static void WriteProtos(FILE* File, uint16_t N, LIST ProtoList,
       WritePrototype(File, N, Proto);
   }
 }  // WriteProtos
+
+#endif

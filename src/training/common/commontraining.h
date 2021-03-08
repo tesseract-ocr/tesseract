@@ -19,6 +19,7 @@
 #endif
 
 #include "export.h"
+#include <tesseract/export.h>
 #include "commandlineflags.h"
 #include "tprintf.h"
 
@@ -27,7 +28,7 @@
 #include <memory>
 
 TESS_COMMON_TRAINING_API
-void ParseArguments(int* argc, char*** argv);
+void ParseArguments(int* argc, const char*** argv);
 
 namespace tesseract {
 

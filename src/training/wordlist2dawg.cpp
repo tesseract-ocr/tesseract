@@ -20,7 +20,7 @@
 // generates the corresponding squished DAWG file.
 
 #include "classify.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "common/commontraining.h"     // CheckSharedLibraryVersion
 #include "dawg.h"
 #include "dict.h"
 #include "helpers.h"
@@ -30,7 +30,12 @@
 
 using namespace tesseract;
 
-int main(int argc, char** argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_wordlist2dawg_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
 
   if (argc > 1 && (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version"))) {

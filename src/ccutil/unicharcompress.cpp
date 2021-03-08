@@ -298,12 +298,12 @@ int UnicharCompress::DecodeUnichar(const RecodedCharID& code) const {
 
 // Writes to the given file. Returns false in case of error.
 bool UnicharCompress::Serialize(TFile* fp) const {
-  return fp->SerializeClasses(encoder_);
+  return fp->Serialize(encoder_);
 }
 
 // Reads from the given file. Returns false in case of error.
 bool UnicharCompress::DeSerialize(TFile* fp) {
-  if (!fp->DeSerializeClasses(encoder_))
+  if (!fp->DeSerialize(encoder_))
     return false;
   ComputeCodeRange();
   SetupDecoder();

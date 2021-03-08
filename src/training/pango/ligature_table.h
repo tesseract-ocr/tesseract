@@ -23,6 +23,7 @@
 #define TRAININGDATA_LIGATURE_TABLE_H_
 
 #include "export.h"
+#include <tesseract/export.h>
 
 #include <memory>
 #include <string>

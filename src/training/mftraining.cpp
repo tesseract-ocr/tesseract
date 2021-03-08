@@ -33,12 +33,12 @@
 #include "classify.h"
 #include "cluster.h"
 #include "clusttool.h"
-#include "commontraining.h"
+#include "common/commontraining.h"
 #include "featdefs.h"
 #include "fontinfo.h"
 #include "indexmapbidi.h"
 #include "intproto.h"
-#include "mastertrainer.h"
+#include "common/mastertrainer.h"
 #include "mergenf.h"
 #include "mf.h"
 #include "ocrfeatures.h"
@@ -47,6 +47,8 @@
 #include "shapetable.h"
 #include "tprintf.h"
 #include "unicity_table.h"
+
+#if !defined(DISABLED_LEGACY_ENGINE)
 
 using namespace tesseract;
 
@@ -197,7 +199,12 @@ static void SetupConfigMap(ShapeTable* shape_table, IndexMapBiDi* config_map) {
  * @param  argv  array of command line arguments
  * @return 0 if no error occurred
  */
-int main (int argc, char **argv) {
+#ifdef TESSERACT_STANDALONE
+extern "C" int main(int argc, const char** argv)
+#else
+extern "C" int tesseract_mf_training_main(int argc, const char** argv)
+#endif
+{
   tesseract::CheckSharedLibraryVersion();
 
   ParseArguments(&argc, &argv);
@@ -279,3 +286,5 @@ int main (int argc, char **argv) {
   }
   return 0;
 }  /* main */
+
+#endif
