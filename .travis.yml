@@ -35,8 +35,8 @@ script:
   - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
   - make
   - sudo make install
-
-after_script:
+  
+#after_script: # let those commands trigger build errors
   - tesseract -v
   - text2image -v
   - lstmtraining -v
