@@ -30,9 +30,10 @@ install:
   - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
 
 before_script:
-  - wget -O eng.traineddata https://github.com/egorpugin/tessdata/raw/master/tessdata/eng.traineddata
-  - wget -O eng_best.traineddata https://github.com/tesseract-ocr/tessdata_best/raw/master/eng.traineddata
-  - wget -O eng_fast.traineddata https://github.com/tesseract-ocr/tessdata_fast/raw/master/eng.traineddata
+  - wget -O /home/travis/build/tesseract-ocr/tesseract/tessdata/eng.traineddata https://github.com/egorpugin/tessdata/raw/master/tessdata/eng.traineddata
+  - wget -O /home/travis/build/tesseract-ocr/tesseract/tessdata/eng_best.traineddata https://github.com/tesseract-ocr/tessdata_best/raw/master/eng.traineddata
+  - wget -O /home/travis/build/tesseract-ocr/tesseract/tessdata/eng_fast.traineddata https://github.com/tesseract-ocr/tessdata_fast/raw/master/eng.traineddata
+  - ls /home/travis/build/tesseract-ocr/tesseract/tessdata/
 
 script:
   - mkdir build
@@ -44,10 +45,10 @@ script:
   - tesseract -v
   - text2image -v
   - lstmtraining -v
-  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng --tessdata-dir ./
-  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng_best --tessdata-dir ./
-  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng_fast --tessdata-dir ./
+  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/
+  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng_best --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/
+  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng_fast --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/
   - mv -v /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif "3312-оны акт.tif"
-  - time -p tesseract "3312-оны акт.tif " --tessdata-dir ./ -l eng
-  - time -p tesseract "3312-оны акт.tif"  --tessdata-dir ./ -l eng_best
-  - time -p tesseract "3312-оны акт.tif"  --tessdata-dir ./ -l eng_fast
+  - time -p tesseract "3312-оны акт.tif " --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/ -l eng
+  - time -p tesseract "3312-оны акт.tif"  --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/ -l eng_best
+  - time -p tesseract "3312-оны акт.tif"  --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/ -l eng_fast
