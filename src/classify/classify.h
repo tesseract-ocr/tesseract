@@ -66,7 +66,6 @@ class Classify : public CCStruct {
 #include "dict.h"
 #include "featdefs.h"
 #include "fontinfo.h"
-#include "imagedata.h"
 #include "intfx.h"
 #include "intmatcher.h"
 #include "normalis.h"

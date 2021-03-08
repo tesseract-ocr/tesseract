@@ -20,7 +20,7 @@
 
 #include "export.h"
 
-#include "imagedata.h"
+#include "imagedata.h"       // for DocumentCache
 #include "lstmrecognizer.h"
 #include "rect.h"
 

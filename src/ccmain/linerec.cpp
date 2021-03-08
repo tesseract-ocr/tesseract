@@ -19,7 +19,7 @@
 
 #include <allheaders.h>
 #include "boxread.h"
-#include "imagedata.h"
+#include "imagedata.h"      // for ImageData
 #include "lstmrecognizer.h"
 #include "recodebeam.h"
 #include "pageres.h"

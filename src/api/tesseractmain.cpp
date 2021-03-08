@@ -22,6 +22,9 @@
 #endif
 
 #include <cerrno>               // for errno
+#if defined(__USE_GNU)
+#include <cfenv>                // for feenableexcept
+#endif
 #include <iostream>
 
 #include <allheaders.h>
@@ -647,6 +650,11 @@ extern "C" int main(int argc, const char** argv)
 extern "C" int tesseract_main(int argc, const char** argv)
 #endif
 {
+#if defined(__USE_GNU)
+  // Raise SIGFPE.
+  feenableexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_INVALID);
+#endif
+
   const char* lang = nullptr;
   const char* image = nullptr;
   const char* outputbase = nullptr;

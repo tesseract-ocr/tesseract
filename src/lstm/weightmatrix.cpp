@@ -105,7 +105,7 @@ int WeightMatrix::RemapOutputs(const std::vector<int>& code_map) {
     for (int i = 0; i < ni; ++i) means[i] += weights[i];
   }
   for (double& mean : means) mean /= old_no;
-  wf_.ResizeNoInit(new_no, ni);
+  wf_.Resize(new_no, ni, 0.0);
   InitBackward();
   for (int dest = 0; dest < new_no; ++dest) {
     int src = code_map[dest];
@@ -332,24 +332,25 @@ void WeightMatrix::SumOuterTransposed(const TransposedArray& u,
 // Updates the weights using the given learning rate and momentum.
 // num_samples is the quotient to be used in the adam computation iff
 // use_adam_ is true.
-void WeightMatrix::Update(double learning_rate, double momentum,
-                          double adam_beta, int num_samples) {
+void WeightMatrix::Update(float learning_rate, float momentum,
+                          float adam_beta, int num_samples) {
   assert(!int_mode_);
-  if (use_adam_ && num_samples > 0 && num_samples < kAdamCorrectionIterations) {
-    learning_rate *= sqrt(1.0 - pow(adam_beta, num_samples));
-    learning_rate /= 1.0 - pow(momentum, num_samples);
+  if (use_adam_ && momentum > 0.0f &&
+      num_samples > 0 && num_samples < kAdamCorrectionIterations) {
+    learning_rate *= sqrt(1.0f - pow(adam_beta, num_samples));
+    learning_rate /= 1.0f - pow(momentum, num_samples);
   }
-  if (use_adam_ && num_samples > 0 && momentum > 0.0) {
+  if (use_adam_ && num_samples > 0 && momentum > 0.0f) {
     dw_sq_sum_.SumSquares(dw_, adam_beta);
-    dw_ *= learning_rate * (1.0 - momentum);
+    dw_ *= learning_rate * (1.0f - momentum);
     updates_ *= momentum;
     updates_ += dw_;
     wf_.AdamUpdate(updates_, dw_sq_sum_, learning_rate * kAdamEpsilon);
   } else {
     dw_ *= learning_rate;
     updates_ += dw_;
-    if (momentum > 0.0) wf_ += updates_;
-    if (momentum >= 0.0) updates_ *= momentum;
+    if (momentum > 0.0f) wf_ += updates_;
+    if (momentum >= 0.0f) updates_ *= momentum;
   }
   wf_t_.Transpose(wf_);
 }
