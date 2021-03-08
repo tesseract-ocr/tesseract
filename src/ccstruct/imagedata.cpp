@@ -456,14 +456,20 @@ void DocumentData::AddPageToDocument(ImageData* page) {
 void DocumentData::LoadPageInBackground(int index) {
   ImageData* page = nullptr;
   if (IsPageAvailable(index, &page)) return;
+#if 0
   std::lock_guard<std::mutex> lock(pages_mutex_);
+#endif
   if (pages_offset_ == index) return;
   pages_offset_ = index;
   pages_.clear();
   if (thread.joinable()) {
     thread.join();
   }
+#if 0
   thread = std::thread(&tesseract::DocumentData::ReCachePages, this);
+#else
+  ReCachePages();
+#endif
 }
 
 // Returns a pointer to the page with the given index, modulo the total

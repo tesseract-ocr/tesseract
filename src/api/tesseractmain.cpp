@@ -368,6 +368,94 @@ static bool checkArgValues(int arg, const char* mode, int count) {
   return true;
 }
 
+//#include <filesystem>
+#include <sstream>      // std::ostringstream
+#include <unistd.h>     // access
+#include "imagedata.h"  // DocumentData
+
+static void InfoTraineddata(char** filenames) {
+  char* filename;
+  while ((filename = *filenames++) != nullptr) {
+    tesseract::TessdataManager mgr;
+    if (!mgr.is_loaded() && !mgr.Init(filename)) {
+      tprintf("Error opening data file %s\n", filename);
+    } else {
+      if (mgr.IsLSTMAvailable()) {
+        printf("%s - LSTM\n", filename);
+      }
+      if (mgr.IsBaseAvailable()) {
+        printf("%s - legacy\n", filename);
+      }
+    }
+  }
+}
+
+static void UnpackFiles(char** filenames) {
+  const char* filename;
+  while ((filename = *filenames++) != nullptr) {
+    printf("Extracting %s...\n", filename);
+    tesseract::DocumentData images(filename);
+    if (!images.LoadDocument(filename, 0, 0, nullptr)) {
+      tprintf("Failed to read training data from %s!\n", filename);
+      continue;
+    }
+#if 0
+    printf("%d pages\n", images.NumPages());
+    printf("%zu size\n", images.PagesSize());
+#endif
+    for (int page = 0; page < images.NumPages(); page++) {
+      std::string basename = filename;
+      basename = basename.erase(basename.size() - 6);
+      std::ostringstream stream;
+      stream << basename << '_' << page;
+      const tesseract::ImageData* image = images.GetPage(page);
+#if 0
+      const char* imagefilename = image->imagefilename().c_str();
+      printf("fn: %s\n", imagefilename);
+#endif
+      const char* transcription = image->transcription().c_str();
+      std::string gt_filename = stream.str() + ".gt.txt";
+      FILE* f = fopen(gt_filename.c_str(), "wb");
+      if (f == nullptr) {
+        printf("Writing %s failed\n", gt_filename.c_str());
+        continue;
+      }
+      fprintf(f, "%s\n", transcription);
+      fclose(f);
+#if 0
+      printf("gt page %d: %s\n", page, transcription);
+#endif
+      Pix* pix = image->GetPix();
+      std::string image_filename = stream.str() + ".png";
+      if (pixWrite(image_filename.c_str(), pix, IFF_PNG) != 0) {
+        printf("Writing %s failed\n", image_filename.c_str());
+      }
+      pixDestroy(&pix);
+#if 0
+      const GenericVector<TBOX>& boxes = image->boxes();
+      const TBOX& box = boxes[0];
+      box.print();
+      const GenericVector<STRING>& box_texts = image->box_texts();
+      printf("gt: %s\n", box_texts[0].c_str());
+#endif
+    }
+  }
+}
+
+namespace std {
+namespace filesystem {
+  bool exists(const char* filename);
+}
+}
+
+bool std::filesystem::exists(const char* filename) {
+#if defined(_WIN32)
+  return _access(filename, 0) == 0;
+#else
+  return access(filename, 0) == 0;
+#endif
+}
+
 // NOTE: arg_i is used here to avoid ugly *i so many times in this function
 static bool ParseArgs(const int argc, const char** argv, const char** lang,
                       const char** image, const char** outputbase,
@@ -377,13 +465,42 @@ static bool ParseArgs(const int argc, const char** argv, const char** lang,
                       std::vector<std::string>* vars_values, l_int32* arg_i,
                       tesseract::PageSegMode* pagesegmode,
                       tesseract::OcrEngineMode* enginemode) {
+  int i = 1;
+  if (i < argc) {
+    const char* verb = argv[i];
+    if (verb[0] != '-' && !std::filesystem::exists(verb)) {
+      i++;
+      if (strcmp(verb, "help") == 0) {
+        if (i < argc) {
+          if (strcmp(argv[i], "extra") == 0) {
+            PrintHelpExtra(argv[0]);
+#ifndef DISABLED_LEGACY_ENGINE
+          } else if ((strcmp(argv[i], "oem") == 0)) {
+            PrintHelpForOEM();
+#endif
+          } else if ((strcmp(argv[i], "psm") == 0)) {
+            PrintHelpForPSM();
+          } else {
+            printf("No help available for %s\n", argv[i]);
+          }
+        } else {
+          PrintHelpMessage(argv[0]);
+        }
+      } else if (strcmp(verb, "info") == 0) {
+        InfoTraineddata(argv + i);
+      } else if (strcmp(verb, "unpack") == 0) {
+        UnpackFiles(argv + i);
+      } else if (strcmp(verb, "version") == 0) {
+        PrintVersionInfo();
+      } else {
+        printf("Unknown action: %s\n", verb);
+      }
+      return true;
+    }
+  }
   bool noocr = false;
-  int i;
   for (i = 1; i < argc && (*outputbase == nullptr || argv[i][0] == '-'); i++) {
-    if (*image != nullptr && *outputbase == nullptr) {
-      // outputbase follows image, don't allow options at that position.
-      *outputbase = argv[i];
-    } else if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
+    if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
       PrintHelpMessage(argv[0]);
       noocr = true;
     } else if (strcmp(argv[i], "--help-extra") == 0) {
@@ -447,6 +564,13 @@ static bool ParseArgs(const int argc, const char** argv, const char** lang,
       ++i;
     } else if (*image == nullptr) {
       *image = argv[i];
+      i++;
+      if (i == argc) {
+        fprintf(stderr, "Error, missing outputbase command line argument\n");
+        return false;
+      }
+      // outputbase follows image, don't allow options at that position.
+      *outputbase = argv[i];
     } else {
       // Unexpected argument.
       tprintf("ERROR: Unknown command line argument '%s'\n", argv[i]);
