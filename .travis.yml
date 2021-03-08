@@ -45,3 +45,7 @@ script:
   - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng --tessdata-dir ./
   - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng_best --tessdata-dir ./
   - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng_fast --tessdata-dir ./
+  - mv -v /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif "3312-оны акт.tif"
+  - time -p tesseract "3312-оны акт.tif " --tessdata-dir ./ -l eng
+  - time -p tesseract "3312-оны акт.tif"  --tessdata-dir ./ -l eng_best
+  - time -p tesseract "3312-оны акт.tif"  --tessdata-dir ./ -l eng_fast
