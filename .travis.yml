@@ -45,10 +45,10 @@ script:
   - tesseract -v
   - text2image -v
   - lstmtraining -v
-  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/
+  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng --oem 0 --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/
   - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng_best --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/
+  - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng --oem 1 --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/
   - time -p tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng_fast --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/
-  - mv -v /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif "3312-оны акт.tif"
-  - time -p tesseract "3312-оны акт.tif " --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/ -l eng
-  - time -p tesseract "3312-оны акт.tif"  --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/ -l eng_best
-  - time -p tesseract "3312-оны акт.tif"  --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/ -l eng_fast
+  - cp -v /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif "3312-оны акт.tif"
+  - time -p tesseract "3312-оны акт.tif" "3312-оны акт" --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/ -l eng
+  - ls "3312-оны акт.*"
