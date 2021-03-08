@@ -52,6 +52,9 @@ class ICOORD
     ///destructor
     ~ICOORD () = default;
 
+    bool DeSerialize(TFile* f);
+    bool Serialize(TFile* f) const;
+
     ///access function
     int16_t x() const {
       return xcoord;

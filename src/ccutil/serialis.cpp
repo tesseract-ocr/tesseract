@@ -73,6 +73,20 @@ TFile::~TFile() {
     delete data_;
 }
 
+bool TFile::DeSerializeSize(int32_t* pSize) {
+  uint32_t size;
+  if (FReadEndian(&size, sizeof(size), 1) != 1) {
+    return false;
+  }
+  if (size > data_->size() / 4) {
+    // Reverse endianness.
+    swap_ = !swap_;
+    ReverseN(&size, 4);
+  }
+  *pSize = size;
+  return true;
+}
+
 template <typename T>
 bool TFile::DeSerialize(std::vector<T>& data) {
   uint32_t size;

@@ -582,7 +582,7 @@ class PointerVector : public GenericVector<T*> {
   }
   bool DeSerialize(TFile* fp) {
     int32_t reserved;
-    if (!DeSerializeSize(fp, &reserved)) {
+    if (!fp->DeSerializeSize(&reserved)) {
       return false;
     }
     GenericVector<T*>::reserve(reserved);
@@ -598,9 +598,6 @@ class PointerVector : public GenericVector<T*> {
   // retain the integrity of the stream, the caller must call some combination
   // of DeSerializeElement and DeSerializeSkip of the exact number returned in
   // *size, assuming a true return.
-  static bool DeSerializeSize(TFile* fp, int32_t* size) {
-    return fp->FReadEndian(size, sizeof(*size), 1) == 1;
-  }
   // Reads and appends to the vector the next element of the serialization.
   bool DeSerializeElement(TFile* fp) {
     int8_t non_null;

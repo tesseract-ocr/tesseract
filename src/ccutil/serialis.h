@@ -28,6 +28,8 @@
 
 namespace tesseract {
 
+class TBOX;
+
 /***********************************************************************
   QUOTE_IT   MACRO DEFINITION
   ===========================
@@ -90,21 +92,47 @@ class TESS_API TFile {
   }
 
   // Deserialize data.
+  bool DeSerializeSize(int32_t* data);
   bool DeSerialize(std::string& data);
   bool DeSerialize(std::vector<char>& data);
+  bool DeSerialize(TBOX& data);
   template <typename T> bool DeSerialize(std::vector<T>& data);
   template <typename T>
   bool DeSerialize(T *data, size_t count = 1) {
-      return FReadEndian(data, sizeof(T), count) == count;
+      return FReadEndian(data, sizeof(T), count) == static_cast<int>(count);
   }
 
   // Serialize data.
   bool Serialize(const std::string& data);
   bool Serialize(const std::vector<char>& data);
-  template <typename T> bool Serialize(const std::vector<T>& data);
+  template <typename T>
+  bool Serialize(const std::vector<T>& data);
   template <typename T>
   bool Serialize(const T *data, size_t count = 1) {
-      return FWrite(data, sizeof(T), count) == count;
+      return FWrite(data, sizeof(T), count) == static_cast<int>(count);
+  }
+  template <typename T>
+  bool SerializeClasses(const std::vector<T> &data) {
+    int32_t sz = data.size();
+    if (FWrite(&sz, sizeof(sz), 1) != 1)
+      return false;
+    for (auto &d : data) {
+      if (!d.Serialize(this))
+        return false;
+    }
+    return true;
+  }
+  template <typename T>
+  bool DeSerializeClasses(std::vector<T> &data) {
+    int32_t sz = data.size();
+    if (FRead(&sz, sizeof(sz), 1) != 1)
+      return false;
+    data.resize(sz);
+    for (auto &d : data) {
+      if (!d.DeSerialize(this))
+        return false;
+    }
+    return true;
   }
 
   // Skip data.

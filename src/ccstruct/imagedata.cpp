@@ -173,8 +173,7 @@ bool ImageData::Serialize(TFile* fp) const {
   if (!image_data_.Serialize(fp)) return false;
   if (!language_.Serialize(fp)) return false;
   if (!transcription_.Serialize(fp)) return false;
-  // WARNING: Will not work across different endian machines.
-  if (!boxes_.Serialize(fp)) return false;
+  if (!fp->Serialize(boxes_)) return false;
   if (!box_texts_.SerializeClasses(fp)) return false;
   int8_t vertical = vertical_text_;
   return fp->Serialize(&vertical);
@@ -187,8 +186,7 @@ bool ImageData::DeSerialize(TFile* fp) {
   if (!image_data_.DeSerialize(fp)) return false;
   if (!language_.DeSerialize(fp)) return false;
   if (!transcription_.DeSerialize(fp)) return false;
-  // WARNING: Will not work across different endian machines.
-  if (!boxes_.DeSerialize(fp)) return false;
+  if (!fp->DeSerialize(boxes_)) return false;
   if (!box_texts_.DeSerializeClasses(fp)) return false;
   int8_t vertical = 0;
   if (!fp->DeSerialize(&vertical)) return false;
@@ -545,7 +543,7 @@ bool DocumentData::ReCachePages() {
   pages_.truncate(0);
   TFile fp;
   if (!fp.Open(document_name_.c_str(), reader_) ||
-      !PointerVector<ImageData>::DeSerializeSize(&fp, &loaded_pages) ||
+      !fp.DeSerializeSize(&loaded_pages) ||
       loaded_pages <= 0) {
     tprintf("ERROR: Deserialize header failed: %s\n", document_name_.c_str());
     return false;
@@ -590,6 +588,9 @@ DocumentCache::DocumentCache(int64_t max_memory)
 }
 
 DocumentCache::~DocumentCache() {
+  for (auto* document : documents_) {
+    delete document;
+  }
 }
 
 // Adds all the documents in the list of filenames, counting memory.
