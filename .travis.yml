@@ -36,6 +36,11 @@ matrix:
 
     - os: linux
       dist: bionic
+      arch:
+       - amd64
+       - ppc64le
+       - s390x
+       - arm64
       addons:
         apt:
           packages:
@@ -57,3 +62,5 @@ matrix:
         - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
         - make
         - sudo make install
+        - tesseract -v
+
