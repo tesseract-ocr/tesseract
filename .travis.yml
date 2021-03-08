@@ -52,4 +52,5 @@ script:
   - cp -v /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif "3312-оны акт.tif"
   - time -p tesseract "3312-оны акт.tif" - --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/ -l eng
   - time -p tesseract "3312-оны акт.tif" "3312-оны акт" --tessdata-dir /home/travis/build/tesseract-ocr/tesseract/tessdata/ -l eng
-  - ls "3312-оны акт.*"
+  - ls "3312-оны акт".*
+  - cat "3312-оны акт".txt
