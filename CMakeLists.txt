@@ -112,35 +112,7 @@ endif()
 
 include(CheckCXXCompilerFlag)
 
-# Check for C++ standard to use
-get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
-if (cxx_std_17 IN_LIST known_features)
-    set(CMAKE_CXX_STANDARD 17)
-elseif (cxx_std_14 IN_LIST known_features)
-    set(CMAKE_CXX_STANDARD 14)
-else()  # minimum required standard
-    set(CMAKE_CXX_STANDARD 11)
-endif()
-
-if ("${CMAKE_CXX17_STANDARD_COMPILE_OPTION}" STREQUAL "")
-    set(CMAKE_CXX_STANDARD 14)
-endif()
-if ("${CMAKE_CXX14_STANDARD_COMPILE_OPTION}" STREQUAL "")
-    set(CMAKE_CXX_STANDARD 11)
-endif()
-
-# Avoid using experimental c++1y (c++1z) standard even if the compiler announces cxx14 (cxx17)
-# in CMAKE_CXX_KNOWN_FEATURES and CMAKE_CXX_COMPILE_FEATURES
-# It is the case of clang 3.9, 4.0 (announces c++1z) and gcc 4.8 (announces c++1y)
-if ("${CMAKE_CXX17_STANDARD_COMPILE_OPTION}" STREQUAL "-std=c++1z")
-  set(CMAKE_CXX_STANDARD 14)
-endif()
-if ("${CMAKE_CXX14_STANDARD_COMPILE_OPTION}" STREQUAL "-std=c++1y")
-  set(CMAKE_CXX_STANDARD 11)
-endif()
-# temporarily
 set(CMAKE_CXX_STANDARD 17)
-
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
