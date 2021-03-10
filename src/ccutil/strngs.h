@@ -75,8 +75,6 @@ class STRING : public std::string {
 
   TESS_API
   void split(char c, std::vector<STRING>* splited);
-  TESS_API
-  void truncate_at(int32_t index);
 
   // Appends the given string and int (as a %d) to this.
   // += cannot be used for ints as there as a char += operator that would

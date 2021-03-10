@@ -265,7 +265,7 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char* const * ar
     if (FLAGS_load_images) {
       STRING image_name = page_name;
       // Chop off the tr and replace with tif. Extension must be tif!
-      image_name.truncate_at(image_name.length() - 2);
+      image_name.resize(image_name.length() - 2);
       image_name += "tif";
       trainer->LoadPageImages(image_name.c_str());
     }

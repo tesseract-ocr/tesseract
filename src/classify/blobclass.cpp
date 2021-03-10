@@ -103,7 +103,7 @@ bool Classify::WriteTRFile(const char* filename) {
       tesseract::Serialize(fp, &tr_file_data_[0], tr_file_data_.length());
     fclose(fp);
   }
-  tr_file_data_.truncate_at(0);
+  tr_file_data_.resize(0);
   return result;
 }
 
