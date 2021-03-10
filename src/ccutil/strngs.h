@@ -58,9 +58,6 @@ class STRING : public std::string {
 
   TESS_API
   bool contains(char c) const;
-  int32_t size() const {
-    return length();
-  }
 
   TESS_API
   void split(char c, std::vector<STRING>* splited);
