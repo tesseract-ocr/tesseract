@@ -265,7 +265,7 @@ class TESS_API Wordrec : public Classify {
   }
 
   // tface.cpp
-  void program_editup(const char *textbase, TessdataManager *init_classifier,
+  void program_editup(const std::string &textbase, TessdataManager *init_classifier,
                       TessdataManager *init_dict);
   void cc_recog(WERD_RES *word);
   void program_editdown(int32_t elasped_time);

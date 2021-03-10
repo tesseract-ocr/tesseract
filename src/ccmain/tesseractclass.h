@@ -508,15 +508,15 @@ class TESS_API Tesseract : public Wordrec {
   // string and recursively any additional languages required by any language
   // traineddata file (via tessedit_load_sublangs in its config) that is loaded.
   // See init_tesseract_internal for args.
-  int init_tesseract(const char* arg0, const char* textbase,
-                     const char* language, OcrEngineMode oem, char** configs,
+  int init_tesseract(const std::string &arg0, const std::string &textbase,
+                     const std::string &language, OcrEngineMode oem, char** configs,
                      int configs_size, const std::vector<std::string>* vars_vec,
                      const std::vector<std::string>* vars_values,
                      bool set_only_init_params, TessdataManager* mgr);
-  int init_tesseract(const char* datapath, const char* language,
+  int init_tesseract(const std::string &datapath, const std::string &language,
                      OcrEngineMode oem) {
     TessdataManager mgr;
-    return init_tesseract(datapath, nullptr, language, oem, nullptr, 0, nullptr,
+    return init_tesseract(datapath, {}, language, oem, nullptr, 0, nullptr,
                           nullptr, false, &mgr);
   }
   // Common initialization for a single language.
@@ -535,8 +535,8 @@ class TESS_API Tesseract : public Wordrec {
   // in vars_vec.
   // If set_only_init_params is true, then only the initialization variables
   // will be set.
-  int init_tesseract_internal(const char* arg0, const char* textbase,
-                              const char* language, OcrEngineMode oem,
+  int init_tesseract_internal(const std::string &arg0, const std::string &textbase,
+                              const std::string &language, OcrEngineMode oem,
                               char** configs, int configs_size,
                               const std::vector<std::string>* vars_vec,
                               const std::vector<std::string>* vars_values,
@@ -546,21 +546,21 @@ class TESS_API Tesseract : public Wordrec {
   // instances of the same font loaded.
   void SetupUniversalFontIds();
 
-  int init_tesseract_lm(const char* arg0, const char* textbase,
-                        const char* language, TessdataManager* mgr);
+  int init_tesseract_lm(const std::string &arg0, const std::string &textbase,
+                        const std::string &language, TessdataManager* mgr);
 
   void recognize_page(STRING& image_name);
   void end_tesseract();
 
-  bool init_tesseract_lang_data(const char* arg0, const char* textbase,
-                                const char* language, OcrEngineMode oem,
+  bool init_tesseract_lang_data(const std::string &arg0, const std::string &textbase,
+                                const std::string &language, OcrEngineMode oem,
                                 char** configs, int configs_size,
                                 const std::vector<std::string>* vars_vec,
                                 const std::vector<std::string>* vars_values,
                                 bool set_only_init_params,
                                 TessdataManager* mgr);
 
-  void ParseLanguageString(const char* lang_str, std::vector<std::string>* to_load,
+  void ParseLanguageString(const std::string &lang_str, std::vector<std::string>* to_load,
                            std::vector<std::string>* not_to_load);
 
   //// pgedit.h //////////////////////////////////////////////////////////

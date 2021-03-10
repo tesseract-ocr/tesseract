@@ -49,8 +49,8 @@ class TESS_API CCUtil {
  public:
   // Read the arguments and set up the data path.
   void main_setup(
-                  const char *argv0,        // program name
-                  const char *basename      // name of image
+                  const std::string &argv0,        // program name
+                  const std::string &basename      // name of image
                  );
   ParamsVectors *params() { return &params_; }
 

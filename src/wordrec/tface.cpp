@@ -36,10 +36,10 @@ namespace tesseract {
  * init_permute determines whether to initialize the permute functions
  * and Dawg models.
  */
-void Wordrec::program_editup(const char *textbase,
+void Wordrec::program_editup(const std::string &textbase,
                              TessdataManager *init_classifier,
                              TessdataManager *init_dict) {
-  if (textbase != nullptr) imagefile = textbase;
+  if (!textbase.empty()) imagefile = textbase;
 #ifndef DISABLED_LEGACY_ENGINE
   InitFeatureDefs(&feature_defs_);
   InitAdaptiveClassifier(init_classifier);

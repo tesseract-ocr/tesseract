@@ -75,7 +75,7 @@ void Tesseract::read_config_file(const char* filename,
 // the config files specified on the command line or left as the default
 // OEM_TESSERACT_ONLY if none of the configs specify this variable.
 bool Tesseract::init_tesseract_lang_data(
-    const char* arg0, const char* textbase, const char* language,
+    const std::string &arg0, const std::string &textbase, const std::string &language,
     OcrEngineMode oem, char** configs, int configs_size,
     const std::vector<std::string>* vars_vec,
     const std::vector<std::string>* vars_values, bool set_only_non_debug_params,
@@ -84,7 +84,7 @@ bool Tesseract::init_tesseract_lang_data(
   main_setup(arg0, textbase);
 
   // Set the language data path prefix
-  lang = language != nullptr ? language : "eng";
+  lang = !language.empty() ? language : "eng";
   language_data_path_prefix = datadir;
   language_data_path_prefix += lang;
   language_data_path_prefix += ".";
@@ -177,7 +177,7 @@ bool Tesseract::init_tesseract_lang_data(
     if (mgr->IsComponentAvailable(TESSDATA_LSTM)) {
       lstm_recognizer_ = new LSTMRecognizer(language_data_path_prefix.c_str());
       ASSERT_HOST(lstm_recognizer_->Load(
-          this->params(), lstm_use_matrix ? language : nullptr, mgr));
+          this->params(), lstm_use_matrix ? language : "", mgr));
     } else {
       tprintf("Error: LSTM requested, but not present!! Loading tesseract.\n");
       tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
@@ -249,7 +249,7 @@ static bool IsStrInList(const std::string& str,
 // are not in there already.
 // Langs with ~ prefix get appended to not_to_load, provided they are not in
 // there already.
-void Tesseract::ParseLanguageString(const char* lang_str,
+void Tesseract::ParseLanguageString(const std::string &lang_str,
                                     std::vector<std::string>* to_load,
                                     std::vector<std::string>* not_to_load) {
   std::string remains(lang_str);
@@ -281,8 +281,8 @@ void Tesseract::ParseLanguageString(const char* lang_str,
 // string and recursively any additional languages required by any language
 // traineddata file (via tessedit_load_sublangs in its config) that is loaded.
 // See init_tesseract_internal for args.
-int Tesseract::init_tesseract(const char* arg0, const char* textbase,
-                              const char* language, OcrEngineMode oem,
+int Tesseract::init_tesseract(const std::string &arg0, const std::string &textbase,
+                              const std::string &language, OcrEngineMode oem,
                               char** configs, int configs_size,
                               const std::vector<std::string>* vars_vec,
                               const std::vector<std::string>* vars_values,
@@ -383,8 +383,8 @@ int Tesseract::init_tesseract(const char* arg0, const char* textbase,
 // in vars_vec.
 // If set_only_init_params is true, then only the initialization variables
 // will be set.
-int Tesseract::init_tesseract_internal(const char* arg0, const char* textbase,
-                                       const char* language, OcrEngineMode oem,
+int Tesseract::init_tesseract_internal(const std::string &arg0, const std::string &textbase,
+                                       const std::string &language, OcrEngineMode oem,
                                        char** configs, int configs_size,
                                        const std::vector<std::string>* vars_vec,
                                        const std::vector<std::string>* vars_values,
@@ -448,8 +448,8 @@ void Tesseract::SetupUniversalFontIds() {
 }
 
 // init the LM component
-int Tesseract::init_tesseract_lm(const char* arg0, const char* textbase,
-                                 const char* language, TessdataManager* mgr) {
+int Tesseract::init_tesseract_lm(const std::string &arg0, const std::string &textbase,
+                                 const std::string &language, TessdataManager* mgr) {
   if (!init_tesseract_lang_data(arg0, textbase, language, OEM_TESSERACT_ONLY,
                                 nullptr, 0, nullptr, nullptr, false, mgr))
     return -1;
