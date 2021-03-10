@@ -211,12 +211,12 @@ class StringParam : public Param {
     vec->string_params.push_back(this);
   }
   ~StringParam() { ParamUtils::RemoveParam<StringParam>(this, params_vec_); }
-  operator STRING&() { return value_; }
+  operator std::string &() { return value_; }
   const char* c_str() const { return value_.c_str(); }
   bool empty() { return value_.length() <= 0; }
-  bool operator==(const STRING& other) { return value_ == other; }
-  void operator=(const STRING& value) { value_ = value; }
-  void set_value(const STRING& value) { value_ = value; }
+  bool operator==(const std::string &other) { return value_ == other; }
+  void operator=(const std::string &value) { value_ = value; }
+  void set_value(const std::string &value) { value_ = value; }
   void ResetToDefault() { value_ = default_; }
   void ResetFrom(const ParamsVectors* vec) {
     for (auto* param : vec->string_params) {
@@ -230,8 +230,8 @@ class StringParam : public Param {
   }
 
  private:
-  STRING value_;
-  STRING default_;
+  std::string value_;
+  std::string default_;
   // Pointer to the vector that contains this param (not owned by this class).
   std::vector<StringParam*>* params_vec_;
 };

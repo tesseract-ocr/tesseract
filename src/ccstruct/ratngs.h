@@ -494,9 +494,9 @@ class TESS_API WERD_CHOICE : public ELIST_LINK {
   // The result is useful only for checking against a dictionary.
   WERD_CHOICE shallow_copy(int start, int end) const;
 
-  void string_and_lengths(STRING *word_str, STRING *word_lengths_str) const;
-  const STRING debug_string() const {
-    STRING word_str;
+  void string_and_lengths(std::string *word_str, std::string *word_lengths_str) const;
+  std::string debug_string() const {
+    std::string word_str;
     for (int i = 0; i < length_; ++i) {
       word_str += unicharset_->debug_str(unichar_ids_[i]);
       word_str += " ";
@@ -531,21 +531,21 @@ class TESS_API WERD_CHOICE : public ELIST_LINK {
 
   // Returns a UTF-8 string equivalent to the current choice
   // of UNICHAR IDs.
-  STRING &unichar_string() {
+  std::string &unichar_string() {
       this->string_and_lengths(&unichar_string_, &unichar_lengths_);
       return unichar_string_;
   }
 
   // Returns a UTF-8 string equivalent to the current choice
   // of UNICHAR IDs.
-  const STRING &unichar_string() const {
+  const std::string &unichar_string() const {
     this->string_and_lengths(&unichar_string_, &unichar_lengths_);
     return unichar_string_;
   }
 
   // Returns the lengths, one byte each, representing the number of bytes
   // required in the unichar_string for each UNICHAR_ID.
-  const STRING &unichar_lengths() const {
+  const std::string &unichar_lengths() const {
     this->string_and_lengths(&unichar_string_, &unichar_lengths_);
     return unichar_lengths_;
   }
@@ -635,8 +635,8 @@ class TESS_API WERD_CHOICE : public ELIST_LINK {
 
   // The following variables are populated and passed by reference any
   // time unichar_string() or unichar_lengths() are called.
-  mutable STRING unichar_string_;
-  mutable STRING unichar_lengths_;
+  mutable std::string unichar_string_;
+  mutable std::string unichar_lengths_;
 };
 
 // Make WERD_CHOICE listable.

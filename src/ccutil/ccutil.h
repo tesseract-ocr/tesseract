@@ -54,16 +54,16 @@ class TESS_API CCUtil {
                  );
   ParamsVectors *params() { return &params_; }
 
-  STRING datadir;        // dir for data files
-  STRING imagebasename;  // name of image
-  STRING lang;
-  STRING language_data_path_prefix;
+  std::string datadir;        // dir for data files
+  std::string imagebasename;  // name of image
+  std::string lang;
+  std::string language_data_path_prefix;
   UNICHARSET unicharset;
 #ifndef DISABLED_LEGACY_ENGINE
   UnicharAmbigs unichar_ambigs;
 #endif
-  STRING imagefile;  // image file name
-  STRING directory;  // main directory
+  std::string imagefile;  // image file name
+  std::string directory;  // main directory
 
  private:
   ParamsVectors params_;

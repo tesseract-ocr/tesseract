@@ -222,7 +222,7 @@ WERD_CHOICE::WERD_CHOICE(const char *src_string,
   if (unicharset.encode_string(cleaned.c_str(), true, &encoding, &lengths,
                                nullptr)) {
     lengths.push_back('\0');
-    STRING src_lengths = &lengths[0];
+    std::string src_lengths = &lengths[0];
     this->init(cleaned.c_str(), src_lengths.c_str(), 0.0, 0.0, NO_PERM);
   } else {  // There must have been an invalid unichar in the string.
     this->init(8);
@@ -444,8 +444,8 @@ bool WERD_CHOICE::has_rtl_unichar_id() const {
  * Populates the given word_str with unichars from unichar_ids and
  * and word_lengths_str with the corresponding unichar lengths.
  */
-void WERD_CHOICE::string_and_lengths(STRING *word_str,
-                                     STRING *word_lengths_str) const {
+void WERD_CHOICE::string_and_lengths(std::string *word_str,
+                                     std::string *word_lengths_str) const {
   *word_str = "";
   if (word_lengths_str != nullptr) *word_lengths_str = "";
   for (int i = 0; i < length_; ++i) {

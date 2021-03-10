@@ -869,7 +869,7 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
     return -1;
   #ifndef DISABLED_LEGACY_ENGINE
   } else if (tesseract_->tessedit_train_from_boxes) {
-    STRING fontname;
+    std::string fontname;
     ExtractFontName(output_file_.c_str(), &fontname);
     tesseract_->ApplyBoxTraining(fontname, page_res_);
   } else if (tesseract_->tessedit_ambigs_training) {
@@ -1579,7 +1579,7 @@ char* TessBaseAPI::GetUNLVText() {
       tilde_crunch_written = false;
       tesseract_->set_unlv_suspects(word);
       const char* wordstr = word->best_choice->unichar_string().c_str();
-      const STRING& lengths = word->best_choice->unichar_lengths();
+      const auto &lengths = word->best_choice->unichar_lengths();
       int length = lengths.length();
       int i = 0;
       int offset = 0;
