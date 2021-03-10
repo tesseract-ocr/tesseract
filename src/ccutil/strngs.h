@@ -62,11 +62,6 @@ class STRING : public std::string {
     return length();
   }
 
-  inline char* strdup() const {
-    int32_t len = length() + 1;
-    return strncpy(new char[len], c_str(), len);
-  }
-
   TESS_API
   void split(char c, std::vector<STRING>* splited);
 
