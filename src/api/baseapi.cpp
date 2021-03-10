@@ -2070,7 +2070,7 @@ int TessBaseAPI::FindLines() {
                 " but data path is undefined\n");
         delete osd_tesseract_;
         osd_tesseract_ = nullptr;
-      } else if (osd_tesseract_->init_tesseract(datapath_.c_str(), nullptr,
+      } else if (osd_tesseract_->init_tesseract(datapath_.c_str(), "",
                                                 "osd", OEM_TESSERACT_ONLY,
                                                 nullptr, 0, nullptr, nullptr,
                                                 false, &mgr) == 0) {
