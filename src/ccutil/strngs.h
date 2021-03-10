@@ -61,12 +61,6 @@ class STRING : public std::string {
   int32_t size() const {
     return length();
   }
-  // Workaround to avoid g++ -Wsign-compare warnings.
-  uint32_t unsigned_size() const {
-    const int32_t len = length();
-    assert(0 <= len);
-    return static_cast<uint32_t>(len);
-  }
 
   inline char* strdup() const {
     int32_t len = length() + 1;
