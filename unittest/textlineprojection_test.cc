@@ -72,12 +72,12 @@ class TextlineProjectionTest : public testing::Test {
     tesseract::TessdataManager mgr;
     Tesseract* osd_tess = new Tesseract;
     OSResults osr;
-    EXPECT_EQ(osd_tess->init_tesseract(TESSDATA_DIR, nullptr, "osd",
+    EXPECT_EQ(osd_tess->init_tesseract(TESSDATA_DIR, "", "osd",
                                        tesseract::OEM_TESSERACT_ONLY, nullptr, 0,
                                        nullptr, nullptr, false, &mgr),
               0);
     tesseract_ = new Tesseract;
-    EXPECT_EQ(tesseract_->init_tesseract(TESSDATA_DIR, nullptr, "eng",
+    EXPECT_EQ(tesseract_->init_tesseract(TESSDATA_DIR, "", "eng",
                                          tesseract::OEM_TESSERACT_ONLY, nullptr, 0,
                                          nullptr, nullptr, false, &mgr),
               0);

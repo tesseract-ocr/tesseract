@@ -41,12 +41,12 @@ namespace tesseract {
  * is not successful - use current directory.
  * @param basename - name of image
  */
-void CCUtil::main_setup(const char *argv0, const char *basename) {
+void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
   imagebasename = basename;      /**< name of image */
 
   char *tessdata_prefix = getenv("TESSDATA_PREFIX");
 
-  if (argv0 != nullptr && *argv0 != '\0') {
+  if (!argv0.empty()) {
     /* Use tessdata prefix from the command line. */
     datadir = argv0;
   } else if (tessdata_prefix) {

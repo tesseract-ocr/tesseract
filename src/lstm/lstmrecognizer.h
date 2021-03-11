@@ -52,7 +52,7 @@ enum TrainingFlags {
 class TESS_API LSTMRecognizer {
  public:
   LSTMRecognizer();
-  LSTMRecognizer(const char* language_data_path_prefix);
+  LSTMRecognizer(const std::string &language_data_path_prefix);
   ~LSTMRecognizer();
 
   int NumOutputs() const { return network_->NumOutputs(); }
@@ -169,7 +169,7 @@ class TESS_API LSTMRecognizer {
   int null_char() const { return null_char_; }
 
   // Loads a model from mgr, including the dictionary only if lang is not null.
-  bool Load(const ParamsVectors* params, const char* lang,
+  bool Load(const ParamsVectors* params, const std::string &lang,
             TessdataManager* mgr);
 
   // Writes to the given file. Returns false in case of error.
@@ -190,7 +190,7 @@ class TESS_API LSTMRecognizer {
   // on the unicharset matching. This enables training to deserialize a model
   // from checkpoint or restore without having to go back and reload the
   // dictionary.
-  bool LoadDictionary(const ParamsVectors* params, const char* lang,
+  bool LoadDictionary(const ParamsVectors* params, const std::string &lang,
                       TessdataManager* mgr);
 
   // Recognizes the line image, contained within image_data, returning the

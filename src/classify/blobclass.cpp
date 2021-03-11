@@ -40,7 +40,7 @@ static STRING_VAR(classify_font_name, kUnknownFontName,
 // /path/to/dir/[lang].[fontname].exp[num]
 // The [lang], [fontname] and [num] fields should not have '.' characters.
 // If the global parameter classify_font_name is set, its value is used instead.
-void ExtractFontName(const char* filename, STRING* fontname) {
+void ExtractFontName(const char* filename, std::string* fontname) {
   *fontname = classify_font_name;
   if (*fontname == kUnknownFontName) {
     // filename is expected to be of the form [lang].[fontname].exp[num]
@@ -51,7 +51,7 @@ void ExtractFontName(const char* filename, STRING* fontname) {
     if (firstdot != lastdot && firstdot != nullptr && lastdot != nullptr) {
       ++firstdot;
       *fontname = firstdot;
-      fontname->truncate_at(lastdot - firstdot);
+      fontname->resize(lastdot - firstdot);
     }
   }
 }
@@ -103,7 +103,7 @@ bool Classify::WriteTRFile(const char* filename) {
       tesseract::Serialize(fp, &tr_file_data_[0], tr_file_data_.length());
     fclose(fp);
   }
-  tr_file_data_.truncate_at(0);
+  tr_file_data_.resize(0);
   return result;
 }
 

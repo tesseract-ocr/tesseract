@@ -84,7 +84,7 @@ void BlamerBundle::SetWordTruth(const UNICHARSET& unicharset,
   int total_length = 0;
   for (int i = 0; i < encoding.size(); total_length += lengths[i++]) {
     STRING uch(truth_str + total_length);
-    uch.truncate_at(lengths[i] - total_length);
+    uch.resize(lengths[i] - total_length);
     UNICHAR_ID id = encoding[i];
     if (id != INVALID_UNICHAR_ID) uch = unicharset.get_normed_unichar(id);
     truth_text_.push_back(uch);

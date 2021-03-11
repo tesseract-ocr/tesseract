@@ -239,7 +239,7 @@ void Dict::Load(const STRING& lang, TessdataManager* data_file) {
     if (unambig_dawg_) dawgs_ += unambig_dawg_;
   }
 
-  STRING name;
+  std::string name;
   if (!user_words_suffix.empty() || !user_words_file.empty()) {
     Trie* trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
                               getUnicharset().size(), dawg_debug_level);
@@ -306,7 +306,7 @@ void Dict::LoadLSTM(const STRING& lang, TessdataManager* data_file) {
 
   // stolen from Dict::Load (but needs params_ from Tesseract
   // langdata/config/api):
-  STRING name;
+  std::string name;
   if (!user_words_suffix.empty() || !user_words_file.empty()) {
     Trie* trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
                               getUnicharset().size(), dawg_debug_level);
@@ -683,7 +683,7 @@ void Dict::add_document_word(const WERD_CHOICE& best_choice) {
   }
 
   if (save_doc_words) {
-    STRING filename(getCCUtil()->imagefile);
+    std::string filename(getCCUtil()->imagefile);
     filename += ".doc";
     FILE* doc_word_file = fopen(filename.c_str(), "a");
     if (doc_word_file == nullptr) {

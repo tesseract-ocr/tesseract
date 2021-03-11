@@ -68,7 +68,7 @@ char* LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
           res_it.forward();
           eol = res_it.row() != res_it.prev_row();
         } while (!eol);
-        text.truncate_at(text.length() - 1);
+        text.resize(text.length() - 1);
         text += line_separator_;
         eop = res_it.block() != res_it.prev_block() ||
               res_it.row()->row->para() != res_it.prev_row()->row->para();

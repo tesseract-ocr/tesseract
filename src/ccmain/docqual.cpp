@@ -486,7 +486,7 @@ bool Tesseract::terrible_word_crunch(WERD_RES* word,
 
   if ((word->best_choice->unichar_string().length() == 0) ||
       (strspn(word->best_choice->unichar_string().c_str(), " ") ==
-       word->best_choice->unichar_string().unsigned_size()))
+       word->best_choice->unichar_string().size()))
     crunch_mode = 1;
   else {
     adjusted_len = word->reject_map.length ();

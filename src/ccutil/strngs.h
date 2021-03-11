@@ -59,25 +59,9 @@ class STRING : public std::string {
 
   TESS_API
   bool contains(char c) const;
-  int32_t size() const {
-    return length();
-  }
-  // Workaround to avoid g++ -Wsign-compare warnings.
-  uint32_t unsigned_size() const {
-    const int32_t len = length();
-    assert(0 <= len);
-    return static_cast<uint32_t>(len);
-  }
-
-  inline char* strdup_() const {
-    int32_t len = length() + 1;
-    return strncpy(new char[len], c_str(), len);
-  }
 
   TESS_API
   void split(char c, std::vector<STRING>* splited);
-  TESS_API
-  void truncate_at(int32_t index);
 
   // Appends the given string and int (as a %d) to this.
   // += cannot be used for ints as there as a char += operator that would

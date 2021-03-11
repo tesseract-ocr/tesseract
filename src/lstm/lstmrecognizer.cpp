@@ -47,7 +47,7 @@ const double kDictRatio = 2.25;
 // Default certainty offset to give the dictionary a chance.
 const double kCertOffset = -0.085;
 
-LSTMRecognizer::LSTMRecognizer(const char* language_data_path_prefix)
+LSTMRecognizer::LSTMRecognizer(const std::string &language_data_path_prefix)
     : LSTMRecognizer::LSTMRecognizer() {
   ccutil_.language_data_path_prefix = language_data_path_prefix;
 }
@@ -72,12 +72,12 @@ LSTMRecognizer::~LSTMRecognizer() {
 }
 
 // Loads a model from mgr, including the dictionary only if lang is not null.
-bool LSTMRecognizer::Load(const ParamsVectors* params, const char* lang,
+bool LSTMRecognizer::Load(const ParamsVectors* params, const std::string &lang,
                           TessdataManager* mgr) {
   TFile fp;
   if (!mgr->GetComponent(TESSDATA_LSTM, &fp)) return false;
   if (!DeSerialize(mgr, &fp)) return false;
-  if (lang == nullptr) return true;
+  if (lang.empty()) return true;
   // Allow it to run without a dictionary.
   LoadDictionary(params, lang, mgr);
   return true;
@@ -163,7 +163,7 @@ bool LSTMRecognizer::LoadRecoder(TFile* fp) {
 // dictionary.
 // Some parameters have to be passed in (from langdata/config/api via Tesseract)
 bool LSTMRecognizer::LoadDictionary(const ParamsVectors* params,
-                                    const char* lang, TessdataManager* mgr) {
+                                    const std::string &lang, TessdataManager* mgr) {
   delete dict_;
   dict_ = new Dict(&ccutil_);
   dict_->user_words_file.ResetFrom(params);
@@ -174,7 +174,7 @@ bool LSTMRecognizer::LoadDictionary(const ParamsVectors* params,
   dict_->LoadLSTM(lang, mgr);
   if (dict_->FinishLoad()) return true;  // Success.
   tprintf("ERROR: Failed to load any lstm-specific dictionaries for lang %s!!\n",
-          lang);
+          lang.c_str());
   delete dict_;
   dict_ = nullptr;
   return false;

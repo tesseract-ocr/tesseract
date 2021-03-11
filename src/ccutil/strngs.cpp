@@ -57,7 +57,7 @@ bool STRING::DeSerialize(bool swap, FILE* fp) {
     ReverseN(&len, sizeof(len));
   // Arbitrarily limit the number of characters to protect against bad data.
   if (len > UINT16_MAX) return false;
-  truncate_at(len);
+  resize(len);
   return tesseract::DeSerialize(fp, (char *)data(), len);
 }
 
@@ -66,7 +66,7 @@ bool STRING::DeSerialize(bool swap, FILE* fp) {
 bool STRING::DeSerialize(TFile* fp) {
   uint32_t len;
   if (!fp->DeSerialize(&len)) return false;
-  truncate_at(len);
+  resize(len);
   return fp->DeSerialize((char *)data(), len);
 }
 
@@ -79,10 +79,6 @@ bool STRING::SkipDeSerialize(TFile* fp) {
 
 bool STRING::contains(const char c) const {
   return (c != '\0') && (strchr (c_str(), c) != nullptr);
-}
-
-void STRING::truncate_at(int32_t index) {
-  resize(index);
 }
 
 void STRING::split(const char c, std::vector<STRING> *splited) {
