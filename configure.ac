@@ -395,20 +395,18 @@ LT_INIT
 # C++ related options
 # ----------------------------------------
 dnl **********************
-dnl Turn on C++11 or newer
+dnl Turn on C++17 or newer
 dnl **********************
 
 CPLUSPLUS=
-AX_CHECK_COMPILE_FLAG([-std=c++11], [CPLUSPLUS=11], [], [$WERROR])
-AX_CHECK_COMPILE_FLAG([-std=c++14], [CPLUSPLUS=14], [], [$WERROR])
 AX_CHECK_COMPILE_FLAG([-std=c++17], [CPLUSPLUS=17], [], [$WERROR])
-#AX_CHECK_COMPILE_FLAG([-std=c++20], [CPLUSPLUS=20], [], [$WERROR])
+AX_CHECK_COMPILE_FLAG([-std=c++20], [CPLUSPLUS=20], [], [$WERROR])
 
 if test -z "$CPLUSPLUS"; then
-  AC_MSG_ERROR([Your compiler does not have the necessary C++11 support! Cannot proceed.])
+  AC_MSG_ERROR([Your compiler does not have the necessary C++17 support! Cannot proceed.])
 fi
 
-# Set C++11, C++14 or C++17 support based on platform/compiler
+# Set C++17 or newer support based on platform/compiler
 case "${host_os}" in
   cygwin*)
     CXXFLAGS="$CXXFLAGS -std=gnu++$CPLUSPLUS"
