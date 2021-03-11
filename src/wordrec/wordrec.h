@@ -49,7 +49,7 @@ class TESS_API Wordrec : public Classify {
   virtual ~Wordrec() = default;
 
   // tface.cpp
-  void program_editup(const char *textbase, TessdataManager *init_classifier,
+  void program_editup(const std::string &textbase, TessdataManager *init_classifier,
                       TessdataManager *init_dict);
   void program_editdown(int32_t elasped_time);
   int end_recog();
