@@ -21,13 +21,13 @@
 #ifndef TESSERACT_CCMAIN_RESULT_ITERATOR_H_
 #define TESSERACT_CCMAIN_RESULT_ITERATOR_H_
 
-#include <set>     // for std::pair
-#include <vector>  // for std::vector
-
-#include "export.h"             // for TESS_API, TESS_LOCAL
 #include "ltrresultiterator.h"  // for LTRResultIterator
+#include "export.h"           // for TESS_API, TESS_LOCAL
 #include "publictypes.h"        // for PageIteratorLevel
 #include "unichar.h"            // for StrongScriptDirection
+
+#include <set>     // for std::pair
+#include <vector>  // for std::vector
 
 namespace tesseract {
 

@@ -20,9 +20,9 @@
 #ifndef TESSERACT_CCMAIN_OSDETECT_H_
 #define TESSERACT_CCMAIN_OSDETECT_H_
 
-#include <vector>  // for std::vector
+#include "export.h" // for TESS_API
 
-#include "export.h"  // for TESS_API
+#include <vector>     // for std::vector
 
 namespace tesseract {
 
@@ -134,6 +134,6 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o, ScriptDetector* s,
 // applied for the text to be upright (readable).
 TESS_API int OrientationIdToValue(const int& id);
 
-}  // namespace tesseract
+} // namespace tesseract
 
 #endif  // TESSERACT_CCMAIN_OSDETECT_H_

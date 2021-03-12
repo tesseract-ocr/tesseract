@@ -20,8 +20,8 @@
 #ifndef TESSERACT_CCMAIN_LTR_RESULT_ITERATOR_H_
 #define TESSERACT_CCMAIN_LTR_RESULT_ITERATOR_H_
 
-#include "export.h"        // for TESS_API
 #include "pageiterator.h"  // for PageIterator
+#include "export.h"      // for TESS_API
 #include "publictypes.h"   // for PageIteratorLevel
 #include "unichar.h"       // for StrongScriptDirection
 

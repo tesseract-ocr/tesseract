@@ -152,6 +152,6 @@ class ETEXT_DESC {  // output header
   }
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
 #endif  // CCUTIL_OCRCLASS_H_
