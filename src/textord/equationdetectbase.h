@@ -28,6 +28,7 @@ namespace tesseract {
 
 class ColPartitionGrid;
 class ColPartitionSet;
+class BLOBNBOX;
 
 class TESS_API EquationDetectBase {
 public:
