@@ -1,8 +1,9 @@
 name: vcpkg-4.11
-# build and test tesseract 4.1 using vcpkg and cmake.
+# build tesseract 4.1 using vcpkg and cmake on ubuntu and windows.
+# build and run basicapitest on windows.
 # macos fails on leptonica build - https://github.com/microsoft/vcpkg/issues/16116
 on:
-  push:
+  #push:
   schedule:
     - cron: 0 22 * * *
 env:
