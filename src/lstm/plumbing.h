@@ -22,6 +22,7 @@
 #include "genericvector.h"
 #include "matrix.h"
 #include "network.h"
+#include "strngs.h"
 
 namespace tesseract {
 
@@ -36,7 +37,7 @@ public:
   StaticShape InputShape() const override {
     return stack_[0]->InputShape();
   }
-  STRING spec() const override {
+  std::string spec() const override {
     return "Sub-classes of Plumbing must implement spec()!";
   }
 

@@ -33,11 +33,8 @@ public:
   ~Maxpool() override = default;
 
   // Accessors.
-  STRING spec() const override {
-    STRING spec;
-    spec.add_str_int("Mp", y_scale_);
-    spec.add_str_int(",", x_scale_);
-    return spec;
+  std::string spec() const override {
+    return "Mp" + std::to_string(y_scale_) + "," + std::to_string(x_scale_);
   }
 
   // Reads from the given file. Returns false in case of error.

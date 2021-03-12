@@ -2,7 +2,6 @@
 // File:        reversed.h
 // Description: Runs a single network on time-reversed input, reversing output.
 // Author:      Ray Smith
-// Created:     Thu May 02 08:38:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,15 +34,15 @@ public:
   // be partially unknown ie zero).
   StaticShape OutputShape(const StaticShape &input_shape) const override;
 
-  STRING spec() const override {
-    STRING spec(type_ == NT_XREVERSED ? "Rx" : (type_ == NT_YREVERSED ? "Ry" : "Txy"));
+  std::string spec() const override {
+    std::string spec(type_ == NT_XREVERSED ? "Rx" : (type_ == NT_YREVERSED ? "Ry" : "Txy"));
     // For most simple cases, we will output Rx<net> or Ry<net> where <net> is
     // the network in stack_[0], but in the special case that <net> is an
     // LSTM, we will just output the LSTM's spec modified to take the reversal
     // into account. This is because when the user specified Lfy64, we actually
     // generated TxyLfx64, and if the user specified Lrx64 we actually
     // generated RxLfx64, and we want to display what the user asked for.
-    STRING net_spec = stack_[0]->spec();
+    std::string net_spec(stack_[0]->spec());
     if (net_spec[0] == 'L') {
       // Setup a from and to character according to the type of the reversal
       // such that the LSTM spec gets modified to the spec that the user
@@ -59,7 +58,8 @@ public:
         if (net_spec[i] == from)
           net_spec[i] = to;
       }
-      return net_spec;
+      spec += net_spec;
+      return spec;
     }
     spec += net_spec;
     return spec;

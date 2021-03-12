@@ -47,8 +47,8 @@ public:
     return output_shape_;
   }
 
-  STRING spec() const override {
-    return spec_.c_str();
+  std::string spec() const override {
+    return spec_;
   }
 
   // Deserializes *this from a serialized TFNetwork proto. Returns 0 if failed,

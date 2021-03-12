@@ -152,7 +152,8 @@ bool LSTMTrainer::InitNetwork(const char *network_spec, int append_index, int ne
     return false;
   }
   network_str_ += network_spec;
-  tprintf("Built network:%s from request %s\n", network_->spec().c_str(), network_spec);
+  tprintf("Built network:%s from request %s\n",
+          network_->spec().c_str(), network_spec);
   tprintf(
       "Training parameters:\n  Debug interval = %d,"
       " weights = %g, learning rate = %g, momentum=%g\n",

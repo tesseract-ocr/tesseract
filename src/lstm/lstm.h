@@ -55,16 +55,16 @@ public:
   // be partially unknown ie zero).
   StaticShape OutputShape(const StaticShape &input_shape) const override;
 
-  STRING spec() const override {
-    STRING spec;
+  std::string spec() const override {
+    std::string spec;
     if (type_ == NT_LSTM)
-      spec.add_str_int("Lfx", ns_);
+      spec += "Lfx" + std::to_string(ns_);
     else if (type_ == NT_LSTM_SUMMARY)
-      spec.add_str_int("Lfxs", ns_);
+      spec += "Lfxs" + std::to_string(ns_);
     else if (type_ == NT_LSTM_SOFTMAX)
-      spec.add_str_int("LS", ns_);
+      spec += "LS" + std::to_string(ns_);
     else if (type_ == NT_LSTM_SOFTMAX_ENCODED)
-      spec.add_str_int("LE", ns_);
+      spec += "LE" + std::to_string(ns_);
     if (softmax_ != nullptr)
       spec += softmax_->spec();
     return spec;

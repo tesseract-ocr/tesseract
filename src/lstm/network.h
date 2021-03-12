@@ -23,7 +23,6 @@
 #include "networkio.h"
 #include "serialis.h"
 #include "static_shape.h"
-#include "strngs.h" // for STRING
 #include "tprintf.h"
 
 #include <cmath>
@@ -141,7 +140,7 @@ public:
   const std::string &name() const {
     return name_;
   }
-  virtual STRING spec() const {
+  virtual std::string spec() const {
     return "?";
   }
   bool TestFlag(NetworkFlags flag) const {

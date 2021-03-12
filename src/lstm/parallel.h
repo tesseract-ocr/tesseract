@@ -35,26 +35,23 @@ public:
   // be partially unknown ie zero).
   StaticShape OutputShape(const StaticShape &input_shape) const override;
 
-  STRING spec() const override {
-    STRING spec;
+  std::string spec() const override {
+    std::string spec;
     if (type_ == NT_PAR_2D_LSTM) {
       // We have 4 LSTMs operating in parallel here, so the size of each is
       // the number of outputs/4.
-      spec.add_str_int("L2xy", no_ / 4);
+      spec += "L2xy" + std::to_string(no_ / 4);
     } else if (type_ == NT_PAR_RL_LSTM) {
       // We have 2 LSTMs operating in parallel here, so the size of each is
       // the number of outputs/2.
       if (stack_[0]->type() == NT_LSTM_SUMMARY)
-        spec.add_str_int("Lbxs", no_ / 2);
+        spec += "Lbxs" + std::to_string(no_ / 2);
       else
-        spec.add_str_int("Lbx", no_ / 2);
+        spec += "Lbx" + std::to_string(no_ / 2);
     } else {
       if (type_ == NT_REPLICATED) {
-        spec.add_str_int("R", stack_.size());
-        spec += "(";
-        spec += stack_[0]->spec();
+        spec += "R" + std::to_string(stack_.size()) + "(" + stack_[0]->spec();
       } else {
-        spec = "(";
         for (int i = 0; i < stack_.size(); ++i)
           spec += stack_[i]->spec();
       }
