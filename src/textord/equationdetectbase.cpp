@@ -17,9 +17,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef HAVE_CONFIG_H
+#  include "config_auto.h"
+#endif
+
 #include "equationdetectbase.h"
-#include <allheaders.h>
+
 #include "blobbox.h"
+
+#include <allheaders.h>
 
 namespace tesseract {
 
