@@ -141,7 +141,7 @@ class TESS_API ImageData {
   void set_page_number(int num) {
     page_number_ = num;
   }
-  const GenericVector<char>& image_data() const {
+  const std::vector<char>& image_data() const {
     return image_data_;
   }
   const STRING& language() const {
@@ -156,7 +156,7 @@ class TESS_API ImageData {
   const std::vector<TBOX>& boxes() const {
     return boxes_;
   }
-  const GenericVector<STRING>& box_texts() const {
+  const std::vector<STRING>& box_texts() const {
     return box_texts_;
   }
   const STRING& box_text(int index) const {
@@ -193,9 +193,9 @@ class TESS_API ImageData {
   // Saves the given Pix as a PNG-encoded string and destroys it.
   // In case of missing PNG support in Leptonica use PNM format,
   // which requires more memory.
-  static void SetPixInternal(Pix* pix, GenericVector<char>* image_data);
+  static void SetPixInternal(Pix* pix, std::vector<char>* image_data);
   // Returns the Pix image for the image_data. Must be pixDestroyed after use.
-  static Pix* GetPixInternal(const GenericVector<char>& image_data);
+  static Pix* GetPixInternal(const std::vector<char>& image_data);
   // Parses the text string as a box file and adds any discovered boxes that
   // match the page number. Returns false on error.
   bool AddBoxes(const char* box_text);
@@ -206,11 +206,11 @@ class TESS_API ImageData {
 #ifdef TESSERACT_IMAGEDATA_AS_PIX
   Pix *internal_pix_;
 #endif
-  GenericVector<char> image_data_;   // PNG/PNM file data.
+  std::vector<char> image_data_;     // PNG/PNM file data.
   STRING language_;                  // Language code for image.
   STRING transcription_;             // UTF-8 ground truth of image.
   std::vector<TBOX> boxes_;          // If non-empty boxes of the image.
-  GenericVector<STRING> box_texts_;  // String for text in each box.
+  std::vector<STRING> box_texts_;    // String for text in each box.
   bool vertical_text_;               // Image has been rotated from vertical.
 };
 

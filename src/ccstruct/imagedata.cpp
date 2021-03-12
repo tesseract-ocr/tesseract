@@ -144,7 +144,8 @@ ImageData* ImageData::Build(const char* name, int page_number, const char* lang,
   image_data->page_number_ = page_number;
   image_data->language_ = lang;
   // Save the imagedata.
-  image_data->image_data_.resize_no_init(imagedatasize);
+  // TODO: optimize resize (no init).
+  image_data->image_data_.resize(imagedatasize);
   memcpy(&image_data->image_data_[0], imagedata, imagedatasize);
   if (!image_data->AddBoxes(box_text)) {
     if (truth_text == nullptr || truth_text[0] == '\0') {
@@ -170,11 +171,11 @@ ImageData* ImageData::Build(const char* name, int page_number, const char* lang,
 bool ImageData::Serialize(TFile* fp) const {
   if (!imagefilename_.Serialize(fp)) return false;
   if (!fp->Serialize(&page_number_)) return false;
-  if (!image_data_.Serialize(fp)) return false;
+  if (!fp->Serialize(image_data_)) return false;
   if (!language_.Serialize(fp)) return false;
   if (!transcription_.Serialize(fp)) return false;
   if (!fp->Serialize(boxes_)) return false;
-  if (!box_texts_.SerializeClasses(fp)) return false;
+  if (!fp->Serialize(box_texts_)) return false;
   int8_t vertical = vertical_text_;
   return fp->Serialize(&vertical);
 }
@@ -183,11 +184,11 @@ bool ImageData::Serialize(TFile* fp) const {
 bool ImageData::DeSerialize(TFile* fp) {
   if (!imagefilename_.DeSerialize(fp)) return false;
   if (!fp->DeSerialize(&page_number_)) return false;
-  if (!image_data_.DeSerialize(fp)) return false;
+  if (!fp->DeSerialize(image_data_)) return false;
   if (!language_.DeSerialize(fp)) return false;
   if (!transcription_.DeSerialize(fp)) return false;
   if (!fp->DeSerialize(boxes_)) return false;
-  if (!box_texts_.DeSerializeClasses(fp)) return false;
+  if (!fp->DeSerialize(box_texts_)) return false;
   int8_t vertical = 0;
   if (!fp->DeSerialize(&vertical)) return false;
   vertical_text_ = vertical != 0;
@@ -349,7 +350,7 @@ void ImageData::AddBoxes(const std::vector<TBOX>& boxes,
 // Saves the given Pix as a PNG-encoded string and destroys it.
 // In case of missing PNG support in Leptonica use PNM format,
 // which requires more memory.
-void ImageData::SetPixInternal(Pix* pix, GenericVector<char>* image_data) {
+void ImageData::SetPixInternal(Pix* pix, std::vector<char>* image_data) {
   l_uint8* data;
   size_t size;
   l_int32 ret;
@@ -358,13 +359,14 @@ void ImageData::SetPixInternal(Pix* pix, GenericVector<char>* image_data) {
     ret = pixWriteMem(&data, &size, pix, IFF_PNM);
   }
   pixDestroy(&pix);
-  image_data->resize_no_init(size);
+  // TODO: optimize resize (no init).
+  image_data->resize(size);
   memcpy(&(*image_data)[0], data, size);
   lept_free(data);
 }
 
 // Returns the Pix image for the image_data. Must be pixDestroyed after use.
-Pix* ImageData::GetPixInternal(const GenericVector<char>& image_data) {
+Pix* ImageData::GetPixInternal(const std::vector<char>& image_data) {
   Pix* pix = nullptr;
   if (!image_data.empty()) {
     // Convert the array to an image.
