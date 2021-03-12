@@ -25,8 +25,6 @@
 
 #include "params.h"
 
-#include "strngs.h"
-
 #include <cstdarg>
 #include <cstdio>
 

@@ -32,8 +32,6 @@
 #include "tesseractclass.h"
 #include "textord.h"
 
-#include "strngs.h"
-
 #include <algorithm>
 #include <cmath> // for std::fabs
 #include <memory>
