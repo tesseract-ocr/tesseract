@@ -19,15 +19,15 @@ int test_data[] = {8, 1, 2, -4, 7, 9, 65536, 4, 9, 0, -32767, 6, 7};
 
 // The fixture for testing GenericHeap and DoublePtr.
 class NthItemTest : public testing::Test {
- protected:
+protected:
   void SetUp() override {
     std::locale::global(std::locale(""));
   }
 
- public:
+public:
   virtual ~NthItemTest();
   // Pushes the test data onto the KDVector.
-  void PushTestData(KDVector* v) {
+  void PushTestData(KDVector *v) {
     for (size_t i = 0; i < countof(test_data); ++i) {
       IntKDPair pair(test_data[i], i);
       v->push_back(pair);
@@ -117,4 +117,4 @@ TEST_F(NthItemTest, EqualTest) {
   EXPECT_TRUE(v[index].data() == 4 || v[index].data() == 12);
 }
 
-}  // namespace tesseract
+} // namespace tesseract

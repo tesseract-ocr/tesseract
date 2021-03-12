@@ -20,7 +20,7 @@
 namespace tesseract {
 
 class TestableTableFinder : public tesseract::TableFinder {
- public:
+public:
   using TableFinder::GapInXProjection;
   using TableFinder::HasLeaderAdjacent;
   using TableFinder::InsertLeaderPartition;
@@ -30,17 +30,16 @@ class TestableTableFinder : public tesseract::TableFinder {
   using TableFinder::set_global_median_xheight;
   using TableFinder::SplitAndInsertFragmentedTextPartition;
 
-  void ExpectPartition(const TBOX& box) {
+  void ExpectPartition(const TBOX &box) {
     tesseract::ColPartitionGridSearch gsearch(&fragmented_text_grid_);
     gsearch.SetUniqueMode(true);
     gsearch.StartFullSearch();
-    ColPartition* part = nullptr;
+    ColPartition *part = nullptr;
     bool found = false;
     while ((part = gsearch.NextFullSearch()) != nullptr) {
       if (part->bounding_box().left() == box.left() &&
           part->bounding_box().bottom() == box.bottom() &&
-          part->bounding_box().right() == box.right() &&
-          part->bounding_box().top() == box.top()) {
+          part->bounding_box().right() == box.right() && part->bounding_box().top() == box.top()) {
         found = true;
       }
     }
@@ -50,7 +49,7 @@ class TestableTableFinder : public tesseract::TableFinder {
     tesseract::ColPartitionGridSearch gsearch(&fragmented_text_grid_);
     gsearch.SetUniqueMode(true);
     gsearch.StartFullSearch();
-    ColPartition* part = nullptr;
+    ColPartition *part = nullptr;
     int count = 0;
     while ((part = gsearch.NextFullSearch()) != nullptr) {
       ++count;
@@ -60,7 +59,7 @@ class TestableTableFinder : public tesseract::TableFinder {
 };
 
 class TableFinderTest : public testing::Test {
- protected:
+protected:
   void SetUp() {
     std::locale::global(std::locale(""));
     free_boxes_it_.set_to_list(&free_boxes_);
@@ -72,7 +71,8 @@ class TableFinderTest : public testing::Test {
   }
 
   void TearDown() {
-    if (partition_.get() != nullptr) partition_->DeleteBoxes();
+    if (partition_.get() != nullptr)
+      partition_->DeleteBoxes();
     DeletePartitionListBoxes();
     finder_.reset(nullptr);
   }
@@ -81,18 +81,18 @@ class TableFinderTest : public testing::Test {
     MakePartition(x_min, y_min, x_max, y_max, 0, 0);
   }
 
-  void MakePartition(int x_min, int y_min, int x_max, int y_max,
-                     int first_column, int last_column) {
-    if (partition_.get() != nullptr) partition_->DeleteBoxes();
+  void MakePartition(int x_min, int y_min, int x_max, int y_max, int first_column,
+                     int last_column) {
+    if (partition_.get() != nullptr)
+      partition_->DeleteBoxes();
     TBOX box;
     box.set_to_given_coords(x_min, y_min, x_max, y_max);
-    partition_.reset(
-        ColPartition::FakePartition(box, PT_UNKNOWN, BRT_UNKNOWN, BTFT_NONE));
+    partition_.reset(ColPartition::FakePartition(box, PT_UNKNOWN, BRT_UNKNOWN, BTFT_NONE));
     partition_->set_first_column(first_column);
     partition_->set_last_column(last_column);
   }
 
-  void InsertTextPartition(ColPartition* part) {
+  void InsertTextPartition(ColPartition *part) {
     finder_->InsertTextPartition(part);
     free_boxes_it_.add_after_then_move(part);
   }
@@ -101,12 +101,12 @@ class TableFinderTest : public testing::Test {
     InsertLeaderPartition(x_min, y_min, x_max, y_max, 0, 0);
   }
 
-  void InsertLeaderPartition(int x_min, int y_min, int x_max, int y_max,
-                             int first_column, int last_column) {
+  void InsertLeaderPartition(int x_min, int y_min, int x_max, int y_max, int first_column,
+                             int last_column) {
     TBOX box;
     box.set_to_given_coords(x_min, y_min, x_max, y_max);
-    ColPartition* part = ColPartition::FakePartition(box, PT_FLOWING_TEXT,
-                                                     BRT_UNKNOWN, BTFT_LEADER);
+    ColPartition *part =
+        ColPartition::FakePartition(box, PT_FLOWING_TEXT, BRT_UNKNOWN, BTFT_LEADER);
     part->set_first_column(first_column);
     part->set_last_column(last_column);
     finder_->InsertLeaderPartition(part);
@@ -114,9 +114,8 @@ class TableFinderTest : public testing::Test {
   }
 
   void DeletePartitionListBoxes() {
-    for (free_boxes_it_.mark_cycle_pt(); !free_boxes_it_.cycled_list();
-         free_boxes_it_.forward()) {
-      ColPartition* part = free_boxes_it_.data();
+    for (free_boxes_it_.mark_cycle_pt(); !free_boxes_it_.cycled_list(); free_boxes_it_.forward()) {
+      ColPartition *part = free_boxes_it_.data();
       part->DeleteBoxes();
     }
   }
@@ -124,30 +123,37 @@ class TableFinderTest : public testing::Test {
   std::unique_ptr<TestableTableFinder> finder_;
   std::unique_ptr<ColPartition> partition_;
 
- private:
+private:
   tesseract::ColPartition_CLIST free_boxes_;
   tesseract::ColPartition_C_IT free_boxes_it_;
 };
 
 TEST_F(TableFinderTest, GapInXProjectionNoGap) {
   int data[100];
-  for (int i = 0; i < 100; ++i) data[i] = 10;
+  for (int i = 0; i < 100; ++i)
+    data[i] = 10;
   EXPECT_FALSE(finder_->GapInXProjection(data, 100));
 }
 
 TEST_F(TableFinderTest, GapInXProjectionEdgeGap) {
   int data[100];
-  for (int i = 0; i < 10; ++i) data[i] = 2;
-  for (int i = 10; i < 90; ++i) data[i] = 10;
-  for (int i = 90; i < 100; ++i) data[i] = 2;
+  for (int i = 0; i < 10; ++i)
+    data[i] = 2;
+  for (int i = 10; i < 90; ++i)
+    data[i] = 10;
+  for (int i = 90; i < 100; ++i)
+    data[i] = 2;
   EXPECT_FALSE(finder_->GapInXProjection(data, 100));
 }
 
 TEST_F(TableFinderTest, GapInXProjectionExists) {
   int data[100];
-  for (int i = 0; i < 10; ++i) data[i] = 10;
-  for (int i = 10; i < 90; ++i) data[i] = 2;
-  for (int i = 90; i < 100; ++i) data[i] = 10;
+  for (int i = 0; i < 10; ++i)
+    data[i] = 10;
+  for (int i = 10; i < 90; ++i)
+    data[i] = 2;
+  for (int i = 90; i < 100; ++i)
+    data[i] = 10;
   EXPECT_TRUE(finder_->GapInXProjection(data, 100));
 }
 
@@ -195,7 +201,7 @@ TEST_F(TableFinderTest, SplitAndInsertFragmentedPartitionsBasicPass) {
   finder_->set_global_median_xheight(10);
 
   TBOX part_box(10, 5, 100, 15);
-  ColPartition* all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
+  ColPartition *all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
   all->set_type(PT_FLOWING_TEXT);
   all->set_blob_type(BRT_TEXT);
   all->set_flow(BTFT_CHAIN);
@@ -219,9 +225,9 @@ TEST_F(TableFinderTest, SplitAndInsertFragmentedPartitionsBasicPass) {
   }
   // TODO(nbeato): Ray's newer code...
   // all->ClaimBoxes();
-  all->ComputeLimits();      // This is to make sure median iinfo is set.
-  InsertTextPartition(all);  // This is to delete blobs
-  ColPartition* fragment_me = all->CopyButDontOwnBlobs();
+  all->ComputeLimits();     // This is to make sure median iinfo is set.
+  InsertTextPartition(all); // This is to delete blobs
+  ColPartition *fragment_me = all->CopyButDontOwnBlobs();
 
   finder_->SplitAndInsertFragmentedTextPartition(fragment_me);
   finder_->ExpectPartition(TBOX(11, 5, 24, 15));
@@ -235,7 +241,7 @@ TEST_F(TableFinderTest, SplitAndInsertFragmentedPartitionsBasicFail) {
   finder_->set_global_median_xheight(10);
 
   TBOX part_box(10, 5, 100, 15);
-  ColPartition* all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
+  ColPartition *all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
   all->set_type(PT_FLOWING_TEXT);
   all->set_blob_type(BRT_TEXT);
   all->set_flow(BTFT_CHAIN);
@@ -249,13 +255,13 @@ TEST_F(TableFinderTest, SplitAndInsertFragmentedPartitionsBasicFail) {
   }
   // TODO(nbeato): Ray's newer code...
   // all->ClaimBoxes();
-  all->ComputeLimits();      // This is to make sure median iinfo is set.
-  InsertTextPartition(all);  // This is to delete blobs
-  ColPartition* fragment_me = all->CopyButDontOwnBlobs();
+  all->ComputeLimits();     // This is to make sure median iinfo is set.
+  InsertTextPartition(all); // This is to delete blobs
+  ColPartition *fragment_me = all->CopyButDontOwnBlobs();
 
   finder_->SplitAndInsertFragmentedTextPartition(fragment_me);
   finder_->ExpectPartition(TBOX(11, 5, 99, 15));
   finder_->ExpectPartitionCount(1);
 }
 
-}  // namespace
+} // namespace tesseract

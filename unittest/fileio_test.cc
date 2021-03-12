@@ -9,7 +9,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include <stdio.h>
 #include <memory>
 
@@ -29,8 +28,9 @@ TEST(FileTest, JoinPath) {
 TEST(OutputBufferTest, WriteString) {
   const int kMaxBufSize = 128;
   char buffer[kMaxBufSize];
-  for (int i = 0; i < kMaxBufSize; ++i) buffer[i] = '\0';
-  FILE* fp = tmpfile();
+  for (int i = 0; i < kMaxBufSize; ++i)
+    buffer[i] = '\0';
+  FILE *fp = tmpfile();
   CHECK(fp != nullptr);
 
   std::unique_ptr<OutputBuffer> output(new OutputBuffer(fp));
@@ -49,7 +49,7 @@ TEST(InputBufferTest, Read) {
   auto s = "Hello\n world!";
   strncpy(buffer, s, kMaxBufSize);
   EXPECT_STREQ(s, buffer);
-  FILE* fp = tmpfile();
+  FILE *fp = tmpfile();
   CHECK(fp != nullptr);
   fwrite(buffer, strlen(s), 1, fp);
   rewind(fp);
@@ -63,4 +63,4 @@ TEST(InputBufferTest, Read) {
   EXPECT_EQ(" world!", lines[1]);
 }
 
-}  // namespace
+} // namespace tesseract

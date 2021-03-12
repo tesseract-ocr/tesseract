@@ -24,7 +24,6 @@ limitations under the License.
 
 #include "google/protobuf/util/message_differencer.h"
 
-
 #include "tensorflow/core/lib/core/status.h"
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/lib/strings/stringprintf.h"
@@ -32,30 +31,27 @@ limitations under the License.
 #include "tensorflow/core/platform/mutex.h"
 #include "tensorflow/core/platform/protobuf.h"
 
-
-
-using tensorflow::int8;
+using std::map;
+using std::pair;
+using std::unordered_map;
+using std::unordered_set;
+using std::vector;
 using tensorflow::int16;
 using tensorflow::int32;
 using tensorflow::int64;
-using tensorflow::uint8;
-using tensorflow::uint16;
-using tensorflow::uint64;
-using tensorflow::uint32;
-using tensorflow::protobuf::TextFormat;
-using tensorflow::mutex_lock;
+using tensorflow::int8;
 using tensorflow::mutex;
-using std::map;
-using std::pair;
-using std::vector;
-using std::unordered_map;
-using std::unordered_set;
+using tensorflow::mutex_lock;
+using tensorflow::uint16;
+using tensorflow::uint32;
+using tensorflow::uint64;
+using tensorflow::uint8;
+using tensorflow::protobuf::TextFormat;
 typedef signed int char32;
 
-using tensorflow::StringPiece;
 using std::string;
+using tensorflow::StringPiece;
 
+// namespace syntaxnet
 
-  // namespace syntaxnet
-
-#endif  // SYNTAXNET_BASE_H_
+#endif // SYNTAXNET_BASE_H_

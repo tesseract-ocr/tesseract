@@ -20,7 +20,7 @@ namespace tesseract {
 // writing/reading.
 
 class TfileTest : public ::testing::Test {
- protected:
+protected:
   void SetUp() {
     std::locale::global(std::locale(""));
   }
@@ -29,16 +29,18 @@ class TfileTest : public ::testing::Test {
 
   // Some data to serialize.
   class MathData {
-   public:
+  public:
     MathData() : num_squares_(0), num_triangles_(0) {}
     void Setup() {
       // Setup some data.
-      for (int s = 0; s < 42; ++s) squares_.push_back(s * s);
+      for (int s = 0; s < 42; ++s)
+        squares_.push_back(s * s);
       num_squares_ = squares_.size();
-      for (int t = 0; t < 52; ++t) triangles_.push_back(t * (t + 1) / 2);
+      for (int t = 0; t < 52; ++t)
+        triangles_.push_back(t * (t + 1) / 2);
       num_triangles_ = triangles_.size();
     }
-    void ExpectEq(const MathData& other) {
+    void ExpectEq(const MathData &other) {
       // Check the data.
       EXPECT_EQ(num_squares_, other.num_squares_);
       for (int s = 0; s < squares_.size(); ++s)
@@ -47,32 +49,40 @@ class TfileTest : public ::testing::Test {
       for (int s = 0; s < triangles_.size(); ++s)
         EXPECT_EQ(triangles_[s], other.triangles_[s]);
     }
-    bool Serialize(TFile* fp) {
-      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1) return false;
-      if (!squares_.Serialize(fp)) return false;
+    bool Serialize(TFile *fp) {
+      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1)
+        return false;
+      if (!squares_.Serialize(fp))
+        return false;
       if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1)
         return false;
-      if (!triangles_.Serialize(fp)) return false;
+      if (!triangles_.Serialize(fp))
+        return false;
       return true;
     }
-    bool DeSerialize(TFile* fp) {
+    bool DeSerialize(TFile *fp) {
       if (fp->FReadEndian(&num_squares_, sizeof(num_squares_), 1) != 1)
         return false;
-      if (!squares_.DeSerialize(fp)) return false;
+      if (!squares_.DeSerialize(fp))
+        return false;
       if (fp->FReadEndian(&num_triangles_, sizeof(num_triangles_), 1) != 1)
         return false;
-      if (!triangles_.DeSerialize(fp)) return false;
+      if (!triangles_.DeSerialize(fp))
+        return false;
       return true;
     }
-    bool SerializeBigEndian(TFile* fp) {
+    bool SerializeBigEndian(TFile *fp) {
       ReverseN(&num_squares_, sizeof(num_squares_));
-      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1) return false;
+      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1)
+        return false;
       // Write an additional reversed size before the vector, which will get
       // used as its size on reading.
-      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1) return false;
+      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1)
+        return false;
       for (int i = 0; i < squares_.size(); ++i)
         ReverseN(&squares_[i], sizeof(squares_[i]));
-      if (!squares_.Serialize(fp)) return false;
+      if (!squares_.Serialize(fp))
+        return false;
       ReverseN(&num_triangles_, sizeof(num_triangles_));
       if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1)
         return false;
@@ -82,10 +92,11 @@ class TfileTest : public ::testing::Test {
         ReverseN(&triangles_[i], sizeof(triangles_[i]));
       return triangles_.Serialize(fp);
     }
-    bool DeSerializeBigEndian(TFile* fp) {
+    bool DeSerializeBigEndian(TFile *fp) {
       if (fp->FReadEndian(&num_squares_, sizeof(num_squares_), 1) != 1)
         return false;
-      if (!squares_.DeSerialize(fp)) return false;
+      if (!squares_.DeSerialize(fp))
+        return false;
       // The first element is the size that was written, so we will delete it
       // and read the last element separately.
       int last_element;
@@ -95,7 +106,8 @@ class TfileTest : public ::testing::Test {
       squares_.push_back(last_element);
       if (fp->FReadEndian(&num_triangles_, sizeof(num_triangles_), 1) != 1)
         return false;
-      if (!triangles_.DeSerialize(fp)) return false;
+      if (!triangles_.DeSerialize(fp))
+        return false;
       if (fp->FReadEndian(&last_element, sizeof(last_element), 1) != 1)
         return false;
       triangles_.remove(0);
@@ -103,7 +115,7 @@ class TfileTest : public ::testing::Test {
       return true;
     }
 
-   private:
+  private:
     GenericVector<int> squares_;
     int num_squares_;
     GenericVector<int> triangles_;
@@ -176,4 +188,4 @@ TEST_F(TfileTest, BigEndian) {
   m3.ExpectEq(m2);
 }
 
-}  // namespace
+} // namespace tesseract

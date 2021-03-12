@@ -32,27 +32,25 @@ namespace UniLib {
 //   Non-characters: U+FDD0 to U+FDEF and U+xxFFFE to U+xxFFFF for all xx
 bool IsInterchangeValid(char32 c) {
   return !((c >= 0x00 && c <= 0x08) || c == 0x0B || (c >= 0x0E && c <= 0x1F) ||
-           (c >= 0x7F && c <= 0x9F) ||
-           (c >= 0xD800 && c <= 0xDFFF) ||
-           (c >= 0xFDD0 && c <= 0xFDEF) || (c&0xFFFE) == 0xFFFE);
+           (c >= 0x7F && c <= 0x9F) || (c >= 0xD800 && c <= 0xDFFF) ||
+           (c >= 0xFDD0 && c <= 0xFDEF) || (c & 0xFFFE) == 0xFFFE);
 }
 
-int SpanInterchangeValid(const char* begin, int byte_length) {
+int SpanInterchangeValid(const char *begin, int byte_length) {
   char32 rune;
-  const char* p = begin;
-  const char* end = begin + byte_length;
+  const char *p = begin;
+  const char *end = begin + byte_length;
   while (p < end) {
     int bytes_consumed = charntorune(&rune, p, end - p);
     // We want to accept Runeerror == U+FFFD as a valid char, but it is used
     // by chartorune to indicate error. Luckily, the real codepoint is size 3
     // while errors return bytes_consumed <= 1.
-    if ((rune == Runeerror && bytes_consumed <= 1) ||
-        !IsInterchangeValid(rune)) {
-      break;  // Found
+    if ((rune == Runeerror && bytes_consumed <= 1) || !IsInterchangeValid(rune)) {
+      break; // Found
     }
     p += bytes_consumed;
   }
   return p - begin;
 }
 
-}  // namespace UniLib
+} // namespace UniLib

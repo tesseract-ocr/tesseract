@@ -23,6 +23,8 @@ enum NameTester { ABORT, OKAY, LOG, BLOB, ELIST, TBOX, TPOINT, WORD };
 namespace tesseract {
 
 // Verifies that the global namespace is clean.
-TEST(CleanNamespaceTess, DummyTest) { tesseract::TessBaseAPI api; }
+TEST(CleanNamespaceTess, DummyTest) {
+  tesseract::TessBaseAPI api;
+}
 
-}  // namespace.
+} // namespace tesseract

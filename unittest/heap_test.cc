@@ -9,7 +9,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include "include_gunit.h"
 
 #include "doubleptr.h"
@@ -26,15 +25,15 @@ int test_data[] = {8, 1, 2, -4, 7, 9, 65536, 4, 9, 0};
 
 // The fixture for testing GenericHeap and DoublePtr.
 class HeapTest : public testing::Test {
- protected:
+protected:
   void SetUp() {
     std::locale::global(std::locale(""));
   }
 
- public:
+public:
   virtual ~HeapTest();
   // Pushes the test data onto both the heap and the KDVector.
-  void PushTestData(GenericHeap<IntKDPair>* heap, KDVector* v) {
+  void PushTestData(GenericHeap<IntKDPair> *heap, KDVector *v) {
     for (size_t i = 0; i < countof(test_data); ++i) {
       IntKDPair pair(test_data[i], i);
       heap->Push(&pair);
@@ -43,7 +42,7 @@ class HeapTest : public testing::Test {
   }
   // Verifies that the data in the heap matches the vector (after sorting) by
   // popping everything off the heap.
-  void VerifyHeapVectorMatch(GenericHeap<IntKDPair>* heap, KDVector* v) {
+  void VerifyHeapVectorMatch(GenericHeap<IntKDPair> *heap, KDVector *v) {
     EXPECT_FALSE(heap->empty());
     EXPECT_EQ(heap->size(), v->size());
     // Sort the vector and check that the keys come out of the heap in the same
@@ -153,12 +152,12 @@ TEST_F(HeapTest, RevalueTest) {
   // heap entry, wherever it may be. We can change its value via that pointer.
   // Without Reshuffle, that would be a terribly bad thing to do, as it violates
   // the heap invariant, making the heap corrupt.
-  PtrPair* pair_ptr = reinterpret_cast<PtrPair*>(v[0].data().OtherEnd());
+  PtrPair *pair_ptr = reinterpret_cast<PtrPair *>(v[0].data().OtherEnd());
   pair_ptr->key() = v[0].key();
   heap.Reshuffle(pair_ptr);
   // Index 1 is 1. Change to 32767.
   v[1].key() = 32767;
-  pair_ptr = reinterpret_cast<PtrPair*>(v[1].data().OtherEnd());
+  pair_ptr = reinterpret_cast<PtrPair *>(v[1].data().OtherEnd());
   pair_ptr->key() = v[1].key();
   heap.Reshuffle(pair_ptr);
   // After the changes, popping the heap should still match the sorted order
@@ -199,4 +198,4 @@ TEST_F(HeapTest, DoublePtrTest) {
   EXPECT_TRUE(ptr3.OtherEnd() == nullptr);
 }
 
-}  // namespace tesseract
+} // namespace tesseract

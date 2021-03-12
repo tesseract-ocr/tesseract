@@ -14,8 +14,7 @@
 #include <tesseract/capi.h>
 
 // Verifies that the libtesseract library has C API symbols.
-int main()
-{
-    printf("%s\n", TessVersion());
-    return 0;
+int main() {
+  printf("%s\n", TessVersion());
+  return 0;
 }
