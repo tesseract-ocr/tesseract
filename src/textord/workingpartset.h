@@ -21,8 +21,8 @@
 #ifndef TESSERACT_TEXTORD_WORKINGPARSET_H_
 #define TESSERACT_TEXTORD_WORKINGPARSET_H_
 
-#include "blobbox.h"       // For TO_BLOCK_LIST and BLOCK_LIST.
-#include "colpartition.h"  // For ColPartition_LIST.
+#include "blobbox.h"      // For TO_BLOCK_LIST and BLOCK_LIST.
+#include "colpartition.h" // For ColPartition_LIST.
 
 namespace tesseract {
 
@@ -30,23 +30,22 @@ namespace tesseract {
 // from the grid-based storage to regions in logical reading order, and is
 // therefore only used during construction of the regions.
 class WorkingPartSet : public ELIST_LINK {
- public:
-  explicit WorkingPartSet(ColPartition* column)
-    : column_(column), latest_part_(nullptr), part_it_(&part_set_) {
-  }
+public:
+  explicit WorkingPartSet(ColPartition *column)
+      : column_(column), latest_part_(nullptr), part_it_(&part_set_) {}
 
   // Simple accessors.
-  ColPartition* column() const {
+  ColPartition *column() const {
     return column_;
   }
-  void set_column(ColPartition* col) {
+  void set_column(ColPartition *col) {
     column_ = col;
   }
 
   // Add the partition to this WorkingPartSet. Partitions are generally
   // stored in the order in which they are received, but if the partition
   // has a SingletonPartner, make sure that it stays with its partner.
-  void AddPartition(ColPartition* part);
+  void AddPartition(ColPartition *part);
 
   // Make blocks out of any partitions in this WorkingPartSet, and append
   // them to the end of the blocks list. bleft, tright and resolution give
@@ -54,24 +53,24 @@ class WorkingPartSet : public ELIST_LINK {
   // made to fit in the bounds.
   // All ColPartitions go in the used_parts list, as they need to be kept
   // around, but are no longer needed.
-  void ExtractCompletedBlocks(const ICOORD& bleft, const ICOORD& tright,
-                              int resolution, ColPartition_LIST* used_parts,
-                              BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);
+  void ExtractCompletedBlocks(const ICOORD &bleft, const ICOORD &tright, int resolution,
+                              ColPartition_LIST *used_parts, BLOCK_LIST *blocks,
+                              TO_BLOCK_LIST *to_blocks);
 
   // Insert the given blocks at the front of the completed_blocks_ list so
   // they can be kept in the correct reading order.
-  void InsertCompletedBlocks(BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);
+  void InsertCompletedBlocks(BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks);
 
- private:
+private:
   // Convert the part_set_ into blocks, starting a new block at a break
   // in partnerships, or a change in linespacing (for text).
-  void MakeBlocks(const ICOORD& bleft, const ICOORD& tright, int resolution,
-                  ColPartition_LIST* used_parts);
+  void MakeBlocks(const ICOORD &bleft, const ICOORD &tright, int resolution,
+                  ColPartition_LIST *used_parts);
 
   // The column that this working set applies to. Used by the caller.
-  ColPartition* column_;
+  ColPartition *column_;
   // The most recently added partition.
-  ColPartition* latest_part_;
+  ColPartition *latest_part_;
   // All the partitions in the block that is currently under construction.
   ColPartition_LIST part_set_;
   // Iteratorn on part_set_ pointing to the most recent addition.
@@ -83,6 +82,6 @@ class WorkingPartSet : public ELIST_LINK {
 
 ELISTIZEH(WorkingPartSet)
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_WORKINGPARSET_H_
+#endif // TESSERACT_TEXTORD_WORKINGPARSET_H_

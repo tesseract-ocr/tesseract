@@ -20,15 +20,15 @@
 #ifndef TESSERACT_WORDREC_LANGUAGE_MODEL_DEFS_H_
 #define TESSERACT_WORDREC_LANGUAGE_MODEL_DEFS_H_
 
-#include "associate.h"       // for AssociateStats
-#include "dawg.h"            // for DawgPositionVector
-#include "elst.h"            // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
-#include "lm_consistency.h"  // for LMConsistencyInfo
-#include "ratngs.h"          // for BLOB_CHOICE, PermuterType
-#include "stopper.h"         // for DANGERR
-#include "strngs.h"          // for STRING
-#include "unicharset.h"      // for UNICHARSET
-#include <tesseract/unichar.h>         // for UNICHAR_ID
+#include <tesseract/unichar.h> // for UNICHAR_ID
+#include "associate.h"         // for AssociateStats
+#include "dawg.h"              // for DawgPositionVector
+#include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
+#include "lm_consistency.h"    // for LMConsistencyInfo
+#include "ratngs.h"            // for BLOB_CHOICE, PermuterType
+#include "stopper.h"           // for DANGERR
+#include "strngs.h"            // for STRING
+#include "unicharset.h"        // for UNICHARSET
 
 namespace tesseract {
 
@@ -68,9 +68,12 @@ struct LanguageModelDawgInfo {
 /// component.
 struct LanguageModelNgramInfo {
   LanguageModelNgramInfo(const char *c, int l, bool p, float nc, float ncc)
-    : context(c), context_unichar_step_len(l), pruned(p), ngram_cost(nc),
-      ngram_and_classifier_cost(ncc) {}
-  STRING context;  ///< context string
+      : context(c)
+      , context_unichar_step_len(l)
+      , pruned(p)
+      , ngram_cost(nc)
+      , ngram_and_classifier_cost(ncc) {}
+  STRING context; ///< context string
   /// Length of the context measured by advancing using UNICHAR::utf8_step()
   /// (should be at most the order of the character ngram model used).
   int context_unichar_step_len;
@@ -88,26 +91,25 @@ struct LanguageModelNgramInfo {
 /// Struct for storing the information about a path in the segmentation graph
 /// explored by Viterbi search.
 struct ViterbiStateEntry : public ELIST_LINK {
-  ViterbiStateEntry(ViterbiStateEntry *pe,
-                    BLOB_CHOICE *b, float c, float ol,
-                    const LMConsistencyInfo &ci,
-                    const AssociateStats &as,
-                    LanguageModelFlagsType tcf,
-                    LanguageModelDawgInfo *d,
-                    LanguageModelNgramInfo *n,
+  ViterbiStateEntry(ViterbiStateEntry *pe, BLOB_CHOICE *b, float c, float ol,
+                    const LMConsistencyInfo &ci, const AssociateStats &as,
+                    LanguageModelFlagsType tcf, LanguageModelDawgInfo *d, LanguageModelNgramInfo *n,
                     const char *debug_uch)
-    : curr_b(b), parent_vse(pe), competing_vse(nullptr),
-      dawg_info(d), ngram_info(n),
-      cost(c),
-      ratings_sum(b->rating()),
-      min_certainty(b->certainty()),
-      adapted(b->IsAdapted()),
-      length(1),
-      outline_length(ol),
-      consistency_info(ci),
-      associate_stats(as),
-      top_choice_flags(tcf),
-      updated(true) {
+      : curr_b(b)
+      , parent_vse(pe)
+      , competing_vse(nullptr)
+      , dawg_info(d)
+      , ngram_info(n)
+      , cost(c)
+      , ratings_sum(b->rating())
+      , min_certainty(b->certainty())
+      , adapted(b->IsAdapted())
+      , length(1)
+      , outline_length(ol)
+      , consistency_info(ci)
+      , associate_stats(as)
+      , top_choice_flags(tcf)
+      , updated(true) {
     debug_str = (debug_uch == nullptr) ? nullptr : new STRING();
     if (pe != nullptr) {
       ratings_sum += pe->ratings_sum;
@@ -117,9 +119,11 @@ struct ViterbiStateEntry : public ELIST_LINK {
       adapted += pe->adapted;
       length += pe->length;
       outline_length += pe->outline_length;
-      if (debug_uch != nullptr) *debug_str += *(pe->debug_str);
+      if (debug_uch != nullptr)
+        *debug_str += *(pe->debug_str);
     }
-    if (debug_str != nullptr && debug_uch != nullptr) *debug_str += debug_uch;
+    if (debug_str != nullptr && debug_uch != nullptr)
+      *debug_str += debug_uch;
   }
   ~ViterbiStateEntry() {
     delete dawg_info;
@@ -129,10 +133,8 @@ struct ViterbiStateEntry : public ELIST_LINK {
   /// Comparator function for sorting ViterbiStateEntry_LISTs in
   /// non-increasing order of costs.
   static int Compare(const void *e1, const void *e2) {
-    const ViterbiStateEntry *ve1 =
-        *static_cast<const ViterbiStateEntry *const *>(e1);
-    const ViterbiStateEntry *ve2 =
-        *static_cast<const ViterbiStateEntry *const *>(e2);
+    const ViterbiStateEntry *ve1 = *static_cast<const ViterbiStateEntry *const *>(e1);
+    const ViterbiStateEntry *ve2 = *static_cast<const ViterbiStateEntry *const *>(e2);
     return (ve1->cost < ve2->cost) ? -1 : 1;
   }
   inline bool Consistent() const {
@@ -143,11 +145,11 @@ struct ViterbiStateEntry : public ELIST_LINK {
   }
   /// Returns true if this VSE has an alphanumeric character as its classifier
   /// result.
-  bool HasAlnumChoice(const UNICHARSET& unicharset) {
-    if (curr_b == nullptr) return false;
-    UNICHAR_ID unichar_id =  curr_b->unichar_id();
-    if (unicharset.get_isalpha(unichar_id) ||
-        unicharset.get_isdigit(unichar_id))
+  bool HasAlnumChoice(const UNICHARSET &unicharset) {
+    if (curr_b == nullptr)
+      return false;
+    UNICHAR_ID unichar_id = curr_b->unichar_id();
+    if (unicharset.get_isalpha(unichar_id) || unicharset.get_isdigit(unichar_id))
       return true;
     return false;
   }
@@ -178,29 +180,29 @@ struct ViterbiStateEntry : public ELIST_LINK {
 
   /// Various information about the characters on the path represented
   /// by this ViterbiStateEntry.
-  float ratings_sum;     ///< sum of ratings of character on the path
-  float min_certainty;   ///< minimum certainty on the path
-  int adapted;           ///< number of BLOB_CHOICES from adapted templates
-  int length;            ///< number of characters on the path
-  float outline_length;  ///< length of the outline so far
-  LMConsistencyInfo consistency_info;  ///< path consistency info
-  AssociateStats associate_stats;      ///< character widths/gaps/seams
+  float ratings_sum;                  ///< sum of ratings of character on the path
+  float min_certainty;                ///< minimum certainty on the path
+  int adapted;                        ///< number of BLOB_CHOICES from adapted templates
+  int length;                         ///< number of characters on the path
+  float outline_length;               ///< length of the outline so far
+  LMConsistencyInfo consistency_info; ///< path consistency info
+  AssociateStats associate_stats;     ///< character widths/gaps/seams
 
   /// Flags for marking the entry as a top choice path with
   /// the smallest rating or lower/upper case letters).
   LanguageModelFlagsType top_choice_flags;
 
-  bool updated;  ///< set to true if the entry has just been created/updated
+  bool updated; ///< set to true if the entry has just been created/updated
 };
 
 ELISTIZEH(ViterbiStateEntry)
 
 /// Struct to store information maintained by various language model components.
 struct LanguageModelState {
-  LanguageModelState() :
-     viterbi_state_entries_prunable_length(0),
-    viterbi_state_entries_prunable_max_cost(FLT_MAX),
-    viterbi_state_entries_length(0) {}
+  LanguageModelState()
+      : viterbi_state_entries_prunable_length(0)
+      , viterbi_state_entries_prunable_max_cost(FLT_MAX)
+      , viterbi_state_entries_length(0) {}
   ~LanguageModelState() {}
 
   /// Clears the viterbi search state back to its initial conditions.
@@ -219,8 +221,7 @@ struct LanguageModelState {
 
 /// Bundle together all the things pertaining to the best choice/state.
 struct BestChoiceBundle {
-  explicit BestChoiceBundle(int matrix_dimension)
-    : updated(false), best_vse(nullptr) {
+  explicit BestChoiceBundle(int matrix_dimension) : updated(false), best_vse(nullptr) {
     beam.reserve(matrix_dimension);
     for (int i = 0; i < matrix_dimension; ++i)
       beam.push_back(new LanguageModelState);
@@ -239,6 +240,6 @@ struct BestChoiceBundle {
   ViterbiStateEntry *best_vse;
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_WORDREC_LANGUAGE_MODEL_DEFS_H_
+#endif // TESSERACT_WORDREC_LANGUAGE_MODEL_DEFS_H_

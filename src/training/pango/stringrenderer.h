@@ -30,9 +30,9 @@
 
 #include "export.h"
 
-#include "pango_font_info.h"
 #include "pango/pango-layout.h"
 #include "pango/pangocairo.h"
+#include "pango_font_info.h"
 
 #include <string>
 #include <unordered_map>
@@ -50,26 +50,27 @@ namespace tesseract {
 class BoxChar;
 
 class TESS_PANGO_TRAINING_API StringRenderer {
- public:
-  StringRenderer(const std::string& font_desc, int page_width, int page_height);
+public:
+  StringRenderer(const std::string &font_desc, int page_width, int page_height);
   ~StringRenderer();
 
   // Renders the text with the chosen font and returns the byte offset up to
   // which the text could be rendered so as to fit the specified page
   // dimensions.
-  int RenderToImage(const char* text, int text_length, Pix** pix);
-  int RenderToGrayscaleImage(const char* text, int text_length, Pix** pix);
-  int RenderToBinaryImage(const char* text, int text_length, int threshold,
-                          Pix** pix);
+  int RenderToImage(const char *text, int text_length, Pix **pix);
+  int RenderToGrayscaleImage(const char *text, int text_length, Pix **pix);
+  int RenderToBinaryImage(const char *text, int text_length, int threshold, Pix **pix);
   // Renders a line of text with all available fonts that were able to render
   // at least min_coverage fraction of the input text. Use 1.0 to require that
   // a font be able to render all the text.
-  int RenderAllFontsToImage(double min_coverage, const char* text,
-                            int text_length, std::string* font_used, Pix** pix);
+  int RenderAllFontsToImage(double min_coverage, const char *text, int text_length,
+                            std::string *font_used, Pix **pix);
 
-  bool set_font(const std::string& desc);
+  bool set_font(const std::string &desc);
   // Char spacing is in PIXELS!!!!.
-  void set_char_spacing(int char_spacing) { char_spacing_ = char_spacing; }
+  void set_char_spacing(int char_spacing) {
+    char_spacing_ = char_spacing;
+  }
   void set_leading(int leading) {
     leading_ = leading;
   }
@@ -93,7 +94,7 @@ class TESS_PANGO_TRAINING_API StringRenderer {
   void set_underline_style(const PangoUnderline style) {
     underline_style_ = style;
   }
-  void set_features(const char* features) {
+  void set_features(const char *features) {
     free(features_);
     features_ = strdup(features);
   }
@@ -130,18 +131,22 @@ class TESS_PANGO_TRAINING_API StringRenderer {
   void set_v_margin(const int v_margin) {
     v_margin_ = v_margin;
   }
-  const PangoFontInfo& font() const {
+  const PangoFontInfo &font() const {
     return font_;
   }
-  int h_margin() const { return h_margin_; }
-  int v_margin() const { return v_margin_; }
+  int h_margin() const {
+    return h_margin_;
+  }
+  int v_margin() const {
+    return v_margin_;
+  }
 
   // Get the boxchars of all clusters rendered thus far (or since the last call
   // to ClearBoxes()).
-  const std::vector<BoxChar*>& GetBoxes() const;
+  const std::vector<BoxChar *> &GetBoxes() const;
   // Get the rendered page bounding boxes of all pages created thus far (or
   // since last call to ClearBoxes()).
-  Boxa* GetPageBoxes() const;
+  Boxa *GetPageBoxes() const;
 
   // Rotate the boxes on the most recent page by the given rotation.
   void RotatePageBoxes(float rotation);
@@ -150,33 +155,33 @@ class TESS_PANGO_TRAINING_API StringRenderer {
   // Returns the boxes in a boxfile string.
   std::string GetBoxesStr();
   // Writes the boxes to a boxfile.
-  void WriteAllBoxes(const std::string& filename);
+  void WriteAllBoxes(const std::string &filename);
   // Removes space-delimited words from the string that are not renderable by
   // the current font and returns the count of such words.
-  int StripUnrenderableWords(std::string* utf8_text) const;
+  int StripUnrenderableWords(std::string *utf8_text) const;
 
   // Insert a Word Joiner symbol (U+2060) between adjacent characters, excluding
   // spaces and combining types, in each word before rendering to ensure words
   // are not broken across lines. The output boxchars will not contain the
   // joiner.
-  static std::string InsertWordJoiners(const std::string& text);
+  static std::string InsertWordJoiners(const std::string &text);
 
   // Helper functions to convert fullwidth Latin and halfwidth Basic Latin.
-  static std::string ConvertBasicLatinToFullwidthLatin(const std::string& text);
-  static std::string ConvertFullwidthLatinToBasicLatin(const std::string& text);
+  static std::string ConvertBasicLatinToFullwidthLatin(const std::string &text);
+  static std::string ConvertFullwidthLatinToBasicLatin(const std::string &text);
 
- protected:
+protected:
   // Init and free local renderer objects.
   void InitPangoCairo();
   void FreePangoCairo();
   // Set rendering properties.
   void SetLayoutProperties();
-  void SetWordUnderlineAttributes(const std::string& page_text);
+  void SetWordUnderlineAttributes(const std::string &page_text);
   // Compute bounding boxes around grapheme clusters.
   void ComputeClusterBoxes();
-  void CorrectBoxPositionsToLayout(std::vector<BoxChar*>* boxchars);
-  bool GetClusterStrings(std::vector<std::string>* cluster_text);
-  int FindFirstPageBreakOffset(const char* text, int text_length);
+  void CorrectBoxPositionsToLayout(std::vector<BoxChar *> *boxchars);
+  bool GetClusterStrings(std::vector<std::string> *cluster_text);
+  int FindFirstPageBreakOffset(const char *text, int text_length);
 
   PangoFontInfo font_;
   // Page properties
@@ -191,37 +196,37 @@ class TESS_PANGO_TRAINING_API StringRenderer {
   double underline_start_prob_;
   double underline_continuation_prob_;
   PangoUnderline underline_style_;
-  char* features_;
+  char *features_;
   // Text filtering options
   bool drop_uncovered_chars_;
   bool strip_unrenderable_words_;
   bool add_ligatures_;
   bool output_word_boxes_;
   // Pango and cairo specific objects
-  cairo_surface_t* surface_;
-  cairo_t* cr_;
-  PangoLayout* layout_;
+  cairo_surface_t *surface_;
+  cairo_t *cr_;
+  PangoLayout *layout_;
   // Internal state of current page number, updated on successive calls to
   // RenderToImage()
   int start_box_;
   int page_;
   // Boxes and associated text for all pages rendered with RenderToImage() since
   // the last call to ClearBoxes().
-  std::vector<BoxChar*> boxchars_;
+  std::vector<BoxChar *> boxchars_;
   int box_padding_;
   // Bounding boxes for pages since the last call to ClearBoxes().
-  Boxa* page_boxes_;
+  Boxa *page_boxes_;
 
   // Objects cached for subsequent calls to RenderAllFontsToImage()
-  std::unordered_map<char32, int64_t> char_map_;  // Time-saving char histogram.
-  int total_chars_;   // Number in the string to be rendered.
-  unsigned int font_index_;  // Index of next font to use in font list.
-  int last_offset_;   // Offset returned from last successful rendering
+  std::unordered_map<char32, int64_t> char_map_; // Time-saving char histogram.
+  int total_chars_;                              // Number in the string to be rendered.
+  unsigned int font_index_;                      // Index of next font to use in font list.
+  int last_offset_;                              // Offset returned from last successful rendering
 
- private:
-  StringRenderer(const StringRenderer&);
-  void operator=(const StringRenderer&);
+private:
+  StringRenderer(const StringRenderer &);
+  void operator=(const StringRenderer &);
 };
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // THIRD_PARTY_TESSERACT_TRAINING_STRINGRENDERER_H_
+#endif // THIRD_PARTY_TESSERACT_TRAINING_STRINGRENDERER_H_

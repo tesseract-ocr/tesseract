@@ -28,7 +28,7 @@ namespace tesseract {
 #define MAX_NUM_POINTS 50
 
 // The PointPair elements do NOT own the EDGEPTs.
-using PointPair = KDPairInc<float, EDGEPT*>;
+using PointPair = KDPairInc<float, EDGEPT *>;
 using PointHeap = GenericHeap<PointPair>;
 
 } // namespace tesseract

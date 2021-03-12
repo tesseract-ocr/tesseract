@@ -60,9 +60,9 @@ void ComputeMergedProto(tesseract::PROTO p1, tesseract::PROTO p2, float w1, floa
                         tesseract::PROTO MergedProto);
 
 int FindClosestExistingProto(tesseract::CLASS_TYPE Class, int NumMerged[],
-                             tesseract::PROTOTYPE* Prototype);
+                             tesseract::PROTOTYPE *Prototype);
 
-void MakeNewFromOld(tesseract::PROTO New, tesseract::PROTOTYPE* Old);
+void MakeNewFromOld(tesseract::PROTO New, tesseract::PROTOTYPE *Old);
 
 float SubfeatureEvidence(tesseract::FEATURE Feature, tesseract::PROTO Proto);
 
@@ -70,9 +70,9 @@ double EvidenceOf(double Similarity);
 
 bool DummyFastMatch(tesseract::FEATURE Feature, tesseract::PROTO Proto);
 
-void ComputePaddedBoundingBox(tesseract::PROTO Proto, float TangentPad,
-                              float OrthogonalPad, FRECT* BoundingBox);
+void ComputePaddedBoundingBox(tesseract::PROTO Proto, float TangentPad, float OrthogonalPad,
+                              FRECT *BoundingBox);
 
-bool PointInside(FRECT* Rectangle, float X, float Y);
+bool PointInside(FRECT *Rectangle, float X, float Y);
 
-#endif  // TESSERACT_TRAINING_MERGENF_H_
+#endif // TESSERACT_TRAINING_MERGENF_H_

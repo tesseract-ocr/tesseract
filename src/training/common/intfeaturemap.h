@@ -22,8 +22,8 @@
 #define TESSERACT_CLASSIFY_INTFEATUREMAP_H_
 
 #include "export.h"
-#include "intfeaturespace.h"
 #include "indexmapbidi.h"
+#include "intfeaturespace.h"
 #include "intproto.h"
 
 namespace tesseract {
@@ -47,7 +47,7 @@ static const int kNumOffsetMaps = 2;
 // not return the exact input INT_FEATURE_STRUCT, due to the many->one nature
 // of both transformations.
 class TESS_COMMON_TRAINING_API IntFeatureMap {
- public:
+public:
   IntFeatureMap();
   ~IntFeatureMap();
 
@@ -58,16 +58,16 @@ class TESS_COMMON_TRAINING_API IntFeatureMap {
   int compact_size() const {
     return compact_size_;
   }
-  const IntFeatureSpace& feature_space() const {
+  const IntFeatureSpace &feature_space() const {
     return feature_space_;
   }
-  const IndexMapBiDi& feature_map() const {
+  const IndexMapBiDi &feature_map() const {
     return feature_map_;
   }
 
   // Pseudo-accessors.
-  int IndexFeature(const INT_FEATURE_STRUCT& f) const;
-  int MapFeature(const INT_FEATURE_STRUCT& f) const;
+  int IndexFeature(const INT_FEATURE_STRUCT &f) const;
+  int MapFeature(const INT_FEATURE_STRUCT &f) const;
   int MapIndexFeature(int index_feature) const;
   INT_FEATURE_STRUCT InverseIndexFeature(int index_feature) const;
   INT_FEATURE_STRUCT InverseMapFeature(int map_feature) const;
@@ -76,7 +76,7 @@ class TESS_COMMON_TRAINING_API IntFeatureMap {
 
   // Copies the given feature_space and uses it as the index feature map
   // from INT_FEATURE_STRUCT.
-  void Init(const IntFeatureSpace& feature_space);
+  void Init(const IntFeatureSpace &feature_space);
 
   // Helper to return an offset index feature. In this context an offset
   // feature with a dir of +/-1 is a feature of a similar direction,
@@ -95,33 +95,31 @@ class TESS_COMMON_TRAINING_API IntFeatureMap {
   // Computes the features used by the subset of samples defined by
   // the iterator and sets up the feature mapping.
   // Returns the size of the compacted feature space.
-  int FindNZFeatureMapping(SampleIterator* it);
+  int FindNZFeatureMapping(SampleIterator *it);
 
   // After deleting some features, finish setting up the mapping, and map
   // all the samples. Returns the size of the compacted feature space.
-  int FinalizeMapping(SampleIterator* it);
+  int FinalizeMapping(SampleIterator *it);
 
   // Indexes the given array of features to a vector of sorted indices.
-  void IndexAndSortFeatures(const INT_FEATURE_STRUCT* features,
-                            int num_features,
-                            GenericVector<int>* sorted_features) const {
-    feature_space_.IndexAndSortFeatures(features, num_features,
-                                        sorted_features);
+  void IndexAndSortFeatures(const INT_FEATURE_STRUCT *features, int num_features,
+                            GenericVector<int> *sorted_features) const {
+    feature_space_.IndexAndSortFeatures(features, num_features, sorted_features);
   }
   // Maps the given array of index/sparse features to an array of map/compact
   // features.
   // Assumes the input is sorted. The output indices are sorted and uniqued.
   // Returns the number of "missed" features, being features that
   // don't map to the compact feature space.
-  int MapIndexedFeatures(const GenericVector<int>& index_features,
-                         GenericVector<int>* map_features) const {
+  int MapIndexedFeatures(const GenericVector<int> &index_features,
+                         GenericVector<int> *map_features) const {
     return feature_map_.MapFeatures(index_features, map_features);
   }
 
   // Prints the map features from the set in human-readable form.
-  void DebugMapFeatures(const GenericVector<int>& map_features) const;
+  void DebugMapFeatures(const GenericVector<int> &map_features) const;
 
- private:
+private:
   void Clear();
 
   // Helper to compute an offset index feature. In this context an offset
@@ -151,14 +149,14 @@ class TESS_COMMON_TRAINING_API IntFeatureMap {
   // shift perpendicular to the feature direction, or a rotation in place.
   // An entry of -1 indicates that there is no corresponding feature.
   // Array of arrays of size feature_space_.Size() owned by this class.
-  int* offset_plus_[kNumOffsetMaps];
-  int* offset_minus_[kNumOffsetMaps];
+  int *offset_plus_[kNumOffsetMaps];
+  int *offset_minus_[kNumOffsetMaps];
 
   // Don't use default copy and assign!
-  IntFeatureMap(const IntFeatureMap&);
-  void operator=(const IntFeatureMap&);
+  IntFeatureMap(const IntFeatureMap &);
+  void operator=(const IntFeatureMap &);
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_CLASSIFY_INTFEATUREMAP_H_
+#endif // TESSERACT_CLASSIFY_INTFEATUREMAP_H_

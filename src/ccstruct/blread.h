@@ -19,21 +19,21 @@
 #ifndef BLREAD_H
 #define BLREAD_H
 
-#include <cstdint>      // for int32_t
-#include <string>       // for std::string
+#include <cstdint> // for int32_t
+#include <string>  // for std::string
 
 namespace tesseract {
 
 class BLOCK_LIST;
 
-bool read_unlv_file(                    //print list of sides
-                     std::string& name, //basename of file
-                     int32_t xsize,     //image size
-                     int32_t ysize,     //image size
-                     BLOCK_LIST* blocks //output list
-                    );
+bool read_unlv_file(   // print list of sides
+    std::string &name, // basename of file
+    int32_t xsize,     // image size
+    int32_t ysize,     // image size
+    BLOCK_LIST *blocks // output list
+);
 
-void FullPageBlock(int width, int height, BLOCK_LIST* blocks);
+void FullPageBlock(int width, int height, BLOCK_LIST *blocks);
 
 } // namespace tesseract
 

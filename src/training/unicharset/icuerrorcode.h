@@ -36,28 +36,28 @@
 #ifndef TESSERACT_CCUTIL_ICUERRORCODE_H_
 #define TESSERACT_CCUTIL_ICUERRORCODE_H_
 
-#include <cstdlib>              // for exit
+#include <cstdlib> // for exit
 #include "tprintf.h"
-#include "unicode/errorcode.h"  // From libicu
+#include "unicode/errorcode.h" // From libicu
 
 namespace tesseract {
 
 class IcuErrorCode : public icu::ErrorCode {
- public:
+public:
   IcuErrorCode() {}
   virtual ~IcuErrorCode();
 
- protected:
+protected:
   virtual void handleFailure() const {
     tprintf("ICU ERROR: %s\n", errorName());
     exit(errorCode);
   }
 
- private:
+private:
   // Disallow implicit copying of object.
-  IcuErrorCode(const IcuErrorCode&);
-  void operator=(const IcuErrorCode&);
+  IcuErrorCode(const IcuErrorCode &);
+  void operator=(const IcuErrorCode &);
 };
 
-}  // namespace tesseract
-#endif  // TESSERACT_CCUTIL_ICUERRORCODE_H_
+} // namespace tesseract
+#endif // TESSERACT_CCUTIL_ICUERRORCODE_H_

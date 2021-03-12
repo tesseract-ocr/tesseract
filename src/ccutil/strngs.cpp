@@ -18,14 +18,14 @@
 
 #include "strngs.h"
 
-#include "errcode.h"        // for ASSERT_HOST
+#include "errcode.h" // for ASSERT_HOST
 
-#include "helpers.h"        // for ReverseN
-#include "serialis.h"       // for TFile
+#include "helpers.h"  // for ReverseN
+#include "serialis.h" // for TFile
 
-#include <cassert>          // for assert
-#include <locale>           // for std::locale::classic
-#include <sstream>          // for std::stringstream
+#include <cassert> // for assert
+#include <locale>  // for std::locale::classic
+#include <sstream> // for std::stringstream
 
 namespace tesseract {
 
@@ -35,50 +35,52 @@ const int kMaxIntSize = 22;
 
 // TODO(rays) Change all callers to use TFile and remove the old functions.
 // Writes to the given file. Returns false in case of error.
-bool STRING::Serialize(FILE* fp) const {
+bool STRING::Serialize(FILE *fp) const {
   uint32_t len = length();
-  return tesseract::Serialize(fp, &len) &&
-         tesseract::Serialize(fp, c_str(), len);
+  return tesseract::Serialize(fp, &len) && tesseract::Serialize(fp, c_str(), len);
 }
 
 // Writes to the given file. Returns false in case of error.
-bool STRING::Serialize(TFile* fp) const {
+bool STRING::Serialize(TFile *fp) const {
   uint32_t len = length();
-  return fp->Serialize(&len) &&
-         fp->Serialize(c_str(), len);
+  return fp->Serialize(&len) && fp->Serialize(c_str(), len);
 }
 
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
-bool STRING::DeSerialize(bool swap, FILE* fp) {
+bool STRING::DeSerialize(bool swap, FILE *fp) {
   uint32_t len;
-  if (!tesseract::DeSerialize(fp, &len)) return false;
+  if (!tesseract::DeSerialize(fp, &len))
+    return false;
   if (swap)
     ReverseN(&len, sizeof(len));
   // Arbitrarily limit the number of characters to protect against bad data.
-  if (len > UINT16_MAX) return false;
+  if (len > UINT16_MAX)
+    return false;
   resize(len);
   return tesseract::DeSerialize(fp, data(), len);
 }
 
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
-bool STRING::DeSerialize(TFile* fp) {
+bool STRING::DeSerialize(TFile *fp) {
   uint32_t len;
-  if (!fp->DeSerialize(&len)) return false;
+  if (!fp->DeSerialize(&len))
+    return false;
   resize(len);
   return fp->DeSerialize(data(), len);
 }
 
 // As DeSerialize, but only seeks past the data - hence a static method.
-bool STRING::SkipDeSerialize(TFile* fp) {
+bool STRING::SkipDeSerialize(TFile *fp) {
   uint32_t len;
-  if (!fp->DeSerialize(&len)) return false;
+  if (!fp->DeSerialize(&len))
+    return false;
   return fp->Skip(len);
 }
 
 bool STRING::contains(const char c) const {
-  return (c != '\0') && (strchr (c_str(), c) != nullptr);
+  return (c != '\0') && (strchr(c_str(), c) != nullptr);
 }
 
 void STRING::split(const char c, std::vector<STRING> *splited) {
@@ -100,7 +102,7 @@ void STRING::split(const char c, std::vector<STRING> *splited) {
   }
 }
 
-void STRING::add_str_int(const char* str, int number) {
+void STRING::add_str_int(const char *str, int number) {
   if (str != nullptr)
     *this += str;
   // Allow space for the maximum possible length of int64_t.
@@ -111,7 +113,7 @@ void STRING::add_str_int(const char* str, int number) {
 }
 
 // Appends the given string and double (as a %.8g) to this.
-void STRING::add_str_double(const char* str, double number) {
+void STRING::add_str_double(const char *str, double number) {
   if (str != nullptr)
     *this += str;
   std::stringstream stream;

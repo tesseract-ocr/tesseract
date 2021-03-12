@@ -15,23 +15,21 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#include <thread>               // for std::thread
-#include "fileio.h"             // for LoadFileLinesToStrings
 #include "lstmtester.h"
+#include <thread>   // for std::thread
+#include "fileio.h" // for LoadFileLinesToStrings
 
 namespace tesseract {
 
-LSTMTester::LSTMTester(int64_t max_memory)
-    : test_data_(max_memory) {}
+LSTMTester::LSTMTester(int64_t max_memory) : test_data_(max_memory) {}
 
 // Loads a set of lstmf files that were created using the lstm.train config to
 // tesseract into memory ready for testing. Returns false if nothing was
 // loaded. The arg is a filename of a file that lists the filenames.
-bool LSTMTester::LoadAllEvalData(const char* filenames_file) {
+bool LSTMTester::LoadAllEvalData(const char *filenames_file) {
   std::vector<STRING> filenames;
   if (!LoadFileLinesToStrings(filenames_file, &filenames)) {
-    tprintf("Failed to load list of eval filenames from %s\n",
-            filenames_file);
+    tprintf("Failed to load list of eval filenames from %s\n", filenames_file);
     return false;
   }
   return LoadAllEvalData(filenames);
@@ -40,7 +38,7 @@ bool LSTMTester::LoadAllEvalData(const char* filenames_file) {
 // Loads a set of lstmf files that were created using the lstm.train config to
 // tesseract into memory ready for testing. Returns false if nothing was
 // loaded.
-bool LSTMTester::LoadAllEvalData(const std::vector<STRING>& filenames) {
+bool LSTMTester::LoadAllEvalData(const std::vector<STRING> &filenames) {
   test_data_.Clear();
   bool result = test_data_.LoadDocuments(filenames, CS_SEQUENTIAL, nullptr);
   total_pages_ = test_data_.TotalPages();
@@ -49,17 +47,15 @@ bool LSTMTester::LoadAllEvalData(const std::vector<STRING>& filenames) {
 
 // Runs an evaluation asynchronously on the stored data and returns a string
 // describing the results of the previous test.
-STRING LSTMTester::RunEvalAsync(int iteration, const double* training_errors,
-                                const TessdataManager& model_mgr,
-                                int training_stage) {
+STRING LSTMTester::RunEvalAsync(int iteration, const double *training_errors,
+                                const TessdataManager &model_mgr, int training_stage) {
   STRING result;
   if (total_pages_ == 0) {
     result.add_str_int("No test data at iteration ", iteration);
     return result;
   }
   if (!LockIfNotRunning()) {
-    result.add_str_int("Previous test incomplete, skipping test at iteration ",
-                       iteration);
+    result.add_str_int("Previous test incomplete, skipping test at iteration ", iteration);
     return result;
   }
   // Save the args.
@@ -80,14 +76,13 @@ STRING LSTMTester::RunEvalAsync(int iteration, const double* training_errors,
 
 // Runs an evaluation synchronously on the stored data and returns a string
 // describing the results.
-STRING LSTMTester::RunEvalSync(int iteration, const double* training_errors,
-                               const TessdataManager& model_mgr,
-                               int training_stage, int verbosity) {
+STRING LSTMTester::RunEvalSync(int iteration, const double *training_errors,
+                               const TessdataManager &model_mgr, int training_stage,
+                               int verbosity) {
   LSTMTrainer trainer;
   trainer.InitCharSet(model_mgr);
   TFile fp;
-  if (!model_mgr.GetComponent(TESSDATA_LSTM, &fp) ||
-      !trainer.DeSerialize(&model_mgr, &fp)) {
+  if (!model_mgr.GetComponent(TESSDATA_LSTM, &fp) || !trainer.DeSerialize(&model_mgr, &fp)) {
     return "Deserialize failed";
   }
   int eval_iteration = 0;
@@ -95,11 +90,10 @@ STRING LSTMTester::RunEvalSync(int iteration, const double* training_errors,
   double word_error = 0.0;
   int error_count = 0;
   while (error_count < total_pages_) {
-    const ImageData* trainingdata = test_data_.GetPageBySerial(eval_iteration);
+    const ImageData *trainingdata = test_data_.GetPageBySerial(eval_iteration);
     trainer.SetIteration(++eval_iteration);
     NetworkIO fwd_outputs, targets;
-    Trainability result =
-        trainer.PrepareForBackward(trainingdata, &fwd_outputs, &targets);
+    Trainability result = trainer.PrepareForBackward(trainingdata, &fwd_outputs, &targets);
     if (result != UNENCODABLE) {
       char_error += trainer.NewSingleError(tesseract::ET_CHAR_ERROR);
       word_error += trainer.NewSingleError(tesseract::ET_WORD_RECERR);
@@ -128,10 +122,9 @@ STRING LSTMTester::RunEvalSync(int iteration, const double* training_errors,
 // LockIfNotRunning must have returned true before calling ThreadFunc, and
 // it will call UnlockRunning to release the lock after RunEvalSync completes.
 void LSTMTester::ThreadFunc() {
-  test_result_ = RunEvalSync(
-      test_iteration_, test_training_errors_,
-      test_model_mgr_, test_training_stage_,
-      /*verbosity*/ 0);
+  test_result_ =
+      RunEvalSync(test_iteration_, test_training_errors_, test_model_mgr_, test_training_stage_,
+                  /*verbosity*/ 0);
   UnlockRunning();
 }
 
@@ -139,7 +132,8 @@ void LSTMTester::ThreadFunc() {
 // if there is nothing running.
 bool LSTMTester::LockIfNotRunning() {
   std::lock_guard<std::mutex> lock(running_mutex_);
-  if (async_running_) return false;
+  if (async_running_)
+    return false;
   async_running_ = true;
   return true;
 }
@@ -150,4 +144,4 @@ void LSTMTester::UnlockRunning() {
   async_running_ = false;
 }
 
-}  // namespace tesseract
+} // namespace tesseract

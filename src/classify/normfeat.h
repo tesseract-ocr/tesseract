@@ -23,18 +23,16 @@
 
 namespace tesseract {
 
-#define LENGTH_COMPRESSION  (10.0)
+#define LENGTH_COMPRESSION (10.0)
 
 struct INT_FX_RESULT_STRUCT;
 
-typedef enum {
-    CharNormY, CharNormLength, CharNormRx, CharNormRy
-} NORM_PARAM_NAME;
+typedef enum { CharNormY, CharNormLength, CharNormRx, CharNormRy } NORM_PARAM_NAME;
 
 float ActualOutlineLength(FEATURE Feature);
 
 FEATURE_SET ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT &fx_info);
 
-}
+} // namespace tesseract
 
 #endif

@@ -34,8 +34,7 @@
 ----------------------------------------------------------------------
 */
 
-typedef struct
-{
+typedef struct {
   long num_samples;
   float sum_of_samples;
   float sum_of_squares;
@@ -53,9 +52,8 @@ typedef struct
  * Add one more sample to a measurement.
  **********************************************************************/
 
-#define ADD_SAMPLE(m, s)           \
-  (m.sum_of_samples += (float)(s), \
-   m.sum_of_squares += (float)(s) * (float)(s), ++m.num_samples)
+#define ADD_SAMPLE(m, s) \
+  (m.sum_of_samples += (float)(s), m.sum_of_squares += (float)(s) * (float)(s), ++m.num_samples)
 
 /**********************************************************************
  * mean
@@ -63,8 +61,7 @@ typedef struct
  * Return the mean value of the measurement.
  **********************************************************************/
 
-#define MEAN(m) \
-  ((m).num_samples ? ((float)((m).sum_of_samples / (m).num_samples)) : 0)
+#define MEAN(m) ((m).num_samples ? ((float)((m).sum_of_samples / (m).num_samples)) : 0)
 
 /**********************************************************************
  * new_measurement
@@ -73,8 +70,7 @@ typedef struct
  * samples.
  **********************************************************************/
 
-#define new_measurement(m) \
-  ((m).num_samples = 0, (m).sum_of_samples = 0, (m).sum_of_squares = 0)
+#define new_measurement(m) ((m).num_samples = 0, (m).sum_of_samples = 0, (m).sum_of_squares = 0)
 
 /**********************************************************************
  * number_of_samples
@@ -82,8 +78,7 @@ typedef struct
  * Return the number of samples in a measurement.
  **********************************************************************/
 
-#define number_of_samples(m)  \
-((m).num_samples)
+#define number_of_samples(m) ((m).num_samples)
 
 /**********************************************************************
  * standard_deviation
@@ -91,8 +86,7 @@ typedef struct
  * Return the standard deviation of the measurement.
  **********************************************************************/
 
-#define standard_deviation(m)                                \
-((float) sqrt (VARIANCE (m)))
+#define standard_deviation(m) ((float)sqrt(VARIANCE(m)))
 
 /**********************************************************************
  * variance
@@ -100,12 +94,11 @@ typedef struct
  * Return the variance of the measurement.
  **********************************************************************/
 
-#define VARIANCE(m)                                           \
-  (((m).num_samples > 1)                                      \
-       ? ((float)(((m).num_samples * (m).sum_of_squares -     \
-                   (m).sum_of_samples * (m).sum_of_samples) / \
-                  (((m).num_samples - 1) * (m).num_samples))) \
-       : 0)
+#define VARIANCE(m)                                                             \
+  (((m).num_samples > 1) ? ((float)(((m).num_samples * (m).sum_of_squares -     \
+                                     (m).sum_of_samples * (m).sum_of_samples) / \
+                                    (((m).num_samples - 1) * (m).num_samples))) \
+                         : 0)
 
 /**********************************************************************
  * print_summary
@@ -113,8 +106,7 @@ typedef struct
  * Summarize a MEASUREMENT record.
  **********************************************************************/
 
-#define print_summary(string, measure)                             \
-  tprintf("\t%-20s \tn = %d, \tm = %4.2f, \ts = %4.2f\n ", string, \
-          number_of_samples(measure), MEAN(measure),               \
-          standard_deviation(measure))
+#define print_summary(string, measure)                                                         \
+  tprintf("\t%-20s \tn = %d, \tm = %4.2f, \ts = %4.2f\n ", string, number_of_samples(measure), \
+          MEAN(measure), standard_deviation(measure))
 #endif

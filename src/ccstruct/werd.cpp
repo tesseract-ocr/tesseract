@@ -16,7 +16,7 @@
  *
  **********************************************************************/
 
- // Include automatically generated configuration file if running autoconf.
+// Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #  include "config_auto.h"
 #endif
@@ -29,9 +29,9 @@
 
 namespace tesseract {
 
-#define FIRST_COLOUR ScrollView::RED        ///< first rainbow colour
-#define LAST_COLOUR ScrollView::AQUAMARINE  ///< last rainbow colour
-#define CHILD_COLOUR ScrollView::BROWN      ///< colour of children
+#define FIRST_COLOUR ScrollView::RED       ///< first rainbow colour
+#define LAST_COLOUR ScrollView::AQUAMARINE ///< last rainbow colour
+#define CHILD_COLOUR ScrollView::BROWN     ///< colour of children
 
 ELIST2IZE(WERD)
 
@@ -44,7 +44,7 @@ ELIST2IZE(WERD)
  *   blank_count   blanks in front of the word
  *   text          correct text, outlives this WERD
  */
-WERD::WERD(C_BLOB_LIST* blob_list, uint8_t blank_count, const char* text)
+WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
     : blanks(blank_count), flags(0), script_id_(0), correct(text) {
   C_BLOB_IT start_it = &cblobs;
   C_BLOB_IT rej_cblob_it = &rej_cblobs;
@@ -56,28 +56,29 @@ WERD::WERD(C_BLOB_LIST* blob_list, uint8_t blank_count, const char* text)
   start_it.add_list_after(blob_list);
 
   /*
-    Set white on black flag for the WERD, moving any duff blobs onto the
-    rej_cblobs list.
-    First, walk the cblobs checking the inverse flag for each outline of each
-    cblob. If a cblob has inconsistent flag settings for its different
-    outlines, move the blob to the reject list. Otherwise, increment the
-    appropriate w-on-b or b-on-w vote for the word.
+  Set white on black flag for the WERD, moving any duff blobs onto the
+  rej_cblobs list.
+  First, walk the cblobs checking the inverse flag for each outline of each
+  cblob. If a cblob has inconsistent flag settings for its different
+  outlines, move the blob to the reject list. Otherwise, increment the
+  appropriate w-on-b or b-on-w vote for the word.
 
-    Now set the inversion flag for the WERD by maximum vote.
+  Now set the inversion flag for the WERD by maximum vote.
 
-    Walk the blobs again, moving any blob whose inversion flag does not agree
-    with the concencus onto the reject list.
-  */
+  Walk the blobs again, moving any blob whose inversion flag does not agree
+  with the concencus onto the reject list.
+*/
   start_it.set_to_list(&cblobs);
-  if (start_it.empty()) return;
+  if (start_it.empty())
+    return;
   for (start_it.mark_cycle_pt(); !start_it.cycled_list(); start_it.forward()) {
     bool reject_blob = false;
     bool blob_inverted;
 
     c_outline_it.set_to_list(start_it.data()->out_list());
     blob_inverted = c_outline_it.data()->flag(COUT_INVERSE);
-    for (c_outline_it.mark_cycle_pt();
-         !c_outline_it.cycled_list() && !reject_blob; c_outline_it.forward()) {
+    for (c_outline_it.mark_cycle_pt(); !c_outline_it.cycled_list() && !reject_blob;
+         c_outline_it.forward()) {
       reject_blob = c_outline_it.data()->flag(COUT_INVERSE) != blob_inverted;
     }
     if (reject_blob) {
@@ -93,7 +94,8 @@ WERD::WERD(C_BLOB_LIST* blob_list, uint8_t blank_count, const char* text)
   flags.set(W_INVERSE, (inverted_vote > non_inverted_vote));
 
   start_it.set_to_list(&cblobs);
-  if (start_it.empty()) return;
+  if (start_it.empty())
+    return;
   for (start_it.mark_cycle_pt(); !start_it.cycled_list(); start_it.forward()) {
     c_outline_it.set_to_list(start_it.data()->out_list());
     if (c_outline_it.data()->flag(COUT_INVERSE) != flags[W_INVERSE])
@@ -108,17 +110,15 @@ WERD::WERD(C_BLOB_LIST* blob_list, uint8_t blank_count, const char* text)
  * The C_BLOBs are not copied so the source list is emptied.
  */
 
-WERD::WERD(C_BLOB_LIST* blob_list,  ///< In word order
-           WERD* clone)             ///< Source of flags
-    : flags(clone->flags),
-      script_id_(clone->script_id_),
-      correct(clone->correct) {
-  C_BLOB_IT start_it = blob_list;  // iterator
-  C_BLOB_IT end_it = blob_list;    // another
+WERD::WERD(C_BLOB_LIST *blob_list, ///< In word order
+           WERD *clone)            ///< Source of flags
+    : flags(clone->flags), script_id_(clone->script_id_), correct(clone->correct) {
+  C_BLOB_IT start_it = blob_list; // iterator
+  C_BLOB_IT end_it = blob_list;   // another
 
-  while (!end_it.at_last()) end_it.forward();  // move to last
-  (reinterpret_cast<C_BLOB_LIST*>(&cblobs))
-      ->assign_to_sublist(&start_it, &end_it);
+  while (!end_it.at_last())
+    end_it.forward(); // move to last
+  (reinterpret_cast<C_BLOB_LIST *>(&cblobs))->assign_to_sublist(&start_it, &end_it);
   // move to our list
   blanks = clone->blanks;
   //      fprintf(stderr,"Wrong constructor!!!!\n");
@@ -126,11 +126,11 @@ WERD::WERD(C_BLOB_LIST* blob_list,  ///< In word order
 
 // Construct a WERD from a single_blob and clone the flags from this.
 // W_BOL and W_EOL flags are set according to the given values.
-WERD* WERD::ConstructFromSingleBlob(bool bol, bool eol, C_BLOB* blob) {
+WERD *WERD::ConstructFromSingleBlob(bool bol, bool eol, C_BLOB *blob) {
   C_BLOB_LIST temp_blobs;
   C_BLOB_IT temp_it(&temp_blobs);
   temp_it.add_after_then_move(blob);
-  WERD* blob_word = new WERD(&temp_blobs, this);
+  WERD *blob_word = new WERD(&temp_blobs, this);
   blob_word->set_flag(W_BOL, bol);
   blob_word->set_flag(W_EOL, eol);
   return blob_word;
@@ -149,7 +149,9 @@ WERD* WERD::ConstructFromSingleBlob(bool bol, bool eol, C_BLOB* blob) {
  * row being marked as FUZZY space.
  */
 
-TBOX WERD::bounding_box() const { return restricted_bounding_box(true, true); }
+TBOX WERD::bounding_box() const {
+  return restricted_bounding_box(true, true);
+}
 
 // Returns the bounding box including the desired combination of upper and
 // lower noise/diacritic elements.
@@ -158,11 +160,10 @@ TBOX WERD::restricted_bounding_box(bool upper_dots, bool lower_dots) const {
   int bottom = box.bottom();
   int top = box.top();
   // This is a read-only iteration of the rejected blobs.
-  C_BLOB_IT it(const_cast<C_BLOB_LIST*>(&rej_cblobs));
+  C_BLOB_IT it(const_cast<C_BLOB_LIST *>(&rej_cblobs));
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     TBOX dot_box = it.data()->bounding_box();
-    if ((upper_dots || dot_box.bottom() <= top) &&
-        (lower_dots || dot_box.top() >= bottom)) {
+    if ((upper_dots || dot_box.bottom() <= top) && (lower_dots || dot_box.top() >= bottom)) {
       box += dot_box;
     }
   }
@@ -171,9 +172,9 @@ TBOX WERD::restricted_bounding_box(bool upper_dots, bool lower_dots) const {
 
 // Returns the bounding box of only the good blobs.
 TBOX WERD::true_bounding_box() const {
-  TBOX box;  // box being built
+  TBOX box; // box being built
   // This is a read-only iteration of the good blobs.
-  C_BLOB_IT it(const_cast<C_BLOB_LIST*>(&cblobs));
+  C_BLOB_IT it(const_cast<C_BLOB_LIST *>(&cblobs));
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     box += it.data()->bounding_box();
   }
@@ -188,7 +189,7 @@ TBOX WERD::true_bounding_box() const {
  */
 
 void WERD::move(const ICOORD vec) {
-  C_BLOB_IT cblob_it(&cblobs);  // cblob iterator
+  C_BLOB_IT cblob_it(&cblobs); // cblob iterator
 
   for (cblob_it.mark_cycle_pt(); !cblob_it.cycled_list(); cblob_it.forward())
     cblob_it.data()->move(vec);
@@ -200,7 +201,7 @@ void WERD::move(const ICOORD vec) {
  * Join other word onto this one. Delete the old word.
  */
 
-void WERD::join_on(WERD* other) {
+void WERD::join_on(WERD *other) {
   C_BLOB_IT blob_it(&cblobs);
   C_BLOB_IT src_it(&other->cblobs);
   C_BLOB_IT rej_cblob_it(&rej_cblobs);
@@ -222,7 +223,7 @@ void WERD::join_on(WERD* other) {
  * Copy blobs from other word onto this one.
  */
 
-void WERD::copy_on(WERD* other) {
+void WERD::copy_on(WERD *other) {
   bool reversed = other->bounding_box().left() < bounding_box().left();
   C_BLOB_IT c_blob_it(&cblobs);
   C_BLOB_LIST c_blobs;
@@ -262,12 +263,9 @@ void WERD::print() {
   tprintf("   W_ITALIC = %s\n", flags[W_ITALIC] ? "TRUE" : "FALSE");
   tprintf("   W_BOL = %s\n", flags[W_BOL] ? "TRUE" : "FALSE");
   tprintf("   W_EOL = %s\n", flags[W_EOL] ? "TRUE" : "FALSE");
-  tprintf("   W_NORMALIZED = %s\n",
-          flags[W_NORMALIZED] ? "TRUE" : "FALSE");
-  tprintf("   W_SCRIPT_HAS_XHEIGHT = %s\n",
-          flags[W_SCRIPT_HAS_XHEIGHT] ? "TRUE" : "FALSE");
-  tprintf("   W_SCRIPT_IS_LATIN = %s\n",
-          flags[W_SCRIPT_IS_LATIN] ? "TRUE" : "FALSE");
+  tprintf("   W_NORMALIZED = %s\n", flags[W_NORMALIZED] ? "TRUE" : "FALSE");
+  tprintf("   W_SCRIPT_HAS_XHEIGHT = %s\n", flags[W_SCRIPT_HAS_XHEIGHT] ? "TRUE" : "FALSE");
+  tprintf("   W_SCRIPT_IS_LATIN = %s\n", flags[W_SCRIPT_IS_LATIN] ? "TRUE" : "FALSE");
   tprintf("   W_DONT_CHOP = %s\n", flags[W_DONT_CHOP] ? "TRUE" : "FALSE");
   tprintf("   W_REP_CHAR = %s\n", flags[W_REP_CHAR] ? "TRUE" : "FALSE");
   tprintf("   W_FUZZY_SP = %s\n", flags[W_FUZZY_SP] ? "TRUE" : "FALSE");
@@ -284,7 +282,7 @@ void WERD::print() {
  */
 
 #ifndef GRAPHICS_DISABLED
-void WERD::plot(ScrollView* window, ScrollView::Color colour) {
+void WERD::plot(ScrollView *window, ScrollView::Color colour) {
   C_BLOB_IT it = &cblobs;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     it.data()->plot(window, colour, colour);
@@ -295,7 +293,8 @@ void WERD::plot(ScrollView* window, ScrollView::Color colour) {
 // Get the next color in the (looping) rainbow.
 ScrollView::Color WERD::NextColor(ScrollView::Color colour) {
   auto next = static_cast<ScrollView::Color>(colour + 1);
-  if (next >= LAST_COLOUR || next < FIRST_COLOUR) next = FIRST_COLOUR;
+  if (next >= LAST_COLOUR || next < FIRST_COLOUR)
+    next = FIRST_COLOUR;
   return next;
 }
 
@@ -305,7 +304,7 @@ ScrollView::Color WERD::NextColor(ScrollView::Color colour) {
  * Draw the WERD in rainbow colours in window.
  */
 
-void WERD::plot(ScrollView* window) {
+void WERD::plot(ScrollView *window) {
   ScrollView::Color colour = FIRST_COLOUR;
   C_BLOB_IT it = &cblobs;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -321,7 +320,7 @@ void WERD::plot(ScrollView* window) {
  * Draw the WERD rejected blobs in window - ALWAYS GREY
  */
 
-void WERD::plot_rej_blobs(ScrollView* window) {
+void WERD::plot_rej_blobs(ScrollView *window) {
   C_BLOB_IT it = &rej_cblobs;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     it.data()->plot(window, ScrollView::GREY, ScrollView::GREY);
@@ -335,8 +334,8 @@ void WERD::plot_rej_blobs(ScrollView* window) {
  * Make a shallow copy of a word
  */
 
-WERD* WERD::shallow_copy() {
-  WERD* new_word = new WERD;
+WERD *WERD::shallow_copy() {
+  WERD *new_word = new WERD;
 
   new_word->blanks = blanks;
   new_word->flags = flags;
@@ -350,16 +349,18 @@ WERD* WERD::shallow_copy() {
  * Assign a word, DEEP copying the blob list
  */
 
-WERD& WERD::operator=(const WERD& source) {
+WERD &WERD::operator=(const WERD &source) {
   this->ELIST2_LINK::operator=(source);
   blanks = source.blanks;
   flags = source.flags;
   script_id_ = source.script_id_;
   correct = source.correct;
-  if (!cblobs.empty()) cblobs.clear();
+  if (!cblobs.empty())
+    cblobs.clear();
   cblobs.deep_copy(&source.cblobs, &C_BLOB::deep_copy);
 
-  if (!rej_cblobs.empty()) rej_cblobs.clear();
+  if (!rej_cblobs.empty())
+    rej_cblobs.clear();
   rej_cblobs.deep_copy(&source.rej_cblobs, &C_BLOB::deep_copy);
   return *this;
 }
@@ -371,9 +372,9 @@ WERD& WERD::operator=(const WERD& source) {
  *  order of left edge.
  */
 
-int word_comparator(const void* word1p, const void* word2p) {
-  const WERD* word1 = *reinterpret_cast<const WERD* const*>(word1p);
-  const WERD* word2 = *reinterpret_cast<const WERD* const*>(word2p);
+int word_comparator(const void *word1p, const void *word2p) {
+  const WERD *word1 = *reinterpret_cast<const WERD *const *>(word1p);
+  const WERD *word2 = *reinterpret_cast<const WERD *const *>(word2p);
   return word1->bounding_box().left() - word2->bounding_box().left();
 }
 
@@ -389,8 +390,7 @@ int word_comparator(const void* word1p, const void* word2p) {
  * orphan_blobs (appends).
  */
 
-WERD* WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST* all_blobs,
-                                      C_BLOB_LIST* orphan_blobs) {
+WERD *WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST *all_blobs, C_BLOB_LIST *orphan_blobs) {
   C_BLOB_LIST current_blob_list;
   C_BLOB_IT werd_blobs_it(&current_blob_list);
   // Add the word's c_blobs.
@@ -407,26 +407,23 @@ WERD* WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST* all_blobs,
   not_found_it.move_to_last();
 
   werd_blobs_it.move_to_first();
-  for (werd_blobs_it.mark_cycle_pt(); !werd_blobs_it.cycled_list();
-       werd_blobs_it.forward()) {
-    C_BLOB* werd_blob = werd_blobs_it.extract();
+  for (werd_blobs_it.mark_cycle_pt(); !werd_blobs_it.cycled_list(); werd_blobs_it.forward()) {
+    C_BLOB *werd_blob = werd_blobs_it.extract();
     TBOX werd_blob_box = werd_blob->bounding_box();
     bool found = false;
     // Now find the corresponding blob for this blob in the all_blobs
     // list. For now, follow the inefficient method of pairwise
     // comparisons. Ideally, one can pre-bucket the blobs by row.
     C_BLOB_IT all_blobs_it(all_blobs);
-    for (all_blobs_it.mark_cycle_pt(); !all_blobs_it.cycled_list();
-         all_blobs_it.forward()) {
-      C_BLOB* a_blob = all_blobs_it.data();
+    for (all_blobs_it.mark_cycle_pt(); !all_blobs_it.cycled_list(); all_blobs_it.forward()) {
+      C_BLOB *a_blob = all_blobs_it.data();
       // Compute the overlap of the two blobs. If major, a_blob should
       // be added to the new blobs list.
       TBOX a_blob_box = a_blob->bounding_box();
       if (a_blob_box.null_box()) {
         tprintf("Bounding box couldn't be ascertained\n");
       }
-      if (werd_blob_box.contains(a_blob_box) ||
-          werd_blob_box.major_overlap(a_blob_box)) {
+      if (werd_blob_box.contains(a_blob_box) || werd_blob_box.major_overlap(a_blob_box)) {
         // Old blobs are from minimal splits, therefore are expected to be
         // bigger. The new small blobs should cover a significant portion.
         // This is it.
@@ -445,17 +442,15 @@ WERD* WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST* all_blobs,
   // under-segmentation (which is OK, since the corresponding blob is already
   // in the list in that case.
   not_found_it.move_to_first();
-  for (not_found_it.mark_cycle_pt(); !not_found_it.cycled_list();
-       not_found_it.forward()) {
-    C_BLOB* not_found = not_found_it.data();
+  for (not_found_it.mark_cycle_pt(); !not_found_it.cycled_list(); not_found_it.forward()) {
+    C_BLOB *not_found = not_found_it.data();
     TBOX not_found_box = not_found->bounding_box();
     C_BLOB_IT existing_blobs_it(new_blobs_it);
     for (existing_blobs_it.mark_cycle_pt(); !existing_blobs_it.cycled_list();
          existing_blobs_it.forward()) {
-      C_BLOB* a_blob = existing_blobs_it.data();
+      C_BLOB *a_blob = existing_blobs_it.data();
       TBOX a_blob_box = a_blob->bounding_box();
-      if ((not_found_box.major_overlap(a_blob_box) ||
-           a_blob_box.major_overlap(not_found_box)) &&
+      if ((not_found_box.major_overlap(a_blob_box) || a_blob_box.major_overlap(not_found_box)) &&
           not_found_box.y_overlap_fraction(a_blob_box) > 0.8) {
         // Already taken care of.
         delete not_found_it.extract();
@@ -470,7 +465,7 @@ WERD* WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST* all_blobs,
   }
 
   // New blobs are ready. Create a new werd object with these.
-  WERD* new_werd = nullptr;
+  WERD *new_werd = nullptr;
   if (!new_werd_blobs.empty()) {
     new_werd = new WERD(&new_werd_blobs, this);
   } else {
@@ -487,30 +482,30 @@ void WERD::CleanNoise(float size_threshold) {
   C_BLOB_IT blob_it(&cblobs);
   C_BLOB_IT rej_it(&rej_cblobs);
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
-    C_BLOB* blob = blob_it.data();
+    C_BLOB *blob = blob_it.data();
     C_OUTLINE_IT ol_it(blob->out_list());
     for (ol_it.mark_cycle_pt(); !ol_it.cycled_list(); ol_it.forward()) {
-      C_OUTLINE* outline = ol_it.data();
+      C_OUTLINE *outline = ol_it.data();
       TBOX ol_box = outline->bounding_box();
-      int ol_size =
-          ol_box.width() > ol_box.height() ? ol_box.width() : ol_box.height();
+      int ol_size = ol_box.width() > ol_box.height() ? ol_box.width() : ol_box.height();
       if (ol_size < size_threshold) {
         // This outline is too small. Move it to a separate blob in the
         // reject blobs list.
-        auto* rej_blob = new C_BLOB(ol_it.extract());
+        auto *rej_blob = new C_BLOB(ol_it.extract());
         rej_it.add_after_then_move(rej_blob);
       }
     }
-    if (blob->out_list()->empty()) delete blob_it.extract();
+    if (blob->out_list()->empty())
+      delete blob_it.extract();
   }
 }
 
 // Extracts all the noise outlines and stuffs the pointers into the given
 // vector of outlines. Afterwards, the outlines vector owns the pointers.
-void WERD::GetNoiseOutlines(GenericVector<C_OUTLINE*>* outlines) {
+void WERD::GetNoiseOutlines(GenericVector<C_OUTLINE *> *outlines) {
   C_BLOB_IT rej_it(&rej_cblobs);
   for (rej_it.mark_cycle_pt(); !rej_it.empty(); rej_it.forward()) {
-    C_BLOB* blob = rej_it.extract();
+    C_BLOB *blob = rej_it.extract();
     C_OUTLINE_IT ol_it(blob->out_list());
     outlines->push_back(ol_it.extract());
     delete blob;
@@ -525,26 +520,27 @@ void WERD::GetNoiseOutlines(GenericVector<C_OUTLINE*>* outlines) {
 // Returns true if any new blob was added to the start of the word, which
 // suggests that it might need joining to the word before it, and likewise
 // sets make_next_word_fuzzy true if any new blob was added to the end.
-bool WERD::AddSelectedOutlines(const GenericVector<bool>& wanted,
-                               const GenericVector<C_BLOB*>& target_blobs,
-                               const GenericVector<C_OUTLINE*>& outlines,
-                               bool* make_next_word_fuzzy) {
+bool WERD::AddSelectedOutlines(const GenericVector<bool> &wanted,
+                               const GenericVector<C_BLOB *> &target_blobs,
+                               const GenericVector<C_OUTLINE *> &outlines,
+                               bool *make_next_word_fuzzy) {
   bool outline_added_to_start = false;
-  if (make_next_word_fuzzy != nullptr) *make_next_word_fuzzy = false;
+  if (make_next_word_fuzzy != nullptr)
+    *make_next_word_fuzzy = false;
   C_BLOB_IT rej_it(&rej_cblobs);
   for (int i = 0; i < outlines.size(); ++i) {
-    C_OUTLINE* outline = outlines[i];
-    if (outline == nullptr) continue;  // Already used it.
+    C_OUTLINE *outline = outlines[i];
+    if (outline == nullptr)
+      continue; // Already used it.
     if (wanted[i]) {
-      C_BLOB* target_blob = target_blobs[i];
+      C_BLOB *target_blob = target_blobs[i];
       TBOX noise_box = outline->bounding_box();
       if (target_blob == nullptr) {
         target_blob = new C_BLOB(outline);
         // Need to find the insertion point.
         C_BLOB_IT blob_it(&cblobs);
-        for (blob_it.mark_cycle_pt(); !blob_it.cycled_list();
-             blob_it.forward()) {
-          C_BLOB* blob = blob_it.data();
+        for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+          C_BLOB *blob = blob_it.data();
           TBOX blob_box = blob->bounding_box();
           if (blob_box.left() > noise_box.left()) {
             if (blob_it.at_first() && !flag(W_FUZZY_SP) && !flag(W_FUZZY_NON)) {
@@ -557,12 +553,12 @@ bool WERD::AddSelectedOutlines(const GenericVector<bool>& wanted,
         }
         if (blob_it.cycled_list()) {
           blob_it.add_to_end(target_blob);
-          if (make_next_word_fuzzy != nullptr) *make_next_word_fuzzy = true;
+          if (make_next_word_fuzzy != nullptr)
+            *make_next_word_fuzzy = true;
         }
         // Add all consecutive wanted, but null-blob outlines to same blob.
         C_OUTLINE_IT ol_it(target_blob->out_list());
-        while (i + 1 < outlines.size() && wanted[i + 1] &&
-               target_blobs[i + 1] == nullptr) {
+        while (i + 1 < outlines.size() && wanted[i + 1] && target_blobs[i + 1] == nullptr) {
           ++i;
           ol_it.add_to_end(outlines[i]);
         }

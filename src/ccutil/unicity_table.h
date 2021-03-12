@@ -24,7 +24,7 @@
 
 #include "genericvector.h"
 
-#include <functional>           // for std::function
+#include <functional> // for std::function
 
 namespace tesseract {
 
@@ -35,7 +35,7 @@ namespace tesseract {
 //     constructor.
 template <typename T>
 class UnicityTable {
- public:
+public:
   /// Clear the structures and deallocate internal structures.
   ~UnicityTable();
 
@@ -80,20 +80,20 @@ class UnicityTable {
 
   /// This method clear the current object, then, does a shallow copy of
   /// its argument, and finally invalidate its argument.
-  void move(UnicityTable<T>* from);
+  void move(UnicityTable<T> *from);
 
   /// Read/Write the table to a file. This does _NOT_ read/write the callbacks.
   /// The Callback given must be permanent since they will be called more than
   /// once. The given callback will be deleted at the end.
   /// Returns false on read/write error.
-  bool write(FILE* f, std::function<bool(FILE*, const T&)> cb) const {
+  bool write(FILE *f, std::function<bool(FILE *, const T &)> cb) const {
     return table_.write(f, cb);
   }
-  bool read(tesseract::TFile* f, std::function<bool(tesseract::TFile*, T*)> cb) {
+  bool read(tesseract::TFile *f, std::function<bool(tesseract::TFile *, T *)> cb) {
     return table_.read(f, cb);
   }
 
- private:
+private:
   GenericVector<T> table_;
 };
 
@@ -103,7 +103,7 @@ UnicityTable<T>::~UnicityTable() {
 }
 
 template <typename T>
-int UnicityTable<T>::size() const{
+int UnicityTable<T>::size() const {
   return table_.size();
 }
 
@@ -162,10 +162,10 @@ void UnicityTable<T>::clear() {
 // This method clear the current object, then, does a shallow copy of
 // its argument, and finally invalidate its argument.
 template <typename T>
-void UnicityTable<T>::move(UnicityTable<T>* from) {
+void UnicityTable<T>::move(UnicityTable<T> *from) {
   table_.move(&from->table_);
 }
 
 } // namespace tesseract
 
-#endif  // TESSERACT_CCUTIL_UNICITY_TABLE_H_
+#endif // TESSERACT_CCUTIL_UNICITY_TABLE_H_

@@ -30,9 +30,12 @@ namespace tesseract {
 class ParagraphModel;
 
 struct PARA : public ELIST_LINK {
- public:
-  PARA() : model(nullptr), is_list_item(false),
-           is_very_first_or_continuation(false), has_drop_cap(false) {}
+public:
+  PARA()
+      : model(nullptr)
+      , is_list_item(false)
+      , is_very_first_or_continuation(false)
+      , has_drop_cap(false) {}
 
   // We do not own the model, we just reference it.
   // model may be nullptr if there is not a good model for this paragraph.
@@ -115,17 +118,14 @@ ELISTIZEH(PARA)
 // |code.  Ouch!                    |
 // +--------------------------------+
 class TESS_API ParagraphModel {
- public:
-  ParagraphModel(tesseract::ParagraphJustification justification,
-                 int margin,
-                 int first_indent,
-                 int body_indent,
-                 int tolerance)
-      : justification_(justification),
-        margin_(margin),
-        first_indent_(first_indent),
-        body_indent_(body_indent),
-        tolerance_(tolerance) {
+public:
+  ParagraphModel(tesseract::ParagraphJustification justification, int margin, int first_indent,
+                 int body_indent, int tolerance)
+      : justification_(justification)
+      , margin_(margin)
+      , first_indent_(first_indent)
+      , body_indent_(body_indent)
+      , tolerance_(tolerance) {
     // Make one of {first_indent, body_indent} is 0.
     int added_margin = first_indent;
     if (body_indent < added_margin)
@@ -136,11 +136,11 @@ class TESS_API ParagraphModel {
   }
 
   ParagraphModel()
-      : justification_(tesseract::JUSTIFICATION_UNKNOWN),
-         margin_(0),
-         first_indent_(0),
-         body_indent_(0),
-         tolerance_(0) { }
+      : justification_(tesseract::JUSTIFICATION_UNKNOWN)
+      , margin_(0)
+      , first_indent_(0)
+      , body_indent_(0)
+      , tolerance_(0) {}
 
   // ValidFirstLine() and ValidBodyLine() take arguments describing a text line
   // in a block of text which we are trying to model:
@@ -167,14 +167,22 @@ class TESS_API ParagraphModel {
   tesseract::ParagraphJustification justification() const {
     return justification_;
   }
-  int margin() const { return margin_; }
-  int first_indent() const { return first_indent_; }
-  int body_indent() const { return body_indent_; }
-  int tolerance() const { return tolerance_; }
+  int margin() const {
+    return margin_;
+  }
+  int first_indent() const {
+    return first_indent_;
+  }
+  int body_indent() const {
+    return body_indent_;
+  }
+  int tolerance() const {
+    return tolerance_;
+  }
   bool is_flush() const {
     return (justification_ == tesseract::JUSTIFICATION_LEFT ||
             justification_ == tesseract::JUSTIFICATION_RIGHT) &&
-        abs(first_indent_ - body_indent_) <= tolerance_;
+           abs(first_indent_ - body_indent_) <= tolerance_;
   }
 
   // Return whether this model is likely to agree with the other model on most
@@ -183,7 +191,7 @@ class TESS_API ParagraphModel {
 
   STRING ToString() const;
 
- private:
+private:
   tesseract::ParagraphJustification justification_;
   int margin_;
   int first_indent_;
@@ -193,4 +201,4 @@ class TESS_API ParagraphModel {
 
 } // namespace tesseract
 
-#endif  // TESSERACT_CCSTRUCT_OCRPARA_H_
+#endif // TESSERACT_CCSTRUCT_OCRPARA_H_

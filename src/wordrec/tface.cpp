@@ -21,10 +21,10 @@
 #include "wordrec.h"
 
 #ifndef DISABLED_LEGACY_ENGINE
-#include "chop.h"
-#include "featdefs.h"
-#include "pageres.h"
-#include "params_model.h"
+#  include "chop.h"
+#  include "featdefs.h"
+#  include "pageres.h"
+#  include "params_model.h"
 #endif
 
 namespace tesseract {
@@ -36,10 +36,10 @@ namespace tesseract {
  * init_permute determines whether to initialize the permute functions
  * and Dawg models.
  */
-void Wordrec::program_editup(const std::string &textbase,
-                             TessdataManager *init_classifier,
+void Wordrec::program_editup(const std::string &textbase, TessdataManager *init_classifier,
                              TessdataManager *init_dict) {
-  if (!textbase.empty()) imagefile = textbase;
+  if (!textbase.empty())
+    imagefile = textbase;
 #ifndef DISABLED_LEGACY_ENGINE
   InitFeatureDefs(&feature_defs_);
   InitAdaptiveClassifier(init_classifier);
@@ -49,9 +49,8 @@ void Wordrec::program_editup(const std::string &textbase,
     getDict().FinishLoad();
   }
   pass2_ok_split = chop_ok_split;
-#endif  // ndef DISABLED_LEGACY_ENGINE
+#endif // ndef DISABLED_LEGACY_ENGINE
 }
-
 
 /**
  * @name end_recog
@@ -59,11 +58,10 @@ void Wordrec::program_editup(const std::string &textbase,
  * Cleanup and exit the recog program.
  */
 int Wordrec::end_recog() {
-  program_editdown (0);
+  program_editdown(0);
 
   return (0);
 }
-
 
 /**
  * @name program_editdown
@@ -74,10 +72,9 @@ int Wordrec::end_recog() {
 void Wordrec::program_editdown(int32_t elasped_time) {
 #ifndef DISABLED_LEGACY_ENGINE
   EndAdaptiveClassifier();
-#endif  // ndef DISABLED_LEGACY_ENGINE
+#endif // ndef DISABLED_LEGACY_ENGINE
   getDict().End();
 }
-
 
 /**
  * @name dict_word()
@@ -88,7 +85,6 @@ void Wordrec::program_editdown(int32_t elasped_time) {
 int Wordrec::dict_word(const WERD_CHOICE &word) {
   return getDict().valid_word(word);
 }
-
 
 #ifndef DISABLED_LEGACY_ENGINE
 
@@ -103,7 +99,6 @@ void Wordrec::set_pass1() {
   SettupPass1();
 }
 
-
 /**
  * @name set_pass2
  *
@@ -115,7 +110,6 @@ void Wordrec::set_pass2() {
   SettupPass2();
 }
 
-
 /**
  * @name cc_recog
  *
@@ -124,11 +118,9 @@ void Wordrec::set_pass2() {
 void Wordrec::cc_recog(WERD_RES *word) {
   getDict().reset_hyphen_vars(word->word->flag(W_EOL));
   chop_word_main(word);
-  word->DebugWordChoices(getDict().stopper_debug_level >= 1,
-                         getDict().word_to_debug.c_str());
+  word->DebugWordChoices(getDict().stopper_debug_level >= 1, getDict().word_to_debug.c_str());
   ASSERT_HOST(word->StatesAllValid());
 }
-
 
 /**
  * @name call_matcher
@@ -138,11 +130,11 @@ void Wordrec::cc_recog(WERD_RES *word) {
  */
 BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *tessblob) {
   // Rotate the blob for classification if necessary.
-  TBLOB* rotated_blob = tessblob->ClassifyNormalizeIfNeeded();
+  TBLOB *rotated_blob = tessblob->ClassifyNormalizeIfNeeded();
   if (rotated_blob == nullptr) {
     rotated_blob = tessblob;
   }
-  auto *ratings = new BLOB_CHOICE_LIST();  // matcher result
+  auto *ratings = new BLOB_CHOICE_LIST(); // matcher result
   AdaptiveClassifier(rotated_blob, ratings);
   if (rotated_blob != tessblob) {
     delete rotated_blob;
@@ -150,6 +142,6 @@ BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *tessblob) {
   return ratings;
 }
 
-#endif  // ndef DISABLED_LEGACY_ENGINE
+#endif // ndef DISABLED_LEGACY_ENGINE
 
-}  // namespace tesseract
+} // namespace tesseract

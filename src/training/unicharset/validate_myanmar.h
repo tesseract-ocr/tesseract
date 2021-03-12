@@ -7,12 +7,11 @@ namespace tesseract {
 
 // Subclass of Validator that validates and segments Myanmar.
 class ValidateMyanmar : public Validator {
- public:
-  ValidateMyanmar(ViramaScript script, bool report_errors)
-      : Validator(script, report_errors) {}
+public:
+  ValidateMyanmar(ViramaScript script, bool report_errors) : Validator(script, report_errors) {}
   ~ValidateMyanmar() {}
 
- protected:
+protected:
   // Returns whether codes matches the pattern for a Myanmar Grapheme.
   // Consumes the next Grapheme in codes_[codes_used_++...] and copies it to
   // parts_ and output_. Returns true if a valid Grapheme was consumed,
@@ -21,7 +20,7 @@ class ValidateMyanmar : public Validator {
   // Returns the CharClass corresponding to the given Unicode ch.
   Validator::CharClass UnicodeToCharClass(char32 ch) const override;
 
- private:
+private:
   // Helper consumes/copies a virama and any subscript consonant.
   // Returns true if the end of input is reached.
   bool ConsumeSubscriptIfPresent();
@@ -42,6 +41,6 @@ class ValidateMyanmar : public Validator {
   static const char32 kMyanmarMedialYa = 0x103b;
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_TRAINING_VALIDATE_MYANMAR_H_
+#endif // TESSERACT_TRAINING_VALIDATE_MYANMAR_H_

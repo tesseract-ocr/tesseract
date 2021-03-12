@@ -20,18 +20,18 @@
 
 #include "errcode.h"
 
-#include "helpers.h"  // for ReverseN
+#include "helpers.h" // for ReverseN
 
-#include <climits>    // for INT_MAX
+#include <climits> // for INT_MAX
 #include <cstdio>
 
 namespace tesseract {
 
 // The default FileReader loads the whole file into the vector of char,
 // returning false on error.
-bool LoadDataFromFile(const char* filename, std::vector<char>* data) {
+bool LoadDataFromFile(const char *filename, std::vector<char> *data) {
   bool result = false;
-  FILE* fp = fopen(filename, "rb");
+  FILE *fp = fopen(filename, "rb");
   if (fp != nullptr) {
     fseek(fp, 0, SEEK_END);
     auto size = std::ftell(fp);
@@ -50,30 +50,25 @@ bool LoadDataFromFile(const char* filename, std::vector<char>* data) {
 
 // The default FileWriter writes the vector of char to the filename file,
 // returning false on error.
-bool SaveDataToFile(const std::vector<char>& data, const char* filename) {
-  FILE* fp = fopen(filename, "wb");
+bool SaveDataToFile(const std::vector<char> &data, const char *filename) {
+  FILE *fp = fopen(filename, "wb");
   if (fp == nullptr) {
     return false;
   }
-  bool result =
-      static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
+  bool result = static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
   fclose(fp);
   return result;
 }
 
 TFile::TFile()
-    : data_(nullptr),
-      offset_(0),
-      data_is_owned_(false),
-      is_writing_(false),
-      swap_(false) {}
+    : data_(nullptr), offset_(0), data_is_owned_(false), is_writing_(false), swap_(false) {}
 
 TFile::~TFile() {
   if (data_is_owned_)
     delete data_;
 }
 
-bool TFile::DeSerializeSize(int32_t* pSize) {
+bool TFile::DeSerializeSize(int32_t *pSize) {
   uint32_t size;
   if (FReadEndian(&size, sizeof(size), 1) != 1) {
     return false;
@@ -87,7 +82,7 @@ bool TFile::DeSerializeSize(int32_t* pSize) {
   return true;
 }
 
-bool TFile::DeSerialize(std::string& data) {
+bool TFile::DeSerialize(std::string &data) {
   uint32_t size;
   if (!DeSerialize(&size)) {
     return false;
@@ -100,12 +95,12 @@ bool TFile::DeSerialize(std::string& data) {
   return true;
 }
 
-bool TFile::Serialize(const std::string& data) {
+bool TFile::Serialize(const std::string &data) {
   uint32_t size = data.size();
   return Serialize(&size) && Serialize(data.c_str(), size);
 }
 
-bool TFile::DeSerialize(std::vector<char>& data) {
+bool TFile::DeSerialize(std::vector<char> &data) {
   uint32_t size;
   if (!DeSerialize(&size)) {
     return false;
@@ -118,7 +113,7 @@ bool TFile::DeSerialize(std::vector<char>& data) {
   return true;
 }
 
-bool TFile::Serialize(const std::vector<char>& data) {
+bool TFile::Serialize(const std::vector<char> &data) {
   uint32_t size = data.size();
   if (!Serialize(&size)) {
     return false;
@@ -133,7 +128,7 @@ bool TFile::Skip(size_t count) {
   return true;
 }
 
-bool TFile::Open(const char* filename, FileReader reader) {
+bool TFile::Open(const char *filename, FileReader reader) {
   if (!data_is_owned_) {
     data_ = new std::vector<char>;
     data_is_owned_ = true;
@@ -147,7 +142,7 @@ bool TFile::Open(const char* filename, FileReader reader) {
     return (*reader)(filename, data_);
 }
 
-bool TFile::Open(const char* data, int size) {
+bool TFile::Open(const char *data, int size) {
   offset_ = 0;
   if (!data_is_owned_) {
     data_ = new std::vector<char>;
@@ -160,7 +155,7 @@ bool TFile::Open(const char* data, int size) {
   return true;
 }
 
-bool TFile::Open(FILE* fp, int64_t end_offset) {
+bool TFile::Open(FILE *fp, int64_t end_offset) {
   offset_ = 0;
   auto current_pos = std::ftell(fp);
   if (current_pos < 0) {
@@ -185,21 +180,23 @@ bool TFile::Open(FILE* fp, int64_t end_offset) {
   return static_cast<int>(fread(&(*data_)[0], 1, size, fp)) == size;
 }
 
-char* TFile::FGets(char* buffer, int buffer_size) {
+char *TFile::FGets(char *buffer, int buffer_size) {
   ASSERT_HOST(!is_writing_);
   int size = 0;
   while (size + 1 < buffer_size && offset_ < data_->size()) {
     buffer[size++] = (*data_)[offset_++];
-    if ((*data_)[offset_ - 1] == '\n') break;
+    if ((*data_)[offset_ - 1] == '\n')
+      break;
   }
-  if (size < buffer_size) buffer[size] = '\0';
+  if (size < buffer_size)
+    buffer[size] = '\0';
   return size > 0 ? buffer : nullptr;
 }
 
-int TFile::FReadEndian(void* buffer, size_t size, int count) {
+int TFile::FReadEndian(void *buffer, size_t size, int count) {
   int num_read = FRead(buffer, size, count);
   if (swap_ && size != 1) {
-    char* char_buffer = static_cast<char*>(buffer);
+    char *char_buffer = static_cast<char *>(buffer);
     for (int i = 0; i < num_read; ++i, char_buffer += size) {
       ReverseN(char_buffer, size);
     }
@@ -207,7 +204,7 @@ int TFile::FReadEndian(void* buffer, size_t size, int count) {
   return num_read;
 }
 
-int TFile::FRead(void* buffer, size_t size, int count) {
+int TFile::FRead(void *buffer, size_t size, int count) {
   ASSERT_HOST(!is_writing_);
   ASSERT_HOST(size > 0);
   ASSERT_HOST(count >= 0);
@@ -232,10 +229,11 @@ void TFile::Rewind() {
   offset_ = 0;
 }
 
-void TFile::OpenWrite(std::vector<char>* data) {
+void TFile::OpenWrite(std::vector<char> *data) {
   offset_ = 0;
   if (data != nullptr) {
-    if (data_is_owned_) delete data_;
+    if (data_is_owned_)
+      delete data_;
     data_ = data;
     data_is_owned_ = false;
   } else if (!data_is_owned_) {
@@ -247,7 +245,7 @@ void TFile::OpenWrite(std::vector<char>* data) {
   data_->clear();
 }
 
-bool TFile::CloseWrite(const char* filename, FileWriter writer) {
+bool TFile::CloseWrite(const char *filename, FileWriter writer) {
   ASSERT_HOST(is_writing_);
   if (writer == nullptr)
     return SaveDataToFile(*data_, filename);
@@ -255,13 +253,13 @@ bool TFile::CloseWrite(const char* filename, FileWriter writer) {
     return (*writer)(*data_, filename);
 }
 
-int TFile::FWrite(const void* buffer, size_t size, int count) {
+int TFile::FWrite(const void *buffer, size_t size, int count) {
   ASSERT_HOST(is_writing_);
   ASSERT_HOST(size > 0);
   ASSERT_HOST(count >= 0);
   ASSERT_HOST(SIZE_MAX / size > count);
   size_t total = size * count;
-  const char* buf = static_cast<const char*>(buffer);
+  const char *buf = static_cast<const char *>(buffer);
   // This isn't very efficient, but memory is so fast compared to disk
   // that it is relatively unimportant, and very simple.
   for (size_t i = 0; i < total; ++i)
@@ -269,4 +267,4 @@ int TFile::FWrite(const void* buffer, size_t size, int count) {
   return count;
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

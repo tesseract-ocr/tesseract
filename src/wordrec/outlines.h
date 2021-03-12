@@ -20,17 +20,17 @@
 #ifndef OUTLINES_H
 #define OUTLINES_H
 
-#include <cmath>      // for abs
-#include "blobs.h"    // for TPOINT
-#include "params.h"   // for IntParam
-#include "wordrec.h"  // for Wordrec
+#include <cmath>     // for abs
+#include "blobs.h"   // for TPOINT
+#include "params.h"  // for IntParam
+#include "wordrec.h" // for Wordrec
 
 /*----------------------------------------------------------------------
               C o n s t a n t s
 ----------------------------------------------------------------------*/
-#define LARGE_DISTANCE   100000  /* Used for closest dist */
-#define MIN_BLOB_SIZE    10      /* Big units */
-#define MAX_ASPECT_RATIO 2.5     /* Widest character */
+#define LARGE_DISTANCE 100000 /* Used for closest dist */
+#define MIN_BLOB_SIZE 10      /* Big units */
+#define MAX_ASPECT_RATIO 2.5  /* Widest character */
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -41,9 +41,8 @@
  * Return true if the point values are the same. The parameters must
  * be of type POINT.
  **********************************************************************/
-#define same_point(p1,p2) \
-  ((abs (p1.x - p2.x) < chop_same_distance) && \
-  (abs (p1.y - p2.y) < chop_same_distance))
+#define same_point(p1, p2) \
+  ((abs(p1.x - p2.x) < chop_same_distance) && (abs(p1.y - p2.y) < chop_same_distance))
 
 /**********************************************************************
  * dist_square
@@ -52,9 +51,7 @@
  * parameters must be of type POINT.
  **********************************************************************/
 
-#define dist_square(p1,p2) \
-  ((p2.x - p1.x) * (p2.x - p1.x) + \
-  (p2.y - p1.y) * (p2.y - p1.y))
+#define dist_square(p1, p2) ((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y))
 
 /**********************************************************************
  * closest
@@ -63,15 +60,10 @@
  * question.  All three parameters must be of type EDGEPT.
  **********************************************************************/
 
-#define closest(test_p,p1,p2)                   \
-(p1 ?                                           \
-  (p2 ?                                         \
-  ((dist_square (test_p->pos, p1->pos) <        \
-          dist_square (test_p->pos, p2->pos)) ? \
-  p1  : \
-  p2) : \
-  p1) : \
-  p2)
+#define closest(test_p, p1, p2)                                                                   \
+  (p1 ? (p2 ? ((dist_square(test_p->pos, p1->pos) < dist_square(test_p->pos, p2->pos)) ? p1 : p2) \
+            : p1)                                                                                 \
+      : p2)
 
 /**********************************************************************
  * edgept_dist
@@ -79,8 +71,7 @@
  * Return the distance (squared) between the two edge points.
  **********************************************************************/
 
-#define edgept_dist(p1,p2)  \
-(dist_square ((p1)->pos, (p2)->pos))
+#define edgept_dist(p1, p2) (dist_square((p1)->pos, (p2)->pos))
 
 /**********************************************************************
  * is_exterior_point
@@ -89,11 +80,9 @@
  * outline.
  **********************************************************************/
 
-#define is_exterior_point(edge,point)            \
-(same_point (edge->prev->pos, point->pos)  ||    \
-  same_point (edge->next->pos, point->pos)  ||   \
-  (angle_change (edge->prev, edge, edge->next) - \
-  angle_change (edge->prev, edge, point) > 20))
+#define is_exterior_point(edge, point)                                                   \
+  (same_point(edge->prev->pos, point->pos) || same_point(edge->next->pos, point->pos) || \
+   (angle_change(edge->prev, edge, edge->next) - angle_change(edge->prev, edge, point) > 20))
 
 /**********************************************************************
  * is_equal
@@ -101,8 +90,7 @@
  * Return true if the POINTs are equal.
  **********************************************************************/
 
-#define is_equal(p1,p2)  \
-(((p1).x == (p2).x) && ((p1).y == (p2).y))
+#define is_equal(p1, p2) (((p1).x == (p2).x) && ((p1).y == (p2).y))
 
 /**********************************************************************
  * is_on_line
@@ -112,9 +100,8 @@
  * parameters must be of type POINT.
  **********************************************************************/
 
-#define is_on_line(p,p0,p1)                \
-  (within_range ((p).x, (p0).x, (p1).x) && \
-  within_range ((p).y, (p0).y, (p1).y))
+#define is_on_line(p, p0, p1) \
+  (within_range((p).x, (p0).x, (p1).x) && within_range((p).y, (p0).y, (p1).y))
 
 /**********************************************************************
  * within_range
@@ -123,7 +110,6 @@
  * Return false otherwise.
  **********************************************************************/
 
-#define within_range(x,x0,x1) \
-  (((x0 <= x) && (x <= x1)) || ((x1 <= x) && (x <= x0)))
+#define within_range(x, x0, x1) (((x0 <= x) && (x <= x1)) || ((x1 <= x) && (x <= x0)))
 
 #endif

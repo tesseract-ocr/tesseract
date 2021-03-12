@@ -15,8 +15,8 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   INTFX_H
-#define   INTFX_H
+#ifndef INTFX_H
+#define INTFX_H
 
 #include "blobs.h"
 #include "intproto.h"
@@ -31,13 +31,13 @@ class DENORM;
 class TrainingSample;
 
 struct INT_FX_RESULT_STRUCT {
-  int32_t Length;                  // total length of all outlines
-  int16_t Xmean, Ymean;            // center of mass of all outlines
-  int16_t Rx, Ry;                  // radius of gyration
-  int16_t NumBL, NumCN;            // number of features extracted
-  int16_t Width;                   // Width of blob in BLN coords.
-  uint8_t YBottom;                 // Bottom of blob in BLN coords.
-  uint8_t YTop;                    // Top of blob in BLN coords.
+  int32_t Length;       // total length of all outlines
+  int16_t Xmean, Ymean; // center of mass of all outlines
+  int16_t Rx, Ry;       // radius of gyration
+  int16_t NumBL, NumCN; // number of features extracted
+  int16_t Width;        // Width of blob in BLN coords.
+  uint8_t YBottom;      // Bottom of blob in BLN coords.
+  uint8_t YTop;         // Top of blob in BLN coords.
 };
 
 // The standard feature length
@@ -59,9 +59,9 @@ FCOORD FeatureDirection(uint8_t theta);
 // TODO(rays) BlobToTrainingSample must remain a global function until
 // the FlexFx and FeatureDescription code can be removed and LearnBlob
 // made a member of Classify.
-TrainingSample* BlobToTrainingSample(
-    const TBLOB& blob, bool nonlinear_norm, INT_FX_RESULT_STRUCT* fx_info,
-    std::vector<INT_FEATURE_STRUCT>* bl_features);
+TrainingSample *BlobToTrainingSample(const TBLOB &blob, bool nonlinear_norm,
+                                     INT_FX_RESULT_STRUCT *fx_info,
+                                     std::vector<INT_FEATURE_STRUCT> *bl_features);
 
 } // namespace tesseract
 

@@ -28,8 +28,7 @@ namespace tesseract {
 
 static const char kUnknownFontName[] = "UnknownFont";
 
-static STRING_VAR(classify_font_name, kUnknownFontName,
-                  "Default font name to be used in training");
+static STRING_VAR(classify_font_name, kUnknownFontName, "Default font name to be used in training");
 
 /**----------------------------------------------------------------------------
             Public Code
@@ -40,14 +39,14 @@ static STRING_VAR(classify_font_name, kUnknownFontName,
 // /path/to/dir/[lang].[fontname].exp[num]
 // The [lang], [fontname] and [num] fields should not have '.' characters.
 // If the global parameter classify_font_name is set, its value is used instead.
-void ExtractFontName(const char* filename, std::string* fontname) {
+void ExtractFontName(const char *filename, std::string *fontname) {
   *fontname = classify_font_name;
   if (*fontname == kUnknownFontName) {
     // filename is expected to be of the form [lang].[fontname].exp[num]
     // The [lang], [fontname] and [num] fields should not have '.' characters.
     const char *basename = strrchr(filename, '/');
     const char *firstdot = strchr(basename ? basename : filename, '.');
-    const char *lastdot  = strrchr(filename, '.');
+    const char *lastdot = strrchr(filename, '.');
     if (firstdot != lastdot && firstdot != nullptr && lastdot != nullptr) {
       ++firstdot;
       *fontname = firstdot;
@@ -55,7 +54,6 @@ void ExtractFontName(const char* filename, std::string* fontname) {
     }
   }
 }
-
 
 /*---------------------------------------------------------------------------*/
 
@@ -65,10 +63,8 @@ void ExtractFontName(const char* filename, std::string* fontname) {
 // cn_denorm: Character normalization transformation to apply to the blob.
 // fx_info:   Character normalization parameters computed with cn_denorm.
 // blob_text: Ground truth text for the blob.
-void Classify::LearnBlob(const STRING& fontname, TBLOB* blob,
-                         const DENORM& cn_denorm,
-                         const INT_FX_RESULT_STRUCT& fx_info,
-                         const char* blob_text) {
+void Classify::LearnBlob(const STRING &fontname, TBLOB *blob, const DENORM &cn_denorm,
+                         const INT_FX_RESULT_STRUCT &fx_info, const char *blob_text) {
   CHAR_DESC CharDesc = NewCharDescription(feature_defs_);
   CharDesc->FeatureSets[0] = ExtractMicros(blob, cn_denorm);
   CharDesc->FeatureSets[1] = ExtractCharNormFeatures(fx_info);
@@ -89,18 +85,17 @@ void Classify::LearnBlob(const STRING& fontname, TBLOB* blob,
     tprintf("Blob learned was invalid!\n");
   }
   FreeCharDescription(CharDesc);
-}                                // LearnBlob
+} // LearnBlob
 
 // Writes stored training data to a .tr file based on the given filename.
 // Returns false on error.
-bool Classify::WriteTRFile(const char* filename) {
+bool Classify::WriteTRFile(const char *filename) {
   bool result = false;
   std::string tr_filename = filename;
   tr_filename += ".tr";
-  FILE* fp = fopen(tr_filename.c_str(), "wb");
+  FILE *fp = fopen(tr_filename.c_str(), "wb");
   if (fp) {
-    result =
-      tesseract::Serialize(fp, &tr_file_data_[0], tr_file_data_.length());
+    result = tesseract::Serialize(fp, &tr_file_data_[0], tr_file_data_.length());
     fclose(fp);
   }
   tr_file_data_.resize(0);

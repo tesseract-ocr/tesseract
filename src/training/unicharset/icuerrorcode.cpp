@@ -25,4 +25,4 @@ IcuErrorCode::~IcuErrorCode() {
   }
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

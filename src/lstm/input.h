@@ -25,11 +25,11 @@ namespace tesseract {
 class ScrollView;
 
 class Input : public Network {
- public:
+public:
   TESS_API
-  Input(const std::string& name, int ni, int no);
+  Input(const std::string &name, int ni, int no);
   TESS_API
-  Input(const std::string& name, const StaticShape& shape);
+  Input(const std::string &name, const StaticShape &shape);
   ~Input() override = default;
 
   STRING spec() const override {
@@ -42,17 +42,19 @@ class Input : public Network {
   }
 
   // Returns the required shape input to the network.
-  StaticShape InputShape() const override { return shape_; }
+  StaticShape InputShape() const override {
+    return shape_;
+  }
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  StaticShape OutputShape(const StaticShape& input_shape) const override {
+  StaticShape OutputShape(const StaticShape &input_shape) const override {
     return shape_;
   }
   // Writes to the given file. Returns false in case of error.
   // Should be overridden by subclasses, but called by their Serialize.
-  bool Serialize(TFile* fp) const override;
+  bool Serialize(TFile *fp) const override;
   // Reads from the given file. Returns false in case of error.
-  bool DeSerialize(TFile* fp) override;
+  bool DeSerialize(TFile *fp) override;
 
   // Returns an integer reduction factor that the network applies to the
   // time sequence. Assumes that any 2-d is already eliminated. Used for
@@ -68,32 +70,29 @@ class Input : public Network {
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  void Forward(bool debug, const NetworkIO& input,
-               const TransposedArray* input_transpose,
-               NetworkScratch* scratch, NetworkIO* output) override;
+  void Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+               NetworkScratch *scratch, NetworkIO *output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                NetworkScratch* scratch,
-                NetworkIO* back_deltas) override;
+  bool Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+                NetworkIO *back_deltas) override;
   // Creates and returns a Pix of appropriate size for the network from the
   // image_data. If non-null, *image_scale returns the image scale factor used.
   // Returns nullptr on error.
   /* static */
-  static Pix* PrepareLSTMInputs(const ImageData& image_data,
-                                const Network* network, int min_width,
-                                TRand* randomizer, float* image_scale);
+  static Pix *PrepareLSTMInputs(const ImageData &image_data, const Network *network, int min_width,
+                                TRand *randomizer, float *image_scale);
   // Converts the given pix to a NetworkIO of height and depth appropriate to
   // the given StaticShape:
   // If depth == 3, convert to 24 bit color, otherwise normalized grey.
   // Scale to target height, if the shape's height is > 1, or its depth if the
   // height == 1. If height == 0 then no scaling.
   // NOTE: It isn't safe for multiple threads to call this on the same pix.
-  static void PreparePixInput(const StaticShape& shape, const Pix* pix,
-                              TRand* randomizer, NetworkIO* input);
+  static void PreparePixInput(const StaticShape &shape, const Pix *pix, TRand *randomizer,
+                              NetworkIO *input);
 
- private:
+private:
   void DebugWeights() override {
     tprintf("Must override Network::DebugWeights for type %d\n", type_);
   }
@@ -104,6 +103,6 @@ class Input : public Network {
   int cached_x_scale_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_LSTM_INPUT_H_
+#endif // TESSERACT_LSTM_INPUT_H_

@@ -18,17 +18,17 @@
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#  include "config_auto.h"
 #endif
 
-#include "mastertrainer.h"
+#include <allheaders.h>
 #include <cmath>
 #include <ctime>
-#include <allheaders.h>
 #include "boxread.h"
 #include "classify.h"
 #include "errorcounter.h"
 #include "featdefs.h"
+#include "mastertrainer.h"
 #include "sampleiterator.h"
 #include "shapeclassifier.h"
 #include "shapetable.h"
@@ -47,20 +47,21 @@ const int kMaxUnicharsPerCluster = 2000;
 // Mean font distance below which to merge fonts and unichars.
 const float kFontMergeDistance = 0.025;
 
-MasterTrainer::MasterTrainer(NormalizationMode norm_mode,
-                             bool shape_analysis,
-                             bool replicate_samples,
-                             int debug_level)
-  : norm_mode_(norm_mode), samples_(fontinfo_table_),
-    junk_samples_(fontinfo_table_), verify_samples_(fontinfo_table_),
-    charsetsize_(0),
-    enable_shape_analysis_(shape_analysis),
-    enable_replication_(replicate_samples),
-    fragments_(nullptr), prev_unichar_id_(-1), debug_level_(debug_level) {
-}
+MasterTrainer::MasterTrainer(NormalizationMode norm_mode, bool shape_analysis,
+                             bool replicate_samples, int debug_level)
+    : norm_mode_(norm_mode)
+    , samples_(fontinfo_table_)
+    , junk_samples_(fontinfo_table_)
+    , verify_samples_(fontinfo_table_)
+    , charsetsize_(0)
+    , enable_shape_analysis_(shape_analysis)
+    , enable_replication_(replicate_samples)
+    , fragments_(nullptr)
+    , prev_unichar_id_(-1)
+    , debug_level_(debug_level) {}
 
 MasterTrainer::~MasterTrainer() {
-  delete [] fragments_;
+  delete[] fragments_;
   for (int p = 0; p < page_images_.size(); ++p)
     pixDestroy(&page_images_[p]);
 }
@@ -68,27 +69,38 @@ MasterTrainer::~MasterTrainer() {
 // WARNING! Serialize/DeSerialize are only partial, providing
 // enough data to get the samples back and display them.
 // Writes to the given file. Returns false in case of error.
-bool MasterTrainer::Serialize(FILE* fp) const {
+bool MasterTrainer::Serialize(FILE *fp) const {
   uint32_t value = norm_mode_;
-  if (!tesseract::Serialize(fp, &value)) return false;
-  if (!unicharset_.save_to_file(fp)) return false;
-  if (!feature_space_.Serialize(fp)) return false;
-  if (!samples_.Serialize(fp)) return false;
-  if (!junk_samples_.Serialize(fp)) return false;
-  if (!verify_samples_.Serialize(fp)) return false;
-  if (!master_shapes_.Serialize(fp)) return false;
-  if (!flat_shapes_.Serialize(fp)) return false;
-  if (!fontinfo_table_.Serialize(fp)) return false;
-  if (!xheights_.Serialize(fp)) return false;
+  if (!tesseract::Serialize(fp, &value))
+    return false;
+  if (!unicharset_.save_to_file(fp))
+    return false;
+  if (!feature_space_.Serialize(fp))
+    return false;
+  if (!samples_.Serialize(fp))
+    return false;
+  if (!junk_samples_.Serialize(fp))
+    return false;
+  if (!verify_samples_.Serialize(fp))
+    return false;
+  if (!master_shapes_.Serialize(fp))
+    return false;
+  if (!flat_shapes_.Serialize(fp))
+    return false;
+  if (!fontinfo_table_.Serialize(fp))
+    return false;
+  if (!xheights_.Serialize(fp))
+    return false;
   return true;
 }
 
 // Load an initial unicharset, or set one up if the file cannot be read.
-void MasterTrainer::LoadUnicharset(const char* filename) {
+void MasterTrainer::LoadUnicharset(const char *filename) {
   if (!unicharset_.load_from_file(filename)) {
-    tprintf("Failed to load unicharset from file %s\n"
-            "Building unicharset for training from scratch...\n",
-            filename);
+    tprintf(
+        "Failed to load unicharset from file %s\n"
+        "Building unicharset for training from scratch...\n",
+        filename);
     unicharset_.clear();
     UNICHARSET initialized;
     // Add special characters, as they were removed by the clear, but the
@@ -96,7 +108,7 @@ void MasterTrainer::LoadUnicharset(const char* filename) {
     unicharset_.AppendOtherUnicharset(initialized);
   }
   charsetsize_ = unicharset_.size();
-  delete [] fragments_;
+  delete[] fragments_;
   fragments_ = new int[charsetsize_];
   memset(fragments_, 0, sizeof(*fragments_) * charsetsize_);
   samples_.LoadUnicharset(filename);
@@ -108,17 +120,16 @@ void MasterTrainer::LoadUnicharset(const char* filename) {
 // adding them to the trainer with the font_id from the content of the file.
 // See mftraining.cpp for a description of the file format.
 // If verification, then these are verification samples, not training.
-void MasterTrainer::ReadTrainingSamples(const char* page_name,
-                                        const FEATURE_DEFS_STRUCT& feature_defs,
+void MasterTrainer::ReadTrainingSamples(const char *page_name,
+                                        const FEATURE_DEFS_STRUCT &feature_defs,
                                         bool verification) {
   char buffer[2048];
   const int int_feature_type = ShortNameToFeatureType(feature_defs, kIntFeatureType);
-  const int micro_feature_type = ShortNameToFeatureType(feature_defs,
-                                                  kMicroFeatureType);
+  const int micro_feature_type = ShortNameToFeatureType(feature_defs, kMicroFeatureType);
   const int cn_feature_type = ShortNameToFeatureType(feature_defs, kCNFeatureType);
   const int geo_feature_type = ShortNameToFeatureType(feature_defs, kGeoFeatureType);
 
-  FILE* fp = fopen(page_name, "rb");
+  FILE *fp = fopen(page_name, "rb");
   if (fp == nullptr) {
     tprintf("Failed to open tr file: %s\n", page_name);
     return;
@@ -128,14 +139,15 @@ void MasterTrainer::ReadTrainingSamples(const char* page_name,
     if (buffer[0] == '\n')
       continue;
 
-    char* space = strchr(buffer, ' ');
+    char *space = strchr(buffer, ' ');
     if (space == nullptr) {
       tprintf("Bad format in tr file, reading fontname, unichar\n");
       continue;
     }
     *space++ = '\0';
     int font_id = GetFontInfoId(buffer);
-    if (font_id < 0) font_id = 0;
+    if (font_id < 0)
+      font_id = 0;
     int page_number;
     STRING unichar;
     TBOX bounding_box;
@@ -144,12 +156,12 @@ void MasterTrainer::ReadTrainingSamples(const char* page_name,
       continue;
     }
     CHAR_DESC char_desc = ReadCharDescription(feature_defs, fp);
-    auto* sample = new TrainingSample;
+    auto *sample = new TrainingSample;
     sample->set_font_id(font_id);
     sample->set_page_num(page_number + page_images_.size());
     sample->set_bounding_box(bounding_box);
-    sample->ExtractCharDesc(int_feature_type, micro_feature_type,
-                            cn_feature_type, geo_feature_type, char_desc);
+    sample->ExtractCharDesc(int_feature_type, micro_feature_type, cn_feature_type, geo_feature_type,
+                            char_desc);
     AddSample(verification, unichar.c_str(), sample);
     FreeCharDescription(char_desc);
   }
@@ -159,8 +171,7 @@ void MasterTrainer::ReadTrainingSamples(const char* page_name,
 
 // Adds the given single sample to the trainer, setting the classid
 // appropriately from the given unichar_str.
-void MasterTrainer::AddSample(bool verification, const char* unichar,
-                              TrainingSample* sample) {
+void MasterTrainer::AddSample(bool verification, const char *unichar, TrainingSample *sample) {
   if (verification) {
     verify_samples_.AddSample(unichar, sample);
     prev_unichar_id_ = -1;
@@ -173,7 +184,7 @@ void MasterTrainer::AddSample(bool verification, const char* unichar,
   } else {
     const int junk_id = junk_samples_.AddSample(unichar, sample);
     if (prev_unichar_id_ >= 0) {
-      CHAR_FRAGMENT* frag = CHAR_FRAGMENT::parse_from_string(unichar);
+      CHAR_FRAGMENT *frag = CHAR_FRAGMENT::parse_from_string(unichar);
       if (frag != nullptr && frag->is_natural()) {
         if (fragments_[prev_unichar_id_] == 0)
           fragments_[prev_unichar_id_] = junk_id;
@@ -189,15 +200,17 @@ void MasterTrainer::AddSample(bool verification, const char* unichar,
 // Loads all pages from the given tif filename and append to page_images_.
 // Must be called after ReadTrainingSamples, as the current number of images
 // is used as an offset for page numbers in the samples.
-void MasterTrainer::LoadPageImages(const char* filename) {
+void MasterTrainer::LoadPageImages(const char *filename) {
   size_t offset = 0;
   int page;
-  Pix* pix;
+  Pix *pix;
   for (page = 0;; page++) {
     pix = pixReadFromMultipageTiff(filename, &offset);
-    if (!pix) break;
+    if (!pix)
+      break;
     page_images_.push_back(pix);
-    if (!offset) break;
+    if (!offset)
+      break;
   }
   tprintf("Loaded %d page images from %s\n", page, filename);
 }
@@ -268,14 +281,13 @@ void MasterTrainer::SetupMasterShapes() {
     else
       char_shapes.AppendMasterShapes(shapes, nullptr);
   }
-  ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster,
-                kFontMergeDistance, &char_shapes_begin_fragment);
+  ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster, kFontMergeDistance,
+                &char_shapes_begin_fragment);
   char_shapes.AppendMasterShapes(char_shapes_begin_fragment, nullptr);
-  ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster,
-                kFontMergeDistance, &char_shapes_end_fragment);
+  ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster, kFontMergeDistance,
+                &char_shapes_end_fragment);
   char_shapes.AppendMasterShapes(char_shapes_end_fragment, nullptr);
-  ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster,
-                kFontMergeDistance, &char_shapes);
+  ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster, kFontMergeDistance, &char_shapes);
   master_shapes_.AppendMasterShapes(char_shapes, nullptr);
   tprintf("Master shape_table:%s\n", master_shapes_.SummaryStr().c_str());
 }
@@ -293,14 +305,14 @@ void MasterTrainer::SetupMasterShapes() {
 // it as junk to the error counter.
 void MasterTrainer::IncludeJunk() {
   // Get ids of fragments in junk_samples_ that replace the dead chars.
-  const UNICHARSET& junk_set = junk_samples_.unicharset();
-  const UNICHARSET& sample_set = samples_.unicharset();
+  const UNICHARSET &junk_set = junk_samples_.unicharset();
+  const UNICHARSET &sample_set = samples_.unicharset();
   int num_junks = junk_samples_.num_samples();
   tprintf("Moving %d junk samples to master sample set.\n", num_junks);
   for (int s = 0; s < num_junks; ++s) {
-    TrainingSample* sample = junk_samples_.mutable_sample(s);
+    TrainingSample *sample = junk_samples_.mutable_sample(s);
     int junk_id = sample->class_id();
-    const char* junk_utf8 = junk_set.id_to_unichar(junk_id);
+    const char *junk_utf8 = junk_set.id_to_unichar(junk_id);
     int sample_id = sample_set.unichar_to_id(junk_utf8);
     if (sample_id == INVALID_UNICHAR_ID)
       sample_id = 0;
@@ -329,8 +341,8 @@ void MasterTrainer::ReplicateAndRandomizeSamplesIfRequired() {
 
 // Loads the basic font properties file into fontinfo_table_.
 // Returns false on failure.
-bool MasterTrainer::LoadFontInfo(const char* filename) {
-  FILE* fp = fopen(filename, "rb");
+bool MasterTrainer::LoadFontInfo(const char *filename) {
+  FILE *fp = fopen(filename, "rb");
   if (fp == nullptr) {
     fprintf(stderr, "Failed to load font_properties from %s\n", filename);
     return false;
@@ -338,21 +350,17 @@ bool MasterTrainer::LoadFontInfo(const char* filename) {
   int italic, bold, fixed, serif, fraktur;
   while (!feof(fp)) {
     FontInfo fontinfo;
-    char* font_name = new char[1024];
+    char *font_name = new char[1024];
     fontinfo.name = font_name;
     fontinfo.properties = 0;
     fontinfo.universal_id = 0;
-    if (tfscanf(fp, "%1024s %i %i %i %i %i\n", font_name, &italic, &bold,
-                &fixed, &serif, &fraktur) != 6) {
+    if (tfscanf(fp, "%1024s %i %i %i %i %i\n", font_name, &italic, &bold, &fixed, &serif,
+                &fraktur) != 6) {
       delete[] font_name;
       continue;
     }
     fontinfo.properties =
-        (italic << 0) +
-        (bold << 1) +
-        (fixed << 2) +
-        (serif << 3) +
-        (fraktur << 4);
+        (italic << 0) + (bold << 1) + (fixed << 2) + (serif << 3) + (fraktur << 4);
     if (!fontinfo_table_.contains(fontinfo)) {
       fontinfo_table_.push_back(fontinfo);
     } else {
@@ -365,10 +373,11 @@ bool MasterTrainer::LoadFontInfo(const char* filename) {
 
 // Loads the xheight font properties file into xheights_.
 // Returns false on failure.
-bool MasterTrainer::LoadXHeights(const char* filename) {
+bool MasterTrainer::LoadXHeights(const char *filename) {
   tprintf("fontinfo table is of size %d\n", fontinfo_table_.size());
   xheights_.resize(fontinfo_table_.size(), -1);
-  if (filename == nullptr) return true;
+  if (filename == nullptr)
+    return true;
   FILE *f = fopen(filename, "rb");
   if (f == nullptr) {
     fprintf(stderr, "Failed to load font xheights from %s\n", filename);
@@ -376,7 +385,7 @@ bool MasterTrainer::LoadXHeights(const char* filename) {
   }
   tprintf("Reading x-heights from %s ...\n", filename);
   FontInfo fontinfo;
-  fontinfo.properties = 0;  // Not used to lookup in the table.
+  fontinfo.properties = 0; // Not used to lookup in the table.
   fontinfo.universal_id = 0;
   char buffer[1024];
   int xht;
@@ -387,7 +396,8 @@ bool MasterTrainer::LoadXHeights(const char* filename) {
       continue;
     buffer[1023] = '\0';
     fontinfo.name = buffer;
-    if (!fontinfo_table_.contains(fontinfo)) continue;
+    if (!fontinfo_table_.contains(fontinfo))
+      continue;
     int fontinfo_id = fontinfo_table_.get_index(fontinfo);
     xheights_[fontinfo_id] = xht;
     total_xheight += xht;
@@ -405,13 +415,13 @@ bool MasterTrainer::LoadXHeights(const char* filename) {
   }
   fclose(f);
   return true;
-}  // LoadXHeights
+} // LoadXHeights
 
 // Reads spacing stats from filename and adds them to fontinfo_table.
 bool MasterTrainer::AddSpacingInfo(const char *filename) {
-  FILE* fontinfo_file = fopen(filename, "rb");
+  FILE *fontinfo_file = fopen(filename, "rb");
   if (fontinfo_file == nullptr)
-    return true;  // We silently ignore missing files!
+    return true; // We silently ignore missing files!
   // Find the fontinfo_id.
   int fontinfo_id = GetBestMatchingFontInfoId(filename);
   if (fontinfo_id < 0) {
@@ -432,8 +442,7 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
   fi->init_spacing(unicharset_.size());
   FontSpacingInfo *spacing = nullptr;
   for (int l = 0; l < num_unichars; ++l) {
-    if (tfscanf(fontinfo_file, "%s %d %d %d",
-                uch, &x_gap_before, &x_gap_after, &num_kerned) != 4) {
+    if (tfscanf(fontinfo_file, "%s %d %d %d", uch, &x_gap_before, &x_gap_after, &num_kerned) != 4) {
       tprintf("Bad format of font spacing file %s\n", filename);
       fclose(fontinfo_file);
       return false;
@@ -451,12 +460,13 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
         delete spacing;
         return false;
       }
-      if (!valid || !unicharset_.contains_unichar(kerned_uch)) continue;
-      spacing->kerned_unichar_ids.push_back(
-          unicharset_.unichar_to_id(kerned_uch));
+      if (!valid || !unicharset_.contains_unichar(kerned_uch))
+        continue;
+      spacing->kerned_unichar_ids.push_back(unicharset_.unichar_to_id(kerned_uch));
       spacing->kerned_x_gaps.push_back(static_cast<int16_t>(x_gap * scale));
     }
-    if (valid) fi->add_spacing(unicharset_.unichar_to_id(uch), spacing);
+    if (valid)
+      fi->add_spacing(unicharset_.unichar_to_id(uch), spacing);
   }
   fclose(fontinfo_file);
   return true;
@@ -464,18 +474,18 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
 
 // Returns the font id corresponding to the given font name.
 // Returns -1 if the font cannot be found.
-int MasterTrainer::GetFontInfoId(const char* font_name) {
+int MasterTrainer::GetFontInfoId(const char *font_name) {
   FontInfo fontinfo;
   // We are only borrowing the string, so it is OK to const cast it.
-  fontinfo.name = const_cast<char*>(font_name);
-  fontinfo.properties = 0;  // Not used to lookup in the table
+  fontinfo.name = const_cast<char *>(font_name);
+  fontinfo.properties = 0; // Not used to lookup in the table
   fontinfo.universal_id = 0;
   return fontinfo_table_.get_index(fontinfo);
 }
 // Returns the font_id of the closest matching font name to the given
 // filename. It is assumed that a substring of the filename will match
 // one of the fonts. If more than one is matched, the longest is returned.
-int MasterTrainer::GetBestMatchingFontInfoId(const char* filename) {
+int MasterTrainer::GetBestMatchingFontInfoId(const char *filename) {
   int fontinfo_id = -1;
   int best_len = 0;
   for (int f = 0; f < fontinfo_table_.size(); ++f) {
@@ -492,7 +502,7 @@ int MasterTrainer::GetBestMatchingFontInfoId(const char* filename) {
 }
 
 // Sets up a flat shapetable with one shape per class/font combination.
-void MasterTrainer::SetupFlatShapeTable(ShapeTable* shape_table) {
+void MasterTrainer::SetupFlatShapeTable(ShapeTable *shape_table) {
   // To exactly mimic the results of the previous implementation, the shapes
   // must be clustered in order the fonts arrived, and reverse order of the
   // characters within each font.
@@ -523,17 +533,13 @@ void MasterTrainer::SetupFlatShapeTable(ShapeTable* shape_table) {
 
 // Sets up a Clusterer for mftraining on a single shape_id.
 // Call FreeClusterer on the return value after use.
-CLUSTERER* MasterTrainer::SetupForClustering(
-    const ShapeTable& shape_table,
-    const FEATURE_DEFS_STRUCT& feature_defs,
-    int shape_id,
-    int* num_samples) {
-
+CLUSTERER *MasterTrainer::SetupForClustering(const ShapeTable &shape_table,
+                                             const FEATURE_DEFS_STRUCT &feature_defs, int shape_id,
+                                             int *num_samples) {
   int desc_index = ShortNameToFeatureType(feature_defs, kMicroFeatureType);
   int num_params = feature_defs.FeatureDesc[desc_index]->NumParams;
   ASSERT_HOST(num_params == MFCount);
-  CLUSTERER* clusterer = MakeClusterer(
-      num_params, feature_defs.FeatureDesc[desc_index]->ParamDesc);
+  CLUSTERER *clusterer = MakeClusterer(num_params, feature_defs.FeatureDesc[desc_index]->ParamDesc);
 
   // We want to iterate over the samples of just the one shape.
   IndexMapBiDi shape_map;
@@ -541,7 +547,7 @@ CLUSTERER* MasterTrainer::SetupForClustering(
   shape_map.SetMap(shape_id, true);
   shape_map.Setup();
   // Reverse the order of the samples to match the previous behavior.
-  GenericVector<const TrainingSample*> sample_ptrs;
+  GenericVector<const TrainingSample *> sample_ptrs;
   SampleIterator it;
   it.Init(&shape_map, &shape_table, false, &samples_);
   for (it.Begin(); !it.AtEnd(); it.Next()) {
@@ -549,7 +555,7 @@ CLUSTERER* MasterTrainer::SetupForClustering(
   }
   int sample_id = 0;
   for (int i = sample_ptrs.size() - 1; i >= 0; --i) {
-    const TrainingSample* sample = sample_ptrs[i];
+    const TrainingSample *sample = sample_ptrs[i];
     uint32_t num_features = sample->num_micro_features();
     for (uint32_t f = 0; f < num_features; ++f)
       MakeSample(clusterer, sample->micro_features()[f], sample_id);
@@ -563,18 +569,16 @@ CLUSTERER* MasterTrainer::SetupForClustering(
 // to the given inttemp_file, and the corresponding pffmtable.
 // The unicharset is the original encoding of graphemes, and shape_set should
 // match the size of the shape_table, and may possibly be totally fake.
-void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
-                                             const UNICHARSET& shape_set,
-                                             const ShapeTable& shape_table,
-                                             CLASS_STRUCT* float_classes,
-                                             const char* inttemp_file,
-                                             const char* pffmtable_file) {
+void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
+                                             const UNICHARSET &shape_set,
+                                             const ShapeTable &shape_table,
+                                             CLASS_STRUCT *float_classes, const char *inttemp_file,
+                                             const char *pffmtable_file) {
   auto *classify = new tesseract::Classify();
   // Move the fontinfo table to classify.
   fontinfo_table_.MoveTo(&classify->get_fontinfo_table());
-  INT_TEMPLATES int_templates = classify->CreateIntTemplates(float_classes,
-                                                             shape_set);
-  FILE* fp = fopen(inttemp_file, "wb");
+  INT_TEMPLATES int_templates = classify->CreateIntTemplates(float_classes, shape_set);
+  FILE *fp = fopen(inttemp_file, "wb");
   if (fp == nullptr) {
     tprintf("Error, failed to open file \"%s\"\n", inttemp_file);
   } else {
@@ -603,7 +607,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
       if (length > max_length)
         max_length = Class->ConfigLengths[config_id];
       int shape_id = float_classes[i].font_set.get(config_id);
-      const Shape& shape = shape_table.GetShape(shape_id);
+      const Shape &shape = shape_table.GetShape(shape_id);
       for (int c = 0; c < shape.size(); ++c) {
         int unichar_id = shape[c].unichar_id;
         if (length > unichar_cutoffs[unichar_id])
@@ -632,8 +636,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
 
 // Generate debug output relating to the canonical distance between the
 // two given UTF8 grapheme strings.
-void MasterTrainer::DebugCanonical(const char* unichar_str1,
-                                   const char* unichar_str2) {
+void MasterTrainer::DebugCanonical(const char *unichar_str1, const char *unichar_str2) {
   int class_id1 = unicharset_.unichar_to_id(unichar_str1);
   int class_id2 = unicharset_.unichar_to_id(unichar_str2);
   if (class_id2 == INVALID_UNICHAR_ID)
@@ -642,11 +645,11 @@ void MasterTrainer::DebugCanonical(const char* unichar_str1,
     tprintf("No unicharset entry found for %s\n", unichar_str1);
     return;
   } else {
-    tprintf("Font ambiguities for unichar %d = %s and %d = %s\n",
-            class_id1, unichar_str1, class_id2, unichar_str2);
+    tprintf("Font ambiguities for unichar %d = %s and %d = %s\n", class_id1, unichar_str1,
+            class_id2, unichar_str2);
   }
   int num_fonts = samples_.NumFonts();
-  const IntFeatureMap& feature_map = feature_map_;
+  const IntFeatureMap &feature_map = feature_map_;
   // Iterate the fonts to get the similarity with other fonst of the same
   // class.
   tprintf("      ");
@@ -664,8 +667,7 @@ void MasterTrainer::DebugCanonical(const char* unichar_str1,
     for (int f2 = 0; f2 < num_fonts; ++f2) {
       if (samples_.NumClassSamples(f2, class_id2, false) == 0)
         continue;
-      float dist = samples_.ClusterDistance(f1, class_id1, f2, class_id2,
-                                            feature_map);
+      float dist = samples_.ClusterDistance(f1, class_id1, f2, class_id2, feature_map);
       tprintf(" %5.3f", dist);
     }
     tprintf("\n");
@@ -675,8 +677,7 @@ void MasterTrainer::DebugCanonical(const char* unichar_str1,
   for (int f = 0; f < num_fonts; ++f) {
     if (samples_.NumClassSamples(f, class_id1, true) > 0)
       shapes.AddShape(class_id1, f);
-    if (class_id1 != class_id2 &&
-        samples_.NumClassSamples(f, class_id2, true) > 0)
+    if (class_id1 != class_id2 && samples_.NumClassSamples(f, class_id2, true) > 0)
       shapes.AddShape(class_id2, f);
   }
 }
@@ -692,38 +693,34 @@ void MasterTrainer::DebugCanonical(const char* unichar_str1,
 // matches in the cloud features.
 // Until the features window is destroyed, each click in the features window
 // will display the samples that have that feature in a separate window.
-void MasterTrainer::DisplaySamples(const char* unichar_str1, int cloud_font,
-                                   const char* unichar_str2,
-                                   int canonical_font) {
-  const IntFeatureMap& feature_map = feature_map_;
-  const IntFeatureSpace& feature_space = feature_map.feature_space();
-  ScrollView* f_window = CreateFeatureSpaceWindow("Features", 100, 500);
-  ClearFeatureSpaceWindow(norm_mode_ == NM_BASELINE ? baseline : character,
-                          f_window);
+void MasterTrainer::DisplaySamples(const char *unichar_str1, int cloud_font,
+                                   const char *unichar_str2, int canonical_font) {
+  const IntFeatureMap &feature_map = feature_map_;
+  const IntFeatureSpace &feature_space = feature_map.feature_space();
+  ScrollView *f_window = CreateFeatureSpaceWindow("Features", 100, 500);
+  ClearFeatureSpaceWindow(norm_mode_ == NM_BASELINE ? baseline : character, f_window);
   int class_id2 = samples_.unicharset().unichar_to_id(unichar_str2);
   if (class_id2 != INVALID_UNICHAR_ID && canonical_font >= 0) {
-    const TrainingSample* sample = samples_.GetCanonicalSample(canonical_font,
-                                                               class_id2);
+    const TrainingSample *sample = samples_.GetCanonicalSample(canonical_font, class_id2);
     for (uint32_t f = 0; f < sample->num_features(); ++f) {
       RenderIntFeature(f_window, &sample->features()[f], ScrollView::RED);
     }
   }
   int class_id1 = samples_.unicharset().unichar_to_id(unichar_str1);
   if (class_id1 != INVALID_UNICHAR_ID && cloud_font >= 0) {
-    const BitVector& cloud = samples_.GetCloudFeatures(cloud_font, class_id1);
+    const BitVector &cloud = samples_.GetCloudFeatures(cloud_font, class_id1);
     for (int f = 0; f < cloud.size(); ++f) {
       if (cloud[f]) {
-        INT_FEATURE_STRUCT feature =
-            feature_map.InverseIndexFeature(f);
+        INT_FEATURE_STRUCT feature = feature_map.InverseIndexFeature(f);
         RenderIntFeature(f_window, &feature, ScrollView::GREEN);
       }
     }
   }
   f_window->Update();
-  ScrollView* s_window = CreateFeatureSpaceWindow("Samples", 100, 500);
+  ScrollView *s_window = CreateFeatureSpaceWindow("Samples", 100, 500);
   SVEventType ev_type;
   do {
-    SVEvent* ev;
+    SVEvent *ev;
     // Wait until a click or popup event.
     ev = f_window->AwaitEvent(SVET_ANY);
     ev_type = ev->type;
@@ -734,8 +731,7 @@ void MasterTrainer::DisplaySamples(const char* unichar_str1, int cloud_font,
         Shape shape;
         shape.AddToShape(class_id1, cloud_font);
         s_window->Clear();
-        samples_.DisplaySamplesWithFeature(feature_index, shape,
-                                           feature_space, ScrollView::GREEN,
+        samples_.DisplaySamplesWithFeature(feature_index, shape, feature_space, ScrollView::GREEN,
                                            s_window);
         s_window->Update();
       }
@@ -745,25 +741,22 @@ void MasterTrainer::DisplaySamples(const char* unichar_str1, int cloud_font,
 }
 #endif // !GRAPHICS_DISABLED
 
-void MasterTrainer::TestClassifierVOld(bool replicate_samples,
-                                       ShapeClassifier* test_classifier,
-                                       ShapeClassifier* old_classifier) {
+void MasterTrainer::TestClassifierVOld(bool replicate_samples, ShapeClassifier *test_classifier,
+                                       ShapeClassifier *old_classifier) {
   SampleIterator sample_it;
   sample_it.Init(nullptr, nullptr, replicate_samples, &samples_);
-  ErrorCounter::DebugNewErrors(test_classifier, old_classifier,
-                               CT_UNICHAR_TOPN_ERR, fontinfo_table_,
-                               page_images_, &sample_it);
+  ErrorCounter::DebugNewErrors(test_classifier, old_classifier, CT_UNICHAR_TOPN_ERR,
+                               fontinfo_table_, page_images_, &sample_it);
 }
 
 // Tests the given test_classifier on the internal samples.
 // See TestClassifier for details.
-void MasterTrainer::TestClassifierOnSamples(CountTypes error_mode,
-                                            int report_level,
+void MasterTrainer::TestClassifierOnSamples(CountTypes error_mode, int report_level,
                                             bool replicate_samples,
-                                            ShapeClassifier* test_classifier,
-                                            STRING* report_string) {
-  TestClassifier(error_mode, report_level, replicate_samples, &samples_,
-                 test_classifier, report_string);
+                                            ShapeClassifier *test_classifier,
+                                            STRING *report_string) {
+  TestClassifier(error_mode, report_level, replicate_samples, &samples_, test_classifier,
+                 report_string);
 }
 
 // Tests the given test_classifier on the given samples.
@@ -779,12 +772,9 @@ void MasterTrainer::TestClassifierOnSamples(CountTypes error_mode,
 // sample including replicated and systematically perturbed samples.
 // If report_string is non-nullptr, a summary of the results for each font
 // is appended to the report_string.
-double MasterTrainer::TestClassifier(CountTypes error_mode,
-                                     int report_level,
-                                     bool replicate_samples,
-                                     TrainingSampleSet* samples,
-                                     ShapeClassifier* test_classifier,
-                                     STRING* report_string) {
+double MasterTrainer::TestClassifier(CountTypes error_mode, int report_level,
+                                     bool replicate_samples, TrainingSampleSet *samples,
+                                     ShapeClassifier *test_classifier, STRING *report_string) {
   SampleIterator sample_it;
   sample_it.Init(nullptr, nullptr, replicate_samples, samples);
   if (report_level > 0) {
@@ -797,19 +787,17 @@ double MasterTrainer::TestClassifier(CountTypes error_mode,
     tprintf("Testing %sREPLICATED:\n", replicate_samples ? "" : "NON-");
   }
   double unichar_error = 0.0;
-  ErrorCounter::ComputeErrorRate(test_classifier, report_level,
-                                 error_mode, fontinfo_table_,
-                                 page_images_, &sample_it, &unichar_error,
-                                 nullptr, report_string);
+  ErrorCounter::ComputeErrorRate(test_classifier, report_level, error_mode, fontinfo_table_,
+                                 page_images_, &sample_it, &unichar_error, nullptr, report_string);
   return unichar_error;
 }
 
 // Returns the average (in some sense) distance between the two given
 // shapes, which may contain multiple fonts and/or unichars.
-float MasterTrainer::ShapeDistance(const ShapeTable& shapes, int s1, int s2) {
-  const IntFeatureMap& feature_map = feature_map_;
-  const Shape& shape1 = shapes.GetShape(s1);
-  const Shape& shape2 = shapes.GetShape(s2);
+float MasterTrainer::ShapeDistance(const ShapeTable &shapes, int s1, int s2) {
+  const IntFeatureMap &feature_map = feature_map_;
+  const Shape &shape1 = shapes.GetShape(s1);
+  const Shape &shape2 = shapes.GetShape(s2);
   int num_chars1 = shape1.size();
   int num_chars2 = shape2.size();
   float dist_sum = 0.0f;
@@ -819,16 +807,14 @@ float MasterTrainer::ShapeDistance(const ShapeTable& shapes, int s1, int s2) {
     // distances between characters of matching font where possible.
     for (int c1 = 0; c1 < num_chars1; ++c1) {
       for (int c2 = 0; c2 < num_chars2; ++c2) {
-        dist_sum += samples_.UnicharDistance(shape1[c1], shape2[c2],
-                                             true, feature_map);
+        dist_sum += samples_.UnicharDistance(shape1[c1], shape2[c2], true, feature_map);
         ++dist_count;
       }
     }
   } else {
     // In the single unichar case, there is little alternative, but to compute
     // the squared-order distance between pairs of fonts.
-    dist_sum = samples_.UnicharDistance(shape1[0], shape2[0],
-                                        false, feature_map);
+    dist_sum = samples_.UnicharDistance(shape1[0], shape2[0], false, feature_map);
     ++dist_count;
   }
   return dist_sum / dist_count;
@@ -837,19 +823,20 @@ float MasterTrainer::ShapeDistance(const ShapeTable& shapes, int s1, int s2) {
 // Replaces samples that are always fragmented with the corresponding
 // fragment samples.
 void MasterTrainer::ReplaceFragmentedSamples() {
-  if (fragments_ == nullptr) return;
+  if (fragments_ == nullptr)
+    return;
   // Remove samples that are replaced by fragments. Each class that was
   // always naturally fragmented should be replaced by its fragments.
   int num_samples = samples_.num_samples();
   for (int s = 0; s < num_samples; ++s) {
-    TrainingSample* sample = samples_.mutable_sample(s);
+    TrainingSample *sample = samples_.mutable_sample(s);
     if (fragments_[sample->class_id()] > 0)
       samples_.KillSample(sample);
   }
   samples_.DeleteDeadSamples();
 
   // Get ids of fragments in junk_samples_ that replace the dead chars.
-  const UNICHARSET& frag_set = junk_samples_.unicharset();
+  const UNICHARSET &frag_set = junk_samples_.unicharset();
 #if 0
   // TODO(rays) The original idea was to replace only graphemes that were
   // always naturally fragmented, but that left a lot of the Indic graphemes
@@ -876,10 +863,10 @@ void MasterTrainer::ReplaceFragmentedSamples() {
   // Get samples of fragments in junk_samples_ that replace the dead chars.
   int num_junks = junk_samples_.num_samples();
   for (int s = 0; s < num_junks; ++s) {
-    TrainingSample* sample = junk_samples_.mutable_sample(s);
+    TrainingSample *sample = junk_samples_.mutable_sample(s);
     int junk_id = sample->class_id();
-    const char* frag_utf8 = frag_set.id_to_unichar(junk_id);
-    CHAR_FRAGMENT* frag = CHAR_FRAGMENT::parse_from_string(frag_utf8);
+    const char *frag_utf8 = frag_set.id_to_unichar(junk_id);
+    CHAR_FRAGMENT *frag = CHAR_FRAGMENT::parse_from_string(frag_utf8);
     if (frag != nullptr && frag->is_natural()) {
       junk_samples_.extract_sample(s);
       samples_.AddSample(frag_set.id_to_unichar(junk_id), sample);
@@ -893,7 +880,7 @@ void MasterTrainer::ReplaceFragmentedSamples() {
   unicharset_.AppendOtherUnicharset(samples_.unicharset());
   // delete [] good_junk;
   // Fragments_ no longer needed?
-  delete [] fragments_;
+  delete[] fragments_;
   fragments_ = nullptr;
 }
 
@@ -903,12 +890,11 @@ void MasterTrainer::ReplaceFragmentedSamples() {
 // * No shape shall have more than max_shape_unichars in it,
 // * Don't merge shapes where the distance between them exceeds max_dist.
 const float kInfiniteDist = 999.0f;
-void MasterTrainer::ClusterShapes(int min_shapes,  int max_shape_unichars,
-                                  float max_dist, ShapeTable* shapes) {
+void MasterTrainer::ClusterShapes(int min_shapes, int max_shape_unichars, float max_dist,
+                                  ShapeTable *shapes) {
   int num_shapes = shapes->NumShapes();
   int max_merges = num_shapes - min_shapes;
-  auto* shape_dists =
-      new GenericVector<ShapeDist>[num_shapes];
+  auto *shape_dists = new GenericVector<ShapeDist>[num_shapes];
   float min_dist = kInfiniteDist;
   int min_s1 = 0;
   int min_s2 = 0;
@@ -932,8 +918,8 @@ void MasterTrainer::ClusterShapes(int min_shapes,  int max_shape_unichars,
     int num_unichars = shapes->MergedUnicharCount(min_s1, min_s2);
     shape_dists[min_s1][min_s2 - min_s1 - 1].distance = kInfiniteDist;
     if (num_unichars > max_shape_unichars) {
-      tprintf("Merge of %d and %d with %d would exceed max of %d unichars\n",
-              min_s1, min_s2, num_unichars, max_shape_unichars);
+      tprintf("Merge of %d and %d with %d would exceed max of %d unichars\n", min_s1, min_s2,
+              num_unichars, max_shape_unichars);
     } else {
       shapes->MergeShapes(min_s1, min_s2);
       shape_dists[min_s2].clear();
@@ -941,15 +927,13 @@ void MasterTrainer::ClusterShapes(int min_shapes,  int max_shape_unichars,
 
       for (int s = 0; s < min_s1; ++s) {
         if (!shape_dists[s].empty()) {
-          shape_dists[s][min_s1 - s - 1].distance =
-              ShapeDistance(*shapes, s, min_s1);
-          shape_dists[s][min_s2 - s -1].distance = kInfiniteDist;
+          shape_dists[s][min_s1 - s - 1].distance = ShapeDistance(*shapes, s, min_s1);
+          shape_dists[s][min_s2 - s - 1].distance = kInfiniteDist;
         }
       }
       for (int s2 = min_s1 + 1; s2 < num_shapes; ++s2) {
         if (shape_dists[min_s1][s2 - min_s1 - 1].distance < kInfiniteDist)
-          shape_dists[min_s1][s2 - min_s1 - 1].distance =
-              ShapeDistance(*shapes, min_s1, s2);
+          shape_dists[min_s1][s2 - min_s1 - 1].distance = ShapeDistance(*shapes, min_s1, s2);
       }
       for (int s = min_s1 + 1; s < min_s2; ++s) {
         if (!shape_dists[s].empty()) {
@@ -969,7 +953,7 @@ void MasterTrainer::ClusterShapes(int min_shapes,  int max_shape_unichars,
     }
   }
   tprintf("Stopped with %d merged, min dist %f\n", num_merged, min_dist);
-  delete [] shape_dists;
+  delete[] shape_dists;
   if (debug_level_ > 1) {
     for (int s1 = 0; s1 < num_shapes; ++s1) {
       if (shapes->MasterDestinationIndex(s1) == s1) {
@@ -979,5 +963,4 @@ void MasterTrainer::ClusterShapes(int min_shapes,  int max_shape_unichars,
   }
 }
 
-
-}  // namespace tesseract.
+} // namespace tesseract.

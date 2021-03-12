@@ -16,11 +16,11 @@
  *
  **********************************************************************/
 
-#ifndef           SCANEDG_H
-#define           SCANEDG_H
+#ifndef SCANEDG_H
+#define SCANEDG_H
 
-#include          "params.h"
-#include          "scrollview.h"
+#include "params.h"
+#include "scrollview.h"
 
 struct Pix;
 
@@ -29,9 +29,9 @@ namespace tesseract {
 class C_OUTLINE_IT;
 class PDBLK;
 
-void block_edges(Pix* t_image,         // thresholded image
-                 PDBLK* block,         // block in image
-                 C_OUTLINE_IT* outline_it);
+void block_edges(Pix *t_image, // thresholded image
+                 PDBLK *block, // block in image
+                 C_OUTLINE_IT *outline_it);
 
 } // namespace tesseract
 

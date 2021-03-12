@@ -16,10 +16,10 @@
  *
  **********************************************************************/
 
-#ifndef           FILEERR_H
-#define           FILEERR_H
+#ifndef FILEERR_H
+#define FILEERR_H
 
-#include          "errcode.h"
+#include "errcode.h"
 
 namespace tesseract {
 

@@ -21,7 +21,7 @@
 #define TESSERACT_CCUTIL_HELPERS_H_
 
 #include <cassert>
-#include <cmath>      // std::isfinite
+#include <cmath> // std::isfinite
 #include <cstdio>
 #include <cstring>
 #include <functional>
@@ -32,13 +32,13 @@ namespace tesseract {
 
 // A simple linear congruential random number generator.
 class TRand {
- public:
+public:
   // Sets the seed to the given value.
   void set_seed(uint64_t seed) {
     e.seed(seed);
   }
   // Sets the seed using a hash of a string.
-  void set_seed(const std::string& str) {
+  void set_seed(const std::string &str) {
     std::hash<std::string> hasher;
     set_seed(static_cast<uint64_t>(hasher(str)));
   }
@@ -56,21 +56,20 @@ class TRand {
     return range * IntRand() / INT32_MAX;
   }
 
- private:
+private:
   std::minstd_rand e;
 };
 
 // Remove newline (if any) at the end of the string.
-inline void chomp_string(char* str) {
+inline void chomp_string(char *str) {
   int last_index = static_cast<int>(strlen(str)) - 1;
-  while (last_index >= 0 &&
-         (str[last_index] == '\n' || str[last_index] == '\r')) {
+  while (last_index >= 0 && (str[last_index] == '\n' || str[last_index] == '\r')) {
     str[last_index--] = '\0';
   }
 }
 
 // Advance the current pointer of the file if it points to a newline character.
-inline void SkipNewline(FILE* file) {
+inline void SkipNewline(FILE *file) {
   if (fgetc(file) != '\n') {
     fseek(file, -1, SEEK_CUR);
   }
@@ -83,7 +82,7 @@ inline int RoundUp(int n, int block_size) {
 
 // Clip a numeric value to the interval [lower_bound, upper_bound].
 template <typename T>
-inline T ClipToRange(const T& x, const T& lower_bound, const T& upper_bound) {
+inline T ClipToRange(const T &x, const T &lower_bound, const T &upper_bound) {
   if (x < lower_bound) {
     return lower_bound;
   }
@@ -95,7 +94,7 @@ inline T ClipToRange(const T& x, const T& lower_bound, const T& upper_bound) {
 
 // Extend the range [lower_bound, upper_bound] to include x.
 template <typename T1, typename T2>
-inline void UpdateRange(const T1& x, T2* lower_bound, T2* upper_bound) {
+inline void UpdateRange(const T1 &x, T2 *lower_bound, T2 *upper_bound) {
   if (x < *lower_bound) {
     *lower_bound = x;
   }
@@ -106,8 +105,7 @@ inline void UpdateRange(const T1& x, T2* lower_bound, T2* upper_bound) {
 
 // Decrease lower_bound to be <= x_lo AND increase upper_bound to be >= x_hi.
 template <typename T1, typename T2>
-inline void UpdateRange(const T1& x_lo, const T1& x_hi, T2* lower_bound,
-                        T2* upper_bound) {
+inline void UpdateRange(const T1 &x_lo, const T1 &x_hi, T2 *lower_bound, T2 *upper_bound) {
   if (x_lo < *lower_bound) {
     *lower_bound = x_lo;
   }
@@ -120,8 +118,7 @@ inline void UpdateRange(const T1& x_lo, const T1& x_hi, T2* lower_bound,
 // putting the result back in [*lower2, *upper2].
 // If non-intersecting ranges are given, we end up with *lower2 > *upper2.
 template <typename T>
-inline void IntersectRange(const T& lower1, const T& upper1, T* lower2,
-                           T* upper2) {
+inline void IntersectRange(const T &lower1, const T &upper1, T *lower2, T *upper2) {
   if (lower1 > *lower2) {
     *lower2 = lower1;
   }
@@ -162,9 +159,9 @@ inline int IntCastRounded(float x) {
 }
 
 // Reverse the order of bytes in a n byte quantity for big/little-endian switch.
-inline void ReverseN(void* ptr, int num_bytes) {
+inline void ReverseN(void *ptr, int num_bytes) {
   assert(num_bytes == 1 || num_bytes == 2 || num_bytes == 4 || num_bytes == 8);
-  char* cptr = static_cast<char*>(ptr);
+  char *cptr = static_cast<char *>(ptr);
   int halfsize = num_bytes / 2;
   for (int i = 0; i < halfsize; ++i) {
     char tmp = cptr[i];
@@ -174,20 +171,20 @@ inline void ReverseN(void* ptr, int num_bytes) {
 }
 
 // Reverse the order of bytes in a 16 bit quantity for big/little-endian switch.
-inline void Reverse16(void* ptr) {
+inline void Reverse16(void *ptr) {
   ReverseN(ptr, 2);
 }
 
 // Reverse the order of bytes in a 32 bit quantity for big/little-endian switch.
-inline void Reverse32(void* ptr) {
+inline void Reverse32(void *ptr) {
   ReverseN(ptr, 4);
 }
 
 // Reverse the order of bytes in a 64 bit quantity for big/little-endian switch.
-inline void Reverse64(void* ptr) {
+inline void Reverse64(void *ptr) {
   ReverseN(ptr, 8);
 }
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_CCUTIL_HELPERS_H_
+#endif // TESSERACT_CCUTIL_HELPERS_H_

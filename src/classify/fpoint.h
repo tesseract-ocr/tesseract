@@ -48,6 +48,6 @@ using FVECTOR = FPOINT;
 
 float DistanceBetween(FPOINT A, FPOINT B);
 
-float NormalizedAngleFrom(FPOINT* Point1, FPOINT* Point2, float FullScale);
+float NormalizedAngleFrom(FPOINT *Point1, FPOINT *Point2, float FullScale);
 
 #endif

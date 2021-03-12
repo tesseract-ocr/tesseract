@@ -27,20 +27,24 @@ namespace tesseract {
 
 // Holds a collection of other networks and forwards calls to each of them.
 class Plumbing : public Network {
- public:
+public:
   // ni_ and no_ will be set by AddToStack.
-  explicit Plumbing(const std::string& name);
+  explicit Plumbing(const std::string &name);
   ~Plumbing() override = default;
 
   // Returns the required shape input to the network.
-  StaticShape InputShape() const override { return stack_[0]->InputShape(); }
+  StaticShape InputShape() const override {
+    return stack_[0]->InputShape();
+  }
   STRING spec() const override {
     return "Sub-classes of Plumbing must implement spec()!";
   }
 
   // Returns true if the given type is derived from Plumbing, and thus contains
   // multiple sub-networks that can have their own learning rate.
-  bool IsPlumbingType() const override { return true; }
+  bool IsPlumbingType() const override {
+    return true;
+  }
 
   // Suspends/Enables training by setting the training_ flag. Serialize and
   // DeSerialize only operate on the run-time data if state is false.
@@ -55,10 +59,10 @@ class Plumbing : public Network {
   // Note that randomizer is a borrowed pointer that should outlive the network
   // and should not be deleted by any of the networks.
   // Returns the number of weights initialized.
-  int InitWeights(float range, TRand* randomizer) override;
+  int InitWeights(float range, TRand *randomizer) override;
   // Recursively searches the network for softmaxes with old_no outputs,
   // and remaps their outputs according to code_map. See network.h for details.
-  int RemapOutputs(int old_no, const std::vector<int>& code_map) override;
+  int RemapOutputs(int old_no, const std::vector<int> &code_map) override;
 
   // Converts a float network to an int network.
   void ConvertToInt() override;
@@ -66,10 +70,10 @@ class Plumbing : public Network {
   // Provides a pointer to a TRand for any networks that care to use it.
   // Note that randomizer is a borrowed pointer that should outlive the network
   // and should not be deleted by any of the networks.
-  void SetRandomizer(TRand* randomizer) override;
+  void SetRandomizer(TRand *randomizer) override;
 
   // Adds the given network to the stack.
-  virtual void AddToStack(Network* network);
+  virtual void AddToStack(Network *network);
 
   // Sets needs_to_backprop_ to needs_backprop and returns true if
   // needs_backprop || any weights in this network so the next layer forward
@@ -92,48 +96,45 @@ class Plumbing : public Network {
   void DebugWeights() override;
 
   // Returns the current stack.
-  const PointerVector<Network>& stack() const {
+  const PointerVector<Network> &stack() const {
     return stack_;
   }
   // Returns a set of strings representing the layer-ids of all layers below.
   TESS_API
-  void EnumerateLayers(const STRING* prefix,
-                       std::vector<STRING>* layers) const;
+  void EnumerateLayers(const STRING *prefix, std::vector<STRING> *layers) const;
   // Returns a pointer to the network layer corresponding to the given id.
   TESS_API
-  Network* GetLayer(const char* id) const;
+  Network *GetLayer(const char *id) const;
   // Returns the learning rate for a specific layer of the stack.
-  float LayerLearningRate(const char* id) {
-    const float* lr_ptr = LayerLearningRatePtr(id);
+  float LayerLearningRate(const char *id) {
+    const float *lr_ptr = LayerLearningRatePtr(id);
     ASSERT_HOST(lr_ptr != nullptr);
     return *lr_ptr;
   }
   // Scales the learning rate for a specific layer of the stack.
-  void ScaleLayerLearningRate(const char* id, double factor) {
-    float* lr_ptr = LayerLearningRatePtr(id);
+  void ScaleLayerLearningRate(const char *id, double factor) {
+    float *lr_ptr = LayerLearningRatePtr(id);
     ASSERT_HOST(lr_ptr != nullptr);
     *lr_ptr *= factor;
   }
   // Returns a pointer to the learning rate for the given layer id.
   TESS_API
-  float* LayerLearningRatePtr(const char* id);
+  float *LayerLearningRatePtr(const char *id);
 
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(TFile* fp) const override;
+  bool Serialize(TFile *fp) const override;
   // Reads from the given file. Returns false in case of error.
-  bool DeSerialize(TFile* fp) override;
+  bool DeSerialize(TFile *fp) override;
 
   // Updates the weights using the given learning rate, momentum and adam_beta.
   // num_samples is used in the adam computation iff use_adam_ is true.
-  void Update(float learning_rate, float momentum, float adam_beta,
-              int num_samples) override;
+  void Update(float learning_rate, float momentum, float adam_beta, int num_samples) override;
   // Sums the products of weight updates in *this and other, splitting into
   // positive (same direction) in *same and negative (different direction) in
   // *changed.
-  void CountAlternators(const Network& other, double* same,
-                        double* changed) const override;
+  void CountAlternators(const Network &other, double *same, double *changed) const override;
 
- protected:
+protected:
   // The networks.
   PointerVector<Network> stack_;
   // Layer-specific learning rate iff network_flags_ & NF_LAYER_SPECIFIC_LR.
@@ -141,6 +142,6 @@ class Plumbing : public Network {
   GenericVector<float> learning_rates_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_LSTM_PLUMBING_H_
+#endif // TESSERACT_LSTM_PLUMBING_H_

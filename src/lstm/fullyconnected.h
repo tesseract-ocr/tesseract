@@ -25,14 +25,14 @@ namespace tesseract {
 
 // C++ Implementation of the Softmax (output) class from lstm.py.
 class FullyConnected : public Network {
- public:
+public:
   TESS_API
-  FullyConnected(const std::string& name, int ni, int no, NetworkType type);
+  FullyConnected(const std::string &name, int ni, int no, NetworkType type);
   ~FullyConnected() override = default;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  StaticShape OutputShape(const StaticShape& input_shape) const override;
+  StaticShape OutputShape(const StaticShape &input_shape) const override;
 
   STRING spec() const override {
     STRING spec;
@@ -67,10 +67,10 @@ class FullyConnected : public Network {
 
   // Sets up the network for training. Initializes weights using weights of
   // scale `range` picked according to the random number generator `randomizer`.
-  int InitWeights(float range, TRand* randomizer) override;
+  int InitWeights(float range, TRand *randomizer) override;
   // Recursively searches the network for softmaxes with old_no outputs,
   // and remaps their outputs according to code_map. See network.h for details.
-  int RemapOutputs(int old_no, const std::vector<int>& code_map) override;
+  int RemapOutputs(int old_no, const std::vector<int> &code_map) override;
 
   // Converts a float network to an int network.
   void ConvertToInt() override;
@@ -79,49 +79,45 @@ class FullyConnected : public Network {
   void DebugWeights() override;
 
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(TFile* fp) const override;
+  bool Serialize(TFile *fp) const override;
   // Reads from the given file. Returns false in case of error.
-  bool DeSerialize(TFile* fp) override;
+  bool DeSerialize(TFile *fp) override;
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  void Forward(bool debug, const NetworkIO& input,
-               const TransposedArray* input_transpose, NetworkScratch* scratch,
-               NetworkIO* output) override;
+  void Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+               NetworkScratch *scratch, NetworkIO *output) override;
   // Components of Forward so FullyConnected can be reused inside LSTM.
-  void SetupForward(const NetworkIO& input,
-                    const TransposedArray* input_transpose);
-  void ForwardTimeStep(int t, double* output_line);
-  void ForwardTimeStep(const double* d_input, int t, double* output_line);
-  void ForwardTimeStep(const int8_t* i_input, int t, double* output_line);
+  void SetupForward(const NetworkIO &input, const TransposedArray *input_transpose);
+  void ForwardTimeStep(int t, double *output_line);
+  void ForwardTimeStep(const double *d_input, int t, double *output_line);
+  void ForwardTimeStep(const int8_t *i_input, int t, double *output_line);
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                NetworkScratch* scratch, NetworkIO* back_deltas) override;
+  bool Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+                NetworkIO *back_deltas) override;
   // Components of Backward so FullyConnected can be reused inside LSTM.
-  void BackwardTimeStep(const NetworkIO& fwd_deltas, int t, double* curr_errors,
-                        TransposedArray* errors_t, double* backprop);
-  void FinishBackward(const TransposedArray& errors_t);
+  void BackwardTimeStep(const NetworkIO &fwd_deltas, int t, double *curr_errors,
+                        TransposedArray *errors_t, double *backprop);
+  void FinishBackward(const TransposedArray &errors_t);
 
   // Updates the weights using the given learning rate, momentum and adam_beta.
   // num_samples is used in the adam computation iff use_adam_ is true.
-  void Update(float learning_rate, float momentum, float adam_beta,
-              int num_samples) override;
+  void Update(float learning_rate, float momentum, float adam_beta, int num_samples) override;
   // Sums the products of weight updates in *this and other, splitting into
   // positive (same direction) in *same and negative (different direction) in
   // *changed.
-  void CountAlternators(const Network& other, double* same,
-                        double* changed) const override;
+  void CountAlternators(const Network &other, double *same, double *changed) const override;
 
- protected:
+protected:
   // Weight arrays of size [no, ni + 1].
   WeightMatrix weights_;
   // Transposed copy of input used during training of size [ni, width].
   TransposedArray source_t_;
   // Pointer to transposed input stored elsewhere. If not null, this is used
   // in preference to calculating the transpose and storing it in source_t_.
-  const TransposedArray* external_source_;
+  const TransposedArray *external_source_;
   // Activations from forward pass of size [width, no].
   NetworkIO acts_;
   // Memory of the integer mode input to forward as softmax always outputs
@@ -129,8 +125,6 @@ class FullyConnected : public Network {
   bool int_mode_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-
-
-#endif  // TESSERACT_LSTM_FULLYCONNECTED_H_
+#endif // TESSERACT_LSTM_FULLYCONNECTED_H_

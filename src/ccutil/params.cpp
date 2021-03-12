@@ -18,28 +18,27 @@
 
 #include "params.h"
 
-#include "helpers.h"        // for chomp_string
-#include "host.h"           // tesseract/export.h, windows.h for MAX_PATH
-#include "serialis.h"       // for TFile
+#include "helpers.h"  // for chomp_string
+#include "host.h"     // tesseract/export.h, windows.h for MAX_PATH
+#include "serialis.h" // for TFile
 #include "tprintf.h"
 
-#include <climits>          // for INT_MIN, INT_MAX
-#include <cmath>            // for NAN, std::isnan
+#include <climits> // for INT_MIN, INT_MAX
+#include <cmath>   // for NAN, std::isnan
 #include <cstdio>
-#include <cstring>
 #include <cstdlib>
-#include <locale>           // for std::locale::classic
-#include <sstream>          // for std::stringstream
+#include <cstring>
+#include <locale>  // for std::locale::classic
+#include <sstream> // for std::stringstream
 
 namespace tesseract {
 
 tesseract::ParamsVectors *GlobalParams() {
-    static tesseract::ParamsVectors global_params = tesseract::ParamsVectors();
-    return &global_params;
+  static tesseract::ParamsVectors global_params = tesseract::ParamsVectors();
+  return &global_params;
 }
 
-bool ParamUtils::ReadParamsFile(const char *file,
-                                SetParamConstraint constraint,
+bool ParamUtils::ReadParamsFile(const char *file, SetParamConstraint constraint,
                                 ParamsVectors *member_params) {
   TFile fp;
   if (!fp.Open(file, nullptr)) {
@@ -51,26 +50,26 @@ bool ParamUtils::ReadParamsFile(const char *file,
 
 bool ParamUtils::ReadParamsFromFp(SetParamConstraint constraint, TFile *fp,
                                   ParamsVectors *member_params) {
-  char line[MAX_PATH];           // input line
-  bool anyerr = false;           // true if any error
-  bool foundit;                  // found parameter
-  char *valptr;                  // value field
+  char line[MAX_PATH]; // input line
+  bool anyerr = false; // true if any error
+  bool foundit;        // found parameter
+  char *valptr;        // value field
 
   while (fp->FGets(line, MAX_PATH) != nullptr) {
     if (line[0] != '\r' && line[0] != '\n' && line[0] != '#') {
-      chomp_string(line);  // remove newline
-      for (valptr = line; *valptr && *valptr != ' ' && *valptr != '\t';
-        valptr++);
-      if (*valptr) {             // found blank
-        *valptr = '\0';          // make name a string
+      chomp_string(line); // remove newline
+      for (valptr = line; *valptr && *valptr != ' ' && *valptr != '\t'; valptr++)
+        ;
+      if (*valptr) {    // found blank
+        *valptr = '\0'; // make name a string
         do
-          valptr++;              // find end of blanks
+          valptr++; // find end of blanks
         while (*valptr == ' ' || *valptr == '\t');
       }
       foundit = SetParam(line, valptr, constraint, member_params);
 
       if (!foundit) {
-        anyerr = true;         // had an error
+        anyerr = true; // had an error
         tprintf("Warning: Parameter not found: %s\n", line);
       }
     }
@@ -78,18 +77,18 @@ bool ParamUtils::ReadParamsFromFp(SetParamConstraint constraint, TFile *fp,
   return anyerr;
 }
 
-bool ParamUtils::SetParam(const char *name, const char* value,
-                          SetParamConstraint constraint,
+bool ParamUtils::SetParam(const char *name, const char *value, SetParamConstraint constraint,
                           ParamsVectors *member_params) {
   // Look for the parameter among string parameters.
-  auto *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
-                                           member_params->string_params);
-  if (sp != nullptr && sp->constraint_ok(constraint)) sp->set_value(value);
-  if (*value == '\0') return (sp != nullptr);
+  auto *sp =
+      FindParam<StringParam>(name, GlobalParams()->string_params, member_params->string_params);
+  if (sp != nullptr && sp->constraint_ok(constraint))
+    sp->set_value(value);
+  if (*value == '\0')
+    return (sp != nullptr);
 
   // Look for the parameter among int parameters.
-  auto *ip = FindParam<IntParam>(name, GlobalParams()->int_params,
-                                     member_params->int_params);
+  auto *ip = FindParam<IntParam>(name, GlobalParams()->int_params, member_params->int_params);
   if (ip && ip->constraint_ok(constraint)) {
     int intval = INT_MIN;
     std::stringstream stream(value);
@@ -101,21 +100,18 @@ bool ParamUtils::SetParam(const char *name, const char* value,
   }
 
   // Look for the parameter among bool parameters.
-  auto *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
-                                       member_params->bool_params);
+  auto *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params, member_params->bool_params);
   if (bp != nullptr && bp->constraint_ok(constraint)) {
-    if (*value == 'T' || *value == 't' ||
-        *value == 'Y' || *value == 'y' || *value == '1') {
+    if (*value == 'T' || *value == 't' || *value == 'Y' || *value == 'y' || *value == '1') {
       bp->set_value(true);
-    } else if (*value == 'F' || *value == 'f' ||
-                *value == 'N' || *value == 'n' || *value == '0') {
+    } else if (*value == 'F' || *value == 'f' || *value == 'N' || *value == 'n' || *value == '0') {
       bp->set_value(false);
     }
   }
 
   // Look for the parameter among double parameters.
-  auto *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
-                                           member_params->double_params);
+  auto *dp =
+      FindParam<DoubleParam>(name, GlobalParams()->double_params, member_params->double_params);
   if (dp != nullptr && dp->constraint_ok(constraint)) {
     double doubleval = NAN;
     std::stringstream stream(value);
@@ -128,19 +124,17 @@ bool ParamUtils::SetParam(const char *name, const char* value,
   return (sp || ip || bp || dp);
 }
 
-bool ParamUtils::GetParamAsString(const char *name,
-                                  const ParamsVectors* member_params,
+bool ParamUtils::GetParamAsString(const char *name, const ParamsVectors *member_params,
                                   std::string *value) {
   // Look for the parameter among string parameters.
-  auto *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
-                                           member_params->string_params);
+  auto *sp =
+      FindParam<StringParam>(name, GlobalParams()->string_params, member_params->string_params);
   if (sp) {
     *value = sp->c_str();
     return true;
   }
   // Look for the parameter among int parameters.
-  auto *ip = FindParam<IntParam>(name, GlobalParams()->int_params,
-                                     member_params->int_params);
+  auto *ip = FindParam<IntParam>(name, GlobalParams()->int_params, member_params->int_params);
   if (ip) {
     char buf[128];
     snprintf(buf, sizeof(buf), "%d", int32_t(*ip));
@@ -148,15 +142,14 @@ bool ParamUtils::GetParamAsString(const char *name,
     return true;
   }
   // Look for the parameter among bool parameters.
-  auto *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
-                                       member_params->bool_params);
+  auto *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params, member_params->bool_params);
   if (bp != nullptr) {
-    *value = bool(*bp) ? "1": "0";
+    *value = bool(*bp) ? "1" : "0";
     return true;
   }
   // Look for the parameter among double parameters.
-  auto *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
-                                           member_params->double_params);
+  auto *dp =
+      FindParam<DoubleParam>(name, GlobalParams()->double_params, member_params->double_params);
   if (dp != nullptr) {
     std::ostringstream stream;
     stream.imbue(std::locale::classic());
@@ -174,31 +167,27 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
   for (int v = 0; v < num_iterations; ++v) {
     const ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
     for (int i = 0; i < vec->int_params.size(); ++i) {
-      stream << vec->int_params[i]->name_str() << '\t' <<
-        (int32_t)(*vec->int_params[i]) << '\t' <<
-        vec->int_params[i]->info_str() << '\n';
+      stream << vec->int_params[i]->name_str() << '\t' << (int32_t)(*vec->int_params[i]) << '\t'
+             << vec->int_params[i]->info_str() << '\n';
     }
     for (int i = 0; i < vec->bool_params.size(); ++i) {
-      stream << vec->bool_params[i]->name_str() << '\t' <<
-        bool(*vec->bool_params[i]) << '\t' <<
-        vec->bool_params[i]->info_str() << '\n';
+      stream << vec->bool_params[i]->name_str() << '\t' << bool(*vec->bool_params[i]) << '\t'
+             << vec->bool_params[i]->info_str() << '\n';
     }
     for (int i = 0; i < vec->string_params.size(); ++i) {
-      stream << vec->string_params[i]->name_str() << '\t' <<
-        vec->string_params[i]->c_str() << '\t' <<
-        vec->string_params[i]->info_str() << '\n';
+      stream << vec->string_params[i]->name_str() << '\t' << vec->string_params[i]->c_str() << '\t'
+             << vec->string_params[i]->info_str() << '\n';
     }
     for (int i = 0; i < vec->double_params.size(); ++i) {
-      stream << vec->double_params[i]->name_str() << '\t' <<
-        (double)(*vec->double_params[i]) << '\t' <<
-        vec->double_params[i]->info_str() << '\n';
+      stream << vec->double_params[i]->name_str() << '\t' << (double)(*vec->double_params[i])
+             << '\t' << vec->double_params[i]->info_str() << '\n';
     }
   }
   fprintf(fp, "%s", stream.str().c_str());
 }
 
 // Resets all parameters back to default values;
-void ParamUtils::ResetToDefaults(ParamsVectors* member_params) {
+void ParamUtils::ResetToDefaults(ParamsVectors *member_params) {
   int v, i;
   int num_iterations = (member_params == nullptr) ? 1 : 2;
   for (v = 0; v < num_iterations; ++v) {
@@ -218,4 +207,4 @@ void ParamUtils::ResetToDefaults(ParamsVectors* member_params) {
   }
 }
 
-}  // namespace tesseract
+} // namespace tesseract

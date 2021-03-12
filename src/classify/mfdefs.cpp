@@ -31,8 +31,8 @@ namespace tesseract {
  * @return New MICROFEATURE
  */
 MICROFEATURE NewMicroFeature() {
-  return (static_cast<MICROFEATURE>(malloc (sizeof (MFBLOCK))));
-}                                /* NewMicroFeature */
+  return (static_cast<MICROFEATURE>(malloc(sizeof(MFBLOCK))));
+} /* NewMicroFeature */
 
 /**
  * This routine deallocates all of the memory consumed by
@@ -41,6 +41,6 @@ MICROFEATURE NewMicroFeature() {
  */
 void FreeMicroFeatures(MICROFEATURES MicroFeatures) {
   destroy_nodes(MicroFeatures, free);
-}                                /* FreeMicroFeatures */
+} /* FreeMicroFeatures */
 
 } // namespace tesseract

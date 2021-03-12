@@ -33,9 +33,8 @@ class Parallel;
 class TRand;
 
 class TESS_COMMON_TRAINING_API NetworkBuilder {
- public:
-  explicit NetworkBuilder(int num_softmax_outputs)
-      : num_softmax_outputs_(num_softmax_outputs) {}
+public:
+  explicit NetworkBuilder(int num_softmax_outputs) : num_softmax_outputs_(num_softmax_outputs) {}
 
   // Builds a network with a network_spec in the network description
   // language, to recognize a character set of num_outputs size.
@@ -47,9 +46,8 @@ class TESS_COMMON_TRAINING_API NetworkBuilder {
   // net_flags control network behavior according to the NetworkFlags enum.
   // The resulting network is returned via **network.
   // Returns false if something failed.
-  static bool InitNetwork(int num_outputs, const char* network_spec,
-                          int append_index, int net_flags, float weight_range,
-                          TRand* randomizer, Network** network);
+  static bool InitNetwork(int num_outputs, const char *network_spec, int append_index,
+                          int net_flags, float weight_range, TRand *randomizer, Network **network);
 
   // Parses the given string and returns a network according to the following
   // language:
@@ -122,38 +120,37 @@ class TESS_COMMON_TRAINING_API NetworkBuilder {
   //  NOTE2: n is totally ignored, and for compatibility purposes only. The
   //         output number of classes is obtained automatically from the
   //         unicharset.
-  Network* BuildFromString(const StaticShape& input_shape, const char** str);
+  Network *BuildFromString(const StaticShape &input_shape, const char **str);
 
- private:
+private:
   // Parses an input specification and returns the result, which may include a
   // series.
-  Network* ParseInput(const char** str);
+  Network *ParseInput(const char **str);
   // Parses a sequential series of networks, defined by [<net><net>...].
-  Network* ParseSeries(const StaticShape& input_shape, Input* input_layer,
-                       const char** str);
+  Network *ParseSeries(const StaticShape &input_shape, Input *input_layer, const char **str);
   // Parses a parallel set of networks, defined by (<net><net>...).
-  Network* ParseParallel(const StaticShape& input_shape, const char** str);
+  Network *ParseParallel(const StaticShape &input_shape, const char **str);
   // Parses a network that begins with 'R'.
-  Network* ParseR(const StaticShape& input_shape, const char** str);
+  Network *ParseR(const StaticShape &input_shape, const char **str);
   // Parses a network that begins with 'S'.
-  Network* ParseS(const StaticShape& input_shape, const char** str);
+  Network *ParseS(const StaticShape &input_shape, const char **str);
   // Parses a network that begins with 'C'.
-  Network* ParseC(const StaticShape& input_shape, const char** str);
+  Network *ParseC(const StaticShape &input_shape, const char **str);
   // Parses a network that begins with 'M'.
-  Network* ParseM(const StaticShape& input_shape, const char** str);
+  Network *ParseM(const StaticShape &input_shape, const char **str);
   // Parses an LSTM network, either individual, bi- or quad-directional.
-  Network* ParseLSTM(const StaticShape& input_shape, const char** str);
+  Network *ParseLSTM(const StaticShape &input_shape, const char **str);
   // Builds a set of 4 lstms with t and y reversal, running in true parallel.
-  static Network* BuildLSTMXYQuad(int num_inputs, int num_states);
+  static Network *BuildLSTMXYQuad(int num_inputs, int num_states);
   // Parses a Fully connected network.
-  Network* ParseFullyConnected(const StaticShape& input_shape, const char** str);
+  Network *ParseFullyConnected(const StaticShape &input_shape, const char **str);
   // Parses an Output spec.
-  Network* ParseOutput(const StaticShape& input_shape, const char** str);
+  Network *ParseOutput(const StaticShape &input_shape, const char **str);
 
- private:
+private:
   int num_softmax_outputs_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_LSTM_NETWORKBUILDER_H_
+#endif // TESSERACT_LSTM_NETWORKBUILDER_H_

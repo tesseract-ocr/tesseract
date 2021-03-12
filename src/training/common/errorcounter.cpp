@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#  include "config_auto.h"
 #endif
 
 #include "errorcounter.h"
@@ -41,11 +41,11 @@ const double kRatingEpsilon = 1.0 / 32;
 // If the classifier makes a CT_UNICHAR_TOPN_ERR error, and the appropriate
 // report_level is set (4 or greater), it will then call the classifier again
 // with a debug flag and a keep_this argument to find out what is going on.
-double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
-    int report_level, CountTypes boosting_mode,
-    const FontInfoTable& fontinfo_table,
-    const std::vector<Pix*>& page_images, SampleIterator* it,
-    double* unichar_error,  double* scaled_error, STRING* fonts_report) {
+double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_level,
+                                      CountTypes boosting_mode, const FontInfoTable &fontinfo_table,
+                                      const std::vector<Pix *> &page_images, SampleIterator *it,
+                                      double *unichar_error, double *scaled_error,
+                                      STRING *fonts_report) {
   const int fontsize = it->sample_set()->NumFonts();
   ErrorCounter counter(classifier->GetUnicharset(), fontsize);
   std::vector<UnicharRating> results;
@@ -57,31 +57,26 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
   int error_samples = report_level > 3 ? report_level * report_level : 0;
   // Iterate over all the samples, accumulating errors.
   for (it->Begin(); !it->AtEnd(); it->Next()) {
-    TrainingSample* mutable_sample = it->MutableSample();
+    TrainingSample *mutable_sample = it->MutableSample();
     int page_index = mutable_sample->page_num();
-    Pix* page_pix = 0 <= page_index && page_index < page_images.size()
-                  ? page_images[page_index] : nullptr;
+    Pix *page_pix =
+        0 <= page_index && page_index < page_images.size() ? page_images[page_index] : nullptr;
     // No debug, no keep this.
-    classifier->UnicharClassifySample(*mutable_sample, page_pix, 0,
-                                      INVALID_UNICHAR_ID, &results);
+    classifier->UnicharClassifySample(*mutable_sample, page_pix, 0, INVALID_UNICHAR_ID, &results);
     bool debug_it = false;
     int correct_id = mutable_sample->class_id();
     if (counter.unicharset_.has_special_codes() &&
         (correct_id == UNICHAR_SPACE || correct_id == UNICHAR_JOINED ||
          correct_id == UNICHAR_BROKEN)) {
       // This is junk so use the special counter.
-      debug_it = counter.AccumulateJunk(report_level > 3,
-                                        results,
-                                        mutable_sample);
+      debug_it = counter.AccumulateJunk(report_level > 3, results, mutable_sample);
     } else {
-      debug_it = counter.AccumulateErrors(report_level > 3, boosting_mode,
-                                          fontinfo_table,
-                                          results, mutable_sample);
+      debug_it = counter.AccumulateErrors(report_level > 3, boosting_mode, fontinfo_table, results,
+                                          mutable_sample);
     }
     if (debug_it && error_samples > 0) {
       // Running debug, keep the correct answer, and debug the classifier.
-      tprintf("Error on sample %d: %s Classifier debug output:\n",
-              it->GlobalSampleIndex(),
+      tprintf("Error on sample %d: %s Classifier debug output:\n", it->GlobalSampleIndex(),
               it->sample_set()->SampleToString(*mutable_sample).c_str());
 #ifndef GRAPHICS_DISABLED
       classifier->DebugDisplay(*mutable_sample, page_pix, correct_id);
@@ -92,14 +87,14 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
   }
   const double total_time = 1.0 * (clock() - start) / CLOCKS_PER_SEC;
   // Create the appropriate error report.
-  unscaled_error = counter.ReportErrors(report_level, boosting_mode,
-                                        fontinfo_table,
-                                        *it, unichar_error, fonts_report);
-  if (scaled_error != nullptr) *scaled_error = counter.scaled_error_;
+  unscaled_error = counter.ReportErrors(report_level, boosting_mode, fontinfo_table, *it,
+                                        unichar_error, fonts_report);
+  if (scaled_error != nullptr)
+    *scaled_error = counter.scaled_error_;
   if (report_level > 1 && total_samples > 0) {
     // It is useful to know the time in microseconds/char.
-    tprintf("Errors computed in %.2fs at %.1f μs/char\n",
-            total_time, 1000000.0 * total_time / total_samples);
+    tprintf("Errors computed in %.2fs at %.1f μs/char\n", total_time,
+            1000000.0 * total_time / total_samples);
   }
   return unscaled_error;
 }
@@ -110,11 +105,9 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
 // If the new_classifier makes a boosting_mode error that the old_classifier
 // does not, it will then call the new_classifier again with a debug flag
 // and a keep_this argument to find out what is going on.
-void ErrorCounter::DebugNewErrors(
-    ShapeClassifier* new_classifier, ShapeClassifier* old_classifier,
-    CountTypes boosting_mode,
-    const FontInfoTable& fontinfo_table,
-    const std::vector<Pix*>& page_images, SampleIterator* it) {
+void ErrorCounter::DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifier *old_classifier,
+                                  CountTypes boosting_mode, const FontInfoTable &fontinfo_table,
+                                  const std::vector<Pix *> &page_images, SampleIterator *it) {
   int fontsize = it->sample_set()->NumFonts();
   ErrorCounter old_counter(old_classifier->GetUnicharset(), fontsize);
   ErrorCounter new_counter(new_classifier->GetUnicharset(), fontsize);
@@ -125,28 +118,24 @@ void ErrorCounter::DebugNewErrors(
   int total_new_errors = 0;
   // Iterate over all the samples, accumulating errors.
   for (it->Begin(); !it->AtEnd(); it->Next()) {
-    TrainingSample* mutable_sample = it->MutableSample();
+    TrainingSample *mutable_sample = it->MutableSample();
     int page_index = mutable_sample->page_num();
-    Pix* page_pix = 0 <= page_index && page_index < page_images.size()
-                  ? page_images[page_index] : nullptr;
+    Pix *page_pix =
+        0 <= page_index && page_index < page_images.size() ? page_images[page_index] : nullptr;
     // No debug, no keep this.
-    old_classifier->UnicharClassifySample(*mutable_sample, page_pix, 0,
-                                          INVALID_UNICHAR_ID, &results);
+    old_classifier->UnicharClassifySample(*mutable_sample, page_pix, 0, INVALID_UNICHAR_ID,
+                                          &results);
     int correct_id = mutable_sample->class_id();
-    if (correct_id != 0 &&
-        !old_counter.AccumulateErrors(true, boosting_mode, fontinfo_table,
-                                      results, mutable_sample)) {
+    if (correct_id != 0 && !old_counter.AccumulateErrors(true, boosting_mode, fontinfo_table,
+                                                         results, mutable_sample)) {
       // old classifier was correct, check the new one.
-      new_classifier->UnicharClassifySample(*mutable_sample, page_pix, 0,
-                                            INVALID_UNICHAR_ID, &results);
-      if (correct_id != 0 &&
-          new_counter.AccumulateErrors(true, boosting_mode, fontinfo_table,
-                                        results, mutable_sample)) {
-        tprintf("New Error on sample %d: Classifier debug output:\n",
-                it->GlobalSampleIndex());
+      new_classifier->UnicharClassifySample(*mutable_sample, page_pix, 0, INVALID_UNICHAR_ID,
+                                            &results);
+      if (correct_id != 0 && new_counter.AccumulateErrors(true, boosting_mode, fontinfo_table,
+                                                          results, mutable_sample)) {
+        tprintf("New Error on sample %d: Classifier debug output:\n", it->GlobalSampleIndex());
         ++total_new_errors;
-        new_classifier->UnicharClassifySample(*mutable_sample, page_pix, 1,
-                                              correct_id, &results);
+        new_classifier->UnicharClassifySample(*mutable_sample, page_pix, 1, correct_id, &results);
         if (results.size() > 0 && error_samples > 0) {
 #ifndef GRAPHICS_DISABLED
           new_classifier->DebugDisplay(*mutable_sample, page_pix, correct_id);
@@ -162,11 +151,13 @@ void ErrorCounter::DebugNewErrors(
 
 // Constructor is private. Only anticipated use of ErrorCounter is via
 // the static ComputeErrorRate.
-ErrorCounter::ErrorCounter(const UNICHARSET& unicharset, int fontsize)
-  : scaled_error_(0.0), rating_epsilon_(kRatingEpsilon),
-    unichar_counts_(unicharset.size(), unicharset.size(), 0),
-    ok_score_hist_(0, 101), bad_score_hist_(0, 101),
-    unicharset_(unicharset) {
+ErrorCounter::ErrorCounter(const UNICHARSET &unicharset, int fontsize)
+    : scaled_error_(0.0)
+    , rating_epsilon_(kRatingEpsilon)
+    , unichar_counts_(unicharset.size(), unicharset.size(), 0)
+    , ok_score_hist_(0, 101)
+    , bad_score_hist_(0, 101)
+    , unicharset_(unicharset) {
   Counts empty_counts;
   font_counts_.resize(fontsize, empty_counts);
   multi_unichar_counts_.resize(unicharset.size(), 0);
@@ -180,9 +171,9 @@ ErrorCounter::ErrorCounter(const UNICHARSET& unicharset, int fontsize)
 // for error counting and shape_table is used to understand the relationship
 // between unichar_ids and shape_ids in the results
 bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
-                                    const FontInfoTable& font_table,
-                                    const std::vector<UnicharRating>& results,
-                                    TrainingSample* sample) {
+                                    const FontInfoTable &font_table,
+                                    const std::vector<UnicharRating> &results,
+                                    TrainingSample *sample) {
   int num_results = results.size();
   int answer_actual_rank = -1;
   int font_id = sample->font_id();
@@ -209,16 +200,13 @@ bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
         ++epsilon_rank;
         prev_rating = results[res_index].rating;
       }
-      if (results[res_index].unichar_id == unichar_id &&
-          answer_epsilon_rank < 0) {
+      if (results[res_index].unichar_id == unichar_id && answer_epsilon_rank < 0) {
         answer_epsilon_rank = epsilon_rank;
         answer_actual_rank = res_index;
       }
-      if (results[res_index].unichar_id == UNICHAR_JOINED &&
-          unicharset_.has_special_codes())
+      if (results[res_index].unichar_id == UNICHAR_JOINED && unicharset_.has_special_codes())
         joined = true;
-      else if (results[res_index].unichar_id == UNICHAR_BROKEN &&
-               unicharset_.has_special_codes())
+      else if (results[res_index].unichar_id == UNICHAR_BROKEN && unicharset_.has_special_codes())
         broken = true;
       else if (epsilon_rank == 0)
         ++num_top_answers;
@@ -227,7 +215,8 @@ bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
     if (answer_actual_rank != 0) {
       // Correct result is not absolute top.
       ++font_counts_[font_id].n[CT_UNICHAR_TOPTOP_ERR];
-      if (boosting_mode == CT_UNICHAR_TOPTOP_ERR) sample->set_is_error(true);
+      if (boosting_mode == CT_UNICHAR_TOPTOP_ERR)
+        sample->set_is_error(true);
     }
     if (answer_epsilon_rank == 0) {
       ++font_counts_[font_id].n[CT_UNICHAR_TOP_OK];
@@ -239,12 +228,10 @@ bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
       // Check to see if any font in the top choice has attributes that match.
       // TODO(rays) It is easy to add counters for individual font attributes
       // here if we want them.
-      if (font_table.SetContainsFontProperties(
-          font_id, results[answer_actual_rank].fonts)) {
+      if (font_table.SetContainsFontProperties(font_id, results[answer_actual_rank].fonts)) {
         // Font attributes were matched.
         // Check for multiple properties.
-        if (font_table.SetContainsMultipleFontProperties(
-            results[answer_actual_rank].fonts))
+        if (font_table.SetContainsMultipleFontProperties(results[answer_actual_rank].fonts))
           ++font_counts_[font_id].n[CT_OK_MULTI_FONT];
       } else {
         // Font attributes weren't matched.
@@ -253,18 +240,21 @@ bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
     } else {
       // This is a top unichar error.
       ++font_counts_[font_id].n[CT_UNICHAR_TOP1_ERR];
-      if (boosting_mode == CT_UNICHAR_TOP1_ERR) sample->set_is_error(true);
+      if (boosting_mode == CT_UNICHAR_TOP1_ERR)
+        sample->set_is_error(true);
       // Count maps from unichar id to wrong unichar id.
       ++unichar_counts_(unichar_id, results[0].unichar_id);
       if (answer_epsilon_rank < 0 || answer_epsilon_rank >= 2) {
         // It is also a 2nd choice unichar error.
         ++font_counts_[font_id].n[CT_UNICHAR_TOP2_ERR];
-        if (boosting_mode == CT_UNICHAR_TOP2_ERR) sample->set_is_error(true);
+        if (boosting_mode == CT_UNICHAR_TOP2_ERR)
+          sample->set_is_error(true);
       }
       if (answer_epsilon_rank < 0) {
         // It is also a top-n choice unichar error.
         ++font_counts_[font_id].n[CT_UNICHAR_TOPN_ERR];
-        if (boosting_mode == CT_UNICHAR_TOPN_ERR) sample->set_is_error(true);
+        if (boosting_mode == CT_UNICHAR_TOPN_ERR)
+          sample->set_is_error(true);
         answer_epsilon_rank = epsilon_rank;
       }
     }
@@ -280,12 +270,10 @@ bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
   if (sample->is_error()) {
     scaled_error_ += sample->weight();
     if (debug) {
-      tprintf("%d results for char %s font %d :",
-              num_results, unicharset_.id_to_unichar(unichar_id),
-              font_id);
+      tprintf("%d results for char %s font %d :", num_results,
+              unicharset_.id_to_unichar(unichar_id), font_id);
       for (int i = 0; i < num_results; ++i) {
-        tprintf(" %.3f : %s\n",
-                results[i].rating,
+        tprintf(" %.3f : %s\n", results[i].rating,
                 unicharset_.id_to_unichar(results[i].unichar_id));
       }
       return true;
@@ -305,9 +293,8 @@ bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
 
 // Accumulates counts for junk. Counts only whether the junk was correctly
 // rejected or not.
-bool ErrorCounter::AccumulateJunk(bool debug,
-                                  const std::vector<UnicharRating>& results,
-                                  TrainingSample* sample) {
+bool ErrorCounter::AccumulateJunk(bool debug, const std::vector<UnicharRating> &results,
+                                  TrainingSample *sample) {
   // For junk we accept no answer, or an explicit shape answer matching the
   // class id of the sample.
   const int num_results = results.size();
@@ -346,10 +333,8 @@ bool ErrorCounter::AccumulateJunk(bool debug,
 // If not nullptr, the report string is saved in fonts_report.
 // (Ignoring report_level).
 double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
-                                  const FontInfoTable& fontinfo_table,
-                                  const SampleIterator& it,
-                                  double* unichar_error,
-                                  STRING* fonts_report) {
+                                  const FontInfoTable &fontinfo_table, const SampleIterator &it,
+                                  double *unichar_error, STRING *fonts_report) {
   // Compute totals over all the fonts and report individual font results
   // when required.
   Counts totals;
@@ -384,8 +369,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
     // Report the totals.
     STRING total_report;
     if (any_results) {
-      tprintf("TOTAL Scaled Err=%.4g%%, %s\n",
-              scaled_error_ * 100.0, total_report.c_str());
+      tprintf("TOTAL Scaled Err=%.4g%%, %s\n", scaled_error_ * 100.0, total_report.c_str());
     }
     // Report the worst substitution error only for now.
     if (totals.n[CT_UNICHAR_TOP1_ERR] > 0) {
@@ -403,9 +387,8 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
         }
       }
       if (worst_err > 0) {
-        tprintf("Worst error = %d:%s -> %s with %d/%d=%.2f%% errors\n",
-                worst_uni_id, unicharset_.id_to_unichar(worst_uni_id),
-                unicharset_.id_to_unichar(worst_result_id),
+        tprintf("Worst error = %d:%s -> %s with %d/%d=%.2f%% errors\n", worst_uni_id,
+                unicharset_.id_to_unichar(worst_uni_id), unicharset_.id_to_unichar(worst_result_id),
                 worst_err, totals.n[CT_UNICHAR_TOP1_ERR],
                 100.0 * worst_err / totals.n[CT_UNICHAR_TOP1_ERR]);
       }
@@ -413,8 +396,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
     tprintf("Multi-unichar shape use:\n");
     for (int u = 0; u < multi_unichar_counts_.size(); ++u) {
       if (multi_unichar_counts_[u] > 0) {
-        tprintf("%d multiple answers for unichar: %s\n",
-                multi_unichar_counts_[u],
+        tprintf("%d multiple answers for unichar: %s\n", multi_unichar_counts_[u],
                 unicharset_.id_to_unichar(u));
       }
     }
@@ -437,8 +419,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
 // string of the error rates.
 // Returns false if there is no data, leaving report unchanged, unless
 // even_if_empty is true.
-bool ErrorCounter::ReportString(bool even_if_empty, const Counts& counts,
-                                STRING* report) {
+bool ErrorCounter::ReportString(bool even_if_empty, const Counts &counts, STRING *report) {
   // Compute the error rates.
   double rates[CT_SIZE];
   if (!ComputeRates(counts, rates) && !even_if_empty)
@@ -446,32 +427,24 @@ bool ErrorCounter::ReportString(bool even_if_empty, const Counts& counts,
   // Using %.4g%%, the length of the output string should exactly match the
   // length of the format string, but in case of overflow, allow for +eddd
   // on each number.
-  const int kMaxExtraLength = 5;  // Length of +eddd.
+  const int kMaxExtraLength = 5; // Length of +eddd.
   // Keep this format string and the snprintf in sync with the CountTypes enum.
-  const char* format_str = "Unichar=%.4g%%[1], %.4g%%[2], %.4g%%[n], %.4g%%[T] "
-                           "Mult=%.4g%%, Jn=%.4g%%, Brk=%.4g%%, Rej=%.4g%%, "
-                           "FontAttr=%.4g%%, Multi=%.4g%%, "
-                           "Answers=%.3g, Rank=%.3g, "
-                           "OKjunk=%.4g%%, Badjunk=%.4g%%";
+  const char *format_str =
+      "Unichar=%.4g%%[1], %.4g%%[2], %.4g%%[n], %.4g%%[T] "
+      "Mult=%.4g%%, Jn=%.4g%%, Brk=%.4g%%, Rej=%.4g%%, "
+      "FontAttr=%.4g%%, Multi=%.4g%%, "
+      "Answers=%.3g, Rank=%.3g, "
+      "OKjunk=%.4g%%, Badjunk=%.4g%%";
   const size_t max_str_len = strlen(format_str) + kMaxExtraLength * (CT_SIZE - 1) + 1;
-  char* formatted_str = new char[max_str_len];
-  snprintf(formatted_str, max_str_len, format_str,
-           rates[CT_UNICHAR_TOP1_ERR] * 100.0,
-           rates[CT_UNICHAR_TOP2_ERR] * 100.0,
-           rates[CT_UNICHAR_TOPN_ERR] * 100.0,
-           rates[CT_UNICHAR_TOPTOP_ERR] * 100.0,
-           rates[CT_OK_MULTI_UNICHAR] * 100.0,
-           rates[CT_OK_JOINED] * 100.0,
-           rates[CT_OK_BROKEN] * 100.0,
-           rates[CT_REJECT] * 100.0,
-           rates[CT_FONT_ATTR_ERR] * 100.0,
-           rates[CT_OK_MULTI_FONT] * 100.0,
-           rates[CT_NUM_RESULTS],
-           rates[CT_RANK],
-           100.0 * rates[CT_REJECTED_JUNK],
-           100.0 * rates[CT_ACCEPTED_JUNK]);
+  char *formatted_str = new char[max_str_len];
+  snprintf(formatted_str, max_str_len, format_str, rates[CT_UNICHAR_TOP1_ERR] * 100.0,
+           rates[CT_UNICHAR_TOP2_ERR] * 100.0, rates[CT_UNICHAR_TOPN_ERR] * 100.0,
+           rates[CT_UNICHAR_TOPTOP_ERR] * 100.0, rates[CT_OK_MULTI_UNICHAR] * 100.0,
+           rates[CT_OK_JOINED] * 100.0, rates[CT_OK_BROKEN] * 100.0, rates[CT_REJECT] * 100.0,
+           rates[CT_FONT_ATTR_ERR] * 100.0, rates[CT_OK_MULTI_FONT] * 100.0, rates[CT_NUM_RESULTS],
+           rates[CT_RANK], 100.0 * rates[CT_REJECTED_JUNK], 100.0 * rates[CT_ACCEPTED_JUNK]);
   *report = formatted_str;
-  delete [] formatted_str;
+  delete[] formatted_str;
   // Now append each field of counts with a tab in front so the result can
   // be loaded into a spreadsheet.
   for (int ct : counts.n)
@@ -481,9 +454,9 @@ bool ErrorCounter::ReportString(bool even_if_empty, const Counts& counts,
 
 // Computes the error rates and returns in rates which is an array of size
 // CT_SIZE. Returns false if there is no data, leaving rates unchanged.
-bool ErrorCounter::ComputeRates(const Counts& counts, double rates[CT_SIZE]) {
-  const int ok_samples = counts.n[CT_UNICHAR_TOP_OK] + counts.n[CT_UNICHAR_TOP1_ERR] +
-      counts.n[CT_REJECT];
+bool ErrorCounter::ComputeRates(const Counts &counts, double rates[CT_SIZE]) {
+  const int ok_samples =
+      counts.n[CT_UNICHAR_TOP_OK] + counts.n[CT_UNICHAR_TOP1_ERR] + counts.n[CT_REJECT];
   const int junk_samples = counts.n[CT_REJECTED_JUNK] + counts.n[CT_ACCEPTED_JUNK];
   // Compute rates for normal chars.
   double denominator = static_cast<double>(std::max(ok_samples, 1));
@@ -500,10 +473,9 @@ ErrorCounter::Counts::Counts() {
   memset(n, 0, sizeof(n[0]) * CT_SIZE);
 }
 // Adds other into this for computing totals.
-void ErrorCounter::Counts::operator+=(const Counts& other) {
+void ErrorCounter::Counts::operator+=(const Counts &other) {
   for (int ct = 0; ct < CT_SIZE; ++ct)
     n[ct] += other.n[ct];
 }
 
-
-}  // namespace tesseract.
+} // namespace tesseract.

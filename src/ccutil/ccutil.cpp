@@ -13,13 +13,13 @@
 #include "ccutil.h"
 
 namespace tesseract {
-CCUtil::CCUtil() :
-  params_(),
-  INT_INIT_MEMBER(ambigs_debug_level, 0, "Debug level for unichar ambiguities",
-                  &params_),
-  BOOL_MEMBER(use_ambigs_for_adaption, false, "Use ambigs for deciding"
-              " whether to adapt to a character", &params_) {
-}
+CCUtil::CCUtil()
+    : params_()
+    , INT_INIT_MEMBER(ambigs_debug_level, 0, "Debug level for unichar ambiguities", &params_)
+    , BOOL_MEMBER(use_ambigs_for_adaption, false,
+                  "Use ambigs for deciding"
+                  " whether to adapt to a character",
+                  &params_) {}
 
 // Destructor.
 // It is defined here, so the compiler can create a single vtable

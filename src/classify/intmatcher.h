@@ -14,11 +14,11 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   INTMATCHER_H
-#define   INTMATCHER_H
+#ifndef INTMATCHER_H
+#define INTMATCHER_H
 
-#include "params.h"
 #include "intproto.h"
+#include "params.h"
 
 namespace tesseract {
 
@@ -30,8 +30,7 @@ extern BOOL_VAR_H(disable_character_fragments, false,
                   "Do not include character fragments in the"
                   " results of the classifier");
 
-extern INT_VAR_H(classify_integer_matcher_multiplier, 10,
-                 "Integer Matcher Multiplier  0-255:   ");
+extern INT_VAR_H(classify_integer_matcher_multiplier, 10, "Integer Matcher Multiplier  0-255:   ");
 
 struct UnicharRating;
 
@@ -42,13 +41,12 @@ struct CP_RESULT_STRUCT {
   CLASS_ID Class;
 };
 
-
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
 
-#define  SE_TABLE_BITS    9
-#define  SE_TABLE_SIZE  512
+#define SE_TABLE_BITS 9
+#define SE_TABLE_SIZE 512
 
 struct ScratchEvidence {
   uint8_t feature_evidence_[MAX_NUM_CONFIGS];
@@ -58,13 +56,11 @@ struct ScratchEvidence {
   void Clear(const INT_CLASS class_template);
   void ClearFeatureEvidence(const INT_CLASS class_template);
   void NormalizeSums(INT_CLASS ClassTemplate, int16_t NumFeatures);
-  void UpdateSumOfProtoEvidences(
-    INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask);
+  void UpdateSumOfProtoEvidences(INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask);
 };
 
-
 class IntegerMatcher {
- public:
+public:
   // Integer Matcher Theta Fudge (0-255).
   static const int kIntThetaFudge = 128;
   // Bits in Similarity to Evidence Lookup (8-9).
@@ -78,80 +74,45 @@ class IntegerMatcher {
 
   IntegerMatcher(tesseract::IntParam *classify_debug_level);
 
-  void Match(INT_CLASS ClassTemplate,
-             BIT_VECTOR ProtoMask,
-             BIT_VECTOR ConfigMask,
-             int16_t NumFeatures,
-             const INT_FEATURE_STRUCT* Features,
-             tesseract::UnicharRating* Result,
-             int AdaptFeatureThreshold,
-             int Debug,
+  void Match(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+             int16_t NumFeatures, const INT_FEATURE_STRUCT *Features,
+             tesseract::UnicharRating *Result, int AdaptFeatureThreshold, int Debug,
              bool SeparateDebugWindows);
 
   // Applies the CN normalization factor to the given rating and returns
   // the modified rating.
-  float ApplyCNCorrection(float rating, int blob_length,
-                          int normalization_factor, int matcher_multiplier);
+  float ApplyCNCorrection(float rating, int blob_length, int normalization_factor,
+                          int matcher_multiplier);
 
-  int FindGoodProtos(INT_CLASS ClassTemplate,
-                     BIT_VECTOR ProtoMask,
-                     BIT_VECTOR ConfigMask,
-                     int16_t NumFeatures,
-                     INT_FEATURE_ARRAY Features,
-                     PROTO_ID *ProtoArray,
-                     int AdaptProtoThreshold,
-                     int Debug);
+  int FindGoodProtos(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+                     int16_t NumFeatures, INT_FEATURE_ARRAY Features, PROTO_ID *ProtoArray,
+                     int AdaptProtoThreshold, int Debug);
 
-  int FindBadFeatures(INT_CLASS ClassTemplate,
-                      BIT_VECTOR ProtoMask,
-                      BIT_VECTOR ConfigMask,
-                      int16_t NumFeatures,
-                      INT_FEATURE_ARRAY Features,
-                      FEATURE_ID *FeatureArray,
-                      int AdaptFeatureThreshold,
-                      int Debug);
+  int FindBadFeatures(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+                      int16_t NumFeatures, INT_FEATURE_ARRAY Features, FEATURE_ID *FeatureArray,
+                      int AdaptFeatureThreshold, int Debug);
 
- private:
-  int UpdateTablesForFeature(
-      INT_CLASS ClassTemplate,
-      BIT_VECTOR ProtoMask,
-      BIT_VECTOR ConfigMask,
-      int FeatureNum,
-      const INT_FEATURE_STRUCT* Feature,
-      ScratchEvidence *evidence,
-      int Debug);
+private:
+  int UpdateTablesForFeature(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+                             int FeatureNum, const INT_FEATURE_STRUCT *Feature,
+                             ScratchEvidence *evidence, int Debug);
 
-  int FindBestMatch(INT_CLASS ClassTemplate,
-                    const ScratchEvidence &tables,
-                    tesseract::UnicharRating* Result);
+  int FindBestMatch(INT_CLASS ClassTemplate, const ScratchEvidence &tables,
+                    tesseract::UnicharRating *Result);
 
 #ifndef GRAPHICS_DISABLED
-  void DebugFeatureProtoError(
-      INT_CLASS ClassTemplate,
-      BIT_VECTOR ProtoMask,
-      BIT_VECTOR ConfigMask,
-      const ScratchEvidence &tables,
-      int16_t NumFeatures,
-      int Debug);
+  void DebugFeatureProtoError(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+                              const ScratchEvidence &tables, int16_t NumFeatures, int Debug);
 
-  void DisplayProtoDebugInfo(
-      INT_CLASS ClassTemplate,
-      BIT_VECTOR ConfigMask,
-      const ScratchEvidence &tables,
-      bool SeparateDebugWindows);
+  void DisplayProtoDebugInfo(INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask,
+                             const ScratchEvidence &tables, bool SeparateDebugWindows);
 
-  void DisplayFeatureDebugInfo(
-      INT_CLASS ClassTemplate,
-      BIT_VECTOR ProtoMask,
-      BIT_VECTOR ConfigMask,
-      int16_t NumFeatures,
-      const INT_FEATURE_STRUCT* Features,
-      int AdaptFeatureThreshold,
-      int Debug,
-      bool SeparateDebugWindows);
+  void DisplayFeatureDebugInfo(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+                               int16_t NumFeatures, const INT_FEATURE_STRUCT *Features,
+                               int AdaptFeatureThreshold, int Debug, bool SeparateDebugWindows);
 #endif
 
- private:
+private:
   tesseract::IntParam *classify_debug_level_;
   uint8_t similarity_evidence_table_[SE_TABLE_SIZE];
   uint32_t evidence_table_mask_;

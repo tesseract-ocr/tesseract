@@ -19,10 +19,10 @@
 #ifndef FINDSEAM_H
 #define FINDSEAM_H
 
-#include "seam.h"
+#include "chop.h"
 #include "genericheap.h"
 #include "kdpair.h"
-#include "chop.h"
+#include "seam.h"
 
 namespace tesseract {
 

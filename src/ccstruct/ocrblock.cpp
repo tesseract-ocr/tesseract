@@ -22,44 +22,44 @@
 #include "tprintf.h"
 
 #include <cstdlib>
-#include <memory>  // std::unique_ptr
+#include <memory> // std::unique_ptr
 
 namespace tesseract {
 
-ELISTIZE (BLOCK)
+ELISTIZE(BLOCK)
 /**
  * BLOCK::BLOCK
  *
  * Constructor for a simple rectangular block.
  */
-BLOCK::BLOCK(const char *name,                ///< filename
-             bool prop,                       ///< proportional
-             int16_t kern,                    ///< kerning
-             int16_t space,                   ///< spacing
-             int16_t xmin,                    ///< bottom left
-             int16_t ymin, int16_t xmax,      ///< top right
+BLOCK::BLOCK(const char *name,           ///< filename
+             bool prop,                  ///< proportional
+             int16_t kern,               ///< kerning
+             int16_t space,              ///< spacing
+             int16_t xmin,               ///< bottom left
+             int16_t ymin, int16_t xmax, ///< top right
              int16_t ymax)
-  : pdblk(xmin, ymin, xmax, ymax),
-    filename(name),
-    re_rotation_(1.0f, 0.0f),
-    classify_rotation_(1.0f, 0.0f),
-    skew_(1.0f, 0.0f) {
+    : pdblk(xmin, ymin, xmax, ymax)
+    , filename(name)
+    , re_rotation_(1.0f, 0.0f)
+    , classify_rotation_(1.0f, 0.0f)
+    , skew_(1.0f, 0.0f) {
   ICOORDELT_IT left_it = &pdblk.leftside;
   ICOORDELT_IT right_it = &pdblk.rightside;
 
   proportional = prop;
   kerning = kern;
   spacing = space;
-  font_class = -1;               //not assigned
+  font_class = -1; // not assigned
   cell_over_xheight_ = 2.0f;
   pdblk.hand_poly = nullptr;
-  left_it.set_to_list (&pdblk.leftside);
-  right_it.set_to_list (&pdblk.rightside);
-                                 //make default box
-  left_it.add_to_end (new ICOORDELT (xmin, ymin));
-  left_it.add_to_end (new ICOORDELT (xmin, ymax));
-  right_it.add_to_end (new ICOORDELT (xmax, ymin));
-  right_it.add_to_end (new ICOORDELT (xmax, ymax));
+  left_it.set_to_list(&pdblk.leftside);
+  right_it.set_to_list(&pdblk.rightside);
+  // make default box
+  left_it.add_to_end(new ICOORDELT(xmin, ymin));
+  left_it.add_to_end(new ICOORDELT(xmin, ymax));
+  right_it.add_to_end(new ICOORDELT(xmax, ymin));
+  right_it.add_to_end(new ICOORDELT(xmax, ymax));
 }
 
 /**
@@ -69,17 +69,16 @@ BLOCK::BLOCK(const char *name,                ///< filename
  */
 
 static int decreasing_top_order(const void *row1, const void *row2) {
-  return (*reinterpret_cast<ROW* const*>(row2))->bounding_box().top() -
-    (*reinterpret_cast<ROW* const*>(row1))->bounding_box().top();
+  return (*reinterpret_cast<ROW *const *>(row2))->bounding_box().top() -
+         (*reinterpret_cast<ROW *const *>(row1))->bounding_box().top();
 }
-
 
 /**
  * BLOCK::rotate
  *
  * Rotate the polygon by the given rotation and recompute the bounding_box.
  */
-void BLOCK::rotate(const FCOORD& rotation) {
+void BLOCK::rotate(const FCOORD &rotation) {
   pdblk.poly_block()->rotate(rotation);
   pdblk.box = *pdblk.poly_block()->bounding_box();
 }
@@ -89,7 +88,7 @@ void BLOCK::rotate(const FCOORD& rotation) {
 TBOX BLOCK::restricted_bounding_box(bool upper_dots, bool lower_dots) const {
   TBOX box;
   // This is a read-only iteration of the rows in the block.
-  ROW_IT it(const_cast<ROW_LIST*>(&rows));
+  ROW_IT it(const_cast<ROW_LIST *>(&rows));
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     box += it.data()->restricted_bounding_box(upper_dots, lower_dots);
   }
@@ -113,12 +112,11 @@ void BLOCK::reflect_polygon_in_y_axis() {
  * Order rows so that they are in order of decreasing Y coordinate
  */
 
-void BLOCK::sort_rows() {  // order on "top"
+void BLOCK::sort_rows() { // order on "top"
   ROW_IT row_it(&rows);
 
-  row_it.sort (decreasing_top_order);
+  row_it.sort(decreasing_top_order);
 }
-
 
 /**
  * BLOCK::compress
@@ -127,36 +125,34 @@ void BLOCK::sort_rows() {  // order on "top"
  * Fill space of block from top down, left aligning rows.
  */
 
-void BLOCK::compress() {  // squash it up
-  #define           ROW_SPACING 5
+void BLOCK::compress() { // squash it up
+#define ROW_SPACING 5
 
   ROW_IT row_it(&rows);
   ROW *row;
-  ICOORD row_spacing (0, ROW_SPACING);
+  ICOORD row_spacing(0, ROW_SPACING);
 
   ICOORDELT_IT icoordelt_it;
 
   sort_rows();
 
-  pdblk.box = TBOX (pdblk.box.topleft (), pdblk.box.topleft ());
-  pdblk.box.move_bottom_edge (ROW_SPACING);
-  for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-    row = row_it.data ();
-    row->move (pdblk.box.botleft () - row_spacing -
-      row->bounding_box ().topleft ());
-    pdblk.box += row->bounding_box ();
+  pdblk.box = TBOX(pdblk.box.topleft(), pdblk.box.topleft());
+  pdblk.box.move_bottom_edge(ROW_SPACING);
+  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+    row = row_it.data();
+    row->move(pdblk.box.botleft() - row_spacing - row->bounding_box().topleft());
+    pdblk.box += row->bounding_box();
   }
 
-  pdblk.leftside.clear ();
-  icoordelt_it.set_to_list (&pdblk.leftside);
-  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.left (), pdblk.box.bottom ()));
-  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.left (), pdblk.box.top ()));
-  pdblk.rightside.clear ();
-  icoordelt_it.set_to_list (&pdblk.rightside);
-  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.right (), pdblk.box.bottom ()));
-  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.right (), pdblk.box.top ()));
+  pdblk.leftside.clear();
+  icoordelt_it.set_to_list(&pdblk.leftside);
+  icoordelt_it.add_to_end(new ICOORDELT(pdblk.box.left(), pdblk.box.bottom()));
+  icoordelt_it.add_to_end(new ICOORDELT(pdblk.box.left(), pdblk.box.top()));
+  pdblk.rightside.clear();
+  icoordelt_it.set_to_list(&pdblk.rightside);
+  icoordelt_it.add_to_end(new ICOORDELT(pdblk.box.right(), pdblk.box.bottom()));
+  icoordelt_it.add_to_end(new ICOORDELT(pdblk.box.right(), pdblk.box.top()));
 }
-
 
 /**
  * BLOCK::check_pitch
@@ -165,11 +161,10 @@ void BLOCK::compress() {  // squash it up
  * the pitch if it is fixed.
  */
 
-void BLOCK::check_pitch() {  // check prop
+void BLOCK::check_pitch() { // check prop
   //      tprintf("Missing FFT fixed pitch stuff!\n");
   pitch = -1;
 }
-
 
 /**
  * BLOCK::compress
@@ -177,13 +172,12 @@ void BLOCK::check_pitch() {  // check prop
  * Compress and move in a single operation.
  */
 
-void BLOCK::compress(                  // squash it up
-                     const ICOORD vec  // and move
-                    ) {
-  pdblk.box.move (vec);
+void BLOCK::compress( // squash it up
+    const ICOORD vec  // and move
+) {
+  pdblk.box.move(vec);
   compress();
 }
-
 
 /**
  * BLOCK::print
@@ -191,29 +185,29 @@ void BLOCK::compress(                  // squash it up
  * Print the info on a block
  */
 
-void BLOCK::print(            //print list of sides
-        FILE*,     ///< file to print on
-        bool dump  ///< print full detail
+void BLOCK::print( // print list of sides
+    FILE *,        ///< file to print on
+    bool dump      ///< print full detail
 ) {
-  ICOORDELT_IT it = &pdblk.leftside;   //iterator
+  ICOORDELT_IT it = &pdblk.leftside; // iterator
 
-  pdblk.box.print ();
-  tprintf ("Proportional= %s\n", proportional ? "TRUE" : "FALSE");
-  tprintf ("Kerning= %d\n", kerning);
-  tprintf ("Spacing= %d\n", spacing);
-  tprintf ("Fixed_pitch=%d\n", pitch);
-  tprintf ("Filename= %s\n", filename.c_str ());
+  pdblk.box.print();
+  tprintf("Proportional= %s\n", proportional ? "TRUE" : "FALSE");
+  tprintf("Kerning= %d\n", kerning);
+  tprintf("Spacing= %d\n", spacing);
+  tprintf("Fixed_pitch=%d\n", pitch);
+  tprintf("Filename= %s\n", filename.c_str());
 
   if (dump) {
-    tprintf ("Left side coords are:\n");
-    for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
-      tprintf ("(%d,%d) ", it.data ()->x (), it.data ()->y ());
-    tprintf ("\n");
-    tprintf ("Right side coords are:\n");
-    it.set_to_list (&pdblk.rightside);
-    for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
-      tprintf ("(%d,%d) ", it.data ()->x (), it.data ()->y ());
-    tprintf ("\n");
+    tprintf("Left side coords are:\n");
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+      tprintf("(%d,%d) ", it.data()->x(), it.data()->y());
+    tprintf("\n");
+    tprintf("Right side coords are:\n");
+    it.set_to_list(&pdblk.rightside);
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+      tprintf("(%d,%d) ", it.data()->x(), it.data()->y());
+    tprintf("\n");
   }
 }
 
@@ -223,17 +217,17 @@ void BLOCK::print(            //print list of sides
  * Assignment - duplicate the block structure, but with an EMPTY row list.
  */
 
-BLOCK & BLOCK::operator= (       //assignment
-const BLOCK & source             //from this
+BLOCK &BLOCK::operator=( // assignment
+    const BLOCK &source  // from this
 ) {
-  this->ELIST_LINK::operator= (source);
+  this->ELIST_LINK::operator=(source);
   pdblk = source.pdblk;
   proportional = source.proportional;
   kerning = source.kerning;
   spacing = source.spacing;
-  filename = source.filename;    //STRINGs assign ok
-  if (!rows.empty ())
-    rows.clear ();
+  filename = source.filename; // STRINGs assign ok
+  if (!rows.empty())
+    rows.clear();
   re_rotation_ = source.re_rotation_;
   classify_rotation_ = source.classify_rotation_;
   skew_ = source.skew_;
@@ -347,21 +341,18 @@ void BLOCK::compute_row_margins() {
   ROW *second_row = r_it.data_relative(1);
 
   // initialize the bottom of a fictitious drop cap far above the first line.
-  int drop_cap_bottom = first_row->bounding_box().top() +
-                        first_row->bounding_box().height();
+  int drop_cap_bottom = first_row->bounding_box().top() + first_row->bounding_box().height();
   int drop_cap_right = first_row->bounding_box().left();
-  int mid_second_line = second_row->bounding_box().top() -
-                        second_row->bounding_box().height() / 2;
-  WERD_IT werd_it(r_it.data()->word_list());  // words of line one
+  int mid_second_line = second_row->bounding_box().top() - second_row->bounding_box().height() / 2;
+  WERD_IT werd_it(r_it.data()->word_list()); // words of line one
   if (!werd_it.empty()) {
     C_BLOB_IT cblob_it(werd_it.data()->cblob_list());
-    for (cblob_it.mark_cycle_pt(); !cblob_it.cycled_list();
-         cblob_it.forward()) {
+    for (cblob_it.mark_cycle_pt(); !cblob_it.cycled_list(); cblob_it.forward()) {
       TBOX bbox = cblob_it.data()->bounding_box();
       if (bbox.bottom() <= mid_second_line) {
         // we found a real drop cap
         first_row->set_has_drop_cap(true);
-        if (drop_cap_bottom >  bbox.bottom())
+        if (drop_cap_bottom > bbox.bottom())
           drop_cap_bottom = bbox.bottom();
         if (drop_cap_right < bbox.right())
           drop_cap_right = bbox.right();
@@ -378,8 +369,7 @@ void BLOCK::compute_row_margins() {
     TBOX row_box = row->bounding_box();
     int left_y = row->base_line(row_box.left()) + row->x_height();
     int left_margin;
-    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments_left(
-        lines.get_line(left_y));
+    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments_left(lines.get_line(left_y));
     LeftMargin(segments_left.get(), row_box.left(), &left_margin);
 
     if (row_box.top() >= drop_cap_bottom) {
@@ -392,8 +382,7 @@ void BLOCK::compute_row_margins() {
 
     int right_y = row->base_line(row_box.right()) + row->x_height();
     int right_margin;
-    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments_right(
-        lines.get_line(right_y));
+    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments_right(lines.get_line(right_y));
     RightMargin(segments_right.get(), row_box.right(), &right_margin);
     row->set_lmargin(left_margin);
     row->set_rmargin(right_margin);
@@ -406,30 +395,30 @@ void BLOCK::compute_row_margins() {
  * Prints segmentation stats for the given block list.
  **********************************************************************/
 
-void PrintSegmentationStats(BLOCK_LIST* block_list) {
+void PrintSegmentationStats(BLOCK_LIST *block_list) {
   int num_blocks = 0;
   int num_rows = 0;
   int num_words = 0;
   int num_blobs = 0;
   BLOCK_IT block_it(block_list);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
-    BLOCK* block = block_it.data();
+    BLOCK *block = block_it.data();
     ++num_blocks;
     ROW_IT row_it(block->row_list());
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
       ++num_rows;
-      ROW* row = row_it.data();
+      ROW *row = row_it.data();
       // Iterate over all werds in the row.
       WERD_IT werd_it(row->word_list());
       for (werd_it.mark_cycle_pt(); !werd_it.cycled_list(); werd_it.forward()) {
-        WERD* werd = werd_it.data();
+        WERD *werd = werd_it.data();
         ++num_words;
         num_blobs += werd->cblob_list()->length();
       }
     }
   }
-  tprintf("Block list stats:\nBlocks = %d\nRows = %d\nWords = %d\nBlobs = %d\n",
-          num_blocks, num_rows, num_words, num_blobs);
+  tprintf("Block list stats:\nBlocks = %d\nRows = %d\nWords = %d\nBlobs = %d\n", num_blocks,
+          num_rows, num_words, num_blobs);
 }
 
 /**********************************************************************
@@ -439,19 +428,18 @@ void PrintSegmentationStats(BLOCK_LIST* block_list) {
  * The block list must have been created by performing a page segmentation.
  **********************************************************************/
 
-void ExtractBlobsFromSegmentation(BLOCK_LIST* blocks,
-                                  C_BLOB_LIST* output_blob_list) {
+void ExtractBlobsFromSegmentation(BLOCK_LIST *blocks, C_BLOB_LIST *output_blob_list) {
   C_BLOB_IT return_list_it(output_blob_list);
   BLOCK_IT block_it(blocks);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
-    BLOCK* block = block_it.data();
+    BLOCK *block = block_it.data();
     ROW_IT row_it(block->row_list());
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
-      ROW* row = row_it.data();
+      ROW *row = row_it.data();
       // Iterate over all werds in the row.
       WERD_IT werd_it(row->word_list());
       for (werd_it.mark_cycle_pt(); !werd_it.cycled_list(); werd_it.forward()) {
-        WERD* werd = werd_it.data();
+        WERD *werd = werd_it.data();
         return_list_it.move_to_last();
         return_list_it.add_list_after(werd->cblob_list());
         return_list_it.move_to_last();
@@ -474,28 +462,26 @@ void ExtractBlobsFromSegmentation(BLOCK_LIST* blocks,
  * in the block_list for which no corresponding new blobs were found.
  **********************************************************************/
 
-void RefreshWordBlobsFromNewBlobs(BLOCK_LIST* block_list,
-                                  C_BLOB_LIST* new_blobs,
-                                  C_BLOB_LIST* not_found_blobs) {
+void RefreshWordBlobsFromNewBlobs(BLOCK_LIST *block_list, C_BLOB_LIST *new_blobs,
+                                  C_BLOB_LIST *not_found_blobs) {
   // Now iterate over all the blobs in the segmentation_block_list_, and just
   // replace the corresponding c-blobs inside the werds.
   BLOCK_IT block_it(block_list);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
-    BLOCK* block = block_it.data();
+    BLOCK *block = block_it.data();
     if (block->pdblk.poly_block() != nullptr && !block->pdblk.poly_block()->IsText())
-      continue;  // Don't touch non-text blocks.
+      continue; // Don't touch non-text blocks.
     // Iterate over all rows in the block.
     ROW_IT row_it(block->row_list());
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
-      ROW* row = row_it.data();
+      ROW *row = row_it.data();
       // Iterate over all werds in the row.
       WERD_IT werd_it(row->word_list());
       WERD_LIST new_words;
       WERD_IT new_words_it(&new_words);
       for (werd_it.mark_cycle_pt(); !werd_it.cycled_list(); werd_it.forward()) {
-        WERD* werd = werd_it.extract();
-        WERD* new_werd = werd->ConstructWerdWithNewBlobs(new_blobs,
-                                                         not_found_blobs);
+        WERD *werd = werd_it.extract();
+        WERD *new_werd = werd->ConstructWerdWithNewBlobs(new_blobs, not_found_blobs);
         if (new_werd) {
           // Insert this new werd into the actual row's werd-list. Remove the
           // existing one.

@@ -28,18 +28,18 @@
 namespace tesseract {
 
 class TESS_API POLY_BLOCK {
- public:
+public:
   POLY_BLOCK() = default;
   // Initialize from box coordinates.
-  POLY_BLOCK(const TBOX& tbox, PolyBlockType type);
+  POLY_BLOCK(const TBOX &tbox, PolyBlockType type);
   POLY_BLOCK(ICOORDELT_LIST *points, PolyBlockType type);
-  ~POLY_BLOCK () = default;
+  ~POLY_BLOCK() = default;
 
-  TBOX *bounding_box() {  // access function
+  TBOX *bounding_box() { // access function
     return &box;
   }
 
-  ICOORDELT_LIST *points() {  // access function
+  ICOORDELT_LIST *points() { // access function
     return &vertices;
   }
 
@@ -61,11 +61,11 @@ class TESS_API POLY_BLOCK {
   // Move by adding shift to all coordinates.
   void move(ICOORD shift);
 
-  void plot(ScrollView* window, int32_t num);
+  void plot(ScrollView *window, int32_t num);
 
-  #ifndef GRAPHICS_DISABLED
-  void fill(ScrollView* window, ScrollView::Color colour);
-  #endif // !GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
+  void fill(ScrollView *window, ScrollView::Color colour);
+#endif // !GRAPHICS_DISABLED
 
   // Returns true if other is inside this.
   bool contains(POLY_BLOCK *other);
@@ -78,26 +78,26 @@ class TESS_API POLY_BLOCK {
   // test_pt outside this.
   int16_t winding_number(const ICOORD &test_pt);
 
-  #ifndef GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
   // Static utility functions to handle the PolyBlockType.
   // Returns a color to draw the given type.
   static ScrollView::Color ColorForPolyBlockType(PolyBlockType type);
-  #endif // !GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
- private:
-  ICOORDELT_LIST vertices;     // vertices
-  TBOX box;                     // bounding box
-  PolyBlockType type;              // Type of this region.
+private:
+  ICOORDELT_LIST vertices; // vertices
+  TBOX box;                // bounding box
+  PolyBlockType type;      // Type of this region.
 };
 
 // Class to iterate the scanlines of a polygon.
 class PB_LINE_IT {
- public:
+public:
   PB_LINE_IT(POLY_BLOCK *blkptr) {
     block = blkptr;
   }
 
-  void set_to_block(POLY_BLOCK * blkptr) {
+  void set_to_block(POLY_BLOCK *blkptr) {
     block = blkptr;
   }
 
@@ -107,8 +107,8 @@ class PB_LINE_IT {
   // Delete the returned list after use.
   ICOORDELT_LIST *get_line(int16_t y);
 
- private:
-  POLY_BLOCK * block;
+private:
+  POLY_BLOCK *block;
 };
 
 } // namespace tesseract

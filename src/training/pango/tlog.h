@@ -33,12 +33,13 @@ DECLARE_INT_PARAM_FLAG(tlog_level);
 // (default 0).  Code using ParseCommandLineFlags() can control its value using
 // the --tlog_level commandline argument. Otherwise it must be specified in a
 // config file like other params.
-#define tlog(level, ...) {                        \
-  if (FLAGS_tlog_level >= level) {                \
-    tprintf(__VA_ARGS__);                         \
-  }                                               \
-}
+#define tlog(level, ...)             \
+  {                                  \
+    if (FLAGS_tlog_level >= level) { \
+      tprintf(__VA_ARGS__);          \
+    }                                \
+  }
 
 #define TLOG_IS_ON(level) (FLAGS_tlog_level >= level)
 
-#endif  // TESSERACT_TRAINING_TLOG_H_
+#endif // TESSERACT_TRAINING_TLOG_H_

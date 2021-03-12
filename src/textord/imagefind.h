@@ -41,13 +41,13 @@ class BLOBNBOX_LIST;
 // The ImageFind class is a simple static function wrapper class that
 // exposes the FindImages function and some useful helper functions.
 class ImageFind {
- public:
+public:
   // Finds image regions within the BINARY source pix (page image) and returns
   // the image regions as a mask image.
   // The returned pix may be nullptr, meaning no images found.
   // If not nullptr, it must be PixDestroyed by the caller.
   // If textord_tabfind_show_images, debug images are appended to pixa_debug.
-  static Pix* FindImages(Pix* pix, DebugPixa* pixa_debug);
+  static Pix *FindImages(Pix *pix, DebugPixa *pixa_debug);
 
   // Generates a Boxa, Pixa pair from the input binary (image mask) pix,
   // analogous to pixConnComp, except that connected components which are nearly
@@ -56,8 +56,7 @@ class ImageFind {
   // If not nullptr, they must be destroyed by the caller.
   // Resolution of pix should match the source image (Tesseract::pix_binary_)
   // so the output coordinate systems match.
-  static void ConnCompAndRectangularize(Pix* pix, DebugPixa* pixa_debug,
-                                        Boxa** boxa, Pixa** pixa);
+  static void ConnCompAndRectangularize(Pix *pix, DebugPixa *pixa_debug, Boxa **boxa, Pixa **pixa);
 
   // Returns true if there is a rectangle in the source pix, such that all
   // pixel rows and column slices outside of it have less than
@@ -68,24 +67,21 @@ class ImageFind {
   // On return, the rectangle is defined by x_start, y_start, x_end and y_end.
   // Note: the algorithm is iterative, allowing it to slice off pixels from
   // one edge, allowing it to then slice off more pixels from another edge.
-  static bool pixNearlyRectangular(Pix* pix,
-                                   double min_fraction, double max_fraction,
-                                   double max_skew_gradient,
-                                   int* x_start, int* y_start,
-                                   int* x_end, int* y_end);
+  static bool pixNearlyRectangular(Pix *pix, double min_fraction, double max_fraction,
+                                   double max_skew_gradient, int *x_start, int *y_start, int *x_end,
+                                   int *y_end);
 
   // Given an input pix, and a bounding rectangle, the sides of the rectangle
   // are shrunk inwards until they bound any black pixels found within the
   // original rectangle. Returns false if the rectangle contains no black
   // pixels at all.
-  static bool BoundsWithinRect(Pix* pix, int* x_start, int* y_start,
-                               int* x_end, int* y_end);
+  static bool BoundsWithinRect(Pix *pix, int *x_start, int *y_start, int *x_end, int *y_end);
 
   // Given a point in 3-D (RGB) space, returns the squared Euclidean distance
   // of the point from the given line, defined by a pair of points in the 3-D
   // (RGB) space, line1 and line2.
-  static double ColorDistanceFromLine(const uint8_t* line1, const uint8_t* line2,
-                                      const uint8_t* point);
+  static double ColorDistanceFromLine(const uint8_t *line1, const uint8_t *line2,
+                                      const uint8_t *point);
 
   // Returns the leptonica combined code for the given RGB triplet.
   static uint32_t ComposeRGB(uint32_t r, uint32_t g, uint32_t b);
@@ -103,28 +99,25 @@ class ImageFind {
   // If color_map1 is not null then it and color_map2 get rect pasted in them
   // with the two calculated colors, and rms map gets a pasted rect of the rms.
   // color_map1, color_map2 and rms_map are assumed to be the same scale as pix.
-  static void ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
-                                     Pix* color_map1, Pix* color_map2,
-                                     Pix* rms_map,
-                                     uint8_t* color1, uint8_t* color2);
+  static void ComputeRectangleColors(const TBOX &rect, Pix *pix, int factor, Pix *color_map1,
+                                     Pix *color_map2, Pix *rms_map, uint8_t *color1,
+                                     uint8_t *color2);
 
   // Returns true if there are no black pixels in between the boxes.
   // The im_box must represent the bounding box of the pix in tesseract
   // coordinates, which may be negative, due to rotations to make the textlines
   // horizontal. The boxes are rotated by rotation, which should undo such
   // rotations, before mapping them onto the pix.
-  static bool BlankImageInBetween(const TBOX& box1, const TBOX& box2,
-                                  const TBOX& im_box, const FCOORD& rotation,
-                                  Pix* pix);
+  static bool BlankImageInBetween(const TBOX &box1, const TBOX &box2, const TBOX &im_box,
+                                  const FCOORD &rotation, Pix *pix);
 
   // Returns the number of pixels in box in the pix.
   // The im_box must represent the bounding box of the pix in tesseract
   // coordinates, which may be negative, due to rotations to make the textlines
   // horizontal. The boxes are rotated by rotation, which should undo such
   // rotations, before mapping them onto the pix.
-  static int CountPixelsInRotatedBox(TBOX box, const TBOX& im_box,
-                                     const FCOORD& rotation, Pix* pix);
-
+  static int CountPixelsInRotatedBox(TBOX box, const TBOX &im_box, const FCOORD &rotation,
+                                     Pix *pix);
 
   // Locates all the image partitions in the part_grid, that were found by a
   // previous call to FindImagePartitions, marks them in the image_mask,
@@ -133,9 +126,8 @@ class ImageFind {
   // overlapping image partitions.
   // rerotation specifies how to rotate the partition coords to match
   // the image_mask, since this function is used after orientation correction.
-  static void TransferImagePartsToImageMask(const FCOORD& rerotation,
-                                            ColPartitionGrid* part_grid,
-                                            Pix* image_mask);
+  static void TransferImagePartsToImageMask(const FCOORD &rerotation, ColPartitionGrid *part_grid,
+                                            Pix *image_mask);
 
   // Runs a CC analysis on the image_pix mask image, and creates
   // image partitions from them, cutting out strong text, and merging with
@@ -147,13 +139,11 @@ class ImageFind {
   // Since the other blobs in the other partitions will be owned by the block,
   // ColPartitionGrid::ReTypeBlobs must be called afterwards to fix this
   // situation and collect the image blobs.
-  static void FindImagePartitions(Pix* image_pix, const FCOORD& rotation,
-                                  const FCOORD& rerotation, TO_BLOCK* block,
-                                  TabFind* tab_grid, DebugPixa* pixa_debug,
-                                  ColPartitionGrid* part_grid,
-                                  ColPartition_LIST* big_parts);
+  static void FindImagePartitions(Pix *image_pix, const FCOORD &rotation, const FCOORD &rerotation,
+                                  TO_BLOCK *block, TabFind *tab_grid, DebugPixa *pixa_debug,
+                                  ColPartitionGrid *part_grid, ColPartition_LIST *big_parts);
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_LINEFIND_H_
+#endif // TESSERACT_TEXTORD_LINEFIND_H_

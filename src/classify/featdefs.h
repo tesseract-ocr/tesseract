@@ -24,10 +24,10 @@ namespace tesseract {
 
 /* Enumerate the different types of features currently defined. */
 #define NUM_FEATURE_TYPES 4
-extern TESS_API const char* const kMicroFeatureType;
-extern TESS_API const char* const kCNFeatureType;
-extern TESS_API const char* const kIntFeatureType;
-extern TESS_API const char* const kGeoFeatureType;
+extern TESS_API const char *const kMicroFeatureType;
+extern TESS_API const char *const kCNFeatureType;
+extern TESS_API const char *const kIntFeatureType;
+extern TESS_API const char *const kGeoFeatureType;
 
 /* A character is described by multiple sets of extracted features.  Each
   set contains a number of features of a particular type, for example, a
@@ -43,7 +43,7 @@ using CHAR_DESC = CHAR_DESC_STRUCT *;
 
 struct FEATURE_DEFS_STRUCT {
   int32_t NumFeatureTypes;
-  const FEATURE_DESC_STRUCT* FeatureDesc[NUM_FEATURE_TYPES];
+  const FEATURE_DESC_STRUCT *FeatureDesc[NUM_FEATURE_TYPES];
 };
 using FEATURE_DEFS = FEATURE_DEFS_STRUCT *;
 
@@ -58,19 +58,15 @@ void FreeCharDescription(CHAR_DESC CharDesc);
 
 CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs);
 
-bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                          CHAR_DESC CharDesc);
+bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC CharDesc);
 
-void WriteCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs,
-                          CHAR_DESC CharDesc, STRING* str);
+void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC CharDesc, STRING *str);
 
 TESS_API
-CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                              FILE *File);
+CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, FILE *File);
 
 TESS_API
-uint32_t ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                                const char *ShortName);
+uint32_t ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs, const char *ShortName);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

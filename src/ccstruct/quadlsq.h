@@ -24,47 +24,46 @@
 
 namespace tesseract {
 
-class QLSQ
-{
-  public:
-    QLSQ() {  //constructor
-      clear();  //set to zeros
-    }
-    void clear();  //initialize
+class QLSQ {
+public:
+  QLSQ() {   // constructor
+    clear(); // set to zeros
+  }
+  void clear(); // initialize
 
-    void add(           //add element
-             double x,  //coords to add
-             double y);
-    void remove(           //delete element
-                double x,  //coords to delete
-                double y);
-    int32_t count() {  //no of elements
-      return n;
-    }
+  void add(     // add element
+      double x, // coords to add
+      double y);
+  void remove(  // delete element
+      double x, // coords to delete
+      double y);
+  int32_t count() { // no of elements
+    return n;
+  }
 
-    void fit(              //fit the given
-             int degree);  //return actual
-    double get_a() {  //get x squard
-      return a;
-    }
-    double get_b() {  //get x squard
-      return b;
-    }
-    double get_c() {  //get x squard
-      return c;
-    }
+  void fit(        // fit the given
+      int degree); // return actual
+  double get_a() { // get x squard
+    return a;
+  }
+  double get_b() { // get x squard
+    return b;
+  }
+  double get_c() { // get x squard
+    return c;
+  }
 
-  private:
-    int32_t n;                     //no of elements
-    double a, b, c;              //result
-    double sigx;                 //sum of x
-    double sigy;                 //sum of y
-    double sigxx;                //sum x squared
-    double sigxy;                //sum of xy
-    double sigyy;                //sum y squared
-    long double sigxxx;          //sum x cubed
-    long double sigxxy;          //sum xsquared y
-    long double sigxxxx;         //sum x fourth
+private:
+  int32_t n;           // no of elements
+  double a, b, c;      // result
+  double sigx;         // sum of x
+  double sigy;         // sum of y
+  double sigxx;        // sum x squared
+  double sigxy;        // sum of xy
+  double sigyy;        // sum y squared
+  long double sigxxx;  // sum x cubed
+  long double sigxxy;  // sum xsquared y
+  long double sigxxxx; // sum x fourth
 };
 
 } // namespace tesseract

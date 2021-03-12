@@ -15,20 +15,20 @@
  ** limitations under the License.
  *****************************************************************************/
 
-#define _USE_MATH_DEFINES   // for M_PI
+#define _USE_MATH_DEFINES // for M_PI
 
 #include "clusttool.h"
 
-#include <cmath>            // for M_PI, std::isnan
-#include <locale>           // for std::locale::classic
-#include <sstream>          // for std::stringstream
+#include <cmath>   // for M_PI, std::isnan
+#include <locale>  // for std::locale::classic
+#include <sstream> // for std::stringstream
 
 namespace tesseract {
 
 //---------------Global Data Definitions and Declarations--------------------
-#define TOKENSIZE 80         ///< max size of tokens read from an input file
+#define TOKENSIZE 80 ///< max size of tokens read from an input file
 #define QUOTED_TOKENSIZE "79"
-#define MAXSAMPLESIZE 65535  ///< max num of dimensions in feature space
+#define MAXSAMPLESIZE 65535 ///< max num of dimensions in feature space
 
 /**
  * This routine reads N floats from the specified text file
@@ -64,7 +64,8 @@ static float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
     stream >> f;
     if (std::isnan(f)) {
       tprintf("Read of %u floats failed!\n", N);
-      if (needs_free) free(Buffer);
+      if (needs_free)
+        free(Buffer);
       return nullptr;
     }
     Buffer[i] = f;
@@ -79,7 +80,7 @@ static float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
  * @param N number of floats to write
  * @param Array array of floats to write
  */
-static void WriteNFloats(FILE * File, uint16_t N, float Array[]) {
+static void WriteNFloats(FILE *File, uint16_t N, float Array[]) {
   for (int i = 0; i < N; i++)
     fprintf(File, " %9.6f", Array[i]);
   fprintf(File, "\n");
@@ -95,16 +96,16 @@ static void WriteNFloats(FILE * File, uint16_t N, float Array[]) {
 static void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
   switch (ProtoStyle) {
     case spherical:
-      fprintf (File, "spherical");
+      fprintf(File, "spherical");
       break;
     case elliptical:
-      fprintf (File, "elliptical");
+      fprintf(File, "elliptical");
       break;
     case mixed:
-      fprintf (File, "mixed");
+      fprintf(File, "mixed");
       break;
     case automatic:
-      fprintf (File, "automatic");
+      fprintf(File, "automatic");
       break;
   }
 }
@@ -140,7 +141,7 @@ uint16_t ReadSampleSize(TFile *fp) {
 PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
   PARAM_DESC *ParamDesc;
 
-  ParamDesc = static_cast<PARAM_DESC *>(malloc (N * sizeof (PARAM_DESC)));
+  ParamDesc = static_cast<PARAM_DESC *>(malloc(N * sizeof(PARAM_DESC)));
   for (int i = 0; i < N; i++) {
     const int kMaxLineSize = TOKENSIZE * 4;
     char line[kMaxLineSize];
@@ -182,8 +183,8 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   const int kMaxLineSize = TOKENSIZE * 4;
   char line[kMaxLineSize];
   if (fp->FGets(line, kMaxLineSize) == nullptr ||
-      sscanf(line, "%" QUOTED_TOKENSIZE "s %" QUOTED_TOKENSIZE "s %d",
-             sig_token, shape_token, &SampleCount) != 3) {
+      sscanf(line, "%" QUOTED_TOKENSIZE "s %" QUOTED_TOKENSIZE "s %d", sig_token, shape_token,
+             &SampleCount) != 3) {
     tprintf("Invalid prototype: %s\n", line);
     return nullptr;
   }
@@ -215,8 +216,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   switch (Proto->Style) {
     case spherical:
       ASSERT_HOST(ReadNFloats(fp, 1, &(Proto->Variance.Spherical)) != nullptr);
-      Proto->Magnitude.Spherical =
-          1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
+      Proto->Magnitude.Spherical = 1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
       Proto->TotalMagnitude = pow(Proto->Magnitude.Spherical, static_cast<float>(N));
       Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
       Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
@@ -229,8 +229,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
       Proto->TotalMagnitude = 1.0;
       for (i = 0; i < N; i++) {
-        Proto->Magnitude.Elliptical[i] =
-            1.0 / sqrt(2.0 * M_PI * Proto->Variance.Elliptical[i]);
+        Proto->Magnitude.Elliptical[i] = 1.0 / sqrt(2.0 * M_PI * Proto->Variance.Elliptical[i]);
         Proto->Weight.Elliptical[i] = 1.0 / Proto->Variance.Elliptical[i];
         Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
       }
@@ -257,16 +256,16 @@ void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]) {
 
   for (i = 0; i < N; i++) {
     if (ParamDesc[i].Circular)
-      fprintf (File, "circular ");
+      fprintf(File, "circular ");
     else
-      fprintf (File, "linear   ");
+      fprintf(File, "linear   ");
 
     if (ParamDesc[i].NonEssential)
-      fprintf (File, "non-essential ");
+      fprintf(File, "non-essential ");
     else
-      fprintf (File, "essential     ");
+      fprintf(File, "essential     ");
 
-    fprintf (File, "%10.6f %10.6f\n", ParamDesc[i].Min, ParamDesc[i].Max);
+    fprintf(File, "%10.6f %10.6f\n", ParamDesc[i].Min, ParamDesc[i].Max);
   }
 }
 
@@ -281,38 +280,38 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
   int i;
 
   if (Proto->Significant)
-    fprintf (File, "significant   ");
+    fprintf(File, "significant   ");
   else
-    fprintf (File, "insignificant ");
-  WriteProtoStyle (File, static_cast<PROTOSTYLE>(Proto->Style));
-  fprintf (File, "%6d\n\t", Proto->NumSamples);
-  WriteNFloats (File, N, Proto->Mean);
-  fprintf (File, "\t");
+    fprintf(File, "insignificant ");
+  WriteProtoStyle(File, static_cast<PROTOSTYLE>(Proto->Style));
+  fprintf(File, "%6d\n\t", Proto->NumSamples);
+  WriteNFloats(File, N, Proto->Mean);
+  fprintf(File, "\t");
 
   switch (Proto->Style) {
     case spherical:
-      WriteNFloats (File, 1, &(Proto->Variance.Spherical));
+      WriteNFloats(File, 1, &(Proto->Variance.Spherical));
       break;
     case elliptical:
-      WriteNFloats (File, N, Proto->Variance.Elliptical);
+      WriteNFloats(File, N, Proto->Variance.Elliptical);
       break;
     case mixed:
       for (i = 0; i < N; i++)
-      switch (Proto->Distrib[i]) {
-        case normal:
-          fprintf (File, " %9s", "normal");
-          break;
-        case uniform:
-          fprintf (File, " %9s", "uniform");
-          break;
-        case D_random:
-          fprintf (File, " %9s", "random");
-          break;
-        case DISTRIBUTION_COUNT:
-          ASSERT_HOST(!"Distribution count not allowed!");
-      }
-      fprintf (File, "\n\t");
-      WriteNFloats (File, N, Proto->Variance.Elliptical);
+        switch (Proto->Distrib[i]) {
+          case normal:
+            fprintf(File, " %9s", "normal");
+            break;
+          case uniform:
+            fprintf(File, " %9s", "uniform");
+            break;
+          case D_random:
+            fprintf(File, " %9s", "random");
+            break;
+          case DISTRIBUTION_COUNT:
+            ASSERT_HOST(!"Distribution count not allowed!");
+        }
+      fprintf(File, "\n\t");
+      WriteNFloats(File, N, Proto->Variance.Elliptical);
   }
 }
 

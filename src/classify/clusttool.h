@@ -40,4 +40,4 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto);
 
 } // namespace tesseract
 
-#endif  // TESSERACT_CLASSIFY_CLUSTTOOL_H_
+#endif // TESSERACT_CLASSIFY_CLUSTTOOL_H_

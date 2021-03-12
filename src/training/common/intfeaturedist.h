@@ -37,27 +37,26 @@ class IntFeatureMap;
 // setup with Set(..., true), to return to its initialized state before
 // reuse with Set(..., true) on a new feature set.
 class IntFeatureDist {
- public:
+public:
   IntFeatureDist();
   ~IntFeatureDist();
 
   // Initialize the bool array to the given size of feature space.
   // The feature_map is just borrowed, and must exist for the entire
   // lifetime of the IntFeatureDist.
-  void Init(const IntFeatureMap* feature_map);
+  void Init(const IntFeatureMap *feature_map);
 
   // Setup the map for the given indexed_features that have been indexed by
   // feature_map. After use, use Set(..., false) to reset to the initial state
   // as this is faster than calling Init for sparse spaces.
-  void Set(const GenericVector<int>& indexed_features,
-           int canonical_count, bool value);
+  void Set(const GenericVector<int> &indexed_features, int canonical_count, bool value);
 
   // Compute the distance between the given feature vector and the last
   // Set feature vector.
-  double FeatureDistance(const GenericVector<int>& features) const;
-  double DebugFeatureDistance(const GenericVector<int>& features) const;
+  double FeatureDistance(const GenericVector<int> &features) const;
+  double DebugFeatureDistance(const GenericVector<int> &features) const;
 
- private:
+private:
   // Clear all data.
   void Clear();
 
@@ -66,15 +65,15 @@ class IntFeatureDist {
   // Total weight of features currently stored in the maps.
   double total_feature_weight_;
   // Pointer to IntFeatureMap given at Init to find offset features.
-  const IntFeatureMap* feature_map_;
+  const IntFeatureMap *feature_map_;
   // Array of bools indicating presence of a feature.
-  bool* features_;
+  bool *features_;
   // Array indicating the presence of a feature offset by one unit.
-  bool* features_delta_one_;
+  bool *features_delta_one_;
   // Array indicating the presence of a feature offset by two units.
-  bool* features_delta_two_;
+  bool *features_delta_two_;
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_CLASSIFY_INTFEATUREDIST_H_
+#endif // TESSERACT_CLASSIFY_INTFEATUREDIST_H_

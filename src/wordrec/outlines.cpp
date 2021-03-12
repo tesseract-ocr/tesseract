@@ -33,9 +33,7 @@ namespace tesseract {
  * the line segment.  Return that point in near_pt.  Returns whether
  * near_pt was newly created.
  **********************************************************************/
-bool Wordrec::near_point(EDGEPT *point,
-                         EDGEPT *line_pt_0, EDGEPT *line_pt_1,
-                         EDGEPT **near_pt) {
+bool Wordrec::near_point(EDGEPT *point, EDGEPT *line_pt_0, EDGEPT *line_pt_1, EDGEPT **near_pt) {
   TPOINT p;
 
   float slope;
@@ -47,30 +45,29 @@ bool Wordrec::near_point(EDGEPT *point,
   float y1 = line_pt_1->pos.y;
 
   if (x0 == x1) {
-                                 /* Handle vertical line */
+    /* Handle vertical line */
     p.x = static_cast<int16_t>(x0);
     p.y = point->pos.y;
-  }
-  else {
+  } else {
     /* Slope and intercept */
     slope = (y0 - y1) / (x0 - x1);
     intercept = y1 - x1 * slope;
 
     /* Find perpendicular */
     p.x = static_cast<int16_t>((point->pos.x + (point->pos.y - intercept) * slope) /
-      (slope * slope + 1));
+                               (slope * slope + 1));
     p.y = static_cast<int16_t>(slope * p.x + intercept);
   }
 
-  if (is_on_line (p, line_pt_0->pos, line_pt_1->pos) &&
-    (!same_point (p, line_pt_0->pos)) && (!same_point (p, line_pt_1->pos))) {
+  if (is_on_line(p, line_pt_0->pos, line_pt_1->pos) && (!same_point(p, line_pt_0->pos)) &&
+      (!same_point(p, line_pt_1->pos))) {
     /* Intersection on line */
     *near_pt = make_edgept(p.x, p.y, line_pt_1, line_pt_0);
     return true;
-  } else {                           /* Intersection not on line */
+  } else { /* Intersection not on line */
     *near_pt = closest(point, line_pt_0, line_pt_1);
     return false;
   }
 }
 
-}  // namespace tesseract
+} // namespace tesseract

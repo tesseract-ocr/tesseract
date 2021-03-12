@@ -18,32 +18,31 @@
 
 #include "tesseractclass.h"
 #ifdef _OPENMP
-#include <omp.h>
-#endif  // _OPENMP
+#  include <omp.h>
+#endif // _OPENMP
 
 namespace tesseract {
 
 struct BlobData {
   BlobData() = default;
-  BlobData(int index, Tesseract* tess, const WERD_RES& word)
-    : blob(word.chopped_word->blobs[index]),
-      tesseract(tess),
-      choices(&(*word.ratings)(index, index)) {}
+  BlobData(int index, Tesseract *tess, const WERD_RES &word)
+      : blob(word.chopped_word->blobs[index])
+      , tesseract(tess)
+      , choices(&(*word.ratings)(index, index)) {}
 
-  TBLOB* blob = nullptr;
-  Tesseract* tesseract = nullptr;
-  BLOB_CHOICE_LIST** choices = nullptr;
+  TBLOB *blob = nullptr;
+  Tesseract *tesseract = nullptr;
+  BLOB_CHOICE_LIST **choices = nullptr;
 };
 
-void Tesseract::PrerecAllWordsPar(const std::vector<WordData>& words) {
+void Tesseract::PrerecAllWordsPar(const std::vector<WordData> &words) {
   // Prepare all the blobs.
   std::vector<BlobData> blobs;
   for (size_t w = 0; w < words.size(); ++w) {
-    if (words[w].word->ratings != nullptr &&
-        words[w].word->ratings->get(0, 0) == nullptr) {
+    if (words[w].word->ratings != nullptr && words[w].word->ratings->get(0, 0) == nullptr) {
       for (int s = 0; s < words[w].lang_words.size(); ++s) {
-        Tesseract* sub = s < sub_langs_.size() ? sub_langs_[s] : this;
-        const WERD_RES& word = *words[w].lang_words[s];
+        Tesseract *sub = s < sub_langs_.size() ? sub_langs_[s] : this;
+        const WERD_RES &word = *words[w].lang_words[s];
         for (int b = 0; b < word.chopped_word->NumBlobs(); ++b) {
           blobs.push_back(BlobData(b, sub, word));
         }
@@ -53,21 +52,19 @@ void Tesseract::PrerecAllWordsPar(const std::vector<WordData>& words) {
   // Pre-classify all the blobs.
   if (tessedit_parallelize > 1) {
 #ifdef _OPENMP
-#pragma omp parallel for num_threads(10)
-#endif  // _OPENMP
+#  pragma omp parallel for num_threads(10)
+#endif // _OPENMP
     for (size_t b = 0; b < blobs.size(); ++b) {
       *blobs[b].choices =
-          blobs[b].tesseract->classify_blob(blobs[b].blob, "par",
-                                            ScrollView::WHITE, nullptr);
+          blobs[b].tesseract->classify_blob(blobs[b].blob, "par", ScrollView::WHITE, nullptr);
     }
   } else {
     // TODO(AMD) parallelize this.
     for (size_t b = 0; b < blobs.size(); ++b) {
       *blobs[b].choices =
-          blobs[b].tesseract->classify_blob(blobs[b].blob, "par",
-                                            ScrollView::WHITE, nullptr);
+          blobs[b].tesseract->classify_blob(blobs[b].blob, "par", ScrollView::WHITE, nullptr);
     }
   }
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

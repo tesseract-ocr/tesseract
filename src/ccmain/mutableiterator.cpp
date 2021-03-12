@@ -21,4 +21,4 @@ namespace tesseract {
 // instead of weak vtables in every compilation unit.
 MutableIterator::~MutableIterator() = default;
 
-}  // namespace tesseract.
+} // namespace tesseract.

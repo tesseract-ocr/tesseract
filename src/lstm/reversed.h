@@ -26,18 +26,17 @@ namespace tesseract {
 
 // C++ Implementation of the Reversed class from lstm.py.
 class Reversed : public Plumbing {
- public:
+public:
   TESS_API
-  explicit Reversed(const std::string& name, NetworkType type);
+  explicit Reversed(const std::string &name, NetworkType type);
   ~Reversed() override = default;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  StaticShape OutputShape(const StaticShape& input_shape) const override;
+  StaticShape OutputShape(const StaticShape &input_shape) const override;
 
   STRING spec() const override {
-    STRING spec(type_ == NT_XREVERSED ? "Rx"
-                                      : (type_ == NT_YREVERSED ? "Ry" : "Txy"));
+    STRING spec(type_ == NT_XREVERSED ? "Rx" : (type_ == NT_YREVERSED ? "Ry" : "Txy"));
     // For most simple cases, we will output Rx<net> or Ry<net> where <net> is
     // the network in stack_[0], but in the special case that <net> is an
     // LSTM, we will just output the LSTM's spec modified to take the reversal
@@ -57,7 +56,8 @@ class Reversed : public Plumbing {
       }
       // Change the from char to the to char.
       for (int i = 0; i < net_spec.length(); ++i) {
-        if (net_spec[i] == from) net_spec[i] = to;
+        if (net_spec[i] == from)
+          net_spec[i] = to;
       }
       return net_spec;
     }
@@ -67,25 +67,23 @@ class Reversed : public Plumbing {
 
   // Takes ownership of the given network to make it the reversed one.
   TESS_API
-  void SetNetwork(Network* network);
+  void SetNetwork(Network *network);
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  void Forward(bool debug, const NetworkIO& input,
-               const TransposedArray* input_transpose,
-               NetworkScratch* scratch, NetworkIO* output) override;
+  void Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+               NetworkScratch *scratch, NetworkIO *output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                NetworkScratch* scratch,
-                NetworkIO* back_deltas) override;
+  bool Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+                NetworkIO *back_deltas) override;
 
- private:
+private:
   // Copies src to *dest with the reversal according to type_.
-  void ReverseData(const NetworkIO& src, NetworkIO* dest) const;
+  void ReverseData(const NetworkIO &src, NetworkIO *dest) const;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_LSTM_REVERSED_H_
+#endif // TESSERACT_LSTM_REVERSED_H_

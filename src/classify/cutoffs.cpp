@@ -19,15 +19,15 @@
 ----------------------------------------------------------------------------*/
 
 #include <cstdio>
-#include <sstream>    // for std::istringstream
-#include <string>     // for std::string
+#include <sstream> // for std::istringstream
+#include <string>  // for std::string
 
+#include <tesseract/unichar.h>
 #include "classify.h"
 #include "helpers.h"
 #include "serialis.h"
-#include <tesseract/unichar.h>
 
-#define MAX_CUTOFF      1000
+#define MAX_CUTOFF 1000
 
 namespace tesseract {
 /**
@@ -38,7 +38,7 @@ namespace tesseract {
  * @param fp file containing cutoff definitions
  * @param Cutoffs array to put cutoffs into
  */
-void Classify::ReadNewCutoffs(TFile* fp, uint16_t* Cutoffs) {
+void Classify::ReadNewCutoffs(TFile *fp, uint16_t *Cutoffs) {
   int Cutoff;
 
   if (shape_table_ != nullptr) {
@@ -70,4 +70,4 @@ void Classify::ReadNewCutoffs(TFile* fp, uint16_t* Cutoffs) {
   }
 }
 
-}  // namespace tesseract
+} // namespace tesseract

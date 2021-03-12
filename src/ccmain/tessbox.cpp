@@ -59,10 +59,9 @@ void Tesseract::tess_segment_pass_n(int pass_n, WERD_RES *word) {
  * @param word_choice after context
  * @param raw_choice before context
  */
-bool Tesseract::tess_acceptable_word(WERD_RES* word) {
+bool Tesseract::tess_acceptable_word(WERD_RES *word) {
   return getDict().AcceptableResult(word);
 }
-
 
 /**
  * @name tess_add_doc_word
@@ -72,4 +71,4 @@ bool Tesseract::tess_acceptable_word(WERD_RES* word) {
 void Tesseract::tess_add_doc_word(WERD_CHOICE *word_choice) {
   getDict().add_document_word(*word_choice);
 }
-}  // namespace tesseract
+} // namespace tesseract
