@@ -23,9 +23,6 @@
 #  include "config_auto.h"
 #endif
 
-#ifndef DISABLED_LEGACY_ENGINE
-#  include "blobclass.h" // for ExtractFontName
-#endif
 #include "boxword.h"    // for BoxWord
 #include "coutln.h"     // for C_OUTLINE_IT, C_OUTLINE_LIST
 #include "dawg_cache.h" // for DawgCache
@@ -124,6 +121,34 @@ static const char *kInputFile = "noname.tif";
 static const char *kOldVarsFile = "failed_vars.txt";
 /** Max string length of an int.  */
 const int kMaxIntSize = 22;
+
+#ifndef DISABLED_LEGACY_ENGINE
+static const char kUnknownFontName[] = "UnknownFont";
+
+static STRING_VAR(classify_font_name, kUnknownFontName,
+                  "Default font name to be used in training");
+
+// Finds the name of the training font and returns it in fontname, by cutting
+// it out based on the expectation that the filename is of the form:
+// /path/to/dir/[lang].[fontname].exp[num]
+// The [lang], [fontname] and [num] fields should not have '.' characters.
+// If the global parameter classify_font_name is set, its value is used instead.
+static void ExtractFontName(const char* filename, std::string* fontname) {
+  *fontname = classify_font_name;
+  if (*fontname == kUnknownFontName) {
+    // filename is expected to be of the form [lang].[fontname].exp[num]
+    // The [lang], [fontname] and [num] fields should not have '.' characters.
+    const char *basename = strrchr(filename, '/');
+    const char *firstdot = strchr(basename ? basename : filename, '.');
+    const char *lastdot  = strrchr(filename, '.');
+    if (firstdot != lastdot && firstdot != nullptr && lastdot != nullptr) {
+      ++firstdot;
+      *fontname = firstdot;
+      fontname->resize(lastdot - firstdot);
+    }
+  }
+}
+#endif
 
 /* Add all available languages recursively.
  */
