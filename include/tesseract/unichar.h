@@ -19,12 +19,13 @@
 #ifndef TESSERACT_CCUTIL_UNICHAR_H_
 #define TESSERACT_CCUTIL_UNICHAR_H_
 
-#include "export.h"
+#include <memory.h>
 
 #include <cstring>
 #include <string>
 #include <vector>
-#include <memory.h>
+
+#include "export.h"
 
 namespace tesseract {
 

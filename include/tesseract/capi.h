@@ -21,11 +21,11 @@
 #include "export.h"
 
 #ifdef __cplusplus
-#include <tesseract/baseapi.h>
-#include <tesseract/ocrclass.h>
-#include <tesseract/pageiterator.h>
-#include <tesseract/renderer.h>
-#include <tesseract/resultiterator.h>
+#  include <tesseract/baseapi.h>
+#  include <tesseract/ocrclass.h>
+#  include <tesseract/pageiterator.h>
+#  include <tesseract/renderer.h>
+#  include <tesseract/resultiterator.h>
 #endif
 
 #include <stdbool.h>

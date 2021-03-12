@@ -20,20 +20,20 @@
 #define TESSERACT_API_BASEAPI_H_
 
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h" // DISABLED_LEGACY_ENGINE
+#  include "config_auto.h"  // DISABLED_LEGACY_ENGINE
 #endif
-
-#include "pageiterator.h"
-#include "export.h"
-#include "publictypes.h"
-#include "resultiterator.h"
-#include "thresholder.h"
-#include "unichar.h"
 
 #include <tesseract/version.h>
 
 #include <cstdio>
-#include <vector>     // for std::vector
+#include <vector>  // for std::vector
+
+#include "export.h"
+#include "pageiterator.h"
+#include "publictypes.h"
+#include "resultiterator.h"
+#include "thresholder.h"
+#include "unichar.h"
 
 struct Pix;
 struct Pixa;
@@ -806,8 +806,9 @@ class TESS_API TessBaseAPI {
 
  private:
   // A list of image filenames gets special consideration
-  bool ProcessPagesFileList(FILE* fp, std::string* buf, const char* retry_config,
-                            int timeout_millisec, TessResultRenderer* renderer,
+  bool ProcessPagesFileList(FILE* fp, std::string* buf,
+                            const char* retry_config, int timeout_millisec,
+                            TessResultRenderer* renderer,
                             int tessedit_page_number);
   // TIFF supports multipage so gets special consideration.
   bool ProcessPagesMultipageTiff(const unsigned char* data, size_t size,
