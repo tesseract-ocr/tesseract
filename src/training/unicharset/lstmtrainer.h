@@ -365,7 +365,7 @@ protected:
   double ComputeCharError(const std::vector<int> &truth_str, const std::vector<int> &ocr_str);
   // Computes a very simple bag of words word recall error rate.
   // NOTE that this is destructive on both input strings.
-  double ComputeWordError(STRING *truth_str, STRING *ocr_str);
+  double ComputeWordError(std::string *truth_str, std::string *ocr_str);
 
   // Updates the error buffer and corresponding mean of the given type with
   // the new_error.

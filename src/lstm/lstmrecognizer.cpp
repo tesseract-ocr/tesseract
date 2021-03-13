@@ -348,8 +348,8 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
 
 // Converts an array of labels to utf-8, whether or not the labels are
 // augmented with character boundaries.
-STRING LSTMRecognizer::DecodeLabels(const std::vector<int> &labels) {
-  STRING result;
+std::string LSTMRecognizer::DecodeLabels(const std::vector<int> &labels) {
+  std::string result;
   int end = 1;
   for (int start = 0; start < labels.size(); start = end) {
     if (labels[start] == null_char_) {

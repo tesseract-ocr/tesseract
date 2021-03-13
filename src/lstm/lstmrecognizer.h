@@ -248,7 +248,7 @@ public:
 
   // Converts an array of labels to utf-8, whether or not the labels are
   // augmented with character boundaries.
-  STRING DecodeLabels(const std::vector<int> &labels);
+  std::string DecodeLabels(const std::vector<int> &labels);
 
   // Displays the forward results in a window with the characters and
   // boundaries as determined by the labels and label_coords.

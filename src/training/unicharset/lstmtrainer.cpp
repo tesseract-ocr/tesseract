@@ -224,8 +224,8 @@ Trainability LSTMTrainer::GridSearchDictParams(const ImageData *trainingdata, in
   RecodeBeamSearch base_search(recoder_, null_char_, SimpleTextOutput(), nullptr);
   base_search.Decode(fwd_outputs, 1.0, 0.0, RecodeBeamSearch::kMinCertainty, nullptr);
   base_search.ExtractBestPathAsLabels(&ocr_labels, &xcoords);
-  STRING truth_text = DecodeLabels(truth_labels);
-  STRING ocr_text = DecodeLabels(ocr_labels);
+  std::string truth_text = DecodeLabels(truth_labels);
+  std::string ocr_text = DecodeLabels(ocr_labels);
   double baseline_error = ComputeWordError(&truth_text, &ocr_text);
   results->add_str_double("0,0=", baseline_error);
 
@@ -239,8 +239,8 @@ Trainability LSTMTrainer::GridSearchDictParams(const ImageData *trainingdata, in
       // This is destructive on both strings.
       double word_error = ComputeWordError(&truth_text, &ocr_text);
       if ((r == min_dict_ratio && c == min_cert_offset) || !std::isfinite(word_error)) {
-        STRING t = DecodeLabels(truth_labels);
-        STRING o = DecodeLabels(ocr_labels);
+        std::string t = DecodeLabels(truth_labels);
+	std::string o = DecodeLabels(ocr_labels);
         tprintf("r=%g, c=%g, truth=%s, ocr=%s, wderr=%g, truth[0]=%d\n", r, c, t.c_str(), o.c_str(),
                 word_error, truth_labels[0]);
       }
@@ -870,8 +870,8 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, Netw
     tprintf("Input width was %d\n", inputs.Width());
     return UNENCODABLE;
   }
-  STRING ocr_text = DecodeLabels(ocr_labels);
-  STRING truth_text = DecodeLabels(truth_labels);
+  std::string ocr_text = DecodeLabels(ocr_labels);
+  std::string truth_text = DecodeLabels(truth_labels);
   targets->SubtractAllFromFloat(*fwd_outputs);
   if (debug_interval_ != 0) {
     if (truth_text != ocr_text) {
@@ -1029,7 +1029,7 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO &inputs, const ImageData &tr
                                     const NetworkIO &fwd_outputs,
                                     const std::vector<int> &truth_labels,
                                     const NetworkIO &outputs) {
-  const STRING &truth_text = DecodeLabels(truth_labels);
+  const std::string &truth_text = DecodeLabels(truth_labels);
   if (truth_text.c_str() == nullptr || truth_text.length() <= 0) {
     tprintf("Empty truth string at decode time!\n");
     return false;
@@ -1039,7 +1039,7 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO &inputs, const ImageData &tr
     std::vector<int> labels;
     std::vector<int> xcoords;
     LabelsFromOutputs(outputs, &labels, &xcoords);
-    STRING text = DecodeLabels(labels);
+    std::string text = DecodeLabels(labels);
     tprintf("Iteration %d: GROUND  TRUTH : %s\n", training_iteration(), truth_text.c_str());
     if (truth_text != text) {
       tprintf("Iteration %d: ALIGNED TRUTH : %s\n", training_iteration(), text.c_str());
@@ -1214,13 +1214,12 @@ double LSTMTrainer::ComputeCharError(const std::vector<int> &truth_str,
 
 // Computes word recall error rate using a very simple bag of words algorithm.
 // NOTE that this is destructive on both input strings.
-double LSTMTrainer::ComputeWordError(STRING *truth_str, STRING *ocr_str) {
+double LSTMTrainer::ComputeWordError(std::string *truth_str, std::string *ocr_str) {
   using StrMap = std::unordered_map<std::string, int, std::hash<std::string>>;
-  std::vector<STRING> truth_words, ocr_words;
-  truth_str->split(' ', &truth_words);
+  std::vector<std::string> truth_words = split(*truth_str, ' ');
   if (truth_words.empty())
     return 0.0;
-  ocr_str->split(' ', &ocr_words);
+  std::vector<std::string> ocr_words = split(*ocr_str, ' ');
   StrMap word_counts;
   for (auto truth_word : truth_words) {
     std::string truth_word_string(truth_word.c_str());
