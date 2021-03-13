@@ -62,7 +62,7 @@ public:
 
   // Getters and Setters.
   void SetValue(const char *val);
-  STRING GetValue() const;
+  std::string GetValue() const;
   const char *GetName() const;
   const char *GetDescription() const;
 

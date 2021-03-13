@@ -420,11 +420,11 @@ public:
   // the inclusion of the outlines, and returns the certainty of the raw choice.
   float ClassifyBlobPlusOutlines(const std::vector<bool> &ok_outlines,
                                  const GenericVector<C_OUTLINE *> &outlines, int pass_n,
-                                 PAGE_RES_IT *pr_it, C_BLOB *blob, STRING *best_str);
+                                 PAGE_RES_IT *pr_it, C_BLOB *blob, std::string &best_str);
   // Classifies the given blob (part of word_data->word->word) as an individual
   // word, using languages, chopper etc, returning only the certainty of the
   // best raw choice, and undoing all the work done to fake out the word.
-  float ClassifyBlobAsWord(int pass_n, PAGE_RES_IT *pr_it, C_BLOB *blob, STRING *best_str,
+  float ClassifyBlobAsWord(int pass_n, PAGE_RES_IT *pr_it, C_BLOB *blob, std::string &best_str,
                            float *c2);
   void classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordData *word_data);
   void classify_word_pass1(const WordData &word_data, WERD_RES **in_word,

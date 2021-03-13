@@ -142,14 +142,14 @@ const char *ParamContent::GetDescription() const {
 }
 
 // Getter for the value.
-STRING ParamContent::GetValue() const {
-  STRING result;
+std::string ParamContent::GetValue() const {
+  std::string result;
   if (param_type_ == VT_INTEGER) {
-    result.add_str_int("", *iIt);
+    result += std::to_string(*iIt);
   } else if (param_type_ == VT_BOOLEAN) {
-    result.add_str_int("", *bIt);
+    result += std::to_string(*bIt);
   } else if (param_type_ == VT_DOUBLE) {
-    result.add_str_double("", *dIt);
+    result += std::to_string(*dIt);
   } else if (param_type_ == VT_STRING) {
     if (STRING(*(sIt)).c_str() != nullptr) {
       result = sIt->c_str();
