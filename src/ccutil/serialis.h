@@ -88,6 +88,7 @@ public:
   bool DeSerializeSize(int32_t *data);
   bool DeSerialize(std::string &data);
   bool DeSerialize(std::vector<char> &data);
+  //bool DeSerialize(std::vector<std::string> &data);
   template <typename T>
   bool DeSerialize(T *data, size_t count = 1) {
     return FReadEndian(data, sizeof(T), count) == static_cast<int>(count);
@@ -102,8 +103,17 @@ public:
     } else if (size > 50000000) {
       // Arbitrarily limit the number of elements to protect against bad data.
       return false;
+    } else if constexpr (std::is_same_v<T, std::string>) {
+      // Deserialize a string.
+      // TODO: optimize.
+      data.resize(size);
+      for (auto &item : data) {
+        if (!DeSerialize(item)) {
+          return false;
+        }
+      }
     } else if constexpr (std::is_class_v<T>) {
-      // Deserialize a class.
+      // Deserialize a tesseract class.
       // TODO: optimize.
       data.resize(size);
       for (auto &item : data) {
@@ -133,8 +143,15 @@ public:
     uint32_t size = data.size();
     if (!Serialize(&size)) {
       return false;
+    } else if constexpr (std::is_same_v<T, std::string>) {
+      // Serialize strings.
+      for (auto string : data) {
+        if (!Serialize(string)) {
+          return false;
+        }
+      }
     } else if constexpr (std::is_class_v<T>) {
-      // Serialize a class.
+      // Serialize a tesseract class.
       for (auto &item : data) {
         if (!item.Serialize(this)) {
           return false;

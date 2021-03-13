@@ -74,7 +74,7 @@ FILE *OpenBoxFile(const char *fname) {
 // Each of the output vectors is optional (may be nullptr).
 // Returns false if no boxes are found.
 bool ReadAllBoxes(int target_page, bool skip_blanks, const char *filename, std::vector<TBOX> *boxes,
-                  std::vector<STRING> *texts, std::vector<STRING> *box_texts,
+                  std::vector<std::string> *texts, std::vector<std::string> *box_texts,
                   std::vector<int> *pages) {
   std::ifstream input(BoxFileName(filename).c_str(), std::ios::in | std::ios::binary);
   std::vector<char> box_data(std::istreambuf_iterator<char>(input), {});
@@ -88,8 +88,8 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const char *filename, std::
 
 // Reads all boxes from the string. Otherwise, as ReadAllBoxes.
 bool ReadMemBoxes(int target_page, bool skip_blanks, const char *box_data, bool continue_on_failure,
-                  std::vector<TBOX> *boxes, std::vector<STRING> *texts,
-                  std::vector<STRING> *box_texts, std::vector<int> *pages) {
+                  std::vector<TBOX> *boxes, std::vector<std::string> *texts,
+                  std::vector<std::string> *box_texts, std::vector<int> *pages) {
   STRING box_str(box_data);
   std::vector<STRING> lines;
   box_str.split('\n', &lines);

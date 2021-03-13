@@ -91,7 +91,7 @@ protected:
       net_mode |= NF_LAYER_SPECIFIC_LR;
     EXPECT_TRUE(
         trainer_->InitNetwork(network_spec.c_str(), -1, net_mode, 0.1, learning_rate, 0.9, 0.999));
-    std::vector<STRING> filenames;
+    std::vector<std::string> filenames;
     filenames.push_back(STRING(TestDataNameToPath(lstmf_file).c_str()));
     EXPECT_TRUE(trainer_->LoadAllTrainingData(filenames, CS_SEQUENTIAL, false));
     LOG(INFO) << "Setup network:" << model_name << "\n";

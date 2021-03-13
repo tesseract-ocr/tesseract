@@ -181,7 +181,7 @@ public:
   // Loads a set of lstmf files that were created using the lstm.train config to
   // tesseract into memory ready for training. Returns false if nothing was
   // loaded.
-  bool LoadAllTrainingData(const std::vector<STRING> &filenames, CachingStrategy cache_strategy,
+  bool LoadAllTrainingData(const std::vector<std::string> &filenames, CachingStrategy cache_strategy,
                            bool randomly_rotate);
 
   // Keeps track of best and locally worst error rate, using internally computed

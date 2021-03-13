@@ -27,7 +27,7 @@ LSTMTester::LSTMTester(int64_t max_memory) : test_data_(max_memory) {}
 // tesseract into memory ready for testing. Returns false if nothing was
 // loaded. The arg is a filename of a file that lists the filenames.
 bool LSTMTester::LoadAllEvalData(const char *filenames_file) {
-  std::vector<STRING> filenames;
+  std::vector<std::string> filenames;
   if (!LoadFileLinesToStrings(filenames_file, &filenames)) {
     tprintf("Failed to load list of eval filenames from %s\n", filenames_file);
     return false;
@@ -38,7 +38,7 @@ bool LSTMTester::LoadAllEvalData(const char *filenames_file) {
 // Loads a set of lstmf files that were created using the lstm.train config to
 // tesseract into memory ready for testing. Returns false if nothing was
 // loaded.
-bool LSTMTester::LoadAllEvalData(const std::vector<STRING> &filenames) {
+bool LSTMTester::LoadAllEvalData(const std::vector<std::string> &filenames) {
   test_data_.Clear();
   bool result = test_data_.LoadDocuments(filenames, CS_SEQUENTIAL, nullptr);
   total_pages_ = test_data_.TotalPages();

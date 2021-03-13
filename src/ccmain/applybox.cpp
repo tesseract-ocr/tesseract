@@ -111,7 +111,7 @@ static void clear_any_old_text(BLOCK_LIST *block_list) {
 PAGE_RES *Tesseract::ApplyBoxes(const char *filename, bool find_segmentation,
                                 BLOCK_LIST *block_list) {
   std::vector<TBOX> boxes;
-  std::vector<STRING> texts, full_texts;
+  std::vector<std::string> texts, full_texts;
   if (!ReadAllBoxes(applybox_page, true, filename, &boxes, &texts, &full_texts, nullptr)) {
     return nullptr; // Can't do it.
   }
@@ -576,7 +576,7 @@ bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID> &target_text, W
   }
   word_res->correct_text.clear();
   for (int i = 0; i < target_text.size(); ++i) {
-    word_res->correct_text.push_back(STRING(unicharset.id_to_unichar(target_text[i])));
+    word_res->correct_text.push_back(unicharset.id_to_unichar(target_text[i]));
   }
   return true;
 }
@@ -727,7 +727,7 @@ void Tesseract::ReportFailedBox(int boxfile_lineno, TBOX box, const char *box_ch
 
 /// Calls #LearnWord to extract features for labelled blobs within each word.
 /// Features are stored in an internal buffer.
-void Tesseract::ApplyBoxTraining(const STRING &fontname, PAGE_RES *page_res) {
+void Tesseract::ApplyBoxTraining(const std::string &fontname, PAGE_RES *page_res) {
   PAGE_RES_IT pr_it(page_res);
   int word_count = 0;
   for (WERD_RES *word_res = pr_it.word(); word_res != nullptr; word_res = pr_it.forward()) {
@@ -747,8 +747,7 @@ void Tesseract::CorrectClassifyWords(PAGE_RES *page_res) {
     for (int i = 0; i < word_res->correct_text.size(); ++i) {
       // The part before the first space is the real ground truth, and the
       // rest is the bounding box location and page number.
-      std::vector<STRING> tokens;
-      word_res->correct_text[i].split(' ', &tokens);
+      std::vector<std::string> tokens = split(word_res->correct_text[i], ' ');
       UNICHAR_ID char_id = unicharset.unichar_to_id(tokens[0].c_str());
       choice->append_unichar_id_space_allocated(char_id, word_res->best_state[i], 0.0f, 0.0f);
     }

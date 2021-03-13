@@ -260,7 +260,7 @@ void LSTMTrainer::DebugNetwork() {
 // Loads a set of lstmf files that were created using the lstm.train config to
 // tesseract into memory ready for training. Returns false if nothing was
 // loaded.
-bool LSTMTrainer::LoadAllTrainingData(const std::vector<STRING> &filenames,
+bool LSTMTrainer::LoadAllTrainingData(const std::vector<std::string> &filenames,
                                       CachingStrategy cache_strategy, bool randomly_rotate) {
   randomly_rotate_ = randomly_rotate;
   training_data_.Clear();

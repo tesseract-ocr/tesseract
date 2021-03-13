@@ -166,15 +166,15 @@ ImageData *ImageData::Build(const char *name, int page_number, const char *lang,
 
 // Writes to the given file. Returns false in case of error.
 bool ImageData::Serialize(TFile *fp) const {
-  if (!imagefilename_.Serialize(fp))
+  if (!fp->Serialize(imagefilename_))
     return false;
   if (!fp->Serialize(&page_number_))
     return false;
   if (!fp->Serialize(image_data_))
     return false;
-  if (!language_.Serialize(fp))
+  if (!fp->Serialize(language_))
     return false;
-  if (!transcription_.Serialize(fp))
+  if (!fp->Serialize(transcription_))
     return false;
   if (!fp->Serialize(boxes_))
     return false;
@@ -186,15 +186,15 @@ bool ImageData::Serialize(TFile *fp) const {
 
 // Reads from the given file. Returns false in case of error.
 bool ImageData::DeSerialize(TFile *fp) {
-  if (!imagefilename_.DeSerialize(fp))
+  if (!fp->DeSerialize(imagefilename_))
     return false;
   if (!fp->DeSerialize(&page_number_))
     return false;
   if (!fp->DeSerialize(image_data_))
     return false;
-  if (!language_.DeSerialize(fp))
+  if (!fp->DeSerialize(language_))
     return false;
-  if (!transcription_.DeSerialize(fp))
+  if (!fp->DeSerialize(transcription_))
     return false;
   if (!fp->DeSerialize(boxes_))
     return false;
@@ -355,7 +355,7 @@ void ImageData::Display() const {
 
 // Adds the supplied boxes and transcriptions that correspond to the correct
 // page number.
-void ImageData::AddBoxes(const std::vector<TBOX> &boxes, const std::vector<STRING> &texts,
+void ImageData::AddBoxes(const std::vector<TBOX> &boxes, const std::vector<std::string> &texts,
                          const std::vector<int> &box_pages) {
   // Copy the boxes and make the transcription.
   for (int i = 0; i < box_pages.size(); ++i) {
@@ -403,7 +403,7 @@ Pix *ImageData::GetPixInternal(const std::vector<char> &image_data) {
 bool ImageData::AddBoxes(const char *box_text) {
   if (box_text != nullptr && box_text[0] != '\0') {
     std::vector<TBOX> boxes;
-    std::vector<STRING> texts;
+    std::vector<std::string> texts;
     std::vector<int> box_pages;
     if (ReadMemBoxes(page_number_, /*skip_blanks*/ false, box_text,
                      /*continue_on_failure*/ true, &boxes, &texts, nullptr, &box_pages)) {
@@ -416,7 +416,7 @@ bool ImageData::AddBoxes(const char *box_text) {
   return false;
 }
 
-DocumentData::DocumentData(const STRING &name)
+DocumentData::DocumentData(const std::string &name)
     : document_name_(name)
     , pages_offset_(-1)
     , total_pages_(-1)
@@ -613,7 +613,7 @@ DocumentCache::~DocumentCache() {
 
 // Adds all the documents in the list of filenames, counting memory.
 // The reader is used to read the files.
-bool DocumentCache::LoadDocuments(const std::vector<STRING> &filenames,
+bool DocumentCache::LoadDocuments(const std::vector<std::string> &filenames,
                                   CachingStrategy cache_strategy, FileReader reader) {
   cache_strategy_ = cache_strategy;
   int64_t fair_share_memory = 0;
@@ -644,7 +644,7 @@ bool DocumentCache::AddToCache(DocumentData *data) {
 }
 
 // Finds and returns a document by name.
-DocumentData *DocumentCache::FindDocument(const STRING &document_name) const {
+DocumentData *DocumentCache::FindDocument(const std::string &document_name) const {
   for (auto *document : documents_) {
     if (document->document_name() == document_name) {
       return document;

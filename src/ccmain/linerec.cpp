@@ -38,9 +38,9 @@ const float kWorstDictCertainty = -25.0f;
 // Breaks the page into lines, according to the boxes, and writes them to a
 // serialized DocumentData based on output_basename.
 // Return true if successful, false if an error occurred.
-bool Tesseract::TrainLineRecognizer(const char *input_imagename, const STRING &output_basename,
+bool Tesseract::TrainLineRecognizer(const char *input_imagename, const std::string &output_basename,
                                     BLOCK_LIST *block_list) {
-  STRING lstmf_name = output_basename + ".lstmf";
+  std::string lstmf_name = output_basename + ".lstmf";
   DocumentData images(lstmf_name);
   if (applybox_page > 0) {
     // Load existing document for the previous pages.
@@ -50,7 +50,7 @@ bool Tesseract::TrainLineRecognizer(const char *input_imagename, const STRING &o
     }
   }
   std::vector<TBOX> boxes;
-  std::vector<STRING> texts;
+  std::vector<std::string> texts;
   // Get the boxes for this page, if there are any.
   if (!ReadAllBoxes(applybox_page, false, input_imagename, &boxes, &texts, nullptr, nullptr) ||
       boxes.empty()) {
@@ -73,7 +73,7 @@ bool Tesseract::TrainLineRecognizer(const char *input_imagename, const STRING &o
 // Generates training data for training a line recognizer, eg LSTM.
 // Breaks the boxes into lines, normalizes them, converts to ImageData and
 // appends them to the given training_data.
-void Tesseract::TrainFromBoxes(const std::vector<TBOX> &boxes, const std::vector<STRING> &texts,
+void Tesseract::TrainFromBoxes(const std::vector<TBOX> &boxes, const std::vector<std::string> &texts,
                                BLOCK_LIST *block_list, DocumentData *training_data) {
   int box_count = boxes.size();
   // Process all the text lines in this page, as defined by the boxes.
@@ -85,7 +85,7 @@ void Tesseract::TrainFromBoxes(const std::vector<TBOX> &boxes, const std::vector
   for (int start_box = end_box; start_box < box_count; start_box = end_box) {
     // Find the textline of boxes starting at start and their bounding box.
     TBOX line_box = boxes[start_box];
-    STRING line_str = texts[start_box];
+    std::string line_str = texts[start_box];
     for (end_box = start_box + 1; end_box < box_count && texts[end_box] != "\t"; ++end_box) {
       line_box += boxes[end_box];
       line_str += texts[end_box];
@@ -127,7 +127,7 @@ void Tesseract::TrainFromBoxes(const std::vector<TBOX> &boxes, const std::vector
 // and ground truth boxes/truth text if available in the input.
 // The image is not normalized in any way.
 ImageData *Tesseract::GetLineData(const TBOX &line_box, const std::vector<TBOX> &boxes,
-                                  const std::vector<STRING> &texts, int start_box, int end_box,
+                                  const std::vector<std::string> &texts, int start_box, int end_box,
                                   const BLOCK &block) {
   TBOX revised_box;
   ImageData *image_data = GetRectImage(line_box, block, kImagePadding, &revised_box);
@@ -138,7 +138,7 @@ ImageData *Tesseract::GetLineData(const TBOX &line_box, const std::vector<TBOX> 
   FCOORD block_rotation(block.re_rotation().x(), -block.re_rotation().y());
   ICOORD shift = -revised_box.botleft();
   std::vector<TBOX> line_boxes;
-  std::vector<STRING> line_texts;
+  std::vector<std::string> line_texts;
   for (int b = start_box; b < end_box; ++b) {
     TBOX box = boxes[b];
     box.rotate(block_rotation);

@@ -41,7 +41,7 @@ public:
   // Loads a set of lstmf files that were created using the lstm.train config to
   // tesseract into memory ready for testing. Returns false if nothing was
   // loaded.
-  bool LoadAllEvalData(const std::vector<STRING> &filenames);
+  bool LoadAllEvalData(const std::vector<std::string> &filenames);
 
   // Runs an evaluation asynchronously on the stored eval data and returns a
   // string describing the results of the previous test. Args match TestCallback

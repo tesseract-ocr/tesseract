@@ -28,15 +28,15 @@
 
 namespace tesseract {
 
-// Reads a file as a vector of STRING.
-// TODO: Use std::vector and std::string for LoadFileLinesToStrings.
-inline bool LoadFileLinesToStrings(const char *filename, std::vector<STRING> *lines) {
+// Reads a file as a vector of string.
+inline bool LoadFileLinesToStrings(const char *filename, std::vector<std::string> *lines) {
   std::vector<char> data;
   if (!LoadDataFromFile(filename, &data)) {
     return false;
   }
-  STRING lines_str(&data[0], data.size());
-  lines_str.split('\n', lines);
+  // TODO: optimize.
+  std::string lines_str(&data[0], data.size());
+  *lines = split(lines_str, '\n');
   return true;
 }
 

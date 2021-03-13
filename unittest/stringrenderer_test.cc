@@ -211,7 +211,7 @@ TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
   std::string boxes_str = renderer_->GetBoxesStr();
   // Decode to get the box text strings.
   EXPECT_FALSE(boxes_str.empty());
-  std::vector<STRING> texts;
+  std::vector<std::string> texts;
   EXPECT_TRUE(ReadMemBoxes(0, false, boxes_str.c_str(), false, nullptr, &texts, nullptr, nullptr));
   std::string ltr_str;
   for (size_t i = 0; i < texts.size(); ++i) {
