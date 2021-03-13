@@ -106,11 +106,11 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
     // search for the true path to find the blame for the incorrect best_choice.
     if (SegSearchDone(num_futile_classifications) && blamer_bundle != nullptr &&
         blamer_bundle->GuidedSegsearchNeeded(word_res->best_choice)) {
-      InitBlamerForSegSearch(word_res, &pain_points, blamer_bundle, &blamer_debug);
+      InitBlamerForSegSearch(word_res, &pain_points, blamer_bundle, blamer_debug);
     }
   } // end while loop exploring alternative paths
   if (blamer_bundle != nullptr) {
-    blamer_bundle->FinishSegSearch(word_res->best_choice, wordrec_debug_blamer, &blamer_debug);
+    blamer_bundle->FinishSegSearch(word_res->best_choice, wordrec_debug_blamer, blamer_debug);
   }
 
   if (segsearch_debug_level > 0) {
@@ -296,7 +296,7 @@ void Wordrec::ResetNGramSearch(WERD_RES *word_res, BestChoiceBundle *best_choice
 }
 
 void Wordrec::InitBlamerForSegSearch(WERD_RES *word_res, LMPainPoints *pain_points,
-                                     BlamerBundle *blamer_bundle, STRING *blamer_debug) {
+                                     BlamerBundle *blamer_bundle, std::string &blamer_debug) {
   pain_points->Clear(); // Clear pain points heap.
   blamer_bundle->InitForSegSearch(word_res->best_choice, word_res->ratings, getDict().WildcardID(),
                                   wordrec_debug_blamer, blamer_debug, pain_points,

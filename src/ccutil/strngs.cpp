@@ -102,27 +102,4 @@ void STRING::split(const char c, std::vector<STRING> *splited) {
   }
 }
 
-void STRING::add_str_int(const char *str, int number) {
-  if (str != nullptr)
-    *this += str;
-  // Allow space for the maximum possible length of int64_t.
-  char num_buffer[kMaxIntSize];
-  snprintf(num_buffer, kMaxIntSize - 1, "%d", number);
-  num_buffer[kMaxIntSize - 1] = '\0';
-  *this += num_buffer;
-}
-
-// Appends the given string and double (as a %.8g) to this.
-void STRING::add_str_double(const char *str, double number) {
-  if (str != nullptr)
-    *this += str;
-  std::stringstream stream;
-  // Use "C" locale (needed for double value).
-  stream.imbue(std::locale::classic());
-  // Use 8 digits for double value.
-  stream.precision(8);
-  stream << number;
-  *this += stream.str().c_str();
-}
-
 } // namespace tesseract

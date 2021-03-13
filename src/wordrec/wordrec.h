@@ -487,7 +487,7 @@ protected:
   // (so that we can evaluate correct segmentation path and discover the reason
   // for incorrect result).
   void InitBlamerForSegSearch(WERD_RES *word_res, LMPainPoints *pain_points,
-                              BlamerBundle *blamer_bundle, STRING *blamer_debug);
+                              BlamerBundle *blamer_bundle, std::string &blamer_debug);
 };
 
 } // namespace tesseract

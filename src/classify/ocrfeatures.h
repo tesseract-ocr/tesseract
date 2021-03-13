@@ -21,6 +21,7 @@
 #include "blobs.h"
 
 #include <cstdio>
+#include <string> // for std::string
 
 namespace tesseract {
 
@@ -117,7 +118,7 @@ FEATURE_SET NewFeatureSet(int NumFeatures);
 
 FEATURE_SET ReadFeatureSet(FILE *File, const FEATURE_DESC_STRUCT *FeatureDesc);
 
-void WriteFeatureSet(FEATURE_SET FeatureSet, STRING *str);
+void WriteFeatureSet(FEATURE_SET FeatureSet, std::string &str);
 
 } // namespace tesseract
 

@@ -258,9 +258,9 @@ public:
   // Useful in conjunction with set_unicharset.
   void ReMapClassIds(const GenericVector<int> &unicharset_map);
   // Returns a string listing the classes/fonts in a shape.
-  STRING DebugStr(int shape_id) const;
+  std::string DebugStr(int shape_id) const;
   // Returns a debug string summarizing the table.
-  STRING SummaryStr() const;
+  std::string SummaryStr() const;
 
   // Adds a new shape starting with the given unichar_id and font_id.
   // Returns the assigned index.

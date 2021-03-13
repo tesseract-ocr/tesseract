@@ -2,7 +2,6 @@
  * File:        rect.h  (Formerly box.h)
  * Description: Bounding box class definition.
  * Author:      Phil Cheatle
- * Created:     Wed Oct 16 15:18:45 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,10 +29,9 @@
 #include <cmath>     // for std::ceil, std::floor
 #include <cstdint>   // for INT16_MAX
 #include <cstdio>    // for FILE
+#include <string>    // for std::string
 
 namespace tesseract {
-
-class STRING;
 
 class TESS_API TBOX { // bounding box
 public:
@@ -287,8 +285,8 @@ public:
   void print() const { // print
     tprintf("Bounding box=(%d,%d)->(%d,%d)\n", left(), bottom(), right(), top());
   }
-  // Appends the bounding box as (%d,%d)->(%d,%d) to a STRING.
-  void print_to_str(STRING *str) const;
+  // Appends the bounding box as (%d,%d)->(%d,%d) to a string.
+  void print_to_str(std::string &str) const;
 
 #ifndef GRAPHICS_DISABLED
   void plot(                  // use current settings

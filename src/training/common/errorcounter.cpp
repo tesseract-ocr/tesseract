@@ -334,7 +334,7 @@ bool ErrorCounter::AccumulateJunk(bool debug, const std::vector<UnicharRating> &
 // (Ignoring report_level).
 double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
                                   const FontInfoTable &fontinfo_table, const SampleIterator &it,
-                                  double *unichar_error, STRING *fonts_report) {
+                                  double *unichar_error, std::string *fonts_report) {
   // Compute totals over all the fonts and report individual font results
   // when required.
   Counts totals;
@@ -342,8 +342,8 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
   for (int f = 0; f < fontsize; ++f) {
     // Accumulate counts over fonts.
     totals += font_counts_[f];
-    STRING font_report;
-    if (ReportString(false, font_counts_[f], &font_report)) {
+    std::string font_report;
+    if (ReportString(false, font_counts_[f], font_report)) {
       if (fonts_report != nullptr) {
         *fonts_report += fontinfo_table.get(f).name;
         *fonts_report += ": ";
@@ -357,8 +357,8 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
     }
   }
   // Report the totals.
-  STRING total_report;
-  bool any_results = ReportString(true, totals, &total_report);
+  std::string total_report;
+  bool any_results = ReportString(true, totals, total_report);
   if (fonts_report != nullptr && fonts_report->length() == 0) {
     // Make sure we return something even if there were no samples.
     *fonts_report = "NoSamplesFound: ";
@@ -419,7 +419,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
 // string of the error rates.
 // Returns false if there is no data, leaving report unchanged, unless
 // even_if_empty is true.
-bool ErrorCounter::ReportString(bool even_if_empty, const Counts &counts, STRING *report) {
+bool ErrorCounter::ReportString(bool even_if_empty, const Counts &counts, std::string &report) {
   // Compute the error rates.
   double rates[CT_SIZE];
   if (!ComputeRates(counts, rates) && !even_if_empty)
@@ -443,12 +443,12 @@ bool ErrorCounter::ReportString(bool even_if_empty, const Counts &counts, STRING
            rates[CT_OK_JOINED] * 100.0, rates[CT_OK_BROKEN] * 100.0, rates[CT_REJECT] * 100.0,
            rates[CT_FONT_ATTR_ERR] * 100.0, rates[CT_OK_MULTI_FONT] * 100.0, rates[CT_NUM_RESULTS],
            rates[CT_RANK], 100.0 * rates[CT_REJECTED_JUNK], 100.0 * rates[CT_ACCEPTED_JUNK]);
-  *report = formatted_str;
+  report = formatted_str;
   delete[] formatted_str;
   // Now append each field of counts with a tab in front so the result can
   // be loaded into a spreadsheet.
   for (int ct : counts.n)
-    report->add_str_int("\t", ct);
+    report += "\t" + std::to_string(ct);
   return true;
 }
 

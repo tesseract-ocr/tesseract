@@ -479,8 +479,8 @@ void WERD_RES::DebugWordChoices(bool debug, const char *word_to_debug) {
     int index = 0;
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward(), ++index) {
       WERD_CHOICE *choice = it.data();
-      STRING label;
-      label.add_str_int("\nCooked Choice #", index);
+      std::string label;
+      label += "\nCooked Choice #" + std::to_string(index);
       choice->print(label.c_str());
     }
   }

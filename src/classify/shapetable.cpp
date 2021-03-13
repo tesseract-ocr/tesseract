@@ -5,7 +5,6 @@
 // Description: Class to map a classifier shape index to unicharset
 //              indices and font indices.
 // Author:      Ray Smith
-// Created:     Tue Nov 02 15:31:32 PDT 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -274,30 +273,30 @@ void ShapeTable::ReMapClassIds(const GenericVector<int> &unicharset_map) {
 }
 
 // Returns a string listing the classes/fonts in a shape.
-STRING ShapeTable::DebugStr(int shape_id) const {
+std::string ShapeTable::DebugStr(int shape_id) const {
   if (shape_id < 0 || shape_id >= shape_table_.size())
     return STRING("INVALID_UNICHAR_ID");
   const Shape &shape = GetShape(shape_id);
-  STRING result;
-  result.add_str_int("Shape", shape_id);
+  std::string result;
+  result += "Shape" + std::to_string(shape_id);
   if (shape.size() > 100) {
-    result.add_str_int(" Num unichars=", shape.size());
+    result += " Num unichars=" + std::to_string(shape.size());
     return result;
   }
   for (int c = 0; c < shape.size(); ++c) {
-    result.add_str_int(" c_id=", shape[c].unichar_id);
+    result += " c_id=" + std::to_string(shape[c].unichar_id);
     result += "=";
     result += unicharset_->id_to_unichar(shape[c].unichar_id);
     if (shape.size() < 10) {
-      result.add_str_int(", ", shape[c].font_ids.size());
+      result += ", " + std::to_string(shape[c].font_ids.size());
       result += " fonts =";
       int num_fonts = shape[c].font_ids.size();
       if (num_fonts > 10) {
-        result.add_str_int(" ", shape[c].font_ids[0]);
-        result.add_str_int(" ... ", shape[c].font_ids[num_fonts - 1]);
+        result += " " + std::to_string(shape[c].font_ids[0]);
+        result += " ... " + std::to_string(shape[c].font_ids[num_fonts - 1]);
       } else {
         for (int f = 0; f < num_fonts; ++f) {
-          result.add_str_int(" ", shape[c].font_ids[f]);
+          result += " " + std::to_string(shape[c].font_ids[f]);
         }
       }
     }
@@ -306,7 +305,7 @@ STRING ShapeTable::DebugStr(int shape_id) const {
 }
 
 // Returns a debug string summarizing the table.
-STRING ShapeTable::SummaryStr() const {
+std::string ShapeTable::SummaryStr() const {
   int max_unichars = 0;
   int num_multi_shapes = 0;
   int num_master_shapes = 0;
@@ -320,10 +319,10 @@ STRING ShapeTable::SummaryStr() const {
     if (shape_size > max_unichars)
       max_unichars = shape_size;
   }
-  STRING result;
-  result.add_str_int("Number of shapes = ", num_master_shapes);
-  result.add_str_int(" max unichars = ", max_unichars);
-  result.add_str_int(" number with multiple unichars = ", num_multi_shapes);
+  std::string result;
+  result += "Number of shapes = " + std::to_string(num_master_shapes);
+  result += " max unichars = " + std::to_string(max_unichars);
+  result += " number with multiple unichars = " + std::to_string(num_multi_shapes);
   return result;
 }
 

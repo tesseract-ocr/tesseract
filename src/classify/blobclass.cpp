@@ -80,7 +80,7 @@ void Classify::LearnBlob(const STRING &fontname, TBLOB *blob, const DENORM &cn_d
     tr_file_data_ += "\n";
 
     // write micro-features to file and clean up
-    WriteCharDescription(feature_defs_, CharDesc, &tr_file_data_);
+    WriteCharDescription(feature_defs_, CharDesc, tr_file_data_);
   } else {
     tprintf("Blob learned was invalid!\n");
   }

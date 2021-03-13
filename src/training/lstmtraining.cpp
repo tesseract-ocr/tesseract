@@ -213,8 +213,8 @@ int main(int argc, char **argv) {
          iteration = trainer.training_iteration()) {
       trainer.TrainOnLine(&trainer, false);
     }
-    STRING log_str;
-    trainer.MaintainCheckpoints(tester_callback, &log_str);
+    std::string log_str;
+    trainer.MaintainCheckpoints(tester_callback, log_str);
     tprintf("%s\n", log_str.c_str());
   } while (trainer.best_error_rate() > FLAGS_target_error_rate &&
            (trainer.training_iteration() < max_iterations));

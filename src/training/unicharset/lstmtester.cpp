@@ -47,19 +47,19 @@ bool LSTMTester::LoadAllEvalData(const std::vector<std::string> &filenames) {
 
 // Runs an evaluation asynchronously on the stored data and returns a string
 // describing the results of the previous test.
-STRING LSTMTester::RunEvalAsync(int iteration, const double *training_errors,
-                                const TessdataManager &model_mgr, int training_stage) {
-  STRING result;
+std::string LSTMTester::RunEvalAsync(int iteration, const double *training_errors,
+                                     const TessdataManager &model_mgr, int training_stage) {
+  std::string result;
   if (total_pages_ == 0) {
-    result.add_str_int("No test data at iteration ", iteration);
+    result += "No test data at iteration " + std::to_string(iteration);
     return result;
   }
   if (!LockIfNotRunning()) {
-    result.add_str_int("Previous test incomplete, skipping test at iteration ", iteration);
+    result += "Previous test incomplete, skipping test at iteration " + std::to_string(iteration);
     return result;
   }
   // Save the args.
-  STRING prev_result = test_result_;
+  std::string prev_result = test_result_;
   test_result_ = "";
   if (training_errors != nullptr) {
     test_iteration_ = iteration;
@@ -76,9 +76,9 @@ STRING LSTMTester::RunEvalAsync(int iteration, const double *training_errors,
 
 // Runs an evaluation synchronously on the stored data and returns a string
 // describing the results.
-STRING LSTMTester::RunEvalSync(int iteration, const double *training_errors,
-                               const TessdataManager &model_mgr, int training_stage,
-                               int verbosity) {
+std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors,
+                                    const TessdataManager &model_mgr, int training_stage,
+                                    int verbosity) {
   LSTMTrainer trainer;
   trainer.InitCharSet(model_mgr);
   TFile fp;
@@ -110,11 +110,11 @@ STRING LSTMTester::RunEvalSync(int iteration, const double *training_errors,
   }
   char_error *= 100.0 / total_pages_;
   word_error *= 100.0 / total_pages_;
-  STRING result;
-  result.add_str_int("At iteration ", iteration);
-  result.add_str_int(", stage ", training_stage);
-  result.add_str_double(", Eval Char error rate=", char_error);
-  result.add_str_double(", Word error rate=", word_error);
+  std::string result;
+  result += "At iteration " + std::to_string(iteration);
+  result += ", stage " + std::to_string(training_stage);
+  result += ", Eval Char error rate=" + std::to_string(char_error);
+  result += ", Word error rate=" + std::to_string(word_error);
   return result;
 }
 

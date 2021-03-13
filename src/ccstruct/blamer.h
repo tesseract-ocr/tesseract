@@ -273,12 +273,12 @@ struct BlamerBundle {
   bool GuidedSegsearchNeeded(const WERD_CHOICE *best_choice) const;
   // Setup ready to guide the segmentation search to the correct segmentation.
   void InitForSegSearch(const WERD_CHOICE *best_choice, MATRIX *ratings, UNICHAR_ID wildcard_id,
-                        bool debug, STRING *debug_str, tesseract::LMPainPoints *pain_points,
+                        bool debug, std::string &debug_str, tesseract::LMPainPoints *pain_points,
                         double max_char_wh_ratio, WERD_RES *word_res);
   // Returns true if the guided segsearch is in progress.
   bool GuidedSegsearchStillGoing() const;
   // The segmentation search has ended. Sets the blame appropriately.
-  void FinishSegSearch(const WERD_CHOICE *best_choice, bool debug, STRING *debug_str);
+  void FinishSegSearch(const WERD_CHOICE *best_choice, bool debug, std::string &debug_str);
 
   // If the bundle is null or still does not indicate the correct result,
   // fix it and use some backup reason for the blame.

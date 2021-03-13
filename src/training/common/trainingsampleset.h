@@ -101,7 +101,7 @@ public:
 
   // Returns a string debug representation of the given sample:
   // font, unichar_str, bounding box, page.
-  STRING SampleToString(const TrainingSample &sample) const;
+  std::string SampleToString(const TrainingSample &sample) const;
 
   // Gets the combined set of features used by all the samples of the given
   // font/class combination.

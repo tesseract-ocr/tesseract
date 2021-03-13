@@ -78,16 +78,6 @@ public:
 
   TESS_API
   void split(char c, std::vector<STRING> *splited);
-
-  // Appends the given string and int (as a %d) to this.
-  // += cannot be used for ints as there as a char += operator that would
-  // be ambiguous, and ints usually need a string before or between them
-  // anyway.
-  TESS_API
-  void add_str_int(const char *str, int number);
-  // Appends the given string and double (as a %.8g) to this.
-  TESS_API
-  void add_str_double(const char *str, double number);
 };
 
 } // namespace tesseract.

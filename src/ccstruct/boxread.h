@@ -80,7 +80,7 @@ bool ParseBoxFileStr(const char *boxfile_str, int *page_number, STRING *utf8_str
 
 // Creates a box file string from a unichar string, TBOX and page number.
 TESS_API
-void MakeBoxFileStr(const char *unichar_str, const TBOX &box, int page_num, STRING *box_str);
+void MakeBoxFileStr(const char *unichar_str, const TBOX &box, int page_num, std::string &box_str);
 
 } // namespace tesseract
 

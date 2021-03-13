@@ -102,7 +102,7 @@ protected:
     int iteration_limit = iteration + max_iterations;
     double best_error = 100.0;
     do {
-      STRING log_str;
+      std::string log_str;
       int target_iteration = iteration + kBatchIterations;
       // Train a few.
       double mean_error = 0.0;
@@ -111,7 +111,7 @@ protected:
         iteration = trainer_->training_iteration();
         mean_error += trainer_->LastSingleError(ET_CHAR_ERROR);
       }
-      trainer_->MaintainCheckpoints(nullptr, &log_str);
+      trainer_->MaintainCheckpoints(nullptr, log_str);
       iteration = trainer_->training_iteration();
       mean_error *= 100.0 / kBatchIterations;
       if (mean_error < best_error)

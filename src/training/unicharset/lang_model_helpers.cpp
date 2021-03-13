@@ -119,8 +119,8 @@ bool WriteRecoder(const UNICHARSET &unicharset, bool pass_through, const std::st
   STRING encoding = recoder.GetEncodingAsString(unicharset);
   recoder_data.resize(encoding.length(), 0);
   memcpy(&recoder_data[0], &encoding[0], encoding.length());
-  STRING suffix;
-  suffix.add_str_int(".charset_size=", recoder.code_range());
+  std::string suffix;
+  suffix += ".charset_size=" + std::to_string(recoder.code_range());
   suffix += ".txt";
   return WriteFile(output_dir, lang, suffix.c_str(), recoder_data, writer);
 }
