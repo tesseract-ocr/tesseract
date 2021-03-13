@@ -22,7 +22,6 @@
 #include "genericvector.h"
 #include "matrix.h"
 #include "network.h"
-#include "strngs.h"
 
 namespace tesseract {
 

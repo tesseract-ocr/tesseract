@@ -153,8 +153,8 @@ bool Network::Serialize(TFile *fp) const {
   int8_t data = NT_NONE;
   if (!fp->Serialize(&data))
     return false;
-  STRING type_name = kTypeNames[type_];
-  if (!type_name.Serialize(fp))
+  std::string type_name = kTypeNames[type_];
+  if (!fp->Serialize(type_name))
     return false;
   data = training_;
   if (!fp->Serialize(&data))
@@ -181,8 +181,8 @@ static NetworkType getNetworkType(TFile *fp) {
   if (!fp->DeSerialize(&data))
     return NT_NONE;
   if (data == NT_NONE) {
-    STRING type_name;
-    if (!type_name.DeSerialize(fp))
+    std::string type_name;
+    if (!fp->DeSerialize(type_name))
       return NT_NONE;
     for (data = 0; data < NT_COUNT && type_name != kTypeNames[data]; ++data) {
     }
@@ -205,7 +205,7 @@ Network *Network::CreateFromFile(TFile *fp) {
   int32_t ni;             // Number of input values.
   int32_t no;             // Number of output values.
   int32_t num_weights;    // Number of weights in this and sub-network.
-  STRING name;            // A unique name for this layer.
+  std::string name;       // A unique name for this layer.
   int8_t data;
   Network *network = nullptr;
   type = getNetworkType(fp);
@@ -223,7 +223,7 @@ Network *Network::CreateFromFile(TFile *fp) {
     return nullptr;
   if (!fp->DeSerialize(&num_weights))
     return nullptr;
-  if (!name.DeSerialize(fp))
+  if (!fp->DeSerialize(name))
     return nullptr;
 
   switch (type) {
