@@ -47,7 +47,7 @@ public:
     else if (type_ == NT_POSCLIP)
       spec.add_str_int("Fp", no_);
     else if (type_ == NT_SYMCLIP)
-      spec.add_str_int("Fs", no_);
+      spec.add_str_int("Fn", no_);
     else if (type_ == NT_SOFTMAX)
       spec.add_str_int("Fc", no_);
     else
