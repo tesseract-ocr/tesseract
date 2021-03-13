@@ -33,6 +33,23 @@ namespace tesseract {
 // possible length of an int (in 64 bits), being -<20 digits>.
 const int kMaxIntSize = 22;
 
+const std::vector<std::string> split(const std::string &s, char c) {
+  std::string buff;
+  std::vector<std::string> v;
+  for (auto n : s) {
+    if (n != c)
+      buff += n;
+    else if (n == c && !buff.empty()) {
+       v.push_back(buff);
+       buff.clear();
+    }
+  }
+  if (!buff.empty()) {
+    v.push_back(buff);
+  }
+  return v;
+}
+
 // TODO(rays) Change all callers to use TFile and remove the old functions.
 // Writes to the given file. Returns false in case of error.
 bool STRING::Serialize(FILE *fp) const {

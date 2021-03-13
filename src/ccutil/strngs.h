@@ -32,22 +32,7 @@ namespace tesseract {
 
 class TFile;
 
-const std::vector<std::string> split(const std::string &s, char c) {
-  std::string buff;
-  std::vector<std::string> v;
-  for (auto n : s) {
-    if (n != c)
-      buff += n;
-    else if (n == c && !buff.empty()) {
-       v.push_back(buff);
-       buff.clear();
-    }
-  }
-  if (!buff.empty()) {
-    v.push_back(buff);
-  }
-  return v;
-}
+const std::vector<std::string> split(const std::string &s, char c);
 
 class STRING : public std::string {
 public:
