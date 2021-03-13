@@ -67,7 +67,6 @@
 #include <tesseract/resultiterator.h> // for ResultIterator
 #include <tesseract/thresholder.h>    // for ImageThresholder
 #include "helpers.h"                  // for IntCastRounded, chomp_string
-#include "strngs.h"                   // for STRING
 
 #include <cmath>    // for round, M_PI
 #include <cstdint>  // for int32_t
@@ -1295,13 +1294,13 @@ char *TessBaseAPI::GetUTF8Text() {
   return result;
 }
 
-static void AddBoxToTSV(const PageIterator *it, PageIteratorLevel level, STRING *text) {
+static void AddBoxToTSV(const PageIterator *it, PageIteratorLevel level, std::string &text) {
   int left, top, right, bottom;
   it->BoundingBox(level, &left, &top, &right, &bottom);
-  text->add_str_int("\t", left);
-  text->add_str_int("\t", top);
-  text->add_str_int("\t", right - left);
-  text->add_str_int("\t", bottom - top);
+  text += "\t" + std::to_string(left);
+  text += "\t" + std::to_string(top);
+  text += "\t" + std::to_string(right - left);
+  text += "\t" + std::to_string(bottom - top);
 }
 
 /**
@@ -1316,23 +1315,22 @@ char *TessBaseAPI::GetTSVText(int page_number) {
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
   int page_id = page_number + 1; // we use 1-based page numbers.
 
-  STRING tsv_str("");
-
   int page_num = page_id;
   int block_num = 0;
   int par_num = 0;
   int line_num = 0;
   int word_num = 0;
 
-  tsv_str.add_str_int("1\t", page_num); // level 1 - page
-  tsv_str.add_str_int("\t", block_num);
-  tsv_str.add_str_int("\t", par_num);
-  tsv_str.add_str_int("\t", line_num);
-  tsv_str.add_str_int("\t", word_num);
-  tsv_str.add_str_int("\t", rect_left_);
-  tsv_str.add_str_int("\t", rect_top_);
-  tsv_str.add_str_int("\t", rect_width_);
-  tsv_str.add_str_int("\t", rect_height_);
+  std::string tsv_str;
+  tsv_str += "1\t" + std::to_string(page_num); // level 1 - page
+  tsv_str += "\t" + std::to_string(block_num);
+  tsv_str += "\t" + std::to_string(par_num);
+  tsv_str += "\t" + std::to_string(line_num);
+  tsv_str += "\t" + std::to_string(word_num);
+  tsv_str += "\t" + std::to_string(rect_left_);
+  tsv_str += "\t" + std::to_string(rect_top_);
+  tsv_str += "\t" + std::to_string(rect_width_);
+  tsv_str += "\t" + std::to_string(rect_height_);
   tsv_str += "\t-1\t\n";
 
   ResultIterator *res_it = GetIterator();
@@ -1348,35 +1346,35 @@ char *TessBaseAPI::GetTSVText(int page_number) {
       par_num = 0;
       line_num = 0;
       word_num = 0;
-      tsv_str.add_str_int("2\t", page_num); // level 2 - block
-      tsv_str.add_str_int("\t", block_num);
-      tsv_str.add_str_int("\t", par_num);
-      tsv_str.add_str_int("\t", line_num);
-      tsv_str.add_str_int("\t", word_num);
-      AddBoxToTSV(res_it, RIL_BLOCK, &tsv_str);
+      tsv_str += "2\t" + std::to_string(page_num); // level 2 - block
+      tsv_str += "\t" + std::to_string(block_num);
+      tsv_str += "\t" + std::to_string(par_num);
+      tsv_str += "\t" + std::to_string(line_num);
+      tsv_str += "\t" + std::to_string(word_num);
+      AddBoxToTSV(res_it, RIL_BLOCK, tsv_str);
       tsv_str += "\t-1\t\n"; // end of row for block
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
       par_num++;
       line_num = 0;
       word_num = 0;
-      tsv_str.add_str_int("3\t", page_num); // level 3 - paragraph
-      tsv_str.add_str_int("\t", block_num);
-      tsv_str.add_str_int("\t", par_num);
-      tsv_str.add_str_int("\t", line_num);
-      tsv_str.add_str_int("\t", word_num);
-      AddBoxToTSV(res_it, RIL_PARA, &tsv_str);
+      tsv_str += "3\t" + std::to_string(page_num); // level 3 - paragraph
+      tsv_str += "\t" + std::to_string(block_num);
+      tsv_str += "\t" + std::to_string(par_num);
+      tsv_str += "\t" + std::to_string(line_num);
+      tsv_str += "\t" + std::to_string(word_num);
+      AddBoxToTSV(res_it, RIL_PARA, tsv_str);
       tsv_str += "\t-1\t\n"; // end of row for para
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       line_num++;
       word_num = 0;
-      tsv_str.add_str_int("4\t", page_num); // level 4 - line
-      tsv_str.add_str_int("\t", block_num);
-      tsv_str.add_str_int("\t", par_num);
-      tsv_str.add_str_int("\t", line_num);
-      tsv_str.add_str_int("\t", word_num);
-      AddBoxToTSV(res_it, RIL_TEXTLINE, &tsv_str);
+      tsv_str += "4\t" + std::to_string(page_num); // level 4 - line
+      tsv_str += "\t" + std::to_string(block_num);
+      tsv_str += "\t" + std::to_string(par_num);
+      tsv_str += "\t" + std::to_string(line_num);
+      tsv_str += "\t" + std::to_string(word_num);
+      AddBoxToTSV(res_it, RIL_TEXTLINE, tsv_str);
       tsv_str += "\t-1\t\n"; // end of row for line
     }
 
@@ -1384,16 +1382,16 @@ char *TessBaseAPI::GetTSVText(int page_number) {
     int left, top, right, bottom;
     res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
     word_num++;
-    tsv_str.add_str_int("5\t", page_num); // level 5 - word
-    tsv_str.add_str_int("\t", block_num);
-    tsv_str.add_str_int("\t", par_num);
-    tsv_str.add_str_int("\t", line_num);
-    tsv_str.add_str_int("\t", word_num);
-    tsv_str.add_str_int("\t", left);
-    tsv_str.add_str_int("\t", top);
-    tsv_str.add_str_int("\t", right - left);
-    tsv_str.add_str_int("\t", bottom - top);
-    tsv_str.add_str_int("\t", res_it->Confidence(RIL_WORD));
+    tsv_str += "5\t" + std::to_string(page_num); // level 5 - word
+    tsv_str += "\t" + std::to_string(block_num);
+    tsv_str += "\t" + std::to_string(par_num);
+    tsv_str += "\t" + std::to_string(line_num);
+    tsv_str += "\t" + std::to_string(word_num);
+    tsv_str += "\t" + std::to_string(left);
+    tsv_str += "\t" + std::to_string(top);
+    tsv_str += "\t" + std::to_string(right - left);
+    tsv_str += "\t" + std::to_string(bottom - top);
+    tsv_str += "\t" + std::to_string(res_it->Confidence(RIL_WORD));
     tsv_str += "\t";
 
     // Increment counts if at end of block/paragraph/textline.
