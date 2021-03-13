@@ -26,7 +26,6 @@
 #include "params.h"
 #include "recodebeam.h"
 #include "series.h"
-#include "strngs.h"
 #include "unicharcompress.h"
 
 class BLOB_CHOICE_IT;
@@ -105,14 +104,14 @@ public:
     return layers;
   }
   // Returns a specific layer from its id (from EnumerateLayers).
-  Network *GetLayer(const STRING &id) const {
+  Network *GetLayer(const std::string &id) const {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     ASSERT_HOST(id.length() > 1 && id[0] == ':');
     auto *series = static_cast<Series *>(network_);
     return series->GetLayer(&id[1]);
   }
   // Returns the learning rate of the layer from its id.
-  float GetLayerLearningRate(const STRING &id) const {
+  float GetLayerLearningRate(const std::string &id) const {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
       ASSERT_HOST(id.length() > 1 && id[0] == ':');
@@ -150,7 +149,7 @@ public:
     }
   }
   // Multiplies the learning rate of the layer with id, by the given factor.
-  void ScaleLayerLearningRate(const STRING &id, double factor) {
+  void ScaleLayerLearningRate(const std::string &id, double factor) {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     ASSERT_HOST(id.length() > 1 && id[0] == ':');
     auto *series = static_cast<Series *>(network_);
