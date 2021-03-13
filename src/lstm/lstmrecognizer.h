@@ -97,11 +97,11 @@ public:
   }
   // Returns a vector of layer ids that can be passed to other layer functions
   // to access a specific layer.
-  std::vector<STRING> EnumerateLayers() const {
+  std::vector<std::string> EnumerateLayers() const {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     auto *series = static_cast<Series *>(network_);
-    std::vector<STRING> layers;
-    series->EnumerateLayers(nullptr, &layers);
+    std::vector<std::string> layers;
+    series->EnumerateLayers(nullptr, layers);
     return layers;
   }
   // Returns a specific layer from its id (from EnumerateLayers).
@@ -143,7 +143,7 @@ public:
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     learning_rate_ *= factor;
     if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
-      std::vector<STRING> layers = EnumerateLayers();
+      std::vector<std::string> layers = EnumerateLayers();
       for (int i = 0; i < layers.size(); ++i) {
         ScaleLayerLearningRate(layers[i], factor);
       }

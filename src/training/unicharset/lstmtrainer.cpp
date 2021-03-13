@@ -612,7 +612,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
     LR_SAME, // Learning rate will stay the same.
     LR_COUNT // Size of arrays.
   };
-  std::vector<STRING> layers = EnumerateLayers();
+  std::vector<std::string> layers = EnumerateLayers();
   int num_layers = layers.size();
   std::vector<int> num_weights;
   num_weights.resize(num_layers, 0);

@@ -102,7 +102,7 @@ public:
   }
   // Returns a set of strings representing the layer-ids of all layers below.
   TESS_API
-  void EnumerateLayers(const STRING *prefix, std::vector<STRING> *layers) const;
+  void EnumerateLayers(const std::string *prefix, std::vector<std::string> &layers) const;
   // Returns a pointer to the network layer corresponding to the given id.
   TESS_API
   Network *GetLayer(const char *id) const;
