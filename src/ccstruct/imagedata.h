@@ -22,7 +22,6 @@
 #include "points.h" // for FCOORD
 
 #include "genericvector.h" // for GenericVector, PointerVector, FileReader
-#include "strngs.h"        // for STRING
 
 #include <mutex>  // for std::mutex
 #include <thread> // for std::thread
@@ -129,10 +128,10 @@ public:
   static bool SkipDeSerialize(TFile *fp);
 
   // Other accessors.
-  const STRING &imagefilename() const {
+  const std::string &imagefilename() const {
     return imagefilename_;
   }
-  void set_imagefilename(const STRING &name) {
+  void set_imagefilename(const std::string &name) {
     imagefilename_ = name;
   }
   int page_number() const {
@@ -144,22 +143,22 @@ public:
   const std::vector<char> &image_data() const {
     return image_data_;
   }
-  const STRING &language() const {
+  const std::string &language() const {
     return language_;
   }
-  void set_language(const STRING &lang) {
+  void set_language(const std::string &lang) {
     language_ = lang;
   }
-  const STRING &transcription() const {
+  const std::string &transcription() const {
     return transcription_;
   }
   const std::vector<TBOX> &boxes() const {
     return boxes_;
   }
-  const std::vector<STRING> &box_texts() const {
+  const std::vector<std::string> &box_texts() const {
     return box_texts_;
   }
-  const STRING &box_text(int index) const {
+  const std::string &box_text(int index) const {
     return box_texts_[index];
   }
   // Saves the given Pix as a PNG-encoded string and destroys it.
@@ -184,7 +183,7 @@ public:
 
   // Adds the supplied boxes and transcriptions that correspond to the correct
   // page number.
-  void AddBoxes(const std::vector<TBOX> &boxes, const std::vector<STRING> &texts,
+  void AddBoxes(const std::vector<TBOX> &boxes, const std::vector<std::string> &texts,
                 const std::vector<int> &box_pages);
 
 private:
@@ -199,16 +198,16 @@ private:
   bool AddBoxes(const char *box_text);
 
 private:
-  STRING imagefilename_; // File to read image from.
+  std::string imagefilename_; // File to read image from.
   int32_t page_number_;  // Page number if multi-page tif or -1.
 #ifdef TESSERACT_IMAGEDATA_AS_PIX
   Pix *internal_pix_;
 #endif
   std::vector<char> image_data_;  // PNG/PNM file data.
-  STRING language_;               // Language code for image.
-  STRING transcription_;          // UTF-8 ground truth of image.
+  std::string language_;          // Language code for image.
+  std::string transcription_;     // UTF-8 ground truth of image.
   std::vector<TBOX> boxes_;       // If non-empty boxes of the image.
-  std::vector<STRING> box_texts_; // String for text in each box.
+  std::vector<std::string> box_texts_; // String for text in each box.
   bool vertical_text_;            // Image has been rotated from vertical.
 };
 
@@ -216,7 +215,7 @@ private:
 class DocumentData {
 public:
   TESS_API
-  explicit DocumentData(const STRING &name);
+  explicit DocumentData(const std::string &name);
   TESS_API
   ~DocumentData();
 
@@ -234,7 +233,7 @@ public:
   TESS_API
   void AddPageToDocument(ImageData *page);
 
-  const STRING &document_name() const {
+  const std::string &document_name() const {
     std::lock_guard<std::mutex> lock(general_mutex_);
     return document_name_;
   }
@@ -303,7 +302,7 @@ private:
 
 private:
   // A name for this document.
-  STRING document_name_;
+  std::string document_name_;
   // A group of pages that corresponds in some loose way to a document.
   PointerVector<ImageData> pages_;
   // Page number of the first index in pages_.
@@ -350,14 +349,14 @@ public:
   // Adds all the documents in the list of filenames, counting memory.
   // The reader is used to read the files.
   TESS_API
-  bool LoadDocuments(const std::vector<STRING> &filenames, CachingStrategy cache_strategy,
+  bool LoadDocuments(const std::vector<std::string> &filenames, CachingStrategy cache_strategy,
                      FileReader reader);
 
   // Adds document to the cache.
   bool AddToCache(DocumentData *data);
 
   // Finds and returns a document by name.
-  DocumentData *FindDocument(const STRING &document_name) const;
+  DocumentData *FindDocument(const std::string &document_name) const;
 
   // Returns a page by serial number using the current cache_strategy_ to
   // determine the mapping from serial number to page.

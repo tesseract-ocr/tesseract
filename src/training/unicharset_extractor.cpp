@@ -41,7 +41,7 @@ namespace tesseract {
 
 // Helper normalizes and segments the given strings according to norm_mode, and
 // adds the segmented parts to unicharset.
-static void AddStringsToUnicharset(const std::vector<STRING> &strings, int norm_mode,
+static void AddStringsToUnicharset(const std::vector<std::string> &strings, int norm_mode,
                                    UNICHARSET *unicharset) {
   for (int i = 0; i < strings.size(); ++i) {
     std::vector<std::string> normalized;
@@ -64,10 +64,10 @@ static int Main(int argc, char **argv) {
   UNICHARSET unicharset;
   // Load input files
   for (int arg = 1; arg < argc; ++arg) {
-    STRING file_data = tesseract::ReadFile(argv[arg], /*reader*/ nullptr);
+    std::string file_data = tesseract::ReadFile(argv[arg], /*reader*/ nullptr);
     if (file_data.length() == 0)
       continue;
-    std::vector<STRING> texts;
+    std::vector<std::string> texts;
     if (ReadMemBoxes(-1, /*skip_blanks*/ true, &file_data[0],
                      /*continue_on_failure*/ false, /*boxes*/ nullptr, &texts,
                      /*box_texts*/ nullptr, /*pages*/ nullptr)) {
@@ -75,7 +75,7 @@ static int Main(int argc, char **argv) {
     } else {
       tprintf("Extracting unicharset from plain text file %s\n", argv[arg]);
       texts.clear();
-      file_data.split('\n', &texts);
+      texts = split(file_data, '\n');
     }
     AddStringsToUnicharset(texts, FLAGS_norm_mode, &unicharset);
   }

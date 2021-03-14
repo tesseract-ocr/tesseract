@@ -18,14 +18,8 @@
 #ifndef BLOBCLASS_H
 #define BLOBCLASS_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
-#include "strngs.h"
+#include <string>
 
-/**----------------------------------------------------------------------------
-          Public Function Prototypes
-----------------------------------------------------------------------------**/
 namespace tesseract {
 // Finds the name of the training font and returns it in fontname, by cutting
 // it out based on the expectation that the filename is of the form:

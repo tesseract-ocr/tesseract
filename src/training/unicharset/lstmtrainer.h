@@ -173,7 +173,7 @@ public:
                                     double min_dict_ratio, double dict_ratio_step,
                                     double max_dict_ratio, double min_cert_offset,
                                     double cert_offset_step, double max_cert_offset,
-                                    STRING *results);
+                                    std::string &results);
 
   // Provides output on the distribution of weight values.
   void DebugNetwork();
@@ -181,12 +181,12 @@ public:
   // Loads a set of lstmf files that were created using the lstm.train config to
   // tesseract into memory ready for training. Returns false if nothing was
   // loaded.
-  bool LoadAllTrainingData(const std::vector<STRING> &filenames, CachingStrategy cache_strategy,
+  bool LoadAllTrainingData(const std::vector<std::string> &filenames, CachingStrategy cache_strategy,
                            bool randomly_rotate);
 
   // Keeps track of best and locally worst error rate, using internally computed
   // values. See MaintainCheckpointsSpecific for more detail.
-  bool MaintainCheckpoints(TestCallback tester, STRING *log_msg);
+  bool MaintainCheckpoints(TestCallback tester, std::string &log_msg);
   // Keeps track of best and locally worst error_rate (whatever it is) and
   // launches tests using rec_model, when a new min or max is reached.
   // Writes checkpoints using train_model at appropriate times and builds and
@@ -194,12 +194,12 @@ public:
   // interesting happened.
   bool MaintainCheckpointsSpecific(int iteration, const std::vector<char> *train_model,
                                    const std::vector<char> *rec_model, TestCallback tester,
-                                   STRING *log_msg);
+                                   std::string &log_msg);
   // Builds a string containing a progress message with current error rates.
-  void PrepareLogMsg(STRING *log_msg) const;
+  void PrepareLogMsg(std::string &log_msg) const;
   // Appends <intro_str> iteration learning_iteration()/training_iteration()/
   // sample_iteration() to the log_msg.
-  void LogIterations(const char *intro_str, STRING *log_msg) const;
+  void LogIterations(const char *intro_str, std::string &log_msg) const;
 
   // TODO(rays) Add curriculum learning.
   // Returns true and increments the training_stage_ if the error rate has just
@@ -218,7 +218,7 @@ public:
   // De-serializes the saved best_trainer_ into sub_trainer_, and adjusts the
   // learning rates (by scaling reduction, or layer specific, according to
   // NF_LAYER_SPECIFIC_LR).
-  void StartSubtrainer(STRING *log_msg);
+  void StartSubtrainer(std::string &log_msg);
   // While the sub_trainer_ is behind the current training iteration and its
   // training error is at least kSubTrainerMarginFraction better than the
   // current training error, trains the sub_trainer_, and returns STR_UPDATED if
@@ -227,10 +227,10 @@ public:
   // trainer in *this is replaced with sub_trainer_, and STR_REPLACED is
   // returned. STR_NONE is returned if the subtrainer wasn't good enough to
   // receive any training iterations.
-  SubTrainerResult UpdateSubtrainer(STRING *log_msg);
+  SubTrainerResult UpdateSubtrainer(std::string &log_msg);
   // Reduces network learning rates, either for everything, or for layers
   // independently, according to NF_LAYER_SPECIFIC_LR.
-  void ReduceLearningRates(LSTMTrainer *samples_trainer, STRING *log_msg);
+  void ReduceLearningRates(LSTMTrainer *samples_trainer, std::string &log_msg);
   // Considers reducing the learning rate independently for each layer down by
   // factor(<1), or leaving it the same, by double-training the given number of
   // samples and minimizing the amount of changing of sign of weight updates.
@@ -306,7 +306,7 @@ public:
 
   // Returns a suitable filename for a training dump, based on the model_base_,
   // the iteration and the error rates.
-  STRING DumpFilename() const;
+  std::string DumpFilename() const;
 
   // Fills the whole error buffer of the given type with the given value.
   void FillErrorBuffer(double new_error, ErrorTypes type);
@@ -365,7 +365,7 @@ protected:
   double ComputeCharError(const std::vector<int> &truth_str, const std::vector<int> &ocr_str);
   // Computes a very simple bag of words word recall error rate.
   // NOTE that this is destructive on both input strings.
-  double ComputeWordError(STRING *truth_str, STRING *ocr_str);
+  double ComputeWordError(std::string *truth_str, std::string *ocr_str);
 
   // Updates the error buffer and corresponding mean of the given type with
   // the new_error.

@@ -145,19 +145,19 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
  * @param str            string to append CharDesc to
  * @param CharDesc       character description to write to File
  */
-void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC CharDesc, STRING *str) {
+void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC CharDesc, std::string &str) {
   int NumSetsToWrite = 0;
 
   for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++)
     if (CharDesc->FeatureSets[Type])
       NumSetsToWrite++;
 
-  str->add_str_int(" ", NumSetsToWrite);
-  *str += "\n";
+  str += " " + std::to_string(NumSetsToWrite);
+  str += "\n";
   for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
     if (CharDesc->FeatureSets[Type]) {
-      *str += FeatureDefs.FeatureDesc[Type]->ShortName;
-      *str += " ";
+      str += FeatureDefs.FeatureDesc[Type]->ShortName;
+      str += " ";
       WriteFeatureSet(CharDesc->FeatureSets[Type], str);
     }
   }

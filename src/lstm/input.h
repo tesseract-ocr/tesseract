@@ -32,13 +32,9 @@ public:
   Input(const std::string &name, const StaticShape &shape);
   ~Input() override = default;
 
-  STRING spec() const override {
-    STRING spec;
-    spec.add_str_int("", shape_.batch());
-    spec.add_str_int(",", shape_.height());
-    spec.add_str_int(",", shape_.width());
-    spec.add_str_int(",", shape_.depth());
-    return spec;
+  std::string spec() const override {
+    return std::to_string(shape_.batch()) + "," + std::to_string(shape_.height()) + "," +
+           std::to_string(shape_.width()) + "," + std::to_string(shape_.depth());
   }
 
   // Returns the required shape input to the network.

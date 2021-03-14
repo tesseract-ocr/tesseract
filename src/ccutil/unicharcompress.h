@@ -196,14 +196,14 @@ public:
 
   bool DeSerialize(TFile *fp);
 
-  // Returns a STRING containing a text file that describes the encoding thus:
+  // Returns a string containing a text file that describes the encoding thus:
   // <index>[,<index>]*<tab><UTF8-str><newline>
   // In words, a comma-separated list of one or more indices, followed by a tab
   // and the UTF-8 string that the code represents per line. Most simple scripts
   // will encode a single index to a UTF8-string, but Chinese, Japanese, Korean
   // and the Indic scripts will contain a many-to-many mapping.
   // See the class comment above for details.
-  STRING GetEncodingAsString(const UNICHARSET &unicharset) const;
+  std::string GetEncodingAsString(const UNICHARSET &unicharset) const;
 
   // Helper decomposes a Hangul unicode to 3 parts, leading, vowel, trailing.
   // Note that the returned values are 0-based indices, NOT unicode Jamo.

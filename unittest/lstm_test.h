@@ -91,7 +91,7 @@ protected:
       net_mode |= NF_LAYER_SPECIFIC_LR;
     EXPECT_TRUE(
         trainer_->InitNetwork(network_spec.c_str(), -1, net_mode, 0.1, learning_rate, 0.9, 0.999));
-    std::vector<STRING> filenames;
+    std::vector<std::string> filenames;
     filenames.push_back(STRING(TestDataNameToPath(lstmf_file).c_str()));
     EXPECT_TRUE(trainer_->LoadAllTrainingData(filenames, CS_SEQUENTIAL, false));
     LOG(INFO) << "Setup network:" << model_name << "\n";
@@ -102,7 +102,7 @@ protected:
     int iteration_limit = iteration + max_iterations;
     double best_error = 100.0;
     do {
-      STRING log_str;
+      std::string log_str;
       int target_iteration = iteration + kBatchIterations;
       // Train a few.
       double mean_error = 0.0;
@@ -111,7 +111,7 @@ protected:
         iteration = trainer_->training_iteration();
         mean_error += trainer_->LastSingleError(ET_CHAR_ERROR);
       }
-      trainer_->MaintainCheckpoints(nullptr, &log_str);
+      trainer_->MaintainCheckpoints(nullptr, log_str);
       iteration = trainer_->training_iteration();
       mean_error *= 100.0 / kBatchIterations;
       if (mean_error < best_error)

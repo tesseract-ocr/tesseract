@@ -74,7 +74,7 @@ FILE *OpenBoxFile(const char *fname) {
 // Each of the output vectors is optional (may be nullptr).
 // Returns false if no boxes are found.
 bool ReadAllBoxes(int target_page, bool skip_blanks, const char *filename, std::vector<TBOX> *boxes,
-                  std::vector<STRING> *texts, std::vector<STRING> *box_texts,
+                  std::vector<std::string> *texts, std::vector<std::string> *box_texts,
                   std::vector<int> *pages) {
   std::ifstream input(BoxFileName(filename).c_str(), std::ios::in | std::ios::binary);
   std::vector<char> box_data(std::istreambuf_iterator<char>(input), {});
@@ -88,8 +88,8 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const char *filename, std::
 
 // Reads all boxes from the string. Otherwise, as ReadAllBoxes.
 bool ReadMemBoxes(int target_page, bool skip_blanks, const char *box_data, bool continue_on_failure,
-                  std::vector<TBOX> *boxes, std::vector<STRING> *texts,
-                  std::vector<STRING> *box_texts, std::vector<int> *pages) {
+                  std::vector<TBOX> *boxes, std::vector<std::string> *texts,
+                  std::vector<std::string> *box_texts, std::vector<int> *pages) {
   STRING box_str(box_data);
   std::vector<STRING> lines;
   box_str.split('\n', &lines);
@@ -115,8 +115,8 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char *box_data, bool 
     if (texts != nullptr)
       texts->push_back(utf8_str);
     if (box_texts != nullptr) {
-      STRING full_text;
-      MakeBoxFileStr(utf8_str.c_str(), box, target_page, &full_text);
+      std::string full_text;
+      MakeBoxFileStr(utf8_str.c_str(), box, target_page, full_text);
       box_texts->push_back(full_text);
     }
     if (pages != nullptr)
@@ -255,13 +255,13 @@ bool ParseBoxFileStr(const char *boxfile_str, int *page_number, STRING *utf8_str
 }
 
 // Creates a box file string from a unichar string, TBOX and page number.
-void MakeBoxFileStr(const char *unichar_str, const TBOX &box, int page_num, STRING *box_str) {
-  *box_str = unichar_str;
-  box_str->add_str_int(" ", box.left());
-  box_str->add_str_int(" ", box.bottom());
-  box_str->add_str_int(" ", box.right());
-  box_str->add_str_int(" ", box.top());
-  box_str->add_str_int(" ", page_num);
+void MakeBoxFileStr(const char *unichar_str, const TBOX &box, int page_num, std::string &box_str) {
+  box_str = unichar_str;
+  box_str += " " + std::to_string(box.left());
+  box_str += " " + std::to_string(box.bottom());
+  box_str += " " + std::to_string(box.right());
+  box_str += " " + std::to_string(box.top());
+  box_str += " " + std::to_string(page_num);
 }
 
 } // namespace tesseract

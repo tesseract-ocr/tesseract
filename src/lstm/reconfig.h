@@ -38,11 +38,8 @@ public:
   // be partially unknown ie zero).
   StaticShape OutputShape(const StaticShape &input_shape) const override;
 
-  STRING spec() const override {
-    STRING spec;
-    spec.add_str_int("S", y_scale_);
-    spec.add_str_int(",", x_scale_);
-    return spec;
+  std::string spec() const override {
+    return "S" + std::to_string(y_scale_) + "," + std::to_string(x_scale_);
   }
 
   // Returns an integer reduction factor that the network applies to the

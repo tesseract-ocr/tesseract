@@ -26,7 +26,6 @@
 #include "params.h"
 #include "recodebeam.h"
 #include "series.h"
-#include "strngs.h"
 #include "unicharcompress.h"
 
 class BLOB_CHOICE_IT;
@@ -97,22 +96,22 @@ public:
   }
   // Returns a vector of layer ids that can be passed to other layer functions
   // to access a specific layer.
-  std::vector<STRING> EnumerateLayers() const {
+  std::vector<std::string> EnumerateLayers() const {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     auto *series = static_cast<Series *>(network_);
-    std::vector<STRING> layers;
-    series->EnumerateLayers(nullptr, &layers);
+    std::vector<std::string> layers;
+    series->EnumerateLayers(nullptr, layers);
     return layers;
   }
   // Returns a specific layer from its id (from EnumerateLayers).
-  Network *GetLayer(const STRING &id) const {
+  Network *GetLayer(const std::string &id) const {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     ASSERT_HOST(id.length() > 1 && id[0] == ':');
     auto *series = static_cast<Series *>(network_);
     return series->GetLayer(&id[1]);
   }
   // Returns the learning rate of the layer from its id.
-  float GetLayerLearningRate(const STRING &id) const {
+  float GetLayerLearningRate(const std::string &id) const {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
       ASSERT_HOST(id.length() > 1 && id[0] == ':');
@@ -143,14 +142,14 @@ public:
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     learning_rate_ *= factor;
     if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
-      std::vector<STRING> layers = EnumerateLayers();
+      std::vector<std::string> layers = EnumerateLayers();
       for (int i = 0; i < layers.size(); ++i) {
         ScaleLayerLearningRate(layers[i], factor);
       }
     }
   }
   // Multiplies the learning rate of the layer with id, by the given factor.
-  void ScaleLayerLearningRate(const STRING &id, double factor) {
+  void ScaleLayerLearningRate(const std::string &id, double factor) {
     ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     ASSERT_HOST(id.length() > 1 && id[0] == ':');
     auto *series = static_cast<Series *>(network_);
@@ -248,7 +247,7 @@ public:
 
   // Converts an array of labels to utf-8, whether or not the labels are
   // augmented with character boundaries.
-  STRING DecodeLabels(const std::vector<int> &labels);
+  std::string DecodeLabels(const std::vector<int> &labels);
 
   // Displays the forward results in a window with the characters and
   // boundaries as determined by the labels and label_coords.

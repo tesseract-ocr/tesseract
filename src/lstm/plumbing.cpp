@@ -3,7 +3,6 @@
 // Description: Base class for networks that organize other networks
 //              eg series or parallel.
 // Author:      Ray Smith
-// Created:     Mon May 12 08:17:34 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -135,17 +134,17 @@ void Plumbing::DebugWeights() {
 }
 
 // Returns a set of strings representing the layer-ids of all layers below.
-void Plumbing::EnumerateLayers(const STRING *prefix, std::vector<STRING> *layers) const {
+void Plumbing::EnumerateLayers(const std::string *prefix, std::vector<std::string> &layers) const {
   for (int i = 0; i < stack_.size(); ++i) {
-    STRING layer_name;
+    std::string layer_name;
     if (prefix)
       layer_name = *prefix;
-    layer_name.add_str_int(":", i);
+    layer_name += ":" + std::to_string(i);
     if (stack_[i]->IsPlumbingType()) {
       auto *plumbing = static_cast<Plumbing *>(stack_[i]);
       plumbing->EnumerateLayers(&layer_name, layers);
     } else {
-      layers->push_back(layer_name);
+      layers.push_back(layer_name);
     }
   }
 }

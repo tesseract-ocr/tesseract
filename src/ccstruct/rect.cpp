@@ -167,13 +167,13 @@ void TBOX::plot(                    // paint box
 #endif
 
 // Appends the bounding box as (%d,%d)->(%d,%d) to a STRING.
-void TBOX::print_to_str(STRING *str) const {
+void TBOX::print_to_str(std::string &str) const {
   // "(%d,%d)->(%d,%d)", left(), bottom(), right(), top()
-  str->add_str_int("(", left());
-  str->add_str_int(",", bottom());
-  str->add_str_int(")->(", right());
-  str->add_str_int(",", top());
-  *str += ')';
+  str += "(" + std::to_string(left());
+  str += "," + std::to_string(bottom());
+  str += ")->(" + std::to_string(right());
+  str += "," + std::to_string(top());
+  str += ')';
 }
 
 // Writes to the given file. Returns false in case of error.

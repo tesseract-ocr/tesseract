@@ -46,7 +46,6 @@
 #include <tesseract/publictypes.h> // for OcrEngineMode, PageSegMode, OEM_L...
 #include <tesseract/unichar.h>     // for UNICHAR_ID
 #include "genericvector.h"         // for GenericVector, PointerVector
-#include "strngs.h"                // for STRING
 
 #include <allheaders.h> // for pixDestroy, pixGetWidth, pixGetHe...
 
@@ -138,7 +137,7 @@ struct TesseractStats {
   int16_t doc_good_char_quality;
   int32_t word_count;    // count of word in the document
   int32_t dict_words;    // number of dicitionary words in the document
-  STRING dump_words_str; // accumulator used by dump_words()
+  std::string dump_words_str; // accumulator used by dump_words()
   // Flags used by write_results()
   bool tilde_crunch_written;
   bool last_char_was_newline;
@@ -336,19 +335,19 @@ public:
   // Breaks the page into lines, according to the boxes, and writes them to a
   // serialized DocumentData based on output_basename.
   // Return true if successful, false if an error occurred.
-  bool TrainLineRecognizer(const char *input_imagename, const STRING &output_basename,
+  bool TrainLineRecognizer(const char *input_imagename, const std::string &output_basename,
                            BLOCK_LIST *block_list);
   // Generates training data for training a line recognizer, eg LSTM.
   // Breaks the boxes into lines, normalizes them, converts to ImageData and
   // appends them to the given training_data.
-  void TrainFromBoxes(const std::vector<TBOX> &boxes, const std::vector<STRING> &texts,
+  void TrainFromBoxes(const std::vector<TBOX> &boxes, const std::vector<std::string> &texts,
                       BLOCK_LIST *block_list, DocumentData *training_data);
 
   // Returns an Imagedata containing the image of the given textline,
   // and ground truth boxes/truth text if available in the input.
   // The image is not normalized in any way.
   ImageData *GetLineData(const TBOX &line_box, const std::vector<TBOX> &boxes,
-                         const std::vector<STRING> &texts, int start_box, int end_box,
+                         const std::vector<std::string> &texts, int start_box, int end_box,
                          const BLOCK &block);
   // Helper gets the image of a rectangle, using the block.re_rotation() if
   // needed to get to the image, and rotating the result back to horizontal
@@ -420,11 +419,11 @@ public:
   // the inclusion of the outlines, and returns the certainty of the raw choice.
   float ClassifyBlobPlusOutlines(const std::vector<bool> &ok_outlines,
                                  const GenericVector<C_OUTLINE *> &outlines, int pass_n,
-                                 PAGE_RES_IT *pr_it, C_BLOB *blob, STRING *best_str);
+                                 PAGE_RES_IT *pr_it, C_BLOB *blob, std::string &best_str);
   // Classifies the given blob (part of word_data->word->word) as an individual
   // word, using languages, chopper etc, returning only the certainty of the
   // best raw choice, and undoing all the work done to fake out the word.
-  float ClassifyBlobAsWord(int pass_n, PAGE_RES_IT *pr_it, C_BLOB *blob, STRING *best_str,
+  float ClassifyBlobAsWord(int pass_n, PAGE_RES_IT *pr_it, C_BLOB *blob, std::string &best_str,
                            float *c2);
   void classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordData *word_data);
   void classify_word_pass1(const WordData &word_data, WERD_RES **in_word,
@@ -524,7 +523,7 @@ public:
   int init_tesseract_lm(const std::string &arg0, const std::string &textbase,
                         const std::string &language, TessdataManager *mgr);
 
-  void recognize_page(STRING &image_name);
+  void recognize_page(std::string &image_name);
   void end_tesseract();
 
   bool init_tesseract_lang_data(const std::string &arg0, const std::string &textbase,
@@ -733,7 +732,7 @@ public:
   void CorrectClassifyWords(PAGE_RES *page_res);
   // Call LearnWord to extract features for labelled blobs within each word.
   // Features are stored in an internal buffer.
-  void ApplyBoxTraining(const STRING &fontname, PAGE_RES *page_res);
+  void ApplyBoxTraining(const std::string &fontname, PAGE_RES *page_res);
 
   //// fixxht.cpp ///////////////////////////////////////////////////////
   // Returns the number of misfit blob tops in this word.
@@ -1029,7 +1028,7 @@ private:
   // will be loaded, and set to null when debug is complete.
   const char *backup_config_file_;
   // The filename of a config file to read when processing a debug word.
-  STRING word_config_;
+  std::string word_config_;
   // Image used for input to layout analysis and tesseract recognition.
   // May be modified by the ShiroRekhaSplitter to eliminate the top-line.
   Pix *pix_binary_;

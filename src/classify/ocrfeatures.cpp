@@ -18,7 +18,6 @@
 #include "ocrfeatures.h"
 
 #include "scanutils.h"
-#include "strngs.h" // for STRING
 
 #include <cassert>
 #include <cmath>
@@ -161,14 +160,14 @@ FEATURE_SET ReadFeatureSet(FILE *File, const FEATURE_DESC_STRUCT *FeatureDesc) {
  * @param Feature feature to write out to str
  * @param str string to write Feature to
  */
-static void WriteFeature(FEATURE Feature, STRING *str) {
+static void WriteFeature(FEATURE Feature, std::string &str) {
   for (int i = 0; i < Feature->Type->NumParams; i++) {
 #ifndef WIN32
     assert(!std::isnan(Feature->Params[i]));
 #endif
-    str->add_str_double(" ", Feature->Params[i]);
+    str += " " + std::to_string(Feature->Params[i]);
   }
-  *str += "\n";
+  str += "\n";
 } /* WriteFeature */
 
 /**
@@ -179,10 +178,10 @@ static void WriteFeature(FEATURE Feature, STRING *str) {
  * @param FeatureSet feature set to write to File
  * @param str string to write Feature to
  */
-void WriteFeatureSet(FEATURE_SET FeatureSet, STRING *str) {
+void WriteFeatureSet(FEATURE_SET FeatureSet, std::string &str) {
   if (FeatureSet) {
-    str->add_str_int("", FeatureSet->NumFeatures);
-    *str += "\n";
+    str += "" + std::to_string(FeatureSet->NumFeatures);
+    str += "\n";
     for (int i = 0; i < FeatureSet->NumFeatures; i++) {
       WriteFeature(FeatureSet->Features[i], str);
     }

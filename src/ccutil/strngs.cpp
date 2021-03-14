@@ -33,6 +33,23 @@ namespace tesseract {
 // possible length of an int (in 64 bits), being -<20 digits>.
 const int kMaxIntSize = 22;
 
+const std::vector<std::string> split(const std::string &s, char c) {
+  std::string buff;
+  std::vector<std::string> v;
+  for (auto n : s) {
+    if (n != c)
+      buff += n;
+    else if (n == c && !buff.empty()) {
+       v.push_back(buff);
+       buff.clear();
+    }
+  }
+  if (!buff.empty()) {
+    v.push_back(buff);
+  }
+  return v;
+}
+
 // TODO(rays) Change all callers to use TFile and remove the old functions.
 // Writes to the given file. Returns false in case of error.
 bool STRING::Serialize(FILE *fp) const {
@@ -100,29 +117,6 @@ void STRING::split(const char c, std::vector<STRING> *splited) {
   if (len != start_index) {
     splited->push_back(STRING(c_str() + start_index, len - start_index));
   }
-}
-
-void STRING::add_str_int(const char *str, int number) {
-  if (str != nullptr)
-    *this += str;
-  // Allow space for the maximum possible length of int64_t.
-  char num_buffer[kMaxIntSize];
-  snprintf(num_buffer, kMaxIntSize - 1, "%d", number);
-  num_buffer[kMaxIntSize - 1] = '\0';
-  *this += num_buffer;
-}
-
-// Appends the given string and double (as a %.8g) to this.
-void STRING::add_str_double(const char *str, double number) {
-  if (str != nullptr)
-    *this += str;
-  std::stringstream stream;
-  // Use "C" locale (needed for double value).
-  stream.imbue(std::locale::classic());
-  // Use 8 digits for double value.
-  stream.precision(8);
-  stream << number;
-  *this += stream.str().c_str();
 }
 
 } // namespace tesseract

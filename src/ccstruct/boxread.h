@@ -43,7 +43,7 @@ FILE *OpenBoxFile(const char *filename);
 // Each of the output vectors is optional (may be nullptr).
 // Returns false if no boxes are found.
 bool ReadAllBoxes(int target_page, bool skip_blanks, const char *filename, std::vector<TBOX> *boxes,
-                  std::vector<STRING> *texts, std::vector<STRING> *box_texts,
+                  std::vector<std::string> *texts, std::vector<std::string> *box_texts,
                   std::vector<int> *pages);
 
 // Reads all boxes from the string. Otherwise, as ReadAllBoxes.
@@ -52,8 +52,8 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const char *filename, std::
 // It otherwise gives up and returns false on encountering an invalid box.
 TESS_API
 bool ReadMemBoxes(int target_page, bool skip_blanks, const char *box_data, bool continue_on_failure,
-                  std::vector<TBOX> *boxes, std::vector<STRING> *texts,
-                  std::vector<STRING> *box_texts, std::vector<int> *pages);
+                  std::vector<TBOX> *boxes, std::vector<std::string> *texts,
+                  std::vector<std::string> *box_texts, std::vector<int> *pages);
 
 // ReadNextBox factors out the code to interpret a line of a box
 // file so that applybox and unicharset_extractor interpret the same way.
@@ -80,7 +80,7 @@ bool ParseBoxFileStr(const char *boxfile_str, int *page_number, STRING *utf8_str
 
 // Creates a box file string from a unichar string, TBOX and page number.
 TESS_API
-void MakeBoxFileStr(const char *unichar_str, const TBOX &box, int page_num, STRING *box_str);
+void MakeBoxFileStr(const char *unichar_str, const TBOX &box, int page_num, std::string &box_str);
 
 } // namespace tesseract
 

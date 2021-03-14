@@ -20,6 +20,8 @@
 
 #include "ocrfeatures.h"
 
+#include <string>
+
 namespace tesseract {
 
 /* Enumerate the different types of features currently defined. */
@@ -60,7 +62,7 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs);
 
 bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC CharDesc);
 
-void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC CharDesc, STRING *str);
+void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC CharDesc, std::string &str);
 
 TESS_API
 CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, FILE *File);

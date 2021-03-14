@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
     tprintf("Must supply a list of training filenames! --train_listfile\n");
     return EXIT_FAILURE;
   }
-  std::vector<STRING> filenames;
+  std::vector<std::string> filenames;
   if (!tesseract::LoadFileLinesToStrings(FLAGS_train_listfile.c_str(), &filenames)) {
     tprintf("Failed to load list of training filenames from %s\n", FLAGS_train_listfile.c_str());
     return EXIT_FAILURE;
@@ -213,8 +213,8 @@ int main(int argc, char **argv) {
          iteration = trainer.training_iteration()) {
       trainer.TrainOnLine(&trainer, false);
     }
-    STRING log_str;
-    trainer.MaintainCheckpoints(tester_callback, &log_str);
+    std::string log_str;
+    trainer.MaintainCheckpoints(tester_callback, log_str);
     tprintf("%s\n", log_str.c_str());
   } while (trainer.best_error_rate() > FLAGS_target_error_rate &&
            (trainer.training_iteration() < max_iterations));

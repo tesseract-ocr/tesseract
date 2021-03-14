@@ -34,24 +34,24 @@ public:
   // be partially unknown ie zero).
   StaticShape OutputShape(const StaticShape &input_shape) const override;
 
-  STRING spec() const override {
-    STRING spec;
+  std::string spec() const override {
+    std::string spec;
     if (type_ == NT_TANH)
-      spec.add_str_int("Ft", no_);
+      spec += "Ft" + std::to_string(no_);
     else if (type_ == NT_LOGISTIC)
-      spec.add_str_int("Fs", no_);
+      spec += "Fs" + std::to_string(no_);
     else if (type_ == NT_RELU)
-      spec.add_str_int("Fr", no_);
+      spec += "Fr" + std::to_string(no_);
     else if (type_ == NT_LINEAR)
-      spec.add_str_int("Fl", no_);
+      spec += "Fl" + std::to_string(no_);
     else if (type_ == NT_POSCLIP)
-      spec.add_str_int("Fp", no_);
+      spec += "Fp" + std::to_string(no_);
     else if (type_ == NT_SYMCLIP)
-      spec.add_str_int("Fn", no_);
+      spec += "Fn" + std::to_string(no_);
     else if (type_ == NT_SOFTMAX)
-      spec.add_str_int("Fc", no_);
+      spec += "Fc" + std::to_string(no_);
     else
-      spec.add_str_int("Fm", no_);
+      spec += "Fm" + std::to_string(no_);
     return spec;
   }
 

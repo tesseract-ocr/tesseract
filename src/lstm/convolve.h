@@ -36,11 +36,8 @@ public:
   Convolve(const std::string &name, int ni, int half_x, int half_y);
   ~Convolve() override = default;
 
-  STRING spec() const override {
-    STRING spec;
-    spec.add_str_int("C", half_x_ * 2 + 1);
-    spec.add_str_int(",", half_y_ * 2 + 1);
-    return spec;
+  std::string spec() const override {
+    return "C" + std::to_string(half_x_ * 2 + 1) + "," + std::to_string(half_y_ * 2 + 1);
   }
 
   // Writes to the given file. Returns false in case of error.

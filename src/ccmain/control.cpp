@@ -464,8 +464,8 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
     GenericVector<WERD_CHOICE *> overrides_word1;
     GenericVector<WERD_CHOICE *> overrides_word2;
 
-    const STRING orig_w1_str = w_prev->best_choice->unichar_string();
-    const STRING orig_w2_str = w->best_choice->unichar_string();
+    const auto orig_w1_str = w_prev->best_choice->unichar_string();
+    const auto orig_w2_str = w->best_choice->unichar_string();
     WERD_CHOICE prev_best(w->uch_set);
     {
       int w1start, w1end;
@@ -539,8 +539,8 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
         }
         continue;
       }
-      const STRING new_w1_str = overrides_word1[best_idx]->unichar_string();
-      const STRING new_w2_str = overrides_word2[best_idx]->unichar_string();
+      const auto new_w1_str = overrides_word1[best_idx]->unichar_string();
+      const auto new_w2_str = overrides_word2[best_idx]->unichar_string();
       if (new_w1_str != orig_w1_str) {
         w_prev->ReplaceBestChoice(overrides_word1[best_idx]);
       }
@@ -548,13 +548,13 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
         w->ReplaceBestChoice(overrides_word2[best_idx]);
       }
       if (tessedit_bigram_debug > 0) {
-        STRING choices_description;
+        std::string choices_description;
         int num_bigram_choices = overrides_word1.size() * overrides_word2.size();
         if (num_bigram_choices == 1) {
           choices_description = "This was the unique bigram choice.";
         } else {
           if (tessedit_bigram_debug > 1) {
-            STRING bigrams_list;
+            std::string bigrams_list;
             const int kMaxChoicesToPrint = 20;
             for (int i = 0; i < overrides_word1.size() && i < kMaxChoicesToPrint; i++) {
               if (i > 0) {
@@ -568,7 +568,7 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
             choices_description += bigrams_list;
             choices_description += "}";
           } else {
-            choices_description.add_str_int("There were ", num_bigram_choices);
+            choices_description += "There were " + std::to_string(num_bigram_choices);
             choices_description += " compatible bigrams.";
           }
         }
@@ -1079,11 +1079,11 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
                                             C_BLOB *blob,
                                             const GenericVector<C_OUTLINE *> &outlines,
                                             int num_outlines, std::vector<bool> *ok_outlines) {
-  STRING best_str;
+  std::string best_str;
   float target_cert = certainty_threshold;
   if (blob != nullptr) {
     float target_c2;
-    target_cert = ClassifyBlobAsWord(pass, pr_it, blob, &best_str, &target_c2);
+    target_cert = ClassifyBlobAsWord(pass, pr_it, blob, best_str, &target_c2);
     if (debug_noise_removal) {
       tprintf("No Noise blob classified as %s=%g(%g) at:", best_str.c_str(), target_cert,
               target_c2);
@@ -1093,9 +1093,9 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
   }
   std::vector<bool> test_outlines = *ok_outlines;
   // Start with all the outlines in.
-  STRING all_str;
+  std::string all_str;
   std::vector<bool> best_outlines = *ok_outlines;
-  float best_cert = ClassifyBlobPlusOutlines(test_outlines, outlines, pass, pr_it, blob, &all_str);
+  float best_cert = ClassifyBlobPlusOutlines(test_outlines, outlines, pass, pr_it, blob, all_str);
   if (debug_noise_removal) {
     TBOX ol_box;
     for (int i = 0; i < test_outlines.size(); ++i) {
@@ -1116,8 +1116,8 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
     for (int i = 0; i < outlines.size(); ++i) {
       if (test_outlines[i]) {
         test_outlines[i] = false;
-        STRING str;
-        float cert = ClassifyBlobPlusOutlines(test_outlines, outlines, pass, pr_it, blob, &str);
+        std::string str;
+        float cert = ClassifyBlobPlusOutlines(test_outlines, outlines, pass, pr_it, blob, str);
         if (debug_noise_removal) {
           TBOX ol_box;
           for (int j = 0; j < outlines.size(); ++j) {
@@ -1162,7 +1162,7 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
 // the inclusion of the outlines, and returns the certainty of the raw choice.
 float Tesseract::ClassifyBlobPlusOutlines(const std::vector<bool> &ok_outlines,
                                           const GenericVector<C_OUTLINE *> &outlines, int pass_n,
-                                          PAGE_RES_IT *pr_it, C_BLOB *blob, STRING *best_str) {
+                                          PAGE_RES_IT *pr_it, C_BLOB *blob, std::string &best_str) {
   C_OUTLINE_IT ol_it;
   C_OUTLINE *first_to_keep = nullptr;
   C_BLOB *local_blob = nullptr;
@@ -1204,7 +1204,7 @@ float Tesseract::ClassifyBlobPlusOutlines(const std::vector<bool> &ok_outlines,
 // Classifies the given blob (part of word_data->word->word) as an individual
 // word, using languages, chopper etc, returning only the certainty of the
 // best raw choice, and undoing all the work done to fake out the word.
-float Tesseract::ClassifyBlobAsWord(int pass_n, PAGE_RES_IT *pr_it, C_BLOB *blob, STRING *best_str,
+float Tesseract::ClassifyBlobAsWord(int pass_n, PAGE_RES_IT *pr_it, C_BLOB *blob, std::string &best_str,
                                     float *c2) {
   WERD *real_word = pr_it->word()->word;
   WERD *word = real_word->ConstructFromSingleBlob(real_word->flag(W_BOL), real_word->flag(W_EOL),
@@ -1233,10 +1233,10 @@ float Tesseract::ClassifyBlobAsWord(int pass_n, PAGE_RES_IT *pr_it, C_BLOB *blob
     cert = wd.word->raw_choice->certainty();
     float rat = wd.word->raw_choice->rating();
     *c2 = rat > 0.0f ? cert * cert / rat : 0.0f;
-    *best_str = wd.word->raw_choice->unichar_string();
+    best_str = wd.word->raw_choice->unichar_string();
   } else {
     *c2 = 0.0f;
-    *best_str = "";
+    best_str.clear();
   }
   it.DeleteCurrentWord();
   pr_it->ResetWordIterator();

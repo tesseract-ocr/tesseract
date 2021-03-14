@@ -178,13 +178,13 @@ private:
   // (Ignoring report_level).
   double ReportErrors(int report_level, CountTypes boosting_mode,
                       const FontInfoTable &fontinfo_table, const SampleIterator &it,
-                      double *unichar_error, STRING *fonts_report);
+                      double *unichar_error, std::string *fonts_report);
 
   // Sets the report string to a combined human and machine-readable report
   // string of the error rates.
   // Returns false if there is no data, leaving report unchanged, unless
   // even_if_empty is true.
-  static bool ReportString(bool even_if_empty, const Counts &counts, STRING *report);
+  static bool ReportString(bool even_if_empty, const Counts &counts, std::string &report);
 
   // Computes the error rates and returns in rates which is an array of size
   // CT_SIZE. Returns false if there is no data, leaving rates unchanged.
