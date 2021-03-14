@@ -37,7 +37,7 @@ TEST_F(LSTMTrainerTest, MapCoder) {
   std::vector<int> deu_labels;
   EXPECT_TRUE(deu_trainer.EncodeString(kTestStr.c_str(), &deu_labels));
   // The french trainer cannot decode them correctly.
-  STRING badly_decoded = fra_trainer.DecodeLabels(deu_labels);
+  std::string badly_decoded = fra_trainer.DecodeLabels(deu_labels);
   std::string bad_str(&badly_decoded[0], badly_decoded.length());
   LOG(INFO) << "bad_str fra=" << bad_str << "\n";
   EXPECT_NE(kTestStr, bad_str);
@@ -56,7 +56,7 @@ TEST_F(LSTMTrainerTest, MapCoder) {
         << ", but mapped to " << mapped_fra_labels[i];
   }
   // The german trainer can now decode them correctly.
-  STRING decoded = deu_trainer.DecodeLabels(mapped_fra_labels);
+  std::string decoded = deu_trainer.DecodeLabels(mapped_fra_labels);
   std::string ok_str(&decoded[0], decoded.length());
   LOG(INFO) << "ok_str deu=" << ok_str << "\n";
   EXPECT_EQ(kTestStr, ok_str);

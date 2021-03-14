@@ -24,7 +24,6 @@
 #include <unordered_map>
 #include "genericvector.h" // GenericVector
 #include "serialis.h"
-#include "strngs.h"
 #include "unicharset.h"
 
 namespace tesseract {

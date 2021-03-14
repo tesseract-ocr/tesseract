@@ -64,7 +64,7 @@ TEST(LangModelTest, AddACharacter) {
   trainer1.InitCharSet(traineddata1);
   std::vector<int> labels1;
   EXPECT_TRUE(trainer1.EncodeString(kTestString, &labels1));
-  STRING test1_decoded = trainer1.DecodeLabels(labels1);
+  std::string test1_decoded = trainer1.DecodeLabels(labels1);
   std::string test1_str(&test1_decoded[0], test1_decoded.length());
   LOG(INFO) << "Labels1=" << test1_str << "\n";
 
@@ -84,13 +84,13 @@ TEST(LangModelTest, AddACharacter) {
   trainer2.InitCharSet(traineddata2);
   std::vector<int> labels2;
   EXPECT_TRUE(trainer2.EncodeString(kTestString, &labels2));
-  STRING test2_decoded = trainer2.DecodeLabels(labels2);
+  std::string test2_decoded = trainer2.DecodeLabels(labels2);
   std::string test2_str(&test2_decoded[0], test2_decoded.length());
   LOG(INFO) << "Labels2=" << test2_str << "\n";
   // encode kTestStringRupees.
   std::vector<int> labels3;
   EXPECT_TRUE(trainer2.EncodeString(kTestStringRupees, &labels3));
-  STRING test3_decoded = trainer2.DecodeLabels(labels3);
+  std::string test3_decoded = trainer2.DecodeLabels(labels3);
   std::string test3_str(&test3_decoded[0], test3_decoded.length());
   LOG(INFO) << "labels3=" << test3_str << "\n";
   // Copy labels1 to a std::vector, renumbering the null char to match trainer2.
@@ -148,7 +148,7 @@ TEST(LangModelTest, AddACharacterHindi) {
   trainer1.InitCharSet(traineddata1);
   std::vector<int> labels1;
   EXPECT_TRUE(trainer1.EncodeString(kTestString, &labels1));
-  STRING test1_decoded = trainer1.DecodeLabels(labels1);
+  std::string test1_decoded = trainer1.DecodeLabels(labels1);
   std::string test1_str(&test1_decoded[0], test1_decoded.length());
   LOG(INFO) << "Labels1=" << test1_str << "\n";
 
@@ -168,13 +168,13 @@ TEST(LangModelTest, AddACharacterHindi) {
   trainer2.InitCharSet(traineddata2);
   std::vector<int> labels2;
   EXPECT_TRUE(trainer2.EncodeString(kTestString, &labels2));
-  STRING test2_decoded = trainer2.DecodeLabels(labels2);
+  std::string test2_decoded = trainer2.DecodeLabels(labels2);
   std::string test2_str(&test2_decoded[0], test2_decoded.length());
   LOG(INFO) << "Labels2=" << test2_str << "\n";
   // encode kTestStringRupees.
   std::vector<int> labels3;
   EXPECT_TRUE(trainer2.EncodeString(kTestStringRupees, &labels3));
-  STRING test3_decoded = trainer2.DecodeLabels(labels3);
+  std::string test3_decoded = trainer2.DecodeLabels(labels3);
   std::string test3_str(&test3_decoded[0], test3_decoded.length());
   LOG(INFO) << "labels3=" << test3_str << "\n";
   // Copy labels1 to a std::vector, renumbering the null char to match trainer2.

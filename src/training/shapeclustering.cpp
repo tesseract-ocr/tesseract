@@ -23,7 +23,6 @@
 #include "commontraining.h"
 #include "mastertrainer.h"
 #include "params.h"
-#include "strngs.h"
 
 using namespace tesseract;
 

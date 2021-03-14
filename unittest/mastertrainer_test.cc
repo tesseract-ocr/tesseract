@@ -261,7 +261,7 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
   // Make a mock classifier.
   auto shape_classifier = std::make_unique<MockClassifier>(shape_table_);
   // Get the accuracy report.
-  STRING accuracy_report;
+  std::string accuracy_report;
   master_trainer_->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR, 0, false,
                                            shape_classifier.get(), &accuracy_report);
   LOG(INFO) << accuracy_report.c_str();
