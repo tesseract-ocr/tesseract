@@ -33,7 +33,7 @@ TEST(OutputBufferTest, WriteString) {
   FILE *fp = tmpfile();
   CHECK(fp != nullptr);
 
-  std::unique_ptr<OutputBuffer> output(new OutputBuffer(fp));
+  auto output = std::make_unique<OutputBuffer>(fp);
   output->WriteString("Hello ");
   output->WriteString("world!");
 
@@ -55,7 +55,7 @@ TEST(InputBufferTest, Read) {
   rewind(fp);
 
   std::string str;
-  std::unique_ptr<InputBuffer> input(new InputBuffer(fp));
+  auto input = std::make_unique<InputBuffer>(fp);
   EXPECT_TRUE(input->Read(&str));
   std::vector<std::string> lines = absl::StrSplit(str, '\n', absl::SkipEmpty());
   EXPECT_EQ(2, lines.size());

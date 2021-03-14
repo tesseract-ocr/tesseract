@@ -27,7 +27,7 @@ protected:
   void TearDown() {}
 
   void MakeSimpleTabVector(int x1, int y1, int x2, int y2) {
-    vector_.reset(new TabVector());
+    vector_ = std::make_unique<TabVector>();
     vector_->set_startpt(ICOORD(x1, y1));
     vector_->set_endpt(ICOORD(x2, y2));
   }
@@ -36,7 +36,7 @@ protected:
 };
 
 TEST_F(TabVectorTest, SetStartEndPointsMatch) {
-  vector_.reset(new TabVector());
+  vector_ = std::make_unique<TabVector>();
   ICOORD start(51, 65);
   ICOORD end(7568, 234);
   // Test coordinates individually to avoid adding an ostream operator

@@ -49,7 +49,7 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
   IntFeatureMap map;
   map.Init(space);
   int total_size = kIntFeatureExtent * kIntFeatureExtent * kIntFeatureExtent;
-  std::unique_ptr<INT_FEATURE_STRUCT[]> features(new INT_FEATURE_STRUCT[total_size]);
+  auto features = std::make_unique<INT_FEATURE_STRUCT[]>(total_size);
   // Fill the features with every value.
   for (int y = 0; y < kIntFeatureExtent; ++y) {
     for (int x = 0; x < kIntFeatureExtent; ++x) {

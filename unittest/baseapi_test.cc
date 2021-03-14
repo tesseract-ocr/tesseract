@@ -279,7 +279,7 @@ TEST_F(TesseractTest, InitConfigOnlyTest) {
   std::unique_ptr<tesseract::TessBaseAPI> api;
   CycleTimer timer;
   for (size_t i = 0; i < countof(langs); ++i) {
-    api.reset(new tesseract::TessBaseAPI);
+    api = std::make_unique<tesseract::TessBaseAPI>();
     timer.Restart();
     EXPECT_EQ(0, api->Init(TessdataPath().c_str(), langs[i], tesseract::OEM_TESSERACT_ONLY));
     timer.Stop();
@@ -291,7 +291,7 @@ TEST_F(TesseractTest, InitConfigOnlyTest) {
   vars_values.push_back("1");
   LOG(INFO) << "Switching to config only initialization:";
   for (size_t i = 0; i < countof(langs); ++i) {
-    api.reset(new tesseract::TessBaseAPI);
+    api = std::make_unique<tesseract::TessBaseAPI>();
     timer.Restart();
     EXPECT_EQ(0, api->Init(TessdataPath().c_str(), langs[i], tesseract::OEM_TESSERACT_ONLY, nullptr,
                            0, &vars_vec, &vars_values, false));

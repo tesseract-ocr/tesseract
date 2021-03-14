@@ -91,7 +91,7 @@ void ClassicProgressTester(const char *imgname, const char *tessdatadir, const c
   using ::testing::Return;
   using ::testing::SaveArg;
 
-  std::unique_ptr<tesseract::TessBaseAPI> api(new tesseract::TessBaseAPI());
+  auto api = std::make_unique<tesseract::TessBaseAPI>();
   ASSERT_FALSE(api->Init(tessdatadir, lang)) << "Could not initialize tesseract.";
   Pix *image = pixRead(imgname);
   ASSERT_TRUE(image != nullptr) << "Failed to read test image.";
@@ -122,7 +122,7 @@ void NewProgressTester(const char *imgname, const char *tessdatadir, const char 
   using ::testing::Return;
   using ::testing::SaveArg;
 
-  std::unique_ptr<tesseract::TessBaseAPI> api(new tesseract::TessBaseAPI());
+  auto api = std::make_unique<tesseract::TessBaseAPI>();
   ASSERT_FALSE(api->Init(tessdatadir, lang)) << "Could not initialize tesseract.";
   Pix *image = pixRead(imgname);
   ASSERT_TRUE(image != nullptr) << "Failed to read test image.";

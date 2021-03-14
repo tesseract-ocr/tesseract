@@ -41,7 +41,6 @@ protected:
   TextlineProjectionTest() {
     src_pix_ = nullptr;
     bin_pix_ = nullptr;
-    tesseract_ = nullptr;
     finder_ = nullptr;
     denorm_ = nullptr;
     projection_ = nullptr;
@@ -50,7 +49,6 @@ protected:
     pixDestroy(&src_pix_);
     pixDestroy(&bin_pix_);
     delete finder_;
-    delete tesseract_;
   }
 
   void SetImage(const char *filename) {
@@ -70,12 +68,12 @@ protected:
   // the resultiterator from a separate BaseAPI run.
   void SetupProjection() {
     tesseract::TessdataManager mgr;
-    Tesseract *osd_tess = new Tesseract;
+    auto osd_tess = std::make_unique<Tesseract>();
     OSResults osr;
     EXPECT_EQ(osd_tess->init_tesseract(TESSDATA_DIR, "", "osd", tesseract::OEM_TESSERACT_ONLY,
                                        nullptr, 0, nullptr, nullptr, false, &mgr),
               0);
-    tesseract_ = new Tesseract;
+    tesseract_ = std::make_unique<Tesseract>();
     EXPECT_EQ(tesseract_->init_tesseract(TESSDATA_DIR, "", "eng", tesseract::OEM_TESSERACT_ONLY,
                                          nullptr, 0, nullptr, nullptr, false, &mgr),
               0);
@@ -96,7 +94,7 @@ protected:
     BLOCK_LIST found_blocks;
     TO_BLOCK_LIST temp_blocks;
     finder_ =
-        tesseract_->SetupPageSegAndDetectOrientation(tesseract::PSM_AUTO_OSD, &src_blocks, osd_tess,
+        tesseract_->SetupPageSegAndDetectOrientation(tesseract::PSM_AUTO_OSD, &src_blocks, osd_tess.get(),
                                                      &osr, &temp_blocks, &photomask_pix, nullptr);
     TO_BLOCK_IT to_block_it(&temp_blocks);
     TO_BLOCK *to_block = to_block_it.data();
@@ -108,7 +106,6 @@ protected:
               0);
     projection_ = finder_->projection();
     pixDestroy(&photomask_pix);
-    delete osd_tess;
   }
 
   // Helper evaluates the given box, expects the result to be greater_than
@@ -238,7 +235,7 @@ protected:
   BLOCK_LIST blocks_;
   std::string ocr_text_;
   tesseract::TessBaseAPI api_;
-  Tesseract *tesseract_;
+  std::unique_ptr<Tesseract> tesseract_;
   ColumnFinder *finder_;
   const DENORM *denorm_;
   const TextlineProjection *projection_;

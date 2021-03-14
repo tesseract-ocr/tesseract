@@ -63,7 +63,7 @@ protected:
   void SetUp() {
     std::locale::global(std::locale(""));
     free_boxes_it_.set_to_list(&free_boxes_);
-    finder_.reset(new TestableTableFinder());
+    finder_ = std::make_unique<TestableTableFinder>();
     finder_->Init(1, ICOORD(0, 0), ICOORD(500, 500));
     // gap finding
     finder_->set_global_median_xheight(5);

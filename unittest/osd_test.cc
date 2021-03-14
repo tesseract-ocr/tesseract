@@ -35,7 +35,7 @@ protected:
 #ifndef DISABLED_LEGACY_ENGINE
 static void OSDTester(int expected_deg, const char *imgname, const char *tessdatadir) {
   // log.info() << tessdatadir << " for image: " << imgname << std::endl;
-  std::unique_ptr<tesseract::TessBaseAPI> api(new tesseract::TessBaseAPI());
+  auto api = std::make_unique<tesseract::TessBaseAPI>();
   ASSERT_FALSE(api->Init(tessdatadir, "osd")) << "Could not initialize tesseract.";
   Pix *image = pixRead(imgname);
   ASSERT_TRUE(image != nullptr) << "Failed to read test image.";

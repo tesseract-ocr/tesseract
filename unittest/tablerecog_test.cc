@@ -70,8 +70,8 @@ protected:
     std::locale::global(std::locale(""));
     ICOORD bleft(0, 0);
     ICOORD tright(1000, 1000);
-    text_grid_.reset(new ColPartitionGrid(5, bleft, tright));
-    line_grid_.reset(new ColPartitionGrid(5, bleft, tright));
+    text_grid_ = std::make_unique<ColPartitionGrid>(5, bleft, tright);
+    line_grid_ = std::make_unique<ColPartitionGrid>(5, bleft, tright);
   }
 
   void TearDown() {
@@ -143,7 +143,7 @@ class TableRecognizerTest : public SharedTest {
 protected:
   void SetUp() {
     SharedTest::SetUp();
-    recognizer_.reset(new TestableTableRecognizer());
+    recognizer_ = std::make_unique<TestableTableRecognizer>();
     recognizer_->Init();
     recognizer_->set_text_grid(text_grid_.get());
     recognizer_->set_line_grid(line_grid_.get());
@@ -156,7 +156,7 @@ class StructuredTableTest : public SharedTest {
 protected:
   void SetUp() {
     SharedTest::SetUp();
-    table_.reset(new TestableStructuredTable());
+    table_ = std::make_unique<TestableStructuredTable>();
     table_->Init();
     table_->set_text_grid(text_grid_.get());
     table_->set_line_grid(line_grid_.get());

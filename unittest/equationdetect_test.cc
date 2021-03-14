@@ -122,10 +122,10 @@ protected:
 
   void SetUp() {
     std::locale::global(std::locale(""));
-    tesseract_.reset(new Tesseract());
+    tesseract_ = std::make_unique<Tesseract>();
     tesseract_->init_tesseract(TESSDATA_DIR, "eng", OEM_TESSERACT_ONLY);
     tesseract_->set_source_resolution(300);
-    equation_det_.reset(new TestableEquationDetect(TESSDATA_DIR, tesseract_.get()));
+    equation_det_ = std::make_unique<TestableEquationDetect>(TESSDATA_DIR, tesseract_.get());
     equation_det_->SetResolution(300);
 
     testdata_dir_ = TESTDATA_DIR;
