@@ -436,7 +436,7 @@ bool ErrorCounter::ReportString(bool even_if_empty, const Counts &counts, std::s
       "Answers=%.3g, Rank=%.3g, "
       "OKjunk=%.4g%%, Badjunk=%.4g%%";
   constexpr size_t max_str_len = sizeof(format_str) + kMaxExtraLength * (CT_SIZE - 1) + 1;
-  char formatted_str[max_str_len] = { 0 };
+  char formatted_str[max_str_len];
   snprintf(formatted_str, max_str_len, format_str, rates[CT_UNICHAR_TOP1_ERR] * 100.0,
            rates[CT_UNICHAR_TOP2_ERR] * 100.0, rates[CT_UNICHAR_TOPN_ERR] * 100.0,
            rates[CT_UNICHAR_TOPTOP_ERR] * 100.0, rates[CT_OK_MULTI_UNICHAR] * 100.0,
