@@ -50,11 +50,7 @@ typedef tesseract::MutableIterator TessMutableIterator;
 typedef tesseract::ChoiceIterator TessChoiceIterator;
 typedef tesseract::OcrEngineMode TessOcrEngineMode;
 typedef tesseract::PageSegMode TessPageSegMode;
-typedef tesseract::ImageThresholder TessImageThresholder;
 typedef tesseract::PageIteratorLevel TessPageIteratorLevel;
-typedef tesseract::DictFunc TessDictFunc;
-typedef tesseract::ProbabilityInContextFunc TessProbabilityInContextFunc;
-typedef tesseract::Dawg TessDawg;
 typedef tesseract::Orientation TessOrientation;
 typedef tesseract::ParagraphJustification TessParagraphJustification;
 typedef tesseract::WritingDirection TessWritingDirection;
@@ -311,7 +307,25 @@ TESS_API BOOL TessBaseAPIGetTextDirection(TessBaseAPI *handle, int *out_offset, 
 
 TESS_API const char *TessBaseAPIGetUnichar(TessBaseAPI *handle, int unichar_id);
 
+TESS_API void TessBaseAPIClearPersistentCache(TessBaseAPI *handle);
+
+#ifndef DISABLED_LEGACY_ENGINE
+
+// Call TessDeleteText(*best_script_name) to free memory allocated by this
+// function
+TESS_API BOOL TessBaseAPIDetectOrientationScript(TessBaseAPI *handle, int *orient_deg,
+                                                 float *orient_conf, const char **script_name,
+                                                 float *script_conf);
+#endif // #ifndef DISABLED_LEGACY_ENGINE
+
 TESS_API void TessBaseAPISetMinOrientationMargin(TessBaseAPI *handle, double margin);
+
+TESS_API int TessBaseAPINumDawgs(const TessBaseAPI *handle);
+
+TESS_API TessOcrEngineMode TessBaseAPIOem(const TessBaseAPI *handle);
+
+TESS_API void TessBaseGetBlockTextOrientations(TessBaseAPI *handle, int **block_orientation,
+                                               bool **vertical_writing);
 
 /* Page iterator */
 

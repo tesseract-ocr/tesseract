@@ -313,6 +313,20 @@ struct Pix *TessBaseAPIGetThresholdedImage(TessBaseAPI *handle) {
   return handle->GetThresholdedImage();
 }
 
+void TessBaseAPIClearPersistentCache(TessBaseAPI * /*handle*/) {
+  TessBaseAPI::ClearPersistentCache();
+}
+
+#ifndef DISABLED_LEGACY_ENGINE
+
+BOOL TessBaseAPIDetectOrientationScript(TessBaseAPI *handle, int *orient_deg, float *orient_conf,
+                                        const char **script_name, float *script_conf) {
+  auto success = handle->DetectOrientationScript(orient_deg, orient_conf, script_name, script_conf);
+  return static_cast<BOOL>(success);
+}
+
+#endif
+
 struct Boxa *TessBaseAPIGetRegions(TessBaseAPI *handle, struct Pixa **pixa) {
   return handle->GetRegions(pixa);
 }
@@ -452,6 +466,19 @@ const char *TessBaseAPIGetUnichar(TessBaseAPI *handle, int unichar_id) {
 
 void TessBaseAPISetMinOrientationMargin(TessBaseAPI *handle, double margin) {
   handle->set_min_orientation_margin(margin);
+}
+
+int TessBaseAPINumDawgs(const TessBaseAPI *handle) {
+  return handle->NumDawgs();
+}
+
+TessOcrEngineMode TessBaseAPIOem(const TessBaseAPI *handle) {
+  return handle->oem();
+}
+
+void TessBaseGetBlockTextOrientations(TessBaseAPI *handle, int **block_orientation,
+                                      bool **vertical_writing) {
+  handle->GetBlockTextOrientations(block_orientation, vertical_writing);
 }
 
 void TessPageIteratorDelete(TessPageIterator *handle) {
