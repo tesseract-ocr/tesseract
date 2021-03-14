@@ -349,11 +349,17 @@ phase_I_generate_image() {
 
 # Phase UP : Generate (U)nicharset and (P)roperties file.
 phase_UP_generate_unicharset() {
-    tlog "\n=== Phase UP: Generating unicharset and unichar properties files from Training Text ==="
+    tlog "\n=== Phase UP: Generating unicharset and unichar properties files ==="
 
+    local box_files=$(ls ${TRAINING_DIR}/*.box)
     UNICHARSET_FILE="${TRAINING_DIR}/${LANG_CODE}.unicharset"
-    run_command unicharset_extractor --output_unicharset "${UNICHARSET_FILE}" \
-      --norm_mode "${NORM_MODE}" ${TRAINING_TEXT}
+    if [[ "${NORM_MODE}" == "2" ]] && [[ "${LANG_IS_RTL}" == "0" ]] ; then
+          run_command unicharset_extractor --output_unicharset "${UNICHARSET_FILE}" \
+               --norm_mode "${NORM_MODE}" ${TRAINING_TEXT}
+    else
+          run_command unicharset_extractor --output_unicharset "${UNICHARSET_FILE}" \
+               --norm_mode "${NORM_MODE}" ${box_files}
+    fi
     check_file_readable ${UNICHARSET_FILE}
 
     XHEIGHTS_FILE="${TRAINING_DIR}/${LANG_CODE}.xheights"
