@@ -73,7 +73,7 @@ void BlamerBundle::SetWordTruth(const UNICHARSET &unicharset, const char *truth_
   unicharset.encode_string(truth_str, false, &encoding, &lengths, nullptr);
   int total_length = 0;
   for (int i = 0; i < encoding.size(); total_length += lengths[i++]) {
-    STRING uch(truth_str + total_length);
+    std::string uch(truth_str + total_length);
     uch.resize(lengths[i] - total_length);
     UNICHAR_ID id = encoding[i];
     if (id != INVALID_UNICHAR_ID)
@@ -86,10 +86,10 @@ void BlamerBundle::SetWordTruth(const UNICHARSET &unicharset, const char *truth_
 // May be called multiple times to indicate the characters in a word.
 void BlamerBundle::SetSymbolTruth(const UNICHARSET &unicharset, const char *char_str,
                                   const TBOX &char_box) {
-  STRING symbol_str(char_str);
+  std::string symbol_str(char_str);
   UNICHAR_ID id = unicharset.unichar_to_id(char_str);
   if (id != INVALID_UNICHAR_ID) {
-    STRING normed_uch(unicharset.get_normed_unichar(id));
+    std::string normed_uch(unicharset.get_normed_unichar(id));
     if (normed_uch.length() > 0)
       symbol_str = normed_uch;
   }
@@ -114,32 +114,32 @@ bool BlamerBundle::ChoiceIsCorrect(const WERD_CHOICE *word_choice) const {
   if (word_choice == nullptr)
     return false;
   const UNICHARSET *uni_set = word_choice->unicharset();
-  STRING normed_choice_str;
+  std::string normed_choice_str;
   for (int i = 0; i < word_choice->length(); ++i) {
     normed_choice_str += uni_set->get_normed_unichar(word_choice->unichar_id(i));
   }
-  STRING truth_str = TruthString();
+  std::string truth_str = TruthString();
   return truth_str == normed_choice_str;
 }
 
-void BlamerBundle::FillDebugString(const STRING &msg, const WERD_CHOICE *choice, STRING *debug) {
-  (*debug) += "Truth ";
+void BlamerBundle::FillDebugString(const std::string &msg, const WERD_CHOICE *choice, std::string &debug) {
+  debug += "Truth ";
   for (auto &text : this->truth_text_) {
-    (*debug) += text;
+    debug += text;
   }
   if (!this->truth_has_char_boxes_)
-    (*debug) += " (no char boxes)";
+    debug += " (no char boxes)";
   if (choice != nullptr) {
-    (*debug) += " Choice ";
-    STRING choice_str;
+    debug += " Choice ";
+    std::string choice_str;
     choice->string_and_lengths(&choice_str, nullptr);
-    (*debug) += choice_str;
+    debug += choice_str;
   }
   if (msg.length() > 0) {
-    (*debug) += "\n";
-    (*debug) += msg;
+    debug += "\n";
+    debug += msg;
   }
-  (*debug) += "\n";
+  debug += "\n";
 }
 
 // Sets up the norm_truth_word from truth_word using the given DENORM.
@@ -220,7 +220,7 @@ void BlamerBundle::SplitBundle(int word1_right, int word2_left, bool debug, Blam
 // "Joins" the blames from bundle1 and bundle2 into *this.
 void BlamerBundle::JoinBlames(const BlamerBundle &bundle1, const BlamerBundle &bundle2,
                               bool debug) {
-  STRING debug_str;
+  std::string debug_str;
   IncorrectResultReason irr = incorrect_result_reason_;
   if (irr != IRR_NO_TRUTH_SPLIT)
     debug_str = "";
@@ -280,12 +280,12 @@ void BlamerBundle::BlameClassifier(const UNICHARSET &unicharset, const TBOX &blo
         }
       } // end choices_it for loop
       if (!found) {
-        STRING debug_str = "unichar ";
+        std::string debug_str = "unichar ";
         debug_str += truth_str;
         debug_str += " not found in classification list";
         SetBlame(IRR_CLASSIFIER, debug_str, nullptr, debug);
       } else if (incorrect_adapted) {
-        STRING debug_str = "better rating for adapted ";
+        std::string debug_str = "better rating for adapted ";
         debug_str += unicharset.id_to_unichar(incorrect_adapted_id);
         debug_str += " than for correct ";
         debug_str += truth_str;
@@ -303,7 +303,7 @@ void BlamerBundle::SetChopperBlame(const WERD_RES *word, bool debug) {
   if (NoTruth() || !truth_has_char_boxes_ || word->chopped_word->blobs.empty()) {
     return;
   }
-  STRING debug_str;
+  std::string debug_str;
   bool missing_chop = false;
   int num_blobs = word->chopped_word->blobs.size();
   int box_index = 0;
@@ -323,7 +323,7 @@ void BlamerBundle::SetChopperBlame(const WERD_RES *word, bool debug) {
     }
   }
   if (missing_chop || box_index < norm_truth_word_.length()) {
-    STRING debug_str;
+    std::string debug_str;
     if (missing_chop) {
       debug_str += "Detected missing chop (tolerance=" + std::to_string(norm_box_tolerance_);
       debug_str += ") at Bounding Box=";
@@ -377,7 +377,7 @@ void BlamerBundle::BlameClassifierOrLangModel(const WERD_RES *word, const UNICHA
       }
     }
   }
-  STRING debug_str;
+  std::string debug_str;
   if (best_choice_is_dict_and_top_choice_) {
     debug_str = "Best choice is: incorrect, top choice, dictionary word";
     debug_str += " with permuter ";
@@ -397,8 +397,7 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD *word, bool debug) {
   if (incorrect_result_reason_ != IRR_CORRECT || !truth_has_char_boxes_)
     return; // Nothing to do here.
 
-  STRING debug_str;
-  debug_str += "Blamer computing correct_segmentation_cols\n";
+  std::string debug_str = "Blamer computing correct_segmentation_cols\n";
   int curr_box_col = 0;
   int next_box_col = 0;
   int num_blobs = word->NumBlobs();
@@ -538,7 +537,7 @@ void BlamerBundle::LastChanceBlame(bool debug, WERD_RES *word) {
     bool correct = word->blamer_bundle->ChoiceIsCorrect(word->best_choice);
     IncorrectResultReason irr = word->blamer_bundle->incorrect_result_reason_;
     if (irr == IRR_CORRECT && !correct) {
-      STRING debug_str = "Choice is incorrect after recognition";
+      std::string debug_str = "Choice is incorrect after recognition";
       word->blamer_bundle->SetBlame(IRR_UNKNOWN, debug_str, word->best_choice, debug);
     } else if (irr != IRR_CORRECT && correct) {
       if (debug) {
@@ -557,7 +556,7 @@ void BlamerBundle::SetMisAdaptionDebug(const WERD_CHOICE *best_choice, bool debu
     misadaption_debug_ = "misadapt to word (";
     misadaption_debug_ += best_choice->permuter_name();
     misadaption_debug_ += "): ";
-    FillDebugString("", best_choice, &misadaption_debug_);
+    FillDebugString("", best_choice, misadaption_debug_);
     if (debug) {
       tprintf("%s\n", misadaption_debug_.c_str());
     }

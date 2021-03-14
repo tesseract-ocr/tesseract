@@ -19,8 +19,8 @@
 #ifndef TESSERACT_WORDREC_PARAMS_TRAINING_FEATDEF_H_
 #define TESSERACT_WORDREC_PARAMS_TRAINING_FEATDEF_H_
 
+#include <string>
 #include <vector>
-#include "strngs.h"
 
 namespace tesseract {
 
@@ -116,8 +116,8 @@ struct ParamsTrainingHypothesis {
     cost = other.cost;
     return *this;
   }
+  std::string str; // string corresponding to word hypothesis (for debugging)
   float features[PTRAIN_NUM_FEATURE_TYPES];
-  STRING str; // string corresponding to word hypothesis (for debugging)
   float cost; // path cost computed by segsearch
 };
 

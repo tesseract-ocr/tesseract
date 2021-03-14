@@ -209,21 +209,27 @@ bool ImageData::DeSerialize(TFile *fp) {
 
 // As DeSerialize, but only seeks past the data - hence a static method.
 bool ImageData::SkipDeSerialize(TFile *fp) {
-  if (!STRING::SkipDeSerialize(fp))
+  if (!fp->DeSerializeSkip())
     return false;
   int32_t page_number;
   if (!fp->DeSerialize(&page_number))
     return false;
   if (!GenericVector<char>::SkipDeSerialize(fp))
     return false;
-  if (!STRING::SkipDeSerialize(fp))
+  if (!fp->DeSerializeSkip())
     return false;
-  if (!STRING::SkipDeSerialize(fp))
+  if (!fp->DeSerializeSkip())
     return false;
   if (!GenericVector<TBOX>::SkipDeSerialize(fp))
     return false;
-  if (!GenericVector<STRING>::SkipDeSerializeClasses(fp))
+  int32_t number;
+  if (!fp->DeSerialize(&number))
     return false;
+  for (int i = 0; i < number; i++) {
+    if (!fp->DeSerializeSkip()) {
+      return false;
+    }
+  }
   int8_t vertical = 0;
   return fp->DeSerialize(&vertical);
 }
@@ -623,7 +629,7 @@ bool DocumentCache::LoadDocuments(const std::vector<std::string> &filenames,
   if (cache_strategy_ == CS_ROUND_ROBIN)
     fair_share_memory = max_memory_ / filenames.size();
   for (int arg = 0; arg < filenames.size(); ++arg) {
-    STRING filename = filenames[arg];
+    std::string filename = filenames[arg];
     auto *document = new DocumentData(filename);
     document->SetDocument(filename.c_str(), fair_share_memory, reader);
     AddToCache(document);

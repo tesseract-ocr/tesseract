@@ -32,7 +32,6 @@
 
 #include <tesseract/unichar.h> // for UNICHAR_ID, INVALID_UNICHAR_ID
 #include "genericvector.h"     // for GenericVector, PointerVector (ptr only)
-#include "strngs.h"            // for STRING
 
 #include <sys/types.h> // for int8_t
 #include <cstdint>     // for int32_t, int16_t
@@ -89,7 +88,7 @@ public:
   // Each BlamerBundle contains an index into this vector, so that words that
   // caused misadaption could be marked. However, since words could be
   // deleted/split/merged, the log is stored on the PAGE_RES level.
-  GenericVector<STRING> misadaption_log;
+  GenericVector<std::string> misadaption_log;
 
   inline void Init() {
     char_count = 0;
@@ -282,7 +281,7 @@ public:
   // The correct_text is used during training and adaption to carry the
   // text to the training system without the need for a unicharset. There
   // is one entry in the vector for each blob in rebuild_word and box_word.
-  GenericVector<STRING> correct_text;
+  GenericVector<std::string> correct_text;
 
   // Less-well documented members.
   // TODO(rays) Add more documentation here.

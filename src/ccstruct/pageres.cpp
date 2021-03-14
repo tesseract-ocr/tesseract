@@ -471,7 +471,7 @@ bool WERD_RES::StatesAllValid() {
 // the word_to_debug.
 void WERD_RES::DebugWordChoices(bool debug, const char *word_to_debug) {
   if (debug || (word_to_debug != nullptr && *word_to_debug != '\0' && best_choice != nullptr &&
-                best_choice->unichar_string() == STRING(word_to_debug))) {
+                best_choice->unichar_string() == std::string(word_to_debug))) {
     if (raw_choice != nullptr)
       raw_choice->print("\nBest Raw Choice");
 
@@ -616,7 +616,7 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug, WERD_CHOICE *
       max_certainty_delta = -kStopperAmbiguityThresholdOffset;
     if (word_choice->certainty() - best_choice->certainty() < max_certainty_delta) {
       if (debug) {
-        STRING bad_string;
+        std::string bad_string;
         word_choice->string_and_lengths(&bad_string, nullptr);
         tprintf(
             "Discarding choice \"%s\" with an overly low certainty"
@@ -632,7 +632,7 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug, WERD_CHOICE *
   // Insert in the list in order of increasing rating, but knock out worse
   // string duplicates.
   WERD_CHOICE_IT it(&best_choices);
-  const STRING &new_str = word_choice->unichar_string();
+  const std::string &new_str = word_choice->unichar_string();
   bool inserted = false;
   int num_choices = 0;
   if (!it.empty()) {
@@ -698,7 +698,7 @@ static void MovePointerData(T **dest, T **src) {
 
 // Prints a brief list of all the best choices.
 void WERD_RES::PrintBestChoices() const {
-  STRING alternates_str;
+  std::string alternates_str;
   WERD_CHOICE_IT it(const_cast<WERD_CHOICE_LIST *>(&best_choices));
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     if (!it.at_first())
@@ -825,7 +825,7 @@ void WERD_RES::CloneChoppedToRebuild() {
   correct_text.reserve(word_len);
   for (int i = 0; i < word_len; ++i) {
     best_state.push_back(1);
-    correct_text.push_back(STRING(""));
+    correct_text.push_back(std::string(""));
   }
 }
 
@@ -910,7 +910,7 @@ void WERD_RES::BestChoiceToCorrectText() {
   for (int i = 0; i < best_choice->length(); ++i) {
     UNICHAR_ID choice_id = best_choice->unichar_id(i);
     const char *blob_choice = uch_set->id_to_unichar(choice_id);
-    correct_text.push_back(STRING(blob_choice));
+    correct_text.push_back(std::string(blob_choice));
   }
 }
 

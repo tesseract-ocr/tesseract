@@ -2,7 +2,6 @@
 // File:        ocrpara.h
 // Description: OCR Paragraph Output Type
 // Author:      David Eger
-// Created:     2010-11-15
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +22,6 @@
 #include "elst.h"
 
 #include <tesseract/publictypes.h>
-#include "strngs.h"
 
 namespace tesseract {
 
@@ -189,7 +187,7 @@ public:
   // paragraphs they are marked.
   bool Comparable(const ParagraphModel &other) const;
 
-  STRING ToString() const;
+  std::string ToString() const;
 
 private:
   tesseract::ParagraphJustification justification_;

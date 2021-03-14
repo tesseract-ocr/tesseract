@@ -21,7 +21,7 @@
 #include "errcode.h" // for ERRCODE, TESSEXIT
 #include "fileerr.h" // for CANTOPENFILE
 #include "rect.h"    // for TBOX
-#include "strngs.h"  // for STRING
+#include "strngs.h"  // for split
 #include "tprintf.h" // for tprintf
 
 #include <tesseract/unichar.h> // for UNICHAR
@@ -90,9 +90,8 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const char *filename, std::
 bool ReadMemBoxes(int target_page, bool skip_blanks, const char *box_data, bool continue_on_failure,
                   std::vector<TBOX> *boxes, std::vector<std::string> *texts,
                   std::vector<std::string> *box_texts, std::vector<int> *pages) {
-  STRING box_str(box_data);
-  std::vector<STRING> lines;
-  box_str.split('\n', &lines);
+  std::string box_str(box_data);
+  std::vector<std::string> lines = split(box_str, '\n');
   if (lines.empty())
     return false;
   int num_boxes = 0;

@@ -24,7 +24,6 @@
 #include "rect.h"
 
 #include "serialis.h" // for TFile
-#include "strngs.h"   // for STRING
 
 namespace tesseract {
 
@@ -166,7 +165,7 @@ void TBOX::plot(                    // paint box
 }
 #endif
 
-// Appends the bounding box as (%d,%d)->(%d,%d) to a STRING.
+// Appends the bounding box as (%d,%d)->(%d,%d) to a string.
 void TBOX::print_to_str(std::string &str) const {
   // "(%d,%d)->(%d,%d)", left(), bottom(), right(), top()
   str += "(" + std::to_string(left());
