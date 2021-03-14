@@ -19,7 +19,7 @@
 
 namespace tesseract {
 static bool IntFlagExists(const char *flag_name, int32_t *value) {
-  STRING full_flag_name("FLAGS_");
+  std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<IntParam *> empty;
   IntParam *p =
@@ -31,7 +31,7 @@ static bool IntFlagExists(const char *flag_name, int32_t *value) {
 }
 
 static bool DoubleFlagExists(const char *flag_name, double *value) {
-  STRING full_flag_name("FLAGS_");
+  std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<DoubleParam *> empty;
   DoubleParam *p = ParamUtils::FindParam<DoubleParam>(full_flag_name.c_str(),
@@ -43,7 +43,7 @@ static bool DoubleFlagExists(const char *flag_name, double *value) {
 }
 
 static bool BoolFlagExists(const char *flag_name, bool *value) {
-  STRING full_flag_name("FLAGS_");
+  std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<BoolParam *> empty;
   BoolParam *p =
@@ -55,7 +55,7 @@ static bool BoolFlagExists(const char *flag_name, bool *value) {
 }
 
 static bool StringFlagExists(const char *flag_name, const char **value) {
-  STRING full_flag_name("FLAGS_");
+  std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<StringParam *> empty;
   StringParam *p = ParamUtils::FindParam<StringParam>(full_flag_name.c_str(),
@@ -65,7 +65,7 @@ static bool StringFlagExists(const char *flag_name, const char **value) {
 }
 
 static void SetIntFlagValue(const char *flag_name, const int32_t new_val) {
-  STRING full_flag_name("FLAGS_");
+  std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<IntParam *> empty;
   IntParam *p =
@@ -75,7 +75,7 @@ static void SetIntFlagValue(const char *flag_name, const int32_t new_val) {
 }
 
 static void SetDoubleFlagValue(const char *flag_name, const double new_val) {
-  STRING full_flag_name("FLAGS_");
+  std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<DoubleParam *> empty;
   DoubleParam *p = ParamUtils::FindParam<DoubleParam>(full_flag_name.c_str(),
@@ -85,7 +85,7 @@ static void SetDoubleFlagValue(const char *flag_name, const double new_val) {
 }
 
 static void SetBoolFlagValue(const char *flag_name, const bool new_val) {
-  STRING full_flag_name("FLAGS_");
+  std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<BoolParam *> empty;
   BoolParam *p =
@@ -95,13 +95,13 @@ static void SetBoolFlagValue(const char *flag_name, const bool new_val) {
 }
 
 static void SetStringFlagValue(const char *flag_name, const char *new_val) {
-  STRING full_flag_name("FLAGS_");
+  std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<StringParam *> empty;
   StringParam *p = ParamUtils::FindParam<StringParam>(full_flag_name.c_str(),
                                                       GlobalParams()->string_params, empty);
   ASSERT_HOST(p != nullptr);
-  p->set_value(STRING(new_val));
+  p->set_value(std::string(new_val));
 }
 
 static bool SafeAtoi(const char *str, int *val) {
@@ -201,7 +201,7 @@ void ParseCommandLineFlags(const char *usage, int *argc, char ***argv, const boo
       rhs = equals_position + 1;
     }
     // Extract the flag name.
-    STRING lhs;
+    std::string lhs;
     if (equals_position == nullptr) {
       lhs = current_arg;
     } else {

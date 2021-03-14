@@ -17,8 +17,8 @@
 #define TESSERACT_TRAINING_FILEIO_H_
 
 #include "export.h"
+#include "helpers.h"  // for split
 #include "serialis.h" // for LoadDataFromFile
-#include "strngs.h"   // for STRING
 
 #include <tesseract/export.h>
 

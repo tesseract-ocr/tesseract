@@ -103,7 +103,7 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
         std::vector<int> ocr_labels;
         std::vector<int> xcoords;
         trainer.LabelsFromOutputs(fwd_outputs, &ocr_labels, &xcoords);
-        STRING ocr_text = trainer.DecodeLabels(ocr_labels);
+        std::string ocr_text = trainer.DecodeLabels(ocr_labels);
         tprintf("OCR  :%s\n", ocr_text.c_str());
       }
     }

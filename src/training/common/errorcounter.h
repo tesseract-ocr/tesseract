@@ -23,7 +23,6 @@ struct Pix;
 
 namespace tesseract {
 
-class STRING;
 template <typename T>
 class UnicityTable;
 struct FontInfo;
@@ -123,7 +122,7 @@ public:
   static double ComputeErrorRate(ShapeClassifier *classifier, int report_level,
                                  CountTypes boosting_mode, const FontInfoTable &fontinfo_table,
                                  const std::vector<Pix *> &page_images, SampleIterator *it,
-                                 double *unichar_error, double *scaled_error, STRING *fonts_report);
+                                 double *unichar_error, double *scaled_error, std::string *fonts_report);
   // Tests a pair of classifiers, debugging errors of the new against the old.
   // See errorcounter.h for description of arguments.
   // Iterates over the samples, calling the classifiers in normal/silent mode.

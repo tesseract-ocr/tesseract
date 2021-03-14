@@ -72,8 +72,8 @@ enum SubTrainerResult {
 class LSTMTrainer;
 // Function to compute and record error rates on some external test set(s).
 // Args are: iteration, mean errors, model, training stage.
-// Returns a STRING containing logging information about the tests.
-using TestCallback = std::function<STRING(int, const double *, const TessdataManager &, int)>;
+// Returns a string containing logging information about the tests.
+using TestCallback = std::function<std::string(int, const double *, const TessdataManager &, int)>;
 
 // Trainer class for LSTM networks. Most of the effort is in creating the
 // ideal target outputs from the transcription. A box file is used if it is
@@ -241,12 +241,12 @@ public:
 
   // Converts the string to integer class labels, with appropriate null_char_s
   // in between if not in SimpleTextOutput mode. Returns false on failure.
-  bool EncodeString(const STRING &str, std::vector<int> *labels) const {
+  bool EncodeString(const std::string &str, std::vector<int> *labels) const {
     return EncodeString(str, GetUnicharset(), IsRecoding() ? &recoder_ : nullptr,
                         SimpleTextOutput(), null_char_, labels);
   }
   // Static version operates on supplied unicharset, encoder, simple_text.
-  static bool EncodeString(const STRING &str, const UNICHARSET &unicharset,
+  static bool EncodeString(const std::string &str, const UNICHARSET &unicharset,
                            const UnicharCompress *recoder, bool simple_text, int null_char,
                            std::vector<int> *labels);
 
@@ -376,8 +376,8 @@ protected:
 
   // Given that error_rate is either a new min or max, updates the best/worst
   // error rates, and record of progress.
-  STRING UpdateErrorGraph(int iteration, double error_rate, const std::vector<char> &model_data,
-                          TestCallback tester);
+  std::string UpdateErrorGraph(int iteration, double error_rate, const std::vector<char> &model_data,
+                               TestCallback tester);
 
 protected:
   // Alignment display window.
@@ -393,14 +393,14 @@ protected:
   // Iteration at which the last checkpoint was dumped.
   int checkpoint_iteration_;
   // Basename of files to save best models to.
-  STRING model_base_;
+  std::string model_base_;
   // Checkpoint filename.
-  STRING checkpoint_name_;
+  std::string checkpoint_name_;
   // Training data.
   bool randomly_rotate_;
   DocumentCache training_data_;
   // Name to use when saving best_trainer_.
-  STRING best_model_name_;
+  std::string best_model_name_;
   // Number of available training stages.
   int num_training_stages_;
 

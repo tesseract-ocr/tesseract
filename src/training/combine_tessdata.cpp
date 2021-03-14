@@ -79,11 +79,11 @@ int main(int argc, char **argv) {
     return EXIT_SUCCESS;
   } else if (argc == 2) {
     printf("Combining tessdata files\n");
-    STRING lang = argv[1];
+    std::string lang = argv[1];
     char *last = &argv[1][strlen(argv[1]) - 1];
     if (*last != '.')
       lang += '.';
-    STRING output_file = lang;
+    std::string output_file = lang;
     output_file += kTrainedDataSuffix;
     if (!tm.CombineDataFiles(lang.c_str(), output_file.c_str())) {
       printf("Error combining tessdata files into %s\n", output_file.c_str());
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
       }
     } else { // extract all the components
       for (i = 0; i < tesseract::TESSDATA_NUM_ENTRIES; ++i) {
-        STRING filename = argv[3];
+        std::string filename = argv[3];
         char *last = &argv[3][strlen(argv[3]) - 1];
         if (*last != '.')
           filename += '.';
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
   } else if (argc >= 4 && strcmp(argv[1], "-o") == 0) {
     // Rename the current traineddata file to a temporary name.
     const char *new_traineddata_filename = argv[2];
-    STRING traineddata_filename = new_traineddata_filename;
+    std::string traineddata_filename = new_traineddata_filename;
     traineddata_filename += ".__tmp__";
     if (rename(new_traineddata_filename, traineddata_filename.c_str()) != 0) {
       tprintf("Failed to create a temporary file %s\n", traineddata_filename.c_str());

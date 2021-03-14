@@ -25,7 +25,6 @@
 #include <tesseract/unichar.h>
 #include "helpers.h"
 #include "serialis.h"
-#include "strngs.h"
 
 #include <functional> // for std::function
 
@@ -86,9 +85,9 @@ public:
 
   // Returns the string that represents a fragment
   // with the given unichar, pos and total.
-  static STRING to_string(const char *unichar, int pos, int total, bool natural);
+  static std::string to_string(const char *unichar, int pos, int total, bool natural);
   // Returns the string that represents this fragment.
-  STRING to_string() const {
+  std::string to_string() const {
     return to_string(unichar, pos, total, natural);
   }
 
@@ -251,9 +250,9 @@ public:
   // external applications.
   const char *id_to_unichar_ext(UNICHAR_ID id) const;
 
-  // Return a STRING that reformats the utf8 str into the str followed
+  // Return a string that reformats the utf8 str into the str followed
   // by its hex unicodes.
-  static STRING debug_utf8_str(const char *str);
+  static std::string debug_utf8_str(const char *str);
 
   // Removes/replaces content that belongs in rendered text, but not in the
   // unicharset.
@@ -262,10 +261,10 @@ public:
   }
   static std::string CleanupString(const char *utf8_str, size_t length);
 
-  // Return a STRING containing debug information on the unichar, including
+  // Return a string containing debug information on the unichar, including
   // the id_to_unichar, its hex unicodes and the properties.
-  STRING debug_str(UNICHAR_ID id) const;
-  STRING debug_str(const char *unichar_repr) const {
+  std::string debug_str(UNICHAR_ID id) const;
+  std::string debug_str(const char *unichar_repr) const {
     return debug_str(unichar_to_id(unichar_repr));
   }
 
@@ -363,18 +362,18 @@ public:
   // Saves the content of the UNICHARSET to the given file.
   // Returns true if the operation is successful.
   bool save_to_file(FILE *file) const {
-    STRING str;
-    return save_to_string(&str) && tesseract::Serialize(file, &str[0], str.length());
+    std::string str;
+    return save_to_string(str) && tesseract::Serialize(file, &str[0], str.length());
   }
 
   bool save_to_file(tesseract::TFile *file) const {
-    STRING str;
-    return save_to_string(&str) && file->Serialize(&str[0], str.length());
+    std::string str;
+    return save_to_string(str) && file->Serialize(&str[0], str.length());
   }
 
-  // Saves the content of the UNICHARSET to the given STRING.
+  // Saves the content of the UNICHARSET to the given string.
   // Returns true if the operation is successful.
-  bool save_to_string(STRING *str) const;
+  bool save_to_string(std::string &str) const;
 
   // Opens the file indicated by filename and loads the UNICHARSET
   // from the given file. The previous data is lost.
@@ -975,7 +974,7 @@ private:
     // For awkward characters like em-dash, this gives hyphen.
     // For ligatures, this gives the string of normal unichars.
     std::vector<UNICHAR_ID> normed_ids;
-    STRING normed; // normalized version of this unichar
+    std::string normed; // normalized version of this unichar
     // Contains meta information about the fragment if a unichar represents
     // a fragment of a character, otherwise should be set to nullptr.
     // It is assumed that character fragments are added to the unicharset

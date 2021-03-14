@@ -287,10 +287,10 @@ const char *UNICHARSET::id_to_unichar_ext(UNICHAR_ID id) const {
   return unichars[id].representation;
 }
 
-// Return a STRING that reformats the utf8 str into the str followed
+// Return a string that reformats the utf8 str into the str followed
 // by its hex unicodes.
-STRING UNICHARSET::debug_utf8_str(const char *str) {
-  STRING result = str;
+std::string UNICHARSET::debug_utf8_str(const char *str) {
+  std::string result = str;
   result += " [";
   int step = 1;
   // Chop into unicodes and code each as hex.
@@ -311,17 +311,17 @@ STRING UNICHARSET::debug_utf8_str(const char *str) {
   return result;
 }
 
-// Return a STRING containing debug information on the unichar, including
+// Return a string containing debug information on the unichar, including
 // the id_to_unichar, its hex unicodes and the properties.
-STRING UNICHARSET::debug_str(UNICHAR_ID id) const {
+std::string UNICHARSET::debug_str(UNICHAR_ID id) const {
   if (id == INVALID_UNICHAR_ID)
-    return STRING(id_to_unichar(id));
+    return std::string(id_to_unichar(id));
   const CHAR_FRAGMENT *fragment = this->get_fragment(id);
   if (fragment) {
     return fragment->to_string();
   }
   const char *str = id_to_unichar(id);
-  STRING result = debug_utf8_str(str);
+  std::string result = debug_utf8_str(str);
   // Append a for lower alpha, A for upper alpha, and x if alpha but neither.
   if (get_isalpha(id)) {
     if (get_islower(id))
@@ -657,11 +657,11 @@ bool UNICHARSET::eq(UNICHAR_ID unichar_id, const char *const unichar_repr) const
   return strcmp(this->id_to_unichar(unichar_id), unichar_repr) == 0;
 }
 
-bool UNICHARSET::save_to_string(STRING *str) const {
+bool UNICHARSET::save_to_string(std::string &str) const {
   const int kFileBufSize = 1024;
   char buffer[kFileBufSize + 1];
   snprintf(buffer, kFileBufSize, "%d\n", this->size());
-  *str = buffer;
+  str = buffer;
   for (UNICHAR_ID id = 0; id < this->size(); ++id) {
     int min_bottom, max_bottom, min_top, max_top;
     get_top_bottom(id, &min_bottom, &max_bottom, &min_top, &max_top);
@@ -675,7 +675,7 @@ bool UNICHARSET::save_to_string(STRING *str) const {
     if (strcmp(this->id_to_unichar(id), " ") == 0) {
       snprintf(buffer, kFileBufSize, "%s %x %s %d\n", "NULL", properties,
                this->get_script_from_script_id(this->get_script(id)), this->get_other_case(id));
-      *str += buffer;
+      str += buffer;
     } else {
       std::ostringstream stream;
       stream.imbue(std::locale::classic());
@@ -686,7 +686,7 @@ bool UNICHARSET::save_to_string(STRING *str) const {
              << this->get_other_case(id) << ' ' << this->get_direction(id) << ' '
              << this->get_mirror(id) << ' ' << this->get_normed_unichar(id) << "\t# "
              << this->debug_str(id).c_str() << '\n';
-      *str += stream.str().c_str();
+      str += stream.str().c_str();
     }
   }
   return true;
@@ -998,10 +998,10 @@ int UNICHARSET::add_script(const char *script) {
 
 // Returns the string that represents a fragment
 // with the given unichar, pos and total.
-STRING CHAR_FRAGMENT::to_string(const char *unichar, int pos, int total, bool natural) {
+std::string CHAR_FRAGMENT::to_string(const char *unichar, int pos, int total, bool natural) {
   if (total == 1)
-    return STRING(unichar);
-  STRING result = "";
+    return std::string(unichar);
+  std::string result;
   result += kSeparator;
   result += unichar;
   char buffer[kMaxLen];

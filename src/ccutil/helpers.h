@@ -28,7 +28,12 @@
 #include <random>
 #include <string>
 
+#include <tesseract/export.h> // for TESS_API
+
 namespace tesseract {
+
+TESS_API
+const std::vector<std::string> split(const std::string &s, char c);
 
 // A simple linear congruential random number generator.
 class TRand {

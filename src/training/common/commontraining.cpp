@@ -49,7 +49,7 @@ using namespace tesseract;
  * @note Exceptions: Illegal options terminate the program.
  */
 void ParseArguments(int *argc, char ***argv) {
-  STRING usage;
+  std::string usage;
   if (*argc) {
     usage += (*argv)[0];
     usage += " -v | --version | ";
@@ -121,7 +121,7 @@ static DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
  * @param argv command line arguments
  */
 void ParseArguments(int *argc, char ***argv) {
-  STRING usage;
+  std::string usage;
   if (*argc) {
     usage += (*argv)[0];
     usage += " -v | --version | ";
@@ -144,9 +144,9 @@ void ParseArguments(int *argc, char ***argv) {
 
 namespace tesseract {
 // Helper loads shape table from the given file.
-ShapeTable *LoadShapeTable(const STRING &file_prefix) {
+ShapeTable *LoadShapeTable(const std::string &file_prefix) {
   ShapeTable *shape_table = nullptr;
-  STRING shape_table_file = file_prefix;
+  std::string shape_table_file = file_prefix;
   shape_table_file += kShapeTableFileSuffix;
   TFile shape_fp;
   if (shape_fp.Open(shape_table_file.c_str(), nullptr)) {
@@ -166,8 +166,8 @@ ShapeTable *LoadShapeTable(const STRING &file_prefix) {
 }
 
 // Helper to write the shape_table.
-void WriteShapeTable(const STRING &file_prefix, const ShapeTable &shape_table) {
-  STRING shape_table_file = file_prefix;
+void WriteShapeTable(const std::string &file_prefix, const ShapeTable &shape_table) {
+  std::string shape_table_file = file_prefix;
   shape_table_file += kShapeTableFileSuffix;
   FILE *fp = fopen(shape_table_file.c_str(), "wb");
   if (fp != nullptr) {
@@ -197,13 +197,13 @@ void WriteShapeTable(const STRING &file_prefix, const ShapeTable &shape_table) {
  * as shape clustering was not run.
  */
 std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *argv, bool replication,
-                                                ShapeTable **shape_table, STRING *file_prefix) {
+                                                ShapeTable **shape_table, std::string &file_prefix) {
   InitFeatureDefs(&feature_defs);
   InitIntegerFX();
-  *file_prefix = "";
+  file_prefix = "";
   if (!FLAGS_D.empty()) {
-    *file_prefix += FLAGS_D.c_str();
-    *file_prefix += "/";
+    file_prefix += FLAGS_D.c_str();
+    file_prefix += "/";
   }
   // If we are shape clustering (nullptr shape_table) or we successfully load
   // a shape_table written by a previous shape clustering, then
@@ -211,7 +211,7 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *arg
   // some members of the unicharset with their fragments.
   bool shape_analysis = false;
   if (shape_table != nullptr) {
-    *shape_table = LoadShapeTable(*file_prefix);
+    *shape_table = LoadShapeTable(file_prefix);
     if (*shape_table != nullptr)
       shape_analysis = true;
   } else {
@@ -252,7 +252,7 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *arg
 
     // Load the images into memory if required by the classifier.
     if (FLAGS_load_images) {
-      STRING image_name = page_name;
+      std::string image_name = page_name;
       // Chop off the tr and replace with tif. Extension must be tif!
       image_name.resize(image_name.length() - 2);
       image_name += "tif";

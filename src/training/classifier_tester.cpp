@@ -22,7 +22,6 @@
 #include "commontraining.h"
 #include "mastertrainer.h"
 #include "params.h"
-#include "strngs.h"
 #include "tessclassifier.h"
 #include "tesseractclass.h"
 
@@ -102,8 +101,8 @@ static tesseract::ShapeClassifier *InitializeClassifier(const char *classifer_na
 int main(int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
-  STRING file_prefix;
-  auto trainer = tesseract::LoadTrainingData(argc, argv, false, nullptr, &file_prefix);
+  std::string file_prefix;
+  auto trainer = tesseract::LoadTrainingData(argc, argv, false, nullptr, file_prefix);
   tesseract::TessBaseAPI *api;
   // Decode the classifier string.
   tesseract::ShapeClassifier *shape_classifier =

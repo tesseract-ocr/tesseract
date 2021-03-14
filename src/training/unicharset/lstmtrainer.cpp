@@ -306,7 +306,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, std::string &log_msg)
     }
     SaveTrainingDump(NO_BEST_TRAINER, *this, &best_trainer_);
     if (error_rate < error_rate_of_last_saved_best_ * kBestCheckpointFraction) {
-      STRING best_model_name = DumpFilename();
+      std::string best_model_name = DumpFilename();
       if (!SaveDataToFile(best_trainer_, best_model_name.c_str())) {
         log_msg += " failed to write best model:";
       } else {
@@ -711,7 +711,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
 // Converts the string to integer class labels, with appropriate null_char_s
 // in between if not in SimpleTextOutput mode. Returns false on failure.
 /* static */
-bool LSTMTrainer::EncodeString(const STRING &str, const UNICHARSET &unicharset,
+bool LSTMTrainer::EncodeString(const std::string &str, const UNICHARSET &unicharset,
                                const UnicharCompress *recoder, bool simple_text, int null_char,
                                std::vector<int> *labels) {
   if (str.c_str() == nullptr || str.length() <= 0) {
@@ -1274,7 +1274,7 @@ void LSTMTrainer::RollErrorBuffers() {
 // error rates, and record of progress.
 // Tester is an externally supplied callback function that tests on some
 // data set with a given model and records the error rates in a graph.
-STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
+std::string LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
                                      const std::vector<char> &model_data, TestCallback tester) {
   if (error_rate > best_error_rate_ && iteration < best_iteration_ + kErrorGraphInterval) {
     // Too soon to record a new point.
@@ -1285,7 +1285,7 @@ STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
       return "";
     }
   }
-  STRING result;
+  std::string result;
   // NOTE: there are 2 asymmetries here:
   // 1. We are computing the global minimum, but the local maximum in between.
   // 2. If the tester returns an empty string, indicating that it is busy,

@@ -4,7 +4,6 @@
 // File:        mastertrainer.h
 // Description: Trainer to build the MasterClassifier.
 // Author:      Ray Smith
-// Created:     Wed Nov 03 18:07:01 PDT 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -155,7 +154,7 @@ public:
 
   // Returns the filename of the tr file corresponding to the command-line
   // argument with the given index.
-  const STRING &GetTRFileName(int index) const {
+  const std::string &GetTRFileName(int index) const {
     return tr_filenames_[index];
   }
 
@@ -210,7 +209,7 @@ public:
   // Tests the given test_classifier on the internal samples.
   // See TestClassifier for details.
   void TestClassifierOnSamples(CountTypes error_mode, int report_level, bool replicate_samples,
-                               ShapeClassifier *test_classifier, STRING *report_string);
+                               ShapeClassifier *test_classifier, std::string *report_string);
   // Tests the given test_classifier on the given samples
   // error_mode indicates what counts as an error.
   // report_levels:
@@ -226,7 +225,7 @@ public:
   // is appended to the report_string.
   double TestClassifier(CountTypes error_mode, int report_level, bool replicate_samples,
                         TrainingSampleSet *samples, ShapeClassifier *test_classifier,
-                        STRING *report_string);
+                        std::string *report_string);
 
   // Returns the average (in some sense) distance between the two given
   // shapes, which may contain multiple fonts and/or unichars.
@@ -287,7 +286,7 @@ private:
   // These images are owned by the trainer and need to be pixDestroyed.
   std::vector<Pix *> page_images_;
   // Vector of filenames of loaded tr files.
-  std::vector<STRING> tr_filenames_;
+  std::vector<std::string> tr_filenames_;
 };
 
 } // namespace tesseract.

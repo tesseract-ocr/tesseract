@@ -69,7 +69,7 @@ static bool DecodeRadicalLine(std::string &radical_data_line, RSMap *radical_map
 }
 
 // Helper function builds the RSMap from the radical-stroke file, which has
-// already been read into a STRING. Returns false on error.
+// already been read into a string. Returns false on error.
 // The radical_stroke_table is non-const because it gets split and the caller
 // is unlikely to want to use it again.
 static bool DecodeRadicalTable(std::string &radical_data, RSMap *radical_map) {
@@ -316,7 +316,7 @@ bool UnicharCompress::DeSerialize(TFile *fp) {
   return true;
 }
 
-// Returns a STRING containing a text file that describes the encoding thus:
+// Returns a string containing a text file that describes the encoding thus:
 // <index>[,<index>]*<tab><UTF8-str><newline>
 // In words, a comma-separated list of one or more indices, followed by a tab
 // and the UTF-8 string that the code represents per line. Most simple scripts

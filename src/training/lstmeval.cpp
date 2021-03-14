@@ -66,8 +66,8 @@ int main(int argc, char **argv) {
     return 1;
   }
   double errs = 0.0;
-  STRING result = tester.RunEvalSync(0, &errs, mgr,
-                                     /*training_stage (irrelevant)*/ 0, FLAGS_verbosity);
+  std::string result = tester.RunEvalSync(0, &errs, mgr,
+                                          /*training_stage (irrelevant)*/ 0, FLAGS_verbosity);
   tprintf("%s\n", result.c_str());
   return 0;
 } /* main */
