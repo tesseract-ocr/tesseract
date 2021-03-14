@@ -46,13 +46,12 @@ TEST(LangModelTest, AddACharacter) {
   LOG(INFO) << "Output dir=" << output_dir << "\n";
   std::string lang1 = "eng";
   bool pass_through_recoder = false;
-  std::vector<STRING> words, puncs, numbers;
   // If these reads fail, we get a warning message and an empty list of words.
-  ReadFile(file::JoinPath(eng_dir, "eng.wordlist"), nullptr).split('\n', &words);
+  std::vector<std::string> words = split(ReadFile(file::JoinPath(eng_dir, "eng.wordlist")), '\n');
   EXPECT_GT(words.size(), 0);
-  ReadFile(file::JoinPath(eng_dir, "eng.punc"), nullptr).split('\n', &puncs);
+  std::vector<std::string> puncs = split(ReadFile(file::JoinPath(eng_dir, "eng.punc")), '\n');
   EXPECT_GT(puncs.size(), 0);
-  ReadFile(file::JoinPath(eng_dir, "eng.numbers"), nullptr).split('\n', &numbers);
+  std::vector<std::string> numbers = split(ReadFile(file::JoinPath(eng_dir, "eng.numbers")), '\n');
   EXPECT_GT(numbers.size(), 0);
   bool lang_is_rtl = false;
   // Generate the traineddata file.
@@ -131,13 +130,12 @@ TEST(LangModelTest, AddACharacterHindi) {
   LOG(INFO) << "Output dir=" << output_dir << "\n";
   std::string lang1 = "hin";
   bool pass_through_recoder = false;
-  std::vector<STRING> words, puncs, numbers;
   // If these reads fail, we get a warning message and an empty list of words.
-  ReadFile(file::JoinPath(hin_dir, "hin.wordlist"), nullptr).split('\n', &words);
+  std::vector<std::string> words = split(ReadFile(file::JoinPath(hin_dir, "hin.wordlist")), '\n');
   EXPECT_GT(words.size(), 0);
-  ReadFile(file::JoinPath(hin_dir, "hin.punc"), nullptr).split('\n', &puncs);
+  std::vector<std::string> puncs = split(ReadFile(file::JoinPath(hin_dir, "hin.punc")), '\n');
   EXPECT_GT(puncs.size(), 0);
-  ReadFile(file::JoinPath(hin_dir, "hin.numbers"), nullptr).split('\n', &numbers);
+  std::vector<std::string> numbers = split(ReadFile(file::JoinPath(hin_dir, "hin.numbers")), '\n');
   EXPECT_GT(numbers.size(), 0);
   bool lang_is_rtl = false;
   // Generate the traineddata file.

@@ -79,7 +79,7 @@ public:
   // Trie can consume (if a new word insert would cause the Trie to
   // contain more edges than max_num_edges, all the edges are cleared
   // so that new inserts can proceed).
-  Trie(DawgType type, const STRING &lang, PermuterType perm, int unicharset_size, int debug_level)
+  Trie(DawgType type, const std::string &lang, PermuterType perm, int unicharset_size, int debug_level)
       : Dawg(type, lang, perm, debug_level) {
     init(unicharset_size);
     num_edges_ = 0;
@@ -173,11 +173,11 @@ public:
 
   // Reads a list of words from the given file.
   // Returns false on error.
-  bool read_word_list(const char *filename, std::vector<STRING> *words);
+  bool read_word_list(const char *filename, std::vector<std::string> *words);
   // Adds a list of words previously read using read_word_list to the trie
   // using the given unicharset and reverse_policy to convert to unichar-ids.
   // Returns false on error.
-  bool add_word_list(const std::vector<STRING> &words, const UNICHARSET &unicharset,
+  bool add_word_list(const std::vector<std::string> &words, const UNICHARSET &unicharset,
                      Trie::RTLReversePolicy reverse_policy);
 
   // Inserts the list of patterns from the given file into the Trie.

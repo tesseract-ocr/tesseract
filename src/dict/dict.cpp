@@ -195,7 +195,7 @@ void Dict::SetupForLoad(DawgCache *dawg_cache) {
 }
 
 // Loads the dawgs needed by Tesseract. Call FinishLoad() after.
-void Dict::Load(const STRING &lang, TessdataManager *data_file) {
+void Dict::Load(const std::string &lang, TessdataManager *data_file) {
   // Load dawgs_.
   if (load_punc_dawg) {
     punc_dawg_ =
@@ -281,7 +281,7 @@ void Dict::Load(const STRING &lang, TessdataManager *data_file) {
 }
 
 // Loads the dawgs needed by the LSTM model. Call FinishLoad() after.
-void Dict::LoadLSTM(const STRING &lang, TessdataManager *data_file) {
+void Dict::LoadLSTM(const std::string &lang, TessdataManager *data_file) {
   // Load dawgs_.
   if (load_punc_dawg) {
     punc_dawg_ =

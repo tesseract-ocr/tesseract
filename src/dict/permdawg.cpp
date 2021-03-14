@@ -113,12 +113,12 @@ void Dict::go_deeper_dawg_fxn(const char *debug, const BLOB_CHOICE_LIST_VECTOR &
             tprintf("Failed to open output_ambig_words_file %s\n", output_ambig_words_file.c_str());
             exit(1);
           }
-          STRING word_str;
+	  std::string word_str;
           word->string_and_lengths(&word_str, nullptr);
           word_str += " ";
           fprintf(output_ambig_words_file_, "%s", word_str.c_str());
         }
-        STRING word_str;
+	std::string word_str;
         word->string_and_lengths(&word_str, nullptr);
         word_str += " ";
         fprintf(output_ambig_words_file_, "%s", word_str.c_str());

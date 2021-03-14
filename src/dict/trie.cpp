@@ -260,7 +260,7 @@ NODE_REF Trie::new_dawg_node() {
 
 bool Trie::read_and_add_word_list(const char *filename, const UNICHARSET &unicharset,
                                   Trie::RTLReversePolicy reverse_policy) {
-  std::vector<STRING> word_list;
+  std::vector<std::string> word_list;
   if (!read_word_list(filename, &word_list))
     return false;
   std::sort(word_list.begin(), word_list.end(),
@@ -268,7 +268,7 @@ bool Trie::read_and_add_word_list(const char *filename, const UNICHARSET &unicha
   return add_word_list(word_list, unicharset, reverse_policy);
 }
 
-bool Trie::read_word_list(const char *filename, std::vector<STRING> *words) {
+bool Trie::read_word_list(const char *filename, std::vector<std::string> *words) {
   FILE *word_file;
   char line_str[CHARS_PER_LINE];
   int word_count = 0;
@@ -279,7 +279,7 @@ bool Trie::read_word_list(const char *filename, std::vector<STRING> *words) {
 
   while (fgets(line_str, sizeof(line_str), word_file) != nullptr) {
     chomp_string(line_str); // remove newline
-    STRING word_str(line_str);
+    std::string word_str(line_str);
     ++word_count;
     if (debug_level_ && word_count % 10000 == 0)
       tprintf("Read %d words so far\n", word_count);
@@ -291,7 +291,7 @@ bool Trie::read_word_list(const char *filename, std::vector<STRING> *words) {
   return true;
 }
 
-bool Trie::add_word_list(const std::vector<STRING> &words, const UNICHARSET &unicharset,
+bool Trie::add_word_list(const std::vector<std::string> &words, const UNICHARSET &unicharset,
                          Trie::RTLReversePolicy reverse_policy) {
   for (int i = 0; i < words.size(); ++i) {
     WERD_CHOICE word(words[i].c_str(), unicharset);

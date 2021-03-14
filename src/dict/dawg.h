@@ -119,7 +119,7 @@ public:
   inline DawgType type() const {
     return type_;
   }
-  inline const STRING &lang() const {
+  inline const std::string &lang() const {
     return lang_;
   }
   inline PermuterType permuter() const {
@@ -194,7 +194,7 @@ public:
   }
 
 protected:
-  Dawg(DawgType type, const STRING &lang, PermuterType perm, int debug_level)
+  Dawg(DawgType type, const std::string &lang, PermuterType perm, int debug_level)
       : lang_(lang), type_(type), perm_(perm), unicharset_size_(0), debug_level_(debug_level) {}
 
   /// Returns the next node visited by following this edge.
@@ -280,7 +280,7 @@ protected:
                          std::function<void(const WERD_CHOICE *)> cb) const;
 
   // Member Variables.
-  STRING lang_;
+  std::string lang_;
   DawgType type_;
   /// Permuter code that should be used if the word is found in this Dawg.
   PermuterType perm_;
@@ -384,9 +384,9 @@ public:
 //
 class TESS_API SquishedDawg : public Dawg {
 public:
-  SquishedDawg(DawgType type, const STRING &lang, PermuterType perm, int debug_level)
+  SquishedDawg(DawgType type, const std::string &lang, PermuterType perm, int debug_level)
       : Dawg(type, lang, perm, debug_level) {}
-  SquishedDawg(const char *filename, DawgType type, const STRING &lang, PermuterType perm,
+  SquishedDawg(const char *filename, DawgType type, const std::string &lang, PermuterType perm,
                int debug_level)
       : Dawg(type, lang, perm, debug_level) {
     TFile file;
@@ -394,7 +394,7 @@ public:
     ASSERT_HOST(read_squished_dawg(&file));
     num_forward_edges_in_node0 = num_forward_edges(0);
   }
-  SquishedDawg(EDGE_ARRAY edges, int num_edges, DawgType type, const STRING &lang,
+  SquishedDawg(EDGE_ARRAY edges, int num_edges, DawgType type, const std::string &lang,
                PermuterType perm, int unicharset_size, int debug_level)
       : Dawg(type, lang, perm, debug_level), edges_(edges), num_edges_(num_edges) {
     init(unicharset_size);

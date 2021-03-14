@@ -152,7 +152,7 @@ public:
   // the file training/langdata/radical-stroke.txt have been read into the
   // input string radical_stroke_table.
   // Returns false if the encoding cannot be constructed.
-  bool ComputeEncoding(const UNICHARSET &unicharset, int null_id, STRING *radical_stroke_table);
+  bool ComputeEncoding(const UNICHARSET &unicharset, int null_id, std::string *radical_stroke_table);
   // Sets up an encoder that doesn't change the unichars at all, so it just
   // passes them through unchanged.
   void SetupPassThrough(const UNICHARSET &unicharset);

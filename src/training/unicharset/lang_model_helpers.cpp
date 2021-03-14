@@ -56,11 +56,11 @@ bool WriteFile(const std::string &output_dir, const std::string &lang, const std
     return (*writer)(data, filename.c_str());
 }
 
-// Helper reads a file with optional reader and returns a STRING.
-// On failure emits a warning message and returns and empty STRING.
-STRING ReadFile(const std::string &filename, FileReader reader) {
+// Helper reads a file with optional reader and returns a string.
+// On failure emits a warning message and returns an empty string.
+std::string ReadFile(const std::string &filename, FileReader reader) {
   if (filename.empty())
-    return STRING();
+    return std::string();
   std::vector<char> data;
   bool read_result;
   if (reader == nullptr)
@@ -68,9 +68,9 @@ STRING ReadFile(const std::string &filename, FileReader reader) {
   else
     read_result = (*reader)(filename.c_str(), &data);
   if (read_result)
-    return STRING(&data[0], data.size());
+    return std::string(&data[0], data.size());
   tprintf("Failed to read data from: %s\n", filename.c_str());
-  return STRING();
+  return std::string();
 }
 
 // Helper writes the unicharset to file and to the traineddata.
@@ -89,7 +89,7 @@ bool WriteUnicharset(const UNICHARSET &unicharset, const std::string &output_dir
 // Helper creates the recoder and writes it to the traineddata, and a human-
 // readable form to file.
 bool WriteRecoder(const UNICHARSET &unicharset, bool pass_through, const std::string &output_dir,
-                  const std::string &lang, FileWriter writer, STRING *radical_table_data,
+                  const std::string &lang, FileWriter writer, std::string *radical_table_data,
                   TessdataManager *traineddata) {
   UnicharCompress recoder;
   // Where the unicharset is carefully setup already to contain a good
@@ -116,7 +116,7 @@ bool WriteRecoder(const UNICHARSET &unicharset, bool pass_through, const std::st
   if (!recoder.Serialize(&fp))
     return false;
   traineddata->OverwriteEntry(TESSDATA_LSTM_RECODER, &recoder_data[0], recoder_data.size());
-  STRING encoding = recoder.GetEncodingAsString(unicharset);
+  std::string encoding = recoder.GetEncodingAsString(unicharset);
   recoder_data.resize(encoding.length(), 0);
   memcpy(&recoder_data[0], &encoding[0], encoding.length());
   std::string suffix;
@@ -127,7 +127,7 @@ bool WriteRecoder(const UNICHARSET &unicharset, bool pass_through, const std::st
 
 // Helper builds a dawg from the given words, using the unicharset as coding,
 // and reverse_policy for LTR/RTL, and overwrites file_type in the traineddata.
-static bool WriteDawg(const std::vector<STRING> &words, const UNICHARSET &unicharset,
+static bool WriteDawg(const std::vector<std::string> &words, const UNICHARSET &unicharset,
                       Trie::RTLReversePolicy reverse_policy, TessdataType file_type,
                       TessdataManager *traineddata) {
   // The first 3 arguments are not used in this case.
@@ -149,8 +149,8 @@ static bool WriteDawg(const std::vector<STRING> &words, const UNICHARSET &unicha
 // Builds and writes the dawgs, given a set of words, punctuation
 // patterns, number patterns, to the traineddata. Encoding uses the given
 // unicharset, and the punc dawgs is reversed if lang_is_rtl.
-static bool WriteDawgs(const std::vector<STRING> &words, const std::vector<STRING> &puncs,
-                       const std::vector<STRING> &numbers, bool lang_is_rtl,
+static bool WriteDawgs(const std::vector<std::string> &words, const std::vector<std::string> &puncs,
+                       const std::vector<std::string> &numbers, bool lang_is_rtl,
                        const UNICHARSET &unicharset, TessdataManager *traineddata) {
   if (puncs.empty()) {
     tprintf("Must have non-empty puncs list to use language models!!\n");
@@ -185,8 +185,8 @@ static bool WriteDawgs(const std::vector<STRING> &words, const std::vector<STRIN
 int CombineLangModel(const UNICHARSET &unicharset, const std::string &script_dir,
                      const std::string &version_str, const std::string &output_dir,
                      const std::string &lang, bool pass_through_recoder,
-                     const std::vector<STRING> &words, const std::vector<STRING> &puncs,
-                     const std::vector<STRING> &numbers, bool lang_is_rtl, FileReader reader,
+                     const std::vector<std::string> &words, const std::vector<std::string> &puncs,
+                     const std::vector<std::string> &numbers, bool lang_is_rtl, FileReader reader,
                      FileWriter writer) {
   // Build the traineddata file.
   TessdataManager traineddata;
@@ -202,12 +202,12 @@ int CombineLangModel(const UNICHARSET &unicharset, const std::string &script_dir
   }
   // If there is a config file, read it and add to traineddata.
   std::string config_filename = script_dir + "/" + lang + "/" + lang + ".config";
-  STRING config_file = ReadFile(config_filename, reader);
+  std::string config_file = ReadFile(config_filename, reader);
   if (config_file.length() > 0) {
     traineddata.OverwriteEntry(TESSDATA_LANG_CONFIG, &config_file[0], config_file.length());
   }
   std::string radical_filename = script_dir + "/radical-stroke.txt";
-  STRING radical_data = ReadFile(radical_filename, reader);
+  std::string radical_data = ReadFile(radical_filename, reader);
   if (radical_data.length() == 0) {
     tprintf("Error reading radical code table %s\n", radical_filename.c_str());
     return EXIT_FAILURE;

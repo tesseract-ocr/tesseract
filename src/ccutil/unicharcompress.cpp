@@ -47,11 +47,10 @@ using RSMap = std::unordered_map<int, std::unique_ptr<std::vector<int>>>;
 // A hash map to count occurrences of each radical encoding.
 using RSCounts = std::unordered_map<int, int>;
 
-static bool DecodeRadicalLine(STRING *radical_data_line, RSMap *radical_map) {
-  if (radical_data_line->length() == 0 || (*radical_data_line)[0] == '#')
+static bool DecodeRadicalLine(std::string &radical_data_line, RSMap *radical_map) {
+  if (radical_data_line.length() == 0 || (radical_data_line)[0] == '#')
     return true;
-  std::vector<STRING> entries;
-  radical_data_line->split(' ', &entries);
+  std::vector<std::string> entries = split(radical_data_line, ' ');
   if (entries.size() < 2)
     return false;
   char *end = nullptr;
@@ -73,11 +72,10 @@ static bool DecodeRadicalLine(STRING *radical_data_line, RSMap *radical_map) {
 // already been read into a STRING. Returns false on error.
 // The radical_stroke_table is non-const because it gets split and the caller
 // is unlikely to want to use it again.
-static bool DecodeRadicalTable(STRING *radical_data, RSMap *radical_map) {
-  std::vector<STRING> lines;
-  radical_data->split('\n', &lines);
+static bool DecodeRadicalTable(std::string &radical_data, RSMap *radical_map) {
+  std::vector<std::string> lines = split(radical_data, '\n');
   for (int i = 0; i < lines.size(); ++i) {
-    if (!DecodeRadicalLine(&lines[i], radical_map)) {
+    if (!DecodeRadicalLine(lines[i], radical_map)) {
       tprintf("Invalid format in radical table at line %d: %s\n", i, lines[i].c_str());
       return false;
     }
@@ -105,9 +103,9 @@ UnicharCompress &UnicharCompress::operator=(const UnicharCompress &src) {
 // input string radical_stroke_table.
 // Returns false if the encoding cannot be constructed.
 bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
-                                      STRING *radical_stroke_table) {
+                                      std::string *radical_stroke_table) {
   RSMap radical_map;
-  if (radical_stroke_table != nullptr && !DecodeRadicalTable(radical_stroke_table, &radical_map))
+  if (radical_stroke_table != nullptr && !DecodeRadicalTable(*radical_stroke_table, &radical_map))
     return false;
   encoder_.clear();
   UNICHARSET direct_set;
