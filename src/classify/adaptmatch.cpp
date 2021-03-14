@@ -63,7 +63,6 @@
 #include "genericvector.h"     // for GenericVector
 #include "helpers.h"           // for IntCastRounded, ClipToRange
 #include "serialis.h"          // for TFile
-#include "strngs.h"            // for STRING
 
 #include <algorithm> // for max, min
 #include <cassert>   // for assert
@@ -313,13 +312,12 @@ void Classify::LearnWord(const char *fontname, WERD_RES *word) {
           bool pieces_all_natural = word->PiecesAllNatural(start_blob, word->best_state[ch]);
           if (pieces_all_natural || !prioritize_division) {
             for (frag = 0; frag < word->best_state[ch]; ++frag) {
-              std::vector<STRING> tokens;
-              word->correct_text[ch].split(' ', &tokens);
+              std::vector<std::string> tokens = split(word->correct_text[ch], ' ');
 
               tokens[0] = CHAR_FRAGMENT::to_string(tokens[0].c_str(), frag, word->best_state[ch],
                                                    pieces_all_natural);
 
-              STRING full_string;
+	      std::string full_string;
               for (int i = 0; i < tokens.size(); i++) {
                 full_string += tokens[i];
                 if (i != tokens.size() - 1)
@@ -351,7 +349,7 @@ if (word->best_state[ch] > 1) {
 }
 // If the next blob is good, make a join with it.
 if (ch + 1 < word_len && word->correct_text[ch + 1].length() > 0) {
-  STRING joined_text = word->correct_text[ch];
+  std::string joined_text = word->correct_text[ch];
   joined_text += word->correct_text[ch + 1];
   LearnPieces(fontname, start_blob,
               word->best_state[ch] + word->best_state[ch + 1],
@@ -450,7 +448,7 @@ void Classify::LearnPieces(const char *fontname, int start, int length, float th
  * - #classify_enable_adaptive_matcher true if adaptive matcher is enabled
  */
 void Classify::EndAdaptiveClassifier() {
-  STRING Filename;
+  std::string Filename;
   FILE *File;
 
   if (AdaptedTemplates != nullptr && classify_enable_adaptive_matcher &&
@@ -562,9 +560,7 @@ void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
 
   if (classify_use_pre_adapted_templates) {
     TFile fp;
-    STRING Filename;
-
-    Filename = imagefile;
+    std::string Filename = imagefile;
     Filename += ADAPT_TEMPLATE_SUFFIX;
     if (!fp.Open(Filename.c_str(), nullptr)) {
       AdaptedTemplates = NewAdaptedTemplates(true);
@@ -2064,9 +2060,9 @@ void Classify::ShowBestMatchFor(int shape_id, const INT_FEATURE_STRUCT *features
 
 // Returns a string for the classifier class_id: either the corresponding
 // unicharset debug_str or the shape_table_ debug str.
-STRING Classify::ClassIDToDebugStr(const INT_TEMPLATES_STRUCT *templates, int class_id,
-                                   int config_id) const {
-  STRING class_string;
+std::string Classify::ClassIDToDebugStr(const INT_TEMPLATES_STRUCT *templates, int class_id,
+                                        int config_id) const {
+  std::string class_string;
   if (templates == PreTrainedTemplates && shape_table_ != nullptr) {
     int shape_id = ClassAndConfigIDToFontOrShapeID(class_id, config_id);
     class_string = shape_table_->DebugStr(shape_id);

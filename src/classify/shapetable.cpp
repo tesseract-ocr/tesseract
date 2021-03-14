@@ -24,7 +24,6 @@
 #include "bitvector.h"
 #include "fontinfo.h"
 #include "intfeaturespace.h"
-#include "strngs.h"
 #include "unicharset.h"
 #include "unicity_table.h"
 
@@ -275,7 +274,7 @@ void ShapeTable::ReMapClassIds(const GenericVector<int> &unicharset_map) {
 // Returns a string listing the classes/fonts in a shape.
 std::string ShapeTable::DebugStr(int shape_id) const {
   if (shape_id < 0 || shape_id >= shape_table_.size())
-    return STRING("INVALID_UNICHAR_ID");
+    return "INVALID_UNICHAR_ID";
   const Shape &shape = GetShape(shape_id);
   std::string result;
   result += "Shape" + std::to_string(shape_id);

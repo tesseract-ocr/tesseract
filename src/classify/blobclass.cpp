@@ -63,7 +63,7 @@ void ExtractFontName(const char *filename, std::string *fontname) {
 // cn_denorm: Character normalization transformation to apply to the blob.
 // fx_info:   Character normalization parameters computed with cn_denorm.
 // blob_text: Ground truth text for the blob.
-void Classify::LearnBlob(const STRING &fontname, TBLOB *blob, const DENORM &cn_denorm,
+void Classify::LearnBlob(const std::string &fontname, TBLOB *blob, const DENORM &cn_denorm,
                          const INT_FX_RESULT_STRUCT &fx_info, const char *blob_text) {
   CHAR_DESC CharDesc = NewCharDescription(feature_defs_);
   CharDesc->FeatureSets[0] = ExtractMicros(blob, cn_denorm);

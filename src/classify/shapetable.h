@@ -31,7 +31,6 @@
 
 namespace tesseract {
 
-class STRING;
 class UNICHARSET;
 class ShapeTable;
 

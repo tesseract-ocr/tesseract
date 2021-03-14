@@ -216,8 +216,8 @@ public:
   void ShowBestMatchFor(int shape_id, const INT_FEATURE_STRUCT *features, int num_features);
   // Returns a string for the classifier class_id: either the corresponding
   // unicharset debug_str or the shape_table_ debug str.
-  STRING ClassIDToDebugStr(const INT_TEMPLATES_STRUCT *templates, int class_id,
-                           int config_id) const;
+  std::string ClassIDToDebugStr(const INT_TEMPLATES_STRUCT *templates, int class_id,
+                                int config_id) const;
   // Converts a classifier class_id index with a config ID to:
   // shape_table_ present: a shape_table_ index OR
   // No shape_table_: a font ID.
@@ -348,7 +348,7 @@ public:
   // cn_denorm: Character normalization transformation to apply to the blob.
   // fx_info:   Character normalization parameters computed with cn_denorm.
   // blob_text: Ground truth text for the blob.
-  void LearnBlob(const STRING &fontname, TBLOB *Blob, const DENORM &cn_denorm,
+  void LearnBlob(const std::string &fontname, TBLOB *Blob, const DENORM &cn_denorm,
                  const INT_FX_RESULT_STRUCT &fx_info, const char *blob_text);
   // Writes stored training data to a .tr file based on the given filename.
   // Returns false on error.
@@ -477,7 +477,7 @@ private:
   ScrollView *learn_fragments_debug_win_ = nullptr;
 
   // Training data gathered here for all the images in a document.
-  STRING tr_file_data_;
+  std::string tr_file_data_;
 
   Dict dict_;
 
