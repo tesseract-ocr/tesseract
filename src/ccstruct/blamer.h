@@ -32,7 +32,6 @@
 #include "tprintf.h"                   // for tprintf
 
 #include <tesseract/unichar.h> // for UNICHAR_ID
-#include "strngs.h"            // for STRING
 
 #include <cstdint> // for int16_t
 #include <cstring> // for memcpy
@@ -122,8 +121,8 @@ struct BlamerBundle {
   }
 
   // Accessors.
-  STRING TruthString() const {
-    STRING truth_str;
+  std::string TruthString() const {
+    std::string truth_str;
     for (auto &text : truth_text_) {
       truth_str += text;
     }
@@ -138,10 +137,10 @@ struct BlamerBundle {
   bool HasDebugInfo() const {
     return debug_.length() > 0 || misadaption_debug_.length() > 0;
   }
-  const STRING &debug() const {
+  const std::string &debug() const {
     return debug_;
   }
-  const STRING &misadaption_debug() const {
+  const std::string &misadaption_debug() const {
     return misadaption_debug_;
   }
   void UpdateBestRating(float rating) {
@@ -236,7 +235,7 @@ struct BlamerBundle {
   const char *IncorrectReason() const;
 
   // Appends choice and truth details to the given debug string.
-  void FillDebugString(const STRING &msg, const WERD_CHOICE *choice, STRING *debug);
+  void FillDebugString(const std::string &msg, const WERD_CHOICE *choice, std::string &debug);
 
   // Sets up the norm_truth_word from truth_word using the given DENORM.
   void SetupNormTruthWord(const DENORM &denorm);
@@ -291,12 +290,12 @@ struct BlamerBundle {
 private:
   // Copy assignment operator (currently unused, therefore private).
   BlamerBundle &operator=(const BlamerBundle &other);
-  void SetBlame(IncorrectResultReason irr, const STRING &msg, const WERD_CHOICE *choice,
+  void SetBlame(IncorrectResultReason irr, const std::string &msg, const WERD_CHOICE *choice,
                 bool debug) {
     incorrect_result_reason_ = irr;
     debug_ = IncorrectReason();
     debug_ += " to blame: ";
-    FillDebugString(msg, choice, &debug_);
+    FillDebugString(msg, choice, debug_);
     if (debug)
       tprintf("SetBlame(): %s", debug_.c_str());
   }
@@ -320,13 +319,13 @@ private:
   // (filled in by WERD_RES::SetupForRecognition()).
   tesseract::BoxWord norm_truth_word_;
   // Contains ground truth unichar for each of the bounding boxes in truth_word.
-  std::vector<STRING> truth_text_;
+  std::vector<std::string> truth_text_;
   // The reason for incorrect OCR result.
   IncorrectResultReason incorrect_result_reason_;
   // Debug text associated with the blame.
-  STRING debug_;
+  std::string debug_;
   // Misadaption debug information (filled in if this word was misadapted to).
-  STRING misadaption_debug_;
+  std::string misadaption_debug_;
   // Vectors populated by SegSearch to indicate column and row indices that
   // correspond to blobs with correct bounding boxes.
   std::vector<int> correct_segmentation_cols_;

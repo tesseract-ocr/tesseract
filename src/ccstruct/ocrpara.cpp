@@ -31,7 +31,7 @@ using tesseract::JUSTIFICATION_LEFT;
 using tesseract::JUSTIFICATION_RIGHT;
 using tesseract::JUSTIFICATION_UNKNOWN;
 
-static STRING ParagraphJustificationToString(tesseract::ParagraphJustification justification) {
+static const char *ParagraphJustificationToString(tesseract::ParagraphJustification justification) {
   switch (justification) {
     case JUSTIFICATION_LEFT:
       return "LEFT";
@@ -82,12 +82,12 @@ bool ParagraphModel::Comparable(const ParagraphModel &other) const {
          NearlyEqual(margin_ + body_indent_, other.margin_ + other.body_indent_, tolerance);
 }
 
-STRING ParagraphModel::ToString() const {
+std::string ParagraphModel::ToString() const {
   char buffer[200];
-  const STRING &alignment = ParagraphJustificationToString(justification_);
+  const char *alignment = ParagraphJustificationToString(justification_);
   snprintf(buffer, sizeof(buffer), "margin: %d, first_indent: %d, body_indent: %d, alignment: %s",
-           margin_, first_indent_, body_indent_, alignment.c_str());
-  return STRING(buffer);
+           margin_, first_indent_, body_indent_, alignment);
+  return std::string(buffer);
 }
 
 } // namespace tesseract

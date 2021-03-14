@@ -19,9 +19,11 @@
 #ifndef TESSERACT_CCUTIL_BOXREAD_H_
 #define TESSERACT_CCUTIL_BOXREAD_H_
 
-#include "strngs.h" // for STRING
-
 #include <cstdio> // for FILE
+#include <string> // for std::string
+#include <vector> // for std::vector
+
+#include <tesseract/export.h> // for TESS_API
 
 namespace tesseract {
 

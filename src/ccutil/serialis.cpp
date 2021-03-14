@@ -82,6 +82,14 @@ bool TFile::DeSerializeSize(int32_t *pSize) {
   return true;
 }
 
+bool TFile::DeSerializeSkip() {
+  uint32_t len;
+  if (!DeSerialize(&len)) {
+    return false;
+  }
+  return Skip(len);
+}
+
 bool TFile::DeSerialize(std::string &data) {
   uint32_t size;
   if (!DeSerialize(&size)) {

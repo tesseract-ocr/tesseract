@@ -190,8 +190,6 @@ public:
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerializeClasses(bool swap, FILE *fp);
   bool DeSerializeClasses(TFile *fp);
-  // Calls SkipDeSerialize on the elements of the vector.
-  static bool SkipDeSerializeClasses(TFile *fp);
 
   // Allocates a new array of double the current_size, copies over the
   // information from data to the new location, deletes data and returns
@@ -1029,19 +1027,6 @@ bool GenericVector<T>::DeSerializeClasses(TFile *fp) {
   init_to_size(reserved, empty);
   for (int i = 0; i < reserved; ++i) {
     if (!data_[i].DeSerialize(fp)) {
-      return false;
-    }
-  }
-  return true;
-}
-template <typename T>
-bool GenericVector<T>::SkipDeSerializeClasses(TFile *fp) {
-  int32_t reserved;
-  if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
-    return false;
-  }
-  for (int i = 0; i < reserved; ++i) {
-    if (!T::SkipDeSerialize(fp)) {
       return false;
     }
   }

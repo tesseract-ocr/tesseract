@@ -29,10 +29,6 @@
 
 namespace tesseract {
 
-// Size of buffer needed to host the decimal representation of the maximum
-// possible length of an int (in 64 bits), being -<20 digits>.
-const int kMaxIntSize = 22;
-
 const std::vector<std::string> split(const std::string &s, char c) {
   std::string buff;
   std::vector<std::string> v;
