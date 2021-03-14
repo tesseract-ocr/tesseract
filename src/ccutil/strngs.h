@@ -32,6 +32,7 @@ namespace tesseract {
 
 class TFile;
 
+TESS_API
 const std::vector<std::string> split(const std::string &s, char c);
 
 class STRING : public std::string {
