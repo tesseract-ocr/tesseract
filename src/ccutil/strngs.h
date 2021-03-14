@@ -60,9 +60,6 @@ public:
   static bool SkipDeSerialize(tesseract::TFile *fp);
 
   TESS_API
-  bool contains(char c) const;
-
-  TESS_API
   void split(char c, std::vector<STRING> *splited);
 };
 

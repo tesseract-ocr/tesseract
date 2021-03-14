@@ -53,9 +53,6 @@ int16_t Tesseract::safe_dict_word(const WERD_RES *werd_res) {
 
 namespace tesseract {
 
-CLISTIZEH(STRING)
-CLISTIZE(STRING)
-
 /*************************************************************************
  * set_done()
  *
@@ -196,7 +193,7 @@ void Tesseract::reject_I_1_L(WERD_RES *word) {
 
   for (i = 0, offset = 0; word->best_choice->unichar_string()[offset] != '\0';
        offset += word->best_choice->unichar_lengths()[i], i += 1) {
-    if (STRING(conflict_set_I_l_1).contains(word->best_choice->unichar_string()[offset])) {
+    if (conflict_set_I_l_1.contains(word->best_choice->unichar_string()[offset])) {
       // rej 1Il conflict
       word->reject_map[i].setrej_1Il_conflict();
     }
@@ -316,7 +313,7 @@ bool Tesseract::one_ell_conflict(WERD_RES *word_res, bool update_map) {
        offset += lengths[i++])
     non_conflict_set_char = (word_res->uch_set->get_isalpha(word + offset, lengths[i]) ||
                              word_res->uch_set->get_isdigit(word + offset, lengths[i])) &&
-                            !STRING(conflict_set_I_l_1).contains(word[offset]);
+                            !conflict_set_I_l_1.contains(word[offset]);
   if (!non_conflict_set_char) {
     if (update_map)
       reject_I_1_L(word_res);
@@ -409,7 +406,7 @@ bool Tesseract::one_ell_conflict(WERD_RES *word_res, bool update_map) {
     for (i = 0, offset = 0; word[offset] != '\0';
          offset += word_res->best_choice->unichar_lengths()[i++]) {
       if ((!allow_1s || (word[offset] != '1')) &&
-          STRING(conflict_set_I_l_1).contains(word[offset])) {
+          conflict_set_I_l_1.contains(word[offset])) {
         if (update_map)
           word_res->reject_map[i].setrej_1Il_conflict();
         conflict = true;
@@ -425,7 +422,7 @@ bool Tesseract::one_ell_conflict(WERD_RES *word_res, bool update_map) {
   if ((word_type == AC_LOWER_CASE) || (word_type == AC_INITIAL_CAP)) {
     first_alphanum_index_ = first_alphanum_index(word, lengths);
     first_alphanum_offset_ = first_alphanum_offset(word, lengths);
-    if (STRING(conflict_set_I_l_1).contains(word[first_alphanum_offset_])) {
+    if (conflict_set_I_l_1.contains(word[first_alphanum_offset_])) {
       if (update_map)
         word_res->reject_map[first_alphanum_index_].setrej_1Il_conflict();
       return true;
@@ -502,7 +499,7 @@ void Tesseract::dont_allow_1Il(WERD_RES *word) {
 
   for (i = 0, offset = 0; i < word_len; offset += word->best_choice->unichar_lengths()[i++]) {
     if (word->reject_map[i].accepted()) {
-      if (STRING(conflict_set_I_l_1).contains(s[offset])) {
+      if (conflict_set_I_l_1.contains(s[offset])) {
         accepted_1Il = true;
       } else {
         if (word->uch_set->get_isalpha(s + offset, lengths[i]) ||
@@ -515,7 +512,7 @@ void Tesseract::dont_allow_1Il(WERD_RES *word) {
     return; // Nothing to worry about
 
   for (i = 0, offset = 0; i < word_len; offset += word->best_choice->unichar_lengths()[i++]) {
-    if (STRING(conflict_set_I_l_1).contains(s[offset]) && word->reject_map[i].accepted())
+    if (conflict_set_I_l_1.contains(s[offset]) && word->reject_map[i].accepted())
       word->reject_map[i].setrej_postNN_1Il();
   }
 }
@@ -549,7 +546,7 @@ bool Tesseract::repeated_nonalphanum_wd(WERD_RES *word, ROW *row) {
   if (word->best_choice->unichar_lengths().length() <= 1)
     return false;
 
-  if (!STRING(ok_repeated_ch_non_alphanum_wds).contains(word->best_choice->unichar_string()[0]))
+  if (!ok_repeated_ch_non_alphanum_wds.contains(word->best_choice->unichar_string()[0]))
     return false;
 
   UNICHAR_ID uch_id = word->best_choice->unichar_id(0);

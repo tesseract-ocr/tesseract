@@ -149,9 +149,9 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
     if (font_id < 0)
       font_id = 0;
     int page_number;
-    STRING unichar;
+    std::string unichar;
     TBOX bounding_box;
-    if (!ParseBoxFileStr(space, &page_number, &unichar, &bounding_box)) {
+    if (!ParseBoxFileStr(space, &page_number, unichar, &bounding_box)) {
       tprintf("Bad format in tr file, reading box coords\n");
       continue;
     }

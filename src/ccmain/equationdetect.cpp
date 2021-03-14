@@ -216,7 +216,7 @@ void EquationDetect::IdentifySpecialText(BLOBNBOX *blobnbox, const int height_th
 
 BlobSpecialTextType EquationDetect::EstimateTypeForUnichar(const UNICHARSET &unicharset,
                                                            const UNICHAR_ID id) const {
-  const STRING s = unicharset.id_to_unichar(id);
+  const std::string s = unicharset.id_to_unichar(id);
   if (unicharset.get_isalpha(id)) {
     return BSTT_NONE;
   }
@@ -237,8 +237,8 @@ BlobSpecialTextType EquationDetect::EstimateTypeForUnichar(const UNICHARSET &uni
 
   // Check if it is digit. In addition to the isdigit attribute, we also check
   // if this character belongs to those likely to be confused with a digit.
-  static const STRING kDigitsChars = "|";
-  if (unicharset.get_isdigit(id) || (s.length() == 1 && kDigitsChars.contains(s[0]))) {
+  static const char kDigitsChars[] = "|";
+  if (unicharset.get_isdigit(id) || (s.length() == 1 && strchr(kDigitsChars, s[0]) != nullptr)) {
     return BSTT_DIGIT;
   } else {
     return BSTT_MATH;
@@ -286,8 +286,8 @@ void EquationDetect::IdentifySpecialText() {
   lang_tesseract_->classify_integer_matcher_multiplier.set_value(classify_integer_matcher);
 
   if (equationdetect_save_spt_image) { // For debug.
-    STRING outfile;
-    GetOutputTiffName("_spt", &outfile);
+    std::string outfile;
+    GetOutputTiffName("_spt", outfile);
     PaintSpecialTexts(outfile);
   }
 }
@@ -351,11 +351,11 @@ int EquationDetect::FindEquationParts(ColPartitionGrid *part_grid, ColPartitionS
   part_grid_ = part_grid;
   best_columns_ = best_columns;
   resolution_ = lang_tesseract_->source_resolution();
-  STRING outfile;
+  std::string outfile;
   page_count_++;
 
   if (equationdetect_save_bi_image) {
-    GetOutputTiffName("_bi", &outfile);
+    GetOutputTiffName("_bi", outfile);
     pixWrite(outfile.c_str(), lang_tesseract_->pix_binary(), IFF_TIFF_G4);
   }
 
@@ -371,7 +371,7 @@ int EquationDetect::FindEquationParts(ColPartitionGrid *part_grid, ColPartitionS
   IdentifyInlineParts();
 
   if (equationdetect_save_seed_image) {
-    GetOutputTiffName("_seed", &outfile);
+    GetOutputTiffName("_seed", outfile);
     PaintColParts(outfile);
   }
 
@@ -396,7 +396,7 @@ int EquationDetect::FindEquationParts(ColPartitionGrid *part_grid, ColPartitionS
   ProcessMathBlockSatelliteParts();
 
   if (equationdetect_save_merged_image) { // For debug.
-    GetOutputTiffName("_merged", &outfile);
+    GetOutputTiffName("_merged", outfile);
     PaintColParts(outfile);
   }
 
@@ -1383,14 +1383,14 @@ bool EquationDetect::IsNearMathNeighbor(const int y_gap, const ColPartition *nei
   return neighbor->type() == PT_EQUATION && y_gap <= kYGapTh;
 }
 
-void EquationDetect::GetOutputTiffName(const char *name, STRING *image_name) const {
-  ASSERT_HOST(image_name && name);
+void EquationDetect::GetOutputTiffName(const char *name, std::string &image_name) const {
+  ASSERT_HOST(name);
   char page[50];
   snprintf(page, sizeof(page), "%04d", page_count_);
-  *image_name = STRING(lang_tesseract_->imagebasename) + page + name + ".tif";
+  image_name = (lang_tesseract_->imagebasename) + page + name + ".tif";
 }
 
-void EquationDetect::PaintSpecialTexts(const STRING &outfile) const {
+void EquationDetect::PaintSpecialTexts(const std::string &outfile) const {
   Pix *pix = nullptr, *pixBi = lang_tesseract_->pix_binary();
   pix = pixConvertTo32(pixBi);
   ColPartitionGridSearch gsearch(part_grid_);
@@ -1407,7 +1407,7 @@ void EquationDetect::PaintSpecialTexts(const STRING &outfile) const {
   pixDestroy(&pix);
 }
 
-void EquationDetect::PaintColParts(const STRING &outfile) const {
+void EquationDetect::PaintColParts(const std::string &outfile) const {
   Pix *pix = pixConvertTo32(lang_tesseract_->BestPix());
   ColPartitionGridSearch gsearch(part_grid_);
   gsearch.StartFullSearch();

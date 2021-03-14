@@ -24,8 +24,6 @@
 
 #include <allheaders.h>
 
-#include "strngs.h"
-
 namespace tesseract {
 
 LTRResultIterator::LTRResultIterator(PAGE_RES *page_res, Tesseract *tesseract, int scale,
@@ -46,7 +44,7 @@ LTRResultIterator::~LTRResultIterator() = default;
 char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   if (it_->word() == nullptr)
     return nullptr; // Already at the end!
-  STRING text;
+  std::string text;
   PAGE_RES_IT res_it(*it_);
   WERD_CHOICE *best_choice = res_it.word()->best_choice;
   ASSERT_HOST(best_choice != nullptr);
@@ -306,7 +304,7 @@ bool LTRResultIterator::EquivalentToTruth(const char *str) const {
 char *LTRResultIterator::WordTruthUTF8Text() const {
   if (!HasTruthString())
     return nullptr;
-  STRING truth_text = it_->word()->blamer_bundle->TruthString();
+  std::string truth_text = it_->word()->blamer_bundle->TruthString();
   int length = truth_text.length() + 1;
   char *result = new char[length];
   strncpy(result, truth_text.c_str(), length);
@@ -318,7 +316,7 @@ char *LTRResultIterator::WordTruthUTF8Text() const {
 char *LTRResultIterator::WordNormedUTF8Text() const {
   if (it_->word() == nullptr)
     return nullptr; // Already at the end!
-  STRING ocr_text;
+  std::string ocr_text;
   WERD_CHOICE *best_choice = it_->word()->best_choice;
   const UNICHARSET *unicharset = it_->word()->uch_set;
   ASSERT_HOST(best_choice != nullptr);

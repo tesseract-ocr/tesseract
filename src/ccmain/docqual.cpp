@@ -107,9 +107,9 @@ void Tesseract::unrej_good_chs(WERD_RES *word) {
 int16_t Tesseract::count_outline_errs(char c, int16_t outline_count) {
   int expected_outline_count;
 
-  if (STRING(outlines_odd).contains(c))
+  if (outlines_odd.contains(c))
     return 0; // Don't use this char
-  else if (STRING(outlines_2).contains(c))
+  else if (outlines_2.contains(c))
     expected_outline_count = 2;
   else
     expected_outline_count = 1;

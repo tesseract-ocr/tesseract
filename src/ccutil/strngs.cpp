@@ -96,10 +96,6 @@ bool STRING::SkipDeSerialize(TFile *fp) {
   return fp->Skip(len);
 }
 
-bool STRING::contains(const char c) const {
-  return (c != '\0') && (strchr(c_str(), c) != nullptr);
-}
-
 void STRING::split(const char c, std::vector<STRING> *splited) {
   int start_index = 0;
   const int len = length();

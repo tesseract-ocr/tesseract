@@ -1658,7 +1658,7 @@ ACCEPTABLE_WERD_TYPE Tesseract::acceptable_word_string(const UNICHARSET &char_se
 
   /* Single Leading punctuation char*/
 
-  if (s[offset] != '\0' && STRING(chs_leading_punct).contains(s[offset]))
+  if (s[offset] != '\0' && chs_leading_punct.contains(s[offset]))
     offset += lengths[i++];
   leading_punct_count = i;
 
@@ -1705,10 +1705,10 @@ Allow a single hyphen in a lower case word
   }
 
   /* Up to two different, constrained trailing punctuation chars */
-  if (lengths[i] == 1 && s[offset] != '\0' && STRING(chs_trailing_punct1).contains(s[offset]))
+  if (lengths[i] == 1 && s[offset] != '\0' && chs_trailing_punct1.contains(s[offset]))
     offset += lengths[i++];
   if (lengths[i] == 1 && s[offset] != '\0' && i > 0 && s[offset - lengths[i - 1]] != s[offset] &&
-      STRING(chs_trailing_punct2).contains(s[offset]))
+      chs_trailing_punct2.contains(s[offset]))
     offset += lengths[i++];
 
   if (s[offset] != '\0')

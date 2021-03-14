@@ -202,16 +202,16 @@ protected:
   bool IsNearMathNeighbor(const int y_gap, const ColPartition *neighbor) const;
 
   // Generate the tiff file name for output/debug file.
-  void GetOutputTiffName(const char *name, STRING *image_name) const;
+  void GetOutputTiffName(const char *name, std::string &image_name) const;
 
   // Debugger function that renders ColPartitions on the input image, where:
   // parts labeled as PT_EQUATION will be painted in red, PT_INLINE_EQUATION
   // will be painted in green, and other parts will be painted in blue.
-  void PaintColParts(const STRING &outfile) const;
+  void PaintColParts(const std::string &outfile) const;
 
   // Debugger function that renders the blobs in part_grid_ over the input
   // image.
-  void PaintSpecialTexts(const STRING &outfile) const;
+  void PaintSpecialTexts(const std::string &outfile) const;
 
   // Debugger function that print the math blobs density values for a
   // ColPartition object.

@@ -98,7 +98,7 @@ void Tesseract::recog_training_segmented(const char *filename, PAGE_RES *page_re
   PAGE_RES_IT page_res_it;
   page_res_it.page_res = page_res;
   page_res_it.restart_page();
-  STRING label;
+  std::string label;
 
   // Process all the words on this page.
   TBOX tbox; // tesseract-identified box
@@ -108,14 +108,14 @@ void Tesseract::recog_training_segmented(const char *filename, PAGE_RES *page_re
   int examined_words = 0;
   do {
     keep_going = read_t(&page_res_it, &tbox);
-    keep_going &= ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
+    keep_going &= ReadNextBox(applybox_page, &line_number, box_file, label, &bbox);
     // Align bottom left points of the TBOXes.
     while (keep_going && !NearlyEqual<int>(tbox.bottom(), bbox.bottom(), kMaxBoxEdgeDiff)) {
       if (bbox.bottom() < tbox.bottom()) {
         page_res_it.forward();
         keep_going = read_t(&page_res_it, &tbox);
       } else {
-        keep_going = ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
+        keep_going = ReadNextBox(applybox_page, &line_number, box_file, label, &bbox);
       }
     }
     while (keep_going && !NearlyEqual<int>(tbox.left(), bbox.left(), kMaxBoxEdgeDiff)) {
@@ -123,7 +123,7 @@ void Tesseract::recog_training_segmented(const char *filename, PAGE_RES *page_re
         page_res_it.forward();
         keep_going = read_t(&page_res_it, &tbox);
       } else {
-        keep_going = ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
+        keep_going = ReadNextBox(applybox_page, &line_number, box_file, label, &bbox);
       }
     }
     // OCR the word if top right points of the TBOXes are similar.
