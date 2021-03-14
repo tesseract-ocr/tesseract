@@ -2114,7 +2114,7 @@ bool TessBaseAPI::DetectOS(OSResults *osr) {
   }
   return orientation_and_script_detection(input_file_.c_str(), osr, tesseract_) > 0;
 }
-#endif // ndef DISABLED_LEGACY_ENGINE
+#endif // #ifndef DISABLED_LEGACY_ENGINE
 
 void TessBaseAPI::set_min_orientation_margin(double margin) {
   tesseract_->min_orientation_margin.set_value(margin);
@@ -2236,4 +2236,4 @@ std::string HOcrEscape(const char *text) {
   return ret;
 }
 
-} // namespace tesseract.
+} // namespace tesseract

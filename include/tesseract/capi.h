@@ -301,7 +301,7 @@ TESS_API int *TessBaseAPIAllWordConfidences(TessBaseAPI *handle);
 #ifndef DISABLED_LEGACY_ENGINE
 TESS_API BOOL TessBaseAPIAdaptToWordStr(TessBaseAPI *handle, TessPageSegMode mode,
                                         const char *wordstr);
-#endif // ndef DISABLED_LEGACY_ENGINE
+#endif // #ifndef DISABLED_LEGACY_ENGINE
 
 TESS_API void TessBaseAPIClear(TessBaseAPI *handle);
 TESS_API void TessBaseAPIEnd(TessBaseAPI *handle);
