@@ -74,7 +74,7 @@ protected:
     UNICHARSET unicharset;
     ASSERT_TRUE(unicharset.load_from_file(unicharset_name.c_str(), false));
     std::string script_dir = file::JoinPath(LANGDATA_DIR, "");
-    std::vector<STRING> words;
+    std::vector<std::string> words;
     EXPECT_EQ(0, CombineLangModel(unicharset, script_dir, "", FLAGS_test_tmpdir, kLang, !recode,
                                   words, words, words, false, nullptr, nullptr));
     std::string model_path = file::JoinPath(FLAGS_test_tmpdir, model_name);

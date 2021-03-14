@@ -50,11 +50,10 @@ int main(int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
 
-  std::vector<STRING> words, puncs, numbers;
   // If these reads fail, we get a warning message and an empty list of words.
-  tesseract::ReadFile(FLAGS_words.c_str(), nullptr).split('\n', &words);
-  tesseract::ReadFile(FLAGS_puncs.c_str(), nullptr).split('\n', &puncs);
-  tesseract::ReadFile(FLAGS_numbers.c_str(), nullptr).split('\n', &numbers);
+  std::vector<std::string> words = split(tesseract::ReadFile(FLAGS_words.c_str()), '\n');
+  std::vector<std::string> puncs = split(tesseract::ReadFile(FLAGS_puncs.c_str()), '\n');
+  std::vector<std::string> numbers = split(tesseract::ReadFile(FLAGS_numbers.c_str()), '\n');
   // Load the input unicharset
   UNICHARSET unicharset;
   if (!unicharset.load_from_file(FLAGS_input_unicharset.c_str(), false)) {

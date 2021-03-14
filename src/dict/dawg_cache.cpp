@@ -20,13 +20,12 @@
 
 #include "dawg.h"
 #include "object_cache.h"
-#include "strngs.h"
 #include "tessdatamanager.h"
 
 namespace tesseract {
 
 struct DawgLoader {
-  DawgLoader(const STRING &lang, TessdataType tessdata_dawg_type, int dawg_debug_level,
+  DawgLoader(const std::string &lang, TessdataType tessdata_dawg_type, int dawg_debug_level,
              TessdataManager *data_file)
       : lang_(lang)
       , data_file_(data_file)
@@ -35,13 +34,13 @@ struct DawgLoader {
 
   Dawg *Load();
 
-  STRING lang_;
+  std::string lang_;
   TessdataManager *data_file_;
   TessdataType tessdata_dawg_type_;
   int dawg_debug_level_;
 };
 
-Dawg *DawgCache::GetSquishedDawg(const STRING &lang, TessdataType tessdata_dawg_type,
+Dawg *DawgCache::GetSquishedDawg(const std::string &lang, TessdataType tessdata_dawg_type,
                                  int debug_level, TessdataManager *data_file) {
   std::string data_id = data_file->GetDataFileName();
   data_id += kTessdataFileSuffixes[tessdata_dawg_type];

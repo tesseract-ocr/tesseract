@@ -18,7 +18,6 @@
 #include "export.h"
 
 #include "serialis.h"
-#include "strngs.h"
 #include "tessdatamanager.h"
 #include "unicharset.h"
 
@@ -34,10 +33,10 @@ namespace tesseract {
 TESS_UNICHARSET_TRAINING_API
 bool WriteFile(const std::string &output_dir, const std::string &lang, const std::string &suffix,
                const std::vector<char> &data, FileWriter writer);
-// Helper reads a file with optional reader and returns a STRING.
-// On failure emits a warning message and returns and empty STRING.
+// Helper reads a file with optional reader and returns a string.
+// On failure emits a warning message and returns and empty string.
 TESS_UNICHARSET_TRAINING_API
-STRING ReadFile(const std::string &filename, FileReader reader);
+std::string ReadFile(const std::string &filename, FileReader reader = nullptr);
 
 // Helper writes the unicharset to file and to the traineddata.
 bool WriteUnicharset(const UNICHARSET &unicharset, const std::string &output_dir,
@@ -55,7 +54,7 @@ bool WriteUnicharset(const UNICHARSET &unicharset, const std::string &output_dir
 // radical_table_data, which must be the content of the file:
 // langdata/radical-stroke.txt.
 bool WriteRecoder(const UNICHARSET &unicharset, bool pass_through, const std::string &output_dir,
-                  const std::string &lang, FileWriter writer, STRING *radical_table_data,
+                  const std::string &lang, FileWriter writer, std::string *radical_table_data,
                   TessdataManager *traineddata);
 
 // The main function for combine_lang_model.cpp.
@@ -76,8 +75,8 @@ TESS_UNICHARSET_TRAINING_API
 int CombineLangModel(const UNICHARSET &unicharset, const std::string &script_dir,
                      const std::string &version_str, const std::string &output_dir,
                      const std::string &lang, bool pass_through_recoder,
-                     const std::vector<STRING> &words, const std::vector<STRING> &puncs,
-                     const std::vector<STRING> &numbers, bool lang_is_rtl, FileReader reader,
+                     const std::vector<std::string> &words, const std::vector<std::string> &puncs,
+                     const std::vector<std::string> &numbers, bool lang_is_rtl, FileReader reader,
                      FileWriter writer);
 
 } // namespace tesseract

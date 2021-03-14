@@ -24,7 +24,6 @@
 
 #include "dict.h"
 #include "helpers.h"
-#include "strngs.h"
 #include "tprintf.h"
 
 #include <memory>
@@ -105,7 +104,7 @@ void Dawg::iterate_words(const UNICHARSET &unicharset,
 }
 
 static void CallWithUTF8(std::function<void(const char *)> cb, const WERD_CHOICE *wc) {
-  STRING s;
+  std::string s;
   wc->string_and_lengths(&s, nullptr);
   cb(s.c_str());
 }

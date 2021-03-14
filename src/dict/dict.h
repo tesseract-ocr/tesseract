@@ -283,9 +283,9 @@ public:
   // Sets up ready for a Load or LoadLSTM.
   void SetupForLoad(DawgCache *dawg_cache);
   // Loads the dawgs needed by Tesseract. Call FinishLoad() after.
-  void Load(const STRING &lang, TessdataManager *data_file);
+  void Load(const std::string &lang, TessdataManager *data_file);
   // Loads the dawgs needed by the LSTM model. Call FinishLoad() after.
-  void LoadLSTM(const STRING &lang, TessdataManager *data_file);
+  void LoadLSTM(const std::string &lang, TessdataManager *data_file);
   // Completes the loading process after Load() and/or LoadLSTM().
   // Returns false if no dictionaries were loaded.
   bool FinishLoad();
