@@ -32,7 +32,6 @@
 #include "ratngs.h"              // for WERD_CHOICE
 #include "rect.h"                // for TBOX
 #include "statistc.h"            // for STATS
-#include "strngs.h"              // for STRING
 #include "tprintf.h"             // for tprintf
 #include "unicharset.h"          // for UNICHARSET
 #include "werd.h"                // for WERD, W_REP_CHAR
@@ -91,16 +90,9 @@ static bool AcceptableRowArgs(int debug_level, int min_num_rows, const char *fun
 
 // =============================== Debug Code ================================
 
-// Convert an integer to a decimal string.
-static STRING StrOf(int num) {
-  char buffer[30];
-  snprintf(buffer, sizeof(buffer), "%d", num);
-  return STRING(buffer);
-}
-
 // Given a row-major matrix of unicode text and a column separator, print
 // a formatted table.  For ASCII, we get good column alignment.
-static void PrintTable(const std::vector<std::vector<STRING>> &rows, const STRING &colsep) {
+static void PrintTable(const std::vector<std::vector<std::string>> &rows, const char *colsep) {
   std::vector<int> max_col_widths;
   for (const auto &row : rows) {
     int num_columns = row.size();
@@ -119,56 +111,56 @@ static void PrintTable(const std::vector<std::vector<STRING>> &rows, const STRIN
     }
   }
 
-  std::vector<STRING> col_width_patterns;
+  std::vector<std::string> col_width_patterns;
   for (int c = 0; c < max_col_widths.size(); c++) {
-    col_width_patterns.push_back(STRING("%-") + StrOf(max_col_widths[c]) + "s");
+    col_width_patterns.push_back(std::string("%-") + std::to_string(max_col_widths[c]) + "s");
   }
 
   for (int r = 0; r < rows.size(); r++) {
     for (int c = 0; c < rows[r].size(); c++) {
       if (c > 0)
-        tprintf("%s", colsep.c_str());
+        tprintf("%s", colsep);
       tprintf(col_width_patterns[c].c_str(), rows[r][c].c_str());
     }
     tprintf("\n");
   }
 }
 
-static STRING RtlEmbed(const STRING &word, bool rtlify) {
+static std::string RtlEmbed(const std::string &word, bool rtlify) {
   if (rtlify)
-    return STRING(kRLE) + word + STRING(kPDF);
+    return std::string(kRLE) + word + std::string(kPDF);
   return word;
 }
 
 // Print the current thoughts of the paragraph detector.
 static void PrintDetectorState(const ParagraphTheory &theory,
                                const GenericVector<RowScratchRegisters> &rows) {
-  std::vector<std::vector<STRING>> output;
-  output.push_back(std::vector<STRING>());
+  std::vector<std::vector<std::string>> output;
+  output.push_back(std::vector<std::string>());
   output.back().push_back("#row");
   output.back().push_back("space");
   output.back().push_back("..");
   output.back().push_back("lword[widthSEL]");
   output.back().push_back("rword[widthSEL]");
-  RowScratchRegisters::AppendDebugHeaderFields(&output.back());
+  RowScratchRegisters::AppendDebugHeaderFields(output.back());
   output.back().push_back("text");
 
   for (int i = 0; i < rows.size(); i++) {
-    output.push_back(std::vector<STRING>());
-    std::vector<STRING> &row = output.back();
+    output.push_back(std::vector<std::string>());
+    std::vector<std::string> &row = output.back();
     const RowInfo &ri = *rows[i].ri_;
-    row.push_back(StrOf(i));
-    row.push_back(StrOf(ri.average_interword_space));
+    row.push_back(std::to_string(i));
+    row.push_back(std::to_string(ri.average_interword_space));
     row.push_back(ri.has_leaders ? ".." : " ");
-    row.push_back(RtlEmbed(ri.lword_text, !ri.ltr) + "[" + StrOf(ri.lword_box.width()) +
+    row.push_back(RtlEmbed(ri.lword_text, !ri.ltr) + "[" + std::to_string(ri.lword_box.width()) +
                   (ri.lword_likely_starts_idea ? "S" : "s") +
                   (ri.lword_likely_ends_idea ? "E" : "e") +
                   (ri.lword_indicates_list_item ? "L" : "l") + "]");
-    row.push_back(RtlEmbed(ri.rword_text, !ri.ltr) + "[" + StrOf(ri.rword_box.width()) +
+    row.push_back(RtlEmbed(ri.rword_text, !ri.ltr) + "[" + std::to_string(ri.rword_box.width()) +
                   (ri.rword_likely_starts_idea ? "S" : "s") +
                   (ri.rword_likely_ends_idea ? "E" : "e") +
                   (ri.rword_indicates_list_item ? "L" : "l") + "]");
-    rows[i].AppendDebugInfo(theory, &row);
+    rows[i].AppendDebugInfo(theory, row);
     row.push_back(RtlEmbed(ri.text, !ri.ltr));
   }
   PrintTable(output, " ");
@@ -180,11 +172,11 @@ static void PrintDetectorState(const ParagraphTheory &theory,
   }
 }
 
-static void DebugDump(bool should_print, const STRING &phase, const ParagraphTheory &theory,
+static void DebugDump(bool should_print, const char *phase, const ParagraphTheory &theory,
                       const GenericVector<RowScratchRegisters> &rows) {
   if (!should_print)
     return;
-  tprintf("# %s\n", phase.c_str());
+  tprintf("# %s\n", phase);
   PrintDetectorState(theory, rows);
 }
 
@@ -240,7 +232,7 @@ static const char *SkipOne(const char *str, const char *toskip) {
 // Return whether it is very likely that this is a numeral marker that could
 // start a list item.  Some examples include:
 //   A   I   iii.   VI   (2)   3.5.   [C-4]
-static bool LikelyListNumeral(const STRING &word) {
+static bool LikelyListNumeral(const std::string &word) {
   const char *kRomans = "ivxlmdIVXLMD";
   const char *kDigits = "012345789";
   const char *kOpen = "[{(";
@@ -274,12 +266,12 @@ static bool LikelyListNumeral(const STRING &word) {
   return *pos == '\0';
 }
 
-static bool LikelyListMark(const STRING &word) {
+static bool LikelyListMark(const std::string &word) {
   const char *kListMarks = "0Oo*.,+.";
   return word.size() == 1 && strchr(kListMarks, word[0]) != nullptr;
 }
 
-bool AsciiLikelyListItem(const STRING &word) {
+bool AsciiLikelyListItem(const std::string &word) {
   return LikelyListMark(word) || LikelyListNumeral(word);
 }
 
@@ -348,7 +340,7 @@ int UnicodeSpanSkipper::SkipAlpha(int pos) {
 
 static bool LikelyListMarkUnicode(int ch) {
   if (ch < 0x80) {
-    STRING single_ch;
+    std::string single_ch;
     single_ch += ch;
     return LikelyListMark(single_ch);
   }
@@ -413,7 +405,7 @@ static bool UniLikelyListItem(const UNICHARSET *u, const WERD_CHOICE *werd) {
 //   is_list -      this word might be a list number or bullet.
 //   starts_idea -  this word is likely to start a sentence.
 //   ends_idea -    this word is likely to end a sentence.
-void LeftWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, const STRING &utf8,
+void LeftWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, const std::string &utf8,
                         bool *is_list, bool *starts_idea, bool *ends_idea) {
   *is_list = false;
   *starts_idea = false;
@@ -459,7 +451,7 @@ void LeftWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, c
 //   is_list -      this word might be a list number or bullet.
 //   starts_idea -  this word is likely to start a sentence.
 //   ends_idea -    this word is likely to end a sentence.
-void RightWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, const STRING &utf8,
+void RightWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, const std::string &utf8,
                          bool *is_list, bool *starts_idea, bool *ends_idea) {
   *is_list = false;
   *starts_idea = false;
@@ -492,17 +484,17 @@ void RightWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, 
 
 // =============== Implementation of RowScratchRegisters =====================
 /* static */
-void RowScratchRegisters::AppendDebugHeaderFields(std::vector<STRING> *header) {
-  header->push_back("[lmarg,lind;rind,rmarg]");
-  header->push_back("model");
+void RowScratchRegisters::AppendDebugHeaderFields(std::vector<std::string> &header) {
+  header.push_back("[lmarg,lind;rind,rmarg]");
+  header.push_back("model");
 }
 
 void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
-                                          std::vector<STRING> *dbg) const {
+                                          std::vector<std::string> &dbg) const {
   char s[30];
   snprintf(s, sizeof(s), "[%3d,%3d;%3d,%3d]", lmargin_, lindent_, rindent_, rmargin_);
-  dbg->push_back(s);
-  STRING model_string;
+  dbg.push_back(s);
+  std::string model_string;
   model_string += static_cast<char>(GetLineType());
   model_string += ":";
 
@@ -513,7 +505,7 @@ void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
     if (model_numbers > 0)
       model_string += ",";
     if (StrongModel(hypotheses_[h].model)) {
-      model_string += StrOf(1 + theory.IndexOf(hypotheses_[h].model));
+      model_string += std::to_string(1 + theory.IndexOf(hypotheses_[h].model));
     } else if (hypotheses_[h].model == kCrownLeft) {
       model_string += "CrL";
     } else if (hypotheses_[h].model == kCrownRight) {
@@ -524,7 +516,7 @@ void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
   if (model_numbers == 0)
     model_string += "0";
 
-  dbg->push_back(model_string);
+  dbg.push_back(model_string);
 }
 
 void RowScratchRegisters::Init(const RowInfo &row) {
@@ -2323,7 +2315,7 @@ void DetectParagraphs(int debug_level, std::vector<RowInfo> *row_infos,
 
 static void InitializeTextAndBoxesPreRecognition(const MutableIterator &it, RowInfo *info) {
   // Set up text, lword_text, and rword_text (mostly for debug printing).
-  STRING fake_text;
+  std::string fake_text;
   PageIterator pit(static_cast<const PageIterator &>(it));
   bool first_word = true;
   if (!pit.Empty(RIL_WORD)) {

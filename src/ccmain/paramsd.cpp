@@ -151,11 +151,7 @@ std::string ParamContent::GetValue() const {
   } else if (param_type_ == VT_DOUBLE) {
     result += std::to_string(*dIt);
   } else if (param_type_ == VT_STRING) {
-    if (STRING(*(sIt)).c_str() != nullptr) {
-      result = sIt->c_str();
-    } else {
-      result = "Null";
-    }
+    result = sIt->c_str();
   }
   return result;
 }
@@ -183,8 +179,8 @@ void ParamContent::SetValue(const char *val) {
 
 // Gets the up to the first 3 prefixes from s (split by _).
 // For example, tesseract_foo_bar will be split into tesseract,foo and bar.
-void ParamsEditor::GetPrefixes(const char *s, STRING *level_one, STRING *level_two,
-                               STRING *level_three) {
+void ParamsEditor::GetPrefixes(const char *s, std::string *level_one, std::string *level_two,
+                               std::string *level_three) {
   std::unique_ptr<char[]> p(new char[1024]);
   GetFirstWords(s, 1, p.get());
   *level_one = p.get();
@@ -234,9 +230,9 @@ SVMenuNode *ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
   // Count the # of entries starting with a specific prefix.
   for (vc_it.mark_cycle_pt(); !vc_it.cycled_list(); vc_it.forward()) {
     ParamContent *vc = vc_it.data();
-    STRING tag;
-    STRING tag2;
-    STRING tag3;
+    std::string tag;
+    std::string tag2;
+    std::string tag3;
 
     GetPrefixes(vc->GetName(), &tag, &tag2, &tag3);
     amount[tag.c_str()]++;
@@ -252,9 +248,9 @@ SVMenuNode *ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
   vc_it.move_to_first();
   for (vc_it.mark_cycle_pt(); !vc_it.cycled_list(); vc_it.forward()) {
     ParamContent *vc = vc_it.data();
-    STRING tag;
-    STRING tag2;
-    STRING tag3;
+    std::string tag;
+    std::string tag2;
+    std::string tag3;
     GetPrefixes(vc->GetName(), &tag, &tag2, &tag3);
 
     if (amount[tag.c_str()] == 1) {
@@ -304,7 +300,7 @@ ParamsEditor::ParamsEditor(tesseract::Tesseract *tess, ScrollView *sv) {
 
   SVMenuNode *svMenuRoot = BuildListOfAllLeaves(tess);
 
-  STRING paramfile;
+  std::string paramfile;
   paramfile = tess->datadir;
   paramfile += VARDIR;   // parameters dir
   paramfile += "edited"; // actual name

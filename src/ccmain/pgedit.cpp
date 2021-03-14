@@ -794,8 +794,8 @@ bool Tesseract::word_display(PAGE_RES_IT *pr_it) {
   }
 
   // Display correct text and blamer information.
-  STRING text;
-  STRING blame;
+  std::string text;
+  std::string blame;
   if (word->display_flag(DF_TEXT) && word->text() != nullptr) {
     text = word->text();
   }
@@ -810,7 +810,7 @@ bool Tesseract::word_display(PAGE_RES_IT *pr_it) {
       text = blamer_bundle->TruthString();
     }
     text += " -> ";
-    STRING best_choice_str;
+    std::string best_choice_str;
     if (word_res->best_choice == nullptr) {
       best_choice_str = "NULL";
     } else {

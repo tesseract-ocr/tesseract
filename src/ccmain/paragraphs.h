@@ -21,8 +21,8 @@
 #define TESSERACT_CCMAIN_PARAGRAPHS_H_
 
 #include <list>
+#include <string>
 #include "rect.h"   // for TBOX
-#include "strngs.h" // for STRING
 
 namespace tesseract {
 
@@ -41,7 +41,7 @@ class GenericVector;
 class RowInfo {
 public:
   // Constant data derived from Tesseract output.
-  STRING text; // the full UTF-8 text of the line.
+  std::string text; // the full UTF-8 text of the line.
   bool ltr;    // whether the majority of the text is left-to-right
                // TODO(eger) make this more fine-grained.
 
@@ -56,8 +56,8 @@ public:
   TBOX lword_box; // in normalized (horiz text rows) space
   TBOX rword_box; // in normalized (horiz text rows) space
 
-  STRING lword_text; // the UTF-8 text of the leftmost werd
-  STRING rword_text; // the UTF-8 text of the rightmost werd
+  std::string lword_text; // the UTF-8 text of the leftmost werd
+  std::string rword_text; // the UTF-8 text of the rightmost werd
 
   //   The text of a paragraph typically starts with the start of an idea and
   // ends with the end of an idea.  Here we define paragraph as something that

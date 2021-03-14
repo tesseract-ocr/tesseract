@@ -98,9 +98,9 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char *box_data, bool 
   int num_boxes = 0;
   for (int i = 0; i < lines.size(); ++i) {
     int page = 0;
-    STRING utf8_str;
+    std::string utf8_str;
     TBOX box;
-    if (!ParseBoxFileStr(lines[i].c_str(), &page, &utf8_str, &box)) {
+    if (!ParseBoxFileStr(lines[i].c_str(), &page, utf8_str, &box)) {
       if (continue_on_failure)
         continue;
       else
@@ -137,14 +137,14 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char *box_data, bool 
 // for valid utf-8 and allows space or tab between fields.
 // utf8_str is set with the unichar string, and bounding box with the box.
 // If there are page numbers in the file, it reads them all.
-bool ReadNextBox(int *line_number, FILE *box_file, STRING *utf8_str, TBOX *bounding_box) {
+bool ReadNextBox(int *line_number, FILE *box_file, std::string &utf8_str, TBOX *bounding_box) {
   return ReadNextBox(-1, line_number, box_file, utf8_str, bounding_box);
 }
 
 // As ReadNextBox above, but get a specific page number. (0-based)
 // Use -1 to read any page number. Files without page number all
 // read as if they are page 0.
-bool ReadNextBox(int target_page, int *line_number, FILE *box_file, STRING *utf8_str,
+bool ReadNextBox(int target_page, int *line_number, FILE *box_file, std::string &utf8_str,
                  TBOX *bounding_box) {
   int page = 0;
   char buff[kBoxReadBufSize]; // boxfile read buffer
@@ -185,10 +185,10 @@ bool ReadNextBox(int target_page, int *line_number, FILE *box_file, STRING *utf8
 // and for word/line-level boxes:
 //   WordStr <left> <bottom> <right> <top> <page id> #<space-delimited word str>
 // See applyybox.cpp for more information.
-bool ParseBoxFileStr(const char *boxfile_str, int *page_number, STRING *utf8_str,
+bool ParseBoxFileStr(const char *boxfile_str, int *page_number, std::string &utf8_str,
                      TBOX *bounding_box) {
   *bounding_box = TBOX(); // Initialize it to empty.
-  *utf8_str = "";
+  utf8_str = "";
   char uch[kBoxReadBufSize];
   const char *buffptr = boxfile_str;
   // Read the unichar without messing up on Tibetan.
@@ -245,7 +245,7 @@ bool ParseBoxFileStr(const char *boxfile_str, int *page_number, STRING *utf8_str
     }
     used += new_used;
   }
-  *utf8_str = uch;
+  utf8_str = uch;
   if (x_min > x_max)
     std::swap(x_min, x_max);
   if (y_min > y_max)

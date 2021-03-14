@@ -440,7 +440,7 @@ Dict &Tesseract::getDict() {
 }
 
 void Tesseract::Clear() {
-  STRING debug_name = imagebasename + "_debug.pdf";
+  std::string debug_name = imagebasename + "_debug.pdf";
   pixa_debug_.WritePDF(debug_name.c_str());
   pixDestroy(&pix_binary_);
   pixDestroy(&pix_grey_);

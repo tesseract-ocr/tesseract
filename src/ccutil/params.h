@@ -91,7 +91,7 @@ public:
       }
     }
   }
-  // Fetches the value of the named param as a STRING. Returns false if not
+  // Fetches the value of the named param as a string. Returns false if not
   // found.
   static bool GetParamAsString(const char *name, const ParamsVectors *member_params,
                                std::string *value);
@@ -241,6 +241,9 @@ public:
   }
   const char *c_str() const {
     return value_.c_str();
+  }
+  bool contains(char c) {
+    return value_.find(c) != std::string::npos;
   }
   bool empty() {
     return value_.length() <= 0;

@@ -37,7 +37,6 @@
 
 #include <tesseract/ocrclass.h> // for ETEXT_DESC
 #include <tesseract/unichar.h>  // for UNICHAR_ID
-#include "strngs.h"             // for STRING
 
 #include <cstdint> // for INT16_MAX, int16_t, int32_t
 
@@ -288,7 +287,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
              ((word_done && word->best_choice->unichar_lengths().c_str()[0] == 1 &&
                word->best_choice->unichar_string()[0] == '1') ||
               (!word_done &&
-               STRING(conflict_set_I_l_1).contains(word->best_choice->unichar_string()[0])))))) {
+               conflict_set_I_l_1.contains(word->best_choice->unichar_string()[0])))))) {
         total_score += prev_word_score;
         if (prev_word_done)
           done_word_count++;
@@ -330,7 +329,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
       prev_char_1 =
           ((word_done && (word->best_choice->unichar_string()[offset] == '1')) ||
            (!word_done &&
-            STRING(conflict_set_I_l_1).contains(word->best_choice->unichar_string()[offset])));
+            conflict_set_I_l_1.contains(word->best_choice->unichar_string()[offset])));
     }
     /* Find next word */
     do {
@@ -356,7 +355,7 @@ bool Tesseract::digit_or_numeric_punct(WERD_RES *word, int char_position) {
       word->uch_set->get_isdigit(word->best_choice->unichar_string().c_str() + offset,
                                  word->best_choice->unichar_lengths()[i]) ||
       (word->best_choice->permuter() == NUMBER_PERM &&
-       STRING(numeric_punctuation).contains(word->best_choice->unichar_string().c_str()[offset])));
+       numeric_punctuation.contains(word->best_choice->unichar_string().c_str()[offset])));
 }
 
 /**

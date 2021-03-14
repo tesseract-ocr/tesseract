@@ -32,7 +32,7 @@ class WERD_CHOICE;
 
 // Return whether the given word is likely to be a list item start word.
 TESS_API
-bool AsciiLikelyListItem(const STRING &word);
+bool AsciiLikelyListItem(const std::string &word);
 
 // Return the first Unicode Codepoint from werd[pos].
 int UnicodeFor(const UNICHARSET *u, const WERD_CHOICE *werd, int pos);
@@ -40,12 +40,12 @@ int UnicodeFor(const UNICHARSET *u, const WERD_CHOICE *werd, int pos);
 // Set right word attributes given either a unicharset and werd or a utf8
 // string.
 TESS_API
-void RightWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, const STRING &utf8,
+void RightWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, const std::string &utf8,
                          bool *is_list, bool *starts_idea, bool *ends_idea);
 
 // Set left word attributes given either a unicharset and werd or a utf8 string.
 TESS_API
-void LeftWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, const STRING &utf8,
+void LeftWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, const std::string &utf8,
                         bool *is_list, bool *starts_idea, bool *ends_idea);
 
 enum LineType {
@@ -171,10 +171,10 @@ public:
   }
 
   // Append header fields to a vector of row headings.
-  static void AppendDebugHeaderFields(std::vector<STRING> *header);
+  static void AppendDebugHeaderFields(std::vector<std::string> &header);
 
   // Append data for this row to a vector of debug strings.
-  void AppendDebugInfo(const ParagraphTheory &theory, std::vector<STRING> *dbg) const;
+  void AppendDebugInfo(const ParagraphTheory &theory, std::vector<std::string> &dbg) const;
 
   const RowInfo *ri_;
 

@@ -25,7 +25,6 @@
 
 #  include "elst.h"       // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #  include "scrollview.h" // for ScrollView (ptr only), SVEvent (ptr only)
-#  include "strngs.h"     // for STRING
 
 namespace tesseract {
 
@@ -107,7 +106,7 @@ public:
 private:
   // Gets the up to the first 3 prefixes from s (split by _).
   // For example, tesseract_foo_bar will be split into tesseract,foo and bar.
-  void GetPrefixes(const char *s, STRING *level_one, STRING *level_two, STRING *level_three);
+  void GetPrefixes(const char *s, std::string *level_one, std::string *level_two, std::string *level_three);
 
   // Gets the first n words (split by _) and puts them in t.
   // For example, tesseract_foo_bar with N=2 will yield tesseract_foo_.
