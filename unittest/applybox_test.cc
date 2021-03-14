@@ -87,8 +87,8 @@ protected:
       TBOX ocr_box(ICOORD(left, height - bottom), ICOORD(right, height - top));
       int line_number = 0;
       TBOX truth_box;
-      STRING box_text;
-      EXPECT_TRUE(ReadNextBox(0, &line_number, box_file, &box_text, &truth_box));
+      std::string box_text;
+      EXPECT_TRUE(ReadNextBox(0, &line_number, box_file, box_text, &truth_box));
       // Testing for major overlap is a bit weak, but if they all
       // major overlap successfully, then it has to be fairly close.
       EXPECT_TRUE(ocr_box.major_overlap(truth_box));

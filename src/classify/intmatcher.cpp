@@ -355,7 +355,7 @@ for (int bit = 0; bit < BITS_PER_WERD/NUM_BITS_PER_CLASS; bit++) {
     tprintf("CP:%d classes, %d features:\n", num_classes_, num_features_);
     for (int i = 0; i < num_classes_; ++i) {
       int class_id = sort_index_[num_classes_ - i];
-      STRING class_string = classify.ClassIDToDebugStr(int_templates, class_id, 0);
+      std::string class_string = classify.ClassIDToDebugStr(int_templates, class_id, 0);
       tprintf(
           "%s:Initial=%d, E=%d, Xht-adj=%d, N=%d, Rat=%.2f\n", class_string.c_str(),
           class_count_[class_id], expected_num_features[class_id],
