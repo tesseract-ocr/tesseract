@@ -27,7 +27,7 @@
 #ifndef TESSERACT_VIEWER_SVMNODE_H_
 #define TESSERACT_VIEWER_SVMNODE_H_
 
-#include "strngs.h"
+#include <string>
 
 namespace tesseract {
 
@@ -86,11 +86,11 @@ private:
   // The command event associated with a specific menu node. Should be unique.
   int cmd_event_;
   // The caption associated with a specific menu node.
-  STRING text_;
+  std::string text_;
   // The value of the menu node. (optional)
-  STRING value_;
+   std::string value_;
   // A description_ of the value. (optional)
-  STRING description_;
+   std::string description_;
 };
 
 } // namespace tesseract

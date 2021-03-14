@@ -31,8 +31,6 @@
 #include "ratngs.h"         // for BLOB_CHOICE (ptr only), BLOB_CHOICE_LIST...
 #include "stopper.h"        // for DANGERR
 
-#include "strngs.h" // for STRING
-
 #include <cmath> // for exp
 
 namespace tesseract {
@@ -358,7 +356,7 @@ protected:
   // String representation of the classification of the previous word
   // (since this is only used by the character ngram model component,
   // only the last language_model_ngram_order of the word are stored).
-  STRING prev_word_str_;
+  std::string prev_word_str_;
   int prev_word_unichar_step_len_ = 0;
   // Active dawg vector.
   DawgPositionVector very_beginning_active_dawgs_; // includes continuation

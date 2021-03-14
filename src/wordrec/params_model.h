@@ -21,7 +21,6 @@
 
 #include "genericvector.h"           // for GenericVector
 #include "params_training_featdef.h" // for PTRAIN_NUM_FEATURE_TYPES
-#include "strngs.h"                  // for STRING
 
 namespace tesseract {
 
@@ -79,7 +78,7 @@ public:
 private:
   bool ParseLine(char *line, char **key, float *val);
 
-  STRING lang_;
+  std::string lang_;
   // Set to the current pass type and used to determine which set of weights
   // should be used for ComputeCost() and other functions.
   PassEnum pass_;

@@ -27,7 +27,6 @@
 #include "lm_consistency.h"    // for LMConsistencyInfo
 #include "ratngs.h"            // for BLOB_CHOICE, PermuterType
 #include "stopper.h"           // for DANGERR
-#include "strngs.h"            // for STRING
 #include "unicharset.h"        // for UNICHARSET
 
 namespace tesseract {
@@ -73,7 +72,7 @@ struct LanguageModelNgramInfo {
       , pruned(p)
       , ngram_cost(nc)
       , ngram_and_classifier_cost(ncc) {}
-  STRING context; ///< context string
+  std::string context; ///< context string
   /// Length of the context measured by advancing using UNICHAR::utf8_step()
   /// (should be at most the order of the character ngram model used).
   int context_unichar_step_len;
@@ -110,7 +109,7 @@ struct ViterbiStateEntry : public ELIST_LINK {
       , associate_stats(as)
       , top_choice_flags(tcf)
       , updated(true) {
-    debug_str = (debug_uch == nullptr) ? nullptr : new STRING();
+    debug_str = (debug_uch == nullptr) ? nullptr : new std::string();
     if (pe != nullptr) {
       ratings_sum += pe->ratings_sum;
       if (pe->min_certainty < min_certainty) {
@@ -172,7 +171,7 @@ struct ViterbiStateEntry : public ELIST_LINK {
 
   /// UTF8 string representing the path corresponding to this vse.
   /// Populated only in when language_model_debug_level > 0.
-  STRING *debug_str;
+  std::string *debug_str;
 
   /// The cost is an adjusted ratings sum, that is adjusted by all the language
   /// model components that use Viterbi search.

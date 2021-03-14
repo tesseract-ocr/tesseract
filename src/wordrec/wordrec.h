@@ -89,7 +89,6 @@ namespace tesseract {
 
 class EDGEPT_CLIST;
 class MATRIX;
-class STRING;
 class TBOX;
 class UNICHARSET;
 class WERD_RES;
