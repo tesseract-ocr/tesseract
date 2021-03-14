@@ -36,7 +36,6 @@
 #  include "host.h" // windows.h for HANDLE, ...
 #endif
 #include "params.h"
-#include "strngs.h"
 #include "unicharset.h"
 
 namespace tesseract {

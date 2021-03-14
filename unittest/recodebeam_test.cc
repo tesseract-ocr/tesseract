@@ -79,7 +79,7 @@ protected:
     CHECK(ccutil_.unicharset.load_from_file(unicharset_file.c_str()));
     unichar_null_char_ =
         ccutil_.unicharset.has_special_codes() ? UNICHAR_BROKEN : ccutil_.unicharset.size();
-    STRING radical_str(radical_data.c_str());
+    std::string radical_str(radical_data.c_str());
     EXPECT_TRUE(recoder_.ComputeEncoding(ccutil_.unicharset, unichar_null_char_, &radical_str));
     RecodedCharID code;
     recoder_.EncodeUnichar(unichar_null_char_, &code);
@@ -88,7 +88,7 @@ protected:
     recoder_.EncodeUnichar(UNICHAR_SPACE, &code);
     EXPECT_EQ(UNICHAR_SPACE, code(0));
     std::string output_name = file::JoinPath(FLAGS_test_tmpdir, "testenc.txt");
-    STRING encoding = recoder_.GetEncodingAsString(ccutil_.unicharset);
+    std::string encoding = recoder_.GetEncodingAsString(ccutil_.unicharset);
     std::string encoding_str(&encoding[0], encoding.size());
     CHECK_OK(file::SetContents(output_name, encoding_str, file::Defaults()));
     LOG(INFO) << "Wrote encoding to:" << output_name << "\n";

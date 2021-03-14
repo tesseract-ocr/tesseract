@@ -19,9 +19,11 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
-#include "strngs.h"
+#include <tesseract/export.h> // for TESS_API
 
 #include <cstdio>
+#include <cstring>
+#include <string>
 #include <vector>
 
 namespace tesseract {
@@ -30,6 +32,7 @@ class IntParam;
 class BoolParam;
 class StringParam;
 class DoubleParam;
+class TFile;
 
 // Enum for constraints on what kind of params should be set by SetParam().
 enum SetParamConstraint {

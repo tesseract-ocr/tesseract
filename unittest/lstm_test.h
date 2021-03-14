@@ -92,7 +92,7 @@ protected:
     EXPECT_TRUE(
         trainer_->InitNetwork(network_spec.c_str(), -1, net_mode, 0.1, learning_rate, 0.9, 0.999));
     std::vector<std::string> filenames;
-    filenames.push_back(STRING(TestDataNameToPath(lstmf_file).c_str()));
+    filenames.push_back(std::string(TestDataNameToPath(lstmf_file).c_str()));
     EXPECT_TRUE(trainer_->LoadAllTrainingData(filenames, CS_SEQUENTIAL, false));
     LOG(INFO) << "Setup network:" << model_name << "\n";
   }
@@ -165,7 +165,7 @@ protected:
                  5e-4f, true, lang);
     std::vector<int> labels;
     EXPECT_TRUE(trainer_->EncodeString(str.c_str(), &labels));
-    STRING decoded = trainer_->DecodeLabels(labels);
+    std::string decoded = trainer_->DecodeLabels(labels);
     std::string decoded_str(&decoded[0], decoded.length());
     EXPECT_EQ(str, decoded_str);
   }

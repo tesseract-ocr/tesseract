@@ -38,7 +38,7 @@ protected:
     std::string radical_data;
     CHECK_OK(file::GetContents(radical_stroke_file, &radical_data, file::Defaults()));
     CHECK(unicharset_.load_from_file(unicharset_file.c_str()));
-    STRING radical_str(radical_data.c_str());
+    std::string radical_str(radical_data.c_str());
     null_char_ = unicharset_.has_special_codes() ? UNICHAR_BROKEN : unicharset_.size();
     compressed_.ComputeEncoding(unicharset_, null_char_, &radical_str);
     // Get the encoding of the null char.
@@ -47,7 +47,7 @@ protected:
     encoded_null_char_ = code(0);
     std::string output_name =
         file::JoinPath(FLAGS_test_tmpdir, absl::StrCat(unicharset_name, ".encoding.txt"));
-    STRING encoding = compressed_.GetEncodingAsString(unicharset_);
+    std::string encoding = compressed_.GetEncodingAsString(unicharset_);
     std::string encoding_str(&encoding[0], encoding.size());
     CHECK_OK(file::SetContents(output_name, encoding_str, file::Defaults()));
     LOG(INFO) << "Wrote encoding to:" << output_name;
@@ -231,7 +231,7 @@ TEST_F(UnicharcompressTest, DoesLigaturesWithDoubles) {
 TEST_F(UnicharcompressTest, GetEncodingAsString) {
   LoadUnicharset("trivial.unicharset");
   ExpectCorrect("trivial");
-  STRING encoding = compressed_.GetEncodingAsString(unicharset_);
+  std::string encoding = compressed_.GetEncodingAsString(unicharset_);
   std::string encoding_str(&encoding[0], encoding.length());
   std::vector<std::string> lines = absl::StrSplit(encoding_str, "\n", absl::SkipEmpty());
   EXPECT_EQ(5, lines.size());
