@@ -26,7 +26,6 @@
 #include "pageres.h"        // for WERD_RES
 #include "params.h"         // for BoolParam, IntParam, DoubleParam
 #include "ratngs.h"         // for BLOB_CHOICE_LIST, BLOB_CHOICE_IT
-#include "strngs.h"         // for STRING
 #include "tprintf.h"        // for tprintf
 #include "wordrec.h"        // for Wordrec, SegSearchPending (ptr only)
 
@@ -65,7 +64,7 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
   MATRIX_COORD pain_point;
   float pain_point_priority;
   int num_futile_classifications = 0;
-  STRING blamer_debug;
+  std::string blamer_debug;
   while (wordrec_enable_assoc &&
          (!SegSearchDone(num_futile_classifications) ||
           (blamer_bundle != nullptr && blamer_bundle->GuidedSegsearchStillGoing()))) {

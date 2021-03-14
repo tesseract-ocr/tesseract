@@ -1195,7 +1195,7 @@ void LanguageModel::UpdateBestChoice(ViterbiStateEntry *vse, LMPainPoints *pain_
       ConstructWord(vse, word_res, &best_choice_bundle->fixpt, blamer_bundle, &truth_path);
   ASSERT_HOST(word != nullptr);
   if (dict_->stopper_debug_level >= 1) {
-    STRING word_str;
+    std::string word_str;
     word->string_and_lengths(&word_str, nullptr);
     vse->Print(word_str.c_str());
   }
