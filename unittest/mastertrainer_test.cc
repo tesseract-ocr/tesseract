@@ -177,10 +177,10 @@ protected:
     std::string tr_file_name(TestDataNameToPath("eng.Arial.exp0.tr"));
     const char *argv[] = {tr_file_name.c_str()};
     int argc = 1;
-    STRING file_prefix;
+    std::string file_prefix;
     delete shape_table_;
     shape_table_ = nullptr;
-    master_trainer_ = LoadTrainingData(argc, argv, false, &shape_table_, &file_prefix);
+    master_trainer_ = LoadTrainingData(argc, argv, false, &shape_table_, file_prefix);
     EXPECT_TRUE(master_trainer_ != nullptr);
     EXPECT_TRUE(shape_table_ != nullptr);
   }

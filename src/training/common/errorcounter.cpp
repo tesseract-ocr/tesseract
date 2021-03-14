@@ -45,7 +45,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_le
                                       CountTypes boosting_mode, const FontInfoTable &fontinfo_table,
                                       const std::vector<Pix *> &page_images, SampleIterator *it,
                                       double *unichar_error, double *scaled_error,
-                                      STRING *fonts_report) {
+                                      std::string *fonts_report) {
   const int fontsize = it->sample_set()->NumFonts();
   ErrorCounter counter(classifier->GetUnicharset(), fontsize);
   std::vector<UnicharRating> results;
@@ -367,7 +367,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
   }
   if (report_level > 0) {
     // Report the totals.
-    STRING total_report;
+    std::string total_report;
     if (any_results) {
       tprintf("TOTAL Scaled Err=%.4g%%, %s\n", scaled_error_ * 100.0, total_report.c_str());
     }

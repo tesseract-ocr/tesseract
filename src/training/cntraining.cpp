@@ -194,11 +194,10 @@ int main(int argc, char *argv[]) {
 static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
                             const FEATURE_DESC_STRUCT *feature_desc) {
   FILE *File;
-  STRING Filename;
   LABELEDLIST LabeledProto;
   int N;
 
-  Filename = "";
+  std::string Filename = "";
   if (Directory != nullptr && Directory[0] != '\0') {
     Filename += Directory;
     Filename += "/";

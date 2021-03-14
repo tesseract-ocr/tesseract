@@ -134,7 +134,7 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
     tprintf("Failed to open tr file: %s\n", page_name);
     return;
   }
-  tr_filenames_.push_back(STRING(page_name));
+  tr_filenames_.push_back(std::string(page_name));
   while (fgets(buffer, sizeof(buffer), fp) != nullptr) {
     if (buffer[0] == '\n')
       continue;
@@ -754,7 +754,7 @@ void MasterTrainer::TestClassifierVOld(bool replicate_samples, ShapeClassifier *
 void MasterTrainer::TestClassifierOnSamples(CountTypes error_mode, int report_level,
                                             bool replicate_samples,
                                             ShapeClassifier *test_classifier,
-                                            STRING *report_string) {
+                                            std::string *report_string) {
   TestClassifier(error_mode, report_level, replicate_samples, &samples_, test_classifier,
                  report_string);
 }
@@ -774,7 +774,7 @@ void MasterTrainer::TestClassifierOnSamples(CountTypes error_mode, int report_le
 // is appended to the report_string.
 double MasterTrainer::TestClassifier(CountTypes error_mode, int report_level,
                                      bool replicate_samples, TrainingSampleSet *samples,
-                                     ShapeClassifier *test_classifier, STRING *report_string) {
+                                     ShapeClassifier *test_classifier, std::string *report_string) {
   SampleIterator sample_it;
   sample_it.Init(nullptr, nullptr, replicate_samples, samples);
   if (report_level > 0) {

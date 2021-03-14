@@ -193,9 +193,9 @@ int main(int argc, char **argv) {
   ParseArguments(&argc, &argv);
 
   ShapeTable *shape_table = nullptr;
-  STRING file_prefix;
+  std::string file_prefix;
   // Load the training data.
-  auto trainer = tesseract::LoadTrainingData(argc, argv, false, &shape_table, &file_prefix);
+  auto trainer = tesseract::LoadTrainingData(argc, argv, false, &shape_table, file_prefix);
   if (trainer == nullptr)
     return 1; // Failed.
 
@@ -242,9 +242,9 @@ int main(int argc, char **argv) {
     const char *class_label = unicharset->id_to_unichar(unichar_id);
     mf_classes = ClusterOneConfig(s, class_label, mf_classes, *shape_table, trainer.get());
   }
-  STRING inttemp_file = file_prefix;
+  std::string inttemp_file = file_prefix;
   inttemp_file += "inttemp";
-  STRING pffmtable_file = file_prefix;
+  std::string pffmtable_file = file_prefix;
   pffmtable_file += "pffmtable";
   CLASS_STRUCT *float_classes = SetUpForFloat2Int(*unicharset, mf_classes);
   // Now write the inttemp and pffmtable.

@@ -220,9 +220,8 @@ bool UnicharAmbigs::ParseAmbiguityLine(int line_num, int version, int debug_leve
                                        int *type) {
   if (version > 1) {
     // Simpler format is just wrong-string correct-string type\n.
-    STRING input(buffer);
-    std::vector<STRING> fields;
-    input.split(' ', &fields);
+    std::string input(buffer);
+    std::vector<std::string> fields = split(input, ' ');
     if (fields.size() != 3) {
       if (debug_level)
         tprintf(kIllegalMsg, line_num);
@@ -370,7 +369,7 @@ bool UnicharAmbigs::InsertIntoTable(UnicharAmbigsVector &table, int test_ambig_p
     if (test_ambig_part_size == 1) {
       unichar_id = ambig_spec->correct_ngram_id;
     } else {
-      STRING frag_str =
+      std::string frag_str =
           CHAR_FRAGMENT::to_string(replacement_string, i, test_ambig_part_size, false);
       unicharset->unichar_insert(frag_str.c_str(), OldUncleanUnichars::kTrue);
       unichar_id = unicharset->unichar_to_id(frag_str.c_str());

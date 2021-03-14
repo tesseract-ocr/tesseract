@@ -97,10 +97,10 @@ using MERGE_CLASS = MERGE_CLASS_NODE *;
 namespace tesseract {
 
 // Helper loads shape table from the given file.
-ShapeTable *LoadShapeTable(const STRING &file_prefix);
+ShapeTable *LoadShapeTable(const std::string &file_prefix);
 // Helper to write the shape_table.
 TESS_COMMON_TRAINING_API
-void WriteShapeTable(const STRING &file_prefix, const ShapeTable &shape_table);
+void WriteShapeTable(const std::string &file_prefix, const ShapeTable &shape_table);
 
 // Creates a MasterTraininer and loads the training data into it:
 // Initializes feature_defs and IntegerFX.
@@ -117,7 +117,7 @@ void WriteShapeTable(const STRING &file_prefix, const ShapeTable &shape_table);
 // as shape clustering was not run.
 TESS_COMMON_TRAINING_API
 std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *argv, bool replication,
-                                                ShapeTable **shape_table, STRING *file_prefix);
+                                                ShapeTable **shape_table, std::string &file_prefix);
 
 } // namespace tesseract.
 

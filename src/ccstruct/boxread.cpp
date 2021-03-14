@@ -21,7 +21,6 @@
 #include "errcode.h" // for ERRCODE, TESSEXIT
 #include "fileerr.h" // for CANTOPENFILE
 #include "rect.h"    // for TBOX
-#include "strngs.h"  // for split
 #include "tprintf.h" // for tprintf
 
 #include <tesseract/unichar.h> // for UNICHAR

@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
   }
 
   // Check write permissions.
-  STRING test_file = FLAGS_model_output.c_str();
+  std::string test_file = FLAGS_model_output.c_str();
   test_file += "_wtest";
   FILE *f = fopen(test_file.c_str(), "wb");
   if (f != nullptr) {
@@ -105,9 +105,9 @@ int main(int argc, char **argv) {
   }
 
   // Setup the trainer.
-  STRING checkpoint_file = FLAGS_model_output.c_str();
+  std::string checkpoint_file = FLAGS_model_output.c_str();
   checkpoint_file += "_checkpoint";
-  STRING checkpoint_bak = checkpoint_file + ".bak";
+  std::string checkpoint_bak = checkpoint_file + ".bak";
   tesseract::LSTMTrainer trainer(FLAGS_model_output.c_str(), checkpoint_file.c_str(),
                                  FLAGS_debug_interval,
                                  static_cast<int64_t>(FLAGS_max_image_MB) * 1048576);
