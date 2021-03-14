@@ -145,11 +145,11 @@ protected:
   // int.
   double TestIntMode(int test_iterations) {
     std::vector<char> trainer_data;
-    EXPECT_TRUE(trainer_->SaveTrainingDump(NO_BEST_TRAINER, trainer_.get(), &trainer_data));
+    EXPECT_TRUE(trainer_->SaveTrainingDump(NO_BEST_TRAINER, *trainer_, &trainer_data));
     // Get the error on the next few iterations in float mode.
     double float_err = TestIterations(test_iterations);
     // Restore the dump, convert to int and test error on that.
-    EXPECT_TRUE(trainer_->ReadTrainingDump(trainer_data, trainer_.get()));
+    EXPECT_TRUE(trainer_->ReadTrainingDump(trainer_data, *trainer_));
     trainer_->ConvertToInt();
     double int_err = TestIterations(test_iterations);
     EXPECT_LT(int_err, float_err + 1.0);

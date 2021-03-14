@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
         argv[0], argv[0]);
     return 1;
   }
-  tesseract::Classify *classify = new tesseract::Classify();
+  tesseract::Classify classify;
   int argv_index = 0;
   if (argc == 5)
     ++argv_index;
@@ -61,43 +61,40 @@ int main(int argc, char **argv) {
   const char *dawg_filename = argv[++argv_index];
   const char *unicharset_file = argv[++argv_index];
   tprintf("Loading unicharset from '%s'\n", unicharset_file);
-  if (!classify->getDict().getUnicharset().load_from_file(unicharset_file)) {
+  if (!classify.getDict().getUnicharset().load_from_file(unicharset_file)) {
     tprintf("Failed to load unicharset from '%s'\n", unicharset_file);
-    delete classify;
     return 1;
   }
-  const UNICHARSET &unicharset = classify->getDict().getUnicharset();
+  const UNICHARSET &unicharset = classify.getDict().getUnicharset();
   if (argc == 4 || argc == 6) {
     tesseract::Trie trie(
         // the first 3 arguments are not used in this case
         tesseract::DAWG_TYPE_WORD, "", SYSTEM_DAWG_PERM, unicharset.size(),
-        classify->getDict().dawg_debug_level);
+        classify.getDict().dawg_debug_level);
     tprintf("Reading word list from '%s'\n", wordlist_filename);
     if (!trie.read_and_add_word_list(wordlist_filename, unicharset, reverse_policy)) {
       tprintf("Failed to add word list from '%s'\n", wordlist_filename);
       exit(1);
     }
     tprintf("Reducing Trie to SquishedDawg\n");
-    tesseract::SquishedDawg *dawg = trie.trie_to_dawg();
-    if (dawg != nullptr && dawg->NumEdges() > 0) {
+    std::unique_ptr<tesseract::SquishedDawg> dawg(trie.trie_to_dawg());
+    if (dawg && dawg->NumEdges() > 0) {
       tprintf("Writing squished DAWG to '%s'\n", dawg_filename);
       dawg->write_squished_dawg(dawg_filename);
     } else {
       tprintf("Dawg is empty, skip producing the output file\n");
     }
-    delete dawg;
   } else if (argc == 5) {
     tprintf("Loading dawg DAWG from '%s'\n", dawg_filename);
     tesseract::SquishedDawg words(dawg_filename,
                                   // these 3 arguments are not used in this case
                                   tesseract::DAWG_TYPE_WORD, "", SYSTEM_DAWG_PERM,
-                                  classify->getDict().dawg_debug_level);
+                                  classify.getDict().dawg_debug_level);
     tprintf("Checking word list from '%s'\n", wordlist_filename);
     words.check_for_words(wordlist_filename, unicharset, true);
   } else { // should never get here
     tprintf("Invalid command-line options\n");
     exit(1);
   }
-  delete classify;
   return 0;
 }

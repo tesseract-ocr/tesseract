@@ -429,14 +429,14 @@ bool ErrorCounter::ReportString(bool even_if_empty, const Counts &counts, std::s
   // on each number.
   const int kMaxExtraLength = 5; // Length of +eddd.
   // Keep this format string and the snprintf in sync with the CountTypes enum.
-  const char *format_str =
+  const char format_str[] =
       "Unichar=%.4g%%[1], %.4g%%[2], %.4g%%[n], %.4g%%[T] "
       "Mult=%.4g%%, Jn=%.4g%%, Brk=%.4g%%, Rej=%.4g%%, "
       "FontAttr=%.4g%%, Multi=%.4g%%, "
       "Answers=%.3g, Rank=%.3g, "
       "OKjunk=%.4g%%, Badjunk=%.4g%%";
-  const size_t max_str_len = strlen(format_str) + kMaxExtraLength * (CT_SIZE - 1) + 1;
-  char *formatted_str = new char[max_str_len];
+  constexpr size_t max_str_len = sizeof(format_str) + kMaxExtraLength * (CT_SIZE - 1) + 1;
+  char formatted_str[max_str_len] = { 0 };
   snprintf(formatted_str, max_str_len, format_str, rates[CT_UNICHAR_TOP1_ERR] * 100.0,
            rates[CT_UNICHAR_TOP2_ERR] * 100.0, rates[CT_UNICHAR_TOPN_ERR] * 100.0,
            rates[CT_UNICHAR_TOPTOP_ERR] * 100.0, rates[CT_OK_MULTI_UNICHAR] * 100.0,
@@ -444,7 +444,6 @@ bool ErrorCounter::ReportString(bool even_if_empty, const Counts &counts, std::s
            rates[CT_FONT_ATTR_ERR] * 100.0, rates[CT_OK_MULTI_FONT] * 100.0, rates[CT_NUM_RESULTS],
            rates[CT_RANK], 100.0 * rates[CT_REJECTED_JUNK], 100.0 * rates[CT_ACCEPTED_JUNK]);
   report = formatted_str;
-  delete[] formatted_str;
   // Now append each field of counts with a tab in front so the result can
   // be loaded into a spreadsheet.
   for (int ct : counts.n)

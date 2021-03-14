@@ -69,16 +69,14 @@ bool Validator::ValidateCleanAndSegment(GraphemeNormMode g_mode, bool report_err
 // Factory method that understands how to map script to the right subclass.
 std::unique_ptr<Validator> Validator::ScriptValidator(ViramaScript script, bool report_errors) {
   switch (script) {
-    case ViramaScript::kNonVirama:
-      return std::unique_ptr<Validator>(new ValidateGrapheme(script, report_errors));
-    case ViramaScript::kJavanese:
-      return std::unique_ptr<Validator>(new ValidateJavanese(script, report_errors));
-    case ViramaScript::kMyanmar:
-      return std::unique_ptr<Validator>(new ValidateMyanmar(script, report_errors));
-    case ViramaScript::kKhmer:
-      return std::unique_ptr<Validator>(new ValidateKhmer(script, report_errors));
+#define CASE(e, T) case ViramaScript::e: return std::make_unique<T>(script, report_errors)
+    CASE(kNonVirama, ValidateGrapheme);
+    CASE(kJavanese, ValidateJavanese);
+    CASE(kMyanmar, ValidateMyanmar);
+    CASE(kKhmer, ValidateKhmer);
+#undef CASE
     default:
-      return std::unique_ptr<Validator>(new ValidateIndic(script, report_errors));
+      return std::make_unique<ValidateIndic>(script, report_errors);
   }
 }
 

@@ -113,7 +113,7 @@ TEST_F(LSTMTrainerTest, DeterminismTest) {
   double act_error_a = trainer_->ActivationError();
   double char_error_a = trainer_->CharError();
   std::vector<char> trainer_a_data;
-  EXPECT_TRUE(trainer_->SaveTrainingDump(NO_BEST_TRAINER, trainer_.get(), &trainer_a_data));
+  EXPECT_TRUE(trainer_->SaveTrainingDump(NO_BEST_TRAINER, *trainer_, &trainer_a_data));
   SetupTrainerEng("[1,32,0,1 S4,2 L2xy16 Ct1,1,16 S8,1 Lbx100 O1c1]", "2-D-2-layer-lstm", false,
                   false);
   double lstm_2d_err_b = TrainIterations(kTrainerIterations);
@@ -129,7 +129,7 @@ TEST_F(LSTMTrainerTest, DeterminismTest) {
   // Unpack into a new trainer and train that some more too.
   SetupTrainerEng("[1,32,0,1 S4,2 L2xy16 Ct1,1,16 S8,1 Lbx100 O1c1]", "2-D-2-layer-lstm", false,
                   false);
-  EXPECT_TRUE(trainer_->ReadTrainingDump(trainer_a_data, trainer_.get()));
+  EXPECT_TRUE(trainer_->ReadTrainingDump(trainer_a_data, *trainer_));
   lstm_2d_err_a = TrainIterations(kTrainerIterations / 3);
   act_error_a = trainer_->ActivationError();
   char_error_a = trainer_->CharError();

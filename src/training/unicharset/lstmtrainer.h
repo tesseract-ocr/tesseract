@@ -278,19 +278,19 @@ public:
   // restored.  *this must always be the master trainer that retains the only
   // copy of the training data and language model. trainer is the model that is
   // actually serialized.
-  bool SaveTrainingDump(SerializeAmount serialize_amount, const LSTMTrainer *trainer,
+  bool SaveTrainingDump(SerializeAmount serialize_amount, const LSTMTrainer &trainer,
                         std::vector<char> *data) const;
 
   // Reads previously saved trainer from memory. *this must always be the
   // master trainer that retains the only copy of the training data and
   // language model. trainer is the model that is restored.
-  bool ReadTrainingDump(const std::vector<char> &data, LSTMTrainer *trainer) const {
+  bool ReadTrainingDump(const std::vector<char> &data, LSTMTrainer &trainer) const {
     if (data.empty())
       return false;
     return ReadSizedTrainingDump(&data[0], data.size(), trainer);
   }
-  bool ReadSizedTrainingDump(const char *data, int size, LSTMTrainer *trainer) const {
-    return trainer->ReadLocalTrainingDump(&mgr_, data, size);
+  bool ReadSizedTrainingDump(const char *data, int size, LSTMTrainer &trainer) const {
+    return trainer.ReadLocalTrainingDump(&mgr_, data, size);
   }
   // Restores the model to *this.
   bool ReadLocalTrainingDump(const TessdataManager *mgr, const char *data, int size);
@@ -427,7 +427,7 @@ protected:
   std::vector<char> best_trainer_;
   // A subsidiary trainer running with a different learning rate until either
   // *this or sub_trainer_ hits a new best.
-  LSTMTrainer *sub_trainer_;
+  std::unique_ptr<LSTMTrainer> sub_trainer_;
   // Error rate at which last best model was dumped.
   float error_rate_of_last_saved_best_;
   // Current stage of training.

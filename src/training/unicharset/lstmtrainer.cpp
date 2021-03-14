@@ -88,7 +88,6 @@ LSTMTrainer::~LSTMTrainer() {
   delete target_win_;
   delete ctc_win_;
   delete recon_win_;
-  delete sub_trainer_;
 }
 
 // Tries to deserialize a trainer from the given file and silently returns
@@ -98,7 +97,7 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char *filename, const char *old_tra
   if (!LoadDataFromFile(filename, &data))
     return false;
   tprintf("Loaded file %s, unpacking...\n", filename);
-  if (!ReadTrainingDump(data, this))
+  if (!ReadTrainingDump(data, *this))
     return false;
   if (((old_traineddata == nullptr || *old_traineddata == '\0') &&
        network_->NumOutputs() == recoder_.code_range()) ||
@@ -300,13 +299,12 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, std::string &log_msg)
     log_msg += UpdateErrorGraph(iteration, error_rate, rec_model_data, tester);
     // If sub_trainer_ is not nullptr, either *this beat it to a new best, or it
     // just overwrote *this. In either case, we have finished with it.
-    delete sub_trainer_;
-    sub_trainer_ = nullptr;
+    sub_trainer_.reset();
     stall_iteration_ = learning_iteration() + kMinStallIterations;
     if (TransitionTrainingStage(kStageTransitionThreshold)) {
       log_msg += " Transitioned to stage " + std::to_string(CurrentTrainingStage());
     }
-    SaveTrainingDump(NO_BEST_TRAINER, this, &best_trainer_);
+    SaveTrainingDump(NO_BEST_TRAINER, *this, &best_trainer_);
     if (error_rate < error_rate_of_last_saved_best_ * kBestCheckpointFraction) {
       STRING best_model_name = DumpFilename();
       if (!SaveDataToFile(best_trainer_, best_model_name.c_str())) {
@@ -327,7 +325,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, std::string &log_msg)
       log_msg += "\nDivergence! ";
       // Copy best_trainer_ before reading it, as it will get overwritten.
       std::vector<char> revert_data(best_trainer_);
-      if (ReadTrainingDump(revert_data, this)) {
+      if (ReadTrainingDump(revert_data, *this)) {
         LogIterations("Reverted to", log_msg);
         ReduceLearningRates(this, log_msg);
       } else {
@@ -337,7 +335,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, std::string &log_msg)
       stall_iteration_ = iteration + 2 * (iteration - learning_iteration());
       // Re-save the best trainer with the new learning rates and stall
       // iteration.
-      SaveTrainingDump(NO_BEST_TRAINER, this, &best_trainer_);
+      SaveTrainingDump(NO_BEST_TRAINER, *this, &best_trainer_);
     }
   } else {
     // Something interesting happened only if the sub_trainer_ was trained.
@@ -346,7 +344,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, std::string &log_msg)
   if (checkpoint_name_.length() > 0) {
     // Write a current checkpoint.
     std::vector<char> checkpoint;
-    if (!SaveTrainingDump(FULL, this, &checkpoint) ||
+    if (!SaveTrainingDump(FULL, *this, &checkpoint) ||
         !SaveDataToFile(checkpoint, checkpoint_name_.c_str())) {
       log_msg += " failed to write checkpoint.";
     } else {
@@ -434,7 +432,7 @@ bool LSTMTrainer::Serialize(SerializeAmount serialize_amount, const TessdataMana
   if (serialize_amount != NO_BEST_TRAINER && !fp->Serialize(best_trainer_))
     return false;
   std::vector<char> sub_data;
-  if (sub_trainer_ != nullptr && !SaveTrainingDump(LIGHT, sub_trainer_, &sub_data))
+  if (sub_trainer_ != nullptr && !SaveTrainingDump(LIGHT, *sub_trainer_, &sub_data))
     return false;
   if (!fp->Serialize(sub_data))
     return false;
@@ -501,12 +499,11 @@ bool LSTMTrainer::DeSerialize(const TessdataManager *mgr, TFile *fp) {
   std::vector<char> sub_data;
   if (!fp->DeSerialize(sub_data))
     return false;
-  delete sub_trainer_;
   if (sub_data.empty()) {
     sub_trainer_ = nullptr;
   } else {
-    sub_trainer_ = new LSTMTrainer();
-    if (!ReadTrainingDump(sub_data, sub_trainer_))
+    sub_trainer_ = std::make_unique<LSTMTrainer>();
+    if (!ReadTrainingDump(sub_data, *sub_trainer_))
       return false;
   }
   if (!fp->DeSerialize(best_error_history_))
@@ -520,12 +517,10 @@ bool LSTMTrainer::DeSerialize(const TessdataManager *mgr, TFile *fp) {
 // learning rates (by scaling reduction, or layer specific, according to
 // NF_LAYER_SPECIFIC_LR).
 void LSTMTrainer::StartSubtrainer(std::string &log_msg) {
-  delete sub_trainer_;
-  sub_trainer_ = new LSTMTrainer();
-  if (!ReadTrainingDump(best_trainer_, sub_trainer_)) {
+  sub_trainer_ = std::make_unique<LSTMTrainer>();
+  if (!ReadTrainingDump(best_trainer_, *sub_trainer_)) {
     log_msg += " Failed to revert to previous best for trial!";
-    delete sub_trainer_;
-    sub_trainer_ = nullptr;
+    sub_trainer_.reset();
   } else {
     log_msg += " Trial sub_trainer_ from iteration " + std::to_string(sub_trainer_->training_iteration());
     // Reduce learning rate so it doesn't diverge this time.
@@ -535,7 +530,7 @@ void LSTMTrainer::StartSubtrainer(std::string &log_msg) {
     stall_iteration_ = learning_iteration() + 2 * stall_offset;
     sub_trainer_->stall_iteration_ = stall_iteration_;
     // Re-save the best trainer with the new learning rates and stall iteration.
-    SaveTrainingDump(NO_BEST_TRAINER, sub_trainer_, &best_trainer_);
+    SaveTrainingDump(NO_BEST_TRAINER, *sub_trainer_, &best_trainer_);
   }
 }
 
@@ -574,8 +569,8 @@ SubTrainerResult LSTMTrainer::UpdateSubtrainer(std::string &log_msg) {
     if (sub_error < best_error_rate_ && sub_margin >= kSubTrainerMarginFraction) {
       // The sub_trainer_ has won the race to a new best. Switch to it.
       std::vector<char> updated_trainer;
-      SaveTrainingDump(LIGHT, sub_trainer_, &updated_trainer);
-      ReadTrainingDump(updated_trainer, this);
+      SaveTrainingDump(LIGHT, *sub_trainer_, &updated_trainer);
+      ReadTrainingDump(updated_trainer, *this);
       log_msg += " Sub trainer wins at iteration " + std::to_string(training_iteration());
       log_msg += "\n";
       return STR_REPLACED;
@@ -624,7 +619,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
   }
   double momentum_factor = 1.0 / (1.0 - momentum_);
   std::vector<char> orig_trainer;
-  samples_trainer->SaveTrainingDump(LIGHT, this, &orig_trainer);
+  samples_trainer->SaveTrainingDump(LIGHT, *this, &orig_trainer);
   for (int i = 0; i < num_layers; ++i) {
     Network *layer = GetLayer(layers[i]);
     num_weights[i] = layer->IsTraining() ? layer->num_weights() : 0;
@@ -639,7 +634,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
         ww_factor *= factor;
       // Make a copy of *this, so we can mess about without damaging anything.
       LSTMTrainer copy_trainer;
-      samples_trainer->ReadTrainingDump(orig_trainer, &copy_trainer);
+      samples_trainer->ReadTrainingDump(orig_trainer, copy_trainer);
       // Clear the updates, doing nothing else.
       copy_trainer.network_->Update(0.0, 0.0, 0.0, 0);
       // Adjust the learning rate in each layer.
@@ -656,12 +651,12 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
         continue;
       // We'll now use this trainer again for each layer.
       std::vector<char> updated_trainer;
-      samples_trainer->SaveTrainingDump(LIGHT, &copy_trainer, &updated_trainer);
+      samples_trainer->SaveTrainingDump(LIGHT, copy_trainer, &updated_trainer);
       for (int i = 0; i < num_layers; ++i) {
         if (num_weights[i] == 0)
           continue;
         LSTMTrainer layer_trainer;
-        samples_trainer->ReadTrainingDump(updated_trainer, &layer_trainer);
+        samples_trainer->ReadTrainingDump(updated_trainer, layer_trainer);
         Network *layer = layer_trainer.GetLayer(layers[i]);
         // Update the weights in just the layer, using Adam if enabled.
         layer->Update(0.0, momentum_, adam_beta_, layer_trainer.training_iteration_ + 1);
@@ -896,11 +891,11 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, Netw
 // restored.  *this must always be the master trainer that retains the only
 // copy of the training data and language model. trainer is the model that is
 // actually serialized.
-bool LSTMTrainer::SaveTrainingDump(SerializeAmount serialize_amount, const LSTMTrainer *trainer,
+bool LSTMTrainer::SaveTrainingDump(SerializeAmount serialize_amount, const LSTMTrainer &trainer,
                                    std::vector<char> *data) const {
   TFile fp;
   fp.OpenWrite(data);
-  return trainer->Serialize(serialize_amount, &mgr_, &fp);
+  return trainer.Serialize(serialize_amount, &mgr_, &fp);
 }
 
 // Restores the model to *this.
