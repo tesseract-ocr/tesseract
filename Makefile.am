@@ -670,7 +670,6 @@ noinst_HEADERS += src/wordrec/language_model.h
 noinst_HEADERS += src/wordrec/lm_consistency.h
 noinst_HEADERS += src/wordrec/lm_pain_points.h
 noinst_HEADERS += src/wordrec/lm_state.h
-noinst_HEADERS += src/wordrec/measure.h
 noinst_HEADERS += src/wordrec/outlines.h
 noinst_HEADERS += src/wordrec/params_model.h
 noinst_HEADERS += src/wordrec/plotedges.h
