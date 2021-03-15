@@ -51,8 +51,8 @@ bool SEAM::IsHealthy(const TBLOB &blob, int min_points, int min_area) const {
 // seam, which is about to be inserted at insert_index. Returns false if
 // any of the computations fails, as this indicates an invalid chop.
 // widthn_/widthp_ are only changed if modify is true.
-bool SEAM::PrepareToInsertSeam(const GenericVector<SEAM *> &seams,
-                               const GenericVector<TBLOB *> &blobs, int insert_index, bool modify) {
+bool SEAM::PrepareToInsertSeam(const std::vector<SEAM *> &seams,
+                               const std::vector<TBLOB *> &blobs, int insert_index, bool modify) {
   for (int s = 0; s < insert_index; ++s) {
     if (!seams[s]->FindBlobWidth(blobs, s, modify))
       return false;
@@ -68,7 +68,7 @@ bool SEAM::PrepareToInsertSeam(const GenericVector<SEAM *> &seams,
 
 // Computes the widthp_/widthn_ range. Returns false if not all the splits
 // are accounted for. widthn_/widthp_ are only changed if modify is true.
-bool SEAM::FindBlobWidth(const GenericVector<TBLOB *> &blobs, int index, bool modify) {
+bool SEAM::FindBlobWidth(const std::vector<TBLOB *> &blobs, int index, bool modify) {
   int num_found = 0;
   if (modify) {
     widthp_ = 0;
@@ -147,7 +147,7 @@ void SEAM::Print(const char *label) const {
 
 // Prints a collection of SEAMs.
 /* static */
-void SEAM::PrintSeams(const char *label, const GenericVector<SEAM *> &seams) {
+void SEAM::PrintSeams(const char *label, const std::vector<SEAM *> &seams) {
   if (!seams.empty()) {
     tprintf("%s\n", label);
     for (int x = 0; x < seams.size(); ++x) {
@@ -169,7 +169,7 @@ void SEAM::Mark(ScrollView *window) const {
 // Break up the blobs in this chain so that they are all independent.
 // This operation should undo the affect of join_pieces.
 /* static */
-void SEAM::BreakPieces(const GenericVector<SEAM *> &seams, const GenericVector<TBLOB *> &blobs,
+void SEAM::BreakPieces(const std::vector<SEAM *> &seams, const std::vector<TBLOB *> &blobs,
                        int first, int last) {
   for (int x = first; x < last; ++x)
     seams[x]->Reveal();
@@ -191,7 +191,7 @@ void SEAM::BreakPieces(const GenericVector<SEAM *> &seams, const GenericVector<T
 // Join a group of base level pieces into a single blob that can then
 // be classified.
 /* static */
-void SEAM::JoinPieces(const GenericVector<SEAM *> &seams, const GenericVector<TBLOB *> &blobs,
+void SEAM::JoinPieces(const std::vector<SEAM *> &seams, const std::vector<TBLOB *> &blobs,
                       int first, int last) {
   TESSLINE *outline = blobs[first]->outlines;
   if (!outline)
@@ -245,8 +245,8 @@ float SEAM::FullPriority(int xmin, int xmax, double overlap_knob, int centered_m
  * present in the starting segmentation.  Each of the seams created
  * by this routine have location information only.
  */
-void start_seam_list(TWERD *word, GenericVector<SEAM *> *seam_array) {
-  seam_array->truncate(0);
+void start_seam_list(TWERD *word, std::vector<SEAM *> *seam_array) {
+  seam_array->clear();
   TPOINT location;
 
   for (int b = 1; b < word->NumBlobs(); ++b) {

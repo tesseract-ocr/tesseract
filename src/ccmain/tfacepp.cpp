@@ -183,7 +183,7 @@ void Tesseract::split_word(WERD_RES *word, int split_pt, WERD_RES **right_piece,
   for (int i = split_pt; i < chopped->NumBlobs(); ++i) {
     chopped2->blobs.push_back(chopped->blobs[i]);
   }
-  chopped->blobs.truncate(split_pt);
+  chopped->blobs.resize(split_pt);
   word->chopped_word = nullptr;
   delete word2->chopped_word;
   word2->chopped_word = nullptr;
@@ -223,8 +223,8 @@ void Tesseract::join_words(WERD_RES *word, WERD_RES *word2, BlamerBundle *orig_b
   TBOX prev_box = word->chopped_word->blobs.back()->bounding_box();
   TBOX blob_box = word2->chopped_word->blobs[0]->bounding_box();
   // Tack the word2 outputs onto the end of the word outputs.
-  word->chopped_word->blobs += word2->chopped_word->blobs;
-  word->rebuild_word->blobs += word2->rebuild_word->blobs;
+  word->chopped_word->blobs.insert(word->chopped_word->blobs.end(), word2->chopped_word->blobs.begin(), word2->chopped_word->blobs.end());
+  word->rebuild_word->blobs.insert(word->rebuild_word->blobs.end(), word2->rebuild_word->blobs.begin(), word2->rebuild_word->blobs.end());
   word2->chopped_word->blobs.clear();
   word2->rebuild_word->blobs.clear();
   TPOINT split_pt;
@@ -234,17 +234,17 @@ void Tesseract::join_words(WERD_RES *word, WERD_RES *word2, BlamerBundle *orig_b
   // Since the seam list is one element short, an empty seam marking the
   // end of the last blob in the first word is needed first.
   word->seam_array.push_back(new SEAM(0.0f, split_pt));
-  word->seam_array += word2->seam_array;
-  word2->seam_array.truncate(0);
+  word->seam_array.insert(word->seam_array.end(), word2->seam_array.begin(), word2->seam_array.end());
+  word2->seam_array.clear();
   // Fix widths and gaps.
-  word->blob_widths += word2->blob_widths;
-  word->blob_gaps += word2->blob_gaps;
+  word->blob_widths.insert(word->blob_widths.end(), word2->blob_widths.begin(), word2->blob_widths.end());
+  word->blob_gaps.insert(word->blob_gaps.end(), word2->blob_gaps.begin(), word2->blob_gaps.end());
   // Fix the ratings matrix.
   int rat1 = word->ratings->dimension();
   int rat2 = word2->ratings->dimension();
   word->ratings->AttachOnCorner(word2->ratings);
   ASSERT_HOST(word->ratings->dimension() == rat1 + rat2);
-  word->best_state += word2->best_state;
+  word->best_state.insert(word->best_state.end(), word2->best_state.begin(), word2->best_state.end());
   // Append the word choices.
   *word->raw_choice += *word2->raw_choice;
 

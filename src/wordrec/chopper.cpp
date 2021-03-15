@@ -41,9 +41,6 @@
 
 namespace tesseract {
 
-template <typename T>
-class GenericVector;
-
 // Even though the limit on the number of chunks may now be removed, keep
 // the same limit for repeatable behavior, and it may be a speed advantage.
 static const int kMaxNumChunks = 64;
@@ -79,7 +76,7 @@ static int check_blob(TBLOB *blob) {
  *
  * Return true if any of the splits share a point with this one.
  */
-static int any_shared_split_points(const GenericVector<SEAM *> &seams, SEAM *seam) {
+static int any_shared_split_points(const std::vector<SEAM *> &seams, SEAM *seam) {
   int length;
   int index;
 
@@ -167,13 +164,13 @@ static int16_t total_containment(TBLOB *blob1, TBLOB *blob2) {
 // Helper runs all the checks on a seam to make sure it is valid.
 // Returns the seam if OK, otherwise deletes the seam and returns nullptr.
 static SEAM *CheckSeam(int debug_level, int32_t blob_number, TWERD *word, TBLOB *blob,
-                       TBLOB *other_blob, const GenericVector<SEAM *> &seams, SEAM *seam) {
+                       TBLOB *other_blob, const std::vector<SEAM *> &seams, SEAM *seam) {
   if (seam == nullptr || blob->outlines == nullptr || other_blob->outlines == nullptr ||
       total_containment(blob, other_blob) || check_blob(other_blob) ||
       !seam->ContainedByBlob(*blob) || !seam->ContainedByBlob(*other_blob) ||
       any_shared_split_points(seams, seam) ||
       !seam->PrepareToInsertSeam(seams, word->blobs, blob_number, false)) {
-    word->blobs.remove(blob_number + 1);
+    word->blobs.erase(word->blobs.begin() + blob_number + 1);
     if (seam) {
       seam->UndoSeam(blob, other_blob);
       delete seam;
@@ -200,12 +197,12 @@ static SEAM *CheckSeam(int debug_level, int32_t blob_number, TWERD *word, TBLOB 
  * it was successful.
  */
 SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number, bool italic_blob,
-                                 const GenericVector<SEAM *> &seams) {
+                                 const std::vector<SEAM *> &seams) {
   if (repair_unchopped_blobs)
     preserve_outline_tree(blob->outlines);
   TBLOB *other_blob = TBLOB::ShallowCopy(*blob); /* Make new blob */
   // Insert it into the word.
-  word->blobs.insert(other_blob, blob_number + 1);
+  word->blobs.insert(word->blobs.begin() + blob_number + 1, other_blob);
 
   SEAM *seam = nullptr;
   if (prioritize_division) {
@@ -235,7 +232,7 @@ SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number, 
       TPOINT location;
       if (divisible_blob(blob, italic_blob, &location)) {
         other_blob = TBLOB::ShallowCopy(*blob); /* Make new blob */
-        word->blobs.insert(other_blob, blob_number + 1);
+        word->blobs.insert(word->blobs.begin() + blob_number + 1, other_blob);
         seam = new SEAM(0.0f, location);
         seam->ApplySeam(italic_blob, blob, other_blob);
         seam = CheckSeam(chop_debug, blob_number, word, blob, other_blob, seams, seam);
@@ -250,7 +247,7 @@ SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number, 
 }
 
 SEAM *Wordrec::chop_numbered_blob(TWERD *word, int32_t blob_number, bool italic_blob,
-                                  const GenericVector<SEAM *> &seams) {
+                                  const std::vector<SEAM *> &seams) {
   return attempt_blob_chop(word, word->blobs[blob_number], blob_number, italic_blob, seams);
 }
 
@@ -305,7 +302,7 @@ SEAM *Wordrec::chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic
  * word->seam_array and the resulting blobs are unclassified, so this function
  * can be used by ApplyBox as well as during recognition.
  */
-SEAM *Wordrec::improve_one_blob(const GenericVector<BLOB_CHOICE *> &blob_choices, DANGERR *fixpt,
+SEAM *Wordrec::improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, DANGERR *fixpt,
                                 bool split_next_to_fragment, bool italic_blob, WERD_RES *word,
                                 int *blob_number) {
   float rating_ceiling = FLT_MAX;
@@ -347,7 +344,7 @@ SEAM *Wordrec::improve_one_blob(const GenericVector<BLOB_CHOICE *> &blob_choices
  * Used for testing chopper.
  */
 SEAM *Wordrec::chop_one_blob(const std::vector<TBOX> &boxes,
-                             const GenericVector<BLOB_CHOICE *> &blob_choices, WERD_RES *word_res,
+                             const std::vector<BLOB_CHOICE *> &blob_choices, WERD_RES *word_res,
                              int *blob_number) {
   if (prioritize_division) {
     return chop_overlapping_blob(boxes, true, word_res, blob_number);
@@ -427,12 +424,12 @@ void Wordrec::chop_word_main(WERD_RES *word) {
 void Wordrec::improve_by_chopping(float rating_cert_scale, WERD_RES *word,
                                   BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle,
                                   LMPainPoints *pain_points,
-                                  GenericVector<SegSearchPending> *pending) {
+                                  std::vector<SegSearchPending> *pending) {
   int blob_number;
   do { // improvement loop.
     // Make a simple vector of BLOB_CHOICEs to make it easy to pick which
     // one to chop.
-    GenericVector<BLOB_CHOICE *> blob_choices;
+    std::vector<BLOB_CHOICE *> blob_choices;
     int num_blobs = word->ratings->dimension();
     for (int i = 0; i < num_blobs; ++i) {
       BLOB_CHOICE_LIST *choices = word->ratings->get(i, i);
@@ -460,7 +457,7 @@ void Wordrec::improve_by_chopping(float rating_cert_scale, WERD_RES *word,
     // Remap existing pain points.
     pain_points->RemapForSplit(blob_number);
     // Insert a new pending at the chop point.
-    pending->insert(SegSearchPending(), blob_number);
+    pending->insert(pending->begin() + blob_number, SegSearchPending());
 
     // Classify the two newly created blobs using ProcessSegSearchPainPoint,
     // as that updates the pending correctly and adds new pain points.
@@ -501,7 +498,7 @@ void Wordrec::improve_by_chopping(float rating_cert_scale, WERD_RES *word,
  * These are the results of the last classification.  Find a likely
  * place to apply splits.  If none, return -1.
  **********************************************************************/
-int Wordrec::select_blob_to_split(const GenericVector<BLOB_CHOICE *> &blob_choices,
+int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices,
                                   float rating_ceiling, bool split_next_to_fragment) {
   BLOB_CHOICE *blob_choice;
   int x;

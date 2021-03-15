@@ -391,8 +391,8 @@ void WERD_RES::SetupBlamerBundle() {
 
 // Computes the blob_widths and blob_gaps from the chopped_word.
 void WERD_RES::SetupBlobWidthsAndGaps() {
-  blob_widths.truncate(0);
-  blob_gaps.truncate(0);
+  blob_widths.clear();
+  blob_gaps.clear();
   int num_blobs = chopped_word->NumBlobs();
   for (int b = 0; b < num_blobs; ++b) {
     TBLOB *blob = chopped_word->blobs[b];
@@ -410,7 +410,7 @@ void WERD_RES::SetupBlobWidthsAndGaps() {
 void WERD_RES::InsertSeam(int blob_number, SEAM *seam) {
   // Insert the seam into the SEAMS array.
   seam->PrepareToInsertSeam(seam_array, chopped_word->blobs, blob_number, true);
-  seam_array.insert(seam, blob_number);
+  seam_array.insert(seam_array.begin() + blob_number, seam);
   if (ratings != nullptr) {
     // Expand the ratings matrix.
     ratings = ratings->ConsumeAndMakeBigger(blob_number);
@@ -753,13 +753,20 @@ void WERD_RES::ConsumeWordResults(WERD_RES *word) {
   MovePointerData(&chopped_word, &word->chopped_word);
   MovePointerData(&rebuild_word, &word->rebuild_word);
   MovePointerData(&box_word, &word->box_word);
-  seam_array.delete_data_pointers();
+  for (auto data : seam_array) {
+    delete data;
+  }
   seam_array = word->seam_array;
   word->seam_array.clear();
-  best_state.move(&word->best_state);
-  correct_text.move(&word->correct_text);
-  blob_widths.move(&word->blob_widths);
-  blob_gaps.move(&word->blob_gaps);
+  // TODO: optimize moves.
+  best_state = word->best_state;
+  word->best_state.clear();
+  correct_text = word->correct_text;
+  word->correct_text.clear();
+  blob_widths = word->blob_widths;
+  word->blob_widths.clear();
+  blob_gaps = word->blob_gaps;
+  word->blob_gaps.clear();
   if (ratings != nullptr)
     ratings->delete_matrix_pointers();
   MovePointerData(&ratings, &word->ratings);
@@ -797,7 +804,7 @@ void WERD_RES::RebuildBestState() {
   rebuild_word = new TWERD;
   if (seam_array.empty())
     start_seam_list(chopped_word, &seam_array);
-  best_state.truncate(0);
+  best_state.clear();
   int start = 0;
   for (int i = 0; i < best_choice->length(); ++i) {
     int length = best_choice->state(i);
@@ -873,7 +880,7 @@ void WERD_RES::FakeClassifyWord(int blob_count, BLOB_CHOICE **choices) {
   }
   FakeWordFromRatings(TOP_CHOICE_PERM);
   reject_map.initialise(blob_count);
-  best_state.init_to_size(blob_count, 1);
+  best_state.resize(blob_count, 1);
   done = true;
 }
 
@@ -958,7 +965,7 @@ void WERD_RES::MergeAdjacentBlobs(int index) {
   box_word->MergeBoxes(index, index + 2);
   if (index + 1 < best_state.size()) {
     best_state[index] += best_state[index + 1];
-    best_state.remove(index + 1);
+    best_state.erase(best_state.begin() + index + 1);
   }
 }
 
@@ -1088,7 +1095,9 @@ void WERD_RES::ClearResults() {
   box_word = nullptr;
   best_state.clear();
   correct_text.clear();
-  seam_array.delete_data_pointers();
+  for (auto data : seam_array) {
+    delete data;
+  }
   seam_array.clear();
   blob_widths.clear();
   blob_gaps.clear();
@@ -1204,7 +1213,7 @@ WERD_RES *PAGE_RES_IT::InsertSimpleCloneWord(const WERD_RES &clone_res, WERD *ne
 // are likely very poor, if they come from LSTM, where it only outputs the
 // character at one pixel within it, so we find the midpoints between them.
 static void ComputeBlobEnds(const WERD_RES &word, const TBOX &clip_box,
-                            C_BLOB_LIST *next_word_blobs, GenericVector<int> *blob_ends) {
+                            C_BLOB_LIST *next_word_blobs, std::vector<int> *blob_ends) {
   C_BLOB_IT blob_it(word.word->cblob_list());
   for (int i = 0; i < word.best_state.size(); ++i) {
     int length = word.best_state[i];
@@ -1341,7 +1350,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(tesseract::PointerVector<WERD_RES> *words) 
     WERD_RES *word_w = (*words)[w];
     clip_box = ComputeWordBounds(*words, w, clip_box, wr_it_of_current_word);
     // Compute blob boundaries.
-    GenericVector<int> blob_ends;
+    std::vector<int> blob_ends;
     C_BLOB_LIST *next_word_blobs =
         w + 1 < words->size() ? (*words)[w + 1]->word->cblob_list() : nullptr;
     ComputeBlobEnds(*word_w, clip_box, next_word_blobs, &blob_ends);

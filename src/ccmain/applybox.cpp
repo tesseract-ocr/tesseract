@@ -240,7 +240,7 @@ void Tesseract::MaximallyChopWord(const std::vector<TBOX> &boxes, BLOCK *block, 
     tprintf("Maximally chopping word at:");
     word_res->word->bounding_box().print();
   }
-  GenericVector<BLOB_CHOICE *> blob_choices;
+  std::vector<BLOB_CHOICE *> blob_choices;
   ASSERT_HOST(!word_res->chopped_word->blobs.empty());
   auto rating = static_cast<float>(INT8_MAX);
   for (int i = 0; i < word_res->chopped_word->NumBlobs(); ++i) {
@@ -271,7 +271,7 @@ void Tesseract::MaximallyChopWord(const std::vector<TBOX> &boxes, BLOCK *block, 
       // combine confidence w/ serial #
       auto *right_choice = new BLOB_CHOICE(++right_chop_index, rating - 0.125f, -rating, -1, 0.0f,
                                            0.0f, 0.0f, BCC_FAKE);
-      blob_choices.insert(right_choice, blob_number + 1);
+      blob_choices.insert(blob_choices.begin() + blob_number + 1, right_choice);
     }
   }
   word_res->CloneChoppedToRebuild();
@@ -374,8 +374,8 @@ bool Tesseract::ResegmentCharBox(PAGE_RES *page_res, const TBOX *prev_box, const
         // Eliminated best_state and correct_text entries for the consumed
         // blobs.
         for (int j = 1; j < blob_count; ++j) {
-          word_res->best_state.remove(i + 1);
-          word_res->correct_text.remove(i + 1);
+          word_res->best_state.erase(word_res->best_state.begin() + i + 1);
+          word_res->correct_text.erase(word_res->correct_text.begin() + i + 1);
         }
         // Assume that no box spans multiple source words, so we are done with
         // this box.
@@ -548,7 +548,7 @@ bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID> &target_text, W
   // match. Using wildcards makes it difficult to find the correct
   // segmentation even when it is there.
   word_res->best_state.clear();
-  GenericVector<int> search_segmentation;
+  std::vector<int> search_segmentation;
   float best_rating = 0.0f;
   SearchForText(choices, 0, word_length, target_text, 0, 0.0f, &search_segmentation, &best_rating,
                 &word_res->best_state);
@@ -597,8 +597,8 @@ bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID> &target_text, W
 /// @param best_segmentation
 void Tesseract::SearchForText(const GenericVector<BLOB_CHOICE_LIST *> *choices, int choices_pos,
                               int choices_length, const GenericVector<UNICHAR_ID> &target_text,
-                              int text_index, float rating, GenericVector<int> *segmentation,
-                              float *best_rating, GenericVector<int> *best_segmentation) {
+                              int text_index, float rating, std::vector<int> *segmentation,
+                              float *best_rating, std::vector<int> *best_segmentation) {
   const UnicharAmbigsVector &table = getDict().getUnicharAmbigs().dang_ambigs();
   for (int length = 1; length <= choices[choices_pos].size(); ++length) {
     // Rating of matching choice or worst choice if no match.
@@ -654,7 +654,7 @@ void Tesseract::SearchForText(const GenericVector<BLOB_CHOICE_LIST *> *choices, 
                 unicharset.id_to_unichar(target_text[text_index]));
       }
     }
-    segmentation->truncate(segmentation->size() - 1);
+    segmentation->resize(segmentation->size() - 1);
   }
 }
 

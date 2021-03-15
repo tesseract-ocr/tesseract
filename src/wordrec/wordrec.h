@@ -81,8 +81,6 @@ public:
 #  include "seam.h"    // for SEAM (ptr only), PRIORITY
 #  include "stopper.h" // for DANGERR
 
-#  include "genericvector.h" // for GenericVector
-
 #  include <cstdint> // for int16_t, int32_t
 
 namespace tesseract {
@@ -329,7 +327,7 @@ public:
   // without doing any additional chopping or joining.
   // (Internal factored version that can be used as part of the main SegSearch.)
   void InitialSegSearch(WERD_RES *word_res, LMPainPoints *pain_points,
-                        GenericVector<SegSearchPending> *pending,
+                        std::vector<SegSearchPending> *pending,
                         BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle);
 
   // Runs SegSearch() function (above) without needing a best_choice_bundle
@@ -352,22 +350,22 @@ public:
 
   // chopper.cpp
   SEAM *attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number, bool italic_blob,
-                          const GenericVector<SEAM *> &seams);
+                          const std::vector<SEAM *> &seams);
   SEAM *chop_numbered_blob(TWERD *word, int32_t blob_number, bool italic_blob,
-                           const GenericVector<SEAM *> &seams);
+                           const std::vector<SEAM *> &seams);
   SEAM *chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic_blob, WERD_RES *word_res,
                               int *blob_number);
-  SEAM *improve_one_blob(const GenericVector<BLOB_CHOICE *> &blob_choices, DANGERR *fixpt,
+  SEAM *improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, DANGERR *fixpt,
                          bool split_next_to_fragment, bool italic_blob, WERD_RES *word,
                          int *blob_number);
   SEAM *chop_one_blob(const std::vector<TBOX> &boxes,
-                      const GenericVector<BLOB_CHOICE *> &blob_choices, WERD_RES *word_res,
+                      const std::vector<BLOB_CHOICE *> &blob_choices, WERD_RES *word_res,
                       int *blob_number);
   void chop_word_main(WERD_RES *word);
   void improve_by_chopping(float rating_cert_scale, WERD_RES *word,
                            BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle,
-                           LMPainPoints *pain_points, GenericVector<SegSearchPending> *pending);
-  int select_blob_to_split(const GenericVector<BLOB_CHOICE *> &blob_choices, float rating_ceiling,
+                           LMPainPoints *pain_points, std::vector<SegSearchPending> *pending);
+  int select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices, float rating_ceiling,
                            bool split_next_to_fragment);
   int select_blob_to_split_from_fixpt(DANGERR *fixpt);
 
@@ -391,7 +389,7 @@ public:
   bool near_point(EDGEPT *point, EDGEPT *line_pt_0, EDGEPT *line_pt_1, EDGEPT **near_pt);
 
   // pieces.cpp
-  virtual BLOB_CHOICE_LIST *classify_piece(const GenericVector<SEAM *> &seams, int16_t start,
+  virtual BLOB_CHOICE_LIST *classify_piece(const std::vector<SEAM *> &seams, int16_t start,
                                            int16_t end, const char *description, TWERD *word,
                                            BlamerBundle *blamer_bundle);
   // Try to merge fragments in the ratings matrix and put the result in
@@ -466,7 +464,7 @@ protected:
   // if a new best choice is found
   //
   void UpdateSegSearchNodes(float rating_cert_scale, int starting_col,
-                            GenericVector<SegSearchPending> *pending, WERD_RES *word_res,
+                            std::vector<SegSearchPending> *pending, WERD_RES *word_res,
                             LMPainPoints *pain_points, BestChoiceBundle *best_choice_bundle,
                             BlamerBundle *blamer_bundle);
 
@@ -474,13 +472,13 @@ protected:
   // new pain points to join the newly classified blob with its neighbors.
   void ProcessSegSearchPainPoint(float pain_point_priority, const MATRIX_COORD &pain_point,
                                  const char *pain_point_type,
-                                 GenericVector<SegSearchPending> *pending, WERD_RES *word_res,
+                                 std::vector<SegSearchPending> *pending, WERD_RES *word_res,
                                  LMPainPoints *pain_points, BlamerBundle *blamer_bundle);
   // Resets enough of the results so that the Viterbi search is re-run.
   // Needed when the n-gram model is enabled, as the multi-length comparison
   // implementation will re-value existing paths to worse values.
   void ResetNGramSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle,
-                        GenericVector<SegSearchPending> *pending);
+                        std::vector<SegSearchPending> *pending);
 
   // Add pain points for classifying blobs on the correct segmentation path
   // (so that we can evaluate correct segmentation path and discover the reason

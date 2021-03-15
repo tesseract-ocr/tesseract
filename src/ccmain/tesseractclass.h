@@ -719,8 +719,8 @@ public:
   // blobs, with index 0 being a single blob, index 1 being 2 blobs etc.
   void SearchForText(const GenericVector<BLOB_CHOICE_LIST *> *choices, int choices_pos,
                      int choices_length, const GenericVector<UNICHAR_ID> &target_text,
-                     int text_index, float rating, GenericVector<int> *segmentation,
-                     float *best_rating, GenericVector<int> *best_segmentation);
+                     int text_index, float rating, std::vector<int> *segmentation,
+                     float *best_rating, std::vector<int> *best_segmentation);
   // Counts up the labelled words and the blobs within.
   // Deletes all unused or emptied words, counting the unused ones.
   // Resets W_BOL and W_EOL flags correctly.

@@ -46,7 +46,7 @@ using tesseract::ScoredFont;
  * the collection of small pieces un modified.
  **********************************************************************/
 namespace tesseract {
-BLOB_CHOICE_LIST *Wordrec::classify_piece(const GenericVector<SEAM *> &seams, int16_t start,
+BLOB_CHOICE_LIST *Wordrec::classify_piece(const std::vector<SEAM *> &seams, int16_t start,
                                           int16_t end, const char *description, TWERD *word,
                                           BlamerBundle *blamer_bundle) {
   if (end > start)
