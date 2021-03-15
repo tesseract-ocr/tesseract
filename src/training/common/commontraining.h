@@ -75,18 +75,19 @@ extern tesseract::CLUSTERCONFIG Config;
 //////////////////////////////////////////////////////////////////////////////
 // Structs ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-typedef struct {
+struct LABELEDLISTNODE {
   char *Label;
   int SampleCount;
   int font_sample_count;
   tesseract::LIST List;
-} LABELEDLISTNODE, *LABELEDLIST;
+};
+using LABELEDLIST = LABELEDLISTNODE *;
 
-typedef struct {
+struct MERGE_CLASS_NODE {
   char *Label;
   int NumMerged[MAX_NUM_PROTOS];
   tesseract::CLASS_TYPE Class;
-} MERGE_CLASS_NODE;
+};
 using MERGE_CLASS = MERGE_CLASS_NODE *;
 
 //////////////////////////////////////////////////////////////////////////////

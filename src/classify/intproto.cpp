@@ -67,27 +67,27 @@ namespace tesseract {
 typedef enum { StartSwitch, EndSwitch, LastSwitch } SWITCH_TYPE;
 #define MAX_NUM_SWITCHES 3
 
-typedef struct {
+struct FILL_SWITCH {
   SWITCH_TYPE Type;
   int8_t X, Y;
   int16_t YInit;
   int16_t Delta;
-} FILL_SWITCH;
+};
 
-typedef struct {
+struct TABLE_FILLER {
   uint8_t NextSwitch;
   uint8_t AngleStart, AngleEnd;
   int8_t X;
   int16_t YStart, YEnd;
   int16_t StartDelta, EndDelta;
   FILL_SWITCH Switch[MAX_NUM_SWITCHES];
-} TABLE_FILLER;
+};
 
-typedef struct {
+struct FILL_SPEC {
   int8_t X;
   int8_t YStart, YEnd;
   uint8_t AngleStart, AngleEnd;
-} FILL_SPEC;
+};
 
 /* constants for conversion from old inttemp format */
 #define OLD_MAX_NUM_CONFIGS 32

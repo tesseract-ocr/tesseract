@@ -55,7 +55,7 @@ namespace tesseract {
  * version.
  **********************************************************************/
 
-typedef struct { /*single character */
+struct EANYCODE_CHAR { /*single character */
   // It should be noted that the format for char_code for version 2.0 and beyond
   // is UTF8 which means that ASCII characters will come out as one structure
   // but other characters will be returned in two or more instances of this
@@ -74,7 +74,7 @@ typedef struct { /*single character */
   uint8_t point_size; /*of char, 72=i inch, (10) */
   int8_t blanks;      /*no of spaces before this char (1) */
   uint8_t formatting; /*char formatting (0) */
-} EANYCODE_CHAR;      /*single character */
+};
 
 /**********************************************************************
  * ETEXT_DESC

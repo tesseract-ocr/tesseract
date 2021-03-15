@@ -39,9 +39,9 @@
 #define MFLENGTH 2
 #define ORIENTATION 3
 
-typedef struct {
+struct FRECT {
   float MinX, MaxX, MinY, MaxY;
-} FRECT;
+};
 
 /**----------------------------------------------------------------------------
       Public Macros

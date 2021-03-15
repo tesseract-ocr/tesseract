@@ -73,30 +73,26 @@ struct CLASS_PRUNER_STRUCT {
   uint32_t p[NUM_CP_BUCKETS][NUM_CP_BUCKETS][NUM_CP_BUCKETS][WERDS_PER_CP_VECTOR];
 };
 
-typedef struct {
+struct INT_PROTO_STRUCT {
   int8_t A;
   uint8_t B;
   int8_t C;
   uint8_t Angle;
   uint32_t Configs[WERDS_PER_CONFIG_VEC];
-}
-
-INT_PROTO_STRUCT,
-    *INT_PROTO;
+};
+using INT_PROTO = INT_PROTO_STRUCT *;
 
 typedef uint32_t PROTO_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR];
 
-typedef struct {
+struct PROTO_SET_STRUCT {
   PROTO_PRUNER ProtoPruner;
   INT_PROTO_STRUCT Protos[PROTOS_PER_PROTO_SET];
-}
-
-PROTO_SET_STRUCT,
-    *PROTO_SET;
+};
+using PROTO_SET = PROTO_SET_STRUCT *;
 
 typedef uint32_t CONFIG_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][4];
 
-typedef struct {
+struct INT_CLASS_STRUCT {
   uint16_t NumProtos;
   uint8_t NumProtoSets;
   uint8_t NumConfigs;
@@ -104,20 +100,16 @@ typedef struct {
   uint8_t *ProtoLengths;
   uint16_t ConfigLengths[MAX_NUM_CONFIGS];
   int font_set_id; // FontSet id, see above
-}
+};
+using INT_CLASS = INT_CLASS_STRUCT *;
 
-INT_CLASS_STRUCT,
-    *INT_CLASS;
-
-typedef struct {
+struct INT_TEMPLATES_STRUCT {
   int NumClasses;
   int NumClassPruners;
   INT_CLASS Class[MAX_NUM_CLASSES];
   CLASS_PRUNER_STRUCT *ClassPruners[MAX_NUM_CLASS_PRUNERS];
-}
-
-INT_TEMPLATES_STRUCT,
-    *INT_TEMPLATES;
+};
+using INT_TEMPLATES = INT_TEMPLATES_STRUCT *;
 
 /* definitions of integer features*/
 #define MAX_NUM_INT_FEATURES 512

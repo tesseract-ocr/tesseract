@@ -29,7 +29,7 @@ namespace tesseract {
 
 using CONFIGS = BIT_VECTOR *;
 
-typedef struct {
+struct PROTO_STRUCT {
   float A;
   float B;
   float C;
@@ -37,7 +37,7 @@ typedef struct {
   float Y;
   float Angle;
   float Length;
-} PROTO_STRUCT;
+};
 using PROTO = PROTO_STRUCT *;
 
 struct CLASS_STRUCT {

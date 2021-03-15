@@ -24,35 +24,33 @@
 
 namespace tesseract {
 
-typedef struct {
+struct TEMP_PROTO_STRUCT {
   uint16_t ProtoId;
   PROTO_STRUCT Proto;
-}
-
-TEMP_PROTO_STRUCT;
+};
 using TEMP_PROTO = TEMP_PROTO_STRUCT *;
 
-typedef struct {
+struct TEMP_CONFIG_STRUCT {
   uint8_t NumTimesSeen;
   uint8_t ProtoVectorSize;
   PROTO_ID MaxProtoId;
   BIT_VECTOR Protos;
   int FontinfoId; // font information inferred from pre-trained templates
-} TEMP_CONFIG_STRUCT;
+};
 using TEMP_CONFIG = TEMP_CONFIG_STRUCT *;
 
-typedef struct {
+struct PERM_CONFIG_STRUCT {
   UNICHAR_ID *Ambigs;
   int FontinfoId; // font information inferred from pre-trained templates
-} PERM_CONFIG_STRUCT;
+};
 using PERM_CONFIG = PERM_CONFIG_STRUCT *;
 
-typedef union {
+union ADAPTED_CONFIG {
   TEMP_CONFIG Temp;
   PERM_CONFIG Perm;
-} ADAPTED_CONFIG;
+};
 
-typedef struct {
+struct ADAPT_CLASS_STRUCT {
   uint8_t NumPermConfigs;
   uint8_t MaxNumTimesSeen; // maximum number of times any TEMP_CONFIG was seen
                            // (cut at matcher_min_examples_for_prototyping)
@@ -60,15 +58,15 @@ typedef struct {
   BIT_VECTOR PermConfigs;
   LIST TempProtos;
   ADAPTED_CONFIG Config[MAX_NUM_CONFIGS];
-} ADAPT_CLASS_STRUCT;
+};
 using ADAPT_CLASS = ADAPT_CLASS_STRUCT *;
 
-typedef struct {
+struct ADAPT_TEMPLATES_STRUCT {
   INT_TEMPLATES Templates;
   int NumNonEmptyClasses;
   uint8_t NumPermClasses;
   ADAPT_CLASS Class[MAX_NUM_CLASSES];
-} ADAPT_TEMPLATES_STRUCT;
+};
 using ADAPT_TEMPLATES = ADAPT_TEMPLATES_STRUCT *;
 
 /*----------------------------------------------------------------------------

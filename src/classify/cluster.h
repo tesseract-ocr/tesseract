@@ -31,21 +31,20 @@ struct BUCKETS;
 /*----------------------------------------------------------------------
           Types
 ----------------------------------------------------------------------*/
-typedef struct sample {
+struct CLUSTER {
   bool Clustered : 1;        // true if included in a higher cluster
   bool Prototype : 1;        // true if cluster represented by a proto
   unsigned SampleCount : 30; // number of samples in this cluster
-  struct sample *Left;       // ptr to left sub-cluster
-  struct sample *Right;      // ptr to right sub-cluster
+  CLUSTER *Left;       // ptr to left sub-cluster
+  CLUSTER *Right;      // ptr to right sub-cluster
   int32_t CharID;            // identifier of char sample came from
   float Mean[1];             // mean of cluster - SampleSize floats
-} CLUSTER;
-
+};
 using SAMPLE = CLUSTER; // can refer to as either sample or cluster
 
 typedef enum { spherical, elliptical, mixed, automatic } PROTOSTYLE;
 
-typedef struct {         // parameters to control clustering
+struct CLUSTERCONFIG {   // parameters to control clustering
   PROTOSTYLE ProtoStyle; // specifies types of protos to be made
   float MinSamples;      // min # of samples per proto - % of total
   float MaxIllegal;      // max percentage of samples in a cluster which
@@ -53,16 +52,16 @@ typedef struct {         // parameters to control clustering
   float Independence;    // desired independence between dimensions
   double Confidence;     // desired confidence in prototypes created
   int MagicSamples;      // Ideal number of samples in a cluster.
-} CLUSTERCONFIG;
+};
 
 typedef enum { normal, uniform, D_random, DISTRIBUTION_COUNT } DISTRIBUTION;
 
-typedef union {
+union FLOATUNION {
   float Spherical;
   float *Elliptical;
-} FLOATUNION;
+};
 
-typedef struct {
+struct PROTOTYPE {
   bool Significant : 1;     // true if prototype is significant
   bool Merged : 1;          // Merged after clustering so do not output
                             // but kept for display purposes. If it has no
@@ -79,9 +78,9 @@ typedef struct {
   FLOATUNION Variance;      // prototype variance
   FLOATUNION Magnitude;     // magnitude of density function
   FLOATUNION Weight;        // weight of density function
-} PROTOTYPE;
+};
 
-typedef struct {
+struct CLUSTERER {
   int16_t SampleSize;      // number of parameters per sample
   PARAM_DESC *ParamDesc;   // description of each parameter
   int32_t NumberOfSamples; // total number of samples being clustered
@@ -91,13 +90,13 @@ typedef struct {
   int32_t NumChar;         // # of characters represented by samples
   // cache of reusable histograms by distribution type and number of buckets.
   BUCKETS *bucket_cache[DISTRIBUTION_COUNT][MAXBUCKETS + 1 - MINBUCKETS];
-} CLUSTERER;
+};
 
-typedef struct {
+struct SAMPLELIST {
   int32_t NumSamples;    // number of samples in list
   int32_t MaxNumSamples; // maximum size of list
   SAMPLE *Sample[1];     // array of ptrs to sample data structures
-} SAMPLELIST;
+};
 
 // low level cluster tree analysis routines.
 #define InitSampleSearch(S, C) (((C) == nullptr) ? (S = NIL_LIST) : (S = push(NIL_LIST, (C))))
