@@ -24,7 +24,6 @@
 #  include "boxread.h"
 #endif // ndef DISABLED_LEGACY_ENGINE
 #include <tesseract/unichar.h>
-#include "genericvector.h"
 #include "pageres.h"
 #include "tesseractclass.h"
 #include "unicharset.h"
@@ -489,7 +488,7 @@ void Tesseract::ReSegmentByClassification(PAGE_RES *page_res) {
     if (word->text() == nullptr || word->text()[0] == '\0')
       continue; // Ignore words that have no text.
     // Convert the correct text to a vector of UNICHAR_ID
-    GenericVector<UNICHAR_ID> target_text;
+    std::vector<UNICHAR_ID> target_text;
     if (!ConvertStringToUnichars(word->text(), &target_text)) {
       tprintf("APPLY_BOX: FAILURE: can't find class_id for '%s'\n", word->text());
       pr_it.DeleteCurrentWord();
@@ -505,7 +504,7 @@ void Tesseract::ReSegmentByClassification(PAGE_RES *page_res) {
 
 /// Converts the space-delimited string of utf8 text to a vector of UNICHAR_ID.
 /// @return false if an invalid UNICHAR_ID is encountered.
-bool Tesseract::ConvertStringToUnichars(const char *utf8, GenericVector<UNICHAR_ID> *class_ids) {
+bool Tesseract::ConvertStringToUnichars(const char *utf8, std::vector<UNICHAR_ID> *class_ids) {
   for (int step = 0; *utf8 != '\0'; utf8 += step) {
     const char *next_space = strchr(utf8, ' ');
     if (next_space == nullptr)
@@ -528,10 +527,10 @@ bool Tesseract::ConvertStringToUnichars(const char *utf8, GenericVector<UNICHAR_
 /// applies a full search on the classifier results to find the best classified
 /// segmentation. As a compromise to obtain better recall, 1-1 ambiguity
 /// substitutions ARE used.
-bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID> &target_text, WERD_RES *word_res) {
+bool Tesseract::FindSegmentation(const std::vector<UNICHAR_ID> &target_text, WERD_RES *word_res) {
   // Classify all required combinations of blobs and save results in choices.
   const int word_length = word_res->box_word->length();
-  auto *choices = new GenericVector<BLOB_CHOICE_LIST *>[word_length];
+  auto *choices = new std::vector<BLOB_CHOICE_LIST *>[word_length];
   for (int i = 0; i < word_length; ++i) {
     for (int j = 1; j <= kMaxGroupSize && i + j <= word_length; ++j) {
       BLOB_CHOICE_LIST *match_result =
@@ -552,8 +551,11 @@ bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID> &target_text, W
   float best_rating = 0.0f;
   SearchForText(choices, 0, word_length, target_text, 0, 0.0f, &search_segmentation, &best_rating,
                 &word_res->best_state);
-  for (int i = 0; i < word_length; ++i)
-    choices[i].delete_data_pointers();
+  for (int i = 0; i < word_length; ++i) {
+    for (auto choice : choices[i]) {
+      delete choice;
+    }
+  }
   delete[] choices;
   if (word_res->best_state.empty()) {
     // Build the original segmentation and if it is the same length as the
@@ -583,9 +585,9 @@ bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID> &target_text, W
 
 /// Recursive helper to find a match to the target_text (from text_index
 /// position) in the choices (from choices_pos position).
-/// @param choices is an array of GenericVectors, of length choices_length,
+/// @param choices is an array of vectors of length choices_length,
 /// with each element representing a starting position in the word, and the
-/// #GenericVector holding classification results for a sequence of consecutive
+/// #vector holding classification results for a sequence of consecutive
 /// blobs, with index 0 being a single blob, index 1 being 2 blobs etc.
 /// @param choices_pos
 /// @param choices_length
@@ -595,8 +597,8 @@ bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID> &target_text, W
 /// @param segmentation
 /// @param best_rating
 /// @param best_segmentation
-void Tesseract::SearchForText(const GenericVector<BLOB_CHOICE_LIST *> *choices, int choices_pos,
-                              int choices_length, const GenericVector<UNICHAR_ID> &target_text,
+void Tesseract::SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, int choices_pos,
+                              int choices_length, const std::vector<UNICHAR_ID> &target_text,
                               int text_index, float rating, std::vector<int> *segmentation,
                               float *best_rating, std::vector<int> *best_segmentation) {
   const UnicharAmbigsVector &table = getDict().getUnicharAmbigs().dang_ambigs();

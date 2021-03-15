@@ -226,16 +226,6 @@ public:
   }
 
   // Searches the array (assuming sorted in ascending order, using sort()) for
-  // an element equal to target and returns true if it is present.
-  // Use binary_search to get the index of target, or its nearest candidate.
-  bool bool_binary_search(const T &target) const {
-    int index = binary_search(target);
-    if (index >= size_used_) {
-      return false;
-    }
-    return data_[index] == target;
-  }
-  // Searches the array (assuming sorted in ascending order, using sort()) for
   // an element equal to target and returns the index of the best candidate.
   // The return value is conceptually the largest index i such that
   // data_[i] <= target or 0 if target < the whole vector.

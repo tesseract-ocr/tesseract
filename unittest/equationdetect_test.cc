@@ -92,15 +92,15 @@ public:
     return ComputeForegroundDensity(tbox);
   }
 
-  int RunCountAlignment(const GenericVector<int> &sorted_vec, const int val) {
+  int RunCountAlignment(const std::vector<int> &sorted_vec, const int val) {
     return CountAlignment(sorted_vec, val);
   }
 
-  void RunSplitCPHorLite(ColPartition *part, GenericVector<TBOX> *splitted_boxes) {
+  void RunSplitCPHorLite(ColPartition *part, std::vector<TBOX> *splitted_boxes) {
     SplitCPHorLite(part, splitted_boxes);
   }
 
-  void RunSplitCPHor(ColPartition *part, GenericVector<ColPartition *> *parts_splitted) {
+  void RunSplitCPHor(ColPartition *part, std::vector<ColPartition *> *parts_splitted) {
     SplitCPHor(part, parts_splitted);
   }
 
@@ -377,7 +377,7 @@ TEST_F(EquationFinderTest, ComputeForegroundDensity) {
 }
 
 TEST_F(EquationFinderTest, CountAlignment) {
-  GenericVector<int> vec;
+  std::vector<int> vec;
   vec.push_back(1);
   vec.push_back(1);
   vec.push_back(1);
@@ -452,7 +452,7 @@ TEST_F(EquationFinderTest, SplitCPHorLite) {
   ColPartition *part = ColPartition::FakePartition(box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   part->DeleteBoxes();
   part->set_median_width(10);
-  GenericVector<TBOX> splitted_boxes;
+  std::vector<TBOX> splitted_boxes;
 
   // Test an empty part.
   equation_det_->RunSplitCPHorLite(part, &splitted_boxes);
@@ -486,7 +486,7 @@ TEST_F(EquationFinderTest, SplitCPHor) {
   ColPartition *part = ColPartition::FakePartition(box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   part->DeleteBoxes();
   part->set_median_width(10);
-  GenericVector<ColPartition *> parts_splitted;
+  std::vector<ColPartition *> parts_splitted;
 
   // Test an empty part.
   equation_det_->RunSplitCPHor(part, &parts_splitted);
@@ -512,7 +512,9 @@ TEST_F(EquationFinderTest, SplitCPHor) {
   EXPECT_TRUE(TBOX(100, 0, 140, 45) == parts_splitted[1]->bounding_box());
   EXPECT_TRUE(TBOX(500, 0, 540, 35) == parts_splitted[2]->bounding_box());
 
-  parts_splitted.delete_data_pointers();
+  for (auto part_splitted : parts_splitted) {
+    delete part_splitted;
+  }
   part->DeleteBoxes();
   delete (part);
 }

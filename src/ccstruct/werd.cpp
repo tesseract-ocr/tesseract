@@ -502,7 +502,7 @@ void WERD::CleanNoise(float size_threshold) {
 
 // Extracts all the noise outlines and stuffs the pointers into the given
 // vector of outlines. Afterwards, the outlines vector owns the pointers.
-void WERD::GetNoiseOutlines(GenericVector<C_OUTLINE *> *outlines) {
+void WERD::GetNoiseOutlines(std::vector<C_OUTLINE *> *outlines) {
   C_BLOB_IT rej_it(&rej_cblobs);
   for (rej_it.mark_cycle_pt(); !rej_it.empty(); rej_it.forward()) {
     C_BLOB *blob = rej_it.extract();
@@ -516,13 +516,13 @@ void WERD::GetNoiseOutlines(GenericVector<C_OUTLINE *> *outlines) {
 // back in rej_cblobs where they came from. Where the target_blobs entry is
 // nullptr, a run of wanted outlines is put into a single new blob.
 // Ownership of the outlines is transferred back to the word. (Hence
-// GenericVector and not PointerVector.)
+// vector and not PointerVector.)
 // Returns true if any new blob was added to the start of the word, which
 // suggests that it might need joining to the word before it, and likewise
 // sets make_next_word_fuzzy true if any new blob was added to the end.
-bool WERD::AddSelectedOutlines(const GenericVector<bool> &wanted,
-                               const GenericVector<C_BLOB *> &target_blobs,
-                               const GenericVector<C_OUTLINE *> &outlines,
+bool WERD::AddSelectedOutlines(const std::vector<bool> &wanted,
+                               const std::vector<C_BLOB *> &target_blobs,
+                               const std::vector<C_OUTLINE *> &outlines,
                                bool *make_next_word_fuzzy) {
   bool outline_added_to_start = false;
   if (make_next_word_fuzzy != nullptr)
