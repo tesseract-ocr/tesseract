@@ -535,19 +535,24 @@ public:
   
   size_t GetNumberOfTables();
   
-  /// return value is x1,y1,x2,y2 of the bounding rectangle
+  /// Return the i-th table bounding box coordinates
+  ///
+  ///Gives the (top_left.x, top_left.y, bottom_right.x, bottom_right.y)
+  /// coordinates of the i-th table.
   std::tuple<int,int,int,int> GetTableBoundingBox(
-    unsigned i///<Table index needs to be lesser than GetNumberOfTables()
+    unsigned i///< Index of the table, for upper limit \see GetNumberOfTables()
   );
   
-  /// return values are x1,y1,x2,y2 of the bounding rectangles
+  /// Get bounding boxes of the rows of a table
+  /// return values are (top_left.x, top_left.y, bottom_right.x, bottom_right.y)
   std::vector<std::tuple<int,int,int,int> > GetTableRows(
-    unsigned i///<Table index needs to be lesser than GetNumberOfTables()
+    unsigned i///< Index of the table, for upper limit \see GetNumberOfTables()
   );
   
-  /// return values are x1,y1,x2,y2 of the bounding rectangles
+  /// Get bounding boxes of the cols of a table
+  /// return values are (top_left.x, top_left.y, bottom_right.x, bottom_right.y)
   std::vector<std::tuple<int,int,int,int> > GetTableCols(
-    unsigned i///<Table index needs to be lesser than GetNumberOfTables()
+    unsigned i///< Index of the table, for upper limit \see GetNumberOfTables()
   );
 
   /**

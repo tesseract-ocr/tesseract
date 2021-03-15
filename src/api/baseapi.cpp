@@ -47,7 +47,6 @@
 #if defined(USE_OPENCL)
 #  include "openclwrapper.h" // for OpenclDevice
 #endif
-
 #include "pageres.h"         // for PAGE_RES_IT, WERD_RES, PAGE_RES, CR_DE...
 #include "paragraphs.h"      // for DetectParagraphs
 #include "params.h"          // for BoolParam, IntParam, DoubleParam, Stri...
@@ -1301,13 +1300,7 @@ size_t TessBaseAPI::GetNumberOfTables()
   return constUniqueInstance<std::vector<MyTable>>().size();
 }
 
-/// Return the i-th table bounding coordinates
-///
-///Gives the (top_left.x, tp_left.y, bottom_right.x, bottom_right.y)
-/// coordinates of the i-th table.
-std::tuple<int,int,int,int> TessBaseAPI::GetTableBoundingBox(
-  unsigned i///< Index of the table, use GetNumberOfTables() to get the range
-)
+std::tuple<int,int,int,int> TessBaseAPI::GetTableBoundingBox(unsigned i)
 {
   const std::vector<MyTable>& t = constUniqueInstance<std::vector<MyTable>>();
   
@@ -1321,10 +1314,8 @@ std::tuple<int,int,int,int> TessBaseAPI::GetTableBoundingBox(
     t[i].box.right(), height - t[i].box.bottom());
 }
 
-/// Returns all bounding box coordinates of the rows within the i-th table
-std::vector<std::tuple<int,int,int,int>> TessBaseAPI::GetTableRows(
-  unsigned i///< Index of the table, use GetNumberOfTables() to get the range
-)
+
+std::vector<std::tuple<int,int,int,int>> TessBaseAPI::GetTableRows(unsigned i)
 {
   const std::vector<MyTable>& t = constUniqueInstance<std::vector<MyTable>>();
   
@@ -1342,10 +1333,7 @@ std::vector<std::tuple<int,int,int,int>> TessBaseAPI::GetTableRows(
   return rows;
 }
 
-/// Returns all bounding box coordinates of the columns within the i-th table
-std::vector<std::tuple<int,int,int,int> > TessBaseAPI::GetTableCols(
-  unsigned i///< Index of the table, use GetNumberOfTables() to get the range
-)
+std::vector<std::tuple<int,int,int,int> > TessBaseAPI::GetTableCols(unsigned i)
 {
   const std::vector<MyTable>& t = constUniqueInstance<std::vector<MyTable>>();
   

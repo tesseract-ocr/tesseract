@@ -23,7 +23,6 @@
 #include "colpartitiongrid.h"
 #include "genericvector.h"
 #include <vector>
-#include "points.h"
 
 namespace tesseract {
 
