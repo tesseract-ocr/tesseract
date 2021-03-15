@@ -25,8 +25,6 @@
 #include "params.h"
 #include "stepblob.h"
 
-#include "strngs.h"
-
 namespace tesseract {
 
 enum WERD_FLAGS {
@@ -193,7 +191,7 @@ private:
   BITS16 flags;           // flags about word
   BITS16 disp_flags;      // display flags
   int16_t script_id_ = 0; // From unicharset.
-  STRING correct;         // correct text
+  std::string correct;    // correct text
   C_BLOB_LIST cblobs;     // compacted blobs
   C_BLOB_LIST rej_cblobs; // DUFF blobs
 };

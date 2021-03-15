@@ -45,7 +45,7 @@ ELIST2IZE(WERD)
  *   text          correct text, outlives this WERD
  */
 WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
-    : blanks(blank_count), flags(0), script_id_(0), correct(text) {
+    : blanks(blank_count), flags(0), script_id_(0), correct(text ? text : "") {
   C_BLOB_IT start_it = &cblobs;
   C_BLOB_IT rej_cblob_it = &rej_cblobs;
   C_OUTLINE_IT c_outline_it;
