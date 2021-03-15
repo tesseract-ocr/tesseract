@@ -297,10 +297,10 @@ void LSTM::Forward(bool debug, const NetworkIO &input, const TransposedArray *in
   // for the other dimension, used only when working in true 2D mode. The width
   // is enough to hold an entire strip of the major direction.
   int buf_width = Is2D() ? input_map_.Size(FD_WIDTH) : 1;
-  GenericVector<NetworkScratch::FloatVec> states, outputs;
+  std::vector<NetworkScratch::FloatVec> states, outputs;
   if (Is2D()) {
-    states.init_to_size(buf_width, NetworkScratch::FloatVec());
-    outputs.init_to_size(buf_width, NetworkScratch::FloatVec());
+    states.resize(buf_width);
+    outputs.resize(buf_width);
     for (int i = 0; i < buf_width; ++i) {
       states[i].Init(ns_, scratch);
       ZeroVector<double>(ns_, states[i]);
@@ -494,10 +494,10 @@ bool LSTM::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scr
   // Rotating buffers of width buf_width allow storage of the recurrent time-
   // steps used only for true 2-D. Stores one full strip of the major direction.
   int buf_width = Is2D() ? input_map_.Size(FD_WIDTH) : 1;
-  GenericVector<NetworkScratch::FloatVec> stateerr, sourceerr;
+  std::vector<NetworkScratch::FloatVec> stateerr, sourceerr;
   if (Is2D()) {
-    stateerr.init_to_size(buf_width, NetworkScratch::FloatVec());
-    sourceerr.init_to_size(buf_width, NetworkScratch::FloatVec());
+    stateerr.resize(buf_width);
+    sourceerr.resize(buf_width);
     for (int t = 0; t < buf_width; ++t) {
       stateerr[t].Init(ns_, scratch);
       sourceerr[t].Init(na_, scratch);

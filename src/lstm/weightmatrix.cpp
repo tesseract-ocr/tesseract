@@ -256,8 +256,8 @@ bool WeightMatrix::DeSerializeOld(bool training, TFile *fp) {
   if (int_mode_) {
     if (!wi_.DeSerialize(fp))
       return false;
-    GenericVector<float> old_scales;
-    if (!old_scales.DeSerialize(fp))
+    std::vector<float> old_scales;
+    if (!fp->DeSerialize(old_scales))
       return false;
     scales_.reserve(old_scales.size());
     for (int i = 0; i < old_scales.size(); ++i) {

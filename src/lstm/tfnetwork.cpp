@@ -44,7 +44,7 @@ bool TFNetwork::Serialize(TFile *fp) const {
     return false;
   std::string proto_str;
   model_proto_.SerializeToString(&proto_str);
-  GenericVector<char> data;
+  std::vector<char> data;
   data.resize_no_init(proto_str.size());
   memcpy(&data[0], proto_str.data(), proto_str.size());
   if (!data.Serialize(fp))
@@ -55,7 +55,7 @@ bool TFNetwork::Serialize(TFile *fp) const {
 // Reads from the given file. Returns false in case of error.
 // Should be overridden by subclasses, but NOT called by their DeSerialize.
 bool TFNetwork::DeSerialize(TFile *fp) {
-  GenericVector<char> data;
+  std::vector<char> data;
   if (!data.DeSerialize(fp))
     return false;
   if (!model_proto_.ParseFromArray(&data[0], data.size())) {

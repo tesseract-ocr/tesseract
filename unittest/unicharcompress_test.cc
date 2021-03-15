@@ -93,7 +93,7 @@ protected:
       int len = compressed_.EncodeUnichar(u, &code);
       // Check round-trip encoding.
       int unichar_id;
-      GenericVector<UNICHAR_ID> normed_ids;
+      std::vector<UNICHAR_ID> normed_ids;
       if (u == null_char_ || u == unicharset_.size()) {
         unichar_id = null_char_;
       } else {
@@ -137,7 +137,7 @@ protected:
                            const std::vector<RecodedCharID> &times_seen) {
     RecodedCharID extended = code;
     int length = code.length();
-    const GenericVector<int> *final_codes = compressed_.GetFinalCodes(code);
+    const std::vector<int> *final_codes = compressed_.GetFinalCodes(code);
     if (final_codes != nullptr) {
       for (int i = 0; i < final_codes->size(); ++i) {
         int ending = (*final_codes)[i];
@@ -147,7 +147,7 @@ protected:
         EXPECT_NE(INVALID_UNICHAR_ID, unichar_id);
       }
     }
-    const GenericVector<int> *next_codes = compressed_.GetNextCodes(code);
+    const std::vector<int> *next_codes = compressed_.GetNextCodes(code);
     if (next_codes != nullptr) {
       for (int i = 0; i < next_codes->size(); ++i) {
         int extension = (*next_codes)[i];

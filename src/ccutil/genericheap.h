@@ -4,7 +4,6 @@
 // File:        genericheap.h
 // Description: Template heap class.
 // Author:      Ray Smith, based on Dan Johnson's original code.
-// Created:     Wed Mar 14 08:13:00 PDT 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +37,7 @@ namespace tesseract {
 // GenericHeap doesn't look inside it except for operator<.
 //
 // The heap is stored as a packed binary tree in an array hosted by a
-// GenericVector<Pair>, with the invariant that the children of each node are
+// vector<Pair>, with the invariant that the children of each node are
 // both NOT Pair::operator< the parent node. KDPairInc defines Pair::operator<
 // to use Key::operator< to generate a MIN heap and KDPairDec defines
 // Pair::operator< to use Key::operator> to generate a MAX heap by reversing
@@ -59,7 +58,7 @@ template <typename Pair>
 class GenericHeap {
 public:
   GenericHeap() = default;
-  // The initial size is only a GenericVector::reserve. It is not enforced as
+  // The initial size is only a vector::reserve. It is not enforced as
   // the size limit of the heap. Caller must implement their own enforcement.
   explicit GenericHeap(int initial_size) {
     heap_.reserve(initial_size);
@@ -77,12 +76,12 @@ public:
   }
   void clear() {
     // Clear truncates to 0 to keep the number reserved in tact.
-    heap_.truncate(0);
+    heap_.clear();
   }
   // Provides access to the underlying vector.
   // Caution! any changes that modify the keys will invalidate the heap!
-  GenericVector<Pair> *heap() {
-    return &heap_;
+  std::vector<Pair> &heap() {
+    return heap_;
   }
   // Provides read-only access to an element of the underlying vector.
   const Pair &get(int index) const {
@@ -128,11 +127,11 @@ public:
       // Sift the hole at the start of the heap_ downwards to match the last
       // element.
       Pair hole_pair = heap_[new_size];
-      heap_.truncate(new_size);
+      heap_.resize(new_size);
       int hole_index = SiftDown(0, hole_pair);
       heap_[hole_index] = hole_pair;
     } else {
-      heap_.truncate(new_size);
+      heap_.resize(new_size);
     }
     return true;
   }
@@ -154,7 +153,7 @@ public:
       int hole_index = SiftUp(worst_index, hole_pair);
       heap_[hole_index] = hole_pair;
     }
-    heap_.truncate(heap_size);
+    heap_.resize(heap_size);
     return true;
   }
 
@@ -179,7 +178,7 @@ public:
   // The pointed-to Pair has changed its key value, so the location of pair
   // is reshuffled to maintain the heap invariant.
   // Must be a valid pointer to an element of the heap_!
-  // Caution! Since GenericHeap is based on GenericVector, reallocs may occur
+  // Caution! Since GenericHeap is based on vector, reallocs may occur
   // whenever the vector is extended and elements may get shuffled by any
   // Push or Pop operation. Therefore use this function only if Data in Pair is
   // of type DoublePtr, derived (first) from DoublePtr, or has a DoublePtr as
@@ -235,7 +234,7 @@ private:
   }
 
 private:
-  GenericVector<Pair> heap_;
+  std::vector<Pair> heap_;
 };
 
 } // namespace tesseract

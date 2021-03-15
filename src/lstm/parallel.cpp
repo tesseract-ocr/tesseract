@@ -61,8 +61,7 @@ void Parallel::Forward(bool debug, const NetworkIO &input, const TransposedArray
   int stack_size = stack_.size();
   if (type_ == NT_PAR_2D_LSTM) {
     // Special case, run parallel in parallel.
-    GenericVector<NetworkScratch::IO> results;
-    results.init_to_size(stack_size, NetworkScratch::IO());
+    std::vector<NetworkScratch::IO> results(stack_size);
     for (int i = 0; i < stack_size; ++i) {
       results[i].Resize(input, stack_[i]->NumOutputs(), scratch);
     }
@@ -124,9 +123,8 @@ bool Parallel::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch 
   int stack_size = stack_.size();
   if (type_ == NT_PAR_2D_LSTM) {
     // Special case, run parallel in parallel.
-    GenericVector<NetworkScratch::IO> in_deltas, out_deltas;
-    in_deltas.init_to_size(stack_size, NetworkScratch::IO());
-    out_deltas.init_to_size(stack_size, NetworkScratch::IO());
+    std::vector<NetworkScratch::IO> in_deltas(stack_size);
+    std::vector<NetworkScratch::IO> out_deltas(stack_size);
     // Split the forward deltas for each stack element.
     int feature_offset = 0;
     for (int i = 0; i < stack_.size(); ++i) {

@@ -301,7 +301,7 @@ private:
 
   // Returns the given best_nodes as unichar-ids/certs/ratings/xcoords skipping
   // duplicates, nulls and intermediate parts.
-  static void ExtractPathAsUnicharIds(const GenericVector<const RecodeNode *> &best_nodes,
+  static void ExtractPathAsUnicharIds(const std::vector<const RecodeNode *> &best_nodes,
                                       std::vector<int> *unichar_ids, std::vector<float> *certs,
                                       std::vector<float> *ratings, std::vector<int> *xcoords,
                                       std::vector<int> *character_boundaries = nullptr);
@@ -380,17 +380,17 @@ private:
   // during Decode. On return the best_nodes vector essentially contains the set
   // of code, score pairs that make the optimal path with the constraint that
   // the recoder can decode the code sequence back to a sequence of unichar-ids.
-  void ExtractBestPaths(GenericVector<const RecodeNode *> *best_nodes,
-                        GenericVector<const RecodeNode *> *second_nodes) const;
+  void ExtractBestPaths(std::vector<const RecodeNode *> *best_nodes,
+                        std::vector<const RecodeNode *> *second_nodes) const;
   // Helper backtracks through the lattice from the given node, storing the
   // path and reversing it.
-  void ExtractPath(const RecodeNode *node, GenericVector<const RecodeNode *> *path) const;
-  void ExtractPath(const RecodeNode *node, GenericVector<const RecodeNode *> *path,
+  void ExtractPath(const RecodeNode *node, std::vector<const RecodeNode *> *path) const;
+  void ExtractPath(const RecodeNode *node, std::vector<const RecodeNode *> *path,
                    int limiter) const;
   // Helper prints debug information on the given lattice path.
-  void DebugPath(const UNICHARSET *unicharset, const GenericVector<const RecodeNode *> &path) const;
+  void DebugPath(const UNICHARSET *unicharset, const std::vector<const RecodeNode *> &path) const;
   // Helper prints debug information on the given unichar path.
-  void DebugUnicharPath(const UNICHARSET *unicharset, const GenericVector<const RecodeNode *> &path,
+  void DebugUnicharPath(const UNICHARSET *unicharset, const std::vector<const RecodeNode *> &path,
                         const std::vector<int> &unichar_ids, const std::vector<float> &certs,
                         const std::vector<float> &ratings, const std::vector<int> &xcoords) const;
 

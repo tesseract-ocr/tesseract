@@ -2,7 +2,6 @@
 // File:        networkio.cpp
 // Description: Network input/output data, allowing float/int implementations.
 // Author:      Ray Smith
-// Created:     Thu Jun 19 13:01:31 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -507,7 +506,7 @@ int NetworkIO::BestLabel(int t, int not_this, int not_that, float *score) const 
 
 // Returns the best start position out of [start, end) (into which all labels
 // must fit) to obtain the highest cumulative score for the given labels.
-int NetworkIO::PositionOfBestMatch(const GenericVector<int> &labels, int start, int end) const {
+int NetworkIO::PositionOfBestMatch(const std::vector<int> &labels, int start, int end) const {
   int length = labels.size();
   int last_start = end - length;
   int best_start = -1;
@@ -524,7 +523,7 @@ int NetworkIO::PositionOfBestMatch(const GenericVector<int> &labels, int start, 
 
 // Returns the cumulative score of the given labels starting at start, and
 // using one label per time-step.
-double NetworkIO::ScoreOfLabels(const GenericVector<int> &labels, int start) const {
+double NetworkIO::ScoreOfLabels(const std::vector<int> &labels, int start) const {
   int length = labels.size();
   double score = 0.0;
   for (int i = 0; i < length; ++i) {

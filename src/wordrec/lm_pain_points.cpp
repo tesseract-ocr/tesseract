@@ -200,9 +200,10 @@ bool LMPainPoints::GeneratePainPoint(int col, int row, LMPainPointsType pp_type,
  */
 void LMPainPoints::RemapForSplit(int index) {
   for (auto &pain_points_heap : pain_points_heaps_) {
-    GenericVector<MatrixCoordPair> *heap = pain_points_heap.heap();
-    for (int j = 0; j < heap->size(); ++j)
-      (*heap)[j].data().MapForSplit(index);
+    std::vector<MatrixCoordPair> &heap = pain_points_heap.heap();
+    for (auto entry : heap) {
+      entry.data().MapForSplit(index);
+    }
   }
 }
 

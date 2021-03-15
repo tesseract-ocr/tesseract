@@ -24,12 +24,18 @@
 #include <cmath> // std::isfinite
 #include <cstdio>
 #include <cstring>
+#include <algorithm>  // for std::find
 #include <functional>
 #include <random>
 #include <string>
 #include <vector>
 
 namespace tesseract {
+
+template <class T>
+inline bool contains(const std::vector<T> &data, const T &value) {
+  return std::find(data.begin(), data.end(), value) != data.end();
+}
 
 inline const std::vector<std::string> split(const std::string &s, char c) {
   std::string buff;
