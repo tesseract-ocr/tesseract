@@ -214,10 +214,10 @@ private:
   // distance (scaled by dist_scaling) of the part from the base_part to the
   // vector of the appropriate type for the partition. Prior to return, the
   // vectors in the dists array are sorted in increasing order.
-  // dists must be an array of GenericVectors of size NPT_COUNT.
+  // dists must be an array of vectors of size NPT_COUNT.
   void AccumulatePartDistances(const ColPartition &base_part, const ICOORD &dist_scaling,
                                const TBOX &search_box, Pix *nontext_map, const TBOX &im_box,
-                               const FCOORD &rerotation, bool debug, GenericVector<int> *dists);
+                               const FCOORD &rerotation, bool debug, std::vector<int> *dists);
 
   // Improves the margins of the ColPartition by searching for
   // neighbours that vertically overlap significantly.

@@ -23,8 +23,6 @@
 #include "points.h"
 #include "rect.h"
 
-#include "genericvector.h"
-
 struct Pix;
 
 namespace tesseract {
@@ -109,7 +107,7 @@ private:
   FCOORD baseline_pt1_;
   FCOORD baseline_pt2_;
   // Set of modes of displacements. They indicate preferable baseline positions.
-  GenericVector<double> displacement_modes_;
+  std::vector<double> displacement_modes_;
   // Quantization factor used for displacement_modes_.
   double disp_quant_factor_;
   // Half the acceptance range of blob displacements for computing the
@@ -187,7 +185,7 @@ private:
 
   // Computes the deskewed vertical position of each baseline in the block and
   // stores them in the given vector.
-  void ComputeBaselinePositions(const FCOORD &direction, GenericVector<double> *positions);
+  void ComputeBaselinePositions(const FCOORD &direction, std::vector<double> *positions);
 
   // Computes an estimate of the line spacing of the block from the median
   // of the spacings between adjacent overlapping textlines.
@@ -197,13 +195,13 @@ private:
   // line to the deskewed y-position of each baseline as a function of its
   // estimated line index, allowing for a small error in the initial linespacing
   // and choosing the best available model.
-  void RefineLineSpacing(const GenericVector<double> &positions);
+  void RefineLineSpacing(const std::vector<double> &positions);
 
   // Given an initial estimate of line spacing (m_in) and the positions of each
   // baseline, computes the line spacing of the block more accurately in m_out,
   // and the corresponding intercept in c_out, and the number of spacings seen
   // in index_delta. Returns the error of fit to the line spacing model.
-  double FitLineSpacingModel(const GenericVector<double> &positions, double m_in, double *m_out,
+  double FitLineSpacingModel(const std::vector<double> &positions, double m_in, double *m_out,
                              double *c_out, int *index_delta);
 
   // The block to which this class adds extra information used during baseline

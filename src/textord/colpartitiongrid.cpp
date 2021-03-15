@@ -1472,7 +1472,7 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(BlobNeighbourDir direction
   ComputeSearchBoxAndScaling(direction, part_box, gridsize(), &search_box, &dist_scaling);
   bool image_region =
       ImageFind::CountPixelsInRotatedBox(search_box, im_box, rerotation, nontext_map) > 0;
-  GenericVector<int> dists[NPT_COUNT];
+  std::vector<int> dists[NPT_COUNT];
   AccumulatePartDistances(part, dist_scaling, search_box, nontext_map, im_box, rerotation, debug,
                           dists);
   // By iteratively including the next smallest distance across the vectors,
@@ -1537,12 +1537,12 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(BlobNeighbourDir direction
 // vectors in the dists array are sorted in increasing order.
 // The nontext_map (+im_box, rerotation) is used to make text invisible if
 // there is non-text in between.
-// dists must be an array of GenericVectors of size NPT_COUNT.
+// dists must be an array of vectors of size NPT_COUNT.
 void ColPartitionGrid::AccumulatePartDistances(const ColPartition &base_part,
                                                const ICOORD &dist_scaling, const TBOX &search_box,
                                                Pix *nontext_map, const TBOX &im_box,
                                                const FCOORD &rerotation, bool debug,
-                                               GenericVector<int> *dists) {
+                                               std::vector<int> *dists) {
   const TBOX &part_box = base_part.bounding_box();
   ColPartitionGridSearch rsearch(this);
   rsearch.SetUniqueMode(true);
@@ -1571,7 +1571,7 @@ void ColPartitionGrid::AccumulatePartDistances(const ColPartition &base_part,
     // Truncate the number of boxes, so text doesn't get too much advantage.
     int n_boxes = std::min(neighbour->boxes_count(), kSmoothDecisionMargin);
     BlobTextFlowType n_flow = neighbour->flow();
-    GenericVector<int> *count_vector = nullptr;
+    std::vector<int> *count_vector = nullptr;
     if (n_flow == BTFT_STRONG_CHAIN) {
       if (n_type == BRT_TEXT)
         count_vector = &dists[NPT_HTEXT];
@@ -1602,8 +1602,9 @@ void ColPartitionGrid::AccumulatePartDistances(const ColPartition &base_part,
       neighbour->Print();
     }
   }
-  for (int i = 0; i < NPT_COUNT; ++i)
-    dists[i].sort();
+  for (int i = 0; i < NPT_COUNT; ++i) {
+    std::sort(dists[i].begin(), dists[i].end());
+  }
 }
 
 // Improves the margins of the part ColPartition by searching for

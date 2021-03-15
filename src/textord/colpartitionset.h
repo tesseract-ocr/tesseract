@@ -21,7 +21,6 @@
 #define TESSERACT_TEXTORD_COLPARTITIONSET_H_
 
 #include "colpartition.h"  // For ColPartition_LIST.
-#include "genericvector.h" // For GenericVector.
 #include "rect.h"          // For TBOX.
 #include "tabvector.h"     // For BLOBNBOX_CLIST.
 
@@ -30,7 +29,7 @@ namespace tesseract {
 class WorkingPartSet_LIST;
 class ColSegment_LIST;
 class ColPartitionSet;
-using PartSetVector = GenericVector<ColPartitionSet *>;
+using PartSetVector = std::vector<ColPartitionSet *>;
 
 // ColPartitionSet is a class that holds a list of ColPartitions.
 // Its main use is in holding a candidate partitioning of the width of the

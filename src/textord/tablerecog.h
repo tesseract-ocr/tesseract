@@ -21,7 +21,6 @@
 #define TABLERECOG_H_
 
 #include "colpartitiongrid.h"
-#include "genericvector.h"
 
 namespace tesseract {
 
@@ -209,9 +208,9 @@ protected:
   // are inserted wherever space exists between partitions. If it is 2,
   // lines may intersect 2 partitions at most, but you also need at least
   // 2 partitions to generate a line.
-  static void FindCellSplitLocations(const GenericVector<int> &min_list,
-                                     const GenericVector<int> &max_list, int max_merged,
-                                     GenericVector<int> *locations);
+  static void FindCellSplitLocations(const std::vector<int> &min_list,
+                                     const std::vector<int> &max_list, int max_merged,
+                                     std::vector<int> *locations);
 
   ////////
   //////// Utility function for table queries
@@ -236,8 +235,8 @@ protected:
   // bounding box is a convenient external representation.
   // cell_x_ and cell_y_ indicate the grid lines.
   TBOX bounding_box_;         // Bounding box
-  GenericVector<int> cell_x_; // Locations of vertical divisions (sorted)
-  GenericVector<int> cell_y_; // Locations of horizontal divisions (sorted)
+  std::vector<int> cell_x_; // Locations of vertical divisions (sorted)
+  std::vector<int> cell_y_; // Locations of horizontal divisions (sorted)
   bool is_lined_;             // Is the table backed up by a line structure
   // Table margins, set via CalculateMargins
   int space_above_;

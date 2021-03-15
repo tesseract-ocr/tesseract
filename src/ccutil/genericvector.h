@@ -245,25 +245,6 @@ public:
     return bottom;
   }
 
-  // Compact the vector by deleting elements using operator!= on basic types.
-  // The vector must be sorted.
-  void compact_sorted() {
-    if (size_used_ == 0) {
-      return;
-    }
-
-    // First element is in no matter what, hence the i = 1.
-    int last_write = 0;
-    for (int i = 1; i < size_used_; ++i) {
-      // Finds next unique item and writes it.
-      if (data_[last_write] != data_[i]) {
-        data_[++last_write] = data_[i];
-      }
-    }
-    // last_write is the index of a valid data cell, so add 1.
-    size_used_ = last_write + 1;
-  }
-
   // Returns the index of what would be the target_index_th item in the array
   // if the members were sorted, without actually sorting. Members are
   // shuffled around, but it takes O(n) time.

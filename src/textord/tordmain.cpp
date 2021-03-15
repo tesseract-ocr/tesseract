@@ -49,7 +49,7 @@
 #include "tprintf.h"     // for tprintf
 #include "werd.h"        // for WERD_IT, WERD, WERD_LIST, W_DONT_CHOP
 
-#include "genericvector.h" // for PointerVector, GenericVector
+#include "genericvector.h" // for PointerVector
 
 #include <allheaders.h> // for pixDestroy, pixGetHeight, boxCreate
 
@@ -685,7 +685,7 @@ struct BlockGroup {
   // Min xheight of the blocks.
   float min_xheight;
   // Collection of borrowed pointers to the blocks in the group.
-  GenericVector<BLOCK *> blocks;
+  std::vector<BLOCK *> blocks;
 };
 
 // Groups blocks by rotation, then, for each group, makes a WordGrid and calls
