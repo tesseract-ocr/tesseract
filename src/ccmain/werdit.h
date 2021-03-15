@@ -20,10 +20,15 @@
 #ifndef WERDIT_H
 #define WERDIT_H
 
-#include "rect.h"  // for TBOX
+#include "rect.h" // for TBOX
+
+namespace tesseract {
+
 class PAGE_RES;
 class PAGE_RES_IT;
 
-PAGE_RES_IT* make_pseudo_word(PAGE_RES* page_res, const TBOX& selection_box);
+PAGE_RES_IT *make_pseudo_word(PAGE_RES *page_res, const TBOX &selection_box);
+
+} // namespace tesseract
 
 #endif

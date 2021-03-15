@@ -3,12 +3,12 @@ environment:
     # does not work with sw at the moment
     #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       #platform: Win32
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      platform: Win32
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      platform: Win64
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      #platform: Win32
+    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       #platform: Win64
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      platform: Win64
 
 configuration:
   - Release
@@ -17,17 +17,29 @@ cache:
   - c:/Users/appveyor/.sw -> appveyor.yml
 
 before_build:
+  - git submodule update --init --recursive
   - curl -fsS -L -o dl.zip https://github.com/SoftwareNetwork/binaries/raw/master/sw-master-windows-client.zip
   - 7z x dl.zip
   - set PATH=%PATH%;%cd%
 
 build_script:
   - sw -version
-  - sw -show-output -platform %platform% build
+  # -show-output - show command output
+  # debug build causes long builds (> 1h), appveyor drops them
+  - sw -platform %platform% -config r build -Dwith-tests=1
+  # test
+  - git clone https://github.com/egorpugin/tessdata tessdata_unittest
+  - ps: Copy-Item -Path "tessdata_unittest\fonts\*" -Destination "test\testing" -Recurse
+  - sw -platform %platform% -config r test -Dwith-tests=1 -Dskip-tests=lstm,lstm_recode
 
 after_build:
   - 7z a tesseract.zip %APPVEYOR_BUILD_FOLDER%\.sw\out\**\*.exe %APPVEYOR_BUILD_FOLDER%\.sw\out\**\*.dll
   #- 7z a tesseract.zip %APPVEYOR_BUILD_FOLDER%\.sw\Windows_*_Shared_Release_MSVC_*\*.exe %APPVEYOR_BUILD_FOLDER%\.sw\Windows_*_Shared_Release_MSVC_*\*.dll
+
+on_finish:
+  # gather tests
+  - ps: $wc = New-Object 'System.Net.WebClient'
+  - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\.sw\test\results.xml))
 
 artifacts:
   - path: tesseract.zip

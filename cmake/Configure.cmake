@@ -82,18 +82,12 @@ include(TestBigEndian)
 set(include_files_list
     dlfcn.h
     inttypes.h
-    limits.h
-    malloc.h
     memory.h
-    stdbool.h
     stdint.h
     stdlib.h
     string.h
-    sys/ipc.h
-    sys/shm.h
     sys/stat.h
     sys/types.h
-    sys/wait.h
     unistd.h
 
     cairo/cairo-version.h
@@ -107,10 +101,7 @@ check_includes(include_files_list)
 
 set(types_list
     "long long int"
-    off_t
-    mbstate_t
     wchar_t
-    _Bool
 )
 check_types(types_list)
 
@@ -128,14 +119,6 @@ if(TESSDATA_PREFIX)
 #cmakedefine TESSDATA_PREFIX ${TESSDATA_PREFIX}
 ")
 endif()
-
-test_big_endian(WORDS_BIGENDIAN)
-
-file(APPEND ${AUTOCONFIG_SRC} "
-/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
-   significant byte first (like Motorola and SPARC, unlike Intel). */
-#cmakedefine WORDS_BIGENDIAN 1
-")
 
 ########################################
 

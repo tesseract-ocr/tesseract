@@ -16,34 +16,35 @@
  *
  **********************************************************************/
 
-#include "ocrrow.h"
-#include "blobbox.h"
-
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#  include "config_auto.h"
 #endif
 
-ELISTIZE (ROW)
+#include "blobbox.h"
+#include "ocrrow.h"
+
+namespace tesseract {
+
+ELISTIZE(ROW)
 /**********************************************************************
  * ROW::ROW
  *
  * Constructor to build a ROW. Only the stats stuff are given here.
  * The words are added directly.
  **********************************************************************/
-ROW::ROW (                       //constructor
-int32_t spline_size,               //no of segments
-int32_t * xstarts,                 //segment boundaries
-double *coeffs,                  //coefficients
-float x_height,                  //line height
-float ascenders,                 //ascender size
-float descenders,                //descender drop
-int16_t kern,                      //char gap
-int16_t space                      //word gap
-)
-    : baseline(spline_size, xstarts, coeffs),
-      para_(nullptr) {
-  kerning = kern;                //just store stuff
+ROW::ROW(                // constructor
+    int32_t spline_size, // no of segments
+    int32_t *xstarts,    // segment boundaries
+    double *coeffs,      // coefficients
+    float x_height,      // line height
+    float ascenders,     // ascender size
+    float descenders,    // descender drop
+    int16_t kern,        // char gap
+    int16_t space        // word gap
+    )
+    : baseline(spline_size, xstarts, coeffs), para_(nullptr) {
+  kerning = kern; // just store stuff
   spacing = space;
   xheight = x_height;
   ascrise = ascenders;
@@ -54,7 +55,6 @@ int16_t space                      //word gap
   rmargin_ = 0;
 }
 
-
 /**********************************************************************
  * ROW::ROW
  *
@@ -62,12 +62,13 @@ int16_t space                      //word gap
  * The words are added directly.
  **********************************************************************/
 
-ROW::ROW(                 //constructor
-         TO_ROW *to_row,  //source row
-         int16_t kern,      //char gap
-         int16_t space      //word gap
-        ) : para_(nullptr) {
-  kerning = kern;                //just store stuff
+ROW::ROW(           // constructor
+    TO_ROW *to_row, // source row
+    int16_t kern,   // char gap
+    int16_t space   // word gap
+    )
+    : para_(nullptr) {
+  kerning = kern; // just store stuff
   spacing = space;
   xheight = to_row->xheight;
   bodysize = to_row->body_size;
@@ -97,46 +98,45 @@ TBOX ROW::restricted_bounding_box(bool upper_dots, bool lower_dots) const {
  * Set the bounding box correctly
  **********************************************************************/
 
-void ROW::recalc_bounding_box() {  //recalculate BB
-  WERD *word;                    //current word
-  WERD_IT it = &words;           //words of ROW
-  int16_t left;                    //of word
-  int16_t prev_left;               //old left
+void ROW::recalc_bounding_box() { // recalculate BB
+  WERD *word;                     // current word
+  WERD_IT it = &words;            // words of ROW
+  int16_t left;                   // of word
+  int16_t prev_left;              // old left
 
-  if (!it.empty ()) {
-    word = it.data ();
-    prev_left = word->bounding_box ().left ();
-    it.forward ();
-    while (!it.at_first ()) {
-      word = it.data ();
-      left = word->bounding_box ().left ();
+  if (!it.empty()) {
+    word = it.data();
+    prev_left = word->bounding_box().left();
+    it.forward();
+    while (!it.at_first()) {
+      word = it.data();
+      left = word->bounding_box().left();
       if (left < prev_left) {
-        it.move_to_first ();
-                                 //words in BB order
-        it.sort (word_comparator);
+        it.move_to_first();
+        // words in BB order
+        it.sort(word_comparator);
         break;
       }
       prev_left = left;
-      it.forward ();
+      it.forward();
     }
   }
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-    word = it.data ();
-    if (it.at_first ())
-      word->set_flag (W_BOL, true);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    word = it.data();
+    if (it.at_first())
+      word->set_flag(W_BOL, true);
     else
-                                 //not start of line
-      word->set_flag (W_BOL, false);
-    if (it.at_last ())
+      // not start of line
+      word->set_flag(W_BOL, false);
+    if (it.at_last())
       word->set_flag(W_EOL, true);
     else
-                                 //not end of line
+      // not end of line
       word->set_flag(W_EOL, false);
-                                 //extend BB as reqd
-    bound_box += word->bounding_box ();
+    // extend BB as reqd
+    bound_box += word->bounding_box();
   }
 }
-
 
 /**********************************************************************
  * ROW::move
@@ -144,18 +144,17 @@ void ROW::recalc_bounding_box() {  //recalculate BB
  * Reposition row by vector
  **********************************************************************/
 
-void ROW::move(                  // reposition row
-               const ICOORD vec  // by vector
-              ) {
-  WERD_IT it(&words);  // word iterator
+void ROW::move(      // reposition row
+    const ICOORD vec // by vector
+) {
+  WERD_IT it(&words); // word iterator
 
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
-    it.data ()->move (vec);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+    it.data()->move(vec);
 
-  bound_box.move (vec);
-  baseline.move (vec);
+  bound_box.move(vec);
+  baseline.move(vec);
 }
-
 
 /**********************************************************************
  * ROW::print
@@ -163,9 +162,9 @@ void ROW::move(                  // reposition row
  * Display members
  **********************************************************************/
 
-void ROW::print(          //print
-                FILE *fp  //file to print on
-               ) {
+void ROW::print( // print
+    FILE *fp     // file to print on
+) {
   tprintf("Kerning= %d\n", kerning);
   tprintf("Spacing= %d\n", spacing);
   bound_box.print();
@@ -176,7 +175,6 @@ void ROW::print(          //print
   tprintf("lmargin= %d, rmargin= %d\n", lmargin_, rmargin_);
 }
 
-
 /**********************************************************************
  * ROW::plot
  *
@@ -184,16 +182,16 @@ void ROW::print(          //print
  **********************************************************************/
 
 #ifndef GRAPHICS_DISABLED
-void ROW::plot(                //draw it
-               ScrollView* window,  //window to draw in
-               ScrollView::Color colour   //colour to draw in
-              ) {
-  WERD *word;                    //current word
-  WERD_IT it = &words;           //words of ROW
+void ROW::plot(              // draw it
+    ScrollView *window,      // window to draw in
+    ScrollView::Color colour // colour to draw in
+) {
+  WERD *word;          // current word
+  WERD_IT it = &words; // words of ROW
 
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-    word = it.data ();
-    word->plot (window, colour); //all in one colour
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    word = it.data();
+    word->plot(window, colour); // all in one colour
   }
 }
 
@@ -203,18 +201,18 @@ void ROW::plot(                //draw it
  * Draw the ROW in rainbow colours.
  **********************************************************************/
 
-void ROW::plot(               //draw it
-               ScrollView* window  //window to draw in
-              ) {
-  WERD *word;                    //current word
-  WERD_IT it = &words;           //words of ROW
+void ROW::plot(        // draw it
+    ScrollView *window // window to draw in
+) {
+  WERD *word;          // current word
+  WERD_IT it = &words; // words of ROW
 
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-    word = it.data ();
-    word->plot (window);         //in rainbow colours
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    word = it.data();
+    word->plot(window); // in rainbow colours
   }
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
 
 /**********************************************************************
  * ROW::operator=
@@ -222,17 +220,17 @@ void ROW::plot(               //draw it
  * Assign rows by duplicating the row structure but NOT the WERDLIST
  **********************************************************************/
 
-ROW & ROW::operator= (const ROW & source) {
-  this->ELIST_LINK::operator= (source);
+ROW &ROW::operator=(const ROW &source) {
+  this->ELIST_LINK::operator=(source);
   kerning = source.kerning;
   spacing = source.spacing;
   xheight = source.xheight;
   bodysize = source.bodysize;
   ascrise = source.ascrise;
   descdrop = source.descdrop;
-  if (!words.empty ())
-    words.clear ();
-  baseline = source.baseline;    //QSPLINES must do =
+  if (!words.empty())
+    words.clear();
+  baseline = source.baseline; // QSPLINES must do =
   bound_box = source.bound_box;
   has_drop_cap_ = source.has_drop_cap_;
   lmargin_ = source.lmargin_;
@@ -240,3 +238,5 @@ ROW & ROW::operator= (const ROW & source) {
   para_ = source.para_;
   return *this;
 }
+
+} // namespace tesseract

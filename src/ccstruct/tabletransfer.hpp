@@ -1,3 +1,14 @@
+/******************************************************************************
+ * File:        tabletransfer.cpp
+ * Description: A infrastructure for the transfer of table detection results
+ * Author:      Sintun
+ *
+ * WTFPL V2 License + NO WARRANTY
+ * 
+ * The tesseract community probably wants to attach the Apache License V 2.0,
+ * do as you wish.
+ ****************************************************************************/
+
 #pragma once
 #include <memory>
 #include <vector>
@@ -6,9 +17,9 @@
 
 /// Structure for data transfer from table detector 
 struct MyTable {
-  TBOX box;
-  std::vector<TBOX> rows;
-  std::vector<TBOX> cols;
+  tesseract::TBOX box;
+  std::vector<tesseract::TBOX> rows;
+  std::vector<tesseract::TBOX> cols;
 };
 
 /** \brief You can use this small template function to ensure that one and

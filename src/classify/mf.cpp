@@ -26,9 +26,8 @@
 
 #include <cmath>
 
-/*----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------*/
+namespace tesseract {
+
 /*----------------------------------------------------------------------------
               Private Code
 ----------------------------------------------------------------------------*/
@@ -40,7 +39,7 @@
  * @param cn_denorm  control parameter to feature extractor.
  * @return Micro-features for Blob.
  */
-FEATURE_SET ExtractMicros(TBLOB* Blob, const DENORM& cn_denorm) {
+FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM &cn_denorm) {
   int NumFeatures;
   MICROFEATURES Features, OldFeatures;
   FEATURE_SET FeatureSet;
@@ -50,13 +49,13 @@ FEATURE_SET ExtractMicros(TBLOB* Blob, const DENORM& cn_denorm) {
   OldFeatures = BlobMicroFeatures(Blob, cn_denorm);
   if (OldFeatures == nullptr)
     return nullptr;
-  NumFeatures = count (OldFeatures);
-  FeatureSet = NewFeatureSet (NumFeatures);
+  NumFeatures = count(OldFeatures);
+  FeatureSet = NewFeatureSet(NumFeatures);
 
   Features = OldFeatures;
   iterate(Features) {
-    OldFeature = reinterpret_cast<MICROFEATURE>first_node (Features);
-    Feature = NewFeature (&MicroFeatureDesc);
+    OldFeature = reinterpret_cast<MICROFEATURE> first_node(Features);
+    Feature = NewFeature(&MicroFeatureDesc);
     Feature->Params[MFDirection] = OldFeature[ORIENTATION];
     Feature->Params[MFXPosition] = OldFeature[XPOSITION];
     Feature->Params[MFYPosition] = OldFeature[YPOSITION];
@@ -78,4 +77,6 @@ FEATURE_SET ExtractMicros(TBLOB* Blob, const DENORM& cn_denorm) {
   }
   FreeMicroFeatures(OldFeatures);
   return FeatureSet;
-}                                /* ExtractMicros */
+} /* ExtractMicros */
+
+} // namespace tesseract

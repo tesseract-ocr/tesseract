@@ -20,26 +20,30 @@
 #ifndef POLYAPRX_H
 #define POLYAPRX_H
 
+namespace tesseract {
+
 class C_OUTLINE;
 struct EDGEPT;
 struct TESSLINE;
 
 // convert a chain-coded input to the old OUTLINE approximation
-TESSLINE* ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline);
-EDGEPT *edgesteps_to_edgepts (   //convert outline
-C_OUTLINE * c_outline,           //input
-EDGEPT edgepts[]                 //output is array
+TESSLINE *ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline);
+EDGEPT *edgesteps_to_edgepts( // convert outline
+    C_OUTLINE *c_outline,     // input
+    EDGEPT edgepts[]          // output is array
 );
-void fix2(                //polygonal approx
-          EDGEPT *start,  /*loop to approimate */
-          int area);
-EDGEPT *poly2(                  //second poly
-              EDGEPT *startpt,  /*start of loop */
-              int area          /*area of blob box */
-             );
-void cutline(                //recursive refine
-             EDGEPT *first,  /*ends of line */
-             EDGEPT *last,
-             int area        /*area of object */
-            );
+void fix2(         // polygonal approx
+    EDGEPT *start, /*loop to approimate */
+    int area);
+EDGEPT *poly2(       // second poly
+    EDGEPT *startpt, /*start of loop */
+    int area         /*area of blob box */
+);
+void cutline(              // recursive refine
+    EDGEPT *first,         /*ends of line */
+    EDGEPT *last, int area /*area of object */
+);
+
+} // namespace tesseract
+
 #endif

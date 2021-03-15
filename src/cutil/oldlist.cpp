@@ -55,9 +55,13 @@
 
 ******************************************************************************/
 #include "oldlist.h"
+
+#include "errcode.h" // for ASSERT_HOST
+
 #include <cstdio>
-#include <cstring>      // for strcmp
-#include "errcode.h"    // for ASSERT_HOST
+#include <cstring> // for strcmp
+
+namespace tesseract {
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -97,7 +101,8 @@ LIST delete_d(LIST list, void *key, int_compare is_equal) {
   LIST result = NIL_LIST;
   LIST last_one = NIL_LIST;
 
-  if (is_equal == nullptr) is_equal = is_same;
+  if (is_equal == nullptr)
+    is_equal = is_same;
 
   while (list != NIL_LIST) {
     if (!(*is_equal)(first_node(list), key)) {
@@ -144,7 +149,8 @@ void destroy_nodes(LIST list, void_dest destructor) {
   ASSERT_HOST(destructor != nullptr);
 
   while (list != NIL_LIST) {
-    if (first_node(list) != nullptr) (*destructor)(first_node(list));
+    if (first_node(list) != nullptr)
+      (*destructor)(first_node(list));
     list = pop(list);
   }
 }
@@ -155,7 +161,8 @@ void destroy_nodes(LIST list, void_dest destructor) {
  *  Return the last list item (this is list type).
  **********************************************************************/
 LIST last(LIST var_list) {
-  while (list_rest(var_list) != NIL_LIST) var_list = list_rest(var_list);
+  while (list_rest(var_list) != NIL_LIST)
+    var_list = list_rest(var_list);
   return (var_list);
 }
 
@@ -210,8 +217,11 @@ LIST push_last(LIST list, void *item) {
  *  the third parameter to this routine.
  **********************************************************************/
 LIST search(LIST list, void *key, int_compare is_equal) {
-  if (is_equal == nullptr) is_equal = is_same;
+  if (is_equal == nullptr)
+    is_equal = is_same;
 
   iterate(list) if ((*is_equal)(first_node(list), key)) return (list);
   return (NIL_LIST);
 }
+
+} // namespace tesseract

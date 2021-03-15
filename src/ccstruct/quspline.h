@@ -20,81 +20,80 @@
 #ifndef QUSPLINE_H
 #define QUSPLINE_H
 
-#include <cstdint>             // for int32_t
-#include "scrollview.h"        // for ScrollView, ScrollView::Color
+#include "scrollview.h" // for ScrollView, ScrollView::Color
+
+#include <cstdint> // for int32_t
+
+struct Pix;
+
+namespace tesseract {
 
 class ICOORD;
 class QUAD_COEFFS;
 class ROW;
 class TBOX;
-struct Pix;
 
-class QSPLINE
-{
-  friend void make_first_baseline(TBOX *,
-                                  int,
-                                  int *,
-                                  int *,
-                                  QSPLINE *,
-                                  QSPLINE *,
-                                  float);
+class QSPLINE {
+  friend void make_first_baseline(TBOX *, int, int *, int *, QSPLINE *, QSPLINE *, float);
   friend void make_holed_baseline(TBOX *, int, QSPLINE *, QSPLINE *, float);
   friend void tweak_row_baseline(ROW *, double, double);
-  public:
-    QSPLINE() {  //empty constructor
-      segments = 0;
-      xcoords = nullptr;            //everything empty
-      quadratics = nullptr;
-    }
-    QSPLINE(  //copy constructor
-            const QSPLINE &src);
-    QSPLINE(                  //constructor
-            int32_t count,      //number of segments
-            int32_t *xstarts,   //segment starts
-            double *coeffs);  //coefficients
-    ~QSPLINE ();                 //destructor
-    QSPLINE (                    //least squares fit
-      int xstarts[],             //spline boundaries
-      int segcount,              //no of segments
-      int xcoords[],             //points to fit
-      int ycoords[], int blobcount,//no of coords
-      int degree);               //function
 
-    double step(            //step change
-                double x1,  //between coords
-                double x2);
-    double y(                  //evaluate
-             double x) const;  //at x
+public:
+  QSPLINE() { // empty constructor
+    segments = 0;
+    xcoords = nullptr; // everything empty
+    quadratics = nullptr;
+  }
+  QSPLINE( // copy constructor
+      const QSPLINE &src);
+  QSPLINE(                          // constructor
+      int32_t count,                // number of segments
+      int32_t *xstarts,             // segment starts
+      double *coeffs);              // coefficients
+  ~QSPLINE();                       // destructor
+  QSPLINE(                          // least squares fit
+      int xstarts[],                // spline boundaries
+      int segcount,                 // no of segments
+      int xcoords[],                // points to fit
+      int ycoords[], int blobcount, // no of coords
+      int degree);                  // function
 
-    void move(              // reposition spline
-              ICOORD vec);  // by vector
-    bool overlap(                   //test overlap
-            QSPLINE* spline2,  //2 cannot be smaller
-            double fraction);  //by more than this
-    void extrapolate(                  //linear extrapolation
-                     double gradient,  //gradient to use
-                     int left,         //new left edge
-                     int right);       //new right edge
+  double step(   // step change
+      double x1, // between coords
+      double x2);
+  double y(            // evaluate
+      double x) const; // at x
+
+  void move(            // reposition spline
+      ICOORD vec);      // by vector
+  bool overlap(         // test overlap
+      QSPLINE *spline2, // 2 cannot be smaller
+      double fraction); // by more than this
+  void extrapolate(     // linear extrapolation
+      double gradient,  // gradient to use
+      int left,         // new left edge
+      int right);       // new right edge
 
 #ifndef GRAPHICS_DISABLED
-    void plot(                       //draw it
-              ScrollView* window,         //in window
-              ScrollView::Color colour) const;  //in colour
+  void plot(                           // draw it
+      ScrollView *window,              // in window
+      ScrollView::Color colour) const; // in colour
 #endif
 
-    // Paint the baseline over pix. If pix has depth of 32, then the line will
-    // be painted in red. Otherwise it will be painted in black.
-    void plot(Pix* pix) const;
+  // Paint the baseline over pix. If pix has depth of 32, then the line will
+  // be painted in red. Otherwise it will be painted in black.
+  void plot(Pix *pix) const;
 
-    QSPLINE & operator= (
-      const QSPLINE & source);   //from this
+  QSPLINE &operator=(const QSPLINE &source); // from this
 
-  private:
-
-    int32_t spline_index(                  //binary search
-                       double x) const;  //for x
-    int32_t segments;              //no of segments
-    int32_t *xcoords;              //no of coords
-    QUAD_COEFFS *quadratics;     //spline pieces
+private:
+  int32_t spline_index(    // binary search
+      double x) const;     // for x
+  int32_t segments;        // no of segments
+  int32_t *xcoords;        // no of coords
+  QUAD_COEFFS *quadratics; // spline pieces
 };
+
+} // namespace tesseract
+
 #endif

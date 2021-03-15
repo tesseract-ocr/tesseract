@@ -15,7 +15,9 @@
 #ifndef TESSERACT_CCUTIL_SCANUTILS_H_
 #define TESSERACT_CCUTIL_SCANUTILS_H_
 
-#include <cstdio>       // for FILE
+#include <tesseract/export.h>
+
+#include <cstdio> // for FILE
 
 /**
  * fscanf variant to ensure correct reading regardless of locale.
@@ -27,6 +29,7 @@
  * @note Note that scientific floating-point notation is not supported.
  *
  */
-int tfscanf(FILE* stream, const char *format, ...);
+TESS_API
+int tfscanf(FILE *stream, const char *format, ...);
 
-#endif  // TESSERACT_CCUTIL_SCANUTILS_H_
+#endif // TESSERACT_CCUTIL_SCANUTILS_H_

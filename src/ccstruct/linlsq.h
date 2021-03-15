@@ -20,34 +20,38 @@
 #ifndef TESSERACT_CCSTRUCT_LINLSQ_H_
 #define TESSERACT_CCSTRUCT_LINLSQ_H_
 
-#include <cstdint>      // for int32_t
-#include "points.h"     // for FCOORD
+#include "points.h" // for FCOORD
 
-template <typename T> class GenericVector;
+#include <cstdint> // for int32_t
 
-class LLSQ {
- public:
-  LLSQ() {  // constructor
-    clear();  // set to zeros
+namespace tesseract {
+
+template <typename T>
+class GenericVector;
+
+class TESS_API LLSQ {
+public:
+  LLSQ() {   // constructor
+    clear(); // set to zeros
   }
-  void clear();  // initialize
+  void clear(); // initialize
 
   // Adds an element with a weight of 1.
   void add(double x, double y);
   // Adds an element with a specified weight.
   void add(double x, double y, double weight);
   // Adds a whole LLSQ.
-  void add(const LLSQ& other);
+  void add(const LLSQ &other);
   // Deletes an element with a weight of 1.
   void remove(double x, double y);
-  int32_t count() const {  // no of elements
+  int32_t count() const { // no of elements
     return static_cast<int>(total_weight + 0.5);
   }
 
-  double m() const;  // get gradient
-  double c(double m) const;            // get constant
-  double rms(double m, double c) const;            // get error
-  double pearson() const;  // get correlation coefficient.
+  double m() const;                     // get gradient
+  double c(double m) const;             // get constant
+  double rms(double m, double c) const; // get error
+  double pearson() const;               // get correlation coefficient.
 
   // Returns the x,y means as an FCOORD.
   FCOORD mean_point() const;
@@ -91,15 +95,14 @@ class LLSQ {
       return 0.0;
   }
 
- private:
-  double total_weight;         // no of elements or sum of weights.
-  double sigx;                 // sum of x
-  double sigy;                 // sum of y
-  double sigxx;                // sum x squared
-  double sigxy;                // sum of xy
-  double sigyy;                // sum y squared
+private:
+  double total_weight; // no of elements or sum of weights.
+  double sigx;         // sum of x
+  double sigy;         // sum of y
+  double sigxx;        // sum x squared
+  double sigxy;        // sum of xy
+  double sigyy;        // sum y squared
 };
-
 
 // Returns the median value of the vector, given that the values are
 // circular, with the given modulus. Values may be signed or unsigned,
@@ -110,7 +113,8 @@ class LLSQ {
 // the wrap-around point.
 // Cannot be a member of GenericVector, as it makes heavy used of LLSQ.
 // T must be an integer or float/double type.
-template<typename T> T MedianOfCircularValues(T modulus, GenericVector<T>* v) {
+template <typename T>
+T MedianOfCircularValues(T modulus, GenericVector<T> *v) {
   LLSQ stats;
   T halfrange = static_cast<T>(modulus / 2);
   int num_elements = v->size();
@@ -132,5 +136,6 @@ template<typename T> T MedianOfCircularValues(T modulus, GenericVector<T>* v) {
   return (*v)[median_index];
 }
 
+} // namespace tesseract
 
-#endif  // TESSERACT_CCSTRUCT_LINLSQ_H_
+#endif // TESSERACT_CCSTRUCT_LINLSQ_H_

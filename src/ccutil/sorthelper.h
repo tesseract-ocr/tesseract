@@ -20,8 +20,11 @@
 #ifndef TESSERACT_CCUTIL_SORTHELPER_H_
 #define TESSERACT_CCUTIL_SORTHELPER_H_
 
+#include "genericvector.h"
+
 #include <cstdlib>
-#include <tesseract/genericvector.h>
+
+namespace tesseract {
 
 // Generic class to provide functions based on a <value,count> pair.
 // T is the value type.
@@ -34,24 +37,27 @@
 // T must have a copy constructor.
 template <typename T>
 class SortHelper {
- public:
+public:
   // Simple pair class to hold the values and counts.
-  template<typename PairT> struct SortPair {
+  template <typename PairT>
+  struct SortPair {
     PairT value;
     int count;
   };
   // qsort function to sort by decreasing count.
-  static int SortPairsByCount(const void* v1, const void* v2) {
-    const auto* p1 = static_cast<const SortPair<T>*>(v1);
-    const auto* p2 = static_cast<const SortPair<T>*>(v2);
+  static int SortPairsByCount(const void *v1, const void *v2) {
+    const auto *p1 = static_cast<const SortPair<T> *>(v1);
+    const auto *p2 = static_cast<const SortPair<T> *>(v2);
     return p2->count - p1->count;
   }
   // qsort function to sort by decreasing value.
-  static int SortPairsByValue(const void* v1, const void* v2) {
-    const auto* p1 = static_cast<const SortPair<T>*>(v1);
-    const auto* p2 = static_cast<const SortPair<T>*>(v2);
-    if (p2->value - p1->value < 0) return -1;
-    if (p2->value - p1->value > 0) return 1;
+  static int SortPairsByValue(const void *v1, const void *v2) {
+    const auto *p1 = static_cast<const SortPair<T> *>(v1);
+    const auto *p2 = static_cast<const SortPair<T> *>(v2);
+    if (p2->value - p1->value < 0)
+      return -1;
+    if (p2->value - p1->value > 0)
+      return 1;
     return 0;
   }
 
@@ -77,7 +83,7 @@ class SortHelper {
   // Returns the frequency of the most frequent value.
   // If max_value is not nullptr, returns the most frequent value.
   // If the array is empty, returns -INT32_MAX and max_value is unchanged.
-  int MaxCount(T* max_value) const {
+  int MaxCount(T *max_value) const {
     int best_count = -INT32_MAX;
     for (int i = 0; i < counts_.size(); ++i) {
       if (counts_[i].count > best_count) {
@@ -90,19 +96,20 @@ class SortHelper {
   }
 
   // Returns the data array sorted by decreasing frequency.
-  const GenericVector<SortPair<T> >& SortByCount() {
+  const GenericVector<SortPair<T>> &SortByCount() {
     counts_.sort(&SortPairsByCount);
     return counts_;
   }
   // Returns the data array sorted by decreasing value.
-  const GenericVector<SortPair<T> >& SortByValue() {
+  const GenericVector<SortPair<T>> &SortByValue() {
     counts_.sort(&SortPairsByValue);
     return counts_;
   }
 
- private:
-  GenericVector<SortPair<T> > counts_;
+private:
+  GenericVector<SortPair<T>> counts_;
 };
 
+} // namespace tesseract
 
-#endif  // TESSERACT_CCUTIL_SORTHELPER_H_.
+#endif // TESSERACT_CCUTIL_SORTHELPER_H_.

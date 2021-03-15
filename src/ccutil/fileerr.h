@@ -16,10 +16,12 @@
  *
  **********************************************************************/
 
-#ifndef           FILEERR_H
-#define           FILEERR_H
+#ifndef FILEERR_H
+#define FILEERR_H
 
-#include          "errcode.h"
+#include "errcode.h"
+
+namespace tesseract {
 
 constexpr ERRCODE CANTOPENFILE("Can't open file");
 constexpr ERRCODE CANTCREATEFILE("Can't create file");
@@ -30,4 +32,7 @@ constexpr ERRCODE WRITEFAILED("Write of file failed");
 constexpr ERRCODE SELECTFAILED("Select failed");
 
 constexpr ERRCODE EXECFAILED("Could not exec new process");
+
+} // namespace tesseract
+
 #endif

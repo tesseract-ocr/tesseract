@@ -20,51 +20,55 @@
 #define TESSERACT_CCUTIL_CCUTIL_H_
 
 #ifndef _WIN32
-#include <pthread.h>
-#include <semaphore.h>
+#  include <pthread.h>
+#  include <semaphore.h>
+#endif
+
+#ifdef HAVE_CONFIG_H
+#  include "config_auto.h" // DISABLED_LEGACY_ENGINE
 #endif
 
 #ifndef DISABLED_LEGACY_ENGINE
-#include "ambigs.h"
+#  include "ambigs.h"
 #endif
 #include "errcode.h"
 #ifdef _WIN32
-#include "host.h" // windows.h for HANDLE, ...
+#  include "host.h" // windows.h for HANDLE, ...
 #endif
-#include <tesseract/strngs.h>
 #include "params.h"
 #include "unicharset.h"
 
 namespace tesseract {
 
-class CCUtil {
- public:
+class TESS_API CCUtil {
+public:
   CCUtil();
   virtual ~CCUtil();
 
- public:
+public:
   // Read the arguments and set up the data path.
-  void main_setup(
-                  const char *argv0,        // program name
-                  const char *basename      // name of image
-                 );
-  ParamsVectors *params() { return &params_; }
+  void main_setup(const std::string &argv0,   // program name
+                  const std::string &basename // name of image
+  );
+  ParamsVectors *params() {
+    return &params_;
+  }
 
-  STRING datadir;        // dir for data files
-  STRING imagebasename;  // name of image
-  STRING lang;
-  STRING language_data_path_prefix;
+  std::string datadir;       // dir for data files
+  std::string imagebasename; // name of image
+  std::string lang;
+  std::string language_data_path_prefix;
   UNICHARSET unicharset;
 #ifndef DISABLED_LEGACY_ENGINE
   UnicharAmbigs unichar_ambigs;
 #endif
-  STRING imagefile;  // image file name
-  STRING directory;  // main directory
+  std::string imagefile; // image file name
+  std::string directory; // main directory
 
- private:
+private:
   ParamsVectors params_;
 
- public:
+public:
   // Member parameters.
   // These have to be declared and initialized after params_ member, since
   // params_ should be initialized before parameters are added to it.
@@ -73,6 +77,6 @@ class CCUtil {
              "Use ambigs for deciding whether to adapt to a character");
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_CCUTIL_CCUTIL_H_
+#endif // TESSERACT_CCUTIL_CCUTIL_H_

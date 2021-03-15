@@ -25,14 +25,13 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
-enum ACCEPTABLE_WERD_TYPE
-{
-  AC_UNACCEPTABLE,               ///< Unacceptable word
-  AC_LOWER_CASE,                 ///< ALL lower case
-  AC_UPPER_CASE,                 ///< ALL upper case
-  AC_INITIAL_CAP,                ///< ALL but initial lc
-  AC_LC_ABBREV,                  ///< a.b.c.
-  AC_UC_ABBREV                   ///< A.B.C.
+enum ACCEPTABLE_WERD_TYPE {
+  AC_UNACCEPTABLE, ///< Unacceptable word
+  AC_LOWER_CASE,   ///< ALL lower case
+  AC_UPPER_CASE,   ///< ALL upper case
+  AC_INITIAL_CAP,  ///< ALL but initial lc
+  AC_LC_ABBREV,    ///< a.b.c.
+  AC_UC_ABBREV     ///< A.B.C.
 };
 
 #endif

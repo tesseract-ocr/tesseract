@@ -1,58 +1,59 @@
 
+#include <allheaders.h>
+#include <tesseract/baseapi.h>
 #include <tesseract/resultiterator.h>
 #include <string>
-#include "allheaders.h"
-#include <tesseract/baseapi.h>
-#include <tesseract/genericvector.h>
+#include "genericvector.h"
 #include "scrollview.h"
 
+#include "absl/strings/str_format.h" // for absl::StrFormat
 #include "include_gunit.h"
-#include "log.h"                        // for LOG
-#include "absl/strings/str_format.h"        // for absl::StrFormat
+#include "log.h" // for LOG
 
-namespace {
+namespace tesseract {
 
 // DEFINE_string(tess_config, "", "config file for tesseract");
 // DEFINE_bool(visual_test, false, "Runs a visual test using scrollview");
 
-using tesseract::PageIterator;
-using tesseract::PageIteratorLevel;
-using tesseract::ResultIterator;
-
 // Helper functions for converting to STL vectors
 template <typename T>
-void ToVector(const GenericVector<T>& from, std::vector<T>* to) {
+void ToVector(const GenericVector<T> &from, std::vector<T> *to) {
   to->clear();
-  for (int i = 0; i < from.size(); i++) to->push_back(from[i]);
+  for (int i = 0; i < from.size(); i++)
+    to->push_back(from[i]);
 }
 
 template <typename T>
-void ToVector(const GenericVectorEqEq<T>& from, std::vector<T>* to) {
+void ToVector(const std::vector<T> &from, std::vector<T> *to) {
   to->clear();
-  for (int i = 0; i < from.size(); i++) to->push_back(from[i]);
+  for (int i = 0; i < from.size(); i++)
+    to->push_back(from[i]);
 }
 
 // The fixture for testing Tesseract.
 class ResultIteratorTest : public testing::Test {
- protected:
-  std::string TestDataNameToPath(const std::string& name) {
-    return file::JoinPath(TESTING_DIR , name);
+protected:
+  std::string TestDataNameToPath(const std::string &name) {
+    return file::JoinPath(TESTING_DIR, name);
   }
   std::string TessdataPath() {
     return file::JoinPath(TESSDATA_DIR, "");
   }
-  std::string OutputNameToPath(const std::string& name) {
+  std::string OutputNameToPath(const std::string &name) {
+    file::MakeTmpdir();
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
-  ResultIteratorTest() { src_pix_ = nullptr; }
+  ResultIteratorTest() {
+    src_pix_ = nullptr;
+  }
   ~ResultIteratorTest() {}
 
-  void SetImage(const char* filename) {
+  void SetImage(const char *filename) {
     src_pix_ = pixRead(TestDataNameToPath(filename).c_str());
     api_.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
-//    if (!FLAGS_tess_config.empty())
-//      api_.ReadConfigFile(FLAGS_tess_config.c_str());
+    //    if (!FLAGS_tess_config.empty())
+    //      api_.ReadConfigFile(FLAGS_tess_config.c_str());
     api_.SetPageSegMode(tesseract::PSM_AUTO);
     api_.SetImage(src_pix_);
     pixDestroy(&src_pix_);
@@ -62,14 +63,15 @@ class ResultIteratorTest : public testing::Test {
   // Rebuilds the image using the binary images at the given level, and
   // EXPECTs that the number of pixels in the xor of the rebuilt image with
   // the original is at most max_diff.
-  void VerifyRebuild(int max_diff, PageIteratorLevel level, PageIterator* it) {
+  void VerifyRebuild(int max_diff, PageIteratorLevel level, PageIterator *it) {
     it->Begin();
     int width = pixGetWidth(src_pix_);
     int height = pixGetHeight(src_pix_);
     int depth = pixGetDepth(src_pix_);
-    Pix* pix = pixCreate(width, height, depth);
+    Pix *pix = pixCreate(width, height, depth);
     EXPECT_TRUE(depth == 1 || depth == 8);
-    if (depth == 8) pixSetAll(pix);
+    if (depth == 8)
+      pixSetAll(pix);
     do {
       int left, top, right, bottom;
       PageIteratorLevel im_level = level;
@@ -78,33 +80,32 @@ class ResultIteratorTest : public testing::Test {
         im_level = tesseract::RIL_BLOCK;
         EXPECT_TRUE(it->BoundingBox(im_level, &left, &top, &right, &bottom));
       }
-      LOG(INFO) << "BBox: [L:" << left << ", T:" << top << ", R:" << right
-              << ", B:" << bottom << "]" << "\n";
-      Pix* block_pix;
+      LOG(INFO) << "BBox: [L:" << left << ", T:" << top << ", R:" << right << ", B:" << bottom
+                << "]"
+                << "\n";
+      Pix *block_pix;
       if (depth == 1) {
         block_pix = it->GetBinaryImage(im_level);
-        pixRasterop(pix, left, top, right - left, bottom - top,
-                    PIX_SRC ^ PIX_DST, block_pix, 0, 0);
+        pixRasterop(pix, left, top, right - left, bottom - top, PIX_SRC ^ PIX_DST, block_pix, 0, 0);
       } else {
         block_pix = it->GetImage(im_level, 2, src_pix_, &left, &top);
-        pixRasterop(pix, left, top, pixGetWidth(block_pix),
-                    pixGetHeight(block_pix), PIX_SRC & PIX_DST, block_pix, 0,
-                    0);
+        pixRasterop(pix, left, top, pixGetWidth(block_pix), pixGetHeight(block_pix),
+                    PIX_SRC & PIX_DST, block_pix, 0, 0);
       }
       CHECK(block_pix != nullptr);
       pixDestroy(&block_pix);
     } while (it->Next(level));
-//    if (base::GetFlag(FLAGS_v) >= 1)
-//      pixWrite(OutputNameToPath("rebuilt.png").c_str(), pix, IFF_PNG);
+    //    if (base::GetFlag(FLAGS_v) >= 1)
+    //      pixWrite(OutputNameToPath("rebuilt.png").c_str(), pix, IFF_PNG);
     pixRasterop(pix, 0, 0, width, height, PIX_SRC ^ PIX_DST, src_pix_, 0, 0);
     if (depth == 8) {
-      Pix* binary_pix = pixThresholdToBinary(pix, 128);
+      Pix *binary_pix = pixThresholdToBinary(pix, 128);
       pixDestroy(&pix);
       pixInvert(binary_pix, binary_pix);
       pix = binary_pix;
     }
-//    if (base::GetFlag(FLAGS_v) >= 1)
-//      pixWrite(OutputNameToPath("rebuiltxor.png").c_str(), pix, IFF_PNG);
+    //    if (base::GetFlag(FLAGS_v) >= 1)
+    //      pixWrite(OutputNameToPath("rebuiltxor.png").c_str(), pix, IFF_PNG);
     l_int32 pixcount;
     pixCountPixels(pix, &pixcount, nullptr);
     if (pixcount > max_diff) {
@@ -115,18 +116,17 @@ class ResultIteratorTest : public testing::Test {
     pixDestroy(&pix);
     LOG(INFO) << absl::StrFormat("At level %d: pix diff = %d\n", level, pixcount);
     EXPECT_LE(pixcount, max_diff);
-//    if (base::GetFlag(FLAGS_v) > 1) CHECK_LE(pixcount, max_diff);
+    //    if (base::GetFlag(FLAGS_v) > 1) CHECK_LE(pixcount, max_diff);
   }
 
   // Rebuilds the text from the iterator strings at the given level, and
   // EXPECTs that the rebuild string exactly matches the truth string.
-  void VerifyIteratorText(const std::string& truth, PageIteratorLevel level,
-                          ResultIterator* it) {
+  void VerifyIteratorText(const std::string &truth, PageIteratorLevel level, ResultIterator *it) {
     LOG(INFO) << "Text Test Level " << level << "\n";
     it->Begin();
     std::string result;
     do {
-      char* text = it->GetUTF8Text(level);
+      char *text = it->GetUTF8Text(level);
       result += text;
       delete[] text;
       if ((level == tesseract::RIL_WORD || level == tesseract::RIL_SYMBOL) &&
@@ -137,16 +137,15 @@ class ResultIteratorTest : public testing::Test {
           result += ' ';
         }
         if (it->IsAtFinalElement(tesseract::RIL_PARA, level) &&
-           !(it->IsAtFinalElement(tesseract::RIL_BLOCK, level)))
-           result += '\n';
+            !(it->IsAtFinalElement(tesseract::RIL_BLOCK, level)))
+          result += '\n';
       }
     } while (it->Next(level));
-    EXPECT_STREQ(truth.c_str(), result.c_str())
-        << "Rebuild failed at Text Level " << level;
+    EXPECT_STREQ(truth.c_str(), result.c_str()) << "Rebuild failed at Text Level " << level;
   }
 
-  void VerifyRebuilds(int block_limit, int para_limit, int line_limit,
-                      int word_limit, int symbol_limit, PageIterator* it) {
+  void VerifyRebuilds(int block_limit, int para_limit, int line_limit, int word_limit,
+                      int symbol_limit, PageIterator *it) {
     VerifyRebuild(block_limit, tesseract::RIL_BLOCK, it);
     VerifyRebuild(para_limit, tesseract::RIL_PARA, it);
     VerifyRebuild(line_limit, tesseract::RIL_TEXTLINE, it);
@@ -154,7 +153,7 @@ class ResultIteratorTest : public testing::Test {
     VerifyRebuild(symbol_limit, tesseract::RIL_SYMBOL, it);
   }
 
-  void VerifyAllText(const std::string& truth, ResultIterator* it) {
+  void VerifyAllText(const std::string &truth, ResultIterator *it) {
     VerifyIteratorText(truth, tesseract::RIL_BLOCK, it);
     VerifyIteratorText(truth, tesseract::RIL_PARA, it);
     VerifyIteratorText(truth, tesseract::RIL_TEXTLINE, it);
@@ -167,22 +166,19 @@ class ResultIteratorTest : public testing::Test {
   // expected output reading order
   // (expected_reading_order[num_reading_order_entries]) and a given reading
   // context (ltr or rtl).
-  void ExpectTextlineReadingOrder(bool in_ltr_context,
-                                  StrongScriptDirection* word_dirs,
-                                  int num_words, int* expected_reading_order,
+  void ExpectTextlineReadingOrder(bool in_ltr_context, const StrongScriptDirection *word_dirs,
+                                  int num_words, int *expected_reading_order,
                                   int num_reading_order_entries) const {
-    GenericVector<StrongScriptDirection> gv_word_dirs;
+    std::vector<StrongScriptDirection> gv_word_dirs;
     for (int i = 0; i < num_words; i++) {
       gv_word_dirs.push_back(word_dirs[i]);
     }
 
-    GenericVectorEqEq<int> output;
-    ResultIterator::CalculateTextlineOrder(in_ltr_context, gv_word_dirs,
-                                           &output);
+    std::vector<int> output;
+    ResultIterator::CalculateTextlineOrder(in_ltr_context, gv_word_dirs, &output);
     // STL vector can be used with EXPECT_EQ, so convert...
-    std::vector<int> correct_order(
-        expected_reading_order,
-        expected_reading_order + num_reading_order_entries);
+    std::vector<int> correct_order(expected_reading_order,
+                                   expected_reading_order + num_reading_order_entries);
     std::vector<int> calculated_order;
     ToVector(output, &calculated_order);
     EXPECT_EQ(correct_order, calculated_order);
@@ -192,23 +188,22 @@ class ResultIteratorTest : public testing::Test {
   // for a given array of word_dirs[num_words] in ltr or rtl context.
   // Sane means that the output contains some permutation of the indices
   // 0..[num_words - 1] interspersed optionally with negative (marker) values.
-  void VerifySaneTextlineOrder(bool in_ltr_context,
-                               StrongScriptDirection* word_dirs,
+  void VerifySaneTextlineOrder(bool in_ltr_context, const StrongScriptDirection *word_dirs,
                                int num_words) const {
-    GenericVector<StrongScriptDirection> gv_word_dirs;
+    std::vector<StrongScriptDirection> gv_word_dirs;
     for (int i = 0; i < num_words; i++) {
       gv_word_dirs.push_back(word_dirs[i]);
     }
 
-    GenericVectorEqEq<int> output;
-    ResultIterator::CalculateTextlineOrder(in_ltr_context, gv_word_dirs,
-                                           &output);
+    std::vector<int> output;
+    ResultIterator::CalculateTextlineOrder(in_ltr_context, gv_word_dirs, &output);
     ASSERT_GE(output.size(), num_words);
-    GenericVector<int> output_copy(output);
-    output_copy.sort();
+    std::vector<int> output_copy(output);
+    std::sort(output_copy.begin(), output_copy.end());
     bool sane = true;
     int j = 0;
-    while (j < output_copy.size() && output_copy[j] < 0) j++;
+    while (j < output_copy.size() && output_copy[j] < 0)
+      j++;
     for (int i = 0; i < num_words; i++, j++) {
       if (output_copy[j] != i) {
         sane = false;
@@ -221,14 +216,13 @@ class ResultIteratorTest : public testing::Test {
     if (!sane) {
       std::vector<int> output_copy2, empty;
       ToVector(output, &output_copy2);
-      EXPECT_EQ(output_copy2, empty)
-          << " permutation of 0.." << num_words - 1 << " not found in "
-          << (in_ltr_context ? "ltr" : "rtl") << " context.";
+      EXPECT_EQ(output_copy2, empty) << " permutation of 0.." << num_words - 1 << " not found in "
+                                     << (in_ltr_context ? "ltr" : "rtl") << " context.";
     }
   }
 
   // Objects declared here can be used by all tests in the test case for Foo.
-  Pix* src_pix_;  // Borrowed from api_. Do not destroy.
+  Pix *src_pix_; // Borrowed from api_. Do not destroy.
   std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };
@@ -236,7 +230,7 @@ class ResultIteratorTest : public testing::Test {
 // Tests layout analysis output (and scrollview) on the UNLV page numbered
 // 8087_054.3G.tif. (Dubrovnik), but only if --visual_test is true.
 //
-//TEST_F(ResultIteratorTest, VisualTest) {
+// TEST_F(ResultIteratorTest, VisualTest) {
 //  if (!FLAGS_visual_test) return;
 //  const char* kIms[] = {"8087_054.3G.tif", "8071_093.3B.tif", nullptr};
 //  for (int i = 0; kIms[i] != nullptr; ++i) {
@@ -279,7 +273,7 @@ class ResultIteratorTest : public testing::Test {
 TEST_F(ResultIteratorTest, EasyTest) {
   SetImage("phototest.tif");
   // Just run layout analysis.
-  PageIterator* p_it = api_.AnalyseLayout();
+  PageIterator *p_it = api_.AnalyseLayout();
   EXPECT_FALSE(p_it == nullptr);
   // Check iterator position.
   EXPECT_TRUE(p_it->IsAtBeginningOf(tesseract::RIL_BLOCK));
@@ -288,23 +282,27 @@ TEST_F(ResultIteratorTest, EasyTest) {
   EXPECT_FALSE(p_it->IsAtBeginningOf(tesseract::RIL_BLOCK));
 
   // The images should rebuild almost perfectly.
-  LOG(INFO) << "Verifying image rebuilds 1 (pageiterator)" << "\n";
+  LOG(INFO) << "Verifying image rebuilds 1 (pageiterator)"
+            << "\n";
   VerifyRebuilds(10, 10, 0, 0, 0, p_it);
   delete p_it;
 
-  char* result = api_.GetUTF8Text();
+  char *result = api_.GetUTF8Text();
   ocr_text_ = result;
   delete[] result;
-  ResultIterator* r_it = api_.GetIterator();
+  ResultIterator *r_it = api_.GetIterator();
   // The images should rebuild almost perfectly.
-  LOG(INFO) << "Verifying image rebuilds 2a (resultiterator)" << "\n";
+  LOG(INFO) << "Verifying image rebuilds 2a (resultiterator)"
+            << "\n";
   VerifyRebuilds(8, 8, 0, 0, 40, r_it);
   // Test the text.
-  LOG(INFO) << "Verifying text rebuilds 1 (resultiterator)" << "\n";
+  LOG(INFO) << "Verifying text rebuilds 1 (resultiterator)"
+            << "\n";
   VerifyAllText(ocr_text_, r_it);
 
   // The images should rebuild almost perfectly.
-  LOG(INFO) << "Verifying image rebuilds 2b (resultiterator)" << "\n";
+  LOG(INFO) << "Verifying image rebuilds 2b (resultiterator)"
+            << "\n";
   VerifyRebuilds(8, 8, 0, 0, 40, r_it);
 
   r_it->Begin();
@@ -328,14 +326,14 @@ TEST_F(ResultIteratorTest, EasyTest) {
   do {
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
-    const char* font =
-        r_it->WordFontAttributes(&bold, &italic, &underlined, &monospace,
-                                 &serif, &smallcaps, &pointsize, &font_id);
+    const char *font = r_it->WordFontAttributes(&bold, &italic, &underlined, &monospace, &serif,
+                                                &smallcaps, &pointsize, &font_id);
     float confidence = r_it->Confidence(tesseract::RIL_WORD);
     EXPECT_GE(confidence, 80.0f);
-    char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
-    LOG(INFO) << absl::StrFormat("Word %s in font %s, id %d, size %d, conf %g",
-                            word_str, font, font_id, pointsize, confidence) << "\n";
+    char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
+    LOG(INFO) << absl::StrFormat("Word %s in font %s, id %d, size %d, conf %g", word_str, font,
+                                 font_id, pointsize, confidence)
+              << "\n";
     delete[] word_str;
     EXPECT_FALSE(bold);
     EXPECT_FALSE(italic);
@@ -355,10 +353,10 @@ TEST_F(ResultIteratorTest, EasyTest) {
 TEST_F(ResultIteratorTest, ComplexTest) {
   SetImage("8087_054.3B.tif");
   // Just run layout analysis.
-  PageIterator* it = api_.AnalyseLayout();
+  PageIterator *it = api_.AnalyseLayout();
   EXPECT_FALSE(it == nullptr);
   // The images should rebuild almost perfectly.
-  VerifyRebuilds(400, 400, 400, 400, 650, it);
+  VerifyRebuilds(2073, 2073, 2080, 2081, 2090, it);
   delete it;
 }
 
@@ -366,7 +364,7 @@ TEST_F(ResultIteratorTest, ComplexTest) {
 TEST_F(ResultIteratorTest, GreyTest) {
   SetImage("8087_054.3G.tif");
   // Just run layout analysis.
-  PageIterator* it = api_.AnalyseLayout();
+  PageIterator *it = api_.AnalyseLayout();
   EXPECT_FALSE(it == nullptr);
   // The images should rebuild almost perfectly.
   VerifyRebuilds(600, 600, 600, 600, 600, it);
@@ -376,9 +374,9 @@ TEST_F(ResultIteratorTest, GreyTest) {
 // Tests that Tesseract gets smallcaps and dropcaps.
 TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
   SetImage("8071_093.3B.tif");
-  char* result = api_.GetUTF8Text();
+  char *result = api_.GetUTF8Text();
   delete[] result;
-  ResultIterator* r_it = api_.GetIterator();
+  ResultIterator *r_it = api_.GetIterator();
   // Iterate over the words.
   int found_dropcaps = 0;
   int found_smallcaps = 0;
@@ -386,32 +384,30 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
   do {
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
-    r_it->WordFontAttributes(&bold, &italic, &underlined, &monospace, &serif,
-                             &smallcaps, &pointsize, &font_id);
-    char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
+    r_it->WordFontAttributes(&bold, &italic, &underlined, &monospace, &serif, &smallcaps,
+                             &pointsize, &font_id);
+    char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     if (word_str != nullptr) {
-      LOG(INFO) << absl::StrFormat("Word %s is %s", word_str,
-                              smallcaps ? "SMALLCAPS" : "Normal") << "\n";
+      LOG(INFO) << absl::StrFormat("Word %s is %s", word_str, smallcaps ? "SMALLCAPS" : "Normal")
+                << "\n";
       if (r_it->SymbolIsDropcap()) {
         ++found_dropcaps;
       }
       if (strcmp(word_str, "SHE") == 0 || strcmp(word_str, "MOPED") == 0 ||
-          strcmp(word_str, "RALPH") == 0 ||
-          strcmp(word_str, "KINNEY") == 0 ||  // Not working yet.
+          strcmp(word_str, "RALPH") == 0 || strcmp(word_str, "KINNEY") == 0 || // Not working yet.
           strcmp(word_str, "BENNETT") == 0) {
         EXPECT_TRUE(smallcaps) << word_str;
         ++found_smallcaps;
       } else {
-        if (smallcaps) ++false_positives;
+        if (smallcaps)
+          ++false_positives;
       }
       // No symbol other than the first of any word should be dropcap.
       ResultIterator s_it(*r_it);
-      while (s_it.Next(tesseract::RIL_SYMBOL) &&
-             !s_it.IsAtBeginningOf(tesseract::RIL_WORD)) {
+      while (s_it.Next(tesseract::RIL_SYMBOL) && !s_it.IsAtBeginningOf(tesseract::RIL_WORD)) {
         if (s_it.SymbolIsDropcap()) {
-          char* sym_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
-          LOG(ERROR) << absl::StrFormat("Symbol %s of word %s is dropcap", sym_str,
-                                     word_str);
+          char *sym_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
+          LOG(ERROR) << absl::StrFormat("Symbol %s of word %s is dropcap", sym_str, word_str);
           delete[] sym_str;
         }
         EXPECT_FALSE(s_it.SymbolIsDropcap());
@@ -475,65 +471,55 @@ TEST_F(ResultIteratorTest, SubSuperTest) {
 static const StrongScriptDirection dL = DIR_LEFT_TO_RIGHT;
 static const StrongScriptDirection dR = DIR_RIGHT_TO_LEFT;
 static const StrongScriptDirection dN = DIR_NEUTRAL;
-static const StrongScriptDirection dZ = DIR_MIX;
 
 // Test that a sequence of words that could be interpreted to start from
 // the left side left-to-right or from the right side right-to-left is
 // interpreted appropriately in different contexts.
 TEST_F(ResultIteratorTest, DualStartTextlineOrderTest) {
-  StrongScriptDirection word_dirs[] = {dL, dL, dN, dL, dN, dR, dR, dR};
+  const StrongScriptDirection word_dirs[] = {dL, dL, dN, dL, dN, dR, dR, dR};
   int reading_order_rtl_context[] = {7, 6, 5, 4, ResultIterator::kMinorRunStart,
                                      0, 1, 2, 3, ResultIterator::kMinorRunEnd};
-  int reading_order_ltr_context[] = {0, 1,
-                                     2, 3,
-                                     4, ResultIterator::kMinorRunStart,
-                                     7, 6,
-                                     5, ResultIterator::kMinorRunEnd};
+  int reading_order_ltr_context[] = {
+      0, 1, 2, 3, 4, ResultIterator::kMinorRunStart, 7, 6, 5, ResultIterator::kMinorRunEnd};
 
-  ExpectTextlineReadingOrder(true, word_dirs, ABSL_ARRAYSIZE(word_dirs),
-                             reading_order_ltr_context,
-                             ABSL_ARRAYSIZE(reading_order_ltr_context));
-  ExpectTextlineReadingOrder(false, word_dirs, ABSL_ARRAYSIZE(word_dirs),
-                             reading_order_rtl_context,
-                             ABSL_ARRAYSIZE(reading_order_rtl_context));
+  ExpectTextlineReadingOrder(true, word_dirs, countof(word_dirs), reading_order_ltr_context,
+                             countof(reading_order_ltr_context));
+  ExpectTextlineReadingOrder(false, word_dirs, countof(word_dirs), reading_order_rtl_context,
+                             countof(reading_order_rtl_context));
 }
 
 // Tests that clearly left-direction text (with no right-to-left indications)
 // comes out strictly left to right no matter the context.
 TEST_F(ResultIteratorTest, LeftwardTextlineOrderTest) {
-  StrongScriptDirection word_dirs[] = {dL, dL, dN, dL, dN, dN, dL, dL};
+  const StrongScriptDirection word_dirs[] = {dL, dL, dN, dL, dN, dN, dL, dL};
   // The order here is just left to right, nothing fancy.
   int reading_order_ltr_context[] = {0, 1, 2, 3, 4, 5, 6, 7};
   // In the strange event that this shows up in an RTL paragraph, nonetheless
   // just presume the whole thing is an LTR line.
-  int reading_order_rtl_context[] = {
-      ResultIterator::kMinorRunStart, 0, 1, 2, 3, 4, 5, 6, 7,
-      ResultIterator::kMinorRunEnd};
+  int reading_order_rtl_context[] = {ResultIterator::kMinorRunStart, 0, 1, 2, 3, 4, 5, 6, 7,
+                                     ResultIterator::kMinorRunEnd};
 
-  ExpectTextlineReadingOrder(true, word_dirs, ABSL_ARRAYSIZE(word_dirs),
-                             reading_order_ltr_context,
-                             ABSL_ARRAYSIZE(reading_order_ltr_context));
-  ExpectTextlineReadingOrder(false, word_dirs, ABSL_ARRAYSIZE(word_dirs),
-                             reading_order_rtl_context,
-                             ABSL_ARRAYSIZE(reading_order_rtl_context));
+  ExpectTextlineReadingOrder(true, word_dirs, countof(word_dirs), reading_order_ltr_context,
+                             countof(reading_order_ltr_context));
+  ExpectTextlineReadingOrder(false, word_dirs, countof(word_dirs), reading_order_rtl_context,
+                             countof(reading_order_rtl_context));
 }
 
 // Test that right-direction text comes out strictly right-to-left in
 // a right-to-left context.
 TEST_F(ResultIteratorTest, RightwardTextlineOrderTest) {
-  StrongScriptDirection word_dirs[] = {dR, dR, dN, dR, dN, dN, dR, dR};
+  const StrongScriptDirection word_dirs[] = {dR, dR, dN, dR, dN, dN, dR, dR};
   // The order here is just right-to-left, nothing fancy.
   int reading_order_rtl_context[] = {7, 6, 5, 4, 3, 2, 1, 0};
-  ExpectTextlineReadingOrder(false, word_dirs, ABSL_ARRAYSIZE(word_dirs),
-                             reading_order_rtl_context,
-                             ABSL_ARRAYSIZE(reading_order_rtl_context));
+  ExpectTextlineReadingOrder(false, word_dirs, countof(word_dirs), reading_order_rtl_context,
+                             countof(reading_order_rtl_context));
 }
 
 TEST_F(ResultIteratorTest, TextlineOrderSanityCheck) {
   // Iterate through all 7-word sequences and make sure that the output
   // contains each of the indices 0..6 exactly once.
   const int kNumWords(7);
-  const int kNumCombos = 1 << (2 * kNumWords);  // 4 ^ 7 combinations
+  const int kNumCombos = 1 << (2 * kNumWords); // 4 ^ 7 combinations
   StrongScriptDirection word_dirs[kNumWords];
   for (int i = 0; i < kNumCombos; i++) {
     // generate the next combination.
@@ -550,28 +536,28 @@ TEST_F(ResultIteratorTest, TextlineOrderSanityCheck) {
 // TODO: Missing image
 TEST_F(ResultIteratorTest, DISABLED_NonNullChoicesTest) {
   SetImage("5318c4b679264.jpg");
-  char* result = api_.GetUTF8Text();
+  char *result = api_.GetUTF8Text();
   delete[] result;
-  ResultIterator* r_it = api_.GetIterator();
+  ResultIterator *r_it = api_.GetIterator();
   // Iterate over the words.
   do {
-    char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
+    char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     if (word_str != nullptr) {
       LOG(INFO) << absl::StrFormat("Word %s:", word_str) << "\n";
       ResultIterator s_it = *r_it;
       do {
         tesseract::ChoiceIterator c_it(s_it);
         do {
-          const char* char_str = c_it.GetUTF8Text();
+          const char *char_str = c_it.GetUTF8Text();
           if (char_str == nullptr)
-            LOG(INFO) << "Null char choice" << "\n";
+            LOG(INFO) << "Null char choice"
+                      << "\n";
           else
             LOG(INFO) << "Char choice " << char_str << "\n";
           CHECK(char_str != nullptr);
         } while (c_it.Next());
-      } while (
-          !s_it.IsAtFinalElement(tesseract::RIL_WORD, tesseract::RIL_SYMBOL) &&
-          s_it.Next(tesseract::RIL_SYMBOL));
+      } while (!s_it.IsAtFinalElement(tesseract::RIL_WORD, tesseract::RIL_SYMBOL) &&
+               s_it.Next(tesseract::RIL_SYMBOL));
       delete[] word_str;
     }
   } while (r_it->Next(tesseract::RIL_WORD));
@@ -580,37 +566,36 @@ TEST_F(ResultIteratorTest, DISABLED_NonNullChoicesTest) {
 
 // TODO: Missing image
 TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
-//  SetImage("line6.tiff");
+  //  SetImage("line6.tiff");
   SetImage("trainingitalline.tif");
   api_.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
   // Force recognition so we can used the result iterator.
   // We don't care about the return from GetUTF8Text.
-  char* result = api_.GetUTF8Text();
+  char *result = api_.GetUTF8Text();
   delete[] result;
-  ResultIterator* r_it = api_.GetIterator();
+  ResultIterator *r_it = api_.GetIterator();
   // Iterate over the words.
   do {
-    char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
+    char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     if (word_str != nullptr) {
       EXPECT_FALSE(r_it->Empty(tesseract::RIL_WORD));
       EXPECT_FALSE(r_it->Empty(tesseract::RIL_SYMBOL));
       ResultIterator s_it = *r_it;
       do {
-        const char* char_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
+        const char *char_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
         CHECK(char_str != nullptr);
         float confidence = s_it.Confidence(tesseract::RIL_SYMBOL);
-        LOG(INFO) << absl::StrFormat("Char %s has confidence %g\n", char_str,
-                                confidence);
+        LOG(INFO) << absl::StrFormat("Char %s has confidence %g\n", char_str, confidence);
         delete[] char_str;
-      } while (
-          !s_it.IsAtFinalElement(tesseract::RIL_WORD, tesseract::RIL_SYMBOL) &&
-          s_it.Next(tesseract::RIL_SYMBOL));
+      } while (!s_it.IsAtFinalElement(tesseract::RIL_WORD, tesseract::RIL_SYMBOL) &&
+               s_it.Next(tesseract::RIL_SYMBOL));
       delete[] word_str;
     } else {
-      LOG(INFO) << "Empty word found" << "\n";
+      LOG(INFO) << "Empty word found"
+                << "\n";
     }
   } while (r_it->Next(tesseract::RIL_WORD));
   delete r_it;
 }
 
-}  // namespace
+} // namespace tesseract

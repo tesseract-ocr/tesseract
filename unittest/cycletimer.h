@@ -45,17 +45,19 @@ public:
       running_ = false;
     }
   }
-  int64_t GetInMs() const { return GetNanos() / 1000000; }
+  int64_t GetInMs() const {
+    return GetNanos() / 1000000;
+  }
 
- protected:
+protected:
   int64_t GetNanos() const {
     return running_ ? absl::GetCurrentTimeNanos() - start_ + sum_ : sum_;
   }
 
- private:
+private:
   bool running_;
   int64_t start_;
   int64_t sum_;
 };
 
-#endif  // TESSERACT_UNITTEST_CYCLETIMER_H
+#endif // TESSERACT_UNITTEST_CYCLETIMER_H

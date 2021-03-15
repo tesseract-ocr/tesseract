@@ -9,7 +9,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include <algorithm>
 #include <vector>
 
@@ -18,11 +17,11 @@
 #include "log.h"
 #include "qrsequence.h"
 
-namespace {
+namespace tesseract {
 
 class TestableQRSequenceGenerator : public QRSequenceGenerator {
- public:
-  explicit TestableQRSequenceGenerator(const int& N) : QRSequenceGenerator(N) {}
+public:
+  explicit TestableQRSequenceGenerator(const int &N) : QRSequenceGenerator(N) {}
   // Overriding scope for testing
   using QRSequenceGenerator::GetBinaryReversedInteger;
 };
@@ -38,7 +37,7 @@ TEST(QRSequenceGenerator, GetBinaryReversedInteger) {
 
 // Trivial test fixture for a parameterized test.
 class QRSequenceGeneratorTest : public ::testing::TestWithParam<int> {
- protected:
+protected:
   void SetUp() {
     std::locale::global(std::locale(""));
   }
@@ -50,7 +49,8 @@ TEST_P(QRSequenceGeneratorTest, GeneratesValidSequence) {
   std::vector<int> vals(kRangeSize);
   CycleTimer timer;
   timer.Restart();
-  for (int i = 0; i < kRangeSize; ++i) vals[i] = generator.GetVal();
+  for (int i = 0; i < kRangeSize; ++i)
+    vals[i] = generator.GetVal();
   LOG(INFO) << kRangeSize << "-length sequence took " << timer.GetInMs() << "ms";
   // Sort the numbers to verify that we've covered the range without repetition.
   std::sort(vals.begin(), vals.end());
@@ -64,6 +64,6 @@ TEST_P(QRSequenceGeneratorTest, GeneratesValidSequence) {
 }
 
 // Run a parameterized test using the following range sizes.
-INSTANTIATE_TEST_CASE_P(RangeTest, QRSequenceGeneratorTest,
-                        ::testing::Values(2, 7, 8, 9, 16, 1e2, 1e4, 1e6));
-}  // namespace
+INSTANTIATE_TEST_SUITE_P(RangeTest, QRSequenceGeneratorTest,
+                         ::testing::Values(2, 7, 8, 9, 16, 1e2, 1e4, 1e6));
+} // namespace tesseract

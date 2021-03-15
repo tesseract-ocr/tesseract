@@ -16,19 +16,21 @@
 ///////////////////////////////////////////////////////////////////////
 
 #if !defined(__SSE4_1__)
-#error Implementation only for SSE 4.1 capable architectures
-#endif
+#  if defined(__i686__) || defined(__x86_64__)
+#    error Implementation only for SSE 4.1 capable architectures
+#  endif
+#else
 
-#include <emmintrin.h>
-#include <smmintrin.h>
-#include <cstdint>
-#include "dotproduct.h"
+#  include <emmintrin.h>
+#  include <smmintrin.h>
+#  include <cstdint>
+#  include "dotproduct.h"
 
 namespace tesseract {
 
 // Computes and returns the dot product of the n-vectors u and v.
 // Uses Intel SSE intrinsics to access the SIMD instruction set.
-double DotProductSSE(const double* u, const double* v, int n) {
+double DotProductSSE(const double *u, const double *v, int n) {
   int max_offset = n - 2;
   int offset = 0;
   // Accumulate a set of 2 sums in sum, by loading pairs of 2 values from u and
@@ -37,8 +39,7 @@ double DotProductSSE(const double* u, const double* v, int n) {
   if (offset <= max_offset) {
     offset = 2;
     // Aligned load is reputedly faster but requires 16 byte aligned input.
-    if ((reinterpret_cast<uintptr_t>(u) & 15) == 0 &&
-        (reinterpret_cast<uintptr_t>(v) & 15) == 0) {
+    if ((reinterpret_cast<uintptr_t>(u) & 15) == 0 && (reinterpret_cast<uintptr_t>(v) & 15) == 0) {
       // Use aligned load.
       sum = _mm_load_pd(u);
       __m128d floats2 = _mm_load_pd(v);
@@ -78,4 +79,6 @@ double DotProductSSE(const double* u, const double* v, int n) {
   return result;
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.
+
+#endif

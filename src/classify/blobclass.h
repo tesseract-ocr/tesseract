@@ -18,22 +18,16 @@
 #ifndef BLOBCLASS_H
 #define BLOBCLASS_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
-#include <tesseract/strngs.h>
+#include <string>
 
-/**----------------------------------------------------------------------------
-          Public Function Prototypes
-----------------------------------------------------------------------------**/
 namespace tesseract {
 // Finds the name of the training font and returns it in fontname, by cutting
 // it out based on the expectation that the filename is of the form:
 // /path/to/dir/[lang].[fontname].exp[num]
 // The [lang], [fontname] and [num] fields should not have '.' characters.
 // If the global parameter classify_font_name is set, its value is used instead.
-void ExtractFontName(const STRING& filename, STRING* fontname);
+void ExtractFontName(const char *filename, std::string *fontname);
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
 #endif

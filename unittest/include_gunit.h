@@ -13,26 +13,35 @@
 #ifndef TESSERACT_UNITTEST_INCLUDE_GUNIT_H_
 #define TESSERACT_UNITTEST_INCLUDE_GUNIT_H_
 
-#include "errcode.h"  // for ASSERT_HOST
-#include "fileio.h"   // for tesseract::File
+#include "errcode.h" // for ASSERT_HOST
+#include "fileio.h"  // for tesseract::File
 #include "gtest/gtest.h"
+#include "log.h" // for LOG
 
-const char* FLAGS_test_tmpdir = "./tmp";
+const char *FLAGS_test_tmpdir = "./tmp";
 
 class file : public tesseract::File {
 public:
+  static void MakeTmpdir() {
+#if defined(_WIN32)
+    _mkdir(FLAGS_test_tmpdir);
+#else
+    mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
+#endif
+  }
 
-// Create a file and write a string to it.
-  static bool WriteStringToFile(const std::string& contents, const std::string& filename) {
+  // Create a file and write a string to it.
+  static bool WriteStringToFile(const std::string &contents, const std::string &filename) {
     File::WriteStringToFileOrDie(contents, filename);
     return true;
   }
 
-  static bool GetContents(const std::string& filename, std::string* out, int) {
+  static bool GetContents(const std::string &filename, std::string *out, int) {
     return File::ReadFileToString(filename, out);
   }
 
-  static bool SetContents(const std::string& name, const std::string& contents, bool /*is_default*/) {
+  static bool SetContents(const std::string &name, const std::string &contents,
+                          bool /*is_default*/) {
     return WriteStringToFile(contents, name);
   }
 
@@ -40,26 +49,25 @@ public:
     return 0;
   }
 
-  static std::string JoinPath(const std::string& s1, const std::string& s2) {
+  static std::string JoinPath(const std::string &s1, const std::string &s2) {
     return tesseract::File::JoinPath(s1, s2);
   }
 
-  static std::string JoinPath(const std::string& s1, const std::string& s2,
-                              const std::string& s3) {
+  static std::string JoinPath(const std::string &s1, const std::string &s2, const std::string &s3) {
     return JoinPath(JoinPath(s1, s2), s3);
   }
 };
 
-#define ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
-
 // /usr/include/tensorflow/core/platform/default/logging.h defines the CHECK* macros.
 #if !defined(CHECK)
-#define CHECK(test) ASSERT_HOST(test)
-#define CHECK_EQ(test, value) CHECK((test) == (value))
-#define CHECK_GT(test, value) CHECK((test) > (value))
-#define CHECK_LT(test, value) CHECK((test) < (value))
-#define CHECK_LE(test, value) CHECK((test) <= (value))
-#define CHECK_OK(test) CHECK(test)
+#  define CHECK(condition) \
+    if (!(condition))      \
+    LOG(FATAL) << "Check failed: " #condition " "
+#  define CHECK_EQ(test, value) CHECK((test) == (value))
+#  define CHECK_GT(test, value) CHECK((test) > (value))
+#  define CHECK_LT(test, value) CHECK((test) < (value))
+#  define CHECK_LE(test, value) CHECK((test) <= (value))
+#  define CHECK_OK(test) CHECK(test)
 #endif
 
-#endif  // TESSERACT_UNITTEST_INCLUDE_GUNIT_H_
+#endif // TESSERACT_UNITTEST_INCLUDE_GUNIT_H_

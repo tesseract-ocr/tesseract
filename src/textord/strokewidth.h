@@ -20,8 +20,8 @@
 #ifndef TESSERACT_TEXTORD_STROKEWIDTH_H_
 #define TESSERACT_TEXTORD_STROKEWIDTH_H_
 
-#include "blobbox.h"        // BlobNeighourDir.
-#include "blobgrid.h"         // Base class.
+#include "blobbox.h"  // BlobNeighourDir.
+#include "blobgrid.h" // Base class.
 #include "colpartitiongrid.h"
 #include "textlineprojection.h"
 
@@ -36,17 +36,14 @@ class TabFind;
 class TextlineProjection;
 
 // Misc enums to clarify bool arguments for direction-controlling args.
-enum LeftOrRight {
-  LR_LEFT,
-  LR_RIGHT
-};
+enum LeftOrRight { LR_LEFT, LR_RIGHT };
 
 // Return value from FindInitialPartitions indicates detection of severe
 // skew or noise.
 enum PartitionFindResult {
-  PFR_OK,    // Everything is OK.
-  PFR_SKEW,  // Skew was detected and rotated.
-  PFR_NOISE  // Noise was detected and removed.
+  PFR_OK,   // Everything is OK.
+  PFR_SKEW, // Skew was detected and rotated.
+  PFR_NOISE // Noise was detected and removed.
 };
 
 /**
@@ -55,22 +52,21 @@ enum PartitionFindResult {
  * by virtue of having a reasonable strokewidth compatible neighbour.
  */
 class StrokeWidth : public BlobGrid {
- public:
-  StrokeWidth(int gridsize, const ICOORD& bleft, const ICOORD& tright);
+public:
+  StrokeWidth(int gridsize, const ICOORD &bleft, const ICOORD &tright);
   ~StrokeWidth() override;
 
   // Sets the neighbours member of the medium-sized blobs in the block.
   // Searches on 4 sides of each blob for similar-sized, similar-strokewidth
   // blobs and sets pointers to the good neighbours.
-  void SetNeighboursOnMediumBlobs(TO_BLOCK* block);
+  void SetNeighboursOnMediumBlobs(TO_BLOCK *block);
 
   // Sets the neighbour/textline writing direction members of the medium
   // and large blobs with optional repair of broken CJK characters first.
   // Repair of broken CJK is needed here because broken CJK characters
   // can fool the textline direction detection algorithm.
-  void FindTextlineDirectionAndFixBrokenCJK(PageSegMode pageseg_mode,
-                                            bool cjk_merge,
-                                            TO_BLOCK* input_block);
+  void FindTextlineDirectionAndFixBrokenCJK(PageSegMode pageseg_mode, bool cjk_merge,
+                                            TO_BLOCK *input_block);
 
   // To save computation, the process of generating partitions is broken
   // into the following 4 steps:
@@ -88,21 +84,18 @@ class StrokeWidth : public BlobGrid {
   // If osd_blobs is not null, a list of blobs from the dominant textline
   // direction are returned for use in orientation and script detection.
   // find_vertical_text_ratio should be textord_tabfind_vertical_text_ratio.
-  bool TestVerticalTextDirection(double find_vertical_text_ratio,
-                                 TO_BLOCK* block,
-                                 BLOBNBOX_CLIST* osd_blobs);
+  bool TestVerticalTextDirection(double find_vertical_text_ratio, TO_BLOCK *block,
+                                 BLOBNBOX_CLIST *osd_blobs);
 
   // Corrects the data structures for the given rotation.
-  void CorrectForRotation(const FCOORD& rerotation,
-                          ColPartitionGrid* part_grid);
+  void CorrectForRotation(const FCOORD &rerotation, ColPartitionGrid *part_grid);
 
   // Finds leader partitions and inserts them into the give grid.
-  void FindLeaderPartitions(TO_BLOCK* block,
-                            ColPartitionGrid* part_grid);
+  void FindLeaderPartitions(TO_BLOCK *block, ColPartitionGrid *part_grid);
 
   // Finds and marks noise those blobs that look like bits of vertical lines
   // that would otherwise screw up layout analysis.
-  void RemoveLineResidue(ColPartition_LIST* big_part_list);
+  void RemoveLineResidue(ColPartition_LIST *big_part_list);
 
   // Types all the blobs as vertical text or horizontal text or unknown and
   // puts them into initial ColPartitions in the supplied part_grid.
@@ -119,21 +112,18 @@ class StrokeWidth : public BlobGrid {
   // part_grid is the output grid of textline partitions.
   // Large blobs that cause overlap are put in separate partitions and added
   // to the big_parts list.
-  void GradeBlobsIntoPartitions(PageSegMode pageseg_mode,
-                                const FCOORD& rerotation, TO_BLOCK* block,
-                                Pix* nontext_pix, const DENORM* denorm,
-                                bool cjk_script, TextlineProjection* projection,
-                                BLOBNBOX_LIST* diacritic_blobs,
-                                ColPartitionGrid* part_grid,
-                                ColPartition_LIST* big_parts);
+  void GradeBlobsIntoPartitions(PageSegMode pageseg_mode, const FCOORD &rerotation, TO_BLOCK *block,
+                                Pix *nontext_pix, const DENORM *denorm, bool cjk_script,
+                                TextlineProjection *projection, BLOBNBOX_LIST *diacritic_blobs,
+                                ColPartitionGrid *part_grid, ColPartition_LIST *big_parts);
 
   // Handles a click event in a display window.
   void HandleClick(int x, int y) override;
 
- private:
+private:
   // Computes the noise_density_ by summing the number of elements in a
   // neighbourhood of each grid cell.
-  void ComputeNoiseDensity(TO_BLOCK* block, TabFind* line_grid);
+  void ComputeNoiseDensity(TO_BLOCK *block, TabFind *line_grid);
 
   // Detects and marks leader dots/dashes.
   //    Leaders are horizontal chains of small or noise blobs that look
@@ -144,27 +134,25 @@ class StrokeWidth : public BlobGrid {
   // All small and noise blobs in high density regions are marked BTFT_NONTEXT.
   // block is the single block for the whole page or rectangle to be OCRed.
   // leader_parts is the output.
-  void FindLeadersAndMarkNoise(TO_BLOCK* block,
-                               ColPartition_LIST* leader_parts);
+  void FindLeadersAndMarkNoise(TO_BLOCK *block, ColPartition_LIST *leader_parts);
 
   /** Inserts the block blobs (normal and large) into this grid.
    * Blobs remain owned by the block. */
-  void InsertBlobs(TO_BLOCK* block);
+  void InsertBlobs(TO_BLOCK *block);
 
   // Fix broken CJK characters, using the fake joined blobs mechanism.
   // Blobs are really merged, ie the master takes all the outlines and the
   // others are deleted.
   // Returns true if sufficient blobs are merged that it may be worth running
   // again, due to a better estimate of character size.
-  bool FixBrokenCJK(TO_BLOCK* block);
+  bool FixBrokenCJK(TO_BLOCK *block);
 
   // Collect blobs that overlap or are within max_dist of the input bbox.
   // Return them in the list of blobs and expand the bbox to be the union
   // of all the boxes. not_this is excluded from the search, as are blobs
   // that cause the merged box to exceed max_size in either dimension.
-  void AccumulateOverlaps(const BLOBNBOX* not_this, bool debug,
-                          int max_size, int max_dist,
-                          TBOX* bbox, BLOBNBOX_CLIST* blobs);
+  void AccumulateOverlaps(const BLOBNBOX *not_this, bool debug, int max_size, int max_dist,
+                          TBOX *bbox, BLOBNBOX_CLIST *blobs);
 
   // For each blob in this grid, Finds the textline direction to be horizontal
   // or vertical according to distance to neighbours and 1st and 2nd order
@@ -173,42 +161,40 @@ class StrokeWidth : public BlobGrid {
   // flags in the BLOBNBOXes currently in this grid.
   // This function is called more than once if page orientation is uncertain,
   // so display_if_debugging is true on the final call to display the results.
-  void FindTextlineFlowDirection(PageSegMode pageseg_mode,
-                                 bool display_if_debugging);
+  void FindTextlineFlowDirection(PageSegMode pageseg_mode, bool display_if_debugging);
 
   // Sets the neighbours and good_stroke_neighbours members of the blob by
   // searching close on all 4 sides.
   // When finding leader dots/dashes, there is a slightly different rule for
   // what makes a good neighbour.
   // If activate_line_trap, then line-like objects are found and isolated.
-  void SetNeighbours(bool leaders, bool activate_line_trap, BLOBNBOX* blob);
+  void SetNeighbours(bool leaders, bool activate_line_trap, BLOBNBOX *blob);
 
   // Sets the good_stroke_neighbours member of the blob if it has a
   // GoodNeighbour on the given side.
   // Also sets the neighbour in the blob, whether or not a good one is found.
   // Return value is the number of neighbours in the line trap size range.
   // Leaders get extra special lenient treatment.
-  int FindGoodNeighbour(BlobNeighbourDir dir, bool leaders, BLOBNBOX* blob);
+  int FindGoodNeighbour(BlobNeighbourDir dir, bool leaders, BLOBNBOX *blob);
 
   // Makes the blob to be only horizontal or vertical where evidence
   // is clear based on gaps of 2nd order neighbours.
-  void SetNeighbourFlows(BLOBNBOX* blob);
+  void SetNeighbourFlows(BLOBNBOX *blob);
 
   // Nullify the neighbours in the wrong directions where the direction
   // is clear-cut based on a distance margin. Good for isolating vertical
   // text from neighbouring horizontal text.
-  void SimplifyObviousNeighbours(BLOBNBOX* blob);
+  void SimplifyObviousNeighbours(BLOBNBOX *blob);
 
   // Smoothes the vertical/horizontal type of the blob based on the
   // 2nd-order neighbours. If reset_all is true, then all blobs are
   // changed. Otherwise, only ambiguous blobs are processed.
-  void SmoothNeighbourTypes(PageSegMode pageseg_mode, bool desperate,
-                            BLOBNBOX* blob);
+  void SmoothNeighbourTypes(PageSegMode pageseg_mode, bool desperate, BLOBNBOX *blob);
 
   // Checks the left or right side of the given leader partition and sets the
   // (opposite) leader_on_right or leader_on_left flags for blobs
   // that are next to the given side of the given leader partition.
-  void MarkLeaderNeighbours(const ColPartition* part, LeftOrRight side);
+  void MarkLeaderNeighbours(const ColPartition *part, LeftOrRight side);
 
   // Partition creation. Accumulates vertical and horizontal text chains,
   // puts the remaining blobs in as unknowns, and then merges/splits to
@@ -222,33 +208,30 @@ class StrokeWidth : public BlobGrid {
   // the components, saves the skew_angle and returns PFR_SKEW.] If the return
   // is not PFR_OK, the job is incomplete, and FindInitialPartitions must be
   // called again after cleaning up the partly done work.
-  PartitionFindResult FindInitialPartitions(PageSegMode pageseg_mode,
-                                            const FCOORD& rerotation,
-                                            bool find_problems, TO_BLOCK* block,
-                                            BLOBNBOX_LIST* diacritic_blobs,
-                                            ColPartitionGrid* part_grid,
-                                            ColPartition_LIST* big_parts,
-                                            FCOORD* skew_angle);
+  PartitionFindResult FindInitialPartitions(PageSegMode pageseg_mode, const FCOORD &rerotation,
+                                            bool find_problems, TO_BLOCK *block,
+                                            BLOBNBOX_LIST *diacritic_blobs,
+                                            ColPartitionGrid *part_grid,
+                                            ColPartition_LIST *big_parts, FCOORD *skew_angle);
   // Detects noise by a significant increase in partition overlap from
   // pre_overlap to now, and removes noise from the union of all the overlapping
   // partitions, placing the blobs in diacritic_blobs. Returns true if any noise
   // was found and removed.
-  bool DetectAndRemoveNoise(int pre_overlap, const TBOX& grid_box,
-                            TO_BLOCK* block, ColPartitionGrid* part_grid,
-                            BLOBNBOX_LIST* diacritic_blobs);
+  bool DetectAndRemoveNoise(int pre_overlap, const TBOX &grid_box, TO_BLOCK *block,
+                            ColPartitionGrid *part_grid, BLOBNBOX_LIST *diacritic_blobs);
   // Finds vertical chains of text-like blobs and puts them in ColPartitions.
-  void FindVerticalTextChains(ColPartitionGrid* part_grid);
+  void FindVerticalTextChains(ColPartitionGrid *part_grid);
   // Finds horizontal chains of text-like blobs and puts them in ColPartitions.
-  void FindHorizontalTextChains(ColPartitionGrid* part_grid);
+  void FindHorizontalTextChains(ColPartitionGrid *part_grid);
   // Finds diacritics and saves their base character in the blob.
-  void TestDiacritics(ColPartitionGrid* part_grid, TO_BLOCK* block);
+  void TestDiacritics(ColPartitionGrid *part_grid, TO_BLOCK *block);
   // Searches this grid for an appropriately close and sized neighbour of the
   // given [small] blob. If such a blob is found, the diacritic base is saved
   // in the blob and true is returned.
   // The small_grid is a secondary grid that contains the small/noise objects
   // that are not in this grid, but may be useful for determining a connection
   // between blob and its potential base character. (See DiacriticXGapFilled.)
-  bool DiacriticBlob(BlobGrid* small_grid, BLOBNBOX* blob);
+  bool DiacriticBlob(BlobGrid *small_grid, BLOBNBOX *blob);
   // Returns true if there is no gap between the base char and the diacritic
   // bigger than a fraction of the height of the base char:
   // Eg: line end.....'
@@ -262,31 +245,26 @@ class StrokeWidth : public BlobGrid {
   // | Base    |<ok gap>
   // |---------|        x<-----Dot occupying gap
   // The grid is const really.
-  bool DiacriticXGapFilled(BlobGrid* grid, const TBOX& diacritic_box,
-                           const TBOX& base_box);
+  bool DiacriticXGapFilled(BlobGrid *grid, const TBOX &diacritic_box, const TBOX &base_box);
   // Merges diacritics with the ColPartition of the base character blob.
-  void MergeDiacritics(TO_BLOCK* block, ColPartitionGrid* part_grid);
+  void MergeDiacritics(TO_BLOCK *block, ColPartitionGrid *part_grid);
   // Any blobs on the large_blobs list of block that are still unowned by a
   // ColPartition, are probably drop-cap or vertically touching so the blobs
   // are removed to the big_parts list and treated separately.
-  void RemoveLargeUnusedBlobs(TO_BLOCK* block,
-                              ColPartitionGrid* part_grid,
-                              ColPartition_LIST* big_parts);
+  void RemoveLargeUnusedBlobs(TO_BLOCK *block, ColPartitionGrid *part_grid,
+                              ColPartition_LIST *big_parts);
 
-    // All remaining unused blobs are put in individual ColPartitions.
-  void PartitionRemainingBlobs(PageSegMode pageseg_mode,
-                               ColPartitionGrid* part_grid);
+  // All remaining unused blobs are put in individual ColPartitions.
+  void PartitionRemainingBlobs(PageSegMode pageseg_mode, ColPartitionGrid *part_grid);
 
   // If combine, put all blobs in the cell_list into a single partition,
   // otherwise put each one into its own partition.
   void MakePartitionsFromCellList(PageSegMode pageseg_mode, bool combine,
-                                  ColPartitionGrid* part_grid,
-                                  BLOBNBOX_CLIST* cell_list);
+                                  ColPartitionGrid *part_grid, BLOBNBOX_CLIST *cell_list);
 
   // Helper function to finish setting up a ColPartition and insert into
   // part_grid.
-  void CompletePartition(PageSegMode pageseg_mode, ColPartition* part,
-                         ColPartitionGrid* part_grid);
+  void CompletePartition(PageSegMode pageseg_mode, ColPartition *part, ColPartitionGrid *part_grid);
 
   // Helper returns true if we are looking only for vertical textlines,
   // taking into account any rotation that has been done.
@@ -294,62 +272,59 @@ class StrokeWidth : public BlobGrid {
     if (rerotation_.y() == 0.0f) {
       return pageseg_mode == PSM_SINGLE_BLOCK_VERT_TEXT;
     }
-    return !PSM_ORIENTATION_ENABLED(pageseg_mode) &&
-           pageseg_mode != PSM_SINGLE_BLOCK_VERT_TEXT;
+    return !PSM_ORIENTATION_ENABLED(pageseg_mode) && pageseg_mode != PSM_SINGLE_BLOCK_VERT_TEXT;
   }
   // Helper returns true if we are looking only for horizontal textlines,
   // taking into account any rotation that has been done.
   bool FindingHorizontalOnly(PageSegMode pageseg_mode) const {
     if (rerotation_.y() == 0.0f) {
-      return !PSM_ORIENTATION_ENABLED(pageseg_mode) &&
-             pageseg_mode != PSM_SINGLE_BLOCK_VERT_TEXT;
+      return !PSM_ORIENTATION_ENABLED(pageseg_mode) && pageseg_mode != PSM_SINGLE_BLOCK_VERT_TEXT;
     }
     return pageseg_mode == PSM_SINGLE_BLOCK_VERT_TEXT;
   }
 
   // Merge partitions where the merge appears harmless.
-  void EasyMerges(ColPartitionGrid* part_grid);
+  void EasyMerges(ColPartitionGrid *part_grid);
 
   // Compute a search box based on the orientation of the partition.
   // Returns true if a suitable box can be calculated.
   // Callback for EasyMerges.
-  bool OrientationSearchBox(ColPartition* part, TBOX* box);
+  bool OrientationSearchBox(ColPartition *part, TBOX *box);
 
   // Merge confirmation callback for EasyMerges.
-  bool ConfirmEasyMerge(const ColPartition* p1, const ColPartition* p2);
+  bool ConfirmEasyMerge(const ColPartition *p1, const ColPartition *p2);
 
   // Returns true if there is no significant noise in between the boxes.
-  bool NoNoiseInBetween(const TBOX& box1, const TBOX& box2) const;
+  bool NoNoiseInBetween(const TBOX &box1, const TBOX &box2) const;
 
   // Displays the blobs colored according to the number of good neighbours
   // and the vertical/horizontal flow.
-  ScrollView* DisplayGoodBlobs(const char* window_name, int x, int y);
+  ScrollView *DisplayGoodBlobs(const char *window_name, int x, int y);
 
   // Displays blobs colored according to whether or not they are diacritics.
-  ScrollView* DisplayDiacritics(const char* window_name,
-                                int x, int y, TO_BLOCK* block);
+  ScrollView *DisplayDiacritics(const char *window_name, int x, int y, TO_BLOCK *block);
 
- private:
+private:
   // Image map of photo/noise areas on the page. Borrowed pointer (not owned.)
-  Pix* nontext_map_;
+  Pix *nontext_map_;
   // Textline projection map. Borrowed pointer.
-  TextlineProjection* projection_;
+  TextlineProjection *projection_;
   // DENORM used by projection_ to get back to image coords. Borrowed pointer.
-  const DENORM* denorm_;
+  const DENORM *denorm_;
   // Bounding box of the grid.
   TBOX grid_box_;
   // Rerotation to get back to the original image.
   FCOORD rerotation_;
   // Windows for debug display.
-  ScrollView* leaders_win_;
-  ScrollView* initial_widths_win_;
-  ScrollView* widths_win_;
-  ScrollView* chains_win_;
-  ScrollView* diacritics_win_;
-  ScrollView* textlines_win_;
-  ScrollView* smoothed_win_;
+  ScrollView *leaders_win_;
+  ScrollView *initial_widths_win_;
+  ScrollView *widths_win_;
+  ScrollView *chains_win_;
+  ScrollView *diacritics_win_;
+  ScrollView *textlines_win_;
+  ScrollView *smoothed_win_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_STROKEWIDTH_H_
+#endif // TESSERACT_TEXTORD_STROKEWIDTH_H_

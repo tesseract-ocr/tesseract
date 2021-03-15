@@ -19,302 +19,299 @@
 #ifndef POINTS_H
 #define POINTS_H
 
-#include <cmath>                // for sqrt, atan2
-#include <cstdio>
 #include "elst.h"
-#include "errcode.h"            // for ASSERT_HOST
-#include <tesseract/platform.h>           // for DLLSYM
+#include "errcode.h" // for ASSERT_HOST
+
+#include <tesseract/export.h> // for DLLSYM
+
+#include <cmath> // for sqrt, atan2
+#include <cstdio>
+
+namespace tesseract {
 
 class FCOORD;
 
-///integer coordinate
-class ICOORD
-{
+/// integer coordinate
+class ICOORD {
   friend class FCOORD;
 
-  public:
-    ///empty constructor
-    ICOORD() {
-      xcoord = ycoord = 0;       //default zero
-    }
-    ///constructor
-    ///@param xin x value
-    ///@param yin y value
-    ICOORD(int16_t xin,
-           int16_t yin) {
-      xcoord = xin;
-      ycoord = yin;
-    }
-    ///destructor
-    ~ICOORD () = default;
+public:
+  /// empty constructor
+  ICOORD() {
+    xcoord = ycoord = 0; // default zero
+  }
+  /// constructor
+  ///@param xin x value
+  ///@param yin y value
+  ICOORD(int16_t xin, int16_t yin) {
+    xcoord = xin;
+    ycoord = yin;
+  }
+  /// destructor
+  ~ICOORD() = default;
 
-    ///access function
-    int16_t x() const {
-      return xcoord;
-    }
-    ///access_function
-    int16_t y() const {
-      return ycoord;
-    }
+  bool DeSerialize(TFile *f);
+  bool Serialize(TFile *f) const;
 
-    ///rewrite function
-    void set_x(int16_t xin) {
-      xcoord = xin;              //write new value
-    }
-    ///rewrite function
-    void set_y(int16_t yin) {  //value to set
-      ycoord = yin;
-    }
+  /// access function
+  int16_t x() const {
+    return xcoord;
+  }
+  /// access_function
+  int16_t y() const {
+    return ycoord;
+  }
 
-    /// Set from the given x,y, shrinking the vector to fit if needed.
-    void set_with_shrink(int x, int y);
+  /// rewrite function
+  void set_x(int16_t xin) {
+    xcoord = xin; // write new value
+  }
+  /// rewrite function
+  void set_y(int16_t yin) { // value to set
+    ycoord = yin;
+  }
 
-    ///find sq length
-    float sqlength() const {
-      return xcoord * xcoord + ycoord * ycoord;
-    }
+  /// Set from the given x,y, shrinking the vector to fit if needed.
+  void set_with_shrink(int x, int y);
 
-    ///find length
-    float length() const {
-      return std::sqrt(sqlength());
-    }
+  /// find sq length
+  float sqlength() const {
+    return (float)(xcoord * xcoord + ycoord * ycoord);
+  }
 
-    ///sq dist between pts
-    float pt_to_pt_sqdist(const ICOORD &pt) const {
-      ICOORD gap;
+  /// find length
+  float length() const {
+    return std::sqrt(sqlength());
+  }
 
-      gap.xcoord = xcoord - pt.xcoord;
-      gap.ycoord = ycoord - pt.ycoord;
-      return gap.sqlength ();
-    }
+  /// sq dist between pts
+  float pt_to_pt_sqdist(const ICOORD &pt) const {
+    ICOORD gap;
 
-    ///Distance between pts
-    float pt_to_pt_dist(const ICOORD &pt) const {
-      return std::sqrt(pt_to_pt_sqdist(pt));
-    }
+    gap.xcoord = xcoord - pt.xcoord;
+    gap.ycoord = ycoord - pt.ycoord;
+    return gap.sqlength();
+  }
 
-    ///find angle
-    float angle() const {
-      return std::atan2(ycoord, xcoord);
-    }
+  /// Distance between pts
+  float pt_to_pt_dist(const ICOORD &pt) const {
+    return std::sqrt(pt_to_pt_sqdist(pt));
+  }
 
-    ///test equality
-    bool operator== (const ICOORD & other) const {
-      return xcoord == other.xcoord && ycoord == other.ycoord;
-    }
-    ///test inequality
-    bool operator!= (const ICOORD & other) const {
-      return xcoord != other.xcoord || ycoord != other.ycoord;
-    }
-    ///rotate 90 deg anti
-    friend ICOORD operator! (const ICOORD &);
-    ///unary minus
-    friend ICOORD operator- (const ICOORD &);
-    ///add
-    friend ICOORD operator+ (const ICOORD &, const ICOORD &);
-    ///add
-    friend ICOORD & operator+= (ICOORD &, const ICOORD &);
-    ///subtract
-    friend ICOORD operator- (const ICOORD &, const ICOORD &);
-    ///subtract
-    friend ICOORD & operator-= (ICOORD &, const ICOORD &);
-    ///scalar product
-    friend int32_t operator% (const ICOORD &, const ICOORD &);
-    ///cross product
-    friend int32_t operator *(const ICOORD &,
-                            const ICOORD &);
-    ///multiply
-    friend ICOORD operator *(const ICOORD &,
-                             int16_t);
-    ///multiply
-    friend ICOORD operator *(int16_t,
-                             const ICOORD &);
-    ///multiply
-    friend ICOORD & operator*= (ICOORD &, int16_t);
-    ///divide
-    friend ICOORD operator/ (const ICOORD &, int16_t);
-    ///divide
-    friend ICOORD & operator/= (ICOORD &, int16_t);
-    ///rotate
-    ///@param vec by vector
-    void rotate(const FCOORD& vec);
+  /// find angle
+  float angle() const {
+    return (float)std::atan2(ycoord, xcoord);
+  }
 
-    /// Setup for iterating over the pixels in a vector by the well-known
-    /// Bresenham rendering algorithm.
-    /// Starting with major/2 in the accumulator, on each step move by
-    /// major_step, and then add minor to the accumulator. When
-    /// accumulator >= major subtract major and also move by minor_step.
-    void setup_render(ICOORD* major_step, ICOORD* minor_step,
-                      int* major, int* minor) const;
+  /// test equality
+  bool operator==(const ICOORD &other) const {
+    return xcoord == other.xcoord && ycoord == other.ycoord;
+  }
+  /// test inequality
+  bool operator!=(const ICOORD &other) const {
+    return xcoord != other.xcoord || ycoord != other.ycoord;
+  }
+  /// rotate 90 deg anti
+  friend ICOORD operator!(const ICOORD &);
+  /// unary minus
+  friend ICOORD operator-(const ICOORD &);
+  /// add
+  friend ICOORD operator+(const ICOORD &, const ICOORD &);
+  /// add
+  friend ICOORD &operator+=(ICOORD &, const ICOORD &);
+  /// subtract
+  friend ICOORD operator-(const ICOORD &, const ICOORD &);
+  /// subtract
+  friend ICOORD &operator-=(ICOORD &, const ICOORD &);
+  /// scalar product
+  friend int32_t operator%(const ICOORD &, const ICOORD &);
+  /// cross product
+  friend int32_t operator*(const ICOORD &, const ICOORD &);
+  /// multiply
+  friend ICOORD operator*(const ICOORD &, int16_t);
+  /// multiply
+  friend ICOORD operator*(int16_t, const ICOORD &);
+  /// multiply
+  friend ICOORD &operator*=(ICOORD &, int16_t);
+  /// divide
+  friend ICOORD operator/(const ICOORD &, int16_t);
+  /// divide
+  friend ICOORD &operator/=(ICOORD &, int16_t);
+  /// rotate
+  ///@param vec by vector
+  void rotate(const FCOORD &vec);
 
-    // Writes to the given file. Returns false in case of error.
-    bool Serialize(FILE* fp) const;
-    // Reads from the given file. Returns false in case of error.
-    // If swap is true, assumes a big/little-endian swap is needed.
-    bool DeSerialize(bool swap, FILE* fp);
+  /// Setup for iterating over the pixels in a vector by the well-known
+  /// Bresenham rendering algorithm.
+  /// Starting with major/2 in the accumulator, on each step move by
+  /// major_step, and then add minor to the accumulator. When
+  /// accumulator >= major subtract major and also move by minor_step.
+  void setup_render(ICOORD *major_step, ICOORD *minor_step, int *major, int *minor) const;
 
-  protected:
-    int16_t xcoord;                ///< x value
-    int16_t ycoord;                ///< y value
+  // Writes to the given file. Returns false in case of error.
+  bool Serialize(FILE *fp) const;
+  // Reads from the given file. Returns false in case of error.
+  // If swap is true, assumes a big/little-endian swap is needed.
+  bool DeSerialize(bool swap, FILE *fp);
+
+protected:
+  int16_t xcoord; ///< x value
+  int16_t ycoord; ///< y value
 };
 
-class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
-                                 //embedded coord list
+class ICOORDELT : public ELIST_LINK,
+                  public ICOORD
+// embedded coord list
 {
-  public:
-    ///empty constructor
-    ICOORDELT() = default;
-    ///constructor from ICOORD
-    ICOORDELT (ICOORD icoord):ICOORD (icoord) {
-    }
-    ///constructor
-    ///@param xin x value
-    ///@param yin y value
-    ICOORDELT(int16_t xin,
-              int16_t yin) {
-      xcoord = xin;
-      ycoord = yin;
-    }
+public:
+  /// empty constructor
+  ICOORDELT() = default;
+  /// constructor from ICOORD
+  ICOORDELT(ICOORD icoord) : ICOORD(icoord) {}
+  /// constructor
+  ///@param xin x value
+  ///@param yin y value
+  ICOORDELT(int16_t xin, int16_t yin) {
+    xcoord = xin;
+    ycoord = yin;
+  }
 
-    static ICOORDELT* deep_copy(const ICOORDELT* src) {
-      auto* elt = new ICOORDELT;
-      *elt = *src;
-      return elt;
-    }
-
+  static ICOORDELT *deep_copy(const ICOORDELT *src) {
+    auto *elt = new ICOORDELT;
+    *elt = *src;
+    return elt;
+  }
 };
 
-ELISTIZEH (ICOORDELT)
-class DLLSYM FCOORD
-{
-  public:
-    ///empty constructor
-    FCOORD() = default;
-    ///constructor
-    ///@param xvalue x value
-    ///@param yvalue y value
-    FCOORD(float xvalue,
-           float yvalue) {
-      xcoord = xvalue;           //set coords
-      ycoord = yvalue;
-    }
-    FCOORD(                  //make from ICOORD
-           ICOORD icoord) {  //coords to set
-      xcoord = icoord.xcoord;
-      ycoord = icoord.ycoord;
-    }
+ELISTIZEH(ICOORDELT)
 
-    float x() const {  //get coords
-      return xcoord;
-    }
-    float y() const {
-      return ycoord;
-    }
-    ///rewrite function
-    void set_x(float xin) {
-      xcoord = xin;              //write new value
-    }
-    ///rewrite function
-    void set_y(float yin) {  //value to set
-      ycoord = yin;
-    }
+class TESS_API FCOORD {
+public:
+  /// empty constructor
+  FCOORD() = default;
+  /// constructor
+  ///@param xvalue x value
+  ///@param yvalue y value
+  FCOORD(float xvalue, float yvalue) {
+    xcoord = xvalue; // set coords
+    ycoord = yvalue;
+  }
+  FCOORD(              // make from ICOORD
+      ICOORD icoord) { // coords to set
+    xcoord = icoord.xcoord;
+    ycoord = icoord.ycoord;
+  }
 
-    ///find sq length
-    float sqlength() const {
-      return xcoord * xcoord + ycoord * ycoord;
-    }
+  float x() const { // get coords
+    return xcoord;
+  }
+  float y() const {
+    return ycoord;
+  }
+  /// rewrite function
+  void set_x(float xin) {
+    xcoord = xin; // write new value
+  }
+  /// rewrite function
+  void set_y(float yin) { // value to set
+    ycoord = yin;
+  }
 
-    ///find length
-    float length() const {
-      return std::sqrt(sqlength());
-    }
+  /// find sq length
+  float sqlength() const {
+    return xcoord * xcoord + ycoord * ycoord;
+  }
 
-    ///sq dist between pts
-    float pt_to_pt_sqdist(const FCOORD &pt) const {
-      FCOORD gap;
+  /// find length
+  float length() const {
+    return std::sqrt(sqlength());
+  }
 
-      gap.xcoord = xcoord - pt.xcoord;
-      gap.ycoord = ycoord - pt.ycoord;
-      return gap.sqlength ();
-    }
+  /// sq dist between pts
+  float pt_to_pt_sqdist(const FCOORD &pt) const {
+    FCOORD gap;
 
-    ///Distance between pts
-    float pt_to_pt_dist(const FCOORD &pt) const {
-      return std::sqrt(pt_to_pt_sqdist(pt));
-    }
+    gap.xcoord = xcoord - pt.xcoord;
+    gap.ycoord = ycoord - pt.ycoord;
+    return gap.sqlength();
+  }
 
-    ///find angle
-    float angle() const {
-      return std::atan2(ycoord, xcoord);
-    }
-    // Returns the standard feature direction corresponding to this.
-    // See binary_angle_plus_pi below for a description of the direction.
-    uint8_t to_direction() const;
-    // Sets this with a unit vector in the given standard feature direction.
-    void from_direction(uint8_t direction);
+  /// Distance between pts
+  float pt_to_pt_dist(const FCOORD &pt) const {
+    return std::sqrt(pt_to_pt_sqdist(pt));
+  }
 
-    // Converts an angle in radians (from ICOORD::angle or FCOORD::angle) to a
-    // standard feature direction as an unsigned angle in 256ths of a circle
-    // measured anticlockwise from (-1, 0).
-    static uint8_t binary_angle_plus_pi(double angle);
-    // Inverse of binary_angle_plus_pi returns an angle in radians for the
-    // given standard feature direction.
-    static double angle_from_direction(uint8_t direction);
-    // Returns the point on the given line nearest to this, ie the point such
-    // that the vector point->this is perpendicular to the line.
-    // The line is defined as a line_point and a dir_vector for its direction.
-    // dir_vector need not be a unit vector.
-    FCOORD nearest_pt_on_line(const FCOORD& line_point,
-                              const FCOORD& dir_vector) const;
+  /// find angle
+  float angle() const {
+    return std::atan2(ycoord, xcoord);
+  }
+  // Returns the standard feature direction corresponding to this.
+  // See binary_angle_plus_pi below for a description of the direction.
+  uint8_t to_direction() const;
+  // Sets this with a unit vector in the given standard feature direction.
+  void from_direction(uint8_t direction);
 
-    ///Convert to unit vec
-    bool normalise();
+  // Converts an angle in radians (from ICOORD::angle or FCOORD::angle) to a
+  // standard feature direction as an unsigned angle in 256ths of a circle
+  // measured anticlockwise from (-1, 0).
+  static uint8_t binary_angle_plus_pi(double angle);
+  // Inverse of binary_angle_plus_pi returns an angle in radians for the
+  // given standard feature direction.
+  static double angle_from_direction(uint8_t direction);
+  // Returns the point on the given line nearest to this, ie the point such
+  // that the vector point->this is perpendicular to the line.
+  // The line is defined as a line_point and a dir_vector for its direction.
+  // dir_vector need not be a unit vector.
+  FCOORD nearest_pt_on_line(const FCOORD &line_point, const FCOORD &dir_vector) const;
 
-    ///test equality
-    bool operator== (const FCOORD & other) {
-      return xcoord == other.xcoord && ycoord == other.ycoord;
-    }
-    ///test inequality
-    bool operator!= (const FCOORD & other) {
-      return xcoord != other.xcoord || ycoord != other.ycoord;
-    }
-    ///rotate 90 deg anti
-    friend FCOORD operator! (const FCOORD &);
-    ///unary minus
-    friend FCOORD operator- (const FCOORD &);
-    ///add
-    friend FCOORD operator+ (const FCOORD &, const FCOORD &);
-    ///add
-    friend FCOORD & operator+= (FCOORD &, const FCOORD &);
-    ///subtract
-    friend FCOORD operator- (const FCOORD &, const FCOORD &);
-    ///subtract
-    friend FCOORD & operator-= (FCOORD &, const FCOORD &);
-    ///scalar product
-    friend float operator% (const FCOORD &, const FCOORD &);
-    ///cross product
-    friend float operator *(const FCOORD &, const FCOORD &);
-    ///multiply
-    friend FCOORD operator *(const FCOORD &, float);
-    ///multiply
-    friend FCOORD operator *(float, const FCOORD &);
+  /// Convert to unit vec
+  bool normalise();
 
-    ///multiply
-    friend FCOORD & operator*= (FCOORD &, float);
-    ///divide
-    friend FCOORD operator/ (const FCOORD &, float);
-    ///rotate
-    ///@param vec by vector
-    void rotate(const FCOORD vec);
-    // unrotate - undo a rotate(vec)
-    // @param vec by vector
-    void unrotate(const FCOORD &vec);
-    ///divide
-    friend FCOORD & operator/= (FCOORD &, float);
+  /// test equality
+  bool operator==(const FCOORD &other) {
+    return xcoord == other.xcoord && ycoord == other.ycoord;
+  }
+  /// test inequality
+  bool operator!=(const FCOORD &other) {
+    return xcoord != other.xcoord || ycoord != other.ycoord;
+  }
+  /// rotate 90 deg anti
+  friend FCOORD operator!(const FCOORD &);
+  /// unary minus
+  friend FCOORD operator-(const FCOORD &);
+  /// add
+  friend FCOORD operator+(const FCOORD &, const FCOORD &);
+  /// add
+  friend FCOORD &operator+=(FCOORD &, const FCOORD &);
+  /// subtract
+  friend FCOORD operator-(const FCOORD &, const FCOORD &);
+  /// subtract
+  friend FCOORD &operator-=(FCOORD &, const FCOORD &);
+  /// scalar product
+  friend float operator%(const FCOORD &, const FCOORD &);
+  /// cross product
+  friend float operator*(const FCOORD &, const FCOORD &);
+  /// multiply
+  friend FCOORD operator*(const FCOORD &, float);
+  /// multiply
+  friend FCOORD operator*(float, const FCOORD &);
 
-  private:
-    float xcoord;                //2 floating coords
-    float ycoord;
+  /// multiply
+  friend FCOORD &operator*=(FCOORD &, float);
+  /// divide
+  friend FCOORD operator/(const FCOORD &, float);
+  /// rotate
+  ///@param vec by vector
+  void rotate(const FCOORD vec);
+  // unrotate - undo a rotate(vec)
+  // @param vec by vector
+  void unrotate(const FCOORD &vec);
+  /// divide
+  friend FCOORD &operator/=(FCOORD &, float);
+
+private:
+  float xcoord; // 2 floating coords
+  float ycoord;
 };
 
 /**********************************************************************
@@ -323,17 +320,15 @@ class DLLSYM FCOORD
  * Rotate an ICOORD 90 degrees anticlockwise.
  **********************************************************************/
 
-inline ICOORD
-operator! (                      //rotate 90 deg anti
-const ICOORD & src               //thing to rotate
+inline ICOORD operator!( // rotate 90 deg anti
+    const ICOORD &src    // thing to rotate
 ) {
-  ICOORD result;                 //output
+  ICOORD result; // output
 
   result.xcoord = -src.ycoord;
   result.ycoord = src.xcoord;
   return result;
 }
-
 
 /**********************************************************************
  * operator-
@@ -341,17 +336,15 @@ const ICOORD & src               //thing to rotate
  * Unary minus of an ICOORD.
  **********************************************************************/
 
-inline ICOORD
-operator- (                      //unary minus
-const ICOORD & src               //thing to minus
+inline ICOORD operator-( // unary minus
+    const ICOORD &src    // thing to minus
 ) {
-  ICOORD result;                 //output
+  ICOORD result; // output
 
   result.xcoord = -src.xcoord;
   result.ycoord = -src.ycoord;
   return result;
 }
-
 
 /**********************************************************************
  * operator+
@@ -359,17 +352,15 @@ const ICOORD & src               //thing to minus
  * Add 2 ICOORDS.
  **********************************************************************/
 
-inline ICOORD
-operator+ (                      //sum vectors
-const ICOORD & op1,              //operands
-const ICOORD & op2) {
-  ICOORD sum;                    //result
+inline ICOORD operator+( // sum vectors
+    const ICOORD &op1,   // operands
+    const ICOORD &op2) {
+  ICOORD sum; // result
 
   sum.xcoord = op1.xcoord + op2.xcoord;
   sum.ycoord = op1.ycoord + op2.ycoord;
   return sum;
 }
-
 
 /**********************************************************************
  * operator+=
@@ -377,15 +368,13 @@ const ICOORD & op2) {
  * Add 2 ICOORDS.
  **********************************************************************/
 
-inline ICOORD &
-operator+= (                     //sum vectors
-ICOORD & op1,                    //operands
-const ICOORD & op2) {
+inline ICOORD &operator+=( // sum vectors
+    ICOORD &op1,           // operands
+    const ICOORD &op2) {
   op1.xcoord += op2.xcoord;
   op1.ycoord += op2.ycoord;
   return op1;
 }
-
 
 /**********************************************************************
  * operator-
@@ -393,17 +382,15 @@ const ICOORD & op2) {
  * Subtract 2 ICOORDS.
  **********************************************************************/
 
-inline ICOORD
-operator- (                      //subtract vectors
-const ICOORD & op1,              //operands
-const ICOORD & op2) {
-  ICOORD sum;                    //result
+inline ICOORD operator-( // subtract vectors
+    const ICOORD &op1,   // operands
+    const ICOORD &op2) {
+  ICOORD sum; // result
 
   sum.xcoord = op1.xcoord - op2.xcoord;
   sum.ycoord = op1.ycoord - op2.ycoord;
   return sum;
 }
-
 
 /**********************************************************************
  * operator-=
@@ -411,15 +398,13 @@ const ICOORD & op2) {
  * Subtract 2 ICOORDS.
  **********************************************************************/
 
-inline ICOORD &
-operator-= (                     //subtract vectors
-ICOORD & op1,                    //operands
-const ICOORD & op2) {
+inline ICOORD &operator-=( // subtract vectors
+    ICOORD &op1,           // operands
+    const ICOORD &op2) {
   op1.xcoord -= op2.xcoord;
   op1.ycoord -= op2.ycoord;
   return op1;
 }
-
 
 /**********************************************************************
  * operator%
@@ -427,13 +412,11 @@ const ICOORD & op2) {
  * Scalar product of 2 ICOORDS.
  **********************************************************************/
 
-inline int32_t
-operator% (                      //scalar product
-const ICOORD & op1,              //operands
-const ICOORD & op2) {
+inline int32_t operator%( // scalar product
+    const ICOORD &op1,    // operands
+    const ICOORD &op2) {
   return op1.xcoord * op2.xcoord + op1.ycoord * op2.ycoord;
 }
-
 
 /**********************************************************************
  * operator*
@@ -441,12 +424,11 @@ const ICOORD & op2) {
  * Cross product of 2 ICOORDS.
  **********************************************************************/
 
-inline int32_t operator *(                    //cross product
-                        const ICOORD &op1,  //operands
-                        const ICOORD &op2) {
+inline int32_t operator*( // cross product
+    const ICOORD &op1,    // operands
+    const ICOORD &op2) {
   return op1.xcoord * op2.ycoord - op1.ycoord * op2.xcoord;
 }
-
 
 /**********************************************************************
  * operator*
@@ -454,28 +436,26 @@ inline int32_t operator *(                    //cross product
  * Scalar multiply of an ICOORD.
  **********************************************************************/
 
-inline ICOORD operator *(                    //scalar multiply
-                         const ICOORD &op1,  //operands
-                         int16_t scale) {
-  ICOORD result;                 //output
+inline ICOORD operator*( // scalar multiply
+    const ICOORD &op1,   // operands
+    int16_t scale) {
+  ICOORD result; // output
 
   result.xcoord = op1.xcoord * scale;
   result.ycoord = op1.ycoord * scale;
   return result;
 }
 
-
-inline ICOORD operator *(                   //scalar multiply
-                         int16_t scale,
-                         const ICOORD &op1  //operands
-                        ) {
-  ICOORD result;                 //output
+inline ICOORD operator*( // scalar multiply
+    int16_t scale,
+    const ICOORD &op1 // operands
+) {
+  ICOORD result; // output
 
   result.xcoord = op1.xcoord * scale;
   result.ycoord = op1.ycoord * scale;
   return result;
 }
-
 
 /**********************************************************************
  * operator*=
@@ -483,15 +463,13 @@ inline ICOORD operator *(                   //scalar multiply
  * Scalar multiply of an ICOORD.
  **********************************************************************/
 
-inline ICOORD &
-operator*= (                     //scalar multiply
-ICOORD & op1,                    //operands
-int16_t scale) {
+inline ICOORD &operator*=( // scalar multiply
+    ICOORD &op1,           // operands
+    int16_t scale) {
   op1.xcoord *= scale;
   op1.ycoord *= scale;
   return op1;
 }
-
 
 /**********************************************************************
  * operator/
@@ -499,17 +477,15 @@ int16_t scale) {
  * Scalar divide of an ICOORD.
  **********************************************************************/
 
-inline ICOORD
-operator/ (                      //scalar divide
-const ICOORD & op1,              //operands
-int16_t scale) {
-  ICOORD result;                 //output
+inline ICOORD operator/( // scalar divide
+    const ICOORD &op1,   // operands
+    int16_t scale) {
+  ICOORD result; // output
 
   result.xcoord = op1.xcoord / scale;
   result.ycoord = op1.ycoord / scale;
   return result;
 }
-
 
 /**********************************************************************
  * operator/=
@@ -517,15 +493,13 @@ int16_t scale) {
  * Scalar divide of an ICOORD.
  **********************************************************************/
 
-inline ICOORD &
-operator/= (                     //scalar divide
-ICOORD & op1,                    //operands
-int16_t scale) {
+inline ICOORD &operator/=( // scalar divide
+    ICOORD &op1,           // operands
+    int16_t scale) {
   op1.xcoord /= scale;
   op1.ycoord /= scale;
   return op1;
 }
-
 
 /**********************************************************************
  * ICOORD::rotate
@@ -533,15 +507,12 @@ int16_t scale) {
  * Rotate an ICOORD by the given (normalized) (cos,sin) vector.
  **********************************************************************/
 
-inline void ICOORD::rotate(  //rotate by vector
-                           const FCOORD& vec) {
-  auto tmp = static_cast<int16_t>(std::floor(xcoord * vec.x() -
-                                                ycoord * vec.y() + 0.5f));
-  ycoord = static_cast<int16_t>(std::floor(ycoord * vec.x() +
-                                           xcoord * vec.y() + 0.5f));
+inline void ICOORD::rotate( // rotate by vector
+    const FCOORD &vec) {
+  auto tmp = static_cast<int16_t>(std::floor(xcoord * vec.x() - ycoord * vec.y() + 0.5f));
+  ycoord = static_cast<int16_t>(std::floor(ycoord * vec.x() + xcoord * vec.y() + 0.5f));
   xcoord = tmp;
 }
-
 
 /**********************************************************************
  * operator!
@@ -549,17 +520,15 @@ inline void ICOORD::rotate(  //rotate by vector
  * Rotate an FCOORD 90 degrees anticlockwise.
  **********************************************************************/
 
-inline FCOORD
-operator! (                      //rotate 90 deg anti
-const FCOORD & src               //thing to rotate
+inline FCOORD operator!( // rotate 90 deg anti
+    const FCOORD &src    // thing to rotate
 ) {
-  FCOORD result;                 //output
+  FCOORD result; // output
 
   result.xcoord = -src.ycoord;
   result.ycoord = src.xcoord;
   return result;
 }
-
 
 /**********************************************************************
  * operator-
@@ -567,17 +536,15 @@ const FCOORD & src               //thing to rotate
  * Unary minus of an FCOORD.
  **********************************************************************/
 
-inline FCOORD
-operator- (                      //unary minus
-const FCOORD & src               //thing to minus
+inline FCOORD operator-( // unary minus
+    const FCOORD &src    // thing to minus
 ) {
-  FCOORD result;                 //output
+  FCOORD result; // output
 
   result.xcoord = -src.xcoord;
   result.ycoord = -src.ycoord;
   return result;
 }
-
 
 /**********************************************************************
  * operator+
@@ -585,17 +552,15 @@ const FCOORD & src               //thing to minus
  * Add 2 FCOORDS.
  **********************************************************************/
 
-inline FCOORD
-operator+ (                      //sum vectors
-const FCOORD & op1,              //operands
-const FCOORD & op2) {
-  FCOORD sum;                    //result
+inline FCOORD operator+( // sum vectors
+    const FCOORD &op1,   // operands
+    const FCOORD &op2) {
+  FCOORD sum; // result
 
   sum.xcoord = op1.xcoord + op2.xcoord;
   sum.ycoord = op1.ycoord + op2.ycoord;
   return sum;
 }
-
 
 /**********************************************************************
  * operator+=
@@ -603,15 +568,13 @@ const FCOORD & op2) {
  * Add 2 FCOORDS.
  **********************************************************************/
 
-inline FCOORD &
-operator+= (                     //sum vectors
-FCOORD & op1,                    //operands
-const FCOORD & op2) {
+inline FCOORD &operator+=( // sum vectors
+    FCOORD &op1,           // operands
+    const FCOORD &op2) {
   op1.xcoord += op2.xcoord;
   op1.ycoord += op2.ycoord;
   return op1;
 }
-
 
 /**********************************************************************
  * operator-
@@ -619,17 +582,15 @@ const FCOORD & op2) {
  * Subtract 2 FCOORDS.
  **********************************************************************/
 
-inline FCOORD
-operator- (                      //subtract vectors
-const FCOORD & op1,              //operands
-const FCOORD & op2) {
-  FCOORD sum;                    //result
+inline FCOORD operator-( // subtract vectors
+    const FCOORD &op1,   // operands
+    const FCOORD &op2) {
+  FCOORD sum; // result
 
   sum.xcoord = op1.xcoord - op2.xcoord;
   sum.ycoord = op1.ycoord - op2.ycoord;
   return sum;
 }
-
 
 /**********************************************************************
  * operator-=
@@ -637,15 +598,13 @@ const FCOORD & op2) {
  * Subtract 2 FCOORDS.
  **********************************************************************/
 
-inline FCOORD &
-operator-= (                     //subtract vectors
-FCOORD & op1,                    //operands
-const FCOORD & op2) {
+inline FCOORD &operator-=( // subtract vectors
+    FCOORD &op1,           // operands
+    const FCOORD &op2) {
   op1.xcoord -= op2.xcoord;
   op1.ycoord -= op2.ycoord;
   return op1;
 }
-
 
 /**********************************************************************
  * operator%
@@ -653,13 +612,11 @@ const FCOORD & op2) {
  * Scalar product of 2 FCOORDS.
  **********************************************************************/
 
-inline float
-operator% (                      //scalar product
-const FCOORD & op1,              //operands
-const FCOORD & op2) {
+inline float operator%( // scalar product
+    const FCOORD &op1,  // operands
+    const FCOORD &op2) {
   return op1.xcoord * op2.xcoord + op1.ycoord * op2.ycoord;
 }
-
 
 /**********************************************************************
  * operator*
@@ -667,12 +624,11 @@ const FCOORD & op2) {
  * Cross product of 2 FCOORDS.
  **********************************************************************/
 
-inline float operator *(                    //cross product
-                        const FCOORD &op1,  //operands
-                        const FCOORD &op2) {
+inline float operator*( // cross product
+    const FCOORD &op1,  // operands
+    const FCOORD &op2) {
   return op1.xcoord * op2.ycoord - op1.ycoord * op2.xcoord;
 }
-
 
 /**********************************************************************
  * operator*
@@ -680,28 +636,26 @@ inline float operator *(                    //cross product
  * Scalar multiply of an FCOORD.
  **********************************************************************/
 
-inline FCOORD operator *(                    //scalar multiply
-                         const FCOORD &op1,  //operands
-                         float scale) {
-  FCOORD result;                 //output
+inline FCOORD operator*( // scalar multiply
+    const FCOORD &op1,   // operands
+    float scale) {
+  FCOORD result; // output
 
   result.xcoord = op1.xcoord * scale;
   result.ycoord = op1.ycoord * scale;
   return result;
 }
 
-
-inline FCOORD operator *(                   //scalar multiply
-                         float scale,
-                         const FCOORD &op1  //operands
-                        ) {
-  FCOORD result;                 //output
+inline FCOORD operator*( // scalar multiply
+    float scale,
+    const FCOORD &op1 // operands
+) {
+  FCOORD result; // output
 
   result.xcoord = op1.xcoord * scale;
   result.ycoord = op1.ycoord * scale;
   return result;
 }
-
 
 /**********************************************************************
  * operator*=
@@ -709,15 +663,13 @@ inline FCOORD operator *(                   //scalar multiply
  * Scalar multiply of an FCOORD.
  **********************************************************************/
 
-inline FCOORD &
-operator*= (                     //scalar multiply
-FCOORD & op1,                    //operands
-float scale) {
+inline FCOORD &operator*=( // scalar multiply
+    FCOORD &op1,           // operands
+    float scale) {
   op1.xcoord *= scale;
   op1.ycoord *= scale;
   return op1;
 }
-
 
 /**********************************************************************
  * operator/
@@ -725,17 +677,15 @@ float scale) {
  * Scalar divide of an FCOORD.
  **********************************************************************/
 
-inline FCOORD
-operator/ (                      //scalar divide
-const FCOORD & op1,              //operands
-float scale) {
-  FCOORD result;                 //output
+inline FCOORD operator/( // scalar divide
+    const FCOORD &op1,   // operands
+    float scale) {
+  FCOORD result; // output
   ASSERT_HOST(scale != 0.0f);
   result.xcoord = op1.xcoord / scale;
   result.ycoord = op1.ycoord / scale;
   return result;
 }
-
 
 /**********************************************************************
  * operator/=
@@ -743,16 +693,14 @@ float scale) {
  * Scalar divide of an FCOORD.
  **********************************************************************/
 
-inline FCOORD &
-operator/= (                     //scalar divide
-FCOORD & op1,                    //operands
-float scale) {
+inline FCOORD &operator/=( // scalar divide
+    FCOORD &op1,           // operands
+    float scale) {
   ASSERT_HOST(scale != 0.0f);
   op1.xcoord /= scale;
   op1.ycoord /= scale;
   return op1;
 }
-
 
 /**********************************************************************
  * rotate
@@ -760,17 +708,19 @@ float scale) {
  * Rotate an FCOORD by the given (normalized) (cos,sin) vector.
  **********************************************************************/
 
-inline void FCOORD::rotate(  //rotate by vector
-                           const FCOORD vec) {
+inline void FCOORD::rotate( // rotate by vector
+    const FCOORD vec) {
   float tmp;
 
-  tmp = xcoord * vec.x () - ycoord * vec.y ();
-  ycoord = ycoord * vec.x () + xcoord * vec.y ();
+  tmp = xcoord * vec.x() - ycoord * vec.y();
+  ycoord = ycoord * vec.x() + xcoord * vec.y();
   xcoord = tmp;
 }
 
-inline void FCOORD::unrotate(const FCOORD& vec) {
+inline void FCOORD::unrotate(const FCOORD &vec) {
   rotate(FCOORD(vec.x(), -vec.y()));
 }
+
+} // namespace tesseract
 
 #endif

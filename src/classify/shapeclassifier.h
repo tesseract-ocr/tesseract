@@ -1,11 +1,8 @@
-// Copyright 2011 Google Inc. All Rights Reserved.
-// Author: rays@google.com (Ray Smith)
 ///////////////////////////////////////////////////////////////////////
 // File:        shapeclassifier.h
 // Description: Base interface class for classifiers that return a
 //              shape index.
 // Author:      Ray Smith
-// Created:     Tue Sep 13 11:26:32 PDT 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,14 +22,15 @@
 
 #include <tesseract/unichar.h>
 
-template <typename T> class GenericVector;
 struct Pix;
-class ScrollView;
-class UNICHARSET;
 
 namespace tesseract {
 
-template <typename T> class PointerVector;
+class ScrollView;
+class UNICHARSET;
+
+template <typename T>
+class PointerVector;
 struct ShapeRating;
 class ShapeTable;
 class TrainingSample;
@@ -40,8 +38,8 @@ class TrainingSampleSet;
 struct UnicharRating;
 
 // Interface base class for classifiers that produce ShapeRating results.
-class ShapeClassifier {
- public:
+class TESS_API ShapeClassifier {
+public:
   virtual ~ShapeClassifier() = default;
 
   // Classifies the given [training] sample, writing to results.
@@ -64,61 +62,55 @@ class ShapeClassifier {
   // classifiers.
   // NOTE: Neither overload of ClassifySample is pure, but at least one must
   // be overridden by a classifier in order for it to do anything.
-  virtual int UnicharClassifySample(const TrainingSample& sample, Pix* page_pix,
-                                    int debug, UNICHAR_ID keep_this,
-                                    GenericVector<UnicharRating>* results);
+  virtual int UnicharClassifySample(const TrainingSample &sample, Pix *page_pix, int debug,
+                                    UNICHAR_ID keep_this, std::vector<UnicharRating> *results);
 
- protected:
-  virtual int ClassifySample(const TrainingSample& sample, Pix* page_pix,
-                             int debug, UNICHAR_ID keep_this,
-                             GenericVector<ShapeRating>* results);
+protected:
+  virtual int ClassifySample(const TrainingSample &sample, Pix *page_pix, int debug,
+                             UNICHAR_ID keep_this, std::vector<ShapeRating> *results);
 
- public:
+public:
   // Returns the shape that contains unichar_id that has the best result.
   // If result is not nullptr, it is set with the shape_id and rating.
   // Returns -1 if ClassifySample fails to provide any result containing
   // unichar_id. BestShapeForUnichar does not need to be overridden if
   // ClassifySample respects the keep_this rule.
-  virtual int BestShapeForUnichar(const TrainingSample& sample, Pix* page_pix,
-                                  UNICHAR_ID unichar_id, ShapeRating* result);
+  virtual int BestShapeForUnichar(const TrainingSample &sample, Pix *page_pix,
+                                  UNICHAR_ID unichar_id, ShapeRating *result);
 
   // Provides access to the ShapeTable that this classifier works with.
-  virtual const ShapeTable* GetShapeTable() const = 0;
+  virtual const ShapeTable *GetShapeTable() const = 0;
   // Provides access to the UNICHARSET that this classifier works with.
   // Must be overridden IFF GetShapeTable() returns nullptr.
-  virtual const UNICHARSET& GetUnicharset() const;
+  virtual const UNICHARSET &GetUnicharset() const;
 
   // Visual debugger classifies the given sample, displays the results and
   // solicits user input to display other classifications. Returns when
   // the user has finished with debugging the sample.
   // Probably doesn't need to be overridden if the subclass provides
   // DisplayClassifyAs.
-  virtual void DebugDisplay(const TrainingSample& sample, Pix* page_pix,
-                            UNICHAR_ID unichar_id);
-
+  void DebugDisplay(const TrainingSample &sample, Pix *page_pix, UNICHAR_ID unichar_id);
 
   // Displays classification as the given unichar_id. Creates as many windows
   // as it feels fit, using index as a guide for placement. Adds any created
   // windows to the windows output and returns a new index that may be used
   // by any subsequent classifiers. Caller waits for the user to view and
   // then destroys the windows by clearing the vector.
-  virtual int DisplayClassifyAs(const TrainingSample& sample,  Pix* page_pix,
-                                UNICHAR_ID unichar_id, int index,
-                                PointerVector<ScrollView>* windows);
+  virtual int DisplayClassifyAs(const TrainingSample &sample, Pix *page_pix, UNICHAR_ID unichar_id,
+                                int index, PointerVector<ScrollView> *windows);
 
   // Prints debug information on the results. context is some introductory/title
   // message.
-  virtual void UnicharPrintResults(
-      const char* context, const GenericVector<UnicharRating>& results) const;
-  virtual void PrintResults(const char* context,
-                            const GenericVector<ShapeRating>& results) const;
+  virtual void UnicharPrintResults(const char *context,
+                                   const std::vector<UnicharRating> &results) const;
+  virtual void PrintResults(const char *context, const std::vector<ShapeRating> &results) const;
 
- protected:
+protected:
   // Removes any result that has all its unichars covered by a better choice,
   // regardless of font.
-  void FilterDuplicateUnichars(GenericVector<ShapeRating>* results) const;
+  void FilterDuplicateUnichars(std::vector<ShapeRating> *results) const;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_CLASSIFY_SHAPECLASSIFIER_H_
+#endif // TESSERACT_CLASSIFY_SHAPECLASSIFIER_H_

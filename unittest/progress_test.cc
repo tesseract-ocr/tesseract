@@ -16,35 +16,39 @@
 
 // expects clone of tessdata_fast repo in ../../tessdata_fast
 
-#include <limits.h>
-#include <time.h>
+#include "include_gunit.h"
+
+#include <tesseract/baseapi.h>
+#include <tesseract/ocrclass.h>
+
+#include <allheaders.h>
+#include "gmock/gmock.h"
+
 #include <fstream>
 #include <iostream>
 #include <locale>
-#include <memory>               // std::unique_ptr
+#include <memory> // std::unique_ptr
 #include <string>
-#include <tesseract/baseapi.h>
-#include "gmock/gmock.h"
-#include "include_gunit.h"
-#include "leptonica/allheaders.h"
-#include <tesseract/ocrclass.h>
 
-namespace {
+#include <time.h>
+
+namespace tesseract {
 
 class QuickTest : public testing::Test {
- protected:
-  virtual void SetUp() { start_time_ = time(nullptr); }
+protected:
+  virtual void SetUp() {
+    start_time_ = time(nullptr);
+  }
   virtual void TearDown() {
     const time_t end_time = time(nullptr);
     EXPECT_TRUE(end_time - start_time_ <= 25)
-        << "The test took too long - "
-        << ::testing::PrintToString(end_time - start_time_);
+        << "The test took too long - " << ::testing::PrintToString(end_time - start_time_);
   }
   time_t start_time_;
 };
 
 class ClassicMockProgressSink {
- public:
+public:
   MOCK_METHOD1(classicProgress, bool(int));
   MOCK_METHOD1(cancel, bool(int));
 
@@ -54,32 +58,30 @@ class ClassicMockProgressSink {
     monitor.progress_callback = [](int progress, int, int, int, int) -> bool {
       return instance->classicProgress(progress);
     };
-    monitor.cancel = [](void* ths, int words) -> bool {
-      return ((ClassicMockProgressSink*)ths)->cancel(words);
+    monitor.cancel = [](void *ths, int words) -> bool {
+      return ((ClassicMockProgressSink *)ths)->cancel(words);
     };
     monitor.cancel_this = this;
     instance = this;
   }
 
-  static ClassicMockProgressSink* instance;
+  static ClassicMockProgressSink *instance;
 };
 
-ClassicMockProgressSink* ClassicMockProgressSink::instance = nullptr;
+ClassicMockProgressSink *ClassicMockProgressSink::instance = nullptr;
 
 class NewMockProgressSink : public ClassicMockProgressSink {
- public:
+public:
   MOCK_METHOD1(progress, bool(int));
 
   NewMockProgressSink() {
-    monitor.progress_callback2 = [](ETEXT_DESC* ths, int, int, int,
-                                    int) -> bool {
-      return ((NewMockProgressSink*)ths->cancel_this)->progress(ths->progress);
+    monitor.progress_callback2 = [](ETEXT_DESC *ths, int, int, int, int) -> bool {
+      return ((NewMockProgressSink *)ths->cancel_this)->progress(ths->progress);
     };
   }
 };
 
-void ClassicProgressTester(const char* imgname, const char* tessdatadir,
-                           const char* lang) {
+void ClassicProgressTester(const char *imgname, const char *tessdatadir, const char *lang) {
   using ::testing::_;
   using ::testing::AllOf;
   using ::testing::AtLeast;
@@ -89,23 +91,19 @@ void ClassicProgressTester(const char* imgname, const char* tessdatadir,
   using ::testing::Return;
   using ::testing::SaveArg;
 
-  std::unique_ptr<tesseract::TessBaseAPI> api(new tesseract::TessBaseAPI());
-  ASSERT_FALSE(api->Init(tessdatadir, lang))
-      << "Could not initialize tesseract.";
-  Pix* image = pixRead(imgname);
+  auto api = std::make_unique<tesseract::TessBaseAPI>();
+  ASSERT_FALSE(api->Init(tessdatadir, lang)) << "Could not initialize tesseract.";
+  Pix *image = pixRead(imgname);
   ASSERT_TRUE(image != nullptr) << "Failed to read test image.";
   api->SetImage(image);
 
   ClassicMockProgressSink progressSink;
 
   int currentProgress = -1;
-  EXPECT_CALL(progressSink,
-              classicProgress(AllOf(Gt<int&>(currentProgress), Le(100))))
+  EXPECT_CALL(progressSink, classicProgress(AllOf(Gt<int &>(currentProgress), Le(100))))
       .Times(AtLeast(5))
       .WillRepeatedly(DoAll(SaveArg<0>(&currentProgress), Return(false)));
-  EXPECT_CALL(progressSink, cancel(_))
-      .Times(AtLeast(5))
-      .WillRepeatedly(Return(false));
+  EXPECT_CALL(progressSink, cancel(_)).Times(AtLeast(5)).WillRepeatedly(Return(false));
 
   EXPECT_EQ(api->Recognize(&progressSink.monitor), false);
   EXPECT_GE(currentProgress, 50) << "The reported progress did not reach 50%";
@@ -114,8 +112,7 @@ void ClassicProgressTester(const char* imgname, const char* tessdatadir,
   pixDestroy(&image);
 }
 
-void NewProgressTester(const char* imgname, const char* tessdatadir,
-                       const char* lang) {
+void NewProgressTester(const char *imgname, const char *tessdatadir, const char *lang) {
   using ::testing::_;
   using ::testing::AllOf;
   using ::testing::AtLeast;
@@ -125,10 +122,9 @@ void NewProgressTester(const char* imgname, const char* tessdatadir,
   using ::testing::Return;
   using ::testing::SaveArg;
 
-  std::unique_ptr<tesseract::TessBaseAPI> api(new tesseract::TessBaseAPI());
-  ASSERT_FALSE(api->Init(tessdatadir, lang))
-      << "Could not initialize tesseract.";
-  Pix* image = pixRead(imgname);
+  auto api = std::make_unique<tesseract::TessBaseAPI>();
+  ASSERT_FALSE(api->Init(tessdatadir, lang)) << "Could not initialize tesseract.";
+  Pix *image = pixRead(imgname);
   ASSERT_TRUE(image != nullptr) << "Failed to read test image.";
   api->SetImage(image);
 
@@ -136,12 +132,10 @@ void NewProgressTester(const char* imgname, const char* tessdatadir,
 
   int currentProgress = -1;
   EXPECT_CALL(progressSink, classicProgress(_)).Times(0);
-  EXPECT_CALL(progressSink, progress(AllOf(Gt<int&>(currentProgress), Le(100))))
+  EXPECT_CALL(progressSink, progress(AllOf(Gt<int &>(currentProgress), Le(100))))
       .Times(AtLeast(5))
       .WillRepeatedly(DoAll(SaveArg<0>(&currentProgress), Return(false)));
-  EXPECT_CALL(progressSink, cancel(_))
-      .Times(AtLeast(5))
-      .WillRepeatedly(Return(false));
+  EXPECT_CALL(progressSink, cancel(_)).Times(AtLeast(5)).WillRepeatedly(Return(false));
 
   EXPECT_EQ(api->Recognize(&progressSink.monitor), false);
   EXPECT_GE(currentProgress, 50) << "The reported progress did not reach 50%";
@@ -151,12 +145,11 @@ void NewProgressTester(const char* imgname, const char* tessdatadir,
 }
 
 TEST(QuickTest, ClassicProgressReporting) {
-  ClassicProgressTester(TESTING_DIR "/phototest.tif", TESSDATA_DIR "_fast",
-                        "eng");
+  ClassicProgressTester(TESTING_DIR "/phototest.tif", TESSDATA_DIR "_fast", "eng");
 }
 
 TEST(QuickTest, NewProgressReporting) {
   NewProgressTester(TESTING_DIR "/phototest.tif", TESSDATA_DIR "_fast", "eng");
 }
 
-}  // namespace
+} // namespace tesseract

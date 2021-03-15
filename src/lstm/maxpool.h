@@ -27,43 +27,34 @@ namespace tesseract {
 // in the rectangle that contains the max value.
 // Backprop propagates only to the position that was the max.
 class Maxpool : public Reconfig {
- public:
-  Maxpool(const STRING& name, int ni, int x_scale, int y_scale);
+public:
+  TESS_API
+  Maxpool(const char *name, int ni, int x_scale, int y_scale);
   ~Maxpool() override = default;
 
   // Accessors.
-  STRING spec() const override {
-    STRING spec;
-    spec.add_str_int("Mp", y_scale_);
-    spec.add_str_int(",", x_scale_);
-    return spec;
+  std::string spec() const override {
+    return "Mp" + std::to_string(y_scale_) + "," + std::to_string(x_scale_);
   }
 
   // Reads from the given file. Returns false in case of error.
-  bool DeSerialize(TFile* fp) override;
+  bool DeSerialize(TFile *fp) override;
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  void Forward(bool debug, const NetworkIO& input,
-               const TransposedArray* input_transpose,
-               NetworkScratch* scratch, NetworkIO* output) override;
+  void Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+               NetworkScratch *scratch, NetworkIO *output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                NetworkScratch* scratch,
-                NetworkIO* back_deltas) override;
+  bool Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+                NetworkIO *back_deltas) override;
 
- private:
+private:
   // Memory of which input was the max.
   GENERIC_2D_ARRAY<int> maxes_;
 };
 
+} // namespace tesseract.
 
-}  // namespace tesseract.
-
-
-
-
-
-#endif  // TESSERACT_LSTM_MAXPOOL_H_
+#endif // TESSERACT_LSTM_MAXPOOL_H_

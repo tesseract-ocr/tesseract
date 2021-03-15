@@ -3,34 +3,36 @@
 **  Purpose:     Program for merging similar nano-feature protos
 **  Author:      Dan Johnson
 **
- ** (c) Copyright Hewlett-Packard Company, 1988.
- ** Licensed under the Apache License, Version 2.0 (the "License");
- ** you may not use this file except in compliance with the License.
- ** You may obtain a copy of the License at
- ** http://www.apache.org/licenses/LICENSE-2.0
- ** Unless required by applicable law or agreed to in writing, software
- ** distributed under the License is distributed on an "AS IS" BASIS,
- ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ** See the License for the specific language governing permissions and
- ** limitations under the License.
+** (c) Copyright Hewlett-Packard Company, 1988.
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+** http://www.apache.org/licenses/LICENSE-2.0
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
 ******************************************************************************/
 
 #define _USE_MATH_DEFINES // for M_PI
 #include <algorithm>
-#include <cfloat>       // for FLT_MAX
-#include <cmath>        // for M_PI
+#include <cfloat> // for FLT_MAX
+#include <cmath>  // for M_PI
 #include <cstdio>
 #include <cstring>
 
-#include "mergenf.h"
-#include "clusttool.h"
 #include "cluster.h"
-#include "oldlist.h"
-#include "protos.h"
-#include "ocrfeatures.h"
+#include "clusttool.h"
 #include "featdefs.h"
 #include "intproto.h"
+#include "mergenf.h"
+#include "ocrfeatures.h"
+#include "oldlist.h"
 #include "params.h"
+#include "protos.h"
+
+using namespace tesseract;
 
 /*-------------------once in subfeat---------------------------------*/
 static double_VAR(training_angle_match_scale, 1.0, "Angle Match Scale ...");
@@ -39,7 +41,8 @@ static double_VAR(training_similarity_midpoint, 0.0075, "Similarity Midpoint ...
 
 static double_VAR(training_similarity_curl, 2.0, "Similarity Curl ...");
 
-/*-----------------------------once in fasttrain----------------------------------*/
+/*-----------------------------once in
+ * fasttrain----------------------------------*/
 static double_VAR(training_tangent_bbox_pad, 0.5, "Tangent bounding box pad ...");
 
 static double_VAR(training_orthogonal_bbox_pad, 2.5, "Orthogonal bounding box pad ...");
@@ -67,26 +70,27 @@ float CompareProtos(PROTO p1, PROTO p2) {
   float Angle, Length;
 
   /* if p1 and p2 are not close in length, don't let them match */
-  Length = fabs (p1->Length - p2->Length);
+  Length = fabs(p1->Length - p2->Length);
   if (Length > MAX_LENGTH_MISMATCH)
     return (0.0);
 
   /* create a dummy pico-feature to be used for comparisons */
-  Feature = NewFeature (&PicoFeatDesc);
+  Feature = NewFeature(&PicoFeatDesc);
   Feature->Params[PicoFeatDir] = p1->Angle;
 
   /* convert angle to radians */
   Angle = p1->Angle * 2.0 * M_PI;
 
   /* find distance from center of p1 to 1/2 picofeat from end */
-  Length = p1->Length / 2.0 - GetPicoFeatureLength () / 2.0;
-  if (Length < 0) Length = 0;
+  Length = p1->Length / 2.0 - GetPicoFeatureLength() / 2.0;
+  if (Length < 0)
+    Length = 0;
 
   /* set the dummy pico-feature at one end of p1 and match it to p2 */
-  Feature->Params[PicoFeatX] = p1->X + cos (Angle) * Length;
-  Feature->Params[PicoFeatY] = p1->Y + sin (Angle) * Length;
-  if (DummyFastMatch (Feature, p2)) {
-    Evidence = SubfeatureEvidence (Feature, p2);
+  Feature->Params[PicoFeatX] = p1->X + cos(Angle) * Length;
+  Feature->Params[PicoFeatY] = p1->Y + sin(Angle) * Length;
+  if (DummyFastMatch(Feature, p2)) {
+    Evidence = SubfeatureEvidence(Feature, p2);
     if (Evidence < WorstEvidence)
       WorstEvidence = Evidence;
   } else {
@@ -95,10 +99,10 @@ float CompareProtos(PROTO p1, PROTO p2) {
   }
 
   /* set the dummy pico-feature at the other end of p1 and match it to p2 */
-  Feature->Params[PicoFeatX] = p1->X - cos (Angle) * Length;
-  Feature->Params[PicoFeatY] = p1->Y - sin (Angle) * Length;
-  if (DummyFastMatch (Feature, p2)) {
-    Evidence = SubfeatureEvidence (Feature, p2);
+  Feature->Params[PicoFeatX] = p1->X - cos(Angle) * Length;
+  Feature->Params[PicoFeatY] = p1->Y - sin(Angle) * Length;
+  if (DummyFastMatch(Feature, p2)) {
+    Evidence = SubfeatureEvidence(Feature, p2);
     if (Evidence < WorstEvidence)
       WorstEvidence = Evidence;
   } else {
@@ -106,7 +110,7 @@ float CompareProtos(PROTO p1, PROTO p2) {
     return 0.0;
   }
 
-  FreeFeature (Feature);
+  FreeFeature(Feature);
   return (WorstEvidence);
 
 } /* CompareProtos */
@@ -120,11 +124,7 @@ float CompareProtos(PROTO p1, PROTO p2) {
  * @param w1, w2    weight of each proto
  * @param MergedProto place to put resulting merged proto
  */
-void ComputeMergedProto (PROTO  p1,
-                         PROTO  p2,
-                         float  w1,
-                         float  w2,
-                         PROTO  MergedProto) {
+void ComputeMergedProto(PROTO p1, PROTO p2, float w1, float w2, PROTO MergedProto) {
   float TotalWeight;
 
   TotalWeight = w1 + w2;
@@ -152,24 +152,22 @@ void ComputeMergedProto (PROTO  p1,
  *
  * @return Id of closest proto in Class or NO_PROTO.
  */
-int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
-                             PROTOTYPE  *Prototype) {
-  PROTO_STRUCT  NewProto;
-  PROTO_STRUCT  MergedProto;
-  int   Pid;
+int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[], PROTOTYPE *Prototype) {
+  PROTO_STRUCT NewProto;
+  PROTO_STRUCT MergedProto;
+  int Pid;
   PROTO Proto;
-  int   BestProto;
+  int BestProto;
   float BestMatch;
   float Match, OldMatch, NewMatch;
 
-  MakeNewFromOld (&NewProto, Prototype);
+  MakeNewFromOld(&NewProto, Prototype);
 
   BestProto = NO_PROTO;
   BestMatch = WORST_MATCH_ALLOWED;
   for (Pid = 0; Pid < Class->NumProtos; Pid++) {
-    Proto  = ProtoIn(Class, Pid);
-    ComputeMergedProto(Proto, &NewProto,
-      static_cast<float>(NumMerged[Pid]), 1.0, &MergedProto);
+    Proto = ProtoIn(Class, Pid);
+    ComputeMergedProto(Proto, &NewProto, static_cast<float>(NumMerged[Pid]), 1.0, &MergedProto);
     OldMatch = CompareProtos(Proto, &MergedProto);
     NewMatch = CompareProtos(&NewProto, &MergedProto);
     Match = std::min(OldMatch, NewMatch);
@@ -206,19 +204,20 @@ void MakeNewFromOld(PROTO New, PROTOTYPE *Old) {
  * Compare a feature to a prototype. Print the result.
  */
 float SubfeatureEvidence(FEATURE Feature, PROTO Proto) {
-  float       Distance;
-  float       Dangle;
+  float Distance;
+  float Dangle;
 
-  Dangle   = Proto->Angle - Feature->Params[PicoFeatDir];
-  if (Dangle < -0.5) Dangle += 1.0;
-  if (Dangle >  0.5) Dangle -= 1.0;
+  Dangle = Proto->Angle - Feature->Params[PicoFeatDir];
+  if (Dangle < -0.5)
+    Dangle += 1.0;
+  if (Dangle > 0.5)
+    Dangle -= 1.0;
   Dangle *= training_angle_match_scale;
 
-  Distance = Proto->A * Feature->Params[PicoFeatX] +
-    Proto->B * Feature->Params[PicoFeatY] +
-    Proto->C;
+  Distance =
+      Proto->A * Feature->Params[PicoFeatX] + Proto->B * Feature->Params[PicoFeatY] + Proto->C;
 
-  return (EvidenceOf (Distance * Distance + Dangle * Dangle));
+  return (EvidenceOf(Distance * Distance + Dangle * Dangle));
 }
 
 /**
@@ -229,8 +228,7 @@ float SubfeatureEvidence(FEATURE Feature, PROTO Proto) {
  * approximation.  The equation that represents the transform is:
  *       1 / (1 + (sim / midpoint) ^ curl)
  */
-double EvidenceOf (double Similarity) {
-
+double EvidenceOf(double Similarity) {
   Similarity /= training_similarity_midpoint;
 
   if (training_similarity_curl == 3)
@@ -238,7 +236,7 @@ double EvidenceOf (double Similarity) {
   else if (training_similarity_curl == 2)
     Similarity = Similarity * Similarity;
   else
-    Similarity = pow (Similarity, training_similarity_curl);
+    Similarity = pow(Similarity, training_similarity_curl);
 
   return (1.0 / (1.0 + Similarity));
 }
@@ -256,27 +254,23 @@ double EvidenceOf (double Similarity) {
  *
  * @return true if feature could match Proto.
  */
-bool DummyFastMatch(FEATURE Feature, PROTO Proto)
-{
+bool DummyFastMatch(FEATURE Feature, PROTO Proto) {
   FRECT BoundingBox;
   float MaxAngleError;
   float AngleError;
 
   MaxAngleError = training_angle_pad / 360.0;
-  AngleError = fabs (Proto->Angle - Feature->Params[PicoFeatDir]);
+  AngleError = fabs(Proto->Angle - Feature->Params[PicoFeatDir]);
   if (AngleError > 0.5)
     AngleError = 1.0 - AngleError;
 
   if (AngleError > MaxAngleError)
     return false;
 
-  ComputePaddedBoundingBox (Proto,
-    training_tangent_bbox_pad * GetPicoFeatureLength (),
-    training_orthogonal_bbox_pad * GetPicoFeatureLength (),
-    &BoundingBox);
+  ComputePaddedBoundingBox(Proto, training_tangent_bbox_pad * GetPicoFeatureLength(),
+                           training_orthogonal_bbox_pad * GetPicoFeatureLength(), &BoundingBox);
 
-  return PointInside(&BoundingBox, Feature->Params[PicoFeatX],
-                     Feature->Params[PicoFeatY]);
+  return PointInside(&BoundingBox, Feature->Params[PicoFeatX], Feature->Params[PicoFeatY]);
 } /* DummyFastMatch */
 
 /**
@@ -290,10 +284,10 @@ bool DummyFastMatch(FEATURE Feature, PROTO Proto)
  * @param OrthogonalPad amount of pad to add orthogonal to segment
  * @param[out] BoundingBox place to put results
  */
-void ComputePaddedBoundingBox (PROTO Proto, float TangentPad,
-                               float OrthogonalPad, FRECT *BoundingBox) {
-  float Length     = Proto->Length / 2.0 + TangentPad;
-  float Angle      = Proto->Angle * 2.0 * M_PI;
+void ComputePaddedBoundingBox(PROTO Proto, float TangentPad, float OrthogonalPad,
+                              FRECT *BoundingBox) {
+  float Length = Proto->Length / 2.0 + TangentPad;
+  float Angle = Proto->Angle * 2.0 * M_PI;
   float CosOfAngle = fabs(cos(Angle));
   float SinOfAngle = fabs(sin(Angle));
 
@@ -315,8 +309,6 @@ void ComputePaddedBoundingBox (PROTO Proto, float TangentPad,
  * @return true if point (X,Y) is inside of Rectangle.
  */
 bool PointInside(FRECT *Rectangle, float X, float Y) {
-  return (X >= Rectangle->MinX) &&
-         (X <= Rectangle->MaxX) &&
-         (Y >= Rectangle->MinY) &&
+  return (X >= Rectangle->MinX) && (X <= Rectangle->MaxX) && (Y >= Rectangle->MinY) &&
          (Y <= Rectangle->MaxY);
 } /* PointInside */

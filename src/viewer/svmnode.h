@@ -2,7 +2,6 @@
 // File:        svmnode.h
 // description_: ScrollView Menu Node
 // Author:      Joern Wanke
-// Created:     Thu Nov 29 2007
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,12 +27,14 @@
 #ifndef TESSERACT_VIEWER_SVMNODE_H_
 #define TESSERACT_VIEWER_SVMNODE_H_
 
-#include <tesseract/strngs.h>
+#include <string>
+
+namespace tesseract {
 
 class ScrollView;
 
 class SVMenuNode {
- public:
+public:
   // Creating the (empty) root menu node.
   SVMenuNode();
 
@@ -42,21 +43,20 @@ class SVMenuNode {
 
   // Create a new sub menu node with just a caption.  This is used to create
   // nodes which act as parent nodes to other nodes (e.g. submenus).
-  SVMenuNode* AddChild(const char* txt);
+  SVMenuNode *AddChild(const char *txt);
 
   // Create a "normal" menu node which is associated with a command event.
-  void AddChild(const char* txt, int command_event);
+  void AddChild(const char *txt, int command_event);
 
   // Create a flag menu node.
-  void AddChild(const char* txt, int command_event, int tv);
+  void AddChild(const char *txt, int command_event, int tv);
 
   // Create a menu node with an associated value (which might be changed
   // through the gui).
-  void AddChild(const char* txt, int command_event, const char* val);
+  void AddChild(const char *txt, int command_event, const char *val);
 
   // Create a menu node with an associated value and description_.
-  void AddChild(const char* txt, int command_event,
-                const char* val, const char* desc);
+  void AddChild(const char *txt, int command_event, const char *val, const char *desc);
 
   // Build a menu structure for the server and send the necessary messages.
   // Should be called on the root node. If menu_bar is true, a menu_bar menu
@@ -64,33 +64,35 @@ class SVMenuNode {
   // built which gets shown by right clicking on the window.
   void BuildMenu(ScrollView *sv, bool menu_bar = true);
 
- private:
+private:
   // Constructor holding the actual node data.
-  SVMenuNode(int command_event, const char* txt, int tv,
-              bool check_box_entry, const char* val, const char* desc);
+  SVMenuNode(int command_event, const char *txt, int tv, bool check_box_entry, const char *val,
+             const char *desc);
 
   // Adds a new menu node to the current node.
-  void AddChild(SVMenuNode* svmn);
+  void AddChild(SVMenuNode *svmn);
 
   // The parent node of this node.
-  SVMenuNode* parent_;
+  SVMenuNode *parent_;
   // The first child of this node.
-  SVMenuNode* child_;
+  SVMenuNode *child_;
   // The next "sibling" of this node (e.g. same parent).
-  SVMenuNode* next_;
+  SVMenuNode *next_;
   // Whether this menu node actually is a flag.
   bool is_check_box_entry_;
+  // The value of the flag (if this menu node is a flag).
+  bool toggle_value_;
 
   // The command event associated with a specific menu node. Should be unique.
   int cmd_event_;
   // The caption associated with a specific menu node.
-  STRING text_;
-  // The value of the flag (if this menu node is a flag).
-  bool toggle_value_;
+  std::string text_;
   // The value of the menu node. (optional)
-  STRING value_;
+   std::string value_;
   // A description_ of the value. (optional)
-  STRING description_;
+   std::string description_;
 };
 
-#endif  // TESSERACT_VIEWER_SVMNODE_H_
+} // namespace tesseract
+
+#endif // TESSERACT_VIEWER_SVMNODE_H_

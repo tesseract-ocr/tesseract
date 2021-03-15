@@ -1,0 +1,73 @@
+name: sw
+
+on:
+  push:
+  pull_request:
+  schedule:
+    # every day
+    - cron: 0 0 * * *
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-20.04, macOS-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - uses: egorpugin/sw-action@master
+
+    - name: build
+      if: matrix.os == 'windows-latest'
+      run: ./sw -static -shared -platform x86,x64 -config d,r build
+
+    - name: build
+      if: matrix.os != 'windows-latest'
+      run: ./sw -static -shared -config d,r build -Dwith-tests=1
+
+    - name: download test data
+      run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
+
+    - name: copy fonts
+      if: matrix.os != 'windows-latest'
+      run: cp tessdata_unittest/fonts/* test/testing/
+
+    - name: copy fonts
+      if: matrix.os == 'windows-latest'
+      run: Copy-Item -Path "tessdata_unittest\fonts\*" -Destination "test\testing" -Recurse
+      shell: pwsh
+
+    - name: test
+      if: matrix.os != 'windows-latest'
+      run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
+      continue-on-error: true
+
+    - name: test-nightly
+      if: matrix.os != 'windows-latest' && github.event.schedule=='0 0 * * *'
+      run: ./sw -static -shared -config "d,r" test -Dwith-tests=1
+      continue-on-error: true
+
+    # windows tests hang here for some reason, investigate
+    #- name: test
+      #if: matrix.os == 'windows-latest'
+      #run: ./sw test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
+      #continue-on-error: true
+
+    - name: Upload Unit Test Results
+      if: always() && matrix.os != 'windows-latest'
+      uses: actions/upload-artifact@v2
+      with:
+        name: Test Results (${{ matrix.os }})
+        path: .sw/test/results.xml
+
+    - name: Publish Test Report
+      if: always() && matrix.os != 'windows-latest'
+      uses: mikepenz/action-junit-report@v1
+      with:
+        check_name: test (${{ matrix.os }})
+        report_paths: .sw/test/results.xml
+        github_token: ${{ secrets.GITHUB_TOKEN }}

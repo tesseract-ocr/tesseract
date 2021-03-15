@@ -14,33 +14,27 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
-#include "clusttool.h"           //If remove you get cought in a loop somewhere
+
 #include "mfoutline.h"
+
 #include "blobs.h"
+#include "classify.h"
+#include "clusttool.h" //If remove you get cought in a loop somewhere
 #include "mfx.h"
 #include "params.h"
-#include "classify.h"
 
 #include <cmath>
 #include <cstdio>
 
-/*----------------------------------------------------------------------------
-              Public Code
-----------------------------------------------------------------------------*/
+namespace tesseract {
 
 /*---------------------------------------------------------------------------*/
 /** Convert a blob into a list of MFOUTLINEs (float-based microfeature format).
  */
 LIST ConvertBlob(TBLOB *blob) {
   LIST outlines = NIL_LIST;
-  return (blob == nullptr)
-      ? NIL_LIST
-      : ConvertOutlines(blob->outlines, outlines, outer);
+  return (blob == nullptr) ? NIL_LIST : ConvertOutlines(blob->outlines, outlines, outer);
 }
-
 
 /*---------------------------------------------------------------------------*/
 /** Convert a TESSLINE into the float-based MFOUTLINE micro-feature format. */
@@ -60,8 +54,7 @@ MFOUTLINE ConvertOutline(TESSLINE *outline) {
     NextPoint = EdgePoint->next;
 
     /* filter out duplicate points */
-    if (EdgePoint->pos.x != NextPoint->pos.x ||
-        EdgePoint->pos.y != NextPoint->pos.y) {
+    if (EdgePoint->pos.x != NextPoint->pos.x || EdgePoint->pos.y != NextPoint->pos.y) {
       NewPoint = NewEdgePoint();
       NewPoint->ClearMark();
       NewPoint->Hidden = EdgePoint->IsHidden();
@@ -77,7 +70,6 @@ MFOUTLINE ConvertOutline(TESSLINE *outline) {
   return MFOutline;
 }
 
-
 /*---------------------------------------------------------------------------*/
 /**
  * Convert a tree of outlines to a list of MFOUTLINEs (lists of MFEDGEPTs).
@@ -86,9 +78,7 @@ MFOUTLINE ConvertOutline(TESSLINE *outline) {
  * @param mf_outlines  list to add converted outlines to
  * @param outline_type  are the outlines outer or holes?
  */
-LIST ConvertOutlines(TESSLINE *outline,
-                     LIST mf_outlines,
-                     OUTLINETYPE outline_type) {
+LIST ConvertOutlines(TESSLINE *outline, LIST mf_outlines, OUTLINETYPE outline_type) {
   MFOUTLINE mf_outline;
 
   while (outline != nullptr) {
@@ -112,30 +102,26 @@ LIST ConvertOutlines(TESSLINE *outline,
  * @param MinSlope  controls "snapping" of segments to horizontal
  * @param MaxSlope  controls "snapping" of segments to vertical
  */
-void FindDirectionChanges(MFOUTLINE Outline,
-                          float MinSlope,
-                          float MaxSlope) {
+void FindDirectionChanges(MFOUTLINE Outline, float MinSlope, float MaxSlope) {
   MFEDGEPT *Current;
   MFEDGEPT *Last;
   MFOUTLINE EdgePoint;
 
-  if (DegenerateOutline (Outline))
+  if (DegenerateOutline(Outline))
     return;
 
-  Last = PointAt (Outline);
-  Outline = NextPointAfter (Outline);
+  Last = PointAt(Outline);
+  Outline = NextPointAfter(Outline);
   EdgePoint = Outline;
   do {
-    Current = PointAt (EdgePoint);
+    Current = PointAt(EdgePoint);
     ComputeDirection(Last, Current, MinSlope, MaxSlope);
 
     Last = Current;
-    EdgePoint = NextPointAfter (EdgePoint);
-  }
-  while (EdgePoint != Outline);
+    EdgePoint = NextPointAfter(EdgePoint);
+  } while (EdgePoint != Outline);
 
-}                                /* FindDirectionChanges */
-
+} /* FindDirectionChanges */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -143,20 +129,19 @@ void FindDirectionChanges(MFOUTLINE Outline,
  * a micro-feature outline.
  * @param arg   micro-feature outline to be freed
  */
-void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline)
+void FreeMFOutline(void *arg) { // MFOUTLINE Outline)
   MFOUTLINE Start;
   auto Outline = static_cast<MFOUTLINE>(arg);
 
   /* break the circular outline so we can use std. techniques to deallocate */
-  Start = list_rest (Outline);
+  Start = list_rest(Outline);
   set_rest(Outline, NIL_LIST);
   while (Start != nullptr) {
     free(first_node(Start));
-    Start = pop (Start);
+    Start = pop(Start);
   }
 
-}                                /* FreeMFOutline */
-
+} /* FreeMFOutline */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -166,8 +151,7 @@ void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline
  */
 void FreeOutlines(LIST Outlines) {
   destroy_nodes(Outlines, FreeMFOutline);
-}                                /* FreeOutlines */
-
+} /* FreeOutlines */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -185,20 +169,18 @@ void MarkDirectionChanges(MFOUTLINE Outline) {
   MFOUTLINE Last;
   MFOUTLINE First;
 
-  if (DegenerateOutline (Outline))
+  if (DegenerateOutline(Outline))
     return;
 
-  First = NextDirectionChange (Outline);
+  First = NextDirectionChange(Outline);
   Last = First;
   do {
-    Current = NextDirectionChange (Last);
+    Current = NextDirectionChange(Last);
     PointAt(Current)->MarkPoint();
     Last = Current;
-  }
-  while (Last != First);
+  } while (Last != First);
 
-}                                /* MarkDirectionChanges */
-
+} /* MarkDirectionChanges */
 
 /*---------------------------------------------------------------------------*/
 /** Return a new edge point for a micro-feature outline. */
@@ -224,8 +206,7 @@ MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
 
   return (EdgePoint);
 
-}                                /* NextExtremity */
-
+} /* NextExtremity */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -239,24 +220,20 @@ MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
  * @param Outline   outline to be normalized
  * @param XOrigin   x-origin of text
  */
-void NormalizeOutline(MFOUTLINE Outline,
-                      float XOrigin) {
+void NormalizeOutline(MFOUTLINE Outline, float XOrigin) {
   if (Outline == NIL_LIST)
     return;
 
   MFOUTLINE EdgePoint = Outline;
   do {
     MFEDGEPT *Current = PointAt(EdgePoint);
-    Current->Point.y = MF_SCALE_FACTOR *
-        (Current->Point.y - kBlnBaselineOffset);
+    Current->Point.y = MF_SCALE_FACTOR * (Current->Point.y - kBlnBaselineOffset);
     Current->Point.x = MF_SCALE_FACTOR * (Current->Point.x - XOrigin);
     EdgePoint = NextPointAfter(EdgePoint);
   } while (EdgePoint != Outline);
-}                                /* NormalizeOutline */
-
+} /* NormalizeOutline */
 
 /*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * This routine normalizes every outline in Outlines
  * according to the currently selected normalization method.
@@ -273,9 +250,7 @@ namespace tesseract {
  * @param XScale    x-direction scale factor used by routine
  * @param YScale    y-direction scale factor used by routine
  */
-void Classify::NormalizeOutlines(LIST Outlines,
-                                 float *XScale,
-                                 float *YScale) {
+void Classify::NormalizeOutlines(LIST Outlines, float *XScale, float *YScale) {
   MFOUTLINE Outline;
 
   switch (classify_norm_method) {
@@ -285,14 +260,13 @@ void Classify::NormalizeOutlines(LIST Outlines,
 
     case baseline:
       iterate(Outlines) {
-        Outline = static_cast<MFOUTLINE>first_node(Outlines);
+        Outline = static_cast<MFOUTLINE> first_node(Outlines);
         NormalizeOutline(Outline, 0.0);
       }
       *XScale = *YScale = MF_SCALE_FACTOR;
       break;
   }
-}                                /* NormalizeOutlines */
-}  // namespace tesseract
+} /* NormalizeOutlines */
 
 /*----------------------------------------------------------------------------
               Private Code
@@ -310,12 +284,12 @@ void Classify::NormalizeOutlines(LIST Outlines,
 void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
   MFOUTLINE Current;
 
-  for (Current = Start; Current != End; Current = NextPointAfter (Current))
-    PointAt (Current)->Direction = Direction;
+  for (Current = Start; Current != End; Current = NextPointAfter(Current))
+    PointAt(Current)->Direction = Direction;
 
-  PointAt (End)->PreviousDirection = Direction;
+  PointAt(End)->PreviousDirection = Direction;
 
-}                                /* ChangeDirection */
+} /* ChangeDirection */
 
 /**
  * This routine normalizes each point in Outline by
@@ -324,7 +298,7 @@ void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
  * @param Outline     outline to be character normalized
  * @param cn_denorm
  */
-void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
+void CharNormalizeOutline(MFOUTLINE Outline, const DENORM &cn_denorm) {
   MFOUTLINE First, Current;
   MFEDGEPT *CurrentPoint;
 
@@ -341,10 +315,9 @@ void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
     CurrentPoint->Point.y = (pos.y() - UINT8_MAX / 2) * MF_SCALE_FACTOR;
 
     Current = NextPointAfter(Current);
-  }
-  while (Current != First);
+  } while (Current != First);
 
-}                                /* CharNormalizeOutline */
+} /* CharNormalizeOutline */
 
 /**
  * This routine computes the slope from Start to Finish and
@@ -361,10 +334,7 @@ void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
  * @param MinSlope  slope below which lines are horizontal
  * @param MaxSlope  slope above which lines are vertical
  */
-void ComputeDirection(MFEDGEPT *Start,
-                      MFEDGEPT *Finish,
-                      float MinSlope,
-                      float MaxSlope) {
+void ComputeDirection(MFEDGEPT *Start, MFEDGEPT *Finish, float MinSlope, float MaxSlope) {
   FVECTOR Delta;
 
   Delta.x = Finish->Point.x - Start->Point.x;
@@ -390,8 +360,7 @@ void ComputeDirection(MFEDGEPT *Start,
         } else {
           Start->Direction = east;
         }
-      }
-      else if (Start->Slope < -MinSlope) {
+      } else if (Start->Slope < -MinSlope) {
         if (Start->Slope > -MaxSlope) {
           Start->Direction = southeast;
         } else {
@@ -435,15 +404,16 @@ void ComputeDirection(MFEDGEPT *Start,
 MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint) {
   DIRECTION InitialDirection;
 
-  InitialDirection = PointAt (EdgePoint)->Direction;
+  InitialDirection = PointAt(EdgePoint)->Direction;
 
   MFOUTLINE next_pt = nullptr;
   do {
     EdgePoint = NextPointAfter(EdgePoint);
     next_pt = NextPointAfter(EdgePoint);
-  } while (PointAt(EdgePoint)->Direction == InitialDirection &&
-           !PointAt(EdgePoint)->Hidden &&
+  } while (PointAt(EdgePoint)->Direction == InitialDirection && !PointAt(EdgePoint)->Hidden &&
            next_pt != nullptr && !PointAt(next_pt)->Hidden);
 
   return (EdgePoint);
 }
+
+} // namespace tesseract

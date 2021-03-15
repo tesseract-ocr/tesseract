@@ -24,13 +24,15 @@
 #include "matchdefs.h"
 #include "oldlist.h"
 
+namespace tesseract {
+
 /* definition of a list of micro-features */
 using MICROFEATURES = LIST;
 
 /* definition of structure of micro-features */
 #define MFSIZE 6
 typedef float MFBLOCK[MFSIZE];
-using MICROFEATURE = float*;
+using MICROFEATURE = float *;
 
 /* definitions of individual micro-feature parameters */
 #define XPOSITION 0
@@ -53,4 +55,7 @@ using MICROFEATURE = float*;
 MICROFEATURE NewMicroFeature();
 
 void FreeMicroFeatures(MICROFEATURES MicroFeatures);
+
+} // namespace tesseract
+
 #endif

@@ -25,36 +25,35 @@ namespace tesseract {
 
 // Runs multiple networks in parallel, interlacing their outputs.
 class Parallel : public Plumbing {
- public:
+public:
   // ni_ and no_ will be set by AddToStack.
-  Parallel(const STRING& name, NetworkType type);
+  TESS_API
+  Parallel(const char *name, NetworkType type);
   ~Parallel() override = default;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  StaticShape OutputShape(const StaticShape& input_shape) const override;
+  StaticShape OutputShape(const StaticShape &input_shape) const override;
 
-  STRING spec() const override {
-    STRING spec;
+  std::string spec() const override {
+    std::string spec;
     if (type_ == NT_PAR_2D_LSTM) {
       // We have 4 LSTMs operating in parallel here, so the size of each is
       // the number of outputs/4.
-      spec.add_str_int("L2xy", no_ / 4);
+      spec += "L2xy" + std::to_string(no_ / 4);
     } else if (type_ == NT_PAR_RL_LSTM) {
       // We have 2 LSTMs operating in parallel here, so the size of each is
       // the number of outputs/2.
       if (stack_[0]->type() == NT_LSTM_SUMMARY)
-        spec.add_str_int("Lbxs", no_ / 2);
+        spec += "Lbxs" + std::to_string(no_ / 2);
       else
-        spec.add_str_int("Lbx", no_ / 2);
+        spec += "Lbx" + std::to_string(no_ / 2);
     } else {
       if (type_ == NT_REPLICATED) {
-        spec.add_str_int("R", stack_.size());
-        spec += "(";
-        spec += stack_[0]->spec();
+        spec += "R" + std::to_string(stack_.size()) + "(" + stack_[0]->spec();
       } else {
-        spec = "(";
-        for (int i = 0; i < stack_.size(); ++i) spec += stack_[i]->spec();
+        for (int i = 0; i < stack_.size(); ++i)
+          spec += stack_[i]->spec();
       }
       spec += ")";
     }
@@ -63,17 +62,15 @@ class Parallel : public Plumbing {
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  void Forward(bool debug, const NetworkIO& input,
-               const TransposedArray* input_transpose,
-               NetworkScratch* scratch, NetworkIO* output) override;
+  void Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+               NetworkScratch *scratch, NetworkIO *output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                NetworkScratch* scratch,
-                NetworkIO* back_deltas) override;
+  bool Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+                NetworkIO *back_deltas) override;
 
- private:
+private:
   // If *this is a NT_REPLICATED, then it feeds a replicated network with
   // identical inputs, and it would be extremely wasteful for them to each
   // calculate and store the same transpose of the inputs, so Parallel does it
@@ -82,6 +79,6 @@ class Parallel : public Plumbing {
   TransposedArray transposed_input_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_LSTM_PARALLEL_H_
+#endif // TESSERACT_LSTM_PARALLEL_H_

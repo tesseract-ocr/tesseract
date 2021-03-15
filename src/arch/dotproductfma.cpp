@@ -16,18 +16,20 @@
 ///////////////////////////////////////////////////////////////////////
 
 #if !defined(__FMA__)
-#error Implementation only for FMA capable architectures
-#endif
+#  if defined(__i686__) || defined(__x86_64__)
+#    error Implementation only for FMA capable architectures
+#  endif
+#else
 
-#include <immintrin.h>
-#include <cstdint>
-#include "dotproduct.h"
+#  include <immintrin.h>
+#  include <cstdint>
+#  include "dotproduct.h"
 
 namespace tesseract {
 
 // Computes and returns the dot product of the n-vectors u and v.
 // Uses Intel FMA intrinsics to access the SIMD instruction set.
-double DotProductFMA(const double* u, const double* v, int n) {
+double DotProductFMA(const double *u, const double *v, int n) {
   const unsigned quot = n / 8;
   const unsigned rem = n % 8;
   __m256d t0 = _mm256_setzero_pd();
@@ -54,4 +56,6 @@ double DotProductFMA(const double* u, const double* v, int n) {
   return result;
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.
+
+#endif

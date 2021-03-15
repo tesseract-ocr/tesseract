@@ -17,11 +17,15 @@
  **********************************************************************/
 
 #include "blread.h"
-#include <cstdio>       // for fclose, fopen, FILE
-#include "ocrblock.h"   // for BLOCK_IT, BLOCK, BLOCK_LIST (ptr only)
-#include "scanutils.h"  // for tfscanf
 
-#define UNLV_EXT  ".uzn"  // unlv zone file
+#include "ocrblock.h"  // for BLOCK_IT, BLOCK, BLOCK_LIST (ptr only)
+#include "scanutils.h" // for tfscanf
+
+#include <cstdio> // for fclose, fopen, FILE
+
+namespace tesseract {
+
+#define UNLV_EXT ".uzn" // unlv zone file
 
 /**********************************************************************
  * read_unlv_file
@@ -29,31 +33,31 @@
  * Read a whole unlv zone file to make a list of blocks.
  **********************************************************************/
 
-bool read_unlv_file(                    //print list of sides
-                     STRING name,        //basename of file
-                     int32_t xsize,        //image size
-                     int32_t ysize,        //image size
-                     BLOCK_LIST *blocks  //output list
-                    ) {
-  FILE *pdfp;                    //file pointer
-  BLOCK *block;                  //current block
-  int x;                         //current top-down coords
+bool read_unlv_file(   // print list of sides
+    std::string &name, // basename of file
+    int32_t xsize,     // image size
+    int32_t ysize,     // image size
+    BLOCK_LIST *blocks // output list
+) {
+  FILE *pdfp;   // file pointer
+  BLOCK *block; // current block
+  int x;        // current top-down coords
   int y;
-  int width;                     //of current block
+  int width; // of current block
   int height;
-  BLOCK_IT block_it = blocks;    //block iterator
+  BLOCK_IT block_it = blocks; // block iterator
 
-  name += UNLV_EXT;              //add extension
-  if ((pdfp = fopen (name.c_str (), "rb")) == nullptr) {
-    return false;                //didn't read one
+  name += UNLV_EXT; // add extension
+  if ((pdfp = fopen(name.c_str(), "rb")) == nullptr) {
+    return false; // didn't read one
   } else {
     while (tfscanf(pdfp, "%d %d %d %d %*s", &x, &y, &width, &height) >= 4) {
-                                 //make rect block
-      block = new BLOCK (name.c_str (), true, 0, 0,
-                         static_cast<int16_t>(x), static_cast<int16_t>(ysize - y - height),
-                         static_cast<int16_t>(x + width), static_cast<int16_t>(ysize - y));
-                                 //on end of list
-      block_it.add_to_end (block);
+      // make rect block
+      block = new BLOCK(name.c_str(), true, 0, 0, static_cast<int16_t>(x),
+                        static_cast<int16_t>(ysize - y - height), static_cast<int16_t>(x + width),
+                        static_cast<int16_t>(ysize - y));
+      // on end of list
+      block_it.add_to_end(block);
     }
     fclose(pdfp);
   }
@@ -63,6 +67,8 @@ bool read_unlv_file(                    //print list of sides
 
 void FullPageBlock(int width, int height, BLOCK_LIST *blocks) {
   BLOCK_IT block_it(blocks);
-  auto* block = new BLOCK("", true, 0, 0, 0, 0, width, height);
+  auto *block = new BLOCK("", true, 0, 0, 0, 0, width, height);
   block_it.add_to_end(block);
 }
+
+} // namespace tesseract

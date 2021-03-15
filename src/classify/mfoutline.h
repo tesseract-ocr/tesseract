@@ -18,26 +18,16 @@
 #ifndef MFOUTLINE_H
 #define MFOUTLINE_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "blobs.h"
 #include "fpoint.h"
 #include "oldlist.h"
 #include "params.h"
 
+namespace tesseract {
+
 using MFOUTLINE = LIST;
 
-enum DIRECTION : uint8_t {
-  north,
-  south,
-  east,
-  west,
-  northeast,
-  northwest,
-  southeast,
-  southwest
-};
+enum DIRECTION : uint8_t { north, south, east, west, northeast, northwest, southeast, southwest };
 
 struct MFEDGEPT {
   // Inline functions for manipulating micro-feature outline edge points.
@@ -76,8 +66,8 @@ static inline bool DegenerateOutline(MFOUTLINE Outline) {
   return (Outline == NIL_LIST) || (Outline == list_rest(Outline));
 }
 
-static inline MFEDGEPT* PointAt(MFOUTLINE Outline) {
-  return reinterpret_cast<MFEDGEPT*>first_node(Outline);
+static inline MFEDGEPT *PointAt(MFOUTLINE Outline) {
+  return reinterpret_cast<MFEDGEPT *> first_node(Outline);
 }
 
 static inline MFOUTLINE NextPointAfter(MFOUTLINE Outline) {
@@ -91,26 +81,25 @@ static inline void MakeOutlineCircular(MFOUTLINE Outline) {
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void ComputeBlobCenter(TBLOB* Blob, TPOINT* BlobCenter);
+void ComputeBlobCenter(TBLOB *Blob, TPOINT *BlobCenter);
 
-LIST ConvertBlob(TBLOB* Blob);
+LIST ConvertBlob(TBLOB *Blob);
 
-MFOUTLINE ConvertOutline(TESSLINE* Outline);
+MFOUTLINE ConvertOutline(TESSLINE *Outline);
 
-LIST ConvertOutlines(TESSLINE* Outline, LIST ConvertedOutlines,
-                     OUTLINETYPE OutlineType);
+LIST ConvertOutlines(TESSLINE *Outline, LIST ConvertedOutlines, OUTLINETYPE OutlineType);
 
 void FilterEdgeNoise(MFOUTLINE Outline, float NoiseSegmentLength);
 
 void FindDirectionChanges(MFOUTLINE Outline, float MinSlope, float MaxSlope);
 
-void FreeMFOutline(void* agr);  // MFOUTLINE Outline);
+void FreeMFOutline(void *agr); // MFOUTLINE Outline);
 
 void FreeOutlines(LIST Outlines);
 
 void MarkDirectionChanges(MFOUTLINE Outline);
 
-MFEDGEPT* NewEdgePoint();
+MFEDGEPT *NewEdgePoint();
 
 MFOUTLINE NextExtremity(MFOUTLINE EdgePoint);
 
@@ -124,11 +113,12 @@ void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction);
 // Normalizes the Outline in-place using cn_denorm's local transformation,
 // then converts from the integer feature range [0,255] to the clusterer
 // feature range of [-0.5, 0.5].
-void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm);
+void CharNormalizeOutline(MFOUTLINE Outline, const DENORM &cn_denorm);
 
-void ComputeDirection(MFEDGEPT* Start, MFEDGEPT* Finish, float MinSlope,
-                      float MaxSlope);
+void ComputeDirection(MFEDGEPT *Start, MFEDGEPT *Finish, float MinSlope, float MaxSlope);
 
 MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint);
+
+} // namespace tesseract
 
 #endif

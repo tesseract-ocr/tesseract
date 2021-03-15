@@ -20,18 +20,23 @@
 #ifndef CRAKEDGE_H
 #define CRAKEDGE_H
 
-#include "points.h"
 #include "mod128.h"
+#include "points.h"
+
+namespace tesseract {
 
 class CRACKEDGE {
- public:
+public:
   CRACKEDGE() = default;
 
-  ICOORD pos;                  /*position of crack */
-  int8_t stepx;                  //edge step
+  ICOORD pos;   /*position of crack */
+  int8_t stepx; // edge step
   int8_t stepy;
-  int8_t stepdir;                //chaincode
-  CRACKEDGE *prev;             /*previous point */
-  CRACKEDGE *next;             /*next point */
+  int8_t stepdir;  // chaincode
+  CRACKEDGE *prev; /*previous point */
+  CRACKEDGE *next; /*next point */
 };
+
+} // namespace tesseract
+
 #endif

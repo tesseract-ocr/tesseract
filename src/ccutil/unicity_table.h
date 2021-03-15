@@ -20,9 +20,13 @@
 #ifndef TESSERACT_CCUTIL_UNICITY_TABLE_H_
 #define TESSERACT_CCUTIL_UNICITY_TABLE_H_
 
-#include <functional>           // for std::function
 #include "errcode.h"
-#include <tesseract/genericvector.h>
+
+#include "genericvector.h"
+
+#include <functional> // for std::function
+
+namespace tesseract {
 
 // A class to uniquify objects, manipulating them using integers ids.
 // T requirements:
@@ -31,8 +35,7 @@
 //     constructor.
 template <typename T>
 class UnicityTable {
- public:
-  UnicityTable();
+public:
   /// Clear the structures and deallocate internal structures.
   ~UnicityTable();
 
@@ -69,13 +72,6 @@ class UnicityTable {
     table_.set_clear_callback(cb);
   }
 
-  /// Add a callback to be called to compare the elements when needed (contains,
-  /// get_id, ...)
-  void set_compare_callback(std::function<bool(const T&, const T&)> cb) {
-    table_.set_compare_callback(cb);
-    compare_cb_ = cb;
-  }
-
   /// Clear the table, calling the callback function if any.
   /// All the owned Callbacks are also deleted.
   /// If you don't want the Callbacks to be deleted, before calling clear, set
@@ -84,39 +80,22 @@ class UnicityTable {
 
   /// This method clear the current object, then, does a shallow copy of
   /// its argument, and finally invalidate its argument.
-  void move(UnicityTable<T>* from);
+  void move(UnicityTable<T> *from);
 
   /// Read/Write the table to a file. This does _NOT_ read/write the callbacks.
   /// The Callback given must be permanent since they will be called more than
   /// once. The given callback will be deleted at the end.
   /// Returns false on read/write error.
-  bool write(FILE* f, std::function<bool(FILE*, const T&)> cb) const {
+  bool write(FILE *f, std::function<bool(FILE *, const T &)> cb) const {
     return table_.write(f, cb);
   }
-  bool read(tesseract::TFile* f, std::function<bool(tesseract::TFile*, T*)> cb) {
+  bool read(tesseract::TFile *f, std::function<bool(tesseract::TFile *, T *)> cb) {
     return table_.read(f, cb);
   }
 
- private:
+private:
   GenericVector<T> table_;
-  std::function<bool(const T&, const T&)> compare_cb_;
 };
-
-template <typename T>
-class UnicityTableEqEq : public UnicityTable<T> {
- public:
-  UnicityTableEqEq() {
-    using namespace std::placeholders;  // for _1, _2
-    UnicityTable<T>::set_compare_callback(
-      std::bind(tesseract::cmp_eq<T>, _1, _2));
-  }
-};
-
-template <typename T>
-UnicityTable<T>::UnicityTable() :
-  compare_cb_(nullptr) {
-}
-
 
 template <typename T>
 UnicityTable<T>::~UnicityTable() {
@@ -124,7 +103,7 @@ UnicityTable<T>::~UnicityTable() {
 }
 
 template <typename T>
-int UnicityTable<T>::size() const{
+int UnicityTable<T>::size() const {
   return table_.size();
 }
 
@@ -168,7 +147,8 @@ template <typename T>
 int UnicityTable<T>::push_back(T object) {
   int idx = get_id(object);
   if (idx == -1) {
-    idx = table_.push_back(object);
+    table_.push_back(object);
+    idx = size();
   }
   return idx;
 }
@@ -182,8 +162,10 @@ void UnicityTable<T>::clear() {
 // This method clear the current object, then, does a shallow copy of
 // its argument, and finally invalidate its argument.
 template <typename T>
-void UnicityTable<T>::move(UnicityTable<T>* from) {
+void UnicityTable<T>::move(UnicityTable<T> *from) {
   table_.move(&from->table_);
 }
 
-#endif  // TESSERACT_CCUTIL_UNICITY_TABLE_H_
+} // namespace tesseract
+
+#endif // TESSERACT_CCUTIL_UNICITY_TABLE_H_

@@ -14,9 +14,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
+
 #include "picofeat.h"
 
 #include "classify.h"
@@ -30,6 +28,8 @@
 #include <cmath>
 #include <cstdio>
 
+namespace tesseract {
+
 /*---------------------------------------------------------------------------
           Variables
 ----------------------------------------------------------------------------*/
@@ -39,9 +39,7 @@ double_VAR(classify_pico_feature_length, 0.05, "Pico Feature Length");
 /*---------------------------------------------------------------------------
           Private Function Prototypes
 ----------------------------------------------------------------------------*/
-void ConvertSegmentToPicoFeat(FPOINT *Start,
-                              FPOINT *End,
-                              FEATURE_SET FeatureSet);
+void ConvertSegmentToPicoFeat(FPOINT *Start, FPOINT *End, FEATURE_SET FeatureSet);
 
 void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet);
 
@@ -51,7 +49,6 @@ void NormalizePicoX(FEATURE_SET FeatureSet);
               Public Code
 ----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
-namespace tesseract {
 /**
  * Operation: Dummy for now.
  *
@@ -72,7 +69,7 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
   NormalizeOutlines(Outlines, &XScale, &YScale);
   RemainingOutlines = Outlines;
   iterate(RemainingOutlines) {
-    Outline = static_cast<MFOUTLINE>first_node (RemainingOutlines);
+    Outline = static_cast<MFOUTLINE> first_node(RemainingOutlines);
     ConvertToPicoFeatures2(Outline, FeatureSet);
   }
   if (classify_norm_method == baseline)
@@ -80,8 +77,7 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
   FreeOutlines(Outlines);
   return (FeatureSet);
 
-}                                /* ExtractPicoFeatures */
-}  // namespace tesseract
+} /* ExtractPicoFeatures */
 
 /*----------------------------------------------------------------------------
               Private Code
@@ -100,9 +96,7 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
  * @param End ending point of pico-feature
  * @param FeatureSet set to add pico-feature to
  */
-void ConvertSegmentToPicoFeat(FPOINT *Start,
-                              FPOINT *End,
-                              FEATURE_SET FeatureSet) {
+void ConvertSegmentToPicoFeat(FPOINT *Start, FPOINT *End, FEATURE_SET FeatureSet) {
   FEATURE Feature;
   float Angle;
   float Length;
@@ -111,15 +105,15 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
   FPOINT Delta;
   int i;
 
-  Angle = NormalizedAngleFrom (Start, End, 1.0);
-  Length = DistanceBetween (*Start, *End);
-  NumFeatures = static_cast<int>(floor (Length / classify_pico_feature_length + 0.5));
+  Angle = NormalizedAngleFrom(Start, End, 1.0);
+  Length = DistanceBetween(*Start, *End);
+  NumFeatures = static_cast<int>(floor(Length / classify_pico_feature_length + 0.5));
   if (NumFeatures < 1)
     NumFeatures = 1;
 
   /* compute vector for one pico feature */
-  Delta.x = XDelta (*Start, *End) / NumFeatures;
-  Delta.y = YDelta (*Start, *End) / NumFeatures;
+  Delta.x = XDelta(*Start, *End) / NumFeatures;
+  Delta.y = YDelta(*Start, *End) / NumFeatures;
 
   /* compute position of first pico feature */
   Center.x = Start->x + Delta.x / 2.0;
@@ -127,7 +121,7 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
 
   /* compute each pico feature in segment and add to feature set */
   for (i = 0; i < NumFeatures; i++) {
-    Feature = NewFeature (&PicoFeatDesc);
+    Feature = NewFeature(&PicoFeatDesc);
     Feature->Params[PicoFeatDir] = Angle;
     Feature->Params[PicoFeatX] = Center.x;
     Feature->Params[PicoFeatY] = Center.y;
@@ -136,8 +130,7 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
     Center.x += Delta.x;
     Center.y += Delta.y;
   }
-}                                /* ConvertSegmentToPicoFeat */
-
+} /* ConvertSegmentToPicoFeat */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -165,21 +158,18 @@ void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   Next = NextPointAfter(Current);
   do {
     /* note that an edge is hidden if the ending point of the edge is
-       marked as hidden.  This situation happens because the order of
-       the outlines is reversed when they are converted from the old
-       format.  In the old format, a hidden edge is marked by the
-       starting point for that edge. */
+   marked as hidden.  This situation happens because the order of
+   the outlines is reversed when they are converted from the old
+   format.  In the old format, a hidden edge is marked by the
+   starting point for that edge. */
     if (!(PointAt(Next)->Hidden))
-      ConvertSegmentToPicoFeat (&(PointAt(Current)->Point),
-        &(PointAt(Next)->Point), FeatureSet);
+      ConvertSegmentToPicoFeat(&(PointAt(Current)->Point), &(PointAt(Next)->Point), FeatureSet);
 
     Current = Next;
     Next = NextPointAfter(Current);
-  }
-  while (Current != First);
+  } while (Current != First);
 
-}                                /* ConvertToPicoFeatures2 */
-
+} /* ConvertToPicoFeatures2 */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -205,25 +195,24 @@ void NormalizePicoX(FEATURE_SET FeatureSet) {
     Feature = FeatureSet->Features[i];
     Feature->Params[PicoFeatX] -= Origin;
   }
-}                                /* NormalizePicoX */
+} /* NormalizePicoX */
 
-namespace tesseract {
 /*---------------------------------------------------------------------------*/
 /**
  * @param blob blob to extract features from
  * @param fx_info
  * @return Integer character-normalized features for blob.
  */
-FEATURE_SET Classify::ExtractIntCNFeatures(
-    const TBLOB& blob, const INT_FX_RESULT_STRUCT& fx_info) {
+FEATURE_SET Classify::ExtractIntCNFeatures(const TBLOB &blob, const INT_FX_RESULT_STRUCT &fx_info) {
   INT_FX_RESULT_STRUCT local_fx_info(fx_info);
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
-  tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
-      blob, false, &local_fx_info, &bl_features);
-  if (sample == nullptr) return nullptr;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
+  tesseract::TrainingSample *sample =
+      tesseract::BlobToTrainingSample(blob, false, &local_fx_info, &bl_features);
+  if (sample == nullptr)
+    return nullptr;
 
   uint32_t num_features = sample->num_features();
-  const INT_FEATURE_STRUCT* features = sample->features();
+  const INT_FEATURE_STRUCT *features = sample->features();
   FEATURE_SET feature_set = NewFeatureSet(num_features);
   for (uint32_t f = 0; f < num_features; ++f) {
     FEATURE feature = NewFeature(&IntFeatDesc);
@@ -236,7 +225,7 @@ FEATURE_SET Classify::ExtractIntCNFeatures(
   delete sample;
 
   return feature_set;
-}                                /* ExtractIntCNFeatures */
+} /* ExtractIntCNFeatures */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -244,13 +233,14 @@ FEATURE_SET Classify::ExtractIntCNFeatures(
  * @param fx_info
  * @return Geometric (top/bottom/width) features for blob.
  */
-FEATURE_SET Classify::ExtractIntGeoFeatures(
-    const TBLOB& blob, const INT_FX_RESULT_STRUCT& fx_info) {
+FEATURE_SET Classify::ExtractIntGeoFeatures(const TBLOB &blob,
+                                            const INT_FX_RESULT_STRUCT &fx_info) {
   INT_FX_RESULT_STRUCT local_fx_info(fx_info);
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
-  tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
-      blob, false, &local_fx_info, &bl_features);
-  if (sample == nullptr) return nullptr;
+  std::vector<INT_FEATURE_STRUCT> bl_features;
+  tesseract::TrainingSample *sample =
+      tesseract::BlobToTrainingSample(blob, false, &local_fx_info, &bl_features);
+  if (sample == nullptr)
+    return nullptr;
 
   FEATURE_SET feature_set = NewFeatureSet(1);
   FEATURE feature = NewFeature(&IntFeatDesc);
@@ -262,6 +252,6 @@ FEATURE_SET Classify::ExtractIntGeoFeatures(
   delete sample;
 
   return feature_set;
-}                                /* ExtractIntGeoFeatures */
+} /* ExtractIntGeoFeatures */
 
-}  // namespace tesseract.
+} // namespace tesseract.

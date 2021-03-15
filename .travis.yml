@@ -1,51 +1,30 @@
 # Travis CI configuration for Tesseract
-
-language: cpp
-
-dist: xenial
-
-env:
-  - LEPT_VER=1.78.0
-
+sudo: false
 notifications:
   email: false
+language: cpp
 
-sudo: false
-
-os:
-  - linux
-  - osx
-
-addons:
-  apt:
-    sources:
-    #- ubuntu-toolchain-r-test
-    packages:
-      - libarchive-dev
-      - libpango1.0-dev
-    #- g++-6
-
-#matrix:
-  #include:
-    #- os: osx
-      #install:
-      #script: brew install tesseract --HEAD
-      #cache:
-        #directories:
-          #- $HOME/Library/Caches/Homebrew
-  #allow_failures:
-    #- script: brew install tesseract --HEAD
-
+os: linux
+dist: focal
+arch:
+  - amd64
+  - arm64
+  - ppc64le
+  - s390x
+compiler:
+  - gcc
+  - clang
+env:
+  - LEPT_VER=1.80.0
 cache:
   directories:
-  - leptonica-$LEPT_VER
+    - leptonica-$LEPT_VER
 
 before_install:
-  - if [[ $TRAVIS_OS_NAME == linux   ]]; then LINUX=true; fi
-  - if [[ $TRAVIS_OS_NAME == osx     ]]; then OSX=true; fi
-
+  - sudo apt-get install libpango1.0-dev libicu-dev libtiff5-dev -y
+  - rm -rf leptonica-$LEPT_VER/usr
+  
 install:
-  #- if [[ $LINUX && "$CXX" = "g++" ]]; then export CXX="g++-6" CC="gcc-6"; fi
   - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
   - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
   - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
@@ -55,3 +34,12 @@ script:
   - cd build
   - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
   - make
+  - sudo make install
+  
+#after_script: # let those commands trigger build errors
+  - tesseract -v
+  - text2image -v
+  - lstmtraining -v
+  - ls /home/travis/build/tesseract-ocr/tesseract/test/testing/*.tif
+  - wget https://github.com/egorpugin/tessdata/raw/master/tessdata/eng.traineddata
+  - tesseract /home/travis/build/tesseract-ocr/tesseract/test/testing/phototest.tif - -l eng --tessdata-dir ./

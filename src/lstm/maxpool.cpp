@@ -19,14 +19,14 @@
 
 namespace tesseract {
 
-Maxpool::Maxpool(const STRING& name, int ni, int x_scale, int y_scale)
-  : Reconfig(name, ni, x_scale, y_scale) {
+Maxpool::Maxpool(const char *name, int ni, int x_scale, int y_scale)
+    : Reconfig(name, ni, x_scale, y_scale) {
   type_ = NT_MAXPOOL;
   no_ = ni;
 }
 
 // Reads from the given file. Returns false in case of error.
-bool Maxpool::DeSerialize(TFile* fp) {
+bool Maxpool::DeSerialize(TFile *fp) {
   bool result = Reconfig::DeSerialize(fp);
   no_ = ni_;
   return result;
@@ -34,9 +34,8 @@ bool Maxpool::DeSerialize(TFile* fp) {
 
 // Runs forward propagation of activations on the input line.
 // See NetworkCpp for a detailed discussion of the arguments.
-void Maxpool::Forward(bool debug, const NetworkIO& input,
-                      const TransposedArray* input_transpose,
-                      NetworkScratch* scratch, NetworkIO* output) {
+void Maxpool::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+                      NetworkScratch *scratch, NetworkIO *output) {
   output->ResizeScaled(input, x_scale_, y_scale_, no_);
   maxes_.ResizeNoInit(output->Width(), ni_);
   back_map_ = input.stride_map();
@@ -49,7 +48,7 @@ void Maxpool::Forward(bool debug, const NetworkIO& input,
                                dest_index.index(FD_WIDTH) * x_scale_);
     // Find the max input out of x_scale_ groups of y_scale_ inputs.
     // Do it independently for each input dimension.
-    int* max_line = maxes_[out_t];
+    int *max_line = maxes_[out_t];
     int in_t = src_index.t();
     output->CopyTimeStepFrom(out_t, input, in_t);
     for (int i = 0; i < ni_; ++i) {
@@ -68,13 +67,11 @@ void Maxpool::Forward(bool debug, const NetworkIO& input,
 
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
-bool Maxpool::Backward(bool debug, const NetworkIO& fwd_deltas,
-                       NetworkScratch* scratch,
-                       NetworkIO* back_deltas) {
+bool Maxpool::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+                       NetworkIO *back_deltas) {
   back_deltas->ResizeToMap(fwd_deltas.int_mode(), back_map_, ni_);
   back_deltas->MaxpoolBackward(fwd_deltas, maxes_);
   return true;
 }
 
-
-}  // namespace tesseract.
+} // namespace tesseract.

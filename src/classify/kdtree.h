@@ -18,10 +18,9 @@
 #ifndef KDTREE_H
 #define KDTREE_H
 
-/*-----------------------------------------------------------------------------
-          Include Files and Type Defines
------------------------------------------------------------------------------*/
 #include "ocrfeatures.h"
+
+namespace tesseract {
 
 using void_proc = void (*)(...);
 
@@ -36,13 +35,13 @@ correctly if circular parameters outside the specified range are used.
 */
 
 struct KDNODE {
-  float* Key;          /**< search key */
-  void* Data;          /**< data that corresponds to key */
+  float *Key;          /**< search key */
+  void *Data;          /**< data that corresponds to key */
   float BranchPoint;   /**< needed to make deletes work efficiently */
   float LeftBranch;    /**< used to optimize search pruning */
   float RightBranch;   /**< used to optimize search pruning */
-  struct KDNODE* Left; /**< ptrs for KD tree structure */
-  struct KDNODE* Right;
+  struct KDNODE *Left; /**< ptrs for KD tree structure */
+  struct KDNODE *Right;
 };
 
 struct KDTREE {
@@ -59,38 +58,39 @@ struct KDTREE {
 /*-----------------------------------------------------------------------------
           Public Function Prototypes
 -----------------------------------------------------------------------------*/
-KDTREE* MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]);
+KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]);
 
-void KDStore(KDTREE* Tree, float* Key, void* Data);
+void KDStore(KDTREE *Tree, float *Key, void *Data);
 
-void KDDelete(KDTREE* Tree, float Key[], void* Data);
+void KDDelete(KDTREE *Tree, float Key[], void *Data);
 
-void KDNearestNeighborSearch(KDTREE* Tree, float Query[], int QuerySize,
-                             float MaxDistance, int* NumberOfResults,
-                             void** NBuffer, float DBuffer[]);
+void KDNearestNeighborSearch(KDTREE *Tree, float Query[], int QuerySize, float MaxDistance,
+                             int *NumberOfResults, void **NBuffer, float DBuffer[]);
 
-void KDWalk(KDTREE* Tree, void_proc Action, void* context);
+void KDWalk(KDTREE *Tree, void_proc Action, void *context);
 
-void FreeKDTree(KDTREE* Tree);
+void FreeKDTree(KDTREE *Tree);
 
 /*-----------------------------------------------------------------------------
           Private Function Prototypes
 -----------------------------------------------------------------------------*/
-KDNODE* MakeKDNode(KDTREE* tree, float Key[], void* Data, int Index);
+KDNODE *MakeKDNode(KDTREE *tree, float Key[], void *Data, int Index);
 
-void FreeKDNode(KDNODE* Node);
+void FreeKDNode(KDNODE *Node);
 
-float DistanceSquared(int k, PARAM_DESC* dim, float p1[], float p2[]);
+float DistanceSquared(int k, PARAM_DESC *dim, float p1[], float p2[]);
 
-float ComputeDistance(int k, PARAM_DESC* dim, float p1[], float p2[]);
+TESS_API
+float ComputeDistance(int k, PARAM_DESC *dim, float p1[], float p2[]);
 
-int QueryInSearch(KDTREE* tree);
+int QueryInSearch(KDTREE *tree);
 
-void Walk(KDTREE* tree, void_proc action, void* context, KDNODE* SubTree,
-          int32_t Level);
+void Walk(KDTREE *tree, void_proc action, void *context, KDNODE *SubTree, int32_t Level);
 
-void InsertNodes(KDTREE* tree, KDNODE* nodes);
+void InsertNodes(KDTREE *tree, KDNODE *nodes);
 
-void FreeSubTree(KDNODE* SubTree);
+void FreeSubTree(KDNODE *SubTree);
+
+} // namespace tesseract
 
 #endif

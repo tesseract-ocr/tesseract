@@ -33,45 +33,38 @@ class TrainingSample;
 // Due to limitations in the content of TrainingSample, this currently
 // only works for the static classifier and only works if the ShapeTable
 // in classify is not nullptr.
-class TessClassifier : public ShapeClassifier {
- public:
-  TessClassifier(bool pruner_only, tesseract::Classify* classify)
-    : pruner_only_(pruner_only), classify_(classify) {}
+class TESS_API TessClassifier : public ShapeClassifier {
+public:
+  TessClassifier(bool pruner_only, tesseract::Classify *classify)
+      : pruner_only_(pruner_only), classify_(classify) {}
   ~TessClassifier() override = default;
 
   // Classifies the given [training] sample, writing to results.
   // See ShapeClassifier for a full description.
-  int UnicharClassifySample(const TrainingSample& sample, Pix* page_pix,
-                                    int debug, UNICHAR_ID keep_this,
-                                    GenericVector<UnicharRating>* results) override;
+  int UnicharClassifySample(const TrainingSample &sample, Pix *page_pix, int debug,
+                            UNICHAR_ID keep_this, std::vector<UnicharRating> *results) override;
   // Provides access to the ShapeTable that this classifier works with.
-  const ShapeTable* GetShapeTable() const override;
+  const ShapeTable *GetShapeTable() const override;
   // Provides access to the UNICHARSET that this classifier works with.
   // Only needs to be overridden if GetShapeTable() can return nullptr.
-  const UNICHARSET& GetUnicharset() const override;
+  const UNICHARSET &GetUnicharset() const override;
 
   // Displays classification as the given shape_id. Creates as many windows
   // as it feels fit, using index as a guide for placement. Adds any created
   // windows to the windows output and returns a new index that may be used
   // by any subsequent classifiers. Caller waits for the user to view and
   // then destroys the windows by clearing the vector.
-  int DisplayClassifyAs(const TrainingSample& sample, Pix* page_pix,
-                                int unichar_id, int index,
-                                PointerVector<ScrollView>* windows) override;
+  int DisplayClassifyAs(const TrainingSample &sample, Pix *page_pix, int unichar_id, int index,
+                        PointerVector<ScrollView> *windows) override;
 
- private:
+private:
   // Indicates that this classifier is to use just the ClassPruner, or the
   // full classifier if false.
   bool pruner_only_;
   // Borrowed pointer to the actual Tesseract classifier.
-  tesseract::Classify* classify_;
+  tesseract::Classify *classify_;
 };
 
-
-}  // namespace tesseract
-
-
-
-
+} // namespace tesseract
 
 #endif /* THIRD_PARTY_TESSERACT_CLASSIFY_TESSCLASSIFIER_H_ */

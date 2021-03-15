@@ -20,14 +20,18 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
+namespace tesseract {
+
 class BLOCK;
 class WERD;
 
 /** test line ends */
-char determine_newline_type(WERD *word,        ///< word to do
-                            BLOCK *block,      ///< current block
-                            WERD *next_word,   ///< next word
-                            BLOCK *next_block  ///< block of next word
-                           );
+char determine_newline_type(WERD *word,       ///< word to do
+                            BLOCK *block,     ///< current block
+                            WERD *next_word,  ///< next word
+                            BLOCK *next_block ///< block of next word
+);
+
+} // namespace tesseract
 
 #endif

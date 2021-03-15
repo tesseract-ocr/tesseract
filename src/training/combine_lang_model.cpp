@@ -17,29 +17,28 @@
 // limitations under the License.
 
 #include "commandlineflags.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "commontraining.h" // CheckSharedLibraryVersion
 #include "lang_model_helpers.h"
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
 
+using namespace tesseract;
+
 static STRING_PARAM_FLAG(input_unicharset, "",
                          "Filename with unicharset to complete and use in encoding");
-static STRING_PARAM_FLAG(script_dir, "",
-                         "Directory name for input script unicharsets");
-static STRING_PARAM_FLAG(words, "",
-                         "File listing words to use for the system dictionary");
+static STRING_PARAM_FLAG(script_dir, "", "Directory name for input script unicharsets");
+static STRING_PARAM_FLAG(words, "", "File listing words to use for the system dictionary");
 static STRING_PARAM_FLAG(puncs, "", "File listing punctuation patterns");
 static STRING_PARAM_FLAG(numbers, "", "File listing number patterns");
 static STRING_PARAM_FLAG(output_dir, "", "Root directory for output files");
 static STRING_PARAM_FLAG(version_str, "", "Version string to add to traineddata file");
 static STRING_PARAM_FLAG(lang, "", "Name of language being processed");
-static BOOL_PARAM_FLAG(lang_is_rtl, false,
-                       "True if lang being processed is written right-to-left");
+static BOOL_PARAM_FLAG(lang_is_rtl, false, "True if lang being processed is written right-to-left");
 static BOOL_PARAM_FLAG(pass_through_recoder, false,
                        "If true, the recoder is a simple pass-through of the "
                        "unicharset. Otherwise, potentially a compression of it");
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   // Sets properties on the input unicharset file, and writes:
   //   rootdir/lang/lang.charset_size=ddd.txt
   //   rootdir/lang/lang.traineddata
@@ -51,16 +50,14 @@ int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
 
-  GenericVector<STRING> words, puncs, numbers;
   // If these reads fail, we get a warning message and an empty list of words.
-  tesseract::ReadFile(FLAGS_words.c_str(), nullptr).split('\n', &words);
-  tesseract::ReadFile(FLAGS_puncs.c_str(), nullptr).split('\n', &puncs);
-  tesseract::ReadFile(FLAGS_numbers.c_str(), nullptr).split('\n', &numbers);
+  std::vector<std::string> words = split(tesseract::ReadFile(FLAGS_words.c_str()), '\n');
+  std::vector<std::string> puncs = split(tesseract::ReadFile(FLAGS_puncs.c_str()), '\n');
+  std::vector<std::string> numbers = split(tesseract::ReadFile(FLAGS_numbers.c_str()), '\n');
   // Load the input unicharset
   UNICHARSET unicharset;
   if (!unicharset.load_from_file(FLAGS_input_unicharset.c_str(), false)) {
-    tprintf("Failed to load unicharset from %s\n",
-            FLAGS_input_unicharset.c_str());
+    tprintf("Failed to load unicharset from %s\n", FLAGS_input_unicharset.c_str());
     return 1;
   }
   tprintf("Loaded unicharset of size %d from file %s\n", unicharset.size(),
@@ -73,9 +70,9 @@ int main(int argc, char** argv) {
   tprintf("Setting script properties\n");
   tesseract::SetScriptProperties(FLAGS_script_dir.c_str(), &unicharset);
   // Combine everything into a traineddata file.
-  return tesseract::CombineLangModel(
-      unicharset, FLAGS_script_dir.c_str(), FLAGS_version_str.c_str(),
-      FLAGS_output_dir.c_str(), FLAGS_lang.c_str(), FLAGS_pass_through_recoder,
-      words, puncs, numbers, FLAGS_lang_is_rtl, /*reader*/ nullptr,
-      /*writer*/ nullptr);
+  return tesseract::CombineLangModel(unicharset, FLAGS_script_dir.c_str(),
+                                     FLAGS_version_str.c_str(), FLAGS_output_dir.c_str(),
+                                     FLAGS_lang.c_str(), FLAGS_pass_through_recoder, words, puncs,
+                                     numbers, FLAGS_lang_is_rtl, /*reader*/ nullptr,
+                                     /*writer*/ nullptr);
 }

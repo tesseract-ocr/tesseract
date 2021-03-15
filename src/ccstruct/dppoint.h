@@ -42,31 +42,31 @@ namespace tesseract {
 // }
 // delete [] array;
 class DPPoint {
- public:
+public:
   // The cost function evaluates the total cost at this (excluding this's
   // local_cost) and if it beats this's total_cost, then
   // replace the appropriate values in this.
-  using CostFunc = int64_t (DPPoint::*)(const DPPoint*);
+  using CostFunc = int64_t (DPPoint::*)(const DPPoint *);
 
   DPPoint()
-      : local_cost_(0),
-        total_cost_(INT32_MAX),
-        total_steps_(1),
-        best_prev_(nullptr),
-        n_(0),
-        sig_x_(0),
-        sig_xsq_(0) {}
+      : local_cost_(0)
+      , total_cost_(INT32_MAX)
+      , total_steps_(1)
+      , best_prev_(nullptr)
+      , n_(0)
+      , sig_x_(0)
+      , sig_xsq_(0) {}
 
   // Solve the dynamic programming problem for the given array of points, with
   // the given size and cost function.
   // Steps backwards are limited to being between min_step and max_step
   // inclusive.
   // The return value is the tail of the best path.
-  static DPPoint* Solve(int min_step, int max_step, bool debug,
-                        CostFunc cost_func, int size, DPPoint* points);
+  static DPPoint *Solve(int min_step, int max_step, bool debug, CostFunc cost_func, int size,
+                        DPPoint *points);
 
   // A CostFunc that takes the variance of step into account in the cost.
-  int64_t CostWithVariance(const DPPoint* prev);
+  int64_t CostWithVariance(const DPPoint *prev);
 
   // Accessors.
   int total_cost() const {
@@ -75,31 +75,31 @@ class DPPoint {
   int Pathlength() const {
     return total_steps_;
   }
-  const DPPoint* best_prev() const {
+  const DPPoint *best_prev() const {
     return best_prev_;
   }
   void AddLocalCost(int new_cost) {
     local_cost_ += new_cost;
   }
 
- private:
+private:
   // Code common to different cost functions.
 
   // Update the other members if the cost is lower.
-  void UpdateIfBetter(int64_t cost, int32_t steps, const DPPoint* prev,
-                      int32_t n, int32_t sig_x, int64_t sig_xsq);
+  void UpdateIfBetter(int64_t cost, int32_t steps, const DPPoint *prev, int32_t n, int32_t sig_x,
+                      int64_t sig_xsq);
 
-  int32_t local_cost_;   // Cost of this point on its own.
-  int32_t total_cost_;   // Sum of all costs in best path to here.
-                         // During cost calculations local_cost is excluded.
-  int32_t total_steps_;  // Number of steps in best path to here.
-  const DPPoint* best_prev_;  // Pointer to prev point in best path from here.
+  int32_t local_cost_;       // Cost of this point on its own.
+  int32_t total_cost_;       // Sum of all costs in best path to here.
+                             // During cost calculations local_cost is excluded.
+  int32_t total_steps_;      // Number of steps in best path to here.
+  const DPPoint *best_prev_; // Pointer to prev point in best path from here.
   // Information for computing the variance part of the cost.
-  int32_t n_;        // Number of steps in best path to here for variance.
-  int32_t sig_x_;    // Sum of step sizes for computing variance.
-  int64_t sig_xsq_;  // Sum of squares of steps for computing variance.
+  int32_t n_;       // Number of steps in best path to here for variance.
+  int32_t sig_x_;   // Sum of step sizes for computing variance.
+  int64_t sig_xsq_; // Sum of squares of steps for computing variance.
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_CCSTRUCT_DPPOINT_H_
+#endif // TESSERACT_CCSTRUCT_DPPOINT_H_

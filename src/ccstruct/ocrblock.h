@@ -23,30 +23,28 @@
 #include "ocrrow.h"
 #include "pdblock.h"
 
-class BLOCK;                     //forward decl
+namespace tesseract {
 
-ELISTIZEH (BLOCK)
-class BLOCK:public ELIST_LINK
-//page block
+class BLOCK; // forward decl
+
+ELISTIZEH(BLOCK)
+
+class TESS_API BLOCK : public ELIST_LINK
+// page block
 {
-  friend class BLOCK_RECT_IT;     //block iterator
- public:
-  BLOCK()
-    : re_rotation_(1.0f, 0.0f),
-      classify_rotation_(1.0f, 0.0f),
-      skew_(1.0f, 0.0f) {
-    pdblk.hand_poly = nullptr;
-  }
-  BLOCK(const char *name,  ///< filename
-        bool prop,         ///< proportional
-        int16_t kern,      ///< kerning
-        int16_t space,     ///< spacing
-        int16_t xmin,      ///< bottom left
+  friend class BLOCK_RECT_IT; // block iterator
+public:
+  BLOCK() : re_rotation_(1.0f, 0.0f), classify_rotation_(1.0f, 0.0f), skew_(1.0f, 0.0f) {}
+  BLOCK(const char *name, ///< filename
+        bool prop,        ///< proportional
+        int16_t kern,     ///< kerning
+        int16_t space,    ///< spacing
+        int16_t xmin,     ///< bottom left
         int16_t ymin,
-        int16_t xmax,      ///< top right
+        int16_t xmax, ///< top right
         int16_t ymax);
 
-  ~BLOCK () = default;
+  ~BLOCK() = default;
 
   /**
    * set space size etc.
@@ -55,10 +53,7 @@ class BLOCK:public ELIST_LINK
    * @param space inter word size
    * @param ch_pitch pitch if fixed
    */
-  void set_stats(bool prop,
-                 int16_t kern,
-                 int16_t space,
-                 int16_t ch_pitch) {
+  void set_stats(bool prop, int16_t kern, int16_t space, int16_t ch_pitch) {
     proportional = prop;
     kerning = static_cast<int8_t>(kern);
     spacing = space;
@@ -100,7 +95,7 @@ class BLOCK:public ELIST_LINK
   }
   /// return filename
   const char *name() const {
-    return filename.c_str ();
+    return filename.c_str();
   }
   /// return xheight
   int32_t x_height() const {
@@ -132,24 +127,24 @@ class BLOCK:public ELIST_LINK
     return &rej_blobs;
   }
   FCOORD re_rotation() const {
-    return re_rotation_;         // How to transform coords back to image.
+    return re_rotation_; // How to transform coords back to image.
   }
-  void set_re_rotation(const FCOORD& rotation) {
+  void set_re_rotation(const FCOORD &rotation) {
     re_rotation_ = rotation;
   }
   FCOORD classify_rotation() const {
-    return classify_rotation_;   // Apply this before classifying.
+    return classify_rotation_; // Apply this before classifying.
   }
-  void set_classify_rotation(const FCOORD& rotation) {
+  void set_classify_rotation(const FCOORD &rotation) {
     classify_rotation_ = rotation;
   }
   FCOORD skew() const {
-    return skew_;                // Direction of true horizontal.
+    return skew_; // Direction of true horizontal.
   }
-  void set_skew(const FCOORD& skew) {
+  void set_skew(const FCOORD &skew) {
     skew_ = skew;
   }
-  const ICOORD& median_size() const {
+  const ICOORD &median_size() const {
     return median_size_;
   }
   void set_median_size(int x, int y) {
@@ -157,7 +152,7 @@ class BLOCK:public ELIST_LINK
     median_size_.set_y(y);
   }
 
-  Pix* render_mask(TBOX* mask_box) {
+  Pix *render_mask(TBOX *mask_box) {
     return pdblk.render_mask(re_rotation_, mask_box);
   }
 
@@ -169,7 +164,7 @@ class BLOCK:public ELIST_LINK
   // Does nothing to any contained rows/words/blobs etc.
   void reflect_polygon_in_y_axis();
 
-  void rotate(const FCOORD& rotation);
+  void rotate(const FCOORD &rotation);
 
   /// decreasing y order
   void sort_rows();
@@ -184,38 +179,37 @@ class BLOCK:public ELIST_LINK
   void compress(const ICOORD vec);
 
   /// dump whole table
-  void print(FILE* fp, bool dump);
+  void print(FILE *fp, bool dump);
 
-  BLOCK& operator=(const BLOCK & source);
-  PDBLK pdblk;                 ///< Page Description Block
+  BLOCK &operator=(const BLOCK &source);
+  PDBLK pdblk; ///< Page Description Block
 
- private:
-  bool proportional = false;   ///< proportional
-  bool right_to_left_ = false; ///< major script is right to left.
-  int8_t kerning = 0;          ///< inter blob gap
-  int16_t spacing = 0;         ///< inter word gap
-  int16_t pitch = 0;           ///< pitch of non-props
-  int16_t font_class = 0;      ///< correct font class
-  int32_t xheight = 0;         ///< height of chars
+private:
+  bool proportional = false;       ///< proportional
+  bool right_to_left_ = false;     ///< major script is right to left.
+  int8_t kerning = 0;              ///< inter blob gap
+  int16_t spacing = 0;             ///< inter word gap
+  int16_t pitch = 0;               ///< pitch of non-props
+  int16_t font_class = 0;          ///< correct font class
+  int32_t xheight = 0;             ///< height of chars
   float cell_over_xheight_ = 0.0f; ///< Ratio of cell height to xheight.
-  STRING filename;             ///< name of block
-  ROW_LIST rows;               ///< rows in block
-  PARA_LIST paras_;            ///< paragraphs of block
-  C_BLOB_LIST c_blobs;         ///< before textord
-  C_BLOB_LIST rej_blobs;       ///< duff stuff
-  FCOORD re_rotation_;         ///< How to transform coords back to image.
-  FCOORD classify_rotation_;   ///< Apply this before classifying.
-  FCOORD skew_;                ///< Direction of true horizontal.
-  ICOORD median_size_;         ///< Median size of blobs.
+  std::string filename;            ///< name of block
+  ROW_LIST rows;                   ///< rows in block
+  PARA_LIST paras_;                ///< paragraphs of block
+  C_BLOB_LIST c_blobs;             ///< before textord
+  C_BLOB_LIST rej_blobs;           ///< duff stuff
+  FCOORD re_rotation_;             ///< How to transform coords back to image.
+  FCOORD classify_rotation_;       ///< Apply this before classifying.
+  FCOORD skew_;                    ///< Direction of true horizontal.
+  ICOORD median_size_;             ///< Median size of blobs.
 };
 
 // A function to print segmentation stats for the given block list.
-void PrintSegmentationStats(BLOCK_LIST* block_list);
+void PrintSegmentationStats(BLOCK_LIST *block_list);
 
 // Extracts blobs fromo the given block list and adds them to the output list.
 // The block list must have been created by performing a page segmentation.
-void ExtractBlobsFromSegmentation(BLOCK_LIST* blocks,
-                                  C_BLOB_LIST* output_blob_list);
+void ExtractBlobsFromSegmentation(BLOCK_LIST *blocks, C_BLOB_LIST *output_blob_list);
 
 // Refreshes the words in the block_list by using blobs in the
 // new_blobs list.
@@ -225,8 +219,9 @@ void ExtractBlobsFromSegmentation(BLOCK_LIST* blocks,
 // in block list.
 // The output not_found_blobs is a list of blobs from the original segmentation
 // in the block_list for which no corresponding new blobs were found.
-void RefreshWordBlobsFromNewBlobs(BLOCK_LIST* block_list,
-                                  C_BLOB_LIST* new_blobs,
-                                  C_BLOB_LIST* not_found_blobs);
+void RefreshWordBlobsFromNewBlobs(BLOCK_LIST *block_list, C_BLOB_LIST *new_blobs,
+                                  C_BLOB_LIST *not_found_blobs);
+
+} // namespace tesseract
 
 #endif

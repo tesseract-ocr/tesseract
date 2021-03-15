@@ -3,7 +3,6 @@
 // Description: Iterator for tesseract results providing access to
 //              both high-level API and Tesseract internal data structures.
 // Author:      David Eger
-// Created:     Thu Feb 24 19:01:06 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,29 +35,28 @@ class Tesseract;
 // therefore can only be used while the TessBaseAPI class still exists and
 // has not been subjected to a call of Init, SetImage, Recognize, Clear, End
 // DetectOS, or anything else that changes the internal PAGE_RES.
-// See tesseract/apitypes.h for the definition of PageIteratorLevel.
+// See tesseract/publictypes.h for the definition of PageIteratorLevel.
 // See also base class PageIterator, which contains the bulk of the interface.
 // ResultIterator adds text-specific methods for access to OCR output.
 // MutableIterator adds access to internal data structures.
 
-class MutableIterator : public ResultIterator {
- public:
+class TESS_API MutableIterator : public ResultIterator {
+public:
   // See argument descriptions in ResultIterator()
-  MutableIterator(PAGE_RES* page_res, Tesseract* tesseract,
-                  int scale, int scaled_yres,
-                  int rect_left, int rect_top,
-                  int rect_width, int rect_height)
-      : ResultIterator(
-          LTRResultIterator(page_res, tesseract, scale, scaled_yres, rect_left,
-                            rect_top, rect_width, rect_height)) {}
+  MutableIterator(PAGE_RES *page_res, Tesseract *tesseract, int scale, int scaled_yres,
+                  int rect_left, int rect_top, int rect_width, int rect_height)
+      : ResultIterator(LTRResultIterator(page_res, tesseract, scale, scaled_yres, rect_left,
+                                         rect_top, rect_width, rect_height)) {}
   ~MutableIterator() override;
 
   // See PageIterator and ResultIterator for most calls.
 
   // Return access to Tesseract internals.
-  const PAGE_RES_IT *PageResIt() const { return it_; }
+  const PAGE_RES_IT *PageResIt() const {
+    return it_;
+  }
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_CCMAIN_MUTABLEITERATOR_H_
+#endif // TESSERACT_CCMAIN_MUTABLEITERATOR_H_
