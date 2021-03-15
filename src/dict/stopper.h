@@ -2,7 +2,6 @@
  ** Filename:    stopper.h
  ** Purpose:     Stopping criteria for word classifier.
  ** Author:      Dan Johnson
- ** History:     Wed May  1 09:42:57 1991, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +21,6 @@
 #include "ratngs.h"
 
 #include <tesseract/unichar.h>
-#include "genericvector.h"
 
 namespace tesseract {
 
@@ -46,7 +44,7 @@ struct DANGERR_INFO {
   UNICHAR_ID leftmost; // in the replacement, what's the leftmost character?
 };
 
-using DANGERR = GenericVector<DANGERR_INFO>;
+using DANGERR = std::vector<DANGERR_INFO>;
 
 } // namespace tesseract
 

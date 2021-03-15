@@ -57,9 +57,9 @@ struct NodeChild {
   NodeChild() : unichar_id(INVALID_UNICHAR_ID), edge_ref(NO_EDGE) {}
 };
 
-using NodeChildVector = GenericVector<NodeChild>;
-using SuccessorList = GenericVector<int>;
-using SuccessorListsVector = GenericVector<SuccessorList *>;
+using NodeChildVector = std::vector<NodeChild>;
+using SuccessorList = std::vector<int>;
+using SuccessorListsVector = std::vector<SuccessorList *>;
 
 enum DawgType {
   DAWG_TYPE_PUNCTUATION,
@@ -176,7 +176,7 @@ public:
   /// Fills vec with unichar ids that represent the character classes
   /// of the given unichar_id.
   virtual void unichar_id_to_patterns(UNICHAR_ID unichar_id, const UNICHARSET &unicharset,
-                                      GenericVector<UNICHAR_ID> *vec) const {
+                                      std::vector<UNICHAR_ID> *vec) const {
     (void)unichar_id;
     (void)unicharset;
     (void)vec;
@@ -355,15 +355,16 @@ struct DawgPosition {
   bool back_to_punc = false;
 };
 
-class DawgPositionVector : public GenericVector<DawgPosition> {
+class DawgPositionVector : public std::vector<DawgPosition> {
 public:
   /// Adds an entry for the given dawg_index with the given node to the vec.
   /// Returns false if the same entry already exists in the vector,
   /// true otherwise.
   inline bool add_unique(const DawgPosition &new_pos, bool debug, const char *debug_msg) {
-    for (int i = 0; i < size(); ++i) {
-      if (data_[i] == new_pos)
+    for (auto position : *this) {
+      if (position == new_pos) {
         return false;
+      }
     }
     push_back(new_pos);
     if (debug) {

@@ -24,7 +24,6 @@
 
 #include "dawg.h"
 #include "dict.h"
-#include "genericvector.h"
 #include "helpers.h"
 #include "kdpair.h"
 
@@ -49,7 +48,9 @@ const char *Trie::get_reverse_policy_name(RTLReversePolicy reverse_policy) {
 
 // Reset the Trie to empty.
 void Trie::clear() {
-  nodes_.delete_data_pointers();
+  for (auto node : nodes_) {
+    delete node;
+  }
   nodes_.clear();
   root_back_freelist_.clear();
   num_edges_ = 0;
@@ -122,10 +123,11 @@ bool Trie::add_edge_linkage(NODE_REF node1, NODE_REF node2, bool marker_flag, in
   EDGE_RECORD edge_rec;
   link_edge(&edge_rec, node2, marker_flag, direction, word_end, unichar_id);
   if (node1 == 0 && direction == BACKWARD_EDGE && !root_back_freelist_.empty()) {
-    EDGE_INDEX edge_index = root_back_freelist_.pop_back();
+    EDGE_INDEX edge_index = root_back_freelist_.back();
+    root_back_freelist_.pop_back();
     (*vec)[edge_index] = edge_rec;
   } else if (search_index < vec->size()) {
-    vec->insert(edge_rec, search_index);
+    vec->insert(vec->begin() + search_index, edge_rec);
   } else {
     vec->push_back(edge_rec);
   }
@@ -153,7 +155,7 @@ void Trie::add_word_ending(EDGE_RECORD *edge_ptr, NODE_REF the_next_node, bool m
   *edge_ptr |= (WERD_END_FLAG << flag_start_bit_);
 }
 
-bool Trie::add_word_to_dawg(const WERD_CHOICE &word, const GenericVector<bool> *repetitions) {
+bool Trie::add_word_to_dawg(const WERD_CHOICE &word, const std::vector<bool> *repetitions) {
   if (word.length() <= 0)
     return false; // can't add empty words
   if (repetitions != nullptr)
@@ -330,7 +332,7 @@ void Trie::initialize_patterns(UNICHARSET *unicharset) {
 }
 
 void Trie::unichar_id_to_patterns(UNICHAR_ID unichar_id, const UNICHARSET &unicharset,
-                                  GenericVector<UNICHAR_ID> *vec) const {
+                                  std::vector<UNICHAR_ID> *vec) const {
   bool is_alpha = unicharset.get_isalpha(unichar_id);
   if (is_alpha) {
     vec->push_back(alpha_pattern_);
@@ -388,7 +390,7 @@ bool Trie::read_pattern_list(const char *filename, const UNICHARSET &unicharset)
     // Parse the pattern and construct a unichar id vector.
     // Record the number of repetitions of each unichar in the parallel vector.
     WERD_CHOICE word(&unicharset);
-    GenericVector<bool> repetitions_vec;
+    std::vector<bool> repetitions_vec;
     const char *str_ptr = string;
     int step = unicharset.step(str_ptr);
     bool failed = false;
@@ -462,12 +464,12 @@ void Trie::remove_edge_linkage(NODE_REF node1, NODE_REF node2, int direction, bo
     tprintf("\n");
   }
   if (direction == FORWARD_EDGE) {
-    nodes_[node1]->forward_edges.remove(edge_index);
+    nodes_[node1]->forward_edges.erase(nodes_[node1]->forward_edges.begin() + edge_index);
   } else if (node1 == 0) {
     KillEdge(&nodes_[node1]->backward_edges[edge_index]);
     root_back_freelist_.push_back(edge_index);
   } else {
-    nodes_[node1]->backward_edges.remove(edge_index);
+    nodes_[node1]->backward_edges.erase(nodes_[node1]->backward_edges.begin() + edge_index);
   }
   --num_edges_;
 }
@@ -476,7 +478,7 @@ void Trie::remove_edge_linkage(NODE_REF node1, NODE_REF node2, int direction, bo
 // 1 Avoid insertion sorting or bubble sorting the tail root node
 //   (back links on node 0, a list of all the leaves.). The node is
 //   huge, and sorting it with n^2 time is terrible.
-// 2 Avoid using GenericVector::remove on the tail root node.
+// 2 Avoid using vector::erase on the tail root node.
 //   (a) During add of words to the trie, zero-out the unichars and
 //       keep a freelist of spaces to re-use.
 //   (b) During reduction, just zero-out the unichars of deleted back
@@ -624,13 +626,13 @@ void Trie::sort_edges(EDGE_VECTOR *edges) {
   int num_edges = edges->size();
   if (num_edges <= 1)
     return;
-  GenericVector<KDPairInc<UNICHAR_ID, EDGE_RECORD>> sort_vec;
+  std::vector<KDPairInc<UNICHAR_ID, EDGE_RECORD>> sort_vec;
   sort_vec.reserve(num_edges);
   for (int i = 0; i < num_edges; ++i) {
     sort_vec.push_back(
         KDPairInc<UNICHAR_ID, EDGE_RECORD>(unichar_id_from_edge_rec((*edges)[i]), (*edges)[i]));
   }
-  sort_vec.sort();
+  std::sort(sort_vec.begin(), sort_vec.end());
   for (int i = 0; i < num_edges; ++i)
     (*edges)[i] = sort_vec[i].data();
 }

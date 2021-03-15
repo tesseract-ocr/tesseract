@@ -19,7 +19,7 @@
 #ifndef TESSERACT_WORDREC_PARAMS_MODEL_H_
 #define TESSERACT_WORDREC_PARAMS_MODEL_H_
 
-#include "genericvector.h"           // for GenericVector
+#include <tesseract/export.h>        // for TESS_API
 #include "params_training_featdef.h" // for PTRAIN_NUM_FEATURE_TYPES
 
 namespace tesseract {
@@ -38,7 +38,7 @@ public:
   };
 
   ParamsModel() : pass_(PTRAIN_PASS1) {}
-  ParamsModel(const char *lang, const GenericVector<float> &weights)
+  ParamsModel(const char *lang, const std::vector<float> &weights)
       : lang_(lang), pass_(PTRAIN_PASS1) {
     weights_vec_[pass_] = weights;
   }
@@ -65,10 +65,10 @@ public:
   // Returns true on success.
   bool LoadFromFp(const char *lang, TFile *fp);
 
-  const GenericVector<float> &weights() const {
+  const std::vector<float> &weights() const {
     return weights_vec_[pass_];
   }
-  const GenericVector<float> &weights_for_pass(PassEnum pass) const {
+  const std::vector<float> &weights_for_pass(PassEnum pass) const {
     return weights_vec_[pass];
   }
   void SetPass(PassEnum pass) {
@@ -84,7 +84,7 @@ private:
   PassEnum pass_;
   // Several sets of weights for various OCR passes (e.g. pass1 with adaption,
   // pass2 without adaption, etc).
-  GenericVector<float> weights_vec_[PTRAIN_NUM_PASSES];
+  std::vector<float> weights_vec_[PTRAIN_NUM_PASSES];
 };
 
 } // namespace tesseract
