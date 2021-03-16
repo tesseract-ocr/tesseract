@@ -158,9 +158,11 @@ bool StructuredTable::FindLinedStructure() {
 
   // Sort and remove duplicates that may have occurred due to split lines.
   std::sort(cell_x_.begin(), cell_x_.end());
-  std::unique(cell_x_.begin(), cell_x_.end());
+  auto last_x = std::unique(cell_x_.begin(), cell_x_.end());
+  cell_x_.erase(last_x, cell_x_.end());
   std::sort(cell_y_.begin(), cell_y_.end());
-  std::unique(cell_y_.begin(), cell_y_.end());
+  auto last_y = std::unique(cell_y_.begin(), cell_y_.end());
+  cell_y_.erase(last_y, cell_y_.end());
 
   // The border should be the extents of line boxes, not middle.
   cell_x_[0] = bounding_box_.left();
@@ -169,8 +171,10 @@ bool StructuredTable::FindLinedStructure() {
   cell_y_[cell_y_.size() - 1] = bounding_box_.top();
 
   // Remove duplicates that may have occurred due to moving the borders.
-  std::unique(cell_x_.begin(), cell_x_.end());
-  std::unique(cell_y_.begin(), cell_y_.end());
+  last_x = std::unique(cell_x_.begin(), cell_x_.end());
+  cell_x_.erase(last_x, cell_x_.end());
+  last_y = std::unique(cell_y_.begin(), cell_y_.end());
+  cell_y_.erase(last_y, cell_y_.end());
 
   CalculateMargins();
   CalculateStats();
