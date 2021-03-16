@@ -53,7 +53,7 @@ struct UnicharRating {
   // unichar_id. If the results are sorted by rating, this will also be the
   // best result with the required unichar_id.
   // Returns -1 if the unichar_id is not found
-  static int FirstResultWithUnichar(const GenericVector<UnicharRating> &results,
+  static int FirstResultWithUnichar(const std::vector<UnicharRating> &results,
                                     UNICHAR_ID unichar_id);
 
   // Index into some UNICHARSET table indicates the class of the answer.
@@ -84,7 +84,7 @@ struct ShapeRating {
   // unichar_id. If the results are sorted by rating, this will also be the
   // best result with the required unichar_id.
   // Returns -1 if the unichar_id is not found
-  static int FirstResultWithUnichar(const GenericVector<ShapeRating> &results,
+  static int FirstResultWithUnichar(const std::vector<ShapeRating> &results,
                                     const ShapeTable &shape_table, UNICHAR_ID unichar_id);
 
   // Index into some shape table indicates the class of the answer.

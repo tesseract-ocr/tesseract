@@ -35,7 +35,7 @@ namespace tesseract {
 // unichar_id. If the results are sorted by rating, this will also be the
 // best result with the required unichar_id.
 // Returns -1 if the unichar_id is not found
-int ShapeRating::FirstResultWithUnichar(const GenericVector<ShapeRating> &results,
+int ShapeRating::FirstResultWithUnichar(const std::vector<ShapeRating> &results,
                                         const ShapeTable &shape_table, UNICHAR_ID unichar_id) {
   for (int r = 0; r < results.size(); ++r) {
     const int shape_id = results[r].shape_id;
@@ -51,7 +51,7 @@ int ShapeRating::FirstResultWithUnichar(const GenericVector<ShapeRating> &result
 // unichar_id. If the results are sorted by rating, this will also be the
 // best result with the required unichar_id.
 // Returns -1 if the unichar_id is not found
-int UnicharRating::FirstResultWithUnichar(const GenericVector<UnicharRating> &results,
+int UnicharRating::FirstResultWithUnichar(const std::vector<UnicharRating> &results,
                                           UNICHAR_ID unichar_id) {
   for (int r = 0; r < results.size(); ++r) {
     if (results[r].unichar_id == unichar_id)
