@@ -23,6 +23,8 @@
 #include <cstdio>
 
 #include "bitvector.h"
+#include "helpers.h"   // for ClipToRange
+#include "serialis.h"  // for TFile
 #include "tprintf.h"
 
 namespace tesseract {
@@ -103,8 +105,8 @@ bool ParamsModel::LoadFromFp(const char *lang, TFile *fp) {
   present.Init(PTRAIN_NUM_FEATURE_TYPES);
   lang_ = lang;
   // Load weights for passes with adaption on.
-  GenericVector<float> &weights = weights_vec_[pass_];
-  weights.init_to_size(PTRAIN_NUM_FEATURE_TYPES, 0.0);
+  std::vector<float> &weights = weights_vec_[pass_];
+  weights.resize(PTRAIN_NUM_FEATURE_TYPES, 0.0f);
 
   while (fp->FGets(line, kMaxLineSize) != nullptr) {
     char *key = nullptr;
@@ -129,13 +131,13 @@ bool ParamsModel::LoadFromFp(const char *lang, TFile *fp) {
       }
     }
     lang_ = "";
-    weights.truncate(0);
+    weights.clear();
   }
   return complete;
 }
 
 bool ParamsModel::SaveToFile(const char *full_path) const {
-  const GenericVector<float> &weights = weights_vec_[pass_];
+  const std::vector<float> &weights = weights_vec_[pass_];
   if (weights.size() != PTRAIN_NUM_FEATURE_TYPES) {
     tprintf("Refusing to save ParamsModel that has not been initialized.\n");
     return false;

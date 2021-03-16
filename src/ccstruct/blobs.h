@@ -450,8 +450,8 @@ struct TWERD {
 
   void plot(ScrollView *window);
 
-  GenericVector<TBLOB *> blobs; // Blobs in word.
-  bool latin_script;            // This word is in a latin-based script.
+  std::vector<TBLOB *> blobs; // Blobs in word.
+  bool latin_script;          // This word is in a latin-based script.
 };
 
 /*----------------------------------------------------------------------

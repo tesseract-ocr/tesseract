@@ -131,7 +131,7 @@ int EquationDetect::LabelSpecialText(TO_BLOCK *to_block) {
     return -1;
   }
 
-  GenericVector<BLOBNBOX_LIST *> blob_lists;
+  std::vector<BLOBNBOX_LIST *> blob_lists;
   blob_lists.push_back(&(to_block->blobs));
   blob_lists.push_back(&(to_block->large_blobs));
   for (int i = 0; i < blob_lists.size(); ++i) {
@@ -223,16 +223,17 @@ BlobSpecialTextType EquationDetect::EstimateTypeForUnichar(const UNICHARSET &uni
 
   if (unicharset.get_ispunctuation(id)) {
     // Exclude some special texts that are likely to be confused as math symbol.
-    static GenericVector<UNICHAR_ID> ids_to_exclude;
+    static std::vector<UNICHAR_ID> ids_to_exclude;
     if (ids_to_exclude.empty()) {
       static const char *kCharsToEx[] = {"'",  "`",  "\"", "\\", ",",  ".",
                                          "〈", "〉", "《", "》", "」", "「"};
       for (auto i = 0; i < countof(kCharsToEx); i++) {
         ids_to_exclude.push_back(unicharset.unichar_to_id(kCharsToEx[i]));
       }
-      ids_to_exclude.sort();
+      std::sort(ids_to_exclude.begin(), ids_to_exclude.end());
     }
-    return ids_to_exclude.bool_binary_search(id) ? BSTT_NONE : BSTT_MATH;
+    auto found = std::binary_search(ids_to_exclude.begin(), ids_to_exclude.end(), id);
+    return found ? BSTT_NONE : BSTT_MATH;
   }
 
   // Check if it is digit. In addition to the isdigit attribute, we also check
@@ -266,13 +267,13 @@ void EquationDetect::IdentifySpecialText() {
     IdentifyBlobsToSkip(part);
     BLOBNBOX_C_IT bbox_it(part->boxes());
     // Compute the height threshold.
-    GenericVector<int> blob_heights;
+    std::vector<int> blob_heights;
     for (bbox_it.mark_cycle_pt(); !bbox_it.cycled_list(); bbox_it.forward()) {
       if (bbox_it.data()->special_text_type() != BSTT_SKIP) {
         blob_heights.push_back(bbox_it.data()->bounding_box().height());
       }
     }
-    blob_heights.sort();
+    std::sort(blob_heights.begin(), blob_heights.end());
     const int height_th = blob_heights[blob_heights.size() / 2] / 3 * 2;
     for (bbox_it.mark_cycle_pt(); !bbox_it.cycled_list(); bbox_it.forward()) {
       if (bbox_it.data()->special_text_type() != BSTT_SKIP) {
@@ -377,7 +378,7 @@ int EquationDetect::FindEquationParts(ColPartitionGrid *part_grid, ColPartitionS
 
   // Pass 3: expand block equation seeds.
   while (!cp_seeds_.empty()) {
-    GenericVector<ColPartition *> seeds_expanded;
+    std::vector<ColPartition *> seeds_expanded;
     for (int i = 0; i < cp_seeds_.size(); ++i) {
       if (ExpandSeed(cp_seeds_[i])) {
         // If this seed is expanded, then we add it into seeds_expanded. Note
@@ -407,14 +408,14 @@ void EquationDetect::MergePartsByLocation() {
   while (true) {
     ColPartition *part = nullptr;
     // partitions that have been updated.
-    GenericVector<ColPartition *> parts_updated;
+    std::vector<ColPartition *> parts_updated;
     ColPartitionGridSearch gsearch(part_grid_);
     gsearch.StartFullSearch();
     while ((part = gsearch.NextFullSearch()) != nullptr) {
       if (!IsTextOrEquationType(part->type())) {
         continue;
       }
-      GenericVector<ColPartition *> parts_to_merge;
+      std::vector<ColPartition *> parts_to_merge;
       SearchByOverlap(part, &parts_to_merge);
       if (parts_to_merge.empty()) {
         continue;
@@ -443,7 +444,7 @@ void EquationDetect::MergePartsByLocation() {
 }
 
 void EquationDetect::SearchByOverlap(ColPartition *seed,
-                                     GenericVector<ColPartition *> *parts_overlap) {
+                                     std::vector<ColPartition *> *parts_overlap) {
   ASSERT_HOST(seed != nullptr && parts_overlap != nullptr);
   if (!IsTextOrEquationType(seed->type())) {
     return;
@@ -457,7 +458,7 @@ void EquationDetect::SearchByOverlap(ColPartition *seed,
 
   // Search iteratively.
   ColPartition *part;
-  GenericVector<ColPartition *> parts;
+  std::vector<ColPartition *> parts;
   const float kLargeOverlapTh = 0.95;
   const float kEquXOverlap = 0.4, kEquYOverlap = 0.5;
   while ((part = search.NextRadSearch()) != nullptr) {
@@ -518,11 +519,11 @@ void EquationDetect::IdentifySeedParts() {
   ColPartition *part = nullptr;
   gsearch.StartFullSearch();
 
-  GenericVector<ColPartition *> seeds1, seeds2;
+  std::vector<ColPartition *> seeds1, seeds2;
   // The left coordinates of indented text partitions.
-  GenericVector<int> indented_texts_left;
+  std::vector<int> indented_texts_left;
   // The foreground density of text partitions.
-  GenericVector<float> texts_foreground_density;
+  std::vector<float> texts_foreground_density;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
     if (!IsTextOrEquationType(part->type())) {
       continue;
@@ -552,8 +553,8 @@ void EquationDetect::IdentifySeedParts() {
   }
 
   // Sort the features collected from text regions.
-  indented_texts_left.sort();
-  texts_foreground_density.sort();
+  std::sort(indented_texts_left.begin(), indented_texts_left.end());
+  std::sort(texts_foreground_density.begin(), texts_foreground_density.end());
   float foreground_density_th = 0.15; // Default value.
   if (!texts_foreground_density.empty()) {
     // Use the median of the texts_foreground_density.
@@ -598,7 +599,7 @@ bool EquationDetect::CheckSeedFgDensity(const float density_th, ColPartition *pa
   ASSERT_HOST(part);
 
   // Split part horizontall, and check for each sub part.
-  GenericVector<TBOX> sub_boxes;
+  std::vector<TBOX> sub_boxes;
   SplitCPHorLite(part, &sub_boxes);
   float parts_passed = 0.0;
   for (int i = 0; i < sub_boxes.size(); ++i) {
@@ -615,7 +616,7 @@ bool EquationDetect::CheckSeedFgDensity(const float density_th, ColPartition *pa
   return retval;
 }
 
-void EquationDetect::SplitCPHor(ColPartition *part, GenericVector<ColPartition *> *parts_splitted) {
+void EquationDetect::SplitCPHor(ColPartition *part, std::vector<ColPartition *> *parts_splitted) {
   ASSERT_HOST(part && parts_splitted);
   if (part->median_width() == 0 || part->boxes_count() == 0) {
     return;
@@ -623,7 +624,9 @@ void EquationDetect::SplitCPHor(ColPartition *part, GenericVector<ColPartition *
 
   // Make a copy of part, and reset parts_splitted.
   ColPartition *right_part = part->CopyButDontOwnBlobs();
-  parts_splitted->delete_data_pointers();
+  for (auto part : *parts_splitted) {
+    delete part;
+  }
   parts_splitted->clear();
 
   const double kThreshold = part->median_width() * 3.0;
@@ -663,7 +666,7 @@ void EquationDetect::SplitCPHor(ColPartition *part, GenericVector<ColPartition *
   parts_splitted->push_back(right_part);
 }
 
-void EquationDetect::SplitCPHorLite(ColPartition *part, GenericVector<TBOX> *splitted_boxes) {
+void EquationDetect::SplitCPHorLite(ColPartition *part, std::vector<TBOX> *splitted_boxes) {
   ASSERT_HOST(part && splitted_boxes);
   splitted_boxes->clear();
   if (part->median_width() == 0) {
@@ -701,7 +704,7 @@ void EquationDetect::SplitCPHorLite(ColPartition *part, GenericVector<TBOX> *spl
   }
 }
 
-bool EquationDetect::CheckForSeed2(const GenericVector<int> &indented_texts_left,
+bool EquationDetect::CheckForSeed2(const std::vector<int> &indented_texts_left,
                                    const float foreground_density_th, ColPartition *part) {
   ASSERT_HOST(part);
   const TBOX &box = part->bounding_box();
@@ -720,22 +723,25 @@ bool EquationDetect::CheckForSeed2(const GenericVector<int> &indented_texts_left
   return true;
 }
 
-int EquationDetect::CountAlignment(const GenericVector<int> &sorted_vec, const int val) const {
+int EquationDetect::CountAlignment(const std::vector<int> &sorted_vec, const int val) const {
   if (sorted_vec.empty()) {
     return 0;
   }
-  const int kDistTh = static_cast<int>(roundf(0.03 * resolution_));
-  const int pos = sorted_vec.binary_search(val);
+  const int kDistTh = static_cast<int>(round(0.03f * resolution_));
+  auto pos = std::upper_bound(sorted_vec.begin(), sorted_vec.end(), val);
+  if (pos > sorted_vec.begin()) {
+    --pos;
+  }
   int count = 0;
 
   // Search left side.
-  int index = pos;
+  auto index = pos - sorted_vec.begin();
   while (index >= 0 && abs(val - sorted_vec[index--]) < kDistTh) {
     count++;
   }
 
   // Search right side.
-  index = pos + 1;
+  index = pos + 1 - sorted_vec.begin();
   while (index < sorted_vec.size() && sorted_vec[index++] - val < kDistTh) {
     count++;
   }
@@ -764,9 +770,9 @@ void EquationDetect::ComputeCPsSuperBBox() {
 
 void EquationDetect::IdentifyInlinePartsHorizontal() {
   ASSERT_HOST(cps_super_bbox_);
-  GenericVector<ColPartition *> new_seeds;
+  std::vector<ColPartition *> new_seeds;
   const int kMarginDiffTh = IntCastRounded(0.5 * lang_tesseract_->source_resolution());
-  const int kGapTh = static_cast<int>(roundf(1.0 * lang_tesseract_->source_resolution()));
+  const int kGapTh = static_cast<int>(round(1.0f * lang_tesseract_->source_resolution()));
   ColPartitionGridSearch search(part_grid_);
   search.SetUniqueMode(true);
   // The center x coordinate of the cp_super_bbox_.
@@ -826,7 +832,7 @@ int EquationDetect::EstimateTextPartLineSpacing() {
   // Get the y gap between text partitions;
   ColPartition *current = nullptr, *prev = nullptr;
   gsearch.StartFullSearch();
-  GenericVector<int> ygaps;
+  std::vector<int> ygaps;
   while ((current = gsearch.NextFullSearch()) != nullptr) {
     if (!PTIsTextType(current->type())) {
       continue;
@@ -851,7 +857,7 @@ int EquationDetect::EstimateTextPartLineSpacing() {
   }
 
   // Compute the line spacing from ygaps: use the mean of the first half.
-  ygaps.sort();
+  std::sort(ygaps.begin(), ygaps.end());
   int spacing = 0, count;
   for (count = 0; count < ygaps.size() / 2; count++) {
     spacing += ygaps[count];
@@ -867,12 +873,12 @@ void EquationDetect::IdentifyInlinePartsVertical(const bool top_to_bottom,
 
   // Sort cp_seeds_.
   if (top_to_bottom) { // From top to bottom.
-    cp_seeds_.sort(&SortCPByTopReverse);
+    std::sort(cp_seeds_.begin(), cp_seeds_.end(), &SortCPByTopReverse);
   } else { // From bottom to top.
-    cp_seeds_.sort(&SortCPByBottom);
+    std::sort(cp_seeds_.begin(), cp_seeds_.end(), &SortCPByBottom);
   }
 
-  GenericVector<ColPartition *> new_seeds;
+  std::vector<ColPartition *> new_seeds;
   for (int i = 0; i < cp_seeds_.size(); ++i) {
     ColPartition *part = cp_seeds_[i];
     // If we sort cp_seeds_ from top to bottom, then for each cp_seeds_, we look
@@ -918,8 +924,8 @@ bool EquationDetect::IsInline(const bool search_bottom, const int textparts_line
     // Check if neighbor and part is inline similar.
     const float kHeightRatioTh = 0.5;
     const int kYGapTh = textparts_linespacing > 0
-                            ? textparts_linespacing + static_cast<int>(roundf(0.02 * resolution_))
-                            : static_cast<int>(roundf(0.05 * resolution_)); // Default value.
+                            ? textparts_linespacing + static_cast<int>(round(0.02f * resolution_))
+                            : static_cast<int>(round(0.05f * resolution_)); // Default value.
     if (part_box.x_overlap(neighbor_box) &&                                 // Location feature.
         part_box.y_gap(neighbor_box) <= kYGapTh &&                          // Line spacing.
         // Geo feature.
@@ -973,9 +979,9 @@ EquationDetect::IndentType EquationDetect::IsIndented(ColPartition *part) {
   ColPartitionGridSearch search(part_grid_);
   ColPartition *neighbor = nullptr;
   const TBOX &part_box(part->bounding_box());
-  const int kXGapTh = static_cast<int>(roundf(0.5 * resolution_));
-  const int kRadiusTh = static_cast<int>(roundf(3.0 * resolution_));
-  const int kYGapTh = static_cast<int>(roundf(0.5 * resolution_));
+  const int kXGapTh = static_cast<int>(round(0.5f * resolution_));
+  const int kRadiusTh = static_cast<int>(round(3.0f * resolution_));
+  const int kYGapTh = static_cast<int>(round(0.5f * resolution_));
 
   // Here we use a simple approximation algorithm: from the center of part, We
   // perform the radius search, and check if we can find a neighboring partition
@@ -1036,7 +1042,7 @@ bool EquationDetect::ExpandSeed(ColPartition *seed) {
   }
 
   // Expand in four directions.
-  GenericVector<ColPartition *> parts_to_merge;
+  std::vector<ColPartition *> parts_to_merge;
   ExpandSeedHorizontal(true, seed, &parts_to_merge);
   ExpandSeedHorizontal(false, seed, &parts_to_merge);
   ExpandSeedVertical(true, seed, &parts_to_merge);
@@ -1073,10 +1079,10 @@ bool EquationDetect::ExpandSeed(ColPartition *seed) {
 }
 
 void EquationDetect::ExpandSeedHorizontal(const bool search_left, ColPartition *seed,
-                                          GenericVector<ColPartition *> *parts_to_merge) {
+                                          std::vector<ColPartition *> *parts_to_merge) {
   ASSERT_HOST(seed != nullptr && parts_to_merge != nullptr);
   const float kYOverlapTh = 0.6;
-  const int kXGapTh = static_cast<int>(roundf(0.2 * resolution_));
+  const int kXGapTh = static_cast<int>(round(0.2f * resolution_));
 
   ColPartitionGridSearch search(part_grid_);
   const TBOX &seed_box(seed->bounding_box());
@@ -1125,10 +1131,10 @@ void EquationDetect::ExpandSeedHorizontal(const bool search_left, ColPartition *
 }
 
 void EquationDetect::ExpandSeedVertical(const bool search_bottom, ColPartition *seed,
-                                        GenericVector<ColPartition *> *parts_to_merge) {
+                                        std::vector<ColPartition *> *parts_to_merge) {
   ASSERT_HOST(seed != nullptr && parts_to_merge != nullptr && cps_super_bbox_ != nullptr);
   const float kXOverlapTh = 0.4;
-  const int kYGapTh = static_cast<int>(roundf(0.2 * resolution_));
+  const int kYGapTh = static_cast<int>(round(0.2f * resolution_));
 
   ColPartitionGridSearch search(part_grid_);
   const TBOX &seed_box(seed->bounding_box());
@@ -1138,7 +1144,7 @@ void EquationDetect::ExpandSeedVertical(const bool search_bottom, ColPartition *
 
   // Search iteratively.
   ColPartition *part = nullptr;
-  GenericVector<ColPartition *> parts;
+  std::vector<ColPartition *> parts;
   int skipped_min_top = std::numeric_limits<int>::max(), skipped_max_bottom = -1;
   while ((part = search.NextVerticalSearch(search_bottom)) != nullptr) {
     if (part == seed) {
@@ -1206,8 +1212,8 @@ void EquationDetect::ExpandSeedVertical(const bool search_bottom, ColPartition *
 }
 
 bool EquationDetect::IsNearSmallNeighbor(const TBOX &seed_box, const TBOX &part_box) const {
-  const int kXGapTh = static_cast<int>(roundf(0.25 * resolution_));
-  const int kYGapTh = static_cast<int>(roundf(0.05 * resolution_));
+  const int kXGapTh = static_cast<int>(round(0.25f * resolution_));
+  const int kYGapTh = static_cast<int>(round(0.05f * resolution_));
 
   // Check geometric feature.
   if (part_box.height() > seed_box.height() || part_box.width() > seed_box.width()) {
@@ -1244,7 +1250,7 @@ void EquationDetect::ProcessMathBlockSatelliteParts() {
   // Iterate over part_grid_, and find all parts that are text type but not
   // equation type.
   ColPartition *part = nullptr;
-  GenericVector<ColPartition *> text_parts;
+  std::vector<ColPartition *> text_parts;
   ColPartitionGridSearch gsearch(part_grid_);
   gsearch.StartFullSearch();
   while ((part = gsearch.NextFullSearch()) != nullptr) {
@@ -1257,12 +1263,12 @@ void EquationDetect::ProcessMathBlockSatelliteParts() {
   }
 
   // Compute the medium height of the text_parts.
-  text_parts.sort(&SortCPByHeight);
+  std::sort(text_parts.begin(), text_parts.end(), &SortCPByHeight);
   const TBOX &text_box = text_parts[text_parts.size() / 2]->bounding_box();
   int med_height = text_box.height();
   if (text_parts.size() % 2 == 0 && text_parts.size() > 1) {
     const TBOX &text_box = text_parts[text_parts.size() / 2 - 1]->bounding_box();
-    med_height = static_cast<int>(roundf(0.5 * (text_box.height() + med_height)));
+    med_height = static_cast<int>(round(0.5f * (text_box.height() + med_height)));
   }
 
   // Iterate every text_parts and check if it is a math block satellite.
@@ -1271,7 +1277,7 @@ void EquationDetect::ProcessMathBlockSatelliteParts() {
     if (text_box.height() > med_height) {
       continue;
     }
-    GenericVector<ColPartition *> math_blocks;
+    std::vector<ColPartition *> math_blocks;
     if (!IsMathBlockSatellite(text_parts[i], &math_blocks)) {
       continue;
     }
@@ -1288,7 +1294,7 @@ void EquationDetect::ProcessMathBlockSatelliteParts() {
 }
 
 bool EquationDetect::IsMathBlockSatellite(ColPartition *part,
-                                          GenericVector<ColPartition *> *math_blocks) {
+                                          std::vector<ColPartition *> *math_blocks) {
   ASSERT_HOST(part != nullptr && math_blocks != nullptr);
   math_blocks->clear();
   const TBOX &part_box(part->bounding_box());
@@ -1344,7 +1350,7 @@ bool EquationDetect::IsMathBlockSatellite(ColPartition *part,
 ColPartition *EquationDetect::SearchNNVertical(const bool search_bottom, const ColPartition *part) {
   ASSERT_HOST(part);
   ColPartition *nearest_neighbor = nullptr, *neighbor = nullptr;
-  const int kYGapTh = static_cast<int>(roundf(resolution_ * 0.5));
+  const int kYGapTh = static_cast<int>(round(resolution_ * 0.5f));
 
   ColPartitionGridSearch search(part_grid_);
   search.SetUniqueMode(true);
@@ -1379,7 +1385,7 @@ bool EquationDetect::IsNearMathNeighbor(const int y_gap, const ColPartition *nei
   if (!neighbor) {
     return false;
   }
-  const int kYGapTh = static_cast<int>(roundf(resolution_ * 0.1));
+  const int kYGapTh = static_cast<int>(round(resolution_ * 0.1f));
   return neighbor->type() == PT_EQUATION && y_gap <= kYGapTh;
 }
 

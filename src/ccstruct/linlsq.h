@@ -2,7 +2,6 @@
  * File:        linlsq.h  (Formerly llsq.h)
  * Description: Linear Least squares fitting code.
  * Author:      Ray Smith
- * Created:     Thu Sep 12 08:44:51 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,12 +21,10 @@
 
 #include "points.h" // for FCOORD
 
+#include <algorithm> // for std::nth_element
 #include <cstdint> // for int32_t
 
 namespace tesseract {
-
-template <typename T>
-class GenericVector;
 
 class TESS_API LLSQ {
 public:
@@ -111,29 +108,30 @@ private:
 // An assumption is made that most of the values are spread over no more than
 // half the range, but wrap-around is accounted for if the median is near
 // the wrap-around point.
-// Cannot be a member of GenericVector, as it makes heavy used of LLSQ.
+// Cannot be a member of vector, as it makes heavy use of LLSQ.
 // T must be an integer or float/double type.
 template <typename T>
-T MedianOfCircularValues(T modulus, GenericVector<T> *v) {
+T MedianOfCircularValues(T modulus, std::vector<T> &v) {
   LLSQ stats;
   T halfrange = static_cast<T>(modulus / 2);
-  int num_elements = v->size();
-  for (int i = 0; i < num_elements; ++i) {
-    stats.add((*v)[i], (*v)[i] + halfrange);
+  auto num_elements = v.size();
+  for (auto i : v) {
+    stats.add(i, i + halfrange);
   }
   bool offset_needed = stats.y_variance() < stats.x_variance();
   if (offset_needed) {
-    for (int i = 0; i < num_elements; ++i) {
-      (*v)[i] += halfrange;
+    for (auto i : v) {
+      i += halfrange;
     }
   }
-  int median_index = v->choose_nth_item(num_elements / 2);
+  auto median_index = num_elements / 2;
+  std::nth_element(v.begin(), v.begin() + median_index, v.end());
   if (offset_needed) {
-    for (int i = 0; i < num_elements; ++i) {
-      (*v)[i] -= halfrange;
+    for (auto i : v) {
+      i -= halfrange;
     }
   }
-  return (*v)[median_index];
+  return v[median_index];
 }
 
 } // namespace tesseract

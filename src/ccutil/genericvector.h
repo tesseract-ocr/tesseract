@@ -226,16 +226,6 @@ public:
   }
 
   // Searches the array (assuming sorted in ascending order, using sort()) for
-  // an element equal to target and returns true if it is present.
-  // Use binary_search to get the index of target, or its nearest candidate.
-  bool bool_binary_search(const T &target) const {
-    int index = binary_search(target);
-    if (index >= size_used_) {
-      return false;
-    }
-    return data_[index] == target;
-  }
-  // Searches the array (assuming sorted in ascending order, using sort()) for
   // an element equal to target and returns the index of the best candidate.
   // The return value is conceptually the largest index i such that
   // data_[i] <= target or 0 if target < the whole vector.
@@ -253,25 +243,6 @@ public:
       }
     }
     return bottom;
-  }
-
-  // Compact the vector by deleting elements using operator!= on basic types.
-  // The vector must be sorted.
-  void compact_sorted() {
-    if (size_used_ == 0) {
-      return;
-    }
-
-    // First element is in no matter what, hence the i = 1.
-    int last_write = 0;
-    for (int i = 1; i < size_used_; ++i) {
-      // Finds next unique item and writes it.
-      if (data_[last_write] != data_[i]) {
-        data_[++last_write] = data_[i];
-      }
-    }
-    // last_write is the index of a valid data cell, so add 1.
-    size_used_ = last_write + 1;
   }
 
   // Returns the index of what would be the target_index_th item in the array

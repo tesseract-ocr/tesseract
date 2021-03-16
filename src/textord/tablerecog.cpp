@@ -156,12 +156,11 @@ bool StructuredTable::FindLinedStructure() {
   if (cell_x_.size() < 3 || cell_y_.size() < 3)
     return false;
 
-  cell_x_.sort();
-  cell_y_.sort();
-
-  // Remove duplicates that may have occurred due to split lines.
-  cell_x_.compact_sorted();
-  cell_y_.compact_sorted();
+  // Sort and remove duplicates that may have occurred due to split lines.
+  std::sort(cell_x_.begin(), cell_x_.end());
+  std::unique(cell_x_.begin(), cell_x_.end());
+  std::sort(cell_y_.begin(), cell_y_.end());
+  std::unique(cell_y_.begin(), cell_y_.end());
 
   // The border should be the extents of line boxes, not middle.
   cell_x_[0] = bounding_box_.left();
@@ -170,8 +169,8 @@ bool StructuredTable::FindLinedStructure() {
   cell_y_[cell_y_.size() - 1] = bounding_box_.top();
 
   // Remove duplicates that may have occurred due to moving the borders.
-  cell_x_.compact_sorted();
-  cell_y_.compact_sorted();
+  std::unique(cell_x_.begin(), cell_x_.end());
+  std::unique(cell_y_.begin(), cell_y_.end());
 
   CalculateMargins();
   CalculateStats();
@@ -347,8 +346,8 @@ bool StructuredTable::VerifyWhitespacedTable() {
 // in the middle of the two nearest partitions.
 void StructuredTable::FindWhitespacedColumns() {
   // Set of the extents of all partitions on the page.
-  GenericVector<int> left_sides;
-  GenericVector<int> right_sides;
+  std::vector<int> left_sides;
+  std::vector<int> right_sides;
 
   // Look at each text partition. We want to find the partitions
   // that have extremal left/right sides. These will give us a basis
@@ -371,8 +370,8 @@ void StructuredTable::FindWhitespacedColumns() {
     return;
 
   // Since data may be inserted in grid order, we sort the left/right sides.
-  left_sides.sort();
-  right_sides.sort();
+  std::sort(left_sides.begin(), left_sides.end());
+  std::sort(right_sides.begin(), right_sides.end());
 
   // At this point, in the "merged list", we expect to have a left side,
   // followed by either more left sides or a right side. The last number
@@ -390,8 +389,8 @@ void StructuredTable::FindWhitespacedColumns() {
 // in the middle of the two nearest partitions.
 void StructuredTable::FindWhitespacedRows() {
   // Set of the extents of all partitions on the page.
-  GenericVector<int> bottom_sides;
-  GenericVector<int> top_sides;
+  std::vector<int> bottom_sides;
+  std::vector<int> top_sides;
   // We will be "shrinking" partitions, so keep the min/max around to
   // make sure the bottom/top lines do not intersect text.
   int min_bottom = INT32_MAX;
@@ -435,8 +434,8 @@ void StructuredTable::FindWhitespacedRows() {
     return;
 
   // Since data may be inserted in grid order, we sort the bottom/top sides.
-  bottom_sides.sort();
-  top_sides.sort();
+  std::sort(bottom_sides.begin(), bottom_sides.end());
+  std::sort(top_sides.begin(), top_sides.end());
 
   // At this point, in the "merged list", we expect to have a bottom side,
   // followed by either more bottom sides or a top side. The last number
@@ -573,17 +572,17 @@ void StructuredTable::AbsorbNearbyLines() {
 //     desired height.
 // The first/last items are extremal values of the list and known.
 // NOTE: This function assumes the lists are sorted!
-void StructuredTable::FindCellSplitLocations(const GenericVector<int> &min_list,
-                                             const GenericVector<int> &max_list, int max_merged,
-                                             GenericVector<int> *locations) {
+void StructuredTable::FindCellSplitLocations(const std::vector<int> &min_list,
+                                             const std::vector<int> &max_list, int max_merged,
+                                             std::vector<int> *locations) {
   locations->clear();
   ASSERT_HOST(min_list.size() == max_list.size());
   if (min_list.size() == 0)
     return;
-  ASSERT_HOST(min_list.get(0) < max_list.get(0));
-  ASSERT_HOST(min_list.get(min_list.size() - 1) < max_list.get(max_list.size() - 1));
+  ASSERT_HOST(min_list.at(0) < max_list.at(0));
+  ASSERT_HOST(min_list.at(min_list.size() - 1) < max_list.at(max_list.size() - 1));
 
-  locations->push_back(min_list.get(0));
+  locations->push_back(min_list.at(0));
   int min_index = 0;
   int max_index = 0;
   int stacked_partitions = 0;
@@ -610,7 +609,7 @@ void StructuredTable::FindCellSplitLocations(const GenericVector<int> &min_list,
       ++max_index;
     }
   }
-  locations->push_back(max_list.get(max_list.size() - 1));
+  locations->push_back(max_list.at(max_list.size() - 1));
 }
 
 // Counts the number of partitions in the table

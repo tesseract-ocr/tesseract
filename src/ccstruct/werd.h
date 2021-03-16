@@ -21,7 +21,6 @@
 
 #include "bits16.h"
 #include "elst2.h"
-#include "genericvector.h" // GenericVector
 #include "params.h"
 #include "stepblob.h"
 
@@ -173,18 +172,18 @@ public:
 
   // Extracts all the noise outlines and stuffs the pointers into the given
   // vector of outlines. Afterwards, the outlines vector owns the pointers.
-  void GetNoiseOutlines(GenericVector<C_OUTLINE *> *outlines);
+  void GetNoiseOutlines(std::vector<C_OUTLINE *> *outlines);
   // Adds the selected outlines to the indcated real blobs, and puts the rest
   // back in rej_cblobs where they came from. Where the target_blobs entry is
   // nullptr, a run of wanted outlines is put into a single new blob.
   // Ownership of the outlines is transferred back to the word. (Hence
-  // GenericVector and not PointerVector.)
+  // vector and not PointerVector.)
   // Returns true if any new blob was added to the start of the word, which
   // suggests that it might need joining to the word before it, and likewise
   // sets make_next_word_fuzzy true if any new blob was added to the end.
-  bool AddSelectedOutlines(const GenericVector<bool> &wanted,
-                           const GenericVector<C_BLOB *> &target_blobs,
-                           const GenericVector<C_OUTLINE *> &outlines, bool *make_next_word_fuzzy);
+  bool AddSelectedOutlines(const std::vector<bool> &wanted,
+                           const std::vector<C_BLOB *> &target_blobs,
+                           const std::vector<C_OUTLINE *> &outlines, bool *make_next_word_fuzzy);
 
 private:
   uint8_t blanks = 0;     // no of blanks

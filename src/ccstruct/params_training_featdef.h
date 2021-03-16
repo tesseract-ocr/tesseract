@@ -19,6 +19,7 @@
 #ifndef TESSERACT_WORDREC_PARAMS_TRAINING_FEATDEF_H_
 #define TESSERACT_WORDREC_PARAMS_TRAINING_FEATDEF_H_
 
+#include <cstring> // for memset
 #include <string>
 #include <vector>
 

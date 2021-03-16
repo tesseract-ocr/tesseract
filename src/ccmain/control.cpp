@@ -461,8 +461,8 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
       continue;
     }
     // Two words sharing the same language model, excellent!
-    GenericVector<WERD_CHOICE *> overrides_word1;
-    GenericVector<WERD_CHOICE *> overrides_word2;
+    std::vector<WERD_CHOICE *> overrides_word1;
+    std::vector<WERD_CHOICE *> overrides_word2;
 
     const auto orig_w1_str = w_prev->best_choice->unichar_string();
     const auto orig_w2_str = w->best_choice->unichar_string();
@@ -768,7 +768,7 @@ static int SelectBestWords(double rating_ratio, double certainty_margin, bool de
                            PointerVector<WERD_RES> *best_words) {
   // Process the smallest groups of words that have an overlapping word
   // boundary at the end.
-  GenericVector<WERD_RES *> out_words;
+  std::vector<WERD_RES *> out_words;
   // Index into each word vector (best, new).
   int b = 0, n = 0;
   int num_best = 0, num_new = 0;
@@ -893,19 +893,19 @@ bool Tesseract::ReassignDiacritics(int pass, PAGE_RES_IT *pr_it, bool *make_next
     return false;
   real_word->rej_cblob_list()->sort(&C_BLOB::SortByXMiddle);
   // Get the noise outlines into a vector with matching bool map.
-  GenericVector<C_OUTLINE *> outlines;
+  std::vector<C_OUTLINE *> outlines;
   real_word->GetNoiseOutlines(&outlines);
-  GenericVector<bool> word_wanted;
-  GenericVector<bool> overlapped_any_blob;
-  GenericVector<C_BLOB *> target_blobs;
+  std::vector<bool> word_wanted;
+  std::vector<bool> overlapped_any_blob;
+  std::vector<C_BLOB *> target_blobs;
   AssignDiacriticsToOverlappingBlobs(outlines, pass, real_word, pr_it, &word_wanted,
                                      &overlapped_any_blob, &target_blobs);
   // Filter the outlines that overlapped any blob and put them into the word
   // now. This simplifies the remaining task and also makes it more accurate
   // as it has more completed blobs to work on.
-  GenericVector<bool> wanted;
-  GenericVector<C_BLOB *> wanted_blobs;
-  GenericVector<C_OUTLINE *> wanted_outlines;
+  std::vector<bool> wanted;
+  std::vector<C_BLOB *> wanted_blobs;
+  std::vector<C_OUTLINE *> wanted_outlines;
   int num_overlapped = 0;
   int num_overlapped_used = 0;
   for (int i = 0; i < overlapped_any_blob.size(); ++i) {
@@ -948,11 +948,11 @@ bool Tesseract::ReassignDiacritics(int pass, PAGE_RES_IT *pr_it, bool *make_next
 // Output: word_wanted indicates which outlines are to be assigned to a blob,
 //   target_blobs indicates which to assign to, and overlapped_any_blob is
 //   true for all outlines that overlapped a blob.
-void Tesseract::AssignDiacriticsToOverlappingBlobs(const GenericVector<C_OUTLINE *> &outlines,
+void Tesseract::AssignDiacriticsToOverlappingBlobs(const std::vector<C_OUTLINE *> &outlines,
                                                    int pass, WERD *real_word, PAGE_RES_IT *pr_it,
-                                                   GenericVector<bool> *word_wanted,
-                                                   GenericVector<bool> *overlapped_any_blob,
-                                                   GenericVector<C_BLOB *> *target_blobs) {
+                                                   std::vector<bool> *word_wanted,
+                                                   std::vector<bool> *overlapped_any_blob,
+                                                   std::vector<C_BLOB *> *target_blobs) {
   std::vector<bool> blob_wanted;
   word_wanted->resize(outlines.size(), false);
   overlapped_any_blob->resize(outlines.size(), false);
@@ -999,10 +999,10 @@ void Tesseract::AssignDiacriticsToOverlappingBlobs(const GenericVector<C_OUTLINE
 
 // Attempts to assign non-overlapping outlines to their nearest blobs or
 // make new blobs out of them.
-void Tesseract::AssignDiacriticsToNewBlobs(const GenericVector<C_OUTLINE *> &outlines, int pass,
+void Tesseract::AssignDiacriticsToNewBlobs(const std::vector<C_OUTLINE *> &outlines, int pass,
                                            WERD *real_word, PAGE_RES_IT *pr_it,
-                                           GenericVector<bool> *word_wanted,
-                                           GenericVector<C_BLOB *> *target_blobs) {
+                                           std::vector<bool> *word_wanted,
+                                           std::vector<C_BLOB *> *target_blobs) {
   std::vector<bool> blob_wanted;
   word_wanted->resize(outlines.size(), false);
   target_blobs->resize(outlines.size(), nullptr);
@@ -1077,7 +1077,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(const GenericVector<C_OUTLINE *> &out
 // are desired, in which case ok_outlines indicates which ones.
 bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold, PAGE_RES_IT *pr_it,
                                             C_BLOB *blob,
-                                            const GenericVector<C_OUTLINE *> &outlines,
+                                            const std::vector<C_OUTLINE *> &outlines,
                                             int num_outlines, std::vector<bool> *ok_outlines) {
   std::string best_str;
   float target_cert = certainty_threshold;
@@ -1161,7 +1161,7 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
 // Classifies the given blob plus the outlines flagged by ok_outlines, undoes
 // the inclusion of the outlines, and returns the certainty of the raw choice.
 float Tesseract::ClassifyBlobPlusOutlines(const std::vector<bool> &ok_outlines,
-                                          const GenericVector<C_OUTLINE *> &outlines, int pass_n,
+                                          const std::vector<C_OUTLINE *> &outlines, int pass_n,
                                           PAGE_RES_IT *pr_it, C_BLOB *blob, std::string &best_str) {
   C_OUTLINE_IT ol_it;
   C_OUTLINE *first_to_keep = nullptr;
@@ -1865,8 +1865,7 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   const int fontinfo_size = get_fontinfo_table().size();
   if (fontinfo_size == 0)
     return;
-  GenericVector<int> font_total_score;
-  font_total_score.init_to_size(fontinfo_size, 0);
+  std::vector<int> font_total_score(fontinfo_size);
 
   // Compute the font scores for the word
   if (tessedit_debug_fonts) {

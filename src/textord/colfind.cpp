@@ -101,7 +101,9 @@ ColumnFinder::ColumnFinder(int gridsize, const ICOORD &bleft, const ICOORD &trig
 }
 
 ColumnFinder::~ColumnFinder() {
-  column_sets_.delete_data_pointers();
+  for (auto set : column_sets_) {
+    delete set;
+  }
   delete[] best_columns_;
   delete stroke_width_;
   delete input_blobs_win_;
@@ -552,7 +554,7 @@ bool ColumnFinder::MakeColumns(bool single_column) {
     bool good_only = true;
     do {
       for (int i = 0; i < gridheight_; ++i) {
-        ColPartitionSet *line_set = part_sets.get(i);
+        ColPartitionSet *line_set = part_sets.at(i);
         if (line_set != nullptr && line_set->LegalColumnCandidate()) {
           ColPartitionSet *column_candidate = line_set->Copy(good_only);
           if (column_candidate != nullptr)
@@ -590,7 +592,7 @@ bool ColumnFinder::MakeColumns(bool single_column) {
     ComputeMeanColumnGap(any_multi_column);
   }
   for (int i = 0; i < part_sets.size(); ++i) {
-    ColPartitionSet *line_set = part_sets.get(i);
+    ColPartitionSet *line_set = part_sets.at(i);
     if (line_set != nullptr) {
       line_set->RelinquishParts();
       delete line_set;
@@ -604,8 +606,9 @@ bool ColumnFinder::MakeColumns(bool single_column) {
 // Src_sets may be equal to column_candidates, in which case it will
 // use them as a source to improve themselves.
 void ColumnFinder::ImproveColumnCandidates(PartSetVector *src_sets, PartSetVector *column_sets) {
-  PartSetVector temp_cols;
-  temp_cols.move(column_sets);
+  // TODO: optimize.
+  PartSetVector temp_cols = *column_sets;
+  column_sets->clear();
   if (src_sets == column_sets)
     src_sets = &temp_cols;
   int set_size = temp_cols.size();
@@ -613,7 +616,7 @@ void ColumnFinder::ImproveColumnCandidates(PartSetVector *src_sets, PartSetVecto
   bool good_only = true;
   do {
     for (int i = 0; i < set_size; ++i) {
-      ColPartitionSet *column_candidate = temp_cols.get(i);
+      ColPartitionSet *column_candidate = temp_cols.at(i);
       ASSERT_HOST(column_candidate != nullptr);
       ColPartitionSet *improved = column_candidate->Copy(good_only);
       if (improved != nullptr) {
@@ -623,10 +626,15 @@ void ColumnFinder::ImproveColumnCandidates(PartSetVector *src_sets, PartSetVecto
     }
     good_only = !good_only;
   } while (column_sets->empty() && !good_only);
-  if (column_sets->empty())
-    column_sets->move(&temp_cols);
-  else
-    temp_cols.delete_data_pointers();
+  if (column_sets->empty()) {
+    // TODO: optimize.
+    column_sets = &temp_cols;
+    temp_cols.clear();
+  } else {
+    for (auto data : temp_cols) {
+      delete data;
+    }
+  }
 }
 
 // Prints debug information on the column candidates.
@@ -635,7 +643,7 @@ void ColumnFinder::PrintColumnCandidates(const char *title) {
   tprintf("Found %d %s:\n", set_size, title);
   if (textord_debug_tabfind >= 3) {
     for (int i = 0; i < set_size; ++i) {
-      ColPartitionSet *column_set = column_sets_.get(i);
+      ColPartitionSet *column_set = column_sets_.at(i);
       column_set->Print();
     }
   }
@@ -673,7 +681,7 @@ bool ColumnFinder::AssignColumns(const PartSetVector &part_sets) {
   // Set possible column_sets to indicate whether each set is compatible
   // with each column.
   for (int part_i = 0; part_i < set_count; ++part_i) {
-    ColPartitionSet *line_set = part_sets.get(part_i);
+    ColPartitionSet *line_set = part_sets.at(part_i);
     bool debug = line_set != nullptr && WithinTestRegion(2, line_set->bounding_box().left(),
                                                          line_set->bounding_box().bottom());
     column_set_costs[part_i] = new int[column_count];
@@ -681,8 +689,8 @@ bool ColumnFinder::AssignColumns(const PartSetVector &part_sets) {
     assigned_costs[part_i] = INT32_MAX;
     for (int col_i = 0; col_i < column_count; ++col_i) {
       if (line_set != nullptr &&
-          column_sets_.get(col_i)->CompatibleColumns(debug, line_set, WidthCB())) {
-        column_set_costs[part_i][col_i] = column_sets_.get(col_i)->UnmatchedWidth(line_set);
+          column_sets_.at(col_i)->CompatibleColumns(debug, line_set, WidthCB())) {
+        column_set_costs[part_i][col_i] = column_sets_.at(col_i)->UnmatchedWidth(line_set);
         any_columns_possible[part_i] = true;
       } else {
         column_set_costs[part_i][col_i] = INT32_MAX;
@@ -702,7 +710,7 @@ bool ColumnFinder::AssignColumns(const PartSetVector &part_sets) {
     int column_set_id = RangeModalColumnSet(column_set_costs, assigned_costs, start, end);
     if (textord_debug_tabfind >= 2) {
       tprintf("Range modal column id = %d\n", column_set_id);
-      column_sets_.get(column_set_id)->Print();
+      column_sets_.at(column_set_id)->Print();
     }
     // Now find the longest run of the column_set_id in the range.
     ShrinkRangeToLongestRun(column_set_costs, assigned_costs, any_columns_possible, column_set_id,
@@ -722,7 +730,7 @@ bool ColumnFinder::AssignColumns(const PartSetVector &part_sets) {
       tprintf("Column id %d applies to range = %d - %d\n", column_set_id, start, end);
     // Assign the column to the range, which now may overlap with other ranges.
     AssignColumnToRange(column_set_id, start, end, column_set_costs, assigned_costs);
-    if (column_sets_.get(column_set_id)->GoodColumnCount() > 1)
+    if (column_sets_.at(column_set_id)->GoodColumnCount() > 1)
       any_multi_column = true;
   }
   // If anything remains unassigned, the whole lot is unassigned, so
@@ -879,7 +887,7 @@ void ColumnFinder::ExtendRangePastSmallGaps(int **column_set_costs, const int *a
 // Assigns the given column_set_id to the given range.
 void ColumnFinder::AssignColumnToRange(int column_set_id, int start, int end,
                                        int **column_set_costs, int *assigned_costs) {
-  ColPartitionSet *column_set = column_sets_.get(column_set_id);
+  ColPartitionSet *column_set = column_sets_.at(column_set_id);
   for (int i = start; i < end; ++i) {
     assigned_costs[i] = column_set_costs[i][column_set_id];
     best_columns_[i] = column_set;

@@ -245,8 +245,7 @@ void UnicharCompress::DefragmentCodeValues(int encoded_null) {
   // all codes are used. Likewise with the Han encoding, it is possible that not
   // all numbers of strokes are used.
   ComputeCodeRange();
-  GenericVector<int> offsets;
-  offsets.init_to_size(code_range_, 0);
+  std::vector<int> offsets(code_range_);
   // Find which codes are used
   for (int c = 0; c < encoder_.size(); ++c) {
     const RecodedCharID &code = encoder_[c];
@@ -390,26 +389,26 @@ void UnicharCompress::SetupDecoder() {
     prefix.Truncate(len);
     auto final_it = final_codes_.find(prefix);
     if (final_it == final_codes_.end()) {
-      auto *code_list = new GenericVector<int>;
+      auto *code_list = new std::vector<int>;
       code_list->push_back(code(len));
       final_codes_[prefix] = code_list;
       while (--len >= 0) {
         prefix.Truncate(len);
         auto next_it = next_codes_.find(prefix);
         if (next_it == next_codes_.end()) {
-          auto *code_list = new GenericVector<int>;
+          auto *code_list = new std::vector<int>;
           code_list->push_back(code(len));
           next_codes_[prefix] = code_list;
         } else {
           // We still have to search the list as we may get here via multiple
           // lengths of code.
-          if (!next_it->second->contains(code(len)))
+          if (!contains(*next_it->second, code(len)))
             next_it->second->push_back(code(len));
           break; // This prefix has been processed.
         }
       }
     } else {
-      if (!final_it->second->contains(code(len)))
+      if (!contains(*final_it->second, code(len)))
         final_it->second->push_back(code(len));
     }
   }

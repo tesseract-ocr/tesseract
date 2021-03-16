@@ -107,7 +107,7 @@ void MakeAsciiRowInfos(const TextAndModel *row_infos, int n, std::vector<RowInfo
 // Given n rows of reference ground truth, evaluate whether the n rows
 // of PARA * pointers yield the same paragraph breakpoints.
 void EvaluateParagraphDetection(const TextAndModel *correct, int n,
-                                const GenericVector<PARA *> &detector_output) {
+                                const std::vector<PARA *> &detector_output) {
   int incorrect_breaks = 0;
   int missed_breaks = 0;
   int poorly_matched_models = 0;
@@ -186,7 +186,7 @@ void EvaluateParagraphDetection(const TextAndModel *correct, int n,
 
 void TestParagraphDetection(const TextAndModel *correct, int num_rows) {
   std::vector<RowInfo> row_infos;
-  GenericVector<PARA *> row_owners;
+  std::vector<PARA *> row_owners;
   PARA_LIST paragraphs;
   std::vector<ParagraphModel *> models;
 
@@ -312,7 +312,7 @@ TEST(ParagraphsTest, TestSingleFullPageContinuation) {
   const TextAndModel *correct = kSingleFullPageContinuation;
   int num_rows = countof(kSingleFullPageContinuation);
   std::vector<RowInfo> row_infos;
-  GenericVector<PARA *> row_owners;
+  std::vector<PARA *> row_owners;
   PARA_LIST paragraphs;
   std::vector<ParagraphModel *> models;
   models.push_back(new ParagraphModel(kLeft, 0, 20, 0, 10));

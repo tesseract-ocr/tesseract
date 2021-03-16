@@ -93,7 +93,7 @@ void ColPartitionSet::ImproveColumnCandidate(WidthCallback cb, PartSetVector *sr
   // Iterate over the provided column sets, as each one may have something
   // to improve this.
   for (int i = 0; i < set_size; ++i) {
-    ColPartitionSet *column_set = src_sets->get(i);
+    ColPartitionSet *column_set = src_sets->at(i);
     if (column_set == nullptr)
       continue;
     // Iterate over the parts in this and column_set, adding bigger or
@@ -184,7 +184,7 @@ void ColPartitionSet::AddToColumnSetsIfUnique(PartSetVector *column_sets, WidthC
     return;
   }
   for (int i = 0; i < column_sets->size(); ++i) {
-    ColPartitionSet *columns = column_sets->get(i);
+    ColPartitionSet *columns = column_sets->at(i);
     // In ordering the column set candidates, good_coverage_ is king,
     // followed by good_column_count_ and then bad_coverage_.
     bool better = good_coverage_ > columns->good_coverage_;
@@ -198,7 +198,7 @@ void ColPartitionSet::AddToColumnSetsIfUnique(PartSetVector *column_sets, WidthC
       // The new one is better so add it.
       if (debug)
         tprintf("Good one\n");
-      column_sets->insert(this, i);
+      column_sets->insert(column_sets->begin() + i, this);
       return;
     }
     if (columns->CompatibleColumns(false, this, cb)) {

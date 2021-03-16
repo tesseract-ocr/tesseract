@@ -21,14 +21,12 @@
 
 #include "dawg.h"
 
-#include "genericvector.h"
-
 namespace tesseract {
 
 class UNICHARSET;
 
 // Note: if we consider either NODE_REF or EDGE_INDEX to ever exceed
-// max int32, we will need to change GenericVector to use int64 for size
+// max int32, we will need to change vector to use int64 for size
 // and address indices. This does not seem to be needed immediately,
 // since currently the largest number of edges limit used by tesseract
 // (kMaxNumEdges in wordlist2dawg.cpp) is far less than max int32.
@@ -39,13 +37,13 @@ class UNICHARSET;
 // the 64 bit EDGE_RECORD.
 using EDGE_INDEX = int64_t; // index of an edge in a given node
 using NODE_MARKER = bool *;
-using EDGE_VECTOR = GenericVector<EDGE_RECORD>;
+using EDGE_VECTOR = std::vector<EDGE_RECORD>;
 
 struct TRIE_NODE_RECORD {
   EDGE_VECTOR forward_edges;
   EDGE_VECTOR backward_edges;
 };
-using TRIE_NODES = GenericVector<TRIE_NODE_RECORD *>;
+using TRIE_NODES = std::vector<TRIE_NODE_RECORD *>;
 
 /**
  * Concrete class for Trie data structure that allows to store a list of
@@ -88,7 +86,9 @@ public:
     initialized_patterns_ = false;
   }
   ~Trie() override {
-    nodes_.delete_data_pointers();
+    for (auto node : nodes_) {
+      delete node;
+    }
   }
 
   // Reset the Trie to empty.
@@ -230,7 +230,7 @@ public:
   // Fills in the given unichar id vector with the unichar ids that represent
   // the patterns of the character classes of the given unichar_id.
   void unichar_id_to_patterns(UNICHAR_ID unichar_id, const UNICHARSET &unicharset,
-                              GenericVector<UNICHAR_ID> *vec) const override;
+                              std::vector<UNICHAR_ID> *vec) const override;
 
   // Returns the given EDGE_REF if the EDGE_RECORD that it points to has
   // a self loop and the given unichar_id matches the unichar_id stored in the
@@ -256,7 +256,7 @@ public:
   //
   // Return true if add succeeded, false otherwise (e.g. when a word contained
   // an invalid unichar id or the trie was getting too large and was cleared).
-  bool add_word_to_dawg(const WERD_CHOICE &word, const GenericVector<bool> *repetitions);
+  bool add_word_to_dawg(const WERD_CHOICE &word, const std::vector<bool> *repetitions);
   bool add_word_to_dawg(const WERD_CHOICE &word) {
     return add_word_to_dawg(word, nullptr);
   }
@@ -395,7 +395,7 @@ protected:
   // Member variables
   TRIE_NODES nodes_; // vector of nodes in the Trie
   // Freelist of edges in the root backwards node that were previously zeroed.
-  GenericVector<EDGE_INDEX> root_back_freelist_;
+  std::vector<EDGE_INDEX> root_back_freelist_;
   uint64_t num_edges_;             // sum of all edges (forward and backward)
   uint64_t deref_direction_mask_;  // mask for EDGE_REF to extract direction
   uint64_t deref_node_index_mask_; // mask for EDGE_REF to extract node index

@@ -384,6 +384,23 @@ int SortByBoxLeft(const void *void1, const void *void2) {
   return p1->bounding_box().top() - p2->bounding_box().top();
 }
 
+template <class BBC>
+bool StdSortByBoxLeft(const void *void1, const void *void2) {
+  // The void*s are actually doubly indirected, so get rid of one level.
+  const BBC *p1 = *static_cast<const BBC *const *>(void1);
+  const BBC *p2 = *static_cast<const BBC *const *>(void2);
+  int result = p1->bounding_box().left() - p2->bounding_box().left();
+  if (result != 0)
+    return result < 0;
+  result = p1->bounding_box().right() - p2->bounding_box().right();
+  if (result != 0)
+    return result < 0;
+  result = p1->bounding_box().bottom() - p2->bounding_box().bottom();
+  if (result != 0)
+    return result < 0;
+  return p1->bounding_box().top() < p2->bounding_box().top();
+}
+
 // Sort function to sort a BBC by bounding_box().right() in right-to-left order.
 template <class BBC>
 int SortRightToLeft(const void *void1, const void *void2) {
@@ -400,6 +417,23 @@ int SortRightToLeft(const void *void1, const void *void2) {
   if (result != 0)
     return result;
   return p1->bounding_box().top() - p2->bounding_box().top();
+}
+
+template <class BBC>
+bool StdSortRightToLeft(const void *void1, const void *void2) {
+  // The void*s are actually doubly indirected, so get rid of one level.
+  const BBC *p1 = *static_cast<const BBC *const *>(void1);
+  const BBC *p2 = *static_cast<const BBC *const *>(void2);
+  int result = p2->bounding_box().right() - p1->bounding_box().right();
+  if (result != 0)
+    return result < 0;
+  result = p2->bounding_box().left() - p1->bounding_box().left();
+  if (result != 0)
+    return result < 0;
+  result = p1->bounding_box().bottom() - p2->bounding_box().bottom();
+  if (result != 0)
+    return result < 0;
+  return p1->bounding_box().top() < p2->bounding_box().top();
 }
 
 // Sort function to sort a BBC by bounding_box().bottom().

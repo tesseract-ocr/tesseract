@@ -826,7 +826,9 @@ void TWERD::CopyFrom(const TWERD &src) {
 
 // Deletes owned data.
 void TWERD::Clear() {
-  blobs.delete_data_pointers();
+  for (auto blob : blobs) {
+    delete blob;
+  }
   blobs.clear();
 }
 
@@ -869,8 +871,9 @@ void TWERD::MergeBlobs(int start, int end) {
     blobs[i] = nullptr;
   }
   // Remove dead blobs from the vector.
+  // TODO: optimize.
   for (int i = start + 1; i < end && start + 1 < blobs.size(); ++i) {
-    blobs.remove(start + 1);
+    blobs.erase(blobs.begin() + start + 1);
   }
 }
 

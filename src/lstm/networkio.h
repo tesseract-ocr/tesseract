@@ -23,7 +23,6 @@
 #include <cstdio>
 #include <vector>
 
-#include "genericvector.h"
 #include "helpers.h"
 #include "static_shape.h"
 #include "stridemap.h"
@@ -169,10 +168,10 @@ public:
   int BestLabel(int t, int not_this, int not_that, float *score) const;
   // Returns the best start position out of range (into which both start and end
   // must fit) to obtain the highest cumulative score for the given labels.
-  int PositionOfBestMatch(const GenericVector<int> &labels, int start, int end) const;
+  int PositionOfBestMatch(const std::vector<int> &labels, int start, int end) const;
   // Returns the cumulative score of the given labels starting at start, and
   // using one label per time-step.
-  double ScoreOfLabels(const GenericVector<int> &labels, int start) const;
+  double ScoreOfLabels(const std::vector<int> &labels, int start) const;
   // Helper function sets all the outputs for a single timestep, such that
   // label has value ok_score, and the other labels share 1 - ok_score.
   // Assumes float mode.
