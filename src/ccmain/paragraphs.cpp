@@ -74,7 +74,7 @@ static bool AcceptableRowArgs(int debug_level, int min_num_rows, const char *fun
                               const std::vector<RowScratchRegisters> *rows, int row_start,
                               int row_end) {
   if (row_start < 0 || row_end > rows->size() || row_start > row_end) {
-    tprintf("Invalid arguments rows[%d, %d) while rows is of size %d.\n", row_start, row_end,
+    tprintf("Invalid arguments rows[%d, %d) while rows is of size %zu.\n", row_start, row_end,
             rows->size());
     return false;
   }
@@ -877,7 +877,7 @@ struct GeometricClassifierState {
     if (debug_level >= 3) {
       tprintf(
           "Geometry: TabStop cluster tolerance = %d; "
-          "%d left tabs; %d right tabs\n",
+          "%zu left tabs; %zu right tabs\n",
           tolerance, left_tabs.size(), right_tabs.size());
     }
     ltr = (*r)[r_start].ri_->ltr;

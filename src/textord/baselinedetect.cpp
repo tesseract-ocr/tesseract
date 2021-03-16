@@ -629,7 +629,7 @@ bool BaselineBlock::ComputeLineSpacing() {
     }
   }
   if (debug_level_ > 0) {
-    tprintf("Spacing %g, in %d rows, %d gaps fitted out of %d non-trivial\n", line_spacing_,
+    tprintf("Spacing %g, in %zu rows, %d gaps fitted out of %d non-trivial\n", line_spacing_,
             row_positions.size(), fitting_gaps, non_trivial_gaps);
   }
   return fitting_gaps > non_trivial_gaps * kMinFittingLinespacings;

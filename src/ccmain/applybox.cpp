@@ -634,7 +634,7 @@ void Tesseract::SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, in
     if (choices_pos + length == choices_length && text_index + 1 == target_text.size()) {
       // This is a complete match. If the rating is good record a new best.
       if (applybox_debug > 2) {
-        tprintf("Complete match, rating = %g, best=%g, seglength=%d, best=%d\n",
+        tprintf("Complete match, rating = %g, best=%g, seglength=%zu, best=%zu\n",
                 rating + choice_rating, *best_rating, segmentation->size(),
                 best_segmentation->size());
       }

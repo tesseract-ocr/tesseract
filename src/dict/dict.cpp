@@ -400,7 +400,7 @@ int Dict::def_letter_is_okay(void *void_dawg_args, const UNICHARSET &unicharset,
   if (dawg_debug_level >= 3) {
     tprintf(
         "def_letter_is_okay: current unichar=%s word_end=%d"
-        " num active dawgs=%d\n",
+        " num active dawgs=%zu\n",
         getUnicharset().debug_str(unichar_id).c_str(), word_end, dawg_args->active_dawgs->size());
   }
 

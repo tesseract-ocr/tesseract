@@ -624,8 +624,8 @@ void EquationDetect::SplitCPHor(ColPartition *part, std::vector<ColPartition *> 
 
   // Make a copy of part, and reset parts_splitted.
   ColPartition *right_part = part->CopyButDontOwnBlobs();
-  for (auto part : *parts_splitted) {
-    delete part;
+  for (auto data : *parts_splitted) {
+    delete data;
   }
   parts_splitted->clear();
 
