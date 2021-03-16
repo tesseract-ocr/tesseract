@@ -27,8 +27,6 @@
 #include "genericheap.h"
 #include "intmatcher.h"
 
-#include "genericvector.h"
-
 namespace tesseract {
 
 class UNICHARSET;
@@ -319,7 +317,7 @@ public:
   // copy of a ShapeTable.
   // If not nullptr, shape_map is set to map other shape_ids to this's
   // shape_ids.
-  void AppendMasterShapes(const ShapeTable &other, GenericVector<int> *shape_map);
+  void AppendMasterShapes(const ShapeTable &other, std::vector<int> *shape_map);
   // Returns the number of master shapes remaining after merging.
   int NumMasterShapes() const;
   // Returns the destination of this shape, (if merged), taking into account
