@@ -27,7 +27,6 @@
 #include "scrollview.h" // for ScrollView, ScrollView::Color
 
 #include <tesseract/publictypes.h> // for OcrEngineMode
-#include "genericvector.h"         // for GenericVector
 
 #include <cstdint> // for int16_t
 #include <cstring> // for memcpy, memset
