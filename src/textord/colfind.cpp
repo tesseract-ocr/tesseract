@@ -38,7 +38,7 @@
 #include "strokewidth.h"
 #include "tablefind.h"
 #include "workingpartset.h"
-#include "tabletransfer.hpp"
+#include "tabletransfer.h"
 
 #include <algorithm>
 

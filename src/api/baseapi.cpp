@@ -59,7 +59,7 @@
 #include "tesseractclass.h"  // for Tesseract
 #include "tprintf.h"         // for tprintf
 #include "werd.h"            // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
-#include "tabletransfer.hpp"   // for detected tables from tablefind.h
+#include "tabletransfer.h"   // for detected tables from tablefind.h
 
 #include <tesseract/baseapi.h>
 #include <tesseract/ocrclass.h>       // for ETEXT_DESC

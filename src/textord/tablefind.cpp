@@ -28,7 +28,7 @@
 
 #include "colpartitionset.h"
 #include "tablerecog.h"
-#include "tabletransfer.hpp"
+#include "tabletransfer.h"
 
 namespace tesseract {
 

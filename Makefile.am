@@ -271,6 +271,7 @@ noinst_HEADERS += src/ccstruct/seam.h
 noinst_HEADERS += src/ccstruct/split.h
 noinst_HEADERS += src/ccstruct/statistc.h
 noinst_HEADERS += src/ccstruct/stepblob.h
+noinst_HEADERS += src/ccstruct/tabletransfer.h
 noinst_HEADERS += src/ccstruct/werd.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/ccstruct/fontinfo.h
