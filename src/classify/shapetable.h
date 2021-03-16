@@ -139,6 +139,7 @@ struct UnicharAndFonts {
 
   // Sort function to sort a pair of UnicharAndFonts by unichar_id.
   static int SortByUnicharId(const void *v1, const void *v2);
+  static bool StdSortByUnicharId(const UnicharAndFonts &v1, const UnicharAndFonts &v2);
 
   std::vector<int32_t> font_ids;
   int32_t unichar_id;
@@ -216,7 +217,7 @@ private:
   int destination_index_ = 0;
   // Array of unichars, each with a set of fonts. Each unichar has at most
   // one entry in the vector.
-  GenericVector<UnicharAndFonts> unichars_;
+  std::vector<UnicharAndFonts> unichars_;
 };
 
 // ShapeTable is a class to encapsulate the triple indirection that is

@@ -64,8 +64,8 @@ int UnicharRating::FirstResultWithUnichar(const GenericVector<UnicharRating> &re
 bool UnicharAndFonts::Serialize(FILE *fp) const {
   return tesseract::Serialize(fp, &unichar_id) && tesseract::Serialize(fp, font_ids);
 }
-// Reads from the given file. Returns false in case of error.
 
+// Reads from the given file. Returns false in case of error.
 bool UnicharAndFonts::DeSerialize(TFile *fp) {
   return fp->DeSerialize(&unichar_id) && fp->DeSerialize(font_ids);
 }
@@ -77,10 +77,14 @@ int UnicharAndFonts::SortByUnicharId(const void *v1, const void *v2) {
   return p1->unichar_id - p2->unichar_id;
 }
 
+bool UnicharAndFonts::StdSortByUnicharId(const UnicharAndFonts &v1, const UnicharAndFonts &v2) {
+  return v1.unichar_id < v2.unichar_id;
+}
+
 // Writes to the given file. Returns false in case of error.
 bool Shape::Serialize(FILE *fp) const {
   uint8_t sorted = unichars_sorted_;
-  return tesseract::Serialize(fp, &sorted) && unichars_.SerializeClasses(fp);
+  return tesseract::Serialize(fp, &sorted) && tesseract::Serialize(fp, unichars_);
 }
 // Reads from the given file. Returns false in case of error.
 
@@ -89,7 +93,7 @@ bool Shape::DeSerialize(TFile *fp) {
   if (!fp->DeSerialize(&sorted))
     return false;
   unichars_sorted_ = sorted != 0;
-  return unichars_.DeSerializeClasses(fp);
+  return fp->DeSerialize(unichars_);
 }
 
 // Adds a font_id for the given unichar_id. If the unichar_id is not
@@ -223,7 +227,7 @@ bool Shape::IsEqualUnichars(Shape *other) {
 
 // Sorts the unichars_ vector by unichar.
 void Shape::SortUnichars() {
-  unichars_.sort(UnicharAndFonts::SortByUnicharId);
+  std::sort(unichars_.begin(), unichars_.end(), UnicharAndFonts::StdSortByUnicharId);
   unichars_sorted_ = true;
 }
 
