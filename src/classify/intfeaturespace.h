@@ -19,7 +19,6 @@
 #ifndef TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 #define TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 
-#include "genericvector.h"
 #include "intproto.h"
 
 // Extent of x,y,theta in the input feature space. [0,255].
@@ -62,7 +61,7 @@ public:
   // Bulk calls to Index. Maps the given array of features to a vector of
   // int32_t indices in the same order as the input.
   void IndexFeatures(const INT_FEATURE_STRUCT *features, int num_features,
-                     GenericVector<int> *mapped_features) const;
+                     std::vector<int> *mapped_features) const;
   // Bulk calls to Index. Maps the given array of features to a vector of
   // sorted int32_t indices.
   void IndexAndSortFeatures(const INT_FEATURE_STRUCT *features, int num_features,
