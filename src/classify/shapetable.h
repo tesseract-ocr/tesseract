@@ -256,7 +256,7 @@ public:
   }
   // Re-indexes the class_ids in the shapetable according to the given map.
   // Useful in conjunction with set_unicharset.
-  void ReMapClassIds(const GenericVector<int> &unicharset_map);
+  void ReMapClassIds(const std::vector<int> &unicharset_map);
   // Returns a string listing the classes/fonts in a shape.
   std::string DebugStr(int shape_id) const;
   // Returns a debug string summarizing the table.

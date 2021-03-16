@@ -266,7 +266,7 @@ int ShapeTable::NumFonts() const {
 
 // Re-indexes the class_ids in the shapetable according to the given map.
 // Useful in conjunction with set_unicharset.
-void ShapeTable::ReMapClassIds(const GenericVector<int> &unicharset_map) {
+void ShapeTable::ReMapClassIds(const std::vector<int> &unicharset_map) {
   for (int shape_id = 0; shape_id < shape_table_.size(); ++shape_id) {
     Shape *shape = shape_table_[shape_id];
     for (int c = 0; c < shape->size(); ++c) {
