@@ -22,7 +22,6 @@
 #include <tesseract/unichar.h>  // for UNICHAR_ID
 #include "blobbox.h"            // for BLOBNBOX (ptr only), BlobSpecialText...
 #include "equationdetectbase.h" // for EquationDetectBase
-#include "genericvector.h"      // for GenericVector
 #include "tesseractclass.h"     // for Tesseract
 
 class TBOX;
@@ -86,7 +85,7 @@ protected:
   // parts_overlap. Note: this function may update the part_grid_, so if the
   // caller is also running ColPartitionGridSearch, use the RepositionIterator
   // to continue.
-  void SearchByOverlap(ColPartition *seed, GenericVector<ColPartition *> *parts_overlap);
+  void SearchByOverlap(ColPartition *seed, std::vector<ColPartition *> *parts_overlap);
 
   // Insert part back into part_grid_, after it absorbs some other parts.
   void InsertPartAfterAbsorb(ColPartition *part);
@@ -106,12 +105,12 @@ protected:
   // 1. If its left is aligned with any coordinates in indented_texts_left,
   // which we assume have been sorted.
   // 2. If its foreground density is over foreground_density_th.
-  bool CheckForSeed2(const GenericVector<int> &indented_texts_left,
+  bool CheckForSeed2(const std::vector<int> &indented_texts_left,
                      const float foreground_density_th, ColPartition *part);
 
   // Count the number of values in sorted_vec that is close to val, used to
   // check if a partition is aligned with text partitions.
-  int CountAlignment(const GenericVector<int> &sorted_vec, const int val) const;
+  int CountAlignment(const std::vector<int> &sorted_vec, const int val) const;
 
   // Check for a seed candidate using the foreground pixel density. And we
   // return true if the density is below a certain threshold, because characters
@@ -120,14 +119,14 @@ protected:
 
   // A light version of SplitCPHor: instead of really doing the part split, we
   // simply compute the union bounding box of each split part.
-  void SplitCPHorLite(ColPartition *part, GenericVector<TBOX> *splitted_boxes);
+  void SplitCPHorLite(ColPartition *part, std::vector<TBOX> *splitted_boxes);
 
   // Split the part (horizontally), and save the split result into
   // parts_splitted. Note that it is caller's responsibility to release the
   // memory owns by parts_splitted. On the other hand, the part is unchanged
   // during this process and still owns the blobs, so do NOT call DeleteBoxes
   // when freeing the colpartitions in parts_splitted.
-  void SplitCPHor(ColPartition *part, GenericVector<ColPartition *> *parts_splitted);
+  void SplitCPHor(ColPartition *part, std::vector<ColPartition *> *parts_splitted);
 
   // Check the density for a seed candidate (part) using its math density and
   // italic density, returns true if the check passed.
@@ -167,9 +166,9 @@ protected:
   // merged with seed, remove them from part_grid_, and put them  into
   // parts_to_merge.
   void ExpandSeedHorizontal(const bool search_left, ColPartition *seed,
-                            GenericVector<ColPartition *> *parts_to_merge);
+                            std::vector<ColPartition *> *parts_to_merge);
   void ExpandSeedVertical(const bool search_bottom, ColPartition *seed,
-                          GenericVector<ColPartition *> *parts_to_merge);
+                          std::vector<ColPartition *> *parts_to_merge);
 
   // Check if a part_box is the small neighbor of seed_box.
   bool IsNearSmallNeighbor(const TBOX &seed_box, const TBOX &part_box) const;
@@ -190,7 +189,7 @@ protected:
 
   // Check if part is the satellite of one/two math blocks. If it is, we return
   // true, and save the blocks into math_blocks.
-  bool IsMathBlockSatellite(ColPartition *part, GenericVector<ColPartition *> *math_blocks);
+  bool IsMathBlockSatellite(ColPartition *part, std::vector<ColPartition *> *math_blocks);
 
   // Search the nearest neighbor of part in one vertical direction as defined in
   // search_bottom. It returns the neighbor found that major x overlap with it,
@@ -237,7 +236,7 @@ protected:
   TBOX *cps_super_bbox_;
 
   // The seed ColPartition for equation region.
-  GenericVector<ColPartition *> cp_seeds_;
+  std::vector<ColPartition *> cp_seeds_;
 
   // The resolution (dpi) of the processing image.
   int resolution_;

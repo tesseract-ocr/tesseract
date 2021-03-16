@@ -31,7 +31,7 @@
 #include "werd.h"       // for WERD, W_BOL, W_EOL
 
 #include <tesseract/unichar.h> // for UNICHAR_ID, INVALID_UNICHAR_ID
-#include "genericvector.h"     // for GenericVector, PointerVector (ptr only)
+#include "genericvector.h"     // for PointerVector (ptr only)
 
 #include <sys/types.h> // for int8_t
 #include <cstdint>     // for int32_t, int16_t
@@ -83,19 +83,19 @@ public:
   // the next word. This pointer is not owned by PAGE_RES class.
   WERD_CHOICE **prev_word_best_choice;
   // Sums of blame reasons computed by the blamer.
-  GenericVector<int> blame_reasons;
+  std::vector<int> blame_reasons;
   // Debug information about all the misadaptions on this page.
   // Each BlamerBundle contains an index into this vector, so that words that
   // caused misadaption could be marked. However, since words could be
   // deleted/split/merged, the log is stored on the PAGE_RES level.
-  GenericVector<std::string> misadaption_log;
+  std::vector<std::string> misadaption_log;
 
   inline void Init() {
     char_count = 0;
     rej_count = 0;
     rejected = false;
     prev_word_best_choice = nullptr;
-    blame_reasons.init_to_size(IRR_NUM_REASONS, 0);
+    blame_reasons.resize(IRR_NUM_REASONS);
   }
 
   PAGE_RES() {
@@ -207,12 +207,12 @@ public:
   // The length of chopped_word matches length of seam_array + 1 (if set).
   TWERD *chopped_word = nullptr; // BLN chopped fragments output.
   // Vector of SEAM* holding chopping points matching chopped_word.
-  GenericVector<SEAM *> seam_array;
+  std::vector<SEAM *> seam_array;
   // Widths of blobs in chopped_word.
-  GenericVector<int> blob_widths;
+  std::vector<int> blob_widths;
   // Gaps between blobs in chopped_word. blob_gaps[i] is the gap between
   // blob i and blob i+1.
-  GenericVector<int> blob_gaps;
+  std::vector<int> blob_gaps;
   // Stores the lstm choices of every timestep
   std::vector<std::vector<std::pair<const char *, float>>> timesteps;
   // Stores the lstm choices of every timestep segmented by character
@@ -277,11 +277,11 @@ public:
   // rebuild_word. Each blob[i] in rebuild_word is composed of best_state[i]
   // adjacent blobs in chopped_word. The seams in seam_array are hidden
   // within a rebuild_word blob and revealed between them.
-  GenericVector<int> best_state; // Number of blobs in each best blob.
+  std::vector<int> best_state; // Number of blobs in each best blob.
   // The correct_text is used during training and adaption to carry the
   // text to the training system without the need for a unicharset. There
   // is one entry in the vector for each blob in rebuild_word and box_word.
-  GenericVector<std::string> correct_text;
+  std::vector<std::string> correct_text;
 
   // Less-well documented members.
   // TODO(rays) Add more documentation here.

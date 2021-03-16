@@ -22,7 +22,7 @@
 #define TESSERACT_CCUTIL_UNICHARCOMPRESS_H_
 
 #include <unordered_map>
-#include "genericvector.h" // GenericVector
+#include <vector>
 #include "serialis.h"
 #include "unicharset.h"
 
@@ -178,13 +178,13 @@ public:
   }
   // Returns a list of valid non-final next codes for a given prefix code,
   // which may be empty.
-  const GenericVector<int> *GetNextCodes(const RecodedCharID &code) const {
+  const std::vector<int> *GetNextCodes(const RecodedCharID &code) const {
     auto it = next_codes_.find(code);
     return it == next_codes_.end() ? nullptr : it->second;
   }
   // Returns a list of valid final codes for a given prefix code, which may
   // be empty.
-  const GenericVector<int> *GetFinalCodes(const RecodedCharID &code) const {
+  const std::vector<int> *GetFinalCodes(const RecodedCharID &code) const {
     auto it = final_codes_.find(code);
     return it == final_codes_.end() ? nullptr : it->second;
   }
@@ -225,14 +225,14 @@ private:
   // Decoder converts the output of encoder back to a unichar-id.
   std::unordered_map<RecodedCharID, int, RecodedCharID::RecodedCharIDHash> decoder_;
   // True if the index is a valid single or start code.
-  GenericVector<bool> is_valid_start_;
+  std::vector<bool> is_valid_start_;
   // Maps a prefix code to a list of valid next codes.
   // The map owns the vectors.
-  std::unordered_map<RecodedCharID, GenericVector<int> *, RecodedCharID::RecodedCharIDHash>
+  std::unordered_map<RecodedCharID, std::vector<int> *, RecodedCharID::RecodedCharIDHash>
       next_codes_;
   // Maps a prefix code to a list of valid final codes.
   // The map owns the vectors.
-  std::unordered_map<RecodedCharID, GenericVector<int> *, RecodedCharID::RecodedCharIDHash>
+  std::unordered_map<RecodedCharID, std::vector<int> *, RecodedCharID::RecodedCharIDHash>
       final_codes_;
   // Max of any value in encoder_ + 1.
   int code_range_;

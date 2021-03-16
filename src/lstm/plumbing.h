@@ -19,7 +19,6 @@
 #ifndef TESSERACT_LSTM_PLUMBING_H_
 #define TESSERACT_LSTM_PLUMBING_H_
 
-#include "genericvector.h"
 #include "matrix.h"
 #include "network.h"
 
@@ -139,7 +138,7 @@ protected:
   PointerVector<Network> stack_;
   // Layer-specific learning rate iff network_flags_ & NF_LAYER_SPECIFIC_LR.
   // One element for each element of stack_.
-  GenericVector<float> learning_rates_;
+  std::vector<float> learning_rates_;
 };
 
 } // namespace tesseract.

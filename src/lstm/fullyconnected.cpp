@@ -129,10 +129,8 @@ void FullyConnected::Forward(bool debug, const NetworkIO &input,
   else
     output->Resize(input, no_);
   SetupForward(input, input_transpose);
-  GenericVector<NetworkScratch::FloatVec> temp_lines;
-  temp_lines.init_to_size(kNumThreads, NetworkScratch::FloatVec());
-  GenericVector<NetworkScratch::FloatVec> curr_input;
-  curr_input.init_to_size(kNumThreads, NetworkScratch::FloatVec());
+  std::vector<NetworkScratch::FloatVec> temp_lines(kNumThreads);
+  std::vector<NetworkScratch::FloatVec> curr_input(kNumThreads);
   int ro = no_;
   if (IntSimdMatrix::intSimdMatrix)
     ro = IntSimdMatrix::intSimdMatrix->RoundOutputs(ro);
@@ -233,13 +231,12 @@ bool FullyConnected::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkSc
     DisplayBackward(fwd_deltas);
 #endif
   back_deltas->Resize(fwd_deltas, ni_);
-  GenericVector<NetworkScratch::FloatVec> errors;
-  errors.init_to_size(kNumThreads, NetworkScratch::FloatVec());
+  std::vector<NetworkScratch::FloatVec> errors(kNumThreads);
   for (int i = 0; i < kNumThreads; ++i)
     errors[i].Init(no_, scratch);
-  GenericVector<NetworkScratch::FloatVec> temp_backprops;
+  std::vector<NetworkScratch::FloatVec> temp_backprops;
   if (needs_to_backprop_) {
-    temp_backprops.init_to_size(kNumThreads, NetworkScratch::FloatVec());
+    temp_backprops.resize(kNumThreads);
     for (int i = 0; i < kNumThreads; ++i)
       temp_backprops[i].Init(ni_, scratch);
   }

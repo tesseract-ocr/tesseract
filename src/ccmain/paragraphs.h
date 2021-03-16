@@ -31,9 +31,6 @@ class ParagraphModel;
 class PARA_LIST;
 struct PARA;
 
-template <typename T>
-class GenericVector;
-
 // This structure captures all information needed about a text line for the
 // purposes of paragraph detection.  It is meant to be exceedingly light-weight
 // so that we can easily test paragraph detection independent of the rest of
@@ -90,7 +87,7 @@ public:
 //            caller is responsible for deleting the models.
 TESS_API
 void DetectParagraphs(int debug_level, std::vector<RowInfo> *row_infos,
-                      GenericVector<PARA *> *row_owners, PARA_LIST *paragraphs,
+                      std::vector<PARA *> *row_owners, PARA_LIST *paragraphs,
                       std::vector<ParagraphModel *> *models);
 
 // Given a MutableIterator to the start of a block, run DetectParagraphs on

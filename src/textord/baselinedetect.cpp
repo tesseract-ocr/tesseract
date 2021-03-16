@@ -277,8 +277,8 @@ double BaselineRow::AdjustBaselineToGrid(int debug, const FCOORD &direction, dou
 void BaselineRow::SetupBlobDisplacements(const FCOORD &direction) {
   // Set of perpendicular displacements of the blob bottoms from the required
   // baseline direction.
-  GenericVector<double> perp_blob_dists;
-  displacement_modes_.truncate(0);
+  std::vector<double> perp_blob_dists;
+  displacement_modes_.clear();
   // Gather the skew-corrected position of every blob.
   double min_dist = FLT_MAX;
   double max_dist = -FLT_MAX;
@@ -310,8 +310,8 @@ void BaselineRow::SetupBlobDisplacements(const FCOORD &direction) {
   for (int i = 0; i < perp_blob_dists.size(); ++i) {
     dist_stats.add(IntCastRounded(perp_blob_dists[i] / disp_quant_factor_), 1);
   }
-  GenericVector<KDPairInc<float, int>> scaled_modes;
-  dist_stats.top_n_modes(kMaxDisplacementsModes, &scaled_modes);
+  std::vector<KDPairInc<float, int>> scaled_modes;
+  dist_stats.top_n_modes(kMaxDisplacementsModes, scaled_modes);
 #ifdef kDebugYCoord
   if (debug) {
     for (int i = 0; i < scaled_modes.size(); ++i) {
@@ -428,7 +428,7 @@ double BaselineBlock::SpacingModelError(double perp_disp, double line_spacing, d
 bool BaselineBlock::FitBaselinesAndFindSkew(bool use_box_bottoms) {
   if (non_text_block_)
     return false;
-  GenericVector<double> angles;
+  std::vector<double> angles;
   for (int r = 0; r < rows_.size(); ++r) {
     BaselineRow *row = rows_[r];
     if (row->FitBaseline(use_box_bottoms)) {
@@ -440,7 +440,7 @@ bool BaselineBlock::FitBaselinesAndFindSkew(bool use_box_bottoms) {
   }
 
   if (!angles.empty()) {
-    skew_angle_ = MedianOfCircularValues(M_PI, &angles);
+    skew_angle_ = MedianOfCircularValues(M_PI, angles);
     good_skew_angle_ = true;
   } else {
     skew_angle_ = 0.0f;
@@ -610,7 +610,7 @@ void BaselineBlock::DrawPixSpline(Pix *pix_in) {
 // observations.
 bool BaselineBlock::ComputeLineSpacing() {
   FCOORD direction(cos(skew_angle_), sin(skew_angle_));
-  GenericVector<double> row_positions;
+  std::vector<double> row_positions;
   ComputeBaselinePositions(direction, &row_positions);
   if (row_positions.size() < 2)
     return false;
@@ -629,7 +629,7 @@ bool BaselineBlock::ComputeLineSpacing() {
     }
   }
   if (debug_level_ > 0) {
-    tprintf("Spacing %g, in %d rows, %d gaps fitted out of %d non-trivial\n", line_spacing_,
+    tprintf("Spacing %g, in %zu rows, %d gaps fitted out of %d non-trivial\n", line_spacing_,
             row_positions.size(), fitting_gaps, non_trivial_gaps);
   }
   return fitting_gaps > non_trivial_gaps * kMinFittingLinespacings;
@@ -644,7 +644,7 @@ bool BaselineBlock::ComputeLineSpacing() {
 // of the block baseline a line sits, hence the function and argument name
 // positions not distances.
 void BaselineBlock::ComputeBaselinePositions(const FCOORD &direction,
-                                             GenericVector<double> *positions) {
+                                             std::vector<double> *positions) {
   positions->clear();
   for (int r = 0; r < rows_.size(); ++r) {
     BaselineRow *row = rows_[r];
@@ -659,7 +659,7 @@ void BaselineBlock::ComputeBaselinePositions(const FCOORD &direction,
 // Computes an estimate of the line spacing of the block from the median
 // of the spacings between adjacent overlapping textlines.
 void BaselineBlock::EstimateLineSpacing() {
-  GenericVector<float> spacings;
+  std::vector<float> spacings;
   for (int r = 0; r < rows_.size(); ++r) {
     BaselineRow *row = rows_[r];
     // Exclude silly lines.
@@ -682,7 +682,8 @@ void BaselineBlock::EstimateLineSpacing() {
   // If we have at least one value, use it, otherwise leave the previous
   // value unchanged.
   if (!spacings.empty()) {
-    line_spacing_ = spacings[spacings.choose_nth_item(spacings.size() / 2)];
+    std::nth_element(spacings.begin(), spacings.begin() + spacings.size() / 2, spacings.end());
+    line_spacing_ = spacings[spacings.size() / 2];
     if (debug_level_ > 1)
       tprintf("Estimate of linespacing = %g\n", line_spacing_);
   }
@@ -692,7 +693,7 @@ void BaselineBlock::EstimateLineSpacing() {
 // line to the deskewed y-position of each baseline as a function of its
 // estimated line index, allowing for a small error in the initial linespacing
 // and choosing the best available model.
-void BaselineBlock::RefineLineSpacing(const GenericVector<double> &positions) {
+void BaselineBlock::RefineLineSpacing(const std::vector<double> &positions) {
   double spacings[3], offsets[3], errors[3];
   int index_range;
   errors[0] =
@@ -727,7 +728,7 @@ void BaselineBlock::RefineLineSpacing(const GenericVector<double> &positions) {
 // and the corresponding intercept in c_out, and the number of spacings seen
 // in index_delta. Returns the error of fit to the line spacing model.
 // Uses a simple linear regression, but optimized the offset using the median.
-double BaselineBlock::FitLineSpacingModel(const GenericVector<double> &positions, double m_in,
+double BaselineBlock::FitLineSpacingModel(const std::vector<double> &positions, double m_in,
                                           double *m_out, double *c_out, int *index_delta) {
   if (m_in == 0.0f || positions.size() < 2) {
     *m_out = m_in;
@@ -736,12 +737,12 @@ double BaselineBlock::FitLineSpacingModel(const GenericVector<double> &positions
       *index_delta = 0;
     return 0.0;
   }
-  GenericVector<double> offsets;
+  std::vector<double> offsets;
   // Get the offset (remainder) linespacing for each line and choose the median.
   for (int i = 0; i < positions.size(); ++i)
     offsets.push_back(fmod(positions[i], m_in));
   // Get the median offset.
-  double median_offset = MedianOfCircularValues(m_in, &offsets);
+  double median_offset = MedianOfCircularValues(m_in, offsets);
   // Now fit a line to quantized line number and offset.
   LLSQ llsq;
   int min_index = INT32_MAX;
@@ -755,7 +756,7 @@ double BaselineBlock::FitLineSpacingModel(const GenericVector<double> &positions
   // Get the refined line spacing.
   *m_out = llsq.m();
   // Use the median offset rather than the mean.
-  offsets.truncate(0);
+  offsets.clear();
   if (*m_out != 0.0) {
     for (int i = 0; i < positions.size(); ++i) {
       offsets.push_back(fmod(positions[i], *m_out));
@@ -766,7 +767,7 @@ double BaselineBlock::FitLineSpacingModel(const GenericVector<double> &positions
         tprintf("%d: %g\n", i, offsets[i]);
       }
     }
-    *c_out = MedianOfCircularValues(*m_out, &offsets);
+    *c_out = MedianOfCircularValues(*m_out, offsets);
   } else {
     *c_out = 0.0;
   }
@@ -808,7 +809,7 @@ BaselineDetect::BaselineDetect(int debug_level, const FCOORD &page_skew, TO_BLOC
 // block-wise and page-wise data to smooth small blocks/rows, and applies
 // smoothing based on block/page-level skew and block-level linespacing.
 void BaselineDetect::ComputeStraightBaselines(bool use_box_bottoms) {
-  GenericVector<double> block_skew_angles;
+  std::vector<double> block_skew_angles;
   for (int i = 0; i < blocks_.size(); ++i) {
     BaselineBlock *bl_block = blocks_[i];
     if (debug_level_ > 0)
@@ -820,7 +821,7 @@ void BaselineDetect::ComputeStraightBaselines(bool use_box_bottoms) {
   // Compute a page-wide default skew for blocks with too little information.
   double default_block_skew = page_skew_.angle();
   if (!block_skew_angles.empty()) {
-    default_block_skew = MedianOfCircularValues(M_PI, &block_skew_angles);
+    default_block_skew = MedianOfCircularValues(M_PI, block_skew_angles);
   }
   if (debug_level_ > 0) {
     tprintf("Page skew angle = %g\n", default_block_skew);

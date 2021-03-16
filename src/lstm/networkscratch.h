@@ -20,14 +20,13 @@
 #define TESSERACT_LSTM_NETWORKSCRATCH_H_
 
 #include <mutex>
-#include "genericvector.h"
 #include "matrix.h"
 #include "networkio.h"
 
 namespace tesseract {
 
 // Generic scratch space for network layers. Provides NetworkIO that can store
-// a complete set (over time) of intermediates, and GenericVector<float>
+// a complete set (over time) of intermediates, and vector<float>
 // scratch space that auto-frees after use. The aim here is to provide a set
 // of temporary buffers to network layers that can be reused between layers
 // and don't have to be reallocated on each call.
@@ -125,7 +124,7 @@ public:
   }; // class IO.
 
   // Class that acts like a fixed array of float, yet actually uses space
-  // from a GenericVector<float> in the source NetworkScratch, and knows how
+  // from a vector<float> in the source NetworkScratch, and knows how
   // to unstack the borrowed vector on destruction.
   class FloatVec {
   public:
@@ -145,12 +144,8 @@ public:
         scratch_space_->vec_stack_.Return(vec_);
       scratch_space_ = scratch;
       vec_ = scratch_space_->vec_stack_.Borrow();
-      // Abuse vec_ here; first resize to 'reserve', which is larger
-      // than 'size' (i.e. it's size rounded up) then resize down again
-      // to the desired size. This assumes that the implementation does
-      // not shrink the storage on a resize.
-      vec_->resize_no_init(reserve);
-      vec_->resize_no_init(size);
+      vec_->reserve(reserve);
+      vec_->resize(size);
       data_ = &(*vec_)[0];
     }
 
@@ -169,7 +164,7 @@ public:
 
   private:
     // Vector borrowed from the scratch space. Use Return to free it.
-    GenericVector<double> *vec_;
+    std::vector<double> *vec_;
     // Short-cut pointer to the underlying array.
     double *data_;
     // The source scratch_space_. Borrowed pointer, used to free the
@@ -251,7 +246,7 @@ public:
 
   private:
     PointerVector<T> stack_;
-    GenericVector<bool> flags_;
+    std::vector<bool> flags_;
     int stack_top_;
     std::mutex mutex_;
   }; // class Stack.
@@ -259,11 +254,11 @@ public:
 private:
   // If true, the network weights are int8_t, if false, float.
   bool int_mode_;
-  // Stacks of NetworkIO and GenericVector<float>. Once allocated, they are not
+  // Stacks of NetworkIO and vector<float>. Once allocated, they are not
   // deleted until the NetworkScratch is deleted.
   Stack<NetworkIO> int_stack_;
   Stack<NetworkIO> float_stack_;
-  Stack<GenericVector<double>> vec_stack_;
+  Stack<std::vector<double>> vec_stack_;
   Stack<TransposedArray> array_stack_;
 };
 

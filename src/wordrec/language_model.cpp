@@ -35,8 +35,6 @@
 #include "unicity_table.h"           // for UnicityTable
 
 template <typename T>
-class GenericVector;
-template <typename T>
 class UnicityTable;
 
 namespace tesseract {

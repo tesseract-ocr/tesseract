@@ -201,19 +201,19 @@ void Dict::Load(const std::string &lang, TessdataManager *data_file) {
     punc_dawg_ =
         dawg_cache_->GetSquishedDawg(lang, TESSDATA_PUNC_DAWG, dawg_debug_level, data_file);
     if (punc_dawg_)
-      dawgs_ += punc_dawg_;
+      dawgs_.push_back(punc_dawg_);
   }
   if (load_system_dawg) {
     Dawg *system_dawg =
         dawg_cache_->GetSquishedDawg(lang, TESSDATA_SYSTEM_DAWG, dawg_debug_level, data_file);
     if (system_dawg)
-      dawgs_ += system_dawg;
+      dawgs_.push_back(system_dawg);
   }
   if (load_number_dawg) {
     Dawg *number_dawg =
         dawg_cache_->GetSquishedDawg(lang, TESSDATA_NUMBER_DAWG, dawg_debug_level, data_file);
     if (number_dawg)
-      dawgs_ += number_dawg;
+      dawgs_.push_back(number_dawg);
   }
   if (load_bigram_dawg) {
     bigram_dawg_ =
@@ -225,13 +225,13 @@ void Dict::Load(const std::string &lang, TessdataManager *data_file) {
     freq_dawg_ =
         dawg_cache_->GetSquishedDawg(lang, TESSDATA_FREQ_DAWG, dawg_debug_level, data_file);
     if (freq_dawg_)
-      dawgs_ += freq_dawg_;
+      dawgs_.push_back(freq_dawg_);
   }
   if (load_unambig_dawg) {
     unambig_dawg_ =
         dawg_cache_->GetSquishedDawg(lang, TESSDATA_UNAMBIG_DAWG, dawg_debug_level, data_file);
     if (unambig_dawg_)
-      dawgs_ += unambig_dawg_;
+      dawgs_.push_back(unambig_dawg_);
   }
 
   std::string name;
@@ -249,7 +249,7 @@ void Dict::Load(const std::string &lang, TessdataManager *data_file) {
       tprintf("Error: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
-      dawgs_ += trie_ptr;
+      dawgs_.push_back(trie_ptr);
     }
   }
 
@@ -267,13 +267,13 @@ void Dict::Load(const std::string &lang, TessdataManager *data_file) {
       tprintf("Error: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
-      dawgs_ += trie_ptr;
+      dawgs_.push_back(trie_ptr);
     }
   }
 
   document_words_ =
       new Trie(DAWG_TYPE_WORD, lang, DOC_DAWG_PERM, getUnicharset().size(), dawg_debug_level);
-  dawgs_ += document_words_;
+  dawgs_.push_back(document_words_);
 
   // This dawg is temporary and should not be searched by letter_is_ok.
   pending_words_ =
@@ -287,19 +287,19 @@ void Dict::LoadLSTM(const std::string &lang, TessdataManager *data_file) {
     punc_dawg_ =
         dawg_cache_->GetSquishedDawg(lang, TESSDATA_LSTM_PUNC_DAWG, dawg_debug_level, data_file);
     if (punc_dawg_)
-      dawgs_ += punc_dawg_;
+      dawgs_.push_back(punc_dawg_);
   }
   if (load_system_dawg) {
     Dawg *system_dawg =
         dawg_cache_->GetSquishedDawg(lang, TESSDATA_LSTM_SYSTEM_DAWG, dawg_debug_level, data_file);
     if (system_dawg)
-      dawgs_ += system_dawg;
+      dawgs_.push_back(system_dawg);
   }
   if (load_number_dawg) {
     Dawg *number_dawg =
         dawg_cache_->GetSquishedDawg(lang, TESSDATA_LSTM_NUMBER_DAWG, dawg_debug_level, data_file);
     if (number_dawg)
-      dawgs_ += number_dawg;
+      dawgs_.push_back(number_dawg);
   }
 
   // stolen from Dict::Load (but needs params_ from Tesseract
@@ -319,7 +319,7 @@ void Dict::LoadLSTM(const std::string &lang, TessdataManager *data_file) {
       tprintf("Error: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
-      dawgs_ += trie_ptr;
+      dawgs_.push_back(trie_ptr);
     }
   }
 
@@ -337,7 +337,7 @@ void Dict::LoadLSTM(const std::string &lang, TessdataManager *data_file) {
       tprintf("Error: failed to load %s\n", name.c_str());
       delete trie_ptr;
     } else {
-      dawgs_ += trie_ptr;
+      dawgs_.push_back(trie_ptr);
     }
   }
 }
@@ -358,9 +358,9 @@ bool Dict::FinishLoad() {
       const Dawg *other = dawgs_[j];
       if (dawg != nullptr && other != nullptr && (dawg->lang() == other->lang()) &&
           kDawgSuccessors[dawg->type()][other->type()])
-        *lst += j;
+        lst->push_back(j);
     }
-    successors_ += lst;
+    successors_.push_back(lst);
   }
   return true;
 }
@@ -378,7 +378,9 @@ void Dict::End() {
     delete dawg_cache_;
     dawg_cache_ = nullptr;
   }
-  successors_.delete_data_pointers();
+  for (auto successor : successors_) {
+    delete successor;
+  }
   dawgs_.clear();
   successors_.clear();
   document_words_ = nullptr;
@@ -398,7 +400,7 @@ int Dict::def_letter_is_okay(void *void_dawg_args, const UNICHARSET &unicharset,
   if (dawg_debug_level >= 3) {
     tprintf(
         "def_letter_is_okay: current unichar=%s word_end=%d"
-        " num active dawgs=%d\n",
+        " num active dawgs=%zu\n",
         getUnicharset().debug_str(unichar_id).c_str(), word_end, dawg_args->active_dawgs->size());
   }
 
@@ -550,7 +552,7 @@ void Dict::ProcessPatternEdges(const Dawg *dawg, const DawgPosition &pos, UNICHA
   NODE_REF node = GetStartingNode(dawg, pos.dawg_ref);
   // Try to find the edge corresponding to the exact unichar_id and to all the
   // edges corresponding to the character class of unichar_id.
-  GenericVector<UNICHAR_ID> unichar_id_patterns;
+  std::vector<UNICHAR_ID> unichar_id_patterns;
   unichar_id_patterns.push_back(unichar_id);
   dawg->unichar_id_to_patterns(unichar_id, getUnicharset(), &unichar_id_patterns);
   for (int i = 0; i < unichar_id_patterns.size(); ++i) {
@@ -605,12 +607,12 @@ void Dict::default_dawgs(DawgPositionVector *dawg_pos_vec, bool suppress_pattern
       int dawg_ty = dawgs_[i]->type();
       bool subsumed_by_punc = kDawgSuccessors[DAWG_TYPE_PUNCTUATION][dawg_ty];
       if (dawg_ty == DAWG_TYPE_PUNCTUATION) {
-        *dawg_pos_vec += DawgPosition(-1, NO_EDGE, i, NO_EDGE, false);
+        dawg_pos_vec->push_back(DawgPosition(-1, NO_EDGE, i, NO_EDGE, false));
         if (dawg_debug_level >= 3) {
           tprintf("Adding beginning punc dawg [%d, " REFFORMAT "]\n", i, NO_EDGE);
         }
       } else if (!punc_dawg_available || !subsumed_by_punc) {
-        *dawg_pos_vec += DawgPosition(i, NO_EDGE, -1, NO_EDGE, false);
+        dawg_pos_vec->push_back(DawgPosition(i, NO_EDGE, -1, NO_EDGE, false));
         if (dawg_debug_level >= 3) {
           tprintf("Adding beginning dawg [%d, " REFFORMAT "]\n", i, NO_EDGE);
         }

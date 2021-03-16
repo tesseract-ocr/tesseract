@@ -190,7 +190,7 @@ bool Plumbing::Serialize(TFile *fp) const {
   for (uint32_t i = 0; i < size; ++i)
     if (!stack_[i]->Serialize(fp))
       return false;
-  if ((network_flags_ & NF_LAYER_SPECIFIC_LR) && !learning_rates_.Serialize(fp)) {
+  if ((network_flags_ & NF_LAYER_SPECIFIC_LR) && !fp->Serialize(learning_rates_)) {
     return false;
   }
   return true;
@@ -209,7 +209,7 @@ bool Plumbing::DeSerialize(TFile *fp) {
       return false;
     AddToStack(network);
   }
-  if ((network_flags_ & NF_LAYER_SPECIFIC_LR) && !learning_rates_.DeSerialize(fp)) {
+  if ((network_flags_ & NF_LAYER_SPECIFIC_LR) && !fp->DeSerialize(learning_rates_)) {
     return false;
   }
   return true;

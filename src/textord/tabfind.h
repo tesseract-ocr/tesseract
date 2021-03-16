@@ -354,8 +354,8 @@ private:
   /** Callback to test an int for being a common width. */
   WidthCallback width_cb_;
   // Sets of bounding boxes that are candidate tab stops.
-  GenericVector<BLOBNBOX *> left_tab_boxes_;
-  GenericVector<BLOBNBOX *> right_tab_boxes_;
+  std::vector<BLOBNBOX *> left_tab_boxes_;
+  std::vector<BLOBNBOX *> right_tab_boxes_;
 };
 
 } // namespace tesseract.

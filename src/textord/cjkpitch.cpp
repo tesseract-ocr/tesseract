@@ -18,7 +18,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "cjkpitch.h"
-#include "genericvector.h"
 #include "topitch.h"
 #include "tovars.h"
 
@@ -109,7 +108,7 @@ public:
   ~LocalCorrelation() {}
 
   void Finish() {
-    values_.sort(float_pair_compare);
+    std::sort(values_.begin(), values_.end(), float_pair_compare);
     finalized_ = true;
   }
 
@@ -155,14 +154,12 @@ public:
   }
 
 private:
-  static int float_pair_compare(const void *a, const void *b) {
-    const auto *f_a = static_cast<const float_pair *>(a);
-    const auto *f_b = static_cast<const float_pair *>(b);
-    return (f_a->x > f_b->x) ? 1 : ((f_a->x < f_b->x) ? -1 : 0);
+  static bool float_pair_compare(const float_pair f_a, const float_pair f_b) {
+    return f_a.x < f_b.x;
   }
 
   bool finalized_;
-  GenericVector<struct float_pair> values_;
+  std::vector<struct float_pair> values_;
 };
 
 // Class to represent a character on a fixed pitch row.  A FPChar may
@@ -450,7 +447,7 @@ private:
         index++;
       }
     }
-    characters_.truncate(index);
+    characters_.resize(index);
   }
 
   float pitch_ = 0.0f;           // Character pitch.
@@ -472,7 +469,7 @@ private:
 
   SimpleStats heights_;
 
-  GenericVector<FPChar> characters_;
+  std::vector<FPChar> characters_;
   TO_ROW *real_row_ = nullptr; // Underlying TD_ROW for this row.
 };
 

@@ -516,7 +516,7 @@ ScrollView *TabFind::FindInitialTabVectors(BLOBNBOX_LIST *image_blobs, int min_g
 #ifndef GRAPHICS_DISABLED
 
 // Helper displays all the boxes in the given vector on the given window.
-static void DisplayBoxVector(const GenericVector<BLOBNBOX *> &boxes, ScrollView *win) {
+static void DisplayBoxVector(const std::vector<BLOBNBOX *> &boxes, ScrollView *win) {
   for (int i = 0; i < boxes.size(); ++i) {
     TBOX box = boxes[i]->bounding_box();
     int left_x = box.left();
@@ -552,8 +552,8 @@ ScrollView *TabFind::FindTabBoxes(int min_gutter_width, double tabfind_aligned_g
   }
   // Sort left tabs by left and right by right to see the outermost one first
   // on a ragged tab.
-  left_tab_boxes_.sort(SortByBoxLeft<BLOBNBOX>);
-  right_tab_boxes_.sort(SortRightToLeft<BLOBNBOX>);
+  std::sort(left_tab_boxes_.begin(), left_tab_boxes_.end(), StdSortByBoxLeft<BLOBNBOX>);
+  std::sort(right_tab_boxes_.begin(), right_tab_boxes_.end(), StdSortRightToLeft<BLOBNBOX>);
   ScrollView *tab_win = nullptr;
 #ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_initialtabs) {
@@ -831,7 +831,7 @@ int TabFind::FindTabVectors(int search_size_multiple, TabAlignment alignment, in
   int vector_count = 0;
   // Search the right or left tab boxes, looking for tab vectors.
   bool right = alignment == TA_RIGHT_ALIGNED || alignment == TA_RIGHT_RAGGED;
-  const GenericVector<BLOBNBOX *> &boxes = right ? right_tab_boxes_ : left_tab_boxes_;
+  const std::vector<BLOBNBOX *> &boxes = right ? right_tab_boxes_ : left_tab_boxes_;
   for (int i = 0; i < boxes.size(); ++i) {
     BLOBNBOX *bbox = boxes[i];
     if ((!right && bbox->left_tab_type() == TT_MAYBE_ALIGNED) ||

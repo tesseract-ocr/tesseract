@@ -113,7 +113,7 @@ public:
   // sort on the output will re-sort by increasing mean of peak if that is more
   // useful than decreasing total count. Returns the actual number of modes
   // found.
-  int top_n_modes(int max_modes, GenericVector<KDPairInc<float, int>> *modes) const;
+  int top_n_modes(int max_modes, std::vector<KDPairInc<float, int>> &modes) const;
 
   // Prints a summary and table of the histogram.
   void print() const;

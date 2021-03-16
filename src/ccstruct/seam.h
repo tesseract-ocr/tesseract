@@ -133,11 +133,11 @@ public:
   // seam, which is about to be inserted at insert_index. Returns false if
   // any of the computations fails, as this indicates an invalid chop.
   // widthn_/widthp_ are only changed if modify is true.
-  bool PrepareToInsertSeam(const GenericVector<SEAM *> &seams, const GenericVector<TBLOB *> &blobs,
+  bool PrepareToInsertSeam(const std::vector<SEAM *> &seams, const std::vector<TBLOB *> &blobs,
                            int insert_index, bool modify);
   // Computes the widthp_/widthn_ range. Returns false if not all the splits
   // are accounted for. widthn_/widthp_ are only changed if modify is true.
-  bool FindBlobWidth(const GenericVector<TBLOB *> &blobs, int index, bool modify);
+  bool FindBlobWidth(const std::vector<TBLOB *> &blobs, int index, bool modify);
 
   // Splits this blob into two blobs by applying the splits included in
   // *this SEAM
@@ -149,7 +149,7 @@ public:
   // Prints everything in *this SEAM.
   void Print(const char *label) const;
   // Prints a collection of SEAMs.
-  static void PrintSeams(const char *label, const GenericVector<SEAM *> &seams);
+  static void PrintSeams(const char *label, const std::vector<SEAM *> &seams);
 #ifndef GRAPHICS_DISABLED
   // Draws the seam in the given window.
   void Mark(ScrollView *window) const;
@@ -157,11 +157,11 @@ public:
 
   // Break up the blobs in this chain so that they are all independent.
   // This operation should undo the affect of join_pieces.
-  static void BreakPieces(const GenericVector<SEAM *> &seams, const GenericVector<TBLOB *> &blobs,
+  static void BreakPieces(const std::vector<SEAM *> &seams, const std::vector<TBLOB *> &blobs,
                           int first, int last);
   // Join a group of base level pieces into a single blob that can then
   // be classified.
-  static void JoinPieces(const GenericVector<SEAM *> &seams, const GenericVector<TBLOB *> &blobs,
+  static void JoinPieces(const std::vector<SEAM *> &seams, const std::vector<TBLOB *> &blobs,
                          int first, int last);
 
   // Hides the seam so the outlines appear not to be cut by it.
@@ -193,7 +193,7 @@ private:
   SPLIT splits_[kMaxNumSplits];
 };
 
-void start_seam_list(TWERD *word, GenericVector<SEAM *> *seam_array);
+void start_seam_list(TWERD *word, std::vector<SEAM *> *seam_array);
 
 } // namespace tesseract
 

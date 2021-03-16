@@ -19,7 +19,6 @@
 #include <cstdint>          // for INT32_MAX
 #include "blamer.h"         // for BlamerBundle
 #include "errcode.h"        // for ASSERT_HOST
-#include "genericvector.h"  // for GenericVector
 #include "lm_pain_points.h" // for LMPainPoints, LM_PPTYPE_SHAPE, LMPainPoi...
 #include "lm_state.h"       // for BestChoiceBundle, ViterbiStateEntry
 #include "matrix.h"         // for MATRIX_COORD, MATRIX
@@ -44,7 +43,7 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
   // Compute scaling factor that will help us recover blob outline length
   // from classifier rating and certainty for the blob.
   float rating_cert_scale = -1.0 * getDict().certainty_scale / rating_scale;
-  GenericVector<SegSearchPending> pending;
+  std::vector<SegSearchPending> pending;
   InitialSegSearch(word_res, &pain_points, &pending, best_choice_bundle, blamer_bundle);
 
   if (!SegSearchDone(0)) { // find a better choice
@@ -122,7 +121,7 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
 // without doing any additional chopping or joining.
 // (Internal factored version that can be used as part of the main SegSearch.)
 void Wordrec::InitialSegSearch(WERD_RES *word_res, LMPainPoints *pain_points,
-                               GenericVector<SegSearchPending> *pending,
+                               std::vector<SegSearchPending> *pending,
                                BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle) {
   if (segsearch_debug_level > 0) {
     tprintf("Starting SegSearch on ratings matrix%s:\n",
@@ -154,7 +153,7 @@ void Wordrec::InitialSegSearch(WERD_RES *word_res, LMPainPoints *pain_points,
   // children are considered in the non-decreasing order of their column, since
   // this guarantees that all the parents would be up to date before an update
   // of a child is done.
-  pending->init_to_size(word_res->ratings->dimension(), SegSearchPending());
+  pending->resize(word_res->ratings->dimension(), SegSearchPending());
 
   // Search the ratings matrix for the initial best path.
   (*pending)[0].SetColumnClassified();
@@ -163,7 +162,7 @@ void Wordrec::InitialSegSearch(WERD_RES *word_res, LMPainPoints *pain_points,
 }
 
 void Wordrec::UpdateSegSearchNodes(float rating_cert_scale, int starting_col,
-                                   GenericVector<SegSearchPending> *pending, WERD_RES *word_res,
+                                   std::vector<SegSearchPending> *pending, WERD_RES *word_res,
                                    LMPainPoints *pain_points, BestChoiceBundle *best_choice_bundle,
                                    BlamerBundle *blamer_bundle) {
   MATRIX *ratings = word_res->ratings;
@@ -223,7 +222,7 @@ void Wordrec::UpdateSegSearchNodes(float rating_cert_scale, int starting_col,
 
 void Wordrec::ProcessSegSearchPainPoint(float pain_point_priority, const MATRIX_COORD &pain_point,
                                         const char *pain_point_type,
-                                        GenericVector<SegSearchPending> *pending,
+                                        std::vector<SegSearchPending> *pending,
                                         WERD_RES *word_res, LMPainPoints *pain_points,
                                         BlamerBundle *blamer_bundle) {
   if (segsearch_debug_level > 0) {
@@ -279,7 +278,7 @@ void Wordrec::ProcessSegSearchPainPoint(float pain_point_priority, const MATRIX_
 // Needed when the n-gram model is enabled, as the multi-length comparison
 // implementation will re-value existing paths to worse values.
 void Wordrec::ResetNGramSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle,
-                               GenericVector<SegSearchPending> *pending) {
+                               std::vector<SegSearchPending> *pending) {
   // TODO(rays) More refactoring required here.
   // Delete existing viterbi states.
   for (int col = 0; col < best_choice_bundle->beam.size(); ++col) {

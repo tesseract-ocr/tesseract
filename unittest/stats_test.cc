@@ -9,7 +9,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "genericvector.h"
 #include "kdpair.h"
 #include "statistc.h"
 
@@ -42,8 +41,8 @@ TEST_F(STATSTest, BasicStats) {
 
 // Tests the top_n_modes function.
 TEST_F(STATSTest, TopNModes) {
-  GenericVector<tesseract::KDPairInc<float, int> > modes;
-  int num_modes = stats_.top_n_modes(3, &modes);
+  std::vector<tesseract::KDPairInc<float, int> > modes;
+  int num_modes = stats_.top_n_modes(3, modes);
   EXPECT_EQ(3, num_modes);
   // Mode0 is 12 1 1 = 14 total count with a mean of 2 3/14.
   EXPECT_FLOAT_EQ(2.0f + 3.0f / 14, modes[0].key());

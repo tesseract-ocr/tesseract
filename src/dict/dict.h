@@ -54,7 +54,7 @@ struct CHAR_FRAGMENT_INFO {
   float certainty;
 };
 
-using DawgVector = GenericVector<Dawg *>;
+using DawgVector = std::vector<Dawg *>;
 
 //
 // Constants
@@ -495,7 +495,7 @@ private:
   // matching.  The first member of each list is taken as canonical.  For
   // example, the first list contains hyphens and dashes with the first symbol
   // being the ASCII hyphen minus.
-  std::vector<GenericVector<UNICHAR_ID>> equivalent_symbols_;
+  std::vector<std::vector<UNICHAR_ID>> equivalent_symbols_;
   // Dawg Cache reference - this is who we ask to allocate/deallocate dawgs.
   DawgCache *dawg_cache_;
   bool dawg_cache_is_ours_; // we should delete our own dawg_cache_

@@ -45,7 +45,7 @@
 
 #include <tesseract/publictypes.h> // for OcrEngineMode, PageSegMode, OEM_L...
 #include <tesseract/unichar.h>     // for UNICHAR_ID
-#include "genericvector.h"         // for GenericVector, PointerVector
+#include "genericvector.h"         // for PointerVector
 
 #include <allheaders.h> // for pixDestroy, pixGetWidth, pixGetHe...
 
@@ -398,27 +398,27 @@ public:
   // Input: a set of noisy outlines that probably belong to the real_word.
   // Output: outlines that overlapped blobs are set to nullptr and put back into
   // the word, either in the blobs or in the reject list.
-  void AssignDiacriticsToOverlappingBlobs(const GenericVector<C_OUTLINE *> &outlines, int pass,
+  void AssignDiacriticsToOverlappingBlobs(const std::vector<C_OUTLINE *> &outlines, int pass,
                                           WERD *real_word, PAGE_RES_IT *pr_it,
-                                          GenericVector<bool> *word_wanted,
-                                          GenericVector<bool> *overlapped_any_blob,
-                                          GenericVector<C_BLOB *> *target_blobs);
+                                          std::vector<bool> *word_wanted,
+                                          std::vector<bool> *overlapped_any_blob,
+                                          std::vector<C_BLOB *> *target_blobs);
   // Attempts to assign non-overlapping outlines to their nearest blobs or
   // make new blobs out of them.
-  void AssignDiacriticsToNewBlobs(const GenericVector<C_OUTLINE *> &outlines, int pass,
+  void AssignDiacriticsToNewBlobs(const std::vector<C_OUTLINE *> &outlines, int pass,
                                   WERD *real_word, PAGE_RES_IT *pr_it,
-                                  GenericVector<bool> *word_wanted,
-                                  GenericVector<C_BLOB *> *target_blobs);
+                                  std::vector<bool> *word_wanted,
+                                  std::vector<C_BLOB *> *target_blobs);
   // Starting with ok_outlines set to indicate which outlines overlap the blob,
   // chooses the optimal set (approximately) and returns true if any outlines
   // are desired, in which case ok_outlines indicates which ones.
   bool SelectGoodDiacriticOutlines(int pass, float certainty_threshold, PAGE_RES_IT *pr_it,
-                                   C_BLOB *blob, const GenericVector<C_OUTLINE *> &outlines,
+                                   C_BLOB *blob, const std::vector<C_OUTLINE *> &outlines,
                                    int num_outlines, std::vector<bool> *ok_outlines);
   // Classifies the given blob plus the outlines flagged by ok_outlines, undoes
   // the inclusion of the outlines, and returns the certainty of the raw choice.
   float ClassifyBlobPlusOutlines(const std::vector<bool> &ok_outlines,
-                                 const GenericVector<C_OUTLINE *> &outlines, int pass_n,
+                                 const std::vector<C_OUTLINE *> &outlines, int pass_n,
                                  PAGE_RES_IT *pr_it, C_BLOB *blob, std::string &best_str);
   // Classifies the given blob (part of word_data->word->word) as an individual
   // word, using languages, chopper etc, returning only the certainty of the
@@ -703,24 +703,24 @@ public:
   void ReSegmentByClassification(PAGE_RES *page_res);
   // Converts the space-delimited string of utf8 text to a vector of UNICHAR_ID.
   // Returns false if an invalid UNICHAR_ID is encountered.
-  bool ConvertStringToUnichars(const char *utf8, GenericVector<UNICHAR_ID> *class_ids);
+  bool ConvertStringToUnichars(const char *utf8, std::vector<UNICHAR_ID> *class_ids);
   // Resegments the word to achieve the target_text from the classifier.
   // Returns false if the re-segmentation fails.
   // Uses brute-force combination of up to kMaxGroupSize adjacent blobs, and
   // applies a full search on the classifier results to find the best classified
   // segmentation. As a compromise to obtain better recall, 1-1 ambigiguity
   // substitutions ARE used.
-  bool FindSegmentation(const GenericVector<UNICHAR_ID> &target_text, WERD_RES *word_res);
+  bool FindSegmentation(const std::vector<UNICHAR_ID> &target_text, WERD_RES *word_res);
   // Recursive helper to find a match to the target_text (from text_index
   // position) in the choices (from choices_pos position).
-  // Choices is an array of GenericVectors, of length choices_length, with each
+  // Choices is an array of vectors of length choices_length, with each
   // element representing a starting position in the word, and the
-  // GenericVector holding classification results for a sequence of consecutive
+  // vector holding classification results for a sequence of consecutive
   // blobs, with index 0 being a single blob, index 1 being 2 blobs etc.
-  void SearchForText(const GenericVector<BLOB_CHOICE_LIST *> *choices, int choices_pos,
-                     int choices_length, const GenericVector<UNICHAR_ID> &target_text,
-                     int text_index, float rating, GenericVector<int> *segmentation,
-                     float *best_rating, GenericVector<int> *best_segmentation);
+  void SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, int choices_pos,
+                     int choices_length, const std::vector<UNICHAR_ID> &target_text,
+                     int text_index, float rating, std::vector<int> *segmentation,
+                     float *best_rating, std::vector<int> *best_segmentation);
   // Counts up the labelled words and the blobs within.
   // Deletes all unused or emptied words, counting the unused ones.
   // Resets W_BOL and W_EOL flags correctly.

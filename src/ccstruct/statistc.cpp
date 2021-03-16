@@ -462,13 +462,13 @@ static bool GatherPeak(int index, const int *src_buckets, int *used_buckets, int
 // to sort on the output will re-sort by increasing mean of peak if that is
 // more useful than decreasing total count.
 // Returns the actual number of modes found.
-int STATS::top_n_modes(int max_modes, GenericVector<KDPairInc<float, int>> *modes) const {
+int STATS::top_n_modes(int max_modes, std::vector<KDPairInc<float, int>> &modes) const {
   if (max_modes <= 0)
     return 0;
   int src_count = rangemax_ - rangemin_;
   // Used copies the counts in buckets_ as they get used.
   STATS used(rangemin_, rangemax_);
-  modes->truncate(0);
+  modes.clear();
   // Total count of the smallest peak found so far.
   int least_count = 1;
   // Mode that is used as a seed for each peak
@@ -502,21 +502,21 @@ int STATS::top_n_modes(int max_modes, GenericVector<KDPairInc<float, int>> *mode
                         &total_value))
           break;
       }
-      if (total_count > least_count || modes->size() < max_modes) {
+      if (total_count > least_count || modes.size() < max_modes) {
         // We definitely want this mode, so if we have enough discard the least.
-        if (modes->size() == max_modes)
-          modes->truncate(max_modes - 1);
+        if (modes.size() == max_modes)
+          modes.resize(max_modes - 1);
         int target_index = 0;
         // Linear search for the target insertion point.
-        while (target_index < modes->size() && (*modes)[target_index].data() >= total_count)
+        while (target_index < modes.size() && modes[target_index].data() >= total_count)
           ++target_index;
         auto peak_mean = static_cast<float>(total_value / total_count + rangemin_);
-        modes->insert(KDPairInc<float, int>(peak_mean, total_count), target_index);
-        least_count = modes->back().data();
+        modes.insert(modes.begin() + target_index, KDPairInc<float, int>(peak_mean, total_count));
+        least_count = modes.back().data();
       }
     }
   } while (max_count > 0);
-  return modes->size();
+  return modes.size();
 }
 
 /**********************************************************************
