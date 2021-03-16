@@ -272,7 +272,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type, int micro_type, int c
 // Sets the mapped_features_ from the features_ using the provided
 // feature_space to the indexed versions of the features.
 void TrainingSample::IndexFeatures(const IntFeatureSpace &feature_space) {
-  GenericVector<int> indexed_features;
+  std::vector<int> indexed_features;
   feature_space.IndexAndSortFeatures(features_, num_features_, &mapped_features_);
   features_are_indexed_ = true;
   features_are_mapped_ = false;
