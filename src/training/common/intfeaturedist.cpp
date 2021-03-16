@@ -3,7 +3,6 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        intfeaturedist.cpp
 // Description: Fast set-difference-based feature distance calculator.
-// Created:     Thu Sep 01 13:07:30 PDT 2011
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,7 +49,7 @@ void IntFeatureDist::Init(const IntFeatureMap *feature_map) {
 
 // Setup the map for the given indexed_features that have been indexed by
 // feature_map.
-void IntFeatureDist::Set(const GenericVector<int> &indexed_features, int canonical_count,
+void IntFeatureDist::Set(const std::vector<int> &indexed_features, int canonical_count,
                          bool value) {
   total_feature_weight_ = canonical_count;
   for (int i = 0; i < indexed_features.size(); ++i) {
@@ -76,7 +75,7 @@ void IntFeatureDist::Set(const GenericVector<int> &indexed_features, int canonic
 
 // Compute the distance between the given feature vector and the last
 // Set feature vector.
-double IntFeatureDist::FeatureDistance(const GenericVector<int> &features) const {
+double IntFeatureDist::FeatureDistance(const std::vector<int> &features) const {
   const int num_test_features = features.size();
   const double denominator = total_feature_weight_ + num_test_features;
   double misses = denominator;

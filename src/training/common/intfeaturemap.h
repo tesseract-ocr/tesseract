@@ -4,7 +4,6 @@
 // File:        intfeaturemap.h
 // Description: Encapsulation of IntFeatureSpace with IndexMapBiDi
 //              to provide a subspace mapping and fast feature lookup.
-// Created:     Tue Oct 26 08:58:30 PDT 2010
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -103,7 +102,7 @@ public:
 
   // Indexes the given array of features to a vector of sorted indices.
   void IndexAndSortFeatures(const INT_FEATURE_STRUCT *features, int num_features,
-                            GenericVector<int> *sorted_features) const {
+                            std::vector<int> *sorted_features) const {
     feature_space_.IndexAndSortFeatures(features, num_features, sorted_features);
   }
   // Maps the given array of index/sparse features to an array of map/compact
@@ -111,8 +110,8 @@ public:
   // Assumes the input is sorted. The output indices are sorted and uniqued.
   // Returns the number of "missed" features, being features that
   // don't map to the compact feature space.
-  int MapIndexedFeatures(const GenericVector<int> &index_features,
-                         GenericVector<int> *map_features) const {
+  int MapIndexedFeatures(const std::vector<int> &index_features,
+                         std::vector<int> *map_features) const {
     return feature_map_.MapFeatures(index_features, map_features);
   }
 

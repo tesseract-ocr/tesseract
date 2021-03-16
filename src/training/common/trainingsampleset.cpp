@@ -234,7 +234,7 @@ const BitVector &TrainingSampleSet::GetCloudFeatures(int font_id, int class_id) 
 }
 // Gets the indexed features of the canonical sample of the given
 // font/class combination.
-const GenericVector<int> &TrainingSampleSet::GetCanonicalFeatures(int font_id, int class_id) const {
+const std::vector<int> &TrainingSampleSet::GetCanonicalFeatures(int font_id, int class_id) const {
   int font_index = font_id_map_.SparseToCompact(font_id);
   ASSERT_HOST(font_index >= 0);
   return (*font_class_array_)(font_index, class_id).canonical_features;
@@ -420,7 +420,7 @@ int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1, int font_i
   const TrainingSample *sample2 = GetCanonicalSample(font_id2, class_id2);
   if (sample2 == nullptr)
     return 0; // There are no canonical features.
-  const GenericVector<int> &canonical2 = GetCanonicalFeatures(font_id2, class_id2);
+  const std::vector<int> &canonical2 = GetCanonicalFeatures(font_id2, class_id2);
   const BitVector &cloud1 = GetCloudFeatures(font_id1, class_id1);
   if (cloud1.size() == 0)
     return canonical2.size(); // There are no cloud features.
@@ -598,7 +598,7 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap &map, bool d
       fcinfo.canonical_dist = 0.0f;
       for (int i = 0; i < fcinfo.samples.size(); ++i) {
         int s1 = fcinfo.samples[i];
-        const GenericVector<int> &features1 = samples_[s1]->indexed_features();
+        const std::vector<int> &features1 = samples_[s1]->indexed_features();
         f_table.Set(features1, features1.size(), true);
         double max_dist = 0.0;
         // Run the full squared-order search for similar samples. It is still
@@ -609,7 +609,7 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap &map, bool d
           int s2 = fcinfo.samples[j];
           if (samples_[s2]->class_id() != c || samples_[s2]->font_id() != font_id || s2 == s1)
             continue;
-          GenericVector<int> features2 = samples_[s2]->indexed_features();
+          std::vector<int> features2 = samples_[s2]->indexed_features();
           double dist = f_table.FeatureDistance(features2);
           if (dist > max_dist) {
             max_dist = dist;
@@ -719,7 +719,7 @@ void TrainingSampleSet::ComputeCloudFeatures(int feature_space_size) {
       fcinfo.cloud_features.Init(feature_space_size);
       for (int s = 0; s < num_samples; ++s) {
         const TrainingSample *sample = GetSample(font_id, c, s);
-        const GenericVector<int> &sample_features = sample->indexed_features();
+        const std::vector<int> &sample_features = sample->indexed_features();
         for (int i = 0; i < sample_features.size(); ++i)
           fcinfo.cloud_features.SetBit(sample_features[i]);
       }
@@ -746,7 +746,7 @@ void TrainingSampleSet::DisplaySamplesWithFeature(int f_index, const Shape &shap
   for (int s = 0; s < num_raw_samples(); ++s) {
     const TrainingSample *sample = GetSample(s);
     if (shape.ContainsUnichar(sample->class_id())) {
-      GenericVector<int> indexed_features;
+      std::vector<int> indexed_features;
       space.IndexAndSortFeatures(sample->features(), sample->num_features(), &indexed_features);
       for (int f = 0; f < indexed_features.size(); ++f) {
         if (indexed_features[f] == f_index) {

@@ -181,11 +181,11 @@ public:
   bool features_are_mapped() const {
     return features_are_mapped_;
   }
-  const GenericVector<int> &mapped_features() const {
+  const std::vector<int> &mapped_features() const {
     ASSERT_HOST(features_are_mapped_);
     return mapped_features_;
   }
-  const GenericVector<int> &indexed_features() const {
+  const std::vector<int> &indexed_features() const {
     ASSERT_HOST(features_are_indexed_);
     return mapped_features_;
   }
@@ -239,7 +239,7 @@ public:
   // hide after refactoring
 
   // Indexed/mapped features, as indicated by the bools below.
-  GenericVector<int> mapped_features_;
+  std::vector<int> mapped_features_;
   bool features_are_indexed_;
   bool features_are_mapped_;
 
