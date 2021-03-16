@@ -31,7 +31,7 @@ protected:
 public:
   // Expects that the given vector has contiguous integer values in the
   // range [start, end).
-  void ExpectContiguous(const GenericVector<int> &v, int start, int end) {
+  void ExpectContiguous(const std::vector<int> &v, int start, int end) {
     for (int i = start; i < end; ++i) {
       EXPECT_EQ(i, v[i - start]);
     }
@@ -61,11 +61,11 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
       }
     }
   }
-  GenericVector<int> index_features;
+  std::vector<int> index_features;
   map.IndexAndSortFeatures(features.get(), total_size, &index_features);
   EXPECT_EQ(total_size, index_features.size());
   int total_buckets = kXBuckets * kYBuckets * kThetaBuckets;
-  GenericVector<int> map_features;
+  std::vector<int> map_features;
   int misses = map.MapIndexedFeatures(index_features, &map_features);
   EXPECT_EQ(0, misses);
   EXPECT_EQ(total_buckets, map_features.size());

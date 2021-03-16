@@ -542,16 +542,16 @@ void TBLOB::GetPreciseBoundingBox(TBOX *precise_box) const {
 // x-coord starting at box.left().
 // Eg x_coords[0] is a collection of the x-coords of edges at y=bottom.
 // Eg x_coords[1] is a collection of the x-coords of edges at y=bottom + 1.
-void TBLOB::GetEdgeCoords(const TBOX &box, std::vector<GenericVector<int>> *x_coords,
-                          std::vector<GenericVector<int>> *y_coords) const {
-  x_coords->resize(box.height());
-  y_coords->resize(box.width());
-  CollectEdges(box, nullptr, nullptr, x_coords, y_coords);
+void TBLOB::GetEdgeCoords(const TBOX &box, std::vector<std::vector<int>> &x_coords,
+                          std::vector<std::vector<int>> &y_coords) const {
+  x_coords.resize(box.height());
+  y_coords.resize(box.width());
+  CollectEdges(box, nullptr, nullptr, &x_coords, &y_coords);
   // Sort the output vectors.
-  for (int i = 0; i < x_coords->size(); ++i)
-    (*x_coords)[i].sort();
-  for (int i = 0; i < y_coords->size(); ++i)
-    (*y_coords)[i].sort();
+  for (int i = 0; i < x_coords.size(); ++i)
+    std::sort(x_coords[i].begin(), x_coords[i].end());
+  for (int i = 0; i < y_coords.size(); ++i)
+    std::sort(y_coords[i].begin(), y_coords[i].end());
 }
 
 // Accumulates the segment between pt1 and pt2 in the LLSQ, quantizing over
@@ -584,8 +584,8 @@ static void SegmentLLSQ(const FCOORD &pt1, const FCOORD &pt2, LLSQ *accumulator)
 // are clipped to ([0,x_limit], [0,y_limit]).
 // See GetEdgeCoords above for a description of x_coords, y_coords.
 static void SegmentCoords(const FCOORD &pt1, const FCOORD &pt2, int x_limit, int y_limit,
-                          std::vector<GenericVector<int>> *x_coords,
-                          std::vector<GenericVector<int>> *y_coords) {
+                          std::vector<std::vector<int>> *x_coords,
+                          std::vector<std::vector<int>> *y_coords) {
   FCOORD step(pt2);
   step -= pt1;
   int start = ClipToRange(IntCastRounded(std::min(pt1.x(), pt2.x())), 0, x_limit);
@@ -638,8 +638,8 @@ static void SegmentBBox(const FCOORD &pt1, const FCOORD &pt2, TBOX *bbox) {
 // indices into x_coords, y_coords are offset by box.botleft().
 static void CollectEdgesOfRun(const EDGEPT *startpt, const EDGEPT *lastpt, const DENORM &denorm,
                               const TBOX &box, TBOX *bounding_box, LLSQ *accumulator,
-                              std::vector<GenericVector<int>> *x_coords,
-                              std::vector<GenericVector<int>> *y_coords) {
+                              std::vector<std::vector<int>> *x_coords,
+                              std::vector<std::vector<int>> *y_coords) {
   const C_OUTLINE *outline = startpt->src_outline;
   int x_limit = box.width() - 1;
   int y_limit = box.height() - 1;
@@ -726,8 +726,8 @@ static void CollectEdgesOfRun(const EDGEPT *startpt, const EDGEPT *lastpt, const
 // normalization.
 // For a description of x_coords, y_coords, see GetEdgeCoords above.
 void TBLOB::CollectEdges(const TBOX &box, TBOX *bounding_box, LLSQ *llsq,
-                         std::vector<GenericVector<int>> *x_coords,
-                         std::vector<GenericVector<int>> *y_coords) const {
+                         std::vector<std::vector<int>> *x_coords,
+                         std::vector<std::vector<int>> *y_coords) const {
   // Iterate the outlines.
   for (const TESSLINE *ol = outlines; ol != nullptr; ol = ol->next) {
     // Iterate the polygon.

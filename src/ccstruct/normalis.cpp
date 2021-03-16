@@ -153,8 +153,8 @@ void DENORM::SetupNormalization(const BLOCK *block, const FCOORD *rotation,
 // pre-initialized to be the same size as box. Each element will contain the
 // minimum of x and y run-length as shown above.
 static void ComputeRunlengthImage(const TBOX &box,
-                                  const std::vector<GenericVector<int>> &x_coords,
-                                  const std::vector<GenericVector<int>> &y_coords,
+                                  const std::vector<std::vector<int>> &x_coords,
+                                  const std::vector<std::vector<int>> &y_coords,
                                   GENERIC_2D_ARRAY<int> *minruns) {
   int width = box.width();
   int height = box.height();
@@ -264,8 +264,8 @@ static void ComputeEdgeDensityProfiles(const TBOX &box, const GENERIC_2D_ARRAY<i
 // See comments on the helper functions above for more details.
 void DENORM::SetupNonLinear(const DENORM *predecessor, const TBOX &box, float target_width,
                             float target_height, float final_xshift, float final_yshift,
-                            const std::vector<GenericVector<int>> &x_coords,
-                            const std::vector<GenericVector<int>> &y_coords) {
+                            const std::vector<std::vector<int>> &x_coords,
+                            const std::vector<std::vector<int>> &y_coords) {
   Clear();
   predecessor_ = predecessor;
   // x_map_ and y_map_ store a mapping from input x and y coordinate to output

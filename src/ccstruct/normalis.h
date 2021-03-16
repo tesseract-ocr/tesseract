@@ -193,8 +193,8 @@ public:
   // The second-level vectors must all be sorted in ascending order.
   void SetupNonLinear(const DENORM *predecessor, const TBOX &box, float target_width,
                       float target_height, float final_xshift, float final_yshift,
-                      const std::vector<GenericVector<int>> &x_coords,
-                      const std::vector<GenericVector<int>> &y_coords);
+                      const std::vector<std::vector<int>> &x_coords,
+                      const std::vector<std::vector<int>> &y_coords);
 
   // Transforms the given coords one step forward to normalized space, without
   // using any block rotation or predecessor.

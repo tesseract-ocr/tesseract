@@ -144,12 +144,12 @@ void Classify::SetupBLCNDenorms(const TBLOB &blob, bool nonlinear_norm, DENORM *
                                 128.0f, 128.0f);
   // Setup the denorm for character normalization.
   if (nonlinear_norm) {
-    std::vector<GenericVector<int>> x_coords;
-    std::vector<GenericVector<int>> y_coords;
+    std::vector<std::vector<int>> x_coords;
+    std::vector<std::vector<int>> y_coords;
     TBOX box;
     blob.GetPreciseBoundingBox(&box);
     box.pad(1, 1);
-    blob.GetEdgeCoords(box, &x_coords, &y_coords);
+    blob.GetEdgeCoords(box, x_coords, y_coords);
     cn_denorm->SetupNonLinear(&blob.denorm(), box, UINT8_MAX, UINT8_MAX, 0.0f, 0.0f, x_coords,
                               y_coords);
   } else {
