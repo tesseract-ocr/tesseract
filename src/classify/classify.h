@@ -238,7 +238,7 @@ public:
   int CharNormClassifier(TBLOB *blob, const TrainingSample &sample, ADAPT_RESULTS *adapt_results);
 
   // As CharNormClassifier, but operates on a TrainingSample and outputs to
-  // a GenericVector of ShapeRating without conversion to classes.
+  // a vector of ShapeRating without conversion to classes.
   int CharNormTrainingSample(bool pruner_only, int keep_this, const TrainingSample &sample,
                              std::vector<UnicharRating> *results);
   UNICHAR_ID *GetAmbiguities(TBLOB *Blob, CLASS_ID CorrectClass);
@@ -481,7 +481,7 @@ private:
 
   Dict dict_;
 
-  GenericVector<uint16_t> shapetable_cutoffs_;
+  std::vector<uint16_t> shapetable_cutoffs_;
 
   /* variables used to hold performance statistics */
   int NumAdaptationsFailed = 0;
