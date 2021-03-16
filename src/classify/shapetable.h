@@ -140,7 +140,7 @@ struct UnicharAndFonts {
   // Sort function to sort a pair of UnicharAndFonts by unichar_id.
   static int SortByUnicharId(const void *v1, const void *v2);
 
-  GenericVector<int32_t> font_ids;
+  std::vector<int32_t> font_ids;
   int32_t unichar_id;
 };
 

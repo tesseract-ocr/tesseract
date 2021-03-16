@@ -62,12 +62,12 @@ int UnicharRating::FirstResultWithUnichar(const GenericVector<UnicharRating> &re
 
 // Writes to the given file. Returns false in case of error.
 bool UnicharAndFonts::Serialize(FILE *fp) const {
-  return tesseract::Serialize(fp, &unichar_id) && font_ids.Serialize(fp);
+  return tesseract::Serialize(fp, &unichar_id) && tesseract::Serialize(fp, font_ids);
 }
 // Reads from the given file. Returns false in case of error.
 
 bool UnicharAndFonts::DeSerialize(TFile *fp) {
-  return fp->DeSerialize(&unichar_id) && font_ids.DeSerialize(fp);
+  return fp->DeSerialize(&unichar_id) && fp->DeSerialize(font_ids);
 }
 
 // Sort function to sort a pair of UnicharAndFonts by unichar_id.
@@ -98,7 +98,7 @@ void Shape::AddToShape(int unichar_id, int font_id) {
   for (int c = 0; c < unichars_.size(); ++c) {
     if (unichars_[c].unichar_id == unichar_id) {
       // Found the unichar in the shape table.
-      GenericVector<int> &font_list = unichars_[c].font_ids;
+      std::vector<int> &font_list = unichars_[c].font_ids;
       for (int f = 0; f < font_list.size(); ++f) {
         if (font_list[f] == font_id)
           return; // Font is already there.
@@ -195,7 +195,7 @@ bool Shape::operator==(const Shape &other) const {
 bool Shape::IsSubsetOf(const Shape &other) const {
   for (int c = 0; c < unichars_.size(); ++c) {
     int unichar_id = unichars_[c].unichar_id;
-    const GenericVector<int> &font_list = unichars_[c].font_ids;
+    const std::vector<int> &font_list = unichars_[c].font_ids;
     for (int f = 0; f < font_list.size(); ++f) {
       if (!other.ContainsUnicharAndFont(unichar_id, font_list[f]))
         return false;
@@ -629,7 +629,7 @@ bool ShapeTable::CommonFont(int shape_id1, int shape_id2) const {
   const Shape &shape1 = GetShape(shape_id1);
   const Shape &shape2 = GetShape(shape_id2);
   for (int c1 = 0; c1 < shape1.size(); ++c1) {
-    const GenericVector<int> &font_list1 = shape1[c1].font_ids;
+    const std::vector<int> &font_list1 = shape1[c1].font_ids;
     for (int f = 0; f < font_list1.size(); ++f) {
       if (shape2.ContainsFont(font_list1[f]))
         return true;
