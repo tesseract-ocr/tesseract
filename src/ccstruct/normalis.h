@@ -2,7 +2,6 @@
  * File:        normalis.h  (Formerly denorm.h)
  * Description: Code for the DENORM class.
  * Author:      Ray Smith
- * Created:     Thu Apr 23 09:22:43 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +19,7 @@
 #ifndef NORMALIS_H
 #define NORMALIS_H
 
+#include <vector>
 #include <tesseract/export.h>
 
 struct Pix;
@@ -193,8 +193,8 @@ public:
   // The second-level vectors must all be sorted in ascending order.
   void SetupNonLinear(const DENORM *predecessor, const TBOX &box, float target_width,
                       float target_height, float final_xshift, float final_yshift,
-                      const GenericVector<GenericVector<int>> &x_coords,
-                      const GenericVector<GenericVector<int>> &y_coords);
+                      const std::vector<GenericVector<int>> &x_coords,
+                      const std::vector<GenericVector<int>> &y_coords);
 
   // Transforms the given coords one step forward to normalized space, without
   // using any block rotation or predecessor.
