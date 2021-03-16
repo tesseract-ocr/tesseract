@@ -431,11 +431,11 @@ void Classify::ExtractFeatures(const TBLOB &blob, bool nonlinear_norm,
                                std::vector<INT_FEATURE_STRUCT> *bl_features,
                                std::vector<INT_FEATURE_STRUCT> *cn_features,
                                INT_FX_RESULT_STRUCT *results,
-                               GenericVector<int> *outline_cn_counts) {
+                               std::vector<int> *outline_cn_counts) {
   DENORM bl_denorm, cn_denorm;
   tesseract::Classify::SetupBLCNDenorms(blob, nonlinear_norm, &bl_denorm, &cn_denorm, results);
   if (outline_cn_counts != nullptr)
-    outline_cn_counts->truncate(0);
+    outline_cn_counts->clear();
   // Iterate the outlines.
   for (TESSLINE *ol = blob.outlines; ol != nullptr; ol = ol->next) {
     // Iterate the polygon.

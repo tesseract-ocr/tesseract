@@ -312,7 +312,7 @@ public:
   static void ExtractFeatures(const TBLOB &blob, bool nonlinear_norm,
                               std::vector<INT_FEATURE_STRUCT> *bl_features,
                               std::vector<INT_FEATURE_STRUCT> *cn_features,
-                              INT_FX_RESULT_STRUCT *results, GenericVector<int> *outline_cn_counts);
+                              INT_FX_RESULT_STRUCT *results, std::vector<int> *outline_cn_counts);
   /* float2int.cpp ************************************************************/
   void ClearCharNormArray(uint8_t *char_norm_array);
   void ComputeIntCharNormArray(const FEATURE_STRUCT &norm_feature, uint8_t *char_norm_array);
