@@ -346,13 +346,13 @@ public:
   // of decreasing rating.
   // The unichar_map vector indicates the index of the results entry containing
   // each unichar, or -1 if the unichar is not yet included in results.
-  void AddShapeToResults(const ShapeRating &shape_rating, GenericVector<int> *unichar_map,
+  void AddShapeToResults(const ShapeRating &shape_rating, std::vector<int> *unichar_map,
                          std::vector<UnicharRating> *results) const;
 
 private:
   // Adds the given unichar_id to the results if needed, updating unichar_map
   // and returning the index of unichar in results.
-  int AddUnicharToResults(int unichar_id, float rating, GenericVector<int> *unichar_map,
+  int AddUnicharToResults(int unichar_id, float rating, std::vector<int> *unichar_map,
                           std::vector<UnicharRating> *results) const;
 
   // Pointer to a provided unicharset used only by the Debugstr member.

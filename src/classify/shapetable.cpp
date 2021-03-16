@@ -673,7 +673,7 @@ int ShapeTable::NumMasterShapes() const {
 // of decreasing rating.
 // The unichar_map vector indicates the index of the results entry containing
 // each unichar, or -1 if the unichar is not yet included in results.
-void ShapeTable::AddShapeToResults(const ShapeRating &shape_rating, GenericVector<int> *unichar_map,
+void ShapeTable::AddShapeToResults(const ShapeRating &shape_rating, std::vector<int> *unichar_map,
                                    std::vector<UnicharRating> *results) const {
   if (shape_rating.joined) {
     AddUnicharToResults(UNICHAR_JOINED, shape_rating.rating, unichar_map, results);
@@ -694,9 +694,9 @@ void ShapeTable::AddShapeToResults(const ShapeRating &shape_rating, GenericVecto
 
 // Adds the given unichar_id to the results if needed, updating unichar_map
 // and returning the index of unichar in results.
-int ShapeTable::AddUnicharToResults(int unichar_id, float rating, GenericVector<int> *unichar_map,
+int ShapeTable::AddUnicharToResults(int unichar_id, float rating, std::vector<int> *unichar_map,
                                     std::vector<UnicharRating> *results) const {
-  int result_index = unichar_map->get(unichar_id);
+  int result_index = unichar_map->at(unichar_id);
   if (result_index < 0) {
     UnicharRating result(unichar_id, rating);
     result_index = results->size();
