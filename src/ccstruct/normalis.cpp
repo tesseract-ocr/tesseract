@@ -356,6 +356,7 @@ void DENORM::LocalDenormTransform(const TPOINT &pt, TPOINT *original) const {
   original->x = IntCastRounded(float_result.x());
   original->y = IntCastRounded(float_result.y());
 }
+
 void DENORM::LocalDenormTransform(const FCOORD &pt, FCOORD *original) const {
   FCOORD rotated(pt.x() - final_xshift_, pt.y() - final_yshift_);
   if (x_map_ != nullptr && y_map_ != nullptr) {

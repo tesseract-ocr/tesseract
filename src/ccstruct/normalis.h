@@ -21,6 +21,7 @@
 
 #include <vector>
 #include <tesseract/export.h>
+#include <vector>
 
 struct Pix;
 

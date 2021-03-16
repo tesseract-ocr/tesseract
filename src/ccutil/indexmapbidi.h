@@ -2,7 +2,6 @@
 // File:        indexmapbidi.h
 // Description: Bi-directional mapping between a sparse and compact space.
 // Author:      rays@google.com (Ray Smith)
-// Created:     Tue Apr 06 11:33:59 PDT 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -77,7 +76,7 @@ protected:
   int32_t sparse_size_;
   // The compact space covers integers in the range [0, compact_map_.size()-1].
   // Each element contains the corresponding sparse index.
-  GenericVector<int32_t> compact_map_;
+  std::vector<int32_t> compact_map_;
 };
 
 // Bidirectional many-to-one mapping between a sparse and a compact discrete
@@ -170,7 +169,7 @@ private:
   }
 
   // Direct look-up of the compact index for each element in sparse space.
-  GenericVector<int32_t> sparse_map_;
+  std::vector<int32_t> sparse_map_;
 };
 
 } // namespace tesseract.

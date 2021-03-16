@@ -4,7 +4,6 @@
 // File:        intfeaturemap.cpp
 // Description: Encapsulation of IntFeatureSpace with IndexMapBiDi
 //              to provide a subspace mapping and fast feature lookup.
-// Created:     Tue Oct 26 08:58:30 PDT 2010
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
