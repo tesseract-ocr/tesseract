@@ -59,6 +59,7 @@
 #include "tesseractclass.h"  // for Tesseract
 #include "tprintf.h"         // for tprintf
 #include "werd.h"            // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
+#include "tabletransfer.h"   // for detected tables from tablefind.h
 
 #include <tesseract/baseapi.h>
 #include <tesseract/ocrclass.h>       // for ETEXT_DESC
@@ -1294,6 +1295,62 @@ char *TessBaseAPI::GetUTF8Text() {
   return result;
 }
 
+size_t TessBaseAPI::GetNumberOfTables()
+{
+  return constUniqueInstance<std::vector<TessTable>>().size();
+}
+
+std::tuple<int,int,int,int> TessBaseAPI::GetTableBoundingBox(unsigned i)
+{
+  const std::vector<TessTable>& t = constUniqueInstance<std::vector<TessTable>>();
+  
+  if(i >= t.size())
+    return std::tuple<int,int,int,int>(0, 0, 0, 0);
+  
+  const int height = tesseract_->ImageHeight();
+  
+  return std::make_tuple<int,int,int,int>(
+    t[i].box.left(), height - t[i].box.top(),
+    t[i].box.right(), height - t[i].box.bottom());
+}
+
+
+std::vector<std::tuple<int,int,int,int>> TessBaseAPI::GetTableRows(unsigned i)
+{
+  const std::vector<TessTable>& t = constUniqueInstance<std::vector<TessTable>>();
+  
+  if(i >= t.size())
+    return std::vector<std::tuple<int,int,int,int>>();
+  
+  std::vector<std::tuple<int,int,int,int>> rows(t[i].rows.size());
+  const int height = tesseract_->ImageHeight();
+  
+  for(unsigned j = 0; j < t[i].rows.size(); ++j)
+    rows[j] = std::make_tuple<int,int,int,int>(
+      t[i].rows[j].left(), height - t[i].rows[j].top(),
+      t[i].rows[j].right(), height - t[i].rows[j].bottom());
+  
+  return rows;
+}
+
+std::vector<std::tuple<int,int,int,int> > TessBaseAPI::GetTableCols(unsigned i)
+{
+  const std::vector<TessTable>& t = constUniqueInstance<std::vector<TessTable>>();
+  
+  if(i >= t.size())
+    return std::vector<std::tuple<int,int,int,int>>();
+  
+  std::vector<std::tuple<int,int,int,int>> cols(t[i].cols.size());
+  const int height = tesseract_->ImageHeight();
+  
+  for(unsigned j = 0; j < t[i].cols.size(); ++j)
+    cols[j] = std::make_tuple<int,int,int,int>(
+      t[i].cols[j].left(), height - t[i].cols[j].top(),
+      t[i].cols[j].right(), height - t[i].cols[j].bottom());
+  
+  return cols;
+}
+
 static void AddBoxToTSV(const PageIterator *it, PageIteratorLevel level, std::string &text) {
   int left, top, right, bottom;
   it->BoundingBox(level, &left, &top, &right, &bottom);
@@ -2062,6 +2119,8 @@ void TessBaseAPI::ClearResults() {
     delete paragraph_models_;
     paragraph_models_ = nullptr;
   }
+
+  uniqueInstance<std::vector<TessTable>>().clear();
 }
 
 /**
