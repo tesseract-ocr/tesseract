@@ -2,7 +2,6 @@
 // File:        detlinefit.cpp
 // Description: Deterministic least median squares line fitting.
 // Author:      Ray Smith
-// Created:     Thu Feb 28 14:45:01 PDT 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "detlinefit.h"
+#include "helpers.h"    // for IntCastRounded
 #include "statistc.h"
 #include "tprintf.h"
 
@@ -136,7 +136,8 @@ double DetLineFit::ConstrainedFit(const FCOORD &direction, double min_dist, doub
     line_pt->set_y(0);
     return 0.0;
   }
-  int median_index = distances_.choose_nth_item(distances_.size() / 2);
+  auto median_index = distances_.size() / 2;
+  std::nth_element(distances_.begin(), distances_.begin() + median_index, distances_.end());
   *line_pt = distances_[median_index].data();
   if (debug) {
     tprintf("Constrained fit to dir %g, %g = %d, %d :%d distances:\n", direction.x(), direction.y(),
@@ -220,7 +221,8 @@ double DetLineFit::ComputeUpperQuartileError() {
       distances_[i].key() = -distances_[i].key();
   }
   // Now get the upper quartile distance.
-  int index = distances_.choose_nth_item(3 * num_errors / 4);
+  auto index = 3 * num_errors / 4;
+  std::nth_element(distances_.begin(), distances_.begin() + index, distances_.end());
   double dist = distances_[index].key();
   // The true distance is the square root of the dist squared / square_length.
   // Don't bother with the square root. Just return the square distance.
@@ -244,7 +246,7 @@ int DetLineFit::NumberOfMisfittedPoints(double threshold) const {
 // Ignores distances of points that are further away than the previous point,
 // and overlaps the previous point by at least half.
 void DetLineFit::ComputeDistances(const ICOORD &start, const ICOORD &end) {
-  distances_.truncate(0);
+  distances_.clear();
   ICOORD line_vector = end;
   line_vector -= start;
   square_length_ = line_vector.sqlength();
@@ -277,7 +279,7 @@ void DetLineFit::ComputeDistances(const ICOORD &start, const ICOORD &end) {
 // storing the actual (signed) cross products in distances_.
 void DetLineFit::ComputeConstrainedDistances(const FCOORD &direction, double min_dist,
                                              double max_dist) {
-  distances_.truncate(0);
+  distances_.clear();
   square_length_ = direction.sqlength();
   // Compute the distance of each point from the line.
   for (int i = 0; i < pts_.size(); ++i) {

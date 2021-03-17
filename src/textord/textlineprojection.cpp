@@ -20,6 +20,7 @@
 #include "blobbox.h" // BlobNeighourDir.
 #include "blobs.h"
 #include "colpartition.h"
+#include "helpers.h" // for IntCastRounded
 #include "normalis.h"
 #include "textlineprojection.h"
 

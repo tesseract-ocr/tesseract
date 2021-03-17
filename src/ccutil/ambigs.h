@@ -36,7 +36,7 @@
 
 namespace tesseract {
 
-using UnicharIdVector = GenericVector<UNICHAR_ID>;
+using UnicharIdVector = std::vector<UNICHAR_ID>;
 
 enum AmbigType {
   NOT_AMBIG,      // the ngram pair is not ambiguous

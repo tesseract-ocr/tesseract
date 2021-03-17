@@ -548,10 +548,10 @@ void TBLOB::GetEdgeCoords(const TBOX &box, std::vector<std::vector<int>> &x_coor
   y_coords.resize(box.width());
   CollectEdges(box, nullptr, nullptr, &x_coords, &y_coords);
   // Sort the output vectors.
-  for (int i = 0; i < x_coords.size(); ++i)
-    std::sort(x_coords[i].begin(), x_coords[i].end());
-  for (int i = 0; i < y_coords.size(); ++i)
-    std::sort(y_coords[i].begin(), y_coords[i].end());
+  for (auto coord : x_coords)
+    std::sort(coord.begin(), coord.end());
+  for (auto coord : y_coords)
+    std::sort(coord.begin(), coord.end());
 }
 
 // Accumulates the segment between pt1 and pt2 in the LLSQ, quantizing over

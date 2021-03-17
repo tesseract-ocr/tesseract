@@ -2,7 +2,6 @@
  * File:        normalis.cpp  (Formerly denorm.c)
  * Description: Code for the DENORM class.
  * Author:      Ray Smith
- * Created:     Thu Apr 23 09:22:43 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -163,8 +162,8 @@ static void ComputeRunlengthImage(const TBOX &box,
   // Set a 2-d image array to the run lengths at each pixel.
   for (int ix = 0; ix < width; ++ix) {
     int y = 0;
-    for (int i = 0; i < y_coords[ix].size(); ++i) {
-      int y_edge = ClipToRange(y_coords[ix][i], 0, height);
+    for (auto y_coord : y_coords[ix]) {
+      int y_edge = ClipToRange(y_coord, 0, height);
       int gap = y_edge - y;
       // Every pixel between the last and current edge get set to the gap.
       while (y < y_edge) {
@@ -182,8 +181,8 @@ static void ComputeRunlengthImage(const TBOX &box,
   // Now set the image pixels the the MIN of the x and y runlengths.
   for (int iy = 0; iy < height; ++iy) {
     int x = 0;
-    for (int i = 0; i < x_coords[iy].size(); ++i) {
-      int x_edge = ClipToRange(x_coords[iy][i], 0, width);
+    for (auto x_coord : x_coords[iy]) {
+      int x_edge = ClipToRange(x_coord, 0, width);
       int gap = x_edge - x;
       while (x < x_edge) {
         if (gap < (*minruns)(x, iy))
@@ -220,11 +219,11 @@ static void ComputeRunlengthImage(const TBOX &box,
 // to guarantee that the top/right edge of the box (and anything beyond) always
 // gets mapped to the maximum target coordinate.
 static void ComputeEdgeDensityProfiles(const TBOX &box, const GENERIC_2D_ARRAY<int> &minruns,
-                                       GenericVector<float> *hx, GenericVector<float> *hy) {
+                                       std::vector<float> &hx, std::vector<float> &hy) {
   int width = box.width();
   int height = box.height();
-  hx->init_to_size(width + 1, 0.0);
-  hy->init_to_size(height + 1, 0.0);
+  hx.resize(width + 1);
+  hy.resize(height + 1);
   double total = 0.0;
   for (int iy = 0; iy < height; ++iy) {
     for (int ix = 0; ix < width; ++ix) {
@@ -232,23 +231,23 @@ static void ComputeEdgeDensityProfiles(const TBOX &box, const GENERIC_2D_ARRAY<i
       if (run == 0)
         run = 1;
       float density = 1.0f / run;
-      (*hx)[ix] += density;
-      (*hy)[iy] += density;
+      hx[ix] += density;
+      hy[iy] += density;
     }
-    total += (*hy)[iy];
+    total += hy[iy];
   }
   // Normalize each profile to sum to 1.
   if (total > 0.0) {
     for (int ix = 0; ix < width; ++ix) {
-      (*hx)[ix] /= total;
+      hx[ix] /= total;
     }
     for (int iy = 0; iy < height; ++iy) {
-      (*hy)[iy] /= total;
+      hy[iy] /= total;
     }
   }
   // There is an extra element in each array, so initialize to 1.
-  (*hx)[width] = 1.0f;
-  (*hy)[height] = 1.0f;
+  hx[width] = 1.0f;
+  hy[height] = 1.0f;
 }
 
 // Sets up the DENORM to execute a non-linear transformation based on
@@ -271,8 +270,8 @@ void DENORM::SetupNonLinear(const DENORM *predecessor, const TBOX &box, float ta
   // x_map_ and y_map_ store a mapping from input x and y coordinate to output
   // x and y coordinate, based on scaling to the supplied target_width and
   // target_height.
-  x_map_ = new GenericVector<float>;
-  y_map_ = new GenericVector<float>;
+  x_map_ = new std::vector<float>;
+  y_map_ = new std::vector<float>;
   // Set a 2-d image array to the run lengths at each pixel.
   int width = box.width();
   int height = box.height();
@@ -280,7 +279,7 @@ void DENORM::SetupNonLinear(const DENORM *predecessor, const TBOX &box, float ta
   ComputeRunlengthImage(box, x_coords, y_coords, &minruns);
   // Edge density is the sum of the inverses of the run lengths. Compute
   // edge density projection profiles.
-  ComputeEdgeDensityProfiles(box, minruns, x_map_, y_map_);
+  ComputeEdgeDensityProfiles(box, minruns, *x_map_, *y_map_);
   // Convert the edge density profiles to the coordinates by multiplying by
   // the desired size and accumulating.
   (*x_map_)[width] = target_width;
@@ -309,9 +308,9 @@ void DENORM::LocalNormTransform(const TPOINT &pt, TPOINT *transformed) const {
 void DENORM::LocalNormTransform(const FCOORD &pt, FCOORD *transformed) const {
   FCOORD translated(pt.x() - x_origin_, pt.y() - y_origin_);
   if (x_map_ != nullptr && y_map_ != nullptr) {
-    int x = ClipToRange(IntCastRounded(translated.x()), 0, x_map_->size() - 1);
+    int x = ClipToRange(IntCastRounded(translated.x()), 0, static_cast<int>(x_map_->size() - 1));
     translated.set_x((*x_map_)[x]);
-    int y = ClipToRange(IntCastRounded(translated.y()), 0, y_map_->size() - 1);
+    int y = ClipToRange(IntCastRounded(translated.y()), 0, static_cast<int>(y_map_->size() - 1));
     translated.set_y((*y_map_)[y]);
   } else {
     translated.set_x(translated.x() * x_scale_);
@@ -360,9 +359,17 @@ void DENORM::LocalDenormTransform(const TPOINT &pt, TPOINT *original) const {
 void DENORM::LocalDenormTransform(const FCOORD &pt, FCOORD *original) const {
   FCOORD rotated(pt.x() - final_xshift_, pt.y() - final_yshift_);
   if (x_map_ != nullptr && y_map_ != nullptr) {
-    int x = x_map_->binary_search(rotated.x());
+    auto pos = std::upper_bound(x_map_->begin(), x_map_->end(), rotated.x());
+    if (pos > x_map_->begin()) {
+      --pos;
+    }
+    auto x = pos - x_map_->begin();
     original->set_x(x + x_origin_);
-    int y = y_map_->binary_search(rotated.y());
+    pos = std::upper_bound(y_map_->begin(), y_map_->end(), rotated.y());
+    if (pos > y_map_->begin()) {
+      --pos;
+    }
+    auto y = pos - y_map_->begin();
     original->set_y(y + y_origin_);
   } else {
     if (rotation_ != nullptr) {
@@ -502,12 +509,12 @@ void DENORM::Print() const {
   tprintf("Input Origin = (%g, %g)\n", x_origin_, y_origin_);
   if (x_map_ != nullptr && y_map_ != nullptr) {
     tprintf("x map:\n");
-    for (int x = 0; x < x_map_->size(); ++x) {
-      tprintf("%g ", (*x_map_)[x]);
+    for (auto x : *x_map_) {
+      tprintf("%g ", x);
     }
     tprintf("\ny map:\n");
-    for (int y = 0; y < y_map_->size(); ++y) {
-      tprintf("%g ", (*y_map_)[y]);
+    for (auto y : *y_map_) {
+      tprintf("%g ", y);
     }
     tprintf("\n");
   } else {

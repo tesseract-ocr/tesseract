@@ -51,7 +51,7 @@ bool TrainingSampleSet::FontClassInfo::Serialize(FILE *fp) const {
     return false;
   if (fwrite(&canonical_dist, sizeof(canonical_dist), 1, fp) != 1)
     return false;
-  if (!samples.Serialize(fp))
+  if (!::tesseract::Serialize(fp, samples))
     return false;
   return true;
 }
@@ -64,7 +64,7 @@ bool TrainingSampleSet::FontClassInfo::DeSerialize(bool swap, FILE *fp) {
     return false;
   if (fread(&canonical_dist, sizeof(canonical_dist), 1, fp) != 1)
     return false;
-  if (!samples.DeSerialize(swap, fp))
+  if (!::tesseract::DeSerialize(swap, fp, samples))
     return false;
   if (swap) {
     ReverseN(&num_raw_samples, sizeof(num_raw_samples));
@@ -318,7 +318,7 @@ float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1, int font_i
   if (font_id1 == font_id2) {
     // Special case cache for speed.
     if (fc_info.unichar_distance_cache.size() == 0)
-      fc_info.unichar_distance_cache.init_to_size(unicharset_size_, -1.0f);
+      fc_info.unichar_distance_cache.resize(unicharset_size_, -1.0f);
     if (fc_info.unichar_distance_cache[class_id2] < 0) {
       // Distance has to be calculated.
       float result = ComputeClusterDistance(font_id1, class_id1, font_id2, class_id2, feature_map);
@@ -326,14 +326,14 @@ float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1, int font_i
       // Copy to the symmetric cache entry.
       FontClassInfo &fc_info2 = (*font_class_array_)(font_index2, class_id2);
       if (fc_info2.unichar_distance_cache.size() == 0)
-        fc_info2.unichar_distance_cache.init_to_size(unicharset_size_, -1.0f);
+        fc_info2.unichar_distance_cache.resize(unicharset_size_, -1.0f);
       fc_info2.unichar_distance_cache[class_id1] = result;
     }
     return fc_info.unichar_distance_cache[class_id2];
   } else if (class_id1 == class_id2) {
     // Another special-case cache for equal class-id.
     if (fc_info.font_distance_cache.size() == 0)
-      fc_info.font_distance_cache.init_to_size(font_id_map_.CompactSize(), -1.0f);
+      fc_info.font_distance_cache.resize(font_id_map_.CompactSize(), -1.0f);
     if (fc_info.font_distance_cache[font_index2] < 0) {
       // Distance has to be calculated.
       float result = ComputeClusterDistance(font_id1, class_id1, font_id2, class_id2, feature_map);
@@ -341,7 +341,7 @@ float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1, int font_i
       // Copy to the symmetric cache entry.
       FontClassInfo &fc_info2 = (*font_class_array_)(font_index2, class_id2);
       if (fc_info2.font_distance_cache.size() == 0)
-        fc_info2.font_distance_cache.init_to_size(font_id_map_.CompactSize(), -1.0f);
+        fc_info2.font_distance_cache.resize(font_id_map_.CompactSize(), -1.0f);
       fc_info2.font_distance_cache[font_index1] = result;
     }
     return fc_info.font_distance_cache[font_index2];
@@ -383,7 +383,7 @@ float TrainingSampleSet::ComputeClusterDistance(int font_id1, int class_id1, int
 // levels indicates how many times to compute the offset features of what is
 // already there. This is done by iteration rather than recursion.
 static void AddNearFeatures(const IntFeatureMap &feature_map, int f, int levels,
-                            GenericVector<int> *good_features) {
+                            std::vector<int> *good_features) {
   int prev_num_features = 0;
   good_features->push_back(f);
   int num_features = 1;
@@ -431,7 +431,7 @@ int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1, int font_i
     if (cloud1[feature])
       continue;
     // Gather the near neighbours of f.
-    GenericVector<int> good_features;
+    std::vector<int> good_features;
     AddNearFeatures(feature_map, feature, 1, &good_features);
     // Check that none of the good_features are in the cloud.
     int i;
@@ -546,7 +546,7 @@ void TrainingSampleSet::OrganizeByFontAndClass() {
 // index for the font_class_array_.
 void TrainingSampleSet::SetupFontIdMap() {
   // Number of samples for each font_id.
-  GenericVector<int> font_counts;
+  std::vector<int> font_counts;
   for (int s = 0; s < samples_.size(); ++s) {
     const int font_id = samples_[s]->font_id();
     while (font_id >= font_counts.size())

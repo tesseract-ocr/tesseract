@@ -307,9 +307,9 @@ public:
 
   // Delete CHAR_FRAGMENTs stored in properties of unichars array.
   void delete_pointers_in_unichars() {
-    for (int i = 0; i < unichars.size(); ++i) {
-      delete unichars[i].properties.fragment;
-      unichars[i].properties.fragment = nullptr;
+    for (auto unichar : unichars) {
+      delete unichar.properties.fragment;
+      unichar.properties.fragment = nullptr;
     }
   }
 

@@ -2,7 +2,6 @@
 // File:        detlinefit.h
 // Description: Deterministic least upper-quartile squares line fitting.
 // Author:      Ray Smith
-// Created:     Thu Feb 28 14:35:01 PDT 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +19,6 @@
 #ifndef TESSERACT_CCSTRUCT_DETLINEFIT_H_
 #define TESSERACT_CCSTRUCT_DETLINEFIT_H_
 
-#include "genericvector.h"
 #include "kdpair.h"
 #include "points.h"
 
@@ -143,13 +141,13 @@ private:
 
   // Stores all the source points in the order they were given and their
   // halfwidths, if any.
-  GenericVector<PointWidth> pts_;
+  std::vector<PointWidth> pts_;
   // Stores the computed perpendicular distances of (some of) the pts_ from a
   // given vector (assuming it goes through the origin, making it a line).
   // Since the distances may be a subset of the input points, and get
   // re-ordered by the nth_item function, the original point is stored
   // along side the distance.
-  GenericVector<DistPointPair> distances_; // Distances of points.
+  std::vector<DistPointPair> distances_; // Distances of points.
   // The squared length of the vector used to compute distances_.
   double square_length_;
 };

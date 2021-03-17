@@ -24,6 +24,7 @@
 #include "colfind.h"
 #include "colpartitionset.h"
 #include "detlinefit.h"
+#include "helpers.h" // for IntCastRounded
 #include "statistc.h"
 #include "tabvector.h"
 

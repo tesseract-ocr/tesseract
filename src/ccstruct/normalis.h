@@ -38,9 +38,6 @@ class UNICHARSET;
 struct TBLOB;
 struct TPOINT;
 
-template <typename T>
-class GenericVector;
-
 // Possible normalization methods. Use NEGATIVE values as these also
 // double up as markers for the last sub-classifier.
 enum NormalizationMode {
@@ -288,10 +285,10 @@ private:
   const DENORM *predecessor_;
   // Non-linear transformation maps directly from each integer offset from the
   // origin to the corresponding x-coord. Owned by the DENORM.
-  GenericVector<float> *x_map_;
+  std::vector<float> *x_map_;
   // Non-linear transformation maps directly from each integer offset from the
   // origin to the corresponding y-coord. Owned by the DENORM.
-  GenericVector<float> *y_map_;
+  std::vector<float> *y_map_;
   // x-coordinate to be mapped to final_xshift_ in the result.
   float x_origin_;
   // y-coordinate to be mapped to final_yshift_ in the result.

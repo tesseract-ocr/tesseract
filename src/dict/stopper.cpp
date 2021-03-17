@@ -283,7 +283,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
     if (stopper_debug_level > 2) {
       tprintf("\nResulting ambig_blob_choices:\n");
       for (i = 0; i < ambig_blob_choices.size(); ++i) {
-        print_ratings_list("", ambig_blob_choices.get(i), getUnicharset());
+        print_ratings_list("", ambig_blob_choices.at(i), getUnicharset());
         tprintf("\n");
       }
     }
@@ -336,7 +336,9 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
     fprintf(output_ambig_words_file_, "\n");
   }
 
-  ambig_blob_choices.delete_data_pointers();
+  for (auto data : ambig_blob_choices) {
+    delete data;
+  }
   return !ambigs_found;
 }
 

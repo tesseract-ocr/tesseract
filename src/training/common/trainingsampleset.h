@@ -22,8 +22,6 @@
 #include "shapetable.h"
 #include "trainingsample.h"
 
-#include "genericvector.h"
-
 namespace tesseract {
 
 class UNICHARSET;
@@ -237,7 +235,7 @@ private:
     // Max distance of the canonical sample from any other.
     float canonical_dist;
     // Sample indices for the samples, including replicated.
-    GenericVector<int32_t> samples;
+    std::vector<int32_t> samples;
 
     // Non-serialized cache data.
     // Indexed features of the canonical sample.
@@ -248,12 +246,12 @@ private:
     // Caches for ClusterDistance.
     // Caches for other fonts but matching this unichar. -1 indicates not set.
     // Indexed by compact font index from font_id_map_.
-    GenericVector<float> font_distance_cache;
+    std::vector<float> font_distance_cache;
     // Caches for other unichars but matching this font. -1 indicates not set.
-    GenericVector<float> unichar_distance_cache;
+    std::vector<float> unichar_distance_cache;
     // Cache for the rest (non matching font and unichar.)
     // A cache of distances computed by ReliablySeparable.
-    GenericVector<FontClassDistance> distance_cache;
+    std::vector<FontClassDistance> distance_cache;
   };
 
   PointerVector<TrainingSample> samples_;
