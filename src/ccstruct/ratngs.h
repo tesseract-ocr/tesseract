@@ -621,7 +621,7 @@ private:
 
 // Make WERD_CHOICE listable.
 ELISTIZEH(WERD_CHOICE)
-using BLOB_CHOICE_LIST_VECTOR = GenericVector<BLOB_CHOICE_LIST *>;
+using BLOB_CHOICE_LIST_VECTOR = std::vector<BLOB_CHOICE_LIST *>;
 
 // Utilities for comparing WERD_CHOICEs
 

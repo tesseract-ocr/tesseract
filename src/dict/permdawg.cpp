@@ -194,7 +194,7 @@ void Dict::permute_choices(const char *debug, const BLOB_CHOICE_LIST_VECTOR &cha
   }
   if (char_choice_index < char_choices.size()) {
     BLOB_CHOICE_IT blob_choice_it;
-    blob_choice_it.set_to_list(char_choices.get(char_choice_index));
+    blob_choice_it.set_to_list(char_choices.at(char_choice_index));
     for (blob_choice_it.mark_cycle_pt(); !blob_choice_it.cycled_list(); blob_choice_it.forward()) {
       (*attempts_left)--;
       append_choices(debug, char_choices, *(blob_choice_it.data()), char_choice_index,
