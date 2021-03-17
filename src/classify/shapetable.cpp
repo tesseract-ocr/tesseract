@@ -35,7 +35,7 @@ namespace tesseract {
 // unichar_id. If the results are sorted by rating, this will also be the
 // best result with the required unichar_id.
 // Returns -1 if the unichar_id is not found
-int ShapeRating::FirstResultWithUnichar(const GenericVector<ShapeRating> &results,
+int ShapeRating::FirstResultWithUnichar(const std::vector<ShapeRating> &results,
                                         const ShapeTable &shape_table, UNICHAR_ID unichar_id) {
   for (int r = 0; r < results.size(); ++r) {
     const int shape_id = results[r].shape_id;
@@ -51,7 +51,7 @@ int ShapeRating::FirstResultWithUnichar(const GenericVector<ShapeRating> &result
 // unichar_id. If the results are sorted by rating, this will also be the
 // best result with the required unichar_id.
 // Returns -1 if the unichar_id is not found
-int UnicharRating::FirstResultWithUnichar(const GenericVector<UnicharRating> &results,
+int UnicharRating::FirstResultWithUnichar(const std::vector<UnicharRating> &results,
                                           UNICHAR_ID unichar_id) {
   for (int r = 0; r < results.size(); ++r) {
     if (results[r].unichar_id == unichar_id)
@@ -62,12 +62,12 @@ int UnicharRating::FirstResultWithUnichar(const GenericVector<UnicharRating> &re
 
 // Writes to the given file. Returns false in case of error.
 bool UnicharAndFonts::Serialize(FILE *fp) const {
-  return tesseract::Serialize(fp, &unichar_id) && font_ids.Serialize(fp);
+  return tesseract::Serialize(fp, &unichar_id) && tesseract::Serialize(fp, font_ids);
 }
-// Reads from the given file. Returns false in case of error.
 
+// Reads from the given file. Returns false in case of error.
 bool UnicharAndFonts::DeSerialize(TFile *fp) {
-  return fp->DeSerialize(&unichar_id) && font_ids.DeSerialize(fp);
+  return fp->DeSerialize(&unichar_id) && fp->DeSerialize(font_ids);
 }
 
 // Sort function to sort a pair of UnicharAndFonts by unichar_id.
@@ -77,10 +77,14 @@ int UnicharAndFonts::SortByUnicharId(const void *v1, const void *v2) {
   return p1->unichar_id - p2->unichar_id;
 }
 
+bool UnicharAndFonts::StdSortByUnicharId(const UnicharAndFonts &v1, const UnicharAndFonts &v2) {
+  return v1.unichar_id < v2.unichar_id;
+}
+
 // Writes to the given file. Returns false in case of error.
 bool Shape::Serialize(FILE *fp) const {
   uint8_t sorted = unichars_sorted_;
-  return tesseract::Serialize(fp, &sorted) && unichars_.SerializeClasses(fp);
+  return tesseract::Serialize(fp, &sorted) && tesseract::Serialize(fp, unichars_);
 }
 // Reads from the given file. Returns false in case of error.
 
@@ -89,7 +93,7 @@ bool Shape::DeSerialize(TFile *fp) {
   if (!fp->DeSerialize(&sorted))
     return false;
   unichars_sorted_ = sorted != 0;
-  return unichars_.DeSerializeClasses(fp);
+  return fp->DeSerialize(unichars_);
 }
 
 // Adds a font_id for the given unichar_id. If the unichar_id is not
@@ -98,7 +102,7 @@ void Shape::AddToShape(int unichar_id, int font_id) {
   for (int c = 0; c < unichars_.size(); ++c) {
     if (unichars_[c].unichar_id == unichar_id) {
       // Found the unichar in the shape table.
-      GenericVector<int> &font_list = unichars_[c].font_ids;
+      std::vector<int> &font_list = unichars_[c].font_ids;
       for (int f = 0; f < font_list.size(); ++f) {
         if (font_list[f] == font_id)
           return; // Font is already there.
@@ -195,7 +199,7 @@ bool Shape::operator==(const Shape &other) const {
 bool Shape::IsSubsetOf(const Shape &other) const {
   for (int c = 0; c < unichars_.size(); ++c) {
     int unichar_id = unichars_[c].unichar_id;
-    const GenericVector<int> &font_list = unichars_[c].font_ids;
+    const std::vector<int> &font_list = unichars_[c].font_ids;
     for (int f = 0; f < font_list.size(); ++f) {
       if (!other.ContainsUnicharAndFont(unichar_id, font_list[f]))
         return false;
@@ -223,7 +227,7 @@ bool Shape::IsEqualUnichars(Shape *other) {
 
 // Sorts the unichars_ vector by unichar.
 void Shape::SortUnichars() {
-  unichars_.sort(UnicharAndFonts::SortByUnicharId);
+  std::sort(unichars_.begin(), unichars_.end(), UnicharAndFonts::StdSortByUnicharId);
   unichars_sorted_ = true;
 }
 
@@ -262,7 +266,7 @@ int ShapeTable::NumFonts() const {
 
 // Re-indexes the class_ids in the shapetable according to the given map.
 // Useful in conjunction with set_unicharset.
-void ShapeTable::ReMapClassIds(const GenericVector<int> &unicharset_map) {
+void ShapeTable::ReMapClassIds(const std::vector<int> &unicharset_map) {
   for (int shape_id = 0; shape_id < shape_table_.size(); ++shape_id) {
     Shape *shape = shape_table_[shape_id];
     for (int c = 0; c < shape->size(); ++c) {
@@ -629,7 +633,7 @@ bool ShapeTable::CommonFont(int shape_id1, int shape_id2) const {
   const Shape &shape1 = GetShape(shape_id1);
   const Shape &shape2 = GetShape(shape_id2);
   for (int c1 = 0; c1 < shape1.size(); ++c1) {
-    const GenericVector<int> &font_list1 = shape1[c1].font_ids;
+    const std::vector<int> &font_list1 = shape1[c1].font_ids;
     for (int f = 0; f < font_list1.size(); ++f) {
       if (shape2.ContainsFont(font_list1[f]))
         return true;
@@ -640,9 +644,9 @@ bool ShapeTable::CommonFont(int shape_id1, int shape_id2) const {
 
 // Appends the master shapes from other to this.
 // If not nullptr, shape_map is set to map other shape_ids to this's shape_ids.
-void ShapeTable::AppendMasterShapes(const ShapeTable &other, GenericVector<int> *shape_map) {
+void ShapeTable::AppendMasterShapes(const ShapeTable &other, std::vector<int> *shape_map) {
   if (shape_map != nullptr)
-    shape_map->init_to_size(other.NumShapes(), -1);
+    shape_map->resize(other.NumShapes(), -1);
   for (int s = 0; s < other.shape_table_.size(); ++s) {
     if (other.shape_table_[s]->destination_index() < 0) {
       int index = AddShape(*other.shape_table_[s]);
@@ -669,7 +673,7 @@ int ShapeTable::NumMasterShapes() const {
 // of decreasing rating.
 // The unichar_map vector indicates the index of the results entry containing
 // each unichar, or -1 if the unichar is not yet included in results.
-void ShapeTable::AddShapeToResults(const ShapeRating &shape_rating, GenericVector<int> *unichar_map,
+void ShapeTable::AddShapeToResults(const ShapeRating &shape_rating, std::vector<int> *unichar_map,
                                    std::vector<UnicharRating> *results) const {
   if (shape_rating.joined) {
     AddUnicharToResults(UNICHAR_JOINED, shape_rating.rating, unichar_map, results);
@@ -690,9 +694,9 @@ void ShapeTable::AddShapeToResults(const ShapeRating &shape_rating, GenericVecto
 
 // Adds the given unichar_id to the results if needed, updating unichar_map
 // and returning the index of unichar in results.
-int ShapeTable::AddUnicharToResults(int unichar_id, float rating, GenericVector<int> *unichar_map,
+int ShapeTable::AddUnicharToResults(int unichar_id, float rating, std::vector<int> *unichar_map,
                                     std::vector<UnicharRating> *results) const {
-  int result_index = unichar_map->get(unichar_id);
+  int result_index = unichar_map->at(unichar_id);
   if (result_index < 0) {
     UnicharRating result(unichar_id, rating);
     result_index = results->size();

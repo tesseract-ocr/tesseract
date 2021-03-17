@@ -60,7 +60,6 @@
 #include "unicity_table.h"   // for UnicityTable
 
 #include <tesseract/unichar.h> // for UNICHAR_ID, INVALID_UNICHAR_ID
-#include "genericvector.h"     // for GenericVector
 #include "helpers.h"           // for IntCastRounded, ClipToRange
 #include "serialis.h"          // for TFile
 
@@ -1104,7 +1103,7 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS *classes, bool debug,
       // 2. Multi-unichar shapetable. Variable unichars in the shapes referenced
       // by int_result. In this case, build a vector of UnicharRating to
       // gather together different font-ids for each unichar. Also covers case1.
-      GenericVector<UnicharRating> mapped_results;
+      std::vector<UnicharRating> mapped_results;
       for (int f = 0; f < int_result->fonts.size(); ++f) {
         int shape_id = int_result->fonts[f].fontinfo_id;
         const Shape &shape = shape_table_->GetShape(shape_id);
@@ -1260,7 +1259,7 @@ int Classify::CharNormClassifier(TBLOB *blob, const TrainingSample &sample,
 } /* CharNormClassifier */
 
 // As CharNormClassifier, but operates on a TrainingSample and outputs to
-// a GenericVector of ShapeRating without conversion to classes.
+// a vector of ShapeRating without conversion to classes.
 int Classify::CharNormTrainingSample(bool pruner_only, int keep_this, const TrainingSample &sample,
                                      std::vector<UnicharRating> *results) {
   results->clear();

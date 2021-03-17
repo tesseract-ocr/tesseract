@@ -27,8 +27,6 @@
 #include "genericheap.h"
 #include "intmatcher.h"
 
-#include "genericvector.h"
-
 namespace tesseract {
 
 class UNICHARSET;
@@ -53,7 +51,7 @@ struct UnicharRating {
   // unichar_id. If the results are sorted by rating, this will also be the
   // best result with the required unichar_id.
   // Returns -1 if the unichar_id is not found
-  static int FirstResultWithUnichar(const GenericVector<UnicharRating> &results,
+  static int FirstResultWithUnichar(const std::vector<UnicharRating> &results,
                                     UNICHAR_ID unichar_id);
 
   // Index into some UNICHARSET table indicates the class of the answer.
@@ -84,7 +82,7 @@ struct ShapeRating {
   // unichar_id. If the results are sorted by rating, this will also be the
   // best result with the required unichar_id.
   // Returns -1 if the unichar_id is not found
-  static int FirstResultWithUnichar(const GenericVector<ShapeRating> &results,
+  static int FirstResultWithUnichar(const std::vector<ShapeRating> &results,
                                     const ShapeTable &shape_table, UNICHAR_ID unichar_id);
 
   // Index into some shape table indicates the class of the answer.
@@ -139,8 +137,9 @@ struct UnicharAndFonts {
 
   // Sort function to sort a pair of UnicharAndFonts by unichar_id.
   static int SortByUnicharId(const void *v1, const void *v2);
+  static bool StdSortByUnicharId(const UnicharAndFonts &v1, const UnicharAndFonts &v2);
 
-  GenericVector<int32_t> font_ids;
+  std::vector<int32_t> font_ids;
   int32_t unichar_id;
 };
 
@@ -216,7 +215,7 @@ private:
   int destination_index_ = 0;
   // Array of unichars, each with a set of fonts. Each unichar has at most
   // one entry in the vector.
-  GenericVector<UnicharAndFonts> unichars_;
+  std::vector<UnicharAndFonts> unichars_;
 };
 
 // ShapeTable is a class to encapsulate the triple indirection that is
@@ -255,7 +254,7 @@ public:
   }
   // Re-indexes the class_ids in the shapetable according to the given map.
   // Useful in conjunction with set_unicharset.
-  void ReMapClassIds(const GenericVector<int> &unicharset_map);
+  void ReMapClassIds(const std::vector<int> &unicharset_map);
   // Returns a string listing the classes/fonts in a shape.
   std::string DebugStr(int shape_id) const;
   // Returns a debug string summarizing the table.
@@ -318,7 +317,7 @@ public:
   // copy of a ShapeTable.
   // If not nullptr, shape_map is set to map other shape_ids to this's
   // shape_ids.
-  void AppendMasterShapes(const ShapeTable &other, GenericVector<int> *shape_map);
+  void AppendMasterShapes(const ShapeTable &other, std::vector<int> *shape_map);
   // Returns the number of master shapes remaining after merging.
   int NumMasterShapes() const;
   // Returns the destination of this shape, (if merged), taking into account
@@ -345,13 +344,13 @@ public:
   // of decreasing rating.
   // The unichar_map vector indicates the index of the results entry containing
   // each unichar, or -1 if the unichar is not yet included in results.
-  void AddShapeToResults(const ShapeRating &shape_rating, GenericVector<int> *unichar_map,
+  void AddShapeToResults(const ShapeRating &shape_rating, std::vector<int> *unichar_map,
                          std::vector<UnicharRating> *results) const;
 
 private:
   // Adds the given unichar_id to the results if needed, updating unichar_map
   // and returning the index of unichar in results.
-  int AddUnicharToResults(int unichar_id, float rating, GenericVector<int> *unichar_map,
+  int AddUnicharToResults(int unichar_id, float rating, std::vector<int> *unichar_map,
                           std::vector<UnicharRating> *results) const;
 
   // Pointer to a provided unicharset used only by the Debugstr member.

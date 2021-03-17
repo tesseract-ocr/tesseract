@@ -3,7 +3,6 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        intfeaturespace.h
 // Description: Indexed feature space based on INT_FEATURE_STRUCT.
-// Created:     Wed Mar 24 10:55:30 PDT 2010
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +19,6 @@
 #ifndef TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 #define TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 
-#include "genericvector.h"
 #include "intproto.h"
 
 // Extent of x,y,theta in the input feature space. [0,255].
@@ -63,11 +61,11 @@ public:
   // Bulk calls to Index. Maps the given array of features to a vector of
   // int32_t indices in the same order as the input.
   void IndexFeatures(const INT_FEATURE_STRUCT *features, int num_features,
-                     GenericVector<int> *mapped_features) const;
+                     std::vector<int> *mapped_features) const;
   // Bulk calls to Index. Maps the given array of features to a vector of
   // sorted int32_t indices.
   void IndexAndSortFeatures(const INT_FEATURE_STRUCT *features, int num_features,
-                            GenericVector<int> *sorted_features) const;
+                            std::vector<int> *sorted_features) const;
   // Returns a feature space index for the given x,y position in a display
   // window, or -1 if the feature is a miss.
   int XYToFeatureIndex(int x, int y) const;

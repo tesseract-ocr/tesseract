@@ -204,7 +204,7 @@ int SampleIterator::SparseCharsetSize() const {
 // Sets the mapped_features_ from the features using the provided
 // feature_map.
 static void MapFeatures(TrainingSample &s, const IntFeatureMap &feature_map) {
-  GenericVector<int> indexed_features;
+  std::vector<int> indexed_features;
   feature_map.feature_space().IndexAndSortFeatures(s.features(), s.num_features(),
                                                    &indexed_features);
   feature_map.MapIndexedFeatures(indexed_features, &s.mapped_features_);

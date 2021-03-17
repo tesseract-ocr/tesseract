@@ -2,7 +2,6 @@
 // File:        indexmapbidi.cpp
 // Description: Bi-directional mapping between a sparse and compact space.
 // Author:      rays@google.com (Ray Smith)
-// Created:     Tue Apr 06 11:33:59 PDT 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -239,8 +238,8 @@ bool IndexMapBiDi::DeSerialize(bool swap, FILE *fp) {
 // Assumes the input is sorted. The output indices are sorted and uniqued.
 // Return value is the number of "missed" features, being features that
 // don't map to the compact feature space.
-int IndexMapBiDi::MapFeatures(const GenericVector<int> &sparse, GenericVector<int> *compact) const {
-  compact->truncate(0);
+int IndexMapBiDi::MapFeatures(const std::vector<int> &sparse, std::vector<int> *compact) const {
+  compact->clear();
   int num_features = sparse.size();
   int missed_features = 0;
   int prev_good_feature = -1;

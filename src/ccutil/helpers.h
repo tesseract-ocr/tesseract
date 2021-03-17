@@ -209,6 +209,61 @@ inline void Reverse64(void *ptr) {
   ReverseN(ptr, 8);
 }
 
+// Reads a vector of simple types from the given file. Assumes that bitwise
+// read/write will work with ReverseN according to sizeof(T).
+// Returns false in case of error.
+// If swap is true, assumes a big/little-endian swap is needed.
+template <typename T>
+bool DeSerialize(bool swap, FILE *fp, std::vector<T> &data) {
+  uint32_t size;
+  if (fread(&size, sizeof(size), 1, fp) != 1) {
+    return false;
+  }
+  if (swap) {
+    Reverse32(&size);
+  }
+  // Arbitrarily limit the number of elements to protect against bad data.
+  assert(size <= UINT16_MAX);
+  if (size > UINT16_MAX) {
+    return false;
+  }
+  // TODO: optimize.
+  data.resize(size);
+  if (size > 0) {
+    if (fread(&data[0], sizeof(T), size, fp) != size) {
+      return false;
+    }
+    if (swap) {
+      for (int i = 0; i < size; ++i) {
+        ReverseN(&data[i], sizeof(T));
+      }
+    }
+  }
+  return true;
+}
+
+// Writes a vector of simple types to the given file. Assumes that bitwise
+// read/write of T will work. Returns false in case of error.
+template <typename T>
+bool Serialize(FILE *fp, const std::vector<T> &data) {
+  uint32_t size = data.size();
+  if (fwrite(&size, sizeof(size), 1, fp) != 1) {
+    return false;
+  } else if constexpr (std::is_class_v<T>) {
+    // Serialize a tesseract class.
+    for (auto &item : data) {
+      if (!item.Serialize(fp)) {
+        return false;
+      }
+    }
+  } else if (size > 0) {
+    if (fwrite(&data[0], sizeof(T), size, fp) != size) {
+      return false;
+    }
+  }
+  return true;
+}
+
 } // namespace tesseract
 
 #endif // TESSERACT_CCUTIL_HELPERS_H_

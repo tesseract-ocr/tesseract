@@ -3,7 +3,6 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        intfeaturedist.h
 // Description: Fast set-difference-based feature distance calculator.
-// Created:     Thu Sep 01 12:14:30 PDT 2011
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,11 +48,11 @@ public:
   // Setup the map for the given indexed_features that have been indexed by
   // feature_map. After use, use Set(..., false) to reset to the initial state
   // as this is faster than calling Init for sparse spaces.
-  void Set(const GenericVector<int> &indexed_features, int canonical_count, bool value);
+  void Set(const std::vector<int> &indexed_features, int canonical_count, bool value);
 
   // Compute the distance between the given feature vector and the last
   // Set feature vector.
-  double FeatureDistance(const GenericVector<int> &features) const;
+  double FeatureDistance(const std::vector<int> &features) const;
   double DebugFeatureDistance(const GenericVector<int> &features) const;
 
 private:

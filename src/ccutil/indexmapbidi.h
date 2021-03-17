@@ -157,7 +157,7 @@ public:
   // Assumes the input is sorted. The output indices are sorted and uniqued.
   // Return value is the number of "missed" features, being features that
   // don't map to the compact feature space.
-  int MapFeatures(const GenericVector<int> &sparse, GenericVector<int> *compact) const;
+  int MapFeatures(const std::vector<int> &sparse, std::vector<int> *compact) const;
 
 private:
   // Returns the master compact index for a given compact index.

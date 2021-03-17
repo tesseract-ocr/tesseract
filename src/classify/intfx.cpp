@@ -144,12 +144,12 @@ void Classify::SetupBLCNDenorms(const TBLOB &blob, bool nonlinear_norm, DENORM *
                                 128.0f, 128.0f);
   // Setup the denorm for character normalization.
   if (nonlinear_norm) {
-    GenericVector<GenericVector<int>> x_coords;
-    GenericVector<GenericVector<int>> y_coords;
+    std::vector<std::vector<int>> x_coords;
+    std::vector<std::vector<int>> y_coords;
     TBOX box;
     blob.GetPreciseBoundingBox(&box);
     box.pad(1, 1);
-    blob.GetEdgeCoords(box, &x_coords, &y_coords);
+    blob.GetEdgeCoords(box, x_coords, y_coords);
     cn_denorm->SetupNonLinear(&blob.denorm(), box, UINT8_MAX, UINT8_MAX, 0.0f, 0.0f, x_coords,
                               y_coords);
   } else {
@@ -431,11 +431,11 @@ void Classify::ExtractFeatures(const TBLOB &blob, bool nonlinear_norm,
                                std::vector<INT_FEATURE_STRUCT> *bl_features,
                                std::vector<INT_FEATURE_STRUCT> *cn_features,
                                INT_FX_RESULT_STRUCT *results,
-                               GenericVector<int> *outline_cn_counts) {
+                               std::vector<int> *outline_cn_counts) {
   DENORM bl_denorm, cn_denorm;
   tesseract::Classify::SetupBLCNDenorms(blob, nonlinear_norm, &bl_denorm, &cn_denorm, results);
   if (outline_cn_counts != nullptr)
-    outline_cn_counts->truncate(0);
+    outline_cn_counts->clear();
   // Iterate the outlines.
   for (TESSLINE *ol = blob.outlines; ol != nullptr; ol = ol->next) {
     // Iterate the polygon.

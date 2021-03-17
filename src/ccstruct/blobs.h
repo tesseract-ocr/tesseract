@@ -391,8 +391,8 @@ struct TBLOB {
   // x-coord starting at box.left().
   // Eg x_coords[0] is a collection of the x-coords of edges at y=bottom.
   // Eg x_coords[1] is a collection of the x-coords of edges at y=bottom + 1.
-  void GetEdgeCoords(const TBOX &box, GenericVector<GenericVector<int>> *x_coords,
-                     GenericVector<GenericVector<int>> *y_coords) const;
+  void GetEdgeCoords(const TBOX &box, std::vector<std::vector<int>> &x_coords,
+                     std::vector<std::vector<int>> &y_coords) const;
 
   TESSLINE *outlines; // List of outlines in blob.
 
@@ -403,8 +403,8 @@ private: // TODO(rays) Someday the data members will be private too.
   // normalization.
   // For a description of x_coords, y_coords, see GetEdgeCoords above.
   void CollectEdges(const TBOX &box, TBOX *bounding_box, LLSQ *llsq,
-                    GenericVector<GenericVector<int>> *x_coords,
-                    GenericVector<GenericVector<int>> *y_coords) const;
+                    std::vector<std::vector<int>> *x_coords,
+                    std::vector<std::vector<int>> *y_coords) const;
 
 private:
   // DENORM indicating the transformations that this blob has undergone so far.

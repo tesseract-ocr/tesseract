@@ -108,7 +108,7 @@ public:
   const BitVector &GetCloudFeatures(int font_id, int class_id) const;
   // Gets the indexed features of the canonical sample of the given
   // font/class combination.
-  const GenericVector<int> &GetCanonicalFeatures(int font_id, int class_id) const;
+  const std::vector<int> &GetCanonicalFeatures(int font_id, int class_id) const;
 
   // Returns the distance between the given UniCharAndFonts pair.
   // If matched_fonts, only matching fonts, are considered, unless that yields
@@ -241,7 +241,7 @@ private:
 
     // Non-serialized cache data.
     // Indexed features of the canonical sample.
-    GenericVector<int> canonical_features;
+    std::vector<int> canonical_features;
     // The mapped features of all the samples.
     BitVector cloud_features;
 

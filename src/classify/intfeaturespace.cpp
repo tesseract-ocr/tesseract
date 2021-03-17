@@ -53,8 +53,8 @@ INT_FEATURE_STRUCT IntFeatureSpace::PositionFromIndex(int index) const {
 // Bulk calls to Index. Maps the given array of features to a vector of
 // int32_t indices in the same order as the input.
 void IntFeatureSpace::IndexFeatures(const INT_FEATURE_STRUCT *features, int num_features,
-                                    GenericVector<int> *mapped_features) const {
-  mapped_features->truncate(0);
+                                    std::vector<int> *mapped_features) const {
+  mapped_features->clear();
   for (int f = 0; f < num_features; ++f)
     mapped_features->push_back(Index(features[f]));
 }
@@ -62,11 +62,11 @@ void IntFeatureSpace::IndexFeatures(const INT_FEATURE_STRUCT *features, int num_
 // Bulk calls to Index. Maps the given array of features to a vector of
 // sorted int32_t indices.
 void IntFeatureSpace::IndexAndSortFeatures(const INT_FEATURE_STRUCT *features, int num_features,
-                                           GenericVector<int> *sorted_features) const {
-  sorted_features->truncate(0);
+                                           std::vector<int> *sorted_features) const {
+  sorted_features->clear();
   for (int f = 0; f < num_features; ++f)
     sorted_features->push_back(Index(features[f]));
-  sorted_features->sort();
+  std::sort(sorted_features->begin(), sorted_features->end());
 }
 
 // Returns a feature space index for the given x,y position in a display

@@ -42,7 +42,7 @@ void Classify::ReadNewCutoffs(TFile *fp, uint16_t *Cutoffs) {
   int Cutoff;
 
   if (shape_table_ != nullptr) {
-    if (!shapetable_cutoffs_.DeSerialize(fp)) {
+    if (!fp->DeSerialize(shapetable_cutoffs_)) {
       tprintf("Error during read of shapetable pffmtable!\n");
     }
   }
