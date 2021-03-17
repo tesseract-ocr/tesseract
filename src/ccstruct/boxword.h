@@ -2,7 +2,6 @@
 // File:        boxword.h
 // Description: Class to represent the bounding boxes of the output.
 // Author:      Ray Smith
-// Created:     Tue May 25 14:18:14 PDT 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,8 +20,6 @@
 #define TESSERACT_CSTRUCT_BOXWORD_H_
 
 #include "rect.h" // for TBOX
-
-#include "genericvector.h" // for GenericVector
 
 #include <functional> // for std::function
 
@@ -92,7 +89,7 @@ private:
 
   TBOX bbox_;
   int length_;
-  GenericVector<TBOX> boxes_;
+  std::vector<TBOX> boxes_;
 };
 
 } // namespace tesseract.

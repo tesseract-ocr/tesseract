@@ -135,14 +135,14 @@ void BoxWord::MergeBoxes(int start, int end) {
   length_ -= shrinkage;
   for (int i = start + 1; i < length_; ++i)
     boxes_[i] = boxes_[i + shrinkage];
-  boxes_.truncate(length_);
+  boxes_.resize(length_);
 }
 
 // Inserts a new box before the given index.
 // Recomputes the bounding box.
 void BoxWord::InsertBox(int index, const TBOX &box) {
   if (index < length_)
-    boxes_.insert(box, index);
+    boxes_.insert(boxes_.begin() + index, box);
   else
     boxes_.push_back(box);
   length_ = boxes_.size();
@@ -160,7 +160,7 @@ void BoxWord::ChangeBox(int index, const TBOX &box) {
 // Recomputes the bounding box.
 void BoxWord::DeleteBox(int index) {
   ASSERT_HOST(0 <= index && index < length_);
-  boxes_.remove(index);
+  boxes_.erase(boxes_.begin() + index);
   --length_;
   ComputeBoundingBox();
 }
