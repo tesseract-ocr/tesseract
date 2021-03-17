@@ -59,3 +59,5 @@ const T& constUniqueInstance(std::unique_ptr<T> new_instance = nullptr)
 {
   return uniqueInstance<T>(std::move(new_instance));
 }
+
+#endif  // TESSERACT_CCSTRUCT_TABLETRANSFER_H_
