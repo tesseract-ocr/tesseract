@@ -16,7 +16,8 @@
  *
  ****************************************************************************/
 
-#pragma once
+#ifndef TESSERACT_CCSTRUCT_TABLETRANSFER_H_
+#define TESSERACT_CCSTRUCT_TABLETRANSFER_H_
 #include <memory>
 #include <vector>
 #include "rect.h"
