@@ -19,8 +19,10 @@
 #ifndef TESSERACT_CCUTIL_INDEXMAPBIDI_H_
 #define TESSERACT_CCUTIL_INDEXMAPBIDI_H_
 
+#include <tesseract/export.h> // for TESS_API
+
 #include <cstdio>
-#include "genericvector.h"
+#include <vector>
 
 namespace tesseract {
 
