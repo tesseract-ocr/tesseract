@@ -1,9 +1,9 @@
 /******************************************************************************
  * File:        tabletransfer.h
  * Description: Infrastructure for the transfer of table detection results
- * Author:      Sintun
+ * Author:      Stefan Brechtken
  *
- * (C) Copyright 2021, Sintun
+ * (C) Copyright 2021, Stefan Brechtken
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,9 +22,10 @@
 #include <vector>
 #include "rect.h"
 
+namespace tesseract {
 
 /// Structure for data transfer from table detector 
-struct MyTable {
+struct TessTable {
   tesseract::TBOX box;
   std::vector<tesseract::TBOX> rows;
   std::vector<tesseract::TBOX> cols;
@@ -59,5 +60,7 @@ const T& constUniqueInstance(std::unique_ptr<T> new_instance = nullptr)
 {
   return uniqueInstance<T>(std::move(new_instance));
 }
+
+} // namespace tesseract
 
 #endif  // TESSERACT_CCSTRUCT_TABLETRANSFER_H_

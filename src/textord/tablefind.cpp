@@ -2018,8 +2018,8 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **all_
       }
 #endif  // GRAPHICS_DISABLED
 
-        std::vector<MyTable>& tables = uniqueInstance<std::vector<MyTable>>();
-        tables.push_back(MyTable{table_box, table_structure->getRows(),
+        std::vector<TessTable>& tables = uniqueInstance<std::vector<TessTable>>();
+        tables.push_back(TessTable{table_box, table_structure->getRows(),
                                             table_structure->getCols()});
         
         delete table_structure;

@@ -1532,8 +1532,8 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *block
       tprintf("Block median size = (%d, %d)\n", block->median_size().x(), block->median_size().y());
   }
  
-  std::vector<MyTable>& tables = uniqueInstance<std::vector<MyTable>>();
-  for(MyTable& mt: tables)
+  std::vector<TessTable>& tables = uniqueInstance<std::vector<TessTable>>();
+  for(TessTable& mt: tables)
     mt.box.rotate_large(reskew_);
 }
 

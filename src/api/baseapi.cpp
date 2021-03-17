@@ -1297,12 +1297,12 @@ char *TessBaseAPI::GetUTF8Text() {
 
 size_t TessBaseAPI::GetNumberOfTables()
 {
-  return constUniqueInstance<std::vector<MyTable>>().size();
+  return constUniqueInstance<std::vector<TessTable>>().size();
 }
 
 std::tuple<int,int,int,int> TessBaseAPI::GetTableBoundingBox(unsigned i)
 {
-  const std::vector<MyTable>& t = constUniqueInstance<std::vector<MyTable>>();
+  const std::vector<TessTable>& t = constUniqueInstance<std::vector<TessTable>>();
   
   if(i >= t.size())
     return std::tuple<int,int,int,int>(0, 0, 0, 0);
@@ -1317,7 +1317,7 @@ std::tuple<int,int,int,int> TessBaseAPI::GetTableBoundingBox(unsigned i)
 
 std::vector<std::tuple<int,int,int,int>> TessBaseAPI::GetTableRows(unsigned i)
 {
-  const std::vector<MyTable>& t = constUniqueInstance<std::vector<MyTable>>();
+  const std::vector<TessTable>& t = constUniqueInstance<std::vector<TessTable>>();
   
   if(i >= t.size())
     return std::vector<std::tuple<int,int,int,int>>();
@@ -1335,7 +1335,7 @@ std::vector<std::tuple<int,int,int,int>> TessBaseAPI::GetTableRows(unsigned i)
 
 std::vector<std::tuple<int,int,int,int> > TessBaseAPI::GetTableCols(unsigned i)
 {
-  const std::vector<MyTable>& t = constUniqueInstance<std::vector<MyTable>>();
+  const std::vector<TessTable>& t = constUniqueInstance<std::vector<TessTable>>();
   
   if(i >= t.size())
     return std::vector<std::tuple<int,int,int,int>>();
@@ -2120,7 +2120,7 @@ void TessBaseAPI::ClearResults() {
     paragraph_models_ = nullptr;
   }
 
-  uniqueInstance<std::vector<MyTable>>().clear();
+  uniqueInstance<std::vector<TessTable>>().clear();
 }
 
 /**
