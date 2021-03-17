@@ -133,12 +133,7 @@ static int row_spacing_order( // sort function
   // converted ptr
   const TO_ROW *row2 = *reinterpret_cast<const TO_ROW *const *>(item2);
 
-  if (row1->spacing < row2->spacing)
-    return -1;
-  else if (row1->spacing > row2->spacing)
-    return 1;
-  else
-    return 0;
+  return row1->spacing < row2->spacing;
 }
 
 // Factored-out helper to build a single row from a list of blobs.
@@ -391,11 +386,13 @@ void compute_page_skew(    // get average gradient
     }
   }
   row_count = row_index;
-  row_index =
-      choose_nth_item(static_cast<int32_t>(row_count * textord_skew_ile), &gradients[0], row_count);
+  row_index = static_cast<int32_t>(row_count * textord_skew_ile);
+  gradients.resize(row_count);
+  std::nth_element(gradients.begin(), gradients.begin() + row_index, gradients.end());
   page_m = gradients[row_index];
-  row_index =
-      choose_nth_item(static_cast<int32_t>(row_count * textord_skew_ile), &errors[0], row_count);
+  row_index = static_cast<int32_t>(row_count * textord_skew_ile);
+  errors.resize(row_count);
+  std::nth_element(errors.begin(), errors.begin() + row_index, errors.end());
   page_err = errors[row_index];
 }
 
@@ -1145,14 +1142,15 @@ void compute_row_stats( // find lines
     tprintf("Blob based spacing=(%g,%g), offset=%g", block->line_size, block->line_spacing,
             block->baseline_offset);
   if (rowcount > 0) {
-    row_index =
-        choose_nth_item(rowcount * 3 / 4, &rows[0], rowcount, sizeof(TO_ROW *), row_spacing_order);
+    rows.resize(rowcount);
+    row_index = rowcount * 3 / 4;
+    std::nth_element(rows.begin(), rows.begin() + row_index, rows.end(), row_spacing_order);
     iqr = rows[row_index]->spacing;
-    row_index =
-        choose_nth_item(rowcount / 4, &rows[0], rowcount, sizeof(TO_ROW *), row_spacing_order);
+    row_index = rowcount / 4;
+    std::nth_element(rows.begin(), rows.begin() + row_index, rows.end(), row_spacing_order);
     iqr -= rows[row_index]->spacing;
-    row_index =
-        choose_nth_item(rowcount / 2, &rows[0], rowcount, sizeof(TO_ROW *), row_spacing_order);
+    row_index = rowcount / 2;
+    std::nth_element(rows.begin(), rows.begin() + row_index, rows.end(), row_spacing_order);
     block->key_row = rows[row_index];
     if (testing_on)
       tprintf(" row based=%g(%g)", rows[row_index]->spacing, iqr);

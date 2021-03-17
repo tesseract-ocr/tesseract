@@ -143,25 +143,6 @@ private:
   int32_t *buckets_ = nullptr; // array of cells
 };
 
-// Returns the nth ordered item from the array, as if they were
-// ordered, but without ordering them, in linear time.
-// The array does get shuffled!
-int32_t choose_nth_item(int32_t index,  // index to choose
-                        float *array,   // array of items
-                        int32_t count); // no of items
-// Generic version uses a defined comparator (with qsort semantics).
-int32_t choose_nth_item(int32_t index, // index to choose
-                        void *array,   // array of items
-                        int32_t count, // no of items
-                        size_t size,   // element size
-                        int (*compar)(const void *,
-                                      const void *)); // comparator
-// Swaps 2 entries in an array in-place.
-void swap_entries(void *array,    // array of entries
-                  size_t size,    // size of entry
-                  int32_t index1, // entries to swap
-                  int32_t index2);
-
 } // namespace tesseract
 
 #endif // TESSERACT_CCSTRUCT_STATISTC_H_
