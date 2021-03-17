@@ -548,9 +548,9 @@ void TBLOB::GetEdgeCoords(const TBOX &box, std::vector<std::vector<int>> &x_coor
   y_coords.resize(box.width());
   CollectEdges(box, nullptr, nullptr, &x_coords, &y_coords);
   // Sort the output vectors.
-  for (auto coord : x_coords)
+  for (auto &coord : x_coords)
     std::sort(coord.begin(), coord.end());
-  for (auto coord : y_coords)
+  for (auto &coord : y_coords)
     std::sort(coord.begin(), coord.end());
 }
 
