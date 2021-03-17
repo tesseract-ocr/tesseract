@@ -20,6 +20,7 @@
 #define TESSERACT_TEXTORD_BASELINEDETECT_H_
 
 #include "detlinefit.h"
+#include "genericvector.h" // for PointerVector
 #include "points.h"
 #include "rect.h"
 

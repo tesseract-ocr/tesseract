@@ -245,21 +245,6 @@ public:
     return bottom;
   }
 
-  // Returns the index of what would be the target_index_th item in the array
-  // if the members were sorted, without actually sorting. Members are
-  // shuffled around, but it takes O(n) time.
-  // NOTE: uses operator< and operator== on the members.
-  int choose_nth_item(int target_index) {
-    // Make sure target_index is legal.
-    if (target_index < 0) {
-      target_index = 0; // ensure legal
-    } else if (target_index >= size_used_) {
-      target_index = size_used_ - 1;
-    }
-    unsigned int seed = 1;
-    return choose_nth_item(target_index, 0, size_used_, &seed);
-  }
-
   // Swaps the elements with the given indices.
   void swap(int index1, int index2) {
     if (index1 != index2) {
@@ -280,9 +265,6 @@ public:
 }*/
 
 protected:
-  // Internal recursive version of choose_nth_item.
-  int choose_nth_item(int target_index, int start, int end, unsigned int *seed);
-
   // Init the object, allocating size memory.
   void init(int size);
 
@@ -1022,66 +1004,6 @@ void GenericVector<T>::move(GenericVector<T> *from) {
 template <typename T>
 void GenericVector<T>::sort() {
   sort(&sort_cmp<T>);
-}
-
-// Internal recursive version of choose_nth_item.
-// The algorithm used comes from "Algorithms" by Sedgewick:
-// http://books.google.com/books/about/Algorithms.html?id=idUdqdDXqnAC
-// The principle is to choose a random pivot, and move everything less than
-// the pivot to its left, and everything greater than the pivot to the end
-// of the array, then recurse on the part that contains the desired index, or
-// just return the answer if it is in the equal section in the middle.
-// The random pivot guarantees average linear time for the same reason that
-// n times vector::push_back takes linear time on average.
-// target_index, start and and end are all indices into the full array.
-// Seed is a seed for rand_r for thread safety purposes. Its value is
-// unimportant as the random numbers do not affect the result except
-// between equal answers.
-template <typename T>
-int GenericVector<T>::choose_nth_item(int target_index, int start, int end, unsigned int *seed) {
-  // Number of elements to process.
-  int num_elements = end - start;
-  // Trivial cases.
-  if (num_elements <= 1) {
-    return start;
-  }
-  if (num_elements == 2) {
-    if (data_[start] < data_[start + 1]) {
-      return target_index > start ? start + 1 : start;
-    }
-    return target_index > start ? start : start + 1;
-  }
-// Place the pivot at start.
-#ifndef rand_r // _MSC_VER, ANDROID
-  srand(*seed);
-#  define rand_r(seed) rand()
-#endif // _MSC_VER
-  int pivot = rand_r(seed) % num_elements + start;
-  swap(pivot, start);
-  // The invariant condition here is that items [start, next_lesser) are less
-  // than the pivot (which is at index next_lesser) and items
-  // [prev_greater, end) are greater than the pivot, with items
-  // [next_lesser, prev_greater) being equal to the pivot.
-  int next_lesser = start;
-  int prev_greater = end;
-  for (int next_sample = start + 1; next_sample < prev_greater;) {
-    if (data_[next_sample] < data_[next_lesser]) {
-      swap(next_lesser++, next_sample++);
-    } else if (data_[next_sample] == data_[next_lesser]) {
-      ++next_sample;
-    } else {
-      swap(--prev_greater, next_sample);
-    }
-  }
-  // Now the invariant is set up, we recurse on just the section that contains
-  // the desired index.
-  if (target_index < next_lesser) {
-    return choose_nth_item(target_index, start, next_lesser, seed);
-  }
-  if (target_index < prev_greater) {
-    return next_lesser; // In equal bracket.
-  }
-  return choose_nth_item(target_index, prev_greater, end, seed);
 }
 
 } // namespace tesseract

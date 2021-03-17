@@ -25,6 +25,7 @@
 #include "colpartitiongrid.h"
 #include "colpartitionset.h"
 #include "detlinefit.h"
+#include "helpers.h" // for UpdateRange
 #include "dppoint.h"
 #include "host.h" // for NearlyEqual
 #include "imagefind.h"

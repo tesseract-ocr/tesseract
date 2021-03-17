@@ -28,6 +28,7 @@
 #include "blobbox.h"
 #include "colpartition.h"
 #include "colpartitiongrid.h"
+#include "helpers.h" // for IntCastRounded
 #include "imagefind.h"
 #include "linlsq.h"
 #include "statistc.h"

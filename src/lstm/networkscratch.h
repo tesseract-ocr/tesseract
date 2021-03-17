@@ -20,6 +20,7 @@
 #define TESSERACT_LSTM_NETWORKSCRATCH_H_
 
 #include <mutex>
+#include "genericvector.h" // for PointerVector
 #include "matrix.h"
 #include "networkio.h"
 

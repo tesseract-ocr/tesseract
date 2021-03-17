@@ -6,7 +6,6 @@
 //              the Key+Data design pattern in which some data needs
 //              to be sorted or kept in a heap sorted on some separate key.
 // Author:      Ray Smith.
-// Created:     Thu Mar 15 14:48:05 PDT 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +23,7 @@
 #ifndef TESSERACT_CCUTIL_KDPAIR_H_
 #define TESSERACT_CCUTIL_KDPAIR_H_
 
-#include "genericvector.h"
+#include <vector>
 
 namespace tesseract {
 
@@ -192,7 +191,7 @@ struct KDPtrPairDec : public KDPtrPair<Key, Data> {
 using IntKDPair = KDPairInc<int, int>;
 
 // Vector of IntKDPair.
-class KDVector : public GenericVector<IntKDPair> {
+class KDVector : public std::vector<IntKDPair> {
   // TODO(rays) Add some code to manipulate a KDVector. For now there
   // is nothing and this class is effectively a specialization typedef.
 };

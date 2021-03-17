@@ -2,7 +2,6 @@
 // File:        detlinefit.cpp
 // Description: Deterministic least median squares line fitting.
 // Author:      Ray Smith
-// Created:     Thu Feb 28 14:45:01 PDT 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "detlinefit.h"
+#include "helpers.h"    // for IntCastRounded
 #include "statistc.h"
 #include "tprintf.h"
 

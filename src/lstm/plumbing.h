@@ -19,6 +19,7 @@
 #ifndef TESSERACT_LSTM_PLUMBING_H_
 #define TESSERACT_LSTM_PLUMBING_H_
 
+#include "genericvector.h" // for PointerVector
 #include "matrix.h"
 #include "network.h"
 

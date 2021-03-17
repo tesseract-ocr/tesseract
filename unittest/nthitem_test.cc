@@ -46,20 +46,13 @@ TEST_F(NthItemTest, GeneralTest) {
   // Push the test data onto the KDVector.
   PushTestData(&v);
   // Get the min item.
-  int index = v.choose_nth_item(0);
+  size_t index = 0;
+  std::nth_element(v.begin(), v.begin() + index, v.end());
   // The result is -32767.
   EXPECT_EQ(-32767, v[index].key());
   // Get the max item.
-  index = v.choose_nth_item(v.size() - 1);
-  // The result is 65536.
-  EXPECT_EQ(65536, v[index].key());
-  // Invalid items are silently truncated to valid.
-  // Get the min item.
-  index = v.choose_nth_item(-1);
-  // The result is -32767.
-  EXPECT_EQ(-32767, v[index].key());
-  // Get the max item.
-  index = v.choose_nth_item(v.size());
+  index = v.size() - 1;
+  std::nth_element(v.begin(), v.begin() + index, v.end());
   // The result is 65536.
   EXPECT_EQ(65536, v[index].key());
 }
@@ -74,18 +67,22 @@ TEST_F(NthItemTest, BoringTest) {
     v.push_back(pair);
   }
   // The 3rd item is 7 but the 4th is 8..
-  int index = v.choose_nth_item(3);
+  size_t index = 3;
+  std::nth_element(v.begin(), v.begin() + index, v.end());
   // The result is 7.
   EXPECT_EQ(7, v[index].key());
-  index = v.choose_nth_item(4);
+  index = 4;
+  std::nth_element(v.begin(), v.begin() + index, v.end());
   // The result is 8.
   EXPECT_EQ(8, v[index].key());
   // Get the min item.
-  index = v.choose_nth_item(0);
+  index = 0;
+  std::nth_element(v.begin(), v.begin() + index, v.end());
   // The result is 7.
   EXPECT_EQ(7, v[index].key());
   // Get the max item.
-  index = v.choose_nth_item(v.size() - 1);
+  index = v.size() - 1;
+  std::nth_element(v.begin(), v.begin() + index, v.end());
   // The result is 8.
   EXPECT_EQ(8, v[index].key());
 }
@@ -96,7 +93,8 @@ TEST_F(NthItemTest, UniqueTest) {
   // Push the test data onto the KDVector.
   PushTestData(&v);
   // Get the median item.
-  int index = v.choose_nth_item(v.size() / 2);
+  size_t index = v.size() / 2;
+  std::nth_element(v.begin(), v.begin() + index, v.end());
   // The result is 6, it started out at index 11.
   EXPECT_EQ(6, v[index].key());
   EXPECT_EQ(11, v[index].data());
@@ -111,7 +109,8 @@ TEST_F(NthItemTest, EqualTest) {
   IntKDPair pair(8, 13);
   v.push_back(pair);
   // Get the median item.
-  int index = v.choose_nth_item(v.size() / 2);
+  size_t index = v.size() / 2;
+  std::nth_element(v.begin(), v.begin() + index, v.end());
   // The result is 7, it started out at index 4 or 12.
   EXPECT_EQ(7, v[index].key());
   EXPECT_TRUE(v[index].data() == 4 || v[index].data() == 12);
