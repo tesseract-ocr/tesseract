@@ -138,7 +138,7 @@ public:
   
   /// Calculate bounding boxes of the rows and return them.
   std::vector<TBOX> getRows();
-  /// calcualte bounding boxes of the columns and return them
+  /// Calculate bounding boxes of the columns and return them.
   std::vector<TBOX> getCols();
 
 protected:
