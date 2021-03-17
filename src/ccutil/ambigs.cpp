@@ -143,7 +143,7 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET &encoder_set, TFile *ambi
               ;
             if (j < adaption_ambigs_entry->size()) {
               if ((*adaption_ambigs_entry)[j] != id_to_insert) {
-                adaption_ambigs_entry->insert(id_to_insert, j);
+                adaption_ambigs_entry->insert(adaption_ambigs_entry->begin() + j, id_to_insert);
               }
             } else {
               adaption_ambigs_entry->push_back(id_to_insert);
