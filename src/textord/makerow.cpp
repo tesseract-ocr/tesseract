@@ -99,6 +99,48 @@ BOOL_VAR(textord_debug_blob, false, "Print test blob information");
 
 const int kMinLeaderCount = 5;
 
+/**
+ * @name row_y_order
+ *
+ * Sort function to sort rows in y from page top.
+ */
+static int row_y_order(       // sort function
+    const void *item1, // items to compare
+    const void *item2) {
+  // converted ptr
+  const TO_ROW *row1 = *reinterpret_cast<const TO_ROW *const *>(item1);
+  // converted ptr
+  const TO_ROW *row2 = *reinterpret_cast<const TO_ROW *const *>(item2);
+
+  if (row1->parallel_c() > row2->parallel_c())
+    return -1;
+  else if (row1->parallel_c() < row2->parallel_c())
+    return 1;
+  else
+    return 0;
+}
+
+/**
+ * @name row_spacing_order
+ *
+ * Qsort style function to compare 2 TO_ROWS based on their spacing value.
+ */
+static int row_spacing_order( // sort function
+    const void *item1, // items to compare
+    const void *item2) {
+  // converted ptr
+  const TO_ROW *row1 = *reinterpret_cast<const TO_ROW *const *>(item1);
+  // converted ptr
+  const TO_ROW *row2 = *reinterpret_cast<const TO_ROW *const *>(item2);
+
+  if (row1->spacing < row2->spacing)
+    return -1;
+  else if (row1->spacing > row2->spacing)
+    return 1;
+  else
+    return 0;
+}
+
 // Factored-out helper to build a single row from a list of blobs.
 // Returns the mean blob size.
 static float MakeRowFromBlobs(float line_size, BLOBNBOX_IT *blob_it, TO_ROW_IT *row_it) {
@@ -2400,48 +2442,6 @@ int blob_x_order(      // sort function
   if (blob1->bounding_box().left() < blob2->bounding_box().left())
     return -1;
   else if (blob1->bounding_box().left() > blob2->bounding_box().left())
-    return 1;
-  else
-    return 0;
-}
-
-/**
- * @name row_y_order
- *
- * Sort function to sort rows in y from page top.
- */
-int row_y_order(       // sort function
-    const void *item1, // items to compare
-    const void *item2) {
-  // converted ptr
-  const TO_ROW *row1 = *reinterpret_cast<const TO_ROW *const *>(item1);
-  // converted ptr
-  const TO_ROW *row2 = *reinterpret_cast<const TO_ROW *const *>(item2);
-
-  if (row1->parallel_c() > row2->parallel_c())
-    return -1;
-  else if (row1->parallel_c() < row2->parallel_c())
-    return 1;
-  else
-    return 0;
-}
-
-/**
- * @name row_spacing_order
- *
- * Qsort style function to compare 2 TO_ROWS based on their spacing value.
- */
-int row_spacing_order( // sort function
-    const void *item1, // items to compare
-    const void *item2) {
-  // converted ptr
-  const TO_ROW *row1 = *reinterpret_cast<const TO_ROW *const *>(item1);
-  // converted ptr
-  const TO_ROW *row2 = *reinterpret_cast<const TO_ROW *const *>(item2);
-
-  if (row1->spacing < row2->spacing)
-    return -1;
-  else if (row1->spacing > row2->spacing)
     return 1;
   else
     return 0;
