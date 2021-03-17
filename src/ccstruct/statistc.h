@@ -25,9 +25,6 @@
 
 namespace tesseract {
 
-template <typename T>
-class GenericVector;
-
 // Simple histogram-based statistics for integer values in a known
 // range, such that the range is small compared to the number of samples.
 class TESS_API STATS {

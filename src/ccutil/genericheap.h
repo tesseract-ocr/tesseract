@@ -23,7 +23,7 @@
 
 #include "errcode.h"
 
-#include "genericvector.h"
+#include <vector>
 
 namespace tesseract {
 
