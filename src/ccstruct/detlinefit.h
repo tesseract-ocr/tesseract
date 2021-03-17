@@ -143,7 +143,7 @@ private:
 
   // Stores all the source points in the order they were given and their
   // halfwidths, if any.
-  GenericVector<PointWidth> pts_;
+  std::vector<PointWidth> pts_;
   // Stores the computed perpendicular distances of (some of) the pts_ from a
   // given vector (assuming it goes through the origin, making it a line).
   // Since the distances may be a subset of the input points, and get
