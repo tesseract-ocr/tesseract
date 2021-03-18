@@ -3,7 +3,6 @@
  * Description: Function to degrade an image (usually of text) as if it
  *              has been printed and then scanned.
  * Authors:     Ray Smith
- * Created:     Tue Nov 19 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +21,6 @@
 
 #include <allheaders.h> // from leptonica
 #include <cstdlib>
-#include "genericvector.h"
 #include "helpers.h" // For TRand.
 #include "rect.h"
 
@@ -175,7 +173,7 @@ Pix *DegradeImage(Pix *input, int exposure, TRand *randomizer, float *rotation) 
 // Returns nullptr on error. The returned Pix must be pixDestroyed.
 Pix *PrepareDistortedPix(const Pix *pix, bool perspective, bool invert, bool white_noise,
                          bool smooth_noise, bool blur, int box_reduction, TRand *randomizer,
-                         GenericVector<TBOX> *boxes) {
+                         std::vector<TBOX> *boxes) {
   Pix *distorted = pixCopy(nullptr, const_cast<Pix *>(pix));
   // Things to do to synthetic training data.
   if ((white_noise || smooth_noise) && randomizer->SignedRand(1.0) > 0.0) {
@@ -214,7 +212,7 @@ Pix *PrepareDistortedPix(const Pix *pix, bool perspective, bool invert, bool whi
 // perspective distortion. Width and height only need to be set if there
 // is no pix. If there is a pix, then they will be taken from there.
 void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Pix **pix,
-                                   GenericVector<TBOX> *boxes) {
+                                   std::vector<TBOX> *boxes) {
   if (pix != nullptr && *pix != nullptr) {
     width = pixGetWidth(*pix);
     height = pixGetHeight(*pix);
