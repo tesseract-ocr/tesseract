@@ -695,7 +695,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
   // Angle difference larger than this is too much to consider equal.
   // They should only be in multiples of M_PI/2 anyway.
   const double kMaxAngleDiff = 0.01; // About 0.6 degrees.
-  PointerVector<BlockGroup> groups;
+  std::vector<BlockGroup *> groups;
   BLOCK_IT bk_it(blocks);
   for (bk_it.mark_cycle_pt(); !bk_it.cycled_list(); bk_it.forward()) {
     BLOCK *block = bk_it.data();
@@ -752,6 +752,9 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
     // Make it a forward rotation that will transform blob coords to block.
     rotation.set_y(-rotation.y());
     TransferDiacriticsToWords(diacritic_blobs, rotation, &word_grid);
+  }
+  for (auto group : groups) {
+    delete group;
   }
 }
 
