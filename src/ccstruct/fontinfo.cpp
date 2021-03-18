@@ -89,7 +89,7 @@ void FontInfoTable::MoveSpacingInfoFrom(FontInfoTable *other) {
   using namespace std::placeholders; // for _1, _2
   set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
   for (int i = 0; i < other->size(); ++i) {
-    GenericVector<FontSpacingInfo *> *spacing_vec = other->get(i).spacing_vec;
+    std::vector<FontSpacingInfo *> *spacing_vec = other->get(i).spacing_vec;
     if (spacing_vec != nullptr) {
       int target_index = get_index(other->get(i));
       if (target_index < 0) {
@@ -121,7 +121,9 @@ void FontInfoTable::MoveTo(UnicityTable<FontInfo> *target) {
 // Callbacks for GenericVector.
 void FontInfoDeleteCallback(FontInfo f) {
   if (f.spacing_vec != nullptr) {
-    f.spacing_vec->delete_data_pointers();
+    for (auto data : *f.spacing_vec) {
+      delete data;
+    }
     delete f.spacing_vec;
     f.spacing_vec = nullptr;
   }
@@ -187,7 +189,7 @@ bool write_spacing_info(FILE *f, const FontInfo &fi) {
     return false;
   int16_t x_gap_invalid = -1;
   for (int i = 0; i < vec_size; ++i) {
-    FontSpacingInfo *fs = fi.spacing_vec->get(i);
+    FontSpacingInfo *fs = fi.spacing_vec->at(i);
     int32_t kern_size = (fs == nullptr) ? -1 : fs->kerned_x_gaps.size();
     if (fs == nullptr) {
       // Writing two invalid x-gaps.
