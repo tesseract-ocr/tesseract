@@ -174,7 +174,7 @@ bool read_spacing_info(TFile *f, FontInfo *fi) {
       continue;
     }
     if (kern_size > 0 &&
-        (!fs->kerned_unichar_ids.DeSerialize(f) || !f->DeSerialize(fs->kerned_x_gaps))) {
+        (!f->DeSerialize(fs->kerned_unichar_ids) || !f->DeSerialize(fs->kerned_x_gaps))) {
       delete fs;
       return false;
     }
@@ -203,7 +203,7 @@ bool write_spacing_info(FILE *f, const FontInfo &fi) {
       }
     }
     if (kern_size > 0 &&
-        (!fs->kerned_unichar_ids.Serialize(f) || !Serialize(f, fs->kerned_x_gaps))) {
+        (!Serialize(f, fs->kerned_unichar_ids) || !Serialize(f, fs->kerned_x_gaps))) {
       return false;
     }
   }

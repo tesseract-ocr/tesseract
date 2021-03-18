@@ -52,7 +52,7 @@ struct ScoredFont {
 struct FontSpacingInfo {
   int16_t x_gap_before;
   int16_t x_gap_after;
-  GenericVector<UNICHAR_ID> kerned_unichar_ids;
+  std::vector<UNICHAR_ID> kerned_unichar_ids;
   std::vector<int16_t> kerned_x_gaps;
 };
 
