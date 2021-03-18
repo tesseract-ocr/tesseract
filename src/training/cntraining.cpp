@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
   pCharList = CharList;
   // The norm protos will count the source protos, so we keep them here in
   // freeable_protos, so they can be freed later.
-  GenericVector<LIST> freeable_protos;
+  std::vector<LIST> freeable_protos;
   iterate(pCharList) {
     // Cluster
     CharSample = reinterpret_cast<LABELEDLIST> first_node(pCharList);
