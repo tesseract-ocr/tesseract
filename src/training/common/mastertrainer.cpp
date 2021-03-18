@@ -89,7 +89,7 @@ bool MasterTrainer::Serialize(FILE *fp) const {
     return false;
   if (!fontinfo_table_.Serialize(fp))
     return false;
-  if (!xheights_.Serialize(fp))
+  if (!tesseract::Serialize(fp, xheights_))
     return false;
   return true;
 }
