@@ -94,7 +94,7 @@ public:
   bool DeSerialize(T *data, size_t count = 1) {
     return FReadEndian(data, sizeof(T), count) == static_cast<int>(count);
   }
-  template <class T>
+  template <typename T>
   bool DeSerialize(std::vector<T> &data) {
     uint32_t size;
     if (!DeSerialize(&size)) {
@@ -120,6 +120,25 @@ public:
       for (auto &item : data) {
         if (!item.DeSerialize(this)) {
           return false;
+        }
+      }
+    } else if constexpr (std::is_pointer_v<T>) {
+      // Deserialize pointers.
+      // TODO: optimize.
+      data.resize(size);
+      for (uint32_t i = 0; i < size; i++) {
+        uint8_t non_null;
+	if (!DeSerialize(&non_null)) {
+          return false;
+	}
+        if (non_null) {
+          typedef typename std::remove_pointer<T>::type ST;
+          auto item = new ST;
+          if (!item->DeSerialize(this)) {
+            delete item;
+            return false;
+          }
+          data[i] = item;
         }
       }
     } else {
@@ -157,6 +176,19 @@ public:
         if (!item.Serialize(this)) {
           return false;
         }
+      }
+    } else if constexpr (std::is_pointer_v<T>) {
+      // Serialize pointers.
+      for (auto &item : data) {
+        uint8_t non_null = (*item != nullptr);
+	if (!Serialize(&non_null)) {
+          return false;
+	}
+        if (non_null) {
+          if (!item->Serialize(this)) {
+            return false;
+	  }
+	}
       }
     } else if (size > 0) {
       // Serialize a non-class.
