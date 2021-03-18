@@ -140,14 +140,18 @@ ELISTIZEH(AmbigSpec)
 
 // AMBIG_TABLE[i] stores a set of ambiguities whose
 // wrong ngram starts with unichar id i.
-using UnicharAmbigsVector = GenericVector<AmbigSpec_LIST *>;
+using UnicharAmbigsVector = std::vector<AmbigSpec_LIST *>;
 
 class UnicharAmbigs {
 public:
   UnicharAmbigs() = default;
   ~UnicharAmbigs() {
-    replace_ambigs_.delete_data_pointers();
-    dang_ambigs_.delete_data_pointers();
+    for (auto data : replace_ambigs_) {
+      delete data;
+    }
+    for (auto data : dang_ambigs_) {
+      delete data;
+    }
     one_to_one_definite_ambigs_.delete_data_pointers();
   }
 
