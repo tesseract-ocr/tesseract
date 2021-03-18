@@ -22,9 +22,9 @@
 #include <functional> // for std::function
 #include <mutex>      // for std::mutex
 #include <string>
+#include <vector>     // for std::vector
 #include "ccutil.h"
 #include "errcode.h"
-#include "genericvector.h"
 
 namespace tesseract {
 
@@ -97,7 +97,7 @@ public:
     for (int i = cache_.size() - 1; i >= 0; i--) {
       if (cache_[i].count <= 0) {
         delete cache_[i].object;
-        cache_.remove(i);
+        cache_.erase(cache_.begin() + i);
       }
     }
   }
@@ -110,7 +110,7 @@ private:
   };
 
   std::mutex mu_;
-  GenericVector<ReferenceCount> cache_;
+  std::vector<ReferenceCount> cache_;
 };
 
 } // namespace tesseract
