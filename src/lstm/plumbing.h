@@ -19,7 +19,6 @@
 #ifndef TESSERACT_LSTM_PLUMBING_H_
 #define TESSERACT_LSTM_PLUMBING_H_
 
-#include "genericvector.h" // for PointerVector
 #include "matrix.h"
 #include "network.h"
 
@@ -30,7 +29,11 @@ class Plumbing : public Network {
 public:
   // ni_ and no_ will be set by AddToStack.
   explicit Plumbing(const std::string &name);
-  ~Plumbing() override = default;
+  ~Plumbing() override {
+    for (auto data : stack_) {
+      delete data;
+    }
+  }
 
   // Returns the required shape input to the network.
   StaticShape InputShape() const override {
@@ -96,7 +99,7 @@ public:
   void DebugWeights() override;
 
   // Returns the current stack.
-  const PointerVector<Network> &stack() const {
+  const std::vector<Network *> &stack() const {
     return stack_;
   }
   // Returns a set of strings representing the layer-ids of all layers below.
@@ -136,7 +139,7 @@ public:
 
 protected:
   // The networks.
-  PointerVector<Network> stack_;
+  std::vector<Network *> stack_;
   // Layer-specific learning rate iff network_flags_ & NF_LAYER_SPECIFIC_LR.
   // One element for each element of stack_.
   std::vector<float> learning_rates_;

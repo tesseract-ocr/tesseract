@@ -49,8 +49,6 @@
 #include "tprintf.h"     // for tprintf
 #include "werd.h"        // for WERD_IT, WERD, WERD_LIST, W_DONT_CHOP
 
-#include "genericvector.h" // for PointerVector
-
 #include <allheaders.h> // for pixDestroy, pixGetHeight, boxCreate
 
 #include <cfloat>  // for FLT_MAX
@@ -726,9 +724,9 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
     }
   }
   // Now process each group of blocks.
-  PointerVector<WordWithBox> word_ptrs;
-  for (int g = 0; g < groups.size(); ++g) {
-    const BlockGroup *group = groups[g];
+  std::vector<WordWithBox *> word_ptrs;
+  word_ptrs.reserve(groups.size());
+  for (const auto group : groups) {
     if (group->bounding_box.null_box())
       continue;
     WordGrid word_grid(group->min_xheight, group->bounding_box.botleft(),
@@ -747,6 +745,9 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
           word_ptrs.push_back(box_word);
         }
       }
+    }
+    for (auto box_word : word_ptrs) {
+      delete box_word;
     }
     FCOORD rotation = group->rotation;
     // Make it a forward rotation that will transform blob coords to block.
