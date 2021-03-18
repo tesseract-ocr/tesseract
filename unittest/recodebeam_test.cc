@@ -12,7 +12,6 @@
 #include "include_gunit.h"
 #include "log.h" // for LOG
 
-#include "genericvector.h"
 #include "matrix.h"
 #include "normstrngs.h"
 #include "pageres.h"
@@ -106,7 +105,7 @@ protected:
 
   // Expects the appropriate results from the compressed_  ccutil_.unicharset.
   void ExpectCorrect(const GENERIC_2D_ARRAY<float> &output,
-                     const GenericVector<int> &transcription) {
+                     const std::vector<int> &transcription) {
     // Get the utf8 string of the transcription.
     std::string truth_utf8;
     for (int i = 0; i < transcription.size(); ++i) {
@@ -200,7 +199,7 @@ protected:
   }
   // Generates easy encoding of the given unichar_ids, and pads with at least
   // padding of random data.
-  GENERIC_2D_ARRAY<float> GenerateRandomPaddedOutputs(const GenericVector<int> &unichar_ids,
+  GENERIC_2D_ARRAY<float> GenerateRandomPaddedOutputs(const std::vector<int> &unichar_ids,
                                                       int padding) {
     int width = unichar_ids.size() * 2 * RecodedCharID::kMaxCodeLen;
     int num_codes = recoder_.code_range();
@@ -332,7 +331,7 @@ TEST_F(RecodeBeamTest, DoesChinese) {
             << "\n";
   LoadUnicharset("chi_tra.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
-  GenericVector<int> transcription;
+  std::vector<int> transcription;
   for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
     transcription.push_back(i);
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
@@ -353,7 +352,7 @@ TEST_F(RecodeBeamTest, DoesJapanese) {
             << "\n";
   LoadUnicharset("jpn.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
-  GenericVector<int> transcription;
+  std::vector<int> transcription;
   for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
     transcription.push_back(i);
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
@@ -365,7 +364,7 @@ TEST_F(RecodeBeamTest, DoesKorean) {
             << "\n";
   LoadUnicharset("kor.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
-  GenericVector<int> transcription;
+  std::vector<int> transcription;
   for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
     transcription.push_back(i);
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
@@ -377,7 +376,7 @@ TEST_F(RecodeBeamTest, DoesKannada) {
             << "\n";
   LoadUnicharset("kan.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
-  GenericVector<int> transcription;
+  std::vector<int> transcription;
   for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
     transcription.push_back(i);
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
@@ -389,7 +388,7 @@ TEST_F(RecodeBeamTest, DoesMarathi) {
             << "\n";
   LoadUnicharset("mar.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
-  GenericVector<int> transcription;
+  std::vector<int> transcription;
   for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
     transcription.push_back(i);
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
@@ -401,7 +400,7 @@ TEST_F(RecodeBeamTest, DoesEnglish) {
             << "\n";
   LoadUnicharset("eng.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
-  GenericVector<int> transcription;
+  std::vector<int> transcription;
   for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
     transcription.push_back(i);
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
