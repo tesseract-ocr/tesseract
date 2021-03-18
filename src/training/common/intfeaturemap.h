@@ -116,7 +116,7 @@ public:
   }
 
   // Prints the map features from the set in human-readable form.
-  void DebugMapFeatures(const GenericVector<int> &map_features) const;
+  void DebugMapFeatures(const std::vector<int> &map_features) const;
 
 private:
   void Clear();

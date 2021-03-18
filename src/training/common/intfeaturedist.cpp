@@ -97,7 +97,7 @@ double IntFeatureDist::FeatureDistance(const std::vector<int> &features) const {
 
 // Compute the distance between the given feature vector and the last
 // Set feature vector.
-double IntFeatureDist::DebugFeatureDistance(const GenericVector<int> &features) const {
+double IntFeatureDist::DebugFeatureDistance(const std::vector<int> &features) const {
   const int num_test_features = features.size();
   const double denominator = total_feature_weight_ + num_test_features;
   double misses = denominator;

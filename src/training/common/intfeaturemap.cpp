@@ -133,7 +133,7 @@ int IntFeatureMap::FindNZFeatureMapping(SampleIterator *it) {
   int total_samples = 0;
   for (it->Begin(); !it->AtEnd(); it->Next()) {
     const TrainingSample &sample = it->GetSample();
-    GenericVector<int> features;
+    std::vector<int> features;
     feature_space_.IndexAndSortFeatures(sample.features(), sample.num_features(), &features);
     int num_features = features.size();
     for (int f = 0; f < num_features; ++f)
@@ -164,7 +164,7 @@ int IntFeatureMap::FinalizeMapping(SampleIterator *it) {
 }
 
 // Prints the map features from the set in human-readable form.
-void IntFeatureMap::DebugMapFeatures(const GenericVector<int> &map_features) const {
+void IntFeatureMap::DebugMapFeatures(const std::vector<int> &map_features) const {
   for (int i = 0; i < map_features.size(); ++i) {
     INT_FEATURE_STRUCT f = InverseMapFeature(map_features[i]);
     f.print();
