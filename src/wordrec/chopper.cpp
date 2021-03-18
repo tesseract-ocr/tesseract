@@ -451,7 +451,7 @@ void Wordrec::improve_by_chopping(float rating_cert_scale, WERD_RES *word,
     // states in WERD_CHOICEs, and blob widths.
     word->InsertSeam(blob_number, seam);
     // Insert a new entry in the beam array.
-    best_choice_bundle->beam.insert(new LanguageModelState, blob_number);
+    best_choice_bundle->beam.insert(best_choice_bundle->beam.begin() + blob_number, new LanguageModelState);
     // Fixpts are outdated, but will get recalculated.
     best_choice_bundle->fixpt.clear();
     // Remap existing pain points.

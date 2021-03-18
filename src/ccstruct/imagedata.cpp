@@ -41,86 +41,6 @@ namespace tesseract {
 // large.
 const int kMaxReadAhead = 8;
 
-#if 0 // WordFeature and FloatWordFeature are currently unused
-
-WordFeature::WordFeature() : x_(0), y_(0), dir_(0) {
-}
-
-WordFeature::WordFeature(const FCOORD& fcoord, uint8_t dir)
-  : x_(IntCastRounded(fcoord.x())),
-    y_(ClipToRange<int>(IntCastRounded(fcoord.y()), 0, UINT8_MAX)),
-    dir_(dir) {
-}
-
-// Computes the maximum x and y value in the features.
-void WordFeature::ComputeSize(const GenericVector<WordFeature>& features,
-                              int* max_x, int* max_y) {
-  *max_x = 0;
-  *max_y = 0;
-  for (int f = 0; f < features.size(); ++f) {
-    if (features[f].x_ > *max_x) *max_x = features[f].x_;
-    if (features[f].y_ > *max_y) *max_y = features[f].y_;
-  }
-}
-
-// Draws the features in the given window.
-void WordFeature::Draw(const GenericVector<WordFeature>& features,
-                       ScrollView* window) {
-#  ifndef GRAPHICS_DISABLED
-  for (int f = 0; f < features.size(); ++f) {
-    FCOORD pos(features[f].x_, features[f].y_);
-    FCOORD dir;
-    dir.from_direction(features[f].dir_);
-    dir *= 8.0f;
-    window->SetCursor(IntCastRounded(pos.x() - dir.x()),
-                      IntCastRounded(pos.y() - dir.y()));
-    window->DrawTo(IntCastRounded(pos.x() + dir.x()),
-                      IntCastRounded(pos.y() + dir.y()));
-  }
-#  endif
-}
-
-// Writes to the given file. Returns false in case of error.
-bool WordFeature::Serialize(FILE* fp) const {
-  return tesseract::Serialize(fp, &x_) &&
-         tesseract::Serialize(fp, &y_) &&
-         tesseract::Serialize(fp, &dir_);
-}
-
-// Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool WordFeature::DeSerialize(bool swap, FILE* fp) {
-  if (!tesseract::DeSerialize(fp, &x_)) return false;
-  if (swap) ReverseN(&x_, sizeof(x_));
-  return tesseract::DeSerialize(fp, &y_) &&
-         tesseract::DeSerialize(fp, &dir_);
-}
-
-void FloatWordFeature::FromWordFeatures(
-    const GenericVector<WordFeature>& word_features,
-    GenericVector<FloatWordFeature>* float_features) {
-  for (int i = 0; i < word_features.size(); ++i) {
-    FloatWordFeature f;
-    f.x = word_features[i].x();
-    f.y = word_features[i].y();
-    f.dir = word_features[i].dir();
-    f.x_bucket = 0;  // Will set it later.
-    float_features->push_back(f);
-  }
-}
-
-// Sort function to sort first by x-bucket, then by y.
-/* static */
-int FloatWordFeature::SortByXBucket(const void* v1, const void* v2) {
-  const auto* f1 = static_cast<const FloatWordFeature*>(v1);
-  const auto* f2 = static_cast<const FloatWordFeature*>(v2);
-  int x_diff = f1->x_bucket - f2->x_bucket;
-  if (x_diff == 0) return f1->y - f2->y;
-  return x_diff;
-}
-
-#endif
-
 ImageData::ImageData() : page_number_(-1), vertical_text_(false) {}
 // Takes ownership of the pix and destroys it.
 ImageData::ImageData(bool vertical, Pix *pix) : page_number_(0), vertical_text_(vertical) {
@@ -269,7 +189,7 @@ Pix *ImageData::GetPix() const {
 // and scale_factor (if not nullptr) is set to the scale factor that was applied
 // to the image to achieve the target_height.
 Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor, int *scaled_width,
-                         int *scaled_height, GenericVector<TBOX> *boxes) const {
+                         int *scaled_height, std::vector<TBOX> *boxes) const {
   int input_width = 0;
   int input_height = 0;
   Pix *src_pix = GetPix();
@@ -299,7 +219,7 @@ Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor,
   pixDestroy(&src_pix);
   if (boxes != nullptr) {
     // Get the boxes.
-    boxes->truncate(0);
+    boxes->clear();
     for (int b = 0; b < boxes_.size(); ++b) {
       TBOX box = boxes_[b];
       box.scale(im_factor);

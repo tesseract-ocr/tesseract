@@ -198,7 +198,10 @@ bool Plumbing::Serialize(TFile *fp) const {
 
 // Reads from the given file. Returns false in case of error.
 bool Plumbing::DeSerialize(TFile *fp) {
-  stack_.truncate(0);
+  for (auto data : stack_) {
+    delete data;
+  }
+  stack_.clear();
   no_ = 0; // We will be modifying this as we AddToStack.
   uint32_t size;
   if (!fp->DeSerialize(&size))

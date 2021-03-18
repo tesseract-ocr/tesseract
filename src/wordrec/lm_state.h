@@ -202,7 +202,8 @@ struct LanguageModelState {
       : viterbi_state_entries_prunable_length(0)
       , viterbi_state_entries_prunable_max_cost(FLT_MAX)
       , viterbi_state_entries_length(0) {}
-  ~LanguageModelState() {}
+  ~LanguageModelState() {
+  }
 
   /// Clears the viterbi search state back to its initial conditions.
   void Clear();
@@ -225,7 +226,11 @@ struct BestChoiceBundle {
     for (int i = 0; i < matrix_dimension; ++i)
       beam.push_back(new LanguageModelState);
   }
-  ~BestChoiceBundle() {}
+  ~BestChoiceBundle() {
+    for (auto &state : beam) {
+      delete state;
+    }
+  }
 
   /// Flag to indicate whether anything was changed.
   bool updated;
@@ -234,7 +239,7 @@ struct BestChoiceBundle {
   /// The beam. One LanguageModelState containing a list of ViterbiStateEntry
   /// per row in the ratings matrix containing all VSEs whose BLOB_CHOICE is
   /// somewhere in the corresponding row.
-  PointerVector<LanguageModelState> beam;
+  std::vector<LanguageModelState *> beam;
   /// Best ViterbiStateEntry and BLOB_CHOICE.
   ViterbiStateEntry *best_vse;
 };

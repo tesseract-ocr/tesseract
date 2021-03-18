@@ -33,7 +33,6 @@
 #include "werd.h"
 
 #include <tesseract/unichar.h>
-#include "genericvector.h"
 
 #include <cassert>
 #include <cfloat> // for FLT_MAX
@@ -287,7 +286,7 @@ public:
   void set_adjust_factor(float factor) {
     adjust_factor_ = factor;
   }
-  inline const UNICHAR_ID *unichar_ids() const {
+  inline const std::vector<UNICHAR_ID> &unichar_ids() const {
     return unichar_ids_;
   }
   inline UNICHAR_ID unichar_id(int index) const {
@@ -364,18 +363,14 @@ public:
   /// Make more space in unichar_id_ and fragment_lengths_ arrays.
   inline void double_the_size() {
     if (reserved_ > 0) {
-      unichar_ids_ = GenericVector<UNICHAR_ID>::double_the_size_memcpy(reserved_, unichar_ids_);
-      script_pos_ = GenericVector<ScriptPos>::double_the_size_memcpy(reserved_, script_pos_);
-      state_ = GenericVector<int>::double_the_size_memcpy(reserved_, state_);
-      certainties_ = GenericVector<float>::double_the_size_memcpy(reserved_, certainties_);
       reserved_ *= 2;
     } else {
-      unichar_ids_ = new UNICHAR_ID[1];
-      script_pos_ = new ScriptPos[1];
-      state_ = new int[1];
-      certainties_ = new float[1];
       reserved_ = 1;
     }
+    unichar_ids_.resize(reserved_);
+    script_pos_.resize(reserved_);
+    state_.resize(reserved_);
+    certainties_.resize(reserved_);
   }
 
   /// Initializes WERD_CHOICE - reserves length slots in unichar_ids_ and
@@ -383,15 +378,15 @@ public:
   inline void init(int reserved) {
     reserved_ = reserved;
     if (reserved > 0) {
-      unichar_ids_ = new UNICHAR_ID[reserved];
-      script_pos_ = new ScriptPos[reserved];
-      state_ = new int[reserved];
-      certainties_ = new float[reserved];
+      unichar_ids_.resize(reserved);
+      script_pos_.resize(reserved);
+      state_.resize(reserved);
+      certainties_.resize(reserved);
     } else {
-      unichar_ids_ = nullptr;
-      script_pos_ = nullptr;
-      state_ = nullptr;
-      certainties_ = nullptr;
+      unichar_ids_.clear();
+      script_pos_.clear();
+      state_.clear();
+      certainties_.clear();
     }
     length_ = 0;
     adjust_factor_ = 1.0f;
@@ -536,8 +531,6 @@ public:
   // considered, but dropcaps are.
   // NOTE: blobs_list should be the chopped_word blobs. (Fully segemented.)
   void SetScriptPositions(bool small_caps, TWERD *word, int debug = 0);
-  // Sets the script_pos_ member from some source positions with a given length.
-  void SetScriptPositions(const ScriptPos *positions, int length);
   // Sets all the script_pos_ positions to the given position.
   void SetAllScriptPositions(ScriptPos position);
 
@@ -588,10 +581,10 @@ private:
   // been moved to a lower level, augmenting the ratings matrix with the
   // combined fragments, and allowing the language-model/segmentation-search
   // to deal with only the combined unichar_ids.
-  UNICHAR_ID *unichar_ids_; // unichar ids that represent the text of the word
-  ScriptPos *script_pos_;   // Normal/Sub/Superscript of each unichar.
-  int *state_;              // Number of blobs in each unichar.
-  float *certainties_;      // Certainty of each unichar.
+  std::vector<UNICHAR_ID> unichar_ids_; // unichar ids that represent the text of the word
+  std::vector<ScriptPos> script_pos_;   // Normal/Sub/Superscript of each unichar.
+  std::vector<int> state_;              // Number of blobs in each unichar.
+  std::vector<float> certainties_;      // Certainty of each unichar.
   int reserved_;            // size of the above arrays
   int length_;              // word length
   // Factor that was used to adjust the rating.

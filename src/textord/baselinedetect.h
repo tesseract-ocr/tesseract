@@ -20,7 +20,6 @@
 #define TESSERACT_TEXTORD_BASELINEDETECT_H_
 
 #include "detlinefit.h"
-#include "genericvector.h" // for PointerVector
 #include "points.h"
 #include "rect.h"
 
@@ -127,6 +126,12 @@ class BaselineBlock {
 public:
   BaselineBlock(int debug_level, bool non_text, TO_BLOCK *block);
 
+  ~BaselineBlock() {
+    for (auto row : rows_) {
+      delete row;
+    }
+  }
+
   TO_BLOCK *block() const {
     return block_;
   }
@@ -209,7 +214,7 @@ private:
   // calculation.
   TO_BLOCK *block_;
   // The rows in the block that we will be working with.
-  PointerVector<BaselineRow> rows_;
+  std::vector<BaselineRow *> rows_;
   // Amount of debugging output to provide.
   int debug_level_;
   // True if the block is non-text (graphic).
@@ -235,7 +240,11 @@ class BaselineDetect {
 public:
   BaselineDetect(int debug_level, const FCOORD &page_skew, TO_BLOCK_LIST *blocks);
 
-  ~BaselineDetect() = default;
+  ~BaselineDetect() {
+    for (auto block : blocks_) {
+      delete block;
+    }
+  }
 
   // Finds the initial baselines for each TO_ROW in each TO_BLOCK, gathers
   // block-wise and page-wise data to smooth small blocks/rows, and applies
@@ -257,7 +266,7 @@ private:
   // Amount of debug output to produce.
   int debug_level_;
   // The blocks that we are working with.
-  PointerVector<BaselineBlock> blocks_;
+  std::vector<BaselineBlock *> blocks_;
 };
 
 } // namespace tesseract

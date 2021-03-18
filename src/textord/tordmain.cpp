@@ -49,8 +49,6 @@
 #include "tprintf.h"     // for tprintf
 #include "werd.h"        // for WERD_IT, WERD, WERD_LIST, W_DONT_CHOP
 
-#include "genericvector.h" // for PointerVector
-
 #include <allheaders.h> // for pixDestroy, pixGetHeight, boxCreate
 
 #include <cfloat>  // for FLT_MAX
@@ -695,7 +693,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
   // Angle difference larger than this is too much to consider equal.
   // They should only be in multiples of M_PI/2 anyway.
   const double kMaxAngleDiff = 0.01; // About 0.6 degrees.
-  PointerVector<BlockGroup> groups;
+  std::vector<BlockGroup *> groups;
   BLOCK_IT bk_it(blocks);
   for (bk_it.mark_cycle_pt(); !bk_it.cycled_list(); bk_it.forward()) {
     BLOCK *block = bk_it.data();
@@ -726,9 +724,9 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
     }
   }
   // Now process each group of blocks.
-  PointerVector<WordWithBox> word_ptrs;
-  for (int g = 0; g < groups.size(); ++g) {
-    const BlockGroup *group = groups[g];
+  std::vector<WordWithBox *> word_ptrs;
+  word_ptrs.reserve(groups.size());
+  for (const auto group : groups) {
     if (group->bounding_box.null_box())
       continue;
     WordGrid word_grid(group->min_xheight, group->bounding_box.botleft(),
@@ -748,10 +746,16 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
         }
       }
     }
+    for (auto box_word : word_ptrs) {
+      delete box_word;
+    }
     FCOORD rotation = group->rotation;
     // Make it a forward rotation that will transform blob coords to block.
     rotation.set_y(-rotation.y());
     TransferDiacriticsToWords(diacritic_blobs, rotation, &word_grid);
+  }
+  for (auto group : groups) {
+    delete group;
   }
 }
 

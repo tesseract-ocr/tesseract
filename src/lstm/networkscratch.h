@@ -20,7 +20,6 @@
 #define TESSERACT_LSTM_NETWORKSCRATCH_H_
 
 #include <mutex>
-#include "genericvector.h" // for PointerVector
 #include "matrix.h"
 #include "networkio.h"
 
@@ -217,6 +216,12 @@ public:
   public:
     Stack() : stack_top_(0) {}
 
+    ~Stack() {
+      for (auto data : stack_) {
+        delete data;
+      }
+    }
+
     // Lends out the next free item, creating one if none available, sets
     // the used flags and increments the stack top.
     T *Borrow() {
@@ -246,7 +251,7 @@ public:
     }
 
   private:
-    PointerVector<T> stack_;
+    std::vector<T *> stack_;
     std::vector<bool> flags_;
     int stack_top_;
     std::mutex mutex_;
