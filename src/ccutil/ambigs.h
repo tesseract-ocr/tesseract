@@ -28,7 +28,6 @@
 
 #  include <tesseract/unichar.h>
 #  include "elst.h"
-#  include "genericvector.h"
 #  include "tprintf.h"
 #  include "unicharset.h"
 
@@ -152,7 +151,9 @@ public:
     for (auto data : dang_ambigs_) {
       delete data;
     }
-    one_to_one_definite_ambigs_.delete_data_pointers();
+    for (auto data : one_to_one_definite_ambigs_) {
+      delete data;
+    }
   }
 
   const UnicharAmbigsVector &dang_ambigs() const {
@@ -221,9 +222,9 @@ private:
 
   UnicharAmbigsVector dang_ambigs_;
   UnicharAmbigsVector replace_ambigs_;
-  GenericVector<UnicharIdVector *> one_to_one_definite_ambigs_;
-  GenericVector<UnicharIdVector *> ambigs_for_adaption_;
-  GenericVector<UnicharIdVector *> reverse_ambigs_for_adaption_;
+  std::vector<UnicharIdVector *> one_to_one_definite_ambigs_;
+  std::vector<UnicharIdVector *> ambigs_for_adaption_;
+  std::vector<UnicharIdVector *> reverse_ambigs_for_adaption_;
 };
 
 } // namespace tesseract

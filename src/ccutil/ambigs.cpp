@@ -195,7 +195,7 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET &encoder_set, TFile *ambi
     }
     if (use_ambigs_for_adaption) {
       for (int vec_id = 0; vec_id < 2; ++vec_id) {
-        const GenericVector<UnicharIdVector *> &vec =
+        const std::vector<UnicharIdVector *> &vec =
             (vec_id == 0) ? ambigs_for_adaption_ : reverse_ambigs_for_adaption_;
         for (i = 0; i < vec.size(); ++i) {
           adaption_ambigs_entry = vec[i];
