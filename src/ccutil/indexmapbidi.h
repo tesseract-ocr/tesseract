@@ -21,6 +21,7 @@
 
 #include <tesseract/export.h> // for TESS_API
 
+#include <cstdint>  // for int32_t
 #include <cstdio>
 #include <vector>
 
