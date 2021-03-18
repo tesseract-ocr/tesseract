@@ -22,6 +22,7 @@
 #include <allheaders.h>
 #include "boxread.h"
 #include "fontinfo.h"
+//#include "helpers.h"
 #include "indexmapbidi.h"
 #include "intfeaturedist.h"
 #include "intfeaturemap.h"

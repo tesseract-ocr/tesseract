@@ -16,7 +16,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "commontraining.h"
-#include "genericvector.h"
 #include "lstmtester.h"
 #include "tprintf.h"
 
@@ -52,7 +51,7 @@ int main(int argc, char **argv) {
       tprintf("Failed to load language model from %s!\n", FLAGS_traineddata.c_str());
       return 1;
     }
-    GenericVector<char> model_data;
+    std::vector<char> model_data;
     if (!tesseract::LoadDataFromFile(FLAGS_model.c_str(), &model_data)) {
       tprintf("Failed to load model from: %s\n", FLAGS_model.c_str());
       return 1;

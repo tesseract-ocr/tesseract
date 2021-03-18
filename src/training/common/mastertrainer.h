@@ -261,7 +261,7 @@ private:
   // Font metrics gathered from multiple files.
   FontInfoTable fontinfo_table_;
   // Array of xheights indexed by font ids in fontinfo_table_;
-  GenericVector<int32_t> xheights_;
+  std::vector<int32_t> xheights_;
 
   // Non-serialized data initialized by other means or used temporarily
   // during loading of training samples.

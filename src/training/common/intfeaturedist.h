@@ -19,7 +19,7 @@
 #ifndef TESSERACT_CLASSIFY_INTFEATUREDIST_H_
 #define TESSERACT_CLASSIFY_INTFEATUREDIST_H_
 
-#include "genericvector.h"
+#include <vector>
 
 namespace tesseract {
 
@@ -53,7 +53,7 @@ public:
   // Compute the distance between the given feature vector and the last
   // Set feature vector.
   double FeatureDistance(const std::vector<int> &features) const;
-  double DebugFeatureDistance(const GenericVector<int> &features) const;
+  double DebugFeatureDistance(const std::vector<int> &features) const;
 
 private:
   // Clear all data.

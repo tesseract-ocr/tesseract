@@ -387,7 +387,6 @@ endif
 noinst_HEADERS += src/classify/classify.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/classify/adaptive.h
-noinst_HEADERS += src/classify/blobclass.h
 noinst_HEADERS += src/classify/cluster.h
 noinst_HEADERS += src/classify/clusttool.h
 noinst_HEADERS += src/classify/featdefs.h

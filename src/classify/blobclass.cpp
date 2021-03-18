@@ -15,8 +15,6 @@
  ** limitations under the License.
  ******************************************************************************/
 
-#include "blobclass.h"
-
 #include <cstdio>
 
 #include "classify.h"
@@ -25,35 +23,6 @@
 #include "normfeat.h"
 
 namespace tesseract {
-
-static const char kUnknownFontName[] = "UnknownFont";
-
-static STRING_VAR(classify_font_name, kUnknownFontName, "Default font name to be used in training");
-
-/**----------------------------------------------------------------------------
-            Public Code
-----------------------------------------------------------------------------**/
-
-// Finds the name of the training font and returns it in fontname, by cutting
-// it out based on the expectation that the filename is of the form:
-// /path/to/dir/[lang].[fontname].exp[num]
-// The [lang], [fontname] and [num] fields should not have '.' characters.
-// If the global parameter classify_font_name is set, its value is used instead.
-void ExtractFontName(const char *filename, std::string *fontname) {
-  *fontname = classify_font_name;
-  if (*fontname == kUnknownFontName) {
-    // filename is expected to be of the form [lang].[fontname].exp[num]
-    // The [lang], [fontname] and [num] fields should not have '.' characters.
-    const char *basename = strrchr(filename, '/');
-    const char *firstdot = strchr(basename ? basename : filename, '.');
-    const char *lastdot = strrchr(filename, '.');
-    if (firstdot != lastdot && firstdot != nullptr && lastdot != nullptr) {
-      ++firstdot;
-      *fontname = firstdot;
-      fontname->resize(lastdot - firstdot);
-    }
-  }
-}
 
 /*---------------------------------------------------------------------------*/
 

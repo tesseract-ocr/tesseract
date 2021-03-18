@@ -29,7 +29,11 @@ IndexMap::~IndexMap() = default;
 // Uses a binary search to find the result. For faster speed use
 // IndexMapBiDi, but that takes more memory.
 int IndexMap::SparseToCompact(int sparse_index) const {
-  int result = compact_map_.binary_search(sparse_index);
+  auto pos = std::upper_bound(compact_map_.begin(), compact_map_.end(), sparse_index);
+  if (pos > compact_map_.begin()) {
+    --pos;
+  }
+  auto result = pos - compact_map_.begin();
   return compact_map_[result] == sparse_index ? result : -1;
 }
 
@@ -45,7 +49,7 @@ void IndexMap::CopyFrom(const IndexMapBiDi &src) {
 
 // Writes to the given file. Returns false in case of error.
 bool IndexMap::Serialize(FILE *fp) const {
-  return tesseract::Serialize(fp, &sparse_size_) && compact_map_.Serialize(fp);
+  return tesseract::Serialize(fp, &sparse_size_) && tesseract::Serialize(fp, compact_map_);
 }
 
 // Reads from the given file. Returns false in case of error.
@@ -60,7 +64,7 @@ bool IndexMap::DeSerialize(bool swap, FILE *fp) {
   if (sparse_size > UINT16_MAX)
     return false;
   sparse_size_ = sparse_size;
-  return compact_map_.DeSerialize(swap, fp);
+  return tesseract::DeSerialize(swap, fp, compact_map_);
 }
 
 // Destructor.
@@ -85,7 +89,7 @@ void IndexMapBiDi::InitAndSetupRange(int sparse_size, int start, int end) {
 // Call Setup immediately after, or make calls to SetMap first to adjust the
 // mapping and then call Setup before using the map.
 void IndexMapBiDi::Init(int size, bool all_mapped) {
-  sparse_map_.init_to_size(size, -1);
+  sparse_map_.resize(size, -1);
   if (all_mapped) {
     for (int i = 0; i < size; ++i)
       sparse_map_[i] = i;
@@ -107,7 +111,7 @@ void IndexMapBiDi::Setup() {
       sparse_map_[i] = compact_size++;
     }
   }
-  compact_map_.init_to_size(compact_size, -1);
+  compact_map_.resize(compact_size, -1);
   for (int i = 0; i < sparse_map_.size(); ++i) {
     if (sparse_map_[i] >= 0) {
       compact_map_[sparse_map_[i]] = i;
@@ -168,7 +172,7 @@ void IndexMapBiDi::CompleteMerges() {
       compact_size = compact_index + 1;
   }
   // Re-generate the compact_map leaving holes for unused indices.
-  compact_map_.init_to_size(compact_size, -1);
+  compact_map_.resize(compact_size, -1);
   for (int i = 0; i < sparse_map_.size(); ++i) {
     if (sparse_map_[i] >= 0) {
       if (compact_map_[sparse_map_[i]] == -1)
@@ -177,8 +181,8 @@ void IndexMapBiDi::CompleteMerges() {
   }
   // Compact the compact_map, leaving tmp_compact_map saying where each
   // index went to in the compacted map.
-  GenericVector<int32_t> tmp_compact_map;
-  tmp_compact_map.init_to_size(compact_size, -1);
+  std::vector<int32_t> tmp_compact_map;
+  tmp_compact_map.resize(compact_size, -1);
   compact_size = 0;
   for (int i = 0; i < compact_map_.size(); ++i) {
     if (compact_map_[i] >= 0) {
@@ -186,7 +190,7 @@ void IndexMapBiDi::CompleteMerges() {
       compact_map_[compact_size++] = compact_map_[i];
     }
   }
-  compact_map_.truncate(compact_size);
+  compact_map_.resize(compact_size);
   // Now modify the entries in the sparse map to point to the new locations.
   for (int i = 0; i < sparse_map_.size(); ++i) {
     if (sparse_map_[i] >= 0) {
@@ -202,14 +206,14 @@ bool IndexMapBiDi::Serialize(FILE *fp) const {
   // Make a vector containing the rest of the map. If the map is many-to-one
   // then each additional sparse entry needs to be stored.
   // Normally we store only the compact map to save space.
-  GenericVector<int32_t> remaining_pairs;
+  std::vector<int32_t> remaining_pairs;
   for (int i = 0; i < sparse_map_.size(); ++i) {
     if (sparse_map_[i] >= 0 && compact_map_[sparse_map_[i]] != i) {
       remaining_pairs.push_back(i);
       remaining_pairs.push_back(sparse_map_[i]);
     }
   }
-  if (!remaining_pairs.Serialize(fp))
+  if (!tesseract::Serialize(fp, remaining_pairs))
     return false;
   return true;
 }
@@ -219,10 +223,10 @@ bool IndexMapBiDi::Serialize(FILE *fp) const {
 bool IndexMapBiDi::DeSerialize(bool swap, FILE *fp) {
   if (!IndexMap::DeSerialize(swap, fp))
     return false;
-  GenericVector<int32_t> remaining_pairs;
-  if (!remaining_pairs.DeSerialize(swap, fp))
+  std::vector<int32_t> remaining_pairs;
+  if (!tesseract::DeSerialize(swap, fp, remaining_pairs))
     return false;
-  sparse_map_.init_to_size(sparse_size_, -1);
+  sparse_map_.resize(sparse_size_, -1);
   for (int i = 0; i < compact_map_.size(); ++i) {
     sparse_map_[compact_map_[i]] = i;
   }

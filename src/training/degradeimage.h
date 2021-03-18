@@ -3,7 +3,6 @@
  * Description: Function to degrade an image (usually of text) as if it
  *              has been printed and then scanned.
  * Authors:     Ray Smith
- * Created:     Tue Nov 19 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +20,6 @@
 #define TESSERACT_TRAINING_DEGRADEIMAGE_H_
 
 #include <allheaders.h>
-#include "genericvector.h"
 #include "helpers.h" // For TRand.
 #include "rect.h"
 
@@ -41,12 +39,12 @@ struct Pix *DegradeImage(struct Pix *input, int exposure, TRand *randomizer, flo
 // Returns nullptr on error. The returned Pix must be pixDestroyed.
 Pix *PrepareDistortedPix(const Pix *pix, bool perspective, bool invert, bool white_noise,
                          bool smooth_noise, bool blur, int box_reduction, TRand *randomizer,
-                         GenericVector<TBOX> *boxes);
+                         std::vector<TBOX> *boxes);
 // Distorts anything that has a non-null pointer with the same pseudo-random
 // perspective distortion. Width and height only need to be set if there
 // is no pix. If there is a pix, then they will be taken from there.
 void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Pix **pix,
-                                   GenericVector<TBOX> *boxes);
+                                   std::vector<TBOX> *boxes);
 // Computes the coefficients of a randomized projective transformation.
 // The image transform requires backward transformation coefficient, and the
 // box transform the forward coefficients.
