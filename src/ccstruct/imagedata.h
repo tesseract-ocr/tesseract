@@ -63,10 +63,10 @@ class WordFeature {
   WordFeature(const FCOORD& fcoord, uint8_t dir);
 
   // Computes the maximum x and y value in the features.
-  static void ComputeSize(const GenericVector<WordFeature>& features,
+  static void ComputeSize(const std::vector<WordFeature>& features,
                           int* max_x, int* max_y);
   // Draws the features in the given window.
-  static void Draw(const GenericVector<WordFeature>& features,
+  static void Draw(const std::vector<WordFeature>& features,
                    ScrollView* window);
 
   // Accessors.
@@ -89,8 +89,8 @@ class WordFeature {
 // A floating-point version of WordFeature, used as an intermediate during
 // scaling.
 struct FloatWordFeature {
-  static void FromWordFeatures(const GenericVector<WordFeature>& word_features,
-                               GenericVector<FloatWordFeature>* float_features);
+  static void FromWordFeatures(const std::vector<WordFeature>& word_features,
+                               std::vector<FloatWordFeature>* float_features);
   // Sort function to sort first by x-bucket, then by y.
   static int SortByXBucket(const void*, const void*);
 

@@ -53,7 +53,7 @@ WordFeature::WordFeature(const FCOORD& fcoord, uint8_t dir)
 }
 
 // Computes the maximum x and y value in the features.
-void WordFeature::ComputeSize(const GenericVector<WordFeature>& features,
+void WordFeature::ComputeSize(const std::vector<WordFeature>& features,
                               int* max_x, int* max_y) {
   *max_x = 0;
   *max_y = 0;
@@ -64,7 +64,7 @@ void WordFeature::ComputeSize(const GenericVector<WordFeature>& features,
 }
 
 // Draws the features in the given window.
-void WordFeature::Draw(const GenericVector<WordFeature>& features,
+void WordFeature::Draw(const std::vector<WordFeature>& features,
                        ScrollView* window) {
 #  ifndef GRAPHICS_DISABLED
   for (int f = 0; f < features.size(); ++f) {
@@ -97,8 +97,8 @@ bool WordFeature::DeSerialize(bool swap, FILE* fp) {
 }
 
 void FloatWordFeature::FromWordFeatures(
-    const GenericVector<WordFeature>& word_features,
-    GenericVector<FloatWordFeature>* float_features) {
+    const std::vector<WordFeature>& word_features,
+    std::vector<FloatWordFeature>* float_features) {
   for (int i = 0; i < word_features.size(); ++i) {
     FloatWordFeature f;
     f.x = word_features[i].x();
