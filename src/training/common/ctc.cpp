@@ -17,6 +17,7 @@
 
 #include "ctc.h"
 
+#include "genericvector.h"
 #include "matrix.h"
 #include "network.h"
 #include "networkio.h"
@@ -224,8 +225,8 @@ float CTC::CalculateBiasFraction() {
       output_labels.push_back(label);
   }
   // Simple bag of labels error calculation.
-  std::vector<int> truth_counts(num_classes_, 0);
-  std::vector<int> output_counts(num_classes_, 0);
+  std::vector<int> truth_counts(num_classes_);
+  std::vector<int> output_counts(num_classes_);
   for (int l = 0; l < num_labels_; ++l) {
     ++truth_counts[labels_[l]];
   }
@@ -351,10 +352,9 @@ void CTC::NormalizeSequence(GENERIC_2D_ARRAY<double> *probs) const {
 void CTC::LabelsToClasses(const GENERIC_2D_ARRAY<double> &probs, NetworkIO *targets) const {
   // For each timestep compute the max prob for each class over all
   // instances of the class in the labels_.
-  std::vector<double> class_probs;
   for (int t = 0; t < num_timesteps_; ++t) {
     float *targets_t = targets->f(t);
-    class_probs.resize(num_classes_);
+    std::vector<double> class_probs(num_classes_);
     for (int u = 0; u < num_labels_; ++u) {
       double prob = probs(t, u);
       // Note that although Graves specifies sum over all labels of the same
