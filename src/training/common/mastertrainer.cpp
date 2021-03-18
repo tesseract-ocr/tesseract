@@ -507,7 +507,7 @@ void MasterTrainer::SetupFlatShapeTable(ShapeTable *shape_table) {
   // must be clustered in order the fonts arrived, and reverse order of the
   // characters within each font.
   // Get a list of the fonts in the order they appeared.
-  GenericVector<int> active_fonts;
+  std::vector<int> active_fonts;
   int num_shapes = flat_shapes_.NumShapes();
   for (int s = 0; s < num_shapes; ++s) {
     int font = flat_shapes_.GetShape(s)[0].font_ids[0];
@@ -547,7 +547,7 @@ CLUSTERER *MasterTrainer::SetupForClustering(const ShapeTable &shape_table,
   shape_map.SetMap(shape_id, true);
   shape_map.Setup();
   // Reverse the order of the samples to match the previous behavior.
-  GenericVector<const TrainingSample *> sample_ptrs;
+  std::vector<const TrainingSample *> sample_ptrs;
   SampleIterator it;
   it.Init(&shape_map, &shape_table, false, &samples_);
   for (it.Begin(); !it.AtEnd(); it.Next()) {
@@ -588,10 +588,10 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   // Now write pffmtable. This is complicated by the fact that the adaptive
   // classifier still wants one indexed by unichar-id, but the static
   // classifier needs one indexed by its shape class id.
-  // We put the shapetable_cutoffs in a GenericVector, and compute the
+  // We put the shapetable_cutoffs in a vector, and compute the
   // unicharset cutoffs along the way.
-  GenericVector<uint16_t> shapetable_cutoffs;
-  GenericVector<uint16_t> unichar_cutoffs;
+  std::vector<uint16_t> shapetable_cutoffs;
+  std::vector<uint16_t> unichar_cutoffs;
   for (int c = 0; c < unicharset.size(); ++c)
     unichar_cutoffs.push_back(0);
   /* then write out each class */
@@ -620,7 +620,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   if (fp == nullptr) {
     tprintf("Error, failed to open file \"%s\"\n", pffmtable_file);
   } else {
-    shapetable_cutoffs.Serialize(fp);
+    tesseract::Serialize(fp, shapetable_cutoffs);
     for (int c = 0; c < unicharset.size(); ++c) {
       const char *unichar = unicharset.id_to_unichar(c);
       if (strcmp(unichar, " ") == 0) {
@@ -894,7 +894,8 @@ void MasterTrainer::ClusterShapes(int min_shapes, int max_shape_unichars, float 
                                   ShapeTable *shapes) {
   int num_shapes = shapes->NumShapes();
   int max_merges = num_shapes - min_shapes;
-  auto *shape_dists = new GenericVector<ShapeDist>[num_shapes];
+  // TODO: avoid new / delete.
+  auto *shape_dists = new std::vector<ShapeDist>[num_shapes];
   float min_dist = kInfiniteDist;
   int min_s1 = 0;
   int min_s2 = 0;
