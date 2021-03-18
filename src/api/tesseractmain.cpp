@@ -448,7 +448,7 @@ static bool ParseArgs(int argc, char **argv, const char **lang, const char **ima
 }
 
 static void PreloadRenderers(tesseract::TessBaseAPI *api,
-                             tesseract::PointerVector<tesseract::TessResultRenderer> *renderers,
+                             std::vector<TessResultRenderer *> *renderers,
                              tesseract::PageSegMode pagesegmode, const char *outputbase) {
   if (pagesegmode == tesseract::PSM_OSD_ONLY) {
 #ifndef DISABLED_LEGACY_ENGINE
@@ -690,9 +690,9 @@ int main(int argc, char **argv) {
     api.SetVariable("user_defined_dpi", dpi_string);
   }
 
-  if (pagesegmode == tesseract::PSM_AUTO_ONLY) {
-    int ret_val = EXIT_SUCCESS;
+  int ret_val = EXIT_SUCCESS;
 
+  if (pagesegmode == tesseract::PSM_AUTO_ONLY) {
     Pix *pixs = pixRead(image);
     if (!pixs) {
       fprintf(stderr, "Leptonica can't process input file: %s\n", image);
@@ -758,7 +758,7 @@ int main(int argc, char **argv) {
   }
 #endif // def DISABLED_LEGACY_ENGINE
 
-  tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
+  std::vector<TessResultRenderer *> renderers;
 
   if (in_training_mode) {
     renderers.push_back(nullptr);
@@ -782,9 +782,13 @@ int main(int argc, char **argv) {
     bool succeed = api.ProcessPages(image, nullptr, 0, renderers[0]);
     if (!succeed) {
       fprintf(stderr, "Error during processing.\n");
-      return EXIT_FAILURE;
+      ret_val = EXIT_FAILURE;
     }
   }
 
-  return EXIT_SUCCESS;
+  for (auto renderer : renderers) {
+    delete renderer;
+  }
+
+  return ret_val;
 }
