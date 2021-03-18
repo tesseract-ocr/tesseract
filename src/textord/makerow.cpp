@@ -126,13 +126,8 @@ static int row_y_order(       // sort function
  * Qsort style function to compare 2 TO_ROWS based on their spacing value.
  */
 static int row_spacing_order( // sort function
-    const void *item1, // items to compare
-    const void *item2) {
-  // converted ptr
-  const TO_ROW *row1 = *reinterpret_cast<const TO_ROW *const *>(item1);
-  // converted ptr
-  const TO_ROW *row2 = *reinterpret_cast<const TO_ROW *const *>(item2);
-
+    const TO_ROW *row1, // items to compare
+    const TO_ROW *row2) {
   return row1->spacing < row2->spacing;
 }
 
