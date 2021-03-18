@@ -265,10 +265,6 @@ void WERD_CHOICE::init(const char *src_string, const char *src_lengths, float sr
  * WERD_CHOICE::~WERD_CHOICE
  */
 WERD_CHOICE::~WERD_CHOICE() {
-  delete[] unichar_ids_;
-  delete[] script_pos_;
-  delete[] state_;
-  delete[] certainties_;
 }
 
 const char *WERD_CHOICE::permuter_name() const {
@@ -470,7 +466,7 @@ WERD_CHOICE &WERD_CHOICE::operator+=(const WERD_CHOICE &second) {
   while (reserved_ < length_ + second.length()) {
     this->double_the_size();
   }
-  const UNICHAR_ID *other_unichar_ids = second.unichar_ids();
+  const std::vector<UNICHAR_ID> &other_unichar_ids = second.unichar_ids();
   for (int i = 0; i < second.length(); ++i) {
     unichar_ids_[length_ + i] = other_unichar_ids[i];
     state_[length_ + i] = second.state_[i];
@@ -505,7 +501,7 @@ WERD_CHOICE &WERD_CHOICE::operator=(const WERD_CHOICE &source) {
   }
 
   unicharset_ = source.unicharset_;
-  const UNICHAR_ID *other_unichar_ids = source.unichar_ids();
+  const std::vector<UNICHAR_ID> &other_unichar_ids = source.unichar_ids();
   for (int i = 0; i < source.length(); ++i) {
     unichar_ids_[i] = other_unichar_ids[i];
     state_[i] = source.state_[i];
@@ -543,7 +539,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD *word, int debug) {
     TBLOB *tblob = word->blobs[chunk_index];
     int uni_id = unichar_id(blob_index);
     TBOX blob_box = tblob->bounding_box();
-    if (state_ != nullptr) {
+    if (!state_.empty()) {
       for (int i = 1; i < state_[blob_index]; ++i) {
         ++chunk_index;
         tblob = word->blobs[chunk_index];
@@ -584,19 +580,11 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD *word, int debug) {
         TBLOB *tblob = word->blobs[chunk_index];
         ScriptPositionOf(true, *unicharset_, tblob->bounding_box(), unichar_id(blob_index));
       }
-      chunk_index += state_ != nullptr ? state_[blob_index] : 1;
+      chunk_index += state_.empty() ? 1 :  state_[blob_index];
     }
   }
 }
-// Sets the script_pos_ member from some source positions with a given length.
-void WERD_CHOICE::SetScriptPositions(const tesseract::ScriptPos *positions, int length) {
-  ASSERT_HOST(length == length_);
-  if (positions != script_pos_) {
-    delete[] script_pos_;
-    script_pos_ = new ScriptPos[length];
-    memcpy(script_pos_, positions, sizeof(positions[0]) * length);
-  }
-}
+
 // Sets all the script_pos_ positions to the given position.
 void WERD_CHOICE::SetAllScriptPositions(tesseract::ScriptPos position) {
   for (int i = 0; i < length_; ++i)
