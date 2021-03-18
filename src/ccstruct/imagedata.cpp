@@ -189,7 +189,7 @@ Pix *ImageData::GetPix() const {
 // and scale_factor (if not nullptr) is set to the scale factor that was applied
 // to the image to achieve the target_height.
 Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor, int *scaled_width,
-                         int *scaled_height, GenericVector<TBOX> *boxes) const {
+                         int *scaled_height, std::vector<TBOX> *boxes) const {
   int input_width = 0;
   int input_height = 0;
   Pix *src_pix = GetPix();
@@ -219,7 +219,7 @@ Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor,
   pixDestroy(&src_pix);
   if (boxes != nullptr) {
     // Get the boxes.
-    boxes->truncate(0);
+    boxes->clear();
     for (int b = 0; b < boxes_.size(); ++b) {
       TBOX box = boxes_[b];
       box.scale(im_factor);

@@ -21,7 +21,7 @@
 
 #include "points.h" // for FCOORD
 
-#include "genericvector.h" // for GenericVector, PointerVector, FileReader
+#include "genericvector.h" // for PointerVector, FileReader
 
 #include <mutex>  // for std::mutex
 #include <thread> // for std::thread
@@ -127,7 +127,7 @@ public:
   // and scale_factor (if not nullptr) is set to the scale factor that was
   // applied to the image to achieve the target_height.
   Pix *PreScale(int target_height, int max_height, float *scale_factor, int *scaled_width,
-                int *scaled_height, GenericVector<TBOX> *boxes) const;
+                int *scaled_height, std::vector<TBOX> *boxes) const;
 
   int MemoryUsed() const;
 
