@@ -55,53 +55,6 @@ enum CachingStrategy {
   CS_ROUND_ROBIN,
 };
 
-#if 0
-
-class WordFeature {
- public:
-  WordFeature();
-  WordFeature(const FCOORD& fcoord, uint8_t dir);
-
-  // Computes the maximum x and y value in the features.
-  static void ComputeSize(const std::vector<WordFeature>& features,
-                          int* max_x, int* max_y);
-  // Draws the features in the given window.
-  static void Draw(const std::vector<WordFeature>& features,
-                   ScrollView* window);
-
-  // Accessors.
-  int x() const { return x_; }
-  int y() const { return y_; }
-  int dir() const { return dir_; }
-
-  // Writes to the given file. Returns false in case of error.
-  bool Serialize(FILE* fp) const;
-  // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, FILE* fp);
-
- private:
-  int16_t x_;
-  uint8_t y_;
-  uint8_t dir_;
-};
-
-// A floating-point version of WordFeature, used as an intermediate during
-// scaling.
-struct FloatWordFeature {
-  static void FromWordFeatures(const std::vector<WordFeature>& word_features,
-                               std::vector<FloatWordFeature>* float_features);
-  // Sort function to sort first by x-bucket, then by y.
-  static int SortByXBucket(const void*, const void*);
-
-  float x;
-  float y;
-  float dir;
-  int x_bucket;
-};
-
-#endif
-
 // Class to hold information on a single image:
 // Filename, cached image as a Pix*, character boxes, text transcription.
 // The text transcription is the ground truth UTF-8 text for the image.
