@@ -9,7 +9,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "genericvector.h"
 #include "serialis.h"
 
 #include "include_gunit.h"
@@ -52,22 +51,22 @@ protected:
     bool Serialize(TFile *fp) {
       if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1)
         return false;
-      if (!squares_.Serialize(fp))
+      if (!fp->Serialize(squares_))
         return false;
       if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1)
         return false;
-      if (!triangles_.Serialize(fp))
+      if (!fp->Serialize(triangles_))
         return false;
       return true;
     }
     bool DeSerialize(TFile *fp) {
       if (fp->FReadEndian(&num_squares_, sizeof(num_squares_), 1) != 1)
         return false;
-      if (!squares_.DeSerialize(fp))
+      if (!fp->DeSerialize(squares_))
         return false;
       if (fp->FReadEndian(&num_triangles_, sizeof(num_triangles_), 1) != 1)
         return false;
-      if (!triangles_.DeSerialize(fp))
+      if (!fp->DeSerialize(triangles_))
         return false;
       return true;
     }
@@ -81,44 +80,44 @@ protected:
         return false;
       for (int i = 0; i < squares_.size(); ++i)
         ReverseN(&squares_[i], sizeof(squares_[i]));
-      if (!squares_.Serialize(fp))
+      if (!fp->Serialize(squares_))
         return false;
       ReverseN(&num_triangles_, sizeof(num_triangles_));
       if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1)
         return false;
       if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1)
         return false;
-      for (int i = 0; i < triangles_.size(); ++i)
-        ReverseN(&triangles_[i], sizeof(triangles_[i]));
-      return triangles_.Serialize(fp);
+      for (auto &triangle : triangles_)
+        ReverseN(&triangle, sizeof(triangles_[0]));
+      return fp->Serialize(triangles_);
     }
     bool DeSerializeBigEndian(TFile *fp) {
       if (fp->FReadEndian(&num_squares_, sizeof(num_squares_), 1) != 1)
         return false;
-      if (!squares_.DeSerialize(fp))
+      if (!fp->DeSerialize(squares_))
         return false;
       // The first element is the size that was written, so we will delete it
       // and read the last element separately.
       int last_element;
       if (fp->FReadEndian(&last_element, sizeof(last_element), 1) != 1)
         return false;
-      squares_.remove(0);
+      squares_.erase(squares_.begin());
       squares_.push_back(last_element);
       if (fp->FReadEndian(&num_triangles_, sizeof(num_triangles_), 1) != 1)
         return false;
-      if (!triangles_.DeSerialize(fp))
+      if (!fp->DeSerialize(triangles_))
         return false;
       if (fp->FReadEndian(&last_element, sizeof(last_element), 1) != 1)
         return false;
-      triangles_.remove(0);
+      triangles_.erase(triangles_.begin());
       triangles_.push_back(last_element);
       return true;
     }
 
   private:
-    GenericVector<int> squares_;
+    std::vector<int> squares_;
     int num_squares_;
-    GenericVector<int> triangles_;
+    std::vector<int> triangles_;
     int num_triangles_;
   };
 };

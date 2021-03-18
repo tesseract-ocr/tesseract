@@ -32,7 +32,6 @@
 
 #include <tesseract/version.h>
 #include "errcode.h"
-#include "genericvector.h"
 #include "helpers.h"
 #include "params.h"
 #include "serialis.h"
@@ -120,8 +119,8 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data, int size
     ReverseN(&num_entries, sizeof(num_entries));
   if (num_entries > kMaxNumTessdataEntries)
     return false;
-  GenericVector<int64_t> offset_table;
-  offset_table.resize_no_init(num_entries);
+  // TODO: optimize (no init required).
+  std::vector<int64_t> offset_table(num_entries);
   if (!fp.DeSerialize(&offset_table[0], num_entries))
     return false;
   for (unsigned i = 0; i < num_entries && i < TESSDATA_NUM_ENTRIES; ++i) {

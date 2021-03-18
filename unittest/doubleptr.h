@@ -5,7 +5,6 @@
 // Description: Double-ended pointer that keeps pointing correctly even
 //              when reallocated or copied.
 // Author:      Ray Smith
-// Created:     Wed Mar 14 12:22:57 PDT 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +33,7 @@ namespace tesseract {
 // For this reason both the copy constructor and the operator= take a non-const
 // reference argument, and the const reference versions cannot be used.
 // DoublePtr is useful to incorporate into structures that are part of a
-// collection such as GenericVector or STL containers, where reallocs can
+// collection such as STL containers, where reallocs can
 // relocate the members. DoublePtr is also useful in a GenericHeap, where it
 // can correctly maintain the pointer to an element of the heap despite it
 // getting moved around on the heap.

@@ -3,7 +3,6 @@
 #include <tesseract/baseapi.h>
 #include <tesseract/resultiterator.h>
 #include <string>
-#include "genericvector.h"
 #include "scrollview.h"
 
 #include "absl/strings/str_format.h" // for absl::StrFormat
@@ -14,21 +13,6 @@ namespace tesseract {
 
 // DEFINE_string(tess_config, "", "config file for tesseract");
 // DEFINE_bool(visual_test, false, "Runs a visual test using scrollview");
-
-// Helper functions for converting to STL vectors
-template <typename T>
-void ToVector(const GenericVector<T> &from, std::vector<T> *to) {
-  to->clear();
-  for (int i = 0; i < from.size(); i++)
-    to->push_back(from[i]);
-}
-
-template <typename T>
-void ToVector(const std::vector<T> &from, std::vector<T> *to) {
-  to->clear();
-  for (int i = 0; i < from.size(); i++)
-    to->push_back(from[i]);
-}
 
 // The fixture for testing Tesseract.
 class ResultIteratorTest : public testing::Test {
@@ -174,13 +158,11 @@ protected:
       gv_word_dirs.push_back(word_dirs[i]);
     }
 
-    std::vector<int> output;
-    ResultIterator::CalculateTextlineOrder(in_ltr_context, gv_word_dirs, &output);
+    std::vector<int> calculated_order;
+    ResultIterator::CalculateTextlineOrder(in_ltr_context, gv_word_dirs, &calculated_order);
     // STL vector can be used with EXPECT_EQ, so convert...
     std::vector<int> correct_order(expected_reading_order,
                                    expected_reading_order + num_reading_order_entries);
-    std::vector<int> calculated_order;
-    ToVector(output, &calculated_order);
     EXPECT_EQ(correct_order, calculated_order);
   }
 
@@ -214,10 +196,9 @@ protected:
       sane = false;
     }
     if (!sane) {
-      std::vector<int> output_copy2, empty;
-      ToVector(output, &output_copy2);
-      EXPECT_EQ(output_copy2, empty) << " permutation of 0.." << num_words - 1 << " not found in "
-                                     << (in_ltr_context ? "ltr" : "rtl") << " context.";
+      std::vector<int> empty;
+      EXPECT_EQ(output, empty) << " permutation of 0.." << num_words - 1 << " not found in "
+                               << (in_ltr_context ? "ltr" : "rtl") << " context.";
     }
   }
 

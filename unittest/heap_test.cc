@@ -13,7 +13,6 @@
 
 #include "doubleptr.h"
 #include "genericheap.h"
-#include "genericvector.h"
 #include "kdpair.h"
 
 #include <string>
@@ -135,7 +134,7 @@ TEST_F(HeapTest, RevalueTest) {
   // in the vector and heap, and we test a MAX heap.
   typedef KDPairDec<int, DoublePtr> PtrPair;
   GenericHeap<PtrPair> heap;
-  GenericVector<PtrPair> v;
+  std::vector<PtrPair> v;
   // Push the test data onto both the heap and the vector.
   for (size_t i = 0; i < countof(test_data); ++i) {
     PtrPair h_pair;
@@ -162,7 +161,7 @@ TEST_F(HeapTest, RevalueTest) {
   heap.Reshuffle(pair_ptr);
   // After the changes, popping the heap should still match the sorted order
   // of the vector.
-  v.sort();
+  std::sort(v.begin(), v.end());
   EXPECT_GT(v[0].key(), v.back().key());
   for (int i = 0; i < v.size(); ++i) {
     EXPECT_EQ(v[i].key(), heap.PeekTop().key());

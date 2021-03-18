@@ -2,7 +2,6 @@
 // File:        sorthelper.h
 // Description: Generic sort and maxfinding class.
 // Author:      Ray Smith
-// Created:     Thu May 20 17:48:21 PDT 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,9 +19,8 @@
 #ifndef TESSERACT_CCUTIL_SORTHELPER_H_
 #define TESSERACT_CCUTIL_SORTHELPER_H_
 
-#include "genericvector.h"
-
 #include <cstdlib>
+#include <vector>
 
 namespace tesseract {
 
@@ -96,18 +94,18 @@ public:
   }
 
   // Returns the data array sorted by decreasing frequency.
-  const GenericVector<SortPair<T>> &SortByCount() {
+  const std::vector<SortPair<T>> &SortByCount() {
     counts_.sort(&SortPairsByCount);
     return counts_;
   }
   // Returns the data array sorted by decreasing value.
-  const GenericVector<SortPair<T>> &SortByValue() {
+  const std::vector<SortPair<T>> &SortByValue() {
     counts_.sort(&SortPairsByValue);
     return counts_;
   }
 
 private:
-  GenericVector<SortPair<T>> counts_;
+  std::vector<SortPair<T>> counts_;
 };
 
 } // namespace tesseract
