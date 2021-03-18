@@ -2,7 +2,6 @@
 // File:        fontinfo.h
 // Description: Font information classes abstracted from intproto.h/cpp.
 // Author:      rays@google.com (Ray Smith)
-// Created:     Tue May 17 17:08:01 PDT 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,7 +53,7 @@ struct FontSpacingInfo {
   int16_t x_gap_before;
   int16_t x_gap_after;
   GenericVector<UNICHAR_ID> kerned_unichar_ids;
-  GenericVector<int16_t> kerned_x_gaps;
+  std::vector<int16_t> kerned_x_gaps;
 };
 
 /*
