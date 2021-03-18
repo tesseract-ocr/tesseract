@@ -18,7 +18,6 @@
 #include "include_gunit.h" // for TEST
 #include "log.h"           // for LOG
 
-#include "genericvector.h"
 // ccmain
 #include "paragraphs.h"
 #include "paragraphs_internal.h"
