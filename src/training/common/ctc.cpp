@@ -17,7 +17,6 @@
 
 #include "ctc.h"
 
-#include "genericvector.h"
 #include "matrix.h"
 #include "network.h"
 #include "networkio.h"
