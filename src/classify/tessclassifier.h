@@ -4,7 +4,6 @@
 // File:        tessclassifier.h
 // Description: Tesseract implementation of a ShapeClassifier.
 // Author:      Ray Smith
-// Created:     Tue Nov 22 14:10:45 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,7 +54,7 @@ public:
   // by any subsequent classifiers. Caller waits for the user to view and
   // then destroys the windows by clearing the vector.
   int DisplayClassifyAs(const TrainingSample &sample, Pix *page_pix, int unichar_id, int index,
-                        PointerVector<ScrollView> *windows) override;
+                        std::vector<ScrollView *> &windows) override;
 
 private:
   // Indicates that this classifier is to use just the ClassPruner, or the
