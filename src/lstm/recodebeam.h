@@ -183,6 +183,7 @@ class TESS_API RecodeBeamSearch {
 public:
   // Borrows the pointer, which is expected to survive until *this is deleted.
   RecodeBeamSearch(const UnicharCompress &recoder, int null_char, bool simple_text, Dict *dict);
+  ~RecodeBeamSearch();
 
   // Decodes the set of network outputs, storing the lattice internally.
   // If charset is not null, it enables detailed debugging of the beam search.
@@ -263,7 +264,7 @@ public:
 
 private:
   // Struct for the Re-encode beam search. This struct holds the data for
-  // a single time-step position of the output. Use a PointerVector<RecodeBeam>
+  // a single time-step position of the output. Use a vector<RecodeBeam>
   // to hold all the timesteps and prevent reallocation of the individual heaps.
   struct RecodeBeam {
     // Resets to the initial state without deleting all the memory.
@@ -399,9 +400,9 @@ private:
   // The encoder/decoder that we will be using.
   const UnicharCompress &recoder_;
   // The beam for each timestep in the output.
-  PointerVector<RecodeBeam> beam_;
+  std::vector<RecodeBeam *> beam_;
   // Secondary Beam for Results with less Probability
-  PointerVector<RecodeBeam> secondary_beam_;
+  std::vector<RecodeBeam *> secondary_beam_;
   // The number of timesteps valid in beam_;
   int beam_size_;
   // A flag to indicate which outputs are the top-n choices. Current timestep
