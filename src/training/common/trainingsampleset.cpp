@@ -82,12 +82,15 @@ TrainingSampleSet::TrainingSampleSet(const FontInfoTable &font_table)
     , fontinfo_table_(font_table) {}
 
 TrainingSampleSet::~TrainingSampleSet() {
+  for (auto sample : samples_) {
+    delete sample;
+  }
   delete font_class_array_;
 }
 
 // Writes to the given file. Returns false in case of error.
 bool TrainingSampleSet::Serialize(FILE *fp) const {
-  if (!samples_.Serialize(fp))
+  if (!tesseract::Serialize(fp, samples_))
     return false;
   if (!unicharset_.save_to_file(fp))
     return false;
@@ -106,7 +109,7 @@ bool TrainingSampleSet::Serialize(FILE *fp) const {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool TrainingSampleSet::DeSerialize(bool swap, FILE *fp) {
-  if (!samples_.DeSerialize(swap, fp))
+  if (!tesseract::DeSerialize(swap, fp, samples_))
     return false;
   num_raw_samples_ = samples_.size();
   if (!unicharset_.load_from_file(fp))
@@ -498,15 +501,24 @@ void TrainingSampleSet::KillSample(TrainingSample *sample) {
 // Deletes all samples with zero features marked by KillSample.
 void TrainingSampleSet::DeleteDeadSamples() {
   using namespace std::placeholders; // for _1
-  samples_.compact(std::bind(&TrainingSampleSet::DeleteableSample, this, _1));
+  auto old_it = samples_.begin();
+  for (; old_it < samples_.end(); ++old_it) {
+    if (*old_it == nullptr || (*old_it)->class_id() < 0) {
+      break;
+    }
+  }
+  auto new_it = old_it;
+  for (; old_it < samples_.end(); ++old_it) {
+    if (*old_it == nullptr || (*old_it)->class_id() < 0) {
+      delete *old_it;
+    } else {
+      *new_it = *old_it;
+      ++new_it;
+    }
+  }
+  samples_.resize(new_it - samples_.begin() + 1);
   num_raw_samples_ = samples_.size();
   // Samples must be re-organized now we have deleted a few.
-}
-
-// Callback function returns true if the given sample is to be deleted, due
-// to having a negative classid.
-bool TrainingSampleSet::DeleteableSample(const TrainingSample *sample) {
-  return sample == nullptr || sample->class_id() < 0;
 }
 
 // Construct an array to access the samples by font,class pair.

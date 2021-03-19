@@ -172,10 +172,6 @@ public:
   // must be called after as the samples have been renumbered.
   void DeleteDeadSamples();
 
-  // Callback function returns true if the given sample is to be deleted, due
-  // to having a negative classid.
-  bool DeleteableSample(const TrainingSample *sample);
-
   // Construct an array to access the samples by font,class pair.
   void OrganizeByFontAndClass();
 
@@ -254,7 +250,7 @@ private:
     std::vector<FontClassDistance> distance_cache;
   };
 
-  PointerVector<TrainingSample> samples_;
+  std::vector<TrainingSample *> samples_;
   // Number of samples before replication/randomization.
   int num_raw_samples_;
   // Character set we are training for.
