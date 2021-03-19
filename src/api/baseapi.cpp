@@ -2020,8 +2020,11 @@ bool TessBaseAPI::Threshold(Pix **pix) {
   if (user_dpi) {
     thresholder_->SetSourceYResolution(user_dpi);
   } else if (y_res < kMinCredibleResolution || y_res > kMaxCredibleResolution) {
-    tprintf("Warning: Invalid resolution %d dpi. Using %d instead.\n", y_res,
-            kMinCredibleResolution);
+    if (y_res != 0) {
+      // Show warning only if a resolution was given.
+      tprintf("Warning: Invalid resolution %d dpi. Using %d instead.\n",
+              y_res, kMinCredibleResolution);
+    }
     thresholder_->SetSourceYResolution(kMinCredibleResolution);
   }
   auto pageseg_mode = static_cast<PageSegMode>(static_cast<int>(tesseract_->tessedit_pageseg_mode));
