@@ -356,6 +356,9 @@ DocumentData::~DocumentData() {
   }
   std::lock_guard<std::mutex> lock_p(pages_mutex_);
   std::lock_guard<std::mutex> lock_g(general_mutex_);
+  for (auto data : pages_) {
+    delete data;
+  }
 }
 
 // Reads all the pages in the given lstmf filename to the cache. The reader
@@ -382,7 +385,7 @@ bool DocumentData::SaveDocument(const char *filename, FileWriter writer) {
   std::lock_guard<std::mutex> lock(pages_mutex_);
   TFile fp;
   fp.OpenWrite(nullptr);
-  if (!pages_.Serialize(&fp) || !fp.CloseWrite(filename, writer)) {
+  if (!fp.Serialize(pages_) || !fp.CloseWrite(filename, writer)) {
     tprintf("Serialize failed: %s\n", filename);
     return false;
   }
@@ -406,6 +409,9 @@ void DocumentData::LoadPageInBackground(int index) {
   if (pages_offset_ == index)
     return;
   pages_offset_ = index;
+  for (auto page : pages_) {
+    delete page;
+  }
   pages_.clear();
   if (thread.joinable()) {
     thread.join();
@@ -456,6 +462,9 @@ bool DocumentData::IsPageAvailable(int index, ImageData **page) {
 int64_t DocumentData::UnCache() {
   std::lock_guard<std::mutex> lock(pages_mutex_);
   int64_t memory_saved = memory_used();
+  for (auto page : pages_) {
+    delete page;
+  }
   pages_.clear();
   pages_offset_ = -1;
   set_total_pages(-1);
@@ -488,7 +497,10 @@ bool DocumentData::ReCachePages() {
   set_total_pages(0);
   set_memory_used(0);
   int loaded_pages = 0;
-  pages_.truncate(0);
+  for (auto page : pages_) {
+    delete page;
+  }
+  pages_.clear();
   TFile fp;
   if (!fp.Open(document_name_.c_str(), reader_) || !fp.DeSerializeSize(&loaded_pages) ||
       loaded_pages <= 0) {
@@ -506,9 +518,19 @@ bool DocumentData::ReCachePages() {
         break;
       }
     } else {
-      if (!pages_.DeSerializeElement(&fp))
+      uint8_t non_null;
+      if (!fp.DeSerialize(&non_null)) {
         break;
-      ImageData *image_data = pages_.back();
+      }
+      ImageData *image_data = nullptr;
+      if (non_null) {
+        image_data = new ImageData;
+        if (!image_data->DeSerialize(&fp)) {
+          delete image_data;
+          break;
+        }
+      }
+      pages_.push_back(image_data);
       if (image_data->imagefilename().length() == 0) {
         image_data->set_imagefilename(document_name_);
         image_data->set_page_number(page);
@@ -519,9 +541,12 @@ bool DocumentData::ReCachePages() {
   if (page < loaded_pages) {
     tprintf("Deserialize failed: %s read %d/%d lines\n", document_name_.c_str(), page,
             loaded_pages);
-    pages_.truncate(0);
+    for (auto page : pages_) {
+      delete page;
+    }
+    pages_.clear();
   } else {
-    tprintf("Loaded %d/%d lines (%d-%d) of document %s\n", pages_.size(), loaded_pages,
+    tprintf("Loaded %zu/%d lines (%d-%zu) of document %s\n", pages_.size(), loaded_pages,
             pages_offset_ + 1, pages_offset_ + pages_.size(), document_name_.c_str());
   }
   set_total_pages(loaded_pages);

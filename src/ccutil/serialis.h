@@ -180,7 +180,7 @@ public:
     } else if constexpr (std::is_pointer_v<T>) {
       // Serialize pointers.
       for (auto &item : data) {
-        uint8_t non_null = (*item != nullptr);
+        uint8_t non_null = (item != nullptr);
 	if (!Serialize(&non_null)) {
           return false;
 	}
