@@ -38,6 +38,7 @@
 #include "helpers.h"
 
 #include <algorithm>
+#include <array> // for std::array
 #include <cassert>
 #include <cmath> // for M_PI, std::floor
 #include <cstdio>
@@ -688,9 +689,8 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   /* variables for conversion from older inttemp formats */
   int b, bit_number, last_cp_bit_number, new_b, new_i, new_w;
   CLASS_ID class_id, max_class_id;
-  auto *IndexFor = new int16_t[MAX_NUM_CLASSES];
-  auto *ClassIdFor = new CLASS_ID[MAX_NUM_CLASSES];
-  auto **TempClassPruner = new CLASS_PRUNER_STRUCT *[MAX_NUM_CLASS_PRUNERS];
+  std::array<CLASS_ID, MAX_NUM_CLASSES> ClassIdFor;
+  std::array<CLASS_PRUNER_STRUCT *, MAX_NUM_CLASS_PRUNERS> TempClassPruner;
   uint32_t SetBitsForMask =          // word with NUM_BITS_PER_CLASS
       (1 << NUM_BITS_PER_CLASS) - 1; // set starting at bit 0
   uint32_t Mask, NewMask, ClassBits;
@@ -718,10 +718,11 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   }
 
   if (version_id < 2) {
-    if (fp->FReadEndian(IndexFor, sizeof(IndexFor[0]), unicharset_size) != unicharset_size) {
+    std::array<int16_t, MAX_NUM_CLASSES> IndexFor;
+    if (fp->FReadEndian(&IndexFor[0], sizeof(IndexFor[0]), unicharset_size) != unicharset_size) {
       tprintf("Bad read of inttemp!\n");
     }
-    if (fp->FReadEndian(ClassIdFor, sizeof(ClassIdFor[0]), Templates->NumClasses) !=
+    if (fp->FReadEndian(&ClassIdFor[0], sizeof(ClassIdFor[0]), Templates->NumClasses) !=
         Templates->NumClasses) {
       tprintf("Bad read of inttemp!\n");
     }
@@ -885,11 +886,6 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     }
     this->fontset_table_.read(fp, std::bind(read_set, _1, _2));
   }
-
-  // Clean up.
-  delete[] IndexFor;
-  delete[] ClassIdFor;
-  delete[] TempClassPruner;
 
   return (Templates);
 } /* ReadIntTemplates */
