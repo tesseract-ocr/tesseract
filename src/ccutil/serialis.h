@@ -86,7 +86,7 @@ public:
 
   // Deserialize data.
   bool DeSerializeSize(int32_t *data);
-  bool DeSerializeSkip();
+  bool DeSerializeSkip(size_t size = 1);
   bool DeSerialize(std::string &data);
   bool DeSerialize(std::vector<char> &data);
   //bool DeSerialize(std::vector<std::string> &data);

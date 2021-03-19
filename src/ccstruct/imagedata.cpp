@@ -134,13 +134,13 @@ bool ImageData::SkipDeSerialize(TFile *fp) {
   int32_t page_number;
   if (!fp->DeSerialize(&page_number))
     return false;
-  if (!GenericVector<char>::SkipDeSerialize(fp))
-    return false;
   if (!fp->DeSerializeSkip())
     return false;
   if (!fp->DeSerializeSkip())
     return false;
-  if (!GenericVector<TBOX>::SkipDeSerialize(fp))
+  if (!fp->DeSerializeSkip())
+    return false;
+  if (!fp->DeSerializeSkip(sizeof(TBOX)))
     return false;
   int32_t number;
   if (!fp->DeSerialize(&number))
@@ -512,16 +512,15 @@ bool DocumentData::ReCachePages() {
   // memory and skip the rest after that.
   int page;
   for (page = 0; page < loaded_pages; ++page) {
+    uint8_t non_null;
+    if (!fp.DeSerialize(&non_null)) {
+      break;
+    }
     if (page < pages_offset_ || (max_memory_ > 0 && memory_used() > max_memory_)) {
-      if (!PointerVector<ImageData>::DeSerializeSkip(&fp)) {
-        tprintf("Deserializeskip failed\n");
+      if (non_null && !ImageData::SkipDeSerialize(&fp)) {
         break;
       }
     } else {
-      uint8_t non_null;
-      if (!fp.DeSerialize(&non_null)) {
-        break;
-      }
       ImageData *image_data = nullptr;
       if (non_null) {
         image_data = new ImageData;

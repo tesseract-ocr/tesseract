@@ -21,8 +21,6 @@
 
 #include "points.h" // for FCOORD
 
-#include "genericvector.h" // for PointerVector, FileReader
-
 #include <mutex>  // for std::mutex
 #include <thread> // for std::thread
 
