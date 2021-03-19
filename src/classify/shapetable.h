@@ -231,6 +231,11 @@ public:
   // The UNICHARSET reference supplied here, or in set_unicharset below must
   // exist for the entire life of the ShapeTable. It is used only by DebugStr.
   explicit ShapeTable(const UNICHARSET &unicharset);
+  ~ShapeTable() {
+    for (auto data : shape_table_) {
+      delete data;
+    }
+  }
 
   // Writes to the given file. Returns false in case of error.
   bool Serialize(FILE *fp) const;
@@ -356,7 +361,7 @@ private:
   // Pointer to a provided unicharset used only by the Debugstr member.
   const UNICHARSET *unicharset_;
   // Vector of pointers to the Shapes in this ShapeTable.
-  PointerVector<Shape> shape_table_;
+  std::vector<Shape *> shape_table_;
 
   // Cached data calculated on demand.
   mutable int num_fonts_;

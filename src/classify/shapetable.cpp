@@ -236,12 +236,12 @@ ShapeTable::ShapeTable(const UNICHARSET &unicharset) : unicharset_(&unicharset),
 
 // Writes to the given file. Returns false in case of error.
 bool ShapeTable::Serialize(FILE *fp) const {
-  return shape_table_.Serialize(fp);
+  return tesseract::Serialize(fp, shape_table_);
 }
 // Reads from the given file. Returns false in case of error.
 
 bool ShapeTable::DeSerialize(TFile *fp) {
-  if (!shape_table_.DeSerialize(fp))
+  if (!fp->DeSerialize(shape_table_))
     return false;
   num_fonts_ = 0;
   return true;
@@ -357,8 +357,7 @@ int ShapeTable::AddShape(const Shape &other) {
 // Removes the shape given by the shape index.
 void ShapeTable::DeleteShape(int shape_id) {
   delete shape_table_[shape_id];
-  shape_table_[shape_id] = nullptr;
-  shape_table_.remove(shape_id);
+  shape_table_.erase(shape_table_.begin() + shape_id);
 }
 
 // Adds a font_id to the given existing shape index for the given

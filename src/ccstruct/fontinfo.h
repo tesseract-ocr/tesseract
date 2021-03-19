@@ -2,7 +2,6 @@
 // File:        fontinfo.h
 // Description: Font information classes abstracted from intproto.h/cpp.
 // Author:      rays@google.com (Ray Smith)
-// Created:     Tue May 17 17:08:01 PDT 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,8 +52,8 @@ struct ScoredFont {
 struct FontSpacingInfo {
   int16_t x_gap_before;
   int16_t x_gap_after;
-  GenericVector<UNICHAR_ID> kerned_unichar_ids;
-  GenericVector<int16_t> kerned_x_gaps;
+  std::vector<UNICHAR_ID> kerned_unichar_ids;
+  std::vector<int16_t> kerned_x_gaps;
 };
 
 /*
@@ -77,8 +76,8 @@ struct FontInfo {
 
   // Reserves unicharset_size spots in spacing_vec.
   void init_spacing(int unicharset_size) {
-    spacing_vec = new GenericVector<FontSpacingInfo *>();
-    spacing_vec->init_to_size(unicharset_size, nullptr);
+    spacing_vec = new std::vector<FontSpacingInfo *>();
+    spacing_vec->resize(unicharset_size);
   }
   // Adds the given pointer to FontSpacingInfo to spacing_vec member
   // (FontInfo class takes ownership of the pointer).
@@ -138,7 +137,7 @@ struct FontInfo {
   // ResultIterator::WordFontAttributes.
   int32_t universal_id;
   // Horizontal spacing between characters (indexed by UNICHAR_ID).
-  GenericVector<FontSpacingInfo *> *spacing_vec;
+  std::vector<FontSpacingInfo *> *spacing_vec;
 };
 
 // Every class (character) owns a FontSet that represents all the fonts that can
