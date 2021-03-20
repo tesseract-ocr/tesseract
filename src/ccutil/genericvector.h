@@ -90,7 +90,11 @@ public:
   }
 
   // Return the object from an index.
-  T &get(int index) const;
+  T &at(int index) const {
+    assert(index >= 0 && index < size_used_);
+    return data_[index];
+  }
+
   T &back() const;
   T &operator[](int index) const;
   // Returns the last object and removes it.
@@ -557,13 +561,6 @@ void GenericVector<T>::init_to_size(int size, const T &t) {
 template <typename T>
 void GenericVector<T>::resize(int size, const T &t) {
   init_to_size(size, t);
-}
-
-// Return the object from an index.
-template <typename T>
-T &GenericVector<T>::get(int index) const {
-  assert(index >= 0 && index < size_used_);
-  return data_[index];
 }
 
 template <typename T>

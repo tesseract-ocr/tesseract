@@ -48,12 +48,12 @@ public:
 
   /// Return the object from an id.
   const T &at(int id) const {
-    return table_.get(id);
+    return table_.at(id);
   }
 
   // Return the pointer to an object with the given id.
   T &at(int id) {
-    return table_.get(id);
+    return table_.at(id);
   }
 
   /// Return the id of the T object.

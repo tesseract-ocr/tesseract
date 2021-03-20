@@ -345,14 +345,14 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
     std::string font_report;
     if (ReportString(false, font_counts_[f], font_report)) {
       if (fonts_report != nullptr) {
-        *fonts_report += fontinfo_table.get(f).name;
+        *fonts_report += fontinfo_table.at(f).name;
         *fonts_report += ": ";
         *fonts_report += font_report;
         *fonts_report += "\n";
       }
       if (report_level > 2) {
         // Report individual font error rates.
-        tprintf("%s: %s\n", fontinfo_table.get(f).name, font_report.c_str());
+        tprintf("%s: %s\n", fontinfo_table.at(f).name, font_report.c_str());
       }
     }
   }

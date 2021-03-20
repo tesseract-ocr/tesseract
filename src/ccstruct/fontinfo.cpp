@@ -62,9 +62,9 @@ bool FontInfoTable::DeSerialize(TFile *fp) {
 // properties as font_id.
 bool FontInfoTable::SetContainsFontProperties(int font_id,
                                               const std::vector<ScoredFont> &font_set) const {
-  uint32_t properties = get(font_id).properties;
+  uint32_t properties = at(font_id).properties;
   for (int f = 0; f < font_set.size(); ++f) {
-    if (get(font_set[f].fontinfo_id).properties == properties)
+    if (at(font_set[f].fontinfo_id).properties == properties)
       return true;
   }
   return false;
@@ -76,9 +76,9 @@ bool FontInfoTable::SetContainsMultipleFontProperties(
   if (font_set.empty())
     return false;
   int first_font = font_set[0].fontinfo_id;
-  uint32_t properties = get(first_font).properties;
+  uint32_t properties = at(first_font).properties;
   for (int f = 1; f < font_set.size(); ++f) {
-    if (get(font_set[f].fontinfo_id).properties != properties)
+    if (at(font_set[f].fontinfo_id).properties != properties)
       return true;
   }
   return false;
@@ -89,18 +89,18 @@ void FontInfoTable::MoveSpacingInfoFrom(FontInfoTable *other) {
   using namespace std::placeholders; // for _1, _2
   set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
   for (int i = 0; i < other->size(); ++i) {
-    std::vector<FontSpacingInfo *> *spacing_vec = other->get(i).spacing_vec;
+    std::vector<FontSpacingInfo *> *spacing_vec = other->at(i).spacing_vec;
     if (spacing_vec != nullptr) {
-      int target_index = get_index(other->get(i));
+      int target_index = get_index(other->at(i));
       if (target_index < 0) {
         // Bit copy the FontInfo and steal all the pointers.
-        push_back(other->get(i));
-        other->get(i).name = nullptr;
+        push_back(other->at(i));
+        other->at(i).name = nullptr;
       } else {
-        delete get(target_index).spacing_vec;
-        get(target_index).spacing_vec = other->get(i).spacing_vec;
+        delete at(target_index).spacing_vec;
+        at(target_index).spacing_vec = other->at(i).spacing_vec;
       }
-      other->get(i).spacing_vec = nullptr;
+      other->at(i).spacing_vec = nullptr;
     }
   }
 }
@@ -112,9 +112,9 @@ void FontInfoTable::MoveTo(UnicityTable<FontInfo> *target) {
   target->set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
   for (int i = 0; i < size(); ++i) {
     // Bit copy the FontInfo and steal all the pointers.
-    target->push_back(get(i));
-    get(i).name = nullptr;
-    get(i).spacing_vec = nullptr;
+    target->push_back(at(i));
+    at(i).name = nullptr;
+    at(i).spacing_vec = nullptr;
   }
 }
 

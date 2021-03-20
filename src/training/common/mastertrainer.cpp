@@ -438,7 +438,7 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
   char kerned_uch[UNICHAR_LEN];
   int x_gap, x_gap_before, x_gap_after, num_kerned;
   ASSERT_HOST(tfscanf(fontinfo_file, "%d\n", &num_unichars) == 1);
-  FontInfo *fi = &fontinfo_table_.get(fontinfo_id);
+  FontInfo *fi = &fontinfo_table_.at(fontinfo_id);
   fi->init_spacing(unicharset_.size());
   FontSpacingInfo *spacing = nullptr;
   for (int l = 0; l < num_unichars; ++l) {
@@ -489,8 +489,8 @@ int MasterTrainer::GetBestMatchingFontInfoId(const char *filename) {
   int fontinfo_id = -1;
   int best_len = 0;
   for (int f = 0; f < fontinfo_table_.size(); ++f) {
-    if (strstr(filename, fontinfo_table_.get(f).name) != nullptr) {
-      int len = strlen(fontinfo_table_.get(f).name);
+    if (strstr(filename, fontinfo_table_.at(f).name) != nullptr) {
+      int len = strlen(fontinfo_table_.at(f).name);
       // Use the longest matching length in case a substring of a font matched.
       if (len > best_len) {
         best_len = len;

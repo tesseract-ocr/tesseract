@@ -226,7 +226,7 @@ std::string TrainingSampleSet::SampleToString(const TrainingSample &sample) cons
   std::string boxfile_str;
   MakeBoxFileStr(unicharset_.id_to_unichar(sample.class_id()), sample.bounding_box(),
                  sample.page_num(), boxfile_str);
-  return std::string(fontinfo_table_.get(sample.font_id()).name) + " " + boxfile_str;
+  return std::string(fontinfo_table_.at(sample.font_id()).name) + " " + boxfile_str;
 }
 
 // Gets the combined set of features used by all the samples of the given

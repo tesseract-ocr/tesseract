@@ -237,15 +237,15 @@ void LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
     search_->segmentTimestepsByCharacters();
     int char_it = 0;
     for (int i = 0; i < words->size(); ++i) {
-      for (int j = 0; j < words->get(i)->end; ++j) {
+      for (int j = 0; j < words->at(i)->end; ++j) {
         if (char_it < search_->ctc_choices.size())
-          words->get(i)->CTC_symbol_choices.push_back(search_->ctc_choices[char_it]);
+          words->at(i)->CTC_symbol_choices.push_back(search_->ctc_choices[char_it]);
         if (char_it < search_->segmentedTimesteps.size())
-          words->get(i)->segmented_timesteps.push_back(search_->segmentedTimesteps[char_it]);
+          words->at(i)->segmented_timesteps.push_back(search_->segmentedTimesteps[char_it]);
         ++char_it;
       }
-      words->get(i)->timesteps =
-          search_->combineSegmentedTimesteps(&words->get(i)->segmented_timesteps);
+      words->at(i)->timesteps =
+          search_->combineSegmentedTimesteps(&words->at(i)->segmented_timesteps);
     }
     search_->segmentedTimesteps.clear();
     search_->ctc_choices.clear();

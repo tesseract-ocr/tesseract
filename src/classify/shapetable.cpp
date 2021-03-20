@@ -169,7 +169,7 @@ bool Shape::ContainsFontProperties(const FontInfoTable &font_table, uint32_t pro
   for (int c = 0; c < unichars_.size(); ++c) {
     auto &font_list = unichars_[c].font_ids;
     for (int f = 0; f < font_list.size(); ++f) {
-      if (font_table.get(font_list[f]).properties == properties)
+      if (font_table.at(font_list[f]).properties == properties)
         return true;
     }
   }
@@ -178,11 +178,11 @@ bool Shape::ContainsFontProperties(const FontInfoTable &font_table, uint32_t pro
 // Returns true if the shape contains multiple different font properties,
 // ignoring unichar_id.
 bool Shape::ContainsMultipleFontProperties(const FontInfoTable &font_table) const {
-  uint32_t properties = font_table.get(unichars_[0].font_ids[0]).properties;
+  uint32_t properties = font_table.at(unichars_[0].font_ids[0]).properties;
   for (int c = 0; c < unichars_.size(); ++c) {
     auto &font_list = unichars_[c].font_ids;
     for (int f = 0; f < font_list.size(); ++f) {
-      if (font_table.get(font_list[f]).properties != properties)
+      if (font_table.at(font_list[f]).properties != properties)
         return true;
     }
   }
