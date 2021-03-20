@@ -509,9 +509,9 @@ bool Tesseract::BelievableSuperscript(bool debug, const WERD_RES &word, float ce
     if (choice && fontinfo_table.size() > 0) {
       // Get better information from the specific choice, if available.
       int font_id1 = choice->fontinfo_id();
-      bool font1_is_italic = font_id1 >= 0 ? fontinfo_table.get(font_id1).is_italic() : false;
+      bool font1_is_italic = font_id1 >= 0 ? fontinfo_table.at(font_id1).is_italic() : false;
       int font_id2 = choice->fontinfo_id2();
-      is_italic = font1_is_italic && (font_id2 < 0 || fontinfo_table.get(font_id2).is_italic());
+      is_italic = font1_is_italic && (font_id2 < 0 || fontinfo_table.at(font_id2).is_italic());
     }
 
     float height_fraction = 1.0f;

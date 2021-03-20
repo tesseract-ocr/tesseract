@@ -1888,7 +1888,7 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   int16_t font_id1 = -1, font_id2 = -1;
   for (int f = 0; f < fontinfo_size; ++f) {
     if (tessedit_debug_fonts && font_total_score[f] > 0) {
-      tprintf("Font %s, total score = %d\n", fontinfo_table_.get(f).name, font_total_score[f]);
+      tprintf("Font %s, total score = %d\n", fontinfo_table_.at(f).name, font_total_score[f]);
     }
     if (font_total_score[f] > score1) {
       score2 = score1;
@@ -1900,18 +1900,18 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
       font_id2 = f;
     }
   }
-  word->fontinfo = font_id1 >= 0 ? &fontinfo_table_.get(font_id1) : nullptr;
-  word->fontinfo2 = font_id2 >= 0 ? &fontinfo_table_.get(font_id2) : nullptr;
+  word->fontinfo = font_id1 >= 0 ? &fontinfo_table_.at(font_id1) : nullptr;
+  word->fontinfo2 = font_id2 >= 0 ? &fontinfo_table_.at(font_id2) : nullptr;
   // Each score has a limit of UINT16_MAX, so divide by that to get the number
   // of "votes" for that font, ie number of perfect scores.
   word->fontinfo_id_count = ClipToRange<int>(score1 / UINT16_MAX, 1, INT8_MAX);
   word->fontinfo_id2_count = ClipToRange<int>(score2 / UINT16_MAX, 0, INT8_MAX);
   if (score1 > 0) {
-    const FontInfo fi = fontinfo_table_.get(font_id1);
+    const FontInfo fi = fontinfo_table_.at(font_id1);
     if (tessedit_debug_fonts) {
       if (word->fontinfo_id2_count > 0 && font_id2 >= 0) {
         tprintf("Word modal font=%s, score=%d, 2nd choice %s/%d\n", fi.name,
-                word->fontinfo_id_count, fontinfo_table_.get(font_id2).name,
+                word->fontinfo_id_count, fontinfo_table_.at(font_id2).name,
                 word->fontinfo_id2_count);
       } else {
         tprintf("Word modal font=%s, score=%d. No 2nd choice\n", fi.name, word->fontinfo_id_count);

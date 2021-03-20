@@ -508,7 +508,7 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
       // Workaround for Fraktur
       if (prev_id == latin_id_) {
         if (prev_fontinfo_id >= 0) {
-          const tesseract::FontInfo &fi = tess_->get_fontinfo_table().get(prev_fontinfo_id);
+          const tesseract::FontInfo &fi = tess_->get_fontinfo_table().at(prev_fontinfo_id);
           // printf("Font: %s i:%i b:%i f:%i s:%i k:%i (%s)\n", fi.name,
           //       fi.is_italic(), fi.is_bold(), fi.is_fixed_pitch(),
           //       fi.is_serif(), fi.is_fraktur(),

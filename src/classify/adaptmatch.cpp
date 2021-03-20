@@ -1609,7 +1609,7 @@ void Classify::ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES
       // the corresponding unichars in the CharNormArray.
       for (int id = 0; id < templates->NumClasses; ++id) {
         int font_set_id = templates->Class[id]->font_set_id;
-        const FontSet &fs = fontset_table_.get(font_set_id);
+        const FontSet &fs = fontset_table_.at(font_set_id);
         for (int config = 0; config < fs.size; ++config) {
           const Shape &shape = shape_table_->GetShape(fs.configs[config]);
           for (int c = 0; c < shape.size(); ++c) {
@@ -2077,7 +2077,7 @@ int Classify::ClassAndConfigIDToFontOrShapeID(int class_id, int int_result_confi
   // Older inttemps have no font_ids.
   if (font_set_id < 0)
     return kBlankFontinfoId;
-  const FontSet &fs = fontset_table_.get(font_set_id);
+  const FontSet &fs = fontset_table_.at(font_set_id);
   ASSERT_HOST(int_result_config >= 0 && int_result_config < fs.size);
   return fs.configs[int_result_config];
 }
@@ -2088,7 +2088,7 @@ int Classify::ShapeIDToClassID(int shape_id) const {
   for (int id = 0; id < PreTrainedTemplates->NumClasses; ++id) {
     int font_set_id = PreTrainedTemplates->Class[id]->font_set_id;
     ASSERT_HOST(font_set_id >= 0);
-    const FontSet &fs = fontset_table_.get(font_set_id);
+    const FontSet &fs = fontset_table_.at(font_set_id);
     for (int config = 0; config < fs.size; ++config) {
       if (fs.configs[config] == shape_id)
         return id;

@@ -1074,12 +1074,12 @@ void LanguageModel::FillConsistencyInfo(int curr_col, bool word_end, BLOB_CHOICE
     if (language_model_debug_level > 1) {
       tprintf(
           "pfont %s pfont %s font %s font2 %s common %s(%d)\n",
-          (parent_b->fontinfo_id() >= 0) ? fontinfo_table_->get(parent_b->fontinfo_id()).name : "",
-          (parent_b->fontinfo_id2() >= 0) ? fontinfo_table_->get(parent_b->fontinfo_id2()).name
+          (parent_b->fontinfo_id() >= 0) ? fontinfo_table_->at(parent_b->fontinfo_id()).name : "",
+          (parent_b->fontinfo_id2() >= 0) ? fontinfo_table_->at(parent_b->fontinfo_id2()).name
                                           : "",
-          (b->fontinfo_id() >= 0) ? fontinfo_table_->get(b->fontinfo_id()).name : "",
-          (fontinfo_id >= 0) ? fontinfo_table_->get(fontinfo_id).name : "",
-          (fontinfo_id >= 0) ? fontinfo_table_->get(fontinfo_id).name : "", fontinfo_id);
+          (b->fontinfo_id() >= 0) ? fontinfo_table_->at(b->fontinfo_id()).name : "",
+          (fontinfo_id >= 0) ? fontinfo_table_->at(fontinfo_id).name : "",
+          (fontinfo_id >= 0) ? fontinfo_table_->at(fontinfo_id).name : "", fontinfo_id);
     }
     if (!word_res->blob_widths.empty()) { // if we have widths/gaps info
       bool expected_gap_found = false;
@@ -1087,7 +1087,7 @@ void LanguageModel::FillConsistencyInfo(int curr_col, bool word_end, BLOB_CHOICE
       int temp_gap;
       if (fontinfo_id >= 0) { // found a common font
         ASSERT_HOST(fontinfo_id < fontinfo_table_->size());
-        if (fontinfo_table_->get(fontinfo_id)
+        if (fontinfo_table_->at(fontinfo_id)
                 .get_spacing(parent_b->unichar_id(), unichar_id, &temp_gap)) {
           expected_gap = temp_gap;
           expected_gap_found = true;
@@ -1108,8 +1108,8 @@ void LanguageModel::FillConsistencyInfo(int curr_col, bool word_end, BLOB_CHOICE
             temp_fid = b->fontinfo_id2();
           }
           ASSERT_HOST(temp_fid < 0 || fontinfo_table_->size());
-          if (temp_fid >= 0 && fontinfo_table_->get(temp_fid).get_spacing(parent_b->unichar_id(),
-                                                                          unichar_id, &temp_gap)) {
+          if (temp_fid >= 0 && fontinfo_table_->at(temp_fid).get_spacing(parent_b->unichar_id(),
+                                                                         unichar_id, &temp_gap)) {
             expected_gap += temp_gap;
             num_addends++;
           }

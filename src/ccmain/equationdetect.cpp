@@ -206,7 +206,7 @@ void EquationDetect::IdentifySpecialText(BLOBNBOX *blobnbox, const int height_th
   }
 
   if (type == BSTT_NONE &&
-      lang_tesseract_->get_fontinfo_table().get(lang_choice->fontinfo_id()).is_italic()) {
+      lang_tesseract_->get_fontinfo_table().at(lang_choice->fontinfo_id()).is_italic()) {
     // For text symbol, we still check if it is italic.
     blobnbox->set_special_text_type(BSTT_ITALIC);
   } else {

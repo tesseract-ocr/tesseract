@@ -516,7 +516,7 @@ INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
     fs.size = FClass->font_set.size();
     fs.configs = new int[fs.size];
     for (int i = 0; i < fs.size; ++i) {
-      fs.configs[i] = FClass->font_set.get(i);
+      fs.configs[i] = FClass->font_set.at(i);
     }
     if (this->fontset_table_.contains(fs)) {
       IClass->font_set_id = this->fontset_table_.get_id(fs);
@@ -980,7 +980,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
     /* first write out the high level struct for the class */
     fwrite(&Class->NumProtos, sizeof(Class->NumProtos), 1, File);
     fwrite(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1, File);
-    ASSERT_HOST(Class->NumConfigs == this->fontset_table_.get(Class->font_set_id).size);
+    ASSERT_HOST(Class->NumConfigs == this->fontset_table_.at(Class->font_set_id).size);
     fwrite(&Class->NumConfigs, sizeof(Class->NumConfigs), 1, File);
     for (j = 0; j < Class->NumConfigs; ++j) {
       fwrite(&Class->ConfigLengths[j], sizeof(uint16_t), 1, File);

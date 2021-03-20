@@ -402,15 +402,15 @@ static void CollectFonts(const UnicityTable<FontInfo> &new_fonts,
                          UnicityTable<FontInfo> *all_fonts) {
   for (int i = 0; i < new_fonts.size(); ++i) {
     // UnicityTable uniques as we go.
-    all_fonts->push_back(new_fonts.get(i));
+    all_fonts->push_back(new_fonts.at(i));
   }
 }
 
 // Helper assigns an id to lang_fonts using the index in all_fonts table.
 static void AssignIds(const UnicityTable<FontInfo> &all_fonts, UnicityTable<FontInfo> *lang_fonts) {
   for (int i = 0; i < lang_fonts->size(); ++i) {
-    int index = all_fonts.get_id(lang_fonts->get(i));
-    lang_fonts->get_mutable(i)->universal_id = index;
+    int index = all_fonts.get_id(lang_fonts->at(i));
+    lang_fonts->at(i).universal_id = index;
   }
 }
 

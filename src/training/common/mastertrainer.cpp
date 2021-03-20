@@ -606,7 +606,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
       uint16_t length = Class->ConfigLengths[config_id];
       if (length > max_length)
         max_length = Class->ConfigLengths[config_id];
-      int shape_id = float_classes[i].font_set.get(config_id);
+      int shape_id = float_classes[i].font_set.at(config_id);
       const Shape &shape = shape_table.GetShape(shape_id);
       for (int c = 0; c < shape.size(); ++c) {
         int unichar_id = shape[c].unichar_id;
