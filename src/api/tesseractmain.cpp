@@ -782,8 +782,13 @@ extern "C" int tesseract_main(int argc, const char **argv)
     // Get Leptonica message level from environment variable.
     setMsgSeverity(L_SEVERITY_EXTERNAL);
   } else {
+#if defined(NDEBUG)
     // Disable debugging and informational messages from Leptonica.
     setMsgSeverity(L_SEVERITY_ERROR);
+#else
+	// Allow Leptonica to yak in debug builds.
+    setMsgSeverity(DEFAULT_SEVERITY);
+#endif
   }
 
 #if defined(HAVE_TIFFIO_H) && defined(_WIN32)

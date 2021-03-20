@@ -71,7 +71,6 @@ namespace tesseract {
 // output *argv is { "program", "file1", "file2" } with *argc = 3
 TESS_COMMON_TRAINING_API
 void ParseCommandLineFlags(const char *usage, int *argc, const char ***argv, const bool remove_flags);
-                           const char ***argv, const bool remove_flags);
 
 } // namespace tesseract
 
