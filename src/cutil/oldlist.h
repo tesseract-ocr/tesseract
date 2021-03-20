@@ -72,14 +72,14 @@ namespace tesseract {
 
 #define NIL_LIST static_cast<LIST>(nullptr)
 
-using int_compare = int (*)(void*, void*);
-using void_dest = void (*)(void*);
+using int_compare = int (*)(void *, void *);
+using void_dest = void (*)(void *);
 
 struct list_rec {
-  list_rec* node;
-  list_rec* next;
+  list_rec *node;
+  list_rec *next;
 };
-using LIST = list_rec*;
+using LIST = list_rec *;
 
 /*----------------------------------------------------------------------
                   M a c r o s
@@ -112,7 +112,7 @@ using LIST = list_rec*;
 ----------------------------------------------------------------------*/
 int count(LIST var_list);
 
-LIST delete_d(LIST list, void* key, int_compare is_equal);
+LIST delete_d(LIST list, void *key, int_compare is_equal);
 
 TESS_API
 LIST destroy(LIST list);
@@ -124,12 +124,12 @@ LIST last(LIST var_list);
 LIST pop(LIST list);
 
 TESS_API
-LIST push(LIST list, void* element);
+LIST push(LIST list, void *element);
 
 TESS_API
-LIST push_last(LIST list, void* item);
+LIST push_last(LIST list, void *item);
 
-LIST search(LIST list, void* key, int_compare is_equal);
+LIST search(LIST list, void *key, int_compare is_equal);
 
 } // namespace tesseract
 

@@ -13,7 +13,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-
 #ifndef TESSERACT_CLASSIFY_SAMPLEITERATOR_H_
 #define TESSERACT_CLASSIFY_SAMPLEITERATOR_H_
 
@@ -72,8 +71,8 @@ struct UnicharAndFonts;
 // (If you want the unichar_id or font_id, the sample still has them.)
 //
 // Non-nullptr shape_table, non-nullptr charset_map.
-// When shape_table is not nullptr, the charset_map indexes and subsets shapes in
-// the shape_table, and iterations will be in shape_table order, not
+// When shape_table is not nullptr, the charset_map indexes and subsets shapes
+// in the shape_table, and iterations will be in shape_table order, not
 // charset_map order.
 // GetCompactClassID returns the charset_map index of a shape, and
 // GetSparseClassID returns the shape_id.
@@ -90,17 +89,15 @@ struct UnicharAndFonts;
 // know and shouldn't care. It is just learning shapes with compact class ids
 // in the range [0, it.CompactCharsetSize()).
 class SampleIterator {
- public:
+public:
   SampleIterator();
   ~SampleIterator();
 
   void Clear();
 
   // See class comment for arguments.
-  void Init(const IndexMapBiDi* charset_map,
-            const ShapeTable* shape_table,
-            bool randomize,
-            TrainingSampleSet* sample_set);
+  void Init(const IndexMapBiDi *charset_map, const ShapeTable *shape_table, bool randomize,
+            TrainingSampleSet *sample_set);
 
   // Iterator functions designed for use with a simple for loop:
   // for (it.Begin(); !it.AtEnd(); it.Next()) {
@@ -110,8 +107,8 @@ class SampleIterator {
   // }
   void Begin();
   bool AtEnd() const;
-  const TrainingSample& GetSample() const;
-  TrainingSample* MutableSample() const;
+  const TrainingSample &GetSample() const;
+  TrainingSample *MutableSample() const;
   // Returns the total index (from the original set of samples) of the current
   // sample.
   int GlobalSampleIndex() const;
@@ -134,14 +131,14 @@ class SampleIterator {
   // Returns the size of the sparse charset space.
   int SparseCharsetSize() const;
 
-  const IndexMapBiDi& charset_map() const {
+  const IndexMapBiDi &charset_map() const {
     return *charset_map_;
   }
-  const ShapeTable* shape_table() const {
+  const ShapeTable *shape_table() const {
     return shape_table_;
   }
   // Sample set operations.
-  const TrainingSampleSet* sample_set() const {
+  const TrainingSampleSet *sample_set() const {
     return sample_set_;
   }
 
@@ -150,7 +147,7 @@ class SampleIterator {
 
   // Apply the supplied feature_space/feature_map transform to all samples
   // accessed by this iterator.
-  void MapSampleFeatures(const IntFeatureMap& feature_map);
+  void MapSampleFeatures(const IntFeatureMap &feature_map);
 
   // Adjust the weights of all the samples to be uniform in the given charset.
   // Returns the number of samples in the iterator.
@@ -160,20 +157,20 @@ class SampleIterator {
   // sum to 1. Returns the minimum assigned sample weight.
   double NormalizeSamples();
 
- private:
+private:
   // Helper returns the current UnicharAndFont shape_entry.
-  const UnicharAndFonts* GetShapeEntry() const;
+  const UnicharAndFonts *GetShapeEntry() const;
 
   // Map to subset the actual charset space.
-  const IndexMapBiDi* charset_map_;
+  const IndexMapBiDi *charset_map_;
   // Shape table to recombine character classes into shapes
-  const ShapeTable* shape_table_;
+  const ShapeTable *shape_table_;
   // The samples to iterate over.
-  TrainingSampleSet* sample_set_;
+  TrainingSampleSet *sample_set_;
   // Flag to control randomizing the sample features.
   bool randomize_;
   // Shape table owned by this used to iterate character classes.
-  ShapeTable* owned_shape_table_;
+  ShapeTable *owned_shape_table_;
 
   // Top-level iteration. Shape index in sparse charset_map space.
   int shape_index_;
@@ -190,6 +187,6 @@ class SampleIterator {
   int num_samples_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_CLASSIFY_SAMPLEITERATOR_H_
+#endif // TESSERACT_CLASSIFY_SAMPLEITERATOR_H_

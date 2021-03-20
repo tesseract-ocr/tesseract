@@ -21,18 +21,16 @@
 
 #include "validator.h"
 
-
 namespace tesseract {
 
 // Subclass of Validator that validates and segments Javanese scripts
 
 class ValidateJavanese : public Validator {
- public:
-  ValidateJavanese(ViramaScript script, bool report_errors)
-      : Validator(script, report_errors) {}
+public:
+  ValidateJavanese(ViramaScript script, bool report_errors) : Validator(script, report_errors) {}
   ~ValidateJavanese() {}
 
- protected:
+protected:
   // Returns whether codes matches the pattern for an Javanese Grapheme.
   // Consumes the next Grapheme in codes_[codes_used_++...] and copies it to
   // parts_ and output_. Returns true if a valid Grapheme was consumed,
@@ -41,7 +39,7 @@ class ValidateJavanese : public Validator {
   // Returns the CharClass corresponding to the given Unicode ch.
   Validator::CharClass UnicodeToCharClass(char32 ch) const override;
 
- private:
+private:
   // Helper consumes/copies a virama and any associated post-virama joiners.
   bool ConsumeViramaIfValid(IndicPair joiner, bool post_matra);
   // Helper consumes/copies a series of consonants separated by viramas while
@@ -54,10 +52,10 @@ class ValidateJavanese : public Validator {
   bool ConsumeVowelIfValid();
 
   // Some special unicodes used only for Javanese processing.
-  static const char32 kPengkal = 0xa9be;  // Javanese Ya
-  static const char32 kCakra = 0xa9bf;  // Javanese Ra
+  static const char32 kPengkal = 0xa9be; // Javanese Ya
+  static const char32 kCakra = 0xa9bf;   // Javanese Ra
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_TRAINING_VALIDATE_JAVANESE_H_
+#endif // TESSERACT_TRAINING_VALIDATE_JAVANESE_H_

@@ -10,9 +10,9 @@
 // limitations under the License.
 
 #ifdef INCLUDE_TENSORFLOW
-#include <tensorflow/compiler/xla/array2d.h> // for xla::Array2D
+#  include <tensorflow/compiler/xla/array2d.h> // for xla::Array2D
 #else
-#include <array> // std::array
+#  include <array> // std::array
 #endif
 #include "include_gunit.h"
 #include "stridemap.h"
@@ -24,20 +24,18 @@ namespace xla {
 
 template <typename T>
 class Array2D : public std::vector<T> {
- public:
+public:
   Array2D() : std::vector<T>(std::vector<int64_t>{0, 0}) {}
 
-  Array2D(const int64_t n1, const int64_t n2)
-      : std::vector<T>(std::vector<int64_t>{n1, n2}) {}
+  Array2D(const int64_t n1, const int64_t n2) : std::vector<T>(std::vector<int64_t>{n1, n2}) {}
 
-  Array2D(const int64_t n1, const int64_t n2, const T value)
-      : std::vector<T>({n1, n2}, value) {}
+  Array2D(const int64_t n1, const int64_t n2, const T value) : std::vector<T>({n1, n2}, value) {}
 };
-}
+} // namespace xla
 #endif
 
 class StridemapTest : public ::testing::Test {
- protected:
+protected:
   void SetUp() {
     std::locale::global(std::locale(""));
   }
@@ -50,11 +48,11 @@ class StridemapTest : public ::testing::Test {
     int value = start;
     for (int y = 0; y < ysize; ++y) {
       for (int x = 0; x < xsize; ++x) {
-#ifdef INCLUDE_TENSORFLOW
+#  ifdef INCLUDE_TENSORFLOW
         (*a)(y, x) = value++;
-#else
+#  else
         a[y][x] = value++;
-#endif
+#  endif
       }
     }
     return a;
@@ -81,17 +79,13 @@ TEST_F(StridemapTest, Indexing) {
   int pos = 0;
   do {
     EXPECT_GE(index.t(), pos);
-    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT),
-                                                  index.index(FD_WIDTH)),
+    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT), index.index(FD_WIDTH)),
               pos);
-    EXPECT_EQ(index.IsLast(FD_BATCH),
-              index.index(FD_BATCH) == arrays.size() - 1);
-    EXPECT_EQ(
-        index.IsLast(FD_HEIGHT),
-        index.index(FD_HEIGHT) == arrays[index.index(FD_BATCH)]->height() - 1);
-    EXPECT_EQ(
-        index.IsLast(FD_WIDTH),
-        index.index(FD_WIDTH) == arrays[index.index(FD_BATCH)]->width() - 1);
+    EXPECT_EQ(index.IsLast(FD_BATCH), index.index(FD_BATCH) == arrays.size() - 1);
+    EXPECT_EQ(index.IsLast(FD_HEIGHT),
+              index.index(FD_HEIGHT) == arrays[index.index(FD_BATCH)]->height() - 1);
+    EXPECT_EQ(index.IsLast(FD_WIDTH),
+              index.index(FD_WIDTH) == arrays[index.index(FD_BATCH)]->width() - 1);
     EXPECT_TRUE(index.IsValid());
     ++pos;
   } while (index.Increment());
@@ -100,8 +94,7 @@ TEST_F(StridemapTest, Indexing) {
   do {
     --pos;
     EXPECT_GE(index.t(), pos);
-    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT),
-                                                  index.index(FD_WIDTH)),
+    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT), index.index(FD_WIDTH)),
               pos);
     StrideMap::Index copy(index);
     // Since a change in batch index changes the height and width, it isn't
@@ -139,10 +132,10 @@ TEST_F(StridemapTest, Scaling) {
   // scaling/reduction functions work as expected.
 #ifdef INCLUDE_TENSORFLOW
   std::vector<std::unique_ptr<xla::Array2D<int>>> arrays;
-  arrays.push_back(SetupArray(3, 4, 0));   // 0-11
-  arrays.push_back(SetupArray(4, 5, 12));  // 12-31
-  arrays.push_back(SetupArray(4, 4, 32));  // 32-47
-  arrays.push_back(SetupArray(3, 5, 48));  // 48-62
+  arrays.push_back(SetupArray(3, 4, 0));  // 0-11
+  arrays.push_back(SetupArray(4, 5, 12)); // 12-31
+  arrays.push_back(SetupArray(4, 4, 32)); // 32-47
+  arrays.push_back(SetupArray(3, 5, 48)); // 48-62
   std::vector<std::pair<int, int>> h_w_sizes;
   for (size_t i = 0; i < arrays.size(); ++i) {
     h_w_sizes.emplace_back(arrays[i].get()->height(), arrays[i].get()->width());
@@ -151,33 +144,29 @@ TEST_F(StridemapTest, Scaling) {
   stride_map.SetStride(h_w_sizes);
 
   // Scale x by 2, keeping y the same.
-  std::vector<int> values_x2 = {0,  1,  4,  5,  8,  9,  12, 13, 17, 18,
-                                22, 23, 27, 28, 32, 33, 36, 37, 40, 41,
-                                44, 45, 48, 49, 53, 54, 58, 59};
+  std::vector<int> values_x2 = {0,  1,  4,  5,  8,  9,  12, 13, 17, 18, 22, 23, 27, 28,
+                                32, 33, 36, 37, 40, 41, 44, 45, 48, 49, 53, 54, 58, 59};
   StrideMap test_map(stride_map);
   test_map.ScaleXY(2, 1);
   StrideMap::Index index(test_map);
   int pos = 0;
   do {
     int expected_value = values_x2[pos++];
-    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT),
-                                                  index.index(FD_WIDTH)),
+    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT), index.index(FD_WIDTH)),
               expected_value);
   } while (index.Increment());
   EXPECT_EQ(pos, values_x2.size());
 
   test_map = stride_map;
   // Scale y by 2, keeping x the same.
-  std::vector<int> values_y2 = {0,  1,  2,  3,  12, 13, 14, 15, 16,
-                                17, 18, 19, 20, 21, 32, 33, 34, 35,
-                                36, 37, 38, 39, 48, 49, 50, 51, 52};
+  std::vector<int> values_y2 = {0,  1,  2,  3,  12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+                                32, 33, 34, 35, 36, 37, 38, 39, 48, 49, 50, 51, 52};
   test_map.ScaleXY(1, 2);
   index.InitToFirst();
   pos = 0;
   do {
     int expected_value = values_y2[pos++];
-    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT),
-                                                  index.index(FD_WIDTH)),
+    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT), index.index(FD_WIDTH)),
               expected_value);
   } while (index.Increment());
   EXPECT_EQ(pos, values_y2.size());
@@ -190,23 +179,20 @@ TEST_F(StridemapTest, Scaling) {
   pos = 0;
   do {
     int expected_value = values_xy2[pos++];
-    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT),
-                                                  index.index(FD_WIDTH)),
+    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT), index.index(FD_WIDTH)),
               expected_value);
   } while (index.Increment());
   EXPECT_EQ(pos, values_xy2.size());
 
   test_map = stride_map;
   // Reduce Width to 1.
-  std::vector<int> values_x_to_1 = {0,  4,  8,  12, 17, 22, 27,
-                                    32, 36, 40, 44, 48, 53, 58};
+  std::vector<int> values_x_to_1 = {0, 4, 8, 12, 17, 22, 27, 32, 36, 40, 44, 48, 53, 58};
   test_map.ReduceWidthTo1();
   index.InitToFirst();
   pos = 0;
   do {
     int expected_value = values_x_to_1[pos++];
-    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT),
-                                                  index.index(FD_WIDTH)),
+    EXPECT_EQ((*arrays.at(index.index(FD_BATCH)))(index.index(FD_HEIGHT), index.index(FD_WIDTH)),
               expected_value);
   } while (index.Increment());
   EXPECT_EQ(pos, values_x_to_1.size());
@@ -216,4 +202,4 @@ TEST_F(StridemapTest, Scaling) {
 #endif
 }
 
-}  // namespace
+} // namespace tesseract

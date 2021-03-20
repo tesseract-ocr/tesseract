@@ -45,7 +45,7 @@ const int case_state_table[6][4] = {
 int Dict::case_ok(const WERD_CHOICE &word) const {
   int state = 0;
   int x;
-  const UNICHARSET* unicharset = word.unicharset();
+  const UNICHARSET *unicharset = word.unicharset();
   for (x = 0; x < word.length(); ++x) {
     UNICHAR_ID ch_id = word.unichar_id(x);
     if (unicharset->get_isupper(ch_id))
@@ -56,21 +56,22 @@ int Dict::case_ok(const WERD_CHOICE &word) const {
       state = case_state_table[state][3];
     else
       state = case_state_table[state][0];
-    if (state == -1) return false;
+    if (state == -1)
+      return false;
   }
   return state != 5; // single lower is bad
 }
 
-bool Dict::absolute_garbage(const WERD_CHOICE &word,
-                            const UNICHARSET &unicharset) {
-  if (word.length() < kMinAbsoluteGarbageWordLength) return false;
+bool Dict::absolute_garbage(const WERD_CHOICE &word, const UNICHARSET &unicharset) {
+  if (word.length() < kMinAbsoluteGarbageWordLength)
+    return false;
   int num_alphanum = 0;
   for (int x = 0; x < word.length(); ++x) {
-    num_alphanum += (unicharset.get_isalpha(word.unichar_id(x)) ||
-                     unicharset.get_isdigit(word.unichar_id(x)));
+    num_alphanum +=
+        (unicharset.get_isalpha(word.unichar_id(x)) || unicharset.get_isdigit(word.unichar_id(x)));
   }
-  return (static_cast<float>(num_alphanum) /
-          static_cast<float>(word.length()) < kMinAbsoluteGarbageAlphanumFrac);
+  return (static_cast<float>(num_alphanum) / static_cast<float>(word.length()) <
+          kMinAbsoluteGarbageAlphanumFrac);
 }
 
-}  // namespace tesseract
+} // namespace tesseract

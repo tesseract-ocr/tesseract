@@ -2,7 +2,6 @@
  * File:        linlsq.h  (Formerly llsq.h)
  * Description: Linear Least squares fitting code.
  * Author:      Ray Smith
- * Created:     Thu Sep 12 08:44:51 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,37 +19,36 @@
 #ifndef TESSERACT_CCSTRUCT_LINLSQ_H_
 #define TESSERACT_CCSTRUCT_LINLSQ_H_
 
-#include "points.h"     // for FCOORD
+#include "points.h" // for FCOORD
 
-#include <cstdint>      // for int32_t
+#include <algorithm> // for std::nth_element
+#include <cstdint> // for int32_t
 
 namespace tesseract {
 
-template <typename T> class GenericVector;
-
 class TESS_API LLSQ {
- public:
-  LLSQ() {  // constructor
-    clear();  // set to zeros
+public:
+  LLSQ() {   // constructor
+    clear(); // set to zeros
   }
-  void clear();  // initialize
+  void clear(); // initialize
 
   // Adds an element with a weight of 1.
   void add(double x, double y);
   // Adds an element with a specified weight.
   void add(double x, double y, double weight);
   // Adds a whole LLSQ.
-  void add(const LLSQ& other);
+  void add(const LLSQ &other);
   // Deletes an element with a weight of 1.
   void remove(double x, double y);
-  int32_t count() const {  // no of elements
+  int32_t count() const { // no of elements
     return static_cast<int>(total_weight + 0.5);
   }
 
-  double m() const;  // get gradient
-  double c(double m) const;            // get constant
-  double rms(double m, double c) const;            // get error
-  double pearson() const;  // get correlation coefficient.
+  double m() const;                     // get gradient
+  double c(double m) const;             // get constant
+  double rms(double m, double c) const; // get error
+  double pearson() const;               // get correlation coefficient.
 
   // Returns the x,y means as an FCOORD.
   FCOORD mean_point() const;
@@ -94,15 +92,14 @@ class TESS_API LLSQ {
       return 0.0;
   }
 
- private:
-  double total_weight;         // no of elements or sum of weights.
-  double sigx;                 // sum of x
-  double sigy;                 // sum of y
-  double sigxx;                // sum x squared
-  double sigxy;                // sum of xy
-  double sigyy;                // sum y squared
+private:
+  double total_weight; // no of elements or sum of weights.
+  double sigx;         // sum of x
+  double sigy;         // sum of y
+  double sigxx;        // sum x squared
+  double sigxy;        // sum of xy
+  double sigyy;        // sum y squared
 };
-
 
 // Returns the median value of the vector, given that the values are
 // circular, with the given modulus. Values may be signed or unsigned,
@@ -111,30 +108,32 @@ class TESS_API LLSQ {
 // An assumption is made that most of the values are spread over no more than
 // half the range, but wrap-around is accounted for if the median is near
 // the wrap-around point.
-// Cannot be a member of GenericVector, as it makes heavy used of LLSQ.
+// Cannot be a member of vector, as it makes heavy use of LLSQ.
 // T must be an integer or float/double type.
-template<typename T> T MedianOfCircularValues(T modulus, GenericVector<T>* v) {
+template <typename T>
+T MedianOfCircularValues(T modulus, std::vector<T> &v) {
   LLSQ stats;
   T halfrange = static_cast<T>(modulus / 2);
-  int num_elements = v->size();
-  for (int i = 0; i < num_elements; ++i) {
-    stats.add((*v)[i], (*v)[i] + halfrange);
+  auto num_elements = v.size();
+  for (auto i : v) {
+    stats.add(i, i + halfrange);
   }
   bool offset_needed = stats.y_variance() < stats.x_variance();
   if (offset_needed) {
-    for (int i = 0; i < num_elements; ++i) {
-      (*v)[i] += halfrange;
+    for (auto i : v) {
+      i += halfrange;
     }
   }
-  int median_index = v->choose_nth_item(num_elements / 2);
+  auto median_index = num_elements / 2;
+  std::nth_element(v.begin(), v.begin() + median_index, v.end());
   if (offset_needed) {
-    for (int i = 0; i < num_elements; ++i) {
-      (*v)[i] -= halfrange;
+    for (auto i : v) {
+      i -= halfrange;
     }
   }
-  return (*v)[median_index];
+  return v[median_index];
 }
 
 } // namespace tesseract
 
-#endif  // TESSERACT_CCSTRUCT_LINLSQ_H_
+#endif // TESSERACT_CCSTRUCT_LINLSQ_H_

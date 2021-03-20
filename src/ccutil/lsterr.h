@@ -19,12 +19,11 @@
 #ifndef TESSERACT_CCUTIL_LSTERR_H_
 #define TESSERACT_CCUTIL_LSTERR_H_
 
-#include "errcode.h"    //must be last include
+#include "errcode.h" //must be last include
 
 namespace tesseract {
 
-constexpr ERRCODE DONT_CONSTRUCT_LIST_BY_COPY(
-"Can't create a list by assignment");
+constexpr ERRCODE DONT_CONSTRUCT_LIST_BY_COPY("Can't create a list by assignment");
 constexpr ERRCODE DONT_ASSIGN_LISTS("Can't assign to lists");
 constexpr ERRCODE SERIALISE_LINKS("Attempted to (de)serialise a link element");
 
@@ -38,11 +37,10 @@ constexpr ERRCODE NULL_NEXT("Next element on the list is nullptr");
 constexpr ERRCODE NULL_PREV("Previous element on the list is nullptr");
 constexpr ERRCODE EMPTY_LIST("List is empty");
 constexpr ERRCODE BAD_PARAMETER("List parameter error");
-constexpr ERRCODE STILL_LINKED(
-    "Attempting to add an element with non nullptr links, to a list");
+constexpr ERRCODE STILL_LINKED("Attempting to add an element with non nullptr links, to a list");
 
-#endif  // !NDEBUG
+#endif // !NDEBUG
 
 } // namespace tesseract
 
-#endif  // TESSERACT_CCUTIL_LSTERR_H_
+#endif // TESSERACT_CCUTIL_LSTERR_H_

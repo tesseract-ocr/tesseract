@@ -21,14 +21,14 @@
 #include "kdtree.h"
 
 #include <algorithm>
-#include <cfloat>      // for FLT_MAX
-#include <cstdio>
+#include <cfloat> // for FLT_MAX
 #include <cmath>
+#include <cstdio>
 
 namespace tesseract {
 
-#define Magnitude(X)    ((X) < 0 ? -(X) : (X))
-#define NodeFound(N,K,D)  (((N)->Key == (K)) && ((N)->Data == (D)))
+#define Magnitude(X) ((X) < 0 ? -(X) : (X))
+#define NodeFound(N, K, D) (((N)->Key == (K)) && ((N)->Data == (D)))
 
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
@@ -48,53 +48,57 @@ static int NextLevel(KDTREE *tree, int level) {
 
 //-----------------------------------------------------------------------------
 /**  Store the k smallest-keyed key-value pairs. */
-template<typename Key, typename Value>
+template <typename Key, typename Value>
 class MinK {
- public:
+public:
   MinK(Key max_key, int k);
   ~MinK();
 
   struct Element {
     Element() {}
-    Element(const Key& k, const Value& v) : key(k), value(v) {}
+    Element(const Key &k, const Value &v) : key(k), value(v) {}
 
     Key key;
     Value value;
   };
 
   bool insert(Key k, Value v);
-  const Key& max_insertable_key();
+  const Key &max_insertable_key();
 
-  int elements_count() { return elements_count_; }
-  const Element* elements() { return elements_; }
+  int elements_count() {
+    return elements_count_;
+  }
+  const Element *elements() {
+    return elements_;
+  }
 
- private:
-  const Key max_key_;   ///< the maximum possible Key
-  Element *elements_;   ///< unsorted array of elements
-  int elements_count_;  ///< the number of results collected so far
-  int k_;               ///< the number of results we want from the search
-  int max_index_;       ///< the index of the result with the largest key
+private:
+  const Key max_key_;  ///< the maximum possible Key
+  Element *elements_;  ///< unsorted array of elements
+  int elements_count_; ///< the number of results collected so far
+  int k_;              ///< the number of results we want from the search
+  int max_index_;      ///< the index of the result with the largest key
 };
 
-template<typename Key, typename Value>
-MinK<Key, Value>::MinK(Key max_key, int k) :
-  max_key_(max_key), elements_count_(0), k_(k < 1 ? 1 : k), max_index_(0) {
+template <typename Key, typename Value>
+MinK<Key, Value>::MinK(Key max_key, int k)
+    : max_key_(max_key), elements_count_(0), k_(k < 1 ? 1 : k), max_index_(0) {
   elements_ = new Element[k_];
 }
 
-template<typename Key, typename Value>
+template <typename Key, typename Value>
 MinK<Key, Value>::~MinK() {
-  delete []elements_;
+  delete[] elements_;
 }
 
-template<typename Key, typename Value>
-const Key& MinK<Key, Value>::max_insertable_key() {
+template <typename Key, typename Value>
+const Key &MinK<Key, Value>::max_insertable_key() {
   if (elements_count_ < k_)
     return max_key_;
   return elements_[max_index_].key;
 }
 
-template<typename Key, typename Value>
+template <typename Key, typename Value>
 bool MinK<Key, Value>::insert(Key key, Value value) {
   if (elements_count_ < k_) {
     elements_[elements_count_++] = Element(key, value);
@@ -114,26 +118,25 @@ bool MinK<Key, Value>::insert(Key key, Value value) {
   return false;
 }
 
-
 //-----------------------------------------------------------------------------
 /** Helper class for searching for the k closest points to query_point in tree.
  */
 class KDTreeSearch {
- public:
-  KDTreeSearch(KDTREE* tree, float *query_point, int k_closest);
+public:
+  KDTreeSearch(KDTREE *tree, float *query_point, int k_closest);
   ~KDTreeSearch();
 
   /** Return the k nearest points' data. */
   void Search(int *result_count, float *distances, void **results);
 
- private:
+private:
   void SearchRec(int Level, KDNODE *SubTree);
   bool BoxIntersectsSearch(float *lower, float *upper);
 
   KDTREE *tree_;
   float *query_point_;
-  float *sb_min_;  ///< search box minimum
-  float *sb_max_;  ///< search box maximum
+  float *sb_min_; ///< search box minimum
+  float *sb_max_; ///< search box maximum
   MinK<float, void *> results_;
 };
 
@@ -150,9 +153,7 @@ KDTreeSearch::~KDTreeSearch() {
 
 /// Locate the k_closest points to query_point_, and return their distances and
 /// data into the given buffers.
-void KDTreeSearch::Search(int *result_count,
-                          float *distances,
-                          void **results) {
+void KDTreeSearch::Search(int *result_count, float *distances, void **results) {
   if (tree_->Root.Left == nullptr) {
     *result_count = 0;
   } else {
@@ -179,8 +180,7 @@ void KDTreeSearch::Search(int *result_count,
 /// @param KeySize  # of dimensions in the K-D tree
 /// @param KeyDesc  array of params to describe key dimensions
 KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
-  auto *KDTree = static_cast<KDTREE *>(malloc(
-      sizeof(KDTREE) + (KeySize - 1) * sizeof(PARAM_DESC)));
+  auto *KDTree = static_cast<KDTREE *>(malloc(sizeof(KDTREE) + (KeySize - 1) * sizeof(PARAM_DESC)));
   for (int i = 0; i < KeySize; i++) {
     KDTree->KeyDesc[i].NonEssential = KeyDesc[i].NonEssential;
     KDTree->KeyDesc[i].Circular = KeyDesc[i].Circular;
@@ -200,7 +200,6 @@ KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
   KDTree->Root.Right = nullptr;
   return KDTree;
 }
-
 
 /**
  * This routine stores Data in the K-D tree specified by Tree
@@ -223,8 +222,7 @@ void KDStore(KDTREE *Tree, float *Key, void *Data) {
       PtrToNode = &(Node->Left);
       if (Key[Level] > Node->LeftBranch)
         Node->LeftBranch = Key[Level];
-    }
-    else {
+    } else {
       PtrToNode = &(Node->Right);
       if (Key[Level] < Node->RightBranch)
         Node->RightBranch = Key[Level];
@@ -234,7 +232,7 @@ void KDStore(KDTREE *Tree, float *Key, void *Data) {
   }
 
   *PtrToNode = MakeKDNode(Tree, Key, Data, Level);
-}                                /* KDStore */
+} /* KDStore */
 
 /**
  * This routine deletes a node from Tree.  The node to be
@@ -250,8 +248,7 @@ void KDStore(KDTREE *Tree, float *Key, void *Data) {
  * @param Key key of node to be deleted
  * @param Data data contents of node to be deleted
  */
-void
-KDDelete (KDTREE * Tree, float Key[], void *Data) {
+void KDDelete(KDTREE *Tree, float Key[], void *Data) {
   int Level;
   KDNODE *Current;
   KDNODE *Father;
@@ -262,7 +259,7 @@ KDDelete (KDTREE * Tree, float Key[], void *Data) {
   Level = NextLevel(Tree, -1);
 
   /* search tree for node to be deleted */
-  while ((Current != nullptr) && (!NodeFound (Current, Key, Data))) {
+  while ((Current != nullptr) && (!NodeFound(Current, Key, Data))) {
     Father = Current;
     if (Key[Level] < Current->BranchPoint)
       Current = Current->Left;
@@ -272,7 +269,7 @@ KDDelete (KDTREE * Tree, float Key[], void *Data) {
     Level = NextLevel(Tree, Level);
   }
 
-  if (Current != nullptr) {         /* if node to be deleted was found */
+  if (Current != nullptr) { /* if node to be deleted was found */
     if (Current == Father->Left) {
       Father->Left = nullptr;
       Father->LeftBranch = Tree->KeyDesc[Level].Min;
@@ -285,7 +282,7 @@ KDDelete (KDTREE * Tree, float Key[], void *Data) {
     InsertNodes(Tree, Current->Right);
     FreeSubTree(Current);
   }
-}                                /* KDDelete */
+} /* KDDelete */
 
 /**
  * This routine searches the K-D tree specified by Tree and
@@ -303,13 +300,11 @@ KDDelete (KDTREE * Tree, float Key[], void *Data) {
  *          from nearest neighbor to query point
  * @param NumberOfResults [out] Number of nearest neighbors actually found
  */
-void KDNearestNeighborSearch(
-    KDTREE *Tree, float Query[], int QuerySize, float MaxDistance,
-    int *NumberOfResults, void **NBuffer, float DBuffer[]) {
+void KDNearestNeighborSearch(KDTREE *Tree, float Query[], int QuerySize, float MaxDistance,
+                             int *NumberOfResults, void **NBuffer, float DBuffer[]) {
   KDTreeSearch search(Tree, Query, QuerySize);
   search.Search(NumberOfResults, DBuffer, NBuffer);
 }
-
 
 /*---------------------------------------------------------------------------*/
 /** Walk a given Tree with action. */
@@ -317,7 +312,6 @@ void KDWalk(KDTREE *Tree, void_proc action, void *context) {
   if (Tree->Root.Left != nullptr)
     Walk(Tree, action, context, Tree->Root.Left, NextLevel(Tree, -1));
 }
-
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -332,8 +326,7 @@ void KDWalk(KDTREE *Tree, void_proc action, void *context) {
 void FreeKDTree(KDTREE *Tree) {
   FreeSubTree(Tree->Root.Left);
   free(Tree);
-}                                /* FreeKDTree */
-
+} /* FreeKDTree */
 
 /*-----------------------------------------------------------------------------
               Private Code
@@ -353,7 +346,7 @@ void FreeKDTree(KDTREE *Tree) {
 KDNODE *MakeKDNode(KDTREE *tree, float Key[], void *Data, int Index) {
   KDNODE *NewNode;
 
-  NewNode = static_cast<KDNODE *>(malloc (sizeof (KDNODE)));
+  NewNode = static_cast<KDNODE *>(malloc(sizeof(KDNODE)));
 
   NewNode->Key = Key;
   NewNode->Data = Data;
@@ -364,11 +357,12 @@ KDNODE *MakeKDNode(KDTREE *tree, float Key[], void *Data, int Index) {
   NewNode->Right = nullptr;
 
   return NewNode;
-}                                /* MakeKDNode */
-
+} /* MakeKDNode */
 
 /*---------------------------------------------------------------------------*/
-void FreeKDNode(KDNODE *Node) { free(Node); }
+void FreeKDNode(KDNODE *Node) {
+  free(Node);
+}
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -383,8 +377,7 @@ void KDTreeSearch::SearchRec(int level, KDNODE *sub_tree) {
   if (!BoxIntersectsSearch(sb_min_, sb_max_))
     return;
 
-  results_.insert(DistanceSquared(tree_->KeySize, tree_->KeyDesc, query_point_,
-                                  sub_tree->Key),
+  results_.insert(DistanceSquared(tree_->KeySize, tree_->KeyDesc, query_point_, sub_tree->Key),
                   sub_tree->Data);
 
   if (query_point_[level] < sub_tree->BranchPoint) {
@@ -415,7 +408,6 @@ void KDTreeSearch::SearchRec(int level, KDNODE *sub_tree) {
     }
   }
 }
-
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -459,8 +451,8 @@ bool KDTreeSearch::BoxIntersectsSearch(float *lower, float *upper) {
   float *query = query_point_;
   // Compute the sum in higher precision.
   double total_distance = 0.0;
-  double radius_squared = static_cast<double>(results_.max_insertable_key()) *
-    results_.max_insertable_key();
+  double radius_squared =
+      static_cast<double>(results_.max_insertable_key()) * results_.max_insertable_key();
   PARAM_DESC *dim = tree_->KeyDesc;
 
   for (int i = tree_->KeySize; i > 0; i--, dim++, query++, lower++, upper++) {
@@ -485,14 +477,12 @@ bool KDTreeSearch::BoxIntersectsSearch(float *lower, float *upper) {
       dimension_distance = std::min(dimension_distance, wrap_distance);
     }
 
-    total_distance +=
-      static_cast<double>(dimension_distance) * dimension_distance;
+    total_distance += static_cast<double>(dimension_distance) * dimension_distance;
     if (total_distance >= radius_squared)
       return false;
   }
   return true;
 }
-
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -510,8 +500,7 @@ bool KDTreeSearch::BoxIntersectsSearch(float *lower, float *upper) {
  * @param sub_tree  ptr to root of subtree to be walked
  * @param level  current level in the tree for this node
  */
-void Walk(KDTREE *tree, void_proc action, void *context,
-          KDNODE *sub_tree, int32_t level) {
+void Walk(KDTREE *tree, void_proc action, void *context, KDNODE *sub_tree, int32_t level) {
   (*action)(context, sub_tree->Data, level);
   if (sub_tree->Left != nullptr)
     Walk(tree, action, context, sub_tree->Left, NextLevel(tree, level));

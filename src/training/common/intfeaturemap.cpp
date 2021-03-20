@@ -4,7 +4,6 @@
 // File:        intfeaturemap.cpp
 // Description: Encapsulation of IntFeatureSpace with IndexMapBiDi
 //              to provide a subspace mapping and fast feature lookup.
-// Created:     Tue Oct 26 08:58:30 PDT 2010
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,8 +30,7 @@ namespace tesseract {
 
 const int kMaxOffsetDist = 32;
 
-IntFeatureMap::IntFeatureMap()
-  : mapping_changed_(true), compact_size_(0) {
+IntFeatureMap::IntFeatureMap() : mapping_changed_(true), compact_size_(0) {
   for (int dir = 0; dir < kNumOffsetMaps; ++dir) {
     offset_plus_[dir] = nullptr;
     offset_minus_[dir] = nullptr;
@@ -44,10 +42,10 @@ IntFeatureMap::~IntFeatureMap() {
 }
 
 // Pseudo-accessors.
-int IntFeatureMap::IndexFeature(const INT_FEATURE_STRUCT& f) const {
+int IntFeatureMap::IndexFeature(const INT_FEATURE_STRUCT &f) const {
   return feature_space_.Index(f);
 }
-int IntFeatureMap::MapFeature(const INT_FEATURE_STRUCT& f) const {
+int IntFeatureMap::MapFeature(const INT_FEATURE_STRUCT &f) const {
   return feature_map_.SparseToCompact(feature_space_.Index(f));
 }
 int IntFeatureMap::MapIndexFeature(int index_feature) const {
@@ -70,7 +68,7 @@ bool IntFeatureMap::IsMapFeatureDeleted(int map_feature) const {
 
 // Copies the given feature_space and uses it as the index feature map
 // from INT_FEATURE_STRUCT.
-void IntFeatureMap::Init(const IntFeatureSpace& feature_space) {
+void IntFeatureMap::Init(const IntFeatureSpace &feature_space) {
   feature_space_ = feature_space;
   mapping_changed_ = false;
   int sparse_size = feature_space_.Size();
@@ -83,8 +81,8 @@ void IntFeatureMap::Init(const IntFeatureSpace& feature_space) {
     InitIntegerFX();
   // Compute look-up tables to generate offset features.
   for (int dir = 0; dir < kNumOffsetMaps; ++dir) {
-    delete [] offset_plus_[dir];
-    delete [] offset_minus_[dir];
+    delete[] offset_plus_[dir];
+    delete[] offset_minus_[dir];
     offset_plus_[dir] = new int[sparse_size];
     offset_minus_[dir] = new int[sparse_size];
   }
@@ -121,24 +119,21 @@ int IntFeatureMap::OffsetFeature(int index_feature, int dir) const {
     return -1;
 }
 
-
 //#define EXPERIMENT_ON
-#ifdef EXPERIMENT_ON  // This code is commented out as SampleIterator and
+#ifdef EXPERIMENT_ON // This code is commented out as SampleIterator and
 // TrainingSample are not reviewed/checked in yet, but these functions are a
 // useful indicator of how an IntFeatureMap is setup.
 
 // Computes the features used by the subset of samples defined by
 // the iterator and sets up the feature mapping.
 // Returns the size of the compacted feature space.
-int IntFeatureMap::FindNZFeatureMapping(SampleIterator* it) {
+int IntFeatureMap::FindNZFeatureMapping(SampleIterator *it) {
   feature_map_.Init(feature_space_.Size(), false);
   int total_samples = 0;
   for (it->Begin(); !it->AtEnd(); it->Next()) {
-    const TrainingSample& sample = it->GetSample();
-    GenericVector<int> features;
-    feature_space_.IndexAndSortFeatures(sample.features(),
-                                        sample.num_features(),
-                                        &features);
+    const TrainingSample &sample = it->GetSample();
+    std::vector<int> features;
+    feature_space_.IndexAndSortFeatures(sample.features(), sample.num_features(), &features);
     int num_features = features.size();
     for (int f = 0; f < num_features; ++f)
       feature_map_.SetMap(features[f], true);
@@ -148,15 +143,14 @@ int IntFeatureMap::FindNZFeatureMapping(SampleIterator* it) {
   compact_size_ = feature_map_.CompactSize();
   mapping_changed_ = true;
   FinalizeMapping(it);
-  tprintf("%d non-zero features found in %d samples\n",
-          compact_size_, total_samples);
+  tprintf("%d non-zero features found in %d samples\n", compact_size_, total_samples);
   return compact_size_;
 }
 #endif
 
 // After deleting some features, finish setting up the mapping, and map
 // all the samples. Returns the size of the compacted feature space.
-int IntFeatureMap::FinalizeMapping(SampleIterator* it) {
+int IntFeatureMap::FinalizeMapping(SampleIterator *it) {
   if (mapping_changed_) {
     feature_map_.CompleteMerges();
     compact_size_ = feature_map_.CompactSize();
@@ -169,8 +163,7 @@ int IntFeatureMap::FinalizeMapping(SampleIterator* it) {
 }
 
 // Prints the map features from the set in human-readable form.
-void IntFeatureMap::DebugMapFeatures(
-    const GenericVector<int>& map_features) const {
+void IntFeatureMap::DebugMapFeatures(const std::vector<int> &map_features) const {
   for (int i = 0; i < map_features.size(); ++i) {
     INT_FEATURE_STRUCT f = InverseMapFeature(map_features[i]);
     f.print();
@@ -179,8 +172,8 @@ void IntFeatureMap::DebugMapFeatures(
 
 void IntFeatureMap::Clear() {
   for (int dir = 0; dir < kNumOffsetMaps; ++dir) {
-    delete [] offset_plus_[dir];
-    delete [] offset_minus_[dir];
+    delete[] offset_plus_[dir];
+    delete[] offset_minus_[dir];
     offset_plus_[dir] = nullptr;
     offset_minus_[dir] = nullptr;
   }
@@ -220,9 +213,9 @@ int IntFeatureMap::ComputeOffsetFeature(int index_feature, int dir) const {
         offset_f.Theta = f.Theta;
         int offset_index = IndexFeature(offset_f);
         if (offset_index != index_feature && offset_index >= 0)
-          return offset_index;  // Found one.
+          return offset_index; // Found one.
       } else {
-        return -1;  // Hit the edge of feature space.
+        return -1; // Hit the edge of feature space.
       }
     }
   } else if (dir == 2 || dir == -2) {
@@ -235,10 +228,10 @@ int IntFeatureMap::ComputeOffsetFeature(int index_feature, int dir) const {
       offset_f.Theta = Modulo(theta, 256);
       int offset_index = IndexFeature(offset_f);
       if (offset_index != index_feature && offset_index >= 0)
-        return offset_index;  // Found one.
+        return offset_index; // Found one.
     }
   }
-  return -1;  // Nothing within the max distance.
+  return -1; // Nothing within the max distance.
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

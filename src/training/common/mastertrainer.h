@@ -4,7 +4,6 @@
 // File:        mastertrainer.h
 // Description: Trainer to build the MasterClassifier.
 // Author:      Ray Smith
-// Created:     Wed Nov 03 18:07:01 PDT 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,14 +26,14 @@
 
 #include "classify.h"
 #include "cluster.h"
-#include "intfx.h"
 #include "elst.h"
 #include "errorcounter.h"
 #include "featdefs.h"
 #include "fontinfo.h"
 #include "indexmapbidi.h"
-#include "intfeaturespace.h"
 #include "intfeaturemap.h"
+#include "intfeaturespace.h"
+#include "intfx.h"
 #include "intmatcher.h"
 #include "params.h"
 #include "shapetable.h"
@@ -49,11 +48,10 @@ class ShapeClassifier;
 // Simple struct to hold the distance between two shapes during clustering.
 struct ShapeDist {
   ShapeDist() : shape1(0), shape2(0), distance(0.0f) {}
-  ShapeDist(int s1, int s2, float dist)
-    : shape1(s1), shape2(s2), distance(dist) {}
+  ShapeDist(int s1, int s2, float dist) : shape1(s1), shape2(s2), distance(dist) {}
 
   // Sort operator to sort in ascending order of distance.
-  bool operator<(const ShapeDist& other) const {
+  bool operator<(const ShapeDist &other) const {
     return distance < other.distance;
   }
 
@@ -67,19 +65,19 @@ struct ShapeDist {
 // Other important features of the MasterTrainer are conditioning the data
 // by outlier elimination, replication with perturbation, and serialization.
 class TESS_COMMON_TRAINING_API MasterTrainer {
- public:
-  MasterTrainer(NormalizationMode norm_mode, bool shape_analysis,
-                bool replicate_samples, int debug_level);
+public:
+  MasterTrainer(NormalizationMode norm_mode, bool shape_analysis, bool replicate_samples,
+                int debug_level);
   ~MasterTrainer();
 
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(FILE* fp) const;
+  bool Serialize(FILE *fp) const;
 
   // Loads an initial unicharset, or sets one up if the file cannot be read.
-  void LoadUnicharset(const char* filename);
+  void LoadUnicharset(const char *filename);
 
   // Sets the feature space definition.
-  void SetFeatureSpace(const IntFeatureSpace& fs) {
+  void SetFeatureSpace(const IntFeatureSpace &fs) {
     feature_space_ = fs;
     feature_map_.Init(fs);
   }
@@ -87,19 +85,17 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
   // Reads the samples and their features from the given file,
   // adding them to the trainer with the font_id from the content of the file.
   // If verification, then these are verification samples, not training.
-  void ReadTrainingSamples(const char* page_name,
-                           const FEATURE_DEFS_STRUCT& feature_defs,
+  void ReadTrainingSamples(const char *page_name, const FEATURE_DEFS_STRUCT &feature_defs,
                            bool verification);
 
   // Adds the given single sample to the trainer, setting the classid
   // appropriately from the given unichar_str.
-  void AddSample(bool verification, const char* unichar_str,
-                 TrainingSample* sample);
+  void AddSample(bool verification, const char *unichar_str, TrainingSample *sample);
 
   // Loads all pages from the given tif filename and append to page_images_.
   // Must be called after ReadTrainingSamples, as the current number of images
   // is used as an offset for page numbers in the samples.
-  void LoadPageImages(const char* filename);
+  void LoadPageImages(const char *filename);
 
   // Cleans up the samples after initial load from the tr files, and prior to
   // saving the MasterTrainer:
@@ -139,11 +135,11 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
 
   // Loads the basic font properties file into fontinfo_table_.
   // Returns false on failure.
-  bool LoadFontInfo(const char* filename);
+  bool LoadFontInfo(const char *filename);
 
   // Loads the xheight font properties file into xheights_.
   // Returns false on failure.
-  bool LoadXHeights(const char* filename);
+  bool LoadXHeights(const char *filename);
 
   // Reads spacing stats from filename and adds them to fontinfo_table.
   // Returns false on failure.
@@ -151,26 +147,26 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
 
   // Returns the font id corresponding to the given font name.
   // Returns -1 if the font cannot be found.
-  int GetFontInfoId(const char* font_name);
+  int GetFontInfoId(const char *font_name);
   // Returns the font_id of the closest matching font name to the given
   // filename. It is assumed that a substring of the filename will match
   // one of the fonts. If more than one is matched, the longest is returned.
-  int GetBestMatchingFontInfoId(const char* filename);
+  int GetBestMatchingFontInfoId(const char *filename);
 
   // Returns the filename of the tr file corresponding to the command-line
   // argument with the given index.
-  const STRING& GetTRFileName(int index) const {
+  const std::string &GetTRFileName(int index) const {
     return tr_filenames_[index];
   }
 
   // Sets up a flat shapetable with one shape per class/font combination.
-  void SetupFlatShapeTable(ShapeTable* shape_table);
+  void SetupFlatShapeTable(ShapeTable *shape_table);
 
   // Sets up a Clusterer for mftraining on a single shape_id.
   // Call FreeClusterer on the return value after use.
-  CLUSTERER* SetupForClustering(const ShapeTable& shape_table,
-                                const FEATURE_DEFS_STRUCT& feature_defs,
-                                int shape_id, int* num_samples);
+  CLUSTERER *SetupForClustering(const ShapeTable &shape_table,
+                                const FEATURE_DEFS_STRUCT &feature_defs, int shape_id,
+                                int *num_samples);
 
   #if !defined(DISABLED_LEGACY_ENGINE)
 
@@ -178,29 +174,26 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
   // to the given inttemp_file, and the corresponding pffmtable.
   // The unicharset is the original encoding of graphemes, and shape_set should
   // match the size of the shape_table, and may possibly be totally fake.
-  void WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
-                                const UNICHARSET& shape_set,
-                                const ShapeTable& shape_table,
-                                CLASS_STRUCT* float_classes,
-                                const char* inttemp_file,
-                                const char* pffmtable_file);
+  void WriteInttempAndPFFMTable(const UNICHARSET &unicharset, const UNICHARSET &shape_set,
+                                const ShapeTable &shape_table, CLASS_STRUCT *float_classes,
+                                const char *inttemp_file, const char *pffmtable_file);
 
   #endif
 
-  const UNICHARSET& unicharset() const {
+  const UNICHARSET &unicharset() const {
     return samples_.unicharset();
   }
-  TrainingSampleSet* GetSamples() {
+  TrainingSampleSet *GetSamples() {
     return &samples_;
   }
-  const ShapeTable& master_shapes() const {
+  const ShapeTable &master_shapes() const {
     return master_shapes_;
   }
 
   // Generates debug output relating to the canonical distance between the
   // two given UTF8 grapheme strings.
-  void DebugCanonical(const char* unichar_str1, const char* unichar_str2);
-  #ifndef GRAPHICS_DISABLED
+  void DebugCanonical(const char *unichar_str1, const char *unichar_str2);
+#ifndef GRAPHICS_DISABLED
   // Debugging for cloud/canonical features.
   // Displays a Features window containing:
   // If unichar_str2 is in the unicharset, and canonical_font is non-negative,
@@ -211,21 +204,17 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
   // matches in the cloud features.
   // Until the features window is destroyed, each click in the features window
   // will display the samples that have that feature in a separate window.
-  void DisplaySamples(const char* unichar_str1, int cloud_font,
-                      const char* unichar_str2, int canonical_font);
-  #endif // !GRAPHICS_DISABLED
+  void DisplaySamples(const char *unichar_str1, int cloud_font, const char *unichar_str2,
+                      int canonical_font);
+#endif // !GRAPHICS_DISABLED
 
-  void TestClassifierVOld(bool replicate_samples,
-                          ShapeClassifier* test_classifier,
-                          ShapeClassifier* old_classifier);
+  void TestClassifierVOld(bool replicate_samples, ShapeClassifier *test_classifier,
+                          ShapeClassifier *old_classifier);
 
   // Tests the given test_classifier on the internal samples.
   // See TestClassifier for details.
-  void TestClassifierOnSamples(CountTypes error_mode,
-                               int report_level,
-                               bool replicate_samples,
-                               ShapeClassifier* test_classifier,
-                               STRING* report_string);
+  void TestClassifierOnSamples(CountTypes error_mode, int report_level, bool replicate_samples,
+                               ShapeClassifier *test_classifier, std::string *report_string);
   // Tests the given test_classifier on the given samples
   // error_mode indicates what counts as an error.
   // report_levels:
@@ -239,19 +228,16 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
   // sample including replicated and systematically perturbed samples.
   // If report_string is non-nullptr, a summary of the results for each font
   // is appended to the report_string.
-  double TestClassifier(CountTypes error_mode,
-                        int report_level,
-                        bool replicate_samples,
-                        TrainingSampleSet* samples,
-                        ShapeClassifier* test_classifier,
-                        STRING* report_string);
+  double TestClassifier(CountTypes error_mode, int report_level, bool replicate_samples,
+                        TrainingSampleSet *samples, ShapeClassifier *test_classifier,
+                        std::string *report_string);
 
   // Returns the average (in some sense) distance between the two given
   // shapes, which may contain multiple fonts and/or unichars.
   // This function is public to facilitate testing.
-  float ShapeDistance(const ShapeTable& shapes, int s1, int s2);
+  float ShapeDistance(const ShapeTable &shapes, int s1, int s2);
 
- private:
+private:
   // Replaces samples that are always fragmented with the corresponding
   // fragment samples.
   void ReplaceFragmentedSamples();
@@ -261,10 +247,10 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
   // * End with at least min_shapes left in shape_table,
   // * No shape shall have more than max_shape_unichars in it,
   // * Don't merge shapes where the distance between them exceeds max_dist.
-  void ClusterShapes(int min_shapes, int max_shape_unichars,
-                     float max_dist, ShapeTable* shape_table);
+  void ClusterShapes(int min_shapes, int max_shape_unichars, float max_dist,
+                     ShapeTable *shape_table);
 
- private:
+private:
   NormalizationMode norm_mode_;
   // Character set we are training for.
   UNICHARSET unicharset_;
@@ -280,7 +266,7 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
   // Font metrics gathered from multiple files.
   FontInfoTable fontinfo_table_;
   // Array of xheights indexed by font ids in fontinfo_table_;
-  GenericVector<int32_t> xheights_;
+  std::vector<int32_t> xheights_;
 
   // Non-serialized data initialized by other means or used temporarily
   // during loading of training samples.
@@ -292,7 +278,7 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
   // Flag to indicate that sample replication is required.
   bool enable_replication_;
   // Array of classids of fragments that replace the correctly segmented chars.
-  int* fragments_;
+  int *fragments_;
   // Classid of previous correctly segmented sample that was added.
   int prev_unichar_id_;
   // Debug output control.
@@ -303,11 +289,11 @@ class TESS_COMMON_TRAINING_API MasterTrainer {
   // Vector of Pix pointers used for classifiers that need the image.
   // Indexed by page_num_ in the samples.
   // These images are owned by the trainer and need to be pixDestroyed.
-  std::vector<Pix*> page_images_;
+  std::vector<Pix *> page_images_;
   // Vector of filenames of loaded tr files.
-  std::vector<STRING> tr_filenames_;
+  std::vector<std::string> tr_filenames_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_TRAINING_MASTERTRAINER_H_
+#endif // TESSERACT_TRAINING_MASTERTRAINER_H_

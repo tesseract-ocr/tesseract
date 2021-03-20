@@ -24,7 +24,7 @@
 
 #include "genericvector.h"
 
-#include <functional>           // for std::function
+#include <functional> // for std::function
 
 namespace tesseract {
 
@@ -35,7 +35,7 @@ namespace tesseract {
 //     constructor.
 template <typename T>
 class UnicityTable {
- public:
+public:
   /// Clear the structures and deallocate internal structures.
   ~UnicityTable();
 
@@ -47,10 +47,14 @@ class UnicityTable {
   int size() const;
 
   /// Return the object from an id.
-  const T &get(int id) const;
+  const T &at(int id) const {
+    return table_.at(id);
+  }
 
   // Return the pointer to an object with the given id.
-  T *get_mutable(int id);
+  T &at(int id) {
+    return table_.at(id);
+  }
 
   /// Return the id of the T object.
   /// This method NEEDS a compare_callback to be passed to
@@ -80,20 +84,20 @@ class UnicityTable {
 
   /// This method clear the current object, then, does a shallow copy of
   /// its argument, and finally invalidate its argument.
-  void move(UnicityTable<T>* from);
+  void move(UnicityTable<T> *from);
 
   /// Read/Write the table to a file. This does _NOT_ read/write the callbacks.
   /// The Callback given must be permanent since they will be called more than
   /// once. The given callback will be deleted at the end.
   /// Returns false on read/write error.
-  bool write(FILE* f, std::function<bool(FILE*, const T&)> cb) const {
+  bool write(FILE *f, std::function<bool(FILE *, const T &)> cb) const {
     return table_.write(f, cb);
   }
-  bool read(tesseract::TFile* f, std::function<bool(tesseract::TFile*, T*)> cb) {
+  bool read(tesseract::TFile *f, std::function<bool(tesseract::TFile *, T *)> cb) {
     return table_.read(f, cb);
   }
 
- private:
+private:
   GenericVector<T> table_;
 };
 
@@ -103,7 +107,7 @@ UnicityTable<T>::~UnicityTable() {
 }
 
 template <typename T>
-int UnicityTable<T>::size() const{
+int UnicityTable<T>::size() const {
   return table_.size();
 }
 
@@ -114,16 +118,6 @@ void UnicityTable<T>::reserve(int size) {
   table_.reserve(size);
 }
 
-// Return the object from an id.
-template <typename T>
-const T &UnicityTable<T>::get(int id) const {
-  return table_.get(id);
-}
-// Returns the pointer to the object with the given id.
-template <typename T>
-T *UnicityTable<T>::get_mutable(int id) {
-  return &(table_.get(id));
-}
 // Return true if the id is valid
 template <typename T>
 T UnicityTable<T>::contains_id(int id) const {
@@ -162,10 +156,10 @@ void UnicityTable<T>::clear() {
 // This method clear the current object, then, does a shallow copy of
 // its argument, and finally invalidate its argument.
 template <typename T>
-void UnicityTable<T>::move(UnicityTable<T>* from) {
+void UnicityTable<T>::move(UnicityTable<T> *from) {
   table_.move(&from->table_);
 }
 
 } // namespace tesseract
 
-#endif  // TESSERACT_CCUTIL_UNICITY_TABLE_H_
+#endif // TESSERACT_CCUTIL_UNICITY_TABLE_H_

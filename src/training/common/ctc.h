@@ -28,12 +28,12 @@ namespace tesseract {
 
 // Class to encapsulate CTC and simple target generation.
 class TESS_COMMON_TRAINING_API CTC {
- public:
+public:
   // Normalizes the probabilities such that no target has a prob below min_prob,
   // and, provided that the initial total is at least min_total_prob, then all
   // probs will sum to 1, otherwise to sum/min_total_prob. The maximum output
   // probability is thus 1 - (num_classes-1)*min_prob.
-  static void NormalizeProbs(NetworkIO* probs) {
+  static void NormalizeProbs(NetworkIO *probs) {
     NormalizeProbs(probs->mutable_float_array());
   }
 
@@ -49,53 +49,50 @@ class TESS_COMMON_TRAINING_API CTC {
   // normalized with NormalizeProbs.
   // On return targets is filled with the computed targets.
   // Returns false if there is insufficient time for the labels.
-  static bool ComputeCTCTargets(const std::vector<int>& truth_labels,
-                                int null_char,
-                                const GENERIC_2D_ARRAY<float>& outputs,
-                                NetworkIO* targets);
+  static bool ComputeCTCTargets(const std::vector<int> &truth_labels, int null_char,
+                                const GENERIC_2D_ARRAY<float> &outputs, NetworkIO *targets);
 
- private:
+private:
   // Constructor is private as the instance only holds information specific to
   // the current labels, outputs etc, and is built by the static function.
-  CTC(const std::vector<int>& labels, int null_char,
-      const GENERIC_2D_ARRAY<float>& outputs);
+  CTC(const std::vector<int> &labels, int null_char, const GENERIC_2D_ARRAY<float> &outputs);
 
   // Computes vectors of min and max label index for each timestep, based on
   // whether skippability of nulls makes it possible to complete a valid path.
   bool ComputeLabelLimits();
   // Computes targets based purely on the labels by spreading the labels evenly
   // over the available timesteps.
-  void ComputeSimpleTargets(GENERIC_2D_ARRAY<float>* targets) const;
+  void ComputeSimpleTargets(GENERIC_2D_ARRAY<float> *targets) const;
   // Computes mean positions and half widths of the simple targets by spreading
   // the labels even over the available timesteps.
-  void ComputeWidthsAndMeans(std::vector<float>* half_widths,
-                             std::vector<int>* means) const;
+  void ComputeWidthsAndMeans(std::vector<float> *half_widths, std::vector<int> *means) const;
   // Calculates and returns a suitable fraction of the simple targets to add
   // to the network outputs.
   float CalculateBiasFraction();
   // Runs the forward CTC pass, filling in log_probs.
-  void Forward(GENERIC_2D_ARRAY<double>* log_probs) const;
+  void Forward(GENERIC_2D_ARRAY<double> *log_probs) const;
   // Runs the backward CTC pass, filling in log_probs.
-  void Backward(GENERIC_2D_ARRAY<double>* log_probs) const;
+  void Backward(GENERIC_2D_ARRAY<double> *log_probs) const;
   // Normalizes and brings probs out of log space with a softmax over time.
-  void NormalizeSequence(GENERIC_2D_ARRAY<double>* probs) const;
+  void NormalizeSequence(GENERIC_2D_ARRAY<double> *probs) const;
   // For each timestep computes the max prob for each class over all
   // instances of the class in the labels_, and sets the targets to
   // the max observed prob.
-  void LabelsToClasses(const GENERIC_2D_ARRAY<double>& probs,
-                       NetworkIO* targets) const;
+  void LabelsToClasses(const GENERIC_2D_ARRAY<double> &probs, NetworkIO *targets) const;
   // Normalizes the probabilities such that no target has a prob below min_prob,
   // and, provided that the initial total is at least min_total_prob, then all
   // probs will sum to 1, otherwise to sum/min_total_prob. The maximum output
   // probability is thus 1 - (num_classes-1)*min_prob.
-  static void NormalizeProbs(GENERIC_2D_ARRAY<float>* probs);
+  static void NormalizeProbs(GENERIC_2D_ARRAY<float> *probs);
   // Returns true if the label at index is a needed null.
   bool NeededNull(int index) const;
   // Returns exp(clipped(x)), clipping x to a reasonable range to prevent over/
   // underflow.
   static double ClippedExp(double x) {
-    if (x < -kMaxExpArg_) return exp(-kMaxExpArg_);
-    if (x > kMaxExpArg_) return exp(kMaxExpArg_);
+    if (x < -kMaxExpArg_)
+      return exp(-kMaxExpArg_);
+    if (x > kMaxExpArg_)
+      return exp(kMaxExpArg_);
     return exp(x);
   }
 
@@ -109,7 +106,7 @@ class TESS_COMMON_TRAINING_API CTC {
   static const double kMinTotalFinalProb_;
 
   // The truth label indices that are to be matched to outputs_.
-  const std::vector<int>& labels_;
+  const std::vector<int> &labels_;
   // The network outputs.
   GENERIC_2D_ARRAY<float> outputs_;
   // The null or "blank" label.
@@ -125,6 +122,6 @@ class TESS_COMMON_TRAINING_API CTC {
   std::vector<int> max_labels_;
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_LSTM_CTC_H_
+#endif // TESSERACT_LSTM_CTC_H_

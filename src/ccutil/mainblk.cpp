@@ -17,13 +17,13 @@
  **********************************************************************/
 
 #include <cstdlib>
-#include <cstring>      // for std::strrchr
+#include <cstring> // for std::strrchr
 #if defined(_WIN32)
-#include <io.h>         // for _access
+#  include <io.h> // for _access
 #endif
 
-#include "fileerr.h"
 #include "ccutil.h"
+#include "fileerr.h"
 
 namespace tesseract {
 /**********************************************************************
@@ -37,12 +37,12 @@ namespace tesseract {
  *
  * @param argv0 - paths to the directory with language files and config files.
  * An actual value of argv0 is used if not nullptr, otherwise TESSDATA_PREFIX is
- * used if not nullptr, next try to use compiled in -DTESSDATA_PREFIX. If previous
- * is not successful - use current directory.
+ * used if not nullptr, next try to use compiled in -DTESSDATA_PREFIX. If
+ * previous is not successful - use current directory.
  * @param basename - name of image
  */
 void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
-  imagebasename = basename;      /**< name of image */
+  imagebasename = basename; /**< name of image */
 
   char *tessdata_prefix = getenv("TESSDATA_PREFIX");
 
@@ -58,7 +58,7 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
     char path[_MAX_PATH];
     DWORD length = GetModuleFileName(nullptr, path, sizeof(path));
     if (length > 0 && length < sizeof(path)) {
-      char* separator = std::strrchr(path, '\\');
+      char *separator = std::strrchr(path, '\\');
       if (separator != nullptr) {
         *separator = '\0';
         datadir = path;
@@ -69,11 +69,11 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
 #if defined(TESSDATA_PREFIX)
   } else {
 /* Use tessdata prefix which was compiled in. */
-#define _STR(a) #a
-#define _XSTR(a) _STR(a)
+#  define _STR(a) #  a
+#  define _XSTR(a) _STR(a)
     datadir = _XSTR(TESSDATA_PREFIX) "/tessdata";
-#undef _XSTR
-#undef _STR
+#  undef _XSTR
+#  undef _STR
 #endif
   }
 
@@ -88,4 +88,4 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
   if ((strcmp(lastchar, "/") != 0) && (strcmp(lastchar, "\\") != 0))
     datadir += "/";
 }
-}  // namespace tesseract
+} // namespace tesseract

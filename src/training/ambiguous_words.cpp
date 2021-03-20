@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////
 //
 
-#include "common/commontraining.h"     // CheckSharedLibraryVersion
+#include "common/commontraining.h" // CheckSharedLibraryVersion
 #include "dict.h"
 #include "tesseractclass.h"
 
@@ -30,9 +30,9 @@
 #if !defined(DISABLED_LEGACY_ENGINE)
 
 #ifdef TESSERACT_STANDALONE
-extern "C" int main(int argc, const char** argv)
+extern "C" int main(int argc, const char **argv)
 #else
-extern "C" int tesseract_ambiguous_words_main(int argc, const char** argv)
+extern "C" int tesseract_ambiguous_words_main(int argc, const char **argv)
 #endif
 {
   tesseract::CheckSharedLibraryVersion();
@@ -42,8 +42,10 @@ extern "C" int tesseract_ambiguous_words_main(int argc, const char** argv)
     printf("%s\n", tesseract::TessBaseAPI::Version());
     return 0;
   } else if (argc != 4 && (argc != 6 || strcmp(argv[1], "-l") != 0)) {
-    printf("Usage: %s -v | --version | %s [-l lang] tessdata_dir wordlist_file"
-           " output_ambiguous_wordlist_file\n", argv[0], argv[0]);
+    printf(
+        "Usage: %s -v | --version | %s [-l lang] tessdata_dir wordlist_file"
+        " output_ambiguous_wordlist_file\n",
+        argv[0], argv[0]);
     return 1;
   }
   int argv_offset = 0;
@@ -64,8 +66,8 @@ extern "C" int tesseract_ambiguous_words_main(int argc, const char** argv)
   std::vector<std::string> vars_values;
   vars_vec.push_back("output_ambig_words_file");
   vars_values.push_back(output_file_str);
-  api.Init(tessdata_dir, lang.c_str(), tesseract::OEM_TESSERACT_ONLY, nullptr,
-           0, &vars_vec, &vars_values, false);
+  api.Init(tessdata_dir, lang.c_str(), tesseract::OEM_TESSERACT_ONLY, nullptr, 0, &vars_vec,
+           &vars_values, false);
   tesseract::Dict &dict = api.tesseract()->getDict();
   FILE *input_file = fopen(input_file_str, "rb");
   if (input_file == nullptr) {
@@ -77,7 +79,7 @@ extern "C" int tesseract_ambiguous_words_main(int argc, const char** argv)
   // Read word list and call Dict::NoDangerousAmbig() for each word
   // to record ambiguities in the output file.
   while (fgets(str, CHARS_PER_LINE, input_file) != nullptr) {
-    tesseract::chomp_string(str);  // remove newline
+    tesseract::chomp_string(str); // remove newline
     tesseract::WERD_CHOICE word(str, dict.getUnicharset());
     dict.NoDangerousAmbig(&word, nullptr, false, nullptr);
   }

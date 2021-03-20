@@ -32,7 +32,7 @@ using MICROFEATURES = LIST;
 /* definition of structure of micro-features */
 #define MFSIZE 6
 typedef float MFBLOCK[MFSIZE];
-using MICROFEATURE = float*;
+using MICROFEATURE = float *;
 
 /* definitions of individual micro-feature parameters */
 #define XPOSITION 0

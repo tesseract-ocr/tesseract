@@ -20,15 +20,15 @@
 #ifndef TESSERACT_CCUTIL_TPRINTF_H
 #define TESSERACT_CCUTIL_TPRINTF_H
 
-#include <tesseract/export.h>   // for TESS_API
+#include <tesseract/export.h> // for TESS_API
 
 namespace tesseract {
 
 // Main logging function.
 __attribute__((format(printf, 1, 2)))
-TESS_API void tprintf(  // Trace printf
-    TS_FORMAT_STRING(const char* fmt), ...) TS_PRINTFLIKE(1, 2);  // Message
+extern TESS_API void tprintf( // Trace printf
+    TS_FORMAT_STRING(const char *format), ...) TS_PRINTFLIKE(1, 2);  // Message
 
 } // namespace tesseract
 
-#endif  // define TESSERACT_CCUTIL_TPRINTF_H
+#endif // define TESSERACT_CCUTIL_TPRINTF_H

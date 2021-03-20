@@ -42,8 +42,8 @@ namespace UniLib {
 
 // Returns the length in bytes of the prefix of src that is all
 //  interchange valid UTF-8
-int SpanInterchangeValid(const char* src, int byte_length);
-inline int SpanInterchangeValid(const std::string& src) {
+int SpanInterchangeValid(const char *src, int byte_length);
+inline int SpanInterchangeValid(const std::string &src) {
   return SpanInterchangeValid(src.data(), src.size());
 }
 
@@ -51,13 +51,13 @@ inline int SpanInterchangeValid(const std::string& src) {
 // "Interchange valid" is a stronger than structurally valid --
 // no C0 or C1 control codes (other than CR LF HT FF) and no non-characters.
 bool IsInterchangeValid(char32 codepoint);
-inline bool IsInterchangeValid(const char* src, int byte_length) {
+inline bool IsInterchangeValid(const char *src, int byte_length) {
   return (byte_length == SpanInterchangeValid(src, byte_length));
 }
-inline bool IsInterchangeValid(const std::string& src) {
+inline bool IsInterchangeValid(const std::string &src) {
   return IsInterchangeValid(src.data(), src.size());
 }
 
-}  // namespace UniLib
+} // namespace UniLib
 
-#endif  // UTIL_UTF8_PUBLIC_UNILIB_H_
+#endif // UTIL_UTF8_PUBLIC_UNILIB_H_

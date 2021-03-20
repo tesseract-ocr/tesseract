@@ -16,4 +16,6 @@
 #include <gtest/gtest.h>
 
 // Verifies that the libtesseract library has C API symbols.
-TEST(C, VersionTest) { TessVersion(); }
+TEST(C, VersionTest) {
+  TessVersion();
+}

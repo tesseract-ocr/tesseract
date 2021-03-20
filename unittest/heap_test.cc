@@ -9,12 +9,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include "include_gunit.h"
 
 #include "doubleptr.h"
 #include "genericheap.h"
-#include "genericvector.h"
 #include "kdpair.h"
 
 #include <string>
@@ -26,15 +24,15 @@ int test_data[] = {8, 1, 2, -4, 7, 9, 65536, 4, 9, 0};
 
 // The fixture for testing GenericHeap and DoublePtr.
 class HeapTest : public testing::Test {
- protected:
+protected:
   void SetUp() {
     std::locale::global(std::locale(""));
   }
 
- public:
+public:
   virtual ~HeapTest();
   // Pushes the test data onto both the heap and the KDVector.
-  void PushTestData(GenericHeap<IntKDPair>* heap, KDVector* v) {
+  void PushTestData(GenericHeap<IntKDPair> *heap, KDVector *v) {
     for (size_t i = 0; i < countof(test_data); ++i) {
       IntKDPair pair(test_data[i], i);
       heap->Push(&pair);
@@ -43,13 +41,13 @@ class HeapTest : public testing::Test {
   }
   // Verifies that the data in the heap matches the vector (after sorting) by
   // popping everything off the heap.
-  void VerifyHeapVectorMatch(GenericHeap<IntKDPair>* heap, KDVector* v) {
+  void VerifyHeapVectorMatch(GenericHeap<IntKDPair> *heap, KDVector *v) {
     EXPECT_FALSE(heap->empty());
     EXPECT_EQ(heap->size(), v->size());
     // Sort the vector and check that the keys come out of the heap in the same
     // order as v.
     // Also check that the indices match, except for 9, which is duplicated.
-    v->sort();
+    std::sort(v->begin(), v->end());
     // Check that we have increasing order.
     EXPECT_LT((*v)[0].key(), v->back().key());
     for (int i = 0; i < v->size(); ++i) {
@@ -99,10 +97,10 @@ TEST_F(HeapTest, MixedTest) {
   // Push the test data onto both the heap and the KDVector.
   PushTestData(&heap, &v);
   // Sort the vector and remove the first 5 values from both heap and v.
-  v.sort();
+  std::sort(v.begin(), v.end());
   for (int i = 0; i < 5; ++i) {
     heap.Pop(nullptr);
-    v.remove(0);
+    v.erase(v.begin());
   }
   // Push the test data onto both the heap and the KDVector.
   PushTestData(&heap, &v);
@@ -123,8 +121,8 @@ TEST_F(HeapTest, PopWorstTest) {
   EXPECT_EQ(pair.key(), 65536);
   EXPECT_EQ(pair.data(), 6);
   // Sort and remove the worst element from the vector.
-  v.sort();
-  v.truncate(v.size() - 1);
+  std::sort(v.begin(), v.end());
+  v.resize(v.size() - 1);
   // After that they should still match!
   VerifyHeapVectorMatch(&heap, &v);
 }
@@ -136,7 +134,7 @@ TEST_F(HeapTest, RevalueTest) {
   // in the vector and heap, and we test a MAX heap.
   typedef KDPairDec<int, DoublePtr> PtrPair;
   GenericHeap<PtrPair> heap;
-  GenericVector<PtrPair> v;
+  std::vector<PtrPair> v;
   // Push the test data onto both the heap and the vector.
   for (size_t i = 0; i < countof(test_data); ++i) {
     PtrPair h_pair;
@@ -153,17 +151,17 @@ TEST_F(HeapTest, RevalueTest) {
   // heap entry, wherever it may be. We can change its value via that pointer.
   // Without Reshuffle, that would be a terribly bad thing to do, as it violates
   // the heap invariant, making the heap corrupt.
-  PtrPair* pair_ptr = reinterpret_cast<PtrPair*>(v[0].data().OtherEnd());
+  PtrPair *pair_ptr = reinterpret_cast<PtrPair *>(v[0].data().OtherEnd());
   pair_ptr->key() = v[0].key();
   heap.Reshuffle(pair_ptr);
   // Index 1 is 1. Change to 32767.
   v[1].key() = 32767;
-  pair_ptr = reinterpret_cast<PtrPair*>(v[1].data().OtherEnd());
+  pair_ptr = reinterpret_cast<PtrPair *>(v[1].data().OtherEnd());
   pair_ptr->key() = v[1].key();
   heap.Reshuffle(pair_ptr);
   // After the changes, popping the heap should still match the sorted order
   // of the vector.
-  v.sort();
+  std::sort(v.begin(), v.end());
   EXPECT_GT(v[0].key(), v.back().key());
   for (int i = 0; i < v.size(); ++i) {
     EXPECT_EQ(v[i].key(), heap.PeekTop().key());
@@ -199,4 +197,4 @@ TEST_F(HeapTest, DoublePtrTest) {
   EXPECT_TRUE(ptr3.OtherEnd() == nullptr);
 }
 
-}  // namespace tesseract
+} // namespace tesseract

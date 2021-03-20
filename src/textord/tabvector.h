@@ -19,12 +19,12 @@
 #ifndef TESSERACT_TEXTORD_TABVECTOR_H_
 #define TESSERACT_TEXTORD_TABVECTOR_H_
 
+#include "bbgrid.h"
 #include "blobgrid.h"
 #include "clst.h"
 #include "elst.h"
 #include "elst2.h"
 #include "rect.h"
-#include "bbgrid.h"
 
 #include <algorithm>
 
@@ -33,11 +33,11 @@ class ScrollView;
 
 namespace tesseract {
 
-
 extern double_VAR_H(textord_tabvector_vertical_gap_fraction, 0.5,
-  "Max fraction of mean blob width allowed for vertical gaps in vertical text");
+                    "Max fraction of mean blob width allowed for vertical gaps "
+                    "in vertical text");
 extern double_VAR_H(textord_tabvector_vertical_box_ratio, 0.5,
-  "Fraction of box matches required to declare a line vertical");
+                    "Fraction of box matches required to declare a line vertical");
 
 // The alignment type that a tab vector represents.
 // Keep this enum synced with kAlignmentNames in tabvector.cpp.
@@ -68,37 +68,34 @@ ELISTIZEH(TabConstraint)
 // by the TabVectors of the constraints on the list and managed
 // by implicit reference counting via the elements of the list.
 class TabConstraint : public ELIST_LINK {
- public:
+public:
   // This empty constructor is here only so that the class can be ELISTIZED.
   // TODO(rays) change deep_copy in elst.h line 955 to take a callback copier
   // and eliminate CLASSNAME##_copier.
   TabConstraint() = default;
 
   // Create a constraint for the top or bottom of this TabVector.
-  static void CreateConstraint(TabVector* vector, bool is_top);
+  static void CreateConstraint(TabVector *vector, bool is_top);
 
   // Test to see if the constraints are compatible enough to merge.
-  static bool CompatibleConstraints(TabConstraint_LIST* list1,
-                                    TabConstraint_LIST* list2);
+  static bool CompatibleConstraints(TabConstraint_LIST *list1, TabConstraint_LIST *list2);
 
   // Merge the lists of constraints and update the TabVector pointers.
   // The second list is deleted.
-  static void MergeConstraints(TabConstraint_LIST* list1,
-                               TabConstraint_LIST* list2);
+  static void MergeConstraints(TabConstraint_LIST *list1, TabConstraint_LIST *list2);
 
   // Set all the tops and bottoms as appropriate to a mean of the
   // constrained range. Delete all the constraints and list.
-  static void ApplyConstraints(TabConstraint_LIST* constraints);
+  static void ApplyConstraints(TabConstraint_LIST *constraints);
 
- private:
-  TabConstraint(TabVector* vector, bool is_top);
+private:
+  TabConstraint(TabVector *vector, bool is_top);
 
   // Get the max of the mins and the min of the maxes.
-  static void GetConstraints(TabConstraint_LIST* constraints,
-                             int* y_min, int* y_max);
+  static void GetConstraints(TabConstraint_LIST *constraints, int *y_min, int *y_max);
 
   // The TabVector this constraint applies to.
-  TabVector* vector_;
+  TabVector *vector_;
   // If true then we refer to the top of the vector_.
   bool is_top_;
   // The allowed range of this vector_.
@@ -109,7 +106,7 @@ class TabConstraint : public ELIST_LINK {
 // Class to hold information about a single vector
 // that represents a tab stop or a rule line.
 class TabVector : public ELIST2_LINK {
- public:
+public:
   // TODO(rays) fix this in elst.h line 1076, where it should use the
   // copy constructor instead of operator=.
   TabVector() = default;
@@ -123,29 +120,28 @@ class TabVector : public ELIST2_LINK {
   // The extended_start_y and extended_end_y are the maximum possible
   // extension to the line segment that can be used to align with others.
   // The input CLIST of BLOBNBOX good_points is consumed and taken over.
-  static TabVector* FitVector(TabAlignment alignment, ICOORD vertical,
-                              int  extended_start_y, int extended_end_y,
-                              BLOBNBOX_CLIST* good_points,
-                              int* vertical_x, int* vertical_y);
+  static TabVector *FitVector(TabAlignment alignment, ICOORD vertical, int extended_start_y,
+                              int extended_end_y, BLOBNBOX_CLIST *good_points, int *vertical_x,
+                              int *vertical_y);
 
   // Build a ragged TabVector by copying another's direction, shifting it
   // to match the given blob, and making its initial extent the height
   // of the blob, but its extended bounds from the bounds of the original.
-  TabVector(const TabVector& src, TabAlignment alignment,
-            const ICOORD& vertical_skew, BLOBNBOX* blob);
+  TabVector(const TabVector &src, TabAlignment alignment, const ICOORD &vertical_skew,
+            BLOBNBOX *blob);
 
   // Copies basic attributes of a tab vector for simple operations.
   // Copies things such startpt, endpt, range, width.
   // Does not copy things such as partners, boxes, or constraints.
   // This is useful if you only need vector information for processing, such
   // as in the table detection code.
-  TabVector* ShallowCopy() const;
+  TabVector *ShallowCopy() const;
 
   // Simple accessors.
-  const ICOORD& startpt() const {
+  const ICOORD &startpt() const {
     return startpt_;
   }
-  const ICOORD& endpt() const {
+  const ICOORD &endpt() const {
     return endpt_;
   }
   int extended_ymax() const {
@@ -160,19 +156,19 @@ class TabVector : public ELIST2_LINK {
   int mean_width() const {
     return mean_width_;
   }
-  void set_top_constraints(TabConstraint_LIST* constraints) {
+  void set_top_constraints(TabConstraint_LIST *constraints) {
     top_constraints_ = constraints;
   }
-  void set_bottom_constraints(TabConstraint_LIST* constraints) {
+  void set_bottom_constraints(TabConstraint_LIST *constraints) {
     bottom_constraints_ = constraints;
   }
-  TabVector_CLIST* partners() {
+  TabVector_CLIST *partners() {
     return &partners_;
   }
-  void set_startpt(const ICOORD& start) {
+  void set_startpt(const ICOORD &start) {
     startpt_ = start;
   }
-  void set_endpt(const ICOORD& end) {
+  void set_endpt(const ICOORD &end) {
     endpt_ = end;
   }
   bool intersects_other_lines() const {
@@ -188,20 +184,19 @@ class TabVector : public ELIST2_LINK {
   int XAtY(int y) const {
     int height = endpt_.y() - startpt_.y();
     if (height != 0)
-      return (y - startpt_.y()) * (endpt_.x() - startpt_.x()) / height +
-             startpt_.x();
+      return (y - startpt_.y()) * (endpt_.x() - startpt_.x()) / height + startpt_.x();
     else
       return startpt_.x();
   }
 
   // Compute the vertical overlap with the other TabVector.
-  int VOverlap(const TabVector& other) const {
-    return std::min(other.endpt_.y(), endpt_.y()) -
-            std::max(other.startpt_.y(), startpt_.y());
+  int VOverlap(const TabVector &other) const {
+    return std::min(other.endpt_.y(), endpt_.y()) - std::max(other.startpt_.y(), startpt_.y());
   }
   // Compute the vertical overlap with the given y bounds.
   int VOverlap(int top_y, int bottom_y) const {
-    return std::min(top_y, static_cast<int>(endpt_.y())) - std::max(bottom_y, static_cast<int>(startpt_.y()));
+    return std::min(top_y, static_cast<int>(endpt_.y())) -
+           std::max(bottom_y, static_cast<int>(startpt_.y()));
   }
   // Compute the extended vertical overlap with the given y bounds.
   int ExtendedOverlap(int top_y, int bottom_y) const {
@@ -231,7 +226,7 @@ class TabVector : public ELIST2_LINK {
 
   // Return true if this vector is to the left of the other in terms
   // of sort_key_.
-  bool IsLeftOf(const TabVector& other) const {
+  bool IsLeftOf(const TabVector &other) const {
     return sort_key_ < other.sort_key_;
   }
 
@@ -276,13 +271,13 @@ class TabVector : public ELIST2_LINK {
   }
 
   // Separate function to compute the sort key for a given coordinate pair.
-  static int SortKey(const ICOORD& vertical, int x, int y) {
+  static int SortKey(const ICOORD &vertical, int x, int y) {
     ICOORD pt(x, y);
     return pt * vertical;
   }
 
   // Return the x at the given y for the given sort key.
-  static int XAtY(const ICOORD& vertical, int sort_key, int y) {
+  static int XAtY(const ICOORD &vertical, int sort_key, int y) {
     if (vertical.y() != 0)
       return (vertical.x() * y + sort_key) / vertical.y();
     else
@@ -290,9 +285,9 @@ class TabVector : public ELIST2_LINK {
   }
 
   // Sort function for E2LIST::sort to sort by sort_key_.
-  static int SortVectorsByKey(const void* v1, const void* v2) {
-    const TabVector* tv1 = *static_cast<const TabVector* const*>(v1);
-    const TabVector* tv2 = *static_cast<const TabVector* const*>(v2);
+  static int SortVectorsByKey(const void *v1, const void *v2) {
+    const TabVector *tv1 = *static_cast<const TabVector *const *>(v1);
+    const TabVector *tv2 = *static_cast<const TabVector *const *>(v2);
     return tv1->sort_key_ - tv2->sort_key_;
   }
 
@@ -300,7 +295,7 @@ class TabVector : public ELIST2_LINK {
 
   // Extend this vector to include the supplied blob if it doesn't
   // already have it.
-  void ExtendToBox(BLOBNBOX* blob);
+  void ExtendToBox(BLOBNBOX *blob);
 
   // Set the ycoord of the start and move the xcoord to match.
   void SetYStart(int start_y);
@@ -308,7 +303,7 @@ class TabVector : public ELIST2_LINK {
   void SetYEnd(int end_y);
 
   // Rotate the ends by the given vector.
-  void Rotate(const FCOORD& rotation);
+  void Rotate(const FCOORD &rotation);
 
   // Setup the initial constraints, being the limits of
   // the vector and the extended ends.
@@ -318,43 +313,42 @@ class TabVector : public ELIST2_LINK {
   void SetupPartnerConstraints();
 
   // Setup the constraints between this and its partner.
-  void SetupPartnerConstraints(TabVector* partner);
+  void SetupPartnerConstraints(TabVector *partner);
 
   // Use the constraints to modify the top and bottom.
   void ApplyConstraints();
 
   // Merge close tab vectors of the same side that overlap.
-  static void MergeSimilarTabVectors(const ICOORD& vertical,
-                                     TabVector_LIST* vectors, BlobGrid* grid);
+  static void MergeSimilarTabVectors(const ICOORD &vertical, TabVector_LIST *vectors,
+                                     BlobGrid *grid);
 
   // Return true if this vector is the same side, overlaps, and close
   // enough to the other to be merged.
-  bool SimilarTo(const ICOORD& vertical,
-                 const TabVector& other, BlobGrid* grid) const;
+  bool SimilarTo(const ICOORD &vertical, const TabVector &other, BlobGrid *grid) const;
 
   // Eat the other TabVector into this and delete it.
-  void MergeWith(const ICOORD& vertical, TabVector* other);
+  void MergeWith(const ICOORD &vertical, TabVector *other);
 
   // Add a new element to the list of partner TabVectors.
   // Partners must be added in order of increasing y coordinate of the text line
   // that makes them partners.
   // Groups of identical partners are merged into one.
-  void AddPartner(TabVector* partner);
+  void AddPartner(TabVector *partner);
 
   // Return true if other is a partner of this.
-  bool IsAPartner(const TabVector* other);
+  bool IsAPartner(const TabVector *other);
 
   // Print basic information about this tab vector.
-  void Print(const char* prefix);
+  void Print(const char *prefix);
 
   // Print basic information about this tab vector and every box in it.
-  void Debug(const char* prefix);
+  void Debug(const char *prefix);
 
   // Draw this tabvector in place in the given window.
-  void Display(ScrollView* tab_win);
+  void Display(ScrollView *tab_win);
 
   // Refit the line and/or re-evaluate the vector if the dirty flags are set.
-  void FitAndEvaluateIfNeeded(const ICOORD& vertical, TabFind* finder);
+  void FitAndEvaluateIfNeeded(const ICOORD &vertical, TabFind *finder);
 
   // Evaluate the vector in terms of coverage of its length by good-looking
   // box edges. A good looking box is one where its nearest neighbour on the
@@ -362,7 +356,7 @@ class TabVector : public ELIST2_LINK {
   // outside of the putative column. Bad boxes are removed from the line.
   // A second pass then further filters boxes by requiring that the gutter
   // width be a minimum fraction of the mean gutter along the line.
-  void Evaluate(const ICOORD& vertical, TabFind* finder);
+  void Evaluate(const ICOORD &vertical, TabFind *finder);
 
   // (Re)Fit a line to the stored points. Returns false if the line
   // is degenerate. Althougth the TabVector code mostly doesn't care about the
@@ -373,25 +367,24 @@ class TabVector : public ELIST2_LINK {
 
   // Return the partner of this TabVector if the vector qualifies as
   // being a vertical text line, otherwise nullptr.
-  TabVector* VerticalTextlinePartner();
+  TabVector *VerticalTextlinePartner();
 
   // Return the matching tabvector if there is exactly one partner, or
   // nullptr otherwise.  This can be used after matching is done, eg. by
   // VerticalTextlinePartner(), without checking if the line is vertical.
-  TabVector* GetSinglePartner();
+  TabVector *GetSinglePartner();
 
- private:
+private:
   // Constructor is private as the static factory is the external way
   // to build a TabVector.
-  TabVector(int extended_ymin, int extended_ymax,
-            TabAlignment alignment, BLOBNBOX_CLIST* boxes);
+  TabVector(int extended_ymin, int extended_ymax, TabAlignment alignment, BLOBNBOX_CLIST *boxes);
 
   // Delete this, but first, repoint all the partners to point to
   // replacement. If replacement is nullptr, then partner relationships
   // are removed.
-  void Delete(TabVector* replacement);
+  void Delete(TabVector *replacement);
 
- private:
+private:
   // The bottom of the tab line.
   ICOORD startpt_;
   // The top of the tab line.
@@ -420,10 +413,10 @@ class TabVector : public ELIST2_LINK {
   TabVector_CLIST partners_;
   // Constraints used to resolve the exact location of the top and bottom
   // of the tab line.
-  TabConstraint_LIST* top_constraints_ = nullptr;
-  TabConstraint_LIST* bottom_constraints_ = nullptr;
+  TabConstraint_LIST *top_constraints_ = nullptr;
+  TabConstraint_LIST *bottom_constraints_ = nullptr;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_TABVECTOR_H_
+#endif // TESSERACT_TEXTORD_TABVECTOR_H_

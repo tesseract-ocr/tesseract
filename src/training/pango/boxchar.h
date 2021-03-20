@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#include <allheaders.h>  // from Leptonica
+#include <allheaders.h> // from Leptonica
 #include <tesseract/export.h>
 
 #if defined(PANGO_ENABLE_ENGINE)
@@ -36,84 +36,94 @@ struct Box;
 namespace tesseract {
 
 class BoxChar {
- public:
-  BoxChar(const char* utf8_str, int len);
+public:
+  BoxChar(const char *utf8_str, int len);
 
   ~BoxChar();
 
   // Accessors.
-  const std::string& ch() const { return ch_; }
-  const Box* box() const   { return box_; }
-  const int& page() const  { return page_; }
-  void set_rtl_index(int index) { rtl_index_ = index; }
-  const int& rtl_index() const { return rtl_index_; }
+  const std::string &ch() const {
+    return ch_;
+  }
+  const Box *box() const {
+    return box_;
+  }
+  const int &page() const {
+    return page_;
+  }
+  void set_rtl_index(int index) {
+    rtl_index_ = index;
+  }
+  const int &rtl_index() const {
+    return rtl_index_;
+  }
 
   // Set the box_ member.
   void AddBox(int x, int y, int width, int height);
 
-  void set_page(int page) { page_ = page; }
+  void set_page(int page) {
+    page_ = page;
+  }
 
-  std::string* mutable_ch() { return &ch_; }
-  Box* mutable_box()   { return box_; }
+  std::string *mutable_ch() {
+    return &ch_;
+  }
+  Box *mutable_box() {
+    return box_;
+  }
 
   // Sort function for sorting by left edge of box. Note that this will not
   // work properly until after InsertNewlines and InsertSpaces.
-  bool operator<(const BoxChar& other) const {
-    if (box_ == nullptr) return true;
-    if (other.box_ == nullptr) return false;
+  bool operator<(const BoxChar &other) const {
+    if (box_ == nullptr)
+      return true;
+    if (other.box_ == nullptr)
+      return false;
     return box_->x < other.box_->x;
   }
   // Increments *num_rtl and *num_ltr according to the directionality of
   // characters in the box.
-  void GetDirection(int* num_rtl, int* num_ltr) const;
+  void GetDirection(int *num_rtl, int *num_ltr) const;
   // Reverses the order of unicodes within the box. If Pango generates a
   // ligature, these will get reversed on output, so reverse now.
   void ReverseUnicodesInBox();
 
-  static void TranslateBoxes(int xshift, int yshift,
-                             std::vector<BoxChar*>* boxes);
+  static void TranslateBoxes(int xshift, int yshift, std::vector<BoxChar *> *boxes);
 
   // Prepares for writing the boxes to a file by inserting newlines, spaces,
   // and re-ordering so the boxes are strictly left-to-right.
-  static void PrepareToWrite(std::vector<BoxChar*>* boxes);
+  static void PrepareToWrite(std::vector<BoxChar *> *boxes);
   // Inserts newline (tab) characters into the vector at newline positions.
-  static void InsertNewlines(bool rtl_rules, bool vertical_rules,
-                             std::vector<BoxChar*>* boxes);
+  static void InsertNewlines(bool rtl_rules, bool vertical_rules, std::vector<BoxChar *> *boxes);
   // Converts nullptr boxes to space characters, with appropriate bounding
   // boxes.
-  static void InsertSpaces(bool rtl_rules, bool vertical_rules,
-                           std::vector<BoxChar*>* boxes);
+  static void InsertSpaces(bool rtl_rules, bool vertical_rules, std::vector<BoxChar *> *boxes);
   // Reorders text in a right-to-left script in left-to-right order.
-  static void ReorderRTLText(std::vector<BoxChar*>* boxes);
+  static void ReorderRTLText(std::vector<BoxChar *> *boxes);
   // Returns true if the vector contains mostly RTL characters.
-  static bool ContainsMostlyRTL(const std::vector<BoxChar*>& boxes);
+  static bool ContainsMostlyRTL(const std::vector<BoxChar *> &boxes);
   // Returns true if the text is mostly laid out vertically.
-  static bool MostlyVertical(const std::vector<BoxChar*>& boxes);
+  static bool MostlyVertical(const std::vector<BoxChar *> &boxes);
 
   // Returns the total length of all the strings in the boxes.
-  static int TotalByteLength(const std::vector<BoxChar*>& boxes);
+  static int TotalByteLength(const std::vector<BoxChar *> &boxes);
 
   // Rotate the vector of boxes between start and end by the given rotation.
   // The rotation is in radians clockwise about the given center.
-  static void RotateBoxes(float rotation,
-                          int xcenter,
-                          int ycenter,
-                          int start_box,
-                          int end_box,
-                          std::vector<BoxChar*>* boxes);
+  static void RotateBoxes(float rotation, int xcenter, int ycenter, int start_box, int end_box,
+                          std::vector<BoxChar *> *boxes);
 
   // Create a tesseract box file from the vector of boxes. The image height
   // is needed to convert to tesseract coordinates.
-  static void WriteTesseractBoxFile(const std::string& name, int height,
-                                    const std::vector<BoxChar*>& boxes);
+  static void WriteTesseractBoxFile(const std::string &name, int height,
+                                    const std::vector<BoxChar *> &boxes);
   // Gets the tesseract box file as a string from the vector of boxes.
   // The image height is needed to convert to tesseract coordinates.
-  static std::string GetTesseractBoxStr(int height,
-                                        const std::vector<BoxChar*>& boxes);
+  static std::string GetTesseractBoxStr(int height, const std::vector<BoxChar *> &boxes);
 
- private:
+private:
   std::string ch_;
-  Box* box_;
+  Box *box_;
   int page_;
   // If the box is an RTL character, contains the original position in the
   // array of boxes (before reversal), otherwise -1.
@@ -122,14 +132,14 @@ class BoxChar {
 
 // Sort predicate to sort a vector of BoxChar*.
 struct BoxCharPtrSort {
-  bool operator()(const BoxChar* box1, const BoxChar* box2) const {
+  bool operator()(const BoxChar *box1, const BoxChar *box2) const {
     if (box1->rtl_index() >= 0 && box2->rtl_index() >= 0)
       return box2->rtl_index() < box1->rtl_index();
     return *box1 < *box2;
   }
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
 #endif
 

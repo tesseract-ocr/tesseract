@@ -21,22 +21,21 @@
 #define TESSERACT_CCSTRUCT_BLAMER_H_
 
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h" // DISABLED_LEGACY_ENGINE
+#  include "config_auto.h" // DISABLED_LEGACY_ENGINE
 #endif
-#include "boxword.h"                  // for BoxWord
+#include "boxword.h" // for BoxWord
 #ifndef DISABLED_LEGACY_ENGINE
-#include "params_training_featdef.h"  // for ParamsTrainingBundle, ParamsTra...
-#endif //  ndef DISABLED_LEGACY_ENGINE
-#include "ratngs.h"                   // for BLOB_CHOICE_LIST (ptr only)
-#include "rect.h"                     // for TBOX
-#include "tprintf.h"                  // for tprintf
+#  include "params_training_featdef.h" // for ParamsTrainingBundle, ParamsTra...
+#endif                                 //  ndef DISABLED_LEGACY_ENGINE
+#include "ratngs.h"                    // for BLOB_CHOICE_LIST (ptr only)
+#include "rect.h"                      // for TBOX
+#include "tprintf.h"                   // for tprintf
 
-#include <tesseract/unichar.h>        // for UNICHAR_ID
-#include "strngs.h"                   // for STRING
+#include <tesseract/unichar.h> // for UNICHAR_ID
 
-#include <cstdint>                    // for int16_t
-#include <cstring>                    // for memcpy
-#include <vector>                     // for std::vector
+#include <cstdint> // for int16_t
+#include <cstring> // for memcpy
+#include <vector>  // for std::vector
 
 namespace tesseract {
 
@@ -107,19 +106,24 @@ enum IncorrectResultReason {
 // Blamer-related information to determine the source of errors.
 struct BlamerBundle {
   static const char *IncorrectReasonName(IncorrectResultReason irr);
-  BlamerBundle() : truth_has_char_boxes_(false),
-      incorrect_result_reason_(IRR_CORRECT),
-      lattice_data_(nullptr) { ClearResults(); }
+  BlamerBundle()
+      : truth_has_char_boxes_(false)
+      , incorrect_result_reason_(IRR_CORRECT)
+      , lattice_data_(nullptr) {
+    ClearResults();
+  }
   BlamerBundle(const BlamerBundle &other) {
     this->CopyTruth(other);
     this->CopyResults(other);
   }
-  ~BlamerBundle() { delete[] lattice_data_; }
+  ~BlamerBundle() {
+    delete[] lattice_data_;
+  }
 
   // Accessors.
-  STRING TruthString() const {
-    STRING truth_str;
-    for (auto& text : truth_text_) {
+  std::string TruthString() const {
+    std::string truth_str;
+    for (auto &text : truth_text_) {
       truth_str += text;
     }
     return truth_str;
@@ -128,16 +132,15 @@ struct BlamerBundle {
     return incorrect_result_reason_;
   }
   bool NoTruth() const {
-    return incorrect_result_reason_ == IRR_NO_TRUTH ||
-           incorrect_result_reason_ == IRR_PAGE_LAYOUT;
+    return incorrect_result_reason_ == IRR_NO_TRUTH || incorrect_result_reason_ == IRR_PAGE_LAYOUT;
   }
   bool HasDebugInfo() const {
     return debug_.length() > 0 || misadaption_debug_.length() > 0;
   }
-  const STRING& debug() const {
+  const std::string &debug() const {
     return debug_;
   }
-  const STRING& misadaption_debug() const {
+  const std::string &misadaption_debug() const {
     return misadaption_debug_;
   }
   void UpdateBestRating(float rating) {
@@ -149,54 +152,53 @@ struct BlamerBundle {
   }
   // Returns true if the given ratings matrix col,row position is included
   // in the correct segmentation path at the given index.
-  bool MatrixPositionCorrect(int index, const MATRIX_COORD& coord) {
+  bool MatrixPositionCorrect(int index, const MATRIX_COORD &coord) {
     return correct_segmentation_cols_[index] == coord.col &&
-        correct_segmentation_rows_[index] == coord.row;
+           correct_segmentation_rows_[index] == coord.row;
   }
   void set_best_choice_is_dict_and_top_choice(bool value) {
     best_choice_is_dict_and_top_choice_ = value;
   }
-  const char* lattice_data() const {
+  const char *lattice_data() const {
     return lattice_data_;
   }
   int lattice_size() const {
-    return lattice_size_;  // size of lattice_data in bytes
+    return lattice_size_; // size of lattice_data in bytes
   }
-  void set_lattice_data(const char* data, int size) {
+  void set_lattice_data(const char *data, int size) {
     lattice_size_ = size;
-    delete [] lattice_data_;
+    delete[] lattice_data_;
     lattice_data_ = new char[lattice_size_];
     memcpy(lattice_data_, data, lattice_size_);
   }
 #ifndef DISABLED_LEGACY_ENGINE
-  const tesseract::ParamsTrainingBundle& params_training_bundle() const {
+  const tesseract::ParamsTrainingBundle &params_training_bundle() const {
     return params_training_bundle_;
   }
   // Adds a new ParamsTrainingHypothesis to the current hypothesis list.
-  void AddHypothesis(const tesseract::ParamsTrainingHypothesis& hypo) {
+  void AddHypothesis(const tesseract::ParamsTrainingHypothesis &hypo) {
     params_training_bundle_.AddHypothesis(hypo);
   }
-#endif  // ndef DISABLED_LEGACY_ENGINE
+#endif // ndef DISABLED_LEGACY_ENGINE
 
   // Functions to setup the blamer.
   // Whole word string, whole word bounding box.
-  void SetWordTruth(const UNICHARSET& unicharset,
-                    const char* truth_str, const TBOX& word_box);
+  void SetWordTruth(const UNICHARSET &unicharset, const char *truth_str, const TBOX &word_box);
   // Single "character" string, "character" bounding box.
   // May be called multiple times to indicate the characters in a word.
-  void SetSymbolTruth(const UNICHARSET& unicharset,
-                      const char* char_str, const TBOX& char_box);
+  void SetSymbolTruth(const UNICHARSET &unicharset, const char *char_str, const TBOX &char_box);
   // Marks that there is something wrong with the truth text, like it contains
   // reject characters.
   void SetRejectedTruth();
 
   // Returns true if the provided word_choice is correct.
-  bool ChoiceIsCorrect(const WERD_CHOICE* word_choice) const;
+  bool ChoiceIsCorrect(const WERD_CHOICE *word_choice) const;
 
   void ClearResults() {
     norm_truth_word_.DeleteAllBoxes();
     norm_box_tolerance_ = 0;
-    if (!NoTruth()) incorrect_result_reason_ = IRR_CORRECT;
+    if (!NoTruth())
+      incorrect_result_reason_ = IRR_CORRECT;
     debug_ = "";
     segsearch_is_looking_for_blame_ = false;
     best_correctly_segmented_rating_ = WERD_CHOICE::kBadRating;
@@ -211,8 +213,7 @@ struct BlamerBundle {
     truth_has_char_boxes_ = other.truth_has_char_boxes_;
     truth_word_ = other.truth_word_;
     truth_text_ = other.truth_text_;
-    incorrect_result_reason_ =
-        (other.NoTruth() ? other.incorrect_result_reason_ : IRR_CORRECT);
+    incorrect_result_reason_ = (other.NoTruth() ? other.incorrect_result_reason_ : IRR_CORRECT);
   }
   void CopyResults(const BlamerBundle &other) {
     norm_truth_word_ = other.norm_truth_word_;
@@ -222,8 +223,7 @@ struct BlamerBundle {
     best_correctly_segmented_rating_ = other.best_correctly_segmented_rating_;
     correct_segmentation_cols_ = other.correct_segmentation_cols_;
     correct_segmentation_rows_ = other.correct_segmentation_rows_;
-    best_choice_is_dict_and_top_choice_ =
-        other.best_choice_is_dict_and_top_choice_;
+    best_choice_is_dict_and_top_choice_ = other.best_choice_is_dict_and_top_choice_;
     if (other.lattice_data_ != nullptr) {
       lattice_data_ = new char[other.lattice_size_];
       memcpy(lattice_data_, other.lattice_data_, other.lattice_size_);
@@ -235,80 +235,72 @@ struct BlamerBundle {
   const char *IncorrectReason() const;
 
   // Appends choice and truth details to the given debug string.
-  void FillDebugString(const STRING &msg, const WERD_CHOICE *choice,
-                       STRING *debug);
+  void FillDebugString(const std::string &msg, const WERD_CHOICE *choice, std::string &debug);
 
   // Sets up the norm_truth_word from truth_word using the given DENORM.
-  void SetupNormTruthWord(const DENORM& denorm);
+  void SetupNormTruthWord(const DENORM &denorm);
 
   // Splits *this into two pieces in bundle1 and bundle2 (preallocated, empty
   // bundles) where the right edge/ of the left-hand word is word1_right,
   // and the left edge of the right-hand word is word2_left.
-  void SplitBundle(int word1_right, int word2_left, bool debug,
-                   BlamerBundle* bundle1, BlamerBundle* bundle2) const;
+  void SplitBundle(int word1_right, int word2_left, bool debug, BlamerBundle *bundle1,
+                   BlamerBundle *bundle2) const;
   // "Joins" the blames from bundle1 and bundle2 into *this.
-  void JoinBlames(const BlamerBundle& bundle1, const BlamerBundle& bundle2,
-                  bool debug);
+  void JoinBlames(const BlamerBundle &bundle1, const BlamerBundle &bundle2, bool debug);
 
   // If a blob with the same bounding box as one of the truth character
   // bounding boxes is not classified as the corresponding truth character
   // blames character classifier for incorrect answer.
-  void BlameClassifier(const UNICHARSET& unicharset,
-                       const TBOX& blob_box,
-                       const BLOB_CHOICE_LIST& choices,
-                       bool debug);
-
+  void BlameClassifier(const UNICHARSET &unicharset, const TBOX &blob_box,
+                       const BLOB_CHOICE_LIST &choices, bool debug);
 
   // Checks whether chops were made at all the character bounding box
   // boundaries in word->truth_word. If not - blames the chopper for an
   // incorrect answer.
-  void SetChopperBlame(const WERD_RES* word, bool debug);
+  void SetChopperBlame(const WERD_RES *word, bool debug);
   // Blames the classifier or the language model if, after running only the
   // chopper, best_choice is incorrect and no blame has been yet set.
   // Blames the classifier if best_choice is classifier's top choice and is a
   // dictionary word (i.e. language model could not have helped).
   // Otherwise, blames the language model (formerly permuter word adjustment).
-  void BlameClassifierOrLangModel(
-      const WERD_RES* word,
-      const UNICHARSET& unicharset, bool valid_permuter, bool debug);
+  void BlameClassifierOrLangModel(const WERD_RES *word, const UNICHARSET &unicharset,
+                                  bool valid_permuter, bool debug);
   // Sets up the correct_segmentation_* to mark the correct bounding boxes.
-  void SetupCorrectSegmentation(const TWERD* word, bool debug);
+  void SetupCorrectSegmentation(const TWERD *word, bool debug);
 
   // Returns true if a guided segmentation search is needed.
   bool GuidedSegsearchNeeded(const WERD_CHOICE *best_choice) const;
   // Setup ready to guide the segmentation search to the correct segmentation.
-  void InitForSegSearch(const WERD_CHOICE* best_choice,
-                        MATRIX* ratings, UNICHAR_ID wildcard_id,
-                        bool debug, STRING* debug_str,
-                        tesseract::LMPainPoints* pain_points,
-                        double max_char_wh_ratio, WERD_RES* word_res);
+  void InitForSegSearch(const WERD_CHOICE *best_choice, MATRIX *ratings, UNICHAR_ID wildcard_id,
+                        bool debug, std::string &debug_str, tesseract::LMPainPoints *pain_points,
+                        double max_char_wh_ratio, WERD_RES *word_res);
   // Returns true if the guided segsearch is in progress.
   bool GuidedSegsearchStillGoing() const;
   // The segmentation search has ended. Sets the blame appropriately.
-  void FinishSegSearch(const WERD_CHOICE *best_choice,
-                       bool debug, STRING *debug_str);
+  void FinishSegSearch(const WERD_CHOICE *best_choice, bool debug, std::string &debug_str);
 
   // If the bundle is null or still does not indicate the correct result,
   // fix it and use some backup reason for the blame.
-  static void LastChanceBlame(bool debug, WERD_RES* word);
+  static void LastChanceBlame(bool debug, WERD_RES *word);
 
   // Sets the misadaption debug if this word is incorrect, as this word is
   // being adapted to.
   void SetMisAdaptionDebug(const WERD_CHOICE *best_choice, bool debug);
 
- private:
+private:
   // Copy assignment operator (currently unused, therefore private).
-  BlamerBundle& operator=(const BlamerBundle& other);
-  void SetBlame(IncorrectResultReason irr, const STRING &msg,
-                const WERD_CHOICE *choice, bool debug) {
+  BlamerBundle &operator=(const BlamerBundle &other);
+  void SetBlame(IncorrectResultReason irr, const std::string &msg, const WERD_CHOICE *choice,
+                bool debug) {
     incorrect_result_reason_ = irr;
     debug_ = IncorrectReason();
     debug_ += " to blame: ";
-    FillDebugString(msg, choice, &debug_);
-    if (debug) tprintf("SetBlame(): %s", debug_.c_str());
+    FillDebugString(msg, choice, debug_);
+    if (debug)
+      tprintf("SetBlame(): %s", debug_.c_str());
   }
 
- private:
+private:
   // Set to true when bounding boxes for individual unichars are recorded.
   bool truth_has_char_boxes_;
   // Variables used by the segmentation search when looking for the blame.
@@ -327,13 +319,13 @@ struct BlamerBundle {
   // (filled in by WERD_RES::SetupForRecognition()).
   tesseract::BoxWord norm_truth_word_;
   // Contains ground truth unichar for each of the bounding boxes in truth_word.
-  std::vector<STRING> truth_text_;
+  std::vector<std::string> truth_text_;
   // The reason for incorrect OCR result.
   IncorrectResultReason incorrect_result_reason_;
   // Debug text associated with the blame.
-  STRING debug_;
+  std::string debug_;
   // Misadaption debug information (filled in if this word was misadapted to).
-  STRING misadaption_debug_;
+  std::string misadaption_debug_;
   // Vectors populated by SegSearch to indicate column and row indices that
   // correspond to blobs with correct bounding boxes.
   std::vector<int> correct_segmentation_cols_;
@@ -341,15 +333,15 @@ struct BlamerBundle {
   // Best rating for correctly segmented path
   // (set and used by SegSearch when looking for blame).
   float best_correctly_segmented_rating_;
-  int lattice_size_;  // size of lattice_data in bytes
+  int lattice_size_; // size of lattice_data in bytes
   // Serialized segmentation search lattice.
   char *lattice_data_;
   // Information about hypotheses (paths) explored by the segmentation search.
 #ifndef DISABLED_LEGACY_ENGINE
   tesseract::ParamsTrainingBundle params_training_bundle_;
-#endif  // ndef DISABLED_LEGACY_ENGINE
+#endif // ndef DISABLED_LEGACY_ENGINE
 };
 
 } // namespace tesseract
 
-#endif  // TESSERACT_CCSTRUCT_BLAMER_H_
+#endif // TESSERACT_CCSTRUCT_BLAMER_H_

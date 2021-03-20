@@ -16,13 +16,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "common/commontraining.h"     // CheckSharedLibraryVersion
+#include "common/commontraining.h" // CheckSharedLibraryVersion
 #include "unicharset.h"
 
 #ifdef TESSERACT_STANDALONE
-extern "C" int main(int argc, const char** argv)
+extern "C" int main(int argc, const char **argv)
 #else
-extern "C" int tesseract_merge_unicharsets_main(int argc, const char** argv)
+extern "C" int tesseract_merge_unicharsets_main(int argc, const char **argv)
 #endif
 {
   tesseract::CheckSharedLibraryVersion();
@@ -32,9 +32,10 @@ extern "C" int tesseract_merge_unicharsets_main(int argc, const char** argv)
     return 0;
   } else if (argc < 4) {
     // Print usage
-    printf("Usage: %s -v | --version |\n"
-           "       %s unicharset-in-1 ... unicharset-in-n unicharset-out\n",
-           argv[0], argv[0]);
+    printf(
+        "Usage: %s -v | --version |\n"
+        "       %s unicharset-in-1 ... unicharset-in-n unicharset-out\n",
+        argv[0], argv[0]);
     return 1;
   }
 
@@ -42,8 +43,7 @@ extern "C" int tesseract_merge_unicharsets_main(int argc, const char** argv)
   for (int arg = 1; arg < argc - 1; ++arg) {
     // Load the input unicharset
     if (input_unicharset.load_from_file(argv[arg])) {
-      printf("Loaded unicharset of size %d from file %s\n",
-             input_unicharset.size(), argv[arg]);
+      printf("Loaded unicharset of size %d from file %s\n", input_unicharset.size(), argv[arg]);
       result_unicharset.AppendOtherUnicharset(input_unicharset);
     } else {
       printf("Failed to load unicharset from file %s!!\n", argv[arg]);

@@ -20,7 +20,7 @@
 #ifndef PLOTEDGES_H
 #define PLOTEDGES_H
 
-#include "oldlist.h"  // for LIST
+#include "oldlist.h" // for LIST
 
 namespace tesseract {
 
@@ -32,7 +32,7 @@ struct TBLOB;
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern ScrollView *edge_window;        /* Window for edges */
+extern ScrollView *edge_window; /* Window for edges */
 
 /*----------------------------------------------------------------------
               F u n c t i o n s

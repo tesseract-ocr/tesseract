@@ -17,7 +17,7 @@
 
 #include <tesseract/export.h>
 
-#include <cstdio>       // for FILE
+#include <cstdio> // for FILE
 
 /**
  * fscanf variant to ensure correct reading regardless of locale.
@@ -31,6 +31,6 @@
  */
 TESS_API
 __attribute__((format(scanf, 2, 3)))
-int tfscanf(FILE* stream, const char *format, ...);
+int tfscanf(FILE *stream, const char *format, ...);
 
-#endif  // TESSERACT_CCUTIL_SCANUTILS_H_
+#endif // TESSERACT_CCUTIL_SCANUTILS_H_

@@ -18,9 +18,9 @@
 #ifndef OUTFEAT_H
 #define OUTFEAT_H
 
-#include "ocrfeatures.h"
 #include "fpoint.h"
 #include "mfoutline.h"
+#include "ocrfeatures.h"
 
 namespace tesseract {
 
@@ -31,14 +31,12 @@ typedef enum {
   OutlineFeatDir
 } OUTLINE_FEAT_PARAM_NAME;
 
-#define MAX_OUTLINE_FEATURES  (100)
+#define MAX_OUTLINE_FEATURES (100)
 
 /*---------------------------------------------------------------------------
           Privat Function Prototypes
 ----------------------------------------------------------------------------*/
-void AddOutlineFeatureToSet(FPOINT *Start,
-                            FPOINT *End,
-                            FEATURE_SET FeatureSet);
+void AddOutlineFeatureToSet(FPOINT *Start, FPOINT *End, FEATURE_SET FeatureSet);
 
 void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet);
 

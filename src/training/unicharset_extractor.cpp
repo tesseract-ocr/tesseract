@@ -20,15 +20,14 @@
 // normalizes the text according to command-line options and generates
 // a unicharset.
 
+#include <cstdlib>
 #include "boxread.h"
 #include "common/commandlineflags.h"
 #include "common/commontraining.h"     // CheckSharedLibraryVersion
 #include "unicharset/lang_model_helpers.h"
 #include "unicharset/normstrngs.h"
-#include "strngs.h"
 #include "unicharset.h"
 #include "unicharset/unicharset_training_utils.h"
-#include <cstdlib>
 
 #if defined(HAS_LIBICU)
 
@@ -43,18 +42,17 @@ namespace tesseract {
 
 // Helper normalizes and segments the given strings according to norm_mode, and
 // adds the segmented parts to unicharset.
-static void AddStringsToUnicharset(const std::vector<STRING>& strings,
-                                   int norm_mode, UNICHARSET* unicharset) {
+static void AddStringsToUnicharset(const std::vector<std::string> &strings, int norm_mode,
+                                   UNICHARSET *unicharset) {
   for (int i = 0; i < strings.size(); ++i) {
     std::vector<std::string> normalized;
     if (NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                      static_cast<GraphemeNormMode>(norm_mode),
-                                     /*report_errors*/ true,
-                                     strings[i].c_str(), &normalized)) {
-      for (const std::string& normed : normalized) {
-
-       // normed is a UTF-8 encoded string
-        if (normed.empty() || IsUTF8Whitespace(normed.c_str())) continue;
+                                     /*report_errors*/ true, strings[i].c_str(), &normalized)) {
+      for (const std::string &normed : normalized) {
+        // normed is a UTF-8 encoded string
+        if (normed.empty() || IsUTF8Whitespace(normed.c_str()))
+          continue;
         unicharset->unichar_insert(normed.c_str());
       }
     } else {
@@ -63,43 +61,42 @@ static void AddStringsToUnicharset(const std::vector<STRING>& strings,
   }
 }
 
-static int Main(int argc, const char** argv) {
+static int Main(int argc, const char **argv) {
   UNICHARSET unicharset;
   // Load input files
   for (int arg = 1; arg < argc; ++arg) {
-    STRING file_data = tesseract::ReadFile(argv[arg], /*reader*/ nullptr);
-    if (file_data.length() == 0) continue;
-    std::vector<STRING> texts;
+    std::string file_data = tesseract::ReadFile(argv[arg]);
+    if (file_data.length() == 0)
+      continue;
+    std::vector<std::string> texts;
     if (ReadMemBoxes(-1, /*skip_blanks*/ true, &file_data[0],
-                     /*continue_on_failure*/ false, /*boxes*/ nullptr,
-                     &texts, /*box_texts*/ nullptr, /*pages*/ nullptr)) {
+                     /*continue_on_failure*/ false, /*boxes*/ nullptr, &texts,
+                     /*box_texts*/ nullptr, /*pages*/ nullptr)) {
       tprintf("Extracting unicharset from box file %s\n", argv[arg]);
     } else {
       tprintf("Extracting unicharset from plain text file %s\n", argv[arg]);
       texts.clear();
-      file_data.split('\n', &texts);
+      texts = split(file_data, '\n');
     }
     AddStringsToUnicharset(texts, FLAGS_norm_mode, &unicharset);
   }
-  SetupBasicProperties(/*report_errors*/ true, /*decompose*/ false,
-                       &unicharset);
+  SetupBasicProperties(/*report_errors*/ true, /*decompose*/ false, &unicharset);
   // Write unicharset file.
   if (unicharset.save_to_file(FLAGS_output_unicharset.c_str())) {
     tprintf("Wrote unicharset file %s\n", FLAGS_output_unicharset.c_str());
   } else {
-    tprintf("Cannot save unicharset file %s\n",
-            FLAGS_output_unicharset.c_str());
+    tprintf("Cannot save unicharset file %s\n", FLAGS_output_unicharset.c_str());
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }
 
-}  // namespace tesseract
+} // namespace tesseract
 
 #ifdef TESSERACT_STANDALONE
-extern "C" int main(int argc, const char** argv)
+extern "C" int main(int argc, const char **argv)
 #else
-extern "C" int tesseract_unicharset_extractor_main(int argc, const char** argv)
+extern "C" int tesseract_unicharset_extractor_main(int argc, const char **argv)
 #endif
 {
   tesseract::CheckSharedLibraryVersion();

@@ -26,6 +26,6 @@ namespace tesseract {
 extern const char kUniversalAmbigsFile[];
 extern const int ksizeofUniversalAmbigsFile;
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_CCUTIL_UNIVERSALAMBIGS_H_
+#endif // TESSERACT_CCUTIL_UNIVERSALAMBIGS_H_

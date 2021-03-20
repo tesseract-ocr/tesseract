@@ -28,17 +28,17 @@ namespace tesseract {
 /* define the maximum number of classes defined for any matcher
   and the maximum class id for any matcher. This must be changed
   if more different classes need to be classified */
-#define MAX_NUM_CLASSES   INT16_MAX
+#define MAX_NUM_CLASSES INT16_MAX
 
 /** a CLASS_ID is the ascii character to be associated with a class */
 using CLASS_ID = UNICHAR_ID;
-#define NO_CLASS      (0)
+#define NO_CLASS (0)
 
 /** a PROTO_ID is the index of a prototype within it's class.  Valid proto
   id's are 0 to N-1 where N is the number of prototypes that make up the
   class. */
 using PROTO_ID = int16_t;
-#define NO_PROTO  (-1)
+#define NO_PROTO (-1)
 
 /** FEATURE_ID is the index of a feature within a character description
   The feature id ranges from 0 to N-1 where N is the number

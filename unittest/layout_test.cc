@@ -16,57 +16,59 @@
 
 #include <allheaders.h>
 #include <tesseract/baseapi.h>
+#include <tesseract/resultiterator.h>
 #include "coutln.h"
-#include "log.h"                        // for LOG
+#include "log.h" // for LOG
 #include "mutableiterator.h"
-#include "ocrblock.h"                   // for class BLOCK
+#include "ocrblock.h" // for class BLOCK
 #include "pageres.h"
 #include "polyblk.h"
-#include <tesseract/resultiterator.h>
 #include "stepblob.h"
 
 namespace tesseract {
 
 /** String name for each block type. Keep in sync with PolyBlockType. */
-static const char* kPolyBlockNames[] = {
-  "Unknown",
-  "Flowing Text",
-  "Heading Text",
-  "Pullout Text",
-  "Equation",
-  "Inline Equation",
-  "Table",
-  "Vertical Text",
-  "Caption Text",
-  "Flowing Image",
-  "Heading Image",
-  "Pullout Image",
-  "Horizontal Line",
-  "Vertical Line",
-  "Noise",
-  ""  // End marker for testing that sizes match.
+static const char *kPolyBlockNames[] = {
+    "Unknown",
+    "Flowing Text",
+    "Heading Text",
+    "Pullout Text",
+    "Equation",
+    "Inline Equation",
+    "Table",
+    "Vertical Text",
+    "Caption Text",
+    "Flowing Image",
+    "Heading Image",
+    "Pullout Image",
+    "Horizontal Line",
+    "Vertical Line",
+    "Noise",
+    "" // End marker for testing that sizes match.
 };
 
-const char* kStrings8087_054[] = {
-    "dat", "Dalmatian", "", "DAMAGED DURING", "margarine,", nullptr};
-const PolyBlockType kBlocks8087_054[] = {PT_HEADING_TEXT, PT_FLOWING_TEXT,
-                                         PT_PULLOUT_IMAGE, PT_CAPTION_TEXT,
-                                         PT_FLOWING_TEXT};
+const char *kStrings8087_054[] = {"dat", "Dalmatian", "", "DAMAGED DURING", "margarine,", nullptr};
+const PolyBlockType kBlocks8087_054[] = {PT_HEADING_TEXT, PT_FLOWING_TEXT, PT_PULLOUT_IMAGE,
+                                         PT_CAPTION_TEXT, PT_FLOWING_TEXT};
 
 // The fixture for testing Tesseract.
 class LayoutTest : public testing::Test {
- protected:
-  std::string TestDataNameToPath(const std::string& name) {
+protected:
+  std::string TestDataNameToPath(const std::string &name) {
     return file::JoinPath(TESTING_DIR, "/" + name);
   }
   std::string TessdataPath() {
     return file::JoinPath(TESSDATA_DIR, "");
   }
 
-  LayoutTest() { src_pix_ = nullptr; }
-  ~LayoutTest() { pixDestroy(&src_pix_); }
+  LayoutTest() {
+    src_pix_ = nullptr;
+  }
+  ~LayoutTest() {
+    pixDestroy(&src_pix_);
+  }
 
-  void SetImage(const char* filename, const char* lang) {
+  void SetImage(const char *filename, const char *lang) {
     pixDestroy(&src_pix_);
     src_pix_ = pixRead(TestDataNameToPath(filename).c_str());
     api_.Init(TessdataPath().c_str(), lang, tesseract::OEM_TESSERACT_ONLY);
@@ -79,24 +81,23 @@ class LayoutTest : public testing::Test {
   // allowing for other blocks in between.
   // An empty string should match an image block, and a nullptr string
   // indicates the end of the array.
-  void VerifyBlockTextOrder(const char* strings[], const PolyBlockType* blocks,
-                            ResultIterator* it) {
+  void VerifyBlockTextOrder(const char *strings[], const PolyBlockType *blocks,
+                            ResultIterator *it) {
     it->Begin();
     int string_index = 0;
     int block_index = 0;
     do {
-      char* block_text = it->GetUTF8Text(tesseract::RIL_BLOCK);
+      char *block_text = it->GetUTF8Text(tesseract::RIL_BLOCK);
       if (block_text != nullptr && it->BlockType() == blocks[string_index] &&
           strstr(block_text, strings[string_index]) != nullptr) {
-        LOG(INFO) << "Found string " << strings[string_index]
-          << " in block " << block_index
-          << " of type " << kPolyBlockNames[blocks[string_index]] << "\n";
+        LOG(INFO) << "Found string " << strings[string_index] << " in block " << block_index
+                  << " of type " << kPolyBlockNames[blocks[string_index]] << "\n";
         // Found this one.
         ++string_index;
-      } else if (it->BlockType() == blocks[string_index] &&
-                 block_text == nullptr && strings[string_index][0] == '\0') {
-        LOG(INFO) << "Found block of type " << kPolyBlockNames[blocks[string_index]]
-           << " at block " << block_index << "\n";
+      } else if (it->BlockType() == blocks[string_index] && block_text == nullptr &&
+                 strings[string_index][0] == '\0') {
+        LOG(INFO) << "Found block of type " << kPolyBlockNames[blocks[string_index]] << " at block "
+                  << block_index << "\n";
         // Found this one.
         ++string_index;
       } else {
@@ -104,7 +105,8 @@ class LayoutTest : public testing::Test {
       }
       delete[] block_text;
       ++block_index;
-      if (strings[string_index] == nullptr) break;
+      if (strings[string_index] == nullptr)
+        break;
     } while (it->Next(tesseract::RIL_BLOCK));
     EXPECT_TRUE(strings[string_index] == nullptr);
   }
@@ -114,7 +116,7 @@ class LayoutTest : public testing::Test {
   // If a block overlaps its predecessor in x, then it must be below it.
   // otherwise, if the block is not below its predecessor, then it must
   // be to the left of it if right_to_left is true, or to the right otherwise.
-  void VerifyRoughBlockOrder(bool right_to_left, ResultIterator* it) {
+  void VerifyRoughBlockOrder(bool right_to_left, ResultIterator *it) {
     int prev_left = 0;
     int prev_right = 0;
     int prev_bottom = 0;
@@ -122,8 +124,7 @@ class LayoutTest : public testing::Test {
     do {
       int left, top, right, bottom;
       if (it->BoundingBox(tesseract::RIL_BLOCK, &left, &top, &right, &bottom) &&
-          PTIsTextType(it->BlockType()) && right - left > 800 &&
-          bottom - top > 200) {
+          PTIsTextType(it->BlockType()) && right - left > 800 && bottom - top > 200) {
         if (prev_right > prev_left) {
           if (std::min(right, prev_right) > std::max(left, prev_left)) {
             EXPECT_GE(top, prev_bottom) << "Overlapping block should be below";
@@ -145,15 +146,14 @@ class LayoutTest : public testing::Test {
   // Tests that every blob assigned to the biggest text blocks is contained
   // fully within its block by testing that the block polygon winds around
   // the center of the bounding boxes of the outlines in the blob.
-  void VerifyTotalContainment(int winding_target, MutableIterator* it) {
+  void VerifyTotalContainment(int winding_target, MutableIterator *it) {
     it->Begin();
     do {
       int left, top, right, bottom;
       if (it->BoundingBox(tesseract::RIL_BLOCK, &left, &top, &right, &bottom) &&
-          PTIsTextType(it->BlockType()) && right - left > 800 &&
-          bottom - top > 200) {
-        const PAGE_RES_IT* pr_it = it->PageResIt();
-        POLY_BLOCK* pb = pr_it->block()->block->pdblk.poly_block();
+          PTIsTextType(it->BlockType()) && right - left > 800 && bottom - top > 200) {
+        const PAGE_RES_IT *pr_it = it->PageResIt();
+        POLY_BLOCK *pb = pr_it->block()->block->pdblk.poly_block();
         CHECK(pb != nullptr);
         FCOORD skew = pr_it->block()->block->skew();
         EXPECT_GT(skew.x(), 0.0f);
@@ -161,18 +161,17 @@ class LayoutTest : public testing::Test {
         // Iterate the words in the block.
         MutableIterator word_it = *it;
         do {
-          const PAGE_RES_IT* w_it = word_it.PageResIt();
+          const PAGE_RES_IT *w_it = word_it.PageResIt();
           // Iterate the blobs in the word.
           C_BLOB_IT b_it(w_it->word()->word->cblob_list());
           for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
-            C_BLOB* blob = b_it.data();
+            C_BLOB *blob = b_it.data();
             // Iterate the outlines in the blob.
             C_OUTLINE_IT ol_it(blob->out_list());
             for (ol_it.mark_cycle_pt(); !ol_it.cycled_list(); ol_it.forward()) {
-              C_OUTLINE* ol = ol_it.data();
+              C_OUTLINE *ol = ol_it.data();
               TBOX box = ol->bounding_box();
-              ICOORD middle((box.left() + box.right()) / 2,
-                            (box.top() + box.bottom()) / 2);
+              ICOORD middle((box.left() + box.right()) / 2, (box.top() + box.bottom()) / 2);
               EXPECT_EQ(winding_target, pb->winding_number(middle));
             }
           }
@@ -182,7 +181,7 @@ class LayoutTest : public testing::Test {
     } while (it->Next(tesseract::RIL_BLOCK));
   }
 
-  Pix* src_pix_;
+  Pix *src_pix_;
   std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };
@@ -202,7 +201,7 @@ TEST_F(LayoutTest, UNLV8087_054) {
   // Just run recognition.
   EXPECT_EQ(api_.Recognize(nullptr), 0);
   // Check iterator position.
-  tesseract::ResultIterator* it = api_.GetIterator();
+  tesseract::ResultIterator *it = api_.GetIterator();
   VerifyBlockTextOrder(kStrings8087_054, kBlocks8087_054, it);
   delete it;
 }
@@ -214,7 +213,7 @@ TEST_F(LayoutTest, HebrewOrderingAndSkew) {
   SetImage("hebrew.png", "eng");
   // Just run recognition.
   EXPECT_EQ(api_.Recognize(nullptr), 0);
-  tesseract::MutableIterator* it = api_.GetMutableIterator();
+  tesseract::MutableIterator *it = api_.GetMutableIterator();
   // In eng mode, block order should not be RTL.
   VerifyRoughBlockOrder(false, it);
   VerifyTotalContainment(1, it);
@@ -231,4 +230,4 @@ TEST_F(LayoutTest, HebrewOrderingAndSkew) {
   delete it;
 }
 
-}  // namespace
+} // namespace tesseract

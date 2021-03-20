@@ -22,38 +22,41 @@ const int kPrimeLimit = 1000;
 namespace tesseract {
 
 class BitVectorTest : public testing::Test {
- protected:
+protected:
   void SetUp() override {
     std::locale::global(std::locale(""));
     file::MakeTmpdir();
   }
 
- public:
-  std::string OutputNameToPath(const std::string& name) {
+public:
+  std::string OutputNameToPath(const std::string &name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
   // Computes primes up to kPrimeLimit, using the sieve of Eratosthenes.
-  void ComputePrimes(BitVector* map) {
+  void ComputePrimes(BitVector *map) {
     map->Init(kPrimeLimit + 1);
     TestAll(*map, false);
     map->SetBit(2);
     // Set all the odds to true.
-    for (int i = 3; i <= kPrimeLimit; i += 2) map->SetValue(i, true);
+    for (int i = 3; i <= kPrimeLimit; i += 2)
+      map->SetValue(i, true);
     int factor_limit = static_cast<int>(sqrt(1.0 + kPrimeLimit));
     for (int f = 3; f <= factor_limit; f += 2) {
       if (map->At(f)) {
-        for (int m = 2; m * f <= kPrimeLimit; ++m) map->ResetBit(f * m);
+        for (int m = 2; m * f <= kPrimeLimit; ++m)
+          map->ResetBit(f * m);
       }
     }
   }
 
-  void TestPrimes(const BitVector& map) {
+  void TestPrimes(const BitVector &map) {
     // Now all primes in the vector are true, and all others false.
     // According to Wikipedia, there are 168 primes under 1000, the last
     // of which is 997.
     int total_primes = 0;
     for (int i = 0; i <= kPrimeLimit; ++i) {
-      if (map[i]) ++total_primes;
+      if (map[i])
+        ++total_primes;
     }
     EXPECT_EQ(168, total_primes);
     EXPECT_TRUE(map[997]);
@@ -61,7 +64,7 @@ class BitVectorTest : public testing::Test {
     EXPECT_FALSE(map[999]);
   }
   // Test that all bits in the vector have the given value.
-  void TestAll(const BitVector& map, bool value) {
+  void TestAll(const BitVector &map, bool value) {
     for (int i = 0; i < map.size(); ++i) {
       EXPECT_EQ(value, map[i]);
     }
@@ -70,7 +73,7 @@ class BitVectorTest : public testing::Test {
   // Sets up a BitVector with bit patterns for byte values in
   // [start_byte, end_byte) positioned every spacing bytes (for spacing >= 1)
   // with spacing-1  zero bytes in between the pattern bytes.
-  void SetBitPattern(int start_byte, int end_byte, int spacing, BitVector* bv) {
+  void SetBitPattern(int start_byte, int end_byte, int spacing, BitVector *bv) {
     bv->Init((end_byte - start_byte) * 8 * spacing);
     for (int byte_value = start_byte; byte_value < end_byte; ++byte_value) {
       for (int bit = 0; bit < 8; ++bit) {
@@ -82,7 +85,7 @@ class BitVectorTest : public testing::Test {
 
   // Expects that every return from NextSetBit is really set and that all others
   // are really not set. Checks the return from NumSetBits also.
-  void ExpectCorrectBits(const BitVector& bv) {
+  void ExpectCorrectBits(const BitVector &bv) {
     int bit_index = -1;
     int prev_bit_index = -1;
     int num_bits_tested = 0;
@@ -119,7 +122,7 @@ TEST_F(BitVectorTest, Primes) {
   TestPrimes(map3);
   // Test file i/o too.
   std::string filename = OutputNameToPath("primesbitvector");
-  FILE* fp = fopen(filename.c_str(), "wb");
+  FILE *fp = fopen(filename.c_str(), "wb");
   ASSERT_TRUE(fp != nullptr);
   EXPECT_TRUE(map.Serialize(fp));
   fclose(fp);
@@ -163,4 +166,4 @@ TEST_F(BitVectorTest, TestNumSetBits) {
   }
 }
 
-}  // namespace.
+} // namespace tesseract

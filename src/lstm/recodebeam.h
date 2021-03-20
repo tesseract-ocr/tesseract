@@ -20,6 +20,11 @@
 #ifndef THIRD_PARTY_TESSERACT_LSTM_RECODEBEAM_H_
 #define THIRD_PARTY_TESSERACT_LSTM_RECODEBEAM_H_
 
+#include <deque>
+#include <set>
+#include <tuple>
+#include <unordered_set>
+#include <vector>
 #include "dawg.h"
 #include "dict.h"
 #include "genericheap.h"
@@ -27,11 +32,6 @@
 #include "networkio.h"
 #include "ratngs.h"
 #include "unicharcompress.h"
-#include <deque>
-#include <set>
-#include <tuple>
-#include <vector>
-#include <unordered_set>
 
 namespace tesseract {
 
@@ -71,72 +71,74 @@ namespace tesseract {
 // node, and constrain what can follow, to enforce the rules explained above.
 // We therefore have 3 different types of node determined by what can follow:
 enum NodeContinuation {
-  NC_ANYTHING,  // This node used just its own score, so anything can follow.
-  NC_ONLY_DUP,  // The current node combined another score with the score for
-                // itself, without a stand-alone duplicate before, so must be
-                // followed by a stand-alone duplicate.
-  NC_NO_DUP,    // The current node combined another score with the score for
-                // itself, after a stand-alone, so can only be followed by
-                // something other than a duplicate of the current node.
+  NC_ANYTHING, // This node used just its own score, so anything can follow.
+  NC_ONLY_DUP, // The current node combined another score with the score for
+               // itself, without a stand-alone duplicate before, so must be
+               // followed by a stand-alone duplicate.
+  NC_NO_DUP,   // The current node combined another score with the score for
+               // itself, after a stand-alone, so can only be followed by
+               // something other than a duplicate of the current node.
   NC_COUNT
 };
 
 // Enum describing the top-n status of a code.
 enum TopNState {
-  TN_TOP2,      // Winner or 2nd.
-  TN_TOPN,      // Runner up in top-n, but not 1st or 2nd.
-  TN_ALSO_RAN,  // Not in the top-n.
+  TN_TOP2,     // Winner or 2nd.
+  TN_TOPN,     // Runner up in top-n, but not 1st or 2nd.
+  TN_ALSO_RAN, // Not in the top-n.
   TN_COUNT
 };
 
 // Lattice element for Re-encode beam search.
 struct RecodeNode {
   RecodeNode()
-      : code(-1),
-        unichar_id(INVALID_UNICHAR_ID),
-        permuter(TOP_CHOICE_PERM),
-        start_of_dawg(false),
-        start_of_word(false),
-        end_of_word(false),
-        duplicate(false),
-        certainty(0.0f),
-        score(0.0f),
-        prev(nullptr),
-        dawgs(nullptr),
-        code_hash(0) {}
-  RecodeNode(int c, int uni_id, PermuterType perm, bool dawg_start,
-             bool word_start, bool end, bool dup, float cert, float s,
-             const RecodeNode* p, DawgPositionVector* d, uint64_t hash)
-      : code(c),
-        unichar_id(uni_id),
-        permuter(perm),
-        start_of_dawg(dawg_start),
-        start_of_word(word_start),
-        end_of_word(end),
-        duplicate(dup),
-        certainty(cert),
-        score(s),
-        prev(p),
-        dawgs(d),
-        code_hash(hash) {}
+      : code(-1)
+      , unichar_id(INVALID_UNICHAR_ID)
+      , permuter(TOP_CHOICE_PERM)
+      , start_of_dawg(false)
+      , start_of_word(false)
+      , end_of_word(false)
+      , duplicate(false)
+      , certainty(0.0f)
+      , score(0.0f)
+      , prev(nullptr)
+      , dawgs(nullptr)
+      , code_hash(0) {}
+  RecodeNode(int c, int uni_id, PermuterType perm, bool dawg_start, bool word_start, bool end,
+             bool dup, float cert, float s, const RecodeNode *p, DawgPositionVector *d,
+             uint64_t hash)
+      : code(c)
+      , unichar_id(uni_id)
+      , permuter(perm)
+      , start_of_dawg(dawg_start)
+      , start_of_word(word_start)
+      , end_of_word(end)
+      , duplicate(dup)
+      , certainty(cert)
+      , score(s)
+      , prev(p)
+      , dawgs(d)
+      , code_hash(hash) {}
   // NOTE: If we could use C++11, then this would be a move constructor.
   // Instead we have copy constructor that does a move!! This is because we
   // don't want to copy the whole DawgPositionVector each time, and true
   // copying isn't necessary for this struct. It does get moved around a lot
   // though inside the heap and during heap push, hence the move semantics.
-  RecodeNode(const RecodeNode& src) : dawgs(nullptr) {
+  RecodeNode(const RecodeNode &src) : dawgs(nullptr) {
     *this = src;
     ASSERT_HOST(src.dawgs == nullptr);
   }
-  RecodeNode& operator=(const RecodeNode& src) {
+  RecodeNode &operator=(const RecodeNode &src) {
     delete dawgs;
     memcpy(this, &src, sizeof(src));
-    ((RecodeNode&)src).dawgs = nullptr;
+    ((RecodeNode &)src).dawgs = nullptr;
     return *this;
   }
-  ~RecodeNode() { delete dawgs; }
+  ~RecodeNode() {
+    delete dawgs;
+  }
   // Prints details of the node.
-  void Print(int null_char, const UNICHARSET& unicharset, int depth) const;
+  void Print(int null_char, const UNICHARSET &unicharset, int depth) const;
 
   // The re-encoded code here = index to network output.
   int code;
@@ -165,9 +167,9 @@ struct RecodeNode {
   // Total certainty of the path to this position.
   float score;
   // The previous node in this chain. Borrowed pointer.
-  const RecodeNode* prev;
+  const RecodeNode *prev;
   // The currently active dawgs at this position. Owned pointer.
-  DawgPositionVector* dawgs;
+  DawgPositionVector *dawgs;
   // A hash of all codes in the prefix and this->code as well. Used for
   // duplicate path removal.
   uint64_t code_hash;
@@ -178,69 +180,59 @@ using RecodeHeap = GenericHeap<RecodePair>;
 
 // Class that holds the entire beam search for recognition of a text line.
 class TESS_API RecodeBeamSearch {
- public:
+public:
   // Borrows the pointer, which is expected to survive until *this is deleted.
-  RecodeBeamSearch(const UnicharCompress& recoder, int null_char,
-                   bool simple_text, Dict* dict);
+  RecodeBeamSearch(const UnicharCompress &recoder, int null_char, bool simple_text, Dict *dict);
+  ~RecodeBeamSearch();
 
   // Decodes the set of network outputs, storing the lattice internally.
   // If charset is not null, it enables detailed debugging of the beam search.
-  void Decode(const NetworkIO& output, double dict_ratio, double cert_offset,
-              double worst_dict_cert, const UNICHARSET* charset,
-              int lstm_choice_mode = 0);
-  void Decode(const GENERIC_2D_ARRAY<float>& output, double dict_ratio,
-              double cert_offset, double worst_dict_cert,
-              const UNICHARSET* charset);
+  void Decode(const NetworkIO &output, double dict_ratio, double cert_offset,
+              double worst_dict_cert, const UNICHARSET *charset, int lstm_choice_mode = 0);
+  void Decode(const GENERIC_2D_ARRAY<float> &output, double dict_ratio, double cert_offset,
+              double worst_dict_cert, const UNICHARSET *charset);
 
-  void DecodeSecondaryBeams(const NetworkIO& output, double dict_ratio,
-                            double cert_offset, double worst_dict_cert,
-                            const UNICHARSET* charset,
+  void DecodeSecondaryBeams(const NetworkIO &output, double dict_ratio, double cert_offset,
+                            double worst_dict_cert, const UNICHARSET *charset,
                             int lstm_choice_mode = 0);
 
   // Returns the best path as labels/scores/xcoords similar to simple CTC.
-  void ExtractBestPathAsLabels(std::vector<int>* labels,
-                               std::vector<int>* xcoords) const;
+  void ExtractBestPathAsLabels(std::vector<int> *labels, std::vector<int> *xcoords) const;
   // Returns the best path as unichar-ids/certs/ratings/xcoords skipping
   // duplicates, nulls and intermediate parts.
-  void ExtractBestPathAsUnicharIds(bool debug, const UNICHARSET* unicharset,
-                                   std::vector<int>* unichar_ids,
-                                   std::vector<float>* certs,
-                                   std::vector<float>* ratings,
-                                   std::vector<int>* xcoords) const;
+  void ExtractBestPathAsUnicharIds(bool debug, const UNICHARSET *unicharset,
+                                   std::vector<int> *unichar_ids, std::vector<float> *certs,
+                                   std::vector<float> *ratings, std::vector<int> *xcoords) const;
 
   // Returns the best path as a set of WERD_RES.
-  void ExtractBestPathAsWords(const TBOX& line_box, float scale_factor,
-                              bool debug, const UNICHARSET* unicharset,
-                              PointerVector<WERD_RES>* words,
+  void ExtractBestPathAsWords(const TBOX &line_box, float scale_factor, bool debug,
+                              const UNICHARSET *unicharset, PointerVector<WERD_RES> *words,
                               int lstm_choice_mode = 0);
 
   // Generates debug output of the content of the beams after a Decode.
-  void DebugBeams(const UNICHARSET& unicharset) const;
+  void DebugBeams(const UNICHARSET &unicharset) const;
 
   // Extract the best charakters from the current decode iteration and block
   // those symbols for the next iteration. In contrast to tesseracts standard
   // method to chose the best overall node chain, this methods looks at a short
   // node chain segmented by the character boundaries and chooses the best
   // option independent of the remaining node chain.
-  void extractSymbolChoices(const UNICHARSET* unicharset);
+  void extractSymbolChoices(const UNICHARSET *unicharset);
 
   // Generates debug output of the content of the beams after a Decode.
-  void PrintBeam2(bool uids, int num_outputs, const UNICHARSET* charset,
-                  bool secondary) const;
+  void PrintBeam2(bool uids, int num_outputs, const UNICHARSET *charset, bool secondary) const;
   // Segments the timestep bundle by the character_boundaries.
   void segmentTimestepsByCharacters();
-  std::vector<std::vector<std::pair<const char*, float>>>
+  std::vector<std::vector<std::pair<const char *, float>>>
   // Unions the segmented timestep character bundles to one big bundle.
   combineSegmentedTimesteps(
-      std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
-          segmentedTimesteps);
+      std::vector<std::vector<std::vector<std::pair<const char *, float>>>> *segmentedTimesteps);
   // Stores the alternative characters of every timestep together with their
   // probability.
-  std::vector< std::vector<std::pair<const char*, float>>> timesteps;
-  std::vector<std::vector<std::vector<std::pair<const char*, float>>>>
-      segmentedTimesteps;
+  std::vector<std::vector<std::pair<const char *, float>>> timesteps;
+  std::vector<std::vector<std::vector<std::pair<const char *, float>>>> segmentedTimesteps;
   // Stores the character choices found in the ctc algorithm
-  std::vector<std::vector<std::pair<const char*, float>>> ctc_choices;
+  std::vector<std::vector<std::pair<const char *, float>>> ctc_choices;
   // Stores all unicharids which are excluded for future iterations
   std::vector<std::unordered_set<int>> excludedUnichars;
   // Stores the character boundaries regarding timesteps.
@@ -256,7 +248,9 @@ class TESS_API RecodeBeamSearch {
   // of different lengths.
   static const int kNumBeams = 2 * NC_COUNT * kNumLengths;
   // Returns the relevant factor in the beams_ index.
-  static int LengthFromBeamsIndex(int index) { return index % kNumLengths; }
+  static int LengthFromBeamsIndex(int index) {
+    return index % kNumLengths;
+  }
   static NodeContinuation ContinuationFromBeamsIndex(int index) {
     return static_cast<NodeContinuation>((index / kNumLengths) % NC_COUNT);
   }
@@ -268,18 +262,18 @@ class TESS_API RecodeBeamSearch {
     return (is_dawg * NC_COUNT + cont) * kNumLengths + length;
   }
 
- private:
+private:
   // Struct for the Re-encode beam search. This struct holds the data for
-  // a single time-step position of the output. Use a PointerVector<RecodeBeam>
+  // a single time-step position of the output. Use a vector<RecodeBeam>
   // to hold all the timesteps and prevent reallocation of the individual heaps.
   struct RecodeBeam {
     // Resets to the initial state without deleting all the memory.
     void Clear() {
-      for (auto & beam : beams_) {
+      for (auto &beam : beams_) {
         beam.clear();
       }
       RecodeNode empty;
-      for (auto & best_initial_dawg : best_initial_dawgs_) {
+      for (auto &best_initial_dawg : best_initial_dawgs_) {
         best_initial_dawg = empty;
       }
     }
@@ -304,130 +298,111 @@ class TESS_API RecodeBeamSearch {
   using TopPair = KDPairInc<float, int>;
 
   // Generates debug output of the content of a single beam position.
-  void DebugBeamPos(const UNICHARSET& unicharset, const RecodeHeap& heap) const;
+  void DebugBeamPos(const UNICHARSET &unicharset, const RecodeHeap &heap) const;
 
   // Returns the given best_nodes as unichar-ids/certs/ratings/xcoords skipping
   // duplicates, nulls and intermediate parts.
-  static void ExtractPathAsUnicharIds(
-      const GenericVector<const RecodeNode*>& best_nodes,
-      std::vector<int>* unichar_ids, std::vector<float>* certs,
-      std::vector<float>* ratings, std::vector<int>* xcoords,
-      std::vector<int>* character_boundaries = nullptr);
+  static void ExtractPathAsUnicharIds(const std::vector<const RecodeNode *> &best_nodes,
+                                      std::vector<int> *unichar_ids, std::vector<float> *certs,
+                                      std::vector<float> *ratings, std::vector<int> *xcoords,
+                                      std::vector<int> *character_boundaries = nullptr);
 
   // Sets up a word with the ratings matrix and fake blobs with boxes in the
   // right places.
-  WERD_RES* InitializeWord(bool leading_space, const TBOX& line_box,
-                           int word_start, int word_end, float space_certainty,
-                           const UNICHARSET* unicharset,
-                           const std::vector<int>& xcoords,
-                           float scale_factor);
+  WERD_RES *InitializeWord(bool leading_space, const TBOX &line_box, int word_start, int word_end,
+                           float space_certainty, const UNICHARSET *unicharset,
+                           const std::vector<int> &xcoords, float scale_factor);
 
   // Fills top_n_flags_ with bools that are true iff the corresponding output
   // is one of the top_n.
-  void ComputeTopN(const float* outputs, int num_outputs, int top_n);
+  void ComputeTopN(const float *outputs, int num_outputs, int top_n);
 
-  void ComputeSecTopN(std::unordered_set<int>* exList,
-                      const float* outputs, int num_outputs, int top_n);
+  void ComputeSecTopN(std::unordered_set<int> *exList, const float *outputs, int num_outputs,
+                      int top_n);
 
   // Adds the computation for the current time-step to the beam. Call at each
   // time-step in sequence from left to right. outputs is the activation vector
   // for the current timestep.
-  void DecodeStep(const float* outputs, int t, double dict_ratio,
-                  double cert_offset, double worst_dict_cert,
-                  const UNICHARSET* charset, bool debug = false);
+  void DecodeStep(const float *outputs, int t, double dict_ratio, double cert_offset,
+                  double worst_dict_cert, const UNICHARSET *charset, bool debug = false);
 
-  void DecodeSecondaryStep(const float* outputs, int t, double dict_ratio,
-                  double cert_offset, double worst_dict_cert,
-                  const UNICHARSET* charset, bool debug = false);
+  void DecodeSecondaryStep(const float *outputs, int t, double dict_ratio, double cert_offset,
+                           double worst_dict_cert, const UNICHARSET *charset, bool debug = false);
 
   // Saves the most certain choices for the current time-step.
-  void SaveMostCertainChoices(const float* outputs, int num_outputs,
-                              const UNICHARSET* charset, int xCoord);
+  void SaveMostCertainChoices(const float *outputs, int num_outputs, const UNICHARSET *charset,
+                              int xCoord);
 
   // Calculates more accurate character boundaries which can be used to
   // provide more acurate alternative symbol choices.
-  static void calculateCharBoundaries(std::vector<int>* starts,
-                                      std::vector<int>* ends,
-                                      std::vector<int>* character_boundaries_,
-                                      int maxWidth);
+  static void calculateCharBoundaries(std::vector<int> *starts, std::vector<int> *ends,
+                                      std::vector<int> *character_boundaries_, int maxWidth);
 
   // Adds to the appropriate beams the legal (according to recoder)
   // continuations of context prev, which is from the given index to beams_,
   // using the given network outputs to provide scores to the choices. Uses only
   // those choices for which top_n_flags[code] == top_n_flag.
-  void ContinueContext(const RecodeNode* prev, int index, const float* outputs,
-                       TopNState top_n_flag, const UNICHARSET* unicharset,
-                       double dict_ratio, double cert_offset,
-                       double worst_dict_cert, RecodeBeam* step);
+  void ContinueContext(const RecodeNode *prev, int index, const float *outputs,
+                       TopNState top_n_flag, const UNICHARSET *unicharset, double dict_ratio,
+                       double cert_offset, double worst_dict_cert, RecodeBeam *step);
   // Continues for a new unichar, using dawg or non-dawg as per flag.
-  void ContinueUnichar(int code, int unichar_id, float cert,
-                       float worst_dict_cert, float dict_ratio, bool use_dawgs,
-                       NodeContinuation cont, const RecodeNode* prev,
-                       RecodeBeam* step);
+  void ContinueUnichar(int code, int unichar_id, float cert, float worst_dict_cert,
+                       float dict_ratio, bool use_dawgs, NodeContinuation cont,
+                       const RecodeNode *prev, RecodeBeam *step);
   // Adds a RecodeNode composed of the args to the correct heap in step if
   // unichar_id is a valid dictionary continuation of whatever is in prev.
   void ContinueDawg(int code, int unichar_id, float cert, NodeContinuation cont,
-                    const RecodeNode* prev, RecodeBeam* step);
+                    const RecodeNode *prev, RecodeBeam *step);
   // Sets the correct best_initial_dawgs_ with a RecodeNode composed of the args
   // if better than what is already there.
-  void PushInitialDawgIfBetter(int code, int unichar_id, PermuterType permuter,
-                               bool start, bool end, float cert,
-                               NodeContinuation cont, const RecodeNode* prev,
-                               RecodeBeam* step);
+  void PushInitialDawgIfBetter(int code, int unichar_id, PermuterType permuter, bool start,
+                               bool end, float cert, NodeContinuation cont, const RecodeNode *prev,
+                               RecodeBeam *step);
   // Adds a RecodeNode composed of the args to the correct heap in step for
   // partial unichar or duplicate if there is room or if better than the
   // current worst element if already full.
-  void PushDupOrNoDawgIfBetter(int length, bool dup, int code, int unichar_id,
-                               float cert, float worst_dict_cert,
-                               float dict_ratio, bool use_dawgs,
-                               NodeContinuation cont, const RecodeNode* prev,
-                               RecodeBeam* step);
+  void PushDupOrNoDawgIfBetter(int length, bool dup, int code, int unichar_id, float cert,
+                               float worst_dict_cert, float dict_ratio, bool use_dawgs,
+                               NodeContinuation cont, const RecodeNode *prev, RecodeBeam *step);
   // Adds a RecodeNode composed of the args to the correct heap in step if there
   // is room or if better than the current worst element if already full.
-  void PushHeapIfBetter(int max_size, int code, int unichar_id,
-                        PermuterType permuter, bool dawg_start, bool word_start,
-                        bool end, bool dup, float cert, const RecodeNode* prev,
-                        DawgPositionVector* d, RecodeHeap* heap);
+  void PushHeapIfBetter(int max_size, int code, int unichar_id, PermuterType permuter,
+                        bool dawg_start, bool word_start, bool end, bool dup, float cert,
+                        const RecodeNode *prev, DawgPositionVector *d, RecodeHeap *heap);
   // Adds a RecodeNode to heap if there is room
   // or if better than the current worst element if already full.
-  void PushHeapIfBetter(int max_size, RecodeNode* node, RecodeHeap* heap);
+  void PushHeapIfBetter(int max_size, RecodeNode *node, RecodeHeap *heap);
   // Searches the heap for an entry matching new_node, and updates the entry
   // with reshuffle if needed. Returns true if there was a match.
-  bool UpdateHeapIfMatched(RecodeNode* new_node, RecodeHeap* heap);
+  bool UpdateHeapIfMatched(RecodeNode *new_node, RecodeHeap *heap);
   // Computes and returns the code-hash for the given code and prev.
-  uint64_t ComputeCodeHash(int code, bool dup, const RecodeNode* prev) const;
+  uint64_t ComputeCodeHash(int code, bool dup, const RecodeNode *prev) const;
   // Backtracks to extract the best path through the lattice that was built
   // during Decode. On return the best_nodes vector essentially contains the set
   // of code, score pairs that make the optimal path with the constraint that
   // the recoder can decode the code sequence back to a sequence of unichar-ids.
-  void ExtractBestPaths(GenericVector<const RecodeNode*>* best_nodes,
-                        GenericVector<const RecodeNode*>* second_nodes) const;
+  void ExtractBestPaths(std::vector<const RecodeNode *> *best_nodes,
+                        std::vector<const RecodeNode *> *second_nodes) const;
   // Helper backtracks through the lattice from the given node, storing the
   // path and reversing it.
-  void ExtractPath(const RecodeNode* node,
-                   GenericVector<const RecodeNode*>* path) const;
-  void ExtractPath(const RecodeNode* node,
-                   GenericVector<const RecodeNode*>* path,
+  void ExtractPath(const RecodeNode *node, std::vector<const RecodeNode *> *path) const;
+  void ExtractPath(const RecodeNode *node, std::vector<const RecodeNode *> *path,
                    int limiter) const;
   // Helper prints debug information on the given lattice path.
-  void DebugPath(const UNICHARSET* unicharset,
-                 const GenericVector<const RecodeNode*>& path) const;
+  void DebugPath(const UNICHARSET *unicharset, const std::vector<const RecodeNode *> &path) const;
   // Helper prints debug information on the given unichar path.
-  void DebugUnicharPath(const UNICHARSET* unicharset,
-                        const GenericVector<const RecodeNode*>& path,
-                        const std::vector<int>& unichar_ids,
-                        const std::vector<float>& certs,
-                        const std::vector<float>& ratings,
-                        const std::vector<int>& xcoords) const;
+  void DebugUnicharPath(const UNICHARSET *unicharset, const std::vector<const RecodeNode *> &path,
+                        const std::vector<int> &unichar_ids, const std::vector<float> &certs,
+                        const std::vector<float> &ratings, const std::vector<int> &xcoords) const;
 
   static const int kBeamWidths[RecodedCharID::kMaxCodeLen + 1];
 
   // The encoder/decoder that we will be using.
-  const UnicharCompress& recoder_;
+  const UnicharCompress &recoder_;
   // The beam for each timestep in the output.
-  PointerVector<RecodeBeam> beam_;
+  std::vector<RecodeBeam *> beam_;
   // Secondary Beam for Results with less Probability
-  PointerVector<RecodeBeam> secondary_beam_;
+  std::vector<RecodeBeam *> secondary_beam_;
   // The number of timesteps valid in beam_;
   int beam_size_;
   // A flag to indicate which outputs are the top-n choices. Current timestep
@@ -439,7 +414,7 @@ class TESS_API RecodeBeamSearch {
   // Heap used to compute the top_n_flags_.
   GenericHeap<TopPair> top_heap_;
   // Borrowed pointer to the dictionary to use in the search.
-  Dict* dict_;
+  Dict *dict_;
   // True if the language is space-delimited, which is true for most languages
   // except chi*, jpn, tha.
   bool space_delimited_;
@@ -450,6 +425,6 @@ class TESS_API RecodeBeamSearch {
   int null_char_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // THIRD_PARTY_TESSERACT_LSTM_RECODEBEAM_H_
+#endif // THIRD_PARTY_TESSERACT_LSTM_RECODEBEAM_H_

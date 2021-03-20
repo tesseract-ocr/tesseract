@@ -16,7 +16,7 @@
 namespace tesseract {
 
 class TestableColPartition : public ColPartition {
- public:
+public:
   void SetColumnRange(int first, int last) {
     set_first_column(first);
     set_last_column(last);
@@ -24,7 +24,7 @@ class TestableColPartition : public ColPartition {
 };
 
 class ColPartitionTest : public testing::Test {
- protected:
+protected:
   void SetUp() {
     std::locale::global(std::locale(""));
   }
@@ -73,4 +73,4 @@ TEST_F(ColPartitionTest, IsInSameColumnAsPartialOverlap) {
   EXPECT_TRUE(b.IsInSameColumnAs(a));
 }
 
-}  // namespace
+} // namespace tesseract

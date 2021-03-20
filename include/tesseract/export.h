@@ -23,21 +23,21 @@
 #endif
 
 #ifndef TESS_API
-# if defined(_WIN32) || defined(__CYGWIN__)
-#  if defined(TESS_EXPORTS)
-#    define TESS_API __declspec(dllexport)
-#  elif defined(TESS_IMPORTS)
-#    define TESS_API __declspec(dllimport)
+#  if defined(_WIN32) || defined(__CYGWIN__)
+#    if defined(TESS_EXPORTS)
+#      define TESS_API __declspec(dllexport)
+#    elif defined(TESS_IMPORTS)
+#      define TESS_API __declspec(dllimport)
+#    else
+#      define TESS_API
+#    endif
 #  else
-#    define TESS_API
+#    if defined(TESS_EXPORTS) || defined(TESS_IMPORTS)
+#      define TESS_API __attribute__((visibility("default")))
+#    else
+#      define TESS_API
+#    endif
 #  endif
-# else
-#  if defined(TESS_EXPORTS) || defined(TESS_IMPORTS)
-#    define TESS_API __attribute__((visibility("default")))
-#  else
-#    define TESS_API
-#  endif
-# endif
 #endif
 
 #ifndef TESS_COMMON_TRAINING_API
@@ -76,4 +76,4 @@
 #endif /* _MSC_VER */
 
 
-#endif  // TESSERACT_PLATFORM_H_
+#endif // TESSERACT_PLATFORM_H_

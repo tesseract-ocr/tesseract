@@ -33,7 +33,7 @@ namespace tesseract {
 /// be useful for multiple calls to SetRectangle and ThresholdTo* if
 /// desired.
 class TESS_API ImageThresholder {
- public:
+public:
   ImageThresholder();
   virtual ~ImageThresholder();
 
@@ -51,8 +51,8 @@ class TESS_API ImageThresholder {
   /// Binary images of 1 bit per pixel may also be given but they must be
   /// byte packed with the MSB of the first byte being the first pixel, and a
   /// one pixel is WHITE. For binary images set bytes_per_pixel=0.
-  void SetImage(const unsigned char* imagedata, int width, int height,
-                int bytes_per_pixel, int bytes_per_line);
+  void SetImage(const unsigned char *imagedata, int width, int height, int bytes_per_pixel,
+                int bytes_per_line);
 
   /// Store the coordinates of the rectangle to process for later use.
   /// Doesn't actually do any thresholding.
@@ -62,8 +62,8 @@ class TESS_API ImageThresholder {
   /// original image (not just within the rectangle).
   /// Left and top are enough with top-down coordinates, but
   /// the height of the rectangle and the image are needed for bottom-up.
-  virtual void GetImageSizes(int* left, int* top, int* width, int* height,
-                             int* imagewidth, int* imageheight);
+  virtual void GetImageSizes(int *left, int *top, int *width, int *height, int *imagewidth,
+                             int *imageheight);
 
   /// Return true if the source image is color.
   bool IsColor() const {
@@ -111,13 +111,13 @@ class TESS_API ImageThresholder {
   /// SetImage for Pix clones its input, so the source pix may be pixDestroyed
   /// immediately after, but may not go away until after the Thresholder has
   /// finished with it.
-  void SetImage(const Pix* pix);
+  void SetImage(const Pix *pix);
 
   /// Threshold the source image as efficiently as possible to the output Pix.
   /// Creates a Pix and sets pix to point to the resulting pointer.
   /// Caller must use pixDestroy to free the created Pix.
   /// Returns false on error.
-  virtual bool ThresholdToPix(PageSegMode pageseg_mode, Pix** pix);
+  virtual bool ThresholdToPix(PageSegMode pageseg_mode, Pix **pix);
 
   // Gets a pix that contains an 8 bit threshold value at each pixel. The
   // returned pix may be an integer reduction of the binary image such that
@@ -126,22 +126,22 @@ class TESS_API ImageThresholder {
   // Ideally the 8 bit threshold should be the exact threshold used to generate
   // the binary image in ThresholdToPix, but this is not a hard constraint.
   // Returns nullptr if the input is binary. PixDestroy after use.
-  virtual Pix* GetPixRectThresholds();
+  virtual Pix *GetPixRectThresholds();
 
   /// Get a clone/copy of the source image rectangle.
   /// The returned Pix must be pixDestroyed.
   /// This function will be used in the future by the page layout analysis, and
   /// the layout analysis that uses it will only be available with Leptonica,
   /// so there is no raw equivalent.
-  Pix* GetPixRect();
+  Pix *GetPixRect();
 
   // Get a clone/copy of the source image rectangle, reduced to greyscale,
   // and at the same resolution as the output binary.
   // The returned Pix must be pixDestroyed.
   // Provided to the classifier to extract features from the greyscale image.
-  virtual Pix* GetPixRectGrey();
+  virtual Pix *GetPixRectGrey();
 
- protected:
+protected:
   // ----------------------------------------------------------------------
   // Utility functions that may be useful components for other thresholders.
 
@@ -155,34 +155,34 @@ class TESS_API ImageThresholder {
   }
 
   // Otsu thresholds the rectangle, taking the rectangle from *this.
-  void OtsuThresholdRectToPix(Pix* src_pix, Pix** out_pix) const;
+  void OtsuThresholdRectToPix(Pix *src_pix, Pix **out_pix) const;
 
   /// Threshold the rectangle, taking everything except the src_pix
   /// from the class, using thresholds/hi_values to the output pix.
   /// NOTE that num_channels is the size of the thresholds and hi_values
   // arrays and also the bytes per pixel in src_pix.
-  void ThresholdRectToPix(Pix* src_pix, int num_channels, const int* thresholds,
-                          const int* hi_values, Pix** pix) const;
+  void ThresholdRectToPix(Pix *src_pix, int num_channels, const int *thresholds,
+                          const int *hi_values, Pix **pix) const;
 
- protected:
+protected:
   /// Clone or other copy of the source Pix.
   /// The pix will always be PixDestroy()ed on destruction of the class.
-  Pix* pix_;
+  Pix *pix_;
 
-  int image_width_;   ///< Width of source pix_.
-  int image_height_;  ///< Height of source pix_.
-  int pix_channels_;  ///< Number of 8-bit channels in pix_.
-  int pix_wpl_;       ///< Words per line of pix_.
+  int image_width_;  ///< Width of source pix_.
+  int image_height_; ///< Height of source pix_.
+  int pix_channels_; ///< Number of 8-bit channels in pix_.
+  int pix_wpl_;      ///< Words per line of pix_.
   // Limits of image rectangle to be processed.
-  int scale_;          ///< Scale factor from original image.
-  int yres_;           ///< y pixels/inch in source image.
-  int estimated_res_;  ///< Resolution estimate from text size.
+  int scale_;         ///< Scale factor from original image.
+  int yres_;          ///< y pixels/inch in source image.
+  int estimated_res_; ///< Resolution estimate from text size.
   int rect_left_;
   int rect_top_;
   int rect_width_;
   int rect_height_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_CCMAIN_THRESHOLDER_H_
+#endif // TESSERACT_CCMAIN_THRESHOLDER_H_

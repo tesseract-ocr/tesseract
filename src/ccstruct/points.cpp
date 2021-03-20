@@ -16,7 +16,7 @@
  *
  **********************************************************************/
 
-#define _USE_MATH_DEFINES       // for M_PI
+#define _USE_MATH_DEFINES // for M_PI
 
 #include "points.h"
 
@@ -24,14 +24,14 @@
 #include "serialis.h"
 
 #include <algorithm>
-#include <cmath>                // for M_PI
+#include <cmath> // for M_PI
 #include <cstdlib>
 
 namespace tesseract {
 
-ELISTIZE (ICOORDELT)           //turn to list
-bool FCOORD::normalise() {  //Convert to unit vec
-  float len = length ();
+ELISTIZE(ICOORDELT)        // turn to list
+bool FCOORD::normalise() { // Convert to unit vec
+  float len = length();
 
   if (len < 0.0000000001) {
     return false;
@@ -41,11 +41,11 @@ bool FCOORD::normalise() {  //Convert to unit vec
   return true;
 }
 
-bool ICOORD::DeSerialize(TFile* f) {
+bool ICOORD::DeSerialize(TFile *f) {
   return f->DeSerialize(&xcoord) && f->DeSerialize(&ycoord);
 }
 
-bool ICOORD::Serialize(TFile* f) const {
+bool ICOORD::Serialize(TFile *f) const {
   return f->Serialize(&xcoord) && f->Serialize(&ycoord);
 }
 
@@ -70,15 +70,16 @@ static int sign(int x) {
 }
 
 // Writes to the given file. Returns false in case of error.
-bool ICOORD::Serialize(FILE* fp) const {
-  return tesseract::Serialize(fp, &xcoord) &&
-         tesseract::Serialize(fp, &ycoord);
+bool ICOORD::Serialize(FILE *fp) const {
+  return tesseract::Serialize(fp, &xcoord) && tesseract::Serialize(fp, &ycoord);
 }
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
-bool ICOORD::DeSerialize(bool swap, FILE* fp) {
-  if (!tesseract::DeSerialize(fp, &xcoord)) return false;
-  if (!tesseract::DeSerialize(fp, &ycoord)) return false;
+bool ICOORD::DeSerialize(bool swap, FILE *fp) {
+  if (!tesseract::DeSerialize(fp, &xcoord))
+    return false;
+  if (!tesseract::DeSerialize(fp, &ycoord))
+    return false;
   if (swap) {
     ReverseN(&xcoord, sizeof(xcoord));
     ReverseN(&ycoord, sizeof(ycoord));
@@ -92,8 +93,7 @@ bool ICOORD::DeSerialize(bool swap, FILE* fp) {
 // and then add minor to the accumulator. When the accumulator >= major
 // subtract major and step a minor step.
 
-void ICOORD::setup_render(ICOORD* major_step, ICOORD* minor_step,
-                          int* major, int* minor) const {
+void ICOORD::setup_render(ICOORD *major_step, ICOORD *minor_step, int *major, int *minor) const {
   int abs_x = abs(xcoord);
   int abs_y = abs(ycoord);
   if (abs_x >= abs_y) {
@@ -142,8 +142,7 @@ double FCOORD::angle_from_direction(uint8_t direction) {
 // Returns the point on the given line nearest to this, ie the point such
 // that the vector point->this is perpendicular to the line.
 // The line is defined as a line_point and a dir_vector for its direction.
-FCOORD FCOORD::nearest_pt_on_line(const FCOORD& line_point,
-                                  const FCOORD& dir_vector) const {
+FCOORD FCOORD::nearest_pt_on_line(const FCOORD &line_point, const FCOORD &dir_vector) const {
   FCOORD point_vector(*this - line_point);
   // The dot product (%) is |dir_vector||point_vector|cos theta, so dividing by
   // the square of the length of dir_vector gives us the fraction of dir_vector

@@ -5,7 +5,6 @@
 // Description: Double-ended pointer that keeps pointing correctly even
 //              when reallocated or copied.
 // Author:      Ray Smith
-// Created:     Wed Mar 14 12:22:57 PDT 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,37 +33,37 @@ namespace tesseract {
 // For this reason both the copy constructor and the operator= take a non-const
 // reference argument, and the const reference versions cannot be used.
 // DoublePtr is useful to incorporate into structures that are part of a
-// collection such as GenericVector or STL containers, where reallocs can
+// collection such as STL containers, where reallocs can
 // relocate the members. DoublePtr is also useful in a GenericHeap, where it
 // can correctly maintain the pointer to an element of the heap despite it
 // getting moved around on the heap.
 class DoublePtr {
- public:
+public:
   DoublePtr() : other_end_(nullptr) {}
   // Copy constructor steals the partner off src and is therefore a non
   // const reference arg.
   // Copying a const DoublePtr generates a compiler error.
-  DoublePtr(const DoublePtr& src) {
+  DoublePtr(const DoublePtr &src) {
     other_end_ = src.other_end_;
     if (other_end_ != nullptr) {
       other_end_->other_end_ = this;
-      ((DoublePtr&)src).other_end_ = nullptr;
+      ((DoublePtr &)src).other_end_ = nullptr;
     }
   }
   // Operator= steals the partner off src, and therefore needs src to be a non-
   // const reference.
   // Assigning from a const DoublePtr generates a compiler error.
-  void operator=(const DoublePtr& src) {
+  void operator=(const DoublePtr &src) {
     Disconnect();
     other_end_ = src.other_end_;
     if (other_end_ != nullptr) {
       other_end_->other_end_ = this;
-      ((DoublePtr&)src).other_end_ = nullptr;
+      ((DoublePtr &)src).other_end_ = nullptr;
     }
   }
 
   // Connects this and other, discarding any existing connections.
-  void Connect(DoublePtr* other) {
+  void Connect(DoublePtr *other) {
     other->Disconnect();
     Disconnect();
     other->other_end_ = this;
@@ -78,16 +77,16 @@ class DoublePtr {
     }
   }
   // Returns the pointer to the other end of the double pointer.
-  DoublePtr* OtherEnd() const {
+  DoublePtr *OtherEnd() const {
     return other_end_;
   }
 
- private:
+private:
   // Pointer to the other end of the link. It is always true that either
   // other_end_ == nullptr or other_end_->other_end_ == this.
-  DoublePtr* other_end_;
+  DoublePtr *other_end_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // THIRD_PARTY_TESSERACT_CCUTIL_DOUBLEPTR_H_
+#endif // THIRD_PARTY_TESSERACT_CCUTIL_DOUBLEPTR_H_

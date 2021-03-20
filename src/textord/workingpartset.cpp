@@ -28,8 +28,8 @@ ELISTIZE(WorkingPartSet)
 // Add the partition to this WorkingPartSet. Unrelated partitions are
 // stored in the order in which they are received, but if the partition
 // has a SingletonPartner, make sure that it stays with its partner.
-void WorkingPartSet::AddPartition(ColPartition* part) {
-  ColPartition* partner = part->SingletonPartner(true);
+void WorkingPartSet::AddPartition(ColPartition *part) {
+  ColPartition *partner = part->SingletonPartner(true);
   if (partner != nullptr) {
     ASSERT_HOST(partner->SingletonPartner(false) == part);
   }
@@ -38,9 +38,9 @@ void WorkingPartSet::AddPartition(ColPartition* part) {
     part_it_.move_to_last();
   } else if (latest_part_->SingletonPartner(false) != part) {
     // Reposition the iterator to the correct partner, or at the end.
-    for (part_it_.move_to_first(); !part_it_.at_last() &&
-         part_it_.data() != partner;
-         part_it_.forward());
+    for (part_it_.move_to_first(); !part_it_.at_last() && part_it_.data() != partner;
+         part_it_.forward())
+      ;
   }
   part_it_.add_after_then_move(part);
   latest_part_ = part;
@@ -52,12 +52,9 @@ void WorkingPartSet::AddPartition(ColPartition* part) {
 // made to fit in the bounds.
 // All ColPartitions go in the used_parts list, as they need to be kept
 // around, but are no longer needed.
-void WorkingPartSet::ExtractCompletedBlocks(const ICOORD& bleft,
-                                            const ICOORD& tright,
-                                            int resolution,
-                                            ColPartition_LIST* used_parts,
-                                            BLOCK_LIST* blocks,
-                                            TO_BLOCK_LIST* to_blocks) {
+void WorkingPartSet::ExtractCompletedBlocks(const ICOORD &bleft, const ICOORD &tright,
+                                            int resolution, ColPartition_LIST *used_parts,
+                                            BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks) {
   MakeBlocks(bleft, tright, resolution, used_parts);
   BLOCK_IT block_it(blocks);
   block_it.move_to_last();
@@ -69,8 +66,7 @@ void WorkingPartSet::ExtractCompletedBlocks(const ICOORD& bleft,
 
 // Insert the given blocks at the front of the completed_blocks_ list so
 // they can be kept in the correct reading order.
-void WorkingPartSet::InsertCompletedBlocks(BLOCK_LIST* blocks,
-                                           TO_BLOCK_LIST* to_blocks) {
+void WorkingPartSet::InsertCompletedBlocks(BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks) {
   BLOCK_IT block_it(&completed_blocks_);
   block_it.add_list_before(blocks);
   TO_BLOCK_IT to_block_it(&to_blocks_);
@@ -80,20 +76,19 @@ void WorkingPartSet::InsertCompletedBlocks(BLOCK_LIST* blocks,
 // Make a block using lines parallel to the given vector that fit between
 // the min and max coordinates specified by the ColPartitions.
 // Construct a block from the given list of partitions.
-void WorkingPartSet::MakeBlocks(const ICOORD& bleft, const ICOORD& tright,
-                                int resolution, ColPartition_LIST* used_parts) {
+void WorkingPartSet::MakeBlocks(const ICOORD &bleft, const ICOORD &tright, int resolution,
+                                ColPartition_LIST *used_parts) {
   part_it_.move_to_first();
   while (!part_it_.empty()) {
     // Gather a list of ColPartitions in block_parts that will be split
     // by linespacing into smaller blocks.
     ColPartition_LIST block_parts;
     ColPartition_IT block_it(&block_parts);
-    ColPartition* next_part = nullptr;
+    ColPartition *next_part = nullptr;
     bool text_block = false;
     do {
-      ColPartition* part = part_it_.extract();
-      if (part->blob_type() == BRT_UNKNOWN ||
-          (part->IsTextType() && part->type() != PT_TABLE))
+      ColPartition *part = part_it_.extract();
+      if (part->blob_type() == BRT_UNKNOWN || (part->IsTextType() && part->type() != PT_TABLE))
         text_block = true;
       part->set_working_set(nullptr);
       part_it_.forward();
@@ -106,23 +101,21 @@ void WorkingPartSet::MakeBlocks(const ICOORD& bleft, const ICOORD& tright,
       // Merge adjacent blocks that are of the same type and let the
       // linespacing determine the real boundaries.
       if (next_part == nullptr && !part_it_.empty()) {
-        ColPartition* next_block_part = part_it_.data();
-        const TBOX& part_box = part->bounding_box();
-        const TBOX& next_box = next_block_part->bounding_box();
+        ColPartition *next_block_part = part_it_.data();
+        const TBOX &part_box = part->bounding_box();
+        const TBOX &next_box = next_block_part->bounding_box();
 
         // In addition to the same type, the next box must not be above the
         // current box, nor (if image) too far below.
         PolyBlockType type = part->type(), next_type = next_block_part->type();
-        if (ColPartition::TypesSimilar(type, next_type) &&
-            !part->IsLineType() && !next_block_part->IsLineType() &&
-            next_box.bottom() <= part_box.top() &&
+        if (ColPartition::TypesSimilar(type, next_type) && !part->IsLineType() &&
+            !next_block_part->IsLineType() && next_box.bottom() <= part_box.top() &&
             (text_block || part_box.bottom() <= next_box.top()))
           next_part = next_block_part;
       }
     } while (!part_it_.empty() && next_part != nullptr);
     if (!text_block) {
-      TO_BLOCK* to_block = ColPartition::MakeBlock(bleft, tright,
-                                                   &block_parts, used_parts);
+      TO_BLOCK *to_block = ColPartition::MakeBlock(bleft, tright, &block_parts, used_parts);
       if (to_block != nullptr) {
         TO_BLOCK_IT to_block_it(&to_blocks_);
         to_block_it.add_to_end(to_block);
@@ -131,8 +124,7 @@ void WorkingPartSet::MakeBlocks(const ICOORD& bleft, const ICOORD& tright,
       }
     } else {
       // Further sub-divide text blocks where linespacing changes.
-      ColPartition::LineSpacingBlocks(bleft, tright, resolution, &block_parts,
-                                      used_parts,
+      ColPartition::LineSpacingBlocks(bleft, tright, resolution, &block_parts, used_parts,
                                       &completed_blocks_, &to_blocks_);
     }
   }
@@ -141,4 +133,4 @@ void WorkingPartSet::MakeBlocks(const ICOORD& bleft, const ICOORD& tright,
   ASSERT_HOST(completed_blocks_.length() == to_blocks_.length());
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

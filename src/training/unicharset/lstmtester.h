@@ -21,15 +21,15 @@
 #include "export.h"
 
 #include "lstmtrainer.h"
-#include "strngs.h"
 
 #include <mutex>
+#include <string>
 #include <vector>
 
 namespace tesseract {
 
 class TESS_UNICHARSET_TRAINING_API LSTMTester {
- public:
+public:
   LSTMTester(int64_t max_memory);
 
   // Loads a set of lstmf files that were created using the lstm.train config to
@@ -37,11 +37,11 @@ class TESS_UNICHARSET_TRAINING_API LSTMTester {
   // loaded. The arg is a filename of a file that lists the filenames, with one
   // name per line. Conveniently, tesstrain.sh generates such a file, along
   // with the files themselves.
-  bool LoadAllEvalData(const char* filenames_file);
+  bool LoadAllEvalData(const char *filenames_file);
   // Loads a set of lstmf files that were created using the lstm.train config to
   // tesseract into memory ready for testing. Returns false if nothing was
   // loaded.
-  bool LoadAllEvalData(const std::vector<STRING>& filenames);
+  bool LoadAllEvalData(const std::vector<std::string> &filenames);
 
   // Runs an evaluation asynchronously on the stored eval data and returns a
   // string describing the results of the previous test. Args match TestCallback
@@ -54,16 +54,15 @@ class TESS_UNICHARSET_TRAINING_API LSTMTester {
   // model_data: is the model to evaluate, which should be a serialized
   //   LSTMTrainer.
   // training_stage: an arbitrary number on the progress of training.
-  STRING RunEvalAsync(int iteration, const double* training_errors,
-                      const TessdataManager& model_mgr, int training_stage);
+  std::string RunEvalAsync(int iteration, const double *training_errors,
+                           const TessdataManager &model_mgr, int training_stage);
   // Runs an evaluation synchronously on the stored eval data and returns a
   // string describing the results. Args as RunEvalAsync, except verbosity,
   // which outputs errors, if 1, or all results if 2.
-  STRING RunEvalSync(int iteration, const double* training_errors,
-                     const TessdataManager& model_mgr, int training_stage,
-                     int verbosity);
+  std::string RunEvalSync(int iteration, const double *training_errors, const TessdataManager &model_mgr,
+                          int training_stage, int verbosity);
 
- private:
+private:
   // Helper thread function for RunEvalAsync.
   // LockIfNotRunning must have returned true before calling ThreadFunc, and
   // it will call UnlockRunning to release the lock after RunEvalSync completes.
@@ -83,12 +82,12 @@ class TESS_UNICHARSET_TRAINING_API LSTMTester {
   std::mutex running_mutex_;
   // Stored copies of the args for use while running asynchronously.
   int test_iteration_ = 0;
-  const double* test_training_errors_ = nullptr;
+  const double *test_training_errors_ = nullptr;
   TessdataManager test_model_mgr_;
   int test_training_stage_ = 0;
-  STRING test_result_;
+  std::string test_result_;
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_TRAINING_LSTMTESTER_H_
+#endif // TESSERACT_TRAINING_LSTMTESTER_H_

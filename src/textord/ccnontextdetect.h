@@ -29,8 +29,8 @@ namespace tesseract {
 // a full-resolution image mask analogous yet complementary to
 // pixGenHalftoneMask as it is better at line-drawings, graphs and charts.
 class CCNonTextDetect : public BlobGrid {
- public:
-  CCNonTextDetect(int gridsize, const ICOORD& bleft, const ICOORD& tright);
+public:
+  CCNonTextDetect(int gridsize, const ICOORD &bleft, const ICOORD &tright);
   ~CCNonTextDetect() override;
 
   // Creates and returns a Pix with the same resolution as the original
@@ -42,9 +42,9 @@ class CCNonTextDetect : public BlobGrid {
   // The blob_block is the usual result of connected component analysis,
   // holding the detected blobs.
   // The returned Pix should be PixDestroyed after use.
-  Pix* ComputeNonTextMask(bool debug, Pix* photo_map, TO_BLOCK* blob_block);
+  Pix *ComputeNonTextMask(bool debug, Pix *photo_map, TO_BLOCK *blob_block);
 
- private:
+private:
   // Computes and returns the noise_density IntGrid, at the same gridsize as
   // this by summing the number of small elements in a 3x3 neighbourhood of
   // each grid cell. good_grid is filled with blobs that are considered most
@@ -52,7 +52,7 @@ class CCNonTextDetect : public BlobGrid {
   // more likely non-text.
   // The photo_map is used to bias the decision towards non-text, rather than
   // supplying definite decision.
-  IntGrid* ComputeNoiseDensity(bool debug, Pix* photo_map, BlobGrid* good_grid);
+  IntGrid *ComputeNoiseDensity(bool debug, Pix *photo_map, BlobGrid *good_grid);
 
   // Tests each blob in the list to see if it is certain non-text using 2
   // conditions:
@@ -67,21 +67,19 @@ class CCNonTextDetect : public BlobGrid {
   // not removed. If any deleted blobs might be in *this, then this must be
   // Clear()ed immediately after MarkAndDeleteNonTextBlobs is called.
   // If the win is not nullptr, deleted blobs are drawn on it in red, and kept
-  void MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST* blobs,
-                                 int max_blob_overlaps,
-                                 ScrollView* win, ScrollView::Color ok_color,
-                                 Pix* nontext_mask);
+  void MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST *blobs, int max_blob_overlaps, ScrollView *win,
+                                 ScrollView::Color ok_color, Pix *nontext_mask);
   // Returns true if the given blob overlaps more than max_overlaps blobs
   // in the current grid.
-  bool BlobOverlapsTooMuch(BLOBNBOX* blob, int max_overlaps);
+  bool BlobOverlapsTooMuch(BLOBNBOX *blob, int max_overlaps);
 
   // Max entry in noise_density_ before the cell is declared noisy.
   int max_noise_count_;
   // Completed noise density map, which we keep around to use for secondary
   // noise detection.
-  IntGrid* noise_density_;
+  IntGrid *noise_density_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_CCPHOTODETECT_H_
+#endif // TESSERACT_TEXTORD_CCPHOTODETECT_H_

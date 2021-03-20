@@ -3,7 +3,6 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        intfeaturedist.cpp
 // Description: Fast set-difference-based feature distance calculator.
-// Created:     Thu Sep 01 13:07:30 PDT 2011
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,17 +22,19 @@
 namespace tesseract {
 
 IntFeatureDist::IntFeatureDist()
-  : size_(0), total_feature_weight_(0.0),
-    feature_map_(nullptr), features_(nullptr),
-    features_delta_one_(nullptr), features_delta_two_(nullptr) {
-}
+    : size_(0)
+    , total_feature_weight_(0.0)
+    , feature_map_(nullptr)
+    , features_(nullptr)
+    , features_delta_one_(nullptr)
+    , features_delta_two_(nullptr) {}
 
 IntFeatureDist::~IntFeatureDist() {
   Clear();
 }
 
 // Initialize the table to the given size of feature space.
-void IntFeatureDist::Init(const IntFeatureMap* feature_map) {
+void IntFeatureDist::Init(const IntFeatureMap *feature_map) {
   size_ = feature_map->sparse_size();
   Clear();
   feature_map_ = feature_map;
@@ -48,19 +49,21 @@ void IntFeatureDist::Init(const IntFeatureMap* feature_map) {
 
 // Setup the map for the given indexed_features that have been indexed by
 // feature_map.
-void IntFeatureDist::Set(const GenericVector<int>& indexed_features,
-                          int canonical_count, bool value) {
+void IntFeatureDist::Set(const std::vector<int> &indexed_features, int canonical_count,
+                         bool value) {
   total_feature_weight_ = canonical_count;
   for (int i = 0; i < indexed_features.size(); ++i) {
     const int f = indexed_features[i];
     features_[f] = value;
     for (int dir = -kNumOffsetMaps; dir <= kNumOffsetMaps; ++dir) {
-      if (dir == 0) continue;
+      if (dir == 0)
+        continue;
       const int mapped_f = feature_map_->OffsetFeature(f, dir);
       if (mapped_f >= 0) {
         features_delta_one_[mapped_f] = value;
         for (int dir2 = -kNumOffsetMaps; dir2 <= kNumOffsetMaps; ++dir2) {
-          if (dir2 == 0) continue;
+          if (dir2 == 0)
+            continue;
           const int mapped_f2 = feature_map_->OffsetFeature(mapped_f, dir2);
           if (mapped_f2 >= 0)
             features_delta_two_[mapped_f2] = value;
@@ -72,8 +75,7 @@ void IntFeatureDist::Set(const GenericVector<int>& indexed_features,
 
 // Compute the distance between the given feature vector and the last
 // Set feature vector.
-double IntFeatureDist::FeatureDistance(
-    const GenericVector<int>& features) const {
+double IntFeatureDist::FeatureDistance(const std::vector<int> &features) const {
   const int num_test_features = features.size();
   const double denominator = total_feature_weight_ + num_test_features;
   double misses = denominator;
@@ -95,8 +97,7 @@ double IntFeatureDist::FeatureDistance(
 
 // Compute the distance between the given feature vector and the last
 // Set feature vector.
-double IntFeatureDist::DebugFeatureDistance(
-    const GenericVector<int>& features) const {
+double IntFeatureDist::DebugFeatureDistance(const std::vector<int> &features) const {
   const int num_test_features = features.size();
   const double denominator = total_feature_weight_ + num_test_features;
   double misses = denominator;
@@ -148,12 +149,12 @@ double IntFeatureDist::DebugFeatureDistance(
 
 // Clear all data.
 void IntFeatureDist::Clear() {
-  delete [] features_;
+  delete[] features_;
   features_ = nullptr;
-  delete [] features_delta_one_;
+  delete[] features_delta_one_;
   features_delta_one_ = nullptr;
-  delete [] features_delta_two_;
+  delete[] features_delta_two_;
   features_delta_two_ = nullptr;
 }
 
-}  // namespace tesseract
+} // namespace tesseract

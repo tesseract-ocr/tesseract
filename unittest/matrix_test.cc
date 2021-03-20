@@ -20,7 +20,7 @@
 namespace tesseract {
 
 class MatrixTest : public ::testing::Test {
- protected:
+protected:
   void SetUp() override {
     std::locale::global(std::locale(""));
   }
@@ -38,7 +38,8 @@ class MatrixTest : public ::testing::Test {
     for (int i = 0; i < kInputSize_; ++i) {
       src_.put(0, i, i);
     }
-    for (int i = 0; i < kNumDims_; ++i) dims_[i] = 5 - i;
+    for (int i = 0; i < kNumDims_; ++i)
+      dims_[i] = 5 - i;
   }
   // Number of dimensions in src_.
   static const int kNumDims_ = 4;
@@ -134,4 +135,4 @@ TEST_F(MatrixTest, RotatingTranspose_0_2) {
   EXPECT_EQ(6, m(15, 0));
 }
 
-}  // namespace
+} // namespace tesseract

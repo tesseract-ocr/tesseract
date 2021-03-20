@@ -19,7 +19,7 @@
 #ifndef DOCQUAL_H
 #define DOCQUAL_H
 
-#include <cstdint>  // for int16_t
+#include <cstdint> // for int16_t
 
 namespace tesseract {
 
@@ -27,15 +27,9 @@ class PAGE_RES_IT;
 class ROW;
 class WERD_RES;
 
-enum GARBAGE_LEVEL
-{
-  G_NEVER_CRUNCH,
-  G_OK,
-  G_DODGY,
-  G_TERRIBLE
-};
+enum GARBAGE_LEVEL { G_NEVER_CRUNCH, G_OK, G_DODGY, G_TERRIBLE };
 
-int16_t word_blob_quality(WERD_RES* word);
+int16_t word_blob_quality(WERD_RES *word);
 void reject_whole_page(PAGE_RES_IT &page_res_it);
 
 } // namespace tesseract

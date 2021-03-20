@@ -17,7 +17,7 @@
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#  include "config_auto.h"
 #endif
 
 #include "network.h"
@@ -39,7 +39,7 @@
 #include "series.h"
 #include "statistc.h"
 #ifdef INCLUDE_TENSORFLOW
-#include "tfnetwork.h"
+#  include "tfnetwork.h"
 #endif
 #include "tprintf.h"
 
@@ -56,7 +56,7 @@ const int kYWinFrameSize = 80;
 // Keep in sync with NetworkType.
 // Names used in Serialization to allow re-ordering/addition/deletion of
 // layer types in NetworkType without invalidating existing network files.
-static char const* const kTypeNames[NT_COUNT] = {
+static char const *const kTypeNames[NT_COUNT] = {
     "Invalid",     "Input",
     "Convolve",    "Maxpool",
     "Parallel",    "Replicated",
@@ -74,29 +74,28 @@ static char const* const kTypeNames[NT_COUNT] = {
 };
 
 Network::Network()
-    : type_(NT_NONE),
-      training_(TS_ENABLED),
-      needs_to_backprop_(true),
-      network_flags_(0),
-      ni_(0),
-      no_(0),
-      num_weights_(0),
-      forward_win_(nullptr),
-      backward_win_(nullptr),
-      randomizer_(nullptr) {}
-Network::Network(NetworkType type, const std::string& name, int ni, int no)
-    : type_(type),
-      training_(TS_ENABLED),
-      needs_to_backprop_(true),
-      network_flags_(0),
-      ni_(ni),
-      no_(no),
-      num_weights_(0),
-      name_(name),
-      forward_win_(nullptr),
-      backward_win_(nullptr),
-      randomizer_(nullptr) {}
-
+    : type_(NT_NONE)
+    , training_(TS_ENABLED)
+    , needs_to_backprop_(true)
+    , network_flags_(0)
+    , ni_(0)
+    , no_(0)
+    , num_weights_(0)
+    , forward_win_(nullptr)
+    , backward_win_(nullptr)
+    , randomizer_(nullptr) {}
+Network::Network(NetworkType type, const std::string &name, int ni, int no)
+    : type_(type)
+    , training_(TS_ENABLED)
+    , needs_to_backprop_(true)
+    , network_flags_(0)
+    , ni_(ni)
+    , no_(no)
+    , num_weights_(0)
+    , name_(name)
+    , forward_win_(nullptr)
+    , backward_win_(nullptr)
+    , randomizer_(nullptr) {}
 
 // Suspends/Enables/Permanently disables training by setting the training_
 // flag. Serialize and DeSerialize only operate on the run-time data if state
@@ -110,10 +109,12 @@ Network::Network(NetworkType type, const std::string& name, int ni, int no)
 void Network::SetEnableTraining(TrainingState state) {
   if (state == TS_RE_ENABLE) {
     // Enable only from temp disabled.
-    if (training_ == TS_TEMP_DISABLE) training_ = TS_ENABLED;
+    if (training_ == TS_TEMP_DISABLE)
+      training_ = TS_ENABLED;
   } else if (state == TS_TEMP_DISABLE) {
     // Temp disable only from enabled.
-    if (training_ == TS_ENABLED) training_ = state;
+    if (training_ == TS_ENABLED)
+      training_ = state;
   } else {
     training_ = state;
   }
@@ -127,7 +128,7 @@ void Network::SetNetworkFlags(uint32_t flags) {
 
 // Sets up the network for training. Initializes weights using weights of
 // scale `range` picked according to the random number generator `randomizer`.
-int Network::InitWeights(float range, TRand* randomizer) {
+int Network::InitWeights(float range, TRand *randomizer) {
   randomizer_ = randomizer;
   return 0;
 }
@@ -135,7 +136,7 @@ int Network::InitWeights(float range, TRand* randomizer) {
 // Provides a pointer to a TRand for any networks that care to use it.
 // Note that randomizer is a borrowed pointer that should outlive the network
 // and should not be deleted by any of the networks.
-void Network::SetRandomizer(TRand* randomizer) {
+void Network::SetRandomizer(TRand *randomizer) {
   randomizer_ = randomizer;
 }
 
@@ -148,30 +149,41 @@ bool Network::SetupNeedsBackprop(bool needs_backprop) {
 }
 
 // Writes to the given file. Returns false in case of error.
-bool Network::Serialize(TFile* fp) const {
+bool Network::Serialize(TFile *fp) const {
   int8_t data = NT_NONE;
-  if (!fp->Serialize(&data)) return false;
-  STRING type_name = kTypeNames[type_];
-  if (!type_name.Serialize(fp)) return false;
+  if (!fp->Serialize(&data))
+    return false;
+  std::string type_name = kTypeNames[type_];
+  if (!fp->Serialize(type_name))
+    return false;
   data = training_;
-  if (!fp->Serialize(&data)) return false;
+  if (!fp->Serialize(&data))
+    return false;
   data = needs_to_backprop_;
-  if (!fp->Serialize(&data)) return false;
-  if (!fp->Serialize(&network_flags_)) return false;
-  if (!fp->Serialize(&ni_)) return false;
-  if (!fp->Serialize(&no_)) return false;
-  if (!fp->Serialize(&num_weights_)) return false;
+  if (!fp->Serialize(&data))
+    return false;
+  if (!fp->Serialize(&network_flags_))
+    return false;
+  if (!fp->Serialize(&ni_))
+    return false;
+  if (!fp->Serialize(&no_))
+    return false;
+  if (!fp->Serialize(&num_weights_))
+    return false;
   uint32_t length = name_.length();
-  if (!fp->Serialize(&length)) return false;
+  if (!fp->Serialize(&length))
+    return false;
   return fp->Serialize(name_.c_str(), length);
 }
 
-static NetworkType getNetworkType(TFile* fp) {
+static NetworkType getNetworkType(TFile *fp) {
   int8_t data;
-  if (!fp->DeSerialize(&data)) return NT_NONE;
+  if (!fp->DeSerialize(&data))
+    return NT_NONE;
   if (data == NT_NONE) {
-    STRING type_name;
-    if (!type_name.DeSerialize(fp)) return NT_NONE;
+    std::string type_name;
+    if (!fp->DeSerialize(type_name))
+      return NT_NONE;
     for (data = 0; data < NT_COUNT && type_name != kTypeNames[data]; ++data) {
     }
     if (data == NT_COUNT) {
@@ -185,27 +197,34 @@ static NetworkType getNetworkType(TFile* fp) {
 // Reads from the given file. Returns nullptr in case of error.
 // Determines the type of the serialized class and calls its DeSerialize
 // on a new object of the appropriate type, which is returned.
-Network* Network::CreateFromFile(TFile* fp) {
-  NetworkType type;          // Type of the derived network class.
-  TrainingState training;    // Are we currently training?
-  bool needs_to_backprop;    // This network needs to output back_deltas.
-  int32_t network_flags;     // Behavior control flags in NetworkFlags.
-  int32_t ni;                // Number of input values.
-  int32_t no;                // Number of output values.
-  int32_t num_weights;       // Number of weights in this and sub-network.
-  STRING name;               // A unique name for this layer.
+Network *Network::CreateFromFile(TFile *fp) {
+  NetworkType type;       // Type of the derived network class.
+  TrainingState training; // Are we currently training?
+  bool needs_to_backprop; // This network needs to output back_deltas.
+  int32_t network_flags;  // Behavior control flags in NetworkFlags.
+  int32_t ni;             // Number of input values.
+  int32_t no;             // Number of output values.
+  int32_t num_weights;    // Number of weights in this and sub-network.
+  std::string name;       // A unique name for this layer.
   int8_t data;
-  Network* network = nullptr;
+  Network *network = nullptr;
   type = getNetworkType(fp);
-  if (!fp->DeSerialize(&data)) return nullptr;
+  if (!fp->DeSerialize(&data))
+    return nullptr;
   training = data == TS_ENABLED ? TS_ENABLED : TS_DISABLED;
-  if (!fp->DeSerialize(&data)) return nullptr;
+  if (!fp->DeSerialize(&data))
+    return nullptr;
   needs_to_backprop = data != 0;
-  if (!fp->DeSerialize(&network_flags)) return nullptr;
-  if (!fp->DeSerialize(&ni)) return nullptr;
-  if (!fp->DeSerialize(&no)) return nullptr;
-  if (!fp->DeSerialize(&num_weights)) return nullptr;
-  if (!name.DeSerialize(fp)) return nullptr;
+  if (!fp->DeSerialize(&network_flags))
+    return nullptr;
+  if (!fp->DeSerialize(&ni))
+    return nullptr;
+  if (!fp->DeSerialize(&no))
+    return nullptr;
+  if (!fp->DeSerialize(&num_weights))
+    return nullptr;
+  if (!fp->DeSerialize(name))
+    return nullptr;
 
   switch (type) {
     case NT_CONVOLVE:
@@ -218,8 +237,7 @@ Network* Network::CreateFromFile(TFile* fp) {
     case NT_LSTM_SOFTMAX:
     case NT_LSTM_SOFTMAX_ENCODED:
     case NT_LSTM_SUMMARY:
-      network =
-          new LSTM(name.c_str(), ni, no, no, false, type);
+      network = new LSTM(name.c_str(), ni, no, no, false, type);
       break;
     case NT_MAXPOOL:
       network = new Maxpool(name.c_str(), ni, 0, 0);
@@ -288,40 +306,40 @@ double Network::Random(double range) {
 
 // === Debug image display methods. ===
 // Displays the image of the matrix to the forward window.
-void Network::DisplayForward(const NetworkIO& matrix) {
-  Pix* image = matrix.ToPix();
-  ClearWindow(false, name_.c_str(), pixGetWidth(image),
-              pixGetHeight(image), &forward_win_);
+void Network::DisplayForward(const NetworkIO &matrix) {
+  Pix *image = matrix.ToPix();
+  ClearWindow(false, name_.c_str(), pixGetWidth(image), pixGetHeight(image), &forward_win_);
   DisplayImage(image, forward_win_);
   forward_win_->Update();
 }
 
 // Displays the image of the matrix to the backward window.
-void Network::DisplayBackward(const NetworkIO& matrix) {
-  Pix* image = matrix.ToPix();
+void Network::DisplayBackward(const NetworkIO &matrix) {
+  Pix *image = matrix.ToPix();
   std::string window_name = name_ + "-back";
-  ClearWindow(false, window_name.c_str(), pixGetWidth(image),
-              pixGetHeight(image), &backward_win_);
+  ClearWindow(false, window_name.c_str(), pixGetWidth(image), pixGetHeight(image), &backward_win_);
   DisplayImage(image, backward_win_);
   backward_win_->Update();
 }
 
 // Creates the window if needed, otherwise clears it.
-void Network::ClearWindow(bool tess_coords, const char* window_name,
-                          int width, int height, ScrollView** window) {
+void Network::ClearWindow(bool tess_coords, const char *window_name, int width, int height,
+                          ScrollView **window) {
   if (*window == nullptr) {
     int min_size = std::min(width, height);
     if (min_size < kMinWinSize) {
-      if (min_size < 1) min_size = 1;
+      if (min_size < 1)
+        min_size = 1;
       width = width * kMinWinSize / min_size;
       height = height * kMinWinSize / min_size;
     }
     width += kXWinFrameSize;
     height += kYWinFrameSize;
-    if (width > kMaxWinSize) width = kMaxWinSize;
-    if (height > kMaxWinSize) height = kMaxWinSize;
-    *window = new ScrollView(window_name, 80, 100, width, height, width, height,
-                             tess_coords);
+    if (width > kMaxWinSize)
+      width = kMaxWinSize;
+    if (height > kMaxWinSize)
+      height = kMaxWinSize;
+    *window = new ScrollView(window_name, 80, 100, width, height, width, height, tess_coords);
     tprintf("Created window %s of size %d, %d\n", window_name, width, height);
   } else {
     (*window)->Clear();
@@ -330,7 +348,7 @@ void Network::ClearWindow(bool tess_coords, const char* window_name,
 
 // Displays the pix in the given window. and returns the height of the pix.
 // The pix is pixDestroyed.
-int Network::DisplayImage(Pix* pix, ScrollView* window) {
+int Network::DisplayImage(Pix *pix, ScrollView *window) {
   int height = pixGetHeight(pix);
   window->Image(pix, 0, 0);
   pixDestroy(&pix);
@@ -338,4 +356,4 @@ int Network::DisplayImage(Pix* pix, ScrollView* window) {
 }
 #endif // !GRAPHICS_DISABLED
 
-}  // namespace tesseract.
+} // namespace tesseract.

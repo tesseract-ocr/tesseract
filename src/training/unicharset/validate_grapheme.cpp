@@ -3,7 +3,7 @@
 
 #if defined(HAS_LIBICU)
 
-#include "unicode/uchar.h"  // From libicu
+#include "unicode/uchar.h" // From libicu
 
 namespace tesseract {
 
@@ -16,17 +16,17 @@ bool ValidateGrapheme::ConsumeGraphemeIfValid() {
   while (codes_used_ < num_codes) {
     CharClass cc = codes_[codes_used_].first;
     char32 ch = codes_[codes_used_].second;
-    const bool is_combiner =
-        cc == CharClass::kCombiner || cc == CharClass::kVirama;
-  // TODO: Make this code work well with RTL text.
-  // See https://github.com/tesseract-ocr/tesseract/pull/2266#issuecomment-467114751
-  #if 0
+    const bool is_combiner = cc == CharClass::kCombiner || cc == CharClass::kVirama;
+// TODO: Make this code work well with RTL text.
+// See
+// https://github.com/tesseract-ocr/tesseract/pull/2266#issuecomment-467114751
+#if 0
     // Reject easily detected badly formed sequences.
     if (prev_cc == CharClass::kWhitespace && is_combiner) {
       if (report_errors_) tprintf("Word started with a combiner:0x%x\n", ch);
      return false;
     }
-  #endif
+#endif
     if (prev_cc == CharClass::kVirama && cc == CharClass::kVirama) {
       if (report_errors_)
         tprintf("Two grapheme links in a row:0x%x 0x%x\n", prev_ch, ch);
@@ -36,10 +36,9 @@ bool ValidateGrapheme::ConsumeGraphemeIfValid() {
         IsBadlyFormed(prev_ch, ch)) {
       return false;
     }
-    bool prev_is_fwd_combiner =
-        prev_ch == kZeroWidthJoiner || prev_cc == CharClass::kVirama ||
-        (prev_ch == kZeroWidthNonJoiner &&
-         (cc == CharClass::kVirama || prev_prev_ch == kZeroWidthJoiner));
+    bool prev_is_fwd_combiner = prev_ch == kZeroWidthJoiner || prev_cc == CharClass::kVirama ||
+                                (prev_ch == kZeroWidthNonJoiner &&
+                                 (cc == CharClass::kVirama || prev_prev_ch == kZeroWidthJoiner));
     if (num_codes_in_grapheme > 0 && !is_combiner && !prev_is_fwd_combiner)
       break;
     CodeOnlyToOutput();
@@ -48,22 +47,26 @@ bool ValidateGrapheme::ConsumeGraphemeIfValid() {
     prev_ch = ch;
     prev_cc = cc;
   }
-  if (num_codes_in_grapheme > 0) MultiCodePart(num_codes_in_grapheme);
+  if (num_codes_in_grapheme > 0)
+    MultiCodePart(num_codes_in_grapheme);
   return true;
 }
 
 Validator::CharClass ValidateGrapheme::UnicodeToCharClass(char32 ch) const {
-  if (IsVedicAccent(ch)) return CharClass::kVedicMark;
+  if (IsVedicAccent(ch))
+    return CharClass::kVedicMark;
   // The ZeroWidth[Non]Joiner characters are mapped to kCombiner as they
   // always combine with the previous character.
-  if (u_hasBinaryProperty(ch, UCHAR_GRAPHEME_LINK)) return CharClass::kVirama;
-  if (u_isUWhiteSpace(ch)) return CharClass::kWhitespace;
+  if (u_hasBinaryProperty(ch, UCHAR_GRAPHEME_LINK))
+    return CharClass::kVirama;
+  if (u_isUWhiteSpace(ch))
+    return CharClass::kWhitespace;
   // Workaround for Javanese Aksara's Taling, do not label it as a combiner
-  if (ch == 0xa9ba) return CharClass::kConsonant;
+  if (ch == 0xa9ba)
+    return CharClass::kConsonant;
   int char_type = u_charType(ch);
   if (char_type == U_NON_SPACING_MARK || char_type == U_ENCLOSING_MARK ||
-      char_type == U_COMBINING_SPACING_MARK || ch == kZeroWidthNonJoiner ||
-      ch == kZeroWidthJoiner)
+      char_type == U_COMBINING_SPACING_MARK || ch == kZeroWidthNonJoiner || ch == kZeroWidthJoiner)
     return CharClass::kCombiner;
   return CharClass::kOther;
 }
@@ -77,7 +80,8 @@ bool ValidateGrapheme::IsBadlyFormed(char32 prev_ch, char32 ch) {
     return true;
   }
   if (IsBadlyFormedThai(prev_ch, ch)) {
-    if (report_errors_) tprintf("Badly formed Thai:0x%x 0x%x\n", prev_ch, ch);
+    if (report_errors_)
+      tprintf("Badly formed Thai:0x%x 0x%x\n", prev_ch, ch);
     return true;
   }
   return false;
@@ -97,8 +101,7 @@ bool ValidateGrapheme::IsBadlyFormed(char32 prev_ch, char32 ch) {
 // regularity of the mapping from ISCII to Unicode.
 /* static */
 bool ValidateGrapheme::IsBadlyFormedIndicVowel(char32 prev_ch, char32 ch) {
-  return ((prev_ch == 0x905 && (ch == 0x946 || ch == 0x93E)) ||
-          (prev_ch == 0x909 && ch == 0x941) ||
+  return ((prev_ch == 0x905 && (ch == 0x946 || ch == 0x93E)) || (prev_ch == 0x909 && ch == 0x941) ||
           (prev_ch == 0x90F && (ch >= 0x945 && ch <= 0x947)) ||
           (prev_ch == 0x905 && (ch >= 0x949 && ch <= 0x94C)) ||
           (prev_ch == 0x906 && (ch >= 0x949 && ch <= 0x94C)) ||
@@ -115,7 +118,9 @@ bool ValidateGrapheme::IsBadlyFormedIndicVowel(char32 prev_ch, char32 ch) {
 }
 
 // Helper returns true if ch is a Thai consonant.
-static bool IsThaiConsonant(char32 ch) { return 0xe01 <= ch && ch <= 0xe2e; }
+static bool IsThaiConsonant(char32 ch) {
+  return 0xe01 <= ch && ch <= 0xe2e;
+}
 
 // Helper returns true is ch is a before-consonant vowel.
 static bool IsThaiBeforeConsonantVowel(char32 ch) {
@@ -123,7 +128,9 @@ static bool IsThaiBeforeConsonantVowel(char32 ch) {
 }
 
 // Helper returns true if ch is a Thai tone mark.
-static bool IsThaiToneMark(char32 ch) { return 0xe48 <= ch && ch <= 0xe4b; }
+static bool IsThaiToneMark(char32 ch) {
+  return 0xe48 <= ch && ch <= 0xe4b;
+}
 
 // Helper returns true if ch is a Thai vowel that may be followed by a tone
 // mark.
@@ -139,8 +146,7 @@ static bool IsThaiTonableVowel(char32 ch) {
 /* static */
 bool ValidateGrapheme::IsBadlyFormedThai(char32 prev_ch, char32 ch) {
   // Tone marks must follow consonants or specific vowels.
-  if (IsThaiToneMark(ch) &&
-      !(IsThaiConsonant(prev_ch) || IsThaiTonableVowel(prev_ch))) {
+  if (IsThaiToneMark(ch) && !(IsThaiConsonant(prev_ch) || IsThaiTonableVowel(prev_ch))) {
     return true;
   }
   // Tonable vowels must follow consonants.
@@ -148,29 +154,25 @@ bool ValidateGrapheme::IsBadlyFormedThai(char32 prev_ch, char32 ch) {
     return true;
   }
   // Thanthakhat must follow consonant or specific vowels.
-  if (ch == 0xe4c &&
-      !(IsThaiConsonant(prev_ch) || prev_ch == 0xe38 || prev_ch == 0xe34)) {
+  if (ch == 0xe4c && !(IsThaiConsonant(prev_ch) || prev_ch == 0xe38 || prev_ch == 0xe34)) {
     return true;
   }
   // Nikkhahit must follow a consonant ?or certain markers?.
   // TODO(rays) confirm this, but there were so many in the ground truth of the
   // validation set that it seems reasonable to assume it is valid.
-  if (ch == 0xe4d &&
-      !(IsThaiConsonant(prev_ch) || prev_ch == 0xe48 || prev_ch == 0xe49)) {
+  if (ch == 0xe4d && !(IsThaiConsonant(prev_ch) || prev_ch == 0xe48 || prev_ch == 0xe49)) {
     return true;
   }
   // The vowels e30, e32, e33 can be used more liberally.
   if ((ch == 0xe30 || ch == 0xe32 || ch == 0xe33) &&
       !(IsThaiConsonant(prev_ch) || IsThaiToneMark(prev_ch)) &&
-      !(prev_ch == 0xe32 && ch == 0xe30) &&
-      !(prev_ch == 0xe4d && ch == 0xe32)) {
+      !(prev_ch == 0xe32 && ch == 0xe30) && !(prev_ch == 0xe4d && ch == 0xe32)) {
     return true;
   }
   // Some vowels come before consonants, and therefore cannot follow things
   // that cannot end a syllable.
   if (IsThaiBeforeConsonantVowel(ch) &&
-      (IsThaiBeforeConsonantVowel(prev_ch) || prev_ch == 0xe31 ||
-       prev_ch == 0xe37)) {
+      (IsThaiBeforeConsonantVowel(prev_ch) || prev_ch == 0xe31 || prev_ch == 0xe37)) {
     return true;
   }
   // Don't allow the standalone vowel U+0e24 to be followed by other vowels.
@@ -180,6 +182,6 @@ bool ValidateGrapheme::IsBadlyFormedThai(char32 prev_ch, char32 ch) {
   return false;
 }
 
-}  // namespace tesseract
+} // namespace tesseract
 
 #endif

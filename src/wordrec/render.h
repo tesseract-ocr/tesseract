@@ -45,11 +45,11 @@ extern BOOL_VAR_H(wordrec_blob_pause, 0, "Blob pause");
 ----------------------------------------------------------------------*/
 void display_blob(TBLOB *blob, ScrollView::Color color);
 
-void render_blob(ScrollView* window, TBLOB *blob, ScrollView::Color color);
+void render_blob(ScrollView *window, TBLOB *blob, ScrollView::Color color);
 
-void render_edgepts(ScrollView* window, EDGEPT *edgept, ScrollView::Color color);
+void render_edgepts(ScrollView *window, EDGEPT *edgept, ScrollView::Color color);
 
-void render_outline(ScrollView* window, TESSLINE* outline, ScrollView::Color color);
+void render_outline(ScrollView *window, TESSLINE *outline, ScrollView::Color color);
 
 } // namespace tesseract
 

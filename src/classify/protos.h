@@ -27,9 +27,9 @@
 
 namespace tesseract {
 
-using CONFIGS = BIT_VECTOR*;
+using CONFIGS = BIT_VECTOR *;
 
-typedef struct {
+struct PROTO_STRUCT {
   float A;
   float B;
   float C;
@@ -37,17 +37,17 @@ typedef struct {
   float Y;
   float Angle;
   float Length;
-} PROTO_STRUCT;
-using PROTO = PROTO_STRUCT*;
+};
+using PROTO = PROTO_STRUCT *;
 
 struct CLASS_STRUCT {
   CLASS_STRUCT()
-      : NumProtos(0),
-        MaxNumProtos(0),
-        NumConfigs(0),
-        MaxNumConfigs(0),
-        Prototypes(nullptr),
-        Configurations(nullptr) {}
+      : NumProtos(0)
+      , MaxNumProtos(0)
+      , NumConfigs(0)
+      , MaxNumConfigs(0)
+      , Prototypes(nullptr)
+      , Configurations(nullptr) {}
   int16_t NumProtos;
   int16_t MaxNumProtos;
   int16_t NumConfigs;
@@ -56,8 +56,8 @@ struct CLASS_STRUCT {
   CONFIGS Configurations;
   UnicityTable<int> font_set;
 };
-using CLASS_TYPE = CLASS_STRUCT*;
-using CLASSES = CLASS_STRUCT*;
+using CLASS_TYPE = CLASS_STRUCT *;
+using CLASSES = CLASS_STRUCT *;
 
 /*----------------------------------------------------------------------
               M a c r o s

@@ -26,9 +26,9 @@
 #include <cstdio>
 
 /* define data structure to hold 2D points or vectors using floating point */
-typedef struct {
+struct FPOINT {
   float x, y;
-} FPOINT;
+};
 using FVECTOR = FPOINT;
 
 /**----------------------------------------------------------------------------
@@ -48,6 +48,6 @@ using FVECTOR = FPOINT;
 
 float DistanceBetween(FPOINT A, FPOINT B);
 
-float NormalizedAngleFrom(FPOINT* Point1, FPOINT* Point2, float FullScale);
+float NormalizedAngleFrom(FPOINT *Point1, FPOINT *Point2, float FullScale);
 
 #endif

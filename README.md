@@ -79,13 +79,7 @@ and **[Change Log](https://github.com/tesseract-ocr/tesseract/blob/master/Change
 You can either [Install Tesseract via pre-built binary package](https://tesseract-ocr.github.io/tessdoc/Home.html)
 or [build it from source](https://tesseract-ocr.github.io/tessdoc/Compiling.html).
 
-Supported Compilers are:
-
-* GCC 4.8 and above
-* Clang 3.4 and above
-* MSVC 2015, 2017, 2019
-
-Other compilers might work, but are not officially supported.
+C++17 support is required for building.
 
 ## Running Tesseract
 

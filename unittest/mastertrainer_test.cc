@@ -23,17 +23,17 @@
 
 #include "include_gunit.h"
 
-#include "log.h"                        // for LOG
-#include "unicharset.h"
+#include "commontraining.h"
 #include "errorcounter.h"
+#include "log.h" // for LOG
 #include "mastertrainer.h"
 #include "shapeclassifier.h"
 #include "shapetable.h"
 #include "trainingsample.h"
-#include "commontraining.h"
+#include "unicharset.h"
 
-#include "absl/strings/numbers.h"       // for safe_strto32
-#include "absl/strings/str_split.h"     // for absl::StrSplit
+#include "absl/strings/numbers.h"   // for safe_strto32
+#include "absl/strings/str_split.h" // for absl::StrSplit
 
 #include <string>
 #include <utility>
@@ -51,12 +51,10 @@ static const int kNumCorrect = kNumNonReject - kNumTop1Errs;
 // The total number of answers is given by the number of non-rejects plus
 // all the multiple answers.
 static const int kNumAnswers = kNumNonReject + 2 * (kNumTop2Errs - kNumTopNErrs) +
-                        (kNumTop1Errs - kNumTop2Errs) +
-                        (kNumTopTopErrs - kNumTop1Errs);
+                               (kNumTop1Errs - kNumTop2Errs) + (kNumTopTopErrs - kNumTop1Errs);
 
 #ifndef DISABLED_LEGACY_ENGINE
-static bool safe_strto32(const std::string& str, int* pResult)
-{
+static bool safe_strto32(const std::string &str, int *pResult) {
   long n = strtol(str.c_str(), nullptr, 0);
   *pResult = n;
   return true;
@@ -66,8 +64,8 @@ static bool safe_strto32(const std::string& str, int* pResult)
 // Mock ShapeClassifier that cheats by looking at the correct answer, and
 // creates a specific pattern of errors that can be tested.
 class MockClassifier : public ShapeClassifier {
- public:
-  explicit MockClassifier(ShapeTable* shape_table)
+public:
+  explicit MockClassifier(ShapeTable *shape_table)
       : shape_table_(shape_table), num_done_(0), done_bad_font_(false) {
     // Add a false font answer to the shape table. We pick a random unichar_id,
     // add a new shape for it with a false font. Font must actually exist in
@@ -83,12 +81,12 @@ class MockClassifier : public ShapeClassifier {
   // If keep_this (a shape index) is >= 0, then the results should always
   // contain keep_this, and (if possible) anything of intermediate confidence.
   // The return value is the number of classes saved in results.
-  int ClassifySample(const TrainingSample& sample, Pix* page_pix,
-                             int debug, UNICHAR_ID keep_this,
-                             std::vector<ShapeRating>* results) override {
+  int ClassifySample(const TrainingSample &sample, Pix *page_pix, int debug, UNICHAR_ID keep_this,
+                     std::vector<ShapeRating> *results) override {
     results->clear();
     // Everything except the first kNumNonReject is a reject.
-    if (++num_done_ > kNumNonReject) return 0;
+    if (++num_done_ > kNumNonReject)
+      return 0;
 
     int class_id = sample.class_id();
     int font_id = sample.font_id();
@@ -125,11 +123,13 @@ class MockClassifier : public ShapeClassifier {
     return results->size();
   }
   // Provides access to the ShapeTable that this classifier works with.
-  const ShapeTable* GetShapeTable() const override { return shape_table_; }
+  const ShapeTable *GetShapeTable() const override {
+    return shape_table_;
+  }
 
- private:
+private:
   // Borrowed pointer to the ShapeTable.
-  ShapeTable* shape_table_;
+  ShapeTable *shape_table_;
   // Unichar_id of a random character that occurs after the first 60 samples.
   int false_unichar_id_;
   // Shape index of prepared false answer for false_unichar_id.
@@ -145,16 +145,16 @@ const double kMin1lDistance = 0.25;
 // The fixture for testing Tesseract.
 class MasterTrainerTest : public testing::Test {
 #ifndef DISABLED_LEGACY_ENGINE
- protected:
+protected:
   void SetUp() {
     std::locale::global(std::locale(""));
     file::MakeTmpdir();
   }
 
-  std::string TestDataNameToPath(const std::string& name) {
+  std::string TestDataNameToPath(const std::string &name) {
     return file::JoinPath(TESTING_DIR, name);
   }
-  std::string TmpNameToPath(const std::string& name) {
+  std::string TmpNameToPath(const std::string &name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
@@ -175,13 +175,12 @@ class MasterTrainerTest : public testing::Test {
     FLAGS_X = TestDataNameToPath("eng.xheights").c_str();
     FLAGS_U = TestDataNameToPath("eng.unicharset").c_str();
     std::string tr_file_name(TestDataNameToPath("eng.Arial.exp0.tr"));
-    const char* argv[] = {tr_file_name.c_str()};
+    const char *argv[] = {tr_file_name.c_str()};
     int argc = 1;
-    STRING file_prefix;
+    std::string file_prefix;
     delete shape_table_;
     shape_table_ = nullptr;
-    master_trainer_ =
-        LoadTrainingData(argc, argv, false, &shape_table_, &file_prefix);
+    master_trainer_ = LoadTrainingData(argc, argv, false, &shape_table_, file_prefix);
     EXPECT_TRUE(master_trainer_ != nullptr);
     EXPECT_TRUE(shape_table_ != nullptr);
   }
@@ -207,34 +206,28 @@ class MasterTrainerTest : public testing::Test {
     int shape_1 = shape_table_->FindShape(unichar_1, font_id);
     EXPECT_GE(shape_1, 0);
 
-    float dist_I_l =
-        master_trainer_->ShapeDistance(*shape_table_, shape_I, shape_l);
+    float dist_I_l = master_trainer_->ShapeDistance(*shape_table_, shape_I, shape_l);
     // No tolerance here. We expect that I and l should match exactly.
     EXPECT_EQ(0.0f, dist_I_l);
-    float dist_l_I =
-        master_trainer_->ShapeDistance(*shape_table_, shape_l, shape_I);
+    float dist_l_I = master_trainer_->ShapeDistance(*shape_table_, shape_l, shape_I);
     // BOTH ways.
     EXPECT_EQ(0.0f, dist_l_I);
 
     // l/1 on the other hand should be distinct.
-    float dist_l_1 =
-        master_trainer_->ShapeDistance(*shape_table_, shape_l, shape_1);
+    float dist_l_1 = master_trainer_->ShapeDistance(*shape_table_, shape_l, shape_1);
     EXPECT_GT(dist_l_1, kMin1lDistance);
-    float dist_1_l =
-        master_trainer_->ShapeDistance(*shape_table_, shape_1, shape_l);
+    float dist_1_l = master_trainer_->ShapeDistance(*shape_table_, shape_1, shape_l);
     EXPECT_GT(dist_1_l, kMin1lDistance);
 
     // So should I/1.
-    float dist_I_1 =
-        master_trainer_->ShapeDistance(*shape_table_, shape_I, shape_1);
+    float dist_I_1 = master_trainer_->ShapeDistance(*shape_table_, shape_I, shape_1);
     EXPECT_GT(dist_I_1, kMin1lDistance);
-    float dist_1_I =
-        master_trainer_->ShapeDistance(*shape_table_, shape_1, shape_I);
+    float dist_1_I = master_trainer_->ShapeDistance(*shape_table_, shape_1, shape_I);
     EXPECT_GT(dist_1_I, kMin1lDistance);
   }
 
   // Objects declared here can be used by all tests in the test case for Foo.
-  ShapeTable* shape_table_;
+  ShapeTable *shape_table_;
   std::unique_ptr<MasterTrainer> master_trainer_;
 #endif
 };
@@ -263,18 +256,17 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
   LoadMasterTrainer();
   // Add the space character to the shape_table_ if not already present to
   // count junk.
-  if (shape_table_->FindShape(0, -1) < 0) shape_table_->AddShape(0, 0);
+  if (shape_table_->FindShape(0, -1) < 0)
+    shape_table_->AddShape(0, 0);
   // Make a mock classifier.
   auto shape_classifier = std::make_unique<MockClassifier>(shape_table_);
   // Get the accuracy report.
-  STRING accuracy_report;
-  master_trainer_->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR, 0,
-                                           false, shape_classifier.get(),
-                                           &accuracy_report);
+  std::string accuracy_report;
+  master_trainer_->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR, 0, false,
+                                           shape_classifier.get(), &accuracy_report);
   LOG(INFO) << accuracy_report.c_str();
   std::string result_string = accuracy_report.c_str();
-  std::vector<std::string> results =
-      absl::StrSplit(result_string, '\t', absl::SkipEmpty());
+  std::vector<std::string> results = absl::StrSplit(result_string, '\t', absl::SkipEmpty());
   EXPECT_EQ(tesseract::CT_SIZE + 1, results.size());
   int result_values[tesseract::CT_SIZE];
   for (int i = 0; i < tesseract::CT_SIZE; ++i) {
@@ -290,8 +282,7 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
   EXPECT_EQ(kNumTop2Errs, result_values[tesseract::CT_UNICHAR_TOP2_ERR]);
   EXPECT_EQ(kNumTopNErrs, result_values[tesseract::CT_UNICHAR_TOPN_ERR]);
   // Each of the TOPTOP errs also counts as a multi-unichar.
-  EXPECT_EQ(kNumTopTopErrs - kNumTop1Errs,
-            result_values[tesseract::CT_OK_MULTI_UNICHAR]);
+  EXPECT_EQ(kNumTopTopErrs - kNumTop1Errs, result_values[tesseract::CT_OK_MULTI_UNICHAR]);
   EXPECT_EQ(num_samples - kNumNonReject, result_values[tesseract::CT_REJECT]);
   EXPECT_EQ(kNumAnswers, result_values[tesseract::CT_NUM_RESULTS]);
 #endif

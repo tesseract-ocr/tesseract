@@ -16,34 +16,32 @@
  *
  **********************************************************************/
 
-#include          "sortflts.h"
+#include "sortflts.h"
 
 namespace tesseract {
 
-ELISTIZE (SORTED_FLOAT)
+ELISTIZE(SORTED_FLOAT)
 /**
  * @name SORTED_FLOATS::add
  *
  * Add a new entry to the sorted list of floats.
  */
-void SORTED_FLOATS::add(  //add new entry
-                        float value,
-                        int32_t key) {
-  auto *new_float = new SORTED_FLOAT (value, key);
+void SORTED_FLOATS::add( // add new entry
+    float value, int32_t key) {
+  auto *new_float = new SORTED_FLOAT(value, key);
 
-  if (list.empty ())
-    it.add_after_stay_put (new_float);
+  if (list.empty())
+    it.add_after_stay_put(new_float);
   else {
-    it.move_to_first ();
-    while (!it.at_last () && it.data ()->entry < value)
-      it.forward ();
-    if (it.data ()->entry < value)
-      it.add_after_stay_put (new_float);
+    it.move_to_first();
+    while (!it.at_last() && it.data()->entry < value)
+      it.forward();
+    if (it.data()->entry < value)
+      it.add_after_stay_put(new_float);
     else
-      it.add_before_stay_put (new_float);
+      it.add_before_stay_put(new_float);
   }
 }
-
 
 /**
  * @name SORTED_FLOATS::remove
@@ -51,18 +49,17 @@ void SORTED_FLOATS::add(  //add new entry
  * Remove an entry from the sorted list of floats.
  */
 
-void SORTED_FLOATS::remove(  //remove the entry
-                           int32_t key) {
-  if (!list.empty ()) {
-    for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-      if (it.data ()->address == key) {
-        delete it.extract ();
+void SORTED_FLOATS::remove( // remove the entry
+    int32_t key) {
+  if (!list.empty()) {
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      if (it.data()->address == key) {
+        delete it.extract();
         return;
       }
     }
   }
 }
-
 
 /**
  * @name SORTED_FLOATS::operator[]
@@ -70,12 +67,11 @@ void SORTED_FLOATS::remove(  //remove the entry
  * Return the floating point value of the given index into the list.
  */
 
-float
-SORTED_FLOATS::operator[] (      //get an entry
-int32_t index                      //to list
+float SORTED_FLOATS::operator[]( // get an entry
+    int32_t index                // to list
 ) {
-  it.move_to_first ();
-  return it.data_relative (index)->entry;
+  it.move_to_first();
+  return it.data_relative(index)->entry;
 }
 
 } // namespace tesseract

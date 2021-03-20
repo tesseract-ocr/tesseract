@@ -1,5 +1,6 @@
 name: vcpkg
 # build and test of tesseract on windows using vcpkg and cmake.
+# vcpkg with -head does not work. https://github.com/microsoft/vcpkg/issues/16019
 on:
   #push:
   schedule:

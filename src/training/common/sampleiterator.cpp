@@ -27,11 +27,11 @@ namespace tesseract {
 // ================== SampleIterator Implementation =================
 
 SampleIterator::SampleIterator()
-  : charset_map_(nullptr),
-    shape_table_(nullptr),
-    sample_set_(nullptr),
-    randomize_(false),
-    owned_shape_table_(nullptr) {
+    : charset_map_(nullptr)
+    , shape_table_(nullptr)
+    , sample_set_(nullptr)
+    , randomize_(false)
+    , owned_shape_table_(nullptr) {
   num_shapes_ = 0;
   Begin();
 }
@@ -46,10 +46,8 @@ void SampleIterator::Clear() {
 }
 
 // See class comment for arguments.
-void SampleIterator::Init(const IndexMapBiDi* charset_map,
-                          const ShapeTable* shape_table,
-                          bool randomize,
-                          TrainingSampleSet* sample_set) {
+void SampleIterator::Init(const IndexMapBiDi *charset_map, const ShapeTable *shape_table,
+                          bool randomize, TrainingSampleSet *sample_set) {
   Clear();
   charset_map_ = charset_map;
   shape_table_ = shape_table;
@@ -76,8 +74,7 @@ void SampleIterator::Init(const IndexMapBiDi* charset_map,
   if (shape_table_ != nullptr) {
     num_shapes_ = shape_table_->NumShapes();
   } else {
-    num_shapes_ = randomize ? sample_set_->num_samples()
-                            : sample_set_->num_raw_samples();
+    num_shapes_ = randomize ? sample_set_->num_samples() : sample_set_->num_raw_samples();
   }
   Begin();
 }
@@ -102,9 +99,9 @@ bool SampleIterator::AtEnd() const {
   return shape_index_ >= num_shapes_;
 }
 
-const TrainingSample& SampleIterator::GetSample() const {
+const TrainingSample &SampleIterator::GetSample() const {
   if (shape_table_ != nullptr) {
-    const UnicharAndFonts* shape_entry = GetShapeEntry();
+    const UnicharAndFonts *shape_entry = GetShapeEntry();
     int char_id = shape_entry->unichar_id;
     int font_id = shape_entry->font_ids[shape_font_index_];
     return *sample_set_->GetSample(font_id, char_id, sample_index_);
@@ -113,9 +110,9 @@ const TrainingSample& SampleIterator::GetSample() const {
   }
 }
 
-TrainingSample* SampleIterator::MutableSample() const {
+TrainingSample *SampleIterator::MutableSample() const {
   if (shape_table_ != nullptr) {
-    const UnicharAndFonts* shape_entry = GetShapeEntry();
+    const UnicharAndFonts *shape_entry = GetShapeEntry();
     int char_id = shape_entry->unichar_id;
     int font_id = shape_entry->font_ids[shape_font_index_];
     return sample_set_->MutableSample(font_id, char_id, sample_index_);
@@ -128,7 +125,7 @@ TrainingSample* SampleIterator::MutableSample() const {
 // sample.
 int SampleIterator::GlobalSampleIndex() const {
   if (shape_table_ != nullptr) {
-    const UnicharAndFonts* shape_entry = GetShapeEntry();
+    const UnicharAndFonts *shape_entry = GetShapeEntry();
     int char_id = shape_entry->unichar_id;
     int font_id = shape_entry->font_ids[shape_font_index_];
     return sample_set_->GlobalSampleIndex(font_id, char_id, sample_index_);
@@ -142,8 +139,7 @@ int SampleIterator::GlobalSampleIndex() const {
 // 0 or 1, and have nothing to do with the unichar_ids.
 // If the charset_map_ is nullptr, then this is equal to GetSparseClassID().
 int SampleIterator::GetCompactClassID() const {
-  return charset_map_ != nullptr ? charset_map_->SparseToCompact(shape_index_)
-                              : GetSparseClassID();
+  return charset_map_ != nullptr ? charset_map_->SparseToCompact(shape_index_) : GetSparseClassID();
 }
 // Returns the index of the current sample in sparse charset space, so
 // in a 2-class problem between x and y, the returned indices will all be
@@ -174,15 +170,14 @@ void SampleIterator::Next() {
           shape_char_index_ = 0;
           do {
             ++shape_index_;
-          } while (shape_index_ < num_shapes_ &&
-                   charset_map_ != nullptr &&
+          } while (shape_index_ < num_shapes_ && charset_map_ != nullptr &&
                    charset_map_->SparseToCompact(shape_index_) < 0);
           if (shape_index_ >= num_shapes_)
-            return;  // The end.
+            return; // The end.
           num_shape_chars_ = shape_table_->GetShape(shape_index_).size();
         }
       }
-      const UnicharAndFonts* shape_entry = GetShapeEntry();
+      const UnicharAndFonts *shape_entry = GetShapeEntry();
       num_shape_fonts_ = shape_entry->font_ids.size();
       int char_id = shape_entry->unichar_id;
       int font_id = shape_entry->font_ids[shape_font_index_];
@@ -196,35 +191,32 @@ void SampleIterator::Next() {
 
 // Returns the size of the compact charset space.
 int SampleIterator::CompactCharsetSize() const {
-  return charset_map_ != nullptr ? charset_map_->CompactSize()
-                              : SparseCharsetSize();
+  return charset_map_ != nullptr ? charset_map_->CompactSize() : SparseCharsetSize();
 }
 
 // Returns the size of the sparse charset space.
 int SampleIterator::SparseCharsetSize() const {
   return charset_map_ != nullptr
-      ? charset_map_->SparseSize()
-      : (shape_table_ != nullptr ? shape_table_->NumShapes()
-                              : sample_set_->charsetsize());
+             ? charset_map_->SparseSize()
+             : (shape_table_ != nullptr ? shape_table_->NumShapes() : sample_set_->charsetsize());
 }
-
 
 // Sets the mapped_features_ from the features using the provided
 // feature_map.
-static void MapFeatures(TrainingSample &s, const IntFeatureMap& feature_map) {
-    GenericVector<int> indexed_features;
-    feature_map.feature_space().IndexAndSortFeatures(s.features(), s.num_features(),
-        &indexed_features);
-    feature_map.MapIndexedFeatures(indexed_features, &s.mapped_features_);
-    s.features_are_indexed_ = false;
-    s.features_are_mapped_ = true;
+static void MapFeatures(TrainingSample &s, const IntFeatureMap &feature_map) {
+  std::vector<int> indexed_features;
+  feature_map.feature_space().IndexAndSortFeatures(s.features(), s.num_features(),
+                                                   &indexed_features);
+  feature_map.MapIndexedFeatures(indexed_features, &s.mapped_features_);
+  s.features_are_indexed_ = false;
+  s.features_are_mapped_ = true;
 }
 
 // Apply the supplied feature_space/feature_map transform to all samples
 // accessed by this iterator.
-void SampleIterator::MapSampleFeatures(const IntFeatureMap& feature_map) {
+void SampleIterator::MapSampleFeatures(const IntFeatureMap &feature_map) {
   for (Begin(); !AtEnd(); Next()) {
-    TrainingSample* sample = MutableSample();
+    TrainingSample *sample = MutableSample();
     MapFeatures(*sample, feature_map);
   }
 }
@@ -234,7 +226,7 @@ void SampleIterator::MapSampleFeatures(const IntFeatureMap& feature_map) {
 int SampleIterator::UniformSamples() {
   int num_good_samples = 0;
   for (Begin(); !AtEnd(); Next()) {
-    TrainingSample* sample = MutableSample();
+    TrainingSample *sample = MutableSample();
     sample->set_weight(1.0);
     ++num_good_samples;
   }
@@ -248,7 +240,7 @@ double SampleIterator::NormalizeSamples() {
   double total_weight = 0.0;
   int sample_count = 0;
   for (Begin(); !AtEnd(); Next()) {
-    const TrainingSample& sample = GetSample();
+    const TrainingSample &sample = GetSample();
     total_weight += sample.weight();
     ++sample_count;
   }
@@ -256,7 +248,7 @@ double SampleIterator::NormalizeSamples() {
   double min_assigned_sample_weight = 1.0;
   if (total_weight > 0.0) {
     for (Begin(); !AtEnd(); Next()) {
-      TrainingSample* sample = MutableSample();
+      TrainingSample *sample = MutableSample();
       double weight = sample->weight() / total_weight;
       if (weight < min_assigned_sample_weight)
         min_assigned_sample_weight = weight;
@@ -267,9 +259,9 @@ double SampleIterator::NormalizeSamples() {
 }
 
 // Helper returns the current UnicharAndFont shape_entry.
-const UnicharAndFonts* SampleIterator::GetShapeEntry() const {
-  const Shape& shape = shape_table_->GetShape(shape_index_);
+const UnicharAndFonts *SampleIterator::GetShapeEntry() const {
+  const Shape &shape = shape_table_->GetShape(shape_index_);
   return &shape[shape_char_index_];
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

@@ -50,7 +50,7 @@ class Tesseract;
  */
 
 class TESS_API PageIterator {
- public:
+public:
   /**
    * page_res and tesseract come directly from the BaseAPI.
    * The rectangle parameters are copied indirectly from the Thresholder,
@@ -65,9 +65,8 @@ class TESS_API PageIterator {
    * that tesseract has been given by the Thresholder.
    * After the constructor, Begin has already been called.
    */
-  PageIterator(PAGE_RES* page_res, Tesseract* tesseract, int scale,
-               int scaled_yres, int rect_left, int rect_top, int rect_width,
-               int rect_height);
+  PageIterator(PAGE_RES *page_res, Tesseract *tesseract, int scale, int scaled_yres, int rect_left,
+               int rect_top, int rect_width, int rect_height);
   virtual ~PageIterator();
 
   /**
@@ -76,11 +75,11 @@ class TESS_API PageIterator {
    * objects at a higher level. These constructors DO NOT CALL Begin, so
    * iterations will continue from the location of src.
    */
-  PageIterator(const PageIterator& src);
-  const PageIterator& operator=(const PageIterator& src);
+  PageIterator(const PageIterator &src);
+  const PageIterator &operator=(const PageIterator &src);
 
   /** Are we positioned at the same location as other? */
-  bool PositionedAtSameWord(const PAGE_RES_IT* other) const;
+  bool PositionedAtSameWord(const PAGE_RES_IT *other) const;
 
   // ============= Moving around within the page ============.
 
@@ -154,8 +153,7 @@ class TESS_API PageIterator {
    *  it.IsAtFinalElement(RIL_PARA, RIL_WORD) = true
    *  it.IsAtFinalElement(RIL_BLOCK, RIL_WORD) = false
    */
-  virtual bool IsAtFinalElement(PageIteratorLevel level,
-                                PageIteratorLevel element) const;
+  virtual bool IsAtFinalElement(PageIteratorLevel level, PageIteratorLevel element) const;
 
   /**
    * Returns whether this iterator is positioned
@@ -163,7 +161,7 @@ class TESS_API PageIterator {
    *   equal to other:  0
    *   after other:     1
    */
-  int Cmp(const PageIterator& other) const;
+  int Cmp(const PageIterator &other) const;
 
   // ============= Accessing data ==============.
   // Coordinate system:
@@ -187,8 +185,7 @@ class TESS_API PageIterator {
    * where the placement is obvious, and after recognition, it doesn't make as
    * much difference, as the diacritics will already be included in the word.
    */
-  void SetBoundingBoxComponents(bool include_upper_dots,
-                                bool include_lower_dots) {
+  void SetBoundingBoxComponents(bool include_upper_dots, bool include_lower_dots) {
     include_upper_dots_ = include_upper_dots;
     include_lower_dots_ = include_lower_dots;
   }
@@ -202,17 +199,16 @@ class TESS_API PageIterator {
    * from a grey image. The padding argument to GetImage can be used to expand
    * the image to include more foreground pixels. See GetImage below.
    */
-  bool BoundingBox(PageIteratorLevel level, int* left, int* top, int* right,
-                   int* bottom) const;
-  bool BoundingBox(PageIteratorLevel level, int padding, int* left, int* top,
-                   int* right, int* bottom) const;
+  bool BoundingBox(PageIteratorLevel level, int *left, int *top, int *right, int *bottom) const;
+  bool BoundingBox(PageIteratorLevel level, int padding, int *left, int *top, int *right,
+                   int *bottom) const;
   /**
    * Returns the bounding rectangle of the object in a coordinate system of the
    * working image rectangle having its origin at (rect_left_, rect_top_) with
    * respect to the original image and is scaled by a factor scale_.
    */
-  bool BoundingBoxInternal(PageIteratorLevel level, int* left, int* top,
-                           int* right, int* bottom) const;
+  bool BoundingBoxInternal(PageIteratorLevel level, int *left, int *top, int *right,
+                           int *bottom) const;
 
   /** Returns whether there is no object of a given level. */
   bool Empty(PageIteratorLevel level) const;
@@ -230,7 +226,7 @@ class TESS_API PageIterator {
    * point and the first point. nullptr will be returned if the iterator is
    * at the end of the document or layout analysis was not used.
    */
-  Pta* BlockPolygon() const;
+  Pta *BlockPolygon() const;
 
   /**
    * Returns a binary image of the current object at the given level.
@@ -238,7 +234,7 @@ class TESS_API PageIterator {
    * this could be upscaled with respect to the original input image.
    * Use pixDestroy to delete the image after use.
    */
-  Pix* GetBinaryImage(PageIteratorLevel level) const;
+  Pix *GetBinaryImage(PageIteratorLevel level) const;
 
   /**
    * Returns an image of the current object at the given level in greyscale
@@ -251,8 +247,7 @@ class TESS_API PageIterator {
    * If you do not supply an original image, you will get a binary one.
    * Use pixDestroy to delete the image after use.
    */
-  Pix* GetImage(PageIteratorLevel level, int padding, Pix* original_img,
-                int* left, int* top) const;
+  Pix *GetImage(PageIteratorLevel level, int padding, Pix *original_img, int *left, int *top) const;
 
   /**
    * Returns the baseline of the current object at the given level.
@@ -260,8 +255,7 @@ class TESS_API PageIterator {
    * WARNING: with vertical text, baselines may be vertical!
    * Returns false if there is no baseline at the current position.
    */
-  bool Baseline(PageIteratorLevel level, int* x1, int* y1, int* x2,
-                int* y2) const;
+  bool Baseline(PageIteratorLevel level, int *x1, int *y1, int *x2, int *y2) const;
 
   /**
    * Returns orientation for the block the iterator points to.
@@ -271,10 +265,9 @@ class TESS_API PageIterator {
    *                 block anti-clockwise for it to be level?
    *                   -Pi/4 <= deskew_angle <= Pi/4
    */
-  void Orientation(tesseract::Orientation* orientation,
-                   tesseract::WritingDirection* writing_direction,
-                   tesseract::TextlineOrder* textline_order,
-                   float* deskew_angle) const;
+  void Orientation(tesseract::Orientation *orientation,
+                   tesseract::WritingDirection *writing_direction,
+                   tesseract::TextlineOrder *textline_order, float *deskew_angle) const;
 
   /**
    * Returns information about the current paragraph, if available.
@@ -304,17 +297,16 @@ class TESS_API PageIterator {
    *             first_line_indent for subsequent paragraphs in this block
    *             of text.
    */
-  void ParagraphInfo(tesseract::ParagraphJustification* justification,
-                     bool* is_list_item, bool* is_crown,
-                     int* first_line_indent) const;
+  void ParagraphInfo(tesseract::ParagraphJustification *justification, bool *is_list_item,
+                     bool *is_crown, int *first_line_indent) const;
 
   // If the current WERD_RES (it_->word()) is not nullptr, sets the BlamerBundle
   // of the current word to the given pointer (takes ownership of the pointer)
   // and returns true.
   // Can only be used when iterating on the word level.
-  bool SetWordBlamerBundle(BlamerBundle* blamer_bundle);
+  bool SetWordBlamerBundle(BlamerBundle *blamer_bundle);
 
- protected:
+protected:
   /**
    * Sets up the internal data for iterating the blobs of a new word, then
    * moves the iterator to the given offset.
@@ -322,19 +314,19 @@ class TESS_API PageIterator {
   void BeginWord(int offset);
 
   /** Pointer to the page_res owned by the API. */
-  PAGE_RES* page_res_;
+  PAGE_RES *page_res_;
   /** Pointer to the Tesseract object owned by the API. */
-  Tesseract* tesseract_;
+  Tesseract *tesseract_;
   /**
    * The iterator to the page_res_. Owned by this ResultIterator.
    * A pointer just to avoid dragging in Tesseract includes.
    */
-  PAGE_RES_IT* it_;
+  PAGE_RES_IT *it_;
   /**
    * The current input WERD being iterated. If there is an output from OCR,
    * then word_ is nullptr. Owned by the API
    */
-  WERD* word_;
+  WERD *word_;
   /** The length of the current word_. */
   int word_length_;
   /** The current blob index within the word. */
@@ -344,7 +336,7 @@ class TESS_API PageIterator {
    * OCR results in the box_word.
    * Owned by this ResultIterator.
    */
-  C_BLOB_IT* cblob_it_;
+  C_BLOB_IT *cblob_it_;
   /** Control over what to include in bounding boxes. */
   bool include_upper_dots_;
   bool include_lower_dots_;
@@ -357,6 +349,6 @@ class TESS_API PageIterator {
   int rect_height_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_CCMAIN_PAGEITERATOR_H_
+#endif // TESSERACT_CCMAIN_PAGEITERATOR_H_

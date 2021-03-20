@@ -17,10 +17,10 @@
 #ifndef UTIL_UTF8_PUBLIC_UNICODETEXT_H_
 #define UTIL_UTF8_PUBLIC_UNICODETEXT_H_
 
-#include <stddef.h>                     // for NULL, ptrdiff_t
-#include <iterator>                     // for bidirectional_iterator_tag, etc
-#include <string>                       // for string
-#include <utility>                      // for pair
+#include <stddef.h> // for NULL, ptrdiff_t
+#include <iterator> // for bidirectional_iterator_tag, etc
+#include <string>   // for string
+#include <utility>  // for pair
 
 #include "syntaxnet/base.h"
 
@@ -114,35 +114,38 @@
 // efficient matching or display, and others.
 
 class UnicodeText {
- public:
+public:
   class const_iterator;
 
   typedef char32 value_type;
 
   // Constructors. These always produce owners.
-  UnicodeText();  // Create an empty text.
-  UnicodeText(const UnicodeText& src);  // copy constructor
+  UnicodeText();                       // Create an empty text.
+  UnicodeText(const UnicodeText &src); // copy constructor
   // Construct a substring (copies the data).
-  UnicodeText(const const_iterator& first, const const_iterator& last);
+  UnicodeText(const const_iterator &first, const const_iterator &last);
 
   // Assignment operator. This copies the data and produces an owner
   // unless this == &src, e.g., "x = x;", which is a no-op.
-  UnicodeText& operator=(const UnicodeText& src);
+  UnicodeText &operator=(const UnicodeText &src);
 
   // x.Copy(y) copies the data from y into x.
-  UnicodeText& Copy(const UnicodeText& src);
-  inline UnicodeText& assign(const UnicodeText& src) { return Copy(src); }
+  UnicodeText &Copy(const UnicodeText &src);
+  inline UnicodeText &assign(const UnicodeText &src) {
+    return Copy(src);
+  }
 
   // x.PointTo(y) changes x so that it points to y's data.
   // It does not copy y or take ownership of y's data.
-  UnicodeText& PointTo(const UnicodeText& src);
-  UnicodeText& PointTo(const const_iterator& first,
-                       const const_iterator& last);
+  UnicodeText &PointTo(const UnicodeText &src);
+  UnicodeText &PointTo(const const_iterator &first, const const_iterator &last);
 
   ~UnicodeText();
 
-  void clear();  // Clear text.
-  bool empty() const { return repr_.size_ == 0; }  // Test if text is empty.
+  void clear(); // Clear text.
+  bool empty() const {
+    return repr_.size_ == 0;
+  } // Test if text is empty.
 
   // Add a codepoint to the end of the text.
   // If the codepoint is not interchange-valid, add a space instead
@@ -156,105 +159,115 @@ class UnicodeText {
   //     vector<char32> more_chars = ...;
   //     utext.append(chars, chars+arraysize(chars));
   //     utext.append(more_chars.begin(), more_chars.end());
-  template<typename ForwardIterator>
-  UnicodeText& append(ForwardIterator first, const ForwardIterator last) {
-    while (first != last) { push_back(*first++); }
+  template <typename ForwardIterator>
+  UnicodeText &append(ForwardIterator first, const ForwardIterator last) {
+    while (first != last) {
+      push_back(*first++);
+    }
     return *this;
   }
 
   // A specialization of the generic append() method.
-  UnicodeText& append(const const_iterator& first, const const_iterator& last);
+  UnicodeText &append(const const_iterator &first, const const_iterator &last);
 
   // An optimization of append(source.begin(), source.end()).
-  UnicodeText& append(const UnicodeText& source);
+  UnicodeText &append(const UnicodeText &source);
 
-  int size() const;  // the number of Unicode characters (codepoints)
+  int size() const; // the number of Unicode characters (codepoints)
 
-  friend bool operator==(const UnicodeText& lhs, const UnicodeText& rhs);
-  friend bool operator!=(const UnicodeText& lhs, const UnicodeText& rhs);
+  friend bool operator==(const UnicodeText &lhs, const UnicodeText &rhs);
+  friend bool operator!=(const UnicodeText &lhs, const UnicodeText &rhs);
 
   class const_iterator {
     typedef const_iterator CI;
-   public:
+
+  public:
     typedef std::bidirectional_iterator_tag iterator_category;
     typedef char32 value_type;
     typedef ptrdiff_t difference_type;
-    typedef void pointer;  // (Not needed.)
-    typedef const char32 reference;  // (Needed for const_reverse_iterator)
+    typedef void pointer;           // (Not needed.)
+    typedef const char32 reference; // (Needed for const_reverse_iterator)
 
     // Iterators are default-constructible.
     const_iterator();
 
     // It's safe to make multiple passes over a UnicodeText.
-    const_iterator(const const_iterator& other);
-    const_iterator& operator=(const const_iterator& other);
+    const_iterator(const const_iterator &other);
+    const_iterator &operator=(const const_iterator &other);
 
-    char32 operator*() const;  // Dereference
+    char32 operator*() const; // Dereference
 
-    const_iterator& operator++();  // Advance (++iter)
-    const_iterator operator++(int) {  // (iter++)
+    const_iterator &operator++();    // Advance (++iter)
+    const_iterator operator++(int) { // (iter++)
       const_iterator result(*this);
       ++*this;
       return result;
     }
 
-    const_iterator& operator--();  // Retreat (--iter)
-    const_iterator operator--(int) {  // (iter--)
+    const_iterator &operator--();    // Retreat (--iter)
+    const_iterator operator--(int) { // (iter--)
       const_iterator result(*this);
       --*this;
       return result;
     }
 
     // We love relational operators.
-    friend bool operator==(const CI& lhs, const CI& rhs) {
-      return lhs.it_ == rhs.it_; }
-    friend bool operator!=(const CI& lhs, const CI& rhs) {
-      return !(lhs == rhs); }
-    friend bool operator<(const CI& lhs, const CI& rhs);
-    friend bool operator>(const CI& lhs, const CI& rhs) {
-      return rhs < lhs; }
-    friend bool operator<=(const CI& lhs, const CI& rhs) {
-      return !(rhs < lhs); }
-    friend bool operator>=(const CI& lhs, const CI& rhs) {
-      return !(lhs < rhs); }
+    friend bool operator==(const CI &lhs, const CI &rhs) {
+      return lhs.it_ == rhs.it_;
+    }
+    friend bool operator!=(const CI &lhs, const CI &rhs) {
+      return !(lhs == rhs);
+    }
+    friend bool operator<(const CI &lhs, const CI &rhs);
+    friend bool operator>(const CI &lhs, const CI &rhs) {
+      return rhs < lhs;
+    }
+    friend bool operator<=(const CI &lhs, const CI &rhs) {
+      return !(rhs < lhs);
+    }
+    friend bool operator>=(const CI &lhs, const CI &rhs) {
+      return !(lhs < rhs);
+    }
 
-    friend difference_type distance(const CI& first, const CI& last);
+    friend difference_type distance(const CI &first, const CI &last);
 
     // UTF-8-specific methods
     // Store the UTF-8 encoding of the current codepoint into buf,
     // which must be at least 4 bytes long. Return the number of
     // bytes written.
-    int get_utf8(char* buf) const;
+    int get_utf8(char *buf) const;
     // Return the UTF-8 character that the iterator points to.
     string get_utf8_string() const;
     // Return the byte length of the UTF-8 character the iterator points to.
     int utf8_length() const;
     // Return the iterator's pointer into the UTF-8 data.
-    const char* utf8_data() const { return it_; }
+    const char *utf8_data() const {
+      return it_;
+    }
 
     string DebugString() const;
 
-   private:
+  private:
     friend class UnicodeText;
     friend class UnicodeTextUtils;
     friend class UTF8StateTableProperty;
-    explicit const_iterator(const char* it) : it_(it) {}
+    explicit const_iterator(const char *it) : it_(it) {}
 
-    const char* it_;
+    const char *it_;
   };
 
   const_iterator begin() const;
   const_iterator end() const;
 
   class const_reverse_iterator : public std::reverse_iterator<const_iterator> {
-   public:
-    explicit const_reverse_iterator(const_iterator it) :
-        std::reverse_iterator<const_iterator>(it) {}
-    const char* utf8_data() const {
+  public:
+    explicit const_reverse_iterator(const_iterator it)
+        : std::reverse_iterator<const_iterator>(it) {}
+    const char *utf8_data() const {
       const_iterator tmp_it = base();
       return (--tmp_it).utf8_data();
     }
-    int get_utf8(char* buf) const {
+    int get_utf8(char *buf) const {
       const_iterator tmp_it = base();
       return (--tmp_it).get_utf8(buf);
     }
@@ -276,9 +289,9 @@ class UnicodeText {
 
   // Substring searching.  Returns the beginning of the first
   // occurrence of "look", or end() if not found.
-  const_iterator find(const UnicodeText& look, const_iterator start_pos) const;
+  const_iterator find(const UnicodeText &look, const_iterator start_pos) const;
   // Equivalent to find(look, begin())
-  const_iterator find(const UnicodeText& look) const;
+  const_iterator find(const UnicodeText &look) const;
 
   // Returns whether this contains the character U+FFFD.  This can
   // occur, for example, if the input to Encodings::Decode() had byte
@@ -289,13 +302,18 @@ class UnicodeText {
   //
   // Return the data, length, and capacity of UTF-8-encoded version of
   // the text. Length and capacity are measured in bytes.
-  const char* utf8_data() const { return repr_.data_; }
-  int utf8_length() const { return repr_.size_; }
-  int utf8_capacity() const { return repr_.capacity_; }
+  const char *utf8_data() const {
+    return repr_.data_;
+  }
+  int utf8_length() const {
+    return repr_.size_;
+  }
+  int utf8_capacity() const {
+    return repr_.capacity_;
+  }
 
   // Return the UTF-8 data as a string.
-  static string UTF8Substring(const const_iterator& first,
-                              const const_iterator& last);
+  static string UTF8Substring(const const_iterator &first, const const_iterator &last);
 
   // There are three methods for initializing a UnicodeText from UTF-8
   // data. They vary in details of memory management. In all cases,
@@ -305,57 +323,58 @@ class UnicodeText {
   // is replaced with a space.
 
   // x.CopyUTF8(buf, len) copies buf into x.
-  UnicodeText& CopyUTF8(const char* utf8_buffer, int byte_length);
+  UnicodeText &CopyUTF8(const char *utf8_buffer, int byte_length);
 
   // x.TakeOwnershipOfUTF8(buf, len, capacity). x takes ownership of
   // buf. buf is not copied.
-  UnicodeText& TakeOwnershipOfUTF8(char* utf8_buffer,
-                                   int byte_length,
-                                   int byte_capacity);
+  UnicodeText &TakeOwnershipOfUTF8(char *utf8_buffer, int byte_length, int byte_capacity);
 
   // x.PointToUTF8(buf,len) changes x so that it points to buf
   // ("becomes an alias"). It does not take ownership or copy buf.
   // If the buffer is not valid, this has the same effect as
   // CopyUTF8(utf8_buffer, byte_length).
-  UnicodeText& PointToUTF8(const char* utf8_buffer, int byte_length);
+  UnicodeText &PointToUTF8(const char *utf8_buffer, int byte_length);
 
   // Occasionally it is necessary to use functions that operate on the
   // pointer returned by utf8_data(). MakeIterator(p) provides a way
   // to get back to the UnicodeText level. It uses CHECK to ensure
   // that p is a pointer within this object's UTF-8 data, and that it
   // points to the beginning of a character.
-  const_iterator MakeIterator(const char* p) const;
+  const_iterator MakeIterator(const char *p) const;
 
   string DebugString() const;
 
- private:
+private:
   friend class const_iterator;
   friend class UnicodeTextUtils;
 
-  class Repr {  // A byte-string.
-   public:
-    char* data_;
+  class Repr { // A byte-string.
+  public:
+    char *data_;
     int size_;
     int capacity_;
-    bool ours_;  // Do we own data_?
+    bool ours_; // Do we own data_?
 
     Repr() : data_(nullptr), size_(0), capacity_(0), ours_(true) {}
-    ~Repr() { if (ours_) delete[] data_; }
+    ~Repr() {
+      if (ours_)
+        delete[] data_;
+    }
 
     void clear();
     void reserve(int capacity);
     void resize(int size);
 
-    void append(const char* bytes, int byte_length);
-    void Copy(const char* data, int size);
-    void TakeOwnershipOf(char* data, int size, int capacity);
-    void PointTo(const char* data, int size);
+    void append(const char *bytes, int byte_length);
+    void Copy(const char *data, int size);
+    void TakeOwnershipOf(char *data, int size, int capacity);
+    void PointTo(const char *data, int size);
 
     string DebugString() const;
 
-   private:
-    Repr& operator=(const Repr&);
-    Repr(const Repr& other);
+  private:
+    Repr &operator=(const Repr &);
+    Repr(const Repr &other);
   };
 
   Repr repr_;
@@ -366,30 +385,26 @@ class UnicodeText {
   // It is an error to call these methods with UTF-8 data that
   // is not interchange-valid.
   //
-  UnicodeText& UnsafeCopyUTF8(const char* utf8_buffer, int byte_length);
-  UnicodeText& UnsafeTakeOwnershipOfUTF8(
-      char* utf8_buffer, int byte_length, int byte_capacity);
-  UnicodeText& UnsafePointToUTF8(const char* utf8_buffer, int byte_length);
-  UnicodeText& UnsafeAppendUTF8(const char* utf8_buffer, int byte_length);
-  const_iterator UnsafeFind(const UnicodeText& look,
-                            const_iterator start_pos) const;
+  UnicodeText &UnsafeCopyUTF8(const char *utf8_buffer, int byte_length);
+  UnicodeText &UnsafeTakeOwnershipOfUTF8(char *utf8_buffer, int byte_length, int byte_capacity);
+  UnicodeText &UnsafePointToUTF8(const char *utf8_buffer, int byte_length);
+  UnicodeText &UnsafeAppendUTF8(const char *utf8_buffer, int byte_length);
+  const_iterator UnsafeFind(const UnicodeText &look, const_iterator start_pos) const;
 };
 
-bool operator==(const UnicodeText& lhs, const UnicodeText& rhs);
+bool operator==(const UnicodeText &lhs, const UnicodeText &rhs);
 
-inline bool operator!=(const UnicodeText& lhs, const UnicodeText& rhs) {
+inline bool operator!=(const UnicodeText &lhs, const UnicodeText &rhs) {
   return !(lhs == rhs);
 }
 
 // UnicodeTextRange is a pair of iterators, useful for specifying text
 // segments. If the iterators are ==, the segment is empty.
-typedef pair<UnicodeText::const_iterator,
-             UnicodeText::const_iterator> UnicodeTextRange;
+typedef pair<UnicodeText::const_iterator, UnicodeText::const_iterator> UnicodeTextRange;
 
-inline bool UnicodeTextRangeIsEmpty(const UnicodeTextRange& r) {
+inline bool UnicodeTextRangeIsEmpty(const UnicodeTextRange &r) {
   return r.first == r.second;
 }
-
 
 // *************************** Utilities *************************
 
@@ -402,18 +417,17 @@ inline bool UnicodeTextRangeIsEmpty(const UnicodeTextRange& r) {
 // replaced with a space, even if the codepoint was represented with a
 // multibyte sequence in the UTF-8 data.
 //
-inline UnicodeText MakeUnicodeTextAcceptingOwnership(
-    char* utf8_buffer, int byte_length, int byte_capacity) {
-  return UnicodeText().TakeOwnershipOfUTF8(
-      utf8_buffer, byte_length, byte_capacity);
+inline UnicodeText MakeUnicodeTextAcceptingOwnership(char *utf8_buffer, int byte_length,
+                                                     int byte_capacity) {
+  return UnicodeText().TakeOwnershipOfUTF8(utf8_buffer, byte_length, byte_capacity);
 }
 
 // A factory function for creating a UnicodeText from a buffer of
 // UTF-8 data. The new UnicodeText does not take ownership of the
 // buffer. (It is an "alias.")
 //
-inline UnicodeText MakeUnicodeTextWithoutAcceptingOwnership(
-    const char* utf8_buffer, int byte_length) {
+inline UnicodeText MakeUnicodeTextWithoutAcceptingOwnership(const char *utf8_buffer,
+                                                            int byte_length) {
   return UnicodeText().PointToUTF8(utf8_buffer, byte_length);
 }
 
@@ -434,8 +448,7 @@ inline UnicodeText MakeUnicodeTextWithoutAcceptingOwnership(
 // made (as if do_copy were true) and coerced to valid UTF-8 by
 // replacing each invalid byte with a space.
 //
-inline UnicodeText UTF8ToUnicodeText(const char* utf8_buf, int len,
-                                     bool do_copy) {
+inline UnicodeText UTF8ToUnicodeText(const char *utf8_buf, int len, bool do_copy) {
   UnicodeText t;
   if (do_copy) {
     t.CopyUTF8(utf8_buf, len);
@@ -445,20 +458,20 @@ inline UnicodeText UTF8ToUnicodeText(const char* utf8_buf, int len,
   return t;
 }
 
-inline UnicodeText UTF8ToUnicodeText(const string& utf_string, bool do_copy) {
+inline UnicodeText UTF8ToUnicodeText(const string &utf_string, bool do_copy) {
   return UTF8ToUnicodeText(utf_string.data(), utf_string.size(), do_copy);
 }
 
-inline UnicodeText UTF8ToUnicodeText(const char* utf8_buf, int len) {
+inline UnicodeText UTF8ToUnicodeText(const char *utf8_buf, int len) {
   return UTF8ToUnicodeText(utf8_buf, len, true);
 }
-inline UnicodeText UTF8ToUnicodeText(const string& utf8_string) {
+inline UnicodeText UTF8ToUnicodeText(const string &utf8_string) {
   return UTF8ToUnicodeText(utf8_string, true);
 }
 
 // Return a string containing the UTF-8 encoded version of all the
 // Unicode characters in t.
-inline string UnicodeTextToUTF8(const UnicodeText& t) {
+inline string UnicodeTextToUTF8(const UnicodeText &t) {
   return string(t.utf8_data(), t.utf8_length());
 }
 
@@ -472,6 +485,6 @@ char (&ArraySizeHelper(T (&array)[N]))[N];
 // For debugging.  Return a string of integers, written in uppercase
 // hex (%X), corresponding to the codepoints within the text. Each
 // integer is followed by a space. E.g., "61 62 6A 3005 ".
-string CodepointString(const UnicodeText& t);
+string CodepointString(const UnicodeText &t);
 
-#endif  // UTIL_UTF8_PUBLIC_UNICODETEXT_H_
+#endif // UTIL_UTF8_PUBLIC_UNICODETEXT_H_

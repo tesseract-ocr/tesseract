@@ -31,13 +31,13 @@
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
 #  endif
-#include <windows.h>
+#  include <windows.h>
 #if defined(_MSC_VER)
 #include <crtdbg.h>
 #endif
-#undef min
-#undef max
-#endif  // _WIN32
+#  undef min
+#  undef max
+#endif // _WIN32
 
 #ifndef _WIN32
 #  ifndef PATH_MAX
@@ -50,11 +50,12 @@
 namespace tesseract {
 
 // Return true if x is within tolerance of y
-template<class T> bool NearlyEqual(T x, T y, T tolerance) {
+template <class T>
+bool NearlyEqual(T x, T y, T tolerance) {
   T diff = x - y;
   return diff <= tolerance && -diff <= tolerance;
 }
 
 } // namespace tesseract
 
-#endif  // TESSERACT_CCUTIL_HOST_H_
+#endif // TESSERACT_CCUTIL_HOST_H_

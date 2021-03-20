@@ -17,9 +17,9 @@
  *
  *****************************************************************************/
 
- // Include automatically generated configuration file if running autoconf.
+// Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#  include "config_auto.h"
 #endif
 
 #include "plotedges.h"
@@ -55,11 +55,9 @@ void display_edgepts(LIST outlines) {
   auto window = edge_window;
   /* Reclaim old memory */
   iterate(outlines) {
-    render_edgepts(window, reinterpret_cast<EDGEPT *>first_node (outlines),
-                   ScrollView::WHITE);
+    render_edgepts(window, reinterpret_cast<EDGEPT *> first_node(outlines), ScrollView::WHITE);
   }
 }
-
 
 /**********************************************************************
  * draw_blob_edges
@@ -69,7 +67,7 @@ void display_edgepts(LIST outlines) {
 void draw_blob_edges(TBLOB *blob) {
   if (wordrec_display_splits) {
     LIST edge_list = NIL_LIST;
-    for (TESSLINE* ol = blob->outlines; ol != nullptr; ol = ol->next) {
+    for (TESSLINE *ol = blob->outlines; ol != nullptr; ol = ol->next) {
       edge_list = push(edge_list, ol->loop);
     }
     display_edgepts(edge_list);
@@ -77,13 +75,12 @@ void draw_blob_edges(TBLOB *blob) {
   }
 }
 
-
 /**********************************************************************
  * mark_outline
  *
  * Make a mark on the edges window at a particular location.
  **********************************************************************/
-void mark_outline(EDGEPT *edgept) {  /* Start of point list */
+void mark_outline(EDGEPT *edgept) { /* Start of point list */
   auto window = edge_window;
   float x = edgept->pos.x;
   float y = edgept->pos.y;

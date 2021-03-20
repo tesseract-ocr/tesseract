@@ -27,7 +27,7 @@
 #include <sys/types.h>
 
 #if defined(_WIN32)
-#include <direct.h>
+#  include <direct.h>
 #endif
 
 namespace tesseract {
@@ -37,10 +37,10 @@ namespace tesseract {
 // Default writer will overwrite any existing file, but a supplied writer
 // can do its own thing. If lang is empty, returns true but does nothing.
 // NOTE that suffix should contain any required . for the filename.
-bool WriteFile(const std::string& output_dir, const std::string& lang,
-               const std::string& suffix, const std::vector<char>& data,
-               FileWriter writer) {
-  if (lang.empty()) return true;
+bool WriteFile(const std::string &output_dir, const std::string &lang, const std::string &suffix,
+               const std::vector<char> &data, FileWriter writer) {
+  if (lang.empty())
+    return true;
   std::string dirname = output_dir + "/" + lang;
   // Attempt to make the directory, but ignore errors, as it may not be a
   // standard filesystem, and the writer will complain if not successful.
@@ -56,29 +56,31 @@ bool WriteFile(const std::string& output_dir, const std::string& lang,
     return (*writer)(data, filename.c_str());
 }
 
-// Helper reads a file with optional reader and returns a STRING.
-// On failure emits a warning message and returns and empty STRING.
-STRING ReadFile(const std::string& filename, FileReader reader) {
-  if (filename.empty()) return STRING();
+// Helper reads a file with optional reader and returns a string.
+// On failure emits a warning message and returns an empty string.
+std::string ReadFile(const std::string &filename, FileReader reader) {
+  if (filename.empty())
+    return std::string();
   std::vector<char> data;
   bool read_result;
   if (reader == nullptr)
     read_result = LoadDataFromFile(filename.c_str(), &data);
   else
     read_result = (*reader)(filename.c_str(), &data);
-  if (read_result) return STRING(&data[0], data.size());
+  if (read_result)
+    return std::string(&data[0], data.size());
   tprintf("Failed to read data from: %s\n", filename.c_str());
-  return STRING();
+  return std::string();
 }
 
 // Helper writes the unicharset to file and to the traineddata.
-bool WriteUnicharset(const UNICHARSET& unicharset, const std::string& output_dir,
-                     const std::string& lang, FileWriter writer,
-                     TessdataManager* traineddata) {
+bool WriteUnicharset(const UNICHARSET &unicharset, const std::string &output_dir,
+                     const std::string &lang, FileWriter writer, TessdataManager *traineddata) {
   std::vector<char> unicharset_data;
   TFile fp;
   fp.OpenWrite(&unicharset_data);
-  if (!unicharset.save_to_file(&fp)) return false;
+  if (!unicharset.save_to_file(&fp))
+    return false;
   traineddata->OverwriteEntry(TESSDATA_LSTM_UNICHARSET, &unicharset_data[0],
                               unicharset_data.size());
   return WriteFile(output_dir, lang, ".unicharset", unicharset_data, writer);
@@ -86,10 +88,9 @@ bool WriteUnicharset(const UNICHARSET& unicharset, const std::string& output_dir
 
 // Helper creates the recoder and writes it to the traineddata, and a human-
 // readable form to file.
-bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
-                  const std::string& output_dir, const std::string& lang,
-                  FileWriter writer, STRING* radical_table_data,
-                  TessdataManager* traineddata) {
+bool WriteRecoder(const UNICHARSET &unicharset, bool pass_through, const std::string &output_dir,
+                  const std::string &lang, FileWriter writer, std::string *radical_table_data,
+                  TessdataManager *traineddata) {
   UnicharCompress recoder;
   // Where the unicharset is carefully setup already to contain a good
   // compact encoding, use a pass-through recoder that does nothing.
@@ -102,8 +103,7 @@ bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
   if (pass_through) {
     recoder.SetupPassThrough(unicharset);
   } else {
-    int null_char =
-        unicharset.has_special_codes() ? UNICHAR_BROKEN : unicharset.size();
+    int null_char = unicharset.has_special_codes() ? UNICHAR_BROKEN : unicharset.size();
     tprintf("Null char=%d\n", null_char);
     if (!recoder.ComputeEncoding(unicharset, null_char, radical_table_data)) {
       tprintf("Creation of encoded unicharset failed!!\n");
@@ -113,34 +113,35 @@ bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
   TFile fp;
   std::vector<char> recoder_data;
   fp.OpenWrite(&recoder_data);
-  if (!recoder.Serialize(&fp)) return false;
-  traineddata->OverwriteEntry(TESSDATA_LSTM_RECODER, &recoder_data[0],
-                              recoder_data.size());
-  STRING encoding = recoder.GetEncodingAsString(unicharset);
+  if (!recoder.Serialize(&fp))
+    return false;
+  traineddata->OverwriteEntry(TESSDATA_LSTM_RECODER, &recoder_data[0], recoder_data.size());
+  std::string encoding = recoder.GetEncodingAsString(unicharset);
   recoder_data.resize(encoding.length(), 0);
   memcpy(&recoder_data[0], &encoding[0], encoding.length());
-  STRING suffix;
-  suffix.add_str_int(".charset_size=", recoder.code_range());
+  std::string suffix;
+  suffix += ".charset_size=" + std::to_string(recoder.code_range());
   suffix += ".txt";
   return WriteFile(output_dir, lang, suffix.c_str(), recoder_data, writer);
 }
 
 // Helper builds a dawg from the given words, using the unicharset as coding,
 // and reverse_policy for LTR/RTL, and overwrites file_type in the traineddata.
-static bool WriteDawg(const std::vector<STRING>& words,
-                      const UNICHARSET& unicharset,
-                      Trie::RTLReversePolicy reverse_policy,
-                      TessdataType file_type, TessdataManager* traineddata) {
+static bool WriteDawg(const std::vector<std::string> &words, const UNICHARSET &unicharset,
+                      Trie::RTLReversePolicy reverse_policy, TessdataType file_type,
+                      TessdataManager *traineddata) {
   // The first 3 arguments are not used in this case.
   Trie trie(DAWG_TYPE_WORD, "", SYSTEM_DAWG_PERM, unicharset.size(), 0);
   trie.add_word_list(words, unicharset, reverse_policy);
   tprintf("Reducing Trie to SquishedDawg\n");
   std::unique_ptr<SquishedDawg> dawg(trie.trie_to_dawg());
-  if (dawg == nullptr || dawg->NumEdges() == 0) return false;
+  if (dawg == nullptr || dawg->NumEdges() == 0)
+    return false;
   TFile fp;
   std::vector<char> dawg_data;
   fp.OpenWrite(&dawg_data);
-  if (!dawg->write_squished_dawg(&fp)) return false;
+  if (!dawg->write_squished_dawg(&fp))
+    return false;
   traineddata->OverwriteEntry(file_type, &dawg_data[0], dawg_data.size());
   return true;
 }
@@ -148,11 +149,9 @@ static bool WriteDawg(const std::vector<STRING>& words,
 // Builds and writes the dawgs, given a set of words, punctuation
 // patterns, number patterns, to the traineddata. Encoding uses the given
 // unicharset, and the punc dawgs is reversed if lang_is_rtl.
-static bool WriteDawgs(const std::vector<STRING>& words,
-                       const std::vector<STRING>& puncs,
-                       const std::vector<STRING>& numbers, bool lang_is_rtl,
-                       const UNICHARSET& unicharset,
-                       TessdataManager* traineddata) {
+static bool WriteDawgs(const std::vector<std::string> &words, const std::vector<std::string> &puncs,
+                       const std::vector<std::string> &numbers, bool lang_is_rtl,
+                       const UNICHARSET &unicharset, TessdataManager *traineddata) {
   if (puncs.empty()) {
     tprintf("Must have non-empty puncs list to use language models!!\n");
     return false;
@@ -163,22 +162,19 @@ static bool WriteDawgs(const std::vector<STRING>& words,
   // Puncs: According to lang_is_rtl.
   // Numbers: Never.
   // System dawg (main wordlist).
-  if (!words.empty() &&
-      !WriteDawg(words, unicharset, Trie::RRP_REVERSE_IF_HAS_RTL,
-                 TESSDATA_LSTM_SYSTEM_DAWG, traineddata)) {
+  if (!words.empty() && !WriteDawg(words, unicharset, Trie::RRP_REVERSE_IF_HAS_RTL,
+                                   TESSDATA_LSTM_SYSTEM_DAWG, traineddata)) {
     return false;
   }
   // punc/punc-dawg.
   Trie::RTLReversePolicy reverse_policy =
       lang_is_rtl ? Trie::RRP_FORCE_REVERSE : Trie::RRP_DO_NO_REVERSE;
-  if (!WriteDawg(puncs, unicharset, reverse_policy, TESSDATA_LSTM_PUNC_DAWG,
-                 traineddata)) {
+  if (!WriteDawg(puncs, unicharset, reverse_policy, TESSDATA_LSTM_PUNC_DAWG, traineddata)) {
     return false;
   }
   // numbers/number-dawg.
-  if (!numbers.empty() &&
-      !WriteDawg(numbers, unicharset, Trie::RRP_DO_NO_REVERSE,
-                 TESSDATA_LSTM_NUMBER_DAWG, traineddata)) {
+  if (!numbers.empty() && !WriteDawg(numbers, unicharset, Trie::RRP_DO_NO_REVERSE,
+                                     TESSDATA_LSTM_NUMBER_DAWG, traineddata)) {
     return false;
   }
   return true;
@@ -186,18 +182,16 @@ static bool WriteDawgs(const std::vector<STRING>& words,
 
 // The main function for combine_lang_model.cpp.
 // Returns EXIT_SUCCESS or EXIT_FAILURE for error.
-int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir,
-                     const std::string& version_str, const std::string& output_dir,
-                     const std::string& lang, bool pass_through_recoder,
-                     const std::vector<STRING>& words,
-                     const std::vector<STRING>& puncs,
-                     const std::vector<STRING>& numbers, bool lang_is_rtl,
-                     FileReader reader, FileWriter writer) {
+int CombineLangModel(const UNICHARSET &unicharset, const std::string &script_dir,
+                     const std::string &version_str, const std::string &output_dir,
+                     const std::string &lang, bool pass_through_recoder,
+                     const std::vector<std::string> &words, const std::vector<std::string> &puncs,
+                     const std::vector<std::string> &numbers, bool lang_is_rtl, FileReader reader,
+                     FileWriter writer) {
   // Build the traineddata file.
   TessdataManager traineddata;
   if (!version_str.empty()) {
-    traineddata.SetVersionString(traineddata.VersionString() + ":" +
-                                 version_str);
+    traineddata.SetVersionString(traineddata.VersionString() + ":" + version_str);
   }
   // Unicharset and recoder.
   if (!WriteUnicharset(unicharset, output_dir, lang, writer, &traineddata)) {
@@ -208,24 +202,22 @@ int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir
   }
   // If there is a config file, read it and add to traineddata.
   std::string config_filename = script_dir + "/" + lang + "/" + lang + ".config";
-  STRING config_file = ReadFile(config_filename, reader);
+  std::string config_file = ReadFile(config_filename, reader);
   if (config_file.length() > 0) {
-    traineddata.OverwriteEntry(TESSDATA_LANG_CONFIG, &config_file[0],
-                               config_file.length());
+    traineddata.OverwriteEntry(TESSDATA_LANG_CONFIG, &config_file[0], config_file.length());
   }
   std::string radical_filename = script_dir + "/radical-stroke.txt";
-  STRING radical_data = ReadFile(radical_filename, reader);
+  std::string radical_data = ReadFile(radical_filename, reader);
   if (radical_data.length() == 0) {
     tprintf("Error reading radical code table %s\n", radical_filename.c_str());
     return EXIT_FAILURE;
   }
-  if (!WriteRecoder(unicharset, pass_through_recoder, output_dir, lang, writer,
-                    &radical_data, &traineddata)) {
+  if (!WriteRecoder(unicharset, pass_through_recoder, output_dir, lang, writer, &radical_data,
+                    &traineddata)) {
     tprintf("Error writing recoder!!\n");
   }
   if (!words.empty() || !puncs.empty() || !numbers.empty()) {
-    if (!WriteDawgs(words, puncs, numbers, lang_is_rtl, unicharset,
-                    &traineddata)) {
+    if (!WriteDawgs(words, puncs, numbers, lang_is_rtl, unicharset, &traineddata)) {
       tprintf("Error during conversion of wordlists to DAWGs!!\n");
       return EXIT_FAILURE;
     }
@@ -241,4 +233,4 @@ int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir
   return EXIT_SUCCESS;
 }
 
-}  // namespace tesseract
+} // namespace tesseract

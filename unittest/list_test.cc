@@ -11,17 +11,17 @@
 
 #include "include_gunit.h"
 #if 0 // TODO: add tests for CLIST
-#include "clst.h"
+#  include "clst.h"
 #endif
 #include "elst.h"
 #if 0 // TODO: add tests for ELIST2
-#include "elst2.h"
+#  include "elst2.h"
 #endif
 
 namespace tesseract {
 
 class ListTest : public ::testing::Test {
- protected:
+protected:
   void SetUp() override {
     static std::locale system_locale("");
     std::locale::global(system_locale);
@@ -29,9 +29,8 @@ class ListTest : public ::testing::Test {
 };
 
 class Elst : public ELIST_LINK {
- public:
-  Elst(unsigned n) : value(n) {
-  }
+public:
+  Elst(unsigned n) : value(n) {}
   unsigned value;
 };
 
@@ -42,22 +41,22 @@ TEST_F(ListTest, TestELIST) {
   Elst_LIST list;
   auto it = ELIST_ITERATOR(&list);
   for (unsigned i = 0; i < 10; i++) {
-    auto* elst = new Elst(i);
-    //EXPECT_TRUE(elst->empty());
-    //EXPECT_EQ(elst->length(), 0);
+    auto *elst = new Elst(i);
+    // EXPECT_TRUE(elst->empty());
+    // EXPECT_EQ(elst->length(), 0);
     it.add_to_end(elst);
   }
   it.move_to_first();
   unsigned n = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    auto* elst = reinterpret_cast<Elst*>(it.data());
+    auto *elst = reinterpret_cast<Elst *>(it.data());
     EXPECT_EQ(elst->value, n);
     n++;
   }
   it.forward();
   n++;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    auto* elst = reinterpret_cast<Elst*>(it.extract());
+    auto *elst = reinterpret_cast<Elst *>(it.extract());
     EXPECT_EQ(elst->value, n % 10);
     n++;
     delete elst;
@@ -65,4 +64,4 @@ TEST_F(ListTest, TestELIST) {
   // TODO: add more tests for ELIST
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

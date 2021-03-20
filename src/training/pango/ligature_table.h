@@ -31,33 +31,33 @@
 
 namespace tesseract {
 
-class PangoFontInfo;  // defined in pango_font_info.h
+class PangoFontInfo; // defined in pango_font_info.h
 
 // Map to substitute strings for ligatures.
 using LigHash = std::unordered_map<std::string, std::string>;
 
 class TESS_PANGO_TRAINING_API LigatureTable {
- public:
+public:
   // Get a static instance of this class.
-  static LigatureTable* Get();
+  static LigatureTable *Get();
 
   // Convert the utf8 string so that ligaturizable sequences, such as "fi" get
   // replaced by the (utf8 code for) appropriate ligature characters. Only do so
   // if the corresponding ligature character is renderable in the current font.
-  std::string AddLigatures(const std::string& str, const PangoFontInfo* font) const;
+  std::string AddLigatures(const std::string &str, const PangoFontInfo *font) const;
   // Remove all ligatures.
-  std::string RemoveLigatures(const std::string& str) const;
+  std::string RemoveLigatures(const std::string &str) const;
   // Remove only custom ligatures (eg. "ct") encoded in the private-use-area.
-  std::string RemoveCustomLigatures(const std::string& str) const;
+  std::string RemoveCustomLigatures(const std::string &str) const;
 
-  const LigHash& norm_to_lig_table() const {
+  const LigHash &norm_to_lig_table() const {
     return norm_to_lig_table_;
   }
-  const LigHash& lig_to_norm_table() const {
+  const LigHash &lig_to_norm_table() const {
     return lig_to_norm_table_;
   }
 
- protected:
+protected:
   LigatureTable();
   // Initialize the hash tables mapping between ligature strings and the
   // corresponding ligature characters.
@@ -71,11 +71,11 @@ class TESS_PANGO_TRAINING_API LigatureTable {
   int min_norm_length_;
   int max_norm_length_;
 
- private:
-  LigatureTable(const LigatureTable&);
-  void operator=(const LigatureTable&);
+private:
+  LigatureTable(const LigatureTable &);
+  void operator=(const LigatureTable &);
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // OCR_TRAININGDATA_TYPESETTING_LIGATURE_TABLE_H_
+#endif // OCR_TRAININGDATA_TYPESETTING_LIGATURE_TABLE_H_

@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#  include "config_auto.h"
 #endif
 
 #include "convolve.h"
@@ -28,31 +28,30 @@
 
 namespace tesseract {
 
-Convolve::Convolve(const std::string& name, int ni, int half_x, int half_y)
-  : Network(NT_CONVOLVE, name, ni, ni * (2*half_x + 1) * (2*half_y + 1)),
-    half_x_(half_x), half_y_(half_y) {
-}
+Convolve::Convolve(const std::string &name, int ni, int half_x, int half_y)
+    : Network(NT_CONVOLVE, name, ni, ni * (2 * half_x + 1) * (2 * half_y + 1))
+    , half_x_(half_x)
+    , half_y_(half_y) {}
 
 // Writes to the given file. Returns false in case of error.
-bool Convolve::Serialize(TFile* fp) const {
-  return Network::Serialize(fp) &&
-         fp->Serialize(&half_x_) &&
-         fp->Serialize(&half_y_);
+bool Convolve::Serialize(TFile *fp) const {
+  return Network::Serialize(fp) && fp->Serialize(&half_x_) && fp->Serialize(&half_y_);
 }
 
 // Reads from the given file. Returns false in case of error.
-bool Convolve::DeSerialize(TFile* fp) {
-  if (!fp->DeSerialize(&half_x_)) return false;
-  if (!fp->DeSerialize(&half_y_)) return false;
-  no_ = ni_ * (2*half_x_ + 1) * (2*half_y_ + 1);
+bool Convolve::DeSerialize(TFile *fp) {
+  if (!fp->DeSerialize(&half_x_))
+    return false;
+  if (!fp->DeSerialize(&half_y_))
+    return false;
+  no_ = ni_ * (2 * half_x_ + 1) * (2 * half_y_ + 1);
   return true;
 }
 
 // Runs forward propagation of activations on the input line.
 // See NetworkCpp for a detailed discussion of the arguments.
-void Convolve::Forward(bool debug, const NetworkIO& input,
-                       const TransposedArray* input_transpose,
-                       NetworkScratch* scratch, NetworkIO* output) {
+void Convolve::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+                       NetworkScratch *scratch, NetworkIO *output) {
   output->Resize(input, no_);
   int y_scale = 2 * half_y_ + 1;
   StrideMap::Index dest_index(output->stride_map());
@@ -80,15 +79,15 @@ void Convolve::Forward(bool debug, const NetworkIO& input,
     }
   } while (dest_index.Increment());
 #ifndef GRAPHICS_DISABLED
-  if (debug) DisplayForward(*output);
+  if (debug)
+    DisplayForward(*output);
 #endif
 }
 
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
-bool Convolve::Backward(bool debug, const NetworkIO& fwd_deltas,
-                        NetworkScratch* scratch,
-                        NetworkIO* back_deltas) {
+bool Convolve::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+                        NetworkIO *back_deltas) {
   back_deltas->Resize(fwd_deltas, ni_);
   NetworkScratch::IO delta_sum;
   delta_sum.ResizeFloat(fwd_deltas, ni_, scratch);
@@ -106,8 +105,7 @@ bool Convolve::Backward(bool debug, const NetworkIO& fwd_deltas,
         for (int y = -half_y_; y <= half_y_; ++y, out_iy += ni_) {
           StrideMap::Index y_index(x_index);
           if (y_index.AddOffset(y, FD_HEIGHT)) {
-            fwd_deltas.AddTimeStepPart(t, out_iy, ni_,
-                                       delta_sum->f(y_index.t()));
+            fwd_deltas.AddTimeStepPart(t, out_iy, ni_, delta_sum->f(y_index.t()));
           }
         }
       }
@@ -117,4 +115,4 @@ bool Convolve::Backward(bool debug, const NetworkIO& fwd_deltas,
   return true;
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

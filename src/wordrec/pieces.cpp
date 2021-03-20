@@ -29,7 +29,7 @@
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#  include "config_auto.h"
 #endif
 
 using tesseract::ScoredFont;
@@ -46,27 +46,26 @@ using tesseract::ScoredFont;
  * the collection of small pieces un modified.
  **********************************************************************/
 namespace tesseract {
-BLOB_CHOICE_LIST *Wordrec::classify_piece(const GenericVector<SEAM*>& seams,
-                                          int16_t start,
-                                          int16_t end,
-                                          const char* description,
-                                          TWERD *word,
+BLOB_CHOICE_LIST *Wordrec::classify_piece(const std::vector<SEAM *> &seams, int16_t start,
+                                          int16_t end, const char *description, TWERD *word,
                                           BlamerBundle *blamer_bundle) {
-  if (end > start) SEAM::JoinPieces(seams, word->blobs, start, end);
-  BLOB_CHOICE_LIST *choices = classify_blob(word->blobs[start], description,
-                                            ScrollView::WHITE, blamer_bundle);
+  if (end > start)
+    SEAM::JoinPieces(seams, word->blobs, start, end);
+  BLOB_CHOICE_LIST *choices =
+      classify_blob(word->blobs[start], description, ScrollView::WHITE, blamer_bundle);
   // Set the matrix_cell_ entries in all the BLOB_CHOICES.
   BLOB_CHOICE_IT bc_it(choices);
   for (bc_it.mark_cycle_pt(); !bc_it.cycled_list(); bc_it.forward()) {
     bc_it.data()->set_matrix_cell(start, end);
   }
 
-  if (end > start) SEAM::BreakPieces(seams, word->blobs, start, end);
+  if (end > start)
+    SEAM::BreakPieces(seams, word->blobs, start, end);
 
   return (choices);
 }
 
-template<class BLOB_CHOICE>
+template <class BLOB_CHOICE>
 int SortByUnicharID(const void *void1, const void *void2) {
   const BLOB_CHOICE *p1 = *static_cast<const BLOB_CHOICE *const *>(void1);
   const BLOB_CHOICE *p2 = *static_cast<const BLOB_CHOICE *const *>(void2);
@@ -74,7 +73,7 @@ int SortByUnicharID(const void *void1, const void *void2) {
   return p1->unichar_id() - p2->unichar_id();
 }
 
-template<class BLOB_CHOICE>
+template <class BLOB_CHOICE>
 int SortByRating(const void *void1, const void *void2) {
   const BLOB_CHOICE *p1 = *static_cast<const BLOB_CHOICE *const *>(void1);
   const BLOB_CHOICE *p2 = *static_cast<const BLOB_CHOICE *const *>(void2);
@@ -83,7 +82,6 @@ int SortByRating(const void *void1, const void *void2) {
     return 1;
   return -1;
 }
-
 
 /**********************************************************************
  * fill_filtered_fragment_list
@@ -95,20 +93,16 @@ int SortByRating(const void *void1, const void *void2) {
  * total number of pieces. The result will be appended to
  * filtered_choices.
  **********************************************************************/
-void Wordrec::fill_filtered_fragment_list(BLOB_CHOICE_LIST *choices,
-                                          int fragment_pos,
-                                          int num_frag_parts,
-                                          BLOB_CHOICE_LIST *filtered_choices) {
+void Wordrec::fill_filtered_fragment_list(BLOB_CHOICE_LIST *choices, int fragment_pos,
+                                          int num_frag_parts, BLOB_CHOICE_LIST *filtered_choices) {
   BLOB_CHOICE_IT filtered_choices_it(filtered_choices);
   BLOB_CHOICE_IT choices_it(choices);
 
-  for (choices_it.mark_cycle_pt(); !choices_it.cycled_list();
-       choices_it.forward()) {
+  for (choices_it.mark_cycle_pt(); !choices_it.cycled_list(); choices_it.forward()) {
     UNICHAR_ID choice_unichar_id = choices_it.data()->unichar_id();
     const CHAR_FRAGMENT *frag = unicharset.get_fragment(choice_unichar_id);
 
-    if (frag != nullptr && frag->get_pos() == fragment_pos &&
-        frag->get_total() == num_frag_parts) {
+    if (frag != nullptr && frag->get_pos() == fragment_pos && frag->get_total() == num_frag_parts) {
       // Recover the unichar_id of the unichar that this fragment is
       // a part of
       auto *b = new BLOB_CHOICE(*choices_it.data());
@@ -121,17 +115,14 @@ void Wordrec::fill_filtered_fragment_list(BLOB_CHOICE_LIST *choices,
   filtered_choices->sort(SortByUnicharID<BLOB_CHOICE>);
 }
 
-
 /**********************************************************************
  * merge_and_put_fragment_lists
  *
  * Merge the fragment lists in choice_lists and append it to the
  * ratings matrix.
  **********************************************************************/
-void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
-                                           int16_t num_frag_parts,
-                                           BLOB_CHOICE_LIST *choice_lists,
-                                           MATRIX *ratings) {
+void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column, int16_t num_frag_parts,
+                                           BLOB_CHOICE_LIST *choice_lists, MATRIX *ratings) {
   auto *choice_lists_it = new BLOB_CHOICE_IT[num_frag_parts];
 
   for (int i = 0; i < num_frag_parts; i++) {
@@ -160,8 +151,7 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
     // value greater than or equal to max_unichar_id
     for (int i = 0; i < num_frag_parts; i++) {
       UNICHAR_ID unichar_id = choice_lists_it[i].data()->unichar_id();
-      while (!choice_lists_it[i].cycled_list() &&
-             unichar_id < max_unichar_id) {
+      while (!choice_lists_it[i].cycled_list() && unichar_id < max_unichar_id) {
         choice_lists_it[i].forward();
         unichar_id = choice_lists_it[i].data()->unichar_id();
       }
@@ -208,19 +198,22 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
         if (choice_lists_it[i].cycled_list())
           end_of_list = true;
         IntersectRange(choice_lists_it[i].data()->min_xheight(),
-                       choice_lists_it[i].data()->max_xheight(),
-                       &merged_min_xheight, &merged_max_xheight);
+                       choice_lists_it[i].data()->max_xheight(), &merged_min_xheight,
+                       &merged_max_xheight);
         float yshift = choice_lists_it[i].data()->yshift();
-        if (yshift > positive_yshift) positive_yshift = yshift;
-        if (yshift < negative_yshift) negative_yshift = yshift;
+        if (yshift > positive_yshift)
+          positive_yshift = yshift;
+        if (yshift < negative_yshift)
+          negative_yshift = yshift;
         // Use the min font rating over the parts.
         // TODO(rays) font lists are unsorted. Need to be faster?
-        const auto& frag_fonts = choice_lists_it[i].data()->fonts();
+        const auto &frag_fonts = choice_lists_it[i].data()->fonts();
         for (auto frag_font : frag_fonts) {
           int merged_f = 0;
           for (; merged_f < merged_fonts.size() &&
-               merged_fonts[merged_f].fontinfo_id != frag_font.fontinfo_id;
-               ++merged_f) {}
+                 merged_fonts[merged_f].fontinfo_id != frag_font.fontinfo_id;
+               ++merged_f) {
+          }
           if (merged_f == merged_fonts.size()) {
             merged_fonts.push_back(frag_font);
           } else if (merged_fonts[merged_f].score > frag_font.score) {
@@ -229,32 +222,25 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
         }
       }
 
-      float merged_yshift = positive_yshift != 0
-          ? (negative_yshift != 0 ? 0 : positive_yshift)
-          : negative_yshift;
-      auto* choice = new BLOB_CHOICE(merged_unichar_id,
-                                            merged_rating,
-                                            merged_certainty,
-                                            merged_script_id,
-                                            merged_min_xheight,
-                                            merged_max_xheight,
-                                            merged_yshift,
-                                            classifier);
+      float merged_yshift =
+          positive_yshift != 0 ? (negative_yshift != 0 ? 0 : positive_yshift) : negative_yshift;
+      auto *choice =
+          new BLOB_CHOICE(merged_unichar_id, merged_rating, merged_certainty, merged_script_id,
+                          merged_min_xheight, merged_max_xheight, merged_yshift, classifier);
       choice->set_fonts(merged_fonts);
       merged_choice_it.add_to_end(choice);
     }
   }
 
   if (classify_debug_level)
-    print_ratings_list("Merged Fragments", merged_choice,
-                       unicharset);
+    print_ratings_list("Merged Fragments", merged_choice, unicharset);
 
   if (merged_choice->empty())
     delete merged_choice;
   else
     ratings->put(row, column, merged_choice);
 
-  delete [] choice_lists_it;
+  delete[] choice_lists_it;
 }
 
 /**********************************************************************
@@ -269,13 +255,11 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
  * number of pieces we are looking for and num_blobs is the size of the
  * ratings matrix.
  **********************************************************************/
-void Wordrec::get_fragment_lists(int16_t current_frag, int16_t current_row,
-                                 int16_t start, int16_t num_frag_parts,
-                                 int16_t num_blobs, MATRIX *ratings,
+void Wordrec::get_fragment_lists(int16_t current_frag, int16_t current_row, int16_t start,
+                                 int16_t num_frag_parts, int16_t num_blobs, MATRIX *ratings,
                                  BLOB_CHOICE_LIST *choice_lists) {
   if (current_frag == num_frag_parts) {
-    merge_and_put_fragment_lists(start, current_row - 1, num_frag_parts,
-                                 choice_lists, ratings);
+    merge_and_put_fragment_lists(start, current_row - 1, num_frag_parts, choice_lists, ratings);
     return;
   }
 
@@ -284,16 +268,14 @@ void Wordrec::get_fragment_lists(int16_t current_frag, int16_t current_row,
     if (choices == nullptr)
       continue;
 
-    fill_filtered_fragment_list(choices, current_frag, num_frag_parts,
-                                &choice_lists[current_frag]);
+    fill_filtered_fragment_list(choices, current_frag, num_frag_parts, &choice_lists[current_frag]);
     if (!choice_lists[current_frag].empty()) {
-      get_fragment_lists(current_frag + 1, x + 1, start, num_frag_parts,
-                         num_blobs, ratings, choice_lists);
+      get_fragment_lists(current_frag + 1, x + 1, start, num_frag_parts, num_blobs, ratings,
+                         choice_lists);
       choice_lists[current_frag].clear();
     }
   }
 }
-
 
 /**********************************************************************
  * merge_fragments
@@ -304,10 +286,8 @@ void Wordrec::get_fragment_lists(int16_t current_frag, int16_t current_row,
 void Wordrec::merge_fragments(MATRIX *ratings, int16_t num_blobs) {
   BLOB_CHOICE_LIST choice_lists[CHAR_FRAGMENT::kMaxChunks];
   for (int16_t start = 0; start < num_blobs; start++) {
-    for (int frag_parts = 2; frag_parts <= CHAR_FRAGMENT::kMaxChunks;
-         frag_parts++) {
-      get_fragment_lists(0, start, start, frag_parts, num_blobs,
-                         ratings, choice_lists);
+    for (int frag_parts = 2; frag_parts <= CHAR_FRAGMENT::kMaxChunks; frag_parts++) {
+      get_fragment_lists(0, start, start, frag_parts, num_blobs, ratings, choice_lists);
     }
   }
 
@@ -317,11 +297,9 @@ void Wordrec::merge_fragments(MATRIX *ratings, int16_t num_blobs) {
       BLOB_CHOICE_LIST *choices = ratings->get(x, y);
       if (choices != nullptr) {
         BLOB_CHOICE_IT choices_it(choices);
-        for (choices_it.mark_cycle_pt(); !choices_it.cycled_list();
-             choices_it.forward()) {
+        for (choices_it.mark_cycle_pt(); !choices_it.cycled_list(); choices_it.forward()) {
           UNICHAR_ID choice_unichar_id = choices_it.data()->unichar_id();
-          const CHAR_FRAGMENT *frag =
-              unicharset.get_fragment(choice_unichar_id);
+          const CHAR_FRAGMENT *frag = unicharset.get_fragment(choice_unichar_id);
           if (frag != nullptr)
             delete choices_it.extract();
         }
@@ -330,5 +308,4 @@ void Wordrec::merge_fragments(MATRIX *ratings, int16_t num_blobs) {
   }
 }
 
-
-}  // namespace tesseract
+} // namespace tesseract

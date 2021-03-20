@@ -24,7 +24,7 @@ struct Pix;
 
 namespace tesseract {
 
-const int kHistogramSize = 256;  // The size of a histogram of pixel values.
+const int kHistogramSize = 256; // The size of a histogram of pixel values.
 
 // Computes the Otsu threshold(s) for the given image rectangle, making one
 // for each channel. Each channel is always one byte per pixel.
@@ -35,22 +35,21 @@ const int kHistogramSize = 256;  // The size of a histogram of pixel values.
 // Delete thresholds and hi_values with delete [] after use.
 // The return value is the number of channels in the input image, being
 // the size of the output thresholds and hi_values arrays.
-int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
-                  int** thresholds, int** hi_values);
+int OtsuThreshold(Pix *src_pix, int left, int top, int width, int height, int **thresholds,
+                  int **hi_values);
 
 // Computes the histogram for the given image rectangle, and the given
 // single channel. Each channel is always one byte per pixel.
 // Histogram is always a kHistogramSize(256) element array to count
 // occurrences of each pixel value.
-void HistogramRect(Pix* src_pix, int channel,
-                   int left, int top, int width, int height,
-                   int* histogram);
+void HistogramRect(Pix *src_pix, int channel, int left, int top, int width, int height,
+                   int *histogram);
 
 // Computes the Otsu threshold(s) for the given histogram.
 // Also returns H = total count in histogram, and
 // omega0 = count of histogram below threshold.
-int OtsuStats(const int* histogram, int* H_out, int* omega0_out);
+int OtsuStats(const int *histogram, int *H_out, int *omega0_out);
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_CCMAIN_OTSUTHR_H_
+#endif // TESSERACT_CCMAIN_OTSUTHR_H_

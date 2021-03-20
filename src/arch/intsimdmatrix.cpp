@@ -16,17 +16,16 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "intsimdmatrix.h"
-#include "matrix.h"             // for GENERIC_2D_ARRAY
-#include "simddetect.h"         // for SIMDDetect
+#include "matrix.h"     // for GENERIC_2D_ARRAY
+#include "simddetect.h" // for SIMDDetect
 
 namespace tesseract {
 
-const IntSimdMatrix* IntSimdMatrix::intSimdMatrix = nullptr;
+const IntSimdMatrix *IntSimdMatrix::intSimdMatrix = nullptr;
 
 // Computes a reshaped copy of the weight matrix w.
-void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w,
-                         std::vector<int8_t>& shaped_w,
-                         int32_t& rounded_num_out) const {
+void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t> &w, std::vector<int8_t> &shaped_w,
+                         int32_t &rounded_num_out) const {
   const int num_out = w.dim1();
   const int num_in = w.dim2() - 1;
   // The rounded-up sizes of the reshaped weight matrix, excluding biases.
@@ -38,11 +37,9 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w,
   int output = 0;
   // Each number of registers needs a different format! Iterates over the
   // different numbers of registers (each a power of 2).
-  for (int num_registers = max_output_registers_; num_registers >= 1;
-       num_registers /= 2) {
+  for (int num_registers = max_output_registers_; num_registers >= 1; num_registers /= 2) {
     // The number of outputs that we will generate with this many registers.
-    int num_outputs_per_register_set =
-        num_registers * num_outputs_per_register_;
+    int num_outputs_per_register_set = num_registers * num_outputs_per_register_;
     // Use the max number of registers until we have to go fewer.
     while (output + num_outputs_per_register_set <= rounded_num_out) {
       // Accumulating outputs in registers saves iterating over the inputs, so
@@ -63,7 +60,8 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w,
       // Append the bias weights for the register set.
       for (int j = 0; j < num_outputs_per_register_set; ++j) {
         int8_t weight = 0;
-        if (output + j < num_out) weight = w(output + j, num_in);
+        if (output + j < num_out)
+          weight = w(output + j, num_in);
         shaped_w[shaped_index++] = weight;
       }
       output += num_outputs_per_register_set;
@@ -75,19 +73,19 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w,
 // u is of size W.dim2() - 1 and the output v is of size W.dim1().
 // u is imagined to have an extra element at the end with value 1, to
 // implement the bias, but it doesn't actually have it.
-void IntSimdMatrix::MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
-                                    const std::vector<double>& scales,
-                                    const int8_t* u, double* v) {
+void IntSimdMatrix::MatrixDotVector(const GENERIC_2D_ARRAY<int8_t> &w,
+                                    const std::vector<double> &scales, const int8_t *u, double *v) {
   int num_out = w.dim1();
   int num_in = w.dim2() - 1;
   // Base implementation.
   for (int i = 0; i < num_out; ++i) {
-    const int8_t* wi = w[i];
+    const int8_t *wi = w[i];
     int total = 0;
-    for (int j = 0; j < num_in; ++j) total += wi[j] * u[j];
+    for (int j = 0; j < num_in; ++j)
+      total += wi[j] * u[j];
     // Add in the bias and correct for integer values.
     v[i] = (total + wi[num_in] * INT8_MAX) * scales[i];
   }
 }
 
-}  // namespace tesseract
+} // namespace tesseract

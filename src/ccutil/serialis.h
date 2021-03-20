@@ -20,12 +20,12 @@
 #define SERIALIS_H
 
 #include <tesseract/baseapi.h> // FileReader
-#include <cstdint>  // uint8_t
+#include <cstdint>             // uint8_t
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <type_traits>
-#include <vector>   // std::vector
+#include <vector> // std::vector
 
 namespace tesseract {
 
@@ -50,13 +50,12 @@ constexpr size_t countof(T const (&)[N]) noexcept {
 
 // Function to write a std::vector<char> to a whole file.
 // Returns false on failure.
-using FileWriter = bool (*)(const std::vector<char>& data,
-                            const char* filename);
+using FileWriter = bool (*)(const std::vector<char> &data, const char *filename);
 
 TESS_API
-bool LoadDataFromFile(const char* filename, std::vector<char>* data);
+bool LoadDataFromFile(const char *filename, std::vector<char> *data);
 TESS_API
-bool SaveDataToFile(const std::vector<char>& data, const char* filename);
+bool SaveDataToFile(const std::vector<char> &data, const char *filename);
 
 // Deserialize data from file.
 template <typename T>
@@ -73,33 +72,35 @@ bool Serialize(FILE *fp, const T *data, size_t n = 1) {
 // Simple file class.
 // Allows for portable file input from memory and from foreign file systems.
 class TESS_API TFile {
- public:
+public:
   TFile();
   ~TFile();
 
   // All the Open methods load the whole file into memory for reading.
   // Opens a file with a supplied reader, or nullptr to use the default.
   // Note that mixed read/write is not supported.
-  bool Open(const char* filename, FileReader reader);
+  bool Open(const char *filename, FileReader reader);
   // From an existing memory buffer.
-  bool Open(const char* data, int size);
+  bool Open(const char *data, int size);
   // From an open file and an end offset.
-  bool Open(FILE* fp, int64_t end_offset);
+  bool Open(FILE *fp, int64_t end_offset);
   // Sets the value of the swap flag, so that FReadEndian does the right thing.
   void set_swap(bool value) {
     swap_ = value;
   }
 
   // Deserialize data.
-  bool DeSerializeSize(int32_t* data);
-  bool DeSerialize(std::string& data);
-  bool DeSerialize(std::vector<char>& data);
+  bool DeSerializeSize(int32_t *data);
+  bool DeSerializeSkip(size_t size = 1);
+  bool DeSerialize(std::string &data);
+  bool DeSerialize(std::vector<char> &data);
+  //bool DeSerialize(std::vector<std::string> &data);
   template <typename T>
   bool DeSerialize(T *data, size_t count = 1) {
-      return FReadEndian(data, sizeof(T), count) == static_cast<int>(count);
+    return FReadEndian(data, sizeof(T), count) == static_cast<int>(count);
   }
-  template <class T>
-  bool DeSerialize(std::vector<T>& data) {
+  template <typename T>
+  bool DeSerialize(std::vector<T> &data) {
     uint32_t size;
     if (!DeSerialize(&size)) {
       return false;
@@ -108,13 +109,41 @@ class TESS_API TFile {
     } else if (size > 50000000) {
       // Arbitrarily limit the number of elements to protect against bad data.
       return false;
-    } else if constexpr (std::is_class_v<T>) {
-      // Deserialize a class.
+    } else if constexpr (std::is_same_v<T, std::string>) {
+      // Deserialize a string.
       // TODO: optimize.
       data.resize(size);
-      for (auto& item : data) {
+      for (auto &item : data) {
+        if (!DeSerialize(item)) {
+          return false;
+        }
+      }
+    } else if constexpr (std::is_class_v<T>) {
+      // Deserialize a tesseract class.
+      // TODO: optimize.
+      data.resize(size);
+      for (auto &item : data) {
         if (!item.DeSerialize(this)) {
           return false;
+        }
+      }
+    } else if constexpr (std::is_pointer_v<T>) {
+      // Deserialize pointers.
+      // TODO: optimize.
+      data.resize(size);
+      for (uint32_t i = 0; i < size; i++) {
+        uint8_t non_null;
+	if (!DeSerialize(&non_null)) {
+          return false;
+	}
+        if (non_null) {
+          typedef typename std::remove_pointer<T>::type ST;
+          auto item = new ST;
+          if (!item->DeSerialize(this)) {
+            delete item;
+            return false;
+          }
+          data[i] = item;
         }
       }
     } else {
@@ -127,24 +156,44 @@ class TESS_API TFile {
   }
 
   // Serialize data.
-  bool Serialize(const std::string& data);
-  bool Serialize(const std::vector<char>& data);
+  bool Serialize(const std::string &data);
+  bool Serialize(const std::vector<char> &data);
   template <typename T>
   bool Serialize(const T *data, size_t count = 1) {
-      return FWrite(data, sizeof(T), count) == static_cast<int>(count);
+    return FWrite(data, sizeof(T), count) == static_cast<int>(count);
   }
   template <typename T>
-  bool Serialize(const std::vector<T>& data) {
+  bool Serialize(const std::vector<T> &data) {
     // Serialize number of elements first.
     uint32_t size = data.size();
     if (!Serialize(&size)) {
       return false;
+    } else if constexpr (std::is_same_v<T, std::string>) {
+      // Serialize strings.
+      for (auto string : data) {
+        if (!Serialize(string)) {
+          return false;
+        }
+      }
     } else if constexpr (std::is_class_v<T>) {
-      // Serialize a class.
-      for (auto& item : data) {
+      // Serialize a tesseract class.
+      for (auto &item : data) {
         if (!item.Serialize(this)) {
           return false;
         }
+      }
+    } else if constexpr (std::is_pointer_v<T>) {
+      // Serialize pointers.
+      for (auto &item : data) {
+        uint8_t non_null = (item != nullptr);
+	if (!Serialize(&non_null)) {
+          return false;
+	}
+        if (non_null) {
+          if (!item->Serialize(this)) {
+            return false;
+	  }
+	}
       }
     } else if (size > 0) {
       // Serialize a non-class.
@@ -159,13 +208,13 @@ class TESS_API TFile {
   // Reads a line like fgets. Returns nullptr on EOF, otherwise buffer.
   // Reads at most buffer_size bytes, including '\0' terminator, even if
   // the line is longer. Does nothing if buffer_size <= 0.
-  char* FGets(char* buffer, int buffer_size);
+  char *FGets(char *buffer, int buffer_size);
   // Replicates fread, followed by a swap of the bytes if needed, returning the
   // number of items read. If swap_ is true then the count items will each have
   // size bytes reversed.
-  int FReadEndian(void* buffer, size_t size, int count);
+  int FReadEndian(void *buffer, size_t size, int count);
   // Replicates fread, returning the number of items read.
-  int FRead(void* buffer, size_t size, int count);
+  int FRead(void *buffer, size_t size, int count);
   // Resets the TFile as if it has been Opened, but nothing read.
   // Only allowed while reading!
   void Rewind();
@@ -173,16 +222,16 @@ class TESS_API TFile {
   // Open for writing. Either supply a non-nullptr data with OpenWrite before
   // calling FWrite, (no close required), or supply a nullptr data to OpenWrite
   // and call CloseWrite to write to a file after the FWrites.
-  void OpenWrite(std::vector<char>* data);
-  bool CloseWrite(const char* filename, FileWriter writer);
+  void OpenWrite(std::vector<char> *data);
+  bool CloseWrite(const char *filename, FileWriter writer);
 
   // Replicates fwrite, returning the number of items written.
   // To use fprintf, use snprintf and FWrite.
-  int FWrite(const void* buffer, size_t size, int count);
+  int FWrite(const void *buffer, size_t size, int count);
 
- private:
+private:
   // The buffered data from the file.
-  std::vector<char>* data_;
+  std::vector<char> *data_;
   // The number of bytes used so far.
   int offset_;
   // True if the data_ pointer is owned by *this.
@@ -193,6 +242,6 @@ class TESS_API TFile {
   bool swap_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
 #endif

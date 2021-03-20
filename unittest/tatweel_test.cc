@@ -10,23 +10,23 @@
 // limitations under the License.
 
 #if defined(_WIN32)
-#include <io.h>         // for _access
+#  include <io.h> // for _access
 #else
-#include <unistd.h>     // for access
+#  include <unistd.h> // for access
 #endif
 
-#include "include_gunit.h"
 #include "dawg.h"
+#include "include_gunit.h"
 #include "trie.h"
 #include "unicharset.h"
 #ifdef INCLUDE_TENSORFLOW
-#include "util/utf8/unicodetext.h"  // for UnicodeText
+#  include "util/utf8/unicodetext.h" // for UnicodeText
 #endif
 
 namespace tesseract {
 
 // Replacement for std::filesystem::exists (C++-17)
-static bool file_exists(const char* filename) {
+static bool file_exists(const char *filename) {
 #if defined(_WIN32)
   return _access(filename, 0) == 0;
 #else
@@ -35,7 +35,7 @@ static bool file_exists(const char* filename) {
 }
 
 class TatweelTest : public ::testing::Test {
- protected:
+protected:
   void SetUp() override {
     static std::locale system_locale("");
     std::locale::global(system_locale);
@@ -53,7 +53,8 @@ class TatweelTest : public ::testing::Test {
       int num_tatweel = 0;
       for (auto it = text.begin(); it != text.end(); ++it) {
         std::string utf8 = it.get_utf8_string();
-        if (utf8.find(u8"\u0640") != std::string::npos) ++num_tatweel;
+        if (utf8.find(u8"\u0640") != std::string::npos)
+          ++num_tatweel;
         unicharset_.unichar_insert(utf8.c_str());
       }
       LOG(INFO) << "Num tatweels in source data=" << num_tatweel;
@@ -62,7 +63,7 @@ class TatweelTest : public ::testing::Test {
 #endif
   }
 
-  std::string TestDataNameToPath(const std::string& name) {
+  std::string TestDataNameToPath(const std::string &name) {
     return file::JoinPath(TESTDATA_DIR, name);
   }
   UNICHARSET unicharset_;
@@ -71,23 +72,21 @@ class TatweelTest : public ::testing::Test {
 TEST_F(TatweelTest, UnicharsetIgnoresTatweel) {
   // This test verifies that the unicharset ignores the Tatweel character.
   for (int i = 0; i < unicharset_.size(); ++i) {
-    const char* utf8 = unicharset_.id_to_unichar(i);
-    EXPECT_EQ(strstr(utf8, u8"\u0640"), nullptr);
+    const char *utf8 = unicharset_.id_to_unichar(i);
+    EXPECT_EQ(strstr(utf8, reinterpret_cast<const char *>(u8"\u0640")), nullptr);
   }
 }
 
 TEST_F(TatweelTest, DictIgnoresTatweel) {
   // This test verifies that the dictionary ignores the Tatweel character.
-  tesseract::Trie trie(tesseract::DAWG_TYPE_WORD, "ara", SYSTEM_DAWG_PERM,
-                       unicharset_.size(), 0);
+  tesseract::Trie trie(tesseract::DAWG_TYPE_WORD, "ara", SYSTEM_DAWG_PERM, unicharset_.size(), 0);
   std::string filename = TestDataNameToPath("ara.wordlist");
   if (!file_exists(filename.c_str())) {
     LOG(INFO) << "Skip test because of missing " << filename;
     GTEST_SKIP();
   } else {
-    EXPECT_TRUE(trie.read_and_add_word_list(
-      filename.c_str(), unicharset_,
-      tesseract::Trie::RRP_REVERSE_IF_HAS_RTL));
+    EXPECT_TRUE(trie.read_and_add_word_list(filename.c_str(), unicharset_,
+                                            tesseract::Trie::RRP_REVERSE_IF_HAS_RTL));
     EXPECT_EQ(0, trie.check_for_words(filename.c_str(), unicharset_, false));
   }
 }
@@ -103,12 +102,13 @@ TEST_F(TatweelTest, UnicharsetLoadKeepsTatweel) {
     EXPECT_TRUE(unicharset_.load_from_file(filename.c_str()));
     int num_tatweel = 0;
     for (int i = 0; i < unicharset_.size(); ++i) {
-      const char* utf8 = unicharset_.id_to_unichar(i);
-      if (strstr(utf8, u8"\u0640") != nullptr) ++num_tatweel;
+      const char *utf8 = unicharset_.id_to_unichar(i);
+      if (strstr(utf8, reinterpret_cast<const char *>(u8"\u0640")) != nullptr)
+        ++num_tatweel;
     }
     LOG(INFO) << "Num tatweels in unicharset=" << num_tatweel;
     EXPECT_EQ(num_tatweel, 4);
   }
 }
 
-}  // namespace
+} // namespace tesseract

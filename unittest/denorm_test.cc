@@ -17,16 +17,16 @@
 namespace tesseract {
 
 class DENORMTest : public testing::Test {
- protected:
+protected:
   void SetUp() {
     std::locale::global(std::locale(""));
   }
 
- public:
+public:
   void TearDown() {}
 
-  void ExpectCorrectTransform(const DENORM& denorm, const TPOINT& src,
-                              const TPOINT& result, bool local) {
+  void ExpectCorrectTransform(const DENORM &denorm, const TPOINT &src, const TPOINT &result,
+                              bool local) {
     TPOINT normed;
     if (local)
       denorm.LocalNormTransform(src, &normed);
@@ -48,8 +48,8 @@ class DENORMTest : public testing::Test {
 // Tests a simple baseline-style normalization.
 TEST_F(DENORMTest, NoRotations) {
   DENORM denorm;
-  denorm.SetupNormalization(nullptr, nullptr, nullptr, 1000.0f, 2000.0f, 2.0f, 3.0f,
-                            0.0f, static_cast<float>(kBlnBaselineOffset));
+  denorm.SetupNormalization(nullptr, nullptr, nullptr, 1000.0f, 2000.0f, 2.0f, 3.0f, 0.0f,
+                            static_cast<float>(kBlnBaselineOffset));
   TPOINT pt1(1100, 2000);
   TPOINT result1(200, kBlnBaselineOffset);
   ExpectCorrectTransform(denorm, pt1, result1, true);
@@ -64,8 +64,8 @@ TEST_F(DENORMTest, NoRotations) {
 TEST_F(DENORMTest, WithRotations) {
   DENORM denorm;
   FCOORD rotation90(0.0f, 1.0f);
-  denorm.SetupNormalization(nullptr, &rotation90, nullptr, 1000.0f, 2000.0f, 2.0f,
-                            3.0f, 0.0f, static_cast<float>(kBlnBaselineOffset));
+  denorm.SetupNormalization(nullptr, &rotation90, nullptr, 1000.0f, 2000.0f, 2.0f, 3.0f, 0.0f,
+                            static_cast<float>(kBlnBaselineOffset));
 
   TPOINT pt1(1100, 2000);
   TPOINT result1(0, 200 + kBlnBaselineOffset);
@@ -80,13 +80,13 @@ TEST_F(DENORMTest, WithRotations) {
 // Tests a simple baseline-style normalization with a second rotation & scale.
 TEST_F(DENORMTest, Multiple) {
   DENORM denorm;
-  denorm.SetupNormalization(nullptr, nullptr, nullptr, 1000.0f, 2000.0f, 2.0f, 3.0f,
-                            0.0f, static_cast<float>(kBlnBaselineOffset));
+  denorm.SetupNormalization(nullptr, nullptr, nullptr, 1000.0f, 2000.0f, 2.0f, 3.0f, 0.0f,
+                            static_cast<float>(kBlnBaselineOffset));
 
   DENORM denorm2;
   FCOORD rotation90(0.0f, 1.0f);
-  denorm2.SetupNormalization(nullptr, &rotation90, &denorm, 128.0f, 128.0f, 0.5f,
-                             0.25f, 0.0f, 0.0f);
+  denorm2.SetupNormalization(nullptr, &rotation90, &denorm, 128.0f, 128.0f, 0.5f, 0.25f, 0.0f,
+                             0.0f);
   TPOINT pt1(1050, 2000);
   TPOINT result1(100, kBlnBaselineOffset);
   ExpectCorrectTransform(denorm, pt1, result1, true);
@@ -96,4 +96,4 @@ TEST_F(DENORMTest, Multiple) {
   ExpectCorrectTransform(denorm2, pt1, result2, false);
 }
 
-}  // namespace.
+} // namespace tesseract

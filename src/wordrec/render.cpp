@@ -17,9 +17,9 @@
  *
  *****************************************************************************/
 
- // Include automatically generated configuration file if running autoconf.
+// Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#  include "config_auto.h"
 #endif
 
 #include "render.h"
@@ -35,14 +35,8 @@ namespace tesseract {
 ----------------------------------------------------------------------*/
 ScrollView *blob_window = nullptr;
 
-ScrollView::Color color_list[] = {
-  ScrollView::RED,
-  ScrollView::CYAN,
-  ScrollView::YELLOW,
-  ScrollView::BLUE,
-  ScrollView::GREEN,
-  ScrollView::WHITE
-};
+ScrollView::Color color_list[] = {ScrollView::RED,  ScrollView::CYAN,  ScrollView::YELLOW,
+                                  ScrollView::BLUE, ScrollView::GREEN, ScrollView::WHITE};
 
 BOOL_VAR(wordrec_display_all_blobs, 0, "Display Blobs");
 
@@ -74,14 +68,13 @@ void display_blob(TBLOB *blob, ScrollView::Color color) {
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_blob(ScrollView* window, TBLOB *blob, ScrollView::Color color) {
+void render_blob(ScrollView *window, TBLOB *blob, ScrollView::Color color) {
   /* No outline */
   if (!blob)
     return;
 
-  render_outline (window, blob->outlines, color);
+  render_outline(window, blob->outlines, color);
 }
-
 
 /**********************************************************************
  * render_edgepts
@@ -89,8 +82,7 @@ void render_blob(ScrollView* window, TBLOB *blob, ScrollView::Color color) {
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_edgepts(ScrollView* window, EDGEPT *edgept,
-                    ScrollView::Color color) {
+void render_edgepts(ScrollView *window, EDGEPT *edgept, ScrollView::Color color) {
   if (!edgept)
     return;
 
@@ -105,10 +97,8 @@ void render_edgepts(ScrollView* window, EDGEPT *edgept,
     x = this_edge->pos.x;
     y = this_edge->pos.y;
     window->DrawTo(x, y);
-  }
-  while (edgept != this_edge);
+  } while (edgept != this_edge);
 }
-
 
 /**********************************************************************
  * render_outline
@@ -116,16 +106,15 @@ void render_edgepts(ScrollView* window, EDGEPT *edgept,
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_outline(ScrollView* window, TESSLINE* outline,
-                    ScrollView::Color color) {
+void render_outline(ScrollView *window, TESSLINE *outline, ScrollView::Color color) {
   /* No outline */
   if (!outline)
     return;
   /* Draw Compact outline */
   if (outline->loop)
-    render_edgepts (window, outline->loop, color);
+    render_edgepts(window, outline->loop, color);
   /* Add on next outlines */
-  render_outline (window, outline->next, color);
+  render_outline(window, outline->next, color);
 }
 
 #endif // !GRAPHICS_DISABLED

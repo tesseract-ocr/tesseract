@@ -20,7 +20,7 @@
 #ifndef CJKPITCH_H_
 #define CJKPITCH_H_
 
-#include          "blobbox.h"
+#include "blobbox.h"
 
 namespace tesseract {
 
@@ -67,9 +67,9 @@ namespace tesseract {
 // This function doesn't provide all information required by
 // fixed_pitch_words() and the rows need to be processed with
 // make_prop_words() even if they are fixed pitched.
-void compute_fixed_pitch_cjk(ICOORD page_tr,               // top right
-                             TO_BLOCK_LIST *port_blocks);  // input list
+void compute_fixed_pitch_cjk(ICOORD page_tr,              // top right
+                             TO_BLOCK_LIST *port_blocks); // input list
 
 } // namespace tesseract
 
-#endif  // CJKPITCH_H_
+#endif // CJKPITCH_H_
