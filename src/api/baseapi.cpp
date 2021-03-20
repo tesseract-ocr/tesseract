@@ -368,6 +368,18 @@ int TessBaseAPI::Init(const char *data, int data_size, const char *language, Ocr
                       char **configs, int configs_size, const std::vector<std::string> *vars_vec,
                       const std::vector<std::string> *vars_values, bool set_only_non_debug_params,
                       FileReader reader) {
+  // Set Leptonica based on environment variables
+  const char * env_p = std::getenv("LEPT_MSG_SEVERITY");
+  if ( env_p != nullptr ) {
+    std::stringstream ss(env_p);
+    int i;
+    if( ss >> i ) {
+      setMsgSeverity(i);
+    } else {
+      fprintf(stderr,"Invalid LEPT_MSG_SEVERITY value: '%s'. Expected value: from %d to %d\n",
+              env_p, L_SEVERITY_EXTERNAL, L_SEVERITY_NONE);
+    }
+  }
   // Default language is "eng".
   if (language == nullptr)
     language = "eng";
