@@ -25,6 +25,7 @@
 #if defined(__USE_GNU)
 #  include <cfenv> // for feenableexcept
 #endif
+#include <cstdlib> // for std::getenv
 #include <iostream>
 
 #include <allheaders.h>
@@ -777,10 +778,13 @@ extern "C" int tesseract_main(int argc, const char **argv)
   std::vector<std::string> vars_vec;
   std::vector<std::string> vars_values;
 
-#if defined(NDEBUG)
-  // Disable debugging and informational messages from Leptonica.
-  setMsgSeverity(L_SEVERITY_ERROR);
-#endif
+  if (std::getenv("LEPT_MSG_SEVERITY")) {
+    // Get Leptonica message level from environment variable.
+    setMsgSeverity(L_SEVERITY_EXTERNAL);
+  } else {
+    // Disable debugging and informational messages from Leptonica.
+    setMsgSeverity(L_SEVERITY_ERROR);
+  }
 
 #if defined(HAVE_TIFFIO_H) && defined(_WIN32)
   /* Show libtiff errors and warnings on console (not in GUI). */

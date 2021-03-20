@@ -24,7 +24,7 @@
 
 namespace tesseract {
 
-/// Structure for data transfer from table detector 
+/// Structure for data transfer from table detector
 struct TessTable {
   tesseract::TBOX box;
   std::vector<tesseract::TBOX> rows;

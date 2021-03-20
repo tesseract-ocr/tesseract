@@ -73,15 +73,6 @@ public:
     }
   }
 
-  // Look uid in the vector of uids.  If found, the index of the matched
-  // element is returned.  Otherwise, it returns -1.
-  static inline int find_in(const UnicharIdVector &uid_vec, const UNICHAR_ID uid) {
-    for (int i = 0; i < uid_vec.size(); ++i)
-      if (uid_vec[i] == uid)
-        return i;
-    return -1;
-  }
-
   // Copies UNICHAR_IDs from dst to src. Returns the number of ids copied.
   // The function assumes that the arrays are terminated by INVALID_UNICHAR_ID
   // and that dst has enough space for all the elements from src.
