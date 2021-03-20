@@ -725,7 +725,6 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
   }
   // Now process each group of blocks.
   std::vector<WordWithBox *> word_ptrs;
-  word_ptrs.reserve(groups.size());
   for (const auto group : groups) {
     if (group->bounding_box.null_box())
       continue;
@@ -746,13 +745,13 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
         }
       }
     }
-    for (auto box_word : word_ptrs) {
-      delete box_word;
-    }
     FCOORD rotation = group->rotation;
     // Make it a forward rotation that will transform blob coords to block.
     rotation.set_y(-rotation.y());
     TransferDiacriticsToWords(diacritic_blobs, rotation, &word_grid);
+  }
+  for (auto box_word : word_ptrs) {
+    delete box_word;
   }
   for (auto group : groups) {
     delete group;
