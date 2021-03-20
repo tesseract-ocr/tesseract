@@ -693,7 +693,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
   // Angle difference larger than this is too much to consider equal.
   // They should only be in multiples of M_PI/2 anyway.
   const double kMaxAngleDiff = 0.01; // About 0.6 degrees.
-  std::vector<BlockGroup *> groups;
+  std::vector<std::unique_ptr<BlockGroup>> groups;
   BLOCK_IT bk_it(blocks);
   for (bk_it.mark_cycle_pt(); !bk_it.cycled_list(); bk_it.forward()) {
     BLOCK *block = bk_it.data();
@@ -704,17 +704,17 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
     float block_angle = block->re_rotation().angle();
     int best_g = 0;
     float best_angle_diff = FLT_MAX;
-    for (int g = 0; g < groups.size(); ++g) {
-      double angle_diff = fabs(block_angle - groups[g]->angle);
+    for (const auto &group : groups) {
+      double angle_diff = fabs(block_angle - group->angle);
       if (angle_diff > M_PI)
         angle_diff = fabs(angle_diff - 2.0 * M_PI);
       if (angle_diff < best_angle_diff) {
         best_angle_diff = angle_diff;
-        best_g = g;
+        best_g = &group - &groups[0];
       }
     }
     if (best_angle_diff > kMaxAngleDiff) {
-      groups.push_back(new BlockGroup(block));
+      groups.push_back(std::make_unique<BlockGroup>(block));
     } else {
       groups[best_g]->blocks.push_back(block);
       groups[best_g]->bounding_box += block->pdblk.bounding_box();
@@ -724,24 +724,24 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
     }
   }
   // Now process each group of blocks.
-  std::vector<WordWithBox *> word_ptrs;
-  for (const auto group : groups) {
+  std::vector<std::unique_ptr<WordWithBox>> word_ptrs;
+  for (const auto &group : groups) {
     if (group->bounding_box.null_box())
       continue;
     WordGrid word_grid(group->min_xheight, group->bounding_box.botleft(),
                        group->bounding_box.topright());
-    for (int b = 0; b < group->blocks.size(); ++b) {
-      ROW_IT row_it(group->blocks[b]->row_list());
+    for (auto b : group->blocks) {
+      ROW_IT row_it(b->row_list());
       for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
         ROW *row = row_it.data();
         // Put the words of the row into the grid.
         WERD_IT w_it(row->word_list());
         for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
           WERD *word = w_it.data();
-          auto *box_word = new WordWithBox(word);
-          word_grid.InsertBBox(true, true, box_word);
+          auto box_word = std::make_unique<WordWithBox>(word);
+          word_grid.InsertBBox(true, true, box_word.get());
           // Save the pointer where it will be auto-deleted.
-          word_ptrs.push_back(box_word);
+          word_ptrs.emplace_back(std::move(box_word));
         }
       }
     }
@@ -749,12 +749,6 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
     // Make it a forward rotation that will transform blob coords to block.
     rotation.set_y(-rotation.y());
     TransferDiacriticsToWords(diacritic_blobs, rotation, &word_grid);
-  }
-  for (auto box_word : word_ptrs) {
-    delete box_word;
-  }
-  for (auto group : groups) {
-    delete group;
   }
 }
 
