@@ -73,6 +73,15 @@ RecodeBeamSearch::RecodeBeamSearch(const UnicharCompress &recoder, int null_char
     space_delimited_ = false;
 }
 
+RecodeBeamSearch::~RecodeBeamSearch() {
+  for (auto data : beam_) {
+    delete data;
+  }
+  for (auto data : secondary_beam_) {
+    delete data;
+  }
+}
+
 // Decodes the set of network outputs, storing the lattice internally.
 void RecodeBeamSearch::Decode(const NetworkIO &output, double dict_ratio, double cert_offset,
                               double worst_dict_cert, const UNICHARSET *charset,
@@ -103,6 +112,9 @@ void RecodeBeamSearch::Decode(const GENERIC_2D_ARRAY<float> &output, double dict
 void RecodeBeamSearch::DecodeSecondaryBeams(const NetworkIO &output, double dict_ratio,
                                             double cert_offset, double worst_dict_cert,
                                             const UNICHARSET *charset, int lstm_choice_mode) {
+  for (auto data : secondary_beam_) {
+    delete data;
+  }
   secondary_beam_.clear();
   if (character_boundaries_.size() < 2)
     return;
@@ -298,15 +310,15 @@ void RecodeBeamSearch::PrintBeam2(bool uids, int num_outputs, const UNICHARSET *
                                   bool secondary) const {
   std::vector<std::vector<const RecodeNode *>> topology;
   std::unordered_set<const RecodeNode *> visited;
-  const PointerVector<RecodeBeam> *beam = !secondary ? &beam_ : &secondary_beam_;
+  const std::vector<RecodeBeam *> &beam = !secondary ? beam_ : secondary_beam_;
   // create the topology
-  for (int step = beam->size() - 1; step >= 0; --step) {
+  for (int step = beam.size() - 1; step >= 0; --step) {
     std::vector<const RecodeNode *> layer;
     topology.push_back(layer);
   }
   // fill the topology with depths first
-  for (int step = beam->size() - 1; step >= 0; --step) {
-    std::vector<tesseract::RecodePair> &heaps = beam->get(step)->beams_->heap();
+  for (int step = beam.size() - 1; step >= 0; --step) {
+    std::vector<tesseract::RecodePair> &heaps = beam.at(step)->beams_->heap();
     for (auto node : heaps) {
       int backtracker = 0;
       const RecodeNode *curr = &node.data();
@@ -371,16 +383,11 @@ void RecodeBeamSearch::PrintBeam2(bool uids, int num_outputs, const UNICHARSET *
 }
 
 void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
-  PointerVector<RecodeBeam> *currentBeam = nullptr;
   if (character_boundaries_.size() < 2)
     return;
   // For the first iteration the original beam is analyzed. After that a
   // new beam is calculated based on the results from the original beam.
-  if (secondary_beam_.empty()) {
-    currentBeam = &beam_;
-  } else {
-    currentBeam = &secondary_beam_;
-  }
+  std::vector<RecodeBeam *> &currentBeam = secondary_beam_.empty() ? beam_ : secondary_beam_;
   character_boundaries_[0] = 0;
   for (int j = 1; j < character_boundaries_.size(); ++j) {
     std::vector<int> unichar_ids;
@@ -389,7 +396,7 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
     std::vector<int> xcoords;
     int backpath = character_boundaries_[j] - character_boundaries_[j - 1];
     std::vector<tesseract::RecodePair> &heaps =
-      currentBeam->get(character_boundaries_[j] - 1)->beams_->heap();
+      currentBeam.at(character_boundaries_[j] - 1)->beams_->heap();
     std::vector<const RecodeNode *> best_nodes;
     std::vector<const RecodeNode *> best;
     // Scan the segmented node chain for valid unichar ids.
@@ -465,6 +472,9 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
         ctc_choices.push_back(choice);
       }
     }
+  }
+  for (auto data : secondary_beam_) {
+    delete data;
   }
   secondary_beam_.clear();
 }

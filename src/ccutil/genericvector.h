@@ -176,8 +176,6 @@ public:
   // TFile is assumed to know about swapping.
   bool DeSerialize(bool swap, FILE *fp);
   bool DeSerialize(TFile *fp);
-  // Skips the deserialization of the vector.
-  static bool SkipDeSerialize(TFile *fp);
   // Writes a vector of classes to the given file. Assumes the existence of
   // bool T::Serialize(FILE* fp) const that returns false in case of error.
   // Returns false in case of error.
@@ -485,57 +483,6 @@ public:
       } else {
         // Null elements should keep their place in the vector.
         this->push_back(nullptr);
-      }
-    }
-    return true;
-  }
-  bool DeSerialize(TFile *fp) {
-    int32_t reserved;
-    if (!fp->DeSerializeSize(&reserved)) {
-      return false;
-    }
-    GenericVector<T *>::reserve(reserved);
-    truncate(0);
-    for (int i = 0; i < reserved; ++i) {
-      if (!DeSerializeElement(fp)) {
-        return false;
-      }
-    }
-    return true;
-  }
-  // Enables deserialization of a selection of elements. Note that in order to
-  // retain the integrity of the stream, the caller must call some combination
-  // of DeSerializeElement and DeSerializeSkip of the exact number returned in
-  // *size, assuming a true return.
-  // Reads and appends to the vector the next element of the serialization.
-  bool DeSerializeElement(TFile *fp) {
-    int8_t non_null;
-    if (fp->FRead(&non_null, sizeof(non_null), 1) != 1) {
-      return false;
-    }
-    T *item = nullptr;
-    if (non_null != 0) {
-      item = new T;
-      if (!item->DeSerialize(fp)) {
-        delete item;
-        return false;
-      }
-      this->push_back(item);
-    } else {
-      // Null elements should keep their place in the vector.
-      this->push_back(nullptr);
-    }
-    return true;
-  }
-  // Skips the next element of the serialization.
-  static bool DeSerializeSkip(TFile *fp) {
-    int8_t non_null;
-    if (fp->FRead(&non_null, sizeof(non_null), 1) != 1) {
-      return false;
-    }
-    if (non_null != 0) {
-      if (!T::SkipDeSerialize(fp)) {
-        return false;
       }
     }
     return true;
@@ -888,14 +835,6 @@ bool GenericVector<T>::DeSerialize(TFile *fp) {
   reserve(reserved);
   size_used_ = reserved;
   return fp->FReadEndian(data_, sizeof(T), size_used_) == size_used_;
-}
-template <typename T>
-bool GenericVector<T>::SkipDeSerialize(TFile *fp) {
-  uint32_t reserved;
-  if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
-    return false;
-  }
-  return (uint32_t)fp->FRead(nullptr, sizeof(T), reserved) == reserved;
 }
 
 // Writes a vector of classes to the given file. Assumes the existence of

@@ -86,7 +86,7 @@ public:
 
   // Deserialize data.
   bool DeSerializeSize(int32_t *data);
-  bool DeSerializeSkip();
+  bool DeSerializeSkip(size_t size = 1);
   bool DeSerialize(std::string &data);
   bool DeSerialize(std::vector<char> &data);
   //bool DeSerialize(std::vector<std::string> &data);
@@ -180,7 +180,7 @@ public:
     } else if constexpr (std::is_pointer_v<T>) {
       // Serialize pointers.
       for (auto &item : data) {
-        uint8_t non_null = (*item != nullptr);
+        uint8_t non_null = (item != nullptr);
 	if (!Serialize(&non_null)) {
           return false;
 	}

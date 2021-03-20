@@ -21,8 +21,6 @@
 
 #include "points.h" // for FCOORD
 
-#include "genericvector.h" // for PointerVector, FileReader
-
 #include <mutex>  // for std::mutex
 #include <thread> // for std::thread
 
@@ -257,7 +255,7 @@ private:
   // A name for this document.
   std::string document_name_;
   // A group of pages that corresponds in some loose way to a document.
-  PointerVector<ImageData> pages_;
+  std::vector<ImageData *> pages_;
   // Page number of the first index in pages_.
   int pages_offset_;
   // Total number of pages in document (may exceed size of pages_.)

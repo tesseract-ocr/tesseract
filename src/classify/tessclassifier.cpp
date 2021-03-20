@@ -63,7 +63,7 @@ const UNICHARSET &TessClassifier::GetUnicharset() const {
 // by any subsequent classifiers. Caller waits for the user to view and
 // then destroys the windows by clearing the vector.
 int TessClassifier::DisplayClassifyAs(const TrainingSample &sample, Pix *page_pix, int unichar_id,
-                                      int index, PointerVector<ScrollView> *windows) {
+                                      int index, std::vector<ScrollView *> &windows) {
   int shape_id = unichar_id;
   // TODO(rays) Fix this so it works with both flat and real shapetables.
   //  if (GetShapeTable() != nullptr)

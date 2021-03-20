@@ -21,6 +21,7 @@
 #define TESSERACT_CLASSIFY_SHAPECLASSIFIER_H_
 
 #include <tesseract/unichar.h>
+#include <vector>
 
 struct Pix;
 
@@ -29,8 +30,6 @@ namespace tesseract {
 class ScrollView;
 class UNICHARSET;
 
-template <typename T>
-class PointerVector;
 struct ShapeRating;
 class ShapeTable;
 class TrainingSample;
@@ -97,7 +96,7 @@ public:
   // by any subsequent classifiers. Caller waits for the user to view and
   // then destroys the windows by clearing the vector.
   virtual int DisplayClassifyAs(const TrainingSample &sample, Pix *page_pix, UNICHAR_ID unichar_id,
-                                int index, PointerVector<ScrollView> *windows);
+                                int index, std::vector<ScrollView *> &windows);
 
   // Prints debug information on the results. context is some introductory/title
   // message.

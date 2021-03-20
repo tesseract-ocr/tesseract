@@ -116,11 +116,11 @@ void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Pix *page_pix,
   SVEvent *ev;
   SVEventType ev_type;
   do {
-    PointerVector<ScrollView> windows;
+    std::vector<ScrollView *> windows;
     if (unichar_id >= 0) {
       tprintf("Debugging class %d = %s\n", unichar_id, unicharset.id_to_unichar(unichar_id));
       UnicharClassifySample(sample, page_pix, 1, unichar_id, &results);
-      DisplayClassifyAs(sample, page_pix, unichar_id, 1, &windows);
+      DisplayClassifyAs(sample, page_pix, unichar_id, 1, windows);
     } else {
       tprintf("Invalid unichar_id: %d\n", unichar_id);
       UnicharClassifySample(sample, page_pix, 1, -1, &results);
@@ -144,6 +144,9 @@ void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Pix *page_pix,
       }
       delete ev;
     } while (unichar_id == old_unichar_id && ev_type != SVET_CLICK && ev_type != SVET_DESTROY);
+    for (auto window : windows) {
+      delete window;
+    }
   } while (ev_type != SVET_CLICK && ev_type != SVET_DESTROY);
   delete debug_win;
 }
@@ -157,7 +160,7 @@ void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Pix *page_pix,
 // then destroys the windows by clearing the vector.
 int ShapeClassifier::DisplayClassifyAs(const TrainingSample &sample, Pix *page_pix,
                                        UNICHAR_ID unichar_id, int index,
-                                       PointerVector<ScrollView> *windows) {
+                                       std::vector<ScrollView *> &windows) {
   // Does nothing in the default implementation.
   return index;
 }
