@@ -38,7 +38,6 @@
 #include "helpers.h"
 
 #include <algorithm>
-#include <array> // for std::array
 #include <cassert>
 #include <cmath> // for M_PI, std::floor
 #include <cstdio>
@@ -689,8 +688,8 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   /* variables for conversion from older inttemp formats */
   int b, bit_number, last_cp_bit_number, new_b, new_i, new_w;
   CLASS_ID class_id, max_class_id;
-  std::array<CLASS_ID, MAX_NUM_CLASSES> ClassIdFor;
-  std::array<CLASS_PRUNER_STRUCT *, MAX_NUM_CLASS_PRUNERS> TempClassPruner;
+  std::vector<CLASS_ID> ClassIdFor(MAX_NUM_CLASSES);
+  std::vector<CLASS_PRUNER_STRUCT *> TempClassPruner(MAX_NUM_CLASS_PRUNERS);
   uint32_t SetBitsForMask =          // word with NUM_BITS_PER_CLASS
       (1 << NUM_BITS_PER_CLASS) - 1; // set starting at bit 0
   uint32_t Mask, NewMask, ClassBits;
@@ -718,7 +717,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   }
 
   if (version_id < 2) {
-    std::array<int16_t, MAX_NUM_CLASSES> IndexFor;
+    std::vector<int16_t> IndexFor(MAX_NUM_CLASSES);
     if (fp->FReadEndian(&IndexFor[0], sizeof(IndexFor[0]), unicharset_size) != unicharset_size) {
       tprintf("Bad read of inttemp!\n");
     }
