@@ -45,7 +45,7 @@ extern "C" int tesseract_set_unicharset_properties_main(int argc, const char **a
 
   tesseract::SetPropertiesForInputFile(FLAGS_script_dir.c_str(), FLAGS_U.c_str(), FLAGS_O.c_str(),
                                        FLAGS_X.c_str());
-  return EEXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
 
 #endif

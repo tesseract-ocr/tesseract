@@ -622,8 +622,7 @@ void UNICHARSET::unichar_insert(const char *const unichar_repr, OldUncleanUnicha
     std::vector<int> encoding;
     if (!old_style_included_ && encode_string(str, true, &encoding, nullptr, nullptr))
       return;
-    unichars.emplace_back();
-    auto &u = unichars.at(unichars.size()-1);
+    auto &u = unichars.emplace_back();
     int index = 0;
     do {
       if (index >= UNICHAR_LEN) {
