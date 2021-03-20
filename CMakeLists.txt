@@ -77,7 +77,7 @@ set(MINIMUM_LEPTONICA_VERSION 1.74)
 message( "Configuring tesseract version ${PACKAGE_VERSION}...")
 
 if (WIN32)
-    option(SW_BUILD "Build with sw" ON)
+    option(SW_BUILD "Build with sw" OFF)
 else()
     option(SW_BUILD "Build with sw" OFF)
 endif()
