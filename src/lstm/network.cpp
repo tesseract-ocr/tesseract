@@ -43,6 +43,9 @@
 #endif
 #include "tprintf.h"
 
+#undef min
+#undef max
+
 namespace tesseract {
 
 // Min and max window sizes.

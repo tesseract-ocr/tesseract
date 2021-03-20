@@ -98,7 +98,7 @@ bool MasterTrainer::Serialize(FILE *fp) const {
 void MasterTrainer::LoadUnicharset(const char *filename) {
   if (!unicharset_.load_from_file(filename)) {
     tprintf(
-        "Failed to load unicharset from file %s\n"
+        "ERROR: Failed to load unicharset from file %s\n"
         "Building unicharset for training from scratch...\n",
         filename);
     unicharset_.clear();
@@ -131,7 +131,7 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
 
   FILE *fp = fopen(page_name, "rb");
   if (fp == nullptr) {
-    tprintf("Failed to open tr file: %s\n", page_name);
+    tprintf("ERROR: Failed to open tr file: %s\n", page_name);
     return;
   }
   tr_filenames_.push_back(std::string(page_name));
@@ -141,7 +141,7 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
 
     char *space = strchr(buffer, ' ');
     if (space == nullptr) {
-      tprintf("Bad format in tr file, reading fontname, unichar\n");
+      tprintf("ERROR: Bad format in tr file, reading fontname, unichar\n");
       continue;
     }
     *space++ = '\0';
@@ -152,7 +152,7 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
     std::string unichar;
     TBOX bounding_box;
     if (!ParseBoxFileStr(space, &page_number, unichar, &bounding_box)) {
-      tprintf("Bad format in tr file, reading box coords\n");
+      tprintf("ERROR: Bad format in tr file, reading box coords\n");
       continue;
     }
     CHAR_DESC char_desc = ReadCharDescription(feature_defs, fp);
@@ -425,7 +425,7 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
   // Find the fontinfo_id.
   int fontinfo_id = GetBestMatchingFontInfoId(filename);
   if (fontinfo_id < 0) {
-    tprintf("No font found matching fontinfo filename %s\n", filename);
+    tprintf("ERROR: No font found matching fontinfo filename %s\n", filename);
     fclose(fontinfo_file);
     return false;
   }
@@ -443,7 +443,7 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
   FontSpacingInfo *spacing = nullptr;
   for (int l = 0; l < num_unichars; ++l) {
     if (tfscanf(fontinfo_file, "%s %d %d %d", uch, &x_gap_before, &x_gap_after, &num_kerned) != 4) {
-      tprintf("Bad format of font spacing file %s\n", filename);
+      tprintf("ERROR: Bad format of font spacing file %s\n", filename);
       fclose(fontinfo_file);
       return false;
     }
@@ -455,7 +455,7 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
     }
     for (int k = 0; k < num_kerned; ++k) {
       if (tfscanf(fontinfo_file, "%s %d", kerned_uch, &x_gap) != 2) {
-        tprintf("Bad format of font spacing file %s\n", filename);
+        tprintf("ERROR: Bad format of font spacing file %s\n", filename);
         fclose(fontinfo_file);
         delete spacing;
         return false;
@@ -582,7 +582,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   INT_TEMPLATES int_templates = classify->CreateIntTemplates(float_classes, shape_set);
   FILE *fp = fopen(inttemp_file, "wb");
   if (fp == nullptr) {
-    tprintf("Error, failed to open file \"%s\"\n", inttemp_file);
+    tprintf("ERROR: Failed to open file \"%s\"\n", inttemp_file);
   } else {
     classify->WriteIntTemplates(fp, int_templates, shape_set);
     fclose(fp);
@@ -620,7 +620,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   }
   fp = fopen(pffmtable_file, "wb");
   if (fp == nullptr) {
-    tprintf("Error, failed to open file \"%s\"\n", pffmtable_file);
+    tprintf("ERROR: Failed to open file \"%s\"\n", pffmtable_file);
   } else {
     tesseract::Serialize(fp, shapetable_cutoffs);
     for (int c = 0; c < unicharset.size(); ++c) {
@@ -646,7 +646,7 @@ void MasterTrainer::DebugCanonical(const char *unichar_str1, const char *unichar
   if (class_id2 == INVALID_UNICHAR_ID)
     class_id2 = class_id1;
   if (class_id1 == INVALID_UNICHAR_ID) {
-    tprintf("No unicharset entry found for %s\n", unichar_str1);
+    tprintf("ERROR: No unicharset entry found for %s\n", unichar_str1);
     return;
   } else {
     tprintf("Font ambiguities for unichar %d = %s and %d = %s\n", class_id1, unichar_str1,

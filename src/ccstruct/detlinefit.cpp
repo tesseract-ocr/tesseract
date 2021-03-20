@@ -24,6 +24,9 @@
 #include <algorithm>
 #include <cfloat> // for FLT_MAX
 
+#undef min
+#undef max
+
 namespace tesseract {
 
 // The number of points to consider at each end.

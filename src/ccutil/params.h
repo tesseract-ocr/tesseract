@@ -169,7 +169,7 @@ public:
   void ResetFrom(const ParamsVectors *vec) {
     for (auto *param : vec->int_params) {
       if (strcmp(param->name_str(), name_) == 0) {
-        // printf("overriding param %s=%d by =%d\n", name_, value_,
+        // tprintf("overriding param %s=%d by =%d\n", name_, value_,
         // param);
         value_ = *param;
         break;
@@ -211,7 +211,7 @@ public:
   void ResetFrom(const ParamsVectors *vec) {
     for (auto *param : vec->bool_params) {
       if (strcmp(param->name_str(), name_) == 0) {
-        // printf("overriding param %s=%s by =%s\n", name_, value_ ? "true" :
+        // tprintf("overriding param %s=%s by =%s\n", name_, value_ ? "true" :
         // "false", *param ? "true" : "false");
         value_ = *param;
         break;
@@ -266,7 +266,7 @@ public:
   void ResetFrom(const ParamsVectors *vec) {
     for (auto *param : vec->string_params) {
       if (strcmp(param->name_str(), name_) == 0) {
-        // printf("overriding param %s=%s by =%s\n", name_, value_,
+        // tprintf("overriding param %s=%s by =%s\n", name_, value_,
         // param->c_str());
         value_ = *param;
         break;
@@ -308,7 +308,7 @@ public:
   void ResetFrom(const ParamsVectors *vec) {
     for (auto *param : vec->double_params) {
       if (strcmp(param->name_str(), name_) == 0) {
-        // printf("overriding param %s=%f by =%f\n", name_, value_,
+        // tprintf("overriding param %s=%f by =%f\n", name_, value_,
         // *param);
         value_ = *param;
         break;

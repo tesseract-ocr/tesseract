@@ -54,7 +54,7 @@ public:
 
 protected:
   virtual void handleFailure() const {
-    tprintf("ICU ERROR: %s\n", errorName());
+    tprintf("ERROR: ICU: %s\n", errorName());
     exit(errorCode);
   }
 

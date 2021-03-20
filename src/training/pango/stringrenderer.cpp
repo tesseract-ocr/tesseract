@@ -77,7 +77,7 @@ static bool RandBool(const double prob, TRand *rand) {
 /* static */
 static Pix *CairoARGB32ToPixFormat(cairo_surface_t *surface) {
   if (cairo_image_surface_get_format(surface) != CAIRO_FORMAT_ARGB32) {
-    printf("Unexpected surface format %d\n", cairo_image_surface_get_format(surface));
+    tprintf("ERROR: Unexpected surface format %d\n", cairo_image_surface_get_format(surface));
     return nullptr;
   }
   const int width = cairo_image_surface_get_width(surface);

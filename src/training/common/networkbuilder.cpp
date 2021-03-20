@@ -55,7 +55,7 @@ bool NetworkBuilder::InitNetwork(int num_outputs, const char *network_spec, int 
     Series *top_series = nullptr;
     series->SplitAt(append_index, &bottom_series, &top_series);
     if (bottom_series == nullptr || top_series == nullptr) {
-      tprintf("Yikes! Splitting current network failed!!\n");
+      tprintf("ERROR: Yikes! Splitting current network failed!!\n");
       return false;
     }
     input_shape = bottom_series->OutputShape(input_shape);
@@ -111,7 +111,7 @@ Network *NetworkBuilder::BuildFromString(const StaticShape &input_shape, const c
     case 'O':
       return ParseOutput(input_shape, str);
     default:
-      tprintf("Invalid network spec:%s\n", *str);
+      tprintf("ERROR: Invalid network spec:%s\n", *str);
       return nullptr;
   }
   return nullptr;
@@ -128,7 +128,7 @@ Network *NetworkBuilder::ParseInput(const char **str) {
   shape.SetShape(batch, height, width, depth);
   // num_converted may or may not include the length.
   if (num_converted != 4 && num_converted != 5) {
-    tprintf("Must specify an input layer as the first layer, not %s!!\n", *str);
+    tprintf("ERROR: Must specify an input layer as the first layer, not %s!!\n", *str);
     return nullptr;
   }
   *str += length;
@@ -157,7 +157,7 @@ Network *NetworkBuilder::ParseSeries(const StaticShape &input_shape, Input *inpu
     series->AddToStack(network);
   }
   if (**str != ']') {
-    tprintf("Missing ] at end of [Series]!\n");
+    tprintf("ERROR: Missing ] at end of [Series]!\n");
     delete series;
     return nullptr;
   }
@@ -175,7 +175,7 @@ Network *NetworkBuilder::ParseParallel(const StaticShape &input_shape, const cha
     parallel->AddToStack(network);
   }
   if (**str != ')') {
-    tprintf("Missing ) at end of (Parallel)!\n");
+    tprintf("ERROR: Missing ) at end of (Parallel)!\n");
     delete parallel;
     return nullptr;
   }
@@ -201,7 +201,7 @@ Network *NetworkBuilder::ParseR(const StaticShape &input_shape, const char **str
   int replicas = strtol(*str + 1, &end, 10);
   *str = end;
   if (replicas <= 0) {
-    tprintf("Invalid R spec!:%s\n", end);
+    tprintf("ERROR: Invalid R spec!:%s\n", end);
     return nullptr;
   }
   Parallel *parallel = new Parallel("Replicated", NT_REPLICATED);
@@ -210,7 +210,7 @@ Network *NetworkBuilder::ParseR(const StaticShape &input_shape, const char **str
     str_copy = *str;
     Network *network = BuildFromString(input_shape, &str_copy);
     if (network == nullptr) {
-      tprintf("Invalid replicated network!\n");
+      tprintf("ERROR: Invalid replicated network!\n");
       delete parallel;
       return nullptr;
     }
@@ -229,16 +229,16 @@ Network *NetworkBuilder::ParseS(const StaticShape &input_shape, const char **str
     int x = strtol(*str + 1, &end, 10);
     *str = end;
     if (y <= 0 || x <= 0) {
-      tprintf("Invalid S spec!:%s\n", *str);
+      tprintf("ERROR: Invalid S spec!:%s\n", *str);
       return nullptr;
     }
     return new Reconfig("Reconfig", input_shape.depth(), x, y);
   } else if (**str == '(') {
     // TODO(rays) Add Generic reshape.
-    tprintf("Generic reshape not yet implemented!!\n");
+    tprintf("ERROR: Generic reshape not yet implemented!!\n");
     return nullptr;
   }
-  tprintf("Invalid S spec!:%s\n", *str);
+  tprintf("ERROR: Invalid S spec!:%s\n", *str);
   return nullptr;
 }
 
@@ -268,14 +268,14 @@ static NetworkType NonLinearity(char func) {
 Network *NetworkBuilder::ParseC(const StaticShape &input_shape, const char **str) {
   NetworkType type = NonLinearity((*str)[1]);
   if (type == NT_NONE) {
-    tprintf("Invalid nonlinearity on C-spec!: %s\n", *str);
+    tprintf("ERROR: Invalid nonlinearity on C-spec!: %s\n", *str);
     return nullptr;
   }
   int y = 0, x = 0, d = 0;
   char *end;
   if ((y = strtol(*str + 2, &end, 10)) <= 0 || *end != ',' ||
       (x = strtol(end + 1, &end, 10)) <= 0 || *end != ',' || (d = strtol(end + 1, &end, 10)) <= 0) {
-    tprintf("Invalid C spec!:%s\n", end);
+    tprintf("ERROR: Invalid C spec!:%s\n", end);
     return nullptr;
   }
   *str = end;
@@ -298,7 +298,7 @@ Network *NetworkBuilder::ParseM(const StaticShape &input_shape, const char **str
   char *end;
   if ((*str)[1] != 'p' || (y = strtol(*str + 2, &end, 10)) <= 0 || *end != ',' ||
       (x = strtol(end + 1, &end, 10)) <= 0) {
-    tprintf("Invalid Mp spec!:%s\n", *str);
+    tprintf("ERROR: Invalid Mp spec!:%s\n", *str);
     return nullptr;
   }
   *str = end;
@@ -330,7 +330,7 @@ Network *NetworkBuilder::ParseLSTM(const StaticShape &input_shape, const char **
     dir = key;
     dim = (*str)[2];
     if (dim != 'x' && dim != 'y') {
-      tprintf("Invalid dimension (x|y) in L Spec!:%s\n", *str);
+      tprintf("ERROR: Invalid dimension (x|y) in L Spec!:%s\n", *str);
       return nullptr;
     }
     chars_consumed = 3;
@@ -339,13 +339,13 @@ Network *NetworkBuilder::ParseLSTM(const StaticShape &input_shape, const char **
       type = NT_LSTM_SUMMARY;
     }
   } else {
-    tprintf("Invalid direction (f|r|b) in L Spec!:%s\n", *str);
+    tprintf("ERROR: Invalid direction (f|r|b) in L Spec!:%s\n", *str);
     return nullptr;
   }
   char *end;
   int num_states = strtol(*str + chars_consumed, &end, 10);
   if (num_states <= 0) {
-    tprintf("Invalid number of states in L Spec!:%s\n", *str);
+    tprintf("ERROR: Invalid number of states in L Spec!:%s\n", *str);
     return nullptr;
   }
   *str = end;
@@ -401,7 +401,7 @@ Network *NetworkBuilder::BuildLSTMXYQuad(int num_inputs, int num_states) {
 static Network *BuildFullyConnected(const StaticShape &input_shape, NetworkType type,
                                     const std::string &name, int depth) {
   if (input_shape.height() == 0 || input_shape.width() == 0) {
-    tprintf("Fully connected requires positive height and width, had %d,%d\n", input_shape.height(),
+    tprintf("ERROR: Fully connected requires positive height and width, had %d,%d\n", input_shape.height(),
             input_shape.width());
     return nullptr;
   }
@@ -423,13 +423,13 @@ Network *NetworkBuilder::ParseFullyConnected(const StaticShape &input_shape, con
   const char *spec_start = *str;
   NetworkType type = NonLinearity((*str)[1]);
   if (type == NT_NONE) {
-    tprintf("Invalid nonlinearity on F-spec!: %s\n", *str);
+    tprintf("ERROR: Invalid nonlinearity on F-spec!: %s\n", *str);
     return nullptr;
   }
   char *end;
   int depth = strtol(*str + 2, &end, 10);
   if (depth <= 0) {
-    tprintf("Invalid F spec!:%s\n", *str);
+    tprintf("ERROR: Invalid F spec!:%s\n", *str);
     return nullptr;
   }
   *str = end;
@@ -441,18 +441,18 @@ Network *NetworkBuilder::ParseFullyConnected(const StaticShape &input_shape, con
 Network *NetworkBuilder::ParseOutput(const StaticShape &input_shape, const char **str) {
   char dims_ch = (*str)[1];
   if (dims_ch != '0' && dims_ch != '1' && dims_ch != '2') {
-    tprintf("Invalid dims (2|1|0) in output spec!:%s\n", *str);
+    tprintf("ERROR: Invalid dims (2|1|0) in output spec!:%s\n", *str);
     return nullptr;
   }
   char type_ch = (*str)[2];
   if (type_ch != 'l' && type_ch != 's' && type_ch != 'c') {
-    tprintf("Invalid output type (l|s|c) in output spec!:%s\n", *str);
+    tprintf("ERROR: Invalid output type (l|s|c) in output spec!:%s\n", *str);
     return nullptr;
   }
   char *end;
   int depth = strtol(*str + 3, &end, 10);
   if (depth != num_softmax_outputs_) {
-    tprintf("Warning: given outputs %d not equal to unicharset of %d.\n", depth,
+    tprintf("WARNING: Given outputs %d not equal to unicharset of %d.\n", depth,
             num_softmax_outputs_);
     depth = num_softmax_outputs_;
   }
@@ -471,7 +471,7 @@ Network *NetworkBuilder::ParseOutput(const StaticShape &input_shape, const char 
   }
   // For 1-d y has to be fixed, and if not 1, moved to depth.
   if (input_shape.height() == 0) {
-    tprintf("Fully connected requires fixed height!\n");
+    tprintf("ERROR: Fully connected requires fixed height!\n");
     return nullptr;
   }
   int input_size = input_shape.height();

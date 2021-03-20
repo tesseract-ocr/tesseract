@@ -306,7 +306,7 @@ bool Trie::add_word_list(const std::vector<std::string> &words, const UNICHARSET
     if (!word_in_dawg(word)) {
       add_word_to_dawg(word);
       if (!word_in_dawg(word)) {
-        tprintf("ERROR: word '%s' not in DAWG after adding it\n", words[i].c_str());
+        tprintf("ERROR: Word '%s' not in DAWG after adding it.\n", words[i].c_str());
         return false;
       }
     }
@@ -373,7 +373,7 @@ UNICHAR_ID Trie::character_class_to_pattern(char ch) {
 
 bool Trie::read_pattern_list(const char *filename, const UNICHARSET &unicharset) {
   if (!initialized_patterns_) {
-    tprintf("WARNING: please call initialize_patterns() before read_pattern_list()\n");
+    tprintf("WARNING: Please call initialize_patterns() before read_pattern_list()\n");
     return false;
   }
 
@@ -403,8 +403,8 @@ bool Trie::read_pattern_list(const char *filename, const UNICHARSET &unicharset)
         } else {
           if (word.length() < kSaneNumConcreteChars) {
             tprintf(
-                "Please provide at least %d concrete characters at the"
-                " beginning of the pattern\n",
+                "ERROR: Please provide at least %d concrete characters at the"
+                " beginning of the pattern.\n",
                 kSaneNumConcreteChars);
             failed = true;
             break;
@@ -431,7 +431,7 @@ bool Trie::read_pattern_list(const char *filename, const UNICHARSET &unicharset)
       }
     }
     if (failed) {
-      tprintf("Invalid user pattern %s\n", string);
+      tprintf("ERROR: Invalid user pattern %s\n", string);
       continue;
     }
     // Insert the pattern into the trie.
@@ -572,7 +572,7 @@ bool Trie::eliminate_redundant_edges(NODE_REF node, const EDGE_RECORD &edge1,
   int next_node2_num_edges =
       (next_node2_ptr->forward_edges.size() + next_node2_ptr->backward_edges.size());
   if (debug_level_ > 1) {
-    tprintf("removed %d edges from node " REFFORMAT "\n", next_node2_num_edges, next_node2);
+    tprintf("Removed %d edges from node " REFFORMAT "\n", next_node2_num_edges, next_node2);
   }
   next_node2_ptr->forward_edges.clear();
   next_node2_ptr->backward_edges.clear();

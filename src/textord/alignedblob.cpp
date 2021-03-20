@@ -294,11 +294,11 @@ TabVector *AlignedBlob::FindVerticalAlignment(AlignedBlobParams align_params, BL
       }
       return result;
     } else if (debug) {
-      tprintf("Ragged tab used too many used points: %d out of %d\n", confirmed_points, pt_count);
+      tprintf("WARNING: Ragged tab used too many used points: %d out of %d\n", confirmed_points, pt_count);
     }
   } else if (debug) {
     tprintf(
-        "Tab vector failed basic tests: pt count %d vs min %d, "
+        "WARNING: Tab vector failed basic tests: pt count %d vs min %d, "
         "length %d vs min %d, min grad %g\n",
         pt_count, align_params.min_points, end_y - start_y, align_params.min_length,
         abs(end_x - start_x) * kMinTabGradient);

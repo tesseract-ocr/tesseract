@@ -69,7 +69,7 @@ std::string ReadFile(const std::string &filename, FileReader reader) {
     read_result = (*reader)(filename.c_str(), &data);
   if (read_result)
     return std::string(&data[0], data.size());
-  tprintf("Failed to read data from: %s\n", filename.c_str());
+  tprintf("ERROR: Failed to read data from: %s\n", filename.c_str());
   return std::string();
 }
 
@@ -106,7 +106,7 @@ bool WriteRecoder(const UNICHARSET &unicharset, bool pass_through, const std::st
     int null_char = unicharset.has_special_codes() ? UNICHAR_BROKEN : unicharset.size();
     tprintf("Null char=%d\n", null_char);
     if (!recoder.ComputeEncoding(unicharset, null_char, radical_table_data)) {
-      tprintf("Creation of encoded unicharset failed!!\n");
+      tprintf("ERROR: Creation of encoded unicharset failed!!\n");
       return false;
     }
   }
@@ -153,7 +153,7 @@ static bool WriteDawgs(const std::vector<std::string> &words, const std::vector<
                        const std::vector<std::string> &numbers, bool lang_is_rtl,
                        const UNICHARSET &unicharset, TessdataManager *traineddata) {
   if (puncs.empty()) {
-    tprintf("Must have non-empty puncs list to use language models!!\n");
+    tprintf("ERROR: Must have non-empty puncs list to use language models!!\n");
     return false;
   }
   // For each of the dawg types, make the dawg, and write to traineddata.
@@ -195,7 +195,7 @@ int CombineLangModel(const UNICHARSET &unicharset, const std::string &script_dir
   }
   // Unicharset and recoder.
   if (!WriteUnicharset(unicharset, output_dir, lang, writer, &traineddata)) {
-    tprintf("Error writing unicharset!!\n");
+    tprintf("ERROR: Error writing unicharset!!\n");
     return EXIT_FAILURE;
   } else {
     tprintf("Config file is optional, continuing...\n");
@@ -209,16 +209,16 @@ int CombineLangModel(const UNICHARSET &unicharset, const std::string &script_dir
   std::string radical_filename = script_dir + "/radical-stroke.txt";
   std::string radical_data = ReadFile(radical_filename, reader);
   if (radical_data.length() == 0) {
-    tprintf("Error reading radical code table %s\n", radical_filename.c_str());
+    tprintf("ERROR: Error reading radical code table %s\n", radical_filename.c_str());
     return EXIT_FAILURE;
   }
   if (!WriteRecoder(unicharset, pass_through_recoder, output_dir, lang, writer, &radical_data,
                     &traineddata)) {
-    tprintf("Error writing recoder!!\n");
+    tprintf("ERROR: Error writing recoder!!\n");
   }
   if (!words.empty() || !puncs.empty() || !numbers.empty()) {
     if (!WriteDawgs(words, puncs, numbers, lang_is_rtl, unicharset, &traineddata)) {
-      tprintf("Error during conversion of wordlists to DAWGs!!\n");
+      tprintf("ERROR: Error during conversion of wordlists to DAWGs!!\n");
       return EXIT_FAILURE;
     }
   }
@@ -227,7 +227,7 @@ int CombineLangModel(const UNICHARSET &unicharset, const std::string &script_dir
   std::vector<char> traineddata_data;
   traineddata.Serialize(&traineddata_data);
   if (!WriteFile(output_dir, lang, ".traineddata", traineddata_data, writer)) {
-    tprintf("Error writing output traineddata file!!\n");
+    tprintf("ERROR: Error writing output traineddata file!!\n");
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

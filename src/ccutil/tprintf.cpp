@@ -31,6 +31,7 @@
 namespace tesseract {
 
 #ifdef HAVE_MUPDF
+
 // for fz_error():
 #ifdef __cplusplus
 extern "C" {
@@ -100,4 +101,5 @@ TESS_API void tprintf(const char *format, ...) {
 }
 
 #endif
+
 } // namespace tesseract

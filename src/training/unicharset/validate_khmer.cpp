@@ -27,7 +27,7 @@ bool ValidateKhmer::ConsumeGraphemeIfValid() {
   }
   if (codes_[codes_used_].first != CharClass::kConsonant) {
     if (report_errors_) {
-      tprintf("Invalid start of Khmer syllable:0x%x\n", codes_[codes_used_].second);
+      tprintf("ERROR: Invalid start of Khmer syllable:0x%x\n", codes_[codes_used_].second);
     }
     return false;
   }
@@ -53,7 +53,7 @@ bool ValidateKhmer::ConsumeGraphemeIfValid() {
       codes_[codes_used_].second == kZeroWidthNonJoiner) {
     if (CodeOnlyToOutput()) {
       if (report_errors_) {
-        tprintf("Unterminated joiner: 0x%x\n", output_.back());
+        tprintf("ERROR: Unterminated joiner: 0x%x\n", output_.back());
       }
       return false;
     }
@@ -68,7 +68,7 @@ bool ValidateKhmer::ConsumeGraphemeIfValid() {
       return true;
   } else if (num_matra_parts) {
     if (report_errors_) {
-      tprintf("Joiner with non-dependent vowel after it!:0x%x 0x%x\n", output_.back(),
+      tprintf("ERROR: Joiner with non-dependent vowel after it!:0x%x 0x%x\n", output_.back(),
               codes_[codes_used_].second);
     }
     return false;

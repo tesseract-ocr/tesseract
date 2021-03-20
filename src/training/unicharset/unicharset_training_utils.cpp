@@ -101,7 +101,7 @@ void SetupBasicProperties(bool report_errors, bool decompose, UNICHARSET *unicha
       if (other_case_id != INVALID_UNICHAR_ID) {
         unicharset->set_other_case(unichar_id, other_case_id);
       } else if (unichar_id >= SPECIAL_UNICHAR_CODES_COUNT && report_errors) {
-        tprintf("Other case %s of %s is not in unicharset\n", other_case_uch.c_str(), unichar_str);
+        tprintf("ERROR: Other case %s of %s is not in unicharset\n", other_case_uch.c_str(), unichar_str);
       }
     }
 
@@ -119,7 +119,7 @@ void SetupBasicProperties(bool report_errors, bool decompose, UNICHARSET *unicha
     if (mirror_uch_id != INVALID_UNICHAR_ID) {
       unicharset->set_mirror(unichar_id, mirror_uch_id);
     } else if (report_errors) {
-      tprintf("Mirror %s of %s is not in unicharset\n", mirror_uch.c_str(), unichar_str);
+      tprintf("ERROR: Mirror %s of %s is not in unicharset\n", mirror_uch.c_str(), unichar_str);
     }
 
     // Record normalized version of this unichar.
@@ -149,12 +149,12 @@ void SetScriptProperties(const std::string &script_dir, UNICHARSET *unicharset) 
     if (script_set.load_from_file(filename.c_str())) {
       unicharset->SetPropertiesFromOther(script_set);
     } else if (s != unicharset->common_sid() && s != unicharset->null_sid()) {
-      tprintf("Failed to load script unicharset from:%s\n", filename.c_str());
+      tprintf("ERROR: Failed to load script unicharset from:%s\n", filename.c_str());
     }
   }
   for (int c = SPECIAL_UNICHAR_CODES_COUNT; c < unicharset->size(); ++c) {
     if (unicharset->PropertiesIncomplete(c)) {
-      tprintf("Warning: properties incomplete for index %d = %s\n", c,
+      tprintf("WARNING: Properties incomplete for index %d = %s\n", c,
               unicharset->id_to_unichar(c));
     }
   }

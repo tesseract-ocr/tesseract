@@ -45,7 +45,7 @@ FILE *File::Open(const std::string &filename, const std::string &mode) {
 FILE *File::OpenOrDie(const std::string &filename, const std::string &mode) {
   FILE *stream = fopen(filename.c_str(), mode.c_str());
   if (stream == nullptr) {
-    tprintf("Unable to open '%s' in mode '%s': %s\n", filename.c_str(), mode.c_str(),
+    tprintf("ERROR: Unable to open '%s' in mode '%s': %s\n", filename.c_str(), mode.c_str(),
             strerror(errno));
   }
   return stream;
@@ -54,7 +54,7 @@ FILE *File::OpenOrDie(const std::string &filename, const std::string &mode) {
 void File::WriteStringToFileOrDie(const std::string &str, const std::string &filename) {
   FILE *stream = fopen(filename.c_str(), "wb");
   if (stream == nullptr) {
-    tprintf("Unable to open '%s' for writing: %s\n", filename.c_str(), strerror(errno));
+    tprintf("ERROR: Unable to open '%s' for writing: %s\n", filename.c_str(), strerror(errno));
     return;
   }
   fputs(str.c_str(), stream);

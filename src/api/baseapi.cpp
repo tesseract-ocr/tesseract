@@ -1099,11 +1099,11 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 // stdin. We'll still do our best if the user likes pipes.
 bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_config,
                                        int timeout_millisec, TessResultRenderer *renderer) {
-  bool stdInput = !strcmp(filename, "stdin") || !strcmp(filename, "-");
+  bool stdInput = !strcmp(filename, "stdin") || !strcmp(filename, "/dev/stdin") || !strcmp(filename, "-");
   if (stdInput) {
 #ifdef WIN32
     if (_setmode(_fileno(stdin), _O_BINARY) == -1)
-      tprintf("ERROR: cin to binary: %s\n", strerror(errno));
+      tprintf("ERROR: Cannot set STDIN to binary: %s\n", strerror(errno));
 #endif // WIN32
   }
 
@@ -1265,7 +1265,7 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
     // Save current config variables before switching modes.
     FILE *fp = fopen(kOldVarsFile, "wb");
     if (fp == nullptr) {
-      tprintf("ERROR: failed to open file \"%s\"\n", kOldVarsFile);
+      tprintf("ERROR: Failed to open file \"%s\"\n", kOldVarsFile);
     } else {
       PrintVariables(fp);
       fclose(fp);

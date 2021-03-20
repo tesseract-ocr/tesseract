@@ -174,7 +174,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
         for (int uni : unicodes) {
           int position = code.length();
           if (position >= RecodedCharID::kMaxCodeLen) {
-            tprintf("Unichar %d=%s is too long to encode!!\n", u, unicharset.id_to_unichar(u));
+            tprintf("ERROR: Unichar %d=%s is too long to encode!!\n", u, unicharset.id_to_unichar(u));
             return false;
           }
           UNICHAR unichar(uni);

@@ -26,6 +26,9 @@
 #include <cfloat> // for FLT_MAX
 #include <memory>
 
+#undef min
+#undef max
+
 namespace tesseract {
 
 // Magic constants that keep CTC stable.

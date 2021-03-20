@@ -127,7 +127,7 @@ extern "C" int tesseract_cn_training_main(int argc, const char** argv)
   int num_fonts = 0;
   int tessoptind = 1;
   while ((PageName = GetNextFilename(argc, argv, tessoptind)) != nullptr) {
-    printf("Reading %s ...\n", PageName);
+    tprintf("Reading %s ...\n", PageName);
     FILE *TrainingPage = fopen(PageName, "rb");
     ASSERT_HOST(TrainingPage);
     if (TrainingPage) {
@@ -136,7 +136,7 @@ extern "C" int tesseract_cn_training_main(int argc, const char** argv)
       ++num_fonts;
     }
   }
-  printf("Clustering ...\n");
+  tprintf("Clustering ...\n");
   // To allow an individual font to form a separate cluster,
   // reduce the min samples:
   // Config.MinSamples = 0.5 / num_fonts;
@@ -163,7 +163,7 @@ extern "C" int tesseract_cn_training_main(int argc, const char** argv)
         break;
       } else {
         Config.MinSamples *= 0.95;
-        printf(
+        tprintf(
             "0 significant protos for %s."
             " Retrying clustering with MinSamples = %f%%\n",
             CharSample->Label, Config.MinSamples);
@@ -181,7 +181,7 @@ extern "C" int tesseract_cn_training_main(int argc, const char** argv)
   for (int i = 0; i < freeable_protos.size(); ++i) {
     FreeProtoList(&freeable_protos[i]);
   }
-  printf("\n");
+  tprintf("\n");
   return 0;
 } // main
 
@@ -210,7 +210,7 @@ static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
     Filename += "/";
   }
   Filename += "normproto";
-  printf("\nWriting %s ...", Filename.c_str());
+  tprintf("\nWriting %s ...", Filename.c_str());
   File = fopen(Filename.c_str(), "wb");
   ASSERT_HOST(File);
   fprintf(File, "%0d\n", feature_desc->NumParams);
@@ -219,8 +219,8 @@ static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
     LabeledProto = reinterpret_cast<LABELEDLIST> first_node(LabeledProtoList);
     N = NumberOfProtos(LabeledProto->List, true, false);
     if (N < 1) {
-      printf(
-          "\nError! Not enough protos for %s: %d protos"
+      tprintf(
+          "\nEERROR: Not enough protos for %s: %d protos"
           " (%d significant protos"
           ", %d insignificant protos)\n",
           LabeledProto->Label, N, NumberOfProtos(LabeledProto->List, true, false),

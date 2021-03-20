@@ -129,7 +129,7 @@ static void PrintCommandLineFlags() {
   const int kFlagNamePrefixLen = strlen(kFlagNamePrefix);
   for (int i = 0; i < GlobalParams()->int_params.size(); ++i) {
     if (!strncmp(GlobalParams()->int_params[i]->name_str(), kFlagNamePrefix, kFlagNamePrefixLen)) {
-      printf("  --%s  %s  (type:int default:%d)\n",
+      tprintf("  --%s  %s  (type:int default:%d)\n",
              GlobalParams()->int_params[i]->name_str() + kFlagNamePrefixLen,
              GlobalParams()->int_params[i]->info_str(), int32_t(*(GlobalParams()->int_params[i])));
     }
@@ -137,7 +137,7 @@ static void PrintCommandLineFlags() {
   for (int i = 0; i < GlobalParams()->double_params.size(); ++i) {
     if (!strncmp(GlobalParams()->double_params[i]->name_str(), kFlagNamePrefix,
                  kFlagNamePrefixLen)) {
-      printf("  --%s  %s  (type:double default:%g)\n",
+      tprintf("  --%s  %s  (type:double default:%g)\n",
              GlobalParams()->double_params[i]->name_str() + kFlagNamePrefixLen,
              GlobalParams()->double_params[i]->info_str(),
              static_cast<double>(*(GlobalParams()->double_params[i])));
@@ -145,7 +145,7 @@ static void PrintCommandLineFlags() {
   }
   for (int i = 0; i < GlobalParams()->bool_params.size(); ++i) {
     if (!strncmp(GlobalParams()->bool_params[i]->name_str(), kFlagNamePrefix, kFlagNamePrefixLen)) {
-      printf("  --%s  %s  (type:bool default:%s)\n",
+      tprintf("  --%s  %s  (type:bool default:%s)\n",
              GlobalParams()->bool_params[i]->name_str() + kFlagNamePrefixLen,
              GlobalParams()->bool_params[i]->info_str(),
              bool(*(GlobalParams()->bool_params[i])) ? "true" : "false");
@@ -154,7 +154,7 @@ static void PrintCommandLineFlags() {
   for (int i = 0; i < GlobalParams()->string_params.size(); ++i) {
     if (!strncmp(GlobalParams()->string_params[i]->name_str(), kFlagNamePrefix,
                  kFlagNamePrefixLen)) {
-      printf("  --%s  %s  (type:string default:%s)\n",
+      tprintf("  --%s  %s  (type:string default:%s)\n",
              GlobalParams()->string_params[i]->name_str() + kFlagNamePrefixLen,
              GlobalParams()->string_params[i]->info_str(),
              GlobalParams()->string_params[i]->c_str());
@@ -164,13 +164,13 @@ static void PrintCommandLineFlags() {
 
 void ParseCommandLineFlags(const char *usage, int* argc, const char ***argv, const bool remove_flags) {
   if (*argc == 1) {
-    printf("USAGE: %s\n", usage);
+    tprintf("USAGE: %s\n", usage);
     PrintCommandLineFlags();
     exit(0);
   }
 
   if (*argc > 1 && (!strcmp((*argv)[1], "-v") || !strcmp((*argv)[1], "--version"))) {
-    printf("%s\n", TessBaseAPI::Version());
+    tprintf("%s\n", TessBaseAPI::Version());
     exit(0);
   }
 
@@ -189,7 +189,7 @@ void ParseCommandLineFlags(const char *usage, int* argc, const char ***argv, con
     }
     // If this is asking for usage, print the help message and abort.
     if (!strcmp(current_arg, "help")) {
-      printf("Usage:\n  %s [OPTION ...]\n\n", usage);
+      tprintf("Usage:\n  %s [OPTION ...]\n\n", usage);
       PrintCommandLineFlags();
       exit(0);
     }

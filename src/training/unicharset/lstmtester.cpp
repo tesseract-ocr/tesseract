@@ -29,7 +29,7 @@ LSTMTester::LSTMTester(int64_t max_memory) : test_data_(max_memory) {}
 bool LSTMTester::LoadAllEvalData(const char *filenames_file) {
   std::vector<std::string> filenames;
   if (!LoadFileLinesToStrings(filenames_file, &filenames)) {
-    tprintf("Failed to load list of eval filenames from %s\n", filenames_file);
+    tprintf("ERROR: Failed to load list of eval filenames from %s\n", filenames_file);
     return false;
   }
   return LoadAllEvalData(filenames);

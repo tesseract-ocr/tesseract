@@ -154,7 +154,7 @@ UNICHAR::const_iterator &UNICHAR::const_iterator::operator++() {
   if (step == 0) {
     tprintf("ERROR: Illegal UTF8 encountered.\n");
     for (int i = 0; i < 5 && it_[i] != '\0'; ++i) {
-      tprintf("Index %d char = 0x%x\n", i, it_[i]);
+      tprintf("  Index %d char = 0x%x\n", i, it_[i]);
     }
     step = 1;
   }

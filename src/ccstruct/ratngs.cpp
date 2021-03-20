@@ -558,7 +558,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD *word, int debug) {
       position_counts[tesseract::SP_SUPERSCRIPT] > 0.75 * length_) {
     if (debug >= 2) {
       tprintf(
-          "Most characters of %s are subscript or superscript.\n"
+          "WARNING: Most characters of %s are subscript or superscript.\n"
           "That seems wrong, so I'll assume we got the baseline wrong\n",
           unichar_string().c_str());
     }

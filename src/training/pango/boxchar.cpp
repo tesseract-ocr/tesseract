@@ -330,7 +330,7 @@ std::string BoxChar::GetTesseractBoxStr(int height, const std::vector<BoxChar *>
   for (size_t i = 0; i < boxes.size(); ++i) {
     const Box *box = boxes[i]->box_;
     if (box == nullptr) {
-      tprintf("Error: Call PrepareToWrite before WriteTesseractBoxFile!!\n");
+      tprintf("ERROR: Call PrepareToWrite before WriteTesseractBoxFile!!\n");
       return "";
     }
     int nbytes =

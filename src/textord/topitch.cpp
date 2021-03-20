@@ -235,8 +235,8 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
       if (block_votes == 0 && like_votes == 0 && other_votes > 0 &&
           (textord_debug_pitch_test || textord_debug_pitch_metric))
         tprintf(
-            "Warning:row %d of block %d set prop with no like rows against "
-            "trend\n",
+            "WARNING: row %d of block %d set prop with no like rows against "
+            "trend.\n",
             row_target, block_target);
     }
   }
@@ -251,7 +251,7 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
       else if (block_votes == 0 && like_votes > 0)
         bad_row->fixed_pitch = like_stats.ile(0.5);
       else {
-        tprintf("Warning:guessing pitch as xheight on row %d, block %d\n", row_target,
+        tprintf("WARNING: Guessing pitch as xheight on row %d, block %d\n", row_target,
                 block_target);
         bad_row->fixed_pitch = bad_row->xheight;
       }

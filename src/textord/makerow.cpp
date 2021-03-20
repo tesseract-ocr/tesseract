@@ -1613,7 +1613,7 @@ void correct_row_xheight(TO_ROW *row, float xheight, float ascrise, float descdr
   ROW_CATEGORY row_category = get_row_category(row);
   if (textord_debug_xheights) {
     tprintf(
-        "correcting row xheight: row->xheight %.4f"
+        "Correcting row xheight: row->xheight %.4f"
         ", row->acrise %.4f row->descdrop %.4f\n",
         row->xheight, row->ascrise, row->descdrop);
   }
@@ -1634,7 +1634,7 @@ void correct_row_xheight(TO_ROW *row, float xheight, float ascrise, float descdr
              (row_category == ROW_DESCENDERS_FOUND && (normal_xheight || cap_xheight)) ||
              (row_category == ROW_UNKNOWN && normal_xheight)) {
     if (textord_debug_xheights)
-      tprintf("using average xheight\n");
+      tprintf("Using average xheight\n");
     row->xheight = xheight;
     row->ascrise = ascrise;
     row->descdrop = descdrop;
@@ -1672,7 +1672,7 @@ void correct_row_xheight(TO_ROW *row, float xheight, float ascrise, float descdr
   }
   if (textord_debug_xheights) {
     tprintf(
-        "corrected row->xheight = %.4f, row->acrise = %.4f, row->descdrop"
+        "Corrected row->xheight = %.4f, row->acrise = %.4f, row->descdrop"
         " = %.4f\n",
         row->xheight, row->ascrise, row->descdrop);
   }

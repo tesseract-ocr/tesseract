@@ -421,7 +421,7 @@ WERD *WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST *all_blobs, C_BLOB_LIST *orpha
       // be added to the new blobs list.
       TBOX a_blob_box = a_blob->bounding_box();
       if (a_blob_box.null_box()) {
-        tprintf("Bounding box couldn't be ascertained\n");
+        tprintf("WARNING: Bounding box couldn't be ascertained\n");
       }
       if (werd_blob_box.contains(a_blob_box) || werd_blob_box.major_overlap(a_blob_box)) {
         // Old blobs are from minimal splits, therefore are expected to be

@@ -510,7 +510,7 @@ fwrite(DS_DEVICE_NATIVE_CPU_STRING,sizeof(char),
        strlen(DS_DEVICE_NATIVE_CPU_STRING), profileFile);
 fwrite(DS_TAG_DEVICE_NAME_END, sizeof(char),
        strlen(DS_TAG_DEVICE_NAME_END), profileFile);
-*/
+		  */
         } break;
         case DS_DEVICE_OPENCL_DEVICE: {
           fwrite(DS_TAG_DEVICE_NAME, sizeof(char), strlen(DS_TAG_DEVICE_NAME), profileFile);
@@ -635,11 +635,11 @@ static Pix *mapOutputCLBuffer(const KernelEnv &rEnv, cl_mem clbuffer, Pix *pixd,
   if (!pixd) {
     if (memcopy) {
       if ((pixd = pixCreateTemplate(pixs)) == nullptr)
-        tprintf("pixd not made\n");
+        tprintf("ERROR: pixd not made.\n");
     } else {
       if ((pixd = pixCreateHeader(pixGetWidth(pixs), pixGetHeight(pixs), pixGetDepth(pixs))) ==
           nullptr)
-        tprintf("pixd not made\n");
+        tprintf("ERROR: pixd not made.\n");
     }
   }
   l_uint32 *pValues =
@@ -989,7 +989,7 @@ int OpenclDevice::CompileKernelFile(GPUEnv *gpuInfo, const char *buildOption) {
                               nullptr, nullptr);
   }
   if (clStatus != CL_SUCCESS) {
-    tprintf("BuildProgram error!\n");
+    tprintf("ERROR: BuildProgram error!\n");
     size_t length;
     if (!gpuInfo->mnIsUserCreated) {
       clStatus = clGetProgramBuildInfo(gpuInfo->mpArryPrograms[idx], gpuInfo->mpArryDevsID[0],
@@ -999,7 +999,7 @@ int OpenclDevice::CompileKernelFile(GPUEnv *gpuInfo, const char *buildOption) {
                                        CL_PROGRAM_BUILD_LOG, 0, nullptr, &length);
     }
     if (clStatus != CL_SUCCESS) {
-      tprintf("opencl create build log fail\n");
+      tprintf("ERROR: opencl create build log fail.\n");
       return 0;
     }
     std::vector<char> buildLog(length);
@@ -1011,7 +1011,7 @@ int OpenclDevice::CompileKernelFile(GPUEnv *gpuInfo, const char *buildOption) {
                                        CL_PROGRAM_BUILD_LOG, length, &buildLog[0], &length);
     }
     if (clStatus != CL_SUCCESS) {
-      tprintf("opencl program build info fail\n");
+      tprintf("ERROR: opencl program build info fail.\n");
       return 0;
     }
 

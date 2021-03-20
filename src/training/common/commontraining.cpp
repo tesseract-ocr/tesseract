@@ -154,13 +154,13 @@ ShapeTable *LoadShapeTable(const std::string &file_prefix) {
     if (!shape_table->DeSerialize(&shape_fp)) {
       delete shape_table;
       shape_table = nullptr;
-      tprintf("Error: Failed to read shape table %s\n", shape_table_file.c_str());
+      tprintf("ERROR: Failed to read shape table %s\n", shape_table_file.c_str());
     } else {
       int num_shapes = shape_table->NumShapes();
       tprintf("Read shape table %s of %d shapes\n", shape_table_file.c_str(), num_shapes);
     }
   } else {
-    tprintf("Warning: No shape table file present: %s\n", shape_table_file.c_str());
+    tprintf("WARNING: No shape table file present: %s\n", shape_table_file.c_str());
   }
   return shape_table;
 }
@@ -264,7 +264,7 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *arg
   if (!FLAGS_output_trainer.empty()) {
     FILE *fp = fopen(FLAGS_output_trainer.c_str(), "wb");
     if (fp == nullptr) {
-      tprintf("Can't create saved trainer data!\n");
+      tprintf("ERROR: Can't create saved trainer data!\n");
     } else {
       trainer->Serialize(fp);
       fclose(fp);
@@ -272,7 +272,7 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *arg
   }
   trainer->PreTrainingSetup();
   if (!FLAGS_O.empty() && !trainer->unicharset().save_to_file(FLAGS_O.c_str())) {
-    fprintf(stderr, "Failed to save unicharset to file %s\n", FLAGS_O.c_str());
+    fprintf(stderr, "ERROR: Failed to save unicharset to file %s\n", FLAGS_O.c_str());
     return {};
   }
 
@@ -393,7 +393,7 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
       unicharset->unichar_insert(unichar);
       if (unicharset->size() > MAX_NUM_CLASSES) {
         tprintf(
-            "Error: Size of unicharset in training is "
+            "ERROR: Size of unicharset in training is "
             "greater than MAX_NUM_CLASSES\n");
         exit(1);
       }
@@ -689,7 +689,7 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
   BIT_VECTOR NewConfig;
   BIT_VECTOR OldConfig;
 
-  //  printf("Float2Int ...\n");
+  //  tprintf("Float2Int ...\n");
 
   CLASS_STRUCT *float_classes = new CLASS_STRUCT[unicharset.size()];
   iterate(LabeledClassList) {

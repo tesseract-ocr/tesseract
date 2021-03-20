@@ -502,7 +502,7 @@ dubious breaks. */
         row->min_space, row->space_size);
   if (tosp_debug_level > 10)
     tprintf(
-        "row->kern_size = %3.2f, row->space_size = %3.2f, "
+        "  row->kern_size = %3.2f, row->space_size = %3.2f, "
         "row->space_threshold = %d\n",
         row->kern_size, row->space_size, row->space_threshold);
 }

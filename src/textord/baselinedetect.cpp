@@ -239,7 +239,7 @@ double BaselineRow::AdjustBaselineToGrid(int debug, const FCOORD &direction, dou
     double blob_y = displacement_modes_[i];
     double error = BaselineBlock::SpacingModelError(blob_y, line_spacing, line_offset);
     if (debug > 1) {
-      tprintf("Mode at %g has error %g from model \n", blob_y, error);
+      tprintf("Mode at %g has error %g from model.\n", blob_y, error);
     }
     if (best_index < 0 || error < best_error) {
       best_error = error;
@@ -379,7 +379,7 @@ float BaselineRow::PerpDistanceFromBaseline(const FCOORD &pt) const {
   float distance = baseline_vector * offset_vector;
   float sqlength = baseline_vector.sqlength();
   if (sqlength == 0.0f) {
-    tprintf("unexpected baseline vector (0,0)\n");
+    tprintf("Unexpected baseline vector (0,0)\n");
     return 0.0f;
   }
   return std::sqrt(distance * distance / sqlength);

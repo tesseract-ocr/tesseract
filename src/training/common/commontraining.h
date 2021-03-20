@@ -39,7 +39,7 @@ static inline void CheckSharedLibraryVersion() {
 #ifdef HAVE_CONFIG_H
   if (!!strcmp(TESSERACT_VERSION_STR, TessBaseAPI::Version())) {
     tprintf(
-        "ERROR: shared library version mismatch (was %s, expected %s\n"
+        "ERROR: Shared library version mismatch (was %s, expected %s\n"
         "Did you use a wrong shared tesseract library?\n",
         TessBaseAPI::Version(), TESSERACT_VERSION_STR);
     exit(1);
