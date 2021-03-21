@@ -164,8 +164,8 @@ int IntFeatureMap::FinalizeMapping(SampleIterator *it) {
 
 // Prints the map features from the set in human-readable form.
 void IntFeatureMap::DebugMapFeatures(const std::vector<int> &map_features) const {
-  for (int i = 0; i < map_features.size(); ++i) {
-    INT_FEATURE_STRUCT f = InverseMapFeature(map_features[i]);
+  for (int map_feature : map_features) {
+    INT_FEATURE_STRUCT f = InverseMapFeature(map_feature);
     f.print();
   }
 }

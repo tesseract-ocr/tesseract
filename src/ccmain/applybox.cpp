@@ -385,8 +385,8 @@ bool Tesseract::ResegmentCharBox(PAGE_RES *page_res, const TBOX *prev_box, const
           }
           tprintf("\n");
           tprintf("Correct text = [[ ");
-          for (auto &correct_text : word_res->correct_text) {
-            tprintf("%s ", correct_text.c_str());
+          for (auto &it : word_res->correct_text) {
+            tprintf("%s ", it.c_str());
           }
           tprintf("]]\n");
         }
@@ -578,7 +578,7 @@ bool Tesseract::FindSegmentation(const std::vector<UNICHAR_ID> &target_text, WER
   }
   word_res->correct_text.clear();
   for (auto &text : target_text) {
-    word_res->correct_text.push_back(unicharset.id_to_unichar(text));
+    word_res->correct_text.emplace_back(unicharset.id_to_unichar(text));
   }
   return true;
 }

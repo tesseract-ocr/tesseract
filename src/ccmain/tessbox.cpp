@@ -36,8 +36,8 @@ void Tesseract::tess_segment_pass_n(int pass_n, WERD_RES *word) {
   if (word->word->flag(W_DONT_CHOP)) {
     saved_enable_assoc = wordrec_enable_assoc;
     saved_chop_enable = chop_enable;
-    wordrec_enable_assoc.set_value(0);
-    chop_enable.set_value(0);
+    wordrec_enable_assoc.set_value(false);
+    chop_enable.set_value(false);
   }
   if (pass_n == 1)
     set_pass1();

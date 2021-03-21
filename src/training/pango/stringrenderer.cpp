@@ -336,8 +336,8 @@ void StringRenderer::RotatePageBoxes(float rotation) {
 }
 
 void StringRenderer::ClearBoxes() {
-  for (size_t i = 0; i < boxchars_.size(); ++i)
-    delete boxchars_[i];
+  for (auto &boxchar : boxchars_)
+    delete boxchar;
   boxchars_.clear();
   boxaDestroy(&page_boxes_);
 }
@@ -388,8 +388,7 @@ bool StringRenderer::GetClusterStrings(std::vector<std::string> *cluster_text) {
   pango_layout_iter_free(run_iter);
 
   cluster_text->clear();
-  for (std::map<int, std::string>::const_iterator it = start_byte_to_text.begin();
-       it != start_byte_to_text.end(); ++it) {
+  for (auto it = start_byte_to_text.begin(); it != start_byte_to_text.end(); ++it) {
     cluster_text->push_back(it->second);
   }
   return !cluster_text->empty();
@@ -408,10 +407,10 @@ bool StringRenderer::GetClusterStrings(std::vector<std::string> *cluster_text) {
 static void MergeBoxCharsToWords(std::vector<BoxChar *> *boxchars) {
   std::vector<BoxChar *> result;
   bool started_word = false;
-  for (size_t i = 0; i < boxchars->size(); ++i) {
-    if (boxchars->at(i)->ch() == " " || boxchars->at(i)->box() == nullptr) {
-      result.push_back(boxchars->at(i));
-      boxchars->at(i) = nullptr;
+  for (auto &boxchar : *boxchars) {
+    if (boxchar->ch() == " " || boxchar->box() == nullptr) {
+      result.push_back(boxchar);
+      boxchar = nullptr;
       started_word = false;
       continue;
     }
@@ -419,12 +418,12 @@ static void MergeBoxCharsToWords(std::vector<BoxChar *> *boxchars) {
     if (!started_word) {
       // Begin new word
       started_word = true;
-      result.push_back(boxchars->at(i));
-      boxchars->at(i) = nullptr;
+      result.push_back(boxchar);
+      boxchar = nullptr;
     } else {
       BoxChar *last_boxchar = result.back();
       // Compute bounding box union
-      const Box *box = boxchars->at(i)->box();
+      const Box *box = boxchar->box();
       Box *last_box = last_boxchar->mutable_box();
       int left = std::min(last_box->x, box->x);
       int right = std::max(last_box->x + last_box->w, box->x + box->w);
@@ -438,18 +437,18 @@ static void MergeBoxCharsToWords(std::vector<BoxChar *> *boxchars) {
         // Insert a fake interword space and start a new word with the current
         // boxchar.
         result.push_back(new BoxChar(" ", 1));
-        result.push_back(boxchars->at(i));
-        boxchars->at(i) = nullptr;
+        result.push_back(boxchar);
+        boxchar = nullptr;
         continue;
       }
       // Append to last word
-      last_boxchar->mutable_ch()->append(boxchars->at(i)->ch());
+      last_boxchar->mutable_ch()->append(boxchar->ch());
       last_box->x = left;
       last_box->w = right - left;
       last_box->y = top;
       last_box->h = bottom - top;
-      delete boxchars->at(i);
-      boxchars->at(i) = nullptr;
+      delete boxchar;
+      boxchar = nullptr;
     }
   }
   boxchars->swap(result);
@@ -495,7 +494,7 @@ void StringRenderer::ComputeClusterBoxes() {
     if (!cluster_rect.width || !cluster_rect.height || IsUTF8Whitespace(cluster_text.c_str())) {
       tlog(2, "Skipping whitespace with boxdim (%d,%d) '%s'\n", cluster_rect.width,
            cluster_rect.height, cluster_text.c_str());
-      BoxChar *boxchar = new BoxChar(" ", 1);
+      auto *boxchar = new BoxChar(" ", 1);
       boxchar->set_page(page_);
       start_byte_to_box[start_byte_index] = boxchar;
       continue;
@@ -519,7 +518,7 @@ void StringRenderer::ComputeClusterBoxes() {
       // decided to use an unmapped glyph.
       cluster_text = LigatureTable::Get()->AddLigatures(cluster_text, nullptr);
     }
-    BoxChar *boxchar = new BoxChar(cluster_text.c_str(), cluster_text.size());
+    auto *boxchar = new BoxChar(cluster_text.c_str(), cluster_text.size());
     boxchar->set_page(page_);
     boxchar->AddBox(cluster_rect.x, cluster_rect.y, cluster_rect.width, cluster_rect.height);
     start_byte_to_box[start_byte_index] = boxchar;
@@ -536,8 +535,7 @@ void StringRenderer::ComputeClusterBoxes() {
   if (GetClusterStrings(&cluster_text)) {
     ASSERT_HOST(cluster_text.size() == start_byte_to_box.size());
     int ind = 0;
-    for (std::map<int, BoxChar *>::iterator it = start_byte_to_box.begin();
-         it != start_byte_to_box.end(); ++it, ++ind) {
+    for (auto it = start_byte_to_box.begin(); it != start_byte_to_box.end(); ++it, ++ind) {
       it->second->mutable_ch()->swap(cluster_text[ind]);
     }
   }
@@ -546,8 +544,7 @@ void StringRenderer::ComputeClusterBoxes() {
   std::vector<BoxChar *> page_boxchars;
   page_boxchars.reserve(start_byte_to_box.size());
   std::string last_ch;
-  for (std::map<int, BoxChar *>::const_iterator it = start_byte_to_box.begin();
-       it != start_byte_to_box.end(); ++it) {
+  for (auto it = start_byte_to_box.begin(); it != start_byte_to_box.end(); ++it) {
     if (it->second->ch() == kWordJoinerUTF8) {
       // Skip zero-width joiner characters (ZWJs) here.
       delete it->second;
@@ -558,11 +555,10 @@ void StringRenderer::ComputeClusterBoxes() {
   CorrectBoxPositionsToLayout(&page_boxchars);
 
   if (render_fullwidth_latin_) {
-    for (std::map<int, BoxChar *>::iterator it = start_byte_to_box.begin();
-         it != start_byte_to_box.end(); ++it) {
+    for (auto &it : start_byte_to_box) {
       // Convert fullwidth Latin characters to their halfwidth forms.
-      std::string half(ConvertFullwidthLatinToBasicLatin(it->second->ch()));
-      it->second->mutable_ch()->swap(half);
+      std::string half(ConvertFullwidthLatinToBasicLatin(it.second->ch()));
+      it.second->mutable_ch()->swap(half);
     }
   }
 
@@ -576,12 +572,12 @@ void StringRenderer::ComputeClusterBoxes() {
   // Compute the page bounding box
   Box *page_box = nullptr;
   Boxa *all_boxes = nullptr;
-  for (size_t i = 0; i < page_boxchars.size(); ++i) {
-    if (page_boxchars[i]->box() == nullptr)
+  for (auto &page_boxchar : page_boxchars) {
+    if (page_boxchar->box() == nullptr)
       continue;
     if (all_boxes == nullptr)
       all_boxes = boxaCreate(0);
-    boxaAddBox(all_boxes, page_boxchars[i]->mutable_box(), L_CLONE);
+    boxaAddBox(all_boxes, page_boxchar->mutable_box(), L_CLONE);
   }
   if (all_boxes != nullptr) {
     boxaGetExtent(all_boxes, nullptr, nullptr, &page_box);

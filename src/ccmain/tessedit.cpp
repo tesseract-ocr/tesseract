@@ -230,8 +230,8 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0, const std::str
 
 // Helper returns true if the given string is in the vector of strings.
 static bool IsStrInList(const std::string &str, const std::vector<std::string> &str_list) {
-  for (int i = 0; i < str_list.size(); ++i) {
-    if (str_list[i] == str)
+  for (const auto &i : str_list) {
+    if (i == str)
       return true;
   }
   return false;
@@ -341,15 +341,14 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
     // tessedit_use_primary_params_model is set,
     // otherwise use default language model weights.
     if (tessedit_use_primary_params_model) {
-      for (int s = 0; s < sub_langs_.size(); ++s) {
-        sub_langs_[s]->language_model_->getParamsModel().Copy(
-            this->language_model_->getParamsModel());
+      for (auto &sub_lang : sub_langs_) {
+        sub_lang->language_model_->getParamsModel().Copy(this->language_model_->getParamsModel());
       }
       tprintf("Using params model of the primary language\n");
     } else {
       this->language_model_->getParamsModel().Clear();
-      for (int s = 0; s < sub_langs_.size(); ++s) {
-        sub_langs_[s]->language_model_->getParamsModel().Clear();
+      for (auto &sub_lang : sub_langs_) {
+        sub_lang->language_model_->getParamsModel().Clear();
       }
     }
   }
@@ -424,13 +423,13 @@ void Tesseract::SetupUniversalFontIds() {
 
   // Create the universal ID table.
   CollectFonts(get_fontinfo_table(), &all_fonts);
-  for (int i = 0; i < sub_langs_.size(); ++i) {
-    CollectFonts(sub_langs_[i]->get_fontinfo_table(), &all_fonts);
+  for (auto &sub_lang : sub_langs_) {
+    CollectFonts(sub_lang->get_fontinfo_table(), &all_fonts);
   }
   // Assign ids from the table to each font table.
   AssignIds(all_fonts, &get_fontinfo_table());
-  for (int i = 0; i < sub_langs_.size(); ++i) {
-    AssignIds(all_fonts, &sub_langs_[i]->get_fontinfo_table());
+  for (auto &sub_lang : sub_langs_) {
+    AssignIds(all_fonts, &sub_lang->get_fontinfo_table());
   }
   font_table_size_ = all_fonts.size();
 }

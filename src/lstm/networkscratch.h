@@ -214,8 +214,7 @@ public:
   template <typename T>
   class Stack {
   public:
-    Stack() {
-    }
+    Stack() = default;
 
     ~Stack() {
       for (auto data : stack_) {

@@ -784,8 +784,7 @@ void TWERD::BLNormalize(const BLOCK *block, const ROW *row, Pix *pix, bool inver
   } else {
     input_y_offset = row->base_line(word_middle) + baseline_shift;
   }
-  for (int b = 0; b < blobs.size(); ++b) {
-    TBLOB *blob = blobs[b];
+  for (auto blob : blobs) {
     TBOX blob_box = blob->bounding_box();
     float mid_x = (blob_box.left() + blob_box.right()) / 2.0f;
     float baseline = input_y_offset;
@@ -817,8 +816,8 @@ void TWERD::BLNormalize(const BLOCK *block, const ROW *row, Pix *pix, bool inver
 void TWERD::CopyFrom(const TWERD &src) {
   Clear();
   latin_script = src.latin_script;
-  for (int b = 0; b < src.blobs.size(); ++b) {
-    auto *new_blob = new TBLOB(*src.blobs[b]);
+  for (auto blob : src.blobs) {
+    auto *new_blob = new TBLOB(*blob);
     blobs.push_back(new_blob);
   }
 }
@@ -833,15 +832,15 @@ void TWERD::Clear() {
 
 // Recomputes the bounding boxes of the blobs.
 void TWERD::ComputeBoundingBoxes() {
-  for (int b = 0; b < blobs.size(); ++b) {
-    blobs[b]->ComputeBoundingBoxes();
+  for (auto &blob : blobs) {
+    blob->ComputeBoundingBoxes();
   }
 }
 
 TBOX TWERD::bounding_box() const {
   TBOX result;
-  for (int b = 0; b < blobs.size(); ++b) {
-    TBOX box = blobs[b]->bounding_box();
+  for (auto blob : blobs) {
+    TBOX box = blob->bounding_box();
     result += box;
   }
   return result;
@@ -879,8 +878,8 @@ void TWERD::MergeBlobs(int start, int end) {
 #ifndef GRAPHICS_DISABLED
 void TWERD::plot(ScrollView *window) {
   ScrollView::Color color = WERD::NextColor(ScrollView::BLACK);
-  for (int b = 0; b < blobs.size(); ++b) {
-    blobs[b]->plot(window, color, ScrollView::BROWN);
+  for (auto &blob : blobs) {
+    blob->plot(window, color, ScrollView::BROWN);
     color = WERD::NextColor(color);
   }
 }

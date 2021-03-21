@@ -27,16 +27,16 @@ Plumbing::Plumbing(const std::string &name) : Network(NT_PARALLEL, name, 0, 0) {
 // DeSerialize only operate on the run-time data if state is false.
 void Plumbing::SetEnableTraining(TrainingState state) {
   Network::SetEnableTraining(state);
-  for (int i = 0; i < stack_.size(); ++i)
-    stack_[i]->SetEnableTraining(state);
+  for (auto &i : stack_)
+    i->SetEnableTraining(state);
 }
 
 // Sets flags that control the action of the network. See NetworkFlags enum
 // for bit values.
 void Plumbing::SetNetworkFlags(uint32_t flags) {
   Network::SetNetworkFlags(flags);
-  for (int i = 0; i < stack_.size(); ++i)
-    stack_[i]->SetNetworkFlags(flags);
+  for (auto &i : stack_)
+    i->SetNetworkFlags(flags);
 }
 
 // Sets up the network for training. Initializes weights using weights of
@@ -46,8 +46,8 @@ void Plumbing::SetNetworkFlags(uint32_t flags) {
 // Returns the number of weights initialized.
 int Plumbing::InitWeights(float range, TRand *randomizer) {
   num_weights_ = 0;
-  for (int i = 0; i < stack_.size(); ++i)
-    num_weights_ += stack_[i]->InitWeights(range, randomizer);
+  for (auto &i : stack_)
+    num_weights_ += i->InitWeights(range, randomizer);
   return num_weights_;
 }
 
@@ -55,24 +55,24 @@ int Plumbing::InitWeights(float range, TRand *randomizer) {
 // and remaps their outputs according to code_map. See network.h for details.
 int Plumbing::RemapOutputs(int old_no, const std::vector<int> &code_map) {
   num_weights_ = 0;
-  for (int i = 0; i < stack_.size(); ++i) {
-    num_weights_ += stack_[i]->RemapOutputs(old_no, code_map);
+  for (auto &i : stack_) {
+    num_weights_ += i->RemapOutputs(old_no, code_map);
   }
   return num_weights_;
 }
 
 // Converts a float network to an int network.
 void Plumbing::ConvertToInt() {
-  for (int i = 0; i < stack_.size(); ++i)
-    stack_[i]->ConvertToInt();
+  for (auto &i : stack_)
+    i->ConvertToInt();
 }
 
 // Provides a pointer to a TRand for any networks that care to use it.
 // Note that randomizer is a borrowed pointer that should outlive the network
 // and should not be deleted by any of the networks.
 void Plumbing::SetRandomizer(TRand *randomizer) {
-  for (int i = 0; i < stack_.size(); ++i)
-    stack_[i]->SetRandomizer(randomizer);
+  for (auto &i : stack_)
+    i->SetRandomizer(randomizer);
 }
 
 // Adds the given network to the stack.
@@ -98,8 +98,8 @@ bool Plumbing::SetupNeedsBackprop(bool needs_backprop) {
   if (IsTraining()) {
     needs_to_backprop_ = needs_backprop;
     bool retval = needs_backprop;
-    for (int i = 0; i < stack_.size(); ++i) {
-      if (stack_[i]->SetupNeedsBackprop(needs_backprop))
+    for (auto &i : stack_) {
+      if (i->SetupNeedsBackprop(needs_backprop))
         retval = true;
     }
     return retval;
@@ -122,15 +122,15 @@ int Plumbing::XScaleFactor() const {
 // Provides the (minimum) x scale factor to the network (of interest only to
 // input units) so they can determine how to scale bounding boxes.
 void Plumbing::CacheXScaleFactor(int factor) {
-  for (int i = 0; i < stack_.size(); ++i) {
-    stack_[i]->CacheXScaleFactor(factor);
+  for (auto &i : stack_) {
+    i->CacheXScaleFactor(factor);
   }
 }
 
 // Provides debug output on the weights.
 void Plumbing::DebugWeights() {
-  for (int i = 0; i < stack_.size(); ++i)
-    stack_[i]->DebugWeights();
+  for (auto &i : stack_)
+    i->DebugWeights();
 }
 
 // Returns a set of strings representing the layer-ids of all layers below.

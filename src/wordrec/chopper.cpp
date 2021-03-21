@@ -271,10 +271,10 @@ SEAM *Wordrec::chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic
 
     bool almost_equal_box = false;
     int num_overlap = 0;
-    for (int i = 0; i < boxes.size(); i++) {
-      if (original_box.overlap_fraction(boxes[i]) > 0.125)
+    for (auto boxe : boxes) {
+      if (original_box.overlap_fraction(boxe) > 0.125)
         num_overlap++;
-      if (original_box.almost_equal(boxes[i], 3))
+      if (original_box.almost_equal(boxe, 3))
         almost_equal_box = true;
     }
 
@@ -585,10 +585,9 @@ int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices
 int Wordrec::select_blob_to_split_from_fixpt(DANGERR *fixpt) {
   if (!fixpt)
     return -1;
-  for (int i = 0; i < fixpt->size(); i++) {
-    if ((*fixpt)[i].begin + 1 == (*fixpt)[i].end && (*fixpt)[i].dangerous &&
-        (*fixpt)[i].correct_is_ngram) {
-      return (*fixpt)[i].begin;
+  for (auto &i : *fixpt) {
+    if (i.begin + 1 == i.end && i.dangerous && i.correct_is_ngram) {
+      return i.begin;
     }
   }
   return -1;

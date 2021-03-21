@@ -221,8 +221,8 @@ void ResultIterator::CalculateBlobOrder(std::vector<int> *blob_indices) const {
 }
 
 static void PrintScriptDirs(const std::vector<StrongScriptDirection> &dirs) {
-  for (int i = 0; i < dirs.size(); i++) {
-    switch (dirs[i]) {
+  for (auto dir : dirs) {
+    switch (dir) {
       case DIR_NEUTRAL:
         tprintf("N ");
         break;
@@ -669,8 +669,8 @@ void ResultIterator::AppendUTF8WordText(std::string *text) const {
 
   std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
-  for (int i = 0; i < blob_order.size(); i++) {
-    *text += it_->word()->BestUTF8(blob_order[i], false);
+  for (int i : blob_order) {
+    *text += it_->word()->BestUTF8(i, false);
   }
   AppendSuffixMarks(text);
 }
@@ -689,8 +689,8 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(std::string *text) {
     PrintScriptDirs(dirs);
     tprintf("Logical textline order [%p/P=%s]: ", it_->row(),
             current_paragraph_is_ltr_ ? "ltr" : "rtl");
-    for (int i = 0; i < textline_order.size(); i++) {
-      tprintf("%d ", textline_order[i]);
+    for (int i : textline_order) {
+      tprintf("%d ", i);
     }
     tprintf("\n");
   }

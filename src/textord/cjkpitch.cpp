@@ -105,7 +105,7 @@ public:
   };
 
   LocalCorrelation() : finalized_(false) {}
-  ~LocalCorrelation() {}
+  ~LocalCorrelation() = default;
 
   void Finish() {
     std::sort(values_.begin(), values_.end(), float_pair_compare);
@@ -275,7 +275,7 @@ class FPRow {
 public:
   FPRow() : all_pitches_(), all_gaps_(), good_pitches_(), good_gaps_(), heights_(), characters_() {}
 
-  ~FPRow() {}
+  ~FPRow() = default;
 
   // Initialize from TD_ROW.
   void Init(TO_ROW *row);
@@ -916,7 +916,7 @@ void FPRow::FinalizeLargeChars() {
 class FPAnalyzer {
 public:
   FPAnalyzer(ICOORD page_tr, TO_BLOCK_LIST *port_blocks);
-  ~FPAnalyzer() {}
+  ~FPAnalyzer() = default;
 
   void Pass1Analyze() {
     for (auto &row : rows_)

@@ -128,8 +128,7 @@ void LMPainPoints::GenerateFromAmbigs(const DANGERR &fixpt, ViterbiStateEntry *v
                                       WERD_RES *word_res) {
   // Begins and ends in DANGERR vector now record the blob indices as used
   // by the ratings matrix.
-  for (int d = 0; d < fixpt.size(); ++d) {
-    const DANGERR_INFO &danger = fixpt[d];
+  for (auto danger : fixpt) {
     // Only use dangerous ambiguities.
     if (danger.dangerous) {
       GeneratePainPoint(danger.begin, danger.end - 1, LM_PPTYPE_AMBIG, vse->cost, true,

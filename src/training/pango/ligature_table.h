@@ -71,8 +71,8 @@ protected:
   int max_norm_length_;
 
 private:
-  LigatureTable(const LigatureTable &);
-  void operator=(const LigatureTable &);
+  LigatureTable(const LigatureTable &) = delete;
+  void operator=(const LigatureTable &) = delete;
 };
 
 } // namespace tesseract

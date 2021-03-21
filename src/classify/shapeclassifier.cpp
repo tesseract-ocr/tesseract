@@ -169,13 +169,13 @@ int ShapeClassifier::DisplayClassifyAs(const TrainingSample &sample, Pix *page_p
 void ShapeClassifier::UnicharPrintResults(const char *context,
                                           const std::vector<UnicharRating> &results) const {
   tprintf("%s\n", context);
-  for (int i = 0; i < results.size(); ++i) {
-    tprintf("%g: c_id=%d=%s", results[i].rating, results[i].unichar_id,
-            GetUnicharset().id_to_unichar(results[i].unichar_id));
-    if (!results[i].fonts.empty()) {
+  for (const auto &result : results) {
+    tprintf("%g: c_id=%d=%s", result.rating, result.unichar_id,
+            GetUnicharset().id_to_unichar(result.unichar_id));
+    if (!result.fonts.empty()) {
       tprintf(" Font Vector:");
-      for (int f = 0; f < results[i].fonts.size(); ++f) {
-        tprintf(" %d", results[i].fonts[f].fontinfo_id);
+      for (int f = 0; f < result.fonts.size(); ++f) {
+        tprintf(" %d", result.fonts[f].fontinfo_id);
       }
     }
     tprintf("\n");
@@ -184,13 +184,13 @@ void ShapeClassifier::UnicharPrintResults(const char *context,
 void ShapeClassifier::PrintResults(const char *context,
                                    const std::vector<ShapeRating> &results) const {
   tprintf("%s\n", context);
-  for (int i = 0; i < results.size(); ++i) {
-    tprintf("%g:", results[i].rating);
-    if (results[i].joined)
+  for (const auto &result : results) {
+    tprintf("%g:", result.rating);
+    if (result.joined)
       tprintf("[J]");
-    if (results[i].broken)
+    if (result.broken)
       tprintf("[B]");
-    tprintf(" %s\n", GetShapeTable()->DebugStr(results[i].shape_id).c_str());
+    tprintf(" %s\n", GetShapeTable()->DebugStr(result.shape_id).c_str());
   }
 }
 

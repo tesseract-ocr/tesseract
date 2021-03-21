@@ -147,7 +147,7 @@ public:
 
 private:
   // Copy constructor (currently unused, therefore private).
-  ROW(const ROW &source);
+  ROW(const ROW &source) = delete;
 
   int32_t kerning;  // inter char gap
   int32_t spacing;  // inter word gap

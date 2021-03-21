@@ -518,7 +518,7 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
     // Find the nearest alive prototype.
     LIST list_it = ProtoList;
     iterate(list_it) {
-      PROTOTYPE *test_p = reinterpret_cast<PROTOTYPE *> first_node(list_it);
+      auto *test_p = reinterpret_cast<PROTOTYPE *> first_node(list_it);
       if (test_p != Prototype && !test_p->Merged) {
         float dist = ComputeDistance(Clusterer->SampleSize, Clusterer->ParamDesc, Prototype->Mean,
                                      test_p->Mean);
@@ -691,7 +691,7 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
 
   //  printf("Float2Int ...\n");
 
-  CLASS_STRUCT *float_classes = new CLASS_STRUCT[unicharset.size()];
+  auto *float_classes = new CLASS_STRUCT[unicharset.size()];
   iterate(LabeledClassList) {
     UnicityTable<int> font_set;
     MergeClass = reinterpret_cast<MERGE_CLASS> first_node(LabeledClassList);
@@ -782,7 +782,7 @@ void AddToNormProtosList(LIST *NormProtoList, LIST ProtoList, char *CharName) {
 int NumberOfProtos(LIST ProtoList, bool CountSigProtos, bool CountInsigProtos) {
   int N = 0;
   iterate(ProtoList) {
-    PROTOTYPE *Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
+    auto *Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
     if ((Proto->Significant && CountSigProtos) || (!Proto->Significant && CountInsigProtos))
       N++;
   }

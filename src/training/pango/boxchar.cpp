@@ -54,8 +54,8 @@ void BoxChar::GetDirection(int *num_rtl, int *num_ltr) const {
   std::vector<char32> uni_vector = UNICHAR::UTF8ToUTF32(ch_.c_str());
   if (uni_vector.empty()) {
     tprintf("Illegal utf8 in boxchar string:%s = ", ch_.c_str());
-    for (size_t c = 0; c < ch_.size(); ++c) {
-      tprintf(" 0x%x", ch_[c]);
+    for (char c : ch_) {
+      tprintf(" 0x%x", c);
     }
     tprintf("\n");
     return;
@@ -81,8 +81,8 @@ void BoxChar::ReverseUnicodesInBox() {
 
 /* static */
 void BoxChar::TranslateBoxes(int xshift, int yshift, std::vector<BoxChar *> *boxes) {
-  for (size_t i = 0; i < boxes->size(); ++i) {
-    BOX *box = (*boxes)[i]->box_;
+  for (auto &boxe : *boxes) {
+    BOX *box = boxe->box_;
     if (box != nullptr) {
       box->x += xshift;
       box->y += yshift;
@@ -154,7 +154,7 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules, std::vector<Bo
         }
         if (prev_i + 1 == i) {
           // New character needed.
-          BoxChar *new_box = new BoxChar("\t", 1);
+          auto *new_box = new BoxChar("\t", 1);
           new_box->AddBox(x, y, width, height);
           new_box->page_ = (*boxes)[i]->page_;
           boxes->insert(boxes->begin() + i, new_box);
@@ -257,8 +257,8 @@ void BoxChar::ReorderRTLText(std::vector<BoxChar *> *boxes) {
 /* static */
 bool BoxChar::ContainsMostlyRTL(const std::vector<BoxChar *> &boxes) {
   int num_rtl = 0, num_ltr = 0;
-  for (size_t i = 0; i < boxes.size(); ++i) {
-    boxes[i]->GetDirection(&num_rtl, &num_ltr);
+  for (auto boxe : boxes) {
+    boxe->GetDirection(&num_rtl, &num_ltr);
   }
   return num_rtl > num_ltr;
 }
@@ -285,8 +285,8 @@ bool BoxChar::MostlyVertical(const std::vector<BoxChar *> &boxes) {
 /* static */
 int BoxChar::TotalByteLength(const std::vector<BoxChar *> &boxes) {
   int total_length = 0;
-  for (size_t i = 0; i < boxes.size(); ++i)
-    total_length += boxes[i]->ch_.size();
+  for (auto boxe : boxes)
+    total_length += boxe->ch_.size();
   return total_length;
 }
 
@@ -324,15 +324,14 @@ void BoxChar::WriteTesseractBoxFile(const std::string &filename, int height,
 std::string BoxChar::GetTesseractBoxStr(int height, const std::vector<BoxChar *> &boxes) {
   std::string output;
   char buffer[kMaxLineLength];
-  for (size_t i = 0; i < boxes.size(); ++i) {
-    const Box *box = boxes[i]->box_;
+  for (auto boxe : boxes) {
+    const Box *box = boxe->box_;
     if (box == nullptr) {
       tprintf("Error: Call PrepareToWrite before WriteTesseractBoxFile!!\n");
       return "";
     }
-    int nbytes =
-        snprintf(buffer, kMaxLineLength, "%s %d %d %d %d %d\n", boxes[i]->ch_.c_str(), box->x,
-                 height - box->y - box->h, box->x + box->w, height - box->y, boxes[i]->page_);
+    int nbytes = snprintf(buffer, kMaxLineLength, "%s %d %d %d %d %d\n", boxe->ch_.c_str(), box->x,
+                          height - box->y - box->h, box->x + box->w, height - box->y, boxe->page_);
     output.append(buffer, nbytes);
   }
   return output;

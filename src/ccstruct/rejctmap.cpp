@@ -18,6 +18,8 @@
 
 #include "rejctmap.h"
 
+#include <memory>
+
 #include "params.h"
 
 namespace tesseract {
@@ -219,7 +221,7 @@ REJMAP &REJMAP::operator=(const REJMAP &source) {
 }
 
 void REJMAP::initialise(int16_t length) {
-  ptr.reset(new REJ[length]);
+  ptr = std::make_unique<REJ[]>(length);
   len = length;
 }
 

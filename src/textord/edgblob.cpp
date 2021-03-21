@@ -23,6 +23,8 @@
 
 #include "edgblob.h"
 
+#include <memory>
+
 #include "edgloop.h"
 #include "scanedg.h"
 
@@ -60,7 +62,7 @@ OL_BUCKETS::OL_BUCKETS(ICOORD bleft, // corners
   bxdim = (tright.x() - bleft.x()) / BUCKETSIZE + 1;
   bydim = (tright.y() - bleft.y()) / BUCKETSIZE + 1;
   // make array
-  buckets.reset(new C_OUTLINE_LIST[bxdim * bydim]);
+  buckets = std::make_unique<C_OUTLINE_LIST[]>(bxdim * bydim);
   index = 0;
 }
 

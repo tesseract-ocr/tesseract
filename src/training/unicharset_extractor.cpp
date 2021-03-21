@@ -42,11 +42,11 @@ namespace tesseract {
 // adds the segmented parts to unicharset.
 static void AddStringsToUnicharset(const std::vector<std::string> &strings, int norm_mode,
                                    UNICHARSET *unicharset) {
-  for (int i = 0; i < strings.size(); ++i) {
+  for (const auto &string : strings) {
     std::vector<std::string> normalized;
     if (NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                      static_cast<GraphemeNormMode>(norm_mode),
-                                     /*report_errors*/ true, strings[i].c_str(), &normalized)) {
+                                     /*report_errors*/ true, string.c_str(), &normalized)) {
       for (const std::string &normed : normalized) {
         // normed is a UTF-8 encoded string
         if (normed.empty() || IsUTF8Whitespace(normed.c_str()))
@@ -54,7 +54,7 @@ static void AddStringsToUnicharset(const std::vector<std::string> &strings, int 
         unicharset->unichar_insert(normed.c_str());
       }
     } else {
-      tprintf("Normalization failed for string '%s'\n", strings[i].c_str());
+      tprintf("Normalization failed for string '%s'\n", string.c_str());
     }
   }
 }

@@ -281,8 +281,8 @@ void Wordrec::ResetNGramSearch(WERD_RES *word_res, BestChoiceBundle *best_choice
                                std::vector<SegSearchPending> *pending) {
   // TODO(rays) More refactoring required here.
   // Delete existing viterbi states.
-  for (int col = 0; col < best_choice_bundle->beam.size(); ++col) {
-    best_choice_bundle->beam[col]->Clear();
+  for (auto &col : best_choice_bundle->beam) {
+    col->Clear();
   }
   // Reset best_choice_bundle.
   word_res->ClearWordChoices();

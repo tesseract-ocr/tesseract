@@ -260,8 +260,8 @@ bool WeightMatrix::DeSerializeOld(bool training, TFile *fp) {
     if (!fp->DeSerialize(old_scales))
       return false;
     scales_.reserve(old_scales.size());
-    for (int i = 0; i < old_scales.size(); ++i) {
-      scales_.push_back(old_scales[i]);
+    for (float old_scale : old_scales) {
+      scales_.push_back(old_scale);
     }
   } else {
     if (!float_array.DeSerialize(fp))

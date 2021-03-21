@@ -46,9 +46,9 @@ StaticShape Series::OutputShape(const StaticShape &input_shape) const {
 int Series::InitWeights(float range, TRand *randomizer) {
   num_weights_ = 0;
   tprintf("Num outputs,weights in Series:\n");
-  for (int i = 0; i < stack_.size(); ++i) {
-    int weights = stack_[i]->InitWeights(range, randomizer);
-    tprintf("  %s:%d, %d\n", stack_[i]->spec().c_str(), stack_[i]->NumOutputs(), weights);
+  for (auto &i : stack_) {
+    int weights = i->InitWeights(range, randomizer);
+    tprintf("  %s:%d, %d\n", i->spec().c_str(), i->NumOutputs(), weights);
     num_weights_ += weights;
   }
   tprintf("Total weights = %d\n", num_weights_);
@@ -60,9 +60,9 @@ int Series::InitWeights(float range, TRand *randomizer) {
 int Series::RemapOutputs(int old_no, const std::vector<int> &code_map) {
   num_weights_ = 0;
   tprintf("Num (Extended) outputs,weights in Series:\n");
-  for (int i = 0; i < stack_.size(); ++i) {
-    int weights = stack_[i]->RemapOutputs(old_no, code_map);
-    tprintf("  %s:%d, %d\n", stack_[i]->spec().c_str(), stack_[i]->NumOutputs(), weights);
+  for (auto &i : stack_) {
+    int weights = i->RemapOutputs(old_no, code_map);
+    tprintf("  %s:%d, %d\n", i->spec().c_str(), i->NumOutputs(), weights);
     num_weights_ += weights;
   }
   tprintf("Total weights = %d\n", num_weights_);
@@ -75,8 +75,8 @@ int Series::RemapOutputs(int old_no, const std::vector<int> &code_map) {
 // can be told to produce backprop for this layer if needed.
 bool Series::SetupNeedsBackprop(bool needs_backprop) {
   needs_to_backprop_ = needs_backprop;
-  for (int i = 0; i < stack_.size(); ++i)
-    needs_backprop = stack_[i]->SetupNeedsBackprop(needs_backprop);
+  for (auto &i : stack_)
+    needs_backprop = i->SetupNeedsBackprop(needs_backprop);
   return needs_backprop;
 }
 
@@ -88,8 +88,8 @@ bool Series::SetupNeedsBackprop(bool needs_backprop) {
 // the minimum scale factor of the paths through the GlobalMinimax.
 int Series::XScaleFactor() const {
   int factor = 1;
-  for (int i = 0; i < stack_.size(); ++i)
-    factor *= stack_[i]->XScaleFactor();
+  for (auto i : stack_)
+    factor *= i->XScaleFactor();
   return factor;
 }
 
@@ -158,8 +158,8 @@ void Series::SplitAt(int last_start, Series **start, Series **end) {
     tprintf("Invalid split index %d must be in range [0,%zu]!\n", last_start, stack_.size() - 1);
     return;
   }
-  Series *master_series = new Series("MasterSeries");
-  Series *boosted_series = new Series("BoostedSeries");
+  auto *master_series = new Series("MasterSeries");
+  auto *boosted_series = new Series("BoostedSeries");
   for (int s = 0; s <= last_start; ++s) {
     if (s + 1 == stack_.size() && stack_[s]->type() == NT_SOFTMAX) {
       // Change the softmax to a tanh.
@@ -183,9 +183,9 @@ void Series::SplitAt(int last_start, Series **start, Series **end) {
 void Series::AppendSeries(Network *src) {
   ASSERT_HOST(src->type() == NT_SERIES);
   auto *src_series = static_cast<Series *>(src);
-  for (int s = 0; s < src_series->stack_.size(); ++s) {
-    AddToStack(src_series->stack_[s]);
-    src_series->stack_[s] = nullptr;
+  for (auto &s : src_series->stack_) {
+    AddToStack(s);
+    s = nullptr;
   }
   delete src;
 }
