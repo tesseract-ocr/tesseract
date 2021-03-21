@@ -27,6 +27,7 @@
 #include "recodebeam.h"
 #include "series.h"
 #include "unicharcompress.h"
+#include "genericvector.h"     // for PointerVector (ptr only)
 
 class BLOB_CHOICE_IT;
 struct Pix;

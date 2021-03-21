@@ -32,6 +32,7 @@
 #include "networkio.h"
 #include "ratngs.h"
 #include "unicharcompress.h"
+#include "genericvector.h"     // for PointerVector (ptr only)
 
 namespace tesseract {
 
