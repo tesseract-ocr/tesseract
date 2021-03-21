@@ -187,7 +187,7 @@ bool Validator::IsSubscriptScript() const {
 void Validator::ComputeClassCodes(const std::vector<char32> &text) {
   codes_.reserve(text.size());
   for (char32 c : text) {
-    codes_.push_back(std::make_pair(UnicodeToCharClass(c), c));
+    codes_.emplace_back(UnicodeToCharClass(c), c);
   }
 }
 

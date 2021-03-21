@@ -73,7 +73,7 @@ ImageData *ImageData::Build(const char *name, int page_number, const char *lang,
     }
     image_data->transcription_ = truth_text;
     // If we have no boxes, the transcription is in the 0th box_texts_.
-    image_data->box_texts_.push_back(truth_text);
+    image_data->box_texts_.emplace_back(truth_text);
     // We will create a box for the whole image on PreScale, to save unpacking
     // the image now.
   } else if (truth_text != nullptr && truth_text[0] != '\0' &&

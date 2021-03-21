@@ -134,7 +134,7 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
     tprintf("Failed to open tr file: %s\n", page_name);
     return;
   }
-  tr_filenames_.push_back(std::string(page_name));
+  tr_filenames_.emplace_back(page_name);
   while (fgets(buffer, sizeof(buffer), fp) != nullptr) {
     if (buffer[0] == '\n')
       continue;

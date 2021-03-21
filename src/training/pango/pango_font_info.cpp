@@ -552,7 +552,7 @@ const std::vector<std::string> &FontUtils::ListAvailableFonts() {
       char *desc_str = pango_font_description_to_string(desc);
       // "synthesized" font faces that are not truly loadable, so we skip it
       if (!pango_font_face_is_synthesized(faces[j]) && IsAvailableFont(desc_str)) {
-        available_fonts_.push_back(desc_str);
+        available_fonts_.emplace_back(desc_str);
       }
       pango_font_description_free(desc);
       g_free(desc_str);

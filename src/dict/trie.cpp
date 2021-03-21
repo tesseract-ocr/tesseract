@@ -629,8 +629,7 @@ void Trie::sort_edges(EDGE_VECTOR *edges) {
   std::vector<KDPairInc<UNICHAR_ID, EDGE_RECORD>> sort_vec;
   sort_vec.reserve(num_edges);
   for (int i = 0; i < num_edges; ++i) {
-    sort_vec.push_back(
-        KDPairInc<UNICHAR_ID, EDGE_RECORD>(unichar_id_from_edge_rec((*edges)[i]), (*edges)[i]));
+    sort_vec.emplace_back(unichar_id_from_edge_rec((*edges)[i]), (*edges)[i]);
   }
   std::sort(sort_vec.begin(), sort_vec.end());
   for (int i = 0; i < num_edges; ++i)

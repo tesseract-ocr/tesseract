@@ -44,7 +44,7 @@ void Tesseract::PrerecAllWordsPar(const std::vector<WordData> &words) {
         Tesseract *sub = s < sub_langs_.size() ? sub_langs_[s] : this;
         const WERD_RES &word = *w.lang_words[s];
         for (int b = 0; b < word.chopped_word->NumBlobs(); ++b) {
-          blobs.push_back(BlobData(b, sub, word));
+          blobs.emplace_back(b, sub, word);
         }
       }
     }

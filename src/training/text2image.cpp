@@ -561,7 +561,7 @@ static int Main() {
     int offset = SpanUTF8Whitespace(str8);
     while (offset < len) {
       step = SpanUTF8NotWhitespace(str8 + offset);
-      offsets.push_back(std::make_pair(offset, step));
+      offsets.emplace_back(offset, step);
       offset += step;
       offset += SpanUTF8Whitespace(str8 + offset);
     }

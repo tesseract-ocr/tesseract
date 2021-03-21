@@ -135,7 +135,7 @@ static std::string RtlEmbed(const std::string &word, bool rtlify) {
 static void PrintDetectorState(const ParagraphTheory &theory,
                                const std::vector<RowScratchRegisters> &rows) {
   std::vector<std::vector<std::string>> output;
-  output.push_back(std::vector<std::string>());
+  output.emplace_back();
   output.back().push_back("#row");
   output.back().push_back("space");
   output.back().push_back("..");
@@ -145,12 +145,12 @@ static void PrintDetectorState(const ParagraphTheory &theory,
   output.back().push_back("text");
 
   for (int i = 0; i < rows.size(); i++) {
-    output.push_back(std::vector<std::string>());
+    output.emplace_back();
     std::vector<std::string> &row = output.back();
     const RowInfo &ri = *rows[i].ri_;
     row.push_back(std::to_string(i));
     row.push_back(std::to_string(ri.average_interword_space));
-    row.push_back(ri.has_leaders ? ".." : " ");
+    row.emplace_back(ri.has_leaders ? ".." : " ");
     row.push_back(RtlEmbed(ri.lword_text, !ri.ltr) + "[" + std::to_string(ri.lword_box.width()) +
                   (ri.lword_likely_starts_idea ? "S" : "s") +
                   (ri.lword_likely_ends_idea ? "E" : "e") +
@@ -491,15 +491,15 @@ void RightWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, 
 // =============== Implementation of RowScratchRegisters =====================
 /* static */
 void RowScratchRegisters::AppendDebugHeaderFields(std::vector<std::string> &header) {
-  header.push_back("[lmarg,lind;rind,rmarg]");
-  header.push_back("model");
+  header.emplace_back("[lmarg,lind;rind,rmarg]");
+  header.emplace_back("model");
 }
 
 void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
                                           std::vector<std::string> &dbg) const {
   char s[30];
   snprintf(s, sizeof(s), "[%3d,%3d;%3d,%3d]", lmargin_, lindent_, rindent_, rmargin_);
-  dbg.push_back(s);
+  dbg.emplace_back(s);
   std::string model_string;
   model_string += static_cast<char>(GetLineType());
   model_string += ":";
@@ -2487,7 +2487,7 @@ void DetectParagraphs(int debug_level, bool after_text_recognition,
     if (!row.PageResIt()->row())
       continue; // empty row.
     row.PageResIt()->row()->row->set_para(nullptr);
-    row_infos.push_back(RowInfo());
+    row_infos.emplace_back();
     RowInfo &ri = row_infos.back();
     InitializeRowInfo(after_text_recognition, row, &ri);
   } while (!row.IsAtFinalElement(RIL_BLOCK, RIL_TEXTLINE) && row.Next(RIL_TEXTLINE));

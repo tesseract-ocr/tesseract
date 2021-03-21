@@ -578,7 +578,7 @@ bool Tesseract::FindSegmentation(const std::vector<UNICHAR_ID> &target_text, WER
   }
   word_res->correct_text.clear();
   for (auto &text : target_text) {
-    word_res->correct_text.push_back(unicharset.id_to_unichar(text));
+    word_res->correct_text.emplace_back(unicharset.id_to_unichar(text));
   }
   return true;
 }

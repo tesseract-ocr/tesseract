@@ -459,7 +459,7 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
         int id = unichar_ids[bestPos];
         const char *result = unicharset->id_to_unichar_ext(id);
         float rating = ratings[bestPos];
-        choice.push_back(std::pair<const char *, float>(result, rating));
+        choice.emplace_back(result, rating);
         ctc_choices.push_back(choice);
       }
       // fill the blank spot with an empty array

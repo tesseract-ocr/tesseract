@@ -112,7 +112,7 @@ void Shape::AddToShape(int unichar_id, int font_id) {
     }
   }
   // Unichar_id is not in shape, so add it to shape.
-  unichars_.push_back(UnicharAndFonts(unichar_id, font_id));
+  unichars_.emplace_back(unichar_id, font_id);
   unichars_sorted_ = unichars_.size() <= 1;
 }
 
@@ -684,8 +684,8 @@ void ShapeTable::AddShapeToResults(const ShapeRating &shape_rating, std::vector<
     int result_index =
         AddUnicharToResults(shape[u].unichar_id, shape_rating.rating, unichar_map, results);
     for (int font_id : shape[u].font_ids) {
-      (*results)[result_index].fonts.push_back(
-          ScoredFont(font_id, IntCastRounded(shape_rating.rating * INT16_MAX)));
+      (*results)[result_index].fonts.emplace_back(font_id,
+                                                  IntCastRounded(shape_rating.rating * INT16_MAX));
     }
   }
 }

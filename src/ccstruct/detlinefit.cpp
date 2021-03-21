@@ -48,14 +48,14 @@ void DetLineFit::Clear() {
 
 // Add a new point. Takes a copy - the pt doesn't need to stay in scope.
 void DetLineFit::Add(const ICOORD &pt) {
-  pts_.push_back(PointWidth(pt, 0));
+  pts_.emplace_back(pt, 0);
 }
 // Associates a half-width with the given point if a point overlaps the
 // previous point by more than half the width, and its distance is further
 // than the previous point, then the more distant point is ignored in the
 // distance calculation. Useful for ignoring i dots and other diacritics.
 void DetLineFit::Add(const ICOORD &pt, int halfwidth) {
-  pts_.push_back(PointWidth(pt, halfwidth));
+  pts_.emplace_back(pt, halfwidth);
 }
 
 // Fits a line to the points, ignoring the skip_first initial points and the
@@ -268,7 +268,7 @@ void DetLineFit::ComputeDistances(const ICOORD &start, const ICOORD &end) {
           separation < line_length * pts_[i - 1].halfwidth)
         continue;
     }
-    distances_.push_back(DistPointPair(dist, pts_[i].pt));
+    distances_.emplace_back(dist, pts_[i].pt);
     prev_abs_dist = abs_dist;
     prev_dot = dot;
   }
@@ -287,7 +287,7 @@ void DetLineFit::ComputeConstrainedDistances(const FCOORD &direction, double min
     // Compute |line_vector||pt_vector|sin(angle between)
     double dist = direction * pt_vector;
     if (min_dist <= dist && dist <= max_dist)
-      distances_.push_back(DistPointPair(dist, pt.pt));
+      distances_.emplace_back(dist, pt.pt);
   }
 }
 

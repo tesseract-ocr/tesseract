@@ -1120,7 +1120,7 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS *classes, bool debug,
             mapped_results[r].fonts.clear();
           }
           for (int font_id : shape[c].font_ids) {
-            mapped_results[r].fonts.push_back(ScoredFont(font_id, int_result->fonts[f].score));
+            mapped_results[r].fonts.emplace_back(font_id, int_result->fonts[f].score);
           }
         }
       }
