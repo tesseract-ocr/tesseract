@@ -20,16 +20,18 @@
 #include "unicharset.h"
 #include "tprintf.h"
 
+using namespace tesseract;
+
 #ifdef TESSERACT_STANDALONE
 extern "C" int main(int argc, const char **argv)
 #else
 extern "C" int tesseract_merge_unicharsets_main(int argc, const char **argv)
 #endif
 {
-  tesseract::CheckSharedLibraryVersion();
+  CheckSharedLibraryVersion();
 
   if (argc > 1 && (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version"))) {
-    tprintf("%s\n", tesseract::TessBaseAPI::Version());
+    tprintf("%s\n", TessBaseAPI::Version());
     return 0;
   } else if (argc < 4) {
     // Print usage
@@ -40,7 +42,7 @@ extern "C" int tesseract_merge_unicharsets_main(int argc, const char **argv)
     return 1;
   }
 
-  tesseract::UNICHARSET input_unicharset, result_unicharset;
+  UNICHARSET input_unicharset, result_unicharset;
   for (int arg = 1; arg < argc - 1; ++arg) {
     // Load the input unicharset
     if (input_unicharset.load_from_file(argv[arg])) {
