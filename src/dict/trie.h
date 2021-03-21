@@ -110,10 +110,10 @@ public:
    */
   void unichar_ids_of(NODE_REF node, NodeChildVector *vec, bool word_end) const override {
     const EDGE_VECTOR &forward_edges = nodes_[static_cast<int>(node)]->forward_edges;
-    for (int i = 0; i < forward_edges.size(); ++i) {
-      if (!word_end || end_of_word_from_edge_rec(forward_edges[i])) {
+    for (auto &edge : forward_edges) {
+      if (!word_end || end_of_word_from_edge_rec(edge)) {
         vec->push_back(
-            NodeChild(unichar_id_from_edge_rec(forward_edges[i]), make_edge_ref(node, i)));
+            NodeChild(unichar_id_from_edge_rec(edge), make_edge_ref(node, &edge - &forward_edges[0])));
       }
     }
   }
@@ -320,7 +320,7 @@ protected:
   // At most max_num_edges will be printed for each node.
   void print_all(const char *msg, int max_num_edges) {
     tprintf("\n__________________________\n%s\n", msg);
-    for (int i = 0; i < nodes_.size(); ++i)
+    for (size_t i = 0; i < nodes_.size(); ++i)
       print_node(i, max_num_edges);
     tprintf("__________________________\n");
   }

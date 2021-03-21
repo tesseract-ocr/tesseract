@@ -98,7 +98,7 @@ TEST(UnicharsetTest, Multibyte) {
   EXPECT_THAT(v, ElementsAreArray({3, 4, 4, 5, 8, 7}));
   // With the fi ligature the fi is picked out.
   std::vector<char> lengths;
-  int encoded_length;
+  unsigned encoded_length;
   std::string src_str = "\u0627\u062c\ufb01\u0635\u062b";
   // src_str has to be pre-cleaned for lengths to be correct.
   std::string cleaned = u.CleanupString(src_str.c_str());

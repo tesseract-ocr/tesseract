@@ -209,21 +209,20 @@ SVMenuNode *ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
   std::map<const char *, int> amount;
 
   // Add all parameters to a list.
-  int v, i;
   int num_iterations = (tess->params() == nullptr) ? 1 : 2;
-  for (v = 0; v < num_iterations; ++v) {
+  for (int v = 0; v < num_iterations; ++v) {
     tesseract::ParamsVectors *vec = (v == 0) ? GlobalParams() : tess->params();
-    for (i = 0; i < vec->int_params.size(); ++i) {
-      vc_it.add_after_then_move(new ParamContent(vec->int_params[i]));
+    for (auto &param : vec->int_params) {
+      vc_it.add_after_then_move(new ParamContent(param));
     }
-    for (i = 0; i < vec->bool_params.size(); ++i) {
-      vc_it.add_after_then_move(new ParamContent(vec->bool_params[i]));
+    for (auto &param : vec->bool_params) {
+      vc_it.add_after_then_move(new ParamContent(param));
     }
-    for (i = 0; i < vec->string_params.size(); ++i) {
-      vc_it.add_after_then_move(new ParamContent(vec->string_params[i]));
+    for (auto &param : vec->string_params) {
+      vc_it.add_after_then_move(new ParamContent(param));
     }
-    for (i = 0; i < vec->double_params.size(); ++i) {
-      vc_it.add_after_then_move(new ParamContent(vec->double_params[i]));
+    for (auto &param : vec->double_params) {
+      vc_it.add_after_then_move(new ParamContent(param));
     }
   }
 

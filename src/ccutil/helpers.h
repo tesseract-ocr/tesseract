@@ -234,7 +234,7 @@ bool DeSerialize(bool swap, FILE *fp, std::vector<T> &data) {
       return false;
     }
     if (swap) {
-      for (int i = 0; i < size; ++i) {
+      for (uint32_t i = 0; i < size; ++i) {
         ReverseN(&data[i], sizeof(T));
       }
     }

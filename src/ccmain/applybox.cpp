@@ -380,13 +380,13 @@ bool Tesseract::ResegmentCharBox(PAGE_RES *page_res, const TBOX *prev_box, const
         // this box.
         if (applybox_debug > 1) {
           tprintf("Best state = ");
-          for (int j = 0; j < word_res->best_state.size(); ++j) {
-            tprintf("%d ", word_res->best_state[j]);
+          for (auto best_state : word_res->best_state) {
+            tprintf("%d ", best_state);
           }
           tprintf("\n");
           tprintf("Correct text = [[ ");
-          for (int j = 0; j < word_res->correct_text.size(); ++j) {
-            tprintf("%s ", word_res->correct_text[j].c_str());
+          for (auto &correct_text : word_res->correct_text) {
+            tprintf("%s ", correct_text.c_str());
           }
           tprintf("]]\n");
         }
@@ -561,8 +561,8 @@ bool Tesseract::FindSegmentation(const std::vector<UNICHAR_ID> &target_text, WER
     // Build the original segmentation and if it is the same length as the
     // truth, assume it will do.
     int blob_count = 1;
-    for (int s = 0; s < word_res->seam_array.size(); ++s) {
-      SEAM *seam = word_res->seam_array[s];
+    for (auto s : word_res->seam_array) {
+      SEAM *seam = s;
       if (!seam->HasAnySplits()) {
         word_res->best_state.push_back(blob_count);
         blob_count = 1;
@@ -577,8 +577,8 @@ bool Tesseract::FindSegmentation(const std::vector<UNICHAR_ID> &target_text, WER
     }
   }
   word_res->correct_text.clear();
-  for (int i = 0; i < target_text.size(); ++i) {
-    word_res->correct_text.push_back(unicharset.id_to_unichar(target_text[i]));
+  for (auto &text : target_text) {
+    word_res->correct_text.push_back(unicharset.id_to_unichar(text));
   }
   return true;
 }
@@ -602,7 +602,7 @@ void Tesseract::SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, in
                               int text_index, float rating, std::vector<int> *segmentation,
                               float *best_rating, std::vector<int> *best_segmentation) {
   const UnicharAmbigsVector &table = getDict().getUnicharAmbigs().dang_ambigs();
-  for (int length = 1; length <= choices[choices_pos].size(); ++length) {
+  for (unsigned length = 1; length <= choices[choices_pos].size(); ++length) {
     // Rating of matching choice or worst choice if no match.
     float choice_rating = 0.0f;
     // Find the corresponding best BLOB_CHOICE.
@@ -746,12 +746,12 @@ void Tesseract::CorrectClassifyWords(PAGE_RES *page_res) {
   PAGE_RES_IT pr_it(page_res);
   for (WERD_RES *word_res = pr_it.word(); word_res != nullptr; word_res = pr_it.forward()) {
     auto *choice = new WERD_CHOICE(word_res->uch_set, word_res->correct_text.size());
-    for (int i = 0; i < word_res->correct_text.size(); ++i) {
+    for (auto &correct_text : word_res->correct_text) {
       // The part before the first space is the real ground truth, and the
       // rest is the bounding box location and page number.
-      std::vector<std::string> tokens = split(word_res->correct_text[i], ' ');
+      std::vector<std::string> tokens = split(correct_text, ' ');
       UNICHAR_ID char_id = unicharset.unichar_to_id(tokens[0].c_str());
-      choice->append_unichar_id_space_allocated(char_id, word_res->best_state[i], 0.0f, 0.0f);
+      choice->append_unichar_id_space_allocated(char_id, word_res->best_state[&correct_text - &word_res->correct_text[0]], 0.0f, 0.0f);
     }
     word_res->ClearWordChoices();
     word_res->LogNewRawChoice(choice);

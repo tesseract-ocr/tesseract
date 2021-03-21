@@ -214,7 +214,8 @@ public:
   template <typename T>
   class Stack {
   public:
-    Stack() : stack_top_(0) {}
+    Stack() {
+    }
 
     ~Stack() {
       for (auto data : stack_) {
@@ -241,9 +242,9 @@ public:
     void Return(T *item) {
       std::lock_guard<std::mutex> lock(mutex_);
       // Linear search will do.
-      int index = stack_top_ - 1;
-      while (index >= 0 && stack_[index] != item)
-        --index;
+      int index = stack_top_;
+      while (--index >= 0 && stack_[index] != item) {
+      }
       if (index >= 0)
         flags_[index] = false;
       while (stack_top_ > 0 && !flags_[stack_top_ - 1])
@@ -253,7 +254,7 @@ public:
   private:
     std::vector<T *> stack_;
     std::vector<bool> flags_;
-    int stack_top_;
+    unsigned stack_top_ = 0;
     std::mutex mutex_;
   }; // class Stack.
 

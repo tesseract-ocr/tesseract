@@ -220,7 +220,7 @@ public:
   // Returns true if the given UTF-8 string is encodable with this UNICHARSET.
   // If not encodable, write the first byte offset which cannot be converted
   // into the second (return) argument.
-  bool encodable_string(const char *str, int *first_bad_position) const;
+  bool encodable_string(const char *str, unsigned *first_bad_position) const;
 
   // Encodes the given UTF-8 string with this UNICHARSET.
   // Any part of the string that cannot be encoded (because the utf8 can't
@@ -238,7 +238,7 @@ public:
   // that do not belong in the unicharset, or encoding may fail.
   // Use CleanupString to perform the cleaning.
   bool encode_string(const char *str, bool give_up_on_failure, std::vector<UNICHAR_ID> *encoding,
-                     std::vector<char> *lengths, int *encoded_length) const;
+                     std::vector<char> *lengths, unsigned *encoded_length) const;
 
   // Return the unichar representation corresponding to the given UNICHAR_ID
   // within the UNICHARSET.
@@ -294,7 +294,7 @@ public:
   // Return true if the given unichar id exists within the set.
   // Relies on the fact that unichar ids are contiguous in the unicharset.
   bool contains_unichar_id(UNICHAR_ID unichar_id) const {
-    return unichar_id != INVALID_UNICHAR_ID && unichar_id < unichars.size() && unichar_id >= 0;
+    return static_cast<size_t>(unichar_id) < unichars.size();
   }
 
   // Return true if the given unichar representation exists within the set.
@@ -1000,7 +1000,7 @@ private:
   // best_lengths (may be null) contains the lengths of best_encoding.
   void encode_string(const char *str, int str_index, int str_length,
                      std::vector<UNICHAR_ID> *encoding, std::vector<char> *lengths,
-                     int *best_total_length, std::vector<UNICHAR_ID> *best_encoding,
+                     unsigned *best_total_length, std::vector<UNICHAR_ID> *best_encoding,
                      std::vector<char> *best_lengths) const;
 
   // Gets the properties for a grapheme string, combining properties for

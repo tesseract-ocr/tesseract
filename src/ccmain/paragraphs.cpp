@@ -2259,26 +2259,26 @@ void DetectParagraphs(int debug_level, std::vector<RowInfo> *row_infos,
 
   std::vector<Interval> leftovers;
   LeftoverSegments(rows, &leftovers, 0, rows.size());
-  for (int i = 0; i < leftovers.size(); i++) {
+  for (auto &leftover : leftovers) {
     // Pass 2a:
     //   Find any strongly evidenced start-of-paragraph lines.  If they're
     //   followed by two lines that look like body lines, make a paragraph
     //   model for that and see if that model applies throughout the text
     //   (that is, "smear" it).
-    StrongEvidenceClassify(debug_level, &rows, leftovers[i].begin, leftovers[i].end, &theory);
+    StrongEvidenceClassify(debug_level, &rows, leftover.begin, leftover.end, &theory);
 
     // Pass 2b:
     //   If we had any luck in pass 2a, we got part of the page and didn't
     //   know how to classify a few runs of rows. Take the segments that
     //   didn't find a model and reprocess them individually.
     std::vector<Interval> leftovers2;
-    LeftoverSegments(rows, &leftovers2, leftovers[i].begin, leftovers[i].end);
+    LeftoverSegments(rows, &leftovers2, leftover.begin, leftover.end);
     bool pass2a_was_useful =
         leftovers2.size() > 1 ||
         (leftovers2.size() == 1 && (leftovers2[0].begin != 0 || leftovers2[0].end != rows.size()));
     if (pass2a_was_useful) {
-      for (int j = 0; j < leftovers2.size(); j++) {
-        StrongEvidenceClassify(debug_level, &rows, leftovers2[j].begin, leftovers2[j].end, &theory);
+      for (auto &leftover2 : leftovers2) {
+        StrongEvidenceClassify(debug_level, &rows, leftover2.begin, leftover2.end, &theory);
       }
     }
   }
@@ -2290,8 +2290,8 @@ void DetectParagraphs(int debug_level, std::vector<RowInfo> *row_infos,
   //   and geometric clues to form matching models for.  Let's see if
   //   the geometric clues are simple enough that we could just use those.
   LeftoverSegments(rows, &leftovers, 0, rows.size());
-  for (int i = 0; i < leftovers.size(); i++) {
-    GeometricClassify(debug_level, &rows, leftovers[i].begin, leftovers[i].end, &theory);
+  for (auto &leftover : leftovers) {
+    GeometricClassify(debug_level, &rows, leftover.begin, leftover.end, &theory);
   }
 
   // Undo any flush models for which there's little evidence.
@@ -2302,8 +2302,8 @@ void DetectParagraphs(int debug_level, std::vector<RowInfo> *row_infos,
   // Pass 4:
   //   Take everything that's still not marked up well and clear all markings.
   LeftoverSegments(rows, &leftovers, 0, rows.size());
-  for (int i = 0; i < leftovers.size(); i++) {
-    for (int j = leftovers[i].begin; j < leftovers[i].end; j++) {
+  for (auto &leftover : leftovers) {
+    for (int j = leftover.begin; j < leftover.end; j++) {
       rows[j].SetUnknown();
     }
   }
@@ -2498,16 +2498,16 @@ void DetectParagraphs(int debug_level, bool after_text_recognition,
   if (!row_infos.empty()) {
     int min_lmargin = row_infos[0].pix_ldistance;
     int min_rmargin = row_infos[0].pix_rdistance;
-    for (int i = 1; i < row_infos.size(); i++) {
+    for (unsigned i = 1; i < row_infos.size(); i++) {
       if (row_infos[i].pix_ldistance < min_lmargin)
         min_lmargin = row_infos[i].pix_ldistance;
       if (row_infos[i].pix_rdistance < min_rmargin)
         min_rmargin = row_infos[i].pix_rdistance;
     }
     if (min_lmargin > 0 || min_rmargin > 0) {
-      for (int i = 0; i < row_infos.size(); i++) {
-        row_infos[i].pix_ldistance -= min_lmargin;
-        row_infos[i].pix_rdistance -= min_rmargin;
+      for (auto &row_info : row_infos) {
+        row_info.pix_ldistance -= min_lmargin;
+        row_info.pix_rdistance -= min_rmargin;
       }
     }
   }
@@ -2524,10 +2524,10 @@ void DetectParagraphs(int debug_level, bool after_text_recognition,
 
   // Now stitch in the row_owners into the rows.
   row = *block_start;
-  for (int i = 0; i < row_owners.size(); i++) {
+  for (auto &row_owner : row_owners) {
     while (!row.PageResIt()->row())
       row.Next(RIL_TEXTLINE);
-    row.PageResIt()->row()->row->set_para(row_owners[i]);
+    row.PageResIt()->row()->row->set_para(row_owner);
     row.Next(RIL_TEXTLINE);
   }
 }
