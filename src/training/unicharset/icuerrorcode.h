@@ -44,7 +44,7 @@ namespace tesseract {
 
 class IcuErrorCode : public icu::ErrorCode {
 public:
-  IcuErrorCode() {}
+  IcuErrorCode() = default;
   ~IcuErrorCode() override;
 
 protected:

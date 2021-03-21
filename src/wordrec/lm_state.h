@@ -202,8 +202,7 @@ struct LanguageModelState {
       : viterbi_state_entries_prunable_length(0)
       , viterbi_state_entries_prunable_max_cost(FLT_MAX)
       , viterbi_state_entries_length(0) {}
-  ~LanguageModelState() {
-  }
+  ~LanguageModelState() = default;
 
   /// Clears the viterbi search state back to its initial conditions.
   void Clear();

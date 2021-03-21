@@ -28,7 +28,7 @@ namespace tesseract {
 class ValidateJavanese : public Validator {
 public:
   ValidateJavanese(ViramaScript script, bool report_errors) : Validator(script, report_errors) {}
-  ~ValidateJavanese() override {}
+  ~ValidateJavanese() override = default;
 
 protected:
   // Returns whether codes matches the pattern for an Javanese Grapheme.

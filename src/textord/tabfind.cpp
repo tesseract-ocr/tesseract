@@ -75,7 +75,7 @@ TabFind::TabFind(int gridsize, const ICOORD &bleft, const ICOORD &tright, TabVec
   width_cb_ = std::bind(&TabFind::CommonWidth, this, _1);
 }
 
-TabFind::~TabFind() {}
+TabFind::~TabFind() = default;
 
 ///////////////// PUBLIC functions (mostly used by TabVector). //////////////
 

@@ -45,7 +45,7 @@ FontInfoTable::FontInfoTable() {
   set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
 }
 
-FontInfoTable::~FontInfoTable() {}
+FontInfoTable::~FontInfoTable() = default;
 
 // Writes to the given file. Returns false in case of error.
 bool FontInfoTable::Serialize(FILE *fp) const {

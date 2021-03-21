@@ -70,7 +70,7 @@ public:
       , fixed_pitch_(fp)
       , dict_(d)
       , debug_level_(deb) {}
-  ~LMPainPoints() {}
+  ~LMPainPoints() = default;
 
   // Returns true if the heap of pain points of pp_type is not empty().
   inline bool HasPainPoints(LMPainPointsType pp_type) const {

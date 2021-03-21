@@ -10,7 +10,7 @@ namespace tesseract {
 class ValidateGrapheme : public Validator {
 public:
   ValidateGrapheme(ViramaScript script, bool report_errors) : Validator(script, report_errors) {}
-  ~ValidateGrapheme() override {}
+  ~ValidateGrapheme() override = default;
 
 protected:
   // Consumes the next Grapheme in codes_[codes_used_++...] and copies it to
