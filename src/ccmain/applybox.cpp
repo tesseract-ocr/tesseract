@@ -385,8 +385,8 @@ bool Tesseract::ResegmentCharBox(PAGE_RES *page_res, const TBOX *prev_box, const
           }
           tprintf("\n");
           tprintf("Correct text = [[ ");
-          for (auto &correct_text : word_res->correct_text) {
-            tprintf("%s ", correct_text.c_str());
+          for (auto &it : word_res->correct_text) {
+            tprintf("%s ", it.c_str());
           }
           tprintf("]]\n");
         }
