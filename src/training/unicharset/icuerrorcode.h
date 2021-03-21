@@ -55,8 +55,8 @@ protected:
 
 private:
   // Disallow implicit copying of object.
-  IcuErrorCode(const IcuErrorCode &);
-  void operator=(const IcuErrorCode &);
+  IcuErrorCode(const IcuErrorCode &) = delete;
+  void operator=(const IcuErrorCode &) = delete;
 };
 
 } // namespace tesseract

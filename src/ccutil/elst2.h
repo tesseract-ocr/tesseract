@@ -245,7 +245,7 @@ public:
 
 private:
   // Don't use the following constructor.
-  ELIST2_ITERATOR();
+  ELIST2_ITERATOR() = delete;
 };
 
 /***********************************************************************
