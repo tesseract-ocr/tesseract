@@ -152,7 +152,7 @@ void Tesseract::SetupAllWordsPassN(int pass_n, const TBOX *target_word_box, cons
     }
   }
   // Setup all the words for recognition with polygonal approximation.
-  for (int w = 0; w < words->size(); ++w) {
+  for (unsigned w = 0; w < words->size(); ++w) {
     SetupWordPassN(pass_n, &(*words)[w]);
     if (w > 0)
       (*words)[w].prev_word = &(*words)[w - 1];
@@ -173,7 +173,7 @@ void Tesseract::SetupWordPassN(int pass_n, WordData *word) {
         word->word->x_height = word->row->x_height();
     }
     word->lang_words.truncate(0);
-    for (int s = 0; s <= sub_langs_.size(); ++s) {
+    for (unsigned s = 0; s <= sub_langs_.size(); ++s) {
       // The sub_langs_.size() entry is for the master language.
       Tesseract *lang_t = s < sub_langs_.size() ? sub_langs_[s] : this;
       auto *word_res = new WERD_RES;
@@ -199,7 +199,7 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT 
   // added. The results will be significantly different with adaption on, and
   // deterioration will need investigation.
   pr_it->restart_page();
-  for (int w = 0; w < words->size(); ++w) {
+  for (unsigned w = 0; w < words->size(); ++w) {
     WordData *word = &(*words)[w];
     if (w > 0)
       word->prev_word = &(*words)[w - 1];
@@ -302,11 +302,11 @@ bool Tesseract::recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor,
       StartBackupAdaptiveClassifier();
     }
     // Now check the sub-langs as well.
-    for (int i = 0; i < sub_langs_.size(); ++i) {
-      if (sub_langs_[i]->AdaptiveClassifierIsFull()) {
-        sub_langs_[i]->SwitchAdaptiveClassifier();
-      } else if (!sub_langs_[i]->AdaptiveClassifierIsEmpty()) {
-        sub_langs_[i]->StartBackupAdaptiveClassifier();
+    for (auto &lang : sub_langs_) {
+      if (lang->AdaptiveClassifierIsFull()) {
+        lang->SwitchAdaptiveClassifier();
+      } else if (!lang->AdaptiveClassifierIsEmpty()) {
+        lang->StartBackupAdaptiveClassifier();
       }
     }
 
@@ -556,7 +556,7 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
           if (tessedit_bigram_debug > 1) {
             std::string bigrams_list;
             const int kMaxChoicesToPrint = 20;
-            for (int i = 0; i < overrides_word1.size() && i < kMaxChoicesToPrint; i++) {
+            for (unsigned i = 0; i < overrides_word1.size() && i < kMaxChoicesToPrint; i++) {
               if (i > 0) {
                 bigrams_list += ", ";
               }
@@ -679,8 +679,8 @@ void Tesseract::blamer_pass(PAGE_RES *page_res) {
   }
   if (page_res->misadaption_log.size() > 0) {
     tprintf("Misadaption log:\n");
-    for (int i = 0; i < page_res->misadaption_log.size(); ++i) {
-      tprintf("%s\n", page_res->misadaption_log[i].c_str());
+    for (auto &log : page_res->misadaption_log) {
+      tprintf("%s\n", log.c_str());
     }
   }
 }
@@ -838,8 +838,8 @@ static int SelectBestWords(double rating_ratio, double certainty_margin, bool de
   }
   // Transfer from out_words to best_words.
   best_words->clear();
-  for (int i = 0; i < out_words.size(); ++i)
-    best_words->push_back(out_words[i]);
+  for (auto &out_word : out_words)
+    best_words->push_back(out_word);
   return num_new - num_best;
 }
 
@@ -908,7 +908,7 @@ bool Tesseract::ReassignDiacritics(int pass, PAGE_RES_IT *pr_it, bool *make_next
   std::vector<C_OUTLINE *> wanted_outlines;
   int num_overlapped = 0;
   int num_overlapped_used = 0;
-  for (int i = 0; i < overlapped_any_blob.size(); ++i) {
+  for (unsigned i = 0; i < overlapped_any_blob.size(); ++i) {
     if (overlapped_any_blob[i]) {
       ++num_overlapped;
       if (word_wanted[i])
@@ -923,7 +923,7 @@ bool Tesseract::ReassignDiacritics(int pass, PAGE_RES_IT *pr_it, bool *make_next
   AssignDiacriticsToNewBlobs(outlines, pass, real_word, pr_it, &word_wanted, &target_blobs);
   int non_overlapped = 0;
   int non_overlapped_used = 0;
-  for (int i = 0; i < word_wanted.size(); ++i) {
+  for (unsigned i = 0; i < word_wanted.size(); ++i) {
     if (word_wanted[i])
       ++non_overlapped_used;
     if (outlines[i] != nullptr)
@@ -967,7 +967,7 @@ void Tesseract::AssignDiacriticsToOverlappingBlobs(const std::vector<C_OUTLINE *
     const TBOX blob_box = blob->bounding_box();
     blob_wanted.resize(outlines.size(), false);
     int num_blob_outlines = 0;
-    for (int i = 0; i < outlines.size(); ++i) {
+    for (unsigned i = 0; i < outlines.size(); ++i) {
       if (blob_box.major_x_overlap(outlines[i]->bounding_box()) && !(*word_wanted)[i]) {
         blob_wanted[i] = true;
         (*overlapped_any_blob)[i] = true;
@@ -985,7 +985,7 @@ void Tesseract::AssignDiacriticsToOverlappingBlobs(const std::vector<C_OUTLINE *
     if (0 < num_blob_outlines && num_blob_outlines < noise_maxperblob) {
       if (SelectGoodDiacriticOutlines(pass, noise_cert_basechar, pr_it, blob, outlines,
                                       num_blob_outlines, &blob_wanted)) {
-        for (int i = 0; i < blob_wanted.size(); ++i) {
+        for (unsigned i = 0; i < blob_wanted.size(); ++i) {
           if (blob_wanted[i]) {
             // Claim the outline and record where it is going.
             (*word_wanted)[i] = true;
@@ -1007,7 +1007,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(const std::vector<C_OUTLINE *> &outli
   word_wanted->resize(outlines.size(), false);
   target_blobs->resize(outlines.size(), nullptr);
   // Check for outlines that need to be turned into stand-alone blobs.
-  for (int i = 0; i < outlines.size(); ++i) {
+  for (unsigned i = 0; i < outlines.size(); ++i) {
     if (outlines[i] == nullptr)
       continue;
     // Get a set of adjacent outlines that don't overlap any existing blob.
@@ -1039,7 +1039,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(const std::vector<C_OUTLINE *> &outli
                                     num_blob_outlines, &blob_wanted)) {
       if (debug_noise_removal)
         tprintf("Added to left blob\n");
-      for (int j = 0; j < blob_wanted.size(); ++j) {
+      for (unsigned j = 0; j < blob_wanted.size(); ++j) {
         if (blob_wanted[j]) {
           (*word_wanted)[j] = true;
           (*target_blobs)[j] = left_blob;
@@ -1052,7 +1052,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(const std::vector<C_OUTLINE *> &outli
                                            num_blob_outlines, &blob_wanted)) {
       if (debug_noise_removal)
         tprintf("Added to right blob\n");
-      for (int j = 0; j < blob_wanted.size(); ++j) {
+      for (unsigned j = 0; j < blob_wanted.size(); ++j) {
         if (blob_wanted[j]) {
           (*word_wanted)[j] = true;
           (*target_blobs)[j] = right_blob;
@@ -1062,7 +1062,7 @@ void Tesseract::AssignDiacriticsToNewBlobs(const std::vector<C_OUTLINE *> &outli
                                            num_blob_outlines, &blob_wanted)) {
       if (debug_noise_removal)
         tprintf("Fitted between blobs\n");
-      for (int j = 0; j < blob_wanted.size(); ++j) {
+      for (unsigned j = 0; j < blob_wanted.size(); ++j) {
         if (blob_wanted[j]) {
           (*word_wanted)[j] = true;
           (*target_blobs)[j] = nullptr;
@@ -1098,7 +1098,7 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
   float best_cert = ClassifyBlobPlusOutlines(test_outlines, outlines, pass, pr_it, blob, all_str);
   if (debug_noise_removal) {
     TBOX ol_box;
-    for (int i = 0; i < test_outlines.size(); ++i) {
+    for (unsigned i = 0; i < test_outlines.size(); ++i) {
       if (test_outlines[i])
         ol_box += outlines[i]->bounding_box();
     }
@@ -1113,14 +1113,14 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
          (blob == nullptr || best_cert < target_cert || blob != nullptr)) {
     // Find the best bit to zero out.
     best_index = -1;
-    for (int i = 0; i < outlines.size(); ++i) {
+    for (unsigned i = 0; i < outlines.size(); ++i) {
       if (test_outlines[i]) {
         test_outlines[i] = false;
         std::string str;
         float cert = ClassifyBlobPlusOutlines(test_outlines, outlines, pass, pr_it, blob, str);
         if (debug_noise_removal) {
           TBOX ol_box;
-          for (int j = 0; j < outlines.size(); ++j) {
+          for (unsigned j = 0; j < outlines.size(); ++j) {
             if (test_outlines[j])
               ol_box += outlines[j]->bounding_box();
             tprintf("%c", test_outlines[j] ? 'T' : 'F');
@@ -1147,8 +1147,8 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
     *ok_outlines = best_outlines;
     if (debug_noise_removal) {
       tprintf("%s noise combination ", blob ? "Adding" : "New");
-      for (int i = 0; i < best_outlines.size(); ++i) {
-        tprintf("%c", best_outlines[i] ? 'T' : 'F');
+      for (auto best_outline : best_outlines) {
+        tprintf("%c", best_outline ? 'T' : 'F');
       }
       tprintf(" yields certainty %g, beating target of %g\n", best_cert, target_cert);
     }
@@ -1171,7 +1171,7 @@ float Tesseract::ClassifyBlobPlusOutlines(const std::vector<bool> &ok_outlines,
     ol_it.set_to_list(blob->out_list());
     first_to_keep = ol_it.data();
   }
-  for (int i = 0; i < ok_outlines.size(); ++i) {
+  for (unsigned i = 0; i < ok_outlines.size(); ++i) {
     if (ok_outlines[i]) {
       // This outline is to be added.
       if (blob == nullptr) {
@@ -1278,7 +1278,7 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordD
       most_recently_used_ = word->tesseract;
     return;
   }
-  int sub = sub_langs_.size();
+  auto sub = sub_langs_.size();
   if (most_recently_used_ != this) {
     // Get the index of the most_recently_used_.
     for (sub = 0; sub < sub_langs_.size() && most_recently_used_ != sub_langs_[sub]; ++sub) {
@@ -1294,7 +1294,7 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordD
                                 &word_data->lang_words[sub_langs_.size()], &best_words) > 0) {
       best_lang_tess = this;
     }
-    for (int i = 0; !WordsAcceptable(best_words) && i < sub_langs_.size(); ++i) {
+    for (unsigned i = 0; !WordsAcceptable(best_words) && i < sub_langs_.size(); ++i) {
       if (most_recently_used_ != sub_langs_[i] &&
           sub_langs_[i]->RetryWithLanguage(*word_data, recognizer, debug, &word_data->lang_words[i],
                                            &best_words) > 0) {
@@ -1876,10 +1876,10 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
     if (choice == nullptr)
       continue;
     auto &fonts = choice->fonts();
-    for (int f = 0; f < fonts.size(); ++f) {
-      const int fontinfo_id = fonts[f].fontinfo_id;
+    for (auto &f : fonts) {
+      const int fontinfo_id = f.fontinfo_id;
       if (0 <= fontinfo_id && fontinfo_id < fontinfo_size) {
-        font_total_score[fontinfo_id] += fonts[f].score;
+        font_total_score[fontinfo_id] += f.score;
       }
     }
   }

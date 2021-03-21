@@ -75,14 +75,14 @@ bool Tesseract::TrainLineRecognizer(const char *input_imagename, const std::stri
 // appends them to the given training_data.
 void Tesseract::TrainFromBoxes(const std::vector<TBOX> &boxes, const std::vector<std::string> &texts,
                                BLOCK_LIST *block_list, DocumentData *training_data) {
-  int box_count = boxes.size();
+  auto box_count = boxes.size();
   // Process all the text lines in this page, as defined by the boxes.
-  int end_box = 0;
+  unsigned end_box = 0;
   // Don't let \t, which marks newlines in the box file, get into the line
   // content, as that makes the line unusable in training.
   while (end_box < texts.size() && texts[end_box] == "\t")
     ++end_box;
-  for (int start_box = end_box; start_box < box_count; start_box = end_box) {
+  for (auto start_box = end_box; start_box < box_count; start_box = end_box) {
     // Find the textline of boxes starting at start and their bounding box.
     TBOX line_box = boxes[start_box];
     std::string line_str = texts[start_box];

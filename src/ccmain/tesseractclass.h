@@ -219,8 +219,8 @@ public:
     pixDestroy(&pix_original_);
     pix_original_ = original_pix;
     // Clone to sublangs as well.
-    for (int i = 0; i < sub_langs_.size(); ++i) {
-      sub_langs_[i]->set_pix_original(original_pix ? pixClone(original_pix) : nullptr);
+    for (auto &lang : sub_langs_) {
+      lang->set_pix_original(original_pix ? pixClone(original_pix) : nullptr);
     }
   }
   // Returns a pointer to a Pix representing the best available resolution image
@@ -286,8 +286,8 @@ public:
   bool AnyTessLang() const {
     if (tessedit_ocr_engine_mode != OEM_LSTM_ONLY)
       return true;
-    for (int i = 0; i < sub_langs_.size(); ++i) {
-      if (sub_langs_[i]->tessedit_ocr_engine_mode != OEM_LSTM_ONLY)
+    for (auto &lang : sub_langs_) {
+      if (lang->tessedit_ocr_engine_mode != OEM_LSTM_ONLY)
         return true;
     }
     return false;
@@ -296,8 +296,8 @@ public:
   bool AnyLSTMLang() const {
     if (tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY)
       return true;
-    for (int i = 0; i < sub_langs_.size(); ++i) {
-      if (sub_langs_[i]->tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY) {
+    for (auto &lang : sub_langs_) {
+      if (lang->tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY) {
         return true;
       }
     }

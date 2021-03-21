@@ -427,10 +427,11 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
         if (ratings[i] < ratings[bestPos])
           bestPos = i;
       }
+      // TODO: bestCode is currently unused (see commit 2dd5d0d60).
       int bestCode = -10;
-      for (int i = 0; i < best_nodes.size(); ++i) {
-        if (best_nodes[i]->unichar_id == unichar_ids[bestPos]) {
-          bestCode = best_nodes[i]->code;
+      for (auto &node : best_nodes) {
+        if (node->unichar_id == unichar_ids[bestPos]) {
+          bestCode = node->code;
         }
       }
       // Exclude the best choice for the followup decoding.

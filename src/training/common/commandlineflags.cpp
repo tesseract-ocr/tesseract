@@ -127,37 +127,37 @@ static bool SafeAtod(const char *str, double *val) {
 static void PrintCommandLineFlags() {
   const char *kFlagNamePrefix = "FLAGS_";
   const int kFlagNamePrefixLen = strlen(kFlagNamePrefix);
-  for (int i = 0; i < GlobalParams()->int_params.size(); ++i) {
-    if (!strncmp(GlobalParams()->int_params[i]->name_str(), kFlagNamePrefix, kFlagNamePrefixLen)) {
+  for (auto &param : GlobalParams()->int_params) {
+    if (!strncmp(param->name_str(), kFlagNamePrefix, kFlagNamePrefixLen)) {
       tprintf("  --%s  %s  (type:int default:%d)\n",
-             GlobalParams()->int_params[i]->name_str() + kFlagNamePrefixLen,
-             GlobalParams()->int_params[i]->info_str(), int32_t(*(GlobalParams()->int_params[i])));
+             param->name_str() + kFlagNamePrefixLen,
+             param->info_str(), int32_t(*param));
     }
   }
-  for (int i = 0; i < GlobalParams()->double_params.size(); ++i) {
-    if (!strncmp(GlobalParams()->double_params[i]->name_str(), kFlagNamePrefix,
+  for (auto &param : GlobalParams()->double_params) {
+    if (!strncmp(param->name_str(), kFlagNamePrefix,
                  kFlagNamePrefixLen)) {
       tprintf("  --%s  %s  (type:double default:%g)\n",
-             GlobalParams()->double_params[i]->name_str() + kFlagNamePrefixLen,
-             GlobalParams()->double_params[i]->info_str(),
-             static_cast<double>(*(GlobalParams()->double_params[i])));
+             param->name_str() + kFlagNamePrefixLen,
+             param->info_str(),
+             static_cast<double>(*param));
     }
   }
-  for (int i = 0; i < GlobalParams()->bool_params.size(); ++i) {
-    if (!strncmp(GlobalParams()->bool_params[i]->name_str(), kFlagNamePrefix, kFlagNamePrefixLen)) {
+  for (auto &param : GlobalParams()->bool_params) {
+    if (!strncmp(param->name_str(), kFlagNamePrefix, kFlagNamePrefixLen)) {
       tprintf("  --%s  %s  (type:bool default:%s)\n",
-             GlobalParams()->bool_params[i]->name_str() + kFlagNamePrefixLen,
-             GlobalParams()->bool_params[i]->info_str(),
-             bool(*(GlobalParams()->bool_params[i])) ? "true" : "false");
+             param->name_str() + kFlagNamePrefixLen,
+             param->info_str(),
+             bool(*param) ? "true" : "false");
     }
   }
-  for (int i = 0; i < GlobalParams()->string_params.size(); ++i) {
-    if (!strncmp(GlobalParams()->string_params[i]->name_str(), kFlagNamePrefix,
+  for (auto &param : GlobalParams()->string_params) {
+    if (!strncmp(param->name_str(), kFlagNamePrefix,
                  kFlagNamePrefixLen)) {
       tprintf("  --%s  %s  (type:string default:%s)\n",
-             GlobalParams()->string_params[i]->name_str() + kFlagNamePrefixLen,
-             GlobalParams()->string_params[i]->info_str(),
-             GlobalParams()->string_params[i]->c_str());
+             param->name_str() + kFlagNamePrefixLen,
+             param->info_str(),
+             param->c_str());
     }
   }
 }

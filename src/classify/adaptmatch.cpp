@@ -107,7 +107,7 @@ struct ADAPT_RESULTS {
     best_unichar_id = INVALID_UNICHAR_ID;
     best_match_index = -1;
     best_rating = WORST_POSSIBLE_RATING;
-    for (int i = 0; i < match.size(); ++i) {
+    for (unsigned i = 0; i < match.size(); ++i) {
       if (match[i].rating > best_rating) {
         best_rating = match[i].rating;
         best_unichar_id = match[i].unichar_id;
@@ -145,7 +145,7 @@ inline bool MarginalMatch(float confidence, float matcher_great_threshold) {
 // Returns the index of the given id in results, if present, or the size of the
 // vector (index it will go at) if not present.
 static int FindScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
-  for (int i = 0; i < results.match.size(); i++) {
+  for (unsigned i = 0; i < results.match.size(); i++) {
     if (results.match[i].unichar_id == id)
       return i;
   }
@@ -1112,7 +1112,7 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS *classes, bool debug,
           if (!unicharset.get_enabled(unichar_id))
             continue;
           // Find the mapped_result for unichar_id.
-          int r = 0;
+          unsigned r = 0;
           for (r = 0; r < mapped_results.size() && mapped_results[r].unichar_id != unichar_id;
                ++r) {
           }
@@ -1127,11 +1127,11 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS *classes, bool debug,
           }
         }
       }
-      for (int m = 0; m < mapped_results.size(); ++m) {
-        mapped_results[m].rating = ComputeCorrectedRating(
-            debug, mapped_results[m].unichar_id, cp_rating, int_result->rating,
+      for (auto &m : mapped_results) {
+        m.rating = ComputeCorrectedRating(
+            debug, m.unichar_id, cp_rating, int_result->rating,
             int_result->feature_misses, bottom, top, blob_length, matcher_multiplier, cn_factors);
-        AddNewResult(mapped_results[m], final_results);
+        AddNewResult(m, final_results);
       }
       return;
     }
@@ -1252,8 +1252,8 @@ int Classify::CharNormClassifier(TBLOB *blob, const TrainingSample &sample,
   std::vector<UnicharRating> unichar_results;
   static_classifier_->UnicharClassifySample(sample, blob->denorm().pix(), 0, -1, &unichar_results);
   // Convert results to the format used internally by AdaptiveClassifier.
-  for (int r = 0; r < unichar_results.size(); ++r) {
-    AddNewResult(unichar_results[r], adapt_results);
+  for (auto &r : unichar_results) {
+    AddNewResult(r, adapt_results);
   }
   return sample.num_features();
 } /* CharNormClassifier */
@@ -1289,16 +1289,16 @@ int Classify::CharNormTrainingSample(bool pruner_only, int keep_this, const Trai
   }
   if (pruner_only) {
     // Convert pruner results to output format.
-    for (int i = 0; i < adapt_results->CPResults.size(); ++i) {
-      int class_id = adapt_results->CPResults[i].Class;
-      results->push_back(UnicharRating(class_id, 1.0f - adapt_results->CPResults[i].Rating));
+    for (auto &it : adapt_results->CPResults) {
+      int class_id = it.Class;
+      results->push_back(UnicharRating(class_id, 1.0f - it.Rating));
     }
   } else {
     MasterMatcher(PreTrainedTemplates, num_features, sample.features(), char_norm_array, nullptr,
                   matcher_debug_flags, classify_integer_matcher_multiplier, blob_box,
                   adapt_results->CPResults, adapt_results);
     // Convert master matcher results to output format.
-    for (int i = 0; i < adapt_results->match.size(); i++) {
+    for (unsigned i = 0; i < adapt_results->match.size(); i++) {
       results->push_back(adapt_results->match[i]);
     }
     if (results->size() > 1) {
@@ -1358,8 +1358,8 @@ void Classify::ConvertMatchesToChoices(const DENORM &denorm, const TBOX &box,
   }
 
   float best_certainty = -FLT_MAX;
-  for (int i = 0; i < Results->match.size(); i++) {
-    const UnicharRating &result = Results->match[i];
+  for (auto &it : Results->match) {
+    const UnicharRating &result = it;
     bool adapted = result.adapted;
     bool current_is_frag = (unicharset.get_fragment(result.unichar_id) != nullptr);
     if (temp_it.length() + 1 == max_matches && !contains_nonfrag && current_is_frag) {
@@ -1504,7 +1504,6 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
 UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob, CLASS_ID CorrectClass) {
   auto *Results = new ADAPT_RESULTS();
   UNICHAR_ID *Ambiguities;
-  int i;
 
   Results->Initialize();
   INT_FX_RESULT_STRUCT fx_info;
@@ -1526,6 +1525,7 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob, CLASS_ID CorrectClass) {
   Ambiguities = new UNICHAR_ID[Results->match.size() + 1];
   if (Results->match.size() > 1 ||
       (Results->match.size() == 1 && Results->match[0].unichar_id != CorrectClass)) {
+    unsigned i;
     for (i = 0; i < Results->match.size(); i++)
       Ambiguities[i] = Results->match[i].unichar_id;
     Ambiguities[i] = -1;
@@ -1888,9 +1888,9 @@ int MakeTempProtoPerm(void *item1, void *item2) {
  * Globals: none
  */
 void Classify::PrintAdaptiveMatchResults(const ADAPT_RESULTS &results) {
-  for (int i = 0; i < results.match.size(); ++i) {
-    tprintf("%s  ", unicharset.debug_str(results.match[i].unichar_id).c_str());
-    results.match[i].Print();
+  for (auto &it : results.match) {
+    tprintf("%s  ", unicharset.debug_str(it.unichar_id).c_str());
+    it.Print();
   }
 } /* PrintAdaptiveMatchResults */
 
@@ -1908,7 +1908,7 @@ void Classify::PrintAdaptiveMatchResults(const ADAPT_RESULTS &results) {
  * - matcher_bad_match_pad defines a "bad match"
  */
 void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
-  int Next, NextGood;
+  unsigned Next, NextGood;
   float BadMatchThreshold;
   static const char *romans = "i v x I V X";
   BadMatchThreshold = Results->best_rating - matcher_bad_match_pad;
@@ -1965,7 +1965,7 @@ void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
  * @param Results contains matches to be filtered
  */
 void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
-  int Next, NextGood;
+  unsigned Next, NextGood;
   int punc_count; /*no of garbage characters */
   int digit_count;
   /*garbage characters */

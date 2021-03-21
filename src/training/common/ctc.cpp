@@ -232,8 +232,8 @@ float CTC::CalculateBiasFraction() {
   for (int l = 0; l < num_labels_; ++l) {
     ++truth_counts[labels_[l]];
   }
-  for (int l = 0; l < output_labels.size(); ++l) {
-    ++output_counts[output_labels[l]];
+  for (auto l : output_labels) {
+    ++output_counts[l];
   }
   // Count the number of true and false positive non-nulls and truth labels.
   int true_pos = 0, false_pos = 0, total_labels = 0;

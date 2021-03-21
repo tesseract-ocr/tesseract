@@ -54,9 +54,9 @@ public:
         to = 'y';
       }
       // Change the from char to the to char.
-      for (int i = 0; i < net_spec.length(); ++i) {
-        if (net_spec[i] == from)
-          net_spec[i] = to;
+      for (auto &it : net_spec) {
+        if (it == from)
+          it = to;
       }
       spec += net_spec;
       return spec;

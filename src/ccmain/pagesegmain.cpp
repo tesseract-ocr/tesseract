@@ -352,8 +352,8 @@ ColumnFinder *Tesseract::SetupPageSegAndDetectOrientation(PageSegMode pageseg_mo
         // We are running osd as part of layout analysis, so constrain the
         // scripts to those allowed by *this.
         AddAllScriptsConverted(unicharset, osd_tess->unicharset, &osd_scripts);
-        for (int s = 0; s < sub_langs_.size(); ++s) {
-          AddAllScriptsConverted(sub_langs_[s]->unicharset, osd_tess->unicharset, &osd_scripts);
+        for (auto &lang : sub_langs_) {
+          AddAllScriptsConverted(lang->unicharset, osd_tess->unicharset, &osd_scripts);
         }
       }
       os_detect_blobs(&osd_scripts, &osd_blobs, osr, osd_tess);
