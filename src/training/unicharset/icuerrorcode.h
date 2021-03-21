@@ -45,10 +45,10 @@ namespace tesseract {
 class IcuErrorCode : public icu::ErrorCode {
 public:
   IcuErrorCode() {}
-  virtual ~IcuErrorCode();
+  ~IcuErrorCode() override;
 
 protected:
-  virtual void handleFailure() const {
+  void handleFailure() const override {
     tprintf("ICU ERROR: %s\n", errorName());
     exit(errorCode);
   }

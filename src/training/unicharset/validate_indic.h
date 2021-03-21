@@ -10,7 +10,7 @@ namespace tesseract {
 class ValidateIndic : public Validator {
 public:
   ValidateIndic(ViramaScript script, bool report_errors) : Validator(script, report_errors) {}
-  ~ValidateIndic() {}
+  ~ValidateIndic() override {}
 
 protected:
   // Returns whether codes matches the pattern for an Indic Grapheme.

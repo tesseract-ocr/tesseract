@@ -9,7 +9,7 @@ namespace tesseract {
 class ValidateKhmer : public Validator {
 public:
   ValidateKhmer(ViramaScript script, bool report_errors) : Validator(script, report_errors) {}
-  ~ValidateKhmer() {}
+  ~ValidateKhmer() override {}
 
 protected:
   // Returns whether codes matches the pattern for an Khmer Grapheme.
