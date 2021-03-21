@@ -935,7 +935,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist, std::string *buf, const char
                                        int tessedit_page_number) {
   if (!flist && !buf)
     return false;
-  int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
+  unsigned page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
   char pagename[MAX_PATH];
 
   std::vector<std::string> lines;
@@ -958,7 +958,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist, std::string *buf, const char
   }
 
   // Skip to the requested page number.
-  for (int i = 0; i < page; i++) {
+  for (unsigned i = 0; i < page; i++) {
     if (flist) {
       if (fgets(pagename, sizeof(pagename), flist) == nullptr)
         break;
@@ -986,7 +986,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist, std::string *buf, const char
       tprintf("Image file %s cannot be read!\n", pagename);
       return false;
     }
-    tprintf("Page %d : %s\n", page, pagename);
+    tprintf("Page %u : %s\n", page, pagename);
     bool r = ProcessPage(pix, page, pagename, retry_config, timeout_millisec, renderer);
     pixDestroy(&pix);
     if (!r)

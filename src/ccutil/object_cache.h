@@ -38,15 +38,15 @@ public:
   ObjectCache() = default;
   ~ObjectCache() {
     std::lock_guard<std::mutex> guard(mu_);
-    for (int i = 0; i < cache_.size(); i++) {
-      if (cache_[i].count > 0) {
+    for (auto &it : cache_) {
+      if (it.count > 0) {
         tprintf(
             "ObjectCache(%p)::~ObjectCache(): WARNING! LEAK! object %p "
             "still has count %d (id %s)\n",
-            this, cache_[i].object, cache_[i].count, cache_[i].id.c_str());
+            this, it.object, it.count, it.id.c_str());
       } else {
-        delete cache_[i].object;
-        cache_[i].object = nullptr;
+        delete it.object;
+        it.object = nullptr;
       }
     }
   }
@@ -60,11 +60,11 @@ public:
   T *Get(const std::string &id, std::function<T *()> loader) {
     T *retval = nullptr;
     std::lock_guard<std::mutex> guard(mu_);
-    for (int i = 0; i < cache_.size(); i++) {
-      if (id == cache_[i].id) {
-        retval = cache_[i].object;
-        if (cache_[i].object != nullptr) {
-          cache_[i].count++;
+    for (auto &it : cache_) {
+      if (id == it.id) {
+        retval = it.object;
+        if (it.object != nullptr) {
+          it.count++;
         }
         return retval;
       }
@@ -83,9 +83,9 @@ public:
     if (t == nullptr)
       return false;
     std::lock_guard<std::mutex> guard(mu_);
-    for (int i = 0; i < cache_.size(); i++) {
-      if (cache_[i].object == t) {
-        --cache_[i].count;
+    for (auto &it : cache_) {
+      if (it.object == t) {
+        --it.count;
         return true;
       }
     }

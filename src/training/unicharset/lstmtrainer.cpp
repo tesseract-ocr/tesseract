@@ -718,7 +718,7 @@ bool LSTMTrainer::EncodeString(const std::string &str, const UNICHARSET &unichar
     tprintf("Empty truth string!\n");
     return false;
   }
-  int err_index;
+  unsigned err_index;
   std::vector<int> internal_labels;
   labels->clear();
   if (!simple_text)
@@ -822,7 +822,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, Netw
       std::reverse(truth_labels.begin(), truth_labels.end());
     }
   }
-  int w = 0;
+  unsigned w = 0;
   while (w < truth_labels.size() &&
          (truth_labels[w] == UNICHAR_SPACE || truth_labels[w] == null_char_))
     ++w;

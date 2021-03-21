@@ -102,15 +102,15 @@ public:
     int score1 = 0, score2 = 0;
     fontinfo_id_ = -1;
     fontinfo_id2_ = -1;
-    for (int f = 0; f < fonts_.size(); ++f) {
-      if (fonts_[f].score > score1) {
+    for (auto &f : fonts_) {
+      if (f.score > score1) {
         score2 = score1;
         fontinfo_id2_ = fontinfo_id_;
-        score1 = fonts_[f].score;
-        fontinfo_id_ = fonts_[f].fontinfo_id;
-      } else if (fonts_[f].score > score2) {
-        score2 = fonts_[f].score;
-        fontinfo_id2_ = fonts_[f].fontinfo_id;
+        score1 = f.score;
+        fontinfo_id_ = f.fontinfo_id;
+      } else if (f.score > score2) {
+        score2 = f.score;
+        fontinfo_id2_ = f.fontinfo_id;
       }
     }
   }

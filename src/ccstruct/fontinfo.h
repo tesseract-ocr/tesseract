@@ -83,13 +83,13 @@ struct FontInfo {
   // (FontInfo class takes ownership of the pointer).
   // Note: init_spacing should be called before calling this function.
   void add_spacing(UNICHAR_ID uch_id, FontSpacingInfo *spacing_info) {
-    ASSERT_HOST(spacing_vec != nullptr && spacing_vec->size() > uch_id);
+    ASSERT_HOST(static_cast<size_t>(uch_id) < spacing_vec->size());
     (*spacing_vec)[uch_id] = spacing_info;
   }
 
   // Returns the pointer to FontSpacingInfo for the given UNICHAR_ID.
   const FontSpacingInfo *get_spacing(UNICHAR_ID uch_id) const {
-    return (spacing_vec == nullptr || spacing_vec->size() <= uch_id) ? nullptr
+    return (spacing_vec == nullptr || spacing_vec->size() <= static_cast<size_t>(uch_id)) ? nullptr
                                                                      : (*spacing_vec)[uch_id];
   }
 
@@ -100,7 +100,7 @@ struct FontInfo {
     const FontSpacingInfo *fsi = this->get_spacing(uch_id);
     if (prev_fsi == nullptr || fsi == nullptr)
       return false;
-    int i = 0;
+    size_t i = 0;
     for (; i < prev_fsi->kerned_unichar_ids.size(); ++i) {
       if (prev_fsi->kerned_unichar_ids[i] == uch_id)
         break;

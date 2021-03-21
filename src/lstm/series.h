@@ -36,8 +36,8 @@ public:
 
   std::string spec() const override {
     std::string spec("[");
-    for (int i = 0; i < stack_.size(); ++i)
-      spec += stack_[i]->spec();
+    for (auto &it : stack_)
+      spec += it->spec();
     spec += "]";
     return spec;
   }

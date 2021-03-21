@@ -2,7 +2,6 @@
 // File:        parallel.h
 // Description: Runs networks in parallel on the same input.
 // Author:      Ray Smith
-// Created:     Thu May 02 08:02:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,8 +51,8 @@ public:
       if (type_ == NT_REPLICATED) {
         spec += "R" + std::to_string(stack_.size()) + "(" + stack_[0]->spec();
       } else {
-        for (int i = 0; i < stack_.size(); ++i)
-          spec += stack_[i]->spec();
+        for (auto &it : stack_)
+          spec += it->spec();
       }
       spec += ")";
     }

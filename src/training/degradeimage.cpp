@@ -197,10 +197,10 @@ Pix *PrepareDistortedPix(const Pix *pix, bool perspective, bool invert, bool whi
   if (perspective)
     GeneratePerspectiveDistortion(0, 0, randomizer, &distorted, boxes);
   if (boxes != nullptr) {
-    for (int b = 0; b < boxes->size(); ++b) {
-      (*boxes)[b].scale(1.0f / box_reduction);
-      if ((*boxes)[b].width() <= 0)
-        (*boxes)[b].set_right((*boxes)[b].left() + 1);
+    for (auto &b : *boxes) {
+      b.scale(1.0f / box_reduction);
+      if (b.width() <= 0)
+        b.set_right(b.left() + 1);
     }
   }
   if (invert && randomizer->SignedRand(1.0) < -0)
@@ -232,16 +232,16 @@ void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Pix
   }
   if (boxes != nullptr) {
     // Transform the boxes.
-    for (int b = 0; b < boxes->size(); ++b) {
+    for (auto &b : *boxes) {
       int x1, y1, x2, y2;
-      const TBOX &box = (*boxes)[b];
+      const TBOX &box = b;
       projectiveXformSampledPt(box_coeffs, box.left(), height - box.top(), &x1, &y1);
       projectiveXformSampledPt(box_coeffs, box.right(), height - box.bottom(), &x2, &y2);
       TBOX new_box1(x1, height - y2, x2, height - y1);
       projectiveXformSampledPt(box_coeffs, box.left(), height - box.bottom(), &x1, &y1);
       projectiveXformSampledPt(box_coeffs, box.right(), height - box.top(), &x2, &y2);
       TBOX new_box2(x1, height - y1, x2, height - y2);
-      (*boxes)[b] = new_box1.bounding_union(new_box2);
+      b = new_box1.bounding_union(new_box2);
     }
   }
   free(im_coeffs);
