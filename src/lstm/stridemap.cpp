@@ -24,12 +24,14 @@ namespace tesseract {
 bool StrideMap::Index::IsValid() const {
   // Cheap check first.
   for (int index : indices_) {
-    if (index < 0)
+    if (index < 0) {
       return false;
+    }
   }
   for (int d = 0; d < FD_DIMSIZE; ++d) {
-    if (indices_[d] > MaxIndexOfDim(static_cast<FlexDimensions>(d)))
+    if (indices_[d] > MaxIndexOfDim(static_cast<FlexDimensions>(d))) {
       return false;
+    }
   }
   return true;
 }
@@ -43,17 +45,20 @@ bool StrideMap::Index::IsLast(FlexDimensions dimension) const {
 // maximum index for dimension dim.
 int StrideMap::Index::MaxIndexOfDim(FlexDimensions dim) const {
   int max_index = stride_map_->shape_[dim] - 1;
-  if (dim == FD_BATCH)
+  if (dim == FD_BATCH) {
     return max_index;
+  }
   assert(0 <= indices_[FD_BATCH]);
   const size_t batch = indices_[FD_BATCH];
   if (dim == FD_HEIGHT) {
-    if (batch >= stride_map_->heights_.size() || stride_map_->heights_[batch] > max_index)
+    if (batch >= stride_map_->heights_.size() || stride_map_->heights_[batch] > max_index) {
       return max_index;
+    }
     return stride_map_->heights_[batch] - 1;
   }
-  if (batch >= stride_map_->widths_.size() || stride_map_->widths_[batch] > max_index)
+  if (batch >= stride_map_->widths_.size() || stride_map_->widths_[batch] > max_index) {
     return max_index;
+  }
   return stride_map_->widths_[batch] - 1;
 }
 
@@ -131,10 +136,12 @@ void StrideMap::SetStride(const std::vector<std::pair<int, int>> &h_w_pairs) {
     int width = hw.second;
     heights_.push_back(height);
     widths_.push_back(width);
-    if (height > max_height)
+    if (height > max_height) {
       max_height = height;
-    if (width > max_width)
+    }
+    if (width > max_width) {
       max_width = width;
+    }
   }
   shape_[FD_BATCH] = heights_.size();
   shape_[FD_HEIGHT] = max_height;
@@ -144,10 +151,12 @@ void StrideMap::SetStride(const std::vector<std::pair<int, int>> &h_w_pairs) {
 
 // Scales width and height dimensions by the given factors.
 void StrideMap::ScaleXY(int x_factor, int y_factor) {
-  for (int &height : heights_)
+  for (int &height : heights_) {
     height /= y_factor;
-  for (int &width : widths_)
+  }
+  for (int &width : widths_) {
     width /= x_factor;
+  }
   shape_[FD_HEIGHT] /= y_factor;
   shape_[FD_WIDTH] /= x_factor;
   ComputeTIncrements();

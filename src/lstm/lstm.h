@@ -57,16 +57,18 @@ public:
 
   std::string spec() const override {
     std::string spec;
-    if (type_ == NT_LSTM)
+    if (type_ == NT_LSTM) {
       spec += "Lfx" + std::to_string(ns_);
-    else if (type_ == NT_LSTM_SUMMARY)
+    } else if (type_ == NT_LSTM_SUMMARY) {
       spec += "Lfxs" + std::to_string(ns_);
-    else if (type_ == NT_LSTM_SOFTMAX)
+    } else if (type_ == NT_LSTM_SOFTMAX) {
       spec += "LS" + std::to_string(ns_);
-    else if (type_ == NT_LSTM_SOFTMAX_ENCODED)
+    } else if (type_ == NT_LSTM_SOFTMAX_ENCODED) {
       spec += "LE" + std::to_string(ns_);
-    if (softmax_ != nullptr)
+    }
+    if (softmax_ != nullptr) {
       spec += softmax_->spec();
+    }
     return spec;
   }
 

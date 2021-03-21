@@ -45,8 +45,9 @@ MFOUTLINE ConvertOutline(TESSLINE *outline) {
   EDGEPT *StartPoint;
   EDGEPT *NextPoint;
 
-  if (outline == nullptr || outline->loop == nullptr)
+  if (outline == nullptr || outline->loop == nullptr) {
     return MFOutline;
+  }
 
   StartPoint = outline->loop;
   EdgePoint = StartPoint;
@@ -65,8 +66,9 @@ MFOUTLINE ConvertOutline(TESSLINE *outline) {
     EdgePoint = NextPoint;
   } while (EdgePoint != StartPoint);
 
-  if (MFOutline != nullptr)
+  if (MFOutline != nullptr) {
     MakeOutlineCircular(MFOutline);
+  }
   return MFOutline;
 }
 
@@ -83,8 +85,9 @@ LIST ConvertOutlines(TESSLINE *outline, LIST mf_outlines, OUTLINETYPE outline_ty
 
   while (outline != nullptr) {
     mf_outline = ConvertOutline(outline);
-    if (mf_outline != nullptr)
+    if (mf_outline != nullptr) {
       mf_outlines = push(mf_outlines, mf_outline);
+    }
     outline = outline->next;
   }
   return mf_outlines;
@@ -107,8 +110,9 @@ void FindDirectionChanges(MFOUTLINE Outline, float MinSlope, float MaxSlope) {
   MFEDGEPT *Last;
   MFOUTLINE EdgePoint;
 
-  if (DegenerateOutline(Outline))
+  if (DegenerateOutline(Outline)) {
     return;
+  }
 
   Last = PointAt(Outline);
   Outline = NextPointAfter(Outline);
@@ -169,8 +173,9 @@ void MarkDirectionChanges(MFOUTLINE Outline) {
   MFOUTLINE Last;
   MFOUTLINE First;
 
-  if (DegenerateOutline(Outline))
+  if (DegenerateOutline(Outline)) {
     return;
+  }
 
   First = NextDirectionChange(Outline);
   Last = First;
@@ -201,8 +206,9 @@ MFEDGEPT *NewEdgePoint() {
  */
 MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
   EdgePoint = NextPointAfter(EdgePoint);
-  while (!PointAt(EdgePoint)->ExtremityMark)
+  while (!PointAt(EdgePoint)->ExtremityMark) {
     EdgePoint = NextPointAfter(EdgePoint);
+  }
 
   return (EdgePoint);
 
@@ -221,8 +227,9 @@ MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
  * @param XOrigin   x-origin of text
  */
 void NormalizeOutline(MFOUTLINE Outline, float XOrigin) {
-  if (Outline == NIL_LIST)
+  if (Outline == NIL_LIST) {
     return;
+  }
 
   MFOUTLINE EdgePoint = Outline;
   do {
@@ -284,8 +291,9 @@ void Classify::NormalizeOutlines(LIST Outlines, float *XScale, float *YScale) {
 void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
   MFOUTLINE Current;
 
-  for (Current = Start; Current != End; Current = NextPointAfter(Current))
+  for (Current = Start; Current != End; Current = NextPointAfter(Current)) {
     PointAt(Current)->Direction = Direction;
+  }
 
   PointAt(End)->PreviousDirection = Direction;
 
@@ -302,8 +310,9 @@ void CharNormalizeOutline(MFOUTLINE Outline, const DENORM &cn_denorm) {
   MFOUTLINE First, Current;
   MFEDGEPT *CurrentPoint;
 
-  if (Outline == NIL_LIST)
+  if (Outline == NIL_LIST) {
     return;
+  }
 
   First = Outline;
   Current = First;

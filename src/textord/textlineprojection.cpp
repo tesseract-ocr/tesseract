@@ -48,8 +48,9 @@ namespace tesseract {
 TextlineProjection::TextlineProjection(int resolution) : x_origin_(0), y_origin_(0), pix_(nullptr) {
   // The projection map should be about 100 ppi, whatever the input.
   scale_factor_ = IntCastRounded(resolution / 100.0);
-  if (scale_factor_ < 1)
+  if (scale_factor_ < 1) {
     scale_factor_ = 1;
+  }
 }
 TextlineProjection::~TextlineProjection() {
   pixDestroy(&pix_);
@@ -89,10 +90,11 @@ void TextlineProjection::PlotGradedBlobs(BLOBNBOX_LIST *blobs, ScrollView *win) 
     BLOBNBOX *blob = it.data();
     const TBOX &box = blob->bounding_box();
     bool bad_box = BoxOutOfHTextline(box, nullptr, false);
-    if (blob->UniquelyVertical())
+    if (blob->UniquelyVertical()) {
       win->Pen(ScrollView::YELLOW);
-    else
+    } else {
       win->Pen(bad_box ? ScrollView::RED : ScrollView::BLUE);
+    }
     win->Rectangle(box.left(), box.bottom(), box.right(), box.top());
   }
   win->Update();
@@ -134,12 +136,13 @@ void TextlineProjection::DisplayProjection() const {
     for (int x = 0; x < width; ++x) {
       int pixel = GET_DATA_BYTE(src_data, x);
       l_uint32 result;
-      if (pixel <= 17)
+      if (pixel <= 17) {
         composeRGBPixel(0, 0, pixel * 15, &result);
-      else if (pixel <= 145)
+      } else if (pixel <= 145) {
         composeRGBPixel(0, (pixel - 17) * 2, 255, &result);
-      else
+      } else {
         composeRGBPixel((pixel - 145) * 2, 255, 255, &result);
+      }
       col_data[x] = result;
     }
   }
@@ -271,8 +274,9 @@ int TextlineProjection::VerticalDistance(bool debug, int x, int y1, int y2) cons
   x = ImageXToProjectionX(x);
   y1 = ImageYToProjectionY(y1);
   y2 = ImageYToProjectionY(y2);
-  if (y1 == y2)
+  if (y1 == y2) {
     return 0;
+  }
   int wpl = pixGetWpl(pix_);
   int step = y1 < y2 ? 1 : -1;
   uint32_t *data = pixGetData(pix_) + y1 * wpl;
@@ -283,14 +287,16 @@ int TextlineProjection::VerticalDistance(bool debug, int x, int y1, int y2) cons
   for (int y = y1; y != y2; y += step) {
     data += wpl;
     int pixel = GET_DATA_BYTE(data, x);
-    if (debug)
+    if (debug) {
       tprintf("At (%d,%d), pix = %d, prev=%d\n", x, y + step, pixel, prev_pixel);
-    if (pixel < prev_pixel)
+    }
+    if (pixel < prev_pixel) {
       distance += kWrongWayPenalty;
-    else if (pixel > prev_pixel)
+    } else if (pixel > prev_pixel) {
       ++right_way_steps;
-    else
+    } else {
       ++distance;
+    }
     prev_pixel = pixel;
   }
   return distance * scale_factor_ + right_way_steps * scale_factor_ / kWrongWayPenalty;
@@ -302,8 +308,9 @@ int TextlineProjection::HorizontalDistance(bool debug, int x1, int x2, int y) co
   x1 = ImageXToProjectionX(x1);
   x2 = ImageXToProjectionX(x2);
   y = ImageYToProjectionY(y);
-  if (x1 == x2)
+  if (x1 == x2) {
     return 0;
+  }
   int wpl = pixGetWpl(pix_);
   int step = x1 < x2 ? 1 : -1;
   uint32_t *data = pixGetData(pix_) + y * wpl;
@@ -312,14 +319,16 @@ int TextlineProjection::HorizontalDistance(bool debug, int x1, int x2, int y) co
   int right_way_steps = 0;
   for (int x = x1; x != x2; x += step) {
     int pixel = GET_DATA_BYTE(data, x + step);
-    if (debug)
+    if (debug) {
       tprintf("At (%d,%d), pix = %d, prev=%d\n", x + step, y, pixel, prev_pixel);
-    if (pixel < prev_pixel)
+    }
+    if (pixel < prev_pixel) {
       distance += kWrongWayPenalty;
-    else if (pixel > prev_pixel)
+    } else if (pixel > prev_pixel) {
       ++right_way_steps;
-    else
+    } else {
       ++distance;
+    }
     prev_pixel = pixel;
   }
   return distance * scale_factor_ + right_way_steps * scale_factor_ / kWrongWayPenalty;
@@ -335,12 +344,14 @@ bool TextlineProjection::BoxOutOfHTextline(const TBOX &box, const DENORM *denorm
   EvaluateBoxInternal(box, denorm, debug, &grad1, &grad2, nullptr, nullptr);
   int worst_result = std::min(grad1, grad2);
   int total_result = grad1 + grad2;
-  if (total_result >= 6)
+  if (total_result >= 6) {
     return false; // Strongly in textline.
+  }
   // Medium strength: if either gradient is negative, it is likely outside
   // the body of the textline.
-  if (worst_result < 0)
+  if (worst_result < 0) {
     return true;
+  }
   return false;
 }
 
@@ -351,8 +362,9 @@ bool TextlineProjection::BoxOutOfHTextline(const TBOX &box, const DENORM *denorm
 // with a positive value for horizontal and a negative value for vertical.
 int TextlineProjection::EvaluateColPartition(const ColPartition &part, const DENORM *denorm,
                                              bool debug) const {
-  if (part.IsSingleton())
+  if (part.IsSingleton()) {
     return EvaluateBox(part.bounding_box(), denorm, debug);
+  }
   // Test vertical orientation.
   TBOX box = part.bounding_box();
   // Use the partition median for left/right.
@@ -451,13 +463,15 @@ int TextlineProjection::BestMeanGradientInRow(const DENORM *denorm, int16_t min_
   upper = MeanPixelsInLineSegment(denorm, -1, start_pt, end_pt);
   lower = MeanPixelsInLineSegment(denorm, 3, start_pt, end_pt);
   int gradient = lower - upper;
-  if ((gradient > best_gradient) == best_is_max)
+  if ((gradient > best_gradient) == best_is_max) {
     best_gradient = gradient;
+  }
   upper = MeanPixelsInLineSegment(denorm, -3, start_pt, end_pt);
   lower = MeanPixelsInLineSegment(denorm, 1, start_pt, end_pt);
   gradient = lower - upper;
-  if ((gradient > best_gradient) == best_is_max)
+  if ((gradient > best_gradient) == best_is_max) {
     best_gradient = gradient;
+  }
   return best_gradient;
 }
 
@@ -477,13 +491,15 @@ int TextlineProjection::BestMeanGradientInColumn(const DENORM *denorm, int16_t x
   left = MeanPixelsInLineSegment(denorm, -1, start_pt, end_pt);
   right = MeanPixelsInLineSegment(denorm, 3, start_pt, end_pt);
   int gradient = right - left;
-  if ((gradient > best_gradient) == best_is_max)
+  if ((gradient > best_gradient) == best_is_max) {
     best_gradient = gradient;
+  }
   left = MeanPixelsInLineSegment(denorm, -3, start_pt, end_pt);
   right = MeanPixelsInLineSegment(denorm, 1, start_pt, end_pt);
   gradient = right - left;
-  if ((gradient > best_gradient) == best_is_max)
+  if ((gradient > best_gradient) == best_is_max) {
     best_gradient = gradient;
+  }
   return best_gradient;
 }
 
@@ -510,8 +526,9 @@ int TextlineProjection::MeanPixelsInLineSegment(const DENORM *denorm, int offset
   int x_delta = end_pt.x - start_pt.x;
   int y_delta = end_pt.y - start_pt.y;
   if (abs(x_delta) >= abs(y_delta)) {
-    if (x_delta == 0)
+    if (x_delta == 0) {
       return 0;
+    }
     // Horizontal line. Add the offset vertically.
     int x_step = x_delta > 0 ? 1 : -1;
     // Correct offset for rotation, keeping it anti-clockwise of the delta.
@@ -584,21 +601,25 @@ static void TruncateBoxToMissNonText(int x_middle, int y_middle, bool split_on_x
   if (split_on_x) {
     box1.set_right(x_middle);
     im_box = BoundsWithinBox(nontext_map, box1);
-    if (!im_box.null_box())
+    if (!im_box.null_box()) {
       box1.set_left(im_box.right());
+    }
     box2.set_left(x_middle);
     im_box = BoundsWithinBox(nontext_map, box2);
-    if (!im_box.null_box())
+    if (!im_box.null_box()) {
       box2.set_right(im_box.left());
+    }
   } else {
     box1.set_bottom(y_middle);
     im_box = BoundsWithinBox(nontext_map, box1);
-    if (!im_box.null_box())
+    if (!im_box.null_box()) {
       box1.set_top(im_box.bottom());
+    }
     box2.set_top(y_middle);
     im_box = BoundsWithinBox(nontext_map, box2);
-    if (!im_box.null_box())
+    if (!im_box.null_box()) {
       box2.set_bottom(im_box.top());
+    }
   }
   box1 += box2;
   *bbox = box1;
@@ -616,8 +637,9 @@ void TextlineProjection::IncrementRectangle8Bit(const TBOX &box) {
   for (int y = scaled_top; y <= scaled_bottom; ++y) {
     for (int x = scaled_left; x <= scaled_right; ++x) {
       int pixel = GET_DATA_BYTE(data, x);
-      if (pixel < 255)
+      if (pixel < 255) {
         SET_DATA_BYTE(data, x, pixel + 1);
+      }
     }
     data += wpl;
   }
@@ -640,8 +662,9 @@ void TextlineProjection::ProjectBlobs(BLOBNBOX_LIST *blobs, const FCOORD &rotati
     // Rotate to match the nontext_map.
     bbox.rotate(rotation);
     middle.rotate(rotation);
-    if (rotation.x() == 0.0f)
+    if (rotation.x() == 0.0f) {
       spreading_horizontally = !spreading_horizontally;
+    }
     // Clip to the image before applying the increments.
     bbox &= nontext_map_box; // This is in-place box intersection.
     // Check for image pixels before spreading.

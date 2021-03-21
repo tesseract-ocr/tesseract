@@ -51,10 +51,11 @@ DENORM &DENORM::operator=(const DENORM &src) {
   predecessor_ = src.predecessor_;
   pix_ = src.pix_;
   block_ = src.block_;
-  if (src.rotation_ == nullptr)
+  if (src.rotation_ == nullptr) {
     rotation_ = nullptr;
-  else
+  } else {
     rotation_ = new FCOORD(*src.rotation_);
+  }
   x_origin_ = src.x_origin_;
   y_origin_ = src.y_origin_;
   x_scale_ = src.x_scale_;
@@ -99,10 +100,11 @@ void DENORM::SetupNormalization(const BLOCK *block, const FCOORD *rotation,
                                 float final_yshift) {
   Clear();
   block_ = block;
-  if (rotation == nullptr)
+  if (rotation == nullptr) {
     rotation_ = nullptr;
-  else
+  } else {
     rotation_ = new FCOORD(*rotation);
+  }
   predecessor_ = predecessor;
   x_origin_ = x_origin;
   y_origin_ = y_origin;
@@ -185,15 +187,17 @@ static void ComputeRunlengthImage(const TBOX &box,
       int x_edge = ClipToRange(x_coord, 0, width);
       int gap = x_edge - x;
       while (x < x_edge) {
-        if (gap < (*minruns)(x, iy))
+        if (gap < (*minruns)(x, iy)) {
           (*minruns)(x, iy) = gap;
+        }
         ++x;
       }
     }
     int gap = width - x;
     while (x < width) {
-      if (gap < (*minruns)(x, iy))
+      if (gap < (*minruns)(x, iy)) {
         (*minruns)(x, iy) = gap;
+      }
       ++x;
     }
   }
@@ -228,8 +232,9 @@ static void ComputeEdgeDensityProfiles(const TBOX &box, const GENERIC_2D_ARRAY<i
   for (int iy = 0; iy < height; ++iy) {
     for (int ix = 0; ix < width; ++ix) {
       int run = minruns(ix, iy);
-      if (run == 0)
+      if (run == 0) {
         run = 1;
+      }
       float density = 1.0f / run;
       hx[ix] += density;
       hy[iy] += density;
@@ -315,8 +320,9 @@ void DENORM::LocalNormTransform(const FCOORD &pt, FCOORD *transformed) const {
   } else {
     translated.set_x(translated.x() * x_scale_);
     translated.set_y(translated.y() * y_scale_);
-    if (rotation_ != nullptr)
+    if (rotation_ != nullptr) {
       translated.rotate(*rotation_);
+    }
   }
   transformed->set_x(translated.x() + final_xshift_);
   transformed->set_y(translated.y() + final_yshift_);
@@ -411,10 +417,12 @@ void DENORM::DenormTransform(const DENORM *last_denorm, const FCOORD &pt, FCOORD
 void DENORM::LocalNormBlob(TBLOB *blob) const {
   ICOORD translation(-IntCastRounded(x_origin_), -IntCastRounded(y_origin_));
   blob->Move(translation);
-  if (y_scale_ != 1.0f)
+  if (y_scale_ != 1.0f) {
     blob->Scale(y_scale_);
-  if (rotation_ != nullptr)
+  }
+  if (rotation_ != nullptr) {
     blob->Rotate(*rotation_);
+  }
   translation.set_x(IntCastRounded(final_xshift_));
   translation.set_y(IntCastRounded(final_yshift_));
   blob->Move(translation);
@@ -431,8 +439,9 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET &unicharset, const TB
   *min_xht = 0.0f;
   *max_xht = FLT_MAX;
 
-  if (!unicharset.top_bottom_useful())
+  if (!unicharset.top_bottom_useful()) {
     return;
+  }
 
   // Clip the top and bottom to the limit of normalized feature space.
   int top = ClipToRange<int>(bbox.top(), 0, kBlnCellHeight - 1);
@@ -441,8 +450,9 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET &unicharset, const TB
   double tolerance = y_scale();
   // If the script doesn't have upper and lower-case characters, widen the
   // tolerance to allow sloppy baseline/x-height estimates.
-  if (!unicharset.script_has_upper_lower())
+  if (!unicharset.script_has_upper_lower()) {
     tolerance = y_scale() * kSloppyTolerance;
+  }
 
   int min_bottom, max_bottom, min_top, max_top;
   unicharset.get_top_bottom(unichar_id, &min_bottom, &max_bottom, &min_top, &max_top);
@@ -479,8 +489,9 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET &unicharset, const TB
   // and to allow the large caps in small caps to accept the xheight of the
   // small caps, add kBlnBaselineOffset to chars with a maximum max, and have
   // a top already at a significantly high position.
-  if (max_top == kBlnCellHeight - 1 && top > kBlnCellHeight - kBlnBaselineOffset / 2)
+  if (max_top == kBlnCellHeight - 1 && top > kBlnCellHeight - kBlnBaselineOffset / 2) {
     max_top += kBlnBaselineOffset;
+  }
   top -= bln_yshift;
   int height = top - kBlnBaselineOffset;
   double min_height = min_top - kBlnBaselineOffset - tolerance;
@@ -502,8 +513,9 @@ void DENORM::Print() const {
     tprintf("Pix dimensions %d x %d x %d\n", pixGetWidth(pix_), pixGetHeight(pix_),
             pixGetDepth(pix_));
   }
-  if (inverse_)
+  if (inverse_) {
     tprintf("Inverse\n");
+  }
   if (block_ && block_->re_rotation().x() != 1.0f) {
     tprintf("Block rotation %g, %g\n", block_->re_rotation().x(), block_->re_rotation().y());
   }
@@ -520,8 +532,9 @@ void DENORM::Print() const {
     tprintf("\n");
   } else {
     tprintf("Scale = (%g, %g)\n", x_scale_, y_scale_);
-    if (rotation_ != nullptr)
+    if (rotation_ != nullptr) {
       tprintf("Rotation = (%g, %g)\n", rotation_->x(), rotation_->y());
+    }
   }
   tprintf("Final Origin = (%g, %g)\n", final_xshift_, final_xshift_);
   if (predecessor_ != nullptr) {

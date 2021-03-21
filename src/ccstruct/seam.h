@@ -71,15 +71,17 @@ public:
     location_ += other.location_;
     location_ /= 2;
 
-    for (uint8_t s = 0; s < other.num_splits_ && num_splits_ < kMaxNumSplits; ++s)
+    for (uint8_t s = 0; s < other.num_splits_ && num_splits_ < kMaxNumSplits; ++s) {
       splits_[num_splits_++] = other.splits_[s];
+    }
   }
 
   // Returns true if the given blob contains all splits of *this SEAM.
   bool ContainedByBlob(const TBLOB &blob) const {
     for (int s = 0; s < num_splits_; ++s) {
-      if (!splits_[s].ContainedByBlob(blob))
+      if (!splits_[s].ContainedByBlob(blob)) {
         return false;
+      }
     }
     return true;
   }
@@ -88,17 +90,20 @@ public:
   // the EDGEPT pointer, not the coordinates.
   bool UsesPoint(const EDGEPT *point) const {
     for (int s = 0; s < num_splits_; ++s) {
-      if (splits_[s].UsesPoint(point))
+      if (splits_[s].UsesPoint(point)) {
         return true;
+      }
     }
     return false;
   }
   // Returns true if *this and other share any common point, by coordinates.
   bool SharesPosition(const SEAM &other) const {
     for (int s = 0; s < num_splits_; ++s) {
-      for (int t = 0; t < other.num_splits_; ++t)
-        if (splits_[s].SharesPosition(other.splits_[t]))
+      for (int t = 0; t < other.num_splits_; ++t) {
+        if (splits_[s].SharesPosition(other.splits_[t])) {
           return true;
+        }
+      }
     }
     return false;
   }
@@ -108,8 +113,9 @@ public:
       TBOX split1_box = splits_[s].bounding_box();
       for (int t = 0; t < other.num_splits_; ++t) {
         TBOX split2_box = other.splits_[t].bounding_box();
-        if (split1_box.y_overlap(split2_box))
+        if (split1_box.y_overlap(split2_box)) {
           return true;
+        }
       }
     }
     return false;

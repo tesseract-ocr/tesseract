@@ -118,10 +118,12 @@ protected:
   }
 
   inline float ComputeAdjustment(int num_problems, float penalty) {
-    if (num_problems == 0)
+    if (num_problems == 0) {
       return 0.0f;
-    if (num_problems == 1)
+    }
+    if (num_problems == 1) {
       return penalty;
+    }
     return (penalty + (language_model_penalty_increment * static_cast<float>(num_problems - 1)));
   }
 
@@ -268,12 +270,14 @@ protected:
   // words. In such languages we can not do dictionary-driven path pruning,
   // so paths with non-empty dawg_info are considered prunable.
   inline bool PrunablePath(const ViterbiStateEntry &vse) {
-    if (vse.top_choice_flags)
+    if (vse.top_choice_flags) {
       return false;
+    }
     if (vse.dawg_info != nullptr &&
         (vse.dawg_info->permuter == SYSTEM_DAWG_PERM || vse.dawg_info->permuter == USER_DAWG_PERM ||
-         vse.dawg_info->permuter == FREQ_DAWG_PERM))
+         vse.dawg_info->permuter == FREQ_DAWG_PERM)) {
       return false;
+    }
     return true;
   }
 

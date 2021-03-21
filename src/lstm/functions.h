@@ -41,12 +41,14 @@ extern const double LogisticTable[];
 
 // Non-linearity (sigmoid) functions with cache tables and clipping.
 inline double Tanh(double x) {
-  if (x < 0.0)
+  if (x < 0.0) {
     return -Tanh(-x);
+  }
   x *= kScaleFactor;
   auto index = static_cast<unsigned>(x);
-  if (index >= (kTableSize - 1))
+  if (index >= (kTableSize - 1)) {
     return 1.0;
+  }
   double tanh_i0 = TanhTable[index];
   double tanh_i1 = TanhTable[index + 1];
   // Linear interpolation.
@@ -54,12 +56,14 @@ inline double Tanh(double x) {
 }
 
 inline double Logistic(double x) {
-  if (x < 0.0)
+  if (x < 0.0) {
     return 1.0 - Logistic(-x);
+  }
   x *= kScaleFactor;
   auto index = static_cast<unsigned>(x);
-  if (index >= (kTableSize - 1))
+  if (index >= (kTableSize - 1)) {
     return 1.0;
+  }
   double l0 = LogisticTable[index];
   double l1 = LogisticTable[index + 1];
   // Linear interpolation.
@@ -79,10 +83,12 @@ struct FPrime {
 };
 struct ClipFFunc {
   inline double operator()(double x) const {
-    if (x <= 0.0)
+    if (x <= 0.0) {
       return 0.0;
-    if (x >= 1.0)
+    }
+    if (x >= 1.0) {
       return 1.0;
+    }
     return x;
   }
 };
@@ -93,8 +99,9 @@ struct ClipFPrime {
 };
 struct Relu {
   inline double operator()(double x) const {
-    if (x <= 0.0)
+    if (x <= 0.0) {
       return 0.0;
+    }
     return x;
   }
 };
@@ -115,10 +122,12 @@ struct GPrime {
 };
 struct ClipGFunc {
   inline double operator()(double x) const {
-    if (x <= -1.0)
+    if (x <= -1.0) {
       return -1.0;
-    if (x >= 1.0)
+    }
+    if (x >= 1.0) {
       return 1.0;
+    }
     return x;
   }
 };
@@ -169,16 +178,18 @@ inline void FuncMultiply(const double *u, const double *v, int n, double *out) {
 // Applies the Softmax function in-place to inout, of size n.
 template <typename T>
 inline void SoftmaxInPlace(int n, T *inout) {
-  if (n <= 0)
+  if (n <= 0) {
     return;
+  }
   // A limit on the negative range input to exp to guarantee non-zero output.
   const T kMaxSoftmaxActivation = 86.0f;
 
   T max_output = inout[0];
   for (int i = 1; i < n; i++) {
     T output = inout[i];
-    if (output > max_output)
+    if (output > max_output) {
       max_output = output;
+    }
   }
   T prob_total = 0.0;
   for (int i = 0; i < n; i++) {
@@ -188,8 +199,9 @@ inline void SoftmaxInPlace(int n, T *inout) {
     inout[i] = prob;
   }
   if (prob_total > 0.0) {
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n; i++) {
       inout[i] /= prob_total;
+    }
   }
 }
 
@@ -200,14 +212,16 @@ inline void CopyVector(int n, const double *src, double *dest) {
 
 // Adds n values of the given src vector to dest.
 inline void AccumulateVector(int n, const double *src, double *dest) {
-  for (int i = 0; i < n; ++i)
+  for (int i = 0; i < n; ++i) {
     dest[i] += src[i];
+  }
 }
 
 // Multiplies n values of inout in-place element-wise by the given src vector.
 inline void MultiplyVectorsInPlace(int n, const double *src, double *inout) {
-  for (int i = 0; i < n; ++i)
+  for (int i = 0; i < n; ++i) {
     inout[i] *= src[i];
+  }
 }
 
 // Multiplies n values of u by v, element-wise, accumulating to out.
@@ -234,15 +248,17 @@ inline void ZeroVector(int n, T *vec) {
 // Clips the given vector vec, of size n to [lower, upper].
 template <typename T>
 inline void ClipVector(int n, T lower, T upper, T *vec) {
-  for (int i = 0; i < n; ++i)
+  for (int i = 0; i < n; ++i) {
     vec[i] = ClipToRange(vec[i], lower, upper);
+  }
 }
 
 // Converts the given n-vector to a binary encoding of the maximum value,
 // encoded as vector of nf binary values.
 inline void CodeInBinary(int n, int nf, double *vec) {
-  if (nf <= 0 || n < nf)
+  if (nf <= 0 || n < nf) {
     return;
+  }
   int index = 0;
   double best_score = vec[0];
   for (int i = 1; i < n; ++i) {

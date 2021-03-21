@@ -89,14 +89,16 @@ extern BOOL_VAR_H(textord_debug_blob, false, "Print test blob information");
 
 inline void get_min_max_xheight(int block_linesize, int *min_height, int *max_height) {
   *min_height = static_cast<int32_t>(floor(block_linesize * textord_minxh));
-  if (*min_height < textord_min_xheight)
+  if (*min_height < textord_min_xheight) {
     *min_height = textord_min_xheight;
+  }
   *max_height = static_cast<int32_t>(ceil(block_linesize * 3.0));
 }
 
 inline ROW_CATEGORY get_row_category(const TO_ROW *row) {
-  if (row->xheight <= 0)
+  if (row->xheight <= 0) {
     return ROW_INVALID;
+  }
   return (row->ascrise > 0) ? ROW_ASCENDERS_FOUND
                             : (row->descdrop != 0) ? ROW_DESCENDERS_FOUND : ROW_UNKNOWN;
 }

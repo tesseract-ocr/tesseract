@@ -46,14 +46,16 @@ void restore_underlined_blobs( // get chop points
   BLOBNBOX_IT under_it = &block->underlines;
   BLOBNBOX_IT ru_it = &residual_underlines;
 
-  if (block->get_rows()->empty())
+  if (block->get_rows()->empty()) {
     return; // Don't crash if there are no rows.
+  }
   for (under_it.mark_cycle_pt(); !under_it.cycled_list(); under_it.forward()) {
     u_line = under_it.extract();
     blob_box = u_line->bounding_box();
     row = most_overlapping_row(block->get_rows(), u_line);
-    if (row == nullptr)
+    if (row == nullptr) {
       return; // Don't crash if there is no row.
+    }
     find_underlined_blobs(u_line, &row->baseline, row->xheight,
                           row->xheight * textord_underline_offset, &chop_cells);
     cell_it.set_to_list(&chop_cells);
@@ -78,8 +80,9 @@ void restore_underlined_blobs( // get chop points
     if (!right_coutlines.empty()) {
       split_to_blob(nullptr, blob_box.right(), textord_fp_chop_error + 0.5, &left_coutlines,
                     &right_coutlines);
-      if (!left_coutlines.empty())
+      if (!left_coutlines.empty()) {
         ru_it.add_after_then_move(new BLOBNBOX(new C_BLOB(&left_coutlines)));
+      }
     }
     if (u_line != nullptr) {
       delete u_line->cblob();
@@ -113,8 +116,9 @@ TO_ROW *most_overlapping_row( // find best row
 
   best_row = nullptr;
   bestover = static_cast<float>(-INT32_MAX);
-  if (row_it.empty())
+  if (row_it.empty()) {
     return nullptr;
+  }
   row = row_it.data();
   row_it.mark_cycle_pt();
   while (row->baseline.y(x) + row->descdrop > blob->bounding_box().top() && !row_it.cycled_list()) {
@@ -126,12 +130,14 @@ TO_ROW *most_overlapping_row( // find best row
   while (row->baseline.y(x) + row->xheight + row->ascrise >= blob->bounding_box().bottom() &&
          !row_it.cycled_list()) {
     overlap = row->baseline.y(x) + row->xheight + row->ascrise;
-    if (blob->bounding_box().top() < overlap)
+    if (blob->bounding_box().top() < overlap) {
       overlap = blob->bounding_box().top();
-    if (blob->bounding_box().bottom() > row->baseline.y(x) + row->descdrop)
+    }
+    if (blob->bounding_box().bottom() > row->baseline.y(x) + row->descdrop) {
       overlap -= blob->bounding_box().bottom();
-    else
+    } else {
       overlap -= row->baseline.y(x) + row->descdrop;
+    }
     if (overlap > bestover) {
       bestover = overlap;
       best_row = row;
@@ -140,8 +146,9 @@ TO_ROW *most_overlapping_row( // find best row
     row = row_it.data();
   }
   if (bestover < 0 &&
-      row->baseline.y(x) + row->xheight + row->ascrise - blob->bounding_box().bottom() > bestover)
+      row->baseline.y(x) + row->xheight + row->ascrise - blob->bounding_box().bottom() > bestover) {
     best_row = row;
+  }
   return best_row;
 }
 
@@ -178,8 +185,9 @@ void find_underlined_blobs(    // get chop points
 
   for (x = blob_box.left(); x < blob_box.right(); x++) {
     if (middle_proj.pile_count(x) > 0) {
-      for (y = x + 1; y < blob_box.right() && middle_proj.pile_count(y) > 0; y++)
+      for (y = x + 1; y < blob_box.right() && middle_proj.pile_count(y) > 0; y++) {
         ;
+      }
       blob_chop = ICOORD(x, y);
       cell_it.add_after_then_move(new ICOORDELT(blob_chop));
       x = y;
@@ -222,10 +230,12 @@ void vertical_cunderline_projection( // project outlines
         if (pos.y() >= upper_y) {
           middle_proj->add(pos.x(), lower_y - upper_y);
           upper_proj->add(pos.x(), upper_y - pos.y());
-        } else
+        } else {
           middle_proj->add(pos.x(), lower_y - pos.y());
-      } else
+        }
+      } else {
         lower_proj->add(pos.x(), -pos.y());
+      }
     } else if (step.x() < 0) {
       lower_y = static_cast<int16_t>(floor(baseline->y(pos.x() - 1) + baseline_offset + 0.5));
       upper_y =
@@ -235,10 +245,12 @@ void vertical_cunderline_projection( // project outlines
         if (pos.y() >= upper_y) {
           middle_proj->add(pos.x() - 1, upper_y - lower_y);
           upper_proj->add(pos.x() - 1, pos.y() - upper_y);
-        } else
+        } else {
           middle_proj->add(pos.x() - 1, pos.y() - lower_y);
-      } else
+        }
+      } else {
         lower_proj->add(pos.x() - 1, pos.y());
+      }
     }
     pos += step;
   }

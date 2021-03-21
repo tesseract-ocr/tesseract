@@ -72,16 +72,18 @@ double DetLineFit::Fit(int skip_first, int skip_last, ICOORD *pt1, ICOORD *pt2) 
   // Count the points and find the first and last kNumEndPoints.
   int pt_count = pts_.size();
   ICOORD *starts[kNumEndPoints];
-  if (skip_first >= pt_count)
+  if (skip_first >= pt_count) {
     skip_first = pt_count - 1;
+  }
   int start_count = 0;
   int end_i = std::min(skip_first + kNumEndPoints, pt_count);
   for (int i = skip_first; i < end_i; ++i) {
     starts[start_count++] = &pts_[i].pt;
   }
   ICOORD *ends[kNumEndPoints];
-  if (skip_last >= pt_count)
+  if (skip_last >= pt_count) {
     skip_last = pt_count - 1;
+  }
   int end_count = 0;
   end_i = std::max(0, pt_count - kNumEndPoints - skip_last);
   for (int i = pt_count - 1 - skip_last; i >= end_i; --i) {
@@ -90,10 +92,11 @@ double DetLineFit::Fit(int skip_first, int skip_last, ICOORD *pt1, ICOORD *pt2) 
   // 1 or 2 points need special treatment.
   if (pt_count <= 2) {
     *pt1 = *starts[0];
-    if (pt_count > 1)
+    if (pt_count > 1) {
       *pt2 = *ends[0];
-    else
+    } else {
       *pt2 = *pt1;
+    }
     return 0.0;
   }
   // Although with between 2 and 2*kNumEndPoints-1 points, there will be
@@ -213,12 +216,14 @@ double DetLineFit::EvaluateLineFit() {
 // and returns the squared upper-quartile error distance.
 double DetLineFit::ComputeUpperQuartileError() {
   int num_errors = distances_.size();
-  if (num_errors == 0)
+  if (num_errors == 0) {
     return 0.0;
+  }
   // Get the absolute values of the errors.
   for (int i = 0; i < num_errors; ++i) {
-    if (distances_[i].key() < 0)
+    if (distances_[i].key() < 0) {
       distances_[i].key() = -distances_[i].key();
+    }
   }
   // Now get the upper quartile distance.
   auto index = 3 * num_errors / 4;
@@ -235,8 +240,9 @@ int DetLineFit::NumberOfMisfittedPoints(double threshold) const {
   int num_dists = distances_.size();
   // Get the absolute values of the errors.
   for (int i = 0; i < num_dists; ++i) {
-    if (distances_[i].key() > threshold)
+    if (distances_[i].key() > threshold) {
       ++num_misfits;
+    }
   }
   return num_misfits;
 }
@@ -265,8 +271,9 @@ void DetLineFit::ComputeDistances(const ICOORD &start, const ICOORD &end) {
       // Ignore this point if it overlaps the previous one.
       int separation = abs(dot - prev_dot);
       if (separation < line_length * pts_[i].halfwidth ||
-          separation < line_length * pts_[i - 1].halfwidth)
+          separation < line_length * pts_[i - 1].halfwidth) {
         continue;
+      }
     }
     distances_.emplace_back(dist, pts_[i].pt);
     prev_abs_dist = abs_dist;
@@ -286,8 +293,9 @@ void DetLineFit::ComputeConstrainedDistances(const FCOORD &direction, double min
     FCOORD pt_vector = pt.pt;
     // Compute |line_vector||pt_vector|sin(angle between)
     double dist = direction * pt_vector;
-    if (min_dist <= dist && dist <= max_dist)
+    if (min_dist <= dist && dist <= max_dist) {
       distances_.emplace_back(dist, pt.pt);
+    }
   }
 }
 

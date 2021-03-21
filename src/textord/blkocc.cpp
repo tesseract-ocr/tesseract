@@ -74,19 +74,25 @@ bool test_underline(  // look for underlines
   }
   horizontal_cblob_projection(blob, &projection);
   desc_occ = 0;
-  for (occ = blob_box.bottom(); occ < baseline; occ++)
-    if (occ <= blob_box.top() && projection.pile_count(occ) > desc_occ)
+  for (occ = blob_box.bottom(); occ < baseline; occ++) {
+    if (occ <= blob_box.top() && projection.pile_count(occ) > desc_occ) {
       // max in region
       desc_occ = projection.pile_count(occ);
+    }
+  }
   x_occ = 0;
-  for (occ = baseline; occ <= baseline + xheight; occ++)
-    if (occ >= blob_box.bottom() && occ <= blob_box.top() && projection.pile_count(occ) > x_occ)
+  for (occ = baseline; occ <= baseline + xheight; occ++) {
+    if (occ >= blob_box.bottom() && occ <= blob_box.top() && projection.pile_count(occ) > x_occ) {
       // max in region
       x_occ = projection.pile_count(occ);
+    }
+  }
   asc_occ = 0;
-  for (occ = baseline + xheight + 1; occ <= blob_box.top(); occ++)
-    if (occ >= blob_box.bottom() && projection.pile_count(occ) > asc_occ)
+  for (occ = baseline + xheight + 1; occ <= blob_box.top(); occ++) {
+    if (occ >= blob_box.bottom() && projection.pile_count(occ) > asc_occ) {
       asc_occ = projection.pile_count(occ);
+    }
+  }
   if (testing_on) {
     tprintf("%d %d %d\n", desc_occ, x_occ, asc_occ);
   }
@@ -95,8 +101,9 @@ bool test_underline(  // look for underlines
             xheight);
     projection.print();
   }
-  if (desc_occ > x_occ + x_occ && desc_occ > blob_width * textord_underline_threshold)
+  if (desc_occ > x_occ + x_occ && desc_occ > blob_width * textord_underline_threshold) {
     return true; // real underline
+  }
   return asc_occ > x_occ + x_occ && asc_occ > blob_width * textord_underline_threshold; // overline
                                                                                         // neither
 }

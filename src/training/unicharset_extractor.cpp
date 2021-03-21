@@ -49,8 +49,9 @@ static void AddStringsToUnicharset(const std::vector<std::string> &strings, int 
                                      /*report_errors*/ true, string.c_str(), &normalized)) {
       for (const std::string &normed : normalized) {
         // normed is a UTF-8 encoded string
-        if (normed.empty() || IsUTF8Whitespace(normed.c_str()))
+        if (normed.empty() || IsUTF8Whitespace(normed.c_str())) {
           continue;
+        }
         unicharset->unichar_insert(normed.c_str());
       }
     } else {
@@ -64,8 +65,9 @@ static int Main(int argc, char **argv) {
   // Load input files
   for (int arg = 1; arg < argc; ++arg) {
     std::string file_data = tesseract::ReadFile(argv[arg]);
-    if (file_data.length() == 0)
+    if (file_data.length() == 0) {
       continue;
+    }
     std::vector<std::string> texts;
     if (ReadMemBoxes(-1, /*skip_blanks*/ true, &file_data[0],
                      /*continue_on_failure*/ false, /*boxes*/ nullptr, &texts,

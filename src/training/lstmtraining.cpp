@@ -122,8 +122,9 @@ int main(int argc, char **argv) {
     if (FLAGS_debug_network) {
       trainer.DebugNetwork();
     } else {
-      if (FLAGS_convert_to_int)
+      if (FLAGS_convert_to_int) {
         trainer.ConvertToInt();
+      }
       if (!trainer.SaveTraineddata(FLAGS_model_output.c_str())) {
         tprintf("Failed to write recognition model : %s\n", FLAGS_model_output.c_str());
       }

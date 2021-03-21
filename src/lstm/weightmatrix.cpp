@@ -51,8 +51,9 @@ static inline void MatrixDotVectorInternal(const GENERIC_2D_ARRAY<double> &w, bo
   for (int i = 0; i < num_results; ++i) {
     const double *wi = w[i];
     double total = DotProduct(wi, u, extent);
-    if (add_bias_fwd)
+    if (add_bias_fwd) {
       total += wi[extent]; // The bias value.
+    }
     v[i] = total;
   }
 }
@@ -62,8 +63,9 @@ void TransposedArray::Transpose(const GENERIC_2D_ARRAY<double> &input) {
   int width = input.dim1();
   int num_features = input.dim2();
   ResizeNoInit(num_features, width);
-  for (int t = 0; t < width; ++t)
+  for (int t = 0; t < width; ++t) {
     WriteStrided(t, input[t]);
+  }
 }
 
 // Destructor.
@@ -102,11 +104,13 @@ int WeightMatrix::RemapOutputs(const std::vector<int> &code_map) {
   std::vector<double> means(ni, 0.0);
   for (int c = 0; c < old_no; ++c) {
     const double *weights = wf_[c];
-    for (int i = 0; i < ni; ++i)
+    for (int i = 0; i < ni; ++i) {
       means[i] += weights[i];
+    }
   }
-  for (double &mean : means)
+  for (double &mean : means) {
     mean /= old_no;
+  }
   wf_.Resize(new_no, ni, 0.0);
   InitBackward();
   for (int dest = 0; dest < new_no; ++dest) {
@@ -134,13 +138,15 @@ void WeightMatrix::ConvertToInt() {
     double max_abs = 0.0;
     for (int f = 0; f < dim2; ++f) {
       double abs_val = fabs(f_line[f]);
-      if (abs_val > max_abs)
+      if (abs_val > max_abs) {
         max_abs = abs_val;
+      }
     }
     double scale = max_abs / INT8_MAX;
     scales_.push_back(scale / INT8_MAX);
-    if (scale == 0.0)
+    if (scale == 0.0) {
       scale = 1.0;
+    }
     for (int f = 0; f < dim2; ++f) {
       i_line[f] = IntCastRounded(f_line[f] / scale);
     }
@@ -162,8 +168,9 @@ void WeightMatrix::InitBackward() {
   dw_.Resize(no, ni, 0.0);
   updates_.Resize(no, ni, 0.0);
   wf_t_.Transpose(wf_);
-  if (use_adam_)
+  if (use_adam_) {
     dw_sq_sum_.Resize(no, ni, 0.0);
+  }
 }
 
 // Flag on mode to indicate that this weightmatrix uses int8_t.
@@ -180,11 +187,13 @@ bool WeightMatrix::Serialize(bool training, TFile *fp) const {
   // For backward compatibility, add kDoubleFlag to mode to indicate the doubles
   // format, without errs, so we can detect and read old format weight matrices.
   uint8_t mode = (int_mode_ ? kInt8Flag : 0) | (use_adam_ ? kAdamFlag : 0) | kDoubleFlag;
-  if (!fp->Serialize(&mode))
+  if (!fp->Serialize(&mode)) {
     return false;
+  }
   if (int_mode_) {
-    if (!wi_.Serialize(fp))
+    if (!wi_.Serialize(fp)) {
       return false;
+    }
     // The scales stored in memory have an extra factor applied to them
     // to allow faster operation. We have to remove that factor here
     // before writing to disc.
@@ -193,17 +202,22 @@ bool WeightMatrix::Serialize(bool training, TFile *fp) const {
       scale *= INT8_MAX;
     }
     uint32_t size = scales.size();
-    if (!fp->Serialize(&size))
+    if (!fp->Serialize(&size)) {
       return false;
-    if (!fp->Serialize(&scales[0], size))
+    }
+    if (!fp->Serialize(&scales[0], size)) {
       return false;
+    }
   } else {
-    if (!wf_.Serialize(fp))
+    if (!wf_.Serialize(fp)) {
       return false;
-    if (training && !updates_.Serialize(fp))
+    }
+    if (training && !updates_.Serialize(fp)) {
       return false;
-    if (training && use_adam_ && !dw_sq_sum_.Serialize(fp))
+    }
+    if (training && use_adam_ && !dw_sq_sum_.Serialize(fp)) {
       return false;
+    }
   }
   return true;
 }
@@ -212,21 +226,26 @@ bool WeightMatrix::Serialize(bool training, TFile *fp) const {
 
 bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
   uint8_t mode;
-  if (!fp->DeSerialize(&mode))
+  if (!fp->DeSerialize(&mode)) {
     return false;
+  }
   int_mode_ = (mode & kInt8Flag) != 0;
   use_adam_ = (mode & kAdamFlag) != 0;
-  if ((mode & kDoubleFlag) == 0)
+  if ((mode & kDoubleFlag) == 0) {
     return DeSerializeOld(training, fp);
+  }
   if (int_mode_) {
-    if (!wi_.DeSerialize(fp))
+    if (!wi_.DeSerialize(fp)) {
       return false;
+    }
     uint32_t size;
-    if (!fp->DeSerialize(&size))
+    if (!fp->DeSerialize(&size)) {
       return false;
+    }
     scales_.resize(size);
-    if (!fp->DeSerialize(&scales_[0], size))
+    if (!fp->DeSerialize(&scales_[0], size)) {
       return false;
+    }
     for (auto &scale : scales_) {
       scale /= INT8_MAX;
     }
@@ -236,14 +255,17 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
       scales_.resize(rounded_num_out);
     }
   } else {
-    if (!wf_.DeSerialize(fp))
+    if (!wf_.DeSerialize(fp)) {
       return false;
+    }
     if (training) {
       InitBackward();
-      if (!updates_.DeSerialize(fp))
+      if (!updates_.DeSerialize(fp)) {
         return false;
-      if (use_adam_ && !dw_sq_sum_.DeSerialize(fp))
+      }
+      if (use_adam_ && !dw_sq_sum_.DeSerialize(fp)) {
         return false;
+      }
     }
   }
   return true;
@@ -254,28 +276,33 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
 bool WeightMatrix::DeSerializeOld(bool training, TFile *fp) {
   GENERIC_2D_ARRAY<float> float_array;
   if (int_mode_) {
-    if (!wi_.DeSerialize(fp))
+    if (!wi_.DeSerialize(fp)) {
       return false;
+    }
     std::vector<float> old_scales;
-    if (!fp->DeSerialize(old_scales))
+    if (!fp->DeSerialize(old_scales)) {
       return false;
+    }
     scales_.reserve(old_scales.size());
     for (float old_scale : old_scales) {
       scales_.push_back(old_scale);
     }
   } else {
-    if (!float_array.DeSerialize(fp))
+    if (!float_array.DeSerialize(fp)) {
       return false;
+    }
     FloatToDouble(float_array, &wf_);
   }
   if (training) {
     InitBackward();
-    if (!float_array.DeSerialize(fp))
+    if (!float_array.DeSerialize(fp)) {
       return false;
+    }
     FloatToDouble(float_array, &updates_);
     // Errs was only used in int training, which is now dead.
-    if (!float_array.DeSerialize(fp))
+    if (!float_array.DeSerialize(fp)) {
       return false;
+    }
   }
   return true;
 }
@@ -347,8 +374,9 @@ void WeightMatrix::SumOuterTransposed(const TransposedArray &u, const Transposed
     }
     // The last element of v is missing, presumed 1.0f.
     double total = 0.0;
-    for (int k = 0; k < num_samples; ++k)
+    for (int k = 0; k < num_samples; ++k) {
       total += ui[k];
+    }
     dwi[num_inputs] = total;
   }
 }
@@ -371,10 +399,12 @@ void WeightMatrix::Update(float learning_rate, float momentum, float adam_beta, 
   } else {
     dw_ *= learning_rate;
     updates_ += dw_;
-    if (momentum > 0.0f)
+    if (momentum > 0.0f) {
       wf_ += updates_;
-    if (momentum >= 0.0f)
+    }
+    if (momentum >= 0.0f) {
       updates_ *= momentum;
+    }
   }
   wf_t_.Transpose(wf_);
 }
@@ -400,10 +430,11 @@ void WeightMatrix::CountAlternators(const WeightMatrix &other, double *same,
     const double *other_i = other.updates_[i];
     for (int j = 0; j < num_inputs; ++j) {
       double product = this_i[j] * other_i[j];
-      if (product < 0.0)
+      if (product < 0.0) {
         *changed -= product;
-      else
+      } else {
         *same += product;
+      }
     }
   }
 }
@@ -449,8 +480,9 @@ void WeightMatrix::FloatToDouble(const GENERIC_2D_ARRAY<float> &wf, GENERIC_2D_A
   for (int i = 0; i < dim1; ++i) {
     const float *wfi = wf[i];
     double *wdi = (*wd)[i];
-    for (int j = 0; j < dim2; ++j)
+    for (int j = 0; j < dim2; ++j) {
       wdi[j] = static_cast<double>(wfi[j]);
+    }
   }
 }
 

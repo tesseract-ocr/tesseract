@@ -62,8 +62,9 @@ static void AddBaselineCoordsTohOCR(const PageIterator *it, PageIteratorLevel le
 
   // Try to get the baseline coordinates at this level.
   int x1, y1, x2, y2;
-  if (!it->Baseline(level, &x1, &y1, &x2, &y2))
+  if (!it->Baseline(level, &x1, &y1, &x2, &y2)) {
     return;
+  }
   // Following the description of this field of the hOCR spec, we convert the
   // baseline coordinates so that "the bottom left of the bounding box is the
   // origin".
@@ -127,8 +128,9 @@ char *TessBaseAPI::GetHOCRText(int page_number) {
  * Returned string must be freed with the delete [] operator.
  */
 char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
-  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0))
+  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0)) {
     return nullptr;
+  }
 
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1, scnt = 1, tcnt = 1, ccnt = 1;
   int page_id = page_number + 1; // hOCR uses 1-based page numbers.
@@ -139,8 +141,9 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
   GetBoolVariable("hocr_font_info", &font_info);
   GetBoolVariable("hocr_char_boxes", &hocr_boxes);
 
-  if (input_file_.empty())
+  if (input_file_.empty()) {
     SetInputName(nullptr);
+  }
 
 #ifdef _WIN32
   // convert input name from ANSI encoding to utf-8
@@ -256,12 +259,14 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
     switch (res_it->WordDirection()) {
       // Only emit direction if different from current paragraph direction
       case DIR_LEFT_TO_RIGHT:
-        if (!para_is_ltr)
+        if (!para_is_ltr) {
           hocr_str << " dir='ltr'";
+        }
         break;
       case DIR_RIGHT_TO_LEFT:
-        if (para_is_ltr)
+        if (para_is_ltr) {
           hocr_str << " dir='rtl'";
+        }
         break;
       case DIR_MIX:
       case DIR_NEUTRAL:
@@ -272,10 +277,12 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
     bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
-    if (bold)
+    if (bold) {
       hocr_str << "<strong>";
-    if (italic)
+    }
+    if (italic) {
       hocr_str << "<em>";
+    }
     do {
       const std::unique_ptr<const char[]> grapheme(res_it->GetUTF8Text(RIL_SYMBOL));
       if (grapheme && grapheme[0] != 0) {
@@ -335,10 +342,12 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
       }
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
-    if (italic)
+    if (italic) {
       hocr_str << "</em>";
-    if (bold)
+    }
+    if (bold) {
       hocr_str << "</strong>";
+    }
     // If the lstm choice mode is required it is added here
     if (lstm_choice_mode == 1 && !hocr_boxes && rawTimestepMap != nullptr) {
       for (auto symbol : *rawTimestepMap) {
@@ -371,10 +380,12 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
                    << "lstm_choices_" << page_id << "_" << wcnt << "_" << tcnt << "'>";
           for (auto &j : timestep) {
             float conf = 100 - tesseract_->lstm_rating_coefficient * j.second;
-            if (conf < 0.0f)
+            if (conf < 0.0f) {
               conf = 0.0f;
-            if (conf > 100.0f)
+            }
+            if (conf > 100.0f) {
               conf = 100.0f;
+            }
             hocr_str << "\n        <span class='ocrx_cinfo'"
                      << " id='"
                      << "choice_" << page_id << "_" << wcnt << "_" << ccnt << "'"
@@ -447,8 +458,9 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
       "' />\n"
       "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
       " ocr_line ocrx_word ocrp_wconf");
-  if (font_info_)
+  if (font_info_) {
     AppendString(" ocrp_lang ocrp_dir ocrp_font ocrp_fsize");
+  }
   AppendString(
       "'/>\n"
       " </head>\n"
@@ -465,8 +477,9 @@ bool TessHOcrRenderer::EndDocumentHandler() {
 
 bool TessHOcrRenderer::AddImageHandler(TessBaseAPI *api) {
   const std::unique_ptr<const char[]> hocr(api->GetHOCRText(imagenum()));
-  if (hocr == nullptr)
+  if (hocr == nullptr) {
     return false;
+  }
 
   AppendString(hocr.get());
 

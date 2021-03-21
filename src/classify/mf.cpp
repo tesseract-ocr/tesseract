@@ -47,8 +47,9 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM &cn_denorm) {
   MICROFEATURE OldFeature;
 
   OldFeatures = BlobMicroFeatures(Blob, cn_denorm);
-  if (OldFeatures == nullptr)
+  if (OldFeatures == nullptr) {
     return nullptr;
+  }
   NumFeatures = count(OldFeatures);
   FeatureSet = NewFeatureSet(NumFeatures);
 

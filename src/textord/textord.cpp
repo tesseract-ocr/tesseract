@@ -262,8 +262,9 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD &reskew, int wi
 // If we were supposed to return only a single textline, and there is more
 // than one, clean up and leave only the best.
 void Textord::CleanupSingleRowResult(PageSegMode pageseg_mode, PAGE_RES *page_res) {
-  if (PSM_LINE_FIND_ENABLED(pageseg_mode) || PSM_SPARSE(pageseg_mode))
+  if (PSM_LINE_FIND_ENABLED(pageseg_mode) || PSM_SPARSE(pageseg_mode)) {
     return; // No cleanup required.
+  }
   PAGE_RES_IT it(page_res);
   // Find the best row, being the greatest mean word conf.
   float row_total_conf = 0.0f;
@@ -286,8 +287,9 @@ void Textord::CleanupSingleRowResult(PageSegMode pageseg_mode, PAGE_RES *page_re
   }
   // Now eliminate any word not in the best row.
   for (it.restart_page(); it.word() != nullptr; it.forward()) {
-    if (it.row() != best_row)
+    if (it.row() != best_row) {
       it.DeleteCurrentWord();
+    }
   }
 }
 

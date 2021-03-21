@@ -57,11 +57,12 @@ bool REJ::rej_before_quality_accept() {
 }
 
 bool REJ::rejected() { // Is char rejected?
-  if (flag(R_MINIMAL_REJ_ACCEPT))
+  if (flag(R_MINIMAL_REJ_ACCEPT)) {
     return false;
-  else
+  } else {
     return (perm_rejected() || rej_between_quality_and_minimal_rej_accept() ||
             (!flag(R_QUALITY_ACCEPT) && rej_before_quality_accept()));
+  }
 }
 
 bool REJ::accept_if_good_quality() { // potential rej?
@@ -230,24 +231,27 @@ int16_t REJMAP::accept_count() { // How many accepted?
   int16_t count = 0;
 
   for (i = 0; i < len; i++) {
-    if (ptr[i].accepted())
+    if (ptr[i].accepted()) {
       count++;
+    }
   }
   return count;
 }
 
 bool REJMAP::recoverable_rejects() { // Any non perm rejs?
   for (int i = 0; i < len; i++) {
-    if (ptr[i].recoverable())
+    if (ptr[i].recoverable()) {
       return true;
+    }
   }
   return false;
 }
 
 bool REJMAP::quality_recoverable_rejects() { // Any potential rejs?
   for (int i = 0; i < len; i++) {
-    if (ptr[i].accept_if_good_quality())
+    if (ptr[i].accept_if_good_quality()) {
       return true;
+    }
   }
   return false;
 }
@@ -260,8 +264,9 @@ void REJMAP::remove_pos( // Cut out an element
   ASSERT_HOST(len > 0);
 
   len--;
-  for (; pos < len; pos++)
+  for (; pos < len; pos++) {
     ptr[pos] = ptr[pos + 1];
+  }
 }
 
 void REJMAP::print(FILE *fp) {
@@ -304,8 +309,9 @@ void REJMAP::rej_word_not_tess_accepted() { // Reject whole word
   int i;
 
   for (i = 0; i < len; i++) {
-    if (ptr[i].accepted())
+    if (ptr[i].accepted()) {
       ptr[i].setrej_not_tess_accepted();
+    }
   }
 }
 
@@ -313,8 +319,9 @@ void REJMAP::rej_word_contains_blanks() { // Reject whole word
   int i;
 
   for (i = 0; i < len; i++) {
-    if (ptr[i].accepted())
+    if (ptr[i].accepted()) {
       ptr[i].setrej_contains_blanks();
+    }
   }
 }
 
@@ -322,8 +329,9 @@ void REJMAP::rej_word_bad_permuter() { // Reject whole word
   int i;
 
   for (i = 0; i < len; i++) {
-    if (ptr[i].accepted())
+    if (ptr[i].accepted()) {
       ptr[i].setrej_bad_permuter();
+    }
   }
 }
 
@@ -331,8 +339,9 @@ void REJMAP::rej_word_xht_fixup() { // Reject whole word
   int i;
 
   for (i = 0; i < len; i++) {
-    if (ptr[i].accepted())
+    if (ptr[i].accepted()) {
       ptr[i].setrej_xht_fixup();
+    }
   }
 }
 
@@ -340,8 +349,9 @@ void REJMAP::rej_word_no_alphanums() { // Reject whole word
   int i;
 
   for (i = 0; i < len; i++) {
-    if (ptr[i].accepted())
+    if (ptr[i].accepted()) {
       ptr[i].setrej_no_alphanums();
+    }
   }
 }
 
@@ -349,8 +359,9 @@ void REJMAP::rej_word_mostly_rej() { // Reject whole word
   int i;
 
   for (i = 0; i < len; i++) {
-    if (ptr[i].accepted())
+    if (ptr[i].accepted()) {
       ptr[i].setrej_mostly_rej();
+    }
   }
 }
 
@@ -358,8 +369,9 @@ void REJMAP::rej_word_bad_quality() { // Reject whole word
   int i;
 
   for (i = 0; i < len; i++) {
-    if (ptr[i].accepted())
+    if (ptr[i].accepted()) {
       ptr[i].setrej_bad_quality();
+    }
   }
 }
 
@@ -367,8 +379,9 @@ void REJMAP::rej_word_doc_rej() { // Reject whole word
   int i;
 
   for (i = 0; i < len; i++) {
-    if (ptr[i].accepted())
+    if (ptr[i].accepted()) {
       ptr[i].setrej_doc_rej();
+    }
   }
 }
 
@@ -376,8 +389,9 @@ void REJMAP::rej_word_block_rej() { // Reject whole word
   int i;
 
   for (i = 0; i < len; i++) {
-    if (ptr[i].accepted())
+    if (ptr[i].accepted()) {
       ptr[i].setrej_block_rej();
+    }
   }
 }
 
@@ -385,8 +399,9 @@ void REJMAP::rej_word_row_rej() { // Reject whole word
   int i;
 
   for (i = 0; i < len; i++) {
-    if (ptr[i].accepted())
+    if (ptr[i].accepted()) {
       ptr[i].setrej_row_rej();
+    }
   }
 }
 

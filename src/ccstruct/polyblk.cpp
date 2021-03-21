@@ -76,15 +76,19 @@ void POLY_BLOCK::compute_bb() { // constructor
   topright = botleft;
   do {
     pos = *pts.data();
-    if (pos.x() < botleft.x())
+    if (pos.x() < botleft.x()) {
       // get bounding box
       botleft = ICOORD(pos.x(), botleft.y());
-    if (pos.y() < botleft.y())
+    }
+    if (pos.y() < botleft.y()) {
       botleft = ICOORD(botleft.x(), pos.y());
-    if (pos.x() > topright.x())
+    }
+    if (pos.x() > topright.x()) {
       topright = ICOORD(pos.x(), topright.y());
-    if (pos.y() > topright.y())
+    }
+    if (pos.y() > topright.y()) {
       topright = ICOORD(topright.x(), pos.y());
+    }
     pts.forward();
   } while (!pts.at_first());
   ibl = ICOORD(botleft.x(), botleft.y());
@@ -115,18 +119,21 @@ int16_t POLY_BLOCK::winding_number(const ICOORD &point) {
     // crossing the line
     if (vec.y() <= 0 && vec.y() + vvec.y() > 0) {
       cross = vec * vvec; // cross product
-      if (cross > 0)
+      if (cross > 0) {
         count++; // crossing right half
-      else if (cross == 0)
+      } else if (cross == 0) {
         return INTERSECTING; // going through point
+      }
     } else if (vec.y() > 0 && vec.y() + vvec.y() <= 0) {
       cross = vec * vvec;
-      if (cross < 0)
+      if (cross < 0) {
         count--; // crossing back
-      else if (cross == 0)
+      } else if (cross == 0) {
         return INTERSECTING; // illegal
-    } else if (vec.y() == 0 && vec.x() == 0)
+      }
+    } else if (vec.y() == 0 && vec.x() == 0) {
       return INTERSECTING;
+    }
     it.forward();
   } while (!it.at_first());
   return count; // winding number
@@ -138,8 +145,9 @@ bool POLY_BLOCK::contains(POLY_BLOCK *other) {
   ICOORDELT_IT it = &vertices; // iterator
   ICOORD vertex;
 
-  if (!box.overlap(*(other->bounding_box())))
+  if (!box.overlap(*(other->bounding_box()))) {
     return false; // can't be contained
+  }
 
   /* check that no vertex of this is inside other */
 
@@ -147,9 +155,11 @@ bool POLY_BLOCK::contains(POLY_BLOCK *other) {
     vertex = *it.data();
     // get winding number
     count = other->winding_number(vertex);
-    if (count != INTERSECTING)
-      if (count != 0)
+    if (count != INTERSECTING) {
+      if (count != 0) {
         return false;
+      }
+    }
     it.forward();
   } while (!it.at_first());
 
@@ -161,9 +171,11 @@ bool POLY_BLOCK::contains(POLY_BLOCK *other) {
     vertex = *it.data();
     // try other way round
     count = winding_number(vertex);
-    if (count != INTERSECTING)
-      if (count == 0)
+    if (count != INTERSECTING) {
+      if (count == 0) {
         return false;
+      }
+    }
     it.forward();
   } while (!it.at_first());
   return true;
@@ -291,8 +303,9 @@ bool POLY_BLOCK::overlap(POLY_BLOCK *other) {
   ICOORDELT_IT it = &vertices; // iterator
   ICOORD vertex;
 
-  if (!box.overlap(*(other->bounding_box())))
+  if (!box.overlap(*(other->bounding_box()))) {
     return false; // can't be any overlap.
+  }
 
   /* see if a vertex of this is inside other */
 
@@ -300,9 +313,11 @@ bool POLY_BLOCK::overlap(POLY_BLOCK *other) {
     vertex = *it.data();
     // get winding number
     count = other->winding_number(vertex);
-    if (count != INTERSECTING)
-      if (count != 0)
+    if (count != INTERSECTING) {
+      if (count != 0) {
         return true;
+      }
+    }
     it.forward();
   } while (!it.at_first());
 
@@ -314,9 +329,11 @@ bool POLY_BLOCK::overlap(POLY_BLOCK *other) {
     vertex = *it.data();
     // try other way round
     count = winding_number(vertex);
-    if (count != INTERSECTING)
-      if (count != 0)
+    if (count != INTERSECTING) {
+      if (count != 0) {
         return true;
+      }
+    }
     it.forward();
   } while (!it.at_first());
   return false;
@@ -346,8 +363,9 @@ ICOORDELT_LIST *PB_LINE_IT::get_line(int16_t y) {
 
   if (!r.empty()) {
     r.sort(lessthan);
-    for (r.mark_cycle_pt(); !r.cycled_list(); r.forward())
+    for (r.mark_cycle_pt(); !r.cycled_list(); r.forward()) {
       x = r.data();
+    }
     for (r.mark_cycle_pt(); !r.cycled_list(); r.forward()) {
       r.data()->set_y(r.data_relative(1)->x() - r.data()->x());
       r.forward();
@@ -362,12 +380,13 @@ int lessthan(const void *first, const void *second) {
   const ICOORDELT *p1 = *reinterpret_cast<const ICOORDELT *const *>(first);
   const ICOORDELT *p2 = *reinterpret_cast<const ICOORDELT *const *>(second);
 
-  if (p1->x() < p2->x())
+  if (p1->x() < p2->x()) {
     return (-1);
-  else if (p1->x() > p2->x())
+  } else if (p1->x() > p2->x()) {
     return (1);
-  else
+  } else {
     return (0);
+  }
 }
 
 #ifndef GRAPHICS_DISABLED

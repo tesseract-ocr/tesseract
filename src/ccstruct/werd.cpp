@@ -69,8 +69,9 @@ WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
   with the concencus onto the reject list.
 */
   start_it.set_to_list(&cblobs);
-  if (start_it.empty())
+  if (start_it.empty()) {
     return;
+  }
   for (start_it.mark_cycle_pt(); !start_it.cycled_list(); start_it.forward()) {
     bool reject_blob = false;
     bool blob_inverted;
@@ -84,22 +85,25 @@ WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
     if (reject_blob) {
       rej_cblob_it.add_after_then_move(start_it.extract());
     } else {
-      if (blob_inverted)
+      if (blob_inverted) {
         inverted_vote++;
-      else
+      } else {
         non_inverted_vote++;
+      }
     }
   }
 
   flags.set(W_INVERSE, (inverted_vote > non_inverted_vote));
 
   start_it.set_to_list(&cblobs);
-  if (start_it.empty())
+  if (start_it.empty()) {
     return;
+  }
   for (start_it.mark_cycle_pt(); !start_it.cycled_list(); start_it.forward()) {
     c_outline_it.set_to_list(start_it.data()->out_list());
-    if (c_outline_it.data()->flag(COUT_INVERSE) != flags[W_INVERSE])
+    if (c_outline_it.data()->flag(COUT_INVERSE) != flags[W_INVERSE]) {
       rej_cblob_it.add_after_then_move(start_it.extract());
+    }
   }
 }
 
@@ -116,8 +120,9 @@ WERD::WERD(C_BLOB_LIST *blob_list, ///< In word order
   C_BLOB_IT start_it = blob_list; // iterator
   C_BLOB_IT end_it = blob_list;   // another
 
-  while (!end_it.at_last())
+  while (!end_it.at_last()) {
     end_it.forward(); // move to last
+  }
   (reinterpret_cast<C_BLOB_LIST *>(&cblobs))->assign_to_sublist(&start_it, &end_it);
   // move to our list
   blanks = clone->blanks;
@@ -191,8 +196,9 @@ TBOX WERD::true_bounding_box() const {
 void WERD::move(const ICOORD vec) {
   C_BLOB_IT cblob_it(&cblobs); // cblob iterator
 
-  for (cblob_it.mark_cycle_pt(); !cblob_it.cycled_list(); cblob_it.forward())
+  for (cblob_it.mark_cycle_pt(); !cblob_it.cycled_list(); cblob_it.forward()) {
     cblob_it.data()->move(vec);
+  }
 }
 
 /**
@@ -293,8 +299,9 @@ void WERD::plot(ScrollView *window, ScrollView::Color colour) {
 // Get the next color in the (looping) rainbow.
 ScrollView::Color WERD::NextColor(ScrollView::Color colour) {
   auto next = static_cast<ScrollView::Color>(colour + 1);
-  if (next >= LAST_COLOUR || next < FIRST_COLOUR)
+  if (next >= LAST_COLOUR || next < FIRST_COLOUR) {
     next = FIRST_COLOUR;
+  }
   return next;
 }
 
@@ -355,12 +362,14 @@ WERD &WERD::operator=(const WERD &source) {
   flags = source.flags;
   script_id_ = source.script_id_;
   correct = source.correct;
-  if (!cblobs.empty())
+  if (!cblobs.empty()) {
     cblobs.clear();
+  }
   cblobs.deep_copy(&source.cblobs, &C_BLOB::deep_copy);
 
-  if (!rej_cblobs.empty())
+  if (!rej_cblobs.empty()) {
     rej_cblobs.clear();
+  }
   rej_cblobs.deep_copy(&source.rej_cblobs, &C_BLOB::deep_copy);
   return *this;
 }
@@ -495,8 +504,9 @@ void WERD::CleanNoise(float size_threshold) {
         rej_it.add_after_then_move(rej_blob);
       }
     }
-    if (blob->out_list()->empty())
+    if (blob->out_list()->empty()) {
       delete blob_it.extract();
+    }
   }
 }
 
@@ -525,13 +535,15 @@ bool WERD::AddSelectedOutlines(const std::vector<bool> &wanted,
                                const std::vector<C_OUTLINE *> &outlines,
                                bool *make_next_word_fuzzy) {
   bool outline_added_to_start = false;
-  if (make_next_word_fuzzy != nullptr)
+  if (make_next_word_fuzzy != nullptr) {
     *make_next_word_fuzzy = false;
+  }
   C_BLOB_IT rej_it(&rej_cblobs);
   for (int i = 0; i < outlines.size(); ++i) {
     C_OUTLINE *outline = outlines[i];
-    if (outline == nullptr)
+    if (outline == nullptr) {
       continue; // Already used it.
+    }
     if (wanted[i]) {
       C_BLOB *target_blob = target_blobs[i];
       TBOX noise_box = outline->bounding_box();
@@ -553,8 +565,9 @@ bool WERD::AddSelectedOutlines(const std::vector<bool> &wanted,
         }
         if (blob_it.cycled_list()) {
           blob_it.add_to_end(target_blob);
-          if (make_next_word_fuzzy != nullptr)
+          if (make_next_word_fuzzy != nullptr) {
             *make_next_word_fuzzy = true;
+          }
         }
         // Add all consecutive wanted, but null-blob outlines to same blob.
         C_OUTLINE_IT ol_it(target_blob->out_list());

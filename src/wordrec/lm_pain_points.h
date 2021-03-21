@@ -84,8 +84,9 @@ public:
 
   // Clears pain points heap.
   void Clear() {
-    for (auto &pain_points_heap : pain_points_heaps_)
+    for (auto &pain_points_heap : pain_points_heaps_) {
       pain_points_heap.clear();
+    }
   }
 
   // For each cell, generate a "pain point" if the cell is not classified

@@ -51,8 +51,9 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t> &w, std::vector<int8_t> 
           // group.
           for (int i = 0; i < num_inputs_per_group_; ++i) {
             int8_t weight = 0;
-            if (output + j < num_out && input + i < num_in)
+            if (output + j < num_out && input + i < num_in) {
               weight = w(output + j, input + i);
+            }
             shaped_w[shaped_index++] = weight;
           }
         }
@@ -60,8 +61,9 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t> &w, std::vector<int8_t> 
       // Append the bias weights for the register set.
       for (int j = 0; j < num_outputs_per_register_set; ++j) {
         int8_t weight = 0;
-        if (output + j < num_out)
+        if (output + j < num_out) {
           weight = w(output + j, num_in);
+        }
         shaped_w[shaped_index++] = weight;
       }
       output += num_outputs_per_register_set;
@@ -81,8 +83,9 @@ void IntSimdMatrix::MatrixDotVector(const GENERIC_2D_ARRAY<int8_t> &w,
   for (int i = 0; i < num_out; ++i) {
     const int8_t *wi = w[i];
     int total = 0;
-    for (int j = 0; j < num_in; ++j)
+    for (int j = 0; j < num_in; ++j) {
       total += wi[j] * u[j];
+    }
     // Add in the bias and correct for integer values.
     v[i] = (total + wi[num_in] * INT8_MAX) * scales[i];
   }

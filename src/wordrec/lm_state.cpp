@@ -25,8 +25,9 @@ ELISTIZE(ViterbiStateEntry)
 
 void ViterbiStateEntry::Print(const char *msg) const {
   tprintf("%s ViterbiStateEntry", msg);
-  if (updated)
+  if (updated) {
     tprintf("(NEW)");
+  }
   if (this->debug_str != nullptr) {
     tprintf(" str=%s", this->debug_str->c_str());
   }
@@ -42,8 +43,9 @@ void ViterbiStateEntry::Print(const char *msg) const {
             this->consistency_info.NumInconsistentChartype(),
             this->consistency_info.inconsistent_script, this->consistency_info.inconsistent_font);
   }
-  if (this->dawg_info)
+  if (this->dawg_info) {
     tprintf(" permuter=%d", this->dawg_info->permuter);
+  }
   if (this->ngram_info) {
     tprintf(" ngram_cl_cost=%g context=%s ngram pruned=%d",
             this->ngram_info->ngram_and_classifier_cost, this->ngram_info->context.c_str(),

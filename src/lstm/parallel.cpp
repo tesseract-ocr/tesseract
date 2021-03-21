@@ -168,11 +168,13 @@ bool Parallel::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch 
         }
       }
     }
-    if (needs_to_backprop_)
+    if (needs_to_backprop_) {
       back_deltas->CopyAll(*out_deltas);
+    }
   }
-  if (needs_to_backprop_)
+  if (needs_to_backprop_) {
     back_deltas->ScaleFloatBy(1.0f / stack_size);
+  }
   return needs_to_backprop_;
 }
 

@@ -31,8 +31,9 @@ StaticShape Reconfig::OutputShape(const StaticShape &input_shape) const {
   StaticShape result = input_shape;
   result.set_height(result.height() / y_scale_);
   result.set_width(result.width() / x_scale_);
-  if (type_ != NT_MAXPOOL)
+  if (type_ != NT_MAXPOOL) {
     result.set_depth(result.depth() * y_scale_ * x_scale_);
+  }
   return result;
 }
 
@@ -53,10 +54,12 @@ bool Reconfig::Serialize(TFile *fp) const {
 
 // Reads from the given file. Returns false in case of error.
 bool Reconfig::DeSerialize(TFile *fp) {
-  if (!fp->DeSerialize(&x_scale_))
+  if (!fp->DeSerialize(&x_scale_)) {
     return false;
-  if (!fp->DeSerialize(&y_scale_))
+  }
+  if (!fp->DeSerialize(&y_scale_)) {
     return false;
+  }
   no_ = ni_ * x_scale_ * y_scale_;
   return true;
 }

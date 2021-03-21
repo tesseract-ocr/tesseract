@@ -155,8 +155,9 @@ void SampleIterator::Next() {
   if (shape_table_ != nullptr) {
     // Next sample in this class/font combination.
     ++sample_index_;
-    if (sample_index_ < num_samples_)
+    if (sample_index_ < num_samples_) {
       return;
+    }
     // Next font in this class in this shape.
     sample_index_ = 0;
     do {
@@ -172,8 +173,9 @@ void SampleIterator::Next() {
             ++shape_index_;
           } while (shape_index_ < num_shapes_ && charset_map_ != nullptr &&
                    charset_map_->SparseToCompact(shape_index_) < 0);
-          if (shape_index_ >= num_shapes_)
+          if (shape_index_ >= num_shapes_) {
             return; // The end.
+          }
           num_shape_chars_ = shape_table_->GetShape(shape_index_).size();
         }
       }
@@ -250,8 +252,9 @@ double SampleIterator::NormalizeSamples() {
     for (Begin(); !AtEnd(); Next()) {
       TrainingSample *sample = MutableSample();
       double weight = sample->weight() / total_weight;
-      if (weight < min_assigned_sample_weight)
+      if (weight < min_assigned_sample_weight) {
         min_assigned_sample_weight = weight;
+      }
       sample->set_weight(weight);
     }
   }

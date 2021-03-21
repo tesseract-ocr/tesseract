@@ -34,12 +34,15 @@ void IntFeatureSpace::Init(uint8_t xbuckets, uint8_t ybuckets, uint8_t thetabuck
 // Serializes the feature space definition to the given file.
 // Returns false on error.
 bool IntFeatureSpace::Serialize(FILE *fp) const {
-  if (fwrite(&x_buckets_, sizeof(x_buckets_), 1, fp) != 1)
+  if (fwrite(&x_buckets_, sizeof(x_buckets_), 1, fp) != 1) {
     return false;
-  if (fwrite(&y_buckets_, sizeof(y_buckets_), 1, fp) != 1)
+  }
+  if (fwrite(&y_buckets_, sizeof(y_buckets_), 1, fp) != 1) {
     return false;
-  if (fwrite(&theta_buckets_, sizeof(theta_buckets_), 1, fp) != 1)
+  }
+  if (fwrite(&theta_buckets_, sizeof(theta_buckets_), 1, fp) != 1) {
     return false;
+  }
   return true;
 }
 
@@ -55,8 +58,9 @@ INT_FEATURE_STRUCT IntFeatureSpace::PositionFromIndex(int index) const {
 void IntFeatureSpace::IndexFeatures(const INT_FEATURE_STRUCT *features, int num_features,
                                     std::vector<int> *mapped_features) const {
   mapped_features->clear();
-  for (int f = 0; f < num_features; ++f)
+  for (int f = 0; f < num_features; ++f) {
     mapped_features->push_back(Index(features[f]));
+  }
 }
 
 // Bulk calls to Index. Maps the given array of features to a vector of
@@ -64,8 +68,9 @@ void IntFeatureSpace::IndexFeatures(const INT_FEATURE_STRUCT *features, int num_
 void IntFeatureSpace::IndexAndSortFeatures(const INT_FEATURE_STRUCT *features, int num_features,
                                            std::vector<int> *sorted_features) const {
   sorted_features->clear();
-  for (int f = 0; f < num_features; ++f)
+  for (int f = 0; f < num_features; ++f) {
     sorted_features->push_back(Index(features[f]));
+  }
   std::sort(sorted_features->begin(), sorted_features->end());
 }
 

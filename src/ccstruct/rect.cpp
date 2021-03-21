@@ -88,25 +88,29 @@ TBOX TBOX::intersection( // shared area box
   int16_t right;
   int16_t top;
   if (overlap(box)) {
-    if (box.bot_left.x() > bot_left.x())
+    if (box.bot_left.x() > bot_left.x()) {
       left = box.bot_left.x();
-    else
+    } else {
       left = bot_left.x();
+    }
 
-    if (box.top_right.x() < top_right.x())
+    if (box.top_right.x() < top_right.x()) {
       right = box.top_right.x();
-    else
+    } else {
       right = top_right.x();
+    }
 
-    if (box.bot_left.y() > bot_left.y())
+    if (box.bot_left.y() > bot_left.y()) {
       bottom = box.bot_left.y();
-    else
+    } else {
       bottom = bot_left.y();
+    }
 
-    if (box.top_right.y() < top_right.y())
+    if (box.top_right.y() < top_right.y()) {
       top = box.top_right.y();
-    else
+    } else {
       top = top_right.y();
+    }
   } else {
     left = INT16_MAX;
     bottom = INT16_MAX;
@@ -126,25 +130,29 @@ TBOX TBOX::bounding_union( // box enclosing both
   ICOORD bl; // bottom left
   ICOORD tr; // top right
 
-  if (box.bot_left.x() < bot_left.x())
+  if (box.bot_left.x() < bot_left.x()) {
     bl.set_x(box.bot_left.x());
-  else
+  } else {
     bl.set_x(bot_left.x());
+  }
 
-  if (box.top_right.x() > top_right.x())
+  if (box.top_right.x() > top_right.x()) {
     tr.set_x(box.top_right.x());
-  else
+  } else {
     tr.set_x(top_right.x());
+  }
 
-  if (box.bot_left.y() < bot_left.y())
+  if (box.bot_left.y() < bot_left.y()) {
     bl.set_y(box.bot_left.y());
-  else
+  } else {
     bl.set_y(bot_left.y());
+  }
 
-  if (box.top_right.y() > top_right.y())
+  if (box.top_right.y() > top_right.y()) {
     tr.set_y(box.top_right.y());
-  else
+  } else {
     tr.set_y(top_right.y());
+  }
   return TBOX(bl, tr);
 }
 
@@ -177,19 +185,23 @@ void TBOX::print_to_str(std::string &str) const {
 
 // Writes to the given file. Returns false in case of error.
 bool TBOX::Serialize(FILE *fp) const {
-  if (!bot_left.Serialize(fp))
+  if (!bot_left.Serialize(fp)) {
     return false;
-  if (!top_right.Serialize(fp))
+  }
+  if (!top_right.Serialize(fp)) {
     return false;
+  }
   return true;
 }
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool TBOX::DeSerialize(bool swap, FILE *fp) {
-  if (!bot_left.DeSerialize(swap, fp))
+  if (!bot_left.DeSerialize(swap, fp)) {
     return false;
-  if (!top_right.DeSerialize(swap, fp))
+  }
+  if (!top_right.DeSerialize(swap, fp)) {
     return false;
+  }
   return true;
 }
 
@@ -202,17 +214,21 @@ bool TBOX::DeSerialize(bool swap, FILE *fp) {
 TBOX &operator+=( // bounding bounding bx
     TBOX &op1,    // operands
     const TBOX &op2) {
-  if (op2.bot_left.x() < op1.bot_left.x())
+  if (op2.bot_left.x() < op1.bot_left.x()) {
     op1.bot_left.set_x(op2.bot_left.x());
+  }
 
-  if (op2.top_right.x() > op1.top_right.x())
+  if (op2.top_right.x() > op1.top_right.x()) {
     op1.top_right.set_x(op2.top_right.x());
+  }
 
-  if (op2.bot_left.y() < op1.bot_left.y())
+  if (op2.bot_left.y() < op1.bot_left.y()) {
     op1.bot_left.set_y(op2.bot_left.y());
+  }
 
-  if (op2.top_right.y() > op1.top_right.y())
+  if (op2.top_right.y() > op1.top_right.y()) {
     op1.top_right.set_y(op2.top_right.y());
+  }
 
   return op1;
 }
@@ -225,17 +241,21 @@ TBOX &operator+=( // bounding bounding bx
 
 TBOX &operator&=(TBOX &op1, const TBOX &op2) {
   if (op1.overlap(op2)) {
-    if (op2.bot_left.x() > op1.bot_left.x())
+    if (op2.bot_left.x() > op1.bot_left.x()) {
       op1.bot_left.set_x(op2.bot_left.x());
+    }
 
-    if (op2.top_right.x() < op1.top_right.x())
+    if (op2.top_right.x() < op1.top_right.x()) {
       op1.top_right.set_x(op2.top_right.x());
+    }
 
-    if (op2.bot_left.y() > op1.bot_left.y())
+    if (op2.bot_left.y() > op1.bot_left.y()) {
       op1.bot_left.set_y(op2.bot_left.y());
+    }
 
-    if (op2.top_right.y() < op1.top_right.y())
+    if (op2.top_right.y() < op1.top_right.y()) {
       op1.top_right.set_y(op2.top_right.y());
+    }
   } else {
     op1.bot_left.set_x(INT16_MAX);
     op1.bot_left.set_y(INT16_MAX);

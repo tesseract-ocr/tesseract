@@ -71,8 +71,9 @@ float CompareProtos(PROTO p1, PROTO p2) {
 
   /* if p1 and p2 are not close in length, don't let them match */
   Length = fabs(p1->Length - p2->Length);
-  if (Length > MAX_LENGTH_MISMATCH)
+  if (Length > MAX_LENGTH_MISMATCH) {
     return (0.0);
+  }
 
   /* create a dummy pico-feature to be used for comparisons */
   Feature = NewFeature(&PicoFeatDesc);
@@ -83,16 +84,18 @@ float CompareProtos(PROTO p1, PROTO p2) {
 
   /* find distance from center of p1 to 1/2 picofeat from end */
   Length = p1->Length / 2.0 - GetPicoFeatureLength() / 2.0;
-  if (Length < 0)
+  if (Length < 0) {
     Length = 0;
+  }
 
   /* set the dummy pico-feature at one end of p1 and match it to p2 */
   Feature->Params[PicoFeatX] = p1->X + cos(Angle) * Length;
   Feature->Params[PicoFeatY] = p1->Y + sin(Angle) * Length;
   if (DummyFastMatch(Feature, p2)) {
     Evidence = SubfeatureEvidence(Feature, p2);
-    if (Evidence < WorstEvidence)
+    if (Evidence < WorstEvidence) {
       WorstEvidence = Evidence;
+    }
   } else {
     FreeFeature(Feature);
     return 0.0;
@@ -103,8 +106,9 @@ float CompareProtos(PROTO p1, PROTO p2) {
   Feature->Params[PicoFeatY] = p1->Y - sin(Angle) * Length;
   if (DummyFastMatch(Feature, p2)) {
     Evidence = SubfeatureEvidence(Feature, p2);
-    if (Evidence < WorstEvidence)
+    if (Evidence < WorstEvidence) {
       WorstEvidence = Evidence;
+    }
   } else {
     FreeFeature(Feature);
     return 0.0;
@@ -208,10 +212,12 @@ float SubfeatureEvidence(FEATURE Feature, PROTO Proto) {
   float Dangle;
 
   Dangle = Proto->Angle - Feature->Params[PicoFeatDir];
-  if (Dangle < -0.5)
+  if (Dangle < -0.5) {
     Dangle += 1.0;
-  if (Dangle > 0.5)
+  }
+  if (Dangle > 0.5) {
     Dangle -= 1.0;
+  }
   Dangle *= training_angle_match_scale;
 
   Distance =
@@ -231,12 +237,13 @@ float SubfeatureEvidence(FEATURE Feature, PROTO Proto) {
 double EvidenceOf(double Similarity) {
   Similarity /= training_similarity_midpoint;
 
-  if (training_similarity_curl == 3)
+  if (training_similarity_curl == 3) {
     Similarity = Similarity * Similarity * Similarity;
-  else if (training_similarity_curl == 2)
+  } else if (training_similarity_curl == 2) {
     Similarity = Similarity * Similarity;
-  else
+  } else {
     Similarity = pow(Similarity, training_similarity_curl);
+  }
 
   return (1.0 / (1.0 + Similarity));
 }
@@ -261,11 +268,13 @@ bool DummyFastMatch(FEATURE Feature, PROTO Proto) {
 
   MaxAngleError = training_angle_pad / 360.0;
   AngleError = fabs(Proto->Angle - Feature->Params[PicoFeatDir]);
-  if (AngleError > 0.5)
+  if (AngleError > 0.5) {
     AngleError = 1.0 - AngleError;
+  }
 
-  if (AngleError > MaxAngleError)
+  if (AngleError > MaxAngleError) {
     return false;
+  }
 
   ComputePaddedBoundingBox(Proto, training_tangent_bbox_pad * GetPicoFeatureLength(),
                            training_orthogonal_bbox_pad * GetPicoFeatureLength(), &BoundingBox);

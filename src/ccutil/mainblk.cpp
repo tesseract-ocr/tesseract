@@ -85,7 +85,8 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
   // check for missing directory separator
   const char *lastchar = datadir.c_str();
   lastchar += datadir.length() - 1;
-  if ((strcmp(lastchar, "/") != 0) && (strcmp(lastchar, "\\") != 0))
+  if ((strcmp(lastchar, "/") != 0) && (strcmp(lastchar, "\\") != 0)) {
     datadir += "/";
+  }
 }
 } // namespace tesseract

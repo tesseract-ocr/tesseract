@@ -1462,8 +1462,9 @@ CLUSTERER *MakeClusterer(int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
 
   // Initialize cache of histogram buckets to minimize recomputing them.
   for (auto &d : Clusterer->bucket_cache) {
-    for (auto &c : d)
+    for (auto &c : d) {
       c = nullptr;
+    }
   }
 
   return Clusterer;
@@ -1500,14 +1501,16 @@ SAMPLE *MakeSample(CLUSTERER *Clusterer, const float *Feature, int32_t CharID) {
   Sample->Right = nullptr;
   Sample->CharID = CharID;
 
-  for (i = 0; i < Clusterer->SampleSize; i++)
+  for (i = 0; i < Clusterer->SampleSize; i++) {
     Sample->Mean[i] = Feature[i];
+  }
 
   // add the sample to the KD tree - keep track of the total # of samples
   Clusterer->NumberOfSamples++;
   KDStore(Clusterer->KDTree, Sample->Mean, Sample);
-  if (CharID >= Clusterer->NumChar)
+  if (CharID >= Clusterer->NumChar) {
     Clusterer->NumChar = CharID + 1;
+  }
 
   // execute hook for monitoring clustering operation
   // (*SampleCreationHook)(Sample);
@@ -1536,8 +1539,9 @@ SAMPLE *MakeSample(CLUSTERER *Clusterer, const float *Feature, int32_t CharID) {
  */
 LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
   // only create cluster tree if samples have never been clustered before
-  if (Clusterer->Root == nullptr)
+  if (Clusterer->Root == nullptr) {
     CreateClusterTree(Clusterer);
+  }
 
   // deallocate the old prototype list if one exists
   FreeProtoList(&Clusterer->ProtoList);
@@ -1568,15 +1572,19 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
 void FreeClusterer(CLUSTERER *Clusterer) {
   if (Clusterer != nullptr) {
     free(Clusterer->ParamDesc);
-    if (Clusterer->KDTree != nullptr)
+    if (Clusterer->KDTree != nullptr) {
       FreeKDTree(Clusterer->KDTree);
-    if (Clusterer->Root != nullptr)
+    }
+    if (Clusterer->Root != nullptr) {
       FreeCluster(Clusterer->Root);
+    }
     // Free up all used buckets structures.
     for (auto &d : Clusterer->bucket_cache) {
-      for (auto &c : d)
-        if (c != nullptr)
+      for (auto &c : d) {
+        if (c != nullptr) {
           FreeBuckets(c);
+        }
+      }
     }
 
     free(Clusterer);
@@ -1604,8 +1612,9 @@ void FreePrototype(void *arg) { // PROTOTYPE     *Prototype)
   auto *Prototype = static_cast<PROTOTYPE *>(arg);
 
   // unmark the corresponding cluster (if there is one
-  if (Prototype->Cluster != nullptr)
+  if (Prototype->Cluster != nullptr) {
     Prototype->Cluster->Prototype = false;
+  }
 
   // deallocate the prototype statistics and then the prototype itself
   free(Prototype->Distrib);
@@ -1634,13 +1643,15 @@ void FreePrototype(void *arg) { // PROTOTYPE     *Prototype)
 CLUSTER *NextSample(LIST *SearchState) {
   CLUSTER *Cluster;
 
-  if (*SearchState == NIL_LIST)
+  if (*SearchState == NIL_LIST) {
     return (nullptr);
+  }
   Cluster = reinterpret_cast<CLUSTER *> first_node(*SearchState);
   *SearchState = pop(*SearchState);
   for (;;) {
-    if (Cluster->Left == nullptr)
+    if (Cluster->Left == nullptr) {
       return (Cluster);
+    }
     *SearchState = push(*SearchState, Cluster->Right);
     Cluster = Cluster->Left;
   }
@@ -1879,16 +1890,20 @@ int32_t MergeClusters(int16_t N, PARAM_DESC ParamDesc[], int32_t n1, int32_t n2,
       // then normalize the mean back into the accepted range
       if ((*m2 - *m1) > ParamDesc->HalfRange) {
         *m = (n1 * *m1 + n2 * (*m2 - ParamDesc->Range)) / n;
-        if (*m < ParamDesc->Min)
+        if (*m < ParamDesc->Min) {
           *m += ParamDesc->Range;
+        }
       } else if ((*m1 - *m2) > ParamDesc->HalfRange) {
         *m = (n1 * (*m1 - ParamDesc->Range) + n2 * *m2) / n;
-        if (*m < ParamDesc->Min)
+        if (*m < ParamDesc->Min) {
           *m += ParamDesc->Range;
-      } else
+        }
+      } else {
         *m = (n1 * *m1 + n2 * *m2) / n;
-    } else
+      }
+    } else {
       *m = (n1 * *m1 + n2 * *m2) / n;
+    }
   }
   return n;
 } // MergeClusters
@@ -1908,8 +1923,9 @@ static void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
 
   // use a stack to keep track of clusters waiting to be processed
   // initially the only cluster on the stack is the root cluster
-  if (Clusterer->Root != nullptr)
+  if (Clusterer->Root != nullptr) {
     ClusterStack = push(NIL_LIST, Clusterer->Root);
+  }
 
   // loop until we have analyzed all clusters which are potential prototypes
   while (ClusterStack != NIL_LIST) {
@@ -1949,8 +1965,9 @@ static PROTOTYPE *MakePrototype(CLUSTERER *Clusterer, CLUSTERCONFIG *Config, CLU
   BUCKETS *Buckets;
 
   // filter out clusters which contain samples from the same character
-  if (MultipleCharSamples(Clusterer, Cluster, Config->MaxIllegal))
+  if (MultipleCharSamples(Clusterer, Cluster, Config->MaxIllegal)) {
     return nullptr;
+  }
 
   // compute the covariance matrix and ranges for the cluster
   Statistics = ComputeStatistics(Clusterer->SampleSize, Clusterer->ParamDesc, Cluster);
@@ -1995,11 +2012,13 @@ static PROTOTYPE *MakePrototype(CLUSTERER *Clusterer, CLUSTERCONFIG *Config, CLU
       break;
     case automatic:
       Proto = MakeSphericalProto(Clusterer, Cluster, Statistics, Buckets);
-      if (Proto != nullptr)
+      if (Proto != nullptr) {
         break;
+      }
       Proto = MakeEllipticalProto(Clusterer, Cluster, Statistics, Buckets);
-      if (Proto != nullptr)
+      if (Proto != nullptr) {
         break;
+      }
       Proto = MakeMixedProto(Clusterer, Cluster, Statistics, Buckets, Config->Confidence);
       break;
   }
@@ -2030,8 +2049,9 @@ static PROTOTYPE *MakeDegenerateProto( // this was MinSample
     uint16_t N, CLUSTER *Cluster, STATISTICS *Statistics, PROTOSTYLE Style, int32_t MinSamples) {
   PROTOTYPE *Proto = nullptr;
 
-  if (MinSamples < MINSAMPLESNEEDED)
+  if (MinSamples < MINSAMPLESNEEDED) {
     MinSamples = MINSAMPLESNEEDED;
+  }
 
   if (Cluster->SampleCount < MinSamples) {
     switch (Style) {
@@ -2077,11 +2097,13 @@ static PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer, CLUSTERCONFIG *Confi
   int N = Clusterer->SampleSize;
   CLUSTER *Left = Cluster->Left;
   CLUSTER *Right = Cluster->Right;
-  if (Left == nullptr || Right == nullptr)
+  if (Left == nullptr || Right == nullptr) {
     return nullptr;
+  }
   int TotalDims = Left->SampleCount + Right->SampleCount;
-  if (TotalDims < N + 1 || TotalDims < 2)
+  if (TotalDims < N + 1 || TotalDims < 2) {
     return nullptr;
+  }
   std::vector<float> Covariance(static_cast<size_t>(N) * N);
   std::vector<float> Inverse(static_cast<size_t>(N) * N);
   std::vector<float> Delta(N);
@@ -2090,17 +2112,19 @@ static PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer, CLUSTERCONFIG *Confi
     int row_offset = i * N;
     if (!Clusterer->ParamDesc[i].NonEssential) {
       for (int j = 0; j < N; ++j) {
-        if (!Clusterer->ParamDesc[j].NonEssential)
+        if (!Clusterer->ParamDesc[j].NonEssential) {
           Covariance[j + row_offset] = Statistics->CoVariance[j + row_offset];
-        else
+        } else {
           Covariance[j + row_offset] = 0.0f;
+        }
       }
     } else {
       for (int j = 0; j < N; ++j) {
-        if (i == j)
+        if (i == j) {
           Covariance[j + row_offset] = 1.0f;
-        else
+        } else {
           Covariance[j + row_offset] = 0.0f;
+        }
       }
     }
   }
@@ -2132,12 +2156,14 @@ static PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer, CLUSTERCONFIG *Confi
   // Tsq *= Left->SampleCount * Right->SampleCount / TotalDims;
   double F = Tsq * (TotalDims - EssentialN - 1) / ((TotalDims - 2) * EssentialN);
   int Fx = EssentialN;
-  if (Fx > FTABLE_X)
+  if (Fx > FTABLE_X) {
     Fx = FTABLE_X;
+  }
   --Fx;
   int Fy = TotalDims - EssentialN - 1;
-  if (Fy > FTABLE_Y)
+  if (Fy > FTABLE_Y) {
     Fy = FTABLE_Y;
+  }
   --Fy;
   double FTarget = FTable[Fy][Fx];
   if (Config->MagicSamples > 0 && TotalDims >= Config->MagicSamples * (1.0 - kMagicSampleMargin) &&
@@ -2169,17 +2195,20 @@ static PROTOTYPE *MakeSphericalProto(CLUSTERER *Clusterer, CLUSTER *Cluster, STA
 
   // check that each dimension is a normal distribution
   for (i = 0; i < Clusterer->SampleSize; i++) {
-    if (Clusterer->ParamDesc[i].NonEssential)
+    if (Clusterer->ParamDesc[i].NonEssential) {
       continue;
+    }
 
     FillBuckets(Buckets, Cluster, i, &(Clusterer->ParamDesc[i]), Cluster->Mean[i],
                 sqrt(static_cast<double>(Statistics->AvgVariance)));
-    if (!DistributionOK(Buckets))
+    if (!DistributionOK(Buckets)) {
       break;
+    }
   }
   // if all dimensions matched a normal distribution, make a proto
-  if (i >= Clusterer->SampleSize)
+  if (i >= Clusterer->SampleSize) {
     Proto = NewSphericalProto(Clusterer->SampleSize, Cluster, Statistics);
+  }
   return (Proto);
 } // MakeSphericalProto
 
@@ -2201,17 +2230,20 @@ static PROTOTYPE *MakeEllipticalProto(CLUSTERER *Clusterer, CLUSTER *Cluster,
 
   // check that each dimension is a normal distribution
   for (i = 0; i < Clusterer->SampleSize; i++) {
-    if (Clusterer->ParamDesc[i].NonEssential)
+    if (Clusterer->ParamDesc[i].NonEssential) {
       continue;
+    }
 
     FillBuckets(Buckets, Cluster, i, &(Clusterer->ParamDesc[i]), Cluster->Mean[i],
                 sqrt(static_cast<double>(Statistics->CoVariance[i * (Clusterer->SampleSize + 1)])));
-    if (!DistributionOK(Buckets))
+    if (!DistributionOK(Buckets)) {
       break;
+    }
   }
   // if all dimensions matched a normal distribution, make a proto
-  if (i >= Clusterer->SampleSize)
+  if (i >= Clusterer->SampleSize) {
     Proto = NewEllipticalProto(Clusterer->SampleSize, Cluster, Statistics);
+  }
   return (Proto);
 } // MakeEllipticalProto
 
@@ -2242,29 +2274,35 @@ static PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer, CLUSTER *Cluster, STATIST
 
   // find the proper distribution for each dimension
   for (i = 0; i < Clusterer->SampleSize; i++) {
-    if (Clusterer->ParamDesc[i].NonEssential)
+    if (Clusterer->ParamDesc[i].NonEssential) {
       continue;
+    }
 
     FillBuckets(NormalBuckets, Cluster, i, &(Clusterer->ParamDesc[i]), Proto->Mean[i],
                 sqrt(static_cast<double>(Proto->Variance.Elliptical[i])));
-    if (DistributionOK(NormalBuckets))
+    if (DistributionOK(NormalBuckets)) {
       continue;
+    }
 
-    if (RandomBuckets == nullptr)
+    if (RandomBuckets == nullptr) {
       RandomBuckets = GetBuckets(Clusterer, D_random, Cluster->SampleCount, Confidence);
+    }
     MakeDimRandom(i, Proto, &(Clusterer->ParamDesc[i]));
     FillBuckets(RandomBuckets, Cluster, i, &(Clusterer->ParamDesc[i]), Proto->Mean[i],
                 Proto->Variance.Elliptical[i]);
-    if (DistributionOK(RandomBuckets))
+    if (DistributionOK(RandomBuckets)) {
       continue;
+    }
 
-    if (UniformBuckets == nullptr)
+    if (UniformBuckets == nullptr) {
       UniformBuckets = GetBuckets(Clusterer, uniform, Cluster->SampleCount, Confidence);
+    }
     MakeDimUniform(i, Proto, Statistics);
     FillBuckets(UniformBuckets, Cluster, i, &(Clusterer->ParamDesc[i]), Proto->Mean[i],
                 Proto->Variance.Elliptical[i]);
-    if (DistributionOK(UniformBuckets))
+    if (DistributionOK(UniformBuckets)) {
       continue;
+    }
     break;
   }
   // if any dimension failed to match a distribution, discard the proto
@@ -2307,8 +2345,9 @@ static void MakeDimUniform(uint16_t i, PROTOTYPE *Proto, STATISTICS *Statistics)
   Proto->Distrib[i] = uniform;
   Proto->Mean[i] = Proto->Cluster->Mean[i] + (Statistics->Min[i] + Statistics->Max[i]) / 2;
   Proto->Variance.Elliptical[i] = (Statistics->Max[i] - Statistics->Min[i]) / 2;
-  if (Proto->Variance.Elliptical[i] < MINVARIANCE)
+  if (Proto->Variance.Elliptical[i] < MINVARIANCE) {
     Proto->Variance.Elliptical[i] = MINVARIANCE;
+  }
 
   // subtract out the previous magnitude of this dimension from the total
   Proto->TotalMagnitude /= Proto->Magnitude.Elliptical[i];
@@ -2357,8 +2396,9 @@ static STATISTICS *ComputeStatistics(int16_t N, PARAM_DESC ParamDesc[], CLUSTER 
   for (i = 0; i < N; i++) {
     Statistics->Min[i] = 0.0;
     Statistics->Max[i] = 0.0;
-    for (j = 0; j < N; j++, CoVariance++)
+    for (j = 0; j < N; j++, CoVariance++) {
       *CoVariance = 0;
+    }
   }
   // find each sample in the cluster and merge it into the statistics
   InitSampleSearch(SearchState, Cluster);
@@ -2366,39 +2406,48 @@ static STATISTICS *ComputeStatistics(int16_t N, PARAM_DESC ParamDesc[], CLUSTER 
     for (i = 0; i < N; i++) {
       Distance[i] = Sample->Mean[i] - Cluster->Mean[i];
       if (ParamDesc[i].Circular) {
-        if (Distance[i] > ParamDesc[i].HalfRange)
+        if (Distance[i] > ParamDesc[i].HalfRange) {
           Distance[i] -= ParamDesc[i].Range;
-        if (Distance[i] < -ParamDesc[i].HalfRange)
+        }
+        if (Distance[i] < -ParamDesc[i].HalfRange) {
           Distance[i] += ParamDesc[i].Range;
+        }
       }
-      if (Distance[i] < Statistics->Min[i])
+      if (Distance[i] < Statistics->Min[i]) {
         Statistics->Min[i] = Distance[i];
-      if (Distance[i] > Statistics->Max[i])
+      }
+      if (Distance[i] > Statistics->Max[i]) {
         Statistics->Max[i] = Distance[i];
+      }
     }
     CoVariance = Statistics->CoVariance;
-    for (i = 0; i < N; i++)
-      for (j = 0; j < N; j++, CoVariance++)
+    for (i = 0; i < N; i++) {
+      for (j = 0; j < N; j++, CoVariance++) {
         *CoVariance += Distance[i] * Distance[j];
+      }
+    }
   }
   // normalize the variances by the total number of samples
   // use SampleCount-1 instead of SampleCount to get an unbiased estimate
   // also compute the geometic mean of the diagonal variances
   // ensure that clusters with only 1 sample are handled correctly
-  if (Cluster->SampleCount > 1)
+  if (Cluster->SampleCount > 1) {
     SampleCountAdjustedForBias = Cluster->SampleCount - 1;
-  else
+  } else {
     SampleCountAdjustedForBias = 1;
+  }
   CoVariance = Statistics->CoVariance;
-  for (i = 0; i < N; i++)
+  for (i = 0; i < N; i++) {
     for (j = 0; j < N; j++, CoVariance++) {
       *CoVariance /= SampleCountAdjustedForBias;
       if (j == i) {
-        if (*CoVariance < MINVARIANCE)
+        if (*CoVariance < MINVARIANCE) {
           *CoVariance = MINVARIANCE;
+        }
         Statistics->AvgVariance *= *CoVariance;
       }
     }
+  }
   Statistics->AvgVariance =
       static_cast<float>(pow(static_cast<double>(Statistics->AvgVariance), 1.0 / N));
 
@@ -2424,8 +2473,9 @@ static PROTOTYPE *NewSphericalProto(uint16_t N, CLUSTER *Cluster, STATISTICS *St
   Proto = NewSimpleProto(N, Cluster);
 
   Proto->Variance.Spherical = Statistics->AvgVariance;
-  if (Proto->Variance.Spherical < MINVARIANCE)
+  if (Proto->Variance.Spherical < MINVARIANCE) {
     Proto->Variance.Spherical = MINVARIANCE;
+  }
 
   Proto->Magnitude.Spherical = 1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
   Proto->TotalMagnitude = static_cast<float>(
@@ -2460,8 +2510,9 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
   Proto->TotalMagnitude = 1.0;
   for (i = 0; i < N; i++, CoVariance += N + 1) {
     Proto->Variance.Elliptical[i] = *CoVariance;
-    if (Proto->Variance.Elliptical[i] < MINVARIANCE)
+    if (Proto->Variance.Elliptical[i] < MINVARIANCE) {
       Proto->Variance.Elliptical[i] = MINVARIANCE;
+    }
 
     Proto->Magnitude.Elliptical[i] = 1.0 / sqrt(2.0 * M_PI * Proto->Variance.Elliptical[i]);
     Proto->Weight.Elliptical[i] = 1.0 / Proto->Variance.Elliptical[i];
@@ -2514,8 +2565,9 @@ static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
   Proto = static_cast<PROTOTYPE *>(malloc(sizeof(PROTOTYPE)));
   Proto->Mean = static_cast<float *>(malloc(N * sizeof(float)));
 
-  for (i = 0; i < N; i++)
+  for (i = 0; i < N; i++) {
     Proto->Mean[i] = Cluster->Mean[i];
+  }
   Proto->Distrib = nullptr;
 
   Proto->Significant = true;
@@ -2553,21 +2605,25 @@ static bool Independent(PARAM_DESC *ParamDesc, int16_t N, float *CoVariance, flo
 
   VARii = CoVariance;
   for (i = 0; i < N; i++, VARii += N + 1) {
-    if (ParamDesc[i].NonEssential)
+    if (ParamDesc[i].NonEssential) {
       continue;
+    }
 
     VARjj = VARii + N + 1;
     CoVariance = VARii + 1;
     for (j = i + 1; j < N; j++, CoVariance++, VARjj += N + 1) {
-      if (ParamDesc[j].NonEssential)
+      if (ParamDesc[j].NonEssential) {
         continue;
+      }
 
-      if ((*VARii == 0.0) || (*VARjj == 0.0))
+      if ((*VARii == 0.0) || (*VARjj == 0.0)) {
         CorrelationCoeff = 0.0;
-      else
+      } else {
         CorrelationCoeff = sqrt(sqrt(*CoVariance * *CoVariance / (*VARii * *VARjj)));
-      if (CorrelationCoeff > Independence)
+      }
+      if (CorrelationCoeff > Independence) {
         return false;
+      }
     }
   }
   return true;
@@ -2600,8 +2656,9 @@ static BUCKETS *GetBuckets(CLUSTERER *clusterer, DISTRIBUTION Distribution, uint
     clusterer->bucket_cache[Distribution][NumberOfBuckets - MINBUCKETS] = Buckets;
   } else {
     // Just adjust the existing buckets.
-    if (SampleCount != Buckets->SampleCount)
+    if (SampleCount != Buckets->SampleCount) {
       AdjustBuckets(Buckets, SampleCount);
+    }
     if (Confidence != Buckets->Confidence) {
       Buckets->Confidence = Confidence;
       Buckets->ChiSquared =
@@ -2667,10 +2724,11 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution, uint32_t SampleCount, dou
 
     // distribution is symmetric so fill in upper half then copy
     CurrentBucket = Buckets->NumberOfBuckets / 2;
-    if (Odd(Buckets->NumberOfBuckets))
+    if (Odd(Buckets->NumberOfBuckets)) {
       NextBucketBoundary = BucketProbability / 2;
-    else
+    } else {
       NextBucketBoundary = BucketProbability;
+    }
 
     Probability = 0.0;
     LastProbDensity = (*DensityFunction[static_cast<int>(Distribution)])(BUCKETTABLESIZE / 2);
@@ -2679,8 +2737,9 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution, uint32_t SampleCount, dou
       ProbabilityDelta = Integral(LastProbDensity, ProbDensity, 1.0);
       Probability += ProbabilityDelta;
       if (Probability > NextBucketBoundary) {
-        if (CurrentBucket < Buckets->NumberOfBuckets - 1)
+        if (CurrentBucket < Buckets->NumberOfBuckets - 1) {
           CurrentBucket++;
+        }
         NextBucketBoundary += BucketProbability;
       }
       Buckets->Bucket[i] = CurrentBucket;
@@ -2691,12 +2750,14 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution, uint32_t SampleCount, dou
     Buckets->ExpectedCount[CurrentBucket] += static_cast<float>((0.5 - Probability) * SampleCount);
 
     // copy upper half of distribution to lower half
-    for (i = 0, j = BUCKETTABLESIZE - 1; i < j; i++, j--)
+    for (i = 0, j = BUCKETTABLESIZE - 1; i < j; i++, j--) {
       Buckets->Bucket[i] = Mirror(Buckets->Bucket[j], Buckets->NumberOfBuckets);
+    }
 
     // copy upper half of expected counts to lower half
-    for (i = 0, j = Buckets->NumberOfBuckets - 1; i <= j; i++, j--)
+    for (i = 0, j = Buckets->NumberOfBuckets - 1; i <= j; i++, j--) {
       Buckets->ExpectedCount[i] += Buckets->ExpectedCount[j];
+    }
   }
   return Buckets;
 } // MakeBuckets
@@ -2718,8 +2779,9 @@ static uint16_t OptimumNumberOfBuckets(uint32_t SampleCount) {
   uint8_t Last, Next;
   float Slope;
 
-  if (SampleCount < kCountTable[0])
+  if (SampleCount < kCountTable[0]) {
     return kBucketsTable[0];
+  }
 
   for (Last = 0, Next = 1; Next < LOOKUPTABLESIZE; Last++, Next++) {
     if (SampleCount <= kCountTable[Next]) {
@@ -2760,8 +2822,9 @@ static double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha)
   // limit the minimum alpha that can be used - if alpha is too small
   //      it may not be possible to compute chi-squared.
   Alpha = ClipToRange(Alpha, MINALPHA, 1.0);
-  if (Odd(DegreesOfFreedom))
+  if (Odd(DegreesOfFreedom)) {
     DegreesOfFreedom++;
+  }
 
   /* find the list of chi-squared values which have already been computed
    for the specified number of degrees of freedom.  Search the list for
@@ -2860,8 +2923,9 @@ static void FillBuckets(BUCKETS *Buckets, CLUSTER *Cluster, uint16_t Dim, PARAM_
   SAMPLE *Sample;
 
   // initialize the histogram bucket counts to 0
-  for (i = 0; i < Buckets->NumberOfBuckets; i++)
+  for (i = 0; i < Buckets->NumberOfBuckets; i++) {
     Buckets->Count[i] = 0;
+  }
 
   if (StdDev == 0.0) {
     /* if the standard deviation is zero, then we can't statistically
@@ -2873,16 +2937,18 @@ static void FillBuckets(BUCKETS *Buckets, CLUSTER *Cluster, uint16_t Dim, PARAM_
     InitSampleSearch(SearchState, Cluster);
     i = 0;
     while ((Sample = NextSample(&SearchState)) != nullptr) {
-      if (Sample->Mean[Dim] > Mean)
+      if (Sample->Mean[Dim] > Mean) {
         BucketID = Buckets->NumberOfBuckets - 1;
-      else if (Sample->Mean[Dim] < Mean)
+      } else if (Sample->Mean[Dim] < Mean) {
         BucketID = 0;
-      else
+      } else {
         BucketID = i;
+      }
       Buckets->Count[BucketID] += 1;
       i++;
-      if (i >= Buckets->NumberOfBuckets)
+      if (i >= Buckets->NumberOfBuckets) {
         i = 0;
+      }
     }
   } else {
     // search for all samples in the cluster and add to histogram buckets
@@ -2920,17 +2986,20 @@ static uint16_t NormalBucket(PARAM_DESC *ParamDesc, float x, float Mean, float S
 
   // wraparound circular parameters if necessary
   if (ParamDesc->Circular) {
-    if (x - Mean > ParamDesc->HalfRange)
+    if (x - Mean > ParamDesc->HalfRange) {
       x -= ParamDesc->Range;
-    else if (x - Mean < -ParamDesc->HalfRange)
+    } else if (x - Mean < -ParamDesc->HalfRange) {
       x += ParamDesc->Range;
+    }
   }
 
   X = ((x - Mean) / StdDev) * kNormalStdDev + kNormalMean;
-  if (X < 0)
+  if (X < 0) {
     return 0;
-  if (X > BUCKETTABLESIZE - 1)
+  }
+  if (X > BUCKETTABLESIZE - 1) {
     return (static_cast<uint16_t>(BUCKETTABLESIZE - 1));
+  }
   return static_cast<uint16_t>(floor(static_cast<double>(X)));
 } // NormalBucket
 
@@ -2950,17 +3019,20 @@ static uint16_t UniformBucket(PARAM_DESC *ParamDesc, float x, float Mean, float 
 
   // wraparound circular parameters if necessary
   if (ParamDesc->Circular) {
-    if (x - Mean > ParamDesc->HalfRange)
+    if (x - Mean > ParamDesc->HalfRange) {
       x -= ParamDesc->Range;
-    else if (x - Mean < -ParamDesc->HalfRange)
+    } else if (x - Mean < -ParamDesc->HalfRange) {
       x += ParamDesc->Range;
+    }
   }
 
   X = ((x - Mean) / (2 * StdDev) * BUCKETTABLESIZE + BUCKETTABLESIZE / 2.0);
-  if (X < 0)
+  if (X < 0) {
     return 0;
-  if (X > BUCKETTABLESIZE - 1)
+  }
+  if (X > BUCKETTABLESIZE - 1) {
     return static_cast<uint16_t>(BUCKETTABLESIZE - 1);
+  }
   return static_cast<uint16_t>(floor(static_cast<double>(X)));
 } // UniformBucket
 
@@ -2987,10 +3059,11 @@ static bool DistributionOK(BUCKETS *Buckets) {
   }
 
   // test to see if the difference is more than expected
-  if (TotalDifference > Buckets->ChiSquared)
+  if (TotalDifference > Buckets->ChiSquared) {
     return false;
-  else
+  } else {
     return true;
+  }
 } // DistributionOK
 
 /**
@@ -3049,8 +3122,9 @@ static uint16_t DegreesOfFreedom(DISTRIBUTION Distribution, uint16_t HistogramBu
   uint16_t AdjustedNumBuckets;
 
   AdjustedNumBuckets = HistogramBuckets - DegreeOffsets[static_cast<int>(Distribution)];
-  if (Odd(AdjustedNumBuckets))
+  if (Odd(AdjustedNumBuckets)) {
     AdjustedNumBuckets++;
+  }
   return (AdjustedNumBuckets);
 
 } // DegreesOfFreedom
@@ -3163,10 +3237,11 @@ static double Solve(SOLVEFUNC Function, void *FunctionParams, double InitialGues
   f = (*Function)(static_cast<CHISTRUCT *>(FunctionParams), x);
   while (Abs(LastPosX - LastNegX) > Accuracy) {
     // keep track of outer bounds of current estimate
-    if (f < 0)
+    if (f < 0) {
       LastNegX = x;
-    else
+    } else {
       LastPosX = x;
+    }
 
     // compute the approx. slope of f(x) at the current point
     Slope = ((*Function)(static_cast<CHISTRUCT *>(FunctionParams), x + Delta) - f) / Delta;
@@ -3178,8 +3253,9 @@ static double Solve(SOLVEFUNC Function, void *FunctionParams, double InitialGues
     // reduce the delta used for computing slope to be a fraction of
     // the amount moved to get to the new guess
     NewDelta = Abs(xDelta) * DELTARATIO;
-    if (NewDelta < Delta)
+    if (NewDelta < Delta) {
       Delta = NewDelta;
+    }
 
     // compute the value of the function at the new guess
     f = (*Function)(static_cast<CHISTRUCT *>(FunctionParams), x);
@@ -3267,8 +3343,9 @@ static bool MultipleCharSamples(CLUSTERER *Clusterer, CLUSTER *Cluster, float Ma
     CharFlags.resize(Clusterer->NumChar);
   }
 
-  for (auto &CharFlag : CharFlags)
+  for (auto &CharFlag : CharFlags) {
     CharFlag = false;
+  }
 
   // find each sample in the cluster and check if we have seen it before
   InitSampleSearch(SearchState, Cluster);

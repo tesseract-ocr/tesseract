@@ -52,10 +52,12 @@ public:
   static int SortPairsByValue(const void *v1, const void *v2) {
     const auto *p1 = static_cast<const SortPair<T> *>(v1);
     const auto *p2 = static_cast<const SortPair<T> *>(v2);
-    if (p2->value - p1->value < 0)
+    if (p2->value - p1->value < 0) {
       return -1;
-    if (p2->value - p1->value > 0)
+    }
+    if (p2->value - p1->value > 0) {
       return 1;
+    }
     return 0;
   }
 
@@ -86,8 +88,9 @@ public:
     for (auto &it : counts_) {
       if (it.count > best_count) {
         best_count = it.count;
-        if (max_value != nullptr)
+        if (max_value != nullptr) {
           *max_value = it.value;
+        }
       }
     }
     return best_count;

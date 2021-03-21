@@ -55,8 +55,9 @@ bool Tesseract::word_adaptable( // should we adapt?
 0: NO adaption
 */
   if (mode == 0) {
-    if (tessedit_adaption_debug)
+    if (tessedit_adaption_debug) {
       tprintf("adaption disabled\n");
+    }
     return false;
   }
 
@@ -82,27 +83,31 @@ bool Tesseract::word_adaptable( // should we adapt?
       (word->best_choice->permuter() != FREQ_DAWG_PERM) &&
       (word->best_choice->permuter() != USER_DAWG_PERM) &&
       (word->best_choice->permuter() != NUMBER_PERM)) {
-    if (tessedit_adaption_debug)
+    if (tessedit_adaption_debug) {
       tprintf("word not in dawgs\n");
+    }
     return false;
   }
 
   if (flags[CHECK_ONE_ELL_CONFLICT] && one_ell_conflict(word, false)) {
-    if (tessedit_adaption_debug)
+    if (tessedit_adaption_debug) {
       tprintf("word has ell conflict\n");
+    }
     return false;
   }
 
   if (flags[CHECK_SPACES] &&
       (strchr(word->best_choice->unichar_string().c_str(), ' ') != nullptr)) {
-    if (tessedit_adaption_debug)
+    if (tessedit_adaption_debug) {
       tprintf("word contains spaces\n");
+    }
     return false;
   }
 
   if (flags[CHECK_AMBIG_WERD] && word->best_choice->dangerous_ambig_found()) {
-    if (tessedit_adaption_debug)
+    if (tessedit_adaption_debug) {
       tprintf("word is ambiguous\n");
+    }
     return false;
   }
 

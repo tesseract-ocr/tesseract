@@ -118,40 +118,46 @@ int32_t OL_BUCKETS::outline_complexity(C_OUTLINE *outline, // parent outline
   ymax = (olbox.top() - bl.y()) / BUCKETSIZE;
   child_count = 0;
   grandchild_count = 0;
-  if (++depth > edges_max_children_layers) // nested loops are too deep
+  if (++depth > edges_max_children_layers) { // nested loops are too deep
     return max_count + depth;
+  }
 
   for (yindex = ymin; yindex <= ymax; yindex++) {
     for (xindex = xmin; xindex <= xmax; xindex++) {
       child_it.set_to_list(&buckets[yindex * bxdim + xindex]);
-      if (child_it.empty())
+      if (child_it.empty()) {
         continue;
+      }
       for (child_it.mark_cycle_pt(); !child_it.cycled_list(); child_it.forward()) {
         child = child_it.data();
-        if (child == outline || !(*child < *outline))
+        if (child == outline || !(*child < *outline)) {
           continue;
+        }
         child_count++;
 
         if (child_count > edges_max_children_per_outline) { // too fragmented
-          if (edges_debug)
+          if (edges_debug) {
             tprintf(
                 "Discard outline on child_count=%d > "
                 "max_children_per_outline=%d\n",
                 child_count, static_cast<int32_t>(edges_max_children_per_outline));
+          }
           return max_count + child_count;
         }
 
         // Compute the "complexity" of each child recursively
         int32_t remaining_count = max_count - child_count - grandchild_count;
-        if (remaining_count > 0)
+        if (remaining_count > 0) {
           grandchild_count +=
               edges_children_per_grandchild * outline_complexity(child, remaining_count, depth);
+        }
         if (child_count + grandchild_count > max_count) { // too complex
-          if (edges_debug)
+          if (edges_debug) {
             tprintf(
                 "Disgard outline on child_count=%d + grandchild_count=%d "
                 "> max_count=%d\n",
                 child_count, grandchild_count, max_count);
+          }
           return child_count + grandchild_count;
         }
       }
@@ -197,67 +203,76 @@ int32_t OL_BUCKETS::count_children( // recursive count
   for (yindex = ymin; yindex <= ymax; yindex++) {
     for (xindex = xmin; xindex <= xmax; xindex++) {
       child_it.set_to_list(&buckets[yindex * bxdim + xindex]);
-      if (child_it.empty())
+      if (child_it.empty()) {
         continue;
+      }
       for (child_it.mark_cycle_pt(); !child_it.cycled_list(); child_it.forward()) {
         child = child_it.data();
         if (child != outline && *child < *outline) {
           child_count++;
           if (child_count <= max_count) {
             int max_grand = (max_count - child_count) / edges_children_per_grandchild;
-            if (max_grand > 0)
+            if (max_grand > 0) {
               grandchild_count += count_children(child, max_grand) * edges_children_per_grandchild;
-            else
+            } else {
               grandchild_count += count_children(child, 1);
+            }
           }
           if (child_count + grandchild_count > max_count) {
-            if (edges_debug)
+            if (edges_debug) {
               tprintf("Discarding parent with child count=%d, gc=%d\n", child_count,
                       grandchild_count);
+            }
             return child_count + grandchild_count;
           }
           if (parent_area == 0) {
             parent_area = outline->outer_area();
-            if (parent_area < 0)
+            if (parent_area < 0) {
               parent_area = -parent_area;
+            }
             max_parent_area = outline->bounding_box().area() * edges_boxarea;
-            if (parent_area < max_parent_area)
+            if (parent_area < max_parent_area) {
               parent_box = false;
+            }
           }
           if (parent_box &&
               (!edges_children_fix || child->bounding_box().height() > edges_min_nonhole)) {
             child_area = child->outer_area();
-            if (child_area < 0)
+            if (child_area < 0) {
               child_area = -child_area;
+            }
             if (edges_children_fix) {
               if (parent_area - child_area < max_parent_area) {
                 parent_box = false;
                 continue;
               }
               if (grandchild_count > 0) {
-                if (edges_debug)
+                if (edges_debug) {
                   tprintf(
                       "Discarding parent of area %d, child area=%d, max%g "
                       "with gc=%d\n",
                       parent_area, child_area, max_parent_area, grandchild_count);
+                }
                 return max_count + 1;
               }
               child_length = child->pathlength();
               if (child_length * child_length > child_area * edges_patharea_ratio) {
-                if (edges_debug)
+                if (edges_debug) {
                   tprintf(
                       "Discarding parent of area %d, child area=%d, max%g "
                       "with child length=%d\n",
                       parent_area, child_area, max_parent_area, child_length);
+                }
                 return max_count + 1;
               }
             }
             if (child_area < child->bounding_box().area() * edges_childarea) {
-              if (edges_debug)
+              if (edges_debug) {
                 tprintf(
                     "Discarding parent of area %d, child area=%d, max%g "
                     "with child rect=%d\n",
                     parent_area, child_area, max_parent_area, child->bounding_box().area());
+              }
               return max_count + 1;
             }
           }
@@ -414,15 +429,18 @@ bool capture_children(    // find children
   int32_t child_count; // no of children
 
   outline = blob_it->data();
-  if (edges_use_new_outline_complexity)
+  if (edges_use_new_outline_complexity) {
     child_count = buckets->outline_complexity(outline, edges_children_count_limit, 0);
-  else
+  } else {
     child_count = buckets->count_children(outline, edges_children_count_limit);
-  if (child_count > edges_children_count_limit)
+  }
+  if (child_count > edges_children_count_limit) {
     return false;
+  }
 
-  if (child_count > 0)
+  if (child_count > 0) {
     buckets->extract_children(outline, blob_it);
+  }
   return true;
 }
 

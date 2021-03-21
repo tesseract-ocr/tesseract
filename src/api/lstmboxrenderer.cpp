@@ -36,8 +36,9 @@ static void AddBoxToLSTM(int right, int bottom, int top, int image_height, int p
 }
 
 char *TessBaseAPI::GetLSTMBoxText(int page_number = 0) {
-  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0))
+  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0)) {
     return nullptr;
+  }
 
   std::string lstm_box_str;
   bool first_word = true;
@@ -94,8 +95,9 @@ TessLSTMBoxRenderer::TessLSTMBoxRenderer(const char *outputbase)
 
 bool TessLSTMBoxRenderer::AddImageHandler(TessBaseAPI *api) {
   const std::unique_ptr<const char[]> lstmbox(api->GetLSTMBoxText(imagenum()));
-  if (lstmbox == nullptr)
+  if (lstmbox == nullptr) {
     return false;
+  }
 
   AppendString(lstmbox.get());
 

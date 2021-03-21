@@ -65,10 +65,12 @@ static std::string EncodeAsUTF8(const char32 ch32) {
 
 // Returns true with probability 'prob'.
 static bool RandBool(const double prob, TRand *rand) {
-  if (prob == 1.0)
+  if (prob == 1.0) {
     return true;
-  if (prob == 0.0)
+  }
+  if (prob == 0.0) {
     return false;
+  }
   return rand->UnsignedRand(1.0) < prob;
 }
 
@@ -230,8 +232,9 @@ void StringRenderer::FreePangoCairo() {
 }
 
 void StringRenderer::SetWordUnderlineAttributes(const std::string &page_text) {
-  if (underline_start_prob_ == 0)
+  if (underline_start_prob_ == 0) {
     return;
+  }
   PangoAttrList *attr_list = pango_layout_get_attributes(layout_);
 
   const char *text = page_text.c_str();
@@ -242,8 +245,9 @@ void StringRenderer::SetWordUnderlineAttributes(const std::string &page_text) {
 
   while (offset < page_text.length()) {
     offset += SpanUTF8Whitespace(text + offset);
-    if (offset == page_text.length())
+    if (offset == page_text.length()) {
       break;
+    }
 
     int word_start = offset;
     int word_len = SpanUTF8NotWhitespace(text + offset);
@@ -278,8 +282,9 @@ void StringRenderer::SetWordUnderlineAttributes(const std::string &page_text) {
 
 // Returns offset in utf8 bytes to first page.
 int StringRenderer::FindFirstPageBreakOffset(const char *text, int text_length) {
-  if (!text_length)
+  if (!text_length) {
     return 0;
+  }
   const int max_height = (page_height_ - 2 * v_margin_);
   const int max_width = (page_width_ - 2 * h_margin_);
   const int max_layout_height = vertical_text_ ? max_width : max_height;
@@ -287,8 +292,9 @@ int StringRenderer::FindFirstPageBreakOffset(const char *text, int text_length) 
   UNICHAR::const_iterator it = UNICHAR::begin(text, text_length);
   const UNICHAR::const_iterator it_end = UNICHAR::end(text, text_length);
   const int kMaxUnicodeBufLength = 15000;
-  for (int i = 0; i < kMaxUnicodeBufLength && it != it_end; ++it, ++i)
+  for (int i = 0; i < kMaxUnicodeBufLength && it != it_end; ++it, ++i) {
     ;
+  }
   int buf_length = it.utf8_data() - text;
   tlog(1, "len = %d  buf_len = %d\n", text_length, buf_length);
   pango_layout_set_text(layout_, text, buf_length);
@@ -336,8 +342,9 @@ void StringRenderer::RotatePageBoxes(float rotation) {
 }
 
 void StringRenderer::ClearBoxes() {
-  for (auto &boxchar : boxchars_)
+  for (auto &boxchar : boxchars_) {
     delete boxchar;
+  }
   boxchars_.clear();
   boxaDestroy(&page_boxes_);
 }
@@ -573,17 +580,20 @@ void StringRenderer::ComputeClusterBoxes() {
   Box *page_box = nullptr;
   Boxa *all_boxes = nullptr;
   for (auto &page_boxchar : page_boxchars) {
-    if (page_boxchar->box() == nullptr)
+    if (page_boxchar->box() == nullptr) {
       continue;
-    if (all_boxes == nullptr)
+    }
+    if (all_boxes == nullptr) {
       all_boxes = boxaCreate(0);
+    }
     boxaAddBox(all_boxes, page_boxchar->mutable_box(), L_CLONE);
   }
   if (all_boxes != nullptr) {
     boxaGetExtent(all_boxes, nullptr, nullptr, &page_box);
     boxaDestroy(&all_boxes);
-    if (page_boxes_ == nullptr)
+    if (page_boxes_ == nullptr) {
       page_boxes_ = boxaCreate(0);
+    }
     boxaAddBox(page_boxes_, page_box, L_INSERT);
   }
 }
@@ -609,8 +619,9 @@ int StringRenderer::StripUnrenderableWords(std::string *utf8_text) const {
     int space_len = SpanUTF8Whitespace(text + offset);
     output_text.append(text + offset, space_len);
     offset += space_len;
-    if (offset == utf8_text->length())
+    if (offset == utf8_text->length()) {
       break;
+    }
 
     int word_len = SpanUTF8NotWhitespace(text + offset);
     if (font_.CanRenderString(text + offset, word_len)) {
@@ -712,8 +723,9 @@ std::string StringRenderer::ConvertFullwidthLatinToBasicLatin(const std::string 
 
 // Returns offset to end of text substring rendered in this method.
 int StringRenderer::RenderToImage(const char *text, int text_length, Pix **pix) {
-  if (pix && *pix)
+  if (pix && *pix) {
     pixDestroy(pix);
+  }
   InitPangoCairo();
 
   const int page_offset = FindFirstPageBreakOffset(text, text_length);
@@ -823,8 +835,9 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage, const char *text,
   }
   title_font += " 8";
   tlog(1, "Selected title font: %s\n", title_font.c_str());
-  if (font_used)
+  if (font_used) {
     font_used->clear();
+  }
 
   std::string orig_font = font_.DescriptionName();
   if (char_map_.empty()) {
@@ -856,8 +869,9 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage, const char *text,
       // the fonts.
       if (offset) {
         last_offset_ = offset;
-        if (font_used)
+        if (font_used) {
           *font_used = all_fonts[i];
+        }
       }
       // Add the font to the image.
       set_font(title_font);

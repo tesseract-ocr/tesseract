@@ -285,8 +285,9 @@ public:
   // master trainer that retains the only copy of the training data and
   // language model. trainer is the model that is restored.
   bool ReadTrainingDump(const std::vector<char> &data, LSTMTrainer &trainer) const {
-    if (data.empty())
+    if (data.empty()) {
       return false;
+    }
     return ReadSizedTrainingDump(&data[0], data.size(), trainer);
   }
   bool ReadSizedTrainingDump(const char *data, int size, LSTMTrainer &trainer) const {

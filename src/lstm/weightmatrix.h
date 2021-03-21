@@ -38,13 +38,15 @@ public:
   ~TransposedArray() override;
   void WriteStrided(int t, const float *data) {
     int size1 = dim1();
-    for (int i = 0; i < size1; ++i)
+    for (int i = 0; i < size1; ++i) {
       put(i, t, data[i]);
+    }
   }
   void WriteStrided(int t, const double *data) {
     int size1 = dim1();
-    for (int i = 0; i < size1; ++i)
+    for (int i = 0; i < size1; ++i) {
       put(i, t, data[i]);
+    }
   }
   // Prints the first and last num elements of the un-transposed array.
   void PrintUnTransposed(int num) {
@@ -91,8 +93,9 @@ public:
   // Returns the size rounded up to an internal factor used by the SIMD
   // implementation for its input.
   int RoundInputs(int size) const {
-    if (!int_mode_ || !IntSimdMatrix::intSimdMatrix)
+    if (!int_mode_ || !IntSimdMatrix::intSimdMatrix) {
       return size;
+    }
     return IntSimdMatrix::intSimdMatrix->RoundInputs(size);
   }
 

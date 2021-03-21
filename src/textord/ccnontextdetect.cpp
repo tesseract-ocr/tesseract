@@ -94,10 +94,11 @@ Pix *CCNonTextDetect::ComputeNonTextMask(bool debug, Pix *photo_map, TO_BLOCK *b
     BLOBNBOX *blob = blob_it.data();
     double perimeter_area_ratio = blob->cblob()->perimeter() / 4.0;
     perimeter_area_ratio *= perimeter_area_ratio / blob->enclosed_area();
-    if (blob->GoodTextBlob() == 0 || perimeter_area_ratio < kMinGoodTextPARatio)
+    if (blob->GoodTextBlob() == 0 || perimeter_area_ratio < kMinGoodTextPARatio) {
       InsertBBox(true, true, blob);
-    else
+    } else {
       good_grid.InsertBBox(true, true, blob);
+    }
   }
   noise_density_ = ComputeNoiseDensity(debug, photo_map, &good_grid);
   good_grid.Clear(); // Not needed any more.
@@ -192,24 +193,29 @@ IntGrid *CCNonTextDetect::ComputeNoiseDensity(bool debug, Pix *photo_map, BlobGr
 static TBOX AttemptBoxExpansion(const TBOX &box, const IntGrid &noise_density, int pad) {
   TBOX expanded_box(box);
   expanded_box.set_right(box.right() + pad);
-  if (!noise_density.AnyZeroInRect(expanded_box))
+  if (!noise_density.AnyZeroInRect(expanded_box)) {
     return expanded_box;
+  }
   expanded_box = box;
   expanded_box.set_left(box.left() - pad);
-  if (!noise_density.AnyZeroInRect(expanded_box))
+  if (!noise_density.AnyZeroInRect(expanded_box)) {
     return expanded_box;
+  }
   expanded_box = box;
   expanded_box.set_top(box.top() + pad);
-  if (!noise_density.AnyZeroInRect(expanded_box))
+  if (!noise_density.AnyZeroInRect(expanded_box)) {
     return expanded_box;
+  }
   expanded_box = box;
   expanded_box.set_bottom(box.bottom() + pad);
-  if (!noise_density.AnyZeroInRect(expanded_box))
+  if (!noise_density.AnyZeroInRect(expanded_box)) {
     return expanded_box;
+  }
   expanded_box = box;
   expanded_box.pad(kNoisePadding, kNoisePadding);
-  if (!noise_density.AnyZeroInRect(expanded_box))
+  if (!noise_density.AnyZeroInRect(expanded_box)) {
     return expanded_box;
+  }
   return box;
 }
 
@@ -241,8 +247,9 @@ void CCNonTextDetect::MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST *blobs, int max_bl
         (max_blob_overlaps < 0 || !BlobOverlapsTooMuch(blob, max_blob_overlaps))) {
       blob->ClearNeighbours();
 #ifndef GRAPHICS_DISABLED
-      if (win != nullptr)
+      if (win != nullptr) {
         blob->plot(win, ok_color, ok_color);
+      }
 #endif // !GRAPHICS_DISABLED
     } else {
       if (noise_density_->AnyZeroInRect(box)) {
@@ -264,8 +271,9 @@ void CCNonTextDetect::MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST *blobs, int max_bl
                     PIX_SET, nullptr, 0, 0);
       }
 #ifndef GRAPHICS_DISABLED
-      if (win != nullptr)
+      if (win != nullptr) {
         blob->plot(win, ScrollView::RED, ScrollView::RED);
+      }
 #endif // !GRAPHICS_DISABLED
        // It is safe to delete the cblob now, as it isn't used by the grid
        // or BlobOverlapsTooMuch, and the BLOBNBOXes will go away with the
@@ -292,8 +300,9 @@ bool CCNonTextDetect::BlobOverlapsTooMuch(BLOBNBOX *blob, int max_overlaps) {
   while (overlap_count <= max_overlaps && (neighbour = rsearch.NextRectSearch()) != nullptr) {
     if (box.major_overlap(neighbour->bounding_box())) {
       ++overlap_count;
-      if (overlap_count > max_overlaps)
+      if (overlap_count > max_overlaps) {
         return true;
+      }
     }
   }
   return false;

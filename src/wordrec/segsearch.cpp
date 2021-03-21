@@ -51,8 +51,9 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
       improve_by_chopping(rating_cert_scale, word_res, best_choice_bundle, blamer_bundle,
                           &pain_points, &pending);
     }
-    if (chop_debug)
+    if (chop_debug) {
       SEAM::PrintSeams("Final seam list:", word_res->seam_array);
+    }
 
     if (blamer_bundle != nullptr && !blamer_bundle->ChoiceIsCorrect(word_res->best_choice)) {
       blamer_bundle->SetChopperBlame(word_res, wordrec_debug_blamer);
@@ -81,8 +82,9 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
       }
     }
     if (found_nothing) {
-      if (segsearch_debug_level > 0)
+      if (segsearch_debug_level > 0) {
         tprintf("Pain points queue is empty\n");
+      }
       break;
     }
     ProcessSegSearchPainPoint(pain_point_priority, pain_point,
@@ -91,8 +93,9 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
 
     UpdateSegSearchNodes(rating_cert_scale, pain_point.col, &pending, word_res, &pain_points,
                          best_choice_bundle, blamer_bundle);
-    if (!best_choice_bundle->updated)
+    if (!best_choice_bundle->updated) {
       ++num_futile_classifications;
+    }
 
     if (segsearch_debug_level > 0) {
       tprintf("num_futile_classifications %d\n", num_futile_classifications);
@@ -169,8 +172,9 @@ void Wordrec::UpdateSegSearchNodes(float rating_cert_scale, int starting_col,
   ASSERT_HOST(ratings->dimension() == pending->size());
   ASSERT_HOST(ratings->dimension() == best_choice_bundle->beam.size());
   for (int col = starting_col; col < ratings->dimension(); ++col) {
-    if (!(*pending)[col].WorkToDo())
+    if (!(*pending)[col].WorkToDo()) {
       continue;
+    }
     int first_row = col;
     int last_row = std::min(ratings->dimension() - 1, col + ratings->bandwidth() - 1);
     if ((*pending)[col].SingleRow() >= 0) {
@@ -289,8 +293,9 @@ void Wordrec::ResetNGramSearch(WERD_RES *word_res, BestChoiceBundle *best_choice
   best_choice_bundle->best_vse = nullptr;
   // Clear out all existing pendings and add a new one for the first column.
   (*pending)[0].SetColumnClassified();
-  for (int i = 1; i < pending->size(); ++i)
+  for (int i = 1; i < pending->size(); ++i) {
     (*pending)[i].Clear();
+  }
 }
 
 void Wordrec::InitBlamerForSegSearch(WERD_RES *word_res, LMPainPoints *pain_points,

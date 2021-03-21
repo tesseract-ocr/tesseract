@@ -108,10 +108,12 @@ struct ShapeQueueEntry {
 
   // Sort by decreasing rating and decreasing level for equal rating.
   bool operator<(const ShapeQueueEntry &other) const {
-    if (result.rating > other.result.rating)
+    if (result.rating > other.result.rating) {
       return true;
-    if (result.rating == other.result.rating)
+    }
+    if (result.rating == other.result.rating) {
       return level > other.level;
+    }
     return false;
   }
 

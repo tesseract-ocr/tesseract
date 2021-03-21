@@ -61,12 +61,14 @@ static int check_blob(TBLOB *blob) {
   for (outline = blob->outlines; outline != nullptr; outline = outline->next) {
     edgept = outline->loop;
     do {
-      if (edgept == nullptr)
+      if (edgept == nullptr) {
         break;
+      }
       edgept = edgept->next;
     } while (edgept != outline->loop);
-    if (edgept == nullptr)
+    if (edgept == nullptr) {
       return 1;
+    }
   }
   return 0;
 }
@@ -81,9 +83,11 @@ static int any_shared_split_points(const std::vector<SEAM *> &seams, SEAM *seam)
   int index;
 
   length = seams.size();
-  for (index = 0; index < length; index++)
-    if (seam->SharesPosition(*seams[index]))
+  for (index = 0; index < length; index++) {
+    if (seam->SharesPosition(*seams[index])) {
       return true;
+    }
+  }
   return false;
 }
 
@@ -95,8 +99,9 @@ static int any_shared_split_points(const std::vector<SEAM *> &seams, SEAM *seam)
 static void preserve_outline(EDGEPT *start) {
   EDGEPT *srcpt;
 
-  if (start == nullptr)
+  if (start == nullptr) {
     return;
+  }
   srcpt = start;
   do {
     srcpt->flags[1] = 1;
@@ -122,12 +127,14 @@ static EDGEPT *restore_outline(EDGEPT *start) {
   EDGEPT *srcpt;
   EDGEPT *real_start;
 
-  if (start == nullptr)
+  if (start == nullptr) {
     return nullptr;
+  }
   srcpt = start;
   do {
-    if (srcpt->flags[1] == 2)
+    if (srcpt->flags[1] == 2) {
       break;
+    }
     srcpt = srcpt->next;
   } while (srcpt != start);
   real_start = srcpt;
@@ -177,8 +184,9 @@ static SEAM *CheckSeam(int debug_level, int32_t blob_number, TWERD *word, TBLOB 
       seam = nullptr;
 #ifndef GRAPHICS_DISABLED
       if (debug_level) {
-        if (debug_level > 2)
+        if (debug_level > 2) {
           display_blob(blob, ScrollView::RED);
+        }
         tprintf("\n** seam being removed ** \n");
       }
 #endif
@@ -198,8 +206,9 @@ static SEAM *CheckSeam(int debug_level, int32_t blob_number, TWERD *word, TBLOB 
  */
 SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number, bool italic_blob,
                                  const std::vector<SEAM *> &seams) {
-  if (repair_unchopped_blobs)
+  if (repair_unchopped_blobs) {
     preserve_outline_tree(blob->outlines);
+  }
   TBLOB *other_blob = TBLOB::ShallowCopy(*blob); /* Make new blob */
   // Insert it into the word.
   word->blobs.insert(word->blobs.begin() + blob_number + 1, other_blob);
@@ -211,13 +220,15 @@ SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number, 
       seam = new SEAM(0.0f, location);
     }
   }
-  if (seam == nullptr)
+  if (seam == nullptr) {
     seam = pick_good_seam(blob);
+  }
   if (chop_debug) {
-    if (seam != nullptr)
+    if (seam != nullptr) {
       seam->Print("Good seam picked=");
-    else
+    } else {
       tprintf("\n** no seam picked *** \n");
+    }
   }
   if (seam) {
     seam->ApplySeam(italic_blob, blob, other_blob);
@@ -225,8 +236,9 @@ SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number, 
 
   seam = CheckSeam(chop_debug, blob_number, word, blob, other_blob, seams, seam);
   if (seam == nullptr) {
-    if (repair_unchopped_blobs)
+    if (repair_unchopped_blobs) {
       restore_outline_tree(blob->outlines);
+    }
     if (allow_blob_division && !prioritize_division) {
       // If the blob can simply be divided into outlines, then do that.
       TPOINT location;
@@ -272,17 +284,20 @@ SEAM *Wordrec::chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic
     bool almost_equal_box = false;
     int num_overlap = 0;
     for (auto boxe : boxes) {
-      if (original_box.overlap_fraction(boxe) > 0.125)
+      if (original_box.overlap_fraction(boxe) > 0.125) {
         num_overlap++;
-      if (original_box.almost_equal(boxe, 3))
+      }
+      if (original_box.almost_equal(boxe, 3)) {
         almost_equal_box = true;
+      }
     }
 
     TPOINT location;
     if (divisible_blob(blob, italic_blob, &location) || (!almost_equal_box && num_overlap > 1)) {
       SEAM *seam = attempt_blob_chop(word, blob, *blob_number, italic_blob, word_res->seam_array);
-      if (seam != nullptr)
+      if (seam != nullptr) {
         return seam;
+      }
     }
   }
 
@@ -309,25 +324,30 @@ SEAM *Wordrec::improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, 
   SEAM *seam = nullptr;
   do {
     *blob_number = select_blob_to_split_from_fixpt(fixpt);
-    if (chop_debug)
+    if (chop_debug) {
       tprintf("blob_number from fixpt = %d\n", *blob_number);
+    }
     bool split_point_from_dict = (*blob_number != -1);
     if (split_point_from_dict) {
       fixpt->clear();
     } else {
       *blob_number = select_blob_to_split(blob_choices, rating_ceiling, split_next_to_fragment);
     }
-    if (chop_debug)
+    if (chop_debug) {
       tprintf("blob_number = %d\n", *blob_number);
-    if (*blob_number == -1)
+    }
+    if (*blob_number == -1) {
       return nullptr;
+    }
 
     // TODO(rays) it may eventually help to allow italic_blob to be true,
     seam = chop_numbered_blob(word->chopped_word, *blob_number, italic_blob, word->seam_array);
-    if (seam != nullptr)
+    if (seam != nullptr) {
       return seam; // Success!
-    if (blob_choices[*blob_number] == nullptr)
+    }
+    if (blob_choices[*blob_number] == nullptr) {
       return nullptr;
+    }
     if (!split_point_from_dict) {
       // We chopped the worst rated blob, try something else next time.
       rating_ceiling = blob_choices[*blob_number]->rating();
@@ -442,8 +462,9 @@ void Wordrec::improve_by_chopping(float rating_cert_scale, WERD_RES *word,
     }
     SEAM *seam = improve_one_blob(blob_choices, &best_choice_bundle->fixpt, false, false, word,
                                   &blob_number);
-    if (seam == nullptr)
+    if (seam == nullptr) {
       break;
+    }
     // A chop has been made. We have to correct all the data structures to
     // take into account the extra bottom-level blob.
     // Put the seam into the seam_array and correct everything else on the
@@ -509,10 +530,11 @@ int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices
   const CHAR_FRAGMENT **fragments = nullptr;
 
   if (chop_debug) {
-    if (rating_ceiling < FLT_MAX)
+    if (rating_ceiling < FLT_MAX) {
       tprintf("rating_ceiling = %8.4f\n", rating_ceiling);
-    else
+    } else {
       tprintf("rating_ceiling = No Limit\n");
+    }
   }
 
   if (split_next_to_fragment && blob_choices.size() > 0) {
@@ -583,8 +605,9 @@ int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices
  * index as a place we need to split.  If none, return -1.
  **********************************************************************/
 int Wordrec::select_blob_to_split_from_fixpt(DANGERR *fixpt) {
-  if (!fixpt)
+  if (!fixpt) {
     return -1;
+  }
   for (auto &i : *fixpt) {
     if (i.begin + 1 == i.end && i.dangerous && i.correct_is_ngram) {
       return i.begin;

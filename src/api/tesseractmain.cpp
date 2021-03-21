@@ -140,18 +140,24 @@ static void PrintVersionInfo() {
   if (tesseract::SIMDDetect::IsNEONAvailable())
     printf(" Found NEON\n");
 #else
-  if (tesseract::SIMDDetect::IsAVX512BWAvailable())
+  if (tesseract::SIMDDetect::IsAVX512BWAvailable()) {
     printf(" Found AVX512BW\n");
-  if (tesseract::SIMDDetect::IsAVX512FAvailable())
+  }
+  if (tesseract::SIMDDetect::IsAVX512FAvailable()) {
     printf(" Found AVX512F\n");
-  if (tesseract::SIMDDetect::IsAVX2Available())
+  }
+  if (tesseract::SIMDDetect::IsAVX2Available()) {
     printf(" Found AVX2\n");
-  if (tesseract::SIMDDetect::IsAVXAvailable())
+  }
+  if (tesseract::SIMDDetect::IsAVXAvailable()) {
     printf(" Found AVX\n");
-  if (tesseract::SIMDDetect::IsFMAAvailable())
+  }
+  if (tesseract::SIMDDetect::IsFMAAvailable()) {
     printf(" Found FMA\n");
-  if (tesseract::SIMDDetect::IsSSEAvailable())
+  }
+  if (tesseract::SIMDDetect::IsSSEAvailable()) {
     printf(" Found SSE\n");
+  }
 #endif
 #ifdef _OPENMP
   printf(" Found OpenMP %d\n", _OPENMP);
@@ -335,8 +341,9 @@ static void PrintBanner() {
  * but that doesn't work.
  */
 static void FixPageSegMode(tesseract::TessBaseAPI &api, tesseract::PageSegMode pagesegmode) {
-  if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
+  if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK) {
     api.SetPageSegMode(pagesegmode);
+  }
 }
 
 static bool checkArgValues(int arg, const char *mode, int count) {
@@ -635,8 +642,9 @@ int main(int argc, char **argv) {
     lang = "eng";
   }
 
-  if (image == nullptr && !list_langs && !print_parameters)
+  if (image == nullptr && !list_langs && !print_parameters) {
     return EXIT_SUCCESS;
+  }
 
   // Call GlobalDawgCache here to create the global DawgCache object before
   // the TessBaseAPI object. This fixes the order of destructor calls:
@@ -765,8 +773,9 @@ int main(int argc, char **argv) {
   }
 
   if (!renderers.empty()) {
-    if (banner)
+    if (banner) {
       PrintBanner();
+    }
 #ifdef DISABLED_LEGACY_ENGINE
     if (!osd_warning.empty()) {
       fprintf(stderr, "%s", osd_warning.c_str());

@@ -59,14 +59,15 @@ static void DisplayProtoList(const char *ch, LIST protolist) {
   LIST proto = protolist;
   iterate(proto) {
     auto *prototype = reinterpret_cast<PROTOTYPE *>(first_node(proto));
-    if (prototype->Significant)
+    if (prototype->Significant) {
       window->Pen(ScrollView::GREEN);
-    else if (prototype->NumSamples == 0)
+    } else if (prototype->NumSamples == 0) {
       window->Pen(ScrollView::BLUE);
-    else if (prototype->Merged)
+    } else if (prototype->Merged) {
       window->Pen(ScrollView::MAGENTA);
-    else
+    } else {
       window->Pen(ScrollView::RED);
+    }
     float x = CenterX(prototype->Mean);
     float y = CenterY(prototype->Mean);
     double angle = OrientationOf(prototype->Mean) * 2 * M_PI;
@@ -74,10 +75,11 @@ static void DisplayProtoList(const char *ch, LIST protolist) {
     auto dy = static_cast<float>(LengthOf(prototype->Mean) * sin(angle) / 2);
     window->SetCursor((x - dx) * 256, (y - dy) * 256);
     window->DrawTo((x + dx) * 256, (y + dy) * 256);
-    if (prototype->Significant)
+    if (prototype->Significant) {
       tprintf("Green proto at (%g,%g)+(%g,%g) %d samples\n", x, y, dx, dy, prototype->NumSamples);
-    else if (prototype->NumSamples > 0 && !prototype->Merged)
+    } else if (prototype->NumSamples > 0 && !prototype->Merged) {
       tprintf("Red proto at (%g,%g)+(%g,%g) %d samples\n", x, y, dx, dy, prototype->NumSamples);
+    }
   }
   window->Update();
 }
@@ -98,8 +100,9 @@ static LIST ClusterOneConfig(int shape_id, const char *class_label, LIST mf_clas
   // representing almost all samples of the class/font.
   MergeInsignificantProtos(proto_list, class_label, clusterer, &Config);
 #ifndef GRAPHICS_DISABLED
-  if (strcmp(FLAGS_test_ch.c_str(), class_label) == 0)
+  if (strcmp(FLAGS_test_ch.c_str(), class_label) == 0) {
     DisplayProtoList(FLAGS_test_ch.c_str(), proto_list);
+  }
 #endif // !GRAPHICS_DISABLED
   // Delete the protos that will not be used in the inttemp output file.
   proto_list = RemoveInsignificantProtos(proto_list, true, false, clusterer->SampleSize);
@@ -196,8 +199,9 @@ int main(int argc, char **argv) {
   std::string file_prefix;
   // Load the training data.
   auto trainer = tesseract::LoadTrainingData(argc, argv, false, &shape_table, file_prefix);
-  if (trainer == nullptr)
+  if (trainer == nullptr) {
     return 1; // Failed.
+  }
 
   // Setup an index mapping from the shapes in the shape table to the classes
   // that will be trained. In keeping with the original design, each shape
@@ -260,8 +264,9 @@ int main(int argc, char **argv) {
   if (!FLAGS_test_ch.empty()) {
     // If we are displaying debug window(s), wait for the user to look at them.
     printf("Hit return to exit...\n");
-    while (getchar() != '\n')
+    while (getchar() != '\n') {
       ;
+    }
   }
   return 0;
 } /* main */

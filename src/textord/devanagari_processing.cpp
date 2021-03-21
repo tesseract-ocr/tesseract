@@ -123,8 +123,9 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa *pixa_debug) {
   // Conditionally run splitting on each of them.
   Boxa *regions_to_clear = boxaCreate(0);
   int num_ccs = 0;
-  if (ccs != nullptr)
+  if (ccs != nullptr) {
     num_ccs = pixaGetCount(ccs);
+  }
   for (int i = 0; i < num_ccs; ++i) {
     Box *box = ccs->boxa->box[i];
     Pix *word_pix = pixClipRectangle(orig_pix_, box, nullptr);
@@ -282,10 +283,11 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy, Pix *
   // these changes inside the vert_hist data itself, as that is used later on as
   // a bit vector for the final split decision at every column.
   for (int i = 0; i < width; ++i) {
-    if (vert_hist.hist()[i] <= stroke_width / 4)
+    if (vert_hist.hist()[i] <= stroke_width / 4) {
       vert_hist.hist()[i] = 0;
-    else
+    } else {
       vert_hist.hist()[i] = 1;
+    }
   }
   // In order to split the line at any point, we make sure that the width of the
   // gap is at least half the stroke width.
@@ -294,8 +296,9 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy, Pix *
   while (i < width) {
     if (!vert_hist.hist()[i]) {
       int j = 0;
-      while (i + j < width && !vert_hist.hist()[i + j])
+      while (i + j < width && !vert_hist.hist()[i + j]) {
         ++j;
+      }
       if (j >= stroke_width / 2 && cur_component_width >= stroke_width / 2) {
         // Perform a shiro-rekha split. The intervening region lies from i to
         // i+j-1.
@@ -413,17 +416,22 @@ void ShiroRekhaSplitter::GetShiroRekhaYExtents(Pix *word_pix, int *shirorekha_to
   int thresh = (topline_onpixel_count * 70) / 100;
   int ulimit = topline_ylevel;
   int llimit = topline_ylevel;
-  while (ulimit > 0 && hist_horiz.hist()[ulimit] >= thresh)
+  while (ulimit > 0 && hist_horiz.hist()[ulimit] >= thresh) {
     --ulimit;
-  while (llimit < pixGetHeight(word_pix) && hist_horiz.hist()[llimit] >= thresh)
+  }
+  while (llimit < pixGetHeight(word_pix) && hist_horiz.hist()[llimit] >= thresh) {
     ++llimit;
+  }
 
-  if (shirorekha_top)
+  if (shirorekha_top) {
     *shirorekha_top = ulimit;
-  if (shirorekha_bottom)
+  }
+  if (shirorekha_bottom) {
     *shirorekha_bottom = llimit;
-  if (shirorekha_ylevel)
+  }
+  if (shirorekha_ylevel) {
     *shirorekha_ylevel = topline_ylevel;
+  }
 }
 
 // This method returns the global-maxima for the histogram. The frequency of
@@ -450,13 +458,16 @@ void PixelHistogram::ConstructVerticalCountHist(Pix *pix) {
   length_ = width;
   int wpl = pixGetWpl(pix);
   l_uint32 *data = pixGetData(pix);
-  for (int i = 0; i < width; ++i)
+  for (int i = 0; i < width; ++i) {
     hist_[i] = 0;
+  }
   for (int i = 0; i < height; ++i) {
     l_uint32 *line = data + i * wpl;
-    for (int j = 0; j < width; ++j)
-      if (GET_DATA_BIT(line, j))
+    for (int j = 0; j < width; ++j) {
+      if (GET_DATA_BIT(line, j)) {
         ++(hist_[j]);
+      }
+    }
   }
 }
 

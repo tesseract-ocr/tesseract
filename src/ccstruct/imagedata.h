@@ -312,10 +312,11 @@ public:
   // Returns a page by serial number using the current cache_strategy_ to
   // determine the mapping from serial number to page.
   const ImageData *GetPageBySerial(int serial) {
-    if (cache_strategy_ == CS_SEQUENTIAL)
+    if (cache_strategy_ == CS_SEQUENTIAL) {
       return GetPageSequential(serial);
-    else
+    } else {
       return GetPageRoundRobin(serial);
+    }
   }
 
   const std::vector<DocumentData *> &documents() const {

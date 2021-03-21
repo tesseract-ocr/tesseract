@@ -55,8 +55,9 @@ public:
       }
       // Change the from char to the to char.
       for (auto &it : net_spec) {
-        if (it == from)
+        if (it == from) {
           it = to;
+        }
       }
       spec += net_spec;
       return spec;

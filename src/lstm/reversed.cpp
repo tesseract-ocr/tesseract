@@ -74,12 +74,13 @@ bool Reversed::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch 
 
 // Copies src to *dest with the reversal according to type_.
 void Reversed::ReverseData(const NetworkIO &src, NetworkIO *dest) const {
-  if (type_ == NT_XREVERSED)
+  if (type_ == NT_XREVERSED) {
     dest->CopyWithXReversal(src);
-  else if (type_ == NT_YREVERSED)
+  } else if (type_ == NT_YREVERSED) {
     dest->CopyWithYReversal(src);
-  else
+  } else {
     dest->CopyWithXYTranspose(src);
+  }
 }
 
 } // namespace tesseract.

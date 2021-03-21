@@ -89,8 +89,9 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_le
   // Create the appropriate error report.
   unscaled_error = counter.ReportErrors(report_level, boosting_mode, fontinfo_table, *it,
                                         unichar_error, fonts_report);
-  if (scaled_error != nullptr)
+  if (scaled_error != nullptr) {
     *scaled_error = counter.scaled_error_;
+  }
   if (report_level > 1 && total_samples > 0) {
     // It is useful to know the time in microseconds/char.
     tprintf("Errors computed in %.2fs at %.1f μs/char\n", total_time,
@@ -204,19 +205,22 @@ bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
         answer_epsilon_rank = epsilon_rank;
         answer_actual_rank = res_index;
       }
-      if (results[res_index].unichar_id == UNICHAR_JOINED && unicharset_.has_special_codes())
+      if (results[res_index].unichar_id == UNICHAR_JOINED && unicharset_.has_special_codes()) {
         joined = true;
-      else if (results[res_index].unichar_id == UNICHAR_BROKEN && unicharset_.has_special_codes())
+      } else if (results[res_index].unichar_id == UNICHAR_BROKEN &&
+                 unicharset_.has_special_codes()) {
         broken = true;
-      else if (epsilon_rank == 0)
+      } else if (epsilon_rank == 0) {
         ++num_top_answers;
+      }
       ++res_index;
     }
     if (answer_actual_rank != 0) {
       // Correct result is not absolute top.
       ++font_counts_[font_id].n[CT_UNICHAR_TOPTOP_ERR];
-      if (boosting_mode == CT_UNICHAR_TOPTOP_ERR)
+      if (boosting_mode == CT_UNICHAR_TOPTOP_ERR) {
         sample->set_is_error(true);
+      }
     }
     if (answer_epsilon_rank == 0) {
       ++font_counts_[font_id].n[CT_UNICHAR_TOP_OK];
@@ -231,8 +235,9 @@ bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
       if (font_table.SetContainsFontProperties(font_id, results[answer_actual_rank].fonts)) {
         // Font attributes were matched.
         // Check for multiple properties.
-        if (font_table.SetContainsMultipleFontProperties(results[answer_actual_rank].fonts))
+        if (font_table.SetContainsMultipleFontProperties(results[answer_actual_rank].fonts)) {
           ++font_counts_[font_id].n[CT_OK_MULTI_FONT];
+        }
       } else {
         // Font attributes weren't matched.
         ++font_counts_[font_id].n[CT_FONT_ATTR_ERR];
@@ -240,31 +245,36 @@ bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
     } else {
       // This is a top unichar error.
       ++font_counts_[font_id].n[CT_UNICHAR_TOP1_ERR];
-      if (boosting_mode == CT_UNICHAR_TOP1_ERR)
+      if (boosting_mode == CT_UNICHAR_TOP1_ERR) {
         sample->set_is_error(true);
+      }
       // Count maps from unichar id to wrong unichar id.
       ++unichar_counts_(unichar_id, results[0].unichar_id);
       if (answer_epsilon_rank < 0 || answer_epsilon_rank >= 2) {
         // It is also a 2nd choice unichar error.
         ++font_counts_[font_id].n[CT_UNICHAR_TOP2_ERR];
-        if (boosting_mode == CT_UNICHAR_TOP2_ERR)
+        if (boosting_mode == CT_UNICHAR_TOP2_ERR) {
           sample->set_is_error(true);
+        }
       }
       if (answer_epsilon_rank < 0) {
         // It is also a top-n choice unichar error.
         ++font_counts_[font_id].n[CT_UNICHAR_TOPN_ERR];
-        if (boosting_mode == CT_UNICHAR_TOPN_ERR)
+        if (boosting_mode == CT_UNICHAR_TOPN_ERR) {
           sample->set_is_error(true);
+        }
         answer_epsilon_rank = epsilon_rank;
       }
     }
     // Compute mean number of return values and mean rank of correct answer.
     font_counts_[font_id].n[CT_NUM_RESULTS] += num_results;
     font_counts_[font_id].n[CT_RANK] += answer_epsilon_rank;
-    if (joined)
+    if (joined) {
       ++font_counts_[font_id].n[CT_OK_JOINED];
-    if (broken)
+    }
+    if (broken) {
       ++font_counts_[font_id].n[CT_OK_BROKEN];
+    }
   }
   // If it was an error for boosting then sum the weight.
   if (sample->is_error()) {
@@ -279,13 +289,15 @@ bool ErrorCounter::AccumulateErrors(bool debug, CountTypes boosting_mode,
       return true;
     }
     int percent = 0;
-    if (num_results > 0)
+    if (num_results > 0) {
       percent = IntCastRounded(results[0].rating * 100);
+    }
     bad_score_hist_.add(percent, 1);
   } else {
     int percent = 0;
-    if (answer_actual_rank >= 0)
+    if (answer_actual_rank >= 0) {
       percent = IntCastRounded(results[answer_actual_rank].rating * 100);
+    }
     ok_score_hist_.add(percent, 1);
   }
   return false;
@@ -301,8 +313,9 @@ bool ErrorCounter::AccumulateJunk(bool debug, const std::vector<UnicharRating> &
   const int font_id = sample->font_id();
   const int unichar_id = sample->class_id();
   int percent = 0;
-  if (num_results > 0)
+  if (num_results > 0) {
     percent = IntCastRounded(results[0].rating * 100);
+  }
   if (num_results > 0 && results[0].unichar_id != unichar_id) {
     // This is a junk error.
     ++font_counts_[font_id].n[CT_ACCEPTED_JUNK];
@@ -407,11 +420,13 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
   }
 
   double rates[CT_SIZE];
-  if (!ComputeRates(totals, rates))
+  if (!ComputeRates(totals, rates)) {
     return 0.0;
+  }
   // Set output values if asked for.
-  if (unichar_error != nullptr)
+  if (unichar_error != nullptr) {
     *unichar_error = rates[CT_UNICHAR_TOP1_ERR];
+  }
   return rates[boosting_mode];
 }
 
@@ -422,8 +437,9 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
 bool ErrorCounter::ReportString(bool even_if_empty, const Counts &counts, std::string &report) {
   // Compute the error rates.
   double rates[CT_SIZE];
-  if (!ComputeRates(counts, rates) && !even_if_empty)
+  if (!ComputeRates(counts, rates) && !even_if_empty) {
     return false;
+  }
   // Using %.4g%%, the length of the output string should exactly match the
   // length of the format string, but in case of overflow, allow for +eddd
   // on each number.
@@ -446,8 +462,9 @@ bool ErrorCounter::ReportString(bool even_if_empty, const Counts &counts, std::s
   report = formatted_str;
   // Now append each field of counts with a tab in front so the result can
   // be loaded into a spreadsheet.
-  for (int ct : counts.n)
+  for (int ct : counts.n) {
     report += "\t" + std::to_string(ct);
+  }
   return true;
 }
 
@@ -459,12 +476,14 @@ bool ErrorCounter::ComputeRates(const Counts &counts, double rates[CT_SIZE]) {
   const int junk_samples = counts.n[CT_REJECTED_JUNK] + counts.n[CT_ACCEPTED_JUNK];
   // Compute rates for normal chars.
   double denominator = static_cast<double>(std::max(ok_samples, 1));
-  for (int ct = 0; ct <= CT_RANK; ++ct)
+  for (int ct = 0; ct <= CT_RANK; ++ct) {
     rates[ct] = counts.n[ct] / denominator;
+  }
   // Compute rates for junk.
   denominator = static_cast<double>(std::max(junk_samples, 1));
-  for (int ct = CT_REJECTED_JUNK; ct <= CT_ACCEPTED_JUNK; ++ct)
+  for (int ct = CT_REJECTED_JUNK; ct <= CT_ACCEPTED_JUNK; ++ct) {
     rates[ct] = counts.n[ct] / denominator;
+  }
   return ok_samples != 0 || junk_samples != 0;
 }
 
@@ -473,8 +492,9 @@ ErrorCounter::Counts::Counts() {
 }
 // Adds other into this for computing totals.
 void ErrorCounter::Counts::operator+=(const Counts &other) {
-  for (int ct = 0; ct < CT_SIZE; ++ct)
+  for (int ct = 0; ct < CT_SIZE; ++ct) {
     n[ct] += other.n[ct];
+  }
 }
 
 } // namespace tesseract.

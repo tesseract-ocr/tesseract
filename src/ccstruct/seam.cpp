@@ -54,14 +54,17 @@ bool SEAM::IsHealthy(const TBLOB &blob, int min_points, int min_area) const {
 bool SEAM::PrepareToInsertSeam(const std::vector<SEAM *> &seams,
                                const std::vector<TBLOB *> &blobs, int insert_index, bool modify) {
   for (int s = 0; s < insert_index; ++s) {
-    if (!seams[s]->FindBlobWidth(blobs, s, modify))
+    if (!seams[s]->FindBlobWidth(blobs, s, modify)) {
       return false;
+    }
   }
-  if (!FindBlobWidth(blobs, insert_index, modify))
+  if (!FindBlobWidth(blobs, insert_index, modify)) {
     return false;
+  }
   for (int s = insert_index; s < seams.size(); ++s) {
-    if (!seams[s]->FindBlobWidth(blobs, s + 1, modify))
+    if (!seams[s]->FindBlobWidth(blobs, s + 1, modify)) {
       return false;
+    }
   }
   return true;
 }
@@ -80,17 +83,20 @@ bool SEAM::FindBlobWidth(const std::vector<TBLOB *> &blobs, int index, bool modi
     // Look right.
     for (int b = index + 1; !found_split && b < blobs.size(); ++b) {
       found_split = split.ContainedByBlob(*blobs[b]);
-      if (found_split && b - index > widthp_ && modify)
+      if (found_split && b - index > widthp_ && modify) {
         widthp_ = b - index;
+      }
     }
     // Look left.
     for (int b = index - 1; !found_split && b >= 0; --b) {
       found_split = split.ContainedByBlob(*blobs[b]);
-      if (found_split && index - b > widthn_ && modify)
+      if (found_split && index - b > widthn_ && modify) {
         widthn_ = index - b;
+      }
     }
-    if (found_split)
+    if (found_split) {
       ++num_found;
+    }
   }
   return num_found == num_splits_;
 }
@@ -120,8 +126,9 @@ void SEAM::UndoSeam(TBLOB *blob, TBLOB *other_blob) const {
   }
 
   TESSLINE *outline = blob->outlines;
-  while (outline->next)
+  while (outline->next) {
     outline = outline->next;
+  }
   outline->next = other_blob->outlines;
   other_blob->outlines = nullptr;
   delete other_blob;
@@ -139,8 +146,9 @@ void SEAM::Print(const char *label) const {
   tprintf(" %6.2f @ (%d,%d), p=%d, n=%d ", priority_, location_.x, location_.y, widthp_, widthn_);
   for (int s = 0; s < num_splits_; ++s) {
     splits_[s].Print();
-    if (s + 1 < num_splits_)
+    if (s + 1 < num_splits_) {
       tprintf(",   ");
+    }
   }
   tprintf("\n");
 }
@@ -161,8 +169,9 @@ void SEAM::PrintSeams(const char *label, const std::vector<SEAM *> &seams) {
 #ifndef GRAPHICS_DISABLED
 // Draws the seam in the given window.
 void SEAM::Mark(ScrollView *window) const {
-  for (int s = 0; s < num_splits_; ++s)
+  for (int s = 0; s < num_splits_; ++s) {
     splits_[s].Mark(window);
+  }
 }
 #endif
 
@@ -171,8 +180,9 @@ void SEAM::Mark(ScrollView *window) const {
 /* static */
 void SEAM::BreakPieces(const std::vector<SEAM *> &seams, const std::vector<TBLOB *> &blobs,
                        int first, int last) {
-  for (int x = first; x < last; ++x)
+  for (int x = first; x < last; ++x) {
     seams[x]->Reveal();
+  }
 
   TESSLINE *outline = blobs[first]->outlines;
   int next_blob = first + 1;
@@ -194,15 +204,18 @@ void SEAM::BreakPieces(const std::vector<SEAM *> &seams, const std::vector<TBLOB
 void SEAM::JoinPieces(const std::vector<SEAM *> &seams, const std::vector<TBLOB *> &blobs,
                       int first, int last) {
   TESSLINE *outline = blobs[first]->outlines;
-  if (!outline)
+  if (!outline) {
     return;
+  }
 
   for (int x = first; x < last; ++x) {
     SEAM *seam = seams[x];
-    if (x - seam->widthn_ >= first && x + seam->widthp_ < last)
+    if (x - seam->widthn_ >= first && x + seam->widthp_ < last) {
       seam->Hide();
-    while (outline->next)
+    }
+    while (outline->next) {
       outline = outline->next;
+    }
     outline->next = blobs[x + 1]->outlines;
   }
 }
@@ -224,8 +237,9 @@ void SEAM::Reveal() const {
 // Computes and returns, but does not set, the full priority of *this SEAM.
 float SEAM::FullPriority(int xmin, int xmax, double overlap_knob, int centered_maxwidth,
                          double center_knob, double width_change_knob) const {
-  if (num_splits_ == 0)
+  if (num_splits_ == 0) {
     return 0.0f;
+  }
   for (int s = 1; s < num_splits_; ++s) {
     splits_[s].SplitOutline();
   }

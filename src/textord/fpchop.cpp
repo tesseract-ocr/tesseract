@@ -101,12 +101,14 @@ ROW *fixed_pitch_words( // find lines
   prev_x = -INT16_MAX;
   bol = true;
   blanks = 0;
-  if (rep_it.empty())
+  if (rep_it.empty()) {
     rep_left = INT16_MAX;
-  else
+  } else {
     rep_left = rep_it.data()->bounding_box().left();
-  if (box_it.empty())
+  }
+  if (box_it.empty()) {
     return nullptr; // empty row
+  }
   xstarts[0] = box_it.data()->bounding_box().left();
   if (rep_left < xstarts[0]) {
     xstarts[0] = rep_left;
@@ -125,13 +127,15 @@ ROW *fixed_pitch_words( // find lines
         add_repeated_word(&rep_it, rep_left, prev_chop_coord, blanks, row->fixed_pitch, &word_it);
   }
   cell_it.mark_cycle_pt();
-  if (prev_chop_coord >= cell_it.data()->x())
+  if (prev_chop_coord >= cell_it.data()->x()) {
     cell_it.forward();
+  }
   for (; !cell_it.cycled_list(); cell_it.forward()) {
     chop_coord = cell_it.data()->x();
     while (!box_it.empty() && box_it.data()->bounding_box().left() <= chop_coord) {
-      if (box_it.data()->bounding_box().right() > prev_x)
+      if (box_it.data()->bounding_box().right() > prev_x) {
         prev_x = box_it.data()->bounding_box().right();
+      }
       split_to_blob(box_it.extract(), chop_coord, textord_fp_chop_error + 0.5f, &left_coutlines,
                     &right_coutlines);
       box_it.forward();
@@ -140,28 +144,32 @@ ROW *fixed_pitch_words( // find lines
         box_it.forward();
       }
     }
-    if (!right_coutlines.empty() && left_coutlines.empty())
+    if (!right_coutlines.empty() && left_coutlines.empty()) {
       split_to_blob(nullptr, chop_coord, textord_fp_chop_error + 0.5f, &left_coutlines,
                     &right_coutlines);
+    }
     if (!left_coutlines.empty()) {
       cblob_it.add_after_then_move(new C_BLOB(&left_coutlines));
     } else {
       if (rep_left < chop_coord) {
-        if (rep_left > prev_chop_coord)
+        if (rep_left > prev_chop_coord) {
           new_blanks =
               static_cast<uint8_t>(floor((rep_left - prev_chop_coord) / row->fixed_pitch + 0.5));
-        else
+        } else {
           new_blanks = 0;
+        }
       } else {
-        if (chop_coord > prev_chop_coord)
+        if (chop_coord > prev_chop_coord) {
           new_blanks =
               static_cast<uint8_t>(floor((chop_coord - prev_chop_coord) / row->fixed_pitch + 0.5));
-        else
+        } else {
           new_blanks = 0;
+        }
       }
       if (!cblob_it.empty()) {
-        if (blanks < 1 && word != nullptr && !word->flag(W_REP_CHAR))
+        if (blanks < 1 && word != nullptr && !word->flag(W_REP_CHAR)) {
           blanks = 1;
+        }
         word = new WERD(&cblobs, blanks, nullptr);
         cblob_it.set_to_list(&cblobs);
         word->set_flag(W_DONT_CHOP, true);
@@ -171,22 +179,25 @@ ROW *fixed_pitch_words( // find lines
           bol = false;
         }
         blanks = new_blanks;
-      } else
+      } else {
         blanks += new_blanks;
+      }
       while (rep_left < chop_coord) {
         word = add_repeated_word(&rep_it, rep_left, prev_chop_coord, blanks, row->fixed_pitch,
                                  &word_it);
       }
     }
-    if (prev_chop_coord < chop_coord)
+    if (prev_chop_coord < chop_coord) {
       prev_chop_coord = chop_coord;
+    }
   }
   if (!cblob_it.empty()) {
     word = new WERD(&cblobs, blanks, nullptr);
     word->set_flag(W_DONT_CHOP, true);
     word_it.add_after_then_move(word);
-    if (bol)
+    if (bol) {
       word->set_flag(W_BOL, true);
+    }
   }
   ASSERT_HOST(word != nullptr);
   while (!rep_it.empty()) {
@@ -194,8 +205,9 @@ ROW *fixed_pitch_words( // find lines
   }
   // at end of line
   word_it.data()->set_flag(W_EOL, true);
-  if (prev_chop_coord > prev_x)
+  if (prev_chop_coord > prev_x) {
     prev_x = prev_chop_coord;
+  }
   xstarts[1] = prev_x + 1;
   real_row =
       new ROW(row, static_cast<int16_t>(row->kern_size), static_cast<int16_t>(row->space_size));
@@ -232,10 +244,11 @@ static WERD *add_repeated_word( // move repeated word
   word_it->add_after_then_move(word);
   word->set_blanks(blanks);
   rep_it->forward();
-  if (rep_it->empty())
+  if (rep_it->empty()) {
     rep_left = INT16_MAX;
-  else
+  } else {
     rep_left = rep_it->data()->bounding_box().left();
+  }
   blanks = 0;
   return word;
 }
@@ -260,8 +273,9 @@ void split_to_blob(                 // split the blob
   } else {
     real_cblob = nullptr;
   }
-  if (!right_coutlines->empty() || real_cblob != nullptr)
+  if (!right_coutlines->empty() || real_cblob != nullptr) {
     fixed_chop_cblob(real_cblob, chop_coord, pitch_error, left_coutlines, right_coutlines);
+  }
 
   delete blob;
 }
@@ -299,8 +313,9 @@ static void fixed_chop_cblob(      // split the blob
   }
   if (blob != nullptr) {
     blob_it.set_to_list(blob->out_list());
-    for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward())
+    for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
       fixed_split_coutline(blob_it.extract(), chop_coord, pitch_error, &left_it, &right_it);
+    }
     delete blob;
   }
 }
@@ -361,10 +376,11 @@ static void fixed_split_coutline( // chop the outline
           if (fixed_chop_coutline(child, chop_coord, 0.0f, &left_frags, &right_frags)) {
             delete child;
           } else {
-            if (srcbox.left() + srcbox.right() <= chop_coord * 2)
+            if (srcbox.left() + srcbox.right() <= chop_coord * 2) {
               left_ch_it.add_after_then_move(child);
-            else
+            } else {
               right_ch_it.add_after_then_move(child);
+            }
           }
         }
       }
@@ -375,10 +391,11 @@ static void fixed_split_coutline( // chop the outline
       delete srcline; // Smashed up.
     } else {
       // Chop failed. Just use middle coord.
-      if (srcbox.left() + srcbox.right() <= chop_coord * 2)
+      if (srcbox.left() + srcbox.right() <= chop_coord * 2) {
         left_it->add_after_then_move(srcline); // Stick whole in left.
-      else
+      } else {
         right_it->add_before_stay_put(srcline);
+      }
     }
   }
 }
@@ -424,8 +441,9 @@ static bool fixed_chop_coutline(     // chop the outline
     }
     pos += srcline->step(stepindex);
   }
-  if (left_edge >= chop_coord - pitch_error)
+  if (left_edge >= chop_coord - pitch_error) {
     return false; // not worth it
+  }
 
   startindex = tail_index;
   first_frag = true;
@@ -435,14 +453,16 @@ static bool fixed_chop_coutline(     // chop the outline
     do {
       tail_pos += srcline->step(tail_index);
       tail_index++;
-      if (tail_index == length)
+      if (tail_index == length) {
         tail_index = 0;
+      }
     } while (tail_pos.x() != chop_coord && tail_index != startindex);
     if (tail_index == startindex) {
-      if (first_frag)
+      if (first_frag) {
         return false; // doesn't cross line
-      else
+      } else {
         break;
+      }
     }
     ASSERT_HOST(head_index != tail_index);
     if (!first_frag) {
@@ -455,8 +475,9 @@ static bool fixed_chop_coutline(     // chop the outline
     while (srcline->step(tail_index).x() == 0) {
       tail_pos += srcline->step(tail_index);
       tail_index++;
-      if (tail_index == length)
+      if (tail_index == length) {
         tail_index = 0;
+      }
     }
     head_index = tail_index;
     head_pos = tail_pos;
@@ -464,16 +485,18 @@ static bool fixed_chop_coutline(     // chop the outline
       do {
         tail_pos += srcline->step(tail_index);
         tail_index++;
-        if (tail_index == length)
+        if (tail_index == length) {
           tail_index = 0;
+        }
       } while (tail_pos.x() != chop_coord);
       ASSERT_HOST(head_index != tail_index);
       save_chop_cfragment(head_index, head_pos, tail_index, tail_pos, srcline, right_frags);
       while (srcline->step(tail_index).x() == 0) {
         tail_pos += srcline->step(tail_index);
         tail_index++;
-        if (tail_index == length)
+        if (tail_index == length) {
           tail_index = 0;
+        }
       }
       head_index = tail_index;
       head_pos = tail_pos;
@@ -506,13 +529,16 @@ static void save_chop_cfragment( // chop the outline
   ASSERT_HOST(tail_pos.x() == head_pos.x());
   ASSERT_HOST(tail_index != head_index);
   stepcount = tail_index - head_index;
-  if (stepcount < 0)
+  if (stepcount < 0) {
     stepcount += srcline->pathlength();
+  }
   jump = tail_pos.y() - head_pos.y();
-  if (jump < 0)
+  if (jump < 0) {
     jump = -jump;
-  if (jump == stepcount)
+  }
+  if (jump == stepcount) {
     return; // its a nop
+  }
   tail_y = tail_pos.y();
   head = new C_OUTLINE_FRAG(head_pos, tail_pos, srcline, head_index, tail_index);
   tail = new C_OUTLINE_FRAG(head, tail_y);
@@ -536,21 +562,26 @@ C_OUTLINE_FRAG::C_OUTLINE_FRAG( // record fragment
   end = end_pt;
   ycoord = start_pt.y();
   stepcount = end_index - start_index;
-  if (stepcount < 0)
+  if (stepcount < 0) {
     stepcount += outline->pathlength();
+  }
   ASSERT_HOST(stepcount > 0);
   steps = new DIR128[stepcount];
   if (end_index > start_index) {
-    for (int i = start_index; i < end_index; ++i)
+    for (int i = start_index; i < end_index; ++i) {
       steps[i - start_index] = outline->step_dir(i);
+    }
   } else {
     int len = outline->pathlength();
     int i = start_index;
-    for (; i < len; ++i)
+    for (; i < len; ++i) {
       steps[i - start_index] = outline->step_dir(i);
-    if (end_index > 0)
-      for (; i < end_index + len; ++i)
+    }
+    if (end_index > 0) {
+      for (; i < end_index + len; ++i) {
         steps[i - start_index] = outline->step_dir(i - len);
+      }
+    }
   }
   other_end = nullptr;
   delete close();
@@ -623,8 +654,9 @@ static void close_chopped_cfragments( // chop the outline
     top_frag = frag_it.data(); // look at next
     if ((bottom_frag->steps == nullptr && top_frag->steps == nullptr) ||
         (bottom_frag->steps != nullptr && top_frag->steps != nullptr)) {
-      if (frag_it.data_relative(1)->ycoord == top_frag->ycoord)
+      if (frag_it.data_relative(1)->ycoord == top_frag->ycoord) {
         frag_it.forward();
+      }
     }
     top_frag = frag_it.extract();
     if (top_frag->other_end != bottom_frag) {
@@ -636,13 +668,15 @@ static void close_chopped_cfragments( // chop the outline
         olchild_it.set_to_list(outline->child());
         for (child_it.mark_cycle_pt(); !child_it.cycled_list(); child_it.forward()) {
           child = child_it.data();
-          if (*child < *outline)
+          if (*child < *outline) {
             olchild_it.add_to_end(child_it.extract());
+          }
         }
-        if (outline->bounding_box().width() > pitch_error)
+        if (outline->bounding_box().width() > pitch_error) {
           dest_it->add_after_then_move(outline);
-        else
+        } else {
           delete outline; // Make it disappear.
+        }
       }
     }
   }
@@ -666,10 +700,11 @@ static C_OUTLINE *join_chopped_fragments( // join pieces
   C_OUTLINE *outline; // closed loop
 
   if (bottom->other_end == top) {
-    if (bottom->steps == nullptr)
+    if (bottom->steps == nullptr) {
       outline = top->close(); // turn to outline
-    else
+    } else {
       outline = bottom->close();
+    }
     delete top;
     delete bottom;
     return outline;
@@ -709,8 +744,9 @@ static void join_segments(  // join pieces
   if (fake_count < 0) {
     fake_count = -fake_count;
     fake_step = 32;
-  } else
+  } else {
     fake_step = 96;
+  }
 
   stepcount = bottom->stepcount + fake_count + top->stepcount;
   steps = new DIR128[stepcount];
@@ -741,12 +777,14 @@ C_OUTLINE *C_OUTLINE_FRAG::close() { // join pieces
   if (fake_count < 0) {
     fake_count = -fake_count;
     fake_step = 32;
-  } else
+  } else {
     fake_step = 96;
+  }
 
   new_stepcount = stepcount + fake_count;
-  if (new_stepcount > C_OUTLINE::kMaxOutlineLength)
+  if (new_stepcount > C_OUTLINE::kMaxOutlineLength) {
     return nullptr; // Can't join them
+  }
   new_steps = new DIR128[new_stepcount];
   memmove(new_steps, steps, stepcount);
   memset(new_steps + stepcount, fake_step.get_dir(), fake_count);

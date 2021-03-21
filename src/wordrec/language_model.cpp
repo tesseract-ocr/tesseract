@@ -143,8 +143,9 @@ void LanguageModel::InitForWord(const WERD_CHOICE *prev_word, bool fixed_pitch,
   if (language_model_ngram_on) {
     if (prev_word != nullptr && !prev_word->unichar_string().empty()) {
       prev_word_str_ = prev_word->unichar_string();
-      if (language_model_ngram_space_delimited_language)
+      if (language_model_ngram_space_delimited_language) {
         prev_word_str_ += ' ';
+      }
     } else {
       prev_word_str_ = " ";
     }
@@ -165,8 +166,9 @@ void LanguageModel::InitForWord(const WERD_CHOICE *prev_word, bool fixed_pitch,
  * have the same letter with the opposite case, setting competing_vse.
  */
 static void ScanParentsForCaseMix(const UNICHARSET &unicharset, LanguageModelState *parent_node) {
-  if (parent_node == nullptr)
+  if (parent_node == nullptr) {
     return;
+  }
   ViterbiStateEntry_IT vit(&parent_node->viterbi_state_entries);
   for (vit.mark_cycle_pt(); !vit.cycled_list(); vit.forward()) {
     ViterbiStateEntry *vse = vit.data();
@@ -174,8 +176,9 @@ static void ScanParentsForCaseMix(const UNICHARSET &unicharset, LanguageModelSta
     UNICHAR_ID unichar_id = vse->curr_b->unichar_id();
     if (unicharset.get_isupper(unichar_id) || unicharset.get_islower(unichar_id)) {
       UNICHAR_ID other_case = unicharset.get_other_case(unichar_id);
-      if (other_case == unichar_id)
+      if (other_case == unichar_id) {
         continue; // Not in unicharset.
+      }
       // Find other case in same list. There could be multiple entries with
       // the same unichar_id, but in theory, they should all point to the
       // same BLOB_CHOICE, and that is what we will be using to decide
@@ -199,17 +202,20 @@ static bool HasBetterCaseVariant(const UNICHARSET &unicharset, const BLOB_CHOICE
                                  BLOB_CHOICE_LIST *choices) {
   UNICHAR_ID choice_id = choice->unichar_id();
   UNICHAR_ID other_case = unicharset.get_other_case(choice_id);
-  if (other_case == choice_id || other_case == INVALID_UNICHAR_ID)
+  if (other_case == choice_id || other_case == INVALID_UNICHAR_ID) {
     return false; // Not upper or lower or not in unicharset.
-  if (unicharset.SizesDistinct(choice_id, other_case))
+  }
+  if (unicharset.SizesDistinct(choice_id, other_case)) {
     return false; // Can be separated by size.
+  }
   BLOB_CHOICE_IT bc_it(choices);
   for (bc_it.mark_cycle_pt(); !bc_it.cycled_list(); bc_it.forward()) {
     BLOB_CHOICE *better_choice = bc_it.data();
-    if (better_choice->unichar_id() == other_case)
+    if (better_choice->unichar_id() == other_case) {
       return true; // Found an earlier instance of other_case.
-    else if (better_choice == choice)
+    } else if (better_choice == choice) {
       return false; // Reached the original choice.
+    }
   }
   return false; // Should never happen, but just in case.
 }
@@ -247,10 +253,11 @@ bool LanguageModel::UpdateState(bool just_classified, int curr_col, int curr_row
   if (language_model_debug_level > 0) {
     tprintf("\nUpdateState: col=%d row=%d %s", curr_col, curr_row,
             just_classified ? "just_classified" : "");
-    if (language_model_debug_level > 5)
+    if (language_model_debug_level > 5) {
       tprintf("(parent=%p)\n", parent_node);
-    else
+    } else {
       tprintf("\n");
+    }
   }
   // Initialize helper variables.
   bool word_end = (curr_row + 1 >= word_res->ratings->dimension());
@@ -264,16 +271,18 @@ bool LanguageModel::UpdateState(bool just_classified, int curr_col, int curr_row
   if (parent_node != nullptr) {
     int result = SetTopParentLowerUpperDigit(parent_node);
     if (result < 0) {
-      if (language_model_debug_level > 0)
+      if (language_model_debug_level > 0) {
         tprintf("No parents found to process\n");
+      }
       return false;
     }
-    if (result > 0)
+    if (result > 0) {
       has_alnum_mix = true;
+    }
   }
-  if (!GetTopLowerUpperDigit(curr_list, &first_lower, &first_upper, &first_digit))
+  if (!GetTopLowerUpperDigit(curr_list, &first_lower, &first_upper, &first_digit)) {
     has_alnum_mix = false;
-  ;
+  };
   ScanParentsForCaseMix(unicharset, parent_node);
   if (language_model_debug_level > 3 && parent_node != nullptr) {
     parent_node->Print("Parent viterbi list");
@@ -295,14 +304,18 @@ bool LanguageModel::UpdateState(bool just_classified, int curr_col, int curr_row
     }
     // Set top choice flags.
     LanguageModelFlagsType blob_choice_flags = kXhtConsistentFlag;
-    if (c_it.at_first() || !new_changed)
+    if (c_it.at_first() || !new_changed) {
       blob_choice_flags |= kSmallestRatingFlag;
-    if (first_lower == choice)
+    }
+    if (first_lower == choice) {
       blob_choice_flags |= kLowerCaseFlag;
-    if (first_upper == choice)
+    }
+    if (first_upper == choice) {
       blob_choice_flags |= kUpperCaseFlag;
-    if (first_digit == choice)
+    }
+    if (first_digit == choice) {
       blob_choice_flags |= kDigitFlag;
+    }
 
     if (parent_node == nullptr) {
       // Process the beginning of a word.
@@ -316,11 +329,13 @@ bool LanguageModel::UpdateState(bool just_classified, int curr_col, int curr_row
       // increases the chances of choosing IPoc simply because it doesn't
       // include such a transition. iPoc will beat iPOC and ipoc because
       // the other words are baseline/x-height inconsistent.
-      if (HasBetterCaseVariant(unicharset, choice, curr_list))
+      if (HasBetterCaseVariant(unicharset, choice, curr_list)) {
         continue;
+      }
       // Upper counts as lower at the beginning of a word.
-      if (blob_choice_flags & kUpperCaseFlag)
+      if (blob_choice_flags & kUpperCaseFlag) {
         blob_choice_flags |= kLowerCaseFlag;
+      }
       new_changed |= AddViterbiStateEntry(blob_choice_flags, denom, word_end, curr_col, curr_row,
                                           choice, curr_state, nullptr, pain_points, word_res,
                                           best_choice_bundle, blamer_bundle);
@@ -346,8 +361,9 @@ bool LanguageModel::UpdateState(bool just_classified, int curr_col, int curr_row
         // distinguished by size, skip this blob choice/parent, as with the
         // initial blob treatment above.
         if (!parent_vse->HasAlnumChoice(unicharset) &&
-            HasBetterCaseVariant(unicharset, choice, curr_list))
+            HasBetterCaseVariant(unicharset, choice, curr_list)) {
           continue;
+        }
         // Create a new ViterbiStateEntry if BLOB_CHOICE in c_it.data()
         // looks good according to the Dawgs or character ngram model.
         new_changed |= AddViterbiStateEntry(top_choice_flags, denom, word_end, curr_col, curr_row,
@@ -373,10 +389,12 @@ bool LanguageModel::GetTopLowerUpperDigit(BLOB_CHOICE_LIST *curr_list, BLOB_CHOI
   BLOB_CHOICE *first_unichar = nullptr;
   for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
     UNICHAR_ID unichar_id = c_it.data()->unichar_id();
-    if (unicharset.get_fragment(unichar_id))
+    if (unicharset.get_fragment(unichar_id)) {
       continue; // skip fragments
-    if (first_unichar == nullptr)
+    }
+    if (first_unichar == nullptr) {
       first_unichar = c_it.data();
+    }
     if (*first_lower == nullptr && unicharset.get_islower(unichar_id)) {
       *first_lower = c_it.data();
     }
@@ -390,12 +408,15 @@ bool LanguageModel::GetTopLowerUpperDigit(BLOB_CHOICE_LIST *curr_list, BLOB_CHOI
   }
   ASSERT_HOST(first_unichar != nullptr);
   bool mixed = (*first_lower != nullptr || *first_upper != nullptr) && *first_digit != nullptr;
-  if (*first_lower == nullptr)
+  if (*first_lower == nullptr) {
     *first_lower = first_unichar;
-  if (*first_upper == nullptr)
+  }
+  if (*first_upper == nullptr) {
     *first_upper = first_unichar;
-  if (*first_digit == nullptr)
+  }
+  if (*first_digit == nullptr) {
     *first_digit = first_unichar;
+  }
   return mixed;
 }
 
@@ -409,8 +430,9 @@ bool LanguageModel::GetTopLowerUpperDigit(BLOB_CHOICE_LIST *curr_list, BLOB_CHOI
  * parents are found at all (a legitimate case), and 0 otherwise.
  */
 int LanguageModel::SetTopParentLowerUpperDigit(LanguageModelState *parent_node) const {
-  if (parent_node == nullptr)
+  if (parent_node == nullptr) {
     return -1;
+  }
   UNICHAR_ID top_id = INVALID_UNICHAR_ID;
   ViterbiStateEntry *top_lower = nullptr;
   ViterbiStateEntry *top_upper = nullptr;
@@ -458,17 +480,21 @@ int LanguageModel::SetTopParentLowerUpperDigit(LanguageModelState *parent_node) 
       top_id = unichar_id;
     }
   }
-  if (top_choice == nullptr)
+  if (top_choice == nullptr) {
     return -1;
+  }
   bool mixed = (top_lower != nullptr || top_upper != nullptr) && top_digit != nullptr;
-  if (top_lower == nullptr)
+  if (top_lower == nullptr) {
     top_lower = top_choice;
+  }
   top_lower->top_choice_flags |= kLowerCaseFlag;
-  if (top_upper == nullptr)
+  if (top_upper == nullptr) {
     top_upper = top_choice;
+  }
   top_upper->top_choice_flags |= kUpperCaseFlag;
-  if (top_digit == nullptr)
+  if (top_digit == nullptr) {
     top_digit = top_choice;
+  }
   top_digit->top_choice_flags |= kDigitFlag;
   top_choice->top_choice_flags |= kSmallestRatingFlag;
   if (top_id != INVALID_UNICHAR_ID && dict_->compound_marker(top_id) &&
@@ -495,10 +521,12 @@ ViterbiStateEntry *LanguageModel::GetNextParentVSE(bool just_classified, bool mi
     ViterbiStateEntry *parent_vse = vse_it->data();
     // Only consider the parent if it has been updated or
     // if the current ratings cell has just been classified.
-    if (!just_classified && !parent_vse->updated)
+    if (!just_classified && !parent_vse->updated) {
       continue;
-    if (language_model_debug_level > 2)
+    }
+    if (language_model_debug_level > 2) {
       parent_vse->Print("Considering");
+    }
     // If the parent is non-alnum, then upper counts as lower.
     *top_choice_flags = blob_choice_flags;
     if ((blob_choice_flags & kUpperCaseFlag) && !parent_vse->HasAlnumChoice(unicharset)) {
@@ -511,13 +539,15 @@ ViterbiStateEntry *LanguageModel::GetNextParentVSE(bool just_classified, bool mi
     // Digits do not bind to alphas if there is a mix in both parent and current
     // or if the alpha is not the top choice.
     if (unicharset.get_isdigit(unichar_id) && unicharset.get_isalpha(parent_id) &&
-        (mixed_alnum || *top_choice_flags == 0))
+        (mixed_alnum || *top_choice_flags == 0)) {
       continue; // Digits don't bind to alphas.
+    }
     // Likewise alphas do not bind to digits if there is a mix in both or if
     // the digit is not the top choice.
     if (unicharset.get_isalpha(unichar_id) && unicharset.get_isdigit(parent_id) &&
-        (mixed_alnum || *top_choice_flags == 0))
+        (mixed_alnum || *top_choice_flags == 0)) {
       continue; // Alphas don't bind to digits.
+    }
     // If there is a case mix of the same alpha in the parent list, then
     // competing_vse is non-null and will be used to determine whether
     // or not to bind the current blob choice.
@@ -533,8 +563,9 @@ ViterbiStateEntry *LanguageModel::GetNextParentVSE(bool just_classified, bool mi
         // don't bind to the current parent.
         if (bc->PosAndSizeAgree(*competing_b, word_res->x_height,
                                 language_model_debug_level >= 5) &&
-            !bc->PosAndSizeAgree(*parent_b, word_res->x_height, language_model_debug_level >= 5))
+            !bc->PosAndSizeAgree(*parent_b, word_res->x_height, language_model_debug_level >= 5)) {
           continue; // Competing blobchoice has a better vertical match.
+        }
       }
     }
     vse_it->forward();
@@ -556,10 +587,11 @@ bool LanguageModel::AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags
         " certainty=%.4f top_choice_flags=0x%x",
         dict_->getUnicharset().id_to_unichar(b->unichar_id()), b->rating(), b->certainty(),
         top_choice_flags);
-    if (language_model_debug_level > 5)
+    if (language_model_debug_level > 5) {
       tprintf(" parent_vse=%p\n", parent_vse);
-    else
+    } else {
       tprintf("\n");
+    }
   }
   ASSERT_HOST(curr_state != nullptr);
   // Check whether the list is full.
@@ -640,8 +672,9 @@ bool LanguageModel::AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags
                                             ? dict_->getUnicharset().id_to_unichar(b->unichar_id())
                                             : nullptr);
   new_vse->cost = ComputeAdjustedPathCost(new_vse);
-  if (language_model_debug_level >= 3)
+  if (language_model_debug_level >= 3) {
     tprintf("Adjusted cost = %g\n", new_vse->cost);
+  }
 
   // Invoke Top Choice language model component to make the final adjustments
   // to new_vse->top_choice_flags.
@@ -714,8 +747,9 @@ bool LanguageModel::AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags
       if (curr_vse->top_choice_flags && curr_vse != new_vse && curr_vse->cost > new_vse->cost) {
         curr_vse->top_choice_flags &= ~(new_vse->top_choice_flags);
       }
-      if (prunable_counter > 0 && PrunablePath(*curr_vse))
+      if (prunable_counter > 0 && PrunablePath(*curr_vse)) {
         --prunable_counter;
+      }
       // Update curr_state->viterbi_state_entries_prunable_max_cost.
       if (prunable_counter == 0) {
         curr_state->viterbi_state_entries_prunable_max_cost = vit.data()->cost;
@@ -731,8 +765,9 @@ bool LanguageModel::AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags
   // Print the newly created ViterbiStateEntry.
   if (language_model_debug_level > 2) {
     new_vse->Print("New");
-    if (language_model_debug_level > 5)
+    if (language_model_debug_level > 5) {
       curr_state->Print("Updated viterbi list");
+    }
   }
 
   return true;
@@ -763,31 +798,35 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(bool word_end, int curr_c
     dawg_args_.active_dawgs = &very_beginning_active_dawgs_;
     dawg_args_.permuter = NO_PERM;
   } else {
-    if (parent_vse->dawg_info == nullptr)
+    if (parent_vse->dawg_info == nullptr) {
       return nullptr; // not a dict word path
+    }
     dawg_args_.active_dawgs = &parent_vse->dawg_info->active_dawgs;
     dawg_args_.permuter = parent_vse->dawg_info->permuter;
   }
 
   // Deal with hyphenated words.
   if (word_end && dict_->has_hyphen_end(&dict_->getUnicharset(), b.unichar_id(), curr_col == 0)) {
-    if (language_model_debug_level > 0)
+    if (language_model_debug_level > 0) {
       tprintf("Hyphenated word found\n");
+    }
     return new LanguageModelDawgInfo(dawg_args_.active_dawgs, COMPOUND_PERM);
   }
 
   // Deal with compound words.
   if (dict_->compound_marker(b.unichar_id()) &&
       (parent_vse == nullptr || parent_vse->dawg_info->permuter != NUMBER_PERM)) {
-    if (language_model_debug_level > 0)
+    if (language_model_debug_level > 0) {
       tprintf("Found compound marker\n");
+    }
     // Do not allow compound operators at the beginning and end of the word.
     // Do not allow more than one compound operator per word.
     // Do not allow compounding of words with lengths shorter than
     // language_model_min_compound_length
     if (parent_vse == nullptr || word_end || dawg_args_.permuter == COMPOUND_PERM ||
-        parent_vse->length < language_model_min_compound_length)
+        parent_vse->length < language_model_min_compound_length) {
       return nullptr;
+    }
 
     int i;
     // Check a that the path terminated before the current character is a word.
@@ -795,20 +834,22 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(bool word_end, int curr_c
     for (i = 0; i < parent_vse->dawg_info->active_dawgs.size(); ++i) {
       const DawgPosition &pos = parent_vse->dawg_info->active_dawgs[i];
       const Dawg *pdawg = pos.dawg_index < 0 ? nullptr : dict_->GetDawg(pos.dawg_index);
-      if (pdawg == nullptr || pos.back_to_punc)
+      if (pdawg == nullptr || pos.back_to_punc) {
         continue;
-      ;
+      };
       if (pdawg->type() == DAWG_TYPE_WORD && pos.dawg_ref != NO_EDGE &&
           pdawg->end_of_word(pos.dawg_ref)) {
         has_word_ending = true;
         break;
       }
     }
-    if (!has_word_ending)
+    if (!has_word_ending) {
       return nullptr;
+    }
 
-    if (language_model_debug_level > 0)
+    if (language_model_debug_level > 0) {
       tprintf("Compound word found\n");
+    }
     return new LanguageModelDawgInfo(&beginning_active_dawgs_, COMPOUND_PERM);
   } // done dealing with compound words
 
@@ -820,8 +861,9 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(bool word_end, int curr_c
   const auto &normed_ids = dict_->getUnicharset().normed_ids(b.unichar_id());
   DawgPositionVector tmp_active_dawgs;
   for (int i = 0; i < normed_ids.size(); ++i) {
-    if (language_model_debug_level > 2)
+    if (language_model_debug_level > 2) {
       tprintf("Test Letter OK for unichar %d, normed %d\n", b.unichar_id(), normed_ids[i]);
+    }
     dict_->LetterIsOkay(&dawg_args_, dict_->getUnicharset(), normed_ids[i],
                         word_end && i == normed_ids.size() - 1);
     if (dawg_args_.permuter == NO_PERM) {
@@ -830,8 +872,9 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(bool word_end, int curr_c
       tmp_active_dawgs = *dawg_args_.updated_dawgs;
       dawg_args_.active_dawgs = &tmp_active_dawgs;
     }
-    if (language_model_debug_level > 2)
+    if (language_model_debug_level > 2) {
       tprintf("Letter was OK for unichar %d, normed %d\n", b.unichar_id(), normed_ids[i]);
+    }
   }
   dawg_args_.active_dawgs = nullptr;
   if (dawg_args_.permuter != NO_PERM) {
@@ -875,16 +918,18 @@ LanguageModelNgramInfo *LanguageModel::GenerateNgramInfo(const char *unichar, fl
 
   // Shorten parent context string by unichar_step_len unichars.
   int num_remove = (unichar_step_len + pcontext_unichar_step_len - language_model_ngram_order);
-  if (num_remove > 0)
+  if (num_remove > 0) {
     pcontext_unichar_step_len -= num_remove;
+  }
   while (num_remove > 0 && *pcontext_ptr != '\0') {
     pcontext_ptr += UNICHAR::utf8_step(pcontext_ptr);
     --num_remove;
   }
 
   // Decide whether to prune this ngram path and update changed accordingly.
-  if (parent_vse != nullptr && parent_vse->ngram_info->pruned)
+  if (parent_vse != nullptr && parent_vse->ngram_info->pruned) {
     pruned = true;
+  }
 
   // Construct and return the new LanguageModelNgramInfo.
   auto *ngram_info = new LanguageModelNgramInfo(pcontext_ptr, pcontext_unichar_step_len, pruned,
@@ -912,8 +957,9 @@ float LanguageModel::ComputeNgramCost(const char *unichar, float certainty, floa
     }
     prob += dict_->ProbabilityInContext(context_ptr, -1, unichar_ptr, step);
     ++(*unichar_step_len);
-    if (language_model_ngram_use_only_first_uft8_step)
+    if (language_model_ngram_use_only_first_uft8_step) {
       break;
+    }
     unichar_ptr += step;
     // If there are multiple UTF8 characters present in unichar, context is
     // updated to include the previously examined characters from str,
@@ -933,8 +979,9 @@ float LanguageModel::ComputeNgramCost(const char *unichar, float certainty, floa
   }
   prob /= static_cast<float>(*unichar_step_len); // normalize
   if (prob < language_model_ngram_small_prob) {
-    if (language_model_debug_level > 0)
+    if (language_model_debug_level > 0) {
       tprintf("Found small prob %g\n", prob);
+    }
     *found_small_prob = true;
     prob = language_model_ngram_small_prob;
   }
@@ -950,8 +997,9 @@ float LanguageModel::ComputeNgramCost(const char *unichar, float certainty, floa
 }
 
 float LanguageModel::ComputeDenom(BLOB_CHOICE_LIST *curr_list) {
-  if (curr_list->empty())
+  if (curr_list->empty()) {
     return 1.0f;
+  }
   float denom = 0.0f;
   int len = 0;
   BLOB_CHOICE_IT c_it(curr_list);
@@ -979,8 +1027,9 @@ void LanguageModel::FillConsistencyInfo(int curr_col, bool word_end, BLOB_CHOICE
   BLOB_CHOICE *parent_b = parent_vse != nullptr ? parent_vse->curr_b : nullptr;
 
   // Check punctuation validity.
-  if (unicharset.get_ispunctuation(unichar_id))
+  if (unicharset.get_ispunctuation(unichar_id)) {
     consistency_info->num_punc++;
+  }
   if (dict_->GetPuncDawg() != nullptr && !consistency_info->invalid_punc) {
     if (dict_->compound_marker(unichar_id) && parent_b != nullptr &&
         (unicharset.get_isalpha(parent_b->unichar_id()) ||
@@ -1203,8 +1252,9 @@ void LanguageModel::UpdateBestChoice(ViterbiStateEntry *vse, LMPainPoints *pain_
   // Record features from the current path if necessary.
   ParamsTrainingHypothesis curr_hyp;
   if (blamer_bundle != nullptr) {
-    if (vse->dawg_info != nullptr)
+    if (vse->dawg_info != nullptr) {
       vse->dawg_info->permuter = static_cast<PermuterType>(word->permuter());
+    }
     ExtractFeaturesFromPath(*vse, curr_hyp.features);
     word->string_and_lengths(&(curr_hyp.str), nullptr);
     curr_hyp.cost = vse->cost; // record cost for error rate computations
@@ -1217,8 +1267,9 @@ void LanguageModel::UpdateBestChoice(ViterbiStateEntry *vse, LMPainPoints *pain_
     }
     // Record the current hypothesis in params_training_bundle.
     blamer_bundle->AddHypothesis(curr_hyp);
-    if (truth_path)
+    if (truth_path) {
       blamer_bundle->UpdateBestRating(word->rating());
+    }
   }
   if (blamer_bundle != nullptr && blamer_bundle->GuidedSegsearchStillGoing()) {
     // The word was constructed solely for blamer_bundle->AddHypothesis, so
@@ -1226,12 +1277,14 @@ void LanguageModel::UpdateBestChoice(ViterbiStateEntry *vse, LMPainPoints *pain_
     delete word;
     return;
   }
-  if (word_res->chopped_word != nullptr && !word_res->chopped_word->blobs.empty())
+  if (word_res->chopped_word != nullptr && !word_res->chopped_word->blobs.empty()) {
     word->SetScriptPositions(false, word_res->chopped_word, language_model_debug_level);
+  }
   // Update and log new raw_choice if needed.
   if (word_res->raw_choice == nullptr || word->rating() < word_res->raw_choice->rating()) {
-    if (word_res->LogNewRawChoice(word) && language_model_debug_level > 0)
+    if (word_res->LogNewRawChoice(word) && language_model_debug_level > 0) {
       tprintf("Updated raw choice\n");
+    }
   }
   // Set the modified rating for best choice to vse->cost and log best choice.
   word->set_rating(vse->cost);
@@ -1379,13 +1432,15 @@ WERD_CHOICE *LanguageModel::ConstructWord(ViterbiStateEntry *vse, WERD_RES *word
     // Mark the word as compound if compound permuter was set for any of
     // the unichars on the path (usually this will happen for unichars
     // that are compounding operators, like "-" and "/").
-    if (!compound && curr_vse->dawg_info && curr_vse->dawg_info->permuter == COMPOUND_PERM)
+    if (!compound && curr_vse->dawg_info && curr_vse->dawg_info->permuter == COMPOUND_PERM) {
       compound = true;
+    }
 
     // Update curr_* pointers.
     curr_vse = curr_vse->parent_vse;
-    if (curr_vse == nullptr)
+    if (curr_vse == nullptr) {
       break;
+    }
     curr_b = curr_vse->curr_b;
   }
   ASSERT_HOST(i == 0); // check that we recorded all the unichar ids.

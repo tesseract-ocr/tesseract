@@ -80,8 +80,9 @@ public:
   // Decrement the count for t.
   // Return whether we knew about the given pointer.
   bool Free(T *t) {
-    if (t == nullptr)
+    if (t == nullptr) {
       return false;
+    }
     std::lock_guard<std::mutex> guard(mu_);
     for (auto &it : cache_) {
       if (it.object == t) {

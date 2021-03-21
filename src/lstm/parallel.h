@@ -43,16 +43,18 @@ public:
     } else if (type_ == NT_PAR_RL_LSTM) {
       // We have 2 LSTMs operating in parallel here, so the size of each is
       // the number of outputs/2.
-      if (stack_[0]->type() == NT_LSTM_SUMMARY)
+      if (stack_[0]->type() == NT_LSTM_SUMMARY) {
         spec += "Lbxs" + std::to_string(no_ / 2);
-      else
+      } else {
         spec += "Lbx" + std::to_string(no_ / 2);
+      }
     } else {
       if (type_ == NT_REPLICATED) {
         spec += "R" + std::to_string(stack_.size()) + "(" + stack_[0]->spec();
       } else {
-        for (auto &it : stack_)
+        for (auto &it : stack_) {
           spec += it->spec();
+        }
       }
       spec += ")";
     }

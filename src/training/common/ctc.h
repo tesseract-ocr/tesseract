@@ -89,10 +89,12 @@ private:
   // Returns exp(clipped(x)), clipping x to a reasonable range to prevent over/
   // underflow.
   static double ClippedExp(double x) {
-    if (x < -kMaxExpArg_)
+    if (x < -kMaxExpArg_) {
       return exp(-kMaxExpArg_);
-    if (x > kMaxExpArg_)
+    }
+    if (x > kMaxExpArg_) {
       return exp(kMaxExpArg_);
+    }
     return exp(x);
   }
 

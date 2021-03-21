@@ -115,8 +115,9 @@ int OSResults::get_best_script(int orientation_id) const {
   for (int j = 0; j < kMaxNumberOfScripts; ++j) {
     const char *script = unicharset->get_script_from_script_id(j);
     if (strcmp(script, "Common") && strcmp(script, "NULL")) {
-      if (max_id == -1 || scripts_na[orientation_id][j] > scripts_na[orientation_id][max_id])
+      if (max_id == -1 || scripts_na[orientation_id][j] > scripts_na[orientation_id][max_id]) {
         max_id = j;
+      }
     }
   }
   return max_id;
@@ -144,8 +145,9 @@ void OSResults::print_scores(int orientation_id) const {
 void OSResults::accumulate(const OSResults &osr) {
   for (int i = 0; i < 4; ++i) {
     orientations[i] += osr.orientations[i];
-    for (int j = 0; j < kMaxNumberOfScripts; ++j)
+    for (int j = 0; j < kMaxNumberOfScripts; ++j) {
       scripts_na[i][j] += osr.scripts_na[i][j];
+    }
   }
   unicharset = osr.unicharset;
   update_best_orientation();
@@ -188,16 +190,18 @@ int orientation_and_script_detection(const char *filename, OSResults *osr,
   std::string name = filename; // truncated name
 
   const char *lastdot = strrchr(name.c_str(), '.');
-  if (lastdot != nullptr)
+  if (lastdot != nullptr) {
     name[lastdot - name.c_str()] = '\0';
+  }
 
   ASSERT_HOST(tess->pix_binary() != nullptr);
   int width = pixGetWidth(tess->pix_binary());
   int height = pixGetHeight(tess->pix_binary());
 
   BLOCK_LIST blocks;
-  if (!read_unlv_file(name, width, height, &blocks))
+  if (!read_unlv_file(name, width, height, &blocks)) {
     FullPageBlock(width, height, &blocks);
+  }
 
   // Try to remove non-text regions from consideration.
   TO_BLOCK_LIST land_blocks, port_blocks;
@@ -228,8 +232,9 @@ int os_detect(TO_BLOCK_LIST *port_blocks, OSResults *osr, tesseract::Tesseract *
 
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     TO_BLOCK *to_block = block_it.data();
-    if (to_block->block->pdblk.poly_block() && !to_block->block->pdblk.poly_block()->IsText())
+    if (to_block->block->pdblk.poly_block() && !to_block->block->pdblk.poly_block()->IsText()) {
       continue;
+    }
     BLOBNBOX_IT bbox_it;
     bbox_it.set_to_list(&to_block->blobs);
     for (bbox_it.mark_cycle_pt(); !bbox_it.cycled_list(); bbox_it.forward()) {
@@ -239,18 +244,21 @@ int os_detect(TO_BLOCK_LIST *port_blocks, OSResults *osr, tesseract::Tesseract *
       ++blobs_total;
 
       // Catch illegal value of box width and avoid division by zero.
-      if (box.width() == 0)
+      if (box.width() == 0) {
         continue;
+      }
       // TODO: Can height and width be negative? If not, remove fabs.
       float y_x = std::fabs((box.height() * 1.0f) / box.width());
       float x_y = 1.0f / y_x;
       // Select a >= 1.0 ratio
       float ratio = x_y > y_x ? x_y : y_x;
       // Blob is ambiguous
-      if (ratio > kSizeRatioToReject)
+      if (ratio > kSizeRatioToReject) {
         continue;
-      if (box.height() < kMinAcceptableBlobHeight)
+      }
+      if (box.height() < kMinAcceptableBlobHeight) {
         continue;
+      }
       filtered_it.add_to_end(bbox);
     }
   }
@@ -268,8 +276,9 @@ int os_detect_blobs(const std::vector<int> *allowed_scripts, BLOBNBOX_CLIST *blo
   OSResults osr_;
   int minCharactersToTry = tess->min_characters_to_try;
   int maxCharactersToTry = 5 * minCharactersToTry;
-  if (osr == nullptr)
+  if (osr == nullptr) {
     osr = &osr_;
+  }
 
   osr->unicharset = &tess->unicharset;
   OrientationDetector o(allowed_scripts, osr);
@@ -391,8 +400,9 @@ bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
       }
     }
   }
-  if (total_blob_o_score == 0.0)
+  if (total_blob_o_score == 0.0) {
     return false;
+  }
   // Fill in any blanks with the worst score of the others. This is better than
   // picking an arbitrary probability for it and way better than -inf.
   float worst_score = 0.0f;
@@ -400,8 +410,9 @@ bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
   for (float f : blob_o_score) {
     if (f > 0.0f) {
       ++num_good_scores;
-      if (worst_score == 0.0f || f < worst_score)
+      if (worst_score == 0.0f || f < worst_score) {
         worst_score = f;
+      }
     }
   }
   if (num_good_scores == 1) {
@@ -468,15 +479,18 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
         // Check that the choice is in an allowed script.
         int s = 0;
         for (s = 0; s < allowed_scripts_->size(); ++s) {
-          if ((*allowed_scripts_)[s] == id)
+          if ((*allowed_scripts_)[s] == id) {
             break;
+          }
         }
-        if (s == allowed_scripts_->size())
+        if (s == allowed_scripts_->size()) {
           continue; // Not found in list.
+        }
       }
       // Script already processed before.
-      if (done[id])
+      if (done[id]) {
         continue;
+      }
       done[id] = true;
 
       unichar = tess_->unicharset.id_to_unichar(choice->unichar_id());
@@ -491,14 +505,17 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
         ++script_count;
       }
 
-      if (strlen(prev_unichar) == 1)
-        if (unichar[0] >= '0' && unichar[0] <= '9')
+      if (strlen(prev_unichar) == 1) {
+        if (unichar[0] >= '0' && unichar[0] <= '9') {
           break;
+        }
+      }
 
       // if script_count is >= 2, character is ambiguous, skip other matches
       // since they are useless.
-      if (script_count >= 2)
+      if (script_count >= 2) {
         break;
+      }
     }
     // Character is non ambiguous
     if (script_count == 1) {
@@ -521,12 +538,15 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
       }
 
       // Update Japanese / Korean pseudo-scripts
-      if (prev_id == katakana_id_)
+      if (prev_id == katakana_id_) {
         osr_->scripts_na[i][japanese_id_] += 1.0;
-      if (prev_id == hiragana_id_)
+      }
+      if (prev_id == hiragana_id_) {
         osr_->scripts_na[i][japanese_id_] += 1.0;
-      if (prev_id == hangul_id_)
+      }
+      if (prev_id == hangul_id_) {
         osr_->scripts_na[i][korean_id_] += 1.0;
+      }
       if (prev_id == han_id_) {
         osr_->scripts_na[i][korean_id_] += kHanRatioInKorean;
         osr_->scripts_na[i][japanese_id_] += kHanRatioInJapanese;

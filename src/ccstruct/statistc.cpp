@@ -77,8 +77,9 @@ bool STATS::set_range(int32_t min_bucket_value, int32_t max_bucket_value_plus_1)
  **********************************************************************/
 void STATS::clear() { // clear out buckets
   total_count_ = 0;
-  if (buckets_ != nullptr)
+  if (buckets_ != nullptr) {
     memset(buckets_, 0, (rangemax_ - rangemin_) * sizeof(buckets_[0]));
+  }
 }
 
 /**********************************************************************
@@ -157,8 +158,9 @@ double STATS::sd() const { // standard deviation
   }
   double variance = static_cast<double>(sum) / total_count_;
   variance = sqsum / total_count_ - variance * variance;
-  if (variance > 0.0)
+  if (variance > 0.0) {
     return sqrt(variance);
+  }
   return 0.0;
 }
 
@@ -184,8 +186,9 @@ double STATS::ile(double frac) const {
 #endif
   int sum = 0;
   int index = 0;
-  for (index = 0; index < rangemax_ - rangemin_ && sum < target; sum += buckets_[index++])
+  for (index = 0; index < rangemax_ - rangemin_ && sum < target; sum += buckets_[index++]) {
     ;
+  }
   if (index > 0) {
     ASSERT_HOST(buckets_[index - 1] > 0);
     return rangemin_ + index - static_cast<double>(sum - target) / buckets_[index - 1];
@@ -204,8 +207,9 @@ int32_t STATS::min_bucket() const { // Find min
     return rangemin_;
   }
   int32_t min = 0;
-  for (min = 0; (min < rangemax_ - rangemin_) && (buckets_[min] == 0); min++)
+  for (min = 0; (min < rangemax_ - rangemin_) && (buckets_[min] == 0); min++) {
     ;
+  }
   return rangemin_ + min;
 }
 
@@ -220,8 +224,9 @@ int32_t STATS::max_bucket() const { // Find max
     return rangemin_;
   }
   int32_t max;
-  for (max = rangemax_ - rangemin_ - 1; max > 0 && buckets_[max] == 0; max--)
+  for (max = rangemax_ - rangemin_ - 1; max > 0 && buckets_[max] == 0; max--) {
     ;
+  }
   return rangemin_ + max;
 }
 
@@ -244,11 +249,13 @@ double STATS::median() const { // get median
     int32_t min_pile;
     int32_t max_pile;
     /* Find preceding non zero pile */
-    for (min_pile = median_pile; pile_count(min_pile) == 0; min_pile--)
+    for (min_pile = median_pile; pile_count(min_pile) == 0; min_pile--) {
       ;
+    }
     /* Find following non zero pile */
-    for (max_pile = median_pile; pile_count(max_pile) == 0; max_pile++)
+    for (max_pile = median_pile; pile_count(max_pile) == 0; max_pile++) {
       ;
+    }
     median = (min_pile + max_pile) / 2.0;
   }
   return median;
@@ -264,19 +271,24 @@ bool STATS::local_min(int32_t x) const {
     return false;
   }
   x = ClipToRange(x, rangemin_, rangemax_ - 1) - rangemin_;
-  if (buckets_[x] == 0)
+  if (buckets_[x] == 0) {
     return true;
+  }
   int32_t index; // table index
-  for (index = x - 1; index >= 0 && buckets_[index] == buckets_[x]; --index)
+  for (index = x - 1; index >= 0 && buckets_[index] == buckets_[x]; --index) {
     ;
-  if (index >= 0 && buckets_[index] < buckets_[x])
+  }
+  if (index >= 0 && buckets_[index] < buckets_[x]) {
     return false;
-  for (index = x + 1; index < rangemax_ - rangemin_ && buckets_[index] == buckets_[x]; ++index)
+  }
+  for (index = x + 1; index < rangemax_ - rangemin_ && buckets_[index] == buckets_[x]; ++index) {
     ;
-  if (index < rangemax_ - rangemin_ && buckets_[index] < buckets_[x])
+  }
+  if (index < rangemax_ - rangemin_ && buckets_[index] < buckets_[x]) {
     return false;
-  else
+  } else {
     return true;
+  }
 }
 
 /**********************************************************************
@@ -297,10 +309,12 @@ void STATS::smooth(int32_t factor) {
     // centre weight
     int count = buckets_[entry] * factor;
     for (int offset = 1; offset < factor; offset++) {
-      if (entry - offset >= 0)
+      if (entry - offset >= 0) {
         count += buckets_[entry - offset] * (factor - offset);
-      if (entry + offset < entrycount)
+      }
+      if (entry + offset < entrycount) {
         count += buckets_[entry + offset] * (factor - offset);
+      }
     }
     result.add(entry + rangemin_, count);
   }
@@ -335,8 +349,9 @@ int32_t STATS::cluster(float lower, // thresholds
   float min_dist;                            // from best_cluster
   int32_t cluster_count;                     // no of clusters
 
-  if (buckets_ == nullptr || max_clusters < 1)
+  if (buckets_ == nullptr || max_clusters < 1) {
     return 0;
+  }
   centres = new float[max_clusters + 1];
   for (cluster_count = 1;
        cluster_count <= max_clusters && clusters[cluster_count].buckets_ != nullptr &&
@@ -380,8 +395,9 @@ int32_t STATS::cluster(float lower, // thresholds
         for (cluster = 1; cluster <= cluster_count; cluster++) {
           dist = entry + rangemin_ - centres[cluster];
           // find distance
-          if (dist < 0)
+          if (dist < 0) {
             dist = -dist;
+          }
           if (dist < min_dist) {
             min_dist = dist; // find least
             best_cluster = cluster;
@@ -463,8 +479,9 @@ static bool GatherPeak(int index, const int *src_buckets, int *used_buckets, int
 // more useful than decreasing total count.
 // Returns the actual number of modes found.
 int STATS::top_n_modes(int max_modes, std::vector<KDPairInc<float, int>> &modes) const {
-  if (max_modes <= 0)
+  if (max_modes <= 0) {
     return 0;
+  }
   int src_count = rangemax_ - rangemin_;
   // Used copies the counts in buckets_ as they get used.
   STATS used(rangemin_, rangemax_);
@@ -493,23 +510,27 @@ int STATS::top_n_modes(int max_modes, std::vector<KDPairInc<float, int>> &modes)
       int prev_pile = max_count;
       for (int offset = 1; max_index + offset < src_count; ++offset) {
         if (!GatherPeak(max_index + offset, buckets_, used.buckets_, &prev_pile, &total_count,
-                        &total_value))
+                        &total_value)) {
           break;
+        }
       }
       prev_pile = buckets_[max_index];
       for (int offset = 1; max_index - offset >= 0; ++offset) {
         if (!GatherPeak(max_index - offset, buckets_, used.buckets_, &prev_pile, &total_count,
-                        &total_value))
+                        &total_value)) {
           break;
+        }
       }
       if (total_count > least_count || modes.size() < max_modes) {
         // We definitely want this mode, so if we have enough discard the least.
-        if (modes.size() == max_modes)
+        if (modes.size() == max_modes) {
           modes.resize(max_modes - 1);
+        }
         int target_index = 0;
         // Linear search for the target insertion point.
-        while (target_index < modes.size() && modes[target_index].data() >= total_count)
+        while (target_index < modes.size() && modes[target_index].data() >= total_count) {
           ++target_index;
+        }
         auto peak_mean = static_cast<float>(total_value / total_count + rangemin_);
         modes.insert(modes.begin() + target_index, KDPairInc<float, int>(peak_mean, total_count));
         least_count = modes.back().data();
@@ -535,8 +556,9 @@ void STATS::print() const {
   for (int index = min; index <= max; index++) {
     if (buckets_[index] != 0) {
       tprintf("%4d:%-3d ", rangemin_ + index, buckets_[index]);
-      if (++num_printed % 8 == 0)
+      if (++num_printed % 8 == 0) {
         tprintf("\n");
+      }
     }
   }
   tprintf("\n");

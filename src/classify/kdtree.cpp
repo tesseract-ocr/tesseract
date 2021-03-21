@@ -40,8 +40,9 @@ namespace tesseract {
 static int NextLevel(KDTREE *tree, int level) {
   do {
     ++level;
-    if (level >= tree->KeySize)
+    if (level >= tree->KeySize) {
       level = 0;
+    }
   } while (tree->KeyDesc[level].NonEssential);
   return level;
 }
@@ -93,8 +94,9 @@ MinK<Key, Value>::~MinK() {
 
 template <typename Key, typename Value>
 const Key &MinK<Key, Value>::max_insertable_key() {
-  if (elements_count_ < k_)
+  if (elements_count_ < k_) {
     return max_key_;
+  }
   return elements_[max_index_].key;
 }
 
@@ -102,16 +104,18 @@ template <typename Key, typename Value>
 bool MinK<Key, Value>::insert(Key key, Value value) {
   if (elements_count_ < k_) {
     elements_[elements_count_++] = Element(key, value);
-    if (key > elements_[max_index_].key)
+    if (key > elements_[max_index_].key) {
       max_index_ = elements_count_ - 1;
+    }
     return true;
   } else if (key < elements_[max_index_].key) {
     // evict the largest element.
     elements_[max_index_] = Element(key, value);
     // recompute max_index_
     for (int i = 0; i < elements_count_; i++) {
-      if (elements_[i].key > elements_[max_index_].key)
+      if (elements_[i].key > elements_[max_index_].key) {
         max_index_ = i;
+      }
     }
     return true;
   }
@@ -220,12 +224,14 @@ void KDStore(KDTREE *Tree, float *Key, void *Data) {
   while (Node != nullptr) {
     if (Key[Level] < Node->BranchPoint) {
       PtrToNode = &(Node->Left);
-      if (Key[Level] > Node->LeftBranch)
+      if (Key[Level] > Node->LeftBranch) {
         Node->LeftBranch = Key[Level];
+      }
     } else {
       PtrToNode = &(Node->Right);
-      if (Key[Level] < Node->RightBranch)
+      if (Key[Level] < Node->RightBranch) {
         Node->RightBranch = Key[Level];
+      }
     }
     Level = NextLevel(Tree, Level);
     Node = *PtrToNode;
@@ -261,10 +267,11 @@ void KDDelete(KDTREE *Tree, float Key[], void *Data) {
   /* search tree for node to be deleted */
   while ((Current != nullptr) && (!NodeFound(Current, Key, Data))) {
     Father = Current;
-    if (Key[Level] < Current->BranchPoint)
+    if (Key[Level] < Current->BranchPoint) {
       Current = Current->Left;
-    else
+    } else {
       Current = Current->Right;
+    }
 
     Level = NextLevel(Tree, Level);
   }
@@ -309,8 +316,9 @@ void KDNearestNeighborSearch(KDTREE *Tree, float Query[], int QuerySize, float M
 /*---------------------------------------------------------------------------*/
 /** Walk a given Tree with action. */
 void KDWalk(KDTREE *Tree, void_proc action, void *context) {
-  if (Tree->Root.Left != nullptr)
+  if (Tree->Root.Left != nullptr) {
     Walk(Tree, action, context, Tree->Root.Left, NextLevel(Tree, -1));
+  }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -371,11 +379,13 @@ void FreeKDNode(KDNODE *Node) {
  * @param SubTree  sub-tree to be searched
  */
 void KDTreeSearch::SearchRec(int level, KDNODE *sub_tree) {
-  if (level >= tree_->KeySize)
+  if (level >= tree_->KeySize) {
     level = 0;
+  }
 
-  if (!BoxIntersectsSearch(sb_min_, sb_max_))
+  if (!BoxIntersectsSearch(sb_min_, sb_max_)) {
     return;
+  }
 
   results_.insert(DistanceSquared(tree_->KeySize, tree_->KeyDesc, query_point_, sub_tree->Key),
                   sub_tree->Data);
@@ -421,8 +431,9 @@ float DistanceSquared(int k, PARAM_DESC *dim, float p1[], float p2[]) {
   float total_distance = 0;
 
   for (; k > 0; k--, p1++, p2++, dim++) {
-    if (dim->NonEssential)
+    if (dim->NonEssential) {
       continue;
+    }
 
     float dimension_distance = *p1 - *p2;
 
@@ -456,30 +467,34 @@ bool KDTreeSearch::BoxIntersectsSearch(float *lower, float *upper) {
   PARAM_DESC *dim = tree_->KeyDesc;
 
   for (int i = tree_->KeySize; i > 0; i--, dim++, query++, lower++, upper++) {
-    if (dim->NonEssential)
+    if (dim->NonEssential) {
       continue;
+    }
 
     float dimension_distance;
-    if (*query < *lower)
+    if (*query < *lower) {
       dimension_distance = *lower - *query;
-    else if (*query > *upper)
+    } else if (*query > *upper) {
       dimension_distance = *query - *upper;
-    else
+    } else {
       dimension_distance = 0;
+    }
 
     /* if this dimension is circular - check wraparound distance */
     if (dim->Circular) {
       float wrap_distance = FLT_MAX;
-      if (*query < *lower)
+      if (*query < *lower) {
         wrap_distance = *query + dim->Max - dim->Min - *upper;
-      else if (*query > *upper)
+      } else if (*query > *upper) {
         wrap_distance = *lower - (*query - (dim->Max - dim->Min));
+      }
       dimension_distance = std::min(dimension_distance, wrap_distance);
     }
 
     total_distance += static_cast<double>(dimension_distance) * dimension_distance;
-    if (total_distance >= radius_squared)
+    if (total_distance >= radius_squared) {
       return false;
+    }
   }
   return true;
 }
@@ -502,16 +517,19 @@ bool KDTreeSearch::BoxIntersectsSearch(float *lower, float *upper) {
  */
 void Walk(KDTREE *tree, void_proc action, void *context, KDNODE *sub_tree, int32_t level) {
   (*action)(context, sub_tree->Data, level);
-  if (sub_tree->Left != nullptr)
+  if (sub_tree->Left != nullptr) {
     Walk(tree, action, context, sub_tree->Left, NextLevel(tree, level));
-  if (sub_tree->Right != nullptr)
+  }
+  if (sub_tree->Right != nullptr) {
     Walk(tree, action, context, sub_tree->Right, NextLevel(tree, level));
+  }
 }
 
 /** Given a subtree nodes, insert all of its elements into tree. */
 void InsertNodes(KDTREE *tree, KDNODE *nodes) {
-  if (nodes == nullptr)
+  if (nodes == nullptr) {
     return;
+  }
 
   KDStore(tree, nodes->Key, nodes->Data);
   InsertNodes(tree, nodes->Left);

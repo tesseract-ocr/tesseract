@@ -100,8 +100,10 @@ bool PDBLK::contains( // test containment
     // get rectangle
     it.bounding_box(bleft, tright);
     // inside rect
-    if (pt.x() >= bleft.x() && pt.x() <= tright.x() && pt.y() >= bleft.y() && pt.y() <= tright.y())
+    if (pt.x() >= bleft.x() && pt.x() <= tright.x() && pt.y() >= bleft.y() &&
+        pt.y() <= tright.y()) {
       return true; // is inside
+    }
   }
   return false; // not inside
 }
@@ -117,13 +119,15 @@ void PDBLK::move(    // reposition block
 ) {
   ICOORDELT_IT it(&leftside);
 
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     *(it.data()) += vec;
+  }
 
   it.set_to_list(&rightside);
 
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     *(it.data()) += vec;
+  }
 
   box.move(vec);
 }
@@ -165,8 +169,9 @@ Pix *PDBLK::render_mask(const FCOORD &rerotation, TBOX *mask_box) {
     // Just fill the whole block as there is only a bounding box.
     pixRasterop(pix, 0, 0, rotated_box.width(), rotated_box.height(), PIX_SET, nullptr, 0, 0);
   }
-  if (mask_box != nullptr)
+  if (mask_box != nullptr) {
     *mask_box = rotated_box;
+  }
   return pix;
 }
 
@@ -241,10 +246,12 @@ PDBLK &PDBLK::operator=( // assignment
     const PDBLK &source  // from this
 ) {
   //      this->ELIST_LINK::operator=(source);
-  if (!leftside.empty())
+  if (!leftside.empty()) {
     leftside.clear();
-  if (!rightside.empty())
+  }
+  if (!rightside.empty()) {
     rightside.clear();
+  }
   leftside.deep_copy(&source.leftside, &ICOORDELT::deep_copy);
   rightside.deep_copy(&source.rightside, &ICOORDELT::deep_copy);
   box = source.box;
@@ -281,8 +288,9 @@ void BLOCK_RECT_IT::set_to_block( // start (new) block
                                   // set iterators
   left_it.set_to_list(&blkptr->leftside);
   right_it.set_to_list(&blkptr->rightside);
-  if (!blkptr->leftside.empty())
+  if (!blkptr->leftside.empty()) {
     start_block(); // ready for iteration
+  }
 }
 
 /**********************************************************************
@@ -298,9 +306,10 @@ void BLOCK_RECT_IT::start_block() { // start (new) block
   right_it.mark_cycle_pt();
   ymin = left_it.data()->y(); // bottom of first box
   ymax = left_it.data_relative(1)->y();
-  if (right_it.data_relative(1)->y() < ymax)
+  if (right_it.data_relative(1)->y() < ymax) {
     // smallest step
     ymax = right_it.data_relative(1)->y();
+  }
 }
 
 /**********************************************************************
@@ -311,10 +320,12 @@ void BLOCK_RECT_IT::start_block() { // start (new) block
 
 void BLOCK_RECT_IT::forward() { // next rectangle
   if (!left_it.empty()) {       // non-empty list
-    if (left_it.data_relative(1)->y() == ymax)
+    if (left_it.data_relative(1)->y() == ymax) {
       left_it.forward(); // move to meet top
-    if (right_it.data_relative(1)->y() == ymax)
+    }
+    if (right_it.data_relative(1)->y() == ymax) {
       right_it.forward();
+    }
     // last is special
     if (left_it.at_last() || right_it.at_last()) {
       left_it.move_to_first(); // restart
@@ -326,9 +337,10 @@ void BLOCK_RECT_IT::forward() { // next rectangle
     }
     // next point
     ymax = left_it.data_relative(1)->y();
-    if (right_it.data_relative(1)->y() < ymax)
+    if (right_it.data_relative(1)->y() < ymax) {
       // least step forward
       ymax = right_it.data_relative(1)->y();
+    }
   }
 }
 

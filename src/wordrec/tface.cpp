@@ -38,8 +38,9 @@ namespace tesseract {
  */
 void Wordrec::program_editup(const std::string &textbase, TessdataManager *init_classifier,
                              TessdataManager *init_dict) {
-  if (!textbase.empty())
+  if (!textbase.empty()) {
     imagefile = textbase;
+  }
 #ifndef DISABLED_LEGACY_ENGINE
   InitFeatureDefs(&feature_defs_);
   InitAdaptiveClassifier(init_classifier);

@@ -31,8 +31,9 @@ Input::Input(const std::string &name, int ni, int no)
     : Network(NT_INPUT, name, ni, no), cached_x_scale_(1) {}
 Input::Input(const std::string &name, const StaticShape &shape)
     : Network(NT_INPUT, name, shape.height(), shape.depth()), shape_(shape), cached_x_scale_(1) {
-  if (shape.height() == 1)
+  if (shape.height() == 1) {
     ni_ = shape.depth();
+  }
 }
 
 // Writes to the given file. Returns false in case of error.
@@ -113,21 +114,24 @@ void Input::PreparePixInput(const StaticShape &shape, const Pix *pix, TRand *ran
   // colormap, so we just have to deal with depth conversion here.
   if (color) {
     // Force RGB.
-    if (depth == 32)
+    if (depth == 32) {
       normed_pix = pixClone(var_pix);
-    else
+    } else {
       normed_pix = pixConvertTo32(var_pix);
+    }
   } else {
     // Convert non-8-bit images to 8 bit.
-    if (depth == 8)
+    if (depth == 8) {
       normed_pix = pixClone(var_pix);
-    else
+    } else {
       normed_pix = pixConvertTo8(var_pix, false);
+    }
   }
   int height = pixGetHeight(normed_pix);
   int target_height = shape.height();
-  if (target_height == 1)
+  if (target_height == 1) {
     target_height = shape.depth();
+  }
   if (target_height != 0 && target_height != height) {
     // Get the scaled image.
     float im_factor = static_cast<float>(target_height) / height;

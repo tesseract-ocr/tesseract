@@ -75,10 +75,11 @@ public:
     array_[WordIndex(index)] &= ~BitMask(index);
   }
   void SetValue(int index, bool value) {
-    if (value)
+    if (value) {
       SetBit(index);
-    else
+    } else {
       ResetBit(index);
+    }
   }
   bool At(int index) const {
     return (array_[WordIndex(index)] & BitMask(index)) != 0;

@@ -75,8 +75,9 @@ int Series::RemapOutputs(int old_no, const std::vector<int> &code_map) {
 // can be told to produce backprop for this layer if needed.
 bool Series::SetupNeedsBackprop(bool needs_backprop) {
   needs_to_backprop_ = needs_backprop;
-  for (auto &i : stack_)
+  for (auto &i : stack_) {
     needs_backprop = i->SetupNeedsBackprop(needs_backprop);
+  }
   return needs_backprop;
 }
 
@@ -88,8 +89,9 @@ bool Series::SetupNeedsBackprop(bool needs_backprop) {
 // the minimum scale factor of the paths through the GlobalMinimax.
 int Series::XScaleFactor() const {
   int factor = 1;
-  for (auto i : stack_)
+  for (auto i : stack_) {
     factor *= i->XScaleFactor();
+  }
   return factor;
 }
 
@@ -113,8 +115,9 @@ void Series::Forward(bool debug, const NetworkIO &input, const TransposedArray *
   stack_[0]->Forward(debug, input, input_transpose, scratch, buffer1);
   for (int i = 1; i < stack_size; i += 2) {
     stack_[i]->Forward(debug, *buffer1, nullptr, scratch, i + 1 < stack_size ? buffer2 : output);
-    if (i + 1 == stack_size)
+    if (i + 1 == stack_size) {
       return;
+    }
     stack_[i + 1]->Forward(debug, *buffer2, nullptr, scratch,
                            i + 2 < stack_size ? buffer1 : output);
   }
@@ -124,8 +127,9 @@ void Series::Forward(bool debug, const NetworkIO &input, const TransposedArray *
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Series::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
                       NetworkIO *back_deltas) {
-  if (!IsTraining())
+  if (!IsTraining()) {
     return false;
+  }
   int stack_size = stack_.size();
   ASSERT_HOST(stack_size > 1);
   // Revolving intermediate buffers.
@@ -133,17 +137,22 @@ bool Series::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *s
   NetworkScratch::IO buffer2(fwd_deltas, scratch);
   // Run each network in reverse order, giving the back_deltas output of n as
   // the fwd_deltas input to n-1, with the 0 network providing the real output.
-  if (!stack_.back()->IsTraining() || !stack_.back()->Backward(debug, fwd_deltas, scratch, buffer1))
+  if (!stack_.back()->IsTraining() ||
+      !stack_.back()->Backward(debug, fwd_deltas, scratch, buffer1)) {
     return false;
+  }
   for (int i = stack_size - 2; i >= 0; i -= 2) {
     if (!stack_[i]->IsTraining() ||
-        !stack_[i]->Backward(debug, *buffer1, scratch, i > 0 ? buffer2 : back_deltas))
+        !stack_[i]->Backward(debug, *buffer1, scratch, i > 0 ? buffer2 : back_deltas)) {
       return false;
-    if (i == 0)
+    }
+    if (i == 0) {
       return needs_to_backprop_;
+    }
     if (!stack_[i - 1]->IsTraining() ||
-        !stack_[i - 1]->Backward(debug, *buffer2, scratch, i > 1 ? buffer1 : back_deltas))
+        !stack_[i - 1]->Backward(debug, *buffer2, scratch, i > 1 ? buffer1 : back_deltas)) {
       return false;
+    }
   }
   return needs_to_backprop_;
 }

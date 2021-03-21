@@ -64,8 +64,9 @@ public:
     int new_size = dim1 * dim2;
     array_ = new T[new_size];
     size_allocated_ = new_size;
-    for (int i = 0; i < size_allocated_; ++i)
+    for (int i = 0; i < size_allocated_; ++i) {
       array_[i] = empty_;
+    }
   }
   // Default constructor for array allocation. Use Resize to set the size.
   GENERIC_2D_ARRAY()
@@ -100,8 +101,9 @@ public:
     dim1_ = size1;
     dim2_ = size2;
     // Fill the padding data so it isn't uninitialized.
-    for (int i = size1 * size2; i < new_size; ++i)
+    for (int i = size1 * size2; i < new_size; ++i) {
       array_[i] = empty_;
+    }
   }
 
   // Reallocate the array to the given size. Does not keep old data.
@@ -138,26 +140,31 @@ public:
   // Sets all the elements of the array to the empty value.
   void Clear() {
     int total_size = num_elements();
-    for (int i = 0; i < total_size; ++i)
+    for (int i = 0; i < total_size; ++i) {
       array_[i] = empty_;
+    }
   }
 
   // Writes to the given file. Returns false in case of error.
   // Only works with bitwise-serializeable types!
   bool Serialize(FILE *fp) const {
-    if (!SerializeSize(fp))
+    if (!SerializeSize(fp)) {
       return false;
-    if (!tesseract::Serialize(fp, &empty_))
+    }
+    if (!tesseract::Serialize(fp, &empty_)) {
       return false;
+    }
     int size = num_elements();
     return tesseract::Serialize(fp, &array_[0], size);
   }
 
   bool Serialize(TFile *fp) const {
-    if (!SerializeSize(fp))
+    if (!SerializeSize(fp)) {
       return false;
-    if (!fp->Serialize(&empty_))
+    }
+    if (!fp->Serialize(&empty_)) {
       return false;
+    }
     int size = num_elements();
     return fp->Serialize(&array_[0], size);
   }
@@ -166,18 +173,23 @@ public:
   // Only works with bitwise-serializeable types!
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerialize(bool swap, FILE *fp) {
-    if (!DeSerializeSize(swap, fp))
+    if (!DeSerializeSize(swap, fp)) {
       return false;
-    if (!tesseract::DeSerialize(fp, &empty_))
+    }
+    if (!tesseract::DeSerialize(fp, &empty_)) {
       return false;
-    if (swap)
-      ReverseN(&empty_, sizeof(empty_));
-    int size = num_elements();
-    if (!tesseract::DeSerialize(fp, &array_[0], size))
-      return false;
+    }
     if (swap) {
-      for (int i = 0; i < size; ++i)
+      ReverseN(&empty_, sizeof(empty_));
+    }
+    int size = num_elements();
+    if (!tesseract::DeSerialize(fp, &array_[0], size)) {
+      return false;
+    }
+    if (swap) {
+      for (int i = 0; i < size; ++i) {
         ReverseN(&array_[i], sizeof(array_[i]));
+      }
     }
     return true;
   }
@@ -190,14 +202,17 @@ public:
   // Writes to the given file. Returns false in case of error.
   // Assumes a T::Serialize(FILE*) const function.
   bool SerializeClasses(FILE *fp) const {
-    if (!SerializeSize(fp))
+    if (!SerializeSize(fp)) {
       return false;
-    if (!empty_.Serialize(fp))
+    }
+    if (!empty_.Serialize(fp)) {
       return false;
+    }
     int size = num_elements();
     for (int i = 0; i < size; ++i) {
-      if (!array_[i].Serialize(fp))
+      if (!array_[i].Serialize(fp)) {
         return false;
+      }
     }
     return true;
   }
@@ -206,14 +221,17 @@ public:
   // Assumes a T::DeSerialize(bool swap, FILE*) function.
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerializeClasses(bool swap, FILE *fp) {
-    if (!DeSerializeSize(swap, fp))
+    if (!DeSerializeSize(swap, fp)) {
       return false;
-    if (!empty_.DeSerialize(swap, fp))
+    }
+    if (!empty_.DeSerialize(swap, fp)) {
       return false;
+    }
     int size = num_elements();
     for (int i = 0; i < size; ++i) {
-      if (!array_[i].DeSerialize(swap, fp))
+      if (!array_[i].DeSerialize(swap, fp)) {
         return false;
+      }
     }
     return true;
   }
@@ -328,16 +346,18 @@ public:
     int size = num_elements();
     for (int i = 0; i < size; ++i) {
       const T &value = array_[i];
-      if (value < rangemin || rangemax < value)
+      if (value < rangemin || rangemax < value) {
         return false;
+      }
     }
     return true;
   }
   // Normalize the whole array.
   double Normalize() {
     int size = num_elements();
-    if (size <= 0)
+    if (size <= 0) {
       return 0.0;
+    }
     // Compute the mean.
     double mean = 0.0;
     for (int i = 0; i < size; ++i) {
@@ -364,14 +384,16 @@ public:
   // Returns the maximum value of the array.
   T Max() const {
     int size = num_elements();
-    if (size <= 0)
+    if (size <= 0) {
       return empty_;
+    }
     // Compute the max.
     T max_value = array_[0];
     for (int i = 1; i < size; ++i) {
       const T &value = array_[i];
-      if (value > max_value)
+      if (value > max_value) {
         max_value = value;
+      }
     }
     return max_value;
   }
@@ -379,14 +401,16 @@ public:
   // Returns the maximum absolute value of the array.
   T MaxAbs() const {
     int size = num_elements();
-    if (size <= 0)
+    if (size <= 0) {
       return empty_;
+    }
     // Compute the max.
     T max_abs = static_cast<T>(0);
     for (int i = 0; i < size; ++i) {
       T value = static_cast<T>(fabs(array_[i]));
-      if (value > max_abs)
+      if (value > max_abs) {
         max_abs = value;
+      }
     }
     return max_abs;
   }
@@ -454,19 +478,24 @@ public:
     // src_step represents the stride in the src between each adjacent group
     // in the destination.
     int num_replicas = 1, move_size = 1, src_step = 1;
-    for (int d = 0; d < min_d; ++d)
+    for (int d = 0; d < min_d; ++d) {
       num_replicas *= dims[d];
-    for (int d = max_d + 1; d < num_dims; ++d)
+    }
+    for (int d = max_d + 1; d < num_dims; ++d) {
       move_size *= dims[d];
-    for (int d = src_dim + 1; d < num_dims; ++d)
+    }
+    for (int d = src_dim + 1; d < num_dims; ++d) {
       src_step *= dims[d];
-    if (src_dim > dest_dim)
+    }
+    if (src_dim > dest_dim) {
       src_step *= dims[src_dim];
+    }
     // wrap_size is the size of a single replica, being the amount that is
     // handled num_replicas times.
     int wrap_size = move_size;
-    for (int d = min_d; d <= max_d; ++d)
+    for (int d = min_d; d <= max_d; ++d) {
       wrap_size *= dims[d];
+    }
     result->ResizeNoInit(dim1_, dim2_);
     result->empty_ = empty_;
     const T *src = array_;
@@ -487,8 +516,9 @@ public:
     int size = num_elements();
     for (int i = 0; i < size; ++i) {
       T matrix_cell = array_[i];
-      if (matrix_cell != empty_)
+      if (matrix_cell != empty_) {
         delete matrix_cell;
+      }
     }
   }
 
@@ -496,15 +526,17 @@ protected:
   // Factored helper to serialize the size.
   bool SerializeSize(FILE *fp) const {
     uint32_t size = dim1_;
-    if (!tesseract::Serialize(fp, &size))
+    if (!tesseract::Serialize(fp, &size)) {
       return false;
+    }
     size = dim2_;
     return tesseract::Serialize(fp, &size);
   }
   bool SerializeSize(TFile *fp) const {
     uint32_t size = dim1_;
-    if (!fp->Serialize(&size))
+    if (!fp->Serialize(&size)) {
       return false;
+    }
     size = dim2_;
     return fp->Serialize(&size);
   }
@@ -512,33 +544,41 @@ protected:
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerializeSize(bool swap, FILE *fp) {
     uint32_t size1, size2;
-    if (!tesseract::DeSerialize(fp, &size1))
+    if (!tesseract::DeSerialize(fp, &size1)) {
       return false;
-    if (!tesseract::DeSerialize(fp, &size2))
+    }
+    if (!tesseract::DeSerialize(fp, &size2)) {
       return false;
+    }
     if (swap) {
       ReverseN(&size1, sizeof(size1));
       ReverseN(&size2, sizeof(size2));
     }
     // Arbitrarily limit the number of elements to protect against bad data.
-    if (size1 > UINT16_MAX)
+    if (size1 > UINT16_MAX) {
       return false;
-    if (size2 > UINT16_MAX)
+    }
+    if (size2 > UINT16_MAX) {
       return false;
+    }
     Resize(size1, size2, empty_);
     return true;
   }
   bool DeSerializeSize(TFile *fp) {
     int32_t size1, size2;
-    if (!fp->DeSerialize(&size1))
+    if (!fp->DeSerialize(&size1)) {
       return false;
-    if (!fp->DeSerialize(&size2))
+    }
+    if (!fp->DeSerialize(&size2)) {
       return false;
+    }
     // Arbitrarily limit the number of elements to protect against bad data.
-    if (size1 > UINT16_MAX)
+    if (size1 > UINT16_MAX) {
       return false;
-    if (size2 > UINT16_MAX)
+    }
+    if (size2 > UINT16_MAX) {
       return false;
+    }
     Resize(size1, size2, empty_);
     return true;
   }
@@ -667,10 +707,12 @@ struct MATRIX_COORD {
   // making a new column at ind+1.
   void MapForSplit(int ind) {
     ASSERT_HOST(row >= col);
-    if (col > ind)
+    if (col > ind) {
       ++col;
-    if (row >= ind)
+    }
+    if (row >= ind) {
       ++row;
+    }
     ASSERT_HOST(row >= col);
   }
 

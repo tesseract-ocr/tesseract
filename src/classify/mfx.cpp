@@ -95,8 +95,9 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline, MICROFEATURES MicroFeatu
   MFOUTLINE First;
   MICROFEATURE NewFeature;
 
-  if (DegenerateOutline(Outline))
+  if (DegenerateOutline(Outline)) {
     return (MicroFeatures);
+  }
 
   First = NextExtremity(Outline);
   Last = First;
@@ -104,8 +105,9 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline, MICROFEATURES MicroFeatu
     Current = NextExtremity(Last);
     if (!PointAt(Current)->Hidden) {
       NewFeature = ExtractMicroFeature(Last, Current);
-      if (NewFeature != nullptr)
+      if (NewFeature != nullptr) {
         MicroFeatures = push(MicroFeatures, NewFeature);
+      }
     }
     Last = Current;
   } while (Last != First);

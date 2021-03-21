@@ -54,8 +54,9 @@ void ParamsModel::Copy(const ParamsModel &other_model) {
 // Given a (modifiable) line, parse out a key / value pair.
 // Return true on success.
 bool ParamsModel::ParseLine(char *line, char **key, float *val) {
-  if (line[0] == '#')
+  if (line[0] == '#') {
     return false;
+  }
   int end_of_key = 0;
   while (line[end_of_key] && !(isascii(line[end_of_key]) && isspace(line[end_of_key]))) {
     end_of_key++;
@@ -66,8 +67,9 @@ bool ParamsModel::ParseLine(char *line, char **key, float *val) {
   }
   line[end_of_key++] = 0;
   *key = line;
-  if (sscanf(line + end_of_key, " %f", val) != 1)
+  if (sscanf(line + end_of_key, " %f", val) != 1) {
     return false;
+  }
   return true;
 }
 
@@ -87,12 +89,14 @@ float ParamsModel::ComputeCost(const float features[]) const {
 bool ParamsModel::Equivalent(const ParamsModel &that) const {
   float epsilon = 0.0001;
   for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) {
-    if (weights_vec_[p].size() != that.weights_vec_[p].size())
+    if (weights_vec_[p].size() != that.weights_vec_[p].size()) {
       return false;
+    }
     for (int i = 0; i < weights_vec_[p].size(); i++) {
       if (weights_vec_[p][i] != that.weights_vec_[p][i] &&
-          fabs(weights_vec_[p][i] - that.weights_vec_[p][i]) > epsilon)
+          fabs(weights_vec_[p][i] - that.weights_vec_[p][i]) > epsilon) {
         return false;
+      }
     }
   }
   return true;
@@ -111,8 +115,9 @@ bool ParamsModel::LoadFromFp(const char *lang, TFile *fp) {
   while (fp->FGets(line, kMaxLineSize) != nullptr) {
     char *key = nullptr;
     float value;
-    if (!ParseLine(line, &key, &value))
+    if (!ParseLine(line, &key, &value)) {
       continue;
+    }
     int idx = ParamsTrainingFeatureByName(key);
     if (idx < 0) {
       tprintf("ParamsModel::Unknown parameter %s\n", key);

@@ -67,44 +67,52 @@ void TabConstraint::CreateConstraint(TabVector *vector, bool is_top) {
   auto *constraints = new TabConstraint_LIST;
   TabConstraint_IT it(constraints);
   it.add_to_end(constraint);
-  if (is_top)
+  if (is_top) {
     vector->set_top_constraints(constraints);
-  else
+  } else {
     vector->set_bottom_constraints(constraints);
+  }
 }
 
 // Test to see if the constraints are compatible enough to merge.
 bool TabConstraint::CompatibleConstraints(TabConstraint_LIST *list1, TabConstraint_LIST *list2) {
-  if (list1 == list2)
+  if (list1 == list2) {
     return false;
+  }
   int y_min = -INT32_MAX;
   int y_max = INT32_MAX;
-  if (textord_debug_tabfind > 3)
+  if (textord_debug_tabfind > 3) {
     tprintf("Testing constraint compatibility\n");
+  }
   GetConstraints(list1, &y_min, &y_max);
   GetConstraints(list2, &y_min, &y_max);
-  if (textord_debug_tabfind > 3)
+  if (textord_debug_tabfind > 3) {
     tprintf("Resulting range = [%d,%d]\n", y_min, y_max);
+  }
   return y_max >= y_min;
 }
 
 // Merge the lists of constraints and update the TabVector pointers.
 // The second list is deleted.
 void TabConstraint::MergeConstraints(TabConstraint_LIST *list1, TabConstraint_LIST *list2) {
-  if (list1 == list2)
+  if (list1 == list2) {
     return;
+  }
   TabConstraint_IT it(list2);
-  if (textord_debug_tabfind > 3)
+  if (textord_debug_tabfind > 3) {
     tprintf("Merging constraints\n");
+  }
   // The vectors of all constraints on list2 are now going to be on list1.
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     TabConstraint *constraint = it.data();
-    if (textord_debug_tabfind > 3)
+    if (textord_debug_tabfind > 3) {
       constraint->vector_->Print("Merge");
-    if (constraint->is_top_)
+    }
+    if (constraint->is_top_) {
       constraint->vector_->set_top_constraints(list1);
-    else
+    } else {
       constraint->vector_->set_bottom_constraints(list1);
+    }
   }
   it = list1;
   it.add_list_before(list2);
@@ -209,8 +217,9 @@ TabVector::TabVector(const TabVector &src, TabAlignment alignment, const ICOORD 
   }
   sort_key_ =
       SortKey(vertical_skew, (startpt_.x() + endpt_.x()) / 2, (startpt_.y() + endpt_.y()) / 2);
-  if (textord_debug_tabfind > 3)
+  if (textord_debug_tabfind > 3) {
     Print("Constructed a new tab vector:");
+  }
 }
 
 // Copies basic attributes of a tab vector for simple operations.
@@ -238,8 +247,9 @@ void TabVector::ExtendToBox(BLOBNBOX *new_blob) {
     BLOBNBOX *blob = it.data();
     TBOX box = blob->bounding_box();
     while (!it.at_last() && box.top() <= new_box.top()) {
-      if (blob == new_blob)
+      if (blob == new_blob) {
         return; // We have it already.
+      }
       it.forward();
       blob = it.data();
       box = blob->bounding_box();
@@ -302,38 +312,45 @@ void TabVector::SetupPartnerConstraints() {
     }
     if (prev_partner == nullptr) {
       // This is the first partner, so common bottom.
-      if (TabConstraint::CompatibleConstraints(bottom_constraints_, partner->bottom_constraints_))
+      if (TabConstraint::CompatibleConstraints(bottom_constraints_, partner->bottom_constraints_)) {
         TabConstraint::MergeConstraints(bottom_constraints_, partner->bottom_constraints_);
+      }
     } else {
       // We need prev top to be common with partner bottom.
       if (TabConstraint::CompatibleConstraints(prev_partner->top_constraints_,
-                                               partner->bottom_constraints_))
+                                               partner->bottom_constraints_)) {
         TabConstraint::MergeConstraints(prev_partner->top_constraints_,
                                         partner->bottom_constraints_);
+      }
     }
     prev_partner = partner;
     if (it.at_last()) {
       // This is the last partner, so common top.
-      if (TabConstraint::CompatibleConstraints(top_constraints_, partner->top_constraints_))
+      if (TabConstraint::CompatibleConstraints(top_constraints_, partner->top_constraints_)) {
         TabConstraint::MergeConstraints(top_constraints_, partner->top_constraints_);
+      }
     }
   }
 }
 
 // Setup the constraints between this and its partner.
 void TabVector::SetupPartnerConstraints(TabVector *partner) {
-  if (TabConstraint::CompatibleConstraints(bottom_constraints_, partner->bottom_constraints_))
+  if (TabConstraint::CompatibleConstraints(bottom_constraints_, partner->bottom_constraints_)) {
     TabConstraint::MergeConstraints(bottom_constraints_, partner->bottom_constraints_);
-  if (TabConstraint::CompatibleConstraints(top_constraints_, partner->top_constraints_))
+  }
+  if (TabConstraint::CompatibleConstraints(top_constraints_, partner->top_constraints_)) {
     TabConstraint::MergeConstraints(top_constraints_, partner->top_constraints_);
+  }
 }
 
 // Use the constraints to modify the top and bottom.
 void TabVector::ApplyConstraints() {
-  if (top_constraints_ != nullptr)
+  if (top_constraints_ != nullptr) {
     TabConstraint::ApplyConstraints(top_constraints_);
-  if (bottom_constraints_ != nullptr)
+  }
+  if (bottom_constraints_ != nullptr) {
     TabConstraint::ApplyConstraints(bottom_constraints_);
+  }
 }
 
 // Merge close tab vectors of the same side that overlap.
@@ -372,21 +389,25 @@ void TabVector::MergeSimilarTabVectors(const ICOORD &vertical, TabVector_LIST *v
 bool TabVector::SimilarTo(const ICOORD &vertical, const TabVector &other, BlobGrid *grid) const {
   if ((IsRightTab() && other.IsRightTab()) || (IsLeftTab() && other.IsLeftTab())) {
     // If they don't overlap, at least in extensions, then there is no chance.
-    if (ExtendedOverlap(other.extended_ymax_, other.extended_ymin_) < 0)
+    if (ExtendedOverlap(other.extended_ymax_, other.extended_ymin_) < 0) {
       return false;
+    }
     // A fast approximation to the scale factor of the sort_key_.
     int v_scale = abs(vertical.y());
-    if (v_scale == 0)
+    if (v_scale == 0) {
       v_scale = 1;
+    }
     // If they are close enough, then OK.
     if (sort_key_ + kSimilarVectorDist * v_scale >= other.sort_key_ &&
-        sort_key_ - kSimilarVectorDist * v_scale <= other.sort_key_)
+        sort_key_ - kSimilarVectorDist * v_scale <= other.sort_key_) {
       return true;
+    }
     // Ragged tabs get a bigger threshold.
     if (!IsRagged() || !other.IsRagged() ||
         sort_key_ + kSimilarRaggedDist * v_scale < other.sort_key_ ||
-        sort_key_ - kSimilarRaggedDist * v_scale > other.sort_key_)
+        sort_key_ - kSimilarRaggedDist * v_scale > other.sort_key_) {
       return false;
+    }
     if (grid == nullptr) {
       // There is nothing else to test!
       return true;
@@ -411,19 +432,23 @@ bool TabVector::SimilarTo(const ICOORD &vertical, const TabVector &other, BlobGr
     BLOBNBOX *blob;
     while ((blob = vsearch.NextVerticalSearch(true)) != nullptr) {
       const TBOX &box = blob->bounding_box();
-      if (box.top() > bottom_y)
+      if (box.top() > bottom_y) {
         return true; // Nothing found.
-      if (box.bottom() < top_y)
+      }
+      if (box.bottom() < top_y) {
         continue; // Doesn't overlap.
+      }
       int left_at_box = XAtY(box.bottom());
       int right_at_box = left_at_box;
-      if (IsRightTab())
+      if (IsRightTab()) {
         right_at_box += shift;
-      else
+      } else {
         left_at_box -= shift;
+      }
       if (std::min(right_at_box, static_cast<int>(box.right())) >
-          std::max(left_at_box, static_cast<int>(box.left())))
+          std::max(left_at_box, static_cast<int>(box.left()))) {
         return false;
+      }
     }
     return true; // Nothing found.
   }
@@ -466,13 +491,15 @@ void TabVector::MergeWith(const ICOORD &vertical, TabVector *other) {
 // that makes them partners.
 // Groups of identical partners are merged into one.
 void TabVector::AddPartner(TabVector *partner) {
-  if (IsSeparator() || partner->IsSeparator())
+  if (IsSeparator() || partner->IsSeparator()) {
     return;
+  }
   TabVector_C_IT it(&partners_);
   if (!it.empty()) {
     it.move_to_last();
-    if (it.data() == partner)
+    if (it.data() == partner) {
       return;
+    }
   }
   it.add_after_then_move(partner);
 }
@@ -481,8 +508,9 @@ void TabVector::AddPartner(TabVector *partner) {
 bool TabVector::IsAPartner(const TabVector *other) {
   TabVector_C_IT it(&partners_);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    if (it.data() == other)
+    if (it.data() == other) {
       return true;
+    }
   }
   return false;
 }
@@ -515,18 +543,19 @@ void TabVector::Debug(const char *prefix) {
 
 // Draw this tabvector in place in the given window.
 void TabVector::Display(ScrollView *tab_win) {
-  if (textord_debug_printable)
+  if (textord_debug_printable) {
     tab_win->Pen(ScrollView::BLUE);
-  else if (alignment_ == TA_LEFT_ALIGNED)
+  } else if (alignment_ == TA_LEFT_ALIGNED) {
     tab_win->Pen(ScrollView::LIME_GREEN);
-  else if (alignment_ == TA_LEFT_RAGGED)
+  } else if (alignment_ == TA_LEFT_RAGGED) {
     tab_win->Pen(ScrollView::DARK_GREEN);
-  else if (alignment_ == TA_RIGHT_ALIGNED)
+  } else if (alignment_ == TA_RIGHT_ALIGNED) {
     tab_win->Pen(ScrollView::PINK);
-  else if (alignment_ == TA_RIGHT_RAGGED)
+  } else if (alignment_ == TA_RIGHT_RAGGED) {
     tab_win->Pen(ScrollView::CORAL);
-  else
+  } else {
     tab_win->Pen(ScrollView::WHITE);
+  }
   tab_win->Line(startpt_.x(), startpt_.y(), endpt_.x(), endpt_.y());
   tab_win->Pen(ScrollView::GREY);
   tab_win->Line(startpt_.x(), startpt_.y(), startpt_.x(), extended_ymin_);
@@ -541,10 +570,12 @@ void TabVector::Display(ScrollView *tab_win) {
 
 // Refit the line and/or re-evaluate the vector if the dirty flags are set.
 void TabVector::FitAndEvaluateIfNeeded(const ICOORD &vertical, TabFind *finder) {
-  if (needs_refit_)
+  if (needs_refit_) {
     Fit(vertical, true);
-  if (needs_evaluation_)
+  }
+  if (needs_evaluation_) {
     Evaluate(vertical, finder);
+  }
 }
 
 // Evaluate the vector in terms of coverage of its length by good-looking
@@ -573,8 +604,9 @@ void TabVector::Evaluate(const ICOORD &vertical, TabFind *finder) {
     mean_height += height;
     ++height_count;
   }
-  if (height_count > 0)
+  if (height_count > 0) {
     mean_height /= height_count;
+  }
   int max_gutter = kGutterMultiple * mean_height;
   if (IsRagged()) {
     // Ragged edges face a tougher test in that the gap must always be within
@@ -626,8 +658,9 @@ void TabVector::Evaluate(const ICOORD &vertical, TabFind *finder) {
         int vertical_gap = box.bottom() - prev_good_box->top();
         double size1 = sqrt(static_cast<double>(prev_good_box->area()));
         double size2 = sqrt(static_cast<double>(box.area()));
-        if (vertical_gap < kMaxFillinMultiple * std::min(size1, size2))
+        if (vertical_gap < kMaxFillinMultiple * std::min(size1, size2)) {
           good_length += vertical_gap;
+        }
         if (debug) {
           tprintf("Box and prev good, gap=%d, target %g, goodlength=%d\n", vertical_gap,
                   kMaxFillinMultiple * std::min(size1, size2), good_length);
@@ -637,8 +670,9 @@ void TabVector::Evaluate(const ICOORD &vertical, TabFind *finder) {
         SetYStart(box.bottom());
       }
       prev_good_box = &box;
-      if (bbox->flow() == BTFT_TEXT_ON_IMAGE)
+      if (bbox->flow() == BTFT_TEXT_ON_IMAGE) {
         text_on_image = true;
+      }
     } else {
       // Get rid of boxes that are not good.
       if (debug) {
@@ -707,8 +741,9 @@ void TabVector::Evaluate(const ICOORD &vertical, TabFind *finder) {
     if (num_deleted_boxes > 0) {
       needs_refit_ = true;
       FitAndEvaluateIfNeeded(vertical, finder);
-      if (boxes_.empty())
+      if (boxes_.empty()) {
         return;
+      }
     }
     // Test the gutter over the whole vector, instead of just at the boxes.
     int required_shift;
@@ -720,8 +755,9 @@ void TabVector::Evaluate(const ICOORD &vertical, TabFind *finder) {
     min_gutter_width += IsRagged() ? kMinRaggedGutter : kMinAlignedGutter;
     min_gutter_width *= mean_height;
     int max_gutter_width = IntCastRounded(min_gutter_width) + 1;
-    if (median_gutter > max_gutter_width)
+    if (median_gutter > max_gutter_width) {
       max_gutter_width = median_gutter;
+    }
     int gutter_width = finder->GutterWidth(search_bottom, search_top, *this, text_on_image,
                                            max_gutter_width, &required_shift);
     if (gutter_width < min_gutter_width) {
@@ -755,8 +791,9 @@ bool TabVector::Fit(ICOORD vertical, bool force_parallel) {
   if (boxes_.empty()) {
     // Don't refit something with no boxes, as that only happens
     // in Evaluate, and we don't want to end up with a zero vector.
-    if (!force_parallel)
+    if (!force_parallel) {
       return false;
+    }
     // If we are forcing parallel, then we just need to set the sort_key_.
     ICOORD midpt = startpt_;
     midpt += endpt_;
@@ -814,10 +851,12 @@ bool TabVector::Fit(ICOORD vertical, bool force_parallel) {
       sort_key_ = key;
       startpt_ = ICOORD(x1, top_y);
     }
-    if (it.at_first())
+    if (it.at_first()) {
       start_y = bottom_y;
-    if (it.at_last())
+    }
+    if (it.at_last()) {
       end_y = top_y;
+    }
   }
   if (width_count > 0) {
     mean_width_ = (mean_width_ + width_count - 1) / width_count;
@@ -837,8 +876,9 @@ bool TabVector::Fit(ICOORD vertical, bool force_parallel) {
 
 // Returns the singleton partner if there is one, or nullptr otherwise.
 TabVector *TabVector::GetSinglePartner() {
-  if (!partners_.singleton())
+  if (!partners_.singleton()) {
     return nullptr;
+  }
   TabVector_C_IT partner_it(&partners_);
   TabVector *partner = partner_it.data();
   return partner;
@@ -847,8 +887,9 @@ TabVector *TabVector::GetSinglePartner() {
 // Return the partner of this TabVector if the vector qualifies as
 // being a vertical text line, otherwise nullptr.
 TabVector *TabVector::VerticalTextlinePartner() {
-  if (!partners_.singleton())
+  if (!partners_.singleton()) {
     return nullptr;
+  }
   TabVector_C_IT partner_it(&partners_);
   TabVector *partner = partner_it.data();
   BLOBNBOX_C_IT box_it1(&boxes_);
@@ -863,8 +904,9 @@ TabVector *TabVector::VerticalTextlinePartner() {
   int num_unmatched = 0;
   int total_widths = 0;
   int width = startpt().x() - partner->startpt().x();
-  if (width < 0)
+  if (width < 0) {
     width = -width;
+  }
   STATS gaps(0, width * 2);
   BLOBNBOX *prev_bbox = nullptr;
   box_it2.mark_cycle_pt();
@@ -879,15 +921,17 @@ TabVector *TabVector::VerticalTextlinePartner() {
       box_it2.forward();
     }
     if (!box_it2.cycled_list() && box_it2.data() == bbox && bbox->region_type() >= BRT_UNKNOWN &&
-        (prev_bbox == nullptr || prev_bbox->region_type() >= BRT_UNKNOWN))
+        (prev_bbox == nullptr || prev_bbox->region_type() >= BRT_UNKNOWN)) {
       ++num_matched;
-    else
+    } else {
       ++num_unmatched;
+    }
     total_widths += box.width();
     prev_bbox = bbox;
   }
-  if (num_unmatched + num_matched == 0)
+  if (num_unmatched + num_matched == 0) {
     return nullptr;
+  }
   double avg_width = total_widths * 1.0 / (num_unmatched + num_matched);
   double max_gap = textord_tabvector_vertical_gap_fraction * avg_width;
   int min_box_match =
@@ -945,8 +989,9 @@ void TabVector::Delete(TabVector *replacement) {
       TabVector *p_partner = p_it.data();
       if (p_partner == this) {
         p_it.extract();
-        if (partner_replacement != nullptr)
+        if (partner_replacement != nullptr) {
           p_it.add_before_stay_put(partner_replacement);
+        }
       }
     }
     if (partner_replacement != nullptr) {

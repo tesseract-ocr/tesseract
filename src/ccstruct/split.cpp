@@ -77,8 +77,9 @@ float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob, int centered_
   TBOX box2 = Box21();
   int min_left = std::min(box1.left(), box2.left());
   int max_right = std::max(box1.right(), box2.right());
-  if (xmin < min_left && xmax > max_right)
+  if (xmin < min_left && xmax > max_right) {
     return kBadPriority;
+  }
 
   float grade = 0.0f;
   // grade_overlap.
@@ -89,10 +90,12 @@ float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob, int centered_
   if (overlap == min_width) {
     grade += 100.0f; // Total overlap.
   } else {
-    if (2 * overlap > min_width)
+    if (2 * overlap > min_width) {
       overlap += 2 * overlap - min_width;
-    if (overlap > 0)
+    }
+    if (overlap > 0) {
       grade += overlap_knob * overlap;
+    }
   }
   // grade_center_of_blob.
   if (width1 <= centered_maxwidth || width2 <= centered_maxwidth) {
@@ -100,8 +103,9 @@ float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob, int centered_
   }
   // grade_width_change.
   float width_change_grade = 20 - (max_right - min_left - std::max(width1, width2));
-  if (width_change_grade > 0.0f)
+  if (width_change_grade > 0.0f) {
     grade += width_change_grade * width_change_knob;
+  }
   return grade;
 }
 
@@ -228,8 +232,9 @@ void SPLIT::Mark(ScrollView *window) const {
 // Inserts the resulting outlines into the given list.
 void SPLIT::SplitOutlineList(TESSLINE *outlines) const {
   SplitOutline();
-  while (outlines->next != nullptr)
+  while (outlines->next != nullptr) {
     outlines = outlines->next;
+  }
 
   outlines->next = new TESSLINE;
   outlines->next->loop = point1;

@@ -40,10 +40,12 @@ bool Convolve::Serialize(TFile *fp) const {
 
 // Reads from the given file. Returns false in case of error.
 bool Convolve::DeSerialize(TFile *fp) {
-  if (!fp->DeSerialize(&half_x_))
+  if (!fp->DeSerialize(&half_x_)) {
     return false;
-  if (!fp->DeSerialize(&half_y_))
+  }
+  if (!fp->DeSerialize(&half_y_)) {
     return false;
+  }
   no_ = ni_ * (2 * half_x_ + 1) * (2 * half_y_ + 1);
   return true;
 }
@@ -79,8 +81,9 @@ void Convolve::Forward(bool debug, const NetworkIO &input, const TransposedArray
     }
   } while (dest_index.Increment());
 #ifndef GRAPHICS_DISABLED
-  if (debug)
+  if (debug) {
     DisplayForward(*output);
+  }
 #endif
 }
 

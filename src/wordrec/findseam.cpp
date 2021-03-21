@@ -62,8 +62,9 @@ namespace tesseract {
  * and the new seam is worse than the worst.
  **********************************************************************/
 void Wordrec::add_seam_to_queue(float new_priority, SEAM *new_seam, SeamQueue *seams) {
-  if (new_seam == nullptr)
+  if (new_seam == nullptr) {
     return;
+  }
   if (chop_debug) {
     tprintf("Pushing new seam with priority %g :", new_priority);
     new_seam->Print("seam: ");
@@ -111,12 +112,14 @@ void Wordrec::choose_best_seam(SeamQueue *seam_queue, const SPLIT *split, PRIORI
     split_point += split->point2->pos;
     split_point /= 2;
     seam = new SEAM(my_priority, split_point, *split);
-    if (chop_debug > 1)
+    if (chop_debug > 1) {
       seam->Print("Partial priority    ");
+    }
     add_seam_to_queue(my_priority, seam, seam_queue);
 
-    if (my_priority > chop_good_split)
+    if (my_priority > chop_good_split) {
       return;
+    }
   }
 
   TBOX bbox = blob->bounding_box();
@@ -175,8 +178,9 @@ void Wordrec::choose_best_seam(SeamQueue *seam_queue, const SPLIT *split, PRIORI
     }
 
     my_priority = seam_queue->empty() ? NO_FULL_PRIORITY : seam_queue->PeekTop().key();
-    if ((my_priority > chop_ok_split) || (my_priority > chop_good_split && split))
+    if ((my_priority > chop_ok_split) || (my_priority > chop_good_split && split)) {
       return;
+    }
   }
 }
 
@@ -193,8 +197,9 @@ void Wordrec::combine_seam(const SeamPile &seam_pile, const SEAM *seam, SeamQueu
     if (seam->CombineableWith(*this_one, SPLIT_CLOSENESS, chop_ok_split)) {
       SEAM *new_one = new SEAM(*seam);
       new_one->CombineWith(*this_one);
-      if (chop_debug > 1)
+      if (chop_debug > 1) {
         new_one->Print("Combo priority       ");
+      }
       add_seam_to_queue(new_one->priority(), new_one, seam_queue);
     }
   }
@@ -215,15 +220,17 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
   int16_t num_points = 0;
 
 #ifndef GRAPHICS_DISABLED
-  if (chop_debug > 2)
+  if (chop_debug > 2) {
     wordrec_display_splits.set_value(true);
+  }
 
   draw_blob_edges(blob);
 #endif
 
   PointHeap point_heap(MAX_NUM_POINTS);
-  for (outline = blob->outlines; outline; outline = outline->next)
+  for (outline = blob->outlines; outline; outline = outline->next) {
     prioritize_points(outline, &point_heap);
+  }
 
   while (!point_heap.empty() && num_points < MAX_NUM_POINTS) {
     points[num_points++] = point_heap.PeekTop().data();
@@ -271,8 +278,9 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
 #endif
   }
 
-  if (chop_debug)
+  if (chop_debug) {
     wordrec_display_splits.set_value(false);
+  }
 
   return (seam);
 }

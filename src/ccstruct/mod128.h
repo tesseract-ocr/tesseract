@@ -35,8 +35,9 @@ public:
   DIR128(              // constructor
       int16_t value) { // value to assign
     value %= MODULUS;  // modulo arithmetic
-    if (value < 0)
+    if (value < 0) {
       value += MODULUS; // done properly
+    }
     dir = static_cast<int8_t>(value);
   }
   DIR128(const FCOORD fc); // quantize vector
@@ -44,8 +45,9 @@ public:
   DIR128 &operator=(   // assign of int16_t
       int16_t value) { // value to assign
     value %= MODULUS;  // modulo arithmetic
-    if (value < 0)
+    if (value < 0) {
       value += MODULUS; // done properly
+    }
     dir = static_cast<int8_t>(value);
     return *this;
   }
@@ -55,10 +57,11 @@ public:
     // result
     int16_t result = dir - minus.dir;
 
-    if (result > MODULUS / 2)
+    if (result > MODULUS / 2) {
       result -= MODULUS; // get in range
-    else if (result < -MODULUS / 2)
+    } else if (result < -MODULUS / 2) {
       result += MODULUS;
+    }
     return static_cast<int8_t>(result);
   }
   DIR128 operator+(            // addition

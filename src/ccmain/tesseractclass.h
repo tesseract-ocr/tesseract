@@ -284,18 +284,21 @@ public:
   }
   // Returns true if any language uses Tesseract (as opposed to LSTM).
   bool AnyTessLang() const {
-    if (tessedit_ocr_engine_mode != OEM_LSTM_ONLY)
+    if (tessedit_ocr_engine_mode != OEM_LSTM_ONLY) {
       return true;
+    }
     for (auto &lang : sub_langs_) {
-      if (lang->tessedit_ocr_engine_mode != OEM_LSTM_ONLY)
+      if (lang->tessedit_ocr_engine_mode != OEM_LSTM_ONLY) {
         return true;
+      }
     }
     return false;
   }
   // Returns true if any language uses the LSTM.
   bool AnyLSTMLang() const {
-    if (tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY)
+    if (tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY) {
       return true;
+    }
     for (auto &lang : sub_langs_) {
       if (lang->tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY) {
         return true;

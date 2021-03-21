@@ -44,9 +44,10 @@ void ERRCODE::error(         // handle error
   char msg[MAX_MSG];
   char *msgptr = msg;
 
-  if (caller != nullptr)
+  if (caller != nullptr) {
     // name of caller
     msgptr += sprintf(msgptr, "%s:", caller);
+  }
   // actual message
   msgptr += sprintf(msgptr, "Error:%s", message);
   if (format != nullptr) {
@@ -64,9 +65,10 @@ void ERRCODE::error(         // handle error
     msgptr += sprintf(msgptr, "\n");
 #endif
     va_end(args);
-  } else
+  } else {
     // no specific
     msgptr += sprintf(msgptr, "\n");
+  }
 
   // %s is needed here so msg is printed correctly!
   fprintf(stderr, "%s", msg);

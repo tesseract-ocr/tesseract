@@ -86,65 +86,87 @@ ImageData *ImageData::Build(const char *name, int page_number, const char *lang,
 
 // Writes to the given file. Returns false in case of error.
 bool ImageData::Serialize(TFile *fp) const {
-  if (!fp->Serialize(imagefilename_))
+  if (!fp->Serialize(imagefilename_)) {
     return false;
-  if (!fp->Serialize(&page_number_))
+  }
+  if (!fp->Serialize(&page_number_)) {
     return false;
-  if (!fp->Serialize(image_data_))
+  }
+  if (!fp->Serialize(image_data_)) {
     return false;
-  if (!fp->Serialize(language_))
+  }
+  if (!fp->Serialize(language_)) {
     return false;
-  if (!fp->Serialize(transcription_))
+  }
+  if (!fp->Serialize(transcription_)) {
     return false;
-  if (!fp->Serialize(boxes_))
+  }
+  if (!fp->Serialize(boxes_)) {
     return false;
-  if (!fp->Serialize(box_texts_))
+  }
+  if (!fp->Serialize(box_texts_)) {
     return false;
+  }
   int8_t vertical = vertical_text_;
   return fp->Serialize(&vertical);
 }
 
 // Reads from the given file. Returns false in case of error.
 bool ImageData::DeSerialize(TFile *fp) {
-  if (!fp->DeSerialize(imagefilename_))
+  if (!fp->DeSerialize(imagefilename_)) {
     return false;
-  if (!fp->DeSerialize(&page_number_))
+  }
+  if (!fp->DeSerialize(&page_number_)) {
     return false;
-  if (!fp->DeSerialize(image_data_))
+  }
+  if (!fp->DeSerialize(image_data_)) {
     return false;
-  if (!fp->DeSerialize(language_))
+  }
+  if (!fp->DeSerialize(language_)) {
     return false;
-  if (!fp->DeSerialize(transcription_))
+  }
+  if (!fp->DeSerialize(transcription_)) {
     return false;
-  if (!fp->DeSerialize(boxes_))
+  }
+  if (!fp->DeSerialize(boxes_)) {
     return false;
-  if (!fp->DeSerialize(box_texts_))
+  }
+  if (!fp->DeSerialize(box_texts_)) {
     return false;
+  }
   int8_t vertical = 0;
-  if (!fp->DeSerialize(&vertical))
+  if (!fp->DeSerialize(&vertical)) {
     return false;
+  }
   vertical_text_ = vertical != 0;
   return true;
 }
 
 // As DeSerialize, but only seeks past the data - hence a static method.
 bool ImageData::SkipDeSerialize(TFile *fp) {
-  if (!fp->DeSerializeSkip())
+  if (!fp->DeSerializeSkip()) {
     return false;
+  }
   int32_t page_number;
-  if (!fp->DeSerialize(&page_number))
+  if (!fp->DeSerialize(&page_number)) {
     return false;
-  if (!fp->DeSerializeSkip())
+  }
+  if (!fp->DeSerializeSkip()) {
     return false;
-  if (!fp->DeSerializeSkip())
+  }
+  if (!fp->DeSerializeSkip()) {
     return false;
-  if (!fp->DeSerializeSkip())
+  }
+  if (!fp->DeSerializeSkip()) {
     return false;
-  if (!fp->DeSerializeSkip(sizeof(TBOX)))
+  }
+  if (!fp->DeSerializeSkip(sizeof(TBOX))) {
     return false;
+  }
   int32_t number;
-  if (!fp->DeSerialize(&number))
+  if (!fp->DeSerialize(&number)) {
     return false;
+  }
   for (int i = 0; i < number; i++) {
     if (!fp->DeSerializeSkip()) {
       return false;
@@ -200,10 +222,12 @@ Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor,
     target_height = std::min(input_height, max_height);
   }
   float im_factor = static_cast<float>(target_height) / input_height;
-  if (scaled_width != nullptr)
+  if (scaled_width != nullptr) {
     *scaled_width = IntCastRounded(im_factor * input_width);
-  if (scaled_height != nullptr)
+  }
+  if (scaled_height != nullptr) {
     *scaled_height = target_height;
+  }
   // Get the scaled image.
   Pix *pix = pixScale(src_pix, im_factor, im_factor);
   if (pix == nullptr) {
@@ -212,10 +236,12 @@ Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor,
     pixDestroy(&src_pix);
     return nullptr;
   }
-  if (scaled_width != nullptr)
+  if (scaled_width != nullptr) {
     *scaled_width = pixGetWidth(pix);
-  if (scaled_height != nullptr)
+  }
+  if (scaled_height != nullptr) {
     *scaled_height = pixGetHeight(pix);
+  }
   pixDestroy(&src_pix);
   if (boxes != nullptr) {
     // Get the boxes.
@@ -230,8 +256,9 @@ Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor,
       boxes->push_back(box);
     }
   }
-  if (scale_factor != nullptr)
+  if (scale_factor != nullptr) {
     *scale_factor = im_factor;
+  }
   return pix;
 }
 
@@ -246,8 +273,9 @@ void ImageData::Display() const {
   const int kTextSize = 64;
   // Draw the image.
   Pix *pix = GetPix();
-  if (pix == nullptr)
+  if (pix == nullptr) {
     return;
+  }
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
   auto *win =
@@ -259,8 +287,9 @@ void ImageData::Display() const {
   win->Pen(ScrollView::RED);
   win->Brush(ScrollView::NONE);
   int text_size = kTextSize;
-  if (!boxes_.empty() && boxes_[0].height() * 2 < text_size)
+  if (!boxes_.empty() && boxes_[0].height() * 2 < text_size) {
     text_size = boxes_[0].height() * 2;
+  }
   win->TextAttributes("Arial", text_size, false, false, false);
   if (!boxes_.empty()) {
     for (int b = 0; b < boxes_.size(); ++b) {
@@ -284,8 +313,9 @@ void ImageData::AddBoxes(const std::vector<TBOX> &boxes, const std::vector<std::
                          const std::vector<int> &box_pages) {
   // Copy the boxes and make the transcription.
   for (int i = 0; i < box_pages.size(); ++i) {
-    if (page_number_ >= 0 && box_pages[i] != page_number_)
+    if (page_number_ >= 0 && box_pages[i] != page_number_) {
       continue;
+    }
     transcription_ += texts[i];
     boxes_.push_back(boxes[i]);
     box_texts_.push_back(texts[i]);
@@ -402,11 +432,13 @@ void DocumentData::AddPageToDocument(ImageData *page) {
 // thread.
 void DocumentData::LoadPageInBackground(int index) {
   ImageData *page = nullptr;
-  if (IsPageAvailable(index, &page))
+  if (IsPageAvailable(index, &page)) {
     return;
+  }
   std::lock_guard<std::mutex> lock(pages_mutex_);
-  if (pages_offset_ == index)
+  if (pages_offset_ == index) {
     return;
+  }
   pages_offset_ = index;
   for (auto page : pages_) {
     delete page;
@@ -427,8 +459,9 @@ const ImageData *DocumentData::GetPage(int index) {
     pages_mutex_.lock();
     bool needs_loading = pages_offset_ != index;
     pages_mutex_.unlock();
-    if (needs_loading)
+    if (needs_loading) {
       LoadPageInBackground(index);
+    }
     // We can't directly load the page, or the background load will delete it
     // while the caller is using it, so give it a chance to work.
     std::this_thread::yield();
@@ -569,8 +602,9 @@ bool DocumentCache::LoadDocuments(const std::vector<std::string> &filenames,
   // In the round-robin case, each DocumentData handles restricting its content
   // to its fair share of memory. In the sequential case, DocumentCache
   // determines which DocumentDatas are held entirely in memory.
-  if (cache_strategy_ == CS_ROUND_ROBIN)
+  if (cache_strategy_ == CS_ROUND_ROBIN) {
     fair_share_memory = max_memory_ / filenames.size();
+  }
   for (auto filename : filenames) {
     auto *document = new DocumentData(filename);
     document->SetDocument(filename.c_str(), fair_share_memory, reader);
@@ -578,8 +612,9 @@ bool DocumentCache::LoadDocuments(const std::vector<std::string> &filenames,
   }
   if (!documents_.empty()) {
     // Try to get the first page now to verify the list of filenames.
-    if (GetPageBySerial(0) != nullptr)
+    if (GetPageBySerial(0) != nullptr) {
       return true;
+    }
     tprintf("Load of page 0 failed!\n");
   }
   return false;
@@ -607,8 +642,9 @@ int DocumentCache::TotalPages() {
   if (cache_strategy_ == CS_SEQUENTIAL) {
     // In sequential mode, we assume each doc has the same number of pages
     // whether it is true or not.
-    if (num_pages_per_doc_ == 0)
+    if (num_pages_per_doc_ == 0) {
       GetPageSequential(0);
+    }
     return num_pages_per_doc_ * documents_.size();
   }
   int total_pages = 0;
@@ -650,8 +686,9 @@ const ImageData *DocumentCache::GetPageSequential(int serial) {
       ASSERT_HOST(num_pages_per_doc_ > 0);
     }
     // Get rid of zero now if we don't need it.
-    if (serial / num_pages_per_doc_ % num_docs > 0)
+    if (serial / num_pages_per_doc_ % num_docs > 0) {
       documents_[0]->UnCache();
+    }
   }
   int doc_index = serial / num_pages_per_doc_ % num_docs;
   const ImageData *doc = documents_[doc_index]->GetPage(serial % num_pages_per_doc_);
@@ -694,8 +731,9 @@ int DocumentCache::CountNeighbourDocs(int index, int dir) {
   int num_docs = documents_.size();
   for (int offset = dir; abs(offset) < num_docs; offset += dir) {
     int offset_index = (index + offset + num_docs) % num_docs;
-    if (!documents_[offset_index]->IsCached())
+    if (!documents_[offset_index]->IsCached()) {
       return offset - dir;
+    }
   }
   return num_docs;
 }

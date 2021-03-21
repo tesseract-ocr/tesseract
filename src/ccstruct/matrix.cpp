@@ -34,13 +34,15 @@ MATRIX::~MATRIX() = default;
 
 // Returns true if there are any real classification results.
 bool MATRIX::Classified(int col, int row, int wildcard_id) const {
-  if (get(col, row) == NOT_CLASSIFIED)
+  if (get(col, row) == NOT_CLASSIFIED) {
     return false;
+  }
   BLOB_CHOICE_IT b_it(get(col, row));
   for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
     BLOB_CHOICE *choice = b_it.data();
-    if (choice->IsClassified())
+    if (choice->IsClassified()) {
       return true;
+    }
   }
   return false;
 }
@@ -118,8 +120,9 @@ void MATRIX::print(const UNICHARSET &unicharset) const {
   for (col = 0; col < dim; ++col) {
     for (row = col; row < dim && row < col + band_width; ++row) {
       BLOB_CHOICE_LIST *rating = this->get(col, row);
-      if (rating == NOT_CLASSIFIED)
+      if (rating == NOT_CLASSIFIED) {
         continue;
+      }
       BLOB_CHOICE_IT b_it(rating);
       tprintf("col=%d row=%d ", col, row);
       for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
@@ -131,13 +134,15 @@ void MATRIX::print(const UNICHARSET &unicharset) const {
     tprintf("\n");
   }
   tprintf("\n");
-  for (col = 0; col < dim; ++col)
+  for (col = 0; col < dim; ++col) {
     tprintf("\t%d", col);
+  }
   tprintf("\n");
   for (row = 0; row < dim; ++row) {
     for (col = 0; col <= row; ++col) {
-      if (col == 0)
+      if (col == 0) {
         tprintf("%d\t", row);
+      }
       if (row >= col + band_width) {
         tprintf(" \t");
         continue;
@@ -149,8 +154,9 @@ void MATRIX::print(const UNICHARSET &unicharset) const {
         for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
           tprintf("%s ", unicharset.id_to_unichar(b_it.data()->unichar_id()));
           ++counter;
-          if (counter == 3)
+          if (counter == 3) {
             break;
+          }
         }
         tprintf("\t");
       } else {

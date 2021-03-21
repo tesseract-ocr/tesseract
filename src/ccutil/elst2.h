@@ -313,15 +313,18 @@ inline void ELIST2_ITERATOR::add_after_then_move( // element to add
       new_element->prev = current;
       current->next = new_element;
       prev = current;
-      if (current == list->last)
+      if (current == list->last) {
         list->last = new_element;
+      }
     } else { // current extracted
       new_element->prev = prev;
       prev->next = new_element;
-      if (ex_current_was_last)
+      if (ex_current_was_last) {
         list->last = new_element;
-      if (ex_current_was_cycle_pt)
+      }
+      if (ex_current_was_cycle_pt) {
         cycle_pt = new_element;
+      }
     }
   }
   current = new_element;
@@ -359,10 +362,12 @@ inline void ELIST2_ITERATOR::add_after_stay_put( // element to add
     if (current) { // not extracted
       new_element->prev = current;
       current->next = new_element;
-      if (prev == current)
+      if (prev == current) {
         prev = new_element;
-      if (current == list->last)
+      }
+      if (current == list->last) {
         list->last = new_element;
+      }
     } else { // current extracted
       new_element->prev = prev;
       prev->next = new_element;
@@ -409,10 +414,12 @@ inline void ELIST2_ITERATOR::add_before_then_move( // element to add
     } else { // current extracted
       new_element->next = next;
       next->prev = new_element;
-      if (ex_current_was_last)
+      if (ex_current_was_last) {
         list->last = new_element;
-      if (ex_current_was_cycle_pt)
+      }
+      if (ex_current_was_cycle_pt) {
         cycle_pt = new_element;
+      }
     }
   }
   current = new_element;
@@ -450,13 +457,15 @@ inline void ELIST2_ITERATOR::add_before_stay_put( // element to add
     if (current) { // not extracted
       new_element->next = current;
       current->prev = new_element;
-      if (next == current)
+      if (next == current) {
         next = new_element;
+      }
     } else { // current extracted
       new_element->next = next;
       next->prev = new_element;
-      if (ex_current_was_last)
+      if (ex_current_was_last) {
         list->last = new_element;
+      }
     }
     prev = new_element;
   }
@@ -489,8 +498,9 @@ inline void ELIST2_ITERATOR::add_list_after(ELIST2 *list_to_add) {
       if (current) { // not extracted
         current->next = list_to_add->First();
         current->next->prev = current;
-        if (current == list->last)
+        if (current == list->last) {
           list->last = list_to_add->last;
+        }
         list_to_add->last->next = next;
         next->prev = list_to_add->last;
         next = current->next;
@@ -543,10 +553,12 @@ inline void ELIST2_ITERATOR::add_list_before(ELIST2 *list_to_add) {
       } else { // current extracted
         list_to_add->last->next = next;
         next->prev = list_to_add->last;
-        if (ex_current_was_last)
+        if (ex_current_was_last) {
           list->last = list_to_add->last;
-        if (ex_current_was_cycle_pt)
+        }
+        if (ex_current_was_cycle_pt) {
           cycle_pt = prev->next;
+        }
       }
       current = prev->next;
       next = current->next;
@@ -653,10 +665,11 @@ inline void ELIST2_ITERATOR::mark_cycle_pt() {
     NO_LIST.error("ELIST2_ITERATOR::mark_cycle_pt", ABORT, nullptr);
 #endif
 
-  if (current)
+  if (current) {
     cycle_pt = current;
-  else
+  } else {
     ex_current_was_cycle_pt = true;
+  }
   started_cycling = false;
 }
 

@@ -60,16 +60,21 @@ void SetupBasicProperties(bool report_errors, bool decompose, UNICHARSET *unicha
     bool unichar_ispunct = false;
 
     for (char32 u_ch : uni_vector) {
-      if (u_isalpha(u_ch))
+      if (u_isalpha(u_ch)) {
         unichar_isalpha = true;
-      if (u_islower(u_ch))
+      }
+      if (u_islower(u_ch)) {
         unichar_islower = true;
-      if (u_isupper(u_ch))
+      }
+      if (u_isupper(u_ch)) {
         unichar_isupper = true;
-      if (u_isdigit(u_ch))
+      }
+      if (u_isdigit(u_ch)) {
         unichar_isdigit = true;
-      if (u_ispunct(u_ch))
+      }
+      if (u_ispunct(u_ch)) {
         unichar_ispunct = true;
+      }
     }
 
     unicharset->set_isalpha(unichar_id, unichar_isalpha);
@@ -164,8 +169,9 @@ std::string GetXheightString(const std::string &script_dir, const UNICHARSET &un
     // Load the xheights for the script if available.
     std::string filename = script_dir + "/" + unicharset.get_script_from_script_id(s) + ".xheights";
     std::string script_heights;
-    if (File::ReadFileToString(filename, &script_heights))
+    if (File::ReadFileToString(filename, &script_heights)) {
       xheights_str += script_heights;
+    }
   }
   return xheights_str;
 }

@@ -146,10 +146,12 @@ static void ComputeBlackWhite(Pix *pix, float *black, float *white) {
       curr = next;
     }
   }
-  if (mins.get_total() == 0)
+  if (mins.get_total() == 0) {
     mins.add(0, 1);
-  if (maxes.get_total() == 0)
+  }
+  if (maxes.get_total() == 0) {
     maxes.add(255, 1);
+  }
   *black = mins.ile(0.25);
   *white = maxes.ile(0.75);
 }
@@ -173,11 +175,13 @@ void NetworkIO::FromPixes(const StaticShape &shape, const std::vector<const Pix 
   for (auto pix : pixes) {
     Pix *var_pix = const_cast<Pix *>(pix);
     int width = pixGetWidth(var_pix);
-    if (target_width != 0)
+    if (target_width != 0) {
       width = target_width;
+    }
     int height = pixGetHeight(var_pix);
-    if (target_height != 0)
+    if (target_height != 0) {
       height = target_height;
+    }
     h_w_pairs.emplace_back(height, width);
   }
   stride_map_.SetStride(h_w_pairs);
@@ -186,11 +190,13 @@ void NetworkIO::FromPixes(const StaticShape &shape, const std::vector<const Pix 
   for (size_t b = 0; b < pixes.size(); ++b) {
     Pix *pix = const_cast<Pix *>(pixes[b]);
     float black = 0.0f, white = 255.0f;
-    if (shape.depth() != 3)
+    if (shape.depth() != 3) {
       ComputeBlackWhite(pix, &black, &white);
+    }
     float contrast = (white - black) / 2.0f;
-    if (contrast <= 0.0f)
+    if (contrast <= 0.0f) {
       contrast = 1.0f;
+    }
     if (shape.height() == 1) {
       Copy1DGreyImage(b, pix, black, contrast, randomizer);
     } else {
@@ -217,8 +223,9 @@ void NetworkIO::Copy2DImage(int batch, Pix *pix, float black, float contrast, TR
   int target_width = stride_map_.Size(FD_WIDTH);
   int num_features = NumFeatures();
   bool color = num_features == 3;
-  if (width > target_width)
+  if (width > target_width) {
     width = target_width;
+  }
   uint32_t *line = pixGetData(pix);
   for (int y = 0; y < target_height; ++y, line += wpl) {
     int x = 0;
@@ -236,8 +243,9 @@ void NetworkIO::Copy2DImage(int batch, Pix *pix, float black, float contrast, TR
         }
       }
     }
-    for (; x < target_width; ++x)
+    for (; x < target_width; ++x) {
       Randomize(t++, 0, num_features, randomizer);
+    }
   }
 }
 
@@ -255,8 +263,9 @@ void NetworkIO::Copy1DGreyImage(int batch, Pix *pix, float black, float contrast
   index.AddOffset(batch, FD_BATCH);
   int t = index.t();
   int target_width = stride_map_.Size(FD_WIDTH);
-  if (width > target_width)
+  if (width > target_width) {
     width = target_width;
+  }
   int x;
   for (x = 0; x < width; ++x, ++t) {
     for (int y = 0; y < height; ++y) {
@@ -265,8 +274,9 @@ void NetworkIO::Copy1DGreyImage(int batch, Pix *pix, float black, float contrast
       SetPixel(t, y, pixel, black, contrast);
     }
   }
-  for (; x < target_width; ++x)
+  for (; x < target_width; ++x) {
     Randomize(t++, 0, height, randomizer);
+  }
 }
 
 // Helper stores the pixel value in i_ or f_ according to int_mode_.
@@ -414,26 +424,30 @@ void NetworkIO::ZeroTimeStepGeneral(int t, int offset, int num_features) {
 void NetworkIO::Randomize(int t, int offset, int num_features, TRand *randomizer) {
   if (int_mode_) {
     int8_t *line = i_[t] + offset;
-    for (int i = 0; i < num_features; ++i)
+    for (int i = 0; i < num_features; ++i) {
       line[i] = IntCastRounded(randomizer->SignedRand(INT8_MAX));
+    }
   } else {
     // float mode.
     float *line = f_[t] + offset;
-    for (int i = 0; i < num_features; ++i)
+    for (int i = 0; i < num_features; ++i) {
       line[i] = randomizer->SignedRand(1.0);
+    }
   }
 }
 
 // Helper returns the label and score of the best choice over a range.
 int NetworkIO::BestChoiceOverRange(int t_start, int t_end, int not_this, int null_ch, float *rating,
                                    float *certainty) const {
-  if (t_end <= t_start)
+  if (t_end <= t_start) {
     return -1;
+  }
   int max_char = -1;
   float min_score = 0.0f;
   for (int c = 0; c < NumFeatures(); ++c) {
-    if (c == not_this || c == null_ch)
+    if (c == not_this || c == null_ch) {
       continue;
+    }
     ScoresOverRange(t_start, t_end, c, null_ch, rating, certainty);
     if (max_char < 0 || *rating < min_score) {
       min_score = *rating;
@@ -450,8 +464,9 @@ void NetworkIO::ScoresOverRange(int t_start, int t_end, int choice, int null_ch,
   ASSERT_HOST(!int_mode_);
   *rating = 0.0f;
   *certainty = 0.0f;
-  if (t_end <= t_start || t_end <= 0)
+  if (t_end <= t_start || t_end <= 0) {
     return;
+  }
   float ratings[3] = {0.0f, 0.0f, 0.0f};
   float certs[3] = {0.0f, 0.0f, 0.0f};
   for (int t = t_start; t < t_end; ++t) {
@@ -470,15 +485,18 @@ void NetworkIO::ScoresOverRange(int t_start, int t_end, int choice, int null_ch,
         }
       }
       ratings[2] -= zero;
-      if (zero < certs[2])
+      if (zero < certs[2]) {
         certs[2] = zero;
+      }
       ratings[1] -= score;
-      if (score < certs[1])
+      if (score < certs[1]) {
         certs[1] = score;
+      }
     }
     ratings[0] -= zero;
-    if (zero < certs[0])
+    if (zero < certs[0]) {
       certs[0] = zero;
+    }
   }
   int best_i = ratings[2] < ratings[1] ? 2 : 1;
   *rating = ratings[best_i] + t_end - t_start;
@@ -499,8 +517,9 @@ int NetworkIO::BestLabel(int t, int not_this, int not_that, float *score) const 
       best_index = i;
     }
   }
-  if (score != nullptr)
+  if (score != nullptr) {
     *score = ProbToCertainty(best_score);
+  }
   return best_index;
 }
 
@@ -539,8 +558,9 @@ void NetworkIO::SetActivations(int t, int label, float ok_score) {
   int num_classes = NumFeatures();
   float bad_score = (1.0f - ok_score) / (num_classes - 1);
   float *targets = f_[t];
-  for (int i = 0; i < num_classes; ++i)
+  for (int i = 0; i < num_classes; ++i) {
     targets[i] = bad_score;
+  }
   targets[label] = ok_score;
 }
 
@@ -713,18 +733,21 @@ float NetworkIO::MinOfMaxes() const {
     if (int_mode_) {
       const int8_t *column = i_[t];
       for (int i = 0; i < num_features; ++i) {
-        if (column[i] > max_value)
+        if (column[i] > max_value) {
           max_value = column[i];
+        }
       }
     } else {
       const float *column = f_[t];
       for (int i = 0; i < num_features; ++i) {
-        if (column[i] > max_value)
+        if (column[i] > max_value) {
           max_value = column[i];
+        }
       }
     }
-    if (t == 0 || max_value < min_max)
+    if (t == 0 || max_value < min_max) {
       min_max = max_value;
+    }
   }
   return min_max;
 }
@@ -785,8 +808,9 @@ void NetworkIO::ComputeCombinerDeltas(const NetworkIO &fwd_deltas, const Network
       float comb_target = delta_line[i] + output;
       comb_line[i] = comb_target - comb_line[i];
       float base_delta = fabs(comb_target - base_line[i]);
-      if (base_delta > max_base_delta)
+      if (base_delta > max_base_delta) {
         max_base_delta = base_delta;
+      }
     }
     if (max_base_delta >= 0.5) {
       // The base network got it wrong. The combiner should output the right
@@ -796,8 +820,9 @@ void NetworkIO::ComputeCombinerDeltas(const NetworkIO &fwd_deltas, const Network
       // The base network was right. The combiner should flag that.
       for (int i = 0; i < no; ++i) {
         // All other targets are 0.
-        if (comb_line[i] > 0.0)
+        if (comb_line[i] > 0.0) {
           comb_line[i] -= 1.0;
+        }
       }
       comb_line[no] = 1.0 - base_weight;
     }
@@ -838,8 +863,9 @@ void NetworkIO::CopyWithNormalization(const NetworkIO &src, const NetworkIO &sca
     for (int t = 0; t < src.Width(); ++t) {
       const float *src_ptr = src.f_[t];
       float *dest_ptr = f_[t];
-      for (int i = 0; i < src.f_.dim2(); ++i)
+      for (int i = 0; i < src.f_.dim2(); ++i) {
         dest_ptr[i] = src_ptr[i] * factor;
+      }
     }
   } else {
     f_.Clear();
@@ -859,8 +885,9 @@ void NetworkIO::CopyWithYReversal(const NetworkIO &src) {
     do {
       int fwd_t = fwd_index.t();
       int rev_t = rev_index.t();
-      for (int x = 0; x < width; ++x)
+      for (int x = 0; x < width; ++x) {
         CopyTimeStepFrom(rev_t++, src, fwd_t++);
+      }
     } while (fwd_index.AddOffset(1, FD_HEIGHT) && rev_index.AddOffset(-1, FD_HEIGHT));
   } while (b_index.AddOffset(1, FD_BATCH));
 }
@@ -952,8 +979,9 @@ void NetworkIO::CopyUnpacking(const NetworkIO &src, int feature_offset, int num_
 void NetworkIO::Transpose(TransposedArray *dest) const {
   int width = Width();
   dest->ResizeNoInit(NumFeatures(), width);
-  for (int t = 0; t < width; ++t)
+  for (int t = 0; t < width; ++t) {
     dest->WriteStrided(t, f_[t]);
+  }
 }
 
 // Clips the content of a single time-step to +/-range.
@@ -961,8 +989,9 @@ void NetworkIO::ClipVector(int t, float range) {
   ASSERT_HOST(!int_mode_);
   float *v = f_[t];
   int dim = f_.dim2();
-  for (int i = 0; i < dim; ++i)
+  for (int i = 0; i < dim; ++i) {
     v[i] = ClipToRange<float>(v[i], -range, range);
+  }
 }
 
 // Returns the padding required for the given number of features in order

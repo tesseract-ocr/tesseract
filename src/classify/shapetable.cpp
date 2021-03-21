@@ -54,8 +54,9 @@ int ShapeRating::FirstResultWithUnichar(const std::vector<ShapeRating> &results,
 int UnicharRating::FirstResultWithUnichar(const std::vector<UnicharRating> &results,
                                           UNICHAR_ID unichar_id) {
   for (int r = 0; r < results.size(); ++r) {
-    if (results[r].unichar_id == unichar_id)
+    if (results[r].unichar_id == unichar_id) {
       return r;
+    }
   }
   return -1;
 }
@@ -90,8 +91,9 @@ bool Shape::Serialize(FILE *fp) const {
 
 bool Shape::DeSerialize(TFile *fp) {
   uint8_t sorted;
-  if (!fp->DeSerialize(&sorted))
+  if (!fp->DeSerialize(&sorted)) {
     return false;
+  }
   unichars_sorted_ = sorted != 0;
   return fp->DeSerialize(unichars_);
 }
@@ -104,8 +106,9 @@ void Shape::AddToShape(int unichar_id, int font_id) {
       // Found the unichar in the shape table.
       std::vector<int> &font_list = unichar.font_ids;
       for (int f : font_list) {
-        if (f == font_id)
+        if (f == font_id) {
           return; // Font is already there.
+        }
       }
       font_list.push_back(font_id);
       return;
@@ -133,8 +136,9 @@ bool Shape::ContainsUnicharAndFont(int unichar_id, int font_id) const {
       // Found the unichar, so look for the font.
       auto &font_list = unichar.font_ids;
       for (int f : font_list) {
-        if (f == font_id)
+        if (f == font_id) {
           return true;
+        }
       }
       return false;
     }
@@ -157,8 +161,9 @@ bool Shape::ContainsFont(int font_id) const {
   for (const auto &unichar : unichars_) {
     auto &font_list = unichar.font_ids;
     for (int f : font_list) {
-      if (f == font_id)
+      if (f == font_id) {
         return true;
+      }
     }
   }
   return false;
@@ -169,8 +174,9 @@ bool Shape::ContainsFontProperties(const FontInfoTable &font_table, uint32_t pro
   for (const auto &unichar : unichars_) {
     auto &font_list = unichar.font_ids;
     for (int f : font_list) {
-      if (font_table.at(f).properties == properties)
+      if (font_table.at(f).properties == properties) {
         return true;
+      }
     }
   }
   return false;
@@ -182,8 +188,9 @@ bool Shape::ContainsMultipleFontProperties(const FontInfoTable &font_table) cons
   for (const auto &unichar : unichars_) {
     auto &font_list = unichar.font_ids;
     for (int f : font_list) {
-      if (font_table.at(f).properties != properties)
+      if (font_table.at(f).properties != properties) {
         return true;
+      }
     }
   }
   return false;
@@ -201,8 +208,9 @@ bool Shape::IsSubsetOf(const Shape &other) const {
     int unichar_id = unichar.unichar_id;
     const std::vector<int> &font_list = unichar.font_ids;
     for (int f : font_list) {
-      if (!other.ContainsUnicharAndFont(unichar_id, f))
+      if (!other.ContainsUnicharAndFont(unichar_id, f)) {
         return false;
+      }
     }
   }
   return true;
@@ -212,15 +220,19 @@ bool Shape::IsSubsetOf(const Shape &other) const {
 // ignoring fonts.
 // NOT const, as it will sort the unichars on demand.
 bool Shape::IsEqualUnichars(Shape *other) {
-  if (unichars_.size() != other->unichars_.size())
+  if (unichars_.size() != other->unichars_.size()) {
     return false;
-  if (!unichars_sorted_)
+  }
+  if (!unichars_sorted_) {
     SortUnichars();
-  if (!other->unichars_sorted_)
+  }
+  if (!other->unichars_sorted_) {
     other->SortUnichars();
+  }
   for (int c = 0; c < unichars_.size(); ++c) {
-    if (unichars_[c].unichar_id != other->unichars_[c].unichar_id)
+    if (unichars_[c].unichar_id != other->unichars_[c].unichar_id) {
       return false;
+    }
   }
   return true;
 }
@@ -241,8 +253,9 @@ bool ShapeTable::Serialize(FILE *fp) const {
 // Reads from the given file. Returns false in case of error.
 
 bool ShapeTable::DeSerialize(TFile *fp) {
-  if (!fp->DeSerialize(shape_table_))
+  if (!fp->DeSerialize(shape_table_)) {
     return false;
+  }
   num_fonts_ = 0;
   return true;
 }
@@ -255,8 +268,9 @@ int ShapeTable::NumFonts() const {
       const Shape &shape = *shape_id;
       for (int c = 0; c < shape.size(); ++c) {
         for (int font_id : shape[c].font_ids) {
-          if (font_id >= num_fonts_)
+          if (font_id >= num_fonts_) {
             num_fonts_ = font_id + 1;
+          }
         }
       }
     }
@@ -276,8 +290,9 @@ void ShapeTable::ReMapClassIds(const std::vector<int> &unicharset_map) {
 
 // Returns a string listing the classes/fonts in a shape.
 std::string ShapeTable::DebugStr(int shape_id) const {
-  if (shape_id < 0 || shape_id >= shape_table_.size())
+  if (shape_id < 0 || shape_id >= shape_table_.size()) {
     return "INVALID_UNICHAR_ID";
+  }
   const Shape &shape = GetShape(shape_id);
   std::string result;
   result += "Shape" + std::to_string(shape_id);
@@ -312,14 +327,17 @@ std::string ShapeTable::SummaryStr() const {
   int num_multi_shapes = 0;
   int num_master_shapes = 0;
   for (int s = 0; s < shape_table_.size(); ++s) {
-    if (MasterDestinationIndex(s) != s)
+    if (MasterDestinationIndex(s) != s) {
       continue;
+    }
     ++num_master_shapes;
     int shape_size = GetShape(s).size();
-    if (shape_size > 1)
+    if (shape_size > 1) {
       ++num_multi_shapes;
-    if (shape_size > max_unichars)
+    }
+    if (shape_size > max_unichars) {
       max_unichars = shape_size;
+    }
   }
   std::string result;
   result += "Number of shapes = " + std::to_string(num_master_shapes);
@@ -343,8 +361,9 @@ int ShapeTable::AddShape(int unichar_id, int font_id) {
 // Returns the assigned index or index of existing shape if already present.
 int ShapeTable::AddShape(const Shape &other) {
   int index;
-  for (index = 0; index < shape_table_.size() && !(other == *shape_table_[index]); ++index)
+  for (index = 0; index < shape_table_.size() && !(other == *shape_table_[index]); ++index) {
     continue;
+  }
   if (index == shape_table_.size()) {
     auto *shape = new Shape(other);
     shape_table_.push_back(shape);
@@ -383,11 +402,13 @@ int ShapeTable::FindShape(int unichar_id, int font_id) const {
     const Shape &shape = GetShape(s);
     for (int c = 0; c < shape.size(); ++c) {
       if (shape[c].unichar_id == unichar_id) {
-        if (font_id < 0)
+        if (font_id < 0) {
           return s; // We don't care about the font.
+        }
         for (int f : shape[c].font_ids) {
-          if (f == font_id)
+          if (f == font_id) {
             return s;
+          }
         }
       }
     }
@@ -437,10 +458,12 @@ bool ShapeTable::AlreadyMerged(int shape_id1, int shape_id2) const {
 bool ShapeTable::AnyMultipleUnichars() const {
   int num_shapes = NumShapes();
   for (int s1 = 0; s1 < num_shapes; ++s1) {
-    if (MasterDestinationIndex(s1) != s1)
+    if (MasterDestinationIndex(s1) != s1) {
       continue;
-    if (GetShape(s1).size() > 1)
+    }
+    if (GetShape(s1).size() > 1) {
       return true;
+    }
   }
   return false;
 }
@@ -450,8 +473,9 @@ int ShapeTable::MaxNumUnichars() const {
   int max_num_unichars = 0;
   int num_shapes = NumShapes();
   for (int s = 0; s < num_shapes; ++s) {
-    if (GetShape(s).size() > max_num_unichars)
+    if (GetShape(s).size() > max_num_unichars) {
       max_num_unichars = GetShape(s).size();
+    }
   }
   return max_num_unichars;
 }
@@ -523,11 +547,13 @@ void ShapeTable::SwapShapes(int shape_id1, int shape_id2) {
 // the fact that the destination may itself have been merged.
 int ShapeTable::MasterDestinationIndex(int shape_id) const {
   int dest_id = shape_table_[shape_id]->destination_index();
-  if (dest_id == shape_id || dest_id < 0)
+  if (dest_id == shape_id || dest_id < 0) {
     return shape_id; // Is master already.
+  }
   int master_id = shape_table_[dest_id]->destination_index();
-  if (master_id == dest_id || master_id < 0)
+  if (master_id == dest_id || master_id < 0) {
     return dest_id; // Dest is the master and shape_id points to it.
+  }
   master_id = MasterDestinationIndex(master_id);
   return master_id;
 }
@@ -539,13 +565,15 @@ bool ShapeTable::SubsetUnichar(int shape_id1, int shape_id2) const {
   int c1, c2;
   for (c1 = 0; c1 < shape1.size(); ++c1) {
     int unichar_id1 = shape1[c1].unichar_id;
-    if (!shape2.ContainsUnichar(unichar_id1))
+    if (!shape2.ContainsUnichar(unichar_id1)) {
       break;
+    }
   }
   for (c2 = 0; c2 < shape2.size(); ++c2) {
     int unichar_id2 = shape2[c2].unichar_id;
-    if (!shape1.ContainsUnichar(unichar_id2))
+    if (!shape1.ContainsUnichar(unichar_id2)) {
       break;
+    }
   }
   return c1 == shape1.size() || c2 == shape2.size();
 }
@@ -558,18 +586,21 @@ bool ShapeTable::MergeSubsetUnichar(int merge_id1, int merge_id2, int shape_id) 
   int cm1, cm2, cs;
   for (cs = 0; cs < shape.size(); ++cs) {
     int unichar_id = shape[cs].unichar_id;
-    if (!merge1.ContainsUnichar(unichar_id) && !merge2.ContainsUnichar(unichar_id))
+    if (!merge1.ContainsUnichar(unichar_id) && !merge2.ContainsUnichar(unichar_id)) {
       break; // Shape is not a subset of the merge.
+    }
   }
   for (cm1 = 0; cm1 < merge1.size(); ++cm1) {
     int unichar_id1 = merge1[cm1].unichar_id;
-    if (!shape.ContainsUnichar(unichar_id1))
+    if (!shape.ContainsUnichar(unichar_id1)) {
       break; // Merge is not a subset of shape
+    }
   }
   for (cm2 = 0; cm2 < merge2.size(); ++cm2) {
     int unichar_id2 = merge2[cm2].unichar_id;
-    if (!shape.ContainsUnichar(unichar_id2))
+    if (!shape.ContainsUnichar(unichar_id2)) {
       break; // Merge is not a subset of shape
+    }
   }
   return cs == shape.size() || (cm1 == merge1.size() && cm2 == merge2.size());
 }
@@ -580,13 +611,15 @@ bool ShapeTable::EqualUnichars(int shape_id1, int shape_id2) const {
   const Shape &shape2 = GetShape(shape_id2);
   for (int c1 = 0; c1 < shape1.size(); ++c1) {
     int unichar_id1 = shape1[c1].unichar_id;
-    if (!shape2.ContainsUnichar(unichar_id1))
+    if (!shape2.ContainsUnichar(unichar_id1)) {
       return false;
+    }
   }
   for (int c2 = 0; c2 < shape2.size(); ++c2) {
     int unichar_id2 = shape2[c2].unichar_id;
-    if (!shape1.ContainsUnichar(unichar_id2))
+    if (!shape1.ContainsUnichar(unichar_id2)) {
       return false;
+    }
   }
   return true;
 }
@@ -598,18 +631,21 @@ bool ShapeTable::MergeEqualUnichars(int merge_id1, int merge_id2, int shape_id) 
   const Shape &shape = GetShape(shape_id);
   for (int cs = 0; cs < shape.size(); ++cs) {
     int unichar_id = shape[cs].unichar_id;
-    if (!merge1.ContainsUnichar(unichar_id) && !merge2.ContainsUnichar(unichar_id))
+    if (!merge1.ContainsUnichar(unichar_id) && !merge2.ContainsUnichar(unichar_id)) {
       return false; // Shape has a unichar that appears in neither merge.
+    }
   }
   for (int cm1 = 0; cm1 < merge1.size(); ++cm1) {
     int unichar_id1 = merge1[cm1].unichar_id;
-    if (!shape.ContainsUnichar(unichar_id1))
+    if (!shape.ContainsUnichar(unichar_id1)) {
       return false; // Merge has a unichar that is not in shape.
+    }
   }
   for (int cm2 = 0; cm2 < merge2.size(); ++cm2) {
     int unichar_id2 = merge2[cm2].unichar_id;
-    if (!shape.ContainsUnichar(unichar_id2))
+    if (!shape.ContainsUnichar(unichar_id2)) {
       return false; // Merge has a unichar that is not in shape.
+    }
   }
   return true;
 }
@@ -620,8 +656,9 @@ bool ShapeTable::CommonUnichars(int shape_id1, int shape_id2) const {
   const Shape &shape2 = GetShape(shape_id2);
   for (int c1 = 0; c1 < shape1.size(); ++c1) {
     int unichar_id1 = shape1[c1].unichar_id;
-    if (shape2.ContainsUnichar(unichar_id1))
+    if (shape2.ContainsUnichar(unichar_id1)) {
       return true;
+    }
   }
   return false;
 }
@@ -633,8 +670,9 @@ bool ShapeTable::CommonFont(int shape_id1, int shape_id2) const {
   for (int c1 = 0; c1 < shape1.size(); ++c1) {
     const std::vector<int> &font_list1 = shape1[c1].font_ids;
     for (int f : font_list1) {
-      if (shape2.ContainsFont(f))
+      if (shape2.ContainsFont(f)) {
         return true;
+      }
     }
   }
   return false;
@@ -643,13 +681,15 @@ bool ShapeTable::CommonFont(int shape_id1, int shape_id2) const {
 // Appends the master shapes from other to this.
 // If not nullptr, shape_map is set to map other shape_ids to this's shape_ids.
 void ShapeTable::AppendMasterShapes(const ShapeTable &other, std::vector<int> *shape_map) {
-  if (shape_map != nullptr)
+  if (shape_map != nullptr) {
     shape_map->resize(other.NumShapes(), -1);
+  }
   for (int s = 0; s < other.shape_table_.size(); ++s) {
     if (other.shape_table_[s]->destination_index() < 0) {
       int index = AddShape(*other.shape_table_[s]);
-      if (shape_map != nullptr)
+      if (shape_map != nullptr) {
         (*shape_map)[s] = index;
+      }
     }
   }
 }
@@ -658,8 +698,9 @@ void ShapeTable::AppendMasterShapes(const ShapeTable &other, std::vector<int> *s
 int ShapeTable::NumMasterShapes() const {
   int num_shapes = 0;
   for (auto s : shape_table_) {
-    if (s->destination_index() < 0)
+    if (s->destination_index() < 0) {
       ++num_shapes;
+    }
   }
   return num_shapes;
 }

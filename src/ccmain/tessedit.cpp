@@ -151,8 +151,9 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0, const std::str
 
 #ifndef DISABLED_LEGACY_ENGINE
   // Determine which ocr engine(s) should be loaded and used for recognition.
-  if (oem != OEM_DEFAULT)
+  if (oem != OEM_DEFAULT) {
     tessedit_ocr_engine_mode.set_value(oem);
+  }
 #endif
 
   // If we are only loading the config file (and so not planning on doing any
@@ -231,8 +232,9 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0, const std::str
 // Helper returns true if the given string is in the vector of strings.
 static bool IsStrInList(const std::string &str, const std::vector<std::string> &str_list) {
   for (const auto &i : str_list) {
-    if (i == str)
+    if (i == str) {
       return true;
+    }
   }
   return false;
 }
@@ -248,8 +250,9 @@ void Tesseract::ParseLanguageString(const std::string &lang_str, std::vector<std
   while (!remains.empty()) {
     // Find the start of the lang code and which vector to add to.
     const char *start = remains.c_str();
-    while (*start == '+')
+    while (*start == '+') {
       ++start;
+    }
     std::vector<std::string> *target = to_load;
     if (*start == '~') {
       target = not_to_load;
@@ -258,8 +261,9 @@ void Tesseract::ParseLanguageString(const std::string &lang_str, std::vector<std
     // Find the index of the end of the lang code in string start.
     int end = strlen(start);
     const char *plus = strchr(start, '+');
-    if (plus != nullptr && plus - start < end)
+    if (plus != nullptr && plus - start < end) {
       end = plus - start;
+    }
     std::string lang_code(start);
     lang_code.resize(end);
     std::string next(start + end);
@@ -438,8 +442,9 @@ void Tesseract::SetupUniversalFontIds() {
 int Tesseract::init_tesseract_lm(const std::string &arg0, const std::string &textbase,
                                  const std::string &language, TessdataManager *mgr) {
   if (!init_tesseract_lang_data(arg0, textbase, language, OEM_TESSERACT_ONLY, nullptr, 0, nullptr,
-                                nullptr, false, mgr))
+                                nullptr, false, mgr)) {
     return -1;
+  }
   getDict().SetupForLoad(Dict::GlobalDawgCache());
   getDict().Load(lang, mgr);
   getDict().FinishLoad();

@@ -23,15 +23,17 @@ namespace tesseract {
 
 static int LeadingUnicharsToChopped(WERD_RES *word, int num_unichars) {
   int num_chopped = 0;
-  for (int i = 0; i < num_unichars; i++)
+  for (int i = 0; i < num_unichars; i++) {
     num_chopped += word->best_state[i];
+  }
   return num_chopped;
 }
 
 static int TrailingUnicharsToChopped(WERD_RES *word, int num_unichars) {
   int num_chopped = 0;
-  for (int i = 0; i < num_unichars; i++)
+  for (int i = 0; i < num_unichars; i++) {
     num_chopped += word->best_state[word->best_state.size() - 1 - i];
+  }
   return num_chopped;
 }
 
@@ -46,14 +48,18 @@ static void YOutlierPieces(WERD_RES *word, int rebuilt_blob_index, int super_y_b
                            ScriptPos *trailing_pos, int *num_trailing_outliers) {
   ScriptPos sp_unused1, sp_unused2;
   int unused1, unused2;
-  if (!leading_pos)
+  if (!leading_pos) {
     leading_pos = &sp_unused1;
-  if (!num_leading_outliers)
+  }
+  if (!num_leading_outliers) {
     num_leading_outliers = &unused1;
-  if (!trailing_pos)
+  }
+  if (!trailing_pos) {
     trailing_pos = &sp_unused2;
-  if (!num_trailing_outliers)
+  }
+  if (!num_trailing_outliers) {
     num_trailing_outliers = &unused2;
+  }
 
   *num_leading_outliers = *num_trailing_outliers = 0;
   *leading_pos = *trailing_pos = SP_NORMAL;
@@ -133,8 +139,9 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
       ScriptPos rpos;
       YOutlierPieces(word, last_word_char, super_y_bottom, sub_y_top, nullptr, nullptr, &rpos,
                      &num_remainder_trailing);
-      if (num_trailing > 0 && rpos != sp_trailing)
+      if (num_trailing > 0 && rpos != sp_trailing) {
         num_remainder_trailing = 0;
+      }
       if (num_remainder_trailing > 0 && last_char_certainty < trailing_certainty) {
         trailing_certainty = last_char_certainty;
       }
@@ -147,8 +154,9 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
       ScriptPos lpos;
       YOutlierPieces(word, num_leading, super_y_bottom, sub_y_top, &lpos, &num_remainder_leading,
                      nullptr, nullptr);
-      if (num_leading > 0 && lpos != sp_leading)
+      if (num_leading > 0 && lpos != sp_leading) {
         num_remainder_leading = 0;
+      }
       if (num_remainder_leading > 0 && first_char_certainty < leading_certainty) {
         leading_certainty = first_char_certainty;
       }
@@ -177,10 +185,12 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
   if (superscript_debug >= 2) {
     tprintf(" Certainties -- Average: %.2f  Unlikely thresh: %.2f  ", avg_certainty,
             unlikely_threshold);
-    if (num_leading)
+    if (num_leading) {
       tprintf("Orig. leading (min): %.2f  ", leading_certainty);
-    if (num_trailing)
+    }
+    if (num_trailing) {
       tprintf("Orig. trailing (min): %.2f  ", trailing_certainty);
+    }
     tprintf("\n");
   }
 
@@ -569,10 +579,12 @@ bool Tesseract::BelievableSuperscript(bool debug, const WERD_RES &word, float ce
     tprintf(" Accept: worst revised certainty is %.2f\n", worst_certainty);
   }
   if (!all_ok) {
-    if (left_ok)
+    if (left_ok) {
       *left_ok = initial_ok_run_count;
-    if (right_ok)
+    }
+    if (right_ok) {
       *right_ok = ok_run_count;
+    }
   }
   return all_ok;
 }

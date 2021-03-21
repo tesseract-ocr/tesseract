@@ -76,8 +76,9 @@ void BlamerBundle::SetWordTruth(const UNICHARSET &unicharset, const char *truth_
     std::string uch(truth_str + total_length);
     uch.resize(lengths[i] - total_length);
     UNICHAR_ID id = encoding[i];
-    if (id != INVALID_UNICHAR_ID)
+    if (id != INVALID_UNICHAR_ID) {
       uch = unicharset.get_normed_unichar(id);
+    }
     truth_text_.push_back(uch);
   }
 }
@@ -90,16 +91,18 @@ void BlamerBundle::SetSymbolTruth(const UNICHARSET &unicharset, const char *char
   UNICHAR_ID id = unicharset.unichar_to_id(char_str);
   if (id != INVALID_UNICHAR_ID) {
     std::string normed_uch(unicharset.get_normed_unichar(id));
-    if (normed_uch.length() > 0)
+    if (normed_uch.length() > 0) {
       symbol_str = normed_uch;
+    }
   }
   int length = truth_word_.length();
   truth_text_.push_back(symbol_str);
   truth_word_.InsertBox(length, char_box);
-  if (length == 0)
+  if (length == 0) {
     truth_has_char_boxes_ = true;
-  else if (truth_word_.BlobBox(length - 1) == char_box)
+  } else if (truth_word_.BlobBox(length - 1) == char_box) {
     truth_has_char_boxes_ = false;
+  }
 }
 
 // Marks that there is something wrong with the truth text, like it contains
@@ -111,8 +114,9 @@ void BlamerBundle::SetRejectedTruth() {
 
 // Returns true if the provided word_choice is correct.
 bool BlamerBundle::ChoiceIsCorrect(const WERD_CHOICE *word_choice) const {
-  if (word_choice == nullptr)
+  if (word_choice == nullptr) {
     return false;
+  }
   const UNICHARSET *uni_set = word_choice->unicharset();
   std::string normed_choice_str;
   for (int i = 0; i < word_choice->length(); ++i) {
@@ -127,8 +131,9 @@ void BlamerBundle::FillDebugString(const std::string &msg, const WERD_CHOICE *ch
   for (auto &text : this->truth_text_) {
     debug += text;
   }
-  if (!this->truth_has_char_boxes_)
+  if (!this->truth_has_char_boxes_) {
     debug += " (no char boxes)";
+  }
   if (choice != nullptr) {
     debug += " Choice ";
     std::string choice_str;
@@ -200,8 +205,9 @@ void BlamerBundle::SplitBundle(int word1_right, int word2_left, bool debug, Blam
     bundle2->norm_box_tolerance_ = norm_box_tolerance_;
     BlamerBundle *curr_bb = bundle1;
     for (b = 0; b < norm_truth_word_.length(); ++b) {
-      if (b == begin2_truth_index)
+      if (b == begin2_truth_index) {
         curr_bb = bundle2;
+      }
       curr_bb->norm_truth_word_.InsertBox(b, norm_truth_word_.BlobBox(b));
       curr_bb->truth_word_.InsertBox(b, truth_word_.BlobBox(b));
       curr_bb->truth_text_.push_back(truth_text_[b]);
@@ -222,8 +228,9 @@ void BlamerBundle::JoinBlames(const BlamerBundle &bundle1, const BlamerBundle &b
                               bool debug) {
   std::string debug_str;
   IncorrectResultReason irr = incorrect_result_reason_;
-  if (irr != IRR_NO_TRUTH_SPLIT)
+  if (irr != IRR_NO_TRUTH_SPLIT) {
     debug_str = "";
+  }
   if (bundle1.incorrect_result_reason_ != IRR_CORRECT &&
       bundle1.incorrect_result_reason_ != IRR_NO_TRUTH &&
       bundle1.incorrect_result_reason_ != IRR_NO_TRUTH_SPLIT) {
@@ -253,8 +260,9 @@ void BlamerBundle::JoinBlames(const BlamerBundle &bundle1, const BlamerBundle &b
 // blames character classifier for incorrect answer.
 void BlamerBundle::BlameClassifier(const UNICHARSET &unicharset, const TBOX &blob_box,
                                    const BLOB_CHOICE_LIST &choices, bool debug) {
-  if (!truth_has_char_boxes_ || incorrect_result_reason_ != IRR_CORRECT)
+  if (!truth_has_char_boxes_ || incorrect_result_reason_ != IRR_CORRECT) {
     return; // Nothing to do here.
+  }
 
   for (int b = 0; b < norm_truth_word_.length(); ++b) {
     const TBOX &truth_box = norm_truth_word_.BlobBox(b);
@@ -394,23 +402,26 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD *word, bool debug) {
 #ifndef DISABLED_LEGACY_ENGINE
   params_training_bundle_.StartHypothesisList();
 #endif //  ndef DISABLED_LEGACY_ENGINE
-  if (incorrect_result_reason_ != IRR_CORRECT || !truth_has_char_boxes_)
+  if (incorrect_result_reason_ != IRR_CORRECT || !truth_has_char_boxes_) {
     return; // Nothing to do here.
+  }
 
   std::string debug_str = "Blamer computing correct_segmentation_cols\n";
   int curr_box_col = 0;
   int next_box_col = 0;
   int num_blobs = word->NumBlobs();
-  if (num_blobs == 0)
+  if (num_blobs == 0) {
     return; // No blobs to play with.
+  }
   int blob_index = 0;
   int16_t next_box_x = word->blobs[blob_index]->bounding_box().right();
   for (int truth_idx = 0; blob_index < num_blobs && truth_idx < norm_truth_word_.length();
        ++blob_index) {
     ++next_box_col;
     int16_t curr_box_x = next_box_x;
-    if (blob_index + 1 < num_blobs)
+    if (blob_index + 1 < num_blobs) {
       next_box_x = word->blobs[blob_index + 1]->bounding_box().right();
+    }
     int16_t truth_x = norm_truth_word_.BlobBox(truth_idx).right();
     debug_str += "Box x coord vs. truth: " + std::to_string(curr_box_x);
     debug_str += " " + std::to_string(truth_x);
@@ -435,8 +446,9 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD *word, bool debug) {
         "Blamer failed to find correct segmentation"
         " (tolerance=" +
         std::to_string(norm_box_tolerance_);
-    if (blob_index >= num_blobs)
+    if (blob_index >= num_blobs) {
       debug_str += " blob == nullptr";
+    }
     debug_str += ")\n";
     debug_str += " path length " + std::to_string(correct_segmentation_cols_.size());
     debug_str += " vs. truth " + std::to_string(norm_truth_word_.length());
