@@ -794,7 +794,7 @@ void RecodeBeamSearch::DecodeSecondaryStep(const float *outputs, int t, double d
     // first, which may have an empty intersection with the valid codes, so we
     // fall back to the rest if the beam is empty.
     for (int tn = 0; tn < TN_COUNT && total_beam == 0; ++tn) {
-      TopNState top_n = static_cast<TopNState>(tn);
+      auto top_n = static_cast<TopNState>(tn);
       for (int index = 0; index < kNumBeams; ++index) {
         // Working backwards through the heaps doesn't guarantee that we see the
         // best first, but it comes before a lot of the worst, so it is slightly

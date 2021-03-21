@@ -388,8 +388,7 @@ bool StringRenderer::GetClusterStrings(std::vector<std::string> *cluster_text) {
   pango_layout_iter_free(run_iter);
 
   cluster_text->clear();
-  for (std::map<int, std::string>::const_iterator it = start_byte_to_text.begin();
-       it != start_byte_to_text.end(); ++it) {
+  for (auto it = start_byte_to_text.begin(); it != start_byte_to_text.end(); ++it) {
     cluster_text->push_back(it->second);
   }
   return !cluster_text->empty();
@@ -495,7 +494,7 @@ void StringRenderer::ComputeClusterBoxes() {
     if (!cluster_rect.width || !cluster_rect.height || IsUTF8Whitespace(cluster_text.c_str())) {
       tlog(2, "Skipping whitespace with boxdim (%d,%d) '%s'\n", cluster_rect.width,
            cluster_rect.height, cluster_text.c_str());
-      BoxChar *boxchar = new BoxChar(" ", 1);
+      auto *boxchar = new BoxChar(" ", 1);
       boxchar->set_page(page_);
       start_byte_to_box[start_byte_index] = boxchar;
       continue;
@@ -519,7 +518,7 @@ void StringRenderer::ComputeClusterBoxes() {
       // decided to use an unmapped glyph.
       cluster_text = LigatureTable::Get()->AddLigatures(cluster_text, nullptr);
     }
-    BoxChar *boxchar = new BoxChar(cluster_text.c_str(), cluster_text.size());
+    auto *boxchar = new BoxChar(cluster_text.c_str(), cluster_text.size());
     boxchar->set_page(page_);
     boxchar->AddBox(cluster_rect.x, cluster_rect.y, cluster_rect.width, cluster_rect.height);
     start_byte_to_box[start_byte_index] = boxchar;
@@ -536,8 +535,7 @@ void StringRenderer::ComputeClusterBoxes() {
   if (GetClusterStrings(&cluster_text)) {
     ASSERT_HOST(cluster_text.size() == start_byte_to_box.size());
     int ind = 0;
-    for (std::map<int, BoxChar *>::iterator it = start_byte_to_box.begin();
-         it != start_byte_to_box.end(); ++it, ++ind) {
+    for (auto it = start_byte_to_box.begin(); it != start_byte_to_box.end(); ++it, ++ind) {
       it->second->mutable_ch()->swap(cluster_text[ind]);
     }
   }
@@ -546,8 +544,7 @@ void StringRenderer::ComputeClusterBoxes() {
   std::vector<BoxChar *> page_boxchars;
   page_boxchars.reserve(start_byte_to_box.size());
   std::string last_ch;
-  for (std::map<int, BoxChar *>::const_iterator it = start_byte_to_box.begin();
-       it != start_byte_to_box.end(); ++it) {
+  for (auto it = start_byte_to_box.begin(); it != start_byte_to_box.end(); ++it) {
     if (it->second->ch() == kWordJoinerUTF8) {
       // Skip zero-width joiner characters (ZWJs) here.
       delete it->second;

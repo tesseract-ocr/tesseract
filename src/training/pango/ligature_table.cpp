@@ -114,7 +114,7 @@ std::string LigatureTable::RemoveLigatures(const std::string &str) const {
   for (UNICHAR::const_iterator it = it_begin; it != it_end; ++it) {
     len = it.get_utf8(tmp);
     tmp[len] = '\0';
-    LigHash::const_iterator lig_it = lig_to_norm_table_.find(tmp);
+    auto lig_it = lig_to_norm_table_.find(tmp);
     if (lig_it != lig_to_norm_table_.end()) {
       result += lig_it->second;
     } else {
@@ -159,7 +159,7 @@ std::string LigatureTable::AddLigatures(const std::string &str, const PangoFontI
     for (int liglen = max_norm_length_; liglen >= min_norm_length_; --liglen) {
       if (i + liglen <= len) {
         std::string lig_cand = str.substr(i, liglen);
-        LigHash::const_iterator it = norm_to_lig_table_.find(lig_cand);
+        auto it = norm_to_lig_table_.find(lig_cand);
         if (it != norm_to_lig_table_.end()) {
           tlog(3, "Considering %s -> %s\n", lig_cand.c_str(), it->second.c_str());
           if (font) {

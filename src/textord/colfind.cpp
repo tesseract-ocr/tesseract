@@ -1530,8 +1530,8 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *block
     if (textord_debug_tabfind >= 2)
       tprintf("Block median size = (%d, %d)\n", block->median_size().x(), block->median_size().y());
   }
- 
-  std::vector<TessTable>& tables = uniqueInstance<std::vector<TessTable>>();
+
+  auto &tables = uniqueInstance<std::vector<TessTable>>();
   for(TessTable& mt: tables)
     mt.box.rotate_large(reskew_);
 }

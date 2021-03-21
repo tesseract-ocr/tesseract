@@ -154,7 +154,7 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules, std::vector<Bo
         }
         if (prev_i + 1 == i) {
           // New character needed.
-          BoxChar *new_box = new BoxChar("\t", 1);
+          auto *new_box = new BoxChar("\t", 1);
           new_box->AddBox(x, y, width, height);
           new_box->page_ = (*boxes)[i]->page_;
           boxes->insert(boxes->begin() + i, new_box);

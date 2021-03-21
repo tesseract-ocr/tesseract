@@ -148,7 +148,7 @@ ViramaScript Validator::MostFrequentViramaScript(const std::vector<char32> &utf3
   }
   if (!histogram.empty()) {
     int base = std::max_element(histogram.begin(), histogram.end(), CmpPairSecond)->first;
-    char32 codebase = static_cast<char32>(base * kIndicCodePageSize);
+    auto codebase = static_cast<char32>(base * kIndicCodePageSize);
     // Check for validity.
     if (codebase == static_cast<char32>(ViramaScript::kMyanmar) ||
         codebase == static_cast<char32>(ViramaScript::kJavanese) ||

@@ -132,7 +132,7 @@ Network *NetworkBuilder::ParseInput(const char **str) {
     return nullptr;
   }
   *str += length;
-  Input *input = new Input("Input", shape);
+  auto *input = new Input("Input", shape);
   // We want to allow [<input>rest of net... or <input>[rest of net... so we
   // have to check explicitly for '[' here.
   SkipWhitespace(str);
@@ -145,7 +145,7 @@ Network *NetworkBuilder::ParseInput(const char **str) {
 Network *NetworkBuilder::ParseSeries(const StaticShape &input_shape, Input *input_layer,
                                      const char **str) {
   StaticShape shape = input_shape;
-  Series *series = new Series("Series");
+  auto *series = new Series("Series");
   ++*str;
   if (input_layer != nullptr) {
     series->AddToStack(input_layer);
@@ -167,7 +167,7 @@ Network *NetworkBuilder::ParseSeries(const StaticShape &input_shape, Input *inpu
 
 // Parses a parallel set of networks, defined by (<net><net>...).
 Network *NetworkBuilder::ParseParallel(const StaticShape &input_shape, const char **str) {
-  Parallel *parallel = new Parallel("Parallel", NT_PARALLEL);
+  auto *parallel = new Parallel("Parallel", NT_PARALLEL);
   ++*str;
   Network *network = nullptr;
   while (**str != '\0' && **str != ')' &&
@@ -204,7 +204,7 @@ Network *NetworkBuilder::ParseR(const StaticShape &input_shape, const char **str
     tprintf("Invalid R spec!:%s\n", end);
     return nullptr;
   }
-  Parallel *parallel = new Parallel("Replicated", NT_REPLICATED);
+  auto *parallel = new Parallel("Replicated", NT_REPLICATED);
   const char *str_copy = *str;
   for (int i = 0; i < replicas; ++i) {
     str_copy = *str;
@@ -284,8 +284,8 @@ Network *NetworkBuilder::ParseC(const StaticShape &input_shape, const char **str
     // be slid over all batch,y,x.
     return new FullyConnected("Conv1x1", input_shape.depth(), d, type);
   }
-  Series *series = new Series("ConvSeries");
-  Convolve *convolve = new Convolve("Convolve", input_shape.depth(), x / 2, y / 2);
+  auto *series = new Series("ConvSeries");
+  auto *convolve = new Convolve("Convolve", input_shape.depth(), x / 2, y / 2);
   series->AddToStack(convolve);
   StaticShape fc_input = convolve->OutputShape(input_shape);
   series->AddToStack(new FullyConnected("ConvNL", fc_input.depth(), d, type));
@@ -358,13 +358,13 @@ Network *NetworkBuilder::ParseLSTM(const StaticShape &input_shape, const char **
     std::string name(spec_start, *str - spec_start);
     lstm = new LSTM(name, input_shape.depth(), num_states, num_outputs, false, type);
     if (dir != 'f') {
-      Reversed *rev = new Reversed("RevLSTM", NT_XREVERSED);
+      auto *rev = new Reversed("RevLSTM", NT_XREVERSED);
       rev->SetNetwork(lstm);
       lstm = rev;
     }
     if (dir == 'b') {
       name += "LTR";
-      Parallel *parallel = new Parallel("BidiLSTM", NT_PAR_RL_LSTM);
+      auto *parallel = new Parallel("BidiLSTM", NT_PAR_RL_LSTM);
       parallel->AddToStack(
           new LSTM(name, input_shape.depth(), num_states, num_outputs, false, type));
       parallel->AddToStack(lstm);
@@ -372,7 +372,7 @@ Network *NetworkBuilder::ParseLSTM(const StaticShape &input_shape, const char **
     }
   }
   if (dim == 'y') {
-    Reversed *rev = new Reversed("XYTransLSTM", NT_XYTRANSPOSE);
+    auto *rev = new Reversed("XYTransLSTM", NT_XYTRANSPOSE);
     rev->SetNetwork(lstm);
     lstm = rev;
   }
@@ -381,14 +381,14 @@ Network *NetworkBuilder::ParseLSTM(const StaticShape &input_shape, const char **
 
 // Builds a set of 4 lstms with x and y reversal, running in true parallel.
 Network *NetworkBuilder::BuildLSTMXYQuad(int num_inputs, int num_states) {
-  Parallel *parallel = new Parallel("2DLSTMQuad", NT_PAR_2D_LSTM);
+  auto *parallel = new Parallel("2DLSTMQuad", NT_PAR_2D_LSTM);
   parallel->AddToStack(new LSTM("L2DLTRDown", num_inputs, num_states, num_states, true, NT_LSTM));
-  Reversed *rev = new Reversed("L2DLTRXRev", NT_XREVERSED);
+  auto *rev = new Reversed("L2DLTRXRev", NT_XREVERSED);
   rev->SetNetwork(new LSTM("L2DRTLDown", num_inputs, num_states, num_states, true, NT_LSTM));
   parallel->AddToStack(rev);
   rev = new Reversed("L2DRTLYRev", NT_YREVERSED);
   rev->SetNetwork(new LSTM("L2DRTLUp", num_inputs, num_states, num_states, true, NT_LSTM));
-  Reversed *rev2 = new Reversed("L2DXRevU", NT_XREVERSED);
+  auto *rev2 = new Reversed("L2DXRevU", NT_XREVERSED);
   rev2->SetNetwork(rev);
   parallel->AddToStack(rev2);
   rev = new Reversed("L2DXRevY", NT_YREVERSED);
@@ -409,7 +409,7 @@ static Network *BuildFullyConnected(const StaticShape &input_shape, NetworkType 
   int input_depth = input_size * input_shape.depth();
   Network *fc = new FullyConnected(name, input_depth, depth, type);
   if (input_size > 1) {
-    Series *series = new Series("FCSeries");
+    auto *series = new Series("FCSeries");
     series->AddToStack(
         new Reconfig("FCReconfig", input_shape.depth(), input_shape.width(), input_shape.height()));
     series->AddToStack(fc);
@@ -478,7 +478,7 @@ Network *NetworkBuilder::ParseOutput(const StaticShape &input_shape, const char 
   int input_depth = input_size * input_shape.depth();
   Network *fc = new FullyConnected("Output", input_depth, depth, type);
   if (input_size > 1) {
-    Series *series = new Series("FCSeries");
+    auto *series = new Series("FCSeries");
     series->AddToStack(new Reconfig("FCReconfig", input_shape.depth(), 1, input_shape.height()));
     series->AddToStack(fc);
     fc = series;

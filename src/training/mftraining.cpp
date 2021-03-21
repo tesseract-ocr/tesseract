@@ -58,7 +58,7 @@ static void DisplayProtoList(const char *ch, LIST protolist) {
   auto window = std::make_unique<ScrollView>("Char samples", 50, 200, 520, 520, 260, 260, true);
   LIST proto = protolist;
   iterate(proto) {
-    PROTOTYPE *prototype = reinterpret_cast<PROTOTYPE *>(first_node(proto));
+    auto *prototype = reinterpret_cast<PROTOTYPE *>(first_node(proto));
     if (prototype->Significant)
       window->Pen(ScrollView::GREEN);
     else if (prototype->NumSamples == 0)
@@ -70,8 +70,8 @@ static void DisplayProtoList(const char *ch, LIST protolist) {
     float x = CenterX(prototype->Mean);
     float y = CenterY(prototype->Mean);
     double angle = OrientationOf(prototype->Mean) * 2 * M_PI;
-    float dx = static_cast<float>(LengthOf(prototype->Mean) * cos(angle) / 2);
-    float dy = static_cast<float>(LengthOf(prototype->Mean) * sin(angle) / 2);
+    auto dx = static_cast<float>(LengthOf(prototype->Mean) * cos(angle) / 2);
+    auto dy = static_cast<float>(LengthOf(prototype->Mean) * sin(angle) / 2);
     window->SetCursor((x - dx) * 256, (y - dy) * 256);
     window->DrawTo((x + dx) * 256, (y + dy) * 256);
     if (prototype->Significant)
@@ -113,7 +113,7 @@ static LIST ClusterOneConfig(int shape_id, const char *class_label, LIST mf_clas
   merge_class->Class->font_set.push_back(shape_id);
   LIST proto_it = proto_list;
   iterate(proto_it) {
-    PROTOTYPE *prototype = reinterpret_cast<PROTOTYPE *>(first_node(proto_it));
+    auto *prototype = reinterpret_cast<PROTOTYPE *>(first_node(proto_it));
     // See if proto can be approximated by existing proto.
     int p_id = FindClosestExistingProto(merge_class->Class, merge_class->NumMerged, prototype);
     if (p_id == NO_PROTO) {

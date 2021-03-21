@@ -158,8 +158,8 @@ void Series::SplitAt(int last_start, Series **start, Series **end) {
     tprintf("Invalid split index %d must be in range [0,%zu]!\n", last_start, stack_.size() - 1);
     return;
   }
-  Series *master_series = new Series("MasterSeries");
-  Series *boosted_series = new Series("BoostedSeries");
+  auto *master_series = new Series("MasterSeries");
+  auto *boosted_series = new Series("BoostedSeries");
   for (int s = 0; s <= last_start; ++s) {
     if (s + 1 == stack_.size() && stack_[s]->type() == NT_SOFTMAX) {
       // Change the softmax to a tanh.

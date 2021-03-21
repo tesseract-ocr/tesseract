@@ -110,7 +110,7 @@ ColPartition::ColPartition(BlobRegionType blob_type, const ICOORD &vertical)
 // Call DeleteBoxes before deleting the ColPartition.
 ColPartition *ColPartition::FakePartition(const TBOX &box, PolyBlockType block_type,
                                           BlobRegionType blob_type, BlobTextFlowType flow) {
-  ColPartition *part = new ColPartition(blob_type, ICOORD(0, 1));
+  auto *part = new ColPartition(blob_type, ICOORD(0, 1));
   part->set_type(block_type);
   part->set_flow(flow);
   part->AddBox(new BLOBNBOX(C_BLOB::FakeBlob(box)));
@@ -129,7 +129,7 @@ ColPartition *ColPartition::FakePartition(const TBOX &box, PolyBlockType block_t
 // If the given list is not nullptr, the partition is also added to the list.
 ColPartition *ColPartition::MakeBigPartition(BLOBNBOX *box, ColPartition_LIST *big_part_list) {
   box->set_owner(nullptr);
-  ColPartition *single = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
+  auto *single = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
   single->set_flow(BTFT_NONE);
   single->AddBox(box);
   single->ComputeLimits();

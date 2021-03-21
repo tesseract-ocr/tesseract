@@ -243,7 +243,7 @@ void C_OUTLINE::FakeOutline(const TBOX &box, C_OUTLINE_LIST *outlines) {
   // as there is no outline, just a bounding box, but it works nicely.
   CRACKEDGE start;
   start.pos = box.topleft();
-  C_OUTLINE *outline = new C_OUTLINE(&start, box.topleft(), box.botright(), 0);
+  auto *outline = new C_OUTLINE(&start, box.topleft(), box.botright(), 0);
   ol_it.add_to_end(outline);
 }
 

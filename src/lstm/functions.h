@@ -44,7 +44,7 @@ inline double Tanh(double x) {
   if (x < 0.0)
     return -Tanh(-x);
   x *= kScaleFactor;
-  unsigned index = static_cast<unsigned>(x);
+  auto index = static_cast<unsigned>(x);
   if (index >= (kTableSize - 1))
     return 1.0;
   double tanh_i0 = TanhTable[index];
@@ -57,7 +57,7 @@ inline double Logistic(double x) {
   if (x < 0.0)
     return 1.0 - Logistic(-x);
   x *= kScaleFactor;
-  unsigned index = static_cast<unsigned>(x);
+  auto index = static_cast<unsigned>(x);
   if (index >= (kTableSize - 1))
     return 1.0;
   double l0 = LogisticTable[index];
