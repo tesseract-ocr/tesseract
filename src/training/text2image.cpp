@@ -694,8 +694,8 @@ static int Main() {
     if (fp == nullptr) {
       tprintf("Failed to create output font list %s\n", filename.c_str());
     } else {
-      for (size_t i = 0; i < font_names.size(); ++i) {
-        fprintf(fp, "%s\n", font_names[i].c_str());
+      for (auto &font_name : font_names) {
+        fprintf(fp, "%s\n", font_name.c_str());
       }
       fclose(fp);
     }

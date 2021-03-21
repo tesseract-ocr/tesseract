@@ -97,8 +97,8 @@ static void PrintTable(const std::vector<std::vector<std::string>> &rows, const 
     int num_columns = row.size();
     for (int c = 0; c < num_columns; c++) {
       int num_unicodes = 0;
-      for (int i = 0; i < row[c].size(); i++) {
-        if ((row[c][i] & 0xC0) != 0x80)
+      for (char i : row[c]) {
+        if ((i & 0xC0) != 0x80)
           num_unicodes++;
       }
       if (c >= max_col_widths.size()) {
@@ -111,15 +111,15 @@ static void PrintTable(const std::vector<std::vector<std::string>> &rows, const 
   }
 
   std::vector<std::string> col_width_patterns;
-  for (int c = 0; c < max_col_widths.size(); c++) {
-    col_width_patterns.push_back(std::string("%-") + std::to_string(max_col_widths[c]) + "s");
+  for (int max_col_width : max_col_widths) {
+    col_width_patterns.push_back(std::string("%-") + std::to_string(max_col_width) + "s");
   }
 
-  for (int r = 0; r < rows.size(); r++) {
-    for (int c = 0; c < rows[r].size(); c++) {
+  for (const auto &row : rows) {
+    for (int c = 0; c < row.size(); c++) {
       if (c > 0)
         tprintf("%s", colsep);
-      tprintf(col_width_patterns[c].c_str(), rows[r][c].c_str());
+      tprintf(col_width_patterns[c].c_str(), row[c].c_str());
     }
     tprintf("\n");
   }
@@ -505,16 +505,16 @@ void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
   model_string += ":";
 
   int model_numbers = 0;
-  for (int h = 0; h < hypotheses_.size(); h++) {
-    if (hypotheses_[h].model == nullptr)
+  for (const auto &hypothese : hypotheses_) {
+    if (hypothese.model == nullptr)
       continue;
     if (model_numbers > 0)
       model_string += ",";
-    if (StrongModel(hypotheses_[h].model)) {
-      model_string += std::to_string(1 + theory.IndexOf(hypotheses_[h].model));
-    } else if (hypotheses_[h].model == kCrownLeft) {
+    if (StrongModel(hypothese.model)) {
+      model_string += std::to_string(1 + theory.IndexOf(hypothese.model));
+    } else if (hypothese.model == kCrownLeft) {
       model_string += "CrL";
-    } else if (hypotheses_[h].model == kCrownRight) {
+    } else if (hypothese.model == kCrownRight) {
       model_string += "CrR";
     }
     model_numbers++;
@@ -538,8 +538,8 @@ LineType RowScratchRegisters::GetLineType() const {
     return LT_UNKNOWN;
   bool has_start = false;
   bool has_body = false;
-  for (int i = 0; i < hypotheses_.size(); i++) {
-    switch (hypotheses_[i].ty) {
+  for (const auto &hypothese : hypotheses_) {
+    switch (hypothese.ty) {
       case LT_START:
         has_start = true;
         break;
@@ -547,7 +547,7 @@ LineType RowScratchRegisters::GetLineType() const {
         has_body = true;
         break;
       default:
-        tprintf("Encountered bad value in hypothesis list: %c\n", hypotheses_[i].ty);
+        tprintf("Encountered bad value in hypothesis list: %c\n", hypothese.ty);
         break;
     }
   }
@@ -561,10 +561,10 @@ LineType RowScratchRegisters::GetLineType(const ParagraphModel *model) const {
     return LT_UNKNOWN;
   bool has_start = false;
   bool has_body = false;
-  for (int i = 0; i < hypotheses_.size(); i++) {
-    if (hypotheses_[i].model != model)
+  for (const auto &hypothese : hypotheses_) {
+    if (hypothese.model != model)
       continue;
-    switch (hypotheses_[i].ty) {
+    switch (hypothese.ty) {
       case LT_START:
         has_start = true;
         break;
@@ -572,7 +572,7 @@ LineType RowScratchRegisters::GetLineType(const ParagraphModel *model) const {
         has_body = true;
         break;
       default:
-        tprintf("Encountered bad value in hypothesis list: %c\n", hypotheses_[i].ty);
+        tprintf("Encountered bad value in hypothesis list: %c\n", hypothese.ty);
         break;
     }
   }
@@ -618,23 +618,23 @@ void RowScratchRegisters::AddBodyLine(const ParagraphModel *model) {
 }
 
 void RowScratchRegisters::StartHypotheses(SetOfModels *models) const {
-  for (int h = 0; h < hypotheses_.size(); h++) {
-    if (hypotheses_[h].ty == LT_START && StrongModel(hypotheses_[h].model))
-      push_back_new(*models, hypotheses_[h].model);
+  for (const auto &hypothese : hypotheses_) {
+    if (hypothese.ty == LT_START && StrongModel(hypothese.model))
+      push_back_new(*models, hypothese.model);
   }
 }
 
 void RowScratchRegisters::StrongHypotheses(SetOfModels *models) const {
-  for (int h = 0; h < hypotheses_.size(); h++) {
-    if (StrongModel(hypotheses_[h].model))
-      push_back_new(*models, hypotheses_[h].model);
+  for (const auto &hypothese : hypotheses_) {
+    if (StrongModel(hypothese.model))
+      push_back_new(*models, hypothese.model);
   }
 }
 
 void RowScratchRegisters::NonNullHypotheses(SetOfModels *models) const {
-  for (int h = 0; h < hypotheses_.size(); h++) {
-    if (hypotheses_[h].model != nullptr)
-      push_back_new(*models, hypotheses_[h].model);
+  for (const auto &hypothese : hypotheses_) {
+    if (hypothese.model != nullptr)
+      push_back_new(*models, hypothese.model);
   }
 }
 
@@ -1344,12 +1344,12 @@ void ParagraphModelSmearer::CalculateOpenModels(int row_start, int row_end) {
 
       // Which models survive the transition from row to row + 1?
       SetOfModels still_open;
-      for (int m = 0; m < opened.size(); m++) {
-        if (ValidFirstLine(rows_, row, opened[m]) || ValidBodyLine(rows_, row, opened[m])) {
+      for (auto &m : opened) {
+        if (ValidFirstLine(rows_, row, m) || ValidBodyLine(rows_, row, m)) {
           // This is basic filtering; we check likely paragraph starty-ness down
           // below in Smear() -- you know, whether the first word would have fit
           // and such.
-          push_back_new(still_open, opened[m]);
+          push_back_new(still_open, m);
         }
       }
       OpenModels(row + 1) = still_open;
@@ -1375,8 +1375,8 @@ void ParagraphModelSmearer::Smear() {
     //   "first" word in a row would fit at the "end" of the previous row.
     bool left_align_open = false;
     bool right_align_open = false;
-    for (int m = 0; m < OpenModels(i).size(); m++) {
-      switch (OpenModels(i)[m]->justification()) {
+    for (auto &m : OpenModels(i)) {
+      switch (m->justification()) {
         case JUSTIFICATION_LEFT:
           left_align_open = true;
           break;
@@ -1423,8 +1423,7 @@ void ParagraphModelSmearer::Smear() {
       } else {
         theory_->NonCenteredModels(&last_line_models);
       }
-      for (int m = 0; m < last_line_models.size(); m++) {
-        const ParagraphModel *model = last_line_models[m];
+      for (auto model : last_line_models) {
         if (ValidBodyLine(rows_, i, model))
           row.AddBodyLine(model);
       }
@@ -1438,9 +1437,9 @@ void ParagraphModelSmearer::Smear() {
         (row.GetLineType() == LT_START && !row.UniqueStartHypothesis())) {
       SetOfModels all_models;
       theory_->NonCenteredModels(&all_models);
-      for (int m = 0; m < all_models.size(); m++) {
-        if (ValidFirstLine(rows_, i, all_models[m])) {
-          row.AddStartLine(all_models[m]);
+      for (auto &all_model : all_models) {
+        if (ValidFirstLine(rows_, i, all_model)) {
+          row.AddStartLine(all_model);
         }
       }
     }
@@ -1460,8 +1459,8 @@ void ParagraphModelSmearer::Smear() {
 static void DiscardUnusedModels(const std::vector<RowScratchRegisters> &rows,
                                 ParagraphTheory *theory) {
   SetOfModels used_models;
-  for (int i = 0; i < rows.size(); i++) {
-    rows[i].StrongHypotheses(&used_models);
+  for (const auto &row : rows) {
+    row.StrongHypotheses(&used_models);
   }
   theory->DiscardUnusedModels(used_models);
 }
@@ -2102,14 +2101,14 @@ static bool RowIsStranded(const std::vector<RowScratchRegisters> &rows, int row)
   SetOfModels row_models;
   rows[row].StrongHypotheses(&row_models);
 
-  for (int m = 0; m < row_models.size(); m++) {
+  for (auto &row_model : row_models) {
     bool all_starts = rows[row].GetLineType();
     int run_length = 1;
     bool continues = true;
     for (int i = row - 1; i >= 0 && continues; i--) {
       SetOfModels models;
       rows[i].NonNullHypotheses(&models);
-      switch (rows[i].GetLineType(row_models[m])) {
+      switch (rows[i].GetLineType(row_model)) {
         case LT_START:
           run_length++;
           break;
@@ -2127,7 +2126,7 @@ static bool RowIsStranded(const std::vector<RowScratchRegisters> &rows, int row)
     for (int i = row + 1; i < rows.size() && continues; i++) {
       SetOfModels models;
       rows[i].NonNullHypotheses(&models);
-      switch (rows[i].GetLineType(row_models[m])) {
+      switch (rows[i].GetLineType(row_model)) {
         case LT_START:
           run_length++;
           break;
@@ -2195,8 +2194,8 @@ static void LeftoverSegments(const std::vector<RowScratchRegisters> &rows,
     }
   }
   // Convert inclusive intervals to half-open intervals.
-  for (int i = 0; i < to_fix->size(); i++) {
-    (*to_fix)[i].end = (*to_fix)[i].end + 1;
+  for (auto &i : *to_fix) {
+    i.end = i.end + 1;
   }
 }
 

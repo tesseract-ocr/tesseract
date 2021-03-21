@@ -220,8 +220,7 @@ Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor,
   if (boxes != nullptr) {
     // Get the boxes.
     boxes->clear();
-    for (int b = 0; b < boxes_.size(); ++b) {
-      TBOX box = boxes_[b];
+    for (auto box : boxes_) {
       box.scale(im_factor);
       boxes->push_back(box);
     }
@@ -572,8 +571,7 @@ bool DocumentCache::LoadDocuments(const std::vector<std::string> &filenames,
   // determines which DocumentDatas are held entirely in memory.
   if (cache_strategy_ == CS_ROUND_ROBIN)
     fair_share_memory = max_memory_ / filenames.size();
-  for (int arg = 0; arg < filenames.size(); ++arg) {
-    std::string filename = filenames[arg];
+  for (auto filename : filenames) {
     auto *document = new DocumentData(filename);
     document->SetDocument(filename.c_str(), fair_share_memory, reader);
     AddToCache(document);

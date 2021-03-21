@@ -171,8 +171,8 @@ int main(int argc, char *argv[]) {
   int desc_index = ShortNameToFeatureType(FeatureDefs, PROGRAM_FEATURE_TYPE);
   WriteNormProtos(FLAGS_D.c_str(), NormProtoList, FeatureDefs.FeatureDesc[desc_index]);
   FreeNormProtoList(NormProtoList);
-  for (int i = 0; i < freeable_protos.size(); ++i) {
-    FreeProtoList(&freeable_protos[i]);
+  for (auto &freeable_proto : freeable_protos) {
+    FreeProtoList(&freeable_proto);
   }
   printf("\n");
   return 0;

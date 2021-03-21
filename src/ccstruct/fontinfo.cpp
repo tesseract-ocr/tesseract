@@ -63,8 +63,8 @@ bool FontInfoTable::DeSerialize(TFile *fp) {
 bool FontInfoTable::SetContainsFontProperties(int font_id,
                                               const std::vector<ScoredFont> &font_set) const {
   uint32_t properties = at(font_id).properties;
-  for (int f = 0; f < font_set.size(); ++f) {
-    if (at(font_set[f].fontinfo_id).properties == properties)
+  for (auto f : font_set) {
+    if (at(f.fontinfo_id).properties == properties)
       return true;
   }
   return false;

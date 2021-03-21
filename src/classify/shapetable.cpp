@@ -99,12 +99,12 @@ bool Shape::DeSerialize(TFile *fp) {
 // Adds a font_id for the given unichar_id. If the unichar_id is not
 // in the shape, it is added.
 void Shape::AddToShape(int unichar_id, int font_id) {
-  for (int c = 0; c < unichars_.size(); ++c) {
-    if (unichars_[c].unichar_id == unichar_id) {
+  for (auto &unichar : unichars_) {
+    if (unichar.unichar_id == unichar_id) {
       // Found the unichar in the shape table.
-      std::vector<int> &font_list = unichars_[c].font_ids;
-      for (int f = 0; f < font_list.size(); ++f) {
-        if (font_list[f] == font_id)
+      std::vector<int> &font_list = unichar.font_ids;
+      for (int f : font_list) {
+        if (f == font_id)
           return; // Font is already there.
       }
       font_list.push_back(font_id);
@@ -118,9 +118,9 @@ void Shape::AddToShape(int unichar_id, int font_id) {
 
 // Adds everything in other to this.
 void Shape::AddShape(const Shape &other) {
-  for (int c = 0; c < other.unichars_.size(); ++c) {
-    for (int f = 0; f < other.unichars_[c].font_ids.size(); ++f) {
-      AddToShape(other.unichars_[c].unichar_id, other.unichars_[c].font_ids[f]);
+  for (const auto &unichar : other.unichars_) {
+    for (int f = 0; f < unichar.font_ids.size(); ++f) {
+      AddToShape(unichar.unichar_id, unichar.font_ids[f]);
     }
   }
   unichars_sorted_ = unichars_.size() <= 1;
@@ -128,12 +128,12 @@ void Shape::AddShape(const Shape &other) {
 
 // Returns true if the shape contains the given unichar_id, font_id pair.
 bool Shape::ContainsUnicharAndFont(int unichar_id, int font_id) const {
-  for (int c = 0; c < unichars_.size(); ++c) {
-    if (unichars_[c].unichar_id == unichar_id) {
+  for (const auto &unichar : unichars_) {
+    if (unichar.unichar_id == unichar_id) {
       // Found the unichar, so look for the font.
-      auto &font_list = unichars_[c].font_ids;
-      for (int f = 0; f < font_list.size(); ++f) {
-        if (font_list[f] == font_id)
+      auto &font_list = unichar.font_ids;
+      for (int f : font_list) {
+        if (f == font_id)
           return true;
       }
       return false;
@@ -144,8 +144,8 @@ bool Shape::ContainsUnicharAndFont(int unichar_id, int font_id) const {
 
 // Returns true if the shape contains the given unichar_id, ignoring font.
 bool Shape::ContainsUnichar(int unichar_id) const {
-  for (int c = 0; c < unichars_.size(); ++c) {
-    if (unichars_[c].unichar_id == unichar_id) {
+  for (const auto &unichar : unichars_) {
+    if (unichar.unichar_id == unichar_id) {
       return true;
     }
   }
@@ -154,10 +154,10 @@ bool Shape::ContainsUnichar(int unichar_id) const {
 
 // Returns true if the shape contains the given font, ignoring unichar_id.
 bool Shape::ContainsFont(int font_id) const {
-  for (int c = 0; c < unichars_.size(); ++c) {
-    auto &font_list = unichars_[c].font_ids;
-    for (int f = 0; f < font_list.size(); ++f) {
-      if (font_list[f] == font_id)
+  for (const auto &unichar : unichars_) {
+    auto &font_list = unichar.font_ids;
+    for (int f : font_list) {
+      if (f == font_id)
         return true;
     }
   }
@@ -166,10 +166,10 @@ bool Shape::ContainsFont(int font_id) const {
 // Returns true if the shape contains the given font properties, ignoring
 // unichar_id.
 bool Shape::ContainsFontProperties(const FontInfoTable &font_table, uint32_t properties) const {
-  for (int c = 0; c < unichars_.size(); ++c) {
-    auto &font_list = unichars_[c].font_ids;
-    for (int f = 0; f < font_list.size(); ++f) {
-      if (font_table.at(font_list[f]).properties == properties)
+  for (const auto &unichar : unichars_) {
+    auto &font_list = unichar.font_ids;
+    for (int f : font_list) {
+      if (font_table.at(f).properties == properties)
         return true;
     }
   }
@@ -179,10 +179,10 @@ bool Shape::ContainsFontProperties(const FontInfoTable &font_table, uint32_t pro
 // ignoring unichar_id.
 bool Shape::ContainsMultipleFontProperties(const FontInfoTable &font_table) const {
   uint32_t properties = font_table.at(unichars_[0].font_ids[0]).properties;
-  for (int c = 0; c < unichars_.size(); ++c) {
-    auto &font_list = unichars_[c].font_ids;
-    for (int f = 0; f < font_list.size(); ++f) {
-      if (font_table.at(font_list[f]).properties != properties)
+  for (const auto &unichar : unichars_) {
+    auto &font_list = unichar.font_ids;
+    for (int f : font_list) {
+      if (font_table.at(f).properties != properties)
         return true;
     }
   }
@@ -197,11 +197,11 @@ bool Shape::operator==(const Shape &other) const {
 
 // Returns true if this is a subset (including equal) of other.
 bool Shape::IsSubsetOf(const Shape &other) const {
-  for (int c = 0; c < unichars_.size(); ++c) {
-    int unichar_id = unichars_[c].unichar_id;
-    const std::vector<int> &font_list = unichars_[c].font_ids;
-    for (int f = 0; f < font_list.size(); ++f) {
-      if (!other.ContainsUnicharAndFont(unichar_id, font_list[f]))
+  for (const auto &unichar : unichars_) {
+    int unichar_id = unichar.unichar_id;
+    const std::vector<int> &font_list = unichar.font_ids;
+    for (int f : font_list) {
+      if (!other.ContainsUnicharAndFont(unichar_id, f))
         return false;
     }
   }
@@ -251,12 +251,12 @@ bool ShapeTable::DeSerialize(TFile *fp) {
 // necessary.
 int ShapeTable::NumFonts() const {
   if (num_fonts_ <= 0) {
-    for (int shape_id = 0; shape_id < shape_table_.size(); ++shape_id) {
-      const Shape &shape = *shape_table_[shape_id];
+    for (auto shape_id : shape_table_) {
+      const Shape &shape = *shape_id;
       for (int c = 0; c < shape.size(); ++c) {
-        for (int f = 0; f < shape[c].font_ids.size(); ++f) {
-          if (shape[c].font_ids[f] >= num_fonts_)
-            num_fonts_ = shape[c].font_ids[f] + 1;
+        for (int font_id : shape[c].font_ids) {
+          if (font_id >= num_fonts_)
+            num_fonts_ = font_id + 1;
         }
       }
     }
@@ -267,8 +267,7 @@ int ShapeTable::NumFonts() const {
 // Re-indexes the class_ids in the shapetable according to the given map.
 // Useful in conjunction with set_unicharset.
 void ShapeTable::ReMapClassIds(const std::vector<int> &unicharset_map) {
-  for (int shape_id = 0; shape_id < shape_table_.size(); ++shape_id) {
-    Shape *shape = shape_table_[shape_id];
+  for (auto shape : shape_table_) {
     for (int c = 0; c < shape->size(); ++c) {
       shape->SetUnicharId(c, unicharset_map[(*shape)[c].unichar_id]);
     }
@@ -386,8 +385,8 @@ int ShapeTable::FindShape(int unichar_id, int font_id) const {
       if (shape[c].unichar_id == unichar_id) {
         if (font_id < 0)
           return s; // We don't care about the font.
-        for (int f = 0; f < shape[c].font_ids.size(); ++f) {
-          if (shape[c].font_ids[f] == font_id)
+        for (int f : shape[c].font_ids) {
+          if (f == font_id)
             return s;
         }
       }
@@ -633,8 +632,8 @@ bool ShapeTable::CommonFont(int shape_id1, int shape_id2) const {
   const Shape &shape2 = GetShape(shape_id2);
   for (int c1 = 0; c1 < shape1.size(); ++c1) {
     const std::vector<int> &font_list1 = shape1[c1].font_ids;
-    for (int f = 0; f < font_list1.size(); ++f) {
-      if (shape2.ContainsFont(font_list1[f]))
+    for (int f : font_list1) {
+      if (shape2.ContainsFont(f))
         return true;
     }
   }
@@ -658,8 +657,8 @@ void ShapeTable::AppendMasterShapes(const ShapeTable &other, std::vector<int> *s
 // Returns the number of master shapes remaining after merging.
 int ShapeTable::NumMasterShapes() const {
   int num_shapes = 0;
-  for (int s = 0; s < shape_table_.size(); ++s) {
-    if (shape_table_[s]->destination_index() < 0)
+  for (auto s : shape_table_) {
+    if (s->destination_index() < 0)
       ++num_shapes;
   }
   return num_shapes;
@@ -684,9 +683,9 @@ void ShapeTable::AddShapeToResults(const ShapeRating &shape_rating, std::vector<
   for (int u = 0; u < shape.size(); ++u) {
     int result_index =
         AddUnicharToResults(shape[u].unichar_id, shape_rating.rating, unichar_map, results);
-    for (int f = 0; f < shape[u].font_ids.size(); ++f) {
+    for (int font_id : shape[u].font_ids) {
       (*results)[result_index].fonts.push_back(
-          ScoredFont(shape[u].font_ids[f], IntCastRounded(shape_rating.rating * INT16_MAX)));
+          ScoredFont(font_id, IntCastRounded(shape_rating.rating * INT16_MAX)));
     }
   }
 }

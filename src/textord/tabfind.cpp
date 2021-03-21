@@ -517,13 +517,13 @@ ScrollView *TabFind::FindInitialTabVectors(BLOBNBOX_LIST *image_blobs, int min_g
 
 // Helper displays all the boxes in the given vector on the given window.
 static void DisplayBoxVector(const std::vector<BLOBNBOX *> &boxes, ScrollView *win) {
-  for (int i = 0; i < boxes.size(); ++i) {
-    TBOX box = boxes[i]->bounding_box();
+  for (auto boxe : boxes) {
+    TBOX box = boxe->bounding_box();
     int left_x = box.left();
     int right_x = box.right();
     int top_y = box.top();
     int bottom_y = box.bottom();
-    ScrollView::Color box_color = boxes[i]->BoxColor();
+    ScrollView::Color box_color = boxe->BoxColor();
     win->Pen(box_color);
     win->Rectangle(left_x, bottom_y, right_x, top_y);
   }
@@ -793,13 +793,11 @@ void TabFind::FindAllTabVectors(int min_gutter_width) {
   }
   // Get rid of the test vectors and reset the types of the tabs.
   dummy_vectors.clear();
-  for (int i = 0; i < left_tab_boxes_.size(); ++i) {
-    BLOBNBOX *bbox = left_tab_boxes_[i];
+  for (auto bbox : left_tab_boxes_) {
     if (bbox->left_tab_type() == TT_CONFIRMED)
       bbox->set_left_tab_type(TT_MAYBE_ALIGNED);
   }
-  for (int i = 0; i < right_tab_boxes_.size(); ++i) {
-    BLOBNBOX *bbox = right_tab_boxes_[i];
+  for (auto bbox : right_tab_boxes_) {
     if (bbox->right_tab_type() == TT_CONFIRMED)
       bbox->set_right_tab_type(TT_MAYBE_ALIGNED);
   }
@@ -832,8 +830,7 @@ int TabFind::FindTabVectors(int search_size_multiple, TabAlignment alignment, in
   // Search the right or left tab boxes, looking for tab vectors.
   bool right = alignment == TA_RIGHT_ALIGNED || alignment == TA_RIGHT_RAGGED;
   const std::vector<BLOBNBOX *> &boxes = right ? right_tab_boxes_ : left_tab_boxes_;
-  for (int i = 0; i < boxes.size(); ++i) {
-    BLOBNBOX *bbox = boxes[i];
+  for (auto bbox : boxes) {
     if ((!right && bbox->left_tab_type() == TT_MAYBE_ALIGNED) ||
         (right && bbox->right_tab_type() == TT_MAYBE_ALIGNED)) {
       TabVector *vector = FindTabVector(search_size_multiple, min_gutter_width, alignment, bbox,

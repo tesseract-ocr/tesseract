@@ -209,11 +209,11 @@ bool StructuredTable::FindWhitespacedStructure() {
 // throughout the code is that "0" distance is a very very small space.
 bool StructuredTable::DoesPartitionFit(const ColPartition &part) const {
   const TBOX &box = part.bounding_box();
-  for (int i = 0; i < cell_x_.size(); ++i)
-    if (box.left() < cell_x_[i] && cell_x_[i] < box.right())
+  for (int i : cell_x_)
+    if (box.left() < i && i < box.right())
       return false;
-  for (int i = 0; i < cell_y_.size(); ++i)
-    if (box.bottom() < cell_y_[i] && cell_y_[i] < box.top())
+  for (int i : cell_y_)
+    if (box.bottom() < i && i < box.top())
       return false;
   return true;
 }
@@ -290,11 +290,11 @@ void StructuredTable::Display(ScrollView *window, ScrollView::Color color) {
   window->Pen(color);
   window->Rectangle(bounding_box_.left(), bounding_box_.bottom(), bounding_box_.right(),
                     bounding_box_.top());
-  for (int i = 0; i < cell_x_.size(); i++) {
-    window->Line(cell_x_[i], bounding_box_.bottom(), cell_x_[i], bounding_box_.top());
+  for (int i : cell_x_) {
+    window->Line(i, bounding_box_.bottom(), i, bounding_box_.top());
   }
-  for (int i = 0; i < cell_y_.size(); i++) {
-    window->Line(bounding_box_.left(), cell_y_[i], bounding_box_.right(), cell_y_[i]);
+  for (int i : cell_y_) {
+    window->Line(bounding_box_.left(), i, bounding_box_.right(), i);
   }
   window->UpdateWindow();
 }
@@ -350,12 +350,12 @@ void StructuredTable::ClearStructure() {
 bool StructuredTable::VerifyLinedTableCells() {
   // Function only called when lines exist.
   ASSERT_HOST(cell_y_.size() >= 2 && cell_x_.size() >= 2);
-  for (int i = 0; i < cell_y_.size(); ++i) {
-    if (CountHorizontalIntersections(cell_y_[i]) > 0)
+  for (int i : cell_y_) {
+    if (CountHorizontalIntersections(i) > 0)
       return false;
   }
-  for (int i = 0; i < cell_x_.size(); ++i) {
-    if (CountVerticalIntersections(cell_x_[i]) > 0)
+  for (int i : cell_x_) {
+    if (CountVerticalIntersections(i) > 0)
       return false;
   }
   return true;

@@ -132,8 +132,7 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET &encoder_set, TFile *ambi
             ambigs_for_adaption_[test_unichar_ids[i]] = new UnicharIdVector();
           }
           adaption_ambigs_entry = ambigs_for_adaption_[test_unichar_ids[i]];
-          for (int r = 0; r < encoding.size(); ++r) {
-            UNICHAR_ID id_to_insert = encoding[r];
+          for (int id_to_insert : encoding) {
             ASSERT_HOST(id_to_insert != INVALID_UNICHAR_ID);
             // Add the new unichar id to adaption_ambigs_entry (only if the
             // vector does not already contain it) keeping it in sorted order.

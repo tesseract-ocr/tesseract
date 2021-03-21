@@ -1215,8 +1215,7 @@ WERD_RES *PAGE_RES_IT::InsertSimpleCloneWord(const WERD_RES &clone_res, WERD *ne
 static void ComputeBlobEnds(const WERD_RES &word, const TBOX &clip_box,
                             C_BLOB_LIST *next_word_blobs, std::vector<int> *blob_ends) {
   C_BLOB_IT blob_it(word.word->cblob_list());
-  for (int i = 0; i < word.best_state.size(); ++i) {
-    int length = word.best_state[i];
+  for (int length : word.best_state) {
     // Get the bounding box of the fake blobs
     TBOX blob_box = blob_it.data()->bounding_box();
     blob_it.forward();

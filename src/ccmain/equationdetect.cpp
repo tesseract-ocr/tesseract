@@ -134,8 +134,8 @@ int EquationDetect::LabelSpecialText(TO_BLOCK *to_block) {
   std::vector<BLOBNBOX_LIST *> blob_lists;
   blob_lists.push_back(&(to_block->blobs));
   blob_lists.push_back(&(to_block->large_blobs));
-  for (int i = 0; i < blob_lists.size(); ++i) {
-    BLOBNBOX_IT bbox_it(blob_lists[i]);
+  for (auto &blob_list : blob_lists) {
+    BLOBNBOX_IT bbox_it(blob_list);
     for (bbox_it.mark_cycle_pt(); !bbox_it.cycled_list(); bbox_it.forward()) {
       bbox_it.data()->set_special_text_type(BSTT_NONE);
     }
@@ -227,8 +227,8 @@ BlobSpecialTextType EquationDetect::EstimateTypeForUnichar(const UNICHARSET &uni
     if (ids_to_exclude.empty()) {
       static const char *kCharsToEx[] = {"'",  "`",  "\"", "\\", ",",  ".",
                                          "〈", "〉", "《", "》", "」", "「"};
-      for (auto i = 0; i < countof(kCharsToEx); i++) {
-        ids_to_exclude.push_back(unicharset.unichar_to_id(kCharsToEx[i]));
+      for (auto &i : kCharsToEx) {
+        ids_to_exclude.push_back(unicharset.unichar_to_id(i));
       }
       std::sort(ids_to_exclude.begin(), ids_to_exclude.end());
     }
@@ -379,16 +379,16 @@ int EquationDetect::FindEquationParts(ColPartitionGrid *part_grid, ColPartitionS
   // Pass 3: expand block equation seeds.
   while (!cp_seeds_.empty()) {
     std::vector<ColPartition *> seeds_expanded;
-    for (int i = 0; i < cp_seeds_.size(); ++i) {
-      if (ExpandSeed(cp_seeds_[i])) {
+    for (auto &cp_seed : cp_seeds_) {
+      if (ExpandSeed(cp_seed)) {
         // If this seed is expanded, then we add it into seeds_expanded. Note
         // this seed has been removed from part_grid_ if it is expanded.
-        seeds_expanded.push_back(cp_seeds_[i]);
+        seeds_expanded.push_back(cp_seed);
       }
     }
     // Add seeds_expanded back into part_grid_ and reset cp_seeds_.
-    for (int i = 0; i < seeds_expanded.size(); ++i) {
-      InsertPartAfterAbsorb(seeds_expanded[i]);
+    for (auto &i : seeds_expanded) {
+      InsertPartAfterAbsorb(i);
     }
     cp_seeds_ = seeds_expanded;
   }
@@ -423,9 +423,9 @@ void EquationDetect::MergePartsByLocation() {
 
       // Merge parts_to_merge with part, and remove them from part_grid_.
       part_grid_->RemoveBBox(part);
-      for (int i = 0; i < parts_to_merge.size(); ++i) {
-        ASSERT_HOST(parts_to_merge[i] != nullptr && parts_to_merge[i] != part);
-        part->Absorb(parts_to_merge[i], nullptr);
+      for (auto &i : parts_to_merge) {
+        ASSERT_HOST(i != nullptr && i != part);
+        part->Absorb(i, nullptr);
       }
       gsearch.RepositionIterator();
 
@@ -437,8 +437,8 @@ void EquationDetect::MergePartsByLocation() {
     }
 
     // Re-insert parts_updated into part_grid_.
-    for (int i = 0; i < parts_updated.size(); ++i) {
-      InsertPartAfterAbsorb(parts_updated[i]);
+    for (auto &i : parts_updated) {
+      InsertPartAfterAbsorb(i);
     }
   }
 }
@@ -561,23 +561,23 @@ void EquationDetect::IdentifySeedParts() {
     foreground_density_th = 0.8 * texts_foreground_density[texts_foreground_density.size() / 2];
   }
 
-  for (int i = 0; i < seeds1.size(); ++i) {
-    const TBOX &box = seeds1[i]->bounding_box();
-    if (CheckSeedFgDensity(foreground_density_th, seeds1[i]) &&
-        !(IsLeftIndented(IsIndented(seeds1[i])) &&
+  for (auto &i : seeds1) {
+    const TBOX &box = i->bounding_box();
+    if (CheckSeedFgDensity(foreground_density_th, i) &&
+        !(IsLeftIndented(IsIndented(i)) &&
           CountAlignment(indented_texts_left, box.left()) >= kLeftIndentAlignmentCountTh)) {
       // Mark as PT_EQUATION type.
-      seeds1[i]->set_type(PT_EQUATION);
-      cp_seeds_.push_back(seeds1[i]);
+      i->set_type(PT_EQUATION);
+      cp_seeds_.push_back(i);
     } else { // Mark as PT_INLINE_EQUATION type.
-      seeds1[i]->set_type(PT_INLINE_EQUATION);
+      i->set_type(PT_INLINE_EQUATION);
     }
   }
 
-  for (int i = 0; i < seeds2.size(); ++i) {
-    if (CheckForSeed2(indented_texts_left, foreground_density_th, seeds2[i])) {
-      seeds2[i]->set_type(PT_EQUATION);
-      cp_seeds_.push_back(seeds2[i]);
+  for (auto &i : seeds2) {
+    if (CheckForSeed2(indented_texts_left, foreground_density_th, i)) {
+      i->set_type(PT_EQUATION);
+      cp_seeds_.push_back(i);
     }
   }
 }
@@ -602,8 +602,8 @@ bool EquationDetect::CheckSeedFgDensity(const float density_th, ColPartition *pa
   std::vector<TBOX> sub_boxes;
   SplitCPHorLite(part, &sub_boxes);
   float parts_passed = 0.0;
-  for (int i = 0; i < sub_boxes.size(); ++i) {
-    const float density = ComputeForegroundDensity(sub_boxes[i]);
+  for (auto &sub_boxe : sub_boxes) {
+    const float density = ComputeForegroundDensity(sub_boxe);
     if (density < density_th) {
       parts_passed++;
     }
@@ -777,8 +777,7 @@ void EquationDetect::IdentifyInlinePartsHorizontal() {
   search.SetUniqueMode(true);
   // The center x coordinate of the cp_super_bbox_.
   const int cps_cx = cps_super_bbox_->left() + cps_super_bbox_->width() / 2;
-  for (int i = 0; i < cp_seeds_.size(); ++i) {
-    ColPartition *part = cp_seeds_[i];
+  for (auto part : cp_seeds_) {
     const TBOX &part_box(part->bounding_box());
     const int left_margin = part_box.left() - cps_super_bbox_->left(),
               right_margin = cps_super_bbox_->right() - part_box.right();
@@ -879,8 +878,7 @@ void EquationDetect::IdentifyInlinePartsVertical(const bool top_to_bottom,
   }
 
   std::vector<ColPartition *> new_seeds;
-  for (int i = 0; i < cp_seeds_.size(); ++i) {
-    ColPartition *part = cp_seeds_[i];
+  for (auto part : cp_seeds_) {
     // If we sort cp_seeds_ from top to bottom, then for each cp_seeds_, we look
     // for its top neighbors, so that if two/more inline regions are connected
     // to each other, then we will identify the top one, and then use it to
@@ -1057,14 +1055,13 @@ bool EquationDetect::ExpandSeed(ColPartition *seed) {
   // from part_grid_ as its bounding box is going to expand. Then we add it
   // back after it absorbs all parts_to_merge partitions.
   part_grid_->RemoveBBox(seed);
-  for (int i = 0; i < parts_to_merge.size(); ++i) {
-    ColPartition *part = parts_to_merge[i];
+  for (auto part : parts_to_merge) {
     if (part->type() == PT_EQUATION) {
       // If part is in cp_seeds_, then we mark it as nullptr so that we won't
       // process it again.
-      for (int j = 0; j < cp_seeds_.size(); ++j) {
-        if (part == cp_seeds_[j]) {
-          cp_seeds_[j] = nullptr;
+      for (auto &cp_seed : cp_seeds_) {
+        if (part == cp_seed) {
+          cp_seed = nullptr;
           break;
         }
       }
@@ -1199,15 +1196,15 @@ void EquationDetect::ExpandSeedVertical(const bool search_bottom, ColPartition *
   // seed:     ******************   | part:    **********
   // skipped: xxx                   | skipped:  xxx
   // part:       **********         | seed:    ***********
-  for (int i = 0; i < parts.size(); i++) {
-    const TBOX &part_box(parts[i]->bounding_box());
+  for (auto &part : parts) {
+    const TBOX &part_box(part->bounding_box());
     if ((search_bottom && part_box.top() <= skipped_max_bottom) ||
         (!search_bottom && part_box.bottom() >= skipped_min_top)) {
       continue;
     }
     // Add parts[i] into parts_to_merge, and delete it from part_grid_.
-    parts_to_merge->push_back(parts[i]);
-    part_grid_->RemoveBBox(parts[i]);
+    parts_to_merge->push_back(part);
+    part_grid_->RemoveBBox(part);
   }
 }
 
@@ -1272,24 +1269,24 @@ void EquationDetect::ProcessMathBlockSatelliteParts() {
   }
 
   // Iterate every text_parts and check if it is a math block satellite.
-  for (int i = 0; i < text_parts.size(); ++i) {
-    const TBOX &text_box(text_parts[i]->bounding_box());
+  for (auto &text_part : text_parts) {
+    const TBOX &text_box(text_part->bounding_box());
     if (text_box.height() > med_height) {
       continue;
     }
     std::vector<ColPartition *> math_blocks;
-    if (!IsMathBlockSatellite(text_parts[i], &math_blocks)) {
+    if (!IsMathBlockSatellite(text_part, &math_blocks)) {
       continue;
     }
 
     // Found. merge text_parts[i] with math_blocks.
-    part_grid_->RemoveBBox(text_parts[i]);
-    text_parts[i]->set_type(PT_EQUATION);
-    for (int j = 0; j < math_blocks.size(); ++j) {
-      part_grid_->RemoveBBox(math_blocks[j]);
-      text_parts[i]->Absorb(math_blocks[j], nullptr);
+    part_grid_->RemoveBBox(text_part);
+    text_part->set_type(PT_EQUATION);
+    for (auto &math_block : math_blocks) {
+      part_grid_->RemoveBBox(math_block);
+      text_part->Absorb(math_block, nullptr);
     }
-    InsertPartAfterAbsorb(text_parts[i]);
+    InsertPartAfterAbsorb(text_part);
   }
 }
 

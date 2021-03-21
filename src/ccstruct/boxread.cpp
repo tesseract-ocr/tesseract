@@ -94,11 +94,11 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char *box_data, bool 
   if (lines.empty())
     return false;
   int num_boxes = 0;
-  for (int i = 0; i < lines.size(); ++i) {
+  for (auto &line : lines) {
     int page = 0;
     std::string utf8_str;
     TBOX box;
-    if (!ParseBoxFileStr(lines[i].c_str(), &page, utf8_str, &box)) {
+    if (!ParseBoxFileStr(line.c_str(), &page, utf8_str, &box)) {
       if (continue_on_failure)
         continue;
       else

@@ -150,8 +150,8 @@ double DetLineFit::ConstrainedFit(const FCOORD &direction, double min_dist, doub
   }
   // Center distances on the fitted point.
   double dist_origin = direction * *line_pt;
-  for (int i = 0; i < distances_.size(); ++i) {
-    distances_[i].key() -= dist_origin;
+  for (auto &distance : distances_) {
+    distance.key() -= dist_origin;
   }
   return sqrt(EvaluateLineFit());
 }
@@ -282,12 +282,12 @@ void DetLineFit::ComputeConstrainedDistances(const FCOORD &direction, double min
   distances_.clear();
   square_length_ = direction.sqlength();
   // Compute the distance of each point from the line.
-  for (int i = 0; i < pts_.size(); ++i) {
-    FCOORD pt_vector = pts_[i].pt;
+  for (auto &pt : pts_) {
+    FCOORD pt_vector = pt.pt;
     // Compute |line_vector||pt_vector|sin(angle between)
     double dist = direction * pt_vector;
     if (min_dist <= dist && dist <= max_dist)
-      distances_.push_back(DistPointPair(dist, pts_[i].pt));
+      distances_.push_back(DistPointPair(dist, pt.pt));
   }
 }
 

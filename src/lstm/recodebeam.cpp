@@ -169,9 +169,9 @@ std::vector<std::vector<std::pair<const char *, float>>>
 RecodeBeamSearch::combineSegmentedTimesteps(
     std::vector<std::vector<std::vector<std::pair<const char *, float>>>> *segmentedTimesteps) {
   std::vector<std::vector<std::pair<const char *, float>>> combined_timesteps;
-  for (int i = 0; i < segmentedTimesteps->size(); ++i) {
-    for (int j = 0; j < (*segmentedTimesteps)[i].size(); ++j) {
-      combined_timesteps.push_back((*segmentedTimesteps)[i][j]);
+  for (auto &segmentedTimestep : *segmentedTimesteps) {
+    for (int j = 0; j < segmentedTimestep.size(); ++j) {
+      combined_timesteps.push_back(segmentedTimestep[j]);
     }
   }
   return combined_timesteps;
@@ -436,9 +436,9 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
       }
       // Exclude the best choice for the followup decoding.
       std::unordered_set<int> excludeCodeList;
-      for (int node = 0; node < best_nodes.size(); ++node) {
-        if (best_nodes[node]->code != null_char_) {
-          excludeCodeList.insert(best_nodes[node]->code);
+      for (auto &best_node : best_nodes) {
+        if (best_node->code != null_char_) {
+          excludeCodeList.insert(best_node->code);
         }
       }
       if (j - 1 < excludedUnichars.size()) {
@@ -514,9 +514,9 @@ void RecodeBeamSearch::DebugBeamPos(const UNICHARSET &unicharset, const RecodeHe
       }
     }
   }
-  for (int u = 0; u < unichar_bests.size(); ++u) {
-    if (unichar_bests[u] != nullptr) {
-      const RecodeNode &node = *unichar_bests[u];
+  for (auto &unichar_best : unichar_bests) {
+    if (unichar_best != nullptr) {
+      const RecodeNode &node = *unichar_best;
       node.Print(null_char_, unicharset, 1);
     }
   }
@@ -870,8 +870,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
   }
   const std::vector<int> *final_codes = recoder_.GetFinalCodes(prefix);
   if (final_codes != nullptr) {
-    for (int i = 0; i < final_codes->size(); ++i) {
-      int code = (*final_codes)[i];
+    for (int code : *final_codes) {
       if (top_n_flags_[code] != top_n_flag)
         continue;
       if (prev != nullptr && prev->code == code && !is_simple_text_)
@@ -904,8 +903,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
   }
   const std::vector<int> *next_codes = recoder_.GetNextCodes(prefix);
   if (next_codes != nullptr) {
-    for (int i = 0; i < next_codes->size(); ++i) {
-      int code = (*next_codes)[i];
+    for (int code : *next_codes) {
       if (top_n_flags_[code] != top_n_flag)
         continue;
       if (prev != nullptr && prev->code == code && !is_simple_text_)
@@ -1132,16 +1130,16 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode *new_node, RecodeHeap *hea
   // It might not be faster because the hash map would have to be updated
   // every time a heap reshuffle happens, and that would be a lot of overhead.
   std::vector<RecodePair> &nodes = heap->heap();
-  for (int i = 0; i < nodes.size(); ++i) {
-    RecodeNode &node = nodes[i].data();
+  for (auto &i : nodes) {
+    RecodeNode &node = i.data();
     if (node.code == new_node->code && node.code_hash == new_node->code_hash &&
         node.permuter == new_node->permuter && node.start_of_dawg == new_node->start_of_dawg) {
       if (new_node->score > node.score) {
         // The new one is better. Update the entire node in the heap and
         // reshuffle.
         node = *new_node;
-        nodes[i].key() = node.score;
-        heap->Reshuffle(&nodes[i]);
+        i.key() = node.score;
+        heap->Reshuffle(&i);
       }
       return true;
     }

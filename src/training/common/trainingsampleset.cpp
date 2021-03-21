@@ -430,8 +430,7 @@ int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1, int font_i
     return canonical2.size(); // There are no cloud features.
 
   // Find a canonical2 feature that is not in cloud1.
-  for (int f = 0; f < canonical2.size(); ++f) {
-    const int feature = canonical2[f];
+  for (int feature : canonical2) {
     if (cloud1[feature])
       continue;
     // Gather the near neighbours of f.
@@ -488,8 +487,8 @@ float TrainingSampleSet::GetCanonicalDist(int font_id, int class_id) const {
 
 // Generates indexed features for all samples with the supplied feature_space.
 void TrainingSampleSet::IndexFeatures(const IntFeatureSpace &feature_space) {
-  for (int s = 0; s < samples_.size(); ++s)
-    samples_[s]->IndexFeatures(feature_space);
+  for (auto &sample : samples_)
+    sample->IndexFeatures(feature_space);
 }
 
 // Marks the given sample index for deletion.
@@ -560,8 +559,8 @@ void TrainingSampleSet::OrganizeByFontAndClass() {
 void TrainingSampleSet::SetupFontIdMap() {
   // Number of samples for each font_id.
   std::vector<int> font_counts;
-  for (int s = 0; s < samples_.size(); ++s) {
-    const int font_id = samples_[s]->font_id();
+  for (auto &sample : samples_) {
+    const int font_id = sample->font_id();
     while (font_id >= font_counts.size())
       font_counts.push_back(0);
     ++font_counts[font_id];
@@ -618,8 +617,7 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap &map, bool d
         // reasonably fast because f_table.FeatureDistance is fast, but we
         // may have to reconsider if we start playing with too many samples
         // of a single char/font.
-        for (int j = 0; j < fcinfo.samples.size(); ++j) {
-          int s2 = fcinfo.samples[j];
+        for (int s2 : fcinfo.samples) {
           if (samples_[s2]->class_id() != c || samples_[s2]->font_id() != font_id || s2 == s1)
             continue;
           std::vector<int> features2 = samples_[s2]->indexed_features();
@@ -733,8 +731,8 @@ void TrainingSampleSet::ComputeCloudFeatures(int feature_space_size) {
       for (int s = 0; s < num_samples; ++s) {
         const TrainingSample *sample = GetSample(font_id, c, s);
         const std::vector<int> &sample_features = sample->indexed_features();
-        for (int i = 0; i < sample_features.size(); ++i)
-          fcinfo.cloud_features.SetBit(sample_features[i]);
+        for (int sample_feature : sample_features)
+          fcinfo.cloud_features.SetBit(sample_feature);
       }
     }
   }
@@ -761,8 +759,8 @@ void TrainingSampleSet::DisplaySamplesWithFeature(int f_index, const Shape &shap
     if (shape.ContainsUnichar(sample->class_id())) {
       std::vector<int> indexed_features;
       space.IndexAndSortFeatures(sample->features(), sample->num_features(), &indexed_features);
-      for (int f = 0; f < indexed_features.size(); ++f) {
-        if (indexed_features[f] == f_index) {
+      for (int indexed_feature : indexed_features) {
+        if (indexed_feature == f_index) {
           sample->DisplayFeatures(color, window);
         }
       }

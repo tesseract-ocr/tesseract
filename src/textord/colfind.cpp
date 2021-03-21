@@ -592,8 +592,7 @@ bool ColumnFinder::MakeColumns(bool single_column) {
 #endif
     ComputeMeanColumnGap(any_multi_column);
   }
-  for (int i = 0; i < part_sets.size(); ++i) {
-    ColPartitionSet *line_set = part_sets.at(i);
+  for (auto line_set : part_sets) {
     if (line_set != nullptr) {
       line_set->RelinquishParts();
       delete line_set;
