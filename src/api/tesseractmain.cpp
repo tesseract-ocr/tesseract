@@ -449,11 +449,11 @@ static bool ParseArgs(int argc, char **argv, const char **lang, const char **ima
 }
 
 static void PreloadRenderers(tesseract::TessBaseAPI &api,
-                             std::vector<TessResultRenderer *> &renderers,
+                             std::vector<std::unique_ptr<TessResultRenderer>> &renderers,
                              tesseract::PageSegMode pagesegmode, const char *outputbase) {
   if (pagesegmode == tesseract::PSM_OSD_ONLY) {
 #ifndef DISABLED_LEGACY_ENGINE
-    renderers.push_back(new tesseract::TessOsdRenderer(outputbase));
+    renderers.push_back(std::make_unique<tesseract::TessOsdRenderer>(outputbase));
 #endif // ndef DISABLED_LEGACY_ENGINE
   } else {
     bool error = false;
@@ -462,11 +462,10 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
     if (b) {
       bool font_info;
       api.GetBoolVariable("hocr_font_info", &font_info);
-      auto *renderer = new tesseract::TessHOcrRenderer(outputbase, font_info);
+      auto renderer = std::make_unique<tesseract::TessHOcrRenderer>(outputbase, font_info);
       if (renderer->happy()) {
-        renderers.push_back(renderer);
+        renderers.push_back(std::move(renderer));
       } else {
-        delete renderer;
         tprintf("Error, could not create hOCR output file: %s\n", strerror(errno));
         error = true;
       }
@@ -474,11 +473,10 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
 
     api.GetBoolVariable("tessedit_create_alto", &b);
     if (b) {
-      auto *renderer = new tesseract::TessAltoRenderer(outputbase);
+      auto renderer = std::make_unique<tesseract::TessAltoRenderer>(outputbase);
       if (renderer->happy()) {
-        renderers.push_back(renderer);
+        renderers.push_back(std::move(renderer));
       } else {
-        delete renderer;
         tprintf("Error, could not create ALTO output file: %s\n", strerror(errno));
         error = true;
       }
@@ -488,11 +486,10 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
     if (b) {
       bool font_info;
       api.GetBoolVariable("hocr_font_info", &font_info);
-      auto *renderer = new tesseract::TessTsvRenderer(outputbase, font_info);
+      auto renderer = std::make_unique<tesseract::TessTsvRenderer>(outputbase, font_info);
       if (renderer->happy()) {
-        renderers.push_back(renderer);
+        renderers.push_back(std::move(renderer));
       } else {
-        delete renderer;
         tprintf("Error, could not create TSV output file: %s\n", strerror(errno));
         error = true;
       }
@@ -506,11 +503,10 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
 #endif // WIN32
       bool textonly;
       api.GetBoolVariable("textonly_pdf", &textonly);
-      auto *renderer = new tesseract::TessPDFRenderer(outputbase, api.GetDatapath(), textonly);
+      auto renderer = std::make_unique<tesseract::TessPDFRenderer>(outputbase, api.GetDatapath(), textonly);
       if (renderer->happy()) {
-        renderers.push_back(renderer);
+        renderers.push_back(std::move(renderer));
       } else {
-        delete renderer;
         tprintf("Error, could not create PDF output file: %s\n", strerror(errno));
         error = true;
       }
@@ -519,11 +515,10 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
     api.GetBoolVariable("tessedit_write_unlv", &b);
     if (b) {
       api.SetVariable("unlv_tilde_crunching", "true");
-      auto *renderer = new tesseract::TessUnlvRenderer(outputbase);
+      auto renderer = std::make_unique<tesseract::TessUnlvRenderer>(outputbase);
       if (renderer->happy()) {
-        renderers.push_back(renderer);
+        renderers.push_back(std::move(renderer));
       } else {
-        delete renderer;
         tprintf("Error, could not create UNLV output file: %s\n", strerror(errno));
         error = true;
       }
@@ -531,11 +526,10 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
 
     api.GetBoolVariable("tessedit_create_lstmbox", &b);
     if (b) {
-      auto *renderer = new tesseract::TessLSTMBoxRenderer(outputbase);
+      auto renderer = std::make_unique<tesseract::TessLSTMBoxRenderer>(outputbase);
       if (renderer->happy()) {
-        renderers.push_back(renderer);
+        renderers.push_back(std::move(renderer));
       } else {
-        delete renderer;
         tprintf("Error, could not create LSTM BOX output file: %s\n", strerror(errno));
         error = true;
       }
@@ -543,11 +537,10 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
 
     api.GetBoolVariable("tessedit_create_boxfile", &b);
     if (b) {
-      auto *renderer = new tesseract::TessBoxTextRenderer(outputbase);
+      auto renderer = std::make_unique<tesseract::TessBoxTextRenderer>(outputbase);
       if (renderer->happy()) {
-        renderers.push_back(renderer);
+        renderers.push_back(std::move(renderer));
       } else {
-        delete renderer;
         tprintf("Error, could not create BOX output file: %s\n", strerror(errno));
         error = true;
       }
@@ -555,11 +548,10 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
 
     api.GetBoolVariable("tessedit_create_wordstrbox", &b);
     if (b) {
-      auto *renderer = new tesseract::TessWordStrBoxRenderer(outputbase);
+      auto renderer = std::make_unique<tesseract::TessWordStrBoxRenderer>(outputbase);
       if (renderer->happy()) {
-        renderers.push_back(renderer);
+        renderers.push_back(std::move(renderer));
       } else {
-        delete renderer;
         tprintf("Error, could not create WordStr BOX output file: %s\n", strerror(errno));
         error = true;
       }
@@ -570,11 +562,10 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       // Create text output if no other output was requested
       // even if text output was not explicitly requested unless
       // there was an error.
-      auto *renderer = new tesseract::TessTextRenderer(outputbase);
+      auto renderer = std::make_unique<tesseract::TessTextRenderer>(outputbase);
       if (renderer->happy()) {
-        renderers.push_back(renderer);
+        renderers.push_back(std::move(renderer));
       } else {
-        delete renderer;
         tprintf("Error, could not create TXT output file: %s\n", strerror(errno));
       }
     }
@@ -583,8 +574,8 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
   // Null-out the renderers that are
   // added to the root, and leave the root in the vector.
   for (size_t r = 1; r < renderers.size(); ++r) {
-    renderers[0]->insert(renderers[r]);
-    renderers[r] = nullptr;
+    renderers[0]->insert(renderers[r].get());
+    renderers[r].release(); // at the moment insert() is owning
   }
 }
 
@@ -760,7 +751,7 @@ int main(int argc, char **argv) {
   }
 #endif // def DISABLED_LEGACY_ENGINE
 
-  std::vector<TessResultRenderer *> renderers;
+  std::vector<std::unique_ptr<TessResultRenderer>> renderers;
 
   if (in_training_mode) {
     renderers.push_back(nullptr);
@@ -781,15 +772,11 @@ int main(int argc, char **argv) {
       fprintf(stderr, "%s", osd_warning.c_str());
     }
 #endif
-    bool succeed = api.ProcessPages(image, nullptr, 0, renderers[0]);
+    bool succeed = api.ProcessPages(image, nullptr, 0, renderers[0].get());
     if (!succeed) {
       fprintf(stderr, "Error during processing.\n");
       ret_val = EXIT_FAILURE;
     }
-  }
-
-  for (auto renderer : renderers) {
-    delete renderer;
   }
 
   return ret_val;
