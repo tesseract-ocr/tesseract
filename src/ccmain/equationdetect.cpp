@@ -248,8 +248,8 @@ BlobSpecialTextType EquationDetect::EstimateTypeForUnichar(const UNICHARSET &uni
 
 void EquationDetect::IdentifySpecialText() {
   // Set configuration for Tesseract::AdaptiveClassifier.
-  equ_tesseract_.tess_cn_matching.set_value(1); // turn it on
-  equ_tesseract_.tess_bn_matching.set_value(0);
+  equ_tesseract_.tess_cn_matching.set_value(true); // turn it on
+  equ_tesseract_.tess_bn_matching.set_value(false);
 
   // Set the multiplier to zero for lang_tesseract_ to improve the accuracy.
   const int classify_class_pruner = lang_tesseract_->classify_class_pruner_multiplier;
