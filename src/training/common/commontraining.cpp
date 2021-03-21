@@ -120,7 +120,7 @@ static DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
  * @param argc number of command line arguments to parse
  * @param argv command line arguments
  */
-void ParseArguments(int *argc, char ***argv) {
+void ParseArguments(int *argc, const char ***argv) {
   std::string usage;
   if (*argc) {
     usage += (*argv)[0];
