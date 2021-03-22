@@ -68,8 +68,9 @@ protected:
         std::vector<int8_t> u = RandomVector(num_in, matrix);
         std::vector<double> scales = RandomScales(num_out);
         int ro = num_out;
-        if (IntSimdMatrix::intSimdMatrix)
+        if (IntSimdMatrix::intSimdMatrix) {
           ro = IntSimdMatrix::intSimdMatrix->RoundOutputs(ro);
+        }
         std::vector<double> base_result(ro);
         base_result.resize(num_out);
         IntSimdMatrix::MatrixDotVector(w, scales, u.data(), base_result.data());

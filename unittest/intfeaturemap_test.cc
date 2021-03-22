@@ -90,8 +90,9 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
         EXPECT_LE(abs(f.X - f2.X), dx);
         EXPECT_LE(abs(f.Y - f2.Y), dy);
         int theta_delta = abs(f.Theta - f2.Theta);
-        if (theta_delta > kIntFeatureExtent / 2)
+        if (theta_delta > kIntFeatureExtent / 2) {
           theta_delta = kIntFeatureExtent - theta_delta;
+        }
         EXPECT_LE(theta_delta, dtheta);
       } else {
         ++bad_offsets;

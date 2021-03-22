@@ -71,8 +71,9 @@ protected:
   }
 
   void TearDown() override {
-    if (partition_.get() != nullptr)
+    if (partition_.get() != nullptr) {
       partition_->DeleteBoxes();
+    }
     DeletePartitionListBoxes();
     finder_.reset(nullptr);
   }
@@ -83,8 +84,9 @@ protected:
 
   void MakePartition(int x_min, int y_min, int x_max, int y_max, int first_column,
                      int last_column) {
-    if (partition_.get() != nullptr)
+    if (partition_.get() != nullptr) {
       partition_->DeleteBoxes();
+    }
     TBOX box;
     box.set_to_given_coords(x_min, y_min, x_max, y_max);
     partition_.reset(ColPartition::FakePartition(box, PT_UNKNOWN, BRT_UNKNOWN, BTFT_NONE));
@@ -130,30 +132,37 @@ private:
 
 TEST_F(TableFinderTest, GapInXProjectionNoGap) {
   int data[100];
-  for (int &i : data)
+  for (int &i : data) {
     i = 10;
+  }
   EXPECT_FALSE(finder_->GapInXProjection(data, 100));
 }
 
 TEST_F(TableFinderTest, GapInXProjectionEdgeGap) {
   int data[100];
-  for (int i = 0; i < 10; ++i)
+  for (int i = 0; i < 10; ++i) {
     data[i] = 2;
-  for (int i = 10; i < 90; ++i)
+  }
+  for (int i = 10; i < 90; ++i) {
     data[i] = 10;
-  for (int i = 90; i < 100; ++i)
+  }
+  for (int i = 90; i < 100; ++i) {
     data[i] = 2;
+  }
   EXPECT_FALSE(finder_->GapInXProjection(data, 100));
 }
 
 TEST_F(TableFinderTest, GapInXProjectionExists) {
   int data[100];
-  for (int i = 0; i < 10; ++i)
+  for (int i = 0; i < 10; ++i) {
     data[i] = 10;
-  for (int i = 10; i < 90; ++i)
+  }
+  for (int i = 10; i < 90; ++i) {
     data[i] = 2;
-  for (int i = 90; i < 100; ++i)
+  }
+  for (int i = 90; i < 100; ++i) {
     data[i] = 10;
+  }
   EXPECT_TRUE(finder_->GapInXProjection(data, 100));
 }
 

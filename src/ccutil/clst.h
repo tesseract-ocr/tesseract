@@ -186,10 +186,12 @@ public:
 
   void *data() { // get current data
 #ifndef NDEBUG
-    if (!list)
+    if (!list) {
       NO_LIST.error("CLIST_ITERATOR::data", ABORT, nullptr);
-    if (!current)
+    }
+    if (!current) {
       NULL_DATA.error("CLIST_ITERATOR::data", ABORT, nullptr);
+    }
 #endif
     return current->data;
   }
@@ -209,8 +211,9 @@ public:
 
   bool empty() { // is list empty?
 #ifndef NDEBUG
-    if (!list)
+    if (!list) {
       NO_LIST.error("CLIST_ITERATOR::empty", ABORT, nullptr);
+    }
 #endif
     return list->empty();
   }
@@ -248,8 +251,9 @@ public:
 inline void CLIST_ITERATOR::set_to_list( // change list
     CLIST *list_to_iterate) {
 #ifndef NDEBUG
-  if (!list_to_iterate)
+  if (!list_to_iterate) {
     BAD_PARAMETER.error("CLIST_ITERATOR::set_to_list", ABORT, "list_to_iterate is nullptr");
+  }
 #endif
 
   list = list_to_iterate;
@@ -284,10 +288,12 @@ inline void CLIST_ITERATOR::add_after_then_move( // element to add
   CLIST_LINK *new_element;
 
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_after_then_move", ABORT, nullptr);
-  if (!new_data)
+  }
+  if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_after_then_move", ABORT, "new_data is nullptr");
+  }
 #endif
 
   new_element = new CLIST_LINK;
@@ -331,10 +337,12 @@ inline void CLIST_ITERATOR::add_after_stay_put( // element to add
   CLIST_LINK *new_element;
 
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_after_stay_put", ABORT, nullptr);
-  if (!new_data)
+  }
+  if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_after_stay_put", ABORT, "new_data is nullptr");
+  }
 #endif
 
   new_element = new CLIST_LINK;
@@ -380,10 +388,12 @@ inline void CLIST_ITERATOR::add_before_then_move( // element to add
   CLIST_LINK *new_element;
 
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_before_then_move", ABORT, nullptr);
-  if (!new_data)
+  }
+  if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_before_then_move", ABORT, "new_data is nullptr");
+  }
 #endif
 
   new_element = new CLIST_LINK;
@@ -423,10 +433,12 @@ inline void CLIST_ITERATOR::add_before_stay_put( // element to add
   CLIST_LINK *new_element;
 
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_before_stay_put", ABORT, nullptr);
-  if (!new_data)
+  }
+  if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_before_stay_put", ABORT, "new_data is nullptr");
+  }
 #endif
 
   new_element = new CLIST_LINK;
@@ -465,10 +477,12 @@ inline void CLIST_ITERATOR::add_before_stay_put( // element to add
 
 inline void CLIST_ITERATOR::add_list_after(CLIST *list_to_add) {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_list_after", ABORT, nullptr);
-  if (!list_to_add)
+  }
+  if (!list_to_add) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_list_after", ABORT, "list_to_add is nullptr");
+  }
 #endif
 
   if (!list_to_add->empty()) {
@@ -510,10 +524,12 @@ inline void CLIST_ITERATOR::add_list_after(CLIST *list_to_add) {
 
 inline void CLIST_ITERATOR::add_list_before(CLIST *list_to_add) {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_list_before", ABORT, nullptr);
-  if (!list_to_add)
+  }
+  if (!list_to_add) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_list_before", ABORT, "list_to_add is nullptr");
+  }
 #endif
 
   if (!list_to_add->empty()) {
@@ -556,11 +572,13 @@ inline void *CLIST_ITERATOR::extract() {
   void *extracted_data;
 
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::extract", ABORT, nullptr);
-  if (!current) // list empty or
-                // element extracted
+  }
+  if (!current) { // list empty or
+                  // element extracted
     NULL_CURRENT.error("CLIST_ITERATOR::extract", ABORT, nullptr);
+  }
 #endif
 
   if (list->singleton()) {
@@ -593,8 +611,9 @@ inline void *CLIST_ITERATOR::extract() {
 
 inline void *CLIST_ITERATOR::move_to_first() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::move_to_first", ABORT, nullptr);
+  }
 #endif
 
   current = list->First();
@@ -616,8 +635,9 @@ inline void *CLIST_ITERATOR::move_to_first() {
 
 inline void CLIST_ITERATOR::mark_cycle_pt() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::mark_cycle_pt", ABORT, nullptr);
+  }
 #endif
 
   if (current) {
@@ -637,8 +657,9 @@ inline void CLIST_ITERATOR::mark_cycle_pt() {
 
 inline bool CLIST_ITERATOR::at_first() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::at_first", ABORT, nullptr);
+  }
 #endif
 
   // we're at a deleted
@@ -656,8 +677,9 @@ inline bool CLIST_ITERATOR::at_first() {
 
 inline bool CLIST_ITERATOR::at_last() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::at_last", ABORT, nullptr);
+  }
 #endif
 
   // we're at a deleted
@@ -675,8 +697,9 @@ inline bool CLIST_ITERATOR::at_last() {
 
 inline bool CLIST_ITERATOR::cycled_list() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::cycled_list", ABORT, nullptr);
+  }
 #endif
 
   return ((list->empty()) || ((current == cycle_pt) && started_cycling));
@@ -691,8 +714,9 @@ inline bool CLIST_ITERATOR::cycled_list() {
 
 inline int32_t CLIST_ITERATOR::length() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::length", ABORT, nullptr);
+  }
 #endif
 
   return list->length();
@@ -709,8 +733,9 @@ inline void CLIST_ITERATOR::sort( // sort elements
     int comparator(               // comparison routine
         const void *, const void *)) {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::sort", ABORT, nullptr);
+  }
 #endif
 
   list->sort(comparator);
@@ -732,10 +757,12 @@ inline void CLIST_ITERATOR::add_to_end( // element to add
   CLIST_LINK *new_element;
 
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_to_end", ABORT, nullptr);
-  if (!new_data)
+  }
+  if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_to_end", ABORT, "new_data is nullptr");
+  }
 #endif
 
   if (this->at_last()) {

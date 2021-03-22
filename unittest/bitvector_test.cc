@@ -38,13 +38,15 @@ public:
     TestAll(*map, false);
     map->SetBit(2);
     // Set all the odds to true.
-    for (int i = 3; i <= kPrimeLimit; i += 2)
+    for (int i = 3; i <= kPrimeLimit; i += 2) {
       map->SetValue(i, true);
+    }
     int factor_limit = static_cast<int>(sqrt(1.0 + kPrimeLimit));
     for (int f = 3; f <= factor_limit; f += 2) {
       if (map->At(f)) {
-        for (int m = 2; m * f <= kPrimeLimit; ++m)
+        for (int m = 2; m * f <= kPrimeLimit; ++m) {
           map->ResetBit(f * m);
+        }
       }
     }
   }
@@ -55,8 +57,9 @@ public:
     // of which is 997.
     int total_primes = 0;
     for (int i = 0; i <= kPrimeLimit; ++i) {
-      if (map[i])
+      if (map[i]) {
         ++total_primes;
+      }
     }
     EXPECT_EQ(168, total_primes);
     EXPECT_TRUE(map[997]);
@@ -77,8 +80,9 @@ public:
     bv->Init((end_byte - start_byte) * 8 * spacing);
     for (int byte_value = start_byte; byte_value < end_byte; ++byte_value) {
       for (int bit = 0; bit < 8; ++bit) {
-        if (byte_value & (1 << bit))
+        if (byte_value & (1 << bit)) {
           bv->SetBit((byte_value - start_byte) * 8 * spacing + bit);
+        }
       }
     }
   }

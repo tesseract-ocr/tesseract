@@ -184,8 +184,9 @@ protected:
       TBOX lower_box = word_box;
       lower_box.set_top(word_box.bottom());
       lower_box.set_bottom(word_box.bottom() - padding);
-      if (tall_word)
+      if (tall_word) {
         lower_box.move(ICOORD(0, padding / 2));
+      }
       EvaluateBox(lower_box, false, kMinStrongTextValue, text, "Lower Word");
       EvaluateBox(lower_box, true, -1, text, "Lower Word not vertical");
 
@@ -215,8 +216,9 @@ protected:
       upper_challenger.set_bottom(upper_box.top());
       upper_challenger.set_top(upper_box.top() + word_box.height());
       EvaluateDistance(upper_box, target_box, upper_challenger, text, "Upper Word");
-      if (tall_word)
+      if (tall_word) {
         lower_box.move(ICOORD(0, padding / 2));
+      }
       lower_box.set_bottom(lower_box.top() - padding);
       target_box = word_box;
       target_box.set_bottom(lower_box.top());

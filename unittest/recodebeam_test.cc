@@ -139,8 +139,9 @@ protected:
       // To the extent of truth_utf8, we expect decoded to match, but if
       // transcription is shorter, that is OK too, as we may just be testing
       // that we get a valid sequence when padded with random data.
-      if (uni_id != unichar_null_char_ && decoded.size() < truth_utf8.size())
+      if (uni_id != unichar_null_char_ && decoded.size() < truth_utf8.size()) {
         decoded += ccutil_.unicharset.id_to_unichar(uni_id);
+      }
       end = index;
     }
     EXPECT_EQ(truth_utf8, decoded);
@@ -162,8 +163,9 @@ protected:
         LOG(INFO) << absl::StrFormat("%d:u_id=%d=%s, c=%g, r=%g, r_sum=%g @%d", u, unichar_ids[u],
                                      str, certainties[u], ratings[u], total_rating, xcoords[u])
                   << "\n";
-        if (str[0] == ' ')
+        if (str[0] == ' ') {
           total_rating = 0.0f;
+        }
         u_decoded += str;
       }
     }
@@ -177,8 +179,9 @@ protected:
       for (int w = 0; w < words->size(); ++w) {
         const WERD_RES *word = (*words)[w];
         if (w_decoded.size() < truth_utf8.size()) {
-          if (!w_decoded.empty() && word->word->space())
+          if (!w_decoded.empty() && word->word->space()) {
             w_decoded += " ";
+          }
           w_decoded += word->best_choice->unichar_string().c_str();
         }
         LOG(INFO) << absl::StrFormat("Word:%d = %s, c=%g, r=%g, perm=%d", w,
@@ -207,8 +210,9 @@ protected:
     // Fill with random data.
     TRand random;
     for (int t = 0; t < width; ++t) {
-      for (int i = 0; i < num_codes; ++i)
+      for (int i = 0; i < num_codes; ++i) {
         outputs(t, i) = random.UnsignedRand(0.25);
+      }
     }
     int t = 0;
     for (int unichar_id : unichar_ids) {
@@ -229,10 +233,12 @@ protected:
     // Normalize the probs.
     for (int t = 0; t < width; ++t) {
       double sum = 0.0;
-      for (int i = 0; i < num_codes; ++i)
+      for (int i = 0; i < num_codes; ++i) {
         sum += outputs(t, i);
-      for (int i = 0; i < num_codes; ++i)
+      }
+      for (int i = 0; i < num_codes; ++i) {
         outputs(t, i) /= sum;
+      }
     }
 
     return outputs;
@@ -282,8 +288,9 @@ protected:
                                                    const char *chars2[], const float scores2[],
                                                    TRand *random) {
     int width = 0;
-    while (chars1[width] != nullptr)
+    while (chars1[width] != nullptr) {
       ++width;
+    }
     int padding = width * RecodedCharID::kMaxCodeLen;
     int num_codes = recoder_.code_range();
     GENERIC_2D_ARRAY<float> outputs(width + padding, num_codes, 0.0f);
@@ -297,8 +304,9 @@ protected:
       int max_t = std::max(end_t1, end_t2);
       while (t < max_t) {
         double total_score = 0.0;
-        for (int j = 0; j < num_codes; ++j)
+        for (int j = 0; j < num_codes; ++j) {
           total_score += outputs(t, j);
+        }
         double null_remainder = (1.0 - total_score) / 2.0;
         double remainder = null_remainder / (num_codes - 2);
         if (outputs(t, encoded_null_char_) < null_remainder) {
@@ -307,8 +315,9 @@ protected:
           remainder += remainder;
         }
         for (int j = 0; j < num_codes; ++j) {
-          if (outputs(t, j) == 0.0f)
+          if (outputs(t, j) == 0.0f) {
             outputs(t, j) = remainder;
+          }
         }
         ++t;
       }
@@ -332,8 +341,9 @@ TEST_F(RecodeBeamTest, DoesChinese) {
   LoadUnicharset("chi_tra.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   std::vector<int> transcription;
-  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
+  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i) {
     transcription.push_back(i);
+  }
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
   ExpectCorrect(outputs, transcription);
   LOG(INFO) << "Testing chi_sim"
@@ -341,8 +351,9 @@ TEST_F(RecodeBeamTest, DoesChinese) {
   LoadUnicharset("chi_sim.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   transcription.clear();
-  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
+  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i) {
     transcription.push_back(i);
+  }
   outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
   ExpectCorrect(outputs, transcription);
 }
@@ -353,8 +364,9 @@ TEST_F(RecodeBeamTest, DoesJapanese) {
   LoadUnicharset("jpn.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   std::vector<int> transcription;
-  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
+  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i) {
     transcription.push_back(i);
+  }
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
   ExpectCorrect(outputs, transcription);
 }
@@ -365,8 +377,9 @@ TEST_F(RecodeBeamTest, DoesKorean) {
   LoadUnicharset("kor.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   std::vector<int> transcription;
-  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
+  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i) {
     transcription.push_back(i);
+  }
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
   ExpectCorrect(outputs, transcription);
 }
@@ -377,8 +390,9 @@ TEST_F(RecodeBeamTest, DoesKannada) {
   LoadUnicharset("kan.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   std::vector<int> transcription;
-  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
+  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i) {
     transcription.push_back(i);
+  }
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
   ExpectCorrect(outputs, transcription);
 }
@@ -389,8 +403,9 @@ TEST_F(RecodeBeamTest, DoesMarathi) {
   LoadUnicharset("mar.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   std::vector<int> transcription;
-  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
+  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i) {
     transcription.push_back(i);
+  }
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
   ExpectCorrect(outputs, transcription);
 }
@@ -401,8 +416,9 @@ TEST_F(RecodeBeamTest, DoesEnglish) {
   LoadUnicharset("eng.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   std::vector<int> transcription;
-  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
+  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i) {
     transcription.push_back(i);
+  }
   GENERIC_2D_ARRAY<float> outputs = GenerateRandomPaddedOutputs(transcription, kPadding);
   ExpectCorrect(outputs, transcription);
 }
@@ -414,8 +430,9 @@ TEST_F(RecodeBeamTest, DISABLED_EngDictionary) {
   GENERIC_2D_ARRAY<float> outputs =
       GenerateSyntheticOutputs(kGWRTops, kGWRTopScores, kGWR2nds, kGWR2ndScores, nullptr);
   std::string default_str;
-  for (int i = 0; kGWRTops[i] != nullptr; ++i)
+  for (int i = 0; kGWRTops[i] != nullptr; ++i) {
     default_str += kGWRTops[i];
+  }
   PointerVector<WERD_RES> words;
   ExpectCorrect(outputs, default_str, nullptr, &words);
   // Now try again with the dictionary.

@@ -64,8 +64,9 @@ void AsciiToRowInfo(const char *text, int row_number, RowInfo *info) {
 
   std::vector<std::string> words = absl::StrSplit(text, ' ', absl::SkipEmpty());
   info->num_words = words.size();
-  if (info->num_words < 1)
+  if (info->num_words < 1) {
     return;
+  }
 
   info->lword_text = words[0].c_str();
   info->rword_text = words[words.size() - 1].c_str();
@@ -116,10 +117,12 @@ void EvaluateParagraphDetection(const TextAndModel *correct, int n,
   for (int i = 1; i < n; i++) {
     bool has_break = correct[i].model_type != PCONT;
     bool detected_break = (detector_output[i - 1] != detector_output[i]);
-    if (has_break && !detected_break)
+    if (has_break && !detected_break) {
       missed_breaks++;
-    if (detected_break && !has_break)
+    }
+    if (detected_break && !has_break) {
       incorrect_breaks++;
+    }
     if (has_break) {
       if (correct[i].model_type == PNONE) {
         if (detector_output[i]->model != nullptr) {

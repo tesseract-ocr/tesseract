@@ -103,8 +103,9 @@ TEST_F(TatweelTest, UnicharsetLoadKeepsTatweel) {
     int num_tatweel = 0;
     for (int i = 0; i < unicharset_.size(); ++i) {
       const char *utf8 = unicharset_.id_to_unichar(i);
-      if (strstr(utf8, reinterpret_cast<const char *>(u8"\u0640")) != nullptr)
+      if (strstr(utf8, reinterpret_cast<const char *>(u8"\u0640")) != nullptr) {
         ++num_tatweel;
+      }
     }
     LOG(INFO) << "Num tatweels in unicharset=" << num_tatweel;
     EXPECT_EQ(num_tatweel, 4);

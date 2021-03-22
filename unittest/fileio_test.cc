@@ -28,8 +28,9 @@ TEST(FileTest, JoinPath) {
 TEST(OutputBufferTest, WriteString) {
   const int kMaxBufSize = 128;
   char buffer[kMaxBufSize];
-  for (char &i : buffer)
+  for (char &i : buffer) {
     i = '\0';
+  }
   FILE *fp = tmpfile();
   CHECK(fp != nullptr);
 

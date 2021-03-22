@@ -32,83 +32,108 @@ protected:
     MathData() : num_squares_(0), num_triangles_(0) {}
     void Setup() {
       // Setup some data.
-      for (int s = 0; s < 42; ++s)
+      for (int s = 0; s < 42; ++s) {
         squares_.push_back(s * s);
+      }
       num_squares_ = squares_.size();
-      for (int t = 0; t < 52; ++t)
+      for (int t = 0; t < 52; ++t) {
         triangles_.push_back(t * (t + 1) / 2);
+      }
       num_triangles_ = triangles_.size();
     }
     void ExpectEq(const MathData &other) {
       // Check the data.
       EXPECT_EQ(num_squares_, other.num_squares_);
-      for (int s = 0; s < squares_.size(); ++s)
+      for (int s = 0; s < squares_.size(); ++s) {
         EXPECT_EQ(squares_[s], other.squares_[s]);
+      }
       EXPECT_EQ(num_triangles_, other.num_triangles_);
-      for (int s = 0; s < triangles_.size(); ++s)
+      for (int s = 0; s < triangles_.size(); ++s) {
         EXPECT_EQ(triangles_[s], other.triangles_[s]);
+      }
     }
     bool Serialize(TFile *fp) {
-      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1)
+      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1) {
         return false;
-      if (!fp->Serialize(squares_))
+      }
+      if (!fp->Serialize(squares_)) {
         return false;
-      if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1)
+      }
+      if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1) {
         return false;
-      if (!fp->Serialize(triangles_))
+      }
+      if (!fp->Serialize(triangles_)) {
         return false;
+      }
       return true;
     }
     bool DeSerialize(TFile *fp) {
-      if (fp->FReadEndian(&num_squares_, sizeof(num_squares_), 1) != 1)
+      if (fp->FReadEndian(&num_squares_, sizeof(num_squares_), 1) != 1) {
         return false;
-      if (!fp->DeSerialize(squares_))
+      }
+      if (!fp->DeSerialize(squares_)) {
         return false;
-      if (fp->FReadEndian(&num_triangles_, sizeof(num_triangles_), 1) != 1)
+      }
+      if (fp->FReadEndian(&num_triangles_, sizeof(num_triangles_), 1) != 1) {
         return false;
-      if (!fp->DeSerialize(triangles_))
+      }
+      if (!fp->DeSerialize(triangles_)) {
         return false;
+      }
       return true;
     }
     bool SerializeBigEndian(TFile *fp) {
       ReverseN(&num_squares_, sizeof(num_squares_));
-      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1)
+      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1) {
         return false;
+      }
       // Write an additional reversed size before the vector, which will get
       // used as its size on reading.
-      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1)
+      if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1) {
         return false;
-      for (int &square : squares_)
+      }
+      for (int &square : squares_) {
         ReverseN(&square, sizeof(square));
-      if (!fp->Serialize(squares_))
+      }
+      if (!fp->Serialize(squares_)) {
         return false;
+      }
       ReverseN(&num_triangles_, sizeof(num_triangles_));
-      if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1)
+      if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1) {
         return false;
-      if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1)
+      }
+      if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1) {
         return false;
-      for (auto &triangle : triangles_)
+      }
+      for (auto &triangle : triangles_) {
         ReverseN(&triangle, sizeof(triangles_[0]));
+      }
       return fp->Serialize(triangles_);
     }
     bool DeSerializeBigEndian(TFile *fp) {
-      if (fp->FReadEndian(&num_squares_, sizeof(num_squares_), 1) != 1)
+      if (fp->FReadEndian(&num_squares_, sizeof(num_squares_), 1) != 1) {
         return false;
-      if (!fp->DeSerialize(squares_))
+      }
+      if (!fp->DeSerialize(squares_)) {
         return false;
+      }
       // The first element is the size that was written, so we will delete it
       // and read the last element separately.
       int last_element;
-      if (fp->FReadEndian(&last_element, sizeof(last_element), 1) != 1)
+      if (fp->FReadEndian(&last_element, sizeof(last_element), 1) != 1) {
         return false;
+      }
       squares_.erase(squares_.begin());
       squares_.push_back(last_element);
-      if (fp->FReadEndian(&num_triangles_, sizeof(num_triangles_), 1) != 1)
+      if (fp->FReadEndian(&num_triangles_, sizeof(num_triangles_), 1) != 1) {
         return false;
-      if (!fp->DeSerialize(triangles_))
+      }
+      if (!fp->DeSerialize(triangles_)) {
         return false;
-      if (fp->FReadEndian(&last_element, sizeof(last_element), 1) != 1)
+      }
+      if (fp->FReadEndian(&last_element, sizeof(last_element), 1) != 1) {
         return false;
+      }
       triangles_.erase(triangles_.begin());
       triangles_.push_back(last_element);
       return true;

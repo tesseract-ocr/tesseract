@@ -85,8 +85,9 @@ public:
                      std::vector<ShapeRating> *results) override {
     results->clear();
     // Everything except the first kNumNonReject is a reject.
-    if (++num_done_ > kNumNonReject)
+    if (++num_done_ > kNumNonReject) {
       return 0;
+    }
 
     int class_id = sample.class_id();
     int font_id = sample.font_id();
@@ -256,8 +257,9 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
   LoadMasterTrainer();
   // Add the space character to the shape_table_ if not already present to
   // count junk.
-  if (shape_table_->FindShape(0, -1) < 0)
+  if (shape_table_->FindShape(0, -1) < 0) {
     shape_table_->AddShape(0, 0);
+  }
   // Make a mock classifier.
   auto shape_classifier = std::make_unique<MockClassifier>(shape_table_);
   // Get the accuracy report.

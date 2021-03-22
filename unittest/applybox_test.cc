@@ -66,10 +66,11 @@ protected:
       GTEST_SKIP();
       return;
     }
-    if (line_mode)
+    if (line_mode) {
       api_.SetVariable("tessedit_resegment_from_line_boxes", "1");
-    else
+    } else {
       api_.SetVariable("tessedit_resegment_from_boxes", "1");
+    }
     api_.Recognize(nullptr);
     char *ocr_text = api_.GetUTF8Text();
     EXPECT_STREQ(truth_str, ocr_text);

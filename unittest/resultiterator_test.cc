@@ -54,8 +54,9 @@ protected:
     int depth = pixGetDepth(src_pix_);
     Pix *pix = pixCreate(width, height, depth);
     EXPECT_TRUE(depth == 1 || depth == 8);
-    if (depth == 8)
+    if (depth == 8) {
       pixSetAll(pix);
+    }
     do {
       int left, top, right, bottom;
       PageIteratorLevel im_level = level;
@@ -121,8 +122,9 @@ protected:
           result += ' ';
         }
         if (it->IsAtFinalElement(tesseract::RIL_PARA, level) &&
-            !(it->IsAtFinalElement(tesseract::RIL_BLOCK, level)))
+            !(it->IsAtFinalElement(tesseract::RIL_BLOCK, level))) {
           result += '\n';
+        }
       }
     } while (it->Next(level));
     EXPECT_STREQ(truth.c_str(), result.c_str()) << "Rebuild failed at Text Level " << level;
@@ -184,8 +186,9 @@ protected:
     std::sort(output_copy.begin(), output_copy.end());
     bool sane = true;
     int j = 0;
-    while (j < output_copy.size() && output_copy[j] < 0)
+    while (j < output_copy.size() && output_copy[j] < 0) {
       j++;
+    }
     for (int i = 0; i < num_words; i++, j++) {
       if (output_copy[j] != i) {
         sane = false;
@@ -380,8 +383,9 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
         EXPECT_TRUE(smallcaps) << word_str;
         ++found_smallcaps;
       } else {
-        if (smallcaps)
+        if (smallcaps) {
           ++false_positives;
+        }
       }
       // No symbol other than the first of any word should be dropcap.
       ResultIterator s_it(*r_it);
@@ -530,11 +534,12 @@ TEST_F(ResultIteratorTest, DISABLED_NonNullChoicesTest) {
         tesseract::ChoiceIterator c_it(s_it);
         do {
           const char *char_str = c_it.GetUTF8Text();
-          if (char_str == nullptr)
+          if (char_str == nullptr) {
             LOG(INFO) << "Null char choice"
                       << "\n";
-          else
+          } else {
             LOG(INFO) << "Char choice " << char_str << "\n";
+          }
           CHECK(char_str != nullptr);
         } while (c_it.Next());
       } while (!s_it.IsAtFinalElement(tesseract::RIL_WORD, tesseract::RIL_SYMBOL) &&

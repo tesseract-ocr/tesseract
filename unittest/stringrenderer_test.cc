@@ -62,13 +62,15 @@ protected:
   }
 
   void DisplayClusterBoxes(Pix *pix) {
-    if (!FLAGS_display)
+    if (!FLAGS_display) {
       return;
+    }
     const std::vector<BoxChar *> &boxchars = renderer_->GetBoxes();
     Boxa *boxes = boxaCreate(0);
     for (const auto &boxchar : boxchars) {
-      if (boxchar->box())
+      if (boxchar->box()) {
         boxaAddBox(boxes, const_cast<Box *>(boxchar->box()), L_CLONE);
+      }
     }
     Pix *box_pix = pixDrawBoxaRandom(pix, boxes, 1);
     boxaDestroy(&boxes);
@@ -194,8 +196,9 @@ TEST_F(StringRendererTest, DoesRenderLigatures) {
 
 static int FindBoxCharXCoord(const std::vector<BoxChar *> &boxchars, const std::string &ch) {
   for (const auto &boxchar : boxchars) {
-    if (boxchar->ch() == ch)
+    if (boxchar->ch() == ch) {
       return boxchar->box()->x;
+    }
   }
   return INT_MAX;
 }
@@ -397,8 +400,9 @@ TEST_F(StringRendererTest, DoesRenderAllFontsToImage) {
       EXPECT_TRUE(pix != nullptr);
       EXPECT_STRNE("", font_used.c_str());
     }
-    if (FLAGS_display)
+    if (FLAGS_display) {
       pixDisplay(pix, 0, 0);
+    }
     pixDestroy(&pix);
   } while (offset < strlen(kEngText));
 }

@@ -167,8 +167,9 @@ static void VerifyTextResult(TessBaseAPI *tess, Pix *pix, const std::string &lan
   std::string ocr_text;
   GetCleanedText(tess_local, pix, &ocr_text);
   EXPECT_STREQ(expected_text.c_str(), ocr_text.c_str());
-  if (tess_local != tess)
+  if (tess_local != tess) {
     delete tess_local;
+  }
 }
 
 // Check that Tesseract/Cube produce the correct results in single-threaded

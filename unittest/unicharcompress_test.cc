@@ -79,8 +79,9 @@ protected:
     // Count the number of times each code is used in each element of
     // RecodedCharID.
     RecodedCharID zeros;
-    for (int i = 0; i < RecodedCharID::kMaxCodeLen; ++i)
+    for (int i = 0; i < RecodedCharID::kMaxCodeLen; ++i) {
       zeros.Set(i, 0);
+    }
     int code_range = compressed_.code_range();
     std::vector<RecodedCharID> times_seen(code_range, zeros);
     for (int u = 0; u <= unicharset_.size(); ++u) {
@@ -112,8 +113,9 @@ protected:
     for (int c = 0; c < code_range; ++c) {
       int num_used = 0;
       for (int i = 0; i < RecodedCharID::kMaxCodeLen; ++i) {
-        if (times_seen[c](i) != 0)
+        if (times_seen[c](i) != 0) {
           ++num_used;
+        }
       }
       EXPECT_GE(num_used, 1) << "c=" << c << "/" << code_range;
     }

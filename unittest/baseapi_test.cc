@@ -308,8 +308,9 @@ TEST_F(TesseractTest, InitConfigOnlyTest) {
 // OEM_DEFAULT mode.
 TEST(TesseractInstanceTest, TestMultipleTessInstances) {
   int num_langs = 0;
-  while (langs[num_langs] != nullptr)
+  while (langs[num_langs] != nullptr) {
     ++num_langs;
+  }
 
   const std::string kTessdataPath = TESSDATA_DIR;
 
@@ -344,8 +345,9 @@ TEST(TesseractInstanceTest, TestMultipleTessInstances) {
     }
   }
 
-  for (int i = 0; i < num_langs; ++i)
+  for (int i = 0; i < num_langs; ++i) {
     pixDestroy(&pix[i]);
+  }
 }
 
 // Tests whether Tesseract parameters are correctly set for the two instances.
