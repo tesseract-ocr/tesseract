@@ -1,0 +1,68 @@
+name: msys2
+# msys2 build for tesseract -head from master branch.
+on:
+  #push:
+  schedule:
+    - cron: 0 17 * * *
+jobs:
+  windows:
+    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - msystem: MINGW32
+            mingw_package_prefix: mingw-w64-i686
+          - msystem: MINGW64
+            mingw_package_prefix: mingw-w64-x86_64
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.msystem }}
+        install: autoconf automake automake-wrapper git libtool make
+    - run: pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-gcc
+    - run: gcc --version
+
+    - name: Install dependencies
+      run: |
+           pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-cairo
+           pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-curl
+           pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-gcc-libs
+           pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-icu
+           pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-leptonica
+           pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-libarchive
+           pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-pango
+           pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-pkg-config
+           pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-zlib
+
+    - name: Build and install tesseract and training tools
+      run: |
+           ./autogen.sh
+           ./configure
+           make
+           make training
+           make install
+           make training-install
+
+    - name: Display version
+      run: |
+           tesseract -v
+           text2image -v
+           lstmtraining -v
+
+    - name: Download fonts, tessdata and langdata required for tests
+      run: |
+           git clone https://github.com/egorpugin/tessdata tessdata_unittest
+           cp tessdata_unittest/fonts/* test/testing/
+           mv tessdata_unittest/* ../
+
+    - name: Run Tesseract on phototest.tif and devatest.png
+      run: |
+           tesseract test/testing/phototest.tif -  --tessdata-dir ../tessdata
+           tesseract test/testing/devatest.png - -l hin+eng  --tessdata-dir ../tessdata
