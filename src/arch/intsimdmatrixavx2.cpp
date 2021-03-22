@@ -15,11 +15,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if !defined(__AVX2__)
- #if defined(__i686__) || defined(__x86_64__)
-  #error Implementation only for AVX2 capable architectures
- #endif
-#else
+#if defined(__AVX2__)
 
 #include "intsimdmatrix.h"
 

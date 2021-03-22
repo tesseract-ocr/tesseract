@@ -15,11 +15,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if !defined(__SSE4_1__)
- #if defined(__i686__) || defined(__x86_64__)
-  #error Implementation only for SSE 4.1 capable architectures
- #endif
-#else
+#if defined(__SSE4_1__)
 
 #include <emmintrin.h>
 #include <smmintrin.h>

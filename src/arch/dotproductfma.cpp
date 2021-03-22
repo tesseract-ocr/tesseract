@@ -15,11 +15,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if !defined(__FMA__)
- #if defined(__i686__) || defined(__x86_64__)
-  #error Implementation only for FMA capable architectures
- #endif
-#else
+#if defined(__FMA__)
 
 #include <immintrin.h>
 #include <cstdint>
