@@ -151,7 +151,7 @@ TEST_F(HeapTest, RevalueTest) {
   // heap entry, wherever it may be. We can change its value via that pointer.
   // Without Reshuffle, that would be a terribly bad thing to do, as it violates
   // the heap invariant, making the heap corrupt.
-  PtrPair *pair_ptr = reinterpret_cast<PtrPair *>(v[0].data().OtherEnd());
+  auto *pair_ptr = reinterpret_cast<PtrPair *>(v[0].data().OtherEnd());
   pair_ptr->key() = v[0].key();
   heap.Reshuffle(pair_ptr);
   // Index 1 is 1. Change to 32767.

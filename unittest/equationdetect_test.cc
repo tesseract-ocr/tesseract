@@ -44,17 +44,17 @@ public:
     CHECK_LE(math_blobs + digit_blobs, total_blobs);
     int count = 0;
     for (int i = 0; i < math_blobs; i++, count++) {
-      BLOBNBOX *blob = new BLOBNBOX();
+      auto *blob = new BLOBNBOX();
       blob->set_special_text_type(BSTT_MATH);
       part->AddBox(blob);
     }
     for (int i = 0; i < digit_blobs; i++, count++) {
-      BLOBNBOX *blob = new BLOBNBOX();
+      auto *blob = new BLOBNBOX();
       blob->set_special_text_type(BSTT_DIGIT);
       part->AddBox(blob);
     }
     for (int i = count; i < total_blobs; i++) {
-      BLOBNBOX *blob = new BLOBNBOX();
+      auto *blob = new BLOBNBOX();
       blob->set_special_text_type(BSTT_NONE);
       part->AddBox(blob);
     }
@@ -141,7 +141,7 @@ protected:
     CHECK(pix != nullptr);
     CHECK(blocks != nullptr);
     BLOCK_IT block_it(blocks);
-    BLOCK *block = new BLOCK("", true, 0, 0, 0, 0, pixGetWidth(pix), pixGetHeight(pix));
+    auto *block = new BLOCK("", true, 0, 0, 0, 0, pixGetWidth(pix), pixGetHeight(pix));
     block_it.add_to_end(block);
   }
 
@@ -171,7 +171,7 @@ protected:
   // Create a BLOBNBOX object with bounding box tbox, and add it into part.
   void AddBlobIntoPart(const TBOX &tbox, ColPartition *part) {
     CHECK(part != nullptr);
-    BLOBNBOX *blob = new BLOBNBOX();
+    auto *blob = new BLOBNBOX();
     blob->set_bounding_box(tbox);
     part->AddBox(blob);
   }

@@ -201,7 +201,7 @@ TEST_F(TableFinderTest, SplitAndInsertFragmentedPartitionsBasicPass) {
   finder_->set_global_median_xheight(10);
 
   TBOX part_box(10, 5, 100, 15);
-  ColPartition *all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
+  auto *all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
   all->set_type(PT_FLOWING_TEXT);
   all->set_blob_type(BRT_TEXT);
   all->set_flow(BTFT_CHAIN);
@@ -241,7 +241,7 @@ TEST_F(TableFinderTest, SplitAndInsertFragmentedPartitionsBasicFail) {
   finder_->set_global_median_xheight(10);
 
   TBOX part_box(10, 5, 100, 15);
-  ColPartition *all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
+  auto *all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
   all->set_type(PT_FLOWING_TEXT);
   all->set_blob_type(BRT_TEXT);
   all->set_flow(BTFT_CHAIN);

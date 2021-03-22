@@ -1097,7 +1097,7 @@ bool TessBaseAPI::ProcessPages(const char *filename, const char *retry_config, i
 #ifdef HAVE_LIBCURL
 static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
   size = size * nmemb;
-  std::string *buf = reinterpret_cast<std::string *>(userp);
+  auto *buf = reinterpret_cast<std::string *>(userp);
   buf->append(reinterpret_cast<const char *>(contents), size);
   return size;
 }
