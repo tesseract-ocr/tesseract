@@ -79,7 +79,7 @@ run_command() {
     shift
     tlog "[$(date)] ${cmd} $@"
     if ! "${cmd}" "$@" 2>&1 | tee -a "${LOG_FILE}"; then
-        err_exit "Program $(basename ${cmd}) failed. Abort."
+        err_exit "Program $(basename ${cmd}) failed. Abort. Command line: ${cmd} $@"
     fi
 }
 
