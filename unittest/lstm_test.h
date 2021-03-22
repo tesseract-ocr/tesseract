@@ -92,7 +92,7 @@ protected:
     EXPECT_TRUE(
         trainer_->InitNetwork(network_spec.c_str(), -1, net_mode, 0.1, learning_rate, 0.9, 0.999));
     std::vector<std::string> filenames;
-    filenames.push_back(std::string(TestDataNameToPath(lstmf_file).c_str()));
+    filenames.emplace_back(TestDataNameToPath(lstmf_file).c_str());
     EXPECT_TRUE(trainer_->LoadAllTrainingData(filenames, CS_SEQUENTIAL, false));
     LOG(INFO) << "Setup network:" << model_name << "\n";
   }

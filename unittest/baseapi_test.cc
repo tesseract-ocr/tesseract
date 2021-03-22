@@ -287,8 +287,8 @@ TEST_F(TesseractTest, InitConfigOnlyTest) {
   }
   // Init variables to set for config-only initialization.
   std::vector<std::string> vars_vec, vars_values;
-  vars_vec.push_back("tessedit_init_config_only");
-  vars_values.push_back("1");
+  vars_vec.emplace_back("tessedit_init_config_only");
+  vars_values.emplace_back("1");
   LOG(INFO) << "Switching to config only initialization:";
   for (auto &lang : langs) {
     api = std::make_unique<tesseract::TessBaseAPI>();

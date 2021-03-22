@@ -148,9 +148,9 @@ void EvaluateParagraphDetection(const TextAndModel *correct, int n,
   EXPECT_EQ(bad_crowns, 0);
   if (incorrect_breaks || missed_breaks || poorly_matched_models || bad_list_items || bad_crowns) {
     std::vector<std::string> dbg_lines;
-    dbg_lines.push_back("# ==========================");
-    dbg_lines.push_back("# Correct paragraph breaks:");
-    dbg_lines.push_back("# ==========================");
+    dbg_lines.emplace_back("# ==========================");
+    dbg_lines.emplace_back("# Correct paragraph breaks:");
+    dbg_lines.emplace_back("# ==========================");
     for (int i = 0; i < n; i++) {
       if (correct[i].model_type != PCONT) {
         dbg_lines.push_back(absl::StrCat(correct[i].ascii, "  #  ",
@@ -158,13 +158,13 @@ void EvaluateParagraphDetection(const TextAndModel *correct, int n,
                                          correct[i].is_very_first_or_continuation ? " crown" : "",
                                          correct[i].is_list_item ? " li" : ""));
       } else {
-        dbg_lines.push_back(correct[i].ascii);
+        dbg_lines.emplace_back(correct[i].ascii);
       }
     }
-    dbg_lines.push_back("");
-    dbg_lines.push_back("# ==========================");
-    dbg_lines.push_back("# Paragraph detector output:");
-    dbg_lines.push_back("# ==========================");
+    dbg_lines.emplace_back("");
+    dbg_lines.emplace_back("# ==========================");
+    dbg_lines.emplace_back("# Paragraph detector output:");
+    dbg_lines.emplace_back("# ==========================");
     for (int i = 0; i < n; i++) {
       std::string annotation;
       if (i == 0 || (detector_output[i - 1] != detector_output[i])) {

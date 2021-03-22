@@ -71,9 +71,9 @@ protected:
     if (FLAGS_test_tesseract) {
       int i = 0;
       while (kTessLangs[i] && kTessTruthText[i] && kTessImages[i]) {
-        langs_.push_back(kTessLangs[i]);
-        gt_text_.push_back(kTessTruthText[i]);
-        image_files.push_back(kTessImages[i]);
+        langs_.emplace_back(kTessLangs[i]);
+        gt_text_.emplace_back(kTessTruthText[i]);
+        image_files.emplace_back(kTessImages[i]);
         ++i;
       }
       LOG(INFO) << "Testing Tesseract on " << i << " languages.";
@@ -81,9 +81,9 @@ protected:
     if (FLAGS_test_cube) {
       int i = 0;
       while (kCubeLangs[i] && kCubeTruthText[i] && kCubeImages[i]) {
-        langs_.push_back(kCubeLangs[i]);
-        gt_text_.push_back(kCubeTruthText[i]);
-        image_files.push_back(kCubeImages[i]);
+        langs_.emplace_back(kCubeLangs[i]);
+        gt_text_.emplace_back(kCubeTruthText[i]);
+        image_files.emplace_back(kCubeImages[i]);
         ++i;
       }
       LOG(INFO) << "Testing Cube on " << i << " languages.";
