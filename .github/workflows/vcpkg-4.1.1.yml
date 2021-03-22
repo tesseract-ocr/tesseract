@@ -1,13 +1,11 @@
-name: vcpkg-4.11
+name: vcpkg-4.1.1
 # build tesseract 4.1 using vcpkg and cmake on ubuntu and windows.
 # build and run basicapitest on windows.
 # macos fails on leptonica build - https://github.com/microsoft/vcpkg/issues/16116
 on:
   #push:
   schedule:
-    - cron: 0 22 * * *
-env:
-    DEVELOPER_DIR: /Applications/Xcode_11.2.1.app/Contents/Developer
+    - cron: 0 22 1 * *
 
 jobs:
   build:
@@ -15,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest ]
 
     steps:
       - name: Checkout Tesseract Source (for test images)
@@ -96,9 +94,11 @@ jobs:
              D:\a\tesseract\tesseract\test\Release\basicapitest.exe
         if: runner.os == 'Windows'
 
-      - name: Build Tesseract 4.1.1 (macOS) Fails
+      - name: Build Tesseract 4.1.1 (macOS) Leptonica build fails
         run: |
-             xcode-select --print-path
+             git clone https://github.com/microsoft/vcpkg
+             vcpkg/bootstrap-vcpkg.sh
+             vcpkg/vcpkg integrate install
              vcpkg install leptonica:x64-osx
              vcpkg install tesseract:x64-osx
         if: runner.os == 'macOS'
@@ -106,4 +106,4 @@ jobs:
       - name: Display Leptonica error log (macOS) Fails
         run: |
              cat /usr/local/share/vcpkg/buildtrees/leptonica/install-x64-osx-dbg-out.log
-        if: runner.os == 'macOS'
+        if: ${{ runner.os == 'macOS' && always() }}
