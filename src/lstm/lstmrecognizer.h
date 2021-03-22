@@ -297,7 +297,7 @@ protected:
 
   // Returns a string corresponding to the label starting at start. Sets *end
   // to the next start and if non-null, *decoded to the unichar id.
-  const char *DecodeLabel(const std::vector<int> &labels, int start, int *end, int *decoded);
+  const char *DecodeLabel(const std::vector<int> &labels, unsigned start, unsigned *end, int *decoded);
 
   // Returns a string corresponding to a given single label id, falling back to
   // a default of ".." for part of a multi-label unichar-id.

@@ -185,7 +185,7 @@ protected:
     std::vector<int> output_copy(output);
     std::sort(output_copy.begin(), output_copy.end());
     bool sane = true;
-    int j = 0;
+    unsigned j = 0;
     while (j < output_copy.size() && output_copy[j] < 0) {
       j++;
     }

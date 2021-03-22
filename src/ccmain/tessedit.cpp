@@ -131,7 +131,7 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0, const std::str
   // Set params specified in vars_vec (done after setting params from config
   // files, so that params in vars_vec can override those from files).
   if (vars_vec != nullptr && vars_values != nullptr) {
-    for (int i = 0; i < vars_vec->size(); ++i) {
+    for (unsigned i = 0; i < vars_vec->size(); ++i) {
       if (!ParamUtils::SetParam((*vars_vec)[i].c_str(), (*vars_values)[i].c_str(),
                                 set_params_constraint, this->params())) {
         tprintf("Warning: The parameter '%s' was not found.\n", (*vars_vec)[i].c_str());
@@ -296,7 +296,7 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
   // Add any languages that this language requires
   bool loaded_primary = false;
   // Load the rest into sub_langs_.
-  for (int lang_index = 0; lang_index < langs_to_load.size(); ++lang_index) {
+  for (unsigned lang_index = 0; lang_index < langs_to_load.size(); ++lang_index) {
     if (!IsStrInList(langs_to_load[lang_index], langs_not_to_load)) {
       const char *lang_str = langs_to_load[lang_index].c_str();
       Tesseract *tess_to_init;

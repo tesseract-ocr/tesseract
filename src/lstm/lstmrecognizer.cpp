@@ -268,7 +268,7 @@ void LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
       search_->extractSymbolChoices(&GetUnicharset());
     }
     search_->segmentTimestepsByCharacters();
-    int char_it = 0;
+    unsigned char_it = 0;
     for (int i = 0; i < words->size(); ++i) {
       for (int j = 0; j < words->at(i)->end; ++j) {
         if (char_it < search_->ctc_choices.size()) {
@@ -386,8 +386,8 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
 // augmented with character boundaries.
 std::string LSTMRecognizer::DecodeLabels(const std::vector<int> &labels) {
   std::string result;
-  int end = 1;
-  for (int start = 0; start < labels.size(); start = end) {
+  unsigned end = 1;
+  for (unsigned start = 0; start < labels.size(); start = end) {
     if (labels[start] == null_char_) {
       end = start + 1;
     } else {
@@ -417,8 +417,8 @@ void LSTMRecognizer::DisplayLSTMOutput(const std::vector<int> &labels,
                                        ScrollView *window) {
   int x_scale = network_->XScaleFactor();
   window->TextAttributes("Arial", height / 4, false, false, false);
-  int end = 1;
-  for (int start = 0; start < labels.size(); start = end) {
+  unsigned end = 1;
+  for (unsigned start = 0; start < labels.size(); start = end) {
     int xpos = xcoords[start] * x_scale;
     if (labels[start] == null_char_) {
       end = start + 1;
@@ -446,8 +446,8 @@ void LSTMRecognizer::DebugActivationPath(const NetworkIO &outputs, const std::ve
   if (xcoords[0] > 0) {
     DebugActivationRange(outputs, "<null>", null_char_, 0, xcoords[0]);
   }
-  int end = 1;
-  for (int start = 0; start < labels.size(); start = end) {
+  unsigned end = 1;
+  for (unsigned start = 0; start < labels.size(); start = end) {
     if (labels[start] == null_char_) {
       end = start + 1;
       DebugActivationRange(outputs, "<null>", null_char_, xcoords[start], xcoords[end]);
@@ -456,7 +456,7 @@ void LSTMRecognizer::DebugActivationPath(const NetworkIO &outputs, const std::ve
       int decoded;
       const char *label = DecodeLabel(labels, start, &end, &decoded);
       DebugActivationRange(outputs, label, labels[start], xcoords[start], xcoords[start + 1]);
-      for (int i = start + 1; i < end; ++i) {
+      for (unsigned i = start + 1; i < end; ++i) {
         DebugActivationRange(outputs, DecodeSingleLabel(labels[i]), labels[i], xcoords[i],
                              xcoords[i + 1]);
       }
@@ -550,7 +550,7 @@ void LSTMRecognizer::LabelsViaSimpleText(const NetworkIO &output, std::vector<in
 
 // Returns a string corresponding to the label starting at start. Sets *end
 // to the next start and if non-null, *decoded to the unichar id.
-const char *LSTMRecognizer::DecodeLabel(const std::vector<int> &labels, int start, int *end,
+const char *LSTMRecognizer::DecodeLabel(const std::vector<int> &labels, unsigned start, unsigned *end,
                                         int *decoded) {
   *end = start + 1;
   if (IsRecoding()) {
@@ -563,7 +563,7 @@ const char *LSTMRecognizer::DecodeLabel(const std::vector<int> &labels, int star
       }
       return "<null>";
     }
-    int index = start;
+    unsigned index = start;
     while (index < labels.size() && code.length() < RecodedCharID::kMaxCodeLen) {
       code.Set(code.length(), labels[index++]);
       while (index < labels.size() && labels[index] == null_char_) {
