@@ -24,7 +24,7 @@ protected:
     std::locale::global(std::locale(""));
   }
 
-  TfileTest() {}
+  TfileTest() = default;
 
   // Some data to serialize.
   class MathData {

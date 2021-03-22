@@ -73,7 +73,7 @@ public:
     false_unichar_id_ = 67;
     false_shape_ = shape_table_->AddShape(false_unichar_id_, 25);
   }
-  ~MockClassifier() override {}
+  ~MockClassifier() override = default;
 
   // Classifies the given [training] sample, writing to results.
   // If debug is non-zero, then various degrees of classifier dependent debug

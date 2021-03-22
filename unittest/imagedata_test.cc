@@ -30,7 +30,7 @@ protected:
     file::MakeTmpdir();
   }
 
-  ImagedataTest() {}
+  ImagedataTest() = default;
 
   // Creates a fake DocumentData, writes it to a file, and returns the filename.
   std::string MakeFakeDoc(int num_pages, unsigned doc_id, std::vector<std::string> *page_texts) {

@@ -50,7 +50,7 @@ protected:
     file::MakeTmpdir();
   }
 
-  LSTMTrainerTest() {}
+  LSTMTrainerTest() = default;
   std::string TestDataNameToPath(const std::string &name) {
     return file::JoinPath(TESTDATA_DIR, "" + name);
   }
