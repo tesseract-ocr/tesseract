@@ -576,7 +576,8 @@ bool DocumentData::ReCachePages() {
       delete page;
     }
     pages_.clear();
-  } else {
+  } else if (loaded_pages > 1) {
+    // Avoid lots of messages for training with single line images.
     tprintf("Loaded %zu/%d lines (%d-%zu) of document %s\n", pages_.size(), loaded_pages,
             pages_offset_ + 1, pages_offset_ + pages_.size(), document_name_.c_str());
   }
