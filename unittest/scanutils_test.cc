@@ -94,8 +94,9 @@ TEST_F(ScanutilsTest, DoesScanf) {
   r1 = fscanf(fp1, "%f %f %f %f", &f1[0], &f1[1], &f1[2], &f1[3]);
   r2 = tfscanf(fp2, "%f %f %f %f", &f2[0], &f2[1], &f2[2], &f2[3]);
   EXPECT_EQ(r1, r2);
-  for (int i = 0; i < kNumFloats; ++i)
+  for (int i = 0; i < kNumFloats; ++i) {
     EXPECT_FLOAT_EQ(f1[i], f2[i]);
+  }
   // Test the * for field suppression.
   r1 = fscanf(fp1, "%d %*s %*d %*f %*f", &i1[0]);
   r2 = tfscanf(fp2, "%d %*s %*d %*f %*f", &i2[0]);

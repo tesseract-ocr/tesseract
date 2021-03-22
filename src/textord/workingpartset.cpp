@@ -39,8 +39,9 @@ void WorkingPartSet::AddPartition(ColPartition *part) {
   } else if (latest_part_->SingletonPartner(false) != part) {
     // Reposition the iterator to the correct partner, or at the end.
     for (part_it_.move_to_first(); !part_it_.at_last() && part_it_.data() != partner;
-         part_it_.forward())
+         part_it_.forward()) {
       ;
+    }
   }
   part_it_.add_after_then_move(part);
   latest_part_ = part;
@@ -88,8 +89,9 @@ void WorkingPartSet::MakeBlocks(const ICOORD &bleft, const ICOORD &tright, int r
     bool text_block = false;
     do {
       ColPartition *part = part_it_.extract();
-      if (part->blob_type() == BRT_UNKNOWN || (part->IsTextType() && part->type() != PT_TABLE))
+      if (part->blob_type() == BRT_UNKNOWN || (part->IsTextType() && part->type() != PT_TABLE)) {
         text_block = true;
+      }
       part->set_working_set(nullptr);
       part_it_.forward();
       block_it.add_after_then_move(part);
@@ -110,8 +112,9 @@ void WorkingPartSet::MakeBlocks(const ICOORD &bleft, const ICOORD &tright, int r
         PolyBlockType type = part->type(), next_type = next_block_part->type();
         if (ColPartition::TypesSimilar(type, next_type) && !part->IsLineType() &&
             !next_block_part->IsLineType() && next_box.bottom() <= part_box.top() &&
-            (text_block || part_box.bottom() <= next_box.top()))
+            (text_block || part_box.bottom() <= next_box.top())) {
           next_part = next_block_part;
+        }
       }
     } while (!part_it_.empty() && next_part != nullptr);
     if (!text_block) {

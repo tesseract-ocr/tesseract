@@ -74,8 +74,9 @@ public:
   }
 
   LossType OutputLossType() const {
-    if (network_ == nullptr)
+    if (network_ == nullptr) {
       return LT_NONE;
+    }
     StaticShape shape;
     shape = network_->OutputShape(shape);
     return shape.loss_type();

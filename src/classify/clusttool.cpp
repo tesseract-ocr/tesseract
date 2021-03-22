@@ -64,8 +64,9 @@ static float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
     stream >> f;
     if (std::isnan(f)) {
       tprintf("Read of %u floats failed!\n", N);
-      if (needs_free)
+      if (needs_free) {
         free(Buffer);
+      }
       return nullptr;
     }
     Buffer[i] = f;
@@ -81,8 +82,9 @@ static float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
  * @param Array array of floats to write
  */
 static void WriteNFloats(FILE *File, uint16_t N, float Array[]) {
-  for (int i = 0; i < N; i++)
+  for (int i = 0; i < N; i++) {
     fprintf(File, " %9.6f", Array[i]);
+  }
   fprintf(File, "\n");
 }
 
@@ -255,15 +257,17 @@ void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]) {
   int i;
 
   for (i = 0; i < N; i++) {
-    if (ParamDesc[i].Circular)
+    if (ParamDesc[i].Circular) {
       fprintf(File, "circular ");
-    else
+    } else {
       fprintf(File, "linear   ");
+    }
 
-    if (ParamDesc[i].NonEssential)
+    if (ParamDesc[i].NonEssential) {
       fprintf(File, "non-essential ");
-    else
+    } else {
       fprintf(File, "essential     ");
+    }
 
     fprintf(File, "%10.6f %10.6f\n", ParamDesc[i].Min, ParamDesc[i].Max);
   }
@@ -279,10 +283,11 @@ void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]) {
 void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
   int i;
 
-  if (Proto->Significant)
+  if (Proto->Significant) {
     fprintf(File, "significant   ");
-  else
+  } else {
     fprintf(File, "insignificant ");
+  }
   WriteProtoStyle(File, static_cast<PROTOSTYLE>(Proto->Style));
   fprintf(File, "%6d\n\t", Proto->NumSamples);
   WriteNFloats(File, N, Proto->Mean);
@@ -296,7 +301,7 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
       WriteNFloats(File, N, Proto->Variance.Elliptical);
       break;
     case mixed:
-      for (i = 0; i < N; i++)
+      for (i = 0; i < N; i++) {
         switch (Proto->Distrib[i]) {
           case normal:
             fprintf(File, " %9s", "normal");
@@ -310,6 +315,7 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
           case DISTRIBUTION_COUNT:
             ASSERT_HOST(!"Distribution count not allowed!");
         }
+      }
       fprintf(File, "\n\t");
       WriteNFloats(File, N, Proto->Variance.Elliptical);
   }

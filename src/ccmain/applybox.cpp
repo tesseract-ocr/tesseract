@@ -148,8 +148,9 @@ PAGE_RES *Tesseract::ApplyBoxes(const char *filename, bool find_segmentation,
   if (applybox_debug > 0) {
     tprintf("APPLY_BOXES:\n");
     tprintf("   Boxes read from boxfile:  %6d\n", box_count);
-    if (box_failures > 0)
+    if (box_failures > 0) {
       tprintf("   Boxes failed resegmentation:  %6d\n", box_failures);
+    }
   }
   TidyUp(page_res);
   return page_res;
@@ -314,8 +315,9 @@ bool Tesseract::ResegmentCharBox(PAGE_RES *page_res, const TBOX *prev_box, const
   PAGE_RES_IT page_res_it(page_res);
   WERD_RES *word_res;
   for (word_res = page_res_it.word(); word_res != nullptr; word_res = page_res_it.forward()) {
-    if (!word_res->box_word->bounding_box().major_overlap(box))
+    if (!word_res->box_word->bounding_box().major_overlap(box)) {
       continue;
+    }
     if (applybox_debug > 1) {
       tprintf("Checking word box:");
       word_res->box_word->bounding_box().print();
@@ -326,10 +328,12 @@ bool Tesseract::ResegmentCharBox(PAGE_RES *page_res, const TBOX *prev_box, const
       int blob_count = 0;
       for (blob_count = 0; i + blob_count < word_len; ++blob_count) {
         TBOX blob_box = word_res->box_word->BlobBox(i + blob_count);
-        if (!blob_box.major_overlap(box))
+        if (!blob_box.major_overlap(box)) {
           break;
-        if (word_res->correct_text[i + blob_count].length() > 0)
+        }
+        if (word_res->correct_text[i + blob_count].length() > 0) {
           break; // Blob is claimed already.
+        }
         if (next_box != nullptr) {
           const double current_box_miss_metric = BoxMissMetric(blob_box, box);
           const double next_box_miss_metric = BoxMissMetric(blob_box, *next_box);
@@ -339,8 +343,9 @@ bool Tesseract::ResegmentCharBox(PAGE_RES *page_res, const TBOX *prev_box, const
             tprintf("Current miss metric = %g, next = %g\n", current_box_miss_metric,
                     next_box_miss_metric);
           }
-          if (current_box_miss_metric > next_box_miss_metric)
+          if (current_box_miss_metric > next_box_miss_metric) {
             break; // Blob is a better match for next box.
+          }
         }
         char_box += blob_box;
       }
@@ -415,13 +420,15 @@ bool Tesseract::ResegmentWordBox(BLOCK_LIST *block_list, const TBOX &box, const 
   BLOCK_IT b_it(block_list);
   for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
     BLOCK *block = b_it.data();
-    if (!box.major_overlap(block->pdblk.bounding_box()))
+    if (!box.major_overlap(block->pdblk.bounding_box())) {
       continue;
+    }
     ROW_IT r_it(block->row_list());
     for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward()) {
       ROW *row = r_it.data();
-      if (!box.major_overlap(row->bounding_box()))
+      if (!box.major_overlap(row->bounding_box())) {
         continue;
+      }
       WERD_IT w_it(row->word_list());
       for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
         WERD *word = w_it.data();
@@ -429,16 +436,19 @@ bool Tesseract::ResegmentWordBox(BLOCK_LIST *block_list, const TBOX &box, const 
           tprintf("Checking word:");
           word->bounding_box().print();
         }
-        if (word->text() != nullptr && word->text()[0] != '\0')
+        if (word->text() != nullptr && word->text()[0] != '\0') {
           continue; // Ignore words that are already done.
-        if (!box.major_overlap(word->bounding_box()))
+        }
+        if (!box.major_overlap(word->bounding_box())) {
           continue;
+        }
         C_BLOB_IT blob_it(word->cblob_list());
         for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
           C_BLOB *blob = blob_it.data();
           TBOX blob_box = blob->bounding_box();
-          if (!blob_box.major_overlap(box))
+          if (!blob_box.major_overlap(box)) {
             continue;
+          }
           if (next_box != nullptr) {
             const double current_box_miss_metric = BoxMissMetric(blob_box, box);
             const double next_box_miss_metric = BoxMissMetric(blob_box, *next_box);
@@ -448,8 +458,9 @@ bool Tesseract::ResegmentWordBox(BLOCK_LIST *block_list, const TBOX &box, const 
               tprintf("Current miss metric = %g, next = %g\n", current_box_miss_metric,
                       next_box_miss_metric);
             }
-            if (current_box_miss_metric > next_box_miss_metric)
+            if (current_box_miss_metric > next_box_miss_metric) {
               continue; // Blob is a better match for next box.
+            }
           }
           if (applybox_debug > 2) {
             tprintf("Blob match: blob:");
@@ -473,8 +484,9 @@ bool Tesseract::ResegmentWordBox(BLOCK_LIST *block_list, const TBOX &box, const 
       }
     }
   }
-  if (new_word == nullptr && applybox_debug > 0)
+  if (new_word == nullptr && applybox_debug > 0) {
     tprintf("FAIL!\n");
+  }
   return new_word != nullptr;
 }
 
@@ -485,8 +497,9 @@ void Tesseract::ReSegmentByClassification(PAGE_RES *page_res) {
   WERD_RES *word_res;
   for (; (word_res = pr_it.word()) != nullptr; pr_it.forward()) {
     const WERD *word = word_res->word;
-    if (word->text() == nullptr || word->text()[0] == '\0')
+    if (word->text() == nullptr || word->text()[0] == '\0') {
       continue; // Ignore words that have no text.
+    }
     // Convert the correct text to a vector of UNICHAR_ID
     std::vector<UNICHAR_ID> target_text;
     if (!ConvertStringToUnichars(word->text(), &target_text)) {
@@ -507,15 +520,17 @@ void Tesseract::ReSegmentByClassification(PAGE_RES *page_res) {
 bool Tesseract::ConvertStringToUnichars(const char *utf8, std::vector<UNICHAR_ID> *class_ids) {
   for (int step = 0; *utf8 != '\0'; utf8 += step) {
     const char *next_space = strchr(utf8, ' ');
-    if (next_space == nullptr)
+    if (next_space == nullptr) {
       next_space = utf8 + strlen(utf8);
+    }
     step = next_space - utf8;
     UNICHAR_ID class_id = unicharset.unichar_to_id(utf8, step);
     if (class_id == INVALID_UNICHAR_ID) {
       return false;
     }
-    while (utf8[step] == ' ')
+    while (utf8[step] == ' ') {
       ++step;
+    }
     class_ids->push_back(class_id);
   }
   return true;
@@ -621,15 +636,18 @@ void Tesseract::SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, in
           const AmbigSpec *ambig_spec = spec_it.data();
           // We'll only do 1-1.
           if (ambig_spec->wrong_ngram[1] == INVALID_UNICHAR_ID &&
-              ambig_spec->correct_ngram_id == target_text[text_index])
+              ambig_spec->correct_ngram_id == target_text[text_index]) {
             break;
+          }
         }
-        if (!spec_it.cycled_list())
+        if (!spec_it.cycled_list()) {
           break; // Found an ambig.
+        }
       }
     }
-    if (choice_it.cycled_list())
+    if (choice_it.cycled_list()) {
       continue; // No match.
+    }
     segmentation->push_back(length);
     if (choices_pos + length == choices_length && text_index + 1 == target_text.size()) {
       // This is a complete match. If the rating is good record a new best.
@@ -715,8 +733,9 @@ void Tesseract::TidyUp(PAGE_RES *page_res) {
     if (bad_blob_count > 0) {
       tprintf("   Leaving %d unlabelled blobs in %d words.\n", bad_blob_count, ok_word_count);
     }
-    if (unlabelled_words > 0)
+    if (unlabelled_words > 0) {
       tprintf("   %d remaining unlabelled words deleted.\n", unlabelled_words);
+    }
   }
 }
 

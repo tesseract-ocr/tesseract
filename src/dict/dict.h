@@ -145,15 +145,17 @@ public:
   inline void copy_hyphen_info(WERD_CHOICE *word) const {
     if (this->hyphenated()) {
       *word = *hyphen_word_;
-      if (hyphen_debug_level)
+      if (hyphen_debug_level) {
         word->print("copy_hyphen_info: ");
+      }
     }
   }
   /// Check whether the word has a hyphen at the end.
   inline bool has_hyphen_end(const UNICHARSET *unicharset, UNICHAR_ID unichar_id,
                              bool first_pos) const {
-    if (!last_word_on_line_ || first_pos)
+    if (!last_word_on_line_ || first_pos) {
       return false;
+    }
     ASSERT_HOST(unicharset->contains_unichar_id(unichar_id));
     const auto &normed_ids = unicharset->normed_ids(unichar_id);
     return normed_ids.size() == 1 && normed_ids[0] == hyphen_unichar_id_;
@@ -293,10 +295,12 @@ public:
 
   // Resets the document dictionary analogous to ResetAdaptiveClassifier.
   void ResetDocumentDictionary() {
-    if (pending_words_ != nullptr)
+    if (pending_words_ != nullptr) {
       pending_words_->clear();
-    if (document_words_ != nullptr)
+    }
+    if (document_words_ != nullptr) {
       document_words_->clear();
+    }
   }
 
   /**
@@ -391,11 +395,13 @@ public:
   }
   /// Returns the appropriate next node given the EDGE_REF.
   static inline NODE_REF GetStartingNode(const Dawg *dawg, EDGE_REF edge_ref) {
-    if (edge_ref == NO_EDGE)
+    if (edge_ref == NO_EDGE) {
       return 0; // beginning to explore the dawg
+    }
     NODE_REF node = dawg->next_node(edge_ref);
-    if (node == 0)
+    if (node == 0) {
       node = NO_EDGE; // end of word
+    }
     return node;
   }
 
@@ -403,8 +409,9 @@ public:
   // we should use to match in that dawg type.  (for example, in the number
   // dawg, all numbers are transformed to kPatternUnicharId).
   UNICHAR_ID char_for_dawg(const UNICHARSET &unicharset, UNICHAR_ID ch, const Dawg *dawg) const {
-    if (!dawg)
+    if (!dawg) {
       return ch;
+    }
     switch (dawg->type()) {
       case DAWG_TYPE_NUMBER:
         return unicharset.get_isdigit(ch) ? Dawg::kPatternUnicharID : ch;

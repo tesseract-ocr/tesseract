@@ -163,55 +163,61 @@ public:
   // overlaps min limits?
   bool range_overlaps_minimal(float y1,   // one range limit
                               float y2) { // other range limit
-    if (y1 > y2)
+    if (y1 > y2) {
       return RANGE_OVERLAPS_BAND(min_max, max_min, y1, y2);
-    else
+    } else {
       return RANGE_OVERLAPS_BAND(min_max, max_min, y2, y1);
+    }
   }
 
   // overlaps nom limits?
   bool range_overlaps_nominal(float y1,   // one range limit
                               float y2) { // other range limit
-    if (y1 > y2)
+    if (y1 > y2) {
       return RANGE_OVERLAPS_BAND(max, min, y1, y2);
-    else
+    } else {
       return RANGE_OVERLAPS_BAND(max, min, y2, y1);
+    }
   }
 
   // overlaps max limits?
   bool range_overlaps_maximal(float y1,   // one range limit
                               float y2) { // other range limit
-    if (y1 > y2)
+    if (y1 > y2) {
       return RANGE_OVERLAPS_BAND(max_max, min_min, y1, y2);
-    else
+    } else {
       return RANGE_OVERLAPS_BAND(max_max, min_min, y2, y1);
+    }
   }
 
   bool range_in_minimal( // within min limits?
       float y1,          // one range limit
       float y2) {        // other range limit
-    if (y1 > y2)
+    if (y1 > y2) {
       return RANGE_IN_BAND(min_max, max_min, y1, y2);
-    else
+    } else {
       return RANGE_IN_BAND(min_max, max_min, y2, y1);
+    }
   }
 
   bool range_in_nominal( // within nom limits?
       float y1,          // one range limit
       float y2) {        // other range limit
-    if (y1 > y2)
+    if (y1 > y2) {
       return RANGE_IN_BAND(max, min, y1, y2);
-    else
+    } else {
       return RANGE_IN_BAND(max, min, y2, y1);
+    }
   }
 
   bool range_in_maximal( // within max limits?
       float y1,          // one range limit
       float y2) {        // other range limit
-    if (y1 > y2)
+    if (y1 > y2) {
       return RANGE_IN_BAND(max_max, min_min, y1, y2);
-    else
+    } else {
       return RANGE_IN_BAND(max_max, min_min, y2, y1);
+    }
   }
 };
 

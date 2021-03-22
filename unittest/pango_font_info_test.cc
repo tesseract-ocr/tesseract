@@ -165,10 +165,10 @@ TEST_F(PangoFontInfoTest, CanDropUncoveredChars) {
       "\u200C", // U+200C (ZWJ)
       "\u200D"  // U+200D (ZWNJ)
   };
-  for (size_t i = 0; i < countof(kJoiners); ++i) {
-    word = kJoiners[i];
+  for (auto &kJoiner : kJoiners) {
+    word = kJoiner;
     EXPECT_EQ(0, font_info_.DropUncoveredChars(&word));
-    EXPECT_STREQ(kJoiners[i], word.c_str());
+    EXPECT_STREQ(kJoiner, word.c_str());
   }
 }
 

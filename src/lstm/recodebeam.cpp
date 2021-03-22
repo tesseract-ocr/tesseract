@@ -69,8 +69,9 @@ RecodeBeamSearch::RecodeBeamSearch(const UnicharCompress &recoder, int null_char
     , space_delimited_(true)
     , is_simple_text_(simple_text)
     , null_char_(null_char) {
-  if (dict_ != nullptr && !dict_->IsSpaceDelimitedLang())
+  if (dict_ != nullptr && !dict_->IsSpaceDelimitedLang()) {
     space_delimited_ = false;
+  }
 }
 
 RecodeBeamSearch::~RecodeBeamSearch() {
@@ -88,8 +89,9 @@ void RecodeBeamSearch::Decode(const NetworkIO &output, double dict_ratio, double
                               int lstm_choice_mode) {
   beam_size_ = 0;
   int width = output.Width();
-  if (lstm_choice_mode)
+  if (lstm_choice_mode) {
     timesteps.clear();
+  }
   for (int t = 0; t < width; ++t) {
     ComputeTopN(output.f(t), output.NumFeatures(), kBeamWidths[0]);
     DecodeStep(output.f(t), t, dict_ratio, cert_offset, worst_dict_cert, charset);
@@ -116,8 +118,9 @@ void RecodeBeamSearch::DecodeSecondaryBeams(const NetworkIO &output, double dict
     delete data;
   }
   secondary_beam_.clear();
-  if (character_boundaries_.size() < 2)
+  if (character_boundaries_.size() < 2) {
     return;
+  }
   int width = output.Width();
   int bucketNumber = 0;
   for (int t = 0; t < width; ++t) {
@@ -170,8 +173,8 @@ RecodeBeamSearch::combineSegmentedTimesteps(
     std::vector<std::vector<std::vector<std::pair<const char *, float>>>> *segmentedTimesteps) {
   std::vector<std::vector<std::pair<const char *, float>>> combined_timesteps;
   for (auto &segmentedTimestep : *segmentedTimesteps) {
-    for (int j = 0; j < segmentedTimestep.size(); ++j) {
-      combined_timesteps.push_back(segmentedTimestep[j]);
+    for (auto &j : segmentedTimestep) {
+      combined_timesteps.push_back(j);
     }
   }
   return combined_timesteps;
@@ -263,19 +266,23 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX &line_box, float scale_
       // A word is terminated when a space character or start_of_word flag is
       // hit. We also want to force a separate word for every non
       // space-delimited character when not in a dictionary context.
-      if (unichar_ids[word_end] == UNICHAR_SPACE)
+      if (unichar_ids[word_end] == UNICHAR_SPACE) {
         break;
+      }
       int index = xcoords[word_end];
-      if (best_nodes[index]->start_of_word)
+      if (best_nodes[index]->start_of_word) {
         break;
+      }
       if (best_nodes[index]->permuter == TOP_CHOICE_PERM &&
           (!unicharset->IsSpaceDelimited(unichar_ids[word_end]) ||
-           !unicharset->IsSpaceDelimited(unichar_ids[word_end - 1])))
+           !unicharset->IsSpaceDelimited(unichar_ids[word_end - 1]))) {
         break;
+      }
     }
     float space_cert = 0.0f;
-    if (word_end < num_ids && unichar_ids[word_end] == UNICHAR_SPACE)
+    if (word_end < num_ids && unichar_ids[word_end] == UNICHAR_SPACE) {
       space_cert = certs[word_end];
+    }
     bool leading_space = word_start > 0 && unichar_ids[word_start - 1] == UNICHAR_SPACE;
     // Create a WERD_RES for the output word.
     WERD_RES *word_res =
@@ -295,8 +302,9 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX &line_box, float scale_
     word_res->FakeWordFromRatings(best_nodes[index]->permuter);
     words->push_back(word_res);
     prev_space_cert = space_cert;
-    if (word_end < num_ids && unichar_ids[word_end] == UNICHAR_SPACE)
+    if (word_end < num_ids && unichar_ids[word_end] == UNICHAR_SPACE) {
       ++word_end;
+    }
   }
 }
 
@@ -333,8 +341,9 @@ void RecodeBeamSearch::PrintBeam2(bool uids, int num_outputs, const UNICHARSET *
   int ct = 0;
   int cb = 1;
   for (std::vector<const RecodeNode *> layer : topology) {
-    if (cb >= character_boundaries_.size())
+    if (cb >= character_boundaries_.size()) {
       break;
+    }
     if (ct == character_boundaries_[cb]) {
       tprintf("***\n");
       ++cb;
@@ -383,8 +392,9 @@ void RecodeBeamSearch::PrintBeam2(bool uids, int num_outputs, const UNICHARSET *
 }
 
 void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
-  if (character_boundaries_.size() < 2)
+  if (character_boundaries_.size() < 2) {
     return;
+  }
   // For the first iteration the original beam is analyzed. After that a
   // new beam is calculated based on the results from the original beam.
   std::vector<RecodeBeam *> &currentBeam = secondary_beam_.empty() ? beam_ : secondary_beam_;
@@ -412,8 +422,9 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
         node = node->prev;
         ++backcounter;
       }
-      if (validChar)
+      if (validChar) {
         best.push_back(&entry.data());
+      }
     }
     // find the best rated segmented node chain and extract the unichar id.
     if (!best.empty()) {
@@ -424,8 +435,9 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
     if (!unichar_ids.empty()) {
       int bestPos = 0;
       for (int i = 1; i < unichar_ids.size(); ++i) {
-        if (ratings[i] < ratings[bestPos])
+        if (ratings[i] < ratings[bestPos]) {
           bestPos = i;
+        }
       }
       // TODO: bestCode is currently unused (see commit 2dd5d0d60).
       int bestCode = -10;
@@ -487,8 +499,9 @@ void RecodeBeamSearch::DebugBeams(const UNICHARSET &unicharset) const {
       for (int c = 0; c < NC_COUNT; ++c) {
         auto cont = static_cast<NodeContinuation>(c);
         int index = BeamIndex(d, cont, 0);
-        if (beam_[p]->beams_[index].empty())
+        if (beam_[p]->beams_[index].empty()) {
           continue;
+        }
         // Print all the best scoring nodes for each unichar found.
         tprintf("Position %d: %s+%s beam\n", p, d ? "Dict" : "Non-Dict", kNodeContNames[c]);
         DebugBeamPos(unicharset, beam_[p]->beams_[index]);
@@ -505,8 +518,9 @@ void RecodeBeamSearch::DebugBeamPos(const UNICHARSET &unicharset, const RecodeHe
   for (int i = 0; i < heap_size; ++i) {
     const RecodeNode *node = &heap.get(i).data();
     if (node->unichar_id == INVALID_UNICHAR_ID) {
-      if (null_best == nullptr || null_best->score < node->score)
+      if (null_best == nullptr || null_best->score < node->score) {
         null_best = node;
+      }
     } else {
       if (unichar_bests[node->unichar_id] == nullptr ||
           unichar_bests[node->unichar_id]->score < node->score) {
@@ -548,8 +562,9 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(const std::vector<const RecodeNod
     double rating = 0.0;
     while (t < width && best_nodes[t]->unichar_id == INVALID_UNICHAR_ID) {
       double cert = best_nodes[t++]->certainty;
-      if (cert < certainty)
+      if (cert < certainty) {
         certainty = cert;
+      }
       rating -= cert;
     }
     starts.push_back(t);
@@ -558,8 +573,9 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(const std::vector<const RecodeNod
       if (unichar_id == UNICHAR_SPACE && !certs->empty() && best_nodes[t]->permuter != NO_PERM) {
         // All the rating and certainty go on the previous character except
         // for the space itself.
-        if (certainty < certs->back())
+        if (certainty < certs->back()) {
           certs->back() = certainty;
+        }
         ratings->back() += rating;
         certainty = 0.0;
         rating = 0.0;
@@ -580,8 +596,9 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(const std::vector<const RecodeNod
       certs->push_back(certainty);
       ratings->push_back(rating);
     } else if (!certs->empty()) {
-      if (certainty < certs->back())
+      if (certainty < certs->back()) {
         certs->back() = certainty;
+      }
       ratings->back() += rating;
     }
   }
@@ -635,8 +652,9 @@ void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int to
     if (top_heap_.size() < top_n || outputs[i] > top_heap_.PeekTop().key()) {
       TopPair entry(outputs[i], i);
       top_heap_.Push(&entry);
-      if (top_heap_.size() > top_n)
+      if (top_heap_.size() > top_n) {
         top_heap_.Pop(&entry);
+      }
     }
   }
   while (!top_heap_.empty()) {
@@ -646,10 +664,11 @@ void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int to
       top_n_flags_[entry.data()] = TN_TOPN;
     } else {
       top_n_flags_[entry.data()] = TN_TOP2;
-      if (top_heap_.empty())
+      if (top_heap_.empty()) {
         top_code_ = entry.data();
-      else
+      } else {
         second_code_ = entry.data();
+      }
     }
   }
   top_n_flags_[null_char_] = TN_TOP2;
@@ -665,8 +684,9 @@ void RecodeBeamSearch::ComputeSecTopN(std::unordered_set<int> *exList, const flo
     if ((top_heap_.size() < top_n || outputs[i] > top_heap_.PeekTop().key()) && !exList->count(i)) {
       TopPair entry(outputs[i], i);
       top_heap_.Push(&entry);
-      if (top_heap_.size() > top_n)
+      if (top_heap_.size() > top_n) {
         top_heap_.Pop(&entry);
+      }
     }
   }
   while (!top_heap_.empty()) {
@@ -676,10 +696,11 @@ void RecodeBeamSearch::ComputeSecTopN(std::unordered_set<int> *exList, const flo
       top_n_flags_[entry.data()] = TN_TOPN;
     } else {
       top_n_flags_[entry.data()] = TN_TOP2;
-      if (top_heap_.empty())
+      if (top_heap_.empty()) {
         top_code_ = entry.data();
-      else
+      } else {
         second_code_ = entry.data();
+      }
     }
   }
   top_n_flags_[null_char_] = TN_TOP2;
@@ -691,8 +712,9 @@ void RecodeBeamSearch::ComputeSecTopN(std::unordered_set<int> *exList, const flo
 void RecodeBeamSearch::DecodeStep(const float *outputs, int t, double dict_ratio,
                                   double cert_offset, double worst_dict_cert,
                                   const UNICHARSET *charset, bool debug) {
-  if (t == beam_.size())
+  if (t == beam_.size()) {
     beam_.push_back(new RecodeBeam);
+  }
   RecodeBeam *step = beam_[t];
   beam_size_ = t + 1;
   step->Clear();
@@ -739,8 +761,9 @@ void RecodeBeamSearch::DecodeStep(const float *outputs, int t, double dict_ratio
         }
       }
       for (int index = 0; index < kNumBeams; ++index) {
-        if (ContinuationFromBeamsIndex(index) == NC_ANYTHING)
+        if (ContinuationFromBeamsIndex(index) == NC_ANYTHING) {
           total_beam += step->beams_[index].size();
+        }
       }
     }
     // Special case for the best initial dawg. Push it on the heap if good
@@ -758,8 +781,9 @@ void RecodeBeamSearch::DecodeStep(const float *outputs, int t, double dict_ratio
 void RecodeBeamSearch::DecodeSecondaryStep(const float *outputs, int t, double dict_ratio,
                                            double cert_offset, double worst_dict_cert,
                                            const UNICHARSET *charset, bool debug) {
-  if (t == secondary_beam_.size())
+  if (t == secondary_beam_.size()) {
     secondary_beam_.push_back(new RecodeBeam);
+  }
   RecodeBeam *step = secondary_beam_[t];
   step->Clear();
   if (t == 0) {
@@ -805,8 +829,9 @@ void RecodeBeamSearch::DecodeSecondaryStep(const float *outputs, int t, double d
         }
       }
       for (int index = 0; index < kNumBeams; ++index) {
-        if (ContinuationFromBeamsIndex(index) == NC_ANYTHING)
+        if (ContinuationFromBeamsIndex(index) == NC_ANYTHING) {
           total_beam += step->beams_[index].size();
+        }
       }
     }
     // Special case for the best initial dawg. Push it on the heap if good
@@ -858,8 +883,9 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
                                 dict_ratio, use_dawgs, NC_NO_DUP, prev, step);
       }
     }
-    if (prev_cont == NC_ONLY_DUP)
+    if (prev_cont == NC_ONLY_DUP) {
       return;
+    }
     if (prev->code != null_char_ && length > 0 && top_n_flags_[null_char_] == top_n_flag) {
       // Allow nulls within multi code sequences, as the nulls within are not
       // explicitly included in the code sequence.
@@ -871,21 +897,26 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
   const std::vector<int> *final_codes = recoder_.GetFinalCodes(prefix);
   if (final_codes != nullptr) {
     for (int code : *final_codes) {
-      if (top_n_flags_[code] != top_n_flag)
+      if (top_n_flags_[code] != top_n_flag) {
         continue;
-      if (prev != nullptr && prev->code == code && !is_simple_text_)
+      }
+      if (prev != nullptr && prev->code == code && !is_simple_text_) {
         continue;
+      }
       float cert = NetworkIO::ProbToCertainty(outputs[code]) + cert_offset;
-      if (cert < kMinCertainty && code != null_char_)
+      if (cert < kMinCertainty && code != null_char_) {
         continue;
+      }
       full_code.Set(length, code);
       int unichar_id = recoder_.DecodeUnichar(full_code);
       // Map the null char to INVALID.
-      if (length == 0 && code == null_char_)
+      if (length == 0 && code == null_char_) {
         unichar_id = INVALID_UNICHAR_ID;
+      }
       if (unichar_id != INVALID_UNICHAR_ID && charset != nullptr &&
-          !charset->get_enabled(unichar_id))
+          !charset->get_enabled(unichar_id)) {
         continue; // disabled by whitelist/blacklist
+      }
       ContinueUnichar(code, unichar_id, cert, worst_dict_cert, dict_ratio, use_dawgs, NC_ANYTHING,
                       prev, step);
       if (top_n_flag == TN_TOP2 && code != null_char_) {
@@ -904,10 +935,12 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
   const std::vector<int> *next_codes = recoder_.GetNextCodes(prefix);
   if (next_codes != nullptr) {
     for (int code : *next_codes) {
-      if (top_n_flags_[code] != top_n_flag)
+      if (top_n_flags_[code] != top_n_flag) {
         continue;
-      if (prev != nullptr && prev->code == code && !is_simple_text_)
+      }
+      if (prev != nullptr && prev->code == code && !is_simple_text_) {
         continue;
+      }
       float cert = NetworkIO::ProbToCertainty(outputs[code]) + cert_offset;
       PushDupOrNoDawgIfBetter(length + 1, false, code, INVALID_UNICHAR_ID, cert, worst_dict_cert,
                               dict_ratio, use_dawgs, NC_ANYTHING, prev, step);
@@ -954,10 +987,11 @@ void RecodeBeamSearch::ContinueUnichar(int code, int unichar_id, float cert, flo
       // predecessor nulls to generate the confidence for the space, as they
       // have already been multiplied by dict_ratio, and we can't go back to
       // insert more entries in any previous heaps.
-      if (unichar_id == UNICHAR_SPACE)
+      if (unichar_id == UNICHAR_SPACE) {
         permuter = NO_PERM;
-      else
+      } else {
         dawg_cert *= dict_ratio;
+      }
       PushInitialDawgIfBetter(code, unichar_id, permuter, false, false, dawg_cert, cont, prev,
                               step);
     }
@@ -978,8 +1012,9 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert, NodeCo
   }
   // Avoid dictionary probe if score a total loss.
   float score = cert;
-  if (prev != nullptr)
+  if (prev != nullptr) {
     score += prev->score;
+  }
   if (dawg_heap->size() >= kBeamWidths[0] && score <= dawg_heap->PeekTop().data().score &&
       nodawg_heap->size() >= kBeamWidths[0] && score <= nodawg_heap->PeekTop().data().score) {
     return;
@@ -987,8 +1022,10 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert, NodeCo
   const RecodeNode *uni_prev = prev;
   // Prev may be a partial code, null_char, or duplicate, so scan back to the
   // last valid unichar_id.
-  while (uni_prev != nullptr && (uni_prev->unichar_id == INVALID_UNICHAR_ID || uni_prev->duplicate))
+  while (uni_prev != nullptr &&
+         (uni_prev->unichar_id == INVALID_UNICHAR_ID || uni_prev->duplicate)) {
     uni_prev = uni_prev->prev;
+  }
   if (unichar_id == UNICHAR_SPACE) {
     if (uni_prev != nullptr && uni_prev->end_of_word) {
       // Space is good. Push initial state, to the dawg beam and a regular
@@ -1047,8 +1084,9 @@ void RecodeBeamSearch::PushInitialDawgIfBetter(int code, int unichar_id, Permute
                                                RecodeBeam *step) {
   RecodeNode *best_initial_dawg = &step->best_initial_dawgs_[cont];
   float score = cert;
-  if (prev != nullptr)
+  if (prev != nullptr) {
     score += prev->score;
+  }
   if (best_initial_dawg->code < 0 || score > best_initial_dawg->score) {
     auto *initial_dawgs = new DawgPositionVector;
     dict_->default_dawgs(initial_dawgs, false);
@@ -1090,19 +1128,22 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
                                         bool end, bool dup, float cert, const RecodeNode *prev,
                                         DawgPositionVector *d, RecodeHeap *heap) {
   float score = cert;
-  if (prev != nullptr)
+  if (prev != nullptr) {
     score += prev->score;
+  }
   if (heap->size() < max_size || score > heap->PeekTop().data().score) {
     uint64_t hash = ComputeCodeHash(code, dup, prev);
     RecodeNode node(code, unichar_id, permuter, dawg_start, word_start, end, dup, cert, score, prev,
                     d, hash);
-    if (UpdateHeapIfMatched(&node, heap))
+    if (UpdateHeapIfMatched(&node, heap)) {
       return;
+    }
     RecodePair entry(score, node);
     heap->Push(&entry);
     ASSERT_HOST(entry.data().dawgs == nullptr);
-    if (heap->size() > max_size)
+    if (heap->size() > max_size) {
       heap->Pop(&entry);
+    }
   } else {
     delete d;
   }
@@ -1118,8 +1159,9 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, RecodeNode *node, RecodeHe
     RecodePair entry(node->score, *node);
     heap->Push(&entry);
     ASSERT_HOST(entry.data().dawgs == nullptr);
-    if (heap->size() > max_size)
+    if (heap->size() > max_size) {
       heap->Pop(&entry);
+    }
   }
 }
 
@@ -1171,8 +1213,9 @@ void RecodeBeamSearch::ExtractBestPaths(std::vector<const RecodeNode *> *best_no
   const RecodeNode *second_best_node = nullptr;
   const RecodeBeam *last_beam = beam_[beam_size_ - 1];
   for (int c = 0; c < NC_COUNT; ++c) {
-    if (c == NC_ONLY_DUP)
+    if (c == NC_ONLY_DUP) {
       continue;
+    }
     auto cont = static_cast<NodeContinuation>(c);
     for (int is_dawg = 0; is_dawg < 2; ++is_dawg) {
       int beam_index = BeamIndex(is_dawg, cont, 0);
@@ -1184,8 +1227,9 @@ void RecodeBeamSearch::ExtractBestPaths(std::vector<const RecodeNode *> *best_no
           // last valid unichar_id.
           const RecodeNode *dawg_node = node;
           while (dawg_node != nullptr &&
-                 (dawg_node->unichar_id == INVALID_UNICHAR_ID || dawg_node->duplicate))
+                 (dawg_node->unichar_id == INVALID_UNICHAR_ID || dawg_node->duplicate)) {
             dawg_node = dawg_node->prev;
+          }
           if (dawg_node == nullptr ||
               (!dawg_node->end_of_word && dawg_node->unichar_id != UNICHAR_SPACE)) {
             // Dawg node is not valid.
@@ -1201,8 +1245,9 @@ void RecodeBeamSearch::ExtractBestPaths(std::vector<const RecodeNode *> *best_no
       }
     }
   }
-  if (second_nodes != nullptr)
+  if (second_nodes != nullptr) {
     ExtractPath(second_best_node, second_nodes);
+  }
   ExtractPath(best_node, best_nodes);
 }
 

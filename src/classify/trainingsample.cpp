@@ -51,29 +51,40 @@ TrainingSample::~TrainingSample() {
 // It is assumed these can all be reconstructed from what is saved.
 // Writes to the given file. Returns false in case of error.
 bool TrainingSample::Serialize(FILE *fp) const {
-  if (fwrite(&class_id_, sizeof(class_id_), 1, fp) != 1)
+  if (fwrite(&class_id_, sizeof(class_id_), 1, fp) != 1) {
     return false;
-  if (fwrite(&font_id_, sizeof(font_id_), 1, fp) != 1)
+  }
+  if (fwrite(&font_id_, sizeof(font_id_), 1, fp) != 1) {
     return false;
-  if (fwrite(&page_num_, sizeof(page_num_), 1, fp) != 1)
+  }
+  if (fwrite(&page_num_, sizeof(page_num_), 1, fp) != 1) {
     return false;
-  if (!bounding_box_.Serialize(fp))
+  }
+  if (!bounding_box_.Serialize(fp)) {
     return false;
-  if (fwrite(&num_features_, sizeof(num_features_), 1, fp) != 1)
+  }
+  if (fwrite(&num_features_, sizeof(num_features_), 1, fp) != 1) {
     return false;
-  if (fwrite(&num_micro_features_, sizeof(num_micro_features_), 1, fp) != 1)
+  }
+  if (fwrite(&num_micro_features_, sizeof(num_micro_features_), 1, fp) != 1) {
     return false;
-  if (fwrite(&outline_length_, sizeof(outline_length_), 1, fp) != 1)
+  }
+  if (fwrite(&outline_length_, sizeof(outline_length_), 1, fp) != 1) {
     return false;
-  if (fwrite(features_, sizeof(*features_), num_features_, fp) != num_features_)
+  }
+  if (fwrite(features_, sizeof(*features_), num_features_, fp) != num_features_) {
     return false;
+  }
   if (fwrite(micro_features_, sizeof(*micro_features_), num_micro_features_, fp) !=
-      num_micro_features_)
+      num_micro_features_) {
     return false;
-  if (fwrite(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) != kNumCNParams)
+  }
+  if (fwrite(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) != kNumCNParams) {
     return false;
-  if (fwrite(geo_feature_, sizeof(*geo_feature_), GeoCount, fp) != GeoCount)
+  }
+  if (fwrite(geo_feature_, sizeof(*geo_feature_), GeoCount, fp) != GeoCount) {
     return false;
+  }
   return true;
 }
 
@@ -81,8 +92,9 @@ bool TrainingSample::Serialize(FILE *fp) const {
 // If swap is true, assumes a big/little-endian swap is needed.
 TrainingSample *TrainingSample::DeSerializeCreate(bool swap, FILE *fp) {
   auto *sample = new TrainingSample;
-  if (sample->DeSerialize(swap, fp))
+  if (sample->DeSerialize(swap, fp)) {
     return sample;
+  }
   delete sample;
   return nullptr;
 }
@@ -90,20 +102,27 @@ TrainingSample *TrainingSample::DeSerializeCreate(bool swap, FILE *fp) {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool TrainingSample::DeSerialize(bool swap, FILE *fp) {
-  if (fread(&class_id_, sizeof(class_id_), 1, fp) != 1)
+  if (fread(&class_id_, sizeof(class_id_), 1, fp) != 1) {
     return false;
-  if (fread(&font_id_, sizeof(font_id_), 1, fp) != 1)
+  }
+  if (fread(&font_id_, sizeof(font_id_), 1, fp) != 1) {
     return false;
-  if (fread(&page_num_, sizeof(page_num_), 1, fp) != 1)
+  }
+  if (fread(&page_num_, sizeof(page_num_), 1, fp) != 1) {
     return false;
-  if (!bounding_box_.DeSerialize(swap, fp))
+  }
+  if (!bounding_box_.DeSerialize(swap, fp)) {
     return false;
-  if (fread(&num_features_, sizeof(num_features_), 1, fp) != 1)
+  }
+  if (fread(&num_features_, sizeof(num_features_), 1, fp) != 1) {
     return false;
-  if (fread(&num_micro_features_, sizeof(num_micro_features_), 1, fp) != 1)
+  }
+  if (fread(&num_micro_features_, sizeof(num_micro_features_), 1, fp) != 1) {
     return false;
-  if (fread(&outline_length_, sizeof(outline_length_), 1, fp) != 1)
+  }
+  if (fread(&outline_length_, sizeof(outline_length_), 1, fp) != 1) {
     return false;
+  }
   if (swap) {
     ReverseN(&class_id_, sizeof(class_id_));
     ReverseN(&num_features_, sizeof(num_features_));
@@ -111,23 +130,29 @@ bool TrainingSample::DeSerialize(bool swap, FILE *fp) {
     ReverseN(&outline_length_, sizeof(outline_length_));
   }
   // Arbitrarily limit the number of elements to protect against bad data.
-  if (num_features_ > UINT16_MAX)
+  if (num_features_ > UINT16_MAX) {
     return false;
-  if (num_micro_features_ > UINT16_MAX)
+  }
+  if (num_micro_features_ > UINT16_MAX) {
     return false;
+  }
   delete[] features_;
   features_ = new INT_FEATURE_STRUCT[num_features_];
-  if (fread(features_, sizeof(*features_), num_features_, fp) != num_features_)
+  if (fread(features_, sizeof(*features_), num_features_, fp) != num_features_) {
     return false;
+  }
   delete[] micro_features_;
   micro_features_ = new MicroFeature[num_micro_features_];
   if (fread(micro_features_, sizeof(*micro_features_), num_micro_features_, fp) !=
-      num_micro_features_)
+      num_micro_features_) {
     return false;
-  if (fread(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) != kNumCNParams)
+  }
+  if (fread(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) != kNumCNParams) {
     return false;
-  if (fread(geo_feature_, sizeof(*geo_feature_), GeoCount, fp) != GeoCount)
+  }
+  if (fread(geo_feature_, sizeof(*geo_feature_), GeoCount, fp) != GeoCount) {
     return false;
+  }
   return true;
 }
 
@@ -159,8 +184,9 @@ TrainingSample *TrainingSample::CopyFromFeatures(const INT_FX_RESULT_STRUCT &fx_
 // Returns the cn_feature as a FEATURE_STRUCT* needed by cntraining.
 FEATURE_STRUCT *TrainingSample::GetCNFeature() const {
   FEATURE feature = NewFeature(&CharNormDesc);
-  for (int i = 0; i < kNumCNParams; ++i)
+  for (int i = 0; i < kNumCNParams; ++i) {
     feature->Params[i] = cn_feature_[i];
+  }
   return feature;
 }
 
@@ -289,12 +315,14 @@ Pix *TrainingSample::RenderToPix(const UNICHARSET *unicharset) const {
     for (int i = 0; i <= 5; ++i) {
       int x = static_cast<int>(start_x + dx * i);
       int y = static_cast<int>(start_y + dy * i);
-      if (x >= 0 && x < 256 && y >= 0 && y < 256)
+      if (x >= 0 && x < 256 && y >= 0 && y < 256) {
         pixSetPixel(pix, x, y, 1);
+      }
     }
   }
-  if (unicharset != nullptr)
+  if (unicharset != nullptr) {
     pixSetText(pix, unicharset->id_to_unichar(class_id_));
+  }
   return pix;
 }
 
@@ -314,8 +342,9 @@ void TrainingSample::DisplayFeatures(ScrollView::Color color, ScrollView *window
 // The returned Pix must be pixDestroyed after use.
 // If the input page_pix is nullptr, nullptr is returned.
 Pix *TrainingSample::GetSamplePix(int padding, Pix *page_pix) const {
-  if (page_pix == nullptr)
+  if (page_pix == nullptr) {
     return nullptr;
+  }
   int page_width = pixGetWidth(page_pix);
   int page_height = pixGetHeight(page_pix);
   TBOX padded_box = bounding_box();

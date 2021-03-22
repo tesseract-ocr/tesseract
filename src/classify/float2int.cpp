@@ -85,10 +85,11 @@ void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT &norm_feature,
 void Classify::ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures) {
   float YShift;
 
-  if (classify_norm_method == baseline)
+  if (classify_norm_method == baseline) {
     YShift = BASELINE_Y_SHIFT;
-  else
+  } else {
     YShift = Y_SHIFT;
+  }
 
   for (int Fid = 0; Fid < Features->NumFeatures; Fid++) {
     FEATURE Feature = Features->Features[Fid];

@@ -108,8 +108,9 @@ void BitVector::Init(int length) {
 
 // Writes to the given file. Returns false in case of error.
 bool BitVector::Serialize(FILE *fp) const {
-  if (!tesseract::Serialize(fp, &bit_size_))
+  if (!tesseract::Serialize(fp, &bit_size_)) {
     return false;
+  }
   int wordlen = WordLength();
   return tesseract::Serialize(fp, &array_[0], wordlen);
 }
@@ -118,18 +119,21 @@ bool BitVector::Serialize(FILE *fp) const {
 // If swap is true, assumes a big/little-endian swap is needed.
 bool BitVector::DeSerialize(bool swap, FILE *fp) {
   uint32_t new_bit_size;
-  if (!tesseract::DeSerialize(fp, &new_bit_size))
+  if (!tesseract::DeSerialize(fp, &new_bit_size)) {
     return false;
+  }
   if (swap) {
     ReverseN(&new_bit_size, sizeof(new_bit_size));
   }
   Alloc(new_bit_size);
   int wordlen = WordLength();
-  if (!tesseract::DeSerialize(fp, &array_[0], wordlen))
+  if (!tesseract::DeSerialize(fp, &array_[0], wordlen)) {
     return false;
+  }
   if (swap) {
-    for (int i = 0; i < wordlen; ++i)
+    for (int i = 0; i < wordlen; ++i) {
       ReverseN(&array_[i], sizeof(array_[i]));
+    }
   }
   return true;
 }
@@ -146,8 +150,9 @@ void BitVector::SetAllTrue() {
 int BitVector::NextSetBit(int prev_bit) const {
   // Move on to the next bit.
   int next_bit = prev_bit + 1;
-  if (next_bit >= bit_size_)
+  if (next_bit >= bit_size_) {
     return -1;
+  }
   // Check the remains of the word containing the next_bit first.
   int next_word = WordIndex(next_bit);
   int bit_index = next_word * kBitFactor;
@@ -156,10 +161,12 @@ int BitVector::NextSetBit(int prev_bit) const {
   uint8_t byte = word & 0xff;
   while (bit_index < word_end) {
     if (bit_index + 8 > next_bit && byte != 0) {
-      while (bit_index + lsb_index_[byte] < next_bit && byte != 0)
+      while (bit_index + lsb_index_[byte] < next_bit && byte != 0) {
         byte = lsb_eroded_[byte];
-      if (byte != 0)
+      }
+      if (byte != 0) {
         return bit_index + lsb_index_[byte];
+      }
     }
     word >>= 8;
     bit_index += 8;
@@ -172,8 +179,9 @@ int BitVector::NextSetBit(int prev_bit) const {
     ++next_word;
     bit_index += kBitFactor;
   }
-  if (bit_index >= bit_size_)
+  if (bit_index >= bit_size_) {
     return -1;
+  }
   // Find the first non-zero byte within the word.
   while ((word & 0xff) == 0) {
     word >>= 8;
@@ -200,29 +208,35 @@ int BitVector::NumSetBits() const {
 // sensible if they aren't the same size, but they should be really.
 void BitVector::operator|=(const BitVector &other) {
   int length = std::min(WordLength(), other.WordLength());
-  for (int w = 0; w < length; ++w)
+  for (int w = 0; w < length; ++w) {
     array_[w] |= other.array_[w];
+  }
 }
 void BitVector::operator&=(const BitVector &other) {
   int length = std::min(WordLength(), other.WordLength());
-  for (int w = 0; w < length; ++w)
+  for (int w = 0; w < length; ++w) {
     array_[w] &= other.array_[w];
-  for (int w = WordLength() - 1; w >= length; --w)
+  }
+  for (int w = WordLength() - 1; w >= length; --w) {
     array_[w] = 0;
+  }
 }
 void BitVector::operator^=(const BitVector &other) {
   int length = std::min(WordLength(), other.WordLength());
-  for (int w = 0; w < length; ++w)
+  for (int w = 0; w < length; ++w) {
     array_[w] ^= other.array_[w];
+  }
 }
 // Set subtraction *this = v1 - v2.
 void BitVector::SetSubtract(const BitVector &v1, const BitVector &v2) {
   Alloc(v1.size());
   int length = std::min(v1.WordLength(), v2.WordLength());
-  for (int w = 0; w < length; ++w)
+  for (int w = 0; w < length; ++w) {
     array_[w] = v1.array_[w] ^ (v1.array_[w] & v2.array_[w]);
-  for (int w = WordLength() - 1; w >= length; --w)
+  }
+  for (int w = WordLength() - 1; w >= length; --w) {
     array_[w] = v1.array_[w];
+  }
 }
 
 // Allocates memory for a vector of the given length.

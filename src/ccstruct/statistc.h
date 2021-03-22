@@ -73,10 +73,12 @@ public:
   double median() const; // get median of samples
   // Returns the count of the given value.
   int32_t pile_count(int32_t value) const {
-    if (value <= rangemin_)
+    if (value <= rangemin_) {
       return buckets_[0];
-    if (value >= rangemax_ - 1)
+    }
+    if (value >= rangemax_ - 1) {
       return buckets_[rangemax_ - rangemin_ - 1];
+    }
     return buckets_[value - rangemin_];
   }
   // Returns the total count of all buckets.

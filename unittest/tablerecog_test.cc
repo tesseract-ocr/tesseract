@@ -51,14 +51,14 @@ public:
     EXPECT_EQ(3 + (almost_done - second) / add, cell_x_.size());
     EXPECT_EQ(x_min, cell_x_.at(0));
     EXPECT_EQ(x_max, cell_x_.at(cell_x_.size() - 1));
-    for (int i = 1; i < cell_x_.size() - 1; ++i) {
+    for (unsigned i = 1; i < cell_x_.size() - 1; ++i) {
       EXPECT_EQ(second + add * (i - 1), cell_x_.at(i));
     }
   }
 
   void ExpectSortedX() {
     EXPECT_GT(cell_x_.size(), 0);
-    for (int i = 1; i < cell_x_.size(); ++i) {
+    for (unsigned i = 1; i < cell_x_.size(); ++i) {
       EXPECT_LT(cell_x_.at(i - 1), cell_x_.at(i));
     }
   }
@@ -66,7 +66,7 @@ public:
 
 class SharedTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     ICOORD bleft(0, 0);
     ICOORD tright(1000, 1000);
@@ -74,7 +74,7 @@ protected:
     line_grid_ = std::make_unique<ColPartitionGrid>(5, bleft, tright);
   }
 
-  void TearDown() {
+  void TearDown() override {
     tesseract::ColPartition_IT memory(&allocated_parts_);
     for (memory.mark_cycle_pt(); !memory.cycled_list(); memory.forward()) {
       memory.data()->DeleteBoxes();
@@ -82,9 +82,11 @@ protected:
   }
 
   void InsertPartitions() {
-    for (int row = 0; row < 800; row += 20)
-      for (int col = 0; col < 500; col += 25)
+    for (int row = 0; row < 800; row += 20) {
+      for (int col = 0; col < 500; col += 25) {
         InsertPartition(col + 1, row + 1, col + 24, row + 19);
+      }
+    }
   }
 
   void InsertPartition(int left, int bottom, int right, int top) {
@@ -101,13 +103,16 @@ protected:
   void InsertLines() {
     line_box_.set_to_given_coords(100 - line_grid_->gridsize(), 10 - line_grid_->gridsize(),
                                   450 + line_grid_->gridsize(), 50 + line_grid_->gridsize());
-    for (int i = 10; i <= 50; i += 10)
+    for (int i = 10; i <= 50; i += 10) {
       InsertHorizontalLine(100, 450, i);
-    for (int i = 100; i <= 450; i += 50)
+    }
+    for (int i = 100; i <= 450; i += 50) {
       InsertVerticalLine(i, 10, 50);
+    }
 
-    for (int i = 100; i <= 200; i += 20)
+    for (int i = 100; i <= 200; i += 20) {
       InsertHorizontalLine(0, 100, i);
+    }
   }
 
   void InsertHorizontalLine(int left, int right, int y) {
@@ -128,9 +133,11 @@ protected:
   }
 
   void InsertCellsInLines() {
-    for (int y = 10; y <= 50; y += 10)
-      for (int x = 100; x <= 450; x += 50)
+    for (int y = 10; y <= 50; y += 10) {
+      for (int x = 100; x <= 450; x += 50) {
         InsertPartition(x + 1, y + 1, x + 49, y + 9);
+      }
+    }
   }
 
   TBOX line_box_;
@@ -141,7 +148,7 @@ protected:
 
 class TableRecognizerTest : public SharedTest {
 protected:
-  void SetUp() {
+  void SetUp() override {
     SharedTest::SetUp();
     recognizer_ = std::make_unique<TestableTableRecognizer>();
     recognizer_->Init();
@@ -154,7 +161,7 @@ protected:
 
 class StructuredTableTest : public SharedTest {
 protected:
-  void SetUp() {
+  void SetUp() override {
     SharedTest::SetUp();
     table_ = std::make_unique<TestableStructuredTable>();
     table_->Init();
@@ -263,10 +270,12 @@ TEST_F(StructuredTableTest, CountHorizontalIntersectionsAll) {
 }
 
 TEST_F(StructuredTableTest, VerifyLinedTableBasicPass) {
-  for (int y = 10; y <= 50; y += 10)
+  for (int y = 10; y <= 50; y += 10) {
     table_->InjectCellY(y);
-  for (int x = 100; x <= 450; x += 50)
+  }
+  for (int x = 100; x <= 450; x += 50) {
     table_->InjectCellX(x);
+  }
   InsertLines();
   InsertCellsInLines();
   table_->set_bounding_box(line_box_);
@@ -274,10 +283,12 @@ TEST_F(StructuredTableTest, VerifyLinedTableBasicPass) {
 }
 
 TEST_F(StructuredTableTest, VerifyLinedTableHorizontalFail) {
-  for (int y = 10; y <= 50; y += 10)
+  for (int y = 10; y <= 50; y += 10) {
     table_->InjectCellY(y);
-  for (int x = 100; x <= 450; x += 50)
+  }
+  for (int x = 100; x <= 450; x += 50) {
     table_->InjectCellX(x);
+  }
   InsertLines();
   InsertCellsInLines();
   InsertPartition(101, 11, 299, 19);
@@ -286,10 +297,12 @@ TEST_F(StructuredTableTest, VerifyLinedTableHorizontalFail) {
 }
 
 TEST_F(StructuredTableTest, VerifyLinedTableVerticalFail) {
-  for (int y = 10; y <= 50; y += 10)
+  for (int y = 10; y <= 50; y += 10) {
     table_->InjectCellY(y);
-  for (int x = 100; x <= 450; x += 50)
+  }
+  for (int x = 100; x <= 450; x += 50) {
     table_->InjectCellX(x);
+  }
   InsertLines();
   InsertCellsInLines();
   InsertPartition(151, 21, 199, 39);

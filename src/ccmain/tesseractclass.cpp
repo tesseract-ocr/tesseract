@@ -450,8 +450,9 @@ void Tesseract::Clear() {
   reskew_ = FCOORD(1.0f, 0.0f);
   splitter_.Clear();
   scaled_factor_ = -1;
-  for (auto &sub_lang : sub_langs_)
+  for (auto &sub_lang : sub_langs_) {
     sub_lang->Clear();
+  }
 }
 
 #ifndef DISABLED_LEGACY_ENGINE
@@ -514,8 +515,9 @@ void Tesseract::PrepareForPageseg() {
   for (auto &sub_lang : sub_langs_) {
     auto pageseg_strategy = static_cast<ShiroRekhaSplitter::SplitStrategy>(
         static_cast<int32_t>(sub_lang->pageseg_devanagari_split_strategy));
-    if (pageseg_strategy > max_pageseg_strategy)
+    if (pageseg_strategy > max_pageseg_strategy) {
       max_pageseg_strategy = pageseg_strategy;
+    }
     pixDestroy(&sub_lang->pix_binary_);
     sub_lang->pix_binary_ = pixClone(pix_binary());
   }
@@ -542,8 +544,9 @@ void Tesseract::PrepareForTessOCR(BLOCK_LIST *block_list, Tesseract *osd_tess, O
   for (auto &sub_lang : sub_langs_) {
     auto ocr_strategy = static_cast<ShiroRekhaSplitter::SplitStrategy>(
         static_cast<int32_t>(sub_lang->ocr_devanagari_split_strategy));
-    if (ocr_strategy > max_ocr_strategy)
+    if (ocr_strategy > max_ocr_strategy) {
       max_ocr_strategy = ocr_strategy;
+    }
   }
   // Utilize the segmentation information available.
   splitter_.set_segmentation_block_list(block_list);

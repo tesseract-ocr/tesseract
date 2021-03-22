@@ -208,14 +208,17 @@ static FCOORD MeanDirectionVector(const LLSQ &point_diffs, const LLSQ &dirs, con
       FCOORD fit_vector2 = !fit_vector;
       // The fit_vector is 180 degrees ambiguous, so resolve the ambiguity by
       // insisting that the scalar product with the feature_dir should be +ve.
-      if (fit_vector % feature_dir < 0.0)
+      if (fit_vector % feature_dir < 0.0) {
         fit_vector = -fit_vector;
-      if (fit_vector2 % feature_dir < 0.0)
+      }
+      if (fit_vector2 % feature_dir < 0.0) {
         fit_vector2 = -fit_vector2;
+      }
       // Even though fit_vector2 has a higher mean squared error, it might be
       // a better fit, so use it if the dot product with feature_dir is bigger.
-      if (fit_vector2 % feature_dir > fit_vector % feature_dir)
+      if (fit_vector2 % feature_dir > fit_vector % feature_dir) {
         fit_vector = fit_vector2;
+      }
     }
   }
   return fit_vector;
@@ -228,15 +231,17 @@ static FCOORD MeanDirectionVector(const LLSQ &point_diffs, const LLSQ &dirs, con
 static int ComputeFeatures(const FCOORD &start_pt, const FCOORD &end_pt, double feature_length,
                            std::vector<INT_FEATURE_STRUCT> *features) {
   FCOORD feature_vector(end_pt - start_pt);
-  if (feature_vector.x() == 0.0f && feature_vector.y() == 0.0f)
+  if (feature_vector.x() == 0.0f && feature_vector.y() == 0.0f) {
     return 0;
+  }
   // Compute theta for the feature based on its direction.
   uint8_t theta = feature_vector.to_direction();
   // Compute the number of features and lambda_step.
   double target_length = feature_vector.length();
   int num_features = IntCastRounded(target_length / feature_length);
-  if (num_features == 0)
+  if (num_features == 0) {
     return 0;
+  }
   // Divide the length evenly into num_features pieces.
   double lambda_step = 1.0 / num_features;
   double lambda = lambda_step / 2.0;
@@ -336,8 +341,9 @@ static void ExtractFeaturesFromRun(const EDGEPT *startpt, const EDGEPT *lastpt,
     // may be beyond the bounds of the outline steps/ due to wrap-around, to
     // so we use % step_length everywhere, except for start_index.
     int end_index = lastpt->start_step + lastpt->step_count;
-    if (end_index <= start_index)
+    if (end_index <= start_index) {
       end_index += step_length;
+    }
     LLSQ prev_points;
     LLSQ prev_dirs;
     FCOORD prev_normed_pos = outline->sub_pixel_pos_at_index(pos, start_index);
@@ -434,18 +440,21 @@ void Classify::ExtractFeatures(const TBLOB &blob, bool nonlinear_norm,
                                std::vector<int> *outline_cn_counts) {
   DENORM bl_denorm, cn_denorm;
   tesseract::Classify::SetupBLCNDenorms(blob, nonlinear_norm, &bl_denorm, &cn_denorm, results);
-  if (outline_cn_counts != nullptr)
+  if (outline_cn_counts != nullptr) {
     outline_cn_counts->clear();
+  }
   // Iterate the outlines.
   for (TESSLINE *ol = blob.outlines; ol != nullptr; ol = ol->next) {
     // Iterate the polygon.
     EDGEPT *loop_pt = ol->FindBestStartPt();
     EDGEPT *pt = loop_pt;
-    if (pt == nullptr)
+    if (pt == nullptr) {
       continue;
+    }
     do {
-      if (pt->IsHidden())
+      if (pt->IsHidden()) {
         continue;
+      }
       // Find a run of equal src_outline.
       EDGEPT *last_pt = pt;
       do {
@@ -459,8 +468,9 @@ void Classify::ExtractFeatures(const TBLOB &blob, bool nonlinear_norm,
       ExtractFeaturesFromRun(pt, last_pt, cn_denorm, kStandardFeatureLength, false, cn_features);
       pt = last_pt;
     } while ((pt = pt->next) != loop_pt);
-    if (outline_cn_counts != nullptr)
+    if (outline_cn_counts != nullptr) {
       outline_cn_counts->push_back(cn_features->size());
+    }
   }
   results->NumBL = bl_features->size();
   results->NumCN = cn_features->size();

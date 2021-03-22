@@ -65,14 +65,16 @@ void Tesseract::output_pass( // Tess output pass //send to api
         (tessedit_write_block_separators && (page_res_it.block() != page_res_it.next_block())) ||
         (page_res_it.next_word() == nullptr);
 
-    if (page_res_it.next_word() != nullptr)
+    if (page_res_it.next_word() != nullptr) {
       nextword = page_res_it.next_word()->word;
-    else
+    } else {
       nextword = nullptr;
-    if (page_res_it.next_block() != nullptr)
+    }
+    if (page_res_it.next_block() != nullptr) {
       nextblock = page_res_it.next_block()->block;
-    else
+    } else {
       nextblock = nullptr;
+    }
     // regardless of tilde crunching
     write_results(page_res_it,
                   determine_newline_type(page_res_it.word()->word, page_res_it.block()->block,
@@ -130,18 +132,20 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
       stats_.last_char_was_tilde = false;
     }
 
-    if (force_eol)
+    if (force_eol) {
       stats_.write_results_empty_block = true;
+    }
     return;
   }
 
   /* NORMAL PROCESSING of non tilde crunched words */
 
   stats_.tilde_crunch_written = false;
-  if (newline_type)
+  if (newline_type) {
     stats_.last_char_was_newline = true;
-  else
+  } else {
     stats_.last_char_was_newline = false;
+  }
   stats_.write_results_empty_block = force_eol; // about to write a real word
 
   if (unlv_tilde_crunching && stats_.last_char_was_tilde && (word->word->space() == 0) &&
@@ -151,16 +155,18 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
    words have been removed */
     word->MergeAdjacentBlobs(0);
   }
-  if (newline_type || (word->word->flag(W_REP_CHAR) && tessedit_write_rep_codes))
+  if (newline_type || (word->word->flag(W_REP_CHAR) && tessedit_write_rep_codes)) {
     stats_.last_char_was_tilde = false;
-  else {
+  } else {
     if (word->reject_map.length() > 0) {
-      if (word->best_choice->unichar_id(word->reject_map.length() - 1) == space)
+      if (word->best_choice->unichar_id(word->reject_map.length() - 1) == space) {
         stats_.last_char_was_tilde = true;
-      else
+      } else {
         stats_.last_char_was_tilde = false;
-    } else if (word->word->space() > 0)
+      }
+    } else if (word->word->space() > 0) {
       stats_.last_char_was_tilde = false;
+    }
     /* else it is unchanged as there are no output chars */
   }
 
@@ -176,15 +182,17 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
     if (tessedit_zero_rejection) {
       /* OVERRIDE ALL REJECTION MECHANISMS - ONLY REJECT TESS FAILURES */
       for (i = 0; i < word->best_choice->length(); ++i) {
-        if (word->reject_map[i].rejected())
+        if (word->reject_map[i].rejected()) {
           word->reject_map[i].setrej_minimal_rej_accept();
+        }
       }
     }
     if (tessedit_minimal_rejection) {
       /* OVERRIDE ALL REJECTION MECHANISMS - ONLY REJECT TESS FAILURES */
       for (i = 0; i < word->best_choice->length(); ++i) {
-        if ((word->best_choice->unichar_id(i) != space) && word->reject_map[i].rejected())
+        if ((word->best_choice->unichar_id(i) != space) && word->reject_map[i].rejected()) {
           word->reject_map[i].setrej_minimal_rej_accept();
+        }
       }
     }
   }
@@ -209,12 +217,15 @@ char determine_newline_type( // test line ends
   TBOX next_box;   // next word
   TBOX block_box;  // block bounding
 
-  if (!word->flag(W_EOL))
+  if (!word->flag(W_EOL)) {
     return false; // not end of line
-  if (next_word == nullptr || next_block == nullptr || block != next_block)
+  }
+  if (next_word == nullptr || next_block == nullptr || block != next_block) {
     return CTRL_NEWLINE;
-  if (next_word->space() > 0)
+  }
+  if (next_word->space() > 0) {
     return CTRL_HARDLINE; // it is tabbed
+  }
   word_box = word->bounding_box();
   next_box = next_word->bounding_box();
   block_box = block->pdblk.bounding_box();
@@ -236,8 +247,9 @@ char determine_newline_type( // test line ends
  *************************************************************************/
 UNICHAR_ID Tesseract::get_rep_char(WERD_RES *word) { // what char is repeated?
   int i;
-  for (i = 0; ((i < word->reject_map.length()) && (word->reject_map[i].rejected())); ++i)
+  for (i = 0; ((i < word->reject_map.length()) && (word->reject_map[i].rejected())); ++i) {
     ;
+  }
 
   if (i < word->reject_map.length()) {
     return word->best_choice->unichar_id(i);
@@ -265,61 +277,72 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
 
   if (suspect_level == 0) {
     for (i = 0; i < len; i++) {
-      if (word_res->reject_map[i].rejected())
+      if (word_res->reject_map[i].rejected()) {
         word_res->reject_map[i].setrej_minimal_rej_accept();
+      }
     }
     return;
   }
 
-  if (suspect_level >= 3)
+  if (suspect_level >= 3) {
     return; // Use defaults
+  }
 
   /* NOW FOR LEVELS 1 and 2 Find some stuff to unreject*/
 
   if (safe_dict_word(word_res) && (count_alphas(word) > suspect_short_words)) {
     /* Unreject alphas in dictionary words */
     for (i = 0; i < len; ++i) {
-      if (word_res->reject_map[i].rejected() && uchset.get_isalpha(word.unichar_id(i)))
+      if (word_res->reject_map[i].rejected() && uchset.get_isalpha(word.unichar_id(i))) {
         word_res->reject_map[i].setrej_minimal_rej_accept();
+      }
     }
   }
 
   rating_per_ch = word.rating() / word_res->reject_map.length();
 
-  if (rating_per_ch >= suspect_rating_per_ch)
+  if (rating_per_ch >= suspect_rating_per_ch) {
     return; // Don't touch bad ratings
+  }
 
   if ((word_res->tess_accepted) || (rating_per_ch < suspect_accept_rating)) {
     /* Unreject any Tess Acceptable word - but NOT tess reject chs*/
     for (i = 0; i < len; ++i) {
-      if (word_res->reject_map[i].rejected() && (!uchset.eq(word.unichar_id(i), " ")))
+      if (word_res->reject_map[i].rejected() && (!uchset.eq(word.unichar_id(i), " "))) {
         word_res->reject_map[i].setrej_minimal_rej_accept();
+      }
     }
   }
 
   for (i = 0; i < len; i++) {
     if (word_res->reject_map[i].rejected()) {
-      if (word_res->reject_map[i].flag(R_DOC_REJ))
+      if (word_res->reject_map[i].flag(R_DOC_REJ)) {
         word_res->reject_map[i].setrej_minimal_rej_accept();
-      if (word_res->reject_map[i].flag(R_BLOCK_REJ))
+      }
+      if (word_res->reject_map[i].flag(R_BLOCK_REJ)) {
         word_res->reject_map[i].setrej_minimal_rej_accept();
-      if (word_res->reject_map[i].flag(R_ROW_REJ))
+      }
+      if (word_res->reject_map[i].flag(R_ROW_REJ)) {
         word_res->reject_map[i].setrej_minimal_rej_accept();
+      }
     }
   }
 
-  if (suspect_level == 2)
+  if (suspect_level == 2) {
     return;
+  }
 
   if (!suspect_constrain_1Il || (word_res->reject_map.length() <= suspect_short_words)) {
     for (i = 0; i < len; i++) {
       if (word_res->reject_map[i].rejected()) {
         if ((word_res->reject_map[i].flag(R_1IL_CONFLICT) ||
-             word_res->reject_map[i].flag(R_POSTNN_1IL)))
+             word_res->reject_map[i].flag(R_POSTNN_1IL))) {
           word_res->reject_map[i].setrej_minimal_rej_accept();
+        }
 
-        if (!suspect_constrain_1Il && word_res->reject_map[i].flag(R_MM_REJECT))
+        if (!suspect_constrain_1Il && word_res->reject_map[i].flag(R_MM_REJECT)) {
           word_res->reject_map[i].setrej_minimal_rej_accept();
+        }
       }
     }
   }
@@ -343,8 +366,9 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
 int16_t Tesseract::count_alphas(const WERD_CHOICE &word) {
   int count = 0;
   for (int i = 0; i < word.length(); ++i) {
-    if (word.unicharset()->get_isalpha(word.unichar_id(i)))
+    if (word.unicharset()->get_isalpha(word.unichar_id(i))) {
       count++;
+    }
   }
   return count;
 }
@@ -353,8 +377,9 @@ int16_t Tesseract::count_alphanums(const WERD_CHOICE &word) {
   int count = 0;
   for (int i = 0; i < word.length(); ++i) {
     if (word.unicharset()->get_isalpha(word.unichar_id(i)) ||
-        word.unicharset()->get_isdigit(word.unichar_id(i)))
+        word.unicharset()->get_isdigit(word.unichar_id(i))) {
       count++;
+    }
   }
   return count;
 }
@@ -362,26 +387,29 @@ int16_t Tesseract::count_alphanums(const WERD_CHOICE &word) {
 bool Tesseract::acceptable_number_string(const char *s, const char *lengths) {
   bool prev_digit = false;
 
-  if (*lengths == 1 && *s == '(')
+  if (*lengths == 1 && *s == '(') {
     s++;
+  }
 
-  if (*lengths == 1 && ((*s == '$') || (*s == '.') || (*s == '+') || (*s == '-')))
+  if (*lengths == 1 && ((*s == '$') || (*s == '.') || (*s == '+') || (*s == '-'))) {
     s++;
+  }
 
   for (; *s != '\0'; s += *(lengths++)) {
-    if (unicharset.get_isdigit(s, *lengths))
+    if (unicharset.get_isdigit(s, *lengths)) {
       prev_digit = true;
-    else if (prev_digit && (*lengths == 1 && ((*s == '.') || (*s == ',') || (*s == '-'))))
+    } else if (prev_digit && (*lengths == 1 && ((*s == '.') || (*s == ',') || (*s == '-')))) {
       prev_digit = false;
-    else if (prev_digit && *lengths == 1 && (*(s + *lengths) == '\0') &&
-             ((*s == '%') || (*s == ')')))
+    } else if (prev_digit && *lengths == 1 && (*(s + *lengths) == '\0') &&
+               ((*s == '%') || (*s == ')'))) {
       return true;
-    else if (prev_digit && *lengths == 1 && (*s == '%') &&
-             (*(lengths + 1) == 1 && *(s + *lengths) == ')') &&
-             (*(s + *lengths + *(lengths + 1)) == '\0'))
+    } else if (prev_digit && *lengths == 1 && (*s == '%') &&
+               (*(lengths + 1) == 1 && *(s + *lengths) == ')') &&
+               (*(s + *lengths + *(lengths + 1)) == '\0')) {
       return true;
-    else
+    } else {
       return false;
+    }
   }
   return true;
 }

@@ -60,7 +60,7 @@ public:
 
 class TableFinderTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     free_boxes_it_.set_to_list(&free_boxes_);
     finder_ = std::make_unique<TestableTableFinder>();
@@ -70,9 +70,10 @@ protected:
     finder_->set_global_median_blob_width(5);
   }
 
-  void TearDown() {
-    if (partition_.get() != nullptr)
+  void TearDown() override {
+    if (partition_.get() != nullptr) {
       partition_->DeleteBoxes();
+    }
     DeletePartitionListBoxes();
     finder_.reset(nullptr);
   }
@@ -83,8 +84,9 @@ protected:
 
   void MakePartition(int x_min, int y_min, int x_max, int y_max, int first_column,
                      int last_column) {
-    if (partition_.get() != nullptr)
+    if (partition_.get() != nullptr) {
       partition_->DeleteBoxes();
+    }
     TBOX box;
     box.set_to_given_coords(x_min, y_min, x_max, y_max);
     partition_.reset(ColPartition::FakePartition(box, PT_UNKNOWN, BRT_UNKNOWN, BTFT_NONE));
@@ -130,30 +132,37 @@ private:
 
 TEST_F(TableFinderTest, GapInXProjectionNoGap) {
   int data[100];
-  for (int i = 0; i < 100; ++i)
-    data[i] = 10;
+  for (int &i : data) {
+    i = 10;
+  }
   EXPECT_FALSE(finder_->GapInXProjection(data, 100));
 }
 
 TEST_F(TableFinderTest, GapInXProjectionEdgeGap) {
   int data[100];
-  for (int i = 0; i < 10; ++i)
+  for (int i = 0; i < 10; ++i) {
     data[i] = 2;
-  for (int i = 10; i < 90; ++i)
+  }
+  for (int i = 10; i < 90; ++i) {
     data[i] = 10;
-  for (int i = 90; i < 100; ++i)
+  }
+  for (int i = 90; i < 100; ++i) {
     data[i] = 2;
+  }
   EXPECT_FALSE(finder_->GapInXProjection(data, 100));
 }
 
 TEST_F(TableFinderTest, GapInXProjectionExists) {
   int data[100];
-  for (int i = 0; i < 10; ++i)
+  for (int i = 0; i < 10; ++i) {
     data[i] = 10;
-  for (int i = 10; i < 90; ++i)
+  }
+  for (int i = 10; i < 90; ++i) {
     data[i] = 2;
-  for (int i = 90; i < 100; ++i)
+  }
+  for (int i = 90; i < 100; ++i) {
     data[i] = 10;
+  }
   EXPECT_TRUE(finder_->GapInXProjection(data, 100));
 }
 
@@ -201,7 +210,7 @@ TEST_F(TableFinderTest, SplitAndInsertFragmentedPartitionsBasicPass) {
   finder_->set_global_median_xheight(10);
 
   TBOX part_box(10, 5, 100, 15);
-  ColPartition *all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
+  auto *all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
   all->set_type(PT_FLOWING_TEXT);
   all->set_blob_type(BRT_TEXT);
   all->set_flow(BTFT_CHAIN);
@@ -241,7 +250,7 @@ TEST_F(TableFinderTest, SplitAndInsertFragmentedPartitionsBasicFail) {
   finder_->set_global_median_xheight(10);
 
   TBOX part_box(10, 5, 100, 15);
-  ColPartition *all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
+  auto *all = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
   all->set_type(PT_FLOWING_TEXT);
   all->set_blob_type(BRT_TEXT);
   all->set_flow(BTFT_CHAIN);

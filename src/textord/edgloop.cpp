@@ -83,10 +83,11 @@ ScrollView::Color check_path_legal( // certify outline
     if (edgept->stepdir != lastchain) {
       // chain code difference
       chaindiff = edgept->stepdir - lastchain;
-      if (chaindiff > 2)
+      if (chaindiff > 2) {
         chaindiff -= 4;
-      else if (chaindiff < -2)
+      } else if (chaindiff < -2) {
         chaindiff += 4;
+      }
       chainsum += chaindiff; // sum differences
       lastchain = edgept->stepdir;
     }
@@ -129,15 +130,16 @@ int16_t loop_bounding_box( // get bounding box
   length = 0; // coutn length
   do {
     edgept = edgept->next;
-    if (edgept->pos.x() < botleft.x())
+    if (edgept->pos.x() < botleft.x()) {
       // get bounding box
       botleft.set_x(edgept->pos.x());
-    else if (edgept->pos.x() > topright.x())
+    } else if (edgept->pos.x() > topright.x()) {
       topright.set_x(edgept->pos.x());
-    if (edgept->pos.y() < botleft.y())
+    }
+    if (edgept->pos.y() < botleft.y()) {
       // get bounding box
       botleft.set_y(edgept->pos.y());
-    else if (edgept->pos.y() > topright.y()) {
+    } else if (edgept->pos.y() > topright.y()) {
       realstart = edgept;
       leftmost = edgept->pos.x();
       topright.set_y(edgept->pos.y());

@@ -200,13 +200,15 @@ void BLOCK::print( // print list of sides
 
   if (dump) {
     tprintf("Left side coords are:\n");
-    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       tprintf("(%d,%d) ", it.data()->x(), it.data()->y());
+    }
     tprintf("\n");
     tprintf("Right side coords are:\n");
     it.set_to_list(&pdblk.rightside);
-    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       tprintf("(%d,%d) ", it.data()->x(), it.data()->y());
+    }
     tprintf("\n");
   }
 }
@@ -226,8 +228,9 @@ BLOCK &BLOCK::operator=( // assignment
   kerning = source.kerning;
   spacing = source.spacing;
   filename = source.filename; // STRINGs assign ok
-  if (!rows.empty())
+  if (!rows.empty()) {
     rows.clear();
+  }
   re_rotation_ = source.re_rotation_;
   classify_rotation_ = source.classify_rotation_;
   skew_ = source.skew_;
@@ -247,8 +250,9 @@ BLOCK &BLOCK::operator=( // assignment
 static bool LeftMargin(ICOORDELT_LIST *segments, int x, int *margin) {
   bool found = false;
   *margin = 0;
-  if (segments->empty())
+  if (segments->empty()) {
     return found;
+  }
   ICOORDELT_IT seg_it(segments);
   for (seg_it.mark_cycle_pt(); !seg_it.cycled_list(); seg_it.forward()) {
     int cur_margin = x - seg_it.data()->x();
@@ -277,8 +281,9 @@ static bool LeftMargin(ICOORDELT_LIST *segments, int x, int *margin) {
 static bool RightMargin(ICOORDELT_LIST *segments, int x, int *margin) {
   bool found = false;
   *margin = 0;
-  if (segments->empty())
+  if (segments->empty()) {
     return found;
+  }
   ICOORDELT_IT seg_it(segments);
   for (seg_it.mark_cycle_pt(); !seg_it.cycled_list(); seg_it.forward()) {
     int cur_margin = seg_it.data()->x() + seg_it.data()->y() - x;
@@ -352,10 +357,12 @@ void BLOCK::compute_row_margins() {
       if (bbox.bottom() <= mid_second_line) {
         // we found a real drop cap
         first_row->set_has_drop_cap(true);
-        if (drop_cap_bottom > bbox.bottom())
+        if (drop_cap_bottom > bbox.bottom()) {
           drop_cap_bottom = bbox.bottom();
-        if (drop_cap_right < bbox.right())
+        }
+        if (drop_cap_right < bbox.right()) {
           drop_cap_right = bbox.right();
+        }
       }
     }
   }
@@ -374,10 +381,12 @@ void BLOCK::compute_row_margins() {
 
     if (row_box.top() >= drop_cap_bottom) {
       int drop_cap_distance = row_box.left() - row->space() - drop_cap_right;
-      if (drop_cap_distance < 0)
+      if (drop_cap_distance < 0) {
         drop_cap_distance = 0;
-      if (drop_cap_distance < left_margin)
+      }
+      if (drop_cap_distance < left_margin) {
         left_margin = drop_cap_distance;
+      }
     }
 
     int right_y = row->base_line(row_box.right()) + row->x_height();
@@ -469,8 +478,9 @@ void RefreshWordBlobsFromNewBlobs(BLOCK_LIST *block_list, C_BLOB_LIST *new_blobs
   BLOCK_IT block_it(block_list);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     BLOCK *block = block_it.data();
-    if (block->pdblk.poly_block() != nullptr && !block->pdblk.poly_block()->IsText())
+    if (block->pdblk.poly_block() != nullptr && !block->pdblk.poly_block()->IsText()) {
       continue; // Don't touch non-text blocks.
+    }
     // Iterate over all rows in the block.
     ROW_IT row_it(block->row_list());
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {

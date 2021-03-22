@@ -41,8 +41,9 @@ void GridBase::Init(int gridsize, const ICOORD &bleft, const ICOORD &tright) {
   gridsize_ = gridsize;
   bleft_ = bleft;
   tright_ = tright;
-  if (gridsize_ == 0)
+  if (gridsize_ == 0) {
     gridsize_ = 1;
+  }
   gridwidth_ = (tright.x() - bleft.x() + gridsize_ - 1) / gridsize_;
   gridheight_ = (tright.y() - bleft.y() + gridsize_ - 1) / gridsize_;
   gridbuckets_ = gridwidth_ * gridheight_;
@@ -140,8 +141,9 @@ IntGrid *IntGrid::NeighbourhoodSum() const {
           cell_count += GridCellValue(grid_x, grid_y);
         }
       }
-      if (GridCellValue(x, y) > 1)
+      if (GridCellValue(x, y) > 1) {
         sumgrid->SetGridCell(x, y, cell_count);
+      }
     }
   }
   return sumgrid;
@@ -174,8 +176,9 @@ bool IntGrid::AnyZeroInRect(const TBOX &rect) const {
   GridCoords(rect.right(), rect.top(), &max_x, &max_y);
   for (int y = min_y; y <= max_y; ++y) {
     for (int x = min_x; x <= max_x; ++x) {
-      if (GridCellValue(x, y) == 0)
+      if (GridCellValue(x, y) == 0) {
         return true;
+      }
     }
   }
   return false;

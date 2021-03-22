@@ -45,12 +45,12 @@ const int kBatchIterations = 1;
 // The fixture for testing LSTMTrainer.
 class LSTMTrainerTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     file::MakeTmpdir();
   }
 
-  LSTMTrainerTest() {}
+  LSTMTrainerTest() = default;
   std::string TestDataNameToPath(const std::string &name) {
     return file::JoinPath(TESTDATA_DIR, "" + name);
   }
@@ -85,14 +85,16 @@ protected:
     int net_mode = adam ? NF_ADAM : 0;
     // Adam needs a higher learning rate, due to not multiplying the effective
     // rate by 1/(1-momentum).
-    if (adam)
+    if (adam) {
       learning_rate *= 20.0f;
-    if (layer_specific)
+    }
+    if (layer_specific) {
       net_mode |= NF_LAYER_SPECIFIC_LR;
+    }
     EXPECT_TRUE(
         trainer_->InitNetwork(network_spec.c_str(), -1, net_mode, 0.1, learning_rate, 0.9, 0.999));
     std::vector<std::string> filenames;
-    filenames.push_back(std::string(TestDataNameToPath(lstmf_file).c_str()));
+    filenames.emplace_back(TestDataNameToPath(lstmf_file).c_str());
     EXPECT_TRUE(trainer_->LoadAllTrainingData(filenames, CS_SEQUENTIAL, false));
     LOG(INFO) << "Setup network:" << model_name << "\n";
   }
@@ -114,8 +116,9 @@ protected:
       trainer_->MaintainCheckpoints(nullptr, log_str);
       iteration = trainer_->training_iteration();
       mean_error *= 100.0 / kBatchIterations;
-      if (mean_error < best_error)
+      if (mean_error < best_error) {
         best_error = mean_error;
+      }
     } while (iteration < iteration_limit);
     LOG(INFO) << "Trainer error rate = " << best_error << "\n";
     return best_error;

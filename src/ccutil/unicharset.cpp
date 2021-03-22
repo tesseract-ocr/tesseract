@@ -168,8 +168,9 @@ UNICHARSET::UNICHARSET() : ids(), script_table(nullptr), script_table_size_used(
   clear();
   for (int i = 0; i < SPECIAL_UNICHAR_CODES_COUNT; ++i) {
     unichar_insert(kSpecialUnicharCodes[i]);
-    if (i == UNICHAR_JOINED)
+    if (i == UNICHAR_JOINED) {
       set_isngram(i, true);
+    }
   }
 }
 
@@ -188,8 +189,9 @@ UNICHARSET::unichar_to_id(const char *const unichar_repr) const {
 UNICHAR_ID UNICHARSET::unichar_to_id(const char *const unichar_repr, int length) const {
   assert(length > 0 && length <= UNICHAR_LEN);
   std::string cleaned(unichar_repr, length);
-  if (!old_style_included_)
+  if (!old_style_included_) {
     cleaned = CleanupString(unichar_repr, length);
+  }
   return ids.contains(cleaned.data(), cleaned.size())
              ? ids.unichar_to_id(cleaned.data(), cleaned.size())
              : INVALID_UNICHAR_ID;
@@ -204,8 +206,9 @@ int UNICHARSET::step(const char *str) const {
   std::vector<UNICHAR_ID> encoding;
   std::vector<char> lengths;
   encode_string(str, true, &encoding, &lengths, nullptr);
-  if (encoding.empty() || encoding[0] == INVALID_UNICHAR_ID)
+  if (encoding.empty() || encoding[0] == INVALID_UNICHAR_ID) {
     return 0;
+  }
   return lengths[0];
 }
 
@@ -242,11 +245,13 @@ bool UNICHARSET::encode_string(const char *str, bool give_up_on_failure,
     if (str_pos < str_length) {
       // This is a non-match. Skip one utf-8 character.
       perfect = false;
-      if (give_up_on_failure)
+      if (give_up_on_failure) {
         break;
+      }
       int step = UNICHAR::utf8_step(str + str_pos);
-      if (step == 0)
+      if (step == 0) {
         step = 1;
+      }
       encoding->push_back(INVALID_UNICHAR_ID);
       best_lengths.push_back(step);
       str_pos += step;
@@ -254,10 +259,12 @@ bool UNICHARSET::encode_string(const char *str, bool give_up_on_failure,
       working_lengths = best_lengths;
     }
   }
-  if (lengths != nullptr)
+  if (lengths != nullptr) {
     *lengths = best_lengths;
-  if (encoded_length != nullptr)
+  }
+  if (encoded_length != nullptr) {
     *encoded_length = str_pos;
+  }
   return perfect;
 }
 
@@ -314,8 +321,9 @@ std::string UNICHARSET::debug_utf8_str(const char *str) {
 // Return a string containing debug information on the unichar, including
 // the id_to_unichar, its hex unicodes and the properties.
 std::string UNICHARSET::debug_str(UNICHAR_ID id) const {
-  if (id == INVALID_UNICHAR_ID)
+  if (id == INVALID_UNICHAR_ID) {
     return std::string(id_to_unichar(id));
+  }
   const CHAR_FRAGMENT *fragment = this->get_fragment(id);
   if (fragment) {
     return fragment->to_string();
@@ -324,12 +332,13 @@ std::string UNICHARSET::debug_str(UNICHAR_ID id) const {
   std::string result = debug_utf8_str(str);
   // Append a for lower alpha, A for upper alpha, and x if alpha but neither.
   if (get_isalpha(id)) {
-    if (get_islower(id))
+    if (get_islower(id)) {
       result += "a";
-    else if (get_isupper(id))
+    } else if (get_isupper(id)) {
       result += "A";
-    else
+    } else {
       result += "x";
+    }
   }
   // Append 0 if a digit.
   if (get_isdigit(id)) {
@@ -476,16 +485,19 @@ void UNICHARSET::encode_string(const char *str, int str_index, int str_length,
     // This is the best result so far.
     *best_total_length = str_index;
     *best_encoding = *encoding;
-    if (best_lengths != nullptr)
+    if (best_lengths != nullptr) {
       *best_lengths = *lengths;
+    }
   }
-  if (str_index == str_length)
+  if (str_index == str_length) {
     return;
+  }
   int encoding_index = encoding->size();
   // Find the length of the first matching unicharset member.
   int length = ids.minmatch(str + str_index);
-  if (length == 0 || str_index + length > str_length)
+  if (length == 0 || str_index + length > str_length) {
     return;
+  }
   do {
     if (ids.contains(str + str_index, length)) {
       // Successful encoding so far.
@@ -494,15 +506,17 @@ void UNICHARSET::encode_string(const char *str, int str_index, int str_length,
       lengths->push_back(length);
       encode_string(str, str_index + length, str_length, encoding, lengths, best_total_length,
                     best_encoding, best_lengths);
-      if (*best_total_length == str_length)
+      if (*best_total_length == str_length) {
         return; // Tail recursion success!
+      }
       // Failed with that length, truncate back and try again.
       encoding->resize(encoding_index);
       lengths->resize(encoding_index);
     }
     int step = UNICHAR::utf8_step(str + str_index + length);
-    if (step == 0)
+    if (step == 0) {
       step = 1;
+    }
     length += step;
   } while (length <= UNICHAR_LEN && str_index + length <= str_length);
 }
@@ -517,26 +531,34 @@ bool UNICHARSET::GetStrProperties(const char *utf8_str, UNICHAR_PROPERTIES *prop
   props->SetRangesEmpty();
   int total_unicodes = 0;
   std::vector<UNICHAR_ID> encoding;
-  if (!encode_string(utf8_str, true, &encoding, nullptr, nullptr))
+  if (!encode_string(utf8_str, true, &encoding, nullptr, nullptr)) {
     return false; // Some part was invalid.
+  }
   for (auto it : encoding) {
     int id = it;
     const UNICHAR_PROPERTIES &src_props = unichars[id].properties;
     // Logical OR all the bools.
-    if (src_props.isalpha)
+    if (src_props.isalpha) {
       props->isalpha = true;
-    if (src_props.islower)
+    }
+    if (src_props.islower) {
       props->islower = true;
-    if (src_props.isupper)
+    }
+    if (src_props.isupper) {
       props->isupper = true;
-    if (src_props.isdigit)
+    }
+    if (src_props.isdigit) {
       props->isdigit = true;
-    if (src_props.ispunctuation)
+    }
+    if (src_props.ispunctuation) {
       props->ispunctuation = true;
-    if (src_props.isngram)
+    }
+    if (src_props.isngram) {
       props->isngram = true;
-    if (src_props.enabled)
+    }
+    if (src_props.enabled) {
       props->enabled = true;
+    }
     // Min/max the tops/bottoms.
     UpdateRange(src_props.min_bottom, &props->min_bottom, &props->max_bottom);
     UpdateRange(src_props.max_bottom, &props->min_bottom, &props->max_bottom);
@@ -577,42 +599,54 @@ bool UNICHARSET::GetStrProperties(const char *utf8_str, UNICHAR_PROPERTIES *prop
 
 unsigned int UNICHARSET::get_properties(UNICHAR_ID id) const {
   unsigned int properties = 0;
-  if (this->get_isalpha(id))
+  if (this->get_isalpha(id)) {
     properties |= ISALPHA_MASK;
-  if (this->get_islower(id))
+  }
+  if (this->get_islower(id)) {
     properties |= ISLOWER_MASK;
-  if (this->get_isupper(id))
+  }
+  if (this->get_isupper(id)) {
     properties |= ISUPPER_MASK;
-  if (this->get_isdigit(id))
+  }
+  if (this->get_isdigit(id)) {
     properties |= ISDIGIT_MASK;
-  if (this->get_ispunctuation(id))
+  }
+  if (this->get_ispunctuation(id)) {
     properties |= ISPUNCTUATION_MASK;
+  }
   return properties;
 }
 
 char UNICHARSET::get_chartype(UNICHAR_ID id) const {
-  if (this->get_isupper(id))
+  if (this->get_isupper(id)) {
     return 'A';
-  if (this->get_islower(id))
+  }
+  if (this->get_islower(id)) {
     return 'a';
-  if (this->get_isalpha(id))
+  }
+  if (this->get_isalpha(id)) {
     return 'x';
-  if (this->get_isdigit(id))
+  }
+  if (this->get_isdigit(id)) {
     return '0';
-  if (this->get_ispunctuation(id))
+  }
+  if (this->get_ispunctuation(id)) {
     return 'p';
+  }
   return 0;
 }
 
 void UNICHARSET::unichar_insert(const char *const unichar_repr, OldUncleanUnichars old_style) {
-  if (old_style == OldUncleanUnichars::kTrue)
+  if (old_style == OldUncleanUnichars::kTrue) {
     old_style_included_ = true;
+  }
   std::string cleaned = old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
   if (!cleaned.empty() && !ids.contains(cleaned.data(), cleaned.size())) {
     const char *str = cleaned.c_str();
     std::vector<int> encoding;
-    if (!old_style_included_ && encode_string(str, true, &encoding, nullptr, nullptr))
+    if (!old_style_included_ && encode_string(str, true, &encoding, nullptr, nullptr)) {
       return;
+    }
     auto &u = unichars.emplace_back();
     int index = 0;
     do {
@@ -648,8 +682,9 @@ bool UNICHARSET::contains_unichar(const char *const unichar_repr, int length) co
     return false;
   }
   std::string cleaned(unichar_repr, length);
-  if (!old_style_included_)
+  if (!old_style_included_) {
     cleaned = CleanupString(unichar_repr, length);
+  }
   return ids.contains(cleaned.data(), cleaned.size());
 }
 
@@ -806,14 +841,16 @@ bool UNICHARSET::load_via_fgets(std::function<char *(char *, int)> fgets_cb, boo
       int num_pieces = frag->get_total();
       delete frag;
       // Skip multi-element fragments, but keep singles like UNICHAR_BROKEN in.
-      if (num_pieces > 1)
+      if (num_pieces > 1) {
         continue;
+      }
     }
     // Insert unichar into unicharset and set its properties.
-    if (strcmp(unichar, "NULL") == 0)
+    if (strcmp(unichar, "NULL") == 0) {
       this->unichar_insert(" ");
-    else
+    } else {
       this->unichar_insert_backwards_compatible(unichar);
+    }
 
     this->set_isalpha(id, properties & ISALPHA_MASK);
     this->set_islower(id, properties & ISLOWER_MASK);
@@ -852,17 +889,20 @@ void UNICHARSET::post_load_setup() {
     int min_top = 0;
     int max_top = UINT8_MAX;
     get_top_bottom(id, &min_bottom, &max_bottom, &min_top, &max_top);
-    if (min_top > 0)
+    if (min_top > 0) {
       top_bottom_set_ = true;
+    }
     if (get_isalpha(id)) {
-      if (get_islower(id) || get_isupper(id))
+      if (get_islower(id) || get_isupper(id)) {
         ++net_case_alphas;
-      else
+      } else {
         --net_case_alphas;
-      if (min_top < kMeanlineThreshold && max_top < kMeanlineThreshold)
+      }
+      if (min_top < kMeanlineThreshold && max_top < kMeanlineThreshold) {
         ++x_height_alphas;
-      else if (min_top > kMeanlineThreshold && max_top > kMeanlineThreshold)
+      } else if (min_top > kMeanlineThreshold && max_top > kMeanlineThreshold) {
         ++cap_height_alphas;
+      }
     }
     set_normed_ids(id);
   }
@@ -895,8 +935,9 @@ void UNICHARSET::post_load_setup() {
   }
   default_sid_ = 0;
   for (int s = 1; s < script_table_size_used; ++s) {
-    if (script_counts[s] > script_counts[default_sid_] && s != common_sid_)
+    if (script_counts[s] > script_counts[default_sid_] && s != common_sid_) {
       default_sid_ = s;
+    }
   }
   delete[] script_counts;
 }
@@ -910,11 +951,13 @@ bool UNICHARSET::major_right_to_left() const {
   int rtl_count = 0;
   for (unsigned id = 0; id < unichars.size(); ++id) {
     int dir = get_direction(id);
-    if (dir == UNICHARSET::U_LEFT_TO_RIGHT)
+    if (dir == UNICHARSET::U_LEFT_TO_RIGHT) {
       ltr_count++;
+    }
     if (dir == UNICHARSET::U_RIGHT_TO_LEFT || dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC ||
-        dir == UNICHARSET::U_ARABIC_NUMBER)
+        dir == UNICHARSET::U_ARABIC_NUMBER) {
       rtl_count++;
+    }
   }
   return rtl_count > ltr_count;
 }
@@ -927,15 +970,17 @@ void UNICHARSET::set_black_and_whitelist(const char *blacklist, const char *whit
                                          const char *unblacklist) {
   bool def_enabled = whitelist == nullptr || whitelist[0] == '\0';
   // Set everything to default
-  for (auto &uc : unichars)
+  for (auto &uc : unichars) {
     uc.properties.enabled = def_enabled;
+  }
   if (!def_enabled) {
     // Enable the whitelist.
     std::vector<UNICHAR_ID> encoding;
     encode_string(whitelist, false, &encoding, nullptr, nullptr);
     for (auto it : encoding) {
-      if (it != INVALID_UNICHAR_ID)
+      if (it != INVALID_UNICHAR_ID) {
         unichars[it].properties.enabled = true;
+      }
     }
   }
   if (blacklist != nullptr && blacklist[0] != '\0') {
@@ -943,8 +988,9 @@ void UNICHARSET::set_black_and_whitelist(const char *blacklist, const char *whit
     std::vector<UNICHAR_ID> encoding;
     encode_string(blacklist, false, &encoding, nullptr, nullptr);
     for (auto it : encoding) {
-      if (it != INVALID_UNICHAR_ID)
+      if (it != INVALID_UNICHAR_ID) {
         unichars[it].properties.enabled = false;
+      }
     }
   }
   if (unblacklist != nullptr && unblacklist[0] != '\0') {
@@ -952,8 +998,9 @@ void UNICHARSET::set_black_and_whitelist(const char *blacklist, const char *whit
     std::vector<UNICHAR_ID> encoding;
     encode_string(unblacklist, false, &encoding, nullptr, nullptr);
     for (auto it : encoding) {
-      if (it != INVALID_UNICHAR_ID)
+      if (it != INVALID_UNICHAR_ID) {
         unichars[it].properties.enabled = true;
+      }
     }
   }
 }
@@ -962,14 +1009,16 @@ void UNICHARSET::set_black_and_whitelist(const char *blacklist, const char *whit
 // text of any unichar-id in the unicharset.
 bool UNICHARSET::AnyRepeatedUnicodes() const {
   int start_id = 0;
-  if (has_special_codes())
+  if (has_special_codes()) {
     start_id = SPECIAL_UNICHAR_CODES_COUNT;
+  }
   for (int id = start_id; id < unichars.size(); ++id) {
     // Convert to unicodes.
     std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(get_normed_unichar(id));
     for (size_t u = 1; u < unicodes.size(); ++u) {
-      if (unicodes[u - 1] == unicodes[u])
+      if (unicodes[u - 1] == unicodes[u]) {
         return true;
+      }
     }
   }
   return false;
@@ -977,8 +1026,9 @@ bool UNICHARSET::AnyRepeatedUnicodes() const {
 
 int UNICHARSET::add_script(const char *script) {
   for (int i = 0; i < script_table_size_used; ++i) {
-    if (strcmp(script, script_table[i]) == 0)
+    if (strcmp(script, script_table[i]) == 0) {
       return i;
+    }
   }
   if (script_table_size_reserved == 0) {
     script_table_size_reserved = 8;
@@ -999,8 +1049,9 @@ int UNICHARSET::add_script(const char *script) {
 // Returns the string that represents a fragment
 // with the given unichar, pos and total.
 std::string CHAR_FRAGMENT::to_string(const char *unichar, int pos, int total, bool natural) {
-  if (total == 1)
+  if (total == 1) {
     return std::string(unichar);
+  }
   std::string result;
   result += kSeparator;
   result += unichar;
@@ -1035,10 +1086,11 @@ CHAR_FRAGMENT *CHAR_FRAGMENT::parse_from_string(const char *string) {
   char *end_ptr = nullptr;
   for (int i = 0; i < 2; i++) {
     if (ptr > string + len || *ptr != kSeparator) {
-      if (i == 1 && *ptr == kNaturalFlag)
+      if (i == 1 && *ptr == kNaturalFlag) {
         natural = true;
-      else
+      } else {
         return nullptr; // Failed to parse fragment representation.
+      }
     }
     ptr++; // move to the next character
     i == 0 ? pos = static_cast<int>(strtol(ptr, &end_ptr, 10))
@@ -1055,8 +1107,9 @@ CHAR_FRAGMENT *CHAR_FRAGMENT::parse_from_string(const char *string) {
 
 int UNICHARSET::get_script_id_from_name(const char *script_name) const {
   for (int i = 0; i < script_table_size_used; ++i) {
-    if (strcmp(script_name, script_table[i]) == 0)
+    if (strcmp(script_name, script_table[i]) == 0) {
       return i;
+    }
   }
   return 0; // 0 is always the null_script
 }
@@ -1073,8 +1126,9 @@ std::string UNICHARSET::CleanupString(const char *utf8_str, size_t length) {
     const char *key;
     while ((key = kCleanupMaps[key_index][0]) != nullptr) {
       int match = 0;
-      while (key[match] != '\0' && key[match] == utf8_str[match])
+      while (key[match] != '\0' && key[match] == utf8_str[match]) {
         ++match;
+      }
       if (key[match] == '\0') {
         utf8_str += match;
         break;

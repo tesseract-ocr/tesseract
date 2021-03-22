@@ -115,8 +115,9 @@ C_OUTLINE::C_OUTLINE(
     if ((dirdiff == 64 || dirdiff == -64) && stepindex > 0) {
       stepindex -= 2; // cancel there-and-back
       prevdir = stepindex >= 0 ? step_dir(stepindex) : lastdir;
-    } else
+    } else {
       prevdir = dir;
+    }
   }
   ASSERT_HOST(pos.x() == startpt.x() && pos.y() == startpt.y());
   do {
@@ -124,8 +125,9 @@ C_OUTLINE::C_OUTLINE(
     if (dirdiff == 64 || dirdiff == -64) {
       start += step(0);
       stepindex -= 2; // cancel there-and-back
-      for (int i = 0; i < stepindex; ++i)
+      for (int i = 0; i < stepindex; ++i) {
         set_step(i, step_dir(i + 1));
+      }
     }
   } while (stepindex > 1 && (dirdiff == 64 || dirdiff == -64));
   stepcount = stepindex;
@@ -221,11 +223,13 @@ C_OUTLINE::C_OUTLINE(C_OUTLINE *srcline, FCOORD rotation) : offsets(nullptr) {
       }
       start += step(0);
       destindex -= 2;
-      for (int i = 0; i < destindex; ++i)
+      for (int i = 0; i < destindex; ++i) {
         set_step(i, step_dir(i + 1));
+      }
     }
-    if (destindex >= 4)
+    if (destindex >= 4) {
       break;
+    }
   }
   ASSERT_HOST(destindex <= stepcount);
   stepcount = destindex;
@@ -269,14 +273,16 @@ int32_t C_OUTLINE::area() const {
   for (stepindex = 0; stepindex < total_steps; stepindex++) {
     // all intersected
     next_step = step(stepindex);
-    if (next_step.x() < 0)
+    if (next_step.x() < 0) {
       total += pos.y();
-    else if (next_step.x() > 0)
+    } else if (next_step.x() > 0) {
       total -= pos.y();
+    }
     pos += next_step;
   }
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     total += it.data()->area(); // add areas of children
+  }
 
   return total;
 }
@@ -294,8 +300,9 @@ int32_t C_OUTLINE::perimeter() const {
   C_OUTLINE_IT it(const_cast<C_OUTLINE_LIST *>(&children));
 
   total_steps = pathlength();
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     total_steps += it.data()->pathlength(); // Add perimeters of children.
+  }
 
   return total_steps;
 }
@@ -315,16 +322,18 @@ int32_t C_OUTLINE::outer_area() const {
 
   pos = start_pos();
   total_steps = pathlength();
-  if (total_steps == 0)
+  if (total_steps == 0) {
     return box.area();
+  }
   total = 0;
   for (stepindex = 0; stepindex < total_steps; stepindex++) {
     // all intersected
     next_step = step(stepindex);
-    if (next_step.x() < 0)
+    if (next_step.x() < 0) {
       total += pos.y();
-    else if (next_step.x() > 0)
+    } else if (next_step.x() > 0) {
       total -= pos.y();
+    }
     pos += next_step;
   }
 
@@ -372,8 +381,9 @@ int32_t C_OUTLINE::count_transitions(int32_t threshold) {
     next_step = step(stepindex);
     pos += next_step;
     if (next_step.x() < 0) {
-      if (looking_for_max_x && pos.x() < min_x)
+      if (looking_for_max_x && pos.x() < min_x) {
         min_x = pos.x();
+      }
       if (looking_for_min_x && max_x - pos.x() > threshold) {
         if (looking_for_max_x) {
           initial_x = max_x;
@@ -385,8 +395,9 @@ int32_t C_OUTLINE::count_transitions(int32_t threshold) {
         min_x = pos.x(); // reset min
       }
     } else if (next_step.x() > 0) {
-      if (looking_for_min_x && pos.x() > max_x)
+      if (looking_for_min_x && pos.x() > max_x) {
         max_x = pos.x();
+      }
       if (looking_for_max_x && pos.x() - min_x > threshold) {
         if (looking_for_min_x) {
           initial_x = min_x; // remember first min
@@ -398,8 +409,9 @@ int32_t C_OUTLINE::count_transitions(int32_t threshold) {
         max_x = pos.x();
       }
     } else if (next_step.y() < 0) {
-      if (looking_for_max_y && pos.y() < min_y)
+      if (looking_for_max_y && pos.y() < min_y) {
         min_y = pos.y();
+      }
       if (looking_for_min_y && max_y - pos.y() > threshold) {
         if (looking_for_max_y) {
           initial_y = max_y; // remember first max
@@ -411,8 +423,9 @@ int32_t C_OUTLINE::count_transitions(int32_t threshold) {
         min_y = pos.y(); // reset min
       }
     } else {
-      if (looking_for_min_y && pos.y() > max_y)
+      if (looking_for_min_y && pos.y() > max_y) {
         max_y = pos.y();
+      }
       if (looking_for_max_y && pos.y() - min_y > threshold) {
         if (looking_for_min_y) {
           initial_y = min_y; // remember first min
@@ -426,26 +439,30 @@ int32_t C_OUTLINE::count_transitions(int32_t threshold) {
     }
   }
   if (first_was_max_x && looking_for_min_x) {
-    if (max_x - initial_x > threshold)
+    if (max_x - initial_x > threshold) {
       total++;
-    else
+    } else {
       total--;
+    }
   } else if (!first_was_max_x && looking_for_max_x) {
-    if (initial_x - min_x > threshold)
+    if (initial_x - min_x > threshold) {
       total++;
-    else
+    } else {
       total--;
+    }
   }
   if (first_was_max_y && looking_for_min_y) {
-    if (max_y - initial_y > threshold)
+    if (max_y - initial_y > threshold) {
       total++;
-    else
+    } else {
       total--;
+    }
   } else if (!first_was_max_y && looking_for_max_y) {
-    if (initial_y - min_y > threshold)
+    if (initial_y - min_y > threshold) {
       total++;
-    else
+    } else {
       total--;
+    }
   }
 
   return total;
@@ -463,22 +480,27 @@ bool C_OUTLINE::operator<(const C_OUTLINE &other) const {
   ICOORD pos;        // position of point
   int32_t stepindex; // index to cstep
 
-  if (!box.overlap(other.box))
+  if (!box.overlap(other.box)) {
     return false; // can't be contained
-  if (stepcount == 0)
+  }
+  if (stepcount == 0) {
     return other.box.contains(this->box);
+  }
 
   pos = start;
   for (stepindex = 0; stepindex < stepcount && (count = other.winding_number(pos)) == INTERSECTING;
-       stepindex++)
+       stepindex++) {
     pos += step(stepindex); // try all points
+  }
   if (count == INTERSECTING) {
     // all intersected
     pos = other.start;
     for (stepindex = 0;
-         stepindex < other.stepcount && (count = winding_number(pos)) == INTERSECTING; stepindex++)
+         stepindex < other.stepcount && (count = winding_number(pos)) == INTERSECTING;
+         stepindex++) {
       // try other way round
       pos += other.step(stepindex);
+    }
     return count == INTERSECTING || count == 0;
   }
   return count != 0;
@@ -505,16 +527,18 @@ int16_t C_OUTLINE::winding_number(ICOORD point) const {
                                // crossing the line
     if (vec.y() <= 0 && vec.y() + stepvec.y() > 0) {
       cross = vec * stepvec; // cross product
-      if (cross > 0)
+      if (cross > 0) {
         count++; // crossing right half
-      else if (cross == 0)
+      } else if (cross == 0) {
         return INTERSECTING; // going through point
+      }
     } else if (vec.y() > 0 && vec.y() + stepvec.y() <= 0) {
       cross = vec * stepvec;
-      if (cross < 0)
+      if (cross < 0) {
         count--; // crossing back
-      else if (cross == 0)
+      } else if (cross == 0) {
         return INTERSECTING; // illegal
+      }
     }
     vec += stepvec; // sum vectors
   }
@@ -534,8 +558,9 @@ int16_t C_OUTLINE::turn_direction() const { // winding number
   int8_t dirdiff;                           // direction difference
   int16_t count;                            // winding count
 
-  if (stepcount == 0)
+  if (stepcount == 0) {
     return 128;
+  }
   count = 0;
   prevdir = step_dir(stepcount - 1);
   for (stepindex = 0; stepindex < stepcount; stepindex++) {
@@ -584,8 +609,9 @@ void C_OUTLINE::move(const ICOORD vec) {
   box.move(vec);
   start += vec;
 
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     it.data()->move(vec); // move child outlines
+  }
 }
 
 /**
@@ -595,16 +621,18 @@ void C_OUTLINE::move(const ICOORD vec) {
  * (probably due to excessive length).
  */
 bool C_OUTLINE::IsLegallyNested() const {
-  if (stepcount == 0)
+  if (stepcount == 0) {
     return true;
+  }
   int64_t parent_area = outer_area();
   // We aren't going to modify the list, or its contents, but there is
   // no const iterator.
   C_OUTLINE_IT child_it(const_cast<C_OUTLINE_LIST *>(&children));
   for (child_it.mark_cycle_pt(); !child_it.cycled_list(); child_it.forward()) {
     const C_OUTLINE *child = child_it.data();
-    if (child->outer_area() * parent_area > 0 || !child->IsLegallyNested())
+    if (child->outer_area() * parent_area > 0 || !child->IsLegallyNested()) {
       return false;
+    }
   }
   return true;
 }
@@ -659,8 +687,9 @@ static void ComputeGradient(const l_uint32 *data, int wpl, int x, int y, int wid
  */
 static bool EvaluateVerticalDiff(const l_uint32 *data, int wpl, int diff_sign, int x, int y,
                                  int height, int *best_diff, int *best_sum, int *best_y) {
-  if (y <= 0 || y >= height)
+  if (y <= 0 || y >= height) {
     return false;
+  }
   const l_uint32 *line = data + y * wpl;
   int pixel1 = GET_DATA_BYTE(line - wpl, x);
   int pixel2 = GET_DATA_BYTE(line, x);
@@ -680,8 +709,9 @@ static bool EvaluateVerticalDiff(const l_uint32 *data, int wpl, int diff_sign, i
  */
 static bool EvaluateHorizontalDiff(const l_uint32 *line, int diff_sign, int x, int width,
                                    int *best_diff, int *best_sum, int *best_x) {
-  if (x <= 0 || x >= width)
+  if (x <= 0 || x >= width) {
     return false;
+  }
   int pixel1 = GET_DATA_BYTE(line, x - 1);
   int pixel2 = GET_DATA_BYTE(line, x);
   int diff = (pixel2 - pixel1) * diff_sign;
@@ -709,8 +739,9 @@ static bool EvaluateHorizontalDiff(const l_uint32 *line, int diff_sign, int x, i
  * direction can be used to ignore the vertical steps.
  */
 void C_OUTLINE::ComputeEdgeOffsets(int threshold, Pix *pix) {
-  if (pixGetDepth(pix) != 8)
+  if (pixGetDepth(pix) != 8) {
     return;
+  }
   const l_uint32 *data = pixGetData(pix);
   int wpl = pixGetWpl(pix);
   int width = pixGetWidth(pix);
@@ -780,8 +811,9 @@ void C_OUTLINE::ComputeEdgeOffsets(int threshold, Pix *pix) {
     }
     offsets[s].offset_numerator = ClipToRange<int>(offset, -INT8_MAX, INT8_MAX);
     offsets[s].pixel_diff = ClipToRange<int>(best_diff, 0, UINT8_MAX);
-    if (negative)
+    if (negative) {
       gradient = -gradient;
+    }
     // Compute gradient angle quantized to 256 directions, rotated by 64 (pi/2)
     // to convert from gradient direction to edge direction.
     offsets[s].direction = Modulo(FCOORD::binary_angle_plus_pi(gradient.angle()) + 64, 256);
@@ -1020,10 +1052,11 @@ void C_OUTLINE::increment_step(int s, int increment, ICOORD *pos, int *dir_count
   int dir_index = chain_code(step_index);
   dir_counts[dir_index] += increment;
   ICOORD step_vec = step(step_index);
-  if (step_vec.x() == 0)
+  if (step_vec.x() == 0) {
     pos_totals[dir_index] += pos->x() * increment;
-  else
+  } else {
     pos_totals[dir_index] += pos->y() * increment;
+  }
   *pos += step_vec;
 }
 

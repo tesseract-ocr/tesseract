@@ -109,12 +109,14 @@ Network::Network(NetworkType type, const std::string &name, int ni, int no)
 void Network::SetEnableTraining(TrainingState state) {
   if (state == TS_RE_ENABLE) {
     // Enable only from temp disabled.
-    if (training_ == TS_TEMP_DISABLE)
+    if (training_ == TS_TEMP_DISABLE) {
       training_ = TS_ENABLED;
+    }
   } else if (state == TS_TEMP_DISABLE) {
     // Temp disable only from enabled.
-    if (training_ == TS_ENABLED)
+    if (training_ == TS_ENABLED) {
       training_ = state;
+    }
   } else {
     training_ = state;
   }
@@ -151,39 +153,50 @@ bool Network::SetupNeedsBackprop(bool needs_backprop) {
 // Writes to the given file. Returns false in case of error.
 bool Network::Serialize(TFile *fp) const {
   int8_t data = NT_NONE;
-  if (!fp->Serialize(&data))
+  if (!fp->Serialize(&data)) {
     return false;
+  }
   std::string type_name = kTypeNames[type_];
-  if (!fp->Serialize(type_name))
+  if (!fp->Serialize(type_name)) {
     return false;
+  }
   data = training_;
-  if (!fp->Serialize(&data))
+  if (!fp->Serialize(&data)) {
     return false;
+  }
   data = needs_to_backprop_;
-  if (!fp->Serialize(&data))
+  if (!fp->Serialize(&data)) {
     return false;
-  if (!fp->Serialize(&network_flags_))
+  }
+  if (!fp->Serialize(&network_flags_)) {
     return false;
-  if (!fp->Serialize(&ni_))
+  }
+  if (!fp->Serialize(&ni_)) {
     return false;
-  if (!fp->Serialize(&no_))
+  }
+  if (!fp->Serialize(&no_)) {
     return false;
-  if (!fp->Serialize(&num_weights_))
+  }
+  if (!fp->Serialize(&num_weights_)) {
     return false;
+  }
   uint32_t length = name_.length();
-  if (!fp->Serialize(&length))
+  if (!fp->Serialize(&length)) {
     return false;
+  }
   return fp->Serialize(name_.c_str(), length);
 }
 
 static NetworkType getNetworkType(TFile *fp) {
   int8_t data;
-  if (!fp->DeSerialize(&data))
+  if (!fp->DeSerialize(&data)) {
     return NT_NONE;
+  }
   if (data == NT_NONE) {
     std::string type_name;
-    if (!fp->DeSerialize(type_name))
+    if (!fp->DeSerialize(type_name)) {
       return NT_NONE;
+    }
     for (data = 0; data < NT_COUNT && type_name != kTypeNames[data]; ++data) {
     }
     if (data == NT_COUNT) {
@@ -209,22 +222,29 @@ Network *Network::CreateFromFile(TFile *fp) {
   int8_t data;
   Network *network = nullptr;
   type = getNetworkType(fp);
-  if (!fp->DeSerialize(&data))
+  if (!fp->DeSerialize(&data)) {
     return nullptr;
+  }
   training = data == TS_ENABLED ? TS_ENABLED : TS_DISABLED;
-  if (!fp->DeSerialize(&data))
+  if (!fp->DeSerialize(&data)) {
     return nullptr;
+  }
   needs_to_backprop = data != 0;
-  if (!fp->DeSerialize(&network_flags))
+  if (!fp->DeSerialize(&network_flags)) {
     return nullptr;
-  if (!fp->DeSerialize(&ni))
+  }
+  if (!fp->DeSerialize(&ni)) {
     return nullptr;
-  if (!fp->DeSerialize(&no))
+  }
+  if (!fp->DeSerialize(&no)) {
     return nullptr;
-  if (!fp->DeSerialize(&num_weights))
+  }
+  if (!fp->DeSerialize(&num_weights)) {
     return nullptr;
-  if (!fp->DeSerialize(name))
+  }
+  if (!fp->DeSerialize(name)) {
     return nullptr;
+  }
 
   switch (type) {
     case NT_CONVOLVE:
@@ -328,17 +348,20 @@ void Network::ClearWindow(bool tess_coords, const char *window_name, int width, 
   if (*window == nullptr) {
     int min_size = std::min(width, height);
     if (min_size < kMinWinSize) {
-      if (min_size < 1)
+      if (min_size < 1) {
         min_size = 1;
+      }
       width = width * kMinWinSize / min_size;
       height = height * kMinWinSize / min_size;
     }
     width += kXWinFrameSize;
     height += kYWinFrameSize;
-    if (width > kMaxWinSize)
+    if (width > kMaxWinSize) {
       width = kMaxWinSize;
-    if (height > kMaxWinSize)
+    }
+    if (height > kMaxWinSize) {
       height = kMaxWinSize;
+    }
     *window = new ScrollView(window_name, 80, 100, width, height, width, height, tess_coords);
     tprintf("Created window %s of size %d, %d\n", window_name, width, height);
   } else {

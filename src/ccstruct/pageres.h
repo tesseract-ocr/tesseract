@@ -356,56 +356,68 @@ public:
   // characters purely based on their shape on the page, and by default produce
   // the corresponding unicode for a left-to-right context.
   const char *BestUTF8(int blob_index, bool in_rtl_context) const {
-    if (blob_index < 0 || best_choice == nullptr || blob_index >= best_choice->length())
+    if (blob_index < 0 || best_choice == nullptr || blob_index >= best_choice->length()) {
       return nullptr;
+    }
     UNICHAR_ID id = best_choice->unichar_id(blob_index);
-    if (id < 0 || id >= uch_set->size())
+    if (id < 0 || id >= uch_set->size()) {
       return nullptr;
+    }
     UNICHAR_ID mirrored = uch_set->get_mirror(id);
-    if (in_rtl_context && mirrored > 0)
+    if (in_rtl_context && mirrored > 0) {
       id = mirrored;
+    }
     return uch_set->id_to_unichar_ext(id);
   }
   // Returns the UTF-8 string for the given blob index in the raw_choice word.
   const char *RawUTF8(int blob_index) const {
-    if (blob_index < 0 || blob_index >= raw_choice->length())
+    if (blob_index < 0 || blob_index >= raw_choice->length()) {
       return nullptr;
+    }
     UNICHAR_ID id = raw_choice->unichar_id(blob_index);
-    if (id < 0 || id >= uch_set->size())
+    if (id < 0 || id >= uch_set->size()) {
       return nullptr;
+    }
     return uch_set->id_to_unichar(id);
   }
 
   UNICHARSET::Direction SymbolDirection(int blob_index) const {
-    if (best_choice == nullptr || blob_index >= best_choice->length() || blob_index < 0)
+    if (best_choice == nullptr || blob_index >= best_choice->length() || blob_index < 0) {
       return UNICHARSET::U_OTHER_NEUTRAL;
+    }
     return uch_set->get_direction(best_choice->unichar_id(blob_index));
   }
 
   bool AnyRtlCharsInWord() const {
-    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1)
+    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1) {
       return false;
+    }
     for (int id = 0; id < best_choice->length(); id++) {
       int unichar_id = best_choice->unichar_id(id);
-      if (unichar_id < 0 || unichar_id >= uch_set->size())
+      if (unichar_id < 0 || unichar_id >= uch_set->size()) {
         continue; // Ignore illegal chars.
+      }
       UNICHARSET::Direction dir = uch_set->get_direction(unichar_id);
-      if (dir == UNICHARSET::U_RIGHT_TO_LEFT || dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC)
+      if (dir == UNICHARSET::U_RIGHT_TO_LEFT || dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC) {
         return true;
+      }
     }
     return false;
   }
 
   bool AnyLtrCharsInWord() const {
-    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1)
+    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1) {
       return false;
+    }
     for (int id = 0; id < best_choice->length(); id++) {
       int unichar_id = best_choice->unichar_id(id);
-      if (unichar_id < 0 || unichar_id >= uch_set->size())
+      if (unichar_id < 0 || unichar_id >= uch_set->size()) {
         continue; // Ignore illegal chars.
+      }
       UNICHARSET::Direction dir = uch_set->get_direction(unichar_id);
-      if (dir == UNICHARSET::U_LEFT_TO_RIGHT || dir == UNICHARSET::U_ARABIC_NUMBER)
+      if (dir == UNICHARSET::U_LEFT_TO_RIGHT || dir == UNICHARSET::U_ARABIC_NUMBER) {
         return true;
+      }
     }
     return false;
   }
@@ -632,8 +644,9 @@ public:
     auto *result = new WERD_RES(*src);
     // That didn't copy the ratings, but we want a copy if there is one to
     // begin with.
-    if (src->ratings != nullptr)
+    if (src->ratings != nullptr) {
       result->ratings = src->ratings->DeepCopy();
+    }
     return result;
   }
 

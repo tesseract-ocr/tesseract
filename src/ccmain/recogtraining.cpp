@@ -43,8 +43,9 @@ FILE *Tesseract::init_recog_training(const char *filename) {
 
   std::string output_fname = filename;
   const char *lastdot = strrchr(output_fname.c_str(), '.');
-  if (lastdot != nullptr)
+  if (lastdot != nullptr) {
     output_fname[lastdot - output_fname.c_str()] = '\0';
+  }
   output_fname += ".txt";
   FILE *output_file = fopen(output_fname.c_str(), "a+");
   if (output_file == nullptr) {
@@ -56,8 +57,9 @@ FILE *Tesseract::init_recog_training(const char *filename) {
 
 // Copies the bounding box from page_res_it->word() to the given TBOX.
 static bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
-  while (page_res_it->block() != nullptr && page_res_it->word() == nullptr)
+  while (page_res_it->block() != nullptr && page_res_it->word() == nullptr) {
     page_res_it->forward();
+  }
 
   if (page_res_it->word() != nullptr) {
     *tbox = page_res_it->word()->word->bounding_box();
@@ -85,8 +87,9 @@ void Tesseract::recog_training_segmented(const char *filename, PAGE_RES *page_re
                                          volatile ETEXT_DESC *monitor, FILE *output_file) {
   std::string box_fname = filename;
   const char *lastdot = strrchr(box_fname.c_str(), '.');
-  if (lastdot != nullptr)
+  if (lastdot != nullptr) {
     box_fname[lastdot - box_fname.c_str()] = '\0';
+  }
   box_fname += ".box";
   // ReadNextBox() will close box_file
   FILE *box_file = fopen(box_fname.c_str(), "r");
@@ -142,8 +145,9 @@ void Tesseract::recog_training_segmented(const char *filename, PAGE_RES *page_re
   int total_words = 0;
   for (page_res_it.restart_page(); page_res_it.block() != nullptr; page_res_it.forward()) {
     if (page_res_it.word()) {
-      if (page_res_it.word()->uch_set == nullptr)
+      if (page_res_it.word()->uch_set == nullptr) {
         page_res_it.word()->SetupFake(unicharset);
+      }
       total_words++;
     }
   }
@@ -164,8 +168,9 @@ static void PrintPath(int length, const BLOB_CHOICE **blob_choices, const UNICHA
     const BLOB_CHOICE *blob_choice = blob_choices[i];
     fprintf(output_file, "%s", unicharset.id_to_unichar(blob_choice->unichar_id()));
     rating += blob_choice->rating();
-    if (certainty > blob_choice->certainty())
+    if (certainty > blob_choice->certainty()) {
       certainty = blob_choice->certainty();
+    }
   }
   fprintf(output_file, "\t%s\t%.4f\t%.4f\n", label, rating, certainty);
 }

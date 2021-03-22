@@ -46,27 +46,35 @@ TrainingSampleSet::FontClassInfo::FontClassInfo()
 
 // Writes to the given file. Returns false in case of error.
 bool TrainingSampleSet::FontClassInfo::Serialize(FILE *fp) const {
-  if (fwrite(&num_raw_samples, sizeof(num_raw_samples), 1, fp) != 1)
+  if (fwrite(&num_raw_samples, sizeof(num_raw_samples), 1, fp) != 1) {
     return false;
-  if (fwrite(&canonical_sample, sizeof(canonical_sample), 1, fp) != 1)
+  }
+  if (fwrite(&canonical_sample, sizeof(canonical_sample), 1, fp) != 1) {
     return false;
-  if (fwrite(&canonical_dist, sizeof(canonical_dist), 1, fp) != 1)
+  }
+  if (fwrite(&canonical_dist, sizeof(canonical_dist), 1, fp) != 1) {
     return false;
-  if (!::tesseract::Serialize(fp, samples))
+  }
+  if (!::tesseract::Serialize(fp, samples)) {
     return false;
+  }
   return true;
 }
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool TrainingSampleSet::FontClassInfo::DeSerialize(bool swap, FILE *fp) {
-  if (fread(&num_raw_samples, sizeof(num_raw_samples), 1, fp) != 1)
+  if (fread(&num_raw_samples, sizeof(num_raw_samples), 1, fp) != 1) {
     return false;
-  if (fread(&canonical_sample, sizeof(canonical_sample), 1, fp) != 1)
+  }
+  if (fread(&canonical_sample, sizeof(canonical_sample), 1, fp) != 1) {
     return false;
-  if (fread(&canonical_dist, sizeof(canonical_dist), 1, fp) != 1)
+  }
+  if (fread(&canonical_dist, sizeof(canonical_dist), 1, fp) != 1) {
     return false;
-  if (!::tesseract::DeSerialize(swap, fp, samples))
+  }
+  if (!::tesseract::DeSerialize(swap, fp, samples)) {
     return false;
+  }
   if (swap) {
     ReverseN(&num_raw_samples, sizeof(num_raw_samples));
     ReverseN(&canonical_sample, sizeof(canonical_sample));
@@ -90,18 +98,23 @@ TrainingSampleSet::~TrainingSampleSet() {
 
 // Writes to the given file. Returns false in case of error.
 bool TrainingSampleSet::Serialize(FILE *fp) const {
-  if (!tesseract::Serialize(fp, samples_))
+  if (!tesseract::Serialize(fp, samples_)) {
     return false;
-  if (!unicharset_.save_to_file(fp))
+  }
+  if (!unicharset_.save_to_file(fp)) {
     return false;
-  if (!font_id_map_.Serialize(fp))
+  }
+  if (!font_id_map_.Serialize(fp)) {
     return false;
+  }
   int8_t not_null = font_class_array_ != nullptr;
-  if (fwrite(&not_null, sizeof(not_null), 1, fp) != 1)
+  if (fwrite(&not_null, sizeof(not_null), 1, fp) != 1) {
     return false;
+  }
   if (not_null) {
-    if (!font_class_array_->SerializeClasses(fp))
+    if (!font_class_array_->SerializeClasses(fp)) {
       return false;
+    }
   }
   return true;
 }
@@ -109,23 +122,28 @@ bool TrainingSampleSet::Serialize(FILE *fp) const {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool TrainingSampleSet::DeSerialize(bool swap, FILE *fp) {
-  if (!tesseract::DeSerialize(swap, fp, samples_))
+  if (!tesseract::DeSerialize(swap, fp, samples_)) {
     return false;
+  }
   num_raw_samples_ = samples_.size();
-  if (!unicharset_.load_from_file(fp))
+  if (!unicharset_.load_from_file(fp)) {
     return false;
-  if (!font_id_map_.DeSerialize(swap, fp))
+  }
+  if (!font_id_map_.DeSerialize(swap, fp)) {
     return false;
+  }
   delete font_class_array_;
   font_class_array_ = nullptr;
   int8_t not_null;
-  if (fread(&not_null, sizeof(not_null), 1, fp) != 1)
+  if (fread(&not_null, sizeof(not_null), 1, fp) != 1) {
     return false;
+  }
   if (not_null) {
     FontClassInfo empty;
     font_class_array_ = new GENERIC_2D_ARRAY<FontClassInfo>(1, 1, empty);
-    if (!font_class_array_->DeSerializeClasses(swap, fp))
+    if (!font_class_array_->DeSerializeClasses(swap, fp)) {
       return false;
+    }
   }
   unicharset_size_ = unicharset_.size();
   return true;
@@ -185,12 +203,14 @@ int TrainingSampleSet::NumClassSamples(int font_id, int class_id, bool randomize
     return 0;
   }
   int font_index = font_id_map_.SparseToCompact(font_id);
-  if (font_index < 0)
+  if (font_index < 0) {
     return 0; // The font has no samples.
-  if (randomize)
+  }
+  if (randomize) {
     return (*font_class_array_)(font_index, class_id).samples.size();
-  else
+  } else {
     return (*font_class_array_)(font_index, class_id).num_raw_samples;
+  }
 }
 
 // Gets a sample by its index.
@@ -203,8 +223,9 @@ const TrainingSample *TrainingSampleSet::GetSample(int index) const {
 const TrainingSample *TrainingSampleSet::GetSample(int font_id, int class_id, int index) const {
   ASSERT_HOST(font_class_array_ != nullptr);
   int font_index = font_id_map_.SparseToCompact(font_id);
-  if (font_index < 0)
+  if (font_index < 0) {
     return nullptr;
+  }
   int sample_index = (*font_class_array_)(font_index, class_id).samples[index];
   return samples_[sample_index];
 }
@@ -214,8 +235,9 @@ const TrainingSample *TrainingSampleSet::GetSample(int font_id, int class_id, in
 TrainingSample *TrainingSampleSet::MutableSample(int font_id, int class_id, int index) {
   ASSERT_HOST(font_class_array_ != nullptr);
   int font_index = font_id_map_.SparseToCompact(font_id);
-  if (font_index < 0)
+  if (font_index < 0) {
     return nullptr;
+  }
   int sample_index = (*font_class_array_)(font_index, class_id).samples[index];
   return samples_[sample_index];
 }
@@ -301,8 +323,9 @@ float TrainingSampleSet::UnicharDistance(const UnicharAndFonts &uf1, const Unich
     }
   }
   if (dist_count == 0) {
-    if (matched_fonts)
+    if (matched_fonts) {
       return UnicharDistance(uf1, uf2, false, feature_map);
+    }
     return 0.0f;
   }
   return dist_sum / dist_count;
@@ -316,36 +339,41 @@ float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1, int font_i
   ASSERT_HOST(font_class_array_ != nullptr);
   int font_index1 = font_id_map_.SparseToCompact(font_id1);
   int font_index2 = font_id_map_.SparseToCompact(font_id2);
-  if (font_index1 < 0 || font_index2 < 0)
+  if (font_index1 < 0 || font_index2 < 0) {
     return 0.0f;
+  }
   FontClassInfo &fc_info = (*font_class_array_)(font_index1, class_id1);
   if (font_id1 == font_id2) {
     // Special case cache for speed.
-    if (fc_info.unichar_distance_cache.size() == 0)
+    if (fc_info.unichar_distance_cache.size() == 0) {
       fc_info.unichar_distance_cache.resize(unicharset_size_, -1.0f);
+    }
     if (fc_info.unichar_distance_cache[class_id2] < 0) {
       // Distance has to be calculated.
       float result = ComputeClusterDistance(font_id1, class_id1, font_id2, class_id2, feature_map);
       fc_info.unichar_distance_cache[class_id2] = result;
       // Copy to the symmetric cache entry.
       FontClassInfo &fc_info2 = (*font_class_array_)(font_index2, class_id2);
-      if (fc_info2.unichar_distance_cache.size() == 0)
+      if (fc_info2.unichar_distance_cache.size() == 0) {
         fc_info2.unichar_distance_cache.resize(unicharset_size_, -1.0f);
+      }
       fc_info2.unichar_distance_cache[class_id1] = result;
     }
     return fc_info.unichar_distance_cache[class_id2];
   } else if (class_id1 == class_id2) {
     // Another special-case cache for equal class-id.
-    if (fc_info.font_distance_cache.size() == 0)
+    if (fc_info.font_distance_cache.size() == 0) {
       fc_info.font_distance_cache.resize(font_id_map_.CompactSize(), -1.0f);
+    }
     if (fc_info.font_distance_cache[font_index2] < 0) {
       // Distance has to be calculated.
       float result = ComputeClusterDistance(font_id1, class_id1, font_id2, class_id2, feature_map);
       fc_info.font_distance_cache[font_index2] = result;
       // Copy to the symmetric cache entry.
       FontClassInfo &fc_info2 = (*font_class_array_)(font_index2, class_id2);
-      if (fc_info2.font_distance_cache.size() == 0)
+      if (fc_info2.font_distance_cache.size() == 0) {
         fc_info2.font_distance_cache.resize(font_id_map_.CompactSize(), -1.0f);
+      }
       fc_info2.font_distance_cache[font_index1] = result;
     }
     return fc_info.font_distance_cache[font_index2];
@@ -355,8 +383,9 @@ float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1, int font_i
   int cache_index = 0;
   while (cache_index < fc_info.distance_cache.size() &&
          (fc_info.distance_cache[cache_index].unichar_id != class_id2 ||
-          fc_info.distance_cache[cache_index].font_id != font_id2))
+          fc_info.distance_cache[cache_index].font_id != font_id2)) {
     ++cache_index;
+  }
   if (cache_index == fc_info.distance_cache.size()) {
     // Distance has to be calculated.
     float result = ComputeClusterDistance(font_id1, class_id1, font_id2, class_id2, feature_map);
@@ -395,8 +424,9 @@ static void AddNearFeatures(const IntFeatureMap &feature_map, int f, int levels,
     for (int i = prev_num_features; i < num_features; ++i) {
       int feature = (*good_features)[i];
       for (int dir = -kNumOffsetMaps; dir <= kNumOffsetMaps; ++dir) {
-        if (dir == 0)
+        if (dir == 0) {
           continue;
+        }
         int f1 = feature_map.OffsetFeature(feature, dir);
         if (f1 >= 0) {
           good_features->push_back(f1);
@@ -422,17 +452,20 @@ int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1, int font_i
                                          const IntFeatureMap &feature_map, bool thorough) const {
   int result = 0;
   const TrainingSample *sample2 = GetCanonicalSample(font_id2, class_id2);
-  if (sample2 == nullptr)
+  if (sample2 == nullptr) {
     return 0; // There are no canonical features.
+  }
   const std::vector<int> &canonical2 = GetCanonicalFeatures(font_id2, class_id2);
   const BitVector &cloud1 = GetCloudFeatures(font_id1, class_id1);
-  if (cloud1.size() == 0)
+  if (cloud1.size() == 0) {
     return canonical2.size(); // There are no cloud features.
+  }
 
   // Find a canonical2 feature that is not in cloud1.
   for (int feature : canonical2) {
-    if (cloud1[feature])
+    if (cloud1[feature]) {
       continue;
+    }
     // Gather the near neighbours of f.
     std::vector<int> good_features;
     AddNearFeatures(feature_map, feature, 1, &good_features);
@@ -444,8 +477,9 @@ int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1, int font_i
         break;
       }
     }
-    if (i < good_features.size())
+    if (i < good_features.size()) {
       continue; // Found one in the cloud.
+    }
     ++result;
   }
   return result;
@@ -456,8 +490,9 @@ int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1, int font_i
 int TrainingSampleSet::GlobalSampleIndex(int font_id, int class_id, int index) const {
   ASSERT_HOST(font_class_array_ != nullptr);
   int font_index = font_id_map_.SparseToCompact(font_id);
-  if (font_index < 0)
+  if (font_index < 0) {
     return -1;
+  }
   return (*font_class_array_)(font_index, class_id).samples[index];
 }
 
@@ -466,8 +501,9 @@ int TrainingSampleSet::GlobalSampleIndex(int font_id, int class_id, int index) c
 const TrainingSample *TrainingSampleSet::GetCanonicalSample(int font_id, int class_id) const {
   ASSERT_HOST(font_class_array_ != nullptr);
   int font_index = font_id_map_.SparseToCompact(font_id);
-  if (font_index < 0)
+  if (font_index < 0) {
     return nullptr;
+  }
   const int sample_index = (*font_class_array_)(font_index, class_id).canonical_sample;
   return sample_index >= 0 ? samples_[sample_index] : nullptr;
 }
@@ -477,18 +513,21 @@ const TrainingSample *TrainingSampleSet::GetCanonicalSample(int font_id, int cla
 float TrainingSampleSet::GetCanonicalDist(int font_id, int class_id) const {
   ASSERT_HOST(font_class_array_ != nullptr);
   int font_index = font_id_map_.SparseToCompact(font_id);
-  if (font_index < 0)
+  if (font_index < 0) {
     return 0.0f;
-  if ((*font_class_array_)(font_index, class_id).canonical_sample >= 0)
+  }
+  if ((*font_class_array_)(font_index, class_id).canonical_sample >= 0) {
     return (*font_class_array_)(font_index, class_id).canonical_dist;
-  else
+  } else {
     return 0.0f;
+  }
 }
 
 // Generates indexed features for all samples with the supplied feature_space.
 void TrainingSampleSet::IndexFeatures(const IntFeatureSpace &feature_space) {
-  for (auto &sample : samples_)
+  for (auto &sample : samples_) {
     sample->IndexFeatures(feature_space);
+  }
 }
 
 // Marks the given sample index for deletion.
@@ -546,8 +585,9 @@ void TrainingSampleSet::OrganizeByFontAndClass() {
   // Set the num_raw_samples member of the FontClassInfo, to set the boundary
   // between the raw samples and the replicated ones.
   for (int f = 0; f < compact_font_size; ++f) {
-    for (int c = 0; c < unicharset_size_; ++c)
+    for (int c = 0; c < unicharset_size_; ++c) {
       (*font_class_array_)(f, c).num_raw_samples = (*font_class_array_)(f, c).samples.size();
+    }
   }
   // This is the global number of samples and also marks the boundary between
   // real and replicated samples.
@@ -561,8 +601,9 @@ void TrainingSampleSet::SetupFontIdMap() {
   std::vector<int> font_counts;
   for (auto &sample : samples_) {
     const int font_id = sample->font_id();
-    while (font_id >= font_counts.size())
+    while (font_id >= font_counts.size()) {
       font_counts.push_back(0);
+    }
     ++font_counts[font_id];
   }
   font_id_map_.Init(font_counts.size(), false);
@@ -578,8 +619,9 @@ void TrainingSampleSet::SetupFontIdMap() {
 void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap &map, bool debug) {
   ASSERT_HOST(font_class_array_ != nullptr);
   IntFeatureDist f_table;
-  if (debug)
+  if (debug) {
     tprintf("feature table size %d\n", map.sparse_size());
+  }
   f_table.Init(&map);
   int worst_s1 = 0;
   int worst_s2 = 0;
@@ -594,8 +636,9 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap &map, bool d
       if (fcinfo.samples.size() == 0 || (kTestChar >= 0 && c != kTestChar)) {
         fcinfo.canonical_sample = -1;
         fcinfo.canonical_dist = 0.0f;
-        if (debug)
+        if (debug) {
           tprintf("Skipping class %d\n", c);
+        }
         continue;
       }
       // The canonical sample will be the one with the min_max_dist, which
@@ -618,8 +661,9 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap &map, bool d
         // may have to reconsider if we start playing with too many samples
         // of a single char/font.
         for (int s2 : fcinfo.samples) {
-          if (samples_[s2]->class_id() != c || samples_[s2]->font_id() != font_id || s2 == s1)
+          if (samples_[s2]->class_id() != c || samples_[s2]->font_id() != font_id || s2 == s1) {
             continue;
+          }
           std::vector<int> features2 = samples_[s2]->indexed_features();
           double dist = f_table.FeatureDistance(features2);
           if (dist > max_dist) {
@@ -681,8 +725,9 @@ void TrainingSampleSet::ReplicateAndRandomizeSamples() {
         int base_count = sample_count;
         for (int base_index = 0; sample_count < min_samples; ++sample_count) {
           int src_index = fcinfo.samples[base_index++];
-          if (base_index >= base_count)
+          if (base_index >= base_count) {
             base_index = 0;
+          }
           TrainingSample *sample =
               samples_[src_index]->RandomizedCopy(sample_count % kSampleRandomSize);
           int sample_index = samples_.size();
@@ -706,8 +751,9 @@ void TrainingSampleSet::ComputeCanonicalFeatures() {
     const int font_id = font_id_map_.CompactToSparse(font_index);
     for (int c = 0; c < unicharset_size_; ++c) {
       int num_samples = NumClassSamples(font_id, c, false);
-      if (num_samples == 0)
+      if (num_samples == 0) {
         continue;
+      }
       const TrainingSample *sample = GetCanonicalSample(font_id, c);
       FontClassInfo &fcinfo = (*font_class_array_)(font_index, c);
       fcinfo.canonical_features = sample->indexed_features();
@@ -724,15 +770,17 @@ void TrainingSampleSet::ComputeCloudFeatures(int feature_space_size) {
     int font_id = font_id_map_.CompactToSparse(font_index);
     for (int c = 0; c < unicharset_size_; ++c) {
       int num_samples = NumClassSamples(font_id, c, false);
-      if (num_samples == 0)
+      if (num_samples == 0) {
         continue;
+      }
       FontClassInfo &fcinfo = (*font_class_array_)(font_index, c);
       fcinfo.cloud_features.Init(feature_space_size);
       for (int s = 0; s < num_samples; ++s) {
         const TrainingSample *sample = GetSample(font_id, c, s);
         const std::vector<int> &sample_features = sample->indexed_features();
-        for (int sample_feature : sample_features)
+        for (int sample_feature : sample_features) {
           fcinfo.cloud_features.SetBit(sample_feature);
+        }
       }
     }
   }

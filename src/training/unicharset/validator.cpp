@@ -47,10 +47,11 @@ bool Validator::ValidateCleanAndSegment(GraphemeNormMode g_mode, bool report_err
   if (script == ViramaScript::kNonVirama) {
     // The grapheme segmenter's maximum segmentation is the grapheme unit, so
     // up the mode by 1 to get the desired effect.
-    if (g_mode == GraphemeNormMode::kCombined)
+    if (g_mode == GraphemeNormMode::kCombined) {
       g_mode = GraphemeNormMode::kGlyphSplit;
-    else if (g_mode == GraphemeNormMode::kGlyphSplit)
+    } else if (g_mode == GraphemeNormMode::kGlyphSplit) {
       g_mode = GraphemeNormMode::kIndividualUnicodes;
+    }
     // Just do grapheme segmentation.
     success = g_validator.ValidateCleanAndSegmentInternal(g_mode, src, dest);
   } else {
@@ -107,8 +108,9 @@ void Validator::MoveResultsToDest(GraphemeNormMode g_mode, std::vector<std::vect
     // Append each element of the combined output_ that we made as a new vector
     // in dest.
     dest->reserve(dest->size() + output_.size());
-    for (char32 ch : output_)
+    for (char32 ch : output_) {
       dest->push_back({ch});
+    }
   } else if (g_mode == GraphemeNormMode::kGlyphSplit) {
     // Append all the parts_ that we made onto dest.
     std::move(parts_.begin(), parts_.end(), std::back_inserter(*dest));
@@ -141,8 +143,9 @@ ViramaScript Validator::MostFrequentViramaScript(const std::vector<char32> &utf3
     UScriptCode script_code = uscript_getScript(ch, err);
     if ((kMinIndicUnicode <= ch && ch <= kMaxJavaneseUnicode && script_code != USCRIPT_COMMON) ||
         script_code == USCRIPT_MYANMAR) {
-      if (script_code == USCRIPT_MYANMAR)
+      if (script_code == USCRIPT_MYANMAR) {
         base = static_cast<char32>(ViramaScript::kMyanmar) / kIndicCodePageSize;
+      }
       ++histogram[base];
     }
   }

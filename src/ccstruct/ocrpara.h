@@ -126,8 +126,9 @@ public:
       , tolerance_(tolerance) {
     // Make one of {first_indent, body_indent} is 0.
     int added_margin = first_indent;
-    if (body_indent < added_margin)
+    if (body_indent < added_margin) {
       added_margin = body_indent;
+    }
     margin_ += added_margin;
     first_indent_ -= added_margin;
     body_indent_ -= added_margin;

@@ -48,7 +48,7 @@ TEST_F(LSTMTrainerTest, MapCoder) {
   std::vector<int> mapping =
       fra_trainer.MapRecoder(deu_trainer.GetUnicharset(), deu_trainer.GetRecoder());
   std::vector<int> mapped_fra_labels(fra_labels.size(), -1);
-  for (int i = 0; i < fra_labels.size(); ++i) {
+  for (unsigned i = 0; i < fra_labels.size(); ++i) {
     mapped_fra_labels[i] = mapping[fra_labels[i]];
     EXPECT_NE(-1, mapped_fra_labels[i]) << "i=" << i << ", ch=" << kTestStr[i];
     EXPECT_EQ(mapped_fra_labels[i], deu_labels[i])

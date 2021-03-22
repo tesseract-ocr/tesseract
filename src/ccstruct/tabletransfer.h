@@ -48,8 +48,9 @@ T& uniqueInstance(std::unique_ptr<T> new_instance = nullptr)
 {
   static std::unique_ptr<T> _instance = std::make_unique<T>();
 
-  if(new_instance)
+  if (new_instance) {
     _instance = std::move(new_instance);
+  }
 
   return *_instance.get();
 }

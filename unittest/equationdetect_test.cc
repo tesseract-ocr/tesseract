@@ -44,17 +44,17 @@ public:
     CHECK_LE(math_blobs + digit_blobs, total_blobs);
     int count = 0;
     for (int i = 0; i < math_blobs; i++, count++) {
-      BLOBNBOX *blob = new BLOBNBOX();
+      auto *blob = new BLOBNBOX();
       blob->set_special_text_type(BSTT_MATH);
       part->AddBox(blob);
     }
     for (int i = 0; i < digit_blobs; i++, count++) {
-      BLOBNBOX *blob = new BLOBNBOX();
+      auto *blob = new BLOBNBOX();
       blob->set_special_text_type(BSTT_DIGIT);
       part->AddBox(blob);
     }
     for (int i = count; i < total_blobs; i++) {
-      BLOBNBOX *blob = new BLOBNBOX();
+      auto *blob = new BLOBNBOX();
       blob->set_special_text_type(BSTT_NONE);
       part->AddBox(blob);
     }
@@ -120,7 +120,7 @@ protected:
   // The directory for testdata;
   std::string testdata_dir_;
 
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     tesseract_ = std::make_unique<Tesseract>();
     tesseract_->init_tesseract(TESSDATA_DIR, "eng", OEM_TESSERACT_ONLY);
@@ -131,7 +131,7 @@ protected:
     testdata_dir_ = TESTDATA_DIR;
   }
 
-  void TearDown() {
+  void TearDown() override {
     tesseract_.reset(nullptr);
     equation_det_.reset(nullptr);
   }
@@ -141,7 +141,7 @@ protected:
     CHECK(pix != nullptr);
     CHECK(blocks != nullptr);
     BLOCK_IT block_it(blocks);
-    BLOCK *block = new BLOCK("", true, 0, 0, 0, 0, pixGetWidth(pix), pixGetHeight(pix));
+    auto *block = new BLOCK("", true, 0, 0, 0, 0, pixGetWidth(pix), pixGetHeight(pix));
     block_it.add_to_end(block);
   }
 
@@ -162,16 +162,16 @@ protected:
   }
 
   void ClearParts(std::vector<ColPartition *> *all_parts) {
-    for (size_t i = 0; i < all_parts->size(); ++i) {
-      (*all_parts)[i]->DeleteBoxes();
-      delete ((*all_parts)[i]);
+    for (auto &all_part : *all_parts) {
+      all_part->DeleteBoxes();
+      delete all_part;
     }
   }
 
   // Create a BLOBNBOX object with bounding box tbox, and add it into part.
   void AddBlobIntoPart(const TBOX &tbox, ColPartition *part) {
     CHECK(part != nullptr);
-    BLOBNBOX *blob = new BLOBNBOX();
+    auto *blob = new BLOBNBOX();
     blob->set_bounding_box(tbox);
     part->AddBox(blob);
   }

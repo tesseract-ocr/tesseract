@@ -132,8 +132,9 @@ StrokeWidth::~StrokeWidth() {
 #ifndef GRAPHICS_DISABLED
     delete widths_win_->AwaitEvent(SVET_DESTROY);
 #endif // !GRAPHICS_DISABLED
-    if (textord_tabfind_only_strokewidths)
+    if (textord_tabfind_only_strokewidths) {
       exit(0);
+    }
     delete widths_win_;
   }
   delete leaders_win_;
@@ -166,8 +167,9 @@ void StrokeWidth::FindTextlineDirectionAndFixBrokenCJK(PageSegMode pageseg_mode,
   // Setup the grid with the remaining (non-noise) blobs.
   InsertBlobs(input_block);
   // Repair broken CJK characters if needed.
-  while (cjk_merge && FixBrokenCJK(input_block))
+  while (cjk_merge && FixBrokenCJK(input_block)) {
     ;
+  }
   // Grade blobs by inspection of neighbours.
   FindTextlineFlowDirection(pageseg_mode, false);
   // Clear the grid ready for rotation or leader finding.
@@ -194,12 +196,14 @@ static void CollectHorizVertBlobs(BLOBNBOX_LIST *input_blobs, int *num_vertical_
     bool ok_blob = ratio <= kSizeRatioToReject;
     if (blob->UniquelyVertical()) {
       ++*num_vertical_blobs;
-      if (ok_blob)
+      if (ok_blob) {
         v_it.add_after_then_move(blob);
+      }
     } else if (blob->UniquelyHorizontal()) {
       ++*num_horizontal_blobs;
-      if (ok_blob)
+      if (ok_blob) {
         h_it.add_after_then_move(blob);
+      }
     } else if (ok_blob) {
       n_it.add_after_then_move(blob);
     }
@@ -224,10 +228,11 @@ bool StrokeWidth::TestVerticalTextDirection(double find_vertical_text_ratio, TO_
                         &horizontal_blobs, &nondescript_blobs);
   CollectHorizVertBlobs(&block->large_blobs, &vertical_boxes, &horizontal_boxes, &vertical_blobs,
                         &horizontal_blobs, &nondescript_blobs);
-  if (textord_debug_tabfind)
+  if (textord_debug_tabfind) {
     tprintf("TextDir hbox=%d vs vbox=%d, %dH, %dV, %dN osd blobs\n", horizontal_boxes,
             vertical_boxes, horizontal_blobs.length(), vertical_blobs.length(),
             nondescript_blobs.length());
+  }
   if (osd_blobs != nullptr && vertical_boxes == 0 && horizontal_boxes == 0) {
     // Only nondescript blobs available, so return those.
     BLOBNBOX_C_IT osd_it(osd_blobs);
@@ -288,8 +293,9 @@ void StrokeWidth::RemoveLineResidue(ColPartition_LIST *big_part_list) {
   gsearch.StartFullSearch();
   while ((bbox = gsearch.NextFullSearch()) != nullptr) {
     TBOX box = bbox->bounding_box();
-    if (box.height() < box.width() * kLineResidueAspectRatio)
+    if (box.height() < box.width() * kLineResidueAspectRatio) {
       continue;
+    }
     // Set up a rectangle search around the blob to find the size of its
     // neighbours.
     int padding = box.height() * kLineResiduePadRatio;
@@ -302,8 +308,9 @@ void StrokeWidth::RemoveLineResidue(ColPartition_LIST *big_part_list) {
     BLOBNBOX *n;
     rsearch.StartRectSearch(search_box);
     while ((n = rsearch.NextRectSearch()) != nullptr) {
-      if (n == bbox)
+      if (n == bbox) {
         continue;
+      }
       TBOX nbox = n->bounding_box();
       if (nbox.height() > max_height) {
         max_height = nbox.height();
@@ -412,14 +419,18 @@ void StrokeWidth::HandleClick(int x, int y) {
     TBOX nbox = neighbour->bounding_box();
     if (nbox.contains(click) && neighbour->cblob() != nullptr) {
       PrintBoxWidths(neighbour);
-      if (neighbour->neighbour(BND_LEFT) != nullptr)
+      if (neighbour->neighbour(BND_LEFT) != nullptr) {
         PrintBoxWidths(neighbour->neighbour(BND_LEFT));
-      if (neighbour->neighbour(BND_RIGHT) != nullptr)
+      }
+      if (neighbour->neighbour(BND_RIGHT) != nullptr) {
         PrintBoxWidths(neighbour->neighbour(BND_RIGHT));
-      if (neighbour->neighbour(BND_ABOVE) != nullptr)
+      }
+      if (neighbour->neighbour(BND_ABOVE) != nullptr) {
         PrintBoxWidths(neighbour->neighbour(BND_ABOVE));
-      if (neighbour->neighbour(BND_BELOW) != nullptr)
+      }
+      if (neighbour->neighbour(BND_BELOW) != nullptr) {
         PrintBoxWidths(neighbour->neighbour(BND_BELOW));
+      }
       int gaps[BND_COUNT];
       neighbour->NeighbourGaps(gaps);
       tprintf(
@@ -457,21 +468,25 @@ void StrokeWidth::FindLeadersAndMarkNoise(TO_BLOCK *block, ColPartition_LIST *le
   gsearch.StartFullSearch();
   while ((bbox = gsearch.NextFullSearch()) != nullptr) {
     if (bbox->flow() == BTFT_NONE) {
-      if (bbox->neighbour(BND_RIGHT) == nullptr && bbox->neighbour(BND_LEFT) == nullptr)
+      if (bbox->neighbour(BND_RIGHT) == nullptr && bbox->neighbour(BND_LEFT) == nullptr) {
         continue;
+      }
       // Put all the linked blobs into a ColPartition.
       auto *part = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
       BLOBNBOX *blob;
       for (blob = bbox; blob != nullptr && blob->flow() == BTFT_NONE;
-           blob = blob->neighbour(BND_RIGHT))
+           blob = blob->neighbour(BND_RIGHT)) {
         part->AddBox(blob);
+      }
       for (blob = bbox->neighbour(BND_LEFT); blob != nullptr && blob->flow() == BTFT_NONE;
-           blob = blob->neighbour(BND_LEFT))
+           blob = blob->neighbour(BND_LEFT)) {
         part->AddBox(blob);
-      if (part->MarkAsLeaderIfMonospaced())
+      }
+      if (part->MarkAsLeaderIfMonospaced()) {
         part_it.add_after_then_move(part);
-      else
+      } else {
         delete part;
+      }
     }
   }
 #ifndef GRAPHICS_DISABLED
@@ -486,8 +501,9 @@ void StrokeWidth::FindLeadersAndMarkNoise(TO_BLOCK *block, ColPartition_LIST *le
   for (small_it.mark_cycle_pt(); !small_it.cycled_list(); small_it.forward()) {
     BLOBNBOX *blob = small_it.data();
     if (blob->flow() != BTFT_LEADER) {
-      if (blob->flow() == BTFT_NEIGHBOURS)
+      if (blob->flow() == BTFT_NEIGHBOURS) {
         blob->set_flow(BTFT_NONE);
+      }
       blob->ClearNeighbours();
       blob_it.add_to_end(small_it.extract());
     }
@@ -530,8 +546,9 @@ void StrokeWidth::MarkLeaderNeighbours(const ColPartition *part, LeftOrRight sid
   BLOBNBOX *blob;
   while ((blob = blobsearch.NextSideSearch(side == LR_LEFT)) != nullptr) {
     const TBOX &blob_box = blob->bounding_box();
-    if (!blob_box.y_overlap(part_box))
+    if (!blob_box.y_overlap(part_box)) {
       continue;
+    }
     int x_gap = blob_box.x_gap(part_box);
     if (x_gap > 2 * gridsize()) {
       break;
@@ -541,10 +558,11 @@ void StrokeWidth::MarkLeaderNeighbours(const ColPartition *part, LeftOrRight sid
     }
   }
   if (best_blob != nullptr) {
-    if (side == LR_LEFT)
+    if (side == LR_LEFT) {
       best_blob->set_leader_on_right(true);
-    else
+    } else {
       best_blob->set_leader_on_left(true);
+    }
 #ifndef GRAPHICS_DISABLED
     if (leaders_win_ != nullptr) {
       leaders_win_->Pen(side == LR_LEFT ? ScrollView::RED : ScrollView::GREEN);
@@ -563,8 +581,9 @@ static int UpperQuartileCJKSize(int gridsize, BLOBNBOX_LIST *blobs) {
     BLOBNBOX *blob = it.data();
     int width = blob->bounding_box().width();
     int height = blob->bounding_box().height();
-    if (width <= height * kCJKAspectRatio && height < width * kCJKAspectRatio)
+    if (width <= height * kCJKAspectRatio && height < width * kCJKAspectRatio) {
       sizes.add(height, 1);
+    }
   }
   return static_cast<int>(sizes.ile(0.75f) + 0.5);
 }
@@ -584,8 +603,9 @@ bool StrokeWidth::FixBrokenCJK(TO_BLOCK *block) {
 
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     BLOBNBOX *blob = blob_it.data();
-    if (blob->cblob() == nullptr || blob->cblob()->out_list()->empty())
+    if (blob->cblob() == nullptr || blob->cblob()->out_list()->empty()) {
       continue;
+    }
     TBOX bbox = blob->bounding_box();
     bool debug = AlignedBlob::WithinTestRegion(3, bbox.left(), bbox.bottom());
     if (debug) {
@@ -609,8 +629,9 @@ bool StrokeWidth::FixBrokenCJK(TO_BLOCK *block) {
       }
       // There can't be too many blobs to merge.
       if (overlapped_blobs.length() >= kCJKMaxComponents) {
-        if (debug)
+        if (debug) {
           tprintf("Too many neighbours: %d\n", overlapped_blobs.length());
+        }
         continue;
       }
       // The strokewidths must match amongst the join candidates.
@@ -618,8 +639,9 @@ bool StrokeWidth::FixBrokenCJK(TO_BLOCK *block) {
       for (n_it.mark_cycle_pt(); !n_it.cycled_list(); n_it.forward()) {
         BLOBNBOX *neighbour = nullptr;
         neighbour = n_it.data();
-        if (!blob->MatchingStrokeWidth(*neighbour, kStrokeWidthFractionCJK, kStrokeWidthCJK))
+        if (!blob->MatchingStrokeWidth(*neighbour, kStrokeWidthFractionCJK, kStrokeWidthCJK)) {
           break;
+        }
       }
       if (!n_it.cycled_list()) {
         if (debug) {
@@ -685,13 +707,16 @@ static bool AcceptableCJKMerge(const TBOX &bbox, const TBOX &nbox, bool debug, i
       merged.height() <= max_size) {
     // Close enough to call overlapping. Check aspect ratios.
     double old_ratio = static_cast<double>(bbox.width()) / bbox.height();
-    if (old_ratio < 1.0)
+    if (old_ratio < 1.0) {
       old_ratio = 1.0 / old_ratio;
+    }
     double new_ratio = static_cast<double>(merged.width()) / merged.height();
-    if (new_ratio < 1.0)
+    if (new_ratio < 1.0) {
       new_ratio = 1.0 / new_ratio;
-    if (new_ratio <= old_ratio * kCJKAspectRatioIncrease)
+    }
+    if (new_ratio <= old_ratio * kCJKAspectRatioIncrease) {
       return true;
+    }
   }
   return false;
 }
@@ -717,8 +742,9 @@ void StrokeWidth::AccumulateOverlaps(const BLOBNBOX *not_this, bool debug, int m
   radsearch.StartRadSearch(x, y, kCJKRadius);
   BLOBNBOX *neighbour;
   while ((neighbour = radsearch.NextRadSearch()) != nullptr) {
-    if (neighbour == not_this)
+    if (neighbour == not_this) {
       continue;
+    }
     TBOX nbox = neighbour->bounding_box();
     int x_gap, y_gap;
     if (AcceptableCJKMerge(*bbox, nbox, debug, max_size, max_dist, &x_gap, &y_gap)) {
@@ -731,8 +757,9 @@ void StrokeWidth::AccumulateOverlaps(const BLOBNBOX *not_this, bool debug, int m
       }
       // Since we merged, search the nearests, as some might now me mergeable.
       for (int dir = 0; dir < BND_COUNT; ++dir) {
-        if (nearests[dir] == nullptr)
+        if (nearests[dir] == nullptr) {
           continue;
+        }
         nbox = nearests[dir]->bounding_box();
         if (AcceptableCJKMerge(*bbox, nbox, debug, max_size, max_dist, &x_gap, &y_gap)) {
           // Close enough to call overlapping. Merge boxes.
@@ -760,13 +787,15 @@ void StrokeWidth::AccumulateOverlaps(const BLOBNBOX *not_this, bool debug, int m
       }
     }
     // If all nearests are non-null, then we have finished.
-    if (nearests[BND_LEFT] && nearests[BND_RIGHT] && nearests[BND_ABOVE] && nearests[BND_BELOW])
+    if (nearests[BND_LEFT] && nearests[BND_RIGHT] && nearests[BND_ABOVE] && nearests[BND_BELOW]) {
       break;
+    }
   }
   // Final overlap with a nearest is not allowed.
   for (auto &nearest : nearests) {
-    if (nearest == nullptr)
+    if (nearest == nullptr) {
       continue;
+    }
     const TBOX &nbox = nearest->bounding_box();
     if (debug) {
       tprintf("Testing for overlap with:");
@@ -774,8 +803,9 @@ void StrokeWidth::AccumulateOverlaps(const BLOBNBOX *not_this, bool debug, int m
     }
     if (bbox->overlap(nbox)) {
       blobs->shallow_clear();
-      if (debug)
+      if (debug) {
         tprintf("Final box overlaps nearest\n");
+      }
       return;
     }
   }
@@ -892,13 +922,15 @@ int StrokeWidth::FindGoodNeighbour(BlobNeighbourDir dir, bool leaders, BLOBNBOX 
 
   int min_good_overlap = (dir == BND_LEFT || dir == BND_RIGHT) ? height / 2 : width / 2;
   int min_decent_overlap = (dir == BND_LEFT || dir == BND_RIGHT) ? height / 3 : width / 3;
-  if (leaders)
+  if (leaders) {
     min_good_overlap = min_decent_overlap = 1;
+  }
 
   int search_pad =
       static_cast<int>(sqrt(static_cast<double>(width * height)) * kNeighbourSearchFactor);
-  if (gridsize() > search_pad)
+  if (gridsize() > search_pad) {
     search_pad = gridsize();
+  }
   TBOX search_box = blob_box;
   // Pad the search in the appropriate direction.
   switch (dir) {
@@ -926,11 +958,13 @@ int StrokeWidth::FindGoodNeighbour(BlobNeighbourDir dir, bool leaders, BLOBNBOX 
   BLOBNBOX *neighbour;
   while ((neighbour = rectsearch.NextRectSearch()) != nullptr) {
     TBOX nbox = neighbour->bounding_box();
-    if (neighbour == blob)
+    if (neighbour == blob) {
       continue;
+    }
     int mid_x = (nbox.left() + nbox.right()) / 2;
-    if (mid_x < blob->left_rule() || mid_x > blob->right_rule())
+    if (mid_x < blob->left_rule() || mid_x > blob->right_rule()) {
       continue; // In a different column.
+    }
     if (debug) {
       tprintf("Neighbour at:");
       nbox.print();
@@ -940,16 +974,19 @@ int StrokeWidth::FindGoodNeighbour(BlobNeighbourDir dir, bool leaders, BLOBNBOX 
     // width accepted by the morphological line detector.
     int n_width = nbox.width();
     int n_height = nbox.height();
-    if (std::min(n_width, n_height) > line_trap_min && std::max(n_width, n_height) < line_trap_max)
+    if (std::min(n_width, n_height) > line_trap_min &&
+        std::max(n_width, n_height) < line_trap_max) {
       ++line_trap_count;
+    }
     // Heavily joined text, such as Arabic may have very different sizes when
     // looking at the maxes, but the heights may be almost identical, so check
     // for a difference in height if looking sideways or width vertically.
     if (TabFind::VeryDifferentSizes(std::max(n_width, n_height), std::max(width, height)) &&
         (((dir == BND_LEFT || dir == BND_RIGHT) && TabFind::DifferentSizes(n_height, height)) ||
          ((dir == BND_BELOW || dir == BND_ABOVE) && TabFind::DifferentSizes(n_width, width)))) {
-      if (debug)
+      if (debug) {
         tprintf("Bad size\n");
+      }
       continue; // Could be a different font size or non-text.
     }
     // Amount of vertical overlap between the blobs.
@@ -963,40 +1000,46 @@ int StrokeWidth::FindGoodNeighbour(BlobNeighbourDir dir, bool leaders, BLOBNBOX 
     if (dir == BND_LEFT || dir == BND_RIGHT) {
       overlap = std::min(static_cast<int>(nbox.top()), top) -
                 std::max(static_cast<int>(nbox.bottom()), bottom);
-      if (overlap == nbox.height() && nbox.width() > nbox.height())
+      if (overlap == nbox.height() && nbox.width() > nbox.height()) {
         perp_overlap = nbox.width();
-      else
+      } else {
         perp_overlap = overlap;
+      }
       gap = dir == BND_LEFT ? left - nbox.left() : nbox.right() - right;
       if (gap <= 0) {
-        if (debug)
+        if (debug) {
           tprintf("On wrong side\n");
+        }
         continue; // On the wrong side.
       }
       gap -= n_width;
     } else {
       overlap = std::min(static_cast<int>(nbox.right()), right) -
                 std::max(static_cast<int>(nbox.left()), left);
-      if (overlap == nbox.width() && nbox.height() > nbox.width())
+      if (overlap == nbox.width() && nbox.height() > nbox.width()) {
         perp_overlap = nbox.height();
-      else
+      } else {
         perp_overlap = overlap;
+      }
       gap = dir == BND_BELOW ? bottom - nbox.bottom() : nbox.top() - top;
       if (gap <= 0) {
-        if (debug)
+        if (debug) {
           tprintf("On wrong side\n");
+        }
         continue; // On the wrong side.
       }
       gap -= n_height;
     }
     if (-gap > overlap) {
-      if (debug)
+      if (debug) {
         tprintf("Overlaps wrong way\n");
+      }
       continue; // Overlaps the wrong way.
     }
     if (perp_overlap < min_decent_overlap) {
-      if (debug)
+      if (debug) {
         tprintf("Doesn't overlap enough\n");
+      }
       continue; // Doesn't overlap enough.
     }
     bool bad_sizes =
@@ -1007,8 +1050,9 @@ int StrokeWidth::FindGoodNeighbour(BlobNeighbourDir dir, bool leaders, BLOBNBOX 
     // Best is a fuzzy combination of gap, overlap and is good.
     // Basically if you make one thing twice as good without making
     // anything else twice as bad, then it is better.
-    if (gap < 1)
+    if (gap < 1) {
       gap = 1;
+    }
     double goodness = (1.0 + is_good) * overlap / gap;
     if (debug) {
       tprintf("goodness = %g vs best of %g, good=%d, overlap=%d, gap=%d\n", goodness, best_goodness,
@@ -1063,31 +1107,37 @@ static void List3rdNeighbours(const BLOBNBOX *blob, BLOBNBOX_CLIST *neighbours) 
 // in a list of neighbours.
 static void CountNeighbourGaps(bool debug, BLOBNBOX_CLIST *neighbours, int *pure_h_count,
                                int *pure_v_count) {
-  if (neighbours->length() <= kMostlyOneDirRatio)
+  if (neighbours->length() <= kMostlyOneDirRatio) {
     return;
+  }
   BLOBNBOX_C_IT it(neighbours);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX *blob = it.data();
     int h_min, h_max, v_min, v_max;
     blob->MinMaxGapsClipped(&h_min, &h_max, &v_min, &v_max);
-    if (debug)
+    if (debug) {
       tprintf("Hgaps [%d,%d], vgaps [%d,%d]:", h_min, h_max, v_min, v_max);
+    }
     if (h_max < v_min || blob->leader_on_left() || blob->leader_on_right()) {
       // Horizontal gaps are clear winners. Count a pure horizontal.
       ++*pure_h_count;
-      if (debug)
+      if (debug) {
         tprintf("Horz at:");
+      }
     } else if (v_max < h_min) {
       // Vertical gaps are clear winners. Clear a pure vertical.
       ++*pure_v_count;
-      if (debug)
+      if (debug) {
         tprintf("Vert at:");
+      }
     } else {
-      if (debug)
+      if (debug) {
         tprintf("Neither at:");
+      }
     }
-    if (debug)
+    if (debug) {
       blob->bounding_box().print();
+    }
   }
 }
 
@@ -1095,8 +1145,9 @@ static void CountNeighbourGaps(bool debug, BLOBNBOX_CLIST *neighbours, int *pure
 // is clear based on gaps of 2nd order neighbours, or definite individual
 // blobs.
 void StrokeWidth::SetNeighbourFlows(BLOBNBOX *blob) {
-  if (blob->DefiniteIndividualFlow())
+  if (blob->DefiniteIndividualFlow()) {
     return;
+  }
   bool debug =
       AlignedBlob::WithinTestRegion(2, blob->bounding_box().left(), blob->bounding_box().bottom());
   if (debug) {
@@ -1135,10 +1186,12 @@ static void CountNeighbourTypes(BLOBNBOX_CLIST *neighbours, int *pure_h_count, i
   BLOBNBOX_C_IT it(neighbours);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX *blob = it.data();
-    if (blob->UniquelyHorizontal())
+    if (blob->UniquelyHorizontal()) {
       ++*pure_h_count;
-    if (blob->UniquelyVertical())
+    }
+    if (blob->UniquelyVertical()) {
       ++*pure_v_count;
+    }
   }
 }
 
@@ -1230,10 +1283,12 @@ PartitionFindResult StrokeWidth::FindInitialPartitions(
     PageSegMode pageseg_mode, const FCOORD &rerotation, bool find_problems, TO_BLOCK *block,
     BLOBNBOX_LIST *diacritic_blobs, ColPartitionGrid *part_grid, ColPartition_LIST *big_parts,
     FCOORD *skew_angle) {
-  if (!FindingHorizontalOnly(pageseg_mode))
+  if (!FindingHorizontalOnly(pageseg_mode)) {
     FindVerticalTextChains(part_grid);
-  if (!FindingVerticalOnly(pageseg_mode))
+  }
+  if (!FindingVerticalOnly(pageseg_mode)) {
     FindHorizontalTextChains(part_grid);
+  }
 #ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_strokewidths) {
     chains_win_ = MakeWindow(0, 400, "Initial text chains");
@@ -1249,10 +1304,12 @@ PartitionFindResult StrokeWidth::FindInitialPartitions(
   EasyMerges(part_grid);
   RemoveLargeUnusedBlobs(block, part_grid, big_parts);
   TBOX grid_box(bleft(), tright());
-  while (part_grid->GridSmoothNeighbours(BTFT_CHAIN, nontext_map_, grid_box, rerotation))
+  while (part_grid->GridSmoothNeighbours(BTFT_CHAIN, nontext_map_, grid_box, rerotation)) {
     ;
-  while (part_grid->GridSmoothNeighbours(BTFT_NEIGHBOURS, nontext_map_, grid_box, rerotation))
+  }
+  while (part_grid->GridSmoothNeighbours(BTFT_NEIGHBOURS, nontext_map_, grid_box, rerotation)) {
     ;
+  }
   int pre_overlap = part_grid->ComputeTotalOverlap(nullptr);
   TestDiacritics(part_grid, block);
   MergeDiacritics(block, part_grid);
@@ -1270,13 +1327,16 @@ PartitionFindResult StrokeWidth::FindInitialPartitions(
   PartitionRemainingBlobs(pageseg_mode, part_grid);
   part_grid->SplitOverlappingPartitions(big_parts);
   EasyMerges(part_grid);
-  while (part_grid->GridSmoothNeighbours(BTFT_CHAIN, nontext_map_, grid_box, rerotation))
+  while (part_grid->GridSmoothNeighbours(BTFT_CHAIN, nontext_map_, grid_box, rerotation)) {
     ;
-  while (part_grid->GridSmoothNeighbours(BTFT_NEIGHBOURS, nontext_map_, grid_box, rerotation))
+  }
+  while (part_grid->GridSmoothNeighbours(BTFT_NEIGHBOURS, nontext_map_, grid_box, rerotation)) {
     ;
+  }
   // Now eliminate strong stuff in a sea of the opposite.
-  while (part_grid->GridSmoothNeighbours(BTFT_STRONG_CHAIN, nontext_map_, grid_box, rerotation))
+  while (part_grid->GridSmoothNeighbours(BTFT_STRONG_CHAIN, nontext_map_, grid_box, rerotation)) {
     ;
+  }
 #ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_strokewidths) {
     smoothed_win_ = MakeWindow(800, 400, "Smoothed blobs");
@@ -1295,8 +1355,9 @@ bool StrokeWidth::DetectAndRemoveNoise(int pre_overlap, const TBOX &grid_box, TO
                                        BLOBNBOX_LIST *diacritic_blobs) {
   ColPartitionGrid *noise_grid = nullptr;
   int post_overlap = part_grid->ComputeTotalOverlap(&noise_grid);
-  if (pre_overlap == 0)
+  if (pre_overlap == 0) {
     pre_overlap = 1;
+  }
   BLOBNBOX_IT diacritic_it(diacritic_blobs);
   if (noise_grid != nullptr) {
     if (post_overlap > pre_overlap * kNoiseOverlapGrowthFactor &&
@@ -1314,8 +1375,9 @@ bool StrokeWidth::DetectAndRemoveNoise(int pre_overlap, const TBOX &grid_box, TO
       for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
         BLOBNBOX *blob = blob_it.data();
         blob->ClearNeighbours();
-        if (!blob->IsDiacritic() || blob->owner() != nullptr)
+        if (!blob->IsDiacritic() || blob->owner() != nullptr) {
           continue; // Not a noise candidate.
+        }
         TBOX search_box(blob->bounding_box());
         search_box.pad(gridsize(), gridsize());
         rsearch.StartRectSearch(search_box);
@@ -1343,10 +1405,12 @@ bool StrokeWidth::DetectAndRemoveNoise(int pre_overlap, const TBOX &grid_box, TO
 // direction is blob.
 static BLOBNBOX *MutualUnusedVNeighbour(const BLOBNBOX *blob, BlobNeighbourDir dir) {
   BLOBNBOX *next_blob = blob->neighbour(dir);
-  if (next_blob == nullptr || next_blob->owner() != nullptr || next_blob->UniquelyHorizontal())
+  if (next_blob == nullptr || next_blob->owner() != nullptr || next_blob->UniquelyHorizontal()) {
     return nullptr;
-  if (next_blob->neighbour(DirOtherWay(dir)) == blob)
+  }
+  if (next_blob->neighbour(DirOtherWay(dir)) == blob) {
     return next_blob;
+  }
   return nullptr;
 }
 
@@ -1387,10 +1451,12 @@ void StrokeWidth::FindVerticalTextChains(ColPartitionGrid *part_grid) {
 // direction is blob.
 static BLOBNBOX *MutualUnusedHNeighbour(const BLOBNBOX *blob, BlobNeighbourDir dir) {
   BLOBNBOX *next_blob = blob->neighbour(dir);
-  if (next_blob == nullptr || next_blob->owner() != nullptr || next_blob->UniquelyVertical())
+  if (next_blob == nullptr || next_blob->owner() != nullptr || next_blob->UniquelyVertical()) {
     return nullptr;
-  if (next_blob->neighbour(DirOtherWay(dir)) == blob)
+  }
+  if (next_blob->neighbour(DirOtherWay(dir)) == blob) {
     return next_blob;
+  }
   return nullptr;
 }
 
@@ -1463,8 +1529,9 @@ void StrokeWidth::TestDiacritics(ColPartitionGrid *part_grid, TO_BLOCK *block) {
       // the partitions.
       BLOBNBOX_C_IT box_it(part->boxes());
       for (box_it.mark_cycle_pt();
-           !box_it.cycled_list() && DiacriticBlob(&small_grid, box_it.data()); box_it.forward())
+           !box_it.cycled_list() && DiacriticBlob(&small_grid, box_it.data()); box_it.forward()) {
         ;
+      }
       if (box_it.cycled_list()) {
         // They are all good.
         while (!box_it.empty()) {
@@ -1505,8 +1572,9 @@ void StrokeWidth::TestDiacritics(ColPartitionGrid *part_grid, TO_BLOCK *block) {
 // that are not in this grid, but may be useful for determining a connection
 // between blob and its potential base character. (See DiacriticXGapFilled.)
 bool StrokeWidth::DiacriticBlob(BlobGrid *small_grid, BLOBNBOX *blob) {
-  if (BLOBNBOX::UnMergeableType(blob->region_type()) || blob->region_type() == BRT_VERT_TEXT)
+  if (BLOBNBOX::UnMergeableType(blob->region_type()) || blob->region_type() == BRT_VERT_TEXT) {
     return false;
+  }
   TBOX small_box(blob->bounding_box());
   bool debug = AlignedBlob::WithinTestRegion(2, small_box.left(), small_box.bottom());
   if (debug) {
@@ -1547,8 +1615,9 @@ bool StrokeWidth::DiacriticBlob(BlobGrid *small_grid, BLOBNBOX *blob) {
   BLOBNBOX *neighbour;
   while ((neighbour = rsearch.NextRectSearch()) != nullptr) {
     if (BLOBNBOX::UnMergeableType(neighbour->region_type()) || neighbour == blob ||
-        neighbour->owner() == blob->owner())
+        neighbour->owner() == blob->owner()) {
       continue;
+    }
     TBOX nbox = neighbour->bounding_box();
     if (neighbour->owner() == nullptr || neighbour->owner()->IsVerticalType() ||
         (neighbour->flow() != BTFT_CHAIN && neighbour->flow() != BTFT_STRONG_CHAIN)) {
@@ -1568,8 +1637,9 @@ bool StrokeWidth::DiacriticBlob(BlobGrid *small_grid, BLOBNBOX *blob) {
     int x_gap = small_box.x_gap(nbox);
     int y_gap = small_box.y_gap(nbox);
     int total_distance = projection_->DistanceOfBoxFromBox(small_box, nbox, true, denorm_, debug);
-    if (debug)
+    if (debug) {
       tprintf("xgap=%d, y=%d, total dist=%d\n", x_gap, y_gap, total_distance);
+    }
     if (total_distance > neighbour->owner()->median_height() * kMaxDiacriticDistanceRatio) {
       if (debug) {
         tprintf("Neighbour with median size %d too far away:", neighbour->owner()->median_height());
@@ -1687,15 +1757,18 @@ bool StrokeWidth::DiacriticXGapFilled(BlobGrid *grid, const TBOX &diacritic_box,
     while ((neighbour = rsearch.NextRectSearch()) != nullptr) {
       const TBOX &nbox = neighbour->bounding_box();
       if (nbox.x_gap(diacritic_box) < diacritic_gap) {
-        if (nbox.left() < occupied_box.left())
+        if (nbox.left() < occupied_box.left()) {
           occupied_box.set_left(nbox.left());
-        if (nbox.right() > occupied_box.right())
+        }
+        if (nbox.right() > occupied_box.right()) {
           occupied_box.set_right(nbox.right());
+        }
         break;
       }
     }
-    if (neighbour == nullptr)
+    if (neighbour == nullptr) {
       return false; // Found a big gap.
+    }
   }
   return true; // The gap was filled.
 }
@@ -1767,8 +1840,9 @@ void StrokeWidth::PartitionRemainingBlobs(PageSegMode pageseg_mode, ColPartition
     }
     if (bbox->owner() == nullptr) {
       cell_it.add_to_end(bbox);
-      if (bbox->flow() != BTFT_NONTEXT)
+      if (bbox->flow() != BTFT_NONTEXT) {
         cell_all_noise = false;
+      }
     } else {
       cell_all_noise = false;
     }
@@ -1781,8 +1855,9 @@ void StrokeWidth::PartitionRemainingBlobs(PageSegMode pageseg_mode, ColPartition
 void StrokeWidth::MakePartitionsFromCellList(PageSegMode pageseg_mode, bool combine,
                                              ColPartitionGrid *part_grid,
                                              BLOBNBOX_CLIST *cell_list) {
-  if (cell_list->empty())
+  if (cell_list->empty()) {
     return;
+  }
   BLOBNBOX_C_IT cell_it(cell_list);
   if (combine) {
     BLOBNBOX *bbox = cell_it.extract();
@@ -1850,21 +1925,26 @@ bool StrokeWidth::ConfirmEasyMerge(const ColPartition *p1, const ColPartition *p
   ASSERT_HOST(p1 != nullptr && p2 != nullptr);
   ASSERT_HOST(!p1->IsEmpty() && !p2->IsEmpty());
   if ((p1->flow() == BTFT_NONTEXT && p2->flow() >= BTFT_CHAIN) ||
-      (p1->flow() >= BTFT_CHAIN && p2->flow() == BTFT_NONTEXT))
+      (p1->flow() >= BTFT_CHAIN && p2->flow() == BTFT_NONTEXT)) {
     return false; // Don't merge confirmed image with text.
+  }
   if ((p1->IsVerticalType() || p2->IsVerticalType()) && p1->HCoreOverlap(*p2) <= 0 &&
       ((!p1->IsSingleton() && !p2->IsSingleton()) ||
-       !p1->bounding_box().major_overlap(p2->bounding_box())))
+       !p1->bounding_box().major_overlap(p2->bounding_box()))) {
     return false; // Overlap must be in the text line.
+  }
   if ((p1->IsHorizontalType() || p2->IsHorizontalType()) && p1->VCoreOverlap(*p2) <= 0 &&
       ((!p1->IsSingleton() && !p2->IsSingleton()) ||
        (!p1->bounding_box().major_overlap(p2->bounding_box()) &&
-        !p1->OKDiacriticMerge(*p2, false) && !p2->OKDiacriticMerge(*p1, false))))
+        !p1->OKDiacriticMerge(*p2, false) && !p2->OKDiacriticMerge(*p1, false)))) {
     return false; // Overlap must be in the text line.
-  if (!p1->ConfirmNoTabViolation(*p2))
+  }
+  if (!p1->ConfirmNoTabViolation(*p2)) {
     return false;
-  if (p1->flow() <= BTFT_NONTEXT && p2->flow() <= BTFT_NONTEXT)
+  }
+  if (p1->flow() <= BTFT_NONTEXT && p2->flow() <= BTFT_NONTEXT) {
     return true;
+  }
   return NoNoiseInBetween(p1->bounding_box(), p2->bounding_box());
 }
 
@@ -1895,18 +1975,21 @@ ScrollView *StrokeWidth::DisplayGoodBlobs(const char *window_name, int x, int y)
     int bottom_y = box.bottom();
     int goodness = bbox->GoodTextBlob();
     BlobRegionType blob_type = bbox->region_type();
-    if (bbox->UniquelyVertical())
+    if (bbox->UniquelyVertical()) {
       blob_type = BRT_VERT_TEXT;
-    if (bbox->UniquelyHorizontal())
+    }
+    if (bbox->UniquelyHorizontal()) {
       blob_type = BRT_TEXT;
+    }
     BlobTextFlowType flow = bbox->flow();
     if (flow == BTFT_NONE) {
-      if (goodness == 0)
+      if (goodness == 0) {
         flow = BTFT_NEIGHBOURS;
-      else if (goodness == 1)
+      } else if (goodness == 1) {
         flow = BTFT_CHAIN;
-      else
+      } else {
         flow = BTFT_STRONG_CHAIN;
+      }
     }
     window->Pen(BLOBNBOX::TextlineColor(blob_type, flow));
     window->Rectangle(left_x, bottom_y, right_x, top_y);

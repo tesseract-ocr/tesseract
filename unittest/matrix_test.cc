@@ -38,8 +38,9 @@ protected:
     for (int i = 0; i < kInputSize_; ++i) {
       src_.put(0, i, i);
     }
-    for (int i = 0; i < kNumDims_; ++i)
+    for (int i = 0; i < kNumDims_; ++i) {
       dims_[i] = 5 - i;
+    }
   }
   // Number of dimensions in src_.
   static const int kNumDims_ = 4;

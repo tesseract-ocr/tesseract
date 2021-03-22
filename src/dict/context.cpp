@@ -48,23 +48,26 @@ int Dict::case_ok(const WERD_CHOICE &word) const {
   const UNICHARSET *unicharset = word.unicharset();
   for (x = 0; x < word.length(); ++x) {
     UNICHAR_ID ch_id = word.unichar_id(x);
-    if (unicharset->get_isupper(ch_id))
+    if (unicharset->get_isupper(ch_id)) {
       state = case_state_table[state][1];
-    else if (unicharset->get_islower(ch_id))
+    } else if (unicharset->get_islower(ch_id)) {
       state = case_state_table[state][2];
-    else if (unicharset->get_isdigit(ch_id))
+    } else if (unicharset->get_isdigit(ch_id)) {
       state = case_state_table[state][3];
-    else
+    } else {
       state = case_state_table[state][0];
-    if (state == -1)
+    }
+    if (state == -1) {
       return false;
+    }
   }
   return state != 5; // single lower is bad
 }
 
 bool Dict::absolute_garbage(const WERD_CHOICE &word, const UNICHARSET &unicharset) {
-  if (word.length() < kMinAbsoluteGarbageWordLength)
+  if (word.length() < kMinAbsoluteGarbageWordLength) {
     return false;
+  }
   int num_alphanum = 0;
   for (int x = 0; x < word.length(); ++x) {
     num_alphanum +=

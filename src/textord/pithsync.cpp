@@ -49,10 +49,11 @@ void FPCUTPT::setup(      // constructor
   uint32_t lead_flag; // new flag
   int32_t ind;        // current position
 
-  if (half_pitch > 31)
+  if (half_pitch > 31) {
     half_pitch = 31;
-  else if (half_pitch < 0)
+  } else if (half_pitch < 0) {
     half_pitch = 0;
+  }
   lead_flag = 1 << half_pitch;
 
   pred = nullptr;
@@ -70,17 +71,20 @@ void FPCUTPT::setup(      // constructor
     fwd_balance = 0;
     for (ind = 0; ind <= half_pitch; ind++) {
       fwd_balance >>= 1;
-      if (projection->pile_count(ind) > zero_count)
+      if (projection->pile_count(ind) > zero_count) {
         fwd_balance |= lead_flag;
+      }
     }
   } else {
     back_balance = cutpts[x - 1 - array_origin].back_balance << 1;
     back_balance &= lead_flag + (lead_flag - 1);
-    if (projection->pile_count(x) > zero_count)
+    if (projection->pile_count(x) > zero_count) {
       back_balance |= 1;
+    }
     fwd_balance = cutpts[x - 1 - array_origin].fwd_balance >> 1;
-    if (projection->pile_count(x + half_pitch) > zero_count)
+    if (projection->pile_count(x + half_pitch) > zero_count) {
       fwd_balance |= lead_flag;
+    }
   }
 }
 
@@ -117,19 +121,22 @@ void FPCUTPT::assign(       // constructor
   int16_t half_pitch = pitch / 2 - 1;
   uint32_t lead_flag; // new flag
 
-  if (half_pitch > 31)
+  if (half_pitch > 31) {
     half_pitch = 31;
-  else if (half_pitch < 0)
+  } else if (half_pitch < 0) {
     half_pitch = 0;
+  }
   lead_flag = 1 << half_pitch;
 
   back_balance = cutpts[x - 1 - array_origin].back_balance << 1;
   back_balance &= lead_flag + (lead_flag - 1);
-  if (projection->pile_count(x) > zero_count)
+  if (projection->pile_count(x) > zero_count) {
     back_balance |= 1;
+  }
   fwd_balance = cutpts[x - 1 - array_origin].fwd_balance >> 1;
-  if (projection->pile_count(x + half_pitch) > zero_count)
+  if (projection->pile_count(x + half_pitch) > zero_count) {
     fwd_balance |= lead_flag;
+  }
 
   xpos = x;
   cost = FLT_MAX;
@@ -153,9 +160,10 @@ void FPCUTPT::assign(       // constructor
               lead_flag &= lead_flag - 1;
             }
           } else {
-            for (balance_index = 0; index + balance_index < x - balance_index; balance_index++)
+            for (balance_index = 0; index + balance_index < x - balance_index; balance_index++) {
               balance_count += (projection->pile_count(index + balance_index) <= zero_count) ^
                                (projection->pile_count(x - balance_index) <= zero_count);
+            }
           }
           balance_count =
               static_cast<int16_t>(balance_count * textord_balance_factor / projection_scale);
@@ -214,19 +222,22 @@ void FPCUTPT::assign_cheap( // constructor
   int16_t half_pitch = pitch / 2 - 1;
   uint32_t lead_flag; // new flag
 
-  if (half_pitch > 31)
+  if (half_pitch > 31) {
     half_pitch = 31;
-  else if (half_pitch < 0)
+  } else if (half_pitch < 0) {
     half_pitch = 0;
+  }
   lead_flag = 1 << half_pitch;
 
   back_balance = cutpts[x - 1 - array_origin].back_balance << 1;
   back_balance &= lead_flag + (lead_flag - 1);
-  if (projection->pile_count(x) > zero_count)
+  if (projection->pile_count(x) > zero_count) {
     back_balance |= 1;
+  }
   fwd_balance = cutpts[x - 1 - array_origin].fwd_balance >> 1;
-  if (projection->pile_count(x + half_pitch) > zero_count)
+  if (projection->pile_count(x + half_pitch) > zero_count) {
     fwd_balance |= lead_flag;
+  }
 
   xpos = x;
   cost = FLT_MAX;
@@ -318,10 +329,12 @@ double check_pitch_sync2(    // find segmentation
   //      if (blob_count==8 && pitch==27)
   //              projection->print(stdout,true);
   zero_count = 0;
-  if (pitch < 3)
+  if (pitch < 3) {
     pitch = 3; // nothing ludicrous
-  if ((pitch - 3) / 2 < pitch_error)
+  }
+  if ((pitch - 3) / 2 < pitch_error) {
     pitch_error = (pitch - 3) / 2;
+  }
   this_it = *blob_it;
   this_box = box_next(&this_it); // get box
   //      left_edge=this_box.left(); //left of word right_edge=this_box.right();
@@ -332,25 +345,30 @@ double check_pitch_sync2(    // find segmentation
   //                      right_edge=this_box.right();
   //      }
   for (left_edge = projection_left;
-       projection->pile_count(left_edge) == 0 && left_edge < projection_right; left_edge++)
+       projection->pile_count(left_edge) == 0 && left_edge < projection_right; left_edge++) {
     ;
+  }
   for (right_edge = projection_right;
-       projection->pile_count(right_edge) == 0 && right_edge > left_edge; right_edge--)
+       projection->pile_count(right_edge) == 0 && right_edge > left_edge; right_edge--) {
     ;
+  }
   ASSERT_HOST(right_edge >= left_edge);
-  if (pitsync_linear_version >= 4)
+  if (pitsync_linear_version >= 4) {
     return check_pitch_sync3(projection_left, projection_right, zero_count, pitch, pitch_error,
                              projection, projection_scale, occupation_count, seg_list, start, end);
+  }
   array_origin = left_edge - pitch;
   // array of points
   std::vector<FPCUTPT> cutpts(right_edge - left_edge + pitch * 2 + 1);
-  for (x = array_origin; x < left_edge; x++)
+  for (x = array_origin; x < left_edge; x++) {
     // free cuts
     cutpts[x - array_origin].setup(&cutpts[0], array_origin, projection, zero_count, pitch, x, 0);
-  for (offset = 0; offset <= pitch_error; offset++, x++)
+  }
+  for (offset = 0; offset <= pitch_error; offset++, x++) {
     // not quite free
     cutpts[x - array_origin].setup(&cutpts[0], array_origin, projection, zero_count, pitch, x,
                                    offset);
+  }
 
   this_it = *blob_it;
   best_cost = FLT_MAX;
@@ -366,20 +384,21 @@ double check_pitch_sync2(    // find segmentation
     }
     faking = false;
     mid_cut = false;
-    if (x <= this_box.left())
+    if (x <= this_box.left()) {
       offset = 0;
-    else if (x <= this_box.left() + pitch_error)
+    } else if (x <= this_box.left() + pitch_error) {
       offset = x - this_box.left();
-    else if (x >= this_box.right())
+    } else if (x >= this_box.right()) {
       offset = 0;
-    else if (x >= next_box.left() && blob_index < blob_count) {
+    } else if (x >= next_box.left() && blob_index < blob_count) {
       offset = x - next_box.left();
-      if (this_box.right() - x < offset)
+      if (this_box.right() - x < offset) {
         offset = this_box.right() - x;
-    } else if (x >= this_box.right() - pitch_error)
+      }
+    } else if (x >= this_box.right() - pitch_error) {
       offset = this_box.right() - x;
-    else if (x - this_box.left() > pitch * pitsync_joined_edge &&
-             this_box.right() - x > pitch * pitsync_joined_edge) {
+    } else if (x - this_box.left() > pitch * pitsync_joined_edge &&
+               this_box.right() - x > pitch * pitsync_joined_edge) {
       mid_cut = true;
       offset = 0;
     } else {
@@ -430,10 +449,12 @@ double check_pitch_sync2(    // find segmentation
   occupation_count = -1;
   do {
     for (x = best_end->position() - pitch + pitch_error;
-         x < best_end->position() - pitch_error && projection->pile_count(x) == 0; x++)
+         x < best_end->position() - pitch_error && projection->pile_count(x) == 0; x++) {
       ;
-    if (x < best_end->position() - pitch_error)
+    }
+    if (x < best_end->position() - pitch_error) {
       occupation_count++;
+    }
     // copy it
     segpt = new FPSEGPT(best_end);
     seg_it.add_before_then_move(segpt);
@@ -442,9 +463,10 @@ double check_pitch_sync2(    // find segmentation
   seg_it.move_to_last();
   mean_sum = seg_it.data()->sum();
   mean_sum = mean_sum * mean_sum / best_count;
-  if (seg_it.data()->squares() - mean_sum < 0)
+  if (seg_it.data()->squares() - mean_sum < 0) {
     tprintf("Impossible sqsum=%g, mean=%g, total=%d\n", seg_it.data()->squares(),
             seg_it.data()->sum(), best_count);
+  }
   //      tprintf("blob_count=%d, pitch=%d, sync=%g, occ=%d\n",
   //              blob_count,pitch,seg_it.data()->squares()-mean_sum,
   //              occupation_count);
@@ -495,36 +517,43 @@ double check_pitch_sync3(    // find segmentation
   FPSEGPT_IT seg_it = seg_list; // output iterator
 
   end = (end - start) % pitch;
-  if (pitch < 3)
+  if (pitch < 3) {
     pitch = 3; // nothing ludicrous
-  if ((pitch - 3) / 2 < pitch_error)
+  }
+  if ((pitch - 3) / 2 < pitch_error) {
     pitch_error = (pitch - 3) / 2;
+  }
   // min dist of zero
   zero_offset = static_cast<int16_t>(pitch * pitsync_joined_edge);
   for (left_edge = projection_left;
-       projection->pile_count(left_edge) == 0 && left_edge < projection_right; left_edge++)
+       projection->pile_count(left_edge) == 0 && left_edge < projection_right; left_edge++) {
     ;
+  }
   for (right_edge = projection_right;
-       projection->pile_count(right_edge) == 0 && right_edge > left_edge; right_edge--)
+       projection->pile_count(right_edge) == 0 && right_edge > left_edge; right_edge--) {
     ;
+  }
   array_origin = left_edge - pitch;
   // array of points
   std::vector<FPCUTPT> cutpts(right_edge - left_edge + pitch * 2 + 1);
   // local min results
   std::vector<bool> mins(pitch_error * 2 + 1);
-  for (x = array_origin; x < left_edge; x++)
+  for (x = array_origin; x < left_edge; x++) {
     // free cuts
     cutpts[x - array_origin].setup(&cutpts[0], array_origin, projection, zero_count, pitch, x, 0);
+  }
   prev_zero = left_edge - 1;
-  for (offset = 0; offset <= pitch_error; offset++, x++)
+  for (offset = 0; offset <= pitch_error; offset++, x++) {
     // not quite free
     cutpts[x - array_origin].setup(&cutpts[0], array_origin, projection, zero_count, pitch, x,
                                    offset);
+  }
 
   best_cost = FLT_MAX;
   best_end = nullptr;
-  for (offset = -pitch_error, minindex = 0; offset < pitch_error; offset++, minindex++)
+  for (offset = -pitch_error, minindex = 0; offset < pitch_error; offset++, minindex++) {
     mins[minindex] = projection->local_min(x + offset);
+  }
   next_zero = x + zero_offset + 1;
   for (offset = next_zero - 1; offset >= x; offset--) {
     if (projection->pile_count(offset) <= zero_count) {
@@ -535,32 +564,39 @@ double check_pitch_sync3(    // find segmentation
   while (x < right_edge - pitch_error) {
     mins[minindex] = projection->local_min(x + pitch_error);
     minindex++;
-    if (minindex > pitch_error * 2)
+    if (minindex > pitch_error * 2) {
       minindex = 0;
+    }
     faking = false;
     mid_cut = false;
     offset = 0;
     if (projection->pile_count(x) <= zero_count) {
       prev_zero = x;
     } else {
-      for (offset = 1; offset <= pitch_error; offset++)
+      for (offset = 1; offset <= pitch_error; offset++) {
         if (projection->pile_count(x + offset) <= zero_count ||
-            projection->pile_count(x - offset) <= zero_count)
+            projection->pile_count(x - offset) <= zero_count) {
           break;
+        }
+      }
     }
     if (offset > pitch_error) {
       if (x - prev_zero > zero_offset && next_zero - x > zero_offset) {
         for (offset = 0; offset <= pitch_error; offset++) {
           test_index = minindex + pitch_error + offset;
-          if (test_index > pitch_error * 2)
+          if (test_index > pitch_error * 2) {
             test_index -= pitch_error * 2 + 1;
-          if (mins[test_index])
+          }
+          if (mins[test_index]) {
             break;
+          }
           test_index = minindex + pitch_error - offset;
-          if (test_index > pitch_error * 2)
+          if (test_index > pitch_error * 2) {
             test_index -= pitch_error * 2 + 1;
-          if (mins[test_index])
+          }
+          if (mins[test_index]) {
             break;
+          }
         }
       }
       if (offset > pitch_error) {
@@ -568,24 +604,28 @@ double check_pitch_sync3(    // find segmentation
         faking = true;
       } else {
         projection_offset = static_cast<int16_t>(projection->pile_count(x) / projection_scale);
-        if (projection_offset > offset)
+        if (projection_offset > offset) {
           offset = projection_offset;
+        }
         mid_cut = true;
       }
     }
     if ((start == 0 && end == 0) || !textord_fast_pitch_test ||
-        (x - projection_left - start) % pitch <= end)
+        (x - projection_left - start) % pitch <= end) {
       cutpts[x - array_origin].assign(&cutpts[0], array_origin, x, faking, mid_cut, offset,
                                       projection, projection_scale, zero_count, pitch, pitch_error);
-    else
+    } else {
       cutpts[x - array_origin].assign_cheap(&cutpts[0], array_origin, x, faking, mid_cut, offset,
                                             projection, projection_scale, zero_count, pitch,
                                             pitch_error);
+    }
     x++;
-    if (next_zero < x || next_zero == x + zero_offset)
+    if (next_zero < x || next_zero == x + zero_offset) {
       next_zero = x + zero_offset + 1;
-    if (projection->pile_count(x + zero_offset) <= zero_count)
+    }
+    if (projection->pile_count(x + zero_offset) <= zero_count) {
       next_zero = x + zero_offset;
+    }
   }
 
   best_fake = INT16_MAX;
@@ -628,10 +668,12 @@ double check_pitch_sync3(    // find segmentation
   occupation_count = -1;
   do {
     for (x = best_end->position() - pitch + pitch_error;
-         x < best_end->position() - pitch_error && projection->pile_count(x) == 0; x++)
+         x < best_end->position() - pitch_error && projection->pile_count(x) == 0; x++) {
       ;
-    if (x < best_end->position() - pitch_error)
+    }
+    if (x < best_end->position() - pitch_error) {
       occupation_count++;
+    }
     // copy it
     segpt = new FPSEGPT(best_end);
     seg_it.add_before_then_move(segpt);
@@ -640,9 +682,10 @@ double check_pitch_sync3(    // find segmentation
   seg_it.move_to_last();
   mean_sum = seg_it.data()->sum();
   mean_sum = mean_sum * mean_sum / best_count;
-  if (seg_it.data()->squares() - mean_sum < 0)
+  if (seg_it.data()->squares() - mean_sum < 0) {
     tprintf("Impossible sqsum=%g, mean=%g, total=%d\n", seg_it.data()->squares(),
             seg_it.data()->sum(), best_count);
+  }
   return seg_it.data()->squares() - mean_sum;
 }
 

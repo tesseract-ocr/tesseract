@@ -146,8 +146,9 @@ inline bool MarginalMatch(float confidence, float matcher_great_threshold) {
 // vector (index it will go at) if not present.
 static int FindScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
   for (unsigned i = 0; i < results.match.size(); i++) {
-    if (results.match[i].unichar_id == id)
+    if (results.match[i].unichar_id == id) {
       return i;
+    }
   }
   return results.match.size();
 }
@@ -156,8 +157,9 @@ static int FindScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
 // to WORST_POSSIBLE_RATING.
 static float ScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
   int index = FindScoredUnichar(id, results);
-  if (index >= results.match.size())
+  if (index >= results.match.size()) {
     return WORST_POSSIBLE_RATING;
+  }
   return results.match[index].rating;
 }
 
@@ -209,8 +211,9 @@ void Classify::AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices) {
   ConvertMatchesToChoices(Blob->denorm(), Blob->bounding_box(), Results, Choices);
 
   // TODO(rays) Move to before ConvertMatchesToChoices!
-  if (LargeSpeckle(*Blob) || Choices->length() == 0)
+  if (LargeSpeckle(*Blob) || Choices->length() == 0) {
     AddLargeSpeckleTo(Results->BlobLength, Choices);
+  }
 
   if (matcher_debug_level >= 1) {
     tprintf("AD Matches =  ");
@@ -218,8 +221,9 @@ void Classify::AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices) {
   }
 
 #ifndef GRAPHICS_DISABLED
-  if (classify_enable_adaptive_debugger)
+  if (classify_enable_adaptive_debugger) {
     DebugAdaptiveClassifier(Blob, Results);
+  }
 #endif
 
   delete Results;
@@ -253,17 +257,20 @@ void Classify::RefreshDebugWindow(ScrollView **win, const char *msg, int y_offse
 // Otherwise AdaptToBlob is called for adaption within a document.
 void Classify::LearnWord(const char *fontname, WERD_RES *word) {
   int word_len = word->correct_text.size();
-  if (word_len == 0)
+  if (word_len == 0) {
     return;
+  }
 
   float *thresholds = nullptr;
   if (fontname == nullptr) {
     // Adaption mode.
-    if (!EnableLearning || word->best_choice == nullptr)
+    if (!EnableLearning || word->best_choice == nullptr) {
       return; // Can't or won't adapt.
+    }
 
-    if (classify_learning_debug_level >= 1)
+    if (classify_learning_debug_level >= 1) {
       tprintf("\n\nAdapting to word = %s\n", word->best_choice->debug_string().c_str());
+    }
     thresholds = new float[word_len];
     word->ComputeAdaptionThresholds(certainty_scale, matcher_perfect_threshold,
                                     matcher_good_threshold, matcher_rating_margin, thresholds);
@@ -319,8 +326,9 @@ void Classify::LearnWord(const char *fontname, WERD_RES *word) {
 	      std::string full_string;
               for (int i = 0; i < tokens.size(); i++) {
                 full_string += tokens[i];
-                if (i != tokens.size() - 1)
+                if (i != tokens.size() - 1) {
                   full_string += ' ';
+                }
               }
               LearnPieces(fontname, start_blob + frag, 1, threshold, CST_FRAGMENT,
                           full_string.c_str(), word);
@@ -375,8 +383,9 @@ void Classify::LearnPieces(const char *fontname, int start, int length, float th
                            WERD_RES *word) {
   // TODO(daria) Remove/modify this if/when we want
   // to train and/or adapt to n-grams.
-  if (segmentation != CST_WHOLE && (segmentation != CST_FRAGMENT || disable_character_fragments))
+  if (segmentation != CST_WHOLE && (segmentation != CST_FRAGMENT || disable_character_fragments)) {
     return;
+  }
 
   if (length > 1) {
     SEAM::JoinPieces(word->seam_array, word->chopped_word->blobs, start, start + length - 1);
@@ -384,8 +393,9 @@ void Classify::LearnPieces(const char *fontname, int start, int length, float th
   TBLOB *blob = word->chopped_word->blobs[start];
   // Rotate the blob if needed for classification.
   TBLOB *rotated_blob = blob->ClassifyNormalizeIfNeeded();
-  if (rotated_blob == nullptr)
+  if (rotated_blob == nullptr) {
     rotated_blob = blob;
+  }
 
 #ifndef GRAPHICS_DISABLED
   // Draw debug windows showing the blob that is being learned if needed.
@@ -413,9 +423,10 @@ void Classify::LearnPieces(const char *fontname, int start, int length, float th
   } else if (unicharset.contains_unichar(correct_text)) {
     UNICHAR_ID class_id = unicharset.unichar_to_id(correct_text);
     int font_id = word->fontinfo != nullptr ? fontinfo_table_.get_id(*word->fontinfo) : 0;
-    if (classify_learning_debug_level >= 1)
+    if (classify_learning_debug_level >= 1) {
       tprintf("Adapting to char = %s, thr= %g font_id= %d\n", unicharset.id_to_unichar(class_id),
               threshold, font_id);
+    }
     // If filename is not nullptr we are doing recognition
     // (as opposed to training), so we must have already set word fonts.
     AdaptToChar(rotated_blob, class_id, font_id, threshold, AdaptedTemplates);
@@ -454,9 +465,9 @@ void Classify::EndAdaptiveClassifier() {
       classify_save_adapted_templates) {
     Filename = imagefile + ADAPT_TEMPLATE_SUFFIX;
     File = fopen(Filename.c_str(), "wb");
-    if (File == nullptr)
+    if (File == nullptr) {
       tprintf("Unable to save adapted templates to %s!\n", Filename.c_str());
-    else {
+    } else {
       tprintf("\nSaving adapted templates to %s ...", Filename.c_str());
       fflush(stdout);
       WriteAdaptedTemplates(File, AdaptedTemplates);
@@ -514,10 +525,12 @@ void Classify::EndAdaptiveClassifier() {
  *                            enables use of pre-adapted templates
  */
 void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
-  if (!classify_enable_adaptive_matcher)
+  if (!classify_enable_adaptive_matcher) {
     return;
-  if (AllProtosOn != nullptr)
+  }
+  if (AllProtosOn != nullptr) {
     EndAdaptiveClassifier(); // Don't leak with multiple inits.
+  }
 
   // If there is no language_data_path_prefix, the classifier will be
   // adaptive only.
@@ -575,8 +588,9 @@ void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
       }
     }
   } else {
-    if (AdaptedTemplates != nullptr)
+    if (AdaptedTemplates != nullptr) {
       free_adapted_templates(AdaptedTemplates);
+    }
     AdaptedTemplates = NewAdaptedTemplates(true);
   }
 } /* InitAdaptiveClassifier */
@@ -587,8 +601,9 @@ void Classify::ResetAdaptiveClassifierInternal() {
   }
   free_adapted_templates(AdaptedTemplates);
   AdaptedTemplates = NewAdaptedTemplates(true);
-  if (BackupAdaptedTemplates != nullptr)
+  if (BackupAdaptedTemplates != nullptr) {
     free_adapted_templates(BackupAdaptedTemplates);
+  }
   BackupAdaptedTemplates = nullptr;
   NumAdaptationsFailed = 0;
 }
@@ -612,8 +627,9 @@ void Classify::SwitchAdaptiveClassifier() {
 
 // Resets the backup adaptive classifier to empty.
 void Classify::StartBackupAdaptiveClassifier() {
-  if (BackupAdaptedTemplates != nullptr)
+  if (BackupAdaptedTemplates != nullptr) {
     free_adapted_templates(BackupAdaptedTemplates);
+  }
   BackupAdaptedTemplates = NewAdaptedTemplates(true);
 }
 
@@ -696,8 +712,9 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
   TempConfigFor(Class, 0) = Config;
 
   /* this is a kludge to construct cutoffs for adapted templates */
-  if (Templates == AdaptedTemplates)
+  if (Templates == AdaptedTemplates) {
     BaselineCutoffs[ClassId] = CharNormCutoffs[ClassId];
+  }
 
   IClass = ClassForClassId(Templates->Templates, ClassId);
 
@@ -735,13 +752,15 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
     tprintf("Added new class '%s' with class id %d and %d protos.\n",
             unicharset.id_to_unichar(ClassId), ClassId, NumFeatures);
 #ifndef GRAPHICS_DISABLED
-    if (classify_learning_debug_level > 1)
+    if (classify_learning_debug_level > 1) {
       DisplayAdaptedChar(Blob, IClass);
+    }
 #endif
   }
 
-  if (IsEmptyAdaptedClass(Class))
+  if (IsEmptyAdaptedClass(Class)) {
     (Templates->NumNonEmptyClasses)++;
+  }
 } /* InitAdaptedClass */
 
 /*---------------------------------------------------------------------------*/
@@ -797,8 +816,9 @@ int Classify::GetAdaptiveFeatures(TBLOB *Blob, INT_FEATURE_ARRAY IntFeatures,
  * @return true or false
  */
 bool Classify::AdaptableWord(WERD_RES *word) {
-  if (word->best_choice == nullptr)
+  if (word->best_choice == nullptr) {
     return false;
+  }
   int BestChoiceLength = word->best_choice->length();
   float adaptable_score = getDict().segment_penalty_dict_case_ok + ADAPTABLE_WERD_ADJUSTMENT;
   return // rules that apply in general - simplest to compute first
@@ -838,8 +858,9 @@ void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float 
   FEATURE_SET FloatFeatures;
   int NewTempConfigId;
 
-  if (!LegalClassId(ClassId))
+  if (!LegalClassId(ClassId)) {
     return;
+  }
 
   int_result.unichar_id = ClassId;
   Class = adaptive_templates->Class[ClassId];
@@ -871,9 +892,10 @@ void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float 
 
     if (1.0f - int_result.rating <= Threshold) {
       if (ConfigIsPermanent(Class, int_result.config)) {
-        if (classify_learning_debug_level >= 1)
+        if (classify_learning_debug_level >= 1) {
           tprintf("Found good match to perm config %d = %4.1f%%.\n", int_result.config,
                   int_result.rating * 100.0);
+        }
         FreeFeatureSet(FloatFeatures);
         return;
       }
@@ -883,9 +905,10 @@ void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float 
       if (TempConfig->NumTimesSeen > Class->MaxNumTimesSeen) {
         Class->MaxNumTimesSeen = TempConfig->NumTimesSeen;
       }
-      if (classify_learning_debug_level >= 1)
+      if (classify_learning_debug_level >= 1) {
         tprintf("Increasing reliability of temp config %d to %d.\n", int_result.config,
                 TempConfig->NumTimesSeen);
+      }
 
       if (TempConfigReliable(ClassId, TempConfig)) {
         MakePermanent(adaptive_templates, ClassId, int_result.config, Blob);
@@ -896,8 +919,9 @@ void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float 
         tprintf("Found poor match to temp config %d = %4.1f%%.\n", int_result.config,
                 int_result.rating * 100.0);
 #ifndef GRAPHICS_DISABLED
-        if (classify_learning_debug_level > 2)
+        if (classify_learning_debug_level > 2) {
           DisplayAdaptedChar(Blob, IClass);
+        }
 #endif
       }
       NewTempConfigId = MakeNewTemporaryConfig(adaptive_templates, ClassId, FontinfoId, NumFeatures,
@@ -925,8 +949,9 @@ void Classify::DisplayAdaptedChar(TBLOB *blob, INT_CLASS_STRUCT *int_class) {
   std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample *sample =
       BlobToTrainingSample(*blob, classify_nonlinear_norm, &fx_info, &bl_features);
-  if (sample == nullptr)
+  if (sample == nullptr) {
     return;
+  }
 
   UnicharRating int_result;
   im_.Match(int_class, AllProtosOn, AllConfigsOn, bl_features.size(), &bl_features[0], &int_result,
@@ -969,11 +994,14 @@ void Classify::AddNewResult(const UnicharRating &new_result, ADAPT_RESULTS *resu
   int old_match = FindScoredUnichar(new_result.unichar_id, *results);
 
   if (new_result.rating + matcher_bad_match_pad < results->best_rating ||
-      (old_match < results->match.size() && new_result.rating <= results->match[old_match].rating))
+      (old_match < results->match.size() &&
+       new_result.rating <= results->match[old_match].rating)) {
     return; // New one not good enough.
+  }
 
-  if (!unicharset.get_fragment(new_result.unichar_id))
+  if (!unicharset.get_fragment(new_result.unichar_id)) {
     results->HasNonfragment = true;
+  }
 
   if (old_match < results->match.size()) {
     results->match[old_match].rating = new_result.rating;
@@ -1017,15 +1045,17 @@ void Classify::AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_featur
                                const INT_FX_RESULT_STRUCT &fx_info, const TBLOB *blob,
                                INT_TEMPLATES templates, ADAPT_CLASS *classes,
                                UNICHAR_ID *ambiguities, ADAPT_RESULTS *results) {
-  if (int_features.empty())
+  if (int_features.empty()) {
     return;
+  }
   auto *CharNormArray = new uint8_t[unicharset.size()];
   UnicharRating int_result;
 
   results->BlobLength = GetCharNormFeature(fx_info, templates, nullptr, CharNormArray);
   bool debug = matcher_debug_level >= 2 || classify_debug_level > 1;
-  if (debug)
+  if (debug) {
     tprintf("AM Matches =  ");
+  }
 
   int top = blob->bounding_box().top();
   int bottom = blob->bounding_box().bottom();
@@ -1107,8 +1137,9 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS *classes, bool debug,
         const Shape &shape = shape_table_->GetShape(shape_id);
         for (int c = 0; c < shape.size(); ++c) {
           int unichar_id = shape[c].unichar_id;
-          if (!unicharset.get_enabled(unichar_id))
+          if (!unicharset.get_enabled(unichar_id)) {
             continue;
+          }
           // Find the mapped_result for unichar_id.
           unsigned r = 0;
           for (r = 0; r < mapped_results.size() && mapped_results[r].unichar_id != unichar_id;
@@ -1167,8 +1198,9 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id, double cp_ra
     }
   }
   double result = 1.0 - (cn_corrected + miss_penalty + vertical_penalty);
-  if (result < WORST_POSSIBLE_RATING)
+  if (result < WORST_POSSIBLE_RATING) {
     result = WORST_POSSIBLE_RATING;
+  }
   if (debug) {
     tprintf("%s: %2.1f%%(CP%2.1f, IM%2.1f + CN%.2f(%d) + MP%2.1f + VP%2.1f)\n",
             unicharset.id_to_unichar(unichar_id), result * 100.0, cp_rating * 100.0,
@@ -1200,8 +1232,9 @@ UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
                                          const std::vector<INT_FEATURE_STRUCT> &int_features,
                                          const INT_FX_RESULT_STRUCT &fx_info,
                                          ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results) {
-  if (int_features.empty())
+  if (int_features.empty()) {
     return nullptr;
+  }
   auto *CharNormArray = new uint8_t[unicharset.size()];
   ClearCharNormArray(CharNormArray);
 
@@ -1209,8 +1242,9 @@ UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
   PruneClasses(Templates->Templates, int_features.size(), -1, &int_features[0], CharNormArray,
                BaselineCutoffs, &Results->CPResults);
 
-  if (matcher_debug_level >= 2 || classify_debug_level > 1)
+  if (matcher_debug_level >= 2 || classify_debug_level > 1) {
     tprintf("BL Matches =  ");
+  }
 
   MasterMatcher(Templates->Templates, int_features.size(), &int_features[0], CharNormArray,
                 Templates->Class, matcher_debug_flags, 0, Blob->bounding_box(), Results->CPResults,
@@ -1218,8 +1252,9 @@ UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
 
   delete[] CharNormArray;
   CLASS_ID ClassId = Results->best_unichar_id;
-  if (ClassId == INVALID_UNICHAR_ID || Results->best_match_index < 0)
+  if (ClassId == INVALID_UNICHAR_ID || Results->best_match_index < 0) {
     return nullptr;
+  }
 
   return Templates->Class[ClassId]
       ->Config[Results->match[Results->best_match_index].config]
@@ -1350,8 +1385,9 @@ void Classify::ConvertMatchesToChoices(const DENORM &denorm, const TBOX &box,
   int max_matches = MAX_MATCHES;
   if (shape_table_ != nullptr) {
     max_matches = shape_table_->MaxNumUnichars() * 2;
-    if (max_matches < MAX_MATCHES)
+    if (max_matches < MAX_MATCHES) {
       max_matches = MAX_MATCHES;
+    }
   }
 
   float best_certainty = -FLT_MAX;
@@ -1395,8 +1431,9 @@ void Classify::ConvertMatchesToChoices(const DENORM &denorm, const TBOX &box,
     temp_it.add_to_end(choice);
     contains_nonfrag |= !current_is_frag; // update contains_nonfrag
     choices_length++;
-    if (choices_length >= max_matches)
+    if (choices_length >= max_matches) {
       break;
+    }
   }
   Results->match.resize(choices_length);
 } // ConvertMatchesToChoices
@@ -1411,13 +1448,15 @@ void Classify::ConvertMatchesToChoices(const DENORM &denorm, const TBOX &box,
  * Globals: none
  */
 void Classify::DebugAdaptiveClassifier(TBLOB *blob, ADAPT_RESULTS *Results) {
-  if (static_classifier_ == nullptr)
+  if (static_classifier_ == nullptr) {
     return;
+  }
   INT_FX_RESULT_STRUCT fx_info;
   std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample *sample = BlobToTrainingSample(*blob, false, &fx_info, &bl_features);
-  if (sample == nullptr)
+  if (sample == nullptr) {
     return;
+  }
   static_classifier_->DebugDisplay(*sample, blob->denorm().pix(), Results->best_unichar_id);
 } /* DebugAdaptiveClassifier */
 #endif
@@ -1449,8 +1488,9 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
   std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample *sample =
       BlobToTrainingSample(*Blob, classify_nonlinear_norm, &fx_info, &bl_features);
-  if (sample == nullptr)
+  if (sample == nullptr) {
     return;
+  }
 
   // TODO: With LSTM, static_classifier_ is nullptr.
   // Return to avoid crash in CharNormClassifier.
@@ -1478,8 +1518,9 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
   // if the results contain only fragments.
   // TODO(daria): verify that this is better than
   // just adding a nullptr classification.
-  if (!Results->HasNonfragment || Results->match.empty())
+  if (!Results->HasNonfragment || Results->match.empty()) {
     ClassifyAsNoise(Results);
+  }
   delete sample;
 } /* DoAdaptiveMatch */
 
@@ -1523,8 +1564,9 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob, CLASS_ID CorrectClass) {
   if (Results->match.size() > 1 ||
       (Results->match.size() == 1 && Results->match[0].unichar_id != CorrectClass)) {
     unsigned i;
-    for (i = 0; i < Results->match.size(); i++)
+    for (i = 0; i < Results->match.size(); i++) {
       Ambiguities[i] = Results->match[i].unichar_id;
+    }
     Ambiguities[i] = -1;
   } else {
     Ambiguities[0] = -1;
@@ -1610,8 +1652,9 @@ void Classify::ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES
         for (int config = 0; config < fs.size; ++config) {
           const Shape &shape = shape_table_->GetShape(fs.configs[config]);
           for (int c = 0; c < shape.size(); ++c) {
-            if (char_norm_array[shape[c].unichar_id] < pruner_array[id])
+            if (char_norm_array[shape[c].unichar_id] < pruner_array[id]) {
               pruner_array[id] = char_norm_array[shape[c].unichar_id];
+            }
           }
         }
       }
@@ -1649,16 +1692,18 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates, CLASS_ID ClassId
   int i;
   int debug_level = NO_DEBUG;
 
-  if (classify_learning_debug_level >= 3)
+  if (classify_learning_debug_level >= 3) {
     debug_level = PRINT_MATCH_SUMMARY | PRINT_FEATURE_MATCHES | PRINT_PROTO_MATCHES;
+  }
 
   IClass = ClassForClassId(Templates->Templates, ClassId);
   Class = Templates->Class[ClassId];
 
   if (IClass->NumConfigs >= MAX_NUM_CONFIGS) {
     ++NumAdaptationsFailed;
-    if (classify_learning_debug_level >= 1)
+    if (classify_learning_debug_level >= 1) {
       tprintf("Cannot make new temporary config: maximum number exceeded.\n");
+    }
     return -1;
   }
 
@@ -1669,8 +1714,9 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates, CLASS_ID ClassId
 
   MaskSize = WordsInVectorOfSize(MAX_NUM_PROTOS);
   zero_all_bits(TempProtoMask, MaskSize);
-  for (i = 0; i < NumOldProtos; i++)
+  for (i = 0; i < NumOldProtos; i++) {
     SET_BIT(TempProtoMask, OldProtos[i]);
+  }
 
   NumBadFeatures = im_.FindBadFeatures(IClass, TempProtoMask, AllConfigsOn, NumFeatures, Features,
                                        BadFeatures, classify_adapt_feature_threshold, debug_level);
@@ -1679,8 +1725,9 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates, CLASS_ID ClassId
       MakeNewTempProtos(FloatFeatures, NumBadFeatures, BadFeatures, IClass, Class, TempProtoMask);
   if (MaxProtoId == NO_PROTO) {
     ++NumAdaptationsFailed;
-    if (classify_learning_debug_level >= 1)
+    if (classify_learning_debug_level >= 1) {
       tprintf("Cannot make new temp protos: maximum number exceeded.\n");
+    }
     return -1;
   }
 
@@ -1690,11 +1737,12 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates, CLASS_ID ClassId
   TempConfigFor(Class, ConfigId) = Config;
   copy_all_bits(TempProtoMask, Config->Protos, Config->ProtoVectorSize);
 
-  if (classify_learning_debug_level >= 1)
+  if (classify_learning_debug_level >= 1) {
     tprintf(
         "Making new temp config %d fontinfo id %d"
         " using %d old and %d new protos.\n",
         ConfigId, Config->FontinfoId, NumOldProtos, MaxProtoId - OldMaxProtoId);
+  }
 
   return ConfigId;
 } /* MakeNewTemporaryConfig */
@@ -1747,12 +1795,14 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
       A2 = F2->Params[PicoFeatDir];
 
       AngleDelta = fabs(A1 - A2);
-      if (AngleDelta > 0.5)
+      if (AngleDelta > 0.5) {
         AngleDelta = 1.0 - AngleDelta;
+      }
 
       if (AngleDelta > matcher_clustering_max_angle_delta || fabs(X1 - X2) > SegmentLength ||
-          fabs(Y1 - Y2) > SegmentLength)
+          fabs(Y1 - Y2) > SegmentLength) {
         break;
+      }
     }
 
     F2 = Features->Features[*(ProtoEnd - 1)];
@@ -1761,8 +1811,9 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
     A2 = F2->Params[PicoFeatDir];
 
     Pid = AddIntProto(IClass);
-    if (Pid == NO_PROTO)
+    if (Pid == NO_PROTO) {
       return (NO_PROTO);
+    }
 
     TempProto = NewTempProto();
     Proto = &(TempProto->Proto);
@@ -1808,8 +1859,9 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates, CLASS_ID ClassId, int Co
   Config = TempConfigFor(Class, ConfigId);
 
   MakeConfigPermanent(Class, ConfigId);
-  if (Class->NumPermConfigs == 0)
+  if (Class->NumPermConfigs == 0) {
     Templates->NumPermClasses++;
+  }
   Class->NumPermConfigs++;
 
   // Initialize permanent config.
@@ -1835,8 +1887,9 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates, CLASS_ID ClassId, int Co
         " fontinfo id %d, ambiguities '",
         ConfigId, getDict().getUnicharset().debug_str(ClassId).c_str(), ClassId,
         PermConfigFor(Class, ConfigId)->FontinfoId);
-    for (UNICHAR_ID *AmbigsPointer = Ambigs; *AmbigsPointer >= 0; ++AmbigsPointer)
+    for (UNICHAR_ID *AmbigsPointer = Ambigs; *AmbigsPointer >= 0; ++AmbigsPointer) {
       tprintf("%s", unicharset.id_to_unichar(*AmbigsPointer));
+    }
     tprintf("'.\n");
   }
 } /* MakePermanent */
@@ -1866,8 +1919,9 @@ int MakeTempProtoPerm(void *item1, void *item2) {
   Class = ProtoKey->Templates->Class[ProtoKey->ClassId];
   Config = TempConfigFor(Class, ProtoKey->ConfigId);
 
-  if (TempProto->ProtoId > Config->MaxProtoId || !test_bit(Config->Protos, TempProto->ProtoId))
+  if (TempProto->ProtoId > Config->MaxProtoId || !test_bit(Config->Protos, TempProto->ProtoId)) {
     return false;
+  }
 
   MakeProtoPermanent(Class, TempProto->ProtoId);
   AddProtoToClassPruner(&(TempProto->Proto), ProtoKey->ClassId, ProtoKey->Templates->Templates);
@@ -1975,13 +2029,15 @@ void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
     const UnicharRating &match = Results->match[Next];
     bool keep = true;
     if (strstr(punc_chars, unicharset.id_to_unichar(match.unichar_id)) != nullptr) {
-      if (punc_count >= 2)
+      if (punc_count >= 2) {
         keep = false;
+      }
       punc_count++;
     } else {
       if (strstr(digit_chars, unicharset.id_to_unichar(match.unichar_id)) != nullptr) {
-        if (digit_count >= 1)
+        if (digit_count >= 1) {
           keep = false;
+        }
         digit_count++;
       }
     }
@@ -2072,8 +2128,9 @@ std::string Classify::ClassIDToDebugStr(const INT_TEMPLATES_STRUCT *templates, i
 int Classify::ClassAndConfigIDToFontOrShapeID(int class_id, int int_result_config) const {
   int font_set_id = PreTrainedTemplates->Class[class_id]->font_set_id;
   // Older inttemps have no font_ids.
-  if (font_set_id < 0)
+  if (font_set_id < 0) {
     return kBlankFontinfoId;
+  }
   const FontSet &fs = fontset_table_.at(font_set_id);
   ASSERT_HOST(int_result_config >= 0 && int_result_config < fs.size);
   return fs.configs[int_result_config];
@@ -2087,8 +2144,9 @@ int Classify::ShapeIDToClassID(int shape_id) const {
     ASSERT_HOST(font_set_id >= 0);
     const FontSet &fs = fontset_table_.at(font_set_id);
     for (int config = 0; config < fs.size; ++config) {
-      if (fs.configs[config] == shape_id)
+      if (fs.configs[config] == shape_id) {
         return id;
+      }
     }
   }
   tprintf("Shape %d not found\n", shape_id);
@@ -2141,8 +2199,9 @@ void Classify::UpdateAmbigsGroup(CLASS_ID class_id, TBLOB *Blob) {
     CLASS_ID ambig_class_id = (*ambigs)[ambig];
     const ADAPT_CLASS ambigs_class = AdaptedTemplates->Class[ambig_class_id];
     for (int cfg = 0; cfg < MAX_NUM_CONFIGS; ++cfg) {
-      if (ConfigIsPermanent(ambigs_class, cfg))
+      if (ConfigIsPermanent(ambigs_class, cfg)) {
         continue;
+      }
       const TEMP_CONFIG config = TempConfigFor(AdaptedTemplates->Class[ambig_class_id], cfg);
       if (config != nullptr && TempConfigReliable(ambig_class_id, config)) {
         if (classify_learning_debug_level >= 1) {

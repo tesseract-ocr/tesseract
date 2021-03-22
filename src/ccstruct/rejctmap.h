@@ -102,10 +102,11 @@ class REJ {
   BITS16 flags2;
 
   void set_flag(REJ_FLAGS rej_flag) {
-    if (rej_flag < 16)
+    if (rej_flag < 16) {
       flags1.set(rej_flag);
-    else
+    } else {
       flags2.set(rej_flag - 16);
+    }
   }
 
   bool rej_before_nn_accept();
@@ -128,21 +129,23 @@ public:
       const REJ &source) = default;
 
   bool flag(REJ_FLAGS rej_flag) {
-    if (rej_flag < 16)
+    if (rej_flag < 16) {
       return flags1[rej_flag];
-    else
+    } else {
       return flags2[rej_flag - 16];
+    }
   }
 
   char display_char() {
-    if (perm_rejected())
+    if (perm_rejected()) {
       return MAP_REJECT_PERM;
-    else if (accept_if_good_quality())
+    } else if (accept_if_good_quality()) {
       return MAP_REJECT_POTENTIAL;
-    else if (rejected())
+    } else if (rejected()) {
       return MAP_REJECT_TEMP;
-    else
+    } else {
       return MAP_ACCEPT;
+    }
   }
 
   bool perm_rejected(); // Is char perm reject?

@@ -135,11 +135,13 @@ void FreeClassFields(CLASS_TYPE Class) {
   int i;
 
   if (Class) {
-    if (Class->MaxNumProtos > 0)
+    if (Class->MaxNumProtos > 0) {
       free(Class->Prototypes);
+    }
     if (Class->MaxNumConfigs > 0) {
-      for (i = 0; i < Class->NumConfigs; i++)
+      for (i = 0; i < Class->NumConfigs; i++) {
         FreeBitVector(Class->Configurations[i]);
+      }
       free(Class->Configurations);
     }
   }
@@ -156,11 +158,13 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
 
   Class = new CLASS_STRUCT;
 
-  if (NumProtos > 0)
+  if (NumProtos > 0) {
     Class->Prototypes = static_cast<PROTO>(malloc(NumProtos * sizeof(PROTO_STRUCT)));
+  }
 
-  if (NumConfigs > 0)
+  if (NumConfigs > 0) {
     Class->Configurations = static_cast<CONFIGS>(malloc(NumConfigs * sizeof(BIT_VECTOR)));
+  }
   Class->MaxNumProtos = NumProtos;
   Class->MaxNumConfigs = NumConfigs;
   Class->NumProtos = 0;

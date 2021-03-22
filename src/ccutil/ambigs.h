@@ -60,16 +60,20 @@ public:
       const UNICHAR_ID val1 = *ptr1++;
       const UNICHAR_ID val2 = *ptr2++;
       if (val1 != val2) {
-        if (val1 == INVALID_UNICHAR_ID)
+        if (val1 == INVALID_UNICHAR_ID) {
           return -1;
-        if (val2 == INVALID_UNICHAR_ID)
+        }
+        if (val2 == INVALID_UNICHAR_ID) {
           return 1;
-        if (val1 < val2)
+        }
+        if (val1 < val2) {
           return -1;
+        }
         return 1;
       }
-      if (val1 == INVALID_UNICHAR_ID)
+      if (val1 == INVALID_UNICHAR_ID) {
         return 0;
+      }
     }
   }
 
@@ -88,15 +92,17 @@ public:
   // The function assumes that array is terminated by INVALID_UNICHAR_ID.
   static inline void print(const UNICHAR_ID array[], const UNICHARSET &unicharset) {
     const UNICHAR_ID *ptr = array;
-    if (*ptr == INVALID_UNICHAR_ID)
+    if (*ptr == INVALID_UNICHAR_ID) {
       tprintf("[Empty]");
+    }
     while (*ptr != INVALID_UNICHAR_ID) {
       tprintf("%s ", unicharset.id_to_unichar(*ptr++));
     }
     tprintf("( ");
     ptr = array;
-    while (*ptr != INVALID_UNICHAR_ID)
+    while (*ptr != INVALID_UNICHAR_ID) {
       tprintf("%d ", *ptr++);
+    }
     tprintf(")\n");
   }
 };
@@ -115,8 +121,9 @@ public:
     const AmbigSpec *s1 = *static_cast<const AmbigSpec *const *>(spec1);
     const AmbigSpec *s2 = *static_cast<const AmbigSpec *const *>(spec2);
     int result = UnicharIdArrayUtils::compare(s1->wrong_ngram, s2->wrong_ngram);
-    if (result != 0)
+    if (result != 0) {
       return result;
+    }
     return UnicharIdArrayUtils::compare(s1->correct_fragments, s2->correct_fragments);
   }
 
@@ -177,8 +184,9 @@ public:
 
   // Returns definite 1-1 ambigs for the given unichar id.
   inline const UnicharIdVector *OneToOneDefiniteAmbigs(UNICHAR_ID unichar_id) const {
-    if (one_to_one_definite_ambigs_.empty())
+    if (one_to_one_definite_ambigs_.empty()) {
       return nullptr;
+    }
     return one_to_one_definite_ambigs_[unichar_id];
   }
 
@@ -188,8 +196,9 @@ public:
   // m->rn,rn->m,m->iii, UnicharAmbigsForAdaption() called with unichar id of
   // m will return a pointer to a vector with unichar ids of r,n,i.
   inline const UnicharIdVector *AmbigsForAdaption(UNICHAR_ID unichar_id) const {
-    if (ambigs_for_adaption_.empty())
+    if (ambigs_for_adaption_.empty()) {
       return nullptr;
+    }
     return ambigs_for_adaption_[unichar_id];
   }
 
@@ -197,8 +206,9 @@ public:
   // the given unichar_id is an ambiguity (appears in the 'wrong' part of
   // some ambiguity pair).
   inline const UnicharIdVector *ReverseAmbigsForAdaption(UNICHAR_ID unichar_id) const {
-    if (reverse_ambigs_for_adaption_.empty())
+    if (reverse_ambigs_for_adaption_.empty()) {
       return nullptr;
+    }
     return reverse_ambigs_for_adaption_[unichar_id];
   }
 

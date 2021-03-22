@@ -81,8 +81,9 @@ int main(int argc, char **argv) {
     printf("Combining tessdata files\n");
     std::string lang = argv[1];
     char *last = &argv[1][strlen(argv[1]) - 1];
-    if (*last != '.')
+    if (*last != '.') {
       lang += '.';
+    }
     std::string output_file = lang;
     output_file += kTrainedDataSuffix;
     if (!tm.CombineDataFiles(lang.c_str(), output_file.c_str())) {
@@ -117,8 +118,9 @@ int main(int argc, char **argv) {
       for (i = 0; i < tesseract::TESSDATA_NUM_ENTRIES; ++i) {
         std::string filename = argv[3];
         char *last = &argv[3][strlen(argv[3]) - 1];
-        if (*last != '.')
+        if (*last != '.') {
           filename += '.';
+        }
         filename += tesseract::kTessdataFileSuffixes[i];
         errno = 0;
         if (tm.ExtractToFile(filename.c_str())) {

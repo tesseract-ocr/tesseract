@@ -36,22 +36,23 @@ public:
 
   std::string spec() const override {
     std::string spec;
-    if (type_ == NT_TANH)
+    if (type_ == NT_TANH) {
       spec += "Ft" + std::to_string(no_);
-    else if (type_ == NT_LOGISTIC)
+    } else if (type_ == NT_LOGISTIC) {
       spec += "Fs" + std::to_string(no_);
-    else if (type_ == NT_RELU)
+    } else if (type_ == NT_RELU) {
       spec += "Fr" + std::to_string(no_);
-    else if (type_ == NT_LINEAR)
+    } else if (type_ == NT_LINEAR) {
       spec += "Fl" + std::to_string(no_);
-    else if (type_ == NT_POSCLIP)
+    } else if (type_ == NT_POSCLIP) {
       spec += "Fp" + std::to_string(no_);
-    else if (type_ == NT_SYMCLIP)
+    } else if (type_ == NT_SYMCLIP) {
       spec += "Fn" + std::to_string(no_);
-    else if (type_ == NT_SOFTMAX)
+    } else if (type_ == NT_SOFTMAX) {
       spec += "Fc" + std::to_string(no_);
-    else
+    } else {
       spec += "Fm" + std::to_string(no_);
+    }
     return spec;
   }
 

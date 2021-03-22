@@ -77,8 +77,9 @@ void IntFeatureMap::Init(const IntFeatureSpace &feature_space) {
   compact_size_ = feature_map_.CompactSize();
   // Initialize look-up tables if needed.
   FCOORD dir = FeatureDirection(0);
-  if (dir.x() == 0.0f && dir.y() == 0.0f)
+  if (dir.x() == 0.0f && dir.y() == 0.0f) {
     InitIntegerFX();
+  }
   // Compute look-up tables to generate offset features.
   for (int dir = 0; dir < kNumOffsetMaps; ++dir) {
     delete[] offset_plus_[dir];
@@ -109,14 +110,15 @@ void IntFeatureMap::Init(const IntFeatureSpace &feature_space) {
 // distance moved from the input to guarantee that it maps to the next
 // available quantum in the mapped/compact space.
 int IntFeatureMap::OffsetFeature(int index_feature, int dir) const {
-  if (dir > 0 && dir <= kNumOffsetMaps)
+  if (dir > 0 && dir <= kNumOffsetMaps) {
     return offset_plus_[dir - 1][index_feature];
-  else if (dir < 0 && -dir <= kNumOffsetMaps)
+  } else if (dir < 0 && -dir <= kNumOffsetMaps) {
     return offset_minus_[-dir - 1][index_feature];
-  else if (dir == 0)
+  } else if (dir == 0) {
     return index_feature;
-  else
+  } else {
     return -1;
+  }
 }
 
 //#define EXPERIMENT_ON
@@ -212,8 +214,9 @@ int IntFeatureMap::ComputeOffsetFeature(int index_feature, int dir) const {
         offset_f.Y = y;
         offset_f.Theta = f.Theta;
         int offset_index = IndexFeature(offset_f);
-        if (offset_index != index_feature && offset_index >= 0)
+        if (offset_index != index_feature && offset_index >= 0) {
           return offset_index; // Found one.
+        }
       } else {
         return -1; // Hit the edge of feature space.
       }
@@ -227,8 +230,9 @@ int IntFeatureMap::ComputeOffsetFeature(int index_feature, int dir) const {
       offset_f.Y = f.Y;
       offset_f.Theta = Modulo(theta, 256);
       int offset_index = IndexFeature(offset_f);
-      if (offset_index != index_feature && offset_index >= 0)
+      if (offset_index != index_feature && offset_index >= 0) {
         return offset_index; // Found one.
+      }
     }
   }
   return -1; // Nothing within the max distance.

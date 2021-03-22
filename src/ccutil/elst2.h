@@ -189,10 +189,12 @@ public:
 
   ELIST2_LINK *data() { // get current data
 #ifndef NDEBUG
-    if (!current)
+    if (!current) {
       NULL_DATA.error("ELIST2_ITERATOR::data", ABORT, nullptr);
-    if (!list)
+    }
+    if (!list) {
       NO_LIST.error("ELIST2_ITERATOR::data", ABORT, nullptr);
+    }
 #endif
     return current;
   }
@@ -215,8 +217,9 @@ public:
 
   bool empty() { // is list empty?
 #ifndef NDEBUG
-    if (!list)
+    if (!list) {
       NO_LIST.error("ELIST2_ITERATOR::empty", ABORT, nullptr);
+    }
 #endif
     return list->empty();
   }
@@ -258,8 +261,9 @@ private:
 inline void ELIST2_ITERATOR::set_to_list( // change list
     ELIST2 *list_to_iterate) {
 #ifndef NDEBUG
-  if (!list_to_iterate)
+  if (!list_to_iterate) {
     BAD_PARAMETER.error("ELIST2_ITERATOR::set_to_list", ABORT, "list_to_iterate is nullptr");
+  }
 #endif
 
   list = list_to_iterate;
@@ -292,12 +296,15 @@ inline ELIST2_ITERATOR::ELIST2_ITERATOR(ELIST2 *list_to_iterate) {
 inline void ELIST2_ITERATOR::add_after_then_move( // element to add
     ELIST2_LINK *new_element) {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::add_after_then_move", ABORT, nullptr);
-  if (!new_element)
+  }
+  if (!new_element) {
     BAD_PARAMETER.error("ELIST2_ITERATOR::add_after_then_move", ABORT, "new_element is nullptr");
-  if (new_element->next)
+  }
+  if (new_element->next) {
     STILL_LINKED.error("ELIST2_ITERATOR::add_after_then_move", ABORT, nullptr);
+  }
 #endif
 
   if (list->empty()) {
@@ -313,15 +320,18 @@ inline void ELIST2_ITERATOR::add_after_then_move( // element to add
       new_element->prev = current;
       current->next = new_element;
       prev = current;
-      if (current == list->last)
+      if (current == list->last) {
         list->last = new_element;
+      }
     } else { // current extracted
       new_element->prev = prev;
       prev->next = new_element;
-      if (ex_current_was_last)
+      if (ex_current_was_last) {
         list->last = new_element;
-      if (ex_current_was_cycle_pt)
+      }
+      if (ex_current_was_cycle_pt) {
         cycle_pt = new_element;
+      }
     }
   }
   current = new_element;
@@ -337,12 +347,15 @@ inline void ELIST2_ITERATOR::add_after_then_move( // element to add
 inline void ELIST2_ITERATOR::add_after_stay_put( // element to add
     ELIST2_LINK *new_element) {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::add_after_stay_put", ABORT, nullptr);
-  if (!new_element)
+  }
+  if (!new_element) {
     BAD_PARAMETER.error("ELIST2_ITERATOR::add_after_stay_put", ABORT, "new_element is nullptr");
-  if (new_element->next)
+  }
+  if (new_element->next) {
     STILL_LINKED.error("ELIST2_ITERATOR::add_after_stay_put", ABORT, nullptr);
+  }
 #endif
 
   if (list->empty()) {
@@ -359,10 +372,12 @@ inline void ELIST2_ITERATOR::add_after_stay_put( // element to add
     if (current) { // not extracted
       new_element->prev = current;
       current->next = new_element;
-      if (prev == current)
+      if (prev == current) {
         prev = new_element;
-      if (current == list->last)
+      }
+      if (current == list->last) {
         list->last = new_element;
+      }
     } else { // current extracted
       new_element->prev = prev;
       prev->next = new_element;
@@ -385,12 +400,15 @@ inline void ELIST2_ITERATOR::add_after_stay_put( // element to add
 inline void ELIST2_ITERATOR::add_before_then_move( // element to add
     ELIST2_LINK *new_element) {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::add_before_then_move", ABORT, nullptr);
-  if (!new_element)
+  }
+  if (!new_element) {
     BAD_PARAMETER.error("ELIST2_ITERATOR::add_before_then_move", ABORT, "new_element is nullptr");
-  if (new_element->next)
+  }
+  if (new_element->next) {
     STILL_LINKED.error("ELIST2_ITERATOR::add_before_then_move", ABORT, nullptr);
+  }
 #endif
 
   if (list->empty()) {
@@ -409,10 +427,12 @@ inline void ELIST2_ITERATOR::add_before_then_move( // element to add
     } else { // current extracted
       new_element->next = next;
       next->prev = new_element;
-      if (ex_current_was_last)
+      if (ex_current_was_last) {
         list->last = new_element;
-      if (ex_current_was_cycle_pt)
+      }
+      if (ex_current_was_cycle_pt) {
         cycle_pt = new_element;
+      }
     }
   }
   current = new_element;
@@ -428,12 +448,15 @@ inline void ELIST2_ITERATOR::add_before_then_move( // element to add
 inline void ELIST2_ITERATOR::add_before_stay_put( // element to add
     ELIST2_LINK *new_element) {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::add_before_stay_put", ABORT, nullptr);
-  if (!new_element)
+  }
+  if (!new_element) {
     BAD_PARAMETER.error("ELIST2_ITERATOR::add_before_stay_put", ABORT, "new_element is nullptr");
-  if (new_element->next)
+  }
+  if (new_element->next) {
     STILL_LINKED.error("ELIST2_ITERATOR::add_before_stay_put", ABORT, nullptr);
+  }
 #endif
 
   if (list->empty()) {
@@ -450,13 +473,15 @@ inline void ELIST2_ITERATOR::add_before_stay_put( // element to add
     if (current) { // not extracted
       new_element->next = current;
       current->prev = new_element;
-      if (next == current)
+      if (next == current) {
         next = new_element;
+      }
     } else { // current extracted
       new_element->next = next;
       next->prev = new_element;
-      if (ex_current_was_last)
+      if (ex_current_was_last) {
         list->last = new_element;
+      }
     }
     prev = new_element;
   }
@@ -472,10 +497,12 @@ inline void ELIST2_ITERATOR::add_before_stay_put( // element to add
 
 inline void ELIST2_ITERATOR::add_list_after(ELIST2 *list_to_add) {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::add_list_after", ABORT, nullptr);
-  if (!list_to_add)
+  }
+  if (!list_to_add) {
     BAD_PARAMETER.error("ELIST2_ITERATOR::add_list_after", ABORT, "list_to_add is nullptr");
+  }
 #endif
 
   if (!list_to_add->empty()) {
@@ -489,8 +516,9 @@ inline void ELIST2_ITERATOR::add_list_after(ELIST2 *list_to_add) {
       if (current) { // not extracted
         current->next = list_to_add->First();
         current->next->prev = current;
-        if (current == list->last)
+        if (current == list->last) {
           list->last = list_to_add->last;
+        }
         list_to_add->last->next = next;
         next->prev = list_to_add->last;
         next = current->next;
@@ -520,10 +548,12 @@ inline void ELIST2_ITERATOR::add_list_after(ELIST2 *list_to_add) {
 
 inline void ELIST2_ITERATOR::add_list_before(ELIST2 *list_to_add) {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::add_list_before", ABORT, nullptr);
-  if (!list_to_add)
+  }
+  if (!list_to_add) {
     BAD_PARAMETER.error("ELIST2_ITERATOR::add_list_before", ABORT, "list_to_add is nullptr");
+  }
 #endif
 
   if (!list_to_add->empty()) {
@@ -543,10 +573,12 @@ inline void ELIST2_ITERATOR::add_list_before(ELIST2 *list_to_add) {
       } else { // current extracted
         list_to_add->last->next = next;
         next->prev = list_to_add->last;
-        if (ex_current_was_last)
+        if (ex_current_was_last) {
           list->last = list_to_add->last;
-        if (ex_current_was_cycle_pt)
+        }
+        if (ex_current_was_cycle_pt) {
           cycle_pt = prev->next;
+        }
       }
       current = prev->next;
       next = current->next;
@@ -568,11 +600,13 @@ inline ELIST2_LINK *ELIST2_ITERATOR::extract() {
   ELIST2_LINK *extracted_link;
 
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::extract", ABORT, nullptr);
-  if (!current) // list empty or
-                // element extracted
+  }
+  if (!current) { // list empty or
+                  // element extracted
     NULL_CURRENT.error("ELIST2_ITERATOR::extract", ABORT, nullptr);
+  }
 #endif
 
   if (list->singleton()) {
@@ -607,8 +641,9 @@ inline ELIST2_LINK *ELIST2_ITERATOR::extract() {
 
 inline ELIST2_LINK *ELIST2_ITERATOR::move_to_first() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::move_to_first", ABORT, nullptr);
+  }
 #endif
 
   current = list->First();
@@ -626,8 +661,9 @@ inline ELIST2_LINK *ELIST2_ITERATOR::move_to_first() {
 
 inline ELIST2_LINK *ELIST2_ITERATOR::move_to_last() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::move_to_last", ABORT, nullptr);
+  }
 #endif
 
   current = list->last;
@@ -649,14 +685,16 @@ inline ELIST2_LINK *ELIST2_ITERATOR::move_to_last() {
 
 inline void ELIST2_ITERATOR::mark_cycle_pt() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::mark_cycle_pt", ABORT, nullptr);
+  }
 #endif
 
-  if (current)
+  if (current) {
     cycle_pt = current;
-  else
+  } else {
     ex_current_was_cycle_pt = true;
+  }
   started_cycling = false;
 }
 
@@ -669,8 +707,9 @@ inline void ELIST2_ITERATOR::mark_cycle_pt() {
 
 inline bool ELIST2_ITERATOR::at_first() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::at_first", ABORT, nullptr);
+  }
 #endif
 
   // we're at a deleted
@@ -688,8 +727,9 @@ inline bool ELIST2_ITERATOR::at_first() {
 
 inline bool ELIST2_ITERATOR::at_last() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::at_last", ABORT, nullptr);
+  }
 #endif
 
   // we're at a deleted
@@ -707,8 +747,9 @@ inline bool ELIST2_ITERATOR::at_last() {
 
 inline bool ELIST2_ITERATOR::cycled_list() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::cycled_list", ABORT, nullptr);
+  }
 #endif
 
   return ((list->empty()) || ((current == cycle_pt) && started_cycling));
@@ -723,8 +764,9 @@ inline bool ELIST2_ITERATOR::cycled_list() {
 
 inline int32_t ELIST2_ITERATOR::length() {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::length", ABORT, nullptr);
+  }
 #endif
 
   return list->length();
@@ -741,8 +783,9 @@ inline void ELIST2_ITERATOR::sort( // sort elements
     int comparator(                // comparison routine
         const void *, const void *)) {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::sort", ABORT, nullptr);
+  }
 #endif
 
   list->sort(comparator);
@@ -762,12 +805,15 @@ inline void ELIST2_ITERATOR::sort( // sort elements
 inline void ELIST2_ITERATOR::add_to_end( // element to add
     ELIST2_LINK *new_element) {
 #ifndef NDEBUG
-  if (!list)
+  if (!list) {
     NO_LIST.error("ELIST2_ITERATOR::add_to_end", ABORT, nullptr);
-  if (!new_element)
+  }
+  if (!new_element) {
     BAD_PARAMETER.error("ELIST2_ITERATOR::add_to_end", ABORT, "new_element is nullptr");
-  if (new_element->next)
+  }
+  if (new_element->next) {
     STILL_LINKED.error("ELIST2_ITERATOR::add_to_end", ABORT, nullptr);
+  }
 #endif
 
   if (this->at_last()) {

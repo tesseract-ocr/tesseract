@@ -62,8 +62,9 @@ void AssociateUtils::ComputeStats(int col, int row, const AssociateStats *parent
     }
   }
   float wh_ratio = word_res->GetBlobsWidth(col, row) / normalizing_height;
-  if (wh_ratio > max_char_wh_ratio)
+  if (wh_ratio > max_char_wh_ratio) {
     stats->bad_shape = true;
+  }
   // Compute the gap sum for this shape. If there are only negative or only
   // positive gaps, record their sum in stats->gap_sum. However, if there is
   // a mixture, record only the sum of the positive gaps.
@@ -73,8 +74,9 @@ void AssociateUtils::ComputeStats(int col, int row, const AssociateStats *parent
     int gap = word_res->GetBlobsGap(c);
     (gap > 0) ? stats->gap_sum += gap : negative_gap_sum += gap;
   }
-  if (stats->gap_sum == 0)
+  if (stats->gap_sum == 0) {
     stats->gap_sum = negative_gap_sum;
+  }
   if (debug) {
     tprintf("wh_ratio=%g (max_char_wh_ratio=%g) gap_sum=%d %s\n", wh_ratio, max_char_wh_ratio,
             stats->gap_sum, stats->bad_shape ? "bad_shape" : "");
@@ -103,8 +105,9 @@ void AssociateUtils::ComputeStats(int col, int row, const AssociateStats *parent
       SEAM *right_seam = word_res->seam_array[row];
       if (right_gap < kMinGap || right_seam->priority() > 0.0f) {
         stats->bad_shape = true;
-        if (right_gap < kMinGap)
+        if (right_gap < kMinGap) {
           stats->bad_fixed_pitch_right_gap = true;
+        }
       }
       if (debug) {
         tprintf("right_gap %g right_seam %g %s\n", right_gap, right_seam->priority(),
@@ -140,18 +143,21 @@ void AssociateUtils::ComputeStats(int col, int row, const AssociateStats *parent
       stats->shape_cost += 10;
     }
     stats->shape_cost += stats->full_wh_ratio_var;
-    if (debug)
+    if (debug) {
       tprintf("shape_cost %g\n", stats->shape_cost);
+    }
   }
 }
 
 float AssociateUtils::FixedPitchWidthCost(float norm_width, float right_gap, bool end_pos,
                                           float max_char_wh_ratio) {
   float cost = 0.0f;
-  if (norm_width > max_char_wh_ratio)
+  if (norm_width > max_char_wh_ratio) {
     cost += norm_width;
-  if (norm_width > kMaxFixedPitchCharAspectRatio)
+  }
+  if (norm_width > kMaxFixedPitchCharAspectRatio) {
     cost += norm_width * norm_width; // extra penalty for merging CJK chars
+  }
   // Penalize skinny blobs, except for punctuation in the last position.
   if (norm_width + right_gap < 0.5f && !end_pos) {
     cost += 1.0f - (norm_width + right_gap);

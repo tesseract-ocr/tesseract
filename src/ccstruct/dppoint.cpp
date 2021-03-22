@@ -30,19 +30,22 @@ namespace tesseract {
 // The return value is the tail of the best path.
 DPPoint *DPPoint::Solve(int min_step, int max_step, bool debug, CostFunc cost_func, int size,
                         DPPoint *points) {
-  if (size <= 0 || max_step < min_step || min_step >= size)
-    return nullptr;          // Degenerate, but not necessarily an error.
+  if (size <= 0 || max_step < min_step || min_step >= size) {
+    return nullptr; // Degenerate, but not necessarily an error.
+  }
   ASSERT_HOST(min_step > 0); // Infinite loop possible if this is not true.
-  if (debug)
+  if (debug) {
     tprintf("min = %d, max=%d\n", min_step, max_step);
+  }
   // Evaluate the total cost at each point.
   for (int i = 0; i < size; ++i) {
     for (int offset = min_step; offset <= max_step; ++offset) {
       DPPoint *prev = offset <= i ? points + i - offset : nullptr;
       int64_t new_cost = (points[i].*cost_func)(prev);
       if (points[i].best_prev_ != nullptr && offset > min_step * 2 &&
-          new_cost > points[i].total_cost_)
+          new_cost > points[i].total_cost_) {
         break; // Find only the first minimum if going over twice the min.
+      }
     }
     points[i].total_cost_ += points[i].local_cost_;
     if (debug) {

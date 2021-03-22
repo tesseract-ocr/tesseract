@@ -47,8 +47,9 @@ int main(int argc, char **argv) {
   }
   tesseract::Classify classify;
   int argv_index = 0;
-  if (argc == 5)
+  if (argc == 5) {
     ++argv_index;
+  }
   tesseract::Trie::RTLReversePolicy reverse_policy = tesseract::Trie::RRP_DO_NO_REVERSE;
   if (argc == 6) {
     ++argv_index;

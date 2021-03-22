@@ -71,8 +71,9 @@ static void position_outline( // put in place
             dest_outline = it.extract();
             child_it.add_to_end(dest_outline);
             // make it a child
-            if (it.empty())
+            if (it.empty()) {
               break;
+            }
           }
         }
         return; // finished
@@ -110,8 +111,9 @@ static void plot_outline_list(     // draw outlines
     outline = it.data();
     // draw it
     outline->plot(window, colour);
-    if (!outline->child()->empty())
+    if (!outline->child()->empty()) {
       plot_outline_list(outline->child(), window, child_colour, child_colour);
+    }
   }
 }
 // Draws the outlines in the given colour, and child_colour, normalized
@@ -124,8 +126,9 @@ static void plot_normed_outline_list(const DENORM &denorm, C_OUTLINE_LIST *list,
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     C_OUTLINE *outline = it.data();
     outline->plot_normed(denorm, colour, window);
-    if (!outline->child()->empty())
+    if (!outline->child()->empty()) {
       plot_normed_outline_list(denorm, outline->child(), child_colour, child_colour, window);
+    }
   }
 }
 #endif
@@ -143,8 +146,9 @@ static void reverse_outline_list(C_OUTLINE_LIST *list) {
     C_OUTLINE *outline = it.data();
     outline->reverse(); // reverse it
     outline->set_flag(COUT_INVERSE, true);
-    if (!outline->child()->empty())
+    if (!outline->child()->empty()) {
       reverse_outline_list(outline->child());
+    }
   }
 }
 
@@ -205,10 +209,11 @@ void C_BLOB::ConstructBlobsFromOutlines(bool good_blob, C_OUTLINE_LIST *outline_
     // Set inverse flag and reverse if needed.
     blob->CheckInverseFlagAndDirection();
     // Put on appropriate list.
-    if (!blob_is_good && bad_blobs_it != nullptr)
+    if (!blob_is_good && bad_blobs_it != nullptr) {
       bad_blobs_it->add_after_then_move(blob);
-    else
+    } else {
       good_blobs_it->add_after_then_move(blob);
+    }
   }
 }
 
@@ -346,8 +351,9 @@ void C_BLOB::move(   // reposition blob
 ) {
   C_OUTLINE_IT it(&outlines); // iterator
 
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     it.data()->move(vec); // move each outline
+  }
 }
 
 // Static helper for C_BLOB::rotate to allow recursion of child outlines.
@@ -386,12 +392,14 @@ static void ComputeEdgeOffsetsOutlineList(int threshold, Pix *pix, C_OUTLINE_LIS
   C_OUTLINE_IT it(list);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     C_OUTLINE *outline = it.data();
-    if (pix != nullptr && pixGetDepth(pix) == 8)
+    if (pix != nullptr && pixGetDepth(pix) == 8) {
       outline->ComputeEdgeOffsets(threshold, pix);
-    else
+    } else {
       outline->ComputeBinaryOffsets();
-    if (!outline->child()->empty())
+    }
+    if (!outline->child()->empty()) {
       ComputeEdgeOffsetsOutlineList(threshold, pix, outline->child());
+    }
   }
 }
 
@@ -420,8 +428,9 @@ int16_t C_BLOB::EstimateBaselinePosition() {
   int left = box.left();
   int width = box.width();
   int bottom = box.bottom();
-  if (outlines.empty() || perimeter() > width * kMaxPerimeterWidthRatio)
+  if (outlines.empty() || perimeter() > width * kMaxPerimeterWidthRatio) {
     return bottom; // This is only for non-CJK blobs.
+  }
   // Get the minimum y coordinate at each x-coordinate.
   std::vector<int> y_mins;
   y_mins.resize(width + 1, box.top());
@@ -430,16 +439,18 @@ int16_t C_BLOB::EstimateBaselinePosition() {
     C_OUTLINE *outline = it.data();
     ICOORD pos = outline->start_pos();
     for (int s = 0; s < outline->pathlength(); ++s) {
-      if (pos.y() < y_mins[pos.x() - left])
+      if (pos.y() < y_mins[pos.x() - left]) {
         y_mins[pos.x() - left] = pos.y();
+      }
       pos += outline->step(s);
     }
   }
   // Find the total extent of the bottom or bottom + 1.
   int bottom_extent = 0;
   for (int x = 0; x <= width; ++x) {
-    if (y_mins[x] == bottom || y_mins[x] == bottom + 1)
+    if (y_mins[x] == bottom || y_mins[x] == bottom + 1) {
       ++bottom_extent;
+    }
   }
   // Find the lowest run longer than the bottom extent that is not the bottom.
   int best_min = box.top();
@@ -450,21 +461,24 @@ int16_t C_BLOB::EstimateBaselinePosition() {
     // Find the length of the current run.
     int y_at_x = y_mins[x];
     int run = 1;
-    while (x + run <= width && y_mins[x + run] == y_at_x)
+    while (x + run <= width && y_mins[x + run] == y_at_x) {
       ++run;
+    }
     if (y_at_x > bottom + 1) {
       // Possible contender.
       int total_run = run;
       // Find extent of current value or +1 to the right of x.
       while (x + total_run <= width &&
-             (y_mins[x + total_run] == y_at_x || y_mins[x + total_run] == y_at_x + 1))
+             (y_mins[x + total_run] == y_at_x || y_mins[x + total_run] == y_at_x + 1)) {
         ++total_run;
+      }
       // At least one end has to be higher so it is not a local max.
       if (prev_prev_y > y_at_x + 1 || x + total_run > width || y_mins[x + total_run] > y_at_x + 1) {
         // If the prev_run is at y + 1, then we can add that too. There cannot
         // be a suitable run at y before that or we would have found it already.
-        if (prev_run > 0 && prev_y == y_at_x + 1)
+        if (prev_run > 0 && prev_y == y_at_x + 1) {
           total_run += prev_run;
+        }
         if (total_run > bottom_extent && y_at_x < best_min) {
           best_min = y_at_x;
         }
@@ -482,8 +496,9 @@ static void render_outline_list(C_OUTLINE_LIST *list, int left, int top, Pix *pi
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     C_OUTLINE *outline = it.data();
     outline->render(left, top, pix);
-    if (!outline->child()->empty())
+    if (!outline->child()->empty()) {
       render_outline_list(outline->child(), left, top, pix);
+    }
   }
 }
 

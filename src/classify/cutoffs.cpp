@@ -46,8 +46,9 @@ void Classify::ReadNewCutoffs(TFile *fp, uint16_t *Cutoffs) {
       tprintf("Error during read of shapetable pffmtable!\n");
     }
   }
-  for (int i = 0; i < MAX_NUM_CLASSES; i++)
+  for (int i = 0; i < MAX_NUM_CLASSES; i++) {
     Cutoffs[i] = MAX_CUTOFF;
+  }
 
   const int kMaxLineSize = 100;
   char line[kMaxLineSize];

@@ -45,8 +45,9 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
   float XScale, YScale;
 
   FeatureSet = NewFeatureSet(MAX_OUTLINE_FEATURES);
-  if (Blob == nullptr)
+  if (Blob == nullptr) {
     return (FeatureSet);
+  }
 
   Outlines = ConvertBlob(Blob);
 
@@ -56,8 +57,9 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
     Outline = static_cast<MFOUTLINE> first_node(RemainingOutlines);
     ConvertToOutlineFeatures(Outline, FeatureSet);
   }
-  if (classify_norm_method == baseline)
+  if (classify_norm_method == baseline) {
     NormalizeOutlineX(FeatureSet);
+  }
   FreeOutlines(Outlines);
   return (FeatureSet);
 } /* ExtractOutlineFeatures */
@@ -105,8 +107,9 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   FPOINT FeatureStart;
   FPOINT FeatureEnd;
 
-  if (DegenerateOutline(Outline))
+  if (DegenerateOutline(Outline)) {
     return;
+  }
 
   First = Outline;
   Next = First;
@@ -143,8 +146,9 @@ void NormalizeOutlineX(FEATURE_SET FeatureSet) {
   float TotalWeight = 0.0;
   float Origin;
 
-  if (FeatureSet->NumFeatures <= 0)
+  if (FeatureSet->NumFeatures <= 0) {
     return;
+  }
 
   for (i = 0; i < FeatureSet->NumFeatures; i++) {
     Feature = FeatureSet->Features[i];

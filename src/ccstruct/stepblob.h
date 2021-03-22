@@ -108,8 +108,9 @@ public:
 #endif // !GRAPHICS_DISABLED
 
   C_BLOB &operator=(const C_BLOB &source) {
-    if (!outlines.empty())
+    if (!outlines.empty()) {
       outlines.clear();
+    }
     outlines.deep_copy(&source.outlines, &C_OUTLINE::deep_copy);
     return *this;
   }

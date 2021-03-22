@@ -58,13 +58,14 @@ bool ParamUtils::ReadParamsFromFp(SetParamConstraint constraint, TFile *fp,
   while (fp->FGets(line, MAX_PATH) != nullptr) {
     if (line[0] != '\r' && line[0] != '\n' && line[0] != '#') {
       chomp_string(line); // remove newline
-      for (valptr = line; *valptr && *valptr != ' ' && *valptr != '\t'; valptr++)
+      for (valptr = line; *valptr && *valptr != ' ' && *valptr != '\t'; valptr++) {
         ;
+      }
       if (*valptr) {    // found blank
         *valptr = '\0'; // make name a string
-        do
+        do {
           valptr++; // find end of blanks
-        while (*valptr == ' ' || *valptr == '\t');
+        } while (*valptr == ' ' || *valptr == '\t');
       }
       foundit = SetParam(line, valptr, constraint, member_params);
 
@@ -82,10 +83,12 @@ bool ParamUtils::SetParam(const char *name, const char *value, SetParamConstrain
   // Look for the parameter among string parameters.
   auto *sp =
       FindParam<StringParam>(name, GlobalParams()->string_params, member_params->string_params);
-  if (sp != nullptr && sp->constraint_ok(constraint))
+  if (sp != nullptr && sp->constraint_ok(constraint)) {
     sp->set_value(value);
-  if (*value == '\0')
+  }
+  if (*value == '\0') {
     return (sp != nullptr);
+  }
 
   // Look for the parameter among int parameters.
   auto *ip = FindParam<IntParam>(name, GlobalParams()->int_params, member_params->int_params);

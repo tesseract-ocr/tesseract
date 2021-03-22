@@ -204,8 +204,9 @@ void TableFinder::InsertCleanPartitions(ColPartitionGrid *grid, TO_BLOCK *block)
   ColPartition *part = nullptr;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
     // Reject partitions with nothing useful inside of them.
-    if (part->blob_type() == BRT_NOISE || part->bounding_box().area() <= 0)
+    if (part->blob_type() == BRT_NOISE || part->bounding_box().area() <= 0) {
       continue;
+    }
     ColPartition *clean_part = part->ShallowCopy();
     ColPartition *leader_part = nullptr;
     if (part->IsLineType()) {
@@ -225,8 +226,9 @@ void TableFinder::InsertCleanPartitions(ColPartitionGrid *grid, TO_BLOCK *block)
       BLOBNBOX *pblob = pit.data();
       // Bad blobs... happens in UNLV set.
       // news.3G1, page 17 (around x=6)
-      if (!AllowBlob(*pblob))
+      if (!AllowBlob(*pblob)) {
         continue;
+      }
       if (pblob->flow() == BTFT_LEADER) {
         if (leader_part == nullptr) {
           leader_part = part->ShallowCopy();
@@ -673,8 +675,9 @@ void TableFinder::SetVerticalSpacing(ColPartition *part) {
   ColPartition *above_neighbor = nullptr;
   ColPartition *below_neighbor = nullptr;
   while ((neighbor = rectsearch.NextRectSearch()) != nullptr) {
-    if (neighbor == part)
+    if (neighbor == part) {
       continue;
+    }
     TBOX neighbor_box = neighbor->bounding_box();
     if (neighbor_box.major_x_overlap(part_box)) {
       int gap = abs(part->median_bottom() - neighbor->median_bottom());
@@ -763,12 +766,14 @@ void TableFinder::FindNeighbors() {
     // SetVerticalSpacing(part);
 
     ColPartition *upper = part->SingletonPartner(true);
-    if (upper)
+    if (upper) {
       part->set_nearest_neighbor_above(upper);
+    }
 
     ColPartition *lower = part->SingletonPartner(false);
-    if (lower)
+    if (lower) {
       part->set_nearest_neighbor_below(lower);
+    }
   }
 }
 
@@ -828,11 +833,13 @@ void TableFinder::MarkPartitionsUsingLocalInformation() {
   gsearch.StartFullSearch();
   ColPartition *part = nullptr;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
-    if (!part->IsTextType()) // Only consider text partitions
+    if (!part->IsTextType()) { // Only consider text partitions
       continue;
+    }
     // Only consider partitions in dominant font size or smaller
-    if (part->median_height() > kMaxTableCellXheight * global_median_xheight_)
+    if (part->median_height() > kMaxTableCellXheight * global_median_xheight_) {
       continue;
+    }
     // Mark partitions with a large gap, or no significant gap as
     // table partitions.
     // Comments: It produces several false alarms at:
@@ -858,8 +865,9 @@ bool TableFinder::HasWideOrNoInterWordGap(ColPartition *part) const {
   BLOBNBOX_C_IT it(part_boxes);
   // Check if this is a relatively small partition (such as a single word)
   if (part->bounding_box().width() < kMinBoxesInTextPartition * part->median_height() &&
-      part_boxes->length() < kMinBoxesInTextPartition)
+      part_boxes->length() < kMinBoxesInTextPartition) {
     return true;
+  }
 
   // Variables used to compute inter-blob spacing.
   int current_x0 = -1;
@@ -902,26 +910,30 @@ bool TableFinder::HasWideOrNoInterWordGap(ColPartition *part) const {
       }
 
       // If a large enough gap is found, mark it as a table cell (return true)
-      if (gap > max_gap)
+      if (gap > max_gap) {
         return true;
-      if (gap > largest_partition_gap_found)
+      }
+      if (gap > largest_partition_gap_found) {
         largest_partition_gap_found = gap;
+      }
     }
     previous_x1 = current_x1;
   }
   // Since no large gap was found, return false if the partition is too
   // long to be a data cell
   if (part->bounding_box().width() > kMaxBoxesInDataPartition * part->median_height() ||
-      part_boxes->length() > kMaxBoxesInDataPartition)
+      part_boxes->length() > kMaxBoxesInDataPartition) {
     return false;
+  }
 
   // A partition may be a single blob. In this case, it's an isolated symbol
   // or non-text (such as a ruling or image).
   // Detect these as table partitions? Shouldn't this be case by case?
   // The behavior before was to ignore this, making max_partition_gap < 0
   // and implicitly return true. Just making it explicit.
-  if (largest_partition_gap_found == -1)
+  if (largest_partition_gap_found == -1) {
     return true;
+  }
 
   // return true if the maximum gap found is smaller than the minimum allowed
   // max_gap in a text partition. This indicates that there is no significant
@@ -938,8 +950,9 @@ bool TableFinder::HasWideOrNoInterWordGap(ColPartition *part) const {
 // As these arise, the aggressive nature of this search may need to be
 // trimmed down.
 bool TableFinder::HasLeaderAdjacent(const ColPartition &part) {
-  if (part.flow() == BTFT_LEADER)
+  if (part.flow() == BTFT_LEADER) {
     return true;
+  }
   // Search range is left and right bounded by an offset of the
   // median xheight. This offset is to allow some tolerance to the
   // the leaders on the page in the event that the alignment is still
@@ -957,17 +970,20 @@ bool TableFinder::HasLeaderAdjacent(const ColPartition &part) {
     while ((leader = hsearch.NextSideSearch(right_to_left)) != nullptr) {
       // The leader could be a horizontal ruling in the grid.
       // Make sure it is actually a leader.
-      if (leader->flow() != BTFT_LEADER)
+      if (leader->flow() != BTFT_LEADER) {
         continue;
+      }
       // This should not happen, they are in different grids.
       ASSERT_HOST(&part != leader);
       // Make sure the leader shares a page column with the partition,
       // otherwise we are spreading across columns.
-      if (!part.IsInSameColumnAs(*leader))
+      if (!part.IsInSameColumnAs(*leader)) {
         break;
+      }
       // There should be a significant vertical overlap
-      if (!leader->VSignificantCoreOverlap(part))
+      if (!leader->VSignificantCoreOverlap(part)) {
         continue;
+      }
       // Leader passed all tests, so it is adjacent.
       return true;
     }
@@ -992,17 +1008,21 @@ void TableFinder::FilterParagraphEndings() {
   gsearch.StartFullSearch();
   ColPartition *part = nullptr;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
-    if (part->type() != PT_TABLE)
+    if (part->type() != PT_TABLE) {
       continue; // Consider only table partitions
+    }
 
     // Paragraph ending should have flowing text above it.
     ColPartition *upper_part = part->nearest_neighbor_above();
-    if (!upper_part)
+    if (!upper_part) {
       continue;
-    if (upper_part->type() != PT_FLOWING_TEXT)
+    }
+    if (upper_part->type() != PT_FLOWING_TEXT) {
       continue;
-    if (upper_part->bounding_box().width() < 2 * part->bounding_box().width())
+    }
+    if (upper_part->bounding_box().width() < 2 * part->bounding_box().width()) {
       continue;
+    }
     // Check if its the last line of a paragraph.
     // In most cases, a paragraph ending should be left-aligned to text line
     // above it. Sometimes, it could be a 2 line paragraph, in which case
@@ -1026,8 +1046,9 @@ void TableFinder::FilterParagraphEndings() {
       current_spacing = right - mid;
       upper_spacing = right - upper_mid;
     }
-    if (current_spacing * kParagraphEndingPreviousLineRatio > upper_spacing)
+    if (current_spacing * kParagraphEndingPreviousLineRatio > upper_spacing) {
       continue;
+    }
 
     // Paragraphs should have similar fonts.
     if (!part->MatchingSizes(*upper_part) ||
@@ -1039,21 +1060,24 @@ void TableFinder::FilterParagraphEndings() {
     // The last line of a paragraph should be left aligned.
     // TODO(nbeato): This would be untrue if the text was right aligned.
     // How often is that?
-    if (part->space_to_left() > kMaxParagraphEndingLeftSpaceMultiple * part->median_height())
+    if (part->space_to_left() > kMaxParagraphEndingLeftSpaceMultiple * part->median_height()) {
       continue;
+    }
     // The line above it should be right aligned (assuming justified format).
     // Since we can't assume justified text, we compare whitespace to text.
     // The above line should have majority spanning text (or the current
     // line could have fit on the previous line). So compare
     // whitespace to text.
     if (upper_part->bounding_box().width() <
-        kMinParagraphEndingTextToWhitespaceRatio * upper_part->space_to_right())
+        kMinParagraphEndingTextToWhitespaceRatio * upper_part->space_to_right()) {
       continue;
+    }
 
     // Ledding above the line should be less than ledding below
     if (part->space_above() >= part->space_below() ||
-        part->space_above() > 2 * global_median_ledding_)
+        part->space_above() > 2 * global_median_ledding_) {
       continue;
+    }
 
     // If all checks failed, it is probably text.
     part->clear_table_type();
@@ -1070,8 +1094,9 @@ void TableFinder::FilterHeaderAndFooter() {
   gsearch.StartFullSearch();
   ColPartition *part = nullptr;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
-    if (!part->IsTextType())
+    if (!part->IsTextType()) {
       continue; // Consider only text partitions
+    }
     int top = part->bounding_box().top();
     int bottom = part->bounding_box().bottom();
     if (top > max_top) {
@@ -1083,10 +1108,12 @@ void TableFinder::FilterHeaderAndFooter() {
       footer = part;
     }
   }
-  if (header)
+  if (header) {
     header->clear_table_type();
-  if (footer)
+  }
+  if (footer) {
     footer->clear_table_type();
+  }
 }
 
 // Mark all ColPartitions as table cells that have a table cell above
@@ -1100,14 +1127,17 @@ void TableFinder::SmoothTablePartitionRuns() {
   gsearch.StartFullSearch();
   ColPartition *part = nullptr;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
-    if (part->type() >= PT_TABLE || part->type() == PT_UNKNOWN)
+    if (part->type() >= PT_TABLE || part->type() == PT_UNKNOWN) {
       continue; // Consider only text partitions
+    }
     ColPartition *upper_part = part->nearest_neighbor_above();
     ColPartition *lower_part = part->nearest_neighbor_below();
-    if (!upper_part || !lower_part)
+    if (!upper_part || !lower_part) {
       continue;
-    if (upper_part->type() == PT_TABLE && lower_part->type() == PT_TABLE)
+    }
+    if (upper_part->type() == PT_TABLE && lower_part->type() == PT_TABLE) {
       part->set_table_type();
+    }
   }
 
   // Pass 2, do the opposite. If both the upper and lower neighbors
@@ -1115,8 +1145,9 @@ void TableFinder::SmoothTablePartitionRuns() {
   gsearch.StartFullSearch();
   part = nullptr;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
-    if (part->type() != PT_TABLE)
+    if (part->type() != PT_TABLE) {
       continue; // Consider only text partitions
+    }
     ColPartition *upper_part = part->nearest_neighbor_above();
     ColPartition *lower_part = part->nearest_neighbor_below();
 
@@ -1187,8 +1218,9 @@ void TableFinder::GridMergeColumnBlocks() {
   gsearch.StartFullSearch();
   ColSegment *seg;
   while ((seg = gsearch.NextFullSearch()) != nullptr) {
-    if (seg->type() != COL_TEXT)
+    if (seg->type() != COL_TEXT) {
       continue; // only consider text blocks for split detection
+    }
     bool neighbor_found = false;
     bool modified = false; // Modified at least once
     // keep expanding current box as long as neighboring table columns
@@ -1205,8 +1237,9 @@ void TableFinder::GridMergeColumnBlocks() {
       rectsearch.StartRectSearch(box);
       ColSegment *neighbor = nullptr;
       while ((neighbor = rectsearch.NextRectSearch()) != nullptr) {
-        if (neighbor == seg)
+        if (neighbor == seg) {
           continue;
+        }
         const TBOX &neighbor_box = neighbor->bounding_box();
         // If the neighbor box significantly overlaps with the current
         // box (due to the expansion of the current box in the
@@ -1221,8 +1254,9 @@ void TableFinder::GridMergeColumnBlocks() {
           continue;
         }
         // Only expand if the neighbor box is of table type
-        if (neighbor->type() != COL_TABLE)
+        if (neighbor->type() != COL_TABLE) {
           continue;
+        }
         // Insert the neighbor box into the current column block
         if (neighbor_box.major_x_overlap(box) && !box.contains(neighbor_box)) {
           seg->InsertBox(neighbor_box);
@@ -1261,8 +1295,9 @@ void TableFinder::GetTableColumns(ColSegment_LIST *table_columns) {
   gsearch.StartFullSearch();
   ColPartition *part;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
-    if (part->inside_table_column() || part->type() != PT_TABLE)
+    if (part->inside_table_column() || part->type() != PT_TABLE) {
       continue; // prevent a partition to be assigned to multiple columns
+    }
     const TBOX &box = part->bounding_box();
     auto *col = new ColSegment();
     col->InsertBox(box);
@@ -1276,15 +1311,18 @@ void TableFinder::GetTableColumns(ColSegment_LIST *table_columns) {
     bool found_neighbours = false;
     while ((neighbor = vsearch.NextVerticalSearch(true)) != nullptr) {
       // only consider neighbors not assigned to any column yet
-      if (neighbor->inside_table_column())
+      if (neighbor->inside_table_column()) {
         continue;
+      }
       // Horizontal lines should not break the flow
-      if (neighbor->IsHorizontalLine())
+      if (neighbor->IsHorizontalLine()) {
         continue;
+      }
       // presence of a non-table neighbor marks the end of current
       // table column
-      if (neighbor->type() != PT_TABLE)
+      if (neighbor->type() != PT_TABLE) {
         break;
+      }
       // add the neighbor partition to the table column
       const TBOX &neighbor_box = neighbor->bounding_box();
       col->InsertBox(neighbor_box);
@@ -1382,8 +1420,9 @@ void TableFinder::GridMergeTableRegions() {
       rectsearch.StartRectSearch(search_region);
       ColSegment *neighbor = nullptr;
       while ((neighbor = rectsearch.NextRectSearch()) != nullptr) {
-        if (neighbor == seg)
+        if (neighbor == seg) {
           continue;
+        }
         const TBOX &neighbor_box = neighbor->bounding_box();
         // Check if a neighbor box has a large overlap with the table
         // region.  This may happen as a result of merging two table
@@ -1423,8 +1462,9 @@ bool TableFinder::BelongToOneTable(const TBOX &box1, const TBOX &box2) {
   // Check the obvious case. Most likely not true because overlapping boxes
   // should already be merged, but seems like a good thing to do in case things
   // change.
-  if (box1.overlap(box2))
+  if (box1.overlap(box2)) {
     return true;
+  }
   // Check for ColPartitions spanning both table regions
   TBOX bbox = box1.bounding_union(box2);
   // Start a rect search on bbox
@@ -1434,8 +1474,9 @@ bool TableFinder::BelongToOneTable(const TBOX &box1, const TBOX &box2) {
   while ((part = rectsearch.NextRectSearch()) != nullptr) {
     const TBOX &part_box = part->bounding_box();
     // return true if a colpartition spanning both table regions is found
-    if (part_box.overlap(box1) && part_box.overlap(box2) && !part->IsImageType())
+    if (part_box.overlap(box1) && part_box.overlap(box2) && !part->IsImageType()) {
       return true;
+    }
   }
   return false;
 }
@@ -1526,8 +1567,9 @@ void TableFinder::GrowTableToIncludePartials(const TBOX &table_box, const TBOX &
     ColPartition *part = nullptr;
     while ((part = rectsearch.NextRectSearch()) != nullptr) {
       // Only include text and table types.
-      if (part->IsImageType())
+      if (part->IsImageType()) {
         continue;
+      }
       const TBOX &part_box = part->bounding_box();
       // Include partition in the table if more than half of it
       // is covered by the table
@@ -1551,18 +1593,21 @@ void TableFinder::GrowTableToIncludeLines(const TBOX &table_box, const TBOX &sea
     // TODO(nbeato) This should also do vertical, but column
     // boundaries are breaking things. This function needs to be
     // updated to allow vertical lines as well.
-    if (!part->IsLineType())
+    if (!part->IsLineType()) {
       continue;
+    }
     // Avoid the following function call if the result of the
     // function is irrelevant.
     const TBOX &part_box = part->bounding_box();
-    if (result_box->contains(part_box))
+    if (result_box->contains(part_box)) {
       continue;
+    }
     // Include a partially overlapping horizontal line only if the
     // extra ColPartitions that will be included due to expansion
     // have large side spacing w.r.t. columns containing them.
-    if (HLineBelongsToTable(*part, table_box))
+    if (HLineBelongsToTable(*part, table_box)) {
       *result_box = result_box->bounding_union(part_box);
+    }
     // TODO(nbeato): Vertical
   }
 }
@@ -1571,11 +1616,13 @@ void TableFinder::GrowTableToIncludeLines(const TBOX &table_box, const TBOX &sea
 // side spacing of extra ColParitions that will be included in the table
 // due to expansion
 bool TableFinder::HLineBelongsToTable(const ColPartition &part, const TBOX &table_box) {
-  if (!part.IsHorizontalLine())
+  if (!part.IsHorizontalLine()) {
     return false;
+  }
   const TBOX &part_box = part.bounding_box();
-  if (!part_box.major_x_overlap(table_box))
+  if (!part_box.major_x_overlap(table_box)) {
     return false;
+  }
   // Do not consider top-most horizontal line since it usually
   // originates from noise.
   // TODO(nbeato): I had to comment this out because the ruling grid doesn't
@@ -1603,11 +1650,13 @@ bool TableFinder::HLineBelongsToTable(const ColPartition &part, const TBOX &tabl
     while ((extra_part = rectsearch.NextRectSearch()) != nullptr) {
       // ColPartition already in table
       const TBOX &extra_part_box = extra_part->bounding_box();
-      if (extra_part_box.overlap_fraction(table_box) > kMinOverlapWithTable)
+      if (extra_part_box.overlap_fraction(table_box) > kMinOverlapWithTable) {
         continue;
+      }
       // Non-text ColPartitions do not contribute
-      if (extra_part->IsImageType())
+      if (extra_part->IsImageType()) {
         continue;
+      }
       // Consider this partition.
       num_extra_partitions++;
       // presence of a table cell is a strong hint, so just increment the scores
@@ -1618,10 +1667,12 @@ bool TableFinder::HLineBelongsToTable(const ColPartition &part, const TBOX &tabl
         continue;
       }
       int space_threshold = kSideSpaceMargin * part.median_height();
-      if (extra_part->space_to_right() > space_threshold)
+      if (extra_part->space_to_right() > space_threshold) {
         extra_space_to_right++;
-      if (extra_part->space_to_left() > space_threshold)
+      }
+      if (extra_part->space_to_left() > space_threshold) {
         extra_space_to_left++;
+      }
     }
   }
   // tprintf("%d %d %d\n",
@@ -1644,8 +1695,9 @@ void TableFinder::IncludeLeftOutColumnHeaders(TBOX *table_box) {
     int table_top = table_box->top();
     const TBOX &box = neighbor->bounding_box();
     // Do not continue if the next box is way above
-    if (box.bottom() - table_top > max_distance)
+    if (box.bottom() - table_top > max_distance) {
       break;
+    }
     // Unconditionally include partitions of type TABLE or LINE
     // TODO(faisal): add some reasonable conditions here
     if (neighbor->type() == PT_TABLE || neighbor->IsLineType()) {
@@ -1659,8 +1711,9 @@ void TableFinder::IncludeLeftOutColumnHeaders(TBOX *table_box) {
       previous_neighbor = neighbor;
     } else {
       const TBOX &previous_box = previous_neighbor->bounding_box();
-      if (!box.major_y_overlap(previous_box))
+      if (!box.major_y_overlap(previous_box)) {
         break;
+      }
     }
   }
 }
@@ -1690,14 +1743,17 @@ void TableFinder::DeleteSingleColumnTables() {
     rectsearch.StartRectSearch(table_box);
     ColPartition *part;
     while ((part = rectsearch.NextRectSearch()) != nullptr) {
-      if (!part->IsTextType())
+      if (!part->IsTextType()) {
         continue; // Do not consider non-text partitions
-      if (part->flow() == BTFT_LEADER)
+      }
+      if (part->flow() == BTFT_LEADER) {
         continue; // Assume leaders are in tables
+      }
       TBOX part_box = part->bounding_box();
       // Do not consider partitions partially covered by the table
-      if (part_box.overlap_fraction(table_box) < kMinOverlapWithTable)
+      if (part_box.overlap_fraction(table_box) < kMinOverlapWithTable) {
         continue;
+      }
       BLOBNBOX_CLIST *part_boxes = part->boxes();
       BLOBNBOX_C_IT pit(part_boxes);
 
@@ -1716,8 +1772,9 @@ void TableFinder::DeleteSingleColumnTables() {
         int xend = pblob->bounding_box().right();
 
         xstart = std::max(xstart, next_position_to_write);
-        for (int i = xstart; i < xend; i++)
+        for (int i = xstart; i < xend; i++) {
           table_xprojection[i - bleft().x()]++;
+        }
         next_position_to_write = xend;
       }
     }
@@ -1743,11 +1800,13 @@ bool TableFinder::GapInXProjection(int *xprojection, int length) {
   // Peak value represents the maximum number of horizontally
   // overlapping colpartitions, so this can be considered as the
   // number of rows in the table
-  if (peak_value < kMinRowsInTable)
+  if (peak_value < kMinRowsInTable) {
     return false;
+  }
   double projection_threshold = kSmallTableProjectionThreshold * peak_value;
-  if (peak_value >= kLargeTableRowCount)
+  if (peak_value >= kLargeTableRowCount) {
     projection_threshold = kLargeTableProjectionThreshold * peak_value;
+  }
   // Threshold the histogram
   for (int i = 0; i < length; i++) {
     xprojection[i] = (xprojection[i] >= projection_threshold) ? 1 : 0;
@@ -1763,8 +1822,9 @@ bool TableFinder::GapInXProjection(int *xprojection, int length) {
     // detect end of a run of zeros and update the value of largest gap
     if (run_start != -1 && !xprojection[i - 1] && xprojection[i]) {
       int gap = i - run_start;
-      if (gap > largest_gap)
+      if (gap > largest_gap) {
         largest_gap = gap;
+      }
       run_start = -1;
     }
   }
@@ -1833,8 +1893,9 @@ void TableFinder::RecognizeTables() {
 
   // At this point, the grid is empty. We can safely insert the good tables
   // back into grid.
-  for (good_it.mark_cycle_pt(); !good_it.cycled_list(); good_it.forward())
+  for (good_it.mark_cycle_pt(); !good_it.cycled_list(); good_it.forward()) {
     table_grid_.InsertBBox(true, true, good_it.extract());
+  }
 }
 
 #ifndef GRAPHICS_DISABLED
@@ -1870,8 +1931,9 @@ void TableFinder::DisplayColPartitions(ScrollView *win, ColPartitionGrid *grid,
   ColPartition *part = nullptr;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
     color = default_color;
-    if (part->type() == PT_TABLE)
+    if (part->type() == PT_TABLE) {
       color = table_color;
+    }
 
     const TBOX &box = part->bounding_box();
     int left_x = box.left();
@@ -1980,8 +2042,9 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **all_
     ColPartition *table_partition = nullptr;
     while ((part = rectsearch.NextRectSearch()) != nullptr) {
       // Do not consider image partitions
-      if (!part->IsTextType())
+      if (!part->IsTextType()) {
         continue;
+      }
       TBOX part_box = part->bounding_box();
       // Include partition in the table if more than half of it
       // is covered by the table
@@ -2058,12 +2121,13 @@ void ColSegment::InsertBox(const TBOX &other) {
 // Set column segment type based on the ratio of text and table partitions
 // in it.
 void ColSegment::set_type() {
-  if (num_table_cells_ > kTableColumnThreshold * num_text_cells_)
+  if (num_table_cells_ > kTableColumnThreshold * num_text_cells_) {
     type_ = COL_TABLE;
-  else if (num_text_cells_ > num_table_cells_)
+  } else if (num_text_cells_ > num_table_cells_) {
     type_ = COL_TEXT;
-  else
+  } else {
     type_ = COL_MIXED;
+  }
 }
 
 } // namespace tesseract.

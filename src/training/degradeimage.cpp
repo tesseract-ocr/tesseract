@@ -138,8 +138,9 @@ Pix *DegradeImage(Pix *input, int exposure, TRand *randomizer, float *rotation) 
   // For light and 0 exposure, there is no dilation, so compensate for the
   // convolution with a big darkening bias which is undone for lighter
   // exposures.
-  if (exposure <= 0)
+  if (exposure <= 0) {
     erosion_offset = -3 * kExposureFactor;
+  }
   // Add in a general offset of the greyscales for the exposure level so
   // a threshold of 128 gives a reasonable binary result.
   erosion_offset -= exposure * kExposureFactor;
@@ -150,15 +151,19 @@ Pix *DegradeImage(Pix *input, int exposure, TRand *randomizer, float *rotation) 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       int pixel = GET_DATA_BYTE(data, x);
-      if (randomizer != nullptr)
+      if (randomizer != nullptr) {
         pixel += randomizer->IntRand() % (kSaltnPepper * 2 + 1) - kSaltnPepper;
-      if (height + width > kMinRampSize)
+      }
+      if (height + width > kMinRampSize) {
         pixel -= (2 * x + y) * 32 / (height + width);
+      }
       pixel += erosion_offset;
-      if (pixel < 0)
+      if (pixel < 0) {
         pixel = 0;
-      if (pixel > 255)
+      }
+      if (pixel > 255) {
         pixel = 255;
+      }
       SET_DATA_BYTE(data, x, pixel);
     }
     data += input->wpl;
@@ -194,17 +199,20 @@ Pix *PrepareDistortedPix(const Pix *pix, bool perspective, bool invert, bool whi
     pixDestroy(&distorted);
     distorted = blurred;
   }
-  if (perspective)
+  if (perspective) {
     GeneratePerspectiveDistortion(0, 0, randomizer, &distorted, boxes);
+  }
   if (boxes != nullptr) {
     for (auto &b : *boxes) {
       b.scale(1.0f / box_reduction);
-      if (b.width() <= 0)
+      if (b.width() <= 0) {
         b.set_right(b.left() + 1);
+      }
     }
   }
-  if (invert && randomizer->SignedRand(1.0) < -0)
+  if (invert && randomizer->SignedRand(1.0) < -0) {
     pixInvert(distorted, distorted);
+  }
   return distorted;
 }
 
@@ -270,17 +278,20 @@ int ProjectiveCoeffs(int width, int height, TRand *randomizer, float **im_coeffs
       shear = randomizer->SignedRand(0.5 / 3.0);
       shear = shear >= 0.0 ? shear * shear : -shear * shear;
       // Keep the sheared points within the original rectangle.
-      if (shear < -factors[FN_X0])
+      if (shear < -factors[FN_X0]) {
         shear = -factors[FN_X0];
-      if (shear > factors[FN_X1])
+      }
+      if (shear > factors[FN_X1]) {
         shear = factors[FN_X1];
+      }
       factors[i] = shear;
     } else if (i != FN_INCOLOR) {
       factors[i] = fabs(randomizer->SignedRand(1.0));
-      if (i <= FN_Y3)
+      if (i <= FN_Y3) {
         factors[i] *= 5.0 / 8.0;
-      else
+      } else {
         factors[i] *= 0.5;
+      }
       factors[i] *= factors[i];
     }
   }

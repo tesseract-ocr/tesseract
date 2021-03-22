@@ -155,13 +155,14 @@ void BLOBNBOX::chop(       // chop blobs
       } while (blob != end_it->data());
       if (ymin < ymax) {
         leftx = static_cast<int16_t>(floor(rightx - blobwidth));
-        if (leftx < box.left())
+        if (leftx < box.left()) {
           leftx = box.left(); // clip to real box
+        }
         bl = ICOORD(leftx, static_cast<int16_t>(floor(ymin)));
         tr = ICOORD(static_cast<int16_t>(ceil(rightx)), static_cast<int16_t>(ceil(ymax)));
-        if (blobindex == 0)
+        if (blobindex == 0) {
           box = TBOX(bl, tr); // change box
-        else {
+        } else {
           newblob = new BLOBNBOX;
           // box is all it has
           newblob->box = TBOX(bl, tr);
@@ -202,12 +203,14 @@ void BLOBNBOX::MinMaxGapsClipped(int *h_min, int *h_max, int *v_min, int *v_max)
   NeighbourGaps(gaps);
   *h_min = std::min(gaps[BND_LEFT], gaps[BND_RIGHT]);
   *h_max = std::max(gaps[BND_LEFT], gaps[BND_RIGHT]);
-  if (*h_max > max_dimension && *h_min < max_dimension)
+  if (*h_max > max_dimension && *h_min < max_dimension) {
     *h_max = *h_min;
+  }
   *v_min = std::min(gaps[BND_ABOVE], gaps[BND_BELOW]);
   *v_max = std::max(gaps[BND_ABOVE], gaps[BND_BELOW]);
-  if (*v_max > max_dimension && *v_min < max_dimension)
+  if (*v_max > max_dimension && *v_min < max_dimension) {
     *v_max = *v_min;
+  }
 }
 
 // Nulls out any neighbours that are DeletableNoise to remove references.
@@ -227,8 +230,9 @@ int BLOBNBOX::GoodTextBlob() const {
   int score = 0;
   for (int dir = 0; dir < BND_COUNT; ++dir) {
     auto bnd = static_cast<BlobNeighbourDir>(dir);
-    if (good_stroke_neighbour(bnd))
+    if (good_stroke_neighbour(bnd)) {
       ++score;
+    }
   }
   return score;
 }
@@ -239,8 +243,9 @@ int BLOBNBOX::NoisyNeighbours() const {
   for (int dir = 0; dir < BND_COUNT; ++dir) {
     auto bnd = static_cast<BlobNeighbourDir>(dir);
     BLOBNBOX *blob = neighbour(bnd);
-    if (blob != nullptr && blob->region_type() == BRT_NOISE)
+    if (blob != nullptr && blob->region_type() == BRT_NOISE) {
       ++count;
+    }
   }
   return count;
 }
@@ -250,8 +255,9 @@ int BLOBNBOX::NoisyNeighbours() const {
 // eg if it has a high aspect ratio, yet has a complex shape, such as a
 // joined word in Latin, Arabic, or Hindi, rather than being a -, I, l, 1 etc.
 bool BLOBNBOX::DefiniteIndividualFlow() {
-  if (cblob() == nullptr)
+  if (cblob() == nullptr) {
     return false;
+  }
   int box_perimeter = 2 * (box.height() + box.width());
   if (box.width() > box.height() * kDefiniteAspectRatio) {
     // Attempt to distinguish a wide joined word from a dash.
@@ -260,10 +266,11 @@ bool BLOBNBOX::DefiniteIndividualFlow() {
     // so perimeter - 2*(box width + stroke width) should be close to zero.
     // A complex shape such as a joined word should have a much larger value.
     int perimeter = cblob()->perimeter();
-    if (vert_stroke_width() > 0 || perimeter <= 0)
+    if (vert_stroke_width() > 0 || perimeter <= 0) {
       perimeter -= 2 * vert_stroke_width();
-    else
+    } else {
       perimeter -= 4 * cblob()->area() / perimeter;
+    }
     perimeter -= 2 * box.width();
     // Use a multiple of the box perimeter as a threshold.
     if (perimeter > kComplexShapePerimeterRatio * box_perimeter) {
@@ -275,10 +282,11 @@ bool BLOBNBOX::DefiniteIndividualFlow() {
   if (box.height() > box.width() * kDefiniteAspectRatio) {
     // As above, but for a putative vertical word vs a I/1/l.
     int perimeter = cblob()->perimeter();
-    if (horz_stroke_width() > 0 || perimeter <= 0)
+    if (horz_stroke_width() > 0 || perimeter <= 0) {
       perimeter -= 2 * horz_stroke_width();
-    else
+    } else {
       perimeter -= 4 * cblob()->area() / perimeter;
+    }
     perimeter -= 2 * box.height();
     if (perimeter > kComplexShapePerimeterRatio * box_perimeter) {
       set_vert_possible(true);
@@ -291,14 +299,18 @@ bool BLOBNBOX::DefiniteIndividualFlow() {
 
 // Returns true if there is no tabstop violation in merging this and other.
 bool BLOBNBOX::ConfirmNoTabViolation(const BLOBNBOX &other) const {
-  if (box.left() < other.box.left() && box.left() < other.left_rule_)
+  if (box.left() < other.box.left() && box.left() < other.left_rule_) {
     return false;
-  if (other.box.left() < box.left() && other.box.left() < left_rule_)
+  }
+  if (other.box.left() < box.left() && other.box.left() < left_rule_) {
     return false;
-  if (box.right() > other.box.right() && box.right() > other.right_rule_)
+  }
+  if (box.right() > other.box.right() && box.right() > other.right_rule_) {
     return false;
-  if (other.box.right() > box.right() && other.box.right() > right_rule_)
+  }
+  if (other.box.right() > box.right() && other.box.right() > right_rule_) {
     return false;
+  }
   return true;
 }
 
@@ -350,8 +362,9 @@ TBOX BLOBNBOX::BoundsWithinLimits(int left, int right) {
 // outline.
 void BLOBNBOX::EstimateBaselinePosition() {
   baseline_y_ = box.bottom(); // The default.
-  if (cblob_ptr == nullptr)
+  if (cblob_ptr == nullptr) {
     return;
+  }
   baseline_y_ = cblob_ptr->EstimateBaselinePosition();
 }
 
@@ -423,8 +436,9 @@ void BLOBNBOX::PlotNoiseBlobs(BLOBNBOX_LIST *list, ScrollView::Color body_colour
   BLOBNBOX_IT it(list);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX *blob = it.data();
-    if (blob->DeletableNoise())
+    if (blob->DeletableNoise()) {
       blob->plot(win, body_colour, child_colour);
+    }
   }
 }
 
@@ -441,22 +455,29 @@ ScrollView::Color BLOBNBOX::TextlineColor(BlobRegionType region_type, BlobTextFl
     case BRT_UNKNOWN:
       return flow_type == BTFT_NONTEXT ? ScrollView::CYAN : ScrollView::WHITE;
     case BRT_VERT_TEXT:
-      if (flow_type == BTFT_STRONG_CHAIN || flow_type == BTFT_TEXT_ON_IMAGE)
+      if (flow_type == BTFT_STRONG_CHAIN || flow_type == BTFT_TEXT_ON_IMAGE) {
         return ScrollView::GREEN;
-      if (flow_type == BTFT_CHAIN)
+      }
+      if (flow_type == BTFT_CHAIN) {
         return ScrollView::LIME_GREEN;
+      }
       return ScrollView::YELLOW;
     case BRT_TEXT:
-      if (flow_type == BTFT_STRONG_CHAIN)
+      if (flow_type == BTFT_STRONG_CHAIN) {
         return ScrollView::BLUE;
-      if (flow_type == BTFT_TEXT_ON_IMAGE)
+      }
+      if (flow_type == BTFT_TEXT_ON_IMAGE) {
         return ScrollView::LIGHT_BLUE;
-      if (flow_type == BTFT_CHAIN)
+      }
+      if (flow_type == BTFT_CHAIN) {
         return ScrollView::MEDIUM_BLUE;
-      if (flow_type == BTFT_LEADER)
+      }
+      if (flow_type == BTFT_LEADER) {
         return ScrollView::WHEAT;
-      if (flow_type == BTFT_NONTEXT)
+      }
+      if (flow_type == BTFT_NONTEXT) {
         return ScrollView::PINK;
+      }
       return ScrollView::MAGENTA;
     default:
       return ScrollView::GREY;
@@ -471,8 +492,9 @@ ScrollView::Color BLOBNBOX::BoxColor() const {
 void BLOBNBOX::plot(ScrollView *window,               // window to draw in
                     ScrollView::Color blob_colour,    // for outer bits
                     ScrollView::Color child_colour) { // for holes
-  if (cblob_ptr != nullptr)
+  if (cblob_ptr != nullptr) {
     cblob_ptr->plot(window, blob_colour, child_colour);
+  }
 }
 #endif
 /**********************************************************************
@@ -627,9 +649,10 @@ TBOX box_next(      // get bounding box
   do {
     it->forward();
     blob = it->data();
-    if (blob->cblob() == nullptr)
+    if (blob->cblob() == nullptr) {
       // was pre-chopped
       result += blob->bounding_box();
+    }
   }
   // until next real blob
   while ((blob->cblob() == nullptr) || blob->joined_to_prev());
@@ -725,17 +748,21 @@ void TO_ROW::add_blob( // constructor
   allowed = row_size + y_min - y_max;
   if (allowed > 0) {
     available = top > y_max ? top - y_max : 0;
-    if (bottom < y_min)
+    if (bottom < y_min) {
       // total available
       available += y_min - bottom;
+    }
     if (available > 0) {
       available += available; // do it gradually
-      if (available < allowed)
+      if (available < allowed) {
         available = allowed;
-      if (bottom < y_min)
+      }
+      if (bottom < y_min) {
         y_min -= (y_min - bottom) * allowed / available;
-      if (top > y_max)
+      }
+      if (top > y_max) {
         y_max += (top - y_max) * allowed / available;
+      }
     }
   }
 }
@@ -751,16 +778,18 @@ void TO_ROW::insert_blob( // constructor
 ) {
   BLOBNBOX_IT it = &blobs; // list of blobs
 
-  if (it.empty())
+  if (it.empty()) {
     it.add_before_then_move(blob);
-  else {
+  } else {
     it.mark_cycle_pt();
-    while (!it.cycled_list() && it.data()->bounding_box().left() <= blob->bounding_box().left())
+    while (!it.cycled_list() && it.data()->bounding_box().left() <= blob->bounding_box().left()) {
       it.forward();
-    if (it.cycled_list())
+    }
+    if (it.cycled_list()) {
       it.add_to_end(blob);
-    else
+    } else {
       it.add_before_stay_put(blob);
+    }
   }
 }
 
@@ -776,19 +805,22 @@ void TO_ROW::compute_vertical_projection() { // project whole row
   TBOX blob_box;                             // bounding box
   BLOBNBOX_IT blob_it = blob_list();
 
-  if (blob_it.empty())
+  if (blob_it.empty()) {
     return;
+  }
   row_box = blob_it.data()->bounding_box();
-  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward())
+  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     row_box += blob_it.data()->bounding_box();
+  }
 
   projection.set_range(row_box.left() - PROJECTION_MARGIN, row_box.right() + PROJECTION_MARGIN);
   projection_left = row_box.left() - PROJECTION_MARGIN;
   projection_right = row_box.right() + PROJECTION_MARGIN;
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     blob = blob_it.data();
-    if (blob->cblob() != nullptr)
+    if (blob->cblob() != nullptr) {
       vertical_cblob_projection(blob->cblob(), &projection);
+    }
   }
 }
 
@@ -959,14 +991,15 @@ static void SizeFilterBlobs(int min_height, int max_height, BLOBNBOX_LIST *src_l
     blob->ReInit();
     int width = blob->bounding_box().width();
     int height = blob->bounding_box().height();
-    if (height < min_height && (width < min_height || width > max_height))
+    if (height < min_height && (width < min_height || width > max_height)) {
       noise_it.add_after_then_move(blob);
-    else if (height > max_height)
+    } else if (height > max_height) {
       large_it.add_after_then_move(blob);
-    else if (height < min_height)
+    } else if (height < min_height) {
       small_it.add_after_then_move(blob);
-    else
+    } else {
       medium_it.add_after_then_move(blob);
+    }
   }
 }
 

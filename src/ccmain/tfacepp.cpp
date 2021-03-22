@@ -38,8 +38,9 @@ void Tesseract::recog_word(WERD_RES *word) {
   if (wordrec_skip_no_truth_words &&
       (word->blamer_bundle == nullptr ||
        word->blamer_bundle->incorrect_result_reason() == IRR_NO_TRUTH)) {
-    if (classify_debug_level)
+    if (classify_debug_level) {
       tprintf("No truth for word - skipping\n");
+    }
     word->tess_failed = true;
     return;
   }
@@ -266,12 +267,14 @@ void Tesseract::join_words(WERD_RES *word, WERD_RES *word2, BlamerBundle *orig_b
   // finished with them.
   int bc2_index = 1;
   for (bc2_it.forward(); !bc2_it.at_first(); bc2_it.forward(), ++bc2_index) {
-    if (total_joined_choices >= kTooManyAltChoices && bc2_index > kAltsPerPiece)
+    if (total_joined_choices >= kTooManyAltChoices && bc2_index > kAltsPerPiece) {
       break;
+    }
     int bc1_index = 0;
     for (bc1_it.move_to_first(); bc1_index < num_word1_choices; ++bc1_index, bc1_it.forward()) {
-      if (total_joined_choices >= kTooManyAltChoices && bc1_index > kAltsPerPiece)
+      if (total_joined_choices >= kTooManyAltChoices && bc1_index > kAltsPerPiece) {
         break;
+      }
       auto *wc = new WERD_CHOICE(*bc1_it.data());
       *wc += *bc2_it.data();
       jc_it.add_after_then_move(wc);

@@ -233,8 +233,9 @@ public:
     }
   }
   void clear_table_type() {
-    if (type_ == PT_TABLE)
+    if (type_ == PT_TABLE) {
       type_ = type_before_table_;
+    }
   }
   bool inside_table_column() {
     return inside_table_column_;

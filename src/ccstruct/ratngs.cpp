@@ -287,8 +287,9 @@ BLOB_CHOICE_LIST *WERD_CHOICE::blob_choices(int index, MATRIX *ratings) const {
 // MATRIX for the given index into the word.
 MATRIX_COORD WERD_CHOICE::MatrixCoord(int index) const {
   int col = 0;
-  for (int i = 0; i < index; ++i)
+  for (int i = 0; i < index; ++i) {
     col += state_[i];
+  }
   int row = col + state_[index] - 1;
   return MATRIX_COORD(col, row);
 }
@@ -327,10 +328,11 @@ void WERD_CHOICE::remove_unichar_ids(int start, int num) {
   ASSERT_HOST(start >= 0 && start + num <= length_);
   // Accumulate the states to account for the merged blobs.
   for (int i = 0; i < num; ++i) {
-    if (start > 0)
+    if (start > 0) {
       state_[start - 1] += state_[start + i];
-    else if (start + num < length_)
+    } else if (start + num < length_) {
       state_[start + num] += state_[start + i];
+    }
   }
   for (int i = start; i + num < length_; ++i) {
     unichar_ids_[i] = unichar_ids_[i + num];
@@ -428,8 +430,9 @@ bool WERD_CHOICE::has_rtl_unichar_id() const {
  */
 void WERD_CHOICE::string_and_lengths(std::string *word_str, std::string *word_lengths_str) const {
   *word_str = "";
-  if (word_lengths_str != nullptr)
+  if (word_lengths_str != nullptr) {
     *word_lengths_str = "";
+  }
   for (int i = 0; i < length_; ++i) {
     const char *ch = unicharset_->id_to_unichar_ext(unichar_ids_[i]);
     *word_str += ch;
@@ -473,13 +476,16 @@ WERD_CHOICE &WERD_CHOICE::operator+=(const WERD_CHOICE &second) {
     script_pos_[length_ + i] = second.BlobPosition(i);
   }
   length_ += second.length();
-  if (second.adjust_factor_ > adjust_factor_)
+  if (second.adjust_factor_ > adjust_factor_) {
     adjust_factor_ = second.adjust_factor_;
+  }
   rating_ += second.rating();          // add ratings
-  if (second.certainty() < certainty_) // take min
+  if (second.certainty() < certainty_) { // take min
     certainty_ = second.certainty();
-  if (second.dangerous_ambig_found_)
+  }
+  if (second.dangerous_ambig_found_) {
     dangerous_ambig_found_ = true;
+  }
   if (permuter_ == NO_PERM) {
     permuter_ = second.permuter();
   } else if (second.permuter() != NO_PERM && second.permuter() != permuter_) {
@@ -525,8 +531,9 @@ WERD_CHOICE &WERD_CHOICE::operator=(const WERD_CHOICE &source) {
 // NOTE: blobs_list should be the chopped_word blobs. (Fully segemented.)
 void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD *word, int debug) {
   // Initialize to normal.
-  for (int i = 0; i < length_; ++i)
+  for (int i = 0; i < length_; ++i) {
     script_pos_[i] = tesseract::SP_NORMAL;
+  }
   if (word->blobs.empty() || word->NumBlobs() != TotalOfStates()) {
     return;
   }
@@ -586,8 +593,9 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD *word, int debug) {
 
 // Sets all the script_pos_ positions to the given position.
 void WERD_CHOICE::SetAllScriptPositions(tesseract::ScriptPos position) {
-  for (int i = 0; i < length_; ++i)
+  for (int i = 0; i < length_; ++i) {
     script_pos_[i] = position;
+  }
 }
 
 /* static */
@@ -627,8 +635,9 @@ int WERD_CHOICE::GetTopScriptID() const {
   int max_script = unicharset_->get_script_table_size();
   int *sid = new int[max_script];
   int x;
-  for (x = 0; x < max_script; x++)
+  for (x = 0; x < max_script; x++) {
     sid[x] = 0;
+  }
   for (x = 0; x < length_; ++x) {
     int script_id = unicharset_->get_script(unichar_id(x));
     sid[script_id]++;
@@ -647,11 +656,14 @@ int WERD_CHOICE::GetTopScriptID() const {
   // Note that high script ID overrides lower one on a tie, thus biasing
   // towards non-Common script (if sorted that way in unicharset file).
   int max_sid = 0;
-  for (x = 1; x < max_script; x++)
-    if (sid[x] >= sid[max_sid])
+  for (x = 1; x < max_script; x++) {
+    if (sid[x] >= sid[max_sid]) {
       max_sid = x;
-  if (sid[max_sid] < length_ / 2)
+    }
+  }
+  if (sid[max_sid] < length_ / 2) {
     max_sid = unicharset_->null_sid();
+  }
   delete[] sid;
   return max_sid;
 }
@@ -711,8 +723,9 @@ void WERD_CHOICE::print(const char *msg) const {
 // Prints the segmentation state with an introductory message.
 void WERD_CHOICE::print_state(const char *msg) const {
   tprintf("%s", msg);
-  for (int i = 0; i < length_; ++i)
+  for (int i = 0; i < length_; ++i) {
     tprintf(" %d", state_[i]);
+  }
   tprintf("\n");
 }
 
@@ -727,16 +740,18 @@ void WERD_CHOICE::DisplaySegmentation(TWERD *word) {
   // Check the state against the static prev_drawn_state.
   static std::vector<int> prev_drawn_state;
   bool already_done = prev_drawn_state.size() == length_;
-  if (!already_done)
+  if (!already_done) {
     prev_drawn_state.resize(length_);
+  }
   for (int i = 0; i < length_; ++i) {
     if (prev_drawn_state[i] != state_[i]) {
       already_done = false;
     }
     prev_drawn_state[i] = state_[i];
   }
-  if (already_done || word->blobs.empty())
+  if (already_done || word->blobs.empty()) {
     return;
+  }
 
   // Create the window if needed.
   if (segm_window == nullptr) {
@@ -764,14 +779,16 @@ void WERD_CHOICE::DisplaySegmentation(TWERD *word) {
 
 bool EqualIgnoringCaseAndTerminalPunct(const WERD_CHOICE &word1, const WERD_CHOICE &word2) {
   const UNICHARSET *uchset = word1.unicharset();
-  if (word2.unicharset() != uchset)
+  if (word2.unicharset() != uchset) {
     return false;
+  }
   int w1start, w1end;
   word1.punct_stripped(&w1start, &w1end);
   int w2start, w2end;
   word2.punct_stripped(&w2start, &w2end);
-  if (w1end - w1start != w2end - w2start)
+  if (w1end - w1start != w2end - w2start) {
     return false;
+  }
   for (int i = 0; i < w1end - w1start; i++) {
     if (uchset->to_lower(word1.unichar_id(w1start + i)) !=
         uchset->to_lower(word2.unichar_id(w2start + i))) {
@@ -804,8 +821,9 @@ void print_ratings_list(const char *msg, BLOB_CHOICE_LIST *ratings,
   c_it.set_to_list(ratings);
   for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
     c_it.data()->print(&current_unicharset);
-    if (!c_it.at_last())
+    if (!c_it.at_last()) {
       tprintf("\n");
+    }
   }
   tprintf("\n");
   fflush(stdout);

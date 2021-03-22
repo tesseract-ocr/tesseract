@@ -74,31 +74,38 @@ void LigatureTable::Init() {
       normed8_result.toUTF8String(normed8);
       // The icu::Normalizer maps the "LONG S T" ligature to "st". Correct that
       // here manually so that AddLigatures() will work as desired.
-      if (lig8 == "\uFB05")
+      if (lig8 == "\uFB05") {
         normed8 = "ſt";
+      }
       int lig_length = lig8.length();
       int norm_length = normed8.size();
       if (normed8 != lig8 && lig_length > 1 && norm_length > 1) {
         norm_to_lig_table_[normed8] = lig8;
         lig_to_norm_table_[lig8] = normed8;
-        if (min_lig_length_ == 0 || lig_length < min_lig_length_)
+        if (min_lig_length_ == 0 || lig_length < min_lig_length_) {
           min_lig_length_ = lig_length;
-        if (lig_length > max_lig_length_)
+        }
+        if (lig_length > max_lig_length_) {
           max_lig_length_ = lig_length;
-        if (min_norm_length_ == 0 || norm_length < min_norm_length_)
+        }
+        if (min_norm_length_ == 0 || norm_length < min_norm_length_) {
           min_norm_length_ = norm_length;
-        if (norm_length > max_norm_length_)
+        }
+        if (norm_length > max_norm_length_) {
           max_norm_length_ = norm_length;
+        }
       }
     }
     // Add custom extra ligatures.
     for (int i = 0; UNICHARSET::kCustomLigatures[i][0] != nullptr; ++i) {
       norm_to_lig_table_[UNICHARSET::kCustomLigatures[i][0]] = UNICHARSET::kCustomLigatures[i][1];
       int norm_length = strlen(UNICHARSET::kCustomLigatures[i][0]);
-      if (min_norm_length_ == 0 || norm_length < min_norm_length_)
+      if (min_norm_length_ == 0 || norm_length < min_norm_length_) {
         min_norm_length_ = norm_length;
-      if (norm_length > max_norm_length_)
+      }
+      if (norm_length > max_norm_length_) {
         max_norm_length_ = norm_length;
+      }
 
       lig_to_norm_table_[UNICHARSET::kCustomLigatures[i][1]] = UNICHARSET::kCustomLigatures[i][0];
     }
@@ -164,8 +171,9 @@ std::string LigatureTable::AddLigatures(const std::string &str, const PangoFontI
           tlog(3, "Considering %s -> %s\n", lig_cand.c_str(), it->second.c_str());
           if (font) {
             // Test for renderability.
-            if (!font->CanRenderString(it->second.data(), it->second.length()))
+            if (!font->CanRenderString(it->second.data(), it->second.length())) {
               continue; // Not renderable
+            }
           }
           // Found a match so convert it.
           step = liglen;

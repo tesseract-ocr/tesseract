@@ -154,8 +154,9 @@ public:
   // NOT to be used lightly, as it has to iterate the outline to find out.
   ICOORD position_at_index(int index) const {
     ICOORD pos = start;
-    for (int i = 0; i < index; ++i)
+    for (int i = 0; i < index; ++i) {
       pos += step(i);
+    }
     return pos;
   }
   // Returns the sub-pixel accurate position given the integer position pos
@@ -168,17 +169,19 @@ public:
     if (offsets != nullptr && offsets[index].pixel_diff > 0) {
       float offset = offsets[index].offset_numerator;
       offset /= offsets[index].pixel_diff;
-      if (step_to_next.x() != 0)
+      if (step_to_next.x() != 0) {
         f_pos.set_y(f_pos.y() + offset);
-      else
+      } else {
         f_pos.set_x(f_pos.x() + offset);
+      }
     }
     return f_pos;
   }
   // Returns the step direction for the given index or -1 if there is none.
   int direction_at_index(int index) const {
-    if (offsets != nullptr && offsets[index].pixel_diff > 0)
+    if (offsets != nullptr && offsets[index].pixel_diff > 0) {
       return offsets[index].direction;
+    }
     return -1;
   }
   // Returns the edge strength for the given index.
@@ -186,8 +189,9 @@ public:
   // is binary). Returns 0 if the gradient direction conflicts with the
   // step direction, indicating that this position could be skipped.
   int edge_strength_at_index(int index) const {
-    if (offsets != nullptr)
+    if (offsets != nullptr) {
       return offsets[index].pixel_diff;
+    }
     return 1;
   }
   // Return the step as a chain code (0-3) related to the standard feature

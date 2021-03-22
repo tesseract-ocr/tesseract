@@ -186,11 +186,13 @@ int OtsuStats(const int *histogram, int *H_out, int *omega0_out) {
   for (int t = 0; t < kHistogramSize - 1; ++t) {
     omega_0 += histogram[t];
     mu_t += t * static_cast<double>(histogram[t]);
-    if (omega_0 == 0)
+    if (omega_0 == 0) {
       continue;
+    }
     omega_1 = H - omega_0;
-    if (omega_1 == 0)
+    if (omega_1 == 0) {
       break;
+    }
     mu_0 = mu_t / omega_0;
     mu_1 = (mu_T - mu_t) / omega_1;
     double sig_sq_B = mu_1 - mu_0;
@@ -201,10 +203,12 @@ int OtsuStats(const int *histogram, int *H_out, int *omega0_out) {
       best_omega_0 = omega_0;
     }
   }
-  if (H_out != nullptr)
+  if (H_out != nullptr) {
     *H_out = H;
-  if (omega0_out != nullptr)
+  }
+  if (omega0_out != nullptr) {
     *omega0_out = best_omega_0;
+  }
   return best_t;
 }
 

@@ -48,20 +48,24 @@ using RSMap = std::unordered_map<int, std::unique_ptr<std::vector<int>>>;
 using RSCounts = std::unordered_map<int, int>;
 
 static bool DecodeRadicalLine(std::string &radical_data_line, RSMap *radical_map) {
-  if (radical_data_line.length() == 0 || (radical_data_line)[0] == '#')
+  if (radical_data_line.length() == 0 || (radical_data_line)[0] == '#') {
     return true;
+  }
   std::vector<std::string> entries = split(radical_data_line, ' ');
-  if (entries.size() < 2)
+  if (entries.size() < 2) {
     return false;
+  }
   char *end = nullptr;
   int unicode = strtol(&entries[0][0], &end, 10);
-  if (*end != '\0')
+  if (*end != '\0') {
     return false;
+  }
   std::unique_ptr<std::vector<int>> radicals(new std::vector<int>);
   for (int i = 1; i < entries.size(); ++i) {
     int radical = strtol(&entries[i][0], &end, 10);
-    if (*end != '\0')
+    if (*end != '\0') {
       return false;
+    }
     radicals->push_back(radical);
   }
   (*radical_map)[unicode] = std::move(radicals);
@@ -105,8 +109,9 @@ UnicharCompress &UnicharCompress::operator=(const UnicharCompress &src) {
 bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
                                       std::string *radical_stroke_table) {
   RSMap radical_map;
-  if (radical_stroke_table != nullptr && !DecodeRadicalTable(*radical_stroke_table, &radical_map))
+  if (radical_stroke_table != nullptr && !DecodeRadicalTable(*radical_stroke_table, &radical_map)) {
     return false;
+  }
   encoder_.clear();
   UNICHARSET direct_set;
   // To avoid unused codes, clear the special codes from the direct_set.
@@ -130,14 +135,16 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
   for (int u = 0; u <= unicharset.size(); ++u) {
     // We special-case allow null_id to be equal to unicharset.size() in case
     // there is no space in unicharset for it.
-    if (u == unicharset.size() && u != null_id)
+    if (u == unicharset.size() && u != null_id) {
       break; // Finished
+    }
     RecodedCharID code;
     // Convert to unicodes.
     std::vector<char32> unicodes;
     std::string cleaned;
-    if (u < unicharset.size())
+    if (u < unicharset.size()) {
       cleaned = UNICHARSET::CleanupString(unicharset.id_to_unichar(u));
+    }
     if (u < unicharset.size() && (unicodes = UNICHAR::UTF8ToUTF32(cleaned.c_str())).size() == 1) {
       // Check single unicodes for Hangul/Han and encode if so.
       int unicode = unicodes[0];
@@ -151,8 +158,9 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
         }
         int pre_hash = RadicalPreHash(*it->second);
         int num_samples = radical_counts[pre_hash]++;
-        if (num_samples > 0)
+        if (num_samples > 0) {
           code.Set(num_radicals, han_offset + num_samples + kRadicalRadix);
+        }
       } else if (DecomposeHangul(unicode, &leading, &vowel, &trailing)) {
         // This is Hangul. Since we know the exact size of each part at compile
         // time, it gets the bottom set of codes.
@@ -179,8 +187,9 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
           }
           UNICHAR unichar(uni);
           char *utf8 = unichar.utf8_str();
-          if (!direct_set.contains_unichar(utf8))
+          if (!direct_set.contains_unichar(utf8)) {
             direct_set.unichar_insert(utf8);
+          }
           code.Set(position, direct_set.unichar_to_id(utf8));
           delete[] utf8;
           if (direct_set.size() > unicharset.size() + !unicharset.has_special_codes()) {
@@ -200,13 +209,15 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
     int max_offset = 0;
     for (int u = 0; u < unicharset.size(); ++u) {
       RecodedCharID *code = &encoder_[u];
-      if (code->length() <= i)
+      if (code->length() <= i) {
         continue;
+      }
       max_offset = std::max(max_offset, (*code)(i)-han_offset);
       code->Set(i, (*code)(i) + code_offset);
     }
-    if (max_offset == 0)
+    if (max_offset == 0) {
       break;
+    }
     code_offset += max_offset + 1;
   }
   DefragmentCodeValues(null_id >= 0 ? 1 : -1);
@@ -282,8 +293,9 @@ void UnicharCompress::DefragmentCodeValues(int encoded_null) {
 // Encodes a single unichar_id. Returns the length of the code, or zero if
 // invalid input, and the encoding itself
 int UnicharCompress::EncodeUnichar(int unichar_id, RecodedCharID *code) const {
-  if (unichar_id < 0 || unichar_id >= encoder_.size())
+  if (unichar_id < 0 || unichar_id >= encoder_.size()) {
     return 0;
+  }
   *code = encoder_[unichar_id];
   return code->length();
 }
@@ -292,11 +304,13 @@ int UnicharCompress::EncodeUnichar(int unichar_id, RecodedCharID *code) const {
 // INVALID_UNICHAR_ID if the input is invalid.
 int UnicharCompress::DecodeUnichar(const RecodedCharID &code) const {
   int len = code.length();
-  if (len <= 0 || len > RecodedCharID::kMaxCodeLen)
+  if (len <= 0 || len > RecodedCharID::kMaxCodeLen) {
     return INVALID_UNICHAR_ID;
+  }
   auto it = decoder_.find(code);
-  if (it == decoder_.end())
+  if (it == decoder_.end()) {
     return INVALID_UNICHAR_ID;
+  }
   return it->second;
 }
 
@@ -307,8 +321,9 @@ bool UnicharCompress::Serialize(TFile *fp) const {
 
 // Reads from the given file. Returns false in case of error.
 bool UnicharCompress::DeSerialize(TFile *fp) {
-  if (!fp->DeSerialize(encoder_))
+  if (!fp->DeSerialize(encoder_)) {
     return false;
+  }
   ComputeCodeRange();
   SetupDecoder();
   return true;
@@ -350,11 +365,13 @@ std::string UnicharCompress::GetEncodingAsString(const UNICHARSET &unicharset) c
 // Returns false if the input is not in the Hangul unicode range.
 /* static */
 bool UnicharCompress::DecomposeHangul(int unicode, int *leading, int *vowel, int *trailing) {
-  if (unicode < kFirstHangul)
+  if (unicode < kFirstHangul) {
     return false;
+  }
   int offset = unicode - kFirstHangul;
-  if (offset >= kNumHangul)
+  if (offset >= kNumHangul) {
     return false;
+  }
   const int kNCount = kVCount * kTCount;
   *leading = offset / kNCount;
   *vowel = (offset % kNCount) / kTCount;
@@ -367,8 +384,9 @@ void UnicharCompress::ComputeCodeRange() {
   code_range_ = -1;
   for (auto &code : encoder_) {
     for (int i = 0; i < code.length(); ++i) {
-      if (code(i) > code_range_)
+      if (code(i) > code_range_) {
         code_range_ = code(i);
+      }
     }
   }
   ++code_range_;
@@ -400,14 +418,16 @@ void UnicharCompress::SetupDecoder() {
         } else {
           // We still have to search the list as we may get here via multiple
           // lengths of code.
-          if (!contains(*next_it->second, code(len)))
+          if (!contains(*next_it->second, code(len))) {
             next_it->second->push_back(code(len));
+          }
           break; // This prefix has been processed.
         }
       }
     } else {
-      if (!contains(*final_it->second, code(len)))
+      if (!contains(*final_it->second, code(len))) {
         final_it->second->push_back(code(len));
+      }
     }
   }
 }

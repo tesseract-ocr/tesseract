@@ -29,8 +29,9 @@ namespace tesseract {
  */
 
 char *TessBaseAPI::GetWordStrBoxText(int page_number = 0) {
-  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0))
+  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0)) {
     return nullptr;
+  }
 
   std::string wordstr_box_str;
   int left = 0, top = 0, right = 0, bottom = 0;
@@ -93,8 +94,9 @@ TessWordStrBoxRenderer::TessWordStrBoxRenderer(const char *outputbase)
 
 bool TessWordStrBoxRenderer::AddImageHandler(TessBaseAPI *api) {
   const std::unique_ptr<const char[]> wordstrbox(api->GetWordStrBoxText(imagenum()));
-  if (wordstrbox == nullptr)
+  if (wordstrbox == nullptr) {
     return false;
+  }
 
   AppendString(wordstrbox.get());
 

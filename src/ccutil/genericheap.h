@@ -119,10 +119,12 @@ public:
   // Time = O(log n).
   bool Pop(Pair *entry) {
     int new_size = heap_.size() - 1;
-    if (new_size < 0)
+    if (new_size < 0) {
       return false; // Already empty.
-    if (entry != nullptr)
+    }
+    if (entry != nullptr) {
       *entry = heap_[0];
+    }
     if (new_size > 0) {
       // Sift the hole at the start of the heap_ downwards to match the last
       // element.
@@ -141,11 +143,13 @@ public:
   // Time = O(n). Returns false if the heap was already empty.
   bool PopWorst(Pair *entry) {
     int worst_index = IndexOfWorst();
-    if (worst_index < 0)
+    if (worst_index < 0) {
       return false; // It cannot be empty!
+    }
     // Extract the worst element from the heap, leaving a hole at worst_index.
-    if (entry != nullptr)
+    if (entry != nullptr) {
       *entry = heap_[worst_index];
+    }
     int heap_size = heap_.size() - 1;
     if (heap_size > 0) {
       // Sift the hole upwards to match the last element of the heap_
@@ -160,8 +164,9 @@ public:
   // Returns the index of the worst element. Time = O(n/2).
   int IndexOfWorst() const {
     int heap_size = heap_.size();
-    if (heap_size == 0)
+    if (heap_size == 0) {
       return -1; // It cannot be empty!
+    }
 
     // Find the maximum element. Its index is guaranteed to be greater than
     // the index of the parent of the last element, since by the heap invariant
@@ -169,8 +174,9 @@ public:
     int worst_index = heap_size - 1;
     int end_parent = ParentNode(worst_index);
     for (int i = worst_index - 1; i > end_parent; --i) {
-      if (heap_[worst_index] < heap_[i])
+      if (heap_[worst_index] < heap_[i]) {
         worst_index = i;
+      }
     }
     return worst_index;
   }
@@ -212,8 +218,9 @@ private:
     int heap_size = heap_.size();
     int child;
     while ((child = LeftChild(hole_index)) < heap_size) {
-      if (child + 1 < heap_size && heap_[child + 1] < heap_[child])
+      if (child + 1 < heap_size && heap_[child + 1] < heap_[child]) {
         ++child;
+      }
       if (heap_[child] < pair) {
         heap_[hole_index] = heap_[child];
         hole_index = child;

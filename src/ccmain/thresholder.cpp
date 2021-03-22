@@ -69,8 +69,9 @@ bool ImageThresholder::IsEmpty() const {
 void ImageThresholder::SetImage(const unsigned char *imagedata, int width, int height,
                                 int bytes_per_pixel, int bytes_per_line) {
   int bpp = bytes_per_pixel * 8;
-  if (bpp == 0)
+  if (bpp == 0) {
     bpp = 1;
+  }
   Pix *pix = pixCreate(width, height, bpp == 24 ? 32 : bpp);
   l_uint32 *data = pixGetData(pix);
   int wpl = pixGetWpl(pix);
@@ -78,10 +79,11 @@ void ImageThresholder::SetImage(const unsigned char *imagedata, int width, int h
     case 1:
       for (int y = 0; y < height; ++y, data += wpl, imagedata += bytes_per_line) {
         for (int x = 0; x < width; ++x) {
-          if (imagedata[x / 8] & (0x80 >> (x % 8)))
+          if (imagedata[x / 8] & (0x80 >> (x % 8))) {
             CLEAR_DATA_BIT(data, x);
-          else
+          } else {
             SET_DATA_BIT(data, x);
+          }
         }
       }
       break;
@@ -89,8 +91,9 @@ void ImageThresholder::SetImage(const unsigned char *imagedata, int width, int h
     case 8:
       // Greyscale just copies the bytes in the right order.
       for (int y = 0; y < height; ++y, data += wpl, imagedata += bytes_per_line) {
-        for (int x = 0; x < width; ++x)
+        for (int x = 0; x < width; ++x) {
           SET_DATA_BYTE(data, x, imagedata[x]);
+        }
       }
       break;
 
@@ -151,8 +154,9 @@ void ImageThresholder::GetImageSizes(int *left, int *top, int *width, int *heigh
 // immediately after, but may not go away until after the Thresholder has
 // finished with it.
 void ImageThresholder::SetImage(const Pix *pix) {
-  if (pix_ != nullptr)
+  if (pix_ != nullptr) {
     pixDestroy(&pix_);
+  }
   Pix *src = const_cast<Pix *>(pix);
   int depth;
   pixGetDimensions(src, &image_width_, &image_height_, &depth);
@@ -210,8 +214,9 @@ bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix **pix) {
 // the binary image in ThresholdToPix, but this is not a hard constraint.
 // Returns nullptr if the input is binary. PixDestroy after use.
 Pix *ImageThresholder::GetPixRectThresholds() {
-  if (IsBinary())
+  if (IsBinary()) {
     return nullptr;
+  }
   Pix *pix_grey = GetPixRectGrey();
   int width = pixGetWidth(pix_grey);
   int height = pixGetHeight(pix_grey);
@@ -319,10 +324,11 @@ void ImageThresholder::ThresholdRectToPix(Pix *src_pix, int num_channels, const 
           break;
         }
       }
-      if (white_result)
+      if (white_result) {
         CLEAR_DATA_BIT(pixline, x);
-      else
+      } else {
         SET_DATA_BIT(pixline, x);
+      }
     }
   }
 }

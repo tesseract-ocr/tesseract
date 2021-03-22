@@ -118,11 +118,13 @@ struct ViterbiStateEntry : public ELIST_LINK {
       adapted += pe->adapted;
       length += pe->length;
       outline_length += pe->outline_length;
-      if (debug_uch != nullptr)
+      if (debug_uch != nullptr) {
         *debug_str += *(pe->debug_str);
+      }
     }
-    if (debug_str != nullptr && debug_uch != nullptr)
+    if (debug_str != nullptr && debug_uch != nullptr) {
       *debug_str += debug_uch;
+    }
   }
   ~ViterbiStateEntry() {
     delete dawg_info;
@@ -145,11 +147,13 @@ struct ViterbiStateEntry : public ELIST_LINK {
   /// Returns true if this VSE has an alphanumeric character as its classifier
   /// result.
   bool HasAlnumChoice(const UNICHARSET &unicharset) {
-    if (curr_b == nullptr)
+    if (curr_b == nullptr) {
       return false;
+    }
     UNICHAR_ID unichar_id = curr_b->unichar_id();
-    if (unicharset.get_isalpha(unichar_id) || unicharset.get_isdigit(unichar_id))
+    if (unicharset.get_isalpha(unichar_id) || unicharset.get_isdigit(unichar_id)) {
       return true;
+    }
     return false;
   }
   void Print(const char *msg) const;
@@ -222,8 +226,9 @@ struct LanguageModelState {
 struct BestChoiceBundle {
   explicit BestChoiceBundle(int matrix_dimension) : updated(false), best_vse(nullptr) {
     beam.reserve(matrix_dimension);
-    for (int i = 0; i < matrix_dimension; ++i)
+    for (int i = 0; i < matrix_dimension; ++i) {
       beam.push_back(new LanguageModelState);
+    }
   }
   ~BestChoiceBundle() {
     for (auto &state : beam) {

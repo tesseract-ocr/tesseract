@@ -50,8 +50,9 @@ Dawg *DawgCache::GetSquishedDawg(const std::string &lang, TessdataType tessdata_
 
 Dawg *DawgLoader::Load() {
   TFile fp;
-  if (!data_file_->GetComponent(tessdata_dawg_type_, &fp))
+  if (!data_file_->GetComponent(tessdata_dawg_type_, &fp)) {
     return nullptr;
+  }
   DawgType dawg_type;
   PermuterType perm_type;
   switch (tessdata_dawg_type_) {
@@ -86,8 +87,9 @@ Dawg *DawgLoader::Load() {
       return nullptr;
   }
   auto *retval = new SquishedDawg(dawg_type, lang_, perm_type, dawg_debug_level_);
-  if (retval->Load(&fp))
+  if (retval->Load(&fp)) {
     return retval;
+  }
   delete retval;
   return nullptr;
 }

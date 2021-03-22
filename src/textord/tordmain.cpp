@@ -138,10 +138,11 @@ void SetBlobStrokeWidth(Pix *pix, BLOBNBOX *blob) {
   // from the distance method.
   if (h_stats.get_total() >= (width + height) / 4) {
     blob->set_horz_stroke_width(h_stats.ile(0.5f));
-    if (v_stats.get_total() >= (width + height) / 4)
+    if (v_stats.get_total() >= (width + height) / 4) {
       blob->set_vert_stroke_width(v_stats.ile(0.5f));
-    else
+    } else {
       blob->set_vert_stroke_width(0.0f);
+    }
   } else {
     if (v_stats.get_total() >= (width + height) / 4 || v_stats.get_total() > h_stats.get_total()) {
       blob->set_horz_stroke_width(0.0f);
@@ -244,16 +245,18 @@ void Textord::filter_blobs(ICOORD page_tr,        // top right
   TO_BLOCK *block;                                // created block
 
 #ifndef GRAPHICS_DISABLED
-  if (to_win != nullptr)
+  if (to_win != nullptr) {
     to_win->Clear();
+  }
 #endif // !GRAPHICS_DISABLED
 
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     block = block_it.data();
     block->line_size = filter_noise_blobs(&block->blobs, &block->noise_blobs, &block->small_blobs,
                                           &block->large_blobs);
-    if (block->line_size == 0)
+    if (block->line_size == 0) {
       block->line_size = 1;
+    }
     block->line_spacing =
         block->line_size *
         (tesseract::CCStruct::kDescenderFraction + tesseract::CCStruct::kXHeightFraction +
@@ -264,13 +267,15 @@ void Textord::filter_blobs(ICOORD page_tr,        // top right
 
 #ifndef GRAPHICS_DISABLED
     if (textord_show_blobs && testing_on) {
-      if (to_win == nullptr)
+      if (to_win == nullptr) {
         create_to_win(page_tr);
+      }
       block->plot_graded_blobs(to_win);
     }
     if (textord_show_boxes && testing_on) {
-      if (to_win == nullptr)
+      if (to_win == nullptr) {
         create_to_win(page_tr);
+      }
       plot_box_list(to_win, &block->noise_blobs, ScrollView::WHITE);
       plot_box_list(to_win, &block->small_blobs, ScrollView::WHITE);
       plot_box_list(to_win, &block->large_blobs, ScrollView::WHITE);
@@ -307,11 +312,13 @@ float Textord::filter_noise_blobs(BLOBNBOX_LIST *src_list,     // original list
 
   for (src_it.mark_cycle_pt(); !src_it.cycled_list(); src_it.forward()) {
     blob = src_it.data();
-    if (blob->bounding_box().height() < textord_max_noise_size)
+    if (blob->bounding_box().height() < textord_max_noise_size) {
       noise_it.add_after_then_move(src_it.extract());
-    else if (blob->enclosed_area() >= blob->bounding_box().height() * blob->bounding_box().width() *
-                                          textord_noise_area_ratio)
+    } else if (blob->enclosed_area() >= blob->bounding_box().height() *
+                                            blob->bounding_box().width() *
+                                            textord_noise_area_ratio) {
       small_it.add_after_then_move(src_it.extract());
+    }
   }
   for (src_it.mark_cycle_pt(); !src_it.cycled_list(); src_it.forward()) {
     size_stats.add(src_it.data()->bounding_box().height(), 1);
@@ -326,28 +333,31 @@ float Textord::filter_noise_blobs(BLOBNBOX_LIST *src_list,     // original list
   small_it.move_to_first();
   for (small_it.mark_cycle_pt(); !small_it.cycled_list(); small_it.forward()) {
     height = small_it.data()->bounding_box().height();
-    if (height > max_y)
+    if (height > max_y) {
       large_it.add_after_then_move(small_it.extract());
-    else if (height >= min_y)
+    } else if (height >= min_y) {
       src_it.add_after_then_move(small_it.extract());
+    }
   }
   size_stats.clear();
   for (src_it.mark_cycle_pt(); !src_it.cycled_list(); src_it.forward()) {
     height = src_it.data()->bounding_box().height();
     width = src_it.data()->bounding_box().width();
-    if (height < min_y)
+    if (height < min_y) {
       small_it.add_after_then_move(src_it.extract());
-    else if (height > max_y || width > max_x)
+    } else if (height > max_y || width > max_x) {
       large_it.add_after_then_move(src_it.extract());
-    else
+    } else {
       size_stats.add(height, 1);
+    }
   }
   max_height = size_stats.ile(textord_initialasc_ile);
   //      tprintf("max_y=%g, min_y=%g, initial_x=%g, max_height=%g,",
   //              max_y,min_y,initial_x,max_height);
   max_height *= tesseract::CCStruct::kXHeightCapRatio;
-  if (max_height > initial_x)
+  if (max_height > initial_x) {
     initial_x = max_height;
+  }
   //      tprintf(" ret=%g\n",initial_x);
   return initial_x;
 }
@@ -424,10 +434,12 @@ void Textord::cleanup_blocks(bool clean_noise, BLOCK_LIST *blocks) {
             row->word_list()->empty()) {
           delete row_it.extract(); // lose empty row.
         } else {
-          if (textord_noise_rejwords)
+          if (textord_noise_rejwords) {
             clean_noise_from_words(row_it.data());
-          if (textord_blshift_maxshift >= 0)
+          }
+          if (textord_blshift_maxshift >= 0) {
             tweak_row_baseline(row, textord_blshift_maxshift, textord_blshift_xfraction);
+          }
           ++num_rows;
         }
       }
@@ -438,11 +450,13 @@ void Textord::cleanup_blocks(bool clean_noise, BLOCK_LIST *blocks) {
       ++num_blocks;
     }
     ++num_blocks_all;
-    if (textord_noise_debug)
+    if (textord_noise_debug) {
       tprintf("cleanup_blocks: # rows = %d / %d\n", num_rows, num_rows_all);
+    }
   }
-  if (textord_noise_debug)
+  if (textord_noise_debug) {
     tprintf("cleanup_blocks: # blocks = %d / %d\n", num_blocks, num_blocks_all);
+  }
 }
 
 /**********************************************************************
@@ -488,28 +502,33 @@ bool Textord::clean_noise_from_row( // remove empties
           outline = out_it.data();
           blob_box = outline->bounding_box();
           blob_size = blob_box.width() > blob_box.height() ? blob_box.width() : blob_box.height();
-          if (blob_size < textord_noise_sizelimit * row->x_height())
+          if (blob_size < textord_noise_sizelimit * row->x_height()) {
             dot_count++; // count smal outlines
+          }
           if (!outline->child()->empty() &&
               blob_box.height() < (1 + textord_noise_syfract) * row->x_height() &&
               blob_box.height() > (1 - textord_noise_syfract) * row->x_height() &&
               blob_box.width() < (1 + textord_noise_sxfract) * row->x_height() &&
-              blob_box.width() > (1 - textord_noise_sxfract) * row->x_height())
+              blob_box.width() > (1 - textord_noise_sxfract) * row->x_height()) {
             super_norm_count++; // count smal outlines
+          }
         }
-      } else
+      } else {
         super_norm_count++;
+      }
       blob_box = blob->bounding_box();
       blob_size = blob_box.width() > blob_box.height() ? blob_box.width() : blob_box.height();
       if (blob_size >= textord_noise_sizelimit * row->x_height() &&
           blob_size < row->x_height() * 2) {
         trans_threshold = blob_size / textord_noise_sizefraction;
         trans_count = blob->count_transitions(trans_threshold);
-        if (trans_count < textord_noise_translimit)
+        if (trans_count < textord_noise_translimit) {
           norm_count++;
+        }
       } else if (blob_box.height() > row->x_height() * 2 &&
-                 (!word_it.at_first() || !blob_it.at_first()))
+                 (!word_it.at_first() || !blob_it.at_first())) {
         dot_count += 2;
+      }
       if (testing_on) {
         tprintf("Blob at (%d,%d) -> (%d,%d), ols=%d, tc=%d, bldiff=%g\n", blob_box.left(),
                 blob_box.bottom(), blob_box.right(), blob_box.top(), blob->out_list()->length(),
@@ -556,8 +575,9 @@ void Textord::clean_noise_from_words( // remove empties
   C_OUTLINE_IT out_it; // outline iterator
 
   ok_words = word_it.length();
-  if (ok_words == 0 || textord_no_rejects)
+  if (ok_words == 0 || textord_no_rejects) {
     return;
+  }
   // was it chucked
   std::vector<int8_t> word_dud(ok_words);
   dud_words = 0;
@@ -578,43 +598,50 @@ void Textord::clean_noise_from_words( // remove empties
           outline = out_it.data();
           blob_box = outline->bounding_box();
           blob_size = blob_box.width() > blob_box.height() ? blob_box.width() : blob_box.height();
-          if (blob_size < textord_noise_sizelimit * row->x_height())
+          if (blob_size < textord_noise_sizelimit * row->x_height()) {
             dot_count++; // count smal outlines
+          }
           if (!outline->child()->empty() &&
               blob_box.height() < (1 + textord_noise_syfract) * row->x_height() &&
               blob_box.height() > (1 - textord_noise_syfract) * row->x_height() &&
               blob_box.width() < (1 + textord_noise_sxfract) * row->x_height() &&
-              blob_box.width() > (1 - textord_noise_sxfract) * row->x_height())
+              blob_box.width() > (1 - textord_noise_sxfract) * row->x_height()) {
             norm_count++; // count smal outlines
+          }
         }
-      } else
+      } else {
         norm_count++;
+      }
       blob_box = blob->bounding_box();
       blob_size = blob_box.width() > blob_box.height() ? blob_box.width() : blob_box.height();
       if (blob_size >= textord_noise_sizelimit * row->x_height() &&
           blob_size < row->x_height() * 2) {
         trans_threshold = blob_size / textord_noise_sizefraction;
         trans_count = blob->count_transitions(trans_threshold);
-        if (trans_count < textord_noise_translimit)
+        if (trans_count < textord_noise_translimit) {
           norm_count++;
+        }
       } else if (blob_box.height() > row->x_height() * 2 &&
-                 (!word_it.at_first() || !blob_it.at_first()))
+                 (!word_it.at_first() || !blob_it.at_first())) {
         dot_count += 2;
+      }
     }
     if (dot_count > 2 && !word->flag(W_REP_CHAR)) {
-      if (dot_count > norm_count * textord_noise_normratio * 2)
+      if (dot_count > norm_count * textord_noise_normratio * 2) {
         word_dud[word_index] = 2;
-      else if (dot_count > norm_count * textord_noise_normratio)
+      } else if (dot_count > norm_count * textord_noise_normratio) {
         word_dud[word_index] = 1;
-      else
+      } else {
         word_dud[word_index] = 0;
+      }
     } else {
       word_dud[word_index] = 0;
     }
-    if (word_dud[word_index] == 2)
+    if (word_dud[word_index] == 2) {
       dud_words++;
-    else
+    } else {
       ok_words++;
+    }
     word_index++;
   }
 
@@ -706,8 +733,9 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
     float best_angle_diff = FLT_MAX;
     for (const auto &group : groups) {
       double angle_diff = fabs(block_angle - group->angle);
-      if (angle_diff > M_PI)
+      if (angle_diff > M_PI) {
         angle_diff = fabs(angle_diff - 2.0 * M_PI);
+      }
       if (angle_diff < best_angle_diff) {
         best_angle_diff = angle_diff;
         best_g = &group - &groups[0];
@@ -719,15 +747,17 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
       groups[best_g]->blocks.push_back(block);
       groups[best_g]->bounding_box += block->pdblk.bounding_box();
       float x_height = block->x_height();
-      if (x_height < groups[best_g]->min_xheight)
+      if (x_height < groups[best_g]->min_xheight) {
         groups[best_g]->min_xheight = x_height;
+      }
     }
   }
   // Now process each group of blocks.
   std::vector<std::unique_ptr<WordWithBox>> word_ptrs;
   for (const auto &group : groups) {
-    if (group->bounding_box.null_box())
+    if (group->bounding_box.null_box()) {
       continue;
+    }
     WordGrid word_grid(group->min_xheight, group->bounding_box.botleft(),
                        group->bounding_box.topright());
     for (auto b : group->blocks) {
@@ -776,8 +806,9 @@ void Textord::TransferDiacriticsToWords(BLOBNBOX_LIST *diacritic_blobs, const FC
     int best_above_distance = 0;
     int best_below_distance = 0;
     for (WordWithBox *word = ws.NextRectSearch(); word != nullptr; word = ws.NextRectSearch()) {
-      if (word->word()->flag(W_REP_CHAR))
+      if (word->word()->flag(W_REP_CHAR)) {
         continue;
+      }
       TBOX word_box = word->true_bounding_box();
       int x_distance = blob_box.x_gap(word_box);
       int y_distance = blob_box.y_gap(word_box);
@@ -852,8 +883,9 @@ void tweak_row_baseline(ROW *row, double blshift_maxshift, double blshift_xfract
                            // get total blobs
     blob_count += word->cblob_list()->length();
   }
-  if (blob_count == 0)
+  if (blob_count == 0) {
     return;
+  }
   // spline segments
   std::vector<int32_t> xstarts(blob_count + row->baseline.segments + 1);
   // spline coeffs
@@ -871,13 +903,15 @@ void tweak_row_baseline(ROW *row, double blshift_maxshift, double blshift_xfract
       blob_box = blob->bounding_box();
       x_centre = (blob_box.left() + blob_box.right()) / 2.0;
       ydiff = blob_box.bottom() - row->base_line(x_centre);
-      if (ydiff < 0)
+      if (ydiff < 0) {
         ydiff = -ydiff / row->x_height();
-      else
+      } else {
         ydiff = ydiff / row->x_height();
+      }
       if (ydiff < blshift_maxshift && blob_box.height() / row->x_height() > blshift_xfraction) {
-        if (xstarts[dest_index] >= x_centre)
+        if (xstarts[dest_index] >= x_centre) {
           xstarts[dest_index] = blob_box.left();
+        }
         coeffs[dest_index * 3] = 0;
         coeffs[dest_index * 3 + 1] = 0;
         coeffs[dest_index * 3 + 2] = blob_box.bottom();
@@ -907,8 +941,9 @@ void tweak_row_baseline(ROW *row, double blshift_maxshift, double blshift_xfract
     }
   }
   while (src_index < row->baseline.segments &&
-         row->baseline.xcoords[src_index + 1] <= xstarts[dest_index])
+         row->baseline.xcoords[src_index + 1] <= xstarts[dest_index]) {
     src_index++;
+  }
   while (src_index < row->baseline.segments) {
     coeffs[dest_index * 3] = row->baseline.quadratics[src_index].a;
     coeffs[dest_index * 3 + 1] = row->baseline.quadratics[src_index].b;

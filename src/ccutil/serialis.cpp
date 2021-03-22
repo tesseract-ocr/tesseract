@@ -64,8 +64,9 @@ TFile::TFile()
     : data_(nullptr), offset_(0), data_is_owned_(false), is_writing_(false), swap_(false) {}
 
 TFile::~TFile() {
-  if (data_is_owned_)
+  if (data_is_owned_) {
     delete data_;
+  }
 }
 
 bool TFile::DeSerializeSize(int32_t *pSize) {
@@ -144,10 +145,11 @@ bool TFile::Open(const char *filename, FileReader reader) {
   offset_ = 0;
   is_writing_ = false;
   swap_ = false;
-  if (reader == nullptr)
+  if (reader == nullptr) {
     return LoadDataFromFile(filename, data_);
-  else
+  } else {
     return (*reader)(filename, data_);
+  }
 }
 
 bool TFile::Open(const char *data, int size) {
@@ -171,11 +173,13 @@ bool TFile::Open(FILE *fp, int64_t end_offset) {
     return false;
   }
   if (end_offset < 0) {
-    if (fseek(fp, 0, SEEK_END))
+    if (fseek(fp, 0, SEEK_END)) {
       return false;
+    }
     end_offset = ftell(fp);
-    if (fseek(fp, current_pos, SEEK_SET))
+    if (fseek(fp, current_pos, SEEK_SET)) {
       return false;
+    }
   }
   int size = end_offset - current_pos;
   is_writing_ = false;
@@ -193,11 +197,13 @@ char *TFile::FGets(char *buffer, int buffer_size) {
   int size = 0;
   while (size + 1 < buffer_size && offset_ < data_->size()) {
     buffer[size++] = (*data_)[offset_++];
-    if ((*data_)[offset_ - 1] == '\n')
+    if ((*data_)[offset_ - 1] == '\n') {
       break;
+    }
   }
-  if (size < buffer_size)
+  if (size < buffer_size) {
     buffer[size] = '\0';
+  }
   return size > 0 ? buffer : nullptr;
 }
 
@@ -226,8 +232,9 @@ int TFile::FRead(void *buffer, size_t size, int count) {
       required_size = data_->size() - offset_;
     }
   }
-  if (required_size > 0 && buffer != nullptr)
+  if (required_size > 0 && buffer != nullptr) {
     memcpy(buffer, &(*data_)[offset_], required_size);
+  }
   offset_ += required_size;
   return required_size / size;
 }
@@ -240,8 +247,9 @@ void TFile::Rewind() {
 void TFile::OpenWrite(std::vector<char> *data) {
   offset_ = 0;
   if (data != nullptr) {
-    if (data_is_owned_)
+    if (data_is_owned_) {
       delete data_;
+    }
     data_ = data;
     data_is_owned_ = false;
   } else if (!data_is_owned_) {
@@ -255,10 +263,11 @@ void TFile::OpenWrite(std::vector<char> *data) {
 
 bool TFile::CloseWrite(const char *filename, FileWriter writer) {
   ASSERT_HOST(is_writing_);
-  if (writer == nullptr)
+  if (writer == nullptr) {
     return SaveDataToFile(*data_, filename);
-  else
+  } else {
     return (*writer)(*data_, filename);
+  }
 }
 
 int TFile::FWrite(const void *buffer, size_t size, int count) {
@@ -270,8 +279,9 @@ int TFile::FWrite(const void *buffer, size_t size, int count) {
   const char *buf = static_cast<const char *>(buffer);
   // This isn't very efficient, but memory is so fast compared to disk
   // that it is relatively unimportant, and very simple.
-  for (size_t i = 0; i < total; ++i)
+  for (size_t i = 0; i < total; ++i) {
     data_->push_back(buf[i]);
+  }
   return count;
 }
 

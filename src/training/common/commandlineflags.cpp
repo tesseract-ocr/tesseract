@@ -24,8 +24,9 @@ static bool IntFlagExists(const char *flag_name, int32_t *value) {
   std::vector<IntParam *> empty;
   auto *p =
       ParamUtils::FindParam<IntParam>(full_flag_name.c_str(), GlobalParams()->int_params, empty);
-  if (p == nullptr)
+  if (p == nullptr) {
     return false;
+  }
   *value = (int32_t)(*p);
   return true;
 }
@@ -36,8 +37,9 @@ static bool DoubleFlagExists(const char *flag_name, double *value) {
   std::vector<DoubleParam *> empty;
   auto *p = ParamUtils::FindParam<DoubleParam>(full_flag_name.c_str(),
                                                GlobalParams()->double_params, empty);
-  if (p == nullptr)
+  if (p == nullptr) {
     return false;
+  }
   *value = static_cast<double>(*p);
   return true;
 }
@@ -48,8 +50,9 @@ static bool BoolFlagExists(const char *flag_name, bool *value) {
   std::vector<BoolParam *> empty;
   auto *p =
       ParamUtils::FindParam<BoolParam>(full_flag_name.c_str(), GlobalParams()->bool_params, empty);
-  if (p == nullptr)
+  if (p == nullptr) {
     return false;
+  }
   *value = bool(*p);
   return true;
 }

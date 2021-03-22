@@ -62,8 +62,9 @@ bool NetworkBuilder::InitNetwork(int num_outputs, const char *network_spec, int 
     delete top_series;
   }
   *network = builder.BuildFromString(input_shape, &network_spec);
-  if (*network == nullptr)
+  if (*network == nullptr) {
     return false;
+  }
   (*network)->SetNetworkFlags(net_flags);
   (*network)->InitWeights(weight_range, randomizer);
   (*network)->SetupNeedsBackprop(false);
@@ -77,8 +78,9 @@ bool NetworkBuilder::InitNetwork(int num_outputs, const char *network_spec, int 
 
 // Helper skips whitespace.
 static void SkipWhitespace(const char **str) {
-  while (**str == ' ' || **str == '\t' || **str == '\n')
+  while (**str == ' ' || **str == '\t' || **str == '\n') {
     ++*str;
+  }
 }
 
 // Parses the given string and returns a network according to the network
@@ -136,8 +138,9 @@ Network *NetworkBuilder::ParseInput(const char **str) {
   // We want to allow [<input>rest of net... or <input>[rest of net... so we
   // have to check explicitly for '[' here.
   SkipWhitespace(str);
-  if (**str == '[')
+  if (**str == '[') {
     return ParseSeries(shape, input, str);
+  }
   return input;
 }
 
@@ -191,8 +194,9 @@ Network *NetworkBuilder::ParseR(const StaticShape &input_shape, const char **str
     name += dir;
     *str += 2;
     Network *network = BuildFromString(input_shape, str);
-    if (network == nullptr)
+    if (network == nullptr) {
       return nullptr;
+    }
     auto *rev = new Reversed(name, dir == 'y' ? NT_YREVERSED : NT_XREVERSED);
     rev->SetNetwork(network);
     return rev;
@@ -353,8 +357,9 @@ Network *NetworkBuilder::ParseLSTM(const StaticShape &input_shape, const char **
   if (two_d) {
     lstm = BuildLSTMXYQuad(input_shape.depth(), num_states);
   } else {
-    if (num_outputs == 0)
+    if (num_outputs == 0) {
       num_outputs = num_states;
+    }
     std::string name(spec_start, *str - spec_start);
     lstm = new LSTM(name, input_shape.depth(), num_states, num_outputs, false, type);
     if (dir != 'f') {
@@ -458,10 +463,11 @@ Network *NetworkBuilder::ParseOutput(const StaticShape &input_shape, const char 
   }
   *str = end;
   NetworkType type = NT_SOFTMAX;
-  if (type_ch == 'l')
+  if (type_ch == 'l') {
     type = NT_LOGISTIC;
-  else if (type_ch == 's')
+  } else if (type_ch == 's') {
     type = NT_SOFTMAX_NO_CTC;
+  }
   if (dims_ch == '0') {
     // Same as standard fully connected.
     return BuildFullyConnected(input_shape, type, "Output", depth);

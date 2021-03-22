@@ -77,8 +77,9 @@ void Wordrec::add_point_to_list(PointHeap *point_heap, EDGEPT *point) {
   }
 
 #ifndef GRAPHICS_DISABLED
-  if (chop_debug > 2)
+  if (chop_debug > 2) {
     mark_outline(point);
+  }
 #endif
 }
 
@@ -107,18 +108,22 @@ int Wordrec::angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   vector2.y = point3->pos.y - point2->pos.y;
   /* Use cross product */
   float length = std::sqrt(static_cast<float>(vector1.length()) * vector2.length());
-  if (static_cast<int>(length) == 0)
+  if (static_cast<int>(length) == 0) {
     return (0);
+  }
   angle = static_cast<int>(floor(asin(vector1.cross(vector2) / length) / M_PI * 180.0 + 0.5));
 
   /* Use dot product */
-  if (vector1.dot(vector2) < 0)
+  if (vector1.dot(vector2) < 0) {
     angle = 180 - angle;
+  }
   /* Adjust angle */
-  if (angle > 180)
+  if (angle > 180) {
     angle -= 360;
-  if (angle <= -180)
+  }
+  if (angle <= -180) {
     angle += 360;
+  }
   return (angle);
 }
 
@@ -144,8 +149,9 @@ EDGEPT *Wordrec::pick_close_point(EDGEPT *critical_point, EDGEPT *vertical_point
             is_exterior_point(critical_point, vertical_point))) {
         *best_dist = this_distance;
         best_point = vertical_point;
-        if (chop_vertical_creep)
+        if (chop_vertical_creep) {
           found_better = true;
+        }
       }
     }
     vertical_point = vertical_point->next;
@@ -172,18 +178,20 @@ void Wordrec::prioritize_points(TESSLINE *outline, PointHeap *points) {
   do {
     if (this_point->vec.y < 0) {
       /* Look for minima */
-      if (local_max != nullptr)
+      if (local_max != nullptr) {
         new_max_point(local_max, points);
-      else if (is_inside_angle(this_point))
+      } else if (is_inside_angle(this_point)) {
         add_point_to_list(points, this_point);
+      }
       local_max = nullptr;
       local_min = this_point->next;
     } else if (this_point->vec.y > 0) {
       /* Look for maxima */
-      if (local_min != nullptr)
+      if (local_min != nullptr) {
         new_min_point(local_min, points);
-      else if (is_inside_angle(this_point))
+      } else if (is_inside_angle(this_point)) {
         add_point_to_list(points, this_point);
+      }
       local_min = nullptr;
       local_max = this_point->next;
     } else {
@@ -274,8 +282,9 @@ void Wordrec::vertical_projection_point(EDGEPT *split_point, EDGEPT *target_poin
   int x = split_point->pos.x;     /* X value of vertical */
   int best_dist = LARGE_DISTANCE; /* Best point found */
 
-  if (*best_point != nullptr)
+  if (*best_point != nullptr) {
     best_dist = edgept_dist(split_point, *best_point);
+  }
 
   p = target_point;
   /* Look at each edge point */
@@ -287,12 +296,14 @@ void Wordrec::vertical_projection_point(EDGEPT *split_point, EDGEPT *target_poin
         new_point_it.add_before_then_move(this_edgept);
       }
 
-      if (*best_point == nullptr)
+      if (*best_point == nullptr) {
         best_dist = edgept_dist(split_point, this_edgept);
+      }
 
       this_edgept = pick_close_point(split_point, this_edgept, &best_dist);
-      if (this_edgept)
+      if (this_edgept) {
         *best_point = this_edgept;
+      }
     }
 
     p = p->next;

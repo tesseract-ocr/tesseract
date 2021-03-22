@@ -72,8 +72,9 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
     Outline = static_cast<MFOUTLINE> first_node(RemainingOutlines);
     ConvertToPicoFeatures2(Outline, FeatureSet);
   }
-  if (classify_norm_method == baseline)
+  if (classify_norm_method == baseline) {
     NormalizePicoX(FeatureSet);
+  }
   FreeOutlines(Outlines);
   return (FeatureSet);
 
@@ -108,8 +109,9 @@ void ConvertSegmentToPicoFeat(FPOINT *Start, FPOINT *End, FEATURE_SET FeatureSet
   Angle = NormalizedAngleFrom(Start, End, 1.0);
   Length = DistanceBetween(*Start, *End);
   NumFeatures = static_cast<int>(floor(Length / classify_pico_feature_length + 0.5));
-  if (NumFeatures < 1)
+  if (NumFeatures < 1) {
     NumFeatures = 1;
+  }
 
   /* compute vector for one pico feature */
   Delta.x = XDelta(*Start, *End) / NumFeatures;
@@ -150,8 +152,9 @@ void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   MFOUTLINE First;
   MFOUTLINE Current;
 
-  if (DegenerateOutline(Outline))
+  if (DegenerateOutline(Outline)) {
     return;
+  }
 
   First = Outline;
   Current = First;
@@ -162,8 +165,9 @@ void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
    the outlines is reversed when they are converted from the old
    format.  In the old format, a hidden edge is marked by the
    starting point for that edge. */
-    if (!(PointAt(Next)->Hidden))
+    if (!(PointAt(Next)->Hidden)) {
       ConvertSegmentToPicoFeat(&(PointAt(Current)->Point), &(PointAt(Next)->Point), FeatureSet);
+    }
 
     Current = Next;
     Next = NextPointAfter(Current);
@@ -208,8 +212,9 @@ FEATURE_SET Classify::ExtractIntCNFeatures(const TBLOB &blob, const INT_FX_RESUL
   std::vector<INT_FEATURE_STRUCT> bl_features;
   tesseract::TrainingSample *sample =
       tesseract::BlobToTrainingSample(blob, false, &local_fx_info, &bl_features);
-  if (sample == nullptr)
+  if (sample == nullptr) {
     return nullptr;
+  }
 
   uint32_t num_features = sample->num_features();
   const INT_FEATURE_STRUCT *features = sample->features();
@@ -239,8 +244,9 @@ FEATURE_SET Classify::ExtractIntGeoFeatures(const TBLOB &blob,
   std::vector<INT_FEATURE_STRUCT> bl_features;
   tesseract::TrainingSample *sample =
       tesseract::BlobToTrainingSample(blob, false, &local_fx_info, &bl_features);
-  if (sample == nullptr)
+  if (sample == nullptr) {
     return nullptr;
+  }
 
   FEATURE_SET feature_set = NewFeatureSet(1);
   FEATURE feature = NewFeature(&IntFeatDesc);

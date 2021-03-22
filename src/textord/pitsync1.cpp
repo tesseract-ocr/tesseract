@@ -105,8 +105,9 @@ FPSEGPT::FPSEGPT(           // constructor
   mid_cuts = 0;
   for (pred_it.mark_cycle_pt(); !pred_it.cycled_list(); pred_it.forward()) {
     segpt = pred_it.data();
-    if (segpt->fake_count < best_fake)
+    if (segpt->fake_count < best_fake) {
       best_fake = segpt->fake_count;
+    }
     dist = x - segpt->xpos;
     if (dist >= pitch - pitch_error && dist <= pitch + pitch_error && !segpt->terminal) {
       total = segpt->mean_sum + dist;
@@ -125,8 +126,9 @@ FPSEGPT::FPSEGPT(           // constructor
       }
     }
   }
-  if (fake_count > best_fake + 1)
+  if (fake_count > best_fake + 1) {
     pred = nullptr; // fail it
+  }
 }
 
 /**********************************************************************
@@ -179,10 +181,12 @@ double check_pitch_sync(   // find segmentation
   //              blob_count, pitch);
   //      if (blob_count==8 && pitch==27)
   //              projection->print(stdout,true);
-  if (pitch < 3)
+  if (pitch < 3) {
     pitch = 3; // nothing ludicrous
-  if ((pitch - 3) / 2 < pitch_error)
+  }
+  if ((pitch - 3) / 2 < pitch_error) {
     pitch_error = (pitch - 3) / 2;
+  }
   min_it = *blob_it;
   min_box = box_next(&min_it); // get box
   //      if (blob_count==8 && pitch==27)
@@ -244,14 +248,15 @@ double check_pitch_sync(   // find segmentation
           (x - max_box.left() > pitch * pitsync_joined_edge &&
            max_box.right() - x > pitch * pitsync_joined_edge)) {
         //                      || projection->local_min(x))
-        if (x - max_box.left() > 0 && x - max_box.left() <= pitch_error)
+        if (x - max_box.left() > 0 && x - max_box.left() <= pitch_error) {
           // dist to real break
           offset = x - max_box.left();
-        else if (max_box.right() - x > 0 && max_box.right() - x <= pitch_error &&
-                 (max_index >= blob_count - 1 || x < next_box.left()))
+        } else if (max_box.right() - x > 0 && max_box.right() - x <= pitch_error &&
+                   (max_index >= blob_count - 1 || x < next_box.left())) {
           offset = max_box.right() - x;
-        else
+        } else {
           offset = 0;
+        }
         //                              offset=pitsync_offset_freecut_fraction*projection->pile_count(x);
         segpt = new FPSEGPT(x, false, offset, region_index, pitch, pitch_error, lattice_it.data());
       } else {
@@ -269,16 +274,18 @@ double check_pitch_sync(   // find segmentation
             best_region_index = region_index;
             left_best_x = x;
             right_best_x = x;
-          } else if (segpt->cost_function() == best_cost && right_best_x == x - 1)
+          } else if (segpt->cost_function() == best_cost && right_best_x == x - 1) {
             right_best_x = x;
+          }
         }
       } else {
         delete segpt; // no good
       }
     }
     if (segpts->empty()) {
-      if (best_end != nullptr)
+      if (best_end != nullptr) {
         break; // already found one
+      }
       make_illegal_segment(lattice_it.data(), min_box, min_it, region_index, pitch, pitch_error,
                            segpts);
     } else {
@@ -286,11 +293,13 @@ double check_pitch_sync(   // find segmentation
         left_best_x = (left_best_x + right_best_x + 1) / 2;
         for (segpt_it.mark_cycle_pt();
              !segpt_it.cycled_list() && segpt_it.data()->position() != left_best_x;
-             segpt_it.forward())
+             segpt_it.forward()) {
           ;
-        if (segpt_it.data()->position() == left_best_x)
+        }
+        if (segpt_it.data()->position() == left_best_x) {
           // middle of region
           best_end = segpt_it.data();
+        }
       }
     }
     // new segment
@@ -316,8 +325,9 @@ double check_pitch_sync(   // find segmentation
     //                      tprintf("\n");
     //              }
     for (segpt_it.mark_cycle_pt(); !segpt_it.cycled_list() && segpt_it.data() != best_end;
-         segpt_it.forward())
+         segpt_it.forward()) {
       ;
+    }
     if (segpt_it.data() == best_end) {
       // save good one
       segpt = segpt_it.extract();
@@ -330,9 +340,10 @@ double check_pitch_sync(   // find segmentation
   outseg_it.move_to_last();
   mean_sum = outseg_it.data()->sum();
   mean_sum = mean_sum * mean_sum / best_region_index;
-  if (outseg_it.data()->squares() - mean_sum < 0)
+  if (outseg_it.data()->squares() - mean_sum < 0) {
     tprintf("Impossible sqsum=%g, mean=%g, total=%d\n", outseg_it.data()->squares(),
             outseg_it.data()->sum(), best_region_index);
+  }
   lattice.deep_clear(); // shift the lot
   return outseg_it.data()->squares() - mean_sum;
 }
@@ -382,8 +393,9 @@ void make_illegal_segment(   // find segmentation
       blob_box = box_next(&blob_it);
     }
     offset = x - blob_box.left();
-    if (blob_box.right() - x < offset)
+    if (blob_box.right() - x < offset) {
       offset = blob_box.right() - x;
+    }
     segpt = new FPSEGPT(x, false, offset, region_index, pitch, pitch_error, prev_list);
     if (segpt->previous() != nullptr) {
       ASSERT_HOST(offset >= 0);
@@ -392,8 +404,9 @@ void make_illegal_segment(   // find segmentation
       segpt_it.add_after_then_move(segpt);
       segpt->faked = true;
       segpt->fake_count++;
-    } else
+    } else {
       delete segpt;
+    }
   }
 }
 

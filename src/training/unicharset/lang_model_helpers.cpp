@@ -39,8 +39,9 @@ namespace tesseract {
 // NOTE that suffix should contain any required . for the filename.
 bool WriteFile(const std::string &output_dir, const std::string &lang, const std::string &suffix,
                const std::vector<char> &data, FileWriter writer) {
-  if (lang.empty())
+  if (lang.empty()) {
     return true;
+  }
   std::string dirname = output_dir + "/" + lang;
   // Attempt to make the directory, but ignore errors, as it may not be a
   // standard filesystem, and the writer will complain if not successful.
@@ -50,25 +51,29 @@ bool WriteFile(const std::string &output_dir, const std::string &lang, const std
   mkdir(dirname.c_str(), S_IRWXU | S_IRWXG);
 #endif
   std::string filename = dirname + "/" + lang + suffix;
-  if (writer == nullptr)
+  if (writer == nullptr) {
     return SaveDataToFile(data, filename.c_str());
-  else
+  } else {
     return (*writer)(data, filename.c_str());
+  }
 }
 
 // Helper reads a file with optional reader and returns a string.
 // On failure emits a warning message and returns an empty string.
 std::string ReadFile(const std::string &filename, FileReader reader) {
-  if (filename.empty())
+  if (filename.empty()) {
     return std::string();
+  }
   std::vector<char> data;
   bool read_result;
-  if (reader == nullptr)
+  if (reader == nullptr) {
     read_result = LoadDataFromFile(filename.c_str(), &data);
-  else
+  } else {
     read_result = (*reader)(filename.c_str(), &data);
-  if (read_result)
+  }
+  if (read_result) {
     return std::string(&data[0], data.size());
+  }
   tprintf("Failed to read data from: %s\n", filename.c_str());
   return std::string();
 }
@@ -79,8 +84,9 @@ bool WriteUnicharset(const UNICHARSET &unicharset, const std::string &output_dir
   std::vector<char> unicharset_data;
   TFile fp;
   fp.OpenWrite(&unicharset_data);
-  if (!unicharset.save_to_file(&fp))
+  if (!unicharset.save_to_file(&fp)) {
     return false;
+  }
   traineddata->OverwriteEntry(TESSDATA_LSTM_UNICHARSET, &unicharset_data[0],
                               unicharset_data.size());
   return WriteFile(output_dir, lang, ".unicharset", unicharset_data, writer);
@@ -113,8 +119,9 @@ bool WriteRecoder(const UNICHARSET &unicharset, bool pass_through, const std::st
   TFile fp;
   std::vector<char> recoder_data;
   fp.OpenWrite(&recoder_data);
-  if (!recoder.Serialize(&fp))
+  if (!recoder.Serialize(&fp)) {
     return false;
+  }
   traineddata->OverwriteEntry(TESSDATA_LSTM_RECODER, &recoder_data[0], recoder_data.size());
   std::string encoding = recoder.GetEncodingAsString(unicharset);
   recoder_data.resize(encoding.length(), 0);
@@ -135,13 +142,15 @@ static bool WriteDawg(const std::vector<std::string> &words, const UNICHARSET &u
   trie.add_word_list(words, unicharset, reverse_policy);
   tprintf("Reducing Trie to SquishedDawg\n");
   std::unique_ptr<SquishedDawg> dawg(trie.trie_to_dawg());
-  if (dawg == nullptr || dawg->NumEdges() == 0)
+  if (dawg == nullptr || dawg->NumEdges() == 0) {
     return false;
+  }
   TFile fp;
   std::vector<char> dawg_data;
   fp.OpenWrite(&dawg_data);
-  if (!dawg->write_squished_dawg(&fp))
+  if (!dawg->write_squished_dawg(&fp)) {
     return false;
+  }
   traineddata->OverwriteEntry(file_type, &dawg_data[0], dawg_data.size());
   return true;
 }

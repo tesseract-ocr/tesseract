@@ -123,8 +123,9 @@ const char *ParamContent::GetName() const {
     return dIt->name_str();
   } else if (param_type_ == VT_STRING) {
     return sIt->name_str();
-  } else
+  } else {
     return "ERROR: ParamContent::GetName()";
+  }
 }
 
 // Getter for the description.
@@ -137,8 +138,9 @@ const char *ParamContent::GetDescription() const {
     return dIt->info_str();
   } else if (param_type_ == VT_STRING) {
     return sIt->info_str();
-  } else
+  } else {
     return nullptr;
+  }
 }
 
 // Getter for the value.

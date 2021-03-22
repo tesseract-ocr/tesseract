@@ -115,24 +115,27 @@ public:
   }
 
   int16_t height() const { // how high is it?
-    if (!null_box())
+    if (!null_box()) {
       return top_right.y() - bot_left.y();
-    else
+    } else {
       return 0;
+    }
   }
 
   int16_t width() const { // how high is it?
-    if (!null_box())
+    if (!null_box()) {
       return top_right.x() - bot_left.x();
-    else
+    } else {
       return 0;
+    }
   }
 
   int32_t area() const { // what is the area?
-    if (!null_box())
+    if (!null_box()) {
       return width() * height();
-    else
+    } else {
       return 0;
+    }
   }
 
   // Pads the box on either side by the supplied x,y pad amounts.
@@ -372,13 +375,15 @@ inline bool TBOX::major_overlap( // Do boxes overlap more that half.
   int overlap = std::min(box.top_right.x(), top_right.x());
   overlap -= std::max(box.bot_left.x(), bot_left.x());
   overlap += overlap;
-  if (overlap < std::min(box.width(), width()))
+  if (overlap < std::min(box.width(), width())) {
     return false;
+  }
   overlap = std::min(box.top_right.y(), top_right.y());
   overlap -= std::max(box.bot_left.y(), bot_left.y());
   overlap += overlap;
-  if (overlap < std::min(box.height(), height()))
+  if (overlap < std::min(box.height(), height())) {
     return false;
+  }
   return true;
 }
 
@@ -460,10 +465,11 @@ inline double TBOX::x_overlap_fraction(const TBOX &other) const {
   int width = right() - left();
   if (width == 0) {
     int x = left();
-    if (other.left() <= x && x <= other.right())
+    if (other.left() <= x && x <= other.right()) {
       return 1.0;
-    else
+    } else {
       return 0.0;
+    }
   } else {
     return std::max(0.0, static_cast<double>(high - low) / width);
   }
@@ -482,10 +488,11 @@ inline double TBOX::y_overlap_fraction(const TBOX &other) const {
   int height = top() - bottom();
   if (height == 0) {
     int y = bottom();
-    if (other.bottom() <= y && y <= other.top())
+    if (other.bottom() <= y && y <= other.top()) {
       return 1.0;
-    else
+    } else {
       return 0.0;
+    }
   } else {
     return std::max(0.0, static_cast<double>(high - low) / height);
   }

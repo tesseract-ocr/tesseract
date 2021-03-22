@@ -52,8 +52,9 @@ namespace tesseract {
 BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob, const char *string, ScrollView::Color color,
                                          BlamerBundle *blamer_bundle) {
 #ifndef GRAPHICS_DISABLED
-  if (wordrec_display_all_blobs)
+  if (wordrec_display_all_blobs) {
     display_blob(blob, color);
+  }
 #endif
   // TODO(rays) collapse with call_matcher and move all to wordrec.cpp.
   BLOB_CHOICE_LIST *choices = call_matcher(blob);
@@ -65,11 +66,13 @@ BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob, const char *string, Scroll
                                    wordrec_debug_blamer);
   }
 #ifndef GRAPHICS_DISABLED
-  if (classify_debug_level && string)
+  if (classify_debug_level && string) {
     print_ratings_list(string, choices, getDict().getUnicharset());
+  }
 
-  if (wordrec_blob_pause)
+  if (wordrec_blob_pause) {
     blob_window->Wait();
+  }
 #endif
 
   return choices;

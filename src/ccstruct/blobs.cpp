@@ -102,8 +102,9 @@ TESSLINE *TESSLINE::BuildFromOutlineList(EDGEPT *outline) {
     EDGEPT *pt = outline;
     do {
       pt->step_count = pt->next->start_step - pt->start_step;
-      if (pt->step_count < 0)
+      if (pt->step_count < 0) {
         pt->step_count += pt->src_outline->pathlength();
+      }
       pt = pt->next;
     } while (pt != outline);
   }
@@ -140,8 +141,9 @@ void TESSLINE::CopyFrom(const TESSLINE &src) {
 
 // Deletes owned data.
 void TESSLINE::Clear() {
-  if (loop == nullptr)
+  if (loop == nullptr) {
     return;
+  }
 
   EDGEPT *this_edge = loop;
   do {
@@ -220,14 +222,18 @@ void TESSLINE::ComputeBoundingBox() {
   EDGEPT *this_edge = loop;
   do {
     if (!this_edge->IsHidden() || !this_edge->prev->IsHidden()) {
-      if (this_edge->pos.x < minx)
+      if (this_edge->pos.x < minx) {
         minx = this_edge->pos.x;
-      if (this_edge->pos.y < miny)
+      }
+      if (this_edge->pos.y < miny) {
         miny = this_edge->pos.y;
-      if (this_edge->pos.x > maxx)
+      }
+      if (this_edge->pos.x > maxx) {
         maxx = this_edge->pos.x;
-      if (this_edge->pos.y > maxy)
+      }
+      if (this_edge->pos.y > maxy) {
         maxy = this_edge->pos.y;
+      }
     }
     this_edge = this_edge->next;
   } while (this_edge != loop);
@@ -262,19 +268,21 @@ TBOX TESSLINE::bounding_box() const {
 
 #ifndef GRAPHICS_DISABLED
 void TESSLINE::plot(ScrollView *window, ScrollView::Color color, ScrollView::Color child_color) {
-  if (is_hole)
+  if (is_hole) {
     window->Pen(child_color);
-  else
+  } else {
     window->Pen(color);
+  }
   window->SetCursor(start.x, start.y);
   EDGEPT *pt = loop;
   do {
     bool prev_hidden = pt->IsHidden();
     pt = pt->next;
-    if (prev_hidden)
+    if (prev_hidden) {
       window->SetCursor(pt->pos.x, pt->pos.y);
-    else
+    } else {
       window->DrawTo(pt->pos.x, pt->pos.y);
+    }
   } while (pt != loop);
 }
 #endif // !GRAPHICS_DISABLED
@@ -287,10 +295,12 @@ EDGEPT *TESSLINE::FindBestStartPt() const {
   // Iterate the polygon.
   EDGEPT *pt = loop;
   do {
-    if (pt->IsHidden())
+    if (pt->IsHidden()) {
       continue;
-    if (pt->prev->IsHidden() || pt->prev->src_outline != pt->src_outline)
+    }
+    if (pt->prev->IsHidden() || pt->prev->src_outline != pt->src_outline) {
       return pt; // Qualifies as the best.
+    }
     if (pt->start_step < best_step) {
       best_step = pt->start_step;
       best_start = pt;
@@ -368,10 +378,11 @@ void TBLOB::CopyFrom(const TBLOB &src) {
   TESSLINE *prev_outline = nullptr;
   for (TESSLINE *srcline = src.outlines; srcline != nullptr; srcline = srcline->next) {
     auto *new_outline = new TESSLINE(*srcline);
-    if (outlines == nullptr)
+    if (outlines == nullptr) {
       outlines = new_outline;
-    else
+    } else {
       prev_outline->next = new_outline;
+    }
     prev_outline = new_outline;
   }
   denorm_ = src.denorm_;
@@ -442,8 +453,9 @@ void TBLOB::ComputeBoundingBoxes() {
 // Returns the number of outlines.
 int TBLOB::NumOutlines() const {
   int result = 0;
-  for (TESSLINE *outline = outlines; outline != nullptr; outline = outline->next)
+  for (TESSLINE *outline = outlines; outline != nullptr; outline = outline->next) {
     ++result;
+  }
   return result;
 }
 
@@ -454,8 +466,9 @@ int TBLOB::NumOutlines() const {
  * bounding box of the union of all top-level outlines in the blob.
  **********************************************************************/
 TBOX TBLOB::bounding_box() const {
-  if (outlines == nullptr)
+  if (outlines == nullptr) {
     return TBOX(0, 0, 0, 0);
+  }
   TESSLINE *outline = outlines;
   TBOX box = outline->bounding_box();
   for (outline = outline->next; outline != nullptr; outline = outline->next) {
@@ -496,8 +509,9 @@ void TBLOB::CorrectBlobOrder(TBLOB *next) {
 
 #ifndef GRAPHICS_DISABLED
 void TBLOB::plot(ScrollView *window, ScrollView::Color color, ScrollView::Color child_color) {
-  for (TESSLINE *outline = outlines; outline != nullptr; outline = outline->next)
+  for (TESSLINE *outline = outlines; outline != nullptr; outline = outline->next) {
     outline->plot(window, color, child_color);
+  }
 }
 #endif // !GRAPHICS_DISABLED
 
@@ -515,10 +529,12 @@ int TBLOB::ComputeMoments(FCOORD *center, FCOORD *second_moments) const {
   // The 2nd moments are just the standard deviation of the point positions.
   double x2nd = sqrt(accumulator.x_variance());
   double y2nd = sqrt(accumulator.y_variance());
-  if (x2nd < 1.0)
+  if (x2nd < 1.0) {
     x2nd = 1.0;
-  if (y2nd < 1.0)
+  }
+  if (y2nd < 1.0) {
     y2nd = 1.0;
+  }
   second_moments->set_x(x2nd);
   second_moments->set_y(y2nd);
   return accumulator.count();
@@ -548,10 +564,12 @@ void TBLOB::GetEdgeCoords(const TBOX &box, std::vector<std::vector<int>> &x_coor
   y_coords.resize(box.width());
   CollectEdges(box, nullptr, nullptr, &x_coords, &y_coords);
   // Sort the output vectors.
-  for (auto &coord : x_coords)
+  for (auto &coord : x_coords) {
     std::sort(coord.begin(), coord.end());
-  for (auto &coord : y_coords)
+  }
+  for (auto &coord : y_coords) {
     std::sort(coord.begin(), coord.end());
+  }
 }
 
 // Accumulates the segment between pt1 and pt2 in the LLSQ, quantizing over
@@ -563,8 +581,9 @@ static void SegmentLLSQ(const FCOORD &pt1, const FCOORD &pt2, LLSQ *accumulator)
   int xend = IntCastRounded(std::max(pt1.x(), pt2.x()));
   int ystart = IntCastRounded(std::min(pt1.y(), pt2.y()));
   int yend = IntCastRounded(std::max(pt1.y(), pt2.y()));
-  if (xstart == xend && ystart == yend)
+  if (xstart == xend && ystart == yend) {
     return; // Nothing to do.
+  }
   double weight = step.length() / (xend - xstart + yend - ystart);
   // Compute and save the y-position at the middle of each x-step.
   for (int x = xstart; x < xend; ++x) {
@@ -658,8 +677,9 @@ static void CollectEdgesOfRun(const EDGEPT *startpt, const EDGEPT *lastpt, const
     // bounds of the outline steps/ due to wrap-around, so we use % step_length
     // everywhere, except for start_index.
     int end_index = lastpt->start_step + lastpt->step_count;
-    if (end_index <= start_index)
+    if (end_index <= start_index) {
       end_index += step_length;
+    }
     // pos is the integer coordinates of the binary image steps.
     ICOORD pos = outline->position_at_index(start_index);
     FCOORD origin(box.left(), box.bottom());
@@ -733,11 +753,13 @@ void TBLOB::CollectEdges(const TBOX &box, TBOX *bounding_box, LLSQ *llsq,
     // Iterate the polygon.
     EDGEPT *loop_pt = ol->FindBestStartPt();
     EDGEPT *pt = loop_pt;
-    if (pt == nullptr)
+    if (pt == nullptr) {
       continue;
+    }
     do {
-      if (pt->IsHidden())
+      if (pt->IsHidden()) {
         continue;
+      }
       // Find a run of equal src_outline.
       EDGEPT *last_pt = pt;
       do {
@@ -771,8 +793,9 @@ void TWERD::BLNormalize(const BLOCK *block, const ROW *row, Pix *pix, bool inver
                         float baseline_shift, bool numeric_mode, tesseract::OcrEngineMode hint,
                         const TBOX *norm_box, DENORM *word_denorm) {
   TBOX word_box = bounding_box();
-  if (norm_box != nullptr)
+  if (norm_box != nullptr) {
     word_box = *norm_box;
+  }
   float word_middle = (word_box.left() + word_box.right()) / 2.0f;
   float input_y_offset = 0.0f;
   auto final_y_offset = static_cast<float>(kBlnBaselineOffset);
@@ -849,8 +872,9 @@ TBOX TWERD::bounding_box() const {
 // Merges the blobs from start to end, not including end, and deletes
 // the blobs between start and end.
 void TWERD::MergeBlobs(int start, int end) {
-  if (start >= blobs.size() - 1)
+  if (start >= blobs.size() - 1) {
     return; // Nothing to do.
+  }
   TESSLINE *outline = blobs[start]->outlines;
   for (int i = start + 1; i < end && i < blobs.size(); ++i) {
     TBLOB *next_blob = blobs[i];
@@ -859,8 +883,9 @@ void TWERD::MergeBlobs(int start, int end) {
       blobs[start]->outlines = next_blob->outlines;
       outline = blobs[start]->outlines;
     } else {
-      while (outline->next != nullptr)
+      while (outline->next != nullptr) {
         outline = outline->next;
+      }
       outline->next = next_blob->outlines;
       next_blob->outlines = nullptr;
     }
@@ -893,21 +918,24 @@ void TWERD::plot(ScrollView *window) {
  * call to divide_blobs.
  **********************************************************************/
 bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT *location) {
-  if (blob->outlines == nullptr || blob->outlines->next == nullptr)
+  if (blob->outlines == nullptr || blob->outlines->next == nullptr) {
     return false; // Need at least 2 outlines for it to be possible.
+  }
   int max_gap = 0;
   TPOINT vertical = italic_blob ? kDivisibleVerticalItalic : kDivisibleVerticalUpright;
   for (TESSLINE *outline1 = blob->outlines; outline1 != nullptr; outline1 = outline1->next) {
-    if (outline1->is_hole)
+    if (outline1->is_hole) {
       continue; // Holes do not count as separable.
+    }
     TPOINT mid_pt1(static_cast<int16_t>((outline1->topleft.x + outline1->botright.x) / 2),
                    static_cast<int16_t>((outline1->topleft.y + outline1->botright.y) / 2));
     int mid_prod1 = mid_pt1.cross(vertical);
     int min_prod1, max_prod1;
     outline1->MinMaxCrossProduct(vertical, &min_prod1, &max_prod1);
     for (TESSLINE *outline2 = outline1->next; outline2 != nullptr; outline2 = outline2->next) {
-      if (outline2->is_hole)
+      if (outline2->is_hole) {
         continue; // Holes do not count as separable.
+      }
       TPOINT mid_pt2(static_cast<int16_t>((outline2->topleft.x + outline2->botright.x) / 2),
                      static_cast<int16_t>((outline2->topleft.y + outline2->botright.y) / 2));
       int mid_prod2 = mid_pt2.cross(vertical);
@@ -951,26 +979,30 @@ void divide_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob, const TPOINT
     int mid_prod = mid_pt.cross(vertical);
     if (mid_prod < location_prod) {
       // Outline is in left blob.
-      if (outline1)
+      if (outline1) {
         outline1->next = outline;
-      else
+      } else {
         blob->outlines = outline;
+      }
       outline1 = outline;
     } else {
       // Outline is in right blob.
-      if (outline2)
+      if (outline2) {
         outline2->next = outline;
-      else
+      } else {
         other_blob->outlines = outline;
+      }
       outline2 = outline;
     }
     outline = outline->next;
   }
 
-  if (outline1)
+  if (outline1) {
     outline1->next = nullptr;
-  if (outline2)
+  }
+  if (outline2) {
     outline2->next = nullptr;
+  }
 }
 
 } // namespace tesseract
