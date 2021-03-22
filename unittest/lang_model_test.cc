@@ -101,7 +101,7 @@ TEST(LangModelTest, AddACharacter) {
   int null2 = trainer2.null_char();
   EXPECT_EQ(null1 + 1, null2);
   std::vector<int> labels1_v(labels1.size());
-  for (int i = 0; i < labels1.size(); ++i) {
+  for (unsigned i = 0; i < labels1.size(); ++i) {
     if (labels1[i] == null1) {
       labels1_v[i] = null2;
     } else {
@@ -186,7 +186,7 @@ TEST(LangModelTest, AddACharacterHindi) {
   int null2 = trainer2.null_char();
   EXPECT_EQ(null1 + 1, null2);
   std::vector<int> labels1_v(labels1.size());
-  for (int i = 0; i < labels1.size(); ++i) {
+  for (unsigned i = 0; i < labels1.size(); ++i) {
     if (labels1[i] == null1) {
       labels1_v[i] = null2;
     } else {

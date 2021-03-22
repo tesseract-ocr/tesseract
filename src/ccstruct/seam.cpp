@@ -61,7 +61,7 @@ bool SEAM::PrepareToInsertSeam(const std::vector<SEAM *> &seams,
   if (!FindBlobWidth(blobs, insert_index, modify)) {
     return false;
   }
-  for (int s = insert_index; s < seams.size(); ++s) {
+  for (unsigned s = insert_index; s < seams.size(); ++s) {
     if (!seams[s]->FindBlobWidth(blobs, s + 1, modify)) {
       return false;
     }
@@ -81,7 +81,7 @@ bool SEAM::FindBlobWidth(const std::vector<TBLOB *> &blobs, int index, bool modi
     const SPLIT &split = splits_[s];
     bool found_split = split.ContainedByBlob(*blobs[index]);
     // Look right.
-    for (int b = index + 1; !found_split && b < blobs.size(); ++b) {
+    for (unsigned b = index + 1; !found_split && b < blobs.size(); ++b) {
       found_split = split.ContainedByBlob(*blobs[b]);
       if (found_split && b - index > widthp_ && modify) {
         widthp_ = b - index;
@@ -158,8 +158,8 @@ void SEAM::Print(const char *label) const {
 void SEAM::PrintSeams(const char *label, const std::vector<SEAM *> &seams) {
   if (!seams.empty()) {
     tprintf("%s\n", label);
-    for (int x = 0; x < seams.size(); ++x) {
-      tprintf("%2d:   ", x);
+    for (unsigned x = 0; x < seams.size(); ++x) {
+      tprintf("%2u:   ", x);
       seams[x]->Print("");
     }
     tprintf("\n");

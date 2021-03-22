@@ -51,14 +51,14 @@ public:
     EXPECT_EQ(3 + (almost_done - second) / add, cell_x_.size());
     EXPECT_EQ(x_min, cell_x_.at(0));
     EXPECT_EQ(x_max, cell_x_.at(cell_x_.size() - 1));
-    for (int i = 1; i < cell_x_.size() - 1; ++i) {
+    for (unsigned i = 1; i < cell_x_.size() - 1; ++i) {
       EXPECT_EQ(second + add * (i - 1), cell_x_.at(i));
     }
   }
 
   void ExpectSortedX() {
     EXPECT_GT(cell_x_.size(), 0);
-    for (int i = 1; i < cell_x_.size(); ++i) {
+    for (unsigned i = 1; i < cell_x_.size(); ++i) {
       EXPECT_LT(cell_x_.at(i - 1), cell_x_.at(i));
     }
   }

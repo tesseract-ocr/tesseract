@@ -126,9 +126,9 @@ protected:
     // Now decode using recoder_.
     std::string decoded;
     int end = 1;
-    for (int start = 0; start < labels.size(); start = end) {
+    for (unsigned start = 0; start < labels.size(); start = end) {
       RecodedCharID code;
-      int index = start;
+      unsigned index = start;
       int uni_id = INVALID_UNICHAR_ID;
       do {
         code.Set(code.length(), labels[index++]);
@@ -153,7 +153,7 @@ protected:
                                             &ratings, &xcoords);
     std::string u_decoded;
     float total_rating = 0.0f;
-    for (int u = 0; u < unichar_ids.size(); ++u) {
+    for (unsigned u = 0; u < unichar_ids.size(); ++u) {
       // To the extent of truth_utf8, we expect decoded to match, but if
       // transcription is shorter, that is OK too, as we may just be testing
       // that we get a valid sequence when padded with random data.

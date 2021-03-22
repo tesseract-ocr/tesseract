@@ -44,11 +44,11 @@ protected:
     void ExpectEq(const MathData &other) {
       // Check the data.
       EXPECT_EQ(num_squares_, other.num_squares_);
-      for (int s = 0; s < squares_.size(); ++s) {
+      for (unsigned s = 0; s < squares_.size(); ++s) {
         EXPECT_EQ(squares_[s], other.squares_[s]);
       }
       EXPECT_EQ(num_triangles_, other.num_triangles_);
-      for (int s = 0; s < triangles_.size(); ++s) {
+      for (unsigned s = 0; s < triangles_.size(); ++s) {
         EXPECT_EQ(triangles_[s], other.triangles_[s]);
       }
     }
