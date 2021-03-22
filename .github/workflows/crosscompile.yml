@@ -1,0 +1,173 @@
+name: crosscompile
+# mingw64 build of tesseract and training tools for windows on ubuntu.
+# run command line tests, basicapitest and unittests.
+on:
+  push:
+  schedule:
+    - cron: 0 20 * * *
+jobs:
+  mingw-w64:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - msystem: MINGW64
+            os: ubuntu-20.04
+            mingw_package_prefix: mingw64-x86-64
+          - msystem: MINGW32
+            os: ubuntu-20.04
+            mingw_package_prefix: mingw64-i686
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Download fonts, tessdata and langdata required for tests
+      run: |
+           git clone https://github.com/egorpugin/tessdata tessdata_unittest
+           cp tessdata_unittest/fonts/* test/testing/
+           mv tessdata_unittest/* ../
+
+    - name: Install dependencies
+      run: |
+           sudo apt-get install autoconf-archive automake build-essential dpkg-dev pkg-config -y
+           sudo apt-get install mingw-w64 mingw-w64-tools -y
+
+    - name: Get deb packages (ordered by dependencies)
+      run: |
+           for p in \
+               mingw64-x86-64-zlib_1.2.11-1 \
+               mingw64-x86-64-xz_5.2.3-1 \
+               mingw64-x86-64-giflib_5.1.4-1 \
+               mingw64-x86-64-jbigkit_2.1-1 \
+               mingw64-x86-64-libjpeg-turbo_1.5.3-1 \
+               mingw64-x86-64-libpng_1.6.34-1 \
+               mingw64-x86-64-libwebp_0.6.1-1 \
+               mingw64-x86-64-openjpeg2_2.3.0-1 \
+               mingw64-x86-64-tiff_4.0.9-1 \
+               mingw64-x86-64-liblept5_1.77.0-51-gcdb4648-2 \
+               mingw64-x86-64-bzip2_1.0.6-4 \
+               mingw64-x86-64-expat_2.2.2-1 \
+               mingw64-x86-64-freetype2_2.6.5-1 \
+               mingw64-x86-64-fontconfig_2.12.6-1 \
+               mingw64-x86-64-lzo2_2.08-1 \
+               mingw64-x86-64-pixman_0.34.0-1 \
+               mingw64-x86-64-win-iconv_0.0.6-2 \
+               mingw64-x86-64-gettext_0.19.8.1-2 \
+               mingw64-x86-64-libffi_3.2.1-2 \
+               mingw64-x86-64-pcre_8.40-3 \
+               mingw64-x86-64-glib2.0_2.54.3-1 \
+               mingw64-x86-64-harfbuzz_1.7.4-1 \
+               mingw64-x86-64-icu_57.1-2 \
+               mingw64-x86-64-cairo_1.14.12-1 \
+               mingw64-x86-64-pango1.0_1.40.14-1 ; do \
+                 wget https://qemu.weilnetz.de/debian/dists/testing/contrib/binary-all/${p}_all.deb ; \
+                 sudo dpkg -i ${p}_all.deb ; \
+           done
+      if: ${{ matrix.msystem == 'MINGW64' }}
+      
+    - name: Get deb i686 packages
+      run: |
+           for p in \
+               mingw64-i686-zlib_1.2.11-1 \
+               mingw64-i686-xz_5.2.3-1 \
+               mingw64-i686-giflib_5.1.4-1 \
+               mingw64-i686-jbigkit_2.1-1 \
+               mingw64-i686-libjpeg-turbo_1.5.3-1 \
+               mingw64-i686-libpng_1.6.34-1 \
+               mingw64-i686-libwebp_0.6.1-1 \
+               mingw64-i686-openjpeg2_2.3.0-1 \
+               mingw64-i686-tiff_4.0.9-1 \
+               mingw64-i686-liblept5_1.77.0-51-gcdb4648-2 \
+               mingw64-i686-pcre_8.40-3 \
+               mingw64-i686-win-iconv_0.0.6-2 \
+               mingw64-i686-libffi_3.2.1-1 \
+               mingw64-i686-lzo2_2.08-1 \
+               mingw64-i686-pixman_0.34.0-1 \
+               mingw64-i686-bzip2_1.0.6-4 \
+               mingw64-i686-expat_2.2.2-1 \
+               mingw64-i686-freetype2_2.6.5-1 \
+               mingw64-i686-fontconfig_2.12.6-1 \
+               mingw64-i686-gettext_0.19.8.1-2 \
+               mingw64-i686-glib2.0_2.54.3-1 \
+               mingw64-i686-harfbuzz_1.7.4-1 \
+               mingw64-i686-icu_57.1-2 \
+               mingw64-i686-cairo_1.14.12-1 \
+               mingw64-i686-pango1.0_1.40.14-1 ; do \
+                 wget https://qemu.weilnetz.de/debian/dists/testing/contrib/binary-all/${p}_all.deb ; \
+                 sudo dpkg -i ${p}_all.deb ; \
+           done
+      if: ${{ matrix.msystem == 'MINGW32' }}
+
+    - name: Install Leptonica
+      run: |
+           git clone https://github.com/DanBloomberg/leptonica.git ./leptonica
+           cd ./leptonica
+           ./autogen.sh
+           ./configure  --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32 CFLAGS='-g -O2'
+           make
+           sudo make install
+           
+    - name: Setup Tesseract
+      run: |
+           mkdir -p m4
+           ./autogen.sh
+
+    - name: Configure Tesseract
+      run: |
+           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32  CFLAGS='-g -O2'
+
+    - name: Make and Install Tesseract
+      run: |
+           make -j 8
+           sudo make install install
+
+    - name: Make and Install Training Tools
+      run: |
+           make training -j 8
+           sudo make install training-install
+
+    - name: Make and run Unit Tests
+      run: |
+           make check
+
+    - name: Display Version for tesseract, lstmtraining, text2image
+      run: |
+           tesseract -v
+           lstmtraining -v
+           text2image -v
+
+    - name: List languages in different test tessdata-dir
+      run: |
+           tesseract  --list-langs --tessdata-dir ../tessdata
+           tesseract  --list-langs --tessdata-dir ../tessdata_best
+           tesseract  --list-langs --tessdata-dir ../tessdata_fast
+
+    - name: Run Tesseract on test images in different languages
+      run: |
+           tesseract test/testing/phototest.tif - --oem 1  --tessdata-dir ../tessdata
+           tesseract test/testing/raaj.tif - -l hin --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/viet.tif - -l vie --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/hebrew.png - -l heb --oem 1   --tessdata-dir ../tessdata
+           tesseract test/testing/eurotext.tif - -l fra --oem 1 --tessdata-dir ../tessdata_best
+           tesseract test/testing/arabic.tif - -l ara --oem 1 --psm 6  --tessdata-dir ../tessdata
+
+    - name: Run Tesseract basicapitest
+      run: |
+           export "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig"
+           cd test
+           g++-mingw-w64-x86-64 -o basicapitest testing/basicapitest.cpp -I/usr/local/include -L/usr/local/lib `pkg-config --cflags --libs tesseract lept ` -pthread -std=c++11
+           ./basicapitest
+
+    - name: Display Compiler Version
+      run: |
+           g++-mingw-w64-x86-64 --version
+      if: always()
+
+    - name: Display Unit Tests Report
+      run: |
+           cat test-suite.log
+
