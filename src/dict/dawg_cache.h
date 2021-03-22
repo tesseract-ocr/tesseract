@@ -22,15 +22,14 @@
 
 #include "dawg.h"
 #include "object_cache.h"
-#include <tesseract/strngs.h>
 #include "tessdatamanager.h"
 
 namespace tesseract {
 
 class DawgCache {
- public:
-  Dawg *GetSquishedDawg(const STRING &lang, TessdataType tessdata_dawg_type,
-                        int debug_level, TessdataManager *data_file);
+public:
+  Dawg *GetSquishedDawg(const std::string &lang, TessdataType tessdata_dawg_type, int debug_level,
+                        TessdataManager *data_file);
 
   // If we manage the given dawg, decrement its count,
   // and possibly delete it if the count reaches zero.
@@ -44,10 +43,10 @@ class DawgCache {
     dawgs_.DeleteUnusedObjects();
   }
 
- private:
+private:
   ObjectCache<Dawg> dawgs_;
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_DICT_DAWG_CACHE_H_
+#endif // TESSERACT_DICT_DAWG_CACHE_H_

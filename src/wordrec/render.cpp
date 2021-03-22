@@ -16,24 +16,27 @@
  ** limitations under the License.
  *
  *****************************************************************************/
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#  include "config_auto.h"
+#endif
+
 #include "render.h"
+
 #include "blobs.h"
 
 #include <cmath>
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
+namespace tesseract {
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
 ScrollView *blob_window = nullptr;
 
-C_COL color_list[] = {
-  Red, Cyan, Yellow, Blue, Green, White
-};
+ScrollView::Color color_list[] = {ScrollView::RED,  ScrollView::CYAN,  ScrollView::YELLOW,
+                                  ScrollView::BLUE, ScrollView::GREEN, ScrollView::WHITE};
 
 BOOL_VAR(wordrec_display_all_blobs, 0, "Display Blobs");
 
@@ -48,14 +51,12 @@ BOOL_VAR(wordrec_blob_pause, 0, "Blob pause");
  *
  * Macro to display blob in a window.
  **********************************************************************/
-void display_blob(TBLOB *blob, C_COL color) {
+void display_blob(TBLOB *blob, ScrollView::Color color) {
   /* Size of drawable */
   if (blob_window == nullptr) {
-    blob_window = c_create_window ("Blobs", 520, 10,
-      500, 256, -1000.0, 1000.0, 0.0, 256.0);
-  }
-  else {
-    c_clear_window(blob_window);
+    blob_window = new ScrollView("Blobs", 520, 10, 500, 256, 2000, 256, true);
+  } else {
+    blob_window->Clear();
   }
 
   render_blob(blob_window, blob, color);
@@ -67,14 +68,14 @@ void display_blob(TBLOB *blob, C_COL color) {
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_blob(void *window, TBLOB *blob, C_COL color) {
+void render_blob(ScrollView *window, TBLOB *blob, ScrollView::Color color) {
   /* No outline */
-  if (!blob)
+  if (!blob) {
     return;
+  }
 
-  render_outline (window, blob->outlines, color);
+  render_outline(window, blob->outlines, color);
 }
-
 
 /**********************************************************************
  * render_edgepts
@@ -82,25 +83,24 @@ void render_blob(void *window, TBLOB *blob, C_COL color) {
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_edgepts(void *window, EDGEPT *edgept, C_COL color) {
-  if (!edgept)
+void render_edgepts(ScrollView *window, EDGEPT *edgept, ScrollView::Color color) {
+  if (!edgept) {
     return;
+  }
 
   float x = edgept->pos.x;
   float y = edgept->pos.y;
   EDGEPT *this_edge = edgept;
 
-  c_line_color_index(window, color);
-  c_move(window, x, y);
+  window->Pen(color);
+  window->SetCursor(x, y);
   do {
     this_edge = this_edge->next;
     x = this_edge->pos.x;
     y = this_edge->pos.y;
-    c_draw(window, x, y);
-  }
-  while (edgept != this_edge);
+    window->DrawTo(x, y);
+  } while (edgept != this_edge);
 }
-
 
 /**********************************************************************
  * render_outline
@@ -108,17 +108,19 @@ void render_edgepts(void *window, EDGEPT *edgept, C_COL color) {
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_outline(void *window,
-                    TESSLINE *outline,
-                    C_COL color) {
+void render_outline(ScrollView *window, TESSLINE *outline, ScrollView::Color color) {
   /* No outline */
-  if (!outline)
+  if (!outline) {
     return;
+  }
   /* Draw Compact outline */
-  if (outline->loop)
-    render_edgepts (window, outline->loop, color);
+  if (outline->loop) {
+    render_edgepts(window, outline->loop, color);
+  }
   /* Add on next outlines */
-  render_outline (window, outline->next, color);
+  render_outline(window, outline->next, color);
 }
 
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract

@@ -2,7 +2,6 @@
  * File:        normalis.cpp  (Formerly denorm.c)
  * Description: Code for the DENORM class.
  * Author:      Ray Smith
- * Created:     Thu Apr 23 09:22:43 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,16 +18,18 @@
 
 #include "normalis.h"
 
-#include <cfloat>        // for FLT_MAX
-#include <cstdlib>
-
-#include "allheaders.h"
+#include <allheaders.h>
 #include "blobs.h"
-#include <tesseract/helpers.h>
+#include "helpers.h"
 #include "matrix.h"
 #include "ocrblock.h"
 #include "unicharset.h"
 #include "werd.h"
+
+#include <cfloat> // for FLT_MAX
+#include <cstdlib>
+
+namespace tesseract {
 
 // Tolerance in pixels used for baseline and xheight on non-upper/lower scripts.
 const int kSloppyTolerance = 4;
@@ -44,17 +45,17 @@ DENORM::DENORM(const DENORM &src) {
   *this = src;
 }
 
-
-DENORM & DENORM::operator=(const DENORM & src) {
+DENORM &DENORM::operator=(const DENORM &src) {
   Clear();
   inverse_ = src.inverse_;
   predecessor_ = src.predecessor_;
   pix_ = src.pix_;
   block_ = src.block_;
-  if (src.rotation_ == nullptr)
+  if (src.rotation_ == nullptr) {
     rotation_ = nullptr;
-  else
+  } else {
     rotation_ = new FCOORD(*src.rotation_);
+  }
   x_origin_ = src.x_origin_;
   y_origin_ = src.y_origin_;
   x_scale_ = src.x_scale_;
@@ -93,18 +94,17 @@ DENORM::~DENORM() {
 //
 // final_xshift: The x component of the final translation.
 // final_yshift: The y component of the final translation.
-void DENORM::SetupNormalization(const BLOCK* block,
-                                const FCOORD* rotation,
-                                const DENORM* predecessor,
-                                float x_origin, float y_origin,
-                                float x_scale, float y_scale,
-                                float final_xshift, float final_yshift) {
+void DENORM::SetupNormalization(const BLOCK *block, const FCOORD *rotation,
+                                const DENORM *predecessor, float x_origin, float y_origin,
+                                float x_scale, float y_scale, float final_xshift,
+                                float final_yshift) {
   Clear();
   block_ = block;
-  if (rotation == nullptr)
+  if (rotation == nullptr) {
     rotation_ = nullptr;
-  else
+  } else {
     rotation_ = new FCOORD(*rotation);
+  }
   predecessor_ = predecessor;
   x_origin_ = x_origin;
   y_origin_ = y_origin;
@@ -153,11 +153,10 @@ void DENORM::SetupNormalization(const BLOCK* block,
 // left of box as the origin. Although an output, the minruns should have been
 // pre-initialized to be the same size as box. Each element will contain the
 // minimum of x and y run-length as shown above.
-static void ComputeRunlengthImage(
-    const TBOX& box,
-    const GenericVector<GenericVector<int> >& x_coords,
-    const GenericVector<GenericVector<int> >& y_coords,
-    GENERIC_2D_ARRAY<int>* minruns) {
+static void ComputeRunlengthImage(const TBOX &box,
+                                  const std::vector<std::vector<int>> &x_coords,
+                                  const std::vector<std::vector<int>> &y_coords,
+                                  GENERIC_2D_ARRAY<int> *minruns) {
   int width = box.width();
   int height = box.height();
   ASSERT_HOST(minruns->dim1() == width);
@@ -165,8 +164,8 @@ static void ComputeRunlengthImage(
   // Set a 2-d image array to the run lengths at each pixel.
   for (int ix = 0; ix < width; ++ix) {
     int y = 0;
-    for (int i = 0; i < y_coords[ix].size(); ++i) {
-      int y_edge = ClipToRange(y_coords[ix][i], 0, height);
+    for (auto y_coord : y_coords[ix]) {
+      int y_edge = ClipToRange(y_coord, 0, height);
       int gap = y_edge - y;
       // Every pixel between the last and current edge get set to the gap.
       while (y < y_edge) {
@@ -184,19 +183,21 @@ static void ComputeRunlengthImage(
   // Now set the image pixels the the MIN of the x and y runlengths.
   for (int iy = 0; iy < height; ++iy) {
     int x = 0;
-    for (int i = 0; i < x_coords[iy].size(); ++i) {
-      int x_edge = ClipToRange(x_coords[iy][i], 0, width);
+    for (auto x_coord : x_coords[iy]) {
+      int x_edge = ClipToRange(x_coord, 0, width);
       int gap = x_edge - x;
       while (x < x_edge) {
-        if (gap < (*minruns)(x, iy))
+        if (gap < (*minruns)(x, iy)) {
           (*minruns)(x, iy) = gap;
+        }
         ++x;
       }
     }
     int gap = width - x;
     while (x < width) {
-      if (gap < (*minruns)(x, iy))
+      if (gap < (*minruns)(x, iy)) {
         (*minruns)(x, iy) = gap;
+      }
       ++x;
     }
   }
@@ -221,37 +222,37 @@ static void ComputeRunlengthImage(
 // On output hx, hy contain an extra element, which will eventually be used
 // to guarantee that the top/right edge of the box (and anything beyond) always
 // gets mapped to the maximum target coordinate.
-static void ComputeEdgeDensityProfiles(const TBOX& box,
-                                       const GENERIC_2D_ARRAY<int>& minruns,
-                                       GenericVector<float>* hx,
-                                       GenericVector<float>* hy) {
+static void ComputeEdgeDensityProfiles(const TBOX &box, const GENERIC_2D_ARRAY<int> &minruns,
+                                       std::vector<float> &hx, std::vector<float> &hy) {
   int width = box.width();
   int height = box.height();
-  hx->init_to_size(width + 1, 0.0);
-  hy->init_to_size(height + 1, 0.0);
+  hx.resize(width + 1);
+  hy.resize(height + 1);
   double total = 0.0;
   for (int iy = 0; iy < height; ++iy) {
     for (int ix = 0; ix < width; ++ix) {
       int run = minruns(ix, iy);
-      if (run == 0) run = 1;
+      if (run == 0) {
+        run = 1;
+      }
       float density = 1.0f / run;
-      (*hx)[ix] += density;
-      (*hy)[iy] += density;
+      hx[ix] += density;
+      hy[iy] += density;
     }
-    total += (*hy)[iy];
+    total += hy[iy];
   }
   // Normalize each profile to sum to 1.
   if (total > 0.0) {
     for (int ix = 0; ix < width; ++ix) {
-      (*hx)[ix] /= total;
+      hx[ix] /= total;
     }
     for (int iy = 0; iy < height; ++iy) {
-      (*hy)[iy] /= total;
+      hy[iy] /= total;
     }
   }
   // There is an extra element in each array, so initialize to 1.
-  (*hx)[width] = 1.0f;
-  (*hy)[height] = 1.0f;
+  hx[width] = 1.0f;
+  hy[height] = 1.0f;
 }
 
 // Sets up the DENORM to execute a non-linear transformation based on
@@ -265,18 +266,17 @@ static void ComputeEdgeDensityProfiles(const TBOX& box,
 // Eg x_coords[1] is a collection of the x-coords of edges at y=bottom + 1.
 // The second-level vectors must all be sorted in ascending order.
 // See comments on the helper functions above for more details.
-void DENORM::SetupNonLinear(
-    const DENORM* predecessor, const TBOX& box, float target_width,
-    float target_height, float final_xshift, float final_yshift,
-    const GenericVector<GenericVector<int> >& x_coords,
-    const GenericVector<GenericVector<int> >& y_coords) {
+void DENORM::SetupNonLinear(const DENORM *predecessor, const TBOX &box, float target_width,
+                            float target_height, float final_xshift, float final_yshift,
+                            const std::vector<std::vector<int>> &x_coords,
+                            const std::vector<std::vector<int>> &y_coords) {
   Clear();
   predecessor_ = predecessor;
   // x_map_ and y_map_ store a mapping from input x and y coordinate to output
   // x and y coordinate, based on scaling to the supplied target_width and
   // target_height.
-  x_map_ = new GenericVector<float>;
-  y_map_ = new GenericVector<float>;
+  x_map_ = new std::vector<float>;
+  y_map_ = new std::vector<float>;
   // Set a 2-d image array to the run lengths at each pixel.
   int width = box.width();
   int height = box.height();
@@ -284,7 +284,7 @@ void DENORM::SetupNonLinear(
   ComputeRunlengthImage(box, x_coords, y_coords, &minruns);
   // Edge density is the sum of the inverses of the run lengths. Compute
   // edge density projection profiles.
-  ComputeEdgeDensityProfiles(box, minruns, x_map_, y_map_);
+  ComputeEdgeDensityProfiles(box, minruns, *x_map_, *y_map_);
   // Convert the edge density profiles to the coordinates by multiplying by
   // the desired size and accumulating.
   (*x_map_)[width] = target_width;
@@ -303,25 +303,26 @@ void DENORM::SetupNonLinear(
 
 // Transforms the given coords one step forward to normalized space, without
 // using any block rotation or predecessor.
-void DENORM::LocalNormTransform(const TPOINT& pt, TPOINT* transformed) const {
+void DENORM::LocalNormTransform(const TPOINT &pt, TPOINT *transformed) const {
   FCOORD src_pt(pt.x, pt.y);
   FCOORD float_result;
   LocalNormTransform(src_pt, &float_result);
   transformed->x = IntCastRounded(float_result.x());
   transformed->y = IntCastRounded(float_result.y());
 }
-void DENORM::LocalNormTransform(const FCOORD& pt, FCOORD* transformed) const {
+void DENORM::LocalNormTransform(const FCOORD &pt, FCOORD *transformed) const {
   FCOORD translated(pt.x() - x_origin_, pt.y() - y_origin_);
   if (x_map_ != nullptr && y_map_ != nullptr) {
-    int x = ClipToRange(IntCastRounded(translated.x()), 0, x_map_->size()-1);
+    int x = ClipToRange(IntCastRounded(translated.x()), 0, static_cast<int>(x_map_->size() - 1));
     translated.set_x((*x_map_)[x]);
-    int y = ClipToRange(IntCastRounded(translated.y()), 0, y_map_->size()-1);
+    int y = ClipToRange(IntCastRounded(translated.y()), 0, static_cast<int>(y_map_->size() - 1));
     translated.set_y((*y_map_)[y]);
   } else {
     translated.set_x(translated.x() * x_scale_);
     translated.set_y(translated.y() * y_scale_);
-    if (rotation_ != nullptr)
+    if (rotation_ != nullptr) {
       translated.rotate(*rotation_);
+    }
   }
   transformed->set_x(translated.x() + final_xshift_);
   transformed->set_y(translated.y() + final_yshift_);
@@ -332,23 +333,20 @@ void DENORM::LocalNormTransform(const FCOORD& pt, FCOORD* transformed) const {
 // predecessors, deepest first, and finally this. If first_norm is not nullptr,
 // then the first and deepest transformation used is first_norm, ending
 // with this, and the block rotation will not be applied.
-void DENORM::NormTransform(const DENORM* first_norm, const TPOINT& pt,
-                           TPOINT* transformed) const {
+void DENORM::NormTransform(const DENORM *first_norm, const TPOINT &pt, TPOINT *transformed) const {
   FCOORD src_pt(pt.x, pt.y);
   FCOORD float_result;
   NormTransform(first_norm, src_pt, &float_result);
   transformed->x = IntCastRounded(float_result.x());
   transformed->y = IntCastRounded(float_result.y());
 }
-void DENORM::NormTransform(const DENORM* first_norm, const FCOORD& pt,
-                           FCOORD* transformed) const {
+void DENORM::NormTransform(const DENORM *first_norm, const FCOORD &pt, FCOORD *transformed) const {
   FCOORD src_pt(pt);
   if (first_norm != this) {
     if (predecessor_ != nullptr) {
       predecessor_->NormTransform(first_norm, pt, &src_pt);
     } else if (block_ != nullptr) {
-      FCOORD fwd_rotation(block_->re_rotation().x(),
-                          -block_->re_rotation().y());
+      FCOORD fwd_rotation(block_->re_rotation().x(), -block_->re_rotation().y());
       src_pt.rotate(fwd_rotation);
     }
   }
@@ -357,19 +355,28 @@ void DENORM::NormTransform(const DENORM* first_norm, const FCOORD& pt,
 
 // Transforms the given coords one step back to source space, without
 // using to any block rotation or predecessor.
-void DENORM::LocalDenormTransform(const TPOINT& pt, TPOINT* original) const {
+void DENORM::LocalDenormTransform(const TPOINT &pt, TPOINT *original) const {
   FCOORD src_pt(pt.x, pt.y);
   FCOORD float_result;
   LocalDenormTransform(src_pt, &float_result);
   original->x = IntCastRounded(float_result.x());
   original->y = IntCastRounded(float_result.y());
 }
-void DENORM::LocalDenormTransform(const FCOORD& pt, FCOORD* original) const {
+
+void DENORM::LocalDenormTransform(const FCOORD &pt, FCOORD *original) const {
   FCOORD rotated(pt.x() - final_xshift_, pt.y() - final_yshift_);
   if (x_map_ != nullptr && y_map_ != nullptr) {
-    int x = x_map_->binary_search(rotated.x());
+    auto pos = std::upper_bound(x_map_->begin(), x_map_->end(), rotated.x());
+    if (pos > x_map_->begin()) {
+      --pos;
+    }
+    auto x = pos - x_map_->begin();
     original->set_x(x + x_origin_);
-    int y = y_map_->binary_search(rotated.y());
+    pos = std::upper_bound(y_map_->begin(), y_map_->end(), rotated.y());
+    if (pos > y_map_->begin()) {
+      --pos;
+    }
+    auto y = pos - y_map_->begin();
     original->set_y(y + y_origin_);
   } else {
     if (rotation_ != nullptr) {
@@ -387,16 +394,14 @@ void DENORM::LocalDenormTransform(const FCOORD& pt, FCOORD* original) const {
 // recursively, shallowest first, and finally any block re_rotation.
 // If last_denorm is not nullptr, then the last transformation used will
 // be last_denorm, and the block re_rotation will never be executed.
-void DENORM::DenormTransform(const DENORM* last_denorm, const TPOINT& pt,
-                             TPOINT* original) const {
+void DENORM::DenormTransform(const DENORM *last_denorm, const TPOINT &pt, TPOINT *original) const {
   FCOORD src_pt(pt.x, pt.y);
   FCOORD float_result;
   DenormTransform(last_denorm, src_pt, &float_result);
   original->x = IntCastRounded(float_result.x());
   original->y = IntCastRounded(float_result.y());
 }
-void DENORM::DenormTransform(const DENORM* last_denorm, const FCOORD& pt,
-                             FCOORD* original) const {
+void DENORM::DenormTransform(const DENORM *last_denorm, const FCOORD &pt, FCOORD *original) const {
   LocalDenormTransform(pt, original);
   if (last_denorm != this) {
     if (predecessor_ != nullptr) {
@@ -409,13 +414,15 @@ void DENORM::DenormTransform(const DENORM* last_denorm, const FCOORD& pt,
 
 // Normalize a blob using blob transformations. Less accurate, but
 // more accurately copies the old way.
-void DENORM::LocalNormBlob(TBLOB* blob) const {
+void DENORM::LocalNormBlob(TBLOB *blob) const {
   ICOORD translation(-IntCastRounded(x_origin_), -IntCastRounded(y_origin_));
   blob->Move(translation);
-  if (y_scale_ != 1.0f)
+  if (y_scale_ != 1.0f) {
     blob->Scale(y_scale_);
-  if (rotation_ != nullptr)
+  }
+  if (rotation_ != nullptr) {
     blob->Rotate(*rotation_);
+  }
   translation.set_x(IntCastRounded(final_xshift_));
   translation.set_y(IntCastRounded(final_yshift_));
   blob->Move(translation);
@@ -425,16 +432,16 @@ void DENORM::LocalNormBlob(TBLOB* blob) const {
 // bounding box in the usual baseline-normalized coordinates, with some
 // initial crude x-height estimate (such as word size) and this denoting the
 // transformation that was used.
-void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
-                          const TBOX& bbox,
-                          float* min_xht, float* max_xht, float* yshift) const {
+void DENORM::XHeightRange(int unichar_id, const UNICHARSET &unicharset, const TBOX &bbox,
+                          float *min_xht, float *max_xht, float *yshift) const {
   // Default return -- accept anything.
   *yshift = 0.0f;
   *min_xht = 0.0f;
   *max_xht = FLT_MAX;
 
-  if (!unicharset.top_bottom_useful())
+  if (!unicharset.top_bottom_useful()) {
     return;
+  }
 
   // Clip the top and bottom to the limit of normalized feature space.
   int top = ClipToRange<int>(bbox.top(), 0, kBlnCellHeight - 1);
@@ -443,12 +450,12 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
   double tolerance = y_scale();
   // If the script doesn't have upper and lower-case characters, widen the
   // tolerance to allow sloppy baseline/x-height estimates.
-  if (!unicharset.script_has_upper_lower())
+  if (!unicharset.script_has_upper_lower()) {
     tolerance = y_scale() * kSloppyTolerance;
+  }
 
   int min_bottom, max_bottom, min_top, max_top;
-  unicharset.get_top_bottom(unichar_id, &min_bottom, &max_bottom,
-                            &min_top, &max_top);
+  unicharset.get_top_bottom(unichar_id, &min_bottom, &max_bottom, &min_top, &max_top);
 
   // Calculate the scale factor we'll use to get to image y-pixels
   double midx = (bbox.left() + bbox.right()) / 2.0;
@@ -473,8 +480,7 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
   } else if (top > max_top + tolerance) {
     top_shift = top - max_top;
   }
-  if ((top_shift >= 0 && bottom_shift > 0) ||
-      (top_shift < 0 && bottom_shift < 0)) {
+  if ((top_shift >= 0 && bottom_shift > 0) || (top_shift < 0 && bottom_shift < 0)) {
     bln_yshift = (top_shift + bottom_shift) / 2;
   }
   *yshift = bln_yshift * yscale;
@@ -483,9 +489,9 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
   // and to allow the large caps in small caps to accept the xheight of the
   // small caps, add kBlnBaselineOffset to chars with a maximum max, and have
   // a top already at a significantly high position.
-  if (max_top == kBlnCellHeight - 1 &&
-      top > kBlnCellHeight - kBlnBaselineOffset / 2)
+  if (max_top == kBlnCellHeight - 1 && top > kBlnCellHeight - kBlnBaselineOffset / 2) {
     max_top += kBlnBaselineOffset;
+  }
   top -= bln_yshift;
   int height = top - kBlnBaselineOffset;
   double min_height = min_top - kBlnBaselineOffset - tolerance;
@@ -504,30 +510,31 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
 // Prints the content of the DENORM for debug purposes.
 void DENORM::Print() const {
   if (pix_ != nullptr) {
-    tprintf("Pix dimensions %d x %d x %d\n",
-            pixGetWidth(pix_), pixGetHeight(pix_), pixGetDepth(pix_));
+    tprintf("Pix dimensions %d x %d x %d\n", pixGetWidth(pix_), pixGetHeight(pix_),
+            pixGetDepth(pix_));
   }
-  if (inverse_)
+  if (inverse_) {
     tprintf("Inverse\n");
+  }
   if (block_ && block_->re_rotation().x() != 1.0f) {
-    tprintf("Block rotation %g, %g\n",
-            block_->re_rotation().x(), block_->re_rotation().y());
+    tprintf("Block rotation %g, %g\n", block_->re_rotation().x(), block_->re_rotation().y());
   }
   tprintf("Input Origin = (%g, %g)\n", x_origin_, y_origin_);
   if (x_map_ != nullptr && y_map_ != nullptr) {
     tprintf("x map:\n");
-    for (int x = 0; x < x_map_->size(); ++x) {
-      tprintf("%g ", (*x_map_)[x]);
+    for (auto x : *x_map_) {
+      tprintf("%g ", x);
     }
     tprintf("\ny map:\n");
-    for (int y = 0; y < y_map_->size(); ++y) {
-      tprintf("%g ", (*y_map_)[y]);
+    for (auto y : *y_map_) {
+      tprintf("%g ", y);
     }
     tprintf("\n");
   } else {
     tprintf("Scale = (%g, %g)\n", x_scale_, y_scale_);
-    if (rotation_ != nullptr)
+    if (rotation_ != nullptr) {
       tprintf("Rotation = (%g, %g)\n", rotation_->x(), rotation_->y());
+    }
   }
   tprintf("Final Origin = (%g, %g)\n", final_xshift_, final_xshift_);
   if (predecessor_ != nullptr) {
@@ -535,7 +542,6 @@ void DENORM::Print() const {
     predecessor_->Print();
   }
 }
-
 
 // ============== Private Code ======================
 
@@ -565,3 +571,5 @@ void DENORM::Init() {
   final_xshift_ = 0.0f;
   final_yshift_ = static_cast<float>(kBlnBaselineOffset);
 }
+
+} // namespace tesseract

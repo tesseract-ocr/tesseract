@@ -15,18 +15,22 @@
  *
  **********************************************************************/
 
-#include "polyblk.h"
-#include "elst.h"
-#include <cctype>
-#include <cinttypes>  // PRId32
-#include <cmath>
-#include <cstdio>
-#include <memory>     // std::unique_ptr
-
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#  include "config_auto.h"
 #endif
+
+#include "polyblk.h"
+
+#include "elst.h"
+
+#include <cctype>
+#include <cinttypes> // PRId32
+#include <cmath>
+#include <cstdio>
+#include <memory> // std::unique_ptr
+
+namespace tesseract {
 
 #define INTERSECTING INT16_MAX
 
@@ -43,7 +47,7 @@ POLY_BLOCK::POLY_BLOCK(ICOORDELT_LIST *points, PolyBlockType t) {
 }
 
 // Initialize from box coordinates.
-POLY_BLOCK::POLY_BLOCK(const TBOX& tbox, PolyBlockType t) {
+POLY_BLOCK::POLY_BLOCK(const TBOX &tbox, PolyBlockType t) {
   vertices.clear();
   ICOORDELT_IT v = &vertices;
   v.move_to_first();
@@ -61,34 +65,36 @@ POLY_BLOCK::POLY_BLOCK(const TBOX& tbox, PolyBlockType t) {
  * Compute the bounding box from the outline points.
  */
 
-void POLY_BLOCK::compute_bb() {  //constructor
-  ICOORD ibl, itr;               //integer bb
-  ICOORD botleft;                //bounding box
+void POLY_BLOCK::compute_bb() { // constructor
+  ICOORD ibl, itr;              // integer bb
+  ICOORD botleft;               // bounding box
   ICOORD topright;
-  ICOORD pos;                    //current pos;
-  ICOORDELT_IT pts = &vertices;  //iterator
+  ICOORD pos;                   // current pos;
+  ICOORDELT_IT pts = &vertices; // iterator
 
-  botleft = *pts.data ();
+  botleft = *pts.data();
   topright = botleft;
   do {
-    pos = *pts.data ();
-    if (pos.x () < botleft.x ())
-                                 //get bounding box
-      botleft = ICOORD (pos.x (), botleft.y ());
-    if (pos.y () < botleft.y ())
-      botleft = ICOORD (botleft.x (), pos.y ());
-    if (pos.x () > topright.x ())
-      topright = ICOORD (pos.x (), topright.y ());
-    if (pos.y () > topright.y ())
-      topright = ICOORD (topright.x (), pos.y ());
-    pts.forward ();
-  }
-  while (!pts.at_first ());
-  ibl = ICOORD (botleft.x (), botleft.y ());
-  itr = ICOORD (topright.x (), topright.y ());
-  box = TBOX (ibl, itr);
+    pos = *pts.data();
+    if (pos.x() < botleft.x()) {
+      // get bounding box
+      botleft = ICOORD(pos.x(), botleft.y());
+    }
+    if (pos.y() < botleft.y()) {
+      botleft = ICOORD(botleft.x(), pos.y());
+    }
+    if (pos.x() > topright.x()) {
+      topright = ICOORD(pos.x(), topright.y());
+    }
+    if (pos.y() > topright.y()) {
+      topright = ICOORD(topright.x(), pos.y());
+    }
+    pts.forward();
+  } while (!pts.at_first());
+  ibl = ICOORD(botleft.x(), botleft.y());
+  itr = ICOORD(topright.x(), topright.y());
+  box = TBOX(ibl, itr);
 }
-
 
 /**
  * @name POLY_BLOCK::winding_number
@@ -98,81 +104,82 @@ void POLY_BLOCK::compute_bb() {  //constructor
  */
 
 int16_t POLY_BLOCK::winding_number(const ICOORD &point) {
-  int16_t count;                   //winding count
-  ICOORD pt;                     //current point
-  ICOORD vec;                    //point to current point
-  ICOORD vvec;                   //current point to next point
-  int32_t cross;                   //cross product
-  ICOORDELT_IT it = &vertices;   //iterator
+  int16_t count;               // winding count
+  ICOORD pt;                   // current point
+  ICOORD vec;                  // point to current point
+  ICOORD vvec;                 // current point to next point
+  int32_t cross;               // cross product
+  ICOORDELT_IT it = &vertices; // iterator
 
   count = 0;
   do {
-    pt = *it.data ();
+    pt = *it.data();
     vec = pt - point;
-    vvec = *it.data_relative (1) - pt;
-                                 //crossing the line
-    if (vec.y () <= 0 && vec.y () + vvec.y () > 0) {
-      cross = vec * vvec;        //cross product
-      if (cross > 0)
-        count++;                 //crossing right half
-      else if (cross == 0)
-        return INTERSECTING;     //going through point
-    }
-    else if (vec.y () > 0 && vec.y () + vvec.y () <= 0) {
+    vvec = *it.data_relative(1) - pt;
+    // crossing the line
+    if (vec.y() <= 0 && vec.y() + vvec.y() > 0) {
+      cross = vec * vvec; // cross product
+      if (cross > 0) {
+        count++; // crossing right half
+      } else if (cross == 0) {
+        return INTERSECTING; // going through point
+      }
+    } else if (vec.y() > 0 && vec.y() + vvec.y() <= 0) {
       cross = vec * vvec;
-      if (cross < 0)
-        count--;                 //crossing back
-      else if (cross == 0)
-        return INTERSECTING;     //illegal
-    }
-    else if (vec.y () == 0 && vec.x () == 0)
+      if (cross < 0) {
+        count--; // crossing back
+      } else if (cross == 0) {
+        return INTERSECTING; // illegal
+      }
+    } else if (vec.y() == 0 && vec.x() == 0) {
       return INTERSECTING;
-    it.forward ();
-  }
-  while (!it.at_first ());
-  return count;                  //winding number
+    }
+    it.forward();
+  } while (!it.at_first());
+  return count; // winding number
 }
-
 
 /// @return true if other is inside this.
 bool POLY_BLOCK::contains(POLY_BLOCK *other) {
-  int16_t count;                   // winding count
-  ICOORDELT_IT it = &vertices;   // iterator
+  int16_t count;               // winding count
+  ICOORDELT_IT it = &vertices; // iterator
   ICOORD vertex;
 
-  if (!box.overlap (*(other->bounding_box ())))
-    return false;                // can't be contained
+  if (!box.overlap(*(other->bounding_box()))) {
+    return false; // can't be contained
+  }
 
   /* check that no vertex of this is inside other */
 
   do {
-    vertex = *it.data ();
-                                 // get winding number
-    count = other->winding_number (vertex);
-    if (count != INTERSECTING)
-      if (count != 0)
+    vertex = *it.data();
+    // get winding number
+    count = other->winding_number(vertex);
+    if (count != INTERSECTING) {
+      if (count != 0) {
         return false;
-    it.forward ();
-  }
-  while (!it.at_first ());
+      }
+    }
+    it.forward();
+  } while (!it.at_first());
 
   /* check that all vertices of other are inside this */
 
-                                 //switch lists
-  it.set_to_list (other->points ());
+  // switch lists
+  it.set_to_list(other->points());
   do {
-    vertex = *it.data ();
-                                 //try other way round
-    count = winding_number (vertex);
-    if (count != INTERSECTING)
-      if (count == 0)
+    vertex = *it.data();
+    // try other way round
+    count = winding_number(vertex);
+    if (count != INTERSECTING) {
+      if (count == 0) {
         return false;
-    it.forward ();
-  }
-  while (!it.at_first ());
+      }
+    }
+    it.forward();
+  } while (!it.at_first());
   return true;
 }
-
 
 /**
  * @name POLY_BLOCK::rotate
@@ -182,20 +189,19 @@ bool POLY_BLOCK::contains(POLY_BLOCK *other) {
  */
 
 void POLY_BLOCK::rotate(FCOORD rotation) {
-  FCOORD pos;                    //current pos;
-  ICOORDELT *pt;                 //current point
-  ICOORDELT_IT pts = &vertices;  //iterator
+  FCOORD pos;                   // current pos;
+  ICOORDELT *pt;                // current point
+  ICOORDELT_IT pts = &vertices; // iterator
 
   do {
-    pt = pts.data ();
-    pos.set_x (pt->x ());
-    pos.set_y (pt->y ());
-    pos.rotate (rotation);
+    pt = pts.data();
+    pos.set_x(pt->x());
+    pos.set_y(pt->y());
+    pos.rotate(rotation);
     pt->set_x(static_cast<int16_t>(floor(pos.x() + 0.5)));
     pt->set_y(static_cast<int16_t>(floor(pos.y() + 0.5)));
-    pts.forward ();
-  }
-  while (!pts.at_first ());
+    pts.forward();
+  } while (!pts.at_first());
   compute_bb();
 }
 
@@ -206,18 +212,16 @@ void POLY_BLOCK::rotate(FCOORD rotation) {
  */
 
 void POLY_BLOCK::reflect_in_y_axis() {
-  ICOORDELT *pt;                 // current point
-  ICOORDELT_IT pts = &vertices;  // Iterator.
+  ICOORDELT *pt;                // current point
+  ICOORDELT_IT pts = &vertices; // Iterator.
 
   do {
     pt = pts.data();
     pt->set_x(-pt->x());
     pts.forward();
-  }
-  while (!pts.at_first());
+  } while (!pts.at_first());
   compute_bb();
 }
-
 
 /**
  * POLY_BLOCK::move
@@ -227,68 +231,63 @@ void POLY_BLOCK::reflect_in_y_axis() {
  */
 
 void POLY_BLOCK::move(ICOORD shift) {
-  ICOORDELT *pt;                 //current point
-  ICOORDELT_IT pts = &vertices;  //iterator
+  ICOORDELT *pt;                // current point
+  ICOORDELT_IT pts = &vertices; // iterator
 
   do {
-    pt = pts.data ();
+    pt = pts.data();
     *pt += shift;
-    pts.forward ();
-  }
-  while (!pts.at_first ());
+    pts.forward();
+  } while (!pts.at_first());
   compute_bb();
 }
 
-
 #ifndef GRAPHICS_DISABLED
-void POLY_BLOCK::plot(ScrollView* window, int32_t num) {
+void POLY_BLOCK::plot(ScrollView *window, int32_t num) {
   ICOORDELT_IT v = &vertices;
 
   window->Pen(ColorForPolyBlockType(type));
 
-  v.move_to_first ();
+  v.move_to_first();
 
   if (num > 0) {
     window->TextAttributes("Times", 80, false, false, false);
     char temp_buff[34];
-#if !defined(_WIN32) || defined(__MINGW32__)
+#  if !defined(_WIN32) || defined(__MINGW32__)
     snprintf(temp_buff, sizeof(temp_buff), "%" PRId32, num);
-#else
+#  else
     _ltoa(num, temp_buff, 10);
-#endif
-    window->Text(v.data ()->x (), v.data ()->y (), temp_buff);
+#  endif
+    window->Text(v.data()->x(), v.data()->y(), temp_buff);
   }
 
-  window->SetCursor(v.data ()->x (), v.data ()->y ());
-  for (v.mark_cycle_pt (); !v.cycled_list (); v.forward ()) {
-    window->DrawTo(v.data ()->x (), v.data ()->y ());
-   }
-  v.move_to_first ();
-   window->DrawTo(v.data ()->x (), v.data ()->y ());
+  window->SetCursor(v.data()->x(), v.data()->y());
+  for (v.mark_cycle_pt(); !v.cycled_list(); v.forward()) {
+    window->DrawTo(v.data()->x(), v.data()->y());
+  }
+  v.move_to_first();
+  window->DrawTo(v.data()->x(), v.data()->y());
 }
 
-
-void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
+void POLY_BLOCK::fill(ScrollView *window, ScrollView::Color colour) {
   int16_t y;
   int16_t width;
   PB_LINE_IT *lines;
   ICOORDELT_IT s_it;
 
-  lines = new PB_LINE_IT (this);
+  lines = new PB_LINE_IT(this);
   window->Pen(colour);
 
-  for (y = this->bounding_box ()->bottom ();
-  y <= this->bounding_box ()->top (); y++) {
-    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(
-        lines->get_line(y));
-    if (!segments->empty ()) {
+  for (y = this->bounding_box()->bottom(); y <= this->bounding_box()->top(); y++) {
+    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(lines->get_line(y));
+    if (!segments->empty()) {
       s_it.set_to_list(segments.get());
-      for (s_it.mark_cycle_pt (); !s_it.cycled_list (); s_it.forward ()) {
+      for (s_it.mark_cycle_pt(); !s_it.cycled_list(); s_it.forward()) {
         // Note different use of ICOORDELT, x coord is x coord of pixel
         // at the start of line segment, y coord is length of line segment
         // Last pixel is start pixel + length.
-        width = s_it.data ()->y ();
-        window->SetCursor(s_it.data ()->x (), y);
+        width = s_it.data()->y();
+        window->SetCursor(s_it.data()->x(), y);
         window->DrawTo(s_it.data()->x() + static_cast<float>(width), y);
       }
     }
@@ -298,94 +297,96 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
 }
 #endif
 
-
 /// @return true if the polygons of other and this overlap.
 bool POLY_BLOCK::overlap(POLY_BLOCK *other) {
-  int16_t count;                   // winding count
-  ICOORDELT_IT it = &vertices;   // iterator
+  int16_t count;               // winding count
+  ICOORDELT_IT it = &vertices; // iterator
   ICOORD vertex;
 
-  if (!box.overlap(*(other->bounding_box())))
-    return false;                // can't be any overlap.
+  if (!box.overlap(*(other->bounding_box()))) {
+    return false; // can't be any overlap.
+  }
 
   /* see if a vertex of this is inside other */
 
   do {
-    vertex = *it.data ();
-                                 // get winding number
-    count = other->winding_number (vertex);
-    if (count != INTERSECTING)
-      if (count != 0)
+    vertex = *it.data();
+    // get winding number
+    count = other->winding_number(vertex);
+    if (count != INTERSECTING) {
+      if (count != 0) {
         return true;
-    it.forward ();
-  }
-  while (!it.at_first ());
+      }
+    }
+    it.forward();
+  } while (!it.at_first());
 
   /* see if a vertex of other is inside this */
 
-                                 // switch lists
-  it.set_to_list (other->points ());
+  // switch lists
+  it.set_to_list(other->points());
   do {
     vertex = *it.data();
-                                 // try other way round
-    count = winding_number (vertex);
-    if (count != INTERSECTING)
-      if (count != 0)
+    // try other way round
+    count = winding_number(vertex);
+    if (count != INTERSECTING) {
+      if (count != 0) {
         return true;
-    it.forward ();
-  }
-  while (!it.at_first ());
+      }
+    }
+    it.forward();
+  } while (!it.at_first());
   return false;
 }
-
 
 ICOORDELT_LIST *PB_LINE_IT::get_line(int16_t y) {
   ICOORDELT_IT v, r;
   ICOORDELT_LIST *result;
   ICOORDELT *x, *current, *previous;
   float fy = y + 0.5f;
-  result = new ICOORDELT_LIST ();
-  r.set_to_list (result);
-  v.set_to_list (block->points ());
+  result = new ICOORDELT_LIST();
+  r.set_to_list(result);
+  v.set_to_list(block->points());
 
-  for (v.mark_cycle_pt (); !v.cycled_list (); v.forward ()) {
-    if (((v.data_relative (-1)->y () > y) && (v.data ()->y () <= y))
-    || ((v.data_relative (-1)->y () <= y) && (v.data ()->y () > y))) {
-      previous = v.data_relative (-1);
-      current = v.data ();
-      float fx = 0.5f + previous->x() +
-        (current->x() - previous->x()) * (fy - previous->y()) /
-        (current->y() - previous->y());
+  for (v.mark_cycle_pt(); !v.cycled_list(); v.forward()) {
+    if (((v.data_relative(-1)->y() > y) && (v.data()->y() <= y)) ||
+        ((v.data_relative(-1)->y() <= y) && (v.data()->y() > y))) {
+      previous = v.data_relative(-1);
+      current = v.data();
+      float fx =
+          0.5f + previous->x() +
+          (current->x() - previous->x()) * (fy - previous->y()) / (current->y() - previous->y());
       x = new ICOORDELT(static_cast<int16_t>(fx), 0);
-      r.add_to_end (x);
+      r.add_to_end(x);
     }
   }
 
-  if (!r.empty ()) {
-    r.sort (lessthan);
-    for (r.mark_cycle_pt (); !r.cycled_list (); r.forward ())
-      x = r.data ();
-    for (r.mark_cycle_pt (); !r.cycled_list (); r.forward ()) {
-      r.data ()->set_y (r.data_relative (1)->x () - r.data ()->x ());
-      r.forward ();
-      delete (r.extract ());
+  if (!r.empty()) {
+    r.sort(lessthan);
+    for (r.mark_cycle_pt(); !r.cycled_list(); r.forward()) {
+      x = r.data();
+    }
+    for (r.mark_cycle_pt(); !r.cycled_list(); r.forward()) {
+      r.data()->set_y(r.data_relative(1)->x() - r.data()->x());
+      r.forward();
+      delete (r.extract());
     }
   }
 
   return result;
 }
 
-
 int lessthan(const void *first, const void *second) {
-  const ICOORDELT *p1 = *reinterpret_cast<const ICOORDELT* const*>(first);
-  const ICOORDELT *p2 = *reinterpret_cast<const ICOORDELT* const*>(second);
+  const ICOORDELT *p1 = *reinterpret_cast<const ICOORDELT *const *>(first);
+  const ICOORDELT *p2 = *reinterpret_cast<const ICOORDELT *const *>(second);
 
-  if (p1->x () < p2->x ())
+  if (p1->x() < p2->x()) {
     return (-1);
-  else if (p1->x () > p2->x ())
+  } else if (p1->x() > p2->x()) {
     return (1);
-  else
+  } else {
     return (0);
+  }
 }
 
 #ifndef GRAPHICS_DISABLED
@@ -393,25 +394,29 @@ int lessthan(const void *first, const void *second) {
 ScrollView::Color POLY_BLOCK::ColorForPolyBlockType(PolyBlockType type) {
   // Keep kPBColors in sync with PolyBlockType.
   const ScrollView::Color kPBColors[PT_COUNT] = {
-    ScrollView::WHITE,        // Type is not yet known. Keep as the 1st element.
-    ScrollView::BLUE,         // Text that lives inside a column.
-    ScrollView::CYAN,         // Text that spans more than one column.
-    ScrollView::MEDIUM_BLUE,  // Text that is in a cross-column pull-out region.
-    ScrollView::AQUAMARINE,   // Partition belonging to an equation region.
-    ScrollView::SKY_BLUE,   // Partition belonging to an inline equation region.
-    ScrollView::MAGENTA,      // Partition belonging to a table region.
-    ScrollView::GREEN,        // Text-line runs vertically.
-    ScrollView::LIGHT_BLUE,   // Text that belongs to an image.
-    ScrollView::RED,          // Image that lives inside a column.
-    ScrollView::YELLOW,       // Image that spans more than one column.
-    ScrollView::ORANGE,       // Image in a cross-column pull-out region.
-    ScrollView::BROWN,        // Horizontal Line.
-    ScrollView::DARK_GREEN,   // Vertical Line.
-    ScrollView::GREY          // Lies outside of any column.
+      ScrollView::WHITE,       // Type is not yet known. Keep as the 1st element.
+      ScrollView::BLUE,        // Text that lives inside a column.
+      ScrollView::CYAN,        // Text that spans more than one column.
+      ScrollView::MEDIUM_BLUE, // Text that is in a cross-column pull-out
+                               // region.
+      ScrollView::AQUAMARINE,  // Partition belonging to an equation region.
+      ScrollView::SKY_BLUE,    // Partition belonging to an inline equation
+                               // region.
+      ScrollView::MAGENTA,     // Partition belonging to a table region.
+      ScrollView::GREEN,       // Text-line runs vertically.
+      ScrollView::LIGHT_BLUE,  // Text that belongs to an image.
+      ScrollView::RED,         // Image that lives inside a column.
+      ScrollView::YELLOW,      // Image that spans more than one column.
+      ScrollView::ORANGE,      // Image in a cross-column pull-out region.
+      ScrollView::BROWN,       // Horizontal Line.
+      ScrollView::DARK_GREEN,  // Vertical Line.
+      ScrollView::GREY         // Lies outside of any column.
   };
   if (type < PT_COUNT) {
     return kPBColors[type];
   }
   return ScrollView::WHITE;
 }
-#endif  // GRAPHICS_DISABLED
+#endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract

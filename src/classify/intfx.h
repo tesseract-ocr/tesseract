@@ -15,31 +15,29 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   INTFX_H
-#define   INTFX_H
+#ifndef INTFX_H
+#define INTFX_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "blobs.h"
 #include "intproto.h"
 #include "normalis.h"
+
 #include <cmath>
+
+namespace tesseract {
 
 class DENORM;
 
-namespace tesseract {
 class TrainingSample;
-}
 
 struct INT_FX_RESULT_STRUCT {
-  int32_t Length;                  // total length of all outlines
-  int16_t Xmean, Ymean;            // center of mass of all outlines
-  int16_t Rx, Ry;                  // radius of gyration
-  int16_t NumBL, NumCN;            // number of features extracted
-  int16_t Width;                   // Width of blob in BLN coords.
-  uint8_t YBottom;                 // Bottom of blob in BLN coords.
-  uint8_t YTop;                    // Top of blob in BLN coords.
+  int32_t Length;       // total length of all outlines
+  int16_t Xmean, Ymean; // center of mass of all outlines
+  int16_t Rx, Ry;       // radius of gyration
+  int16_t NumBL, NumCN; // number of features extracted
+  int16_t Width;        // Width of blob in BLN coords.
+  uint8_t YBottom;      // Bottom of blob in BLN coords.
+  uint8_t YTop;         // Top of blob in BLN coords.
 };
 
 // The standard feature length
@@ -48,21 +46,23 @@ const double kStandardFeatureLength = 64.0 / 5;
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
+TESS_API
 void InitIntegerFX();
 
 // Returns a vector representing the direction of a feature with the given
 // theta direction in an INT_FEATURE_STRUCT.
+TESS_API
 FCOORD FeatureDirection(uint8_t theta);
 
-namespace tesseract {
-  // Generates a TrainingSample from a TBLOB. Extracts features and sets
-  // the bounding box, so classifiers that operate on the image can work.
-  // TODO(rays) BlobToTrainingSample must remain a global function until
-  // the FlexFx and FeatureDescription code can be removed and LearnBlob
-  // made a member of Classify.
-  TrainingSample* BlobToTrainingSample(
-      const TBLOB& blob, bool nonlinear_norm, INT_FX_RESULT_STRUCT* fx_info,
-      GenericVector<INT_FEATURE_STRUCT>* bl_features);
-}
+// Generates a TrainingSample from a TBLOB. Extracts features and sets
+// the bounding box, so classifiers that operate on the image can work.
+// TODO(rays) BlobToTrainingSample must remain a global function until
+// the FlexFx and FeatureDescription code can be removed and LearnBlob
+// made a member of Classify.
+TrainingSample *BlobToTrainingSample(const TBLOB &blob, bool nonlinear_norm,
+                                     INT_FX_RESULT_STRUCT *fx_info,
+                                     std::vector<INT_FEATURE_STRUCT> *bl_features);
+
+} // namespace tesseract
 
 #endif

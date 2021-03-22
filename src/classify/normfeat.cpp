@@ -15,18 +15,14 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
+
 #include "normfeat.h"
 
-#include "intfx.h"
 #include "featdefs.h"
+#include "intfx.h"
 #include "mfoutline.h"
 
-/*----------------------------------------------------------------------------
-              Public Code
-----------------------------------------------------------------------------*/
+namespace tesseract {
 
 /** Return the length of the outline in baseline normalized form. */
 float ActualOutlineLength(FEATURE Feature) {
@@ -58,18 +54,18 @@ float ActualOutlineLength(FEATURE Feature) {
  *     the x center of the grapheme's bounding box.
  *     - English: [0.011, 0.31]
  */
-FEATURE_SET ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT& fx_info) {
+FEATURE_SET ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT &fx_info) {
   FEATURE_SET feature_set = NewFeatureSet(1);
   FEATURE feature = NewFeature(&CharNormDesc);
 
-  feature->Params[CharNormY] =
-      MF_SCALE_FACTOR * (fx_info.Ymean - kBlnBaselineOffset);
-  feature->Params[CharNormLength] =
-      MF_SCALE_FACTOR * fx_info.Length / LENGTH_COMPRESSION;
+  feature->Params[CharNormY] = MF_SCALE_FACTOR * (fx_info.Ymean - kBlnBaselineOffset);
+  feature->Params[CharNormLength] = MF_SCALE_FACTOR * fx_info.Length / LENGTH_COMPRESSION;
   feature->Params[CharNormRx] = MF_SCALE_FACTOR * fx_info.Rx;
   feature->Params[CharNormRy] = MF_SCALE_FACTOR * fx_info.Ry;
 
   AddFeature(feature_set, feature);
 
   return feature_set;
-}                                /* ExtractCharNormFeatures */
+} /* ExtractCharNormFeatures */
+
+} // namespace tesseract

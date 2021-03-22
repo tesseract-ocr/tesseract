@@ -18,15 +18,15 @@
 #ifndef TESSERACT_ARCH_INTSIMDMATRIX_H_
 #define TESSERACT_ARCH_INTSIMDMATRIX_H_
 
+#include <tesseract/export.h>
+
 #include <cstdint>
 #include <vector>
 
+namespace tesseract {
+
 template <class T>
 class GENERIC_2D_ARRAY;
-template <typename T>
-class GenericVector;
-
-namespace tesseract {
 
 // Base class for a SIMD function to multiply a matrix by a vector, with sources
 // of 8-bit signed integer, and result in a double, after appropriate scaling.
@@ -59,10 +59,10 @@ namespace tesseract {
 // NOTE that, although the subclasses execute on different SIMD hardware, no
 // virtual methods are needed, as the constructor sets up everything that
 // is required to allow the base class implementation to do all the work.
-struct IntSimdMatrix {
+struct TESS_API IntSimdMatrix {
   // Computes a reshaped copy of the weight matrix w.
-  void Init(const GENERIC_2D_ARRAY<int8_t>& w,
-            std::vector<int8_t>& shaped_w) const;
+  void Init(const GENERIC_2D_ARRAY<int8_t> &w, std::vector<int8_t> &shaped_w,
+            int32_t &rounded_num_out) const;
 
   // Rounds the size up to a multiple of the input register size (in int8_t).
   int RoundInputs(int size) const {
@@ -78,9 +78,8 @@ struct IntSimdMatrix {
   // u is imagined to have an extra element at the end with value 1, to
   // implement the bias, but it doesn't actually have it.
   // Computes the base C++ implementation.
-  static void MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
-                              const GenericVector<double>& scales,
-                              const int8_t* u, double* v);
+  static void MatrixDotVector(const GENERIC_2D_ARRAY<int8_t> &w, const std::vector<double> &scales,
+                              const int8_t *u, double *v);
 
   // Rounds the input up to a multiple of the given factor.
   static int Roundup(int input, int factor) {
@@ -96,9 +95,8 @@ struct IntSimdMatrix {
   // RoundInputs above.
   // The input will be over-read to the extent of the padding. There are no
   // alignment requirements.
-  using MatrixDotVectorFunction = void (*)(int, int, const int8_t*,
-                                           const double*, const int8_t*,
-                                           double*);
+  using MatrixDotVectorFunction = void (*)(int, int, const int8_t *, const double *, const int8_t *,
+                                           double *);
   MatrixDotVectorFunction matrixDotVectorFunction;
 
   // Number of 32 bit outputs held in each register.
@@ -112,7 +110,7 @@ struct IntSimdMatrix {
   // Number of groups of inputs to be broadcast.
   // num_input_groups_ = num_inputs_per_register_ / num_inputs_per_group_
 
-  static const IntSimdMatrix* intSimdMatrix;
+  static const IntSimdMatrix *intSimdMatrix;
   // Only available with NEON.
   static const IntSimdMatrix intSimdMatrixNEON;
   // Only available with AVX2 / SSE.
@@ -120,6 +118,6 @@ struct IntSimdMatrix {
   static const IntSimdMatrix intSimdMatrixSSE;
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_ARCH_INTSIMDMATRIX_H_
+#endif // TESSERACT_ARCH_INTSIMDMATRIX_H_

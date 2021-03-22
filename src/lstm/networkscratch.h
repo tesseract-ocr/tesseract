@@ -20,19 +20,18 @@
 #define TESSERACT_LSTM_NETWORKSCRATCH_H_
 
 #include <mutex>
-#include <tesseract/genericvector.h>
 #include "matrix.h"
 #include "networkio.h"
 
 namespace tesseract {
 
 // Generic scratch space for network layers. Provides NetworkIO that can store
-// a complete set (over time) of intermediates, and GenericVector<float>
+// a complete set (over time) of intermediates, and vector<float>
 // scratch space that auto-frees after use. The aim here is to provide a set
 // of temporary buffers to network layers that can be reused between layers
 // and don't have to be reallocated on each call.
 class NetworkScratch {
- public:
+public:
   NetworkScratch() : int_mode_(false) {}
   ~NetworkScratch() = default;
 
@@ -49,13 +48,12 @@ class NetworkScratch {
   // yet actually holds a pointer to NetworkIOs in the source NetworkScratch,
   // and knows how to unstack the borrowed pointers on destruction.
   class IO {
-   public:
+  public:
     // The NetworkIO should be sized after construction.
-    IO(const NetworkIO& src, NetworkScratch* scratch)
-      : int_mode_(scratch->int_mode_ && src.int_mode()),
-        scratch_space_(scratch) {
-      network_io_ = int_mode_ ? scratch_space_->int_stack_.Borrow()
-                              : scratch_space_->float_stack_.Borrow();
+    IO(const NetworkIO &src, NetworkScratch *scratch)
+        : int_mode_(scratch->int_mode_ && src.int_mode()), scratch_space_(scratch) {
+      network_io_ =
+          int_mode_ ? scratch_space_->int_stack_.Borrow() : scratch_space_->float_stack_.Borrow();
     }
     // Default constructor for arrays. Use one of the Resize functions
     // below to initialize and size.
@@ -73,31 +71,28 @@ class NetworkScratch {
     // Resizes the array (and stride), avoiding realloc if possible, to the
     // size from various size specs:
     // Same time size, given number of features.
-    void Resize(const NetworkIO& src, int num_features,
-                NetworkScratch* scratch) {
+    void Resize(const NetworkIO &src, int num_features, NetworkScratch *scratch) {
       if (scratch_space_ == nullptr) {
         int_mode_ = scratch->int_mode_ && src.int_mode();
         scratch_space_ = scratch;
-        network_io_ = int_mode_ ? scratch_space_->int_stack_.Borrow()
-                                : scratch_space_->float_stack_.Borrow();
+        network_io_ =
+            int_mode_ ? scratch_space_->int_stack_.Borrow() : scratch_space_->float_stack_.Borrow();
       }
       network_io_->Resize(src, num_features);
     }
     // Resizes to a specific size as a temp buffer. No batches, no y-dim.
-    void Resize2d(bool int_mode, int width, int num_features,
-                  NetworkScratch* scratch) {
+    void Resize2d(bool int_mode, int width, int num_features, NetworkScratch *scratch) {
       if (scratch_space_ == nullptr) {
         int_mode_ = scratch->int_mode_ && int_mode;
         scratch_space_ = scratch;
-        network_io_ = int_mode_ ? scratch_space_->int_stack_.Borrow()
-                                : scratch_space_->float_stack_.Borrow();
+        network_io_ =
+            int_mode_ ? scratch_space_->int_stack_.Borrow() : scratch_space_->float_stack_.Borrow();
       }
       network_io_->Resize2d(int_mode, width, num_features);
     }
     // Resize forcing a float representation with the width of src and the given
     // number of features.
-    void ResizeFloat(const NetworkIO& src, int num_features,
-                     NetworkScratch* scratch) {
+    void ResizeFloat(const NetworkIO &src, int num_features, NetworkScratch *scratch) {
       if (scratch_space_ == nullptr) {
         int_mode_ = false;
         scratch_space_ = scratch;
@@ -108,108 +103,132 @@ class NetworkScratch {
 
     // Returns a ref to a NetworkIO that enables *this to be treated as if
     // it were just a NetworkIO*.
-    NetworkIO& operator*() {
+    NetworkIO &operator*() {
       return *network_io_;
     }
-    NetworkIO* operator->() {
+    NetworkIO *operator->() {
       return network_io_;
     }
-    operator NetworkIO*() {
+    operator NetworkIO *() {
       return network_io_;
     }
 
-   private:
+  private:
     // True if this is from the always-float stack, otherwise the default stack.
     bool int_mode_;
     // The NetworkIO that we have borrowed from the scratch_space_.
-    NetworkIO* network_io_;
+    NetworkIO *network_io_;
     // The source scratch_space_. Borrowed pointer, used to free the
     // NetworkIO. Don't delete!
-    NetworkScratch* scratch_space_;
-  };  // class IO.
+    NetworkScratch *scratch_space_;
+  }; // class IO.
 
   // Class that acts like a fixed array of float, yet actually uses space
-  // from a GenericVector<float> in the source NetworkScratch, and knows how
+  // from a vector<float> in the source NetworkScratch, and knows how
   // to unstack the borrowed vector on destruction.
   class FloatVec {
-   public:
+  public:
     // The array will have size elements in it, uninitialized.
-    FloatVec(int size, NetworkScratch* scratch)
-      : vec_(nullptr), scratch_space_(scratch) {
+    FloatVec(int size, NetworkScratch *scratch) : vec_(nullptr), scratch_space_(scratch) {
       Init(size, scratch);
     }
     // Default constructor is for arrays. Use Init to setup.
     FloatVec() : vec_(nullptr), data_(nullptr), scratch_space_(nullptr) {}
     ~FloatVec() {
-      if (scratch_space_ != nullptr) scratch_space_->vec_stack_.Return(vec_);
+      if (scratch_space_ != nullptr) {
+        scratch_space_->vec_stack_.Return(vec_);
+      }
     }
 
-    void Init(int size, NetworkScratch* scratch) {
-      if (scratch_space_ != nullptr && vec_ != nullptr)
+    void Init(int size, int reserve, NetworkScratch *scratch) {
+      if (scratch_space_ != nullptr && vec_ != nullptr) {
         scratch_space_->vec_stack_.Return(vec_);
+      }
       scratch_space_ = scratch;
       vec_ = scratch_space_->vec_stack_.Borrow();
-      vec_->resize_no_init(size);
+      vec_->reserve(reserve);
+      vec_->resize(size);
       data_ = &(*vec_)[0];
+    }
+
+    void Init(int size, NetworkScratch *scratch) {
+      Init(size, size, scratch);
     }
 
     // Use the cast operator instead of operator[] so the FloatVec can be used
     // as a double* argument to a function call.
-    operator double*() const { return data_; }
-    double* get() { return data_; }
+    operator double *() const {
+      return data_;
+    }
+    double *get() {
+      return data_;
+    }
 
-   private:
+  private:
     // Vector borrowed from the scratch space. Use Return to free it.
-    GenericVector<double>* vec_;
+    std::vector<double> *vec_;
     // Short-cut pointer to the underlying array.
-    double* data_;
+    double *data_;
     // The source scratch_space_. Borrowed pointer, used to free the
     // vector. Don't delete!
-    NetworkScratch* scratch_space_;
-  };  // class FloatVec
+    NetworkScratch *scratch_space_;
+  }; // class FloatVec
 
   // Class that acts like a 2-D array of double, yet actually uses space
   // from the source NetworkScratch, and knows how to unstack the borrowed
   // array on destruction.
   class GradientStore {
-   public:
+  public:
     // Default constructor is for arrays. Use Init to setup.
     GradientStore() : array_(nullptr), scratch_space_(nullptr) {}
     ~GradientStore() {
-      if (scratch_space_ != nullptr) scratch_space_->array_stack_.Return(array_);
+      if (scratch_space_ != nullptr) {
+        scratch_space_->array_stack_.Return(array_);
+      }
     }
 
-    void Init(int size1, int size2, NetworkScratch* scratch) {
-      if (scratch_space_ != nullptr && array_ != nullptr)
+    void Init(int size1, int size2, NetworkScratch *scratch) {
+      if (scratch_space_ != nullptr && array_ != nullptr) {
         scratch_space_->array_stack_.Return(array_);
+      }
       scratch_space_ = scratch;
       array_ = scratch_space_->array_stack_.Borrow();
       array_->Resize(size1, size2, 0.0);
     }
 
     // Accessors to get to the underlying TransposedArray.
-    TransposedArray* get() const { return array_; }
-    const TransposedArray& operator*() const { return *array_; }
+    TransposedArray *get() const {
+      return array_;
+    }
+    const TransposedArray &operator*() const {
+      return *array_;
+    }
 
-   private:
+  private:
     // Array borrowed from the scratch space. Use Return to free it.
-    TransposedArray* array_;
+    TransposedArray *array_;
     // The source scratch_space_. Borrowed pointer, used to free the
     // vector. Don't delete!
-    NetworkScratch* scratch_space_;
-  };  // class GradientStore
+    NetworkScratch *scratch_space_;
+  }; // class GradientStore
 
   // Class that does the work of holding a stack of objects, a stack pointer
   // and a vector of in-use flags, so objects can be returned out of order.
   // It is safe to attempt to Borrow/Return in multiple threads.
-  template<typename T> class Stack {
-   public:
-    Stack() : stack_top_(0) {
+  template <typename T>
+  class Stack {
+  public:
+    Stack() = default;
+
+    ~Stack() {
+      for (auto data : stack_) {
+        delete data;
+      }
     }
 
     // Lends out the next free item, creating one if none available, sets
     // the used flags and increments the stack top.
-    T* Borrow() {
+    T *Borrow() {
       std::lock_guard<std::mutex> lock(mutex_);
       if (stack_top_ == stack_.size()) {
         stack_.push_back(new T);
@@ -223,33 +242,38 @@ class NetworkScratch {
     // blocking item is returned. The assumption is that there will only be
     // small, temporary variations from true stack use. (Determined by the order
     // of destructors within a local scope.)
-    void Return(T* item) {
+    void Return(T *item) {
       std::lock_guard<std::mutex> lock(mutex_);
       // Linear search will do.
-      int index = stack_top_ - 1;
-      while (index >= 0 && stack_[index] != item) --index;
-      if (index >= 0) flags_[index] = false;
-      while (stack_top_ > 0 && !flags_[stack_top_ - 1]) --stack_top_;
+      int index = stack_top_;
+      while (--index >= 0 && stack_[index] != item) {
+      }
+      if (index >= 0) {
+        flags_[index] = false;
+      }
+      while (stack_top_ > 0 && !flags_[stack_top_ - 1]) {
+        --stack_top_;
+      }
     }
 
-   private:
-    PointerVector<T> stack_;
-    GenericVector<bool> flags_;
-    int stack_top_;
+  private:
+    std::vector<T *> stack_;
+    std::vector<bool> flags_;
+    unsigned stack_top_ = 0;
     std::mutex mutex_;
-  };  // class Stack.
+  }; // class Stack.
 
- private:
+private:
   // If true, the network weights are int8_t, if false, float.
   bool int_mode_;
-  // Stacks of NetworkIO and GenericVector<float>. Once allocated, they are not
+  // Stacks of NetworkIO and vector<float>. Once allocated, they are not
   // deleted until the NetworkScratch is deleted.
   Stack<NetworkIO> int_stack_;
   Stack<NetworkIO> float_stack_;
-  Stack<GenericVector<double> > vec_stack_;
+  Stack<std::vector<double>> vec_stack_;
   Stack<TransposedArray> array_stack_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_LSTM_NETWORKSCRATCH_H_
+#endif // TESSERACT_LSTM_NETWORKSCRATCH_H_

@@ -21,9 +21,8 @@
 
 namespace tesseract {
 
-BlobGrid::BlobGrid(int gridsize, const ICOORD& bleft, const ICOORD& tright)
-  : BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>(gridsize, bleft, tright) {
-}
+BlobGrid::BlobGrid(int gridsize, const ICOORD &bleft, const ICOORD &tright)
+    : BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>(gridsize, bleft, tright) {}
 
 // Destructor.
 // It is defined here, so the compiler can create a single vtable
@@ -33,13 +32,14 @@ BlobGrid::~BlobGrid() = default;
 // Inserts all the blobs from the given list, with x and y spreading,
 // without removing from the source list, so ownership remains with the
 // source list.
-void BlobGrid::InsertBlobList(BLOBNBOX_LIST* blobs) {
+void BlobGrid::InsertBlobList(BLOBNBOX_LIST *blobs) {
   BLOBNBOX_IT blob_it(blobs);
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
-    BLOBNBOX* blob = blob_it.data();
-    if (!blob->joined_to_prev())
+    BLOBNBOX *blob = blob_it.data();
+    if (!blob->joined_to_prev()) {
       InsertBBox(true, true, blob);
+    }
   }
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

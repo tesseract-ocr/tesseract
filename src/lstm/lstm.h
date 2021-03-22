@@ -2,7 +2,6 @@
 // File:        lstm.h
 // Description: Long-term-short-term-memory Recurrent neural network.
 // Author:      Ray Smith
-// Created:     Wed May 01 17:33:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,25 +18,25 @@
 #ifndef TESSERACT_LSTM_LSTM_H_
 #define TESSERACT_LSTM_LSTM_H_
 
-#include "network.h"
 #include "fullyconnected.h"
+#include "network.h"
 
 namespace tesseract {
 
 // C++ Implementation of the LSTM class from lstm.py.
 class LSTM : public Network {
- public:
+public:
   // Enum for the different weights in LSTM, to reduce some of the I/O and
   // setup code to loops. The elements of the enum correspond to elements of an
   // array of WeightMatrix or a corresponding array of NetworkIO.
   enum WeightType {
-    CI,   // Cell Inputs.
-    GI,   // Gate at the input.
-    GF1,  // Forget gate at the memory (1-d or looking back 1 timestep).
-    GO,   // Gate at the output.
-    GFS,  // Forget gate at the memory, looking back in the other dimension.
+    CI,  // Cell Inputs.
+    GI,  // Gate at the input.
+    GF1, // Forget gate at the memory (1-d or looking back 1 timestep).
+    GO,  // Gate at the output.
+    GFS, // Forget gate at the memory, looking back in the other dimension.
 
-    WT_COUNT  // Number of WeightTypes.
+    WT_COUNT // Number of WeightTypes.
   };
 
   // Constructor for NT_LSTM (regular 1 or 2-d LSTM), NT_LSTM_SOFTMAX (LSTM with
@@ -47,25 +46,29 @@ class LSTM : public Network {
   // 2-d and bidi softmax LSTMs are not rejected, but are impossible to build
   // in the conventional way because the output feedback both forwards and
   // backwards in time does become impossible.
-  LSTM(const STRING& name, int num_inputs, int num_states, int num_outputs,
+  TESS_API
+  LSTM(const std::string &name, int num_inputs, int num_states, int num_outputs,
        bool two_dimensional, NetworkType type);
   ~LSTM() override;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  StaticShape OutputShape(const StaticShape& input_shape) const override;
+  StaticShape OutputShape(const StaticShape &input_shape) const override;
 
-  STRING spec() const override {
-    STRING spec;
-    if (type_ == NT_LSTM)
-      spec.add_str_int("Lfx", ns_);
-    else if (type_ == NT_LSTM_SUMMARY)
-      spec.add_str_int("Lfxs", ns_);
-    else if (type_ == NT_LSTM_SOFTMAX)
-      spec.add_str_int("LS", ns_);
-    else if (type_ == NT_LSTM_SOFTMAX_ENCODED)
-      spec.add_str_int("LE", ns_);
-    if (softmax_ != nullptr) spec += softmax_->spec();
+  std::string spec() const override {
+    std::string spec;
+    if (type_ == NT_LSTM) {
+      spec += "Lfx" + std::to_string(ns_);
+    } else if (type_ == NT_LSTM_SUMMARY) {
+      spec += "Lfxs" + std::to_string(ns_);
+    } else if (type_ == NT_LSTM_SOFTMAX) {
+      spec += "LS" + std::to_string(ns_);
+    } else if (type_ == NT_LSTM_SOFTMAX_ENCODED) {
+      spec += "LE" + std::to_string(ns_);
+    }
+    if (softmax_ != nullptr) {
+      spec += softmax_->spec();
+    }
     return spec;
   }
 
@@ -75,10 +78,10 @@ class LSTM : public Network {
 
   // Sets up the network for training. Initializes weights using weights of
   // scale `range` picked according to the random number generator `randomizer`.
-  int InitWeights(float range, TRand* randomizer) override;
+  int InitWeights(float range, TRand *randomizer) override;
   // Recursively searches the network for softmaxes with old_no outputs,
   // and remaps their outputs according to code_map. See network.h for details.
-  int RemapOutputs(int old_no, const std::vector<int>& code_map) override;
+  int RemapOutputs(int old_no, const std::vector<int> &code_map) override;
 
   // Converts a float network to an int network.
   void ConvertToInt() override;
@@ -87,29 +90,26 @@ class LSTM : public Network {
   void DebugWeights() override;
 
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(TFile* fp) const override;
+  bool Serialize(TFile *fp) const override;
   // Reads from the given file. Returns false in case of error.
-  bool DeSerialize(TFile* fp) override;
+  bool DeSerialize(TFile *fp) override;
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  void Forward(bool debug, const NetworkIO& input,
-               const TransposedArray* input_transpose, NetworkScratch* scratch,
-               NetworkIO* output) override;
+  void Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+               NetworkScratch *scratch, NetworkIO *output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                NetworkScratch* scratch, NetworkIO* back_deltas) override;
+  bool Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+                NetworkIO *back_deltas) override;
   // Updates the weights using the given learning rate, momentum and adam_beta.
   // num_samples is used in the adam computation iff use_adam_ is true.
-  void Update(float learning_rate, float momentum, float adam_beta,
-              int num_samples) override;
+  void Update(float learning_rate, float momentum, float adam_beta, int num_samples) override;
   // Sums the products of weight updates in *this and other, splitting into
   // positive (same direction) in *same and negative (different direction) in
   // *changed.
-  void CountAlternators(const Network& other, double* same,
-                        double* changed) const override;
+  void CountAlternators(const Network &other, double *same, double *changed) const override;
   // Prints the weights for debug purposes.
   void PrintW();
   // Prints the weight deltas for debug purposes.
@@ -120,11 +120,11 @@ class LSTM : public Network {
     return is_2d_;
   }
 
- private:
+private:
   // Resizes forward data to cope with an input image of the given width.
-  void ResizeForward(const NetworkIO& input);
+  void ResizeForward(const NetworkIO &input);
 
- private:
+private:
   // Size of padded input to weight matrices = ni_ + no_ for 1-D operation
   // and ni_ + 2 * no_ for 2-D operation. Note that there is a phantom 1 input
   // for the bias that makes the weight matrices of size [na + 1][no].
@@ -142,7 +142,7 @@ class LSTM : public Network {
   // Gate weight arrays of size [na + 1, no].
   WeightMatrix gate_weights_[WT_COUNT];
   // Used only if this is a softmax LSTM.
-  FullyConnected* softmax_;
+  FullyConnected *softmax_;
   // Input padded with previous output of size [width, na].
   NetworkIO source_;
   // Internal state used during forward operation, of size [width, ns].
@@ -156,7 +156,6 @@ class LSTM : public Network {
   int input_width_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-
-#endif  // TESSERACT_LSTM_LSTM_H_
+#endif // TESSERACT_LSTM_LSTM_H_

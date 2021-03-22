@@ -12,36 +12,31 @@
 #include <string>
 #include <utility>
 
-#include "absl/strings/str_format.h"	// for absl::StrFormat
+#include "absl/strings/str_format.h" // for absl::StrFormat
 
 #include "include_gunit.h"
 
-#include <tesseract/serialis.h>
+#include "serialis.h"
 #include "shapetable.h"
 #include "unicharset.h"
 
-namespace {
+namespace tesseract {
 
 #ifndef DISABLED_LEGACY_ENGINE
 
-  using tesseract::Shape;
-using tesseract::ShapeTable;
-using tesseract::TFile;
-using tesseract::UnicharAndFonts;
-
-static std::string TmpNameToPath(const std::string& name) {
+static std::string TmpNameToPath(const std::string &name) {
   return file::JoinPath(FLAGS_test_tmpdir, name);
 }
 
 // Sets up a simple shape with some unichars.
-static void Setup352(int font_id, Shape* shape) {
+static void Setup352(int font_id, Shape *shape) {
   shape->AddToShape(3, font_id);
   shape->AddToShape(5, font_id);
   shape->AddToShape(2, font_id);
 }
 
 // Verifies some properties of the 352 shape.
-static void Expect352(int font_id, const Shape& shape) {
+static void Expect352(int font_id, const Shape &shape) {
   EXPECT_EQ(3, shape.size());
   EXPECT_TRUE(shape.ContainsUnichar(2));
   EXPECT_TRUE(shape.ContainsUnichar(3));
@@ -58,9 +53,10 @@ static void Expect352(int font_id, const Shape& shape) {
 
 // The fixture for testing Shape.
 class ShapeTest : public testing::Test {
- protected:
-  void SetUp() {
+protected:
+  void SetUp() override {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 };
 
@@ -76,8 +72,8 @@ TEST_F(ShapeTest, BasicTest) {
   Expect352(101, shape1);
   // It should still work after file I/O.
   std::string filename = TmpNameToPath("shapefile");
-  FILE* fp = fopen(filename.c_str(), "wb");
-  EXPECT_TRUE(fp != nullptr);
+  FILE *fp = fopen(filename.c_str(), "wb");
+  ASSERT_TRUE(fp != nullptr);
   EXPECT_TRUE(shape1.Serialize(fp));
   fclose(fp);
   TFile tfp;
@@ -107,9 +103,9 @@ TEST_F(ShapeTest, AddShapeTest) {
   Expect352(101, shape1);
   // Now setup a different shape with different content.
   Shape shape2;
-  shape2.AddToShape(3, 101);  // Duplicates shape1.
-  shape2.AddToShape(5, 110);  // Different font to shape1.
-  shape2.AddToShape(7, 101);  // Different unichar to shape1.
+  shape2.AddToShape(3, 101); // Duplicates shape1.
+  shape2.AddToShape(5, 110); // Different font to shape1.
+  shape2.AddToShape(7, 101); // Different unichar to shape1.
   // They should NOT be subsets of each other.
   EXPECT_FALSE(shape1.IsSubsetOf(shape2));
   EXPECT_FALSE(shape2.IsSubsetOf(shape1));
@@ -183,4 +179,4 @@ TEST_F(ShapeTableTest, FullTest) {
 #endif
 }
 
-}  // namespace
+} // namespace tesseract

@@ -20,19 +20,20 @@
 
 namespace tesseract {
 
-Reconfig::Reconfig(const STRING& name, int ni, int x_scale, int y_scale)
-  : Network(NT_RECONFIG, name, ni, ni * x_scale * y_scale),
-    x_scale_(x_scale), y_scale_(y_scale) {
-}
+Reconfig::Reconfig(const char *name, int ni, int x_scale, int y_scale)
+    : Network(NT_RECONFIG, name, ni, ni * x_scale * y_scale)
+    , x_scale_(x_scale)
+    , y_scale_(y_scale) {}
 
 // Returns the shape output from the network given an input shape (which may
 // be partially unknown ie zero).
-StaticShape Reconfig::OutputShape(const StaticShape& input_shape) const {
+StaticShape Reconfig::OutputShape(const StaticShape &input_shape) const {
   StaticShape result = input_shape;
   result.set_height(result.height() / y_scale_);
   result.set_width(result.width() / x_scale_);
-  if (type_ != NT_MAXPOOL)
+  if (type_ != NT_MAXPOOL) {
     result.set_depth(result.depth() * y_scale_ * x_scale_);
+  }
   return result;
 }
 
@@ -47,25 +48,26 @@ int Reconfig::XScaleFactor() const {
 }
 
 // Writes to the given file. Returns false in case of error.
-bool Reconfig::Serialize(TFile* fp) const {
-  return Network::Serialize(fp) &&
-         fp->Serialize(&x_scale_) &&
-         fp->Serialize(&y_scale_);
+bool Reconfig::Serialize(TFile *fp) const {
+  return Network::Serialize(fp) && fp->Serialize(&x_scale_) && fp->Serialize(&y_scale_);
 }
 
 // Reads from the given file. Returns false in case of error.
-bool Reconfig::DeSerialize(TFile* fp) {
-  if (!fp->DeSerialize(&x_scale_)) return false;
-  if (!fp->DeSerialize(&y_scale_)) return false;
+bool Reconfig::DeSerialize(TFile *fp) {
+  if (!fp->DeSerialize(&x_scale_)) {
+    return false;
+  }
+  if (!fp->DeSerialize(&y_scale_)) {
+    return false;
+  }
   no_ = ni_ * x_scale_ * y_scale_;
   return true;
 }
 
 // Runs forward propagation of activations on the input line.
 // See NetworkCpp for a detailed discussion of the arguments.
-void Reconfig::Forward(bool debug, const NetworkIO& input,
-                       const TransposedArray* input_transpose,
-                       NetworkScratch* scratch, NetworkIO* output) {
+void Reconfig::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+                       NetworkScratch *scratch, NetworkIO *output) {
   output->ResizeScaled(input, x_scale_, y_scale_, no_);
   back_map_ = input.stride_map();
   StrideMap::Index dest_index(output->stride_map());
@@ -79,8 +81,7 @@ void Reconfig::Forward(bool debug, const NetworkIO& input,
       for (int y = 0; y < y_scale_; ++y) {
         StrideMap::Index src_xy(src_index);
         if (src_xy.AddOffset(x, FD_WIDTH) && src_xy.AddOffset(y, FD_HEIGHT)) {
-          output->CopyTimeStepGeneral(out_t, (x * y_scale_ + y) * ni_, ni_,
-                                      input, src_xy.t(), 0);
+          output->CopyTimeStepGeneral(out_t, (x * y_scale_ + y) * ni_, ni_, input, src_xy.t(), 0);
         }
       }
     }
@@ -89,15 +90,13 @@ void Reconfig::Forward(bool debug, const NetworkIO& input,
 
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
-bool Reconfig::Backward(bool debug, const NetworkIO& fwd_deltas,
-                        NetworkScratch* scratch,
-                        NetworkIO* back_deltas) {
+bool Reconfig::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+                        NetworkIO *back_deltas) {
   back_deltas->ResizeToMap(fwd_deltas.int_mode(), back_map_, ni_);
   StrideMap::Index src_index(fwd_deltas.stride_map());
   do {
     int in_t = src_index.t();
-    StrideMap::Index dest_index(back_deltas->stride_map(),
-                                src_index.index(FD_BATCH),
+    StrideMap::Index dest_index(back_deltas->stride_map(), src_index.index(FD_BATCH),
                                 src_index.index(FD_HEIGHT) * y_scale_,
                                 src_index.index(FD_WIDTH) * x_scale_);
     // Unstack x_scale_ groups of y_scale_ inputs that are together.
@@ -105,8 +104,8 @@ bool Reconfig::Backward(bool debug, const NetworkIO& fwd_deltas,
       for (int y = 0; y < y_scale_; ++y) {
         StrideMap::Index dest_xy(dest_index);
         if (dest_xy.AddOffset(x, FD_WIDTH) && dest_xy.AddOffset(y, FD_HEIGHT)) {
-          back_deltas->CopyTimeStepGeneral(dest_xy.t(), 0, ni_, fwd_deltas,
-                                           in_t, (x * y_scale_ + y) * ni_);
+          back_deltas->CopyTimeStepGeneral(dest_xy.t(), 0, ni_, fwd_deltas, in_t,
+                                           (x * y_scale_ + y) * ni_);
         }
       }
     }
@@ -114,5 +113,4 @@ bool Reconfig::Backward(bool debug, const NetworkIO& fwd_deltas,
   return needs_to_backprop_;
 }
 
-
-}  // namespace tesseract.
+} // namespace tesseract.

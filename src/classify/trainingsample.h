@@ -50,67 +50,69 @@ static const int kSampleScaleSize = 3;
 static const int kSampleRandomSize = kSampleYShiftSize * kSampleScaleSize - 2;
 // ASSERT_IS_PRIME(kSampleRandomSize) !!
 
-class TrainingSample : public ELIST_LINK {
- public:
+class TESS_API TrainingSample : public ELIST_LINK {
+public:
   TrainingSample()
-    : class_id_(INVALID_UNICHAR_ID), font_id_(0), page_num_(0),
-      num_features_(0), num_micro_features_(0), outline_length_(0),
-      features_(nullptr), micro_features_(nullptr), weight_(1.0),
-      max_dist_(0.0), sample_index_(0),
-      features_are_indexed_(false), features_are_mapped_(false),
-      is_error_(false) {
-  }
+      : class_id_(INVALID_UNICHAR_ID)
+      , font_id_(0)
+      , page_num_(0)
+      , num_features_(0)
+      , num_micro_features_(0)
+      , outline_length_(0)
+      , features_(nullptr)
+      , micro_features_(nullptr)
+      , weight_(1.0)
+      , max_dist_(0.0)
+      , sample_index_(0)
+      , features_are_indexed_(false)
+      , features_are_mapped_(false)
+      , is_error_(false) {}
   ~TrainingSample();
 
   // Saves the given features into a TrainingSample. The features are copied,
   // so may be deleted afterwards. Delete the return value after use.
-  static TrainingSample* CopyFromFeatures(const INT_FX_RESULT_STRUCT& fx_info,
-                                          const TBOX& bounding_box,
-                                          const INT_FEATURE_STRUCT* features,
-                                          int num_features);
+  static TrainingSample *CopyFromFeatures(const INT_FX_RESULT_STRUCT &fx_info,
+                                          const TBOX &bounding_box,
+                                          const INT_FEATURE_STRUCT *features, int num_features);
   // Returns the cn_feature as a FEATURE_STRUCT* needed by cntraining.
-  FEATURE_STRUCT* GetCNFeature() const;
+  FEATURE_STRUCT *GetCNFeature() const;
   // Constructs and returns a copy "randomized" by the method given by
   // the randomizer index. If index is out of [0, kSampleRandomSize) then
   // an exact copy is returned.
-  TrainingSample* RandomizedCopy(int index) const;
+  TrainingSample *RandomizedCopy(int index) const;
   // Constructs and returns an exact copy.
-  TrainingSample* Copy() const;
+  TrainingSample *Copy() const;
 
   // WARNING! Serialize/DeSerialize do not save/restore the "cache" data
   // members, which is mostly the mapped features, and the weight.
   // It is assumed these can all be reconstructed from what is saved.
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(FILE* fp) const;
+  bool Serialize(FILE *fp) const;
   // Creates from the given file. Returns nullptr in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
-  static TrainingSample* DeSerializeCreate(bool swap, FILE* fp);
+  static TrainingSample *DeSerializeCreate(bool swap, FILE *fp);
   // Reads from the given file. Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, FILE* fp);
+  bool DeSerialize(bool swap, FILE *fp);
 
   // Extracts the needed information from the CHAR_DESC_STRUCT.
-  void ExtractCharDesc(int feature_type, int micro_type,
-                       int cn_type, int geo_type,
-                       CHAR_DESC_STRUCT* char_desc);
+  void ExtractCharDesc(int feature_type, int micro_type, int cn_type, int geo_type,
+                       CHAR_DESC_STRUCT *char_desc);
 
   // Sets the mapped_features_ from the features_ using the provided
   // feature_space to the indexed versions of the features.
-  void IndexFeatures(const IntFeatureSpace& feature_space);
-  // Sets the mapped_features_ from the features_ using the provided
-  // feature_map.
-  void MapFeatures(const IntFeatureMap& feature_map);
+  void IndexFeatures(const IntFeatureSpace &feature_space);
 
   // Returns a pix representing the sample. (Int features only.)
-  Pix* RenderToPix(const UNICHARSET* unicharset) const;
+  Pix *RenderToPix(const UNICHARSET *unicharset) const;
   // Displays the features in the given window with the given color.
-  void DisplayFeatures(ScrollView::Color color, ScrollView* window) const;
+  void DisplayFeatures(ScrollView::Color color, ScrollView *window) const;
 
   // Returns a pix of the original sample image. The pix is padded all round
   // by padding wherever possible.
   // The returned Pix must be pixDestroyed after use.
   // If the input page_pix is nullptr, nullptr is returned.
-  Pix* GetSamplePix(int padding, Pix* page_pix) const;
+  Pix *GetSamplePix(int padding, Pix *page_pix) const;
 
   // Accessors.
   UNICHAR_ID class_id() const {
@@ -131,22 +133,22 @@ class TrainingSample : public ELIST_LINK {
   void set_page_num(int page) {
     page_num_ = page;
   }
-  const TBOX& bounding_box() const {
+  const TBOX &bounding_box() const {
     return bounding_box_;
   }
-  void set_bounding_box(const TBOX& box) {
+  void set_bounding_box(const TBOX &box) {
     bounding_box_ = box;
   }
   uint32_t num_features() const {
     return num_features_;
   }
-  const INT_FEATURE_STRUCT* features() const {
+  const INT_FEATURE_STRUCT *features() const {
     return features_;
   }
   uint32_t num_micro_features() const {
     return num_micro_features_;
   }
-  const MicroFeature* micro_features() const {
+  const MicroFeature *micro_features() const {
     return micro_features_;
   }
   int outline_length() const {
@@ -179,11 +181,11 @@ class TrainingSample : public ELIST_LINK {
   bool features_are_mapped() const {
     return features_are_mapped_;
   }
-  const GenericVector<int>& mapped_features() const {
+  const std::vector<int> &mapped_features() const {
     ASSERT_HOST(features_are_mapped_);
     return mapped_features_;
   }
-  const GenericVector<int>& indexed_features() const {
+  const std::vector<int> &indexed_features() const {
     ASSERT_HOST(features_are_indexed_);
     return mapped_features_;
   }
@@ -194,7 +196,7 @@ class TrainingSample : public ELIST_LINK {
     is_error_ = value;
   }
 
- private:
+private:
   // Unichar id that this sample represents. There obviously must be a
   // reference UNICHARSET somewhere. Usually in TrainingSampleSet.
   UNICHAR_ID class_id_;
@@ -214,9 +216,9 @@ class TrainingSample : public ELIST_LINK {
   // spaces.
   int outline_length_;
   // Array of features.
-  INT_FEATURE_STRUCT* features_;
+  INT_FEATURE_STRUCT *features_;
   // Array of features.
-  MicroFeature* micro_features_;
+  MicroFeature *micro_features_;
   // The one and only CN feature. Indexed by NORM_PARAM_NAME enum.
   float cn_feature_[kNumCNParams];
   // The one and only geometric feature. (Aims at replacing cn_feature_).
@@ -231,10 +233,17 @@ class TrainingSample : public ELIST_LINK {
   double max_dist_;
   // Global index of this sample.
   int sample_index_;
+
+public:
+  // both are used in training tools
+  // hide after refactoring
+
   // Indexed/mapped features, as indicated by the bools below.
-  GenericVector<int> mapped_features_;
+  std::vector<int> mapped_features_;
   bool features_are_indexed_;
   bool features_are_mapped_;
+
+private:
   // True if the last classification was an error by the current definition.
   bool is_error_;
 
@@ -245,6 +254,6 @@ class TrainingSample : public ELIST_LINK {
 
 ELISTIZEH(TrainingSample)
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_TRAINING_TRAININGSAMPLE_H_
+#endif // TESSERACT_TRAINING_TRAININGSAMPLE_H_

@@ -19,22 +19,20 @@
 #ifndef NORMFEAT_H
 #define NORMFEAT_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "ocrfeatures.h"
 
-#define LENGTH_COMPRESSION  (10.0)
+namespace tesseract {
 
-typedef enum {
-  CharNormY, CharNormLength, CharNormRx, CharNormRy
-} NORM_PARAM_NAME;
+#define LENGTH_COMPRESSION (10.0)
 
-/**----------------------------------------------------------------------------
-          Public Function Prototypes
-----------------------------------------------------------------------------**/
+struct INT_FX_RESULT_STRUCT;
+
+typedef enum { CharNormY, CharNormLength, CharNormRx, CharNormRy } NORM_PARAM_NAME;
+
 float ActualOutlineLength(FEATURE Feature);
 
-FEATURE_SET ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT& fx_info);
+FEATURE_SET ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT &fx_info);
+
+} // namespace tesseract
 
 #endif

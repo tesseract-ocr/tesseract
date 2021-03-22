@@ -1,33 +1,22 @@
 ## run autogen.sh to create Makefile.in from this file
+
+# Be less noisy by default. Can be overridden with `make V=1`.
+V = 0
+
 ACLOCAL_AMFLAGS = -I m4
 
-if ENABLE_TRAINING
-TRAINING_SUBDIR = src/training
-training: all
-	@$(MAKE) -C src/training
-training-install: training
-	@$(MAKE) -C src/training install
-training-uninstall:
-	@$(MAKE) -C src/training uninstall
-clean-local:
-	@$(MAKE) -C src/training clean
-# Some unit tests use code from training.
-check: training
-else
-training:
-	@echo "Need to reconfigure project, so there are no errors"
-endif
+.PHONY: doc html install-langs ScrollView.jar install-jars pdf training
 
-.PHONY: doc install-langs ScrollView.jar install-jars training
+CLEANFILES =
 
-SUBDIRS = . tessdata doc unittest
+SUBDIRS = . tessdata
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
-EXTRA_DIST += tesseract.pc.in $(TRAINING_SUBDIR) java doc
-EXTRA_DIST += CMakeLists.txt tesseract.pc.cmake cmake VERSION src/vs2010
+EXTRA_DIST += tesseract.pc.in java doc
+EXTRA_DIST += CMakeLists.txt tesseract.pc.cmake cmake VERSION
 
-DIST_SUBDIRS = $(SUBDIRS) $(TRAINING_SUBDIR)
+DIST_SUBDIRS = $(SUBDIRS)
 
 uninstall-hook:
 	rm -rf $(DESTDIR)$(pkgincludedir)
@@ -39,7 +28,6 @@ dist-hook:
 	rm -rf `find $(distdir) -name .deps -type d`
 	-rm -f $(distdir)/*/Makefile $(distdir)/*/*/Makefile
 	rm -f `find $(distdir) -name '*~'`
-	rm -rf $(find $(distdir)/src/training -executable -type f)
 	rm -rf $(distdir)/doc/html/* $(distdir)/doc/*.log
 
 ScrollView.jar:
@@ -64,21 +52,16 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tesseract.pc
 
 pkginclude_HEADERS = $(top_builddir)/include/tesseract/version.h
-pkginclude_HEADERS += include/tesseract/apitypes.h
 pkginclude_HEADERS += include/tesseract/baseapi.h
 pkginclude_HEADERS += include/tesseract/capi.h
-pkginclude_HEADERS += include/tesseract/genericvector.h
-pkginclude_HEADERS += include/tesseract/helpers.h
+pkginclude_HEADERS += include/tesseract/export.h
 pkginclude_HEADERS += include/tesseract/ltrresultiterator.h
 pkginclude_HEADERS += include/tesseract/ocrclass.h
 pkginclude_HEADERS += include/tesseract/osdetect.h
 pkginclude_HEADERS += include/tesseract/pageiterator.h
-pkginclude_HEADERS += include/tesseract/platform.h
 pkginclude_HEADERS += include/tesseract/publictypes.h
 pkginclude_HEADERS += include/tesseract/renderer.h
 pkginclude_HEADERS += include/tesseract/resultiterator.h
-pkginclude_HEADERS += include/tesseract/serialis.h
-pkginclude_HEADERS += include/tesseract/strngs.h
 pkginclude_HEADERS += include/tesseract/thresholder.h
 pkginclude_HEADERS += include/tesseract/unichar.h
 
@@ -100,6 +83,7 @@ AM_CXXFLAGS = $(OPENMP_CXXFLAGS)
 # Rules for src/api.
 
 libtesseract_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_la_CPPFLAGS += -DTESS_COMMON_TRAINING_API=
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/arch
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/ccmain
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
@@ -108,9 +92,11 @@ libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/classify
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/dict
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/lstm
+if OPENCL
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/opencl
+endif
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/textord
-libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/training
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/training/common
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 libtesseract_la_CPPFLAGS += $(libcurl_CFLAGS)
@@ -139,7 +125,9 @@ libtesseract_la_SOURCES += src/api/wordstrboxrenderer.cpp
 libtesseract_la_LIBADD = libtesseract_ccutil.la
 libtesseract_la_LIBADD += libtesseract_lstm.la
 libtesseract_la_LIBADD += libtesseract_native.la
+if OPENCL
 libtesseract_la_LIBADD += libtesseract_opencl.la
+endif
 
 # Rules for src/arch.
 
@@ -184,7 +172,7 @@ noinst_LTLIBRARIES += libtesseract_sse.la
 endif
 
 if HAVE_NEON
-libtesseract_neon_la_CXXFLAGS = -mfpu=neon
+libtesseract_neon_la_CXXFLAGS = $(NEON_CXXFLAGS)
 libtesseract_neon_la_SOURCES = src/arch/intsimdmatrixneon.cpp
 libtesseract_la_LIBADD += libtesseract_neon.la
 noinst_LTLIBRARIES += libtesseract_neon.la
@@ -196,7 +184,6 @@ libtesseract_la_SOURCES += src/arch/simddetect.cpp
 # Rules for src/ccmain.
 
 noinst_HEADERS += src/ccmain/control.h
-noinst_HEADERS += src/ccmain/equationdetect.h
 noinst_HEADERS += src/ccmain/mutableiterator.h
 noinst_HEADERS += src/ccmain/output.h
 noinst_HEADERS += src/ccmain/paragraphs.h
@@ -208,6 +195,7 @@ noinst_HEADERS += src/ccmain/tessvars.h
 noinst_HEADERS += src/ccmain/werdit.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/ccmain/docqual.h
+noinst_HEADERS += src/ccmain/equationdetect.h
 noinst_HEADERS += src/ccmain/fixspace.h
 noinst_HEADERS += src/ccmain/reject.h
 endif
@@ -283,6 +271,7 @@ noinst_HEADERS += src/ccstruct/seam.h
 noinst_HEADERS += src/ccstruct/split.h
 noinst_HEADERS += src/ccstruct/statistc.h
 noinst_HEADERS += src/ccstruct/stepblob.h
+noinst_HEADERS += src/ccstruct/tabletransfer.h
 noinst_HEADERS += src/ccstruct/werd.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/ccstruct/fontinfo.h
@@ -340,13 +329,13 @@ endif
 noinst_HEADERS += src/ccutil/bits16.h
 noinst_HEADERS += src/ccutil/ccutil.h
 noinst_HEADERS += src/ccutil/clst.h
-noinst_HEADERS += src/ccutil/doubleptr.h
 noinst_HEADERS += src/ccutil/elst2.h
 noinst_HEADERS += src/ccutil/elst.h
 noinst_HEADERS += src/ccutil/errcode.h
 noinst_HEADERS += src/ccutil/fileerr.h
 noinst_HEADERS += src/ccutil/genericheap.h
-noinst_HEADERS += src/ccutil/globaloc.h
+noinst_HEADERS += src/ccutil/genericvector.h
+noinst_HEADERS += src/ccutil/helpers.h
 noinst_HEADERS += src/ccutil/host.h
 noinst_HEADERS += src/ccutil/kdpair.h
 noinst_HEADERS += src/ccutil/lsterr.h
@@ -355,13 +344,13 @@ noinst_HEADERS += src/ccutil/params.h
 noinst_HEADERS += src/ccutil/qrsequence.h
 noinst_HEADERS += src/ccutil/sorthelper.h
 noinst_HEADERS += src/ccutil/scanutils.h
+noinst_HEADERS += src/ccutil/serialis.h
 noinst_HEADERS += src/ccutil/tessdatamanager.h
 noinst_HEADERS += src/ccutil/tprintf.h
 noinst_HEADERS += src/ccutil/unicharcompress.h
 noinst_HEADERS += src/ccutil/unicharmap.h
 noinst_HEADERS += src/ccutil/unicharset.h
 noinst_HEADERS += src/ccutil/unicity_table.h
-noinst_HEADERS += src/ccutil/unicodes.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/ccutil/ambigs.h
 noinst_HEADERS += src/ccutil/bitvector.h
@@ -376,10 +365,8 @@ libtesseract_ccutil_la_SOURCES += src/ccutil/clst.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/elst2.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/elst.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/errcode.cpp
-libtesseract_ccutil_la_SOURCES += src/ccutil/globaloc.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/mainblk.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/serialis.cpp
-libtesseract_ccutil_la_SOURCES += src/ccutil/strngs.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/scanutils.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/tessdatamanager.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/tprintf.cpp
@@ -387,7 +374,6 @@ libtesseract_ccutil_la_SOURCES += src/ccutil/unichar.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/unicharcompress.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/unicharmap.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/unicharset.cpp
-libtesseract_ccutil_la_SOURCES += src/ccutil/unicodes.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/params.cpp
 if !DISABLED_LEGACY_ENGINE
 libtesseract_ccutil_la_SOURCES += src/ccutil/ambigs.cpp
@@ -401,7 +387,6 @@ endif
 noinst_HEADERS += src/classify/classify.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/classify/adaptive.h
-noinst_HEADERS += src/classify/blobclass.h
 noinst_HEADERS += src/classify/cluster.h
 noinst_HEADERS += src/classify/clusttool.h
 noinst_HEADERS += src/classify/featdefs.h
@@ -462,16 +447,12 @@ endif
 
 # Rules for src/cutil.
 
-noinst_HEADERS += src/cutil/callcpp.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/cutil/bitvec.h
-noinst_HEADERS += src/cutil/emalloc.h
 noinst_HEADERS += src/cutil/oldlist.h
 endif
 
-libtesseract_la_SOURCES += src/cutil/callcpp.cpp
 if !DISABLED_LEGACY_ENGINE
-libtesseract_la_SOURCES += src/cutil/emalloc.cpp
 libtesseract_la_SOURCES += src/cutil/oldlist.cpp
 endif
 
@@ -488,11 +469,11 @@ libtesseract_la_SOURCES += src/dict/context.cpp
 libtesseract_la_SOURCES += src/dict/dawg.cpp
 libtesseract_la_SOURCES += src/dict/dawg_cache.cpp
 libtesseract_la_SOURCES += src/dict/dict.cpp
-libtesseract_la_SOURCES += src/dict/permdawg.cpp
 libtesseract_la_SOURCES += src/dict/stopper.cpp
 libtesseract_la_SOURCES += src/dict/trie.cpp
 if !DISABLED_LEGACY_ENGINE
 libtesseract_la_SOURCES += src/dict/hyphen.cpp
+libtesseract_la_SOURCES += src/dict/permdawg.cpp
 endif
 
 # Rules for src/lstm.
@@ -561,6 +542,7 @@ endif
 
 # Rules for src/opencl.
 
+if OPENCL
 libtesseract_opencl_la_CPPFLAGS = $(AM_CPPFLAGS)
 libtesseract_opencl_la_CPPFLAGS += $(OPENCL_CFLAGS)
 libtesseract_opencl_la_CPPFLAGS += -I$(top_srcdir)/src/ccutil
@@ -573,6 +555,7 @@ noinst_HEADERS += src/opencl/oclkernels.h
 noinst_LTLIBRARIES += libtesseract_opencl.la
 
 libtesseract_opencl_la_SOURCES = src/opencl/openclwrapper.cpp
+endif
 
 # Rules for src/textord.
 
@@ -685,7 +668,6 @@ noinst_HEADERS += src/wordrec/language_model.h
 noinst_HEADERS += src/wordrec/lm_consistency.h
 noinst_HEADERS += src/wordrec/lm_pain_points.h
 noinst_HEADERS += src/wordrec/lm_state.h
-noinst_HEADERS += src/wordrec/measure.h
 noinst_HEADERS += src/wordrec/outlines.h
 noinst_HEADERS += src/wordrec/params_model.h
 noinst_HEADERS += src/wordrec/plotedges.h
@@ -746,6 +728,257 @@ if ADD_RT
 tesseract_LDADD += -lrt
 endif
 
+# Rules for training tools.
+
+if ENABLE_TRAINING
+
+training: $(EXTRA_PROGRAMS) | $(PROGRAMS)
+
+training-install: $(EXTRA_PROGRAMS)
+	mkdir -p $(DESTDIR)$(bindir)
+	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install \
+	$(INSTALL) $(INSTALL_STRIP_FLAG) $(EXTRA_PROGRAMS) $(DESTDIR)$(bindir)
+
+training-uninstall:
+
+# Some unit tests use code from training.
+check: libtesseract_training.la
+
+# dawg_test runs dawg2wordlist and wordlist2dawg.
+check: dawg2wordlist wordlist2dawg
+
+CLEANFILES += $(EXTRA_PROGRAMS)
+
+else
+
+training:
+	@echo "Need to reconfigure project, so there are no errors"
+
+endif
+
+training_CPPFLAGS := -DPANGO_ENABLE_ENGINE
+training_CPPFLAGS += -DTESS_COMMON_TRAINING_API=
+training_CPPFLAGS += -DTESS_PANGO_TRAINING_API=
+training_CPPFLAGS += -DTESS_UNICHARSET_TRAINING_API=
+training_CPPFLAGS += -I$(top_builddir)/include
+training_CPPFLAGS += -I$(top_srcdir)/include
+training_CPPFLAGS += -I$(top_srcdir)/src/training
+training_CPPFLAGS += -I$(top_srcdir)/src/training/common
+training_CPPFLAGS += -I$(top_srcdir)/src/training/pango
+training_CPPFLAGS += -I$(top_srcdir)/src/training/unicharset
+training_CPPFLAGS += -I$(top_srcdir)/src/api
+training_CPPFLAGS += -I$(top_srcdir)/src/ccmain
+training_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+training_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+training_CPPFLAGS += -I$(top_srcdir)/src/lstm
+training_CPPFLAGS += -I$(top_srcdir)/src/arch
+training_CPPFLAGS += -I$(top_srcdir)/src/viewer
+training_CPPFLAGS += -I$(top_srcdir)/src/textord
+training_CPPFLAGS += -I$(top_srcdir)/src/dict
+training_CPPFLAGS += -I$(top_srcdir)/src/classify
+training_CPPFLAGS += -I$(top_srcdir)/src/wordrec
+training_CPPFLAGS += -I$(top_srcdir)/src/cutil
+training_CPPFLAGS += $(ICU_UC_CFLAGS) $(ICU_I18N_CFLAGS)
+training_CPPFLAGS += $(pango_CFLAGS)
+training_CPPFLAGS += $(cairo_CFLAGS)
+
+bin_SCRIPTS = src/training/language-specific.sh src/training/tesstrain.sh
+scripts_DATA = src/training/tesstrain_utils.sh
+scriptsdir = $(bindir)
+
+if DISABLED_LEGACY_ENGINE
+training_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
+endif
+
+# TODO: training programs can not be linked to shared library created
+# with -fvisibility
+if VISIBILITY
+AM_LDFLAGS += -all-static
+endif
+
+noinst_HEADERS += src/training/pango/boxchar.h
+noinst_HEADERS += src/training/common/commandlineflags.h
+noinst_HEADERS += src/training/common/commontraining.h
+noinst_HEADERS += src/training/common/ctc.h
+noinst_HEADERS += src/training/common/networkbuilder.h
+noinst_HEADERS += src/training/degradeimage.h
+noinst_HEADERS += src/training/pango/ligature_table.h
+noinst_HEADERS += src/training/pango/pango_font_info.h
+noinst_HEADERS += src/training/pango/stringrenderer.h
+noinst_HEADERS += src/training/pango/tlog.h
+noinst_HEADERS += src/training/unicharset/icuerrorcode.h
+noinst_HEADERS += src/training/unicharset/fileio.h
+noinst_HEADERS += src/training/unicharset/lang_model_helpers.h
+noinst_HEADERS += src/training/unicharset/lstmtester.h
+noinst_HEADERS += src/training/unicharset/lstmtrainer.h
+noinst_HEADERS += src/training/unicharset/normstrngs.h
+noinst_HEADERS += src/training/unicharset/unicharset_training_utils.h
+noinst_HEADERS += src/training/unicharset/validate_grapheme.h
+noinst_HEADERS += src/training/unicharset/validate_indic.h
+noinst_HEADERS += src/training/unicharset/validate_javanese.h
+noinst_HEADERS += src/training/unicharset/validate_khmer.h
+noinst_HEADERS += src/training/unicharset/validate_myanmar.h
+noinst_HEADERS += src/training/unicharset/validator.h
+if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += src/training/common/errorcounter.h
+noinst_HEADERS += src/training/common/intfeaturedist.h
+noinst_HEADERS += src/training/common/intfeaturemap.h
+noinst_HEADERS += src/training/common/mastertrainer.h
+noinst_HEADERS += src/training/common/sampleiterator.h
+noinst_HEADERS += src/training/common/trainingsampleset.h
+noinst_HEADERS += src/training/mergenf.h
+endif
+
+CLEANFILES += libtesseract_training.la
+
+EXTRA_LTLIBRARIES = libtesseract_training.la
+
+libtesseract_training_la_CPPFLAGS = $(training_CPPFLAGS)
+libtesseract_training_la_SOURCES = src/training/pango/boxchar.cpp
+libtesseract_training_la_SOURCES += src/training/common/commandlineflags.cpp
+libtesseract_training_la_SOURCES += src/training/common/commontraining.cpp
+libtesseract_training_la_SOURCES += src/training/common/ctc.cpp
+libtesseract_training_la_SOURCES += src/training/common/networkbuilder.cpp
+libtesseract_training_la_SOURCES += src/training/degradeimage.cpp
+libtesseract_training_la_SOURCES += src/training/pango/ligature_table.cpp
+libtesseract_training_la_SOURCES += src/training/pango/pango_font_info.cpp
+libtesseract_training_la_SOURCES += src/training/pango/stringrenderer.cpp
+libtesseract_training_la_SOURCES += src/training/pango/tlog.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/icuerrorcode.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/fileio.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/lang_model_helpers.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/lstmtester.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/lstmtrainer.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/normstrngs.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/unicharset_training_utils.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validate_grapheme.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validate_indic.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validate_javanese.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validate_khmer.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validate_myanmar.cpp
+libtesseract_training_la_SOURCES += src/training/unicharset/validator.cpp
+if !DISABLED_LEGACY_ENGINE
+libtesseract_training_la_SOURCES += src/training/common/errorcounter.cpp
+libtesseract_training_la_SOURCES += src/training/common/intfeaturedist.cpp
+libtesseract_training_la_SOURCES += src/training/common/intfeaturemap.cpp
+libtesseract_training_la_SOURCES += src/training/common/mastertrainer.cpp
+libtesseract_training_la_SOURCES += src/training/common/sampleiterator.cpp
+libtesseract_training_la_SOURCES += src/training/common/trainingsampleset.cpp
+endif
+
+trainingtools = combine_lang_model
+trainingtools += combine_tessdata
+trainingtools += dawg2wordlist
+trainingtools += lstmeval
+trainingtools += lstmtraining
+trainingtools += merge_unicharsets
+trainingtools += set_unicharset_properties
+trainingtools += text2image
+trainingtools += unicharset_extractor
+trainingtools += wordlist2dawg
+if !DISABLED_LEGACY_ENGINE
+trainingtools += ambiguous_words
+trainingtools += classifier_tester
+trainingtools += cntraining
+trainingtools += mftraining
+trainingtools += shapeclustering
+endif
+
+$(trainingtools): libtesseract.la
+
+EXTRA_PROGRAMS = $(trainingtools)
+
+extralib = libtesseract.la
+extralib += $(libarchive_LIBS)
+extralib += $(LEPTONICA_LIBS)
+extralib += $(OPENCL_LDFLAGS)
+extralib += $(TENSORFLOW_LIBS)
+if T_WIN
+extralib += -lws2_32
+endif
+
+if !DISABLED_LEGACY_ENGINE
+ambiguous_words_CPPFLAGS = $(training_CPPFLAGS)
+ambiguous_words_SOURCES = src/training/ambiguous_words.cpp
+ambiguous_words_LDADD = libtesseract_training.la
+ambiguous_words_LDADD += $(extralib)
+
+classifier_tester_CPPFLAGS = $(training_CPPFLAGS)
+classifier_tester_SOURCES = src/training/classifier_tester.cpp
+classifier_tester_LDADD = libtesseract_training.la
+classifier_tester_LDADD += $(extralib)
+
+cntraining_CPPFLAGS = $(training_CPPFLAGS)
+cntraining_SOURCES = src/training/cntraining.cpp
+cntraining_LDADD = libtesseract_training.la
+cntraining_LDADD += $(extralib)
+
+mftraining_CPPFLAGS = $(training_CPPFLAGS)
+mftraining_SOURCES = src/training/mftraining.cpp src/training/mergenf.cpp
+mftraining_LDADD = libtesseract_training.la
+mftraining_LDADD += $(ICU_UC_LIBS)
+mftraining_LDADD += $(extralib)
+
+shapeclustering_CPPFLAGS = $(training_CPPFLAGS)
+shapeclustering_SOURCES = src/training/shapeclustering.cpp
+shapeclustering_LDADD = libtesseract_training.la
+shapeclustering_LDADD += $(extralib)
+endif
+
+combine_lang_model_CPPFLAGS = $(training_CPPFLAGS)
+combine_lang_model_SOURCES = src/training/combine_lang_model.cpp
+combine_lang_model_LDADD = libtesseract_training.la
+combine_lang_model_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+combine_lang_model_LDADD += $(extralib)
+
+combine_tessdata_CPPFLAGS = $(training_CPPFLAGS)
+combine_tessdata_SOURCES = src/training/combine_tessdata.cpp
+combine_tessdata_LDADD = $(extralib)
+
+dawg2wordlist_CPPFLAGS = $(training_CPPFLAGS)
+dawg2wordlist_SOURCES = src/training/dawg2wordlist.cpp
+dawg2wordlist_LDADD = $(extralib)
+
+lstmeval_CPPFLAGS = $(training_CPPFLAGS)
+lstmeval_SOURCES = src/training/lstmeval.cpp
+lstmeval_LDADD = libtesseract_training.la
+lstmeval_LDADD += $(ICU_UC_LIBS)
+lstmeval_LDADD += $(extralib)
+
+lstmtraining_CPPFLAGS = $(training_CPPFLAGS)
+lstmtraining_SOURCES = src/training/lstmtraining.cpp
+lstmtraining_LDADD = libtesseract_training.la
+lstmtraining_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+lstmtraining_LDADD += $(extralib)
+
+merge_unicharsets_CPPFLAGS = $(training_CPPFLAGS)
+merge_unicharsets_SOURCES = src/training/merge_unicharsets.cpp
+merge_unicharsets_LDADD = $(extralib)
+
+set_unicharset_properties_CPPFLAGS = $(training_CPPFLAGS)
+set_unicharset_properties_SOURCES = src/training/set_unicharset_properties.cpp
+set_unicharset_properties_LDADD = libtesseract_training.la
+set_unicharset_properties_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+set_unicharset_properties_LDADD += $(extralib)
+
+text2image_CPPFLAGS = $(training_CPPFLAGS)
+text2image_SOURCES = src/training/text2image.cpp
+text2image_LDADD = libtesseract_training.la
+text2image_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+text2image_LDADD += $(extralib)
+text2image_LDADD += $(ICU_UC_LIBS) $(cairo_LIBS)
+text2image_LDADD += $(pango_LIBS) $(pangocairo_LIBS) $(pangoft2_LIBS)
+
+unicharset_extractor_CPPFLAGS = $(training_CPPFLAGS)
+unicharset_extractor_SOURCES = src/training/unicharset_extractor.cpp
+unicharset_extractor_LDADD = libtesseract_training.la
+unicharset_extractor_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+unicharset_extractor_LDADD += $(extralib)
+
+wordlist2dawg_CPPFLAGS = $(training_CPPFLAGS)
+wordlist2dawg_SOURCES = src/training/wordlist2dawg.cpp
+wordlist2dawg_LDADD = $(extralib)
+
 # fuzzer-api is used for fuzzing tests.
 # They are run by OSS-Fuzz https://oss-fuzz.com/, but can also be run locally.
 # Note: -fsanitize=fuzzer currently requires the clang++ compiler.
@@ -754,14 +987,16 @@ endif
 # This is used by OSS-Fuzz.
 LIB_FUZZING_ENGINE ?= -fsanitize=fuzzer
 
-fuzzer-api: all
-fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
+fuzzer-api: libtesseract.la
+fuzzer-api: unittest/fuzzers/fuzzer-api.cpp
 	$(CXX) $(CXXFLAGS) -g $(LIB_FUZZING_ENGINE) \
           -I $(top_srcdir)/include \
           -I $(builddir)/include \
           -I $(top_srcdir)/src/ccmain \
           -I $(top_srcdir)/src/ccstruct \
           -I $(top_srcdir)/src/ccutil \
+          $(LEPTONICA_CFLAGS) \
+          $(OPENMP_CXXFLAGS) \
           $< \
           $(builddir)/.libs/libtesseract.a \
           $(LEPTONICA_LIBS) \
@@ -769,3 +1004,669 @@ fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
           $(libarchive_LIBS) \
           $(libcurl_LIBS) \
           -o $@
+
+CLEANFILES += fuzzer-api
+
+if ASCIIDOC
+
+man_MANS = doc/combine_lang_model.1
+man_MANS += doc/combine_tessdata.1
+man_MANS += doc/dawg2wordlist.1
+man_MANS += doc/lstmeval.1
+man_MANS += doc/lstmtraining.1
+man_MANS += doc/merge_unicharsets.1
+man_MANS += doc/set_unicharset_properties.1
+man_MANS += doc/tesseract.1
+man_MANS += doc/text2image.1
+man_MANS += doc/unicharset.5
+man_MANS += doc/unicharset_extractor.1
+man_MANS += doc/wordlist2dawg.1
+
+if !DISABLED_LEGACY_ENGINE
+man_MANS += doc/ambiguous_words.1
+man_MANS += doc/classifier_tester.1
+man_MANS += doc/cntraining.1
+man_MANS += doc/mftraining.1
+man_MANS += doc/shapeclustering.1
+man_MANS += doc/unicharambigs.5
+endif
+
+man_xslt = http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl
+
+EXTRA_DIST += $(man_MANS) doc/Doxyfile
+
+html: ${man_MANS:%=%.html}
+pdf: ${man_MANS:%=%.pdf}
+
+SUFFIXES = .asc .html .pdf
+
+.asc:
+if HAVE_XML_CATALOG_FILES
+	asciidoc -b docbook -d manpage -o - $< | \
+	XML_CATALOG_FILES=$(XML_CATALOG_FILES) xsltproc --nonet -o $@ $(man_xslt) -
+else
+	asciidoc -b docbook -d manpage -o - $< | \
+	xsltproc --nonet -o $@ $(man_xslt) -
+endif
+
+.asc.html:
+	asciidoc -b html5 -o $@ $<
+
+.asc.pdf:
+	asciidoc -b docbook -d manpage -o $*.dbk $<
+	docbook2pdf -o doc $*.dbk
+
+MAINTAINERCLEANFILES = $(man_MANS) Doxyfile
+
+endif
+
+# Absolute path of directory 'langdata'.
+LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata_lstm
+
+# Absolute path of directory 'tessdata' with traineddata files
+# (must be on same level as top source directory).
+TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
+
+# Absolute path of directory 'testing' with test images and ground truth texts
+# (using submodule test).
+TESTING_DIR=$(shell cd $(top_srcdir) && pwd)/test/testing
+# Absolute path of directory 'testdata' with test unicharset etc.
+# (using submodule test).
+TESTDATA_DIR=$(shell cd $(top_srcdir) && pwd)/test/testdata
+
+# Suppress some memory leaks reported by LeakSanitizer.
+export LSAN_OPTIONS=suppressions=$(top_srcdir)/unittest/tesseract_leaksanitizer.supp
+
+unittest_CPPFLAGS =
+unittest_CPPFLAGS += -DTESSBIN_DIR="\"$(abs_top_builddir)\""
+unittest_CPPFLAGS += -DLANGDATA_DIR="\"$(LANGDATA_DIR)\""
+unittest_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
+unittest_CPPFLAGS += -DTESTING_DIR="\"$(TESTING_DIR)\""
+unittest_CPPFLAGS += -DTESTDATA_DIR="\"$(TESTDATA_DIR)\""
+unittest_CPPFLAGS += -DPANGO_ENABLE_ENGINE
+if DISABLED_LEGACY_ENGINE
+unittest_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
+endif # DISABLED_LEGACY_ENGINE
+unittest_CPPFLAGS += -DTESS_COMMON_TRAINING_API=
+unittest_CPPFLAGS += -DTESS_PANGO_TRAINING_API=
+unittest_CPPFLAGS += -DTESS_UNICHARSET_TRAINING_API=
+unittest_CPPFLAGS += -I$(top_builddir)/include
+unittest_CPPFLAGS += -I$(top_srcdir)/include
+unittest_CPPFLAGS += -I$(top_srcdir)/src/arch
+unittest_CPPFLAGS += -I$(top_srcdir)/src/ccmain
+unittest_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+unittest_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+unittest_CPPFLAGS += -I$(top_srcdir)/src/classify
+unittest_CPPFLAGS += -I$(top_srcdir)/src/cutil
+unittest_CPPFLAGS += -I$(top_srcdir)/src/dict
+unittest_CPPFLAGS += -I$(top_srcdir)/src/display
+unittest_CPPFLAGS += -I$(top_srcdir)/src/lstm
+unittest_CPPFLAGS += -I$(top_srcdir)/src/textord
+unittest_CPPFLAGS += -I$(top_srcdir)/unittest/base
+unittest_CPPFLAGS += -I$(top_srcdir)/unittest/util
+unittest_CPPFLAGS += $(LEPTONICA_CFLAGS)
+if ENABLE_TRAINING
+unittest_CPPFLAGS += -I$(top_srcdir)/src/training
+unittest_CPPFLAGS += -I$(top_srcdir)/src/training/common
+unittest_CPPFLAGS += -I$(top_srcdir)/src/training/pango
+unittest_CPPFLAGS += -I$(top_srcdir)/src/training/unicharset
+unittest_CPPFLAGS += $(pangocairo_CFLAGS)
+endif # ENABLE_TRAINING
+unittest_CPPFLAGS += -I$(top_srcdir)/src/viewer
+unittest_CPPFLAGS += -I$(top_srcdir)/src/wordrec
+unittest_CPPFLAGS += -I$(top_srcdir)/abseil
+if TENSORFLOW
+unittest_CPPFLAGS += -DINCLUDE_TENSORFLOW
+unittest_CPPFLAGS += -I/usr/include/tensorflow
+endif # TENSORFLOW
+
+# Build googletest:
+check_LTLIBRARIES = libgtest.la libgtest_main.la libgmock.la libgmock_main.la
+libgtest_la_SOURCES = googletest/googletest/src/gtest-all.cc
+libgtest_la_CPPFLAGS = -I$(top_srcdir)/googletest/googletest/include -I$(top_srcdir)/googletest/googletest -pthread
+libgtest_main_la_SOURCES = googletest/googletest/src/gtest_main.cc
+libgtest_main_la_CPPFLAGS = $(libgtest_la_CPPFLAGS)
+
+# Build Abseil (needed for some unit tests).
+check_LTLIBRARIES += libabseil.la
+libabseil_la_SOURCES =
+libabseil_la_SOURCES += abseil/absl/base/internal/cycleclock.cc
+libabseil_la_SOURCES += abseil/absl/base/internal/raw_logging.cc
+libabseil_la_SOURCES += abseil/absl/base/internal/spinlock.cc
+libabseil_la_SOURCES += abseil/absl/base/internal/spinlock_wait.cc
+libabseil_la_SOURCES += abseil/absl/base/internal/sysinfo.cc
+libabseil_la_SOURCES += abseil/absl/base/internal/throw_delegate.cc
+libabseil_la_SOURCES += abseil/absl/base/internal/unscaledcycleclock.cc
+libabseil_la_SOURCES += abseil/absl/numeric/int128.cc
+libabseil_la_SOURCES += abseil/absl/strings/ascii.cc
+libabseil_la_SOURCES += abseil/absl/strings/charconv.cc
+libabseil_la_SOURCES += abseil/absl/strings/internal/charconv_bigint.cc
+libabseil_la_SOURCES += abseil/absl/strings/internal/charconv_parse.cc
+libabseil_la_SOURCES += abseil/absl/strings/internal/memutil.cc
+libabseil_la_SOURCES += abseil/absl/strings/internal/str_format/arg.cc
+libabseil_la_SOURCES += abseil/absl/strings/internal/str_format/bind.cc
+libabseil_la_SOURCES += abseil/absl/strings/internal/str_format/extension.cc
+libabseil_la_SOURCES += abseil/absl/strings/internal/str_format/float_conversion.cc
+libabseil_la_SOURCES += abseil/absl/strings/internal/str_format/output.cc
+libabseil_la_SOURCES += abseil/absl/strings/internal/str_format/parser.cc
+libabseil_la_SOURCES += abseil/absl/strings/match.cc
+libabseil_la_SOURCES += abseil/absl/strings/numbers.cc
+libabseil_la_SOURCES += abseil/absl/strings/str_cat.cc
+libabseil_la_SOURCES += abseil/absl/strings/str_split.cc
+libabseil_la_SOURCES += abseil/absl/strings/string_view.cc
+libabseil_la_SOURCES += abseil/absl/time/clock.cc
+libabseil_la_SOURCES += abseil/absl/time/duration.cc
+libabseil_la_CPPFLAGS = -I$(top_srcdir)/abseil
+
+GMOCK_INCLUDES = -I$(top_srcdir)/googletest/googlemock/include \
+                 -I$(top_srcdir)/googletest/googlemock \
+                 -I$(top_srcdir)/googletest/googletest/include \
+                 -I$(top_srcdir)/googletest/googletest
+
+libgmock_la_SOURCES = googletest/googlemock/src/gmock-all.cc
+libgmock_la_CPPFLAGS = $(GMOCK_INCLUDES) \
+                       -pthread
+libgmock_main_la_SOURCES = googletest/googlemock/src/gmock_main.cc
+libgmock_main_la_CPPFLAGS = $(GMOCK_INCLUDES) \
+                            -pthread
+
+# Build unittests
+ABSEIL_LIBS = libabseil.la
+GTEST_LIBS =  libgtest.la libgtest_main.la -lpthread
+GMOCK_LIBS =  libgmock.la libgmock_main.la
+TESS_LIBS = $(GTEST_LIBS)
+TESS_LIBS += libtesseract.la $(libarchive_LIBS)
+TESS_LIBS += $(TENSORFLOW_LIBS)
+TRAINING_LIBS = libtesseract_training.la
+TRAINING_LIBS += $(TESS_LIBS)
+unittest_CPPFLAGS += -isystem $(top_srcdir)/googletest/googletest/include
+unittest_CPPFLAGS += -isystem $(top_srcdir)/googletest/googlemock/include
+
+check_PROGRAMS = apiexample_test
+if ENABLE_TRAINING
+if !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += applybox_test
+endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += baseapi_test
+check_PROGRAMS += baseapi_thread_test
+if !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += bitvector_test
+endif # !DISABLED_LEGACY_ENGINE
+endif # ENABLE_TRAINING
+check_PROGRAMS += cleanapi_test
+check_PROGRAMS += colpartition_test
+if ENABLE_TRAINING
+check_PROGRAMS += commandlineflags_test
+check_PROGRAMS += dawg_test
+endif # ENABLE_TRAINING
+check_PROGRAMS += denorm_test
+if !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += equationdetect_test
+endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += fileio_test
+check_PROGRAMS += heap_test
+check_PROGRAMS += imagedata_test
+if !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += indexmapbidi_test
+check_PROGRAMS += intfeaturemap_test
+endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += intsimdmatrix_test
+check_PROGRAMS += lang_model_test
+check_PROGRAMS += layout_test
+check_PROGRAMS += ligature_table_test
+check_PROGRAMS += linlsq_test
+check_PROGRAMS += list_test
+if ENABLE_TRAINING
+check_PROGRAMS += lstm_recode_test
+check_PROGRAMS += lstm_squashed_test
+check_PROGRAMS += lstm_test
+check_PROGRAMS += lstmtrainer_test
+endif # ENABLE_TRAINING
+check_PROGRAMS += loadlang_test
+if !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += mastertrainer_test
+endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += matrix_test
+check_PROGRAMS += networkio_test
+if ENABLE_TRAINING
+check_PROGRAMS += normstrngs_test
+endif # ENABLE_TRAINING
+check_PROGRAMS += nthitem_test
+if !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += osd_test
+endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += pagesegmode_test
+if ENABLE_TRAINING
+check_PROGRAMS += pango_font_info_test
+endif # ENABLE_TRAINING
+check_PROGRAMS += paragraphs_test
+if !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += params_model_test
+endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += progress_test
+check_PROGRAMS += qrsequence_test
+check_PROGRAMS += recodebeam_test
+check_PROGRAMS += rect_test
+check_PROGRAMS += resultiterator_test
+check_PROGRAMS += scanutils_test
+if !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += shapetable_test
+endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += stats_test
+check_PROGRAMS += stridemap_test
+check_PROGRAMS += stringrenderer_test
+check_PROGRAMS += tablefind_test
+check_PROGRAMS += tablerecog_test
+check_PROGRAMS += tabvector_test
+check_PROGRAMS += tatweel_test
+if !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += textlineprojection_test
+endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += tfile_test
+if ENABLE_TRAINING
+check_PROGRAMS += unichar_test
+check_PROGRAMS += unicharcompress_test
+check_PROGRAMS += unicharset_test
+check_PROGRAMS += validate_grapheme_test
+check_PROGRAMS += validate_indic_test
+check_PROGRAMS += validate_khmer_test
+check_PROGRAMS += validate_myanmar_test
+check_PROGRAMS += validator_test
+endif # ENABLE_TRAINING
+
+check_PROGRAMS: libtesseract.la libtesseract_training.la
+
+TESTS = $(check_PROGRAMS)
+
+# List of source files needed to build the executable:
+
+apiexample_test_SOURCES = unittest/apiexample_test.cc
+apiexample_test_CPPFLAGS = $(unittest_CPPFLAGS)
+apiexample_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
+apiexample_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+if !DISABLED_LEGACY_ENGINE
+applybox_test_SOURCES = unittest/applybox_test.cc
+applybox_test_CPPFLAGS = $(unittest_CPPFLAGS)
+applybox_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+baseapi_test_SOURCES = unittest/baseapi_test.cc
+baseapi_test_CPPFLAGS = $(unittest_CPPFLAGS)
+baseapi_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+
+baseapi_thread_test_SOURCES = unittest/baseapi_thread_test.cc
+baseapi_thread_test_CPPFLAGS = $(unittest_CPPFLAGS)
+baseapi_thread_test_LDADD = $(ABSEIL_LIBS)
+baseapi_thread_test_LDADD += $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+if !DISABLED_LEGACY_ENGINE
+bitvector_test_SOURCES = unittest/bitvector_test.cc
+bitvector_test_CPPFLAGS = $(unittest_CPPFLAGS)
+bitvector_test_LDADD = $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+cleanapi_test_SOURCES = unittest/cleanapi_test.cc
+cleanapi_test_CPPFLAGS = $(unittest_CPPFLAGS)
+cleanapi_test_LDADD = $(TESS_LIBS)
+
+colpartition_test_SOURCES = unittest/colpartition_test.cc
+colpartition_test_CPPFLAGS = $(unittest_CPPFLAGS)
+colpartition_test_LDADD = $(TESS_LIBS)
+
+commandlineflags_test_SOURCES = unittest/commandlineflags_test.cc
+commandlineflags_test_CPPFLAGS = $(unittest_CPPFLAGS)
+commandlineflags_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
+
+dawg_test_SOURCES = unittest/dawg_test.cc
+dawg_test_CPPFLAGS = $(unittest_CPPFLAGS)
+dawg_test_LDADD = $(TRAINING_LIBS)
+
+denorm_test_SOURCES = unittest/denorm_test.cc
+denorm_test_CPPFLAGS = $(unittest_CPPFLAGS)
+denorm_test_LDADD = $(TESS_LIBS)
+
+if !DISABLED_LEGACY_ENGINE
+equationdetect_test_SOURCES = unittest/equationdetect_test.cc
+equationdetect_test_CPPFLAGS = $(unittest_CPPFLAGS)
+equationdetect_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+fileio_test_SOURCES = unittest/fileio_test.cc
+fileio_test_CPPFLAGS = $(unittest_CPPFLAGS)
+fileio_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+
+heap_test_SOURCES = unittest/heap_test.cc
+heap_test_CPPFLAGS = $(unittest_CPPFLAGS)
+heap_test_LDADD = $(TESS_LIBS)
+
+imagedata_test_SOURCES = unittest/imagedata_test.cc
+imagedata_test_CPPFLAGS = $(unittest_CPPFLAGS)
+imagedata_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+
+if !DISABLED_LEGACY_ENGINE
+indexmapbidi_test_SOURCES = unittest/indexmapbidi_test.cc
+indexmapbidi_test_CPPFLAGS = $(unittest_CPPFLAGS)
+indexmapbidi_test_LDADD = $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+if !DISABLED_LEGACY_ENGINE
+intfeaturemap_test_SOURCES = unittest/intfeaturemap_test.cc
+intfeaturemap_test_CPPFLAGS = $(unittest_CPPFLAGS)
+intfeaturemap_test_LDADD = $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+intsimdmatrix_test_SOURCES = unittest/intsimdmatrix_test.cc
+intsimdmatrix_test_CPPFLAGS = $(unittest_CPPFLAGS)
+if HAVE_AVX2
+intsimdmatrix_test_CPPFLAGS += -DHAVE_AVX2
+endif
+if HAVE_SSE4_1
+intsimdmatrix_test_CPPFLAGS += -DHAVE_SSE4_1
+endif
+intsimdmatrix_test_LDADD = $(TESS_LIBS)
+
+lang_model_test_SOURCES = unittest/lang_model_test.cc
+lang_model_test_CPPFLAGS = $(unittest_CPPFLAGS)
+lang_model_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+layout_test_SOURCES = unittest/layout_test.cc
+layout_test_CPPFLAGS = $(unittest_CPPFLAGS)
+layout_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+
+ligature_table_test_SOURCES = unittest/ligature_table_test.cc
+ligature_table_test_CPPFLAGS = $(unittest_CPPFLAGS)
+ligature_table_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+ligature_table_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+ligature_table_test_LDADD += $(pangocairo_LIBS) $(pangoft2_LIBS)
+ligature_table_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
+
+linlsq_test_SOURCES = unittest/linlsq_test.cc
+linlsq_test_CPPFLAGS = $(unittest_CPPFLAGS)
+linlsq_test_LDADD = $(TESS_LIBS)
+
+list_test_SOURCES = unittest/list_test.cc
+list_test_CPPFLAGS = $(unittest_CPPFLAGS)
+list_test_LDADD = $(TESS_LIBS)
+
+loadlang_test_SOURCES = unittest/loadlang_test.cc
+loadlang_test_CPPFLAGS = $(unittest_CPPFLAGS)
+loadlang_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+lstm_recode_test_SOURCES = unittest/lstm_recode_test.cc
+lstm_recode_test_CPPFLAGS = $(unittest_CPPFLAGS)
+lstm_recode_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+
+lstm_squashed_test_SOURCES = unittest/lstm_squashed_test.cc
+lstm_squashed_test_CPPFLAGS = $(unittest_CPPFLAGS)
+lstm_squashed_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+
+lstm_test_SOURCES = unittest/lstm_test.cc
+lstm_test_CPPFLAGS = $(unittest_CPPFLAGS)
+lstm_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+
+lstmtrainer_test_SOURCES = unittest/lstmtrainer_test.cc
+lstmtrainer_test_CPPFLAGS = $(unittest_CPPFLAGS)
+lstmtrainer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+
+if !DISABLED_LEGACY_ENGINE
+mastertrainer_test_SOURCES = unittest/mastertrainer_test.cc
+mastertrainer_test_CPPFLAGS = $(unittest_CPPFLAGS)
+mastertrainer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+matrix_test_SOURCES = unittest/matrix_test.cc
+matrix_test_CPPFLAGS = $(unittest_CPPFLAGS)
+matrix_test_LDADD = $(TESS_LIBS)
+
+networkio_test_SOURCES = unittest/networkio_test.cc
+networkio_test_CPPFLAGS = $(unittest_CPPFLAGS)
+networkio_test_LDADD = $(TESS_LIBS)
+
+normstrngs_test_SOURCES = unittest/normstrngs_test.cc
+if TENSORFLOW
+normstrngs_test_SOURCES += unittest/third_party/utf/rune.c
+normstrngs_test_SOURCES += unittest/util/utf8/unilib.cc
+endif # TENSORFLOW
+normstrngs_test_CPPFLAGS = $(unittest_CPPFLAGS)
+normstrngs_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+nthitem_test_SOURCES = unittest/nthitem_test.cc
+nthitem_test_CPPFLAGS = $(unittest_CPPFLAGS)
+nthitem_test_LDADD = $(TESS_LIBS)
+
+if !DISABLED_LEGACY_ENGINE
+osd_test_SOURCES = unittest/osd_test.cc
+osd_test_CPPFLAGS = $(unittest_CPPFLAGS)
+osd_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+pagesegmode_test_SOURCES = unittest/pagesegmode_test.cc
+pagesegmode_test_CPPFLAGS = $(unittest_CPPFLAGS)
+pagesegmode_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+
+pango_font_info_test_SOURCES = unittest/pango_font_info_test.cc
+if TENSORFLOW
+pango_font_info_test_SOURCES += unittest/third_party/utf/rune.c
+pango_font_info_test_SOURCES += unittest/util/utf8/unicodetext.cc
+pango_font_info_test_SOURCES += unittest/util/utf8/unilib.cc
+endif # TENSORFLOW
+pango_font_info_test_CPPFLAGS = $(unittest_CPPFLAGS)
+pango_font_info_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+pango_font_info_test_LDADD += $(ICU_I18N_LIBS)
+pango_font_info_test_LDADD += $(pangocairo_LIBS)
+pango_font_info_test_LDADD += $(pangoft2_LIBS)
+
+paragraphs_test_SOURCES = unittest/paragraphs_test.cc
+paragraphs_test_CPPFLAGS = $(unittest_CPPFLAGS)
+paragraphs_test_LDADD = $(ABSEIL_LIBS) $(TESS_LIBS)
+
+if !DISABLED_LEGACY_ENGINE
+params_model_test_SOURCES = unittest/params_model_test.cc
+params_model_test_CPPFLAGS = $(unittest_CPPFLAGS)
+params_model_test_LDADD = $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+progress_test_SOURCES = unittest/progress_test.cc
+progress_test_CPPFLAGS = $(unittest_CPPFLAGS)
+progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
+progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+qrsequence_test_SOURCES = unittest/qrsequence_test.cc
+qrsequence_test_CPPFLAGS = $(unittest_CPPFLAGS)
+qrsequence_test_LDADD = $(ABSEIL_LIBS) $(TESS_LIBS)
+
+recodebeam_test_SOURCES = unittest/recodebeam_test.cc
+recodebeam_test_CPPFLAGS = $(unittest_CPPFLAGS)
+recodebeam_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+rect_test_SOURCES = unittest/rect_test.cc
+rect_test_CPPFLAGS = $(unittest_CPPFLAGS)
+rect_test_LDADD = $(TESS_LIBS)
+
+resultiterator_test_SOURCES = unittest/resultiterator_test.cc
+resultiterator_test_CPPFLAGS = $(unittest_CPPFLAGS)
+resultiterator_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+resultiterator_test_LDADD += $(LEPTONICA_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+scanutils_test_SOURCES = unittest/scanutils_test.cc
+scanutils_test_CPPFLAGS = $(unittest_CPPFLAGS)
+scanutils_test_LDADD = $(TRAINING_LIBS)
+
+if !DISABLED_LEGACY_ENGINE
+shapetable_test_SOURCES = unittest/shapetable_test.cc
+shapetable_test_CPPFLAGS = $(unittest_CPPFLAGS)
+shapetable_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+stats_test_SOURCES = unittest/stats_test.cc
+stats_test_CPPFLAGS = $(unittest_CPPFLAGS)
+stats_test_LDADD = $(TESS_LIBS)
+
+stridemap_test_SOURCES = unittest/stridemap_test.cc
+stridemap_test_CPPFLAGS = $(unittest_CPPFLAGS)
+stridemap_test_LDADD = $(TESS_LIBS)
+
+stringrenderer_test_SOURCES = unittest/stringrenderer_test.cc
+stringrenderer_test_CPPFLAGS = $(unittest_CPPFLAGS)
+stringrenderer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+stringrenderer_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+stringrenderer_test_LDADD += $(pangocairo_LIBS) $(pangoft2_LIBS)
+stringrenderer_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
+
+tablefind_test_SOURCES = unittest/tablefind_test.cc
+tablefind_test_CPPFLAGS = $(unittest_CPPFLAGS)
+tablefind_test_LDADD = $(TESS_LIBS)
+
+tablerecog_test_SOURCES = unittest/tablerecog_test.cc
+tablerecog_test_CPPFLAGS = $(unittest_CPPFLAGS)
+tablerecog_test_LDADD = $(TESS_LIBS)
+
+tabvector_test_SOURCES = unittest/tabvector_test.cc
+tabvector_test_CPPFLAGS = $(unittest_CPPFLAGS)
+tabvector_test_LDADD = $(TESS_LIBS)
+
+tatweel_test_SOURCES = unittest/tatweel_test.cc
+if TENSORFLOW
+tatweel_test_SOURCES += unittest/third_party/utf/rune.c
+tatweel_test_SOURCES += unittest/util/utf8/unicodetext.cc
+tatweel_test_SOURCES += unittest/util/utf8/unilib.cc
+endif # TENSORFLOW
+tatweel_test_CPPFLAGS = $(unittest_CPPFLAGS)
+tatweel_test_LDADD = $(TRAINING_LIBS)
+
+textlineprojection_test_SOURCES = unittest/textlineprojection_test.cc
+textlineprojection_test_CPPFLAGS = $(unittest_CPPFLAGS)
+textlineprojection_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+
+tfile_test_SOURCES = unittest/tfile_test.cc
+tfile_test_CPPFLAGS = $(unittest_CPPFLAGS)
+tfile_test_LDADD = $(TESS_LIBS)
+
+unichar_test_SOURCES = unittest/unichar_test.cc
+unichar_test_CPPFLAGS = $(unittest_CPPFLAGS)
+unichar_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
+
+unicharcompress_test_SOURCES = unittest/unicharcompress_test.cc
+unicharcompress_test_CPPFLAGS = $(unittest_CPPFLAGS)
+unicharcompress_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_UC_LIBS)
+
+unicharset_test_SOURCES = unittest/unicharset_test.cc
+unicharset_test_CPPFLAGS = $(unittest_CPPFLAGS)
+unicharset_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
+
+validate_grapheme_test_SOURCES = unittest/validate_grapheme_test.cc
+validate_grapheme_test_CPPFLAGS = $(unittest_CPPFLAGS)
+validate_grapheme_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+validate_indic_test_SOURCES = unittest/validate_indic_test.cc
+validate_indic_test_CPPFLAGS = $(unittest_CPPFLAGS)
+validate_indic_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+validate_khmer_test_SOURCES = unittest/validate_khmer_test.cc
+validate_khmer_test_CPPFLAGS = $(unittest_CPPFLAGS)
+validate_khmer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+validate_myanmar_test_SOURCES = unittest/validate_myanmar_test.cc
+validate_myanmar_test_CPPFLAGS = $(unittest_CPPFLAGS)
+validate_myanmar_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+validator_test_SOURCES = unittest/validator_test.cc
+validator_test_CPPFLAGS = $(unittest_CPPFLAGS)
+validator_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
+
+# for windows
+if T_WIN
+apiexample_test_LDADD += -lws2_32
+intsimdmatrix_test_LDADD += -lws2_32
+matrix_test_LDADD += -lws2_32
+if !DISABLED_LEGACY_ENGINE
+osd_test_LDADD += -lws2_32
+endif # !DISABLED_LEGACY_ENGINE
+loadlang_test_LDADD += -lws2_32
+endif
+
+EXTRA_apiexample_test_DEPENDENCIES = $(abs_top_builddir)/test/testing/phototest.tif
+EXTRA_apiexample_test_DEPENDENCIES += $(abs_top_builddir)/test/testing/phototest.txt
+
+$(abs_top_builddir)/test/testing/phototest.tif:
+	mkdir -p $(top_builddir)/test/testing
+	ln -s $(TESTING_DIR)/phototest.tif $(top_builddir)/test/testing/phototest.tif
+
+$(abs_top_builddir)/test/testing/phototest.txt:
+	mkdir -p $(top_builddir)/test/testing
+	ln -s $(TESTING_DIR)/phototest.txt $(top_builddir)/test/testing/phototest.txt
+
+# Some tests require a local tmp directory.
+
+$(check_PROGRAMS): | tmp
+
+tmp:
+	mkdir -p tmp
+
+# Some tests require a well defined set of the following font files.
+
+fonts = ae_Arab.ttf
+fonts += Arial_Bold_Italic.ttf
+fonts += DejaVuSans-ExtraLight.ttf
+fonts += Lohit-Hindi.ttf
+fonts += Times_New_Roman.ttf
+fonts += UnBatang.ttf
+fonts += Verdana.ttf
+
+# These tests depend on installed model files and fonts:
+#
+# apiexample_test baseapi_test lang_model_test layout_test
+# ligature_table_test loadlang_test lstm_recode_test lstm_squashed_test
+# lstm_test lstmtrainer_test mastertrainer_test osd_test
+# pagesegmode_test pango_font_info_test progress_test
+# recodebeam_test resultiterator_test stringrenderer_test
+# textlineprojection_test unicharcompress_test
+#
+# Instead of fine-tuned dependencies the following lines
+# simply require those dependencies for all tests.
+# That can be improved if necessary.
+
+$(check_PROGRAMS): | $(LANGDATA_DIR)
+$(check_PROGRAMS): | $(TESSDATA_DIR)
+$(check_PROGRAMS): | $(TESSDATA_BEST_DIR)
+$(check_PROGRAMS): | $(TESSDATA_FAST_DIR)
+$(check_PROGRAMS): | $(fonts:%=$(TESTING_DIR)/%)
+
+$(LANGDATA_DIR) $(TESSDATA_DIR) $(TESSDATA_BEST_DIR) $(TESSDATA_FAST_DIR):
+	@echo "Some unit tests require $@."
+	@echo "It can be installed manually by running this command:"
+	@echo "  git clone https://github.com/tesseract-ocr/$$(basename $@).git $@"
+	@exit 1
+
+$(TESTING_DIR)/Arial_Bold_Italic.ttf:
+	curl -sSL -o Arial.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/arial32.exe/download
+	cabextract -F Arialbi.TTF -q Arial.exe
+	rm Arial.exe
+	mv Arialbi.TTF $@
+
+$(TESTING_DIR)/DejaVuSans-ExtraLight.ttf:
+	curl -sSL http://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2 | \
+	tar -xjO dejavu-fonts-ttf-2.37/ttf/DejaVuSans-ExtraLight.ttf >$@
+
+$(TESTING_DIR)/Lohit-Hindi.ttf:
+	curl -sSL https://releases.pagure.org/lohit/lohit-hindi-ttf-2.4.3.tar.gz | \
+	tar -xzO lohit-hindi-ttf-2.4.3/Lohit-Hindi.ttf >$@
+
+$(TESTING_DIR)/Times_New_Roman.ttf:
+	curl -sSL -o Times.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/times32.exe/download
+	cabextract -F Times.TTF -q Times.exe
+	rm Times.exe
+	mv Times.TTF $@
+
+$(TESTING_DIR)/UnBatang.ttf:
+	curl -sSL -o $@ https://salsa.debian.org/fonts-team/fonts-unfonts-core/-/raw/master/UnBatang.ttf
+
+$(TESTING_DIR)/Verdana.ttf:
+	curl -sSL -o Verdana.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/verdan32.exe/download
+	cabextract -F Verdana.TTF -q Verdana.exe
+	rm Verdana.exe
+	mv Verdana.TTF $@
+
+$(TESTING_DIR)/ae_Arab.ttf:
+	curl -sSL -o $@ https://salsa.debian.org/fonts-team/fonts-arabeyes/-/raw/master/ae_Arab.ttf

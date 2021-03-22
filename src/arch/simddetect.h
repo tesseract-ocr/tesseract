@@ -17,19 +17,19 @@
 #ifndef TESSERACT_ARCH_SIMDDETECT_H_
 #define TESSERACT_ARCH_SIMDDETECT_H_
 
-#include <tesseract/platform.h>
+#include <tesseract/export.h>
 
 namespace tesseract {
 
 // Function pointer for best calculation of dot product.
-using DotProductFunction = double (*)(const double*, const double*, int);
+using DotProductFunction = double (*)(const double *, const double *, int);
 extern DotProductFunction DotProduct;
 
 // Architecture detector. Add code here to detect any other architectures for
 // SIMD-based faster dot product functions. Intended to be a single static
 // object, but it does no real harm to have more than one.
 class SIMDDetect {
- public:
+public:
   // Returns true if AVX is available on this system.
   static inline bool IsAVXAvailable() {
     return detector.avx_available_;
@@ -62,11 +62,11 @@ class SIMDDetect {
   // Update settings after config variable was set.
   static TESS_API void Update();
 
- private:
+private:
   // Constructor, must set all static member variables.
   SIMDDetect();
 
- private:
+private:
   // Singleton.
   static SIMDDetect detector;
   // If true, then AVX has been detected.
@@ -82,6 +82,6 @@ class SIMDDetect {
   static TESS_API bool neon_available_;
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_ARCH_SIMDDETECT_H_
+#endif // TESSERACT_ARCH_SIMDDETECT_H_

@@ -22,8 +22,8 @@ TEST_F(LSTMTrainerTest, RecodeTestKorBase) {
                "kor.Arial_Unicode_MS.exp0.lstmf", false, true, 5e-4, false, "kor");
   double kor_full_err = TrainIterations(kTrainerIterations * 2);
   EXPECT_LT(kor_full_err, 88);
-//  EXPECT_GT(kor_full_err, 85);
-  LOG(INFO) << "********** Expected  < 88 ************\n" ;
+  //  EXPECT_GT(kor_full_err, 85);
+  LOG(INFO) << "********** Expected  < 88 ************\n";
 }
 
 TEST_F(LSTMTrainerTest, RecodeTestKor) {
@@ -32,7 +32,7 @@ TEST_F(LSTMTrainerTest, RecodeTestKor) {
                "kor.Arial_Unicode_MS.exp0.lstmf", true, true, 5e-4, false, "kor");
   double kor_recode_err = TrainIterations(kTrainerIterations);
   EXPECT_LT(kor_recode_err, 60);
-  LOG(INFO) << "********** Expected  < 60 ************\n" ;
+  LOG(INFO) << "********** Expected  < 60 ************\n";
 }
 
 // Tests that the given string encodes and decodes back to the same
@@ -42,5 +42,4 @@ TEST_F(LSTMTrainerTest, EncodeDecodeBothTestKor) {
   TestEncodeDecodeBoth("kor", "한국어 위키백과에 오신 것을 환영합니다!");
 }
 
-
-}  // namespace tesseract.
+} // namespace tesseract.

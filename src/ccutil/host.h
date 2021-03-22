@@ -18,8 +18,11 @@
 #ifndef TESSERACT_CCUTIL_HOST_H_
 #define TESSERACT_CCUTIL_HOST_H_
 
+#include <tesseract/export.h>
+
+#include <climits>
 #include <limits>
-#include <tesseract/platform.h>
+
 /* _WIN32 */
 #ifdef _WIN32
 #  ifndef NOMINMAX
@@ -28,15 +31,28 @@
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
 #  endif
-#include <windows.h>
-#undef min
-#undef max
-#endif  // _WIN32
+#  include <windows.h>
+#  undef min
+#  undef max
+#endif // _WIN32
+
+#ifndef _WIN32
+#  ifndef PATH_MAX
+#    define MAX_PATH 4096
+#  else
+#    define MAX_PATH PATH_MAX
+#  endif
+#endif
+
+namespace tesseract {
 
 // Return true if x is within tolerance of y
-template<class T> bool NearlyEqual(T x, T y, T tolerance) {
+template <class T>
+bool NearlyEqual(T x, T y, T tolerance) {
   T diff = x - y;
   return diff <= tolerance && -diff <= tolerance;
 }
 
-#endif  // TESSERACT_CCUTIL_HOST_H_
+} // namespace tesseract
+
+#endif // TESSERACT_CCUTIL_HOST_H_

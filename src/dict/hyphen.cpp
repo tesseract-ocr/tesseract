@@ -33,16 +33,15 @@ void Dict::reset_hyphen_vars(bool last_word_on_line) {
     }
   }
   if (hyphen_debug_level) {
-    tprintf("reset_hyphen_vars: last_word_on_line %d -> %d\n",
-            last_word_on_line_, last_word_on_line);
+    tprintf("reset_hyphen_vars: last_word_on_line %d -> %d\n", last_word_on_line_,
+            last_word_on_line);
   }
   last_word_on_line_ = last_word_on_line;
 }
 
 // Update hyphen_word_, and copy the given DawgPositionVectors into
 // hyphen_active_dawgs_.
-void Dict::set_hyphen_word(const WERD_CHOICE &word,
-                           const DawgPositionVector &active_dawgs) {
+void Dict::set_hyphen_word(const WERD_CHOICE &word, const DawgPositionVector &active_dawgs) {
   if (hyphen_word_ == nullptr) {
     hyphen_word_ = new WERD_CHOICE(word.unicharset());
     hyphen_word_->make_bad();
@@ -58,4 +57,4 @@ void Dict::set_hyphen_word(const WERD_CHOICE &word,
     hyphen_word_->print("set_hyphen_word: ");
   }
 }
-}  // namespace tesseract
+} // namespace tesseract

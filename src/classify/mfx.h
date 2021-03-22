@@ -18,11 +18,10 @@
 #ifndef MFX_H
 #define MFX_H
 
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
 #include "mfdefs.h"
 #include "params.h"
+
+namespace tesseract {
 
 class DENORM;
 struct TBLOB;
@@ -34,12 +33,13 @@ struct TBLOB;
 /* old numbers corresponded to 10.0 degrees and 80.0 degrees */
 extern double_VAR_H(classify_min_slope, 0.414213562,
                     "Slope below which lines are called horizontal");
-extern double_VAR_H(classify_max_slope, 2.414213562,
-                    "Slope above which lines are called vertical");
+extern double_VAR_H(classify_max_slope, 2.414213562, "Slope above which lines are called vertical");
 
 /*----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm);
+MICROFEATURES BlobMicroFeatures(TBLOB *Blob, const DENORM &cn_denorm);
+
+} // namespace tesseract
 
 #endif

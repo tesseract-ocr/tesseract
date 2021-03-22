@@ -17,30 +17,29 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-
 #ifndef TESSERACT_TEXTORD_BLOBGRID_H_
 #define TESSERACT_TEXTORD_BLOBGRID_H_
 
 #include "bbgrid.h"
 #include "blobbox.h"
 
-CLISTIZEH(BLOBNBOX)
-
 namespace tesseract {
+
+CLISTIZEH(BLOBNBOX)
 
 using BlobGridSearch = GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>;
 
-class BlobGrid : public BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> {
- public:
-  BlobGrid(int gridsize, const ICOORD& bleft, const ICOORD& tright);
+class TESS_API BlobGrid : public BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> {
+public:
+  BlobGrid(int gridsize, const ICOORD &bleft, const ICOORD &tright);
   ~BlobGrid() override;
 
   // Inserts all the blobs from the given list, with x and y spreading,
   // without removing from the source list, so ownership remains with the
   // source list.
-  void InsertBlobList(BLOBNBOX_LIST* blobs);
+  void InsertBlobList(BLOBNBOX_LIST *blobs);
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_BLOBGRID_H_
+#endif // TESSERACT_TEXTORD_BLOBGRID_H_

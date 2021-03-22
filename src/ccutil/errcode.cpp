@@ -16,14 +16,17 @@
  *
  **********************************************************************/
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstdarg>
-#include <cstring>
 #include "errcode.h"
 
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+namespace tesseract {
+
 constexpr ERRCODE BADERRACTION("Illegal error action");
-#define MAX_MSG       1024
+#define MAX_MSG 1024
 
 /**********************************************************************
  * error
@@ -32,39 +35,40 @@ constexpr ERRCODE BADERRACTION("Illegal error action");
  * Makes use of error messages and numbers in a common place.
  *
  **********************************************************************/
-void ERRCODE::error(             // handle error
-const char *caller,              // name of caller
-TessErrorLogCode action,         // action to take
-const char *format, ...          // special message
-) const {
-  va_list args;                  // variable args
+void ERRCODE::error(         // handle error
+    const char *caller,      // name of caller
+    TessErrorLogCode action, // action to take
+    const char *format, ...  // special message
+    ) const {
+  va_list args; // variable args
   char msg[MAX_MSG];
   char *msgptr = msg;
 
-  if (caller != nullptr)
-                                 //name of caller
-    msgptr += sprintf (msgptr, "%s:", caller);
-                                 //actual message
-  msgptr += sprintf (msgptr, "Error:%s", message);
-  if (format != nullptr) {
-    msgptr += sprintf (msgptr, ":");
-    va_start(args, format);  //variable list
-    #ifdef _WIN32
-                                 //print remainder
-    msgptr += _vsnprintf (msgptr, MAX_MSG - 2 - (msgptr - msg), format, args);
-    msg[MAX_MSG - 2] = '\0';     //ensure termination
-    strcat (msg, "\n");
-    #else
-                                 //print remainder
-    msgptr += vsprintf (msgptr, format, args);
-                                 //no specific
-    msgptr += sprintf (msgptr, "\n");
-    #endif
-    va_end(args);
+  if (caller != nullptr) {
+    // name of caller
+    msgptr += sprintf(msgptr, "%s:", caller);
   }
-  else
-                                 //no specific
-    msgptr += sprintf (msgptr, "\n");
+  // actual message
+  msgptr += sprintf(msgptr, "Error:%s", message);
+  if (format != nullptr) {
+    msgptr += sprintf(msgptr, ":");
+    va_start(args, format); // variable list
+#ifdef _WIN32
+                            // print remainder
+    msgptr += _vsnprintf(msgptr, MAX_MSG - 2 - (msgptr - msg), format, args);
+    msg[MAX_MSG - 2] = '\0'; // ensure termination
+    strcat(msg, "\n");
+#else
+                            // print remainder
+    msgptr += vsprintf(msgptr, format, args);
+    // no specific
+    msgptr += sprintf(msgptr, "\n");
+#endif
+    va_end(args);
+  } else {
+    // no specific
+    msgptr += sprintf(msgptr, "\n");
+  }
 
   // %s is needed here so msg is printed correctly!
   fprintf(stderr, "%s", msg);
@@ -72,21 +76,23 @@ const char *format, ...          // special message
   switch (action) {
     case DBG:
     case TESSLOG:
-      return;                    //report only
+      return; // report only
     case TESSEXIT:
     case ABORT:
 #if !defined(NDEBUG)
       // Create a deliberate abnormal exit as the stack trace is more useful
       // that way. This is done only in debug builds, because the
       // error message "segmentation fault" confuses most normal users.
-#if defined(__GNUC__)
+#  if defined(__GNUC__)
       __builtin_trap();
-#else
-      *reinterpret_cast<int*>(0) = 0;
-#endif
+#  else
+      *reinterpret_cast<int *>(0) = 0;
+#  endif
 #endif
       abort();
     default:
-      BADERRACTION.error ("error", ABORT, nullptr);
+      BADERRACTION.error("error", ABORT, nullptr);
   }
 }
+
+} // namespace tesseract

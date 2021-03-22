@@ -3,7 +3,6 @@
  * Description: Function to degrade an image (usually of text) as if it
  *              has been printed and then scanned.
  * Authors:     Ray Smith
- * Created:     Tue Nov 19 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,9 +19,8 @@
 #ifndef TESSERACT_TRAINING_DEGRADEIMAGE_H_
 #define TESSERACT_TRAINING_DEGRADEIMAGE_H_
 
-#include "allheaders.h"
-#include <tesseract/genericvector.h>
-#include <tesseract/helpers.h>  // For TRand.
+#include <allheaders.h>
+#include "helpers.h" // For TRand.
 #include "rect.h"
 
 namespace tesseract {
@@ -32,30 +30,28 @@ namespace tesseract {
 // If rotation is not nullptr, the clockwise rotation in radians is saved there.
 // The input pix must be 8 bit grey. (Binary with values 0 and 255 is OK.)
 // The input image is destroyed and a different image returned.
-struct Pix* DegradeImage(struct Pix* input, int exposure, TRand* randomizer,
-                         float* rotation);
+struct Pix *DegradeImage(struct Pix *input, int exposure, TRand *randomizer, float *rotation);
 
 // Creates and returns a Pix distorted by various means according to the bool
 // flags. If boxes is not nullptr, the boxes are resized/positioned according to
 // any spatial distortion and also by the integer reduction factor box_scale
 // so they will match what the network will output.
 // Returns nullptr on error. The returned Pix must be pixDestroyed.
-Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
-                         bool white_noise, bool smooth_noise, bool blur,
-                         int box_reduction, TRand* randomizer,
-                         GenericVector<TBOX>* boxes);
+Pix *PrepareDistortedPix(const Pix *pix, bool perspective, bool invert, bool white_noise,
+                         bool smooth_noise, bool blur, int box_reduction, TRand *randomizer,
+                         std::vector<TBOX> *boxes);
 // Distorts anything that has a non-null pointer with the same pseudo-random
 // perspective distortion. Width and height only need to be set if there
 // is no pix. If there is a pix, then they will be taken from there.
-void GeneratePerspectiveDistortion(int width, int height, TRand* randomizer,
-                                   Pix** pix, GenericVector<TBOX>* boxes);
+void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Pix **pix,
+                                   std::vector<TBOX> *boxes);
 // Computes the coefficients of a randomized projective transformation.
 // The image transform requires backward transformation coefficient, and the
 // box transform the forward coefficients.
 // Returns the incolor arg to pixProjective.
-int ProjectiveCoeffs(int width, int height, TRand* randomizer,
-                     float** im_coeffs, float** box_coeffs);
+int ProjectiveCoeffs(int width, int height, TRand *randomizer, float **im_coeffs,
+                     float **box_coeffs);
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_TRAINING_DEGRADEIMAGE_H_
+#endif // TESSERACT_TRAINING_DEGRADEIMAGE_H_

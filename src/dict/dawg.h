@@ -25,24 +25,23 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 
-#include <cinttypes>            // for PRId64
-#include <functional>           // for std::function
+#include <cinttypes>  // for PRId64
+#include <functional> // for std::function
 #include <memory>
 #include "elst.h"
 #include "params.h"
 #include "ratngs.h"
 
 #ifndef __GNUC__
-#ifdef _WIN32
-#define NO_EDGE                (int64_t) 0xffffffffffffffffi64
-#endif  /*_WIN32*/
+#  ifdef _WIN32
+#    define NO_EDGE (int64_t)0xffffffffffffffffi64
+#  endif /*_WIN32*/
 #else
-#define NO_EDGE                (int64_t) 0xffffffffffffffffll
+#  define NO_EDGE (int64_t)0xffffffffffffffffll
 #endif /*__GNUC__*/
 
-/*----------------------------------------------------------------------
-              T y p e s
-----------------------------------------------------------------------*/
+namespace tesseract {
+
 class UNICHARSET;
 
 using EDGE_RECORD = uint64_t;
@@ -51,18 +50,16 @@ using EDGE_REF = int64_t;
 using NODE_REF = int64_t;
 using NODE_MAP = EDGE_REF *;
 
-namespace tesseract {
-
 struct NodeChild {
   UNICHAR_ID unichar_id;
   EDGE_REF edge_ref;
-  NodeChild(UNICHAR_ID id, EDGE_REF ref): unichar_id(id), edge_ref(ref) {}
-  NodeChild(): unichar_id(INVALID_UNICHAR_ID), edge_ref(NO_EDGE) {}
+  NodeChild(UNICHAR_ID id, EDGE_REF ref) : unichar_id(id), edge_ref(ref) {}
+  NodeChild() : unichar_id(INVALID_UNICHAR_ID), edge_ref(NO_EDGE) {}
 };
 
-using NodeChildVector = GenericVector<NodeChild>;
-using SuccessorList = GenericVector<int>;
-using SuccessorListsVector = GenericVector<SuccessorList *>;
+using NodeChildVector = std::vector<NodeChild>;
+using SuccessorList = std::vector<int>;
+using SuccessorListsVector = std::vector<SuccessorList *>;
 
 enum DawgType {
   DAWG_TYPE_PUNCTUATION,
@@ -70,32 +67,31 @@ enum DawgType {
   DAWG_TYPE_NUMBER,
   DAWG_TYPE_PATTERN,
 
-  DAWG_TYPE_COUNT  // number of enum entries
+  DAWG_TYPE_COUNT // number of enum entries
 };
 
 /*----------------------------------------------------------------------
               C o n s t a n t s
 ----------------------------------------------------------------------*/
 
-#define FORWARD_EDGE           (int32_t) 0
-#define BACKWARD_EDGE          (int32_t) 1
-#define MAX_NODE_EDGES_DISPLAY (int64_t) 100
-#define MARKER_FLAG            (int64_t) 1
-#define DIRECTION_FLAG         (int64_t) 2
-#define WERD_END_FLAG          (int64_t) 4
-#define LETTER_START_BIT       0
-#define NUM_FLAG_BITS          3
+#define FORWARD_EDGE (int32_t)0
+#define BACKWARD_EDGE (int32_t)1
+#define MAX_NODE_EDGES_DISPLAY (int64_t)100
+#define MARKER_FLAG (int64_t)1
+#define DIRECTION_FLAG (int64_t)2
+#define WERD_END_FLAG (int64_t)4
+#define LETTER_START_BIT 0
+#define NUM_FLAG_BITS 3
 #define REFFORMAT "%" PRId64
 
 static const bool kDawgSuccessors[DAWG_TYPE_COUNT][DAWG_TYPE_COUNT] = {
-  { false, true, true, false },  // for DAWG_TYPE_PUNCTUATION
-  { true, false, false, false },  // for DAWG_TYPE_WORD
-  { true, false, false, false },  // for DAWG_TYPE_NUMBER
-  { false, false, false, false },  // for DAWG_TYPE_PATTERN
+    {false, true, true, false},   // for DAWG_TYPE_PUNCTUATION
+    {true, false, false, false},  // for DAWG_TYPE_WORD
+    {true, false, false, false},  // for DAWG_TYPE_NUMBER
+    {false, false, false, false}, // for DAWG_TYPE_PATTERN
 };
 
 static const char kWildcard[] = "*";
-
 
 /*----------------------------------------------------------------------
               C l a s s e s   a n d   S t r u c t s
@@ -111,8 +107,8 @@ static const char kWildcard[] = "*";
 /// (since they use only the public methods of SquishedDawg and Trie
 /// classes that are inherited from the Dawg base class).
 //
-class Dawg {
- public:
+class TESS_API Dawg {
+public:
   /// Magic number to determine endianness when reading the Dawg from file.
   static const int16_t kDawgMagicNumber = 42;
   /// A special unichar id that indicates that any appropriate pattern
@@ -120,9 +116,15 @@ class Dawg {
   /// Used for expressing patterns in punctuation and number Dawgs.
   static const UNICHAR_ID kPatternUnicharID = 0;
 
-  inline DawgType type() const { return type_; }
-  inline const STRING &lang() const { return lang_; }
-  inline PermuterType permuter() const { return perm_; }
+  inline DawgType type() const {
+    return type_;
+  }
+  inline const std::string &lang() const {
+    return lang_;
+  }
+  inline PermuterType permuter() const {
+    return perm_;
+  }
 
   virtual ~Dawg();
 
@@ -135,30 +137,26 @@ class Dawg {
 
   /// Checks the Dawg for the words that are listed in the requested file.
   /// Returns the number of words in the given file missing from the Dawg.
-  int check_for_words(const char *filename,
-                      const UNICHARSET &unicharset,
+  int check_for_words(const char *filename, const UNICHARSET &unicharset,
                       bool enable_wildcard) const;
 
   // For each word in the Dawg, call the given (permanent) callback with the
   // text (UTF-8) version of the word.
-  void iterate_words(const UNICHARSET& unicharset,
-                     std::function<void(const WERD_CHOICE*)> cb) const;
+  void iterate_words(const UNICHARSET &unicharset,
+                     std::function<void(const WERD_CHOICE *)> cb) const;
 
   // For each word in the Dawg, call the given (permanent) callback with the
   // text (UTF-8) version of the word.
-  void iterate_words(const UNICHARSET& unicharset,
-                     std::function<void(const char*)> cb) const;
+  void iterate_words(const UNICHARSET &unicharset, std::function<void(const char *)> cb) const;
 
   // Pure virtual function that should be implemented by the derived classes.
 
   /// Returns the edge that corresponds to the letter out of this node.
-  virtual EDGE_REF edge_char_of(NODE_REF node, UNICHAR_ID unichar_id,
-                                bool word_end) const = 0;
+  virtual EDGE_REF edge_char_of(NODE_REF node, UNICHAR_ID unichar_id, bool word_end) const = 0;
 
   /// Fills the given NodeChildVector with all the unichar ids (and the
   /// corresponding EDGE_REFs) for which there is an edge out of this node.
-  virtual void unichar_ids_of(NODE_REF node, NodeChildVector *vec,
-                              bool word_end) const = 0;
+  virtual void unichar_ids_of(NODE_REF node, NodeChildVector *vec, bool word_end) const = 0;
 
   /// Returns the next node visited by following the edge
   /// indicated by the given EDGE_REF.
@@ -177,9 +175,8 @@ class Dawg {
 
   /// Fills vec with unichar ids that represent the character classes
   /// of the given unichar_id.
-  virtual void unichar_id_to_patterns(UNICHAR_ID unichar_id,
-                                      const UNICHARSET &unicharset,
-                                      GenericVector<UNICHAR_ID> *vec) const {
+  virtual void unichar_id_to_patterns(UNICHAR_ID unichar_id, const UNICHARSET &unicharset,
+                                      std::vector<UNICHAR_ID> *vec) const {
     (void)unichar_id;
     (void)unicharset;
     (void)vec;
@@ -188,21 +185,17 @@ class Dawg {
   /// Returns the given EDGE_REF if the EDGE_RECORD that it points to has
   /// a self loop and the given unichar_id matches the unichar_id stored in the
   /// EDGE_RECORD, returns NO_EDGE otherwise.
-  virtual EDGE_REF pattern_loop_edge(
-      EDGE_REF edge_ref, UNICHAR_ID unichar_id, bool word_end) const {
+  virtual EDGE_REF pattern_loop_edge(EDGE_REF edge_ref, UNICHAR_ID unichar_id,
+                                     bool word_end) const {
     (void)edge_ref;
     (void)unichar_id;
     (void)word_end;
     return false;
   }
 
- protected:
-  Dawg(DawgType type, const STRING &lang, PermuterType perm, int debug_level)
-      : lang_(lang),
-        type_(type),
-        perm_(perm),
-        unicharset_size_(0),
-        debug_level_(debug_level) {}
+protected:
+  Dawg(DawgType type, const std::string &lang, PermuterType perm, int debug_level)
+      : lang_(lang), type_(type), perm_(perm), unicharset_size_(0), debug_level_(debug_level) {}
 
   /// Returns the next node visited by following this edge.
   inline NODE_REF next_node_from_edge_rec(const EDGE_RECORD &edge_rec) const {
@@ -214,21 +207,18 @@ class Dawg {
   }
   /// Returns the direction flag of this edge.
   inline int direction_from_edge_rec(const EDGE_RECORD &edge_rec) const {
-    return ((edge_rec & (DIRECTION_FLAG << flag_start_bit_))) ?
-      BACKWARD_EDGE : FORWARD_EDGE;
+    return ((edge_rec & (DIRECTION_FLAG << flag_start_bit_))) ? BACKWARD_EDGE : FORWARD_EDGE;
   }
   /// Returns true if this edge marks the end of a word.
   inline bool end_of_word_from_edge_rec(const EDGE_RECORD &edge_rec) const {
     return (edge_rec & (WERD_END_FLAG << flag_start_bit_)) != 0;
   }
   /// Returns UNICHAR_ID recorded in this edge.
-  inline UNICHAR_ID unichar_id_from_edge_rec(
-      const EDGE_RECORD &edge_rec) const {
+  inline UNICHAR_ID unichar_id_from_edge_rec(const EDGE_RECORD &edge_rec) const {
     return ((edge_rec & letter_mask_) >> LETTER_START_BIT);
   }
   /// Sets the next node link for this edge in the Dawg.
-  inline void set_next_node_in_edge_rec(
-      EDGE_RECORD *edge_rec, EDGE_REF value) {
+  inline void set_next_node_in_edge_rec(EDGE_RECORD *edge_rec, EDGE_REF value) {
     *edge_rec &= (~next_node_mask_);
     *edge_rec |= ((value << next_node_start_bit_) & next_node_mask_);
   }
@@ -243,20 +233,26 @@ class Dawg {
   ///            checked are the same)
   ///          0 if edge_rec_match() returns true
   ///         -1 otherwise
-  inline int given_greater_than_edge_rec(NODE_REF next_node,
-                                         bool word_end,
-                                         UNICHAR_ID unichar_id,
+  inline int given_greater_than_edge_rec(NODE_REF next_node, bool word_end, UNICHAR_ID unichar_id,
                                          const EDGE_RECORD &edge_rec) const {
     UNICHAR_ID curr_unichar_id = unichar_id_from_edge_rec(edge_rec);
     NODE_REF curr_next_node = next_node_from_edge_rec(edge_rec);
     bool curr_word_end = end_of_word_from_edge_rec(edge_rec);
-    if (edge_rec_match(next_node, word_end, unichar_id, curr_next_node,
-                       curr_word_end, curr_unichar_id)) return 0;
-    if (unichar_id > curr_unichar_id) return 1;
+    if (edge_rec_match(next_node, word_end, unichar_id, curr_next_node, curr_word_end,
+                       curr_unichar_id)) {
+      return 0;
+    }
+    if (unichar_id > curr_unichar_id) {
+      return 1;
+    }
     if (unichar_id == curr_unichar_id) {
-      if (next_node > curr_next_node) return 1;
+      if (next_node > curr_next_node) {
+        return 1;
+      }
       if (next_node == curr_next_node) {
-        if (word_end > curr_word_end) return 1;
+        if (word_end > curr_word_end) {
+          return 1;
+        }
       }
     }
     return -1;
@@ -264,11 +260,8 @@ class Dawg {
   /// Returns true if all the values are equal (any value matches
   /// next_node if next_node == NO_EDGE, any value matches word_end
   /// if word_end is false).
-  inline bool edge_rec_match(NODE_REF next_node,
-                             bool word_end,
-                             UNICHAR_ID unichar_id,
-                             NODE_REF other_next_node,
-                             bool other_word_end,
+  inline bool edge_rec_match(NODE_REF next_node, bool word_end, UNICHAR_ID unichar_id,
+                             NODE_REF other_next_node, bool other_word_end,
                              UNICHAR_ID other_unichar_id) const {
     return ((unichar_id == other_unichar_id) &&
             (next_node == NO_EDGE || next_node == other_next_node) &&
@@ -284,16 +277,14 @@ class Dawg {
   /// the *'s in this string are interpreted as wildcards.
   /// WERD_CHOICE param is not passed by const so that wildcard searches
   /// can modify it and work without having to copy WERD_CHOICEs.
-  bool match_words(WERD_CHOICE *word, int32_t index,
-                   NODE_REF node, UNICHAR_ID wildcard) const;
+  bool match_words(WERD_CHOICE *word, int32_t index, NODE_REF node, UNICHAR_ID wildcard) const;
 
   // Recursively iterate over all words in a dawg (see public iterate_words).
-  void iterate_words_rec(const WERD_CHOICE& word_so_far,
-                         NODE_REF to_explore,
-                         std::function<void(const WERD_CHOICE*)> cb) const;
+  void iterate_words_rec(const WERD_CHOICE &word_so_far, NODE_REF to_explore,
+                         std::function<void(const WERD_CHOICE *)> cb) const;
 
   // Member Variables.
-  STRING lang_;
+  std::string lang_;
   DawgType type_;
   /// Permuter code that should be used if the word is found in this Dawg.
   PermuterType perm_;
@@ -348,19 +339,16 @@ class Dawg {
 //    We're back in the punctuation dawg.  Continuing there is the only option.
 struct DawgPosition {
   DawgPosition() = default;
-  DawgPosition(int dawg_idx, EDGE_REF dawgref,
-               int punc_idx, EDGE_REF puncref,
-               bool backtopunc)
-      : dawg_ref(dawgref), punc_ref(puncref),
-        dawg_index(dawg_idx), punc_index(punc_idx),
-        back_to_punc(backtopunc) {
-  }
+  DawgPosition(int dawg_idx, EDGE_REF dawgref, int punc_idx, EDGE_REF puncref, bool backtopunc)
+      : dawg_ref(dawgref)
+      , punc_ref(puncref)
+      , dawg_index(dawg_idx)
+      , punc_index(punc_idx)
+      , back_to_punc(backtopunc) {}
   bool operator==(const DawgPosition &other) {
-    return dawg_index == other.dawg_index &&
-        dawg_ref == other.dawg_ref &&
-        punc_index == other.punc_index &&
-        punc_ref == other.punc_ref &&
-        back_to_punc == other.back_to_punc;
+    return dawg_index == other.dawg_index && dawg_ref == other.dawg_ref &&
+           punc_index == other.punc_index && punc_ref == other.punc_ref &&
+           back_to_punc == other.back_to_punc;
   }
 
   EDGE_REF dawg_ref = NO_EDGE;
@@ -371,25 +359,21 @@ struct DawgPosition {
   bool back_to_punc = false;
 };
 
-class DawgPositionVector : public GenericVector<DawgPosition> {
- public:
-  /// Overload clear() in order to avoid allocating/deallocating memory
-  /// when clearing the vector and re-inserting entries into it later.
-  void clear() { size_used_ = 0; }
+class DawgPositionVector : public std::vector<DawgPosition> {
+public:
   /// Adds an entry for the given dawg_index with the given node to the vec.
   /// Returns false if the same entry already exists in the vector,
   /// true otherwise.
-  inline bool add_unique(const DawgPosition &new_pos,
-                         bool debug,
-                         const char *debug_msg) {
-    for (int i = 0; i < size_used_; ++i) {
-      if (data_[i] == new_pos) return false;
+  inline bool add_unique(const DawgPosition &new_pos, bool debug, const char *debug_msg) {
+    for (auto position : *this) {
+      if (position == new_pos) {
+        return false;
+      }
     }
     push_back(new_pos);
     if (debug) {
-      tprintf("%s[%d, " REFFORMAT "] [punc: " REFFORMAT "%s]\n",
-              debug_msg, new_pos.dawg_index, new_pos.dawg_ref,
-              new_pos.punc_ref, new_pos.back_to_punc ? " returned" : "");
+      tprintf("%s[%d, " REFFORMAT "] [punc: " REFFORMAT "%s]\n", debug_msg, new_pos.dawg_index,
+              new_pos.dawg_ref, new_pos.punc_ref, new_pos.back_to_punc ? " returned" : "");
     }
     return true;
   }
@@ -403,52 +387,54 @@ class DawgPositionVector : public GenericVector<DawgPosition> {
 /// is stored as a contiguous EDGE_ARRAY (read from file or given as an
 /// argument to the constructor).
 //
-class SquishedDawg : public Dawg {
- public:
-  SquishedDawg(DawgType type, const STRING &lang, PermuterType perm,
-               int debug_level)
+class TESS_API SquishedDawg : public Dawg {
+public:
+  SquishedDawg(DawgType type, const std::string &lang, PermuterType perm, int debug_level)
       : Dawg(type, lang, perm, debug_level) {}
-  SquishedDawg(const char *filename, DawgType type, const STRING &lang,
-               PermuterType perm, int debug_level)
+  SquishedDawg(const char *filename, DawgType type, const std::string &lang, PermuterType perm,
+               int debug_level)
       : Dawg(type, lang, perm, debug_level) {
     TFile file;
     ASSERT_HOST(file.Open(filename, nullptr));
     ASSERT_HOST(read_squished_dawg(&file));
     num_forward_edges_in_node0 = num_forward_edges(0);
   }
-  SquishedDawg(EDGE_ARRAY edges, int num_edges, DawgType type,
-               const STRING &lang, PermuterType perm, int unicharset_size,
-               int debug_level)
-      : Dawg(type, lang, perm, debug_level),
-        edges_(edges),
-        num_edges_(num_edges) {
+  SquishedDawg(EDGE_ARRAY edges, int num_edges, DawgType type, const std::string &lang,
+               PermuterType perm, int unicharset_size, int debug_level)
+      : Dawg(type, lang, perm, debug_level), edges_(edges), num_edges_(num_edges) {
     init(unicharset_size);
     num_forward_edges_in_node0 = num_forward_edges(0);
-    if (debug_level > 3) print_all("SquishedDawg:");
+    if (debug_level > 3) {
+      print_all("SquishedDawg:");
+    }
   }
   ~SquishedDawg() override;
 
   // Loads using the given TFile. Returns false on failure.
   bool Load(TFile *fp) {
-    if (!read_squished_dawg(fp)) return false;
+    if (!read_squished_dawg(fp)) {
+      return false;
+    }
     num_forward_edges_in_node0 = num_forward_edges(0);
     return true;
   }
 
-  int NumEdges() { return num_edges_; }
+  int NumEdges() {
+    return num_edges_;
+  }
 
   /// Returns the edge that corresponds to the letter out of this node.
-  EDGE_REF edge_char_of(NODE_REF node, UNICHAR_ID unichar_id,
-                        bool word_end) const override;
+  EDGE_REF edge_char_of(NODE_REF node, UNICHAR_ID unichar_id, bool word_end) const override;
 
   /// Fills the given NodeChildVector with all the unichar ids (and the
   /// corresponding EDGE_REFs) for which there is an edge out of this node.
-  void unichar_ids_of(NODE_REF node, NodeChildVector *vec,
-                      bool word_end) const override {
+  void unichar_ids_of(NODE_REF node, NodeChildVector *vec, bool word_end) const override {
     EDGE_REF edge = node;
-    if (!edge_occupied(edge) || edge == NO_EDGE) return;
-    assert(forward_edge(edge));  // we don't expect any backward edges to
-    do {                         // be present when this function is called
+    if (!edge_occupied(edge) || edge == NO_EDGE) {
+      return;
+    }
+    assert(forward_edge(edge)); // we don't expect any backward edges to
+    do {                        // be present when this function is called
       if (!word_end || end_of_word_from_edge_rec(edges_[edge])) {
         vec->push_back(NodeChild(unichar_id_from_edge_rec(edges_[edge]), edge));
       }
@@ -495,7 +481,7 @@ class SquishedDawg : public Dawg {
     return true;
   }
 
- private:
+private:
   /// Sets the next node link for this edge.
   inline void set_next_node(EDGE_REF edge_ref, EDGE_REF value) {
     set_next_node_in_edge_rec(&(edges_[edge_ref]), value);
@@ -506,16 +492,17 @@ class SquishedDawg : public Dawg {
   }
   /// Goes through all the edges and clears each one out.
   inline void clear_all_edges() {
-    for (int edge = 0; edge < num_edges_; edge++) set_empty_edge(edge);
+    for (int edge = 0; edge < num_edges_; edge++) {
+      set_empty_edge(edge);
+    }
   }
   /// Clears the last flag of this edge.
   inline void clear_marker_flag(EDGE_REF edge_ref) {
-     (edges_[edge_ref] &= ~(MARKER_FLAG << flag_start_bit_));
+    (edges_[edge_ref] &= ~(MARKER_FLAG << flag_start_bit_));
   }
   /// Returns true if this edge is in the forward direction.
   inline bool forward_edge(EDGE_REF edge_ref) const {
-    return (edge_occupied(edge_ref) &&
-            (FORWARD_EDGE == direction_from_edge_rec(edges_[edge_ref])));
+    return (edge_occupied(edge_ref) && (FORWARD_EDGE == direction_from_edge_rec(edges_[edge_ref])));
   }
   /// Returns true if this edge is in the backward direction.
   inline bool backward_edge(EDGE_REF edge_ref) const {
@@ -541,9 +528,11 @@ class SquishedDawg : public Dawg {
   void print_edge(EDGE_REF edge) const;
 
   /// Prints the contents of the SquishedDawg.
-  void print_all(const char* msg) {
+  void print_all(const char *msg) {
     tprintf("\n__________________________\n%s\n", msg);
-    for (int i = 0; i < num_edges_; ++i) print_edge(i);
+    for (int i = 0; i < num_edges_; ++i) {
+      print_edge(i);
+    }
     tprintf("__________________________\n");
   }
   /// Constructs a mapping from the memory node indices to disk node indices.
@@ -555,6 +544,6 @@ class SquishedDawg : public Dawg {
   int num_forward_edges_in_node0 = 0;
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // DICT_DAWG_H_
+#endif // DICT_DAWG_H_

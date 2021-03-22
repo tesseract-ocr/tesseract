@@ -2,7 +2,6 @@
  * File:        normalis.h  (Formerly denorm.h)
  * Description: Code for the DENORM class.
  * Author:      Ray Smith
- * Created:     Thu Apr 23 09:22:43 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,40 +19,41 @@
 #ifndef NORMALIS_H
 #define NORMALIS_H
 
-const int kBlnCellHeight = 256;     // Full-height for baseline normalization.
-const int kBlnXHeight = 128;        // x-height for baseline normalization.
-const int kBlnBaselineOffset = 64;  // offset for baseline normalization.
+#include <vector>
+#include <tesseract/export.h>
+#include <vector>
+
+struct Pix;
+
+namespace tesseract {
+
+const int kBlnCellHeight = 256;    // Full-height for baseline normalization.
+const int kBlnXHeight = 128;       // x-height for baseline normalization.
+const int kBlnBaselineOffset = 64; // offset for baseline normalization.
 
 class BLOCK;
 class FCOORD;
 class TBOX;
 class UNICHARSET;
 
-struct Pix;
 struct TBLOB;
 struct TPOINT;
-
-template <typename T> class GenericVector;
-
-namespace tesseract {
 
 // Possible normalization methods. Use NEGATIVE values as these also
 // double up as markers for the last sub-classifier.
 enum NormalizationMode {
-  NM_BASELINE = -3,         // The original BL normalization mode.
-  NM_CHAR_ISOTROPIC = -2,   // Character normalization but isotropic.
-  NM_CHAR_ANISOTROPIC = -1  // The original CN normalization mode.
+  NM_BASELINE = -3,        // The original BL normalization mode.
+  NM_CHAR_ISOTROPIC = -2,  // Character normalization but isotropic.
+  NM_CHAR_ANISOTROPIC = -1 // The original CN normalization mode.
 };
 
-}  // namespace tesseract.
-
-class DENORM {
- public:
+class TESS_API DENORM {
+public:
   DENORM();
 
   // Copying a DENORM is allowed.
   DENORM(const DENORM &);
-  DENORM& operator=(const DENORM&);
+  DENORM &operator=(const DENORM &);
   ~DENORM();
 
   // Setup the normalization transformation parameters.
@@ -171,11 +171,8 @@ class DENORM {
   //                    1.0f,
   //                    1.0f,
   //                    0, 0);
-  void SetupNormalization(const BLOCK* block,
-                          const FCOORD* rotation,
-                          const DENORM* predecessor,
-                          float x_origin, float y_origin,
-                          float x_scale, float y_scale,
+  void SetupNormalization(const BLOCK *block, const FCOORD *rotation, const DENORM *predecessor,
+                          float x_origin, float y_origin, float x_scale, float y_scale,
                           float final_xshift, float final_yshift);
 
   // Sets up the DENORM to execute a non-linear transformation based on
@@ -192,61 +189,53 @@ class DENORM {
   // Eg x_coords[0] is a collection of the x-coords of edges at y=bottom.
   // Eg x_coords[1] is a collection of the x-coords of edges at y=bottom + 1.
   // The second-level vectors must all be sorted in ascending order.
-  void SetupNonLinear(const DENORM* predecessor, const TBOX& box,
-                      float target_width, float target_height,
-                      float final_xshift, float final_yshift,
-                      const GenericVector<GenericVector<int> >& x_coords,
-                      const GenericVector<GenericVector<int> >& y_coords);
+  void SetupNonLinear(const DENORM *predecessor, const TBOX &box, float target_width,
+                      float target_height, float final_xshift, float final_yshift,
+                      const std::vector<std::vector<int>> &x_coords,
+                      const std::vector<std::vector<int>> &y_coords);
 
   // Transforms the given coords one step forward to normalized space, without
   // using any block rotation or predecessor.
-  void LocalNormTransform(const TPOINT& pt, TPOINT* transformed) const;
-  void LocalNormTransform(const FCOORD& pt, FCOORD* transformed) const;
+  void LocalNormTransform(const TPOINT &pt, TPOINT *transformed) const;
+  void LocalNormTransform(const FCOORD &pt, FCOORD *transformed) const;
   // Transforms the given coords forward to normalized space using the
   // full transformation sequence defined by the block rotation, the
-  // predecessors, deepest first, and finally this. If first_norm is not nullptr,
-  // then the first and deepest transformation used is first_norm, ending
-  // with this, and the block rotation will not be applied.
-  void NormTransform(const DENORM* first_norm, const TPOINT& pt,
-                     TPOINT* transformed) const;
-  void NormTransform(const DENORM* first_norm, const FCOORD& pt,
-                     FCOORD* transformed) const;
+  // predecessors, deepest first, and finally this. If first_norm is not
+  // nullptr, then the first and deepest transformation used is first_norm,
+  // ending with this, and the block rotation will not be applied.
+  void NormTransform(const DENORM *first_norm, const TPOINT &pt, TPOINT *transformed) const;
+  void NormTransform(const DENORM *first_norm, const FCOORD &pt, FCOORD *transformed) const;
   // Transforms the given coords one step back to source space, without
   // using to any block rotation or predecessor.
-  void LocalDenormTransform(const TPOINT& pt, TPOINT* original) const;
-  void LocalDenormTransform(const FCOORD& pt, FCOORD* original) const;
+  void LocalDenormTransform(const TPOINT &pt, TPOINT *original) const;
+  void LocalDenormTransform(const FCOORD &pt, FCOORD *original) const;
   // Transforms the given coords all the way back to source image space using
   // the full transformation sequence defined by this and its predecessors
   // recursively, shallowest first, and finally any block re_rotation.
   // If last_denorm is not nullptr, then the last transformation used will
   // be last_denorm, and the block re_rotation will never be executed.
-  void DenormTransform(const DENORM* last_denorm, const TPOINT& pt,
-                       TPOINT* original) const;
-  void DenormTransform(const DENORM* last_denorm, const FCOORD& pt,
-                       FCOORD* original) const;
+  void DenormTransform(const DENORM *last_denorm, const TPOINT &pt, TPOINT *original) const;
+  void DenormTransform(const DENORM *last_denorm, const FCOORD &pt, FCOORD *original) const;
 
   // Normalize a blob using blob transformations. Less accurate, but
   // more accurately copies the old way.
-  void LocalNormBlob(TBLOB* blob) const;
+  void LocalNormBlob(TBLOB *blob) const;
 
   // Fills in the x-height range accepted by the given unichar_id in blob
   // coordinates, given its bounding box in the usual baseline-normalized
   // coordinates, with some initial crude x-height estimate (such as word
   // size) and this denoting the transformation that was used.
   // Also returns the amount the character must have shifted up or down.
-  void XHeightRange(int unichar_id, const UNICHARSET& unicharset,
-                    const TBOX& bbox,
-                    float* min_xht,
-                    float* max_xht,
-                    float* yshift) const;
+  void XHeightRange(int unichar_id, const UNICHARSET &unicharset, const TBOX &bbox, float *min_xht,
+                    float *max_xht, float *yshift) const;
 
   // Prints the content of the DENORM for debug purposes.
   void Print() const;
 
-  Pix* pix() const {
+  Pix *pix() const {
     return pix_;
   }
-  void set_pix(Pix* pix) {
+  void set_pix(Pix *pix) {
     pix_ = pix;
   }
   bool inverse() const {
@@ -255,12 +244,13 @@ class DENORM {
   void set_inverse(bool value) {
     inverse_ = value;
   }
-  const DENORM* RootDenorm() const {
-    if (predecessor_ != nullptr)
+  const DENORM *RootDenorm() const {
+    if (predecessor_ != nullptr) {
       return predecessor_->RootDenorm();
+    }
     return this;
   }
-  const DENORM* predecessor() const {
+  const DENORM *predecessor() const {
     return predecessor_;
   }
   // Accessors - perhaps should not be needed.
@@ -270,37 +260,37 @@ class DENORM {
   float y_scale() const {
     return y_scale_;
   }
-  const BLOCK* block() const {
+  const BLOCK *block() const {
     return block_;
   }
-  void set_block(const BLOCK* block) {
+  void set_block(const BLOCK *block) {
     block_ = block;
   }
 
- private:
+private:
   // Free allocated memory and clear pointers.
   void Clear();
   // Setup default values.
   void Init();
 
   // Best available image.
-  Pix* pix_;
+  Pix *pix_;
   // True if the source image is white-on-black.
   bool inverse_;
   // Block the word came from. If not null, block->re_rotation() takes the
   // "untransformed" coordinates even further back to the original image.
   // Used only on the first DENORM in a chain.
-  const BLOCK* block_;
+  const BLOCK *block_;
   // Rotation to apply between translation to the origin and scaling.
-  const FCOORD* rotation_;
+  const FCOORD *rotation_;
   // Previous transformation in a chain.
-  const DENORM* predecessor_;
+  const DENORM *predecessor_;
   // Non-linear transformation maps directly from each integer offset from the
   // origin to the corresponding x-coord. Owned by the DENORM.
-  GenericVector<float>* x_map_;
+  std::vector<float> *x_map_;
   // Non-linear transformation maps directly from each integer offset from the
   // origin to the corresponding y-coord. Owned by the DENORM.
-  GenericVector<float>* y_map_;
+  std::vector<float> *y_map_;
   // x-coordinate to be mapped to final_xshift_ in the result.
   float x_origin_;
   // y-coordinate to be mapped to final_yshift_ in the result.
@@ -312,5 +302,7 @@ class DENORM {
   float final_xshift_;
   float final_yshift_;
 };
+
+} // namespace tesseract
 
 #endif

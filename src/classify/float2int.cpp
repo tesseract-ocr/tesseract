@@ -14,21 +14,18 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*-----------------------------------------------------------------------------
-          Include Files and Type Defines
------------------------------------------------------------------------------*/
+
 #include "float2int.h"
-#include "normmatch.h"
-#include "mfoutline.h"
+
 #include "classify.h"
-#include <tesseract/helpers.h>
+#include "mfoutline.h"
+#include "normmatch.h"
 #include "picofeat.h"
+
+#include "helpers.h"
 
 #define MAX_INT_CHAR_NORM (INT_CHAR_NORM_RANGE - 1)
 
-/*-----------------------------------------------------------------------------
-              Public Code
------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
 
@@ -41,10 +38,9 @@ namespace tesseract {
  *
  * @param char_norm_array array to be cleared
  */
-void Classify::ClearCharNormArray(uint8_t* char_norm_array) {
+void Classify::ClearCharNormArray(uint8_t *char_norm_array) {
   memset(char_norm_array, 0, sizeof(*char_norm_array) * unicharset.size());
-}                                /* ClearCharNormArray */
-
+} /* ClearCharNormArray */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -59,12 +55,12 @@ void Classify::ClearCharNormArray(uint8_t* char_norm_array) {
  * @param norm_feature character normalization feature
  * @param[out] char_norm_array place to put results of size unicharset.size()
  */
-void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
-                                       uint8_t* char_norm_array) {
+void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT &norm_feature,
+                                       uint8_t *char_norm_array) {
   for (int i = 0; i < unicharset.size(); i++) {
     if (i < PreTrainedTemplates->NumClasses) {
-      int norm_adjust = static_cast<int>(INT_CHAR_NORM_RANGE *
-        ComputeNormMatch(i, norm_feature, false));
+      int norm_adjust =
+          static_cast<int>(INT_CHAR_NORM_RANGE * ComputeNormMatch(i, norm_feature, false));
       char_norm_array[i] = ClipToRange(norm_adjust, 0, MAX_INT_CHAR_NORM);
     } else {
       // Classes with no templates (eg. ambigs & ligatures) default
@@ -72,8 +68,7 @@ void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
       char_norm_array[i] = MAX_INT_CHAR_NORM;
     }
   }
-}                                /* ComputeIntCharNormArray */
-
+} /* ComputeIntCharNormArray */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -87,25 +82,24 @@ void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
  * @param Features floating point pico-features to be converted
  * @param[out] IntFeatures array to put converted features into
  */
-void Classify::ComputeIntFeatures(FEATURE_SET Features,
-                                  INT_FEATURE_ARRAY IntFeatures) {
+void Classify::ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures) {
   float YShift;
 
-  if (classify_norm_method == baseline)
+  if (classify_norm_method == baseline) {
     YShift = BASELINE_Y_SHIFT;
-  else
+  } else {
     YShift = Y_SHIFT;
+  }
 
   for (int Fid = 0; Fid < Features->NumFeatures; Fid++) {
     FEATURE Feature = Features->Features[Fid];
 
-    IntFeatures[Fid].X =
-        Bucket8For(Feature->Params[PicoFeatX], X_SHIFT, INT_FEAT_RANGE);
-    IntFeatures[Fid].Y =
-        Bucket8For(Feature->Params[PicoFeatY], YShift, INT_FEAT_RANGE);
-    IntFeatures[Fid].Theta = CircBucketFor(Feature->Params[PicoFeatDir],
-                                           ANGLE_SHIFT, INT_FEAT_RANGE);
+    IntFeatures[Fid].X = Bucket8For(Feature->Params[PicoFeatX], X_SHIFT, INT_FEAT_RANGE);
+    IntFeatures[Fid].Y = Bucket8For(Feature->Params[PicoFeatY], YShift, INT_FEAT_RANGE);
+    IntFeatures[Fid].Theta =
+        CircBucketFor(Feature->Params[PicoFeatDir], ANGLE_SHIFT, INT_FEAT_RANGE);
     IntFeatures[Fid].CP_misses = 0;
   }
-}                                /* ComputeIntFeatures */
-}  // namespace tesseract
+} /* ComputeIntFeatures */
+
+} // namespace tesseract

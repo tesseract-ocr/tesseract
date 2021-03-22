@@ -3,7 +3,6 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        intfeaturespace.h
 // Description: Indexed feature space based on INT_FEATURE_STRUCT.
-// Created:     Wed Mar 24 10:55:30 PDT 2010
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +19,6 @@
 #ifndef TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 #define TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 
-#include <tesseract/genericvector.h>
 #include "intproto.h"
 
 // Extent of x,y,theta in the input feature space. [0,255].
@@ -35,8 +33,8 @@ class IndexMap;
 
 // Down-sampling quantization of the INT_FEATURE_STRUCT feature space and
 // conversion to a single scalar index value, used as a binary feature space.
-class IntFeatureSpace {
- public:
+class TESS_API IntFeatureSpace {
+public:
   IntFeatureSpace();
   // Default copy constructors and assignment OK!
 
@@ -45,7 +43,7 @@ class IntFeatureSpace {
 
   // Serializes the feature space definition to the given file.
   // Returns false on error.
-  bool Serialize(FILE* fp) const;
+  bool Serialize(FILE *fp) const;
 
   // Returns the total size of the feature space.
   int Size() const {
@@ -57,24 +55,22 @@ class IntFeatureSpace {
 
   // Returns a 1-dimensional index corresponding to the given feature value.
   // Range is [0, Size()-1]. Inverse of PositionFromIndex member.
-  int Index(const INT_FEATURE_STRUCT& f) const {
-    return (XBucket(f.X) * y_buckets_ + YBucket(f.Y)) * theta_buckets_ +
-        ThetaBucket(f.Theta);
+  int Index(const INT_FEATURE_STRUCT &f) const {
+    return (XBucket(f.X) * y_buckets_ + YBucket(f.Y)) * theta_buckets_ + ThetaBucket(f.Theta);
   }
   // Bulk calls to Index. Maps the given array of features to a vector of
   // int32_t indices in the same order as the input.
-  void IndexFeatures(const INT_FEATURE_STRUCT* features, int num_features,
-                     GenericVector<int>* mapped_features) const;
+  void IndexFeatures(const INT_FEATURE_STRUCT *features, int num_features,
+                     std::vector<int> *mapped_features) const;
   // Bulk calls to Index. Maps the given array of features to a vector of
   // sorted int32_t indices.
-  void IndexAndSortFeatures(const INT_FEATURE_STRUCT* features,
-                            int num_features,
-                            GenericVector<int>* sorted_features) const;
+  void IndexAndSortFeatures(const INT_FEATURE_STRUCT *features, int num_features,
+                            std::vector<int> *sorted_features) const;
   // Returns a feature space index for the given x,y position in a display
   // window, or -1 if the feature is a miss.
   int XYToFeatureIndex(int x, int y) const;
 
- protected:
+protected:
   // Converters to generate indices for individual feature dimensions.
   int XBucket(int x) const {
     int bucket = x * x_buckets_ / kIntFeatureExtent;
@@ -99,6 +95,6 @@ class IntFeatureSpace {
   uint8_t theta_buckets_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_CLASSIFY_INTFEATURESPACE_H_
+#endif // TESSERACT_CLASSIFY_INTFEATURESPACE_H_

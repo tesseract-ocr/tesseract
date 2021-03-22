@@ -3,7 +3,6 @@
  * Description: Function to degrade an image (usually of text) as if it
  *              has been printed and then scanned.
  * Authors:     Ray Smith
- * Created:     Tue Nov 19 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,10 +19,9 @@
 
 #include "degradeimage.h"
 
+#include <allheaders.h> // from leptonica
 #include <cstdlib>
-#include "allheaders.h"   // from leptonica
-#include <tesseract/genericvector.h>
-#include <tesseract/helpers.h>  // For TRand.
+#include "helpers.h" // For TRand.
 #include "rect.h"
 
 namespace tesseract {
@@ -88,9 +86,8 @@ const int kMinRampSize = 1000;
 // the edges.
 // Finally a greyscale ramp provides a continuum of effects between exposure
 // levels.
-Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
-                  float* rotation) {
-  Pix* pix = pixConvertTo8(input, false);
+Pix *DegradeImage(Pix *input, int exposure, TRand *randomizer, float *rotation) {
+  Pix *pix = pixConvertTo8(input, false);
   pixDestroy(&input);
   input = pix;
   int width = pixGetWidth(input);
@@ -117,9 +114,7 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
       radians_clockwise = randomizer->SignedRand(kRotationRange);
     }
 
-    input = pixRotate(pix, radians_clockwise,
-                      L_ROTATE_AREA_MAP, L_BRING_IN_WHITE,
-                      0, 0);
+    input = pixRotate(pix, radians_clockwise, L_ROTATE_AREA_MAP, L_BRING_IN_WHITE, 0, 0);
     // Rotate the boxes to match.
     *rotation = radians_clockwise;
     pixDestroy(&pix);
@@ -143,27 +138,32 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
   // For light and 0 exposure, there is no dilation, so compensate for the
   // convolution with a big darkening bias which is undone for lighter
   // exposures.
-  if (exposure <= 0)
+  if (exposure <= 0) {
     erosion_offset = -3 * kExposureFactor;
+  }
   // Add in a general offset of the greyscales for the exposure level so
   // a threshold of 128 gives a reasonable binary result.
   erosion_offset -= exposure * kExposureFactor;
   // Add a gradual fade over the page and a small amount of salt and pepper
   // noise to simulate noise in the sensor/paper fibres and varying
   // illumination.
-  l_uint32* data = pixGetData(input);
+  l_uint32 *data = pixGetData(input);
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       int pixel = GET_DATA_BYTE(data, x);
-      if (randomizer != nullptr)
-        pixel += randomizer->IntRand() % (kSaltnPepper*2 + 1) - kSaltnPepper;
-      if (height + width > kMinRampSize)
-        pixel -= (2*x + y) * 32 / (height + width);
+      if (randomizer != nullptr) {
+        pixel += randomizer->IntRand() % (kSaltnPepper * 2 + 1) - kSaltnPepper;
+      }
+      if (height + width > kMinRampSize) {
+        pixel -= (2 * x + y) * 32 / (height + width);
+      }
       pixel += erosion_offset;
-      if (pixel < 0)
+      if (pixel < 0) {
         pixel = 0;
-      if (pixel > 255)
+      }
+      if (pixel > 255) {
         pixel = 255;
+      }
       SET_DATA_BYTE(data, x, pixel);
     }
     data += input->wpl;
@@ -176,17 +176,16 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
 // any spatial distortion and also by the integer reduction factor box_scale
 // so they will match what the network will output.
 // Returns nullptr on error. The returned Pix must be pixDestroyed.
-Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
-                         bool white_noise, bool smooth_noise, bool blur,
-                         int box_reduction, TRand* randomizer,
-                         GenericVector<TBOX>* boxes) {
-  Pix* distorted = pixCopy(nullptr, const_cast<Pix*>(pix));
+Pix *PrepareDistortedPix(const Pix *pix, bool perspective, bool invert, bool white_noise,
+                         bool smooth_noise, bool blur, int box_reduction, TRand *randomizer,
+                         std::vector<TBOX> *boxes) {
+  Pix *distorted = pixCopy(nullptr, const_cast<Pix *>(pix));
   // Things to do to synthetic training data.
   if ((white_noise || smooth_noise) && randomizer->SignedRand(1.0) > 0.0) {
     // TODO(rays) Cook noise in a more thread-safe manner than rand().
     // Attempt to make the sequences reproducible.
     srand(randomizer->IntRand());
-    Pix* pixn = pixAddGaussianNoise(distorted, 8.0);
+    Pix *pixn = pixAddGaussianNoise(distorted, 8.0);
     pixDestroy(&distorted);
     if (smooth_noise) {
       distorted = pixBlockconv(pixn, 1, 1);
@@ -196,40 +195,42 @@ Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
     }
   }
   if (blur && randomizer->SignedRand(1.0) > 0.0) {
-    Pix* blurred = pixBlockconv(distorted, 1, 1);
+    Pix *blurred = pixBlockconv(distorted, 1, 1);
     pixDestroy(&distorted);
     distorted = blurred;
   }
-  if (perspective)
+  if (perspective) {
     GeneratePerspectiveDistortion(0, 0, randomizer, &distorted, boxes);
+  }
   if (boxes != nullptr) {
-    for (int b = 0; b < boxes->size(); ++b) {
-      (*boxes)[b].scale(1.0f / box_reduction);
-      if ((*boxes)[b].width() <= 0)
-        (*boxes)[b].set_right((*boxes)[b].left() + 1);
+    for (auto &b : *boxes) {
+      b.scale(1.0f / box_reduction);
+      if (b.width() <= 0) {
+        b.set_right(b.left() + 1);
+      }
     }
   }
-  if (invert && randomizer->SignedRand(1.0) < -0)
+  if (invert && randomizer->SignedRand(1.0) < -0) {
     pixInvert(distorted, distorted);
+  }
   return distorted;
 }
 
 // Distorts anything that has a non-null pointer with the same pseudo-random
 // perspective distortion. Width and height only need to be set if there
 // is no pix. If there is a pix, then they will be taken from there.
-void GeneratePerspectiveDistortion(int width, int height, TRand* randomizer,
-                                   Pix** pix, GenericVector<TBOX>* boxes) {
+void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Pix **pix,
+                                   std::vector<TBOX> *boxes) {
   if (pix != nullptr && *pix != nullptr) {
     width = pixGetWidth(*pix);
     height = pixGetHeight(*pix);
   }
-  float* im_coeffs = nullptr;
-  float* box_coeffs = nullptr;
-  l_int32 incolor =
-      ProjectiveCoeffs(width, height, randomizer, &im_coeffs, &box_coeffs);
+  float *im_coeffs = nullptr;
+  float *box_coeffs = nullptr;
+  l_int32 incolor = ProjectiveCoeffs(width, height, randomizer, &im_coeffs, &box_coeffs);
   if (pix != nullptr && *pix != nullptr) {
     // Transform the image.
-    Pix* transformed = pixProjective(*pix, im_coeffs, incolor);
+    Pix *transformed = pixProjective(*pix, im_coeffs, incolor);
     if (transformed == nullptr) {
       tprintf("Projective transformation failed!!\n");
       return;
@@ -239,20 +240,16 @@ void GeneratePerspectiveDistortion(int width, int height, TRand* randomizer,
   }
   if (boxes != nullptr) {
     // Transform the boxes.
-    for (int b = 0; b < boxes->size(); ++b) {
+    for (auto &b : *boxes) {
       int x1, y1, x2, y2;
-      const TBOX& box = (*boxes)[b];
-      projectiveXformSampledPt(box_coeffs, box.left(), height - box.top(), &x1,
-                               &y1);
-      projectiveXformSampledPt(box_coeffs, box.right(), height - box.bottom(),
-                               &x2, &y2);
+      const TBOX &box = b;
+      projectiveXformSampledPt(box_coeffs, box.left(), height - box.top(), &x1, &y1);
+      projectiveXformSampledPt(box_coeffs, box.right(), height - box.bottom(), &x2, &y2);
       TBOX new_box1(x1, height - y2, x2, height - y1);
-      projectiveXformSampledPt(box_coeffs, box.left(), height - box.bottom(),
-                               &x1, &y1);
-      projectiveXformSampledPt(box_coeffs, box.right(), height - box.top(), &x2,
-                               &y2);
+      projectiveXformSampledPt(box_coeffs, box.left(), height - box.bottom(), &x1, &y1);
+      projectiveXformSampledPt(box_coeffs, box.right(), height - box.top(), &x2, &y2);
       TBOX new_box2(x1, height - y1, x2, height - y2);
-      (*boxes)[b] = new_box1.bounding_union(new_box2);
+      b = new_box1.bounding_union(new_box2);
     }
   }
   free(im_coeffs);
@@ -263,17 +260,17 @@ void GeneratePerspectiveDistortion(int width, int height, TRand* randomizer,
 // The image transform requires backward transformation coefficient, and the
 // box transform the forward coefficients.
 // Returns the incolor arg to pixProjective.
-int ProjectiveCoeffs(int width, int height, TRand* randomizer,
-                     float** im_coeffs, float** box_coeffs) {
+int ProjectiveCoeffs(int width, int height, TRand *randomizer, float **im_coeffs,
+                     float **box_coeffs) {
   // Setup "from" points.
-  Pta* src_pts = ptaCreate(4);
+  Pta *src_pts = ptaCreate(4);
   ptaAddPt(src_pts, 0.0f, 0.0f);
   ptaAddPt(src_pts, width, 0.0f);
   ptaAddPt(src_pts, width, height);
   ptaAddPt(src_pts, 0.0f, height);
   // Extract factors from pseudo-random sequence.
   float factors[FN_NUM_FACTORS];
-  float shear = 0.0f;  // Shear is signed.
+  float shear = 0.0f; // Shear is signed.
   for (int i = 0; i < FN_NUM_FACTORS; ++i) {
     // Everything is squared to make wild values rarer.
     if (i == FN_SHEAR) {
@@ -281,26 +278,29 @@ int ProjectiveCoeffs(int width, int height, TRand* randomizer,
       shear = randomizer->SignedRand(0.5 / 3.0);
       shear = shear >= 0.0 ? shear * shear : -shear * shear;
       // Keep the sheared points within the original rectangle.
-      if (shear < -factors[FN_X0]) shear = -factors[FN_X0];
-      if (shear > factors[FN_X1]) shear = factors[FN_X1];
+      if (shear < -factors[FN_X0]) {
+        shear = -factors[FN_X0];
+      }
+      if (shear > factors[FN_X1]) {
+        shear = factors[FN_X1];
+      }
       factors[i] = shear;
     } else if (i != FN_INCOLOR) {
       factors[i] = fabs(randomizer->SignedRand(1.0));
-      if (i <= FN_Y3)
+      if (i <= FN_Y3) {
         factors[i] *= 5.0 / 8.0;
-      else
+      } else {
         factors[i] *= 0.5;
+      }
       factors[i] *= factors[i];
     }
   }
   // Setup "to" points.
-  Pta* dest_pts = ptaCreate(4);
+  Pta *dest_pts = ptaCreate(4);
   ptaAddPt(dest_pts, factors[FN_X0] * width, factors[FN_Y0] * height);
   ptaAddPt(dest_pts, (1.0f - factors[FN_X1]) * width, factors[FN_Y1] * height);
-  ptaAddPt(dest_pts, (1.0f - factors[FN_X1] + shear) * width,
-           (1 - factors[FN_Y2]) * height);
-  ptaAddPt(dest_pts, (factors[FN_X0] + shear) * width,
-           (1 - factors[FN_Y3]) * height);
+  ptaAddPt(dest_pts, (1.0f - factors[FN_X1] + shear) * width, (1 - factors[FN_Y2]) * height);
+  ptaAddPt(dest_pts, (factors[FN_X0] + shear) * width, (1 - factors[FN_Y3]) * height);
   getProjectiveXformCoeffs(dest_pts, src_pts, im_coeffs);
   getProjectiveXformCoeffs(src_pts, dest_pts, box_coeffs);
   ptaDestroy(&src_pts);
@@ -308,4 +308,4 @@ int ProjectiveCoeffs(int width, int height, TRand* randomizer,
   return factors[FN_INCOLOR] > 0.5f ? L_BRING_IN_WHITE : L_BRING_IN_BLACK;
 }
 
-}  // namespace tesseract
+} // namespace tesseract

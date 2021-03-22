@@ -20,17 +20,17 @@
 namespace tesseract {
 
 // Computes and returns the dot product of the n-vectors u and v.
-double DotProductNative(const double* u, const double* v, int n);
+double DotProductNative(const double *u, const double *v, int n);
 
 // Uses Intel AVX intrinsics to access the SIMD instruction set.
-double DotProductAVX(const double* u, const double* v, int n);
+double DotProductAVX(const double *u, const double *v, int n);
 
 // Use Intel FMA.
-double DotProductFMA(const double* u, const double* v, int n);
+double DotProductFMA(const double *u, const double *v, int n);
 
 // Uses Intel SSE intrinsics to access the SIMD instruction set.
-double DotProductSSE(const double* u, const double* v, int n);
+double DotProductSSE(const double *u, const double *v, int n);
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_ARCH_DOTPRODUCT_H_
+#endif // TESSERACT_ARCH_DOTPRODUCT_H_

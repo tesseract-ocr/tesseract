@@ -14,27 +14,24 @@
 
 #include "include_gunit.h"
 
-using tesseract::IntFeatureMap;
-using tesseract::IntFeatureSpace;
-
 // Random re-quantization to test that they don't have to be easy.
 // WARNING! Change these and change the expected_misses calculation below.
 const int kXBuckets = 16;
 const int kYBuckets = 24;
 const int kThetaBuckets = 13;
 
-namespace {
+namespace tesseract {
 
 class IntFeatureMapTest : public testing::Test {
- protected:
-  void SetUp() {
+protected:
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 
- public:
+public:
   // Expects that the given vector has contiguous integer values in the
   // range [start, end).
-  void ExpectContiguous(const GenericVector<int>& v, int start, int end) {
+  void ExpectContiguous(const std::vector<int> &v, int start, int end) {
     for (int i = start; i < end; ++i) {
       EXPECT_EQ(i, v[i - start]);
     }
@@ -52,8 +49,7 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
   IntFeatureMap map;
   map.Init(space);
   int total_size = kIntFeatureExtent * kIntFeatureExtent * kIntFeatureExtent;
-  std::unique_ptr<INT_FEATURE_STRUCT[]> features(
-      new INT_FEATURE_STRUCT[total_size]);
+  auto features = std::make_unique<INT_FEATURE_STRUCT[]>(total_size);
   // Fill the features with every value.
   for (int y = 0; y < kIntFeatureExtent; ++y) {
     for (int x = 0; x < kIntFeatureExtent; ++x) {
@@ -65,11 +61,11 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
       }
     }
   }
-  GenericVector<int> index_features;
+  std::vector<int> index_features;
   map.IndexAndSortFeatures(features.get(), total_size, &index_features);
   EXPECT_EQ(total_size, index_features.size());
   int total_buckets = kXBuckets * kYBuckets * kThetaBuckets;
-  GenericVector<int> map_features;
+  std::vector<int> map_features;
   int misses = map.MapIndexedFeatures(index_features, &map_features);
   EXPECT_EQ(0, misses);
   EXPECT_EQ(total_buckets, map_features.size());
@@ -83,8 +79,7 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
   int dtheta = kIntFeatureExtent / kThetaBuckets + 1;
   int bad_offsets = 0;
   for (int index = 0; index < total_buckets; ++index) {
-    for (int dir = -tesseract::kNumOffsetMaps; dir <= tesseract::kNumOffsetMaps;
-         ++dir) {
+    for (int dir = -tesseract::kNumOffsetMaps; dir <= tesseract::kNumOffsetMaps; ++dir) {
       int offset_index = map.OffsetFeature(index, dir);
       if (dir == 0) {
         EXPECT_EQ(index, offset_index);
@@ -95,8 +90,9 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
         EXPECT_LE(abs(f.X - f2.X), dx);
         EXPECT_LE(abs(f.Y - f2.Y), dy);
         int theta_delta = abs(f.Theta - f2.Theta);
-        if (theta_delta > kIntFeatureExtent / 2)
+        if (theta_delta > kIntFeatureExtent / 2) {
           theta_delta = kIntFeatureExtent - theta_delta;
+        }
         EXPECT_LE(theta_delta, dtheta);
       } else {
         ++bad_offsets;
@@ -115,11 +111,9 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
   // Has no effect on index features.
   EXPECT_EQ(total_size, index_features.size());
   misses = map.MapIndexedFeatures(index_features, &map_features);
-  int expected_misses = (kIntFeatureExtent / kXBuckets) *
-                        (kIntFeatureExtent / kYBuckets) *
+  int expected_misses = (kIntFeatureExtent / kXBuckets) * (kIntFeatureExtent / kYBuckets) *
                         (kIntFeatureExtent / kThetaBuckets + 1);
-  expected_misses += (kIntFeatureExtent / kXBuckets) *
-                     (kIntFeatureExtent / kYBuckets + 1) *
+  expected_misses += (kIntFeatureExtent / kXBuckets) * (kIntFeatureExtent / kYBuckets + 1) *
                      (kIntFeatureExtent / kThetaBuckets);
   EXPECT_EQ(expected_misses, misses);
   EXPECT_EQ(total_buckets - 2, map_features.size());
@@ -129,4 +123,4 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
 #endif
 }
 
-}  // namespace.
+} // namespace tesseract

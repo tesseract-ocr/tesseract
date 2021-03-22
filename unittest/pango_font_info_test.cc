@@ -9,41 +9,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "pango_font_info.h"
+#include <pango/pango.h>
 #include <cstdio>
 #include <string>
-#include <pango/pango.h>
-#include "include_gunit.h"
+#include "absl/strings/str_cat.h" // for absl::StrCat
 #include "commandlineflags.h"
 #include "fileio.h"
-#include "pango_font_info.h"
-#include "absl/strings/str_cat.h"       // for absl::StrCat
-#include "gmock/gmock-matchers.h"       // for EXPECT_THAT
-#include "util/utf8/unicodetext.h"      // for UnicodeText
+#include "gmock/gmock-matchers.h" // for EXPECT_THAT
+#include "include_gunit.h"
+#ifdef INCLUDE_TENSORFLOW
+#  include "util/utf8/unicodetext.h" // for UnicodeText
+#endif
 
-DECLARE_STRING_PARAM_FLAG(fonts_dir);
-DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
-DECLARE_BOOL_PARAM_FLAG(use_only_legacy_fonts);
-
-namespace {
-
-using tesseract::File;
-using tesseract::FontUtils;
-using tesseract::PangoFontInfo;
+namespace tesseract {
 
 // Fonts in testdata directory
-const char* kExpectedFontNames[] = {
-  "Arab",
-  "Arial Bold Italic",
-  "DejaVu Sans Ultra-Light",
-  "Lohit Hindi",
+const char *kExpectedFontNames[] = {"Arab",
+                                    "Arial Bold Italic",
+                                    "DejaVu Sans Ultra-Light",
+                                    "Lohit Hindi",
 #if PANGO_VERSION <= 12005
-  "Times New Roman",
+                                    "Times New Roman",
 #else
-  "Times New Roman,",  // Pango v1.36.2 requires a trailing ','
+                                    "Times New Roman,", // Pango v1.36.2 requires a trailing ','
 #endif
-  "UnBatang",
-  "Verdana"
-};
+                                    "UnBatang",
+                                    "Verdana"};
 
 // Sample text used in tests.
 const char kArabicText[] = "والفكر والصراع 1234,\nوالفكر والصراع";
@@ -51,29 +43,34 @@ const char kEngText[] = "the quick brown fox jumps over the lazy dog";
 const char kHinText[] = "पिताने विवाह की | हो गई उद्विग्न वह सोचा";
 const char kKorText[] = "이는 것으로";
 // Hindi words containing illegal vowel sequences.
-const char* kBadlyFormedHinWords[] = {
+const char *kBadlyFormedHinWords[] = {
 #if PANGO_VERSION <= 12005
-  "उपयोक्ताो", "नहीें", "कहीअे", "पत्रिाका", "छह्णाीस",
+    "उपयोक्ताो", "नहीें", "कहीअे", "पत्रिाका", "छह्णाीस",
 #endif
-  // Pango v1.36.2 will render the above words even though they are invalid.
-  "प्रंात", nullptr
-};
+    // Pango v1.36.2 will render the above words even though they are invalid.
+    "प्रंात", nullptr};
+
+static PangoFontMap *font_map;
 
 class PangoFontInfoTest : public ::testing::Test {
- protected:
+protected:
   void SetUp() override {
-    static std::locale system_locale("");
-    std::locale::global(system_locale);
+    if (!font_map) {
+      font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
+    }
+    pango_cairo_font_map_set_default(PANGO_CAIRO_FONT_MAP(font_map));
   }
 
   // Creates a fake fonts.conf file that points to the testdata fonts for
   // fontconfig to initialize with.
   static void SetUpTestCase() {
+    static std::locale system_locale("");
+    std::locale::global(system_locale);
+
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
-#ifdef GOOGLE_TESSERACT
-    FLAGS_use_only_legacy_fonts = false;
-#endif
+    file::MakeTmpdir();
+    PangoFontInfo::SoftInitFontConfig(); // init early
   }
 
   PangoFontInfo font_info_;
@@ -135,8 +132,7 @@ TEST_F(PangoFontInfoTest, CanRenderString) {
 TEST_F(PangoFontInfoTest, CanRenderLigature) {
   font_info_.ParseFontDescriptionName("Arab 12");
   const char kArabicLigature[] = "لا";
-  EXPECT_TRUE(
-    font_info_.CanRenderString(kArabicLigature, strlen(kArabicLigature)));
+  EXPECT_TRUE(font_info_.CanRenderString(kArabicLigature, strlen(kArabicLigature)));
 
   printf("Next word\n");
   EXPECT_TRUE(font_info_.CanRenderString(kArabicText, strlen(kArabicText)));
@@ -150,8 +146,8 @@ TEST_F(PangoFontInfoTest, CannotRenderUncoveredString) {
 TEST_F(PangoFontInfoTest, CannotRenderInvalidString) {
   font_info_.ParseFontDescriptionName("Lohit Hindi 12");
   for (int i = 0; kBadlyFormedHinWords[i] != nullptr; ++i) {
-    EXPECT_FALSE(font_info_.CanRenderString(kBadlyFormedHinWords[i],
-                                            strlen(kBadlyFormedHinWords[i])))
+    EXPECT_FALSE(
+        font_info_.CanRenderString(kBadlyFormedHinWords[i], strlen(kBadlyFormedHinWords[i])))
         << "Can render " << kBadlyFormedHinWords[i];
   }
 }
@@ -164,43 +160,52 @@ TEST_F(PangoFontInfoTest, CanDropUncoveredChars) {
   EXPECT_EQ("oice", word);
 
   // Don't drop non-letter characters like word joiners.
-  const char* kJoiners[] = {
-    "\u2060",  // U+2060 (WJ)
-    "\u200C",  // U+200C (ZWJ)
-    "\u200D"   // U+200D (ZWNJ)
+  const char *kJoiners[] = {
+      "\u2060", // U+2060 (WJ)
+      "\u200C", // U+200C (ZWJ)
+      "\u200D"  // U+200D (ZWNJ)
   };
-  for (size_t i = 0; i < ARRAYSIZE(kJoiners); ++i) {
-    word = kJoiners[i];
+  for (auto &kJoiner : kJoiners) {
+    word = kJoiner;
     EXPECT_EQ(0, font_info_.DropUncoveredChars(&word));
-    EXPECT_STREQ(kJoiners[i], word.c_str());
+    EXPECT_STREQ(kJoiner, word.c_str());
   }
 }
 
 // ------------------------ FontUtils ------------------------------------
 
 class FontUtilsTest : public ::testing::Test {
- protected:
+protected:
+  void SetUp() override {
+    file::MakeTmpdir();
+  }
   // Creates a fake fonts.conf file that points to the testdata fonts for
   // fontconfig to initialize with.
   static void SetUpTestCase() {
     FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
+    if (!font_map) {
+      font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
+    }
+    pango_cairo_font_map_set_default(PANGO_CAIRO_FONT_MAP(font_map));
   }
 
-  void CountUnicodeChars(const char* utf8_text,
-                         std::unordered_map<char32, int64_t>* ch_map) {
+#ifdef INCLUDE_TENSORFLOW
+  void CountUnicodeChars(const char *utf8_text, std::unordered_map<char32, int64_t> *ch_map) {
     ch_map->clear();
     UnicodeText ut;
     ut.PointToUTF8(utf8_text, strlen(utf8_text));
     for (UnicodeText::const_iterator it = ut.begin(); it != ut.end(); ++it) {
-#if 0
+#  if 0
       if (UnicodeProps::IsWhitespace(*it)) continue;
-#else
-      if (std::isspace(*it)) continue;
-#endif
+#  else
+      if (std::isspace(*it))
+        continue;
+#  endif
       ++(*ch_map)[*it];
     }
   }
+#endif
 };
 
 TEST_F(FontUtilsTest, DoesFindAvailableFonts) {
@@ -226,24 +231,25 @@ TEST_F(FontUtilsTest, DoesDetectMissingFonts) {
 }
 
 TEST_F(FontUtilsTest, DoesListAvailableFonts) {
-  const std::vector<std::string>& fonts = FontUtils::ListAvailableFonts();
+  const std::vector<std::string> &fonts = FontUtils::ListAvailableFonts();
   EXPECT_THAT(fonts, ::testing::ElementsAreArray(kExpectedFontNames));
-  for (auto& font : fonts) {
+  for (auto &font : fonts) {
     PangoFontInfo font_info;
     EXPECT_TRUE(font_info.ParseFontDescriptionName(font));
   }
 }
 
+#ifdef INCLUDE_TENSORFLOW
 TEST_F(FontUtilsTest, DoesFindBestFonts) {
   std::string fonts_list;
   std::unordered_map<char32, int64_t> ch_map;
   CountUnicodeChars(kEngText, &ch_map);
-  EXPECT_EQ(26, ch_map.size());  // 26 letters
-  std::vector<std::pair<const char*, std::vector<bool> > > font_flags;
+  EXPECT_EQ(26, ch_map.size()); // 26 letters
+  std::vector<std::pair<const char *, std::vector<bool> > > font_flags;
   std::string best_list = FontUtils::BestFonts(ch_map, &font_flags);
   EXPECT_TRUE(best_list.size());
   // All fonts except Lohit Hindi should render English text.
-  EXPECT_EQ(ARRAYSIZE(kExpectedFontNames) - 1, font_flags.size());
+  EXPECT_EQ(countof(kExpectedFontNames) - 1, font_flags.size());
 
   CountUnicodeChars(kKorText, &ch_map);
   best_list = FontUtils::BestFonts(ch_map, &font_flags);
@@ -252,16 +258,17 @@ TEST_F(FontUtilsTest, DoesFindBestFonts) {
   EXPECT_EQ(1, font_flags.size());
   EXPECT_STREQ("UnBatang", font_flags[0].first);
 }
+#endif
 
 TEST_F(FontUtilsTest, DoesSelectFont) {
-  const char* kLangText[] = {kArabicText, kEngText, kHinText, kKorText, nullptr};
-  const char* kLangNames[] = {"Arabic", "English", "Hindi", "Korean", nullptr};
+  const char *kLangText[] = {kArabicText, kEngText, kHinText, kKorText, nullptr};
+  const char *kLangNames[] = {"Arabic", "English", "Hindi", "Korean", nullptr};
   for (int i = 0; kLangText[i] != nullptr; ++i) {
     SCOPED_TRACE(kLangNames[i]);
     std::vector<std::string> graphemes;
     std::string selected_font;
-    EXPECT_TRUE(FontUtils::SelectFont(kLangText[i], strlen(kLangText[i]),
-                                      &selected_font, &graphemes));
+    EXPECT_TRUE(
+        FontUtils::SelectFont(kLangText[i], strlen(kLangText[i]), &selected_font, &graphemes));
     EXPECT_TRUE(selected_font.size());
     EXPECT_TRUE(graphemes.size());
   }
@@ -271,10 +278,13 @@ TEST_F(FontUtilsTest, DoesFailToSelectFont) {
   const char kMixedScriptText[] = "पिताने विवाह की | والفكر والصراع";
   std::vector<std::string> graphemes;
   std::string selected_font;
-  EXPECT_FALSE(FontUtils::SelectFont(kMixedScriptText, strlen(kMixedScriptText),
-                                     &selected_font, &graphemes));
+  EXPECT_FALSE(FontUtils::SelectFont(kMixedScriptText, strlen(kMixedScriptText), &selected_font,
+                                     &graphemes));
 }
 
+#if 0
+// Needs fix. FontUtils::GetAllRenderableCharacters was removed
+// because of deprecated pango_coverage_max.
 TEST_F(FontUtilsTest, GetAllRenderableCharacters) {
   const int32_t kHindiChar = 0x0905;
   const int32_t kArabicChar = 0x0623;
@@ -287,9 +297,9 @@ TEST_F(FontUtilsTest, GetAllRenderableCharacters) {
   EXPECT_TRUE(unicode_mask[kHindiChar]);
   EXPECT_TRUE(unicode_mask[kArabicChar]);
   EXPECT_FALSE(unicode_mask[kMongolianChar]);  // no font for mongolian.
-#if 0 // TODO: check fails because DejaVu Sans Ultra-Light supports ogham
+#  if 0 // TODO: check fails because DejaVu Sans Ultra-Light supports ogham
   EXPECT_FALSE(unicode_mask[kOghamChar]);      // no font for ogham.
-#endif
+#  endif
   unicode_mask.clear();
 
   std::vector<std::string> selected_fonts;
@@ -305,14 +315,16 @@ TEST_F(FontUtilsTest, GetAllRenderableCharacters) {
 
   // Check that none of the included fonts cover the Mongolian or Ogham space
   // characters.
-  for (size_t f = 0; f < ARRAYSIZE(kExpectedFontNames); ++f) {
+  for (size_t f = 0; f < countof(kExpectedFontNames); ++f) {
     SCOPED_TRACE(absl::StrCat("Testing ", kExpectedFontNames[f]));
     FontUtils::GetAllRenderableCharacters(kExpectedFontNames[f], &unicode_mask);
-#if 0 // TODO: check fails because DejaVu Sans Ultra-Light supports ogham
+#  if 0 // TODO: check fails because DejaVu Sans Ultra-Light supports ogham
     EXPECT_FALSE(unicode_mask[kOghamChar]);
-#endif
+#  endif
     EXPECT_FALSE(unicode_mask[kMongolianChar]);
     unicode_mask.clear();
   }
 }
-}  // namespace
+#endif
+
+} // namespace tesseract

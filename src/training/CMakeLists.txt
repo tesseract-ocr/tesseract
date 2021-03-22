@@ -56,15 +56,12 @@ endif()
 # experimental
 
 if (NOT SW_BUILD)
-    find_package(ICU 52.1 COMPONENTS uc i18n)
+    if (PKG_CONFIG_FOUND)
+        pkg_check_modules(ICU REQUIRED icu-uc icu-i18n)
+    else()
+        find_package(ICU 52.1 COMPONENTS uc i18n)
+    endif()
 endif()
-
-########################################
-# LIBRARY tessopt
-########################################
-
-add_library                 (tessopt tessopt.cpp tessopt.h)
-project_group               (tessopt "Training Tools")
 
 
 ########################################
@@ -72,50 +69,61 @@ project_group               (tessopt "Training Tools")
 ########################################
 
 set(common_training_src
-    commandlineflags.cpp
-    commandlineflags.h
-    commontraining.cpp
-    commontraining.h
-    ctc.cpp
-    ctc.h
-    errorcounter.cpp
-    errorcounter.h
-    intfeaturedist.cpp
-    intfeaturedist.h
-    intfeaturemap.cpp
-    intfeaturemap.h
-    mastertrainer.cpp
-    mastertrainer.h
-    networkbuilder.cpp
-    networkbuilder.h
-    sampleiterator.cpp
-    sampleiterator.h
-    trainingsampleset.cpp
-    trainingsampleset.h
+    common/commandlineflags.cpp
+    common/commandlineflags.h
+    common/commontraining.cpp
+    common/commontraining.h
+    common/ctc.cpp
+    common/ctc.h
+    common/networkbuilder.cpp
+    common/networkbuilder.h
 )
-add_library                 (common_training ${common_training_src})
-target_link_libraries       (common_training libtesseract tessopt)
-project_group               (common_training "Training Tools")
 
+if (NOT DISABLED_LEGACY_ENGINE)
+list(APPEND common_training_src
+    common/errorcounter.cpp
+    common/errorcounter.h
+    common/intfeaturedist.cpp
+    common/intfeaturedist.h
+    common/intfeaturemap.cpp
+    common/intfeaturemap.h
+    common/mastertrainer.cpp
+    common/mastertrainer.h
+    common/sampleiterator.cpp
+    common/sampleiterator.h
+    common/trainingsampleset.cpp
+    common/trainingsampleset.h
+)
+endif()
+
+add_library                 (common_training ${common_training_src})
+target_include_directories  (common_training PUBLIC common ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries       (common_training PUBLIC libtesseract)
+generate_export_header      (common_training EXPORT_MACRO_NAME TESS_COMMON_TRAINING_API)
+project_group               (common_training "Training Tools")
 
 ########################################
 # EXECUTABLE ambiguous_words
 ########################################
 
+if (NOT DISABLED_LEGACY_ENGINE)
 add_executable              (ambiguous_words ambiguous_words.cpp)
-target_link_libraries       (ambiguous_words libtesseract)
+target_link_libraries       (ambiguous_words common_training)
 project_group               (ambiguous_words "Training Tools")
 install                     (TARGETS ambiguous_words RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+endif()
 
 
 ########################################
 # EXECUTABLE classifier_tester
 ########################################
 
+if (NOT DISABLED_LEGACY_ENGINE)
 add_executable              (classifier_tester classifier_tester.cpp)
 target_link_libraries       (classifier_tester common_training)
 project_group               (classifier_tester "Training Tools")
 install                     (TARGETS classifier_tester RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+endif()
 
 
 ########################################
@@ -123,7 +131,7 @@ install                     (TARGETS classifier_tester RUNTIME DESTINATION bin L
 ########################################
 
 add_executable              (combine_tessdata combine_tessdata.cpp)
-target_link_libraries       (combine_tessdata libtesseract)
+target_link_libraries       (combine_tessdata common_training)
 project_group               (combine_tessdata "Training Tools")
 install                     (TARGETS combine_tessdata RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
@@ -132,10 +140,12 @@ install                     (TARGETS combine_tessdata RUNTIME DESTINATION bin LI
 # EXECUTABLE cntraining
 ########################################
 
+if (NOT DISABLED_LEGACY_ENGINE)
 add_executable              (cntraining cntraining.cpp)
 target_link_libraries       (cntraining common_training)
 project_group               (cntraining "Training Tools")
 install                     (TARGETS cntraining RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+endif()
 
 
 ########################################
@@ -143,7 +153,7 @@ install                     (TARGETS cntraining RUNTIME DESTINATION bin LIBRARY 
 ########################################
 
 add_executable              (dawg2wordlist dawg2wordlist.cpp)
-target_link_libraries       (dawg2wordlist libtesseract)
+target_link_libraries       (dawg2wordlist common_training)
 project_group               (dawg2wordlist "Training Tools")
 install                     (TARGETS dawg2wordlist RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
@@ -152,20 +162,24 @@ install                     (TARGETS dawg2wordlist RUNTIME DESTINATION bin LIBRA
 # EXECUTABLE mftraining
 ########################################
 
+if (NOT DISABLED_LEGACY_ENGINE)
 add_executable              (mftraining mftraining.cpp mergenf.cpp mergenf.h)
 target_link_libraries       (mftraining common_training)
 project_group               (mftraining "Training Tools")
 install                     (TARGETS mftraining RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+endif()
 
 
 ########################################
 # EXECUTABLE shapeclustering
 ########################################
 
+if (NOT DISABLED_LEGACY_ENGINE)
 add_executable              (shapeclustering shapeclustering.cpp)
 target_link_libraries       (shapeclustering common_training)
 project_group               (shapeclustering "Training Tools")
 install                     (TARGETS shapeclustering RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+endif()
 
 
 ########################################
@@ -173,7 +187,7 @@ install                     (TARGETS shapeclustering RUNTIME DESTINATION bin LIB
 ########################################
 
 add_executable              (wordlist2dawg wordlist2dawg.cpp)
-target_link_libraries       (wordlist2dawg libtesseract)
+target_link_libraries       (wordlist2dawg common_training)
 project_group               (wordlist2dawg "Training Tools")
 install                     (TARGETS wordlist2dawg RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
@@ -188,34 +202,18 @@ endif()
 # LIBRARY unicharset_training
 ########################################
 
-set(unicharset_training_src
-    icuerrorcode.cpp
-    icuerrorcode.h
-    fileio.cpp
-    fileio.h
-    lang_model_helpers.cpp
-    lang_model_helpers.h
-    lstmtester.cpp
-    lstmtester.h
-    lstmtrainer.cpp
-    lstmtrainer.h
-    normstrngs.cpp
-    normstrngs.h
-    unicharset_training_utils.cpp
-    unicharset_training_utils.h
-
-    validate_grapheme.h validate_indic.h validate_khmer.h
-    validate_javanese.h validate_myanmar.h validator.h
-    validate_grapheme.cpp validate_indic.cpp validate_khmer.cpp
-    validate_javanese.cpp validate_myanmar.cpp validator.cpp
-
+file(GLOB unicharset_training_src
+    unicharset/*
 )
+
 add_library                 (unicharset_training ${unicharset_training_src})
 if (SW_BUILD)
-target_link_libraries       (unicharset_training common_training org.sw.demo.unicode.icu.i18n)
+target_link_libraries       (unicharset_training PUBLIC common_training org.sw.demo.unicode.icu.i18n)
 else()
-target_link_libraries       (unicharset_training common_training ${ICU_LIBRARIES})
+target_link_libraries       (unicharset_training PUBLIC common_training ${ICU_LINK_LIBRARIES})
 endif()
+target_include_directories  (unicharset_training PUBLIC unicharset ${CMAKE_CURRENT_BINARY_DIR})
+generate_export_header      (unicharset_training EXPORT_MACRO_NAME TESS_UNICHARSET_TRAINING_API)
 project_group               (unicharset_training "Training Tools")
 
 
@@ -250,6 +248,16 @@ install                     (TARGETS lstmtraining RUNTIME DESTINATION bin LIBRAR
 
 
 ########################################
+# EXECUTABLE merge_unicharsets
+########################################
+
+add_executable              (merge_unicharsets merge_unicharsets.cpp)
+target_link_libraries       (merge_unicharsets common_training)
+project_group               (merge_unicharsets "Training Tools")
+install                     (TARGETS merge_unicharsets RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+
+
+########################################
 # EXECUTABLE set_unicharset_properties
 ########################################
 
@@ -264,13 +272,11 @@ install                     (TARGETS set_unicharset_properties RUNTIME DESTINATI
 ########################################
 
 add_executable              (unicharset_extractor unicharset_extractor.cpp)
-target_link_libraries       (unicharset_extractor libtesseract tessopt unicharset_training)
+target_link_libraries       (unicharset_extractor unicharset_training)
 project_group               (unicharset_extractor "Training Tools")
 install                     (TARGETS unicharset_extractor RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
 
-########################################
-# EXECUTABLE text2image
 ########################################
 
 if (NOT SW_BUILD)
@@ -287,44 +293,49 @@ pkg_check_modules(PangoCairo REQUIRED pangocairo)
 pkg_check_modules(FontConfig REQUIRED fontconfig)
 endif()
 
+
+########################################
+# LIBRARY pango_training
+########################################
+
+file(GLOB pango_training_src
+    pango/*
+)
+
+add_library                 (pango_training ${pango_training_src})
+target_link_libraries       (pango_training PUBLIC unicharset_training)
+if (SW_BUILD)
+target_link_libraries       (pango_training PUBLIC org.sw.demo.gnome.pango.pangocairo)
+else()
+if (PKG_CONFIG_FOUND)
+target_include_directories  (pango_training BEFORE PUBLIC ${Cairo_INCLUDE_DIRS} ${Pango_INCLUDE_DIRS})
+target_compile_definitions  (pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
+target_link_libraries       (pango_training PUBLIC
+    ${Pango_LINK_LIBRARIES}
+    ${Cairo_LINK_LIBRARIES}
+    ${PangoCairo_LINK_LIBRARIES}
+    ${PangoFt2_LINK_LIBRARIES}
+    ${FontConfig_LINK_LIBRARIES}
+)
+endif()
+endif()
+target_include_directories  (pango_training PUBLIC pango ${CMAKE_CURRENT_BINARY_DIR})
+generate_export_header      (pango_training EXPORT_MACRO_NAME TESS_PANGO_TRAINING_API)
+project_group               (pango_training "Training Tools")
+
+
+########################################
+# EXECUTABLE text2image
+########################################
+
 set(text2image_src
     text2image.cpp
-    boxchar.cpp
-    boxchar.h
     degradeimage.cpp
     degradeimage.h
-    fileio.h
-    fileio.cpp
-    ligature_table.cpp
-    ligature_table.h
-    normstrngs.cpp
-    normstrngs.h
-    pango_font_info.cpp
-    pango_font_info.h
-    stringrenderer.cpp
-    stringrenderer.h
-    tlog.cpp
-    tlog.h
-    util.h
-    icuerrorcode.h
 )
 
 add_executable              (text2image ${text2image_src})
-target_link_libraries       (text2image unicharset_training)
-if (PKG_CONFIG_FOUND)
-target_include_directories  (text2image BEFORE PRIVATE ${Cairo_INCLUDE_DIRS} ${Pango_INCLUDE_DIRS})
-target_compile_definitions  (text2image PRIVATE -DPANGO_ENABLE_ENGINE)
-target_link_libraries       (text2image
-    ${Pango_LIBRARIES}
-    ${Cairo_LIBRARIES}
-    ${PangoCairo_LIBRARIES}
-    ${PangoFt2_LIBRARIES}
-    ${FontConfig_LIBRARIES}
-)
-endif()
-if (SW_BUILD)
-target_link_libraries       (text2image org.sw.demo.gnome.pango.pangocairo)
-endif()
+target_link_libraries       (text2image pango_training)
 project_group               (text2image "Training Tools")
 install                     (TARGETS text2image RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 

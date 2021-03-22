@@ -20,32 +20,31 @@
 #ifndef TESSERACT_TEXTORD_COLPARTITIONSET_H_
 #define TESSERACT_TEXTORD_COLPARTITIONSET_H_
 
-#include "colpartition.h"   // For ColPartition_LIST.
-#include <tesseract/genericvector.h>  // For GenericVector.
-#include "rect.h"           // For TBOX.
-#include "tabvector.h"      // For BLOBNBOX_CLIST.
+#include "colpartition.h"  // For ColPartition_LIST.
+#include "rect.h"          // For TBOX.
+#include "tabvector.h"     // For BLOBNBOX_CLIST.
 
 namespace tesseract {
 
 class WorkingPartSet_LIST;
 class ColSegment_LIST;
 class ColPartitionSet;
-using PartSetVector = GenericVector<ColPartitionSet*>;
+using PartSetVector = std::vector<ColPartitionSet *>;
 
 // ColPartitionSet is a class that holds a list of ColPartitions.
 // Its main use is in holding a candidate partitioning of the width of the
 // image into columns, where each member ColPartition is a single column.
 // ColPartitionSets are used in building the column layout of a page.
 class ColPartitionSet : public ELIST_LINK {
- public:
+public:
   ColPartitionSet() = default;
-  explicit ColPartitionSet(ColPartition_LIST* partitions);
-  explicit ColPartitionSet(ColPartition* partition);
+  explicit ColPartitionSet(ColPartition_LIST *partitions);
+  explicit ColPartitionSet(ColPartition *partition);
 
   ~ColPartitionSet() = default;
 
   // Simple accessors.
-  const TBOX& bounding_box() const {
+  const TBOX &bounding_box() const {
     return bounding_box_;
   }
   bool Empty() const {
@@ -59,10 +58,11 @@ class ColPartitionSet : public ELIST_LINK {
   int GoodColumnCount() const;
 
   // Return an element of the parts_ list from its index.
-  ColPartition* GetColumnByIndex(int index);
+  ColPartition *GetColumnByIndex(int index);
 
-  // Return the ColPartition that contains the given coords, if any, else nullptr.
-  ColPartition* ColumnContaining(int x, int y);
+  // Return the ColPartition that contains the given coords, if any, else
+  // nullptr.
+  ColPartition *ColumnContaining(int x, int y);
 
   // Return the bounding boxes of columns at the given y-range
   void GetColumnBoxes(int y_bottom, int y_top, ColSegment_LIST *segments);
@@ -71,30 +71,30 @@ class ColPartitionSet : public ELIST_LINK {
   void RelinquishParts();
 
   // Attempt to improve this by adding partitions or expanding partitions.
-  void ImproveColumnCandidate(WidthCallback cb, PartSetVector* src_sets);
+  void ImproveColumnCandidate(WidthCallback cb, PartSetVector *src_sets);
 
   // If this set is good enough to represent a new partitioning into columns,
   // add it to the vector of sets, otherwise delete it.
-  void AddToColumnSetsIfUnique(PartSetVector* column_sets, WidthCallback cb);
+  void AddToColumnSetsIfUnique(PartSetVector *column_sets, WidthCallback cb);
 
   // Return true if the partitions in other are all compatible with the columns
   // in this.
-  bool CompatibleColumns(bool debug, ColPartitionSet* other, WidthCallback cb);
+  bool CompatibleColumns(bool debug, ColPartitionSet *other, WidthCallback cb);
 
   // Returns the total width of all blobs in the part_set that do not lie
   // within an approved column. Used as a cost measure for using this
   // column set over another that might be compatible.
-  int UnmatchedWidth(ColPartitionSet* part_set);
+  int UnmatchedWidth(ColPartitionSet *part_set);
 
   // Return true if this ColPartitionSet makes a legal column candidate by
   // having legal individual partitions and non-overlapping adjacent pairs.
   bool LegalColumnCandidate();
 
   // Return a copy of this. If good_only will only copy the Good ColPartitions.
-  ColPartitionSet* Copy(bool good_only);
+  ColPartitionSet *Copy(bool good_only);
 
   // Display the edges of the columns at the given y coords.
-  void DisplayColumnEdges(int y_bottom, int y_top, ScrollView* win);
+  void DisplayColumnEdges(int y_bottom, int y_top, ScrollView *win);
 
   // Return the ColumnSpanningType that best explains the columns overlapped
   // by the given coords(left,right,y), with the given margins.
@@ -104,30 +104,27 @@ class ColPartitionSet : public ELIST_LINK {
   // represent the gaps in between columns, with 0 being left of the leftmost.
   // resolution refers to the ppi resolution of the image. It may be 0 if only
   // the first_col and last_col are required.
-  ColumnSpanningType SpanningType(int resolution,
-                                  int left, int right, int height, int y,
-                                  int left_margin, int right_margin,
-                                  int* first_col, int* last_col,
-                                  int* first_spanned_col);
+  ColumnSpanningType SpanningType(int resolution, int left, int right, int height, int y,
+                                  int left_margin, int right_margin, int *first_col, int *last_col,
+                                  int *first_spanned_col);
 
   // The column_set has changed. Close down all in-progress WorkingPartSets in
   // columns that do not match and start new ones for the new columns in this.
   // As ColPartitions are turned into BLOCKs, the used ones are put in
   // used_parts, as they still need to be referenced in the grid.
-  void ChangeWorkColumns(const ICOORD& bleft, const ICOORD& tright,
-                         int resolution, ColPartition_LIST* used_parts,
-                         WorkingPartSet_LIST* working_set);
+  void ChangeWorkColumns(const ICOORD &bleft, const ICOORD &tright, int resolution,
+                         ColPartition_LIST *used_parts, WorkingPartSet_LIST *working_set);
 
   // Accumulate the widths and gaps into the given variables.
-  void AccumulateColumnWidthsAndGaps(int* total_width, int* width_samples,
-                                     int* total_gap, int* gap_samples);
+  void AccumulateColumnWidthsAndGaps(int *total_width, int *width_samples, int *total_gap,
+                                     int *gap_samples);
 
   // Provide debug output for this ColPartitionSet and all the ColPartitions.
   void Print();
 
- private:
+private:
   // Add the given partition to the list in the appropriate place.
-  void AddPartition(ColPartition* new_part, ColPartition_IT* it);
+  void AddPartition(ColPartition *new_part, ColPartition_IT *it);
 
   // Compute the coverage and good column count. Coverage is the amount of the
   // width of the page (in pixels) that is covered by ColPartitions, which are
@@ -150,7 +147,7 @@ class ColPartitionSet : public ELIST_LINK {
 
   // Adds the coverage, column count and box for a single partition,
   // without adding it to the list. (Helper factored from ComputeCoverage.)
-  void AddPartitionCoverageAndBox(const ColPartition& part);
+  void AddPartitionCoverageAndBox(const ColPartition &part);
 
   // The partitions in this column candidate.
   ColPartition_LIST parts_;
@@ -166,6 +163,6 @@ class ColPartitionSet : public ELIST_LINK {
 
 ELISTIZEH(ColPartitionSet)
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_COLPARTITION_H_
+#endif // TESSERACT_TEXTORD_COLPARTITION_H_

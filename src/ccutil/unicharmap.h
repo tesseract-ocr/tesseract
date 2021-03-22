@@ -22,11 +22,12 @@
 
 #include <tesseract/unichar.h>
 
+namespace tesseract {
+
 // A UNICHARMAP stores unique unichars. Each of them is associated with one
 // UNICHAR_ID.
-class UNICHARMAP {
- public:
-
+class TESS_API UNICHARMAP {
+public:
   // Create an empty UNICHARMAP
   UNICHARMAP();
 
@@ -34,40 +35,40 @@ class UNICHARMAP {
 
   // Insert the given unichar represention in the UNICHARMAP and associate it
   // with the given id. The length of the representation MUST be non-zero.
-  void insert(const char* const unichar_repr, UNICHAR_ID id);
+  void insert(const char *const unichar_repr, UNICHAR_ID id);
 
   // Return the id associated with the given unichar representation,
   // this representation MUST exist within the UNICHARMAP. The first
   // length characters (maximum) from unichar_repr are used. The length
   // MUST be non-zero.
-  UNICHAR_ID unichar_to_id(const char* const unichar_repr, int length) const;
+  UNICHAR_ID unichar_to_id(const char *const unichar_repr, int length) const;
 
   // Return true if the given unichar representation is already present in the
   // UNICHARMAP. The first length characters (maximum) from unichar_repr are
   // used. The length MUST be non-zero.
-  bool contains(const char* const unichar_repr, int length) const;
+  bool contains(const char *const unichar_repr, int length) const;
 
   // Return the minimum number of characters that must be used from this string
   // to obtain a match in the UNICHARMAP.
-  int minmatch(const char* const unichar_repr) const;
+  int minmatch(const char *const unichar_repr) const;
 
   // Clear the UNICHARMAP. All previous data is lost.
   void clear();
 
- private:
-
+private:
   // The UNICHARMAP is represented as a tree whose nodes are of type
   // UNICHARMAP_NODE.
   struct UNICHARMAP_NODE {
-
     UNICHARMAP_NODE();
     ~UNICHARMAP_NODE();
 
-    UNICHARMAP_NODE* children;
+    UNICHARMAP_NODE *children;
     UNICHAR_ID id;
   };
 
-  UNICHARMAP_NODE* nodes;
+  UNICHARMAP_NODE *nodes;
 };
 
-#endif  // TESSERACT_CCUTIL_UNICHARMAP_H_
+} // namespace tesseract
+
+#endif // TESSERACT_CCUTIL_UNICHARMAP_H_

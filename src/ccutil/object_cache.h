@@ -19,11 +19,12 @@
 #ifndef TESSERACT_CCUTIL_OBJECT_CACHE_H_
 #define TESSERACT_CCUTIL_OBJECT_CACHE_H_
 
-#include <mutex>                // for std::mutex
-#include <functional>           // for std::function
+#include <functional> // for std::function
+#include <mutex>      // for std::mutex
+#include <string>
+#include <vector>     // for std::vector
 #include "ccutil.h"
 #include "errcode.h"
-#include <tesseract/genericvector.h>
 
 namespace tesseract {
 
@@ -31,21 +32,21 @@ namespace tesseract {
 // Usually, these are expensive objects that are loaded from disk.
 // Reference counting is performed, so every Get() needs to be followed later
 // by a Free().  Actual deletion is accomplished by DeleteUnusedObjects().
-template<typename T>
+template <typename T>
 class ObjectCache {
- public:
+public:
   ObjectCache() = default;
   ~ObjectCache() {
     std::lock_guard<std::mutex> guard(mu_);
-    for (int i = 0; i < cache_.size(); i++) {
-      if (cache_[i].count > 0) {
-        tprintf("ObjectCache(%p)::~ObjectCache(): WARNING! LEAK! object %p "
-                "still has count %d (id %s)\n",
-                this, cache_[i].object, cache_[i].count,
-                cache_[i].id.c_str());
+    for (auto &it : cache_) {
+      if (it.count > 0) {
+        tprintf(
+            "ObjectCache(%p)::~ObjectCache(): WARNING! LEAK! object %p "
+            "still has count %d (id %s)\n",
+            this, it.object, it.count, it.id.c_str());
       } else {
-        delete cache_[i].object;
-        cache_[i].object = nullptr;
+        delete it.object;
+        it.object = nullptr;
       }
     }
   }
@@ -56,14 +57,14 @@ class ObjectCache {
   // and return nullptr -- further attempts to load will fail (even
   // with a different loader) until DeleteUnusedObjects() is called.
   // We delete the given loader.
-  T* Get(STRING id, std::function<T*()> loader) {
+  T *Get(const std::string &id, std::function<T *()> loader) {
     T *retval = nullptr;
     std::lock_guard<std::mutex> guard(mu_);
-    for (int i = 0; i < cache_.size(); i++) {
-      if (id == cache_[i].id) {
-        retval = cache_[i].object;
-        if (cache_[i].object != nullptr) {
-          cache_[i].count++;
+    for (auto &it : cache_) {
+      if (id == it.id) {
+        retval = it.object;
+        if (it.object != nullptr) {
+          it.count++;
         }
         return retval;
       }
@@ -79,11 +80,13 @@ class ObjectCache {
   // Decrement the count for t.
   // Return whether we knew about the given pointer.
   bool Free(T *t) {
-    if (t == nullptr) return false;
+    if (t == nullptr) {
+      return false;
+    }
     std::lock_guard<std::mutex> guard(mu_);
-    for (int i = 0; i < cache_.size(); i++) {
-      if (cache_[i].object == t) {
-        --cache_[i].count;
+    for (auto &it : cache_) {
+      if (it.object == t) {
+        --it.count;
         return true;
       }
     }
@@ -95,23 +98,22 @@ class ObjectCache {
     for (int i = cache_.size() - 1; i >= 0; i--) {
       if (cache_[i].count <= 0) {
         delete cache_[i].object;
-        cache_.remove(i);
+        cache_.erase(cache_.begin() + i);
       }
     }
   }
 
- private:
+private:
   struct ReferenceCount {
-    STRING id;  // A unique ID to identify the object (think path on disk)
-    T *object;  // A copy of the object in memory.  Can be delete'd.
-    int count;  // A count of the number of active users of this object.
+    std::string id; // A unique ID to identify the object (think path on disk)
+    T *object;      // A copy of the object in memory.  Can be delete'd.
+    int count;      // A count of the number of active users of this object.
   };
 
   std::mutex mu_;
-  GenericVector<ReferenceCount> cache_;
+  std::vector<ReferenceCount> cache_;
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-
-#endif  // TESSERACT_CCUTIL_OBJECT_CACHE_H_
+#endif // TESSERACT_CCUTIL_OBJECT_CACHE_H_

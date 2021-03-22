@@ -19,22 +19,23 @@
 #include "normalis.h"
 #include "tesseractclass.h"
 
+namespace tesseract {
+
 static int LeadingUnicharsToChopped(WERD_RES *word, int num_unichars) {
   int num_chopped = 0;
-  for (int i = 0; i < num_unichars; i++)
+  for (int i = 0; i < num_unichars; i++) {
     num_chopped += word->best_state[i];
+  }
   return num_chopped;
 }
 
 static int TrailingUnicharsToChopped(WERD_RES *word, int num_unichars) {
   int num_chopped = 0;
-  for (int i = 0; i < num_unichars; i++)
+  for (int i = 0; i < num_unichars; i++) {
     num_chopped += word->best_state[word->best_state.size() - 1 - i];
+  }
   return num_chopped;
 }
-
-
-namespace tesseract {
 
 /**
  * Given a recognized blob, see if a contiguous collection of sub-pieces
@@ -42,17 +43,23 @@ namespace tesseract {
  * or superscript letter based only on y position.  Also do this for the
  * right side.
  */
-static void YOutlierPieces(WERD_RES *word, int rebuilt_blob_index,
-                           int super_y_bottom, int sub_y_top,
-                           ScriptPos *leading_pos, int *num_leading_outliers,
-                           ScriptPos *trailing_pos,
-                           int *num_trailing_outliers) {
+static void YOutlierPieces(WERD_RES *word, int rebuilt_blob_index, int super_y_bottom,
+                           int sub_y_top, ScriptPos *leading_pos, int *num_leading_outliers,
+                           ScriptPos *trailing_pos, int *num_trailing_outliers) {
   ScriptPos sp_unused1, sp_unused2;
   int unused1, unused2;
-  if (!leading_pos) leading_pos = &sp_unused1;
-  if (!num_leading_outliers) num_leading_outliers = &unused1;
-  if (!trailing_pos) trailing_pos = &sp_unused2;
-  if (!num_trailing_outliers) num_trailing_outliers = &unused2;
+  if (!leading_pos) {
+    leading_pos = &sp_unused1;
+  }
+  if (!num_leading_outliers) {
+    num_leading_outliers = &unused1;
+  }
+  if (!trailing_pos) {
+    trailing_pos = &sp_unused2;
+  }
+  if (!num_trailing_outliers) {
+    num_trailing_outliers = &unused2;
+  }
 
   *num_leading_outliers = *num_trailing_outliers = 0;
   *leading_pos = *trailing_pos = SP_NORMAL;
@@ -99,8 +106,7 @@ static void YOutlierPieces(WERD_RES *word, int rebuilt_blob_index,
  * @return Whether we modified the given word.
  */
 bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
-  if (word->tess_failed || word->word->flag(W_REP_CHAR) ||
-      !word->best_choice) {
+  if (word->tess_failed || word->word->flag(W_REP_CHAR) || !word->best_choice) {
     return false;
   }
   int num_leading, num_trailing;
@@ -109,10 +115,9 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
   float avg_certainty, unlikely_threshold;
 
   // Calculate the number of whole suspicious characters at the edges.
-  GetSubAndSuperscriptCandidates(
-          word, &num_leading, &sp_leading, &leading_certainty,
-          &num_trailing, &sp_trailing, &trailing_certainty,
-          &avg_certainty, &unlikely_threshold);
+  GetSubAndSuperscriptCandidates(word, &num_leading, &sp_leading, &leading_certainty, &num_trailing,
+                                 &sp_trailing, &trailing_certainty, &avg_certainty,
+                                 &unlikely_threshold);
 
   const char *leading_pos = sp_leading == SP_SUBSCRIPT ? "sub" : "super";
   const char *trailing_pos = sp_trailing == SP_SUBSCRIPT ? "sub" : "super";
@@ -125,43 +130,41 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
   // (that is we accidentally thought the 2 was attached to the period).
   int num_remainder_leading = 0, num_remainder_trailing = 0;
   if (num_leading + num_trailing < num_blobs && unlikely_threshold < 0.0) {
-    int super_y_bottom =
-        kBlnBaselineOffset + kBlnXHeight * superscript_min_y_bottom;
-    int sub_y_top =
-        kBlnBaselineOffset + kBlnXHeight * subscript_max_y_top;
+    int super_y_bottom = kBlnBaselineOffset + kBlnXHeight * superscript_min_y_bottom;
+    int sub_y_top = kBlnBaselineOffset + kBlnXHeight * subscript_max_y_top;
     int last_word_char = num_blobs - 1 - num_trailing;
     float last_char_certainty = word->best_choice->certainty(last_word_char);
     if (word->best_choice->unichar_id(last_word_char) != 0 &&
         last_char_certainty <= unlikely_threshold) {
       ScriptPos rpos;
-      YOutlierPieces(word, last_word_char, super_y_bottom, sub_y_top,
-                     nullptr, nullptr, &rpos, &num_remainder_trailing);
-      if (num_trailing > 0 && rpos != sp_trailing) num_remainder_trailing = 0;
-      if (num_remainder_trailing > 0 &&
-          last_char_certainty < trailing_certainty) {
+      YOutlierPieces(word, last_word_char, super_y_bottom, sub_y_top, nullptr, nullptr, &rpos,
+                     &num_remainder_trailing);
+      if (num_trailing > 0 && rpos != sp_trailing) {
+        num_remainder_trailing = 0;
+      }
+      if (num_remainder_trailing > 0 && last_char_certainty < trailing_certainty) {
         trailing_certainty = last_char_certainty;
       }
     }
-    bool another_blob_available = (num_remainder_trailing == 0) ||
-        num_leading + num_trailing + 1 < num_blobs;
+    bool another_blob_available =
+        (num_remainder_trailing == 0) || num_leading + num_trailing + 1 < num_blobs;
     int first_char_certainty = word->best_choice->certainty(num_leading);
-    if (another_blob_available &&
-        word->best_choice->unichar_id(num_leading) != 0 &&
+    if (another_blob_available && word->best_choice->unichar_id(num_leading) != 0 &&
         first_char_certainty <= unlikely_threshold) {
       ScriptPos lpos;
-      YOutlierPieces(word, num_leading, super_y_bottom, sub_y_top,
-                     &lpos, &num_remainder_leading, nullptr, nullptr);
-      if (num_leading > 0 && lpos != sp_leading) num_remainder_leading = 0;
-      if (num_remainder_leading > 0 &&
-          first_char_certainty < leading_certainty) {
+      YOutlierPieces(word, num_leading, super_y_bottom, sub_y_top, &lpos, &num_remainder_leading,
+                     nullptr, nullptr);
+      if (num_leading > 0 && lpos != sp_leading) {
+        num_remainder_leading = 0;
+      }
+      if (num_remainder_leading > 0 && first_char_certainty < leading_certainty) {
         leading_certainty = first_char_certainty;
       }
     }
   }
 
   // If nothing to do, bail now.
-  if (num_leading + num_trailing +
-      num_remainder_leading + num_remainder_trailing == 0) {
+  if (num_leading + num_trailing + num_remainder_leading + num_remainder_trailing == 0) {
     return false;
   }
 
@@ -169,12 +172,10 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
     tprintf("Candidate for superscript detection: %s (",
             word->best_choice->unichar_string().c_str());
     if (num_leading || num_remainder_leading) {
-      tprintf("%d.%d %s-leading ", num_leading, num_remainder_leading,
-              leading_pos);
+      tprintf("%d.%d %s-leading ", num_leading, num_remainder_leading, leading_pos);
     }
     if (num_trailing || num_remainder_trailing) {
-      tprintf("%d.%d %s-trailing ", num_trailing, num_remainder_trailing,
-              trailing_pos);
+      tprintf("%d.%d %s-trailing ", num_trailing, num_remainder_trailing, trailing_pos);
     }
     tprintf(")\n");
   }
@@ -182,41 +183,37 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
     word->best_choice->print();
   }
   if (superscript_debug >= 2) {
-    tprintf(" Certainties -- Average: %.2f  Unlikely thresh: %.2f  ",
-            avg_certainty, unlikely_threshold);
-    if (num_leading)
+    tprintf(" Certainties -- Average: %.2f  Unlikely thresh: %.2f  ", avg_certainty,
+            unlikely_threshold);
+    if (num_leading) {
       tprintf("Orig. leading (min): %.2f  ", leading_certainty);
-    if (num_trailing)
+    }
+    if (num_trailing) {
       tprintf("Orig. trailing (min): %.2f  ", trailing_certainty);
+    }
     tprintf("\n");
   }
 
   // We've now calculated the number of rebuilt blobs we want to carve off.
   // However, split_word() works from TBLOBs in chopped_word, so we need to
   // convert to those.
-  int num_chopped_leading =
-      LeadingUnicharsToChopped(word, num_leading) + num_remainder_leading;
-  int num_chopped_trailing =
-      TrailingUnicharsToChopped(word, num_trailing) + num_remainder_trailing;
+  int num_chopped_leading = LeadingUnicharsToChopped(word, num_leading) + num_remainder_leading;
+  int num_chopped_trailing = TrailingUnicharsToChopped(word, num_trailing) + num_remainder_trailing;
 
   int retry_leading = 0;
   int retry_trailing = 0;
   bool is_good = false;
-  WERD_RES *revised = TrySuperscriptSplits(
-      num_chopped_leading, leading_certainty, sp_leading,
-      num_chopped_trailing, trailing_certainty, sp_trailing,
-      word, &is_good, &retry_leading, &retry_trailing);
+  WERD_RES *revised = TrySuperscriptSplits(num_chopped_leading, leading_certainty, sp_leading,
+                                           num_chopped_trailing, trailing_certainty, sp_trailing,
+                                           word, &is_good, &retry_leading, &retry_trailing);
   if (is_good) {
     word->ConsumeWordResults(revised);
   } else if (retry_leading || retry_trailing) {
-    int retry_chopped_leading =
-        LeadingUnicharsToChopped(revised, retry_leading);
-    int retry_chopped_trailing =
-        TrailingUnicharsToChopped(revised, retry_trailing);
+    int retry_chopped_leading = LeadingUnicharsToChopped(revised, retry_leading);
+    int retry_chopped_trailing = TrailingUnicharsToChopped(revised, retry_trailing);
     WERD_RES *revised2 = TrySuperscriptSplits(
-        retry_chopped_leading, leading_certainty, sp_leading,
-        retry_chopped_trailing, trailing_certainty, sp_trailing,
-        revised, &is_good, &retry_leading, &retry_trailing);
+        retry_chopped_leading, leading_certainty, sp_leading, retry_chopped_trailing,
+        trailing_certainty, sp_trailing, revised, &is_good, &retry_leading, &retry_trailing);
     if (is_good) {
       word->ConsumeWordResults(revised2);
     }
@@ -250,23 +247,17 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
  * @param[out] unlikely_threshold  the threshold (on certainty) we used to
  *                                 select "bad enough" outlier characters.
  */
-void Tesseract::GetSubAndSuperscriptCandidates(const WERD_RES *word,
-                                               int *num_rebuilt_leading,
-                                               ScriptPos *leading_pos,
-                                               float *leading_certainty,
-                                               int *num_rebuilt_trailing,
-                                               ScriptPos *trailing_pos,
-                                               float *trailing_certainty,
-                                               float *avg_certainty,
+void Tesseract::GetSubAndSuperscriptCandidates(const WERD_RES *word, int *num_rebuilt_leading,
+                                               ScriptPos *leading_pos, float *leading_certainty,
+                                               int *num_rebuilt_trailing, ScriptPos *trailing_pos,
+                                               float *trailing_certainty, float *avg_certainty,
                                                float *unlikely_threshold) {
   *avg_certainty = *unlikely_threshold = 0.0f;
   *num_rebuilt_leading = *num_rebuilt_trailing = 0;
   *leading_certainty = *trailing_certainty = 0.0f;
 
-  int super_y_bottom =
-      kBlnBaselineOffset + kBlnXHeight * superscript_min_y_bottom;
-  int sub_y_top =
-      kBlnBaselineOffset + kBlnXHeight * subscript_max_y_top;
+  int super_y_bottom = kBlnBaselineOffset + kBlnXHeight * superscript_min_y_bottom;
+  int sub_y_top = kBlnBaselineOffset + kBlnXHeight * subscript_max_y_top;
 
   // Step one: Get an average certainty for "normally placed" characters.
 
@@ -311,7 +302,7 @@ void Tesseract::GetSubAndSuperscriptCandidates(const WERD_RES *word,
     last_pos = pos;
   }
   *trailing_pos = last_pos;
-  if (num_normal >= 3) {  // throw out the worst as an outlier.
+  if (num_normal >= 3) { // throw out the worst as an outlier.
     num_normal--;
     normal_certainty_total -= worst_normal_certainty;
   }
@@ -319,16 +310,14 @@ void Tesseract::GetSubAndSuperscriptCandidates(const WERD_RES *word,
     *avg_certainty = normal_certainty_total / num_normal;
     *unlikely_threshold = superscript_worse_certainty * (*avg_certainty);
   }
-  if (num_normal == 0 ||
-      (leading_outliers == 0 && trailing_outliers == 0)) {
+  if (num_normal == 0 || (leading_outliers == 0 && trailing_outliers == 0)) {
     return;
   }
 
   // Step two: Try to split off bits of the word that are both outliers
   //           and have much lower certainty than average
   // Calculate num_leading and leading_certainty.
-  for (*leading_certainty = 0.0f, *num_rebuilt_leading = 0;
-       *num_rebuilt_leading < leading_outliers;
+  for (*leading_certainty = 0.0f, *num_rebuilt_leading = 0; *num_rebuilt_leading < leading_outliers;
        (*num_rebuilt_leading)++) {
     float char_certainty = word->best_choice->certainty(*num_rebuilt_leading);
     if (char_certainty > *unlikely_threshold) {
@@ -341,8 +330,7 @@ void Tesseract::GetSubAndSuperscriptCandidates(const WERD_RES *word,
 
   // Calculate num_trailing and trailing_certainty.
   for (*trailing_certainty = 0.0f, *num_rebuilt_trailing = 0;
-       *num_rebuilt_trailing < trailing_outliers;
-       (*num_rebuilt_trailing)++) {
+       *num_rebuilt_trailing < trailing_outliers; (*num_rebuilt_trailing)++) {
     int blob_idx = num_blobs - 1 - *num_rebuilt_trailing;
     float char_certainty = word->best_choice->certainty(blob_idx);
     if (char_certainty > *unlikely_threshold) {
@@ -353,7 +341,6 @@ void Tesseract::GetSubAndSuperscriptCandidates(const WERD_RES *word,
     }
   }
 }
-
 
 /**
  * Try splitting off the given number of (chopped) blobs from the front and
@@ -379,13 +366,11 @@ void Tesseract::GetSubAndSuperscriptCandidates(const WERD_RES *word,
  *         and trailing blobs / unichars.
  * @return A word which is the result of re-recognizing as asked.
  */
-WERD_RES *Tesseract::TrySuperscriptSplits(
-    int num_chopped_leading, float leading_certainty, ScriptPos leading_pos,
-    int num_chopped_trailing, float trailing_certainty,
-    ScriptPos trailing_pos,
-    WERD_RES *word,
-    bool *is_good,
-    int *retry_rebuild_leading, int *retry_rebuild_trailing) {
+WERD_RES *Tesseract::TrySuperscriptSplits(int num_chopped_leading, float leading_certainty,
+                                          ScriptPos leading_pos, int num_chopped_trailing,
+                                          float trailing_certainty, ScriptPos trailing_pos,
+                                          WERD_RES *word, bool *is_good, int *retry_rebuild_leading,
+                                          int *retry_rebuild_trailing) {
   int num_chopped = word->chopped_word->NumBlobs();
 
   *retry_rebuild_leading = *retry_rebuild_trailing = 0;
@@ -423,8 +408,7 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
     }
     recog_word_recursive(prefix);
     if (superscript_debug >= 2) {
-      tprintf(" The leading bits look like %s %s\n",
-              ScriptPosToString(leading_pos),
+      tprintf(" The leading bits look like %s %s\n", ScriptPosToString(leading_pos),
               prefix->best_choice->unichar_string().c_str());
     }
 
@@ -448,8 +432,7 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
     }
     recog_word_recursive(suffix);
     if (superscript_debug >= 2) {
-      tprintf(" The trailing bits look like %s %s\n",
-              ScriptPosToString(trailing_pos),
+      tprintf(" The trailing bits look like %s %s\n", ScriptPosToString(trailing_pos),
               suffix->best_choice->unichar_string().c_str());
     }
 
@@ -460,14 +443,14 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
 
   // Evaluate whether we think the results are believably better
   // than what we already had.
-  bool good_prefix = !prefix || BelievableSuperscript(
-      superscript_debug >= 1, *prefix,
-      superscript_bettered_certainty * leading_certainty,
-      retry_rebuild_leading, nullptr);
-  bool good_suffix = !suffix || BelievableSuperscript(
-      superscript_debug >= 1, *suffix,
-      superscript_bettered_certainty * trailing_certainty,
-      nullptr, retry_rebuild_trailing);
+  bool good_prefix =
+      !prefix || BelievableSuperscript(superscript_debug >= 1, *prefix,
+                                       superscript_bettered_certainty * leading_certainty,
+                                       retry_rebuild_leading, nullptr);
+  bool good_suffix =
+      !suffix || BelievableSuperscript(superscript_debug >= 1, *suffix,
+                                       superscript_bettered_certainty * trailing_certainty, nullptr,
+                                       retry_rebuild_trailing);
 
   *is_good = good_prefix && good_suffix;
   if (!*is_good && !*retry_rebuild_leading && !*retry_rebuild_trailing) {
@@ -499,7 +482,6 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
   return core;
 }
 
-
 /**
  * Return whether this is believable superscript or subscript text.
  *
@@ -518,17 +500,14 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
  *  @param[out]  right_ok  How many right-side characters were ok?
  *  @return  Whether the complete best choice is believable as a superscript.
  */
-bool Tesseract::BelievableSuperscript(bool debug,
-                                      const WERD_RES &word,
-                                      float certainty_threshold,
-                                      int *left_ok,
-                                      int *right_ok) const {
+bool Tesseract::BelievableSuperscript(bool debug, const WERD_RES &word, float certainty_threshold,
+                                      int *left_ok, int *right_ok) const {
   int initial_ok_run_count = 0;
   int ok_run_count = 0;
   float worst_certainty = 0.0f;
   const WERD_CHOICE &wc = *word.best_choice;
 
-  const UnicityTable<FontInfo>& fontinfo_table = get_fontinfo_table();
+  const UnicityTable<FontInfo> &fontinfo_table = get_fontinfo_table();
   for (int i = 0; i < wc.length(); i++) {
     TBLOB *blob = word.rebuild_word->blobs[i];
     UNICHAR_ID unichar_id = wc.unichar_id(i);
@@ -540,11 +519,9 @@ bool Tesseract::BelievableSuperscript(bool debug,
     if (choice && fontinfo_table.size() > 0) {
       // Get better information from the specific choice, if available.
       int font_id1 = choice->fontinfo_id();
-      bool font1_is_italic = font_id1 >= 0
-          ? fontinfo_table.get(font_id1).is_italic() : false;
+      bool font1_is_italic = font_id1 >= 0 ? fontinfo_table.at(font_id1).is_italic() : false;
       int font_id2 = choice->fontinfo_id2();
-      is_italic = font1_is_italic &&
-          (font_id2 < 0 || fontinfo_table.get(font_id2).is_italic());
+      is_italic = font1_is_italic && (font_id2 < 0 || fontinfo_table.at(font_id2).is_italic());
     }
 
     float height_fraction = 1.0f;
@@ -552,9 +529,7 @@ bool Tesseract::BelievableSuperscript(bool debug,
     float normal_height = char_height;
     if (wc.unicharset()->top_bottom_useful()) {
       int min_bot, max_bot, min_top, max_top;
-      wc.unicharset()->get_top_bottom(unichar_id,
-                                      &min_bot, &max_bot,
-                                      &min_top, &max_top);
+      wc.unicharset()->get_top_bottom(unichar_id, &min_bot, &max_bot, &min_top, &max_top);
       float hi_height = max_top - max_bot;
       float lo_height = min_top - min_bot;
       normal_height = (hi_height + lo_height) / 2;
@@ -575,13 +550,16 @@ bool Tesseract::BelievableSuperscript(bool debug,
       }
       const char *char_str = wc.unicharset()->id_to_unichar(unichar_id);
       if (bad_certainty) {
-        tprintf(" Rejecting: don't believe character %s with certainty %.2f "
-                "which is less than threshold %.2f\n", char_str,
-                char_certainty, certainty_threshold);
+        tprintf(
+            " Rejecting: don't believe character %s with certainty %.2f "
+            "which is less than threshold %.2f\n",
+            char_str, char_certainty, certainty_threshold);
       }
       if (bad_height) {
-        tprintf(" Rejecting: character %s seems too small @ %.2f versus "
-                "expected %.2f\n", char_str, char_height, normal_height);
+        tprintf(
+            " Rejecting: character %s seems too small @ %.2f versus "
+            "expected %.2f\n",
+            char_str, char_height, normal_height);
       }
     }
     if (bad_certainty || bad_height || is_punc || is_italic) {
@@ -601,11 +579,14 @@ bool Tesseract::BelievableSuperscript(bool debug,
     tprintf(" Accept: worst revised certainty is %.2f\n", worst_certainty);
   }
   if (!all_ok) {
-    if (left_ok) *left_ok = initial_ok_run_count;
-    if (right_ok) *right_ok = ok_run_count;
+    if (left_ok) {
+      *left_ok = initial_ok_run_count;
+    }
+    if (right_ok) {
+      *right_ok = ok_run_count;
+    }
   }
   return all_ok;
 }
 
-
-}  // namespace tesseract
+} // namespace tesseract

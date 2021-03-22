@@ -20,31 +20,29 @@
 
 #include "dawg.h"
 #include "object_cache.h"
-#include <tesseract/strngs.h>
 #include "tessdatamanager.h"
 
 namespace tesseract {
 
 struct DawgLoader {
-  DawgLoader(const STRING &lang, TessdataType tessdata_dawg_type,
-             int dawg_debug_level, TessdataManager *data_file)
-      : lang_(lang),
-        data_file_(data_file),
-        tessdata_dawg_type_(tessdata_dawg_type),
-        dawg_debug_level_(dawg_debug_level) {}
+  DawgLoader(const std::string &lang, TessdataType tessdata_dawg_type, int dawg_debug_level,
+             TessdataManager *data_file)
+      : lang_(lang)
+      , data_file_(data_file)
+      , tessdata_dawg_type_(tessdata_dawg_type)
+      , dawg_debug_level_(dawg_debug_level) {}
 
   Dawg *Load();
 
-  STRING lang_;
+  std::string lang_;
   TessdataManager *data_file_;
   TessdataType tessdata_dawg_type_;
   int dawg_debug_level_;
 };
 
-Dawg *DawgCache::GetSquishedDawg(const STRING &lang,
-                                 TessdataType tessdata_dawg_type,
+Dawg *DawgCache::GetSquishedDawg(const std::string &lang, TessdataType tessdata_dawg_type,
                                  int debug_level, TessdataManager *data_file) {
-  STRING data_id = data_file->GetDataFileName();
+  std::string data_id = data_file->GetDataFileName();
   data_id += kTessdataFileSuffixes[tessdata_dawg_type];
   DawgLoader loader(lang, tessdata_dawg_type, debug_level, data_file);
   return dawgs_.Get(data_id, std::bind(&DawgLoader::Load, &loader));
@@ -52,7 +50,9 @@ Dawg *DawgCache::GetSquishedDawg(const STRING &lang,
 
 Dawg *DawgLoader::Load() {
   TFile fp;
-  if (!data_file_->GetComponent(tessdata_dawg_type_, &fp)) return nullptr;
+  if (!data_file_->GetComponent(tessdata_dawg_type_, &fp)) {
+    return nullptr;
+  }
   DawgType dawg_type;
   PermuterType perm_type;
   switch (tessdata_dawg_type_) {
@@ -72,8 +72,8 @@ Dawg *DawgLoader::Load() {
       perm_type = NUMBER_PERM;
       break;
     case TESSDATA_BIGRAM_DAWG:
-      dawg_type = DAWG_TYPE_WORD;  // doesn't actually matter
-      perm_type = COMPOUND_PERM;   // doesn't actually matter
+      dawg_type = DAWG_TYPE_WORD; // doesn't actually matter
+      perm_type = COMPOUND_PERM;  // doesn't actually matter
       break;
     case TESSDATA_UNAMBIG_DAWG:
       dawg_type = DAWG_TYPE_WORD;
@@ -86,11 +86,12 @@ Dawg *DawgLoader::Load() {
     default:
       return nullptr;
   }
-  auto *retval =
-      new SquishedDawg(dawg_type, lang_, perm_type, dawg_debug_level_);
-  if (retval->Load(&fp)) return retval;
+  auto *retval = new SquishedDawg(dawg_type, lang_, perm_type, dawg_debug_level_);
+  if (retval->Load(&fp)) {
+    return retval;
+  }
   delete retval;
   return nullptr;
 }
 
-}  // namespace tesseract
+} // namespace tesseract

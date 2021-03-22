@@ -28,28 +28,29 @@ namespace tesseract {
 // Steps backwards are limited to being between min_step and max_step
 // inclusive.
 // The return value is the tail of the best path.
-DPPoint* DPPoint::Solve(int min_step, int max_step, bool debug,
-                        CostFunc cost_func, int size, DPPoint* points) {
-  if (size <= 0 || max_step < min_step || min_step >= size)
-    return nullptr;  // Degenerate, but not necessarily an error.
-  ASSERT_HOST(min_step > 0);  // Infinite loop possible if this is not true.
-  if (debug)
-    tprintf("min = %d, max=%d\n",
-            min_step, max_step);
+DPPoint *DPPoint::Solve(int min_step, int max_step, bool debug, CostFunc cost_func, int size,
+                        DPPoint *points) {
+  if (size <= 0 || max_step < min_step || min_step >= size) {
+    return nullptr; // Degenerate, but not necessarily an error.
+  }
+  ASSERT_HOST(min_step > 0); // Infinite loop possible if this is not true.
+  if (debug) {
+    tprintf("min = %d, max=%d\n", min_step, max_step);
+  }
   // Evaluate the total cost at each point.
   for (int i = 0; i < size; ++i) {
     for (int offset = min_step; offset <= max_step; ++offset) {
-      DPPoint* prev = offset <= i ? points + i - offset : nullptr;
+      DPPoint *prev = offset <= i ? points + i - offset : nullptr;
       int64_t new_cost = (points[i].*cost_func)(prev);
       if (points[i].best_prev_ != nullptr && offset > min_step * 2 &&
-          new_cost > points[i].total_cost_)
-        break;  // Find only the first minimum if going over twice the min.
+          new_cost > points[i].total_cost_) {
+        break; // Find only the first minimum if going over twice the min.
+      }
     }
     points[i].total_cost_ += points[i].local_cost_;
     if (debug) {
-      tprintf("At point %d, local cost=%d, total_cost=%d, steps=%d\n",
-              i, points[i].local_cost_, points[i].total_cost_,
-              points[i].total_steps_);
+      tprintf("At point %d, local cost=%d, total_cost=%d, steps=%d\n", i, points[i].local_cost_,
+              points[i].total_cost_, points[i].total_steps_);
     }
   }
   // Now find the end of the best path and return it.
@@ -66,7 +67,7 @@ DPPoint* DPPoint::Solve(int min_step, int max_step, bool debug,
 }
 
 // A CostFunc that takes the variance of step into account in the cost.
-int64_t DPPoint::CostWithVariance(const DPPoint* prev) {
+int64_t DPPoint::CostWithVariance(const DPPoint *prev) {
   if (prev == nullptr || prev == this) {
     UpdateIfBetter(0, 1, nullptr, 0, 0, 0);
     return 0;
@@ -83,8 +84,8 @@ int64_t DPPoint::CostWithVariance(const DPPoint* prev) {
 }
 
 // Update the other members if the cost is lower.
-void DPPoint::UpdateIfBetter(int64_t cost, int32_t steps, const DPPoint* prev,
-                             int32_t n, int32_t sig_x, int64_t sig_xsq) {
+void DPPoint::UpdateIfBetter(int64_t cost, int32_t steps, const DPPoint *prev, int32_t n,
+                             int32_t sig_x, int64_t sig_xsq) {
   if (cost < total_cost_) {
     total_cost_ = cost;
     total_steps_ = steps;
@@ -95,4 +96,4 @@ void DPPoint::UpdateIfBetter(int64_t cost, int32_t steps, const DPPoint* prev,
   }
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

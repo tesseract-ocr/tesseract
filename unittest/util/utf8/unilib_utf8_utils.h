@@ -29,8 +29,7 @@ namespace UniLib {
 // (i.e., is not a surrogate codepoint). See also
 // IsValidCodepoint(const char* src) in util/utf8/public/unilib.h.
 inline bool IsValidCodepoint(char32 c) {
-  return (static_cast<uint32>(c) < 0xD800)
-    || (c >= 0xE000 && c <= 0x10FFFF);
+  return (static_cast<uint32>(c) < 0xD800) || (c >= 0xE000 && c <= 0x10FFFF);
 }
 
 // Returns true if 'str' is the start of a structurally valid UTF-8
@@ -41,16 +40,15 @@ inline bool IsUTF8ValidCodepoint(StringPiece str) {
   char32 c;
   int consumed;
   // It's OK if str.length() > consumed.
-  return !str.empty()
-      && isvalidcharntorune(str.data(), str.size(), &c, &consumed)
-      && IsValidCodepoint(c);
+  return !str.empty() && isvalidcharntorune(str.data(), str.size(), &c, &consumed) &&
+         IsValidCodepoint(c);
 }
 
 // Returns the length (number of bytes) of the Unicode code point
 // starting at src, based on inspecting just that one byte. This
 // requires that src point to a well-formed UTF-8 string; the result
 // is undefined otherwise.
-inline int OneCharLen(const char* src) {
+inline int OneCharLen(const char *src) {
   return "\1\1\1\1\1\1\1\1\1\1\1\1\2\2\3\4"[(*src & 0xFF) >> 4];
 }
 
@@ -61,6 +59,6 @@ inline bool IsTrailByte(char x) {
   return static_cast<signed char>(x) < -0x40;
 }
 
-}  // namespace UniLib
+} // namespace UniLib
 
-#endif  // UTIL_UTF8_PUBLIC_UNILIB_UTF8_UTILS_H_
+#endif // UTIL_UTF8_PUBLIC_UNILIB_UTF8_UTILS_H_

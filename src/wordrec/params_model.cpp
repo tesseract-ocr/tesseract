@@ -23,6 +23,8 @@
 #include <cstdio>
 
 #include "bitvector.h"
+#include "helpers.h"   // for ClipToRange
+#include "serialis.h"  // for TFile
 #include "tprintf.h"
 
 namespace tesseract {
@@ -38,27 +40,25 @@ void ParamsModel::Print() {
   for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) {
     tprintf("ParamsModel for pass %d lang %s\n", p, lang_.c_str());
     for (int i = 0; i < weights_vec_[p].size(); ++i) {
-      tprintf("%s = %g\n", kParamsTrainingFeatureTypeName[i],
-              weights_vec_[p][i]);
+      tprintf("%s = %g\n", kParamsTrainingFeatureTypeName[i], weights_vec_[p][i]);
     }
   }
 }
 
 void ParamsModel::Copy(const ParamsModel &other_model) {
   for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) {
-    weights_vec_[p] = other_model.weights_for_pass(
-        static_cast<PassEnum>(p));
+    weights_vec_[p] = other_model.weights_for_pass(static_cast<PassEnum>(p));
   }
 }
 
 // Given a (modifiable) line, parse out a key / value pair.
 // Return true on success.
-bool ParamsModel::ParseLine(char *line, char** key, float *val) {
-  if (line[0] == '#')
+bool ParamsModel::ParseLine(char *line, char **key, float *val) {
+  if (line[0] == '#') {
     return false;
+  }
   int end_of_key = 0;
-  while (line[end_of_key] &&
-         !(isascii(line[end_of_key]) && isspace(line[end_of_key]))) {
+  while (line[end_of_key] && !(isascii(line[end_of_key]) && isspace(line[end_of_key]))) {
     end_of_key++;
   }
   if (!line[end_of_key]) {
@@ -67,8 +67,9 @@ bool ParamsModel::ParseLine(char *line, char** key, float *val) {
   }
   line[end_of_key++] = 0;
   *key = line;
-  if (sscanf(line + end_of_key, " %f", val) != 1)
+  if (sscanf(line + end_of_key, " %f", val) != 1) {
     return false;
+  }
   return true;
 }
 
@@ -82,18 +83,20 @@ float ParamsModel::ComputeCost(const float features[]) const {
   for (int f = 0; f < PTRAIN_NUM_FEATURE_TYPES; ++f) {
     unnorm_score += weights_vec_[pass_][f] * features[f];
   }
-  return ClipToRange(-unnorm_score / kScoreScaleFactor,
-                     kMinFinalCost, kMaxFinalCost);
+  return ClipToRange(-unnorm_score / kScoreScaleFactor, kMinFinalCost, kMaxFinalCost);
 }
 
 bool ParamsModel::Equivalent(const ParamsModel &that) const {
   float epsilon = 0.0001;
   for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) {
-    if (weights_vec_[p].size() != that.weights_vec_[p].size()) return false;
+    if (weights_vec_[p].size() != that.weights_vec_[p].size()) {
+      return false;
+    }
     for (int i = 0; i < weights_vec_[p].size(); i++) {
       if (weights_vec_[p][i] != that.weights_vec_[p][i] &&
-          fabs(weights_vec_[p][i] - that.weights_vec_[p][i]) > epsilon)
+          fabs(weights_vec_[p][i] - that.weights_vec_[p][i]) > epsilon) {
         return false;
+      }
     }
   }
   return true;
@@ -106,14 +109,15 @@ bool ParamsModel::LoadFromFp(const char *lang, TFile *fp) {
   present.Init(PTRAIN_NUM_FEATURE_TYPES);
   lang_ = lang;
   // Load weights for passes with adaption on.
-  GenericVector<float> &weights = weights_vec_[pass_];
-  weights.init_to_size(PTRAIN_NUM_FEATURE_TYPES, 0.0);
+  std::vector<float> &weights = weights_vec_[pass_];
+  weights.resize(PTRAIN_NUM_FEATURE_TYPES, 0.0f);
 
   while (fp->FGets(line, kMaxLineSize) != nullptr) {
     char *key = nullptr;
     float value;
-    if (!ParseLine(line, &key, &value))
+    if (!ParseLine(line, &key, &value)) {
       continue;
+    }
     int idx = ParamsTrainingFeatureByName(key);
     if (idx < 0) {
       tprintf("ParamsModel::Unknown parameter %s\n", key);
@@ -132,13 +136,13 @@ bool ParamsModel::LoadFromFp(const char *lang, TFile *fp) {
       }
     }
     lang_ = "";
-    weights.truncate(0);
+    weights.clear();
   }
   return complete;
 }
 
 bool ParamsModel::SaveToFile(const char *full_path) const {
-  const GenericVector<float> &weights = weights_vec_[pass_];
+  const std::vector<float> &weights = weights_vec_[pass_];
   if (weights.size() != PTRAIN_NUM_FEATURE_TYPES) {
     tprintf("Refusing to save ParamsModel that has not been initialized.\n");
     return false;
@@ -150,8 +154,7 @@ bool ParamsModel::SaveToFile(const char *full_path) const {
   }
   bool all_good = true;
   for (int i = 0; i < weights.size(); i++) {
-    if (fprintf(fp, "%s %f\n", kParamsTrainingFeatureTypeName[i], weights[i])
-        < 0) {
+    if (fprintf(fp, "%s %f\n", kParamsTrainingFeatureTypeName[i], weights[i]) < 0) {
       all_good = false;
     }
   }
@@ -159,4 +162,4 @@ bool ParamsModel::SaveToFile(const char *full_path) const {
   return all_good;
 }
 
-}  // namespace tesseract
+} // namespace tesseract

@@ -13,15 +13,15 @@
 
 #include "include_gunit.h"
 
-namespace {
+namespace tesseract {
 
 class TBOXTest : public testing::Test {
- public:
-  void SetUp() {
+public:
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 
-  void TearDown() {}
+  void TearDown() override {}
 };
 
 TEST_F(TBOXTest, OverlapInside) {
@@ -52,10 +52,8 @@ TEST_F(TBOXTest, OverlapFractionCorners) {
   TBOX top_left(5, 25, 15, 35);
   // other corners covered by symmetry
 
-  EXPECT_DOUBLE_EQ((5.0 * 5.0) / (20.0 * 20.0),
-                   mid.overlap_fraction(bottom_left));
-  EXPECT_DOUBLE_EQ((5.0 * 5.0) / (10.0 * 10.0),
-                   bottom_left.overlap_fraction(mid));
+  EXPECT_DOUBLE_EQ((5.0 * 5.0) / (20.0 * 20.0), mid.overlap_fraction(bottom_left));
+  EXPECT_DOUBLE_EQ((5.0 * 5.0) / (10.0 * 10.0), bottom_left.overlap_fraction(mid));
   EXPECT_DOUBLE_EQ((5.0 * 5.0) / (20.0 * 20.0), mid.overlap_fraction(top_left));
   EXPECT_DOUBLE_EQ((5.0 * 5.0) / (10.0 * 10.0), top_left.overlap_fraction(mid));
 }
@@ -102,14 +100,10 @@ TEST_F(TBOXTest, OverlapFractionSpan) {
   TBOX horizontal(5, 15, 35, 25);
   // other sides covered by symmetry in other test cases
 
-  EXPECT_DOUBLE_EQ((10.0 * 20.0) / (20.0 * 20.0),
-                   mid.overlap_fraction(vertical));
-  EXPECT_DOUBLE_EQ((10.0 * 20.0) / (10.0 * 30.0),
-                   vertical.overlap_fraction(mid));
-  EXPECT_DOUBLE_EQ((20.0 * 10.0) / (20.0 * 20.0),
-                   mid.overlap_fraction(horizontal));
-  EXPECT_DOUBLE_EQ((20.0 * 10.0) / (30.0 * 10.0),
-                   horizontal.overlap_fraction(mid));
+  EXPECT_DOUBLE_EQ((10.0 * 20.0) / (20.0 * 20.0), mid.overlap_fraction(vertical));
+  EXPECT_DOUBLE_EQ((10.0 * 20.0) / (10.0 * 30.0), vertical.overlap_fraction(mid));
+  EXPECT_DOUBLE_EQ((20.0 * 10.0) / (20.0 * 20.0), mid.overlap_fraction(horizontal));
+  EXPECT_DOUBLE_EQ((20.0 * 10.0) / (30.0 * 10.0), horizontal.overlap_fraction(mid));
 }
 
 // TODO(nbeato): pretty much all cases
@@ -173,4 +167,4 @@ TEST_F(TBOXTest, OverlapYFractionZeroSize) {
   EXPECT_DOUBLE_EQ(0.0, small.y_overlap_fraction(zero));
 }
 
-}  // namespace
+} // namespace tesseract

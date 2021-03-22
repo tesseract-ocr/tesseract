@@ -19,25 +19,21 @@
 #include "include_gunit.h"
 #include "log.h"
 
-using tesseract::DocumentCache;
-using tesseract::DocumentData;
-using tesseract::ImageData;
-
-namespace {
+namespace tesseract {
 
 // Tests the caching mechanism of DocumentData/ImageData.
 
 class ImagedataTest : public ::testing::Test {
- protected:
-  void SetUp() {
+protected:
+  void SetUp() override {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
-  ImagedataTest() {}
+  ImagedataTest() = default;
 
   // Creates a fake DocumentData, writes it to a file, and returns the filename.
-  std::string MakeFakeDoc(int num_pages, unsigned doc_id,
-                     std::vector<std::string>* page_texts) {
+  std::string MakeFakeDoc(int num_pages, unsigned doc_id, std::vector<std::string> *page_texts) {
     // The size of the fake images that we will use.
     const int kImageSize = 1048576;
     // Not using a real image here - just an array of zeros! We are just testing
@@ -46,18 +42,16 @@ class ImagedataTest : public ::testing::Test {
     DocumentData write_doc("My document");
     for (int p = 0; p < num_pages; ++p) {
       // Make some fake text that is different for each page and save it.
-      page_texts->push_back(
-          absl::StrFormat("Page %d of %d in doc %u", p, num_pages, doc_id));
+      page_texts->push_back(absl::StrFormat("Page %d of %d in doc %u", p, num_pages, doc_id));
       // Make an imagedata and put it in the document.
-      ImageData* imagedata =
-          ImageData::Build("noname", p, "eng", fake_image.data(),
-                           fake_image.size(), (*page_texts)[p].c_str(), nullptr);
+      ImageData *imagedata = ImageData::Build("noname", p, "eng", fake_image.data(),
+                                              fake_image.size(), (*page_texts)[p].c_str(), nullptr);
       EXPECT_EQ(kImageSize, imagedata->MemoryUsed());
       write_doc.AddPageToDocument(imagedata);
     }
     // Write it to a file.
-    std::string filename = file::JoinPath(
-        FLAGS_test_tmpdir, absl::StrCat("documentdata", doc_id, ".lstmf"));
+    std::string filename =
+        file::JoinPath(FLAGS_test_tmpdir, absl::StrCat("documentdata", doc_id, ".lstmf"));
     EXPECT_TRUE(write_doc.SaveDocument(filename.c_str(), nullptr));
     return filename;
   }
@@ -79,18 +73,16 @@ TEST_F(ImagedataTest, CachesProperly) {
   // the pages can still be read.
   for (int m = 0; kMemoryAllowances[m] > 0; ++m) {
     DocumentData read_doc("My document");
-    EXPECT_TRUE(
-        read_doc.LoadDocument(filename.c_str(), 0, kMemoryAllowances[m], nullptr));
+    EXPECT_TRUE(read_doc.LoadDocument(filename.c_str(), 0, kMemoryAllowances[m], nullptr));
     LOG(ERROR) << "Allowance = " << kMemoryAllowances[m];
     // Read the pages in a specific order.
     for (int p = 0; kPageReadOrder[p] >= 0; ++p) {
       int page = kPageReadOrder[p];
-      const ImageData* imagedata = read_doc.GetPage(page);
+      const ImageData *imagedata = read_doc.GetPage(page);
       EXPECT_NE(nullptr, imagedata);
-      //EXPECT_NE(reinterpret_cast<ImageData*>(nullptr), imagedata);
+      // EXPECT_NE(reinterpret_cast<ImageData*>(nullptr), imagedata);
       // Check that this is the right page.
-      EXPECT_STREQ(page_texts[page].c_str(),
-                   imagedata->transcription().c_str());
+      EXPECT_STREQ(page_texts[page].c_str(), imagedata->transcription().c_str());
     }
   }
 }
@@ -101,11 +93,11 @@ TEST_F(ImagedataTest, CachesMultiDocs) {
   // Number of pages in each document.
   const std::vector<int> kNumPages = {6, 5, 7};
   std::vector<std::vector<std::string>> page_texts;
-  GenericVector<STRING> filenames;
+  std::vector<std::string> filenames;
   for (size_t d = 0; d < kNumPages.size(); ++d) {
     page_texts.emplace_back(std::vector<std::string>());
     std::string filename = MakeFakeDoc(kNumPages[d], d, &page_texts.back());
-    filenames.push_back(STRING(filename.c_str()));
+    filenames.push_back(filename);
   }
   // Now try getting them back with different cache strategies and check that
   // the pages come out in the right order.
@@ -115,20 +107,18 @@ TEST_F(ImagedataTest, CachesMultiDocs) {
   serial_cache.LoadDocuments(filenames, tesseract::CS_SEQUENTIAL, nullptr);
   for (int p = 0; p <= 21; ++p) {
     LOG(INFO) << "Page " << p;
-    const ImageData* robin_data = robin_cache.GetPageBySerial(p);
-    const ImageData* serial_data = serial_cache.GetPageBySerial(p);
+    const ImageData *robin_data = robin_cache.GetPageBySerial(p);
+    const ImageData *serial_data = serial_cache.GetPageBySerial(p);
     CHECK(robin_data != nullptr);
     CHECK(serial_data != nullptr);
     int robin_doc = p % kNumPages.size();
     int robin_page = p / kNumPages.size() % kNumPages[robin_doc];
     // Check that this is the right page.
-    EXPECT_STREQ(page_texts[robin_doc][robin_page].c_str(),
-                 robin_data->transcription().c_str());
+    EXPECT_STREQ(page_texts[robin_doc][robin_page].c_str(), robin_data->transcription().c_str());
     int serial_doc = p / kNumPages[0] % kNumPages.size();
     int serial_page = p % kNumPages[0] % kNumPages[serial_doc];
-    EXPECT_STREQ(page_texts[serial_doc][serial_page].c_str(),
-                 serial_data->transcription().c_str());
+    EXPECT_STREQ(page_texts[serial_doc][serial_page].c_str(), serial_data->transcription().c_str());
   }
 }
 
-}  // namespace.
+} // namespace tesseract

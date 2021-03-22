@@ -15,19 +15,20 @@
  ** limitations under the License.
  *
  *************************************************************************/
-/*----------------------------------------------------------------------
-              I n c l u d e s
-----------------------------------------------------------------------*/
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#  include "config_auto.h"
 #endif
 
 #include "split.h"
+
 #include "coutln.h"
 #include "tprintf.h"
 
 #include <algorithm>
+
+namespace tesseract {
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
@@ -39,16 +40,9 @@ const double kBadPriority = 999.0;
 
 BOOL_VAR(wordrec_display_splits, 0, "Display splits");
 
-// Returns the bounding box of all the points in the split.
-TBOX SPLIT::bounding_box() const {
-  return TBOX(
-      std::min(point1->pos.x, point2->pos.x), std::min(point1->pos.y, point2->pos.y),
-      std::max(point1->pos.x, point2->pos.x), std::max(point1->pos.y, point2->pos.y));
-}
-
 // Hides the SPLIT so the outlines appear not to be cut by it.
 void SPLIT::Hide() const {
-  EDGEPT* edgept = point1;
+  EDGEPT *edgept = point1;
   do {
     edgept->Hide();
     edgept = edgept->next;
@@ -62,7 +56,7 @@ void SPLIT::Hide() const {
 
 // Undoes hide, so the outlines are cut by the SPLIT.
 void SPLIT::Reveal() const {
-  EDGEPT* edgept = point1;
+  EDGEPT *edgept = point1;
   do {
     edgept->Reveal();
     edgept = edgept->next;
@@ -77,14 +71,15 @@ void SPLIT::Reveal() const {
 // Compute a split priority based on the bounding boxes of the parts.
 // The arguments here are config parameters defined in Wordrec. Add chop_
 // to the beginning of the name.
-float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob,
-                          int centered_maxwidth, double center_knob,
-                          double width_change_knob) const {
+float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob, int centered_maxwidth,
+                          double center_knob, double width_change_knob) const {
   TBOX box1 = Box12();
   TBOX box2 = Box21();
   int min_left = std::min(box1.left(), box2.left());
   int max_right = std::max(box1.right(), box2.right());
-  if (xmin < min_left && xmax > max_right) return kBadPriority;
+  if (xmin < min_left && xmax > max_right) {
+    return kBadPriority;
+  }
 
   float grade = 0.0f;
   // grade_overlap.
@@ -93,10 +88,14 @@ float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob,
   int min_width = std::min(width1, width2);
   int overlap = -box1.x_gap(box2);
   if (overlap == min_width) {
-    grade += 100.0f;  // Total overlap.
+    grade += 100.0f; // Total overlap.
   } else {
-    if (2 * overlap > min_width) overlap += 2 * overlap - min_width;
-    if (overlap > 0) grade += overlap_knob * overlap;
+    if (2 * overlap > min_width) {
+      overlap += 2 * overlap - min_width;
+    }
+    if (overlap > 0) {
+      grade += overlap_knob * overlap;
+    }
   }
   // grade_center_of_blob.
   if (width1 <= centered_maxwidth || width2 <= centered_maxwidth) {
@@ -104,14 +103,15 @@ float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob,
   }
   // grade_width_change.
   float width_change_grade = 20 - (max_right - min_left - std::max(width1, width2));
-  if (width_change_grade > 0.0f)
+  if (width_change_grade > 0.0f) {
     grade += width_change_grade * width_change_knob;
+  }
   return grade;
 }
 
 // Returns true if *this SPLIT appears OK in the sense that it does not cross
 // any outlines and does not chop off any ridiculously small pieces.
-bool SPLIT::IsHealthy(const TBLOB& blob, int min_points, int min_area) const {
+bool SPLIT::IsHealthy(const TBLOB &blob, int min_points, int min_area) const {
   return !IsLittleChunk(min_points, min_area) &&
          !blob.SegmentCrossesOutline(point1->pos, point2->pos);
 }
@@ -142,7 +142,7 @@ EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev) {
   this_edgept->pos.x = x;
   this_edgept->pos.y = y;
   // Now deal with the src_outline steps.
-  C_OUTLINE* prev_ol = prev->src_outline;
+  C_OUTLINE *prev_ol = prev->src_outline;
   if (prev_ol != nullptr && prev->next == next) {
     // Compute the fraction of the segment that is being cut.
     FCOORD segment_vec(next->pos.x - prev->pos.x, next->pos.y - prev->pos.y);
@@ -216,13 +216,12 @@ void remove_edgept(EDGEPT *point) {
  * Shows the coordinates of both points in a split.
  **********************************************************************/
 void SPLIT::Print() const {
-  tprintf("(%d,%d)--(%d,%d)", point1->pos.x, point1->pos.y, point2->pos.x,
-          point2->pos.y);
+  tprintf("(%d,%d)--(%d,%d)", point1->pos.x, point1->pos.y, point2->pos.x, point2->pos.y);
 }
 
 #ifndef GRAPHICS_DISABLED
 // Draws the split in the given window.
-void SPLIT::Mark(ScrollView* window) const {
+void SPLIT::Mark(ScrollView *window) const {
   window->Pen(ScrollView::GREEN);
   window->Line(point1->pos.x, point1->pos.y, point2->pos.x, point2->pos.y);
   window->UpdateWindow();
@@ -231,9 +230,11 @@ void SPLIT::Mark(ScrollView* window) const {
 
 // Creates two outlines out of one by splitting the original one in half.
 // Inserts the resulting outlines into the given list.
-void SPLIT::SplitOutlineList(TESSLINE* outlines) const {
+void SPLIT::SplitOutlineList(TESSLINE *outlines) const {
   SplitOutline();
-  while (outlines->next != nullptr) outlines = outlines->next;
+  while (outlines->next != nullptr) {
+    outlines = outlines->next;
+  }
 
   outlines->next = new TESSLINE;
   outlines->next->loop = point1;
@@ -251,11 +252,11 @@ void SPLIT::SplitOutlineList(TESSLINE* outlines) const {
 // Makes a split between these two edge points, but does not affect the
 // outlines to which they belong.
 void SPLIT::SplitOutline() const {
-  EDGEPT* temp2 = point2->next;
-  EDGEPT* temp1 = point1->next;
+  EDGEPT *temp2 = point2->next;
+  EDGEPT *temp1 = point1->next;
   /* Create two new points */
-  EDGEPT* new_point1 = make_edgept(point1->pos.x, point1->pos.y, temp1, point2);
-  EDGEPT* new_point2 = make_edgept(point2->pos.x, point2->pos.y, temp2, point1);
+  EDGEPT *new_point1 = make_edgept(point1->pos.x, point1->pos.y, temp1, point2);
+  EDGEPT *new_point2 = make_edgept(point2->pos.x, point2->pos.y, temp2, point1);
   // point1 and 2 are now cross-over points, so they must have nullptr
   // src_outlines and give their src_outline information their new
   // replacements.
@@ -275,16 +276,16 @@ void SPLIT::SplitOutline() const {
 
 // Undoes the effect of SplitOutlineList, correcting the outlines for undoing
 // the split, but possibly leaving some duplicate outlines.
-void SPLIT::UnsplitOutlineList(TBLOB* blob) const {
+void SPLIT::UnsplitOutlineList(TBLOB *blob) const {
   /* Modify edge points */
   UnsplitOutlines();
 
-  auto* outline1 = new TESSLINE;
+  auto *outline1 = new TESSLINE;
   outline1->next = blob->outlines;
   blob->outlines = outline1;
   outline1->loop = point1;
 
-  auto* outline2 = new TESSLINE;
+  auto *outline2 = new TESSLINE;
   outline2->next = blob->outlines;
   blob->outlines = outline2;
   outline2->loop = point2;
@@ -292,8 +293,8 @@ void SPLIT::UnsplitOutlineList(TBLOB* blob) const {
 
 // Removes the split that was put between these two points.
 void SPLIT::UnsplitOutlines() const {
-  EDGEPT* tmp1 = point1->next;
-  EDGEPT* tmp2 = point2->next;
+  EDGEPT *tmp1 = point1->next;
+  EDGEPT *tmp2 = point2->next;
 
   tmp1->next->prev = point2;
   tmp2->next->prev = point1;
@@ -319,3 +320,5 @@ void SPLIT::UnsplitOutlines() const {
   point2->vec.x = point2->next->pos.x - point2->pos.x;
   point2->vec.y = point2->next->pos.y - point2->pos.y;
 }
+
+} // namespace tesseract

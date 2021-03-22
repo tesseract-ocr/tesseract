@@ -19,17 +19,16 @@
 #ifndef TESSERACT_WORDREC_PARAMS_MODEL_H_
 #define TESSERACT_WORDREC_PARAMS_MODEL_H_
 
-#include <tesseract/genericvector.h>              // for GenericVector
-#include "params_training_featdef.h"    // for PTRAIN_NUM_FEATURE_TYPES
-#include <tesseract/strngs.h>                     // for STRING
+#include <tesseract/export.h>        // for TESS_API
+#include "params_training_featdef.h" // for PTRAIN_NUM_FEATURE_TYPES
 
 namespace tesseract {
 
 class TFile;
 
 // Represents the learned weights for a given language.
-class ParamsModel {
- public:
+class TESS_API ParamsModel {
+public:
   // Enum for expressing OCR pass.
   enum PassEnum {
     PTRAIN_PASS1,
@@ -39,8 +38,10 @@ class ParamsModel {
   };
 
   ParamsModel() : pass_(PTRAIN_PASS1) {}
-  ParamsModel(const char *lang, const GenericVector<float> &weights) :
-    lang_(lang), pass_(PTRAIN_PASS1) { weights_vec_[pass_] = weights; }
+  ParamsModel(const char *lang, const std::vector<float> &weights)
+      : lang_(lang), pass_(PTRAIN_PASS1) {
+    weights_vec_[pass_] = weights;
+  }
   inline bool Initialized() {
     return weights_vec_[pass_].size() == PTRAIN_NUM_FEATURE_TYPES;
   }
@@ -48,7 +49,9 @@ class ParamsModel {
   void Print();
   // Clears weights for all passes.
   void Clear() {
-    for (auto & p : weights_vec_) p.clear();
+    for (auto &p : weights_vec_) {
+      p.clear();
+    }
   }
   // Copies the weights of the given params model.
   void Copy(const ParamsModel &other_model);
@@ -63,26 +66,28 @@ class ParamsModel {
   // Returns true on success.
   bool LoadFromFp(const char *lang, TFile *fp);
 
-  const GenericVector<float>& weights() const {
+  const std::vector<float> &weights() const {
     return weights_vec_[pass_];
   }
-  const GenericVector<float>& weights_for_pass(PassEnum pass) const {
+  const std::vector<float> &weights_for_pass(PassEnum pass) const {
     return weights_vec_[pass];
   }
-  void SetPass(PassEnum pass) { pass_ = pass; }
+  void SetPass(PassEnum pass) {
+    pass_ = pass;
+  }
 
- private:
+private:
   bool ParseLine(char *line, char **key, float *val);
 
-  STRING lang_;
+  std::string lang_;
   // Set to the current pass type and used to determine which set of weights
   // should be used for ComputeCost() and other functions.
   PassEnum pass_;
   // Several sets of weights for various OCR passes (e.g. pass1 with adaption,
   // pass2 without adaption, etc).
-  GenericVector<float> weights_vec_[PTRAIN_NUM_PASSES];
+  std::vector<float> weights_vec_[PTRAIN_NUM_PASSES];
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  // TESSERACT_WORDREC_PARAMS_MODEL_H_
+#endif // TESSERACT_WORDREC_PARAMS_MODEL_H_

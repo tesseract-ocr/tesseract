@@ -26,10 +26,10 @@
 
 namespace tesseract {
 
-void LMConsistencyInfo::ComputeXheightConsistency(
-    const BLOB_CHOICE *b, bool is_punc) {
-  if (xht_decision == XH_INCONSISTENT)
-    return;  // It isn't going to get any better.
+void LMConsistencyInfo::ComputeXheightConsistency(const BLOB_CHOICE *b, bool is_punc) {
+  if (xht_decision == XH_INCONSISTENT) {
+    return; // It isn't going to get any better.
+  }
 
   // Compute xheight consistency.
   bool parent_null = xht_sp < 0;
@@ -43,7 +43,9 @@ void LMConsistencyInfo::ComputeXheightConsistency(
     xht_sp = LMConsistencyInfo::kNORM;
   }
   xht_count[xht_sp]++;
-  if (is_punc) xht_count_punc[xht_sp]++;
+  if (is_punc) {
+    xht_count_punc[xht_sp]++;
+  }
   if (!parent_null) {
     xpos_entropy += abs(parent_sp - xht_sp);
   }
@@ -54,9 +56,7 @@ void LMConsistencyInfo::ComputeXheightConsistency(
   //  if (parent_vse == nullptr && sp == LanguageModelConsistencyInfo::kNORM) {
   //  small_xht = 0;
   // }
-  IntersectRange(b->min_xheight(), b->max_xheight(),
-                 &(xht_lo[xht_sp]), &(xht_hi[xht_sp]));
-
+  IntersectRange(b->min_xheight(), b->max_xheight(), &(xht_lo[xht_sp]), &(xht_hi[xht_sp]));
 
   // Compute xheight inconsistency kinds.
   if (parent_null) {
@@ -92,9 +92,8 @@ void LMConsistencyInfo::ComputeXheightConsistency(
   // the mainline.
   auto mainline_xht = static_cast<double>(xht_lo[kNORM]);
   double kMinSizeRatio = 0.4;
-  if (mainline_xht > 0.0 &&
-      (static_cast<double>(xht_hi[kSUB]) / mainline_xht < kMinSizeRatio ||
-       static_cast<double>(xht_hi[kSUP]) / mainline_xht < kMinSizeRatio)) {
+  if (mainline_xht > 0.0 && (static_cast<double>(xht_hi[kSUB]) / mainline_xht < kMinSizeRatio ||
+                             static_cast<double>(xht_hi[kSUP]) / mainline_xht < kMinSizeRatio)) {
     xht_decision = XH_INCONSISTENT;
     return;
   }
@@ -110,4 +109,4 @@ void LMConsistencyInfo::ComputeXheightConsistency(
   xht_decision = XH_SUBNORMAL;
 }
 
-}  // namespace tesseract
+} // namespace tesseract

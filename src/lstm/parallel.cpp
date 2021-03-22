@@ -2,7 +2,6 @@
 // File:        parallel.cpp
 // Description: Runs networks in parallel on the same input.
 // Author:      Ray Smith
-// Created:     Thu May 02 08:06:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,25 +15,29 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef HAVE_CONFIG_H
+#  include "config_auto.h"
+#endif
+
 #include "parallel.h"
 
 #ifdef _OPENMP
-#include <omp.h>
+#  include <omp.h>
 #endif
 
-#include "functions.h"  // For conditional undef of _OPENMP.
+#include "functions.h" // For conditional undef of _OPENMP.
 #include "networkscratch.h"
 
 namespace tesseract {
 
 // ni_ and no_ will be set by AddToStack.
-Parallel::Parallel(const STRING& name, NetworkType type) : Plumbing(name) {
+Parallel::Parallel(const char *name, NetworkType type) : Plumbing(name) {
   type_ = type;
 }
 
 // Returns the shape output from the network given an input shape (which may
 // be partially unknown ie zero).
-StaticShape Parallel::OutputShape(const StaticShape& input_shape) const {
+StaticShape Parallel::OutputShape(const StaticShape &input_shape) const {
   StaticShape result = stack_[0]->OutputShape(input_shape);
   int stack_size = stack_.size();
   for (int i = 1; i < stack_size; ++i) {
@@ -46,9 +49,8 @@ StaticShape Parallel::OutputShape(const StaticShape& input_shape) const {
 
 // Runs forward propagation of activations on the input line.
 // See NetworkCpp for a detailed discussion of the arguments.
-void Parallel::Forward(bool debug, const NetworkIO& input,
-                       const TransposedArray* input_transpose,
-                       NetworkScratch* scratch, NetworkIO* output) {
+void Parallel::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+                       NetworkScratch *scratch, NetworkIO *output) {
   bool parallel_debug = false;
   // If this parallel is a replicator of convolvers, or holds a 1-d LSTM pair,
   // or a 2-d LSTM quad, do debug locally, and don't pass the flag on.
@@ -59,13 +61,12 @@ void Parallel::Forward(bool debug, const NetworkIO& input,
   int stack_size = stack_.size();
   if (type_ == NT_PAR_2D_LSTM) {
     // Special case, run parallel in parallel.
-    GenericVector<NetworkScratch::IO> results;
-    results.init_to_size(stack_size, NetworkScratch::IO());
+    std::vector<NetworkScratch::IO> results(stack_size);
     for (int i = 0; i < stack_size; ++i) {
       results[i].Resize(input, stack_[i]->NumOutputs(), scratch);
     }
 #ifdef _OPENMP
-#pragma omp parallel for num_threads(stack_size)
+#  pragma omp parallel for num_threads(stack_size)
 #endif
     for (int i = 0; i < stack_size; ++i) {
       stack_[i]->Forward(debug, input, nullptr, scratch, results[i]);
@@ -81,7 +82,7 @@ void Parallel::Forward(bool debug, const NetworkIO& input,
     NetworkScratch::IO result(input, scratch);
     // Source for divided replicated.
     NetworkScratch::IO source_part;
-    TransposedArray* src_transpose = nullptr;
+    TransposedArray *src_transpose = nullptr;
     if (IsTraining() && type_ == NT_REPLICATED) {
       // Make a transposed copy of the input.
       input.Transpose(&transposed_input_);
@@ -100,28 +101,30 @@ void Parallel::Forward(bool debug, const NetworkIO& input,
       out_offset = output->CopyPacking(*result, out_offset);
     }
   }
+#ifndef GRAPHICS_DISABLED
   if (parallel_debug) {
     DisplayForward(*output);
   }
+#endif
 }
 
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
-bool Parallel::Backward(bool debug, const NetworkIO& fwd_deltas,
-                        NetworkScratch* scratch,
-                        NetworkIO* back_deltas) {
+bool Parallel::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+                        NetworkIO *back_deltas) {
   // If this parallel is a replicator of convolvers, or holds a 1-d LSTM pair,
   // or a 2-d LSTM quad, do debug locally, and don't pass the flag on.
   if (debug && type_ != NT_PARALLEL) {
+#ifndef GRAPHICS_DISABLED
     DisplayBackward(fwd_deltas);
+#endif
     debug = false;
   }
   int stack_size = stack_.size();
   if (type_ == NT_PAR_2D_LSTM) {
     // Special case, run parallel in parallel.
-    GenericVector<NetworkScratch::IO> in_deltas, out_deltas;
-    in_deltas.init_to_size(stack_size, NetworkScratch::IO());
-    out_deltas.init_to_size(stack_size, NetworkScratch::IO());
+    std::vector<NetworkScratch::IO> in_deltas(stack_size);
+    std::vector<NetworkScratch::IO> out_deltas(stack_size);
     // Split the forward deltas for each stack element.
     int feature_offset = 0;
     for (int i = 0; i < stack_.size(); ++i) {
@@ -132,11 +135,10 @@ bool Parallel::Backward(bool debug, const NetworkIO& fwd_deltas,
       feature_offset += num_features;
     }
 #ifdef _OPENMP
-#pragma omp parallel for num_threads(stack_size)
+#  pragma omp parallel for num_threads(stack_size)
 #endif
     for (int i = 0; i < stack_size; ++i) {
-      stack_[i]->Backward(debug, *in_deltas[i], scratch,
-                          i == 0 ? back_deltas : out_deltas[i]);
+      stack_[i]->Backward(debug, *in_deltas[i], scratch, i == 0 ? back_deltas : out_deltas[i]);
     }
     if (needs_to_backprop_) {
       for (int i = 1; i < stack_size; ++i) {
@@ -156,8 +158,7 @@ bool Parallel::Backward(bool debug, const NetworkIO& fwd_deltas,
       feature_offset += num_features;
       if (stack_[i]->Backward(debug, *in_deltas, scratch, back_deltas)) {
         if (i == 0) {
-          out_deltas.ResizeFloat(*back_deltas, back_deltas->NumFeatures(),
-                                 scratch);
+          out_deltas.ResizeFloat(*back_deltas, back_deltas->NumFeatures(), scratch);
           out_deltas->CopyAll(*back_deltas);
         } else if (back_deltas->NumFeatures() == out_deltas->NumFeatures()) {
           // Widths are allowed to be different going back, as we may have
@@ -167,10 +168,14 @@ bool Parallel::Backward(bool debug, const NetworkIO& fwd_deltas,
         }
       }
     }
-    if (needs_to_backprop_) back_deltas->CopyAll(*out_deltas);
+    if (needs_to_backprop_) {
+      back_deltas->CopyAll(*out_deltas);
+    }
   }
-  if (needs_to_backprop_) back_deltas->ScaleFloatBy(1.0f / stack_size);
+  if (needs_to_backprop_) {
+    back_deltas->ScaleFloatBy(1.0f / stack_size);
+  }
   return needs_to_backprop_;
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

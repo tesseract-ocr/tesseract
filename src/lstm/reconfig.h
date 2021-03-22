@@ -19,7 +19,6 @@
 #ifndef TESSERACT_LSTM_RECONFIG_H_
 #define TESSERACT_LSTM_RECONFIG_H_
 
-#include <tesseract/genericvector.h>
 #include "matrix.h"
 #include "network.h"
 
@@ -30,19 +29,17 @@ namespace tesseract {
 // Note that fractional parts are truncated for efficiency, so make sure the
 // input stride is a multiple of the y_scale factor!
 class Reconfig : public Network {
- public:
-  Reconfig(const STRING& name, int ni, int x_scale, int y_scale);
+public:
+  TESS_API
+  Reconfig(const char *name, int ni, int x_scale, int y_scale);
   ~Reconfig() override = default;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  StaticShape OutputShape(const StaticShape& input_shape) const override;
+  StaticShape OutputShape(const StaticShape &input_shape) const override;
 
-  STRING spec() const override {
-    STRING spec;
-    spec.add_str_int("S", y_scale_);
-    spec.add_str_int(",", x_scale_);
-    return spec;
+  std::string spec() const override {
+    return "S" + std::to_string(y_scale_) + "," + std::to_string(x_scale_);
   }
 
   // Returns an integer reduction factor that the network applies to the
@@ -54,28 +51,26 @@ class Reconfig : public Network {
   int XScaleFactor() const override;
 
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(TFile* fp) const override;
+  bool Serialize(TFile *fp) const override;
   // Reads from the given file. Returns false in case of error.
-  bool DeSerialize(TFile* fp) override;
+  bool DeSerialize(TFile *fp) override;
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  void Forward(bool debug, const NetworkIO& input,
-               const TransposedArray* input_transpose,
-               NetworkScratch* scratch, NetworkIO* output) override;
+  void Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+               NetworkScratch *scratch, NetworkIO *output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                NetworkScratch* scratch,
-                NetworkIO* back_deltas) override;
+  bool Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+                NetworkIO *back_deltas) override;
 
- private:
+private:
   void DebugWeights() override {
     tprintf("Must override Network::DebugWeights for type %d\n", type_);
   }
 
- protected:
+protected:
   // Non-serialized data used to store parameters between forward and back.
   StrideMap back_map_;
   // Serialized data.
@@ -83,6 +78,6 @@ class Reconfig : public Network {
   int32_t y_scale_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_LSTM_SUBSAMPLE_H_
+#endif // TESSERACT_LSTM_SUBSAMPLE_H_

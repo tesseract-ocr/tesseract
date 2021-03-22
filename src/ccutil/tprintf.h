@@ -20,10 +20,14 @@
 #ifndef TESSERACT_CCUTIL_TPRINTF_H
 #define TESSERACT_CCUTIL_TPRINTF_H
 
-#include <tesseract/platform.h>   // for TESS_API
+#include <tesseract/export.h> // for TESS_API
+
+namespace tesseract {
 
 // Main logging function.
-extern TESS_API void tprintf(  // Trace printf
-    const char *format, ...);  // Message
+extern TESS_API void tprintf( // Trace printf
+    const char *format, ...); // Message
 
-#endif  // define TESSERACT_CCUTIL_TPRINTF_H
+} // namespace tesseract
+
+#endif // define TESSERACT_CCUTIL_TPRINTF_H

@@ -14,12 +14,12 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
+
 #include "mfdefs.h"
-#include "emalloc.h"
+
 #include <cmath>
+
+namespace tesseract {
 
 /*----------------------------------------------------------------------------
               Public Code
@@ -31,8 +31,8 @@
  * @return New MICROFEATURE
  */
 MICROFEATURE NewMicroFeature() {
-  return (static_cast<MICROFEATURE>(Emalloc (sizeof (MFBLOCK))));
-}                                /* NewMicroFeature */
+  return (static_cast<MICROFEATURE>(malloc(sizeof(MFBLOCK))));
+} /* NewMicroFeature */
 
 /**
  * This routine deallocates all of the memory consumed by
@@ -40,5 +40,7 @@ MICROFEATURE NewMicroFeature() {
  * @param MicroFeatures list of micro-features to be freed
  */
 void FreeMicroFeatures(MICROFEATURES MicroFeatures) {
-  destroy_nodes(MicroFeatures, Efree);
-}                                /* FreeMicroFeatures */
+  destroy_nodes(MicroFeatures, free);
+} /* FreeMicroFeatures */
+
+} // namespace tesseract

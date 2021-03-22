@@ -79,7 +79,7 @@ run_command() {
     shift
     tlog "[$(date)] ${cmd} $@"
     if ! "${cmd}" "$@" 2>&1 | tee -a "${LOG_FILE}"; then
-        err_exit "Program $(basename ${cmd}) failed. Abort."
+        err_exit "Program $(basename ${cmd}) failed. Abort. Command line: ${cmd} $@"
     fi
 }
 
@@ -353,8 +353,13 @@ phase_UP_generate_unicharset() {
 
     local box_files=$(ls ${TRAINING_DIR}/*.box)
     UNICHARSET_FILE="${TRAINING_DIR}/${LANG_CODE}.unicharset"
-    run_command unicharset_extractor --output_unicharset "${UNICHARSET_FILE}" \
-      --norm_mode "${NORM_MODE}" ${box_files}
+    if [[ "${NORM_MODE}" == "2" ]] && [[ "${LANG_IS_RTL}" == "0" ]] ; then
+          run_command unicharset_extractor --output_unicharset "${UNICHARSET_FILE}" \
+               --norm_mode "${NORM_MODE}" ${TRAINING_TEXT}
+    else
+          run_command unicharset_extractor --output_unicharset "${UNICHARSET_FILE}" \
+               --norm_mode "${NORM_MODE}" ${box_files}
+    fi
     check_file_readable ${UNICHARSET_FILE}
 
     XHEIGHTS_FILE="${TRAINING_DIR}/${LANG_CODE}.xheights"

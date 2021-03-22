@@ -6,7 +6,7 @@
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/tesseract-ocr/badge.svg)](https://scan.coverity.com/projects/tesseract-ocr)
 [![Code Quality: Cpp](https://img.shields.io/lgtm/grade/cpp/g/tesseract-ocr/tesseract.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesseract-ocr/tesseract/context:cpp)
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/tesseract-ocr/tesseract.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesseract-ocr/tesseract/alerts)
-[![OSS-Fuzz](https://img.shields.io/badge/oss--fuzz-fuzzing-brightgreen)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:tesseract-ocr)
+[![OSS-Fuzz](https://img.shields.io/badge/oss--fuzz-fuzzing-brightgreen)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=2&q=proj:tesseract-ocr)
 <br/>
 [![GitHub license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://raw.githubusercontent.com/tesseract-ocr/tesseract/master/LICENSE)
 [![Downloads](https://img.shields.io/badge/download-all%20releases-brightgreen.svg)](https://github.com/tesseract-ocr/tesseract/releases/)
@@ -18,7 +18,7 @@ Tesseract 4 adds a new neural net (LSTM) based OCR engine which is focused
 on line recognition, but also still supports the legacy Tesseract OCR engine of
 Tesseract 3 which works by recognizing character patterns. Compatibility with
 Tesseract 3 is enabled by using the Legacy OCR Engine mode (--oem 0).
-It also needs traineddata files which support the legacy engine, for example
+It also needs [traineddata](https://tesseract-ocr.github.io/tessdoc/Data-Files.html) files which support the legacy engine, for example
 those from the tessdata repository.
 
 The lead developer is Ray Smith. The maintainer is Zdenko Podobny.
@@ -61,13 +61,7 @@ and **[Change Log](https://github.com/tesseract-ocr/tesseract/blob/master/Change
 You can either [Install Tesseract via pre-built binary package](https://tesseract-ocr.github.io/tessdoc/Home.html)
 or [build it from source](https://tesseract-ocr.github.io/tessdoc/Compiling.html).
 
-Supported Compilers are:
-
-* GCC 4.8 and above
-* Clang 3.4 and above
-* MSVC 2015, 2017, 2019
-
-Other compilers might work, but are not officially supported.
+C++17 support is required for building.
 
 ## Running Tesseract
 

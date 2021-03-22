@@ -18,14 +18,14 @@
 #ifndef TESSERACT_LSTM_FUNCTIONS_H_
 #define TESSERACT_LSTM_FUNCTIONS_H_
 
-#include <tesseract/helpers.h>
+#include "helpers.h"
 
 // Setting this to 1 or more causes massive dumps of debug data: weights,
 // updates, internal calculations etc, and reduces the number of test iterations
 // to a small number, so outputs can be diffed.
 #define DEBUG_DETAIL 0
 #if DEBUG_DETAIL > 0
-#undef _OPENMP  // Disable open mp to get the outputs in sync.
+#  undef _OPENMP // Disable open mp to get the outputs in sync.
 #endif
 
 namespace tesseract {
@@ -41,10 +41,14 @@ extern const double LogisticTable[];
 
 // Non-linearity (sigmoid) functions with cache tables and clipping.
 inline double Tanh(double x) {
-  if (x < 0.0) return -Tanh(-x);
+  if (x < 0.0) {
+    return -Tanh(-x);
+  }
   x *= kScaleFactor;
-  unsigned index = static_cast<unsigned>(x);
-  if (index >= (kTableSize - 1)) return 1.0;
+  auto index = static_cast<unsigned>(x);
+  if (index >= (kTableSize - 1)) {
+    return 1.0;
+  }
   double tanh_i0 = TanhTable[index];
   double tanh_i1 = TanhTable[index + 1];
   // Linear interpolation.
@@ -52,10 +56,14 @@ inline double Tanh(double x) {
 }
 
 inline double Logistic(double x) {
-  if (x < 0.0) return 1.0 - Logistic(-x);
+  if (x < 0.0) {
+    return 1.0 - Logistic(-x);
+  }
   x *= kScaleFactor;
-  unsigned index = static_cast<unsigned>(x);
-  if (index >= (kTableSize - 1)) return 1.0;
+  auto index = static_cast<unsigned>(x);
+  if (index >= (kTableSize - 1)) {
+    return 1.0;
+  }
   double l0 = LogisticTable[index];
   double l1 = LogisticTable[index + 1];
   // Linear interpolation.
@@ -64,15 +72,23 @@ inline double Logistic(double x) {
 
 // Non-linearity (sigmoid) functions and their derivatives.
 struct FFunc {
-  inline double operator()(double x) const { return Logistic(x); }
+  inline double operator()(double x) const {
+    return Logistic(x);
+  }
 };
 struct FPrime {
-  inline double operator()(double y) const { return y * (1.0 - y); }
+  inline double operator()(double y) const {
+    return y * (1.0 - y);
+  }
 };
 struct ClipFFunc {
   inline double operator()(double x) const {
-    if (x <= 0.0) return 0.0;
-    if (x >= 1.0) return 1.0;
+    if (x <= 0.0) {
+      return 0.0;
+    }
+    if (x >= 1.0) {
+      return 1.0;
+    }
     return x;
   }
 };
@@ -83,23 +99,35 @@ struct ClipFPrime {
 };
 struct Relu {
   inline double operator()(double x) const {
-    if (x <= 0.0) return 0.0;
+    if (x <= 0.0) {
+      return 0.0;
+    }
     return x;
   }
 };
 struct ReluPrime {
-  inline double operator()(double y) const { return 0.0 < y ? 1.0 : 0.0; }
+  inline double operator()(double y) const {
+    return 0.0 < y ? 1.0 : 0.0;
+  }
 };
 struct GFunc {
-  inline double operator()(double x) const { return Tanh(x); }
+  inline double operator()(double x) const {
+    return Tanh(x);
+  }
 };
 struct GPrime {
-  inline double operator()(double y) const { return 1.0 - y * y; }
+  inline double operator()(double y) const {
+    return 1.0 - y * y;
+  }
 };
 struct ClipGFunc {
   inline double operator()(double x) const {
-    if (x <= -1.0) return -1.0;
-    if (x >= 1.0) return 1.0;
+    if (x <= -1.0) {
+      return -1.0;
+    }
+    if (x >= 1.0) {
+      return 1.0;
+    }
     return x;
   }
 };
@@ -109,7 +137,9 @@ struct ClipGPrime {
   }
 };
 struct HFunc {
-  inline double operator()(double x) const { return Tanh(x); }
+  inline double operator()(double x) const {
+    return Tanh(x);
+  }
 };
 struct HPrime {
   inline double operator()(double y) const {
@@ -118,15 +148,19 @@ struct HPrime {
   }
 };
 struct UnityFunc {
-  inline double operator()(double /*x*/) const { return 1.0; }
+  inline double operator()(double /*x*/) const {
+    return 1.0;
+  }
 };
 struct IdentityFunc {
-  inline double operator()(double x) const { return x; }
+  inline double operator()(double x) const {
+    return x;
+  }
 };
 
 // Applies Func in-place to inout, of size n.
 template <class Func>
-inline void FuncInplace(int n, double* inout) {
+inline void FuncInplace(int n, double *inout) {
   Func f;
   for (int i = 0; i < n; ++i) {
     inout[i] = f(inout[i]);
@@ -135,7 +169,7 @@ inline void FuncInplace(int n, double* inout) {
 // Applies Func to u and multiplies the result by v component-wise,
 // putting the product in out, all of size n.
 template <class Func>
-inline void FuncMultiply(const double* u, const double* v, int n, double* out) {
+inline void FuncMultiply(const double *u, const double *v, int n, double *out) {
   Func f;
   for (int i = 0; i < n; ++i) {
     out[i] = f(u[i]) * v[i];
@@ -143,15 +177,19 @@ inline void FuncMultiply(const double* u, const double* v, int n, double* out) {
 }
 // Applies the Softmax function in-place to inout, of size n.
 template <typename T>
-inline void SoftmaxInPlace(int n, T* inout) {
-  if (n <= 0) return;
+inline void SoftmaxInPlace(int n, T *inout) {
+  if (n <= 0) {
+    return;
+  }
   // A limit on the negative range input to exp to guarantee non-zero output.
   const T kMaxSoftmaxActivation = 86.0f;
 
   T max_output = inout[0];
   for (int i = 1; i < n; i++) {
     T output = inout[i];
-    if (output > max_output) max_output = output;
+    if (output > max_output) {
+      max_output = output;
+    }
   }
   T prob_total = 0.0;
   for (int i = 0; i < n; i++) {
@@ -161,37 +199,41 @@ inline void SoftmaxInPlace(int n, T* inout) {
     inout[i] = prob;
   }
   if (prob_total > 0.0) {
-    for (int i = 0; i < n; i++) inout[i] /= prob_total;
+    for (int i = 0; i < n; i++) {
+      inout[i] /= prob_total;
+    }
   }
 }
 
 // Copies n values of the given src vector to dest.
-inline void CopyVector(int n, const double* src, double* dest) {
+inline void CopyVector(int n, const double *src, double *dest) {
   memcpy(dest, src, n * sizeof(dest[0]));
 }
 
 // Adds n values of the given src vector to dest.
-inline void AccumulateVector(int n, const double* src, double* dest) {
-  for (int i = 0; i < n; ++i) dest[i] += src[i];
+inline void AccumulateVector(int n, const double *src, double *dest) {
+  for (int i = 0; i < n; ++i) {
+    dest[i] += src[i];
+  }
 }
 
 // Multiplies n values of inout in-place element-wise by the given src vector.
-inline void MultiplyVectorsInPlace(int n, const double* src, double* inout) {
-  for (int i = 0; i < n; ++i) inout[i] *= src[i];
+inline void MultiplyVectorsInPlace(int n, const double *src, double *inout) {
+  for (int i = 0; i < n; ++i) {
+    inout[i] *= src[i];
+  }
 }
 
 // Multiplies n values of u by v, element-wise, accumulating to out.
-inline void MultiplyAccumulate(int n, const double* u, const double* v,
-                               double* out) {
+inline void MultiplyAccumulate(int n, const double *u, const double *v, double *out) {
   for (int i = 0; i < n; i++) {
     out[i] += u[i] * v[i];
   }
 }
 
 // Sums the given 5 n-vectors putting the result into sum.
-inline void SumVectors(int n, const double* v1, const double* v2,
-                       const double* v3, const double* v4, const double* v5,
-                       double* sum) {
+inline void SumVectors(int n, const double *v1, const double *v2, const double *v3,
+                       const double *v4, const double *v5, double *sum) {
   for (int i = 0; i < n; ++i) {
     sum[i] = v1[i] + v2[i] + v3[i] + v4[i] + v5[i];
   }
@@ -199,20 +241,24 @@ inline void SumVectors(int n, const double* v1, const double* v2,
 
 // Sets the given n-vector vec to 0.
 template <typename T>
-inline void ZeroVector(int n, T* vec) {
+inline void ZeroVector(int n, T *vec) {
   memset(vec, 0, n * sizeof(*vec));
 }
 
 // Clips the given vector vec, of size n to [lower, upper].
 template <typename T>
-inline void ClipVector(int n, T lower, T upper, T* vec) {
-  for (int i = 0; i < n; ++i) vec[i] = ClipToRange(vec[i], lower, upper);
+inline void ClipVector(int n, T lower, T upper, T *vec) {
+  for (int i = 0; i < n; ++i) {
+    vec[i] = ClipToRange(vec[i], lower, upper);
+  }
 }
 
 // Converts the given n-vector to a binary encoding of the maximum value,
 // encoded as vector of nf binary values.
-inline void CodeInBinary(int n, int nf, double* vec) {
-  if (nf <= 0 || n < nf) return;
+inline void CodeInBinary(int n, int nf, double *vec) {
+  if (nf <= 0 || n < nf) {
+    return;
+  }
   int index = 0;
   double best_score = vec[0];
   for (int i = 1; i < n; ++i) {
@@ -227,6 +273,6 @@ inline void CodeInBinary(int n, int nf, double* vec) {
   }
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_LSTM_FUNCTIONS_H_
+#endif // TESSERACT_LSTM_FUNCTIONS_H_

@@ -36,16 +36,18 @@ void Tesseract::tess_segment_pass_n(int pass_n, WERD_RES *word) {
   if (word->word->flag(W_DONT_CHOP)) {
     saved_enable_assoc = wordrec_enable_assoc;
     saved_chop_enable = chop_enable;
-    wordrec_enable_assoc.set_value(0);
-    chop_enable.set_value(0);
+    wordrec_enable_assoc.set_value(false);
+    chop_enable.set_value(false);
   }
-  if (pass_n == 1)
+  if (pass_n == 1) {
     set_pass1();
-  else
+  } else {
     set_pass2();
+  }
   recog_word(word);
-  if (word->best_choice == nullptr)
+  if (word->best_choice == nullptr) {
     word->SetupFake(*word->uch_set);
+  }
   if (word->word->flag(W_DONT_CHOP)) {
     wordrec_enable_assoc.set_value(saved_enable_assoc);
     chop_enable.set_value(saved_chop_enable);
@@ -59,10 +61,9 @@ void Tesseract::tess_segment_pass_n(int pass_n, WERD_RES *word) {
  * @param word_choice after context
  * @param raw_choice before context
  */
-bool Tesseract::tess_acceptable_word(WERD_RES* word) {
+bool Tesseract::tess_acceptable_word(WERD_RES *word) {
   return getDict().AcceptableResult(word);
 }
-
 
 /**
  * @name tess_add_doc_word
@@ -72,4 +73,4 @@ bool Tesseract::tess_acceptable_word(WERD_RES* word) {
 void Tesseract::tess_add_doc_word(WERD_CHOICE *word_choice) {
   getDict().add_document_word(*word_choice);
 }
-}  // namespace tesseract
+} // namespace tesseract

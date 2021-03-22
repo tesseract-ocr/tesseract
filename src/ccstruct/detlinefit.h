@@ -2,7 +2,6 @@
 // File:        detlinefit.h
 // Description: Deterministic least upper-quartile squares line fitting.
 // Author:      Ray Smith
-// Created:     Thu Feb 28 14:35:01 PDT 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +19,6 @@
 #ifndef TESSERACT_CCSTRUCT_DETLINEFIT_H_
 #define TESSERACT_CCSTRUCT_DETLINEFIT_H_
 
-#include <tesseract/genericvector.h>
 #include "kdpair.h"
 #include "points.h"
 
@@ -54,7 +52,7 @@ namespace tesseract {
 // LMS (least median of squares) classes that are currently used for most
 // of the line fitting in Tesseract.
 class DetLineFit {
- public:
+public:
   DetLineFit();
   ~DetLineFit() = default;
 
@@ -63,22 +61,22 @@ class DetLineFit {
 
   // Adds a new point. Takes a copy - the pt doesn't need to stay in scope.
   // Add must be called on points in sequence along the line.
-  void Add(const ICOORD& pt);
+  void Add(const ICOORD &pt);
   // Associates a half-width with the given point if a point overlaps the
   // previous point by more than half the width, and its distance is further
   // than the previous point, then the more distant point is ignored in the
   // distance calculation. Useful for ignoring i dots and other diacritics.
-  void Add(const ICOORD& pt, int halfwidth);
+  void Add(const ICOORD &pt, int halfwidth);
 
   // Fits a line to the points, returning the fitted line as a pair of
   // points, and the upper quartile error.
-  double Fit(ICOORD* pt1, ICOORD* pt2) {
+  double Fit(ICOORD *pt1, ICOORD *pt2) {
     return Fit(0, 0, pt1, pt2);
   }
   // Fits a line to the points, ignoring the skip_first initial points and the
   // skip_last final points, returning the fitted line as a pair of points,
   // and the upper quartile error.
-  double Fit(int skip_first, int skip_last, ICOORD* pt1, ICOORD* pt2);
+  double Fit(int skip_first, int skip_last, ICOORD *pt1, ICOORD *pt2);
 
   // Constrained fit with a supplied direction vector. Finds the best line_pt,
   // that is one of the supplied points having the median cross product with
@@ -86,9 +84,8 @@ class DetLineFit {
   // [min_dist, max_dist]. Returns the resulting error metric using the same
   // reduced set of points.
   // *Makes use of floating point arithmetic*
-  double ConstrainedFit(const FCOORD& direction,
-                        double min_dist, double max_dist,
-                        bool debug, ICOORD* line_pt);
+  double ConstrainedFit(const FCOORD &direction, double min_dist, double max_dist, bool debug,
+                        ICOORD *line_pt);
 
   // Returns true if there were enough points at the last call to Fit or
   // ConstrainedFit for the fitted points to be used on a badly fitted line.
@@ -97,22 +94,21 @@ class DetLineFit {
   // Backwards compatible fit returning a gradient and constant.
   // Deprecated. Prefer Fit(ICOORD*, ICOORD*) where possible, but use this
   // function in preference to the LMS class.
-  double Fit(float* m, float* c);
+  double Fit(float *m, float *c);
 
   // Backwards compatible constrained fit with a supplied gradient.
   // Deprecated. Use ConstrainedFit(const FCOORD& direction) where possible
   // to avoid potential difficulties with infinite gradients.
-  double ConstrainedFit(double m, float* c);
+  double ConstrainedFit(double m, float *c);
 
- private:
+private:
   // Simple struct to hold an ICOORD point and a halfwidth representing half
   // the "width" (supposedly approximately parallel to the direction of the
   // line) of each point, such that distant points can be discarded when they
   // overlap nearer points. (Think i dot and other diacritics or noise.)
   struct PointWidth {
     PointWidth() : pt(ICOORD(0, 0)), halfwidth(0) {}
-    PointWidth(const ICOORD& pt0, int halfwidth0)
-      : pt(pt0), halfwidth(halfwidth0) {}
+    PointWidth(const ICOORD &pt0, int halfwidth0) : pt(pt0), halfwidth(halfwidth0) {}
 
     ICOORD pt;
     int halfwidth;
@@ -136,27 +132,26 @@ class DetLineFit {
   // storing the actual (signed) cross products in distances_.
   // Ignores distances of points that are further away than the previous point,
   // and overlaps the previous point by at least half.
-  void ComputeDistances(const ICOORD& start, const ICOORD& end);
+  void ComputeDistances(const ICOORD &start, const ICOORD &end);
 
   // Computes all the cross product distances of the points perpendicular to
   // the given direction, ignoring distances outside of the give distance range,
   // storing the actual (signed) cross products in distances_.
-  void ComputeConstrainedDistances(const FCOORD& direction,
-                                   double min_dist, double max_dist);
+  void ComputeConstrainedDistances(const FCOORD &direction, double min_dist, double max_dist);
 
   // Stores all the source points in the order they were given and their
   // halfwidths, if any.
-  GenericVector<PointWidth> pts_;
+  std::vector<PointWidth> pts_;
   // Stores the computed perpendicular distances of (some of) the pts_ from a
   // given vector (assuming it goes through the origin, making it a line).
   // Since the distances may be a subset of the input points, and get
   // re-ordered by the nth_item function, the original point is stored
   // along side the distance.
-  GenericVector<DistPointPair> distances_;  // Distances of points.
+  std::vector<DistPointPair> distances_; // Distances of points.
   // The squared length of the vector used to compute distances_.
   double square_length_;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_CCSTRUCT_DETLINEFIT_H_
+#endif // TESSERACT_CCSTRUCT_DETLINEFIT_H_

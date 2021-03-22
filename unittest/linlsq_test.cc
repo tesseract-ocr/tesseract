@@ -13,38 +13,38 @@
 
 #include "include_gunit.h"
 
-namespace {
+namespace tesseract {
 
 class LLSQTest : public testing::Test {
- protected:
-  void SetUp() {
+protected:
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 
- public:
-  void TearDown() {}
+public:
+  void TearDown() override {}
 
-  void ExpectCorrectLine(const LLSQ& llsq, double m, double c, double rms,
-                         double pearson, double tolerance) {
+  void ExpectCorrectLine(const LLSQ &llsq, double m, double c, double rms, double pearson,
+                         double tolerance) {
     EXPECT_NEAR(m, llsq.m(), tolerance);
     EXPECT_NEAR(c, llsq.c(llsq.m()), tolerance);
     EXPECT_NEAR(rms, llsq.rms(llsq.m(), llsq.c(llsq.m())), tolerance);
     EXPECT_NEAR(pearson, llsq.pearson(), tolerance);
   }
-  FCOORD PtsMean(const std::vector<FCOORD>& pts) {
+  FCOORD PtsMean(const std::vector<FCOORD> &pts) {
     FCOORD total(0, 0);
-    for (const auto& p : pts) {
+    for (const auto &p : pts) {
       total += p;
     }
     return (pts.size() > 0) ? total / pts.size() : total;
   }
-  void VerifyRmsOrth(const std::vector<FCOORD>& pts, const FCOORD& orth) {
+  void VerifyRmsOrth(const std::vector<FCOORD> &pts, const FCOORD &orth) {
     LLSQ llsq;
     FCOORD xavg = PtsMean(pts);
     FCOORD nvec = !orth;
     nvec.normalise();
     double expected_answer = 0;
-    for (const auto& p : pts) {
+    for (const auto &p : pts) {
       llsq.add(p.x(), p.y());
       double dot = nvec % (p - xavg);
       expected_answer += dot * dot;
@@ -53,8 +53,8 @@ class LLSQTest : public testing::Test {
     expected_answer = sqrt(expected_answer);
     EXPECT_NEAR(expected_answer, llsq.rms_orth(orth), 0.0001);
   }
-  void ExpectCorrectVector(const LLSQ& llsq, FCOORD correct_mean_pt,
-                           FCOORD correct_vector, float tolerance) {
+  void ExpectCorrectVector(const LLSQ &llsq, FCOORD correct_mean_pt, FCOORD correct_vector,
+                           float tolerance) {
     FCOORD mean_pt = llsq.mean_point();
     FCOORD vector = llsq.vector_fit();
     EXPECT_NEAR(correct_mean_pt.x(), mean_pt.x(), tolerance);
@@ -71,8 +71,7 @@ TEST_F(LLSQTest, BasicLines) {
   llsq.add(2.0, 2.0);
   ExpectCorrectLine(llsq, 1.0, 0.0, 0.0, 1.0, 1e-6);
   float half_root_2 = sqrt(2.0) / 2.0f;
-  ExpectCorrectVector(llsq, FCOORD(1.5f, 1.5f),
-                      FCOORD(half_root_2, half_root_2), 1e-6);
+  ExpectCorrectVector(llsq, FCOORD(1.5f, 1.5f), FCOORD(half_root_2, half_root_2), 1e-6);
   llsq.remove(2.0, 2.0);
   llsq.add(1.0, 2.0);
   llsq.add(10.0, 1.0);
@@ -104,15 +103,15 @@ TEST_F(LLSQTest, Vectors) {
 //   sqrt( sum (!nvec * (x_i - x_avg))^2 / n)
 TEST_F(LLSQTest, RmsOrthWorksAsIntended) {
   std::vector<FCOORD> pts;
-  pts.push_back(FCOORD(0.56, 0.95));
-  pts.push_back(FCOORD(0.09, 0.09));
-  pts.push_back(FCOORD(0.13, 0.77));
-  pts.push_back(FCOORD(0.16, 0.83));
-  pts.push_back(FCOORD(0.45, 0.79));
+  pts.emplace_back(0.56, 0.95);
+  pts.emplace_back(0.09, 0.09);
+  pts.emplace_back(0.13, 0.77);
+  pts.emplace_back(0.16, 0.83);
+  pts.emplace_back(0.45, 0.79);
   VerifyRmsOrth(pts, FCOORD(1, 0));
   VerifyRmsOrth(pts, FCOORD(1, 1));
   VerifyRmsOrth(pts, FCOORD(1, 2));
   VerifyRmsOrth(pts, FCOORD(2, 1));
 }
 
-}  // namespace.
+} // namespace tesseract

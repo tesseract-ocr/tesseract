@@ -16,18 +16,22 @@
  *
  **********************************************************************/
 
-#define _USE_MATH_DEFINES       // for M_PI
+#define _USE_MATH_DEFINES // for M_PI
 
-#include <algorithm>
-#include <cmath>                // for M_PI
-#include <cstdlib>
-#include <tesseract/helpers.h>
-#include <tesseract/serialis.h>
 #include "points.h"
 
-ELISTIZE (ICOORDELT)           //turn to list
-bool FCOORD::normalise() {  //Convert to unit vec
-  float len = length ();
+#include "helpers.h"
+#include "serialis.h"
+
+#include <algorithm>
+#include <cmath> // for M_PI
+#include <cstdlib>
+
+namespace tesseract {
+
+ELISTIZE(ICOORDELT)        // turn to list
+bool FCOORD::normalise() { // Convert to unit vec
+  float len = length();
 
   if (len < 0.0000000001) {
     return false;
@@ -37,13 +41,22 @@ bool FCOORD::normalise() {  //Convert to unit vec
   return true;
 }
 
+bool ICOORD::DeSerialize(TFile *f) {
+  return f->DeSerialize(&xcoord) && f->DeSerialize(&ycoord);
+}
+
+bool ICOORD::Serialize(TFile *f) const {
+  return f->Serialize(&xcoord) && f->Serialize(&ycoord);
+}
+
 // Set from the given x,y, shrinking the vector to fit if needed.
 void ICOORD::set_with_shrink(int x, int y) {
   // Fit the vector into an ICOORD, which is 16 bit.
   int factor = 1;
   int max_extent = std::max(abs(x), abs(y));
-  if (max_extent > INT16_MAX)
+  if (max_extent > INT16_MAX) {
     factor = max_extent / INT16_MAX + 1;
+  }
   xcoord = x / factor;
   ycoord = y / factor;
 }
@@ -51,22 +64,26 @@ void ICOORD::set_with_shrink(int x, int y) {
 // The fortran/basic sgn function returns -1, 0, 1 if x < 0, x == 0, x > 0
 // respectively.
 static int sign(int x) {
-  if (x < 0)
+  if (x < 0) {
     return -1;
-  else
+  } else {
     return x > 0 ? 1 : 0;
+  }
 }
 
 // Writes to the given file. Returns false in case of error.
-bool ICOORD::Serialize(FILE* fp) const {
-  return tesseract::Serialize(fp, &xcoord) &&
-         tesseract::Serialize(fp, &ycoord);
+bool ICOORD::Serialize(FILE *fp) const {
+  return tesseract::Serialize(fp, &xcoord) && tesseract::Serialize(fp, &ycoord);
 }
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
-bool ICOORD::DeSerialize(bool swap, FILE* fp) {
-  if (!tesseract::DeSerialize(fp, &xcoord)) return false;
-  if (!tesseract::DeSerialize(fp, &ycoord)) return false;
+bool ICOORD::DeSerialize(bool swap, FILE *fp) {
+  if (!tesseract::DeSerialize(fp, &xcoord)) {
+    return false;
+  }
+  if (!tesseract::DeSerialize(fp, &ycoord)) {
+    return false;
+  }
   if (swap) {
     ReverseN(&xcoord, sizeof(xcoord));
     ReverseN(&ycoord, sizeof(ycoord));
@@ -80,8 +97,7 @@ bool ICOORD::DeSerialize(bool swap, FILE* fp) {
 // and then add minor to the accumulator. When the accumulator >= major
 // subtract major and step a minor step.
 
-void ICOORD::setup_render(ICOORD* major_step, ICOORD* minor_step,
-                          int* major, int* minor) const {
+void ICOORD::setup_render(ICOORD *major_step, ICOORD *minor_step, int *major, int *minor) const {
   int abs_x = abs(xcoord);
   int abs_y = abs(ycoord);
   if (abs_x >= abs_y) {
@@ -130,8 +146,7 @@ double FCOORD::angle_from_direction(uint8_t direction) {
 // Returns the point on the given line nearest to this, ie the point such
 // that the vector point->this is perpendicular to the line.
 // The line is defined as a line_point and a dir_vector for its direction.
-FCOORD FCOORD::nearest_pt_on_line(const FCOORD& line_point,
-                                  const FCOORD& dir_vector) const {
+FCOORD FCOORD::nearest_pt_on_line(const FCOORD &line_point, const FCOORD &dir_vector) const {
   FCOORD point_vector(*this - line_point);
   // The dot product (%) is |dir_vector||point_vector|cos theta, so dividing by
   // the square of the length of dir_vector gives us the fraction of dir_vector
@@ -140,3 +155,5 @@ FCOORD FCOORD::nearest_pt_on_line(const FCOORD& line_point,
   double lambda = point_vector % dir_vector / dir_vector.sqlength();
   return line_point + (dir_vector * lambda);
 }
+
+} // namespace tesseract

@@ -17,39 +17,41 @@
 
 #include "include_gunit.h"
 
-using tesseract::IndexMap;
-using tesseract::IndexMapBiDi;
-
 const int kPrimeLimit = 1000;
 
-namespace {
+namespace tesseract {
 
 class IndexMapBiDiTest : public testing::Test {
- protected:
-  void SetUp() {
+protected:
+  void SetUp() override {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
- public:
-  std::string OutputNameToPath(const std::string& name) {
+public:
+  std::string OutputNameToPath(const std::string &name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
   // Computes primes up to kPrimeLimit, using the sieve of Eratosthenes.
-  void ComputePrimes(IndexMapBiDi* map) {
+  void ComputePrimes(IndexMapBiDi *map) {
     map->Init(kPrimeLimit + 1, false);
     map->SetMap(2, true);
     // Set all the odds to true.
-    for (int i = 3; i <= kPrimeLimit; i += 2) map->SetMap(i, true);
+    for (int i = 3; i <= kPrimeLimit; i += 2) {
+      map->SetMap(i, true);
+    }
     int factor_limit = static_cast<int>(sqrt(1.0 + kPrimeLimit));
     for (int f = 3; f <= factor_limit; f += 2) {
       if (map->SparseToCompact(f) >= 0) {
-        for (int m = 2; m * f <= kPrimeLimit; ++m) map->SetMap(f * m, false);
+        for (int m = 2; m * f <= kPrimeLimit; ++m) {
+          map->SetMap(f * m, false);
+        }
       }
     }
     map->Setup();
   }
 
-  void TestPrimes(const IndexMap& map) {
+  void TestPrimes(const IndexMap &map) {
     // Now all primes are mapped in the sparse map to their index.
     // According to Wikipedia, the 168th prime is 997, and it has compact
     // index 167 because we are indexing from 0.
@@ -83,7 +85,7 @@ TEST_F(IndexMapBiDiTest, Primes) {
   TestPrimes(base_map);
   // Test file i/o too.
   std::string filename = OutputNameToPath("primesmap");
-  FILE* fp = fopen(filename.c_str(), "wb");
+  FILE *fp = fopen(filename.c_str(), "wb");
   CHECK(fp != nullptr);
   EXPECT_TRUE(map.Serialize(fp));
   fclose(fp);
@@ -116,4 +118,4 @@ TEST_F(IndexMapBiDiTest, ManyToOne) {
   EXPECT_EQ(1, map.SparseToCompact(11));
 }
 
-}  // namespace.
+} // namespace tesseract

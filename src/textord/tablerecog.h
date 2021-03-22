@@ -21,7 +21,7 @@
 #define TABLERECOG_H_
 
 #include "colpartitiongrid.h"
-#include <tesseract/genericvector.h>
+#include <vector>
 
 namespace tesseract {
 
@@ -69,8 +69,8 @@ namespace tesseract {
 //      // etc.
 //    }
 //
-class StructuredTable {
- public:
+class TESS_API StructuredTable {
+public:
   StructuredTable();
   ~StructuredTable() = default;
 
@@ -79,8 +79,8 @@ class StructuredTable {
 
   // Sets the grids used by the table. These can be changed between
   // calls to Recognize. They are treated as read-only data.
-  void set_text_grid(ColPartitionGrid* text);
-  void set_line_grid(ColPartitionGrid* lines);
+  void set_text_grid(ColPartitionGrid *text);
+  void set_line_grid(ColPartitionGrid *lines);
   // Filters text partitions that are ridiculously tall to prevent
   // merging rows.
   void set_max_text_height(int height);
@@ -91,8 +91,8 @@ class StructuredTable {
   int row_count() const;
   int column_count() const;
   int cell_count() const;
-  void set_bounding_box(const TBOX& box);
-  const TBOX& bounding_box() const;
+  void set_bounding_box(const TBOX &box);
+  const TBOX &bounding_box() const;
   int median_cell_height();
   int median_cell_width();
   int row_height(int row) const;
@@ -117,13 +117,12 @@ class StructuredTable {
 
   // Returns true if inserting part into the table does not cause any
   // cell merges.
-  bool DoesPartitionFit(const ColPartition& part) const;
+  bool DoesPartitionFit(const ColPartition &part) const;
   // Checks if a sub-table has multiple data cells filled.
   int CountFilledCells();
   int CountFilledCellsInRow(int row);
   int CountFilledCellsInColumn(int column);
-  int CountFilledCells(int row_start, int row_end,
-                       int column_start, int column_end);
+  int CountFilledCells(int row_start, int row_end, int column_start, int column_end);
 
   // Makes sure that at least one cell in a row has substantial area filled.
   // This can filter out large whitespace caused by growing tables too far
@@ -135,9 +134,14 @@ class StructuredTable {
 
   // Debug display, draws the table in the given color. If the table is not
   // valid, the table and "best" grid lines are still drawn in the given color.
-  void Display(ScrollView* window, ScrollView::Color color);
+  void Display(ScrollView *window, ScrollView::Color color);
+  
+  /// Calculate bounding boxes of the rows and return them.
+  std::vector<TBOX> getRows();
+  /// Calculate bounding boxes of the columns and return them.
+  std::vector<TBOX> getCols();
 
- protected:
+protected:
   // Clear the structure information.
   void ClearStructure();
 
@@ -173,11 +177,9 @@ class StructuredTable {
   void CalculateMargins();
   // Update the table margins with the supplied grid. This is
   // only called by calculate margins to use multiple grid sources.
-  void UpdateMargins(ColPartitionGrid* grid);
-  int FindVerticalMargin(ColPartitionGrid* grid, int start_x,
-                         bool decrease) const;
-  int FindHorizontalMargin(ColPartitionGrid* grid, int start_y,
-                           bool decrease) const;
+  void UpdateMargins(ColPartitionGrid *grid);
+  int FindVerticalMargin(ColPartitionGrid *grid, int start_x, bool decrease) const;
+  int FindHorizontalMargin(ColPartitionGrid *grid, int start_y, bool decrease) const;
   // Calculates stats on the table, namely the median cell height and width.
   void CalculateStats();
 
@@ -212,10 +214,9 @@ class StructuredTable {
   // are inserted wherever space exists between partitions. If it is 2,
   // lines may intersect 2 partitions at most, but you also need at least
   // 2 partitions to generate a line.
-  static void FindCellSplitLocations(const GenericVector<int>& min_list,
-                                     const GenericVector<int>& max_list,
-                                     int max_merged,
-                                     GenericVector<int>* locations);
+  static void FindCellSplitLocations(const std::vector<int> &min_list,
+                                     const std::vector<int> &max_list, int max_merged,
+                                     std::vector<int> *locations);
 
   ////////
   //////// Utility function for table queries
@@ -227,22 +228,22 @@ class StructuredTable {
   int CountHorizontalIntersections(int y);
 
   // Counts how many text partitions are in this box.
-  int CountPartitions(const TBOX& box);
+  int CountPartitions(const TBOX &box);
 
   ////////
   //////// Data members.
   ////////
 
   // Input data, used as read only data to make decisions.
-  ColPartitionGrid* text_grid_;    // Text ColPartitions
-  ColPartitionGrid* line_grid_;    // Line ColPartitions
+  ColPartitionGrid *text_grid_; // Text ColPartitions
+  ColPartitionGrid *line_grid_; // Line ColPartitions
   // Table structure.
   // bounding box is a convenient external representation.
   // cell_x_ and cell_y_ indicate the grid lines.
-  TBOX bounding_box_;              // Bounding box
-  GenericVectorEqEq<int> cell_x_;  // Locations of vertical divisions (sorted)
-  GenericVectorEqEq<int> cell_y_;  // Locations of horizontal divisions (sorted)
-  bool is_lined_;                  // Is the table backed up by a line structure
+  TBOX bounding_box_;         // Bounding box
+  std::vector<int> cell_x_; // Locations of vertical divisions (sorted)
+  std::vector<int> cell_y_; // Locations of horizontal divisions (sorted)
+  bool is_lined_;             // Is the table backed up by a line structure
   // Table margins, set via CalculateMargins
   int space_above_;
   int space_below_;
@@ -254,8 +255,8 @@ class StructuredTable {
   int max_text_height_;
 };
 
-class TableRecognizer {
- public:
+class TESS_API TableRecognizer {
+public:
   TableRecognizer();
   ~TableRecognizer();
 
@@ -268,8 +269,8 @@ class TableRecognizer {
 
   // Sets the grids used by the table. These can be changed between
   // calls to Recognize. They are treated as read-only data.
-  void set_text_grid(ColPartitionGrid* text);
-  void set_line_grid(ColPartitionGrid* lines);
+  void set_text_grid(ColPartitionGrid *text);
+  void set_line_grid(ColPartitionGrid *lines);
   // Sets some additional constraints on the table.
   void set_min_height(int height);
   void set_min_width(int width);
@@ -313,20 +314,20 @@ class TableRecognizer {
   // TableFinder at all if it is fast enough.  It comes down to properly
   // deciding what is a table. The code currently relies on TableFinder's
   // guess to the location of a table for that.
-  StructuredTable* RecognizeTable(const TBOX& guess_box);
+  StructuredTable *RecognizeTable(const TBOX &guess_box);
 
- protected:
+protected:
   ////////
   //////// Lined tables
   ////////
 
   // Returns true if the given box has a lined table within it. The
   // table argument will be updated with the table if the table exists.
-  bool RecognizeLinedTable(const TBOX& guess_box, StructuredTable* table);
+  bool RecognizeLinedTable(const TBOX &guess_box, StructuredTable *table);
   // Returns true if the given box has a large number of horizontal and
   // vertical lines present. If so, we assume the extent of these lines
   // uniquely defines a table and find that table via SolveLinedTable.
-  bool HasSignificantLines(const TBOX& guess);
+  bool HasSignificantLines(const TBOX &guess);
 
   // Given enough horizontal and vertical lines in a region, find a bounding
   // box that encloses all of them (as well as newly introduced lines).
@@ -335,12 +336,12 @@ class TableRecognizer {
   // bounding_box is an in/out parameter.
   // On input, it in the extents of the box to search.
   // On output, it is the resulting bounding box.
-  bool FindLinesBoundingBox(TBOX* bounding_box);
+  bool FindLinesBoundingBox(TBOX *bounding_box);
   // Iteration in above search.
   // bounding_box is an in/out parameter.
   // On input, it in the extents of the box to search.
   // On output, it is the resulting bounding box.
-  bool FindLinesBoundingBoxIteration(TBOX* bounding_box);
+  bool FindLinesBoundingBoxIteration(TBOX *bounding_box);
 
   ////////
   //////// Generic "whitespaced" tables
@@ -350,7 +351,7 @@ class TableRecognizer {
   // table argument will be updated if the table exists. Also note
   // that this method will fail if the guess_box center is not
   // mostly within the table.
-  bool RecognizeWhitespacedTable(const TBOX& guess_box, StructuredTable* table);
+  bool RecognizeWhitespacedTable(const TBOX &guess_box, StructuredTable *table);
 
   // Finds the location of a horizontal split relative to y.
   // This function is mostly unused now. If the SolveWhitespacedTable
@@ -361,18 +362,18 @@ class TableRecognizer {
   // Indicates that a table row is weak. This means that it has
   // many missing data cells or very large cell heights compared.
   // to the rest of the table.
-  static bool IsWeakTableRow(StructuredTable* table, int row);
+  static bool IsWeakTableRow(StructuredTable *table, int row);
 
   // Input data, used as read only data to make decisions.
-  ColPartitionGrid* text_grid_;    // Text ColPartitions
-  ColPartitionGrid* line_grid_;    // Line ColPartitions
+  ColPartitionGrid *text_grid_; // Text ColPartitions
+  ColPartitionGrid *line_grid_; // Line ColPartitions
   // Table constraints, a "good" table must satisfy these.
   int min_height_;
   int min_width_;
   // Filters, used to prevent awkward partitions from destroying structure.
-  int max_text_height_;  // Horizontal lines may intersect taller text.
+  int max_text_height_; // Horizontal lines may intersect taller text.
 };
 
-}  // namespace tesseract
+} // namespace tesseract
 
-#endif  /* TABLERECOG_H_ */
+#endif /* TABLERECOG_H_ */

@@ -17,9 +17,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "allheaders.h"
-#include "blobbox.h"
+#ifdef HAVE_CONFIG_H
+#  include "config_auto.h"
+#endif
+
 #include "equationdetectbase.h"
+
+#include "blobbox.h"
+
+#include <allheaders.h>
 
 namespace tesseract {
 
@@ -28,28 +34,26 @@ namespace tesseract {
 // instead of weak vtables in every compilation unit.
 EquationDetectBase::~EquationDetectBase() = default;
 
-void EquationDetectBase::RenderSpecialText(Pix* pix,
-                                           BLOBNBOX* blob) {
+void EquationDetectBase::RenderSpecialText(Pix *pix, BLOBNBOX *blob) {
   ASSERT_HOST(pix != nullptr && pixGetDepth(pix) == 32 && blob != nullptr);
-  const TBOX& tbox = blob->bounding_box();
+  const TBOX &tbox = blob->bounding_box();
   int height = pixGetHeight(pix);
   const int box_width = 5;
 
   // Coordinate translation: tesseract use left bottom as the original, while
   // leptonica uses left top as the original.
-  Box *box = boxCreate(tbox.left(), height - tbox.top(),
-                         tbox.width(), tbox.height());
+  Box *box = boxCreate(tbox.left(), height - tbox.top(), tbox.width(), tbox.height());
   switch (blob->special_text_type()) {
-    case BSTT_MATH:  // Red box.
+    case BSTT_MATH: // Red box.
       pixRenderBoxArb(pix, box, box_width, 255, 0, 0);
       break;
-    case BSTT_DIGIT:  // cyan box.
+    case BSTT_DIGIT: // cyan box.
       pixRenderBoxArb(pix, box, box_width, 0, 255, 255);
       break;
-    case BSTT_ITALIC:  // Green box.
+    case BSTT_ITALIC: // Green box.
       pixRenderBoxArb(pix, box, box_width, 0, 255, 0);
       break;
-    case BSTT_UNCLEAR:  // blue box.
+    case BSTT_UNCLEAR: // blue box.
       pixRenderBoxArb(pix, box, box_width, 0, 255, 0);
       break;
     case BSTT_NONE:
@@ -61,4 +65,4 @@ void EquationDetectBase::RenderSpecialText(Pix* pix,
   boxDestroy(&box);
 }
 
-}  // namespace tesseract
+} // namespace tesseract

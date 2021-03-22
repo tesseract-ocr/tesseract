@@ -18,7 +18,6 @@
 
 #include <tesseract/unichar.h>
 #include "errcode.h"
-#include <tesseract/genericvector.h>
 #include "tprintf.h"
 
 #define UNI_MAX_LEGAL_UTF32 0x0010FFFF
@@ -29,30 +28,38 @@ namespace tesseract {
 // If the string is too long to fit in the UNICHAR then it takes only what
 // will fit. Checks for illegal input and stops at an illegal sequence.
 // The resulting UNICHAR may be empty.
-UNICHAR::UNICHAR(const char* utf8_str, int len) {
+UNICHAR::UNICHAR(const char *utf8_str, int len) {
   int total_len = 0;
   int step = 0;
   if (len < 0) {
-    for (len = 0; len < UNICHAR_LEN && utf8_str[len] != 0; ++len);
+    for (len = 0; len < UNICHAR_LEN && utf8_str[len] != 0; ++len) {
+      ;
+    }
   }
   for (total_len = 0; total_len < len; total_len += step) {
     step = utf8_step(utf8_str + total_len);
-    if (total_len + step > UNICHAR_LEN)
-      break;  // Too long.
-    if (step == 0)
-      break;  // Illegal first byte.
+    if (total_len + step > UNICHAR_LEN) {
+      break; // Too long.
+    }
+    if (step == 0) {
+      break; // Illegal first byte.
+    }
     int i;
-    for (i = 1; i < step; ++i)
-      if ((utf8_str[total_len + i] & 0xc0) != 0x80)
+    for (i = 1; i < step; ++i) {
+      if ((utf8_str[total_len + i] & 0xc0) != 0x80) {
         break;
-    if (i < step)
-      break;  // Illegal surrogate
+      }
+    }
+    if (i < step) {
+      break; // Illegal surrogate
+    }
   }
   memcpy(chars, utf8_str, total_len);
   if (total_len < UNICHAR_LEN) {
     chars[UNICHAR_LEN - 1] = total_len;
-    while (total_len < UNICHAR_LEN - 1)
+    while (total_len < UNICHAR_LEN - 1) {
       chars[total_len++] = 0;
+    }
   }
 }
 
@@ -96,61 +103,59 @@ UNICHAR::UNICHAR(int unicode) {
 
 // Get the first character as UCS-4.
 int UNICHAR::first_uni() const {
-  static const int utf8_offsets[5] = {
-    0, 0, 0x3080, 0xE2080, 0x3C82080
-  };
+  static const int utf8_offsets[5] = {0, 0, 0x3080, 0xE2080, 0x3C82080};
   int uni = 0;
   int len = utf8_step(chars);
-  const char* src = chars;
+  const char *src = chars;
 
   switch (len) {
-  default:
-    break;
-  case 4:
-    uni += static_cast<unsigned char>(*src++);
-    uni <<= 6;
-    // Fall through.
-  case 3:
-    uni += static_cast<unsigned char>(*src++);
-    uni <<= 6;
-    // Fall through.
-  case 2:
-    uni += static_cast<unsigned char>(*src++);
-    uni <<= 6;
-    // Fall through.
-  case 1:
-    uni += static_cast<unsigned char>(*src++);
+    default:
+      break;
+    case 4:
+      uni += static_cast<unsigned char>(*src++);
+      uni <<= 6;
+      // Fall through.
+    case 3:
+      uni += static_cast<unsigned char>(*src++);
+      uni <<= 6;
+      // Fall through.
+    case 2:
+      uni += static_cast<unsigned char>(*src++);
+      uni <<= 6;
+      // Fall through.
+    case 1:
+      uni += static_cast<unsigned char>(*src++);
   }
   uni -= utf8_offsets[len];
   return uni;
 }
 
 // Get a terminated UTF8 string: Must delete[] it after use.
-char* UNICHAR::utf8_str() const {
+char *UNICHAR::utf8_str() const {
   int len = utf8_len();
-  char* str = new char[len + 1];
+  char *str = new char[len + 1];
   memcpy(str, chars, len);
   str[len] = 0;
   return str;
 }
 
 // Get the number of bytes in the first character of the given utf8 string.
-int UNICHAR::utf8_step(const char* utf8_str) {
+int UNICHAR::utf8_step(const char *utf8_str) {
   static const char utf8_bytes[256] = {
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3, 4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0
-  };
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
+      3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0};
 
   return utf8_bytes[static_cast<unsigned char>(*utf8_str)];
 }
 
-UNICHAR::const_iterator& UNICHAR::const_iterator::operator++() {
+UNICHAR::const_iterator &UNICHAR::const_iterator::operator++() {
   ASSERT_HOST(it_ != nullptr);
   int step = utf8_step(it_);
   if (step == 0) {
@@ -175,7 +180,7 @@ int UNICHAR::const_iterator::operator*() const {
   return uch.first_uni();
 }
 
-int UNICHAR::const_iterator::get_utf8(char* utf8_output) const {
+int UNICHAR::const_iterator::get_utf8(char *utf8_output) const {
   ASSERT_HOST(it_ != nullptr);
   const int len = utf8_step(it_);
   if (len == 0) {
@@ -201,18 +206,18 @@ bool UNICHAR::const_iterator::is_legal() const {
   return utf8_step(it_) > 0;
 }
 
-UNICHAR::const_iterator UNICHAR::begin(const char* utf8_str, int len) {
+UNICHAR::const_iterator UNICHAR::begin(const char *utf8_str, int len) {
   return UNICHAR::const_iterator(utf8_str);
 }
 
-UNICHAR::const_iterator UNICHAR::end(const char* utf8_str, int len) {
+UNICHAR::const_iterator UNICHAR::end(const char *utf8_str, int len) {
   return UNICHAR::const_iterator(utf8_str + len);
 }
 
 // Converts a utf-8 string to a vector of unicodes.
 // Returns an empty vector if the input contains invalid UTF-8.
 /* static */
-std::vector<char32> UNICHAR::UTF8ToUTF32(const char* utf8_str) {
+std::vector<char32> UNICHAR::UTF8ToUTF32(const char *utf8_str) {
   const int utf8_length = strlen(utf8_str);
   std::vector<char32> unicodes;
   unicodes.reserve(utf8_length);
@@ -229,7 +234,7 @@ std::vector<char32> UNICHAR::UTF8ToUTF32(const char* utf8_str) {
 }
 
 // Returns an empty string if the input contains an invalid unicode.
-std::string UNICHAR::UTF32ToUTF8(const std::vector<char32>& str32) {
+std::string UNICHAR::UTF32ToUTF8(const std::vector<char32> &str32) {
   std::string utf8_str;
   for (char32 ch : str32) {
     UNICHAR uni_ch(ch);
@@ -243,4 +248,4 @@ std::string UNICHAR::UTF32ToUTF8(const std::vector<char32>& str32) {
   return utf8_str;
 }
 
-}  // namespace tesseract
+} // namespace tesseract

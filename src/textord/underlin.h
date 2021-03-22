@@ -16,36 +16,39 @@
  *
  **********************************************************************/
 
-#ifndef           UNDERLIN_H
-#define           UNDERLIN_H
+#ifndef UNDERLIN_H
+#define UNDERLIN_H
 
-#include          "fpchop.h"
+#include "fpchop.h"
 
-extern double_VAR_H (textord_underline_offset, 0.1,
-"Fraction of x to ignore");
-extern BOOL_VAR_H (textord_restore_underlines, false,
-"Chop underlines & put back");
-void restore_underlined_blobs(                 //get chop points
-                              TO_BLOCK *block  //block to do
-                             );
-TO_ROW *most_overlapping_row(                    //find best row
-                             TO_ROW_LIST *rows,  //list of rows
-                             BLOBNBOX *blob      //blob to place
-                            );
-void find_underlined_blobs(                            //get chop points
-                           BLOBNBOX *u_line,           //underlined unit
-                           QSPLINE *baseline,          //actual baseline
-                           float xheight,              //height of line
-                           float baseline_offset,      //amount to shrinke it
-                           ICOORDELT_LIST *chop_cells  //places to chop
-                          );
-void vertical_cunderline_projection(                        //project outlines
-                                    C_OUTLINE *outline,     //outline to project
-                                    QSPLINE *baseline,      //actual baseline
-                                    float xheight,          //height of line
-                                    float baseline_offset,  //amount to shrinke it
-                                    STATS *lower_proj,      //below baseline
-                                    STATS *middle_proj,     //centre region
-                                    STATS *upper_proj       //top region
-                                   );
+namespace tesseract {
+
+extern double_VAR_H(textord_underline_offset, 0.1, "Fraction of x to ignore");
+extern BOOL_VAR_H(textord_restore_underlines, false, "Chop underlines & put back");
+void restore_underlined_blobs( // get chop points
+    TO_BLOCK *block            // block to do
+);
+TO_ROW *most_overlapping_row( // find best row
+    TO_ROW_LIST *rows,        // list of rows
+    BLOBNBOX *blob            // blob to place
+);
+void find_underlined_blobs(    // get chop points
+    BLOBNBOX *u_line,          // underlined unit
+    QSPLINE *baseline,         // actual baseline
+    float xheight,             // height of line
+    float baseline_offset,     // amount to shrinke it
+    ICOORDELT_LIST *chop_cells // places to chop
+);
+void vertical_cunderline_projection( // project outlines
+    C_OUTLINE *outline,              // outline to project
+    QSPLINE *baseline,               // actual baseline
+    float xheight,                   // height of line
+    float baseline_offset,           // amount to shrinke it
+    STATS *lower_proj,               // below baseline
+    STATS *middle_proj,              // centre region
+    STATS *upper_proj                // top region
+);
+
+} // namespace tesseract
+
 #endif

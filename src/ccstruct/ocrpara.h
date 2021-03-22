@@ -2,7 +2,6 @@
 // File:        ocrpara.h
 // Description: OCR Paragraph Output Type
 // Author:      David Eger
-// Created:     2010-11-15
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,16 +19,21 @@
 #ifndef TESSERACT_CCSTRUCT_OCRPARA_H_
 #define TESSERACT_CCSTRUCT_OCRPARA_H_
 
-#include <tesseract/publictypes.h>
 #include "elst.h"
-#include <tesseract/strngs.h>
+
+#include <tesseract/publictypes.h>
+
+namespace tesseract {
 
 class ParagraphModel;
 
 struct PARA : public ELIST_LINK {
- public:
-  PARA() : model(nullptr), is_list_item(false),
-           is_very_first_or_continuation(false), has_drop_cap(false) {}
+public:
+  PARA()
+      : model(nullptr)
+      , is_list_item(false)
+      , is_very_first_or_continuation(false)
+      , has_drop_cap(false) {}
 
   // We do not own the model, we just reference it.
   // model may be nullptr if there is not a good model for this paragraph.
@@ -111,33 +115,31 @@ ELISTIZEH(PARA)
 // |you can try to identify source  |
 // |code.  Ouch!                    |
 // +--------------------------------+
-class ParagraphModel {
- public:
-  ParagraphModel(tesseract::ParagraphJustification justification,
-                 int margin,
-                 int first_indent,
-                 int body_indent,
-                 int tolerance)
-      : justification_(justification),
-        margin_(margin),
-        first_indent_(first_indent),
-        body_indent_(body_indent),
-        tolerance_(tolerance) {
+class TESS_API ParagraphModel {
+public:
+  ParagraphModel(tesseract::ParagraphJustification justification, int margin, int first_indent,
+                 int body_indent, int tolerance)
+      : justification_(justification)
+      , margin_(margin)
+      , first_indent_(first_indent)
+      , body_indent_(body_indent)
+      , tolerance_(tolerance) {
     // Make one of {first_indent, body_indent} is 0.
     int added_margin = first_indent;
-    if (body_indent < added_margin)
+    if (body_indent < added_margin) {
       added_margin = body_indent;
+    }
     margin_ += added_margin;
     first_indent_ -= added_margin;
     body_indent_ -= added_margin;
   }
 
   ParagraphModel()
-      : justification_(tesseract::JUSTIFICATION_UNKNOWN),
-         margin_(0),
-         first_indent_(0),
-         body_indent_(0),
-         tolerance_(0) { }
+      : justification_(tesseract::JUSTIFICATION_UNKNOWN)
+      , margin_(0)
+      , first_indent_(0)
+      , body_indent_(0)
+      , tolerance_(0) {}
 
   // ValidFirstLine() and ValidBodyLine() take arguments describing a text line
   // in a block of text which we are trying to model:
@@ -164,23 +166,31 @@ class ParagraphModel {
   tesseract::ParagraphJustification justification() const {
     return justification_;
   }
-  int margin() const { return margin_; }
-  int first_indent() const { return first_indent_; }
-  int body_indent() const { return body_indent_; }
-  int tolerance() const { return tolerance_; }
+  int margin() const {
+    return margin_;
+  }
+  int first_indent() const {
+    return first_indent_;
+  }
+  int body_indent() const {
+    return body_indent_;
+  }
+  int tolerance() const {
+    return tolerance_;
+  }
   bool is_flush() const {
     return (justification_ == tesseract::JUSTIFICATION_LEFT ||
             justification_ == tesseract::JUSTIFICATION_RIGHT) &&
-        abs(first_indent_ - body_indent_) <= tolerance_;
+           abs(first_indent_ - body_indent_) <= tolerance_;
   }
 
   // Return whether this model is likely to agree with the other model on most
   // paragraphs they are marked.
   bool Comparable(const ParagraphModel &other) const;
 
-  STRING ToString() const;
+  std::string ToString() const;
 
- private:
+private:
   tesseract::ParagraphJustification justification_;
   int margin_;
   int first_indent_;
@@ -188,4 +198,6 @@ class ParagraphModel {
   int tolerance_;
 };
 
-#endif  // TESSERACT_CCSTRUCT_OCRPARA_H_
+} // namespace tesseract
+
+#endif // TESSERACT_CCSTRUCT_OCRPARA_H_

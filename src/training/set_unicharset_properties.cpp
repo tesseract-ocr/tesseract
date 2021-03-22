@@ -13,15 +13,16 @@
 // the result back to a file.
 
 #include "commandlineflags.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "commontraining.h" // CheckSharedLibraryVersion
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
 
-// The directory that is searched for universal script unicharsets.
-static STRING_PARAM_FLAG(script_dir, "",
-                         "Directory name for input script unicharsets/xheights");
+using namespace tesseract;
 
-int main(int argc, char** argv) {
+// The directory that is searched for universal script unicharsets.
+static STRING_PARAM_FLAG(script_dir, "", "Directory name for input script unicharsets/xheights");
+
+int main(int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
 
@@ -35,8 +36,7 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  tesseract::SetPropertiesForInputFile(FLAGS_script_dir.c_str(),
-                                       FLAGS_U.c_str(), FLAGS_O.c_str(),
+  tesseract::SetPropertiesForInputFile(FLAGS_script_dir.c_str(), FLAGS_U.c_str(), FLAGS_O.c_str(),
                                        FLAGS_X.c_str());
   return 0;
 }

@@ -18,12 +18,13 @@
 // types included in this enum!
 enum NameTester { ABORT, OKAY, LOG, BLOB, ELIST, TBOX, TPOINT, WORD };
 
-#define ERRCODE_H  // avoid redefinition of ABORT in errcode.h
-#include "include_gunit.h"
+#include "gtest/gtest.h"
 
-namespace {
+namespace tesseract {
 
 // Verifies that the global namespace is clean.
-TEST(CleanNamespaceTess, DummyTest) { tesseract::TessBaseAPI api; }
+TEST(CleanNamespaceTess, DummyTest) {
+  tesseract::TessBaseAPI api;
+}
 
-}  // namespace.
+} // namespace tesseract

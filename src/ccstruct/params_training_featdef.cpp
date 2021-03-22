@@ -24,17 +24,20 @@
 namespace tesseract {
 
 int ParamsTrainingFeatureByName(const char *name) {
-  if (name == nullptr)
+  if (name == nullptr) {
     return -1;
-  int array_size = sizeof(kParamsTrainingFeatureTypeName) /
-    sizeof(kParamsTrainingFeatureTypeName[0]);
+  }
+  int array_size =
+      sizeof(kParamsTrainingFeatureTypeName) / sizeof(kParamsTrainingFeatureTypeName[0]);
   for (int i = 0; i < array_size; i++) {
-    if (kParamsTrainingFeatureTypeName[i] == nullptr)
+    if (kParamsTrainingFeatureTypeName[i] == nullptr) {
       continue;
-    if (strcmp(name, kParamsTrainingFeatureTypeName[i]) == 0)
+    }
+    if (strcmp(name, kParamsTrainingFeatureTypeName[i]) == 0) {
       return i;
+    }
   }
   return -1;
 }
 
-}  // namespace tesseract
+} // namespace tesseract

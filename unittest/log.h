@@ -25,15 +25,12 @@
 
 #include <iostream>
 
-enum LogLevel {
-  INFO, WARNING, ERROR, FATAL
-};
+enum LogLevel { INFO, WARNING, ERROR, FATAL };
 
 // Avoid conflict with logging.h from TensorFlow.
 #undef LOG
 
-static inline std::ostream& LOG(enum LogLevel level)
-{
+static inline std::ostream &LOG(enum LogLevel level) {
   switch (level) {
     case INFO:
       std::cout << "[INFO]  ";
@@ -55,8 +52,7 @@ static inline std::ostream& LOG(enum LogLevel level)
 #undef QCHECK
 
 // https://github.com/google/ion/blob/master/ion/base/logging.h
-static inline std::ostream& QCHECK(bool condition)
-{
+static inline std::ostream &QCHECK(bool condition) {
   if (condition) {
     static std::ostream null_stream(nullptr);
     return null_stream;
@@ -64,4 +60,4 @@ static inline std::ostream& QCHECK(bool condition)
   return std::cout;
 }
 
-#endif  // TESSERACT_UNITTEST_LOG_H_
+#endif // TESSERACT_UNITTEST_LOG_H_

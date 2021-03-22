@@ -24,7 +24,7 @@
 #include "intmatcher.h"
 #include "ocrfeatures.h"
 
-#define INT_FEAT_RANGE    256
-#define BASELINE_Y_SHIFT  (0.25)
+#define INT_FEAT_RANGE 256
+#define BASELINE_Y_SHIFT (0.25)
 
 #endif

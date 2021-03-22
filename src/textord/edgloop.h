@@ -16,24 +16,29 @@
  *
  **********************************************************************/
 
-#ifndef           EDGLOOP_H
-#define           EDGLOOP_H
+#ifndef EDGLOOP_H
+#define EDGLOOP_H
 
-#include          "scrollview.h"
-#include          "params.h"
-#include          "pdblock.h"
-#include          "coutln.h"
-#include          "crakedge.h"
+#include "coutln.h"
+#include "crakedge.h"
+#include "params.h"
+#include "pdblock.h"
+#include "scrollview.h"
 
-#define BUCKETSIZE      16
+namespace tesseract {
 
-void complete_edge(CRACKEDGE *start,  //start of loop
-                   C_OUTLINE_IT* outline_it);
-ScrollView::Color check_path_legal(                  //certify outline
-                        CRACKEDGE *start  //start of loop
-                       );
-int16_t loop_bounding_box(                    //get bounding box
-                        CRACKEDGE *&start,  //edge loop
-                        ICOORD &botleft,    //bounding box
-                        ICOORD &topright);
+#define BUCKETSIZE 16
+
+void complete_edge(CRACKEDGE *start, // start of loop
+                   C_OUTLINE_IT *outline_it);
+ScrollView::Color check_path_legal( // certify outline
+    CRACKEDGE *start                // start of loop
+);
+int16_t loop_bounding_box( // get bounding box
+    CRACKEDGE *&start,     // edge loop
+    ICOORD &botleft,       // bounding box
+    ICOORD &topright);
+
+} // namespace tesseract
+
 #endif

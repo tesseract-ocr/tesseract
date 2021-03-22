@@ -24,32 +24,35 @@
 #define TESSERACT_VIEWER_SVUTIL_H_
 
 #ifdef _WIN32
-#  include "host.h"  // also includes windows.h
+#  include "host.h" // also includes windows.h
 #else
-#include <semaphore.h>
+#  include <semaphore.h>
 #endif
 
 #include <mutex>
 #include <string>
 
+namespace tesseract {
+
 /// The SVSync class provides functionality for Thread & Process Creation
 class SVSync {
- public:
+public:
   /// Starts a new process.
-  static void StartProcess(const char* executable, const char* args);
+  static void StartProcess(const char *executable, const char *args);
 };
 
 /// A semaphore class which encapsulates the main signaling
 /// and wait abilities of semaphores for windows and unix.
 class SVSemaphore {
- public:
+public:
   /// Sets up a semaphore.
   SVSemaphore();
   /// Signal a semaphore.
   void Signal();
   /// Wait on a semaphore.
   void Wait();
- private:
+
+private:
 #ifdef _WIN32
   HANDLE semaphore_;
 #elif defined(__APPLE__)
@@ -64,19 +67,19 @@ class SVSemaphore {
 /// receiving messages and closing the connection.
 /// It is designed to work on both Linux and Windows.
 class SVNetwork {
- public:
+public:
   /// Set up a connection to hostname on port.
-  SVNetwork(const char* hostname, int port);
+  SVNetwork(const char *hostname, int port);
 
   /// Destructor.
   ~SVNetwork();
 
   /// Put a message in the messagebuffer to the server and try to send it.
-  void Send(const char* msg);
+  void Send(const char *msg);
 
   /// Receive a message from the server.
   /// This will always return one line of char* (denoted by \\n).
-  char* Receive();
+  char *Receive();
 
   /// Close the connection to the server.
   void Close();
@@ -84,20 +87,21 @@ class SVNetwork {
   /// Flush the buffer.
   void Flush();
 
- private:
+private:
   /// The mutex for access to Send() and Flush().
   std::mutex mutex_send_;
   /// The actual stream_ to the server.
   int stream_;
   /// Stores the last received message-chunk from the server.
-  char* msg_buffer_in_;
+  char *msg_buffer_in_;
 
   /// Stores the messages which are supposed to go out.
   std::string msg_buffer_out_;
 
-  bool has_content;  // Win32 (strtok)
   /// Where we are at in our msg_buffer_in_
-  char* buffer_ptr_;  // Unix (strtok_r)
+  char *buffer_ptr_; // strtok_r, strtok_s
 };
 
-#endif  // TESSERACT_VIEWER_SVUTIL_H_
+} // namespace tesseract
+
+#endif // TESSERACT_VIEWER_SVUTIL_H_

@@ -38,9 +38,11 @@ const float LMPainPoints::kLooseMaxCharWhRatio = 2.5f;
 
 LMPainPointsType LMPainPoints::Deque(MATRIX_COORD *pp, float *priority) {
   for (int h = 0; h < LM_PPTYPE_NUM; ++h) {
-    if (pain_points_heaps_[h].empty()) continue;
-    *priority = pain_points_heaps_[h].PeekTop().key;
-    *pp = pain_points_heaps_[h].PeekTop().data;
+    if (pain_points_heaps_[h].empty()) {
+      continue;
+    }
+    *priority = pain_points_heaps_[h].PeekTop().key();
+    *pp = pain_points_heaps_[h].PeekTop().data();
     pain_points_heaps_[h].Pop(nullptr);
     return static_cast<LMPainPointsType>(h);
   }
@@ -54,21 +56,20 @@ void LMPainPoints::GenerateInitial(WERD_RES *word_res) {
     int row_end = std::min(ratings->dimension(), col + ratings->bandwidth() + 1);
     for (int row = col + 1; row < row_end; ++row) {
       MATRIX_COORD coord(col, row);
-      if (coord.Valid(*ratings) &&
-          ratings->get(col, row) != NOT_CLASSIFIED) continue;
+      if (coord.Valid(*ratings) && ratings->get(col, row) != NOT_CLASSIFIED) {
+        continue;
+      }
       // Add an initial pain point if needed.
       if (ratings->Classified(col, row - 1, dict_->WildcardID()) ||
           (col + 1 < ratings->dimension() &&
-              ratings->Classified(col + 1, row, dict_->WildcardID()))) {
-        GeneratePainPoint(col, row, LM_PPTYPE_SHAPE, 0.0,
-                          true, max_char_wh_ratio_, word_res);
+           ratings->Classified(col + 1, row, dict_->WildcardID()))) {
+        GeneratePainPoint(col, row, LM_PPTYPE_SHAPE, 0.0, true, max_char_wh_ratio_, word_res);
       }
     }
   }
 }
 
-void LMPainPoints::GenerateFromPath(float rating_cert_scale,
-                                    ViterbiStateEntry *vse,
+void LMPainPoints::GenerateFromPath(float rating_cert_scale, ViterbiStateEntry *vse,
                                     WERD_RES *word_res) {
   ViterbiStateEntry *curr_vse = vse;
   BLOB_CHOICE *curr_b = vse->curr_b;
@@ -89,13 +90,12 @@ void LMPainPoints::GenerateFromPath(float rating_cert_scale,
   // over-joined pieces of characters, but also could be blobs from an unseen
   // font or chopped pieces of complex characters.
   while (curr_vse->parent_vse != nullptr) {
-    ViterbiStateEntry* parent_vse = curr_vse->parent_vse;
-    const MATRIX_COORD& curr_cell = curr_b->matrix_cell();
-    const MATRIX_COORD& parent_cell = parent_vse->curr_b->matrix_cell();
+    ViterbiStateEntry *parent_vse = curr_vse->parent_vse;
+    const MATRIX_COORD &curr_cell = curr_b->matrix_cell();
+    const MATRIX_COORD &parent_cell = parent_vse->curr_b->matrix_cell();
     MATRIX_COORD pain_coord(parent_cell.col, curr_cell.row);
     if (!pain_coord.Valid(*word_res->ratings) ||
-        !word_res->ratings->Classified(parent_cell.col, curr_cell.row,
-                                       dict_->WildcardID())) {
+        !word_res->ratings->Classified(parent_cell.col, curr_cell.row, dict_->WildcardID())) {
       // rat_subtr contains ratings sum of the two adjacent blobs to be merged.
       // rat_subtr will be subtracted from the ratings sum of the path, since
       // the blobs will be joined into a new blob, whose rating is yet unknown.
@@ -103,23 +103,20 @@ void LMPainPoints::GenerateFromPath(float rating_cert_scale,
       // ol_subtr contains the outline length of the blobs that will be joined.
       float ol_subtr =
           AssociateUtils::ComputeOutlineLength(rating_cert_scale, *curr_b) +
-          AssociateUtils::ComputeOutlineLength(rating_cert_scale,
-                                               *(parent_vse->curr_b));
+          AssociateUtils::ComputeOutlineLength(rating_cert_scale, *(parent_vse->curr_b));
       // ol_dif is the outline of the path without the two blobs to be joined.
       float ol_dif = vse->outline_length - ol_subtr;
       // priority is set to the average rating of the path per unit of outline,
       // not counting the ratings of the pieces to be joined.
-      float priority = ol_dif > 0 ? (vse->ratings_sum-rat_subtr)/ol_dif : 0.0;
-      GeneratePainPoint(pain_coord.col, pain_coord.row, LM_PPTYPE_PATH,
-                        priority, true, max_char_wh_ratio_, word_res);
+      float priority = ol_dif > 0 ? (vse->ratings_sum - rat_subtr) / ol_dif : 0.0;
+      GeneratePainPoint(pain_coord.col, pain_coord.row, LM_PPTYPE_PATH, priority, true,
+                        max_char_wh_ratio_, word_res);
     } else if (debug_level_ > 3) {
-      tprintf("NO pain point (Classified) for col=%d row=%d type=%s\n",
-              pain_coord.col, pain_coord.row,
-              LMPainPointsTypeName[LM_PPTYPE_PATH]);
-      BLOB_CHOICE_IT b_it(word_res->ratings->get(pain_coord.col,
-                                                 pain_coord.row));
+      tprintf("NO pain point (Classified) for col=%d row=%d type=%s\n", pain_coord.col,
+              pain_coord.row, LMPainPointsTypeName[LM_PPTYPE_PATH]);
+      BLOB_CHOICE_IT b_it(word_res->ratings->get(pain_coord.col, pain_coord.row));
       for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
-        BLOB_CHOICE* choice = b_it.data();
+        BLOB_CHOICE *choice = b_it.data();
         choice->print_full();
       }
     }
@@ -129,51 +126,44 @@ void LMPainPoints::GenerateFromPath(float rating_cert_scale,
   }
 }
 
-void LMPainPoints::GenerateFromAmbigs(const DANGERR &fixpt,
-                                      ViterbiStateEntry *vse,
+void LMPainPoints::GenerateFromAmbigs(const DANGERR &fixpt, ViterbiStateEntry *vse,
                                       WERD_RES *word_res) {
   // Begins and ends in DANGERR vector now record the blob indices as used
   // by the ratings matrix.
-  for (int d = 0; d < fixpt.size(); ++d) {
-    const DANGERR_INFO &danger = fixpt[d];
+  for (auto danger : fixpt) {
     // Only use dangerous ambiguities.
     if (danger.dangerous) {
-      GeneratePainPoint(danger.begin, danger.end - 1,
-                        LM_PPTYPE_AMBIG, vse->cost, true,
+      GeneratePainPoint(danger.begin, danger.end - 1, LM_PPTYPE_AMBIG, vse->cost, true,
                         kLooseMaxCharWhRatio, word_res);
     }
   }
 }
 
-bool LMPainPoints::GeneratePainPoint(
-    int col, int row, LMPainPointsType pp_type, float special_priority,
-    bool ok_to_extend, float max_char_wh_ratio,
-    WERD_RES *word_res) {
+bool LMPainPoints::GeneratePainPoint(int col, int row, LMPainPointsType pp_type,
+                                     float special_priority, bool ok_to_extend,
+                                     float max_char_wh_ratio, WERD_RES *word_res) {
   MATRIX_COORD coord(col, row);
   if (coord.Valid(*word_res->ratings) &&
       word_res->ratings->Classified(col, row, dict_->WildcardID())) {
     return false;
   }
   if (debug_level_ > 3) {
-    tprintf("Generating pain point for col=%d row=%d type=%s\n",
-            col, row, LMPainPointsTypeName[pp_type]);
+    tprintf("Generating pain point for col=%d row=%d type=%s\n", col, row,
+            LMPainPointsTypeName[pp_type]);
   }
   // Compute associate stats.
   AssociateStats associate_stats;
-  AssociateUtils::ComputeStats(col, row, nullptr, 0, fixed_pitch_,
-                               max_char_wh_ratio, word_res, debug_level_,
-                               &associate_stats);
+  AssociateUtils::ComputeStats(col, row, nullptr, 0, fixed_pitch_, max_char_wh_ratio, word_res,
+                               debug_level_, &associate_stats);
   // For fixed-pitch fonts/languages: if the current combined blob overlaps
   // the next blob on the right and it is ok to extend the blob, try extending
   // the blob until there is no overlap with the next blob on the right or
   // until the width-to-height ratio becomes too large.
   if (ok_to_extend) {
-    while (associate_stats.bad_fixed_pitch_right_gap &&
-           row + 1 < word_res->ratings->dimension() &&
+    while (associate_stats.bad_fixed_pitch_right_gap && row + 1 < word_res->ratings->dimension() &&
            !associate_stats.bad_fixed_pitch_wh_ratio) {
-      AssociateUtils::ComputeStats(col, ++row, nullptr, 0, fixed_pitch_,
-                                   max_char_wh_ratio, word_res, debug_level_,
-                                   &associate_stats);
+      AssociateUtils::ComputeStats(col, ++row, nullptr, 0, fixed_pitch_, max_char_wh_ratio,
+                                   word_res, debug_level_, &associate_stats);
     }
   }
   if (associate_stats.bad_shape) {
@@ -199,7 +189,9 @@ bool LMPainPoints::GeneratePainPoint(
     }
     return true;
   } else {
-    if (debug_level_) tprintf("Pain points heap is full\n");
+    if (debug_level_) {
+      tprintf("Pain points heap is full\n");
+    }
     return false;
   }
 }
@@ -209,11 +201,12 @@ bool LMPainPoints::GeneratePainPoint(
  * matrix due to a split of the blob with the given index.
  */
 void LMPainPoints::RemapForSplit(int index) {
-  for (auto & pain_points_heap : pain_points_heaps_) {
-    GenericVector<MatrixCoordPair>* heap = pain_points_heap.heap();
-    for (int j = 0; j < heap->size(); ++j)
-      (*heap)[j].data.MapForSplit(index);
+  for (auto &pain_points_heap : pain_points_heaps_) {
+    std::vector<MatrixCoordPair> &heap = pain_points_heap.heap();
+    for (auto entry : heap) {
+      entry.data().MapForSplit(index);
+    }
   }
 }
 
-}  //  namespace tesseract
+} //  namespace tesseract

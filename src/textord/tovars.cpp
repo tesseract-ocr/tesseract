@@ -20,62 +20,45 @@
 #include "tovars.h"
 #include "params.h"
 
-BOOL_VAR (textord_show_initial_words, false, "Display separate words");
-BOOL_VAR (textord_show_new_words, false, "Display separate words");
-BOOL_VAR (textord_show_fixed_words, false,
-"Display forced fixed pitch words");
-BOOL_VAR (textord_blocksall_fixed, false, "Moan about prop blocks");
-BOOL_VAR (textord_blocksall_prop, false,
-"Moan about fixed pitch blocks");
-BOOL_VAR (textord_blocksall_testing, false, "Dump stats when moaning");
-BOOL_VAR (textord_test_mode, false, "Do current test");
-INT_VAR (textord_dotmatrix_gap, 3,
-"Max pixel gap for broken pixed pitch");
-INT_VAR (textord_debug_block, 0, "Block to do debug on");
-INT_VAR (textord_pitch_range, 2, "Max range test on pitch");
-double_VAR (textord_wordstats_smooth_factor, 0.05,
-"Smoothing gap stats");
-double_VAR (textord_width_smooth_factor, 0.10,
-"Smoothing width stats");
-double_VAR (textord_words_width_ile, 0.4,
-"Ile of blob widths for space est");
-double_VAR (textord_words_maxspace, 4.0, "Multiple of xheight");
-double_VAR (textord_words_default_maxspace, 3.5,
-"Max believable third space");
-double_VAR (textord_words_default_minspace, 0.6,
-"Fraction of xheight");
-double_VAR (textord_words_min_minspace, 0.3, "Fraction of xheight");
-double_VAR (textord_words_default_nonspace, 0.2,
-"Fraction of xheight");
-double_VAR(textord_words_initial_lower, 0.25,
-                  "Max initial cluster size");
-double_VAR (textord_words_initial_upper, 0.15,
-"Min initial cluster spacing");
-double_VAR (textord_words_minlarge, 0.75,
-"Fraction of valid gaps needed");
-double_VAR (textord_words_pitchsd_threshold, 0.040,
-"Pitch sync threshold");
-double_VAR (textord_words_def_fixed, 0.016,
-"Threshold for definite fixed");
-double_VAR (textord_words_def_prop, 0.090,
-"Threshold for definite prop");
-INT_VAR (textord_words_veto_power, 5,
-"Rows required to outvote a veto");
-double_VAR (textord_pitch_rowsimilarity, 0.08,
-"Fraction of xheight for sameness");
-BOOL_VAR (textord_pitch_scalebigwords, false,
-"Scale scores on big words");
+namespace tesseract {
+
+BOOL_VAR(textord_show_initial_words, false, "Display separate words");
+BOOL_VAR(textord_show_new_words, false, "Display separate words");
+BOOL_VAR(textord_show_fixed_words, false, "Display forced fixed pitch words");
+BOOL_VAR(textord_blocksall_fixed, false, "Moan about prop blocks");
+BOOL_VAR(textord_blocksall_prop, false, "Moan about fixed pitch blocks");
+BOOL_VAR(textord_blocksall_testing, false, "Dump stats when moaning");
+BOOL_VAR(textord_test_mode, false, "Do current test");
+INT_VAR(textord_dotmatrix_gap, 3, "Max pixel gap for broken pixed pitch");
+INT_VAR(textord_debug_block, 0, "Block to do debug on");
+INT_VAR(textord_pitch_range, 2, "Max range test on pitch");
+double_VAR(textord_wordstats_smooth_factor, 0.05, "Smoothing gap stats");
+double_VAR(textord_width_smooth_factor, 0.10, "Smoothing width stats");
+double_VAR(textord_words_width_ile, 0.4, "Ile of blob widths for space est");
+double_VAR(textord_words_maxspace, 4.0, "Multiple of xheight");
+double_VAR(textord_words_default_maxspace, 3.5, "Max believable third space");
+double_VAR(textord_words_default_minspace, 0.6, "Fraction of xheight");
+double_VAR(textord_words_min_minspace, 0.3, "Fraction of xheight");
+double_VAR(textord_words_default_nonspace, 0.2, "Fraction of xheight");
+double_VAR(textord_words_initial_lower, 0.25, "Max initial cluster size");
+double_VAR(textord_words_initial_upper, 0.15, "Min initial cluster spacing");
+double_VAR(textord_words_minlarge, 0.75, "Fraction of valid gaps needed");
+double_VAR(textord_words_pitchsd_threshold, 0.040, "Pitch sync threshold");
+double_VAR(textord_words_def_fixed, 0.016, "Threshold for definite fixed");
+double_VAR(textord_words_def_prop, 0.090, "Threshold for definite prop");
+INT_VAR(textord_words_veto_power, 5, "Rows required to outvote a veto");
+double_VAR(textord_pitch_rowsimilarity, 0.08, "Fraction of xheight for sameness");
+BOOL_VAR(textord_pitch_scalebigwords, false, "Scale scores on big words");
 double_VAR(words_initial_lower, 0.5, "Max initial cluster size");
-double_VAR (words_initial_upper, 0.15, "Min initial cluster spacing");
-double_VAR (words_default_prop_nonspace, 0.25, "Fraction of xheight");
-double_VAR (words_default_fixed_space, 0.75, "Fraction of xheight");
-double_VAR (words_default_fixed_limit, 0.6, "Allowed size variance");
-double_VAR (textord_words_definite_spread, 0.30,
-"Non-fuzzy spacing region");
-double_VAR (textord_spacesize_ratiofp, 2.8,
-"Min ratio space/nonspace");
-double_VAR (textord_spacesize_ratioprop, 2.0,
-"Min ratio space/nonspace");
-double_VAR (textord_fpiqr_ratio, 1.5, "Pitch IQR/Gap IQR threshold");
-double_VAR (textord_max_pitch_iqr, 0.20, "Xh fraction noise in pitch");
-double_VAR (textord_fp_min_width, 0.5, "Min width of decent blobs");
+double_VAR(words_initial_upper, 0.15, "Min initial cluster spacing");
+double_VAR(words_default_prop_nonspace, 0.25, "Fraction of xheight");
+double_VAR(words_default_fixed_space, 0.75, "Fraction of xheight");
+double_VAR(words_default_fixed_limit, 0.6, "Allowed size variance");
+double_VAR(textord_words_definite_spread, 0.30, "Non-fuzzy spacing region");
+double_VAR(textord_spacesize_ratiofp, 2.8, "Min ratio space/nonspace");
+double_VAR(textord_spacesize_ratioprop, 2.0, "Min ratio space/nonspace");
+double_VAR(textord_fpiqr_ratio, 1.5, "Pitch IQR/Gap IQR threshold");
+double_VAR(textord_max_pitch_iqr, 0.20, "Xh fraction noise in pitch");
+double_VAR(textord_fp_min_width, 0.5, "Min width of decent blobs");
+
+} // namespace tesseract

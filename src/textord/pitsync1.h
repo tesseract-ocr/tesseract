@@ -17,104 +17,103 @@
  *
  **********************************************************************/
 
-#ifndef           PITSYNC1_H
-#define           PITSYNC1_H
+#ifndef PITSYNC1_H
+#define PITSYNC1_H
 
-#include          "elst.h"
-#include          "clst.h"
-#include          "blobbox.h"
-#include          "params.h"
-#include          "statistc.h"
-#include          "pithsync.h"
+#include "blobbox.h"
+#include "clst.h"
+#include "elst.h"
+#include "params.h"
+#include "pithsync.h"
+#include "statistc.h"
+
+namespace tesseract {
 
 class FPSEGPT_LIST;
 
-class FPSEGPT:public ELIST_LINK
-{
-  public:
-    FPSEGPT() = default;
-    FPSEGPT(           //constructor
-            int16_t x);  //position
-    FPSEGPT(                           //constructor
-            int16_t x,                 //position
-            bool faking,               //faking this one
-            int16_t offset,            //extra cost dist
-            int16_t region_index,      //segment number
-            int16_t pitch,             //proposed pitch
-            int16_t pitch_error,       //allowed tolerance
-            FPSEGPT_LIST *prev_list);  //previous segment
-    FPSEGPT(FPCUTPT *cutpt);  //build from new type
+class FPSEGPT : public ELIST_LINK {
+public:
+  FPSEGPT() = default;
+  FPSEGPT(                      // constructor
+      int16_t x);               // position
+  FPSEGPT(                      // constructor
+      int16_t x,                // position
+      bool faking,              // faking this one
+      int16_t offset,           // extra cost dist
+      int16_t region_index,     // segment number
+      int16_t pitch,            // proposed pitch
+      int16_t pitch_error,      // allowed tolerance
+      FPSEGPT_LIST *prev_list); // previous segment
+  FPSEGPT(FPCUTPT *cutpt);      // build from new type
 
-    int32_t position() {  // access func
-      return xpos;
-    }
-    double cost_function() {
-      return cost;
-    }
-    double squares() {
-      return sq_sum;
-    }
-    double sum() {
-      return mean_sum;
-    }
-    FPSEGPT *previous() {
-      return pred;
-    }
-    int16_t cheap_cuts() const {  //no of cheap cuts
-      return mid_cuts;
-    }
+  int32_t position() { // access func
+    return xpos;
+  }
+  double cost_function() {
+    return cost;
+  }
+  double squares() {
+    return sq_sum;
+  }
+  double sum() {
+    return mean_sum;
+  }
+  FPSEGPT *previous() {
+    return pred;
+  }
+  int16_t cheap_cuts() const { // no of cheap cuts
+    return mid_cuts;
+  }
 
-    bool faked;                  //faked split point
-    bool terminal;               //successful end
-    int16_t fake_count;          //total fakes to here
+  bool faked;         // faked split point
+  bool terminal;      // successful end
+  int16_t fake_count; // total fakes to here
 
-  private:
-    int16_t mid_cuts;            //no of cheap cuts
-    int32_t xpos;                //location
-    FPSEGPT *pred;               //optimal previous
-    double mean_sum;             //mean so far
-    double sq_sum;               //summed distsances
-    double cost;                 //cost function
+private:
+  int16_t mid_cuts; // no of cheap cuts
+  int32_t xpos;     // location
+  FPSEGPT *pred;    // optimal previous
+  double mean_sum;  // mean so far
+  double sq_sum;    // summed distsances
+  double cost;      // cost function
 };
 
-ELISTIZEH (FPSEGPT) CLISTIZEH (FPSEGPT_LIST)
-extern
-INT_VAR_H (pitsync_linear_version, 0, "Use new fast algorithm");
-extern
-double_VAR_H (pitsync_joined_edge, 0.75,
-"Dist inside big blob for chopping");
-extern
-double_VAR_H (pitsync_offset_freecut_fraction, 0.25,
-"Fraction of cut for free cuts");
-extern
-INT_VAR_H (pitsync_fake_depth, 1, "Max advance fake generation");
-double check_pitch_sync(                        //find segmentation
-                        BLOBNBOX_IT *blob_it,   //blobs to do
-                        int16_t blob_count,       //no of blobs
-                        int16_t pitch,            //pitch estimate
-                        int16_t pitch_error,      //tolerance
-                        STATS *projection,      //vertical
-                        FPSEGPT_LIST *seg_list  //output list
-                       );
-void make_illegal_segment(                          //find segmentation
-                          FPSEGPT_LIST *prev_list,  //previous segments
-                          TBOX blob_box,             //bounding box
-                          BLOBNBOX_IT blob_it,      //iterator
-                          int16_t region_index,       //number of segment
-                          int16_t pitch,              //pitch estimate
-                          int16_t pitch_error,        //tolerance
-                          FPSEGPT_LIST *seg_list    //output list
-                         );
-int16_t vertical_torow_projection(                   //project whole row
-                                TO_ROW *row,       //row to do
-                                STATS *projection  //output
-                               );
-void vertical_cblob_projection(               //project outlines
-                               C_BLOB *blob,  //blob to project
-                               STATS *stats   //output
-                              );
-void vertical_coutline_projection(                     //project outlines
-                                  C_OUTLINE *outline,  //outline to project
-                                  STATS *stats         //output
-                                 );
+ELISTIZEH(FPSEGPT)
+CLISTIZEH(FPSEGPT_LIST)
+extern INT_VAR_H(pitsync_linear_version, 0, "Use new fast algorithm");
+extern double_VAR_H(pitsync_joined_edge, 0.75, "Dist inside big blob for chopping");
+extern double_VAR_H(pitsync_offset_freecut_fraction, 0.25, "Fraction of cut for free cuts");
+extern INT_VAR_H(pitsync_fake_depth, 1, "Max advance fake generation");
+double check_pitch_sync(   // find segmentation
+    BLOBNBOX_IT *blob_it,  // blobs to do
+    int16_t blob_count,    // no of blobs
+    int16_t pitch,         // pitch estimate
+    int16_t pitch_error,   // tolerance
+    STATS *projection,     // vertical
+    FPSEGPT_LIST *seg_list // output list
+);
+void make_illegal_segment(   // find segmentation
+    FPSEGPT_LIST *prev_list, // previous segments
+    TBOX blob_box,           // bounding box
+    BLOBNBOX_IT blob_it,     // iterator
+    int16_t region_index,    // number of segment
+    int16_t pitch,           // pitch estimate
+    int16_t pitch_error,     // tolerance
+    FPSEGPT_LIST *seg_list   // output list
+);
+int16_t vertical_torow_projection( // project whole row
+    TO_ROW *row,                   // row to do
+    STATS *projection              // output
+);
+void vertical_cblob_projection( // project outlines
+    C_BLOB *blob,               // blob to project
+    STATS *stats                // output
+);
+void vertical_coutline_projection( // project outlines
+    C_OUTLINE *outline,            // outline to project
+    STATS *stats                   // output
+);
+
+} // namespace tesseract
+
 #endif

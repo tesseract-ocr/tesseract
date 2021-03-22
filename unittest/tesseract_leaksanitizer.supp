@@ -1,0 +1,12 @@
+# Suppress memory leaks.
+# Use with LSAN_OPTIONS=suppressions=tesseract_lsan.supp
+leak:FcLangSetCreate
+leak:FcPatternObjectAddWithBinding
+leak:FcPatternObjectInsertElt
+leak:FcValueListAppend
+leak:FcValueListDuplicate
+leak:FcValueListPrepend
+leak:IA__FcLangSetCreate
+leak:IA__FcValueSave
+leak:libfontconfig.so
+leak:libfreetype.so

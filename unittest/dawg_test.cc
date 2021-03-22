@@ -9,29 +9,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cstdlib>      // for system
-#include <fstream>      // for ifstream
+#include "include_gunit.h"
+
+#include "ratngs.h"
+#include "trie.h"
+#include "unicharset.h"
+
+#include <sys/stat.h>
+#include <cstdlib> // for system
+#include <fstream> // for ifstream
 #include <set>
 #include <string>
 #include <vector>
 
-#include "ratngs.h"
-#include "unicharset.h"
-#include "trie.h"
+#ifndef SW_TESTING
+#  define wordlist2dawg_prog "wordlist2dawg"
+#  define dawg2wordlist_prog "dawg2wordlist"
+#endif
 
-#include "include_gunit.h"
-
-namespace {
+namespace tesseract {
 
 // Test some basic functionality dealing with Dawgs (compressed dictionaries,
 // aka Directed Acyclic Word Graphs).
 class DawgTest : public testing::Test {
- protected:
-  void SetUp() {
+protected:
+  void SetUp() override {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
-  void LoadWordlist(const std::string& filename, std::set<std::string>* words) const {
+  void LoadWordlist(const std::string &filename, std::set<std::string> *words) const {
     std::ifstream file(filename);
     if (file.is_open()) {
       std::string line;
@@ -46,34 +53,30 @@ class DawgTest : public testing::Test {
       file.close();
     }
   }
-  std::string TessBinaryPath(const std::string& name) const {
-    return file::JoinPath(TESSBIN_DIR, "src/training/" + name);
+  std::string TessBinaryPath(const std::string &name) const {
+    return file::JoinPath(TESSBIN_DIR, name);
   }
-  std::string OutputNameToPath(const std::string& name) const {
+  std::string OutputNameToPath(const std::string &name) const {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
-  int RunCommand(const std::string& program, const std::string& arg1,
-                 const std::string& arg2, const std::string& arg3) const {
-    std::string cmdline =
-      TessBinaryPath(program) + " " + arg1 + " " + arg2 + " " + arg3;
+  int RunCommand(const std::string &program, const std::string &arg1, const std::string &arg2,
+                 const std::string &arg3) const {
+    std::string cmdline = TessBinaryPath(program) + " " + arg1 + " " + arg2 + " " + arg3;
     return system(cmdline.c_str());
   }
   // Test that we are able to convert a wordlist file (one "word" per line) to
   // a dawg (a compressed format) and then extract the original wordlist back
   // out using the tools "wordlist2dawg" and "dawg2wordlist."
-  void TestDawgRoundTrip(const std::string& unicharset_filename,
-                         const std::string& wordlist_filename) const {
+  void TestDawgRoundTrip(const std::string &unicharset_filename,
+                         const std::string &wordlist_filename) const {
     std::set<std::string> orig_words, roundtrip_words;
     std::string unicharset = file::JoinPath(TESTING_DIR, unicharset_filename);
     std::string orig_wordlist = file::JoinPath(TESTING_DIR, wordlist_filename);
     std::string output_dawg = OutputNameToPath(wordlist_filename + ".dawg");
     std::string output_wordlist = OutputNameToPath(wordlist_filename);
     LoadWordlist(orig_wordlist, &orig_words);
-    EXPECT_EQ(
-        RunCommand("wordlist2dawg", orig_wordlist, output_dawg, unicharset), 0);
-    EXPECT_EQ(
-        RunCommand("dawg2wordlist", unicharset, output_dawg, output_wordlist),
-        0);
+    EXPECT_EQ(RunCommand(wordlist2dawg_prog, orig_wordlist, output_dawg, unicharset), 0);
+    EXPECT_EQ(RunCommand(dawg2wordlist_prog, unicharset, output_dawg, output_wordlist), 0);
     LoadWordlist(output_wordlist, &roundtrip_words);
     EXPECT_EQ(orig_words, roundtrip_words);
   }
@@ -86,8 +89,7 @@ TEST_F(DawgTest, TestDawgConversion) {
 TEST_F(DawgTest, TestMatching) {
   UNICHARSET unicharset;
   unicharset.load_from_file(file::JoinPath(TESTING_DIR, "eng.unicharset").c_str());
-  tesseract::Trie trie(tesseract::DAWG_TYPE_WORD, "basic_dawg", NGRAM_PERM,
-                       unicharset.size(), 0);
+  tesseract::Trie trie(tesseract::DAWG_TYPE_WORD, "basic_dawg", NGRAM_PERM, unicharset.size(), 0);
   WERD_CHOICE space_apos(" '", unicharset);
   trie.add_word_to_dawg(space_apos);
 
@@ -105,4 +107,4 @@ TEST_F(DawgTest, TestMatching) {
   EXPECT_TRUE(trie.prefix_in_dawg(space_apos, true));
 }
 
-}  // namespace
+} // namespace tesseract

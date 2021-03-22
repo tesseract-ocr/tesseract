@@ -14,9 +14,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
+
 #include "outfeat.h"
 
 #include "classify.h"
@@ -26,11 +24,12 @@
 
 #include <cstdio>
 
+namespace tesseract {
+
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-namespace tesseract {
+
 /**
  * Convert each segment in the outline to a feature
  * and return the features.
@@ -45,24 +44,25 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
   FEATURE_SET FeatureSet;
   float XScale, YScale;
 
-  FeatureSet = NewFeatureSet (MAX_OUTLINE_FEATURES);
-  if (Blob == nullptr)
+  FeatureSet = NewFeatureSet(MAX_OUTLINE_FEATURES);
+  if (Blob == nullptr) {
     return (FeatureSet);
+  }
 
-  Outlines = ConvertBlob (Blob);
+  Outlines = ConvertBlob(Blob);
 
   NormalizeOutlines(Outlines, &XScale, &YScale);
   RemainingOutlines = Outlines;
   iterate(RemainingOutlines) {
-    Outline = static_cast<MFOUTLINE>first_node (RemainingOutlines);
+    Outline = static_cast<MFOUTLINE> first_node(RemainingOutlines);
     ConvertToOutlineFeatures(Outline, FeatureSet);
   }
-  if (classify_norm_method == baseline)
+  if (classify_norm_method == baseline) {
     NormalizeOutlineX(FeatureSet);
+  }
   FreeOutlines(Outlines);
   return (FeatureSet);
-}                                /* ExtractOutlineFeatures */
-}  // namespace tesseract
+} /* ExtractOutlineFeatures */
 
 /*----------------------------------------------------------------------------
               Private Code
@@ -80,9 +80,7 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
  * @param End ending point of outline-feature
  * @param FeatureSet set to add outline-feature to
  */
-void AddOutlineFeatureToSet(FPOINT *Start,
-                            FPOINT *End,
-                            FEATURE_SET FeatureSet) {
+void AddOutlineFeatureToSet(FPOINT *Start, FPOINT *End, FEATURE_SET FeatureSet) {
   FEATURE Feature;
 
   Feature = NewFeature(&OutlineFeatDesc);
@@ -92,8 +90,7 @@ void AddOutlineFeatureToSet(FPOINT *Start,
   Feature->Params[OutlineFeatLength] = DistanceBetween(*Start, *End);
   AddFeature(FeatureSet, Feature);
 
-}                                /* AddOutlineFeatureToSet */
-
+} /* AddOutlineFeatureToSet */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -110,8 +107,9 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   FPOINT FeatureStart;
   FPOINT FeatureEnd;
 
-  if (DegenerateOutline (Outline))
+  if (DegenerateOutline(Outline)) {
     return;
+  }
 
   First = Outline;
   Next = First;
@@ -120,18 +118,16 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
     Next = NextPointAfter(Next);
 
     /* note that an edge is hidden if the ending point of the edge is
-       marked as hidden.  This situation happens because the order of
-       the outlines is reversed when they are converted from the old
-       format.  In the old format, a hidden edge is marked by the
-       starting point for that edge. */
+   marked as hidden.  This situation happens because the order of
+   the outlines is reversed when they are converted from the old
+   format.  In the old format, a hidden edge is marked by the
+   starting point for that edge. */
     if (!PointAt(Next)->Hidden) {
       FeatureEnd = PointAt(Next)->Point;
       AddOutlineFeatureToSet(&FeatureStart, &FeatureEnd, FeatureSet);
     }
-  }
-  while (Next != First);
-}                                /* ConvertToOutlineFeatures */
-
+  } while (Next != First);
+} /* ConvertToOutlineFeatures */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -150,8 +146,9 @@ void NormalizeOutlineX(FEATURE_SET FeatureSet) {
   float TotalWeight = 0.0;
   float Origin;
 
-  if (FeatureSet->NumFeatures <= 0)
+  if (FeatureSet->NumFeatures <= 0) {
     return;
+  }
 
   for (i = 0; i < FeatureSet->NumFeatures; i++) {
     Feature = FeatureSet->Features[i];
@@ -165,4 +162,6 @@ void NormalizeOutlineX(FEATURE_SET FeatureSet) {
     Feature = FeatureSet->Features[i];
     Feature->Params[OutlineFeatX] -= Origin;
   }
-}                                /* NormalizeOutlineX */
+} /* NormalizeOutlineX */
+
+} // namespace tesseract

@@ -2,7 +2,6 @@
  ** Filename:    intproto.h
  ** Purpose:     Definition of data structures for integer protos.
  ** Author:      Dan Johnson
- ** History:     Thu Feb  7 12:58:45 1991, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,12 +21,13 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include <tesseract/genericvector.h>
 #include "matchdefs.h"
 #include "mfoutline.h"
 #include "protos.h"
 #include "scrollview.h"
 #include "unicharset.h"
+
+namespace tesseract {
 
 class FCOORD;
 
@@ -57,16 +57,12 @@ class FCOORD;
 #define CLASSES_PER_CP_WERD (CLASSES_PER_CP / NUM_BITS_PER_CLASS)
 #define PROTOS_PER_PP_WERD BITS_PER_WERD
 #define BITS_PER_CP_VECTOR (CLASSES_PER_CP * NUM_BITS_PER_CLASS)
-#define MAX_NUM_CLASS_PRUNERS \
-  ((MAX_NUM_CLASSES + CLASSES_PER_CP - 1) / CLASSES_PER_CP)
+#define MAX_NUM_CLASS_PRUNERS ((MAX_NUM_CLASSES + CLASSES_PER_CP - 1) / CLASSES_PER_CP)
 #define WERDS_PER_CP_VECTOR (BITS_PER_CP_VECTOR / BITS_PER_WERD)
-#define WERDS_PER_PP_VECTOR \
-  ((PROTOS_PER_PROTO_SET + BITS_PER_WERD - 1) / BITS_PER_WERD)
+#define WERDS_PER_PP_VECTOR ((PROTOS_PER_PROTO_SET + BITS_PER_WERD - 1) / BITS_PER_WERD)
 #define WERDS_PER_PP (NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR)
-#define WERDS_PER_CP \
-  (NUM_CP_BUCKETS * NUM_CP_BUCKETS * NUM_CP_BUCKETS * WERDS_PER_CP_VECTOR)
-#define WERDS_PER_CONFIG_VEC \
-  ((MAX_NUM_CONFIGS + BITS_PER_WERD - 1) / BITS_PER_WERD)
+#define WERDS_PER_CP (NUM_CP_BUCKETS * NUM_CP_BUCKETS * NUM_CP_BUCKETS * WERDS_PER_CP_VECTOR)
+#define WERDS_PER_CONFIG_VEC ((MAX_NUM_CONFIGS + BITS_PER_WERD - 1) / BITS_PER_WERD)
 
 /* The first 3 dimensions of the CLASS_PRUNER_STRUCT are the
  * 3 axes of the quantized feature space.
@@ -74,56 +70,46 @@ class FCOORD;
  * 4th dimension is determined by using CPrunerWordIndexFor(c),
  * where c is the corresponding class id. */
 struct CLASS_PRUNER_STRUCT {
-  uint32_t p[NUM_CP_BUCKETS][NUM_CP_BUCKETS][NUM_CP_BUCKETS]
-            [WERDS_PER_CP_VECTOR];
+  uint32_t p[NUM_CP_BUCKETS][NUM_CP_BUCKETS][NUM_CP_BUCKETS][WERDS_PER_CP_VECTOR];
 };
 
-typedef struct {
+struct INT_PROTO_STRUCT {
   int8_t A;
   uint8_t B;
   int8_t C;
   uint8_t Angle;
   uint32_t Configs[WERDS_PER_CONFIG_VEC];
-}
+};
+using INT_PROTO = INT_PROTO_STRUCT *;
 
-INT_PROTO_STRUCT,
-    *INT_PROTO;
+typedef uint32_t PROTO_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR];
 
-typedef uint32_t PROTO_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS]
-                             [WERDS_PER_PP_VECTOR];
-
-typedef struct {
+struct PROTO_SET_STRUCT {
   PROTO_PRUNER ProtoPruner;
   INT_PROTO_STRUCT Protos[PROTOS_PER_PROTO_SET];
-}
-
-PROTO_SET_STRUCT,
-    *PROTO_SET;
+};
+using PROTO_SET = PROTO_SET_STRUCT *;
 
 typedef uint32_t CONFIG_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][4];
 
-typedef struct {
+struct INT_CLASS_STRUCT {
   uint16_t NumProtos;
   uint8_t NumProtoSets;
   uint8_t NumConfigs;
   PROTO_SET ProtoSets[MAX_NUM_PROTO_SETS];
-  uint8_t* ProtoLengths;
+  uint8_t *ProtoLengths;
   uint16_t ConfigLengths[MAX_NUM_CONFIGS];
-  int font_set_id;  // FontSet id, see above
-}
+  int font_set_id; // FontSet id, see above
+};
+using INT_CLASS = INT_CLASS_STRUCT *;
 
-INT_CLASS_STRUCT,
-    *INT_CLASS;
-
-typedef struct {
+struct INT_TEMPLATES_STRUCT {
   int NumClasses;
   int NumClassPruners;
   INT_CLASS Class[MAX_NUM_CLASSES];
-  CLASS_PRUNER_STRUCT* ClassPruners[MAX_NUM_CLASS_PRUNERS];
-}
-
-INT_TEMPLATES_STRUCT,
-    *INT_TEMPLATES;
+  CLASS_PRUNER_STRUCT *ClassPruners[MAX_NUM_CLASS_PRUNERS];
+};
+using INT_TEMPLATES = INT_TEMPLATES_STRUCT *;
 
 /* definitions of integer features*/
 #define MAX_NUM_INT_FEATURES 512
@@ -133,7 +119,7 @@ struct INT_FEATURE_STRUCT {
   INT_FEATURE_STRUCT() : X(0), Y(0), Theta(0), CP_misses(0) {}
   // Builds a feature from an FCOORD for position with all the necessary
   // clipping and rounding.
-  INT_FEATURE_STRUCT(const FCOORD& pos, uint8_t theta);
+  INT_FEATURE_STRUCT(const FCOORD &pos, uint8_t theta);
   // Builds a feature from ints with all the necessary clipping and casting.
   INT_FEATURE_STRUCT(int x, int y, int theta);
 
@@ -147,16 +133,11 @@ struct INT_FEATURE_STRUCT {
   }
 };
 
-using INT_FEATURE = INT_FEATURE_STRUCT*;
+using INT_FEATURE = INT_FEATURE_STRUCT *;
 
 typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
 
-enum IntmatcherDebugAction {
-  IDA_ADAPTIVE,
-  IDA_STATIC,
-  IDA_SHAPE_INDEX,
-  IDA_BOTH
-};
+enum IntmatcherDebugAction { IDA_ADAPTIVE, IDA_STATIC, IDA_SHAPE_INDEX, IDA_BOTH };
 
 /**----------------------------------------------------------------------------
             Macros
@@ -165,15 +146,13 @@ enum IntmatcherDebugAction {
 #define MaxNumIntProtosIn(C) (C->NumProtoSets * PROTOS_PER_PROTO_SET)
 #define SetForProto(P) (P / PROTOS_PER_PROTO_SET)
 #define IndexForProto(P) (P % PROTOS_PER_PROTO_SET)
-#define ProtoForProtoId(C, P) \
-  (&((C->ProtoSets[SetForProto(P)])->Protos[IndexForProto(P)]))
-#define PPrunerWordIndexFor(I) \
-  (((I) % PROTOS_PER_PROTO_SET) / PROTOS_PER_PP_WERD)
+#define ProtoForProtoId(C, P) (&((C->ProtoSets[SetForProto(P)])->Protos[IndexForProto(P)]))
+#define PPrunerWordIndexFor(I) (((I) % PROTOS_PER_PROTO_SET) / PROTOS_PER_PP_WERD)
 #define PPrunerBitIndexFor(I) ((I) % PROTOS_PER_PP_WERD)
 #define PPrunerMaskFor(I) (1 << PPrunerBitIndexFor(I))
 
 #define MaxNumClassesIn(T) (T->NumClassPruners * CLASSES_PER_CP)
-#define LegalClassId(c) ((c) >= 0 && (c) <= MAX_CLASS_ID)
+#define LegalClassId(c) ((c) >= 0 && (c) < MAX_NUM_CLASSES)
 #define UnusedClassIdIn(T, c) ((T)->Class[c] == nullptr)
 #define ClassForClassId(T, c) ((T)->Class[c])
 #define ClassPrunersFor(T) ((T)->ClassPruner)
@@ -181,8 +160,7 @@ enum IntmatcherDebugAction {
 #define CPrunerFor(T, c) ((T)->ClassPruners[CPrunerIdFor(c)])
 #define CPrunerWordIndexFor(c) (((c) % CLASSES_PER_CP) / CLASSES_PER_CP_WERD)
 #define CPrunerBitIndexFor(c) (((c) % CLASSES_PER_CP) % CLASSES_PER_CP_WERD)
-#define CPrunerMaskFor(L, c) \
-  (((L) + 1) << CPrunerBitIndexFor(c) * NUM_BITS_PER_CLASS)
+#define CPrunerMaskFor(L, c) (((L) + 1) << CPrunerBitIndexFor(c) * NUM_BITS_PER_CLASS)
 
 /* DEBUG macros*/
 #define PRINT_MATCH_SUMMARY 0x001
@@ -209,11 +187,9 @@ int AddIntConfig(INT_CLASS Class);
 
 int AddIntProto(INT_CLASS Class);
 
-void AddProtoToClassPruner(PROTO Proto, CLASS_ID ClassId,
-                           INT_TEMPLATES Templates);
+void AddProtoToClassPruner(PROTO Proto, CLASS_ID ClassId, INT_TEMPLATES Templates);
 
-void AddProtoToProtoPruner(PROTO Proto, int ProtoId, INT_CLASS Class,
-                           bool debug);
+void AddProtoToProtoPruner(PROTO Proto, int ProtoId, INT_CLASS Class, bool debug);
 
 uint8_t Bucket8For(float param, float offset, int num_buckets);
 uint16_t Bucket16For(float param, float offset, int num_buckets);
@@ -224,7 +200,7 @@ void UpdateMatchDisplay();
 
 void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class);
 
-void DisplayIntFeature(const INT_FEATURE_STRUCT* Feature, float Evidence);
+void DisplayIntFeature(const INT_FEATURE_STRUCT *Feature, float Evidence);
 
 void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, float Evidence);
 
@@ -232,21 +208,20 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs);
 
 INT_TEMPLATES NewIntTemplates();
 
+TESS_API
 void free_int_templates(INT_TEMPLATES templates);
 
 void ShowMatchDisplay();
 
-namespace tesseract {
-
 // Clears the given window and draws the featurespace guides for the
 // appropriate normalization method.
-void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView* window);
-
-}  // namespace tesseract.
+TESS_API
+void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView *window);
 
 /*----------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-void RenderIntFeature(ScrollView* window, const INT_FEATURE_STRUCT* Feature,
+TESS_API
+void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT *Feature,
                       ScrollView::Color color);
 
 void InitIntMatchWindowIfReqd();
@@ -257,7 +232,10 @@ void InitFeatureDisplayWindowIfReqd();
 
 // Creates a window of the appropriate size for displaying elements
 // in feature space.
-ScrollView* CreateFeatureSpaceWindow(const char* name, int xpos, int ypos);
-#endif  // GRAPHICS_DISABLED
+TESS_API
+ScrollView *CreateFeatureSpaceWindow(const char *name, int xpos, int ypos);
+#endif // !GRAPHICS_DISABLED
+
+} // namespace tesseract
 
 #endif

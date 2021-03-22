@@ -20,35 +20,36 @@
 
 #include <tesseract/resultiterator.h>
 
-#include <set>
-#include <vector>
-#include "allheaders.h"
 #include "pageres.h"
-#include <tesseract/strngs.h>
 #include "tesseractclass.h"
 #include "unicharset.h"
-#include "unicodes.h"
+
+#include <allheaders.h>
+
+#include <set>
+#include <vector>
+
+static const char *const kLRM = "\u200E"; // Left-to-Right Mark
+static const char *const kRLM = "\u200F"; // Right-to-Left Mark
 
 namespace tesseract {
 
-ResultIterator::ResultIterator(const LTRResultIterator& resit)
-    : LTRResultIterator(resit) {
+ResultIterator::ResultIterator(const LTRResultIterator &resit) : LTRResultIterator(resit) {
   in_minor_direction_ = false;
   at_beginning_of_minor_run_ = false;
   preserve_interword_spaces_ = false;
 
-  auto* p = ParamUtils::FindParam<BoolParam>("preserve_interword_spaces",
-                                             GlobalParams()->bool_params,
-                                             tesseract_->params()->bool_params);
-  if (p != nullptr)
+  auto *p = ParamUtils::FindParam<BoolParam>(
+      "preserve_interword_spaces", GlobalParams()->bool_params, tesseract_->params()->bool_params);
+  if (p != nullptr) {
     preserve_interword_spaces_ = (bool)(*p);
+  }
 
   current_paragraph_is_ltr_ = CurrentParagraphIsLtr();
   MoveToLogicalStartOfTextline();
 }
 
-ResultIterator* ResultIterator::StartOfParagraph(
-    const LTRResultIterator& resit) {
+ResultIterator *ResultIterator::StartOfParagraph(const LTRResultIterator &resit) {
   return new ResultIterator(resit);
 }
 
@@ -57,8 +58,9 @@ bool ResultIterator::ParagraphIsLtr() const {
 }
 
 bool ResultIterator::CurrentParagraphIsLtr() const {
-  if (!it_->word())
-    return true;  // doesn't matter.
+  if (!it_->word()) {
+    return true; // doesn't matter.
+  }
   LTRResultIterator it(*this);
   it.RestartParagraph();
   // Try to figure out the ltr-ness of the paragraph.  The rules below
@@ -88,25 +90,27 @@ bool ResultIterator::CurrentParagraphIsLtr() const {
   int num_ltr, num_rtl;
   num_rtl = leftmost_rtl ? 1 : 0;
   num_ltr = (it.WordDirection() == DIR_LEFT_TO_RIGHT) ? 1 : 0;
-  for (it.Next(RIL_WORD);
-       !it.Empty(RIL_WORD) && !it.IsAtBeginningOf(RIL_TEXTLINE);
+  for (it.Next(RIL_WORD); !it.Empty(RIL_WORD) && !it.IsAtBeginningOf(RIL_TEXTLINE);
        it.Next(RIL_WORD)) {
     StrongScriptDirection dir = it.WordDirection();
     rightmost_ltr = (dir == DIR_LEFT_TO_RIGHT);
     num_rtl += (dir == DIR_RIGHT_TO_LEFT) ? 1 : 0;
     num_ltr += rightmost_ltr ? 1 : 0;
   }
-  if (leftmost_rtl)
+  if (leftmost_rtl) {
     return false;
-  if (rightmost_ltr)
+  }
+  if (rightmost_ltr) {
     return true;
+  }
   // First line is ambiguous.  Take statistics on the whole paragraph.
-  if (!it.Empty(RIL_WORD) && !it.IsAtBeginningOf(RIL_PARA))
+  if (!it.Empty(RIL_WORD) && !it.IsAtBeginningOf(RIL_PARA)) {
     do {
       StrongScriptDirection dir = it.WordDirection();
       num_rtl += (dir == DIR_RIGHT_TO_LEFT) ? 1 : 0;
       num_ltr += (dir == DIR_LEFT_TO_RIGHT) ? 1 : 0;
     } while (it.Next(RIL_WORD) && !it.IsAtBeginningOf(RIL_PARA));
+  }
   return num_ltr >= num_rtl;
 }
 
@@ -114,15 +118,17 @@ const int ResultIterator::kMinorRunStart = -1;
 const int ResultIterator::kMinorRunEnd = -2;
 const int ResultIterator::kComplexWord = -3;
 
-void ResultIterator::CalculateBlobOrder(
-    GenericVector<int>* blob_indices) const {
+void ResultIterator::CalculateBlobOrder(std::vector<int> *blob_indices) const {
   bool context_is_ltr = current_paragraph_is_ltr_ ^ in_minor_direction_;
   blob_indices->clear();
-  if (Empty(RIL_WORD))
+  if (Empty(RIL_WORD)) {
     return;
+  }
   if (context_is_ltr || it_->word()->UnicharsInReadingOrder()) {
     // Easy! just return the blobs in order;
-    for (int i = 0; i < word_length_; i++) blob_indices->push_back(i);
+    for (int i = 0; i < word_length_; i++) {
+      blob_indices->push_back(i);
+    }
     return;
   }
 
@@ -138,15 +144,15 @@ void ResultIterator::CalculateBlobOrder(
 
   // Step 1: Scan for and mark European Number sequences
   //   [:ET:]*[:EN:]+(([:ES:]|[:CS:])?[:EN:]+)*[:ET:]*
-  GenericVector<int> letter_types;
+  std::vector<int> letter_types;
+  letter_types.reserve(word_length_);
   for (int i = 0; i < word_length_; i++) {
     letter_types.push_back(it_->word()->SymbolDirection(i));
   }
   // Convert a single separtor sandwiched between two EN's into an EN.
   for (int i = 0; i + 2 < word_length_; i++) {
     if (letter_types[i] == U_EURO_NUM && letter_types[i + 2] == U_EURO_NUM &&
-        (letter_types[i + 1] == U_EURO_NUM_SEP ||
-         letter_types[i + 1] == U_COMMON_NUM_SEP)) {
+        (letter_types[i + 1] == U_EURO_NUM_SEP || letter_types[i + 1] == U_COMMON_NUM_SEP)) {
       letter_types[i + 1] = U_EURO_NUM;
     }
   }
@@ -160,7 +166,9 @@ void ResultIterator::CalculateBlobOrder(
       }
       if (j < word_length_ && letter_types[j] == U_EURO_NUM) {
         // The sequence [i..j] should be converted to all European Numbers.
-        for (int k = i; k < j; k++) letter_types[k] = U_EURO_NUM;
+        for (int k = i; k < j; k++) {
+          letter_types[k] = U_EURO_NUM;
+        }
       }
       j = i - 1;
       while (j > -1 && letter_types[j] == U_EURO_NUM_TERM) {
@@ -168,7 +176,9 @@ void ResultIterator::CalculateBlobOrder(
       }
       if (j > -1 && letter_types[j] == U_EURO_NUM) {
         // The sequence [j..i] should be converted to all European Numbers.
-        for (int k = j; k <= i; k++) letter_types[k] = U_EURO_NUM;
+        for (int k = j; k <= i; k++) {
+          letter_types[k] = U_EURO_NUM;
+        }
       }
     }
   }
@@ -191,7 +201,9 @@ void ResultIterator::CalculateBlobOrder(
         }
       }
       // [i..last_good] is the L sequence
-      for (int k = i; k <= last_good; k++) letter_types[k] = U_LTR;
+      for (int k = i; k <= last_good; k++) {
+        letter_types[k] = U_LTR;
+      }
       i = last_good + 1;
     } else {
       letter_types[i] = U_RTL;
@@ -208,18 +220,20 @@ void ResultIterator::CalculateBlobOrder(
       // left to right sequence.  scan to the beginning.
       int j = i - 1;
       for (; j >= 0 && letter_types[j] != U_RTL; j--) {
-      }  // pass
+      } // pass
       // Now (j, i] is LTR
-      for (int k = j + 1; k <= i; k++) blob_indices->push_back(k);
+      for (int k = j + 1; k <= i; k++) {
+        blob_indices->push_back(k);
+      }
       i = j;
     }
   }
   ASSERT_HOST(blob_indices->size() == word_length_);
 }
 
-static void PrintScriptDirs(const GenericVector<StrongScriptDirection>& dirs) {
-  for (int i = 0; i < dirs.size(); i++) {
-    switch (dirs[i]) {
+static void PrintScriptDirs(const std::vector<StrongScriptDirection> &dirs) {
+  for (auto dir : dirs) {
+    switch (dir) {
       case DIR_NEUTRAL:
         tprintf("N ");
         break;
@@ -240,42 +254,41 @@ static void PrintScriptDirs(const GenericVector<StrongScriptDirection>& dirs) {
   tprintf("\n");
 }
 
-void ResultIterator::CalculateTextlineOrder(
-    bool paragraph_is_ltr, const LTRResultIterator& resit,
-    GenericVectorEqEq<int>* word_indices) const {
-  GenericVector<StrongScriptDirection> directions;
+void ResultIterator::CalculateTextlineOrder(bool paragraph_is_ltr, const LTRResultIterator &resit,
+                                            std::vector<int> *word_indices) const {
+  std::vector<StrongScriptDirection> directions;
   CalculateTextlineOrder(paragraph_is_ltr, resit, &directions, word_indices);
 }
 
-void ResultIterator::CalculateTextlineOrder(
-    bool paragraph_is_ltr, const LTRResultIterator& resit,
-    GenericVector<StrongScriptDirection>* dirs_arg,
-    GenericVectorEqEq<int>* word_indices) const {
-  GenericVector<StrongScriptDirection> dirs;
-  GenericVector<StrongScriptDirection>* directions;
+void ResultIterator::CalculateTextlineOrder(bool paragraph_is_ltr, const LTRResultIterator &resit,
+                                            std::vector<StrongScriptDirection> *dirs_arg,
+                                            std::vector<int> *word_indices) const {
+  std::vector<StrongScriptDirection> dirs;
+  std::vector<StrongScriptDirection> *directions;
   directions = (dirs_arg != nullptr) ? dirs_arg : &dirs;
-  directions->truncate(0);
+  directions->clear();
 
   // A LTRResultIterator goes strictly left-to-right word order.
   LTRResultIterator ltr_it(resit);
   ltr_it.RestartRow();
-  if (ltr_it.Empty(RIL_WORD))
+  if (ltr_it.Empty(RIL_WORD)) {
     return;
+  }
   do {
     directions->push_back(ltr_it.WordDirection());
   } while (ltr_it.Next(RIL_WORD) && !ltr_it.IsAtBeginningOf(RIL_TEXTLINE));
 
-  word_indices->truncate(0);
+  word_indices->clear();
   CalculateTextlineOrder(paragraph_is_ltr, *directions, word_indices);
 }
 
-void ResultIterator::CalculateTextlineOrder(
-    bool paragraph_is_ltr,
-    const GenericVector<StrongScriptDirection>& word_dirs,
-    GenericVectorEqEq<int>* reading_order) {
-  reading_order->truncate(0);
-  if (word_dirs.size() == 0)
+void ResultIterator::CalculateTextlineOrder(bool paragraph_is_ltr,
+                                            const std::vector<StrongScriptDirection> &word_dirs,
+                                            std::vector<int> *reading_order) {
+  reading_order->clear();
+  if (word_dirs.size() == 0) {
     return;
+  }
 
   // Take all of the runs of minor direction words and insert them
   // in reverse order.
@@ -305,14 +318,16 @@ void ResultIterator::CalculateTextlineOrder(
         // Scan for the beginning of the minor left-to-right run.
         int left = neutral_end;
         for (int i = left; i >= 0 && word_dirs[i] != DIR_RIGHT_TO_LEFT; i--) {
-          if (word_dirs[i] == DIR_LEFT_TO_RIGHT)
+          if (word_dirs[i] == DIR_LEFT_TO_RIGHT) {
             left = i;
+          }
         }
         reading_order->push_back(kMinorRunStart);
         for (int i = left; i < word_dirs.size(); i++) {
           reading_order->push_back(i);
-          if (word_dirs[i] == DIR_MIX)
+          if (word_dirs[i] == DIR_MIX) {
             reading_order->push_back(kComplexWord);
+          }
         }
         reading_order->push_back(kMinorRunEnd);
         start = left - 1;
@@ -322,10 +337,15 @@ void ResultIterator::CalculateTextlineOrder(
   for (int i = start; i != end;) {
     if (word_dirs[i] == minor_direction) {
       int j = i;
-      while (j != end && word_dirs[j] != major_direction) j += major_step;
-      if (j == end)
+      while (j != end && word_dirs[j] != major_direction) {
+        j += major_step;
+      }
+      if (j == end) {
         j -= major_step;
-      while (j != i && word_dirs[j] != minor_direction) j -= major_step;
+      }
+      while (j != i && word_dirs[j] != minor_direction) {
+        j -= major_step;
+      }
       //  [j..i] is a minor direction run.
       reading_order->push_back(kMinorRunStart);
       for (int k = j; k != i; k -= major_step) {
@@ -336,8 +356,9 @@ void ResultIterator::CalculateTextlineOrder(
       i = j + major_step;
     } else {
       reading_order->push_back(i);
-      if (word_dirs[i] == DIR_MIX)
+      if (word_dirs[i] == DIR_MIX) {
         reading_order->push_back(kComplexWord);
+      }
       i += major_step;
     }
   }
@@ -359,45 +380,55 @@ void ResultIterator::MoveToLogicalStartOfWord() {
     BeginWord(0);
     return;
   }
-  GenericVector<int> blob_order;
+  std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
-  if (blob_order.size() == 0 || blob_order[0] == 0)
+  if (blob_order.size() == 0 || blob_order[0] == 0) {
     return;
+  }
   BeginWord(blob_order[0]);
 }
 
 bool ResultIterator::IsAtFinalSymbolOfWord() const {
-  if (!it_->word())
+  if (!it_->word()) {
     return true;
-  GenericVector<int> blob_order;
+  }
+  std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
   return blob_order.size() == 0 || blob_order.back() == blob_index_;
 }
 
 bool ResultIterator::IsAtFirstSymbolOfWord() const {
-  if (!it_->word())
+  if (!it_->word()) {
     return true;
-  GenericVector<int> blob_order;
+  }
+  std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
   return blob_order.size() == 0 || blob_order[0] == blob_index_;
 }
 
-void ResultIterator::AppendSuffixMarks(STRING* text) const {
-  if (!it_->word())
+void ResultIterator::AppendSuffixMarks(std::string *text) const {
+  if (!it_->word()) {
     return;
-  bool reading_direction_is_ltr =
-      current_paragraph_is_ltr_ ^ in_minor_direction_;
+  }
+  bool reading_direction_is_ltr = current_paragraph_is_ltr_ ^ in_minor_direction_;
   // scan forward to see what meta-information the word ordering algorithm
   // left us.
   // If this word is at the  *end* of a minor run, insert the other
   // direction's mark;  else if this was a complex word, insert the
   // current reading order's mark.
-  GenericVectorEqEq<int> textline_order;
+  std::vector<int> textline_order;
   CalculateTextlineOrder(current_paragraph_is_ltr_, *this, &textline_order);
   int this_word_index = LTRWordIndex();
-  int i = textline_order.get_index(this_word_index);
-  if (i < 0)
+  size_t i = 0;
+  for (const auto word_index : textline_order) {
+    if (word_index == this_word_index) {
+      break;
+    }
+    i++;
+  }
+  if (i == textline_order.size()) {
     return;
+  }
 
   int last_non_word_mark = 0;
   for (i++; i < textline_order.size() && textline_order[i] < 0; i++) {
@@ -415,22 +446,24 @@ void ResultIterator::AppendSuffixMarks(STRING* text) const {
 }
 
 void ResultIterator::MoveToLogicalStartOfTextline() {
-  GenericVectorEqEq<int> word_indices;
+  std::vector<int> word_indices;
   RestartRow();
-  CalculateTextlineOrder(current_paragraph_is_ltr_,
-                         dynamic_cast<const LTRResultIterator&>(*this),
+  CalculateTextlineOrder(current_paragraph_is_ltr_, dynamic_cast<const LTRResultIterator &>(*this),
                          &word_indices);
   int i = 0;
   for (; i < word_indices.size() && word_indices[i] < 0; i++) {
-    if (word_indices[i] == kMinorRunStart)
+    if (word_indices[i] == kMinorRunStart) {
       in_minor_direction_ = true;
-    else if (word_indices[i] == kMinorRunEnd)
+    } else if (word_indices[i] == kMinorRunEnd) {
       in_minor_direction_ = false;
+    }
   }
-  if (in_minor_direction_)
+  if (in_minor_direction_) {
     at_beginning_of_minor_run_ = true;
-  if (i >= word_indices.size())
+  }
+  if (i >= word_indices.size()) {
     return;
+  }
   int first_word_index = word_indices[i];
   for (int j = 0; j < first_word_index; j++) {
     PageIterator::Next(RIL_WORD);
@@ -447,14 +480,16 @@ void ResultIterator::Begin() {
 }
 
 bool ResultIterator::Next(PageIteratorLevel level) {
-  if (it_->block() == nullptr)
-    return false;  // already at end!
+  if (it_->block() == nullptr) {
+    return false; // already at end!
+  }
   switch (level) {
-    case RIL_BLOCK:  // explicit fall-through
-    case RIL_PARA:   // explicit fall-through
+    case RIL_BLOCK: // explicit fall-through
+    case RIL_PARA:  // explicit fall-through
     case RIL_TEXTLINE:
-      if (!PageIterator::Next(level))
+      if (!PageIterator::Next(level)) {
         return false;
+      }
       if (IsWithinFirstTextlineOfParagraph()) {
         // if we've advanced to a new paragraph,
         // recalculate current_paragraph_is_ltr_
@@ -464,12 +499,12 @@ bool ResultIterator::Next(PageIteratorLevel level) {
       MoveToLogicalStartOfTextline();
       return it_->block() != nullptr;
     case RIL_SYMBOL: {
-      GenericVector<int> blob_order;
+      std::vector<int> blob_order;
       CalculateBlobOrder(&blob_order);
       int next_blob = 0;
-      while (next_blob < blob_order.size() &&
-             blob_index_ != blob_order[next_blob])
+      while (next_blob < blob_order.size() && blob_index_ != blob_order[next_blob]) {
         next_blob++;
+      }
       next_blob++;
       if (next_blob < blob_order.size()) {
         // we're in the same word; simply advance one blob.
@@ -477,33 +512,36 @@ bool ResultIterator::Next(PageIteratorLevel level) {
         at_beginning_of_minor_run_ = false;
         return true;
       }
-      level = RIL_WORD;  // we've fallen through to the next word.
+      level = RIL_WORD; // we've fallen through to the next word.
     }
       // Fall through.
-    case RIL_WORD:  // explicit fall-through.
+    case RIL_WORD: // explicit fall-through.
     {
-      if (it_->word() == nullptr)
+      if (it_->word() == nullptr) {
         return Next(RIL_BLOCK);
-      GenericVectorEqEq<int> word_indices;
+      }
+      std::vector<int> word_indices;
       int this_word_index = LTRWordIndex();
       CalculateTextlineOrder(current_paragraph_is_ltr_, *this, &word_indices);
       int final_real_index = word_indices.size() - 1;
-      while (final_real_index > 0 && word_indices[final_real_index] < 0)
+      while (final_real_index > 0 && word_indices[final_real_index] < 0) {
         final_real_index--;
+      }
       for (int i = 0; i < final_real_index; i++) {
         if (word_indices[i] == this_word_index) {
           int j = i + 1;
           for (; j < final_real_index && word_indices[j] < 0; j++) {
-            if (word_indices[j] == kMinorRunStart)
+            if (word_indices[j] == kMinorRunStart) {
               in_minor_direction_ = true;
-            if (word_indices[j] == kMinorRunEnd)
+            }
+            if (word_indices[j] == kMinorRunEnd) {
               in_minor_direction_ = false;
+            }
           }
           at_beginning_of_minor_run_ = (word_indices[j - 1] == kMinorRunStart);
           // awesome, we move to word_indices[j]
           if (BidiDebug(3)) {
-            tprintf("Next(RIL_WORD): %d -> %d\n", this_word_index,
-                    word_indices[j]);
+            tprintf("Next(RIL_WORD): %d -> %d\n", this_word_index, word_indices[j]);
           }
           PageIterator::RestartRow();
           for (int k = 0; k < word_indices[j]; k++) {
@@ -520,45 +558,51 @@ bool ResultIterator::Next(PageIteratorLevel level) {
       return Next(RIL_TEXTLINE);
     }
   }
-  ASSERT_HOST(false);  // shouldn't happen.
+  ASSERT_HOST(false); // shouldn't happen.
   return false;
 }
 
 bool ResultIterator::IsAtBeginningOf(PageIteratorLevel level) const {
-  if (it_->block() == nullptr)
-    return false;  // Already at the end!
-  if (it_->word() == nullptr)
-    return true;  // In an image block.
-  if (level == RIL_SYMBOL)
-    return true;  // Always at beginning of a symbol.
+  if (it_->block() == nullptr) {
+    return false; // Already at the end!
+  }
+  if (it_->word() == nullptr) {
+    return true; // In an image block.
+  }
+  if (level == RIL_SYMBOL) {
+    return true; // Always at beginning of a symbol.
+  }
 
   bool at_word_start = IsAtFirstSymbolOfWord();
-  if (level == RIL_WORD)
+  if (level == RIL_WORD) {
     return at_word_start;
+  }
 
   ResultIterator line_start(*this);
   // move to the first word in the line...
   line_start.MoveToLogicalStartOfTextline();
 
   bool at_textline_start = at_word_start && *line_start.it_ == *it_;
-  if (level == RIL_TEXTLINE)
+  if (level == RIL_TEXTLINE) {
     return at_textline_start;
+  }
 
   // now we move to the left-most word...
   line_start.RestartRow();
-  bool at_block_start = at_textline_start &&
-                        line_start.it_->block() != line_start.it_->prev_block();
-  if (level == RIL_BLOCK)
+  bool at_block_start =
+      at_textline_start && line_start.it_->block() != line_start.it_->prev_block();
+  if (level == RIL_BLOCK) {
     return at_block_start;
+  }
 
   bool at_para_start =
-      at_block_start ||
-      (at_textline_start && line_start.it_->row()->row->para() !=
-                                line_start.it_->prev_row()->row->para());
-  if (level == RIL_PARA)
+      at_block_start || (at_textline_start && line_start.it_->row()->row->para() !=
+                                                  line_start.it_->prev_row()->row->para());
+  if (level == RIL_PARA) {
     return at_para_start;
+  }
 
-  ASSERT_HOST(false);  // shouldn't happen.
+  ASSERT_HOST(false); // shouldn't happen.
   return false;
 }
 
@@ -567,10 +611,10 @@ bool ResultIterator::IsAtBeginningOf(PageIteratorLevel level) const {
  *   change that the variable next is now a ResultIterator instead of a
  *   PageIterator.
  */
-bool ResultIterator::IsAtFinalElement(PageIteratorLevel level,
-                                      PageIteratorLevel element) const {
-  if (Empty(element))
-    return true;  // Already at the end!
+bool ResultIterator::IsAtFinalElement(PageIteratorLevel level, PageIteratorLevel element) const {
+  if (Empty(element)) {
+    return true; // Already at the end!
+  }
   // The result is true if we step forward by element and find we are
   // at the the end of the page or at beginning of *all* levels in:
   // [level, element).
@@ -579,20 +623,23 @@ bool ResultIterator::IsAtFinalElement(PageIteratorLevel level,
   // word on a line, so we also have to be at the first symbol in a word.
   ResultIterator next(*this);
   next.Next(element);
-  if (next.Empty(element))
-    return true;  // Reached the end of the page.
+  if (next.Empty(element)) {
+    return true; // Reached the end of the page.
+  }
   while (element > level) {
     element = static_cast<PageIteratorLevel>(element - 1);
-    if (!next.IsAtBeginningOf(element))
+    if (!next.IsAtBeginningOf(element)) {
       return false;
+    }
   }
   return true;
 }
 
 // Returns the number of blanks before the current word.
 int ResultIterator::BlanksBeforeWord() const {
-  if (CurrentParagraphIsLtr())
+  if (CurrentParagraphIsLtr()) {
     return LTRResultIterator::BlanksBeforeWord();
+  }
   return IsAtBeginningOf(RIL_TEXTLINE) ? 0 : 1;
 }
 
@@ -600,10 +647,11 @@ int ResultIterator::BlanksBeforeWord() const {
  * Returns the null terminated UTF-8 encoded text string for the current
  * object at the given level. Use delete [] to free after use.
  */
-char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
-  if (it_->word() == nullptr)
-    return nullptr;  // Already at the end!
-  STRING text;
+char *ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
+  if (it_->word() == nullptr) {
+    return nullptr; // Already at the end!
+  }
+  std::string text;
   switch (level) {
     case RIL_BLOCK: {
       ResultIterator pp(*this);
@@ -623,23 +671,23 @@ char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
       AppendUTF8WordText(&text);
       break;
     case RIL_SYMBOL: {
-      bool reading_direction_is_ltr =
-          current_paragraph_is_ltr_ ^ in_minor_direction_;
+      bool reading_direction_is_ltr = current_paragraph_is_ltr_ ^ in_minor_direction_;
       if (at_beginning_of_minor_run_) {
         text += reading_direction_is_ltr ? kLRM : kRLM;
       }
       text = it_->word()->BestUTF8(blob_index_, false);
-      if (IsAtFinalSymbolOfWord())
+      if (IsAtFinalSymbolOfWord()) {
         AppendSuffixMarks(&text);
+      }
     } break;
   }
   int length = text.length() + 1;
-  char* result = new char[length];
+  char *result = new char[length];
   strncpy(result, text.c_str(), length);
   return result;
 }
-std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
-ResultIterator::GetRawLSTMTimesteps() const {
+std::vector<std::vector<std::vector<std::pair<const char *, float>>>>
+    *ResultIterator::GetRawLSTMTimesteps() const {
   if (it_->word() != nullptr) {
     return &it_->word()->segmented_timesteps;
   } else {
@@ -647,8 +695,8 @@ ResultIterator::GetRawLSTMTimesteps() const {
   }
 }
 
-std::vector<std::vector<std::pair<const char*, float>>>*
-ResultIterator::GetBestLSTMSymbolChoices() const {
+std::vector<std::vector<std::pair<const char *, float>>> *ResultIterator::GetBestLSTMSymbolChoices()
+    const {
   if (it_->word() != nullptr) {
     return &it_->word()->CTC_symbol_choices;
   } else {
@@ -656,49 +704,47 @@ ResultIterator::GetBestLSTMSymbolChoices() const {
   }
 }
 
-void ResultIterator::AppendUTF8WordText(STRING* text) const {
-  if (!it_->word())
+void ResultIterator::AppendUTF8WordText(std::string *text) const {
+  if (!it_->word()) {
     return;
+  }
   ASSERT_HOST(it_->word()->best_choice != nullptr);
-  bool reading_direction_is_ltr =
-      current_paragraph_is_ltr_ ^ in_minor_direction_;
+  bool reading_direction_is_ltr = current_paragraph_is_ltr_ ^ in_minor_direction_;
   if (at_beginning_of_minor_run_) {
     *text += reading_direction_is_ltr ? kLRM : kRLM;
   }
 
-  GenericVector<int> blob_order;
+  std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
-  for (int i = 0; i < blob_order.size(); i++) {
-    *text += it_->word()->BestUTF8(blob_order[i], false);
+  for (int i : blob_order) {
+    *text += it_->word()->BestUTF8(i, false);
   }
   AppendSuffixMarks(text);
 }
 
-void ResultIterator::IterateAndAppendUTF8TextlineText(STRING* text) {
+void ResultIterator::IterateAndAppendUTF8TextlineText(std::string *text) {
   if (Empty(RIL_WORD)) {
     Next(RIL_WORD);
     return;
   }
   if (BidiDebug(1)) {
-    GenericVectorEqEq<int> textline_order;
-    GenericVector<StrongScriptDirection> dirs;
-    CalculateTextlineOrder(current_paragraph_is_ltr_, *this, &dirs,
-                           &textline_order);
+    std::vector<int> textline_order;
+    std::vector<StrongScriptDirection> dirs;
+    CalculateTextlineOrder(current_paragraph_is_ltr_, *this, &dirs, &textline_order);
     tprintf("Strong Script dirs     [%p/P=%s]: ", it_->row(),
             current_paragraph_is_ltr_ ? "ltr" : "rtl");
     PrintScriptDirs(dirs);
     tprintf("Logical textline order [%p/P=%s]: ", it_->row(),
             current_paragraph_is_ltr_ ? "ltr" : "rtl");
-    for (int i = 0; i < textline_order.size(); i++) {
-      tprintf("%d ", textline_order[i]);
+    for (int i : textline_order) {
+      tprintf("%d ", i);
     }
     tprintf("\n");
   }
 
   int words_appended = 0;
   do {
-    int numSpaces = preserve_interword_spaces_ ? it_->word()->word->space()
-                                               : (words_appended > 0);
+    int numSpaces = preserve_interword_spaces_ ? it_->word()->word->space() : (words_appended > 0);
     for (int i = 0; i < numSpaces; ++i) {
       *text += " ";
     }
@@ -718,12 +764,13 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(STRING* text) {
   }
 }
 
-void ResultIterator::AppendUTF8ParagraphText(STRING* text) const {
+void ResultIterator::AppendUTF8ParagraphText(std::string *text) const {
   ResultIterator it(*this);
   it.RestartParagraph();
   it.MoveToLogicalStartOfTextline();
-  if (it.Empty(RIL_WORD))
+  if (it.Empty(RIL_WORD)) {
     return;
+  }
   do {
     it.IterateAndAppendUTF8TextlineText(text);
   } while (it.it_->block() != nullptr && !it.IsAtBeginningOf(RIL_PARA));
@@ -731,12 +778,12 @@ void ResultIterator::AppendUTF8ParagraphText(STRING* text) const {
 
 bool ResultIterator::BidiDebug(int min_level) const {
   int debug_level = 1;
-  auto* p =
-      ParamUtils::FindParam<IntParam>("bidi_debug", GlobalParams()->int_params,
-                                      tesseract_->params()->int_params);
-  if (p != nullptr)
+  auto *p = ParamUtils::FindParam<IntParam>("bidi_debug", GlobalParams()->int_params,
+                                            tesseract_->params()->int_params);
+  if (p != nullptr) {
     debug_level = (int32_t)(*p);
+  }
   return debug_level >= min_level;
 }
 
-}  // namespace tesseract.
+} // namespace tesseract.

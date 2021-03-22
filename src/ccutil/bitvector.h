@@ -19,16 +19,18 @@
 #ifndef TESSERACT_CCUTIL_BITVECTOR_H_
 #define TESSERACT_CCUTIL_BITVECTOR_H_
 
+#include <tesseract/export.h>
+
 #include <cassert>
-#include <cstdint>      // for uint8_t
+#include <cstdint> // for uint8_t
 #include <cstdio>
 
 namespace tesseract {
 
 // Trivial class to encapsulate a fixed-length array of bits, with
 // Serialize/DeSerialize. Replaces the old macros.
-class BitVector {
- public:
+class TESS_API BitVector {
+public:
   // Fast lookup table to get the first least significant set bit in a byte.
   // For zero, the table has 255, but since it is a special case, most code
   // that uses this table will check for zero before looking up lsb_index_.
@@ -42,8 +44,8 @@ class BitVector {
   BitVector();
   // Initializes the array to length * false.
   explicit BitVector(int length);
-  BitVector(const BitVector& src);
-  BitVector& operator=(const BitVector& src);
+  BitVector(const BitVector &src);
+  BitVector &operator=(const BitVector &src);
   ~BitVector();
 
   // Initializes the array to length * false.
@@ -55,10 +57,10 @@ class BitVector {
   }
 
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(FILE* fp) const;
+  bool Serialize(FILE *fp) const;
   // Reads from the given file. Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, FILE* fp);
+  bool DeSerialize(bool swap, FILE *fp);
 
   void SetAllFalse();
   void SetAllTrue();
@@ -73,10 +75,11 @@ class BitVector {
     array_[WordIndex(index)] &= ~BitMask(index);
   }
   void SetValue(int index, bool value) {
-    if (value)
+    if (value) {
       SetBit(index);
-    else
+    } else {
       ResetBit(index);
+    }
   }
   bool At(int index) const {
     return (array_[WordIndex(index)] & BitMask(index)) != 0;
@@ -94,13 +97,13 @@ class BitVector {
 
   // Logical in-place operations on whole bit vectors. Tries to do something
   // sensible if they aren't the same size, but they should be really.
-  void operator|=(const BitVector& other);
-  void operator&=(const BitVector& other);
-  void operator^=(const BitVector& other);
+  void operator|=(const BitVector &other);
+  void operator&=(const BitVector &other);
+  void operator^=(const BitVector &other);
   // Set subtraction *this = v1 - v2.
-  void SetSubtract(const BitVector& v1, const BitVector& v2);
+  void SetSubtract(const BitVector &v1, const BitVector &v2);
 
- private:
+private:
   // Allocates memory for a vector of the given length.
   void Alloc(int length);
 
@@ -129,11 +132,11 @@ class BitVector {
   // Array of words used to pack the bits.
   // Bits are stored little-endian by uint32_t word, ie by word first and then
   // starting with the least significant bit in each word.
-  uint32_t* array_;
+  uint32_t *array_;
   // Number of bits in an array_ element.
   static const int kBitFactor = sizeof(uint32_t) * 8;
 };
 
-}  // namespace tesseract.
+} // namespace tesseract.
 
-#endif  // TESSERACT_CCUTIL_BITVECTOR_H_
+#endif // TESSERACT_CCUTIL_BITVECTOR_H_

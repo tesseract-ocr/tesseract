@@ -11,54 +11,50 @@
 
 #include <string>
 
+#include <allheaders.h>
 #include "absl/strings/ascii.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_split.h"
-#include "allheaders.h"
 
 #include "include_gunit.h"
-#include "log.h"                        // for LOG
-#include <tesseract/serialis.h>
+#include "log.h" // for LOG
+#include "serialis.h"
 #include "tprintf.h"
 #include "unicharcompress.h"
 
 namespace tesseract {
-namespace {
 
 class UnicharcompressTest : public ::testing::Test {
- protected:
-  void SetUp() {
+protected:
+  void SetUp() override {
     std::locale::global(std::locale(""));
+    file::MakeTmpdir();
   }
 
   // Loads and compresses the given unicharset.
-  void LoadUnicharset(const std::string& unicharset_name) {
-    std::string radical_stroke_file =
-        file::JoinPath(LANGDATA_DIR, "radical-stroke.txt");
-    std::string unicharset_file =
-        file::JoinPath(TESTDATA_DIR, unicharset_name);
+  void LoadUnicharset(const std::string &unicharset_name) {
+    std::string radical_stroke_file = file::JoinPath(LANGDATA_DIR, "radical-stroke.txt");
+    std::string unicharset_file = file::JoinPath(TESTDATA_DIR, unicharset_name);
     std::string radical_data;
-    CHECK_OK(file::GetContents(radical_stroke_file, &radical_data,
-                               file::Defaults()));
+    CHECK_OK(file::GetContents(radical_stroke_file, &radical_data, file::Defaults()));
     CHECK(unicharset_.load_from_file(unicharset_file.c_str()));
-    STRING radical_str(radical_data.c_str());
-    null_char_ =
-        unicharset_.has_special_codes() ? UNICHAR_BROKEN : unicharset_.size();
+    std::string radical_str(radical_data.c_str());
+    null_char_ = unicharset_.has_special_codes() ? UNICHAR_BROKEN : unicharset_.size();
     compressed_.ComputeEncoding(unicharset_, null_char_, &radical_str);
     // Get the encoding of the null char.
     RecodedCharID code;
     compressed_.EncodeUnichar(null_char_, &code);
     encoded_null_char_ = code(0);
-    std::string output_name = file::JoinPath(
-        FLAGS_test_tmpdir, absl::StrCat(unicharset_name, ".encoding.txt"));
-    STRING encoding = compressed_.GetEncodingAsString(unicharset_);
+    std::string output_name =
+        file::JoinPath(FLAGS_test_tmpdir, absl::StrCat(unicharset_name, ".encoding.txt"));
+    std::string encoding = compressed_.GetEncodingAsString(unicharset_);
     std::string encoding_str(&encoding[0], encoding.size());
     CHECK_OK(file::SetContents(output_name, encoding_str, file::Defaults()));
     LOG(INFO) << "Wrote encoding to:" << output_name;
   }
   // Serializes and de-serializes compressed_ over itself.
   void SerializeAndUndo() {
-    GenericVector<char> data;
+    std::vector<char> data;
     TFile wfp;
     wfp.OpenWrite(&data);
     EXPECT_TRUE(compressed_.Serialize(&wfp));
@@ -67,38 +63,38 @@ class UnicharcompressTest : public ::testing::Test {
     EXPECT_TRUE(compressed_.DeSerialize(&rfp));
   }
   // Returns true if the lang is in CJK.
-  bool IsCJKLang(const std::string& lang) {
-    return lang == "chi_sim" || lang == "chi_tra" || lang == "kor" ||
-           lang == "jpn";
+  bool IsCJKLang(const std::string &lang) {
+    return lang == "chi_sim" || lang == "chi_tra" || lang == "kor" || lang == "jpn";
   }
   // Returns true if the lang is Indic.
-  bool IsIndicLang(const std::string& lang) {
-    return lang == "asm" || lang == "ben" || lang == "bih" || lang == "hin" ||
-           lang == "mar" || lang == "nep" || lang == "san" || lang == "bod" ||
-           lang == "dzo" || lang == "guj" || lang == "kan" || lang == "mal" ||
-           lang == "ori" || lang == "pan" || lang == "sin" || lang == "tam" ||
-           lang == "tel";
+  bool IsIndicLang(const std::string &lang) {
+    return lang == "asm" || lang == "ben" || lang == "bih" || lang == "hin" || lang == "mar" ||
+           lang == "nep" || lang == "san" || lang == "bod" || lang == "dzo" || lang == "guj" ||
+           lang == "kan" || lang == "mal" || lang == "ori" || lang == "pan" || lang == "sin" ||
+           lang == "tam" || lang == "tel";
   }
 
   // Expects the appropriate results from the compressed_  unicharset_.
-  void ExpectCorrect(const std::string& lang) {
+  void ExpectCorrect(const std::string &lang) {
     // Count the number of times each code is used in each element of
     // RecodedCharID.
     RecodedCharID zeros;
-    for (int i = 0; i < RecodedCharID::kMaxCodeLen; ++i) zeros.Set(i, 0);
+    for (int i = 0; i < RecodedCharID::kMaxCodeLen; ++i) {
+      zeros.Set(i, 0);
+    }
     int code_range = compressed_.code_range();
-   std::vector<RecodedCharID> times_seen(code_range, zeros);
+    std::vector<RecodedCharID> times_seen(code_range, zeros);
     for (int u = 0; u <= unicharset_.size(); ++u) {
       if (u != UNICHAR_SPACE && u != null_char_ &&
-          (u == unicharset_.size() || (unicharset_.has_special_codes() &&
-                                       u < SPECIAL_UNICHAR_CODES_COUNT))) {
-        continue;  // Not used so not encoded.
+          (u == unicharset_.size() ||
+           (unicharset_.has_special_codes() && u < SPECIAL_UNICHAR_CODES_COUNT))) {
+        continue; // Not used so not encoded.
       }
       RecodedCharID code;
       int len = compressed_.EncodeUnichar(u, &code);
       // Check round-trip encoding.
       int unichar_id;
-      GenericVector<UNICHAR_ID> normed_ids;
+      std::vector<UNICHAR_ID> normed_ids;
       if (u == null_char_ || u == unicharset_.size()) {
         unichar_id = null_char_;
       } else {
@@ -117,7 +113,9 @@ class UnicharcompressTest : public ::testing::Test {
     for (int c = 0; c < code_range; ++c) {
       int num_used = 0;
       for (int i = 0; i < RecodedCharID::kMaxCodeLen; ++i) {
-        if (times_seen[c](i) != 0) ++num_used;
+        if (times_seen[c](i) != 0) {
+          ++num_used;
+        }
       }
       EXPECT_GE(num_used, 1) << "c=" << c << "/" << code_range;
     }
@@ -133,29 +131,26 @@ class UnicharcompressTest : public ::testing::Test {
     } else {
       EXPECT_LE(code_range, unicharset_.size() + 1);
     }
-    LOG(INFO) << "Compressed unicharset of " << unicharset_.size() << " to "
-              << code_range;
+    LOG(INFO) << "Compressed unicharset of " << unicharset_.size() << " to " << code_range;
   }
   // Checks for extensions of the current code that either finish a code, or
   // extend it and checks those extensions recursively.
-  void CheckCodeExtensions(const RecodedCharID& code,
-                           const std::vector<RecodedCharID>& times_seen) {
+  void CheckCodeExtensions(const RecodedCharID &code,
+                           const std::vector<RecodedCharID> &times_seen) {
     RecodedCharID extended = code;
     int length = code.length();
-    const GenericVector<int>* final_codes = compressed_.GetFinalCodes(code);
+    const std::vector<int> *final_codes = compressed_.GetFinalCodes(code);
     if (final_codes != nullptr) {
-      for (int i = 0; i < final_codes->size(); ++i) {
-        int ending = (*final_codes)[i];
+      for (int ending : *final_codes) {
         EXPECT_GT(times_seen[ending](length), 0);
         extended.Set(length, ending);
         int unichar_id = compressed_.DecodeUnichar(extended);
         EXPECT_NE(INVALID_UNICHAR_ID, unichar_id);
       }
     }
-    const GenericVector<int>* next_codes = compressed_.GetNextCodes(code);
+    const std::vector<int> *next_codes = compressed_.GetNextCodes(code);
     if (next_codes != nullptr) {
-      for (int i = 0; i < next_codes->size(); ++i) {
-        int extension = (*next_codes)[i];
+      for (int extension : *next_codes) {
         EXPECT_GT(times_seen[extension](length), 0);
         extended.Set(length, extension);
         CheckCodeExtensions(extended, times_seen);
@@ -236,10 +231,9 @@ TEST_F(UnicharcompressTest, DoesLigaturesWithDoubles) {
 TEST_F(UnicharcompressTest, GetEncodingAsString) {
   LoadUnicharset("trivial.unicharset");
   ExpectCorrect("trivial");
-  STRING encoding = compressed_.GetEncodingAsString(unicharset_);
+  std::string encoding = compressed_.GetEncodingAsString(unicharset_);
   std::string encoding_str(&encoding[0], encoding.length());
-  std::vector<std::string> lines =
-      absl::StrSplit(encoding_str, "\n", absl::SkipEmpty());
+  std::vector<std::string> lines = absl::StrSplit(encoding_str, "\n", absl::SkipEmpty());
   EXPECT_EQ(5, lines.size());
   // The first line is always space.
   EXPECT_EQ("0\t ", lines[0]);
@@ -254,5 +248,4 @@ TEST_F(UnicharcompressTest, GetEncodingAsString) {
   EXPECT_EQ("3\t<nul>", lines[4]);
 }
 
-}  // namespace
-}  // namespace tesseract
+} // namespace tesseract

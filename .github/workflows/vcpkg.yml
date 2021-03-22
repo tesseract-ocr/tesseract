@@ -1,0 +1,100 @@
+name: vcpkg
+# build and test of tesseract on windows using vcpkg and cmake.
+# vcpkg with -head does not work. https://github.com/microsoft/vcpkg/issues/16019
+on:
+  #push:
+  schedule:
+    - cron: 0 23 * * *
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2019]
+
+    steps:
+      - name: Checkout Tesseract Source (--head from master branch)
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Visual Studio Setup
+        shell: cmd
+        run: |
+             call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+
+      - name: Install vcpkg
+        run: |
+             git clone https://github.com/microsoft/vcpkg
+             vcpkg/bootstrap-vcpkg.bat
+             vcpkg/vcpkg integrate install
+
+      - name: Build and Install Leptonica and image libraries using vcpkg
+        run: |
+             vcpkg/vcpkg install leptonica:x64-windows
+
+      - name: Configure and Build Tesseract (--head from master branch) with cmake
+        run: |
+             cmake . -B build -DCMAKE_BUILD_TYPE=Release -DSW_BUILD=OFF -DOPENMP_BUILD=OFF -DBUILD_TRAINING_TOOLS=OFF "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+             cmake --build build --config Release --target install
+
+      - name: Display Tesseract Version
+        run: |
+             D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe --version
+
+      - name: Create CMakeLists.txt file for basicapitest
+        shell: bash
+        run: |
+             cd test
+             cat << "EOF" > CMakeLists.txt
+             cmake_minimum_required(VERSION 3.19)
+             project( basicapitest )
+             find_package( Tesseract REQUIRED )
+             find_package( Leptonica REQUIRED )
+             include_directories(${Tesseract_INCLUDE_DIRS})
+             include_directories(${Leptonica_INCLUDE_DIRS})
+             add_executable( basicapitest testing/basicapitest.cpp )
+             target_link_libraries(basicapitest ${Leptonica_LIBRARIES})
+             target_link_libraries(basicapitest ${Tesseract_LIBRARIES})
+             add_library(libtesseract UNKNOWN IMPORTED)
+             set_property(TARGET libtesseract PROPERTY IMPORTED_LOCATION D:/a/tesseract/tesseract/build/Release/tesseract50.lib)
+             target_link_libraries(basicapitest libtesseract)
+             EOF
+             cat CMakeLists.txt
+
+      - name: Configure basicapitest
+        run: |
+             cd test
+             cmake . "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build basicapitest
+        run: |
+             cd test
+             cmake --build .  --config Release
+
+      - name: Download tessdata and image files used for tests
+        run: |
+             git clone https://github.com/egorpugin/tessdata tessdata_unittest
+             mv tessdata_unittest/* ../
+
+      - name: Run basicapitest
+        run: |
+             cd test
+             D:\a\tesseract\tesseract\test\Release\basicapitest.exe
+
+      - name: Run Tesseract CLI on test images in different languages
+        run: |
+             D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  test\testing\phototest.tif - --oem 1  --tessdata-dir ..\tessdata
+             D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  test\testing\raaj.tif - -l hin --oem 1   --tessdata-dir ..\tessdata
+             D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  test\testing\viet.tif - -l vie --oem 1   --tessdata-dir ..\tessdata
+             D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  test\testing\hebrew.png - -l heb --oem 1   --tessdata-dir ..\tessdata
+             D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  test\testing\eurotext.tif - -l fra --oem 1 --tessdata-dir ..\tessdata_best
+             D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  test\testing\arabic.tif - -l ara --oem 1 --psm 6  --tessdata-dir ..\tessdata
+
+      - name: List languages in different test tessdata-dir
+        run: |
+             D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  --list-langs --tessdata-dir ..\tessdata
+             D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  --list-langs --tessdata-dir ..\tessdata_best
+             D:\a\tesseract\tesseract\build\bin\Release\tesseract.exe  --list-langs --tessdata-dir ..\tessdata_fast

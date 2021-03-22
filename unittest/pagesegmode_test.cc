@@ -10,21 +10,21 @@
 // limitations under the License.
 
 #if defined(_WIN32)
-#include <io.h>         // for _access
+#  include <io.h> // for _access
 #else
-#include <unistd.h>     // for access
+#  include <unistd.h> // for access
 #endif
-#include <string>
-#include "allheaders.h"
+#include <allheaders.h>
 #include <tesseract/baseapi.h>
-#include <tesseract/helpers.h>
-#include "log.h"
+#include <string>
+#include "helpers.h"
 #include "include_gunit.h"
+#include "log.h"
 
-namespace {
+namespace tesseract {
 
 // Replacement for std::filesystem::exists (C++-17)
-static bool file_exists(const char* filename) {
+static bool file_exists(const char *filename) {
 #if defined(_WIN32)
   return _access(filename, 0) == 0;
 #else
@@ -34,9 +34,9 @@ static bool file_exists(const char* filename) {
 
 // The fixture for testing Tesseract.
 class PageSegModeTest : public testing::Test {
- protected:
+protected:
   PageSegModeTest() = default;
-  ~PageSegModeTest() {
+  ~PageSegModeTest() override {
     pixDestroy(&src_pix_);
   }
 
@@ -45,7 +45,7 @@ class PageSegModeTest : public testing::Test {
     std::locale::global(system_locale);
   }
 
-  void SetImage(const char* filename) {
+  void SetImage(const char *filename) {
     pixDestroy(&src_pix_);
     src_pix_ = pixRead(filename);
     api_.Init(TESSDATA_DIR, "eng", tesseract::OEM_TESSERACT_ONLY);
@@ -54,11 +54,11 @@ class PageSegModeTest : public testing::Test {
 
   // Tests that the given rectangle produces exactly the given text in the
   // given segmentation mode (after chopping off the last 2 newlines.)
-  void VerifyRectText(tesseract::PageSegMode mode, const char* str,
-                      int left, int top, int width, int height) {
+  void VerifyRectText(tesseract::PageSegMode mode, const char *str, int left, int top, int width,
+                      int height) {
     api_.SetPageSegMode(mode);
     api_.SetRectangle(left, top, width, height);
-    char* result = api_.GetUTF8Text();
+    char *result = api_.GetUTF8Text();
     chomp_string(result);
     chomp_string(result);
     EXPECT_STREQ(str, result);
@@ -67,16 +67,16 @@ class PageSegModeTest : public testing::Test {
 
   // Tests that the given rectangle does NOT produce the given text in the
   // given segmentation mode.
-  void NotRectText(tesseract::PageSegMode mode, const char* str,
-                   int left, int top, int width, int height) {
+  void NotRectText(tesseract::PageSegMode mode, const char *str, int left, int top, int width,
+                   int height) {
     api_.SetPageSegMode(mode);
     api_.SetRectangle(left, top, width, height);
-    char* result = api_.GetUTF8Text();
+    char *result = api_.GetUTF8Text();
     EXPECT_STRNE(str, result);
     delete[] result;
   }
 
-  Pix* src_pix_ = nullptr;
+  Pix *src_pix_ = nullptr;
   std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };
@@ -95,20 +95,15 @@ TEST_F(PageSegModeTest, WordTest) {
     VerifyRectText(tesseract::PSM_SINGLE_WORD, "183", 1411, 252, 78, 62);
     VerifyRectText(tesseract::PSM_SINGLE_WORD, "183", 1396, 218, 114, 102);
     // Test a random pair of words as a line
-    VerifyRectText(tesseract::PSM_SINGLE_LINE,
-                   "What should", 237, 393, 256, 36);
+    VerifyRectText(tesseract::PSM_SINGLE_LINE, "What should", 237, 393, 256, 36);
     // Test a random pair of words as a word
-    VerifyRectText(tesseract::PSM_SINGLE_WORD,
-                   "Whatshould", 237, 393, 256, 36);
+    VerifyRectText(tesseract::PSM_SINGLE_WORD, "Whatshould", 237, 393, 256, 36);
     // Test single block mode.
-    VerifyRectText(tesseract::PSM_SINGLE_BLOCK,
-                   "both the\nfrom the", 237, 450, 172, 94);
+    VerifyRectText(tesseract::PSM_SINGLE_BLOCK, "both the\nfrom the", 237, 450, 172, 94);
     // But doesn't work in line or word mode.
-    NotRectText(tesseract::PSM_SINGLE_LINE,
-                "both the\nfrom the", 237, 450, 172, 94);
-    NotRectText(tesseract::PSM_SINGLE_WORD,
-                "both the\nfrom the", 237, 450, 172, 94);
+    NotRectText(tesseract::PSM_SINGLE_LINE, "both the\nfrom the", 237, 450, 172, 94);
+    NotRectText(tesseract::PSM_SINGLE_WORD, "both the\nfrom the", 237, 450, 172, 94);
   }
 }
 
-}  // namespace
+} // namespace tesseract
