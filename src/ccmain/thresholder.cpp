@@ -18,12 +18,11 @@
 
 #include <allheaders.h>
 
-#include <tesseract/thresholder.h>
-
 #include <cstdint> // for uint32_t
 #include <cstring>
 
 #include "otsuthr.h"
+#include "thresholder.h"
 #include "tprintf.h" // for tprintf
 
 #if defined(USE_OPENCL)
@@ -220,15 +219,13 @@ Pix *ImageThresholder::GetPixRectThresholds() {
   Pix *pix_grey = GetPixRectGrey();
   int width = pixGetWidth(pix_grey);
   int height = pixGetHeight(pix_grey);
-  int *thresholds;
-  int *hi_values;
-  OtsuThreshold(pix_grey, 0, 0, width, height, &thresholds, &hi_values);
+  std::vector<int> thresholds;
+  std::vector<int> hi_values;
+  OtsuThreshold(pix_grey, 0, 0, width, height, thresholds, hi_values);
   pixDestroy(&pix_grey);
   Pix *pix_thresholds = pixCreate(width, height, 8);
   int threshold = thresholds[0] > 0 ? thresholds[0] : 128;
   pixSetAllArbitrary(pix_thresholds, threshold);
-  delete[] thresholds;
-  delete[] hi_values;
   return pix_thresholds;
 }
 
@@ -277,17 +274,17 @@ Pix *ImageThresholder::GetPixRectGrey() {
 
 // Otsu thresholds the rectangle, taking the rectangle from *this.
 void ImageThresholder::OtsuThresholdRectToPix(Pix *src_pix, Pix **out_pix) const {
-  int *thresholds;
-  int *hi_values;
+  std::vector<int> thresholds;
+  std::vector<int> hi_values;
 
   int num_channels = OtsuThreshold(src_pix, rect_left_, rect_top_, rect_width_, rect_height_,
-                                   &thresholds, &hi_values);
+                                   thresholds, hi_values);
   // only use opencl if compiled w/ OpenCL and selected device is opencl
 #ifdef USE_OPENCL
   OpenclDevice od;
   if (num_channels == 4 && od.selectedDeviceIsOpenCL() && rect_top_ == 0 && rect_left_ == 0) {
     od.ThresholdRectToPixOCL((unsigned char *)pixGetData(src_pix), num_channels,
-                             pixGetWpl(src_pix) * 4, thresholds, hi_values, out_pix /*pix_OCL*/,
+                             pixGetWpl(src_pix) * 4, &thresholds[0], &hi_values[0], out_pix /*pix_OCL*/,
                              rect_height_, rect_width_, rect_top_, rect_left_);
   } else {
 #endif
@@ -295,16 +292,14 @@ void ImageThresholder::OtsuThresholdRectToPix(Pix *src_pix, Pix **out_pix) const
 #ifdef USE_OPENCL
   }
 #endif
-  delete[] thresholds;
-  delete[] hi_values;
 }
 
 /// Threshold the rectangle, taking everything except the src_pix
 /// from the class, using thresholds/hi_values to the output pix.
 /// NOTE that num_channels is the size of the thresholds and hi_values
 // arrays and also the bytes per pixel in src_pix.
-void ImageThresholder::ThresholdRectToPix(Pix *src_pix, int num_channels, const int *thresholds,
-                                          const int *hi_values, Pix **pix) const {
+void ImageThresholder::ThresholdRectToPix(Pix *src_pix, int num_channels, const std::vector<int> &thresholds,
+                                          const std::vector<int> &hi_values, Pix **pix) const {
   *pix = pixCreate(rect_width_, rect_height_, 1);
   uint32_t *pixdata = pixGetData(*pix);
   int wpl = pixGetWpl(*pix);

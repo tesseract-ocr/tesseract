@@ -34,6 +34,7 @@
 #  include "equationdetect.h" // for EquationDetect
 #endif
 #include "errcode.h" // for ASSERT_HOST
+#include "helpers.h" // for IntCastRounded, chomp_string
 #include "host.h"    // for MAX_PATH
 #include "imageio.h" // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...
 #ifndef DISABLED_LEGACY_ENGINE
@@ -57,14 +58,13 @@
 #include "tprintf.h"         // for tprintf
 #include "werd.h"            // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
 #include "tabletransfer.h"   // for detected tables from tablefind.h
+#include "thresholder.h"     // for ImageThresholder
 
 #include <tesseract/baseapi.h>
 #include <tesseract/ocrclass.h>       // for ETEXT_DESC
 #include <tesseract/osdetect.h>       // for OSResults, OSBestResult, OrientationId...
 #include <tesseract/renderer.h>       // for TessResultRenderer
 #include <tesseract/resultiterator.h> // for ResultIterator
-#include <tesseract/thresholder.h>    // for ImageThresholder
-#include "helpers.h"                  // for IntCastRounded, chomp_string
 
 #include <cmath>    // for round, M_PI
 #include <cstdint>  // for int32_t
@@ -636,6 +636,19 @@ void TessBaseAPI::SetRectangle(int left, int top, int width, int height) {
     return;
   }
   thresholder_->SetRectangle(left, top, width, height);
+  ClearResults();
+}
+
+/**
+ * In extreme cases only, usually with a subclass of Thresholder, it
+ * is possible to provide a different Thresholder. The Thresholder may
+ * be preloaded with an image, settings etc, or they may be set after.
+ * Note that Tesseract takes ownership of the Thresholder and will
+ * delete it when it it is replaced or the API is destructed.
+ */
+void TessBaseAPI::SetThresholder(ImageThresholder *thresholder) {
+  delete thresholder_;
+  thresholder_ = thresholder;
   ClearResults();
 }
 
