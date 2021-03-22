@@ -36,7 +36,7 @@ protected:
   ApplyBoxTest() {
     src_pix_ = nullptr;
   }
-  ~ApplyBoxTest() {
+  ~ApplyBoxTest() override {
     pixDestroy(&src_pix_);
   }
 

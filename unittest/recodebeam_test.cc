@@ -59,13 +59,13 @@ const float kVi2ndScores[] = {0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
 
 class RecodeBeamTest : public ::testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     file::MakeTmpdir();
   }
 
   RecodeBeamTest() : lstm_dict_(&ccutil_) {}
-  ~RecodeBeamTest() {
+  ~RecodeBeamTest() override {
     lstm_dict_.End();
   }
 

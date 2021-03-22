@@ -33,7 +33,7 @@ namespace tesseract {
 // aka Directed Acyclic Word Graphs).
 class DawgTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     file::MakeTmpdir();
   }

@@ -60,7 +60,7 @@ public:
 
 class TableFinderTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     free_boxes_it_.set_to_list(&free_boxes_);
     finder_ = std::make_unique<TestableTableFinder>();
@@ -70,7 +70,7 @@ protected:
     finder_->set_global_median_blob_width(5);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (partition_.get() != nullptr)
       partition_->DeleteBoxes();
     DeletePartitionListBoxes();

@@ -64,7 +64,7 @@ protected:
   LayoutTest() {
     src_pix_ = nullptr;
   }
-  ~LayoutTest() {
+  ~LayoutTest() override {
     pixDestroy(&src_pix_);
   }
 

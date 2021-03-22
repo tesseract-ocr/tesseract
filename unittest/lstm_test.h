@@ -45,7 +45,7 @@ const int kBatchIterations = 1;
 // The fixture for testing LSTMTrainer.
 class LSTMTrainerTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     file::MakeTmpdir();
   }

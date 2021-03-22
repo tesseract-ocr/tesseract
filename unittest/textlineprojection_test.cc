@@ -45,7 +45,7 @@ protected:
     denorm_ = nullptr;
     projection_ = nullptr;
   }
-  virtual ~TextlineProjectionTest() {
+  ~TextlineProjectionTest() override {
     pixDestroy(&src_pix_);
     pixDestroy(&bin_pix_);
     delete finder_;

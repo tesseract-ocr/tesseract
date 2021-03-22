@@ -26,7 +26,7 @@ namespace tesseract {
 
 class UnicharcompressTest : public ::testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     file::MakeTmpdir();
   }

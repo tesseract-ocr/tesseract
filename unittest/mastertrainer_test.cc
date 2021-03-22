@@ -73,7 +73,7 @@ public:
     false_unichar_id_ = 67;
     false_shape_ = shape_table_->AddShape(false_unichar_id_, 25);
   }
-  virtual ~MockClassifier() {}
+  ~MockClassifier() override {}
 
   // Classifies the given [training] sample, writing to results.
   // If debug is non-zero, then various degrees of classifier dependent debug
@@ -146,7 +146,7 @@ const double kMin1lDistance = 0.25;
 class MasterTrainerTest : public testing::Test {
 #ifndef DISABLED_LEGACY_ENGINE
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     file::MakeTmpdir();
   }
@@ -162,7 +162,7 @@ protected:
     shape_table_ = nullptr;
     master_trainer_ = nullptr;
   }
-  ~MasterTrainerTest() {
+  ~MasterTrainerTest() override {
     delete shape_table_;
   }
 

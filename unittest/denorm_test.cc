@@ -18,12 +18,12 @@ namespace tesseract {
 
 class DENORMTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 
 public:
-  void TearDown() {}
+  void TearDown() override {}
 
   void ExpectCorrectTransform(const DENORM &denorm, const TPOINT &src, const TPOINT &result,
                               bool local) {

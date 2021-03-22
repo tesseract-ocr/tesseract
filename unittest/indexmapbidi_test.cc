@@ -23,7 +23,7 @@ namespace tesseract {
 
 class IndexMapBiDiTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     file::MakeTmpdir();
   }

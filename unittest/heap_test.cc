@@ -25,12 +25,12 @@ int test_data[] = {8, 1, 2, -4, 7, 9, 65536, 4, 9, 0};
 // The fixture for testing GenericHeap and DoublePtr.
 class HeapTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 
 public:
-  virtual ~HeapTest();
+  ~HeapTest() override;
   // Pushes the test data onto both the heap and the KDVector.
   void PushTestData(GenericHeap<IntKDPair> *heap, KDVector *v) {
     for (size_t i = 0; i < countof(test_data); ++i) {

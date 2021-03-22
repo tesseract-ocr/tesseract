@@ -66,7 +66,7 @@ public:
 
 class SharedTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     ICOORD bleft(0, 0);
     ICOORD tright(1000, 1000);
@@ -74,7 +74,7 @@ protected:
     line_grid_ = std::make_unique<ColPartitionGrid>(5, bleft, tright);
   }
 
-  void TearDown() {
+  void TearDown() override {
     tesseract::ColPartition_IT memory(&allocated_parts_);
     for (memory.mark_cycle_pt(); !memory.cycled_list(); memory.forward()) {
       memory.data()->DeleteBoxes();
@@ -141,7 +141,7 @@ protected:
 
 class TableRecognizerTest : public SharedTest {
 protected:
-  void SetUp() {
+  void SetUp() override {
     SharedTest::SetUp();
     recognizer_ = std::make_unique<TestableTableRecognizer>();
     recognizer_->Init();
@@ -154,7 +154,7 @@ protected:
 
 class StructuredTableTest : public SharedTest {
 protected:
-  void SetUp() {
+  void SetUp() override {
     SharedTest::SetUp();
     table_ = std::make_unique<TestableStructuredTable>();
     table_->Init();

@@ -120,7 +120,7 @@ protected:
   // The directory for testdata;
   std::string testdata_dir_;
 
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     tesseract_ = std::make_unique<Tesseract>();
     tesseract_->init_tesseract(TESSDATA_DIR, "eng", OEM_TESSERACT_ONLY);
@@ -131,7 +131,7 @@ protected:
     testdata_dir_ = TESTDATA_DIR;
   }
 
-  void TearDown() {
+  void TearDown() override {
     tesseract_.reset(nullptr);
     equation_det_.reset(nullptr);
   }

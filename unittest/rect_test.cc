@@ -17,11 +17,11 @@ namespace tesseract {
 
 class TBOXTest : public testing::Test {
 public:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 
-  void TearDown() {}
+  void TearDown() override {}
 };
 
 TEST_F(TBOXTest, OverlapInside) {

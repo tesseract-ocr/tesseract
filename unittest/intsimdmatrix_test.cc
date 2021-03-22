@@ -28,7 +28,7 @@ namespace tesseract {
 
 class IntSimdMatrixTest : public ::testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 

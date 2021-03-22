@@ -31,7 +31,7 @@ protected:
   ResultIteratorTest() {
     src_pix_ = nullptr;
   }
-  ~ResultIteratorTest() {}
+  ~ResultIteratorTest() override {}
 
   void SetImage(const char *filename) {
     src_pix_ = pixRead(TestDataNameToPath(filename).c_str());

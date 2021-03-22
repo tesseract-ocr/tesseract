@@ -17,12 +17,12 @@ namespace tesseract {
 
 class LLSQTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 
 public:
-  void TearDown() {}
+  void TearDown() override {}
 
   void ExpectCorrectLine(const LLSQ &llsq, double m, double c, double rms, double pearson,
                          double tolerance) {

@@ -38,7 +38,7 @@ TEST(QRSequenceGenerator, GetBinaryReversedInteger) {
 // Trivial test fixture for a parameterized test.
 class QRSequenceGeneratorTest : public ::testing::TestWithParam<int> {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 };
