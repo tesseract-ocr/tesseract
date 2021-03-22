@@ -130,8 +130,8 @@ private:
 
 TEST_F(TableFinderTest, GapInXProjectionNoGap) {
   int data[100];
-  for (int i = 0; i < 100; ++i)
-    data[i] = 10;
+  for (int &i : data)
+    i = 10;
   EXPECT_FALSE(finder_->GapInXProjection(data, 100));
 }
 

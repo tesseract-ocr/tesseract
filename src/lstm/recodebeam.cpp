@@ -173,8 +173,8 @@ RecodeBeamSearch::combineSegmentedTimesteps(
     std::vector<std::vector<std::vector<std::pair<const char *, float>>>> *segmentedTimesteps) {
   std::vector<std::vector<std::pair<const char *, float>>> combined_timesteps;
   for (auto &segmentedTimestep : *segmentedTimesteps) {
-    for (int j = 0; j < segmentedTimestep.size(); ++j) {
-      combined_timesteps.push_back(segmentedTimestep[j]);
+    for (auto &j : segmentedTimestep) {
+      combined_timesteps.push_back(j);
     }
   }
   return combined_timesteps;

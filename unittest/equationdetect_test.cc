@@ -162,9 +162,9 @@ protected:
   }
 
   void ClearParts(std::vector<ColPartition *> *all_parts) {
-    for (size_t i = 0; i < all_parts->size(); ++i) {
-      (*all_parts)[i]->DeleteBoxes();
-      delete ((*all_parts)[i]);
+    for (auto &all_part : *all_parts) {
+      all_part->DeleteBoxes();
+      delete all_part;
     }
   }
 

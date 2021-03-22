@@ -78,8 +78,8 @@ protected:
       // used as its size on reading.
       if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1)
         return false;
-      for (int i = 0; i < squares_.size(); ++i)
-        ReverseN(&squares_[i], sizeof(squares_[i]));
+      for (int &square : squares_)
+        ReverseN(&square, sizeof(square));
       if (!fp->Serialize(squares_))
         return false;
       ReverseN(&num_triangles_, sizeof(num_triangles_));

@@ -139,8 +139,7 @@ protected:
     int length = code.length();
     const std::vector<int> *final_codes = compressed_.GetFinalCodes(code);
     if (final_codes != nullptr) {
-      for (int i = 0; i < final_codes->size(); ++i) {
-        int ending = (*final_codes)[i];
+      for (int ending : *final_codes) {
         EXPECT_GT(times_seen[ending](length), 0);
         extended.Set(length, ending);
         int unichar_id = compressed_.DecodeUnichar(extended);
@@ -149,8 +148,7 @@ protected:
     }
     const std::vector<int> *next_codes = compressed_.GetNextCodes(code);
     if (next_codes != nullptr) {
-      for (int i = 0; i < next_codes->size(); ++i) {
-        int extension = (*next_codes)[i];
+      for (int extension : *next_codes) {
         EXPECT_GT(times_seen[extension](length), 0);
         extended.Set(length, extension);
         CheckCodeExtensions(extended, times_seen);

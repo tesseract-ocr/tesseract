@@ -505,8 +505,8 @@ TEST_F(ResultIteratorTest, TextlineOrderSanityCheck) {
   for (int i = 0; i < kNumCombos; i++) {
     // generate the next combination.
     int tmp = i;
-    for (int j = 0; j < kNumWords; j++) {
-      word_dirs[j] = static_cast<StrongScriptDirection>(tmp % 4);
+    for (auto &word_dir : word_dirs) {
+      word_dir = static_cast<StrongScriptDirection>(tmp % 4);
       tmp = tmp / 4;
     }
     VerifySaneTextlineOrder(true, word_dirs, kNumWords);

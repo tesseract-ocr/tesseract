@@ -278,25 +278,25 @@ TEST_F(TesseractTest, InitConfigOnlyTest) {
   const char *langs[] = {"eng", "chi_tra", "jpn", "vie"};
   std::unique_ptr<tesseract::TessBaseAPI> api;
   CycleTimer timer;
-  for (size_t i = 0; i < countof(langs); ++i) {
+  for (auto &lang : langs) {
     api = std::make_unique<tesseract::TessBaseAPI>();
     timer.Restart();
-    EXPECT_EQ(0, api->Init(TessdataPath().c_str(), langs[i], tesseract::OEM_TESSERACT_ONLY));
+    EXPECT_EQ(0, api->Init(TessdataPath().c_str(), lang, tesseract::OEM_TESSERACT_ONLY));
     timer.Stop();
-    LOG(INFO) << "Lang " << langs[i] << " took " << timer.GetInMs() << "ms in regular init";
+    LOG(INFO) << "Lang " << lang << " took " << timer.GetInMs() << "ms in regular init";
   }
   // Init variables to set for config-only initialization.
   std::vector<std::string> vars_vec, vars_values;
   vars_vec.push_back("tessedit_init_config_only");
   vars_values.push_back("1");
   LOG(INFO) << "Switching to config only initialization:";
-  for (size_t i = 0; i < countof(langs); ++i) {
+  for (auto &lang : langs) {
     api = std::make_unique<tesseract::TessBaseAPI>();
     timer.Restart();
-    EXPECT_EQ(0, api->Init(TessdataPath().c_str(), langs[i], tesseract::OEM_TESSERACT_ONLY, nullptr,
-                           0, &vars_vec, &vars_values, false));
+    EXPECT_EQ(0, api->Init(TessdataPath().c_str(), lang, tesseract::OEM_TESSERACT_ONLY, nullptr, 0,
+                           &vars_vec, &vars_values, false));
     timer.Stop();
-    LOG(INFO) << "Lang " << langs[i] << " took " << timer.GetInMs() << "ms in config-only init";
+    LOG(INFO) << "Lang " << lang << " took " << timer.GetInMs() << "ms in config-only init";
   }
 }
 

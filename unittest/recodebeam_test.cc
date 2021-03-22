@@ -108,8 +108,8 @@ protected:
                      const std::vector<int> &transcription) {
     // Get the utf8 string of the transcription.
     std::string truth_utf8;
-    for (int i = 0; i < transcription.size(); ++i) {
-      truth_utf8 += ccutil_.unicharset.id_to_unichar(transcription[i]);
+    for (int i : transcription) {
+      truth_utf8 += ccutil_.unicharset.id_to_unichar(i);
     }
     PointerVector<WERD_RES> words;
     ExpectCorrect(output, truth_utf8, nullptr, &words);
@@ -211,9 +211,9 @@ protected:
         outputs(t, i) = random.UnsignedRand(0.25);
     }
     int t = 0;
-    for (int i = 0; i < unichar_ids.size(); ++i) {
+    for (int unichar_id : unichar_ids) {
       RecodedCharID code;
-      int len = recoder_.EncodeUnichar(unichar_ids[i], &code);
+      int len = recoder_.EncodeUnichar(unichar_id, &code);
       EXPECT_NE(0, len);
       for (int j = 0; j < len; ++j) {
         // Make the desired answer a clear winner.

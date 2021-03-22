@@ -136,11 +136,11 @@ TEST_F(HeapTest, RevalueTest) {
   GenericHeap<PtrPair> heap;
   std::vector<PtrPair> v;
   // Push the test data onto both the heap and the vector.
-  for (size_t i = 0; i < countof(test_data); ++i) {
+  for (int i : test_data) {
     PtrPair h_pair;
-    h_pair.key() = test_data[i];
+    h_pair.key() = i;
     PtrPair v_pair;
-    v_pair.key() = test_data[i];
+    v_pair.key() = i;
     h_pair.data().Connect(&v_pair.data());
     heap.Push(&h_pair);
     v.push_back(v_pair);
@@ -163,8 +163,8 @@ TEST_F(HeapTest, RevalueTest) {
   // of the vector.
   std::sort(v.begin(), v.end());
   EXPECT_GT(v[0].key(), v.back().key());
-  for (int i = 0; i < v.size(); ++i) {
-    EXPECT_EQ(v[i].key(), heap.PeekTop().key());
+  for (auto &i : v) {
+    EXPECT_EQ(i.key(), heap.PeekTop().key());
     EXPECT_FALSE(heap.empty());
     heap.Pop(nullptr);
   }
