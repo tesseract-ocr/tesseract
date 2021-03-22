@@ -19,8 +19,10 @@
 #ifndef TESSERACT_CCMAIN_THRESHOLDER_H_
 #define TESSERACT_CCMAIN_THRESHOLDER_H_
 
-#include "export.h"
-#include "publictypes.h"
+#include <tesseract/export.h>
+#include <tesseract/publictypes.h>
+
+#include <vector> // for std::vector
 
 struct Pix;
 
@@ -161,8 +163,8 @@ protected:
   /// from the class, using thresholds/hi_values to the output pix.
   /// NOTE that num_channels is the size of the thresholds and hi_values
   // arrays and also the bytes per pixel in src_pix.
-  void ThresholdRectToPix(Pix *src_pix, int num_channels, const int *thresholds,
-                          const int *hi_values, Pix **pix) const;
+  void ThresholdRectToPix(Pix *src_pix, int num_channels, const std::vector<int> &thresholds,
+                          const std::vector <int> &hi_values, Pix **pix) const;
 
 protected:
   /// Clone or other copy of the source Pix.
