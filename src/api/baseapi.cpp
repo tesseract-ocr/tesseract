@@ -1059,7 +1059,10 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data, size_t size, co
     if (pix == nullptr) {
       break;
     }
-    tprintf("Page %d\n", page + 1);
+    if (offset || page > 0) {
+      // Only print page number for multipage TIFF file.
+      tprintf("Page %d\n", page + 1);
+    }
     char page_str[kMaxIntSize];
     snprintf(page_str, kMaxIntSize - 1, "%d", page);
     SetVariable("applybox_page", page_str);
