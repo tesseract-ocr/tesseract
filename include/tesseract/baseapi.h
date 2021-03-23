@@ -336,15 +336,6 @@ public:
   void SetRectangle(int left, int top, int width, int height);
 
   /**
-   * In extreme cases only, usually with a subclass of Thresholder, it
-   * is possible to provide a different Thresholder. The Thresholder may
-   * be preloaded with an image, settings etc, or they may be set after.
-   * Note that Tesseract takes ownership of the Thresholder and will
-   * delete it when it it is replaced or the API is destructed.
-   */
-  void SetThresholder(ImageThresholder *thresholder);
-
-  /**
    * Get a copy of the internal thresholded image from Tesseract.
    * Caller takes ownership of the Pix and must pixDestroy it.
    * May be called any time after SetImage, or after TesseractRect.
