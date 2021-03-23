@@ -215,8 +215,8 @@ TessBaseAPI::TessBaseAPI()
     , equ_detect_(nullptr)
     , reader_(nullptr)
     ,
-    // Thresholder is initialized to nullptr here, but will be set before use
-    // by: A constructor of a derived API,  SetThresholder(), or created
+    // thresholder_ is initialized to nullptr here, but will be set before use
+    // by: A constructor of a derived API or created
     // implicitly when used in InternalSetImage.
     thresholder_(nullptr)
     , paragraph_models_(nullptr)
@@ -636,19 +636,6 @@ void TessBaseAPI::SetRectangle(int left, int top, int width, int height) {
     return;
   }
   thresholder_->SetRectangle(left, top, width, height);
-  ClearResults();
-}
-
-/**
- * In extreme cases only, usually with a subclass of Thresholder, it
- * is possible to provide a different Thresholder. The Thresholder may
- * be preloaded with an image, settings etc, or they may be set after.
- * Note that Tesseract takes ownership of the Thresholder and will
- * delete it when it it is replaced or the API is destructed.
- */
-void TessBaseAPI::SetThresholder(ImageThresholder *thresholder) {
-  delete thresholder_;
-  thresholder_ = thresholder;
   ClearResults();
 }
 
