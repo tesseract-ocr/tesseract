@@ -1,4 +1,4 @@
-name: autotools
+name: autotools-macos
 # autotools build of tesseract and training tools on macos homebrew and macports.
 # run command line tests, basicapitest and unittests. '--disable-openmp'
 on:
