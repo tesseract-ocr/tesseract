@@ -10,13 +10,9 @@
 // limitations under the License.
 
 #include "include_gunit.h"
-#if 0 // TODO: add tests for CLIST
-#  include "clst.h"
-#endif
+#include "clst.h"
 #include "elst.h"
-#if 0 // TODO: add tests for ELIST2
-#  include "elst2.h"
-#endif
+#include "elst2.h"
 
 namespace tesseract {
 
@@ -26,6 +22,13 @@ protected:
     static std::locale system_locale("");
     std::locale::global(system_locale);
   }
+  const size_t ListSize = 5;
+};
+
+class Clst : public CLIST_LINK {
+public:
+  Clst(unsigned n) : value(n) {}
+  unsigned value;
 };
 
 class Elst : public ELIST_LINK {
@@ -34,34 +37,117 @@ public:
   unsigned value;
 };
 
+class Elst2 : public ELIST2_LINK {
+public:
+  Elst2(unsigned n) : value(n) {}
+  unsigned value;
+};
+
+CLISTIZEH(Clst)
+CLISTIZE(Clst)
 ELISTIZEH(Elst)
 ELISTIZE(Elst)
+ELIST2IZEH(Elst2)
+ELIST2IZE(Elst2)
 
-TEST_F(ListTest, TestELIST) {
-  Elst_LIST list;
-  auto it = ELIST_ITERATOR(&list);
-  for (unsigned i = 0; i < 10; i++) {
-    auto *elst = new Elst(i);
-    // EXPECT_TRUE(elst->empty());
-    // EXPECT_EQ(elst->length(), 0);
-    it.add_to_end(elst);
+TEST_F(ListTest, TestCLIST) {
+  Clst_CLIST list;
+  EXPECT_TRUE(list.empty());
+  EXPECT_EQ(list.length(), 0);
+  auto it = CLIST_ITERATOR(&list);
+  for (unsigned i = 0; i < ListSize; i++) {
+    auto *lst = new Clst(i);
+    it.add_to_end(lst);
   }
+  EXPECT_TRUE(!list.empty());
+  EXPECT_EQ(list.length(), ListSize);
   it.move_to_first();
   unsigned n = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    EXPECT_TRUE(n == 0 || !it.at_first());
+    auto *lst = reinterpret_cast<Clst *>(it.data());
+    EXPECT_EQ(lst->value, n);
+    n++;
+    EXPECT_TRUE(n != ListSize || it.at_last());
+  }
+  it.forward();
+  n++;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    auto *lst = reinterpret_cast<Clst *>(it.extract());
+    EXPECT_EQ(lst->value, n % ListSize);
+    n++;
+    delete lst;
+  }
+  // TODO: add more tests for CLIST
+}
+
+TEST_F(ListTest, TestELIST) {
+  Elst_LIST list;
+  EXPECT_TRUE(list.empty());
+  EXPECT_EQ(list.length(), 0);
+  auto it = ELIST_ITERATOR(&list);
+  for (unsigned i = 0; i < ListSize; i++) {
+    auto *elst = new Elst(i);
+    it.add_to_end(elst);
+  }
+  EXPECT_TRUE(!list.empty());
+  EXPECT_EQ(list.length(), ListSize);
+  it.move_to_first();
+  unsigned n = 0;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    EXPECT_TRUE(n == 0 || !it.at_first());
     auto *elst = reinterpret_cast<Elst *>(it.data());
     EXPECT_EQ(elst->value, n);
     n++;
+    EXPECT_TRUE(n != ListSize || it.at_last());
   }
   it.forward();
   n++;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     auto *elst = reinterpret_cast<Elst *>(it.extract());
-    EXPECT_EQ(elst->value, n % 10);
+    EXPECT_EQ(elst->value, n % ListSize);
     n++;
     delete elst;
   }
   // TODO: add more tests for ELIST
+}
+
+TEST_F(ListTest, TestELIST2) {
+  Elst2_LIST list;
+  EXPECT_TRUE(list.empty());
+  EXPECT_EQ(list.length(), 0);
+  auto it = ELIST2_ITERATOR(&list);
+  for (unsigned i = 0; i < ListSize; i++) {
+    auto *lst = new Elst2(i);
+    it.add_to_end(lst);
+  }
+  EXPECT_TRUE(!list.empty());
+  EXPECT_EQ(list.length(), ListSize);
+  it.move_to_first();
+  unsigned n = 0;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    EXPECT_TRUE(n == 0 || !it.at_first());
+    auto *lst = reinterpret_cast<Elst2 *>(it.data());
+    EXPECT_EQ(lst->value, n);
+    n++;
+    EXPECT_TRUE(n != ListSize || it.at_last());
+  }
+  it.backward();
+  n--;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.backward()) {
+    auto *lst = reinterpret_cast<Elst2 *>(it.data());
+    EXPECT_EQ(lst->value, n);
+    n--;
+  }
+  it.forward();
+  n++;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    auto *lst = reinterpret_cast<Elst2 *>(it.extract());
+    EXPECT_EQ(lst->value, n % ListSize);
+    n++;
+    delete lst;
+  }
+  // TODO: add more tests for ELIST2
 }
 
 } // namespace tesseract.
