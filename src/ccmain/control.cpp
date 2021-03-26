@@ -437,7 +437,7 @@ bool Tesseract::recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor,
     const POLY_BLOCK *pb = page_res_it.block()->block != nullptr
                                ? page_res_it.block()->block->pdblk.poly_block()
                                : nullptr;
-    if (word->best_choice == nullptr || word->best_choice->length() == 0 ||
+    if (word->best_choice == nullptr || word->best_choice->empty() ||
         (word->best_choice->IsAllSpaces() && (pb == nullptr || pb->IsText()))) {
       page_res_it.DeleteCurrentWord();
     }

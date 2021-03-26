@@ -277,6 +277,9 @@ public:
   const UNICHARSET *unicharset() const {
     return unicharset_;
   }
+  bool empty() const {
+    return length_ == 0;
+  }
   inline int length() const {
     return length_;
   }

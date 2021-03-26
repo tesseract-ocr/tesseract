@@ -311,7 +311,7 @@ bool Trie::add_word_list(const std::vector<std::string> &words, const UNICHARSET
                          Trie::RTLReversePolicy reverse_policy) {
   for (const auto &i : words) {
     WERD_CHOICE word(i.c_str(), unicharset);
-    if (word.length() == 0 || word.contains_unichar_id(INVALID_UNICHAR_ID)) {
+    if (word.empty() || word.contains_unichar_id(INVALID_UNICHAR_ID)) {
       continue;
     }
     if ((reverse_policy == RRP_REVERSE_IF_HAS_RTL && word.has_rtl_unichar_id()) ||

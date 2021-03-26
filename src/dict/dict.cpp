@@ -377,7 +377,7 @@ bool Dict::FinishLoad() {
 }
 
 void Dict::End() {
-  if (dawgs_.size() == 0) {
+  if (dawgs_.empty()) {
     return; // Not safe to call twice.
   }
   for (auto &dawg : dawgs_) {
@@ -807,7 +807,7 @@ int Dict::valid_word(const WERD_CHOICE &word, bool numbers_ok) const {
     temp_word += word;
     word_ptr = &temp_word;
   }
-  if (word_ptr->length() == 0) {
+  if (word_ptr->empty()) {
     return NO_PERM;
   }
   // Allocate vectors for holding current and updated
@@ -882,7 +882,7 @@ bool Dict::valid_bigram(const WERD_CHOICE &word1, const WERD_CHOICE &word2) cons
 }
 
 bool Dict::valid_punctuation(const WERD_CHOICE &word) {
-  if (word.length() == 0) {
+  if (word.empty()) {
     return NO_PERM;
   }
   int i;

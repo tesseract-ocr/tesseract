@@ -5,7 +5,6 @@
 //              StructuredTable (maybe a list in the future) of "good" tables
 //              in that area.
 // Author:      Nicholas Beato
-// Created:     Friday, Aug. 20, 2010
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,10 +90,10 @@ bool StructuredTable::is_lined() const {
   return is_lined_;
 }
 int StructuredTable::row_count() const {
-  return cell_y_.size() == 0 ? 0 : cell_y_.size() - 1;
+  return cell_y_.empty() ? 0 : cell_y_.size() - 1;
 }
 int StructuredTable::column_count() const {
-  return cell_x_.size() == 0 ? 0 : cell_x_.size() - 1;
+  return cell_x_.empty() ? 0 : cell_x_.size() - 1;
 }
 int StructuredTable::cell_count() const {
   return row_count() * column_count();
@@ -416,7 +415,7 @@ void StructuredTable::FindWhitespacedColumns() {
     right_sides.push_back(text->bounding_box().right() + spacing);
   }
   // It causes disaster below, so avoid it!
-  if (left_sides.size() == 0 || right_sides.size() == 0) {
+  if (left_sides.empty() || right_sides.empty()) {
     return;
   }
 
@@ -484,7 +483,7 @@ void StructuredTable::FindWhitespacedRows() {
     top_sides.push_back(top);
   }
   // It causes disaster below, so avoid it!
-  if (bottom_sides.size() == 0 || top_sides.size() == 0) {
+  if (bottom_sides.empty() || top_sides.empty()) {
     return;
   }
 
@@ -644,7 +643,7 @@ void StructuredTable::FindCellSplitLocations(const std::vector<int> &min_list,
                                              std::vector<int> *locations) {
   locations->clear();
   ASSERT_HOST(min_list.size() == max_list.size());
-  if (min_list.size() == 0) {
+  if (min_list.empty()) {
     return;
   }
   ASSERT_HOST(min_list.at(0) < max_list.at(0));

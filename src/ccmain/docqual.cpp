@@ -452,7 +452,7 @@ bool Tesseract::terrible_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_level
   int adjusted_len;
   int crunch_mode = 0;
 
-  if ((word->best_choice->unichar_string().length() == 0) ||
+  if (word->best_choice->unichar_string().empty() ||
       (strspn(word->best_choice->unichar_string().c_str(), " ") ==
        word->best_choice->unichar_string().size())) {
     crunch_mode = 1;

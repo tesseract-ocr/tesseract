@@ -372,7 +372,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
   // Report the totals.
   std::string total_report;
   bool any_results = ReportString(true, totals, total_report);
-  if (fonts_report != nullptr && fonts_report->length() == 0) {
+  if (fonts_report != nullptr && fonts_report->empty()) {
     // Make sure we return something even if there were no samples.
     *fonts_report = "NoSamplesFound: ";
     *fonts_report += total_report;
