@@ -39,7 +39,7 @@
 #include "mfoutline.h"       // for baseline, character, MF_SCALE_FACTOR
 #include "normalis.h"        // for DENORM, kBlnBaselineOffset, kBlnXHeight
 #include "normfeat.h"        // for ActualOutlineLength, CharNormLength
-#include "ocrfeatures.h"     // for FEATURE_STRUCT, FreeFeatureSet, FEATURE
+#include "ocrfeatures.h"     // for FEATURE_STRUCT, FEATURE
 #include "oldlist.h"         // for push, delete_d
 #include "outfeat.h"         // for OutlineFeatDir, OutlineFeatLength
 #include "pageres.h"         // for WERD_RES
@@ -68,7 +68,6 @@
 #include <cmath>     // for fabs
 #include <cstdint>   // for INT32_MAX, UINT8_MAX
 #include <cstdio>    // for fflush, fclose, fopen, stdout, FILE
-#include <cstdlib>   // for malloc
 #include <cstring>   // for strstr, memset, strcmp
 
 namespace tesseract {
@@ -693,7 +692,7 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
   Features = ExtractOutlineFeatures(Blob);
   NumFeatures = Features->NumFeatures;
   if (NumFeatures > UNLIKELY_NUM_FEAT || NumFeatures <= 0) {
-    FreeFeatureSet(Features);
+    delete Features;
     return;
   }
 
@@ -732,7 +731,7 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
 
     Class->TempProtos = push(Class->TempProtos, TempProto);
   }
-  FreeFeatureSet(Features);
+  delete Features;
 
   AddIntConfig(IClass);
   ConvertConfig(AllProtosOn, 0, IClass);
@@ -781,7 +780,7 @@ int Classify::GetAdaptiveFeatures(TBLOB *Blob, INT_FEATURE_ARRAY IntFeatures,
 
   NumFeatures = Features->NumFeatures;
   if (NumFeatures == 0 || NumFeatures > UNLIKELY_NUM_FEAT) {
-    FreeFeatureSet(Features);
+    delete Features;
     return 0;
   }
 
@@ -885,7 +884,7 @@ void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float 
           tprintf("Found good match to perm config %d = %4.1f%%.\n", int_result.config,
                   int_result.rating * 100.0);
         }
-        FreeFeatureSet(FloatFeatures);
+        delete FloatFeatures;
         return;
       }
 
@@ -927,7 +926,7 @@ void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float 
       }
 #endif
     }
-    FreeFeatureSet(FloatFeatures);
+    delete FloatFeatures;
   }
 } /* AdaptToChar */
 
@@ -1611,7 +1610,7 @@ bool Classify::LooksLikeGarbage(TBLOB *blob) {
  */
 int Classify::GetCharNormFeature(const INT_FX_RESULT_STRUCT &fx_info, INT_TEMPLATES_STRUCT *templates,
                                  uint8_t *pruner_norm_array, uint8_t *char_norm_array) {
-  FEATURE norm_feature = NewFeature(&CharNormDesc);
+  auto norm_feature = new FEATURE_STRUCT(&CharNormDesc);
   float baseline = kBlnBaselineOffset;
   float scale = MF_SCALE_FACTOR;
   norm_feature->Params[CharNormY] = (fx_info.Ymean - baseline) * scale;
@@ -1649,7 +1648,7 @@ void Classify::ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES
       }
     }
   }
-  FreeFeature(norm_feature);
+  delete norm_feature;
 }
 
 /*---------------------------------------------------------------------------*/

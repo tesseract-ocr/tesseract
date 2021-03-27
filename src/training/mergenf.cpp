@@ -64,7 +64,6 @@ static double_VAR(training_angle_pad, 45.0, "Angle pad ...");
  * @return Worst possible result when matching p1 to p2.
  */
 float CompareProtos(PROTO_STRUCT *p1, PROTO_STRUCT *p2) {
-  FEATURE Feature;
   float WorstEvidence = WORST_EVIDENCE;
   float Evidence;
   float Angle, Length;
@@ -76,7 +75,7 @@ float CompareProtos(PROTO_STRUCT *p1, PROTO_STRUCT *p2) {
   }
 
   /* create a dummy pico-feature to be used for comparisons */
-  Feature = NewFeature(&PicoFeatDesc);
+  auto Feature = new FEATURE_STRUCT(&PicoFeatDesc);
   Feature->Params[PicoFeatDir] = p1->Angle;
 
   /* convert angle to radians */
@@ -97,7 +96,7 @@ float CompareProtos(PROTO_STRUCT *p1, PROTO_STRUCT *p2) {
       WorstEvidence = Evidence;
     }
   } else {
-    FreeFeature(Feature);
+    delete Feature;
     return 0.0;
   }
 
@@ -110,11 +109,11 @@ float CompareProtos(PROTO_STRUCT *p1, PROTO_STRUCT *p2) {
       WorstEvidence = Evidence;
     }
   } else {
-    FreeFeature(Feature);
+    delete Feature;
     return 0.0;
   }
 
-  FreeFeature(Feature);
+  delete Feature;
   return (WorstEvidence);
 
 } /* CompareProtos */

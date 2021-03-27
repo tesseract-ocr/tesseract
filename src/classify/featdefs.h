@@ -57,7 +57,7 @@ struct CHAR_DESC_STRUCT {
   /// description and all of the features in that description.
   ~CHAR_DESC_STRUCT() {
     for (size_t i = 0; i < NumFeatureSets; i++) {
-      FreeFeatureSet(FeatureSets[i]);
+      delete FeatureSets[i];
     }
   }
 

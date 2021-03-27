@@ -41,10 +41,9 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
   LIST Outlines;
   LIST RemainingOutlines;
   MFOUTLINE Outline;
-  FEATURE_SET FeatureSet;
   float XScale, YScale;
 
-  FeatureSet = NewFeatureSet(MAX_OUTLINE_FEATURES);
+  auto FeatureSet = new FEATURE_SET_STRUCT(MAX_OUTLINE_FEATURES);
   if (Blob == nullptr) {
     return (FeatureSet);
   }
@@ -81,9 +80,7 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
  * @param FeatureSet set to add outline-feature to
  */
 void AddOutlineFeatureToSet(FPOINT *Start, FPOINT *End, FEATURE_SET FeatureSet) {
-  FEATURE Feature;
-
-  Feature = NewFeature(&OutlineFeatDesc);
+  auto Feature = new FEATURE_STRUCT(&OutlineFeatDesc);
   Feature->Params[OutlineFeatDir] = NormalizedAngleFrom(Start, End, 1.0);
   Feature->Params[OutlineFeatX] = AverageOf(Start->x, End->x);
   Feature->Params[OutlineFeatY] = AverageOf(Start->y, End->y);

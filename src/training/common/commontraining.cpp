@@ -413,11 +413,11 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
       char_sample->SampleCount++;
       char_sample->font_sample_count++;
     } else {
-      FreeFeatureSet(feature_samples);
+      delete feature_samples;
     }
     for (size_t i = 0; i < char_desc->NumFeatureSets; i++) {
       if (feature_type != i) {
-        FreeFeatureSet(char_desc->FeatureSets[i]);
+        delete char_desc->FeatureSets[i];
       }
     }
     free(char_desc);
@@ -441,7 +441,7 @@ void FreeTrainingSamples(LIST CharList) {
     FeatureList = char_sample->List;
     iterate(FeatureList) { /* iterate through all of the classes */
       FeatureSet = reinterpret_cast<FEATURE_SET> first_node(FeatureList);
-      FreeFeatureSet(FeatureSet);
+      delete FeatureSet;
     }
     FreeLabeledList(char_sample);
   }
