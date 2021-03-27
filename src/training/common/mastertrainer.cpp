@@ -168,7 +168,7 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
       tprintf("Bad format in tr file, reading box coords\n");
       continue;
     }
-    CHAR_DESC char_desc = ReadCharDescription(feature_defs, fp);
+    auto char_desc = ReadCharDescription(feature_defs, fp);
     auto *sample = new TrainingSample;
     sample->set_font_id(font_id);
     sample->set_page_num(page_number + page_images_.size());
@@ -176,7 +176,7 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
     sample->ExtractCharDesc(int_feature_type, micro_feature_type, cn_feature_type, geo_feature_type,
                             char_desc);
     AddSample(verification, unichar.c_str(), sample);
-    FreeCharDescription(char_desc);
+    delete char_desc;
   }
   charsetsize_ = unicharset_.size();
   fclose(fp);

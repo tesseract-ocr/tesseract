@@ -377,7 +377,6 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
   char unichar[UNICHAR_LEN + 1];
   LABELEDLIST char_sample;
   FEATURE_SET feature_samples;
-  CHAR_DESC char_desc;
   uint32_t feature_type = ShortNameToFeatureType(feature_definitions, feature_name);
 
   // Zero out the font_sample_count for all the classes.
@@ -407,7 +406,7 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
       char_sample = NewLabeledList(unichar);
       *training_samples = push(*training_samples, char_sample);
     }
-    char_desc = ReadCharDescription(feature_definitions, file);
+    auto char_desc = ReadCharDescription(feature_definitions, file);
     feature_samples = char_desc->FeatureSets[feature_type];
     if (char_sample->font_sample_count < max_samples || max_samples <= 0) {
       char_sample->List = push(char_sample->List, feature_samples);
