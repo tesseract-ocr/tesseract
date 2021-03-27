@@ -1263,10 +1263,12 @@ using ClusterPair = tesseract::KDPairInc<float, TEMPCLUSTER *>;
 using ClusterHeap = tesseract::GenericHeap<ClusterPair>;
 
 struct STATISTICS {
-  float AvgVariance;
-  float *CoVariance;
-  float *Min; // largest negative distance from the mean
-  float *Max; // largest positive distance from the mean
+  STATISTICS(size_t n) : CoVariance(n * n), Min(n), Max(n) {
+  }
+  float AvgVariance = 1.0f;
+  std::vector<float> CoVariance;
+  std::vector<float> Min; // largest negative distance from the mean
+  std::vector<float> Max; // largest positive distance from the mean
 };
 
 struct BUCKETS {
@@ -1404,8 +1406,6 @@ static uint16_t NormalBucket(PARAM_DESC *ParamDesc, float x, float Mean, float S
 static uint16_t UniformBucket(PARAM_DESC *ParamDesc, float x, float Mean, float StdDev);
 
 static bool DistributionOK(BUCKETS *Buckets);
-
-static void FreeStatistics(STATISTICS *Statistics);
 
 static void FreeBuckets(BUCKETS *Buckets);
 
@@ -1955,7 +1955,6 @@ static void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
  * @return  Pointer to new prototype or nullptr
  */
 static PROTOTYPE *MakePrototype(CLUSTERER *Clusterer, CLUSTERCONFIG *Config, CLUSTER *Cluster) {
-  STATISTICS *Statistics;
   PROTOTYPE *Proto;
   BUCKETS *Buckets;
 
@@ -1965,7 +1964,7 @@ static PROTOTYPE *MakePrototype(CLUSTERER *Clusterer, CLUSTERCONFIG *Config, CLU
   }
 
   // compute the covariance matrix and ranges for the cluster
-  Statistics = ComputeStatistics(Clusterer->SampleSize, Clusterer->ParamDesc, Cluster);
+  auto Statistics = ComputeStatistics(Clusterer->SampleSize, Clusterer->ParamDesc, Cluster);
 
   // check for degenerate clusters which need not be analyzed further
   // note that the MinSamples test assumes that all clusters with multiple
@@ -1973,20 +1972,20 @@ static PROTOTYPE *MakePrototype(CLUSTERER *Clusterer, CLUSTERCONFIG *Config, CLU
   Proto = MakeDegenerateProto(Clusterer->SampleSize, Cluster, Statistics, Config->ProtoStyle,
                               static_cast<int32_t>(Config->MinSamples * Clusterer->NumChar));
   if (Proto != nullptr) {
-    FreeStatistics(Statistics);
+    delete Statistics;
     return Proto;
   }
   // check to ensure that all dimensions are independent
-  if (!Independent(Clusterer->ParamDesc, Clusterer->SampleSize, Statistics->CoVariance,
+  if (!Independent(Clusterer->ParamDesc, Clusterer->SampleSize, &Statistics->CoVariance[0],
                    Config->Independence)) {
-    FreeStatistics(Statistics);
+    delete Statistics;
     return nullptr;
   }
 
   if (HOTELLING && Config->ProtoStyle == elliptical) {
     Proto = TestEllipticalProto(Clusterer, Config, Cluster, Statistics);
     if (Proto != nullptr) {
-      FreeStatistics(Statistics);
+      delete Statistics;
       return Proto;
     }
   }
@@ -2017,7 +2016,7 @@ static PROTOTYPE *MakePrototype(CLUSTERER *Clusterer, CLUSTERCONFIG *Config, CLU
       Proto = MakeMixedProto(Clusterer, Cluster, Statistics, Buckets, Config->Confidence);
       break;
   }
-  FreeStatistics(Statistics);
+  delete Statistics;
   return Proto;
 } // MakePrototype
 
@@ -2368,33 +2367,18 @@ static void MakeDimUniform(uint16_t i, PROTOTYPE *Proto, STATISTICS *Statistics)
  * @return  Pointer to new data structure containing statistics
  */
 static STATISTICS *ComputeStatistics(int16_t N, PARAM_DESC ParamDesc[], CLUSTER *Cluster) {
-  STATISTICS *Statistics;
   int i, j;
-  float *CoVariance;
   float *Distance;
   LIST SearchState;
   SAMPLE *Sample;
   uint32_t SampleCountAdjustedForBias;
 
   // allocate memory to hold the statistics results
-  Statistics = static_cast<STATISTICS *>(malloc(sizeof(STATISTICS)));
-  Statistics->CoVariance = static_cast<float *>(malloc(sizeof(float) * N * N));
-  Statistics->Min = static_cast<float *>(malloc(N * sizeof(float)));
-  Statistics->Max = static_cast<float *>(malloc(N * sizeof(float)));
+  auto Statistics = new STATISTICS(N);
 
   // allocate temporary memory to hold the sample to mean distances
   Distance = static_cast<float *>(malloc(N * sizeof(float)));
 
-  // initialize the statistics
-  Statistics->AvgVariance = 1.0;
-  CoVariance = Statistics->CoVariance;
-  for (i = 0; i < N; i++) {
-    Statistics->Min[i] = 0.0;
-    Statistics->Max[i] = 0.0;
-    for (j = 0; j < N; j++, CoVariance++) {
-      *CoVariance = 0;
-    }
-  }
   // find each sample in the cluster and merge it into the statistics
   InitSampleSearch(SearchState, Cluster);
   while ((Sample = NextSample(&SearchState)) != nullptr) {
@@ -2415,7 +2399,7 @@ static STATISTICS *ComputeStatistics(int16_t N, PARAM_DESC ParamDesc[], CLUSTER 
         Statistics->Max[i] = Distance[i];
       }
     }
-    CoVariance = Statistics->CoVariance;
+    auto CoVariance = &Statistics->CoVariance[0];
     for (i = 0; i < N; i++) {
       for (j = 0; j < N; j++, CoVariance++) {
         *CoVariance += Distance[i] * Distance[j];
@@ -2431,7 +2415,7 @@ static STATISTICS *ComputeStatistics(int16_t N, PARAM_DESC ParamDesc[], CLUSTER 
   } else {
     SampleCountAdjustedForBias = 1;
   }
-  CoVariance = Statistics->CoVariance;
+  auto CoVariance = &Statistics->CoVariance[0];
   for (i = 0; i < N; i++) {
     for (j = 0; j < N; j++, CoVariance++) {
       *CoVariance /= SampleCountAdjustedForBias;
@@ -2493,7 +2477,6 @@ static PROTOTYPE *NewSphericalProto(uint16_t N, CLUSTER *Cluster, STATISTICS *St
  */
 static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics) {
   PROTOTYPE *Proto;
-  float *CoVariance;
   int i;
 
   Proto = NewSimpleProto(N, Cluster);
@@ -2501,7 +2484,7 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
   Proto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
   Proto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
 
-  CoVariance = Statistics->CoVariance;
+  auto CoVariance = &Statistics->CoVariance[0];
   Proto->TotalMagnitude = 1.0;
   for (i = 0; i < N; i++, CoVariance += N + 1) {
     Proto->Variance.Elliptical[i] = *CoVariance;
@@ -3052,18 +3035,6 @@ static bool DistributionOK(BUCKETS *Buckets) {
     return true;
   }
 } // DistributionOK
-
-/**
- * This routine frees the memory used by the statistics
- * data structure.
- * @param Statistics  pointer to data structure to be freed
- */
-static void FreeStatistics(STATISTICS *Statistics) {
-  free(Statistics->CoVariance);
-  free(Statistics->Min);
-  free(Statistics->Max);
-  free(Statistics);
-} // FreeStatistics
 
 /**
  * This routine properly frees the memory used by a BUCKETS.
