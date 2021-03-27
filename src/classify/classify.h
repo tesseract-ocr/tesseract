@@ -119,7 +119,7 @@ public:
   bool LargeSpeckle(const TBLOB &blob);
 
   /* adaptive.cpp ************************************************************/
-  int GetFontinfoId(ADAPT_CLASS Class, uint8_t ConfigId);
+  int GetFontinfoId(ADAPT_CLASS_STRUCT *Class, uint8_t ConfigId);
   // Runs the class pruner from int_templates on the given features, returning
   // the number of classes output in results.
   //    int_templates          Class pruner tables
@@ -169,22 +169,22 @@ public:
   void LearnPieces(const char *fontname, int start, int length, float threshold,
                    CharSegmentationType segmentation, const char *correct_text, WERD_RES *word);
   void InitAdaptiveClassifier(TessdataManager *mgr);
-  void InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, ADAPT_CLASS Class,
+  void InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, ADAPT_CLASS_STRUCT *Class,
                         ADAPT_TEMPLATES_STRUCT *Templates);
   void AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_features,
                        const INT_FX_RESULT_STRUCT &fx_info, const TBLOB *blob,
-                       INT_TEMPLATES_STRUCT *templates, ADAPT_CLASS *classes, UNICHAR_ID *ambiguities,
+                       INT_TEMPLATES_STRUCT *templates, ADAPT_CLASS_STRUCT **classes, UNICHAR_ID *ambiguities,
                        ADAPT_RESULTS *results);
   void MasterMatcher(INT_TEMPLATES_STRUCT *templates, int16_t num_features,
                      const INT_FEATURE_STRUCT *features, const uint8_t *norm_factors,
-                     ADAPT_CLASS *classes, int debug, int matcher_multiplier, const TBOX &blob_box,
+                     ADAPT_CLASS_STRUCT **classes, int debug, int matcher_multiplier, const TBOX &blob_box,
                      const std::vector<CP_RESULT_STRUCT> &results, ADAPT_RESULTS *final_results);
   // Converts configs to fonts, and if the result is not adapted, and a
   // shape_table_ is present, the shape is expanded to include all
   // unichar_ids represented, before applying a set of corrections to the
   // distance rating in int_result, (see ComputeCorrectedRating.)
   // The results are added to the final_results output.
-  void ExpandShapesAndApplyCorrections(ADAPT_CLASS *classes, bool debug, int class_id, int bottom,
+  void ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, bool debug, int class_id, int bottom,
                                        int top, float cp_rating, int blob_length,
                                        int matcher_multiplier, const uint8_t *cn_factors,
                                        UnicharRating *int_result, ADAPT_RESULTS *final_results);
@@ -203,7 +203,7 @@ public:
   void DebugAdaptiveClassifier(TBLOB *Blob, ADAPT_RESULTS *Results);
 #  endif
   PROTO_ID MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATURE_ID BadFeat[],
-                             INT_CLASS_STRUCT *IClass, ADAPT_CLASS Class, BIT_VECTOR TempProtoMask);
+                             INT_CLASS_STRUCT *IClass, ADAPT_CLASS_STRUCT *Class, BIT_VECTOR TempProtoMask);
   int MakeNewTemporaryConfig(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, int FontinfoId,
                              int NumFeatures, INT_FEATURE_ARRAY Features,
                              FEATURE_SET FloatFeatures);

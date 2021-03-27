@@ -50,6 +50,8 @@ union ADAPTED_CONFIG {
 };
 
 struct ADAPT_CLASS_STRUCT {
+  ADAPT_CLASS_STRUCT();
+  ~ADAPT_CLASS_STRUCT();
   uint8_t NumPermConfigs;
   uint8_t MaxNumTimesSeen; // maximum number of times any TEMP_CONFIG was seen
                            // (cut at matcher_min_examples_for_prototyping)
@@ -58,7 +60,6 @@ struct ADAPT_CLASS_STRUCT {
   LIST TempProtos;
   ADAPTED_CONFIG Config[MAX_NUM_CONFIGS];
 };
-using ADAPT_CLASS = ADAPT_CLASS_STRUCT *;
 
 class ADAPT_TEMPLATES_STRUCT {
 public:
@@ -68,7 +69,7 @@ public:
   INT_TEMPLATES_STRUCT *Templates;
   int NumNonEmptyClasses;
   uint8_t NumPermClasses;
-  ADAPT_CLASS Class[MAX_NUM_CLASSES];
+  ADAPT_CLASS_STRUCT *Class[MAX_NUM_CLASSES];
 };
 
 /*----------------------------------------------------------------------------
@@ -90,23 +91,19 @@ public:
 
 #define IncreaseConfidence(TempConfig) ((TempConfig)->NumTimesSeen++)
 
-void AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS Class, CLASS_ID ClassId);
+void AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS_STRUCT *Class, CLASS_ID ClassId);
 
 void FreeTempConfig(TEMP_CONFIG Config);
 
-ADAPT_CLASS NewAdaptedClass();
-
-void free_adapted_class(ADAPT_CLASS adapt_class);
-
 TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId);
 
-ADAPT_CLASS ReadAdaptedClass(tesseract::TFile *File);
+ADAPT_CLASS_STRUCT *ReadAdaptedClass(tesseract::TFile *File);
 
 PERM_CONFIG ReadPermConfig(tesseract::TFile *File);
 
 TEMP_CONFIG ReadTempConfig(tesseract::TFile *File);
 
-void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs);
+void WriteAdaptedClass(FILE *File, ADAPT_CLASS_STRUCT *Class, int NumConfigs);
 
 void WritePermConfig(FILE *File, PERM_CONFIG Config);
 
