@@ -1409,8 +1409,6 @@ static void FreeStatistics(STATISTICS *Statistics);
 
 static void FreeBuckets(BUCKETS *Buckets);
 
-static void FreeCluster(CLUSTER *Cluster);
-
 static uint16_t DegreesOfFreedom(DISTRIBUTION Distribution, uint16_t HistogramBuckets);
 
 static void AdjustBuckets(BUCKETS *Buckets, uint32_t NewSampleCount);
@@ -1438,11 +1436,10 @@ static double InvertMatrix(const float *input, int size, float *inv);
  * @return pointer to the new clusterer data structure
  */
 CLUSTERER *MakeClusterer(int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
-  CLUSTERER *Clusterer;
   int i;
 
   // allocate main clusterer data structure and init simple fields
-  Clusterer = static_cast<CLUSTERER *>(malloc(sizeof(CLUSTERER)));
+  auto Clusterer = new CLUSTERER;
   Clusterer->SampleSize = SampleSize;
   Clusterer->NumberOfSamples = 0;
   Clusterer->NumChar = 0;
@@ -1490,7 +1487,6 @@ CLUSTERER *MakeClusterer(int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
  * @return    Pointer to the new sample data structure
  */
 SAMPLE *MakeSample(CLUSTERER *Clusterer, const float *Feature, int32_t CharID) {
-  SAMPLE *Sample;
   int i;
 
   // see if the samples have already been clustered - if so trap an error
@@ -1498,8 +1494,7 @@ SAMPLE *MakeSample(CLUSTERER *Clusterer, const float *Feature, int32_t CharID) {
   ASSERT_HOST(Clusterer->Root == nullptr);
 
   // allocate the new sample and initialize it
-  Sample =
-      static_cast<SAMPLE *>(malloc(sizeof(SAMPLE) + (Clusterer->SampleSize - 1) * sizeof(float)));
+  auto Sample = new SAMPLE(Clusterer->SampleSize);
   Sample->Clustered = false;
   Sample->Prototype = false;
   Sample->SampleCount = 1;
@@ -1513,7 +1508,7 @@ SAMPLE *MakeSample(CLUSTERER *Clusterer, const float *Feature, int32_t CharID) {
 
   // add the sample to the KD tree - keep track of the total # of samples
   Clusterer->NumberOfSamples++;
-  KDStore(Clusterer->KDTree, Sample->Mean, Sample);
+  KDStore(Clusterer->KDTree, &Sample->Mean[0], Sample);
   if (CharID >= Clusterer->NumChar) {
     Clusterer->NumChar = CharID + 1;
   }
@@ -1581,9 +1576,7 @@ void FreeClusterer(CLUSTERER *Clusterer) {
     if (Clusterer->KDTree != nullptr) {
       FreeKDTree(Clusterer->KDTree);
     }
-    if (Clusterer->Root != nullptr) {
-      FreeCluster(Clusterer->Root);
-    }
+    delete Clusterer->Root;
     // Free up all used buckets structures.
     for (auto &d : Clusterer->bucket_cache) {
       for (auto &c : d) {
@@ -1593,7 +1586,7 @@ void FreeClusterer(CLUSTERER *Clusterer) {
       }
     }
 
-    free(Clusterer);
+    delete Clusterer;
   }
 } // FreeClusterer
 
@@ -1624,13 +1617,12 @@ void FreePrototype(void *arg) { // PROTOTYPE     *Prototype)
 
   // deallocate the prototype statistics and then the prototype itself
   free(Prototype->Distrib);
-  free(Prototype->Mean);
   if (Prototype->Style != spherical) {
     free(Prototype->Variance.Elliptical);
     free(Prototype->Magnitude.Elliptical);
     free(Prototype->Weight.Elliptical);
   }
-  free(Prototype);
+  delete Prototype;
 } // FreePrototype
 
 /**
@@ -1819,7 +1811,7 @@ static CLUSTER *FindNearestNeighbor(KDTREE *Tree, CLUSTER *Cluster, float *Dista
   CLUSTER *BestNeighbor;
 
   // find the 2 nearest neighbors of the cluster
-  KDNearestNeighborSearch(Tree, Cluster->Mean, MAXNEIGHBORS, MAXDISTANCE, &NumberOfNeighbors,
+  KDNearestNeighborSearch(Tree, &Cluster->Mean[0], MAXNEIGHBORS, MAXDISTANCE, &NumberOfNeighbors,
                           reinterpret_cast<void **>(Neighbor), Dist);
 
   // search for the nearest neighbor that is not the cluster itself
@@ -1844,11 +1836,8 @@ static CLUSTER *FindNearestNeighbor(KDTREE *Tree, CLUSTER *Cluster, float *Dista
  * @return Pointer to the new permanent cluster
  */
 static CLUSTER *MakeNewCluster(CLUSTERER *Clusterer, TEMPCLUSTER *TempCluster) {
-  CLUSTER *Cluster;
-
   // allocate the new cluster and initialize it
-  Cluster =
-      static_cast<CLUSTER *>(malloc(sizeof(CLUSTER) + (Clusterer->SampleSize - 1) * sizeof(float)));
+  auto Cluster = new CLUSTER(Clusterer->SampleSize);
   Cluster->Clustered = false;
   Cluster->Prototype = false;
   Cluster->Left = TempCluster->Cluster;
@@ -1858,16 +1847,16 @@ static CLUSTER *MakeNewCluster(CLUSTERER *Clusterer, TEMPCLUSTER *TempCluster) {
   // mark the old clusters as "clustered" and delete them from the kd-tree
   Cluster->Left->Clustered = true;
   Cluster->Right->Clustered = true;
-  KDDelete(Clusterer->KDTree, Cluster->Left->Mean, Cluster->Left);
-  KDDelete(Clusterer->KDTree, Cluster->Right->Mean, Cluster->Right);
+  KDDelete(Clusterer->KDTree, &Cluster->Left->Mean[0], Cluster->Left);
+  KDDelete(Clusterer->KDTree, &Cluster->Right->Mean[0], Cluster->Right);
 
   // compute the mean and sample count for the new cluster
   Cluster->SampleCount = MergeClusters(Clusterer->SampleSize, Clusterer->ParamDesc,
                                        Cluster->Left->SampleCount, Cluster->Right->SampleCount,
-                                       Cluster->Mean, Cluster->Left->Mean, Cluster->Right->Mean);
+                                       &Cluster->Mean[0], &Cluster->Left->Mean[0], &Cluster->Right->Mean[0]);
 
   // add the new cluster to the KD tree
-  KDStore(Clusterer->KDTree, Cluster->Mean, Cluster);
+  KDStore(Clusterer->KDTree, &Cluster->Mean[0], Cluster);
   return Cluster;
 } // MakeNewCluster
 
@@ -2565,15 +2554,10 @@ static PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statist
  * @return  Pointer to new simple prototype
  */
 static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
-  PROTOTYPE *Proto;
-  int i;
+  auto Proto = new PROTOTYPE;
+  ASSERT_HOST(N == sizeof(Cluster->Mean));
+  Proto->Mean = Cluster->Mean;
 
-  Proto = static_cast<PROTOTYPE *>(malloc(sizeof(PROTOTYPE)));
-  Proto->Mean = static_cast<float *>(malloc(N * sizeof(float)));
-
-  for (i = 0; i < N; i++) {
-    Proto->Mean[i] = Cluster->Mean[i];
-  }
   Proto->Distrib = nullptr;
 
   Proto->Significant = true;
@@ -2582,7 +2566,7 @@ static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
   Proto->NumSamples = Cluster->SampleCount;
   Proto->Cluster = Cluster;
   Proto->Cluster->Prototype = true;
-  return (Proto);
+  return Proto;
 } // NewSimpleProto
 
 /**
@@ -3091,21 +3075,6 @@ static void FreeBuckets(BUCKETS *buckets) {
   free(buckets->ExpectedCount);
   free(buckets);
 } // FreeBuckets
-
-/**
- * This routine frees the memory consumed by the specified
- * cluster and all of its subclusters.  This is done by
- * recursive calls to FreeCluster().
- *
- * @param Cluster pointer to cluster to be freed
- */
-static void FreeCluster(CLUSTER *Cluster) {
-  if (Cluster != nullptr) {
-    FreeCluster(Cluster->Left);
-    FreeCluster(Cluster->Right);
-    free(Cluster);
-  }
-} // FreeCluster
 
 /**
  * This routine computes the degrees of freedom that should

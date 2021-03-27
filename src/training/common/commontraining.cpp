@@ -527,8 +527,8 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
     iterate(list_it) {
       auto *test_p = reinterpret_cast<PROTOTYPE *> first_node(list_it);
       if (test_p != Prototype && !test_p->Merged) {
-        float dist = ComputeDistance(Clusterer->SampleSize, Clusterer->ParamDesc, Prototype->Mean,
-                                     test_p->Mean);
+        float dist = ComputeDistance(Clusterer->SampleSize, Clusterer->ParamDesc, &Prototype->Mean[0],
+                                     &test_p->Mean[0]);
         if (dist < best_dist) {
           best_match = test_p;
           best_dist = dist;
@@ -543,7 +543,7 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
       }
       best_match->NumSamples =
           MergeClusters(Clusterer->SampleSize, Clusterer->ParamDesc, best_match->NumSamples,
-                        Prototype->NumSamples, best_match->Mean, best_match->Mean, Prototype->Mean);
+                        Prototype->NumSamples, &best_match->Mean[0], &best_match->Mean[0], &Prototype->Mean[0]);
       Prototype->NumSamples = 0;
       Prototype->Merged = true;
     } else if (best_match != nullptr) {
@@ -589,30 +589,21 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
 
 {
   LIST NewProtoList = NIL_LIST;
-  LIST pProtoList;
-  PROTOTYPE *Proto;
-  PROTOTYPE *NewProto;
-  int i;
-
-  pProtoList = ProtoList;
+  auto pProtoList = ProtoList;
   iterate(pProtoList) {
-    Proto = reinterpret_cast<PROTOTYPE *> first_node(pProtoList);
+    auto Proto = reinterpret_cast<PROTOTYPE *> first_node(pProtoList);
     if ((Proto->Significant && KeepSigProtos) || (!Proto->Significant && KeepInsigProtos)) {
-      NewProto = static_cast<PROTOTYPE *>(malloc(sizeof(PROTOTYPE)));
-
-      NewProto->Mean = static_cast<float *>(malloc(N * sizeof(float)));
+      auto NewProto = new PROTOTYPE;
+      NewProto->Mean = Proto->Mean;
       NewProto->Significant = Proto->Significant;
       NewProto->Style = Proto->Style;
       NewProto->NumSamples = Proto->NumSamples;
       NewProto->Cluster = nullptr;
       NewProto->Distrib = nullptr;
 
-      for (i = 0; i < N; i++) {
-        NewProto->Mean[i] = Proto->Mean[i];
-      }
       if (Proto->Variance.Elliptical != nullptr) {
         NewProto->Variance.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++) {
+        for (int i = 0; i < N; i++) {
           NewProto->Variance.Elliptical[i] = Proto->Variance.Elliptical[i];
         }
       } else {
@@ -621,7 +612,7 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
       //---------------------------------------------
       if (Proto->Magnitude.Elliptical != nullptr) {
         NewProto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++) {
+        for (int i = 0; i < N; i++) {
           NewProto->Magnitude.Elliptical[i] = Proto->Magnitude.Elliptical[i];
         }
       } else {
@@ -630,7 +621,7 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
       //------------------------------------------------
       if (Proto->Weight.Elliptical != nullptr) {
         NewProto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++) {
+        for (int i = 0; i < N; i++) {
           NewProto->Weight.Elliptical[i] = Proto->Weight.Elliptical[i];
         }
       } else {

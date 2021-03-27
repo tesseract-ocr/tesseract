@@ -42,18 +42,12 @@ namespace tesseract {
  * @return Pointer to buffer holding floats or nullptr if EOF
  * @note Globals: None
  */
-static float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
+static bool ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
   const int kMaxLineSize = 1024;
   char line[kMaxLineSize];
   if (fp->FGets(line, kMaxLineSize) == nullptr) {
     tprintf("Hit EOF in ReadNFloats!\n");
-    return nullptr;
-  }
-  bool needs_free = false;
-
-  if (Buffer == nullptr) {
-    Buffer = static_cast<float *>(malloc(N * sizeof(float)));
-    needs_free = true;
+    return false;
   }
 
   std::stringstream stream(line);
@@ -64,14 +58,11 @@ static float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
     stream >> f;
     if (std::isnan(f)) {
       tprintf("Read of %u floats failed!\n", N);
-      if (needs_free) {
-        free(Buffer);
-      }
-      return nullptr;
+      return false;
     }
     Buffer[i] = f;
   }
-  return Buffer;
+  return true;
 }
 
 /**
@@ -178,7 +169,6 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
  */
 PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   char sig_token[TOKENSIZE], shape_token[TOKENSIZE];
-  PROTOTYPE *Proto;
   int SampleCount;
   int i;
 
@@ -190,7 +180,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
     tprintf("Invalid prototype: %s\n", line);
     return nullptr;
   }
-  Proto = static_cast<PROTOTYPE *>(malloc(sizeof(PROTOTYPE)));
+  auto Proto = new PROTOTYPE;
   Proto->Cluster = nullptr;
   Proto->Significant = (sig_token[0] == 's');
 
@@ -212,12 +202,12 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   ASSERT_HOST(SampleCount >= 0);
   Proto->NumSamples = SampleCount;
 
-  Proto->Mean = ReadNFloats(fp, N, nullptr);
-  ASSERT_HOST(Proto->Mean != nullptr);
+  Proto->Mean.resize(N);
+  ReadNFloats(fp, N, &Proto->Mean[0]);
 
   switch (Proto->Style) {
     case spherical:
-      ASSERT_HOST(ReadNFloats(fp, 1, &(Proto->Variance.Spherical)) != nullptr);
+      ReadNFloats(fp, 1, &(Proto->Variance.Spherical));
       Proto->Magnitude.Spherical = 1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
       Proto->TotalMagnitude = pow(Proto->Magnitude.Spherical, static_cast<float>(N));
       Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
@@ -225,8 +215,8 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->Distrib = nullptr;
       break;
     case elliptical:
-      Proto->Variance.Elliptical = ReadNFloats(fp, N, nullptr);
-      ASSERT_HOST(Proto->Variance.Elliptical != nullptr);
+      Proto->Variance.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
+      ReadNFloats(fp, N, Proto->Variance.Elliptical);
       Proto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
       Proto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
       Proto->TotalMagnitude = 1.0;
@@ -239,7 +229,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->Distrib = nullptr;
       break;
     default:
-      free(Proto);
+      delete Proto;
       tprintf("Invalid prototype style\n");
       return nullptr;
   }
@@ -290,7 +280,7 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
   }
   WriteProtoStyle(File, static_cast<PROTOSTYLE>(Proto->Style));
   fprintf(File, "%6d\n\t", Proto->NumSamples);
-  WriteNFloats(File, N, Proto->Mean);
+  WriteNFloats(File, N, &Proto->Mean[0]);
   fprintf(File, "\t");
 
   switch (Proto->Style) {

@@ -32,13 +32,21 @@ struct BUCKETS;
           Types
 ----------------------------------------------------------------------*/
 struct CLUSTER {
+  CLUSTER(size_t n) : Mean(n) {
+  }
+
+  ~CLUSTER() {
+    delete Left;
+    delete Right;
+  }
+
   bool Clustered : 1;        // true if included in a higher cluster
   bool Prototype : 1;        // true if cluster represented by a proto
   unsigned SampleCount : 30; // number of samples in this cluster
   CLUSTER *Left;       // ptr to left sub-cluster
   CLUSTER *Right;      // ptr to right sub-cluster
   int32_t CharID;            // identifier of char sample came from
-  float Mean[1];             // mean of cluster - SampleSize floats
+  std::vector<float> Mean;   // mean of cluster - SampleSize floats
 };
 using SAMPLE = CLUSTER; // can refer to as either sample or cluster
 
@@ -72,7 +80,7 @@ struct PROTOTYPE {
   unsigned NumSamples : 28; // number of samples in the cluster
   CLUSTER *Cluster;         // ptr to cluster which made prototype
   DISTRIBUTION *Distrib;    // different distribution for each dimension
-  float *Mean;              // prototype mean
+  std::vector<float> Mean;  // prototype mean
   float TotalMagnitude;     // total magnitude over all dimensions
   float LogMagnitude;       // log base e of TotalMagnitude
   FLOATUNION Variance;      // prototype variance
