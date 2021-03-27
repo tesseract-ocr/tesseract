@@ -1281,9 +1281,17 @@ struct BUCKETS {
 };
 
 struct CHISTRUCT {
-  uint16_t DegreesOfFreedom;
-  double Alpha;
-  double ChiSquared;
+  /// This constructor allocates a new data structure which is used
+  /// to hold a chi-squared value along with its associated
+  /// number of degrees of freedom and alpha value.
+  ///
+  /// @param degreesOfFreedom  degrees of freedom for new chi value
+  /// @param alpha     confidence level for new chi value
+  CHISTRUCT(uint16_t degreesOfFreedom, double alpha) : DegreesOfFreedom(degreesOfFreedom), Alpha(alpha) {
+  }
+  uint16_t DegreesOfFreedom = 0;
+  double Alpha = 0.0;
+  double ChiSquared = 0.0;
 };
 
 // For use with KDWalk / MakePotentialClusters
@@ -1411,8 +1419,6 @@ static void InitBuckets(BUCKETS *Buckets);
 
 static int AlphaMatch(void *arg1,  // CHISTRUCT *ChiStruct,
                       void *arg2); // CHISTRUCT *SearchKey);
-
-static CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha);
 
 static double Solve(SOLVEFUNC Function, void *FunctionParams, double InitialGuess, double Accuracy);
 
@@ -2816,9 +2822,6 @@ static double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha)
 {
   static LIST ChiWith[MAXDEGREESOFFREEDOM + 1];
 
-  CHISTRUCT *OldChiSquared;
-  CHISTRUCT SearchKey;
-
   // limit the minimum alpha that can be used - if alpha is too small
   //      it may not be possible to compute chi-squared.
   Alpha = ClipToRange(Alpha, MINALPHA, 1.0);
@@ -2829,12 +2832,12 @@ static double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha)
   /* find the list of chi-squared values which have already been computed
    for the specified number of degrees of freedom.  Search the list for
    the desired chi-squared. */
-  SearchKey.Alpha = Alpha;
-  OldChiSquared = reinterpret_cast<CHISTRUCT *> first_node(
+  CHISTRUCT SearchKey(0.0, Alpha);
+  auto OldChiSquared = reinterpret_cast<CHISTRUCT *> first_node(
       search(ChiWith[DegreesOfFreedom], &SearchKey, AlphaMatch));
 
   if (OldChiSquared == nullptr) {
-    OldChiSquared = NewChiStruct(DegreesOfFreedom, Alpha);
+    OldChiSquared = new CHISTRUCT(DegreesOfFreedom, Alpha);
     OldChiSquared->ChiSquared =
         Solve(ChiArea, OldChiSquared, static_cast<double>(DegreesOfFreedom), CHIACCURACY);
     ChiWith[DegreesOfFreedom] = push(ChiWith[DegreesOfFreedom], OldChiSquared);
@@ -3185,25 +3188,6 @@ static int AlphaMatch(void *arg1,   // CHISTRUCT *ChiStruct,
   return (ChiStruct->Alpha == SearchKey->Alpha);
 
 } // AlphaMatch
-
-/**
- * This routine allocates a new data structure which is used
- * to hold a chi-squared value along with its associated
- * number of degrees of freedom and alpha value.
- *
- * @param DegreesOfFreedom  degrees of freedom for new chi value
- * @param Alpha     confidence level for new chi value
- * @return newly allocated data structure
- */
-static CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha) {
-  CHISTRUCT *NewChiStruct;
-
-  NewChiStruct = static_cast<CHISTRUCT *>(malloc(sizeof(CHISTRUCT)));
-  NewChiStruct->DegreesOfFreedom = DegreesOfFreedom;
-  NewChiStruct->Alpha = Alpha;
-  return (NewChiStruct);
-
-} // NewChiStruct
 
 /**
  * This routine attempts to find an x value at which Function
