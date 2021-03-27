@@ -63,7 +63,7 @@ static double_VAR(training_angle_pad, 45.0, "Angle pad ...");
  *
  * @return Worst possible result when matching p1 to p2.
  */
-float CompareProtos(PROTO p1, PROTO p2) {
+float CompareProtos(PROTO_STRUCT *p1, PROTO_STRUCT *p2) {
   FEATURE Feature;
   float WorstEvidence = WORST_EVIDENCE;
   float Evidence;
@@ -128,7 +128,7 @@ float CompareProtos(PROTO p1, PROTO p2) {
  * @param w1, w2    weight of each proto
  * @param MergedProto place to put resulting merged proto
  */
-void ComputeMergedProto(PROTO p1, PROTO p2, float w1, float w2, PROTO MergedProto) {
+void ComputeMergedProto(PROTO_STRUCT *p1, PROTO_STRUCT *p2, float w1, float w2, PROTO_STRUCT *MergedProto) {
   float TotalWeight;
 
   TotalWeight = w1 + w2;
@@ -160,7 +160,7 @@ int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[], PROTOTYPE *Proto
   PROTO_STRUCT NewProto;
   PROTO_STRUCT MergedProto;
   int Pid;
-  PROTO Proto;
+  PROTO_STRUCT *Proto;
   int BestProto;
   float BestMatch;
   float Match, OldMatch, NewMatch;
@@ -192,7 +192,7 @@ int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[], PROTOTYPE *Proto
  *
  *  Globals: none
  */
-void MakeNewFromOld(PROTO New, PROTOTYPE *Old) {
+void MakeNewFromOld(PROTO_STRUCT *New, PROTOTYPE *Old) {
   New->X = CenterX(Old->Mean);
   New->Y = CenterY(Old->Mean);
   New->Length = LengthOf(Old->Mean);
@@ -207,7 +207,7 @@ void MakeNewFromOld(PROTO New, PROTOTYPE *Old) {
  *
  * Compare a feature to a prototype. Print the result.
  */
-float SubfeatureEvidence(FEATURE Feature, PROTO Proto) {
+float SubfeatureEvidence(FEATURE Feature, PROTO_STRUCT *Proto) {
   float Distance;
   float Dangle;
 
@@ -261,7 +261,7 @@ double EvidenceOf(double Similarity) {
  *
  * @return true if feature could match Proto.
  */
-bool DummyFastMatch(FEATURE Feature, PROTO Proto) {
+bool DummyFastMatch(FEATURE Feature, PROTO_STRUCT *Proto) {
   FRECT BoundingBox;
   float MaxAngleError;
   float AngleError;
@@ -293,7 +293,7 @@ bool DummyFastMatch(FEATURE Feature, PROTO Proto) {
  * @param OrthogonalPad amount of pad to add orthogonal to segment
  * @param[out] BoundingBox place to put results
  */
-void ComputePaddedBoundingBox(PROTO Proto, float TangentPad, float OrthogonalPad,
+void ComputePaddedBoundingBox(PROTO_STRUCT *Proto, float TangentPad, float OrthogonalPad,
                               FRECT *BoundingBox) {
   float Length = Proto->Length / 2.0 + TangentPad;
   float Angle = Proto->Angle * 2.0 * M_PI;

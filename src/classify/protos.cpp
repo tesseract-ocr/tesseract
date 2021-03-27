@@ -88,7 +88,7 @@ int AddProtoToClass(CLASS_TYPE Class) {
         (((Class->MaxNumProtos + PROTO_INCREMENT) / PROTO_INCREMENT) * PROTO_INCREMENT);
 
     Class->Prototypes =
-        static_cast<PROTO>(realloc(Class->Prototypes, sizeof(PROTO_STRUCT) * NewNumProtos));
+        static_cast<PROTO_STRUCT *>(realloc(Class->Prototypes, sizeof(PROTO_STRUCT) * NewNumProtos));
 
     Class->MaxNumProtos = NewNumProtos;
     ASSERT_HOST(NewNumProtos <= MAX_NUM_PROTOS);
@@ -103,7 +103,7 @@ int AddProtoToClass(CLASS_TYPE Class) {
  *
  * Fill in Protos A, B, C fields based on the X, Y, Angle fields.
  **********************************************************************/
-void FillABC(PROTO Proto) {
+void FillABC(PROTO_STRUCT *Proto) {
   float Slope, Intercept, Normalizer;
 
   Slope = tan(Proto->Angle * 2.0 * M_PI);
@@ -159,7 +159,7 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
   Class = new CLASS_STRUCT;
 
   if (NumProtos > 0) {
-    Class->Prototypes = static_cast<PROTO>(malloc(NumProtos * sizeof(PROTO_STRUCT)));
+    Class->Prototypes = new PROTO_STRUCT[NumProtos];
   }
 
   if (NumConfigs > 0) {

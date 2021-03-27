@@ -126,14 +126,14 @@ ScrollView::Color GetMatchColorFor(float Evidence);
 
 void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill);
 
-void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO Proto,
+void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *Proto,
                      TABLE_FILLER *Filler);
 
 #ifndef GRAPHICS_DISABLED
 void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT *Feature,
                       ScrollView::Color color);
 
-void RenderIntProto(ScrollView *window, INT_CLASS Class, PROTO_ID ProtoId, ScrollView::Color color);
+void RenderIntProto(ScrollView *window, INT_CLASS_STRUCT *Class, PROTO_ID ProtoId, ScrollView::Color color);
 #endif // !GRAPHICS_DISABLED
 
 /*-----------------------------------------------------------------------------
@@ -215,7 +215,7 @@ INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(int x, int y, int theta)
  *
  * Globals: none
  */
-void AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class) {
+void AddIntClass(INT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, INT_CLASS_STRUCT *Class) {
   int Pruner;
 
   assert(LegalClassId(ClassId));
@@ -245,7 +245,7 @@ void AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class) {
  *
  * @return Index of next free config.
  */
-int AddIntConfig(INT_CLASS Class) {
+int AddIntConfig(INT_CLASS_STRUCT *Class) {
   int Index;
 
   assert(Class->NumConfigs < MAX_NUM_CONFIGS);
@@ -265,23 +265,16 @@ int AddIntConfig(INT_CLASS Class) {
  *
  * @return Proto index of new proto.
  */
-int AddIntProto(INT_CLASS Class) {
-  int Index;
-  int ProtoSetId;
-  PROTO_SET ProtoSet;
-  INT_PROTO Proto;
-  uint32_t *Word;
-
+int AddIntProto(INT_CLASS_STRUCT *Class) {
   if (Class->NumProtos >= MAX_NUM_PROTOS) {
     return (NO_PROTO);
   }
 
-  Index = Class->NumProtos++;
+  int Index = Class->NumProtos++;
 
   if (Class->NumProtos > MaxNumIntProtosIn(Class)) {
-    ProtoSetId = Class->NumProtoSets++;
-
-    ProtoSet = static_cast<PROTO_SET>(malloc(sizeof(PROTO_SET_STRUCT)));
+    int ProtoSetId = Class->NumProtoSets++;
+    auto ProtoSet = new PROTO_SET_STRUCT;
     Class->ProtoSets[ProtoSetId] = ProtoSet;
     memset(ProtoSet, 0, sizeof(*ProtoSet));
 
@@ -294,9 +287,8 @@ int AddIntProto(INT_CLASS Class) {
 
   /* initialize proto so its length is zero and it isn't in any configs */
   Class->ProtoLengths[Index] = 0;
-  Proto = ProtoForProtoId(Class, Index);
-  for (Word = Proto->Configs; Word < Proto->Configs + WERDS_PER_CONFIG_VEC; *Word++ = 0) {
-    ;
+  auto Proto = ProtoForProtoId(Class, Index);
+  for (uint32_t *Word = Proto->Configs; Word < Proto->Configs + WERDS_PER_CONFIG_VEC; *Word++ = 0) {
   }
 
   return (Index);
@@ -312,7 +304,7 @@ int AddIntProto(INT_CLASS Class) {
  * @param ClassId   class id corresponding to Proto
  * @param Templates set of templates containing class pruner
  */
-void AddProtoToClassPruner(PROTO Proto, CLASS_ID ClassId, INT_TEMPLATES Templates)
+void AddProtoToClassPruner(PROTO_STRUCT *Proto, CLASS_ID ClassId, INT_TEMPLATES_STRUCT *Templates)
 #define MAX_LEVEL 2
 {
   CLASS_PRUNER_STRUCT *Pruner;
@@ -350,21 +342,19 @@ void AddProtoToClassPruner(PROTO Proto, CLASS_ID ClassId, INT_TEMPLATES Template
  * @param debug debug flag
  * @note Globals: none
  */
-void AddProtoToProtoPruner(PROTO Proto, int ProtoId, INT_CLASS Class, bool debug) {
-  float Angle, X, Y, Length;
+void AddProtoToProtoPruner(PROTO_STRUCT *Proto, int ProtoId, INT_CLASS_STRUCT *Class, bool debug) {
+  float X, Y, Length;
   float Pad;
-  int Index;
-  PROTO_SET ProtoSet;
 
   if (ProtoId >= Class->NumProtos) {
     tprintf("AddProtoToProtoPruner:assert failed: %d < %d", ProtoId, Class->NumProtos);
   }
   assert(ProtoId < Class->NumProtos);
 
-  Index = IndexForProto(ProtoId);
-  ProtoSet = Class->ProtoSets[SetForProto(ProtoId)];
+  int Index = IndexForProto(ProtoId);
+  auto ProtoSet = Class->ProtoSets[SetForProto(ProtoId)];
 
-  Angle = Proto->Angle;
+  float Angle = Proto->Angle;
 #ifndef _WIN32
   assert(!std::isnan(Angle));
 #endif
@@ -438,9 +428,9 @@ void UpdateMatchDisplay() {
  * @param ConfigId  id to be used for new config
  * @param Class   class to add new config to
  */
-void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class) {
+void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS_STRUCT *Class) {
   int ProtoId;
-  INT_PROTO Proto;
+  INT_PROTO_STRUCT *Proto;
   int TotalLength;
 
   for (ProtoId = 0, TotalLength = 0; ProtoId < Class->NumProtos; ProtoId++) {
@@ -460,10 +450,10 @@ void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class) {
  * @param ProtoId id of proto
  * @param Class integer class to add converted proto to
  */
-void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
+void Classify::ConvertProto(PROTO_STRUCT *Proto, int ProtoId, INT_CLASS_STRUCT *Class) {
   assert(ProtoId < Class->NumProtos);
 
-  INT_PROTO P = ProtoForProtoId(Class, ProtoId);
+  INT_PROTO_STRUCT *P = ProtoForProtoId(Class, ProtoId);
 
   float Param = Proto->A * 128;
   P->A = TruncateParam(Param, -128, 127);
@@ -498,16 +488,15 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
  * @return New set of training templates in integer format.
  * @note Globals: none
  */
-INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
+INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
                                            const UNICHARSET &target_unicharset) {
-  INT_TEMPLATES IntTemplates;
   CLASS_TYPE FClass;
-  INT_CLASS IClass;
+  INT_CLASS_STRUCT *IClass;
   int ClassId;
   int ProtoId;
   int ConfigId;
 
-  IntTemplates = NewIntTemplates();
+  auto IntTemplates = new INT_TEMPLATES_STRUCT;
 
   for (ClassId = 0; ClassId < target_unicharset.size(); ClassId++) {
     FClass = &(FloatProtos[ClassId]);
@@ -517,7 +506,7 @@ INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
               target_unicharset.id_to_unichar(ClassId));
     }
     assert(UnusedClassIdIn(IntTemplates, ClassId));
-    IClass = NewIntClass(FClass->NumProtos, FClass->NumConfigs);
+    IClass = new INT_CLASS_STRUCT(FClass->NumProtos, FClass->NumConfigs);
     FontSet fs;
     fs.size = FClass->font_set.size();
     fs.configs = new int[fs.size];
@@ -576,7 +565,7 @@ void DisplayIntFeature(const INT_FEATURE_STRUCT *Feature, float Evidence) {
  * @param ProtoId   id of proto in Class to be displayed
  * @param Evidence  total evidence for proto (0-1)
  */
-void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, float Evidence) {
+void DisplayIntProto(INT_CLASS_STRUCT *Class, PROTO_ID ProtoId, float Evidence) {
   ScrollView::Color color = GetMatchColorFor(Evidence);
   RenderIntProto(IntMatchWindow, Class, ProtoId, color);
   if (ProtoDisplayWindow) {
@@ -585,95 +574,65 @@ void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, float Evidence) {
 } /* DisplayIntProto */
 #endif
 
-/**
- * This routine creates a new integer class data structure
- * and returns it.  Sufficient space is allocated
- * to handle the specified number of protos and configs.
- * @param MaxNumProtos  number of protos to allocate space for
- * @param MaxNumConfigs number of configs to allocate space for
- * @return New class created.
- * @note Globals: none
- */
-INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
-  INT_CLASS Class;
-  PROTO_SET ProtoSet;
-  int i;
-
+/// This constructor creates a new integer class data structure
+/// and returns it.  Sufficient space is allocated
+/// to handle the specified number of protos and configs.
+/// @param MaxNumProtos  number of protos to allocate space for
+/// @param MaxNumConfigs number of configs to allocate space for
+INT_CLASS_STRUCT::INT_CLASS_STRUCT(int MaxNumProtos, int MaxNumConfigs) {
   assert(MaxNumConfigs <= MAX_NUM_CONFIGS);
+  NumProtoSets = ((MaxNumProtos + PROTOS_PER_PROTO_SET - 1) / PROTOS_PER_PROTO_SET);
 
-  Class = static_cast<INT_CLASS>(malloc(sizeof(INT_CLASS_STRUCT)));
-  Class->NumProtoSets = ((MaxNumProtos + PROTOS_PER_PROTO_SET - 1) / PROTOS_PER_PROTO_SET);
+  assert(NumProtoSets <= MAX_NUM_PROTO_SETS);
 
-  assert(Class->NumProtoSets <= MAX_NUM_PROTO_SETS);
+  NumProtos = 0;
+  NumConfigs = 0;
 
-  Class->NumProtos = 0;
-  Class->NumConfigs = 0;
-
-  for (i = 0; i < Class->NumProtoSets; i++) {
+  for (int i = 0; i < NumProtoSets; i++) {
     /* allocate space for a proto set, install in class, and initialize */
-    ProtoSet = static_cast<PROTO_SET>(malloc(sizeof(PROTO_SET_STRUCT)));
+    auto ProtoSet = new PROTO_SET_STRUCT;
     memset(ProtoSet, 0, sizeof(*ProtoSet));
-    Class->ProtoSets[i] = ProtoSet;
+    ProtoSets[i] = ProtoSet;
 
     /* allocate space for the proto lengths and install in class */
   }
-  if (MaxNumIntProtosIn(Class) > 0) {
-    Class->ProtoLengths =
-        static_cast<uint8_t *>(malloc(MaxNumIntProtosIn(Class) * sizeof(uint8_t)));
-    memset(Class->ProtoLengths, 0, MaxNumIntProtosIn(Class) * sizeof(*Class->ProtoLengths));
+  if (MaxNumIntProtosIn(this) > 0) {
+    ProtoLengths =
+        static_cast<uint8_t *>(malloc(MaxNumIntProtosIn(this) * sizeof(uint8_t)));
+    memset(ProtoLengths, 0, MaxNumIntProtosIn(this) * sizeof(*ProtoLengths));
   } else {
-    Class->ProtoLengths = nullptr;
+    ProtoLengths = nullptr;
   }
-  memset(Class->ConfigLengths, 0, sizeof(Class->ConfigLengths));
-
-  return (Class);
-
-} /* NewIntClass */
-
-static void free_int_class(INT_CLASS int_class) {
-  int i;
-
-  for (i = 0; i < int_class->NumProtoSets; i++) {
-    free(int_class->ProtoSets[i]);
-  }
-  if (int_class->ProtoLengths != nullptr) {
-    free(int_class->ProtoLengths);
-  }
-  free(int_class);
+  memset(ConfigLengths, 0, sizeof(ConfigLengths));
 }
 
-/**
- * This routine allocates a new set of integer templates
- * initialized to hold 0 classes.
- * @return The integer templates created.
- * @note Globals: none
- */
-INT_TEMPLATES NewIntTemplates() {
-  INT_TEMPLATES T;
-  int i;
-
-  T = static_cast<INT_TEMPLATES>(malloc(sizeof(INT_TEMPLATES_STRUCT)));
-  T->NumClasses = 0;
-  T->NumClassPruners = 0;
-
-  for (i = 0; i < MAX_NUM_CLASSES; i++) {
-    ClassForClassId(T, i) = nullptr;
+INT_CLASS_STRUCT::~INT_CLASS_STRUCT() {
+  for (int i = 0; i < NumProtoSets; i++) {
+    delete ProtoSets[i];
   }
-
-  return (T);
-} /* NewIntTemplates */
-
-/*---------------------------------------------------------------------------*/
-void free_int_templates(INT_TEMPLATES templates) {
-  int i;
-
-  for (i = 0; i < templates->NumClasses; i++) {
-    free_int_class(templates->Class[i]);
+  if (ProtoLengths != nullptr) {
+    free(ProtoLengths);
   }
-  for (i = 0; i < templates->NumClassPruners; i++) {
-    delete templates->ClassPruners[i];
+}
+
+/// This constructor allocates a new set of integer templates
+/// initialized to hold 0 classes.
+INT_TEMPLATES_STRUCT::INT_TEMPLATES_STRUCT() {
+  NumClasses = 0;
+  NumClassPruners = 0;
+
+  for (int i = 0; i < MAX_NUM_CLASSES; i++) {
+    ClassForClassId(this, i) = nullptr;
   }
-  free(templates);
+}
+
+INT_TEMPLATES_STRUCT::~INT_TEMPLATES_STRUCT() {
+  for (int i = 0; i < NumClasses; i++) {
+    delete Class[i];
+  }
+  for (int i = 0; i < NumClassPruners; i++) {
+    delete ClassPruners[i];
+  }
 }
 
 /**
@@ -684,15 +643,14 @@ void free_int_templates(INT_TEMPLATES templates) {
  * @return Pointer to integer templates read from File.
  * @note Globals: none
  */
-INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
+INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
   int i, j, w, x, y, z;
   int unicharset_size;
   int version_id = 0;
-  INT_TEMPLATES Templates;
+  INT_TEMPLATES_STRUCT *Templates;
   CLASS_PRUNER_STRUCT *Pruner;
-  INT_CLASS Class;
+  INT_CLASS_STRUCT *Class;
   uint8_t *Lengths;
-  PROTO_SET ProtoSet;
 
   /* variables for conversion from older inttemp formats */
   int b, bit_number, last_cp_bit_number, new_b, new_i, new_w;
@@ -706,7 +664,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   int WerdsPerConfigVec = WERDS_PER_CONFIG_VEC;
 
   /* first read the high level template struct */
-  Templates = NewIntTemplates();
+  Templates = new INT_TEMPLATES_STRUCT;
   // Read Templates in parts for 64 bit compatibility.
   if (fp->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1) != 1) {
     tprintf("Bad read of inttemp!\n");
@@ -815,7 +773,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   /* then read in each class */
   for (i = 0; i < Templates->NumClasses; i++) {
     /* first read in the high level struct for the class */
-    Class = static_cast<INT_CLASS>(malloc(sizeof(INT_CLASS_STRUCT)));
+    Class = new INT_CLASS_STRUCT;
     if (fp->FReadEndian(&Class->NumProtos, sizeof(Class->NumProtos), 1) != 1 ||
         fp->FRead(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1) != 1 ||
         fp->FRead(&Class->NumConfigs, sizeof(Class->NumConfigs), 1) != 1) {
@@ -854,7 +812,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
 
     /* then read in the proto sets */
     for (j = 0; j < Class->NumProtoSets; j++) {
-      ProtoSet = static_cast<PROTO_SET>(malloc(sizeof(PROTO_SET_STRUCT)));
+      auto ProtoSet = new PROTO_SET_STRUCT;
       int num_buckets = NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR;
       if (fp->FReadEndian(&ProtoSet->ProtoPruner, sizeof(ProtoSet->ProtoPruner[0][0][0]),
                           num_buckets) != num_buckets) {
@@ -884,7 +842,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   if (version_id < 2) {
     /* add an empty nullptr class with class id 0 */
     assert(UnusedClassIdIn(Templates, 0));
-    ClassForClassId(Templates, 0) = NewIntClass(1, 1);
+    ClassForClassId(Templates, 0) = new INT_CLASS_STRUCT(1, 1);
     ClassForClassId(Templates, 0)->font_set_id = -1;
     Templates->NumClasses++;
     /* make sure the classes are contiguous */
@@ -975,10 +933,10 @@ void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView *window) {
  * @param Templates templates to save into File
  * @param target_unicharset the UNICHARSET to use
  */
-void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
+void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
                                  const UNICHARSET &target_unicharset) {
   int i, j;
-  INT_CLASS Class;
+  INT_CLASS_STRUCT *Class;
   int unicharset_size = target_unicharset.size();
   int version_id = -5; // When negated by the reader -1 becomes +1 etc.
 
@@ -1399,7 +1357,7 @@ void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
  * @param Proto       proto to create a filler for
  * @param Filler        place to put table filler
  */
-void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO Proto, TABLE_FILLER *Filler)
+void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *Proto, TABLE_FILLER *Filler)
 #define XS X_SHIFT
 #define YS Y_SHIFT
 #define AS ANGLE_SHIFT
@@ -1593,10 +1551,9 @@ void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT *Feature,
  *
  * @return New shape list with a rendering of one proto added.
  */
-void RenderIntProto(ScrollView *window, INT_CLASS Class, PROTO_ID ProtoId,
+void RenderIntProto(ScrollView *window, INT_CLASS_STRUCT *Class, PROTO_ID ProtoId,
                     ScrollView::Color color) {
-  PROTO_SET ProtoSet;
-  INT_PROTO Proto;
+  INT_PROTO_STRUCT *Proto;
   int ProtoSetIndex;
   int ProtoWordIndex;
   float Length;
@@ -1611,7 +1568,7 @@ void RenderIntProto(ScrollView *window, INT_CLASS Class, PROTO_ID ProtoId,
   assert(color != 0);
   window->Pen(color);
 
-  ProtoSet = Class->ProtoSets[SetForProto(ProtoId)];
+  auto ProtoSet = Class->ProtoSets[SetForProto(ProtoId)];
   ProtoSetIndex = IndexForProto(ProtoId);
   Proto = &(ProtoSet->Protos[ProtoSetIndex]);
   Length = (Class->ProtoLengths[ProtoId] * GetPicoFeatureLength() * INT_CHAR_NORM_RANGE);

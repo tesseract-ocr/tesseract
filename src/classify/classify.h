@@ -119,7 +119,6 @@ public:
   bool LargeSpeckle(const TBLOB &blob);
 
   /* adaptive.cpp ************************************************************/
-  ADAPT_TEMPLATES NewAdaptedTemplates(bool InitFromUnicharset);
   int GetFontinfoId(ADAPT_CLASS Class, uint8_t ConfigId);
   // Runs the class pruner from int_templates on the given features, returning
   // the number of classes output in results.
@@ -139,16 +138,16 @@ public:
                    const INT_FEATURE_STRUCT *features, const uint8_t *normalization_factors,
                    const uint16_t *expected_num_features, std::vector<CP_RESULT_STRUCT> *results);
   void ReadNewCutoffs(TFile *fp, uint16_t *Cutoffs);
-  void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
-  void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
-  ADAPT_TEMPLATES ReadAdaptedTemplates(TFile *File);
+  void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templates);
+  void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templates);
+  ADAPT_TEMPLATES_STRUCT *ReadAdaptedTemplates(TFile *File);
   /* normmatch.cpp ************************************************************/
   float ComputeNormMatch(CLASS_ID ClassId, const FEATURE_STRUCT &feature, bool DebugMatch);
   void FreeNormProtos();
   NORM_PROTOS *ReadNormProtos(TFile *fp);
   /* protos.cpp ***************************************************************/
-  void ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class);
-  INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos, const UNICHARSET &target_unicharset);
+  void ConvertProto(PROTO_STRUCT *Proto, int ProtoId, INT_CLASS_STRUCT *Class);
+  INT_TEMPLATES_STRUCT *CreateIntTemplates(CLASSES FloatProtos, const UNICHARSET &target_unicharset);
   /* adaptmatch.cpp ***********************************************************/
 
   // Learns the given word using its chopped_word, seam_array, denorm,
@@ -171,12 +170,12 @@ public:
                    CharSegmentationType segmentation, const char *correct_text, WERD_RES *word);
   void InitAdaptiveClassifier(TessdataManager *mgr);
   void InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, ADAPT_CLASS Class,
-                        ADAPT_TEMPLATES Templates);
+                        ADAPT_TEMPLATES_STRUCT *Templates);
   void AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_features,
                        const INT_FX_RESULT_STRUCT &fx_info, const TBLOB *blob,
-                       INT_TEMPLATES templates, ADAPT_CLASS *classes, UNICHAR_ID *ambiguities,
+                       INT_TEMPLATES_STRUCT *templates, ADAPT_CLASS *classes, UNICHAR_ID *ambiguities,
                        ADAPT_RESULTS *results);
-  void MasterMatcher(INT_TEMPLATES templates, int16_t num_features,
+  void MasterMatcher(INT_TEMPLATES_STRUCT *templates, int16_t num_features,
                      const INT_FEATURE_STRUCT *features, const uint8_t *norm_factors,
                      ADAPT_CLASS *classes, int debug, int matcher_multiplier, const TBOX &blob_box,
                      const std::vector<CP_RESULT_STRUCT> &results, ADAPT_RESULTS *final_results);
@@ -204,11 +203,11 @@ public:
   void DebugAdaptiveClassifier(TBLOB *Blob, ADAPT_RESULTS *Results);
 #  endif
   PROTO_ID MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATURE_ID BadFeat[],
-                             INT_CLASS IClass, ADAPT_CLASS Class, BIT_VECTOR TempProtoMask);
-  int MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates, CLASS_ID ClassId, int FontinfoId,
+                             INT_CLASS_STRUCT *IClass, ADAPT_CLASS Class, BIT_VECTOR TempProtoMask);
+  int MakeNewTemporaryConfig(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, int FontinfoId,
                              int NumFeatures, INT_FEATURE_ARRAY Features,
                              FEATURE_SET FloatFeatures);
-  void MakePermanent(ADAPT_TEMPLATES Templates, CLASS_ID ClassId, int ConfigId, TBLOB *Blob);
+  void MakePermanent(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, int ConfigId, TBLOB *Blob);
   void PrintAdaptiveMatchResults(const ADAPT_RESULTS &results);
   void RemoveExtraPuncs(ADAPT_RESULTS *Results);
   void RemoveBadMatches(ADAPT_RESULTS *Results);
@@ -233,7 +232,7 @@ public:
   // unichar-id!). Uses a search, so not fast.
   int ShapeIDToClassID(int shape_id) const;
   UNICHAR_ID *BaselineClassifier(TBLOB *Blob, const std::vector<INT_FEATURE_STRUCT> &int_features,
-                                 const INT_FX_RESULT_STRUCT &fx_info, ADAPT_TEMPLATES Templates,
+                                 const INT_FX_RESULT_STRUCT &fx_info, ADAPT_TEMPLATES_STRUCT *Templates,
                                  ADAPT_RESULTS *Results);
   int CharNormClassifier(TBLOB *blob, const TrainingSample &sample, ADAPT_RESULTS *adapt_results);
 
@@ -244,7 +243,7 @@ public:
   UNICHAR_ID *GetAmbiguities(TBLOB *Blob, CLASS_ID CorrectClass);
   void DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results);
   void AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float Threshold,
-                   ADAPT_TEMPLATES adaptive_templates);
+                   ADAPT_TEMPLATES_STRUCT *adaptive_templates);
   void DisplayAdaptedChar(TBLOB *blob, INT_CLASS_STRUCT *int_class);
   bool AdaptableWord(WERD_RES *word);
   void EndAdaptiveClassifier();
@@ -256,7 +255,7 @@ public:
   void SwitchAdaptiveClassifier();
   void StartBackupAdaptiveClassifier();
 
-  int GetCharNormFeature(const INT_FX_RESULT_STRUCT &fx_info, INT_TEMPLATES templates,
+  int GetCharNormFeature(const INT_FX_RESULT_STRUCT &fx_info, INT_TEMPLATES_STRUCT *templates,
                          uint8_t *pruner_norm_array, uint8_t *char_norm_array);
   // Computes the char_norm_array for the unicharset and, if not nullptr, the
   // pruner_array as appropriate according to the existence of the shape_table.
@@ -318,8 +317,8 @@ public:
   void ComputeIntCharNormArray(const FEATURE_STRUCT &norm_feature, uint8_t *char_norm_array);
   void ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures);
   /* intproto.cpp *************************************************************/
-  INT_TEMPLATES ReadIntTemplates(TFile *fp);
-  void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates, const UNICHARSET &target_unicharset);
+  INT_TEMPLATES_STRUCT *ReadIntTemplates(TFile *fp);
+  void WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates, const UNICHARSET &target_unicharset);
   CLASS_ID GetClassToDebug(const char *Prompt, bool *adaptive_on, bool *pretrained_on,
                            int *shape_id);
   void ShowMatchDisplay();
@@ -435,12 +434,12 @@ public:
   double_VAR_H(speckle_rating_penalty, 10.0, "Penalty to add to worst rating for noise");
 
   // Use class variables to hold onto built-in templates and adapted templates.
-  INT_TEMPLATES PreTrainedTemplates = nullptr;
-  ADAPT_TEMPLATES AdaptedTemplates = nullptr;
+  INT_TEMPLATES_STRUCT *PreTrainedTemplates = nullptr;
+  ADAPT_TEMPLATES_STRUCT *AdaptedTemplates = nullptr;
   // The backup adapted templates are created from the previous page (only)
   // so they are always ready and reasonably well trained if the primary
   // adapted templates become full.
-  ADAPT_TEMPLATES BackupAdaptedTemplates = nullptr;
+  ADAPT_TEMPLATES_STRUCT *BackupAdaptedTemplates = nullptr;
 
   // Create dummy proto and config masks for use with the built-in templates.
   BIT_VECTOR AllProtosOn = nullptr;

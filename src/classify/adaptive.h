@@ -28,7 +28,6 @@ struct TEMP_PROTO_STRUCT {
   uint16_t ProtoId;
   PROTO_STRUCT Proto;
 };
-using TEMP_PROTO = TEMP_PROTO_STRUCT *;
 
 struct TEMP_CONFIG_STRUCT {
   uint8_t NumTimesSeen;
@@ -61,13 +60,16 @@ struct ADAPT_CLASS_STRUCT {
 };
 using ADAPT_CLASS = ADAPT_CLASS_STRUCT *;
 
-struct ADAPT_TEMPLATES_STRUCT {
-  INT_TEMPLATES Templates;
+class ADAPT_TEMPLATES_STRUCT {
+public:
+  ADAPT_TEMPLATES_STRUCT() = default;
+  ADAPT_TEMPLATES_STRUCT(UNICHARSET &unicharset);
+  ~ADAPT_TEMPLATES_STRUCT();
+  INT_TEMPLATES_STRUCT *Templates;
   int NumNonEmptyClasses;
   uint8_t NumPermClasses;
   ADAPT_CLASS Class[MAX_NUM_CLASSES];
 };
-using ADAPT_TEMPLATES = ADAPT_TEMPLATES_STRUCT *;
 
 /*----------------------------------------------------------------------------
           Public Function Prototypes
@@ -88,9 +90,7 @@ using ADAPT_TEMPLATES = ADAPT_TEMPLATES_STRUCT *;
 
 #define IncreaseConfidence(TempConfig) ((TempConfig)->NumTimesSeen++)
 
-void AddAdaptedClass(ADAPT_TEMPLATES Templates, ADAPT_CLASS Class, CLASS_ID ClassId);
-
-void FreeTempProto(void *arg);
+void AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS Class, CLASS_ID ClassId);
 
 void FreeTempConfig(TEMP_CONFIG Config);
 
@@ -98,11 +98,7 @@ ADAPT_CLASS NewAdaptedClass();
 
 void free_adapted_class(ADAPT_CLASS adapt_class);
 
-void free_adapted_templates(ADAPT_TEMPLATES templates);
-
 TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId);
-
-TEMP_PROTO NewTempProto();
 
 ADAPT_CLASS ReadAdaptedClass(tesseract::TFile *File);
 

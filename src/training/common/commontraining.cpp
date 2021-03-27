@@ -703,8 +703,8 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
   int NumWords;
   int i, j;
   float Values[3];
-  PROTO NewProto;
-  PROTO OldProto;
+  PROTO_STRUCT *NewProto;
+  PROTO_STRUCT *OldProto;
   BIT_VECTOR NewConfig;
   BIT_VECTOR OldConfig;
 
@@ -720,7 +720,7 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
     font_set.move(&MergeClass->Class->font_set);
     Class->NumProtos = NumProtos;
     Class->MaxNumProtos = NumProtos;
-    Class->Prototypes = static_cast<PROTO>(malloc(sizeof(PROTO_STRUCT) * NumProtos));
+    Class->Prototypes = new PROTO_STRUCT[NumProtos];
     for (i = 0; i < NumProtos; i++) {
       NewProto = ProtoIn(Class, i);
       OldProto = ProtoIn(MergeClass->Class, i);

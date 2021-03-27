@@ -80,7 +80,6 @@ struct INT_PROTO_STRUCT {
   uint8_t Angle;
   uint32_t Configs[WERDS_PER_CONFIG_VEC];
 };
-using INT_PROTO = INT_PROTO_STRUCT *;
 
 typedef uint32_t PROTO_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR];
 
@@ -88,28 +87,30 @@ struct PROTO_SET_STRUCT {
   PROTO_PRUNER ProtoPruner;
   INT_PROTO_STRUCT Protos[PROTOS_PER_PROTO_SET];
 };
-using PROTO_SET = PROTO_SET_STRUCT *;
 
 typedef uint32_t CONFIG_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][4];
 
 struct INT_CLASS_STRUCT {
+  INT_CLASS_STRUCT() = default;
+  INT_CLASS_STRUCT(int MaxNumProtos, int MaxNumConfigs);
+  ~INT_CLASS_STRUCT();
   uint16_t NumProtos;
   uint8_t NumProtoSets;
   uint8_t NumConfigs;
-  PROTO_SET ProtoSets[MAX_NUM_PROTO_SETS];
+  PROTO_SET_STRUCT *ProtoSets[MAX_NUM_PROTO_SETS];
   uint8_t *ProtoLengths;
   uint16_t ConfigLengths[MAX_NUM_CONFIGS];
   int font_set_id; // FontSet id, see above
 };
-using INT_CLASS = INT_CLASS_STRUCT *;
 
 struct INT_TEMPLATES_STRUCT {
+  INT_TEMPLATES_STRUCT();
+  ~INT_TEMPLATES_STRUCT();
   int NumClasses;
   int NumClassPruners;
-  INT_CLASS Class[MAX_NUM_CLASSES];
+  INT_CLASS_STRUCT *Class[MAX_NUM_CLASSES];
   CLASS_PRUNER_STRUCT *ClassPruners[MAX_NUM_CLASS_PRUNERS];
 };
-using INT_TEMPLATES = INT_TEMPLATES_STRUCT *;
 
 /* definitions of integer features*/
 #define MAX_NUM_INT_FEATURES 512
@@ -132,8 +133,6 @@ struct INT_FEATURE_STRUCT {
     tprintf("(%d,%d):%d\n", X, Y, Theta);
   }
 };
-
-using INT_FEATURE = INT_FEATURE_STRUCT *;
 
 typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
 
@@ -181,15 +180,15 @@ enum IntmatcherDebugAction { IDA_ADAPTIVE, IDA_STATIC, IDA_SHAPE_INDEX, IDA_BOTH
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class);
+void AddIntClass(INT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, INT_CLASS_STRUCT *Class);
 
-int AddIntConfig(INT_CLASS Class);
+int AddIntConfig(INT_CLASS_STRUCT *Class);
 
-int AddIntProto(INT_CLASS Class);
+int AddIntProto(INT_CLASS_STRUCT *Class);
 
-void AddProtoToClassPruner(PROTO Proto, CLASS_ID ClassId, INT_TEMPLATES Templates);
+void AddProtoToClassPruner(PROTO_STRUCT *Proto, CLASS_ID ClassId, INT_TEMPLATES_STRUCT *Templates);
 
-void AddProtoToProtoPruner(PROTO Proto, int ProtoId, INT_CLASS Class, bool debug);
+void AddProtoToProtoPruner(PROTO_STRUCT *Proto, int ProtoId, INT_CLASS_STRUCT *Class, bool debug);
 
 uint8_t Bucket8For(float param, float offset, int num_buckets);
 uint16_t Bucket16For(float param, float offset, int num_buckets);
@@ -198,18 +197,11 @@ uint8_t CircBucketFor(float param, float offset, int num_buckets);
 
 void UpdateMatchDisplay();
 
-void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class);
+void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS_STRUCT *Class);
 
 void DisplayIntFeature(const INT_FEATURE_STRUCT *Feature, float Evidence);
 
-void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, float Evidence);
-
-INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs);
-
-INT_TEMPLATES NewIntTemplates();
-
-TESS_API
-void free_int_templates(INT_TEMPLATES templates);
+void DisplayIntProto(INT_CLASS_STRUCT *Class, PROTO_ID ProtoId, float Evidence);
 
 void ShowMatchDisplay();
 

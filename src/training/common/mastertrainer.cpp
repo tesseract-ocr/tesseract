@@ -614,7 +614,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   auto *classify = new tesseract::Classify();
   // Move the fontinfo table to classify.
   fontinfo_table_.MoveTo(&classify->get_fontinfo_table());
-  INT_TEMPLATES int_templates = classify->CreateIntTemplates(float_classes, shape_set);
+  INT_TEMPLATES_STRUCT *int_templates = classify->CreateIntTemplates(float_classes, shape_set);
   FILE *fp = fopen(inttemp_file, "wb");
   if (fp == nullptr) {
     tprintf("Error, failed to open file \"%s\"\n", inttemp_file);
@@ -634,7 +634,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   }
   /* then write out each class */
   for (int i = 0; i < int_templates->NumClasses; ++i) {
-    INT_CLASS Class = ClassForClassId(int_templates, i);
+    INT_CLASS_STRUCT *Class = ClassForClassId(int_templates, i);
     // Todo: Test with min instead of max
     // int MaxLength = LengthForConfigId(Class, 0);
     uint16_t max_length = 0;
@@ -670,7 +670,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
     }
     fclose(fp);
   }
-  free_int_templates(int_templates);
+  delete int_templates;
   delete classify;
 }
 

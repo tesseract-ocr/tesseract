@@ -2,7 +2,6 @@
  ** Filename:    adaptive.c
  ** Purpose:     Adaptive matcher.
  ** Author:      Dan Johnson
- ** History:     Fri Mar  8 10:00:21 1991, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,16 +38,14 @@ namespace tesseract {
  *
  * @note Globals: none
  */
-void AddAdaptedClass(ADAPT_TEMPLATES Templates, ADAPT_CLASS Class, CLASS_ID ClassId) {
-  INT_CLASS IntClass;
-
+void AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS Class, CLASS_ID ClassId) {
   assert(Templates != nullptr);
   assert(Class != nullptr);
   assert(LegalClassId(ClassId));
   assert(UnusedClassIdIn(Templates->Templates, ClassId));
   assert(Class->NumPermConfigs == 0);
 
-  IntClass = NewIntClass(1, 1);
+  auto IntClass = new INT_CLASS_STRUCT(1, 1);
   AddIntClass(Templates->Templates, ClassId, IntClass);
 
   assert(Templates->Class[ClassId] == nullptr);
@@ -72,11 +69,6 @@ void FreeTempConfig(TEMP_CONFIG Config) {
 } /* FreeTempConfig */
 
 /*---------------------------------------------------------------------------*/
-void FreeTempProto(void *arg) {
-  auto proto = static_cast<PROTO>(arg);
-
-  free(proto);
-}
 
 static void FreePermConfig(PERM_CONFIG Config) {
   assert(Config != nullptr);
@@ -125,56 +117,43 @@ void free_adapted_class(ADAPT_CLASS adapt_class) {
   }
   FreeBitVector(adapt_class->PermProtos);
   FreeBitVector(adapt_class->PermConfigs);
-  destroy_nodes(adapt_class->TempProtos, FreeTempProto);
+  auto list = adapt_class->TempProtos;
+  while (list != nullptr) {
+    if (first_node(list) != nullptr) {
+      delete first_node(list);
+    }
+    list = pop(list);
+  }
   free(adapt_class);
 }
 
-/*---------------------------------------------------------------------------*/
-/**
- * Allocates memory for adapted templates.
- * each char in unicharset to the newly created templates
- *
- * @param InitFromUnicharset if true, add an empty class for
- * @return Ptr to new adapted templates.
- *
- * @note Globals: none
- */
-ADAPT_TEMPLATES Classify::NewAdaptedTemplates(bool InitFromUnicharset) {
-  ADAPT_TEMPLATES Templates;
-
-  Templates = static_cast<ADAPT_TEMPLATES>(malloc(sizeof(ADAPT_TEMPLATES_STRUCT)));
-
-  Templates->Templates = NewIntTemplates();
-  Templates->NumPermClasses = 0;
-  Templates->NumNonEmptyClasses = 0;
+/// Constructor for adapted templates.
+/// Add an empty class for each char in unicharset to the newly created templates.
+ADAPT_TEMPLATES_STRUCT::ADAPT_TEMPLATES_STRUCT(UNICHARSET &unicharset) {
+  Templates = new INT_TEMPLATES_STRUCT;
+  NumPermClasses = 0;
+  NumNonEmptyClasses = 0;
 
   /* Insert an empty class for each unichar id in unicharset */
   for (int i = 0; i < MAX_NUM_CLASSES; i++) {
-    Templates->Class[i] = nullptr;
-    if (InitFromUnicharset && i < unicharset.size()) {
-      AddAdaptedClass(Templates, NewAdaptedClass(), i);
+    Class[i] = nullptr;
+    if (i < unicharset.size()) {
+      AddAdaptedClass(this, NewAdaptedClass(), i);
     }
   }
+}
 
-  return (Templates);
-
-} /* NewAdaptedTemplates */
+ADAPT_TEMPLATES_STRUCT::~ADAPT_TEMPLATES_STRUCT() {
+  for (int i = 0; i < (Templates)->NumClasses; i++) {
+    free_adapted_class(Class[i]);
+  }
+  delete Templates;
+}
 
 // Returns FontinfoId of the given config of the given adapted class.
 int Classify::GetFontinfoId(ADAPT_CLASS Class, uint8_t ConfigId) {
   return (ConfigIsPermanent(Class, ConfigId) ? PermConfigFor(Class, ConfigId)->FontinfoId
                                              : TempConfigFor(Class, ConfigId)->FontinfoId);
-}
-
-/*----------------------------------------------------------------------------*/
-void free_adapted_templates(ADAPT_TEMPLATES templates) {
-  if (templates != nullptr) {
-    for (int i = 0; i < (templates->Templates)->NumClasses; i++) {
-      free_adapted_class(templates->Class[i]);
-    }
-    free_int_templates(templates->Templates);
-    free(templates);
-  }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -205,18 +184,6 @@ TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId) {
 
 /*---------------------------------------------------------------------------*/
 /**
- * This routine allocates and returns a new temporary proto.
- *
- * @return Ptr to new temporary proto.
- *
- * @note Globals: none
- */
-TEMP_PROTO NewTempProto() {
-  return static_cast<TEMP_PROTO>(malloc(sizeof(TEMP_PROTO_STRUCT)));
-} /* NewTempProto */
-
-/*---------------------------------------------------------------------------*/
-/**
  * This routine prints a summary of the adapted templates
  *  in Templates to File.
  *
@@ -225,8 +192,8 @@ TEMP_PROTO NewTempProto() {
  *
  * @note Globals: none
  */
-void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
-  INT_CLASS IClass;
+void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templates) {
+  INT_CLASS_STRUCT *IClass;
   ADAPT_CLASS AClass;
 
   fprintf(File, "\n\nSUMMARY OF ADAPTED TEMPLATES:\n\n");
@@ -278,7 +245,7 @@ ADAPT_CLASS ReadAdaptedClass(TFile *fp) {
   fp->FRead(&NumTempProtos, sizeof(int), 1);
   Class->TempProtos = NIL_LIST;
   for (i = 0; i < NumTempProtos; i++) {
-    auto TempProto = static_cast<TEMP_PROTO>(malloc(sizeof(TEMP_PROTO_STRUCT)));
+    auto TempProto = new TEMP_PROTO_STRUCT;
     fp->FRead(TempProto, sizeof(TEMP_PROTO_STRUCT), 1);
     Class->TempProtos = push_last(Class->TempProtos, TempProto);
   }
@@ -307,11 +274,10 @@ ADAPT_CLASS ReadAdaptedClass(TFile *fp) {
  *
  * @note Globals: none
  */
-ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(TFile *fp) {
-  ADAPT_TEMPLATES Templates;
+ADAPT_TEMPLATES_STRUCT *Classify::ReadAdaptedTemplates(TFile *fp) {
+  auto Templates = new ADAPT_TEMPLATES_STRUCT;
 
   /* first read the high level adaptive template struct */
-  Templates = static_cast<ADAPT_TEMPLATES>(malloc(sizeof(ADAPT_TEMPLATES_STRUCT)));
   fp->FRead(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1);
 
   /* then read in the basic integer templates */
@@ -422,7 +388,7 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
  *
  * @note Globals: none
  */
-void Classify::WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
+void Classify::WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templates) {
   int i;
 
   /* first write the high level adaptive template struct */

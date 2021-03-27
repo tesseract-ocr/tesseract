@@ -38,7 +38,6 @@ struct PROTO_STRUCT {
   float Angle;
   float Length;
 };
-using PROTO = PROTO_STRUCT *;
 
 struct CLASS_STRUCT {
   CLASS_STRUCT()
@@ -52,7 +51,7 @@ struct CLASS_STRUCT {
   int16_t MaxNumProtos;
   int16_t NumConfigs;
   int16_t MaxNumConfigs;
-  PROTO Prototypes;
+  PROTO_STRUCT *Prototypes;
   CONFIGS Configurations;
   UnicityTable<int> font_set;
 };
@@ -74,7 +73,7 @@ using CLASSES = CLASS_STRUCT *;
  * ProtoIn
  *
  * Choose the selected prototype in this class record.  Return the
- * pointer to it (type PROTO).
+ * pointer to it (PROTO_STRUCT *).
  */
 
 #define ProtoIn(Class, Pid) (&(Class)->Prototypes[Pid])
@@ -89,7 +88,7 @@ TESS_API
 int AddProtoToClass(CLASS_TYPE Class);
 
 TESS_API
-void FillABC(PROTO Proto);
+void FillABC(PROTO_STRUCT *Proto);
 
 TESS_API
 void FreeClass(CLASS_TYPE Class);
