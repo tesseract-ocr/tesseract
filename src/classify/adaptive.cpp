@@ -55,10 +55,8 @@ void AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS_STRUCT *Clas
 
 /*---------------------------------------------------------------------------*/
 
-static void FreePermConfig(PERM_CONFIG Config) {
-  assert(Config != nullptr);
-  delete[] Config->Ambigs;
-  free(Config);
+PERM_CONFIG_STRUCT::~PERM_CONFIG_STRUCT() {
+  delete[] Ambigs;
 }
 
 ADAPT_CLASS_STRUCT::ADAPT_CLASS_STRUCT() {
@@ -79,7 +77,7 @@ ADAPT_CLASS_STRUCT::ADAPT_CLASS_STRUCT() {
 ADAPT_CLASS_STRUCT::~ADAPT_CLASS_STRUCT() {
   for (int i = 0; i < MAX_NUM_CONFIGS; i++) {
     if (ConfigIsPermanent(this, i) && PermConfigFor(this, i) != nullptr) {
-      FreePermConfig(PermConfigFor(this, i));
+      delete PermConfigFor(this, i);
     } else if (!ConfigIsPermanent(this, i) && TempConfigFor(this, i) != nullptr) {
       delete TempConfigFor(this, i);
     }
@@ -263,8 +261,8 @@ ADAPT_TEMPLATES_STRUCT *Classify::ReadAdaptedTemplates(TFile *fp) {
  *
  * @note Globals: none
  */
-PERM_CONFIG ReadPermConfig(TFile *fp) {
-  auto Config = static_cast<PERM_CONFIG>(malloc(sizeof(PERM_CONFIG_STRUCT)));
+PERM_CONFIG_STRUCT *ReadPermConfig(TFile *fp) {
+  auto Config = new PERM_CONFIG_STRUCT;
   uint8_t NumAmbigs;
   fp->FRead(&NumAmbigs, sizeof(NumAmbigs), 1);
   Config->Ambigs = new UNICHAR_ID[NumAmbigs + 1];
@@ -375,7 +373,7 @@ void Classify::WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templat
  *
  * @note Globals: none
  */
-void WritePermConfig(FILE *File, PERM_CONFIG Config) {
+void WritePermConfig(FILE *File, PERM_CONFIG_STRUCT *Config) {
   uint8_t NumAmbigs = 0;
 
   assert(Config != nullptr);

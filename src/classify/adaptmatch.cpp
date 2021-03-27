@@ -1851,7 +1851,7 @@ void Classify::MakePermanent(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId
 
   // Initialize permanent config.
   Ambigs = GetAmbiguities(Blob, ClassId);
-  auto Perm = static_cast<PERM_CONFIG>(malloc(sizeof(PERM_CONFIG_STRUCT)));
+  auto Perm = new PERM_CONFIG_STRUCT;
   Perm->Ambigs = Ambigs;
   Perm->FontinfoId = Config->FontinfoId;
 

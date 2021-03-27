@@ -41,14 +41,15 @@ struct TEMP_CONFIG_STRUCT {
 };
 
 struct PERM_CONFIG_STRUCT {
+  PERM_CONFIG_STRUCT() = default;
+  ~PERM_CONFIG_STRUCT();
   UNICHAR_ID *Ambigs;
   int FontinfoId; // font information inferred from pre-trained templates
 };
-using PERM_CONFIG = PERM_CONFIG_STRUCT *;
 
 union ADAPTED_CONFIG {
   TEMP_CONFIG_STRUCT *Temp;
-  PERM_CONFIG Perm;
+  PERM_CONFIG_STRUCT *Perm;
 };
 
 struct ADAPT_CLASS_STRUCT {
@@ -97,13 +98,13 @@ void AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS_STRUCT *Clas
 
 ADAPT_CLASS_STRUCT *ReadAdaptedClass(tesseract::TFile *File);
 
-PERM_CONFIG ReadPermConfig(tesseract::TFile *File);
+PERM_CONFIG_STRUCT *ReadPermConfig(tesseract::TFile *File);
 
 TEMP_CONFIG_STRUCT *ReadTempConfig(tesseract::TFile *File);
 
 void WriteAdaptedClass(FILE *File, ADAPT_CLASS_STRUCT *Class, int NumConfigs);
 
-void WritePermConfig(FILE *File, PERM_CONFIG Config);
+void WritePermConfig(FILE *File, PERM_CONFIG_STRUCT *Config);
 
 void WriteTempConfig(FILE *File, TEMP_CONFIG_STRUCT *Config);
 
