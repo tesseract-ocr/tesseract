@@ -39,7 +39,7 @@ static const float kMaxFinalCost = 100.0f;
 void ParamsModel::Print() {
   for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) {
     tprintf("ParamsModel for pass %d lang %s\n", p, lang_.c_str());
-    for (int i = 0; i < weights_vec_[p].size(); ++i) {
+    for (unsigned i = 0; i < weights_vec_[p].size(); ++i) {
       tprintf("%s = %g\n", kParamsTrainingFeatureTypeName[i], weights_vec_[p][i]);
     }
   }
@@ -87,12 +87,12 @@ float ParamsModel::ComputeCost(const float features[]) const {
 }
 
 bool ParamsModel::Equivalent(const ParamsModel &that) const {
-  float epsilon = 0.0001;
+  float epsilon = 0.0001f;
   for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) {
     if (weights_vec_[p].size() != that.weights_vec_[p].size()) {
       return false;
     }
-    for (int i = 0; i < weights_vec_[p].size(); i++) {
+    for (unsigned i = 0; i < weights_vec_[p].size(); i++) {
       if (weights_vec_[p][i] != that.weights_vec_[p][i] &&
           fabs(weights_vec_[p][i] - that.weights_vec_[p][i]) > epsilon) {
         return false;
