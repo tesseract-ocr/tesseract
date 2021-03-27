@@ -54,21 +54,6 @@ void AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS_STRUCT *Clas
 } /* AddAdaptedClass */
 
 /*---------------------------------------------------------------------------*/
-/**
- * This routine frees all memory consumed by a temporary
- * configuration.
- *
- * @param Config  config to be freed
- *
- * @note Globals: none
- */
-void FreeTempConfig(TEMP_CONFIG Config) {
-  assert(Config != nullptr);
-  FreeBitVector(Config->Protos);
-  free(Config);
-} /* FreeTempConfig */
-
-/*---------------------------------------------------------------------------*/
 
 static void FreePermConfig(PERM_CONFIG Config) {
   assert(Config != nullptr);
@@ -96,7 +81,7 @@ ADAPT_CLASS_STRUCT::~ADAPT_CLASS_STRUCT() {
     if (ConfigIsPermanent(this, i) && PermConfigFor(this, i) != nullptr) {
       FreePermConfig(PermConfigFor(this, i));
     } else if (!ConfigIsPermanent(this, i) && TempConfigFor(this, i) != nullptr) {
-      FreeTempConfig(TempConfigFor(this, i));
+      delete TempConfigFor(this, i);
     }
   }
   FreeBitVector(PermProtos);
@@ -139,31 +124,25 @@ int Classify::GetFontinfoId(ADAPT_CLASS_STRUCT *Class, uint8_t ConfigId) {
                                              : TempConfigFor(Class, ConfigId)->FontinfoId);
 }
 
-/*---------------------------------------------------------------------------*/
-/**
- * This routine allocates and returns a new temporary config.
- *
- * @param MaxProtoId  max id of any proto in new config
- * @param FontinfoId font information from pre-trained templates
- * @return Ptr to new temp config.
- *
- * @note Globals: none
- */
-TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId) {
-  int NumProtos = MaxProtoId + 1;
+/// This constructor allocates and returns a new temporary config.
+///
+/// @param MaxProtoId  max id of any proto in new config
+/// @param FontinfoId font information from pre-trained templates
+TEMP_CONFIG_STRUCT::TEMP_CONFIG_STRUCT(int maxProtoId, int fontinfoId) {
+  int NumProtos = maxProtoId + 1;
 
-  auto Config = static_cast<TEMP_CONFIG>(malloc(sizeof(TEMP_CONFIG_STRUCT)));
-  Config->Protos = NewBitVector(NumProtos);
+  Protos = NewBitVector(NumProtos);
 
-  Config->NumTimesSeen = 1;
-  Config->MaxProtoId = MaxProtoId;
-  Config->ProtoVectorSize = WordsInVectorOfSize(NumProtos);
-  zero_all_bits(Config->Protos, Config->ProtoVectorSize);
-  Config->FontinfoId = FontinfoId;
+  NumTimesSeen = 1;
+  MaxProtoId = maxProtoId;
+  ProtoVectorSize = WordsInVectorOfSize(NumProtos);
+  zero_all_bits(Protos, ProtoVectorSize);
+  FontinfoId = fontinfoId;
+}
 
-  return (Config);
-
-} /* NewTempConfig */
+TEMP_CONFIG_STRUCT::~TEMP_CONFIG_STRUCT() {
+  FreeBitVector(Protos);
+}
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -307,8 +286,8 @@ PERM_CONFIG ReadPermConfig(TFile *fp) {
  *
  * @note Globals: none
  */
-TEMP_CONFIG ReadTempConfig(TFile *fp) {
-  auto Config = static_cast<TEMP_CONFIG>(malloc(sizeof(TEMP_CONFIG_STRUCT)));
+TEMP_CONFIG_STRUCT *ReadTempConfig(TFile *fp) {
+  auto Config = new TEMP_CONFIG_STRUCT;
   fp->FRead(Config, sizeof(TEMP_CONFIG_STRUCT), 1);
 
   Config->Protos = NewBitVector(Config->ProtoVectorSize * BITSINLONG);
@@ -419,7 +398,7 @@ void WritePermConfig(FILE *File, PERM_CONFIG Config) {
  *
  * @note Globals: none
  */
-void WriteTempConfig(FILE *File, TEMP_CONFIG Config) {
+void WriteTempConfig(FILE *File, TEMP_CONFIG_STRUCT *Config) {
   assert(Config != nullptr);
 
   fwrite(Config, sizeof(TEMP_CONFIG_STRUCT), 1, File);

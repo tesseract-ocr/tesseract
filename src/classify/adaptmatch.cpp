@@ -687,7 +687,7 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
   int NumFeatures;
   PROTO_STRUCT *Proto;
   INT_CLASS_STRUCT *IClass;
-  TEMP_CONFIG Config;
+  TEMP_CONFIG_STRUCT *Config;
 
   classify_norm_method.set_value(baseline);
   Features = ExtractOutlineFeatures(Blob);
@@ -697,7 +697,7 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
     return;
   }
 
-  Config = NewTempConfig(NumFeatures - 1, FontinfoId);
+  Config = new TEMP_CONFIG_STRUCT(NumFeatures - 1, FontinfoId);
   TempConfigFor(Class, 0) = Config;
 
   /* this is a kludge to construct cutoffs for adapted templates */
@@ -843,7 +843,7 @@ void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float 
   UnicharRating int_result;
   INT_CLASS_STRUCT *IClass;
   ADAPT_CLASS_STRUCT *Class;
-  TEMP_CONFIG TempConfig;
+  TEMP_CONFIG_STRUCT *TempConfig;
   FEATURE_SET FloatFeatures;
   int NewTempConfigId;
 
@@ -1677,7 +1677,6 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID
   int MaxProtoId, OldMaxProtoId;
   int MaskSize;
   int ConfigId;
-  TEMP_CONFIG Config;
   int i;
   int debug_level = NO_DEBUG;
 
@@ -1722,7 +1721,7 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID
 
   ConfigId = AddIntConfig(IClass);
   ConvertConfig(TempProtoMask, ConfigId, IClass);
-  Config = NewTempConfig(MaxProtoId, FontinfoId);
+  auto Config = new TEMP_CONFIG_STRUCT(MaxProtoId, FontinfoId);
   TempConfigFor(Class, ConfigId) = Config;
   copy_all_bits(TempProtoMask, Config->Protos, Config->ProtoVectorSize);
 
@@ -1839,12 +1838,10 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
 void Classify::MakePermanent(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, int ConfigId,
                              TBLOB *Blob) {
   UNICHAR_ID *Ambigs;
-  TEMP_CONFIG Config;
-  ADAPT_CLASS_STRUCT *Class;
   PROTO_KEY ProtoKey;
 
-  Class = Templates->Class[ClassId];
-  Config = TempConfigFor(Class, ConfigId);
+  auto Class = Templates->Class[ClassId];
+  auto Config = TempConfigFor(Class, ConfigId);
 
   MakeConfigPermanent(Class, ConfigId);
   if (Class->NumPermConfigs == 0) {
@@ -1864,7 +1861,7 @@ void Classify::MakePermanent(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId
   ProtoKey.ClassId = ClassId;
   ProtoKey.ConfigId = ConfigId;
   Class->TempProtos = delete_d(Class->TempProtos, &ProtoKey, MakeTempProtoPerm);
-  FreeTempConfig(Config);
+  delete Config;
 
   // Record permanent config.
   PermConfigFor(Class, ConfigId) = Perm;
@@ -1896,16 +1893,11 @@ void Classify::MakePermanent(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId
  * @return true if TempProto is converted, false otherwise
  */
 int MakeTempProtoPerm(void *item1, void *item2) {
-  ADAPT_CLASS_STRUCT *Class;
-  TEMP_CONFIG Config;
-  TEMP_PROTO_STRUCT *TempProto;
-  PROTO_KEY *ProtoKey;
+  auto TempProto = static_cast<TEMP_PROTO_STRUCT *>(item1);
+  auto ProtoKey = static_cast<PROTO_KEY *>(item2);
 
-  TempProto = static_cast<TEMP_PROTO_STRUCT *>(item1);
-  ProtoKey = static_cast<PROTO_KEY *>(item2);
-
-  Class = ProtoKey->Templates->Class[ProtoKey->ClassId];
-  Config = TempConfigFor(Class, ProtoKey->ConfigId);
+  auto Class = ProtoKey->Templates->Class[ProtoKey->ClassId];
+  auto Config = TempConfigFor(Class, ProtoKey->ConfigId);
 
   if (TempProto->ProtoId > Config->MaxProtoId || !test_bit(Config->Protos, TempProto->ProtoId)) {
     return false;
@@ -2141,9 +2133,9 @@ int Classify::ShapeIDToClassID(int shape_id) const {
   return -1;
 }
 
-// Returns true if the given TEMP_CONFIG is good enough to make it
+// Returns true if the given TEMP_CONFIG_STRUCT is good enough to make it
 // a permanent config.
-bool Classify::TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG &config) {
+bool Classify::TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG_STRUCT *config) {
   if (classify_learning_debug_level >= 1) {
     tprintf("NumTimesSeen for config of %s is %d\n",
             getDict().getUnicharset().debug_str(class_id).c_str(), config->NumTimesSeen);
@@ -2190,7 +2182,7 @@ void Classify::UpdateAmbigsGroup(CLASS_ID class_id, TBLOB *Blob) {
       if (ConfigIsPermanent(ambigs_class, cfg)) {
         continue;
       }
-      const TEMP_CONFIG config = TempConfigFor(AdaptedTemplates->Class[ambig_class_id], cfg);
+      const TEMP_CONFIG_STRUCT *config = TempConfigFor(AdaptedTemplates->Class[ambig_class_id], cfg);
       if (config != nullptr && TempConfigReliable(ambig_class_id, config)) {
         if (classify_learning_debug_level >= 1) {
           tprintf("Making config %d of %s permanent\n", cfg,

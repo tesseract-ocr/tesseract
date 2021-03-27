@@ -263,7 +263,7 @@ public:
   void ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES_STRUCT *templates,
                              uint8_t *char_norm_array, uint8_t *pruner_array);
 
-  bool TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG &config);
+  bool TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG_STRUCT *config);
   void UpdateAmbigsGroup(CLASS_ID class_id, TBLOB *Blob);
 
   bool AdaptiveClassifierIsFull() const {
