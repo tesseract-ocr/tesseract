@@ -48,7 +48,7 @@ bool Dict::AcceptableChoice(const WERD_CHOICE &best_choice,
     return false;
   }
 
-  if (best_choice.length() == 0) {
+  if (best_choice.empty()) {
     return false;
   }
 
@@ -123,7 +123,7 @@ bool Dict::AcceptableResult(WERD_RES *word) const {
             word->best_choices.singleton() ? 'n' : 'y');
   }
 
-  if (word->best_choice->length() == 0 || !word->best_choices.singleton()) {
+  if (word->best_choice->empty() || !word->best_choices.singleton()) {
     return false;
   }
   if (valid_word(*word->best_choice) && case_ok(*word->best_choice)) {

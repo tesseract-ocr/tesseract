@@ -65,7 +65,7 @@ static int Main(int argc, char **argv) {
   // Load input files
   for (int arg = 1; arg < argc; ++arg) {
     std::string file_data = tesseract::ReadFile(argv[arg]);
-    if (file_data.length() == 0) {
+    if (file_data.empty()) {
       continue;
     }
     std::vector<std::string> texts;

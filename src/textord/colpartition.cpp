@@ -179,7 +179,7 @@ ColPartition *ColPartition::MakeLinePartition(BlobRegionType blob_type, const IC
 void ColPartition::AddBox(BLOBNBOX *bbox) {
   TBOX box = bbox->bounding_box();
   // Update the partition limits.
-  if (boxes_.length() == 0) {
+  if (boxes_.empty()) {
     bounding_box_ = box;
   } else {
     bounding_box_ += box;

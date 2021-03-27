@@ -91,6 +91,10 @@ public:
     return values_[0];
   }
 
+  bool empty() const {
+    return values_.empty();
+  }
+
   int size() const {
     return values_.size();
   }
@@ -518,7 +522,7 @@ void FPRow::Init(TO_ROW *row) {
 }
 
 void FPRow::OutputEstimations() {
-  if (good_pitches_.size() == 0) {
+  if (good_pitches_.empty()) {
     pitch_ = 0.0f;
     real_row_->pitch_decision = PITCH_CORR_PROP;
     return;
@@ -662,7 +666,7 @@ void FPRow::EstimatePitch(bool pass1) {
   heights_.Finish();
 
   height_ = heights_.ile(0.875);
-  if (all_pitches_.size() == 0) {
+  if (all_pitches_.empty()) {
     pitch_ = 0.0f;
     gap_ = 0.0f;
   } else if (good_pitches_.size() < 2) {

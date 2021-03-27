@@ -78,7 +78,7 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
   }
 
   // datadir may still be empty:
-  if (datadir.length() == 0) {
+  if (datadir.empty()) {
     datadir = "./";
   }
 

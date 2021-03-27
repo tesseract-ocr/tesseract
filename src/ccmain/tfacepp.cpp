@@ -81,7 +81,7 @@ void Tesseract::recog_word(WERD_RES *word) {
   }
   // Factored out from control.cpp
   ASSERT_HOST((word->best_choice == nullptr) == (word->raw_choice == nullptr));
-  if (word->best_choice == nullptr || word->best_choice->length() == 0 ||
+  if (word->best_choice == nullptr || word->best_choice->empty() ||
       static_cast<int>(strspn(word->best_choice->unichar_string().c_str(), " ")) ==
           word->best_choice->length()) {
     word->tess_failed = true;
