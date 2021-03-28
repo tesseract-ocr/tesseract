@@ -34,14 +34,27 @@ MakeKDTree.  All KD routines assume that this is true and will not operate
 correctly if circular parameters outside the specified range are used.
 */
 
+struct KDTREE;
+
 struct KDNODE {
+  /// This routine allocates memory for a new K-D tree node
+  /// and places the specified Key and Data into it.  The
+  /// left and right subtree pointers for the node are
+  /// initialized to empty subtrees.
+  /// @param tree  The tree to create the node for
+  /// @param Key  Access key for new node in KD tree
+  /// @param Data  ptr to data to be stored in new node
+  /// @param Index  index of Key to branch on
+  KDNODE(KDTREE *tree, float key[], void *data, int Index);
+  ~KDNODE() = default;
+
   float *Key;          /**< search key */
   void *Data;          /**< data that corresponds to key */
   float BranchPoint;   /**< needed to make deletes work efficiently */
   float LeftBranch;    /**< used to optimize search pruning */
   float RightBranch;   /**< used to optimize search pruning */
-  struct KDNODE *Left; /**< ptrs for KD tree structure */
-  struct KDNODE *Right;
+  KDNODE *Left;        /**< ptrs for KD tree structure */
+  KDNODE *Right;
 };
 
 struct KDTREE {
@@ -49,6 +62,16 @@ struct KDTREE {
   KDNODE Root;           /* Root.Left points to actual root node */
   PARAM_DESC KeyDesc[1]; /* description of each dimension */
 };
+
+inline KDNODE::KDNODE(KDTREE *tree, float key[], void *data, int Index) {
+  Key = key;
+  Data = data;
+  BranchPoint = Key[Index];
+  LeftBranch = tree->KeyDesc[Index].Min;
+  RightBranch = tree->KeyDesc[Index].Max;
+  Left = nullptr;
+  Right = nullptr;
+}
 
 /*----------------------------------------------------------------------------
             Macros
@@ -74,9 +97,6 @@ void FreeKDTree(KDTREE *Tree);
 /*-----------------------------------------------------------------------------
           Private Function Prototypes
 -----------------------------------------------------------------------------*/
-KDNODE *MakeKDNode(KDTREE *tree, float Key[], void *Data, int Index);
-
-void FreeKDNode(KDNODE *Node);
 
 float DistanceSquared(int k, PARAM_DESC *dim, float p1[], float p2[]);
 

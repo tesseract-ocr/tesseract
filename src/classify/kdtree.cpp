@@ -214,13 +214,9 @@ KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
  * @param Data    ptr to data to be stored in the tree
  */
 void KDStore(KDTREE *Tree, float *Key, void *Data) {
-  int Level;
-  KDNODE *Node;
-  KDNODE **PtrToNode;
-
-  PtrToNode = &(Tree->Root.Left);
-  Node = *PtrToNode;
-  Level = NextLevel(Tree, -1);
+  auto PtrToNode = &(Tree->Root.Left);
+  auto Node = *PtrToNode;
+  auto Level = NextLevel(Tree, -1);
   while (Node != nullptr) {
     if (Key[Level] < Node->BranchPoint) {
       PtrToNode = &(Node->Left);
@@ -237,7 +233,7 @@ void KDStore(KDTREE *Tree, float *Key, void *Data) {
     Node = *PtrToNode;
   }
 
-  *PtrToNode = MakeKDNode(Tree, Key, Data, Level);
+  *PtrToNode = new KDNODE(Tree, Key, Data, Level);
 } /* KDStore */
 
 /**
@@ -339,38 +335,6 @@ void FreeKDTree(KDTREE *Tree) {
 /*-----------------------------------------------------------------------------
               Private Code
 -----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-/**
- * This routine allocates memory for a new K-D tree node
- * and places the specified Key and Data into it.  The
- * left and right subtree pointers for the node are
- * initialized to empty subtrees.
- * @param tree  The tree to create the node for
- * @param Key  Access key for new node in KD tree
- * @param Data  ptr to data to be stored in new node
- * @param Index  index of Key to branch on
- * @return pointer to new K-D tree node
- */
-KDNODE *MakeKDNode(KDTREE *tree, float Key[], void *Data, int Index) {
-  KDNODE *NewNode;
-
-  NewNode = static_cast<KDNODE *>(malloc(sizeof(KDNODE)));
-
-  NewNode->Key = Key;
-  NewNode->Data = Data;
-  NewNode->BranchPoint = Key[Index];
-  NewNode->LeftBranch = tree->KeyDesc[Index].Min;
-  NewNode->RightBranch = tree->KeyDesc[Index].Max;
-  NewNode->Left = nullptr;
-  NewNode->Right = nullptr;
-
-  return NewNode;
-} /* MakeKDNode */
-
-/*---------------------------------------------------------------------------*/
-void FreeKDNode(KDNODE *Node) {
-  free(Node);
-}
 
 /*---------------------------------------------------------------------------*/
 /**
