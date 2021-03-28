@@ -98,7 +98,7 @@ struct INT_CLASS_STRUCT {
   uint8_t NumProtoSets;
   uint8_t NumConfigs;
   PROTO_SET_STRUCT *ProtoSets[MAX_NUM_PROTO_SETS];
-  uint8_t *ProtoLengths;
+  std::vector<uint8_t> ProtoLengths;
   uint16_t ConfigLengths[MAX_NUM_CONFIGS];
   int font_set_id; // FontSet id, see above
 };

@@ -279,10 +279,7 @@ int AddIntProto(INT_CLASS_STRUCT *Class) {
     memset(ProtoSet, 0, sizeof(*ProtoSet));
 
     /* reallocate space for the proto lengths and install in class */
-    Class->ProtoLengths = static_cast<uint8_t *>(
-        realloc(Class->ProtoLengths, MaxNumIntProtosIn(Class) * sizeof(uint8_t)));
-    memset(&Class->ProtoLengths[Index], 0,
-           sizeof(*Class->ProtoLengths) * (MaxNumIntProtosIn(Class) - Index));
+    Class->ProtoLengths.resize(MaxNumIntProtosIn(Class));
   }
 
   /* initialize proto so its length is zero and it isn't in any configs */
@@ -579,14 +576,14 @@ void DisplayIntProto(INT_CLASS_STRUCT *Class, PROTO_ID ProtoId, float Evidence) 
 /// to handle the specified number of protos and configs.
 /// @param MaxNumProtos  number of protos to allocate space for
 /// @param MaxNumConfigs number of configs to allocate space for
-INT_CLASS_STRUCT::INT_CLASS_STRUCT(int MaxNumProtos, int MaxNumConfigs) {
+INT_CLASS_STRUCT::INT_CLASS_STRUCT(int MaxNumProtos, int MaxNumConfigs) :
+  NumProtos(0),
+  NumProtoSets((MaxNumProtos + PROTOS_PER_PROTO_SET - 1) / PROTOS_PER_PROTO_SET),
+  NumConfigs(0),
+  ProtoLengths(MaxNumIntProtosIn(this))
+{
   assert(MaxNumConfigs <= MAX_NUM_CONFIGS);
-  NumProtoSets = ((MaxNumProtos + PROTOS_PER_PROTO_SET - 1) / PROTOS_PER_PROTO_SET);
-
   assert(NumProtoSets <= MAX_NUM_PROTO_SETS);
-
-  NumProtos = 0;
-  NumConfigs = 0;
 
   for (int i = 0; i < NumProtoSets; i++) {
     /* allocate space for a proto set, install in class, and initialize */
@@ -596,12 +593,6 @@ INT_CLASS_STRUCT::INT_CLASS_STRUCT(int MaxNumProtos, int MaxNumConfigs) {
 
     /* allocate space for the proto lengths and install in class */
   }
-  if (MaxNumIntProtosIn(this) > 0) {
-    ProtoLengths = new uint8_t[MaxNumIntProtosIn(this)];
-    memset(ProtoLengths, 0, MaxNumIntProtosIn(this) * sizeof(*ProtoLengths));
-  } else {
-    ProtoLengths = nullptr;
-  }
   memset(ConfigLengths, 0, sizeof(ConfigLengths));
 }
 
@@ -609,7 +600,6 @@ INT_CLASS_STRUCT::~INT_CLASS_STRUCT() {
   for (int i = 0; i < NumProtoSets; i++) {
     delete ProtoSets[i];
   }
-  delete[] ProtoLengths;
 }
 
 /// This constructor allocates a new set of integer templates
@@ -647,7 +637,6 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
   INT_TEMPLATES_STRUCT *Templates;
   CLASS_PRUNER_STRUCT *Pruner;
   INT_CLASS_STRUCT *Class;
-  uint8_t *Lengths;
 
   /* variables for conversion from older inttemp formats */
   int b, bit_number, last_cp_bit_number, new_b, new_i, new_w;
@@ -797,15 +786,14 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
     }
 
     /* then read in the proto lengths */
-    Lengths = nullptr;
+    Class->ProtoLengths.clear();
     if (MaxNumIntProtosIn(Class) > 0) {
-      Lengths = new uint8_t[MaxNumIntProtosIn(Class)];
-      if (fp->FRead(Lengths, sizeof(uint8_t), MaxNumIntProtosIn(Class)) !=
+      Class->ProtoLengths.resize(MaxNumIntProtosIn(Class));
+      if (fp->FRead(&Class->ProtoLengths[0], sizeof(uint8_t), MaxNumIntProtosIn(Class)) !=
           MaxNumIntProtosIn(Class)) {
         tprintf("Bad read of inttemp!\n");
       }
     }
-    Class->ProtoLengths = Lengths;
 
     /* then read in the proto sets */
     for (j = 0; j < Class->NumProtoSets; j++) {
@@ -970,7 +958,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
 
     /* then write out the proto lengths */
     if (MaxNumIntProtosIn(Class) > 0) {
-      fwrite(Class->ProtoLengths, sizeof(uint8_t), MaxNumIntProtosIn(Class), File);
+      fwrite(&Class->ProtoLengths[0], sizeof(uint8_t), MaxNumIntProtosIn(Class), File);
     }
 
     /* then write out the proto sets */
