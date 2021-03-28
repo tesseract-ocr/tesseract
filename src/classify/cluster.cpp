@@ -1575,9 +1575,7 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
 void FreeClusterer(CLUSTERER *Clusterer) {
   if (Clusterer != nullptr) {
     delete[] Clusterer->ParamDesc;
-    if (Clusterer->KDTree != nullptr) {
-      FreeKDTree(Clusterer->KDTree);
-    }
+    delete Clusterer->KDTree;
     delete Clusterer->Root;
     // Free up all used buckets structures.
     for (auto &d : Clusterer->bucket_cache) {
@@ -1755,7 +1753,7 @@ static void CreateClusterTree(CLUSTERER *Clusterer) {
   Clusterer->Root = static_cast<CLUSTER *> RootOf(Clusterer->KDTree);
 
   // free up the memory used by the K-D tree, heap, and temp clusters
-  FreeKDTree(context.tree);
+  delete context.tree;
   Clusterer->KDTree = nullptr;
   delete context.heap;
   delete[] context.candidates;

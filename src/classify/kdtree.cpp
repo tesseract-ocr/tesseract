@@ -184,7 +184,7 @@ void KDTreeSearch::Search(int *result_count, float *distances, void **results) {
 /// @param KeySize  # of dimensions in the K-D tree
 /// @param KeyDesc  array of params to describe key dimensions
 KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
-  auto *KDTree = static_cast<KDTREE *>(malloc(sizeof(KDTREE) + (KeySize - 1) * sizeof(PARAM_DESC)));
+  auto *KDTree = new KDTREE(KeySize);
   for (int i = 0; i < KeySize; i++) {
     KDTree->KeyDesc[i].NonEssential = KeyDesc[i].NonEssential;
     KDTree->KeyDesc[i].Circular = KeyDesc[i].Circular;
@@ -283,7 +283,7 @@ void KDDelete(KDTREE *Tree, float Key[], void *Data) {
 
     InsertNodes(Tree, Current->Left);
     InsertNodes(Tree, Current->Right);
-    FreeSubTree(Current);
+    delete Current;
   }
 } /* KDDelete */
 
@@ -317,21 +317,6 @@ void KDWalk(KDTREE *Tree, void_proc action, void *context) {
   }
 }
 
-/*---------------------------------------------------------------------------*/
-/**
- * This routine frees all memory which is allocated to the
- * specified KD-tree.  This includes the data structure for
- * the kd-tree itself plus the data structures for each node
- * in the tree.  It does not include the Key and Data items
- * which are pointed to by the nodes.  This memory is left
- * untouched.
- * @param Tree  tree data structure to be released
- */
-void FreeKDTree(KDTREE *Tree) {
-  FreeSubTree(Tree->Root.Left);
-  free(Tree);
-} /* FreeKDTree */
-
 /*-----------------------------------------------------------------------------
               Private Code
 -----------------------------------------------------------------------------*/
@@ -351,7 +336,7 @@ void KDTreeSearch::SearchRec(int level, KDNODE *sub_tree) {
     return;
   }
 
-  results_.insert(DistanceSquared(tree_->KeySize, tree_->KeyDesc, query_point_, sub_tree->Key),
+  results_.insert(DistanceSquared(tree_->KeySize, &tree_->KeyDesc[0], query_point_, sub_tree->Key),
                   sub_tree->Data);
 
   if (query_point_[level] < sub_tree->BranchPoint) {
@@ -428,7 +413,7 @@ bool KDTreeSearch::BoxIntersectsSearch(float *lower, float *upper) {
   double total_distance = 0.0;
   double radius_squared =
       static_cast<double>(results_.max_insertable_key()) * results_.max_insertable_key();
-  PARAM_DESC *dim = tree_->KeyDesc;
+  PARAM_DESC *dim = &tree_->KeyDesc[0];
 
   for (int i = tree_->KeySize; i > 0; i--, dim++, query++, lower++, upper++) {
     if (dim->NonEssential) {
@@ -498,15 +483,6 @@ void InsertNodes(KDTREE *tree, KDNODE *nodes) {
   KDStore(tree, nodes->Key, nodes->Data);
   InsertNodes(tree, nodes->Left);
   InsertNodes(tree, nodes->Right);
-}
-
-/** Free all of the nodes of a sub tree. */
-void FreeSubTree(KDNODE *sub_tree) {
-  if (sub_tree != nullptr) {
-    FreeSubTree(sub_tree->Left);
-    FreeSubTree(sub_tree->Right);
-    free(sub_tree);
-  }
 }
 
 } // namespace tesseract

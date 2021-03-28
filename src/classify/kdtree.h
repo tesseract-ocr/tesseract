@@ -45,8 +45,12 @@ struct KDNODE {
   /// @param Key  Access key for new node in KD tree
   /// @param Data  ptr to data to be stored in new node
   /// @param Index  index of Key to branch on
+  KDNODE() = default;
   KDNODE(KDTREE *tree, float key[], void *data, int Index);
-  ~KDNODE() = default;
+  ~KDNODE() {
+    delete Left;
+    delete Right;
+  }
 
   float *Key;          /**< search key */
   void *Data;          /**< data that corresponds to key */
@@ -58,9 +62,21 @@ struct KDNODE {
 };
 
 struct KDTREE {
+  KDTREE(size_t n) : KeyDesc(n) {
+  }
+
+  // The destructor frees all memory which is allocated to the
+  // specified KD-tree.  This includes the data structure for
+  // the kd-tree itself plus the data structures for each node
+  // in the tree.  It does not include the Key and Data items
+  // which are pointed to by the nodes.  This memory is left
+  // untouched.
+  ~KDTREE() {
+  }
+
   int16_t KeySize;       /* number of dimensions in the tree */
   KDNODE Root;           /* Root.Left points to actual root node */
-  PARAM_DESC KeyDesc[1]; /* description of each dimension */
+  std::vector<PARAM_DESC> KeyDesc; // description of each dimension
 };
 
 inline KDNODE::KDNODE(KDTREE *tree, float key[], void *data, int Index) {
@@ -92,8 +108,6 @@ void KDNearestNeighborSearch(KDTREE *Tree, float Query[], int QuerySize, float M
 
 void KDWalk(KDTREE *Tree, void_proc Action, void *context);
 
-void FreeKDTree(KDTREE *Tree);
-
 /*-----------------------------------------------------------------------------
           Private Function Prototypes
 -----------------------------------------------------------------------------*/
@@ -108,8 +122,6 @@ int QueryInSearch(KDTREE *tree);
 void Walk(KDTREE *tree, void_proc action, void *context, KDNODE *SubTree, int32_t Level);
 
 void InsertNodes(KDTREE *tree, KDNODE *nodes);
-
-void FreeSubTree(KDNODE *SubTree);
 
 } // namespace tesseract
 
