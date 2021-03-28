@@ -575,11 +575,11 @@ void CleanUpUnusedData(LIST ProtoList) {
 
   iterate(ProtoList) {
     Prototype = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
-    free(Prototype->Variance.Elliptical);
+    delete[] Prototype->Variance.Elliptical;
     Prototype->Variance.Elliptical = nullptr;
-    free(Prototype->Magnitude.Elliptical);
+    delete[] Prototype->Magnitude.Elliptical;
     Prototype->Magnitude.Elliptical = nullptr;
-    free(Prototype->Weight.Elliptical);
+    delete[] Prototype->Weight.Elliptical;
     Prototype->Weight.Elliptical = nullptr;
   }
 }
@@ -602,7 +602,7 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
       NewProto->Distrib = nullptr;
 
       if (Proto->Variance.Elliptical != nullptr) {
-        NewProto->Variance.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
+        NewProto->Variance.Elliptical = new float[N];
         for (int i = 0; i < N; i++) {
           NewProto->Variance.Elliptical[i] = Proto->Variance.Elliptical[i];
         }
@@ -611,7 +611,7 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
       }
       //---------------------------------------------
       if (Proto->Magnitude.Elliptical != nullptr) {
-        NewProto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
+        NewProto->Magnitude.Elliptical = new float[N];
         for (int i = 0; i < N; i++) {
           NewProto->Magnitude.Elliptical[i] = Proto->Magnitude.Elliptical[i];
         }
@@ -620,7 +620,7 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
       }
       //------------------------------------------------
       if (Proto->Weight.Elliptical != nullptr) {
-        NewProto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
+        NewProto->Weight.Elliptical = new float[N];
         for (int i = 0; i < N; i++) {
           NewProto->Weight.Elliptical[i] = Proto->Weight.Elliptical[i];
         }

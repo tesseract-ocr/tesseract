@@ -215,14 +215,14 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->Distrib = nullptr;
       break;
     case elliptical:
-      Proto->Variance.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
+      Proto->Variance.Elliptical = new float[N];
       ReadNFloats(fp, N, Proto->Variance.Elliptical);
-      Proto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-      Proto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
+      Proto->Magnitude.Elliptical = new float[N];
+      Proto->Weight.Elliptical = new float[N];
       Proto->TotalMagnitude = 1.0;
       for (i = 0; i < N; i++) {
-        Proto->Magnitude.Elliptical[i] = 1.0 / sqrt(2.0 * M_PI * Proto->Variance.Elliptical[i]);
-        Proto->Weight.Elliptical[i] = 1.0 / Proto->Variance.Elliptical[i];
+        Proto->Magnitude.Elliptical[i] = 1.0f / sqrt(2.0f * M_PI * Proto->Variance.Elliptical[i]);
+        Proto->Weight.Elliptical[i] = 1.0f / Proto->Variance.Elliptical[i];
         Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
       }
       Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));

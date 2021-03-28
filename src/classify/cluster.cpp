@@ -1618,9 +1618,9 @@ void FreePrototype(void *arg) { // PROTOTYPE     *Prototype)
   // deallocate the prototype statistics and then the prototype itself
   free(Prototype->Distrib);
   if (Prototype->Style != spherical) {
-    free(Prototype->Variance.Elliptical);
-    free(Prototype->Magnitude.Elliptical);
-    free(Prototype->Weight.Elliptical);
+    delete[] Prototype->Variance.Elliptical;
+    delete[] Prototype->Magnitude.Elliptical;
+    delete[] Prototype->Weight.Elliptical;
   }
   delete Prototype;
 } // FreePrototype
@@ -1676,17 +1676,16 @@ float Mean(PROTOTYPE *Proto, uint16_t Dimension) {
 float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
   switch (Proto->Style) {
     case spherical:
-      return (static_cast<float>(sqrt(static_cast<double>(Proto->Variance.Spherical))));
+      return sqrt(Proto->Variance.Spherical);
     case elliptical:
-      return (static_cast<float>(sqrt(static_cast<double>(Proto->Variance.Elliptical[Dimension]))));
+      return sqrt(Proto->Variance.Elliptical[Dimension]);
     case mixed:
       switch (Proto->Distrib[Dimension]) {
         case normal:
-          return (
-              static_cast<float>(sqrt(static_cast<double>(Proto->Variance.Elliptical[Dimension]))));
+          return sqrt(Proto->Variance.Elliptical[Dimension]);
         case uniform:
         case D_random:
-          return (Proto->Variance.Elliptical[Dimension]);
+          return Proto->Variance.Elliptical[Dimension];
         case DISTRIBUTION_COUNT:
           ASSERT_HOST(!"Distribution count not allowed!");
       }
@@ -2263,7 +2262,7 @@ static PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer, CLUSTER *Cluster, STATIST
   BUCKETS *UniformBuckets = nullptr;
   BUCKETS *RandomBuckets = nullptr;
 
-  // create a mixed proto to work on - initially assume all dimensions normal*/
+  // create a mixed proto to work on - initially assume all dimensions normal
   Proto = NewMixedProto(Clusterer->SampleSize, Cluster, Statistics);
 
   // find the proper distribution for each dimension
@@ -2273,7 +2272,7 @@ static PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer, CLUSTER *Cluster, STATIST
     }
 
     FillBuckets(NormalBuckets, Cluster, i, &(Clusterer->ParamDesc[i]), Proto->Mean[i],
-                sqrt(static_cast<double>(Proto->Variance.Elliptical[i])));
+                sqrt(Proto->Variance.Elliptical[i]));
     if (DistributionOK(NormalBuckets)) {
       continue;
     }
@@ -2480,9 +2479,9 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
   int i;
 
   Proto = NewSimpleProto(N, Cluster);
-  Proto->Variance.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-  Proto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-  Proto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
+  Proto->Variance.Elliptical = new float[N];
+  Proto->Magnitude.Elliptical = new float[N];
+  Proto->Weight.Elliptical = new float[N];
 
   auto CoVariance = &Statistics->CoVariance[0];
   Proto->TotalMagnitude = 1.0;
@@ -2492,8 +2491,8 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
       Proto->Variance.Elliptical[i] = MINVARIANCE;
     }
 
-    Proto->Magnitude.Elliptical[i] = 1.0 / sqrt(2.0 * M_PI * Proto->Variance.Elliptical[i]);
-    Proto->Weight.Elliptical[i] = 1.0 / Proto->Variance.Elliptical[i];
+    Proto->Magnitude.Elliptical[i] = 1.0f / sqrt(2.0f * M_PI * Proto->Variance.Elliptical[i]);
+    Proto->Weight.Elliptical[i] = 1.0f / Proto->Variance.Elliptical[i];
     Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
   }
   Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
