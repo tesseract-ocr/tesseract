@@ -1712,20 +1712,18 @@ float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
 static void CreateClusterTree(CLUSTERER *Clusterer) {
   ClusteringContext context;
   ClusterPair HeapEntry;
-  TEMPCLUSTER *PotentialCluster;
 
   // each sample and its nearest neighbor form a "potential" cluster
   // save these in a heap with the "best" potential clusters on top
   context.tree = Clusterer->KDTree;
-  context.candidates =
-      static_cast<TEMPCLUSTER *>(malloc(Clusterer->NumberOfSamples * sizeof(TEMPCLUSTER)));
+  context.candidates = new TEMPCLUSTER[Clusterer->NumberOfSamples];
   context.next = 0;
   context.heap = new ClusterHeap(Clusterer->NumberOfSamples);
   KDWalk(context.tree, reinterpret_cast<void_proc>(MakePotentialClusters), &context);
 
   // form potential clusters into actual clusters - always do "best" first
   while (context.heap->Pop(&HeapEntry)) {
-    PotentialCluster = HeapEntry.data();
+    TEMPCLUSTER *PotentialCluster = HeapEntry.data();
 
     // if main cluster of potential cluster is already in another cluster
     // then we don't need to worry about it
@@ -1761,7 +1759,7 @@ static void CreateClusterTree(CLUSTERER *Clusterer) {
   FreeKDTree(context.tree);
   Clusterer->KDTree = nullptr;
   delete context.heap;
-  free(context.candidates);
+  delete[] context.candidates;
 } // CreateClusterTree
 
 /**
