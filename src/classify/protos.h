@@ -27,8 +27,6 @@
 
 namespace tesseract {
 
-using CONFIGS = BIT_VECTOR *;
-
 struct PROTO_STRUCT {
   float A;
   float B;
@@ -40,18 +38,13 @@ struct PROTO_STRUCT {
 };
 
 struct CLASS_STRUCT {
-  CLASS_STRUCT()
-      : NumProtos(0)
-      , MaxNumProtos(0)
-      , NumConfigs(0)
-      , MaxNumConfigs(0)
-      , Configurations(nullptr) {}
-  int16_t NumProtos;
-  int16_t MaxNumProtos;
-  int16_t NumConfigs;
-  int16_t MaxNumConfigs;
+  CLASS_STRUCT() = default;
+  int16_t NumProtos = 0;
+  int16_t MaxNumProtos = 0;
+  int16_t NumConfigs = 0;
+  int16_t MaxNumConfigs = 0;
   std::vector<PROTO_STRUCT> Prototypes;
-  CONFIGS Configurations;
+  std::vector<BIT_VECTOR> Configurations;
   UnicityTable<int> font_set;
 };
 using CLASS_TYPE = CLASS_STRUCT *;

@@ -60,9 +60,7 @@ int AddConfigToClass(CLASS_TYPE Class) {
     NewNumConfigs =
         (((Class->MaxNumConfigs + CONFIG_INCREMENT) / CONFIG_INCREMENT) * CONFIG_INCREMENT);
 
-    Class->Configurations =
-        static_cast<CONFIGS>(realloc(Class->Configurations, sizeof(BIT_VECTOR) * NewNumConfigs));
-
+    Class->Configurations.resize(NewNumConfigs);
     Class->MaxNumConfigs = NewNumConfigs;
   }
   NewConfig = Class->NumConfigs++;
@@ -131,14 +129,9 @@ void FreeClass(CLASS_TYPE Class) {
  * Deallocate the memory consumed by subfields of the specified class.
  **********************************************************************/
 void FreeClassFields(CLASS_TYPE Class) {
-  int i;
-
   if (Class) {
-    if (Class->MaxNumConfigs > 0) {
-      for (i = 0; i < Class->NumConfigs; i++) {
-        FreeBitVector(Class->Configurations[i]);
-      }
-      free(Class->Configurations);
+    for (int i = 0; i < Class->NumConfigs; i++) {
+      FreeBitVector(Class->Configurations[i]);
     }
   }
 }
@@ -154,13 +147,8 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
 
   Class = new CLASS_STRUCT;
 
-  if (NumProtos > 0) {
-    Class->Prototypes.resize(NumProtos);
-  }
-
-  if (NumConfigs > 0) {
-    Class->Configurations = static_cast<CONFIGS>(malloc(NumConfigs * sizeof(BIT_VECTOR)));
-  }
+  Class->Prototypes.resize(NumProtos);
+  Class->Configurations.resize(NumConfigs);
   Class->MaxNumProtos = NumProtos;
   Class->MaxNumConfigs = NumConfigs;
   Class->NumProtos = 0;

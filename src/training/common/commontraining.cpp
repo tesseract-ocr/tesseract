@@ -730,7 +730,7 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
     Class->NumConfigs = NumConfigs;
     Class->MaxNumConfigs = NumConfigs;
     Class->font_set.move(&font_set);
-    Class->Configurations = static_cast<BIT_VECTOR *>(malloc(sizeof(BIT_VECTOR) * NumConfigs));
+    Class->Configurations.resize(NumConfigs);
     NumWords = WordsInVectorOfSize(NumProtos);
     for (i = 0; i < NumConfigs; i++) {
       NewConfig = NewBitVector(NumProtos);
