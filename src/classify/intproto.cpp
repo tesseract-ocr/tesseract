@@ -597,8 +597,7 @@ INT_CLASS_STRUCT::INT_CLASS_STRUCT(int MaxNumProtos, int MaxNumConfigs) {
     /* allocate space for the proto lengths and install in class */
   }
   if (MaxNumIntProtosIn(this) > 0) {
-    ProtoLengths =
-        static_cast<uint8_t *>(malloc(MaxNumIntProtosIn(this) * sizeof(uint8_t)));
+    ProtoLengths = new uint8_t[MaxNumIntProtosIn(this)];
     memset(ProtoLengths, 0, MaxNumIntProtosIn(this) * sizeof(*ProtoLengths));
   } else {
     ProtoLengths = nullptr;
@@ -610,9 +609,7 @@ INT_CLASS_STRUCT::~INT_CLASS_STRUCT() {
   for (int i = 0; i < NumProtoSets; i++) {
     delete ProtoSets[i];
   }
-  if (ProtoLengths != nullptr) {
-    free(ProtoLengths);
-  }
+  delete[] ProtoLengths;
 }
 
 /// This constructor allocates a new set of integer templates
@@ -802,7 +799,7 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
     /* then read in the proto lengths */
     Lengths = nullptr;
     if (MaxNumIntProtosIn(Class) > 0) {
-      Lengths = static_cast<uint8_t *>(malloc(sizeof(uint8_t) * MaxNumIntProtosIn(Class)));
+      Lengths = new uint8_t[MaxNumIntProtosIn(Class)];
       if (fp->FRead(Lengths, sizeof(uint8_t), MaxNumIntProtosIn(Class)) !=
           MaxNumIntProtosIn(Class)) {
         tprintf("Bad read of inttemp!\n");
