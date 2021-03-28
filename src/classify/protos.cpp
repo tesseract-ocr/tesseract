@@ -87,8 +87,7 @@ int AddProtoToClass(CLASS_TYPE Class) {
     int NewNumProtos =
         (((Class->MaxNumProtos + PROTO_INCREMENT) / PROTO_INCREMENT) * PROTO_INCREMENT);
 
-    Class->Prototypes =
-        static_cast<PROTO_STRUCT *>(realloc(Class->Prototypes, sizeof(PROTO_STRUCT) * NewNumProtos));
+    Class->Prototypes.resize(NewNumProtos);
 
     Class->MaxNumProtos = NewNumProtos;
     ASSERT_HOST(NewNumProtos <= MAX_NUM_PROTOS);
@@ -135,9 +134,6 @@ void FreeClassFields(CLASS_TYPE Class) {
   int i;
 
   if (Class) {
-    if (Class->MaxNumProtos > 0) {
-      free(Class->Prototypes);
-    }
     if (Class->MaxNumConfigs > 0) {
       for (i = 0; i < Class->NumConfigs; i++) {
         FreeBitVector(Class->Configurations[i]);
@@ -159,7 +155,7 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
   Class = new CLASS_STRUCT;
 
   if (NumProtos > 0) {
-    Class->Prototypes = new PROTO_STRUCT[NumProtos];
+    Class->Prototypes.resize(NumProtos);
   }
 
   if (NumConfigs > 0) {

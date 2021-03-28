@@ -710,7 +710,7 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
     font_set.move(&MergeClass->Class->font_set);
     Class->NumProtos = NumProtos;
     Class->MaxNumProtos = NumProtos;
-    Class->Prototypes = new PROTO_STRUCT[NumProtos];
+    Class->Prototypes.resize(NumProtos);
     for (i = 0; i < NumProtos; i++) {
       NewProto = ProtoIn(Class, i);
       OldProto = ProtoIn(MergeClass->Class, i);
