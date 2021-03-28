@@ -79,7 +79,7 @@ struct PROTOTYPE {
   unsigned Style : 2;       // spherical, elliptical, or mixed
   unsigned NumSamples : 28; // number of samples in the cluster
   CLUSTER *Cluster;         // ptr to cluster which made prototype
-  DISTRIBUTION *Distrib;    // different distribution for each dimension
+  std::vector<DISTRIBUTION> Distrib; // different distribution for each dimension
   std::vector<float> Mean;  // prototype mean
   float TotalMagnitude;     // total magnitude over all dimensions
   float LogMagnitude;       // log base e of TotalMagnitude

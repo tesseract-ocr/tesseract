@@ -599,7 +599,7 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
       NewProto->Style = Proto->Style;
       NewProto->NumSamples = Proto->NumSamples;
       NewProto->Cluster = nullptr;
-      NewProto->Distrib = nullptr;
+      NewProto->Distrib.clear();
 
       if (Proto->Variance.Elliptical != nullptr) {
         NewProto->Variance.Elliptical = new float[N];

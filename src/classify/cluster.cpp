@@ -1449,7 +1449,7 @@ CLUSTERER *MakeClusterer(int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
   Clusterer->ProtoList = NIL_LIST;
 
   // maintain a copy of param descriptors in the clusterer data structure
-  Clusterer->ParamDesc = static_cast<PARAM_DESC *>(malloc(SampleSize * sizeof(PARAM_DESC)));
+  Clusterer->ParamDesc = new PARAM_DESC[SampleSize];
   for (i = 0; i < SampleSize; i++) {
     Clusterer->ParamDesc[i].Circular = ParamDesc[i].Circular;
     Clusterer->ParamDesc[i].NonEssential = ParamDesc[i].NonEssential;
@@ -1572,7 +1572,7 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
  */
 void FreeClusterer(CLUSTERER *Clusterer) {
   if (Clusterer != nullptr) {
-    free(Clusterer->ParamDesc);
+    delete[] Clusterer->ParamDesc;
     if (Clusterer->KDTree != nullptr) {
       FreeKDTree(Clusterer->KDTree);
     }
@@ -1616,7 +1616,6 @@ void FreePrototype(void *arg) { // PROTOTYPE     *Prototype)
   }
 
   // deallocate the prototype statistics and then the prototype itself
-  free(Prototype->Distrib);
   if (Prototype->Style != spherical) {
     delete[] Prototype->Variance.Elliptical;
     delete[] Prototype->Magnitude.Elliptical;
@@ -2365,7 +2364,6 @@ static void MakeDimUniform(uint16_t i, PROTOTYPE *Proto, STATISTICS *Statistics)
  */
 static STATISTICS *ComputeStatistics(int16_t N, PARAM_DESC ParamDesc[], CLUSTER *Cluster) {
   int i, j;
-  float *Distance;
   LIST SearchState;
   SAMPLE *Sample;
   uint32_t SampleCountAdjustedForBias;
@@ -2374,7 +2372,7 @@ static STATISTICS *ComputeStatistics(int16_t N, PARAM_DESC ParamDesc[], CLUSTER 
   auto Statistics = new STATISTICS(N);
 
   // allocate temporary memory to hold the sample to mean distances
-  Distance = static_cast<float *>(malloc(N * sizeof(float)));
+  std::vector<float> Distance(N);
 
   // find each sample in the cluster and merge it into the statistics
   InitSampleSearch(SearchState, Cluster);
@@ -2427,9 +2425,7 @@ static STATISTICS *ComputeStatistics(int16_t N, PARAM_DESC ParamDesc[], CLUSTER 
   Statistics->AvgVariance =
       static_cast<float>(pow(static_cast<double>(Statistics->AvgVariance), 1.0 / N));
 
-  // release temporary memory and return
-  free(Distance);
-  return (Statistics);
+  return Statistics;
 } // ComputeStatistics
 
 /**
@@ -2512,17 +2508,11 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
  * @return  Pointer to a new mixed prototype data structure
  */
 static PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics) {
-  PROTOTYPE *Proto;
-  int i;
-
-  Proto = NewEllipticalProto(N, Cluster, Statistics);
-  Proto->Distrib = static_cast<DISTRIBUTION *>(malloc(N * sizeof(DISTRIBUTION)));
-
-  for (i = 0; i < N; i++) {
-    Proto->Distrib[i] = normal;
-  }
+  auto Proto = NewEllipticalProto(N, Cluster, Statistics);
+  Proto->Distrib.clear();
+  Proto->Distrib.resize(N, normal);
   Proto->Style = mixed;
-  return (Proto);
+  return Proto;
 } // NewMixedProto
 
 /**
@@ -2537,9 +2527,7 @@ static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
   auto Proto = new PROTOTYPE;
   ASSERT_HOST(N == sizeof(Cluster->Mean));
   Proto->Mean = Cluster->Mean;
-
-  Proto->Distrib = nullptr;
-
+  Proto->Distrib.clear();
   Proto->Significant = true;
   Proto->Merged = false;
   Proto->Style = spherical;

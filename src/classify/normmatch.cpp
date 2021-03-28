@@ -162,7 +162,7 @@ void Classify::FreeNormProtos() {
       FreeProtoList(&NormProtos->Protos[i]);
     }
     free(NormProtos->Protos);
-    free(NormProtos->ParamDesc);
+    delete[] NormProtos->ParamDesc;
     free(NormProtos);
     NormProtos = nullptr;
   }

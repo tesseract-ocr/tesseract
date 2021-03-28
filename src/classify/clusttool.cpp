@@ -132,9 +132,7 @@ uint16_t ReadSampleSize(TFile *fp) {
  * @note Globals: None
  */
 PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
-  PARAM_DESC *ParamDesc;
-
-  ParamDesc = static_cast<PARAM_DESC *>(malloc(N * sizeof(PARAM_DESC)));
+  auto ParamDesc = new PARAM_DESC[N];
   for (int i = 0; i < N; i++) {
     const int kMaxLineSize = TOKENSIZE * 4;
     char line[kMaxLineSize];
@@ -212,7 +210,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->TotalMagnitude = pow(Proto->Magnitude.Spherical, static_cast<float>(N));
       Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
       Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
-      Proto->Distrib = nullptr;
+      Proto->Distrib.clear();
       break;
     case elliptical:
       Proto->Variance.Elliptical = new float[N];
@@ -226,7 +224,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
         Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
       }
       Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
-      Proto->Distrib = nullptr;
+      Proto->Distrib.clear();
       break;
     default:
       delete Proto;
