@@ -1272,14 +1272,18 @@ struct STATISTICS {
 };
 
 struct BUCKETS {
+  BUCKETS(size_t n) : NumberOfBuckets(n), Count(n), ExpectedCount(n) {
+  }
+  ~BUCKETS() {
+  }
   DISTRIBUTION Distribution;        // distribution being tested for
   uint32_t SampleCount;             // # of samples in histogram
   double Confidence;                // confidence level of test
   double ChiSquared;                // test threshold
   uint16_t NumberOfBuckets;         // number of cells in histogram
   uint16_t Bucket[BUCKETTABLESIZE]; // mapping to histogram buckets
-  uint32_t *Count;                  // frequency of occurrence histogram
-  float *ExpectedCount;             // expected histogram
+  std::vector<uint32_t> Count;      // frequency of occurrence histogram
+  std::vector<float> ExpectedCount; // expected histogram
 };
 
 struct CHISTRUCT {
@@ -1406,8 +1410,6 @@ static uint16_t NormalBucket(PARAM_DESC *ParamDesc, float x, float Mean, float S
 static uint16_t UniformBucket(PARAM_DESC *ParamDesc, float x, float Mean, float StdDev);
 
 static bool DistributionOK(BUCKETS *Buckets);
-
-static void FreeBuckets(BUCKETS *Buckets);
 
 static uint16_t DegreesOfFreedom(DISTRIBUTION Distribution, uint16_t HistogramBuckets);
 
@@ -1580,9 +1582,7 @@ void FreeClusterer(CLUSTERER *Clusterer) {
     // Free up all used buckets structures.
     for (auto &d : Clusterer->bucket_cache) {
       for (auto &c : d) {
-        if (c != nullptr) {
-          FreeBuckets(c);
-        }
+        delete c;
       }
     }
 
@@ -2646,7 +2646,6 @@ static BUCKETS *GetBuckets(CLUSTERER *clusterer, DISTRIBUTION Distribution, uint
 static BUCKETS *MakeBuckets(DISTRIBUTION Distribution, uint32_t SampleCount, double Confidence) {
   const DENSITYFUNC DensityFunction[] = {NormalDensity, UniformDensity, UniformDensity};
   int i, j;
-  BUCKETS *Buckets;
   double BucketProbability;
   double NextBucketBoundary;
   double Probability;
@@ -2657,19 +2656,12 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution, uint32_t SampleCount, dou
   bool Symmetrical;
 
   // allocate memory needed for data structure
-  Buckets = static_cast<BUCKETS *>(malloc(sizeof(BUCKETS)));
-  Buckets->NumberOfBuckets = OptimumNumberOfBuckets(SampleCount);
+  auto Buckets = new BUCKETS(OptimumNumberOfBuckets(SampleCount));
   Buckets->SampleCount = SampleCount;
   Buckets->Confidence = Confidence;
-  Buckets->Count = static_cast<uint32_t *>(malloc(Buckets->NumberOfBuckets * sizeof(uint32_t)));
-  Buckets->ExpectedCount = static_cast<float *>(malloc(Buckets->NumberOfBuckets * sizeof(float)));
 
   // initialize simple fields
   Buckets->Distribution = Distribution;
-  for (i = 0; i < Buckets->NumberOfBuckets; i++) {
-    Buckets->Count[i] = 0;
-    Buckets->ExpectedCount[i] = 0.0;
-  }
 
   // all currently defined distributions are symmetrical
   Symmetrical = true;
@@ -3020,17 +3012,6 @@ static bool DistributionOK(BUCKETS *Buckets) {
     return true;
   }
 } // DistributionOK
-
-/**
- * This routine properly frees the memory used by a BUCKETS.
- *
- * @param buckets  pointer to data structure to be freed
- */
-static void FreeBuckets(BUCKETS *buckets) {
-  free(buckets->Count);
-  free(buckets->ExpectedCount);
-  free(buckets);
-} // FreeBuckets
 
 /**
  * This routine computes the degrees of freedom that should
