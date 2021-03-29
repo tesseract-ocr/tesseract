@@ -123,16 +123,18 @@ void ROW::recalc_bounding_box() { // recalculate BB
   }
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     word = it.data();
-    if (it.at_first())
+    if (it.at_first()) {
       word->set_flag(W_BOL, true);
-    else
+    } else {
       // not start of line
       word->set_flag(W_BOL, false);
-    if (it.at_last())
+    }
+    if (it.at_last()) {
       word->set_flag(W_EOL, true);
-    else
+    } else {
       // not end of line
       word->set_flag(W_EOL, false);
+    }
     // extend BB as reqd
     bound_box += word->bounding_box();
   }
@@ -149,8 +151,9 @@ void ROW::move(      // reposition row
 ) {
   WERD_IT it(&words); // word iterator
 
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     it.data()->move(vec);
+  }
 
   bound_box.move(vec);
   baseline.move(vec);
@@ -228,8 +231,9 @@ ROW &ROW::operator=(const ROW &source) {
   bodysize = source.bodysize;
   ascrise = source.ascrise;
   descdrop = source.descdrop;
-  if (!words.empty())
+  if (!words.empty()) {
     words.clear();
+  }
   baseline = source.baseline; // QSPLINES must do =
   bound_box = source.bound_box;
   has_drop_cap_ = source.has_drop_cap_;

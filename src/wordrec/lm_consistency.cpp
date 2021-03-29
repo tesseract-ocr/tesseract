@@ -27,8 +27,9 @@
 namespace tesseract {
 
 void LMConsistencyInfo::ComputeXheightConsistency(const BLOB_CHOICE *b, bool is_punc) {
-  if (xht_decision == XH_INCONSISTENT)
+  if (xht_decision == XH_INCONSISTENT) {
     return; // It isn't going to get any better.
+  }
 
   // Compute xheight consistency.
   bool parent_null = xht_sp < 0;
@@ -42,8 +43,9 @@ void LMConsistencyInfo::ComputeXheightConsistency(const BLOB_CHOICE *b, bool is_
     xht_sp = LMConsistencyInfo::kNORM;
   }
   xht_count[xht_sp]++;
-  if (is_punc)
+  if (is_punc) {
     xht_count_punc[xht_sp]++;
+  }
   if (!parent_null) {
     xpos_entropy += abs(parent_sp - xht_sp);
   }

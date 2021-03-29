@@ -67,10 +67,12 @@ GAPMAP::GAPMAP(     // Constructor
       blob_it.set_to_list(row->blob_list());
       start_of_row = blob_it.data()->bounding_box().left();
       end_of_row = blob_it.data_relative(-1)->bounding_box().right();
-      if (min_left > start_of_row)
+      if (min_left > start_of_row) {
         min_left = start_of_row;
-      if (max_right < end_of_row)
+      }
+      if (max_right < end_of_row) {
         max_right = end_of_row;
+      }
     }
   }
   if ((total_rows < 3) || (min_left >= max_right)) {
@@ -83,8 +85,9 @@ GAPMAP::GAPMAP(     // Constructor
   bucket_size = static_cast<int16_t>(floor(xht_stats.median() + 0.5)) / 2;
   map_max = (max_right - min_left) / bucket_size;
   map = new int16_t[map_max + 1];
-  for (i = 0; i <= map_max; i++)
+  for (i = 0; i <= map_max; i++) {
     map[i] = 0;
+  }
 
   for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
     row = row_it.data();
@@ -98,10 +101,12 @@ GAPMAP::GAPMAP(     // Constructor
         gap_width = blob_box.left() - min_left;
         if ((gap_width > gapmap_big_gaps * row->xheight) && gap_width > 2) {
           max_quantum = (blob_box.left() - min_left) / bucket_size;
-          if (max_quantum > map_max)
+          if (max_quantum > map_max) {
             max_quantum = map_max;
-          for (i = 0; i <= max_quantum; i++)
+          }
+          for (i = 0; i <= max_quantum; i++) {
             map[i]++;
+          }
         }
       }
       while (!blob_it.cycled_list()) {
@@ -110,10 +115,12 @@ GAPMAP::GAPMAP(     // Constructor
         if ((gap_width > gapmap_big_gaps * row->xheight) && gap_width > 2) {
           min_quantum = (prev_blob_box.right() - min_left) / bucket_size;
           max_quantum = (blob_box.left() - min_left) / bucket_size;
-          if (max_quantum > map_max)
+          if (max_quantum > map_max) {
             max_quantum = map_max;
-          for (i = min_quantum; i <= max_quantum; i++)
+          }
+          for (i = min_quantum; i <= max_quantum; i++) {
             map[i]++;
+          }
         }
         prev_blob_box = blob_box;
       }
@@ -122,10 +129,12 @@ GAPMAP::GAPMAP(     // Constructor
         gap_width = max_right - prev_blob_box.right();
         if ((gap_width > gapmap_big_gaps * row->xheight) && gap_width > 2) {
           min_quantum = (prev_blob_box.right() - min_left) / bucket_size;
-          if (min_quantum < 0)
+          if (min_quantum < 0) {
             min_quantum = 0;
-          for (i = min_quantum; i <= map_max; i++)
+          }
+          for (i = min_quantum; i <= map_max; i++) {
             map[i]++;
+          }
         }
       }
     }
@@ -138,12 +147,14 @@ GAPMAP::GAPMAP(     // Constructor
            ((i > 0) && (i < map_max) && (map[i - 1] <= total_rows / 2) &&
             (map[i + 1] <= total_rows / 2)))) {
         map[i] = 0; // prevent isolated quantum
-      } else
+      } else {
         any_tabs = true;
+      }
     }
   }
-  if (gapmap_debug && any_tabs)
+  if (gapmap_debug && any_tabs) {
     tprintf("Table found\n");
+  }
 }
 
 /*************************************************************************
@@ -161,21 +172,26 @@ bool GAPMAP::table_gap( // Is gap a table?
   int16_t i;
   bool tab_found = false;
 
-  if (!any_tabs)
+  if (!any_tabs) {
     return false;
+  }
 
   min_quantum = (left - min_left) / bucket_size;
   max_quantum = (right - min_left) / bucket_size;
   // Clip to the bounds of the array. In some circumstances (big blob followed
   // by small blob) max_quantum can exceed the map_max bounds, but we clip
   // here instead, as it provides better long-term safety.
-  if (min_quantum < 0)
+  if (min_quantum < 0) {
     min_quantum = 0;
-  if (max_quantum > map_max)
+  }
+  if (max_quantum > map_max) {
     max_quantum = map_max;
-  for (i = min_quantum; (!tab_found && (i <= max_quantum)); i++)
-    if (map[i] > total_rows / 2)
+  }
+  for (i = min_quantum; (!tab_found && (i <= max_quantum)); i++) {
+    if (map[i] > total_rows / 2) {
       tab_found = true;
+    }
+  }
   return tab_found;
 }
 

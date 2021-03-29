@@ -373,14 +373,17 @@ int SortByBoxLeft(const void *void1, const void *void2) {
   const BBC *p1 = *static_cast<const BBC *const *>(void1);
   const BBC *p2 = *static_cast<const BBC *const *>(void2);
   int result = p1->bounding_box().left() - p2->bounding_box().left();
-  if (result != 0)
+  if (result != 0) {
     return result;
+  }
   result = p1->bounding_box().right() - p2->bounding_box().right();
-  if (result != 0)
+  if (result != 0) {
     return result;
+  }
   result = p1->bounding_box().bottom() - p2->bounding_box().bottom();
-  if (result != 0)
+  if (result != 0) {
     return result;
+  }
   return p1->bounding_box().top() - p2->bounding_box().top();
 }
 
@@ -390,14 +393,17 @@ bool StdSortByBoxLeft(const void *void1, const void *void2) {
   const BBC *p1 = *static_cast<const BBC *const *>(void1);
   const BBC *p2 = *static_cast<const BBC *const *>(void2);
   int result = p1->bounding_box().left() - p2->bounding_box().left();
-  if (result != 0)
+  if (result != 0) {
     return result < 0;
+  }
   result = p1->bounding_box().right() - p2->bounding_box().right();
-  if (result != 0)
+  if (result != 0) {
     return result < 0;
+  }
   result = p1->bounding_box().bottom() - p2->bounding_box().bottom();
-  if (result != 0)
+  if (result != 0) {
     return result < 0;
+  }
   return p1->bounding_box().top() < p2->bounding_box().top();
 }
 
@@ -408,14 +414,17 @@ int SortRightToLeft(const void *void1, const void *void2) {
   const BBC *p1 = *static_cast<const BBC *const *>(void1);
   const BBC *p2 = *static_cast<const BBC *const *>(void2);
   int result = p2->bounding_box().right() - p1->bounding_box().right();
-  if (result != 0)
+  if (result != 0) {
     return result;
+  }
   result = p2->bounding_box().left() - p1->bounding_box().left();
-  if (result != 0)
+  if (result != 0) {
     return result;
+  }
   result = p1->bounding_box().bottom() - p2->bounding_box().bottom();
-  if (result != 0)
+  if (result != 0) {
     return result;
+  }
   return p1->bounding_box().top() - p2->bounding_box().top();
 }
 
@@ -425,14 +434,17 @@ bool StdSortRightToLeft(const void *void1, const void *void2) {
   const BBC *p1 = *static_cast<const BBC *const *>(void1);
   const BBC *p2 = *static_cast<const BBC *const *>(void2);
   int result = p2->bounding_box().right() - p1->bounding_box().right();
-  if (result != 0)
+  if (result != 0) {
     return result < 0;
+  }
   result = p2->bounding_box().left() - p1->bounding_box().left();
-  if (result != 0)
+  if (result != 0) {
     return result < 0;
+  }
   result = p1->bounding_box().bottom() - p2->bounding_box().bottom();
-  if (result != 0)
+  if (result != 0) {
     return result < 0;
+  }
   return p1->bounding_box().top() < p2->bounding_box().top();
 }
 
@@ -443,14 +455,17 @@ int SortByBoxBottom(const void *void1, const void *void2) {
   const BBC *p1 = *static_cast<const BBC *const *>(void1);
   const BBC *p2 = *static_cast<const BBC *const *>(void2);
   int result = p1->bounding_box().bottom() - p2->bounding_box().bottom();
-  if (result != 0)
+  if (result != 0) {
     return result;
+  }
   result = p1->bounding_box().top() - p2->bounding_box().top();
-  if (result != 0)
+  if (result != 0) {
     return result;
+  }
   result = p1->bounding_box().left() - p2->bounding_box().left();
-  if (result != 0)
+  if (result != 0) {
     return result;
+  }
   return p1->bounding_box().right() - p2->bounding_box().right();
 }
 
@@ -493,8 +508,9 @@ void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::Clear() {
 // intact.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::ClearGridData(void (*free_method)(BBC *)) {
-  if (grid_ == nullptr)
+  if (grid_ == nullptr) {
     return;
+  }
   GridSearch<BBC, BBC_CLIST, BBC_C_IT> search(this);
   search.StartFullSearch();
   BBC *bb;
@@ -519,10 +535,12 @@ void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::InsertBBox(bool h_spread, bool v_spread, 
   int start_x, start_y, end_x, end_y;
   GridCoords(box.left(), box.bottom(), &start_x, &start_y);
   GridCoords(box.right(), box.top(), &end_x, &end_y);
-  if (!h_spread)
+  if (!h_spread) {
     end_x = start_x;
-  if (!v_spread)
+  }
+  if (!v_spread) {
     end_y = start_y;
+  }
   int grid_index = start_y * gridwidth_;
   for (int y = start_y; y <= end_y; ++y, grid_index += gridwidth_) {
     for (int x = start_x; x <= end_x; ++x) {
@@ -568,8 +586,9 @@ void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::RemoveBBox(BBC *bbox) {
     for (int x = start_x; x <= end_x; ++x) {
       BBC_C_IT it(&grid_[grid_index + x]);
       for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-        if (it.data() == bbox)
+        if (it.data() == bbox) {
           it.extract();
+        }
       }
     }
   }
@@ -702,8 +721,9 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextFullSearch() {
       ++x_;
       if (x_ >= grid_->gridwidth_) {
         --y_;
-        if (y_ < 0)
+        if (y_ < 0) {
           return CommonEnd();
+        }
         x_ = 0;
       }
       SetIterator();
@@ -740,8 +760,9 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextRadSearch() {
         rad_index_ = 0;
         if (rad_dir_ >= 4) {
           ++radius_;
-          if (radius_ > max_radius_)
+          if (radius_ > max_radius_) {
             return CommonEnd();
+          }
           rad_dir_ = 0;
         }
       }
@@ -750,13 +771,15 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextRadSearch() {
       offset += C_OUTLINE::chain_step(rad_dir_ + 1) * rad_index_;
       x_ = x_origin_ + offset.x();
       y_ = y_origin_ + offset.y();
-      if (x_ >= 0 && x_ < grid_->gridwidth_ && y_ >= 0 && y_ < grid_->gridheight_)
+      if (x_ >= 0 && x_ < grid_->gridwidth_ && y_ >= 0 && y_ < grid_->gridheight_) {
         SetIterator();
+      }
     }
     CommonNext();
   } while (unique_mode_ && returns_.find(previous_return_) != returns_.end());
-  if (unique_mode_)
+  if (unique_mode_) {
     returns_.insert(previous_return_);
+  }
   return previous_return_;
 }
 
@@ -782,22 +805,26 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextSideSearch(bool right_to_left) {
     while (it_.cycled_list()) {
       ++rad_index_;
       if (rad_index_ > radius_) {
-        if (right_to_left)
+        if (right_to_left) {
           --x_;
-        else
+        } else {
           ++x_;
+        }
         rad_index_ = 0;
-        if (x_ < 0 || x_ >= grid_->gridwidth_)
+        if (x_ < 0 || x_ >= grid_->gridwidth_) {
           return CommonEnd();
+        }
       }
       y_ = y_origin_ - rad_index_;
-      if (y_ >= 0 && y_ < grid_->gridheight_)
+      if (y_ >= 0 && y_ < grid_->gridheight_) {
         SetIterator();
+      }
     }
     CommonNext();
   } while (unique_mode_ && returns_.find(previous_return_) != returns_.end());
-  if (unique_mode_)
+  if (unique_mode_) {
     returns_.insert(previous_return_);
+  }
   return previous_return_;
 }
 
@@ -821,22 +848,26 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextVerticalSearch(bool top_to_bottom
     while (it_.cycled_list()) {
       ++rad_index_;
       if (rad_index_ > radius_) {
-        if (top_to_bottom)
+        if (top_to_bottom) {
           --y_;
-        else
+        } else {
           ++y_;
+        }
         rad_index_ = 0;
-        if (y_ < 0 || y_ >= grid_->gridheight_)
+        if (y_ < 0 || y_ >= grid_->gridheight_) {
           return CommonEnd();
+        }
       }
       x_ = x_origin_ + rad_index_;
-      if (x_ >= 0 && x_ < grid_->gridwidth_)
+      if (x_ >= 0 && x_ < grid_->gridwidth_) {
         SetIterator();
+      }
     }
     CommonNext();
   } while (unique_mode_ && returns_.find(previous_return_) != returns_.end());
-  if (unique_mode_)
+  if (unique_mode_) {
     returns_.insert(previous_return_);
+  }
   return previous_return_;
 }
 
@@ -862,16 +893,18 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextRectSearch() {
       if (x_ > max_radius_) {
         --y_;
         x_ = x_origin_;
-        if (y_ < y_origin_)
+        if (y_ < y_origin_) {
           return CommonEnd();
+        }
       }
       SetIterator();
     }
     CommonNext();
   } while (!rect_.overlap(previous_return_->bounding_box()) ||
            (unique_mode_ && returns_.find(previous_return_) != returns_.end()));
-  if (unique_mode_)
+  if (unique_mode_) {
     returns_.insert(previous_return_);
+  }
   return previous_return_;
 }
 

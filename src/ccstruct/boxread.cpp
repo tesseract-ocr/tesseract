@@ -77,8 +77,9 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const char *filename, std::
                   std::vector<int> *pages) {
   std::ifstream input(BoxFileName(filename).c_str(), std::ios::in | std::ios::binary);
   std::vector<char> box_data(std::istreambuf_iterator<char>(input), {});
-  if (box_data.empty())
+  if (box_data.empty()) {
     return false;
+  }
   // Convert the array of bytes to a string, so it can be used by the parser.
   box_data.push_back('\0');
   return ReadMemBoxes(target_page, skip_blanks, &box_data[0],
@@ -91,34 +92,41 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char *box_data, bool 
                   std::vector<std::string> *box_texts, std::vector<int> *pages) {
   std::string box_str(box_data);
   std::vector<std::string> lines = split(box_str, '\n');
-  if (lines.empty())
+  if (lines.empty()) {
     return false;
+  }
   int num_boxes = 0;
   for (auto &line : lines) {
     int page = 0;
     std::string utf8_str;
     TBOX box;
     if (!ParseBoxFileStr(line.c_str(), &page, utf8_str, &box)) {
-      if (continue_on_failure)
+      if (continue_on_failure) {
         continue;
-      else
+      } else {
         return false;
+      }
     }
-    if (skip_blanks && (utf8_str == " " || utf8_str == "\t"))
+    if (skip_blanks && (utf8_str == " " || utf8_str == "\t")) {
       continue;
-    if (target_page >= 0 && page != target_page)
+    }
+    if (target_page >= 0 && page != target_page) {
       continue;
-    if (boxes != nullptr)
+    }
+    if (boxes != nullptr) {
       boxes->push_back(box);
-    if (texts != nullptr)
+    }
+    if (texts != nullptr) {
       texts->push_back(utf8_str);
+    }
     if (box_texts != nullptr) {
       std::string full_text;
       MakeBoxFileStr(utf8_str.c_str(), box, target_page, full_text);
       box_texts->push_back(full_text);
     }
-    if (pages != nullptr)
+    if (pages != nullptr) {
       pages->push_back(page);
+    }
     ++num_boxes;
   }
   return num_boxes > 0;
@@ -153,21 +161,25 @@ bool ReadNextBox(int target_page, int *line_number, FILE *box_file, std::string 
 
     buffptr = buff;
     const auto *ubuf = reinterpret_cast<const unsigned char *>(buffptr);
-    if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf)
+    if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf) {
       buffptr += 3; // Skip unicode file designation.
+    }
     // Check for blank lines in box file
-    if (*buffptr == '\n' || *buffptr == '\0')
+    if (*buffptr == '\n' || *buffptr == '\0') {
       continue;
+    }
     // Skip blank boxes.
-    if (*buffptr == ' ' || *buffptr == '\t')
+    if (*buffptr == ' ' || *buffptr == '\t') {
       continue;
+    }
     if (*buffptr != '\0') {
       if (!ParseBoxFileStr(buffptr, &page, utf8_str, bounding_box)) {
         tprintf("ERROR: Box file format error on line %i; ignored\n", *line_number);
         continue;
       }
-      if (target_page >= 0 && target_page != page)
-        continue;  // Not on the appropriate page.
+      if (target_page >= 0 && target_page != page) {
+        continue; // Not on the appropriate page.
+      }
       return true; // Successfully read a box.
     }
   }
@@ -196,19 +208,22 @@ bool ParseBoxFileStr(const char *boxfile_str, int *page_number, std::string &utf
   int uch_len = 0;
   // Skip unicode file designation, if present.
   const auto *ubuf = reinterpret_cast<const unsigned char *>(buffptr);
-  if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf)
+  if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf) {
     buffptr += 3;
+  }
   // Allow a single blank as the UTF-8 string. Check for empty string and
   // then blindly eat the first character.
-  if (*buffptr == '\0')
+  if (*buffptr == '\0') {
     return false;
+  }
   do {
     uch[uch_len++] = *buffptr++;
   } while (*buffptr != '\0' && *buffptr != ' ' && *buffptr != '\t' &&
            uch_len < kBoxReadBufSize - 1);
   uch[uch_len] = '\0';
-  if (*buffptr != '\0')
+  if (*buffptr != '\0') {
     ++buffptr;
+  }
   int x_min = INT_MAX;
   int y_min = INT_MAX;
   int x_max = INT_MIN;
@@ -244,10 +259,12 @@ bool ParseBoxFileStr(const char *boxfile_str, int *page_number, std::string &utf
     used += new_used;
   }
   utf8_str = uch;
-  if (x_min > x_max)
+  if (x_min > x_max) {
     std::swap(x_min, x_max);
-  if (y_min > y_max)
+  }
+  if (y_min > y_max) {
     std::swap(y_min, y_max);
+  }
   bounding_box->set_to_given_coords(x_min, y_min, x_max, y_max);
   return true; // Successfully read a box.
 }

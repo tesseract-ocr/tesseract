@@ -75,12 +75,15 @@ LSTMRecognizer::~LSTMRecognizer() {
 bool LSTMRecognizer::Load(const ParamsVectors *params, const std::string &lang,
                           TessdataManager *mgr) {
   TFile fp;
-  if (!mgr->GetComponent(TESSDATA_LSTM, &fp))
+  if (!mgr->GetComponent(TESSDATA_LSTM, &fp)) {
     return false;
-  if (!DeSerialize(mgr, &fp))
+  }
+  if (!DeSerialize(mgr, &fp)) {
     return false;
-  if (lang.empty())
+  }
+  if (lang.empty()) {
     return true;
+  }
   // Allow it to run without a dictionary.
   LoadDictionary(params, lang, mgr);
   return true;
@@ -90,28 +93,39 @@ bool LSTMRecognizer::Load(const ParamsVectors *params, const std::string &lang,
 bool LSTMRecognizer::Serialize(const TessdataManager *mgr, TFile *fp) const {
   bool include_charsets = mgr == nullptr || !mgr->IsComponentAvailable(TESSDATA_LSTM_RECODER) ||
                           !mgr->IsComponentAvailable(TESSDATA_LSTM_UNICHARSET);
-  if (!network_->Serialize(fp))
+  if (!network_->Serialize(fp)) {
     return false;
-  if (include_charsets && !GetUnicharset().save_to_file(fp))
+  }
+  if (include_charsets && !GetUnicharset().save_to_file(fp)) {
     return false;
-  if (!fp->Serialize(network_str_))
+  }
+  if (!fp->Serialize(network_str_)) {
     return false;
-  if (!fp->Serialize(&training_flags_))
+  }
+  if (!fp->Serialize(&training_flags_)) {
     return false;
-  if (!fp->Serialize(&training_iteration_))
+  }
+  if (!fp->Serialize(&training_iteration_)) {
     return false;
-  if (!fp->Serialize(&sample_iteration_))
+  }
+  if (!fp->Serialize(&sample_iteration_)) {
     return false;
-  if (!fp->Serialize(&null_char_))
+  }
+  if (!fp->Serialize(&null_char_)) {
     return false;
-  if (!fp->Serialize(&adam_beta_))
+  }
+  if (!fp->Serialize(&adam_beta_)) {
     return false;
-  if (!fp->Serialize(&learning_rate_))
+  }
+  if (!fp->Serialize(&learning_rate_)) {
     return false;
-  if (!fp->Serialize(&momentum_))
+  }
+  if (!fp->Serialize(&momentum_)) {
     return false;
-  if (include_charsets && IsRecoding() && !recoder_.Serialize(fp))
+  }
+  if (include_charsets && IsRecoding() && !recoder_.Serialize(fp)) {
     return false;
+  }
   return true;
 }
 
@@ -119,32 +133,44 @@ bool LSTMRecognizer::Serialize(const TessdataManager *mgr, TFile *fp) const {
 bool LSTMRecognizer::DeSerialize(const TessdataManager *mgr, TFile *fp) {
   delete network_;
   network_ = Network::CreateFromFile(fp);
-  if (network_ == nullptr)
+  if (network_ == nullptr) {
     return false;
+  }
   bool include_charsets = mgr == nullptr || !mgr->IsComponentAvailable(TESSDATA_LSTM_RECODER) ||
                           !mgr->IsComponentAvailable(TESSDATA_LSTM_UNICHARSET);
-  if (include_charsets && !ccutil_.unicharset.load_from_file(fp, false))
+  if (include_charsets && !ccutil_.unicharset.load_from_file(fp, false)) {
     return false;
-  if (!fp->DeSerialize(network_str_))
+  }
+  if (!fp->DeSerialize(network_str_)) {
     return false;
-  if (!fp->DeSerialize(&training_flags_))
+  }
+  if (!fp->DeSerialize(&training_flags_)) {
     return false;
-  if (!fp->DeSerialize(&training_iteration_))
+  }
+  if (!fp->DeSerialize(&training_iteration_)) {
     return false;
-  if (!fp->DeSerialize(&sample_iteration_))
+  }
+  if (!fp->DeSerialize(&sample_iteration_)) {
     return false;
-  if (!fp->DeSerialize(&null_char_))
+  }
+  if (!fp->DeSerialize(&null_char_)) {
     return false;
-  if (!fp->DeSerialize(&adam_beta_))
+  }
+  if (!fp->DeSerialize(&adam_beta_)) {
     return false;
-  if (!fp->DeSerialize(&learning_rate_))
+  }
+  if (!fp->DeSerialize(&learning_rate_)) {
     return false;
-  if (!fp->DeSerialize(&momentum_))
+  }
+  if (!fp->DeSerialize(&momentum_)) {
     return false;
-  if (include_charsets && !LoadRecoder(fp))
+  }
+  if (include_charsets && !LoadRecoder(fp)) {
     return false;
-  if (!include_charsets && !LoadCharsets(mgr))
+  }
+  if (!include_charsets && !LoadCharsets(mgr)) {
     return false;
+  }
   network_->SetRandomizer(&randomizer_);
   network_->CacheXScaleFactor(network_->XScaleFactor());
   return true;
@@ -153,22 +179,27 @@ bool LSTMRecognizer::DeSerialize(const TessdataManager *mgr, TFile *fp) {
 // Loads the charsets from mgr.
 bool LSTMRecognizer::LoadCharsets(const TessdataManager *mgr) {
   TFile fp;
-  if (!mgr->GetComponent(TESSDATA_LSTM_UNICHARSET, &fp))
+  if (!mgr->GetComponent(TESSDATA_LSTM_UNICHARSET, &fp)) {
     return false;
-  if (!ccutil_.unicharset.load_from_file(&fp, false))
+  }
+  if (!ccutil_.unicharset.load_from_file(&fp, false)) {
     return false;
-  if (!mgr->GetComponent(TESSDATA_LSTM_RECODER, &fp))
+  }
+  if (!mgr->GetComponent(TESSDATA_LSTM_RECODER, &fp)) {
     return false;
-  if (!LoadRecoder(&fp))
+  }
+  if (!LoadRecoder(&fp)) {
     return false;
+  }
   return true;
 }
 
 // Loads the Recoder.
 bool LSTMRecognizer::LoadRecoder(TFile *fp) {
   if (IsRecoding()) {
-    if (!recoder_.DeSerialize(fp))
+    if (!recoder_.DeSerialize(fp)) {
       return false;
+    }
     RecodedCharID code;
     recoder_.EncodeUnichar(UNICHAR_SPACE, &code);
     if (code(0) != UNICHAR_SPACE) {
@@ -200,8 +231,9 @@ bool LSTMRecognizer::LoadDictionary(const ParamsVectors *params, const std::stri
   dict_->user_patterns_suffix.ResetFrom(params);
   dict_->SetupForLoad(Dict::GlobalDawgCache());
   dict_->LoadLSTM(lang, mgr);
-  if (dict_->FinishLoad())
+  if (dict_->FinishLoad()) {
     return true; // Success.
+  }
   tprintf("ERROR: Failed to load any lstm-specific dictionaries for lang %s!!\n", lang.c_str());
   delete dict_;
   dict_ = nullptr;
@@ -217,8 +249,9 @@ void LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
   NetworkIO outputs;
   float scale_factor;
   NetworkIO inputs;
-  if (!RecognizeLine(image_data, invert, debug, false, false, &scale_factor, &inputs, &outputs))
+  if (!RecognizeLine(image_data, invert, debug, false, false, &scale_factor, &inputs, &outputs)) {
     return;
+  }
   if (search_ == nullptr) {
     search_ = new RecodeBeamSearch(recoder_, null_char_, SimpleTextOutput(), dict_);
   }
@@ -235,13 +268,15 @@ void LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
       search_->extractSymbolChoices(&GetUnicharset());
     }
     search_->segmentTimestepsByCharacters();
-    int char_it = 0;
+    unsigned char_it = 0;
     for (int i = 0; i < words->size(); ++i) {
       for (int j = 0; j < words->at(i)->end; ++j) {
-        if (char_it < search_->ctc_choices.size())
+        if (char_it < search_->ctc_choices.size()) {
           words->at(i)->CTC_symbol_choices.push_back(search_->ctc_choices[char_it]);
-        if (char_it < search_->segmentedTimesteps.size())
+        }
+        if (char_it < search_->segmentedTimesteps.size()) {
           words->at(i)->segmented_timesteps.push_back(search_->segmentedTimesteps[char_it]);
+        }
         ++char_it;
       }
       words->at(i)->timesteps =
@@ -298,8 +333,9 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
     pixDestroy(&pix);
     return false;
   }
-  if (upside_down)
+  if (upside_down) {
     pixRotate180(pix, pix);
+  }
   // Reduction factor from image to coords.
   *scale_factor = min_width / *scale_factor;
   inputs->set_int_mode(IsIntMode());
@@ -350,8 +386,8 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
 // augmented with character boundaries.
 std::string LSTMRecognizer::DecodeLabels(const std::vector<int> &labels) {
   std::string result;
-  int end = 1;
-  for (int start = 0; start < labels.size(); start = end) {
+  unsigned end = 1;
+  for (unsigned start = 0; start < labels.size(); start = end) {
     if (labels[start] == null_char_) {
       end = start + 1;
     } else {
@@ -381,8 +417,8 @@ void LSTMRecognizer::DisplayLSTMOutput(const std::vector<int> &labels,
                                        ScrollView *window) {
   int x_scale = network_->XScaleFactor();
   window->TextAttributes("Arial", height / 4, false, false, false);
-  int end = 1;
-  for (int start = 0; start < labels.size(); start = end) {
+  unsigned end = 1;
+  for (unsigned start = 0; start < labels.size(); start = end) {
     int xpos = xcoords[start] * x_scale;
     if (labels[start] == null_char_) {
       end = start + 1;
@@ -390,8 +426,9 @@ void LSTMRecognizer::DisplayLSTMOutput(const std::vector<int> &labels,
     } else {
       window->Pen(ScrollView::GREEN);
       const char *str = DecodeLabel(labels, start, &end, nullptr);
-      if (*str == '\\')
+      if (*str == '\\') {
         str = "\\\\";
+      }
       xpos = xcoords[(start + end) / 2] * x_scale;
       window->Text(xpos, height, str);
     }
@@ -406,10 +443,11 @@ void LSTMRecognizer::DisplayLSTMOutput(const std::vector<int> &labels,
 // label_coords.
 void LSTMRecognizer::DebugActivationPath(const NetworkIO &outputs, const std::vector<int> &labels,
                                          const std::vector<int> &xcoords) {
-  if (xcoords[0] > 0)
+  if (xcoords[0] > 0) {
     DebugActivationRange(outputs, "<null>", null_char_, 0, xcoords[0]);
-  int end = 1;
-  for (int start = 0; start < labels.size(); start = end) {
+  }
+  unsigned end = 1;
+  for (unsigned start = 0; start < labels.size(); start = end) {
     if (labels[start] == null_char_) {
       end = start + 1;
       DebugActivationRange(outputs, "<null>", null_char_, xcoords[start], xcoords[end]);
@@ -418,7 +456,7 @@ void LSTMRecognizer::DebugActivationPath(const NetworkIO &outputs, const std::ve
       int decoded;
       const char *label = DecodeLabel(labels, start, &end, &decoded);
       DebugActivationRange(outputs, label, labels[start], xcoords[start], xcoords[start + 1]);
-      for (int i = start + 1; i < end; ++i) {
+      for (unsigned i = start + 1; i < end; ++i) {
         DebugActivationRange(outputs, DecodeSingleLabel(labels[i]), labels[i], xcoords[i],
                              xcoords[i + 1]);
       }
@@ -437,8 +475,9 @@ void LSTMRecognizer::DebugActivationRange(const NetworkIO &outputs, const char *
   for (int x = x_start; x < x_end; ++x) {
     const float *line = outputs.f(x);
     const double score = line[best_choice] * 100.0;
-    if (score > max_score)
+    if (score > max_score) {
       max_score = score;
+    }
     mean_score += score / width;
     int best_c = 0;
     double best_score = 0.0;
@@ -511,7 +550,7 @@ void LSTMRecognizer::LabelsViaSimpleText(const NetworkIO &output, std::vector<in
 
 // Returns a string corresponding to the label starting at start. Sets *end
 // to the next start and if non-null, *decoded to the unichar id.
-const char *LSTMRecognizer::DecodeLabel(const std::vector<int> &labels, int start, int *end,
+const char *LSTMRecognizer::DecodeLabel(const std::vector<int> &labels, unsigned start, unsigned *end,
                                         int *decoded) {
   *end = start + 1;
   if (IsRecoding()) {
@@ -524,11 +563,12 @@ const char *LSTMRecognizer::DecodeLabel(const std::vector<int> &labels, int star
       }
       return "<null>";
     }
-    int index = start;
+    unsigned index = start;
     while (index < labels.size() && code.length() < RecodedCharID::kMaxCodeLen) {
       code.Set(code.length(), labels[index++]);
-      while (index < labels.size() && labels[index] == null_char_)
+      while (index < labels.size() && labels[index] == null_char_) {
         ++index;
+      }
       int uni_id = recoder_.DecodeUnichar(code);
       // If the next label isn't a valid first code, then we need to continue
       // extending even if we have a valid uni_id from this prefix.
@@ -536,21 +576,26 @@ const char *LSTMRecognizer::DecodeLabel(const std::vector<int> &labels, int star
           (index == labels.size() || code.length() == RecodedCharID::kMaxCodeLen ||
            recoder_.IsValidFirstCode(labels[index]))) {
         *end = index;
-        if (decoded != nullptr)
+        if (decoded != nullptr) {
           *decoded = uni_id;
-        if (uni_id == UNICHAR_SPACE)
+        }
+        if (uni_id == UNICHAR_SPACE) {
           return " ";
+        }
         return GetUnicharset().get_normed_unichar(uni_id);
       }
     }
     return "<Undecodable>";
   } else {
-    if (decoded != nullptr)
+    if (decoded != nullptr) {
       *decoded = labels[start];
-    if (labels[start] == null_char_)
+    }
+    if (labels[start] == null_char_) {
       return "<null>";
-    if (labels[start] == UNICHAR_SPACE)
+    }
+    if (labels[start] == UNICHAR_SPACE) {
       return " ";
+    }
     return GetUnicharset().get_normed_unichar(labels[start]);
   }
 }
@@ -558,18 +603,21 @@ const char *LSTMRecognizer::DecodeLabel(const std::vector<int> &labels, int star
 // Returns a string corresponding to a given single label id, falling back to
 // a default of ".." for part of a multi-label unichar-id.
 const char *LSTMRecognizer::DecodeSingleLabel(int label) {
-  if (label == null_char_)
+  if (label == null_char_) {
     return "<null>";
+  }
   if (IsRecoding()) {
     // Decode label via recoder_.
     RecodedCharID code;
     code.Set(0, label);
     label = recoder_.DecodeUnichar(code);
-    if (label == INVALID_UNICHAR_ID)
+    if (label == INVALID_UNICHAR_ID) {
       return ".."; // Part of a bigger code.
+    }
   }
-  if (label == UNICHAR_SPACE)
+  if (label == UNICHAR_SPACE) {
     return " ";
+  }
   return GetUnicharset().get_normed_unichar(label);
 }
 

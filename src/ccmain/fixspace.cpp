@@ -105,16 +105,18 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor, int32_t word_count, PAGE_R
             monitor->progress = 90 + 5 * word_index / word_count;
             if (monitor->deadline_exceeded() ||
                 (monitor->cancel != nullptr &&
-                 (*monitor->cancel)(monitor->cancel_this, stats_.dict_words)))
+                 (*monitor->cancel)(monitor->cancel_this, stats_.dict_words))) {
               return;
+            }
           }
         }
 
         if (!word_res_it_from.at_last()) {
           word_res_it_to = word_res_it_from;
           prevent_null_wd_fixsp = word_res->word->cblob_list()->empty();
-          if (check_debug_pt(word_res, 60))
+          if (check_debug_pt(word_res, 60)) {
             debug_fix_space_level.set_value(10);
+          }
           word_res_it_to.forward();
           word_index++;
           if (monitor != nullptr) {
@@ -122,22 +124,27 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor, int32_t word_count, PAGE_R
             monitor->progress = 90 + 5 * word_index / word_count;
             if (monitor->deadline_exceeded() ||
                 (monitor->cancel != nullptr &&
-                 (*monitor->cancel)(monitor->cancel_this, stats_.dict_words)))
+                 (*monitor->cancel)(monitor->cancel_this, stats_.dict_words))) {
               return;
+            }
           }
           while (!word_res_it_to.at_last() &&
                  (word_res_it_to.data_relative(1)->word->flag(W_FUZZY_NON) ||
                   word_res_it_to.data_relative(1)->word->flag(W_FUZZY_SP))) {
-            if (check_debug_pt(word_res, 60))
+            if (check_debug_pt(word_res, 60)) {
               debug_fix_space_level.set_value(10);
-            if (word_res->word->cblob_list()->empty())
+            }
+            if (word_res->word->cblob_list()->empty()) {
               prevent_null_wd_fixsp = true;
+            }
             word_res = word_res_it_to.forward();
           }
-          if (check_debug_pt(word_res, 60))
+          if (check_debug_pt(word_res, 60)) {
             debug_fix_space_level.set_value(10);
-          if (word_res->word->cblob_list()->empty())
+          }
+          if (word_res->word->cblob_list()->empty()) {
             prevent_null_wd_fixsp = true;
+          }
           if (prevent_null_wd_fixsp) {
             word_res_it_from = word_res_it_to;
           } else {
@@ -150,8 +157,9 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor, int32_t word_count, PAGE_R
               word_res_it_from.forward();
             }
           }
-          if (test_pt)
+          if (test_pt) {
             debug_fix_space_level.set_value(0);
+          }
         }
         fix_sp_fp_word(word_res_it_from, row_res_it.data()->row, block_res_it.data()->block);
         // Last word in row
@@ -169,8 +177,9 @@ void Tesseract::fix_fuzzy_space_list(WERD_RES_LIST &best_perm, ROW *row, BLOCK *
   best_score = eval_word_spacing(best_perm); // default score
   dump_words(best_perm, best_score, 1, improved);
 
-  if (best_score != PERFECT_WERDS)
+  if (best_score != PERFECT_WERDS) {
     initialise_search(best_perm, current_perm);
+  }
 
   while ((best_score != PERFECT_WERDS) && !current_perm.empty()) {
     match_current_words(current_perm, row, block);
@@ -182,8 +191,9 @@ void Tesseract::fix_fuzzy_space_list(WERD_RES_LIST &best_perm, ROW *row, BLOCK *
       best_score = current_score;
       improved = true;
     }
-    if (current_score < PERFECT_WERDS)
+    if (current_score < PERFECT_WERDS) {
       transform_to_next_perm(current_perm);
+    }
   }
   dump_words(best_perm, best_score, 3, improved);
 }
@@ -268,8 +278,9 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
     word_count++;
     if (word->tess_failed) {
       total_score += prev_word_score;
-      if (prev_word_done)
+      if (prev_word_done) {
         done_word_count++;
+      }
       prev_word_score = 0;
       prev_char_1 = false;
       prev_char_digit = false;
@@ -289,8 +300,9 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
               (!word_done &&
                conflict_set_I_l_1.contains(word->best_choice->unichar_string()[0])))))) {
         total_score += prev_word_score;
-        if (prev_word_done)
+        if (prev_word_done) {
           done_word_count++;
+        }
         current_word_ok_so_far = word_done;
       }
 
@@ -306,8 +318,9 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
    rejtn */
       for (i = 0, prev_char_1 = false; i < word_len; i++) {
         bool current_char_1 = word->best_choice->unichar_string()[i] == '1';
-        if (prev_char_1 || (current_char_1 && (i > 0)))
+        if (prev_char_1 || (current_char_1 && (i > 0))) {
           total_score++;
+        }
         prev_char_1 = current_char_1;
       }
 
@@ -318,14 +331,17 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
              offset += word->best_choice->unichar_lengths()[i++]) {
           bool current_char_punct =
               strchr(punct_chars, word->best_choice->unichar_string()[offset]) != nullptr;
-          if (prev_char_punct || (current_char_punct && i > 0))
+          if (prev_char_punct || (current_char_punct && i > 0)) {
             total_score++;
+          }
           prev_char_punct = current_char_punct;
         }
       }
       prev_char_digit = digit_or_numeric_punct(word, word_len - 1);
-      for (i = 0, offset = 0; i < word_len - 1; offset += word->best_choice->unichar_lengths()[i++])
+      for (i = 0, offset = 0; i < word_len - 1;
+           offset += word->best_choice->unichar_lengths()[i++]) {
         ;
+      }
       prev_char_1 =
           ((word_done && (word->best_choice->unichar_string()[offset] == '1')) ||
            (!word_done &&
@@ -337,20 +353,23 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
     } while (word_res_it.data()->part_of_combo);
   } while (!word_res_it.at_first());
   total_score += prev_word_score;
-  if (prev_word_done)
+  if (prev_word_done) {
     done_word_count++;
-  if (done_word_count == word_count)
+  }
+  if (done_word_count == word_count) {
     return PERFECT_WERDS;
-  else
+  } else {
     return total_score;
+  }
 }
 
 bool Tesseract::digit_or_numeric_punct(WERD_RES *word, int char_position) {
   int i;
   int offset;
 
-  for (i = 0, offset = 0; i < char_position; offset += word->best_choice->unichar_lengths()[i++])
+  for (i = 0, offset = 0; i < char_position; offset += word->best_choice->unichar_lengths()[i++]) {
     ;
+  }
   return (
       word->uch_set->get_isdigit(word->best_choice->unichar_string().c_str() + offset,
                                  word->best_choice->unichar_lengths()[i]) ||
@@ -387,8 +406,9 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
       box = word->word->bounding_box();
       if (prev_right > -INT16_MAX) {
         gap = box.left() - prev_right;
-        if (gap < min_gap)
+        if (gap < min_gap) {
           min_gap = gap;
+        }
       }
       prev_right = box.right();
     }
@@ -492,8 +512,9 @@ void Tesseract::dump_words(WERD_RES_LIST &perm, int16_t score, int16_t mode, boo
 }
 
 bool Tesseract::fixspace_thinks_word_done(WERD_RES *word) {
-  if (word->done)
+  if (word->done) {
     return true;
+  }
 
   /*
   Use all the standard pass 2 conditions for mode 5 in set_done() in
@@ -531,12 +552,14 @@ void Tesseract::fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row, BLOCK *block)
 
   word_res = word_res_it.data();
   if (word_res->word->flag(W_REP_CHAR) || word_res->combination || word_res->part_of_combo ||
-      !word_res->word->flag(W_DONT_CHOP))
+      !word_res->word->flag(W_DONT_CHOP)) {
     return;
+  }
 
   blob_index = worst_noise_blob(word_res, &junk);
-  if (blob_index < 0)
+  if (blob_index < 0) {
     return;
+  }
 
   if (debug_fix_space_level > 1) {
     tprintf("FP fixspace working on \"%s\"\n", word_res->best_choice->unichar_string().c_str());
@@ -669,35 +692,41 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res, float *worst_noise_score
   float small_limit = kBlnXHeight * fixsp_small_outlines_size;
   float non_noise_limit = kBlnXHeight * 0.8;
 
-  if (word_res->rebuild_word == nullptr)
+  if (word_res->rebuild_word == nullptr) {
     return -1; // Can't handle cube words.
+  }
 
   // Normalised.
   int blob_count = word_res->box_word->length();
   ASSERT_HOST(blob_count <= 512);
-  if (blob_count < 5)
+  if (blob_count < 5) {
     return -1; // too short to split
+  }
 
     /* Get the noise scores for all blobs */
 
 #ifndef SECURE_NAMES
-  if (debug_fix_space_level > 5)
+  if (debug_fix_space_level > 5) {
     tprintf("FP fixspace Noise metrics for \"%s\": ",
             word_res->best_choice->unichar_string().c_str());
+  }
 #endif
 
   for (i = 0; i < blob_count && i < word_res->rebuild_word->NumBlobs(); i++) {
     TBLOB *blob = word_res->rebuild_word->blobs[i];
-    if (word_res->reject_map[i].accepted())
+    if (word_res->reject_map[i].accepted()) {
       noise_score[i] = non_noise_limit;
-    else
+    } else {
       noise_score[i] = blob_noise_score(blob);
+    }
 
-    if (debug_fix_space_level > 5)
+    if (debug_fix_space_level > 5) {
       tprintf("%1.1f ", noise_score[i]);
+    }
   }
-  if (debug_fix_space_level > 5)
+  if (debug_fix_space_level > 5) {
     tprintf("\n");
+  }
 
   /* Now find the worst one which is far enough away from the end of the word */
 
@@ -707,8 +736,9 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res, float *worst_noise_score
       non_noise_count++;
     }
   }
-  if (non_noise_count < fixsp_non_noise_limit)
+  if (non_noise_count < fixsp_non_noise_limit) {
     return -1;
+  }
 
   min_noise_blob = i;
 
@@ -718,13 +748,15 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res, float *worst_noise_score
       non_noise_count++;
     }
   }
-  if (non_noise_count < fixsp_non_noise_limit)
+  if (non_noise_count < fixsp_non_noise_limit) {
     return -1;
+  }
 
   max_noise_blob = i;
 
-  if (min_noise_blob > max_noise_blob)
+  if (min_noise_blob > max_noise_blob) {
     return -1;
+  }
 
   *worst_noise_score = small_limit;
   worst_noise_blob = -1;
@@ -752,8 +784,9 @@ float Tesseract::blob_noise_score(TBLOB *blob) {
       max_dimension = box.width();
     }
 
-    if (largest_outline_dimension < max_dimension)
+    if (largest_outline_dimension < max_dimension) {
       largest_outline_dimension = max_dimension;
+    }
   }
 
   if (outline_count > 5) {
@@ -810,8 +843,9 @@ int16_t Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     word = word_it.data();
-    if (word->rebuild_word == nullptr)
+    if (word->rebuild_word == nullptr) {
       continue; // Can't handle cube words.
+    }
     if (word->done || word->tess_accepted || word->best_choice->permuter() == SYSTEM_DAWG_PERM ||
         word->best_choice->permuter() == FREQ_DAWG_PERM ||
         word->best_choice->permuter() == USER_DAWG_PERM || safe_dict_word(word) > 0) {
@@ -827,8 +861,9 @@ int16_t Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
       }
     }
   }
-  if (score < 0)
+  if (score < 0) {
     score = 0;
+  }
   return score;
 }
 

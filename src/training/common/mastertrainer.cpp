@@ -62,8 +62,9 @@ MasterTrainer::MasterTrainer(NormalizationMode norm_mode, bool shape_analysis,
 
 MasterTrainer::~MasterTrainer() {
   delete[] fragments_;
-  for (auto &page_image : page_images_)
+  for (auto &page_image : page_images_) {
     pixDestroy(&page_image);
+  }
 }
 
 // WARNING! Serialize/DeSerialize are only partial, providing
@@ -71,26 +72,36 @@ MasterTrainer::~MasterTrainer() {
 // Writes to the given file. Returns false in case of error.
 bool MasterTrainer::Serialize(FILE *fp) const {
   uint32_t value = norm_mode_;
-  if (!tesseract::Serialize(fp, &value))
+  if (!tesseract::Serialize(fp, &value)) {
     return false;
-  if (!unicharset_.save_to_file(fp))
+  }
+  if (!unicharset_.save_to_file(fp)) {
     return false;
-  if (!feature_space_.Serialize(fp))
+  }
+  if (!feature_space_.Serialize(fp)) {
     return false;
-  if (!samples_.Serialize(fp))
+  }
+  if (!samples_.Serialize(fp)) {
     return false;
-  if (!junk_samples_.Serialize(fp))
+  }
+  if (!junk_samples_.Serialize(fp)) {
     return false;
-  if (!verify_samples_.Serialize(fp))
+  }
+  if (!verify_samples_.Serialize(fp)) {
     return false;
-  if (!master_shapes_.Serialize(fp))
+  }
+  if (!master_shapes_.Serialize(fp)) {
     return false;
-  if (!flat_shapes_.Serialize(fp))
+  }
+  if (!flat_shapes_.Serialize(fp)) {
     return false;
-  if (!fontinfo_table_.Serialize(fp))
+  }
+  if (!fontinfo_table_.Serialize(fp)) {
     return false;
-  if (!tesseract::Serialize(fp, xheights_))
+  }
+  if (!tesseract::Serialize(fp, xheights_)) {
     return false;
+  }
   return true;
 }
 
@@ -136,8 +147,9 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
   }
   tr_filenames_.emplace_back(page_name);
   while (fgets(buffer, sizeof(buffer), fp) != nullptr) {
-    if (buffer[0] == '\n')
+    if (buffer[0] == '\n') {
       continue;
+    }
 
     char *space = strchr(buffer, ' ');
     if (space == nullptr) {
@@ -146,8 +158,9 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
     }
     *space++ = '\0';
     int font_id = GetFontInfoId(buffer);
-    if (font_id < 0)
+    if (font_id < 0) {
       font_id = 0;
+    }
     int page_number;
     std::string unichar;
     TBOX bounding_box;
@@ -176,20 +189,23 @@ void MasterTrainer::AddSample(bool verification, const char *unichar, TrainingSa
     verify_samples_.AddSample(unichar, sample);
     prev_unichar_id_ = -1;
   } else if (unicharset_.contains_unichar(unichar)) {
-    if (prev_unichar_id_ >= 0)
+    if (prev_unichar_id_ >= 0) {
       fragments_[prev_unichar_id_] = -1;
+    }
     prev_unichar_id_ = samples_.AddSample(unichar, sample);
-    if (flat_shapes_.FindShape(prev_unichar_id_, sample->font_id()) < 0)
+    if (flat_shapes_.FindShape(prev_unichar_id_, sample->font_id()) < 0) {
       flat_shapes_.AddShape(prev_unichar_id_, sample->font_id());
+    }
   } else {
     const int junk_id = junk_samples_.AddSample(unichar, sample);
     if (prev_unichar_id_ >= 0) {
       CHAR_FRAGMENT *frag = CHAR_FRAGMENT::parse_from_string(unichar);
       if (frag != nullptr && frag->is_natural()) {
-        if (fragments_[prev_unichar_id_] == 0)
+        if (fragments_[prev_unichar_id_] == 0) {
           fragments_[prev_unichar_id_] = junk_id;
-        else if (fragments_[prev_unichar_id_] != junk_id)
+        } else if (fragments_[prev_unichar_id_] != junk_id) {
           fragments_[prev_unichar_id_] = -1;
+        }
       }
       delete frag;
     }
@@ -206,11 +222,13 @@ void MasterTrainer::LoadPageImages(const char *filename) {
   Pix *pix;
   for (page = 0;; page++) {
     pix = pixReadFromMultipageTiff(filename, &offset);
-    if (!pix)
+    if (!pix) {
       break;
+    }
     page_images_.push_back(pix);
-    if (!offset)
+    if (!offset) {
       break;
+    }
   }
   tprintf("Loaded %d page images from %s\n", page, filename);
 }
@@ -221,10 +239,12 @@ void MasterTrainer::LoadPageImages(const char *filename) {
 // Sets up the samples appropriately for class/fontwise access.
 // Deletes outlier samples.
 void MasterTrainer::PostLoadCleanup() {
-  if (debug_level_ > 0)
+  if (debug_level_ > 0) {
     tprintf("PostLoadCleanup...\n");
-  if (enable_shape_analysis_)
+  }
+  if (enable_shape_analysis_) {
     ReplaceFragmentedSamples();
+  }
   SampleIterator sample_it;
   sample_it.Init(nullptr, nullptr, true, &verify_samples_);
   sample_it.NormalizeSamples();
@@ -235,8 +255,9 @@ void MasterTrainer::PostLoadCleanup() {
   // against current training.
   //  samples_.DeleteOutliers(feature_space_, debug_level_ > 0);
   samples_.OrganizeByFontAndClass();
-  if (debug_level_ > 0)
+  if (debug_level_ > 0) {
     tprintf("ComputeCanonicalSamples...\n");
+  }
   samples_.ComputeCanonicalSamples(feature_map_, debug_level_ > 0);
 }
 
@@ -244,12 +265,14 @@ void MasterTrainer::PostLoadCleanup() {
 // ReadTrainingSamples+PostLoadCleanup or DeSerialize.
 // Re-indexes the features and computes canonical and cloud features.
 void MasterTrainer::PreTrainingSetup() {
-  if (debug_level_ > 0)
+  if (debug_level_ > 0) {
     tprintf("PreTrainingSetup...\n");
+  }
   samples_.IndexFeatures(feature_space_);
   samples_.ComputeCanonicalFeatures();
-  if (debug_level_ > 0)
+  if (debug_level_ > 0) {
     tprintf("ComputeCloudFeatures...\n");
+  }
   samples_.ComputeCloudFeatures(feature_space_.Size());
 }
 
@@ -265,21 +288,23 @@ void MasterTrainer::SetupMasterShapes() {
   for (int c = 0; c < samples_.charsetsize(); ++c) {
     ShapeTable shapes(samples_.unicharset());
     for (int f = 0; f < num_fonts; ++f) {
-      if (samples_.NumClassSamples(f, c, true) > 0)
+      if (samples_.NumClassSamples(f, c, true) > 0) {
         shapes.AddShape(c, f);
+      }
     }
     ClusterShapes(kMinClusteredShapes, 1, kFontMergeDistance, &shapes);
 
     const CHAR_FRAGMENT *fragment = samples_.unicharset().get_fragment(c);
 
-    if (fragment == nullptr)
+    if (fragment == nullptr) {
       char_shapes.AppendMasterShapes(shapes, nullptr);
-    else if (fragment->is_beginning())
+    } else if (fragment->is_beginning()) {
       char_shapes_begin_fragment.AppendMasterShapes(shapes, nullptr);
-    else if (fragment->is_ending())
+    } else if (fragment->is_ending()) {
       char_shapes_end_fragment.AppendMasterShapes(shapes, nullptr);
-    else
+    } else {
       char_shapes.AppendMasterShapes(shapes, nullptr);
+    }
   }
   ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster, kFontMergeDistance,
                 &char_shapes_begin_fragment);
@@ -314,8 +339,9 @@ void MasterTrainer::IncludeJunk() {
     int junk_id = sample->class_id();
     const char *junk_utf8 = junk_set.id_to_unichar(junk_id);
     int sample_id = sample_set.unichar_to_id(junk_utf8);
-    if (sample_id == INVALID_UNICHAR_ID)
+    if (sample_id == INVALID_UNICHAR_ID) {
       sample_id = 0;
+    }
     sample->set_class_id(sample_id);
     junk_samples_.extract_sample(s);
     samples_.AddSample(sample_id, sample);
@@ -331,8 +357,9 @@ void MasterTrainer::IncludeJunk() {
 // samples.
 void MasterTrainer::ReplicateAndRandomizeSamplesIfRequired() {
   if (enable_replication_) {
-    if (debug_level_ > 0)
+    if (debug_level_ > 0) {
       tprintf("ReplicateAndRandomize...\n");
+    }
     verify_samples_.ReplicateAndRandomizeSamples();
     samples_.ReplicateAndRandomizeSamples();
     samples_.IndexFeatures(feature_space_);
@@ -376,8 +403,9 @@ bool MasterTrainer::LoadFontInfo(const char *filename) {
 bool MasterTrainer::LoadXHeights(const char *filename) {
   tprintf("fontinfo table is of size %d\n", fontinfo_table_.size());
   xheights_.resize(fontinfo_table_.size(), -1);
-  if (filename == nullptr)
+  if (filename == nullptr) {
     return true;
+  }
   FILE *f = fopen(filename, "rb");
   if (f == nullptr) {
     fprintf(stderr, "Failed to load font xheights from %s\n", filename);
@@ -392,12 +420,14 @@ bool MasterTrainer::LoadXHeights(const char *filename) {
   int total_xheight = 0;
   int xheight_count = 0;
   while (!feof(f)) {
-    if (tfscanf(f, "%1023s %d\n", buffer, &xht) != 2)
+    if (tfscanf(f, "%1023s %d\n", buffer, &xht) != 2) {
       continue;
+    }
     buffer[1023] = '\0';
     fontinfo.name = buffer;
-    if (!fontinfo_table_.contains(fontinfo))
+    if (!fontinfo_table_.contains(fontinfo)) {
       continue;
+    }
     int fontinfo_id = fontinfo_table_.get_index(fontinfo);
     xheights_[fontinfo_id] = xht;
     total_xheight += xht;
@@ -410,8 +440,9 @@ bool MasterTrainer::LoadXHeights(const char *filename) {
   }
   int mean_xheight = DivRounded(total_xheight, xheight_count);
   for (int i = 0; i < fontinfo_table_.size(); ++i) {
-    if (xheights_[i] < 0)
+    if (xheights_[i] < 0) {
       xheights_[i] = mean_xheight;
+    }
   }
   fclose(f);
   return true;
@@ -420,8 +451,9 @@ bool MasterTrainer::LoadXHeights(const char *filename) {
 // Reads spacing stats from filename and adds them to fontinfo_table.
 bool MasterTrainer::AddSpacingInfo(const char *filename) {
   FILE *fontinfo_file = fopen(filename, "rb");
-  if (fontinfo_file == nullptr)
+  if (fontinfo_file == nullptr) {
     return true; // We silently ignore missing files!
+  }
   // Find the fontinfo_id.
   int fontinfo_id = GetBestMatchingFontInfoId(filename);
   if (fontinfo_id < 0) {
@@ -460,13 +492,15 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
         delete spacing;
         return false;
       }
-      if (!valid || !unicharset_.contains_unichar(kerned_uch))
+      if (!valid || !unicharset_.contains_unichar(kerned_uch)) {
         continue;
+      }
       spacing->kerned_unichar_ids.push_back(unicharset_.unichar_to_id(kerned_uch));
       spacing->kerned_x_gaps.push_back(static_cast<int16_t>(x_gap * scale));
     }
-    if (valid)
+    if (valid) {
       fi->add_spacing(unicharset_.unichar_to_id(uch), spacing);
+    }
   }
   fclose(fontinfo_file);
   return true;
@@ -513,11 +547,13 @@ void MasterTrainer::SetupFlatShapeTable(ShapeTable *shape_table) {
     int font = flat_shapes_.GetShape(s)[0].font_ids[0];
     int f = 0;
     for (f = 0; f < active_fonts.size(); ++f) {
-      if (active_fonts[f] == font)
+      if (active_fonts[f] == font) {
         break;
+      }
     }
-    if (f == active_fonts.size())
+    if (f == active_fonts.size()) {
       active_fonts.push_back(font);
+    }
   }
   // For each font in order, add all the shapes with that font in reverse order.
   int num_fonts = active_fonts.size();
@@ -557,8 +593,9 @@ CLUSTERER *MasterTrainer::SetupForClustering(const ShapeTable &shape_table,
   for (int i = sample_ptrs.size() - 1; i >= 0; --i) {
     const TrainingSample *sample = sample_ptrs[i];
     uint32_t num_features = sample->num_micro_features();
-    for (uint32_t f = 0; f < num_features; ++f)
+    for (uint32_t f = 0; f < num_features; ++f) {
       MakeSample(clusterer, sample->micro_features()[f], sample_id);
+    }
     ++sample_id;
   }
   *num_samples = sample_id;
@@ -594,8 +631,9 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   // unicharset cutoffs along the way.
   std::vector<uint16_t> shapetable_cutoffs;
   std::vector<uint16_t> unichar_cutoffs;
-  for (int c = 0; c < unicharset.size(); ++c)
+  for (int c = 0; c < unicharset.size(); ++c) {
     unichar_cutoffs.push_back(0);
+  }
   /* then write out each class */
   for (int i = 0; i < int_templates->NumClasses; ++i) {
     INT_CLASS Class = ClassForClassId(int_templates, i);
@@ -606,14 +644,16 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
       // Todo: Test with min instead of max
       // if (LengthForConfigId (Class, config_id) < MaxLength)
       uint16_t length = Class->ConfigLengths[config_id];
-      if (length > max_length)
+      if (length > max_length) {
         max_length = Class->ConfigLengths[config_id];
+      }
       int shape_id = float_classes[i].font_set.at(config_id);
       const Shape &shape = shape_table.GetShape(shape_id);
       for (int c = 0; c < shape.size(); ++c) {
         int unichar_id = shape[c].unichar_id;
-        if (length > unichar_cutoffs[unichar_id])
+        if (length > unichar_cutoffs[unichar_id]) {
           unichar_cutoffs[unichar_id] = length;
+        }
       }
     }
     shapetable_cutoffs.push_back(max_length);
@@ -643,8 +683,9 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
 void MasterTrainer::DebugCanonical(const char *unichar_str1, const char *unichar_str2) {
   int class_id1 = unicharset_.unichar_to_id(unichar_str1);
   int class_id2 = unicharset_.unichar_to_id(unichar_str2);
-  if (class_id2 == INVALID_UNICHAR_ID)
+  if (class_id2 == INVALID_UNICHAR_ID) {
     class_id2 = class_id1;
+  }
   if (class_id1 == INVALID_UNICHAR_ID) {
     tprintf("ERROR: No unicharset entry found for %s\n", unichar_str1);
     return;
@@ -658,19 +699,22 @@ void MasterTrainer::DebugCanonical(const char *unichar_str1, const char *unichar
   // class.
   tprintf("      ");
   for (int f = 0; f < num_fonts; ++f) {
-    if (samples_.NumClassSamples(f, class_id2, false) == 0)
+    if (samples_.NumClassSamples(f, class_id2, false) == 0) {
       continue;
+    }
     tprintf("%6d", f);
   }
   tprintf("\n");
   for (int f1 = 0; f1 < num_fonts; ++f1) {
     // Map the features of the canonical_sample.
-    if (samples_.NumClassSamples(f1, class_id1, false) == 0)
+    if (samples_.NumClassSamples(f1, class_id1, false) == 0) {
       continue;
+    }
     tprintf("%4d  ", f1);
     for (int f2 = 0; f2 < num_fonts; ++f2) {
-      if (samples_.NumClassSamples(f2, class_id2, false) == 0)
+      if (samples_.NumClassSamples(f2, class_id2, false) == 0) {
         continue;
+      }
       float dist = samples_.ClusterDistance(f1, class_id1, f2, class_id2, feature_map);
       tprintf(" %5.3f", dist);
     }
@@ -679,10 +723,12 @@ void MasterTrainer::DebugCanonical(const char *unichar_str1, const char *unichar
   // Build a fake ShapeTable containing all the sample types.
   ShapeTable shapes(unicharset_);
   for (int f = 0; f < num_fonts; ++f) {
-    if (samples_.NumClassSamples(f, class_id1, true) > 0)
+    if (samples_.NumClassSamples(f, class_id1, true) > 0) {
       shapes.AddShape(class_id1, f);
-    if (class_id1 != class_id2 && samples_.NumClassSamples(f, class_id2, true) > 0)
+    }
+    if (class_id1 != class_id2 && samples_.NumClassSamples(f, class_id2, true) > 0) {
       shapes.AddShape(class_id2, f);
+    }
   }
 }
 
@@ -783,8 +829,9 @@ double MasterTrainer::TestClassifier(CountTypes error_mode, int report_level,
   sample_it.Init(nullptr, nullptr, replicate_samples, samples);
   if (report_level > 0) {
     int num_samples = 0;
-    for (sample_it.Begin(); !sample_it.AtEnd(); sample_it.Next())
+    for (sample_it.Begin(); !sample_it.AtEnd(); sample_it.Next()) {
       ++num_samples;
+    }
     tprintf("Iterator has charset size of %d/%d, %d shapes, %d samples\n",
             sample_it.SparseCharsetSize(), sample_it.CompactCharsetSize(),
             test_classifier->GetShapeTable()->NumShapes(), num_samples);
@@ -827,15 +874,17 @@ float MasterTrainer::ShapeDistance(const ShapeTable &shapes, int s1, int s2) {
 // Replaces samples that are always fragmented with the corresponding
 // fragment samples.
 void MasterTrainer::ReplaceFragmentedSamples() {
-  if (fragments_ == nullptr)
+  if (fragments_ == nullptr) {
     return;
+  }
   // Remove samples that are replaced by fragments. Each class that was
   // always naturally fragmented should be replaced by its fragments.
   int num_samples = samples_.num_samples();
   for (int s = 0; s < num_samples; ++s) {
     TrainingSample *sample = samples_.mutable_sample(s);
-    if (fragments_[sample->class_id()] > 0)
+    if (fragments_[sample->class_id()] > 0) {
       samples_.KillSample(sample);
+    }
   }
   samples_.DeleteDeadSamples();
 
@@ -937,8 +986,9 @@ void MasterTrainer::ClusterShapes(int min_shapes, int max_shape_unichars, float 
         }
       }
       for (int s2 = min_s1 + 1; s2 < num_shapes; ++s2) {
-        if (shape_dists[min_s1][s2 - min_s1 - 1].distance < kInfiniteDist)
+        if (shape_dists[min_s1][s2 - min_s1 - 1].distance < kInfiniteDist) {
           shape_dists[min_s1][s2 - min_s1 - 1].distance = ShapeDistance(*shapes, min_s1, s2);
+        }
       }
       for (int s = min_s1 + 1; s < min_s2; ++s) {
         if (!shape_dists[s].empty()) {

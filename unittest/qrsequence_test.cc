@@ -31,14 +31,15 @@ TEST(QRSequenceGenerator, GetBinaryReversedInteger) {
   const int kRangeSize = 8;
   TestableQRSequenceGenerator generator(kRangeSize);
   int reversed_vals[kRangeSize] = {0, 4, 2, 6, 1, 5, 3, 7};
-  for (int i = 0; i < kRangeSize; ++i)
+  for (int i = 0; i < kRangeSize; ++i) {
     EXPECT_EQ(reversed_vals[i], generator.GetBinaryReversedInteger(i));
+  }
 }
 
 // Trivial test fixture for a parameterized test.
 class QRSequenceGeneratorTest : public ::testing::TestWithParam<int> {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 };
@@ -49,8 +50,9 @@ TEST_P(QRSequenceGeneratorTest, GeneratesValidSequence) {
   std::vector<int> vals(kRangeSize);
   CycleTimer timer;
   timer.Restart();
-  for (int i = 0; i < kRangeSize; ++i)
+  for (int i = 0; i < kRangeSize; ++i) {
     vals[i] = generator.GetVal();
+  }
   LOG(INFO) << kRangeSize << "-length sequence took " << timer.GetInMs() << "ms";
   // Sort the numbers to verify that we've covered the range without repetition.
   std::sort(vals.begin(), vals.end());

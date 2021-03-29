@@ -73,10 +73,12 @@ bool ParagraphModel::ValidBodyLine(int lmargin, int lindent, int rindent, int rm
 }
 
 bool ParagraphModel::Comparable(const ParagraphModel &other) const {
-  if (justification_ != other.justification_)
+  if (justification_ != other.justification_) {
     return false;
-  if (justification_ == JUSTIFICATION_CENTER || justification_ == JUSTIFICATION_UNKNOWN)
+  }
+  if (justification_ == JUSTIFICATION_CENTER || justification_ == JUSTIFICATION_UNKNOWN) {
     return true;
+  }
   int tolerance = (tolerance_ + other.tolerance_) / 4;
   return NearlyEqual(margin_ + first_indent_, other.margin_ + other.first_indent_, tolerance) &&
          NearlyEqual(margin_ + body_indent_, other.margin_ + other.body_indent_, tolerance);

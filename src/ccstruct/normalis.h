@@ -245,8 +245,9 @@ public:
     inverse_ = value;
   }
   const DENORM *RootDenorm() const {
-    if (predecessor_ != nullptr)
+    if (predecessor_ != nullptr) {
       return predecessor_->RootDenorm();
+    }
     return this;
   }
   const DENORM *predecessor() const {

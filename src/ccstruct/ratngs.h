@@ -297,8 +297,9 @@ public:
     return state_[index];
   }
   ScriptPos BlobPosition(int index) const {
-    if (index < 0 || index >= length_)
+    if (index < 0 || index >= length_) {
       return SP_NORMAL;
+    }
     return script_pos_[index];
   }
   inline float rating() const {
@@ -479,16 +480,18 @@ public:
   // Returns true if any unichar_id in the word is a non-space-delimited char.
   bool ContainsAnyNonSpaceDelimited() const {
     for (int i = 0; i < length_; ++i) {
-      if (!unicharset_->IsSpaceDelimited(unichar_ids_[i]))
+      if (!unicharset_->IsSpaceDelimited(unichar_ids_[i])) {
         return true;
+      }
     }
     return false;
   }
   // Returns true if the word is all spaces.
   bool IsAllSpaces() const {
     for (int i = 0; i < length_; ++i) {
-      if (unichar_ids_[i] != UNICHAR_SPACE)
+      if (unichar_ids_[i] != UNICHAR_SPACE) {
         return false;
+      }
     }
     return true;
   }

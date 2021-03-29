@@ -43,8 +43,9 @@ public:
   // Sets the code value at the given index in the code.
   void Set(int index, int value) {
     code_[index] = value;
-    if (length_ <= index)
+    if (length_ <= index) {
       length_ = index + 1;
+    }
   }
   // Shorthand for setting codes of length 3, as all Hangul and Han codes are
   // length 3.
@@ -73,11 +74,13 @@ public:
            fp->DeSerialize(&code_[0], length_);
   }
   bool operator==(const RecodedCharID &other) const {
-    if (length_ != other.length_)
+    if (length_ != other.length_) {
       return false;
+    }
     for (int i = 0; i < length_; ++i) {
-      if (code_[i] != other.code_[i])
+      if (code_[i] != other.code_[i]) {
         return false;
+      }
     }
     return true;
   }

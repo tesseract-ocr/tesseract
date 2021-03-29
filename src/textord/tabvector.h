@@ -183,10 +183,11 @@ public:
   // Compute the x coordinate at the given y coordinate.
   int XAtY(int y) const {
     int height = endpt_.y() - startpt_.y();
-    if (height != 0)
+    if (height != 0) {
       return (y - startpt_.y()) * (endpt_.x() - startpt_.x()) / height + startpt_.x();
-    else
+    } else {
       return startpt_.x();
+    }
   }
 
   // Compute the vertical overlap with the other TabVector.
@@ -260,14 +261,16 @@ public:
     startpt_.set_x(-startpt_.x());
     endpt_.set_x(-endpt_.x());
     sort_key_ = -sort_key_;
-    if (alignment_ == TA_LEFT_ALIGNED)
+    if (alignment_ == TA_LEFT_ALIGNED) {
       alignment_ = TA_RIGHT_ALIGNED;
-    else if (alignment_ == TA_RIGHT_ALIGNED)
+    } else if (alignment_ == TA_RIGHT_ALIGNED) {
       alignment_ = TA_LEFT_ALIGNED;
-    if (alignment_ == TA_LEFT_RAGGED)
+    }
+    if (alignment_ == TA_LEFT_RAGGED) {
       alignment_ = TA_RIGHT_RAGGED;
-    else if (alignment_ == TA_RIGHT_RAGGED)
+    } else if (alignment_ == TA_RIGHT_RAGGED) {
       alignment_ = TA_LEFT_RAGGED;
+    }
   }
 
   // Separate function to compute the sort key for a given coordinate pair.
@@ -278,10 +281,11 @@ public:
 
   // Return the x at the given y for the given sort key.
   static int XAtY(const ICOORD &vertical, int sort_key, int y) {
-    if (vertical.y() != 0)
+    if (vertical.y() != 0) {
       return (vertical.x() * y + sort_key) / vertical.y();
-    else
+    } else {
       return sort_key;
+    }
   }
 
   // Sort function for E2LIST::sort to sort by sort_key_.

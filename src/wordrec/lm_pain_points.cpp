@@ -38,8 +38,9 @@ const float LMPainPoints::kLooseMaxCharWhRatio = 2.5f;
 
 LMPainPointsType LMPainPoints::Deque(MATRIX_COORD *pp, float *priority) {
   for (int h = 0; h < LM_PPTYPE_NUM; ++h) {
-    if (pain_points_heaps_[h].empty())
+    if (pain_points_heaps_[h].empty()) {
       continue;
+    }
     *priority = pain_points_heaps_[h].PeekTop().key();
     *pp = pain_points_heaps_[h].PeekTop().data();
     pain_points_heaps_[h].Pop(nullptr);
@@ -55,8 +56,9 @@ void LMPainPoints::GenerateInitial(WERD_RES *word_res) {
     int row_end = std::min(ratings->dimension(), col + ratings->bandwidth() + 1);
     for (int row = col + 1; row < row_end; ++row) {
       MATRIX_COORD coord(col, row);
-      if (coord.Valid(*ratings) && ratings->get(col, row) != NOT_CLASSIFIED)
+      if (coord.Valid(*ratings) && ratings->get(col, row) != NOT_CLASSIFIED) {
         continue;
+      }
       // Add an initial pain point if needed.
       if (ratings->Classified(col, row - 1, dict_->WildcardID()) ||
           (col + 1 < ratings->dimension() &&
@@ -187,8 +189,9 @@ bool LMPainPoints::GeneratePainPoint(int col, int row, LMPainPointsType pp_type,
     }
     return true;
   } else {
-    if (debug_level_)
+    if (debug_level_) {
       tprintf("Pain points heap is full\n");
+    }
     return false;
   }
 }

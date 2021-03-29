@@ -109,8 +109,9 @@ int Tesseract::SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract
   if (!PSM_COL_FIND_ENABLED(pageseg_mode) && input_file != nullptr && input_file[0] != '\0') {
     std::string name = input_file;
     const char *lastdot = strrchr(name.c_str(), '.');
-    if (lastdot != nullptr)
+    if (lastdot != nullptr) {
       name[lastdot - name.c_str()] = '\0';
+    }
     read_unlv_file(name, width, height, blocks);
   }
   if (blocks->empty()) {
@@ -138,8 +139,9 @@ int Tesseract::SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract
     auto_page_seg_ret_val =
         AutoPageSeg(pageseg_mode, blocks, &to_blocks,
                     enable_noise_removal ? &diacritic_blobs : nullptr, osd_tess, osr);
-    if (pageseg_mode == PSM_OSD_ONLY)
+    if (pageseg_mode == PSM_OSD_ONLY) {
       return auto_page_seg_ret_val;
+    }
     // To create blobs from the image region bounds uncomment this line:
     //  to_blocks.clear();  // Uncomment to go back to the old mode.
   } else {
@@ -159,8 +161,9 @@ int Tesseract::SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract
   }
 
   if (blocks->empty()) {
-    if (textord_debug_tabfind)
+    if (textord_debug_tabfind) {
       tprintf("WARNING: Empty page\n");
+    }
     return 0; // AutoPageSeg found an empty page.
   }
   bool splitting = pageseg_devanagari_split_strategy != ShiroRekhaSplitter::NO_SPLIT;
@@ -223,14 +226,16 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST *blocks, TO_BLOC
     result = finder->FindBlocks(pageseg_mode, scaled_color_, scaled_factor_, to_block,
                                 photomask_pix, pix_thresholds_, pix_grey_, &pixa_debug_,
                                 &found_blocks, diacritic_blobs, to_blocks);
-    if (result >= 0)
+    if (result >= 0) {
       finder->GetDeskewVectors(&deskew_, &reskew_);
+    }
     delete finder;
   }
   pixDestroy(&photomask_pix);
   pixDestroy(&musicmask_pix);
-  if (result < 0)
+  if (result < 0) {
     return result;
+  }
 
   blocks->clear();
   BLOCK_IT block_it(blocks);
@@ -297,8 +302,9 @@ ColumnFinder *Tesseract::SetupPageSegAndDetectOrientation(PageSegMode pageseg_mo
     pixa_debug_.AddPix(pix_no_image_, "NoImages");
     pixDestroy(&pix_no_image_);
   }
-  if (!PSM_COL_FIND_ENABLED(pageseg_mode))
+  if (!PSM_COL_FIND_ENABLED(pageseg_mode)) {
     v_lines.clear();
+  }
 
   // The rest of the algorithm uses the usual connected components.
   textord_.find_components(pix_binary_, blocks, to_blocks);

@@ -243,8 +243,9 @@ static void WriteProtos(FILE *File, uint16_t N, LIST ProtoList, bool WriteSigPro
   // write prototypes
   iterate(ProtoList) {
     Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
-    if ((Proto->Significant && WriteSigProtos) || (!Proto->Significant && WriteInsigProtos))
+    if ((Proto->Significant && WriteSigProtos) || (!Proto->Significant && WriteInsigProtos)) {
       WritePrototype(File, N, Proto);
+    }
   }
 } // WriteProtos
 

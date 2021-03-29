@@ -49,8 +49,9 @@ namespace tesseract {
 BLOB_CHOICE_LIST *Wordrec::classify_piece(const std::vector<SEAM *> &seams, int16_t start,
                                           int16_t end, const char *description, TWERD *word,
                                           BlamerBundle *blamer_bundle) {
-  if (end > start)
+  if (end > start) {
     SEAM::JoinPieces(seams, word->blobs, start, end);
+  }
   BLOB_CHOICE_LIST *choices =
       classify_blob(word->blobs[start], description, ScrollView::WHITE, blamer_bundle);
   // Set the matrix_cell_ entries in all the BLOB_CHOICES.
@@ -59,8 +60,9 @@ BLOB_CHOICE_LIST *Wordrec::classify_piece(const std::vector<SEAM *> &seams, int1
     bc_it.data()->set_matrix_cell(start, end);
   }
 
-  if (end > start)
+  if (end > start) {
     SEAM::BreakPieces(seams, word->blobs, start, end);
+  }
 
   return (choices);
 }
@@ -78,8 +80,9 @@ int SortByRating(const void *void1, const void *void2) {
   const BLOB_CHOICE *p1 = *static_cast<const BLOB_CHOICE *const *>(void1);
   const BLOB_CHOICE *p2 = *static_cast<const BLOB_CHOICE *const *>(void2);
 
-  if (p1->rating() < p2->rating())
+  if (p1->rating() < p2->rating()) {
     return 1;
+  }
   return -1;
 }
 
@@ -131,8 +134,9 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column, int16_t 
   }
 
   BLOB_CHOICE_LIST *merged_choice = ratings->get(row, column);
-  if (merged_choice == nullptr)
+  if (merged_choice == nullptr) {
     merged_choice = new BLOB_CHOICE_LIST;
+  }
 
   bool end_of_list = false;
   BLOB_CHOICE_IT merged_choice_it(merged_choice);
@@ -161,8 +165,9 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column, int16_t 
       }
     }
 
-    if (end_of_list)
+    if (end_of_list) {
       break;
+    }
 
     // Checks if the fragments are parts of the same character
     UNICHAR_ID first_unichar_id = choice_lists_it[0].data()->unichar_id();
@@ -190,21 +195,25 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column, int16_t 
         float rating = choice_lists_it[i].data()->rating();
         float certainty = choice_lists_it[i].data()->certainty();
 
-        if (i == 0 || certainty < merged_certainty)
+        if (i == 0 || certainty < merged_certainty) {
           merged_certainty = certainty;
+        }
         merged_rating += rating;
 
         choice_lists_it[i].forward();
-        if (choice_lists_it[i].cycled_list())
+        if (choice_lists_it[i].cycled_list()) {
           end_of_list = true;
+        }
         IntersectRange(choice_lists_it[i].data()->min_xheight(),
                        choice_lists_it[i].data()->max_xheight(), &merged_min_xheight,
                        &merged_max_xheight);
         float yshift = choice_lists_it[i].data()->yshift();
-        if (yshift > positive_yshift)
+        if (yshift > positive_yshift) {
           positive_yshift = yshift;
-        if (yshift < negative_yshift)
+        }
+        if (yshift < negative_yshift) {
           negative_yshift = yshift;
+        }
         // Use the min font rating over the parts.
         // TODO(rays) font lists are unsorted. Need to be faster?
         const auto &frag_fonts = choice_lists_it[i].data()->fonts();
@@ -232,13 +241,15 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column, int16_t 
     }
   }
 
-  if (classify_debug_level)
+  if (classify_debug_level) {
     print_ratings_list("Merged Fragments", merged_choice, unicharset);
+  }
 
-  if (merged_choice->empty())
+  if (merged_choice->empty()) {
     delete merged_choice;
-  else
+  } else {
     ratings->put(row, column, merged_choice);
+  }
 
   delete[] choice_lists_it;
 }
@@ -265,8 +276,9 @@ void Wordrec::get_fragment_lists(int16_t current_frag, int16_t current_row, int1
 
   for (int16_t x = current_row; x < num_blobs; x++) {
     BLOB_CHOICE_LIST *choices = ratings->get(current_row, x);
-    if (choices == nullptr)
+    if (choices == nullptr) {
       continue;
+    }
 
     fill_filtered_fragment_list(choices, current_frag, num_frag_parts, &choice_lists[current_frag]);
     if (!choice_lists[current_frag].empty()) {
@@ -300,8 +312,9 @@ void Wordrec::merge_fragments(MATRIX *ratings, int16_t num_blobs) {
         for (choices_it.mark_cycle_pt(); !choices_it.cycled_list(); choices_it.forward()) {
           UNICHAR_ID choice_unichar_id = choices_it.data()->unichar_id();
           const CHAR_FRAGMENT *frag = unicharset.get_fragment(choice_unichar_id);
-          if (frag != nullptr)
+          if (frag != nullptr) {
             delete choices_it.extract();
+          }
         }
       }
     }

@@ -212,8 +212,9 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *arg
   bool shape_analysis = false;
   if (shape_table != nullptr) {
     *shape_table = LoadShapeTable(file_prefix);
-    if (*shape_table != nullptr)
+    if (*shape_table != nullptr) {
       shape_analysis = true;
+    }
   } else {
     shape_analysis = true;
   }
@@ -303,10 +304,11 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *arg
  * @return Next command line argument or nullptr.
  */
 const char *GetNextFilename(int argc, const char *const *argv, int &tessoptind) {
-  if (tessoptind < argc)
+  if (tessoptind < argc) {
     return argv[tessoptind++];
-  else
+  } else {
     return nullptr;
+  }
 } /* GetNextFilename */
 
 /*---------------------------------------------------------------------------*/
@@ -324,8 +326,9 @@ LABELEDLIST FindList(LIST List, char *Label) {
 
   iterate(List) {
     LabeledList = reinterpret_cast<LABELEDLIST> first_node(List);
-    if (strcmp(LabeledList->Label, Label) == 0)
+    if (strcmp(LabeledList->Label, Label) == 0) {
       return (LabeledList);
+    }
   }
   return (nullptr);
 
@@ -385,8 +388,9 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
   }
 
   while (fgets(buffer, 2048, file) != nullptr) {
-    if (buffer[0] == '\n')
+    if (buffer[0] == '\n') {
       continue;
+    }
 
     sscanf(buffer, "%*s %s", unichar);
     if (unicharset != nullptr && !unicharset->contains_unichar(unichar)) {
@@ -413,8 +417,9 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
       FreeFeatureSet(feature_samples);
     }
     for (size_t i = 0; i < char_desc->NumFeatureSets; i++) {
-      if (feature_type != i)
+      if (feature_type != i) {
         FreeFeatureSet(char_desc->FeatureSets[i]);
+      }
     }
     free(char_desc);
   }
@@ -489,10 +494,12 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs, LABELEDLIS
   iterate(FeatureList) {
     FeatureSet = reinterpret_cast<FEATURE_SET> first_node(FeatureList);
     for (i = 0; i < FeatureSet->MaxNumFeatures; i++) {
-      if (Sample == nullptr)
+      if (Sample == nullptr) {
         Sample = static_cast<float *>(malloc(N * sizeof(float)));
-      for (j = 0; j < N; j++)
+      }
+      for (j = 0; j < N; j++) {
         Sample[j] = FeatureSet->Features[i]->Params[j];
+      }
       MakeSample(Clusterer, Sample, CharID);
     }
     CharID++;
@@ -511,8 +518,9 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
   LIST pProtoList = ProtoList;
   iterate(pProtoList) {
     Prototype = reinterpret_cast<PROTOTYPE *> first_node(pProtoList);
-    if (Prototype->Significant || Prototype->Merged)
+    if (Prototype->Significant || Prototype->Merged) {
       continue;
+    }
     float best_dist = 0.125;
     PROTOTYPE *best_match = nullptr;
     // Find the nearest alive prototype.
@@ -529,19 +537,21 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
       }
     }
     if (best_match != nullptr && !best_match->Significant) {
-      if (debug)
+      if (debug) {
         tprintf("Merging red clusters (%d+%d) at %g,%g and %g,%g\n", best_match->NumSamples,
                 Prototype->NumSamples, best_match->Mean[0], best_match->Mean[1], Prototype->Mean[0],
                 Prototype->Mean[1]);
+      }
       best_match->NumSamples =
           MergeClusters(Clusterer->SampleSize, Clusterer->ParamDesc, best_match->NumSamples,
                         Prototype->NumSamples, best_match->Mean, best_match->Mean, Prototype->Mean);
       Prototype->NumSamples = 0;
       Prototype->Merged = true;
     } else if (best_match != nullptr) {
-      if (debug)
+      if (debug) {
         tprintf("Red proto at %g,%g matched a green one at %g,%g\n", Prototype->Mean[0],
                 Prototype->Mean[1], best_match->Mean[0], best_match->Mean[1]);
+      }
       Prototype->Merged = true;
     }
   }
@@ -552,8 +562,9 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
     Prototype = reinterpret_cast<PROTOTYPE *> first_node(pProtoList);
     // Process insignificant protos that do not match a green one
     if (!Prototype->Significant && Prototype->NumSamples >= min_samples && !Prototype->Merged) {
-      if (debug)
+      if (debug) {
         tprintf("Red proto at %g,%g becoming green\n", Prototype->Mean[0], Prototype->Mean[1]);
+      }
       Prototype->Significant = true;
     }
   }
@@ -597,28 +608,35 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
       NewProto->Cluster = nullptr;
       NewProto->Distrib = nullptr;
 
-      for (i = 0; i < N; i++)
+      for (i = 0; i < N; i++) {
         NewProto->Mean[i] = Proto->Mean[i];
+      }
       if (Proto->Variance.Elliptical != nullptr) {
         NewProto->Variance.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++)
+        for (i = 0; i < N; i++) {
           NewProto->Variance.Elliptical[i] = Proto->Variance.Elliptical[i];
-      } else
+        }
+      } else {
         NewProto->Variance.Elliptical = nullptr;
+      }
       //---------------------------------------------
       if (Proto->Magnitude.Elliptical != nullptr) {
         NewProto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++)
+        for (i = 0; i < N; i++) {
           NewProto->Magnitude.Elliptical[i] = Proto->Magnitude.Elliptical[i];
-      } else
+        }
+      } else {
         NewProto->Magnitude.Elliptical = nullptr;
+      }
       //------------------------------------------------
       if (Proto->Weight.Elliptical != nullptr) {
         NewProto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++)
+        for (i = 0; i < N; i++) {
           NewProto->Weight.Elliptical[i] = Proto->Weight.Elliptical[i];
-      } else
+        }
+      } else {
         NewProto->Weight.Elliptical = nullptr;
+      }
 
       NewProto->TotalMagnitude = Proto->TotalMagnitude;
       NewProto->LogMagnitude = Proto->LogMagnitude;
@@ -635,8 +653,9 @@ MERGE_CLASS FindClass(LIST List, const char *Label) {
 
   iterate(List) {
     MergeClass = reinterpret_cast<MERGE_CLASS> first_node(List);
-    if (strcmp(MergeClass->Label, Label) == 0)
+    if (strcmp(MergeClass->Label, Label) == 0) {
       return (MergeClass);
+    }
   }
   return (nullptr);
 
@@ -726,8 +745,9 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
     for (i = 0; i < NumConfigs; i++) {
       NewConfig = NewBitVector(NumProtos);
       OldConfig = MergeClass->Class->Configurations[i];
-      for (j = 0; j < NumWords; j++)
+      for (j = 0; j < NumWords; j++) {
         NewConfig[j] = OldConfig[j];
+      }
       Class->Configurations[i] = NewConfig;
     }
   }
@@ -783,8 +803,9 @@ int NumberOfProtos(LIST ProtoList, bool CountSigProtos, bool CountInsigProtos) {
   int N = 0;
   iterate(ProtoList) {
     auto *Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
-    if ((Proto->Significant && CountSigProtos) || (!Proto->Significant && CountInsigProtos))
+    if ((Proto->Significant && CountSigProtos) || (!Proto->Significant && CountInsigProtos)) {
       N++;
+    }
   }
   return (N);
 }

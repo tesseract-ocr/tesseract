@@ -147,8 +147,9 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId, const FEATURE_STRUCT &feature
               256 * (1 - NormEvidenceOf(Match)));
     }
 
-    if (Match < BestMatch)
+    if (Match < BestMatch) {
       BestMatch = Match;
+    }
 
     ProtoId++;
   }
@@ -157,8 +158,9 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId, const FEATURE_STRUCT &feature
 
 void Classify::FreeNormProtos() {
   if (NormProtos != nullptr) {
-    for (int i = 0; i < NormProtos->NumProtos; i++)
+    for (int i = 0; i < NormProtos->NumProtos; i++) {
       FreeProtoList(&NormProtos->Protos[i]);
+    }
     free(NormProtos->Protos);
     free(NormProtos->ParamDesc);
     free(NormProtos);
@@ -186,8 +188,9 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   NormProtos = static_cast<NORM_PROTOS *>(malloc(sizeof(NORM_PROTOS)));
   NormProtos->NumProtos = unicharset.size();
   NormProtos->Protos = static_cast<LIST *>(malloc(NormProtos->NumProtos * sizeof(LIST)));
-  for (i = 0; i < NormProtos->NumProtos; i++)
+  for (i = 0; i < NormProtos->NumProtos; i++) {
     NormProtos->Protos[i] = NIL_LIST;
+  }
 
   /* read file header and save in data structure */
   NormProtos->NumParams = ReadSampleSize(fp);
@@ -206,13 +209,15 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
     if (unicharset.contains_unichar(unichar)) {
       unichar_id = unicharset.unichar_to_id(unichar);
       Protos = NormProtos->Protos[unichar_id];
-      for (i = 0; i < NumProtos; i++)
+      for (i = 0; i < NumProtos; i++) {
         Protos = push_last(Protos, ReadPrototype(fp, NormProtos->NumParams));
+      }
       NormProtos->Protos[unichar_id] = Protos;
     } else {
       tprintf("Error: unichar %s in normproto file is not in unichar set.\n", unichar);
-      for (i = 0; i < NumProtos; i++)
+      for (i = 0; i < NumProtos; i++) {
         FreePrototype(ReadPrototype(fp, NormProtos->NumParams));
+      }
     }
   }
   return (NormProtos);

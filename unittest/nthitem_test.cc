@@ -25,7 +25,7 @@ protected:
   }
 
 public:
-  virtual ~NthItemTest();
+  ~NthItemTest() override;
   // Pushes the test data onto the KDVector.
   void PushTestData(KDVector *v) {
     for (size_t i = 0; i < countof(test_data); ++i) {

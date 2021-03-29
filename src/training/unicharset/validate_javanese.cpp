@@ -46,8 +46,9 @@ bool ValidateJavanese::ConsumeGraphemeIfValid() {
     case CharClass::kZeroWidthJoiner:
     case CharClass::kZeroWidthNonJoiner:
       // Apart from within an aksara, joiners are silently dropped.
-      if (report_errors_)
+      if (report_errors_) {
         tprintf("ERROR: Dropping isolated joiner: 0x%x\n", codes_[codes_used_].second);
+      }
       ++codes_used_;
       return true;
     case CharClass::kOther:
@@ -76,8 +77,9 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
     if (codes_used_ < num_codes && codes_[codes_used_].second == kZeroWidthJoiner) {
       // Post-matra viramas must be explicit, so no joiners allowed here.
       if (post_matra) {
-        if (report_errors_)
+        if (report_errors_) {
           tprintf("ERROR: ZWJ after a post-matra virama!!\n");
+        }
         return false;
       }
       if (codes_used_ + 1 < num_codes && codes_[codes_used_ - 2].second != kCakra &&
@@ -89,8 +91,9 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
       } else {
         // Half-form with optional Nukta.
         unsigned len = output_.size() + 1 - output_used_;
-        if (UseMultiCode(len))
+        if (UseMultiCode(len)) {
           return true;
+        }
       }
       if (codes_used_ < num_codes && codes_[codes_used_].second == kZeroWidthNonJoiner) {
         if (output_used_ == output_.size() || output_[output_used_] != kCakra) {
@@ -100,8 +103,9 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
           return false;
         }
         // Special Sinhala case of Stand-alone Repaya. ['RA' H Z z]
-        if (UseMultiCode(4))
+        if (UseMultiCode(4)) {
           return true;
+        }
       }
     } else if (codes_used_ == num_codes || codes_[codes_used_].first != CharClass::kConsonant ||
                post_matra) {
@@ -118,8 +122,9 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
   } else {
     // Pre-virama joiner [{Z|z} H] requests specific conjunct.
     if (UseMultiCode(2)) {
-      if (report_errors_)
+      if (report_errors_) {
         tprintf("ERROR: Invalid pre-virama joiner with no 2nd consonant!!\n");
+      }
       return false;
     }
     if (codes_[codes_used_].second == kZeroWidthJoiner ||
@@ -183,48 +188,57 @@ bool ValidateJavanese::ConsumeConsonantHeadIfValid() {
       }
     }
     if (codes_used_ < num_codes && codes_[codes_used_].first == CharClass::kVirama) {
-      if (!ConsumeViramaIfValid(joiner, false))
+      if (!ConsumeViramaIfValid(joiner, false)) {
         return false;
+      }
     } else {
       break; // No virama, so the run of consonants is over.
     }
   } while (codes_used_ < num_codes && codes_[codes_used_].first == CharClass::kConsonant);
-  if (output_used_ < output_.size())
+  if (output_used_ < output_.size()) {
     MultiCodePart(1);
+  }
   return true;
 }
 
 // Helper consumes/copies a tail part of a consonant, comprising optional
 // matra/piece, vowel modifier, vedic mark, terminating virama.
 bool ValidateJavanese::ConsumeConsonantTailIfValid() {
-  if (codes_used_ == codes_.size())
+  if (codes_used_ == codes_.size()) {
     return true;
+  }
   // No virama: Finish the grapheme.
   // Are multiple matras allowed?
   if (codes_[codes_used_].first == CharClass::kMatra) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
     if (codes_[codes_used_].first == CharClass::kMatraPiece) {
-      if (UseMultiCode(1))
+      if (UseMultiCode(1)) {
         return true;
+      }
     }
   }
   // Tarung also used for long versions of u and o vowels and vocalic r
   // Taling + Tarung is valid eg. ꦏ + ◌ꦺ + ◌ꦴ
   while (codes_[codes_used_].first == CharClass::kMatraPiece) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
   }
   while (codes_[codes_used_].first == CharClass::kVowelModifier) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
     // Only Malayalam allows only repeated 0xd02.
-    if (script_ != ViramaScript::kMalayalam || output_.back() != 0xd02)
+    if (script_ != ViramaScript::kMalayalam || output_.back() != 0xd02) {
       break;
+    }
   }
   while (codes_[codes_used_].first == CharClass::kVedicMark) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
   }
   if (codes_[codes_used_].first == CharClass::kVirama) {
     if (!ConsumeViramaIfValid(IndicPair(CharClass::kOther, 0), true)) {
@@ -232,59 +246,76 @@ bool ValidateJavanese::ConsumeConsonantTailIfValid() {
     }
   }
   // What we have consumed so far is a valid consonant cluster.
-  if (output_used_ < output_.size())
+  if (output_used_ < output_.size()) {
     MultiCodePart(1);
+  }
 
   return true;
 }
 
 // Helper consumes/copies a vowel and optional modifiers.
 bool ValidateJavanese::ConsumeVowelIfValid() {
-  if (UseMultiCode(1))
+  if (UseMultiCode(1)) {
     return true;
+  }
   while (codes_[codes_used_].first == CharClass::kVowelModifier) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
     // Only Malayalam allows repeated modifiers?
-    if (script_ != ViramaScript::kMalayalam)
+    if (script_ != ViramaScript::kMalayalam) {
       break;
+    }
   }
   while (codes_[codes_used_].first == CharClass::kVedicMark) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
   }
   // What we have consumed so far is a valid vowel cluster.
   return true;
 }
 
 Validator::CharClass ValidateJavanese::UnicodeToCharClass(char32 ch) const {
-  if (ch == kZeroWidthNonJoiner)
+  if (ch == kZeroWidthNonJoiner) {
     return CharClass::kZeroWidthNonJoiner;
-  if (ch == kZeroWidthJoiner)
+  }
+  if (ch == kZeroWidthJoiner) {
     return CharClass::kZeroWidthJoiner;
+  }
   // Offset from the start of the relevant unicode code block aka code page.
   int off = ch - static_cast<char32>(script_);
   // Anything in another code block is other.
-  if (off < 0 || off >= kIndicCodePageSize)
+  if (off < 0 || off >= kIndicCodePageSize) {
     return CharClass::kOther;
-  if (off < 0x4)
+  }
+  if (off < 0x4) {
     return CharClass::kVowelModifier;
-  if (off <= 0x32)
+  }
+  if (off <= 0x32) {
     return CharClass::kConsonant; // includes independent vowels
-  if (off == 0x33)
+  }
+  if (off == 0x33) {
     return CharClass::kNukta; // A9B3 CECAK TELU
-  if (off == 0x34)
+  }
+  if (off == 0x34) {
     return CharClass::kMatraPiece; // A9B4 TARUNG two part vowels
-  if (off <= 0x39)
+  }
+  if (off <= 0x39) {
     return CharClass::kMatra;
-  if (off <= 0x3a)
+  }
+  if (off <= 0x3a) {
     return CharClass::kConsonant; // A9BA TALING - pre base vowel
-  if (off <= 0x3d)
+  }
+  if (off <= 0x3d) {
     return CharClass::kMatra;
-  if (off <= 0x3f)
+  }
+  if (off <= 0x3f) {
     return CharClass::kNukta; // A9BE-A9BF PENGKAL-CAKRA medial consonants
-  if (off == 0x40)
+  }
+  if (off == 0x40) {
     return CharClass::kVirama; // A9C0 PANGKON
+  }
   return CharClass::kOther;
 }
 

@@ -69,8 +69,9 @@ void make_single_word(bool one_blob, TO_ROW_LIST *rows, ROW_LIST *real_rows) {
           delete bblob->cblob();
         }
       } else {
-        if (bblob->cblob() != nullptr)
+        if (bblob->cblob() != nullptr) {
           cblob_it.add_after_then_move(bblob->cblob());
+        }
       }
       delete bblob;
     }
@@ -129,8 +130,9 @@ void set_row_spaces( // find space sizes
   TO_ROW *row; // current row
   TO_ROW_IT row_it = block->get_rows();
 
-  if (row_it.empty())
+  if (row_it.empty()) {
     return; // empty block
+  }
   for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
     row = row_it.data();
     if (row->fixed_pitch == 0) {
@@ -193,8 +195,9 @@ int32_t row_words(    // compute space size
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     blob = blob_it.data();
     blob_box = blob->bounding_box();
-    if (blob_box.contains(testpt))
+    if (blob_box.contains(testpt)) {
       testing_row = true;
+    }
     gap_stats.add(blob_box.width(), 1);
   }
   gap_stats.clear();
@@ -229,8 +232,9 @@ int32_t row_words(    // compute space size
     row->max_nonspace = 0;
     return 0;
   }
-  for (gap_index = 0; gap_index < cluster_count; gap_index++)
+  for (gap_index = 0; gap_index < cluster_count; gap_index++) {
     gaps[gap_index] = cluster_stats[gap_index + 1].ile(0.5);
+  }
   // get medians
   if (cluster_count > 2) {
     if (testing_on && textord_show_initial_words) {
@@ -243,9 +247,9 @@ int32_t row_words(    // compute space size
       if (upper < block->xheight * textord_words_min_minspace && gaps[2] > gaps[1]) {
         upper = gaps[2];
       }
-    } else if (gaps[2] > lower && gaps[2] >= block->xheight * textord_words_min_minspace)
+    } else if (gaps[2] > lower && gaps[2] >= block->xheight * textord_words_min_minspace) {
       upper = gaps[2];
-    else if (lower >= block->xheight * textord_words_min_minspace) {
+    } else if (lower >= block->xheight * textord_words_min_minspace) {
       upper = lower; // not nice
       lower = gaps[1];
       if (testing_on && textord_show_initial_words) {
@@ -398,35 +402,41 @@ int32_t row_words2(   // compute space size
     row->max_nonspace = 0;
     return 0;
   }
-  for (gap_index = 0; gap_index < cluster_count; gap_index++)
+  for (gap_index = 0; gap_index < cluster_count; gap_index++) {
     gaps[gap_index] = cluster_stats[gap_index + 1].ile(0.5);
+  }
   // get medians
   if (testing_on) {
     tprintf("cluster_count=%d:", cluster_count);
-    for (gap_index = 0; gap_index < cluster_count; gap_index++)
+    for (gap_index = 0; gap_index < cluster_count; gap_index++) {
       tprintf(" %g(%d)", gaps[gap_index], cluster_stats[gap_index + 1].get_total());
+    }
     tprintf("\n");
   }
 
   // Try to find proportional non-space and space for row.
   for (gap_index = 0; gap_index < cluster_count && gaps[gap_index] > block->max_nonspace;
-       gap_index++)
+       gap_index++) {
     ;
-  if (gap_index < cluster_count)
+  }
+  if (gap_index < cluster_count) {
     lower = gaps[gap_index]; // most frequent below
-  else {
-    if (testing_on)
+  } else {
+    if (testing_on) {
       tprintf("No cluster below block threshold!, using default=%g\n", block->pr_nonsp);
+    }
     lower = block->pr_nonsp;
   }
   for (gap_index = 0; gap_index < cluster_count && gaps[gap_index] <= block->max_nonspace;
-       gap_index++)
+       gap_index++) {
     ;
-  if (gap_index < cluster_count)
+  }
+  if (gap_index < cluster_count) {
     upper = gaps[gap_index]; // most frequent above
-  else {
-    if (testing_on)
+  } else {
+    if (testing_on) {
       tprintf("No cluster above block threshold!, using default=%g\n", block->pr_space);
+    }
     upper = block->pr_space;
   }
   row->min_space =
@@ -466,8 +476,9 @@ void make_real_words(tesseract::Textord *textord,
   ROW *real_row = nullptr; // output row
   ROW_IT real_row_it = block->block->row_list();
 
-  if (row_it.empty())
+  if (row_it.empty()) {
     return; // empty block
+  }
   for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
     row = row_it.data();
     if (row->blob_list()->empty() && !row->rep_words.empty()) {
@@ -518,11 +529,13 @@ ROW *make_rep_words( // make a row
                  // iterator
   WERD_IT word_it = &row->rep_words;
 
-  if (word_it.empty())
+  if (word_it.empty()) {
     return nullptr;
+  }
   word_box = word_it.data()->bounding_box();
-  for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward())
+  for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     word_box += word_it.data()->bounding_box();
+  }
   row->xheight = block->xheight;
   real_row =
       new ROW(row, static_cast<int16_t>(block->kern_size), static_cast<int16_t>(block->space_size));
@@ -562,22 +575,26 @@ WERD *make_real_word(BLOBNBOX_IT *box_it, // iterator
         delete bblob->cblob();
       }
     } else {
-      if (bblob->cblob() != nullptr)
+      if (bblob->cblob() != nullptr) {
         cblob_it.add_after_then_move(bblob->cblob());
+      }
     }
     delete bblob;
     box_it->forward(); // next one
   }
 
-  if (blanks < 1)
+  if (blanks < 1) {
     blanks = 1;
+  }
 
   word = new WERD(&cblobs, blanks, nullptr);
 
-  if (bol)
+  if (bol) {
     word->set_flag(W_BOL, true);
-  if (box_it->at_first())
+  }
+  if (box_it->at_first()) {
     word->set_flag(W_EOL, true); // at end of line
+  }
 
   return word;
 }

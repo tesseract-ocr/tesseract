@@ -46,12 +46,13 @@ FullyConnected::FullyConnected(const std::string &name, int ni, int no, NetworkT
 // be partially unknown ie zero).
 StaticShape FullyConnected::OutputShape(const StaticShape &input_shape) const {
   LossType loss_type = LT_NONE;
-  if (type_ == NT_SOFTMAX)
+  if (type_ == NT_SOFTMAX) {
     loss_type = LT_CTC;
-  else if (type_ == NT_SOFTMAX_NO_CTC)
+  } else if (type_ == NT_SOFTMAX_NO_CTC) {
     loss_type = LT_SOFTMAX;
-  else if (type_ == NT_LOGISTIC)
+  } else if (type_ == NT_LOGISTIC) {
     loss_type = LT_LOGISTIC;
+  }
   StaticShape result(input_shape);
   result.set_depth(no_);
   result.set_loss_type(loss_type);
@@ -62,15 +63,18 @@ StaticShape FullyConnected::OutputShape(const StaticShape &input_shape) const {
 void FullyConnected::SetEnableTraining(TrainingState state) {
   if (state == TS_RE_ENABLE) {
     // Enable only from temp disabled.
-    if (training_ == TS_TEMP_DISABLE)
+    if (training_ == TS_TEMP_DISABLE) {
       training_ = TS_ENABLED;
+    }
   } else if (state == TS_TEMP_DISABLE) {
     // Temp disable only from enabled.
-    if (training_ == TS_ENABLED)
+    if (training_ == TS_ENABLED) {
       training_ = state;
+    }
   } else {
-    if (state == TS_ENABLED && training_ != TS_ENABLED)
+    if (state == TS_ENABLED && training_ != TS_ENABLED) {
       weights_.InitBackward();
+    }
     training_ = state;
   }
 }
@@ -106,10 +110,12 @@ void FullyConnected::DebugWeights() {
 
 // Writes to the given file. Returns false in case of error.
 bool FullyConnected::Serialize(TFile *fp) const {
-  if (!Network::Serialize(fp))
+  if (!Network::Serialize(fp)) {
     return false;
-  if (!weights_.Serialize(IsTraining(), fp))
+  }
+  if (!weights_.Serialize(IsTraining(), fp)) {
     return false;
+  }
   return true;
 }
 
@@ -124,16 +130,18 @@ void FullyConnected::Forward(bool debug, const NetworkIO &input,
                              const TransposedArray *input_transpose, NetworkScratch *scratch,
                              NetworkIO *output) {
   int width = input.Width();
-  if (type_ == NT_SOFTMAX)
+  if (type_ == NT_SOFTMAX) {
     output->ResizeFloat(input, no_);
-  else
+  } else {
     output->Resize(input, no_);
+  }
   SetupForward(input, input_transpose);
   std::vector<NetworkScratch::FloatVec> temp_lines(kNumThreads);
   std::vector<NetworkScratch::FloatVec> curr_input(kNumThreads);
   int ro = no_;
-  if (IntSimdMatrix::intSimdMatrix)
+  if (IntSimdMatrix::intSimdMatrix) {
     ro = IntSimdMatrix::intSimdMatrix->RoundOutputs(ro);
+  }
   for (int i = 0; i < kNumThreads; ++i) {
     temp_lines[i].Init(no_, ro, scratch);
     curr_input[i].Init(ni_, scratch);
@@ -172,8 +180,9 @@ void FullyConnected::Forward(bool debug, const NetworkIO &input,
   output->Print(10);
 #endif
 #ifndef GRAPHICS_DISABLED
-  if (debug)
+  if (debug) {
     DisplayForward(*output);
+  }
 #endif
 }
 
@@ -185,8 +194,9 @@ void FullyConnected::SetupForward(const NetworkIO &input, const TransposedArray 
     acts_.Resize(input, no_);
     // Source_ is a transposed copy of input. It isn't needed if provided.
     external_source_ = input_transpose;
-    if (external_source_ == nullptr)
+    if (external_source_ == nullptr) {
       source_t_.ResizeNoInit(ni_, input.Width());
+    }
   }
 }
 
@@ -210,8 +220,9 @@ void FullyConnected::ForwardTimeStep(int t, double *output_line) {
 
 void FullyConnected::ForwardTimeStep(const double *d_input, int t, double *output_line) {
   // input is copied to source_ line-by-line for cache coherency.
-  if (IsTraining() && external_source_ == nullptr)
+  if (IsTraining() && external_source_ == nullptr) {
     source_t_.WriteStrided(t, d_input);
+  }
   weights_.MatrixDotVector(d_input, output_line);
   ForwardTimeStep(t, output_line);
 }
@@ -227,18 +238,21 @@ void FullyConnected::ForwardTimeStep(const int8_t *i_input, int t, double *outpu
 bool FullyConnected::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
                               NetworkIO *back_deltas) {
 #ifndef GRAPHICS_DISABLED
-  if (debug)
+  if (debug) {
     DisplayBackward(fwd_deltas);
+  }
 #endif
   back_deltas->Resize(fwd_deltas, ni_);
   std::vector<NetworkScratch::FloatVec> errors(kNumThreads);
-  for (int i = 0; i < kNumThreads; ++i)
+  for (int i = 0; i < kNumThreads; ++i) {
     errors[i].Init(no_, scratch);
+  }
   std::vector<NetworkScratch::FloatVec> temp_backprops;
   if (needs_to_backprop_) {
     temp_backprops.resize(kNumThreads);
-    for (int i = 0; i < kNumThreads; ++i)
+    for (int i = 0; i < kNumThreads; ++i) {
       temp_backprops[i].Init(ni_, scratch);
+    }
   }
   int width = fwd_deltas.Width();
   NetworkScratch::GradientStore errors_t;
@@ -252,8 +266,9 @@ bool FullyConnected::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkSc
     int thread_id = 0;
 #endif
     double *backprop = nullptr;
-    if (needs_to_backprop_)
+    if (needs_to_backprop_) {
       backprop = temp_backprops[thread_id];
+    }
     double *curr_errors = errors[thread_id];
     BackwardTimeStep(fwd_deltas, t, curr_errors, errors_t.get(), backprop);
     if (backprop != nullptr) {
@@ -274,31 +289,34 @@ bool FullyConnected::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkSc
 
 void FullyConnected::BackwardTimeStep(const NetworkIO &fwd_deltas, int t, double *curr_errors,
                                       TransposedArray *errors_t, double *backprop) {
-  if (type_ == NT_TANH)
+  if (type_ == NT_TANH) {
     acts_.FuncMultiply<GPrime>(fwd_deltas, t, curr_errors);
-  else if (type_ == NT_LOGISTIC)
+  } else if (type_ == NT_LOGISTIC) {
     acts_.FuncMultiply<FPrime>(fwd_deltas, t, curr_errors);
-  else if (type_ == NT_POSCLIP)
+  } else if (type_ == NT_POSCLIP) {
     acts_.FuncMultiply<ClipFPrime>(fwd_deltas, t, curr_errors);
-  else if (type_ == NT_SYMCLIP)
+  } else if (type_ == NT_SYMCLIP) {
     acts_.FuncMultiply<ClipGPrime>(fwd_deltas, t, curr_errors);
-  else if (type_ == NT_RELU)
+  } else if (type_ == NT_RELU) {
     acts_.FuncMultiply<ReluPrime>(fwd_deltas, t, curr_errors);
-  else if (type_ == NT_SOFTMAX || type_ == NT_SOFTMAX_NO_CTC || type_ == NT_LINEAR)
+  } else if (type_ == NT_SOFTMAX || type_ == NT_SOFTMAX_NO_CTC || type_ == NT_LINEAR) {
     fwd_deltas.ReadTimeStep(t, curr_errors); // fwd_deltas are the errors.
-  else
+  } else {
     ASSERT_HOST("Invalid fully-connected type!" == nullptr);
+  }
   // Generate backprop only if needed by the lower layer.
-  if (backprop != nullptr)
+  if (backprop != nullptr) {
     weights_.VectorDotMatrix(curr_errors, backprop);
+  }
   errors_t->WriteStrided(t, curr_errors);
 }
 
 void FullyConnected::FinishBackward(const TransposedArray &errors_t) {
-  if (external_source_ == nullptr)
+  if (external_source_ == nullptr) {
     weights_.SumOuterTransposed(errors_t, source_t_, true);
-  else
+  } else {
     weights_.SumOuterTransposed(errors_t, *external_source_, true);
+  }
 }
 
 // Updates the weights using the given learning rate, momentum and adam_beta.

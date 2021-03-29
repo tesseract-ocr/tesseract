@@ -263,10 +263,12 @@ static void ExtractFontProperties(const std::string &utf8_text, StringRenderer *
     }
 
     for (size_t b = 0; b < boxes.size(); b += 2) {
-      while (b < boxes.size() && IsWhitespaceBox(boxes[b]))
+      while (b < boxes.size() && IsWhitespaceBox(boxes[b])) {
         ++b;
-      if (b + 1 >= boxes.size())
+      }
+      if (b + 1 >= boxes.size()) {
         break;
+      }
       const std::string &ch0 = boxes[b]->ch();
       // We encountered a ligature. This happens in at least two scenarios:
       // One is when the rendered bigram forms a grapheme cluster (eg. the
@@ -354,8 +356,9 @@ static bool MakeIndividualGlyphs(Pix *pix, const std::vector<BoxChar *> &vbox,
   for (int i = 0; i < n_boxes; i++) {
     // Get one bounding box
     Box *b = vbox[i]->mutable_box();
-    if (!b)
+    if (!b) {
       continue;
+    }
     const int x = b->x;
     const int y = b->y;
     const int w = b->w;
@@ -365,10 +368,11 @@ static bool MakeIndividualGlyphs(Pix *pix, const std::vector<BoxChar *> &vbox,
       tprintf("ERROR: Wrap-around encountered, at i=%d\n", i);
       current_tiff_page++;
     }
-    if (current_tiff_page < input_tiff_page)
+    if (current_tiff_page < input_tiff_page) {
       continue;
-    else if (current_tiff_page > input_tiff_page)
+    } else if (current_tiff_page > input_tiff_page) {
       break;
+    }
     // Check box validity
     if (x < 0 || y < 0 || (x + w - 1) >= pixGetWidth(pix) || (y + h - 1) >= pixGetHeight(pix)) {
       tprintf(
@@ -444,8 +448,9 @@ static int Main() {
       // to some fonts.
       // See https://github.com/tesseract-ocr/tesseract/issues/408
       std::string font_name(all_fonts[i].c_str());
-      if (font_name.back() == ',')
+      if (font_name.back() == ',') {
         font_name.pop_back();
+      }
       tprintf("%3u: %s\n", i, font_name.c_str());
       ASSERT_HOST_MSG(FontUtils::IsAvailableFont(all_fonts[i].c_str()),
                       "Font %s is unrecognized.\n", all_fonts[i].c_str());
@@ -481,8 +486,9 @@ static int Main() {
     }
   }
 
-  if (FLAGS_render_ngrams)
+  if (FLAGS_render_ngrams) {
     FLAGS_output_word_boxes = true;
+  }
 
   char font_desc_name[1024];
   snprintf(font_desc_name, 1024, "%s %d", font_name.c_str(), static_cast<int>(FLAGS_ptsize));
@@ -587,8 +593,9 @@ static int Main() {
       if (rand_utf8.length() > line * kCharsPerLine) {
         rand_utf8.append(" \n");
         ++line;
-        if (line & 0x1)
+        if (line & 0x1) {
           rand_utf8.append(kSeparator);
+        }
       } else {
         rand_utf8.append(kSeparator);
       }

@@ -80,8 +80,9 @@ void LLSQ::add(const LLSQ &other) {
  **********************************************************************/
 
 void LLSQ::remove(double x, double y) { // delete an element
-  if (total_weight <= 0.0)              // illegal
+  if (total_weight <= 0.0) {            // illegal
     EMPTY_LLSQ.error("LLSQ::remove", ABORT, nullptr);
+  }
   total_weight--; // count elements
   sigx -= x;      // update accumulators
   sigy -= y;
@@ -99,10 +100,11 @@ void LLSQ::remove(double x, double y) { // delete an element
 double LLSQ::m() const { // get gradient
   double covar = covariance();
   double x_var = x_variance();
-  if (x_var != 0.0)
+  if (x_var != 0.0) {
     return covar / x_var;
-  else
+  } else {
     return 0.0; // too little
+  }
 }
 
 /**********************************************************************
@@ -112,10 +114,11 @@ double LLSQ::m() const { // get gradient
  **********************************************************************/
 
 double LLSQ::c(double m) const { // get constant
-  if (total_weight > 0.0)
+  if (total_weight > 0.0) {
     return (sigy - m * sigx) / total_weight;
-  else
+  } else {
     return 0; // too little
+  }
 }
 
 /**********************************************************************
@@ -129,10 +132,11 @@ double LLSQ::rms(double m, double c) const { // get error
 
   if (total_weight > 0) {
     error = sigyy + m * (m * sigxx + 2 * (c * sigx - sigxy)) + c * (total_weight * c - 2 * sigy);
-    if (error >= 0)
+    if (error >= 0) {
       error = std::sqrt(error / total_weight); // sqrt of mean
-    else
+    } else {
       error = 0;
+    }
   } else {
     error = 0; // too little
   }
@@ -151,8 +155,9 @@ double LLSQ::pearson() const { // get correlation
   double covar = covariance();
   if (covar != 0.0) {
     double var_product = x_variance() * y_variance();
-    if (var_product > 0.0)
+    if (var_product > 0.0) {
       r = covar / std::sqrt(var_product);
+    }
   }
   return r;
 }

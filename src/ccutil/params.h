@@ -75,12 +75,14 @@ public:
   static T *FindParam(const char *name, const std::vector<T *> &global_vec,
                       const std::vector<T *> &member_vec) {
     for (auto *param : global_vec) {
-      if (strcmp(param->name_str(), name) == 0)
+      if (strcmp(param->name_str(), name) == 0) {
         return param;
+      }
     }
     for (auto *param : member_vec) {
-      if (strcmp(param->name_str(), name) == 0)
+      if (strcmp(param->name_str(), name) == 0) {
         return param;
+      }
     }
     return nullptr;
   }

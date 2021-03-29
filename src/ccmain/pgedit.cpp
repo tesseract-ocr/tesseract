@@ -189,10 +189,11 @@ static void pgeditor_msg( // message display
 class BlnEventHandler : public SVEventHandler {
 public:
   void Notify(const SVEvent *sv_event) override {
-    if (sv_event->type == SVET_DESTROY)
+    if (sv_event->type == SVET_DESTROY) {
       bln_word_window = nullptr;
-    else if (sv_event->type == SVET_CLICK)
+    } else if (sv_event->type == SVET_CLICK) {
       show_point(current_page_res, sv_event->x, sv_event->y);
+    }
   }
 };
 
@@ -339,10 +340,12 @@ void Tesseract::do_re_display(bool (tesseract::Tesseract::*word_painter)(PAGE_RE
   PAGE_RES_IT pr_it(current_page_res);
   for (WERD_RES *word = pr_it.word(); word != nullptr; word = pr_it.forward()) {
     (this->*word_painter)(&pr_it);
-    if (display_baselines && pr_it.row() != pr_it.prev_row())
+    if (display_baselines && pr_it.row() != pr_it.prev_row()) {
       pr_it.row()->row->plot_baseline(image_win, ScrollView::GREEN);
-    if (display_blocks && pr_it.block() != pr_it.prev_block())
+    }
+    if (display_blocks && pr_it.block() != pr_it.prev_block()) {
       pr_it.block()->block->pdblk.plot(image_win, block_count++, ScrollView::RED);
+    }
   }
   image_win->Update();
 }
@@ -357,8 +360,9 @@ void Tesseract::do_re_display(bool (tesseract::Tesseract::*word_painter)(PAGE_RE
 
 void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
   current_page_res = page_res;
-  if (current_page_res->block_res_list.empty())
+  if (current_page_res->block_res_list.empty()) {
     return;
+  }
 
   recog_done = false;
   stillRunning = true;
@@ -442,46 +446,52 @@ bool Tesseract::process_cmd_win_event( // UI command semantics
       delete[] parameter;
       break;
     case BOUNDING_BOX_CMD_EVENT:
-      if (new_value[0] == 'T')
+      if (new_value[0] == 'T') {
         word_display_mode.set(DF_BOX);
-      else
+      } else {
         word_display_mode.reset(DF_BOX);
+      }
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case BLAMER_CMD_EVENT:
-      if (new_value[0] == 'T')
+      if (new_value[0] == 'T') {
         word_display_mode.set(DF_BLAMER);
-      else
+      } else {
         word_display_mode.reset(DF_BLAMER);
+      }
       do_re_display(&tesseract::Tesseract::word_display);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case CORRECT_TEXT_CMD_EVENT:
-      if (new_value[0] == 'T')
+      if (new_value[0] == 'T') {
         word_display_mode.set(DF_TEXT);
-      else
+      } else {
         word_display_mode.reset(DF_TEXT);
+      }
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case POLYGONAL_CMD_EVENT:
-      if (new_value[0] == 'T')
+      if (new_value[0] == 'T') {
         word_display_mode.set(DF_POLYGONAL);
-      else
+      } else {
         word_display_mode.reset(DF_POLYGONAL);
+      }
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case BL_NORM_CMD_EVENT:
-      if (new_value[0] == 'T')
+      if (new_value[0] == 'T') {
         word_display_mode.set(DF_BN_POLYGONAL);
-      else
+      } else {
         word_display_mode.reset(DF_BN_POLYGONAL);
+      }
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case BITMAP_CMD_EVENT:
-      if (new_value[0] == 'T')
+      if (new_value[0] == 'T') {
         word_display_mode.set(DF_EDGE_STEP);
-      else
+      } else {
         word_display_mode.reset(DF_EDGE_STEP);
+      }
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case UNIFORM_DISP_CMD_EVENT:
@@ -574,8 +584,9 @@ void Tesseract::process_image_event( // action in image win
       if (event.type == SVET_SELECTION) {
         down.set_x(event.x + event.x_size);
         down.set_y(event.y + event.y_size);
-        if (mode == SHOW_POINT_CMD_EVENT)
+        if (mode == SHOW_POINT_CMD_EVENT) {
           show_point(current_page_res, event.x, event.y);
+        }
       }
 
       up.set_x(event.x);
@@ -707,43 +718,52 @@ bool Tesseract::word_display(PAGE_RES_IT *pr_it) {
     BoxWord *box_word = word_res->box_word;
     WERD_CHOICE *best_choice = word_res->best_choice;
     int length = box_word->length();
-    if (word_res->fontinfo == nullptr)
+    if (word_res->fontinfo == nullptr) {
       return false;
+    }
     const FontInfo &font_info = *word_res->fontinfo;
     for (int i = 0; i < length; ++i) {
       ScrollView::Color color = ScrollView::GREEN;
       switch (color_mode) {
         case CM_SUBSCRIPT:
-          if (best_choice->BlobPosition(i) == SP_SUBSCRIPT)
+          if (best_choice->BlobPosition(i) == SP_SUBSCRIPT) {
             color = ScrollView::RED;
+          }
           break;
         case CM_SUPERSCRIPT:
-          if (best_choice->BlobPosition(i) == SP_SUPERSCRIPT)
+          if (best_choice->BlobPosition(i) == SP_SUPERSCRIPT) {
             color = ScrollView::RED;
+          }
           break;
         case CM_ITALIC:
-          if (font_info.is_italic())
+          if (font_info.is_italic()) {
             color = ScrollView::RED;
+          }
           break;
         case CM_BOLD:
-          if (font_info.is_bold())
+          if (font_info.is_bold()) {
             color = ScrollView::RED;
+          }
           break;
         case CM_FIXEDPITCH:
-          if (font_info.is_fixed_pitch())
+          if (font_info.is_fixed_pitch()) {
             color = ScrollView::RED;
+          }
           break;
         case CM_SERIF:
-          if (font_info.is_serif())
+          if (font_info.is_serif()) {
             color = ScrollView::RED;
+          }
           break;
         case CM_SMALLCAPS:
-          if (word_res->small_caps)
+          if (word_res->small_caps) {
             color = ScrollView::RED;
+          }
           break;
         case CM_DROPCAPS:
-          if (best_choice->BlobPosition(i) == SP_DROPCAP)
+          if (best_choice->BlobPosition(i) == SP_DROPCAP) {
             color = ScrollView::RED;
+          }
           break;
           // TODO(rays) underline is currently completely unsupported.
         case CM_UNDERLINE:
@@ -773,8 +793,9 @@ bool Tesseract::word_display(PAGE_RES_IT *pr_it) {
     image_win->Pen(c);
     // cblob iterator
     C_BLOB_IT c_it(word->cblob_list());
-    for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward())
+    for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
       c_it.data()->bounding_box().plot(image_win);
+    }
     displayed_something = true;
   }
 
@@ -829,8 +850,9 @@ bool Tesseract::word_display(PAGE_RES_IT *pr_it) {
     image_win->Pen(ScrollView::RED);
     word_height = word_bb.height();
     int text_height = 0.50 * word_height;
-    if (text_height > 20)
+    if (text_height > 20) {
       text_height = 20;
+    }
     image_win->TextAttributes("Arial", text_height, false, false, false);
     shift = (word_height < word_bb.width()) ? 0.25 * word_height : 0.0f;
     image_win->Text(word_bb.left() + shift, word_bb.bottom() + 0.25 * word_height, text.c_str());
@@ -842,10 +864,11 @@ bool Tesseract::word_display(PAGE_RES_IT *pr_it) {
     displayed_something = true;
   }
 
-  if (!displayed_something) // display BBox anyway
+  if (!displayed_something) { // display BBox anyway
     word->bounding_box().plot(image_win,
                               static_cast<ScrollView::Color>((int32_t)editor_image_word_bb_color),
                               static_cast<ScrollView::Color>((int32_t)editor_image_word_bb_color));
+  }
   return true;
 }
 } // namespace tesseract
@@ -912,14 +935,16 @@ void Tesseract::blob_feature_display(PAGE_RES *page_res, const TBOX &selection_b
     // Display baseline features.
     ScrollView *bl_win = CreateFeatureSpaceWindow("BL Features", 512, 0);
     ClearFeatureSpaceWindow(baseline, bl_win);
-    for (auto &bl_feature : bl_features)
+    for (auto &bl_feature : bl_features) {
       RenderIntFeature(bl_win, &bl_feature, ScrollView::GREEN);
+    }
     bl_win->Update();
     // Display cn features.
     ScrollView *cn_win = CreateFeatureSpaceWindow("CN Features", 512, 0);
     ClearFeatureSpaceWindow(character, cn_win);
-    for (auto &cn_feature : cn_features)
+    for (auto &cn_feature : cn_features) {
       RenderIntFeature(cn_win, &cn_feature, ScrollView::GREEN);
+    }
     cn_win->Update();
 
     it->DeleteCurrentWord();

@@ -148,18 +148,24 @@ static void PrintVersionInfo() {
   if (tesseract::SIMDDetect::IsNEONAvailable())
     tprintf(" Found NEON\n");
 #else
-  if (tesseract::SIMDDetect::IsAVX512BWAvailable())
+  if (tesseract::SIMDDetect::IsAVX512BWAvailable()) {
     tprintf(" Found AVX512BW\n");
-  if (tesseract::SIMDDetect::IsAVX512FAvailable())
+  }
+  if (tesseract::SIMDDetect::IsAVX512FAvailable()) {
     tprintf(" Found AVX512F\n");
-  if (tesseract::SIMDDetect::IsAVX2Available())
+  }
+  if (tesseract::SIMDDetect::IsAVX2Available()) {
     tprintf(" Found AVX2\n");
-  if (tesseract::SIMDDetect::IsAVXAvailable())
+  }
+  if (tesseract::SIMDDetect::IsAVXAvailable()) {
     tprintf(" Found AVX\n");
-  if (tesseract::SIMDDetect::IsFMAAvailable())
+  }
+  if (tesseract::SIMDDetect::IsFMAAvailable()) {
     tprintf(" Found FMA\n");
-  if (tesseract::SIMDDetect::IsSSEAvailable())
+  }
+  if (tesseract::SIMDDetect::IsSSEAvailable()) {
     tprintf(" Found SSE\n");
+  }
 #endif
 #ifdef _OPENMP
   tprintf(" Found OpenMP %d\n", _OPENMP);
@@ -356,8 +362,9 @@ static void PrintBanner() {
  * but that doesn't work.
  */
 static void FixPageSegMode(tesseract::TessBaseAPI &api, tesseract::PageSegMode pagesegmode) {
-  if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
+  if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK) {
     api.SetPageSegMode(pagesegmode);
+  }
 }
 
 static bool checkArgValues(int arg, const char *mode, int count) {
@@ -799,8 +806,9 @@ extern "C" int tesseract_main(int argc, const char **argv)
     lang = "eng";
   }
 
-  if (image == nullptr && !list_langs && !print_parameters)
+  if (image == nullptr && !list_langs && !print_parameters) {
     return EXIT_SUCCESS;
+  }
 
   // Call GlobalDawgCache here to create the global DawgCache object before
   // the TessBaseAPI object. This fixes the order of destructor calls:
@@ -931,8 +939,9 @@ extern "C" int tesseract_main(int argc, const char **argv)
   }
 
   if (!renderers.empty()) {
-    if (banner)
+    if (banner) {
       PrintBanner();
+    }
 #ifdef DISABLED_LEGACY_ENGINE
     if (!osd_warning.empty()) {
       tprintf("%s", osd_warning.c_str());

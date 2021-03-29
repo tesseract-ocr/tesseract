@@ -54,7 +54,7 @@ static void Expect352(int font_id, const Shape &shape) {
 // The fixture for testing Shape.
 class ShapeTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     file::MakeTmpdir();
   }

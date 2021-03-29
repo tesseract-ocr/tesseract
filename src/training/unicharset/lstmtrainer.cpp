@@ -94,11 +94,13 @@ LSTMTrainer::~LSTMTrainer() {
 // false in case of failure.
 bool LSTMTrainer::TryLoadingCheckpoint(const char *filename, const char *old_traineddata) {
   std::vector<char> data;
-  if (!LoadDataFromFile(filename, &data))
+  if (!LoadDataFromFile(filename, &data)) {
     return false;
+  }
   tprintf("Loaded file %s, unpacking...\n", filename);
-  if (!ReadTrainingDump(data, *this))
+  if (!ReadTrainingDump(data, *this)) {
     return false;
+  }
   if (((old_traineddata == nullptr || *old_traineddata == '\0') &&
        network_->NumOutputs() == recoder_.code_range()) ||
       filename == old_traineddata) {
@@ -112,16 +114,20 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char *filename, const char *old_tra
   TessdataManager old_mgr;
   ASSERT_HOST(old_mgr.Init(old_traineddata));
   TFile fp;
-  if (!old_mgr.GetComponent(TESSDATA_LSTM_UNICHARSET, &fp))
+  if (!old_mgr.GetComponent(TESSDATA_LSTM_UNICHARSET, &fp)) {
     return false;
+  }
   UNICHARSET old_chset;
-  if (!old_chset.load_from_file(&fp, false))
+  if (!old_chset.load_from_file(&fp, false)) {
     return false;
-  if (!old_mgr.GetComponent(TESSDATA_LSTM_RECODER, &fp))
+  }
+  if (!old_mgr.GetComponent(TESSDATA_LSTM_RECODER, &fp)) {
     return false;
+  }
   UnicharCompress old_recoder;
-  if (!old_recoder.DeSerialize(&fp))
+  if (!old_recoder.DeSerialize(&fp)) {
     return false;
+  }
   std::vector<int> code_map = MapRecoder(old_chset, old_recoder);
   // Set the null_char_ to the new value.
   int old_null_char = null_char_;
@@ -213,8 +219,9 @@ Trainability LSTMTrainer::GridSearchDictParams(const ImageData *trainingdata, in
   sample_iteration_ = iteration;
   NetworkIO fwd_outputs, targets;
   Trainability result = PrepareForBackward(trainingdata, &fwd_outputs, &targets);
-  if (result == UNENCODABLE || result == HI_PRECISION_ERR || dict_ == nullptr)
+  if (result == UNENCODABLE || result == HI_PRECISION_ERR || dict_ == nullptr) {
     return result;
+  }
 
   // Encode/decode the truth to get the normalization.
   std::vector<int> truth_labels, ocr_labels, xcoords;
@@ -388,66 +395,91 @@ bool LSTMTrainer::TransitionTrainingStage(float error_threshold) {
 // Writes to the given file. Returns false in case of error.
 bool LSTMTrainer::Serialize(SerializeAmount serialize_amount, const TessdataManager *mgr,
                             TFile *fp) const {
-  if (!LSTMRecognizer::Serialize(mgr, fp))
+  if (!LSTMRecognizer::Serialize(mgr, fp)) {
     return false;
-  if (!fp->Serialize(&learning_iteration_))
-    return false;
-  if (!fp->Serialize(&prev_sample_iteration_))
-    return false;
-  if (!fp->Serialize(&perfect_delay_))
-    return false;
-  if (!fp->Serialize(&last_perfect_training_iteration_))
-    return false;
-  for (const auto &error_buffer : error_buffers_) {
-    if (!fp->Serialize(error_buffer))
-      return false;
   }
-  if (!fp->Serialize(&error_rates_[0], countof(error_rates_)))
+  if (!fp->Serialize(&learning_iteration_)) {
     return false;
-  if (!fp->Serialize(&training_stage_))
+  }
+  if (!fp->Serialize(&prev_sample_iteration_)) {
     return false;
+  }
+  if (!fp->Serialize(&perfect_delay_)) {
+    return false;
+  }
+  if (!fp->Serialize(&last_perfect_training_iteration_)) {
+    return false;
+  }
+  for (const auto &error_buffer : error_buffers_) {
+    if (!fp->Serialize(error_buffer)) {
+      return false;
+    }
+  }
+  if (!fp->Serialize(&error_rates_[0], countof(error_rates_))) {
+    return false;
+  }
+  if (!fp->Serialize(&training_stage_)) {
+    return false;
+  }
   uint8_t amount = serialize_amount;
-  if (!fp->Serialize(&amount))
+  if (!fp->Serialize(&amount)) {
     return false;
-  if (serialize_amount == LIGHT)
+  }
+  if (serialize_amount == LIGHT) {
     return true; // We are done.
-  if (!fp->Serialize(&best_error_rate_))
+  }
+  if (!fp->Serialize(&best_error_rate_)) {
     return false;
-  if (!fp->Serialize(&best_error_rates_[0], countof(best_error_rates_)))
+  }
+  if (!fp->Serialize(&best_error_rates_[0], countof(best_error_rates_))) {
     return false;
-  if (!fp->Serialize(&best_iteration_))
+  }
+  if (!fp->Serialize(&best_iteration_)) {
     return false;
-  if (!fp->Serialize(&worst_error_rate_))
+  }
+  if (!fp->Serialize(&worst_error_rate_)) {
     return false;
-  if (!fp->Serialize(&worst_error_rates_[0], countof(worst_error_rates_)))
+  }
+  if (!fp->Serialize(&worst_error_rates_[0], countof(worst_error_rates_))) {
     return false;
-  if (!fp->Serialize(&worst_iteration_))
+  }
+  if (!fp->Serialize(&worst_iteration_)) {
     return false;
-  if (!fp->Serialize(&stall_iteration_))
+  }
+  if (!fp->Serialize(&stall_iteration_)) {
     return false;
-  if (!fp->Serialize(best_model_data_))
+  }
+  if (!fp->Serialize(best_model_data_)) {
     return false;
-  if (!fp->Serialize(worst_model_data_))
+  }
+  if (!fp->Serialize(worst_model_data_)) {
     return false;
-  if (serialize_amount != NO_BEST_TRAINER && !fp->Serialize(best_trainer_))
+  }
+  if (serialize_amount != NO_BEST_TRAINER && !fp->Serialize(best_trainer_)) {
     return false;
+  }
   std::vector<char> sub_data;
-  if (sub_trainer_ != nullptr && !SaveTrainingDump(LIGHT, *sub_trainer_, &sub_data))
+  if (sub_trainer_ != nullptr && !SaveTrainingDump(LIGHT, *sub_trainer_, &sub_data)) {
     return false;
-  if (!fp->Serialize(sub_data))
+  }
+  if (!fp->Serialize(sub_data)) {
     return false;
-  if (!fp->Serialize(best_error_history_))
+  }
+  if (!fp->Serialize(best_error_history_)) {
     return false;
-  if (!fp->Serialize(best_error_iterations_))
+  }
+  if (!fp->Serialize(best_error_iterations_)) {
     return false;
+  }
   return fp->Serialize(&improvement_steps_);
 }
 
 // Reads from the given file. Returns false in case of error.
 // NOTE: It is assumed that the trainer is never read cross-endian.
 bool LSTMTrainer::DeSerialize(const TessdataManager *mgr, TFile *fp) {
-  if (!LSTMRecognizer::DeSerialize(mgr, fp))
+  if (!LSTMRecognizer::DeSerialize(mgr, fp)) {
     return false;
+  }
   if (!fp->DeSerialize(&learning_iteration_)) {
     // Special case. If we successfully decoded the recognizer, but fail here
     // then it means we were just given a recognizer, so issue a warning and
@@ -457,59 +489,81 @@ bool LSTMTrainer::DeSerialize(const TessdataManager *mgr, TFile *fp) {
     network_->SetEnableTraining(TS_ENABLED);
     return true;
   }
-  if (!fp->DeSerialize(&prev_sample_iteration_))
+  if (!fp->DeSerialize(&prev_sample_iteration_)) {
     return false;
-  if (!fp->DeSerialize(&perfect_delay_))
-    return false;
-  if (!fp->DeSerialize(&last_perfect_training_iteration_))
-    return false;
-  for (auto &error_buffer : error_buffers_) {
-    if (!fp->DeSerialize(error_buffer))
-      return false;
   }
-  if (!fp->DeSerialize(&error_rates_[0], countof(error_rates_)))
+  if (!fp->DeSerialize(&perfect_delay_)) {
     return false;
-  if (!fp->DeSerialize(&training_stage_))
+  }
+  if (!fp->DeSerialize(&last_perfect_training_iteration_)) {
     return false;
+  }
+  for (auto &error_buffer : error_buffers_) {
+    if (!fp->DeSerialize(error_buffer)) {
+      return false;
+    }
+  }
+  if (!fp->DeSerialize(&error_rates_[0], countof(error_rates_))) {
+    return false;
+  }
+  if (!fp->DeSerialize(&training_stage_)) {
+    return false;
+  }
   uint8_t amount;
-  if (!fp->DeSerialize(&amount))
+  if (!fp->DeSerialize(&amount)) {
     return false;
-  if (amount == LIGHT)
+  }
+  if (amount == LIGHT) {
     return true; // Don't read the rest.
-  if (!fp->DeSerialize(&best_error_rate_))
+  }
+  if (!fp->DeSerialize(&best_error_rate_)) {
     return false;
-  if (!fp->DeSerialize(&best_error_rates_[0], countof(best_error_rates_)))
+  }
+  if (!fp->DeSerialize(&best_error_rates_[0], countof(best_error_rates_))) {
     return false;
-  if (!fp->DeSerialize(&best_iteration_))
+  }
+  if (!fp->DeSerialize(&best_iteration_)) {
     return false;
-  if (!fp->DeSerialize(&worst_error_rate_))
+  }
+  if (!fp->DeSerialize(&worst_error_rate_)) {
     return false;
-  if (!fp->DeSerialize(&worst_error_rates_[0], countof(worst_error_rates_)))
+  }
+  if (!fp->DeSerialize(&worst_error_rates_[0], countof(worst_error_rates_))) {
     return false;
-  if (!fp->DeSerialize(&worst_iteration_))
+  }
+  if (!fp->DeSerialize(&worst_iteration_)) {
     return false;
-  if (!fp->DeSerialize(&stall_iteration_))
+  }
+  if (!fp->DeSerialize(&stall_iteration_)) {
     return false;
-  if (!fp->DeSerialize(best_model_data_))
+  }
+  if (!fp->DeSerialize(best_model_data_)) {
     return false;
-  if (!fp->DeSerialize(worst_model_data_))
+  }
+  if (!fp->DeSerialize(worst_model_data_)) {
     return false;
-  if (amount != NO_BEST_TRAINER && !fp->DeSerialize(best_trainer_))
+  }
+  if (amount != NO_BEST_TRAINER && !fp->DeSerialize(best_trainer_)) {
     return false;
+  }
   std::vector<char> sub_data;
-  if (!fp->DeSerialize(sub_data))
+  if (!fp->DeSerialize(sub_data)) {
     return false;
+  }
   if (sub_data.empty()) {
     sub_trainer_ = nullptr;
   } else {
     sub_trainer_ = std::make_unique<LSTMTrainer>();
-    if (!ReadTrainingDump(sub_data, *sub_trainer_))
+    if (!ReadTrainingDump(sub_data, *sub_trainer_)) {
       return false;
+    }
   }
-  if (!fp->DeSerialize(best_error_history_))
+  if (!fp->DeSerialize(best_error_history_)) {
     return false;
-  if (!fp->DeSerialize(best_error_iterations_))
+  }
+  if (!fp->DeSerialize(best_error_iterations_)) {
     return false;
+  }
   return fp->DeSerialize(&improvement_steps_);
 }
 
@@ -630,8 +684,9 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
     for (int ww = 0; ww < LR_COUNT; ++ww) {
       // Transfer momentum to learning rate and adjust by the ww factor.
       float ww_factor = momentum_factor;
-      if (ww == LR_DOWN)
+      if (ww == LR_DOWN) {
         ww_factor *= factor;
+      }
       // Make a copy of *this, so we can mess about without damaging anything.
       LSTMTrainer copy_trainer;
       samples_trainer->ReadTrainingDump(orig_trainer, copy_trainer);
@@ -639,22 +694,25 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
       copy_trainer.network_->Update(0.0, 0.0, 0.0, 0);
       // Adjust the learning rate in each layer.
       for (int i = 0; i < num_layers; ++i) {
-        if (num_weights[i] == 0)
+        if (num_weights[i] == 0) {
           continue;
+        }
         copy_trainer.ScaleLayerLearningRate(layers[i], ww_factor);
       }
       copy_trainer.SetIteration(iteration);
       // Train on the sample, but keep the update in updates_ instead of
       // applying to the weights.
       const ImageData *trainingdata = copy_trainer.TrainOnLine(samples_trainer, true);
-      if (trainingdata == nullptr)
+      if (trainingdata == nullptr) {
         continue;
+      }
       // We'll now use this trainer again for each layer.
       std::vector<char> updated_trainer;
       samples_trainer->SaveTrainingDump(LIGHT, copy_trainer, &updated_trainer);
       for (int i = 0; i < num_layers; ++i) {
-        if (num_weights[i] == 0)
+        if (num_weights[i] == 0) {
           continue;
+        }
         LSTMTrainer layer_trainer;
         samples_trainer->ReadTrainingDump(updated_trainer, layer_trainer);
         Network *layer = layer_trainer.GetLayer(layers[i]);
@@ -670,16 +728,18 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
         layer->CountAlternators(*copy_trainer.GetLayer(layers[i]), &ok_sums[ww][i],
                                 &bad_sums[ww][i]);
         float bad_frac = bad_sums[ww][i] + ok_sums[ww][i] - before_bad - before_ok;
-        if (bad_frac > 0.0f)
+        if (bad_frac > 0.0f) {
           bad_frac = (bad_sums[ww][i] - before_bad) / bad_frac;
+        }
       }
     }
     ++iteration;
   }
   int num_lowered = 0;
   for (int i = 0; i < num_layers; ++i) {
-    if (num_weights[i] == 0)
+    if (num_weights[i] == 0) {
       continue;
+    }
     Network *layer = GetLayer(layers[i]);
     float lr = GetLayerLearningRate(layers[i]);
     double total_down = bad_sums[LR_DOWN][i] + ok_sums[LR_DOWN][i];
@@ -721,8 +781,9 @@ bool LSTMTrainer::EncodeString(const std::string &str, const UNICHARSET &unichar
   unsigned err_index;
   std::vector<int> internal_labels;
   labels->clear();
-  if (!simple_text)
+  if (!simple_text) {
     labels->push_back(null_char);
+  }
   std::string cleaned = unicharset.CleanupString(str.c_str());
   if (unicharset.encode_string(cleaned.c_str(), true, &internal_labels, nullptr, &err_index)) {
     bool success = true;
@@ -734,8 +795,9 @@ bool LSTMTrainer::EncodeString(const std::string &str, const UNICHARSET &unichar
         if (len > 0) {
           for (int j = 0; j < len; ++j) {
             labels->push_back(code(j));
-            if (!simple_text)
+            if (!simple_text) {
               labels->push_back(null_char);
+            }
           }
         } else {
           success = false;
@@ -744,12 +806,14 @@ bool LSTMTrainer::EncodeString(const std::string &str, const UNICHARSET &unichar
         }
       } else {
         labels->push_back(internal_label);
-        if (!simple_text)
+        if (!simple_text) {
           labels->push_back(null_char);
+        }
       }
     }
-    if (success)
+    if (success) {
       return true;
+    }
   }
   tprintf("ERROR: Encoding of string failed!\n");
   tprintf("  Failure bytes:");
@@ -825,8 +889,9 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, Netw
   }
   unsigned w = 0;
   while (w < truth_labels.size() &&
-         (truth_labels[w] == UNICHAR_SPACE || truth_labels[w] == null_char_))
+         (truth_labels[w] == UNICHAR_SPACE || truth_labels[w] == null_char_)) {
     ++w;
+  }
   if (w == truth_labels.size()) {
     tprintf("ERROR: Blank transcription: %s\n", trainingdata->transcription().c_str());
     return UNENCODABLE;
@@ -881,10 +946,12 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, Netw
     tprintf("File %s line %d %s:\n", trainingdata->imagefilename().c_str(),
             trainingdata->page_number(), delta_error == 0.0 ? "(Perfect)" : "");
   }
-  if (delta_error == 0.0)
+  if (delta_error == 0.0) {
     return PERFECT;
-  if (targets->AnySuspiciousTruth(kHighConfidence))
+  }
+  if (targets->AnySuspiciousTruth(kHighConfidence)) {
     return HI_PRECISION_ERR;
+  }
   return TRAINABLE;
 }
 
@@ -941,8 +1008,9 @@ std::string LSTMTrainer::DumpFilename() const {
 
 // Fills the whole error buffer of the given type with the given value.
 void LSTMTrainer::FillErrorBuffer(double new_error, ErrorTypes type) {
-  for (int i = 0; i < kRollingBufferSize_; ++i)
+  for (int i = 0; i < kRollingBufferSize_; ++i) {
     error_buffers_[type][i] = new_error;
+  }
   error_rates_[type] = 100.0 * new_error;
 }
 
@@ -961,16 +1029,19 @@ std::vector<int> LSTMTrainer::MapRecoder(const UNICHARSET &old_chset,
       RecodedCharID codes;
       int length = recoder_.EncodeUnichar(uid, &codes);
       int code_index = 0;
-      while (code_index < length && codes(code_index) != c)
+      while (code_index < length && codes(code_index) != c) {
         ++code_index;
-      if (code_index == length)
+      }
+      if (code_index == length) {
         continue;
+      }
       // The old unicharset must have the same unichar.
       int old_uid = uid < num_new_unichars
                         ? old_chset.unichar_to_id(GetUnicharset().id_to_unichar(uid))
                         : old_chset.size() - 1;
-      if (old_uid == INVALID_UNICHAR_ID)
+      if (old_uid == INVALID_UNICHAR_ID) {
         continue;
+      }
       // The encoding of old_uid at the same code_index is the old code.
       RecodedCharID old_codes;
       if (code_index < old_recoder.EncodeUnichar(old_uid, &old_codes)) {
@@ -1174,8 +1245,9 @@ double LSTMTrainer::ComputeWinnerError(const NetworkIO &deltas) {
       float abs_delta = fabs(class_errs[c]);
       // TODO(rays) Filtering cases where the delta is very large to cut out
       // GT errors doesn't work. Find a better way or get better truth.
-      if (0.5 <= abs_delta)
+      if (0.5 <= abs_delta) {
         ++num_errors;
+      }
     }
   }
   return static_cast<double>(num_errors) / width;
@@ -1213,30 +1285,34 @@ double LSTMTrainer::ComputeCharError(const std::vector<int> &truth_str,
 double LSTMTrainer::ComputeWordError(std::string *truth_str, std::string *ocr_str) {
   using StrMap = std::unordered_map<std::string, int, std::hash<std::string>>;
   std::vector<std::string> truth_words = split(*truth_str, ' ');
-  if (truth_words.empty())
+  if (truth_words.empty()) {
     return 0.0;
+  }
   std::vector<std::string> ocr_words = split(*ocr_str, ' ');
   StrMap word_counts;
   for (auto truth_word : truth_words) {
     std::string truth_word_string(truth_word.c_str());
     auto it = word_counts.find(truth_word_string);
-    if (it == word_counts.end())
+    if (it == word_counts.end()) {
       word_counts.insert(std::make_pair(truth_word_string, 1));
-    else
+    } else {
       ++it->second;
+    }
   }
   for (auto ocr_word : ocr_words) {
     std::string ocr_word_string(ocr_word.c_str());
     auto it = word_counts.find(ocr_word_string);
-    if (it == word_counts.end())
+    if (it == word_counts.end()) {
       word_counts.insert(std::make_pair(ocr_word_string, -1));
-    else
+    } else {
       --it->second;
+    }
   }
   int word_recall_errs = 0;
   for (const auto &word_count : word_counts) {
-    if (word_count.second > 0)
+    if (word_count.second > 0) {
       word_recall_errs += word_count.second;
+    }
   }
   return static_cast<double>(word_recall_errs) / truth_words.size();
 }
@@ -1249,8 +1325,9 @@ void LSTMTrainer::UpdateErrorBuffer(double new_error, ErrorTypes type) {
   // Compute the mean error.
   int mean_count = std::min<int>(training_iteration_ + 1, error_buffers_[type].size());
   double buffer_sum = 0.0;
-  for (int i = 0; i < mean_count; ++i)
+  for (int i = 0; i < mean_count; ++i) {
     buffer_sum += error_buffers_[type][i];
+  }
   double mean = buffer_sum / mean_count;
   // Trim precision to 1/1000 of 1%.
   error_rates_[type] = IntCastRounded(100000.0 * mean) / 1000.0;
@@ -1259,10 +1336,11 @@ void LSTMTrainer::UpdateErrorBuffer(double new_error, ErrorTypes type) {
 // Rolls error buffers and reports the current means.
 void LSTMTrainer::RollErrorBuffers() {
   prev_sample_iteration_ = sample_iteration_;
-  if (NewSingleError(ET_DELTA) > 0.0)
+  if (NewSingleError(ET_DELTA) > 0.0) {
     ++learning_iteration_;
-  else
+  } else {
     last_perfect_training_iteration_ = training_iteration_;
+  }
   ++training_iteration_;
   if (debug_interval_ != 0) {
     tprintf("Mean rms=%g%%, delta=%g%%, train=%g%%(%g%%), skip ratio=%g%%\n", error_rates_[ET_RMS],
@@ -1327,8 +1405,9 @@ std::string LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
         mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0], worst_model_data_.size());
         result = tester(worst_iteration_, worst_error_rates_, mgr_, CurrentTrainingStage());
       }
-      if (result.length() > 0)
+      if (result.length() > 0) {
         best_model_data_.clear();
+      }
       worst_model_data_ = model_data;
     }
   }

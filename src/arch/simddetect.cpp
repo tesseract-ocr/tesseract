@@ -120,8 +120,9 @@ static double DotProductAccelerate(const double* u, const double* v, int n) {
 // Computes and returns the dot product of the two n-vectors u and v.
 static double DotProductGeneric(const double *u, const double *v, int n) {
   double total = 0.0;
-  for (int k = 0; k < n; ++k)
+  for (int k = 0; k < n; ++k) {
     total += u[k] * v[k];
+  }
   return total;
 }
 

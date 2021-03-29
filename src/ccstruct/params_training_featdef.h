@@ -139,8 +139,9 @@ public:
   // Adds a new ParamsTrainingHypothesis to the current hypothesis list
   // and returns the reference to the newly added entry.
   ParamsTrainingHypothesis &AddHypothesis(const ParamsTrainingHypothesis &other) {
-    if (hyp_list_vec.empty())
+    if (hyp_list_vec.empty()) {
       StartHypothesisList();
+    }
     hyp_list_vec.back().push_back(ParamsTrainingHypothesis(other));
     return hyp_list_vec.back().back();
   }

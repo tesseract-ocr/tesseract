@@ -87,16 +87,18 @@ void Textord::make_old_baselines(TO_BLOCK *block, // block to do
   for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
     row = row_it.data();
     find_textlines(block, row, 2, nullptr);
-    if (row->xheight <= 0 && prev_baseline != nullptr)
+    if (row->xheight <= 0 && prev_baseline != nullptr) {
       find_textlines(block, row, 2, prev_baseline);
+    }
     if (row->xheight > 0) { // was a good one
       prev_baseline = &row->baseline;
     } else {
       prev_baseline = nullptr;
       blob_it.set_to_list(row->blob_list());
-      if (textord_debug_baselines)
+      if (textord_debug_baselines) {
         tprintf("Row baseline generation failed on row at (%d,%d)\n",
                 blob_it.data()->bounding_box().left(), blob_it.data()->bounding_box().bottom());
+      }
     }
   }
   correlate_lines(block, gradient);
@@ -126,19 +128,22 @@ void Textord::correlate_lines(TO_BLOCK *block, float gradient) {
   // array of ptrs
   std::vector<TO_ROW *> rows(rowcount);
   rowindex = 0;
-  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward())
+  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
     // make array
     rows[rowindex++] = row_it.data();
+  }
 
   /*try to fix bad lines */
   correlate_neighbours(block, &rows[0], rowcount);
 
   if (textord_really_old_xheight || textord_old_xheight) {
     block->xheight = static_cast<float>(correlate_with_stats(&rows[0], rowcount, block));
-    if (block->xheight <= 0)
+    if (block->xheight <= 0) {
       block->xheight = block->line_size * tesseract::CCStruct::kXHeightFraction;
-    if (block->xheight < textord_min_xheight)
+    }
+    if (block->xheight < textord_min_xheight) {
       block->xheight = (float)textord_min_xheight;
+    }
   } else {
     compute_block_xheight(block, gradient);
   }
@@ -167,33 +172,39 @@ void Textord::correlate_neighbours(TO_BLOCK *block, // block rows are in.
       for (otherrow = rowindex - 2;
            otherrow >= 0 && (rows[otherrow]->xheight < 0.0 ||
                              !row->baseline.overlap(&rows[otherrow]->baseline, MAXOVERLAP));
-           otherrow--)
+           otherrow--) {
         ;
+      }
       upperrow = otherrow; /*decent row above */
       for (otherrow = rowindex + 1;
            otherrow < rowcount && (rows[otherrow]->xheight < 0.0 ||
                                    !row->baseline.overlap(&rows[otherrow]->baseline, MAXOVERLAP));
-           otherrow++)
+           otherrow++) {
         ;
+      }
       lowerrow = otherrow; /*decent row below */
-      if (upperrow >= 0)
+      if (upperrow >= 0) {
         find_textlines(block, row, 2, &rows[upperrow]->baseline);
-      if (row->xheight < 0 && lowerrow < rowcount)
+      }
+      if (row->xheight < 0 && lowerrow < rowcount) {
         find_textlines(block, row, 2, &rows[lowerrow]->baseline);
+      }
       if (row->xheight < 0) {
-        if (upperrow >= 0)
+        if (upperrow >= 0) {
           find_textlines(block, row, 1, &rows[upperrow]->baseline);
-        else if (lowerrow < rowcount)
+        } else if (lowerrow < rowcount) {
           find_textlines(block, row, 1, &rows[lowerrow]->baseline);
+        }
       }
     }
   }
 
   for (biggest = 0.0f, rowindex = 0; rowindex < rowcount; rowindex++) {
     row = rows[rowindex]; /*current row */
-    if (row->xheight < 0) /*linear failed */
-                          /*make do */
+    if (row->xheight < 0) { /*linear failed */
+                            /*make do */
       row->xheight = -row->xheight;
+    }
     biggest = std::max(biggest, row->xheight);
   }
 }
@@ -245,21 +256,24 @@ int Textord::correlate_with_stats(TO_ROW **rows, // rows of block.
                           /*average caps height */
     fullheight = lineheight + ascheight / xcount;
     /*must be decent size */
-    if (fullheight < lineheight * (1 + MIN_ASC_FRACTION))
+    if (fullheight < lineheight * (1 + MIN_ASC_FRACTION)) {
       fullheight = lineheight * (1 + MIN_ASC_FRACTION);
+    }
   } else {
     fullheight /= fullcount; /*average max height */
                              /*guess x-height */
     lineheight = fullheight * X_HEIGHT_FRACTION;
   }
-  if (desccount > 0 && (!oldbl_corrfix || desccount >= rowcount / 2))
+  if (desccount > 0 && (!oldbl_corrfix || desccount >= rowcount / 2)) {
     descheight /= desccount; /*average descenders */
-  else
+  } else {
     /*guess descenders */
     descheight = -lineheight * DESCENDER_FRACTION;
+  }
 
-  if (lineheight > 0.0f)
+  if (lineheight > 0.0f) {
     block->block->set_cell_over_xheight((fullheight - descheight) / lineheight);
+  }
 
   minascheight = lineheight * MIN_ASC_FRACTION;
   mindescheight = -lineheight * MIN_DESC_FRACTION;
@@ -286,16 +300,18 @@ int Textord::correlate_with_stats(TO_ROW **rows, // rows of block.
         row->xheight -= row->ascrise;
         row->all_caps = true;
       }
-      if (row->ascrise < minascheight)
+      if (row->ascrise < minascheight) {
         row->ascrise = row->xheight * ((1.0 - X_HEIGHT_FRACTION) / X_HEIGHT_FRACTION);
+      }
     }
     if (row->descdrop > mindescheight) {
       if (row->xheight >= lineheight * (1 - MAXHEIGHTVARIANCE) &&
-          row->xheight <= lineheight * (1 + MAXHEIGHTVARIANCE))
+          row->xheight <= lineheight * (1 + MAXHEIGHTVARIANCE)) {
         /*set to average */
         row->descdrop = descheight;
-      else
+      } else {
         row->descdrop = -row->xheight * DESCENDER_FRACTION;
+      }
     }
   }
   return static_cast<int>(lineheight); // block xheight
@@ -339,21 +355,24 @@ void Textord::find_textlines(TO_BLOCK *block,   // block row is in
                                blobcount);
   /*limit for line change */
   jumplimit = lineheight * textord_oldbl_jumplimit;
-  if (jumplimit < MINASCRISE)
+  if (jumplimit < MINASCRISE) {
     jumplimit = MINASCRISE;
+  }
 
   if (textord_oldbl_debug) {
     tprintf("\nInput height=%g, Estimate x-height=%d pixels, jumplimit=%.2f\n", block->line_size,
             lineheight, jumplimit);
   }
-  if (holed_line)
+  if (holed_line) {
     make_holed_baseline(&blobcoords[0], blobcount, spline, &row->baseline, row->line_m());
-  else
+  } else {
     make_first_baseline(&blobcoords[0], blobcount, &xcoords[0], &ycoords[0], spline, &row->baseline,
                         jumplimit);
+  }
 #ifndef GRAPHICS_DISABLED
-  if (textord_show_final_rows)
+  if (textord_show_final_rows) {
     row->baseline.plot(to_win, ScrollView::GOLDENROD);
+  }
 #endif
   if (blobcount > 1) {
     bestpart = partition_line(&blobcoords[0], blobcount, &partcount, &partids[0], partsizes,
@@ -410,16 +429,18 @@ int get_blob_coords(    // get boxes
   /*height stat collection */
   STATS heightstat(0, MAXHEIGHT);
 
-  if (blob_it.empty())
+  if (blob_it.empty()) {
     return 0; // none
+  }
   maxlosscount = 0;
   losscount = 0;
   blob_it.mark_cycle_pt();
   blobindex = 0;
   do {
     blobcoords[blobindex] = box_next_pre_chopped(&blob_it);
-    if (blobcoords[blobindex].height() > lineheight * 0.25)
+    if (blobcoords[blobindex].height() > lineheight * 0.25) {
       heightstat.add(blobcoords[blobindex].height(), 1);
+    }
     if (blobindex == 0 || blobcoords[blobindex].height() > lineheight * 0.25 ||
         blob_it.cycled_list()) {
       blobindex++; /*no of merged blobs */
@@ -432,9 +453,10 @@ int get_blob_coords(    // get boxes
         losscount = 0;
       } else {
         losscount++; // lost it
-        if (losscount > maxlosscount)
+        if (losscount > maxlosscount) {
           // remember max
           maxlosscount = losscount;
+        }
       }
     }
   } while (!blob_it.cycled_list());
@@ -442,11 +464,12 @@ int get_blob_coords(    // get boxes
   holed_line = maxlosscount > oldbl_holed_losscount;
   outcount = blobindex; /*total blobs */
 
-  if (heightstat.get_total() > 1)
+  if (heightstat.get_total() > 1) {
     /*guess x-height */
     return static_cast<int>(heightstat.ile(0.25));
-  else
+  } else {
     return blobcoords[0].height();
+  }
 }
 
 /**********************************************************************
@@ -491,8 +514,9 @@ void make_first_baseline( // initial approximation
                               /*or too non-overlap */
       || spline->xcoords[1] > leftedge + MAXOVERLAP * (rightedge - leftedge) ||
       spline->xcoords[spline->segments - 1] < rightedge - MAXOVERLAP * (rightedge - leftedge)) {
-    if (textord_oldbl_paradef)
+    if (textord_oldbl_paradef) {
       return; // use default
+    }
     xstarts[0] = blobcoords[0].left() - 1;
     for (blobindex = 0; blobindex < blobcount; blobindex++) {
       xcoords[blobindex] = (blobcoords[blobindex].left() + blobcoords[blobindex].right()) / 2;
@@ -535,10 +559,12 @@ void make_first_baseline( // initial approximation
           if (ycount == 1) {
             maxmax = minmin = y3; /*initialise limits */
           } else {
-            if (y3 > maxmax)
+            if (y3 > maxmax) {
               maxmax = y3; /*biggest max */
-            if (y3 < minmin)
+            }
+            if (y3 < minmin) {
               minmin = y3; /*smallest min */
+            }
           }
           /*possible turning pt */
           x2 = blobcoords[blobindex - 1].right();
@@ -662,8 +688,9 @@ int partition_line(    // partition blobs
   int startx;                /*index of start blob */
   float partdiffs[MAXPARTS]; /*step between parts */
 
-  for (bestpart = 0; bestpart < MAXPARTS; bestpart++)
+  for (bestpart = 0; bestpart < MAXPARTS; bestpart++) {
     partsizes[bestpart] = 0; /*zero them all */
+  }
 
   startx = get_ydiffs(blobcoords, blobcount, spline, ydiffs);
   *numparts = 1; /*1 partition */
@@ -702,11 +729,14 @@ int partition_line(    // partition blobs
     partsizes[bestpart]++; /*another in it */
   }
 
-  for (biggestpart = 0, bestpart = 1; bestpart < *numparts; bestpart++)
-    if (partsizes[bestpart] >= partsizes[biggestpart])
+  for (biggestpart = 0, bestpart = 1; bestpart < *numparts; bestpart++) {
+    if (partsizes[bestpart] >= partsizes[biggestpart]) {
       biggestpart = bestpart; /*new biggest */
-  if (textord_oldbl_merge_parts)
+    }
+  }
+  if (textord_oldbl_merge_parts) {
     merge_oldbl_parts(blobcoords, blobcount, partids, partsizes, biggestpart, jumplimit);
+  }
   return biggestpart; /*biggest partition */
 }
 
@@ -756,8 +786,9 @@ void merge_oldbl_parts( // partition blobs
         stats.fit(1);
         m = stats.get_b();
         c = stats.get_c();
-        if (textord_oldbl_debug)
+        if (textord_oldbl_debug) {
           tprintf("Fitted line y=%g x + %g\n", m, c);
+        }
         found_one = false;
         close_one = false;
         for (test_blob = 1;
@@ -770,11 +801,13 @@ void merge_oldbl_parts( // partition blobs
                     2.0,
                 blobcoords[startx - test_blob].bottom());
             diff = m * coord.x() + c - coord.y();
-            if (textord_oldbl_debug)
+            if (textord_oldbl_debug) {
               tprintf("Diff of common blob to suspect part=%g at (%g,%g)\n", diff, coord.x(),
                       coord.y());
-            if (diff < jumplimit && -diff < jumplimit)
+            }
+            if (diff < jumplimit && -diff < jumplimit) {
               close_one = true;
+            }
           }
           if (blobindex + test_blob <= blobcount &&
               partids[blobindex + test_blob - 1] == biggestpart) {
@@ -784,31 +817,36 @@ void merge_oldbl_parts( // partition blobs
                                2.0,
                            blobcoords[blobindex + test_blob - 1].bottom());
             diff = m * coord.x() + c - coord.y();
-            if (textord_oldbl_debug)
+            if (textord_oldbl_debug) {
               tprintf("Diff of common blob to suspect part=%g at (%g,%g)\n", diff, coord.x(),
                       coord.y());
-            if (diff < jumplimit && -diff < jumplimit)
+            }
+            if (diff < jumplimit && -diff < jumplimit) {
               close_one = true;
+            }
           }
         }
         if (close_one) {
-          if (textord_oldbl_debug)
+          if (textord_oldbl_debug) {
             tprintf(
                 "Merged %d blobs back into part %d from %d starting at "
                 "(%d,%d)\n",
                 runlength, biggestpart, prevpart, blobcoords[startx].left(),
                 blobcoords[startx].bottom());
+          }
           // switch sides
           partsizes[prevpart] -= runlength;
-          for (test_blob = startx; test_blob < blobindex; test_blob++)
+          for (test_blob = startx; test_blob < blobindex; test_blob++) {
             partids[test_blob] = biggestpart;
+          }
         }
       }
       prevpart = partids[blobindex];
       runlength = 1;
       startx = blobindex;
-    } else
+    } else {
       runlength++;
+    }
   }
 }
 
@@ -851,9 +889,10 @@ int get_ydiffs(        // evaluate differences
     diff -= spline->y(xcentre);
     diff += drift;
     ydiffs[blobindex] = diff; /*store difference */
-    if (blobindex > 2)
+    if (blobindex > 2) {
       /*remove old one */
       diffsum -= ABS(ydiffs[blobindex - 3]);
+    }
     diffsum += ABS(diff); /*add new one */
     if (blobindex >= 2 && diffsum < bestsum) {
       bestsum = diffsum;         /*find min sum */
@@ -916,9 +955,10 @@ int choose_partition(                              // select partition
   }
 
   if (bestpart == lastpart &&
-      (ABS(delta - *lastdelta) < jumplimit / 2 || ABS(delta) < jumplimit / 2))
+      (ABS(delta - *lastdelta) < jumplimit / 2 || ABS(delta) < jumplimit / 2)) {
     /*smooth the drift */
     *drift = (3 * *drift + delta) / 3;
+  }
   *lastdelta = delta;
 
   if (textord_oldbl_debug) {
@@ -981,8 +1021,9 @@ int segment_spline(             // make xstarts
 
   xstarts[0] = xcoords[0] - 1; // leftmost defined pt
   max_x = xcoords[pointcount - 1] + 1;
-  if (degree < 2)
+  if (degree < 2) {
     pointcount = 0;
+  }
   turncount = 0; /*no turning points yet */
   if (pointcount > 3) {
     ptindex = 1;
@@ -991,9 +1032,10 @@ int segment_spline(             // make xstarts
       /*minimum */
       if (ycoords[ptindex - 1] > ycoords[ptindex] && ycoords[ptindex] <= ycoords[ptindex + 1]) {
         if (ycoords[ptindex] < ycoords[lastmax] - TURNLIMIT) {
-          if (turncount == 0 || turnpoints[turncount - 1] != lastmax)
+          if (turncount == 0 || turnpoints[turncount - 1] != lastmax) {
             /*new max point */
             turnpoints[turncount++] = lastmax;
+          }
           lastmin = ptindex; /*latest minimum */
         } else if (ycoords[ptindex] < ycoords[lastmin]) {
           lastmin = ptindex; /*lower minimum */
@@ -1003,9 +1045,10 @@ int segment_spline(             // make xstarts
       /*maximum */
       if (ycoords[ptindex - 1] < ycoords[ptindex] && ycoords[ptindex] >= ycoords[ptindex + 1]) {
         if (ycoords[ptindex] > ycoords[lastmin] + TURNLIMIT) {
-          if (turncount == 0 || turnpoints[turncount - 1] != lastmin)
+          if (turncount == 0 || turnpoints[turncount - 1] != lastmin) {
             /*new min point */
             turnpoints[turncount++] = lastmin;
+          }
           lastmax = ptindex; /*latest maximum */
         } else if (ycoords[ptindex] > ycoords[lastmax]) {
           lastmax = ptindex; /*higher maximum */
@@ -1016,62 +1059,73 @@ int segment_spline(             // make xstarts
     /*possible global min */
     if (ycoords[ptindex] < ycoords[lastmax] - TURNLIMIT &&
         (turncount == 0 || turnpoints[turncount - 1] != lastmax)) {
-      if (turncount < SPLINESIZE - 1)
+      if (turncount < SPLINESIZE - 1) {
         /*2 more turns */
         turnpoints[turncount++] = lastmax;
-      if (turncount < SPLINESIZE - 1)
+      }
+      if (turncount < SPLINESIZE - 1) {
         turnpoints[turncount++] = ptindex;
+      }
     } else if (ycoords[ptindex] > ycoords[lastmin] + TURNLIMIT
                /*possible global max */
                && (turncount == 0 || turnpoints[turncount - 1] != lastmin)) {
-      if (turncount < SPLINESIZE - 1)
+      if (turncount < SPLINESIZE - 1) {
         /*2 more turns */
         turnpoints[turncount++] = lastmin;
-      if (turncount < SPLINESIZE - 1)
+      }
+      if (turncount < SPLINESIZE - 1) {
         turnpoints[turncount++] = ptindex;
+      }
     } else if (turncount > 0 && turnpoints[turncount - 1] == lastmin &&
                turncount < SPLINESIZE - 1) {
-      if (ycoords[ptindex] > ycoords[lastmax])
+      if (ycoords[ptindex] > ycoords[lastmax]) {
         turnpoints[turncount++] = ptindex;
-      else
+      } else {
         turnpoints[turncount++] = lastmax;
+      }
     } else if (turncount > 0 && turnpoints[turncount - 1] == lastmax &&
                turncount < SPLINESIZE - 1) {
-      if (ycoords[ptindex] < ycoords[lastmin])
+      if (ycoords[ptindex] < ycoords[lastmin]) {
         turnpoints[turncount++] = ptindex;
-      else
+      } else {
         turnpoints[turncount++] = lastmin;
+      }
     }
   }
 
-  if (textord_oldbl_debug && turncount > 0)
+  if (textord_oldbl_debug && turncount > 0) {
     tprintf("First turn is %d at (%d,%d)\n", turnpoints[0], xcoords[turnpoints[0]],
             ycoords[turnpoints[0]]);
+  }
   for (segment = 1; segment < turncount; segment++) {
     /*centre y coord */
     lastmax = (ycoords[turnpoints[segment - 1]] + ycoords[turnpoints[segment]]) / 2;
 
     /* fix alg so that it works with both rising and falling sections */
-    if (ycoords[turnpoints[segment - 1]] < ycoords[turnpoints[segment]])
+    if (ycoords[turnpoints[segment - 1]] < ycoords[turnpoints[segment]]) {
       /*find rising y centre */
       for (ptindex = turnpoints[segment - 1] + 1;
-           ptindex < turnpoints[segment] && ycoords[ptindex + 1] <= lastmax; ptindex++)
+           ptindex < turnpoints[segment] && ycoords[ptindex + 1] <= lastmax; ptindex++) {
         ;
-    else
+      }
+    } else {
       /*find falling y centre */
       for (ptindex = turnpoints[segment - 1] + 1;
-           ptindex < turnpoints[segment] && ycoords[ptindex + 1] >= lastmax; ptindex++)
+           ptindex < turnpoints[segment] && ycoords[ptindex + 1] >= lastmax; ptindex++) {
         ;
+      }
+    }
 
     /*centre x */
     xstarts[segment] = (xcoords[ptindex - 1] + xcoords[ptindex] + xcoords[turnpoints[segment - 1]] +
                         xcoords[turnpoints[segment]] + 2) /
                        4;
     /*halfway between turns */
-    if (textord_oldbl_debug)
+    if (textord_oldbl_debug) {
       tprintf("Turn %d is %d at (%d,%d), mid pt is %d@%d, final @%d\n", segment,
               turnpoints[segment], xcoords[turnpoints[segment]], ycoords[turnpoints[segment]],
               ptindex - 1, xcoords[ptindex - 1], xstarts[segment]);
+    }
   }
 
   xstarts[segment] = max_x;
@@ -1104,49 +1158,65 @@ bool split_stepped_spline( // make xstarts
   for (segment = 1; segment < segments - 1; segment++) {
     step = baseline->step((xstarts[segment - 1] + xstarts[segment]) / 2.0,
                           (xstarts[segment] + xstarts[segment + 1]) / 2.0);
-    if (step < 0)
+    if (step < 0) {
       step = -step;
+    }
     if (step > jumplimit) {
-      while (xcoords[startindex] < xstarts[segment - 1])
+      while (xcoords[startindex] < xstarts[segment - 1]) {
         startindex++;
+      }
       centreindex = startindex;
-      while (xcoords[centreindex] < xstarts[segment])
+      while (xcoords[centreindex] < xstarts[segment]) {
         centreindex++;
+      }
       endindex = centreindex;
-      while (xcoords[endindex] < xstarts[segment + 1])
+      while (xcoords[endindex] < xstarts[segment + 1]) {
         endindex++;
+      }
       if (segments >= SPLINESIZE) {
-        if (textord_debug_baselines)
+        if (textord_debug_baselines) {
           tprintf("Too many segments to resegment spline!!\n");
+        }
       } else if (endindex - startindex >= textord_spline_medianwin * 3) {
-        while (centreindex - startindex < textord_spline_medianwin * 3 / 2)
+        while (centreindex - startindex < textord_spline_medianwin * 3 / 2) {
           centreindex++;
-        while (endindex - centreindex < textord_spline_medianwin * 3 / 2)
+        }
+        while (endindex - centreindex < textord_spline_medianwin * 3 / 2) {
           centreindex--;
+        }
         leftindex = (startindex + startindex + centreindex) / 3;
         rightindex = (centreindex + endindex + endindex) / 3;
         leftcoord = (xcoords[startindex] * 2 + xcoords[centreindex]) / 3.0;
         rightcoord = (xcoords[centreindex] + xcoords[endindex] * 2) / 3.0;
-        while (xcoords[leftindex] > leftcoord && leftindex - startindex > textord_spline_medianwin)
+        while (xcoords[leftindex] > leftcoord &&
+               leftindex - startindex > textord_spline_medianwin) {
           leftindex--;
+        }
         while (xcoords[leftindex] < leftcoord &&
-               centreindex - leftindex > textord_spline_medianwin / 2)
+               centreindex - leftindex > textord_spline_medianwin / 2) {
           leftindex++;
-        if (xcoords[leftindex] - leftcoord > leftcoord - xcoords[leftindex - 1])
+        }
+        if (xcoords[leftindex] - leftcoord > leftcoord - xcoords[leftindex - 1]) {
           leftindex--;
+        }
         while (xcoords[rightindex] > rightcoord &&
-               rightindex - centreindex > textord_spline_medianwin / 2)
+               rightindex - centreindex > textord_spline_medianwin / 2) {
           rightindex--;
-        while (xcoords[rightindex] < rightcoord && endindex - rightindex > textord_spline_medianwin)
+        }
+        while (xcoords[rightindex] < rightcoord &&
+               endindex - rightindex > textord_spline_medianwin) {
           rightindex++;
-        if (xcoords[rightindex] - rightcoord > rightcoord - xcoords[rightindex - 1])
+        }
+        if (xcoords[rightindex] - rightcoord > rightcoord - xcoords[rightindex - 1]) {
           rightindex--;
-        if (textord_debug_baselines)
+        }
+        if (textord_debug_baselines) {
           tprintf("Splitting spline at %d with step %g at (%d,%d)\n", xstarts[segment],
                   baseline->step((xstarts[segment - 1] + xstarts[segment]) / 2.0,
                                  (xstarts[segment] + xstarts[segment + 1]) / 2.0),
                   (xcoords[leftindex - 1] + xcoords[leftindex]) / 2,
                   (xcoords[rightindex - 1] + xcoords[rightindex]) / 2);
+        }
         insert_spline_point(xstarts, segment, (xcoords[leftindex - 1] + xcoords[leftindex]) / 2,
                             (xcoords[rightindex - 1] + xcoords[rightindex]) / 2, segments);
         doneany = true;
@@ -1177,8 +1247,9 @@ void insert_spline_point(     // get descenders
 ) {
   int index; // for shuffling
 
-  for (index = segments; index > segment; index--)
+  for (index = segments; index > segment; index--) {
     xstarts[index + 1] = xstarts[index];
+  }
   segments++;
   xstarts[segment] = coord1;
   xstarts[segment + 1] = coord2;
@@ -1211,33 +1282,38 @@ void find_lesser_parts( // get descenders
   int biggestrun;            /*biggest bad run */
 
   biggestrun = 0;
-  for (partition = 0; partition < partcount; partition++)
+  for (partition = 0; partition < partcount; partition++) {
     partsteps[partition] = 0.0; /*zero accumulators */
+  }
   for (runlength = 0, blobindex = 0; blobindex < blobcount; blobindex++) {
     xcentre = (blobcoords[blobindex].left() + blobcoords[blobindex].right()) >> 1;
     /*in other parts */
     int part_id = static_cast<int>(static_cast<unsigned char>(partids[blobindex]));
     if (part_id != bestpart) {
       runlength++; /*run of non bests */
-      if (runlength > biggestrun)
+      if (runlength > biggestrun) {
         biggestrun = runlength;
+      }
       partsteps[part_id] += blobcoords[blobindex].bottom() - row->baseline.y(xcentre);
-    } else
+    } else {
       runlength = 0;
+    }
   }
-  if (biggestrun > MAXBADRUN)
+  if (biggestrun > MAXBADRUN) {
     row->xheight = -1.0f; /*failed */
-  else
+  } else {
     row->xheight = 1.0f; /*success */
+  }
   poscount = negcount = 0;
   bestneg = 0.0; /*no step yet */
   for (partition = 0; partition < partcount; partition++) {
     if (partition != bestpart) {
       // by jetsoft divide by zero possible
-      if (partsizes[partition] == 0)
+      if (partsizes[partition] == 0) {
         partsteps[partition] = 0;
-      else
+      } else {
         partsteps[partition] /= partsizes[partition];
+      }
       //
 
       if (partsteps[partition] >= MINASCRISE && partsizes[partition] > poscount) {
@@ -1289,15 +1365,18 @@ void old_first_xheight( // the wiseowl way
       xcentre = (blobcoords[blobindex].left() + blobcoords[blobindex].right()) / 2;
       /*height of blob */
       height = static_cast<int>(blobcoords[blobindex].top() - baseline->y(xcentre) + 0.5);
-      if (height > initialheight * oldbl_xhfract && height > textord_min_xheight)
+      if (height > initialheight * oldbl_xhfract && height > textord_min_xheight) {
         heightstat.add(height, 1);
+      }
     }
     if (heightstat.get_total() > 3) {
       lineheight = static_cast<int>(heightstat.ile(0.25));
-      if (lineheight <= 0)
+      if (lineheight <= 0) {
         lineheight = static_cast<int>(heightstat.ile(0.5));
-    } else
+      }
+    } else {
       lineheight = initialheight;
+    }
   } else {
     lineheight =
         static_cast<int>(blobcoords[0].top() -
@@ -1318,17 +1397,20 @@ void old_first_xheight( // the wiseowl way
       xcount++;
     }
   }
-  if (xcount > 0)
+  if (xcount > 0) {
     xsum /= xcount; /*average xheight */
-  else
+  } else {
     xsum = static_cast<float>(lineheight); /*guess it */
+  }
   row->xheight *= xsum;
-  if (asccount > 0)
+  if (asccount > 0) {
     row->ascrise = ascenders / asccount - xsum;
-  else
+  } else {
     row->ascrise = 0.0f; /*had none */
-  if (row->xheight == 0)
+  }
+  if (row->xheight == 0) {
     row->xheight = -1.0f;
+  }
 }
 
 /**********************************************************************
@@ -1375,10 +1457,12 @@ void make_first_xheight( // find xheight
       if (height > lineheight * oldbl_xhfract && height > textord_min_xheight) {
         heightstat.add(height, strength);
         if (height < HEIGHTBUCKETS) {
-          if (xcenter > rights[height])
+          if (xcenter > rights[height]) {
             rights[height] = xcenter;
-          if (xcenter > 0 && (lefts[height] == 0 || xcenter < lefts[height]))
+          }
+          if (xcenter > 0 && (lefts[height] == 0 || xcenter < lefts[height])) {
             lefts[height] = xcenter;
+          }
         }
       }
       mode_count += strength;
@@ -1386,27 +1470,32 @@ void make_first_xheight( // find xheight
   }
 
   mode_threshold = static_cast<int>(blobcount * 0.1);
-  if (oldbl_dot_error_size > 1 || oldbl_xhfix)
+  if (oldbl_dot_error_size > 1 || oldbl_xhfix) {
     mode_threshold = static_cast<int>(mode_count * 0.1);
+  }
 
   if (textord_oldbl_debug) {
     tprintf("blobcount=%d, mode_count=%d, mode_t=%d\n", blobcount, mode_count, mode_threshold);
   }
   find_top_modes(&heightstat, HEIGHTBUCKETS, modelist, MODENUM);
   if (textord_oldbl_debug) {
-    for (blobindex = 0; blobindex < MODENUM; blobindex++)
+    for (blobindex = 0; blobindex < MODENUM; blobindex++) {
       tprintf("mode[%d]=%d ", blobindex, modelist[blobindex]);
+    }
     tprintf("\n");
   }
   pick_x_height(row, modelist, lefts, rights, &heightstat, mode_threshold);
 
-  if (textord_oldbl_debug)
+  if (textord_oldbl_debug) {
     tprintf("Output xheight=%g\n", row->xheight);
-  if (row->xheight < 0 && textord_oldbl_debug)
+  }
+  if (row->xheight < 0 && textord_oldbl_debug) {
     tprintf("WARNING: Row Line height < 0; %4.2f\n", row->xheight);
+  }
 
-  if (sign_bit < 0)
+  if (sign_bit < 0) {
     row->xheight = -row->xheight;
+  }
 }
 
 /**********************************************************************
@@ -1445,8 +1534,9 @@ void find_top_modes(            // get modes
     last_i = mode;
     last_max = stats->pile_count(last_i);
     total_max += last_max;
-    if (last_max <= total_max / mode_factor)
+    if (last_max <= total_max / mode_factor) {
       mode = 0;
+    }
     modelist[mode_count] = mode;
   }
 }
@@ -1550,8 +1640,9 @@ void pick_x_height(TO_ROW *row, // row to do
 
   row->ascrise = 0.0f;
   row->xheight = static_cast<float>(best_x_height);
-  if (row->xheight == 0)
+  if (row->xheight == 0) {
     row->xheight = -1.0f;
+  }
 }
 
 } // namespace tesseract

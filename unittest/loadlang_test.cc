@@ -25,10 +25,10 @@ namespace tesseract {
 
 class QuickTest : public testing::Test {
 protected:
-  virtual void SetUp() {
+  void SetUp() override {
     start_time_ = time(nullptr);
   }
-  virtual void TearDown() {
+  void TearDown() override {
     const time_t end_time = time(nullptr);
     EXPECT_TRUE(end_time - start_time_ <= 25)
         << "The test took too long - " << ::testing::PrintToString(end_time - start_time_);

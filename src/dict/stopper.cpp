@@ -44,11 +44,13 @@ bool Dict::AcceptableChoice(const WERD_CHOICE &best_choice,
   float CertaintyThreshold = stopper_nondict_certainty_base;
   int WordSize;
 
-  if (stopper_no_acceptable_choices)
+  if (stopper_no_acceptable_choices) {
     return false;
+  }
 
-  if (best_choice.length() == 0)
+  if (best_choice.length() == 0) {
     return false;
+  }
 
   bool no_dang_ambigs = !best_choice.dangerous_ambig_found();
   bool is_valid_word = valid_word_permuter(best_choice.permuter(), false);
@@ -74,19 +76,22 @@ bool Dict::AcceptableChoice(const WERD_CHOICE &best_choice,
             (is_case_ok ? 'y' : 'n'), xht, best_choice.min_x_height(), best_choice.max_x_height());
   }
   // Do not accept invalid words in PASS1.
-  if (reject_offset_ <= 0.0f && !is_valid_word)
+  if (reject_offset_ <= 0.0f && !is_valid_word) {
     return false;
+  }
   if (is_valid_word && is_case_ok) {
     WordSize = LengthOfShortestAlphaRun(best_choice);
     WordSize -= stopper_smallword_size;
-    if (WordSize < 0)
+    if (WordSize < 0) {
       WordSize = 0;
+    }
     CertaintyThreshold += WordSize * stopper_certainty_per_char;
   }
 
-  if (stopper_debug_level >= 1)
+  if (stopper_debug_level >= 1) {
     tprintf("Stopper:  Rating = %4.1f, Certainty = %4.1f, Threshold = %4.1f\n",
             best_choice.rating(), best_choice.certainty(), CertaintyThreshold);
+  }
 
   if (no_dang_ambigs && best_choice.certainty() > CertaintyThreshold &&
       xheight_consistency < XH_INCONSISTENT && UniformCertainties(best_choice)) {
@@ -104,8 +109,9 @@ bool Dict::AcceptableChoice(const WERD_CHOICE &best_choice,
 }
 
 bool Dict::AcceptableResult(WERD_RES *word) const {
-  if (word->best_choice == nullptr)
+  if (word->best_choice == nullptr) {
     return false;
+  }
   float CertaintyThreshold = stopper_nondict_certainty_base - reject_offset_;
   int WordSize;
 
@@ -117,27 +123,32 @@ bool Dict::AcceptableResult(WERD_RES *word) const {
             word->best_choices.singleton() ? 'n' : 'y');
   }
 
-  if (word->best_choice->length() == 0 || !word->best_choices.singleton())
+  if (word->best_choice->length() == 0 || !word->best_choices.singleton()) {
     return false;
+  }
   if (valid_word(*word->best_choice) && case_ok(*word->best_choice)) {
     WordSize = LengthOfShortestAlphaRun(*word->best_choice);
     WordSize -= stopper_smallword_size;
-    if (WordSize < 0)
+    if (WordSize < 0) {
       WordSize = 0;
+    }
     CertaintyThreshold += WordSize * stopper_certainty_per_char;
   }
 
-  if (stopper_debug_level >= 1)
+  if (stopper_debug_level >= 1) {
     tprintf("Rejecter: Certainty = %4.1f, Threshold = %4.1f   ", word->best_choice->certainty(),
             CertaintyThreshold);
+  }
 
   if (word->best_choice->certainty() > CertaintyThreshold && !stopper_no_acceptable_choices) {
-    if (stopper_debug_level >= 1)
+    if (stopper_debug_level >= 1) {
       tprintf("ACCEPTED\n");
+    }
     return true;
   } else {
-    if (stopper_debug_level >= 1)
+    if (stopper_debug_level >= 1) {
       tprintf("REJECTED\n");
+    }
     return false;
   }
 }
@@ -307,18 +318,21 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
             // we have to extract the leftmost unichar from the ngram.
             const char *str = uchset.id_to_unichar(leftmost_id);
             int step = uchset.step(str);
-            if (step)
+            if (step) {
               leftmost_id = uchset.unichar_to_id(str, step);
+            }
           }
           int end_i = orig_i + alt_word->state(i);
           if (alt_word->state(i) > 1 || (orig_i + 1 == end_i && replacement_is_ngram)) {
             // Compute proper blob indices.
             int blob_start = 0;
-            for (int j = 0; j < orig_i; ++j)
+            for (int j = 0; j < orig_i; ++j) {
               blob_start += best_choice->state(j);
+            }
             int blob_end = blob_start;
-            for (int j = orig_i; j < end_i; ++j)
+            for (int j = orig_i; j < end_i; ++j) {
               blob_end += best_choice->state(j);
+            }
             fixpt->push_back(
                 DANGERR_INFO(blob_start, blob_end, true, replacement_is_ngram, leftmost_id));
             if (stopper_debug_level > 1) {
@@ -386,16 +400,19 @@ void Dict::ReplaceAmbig(int wrong_ngram_begin_index, int wrong_ngram_size,
   if (!coord.Valid(*ratings)) {
     ratings->IncreaseBandSize(coord.row - coord.col + 1);
   }
-  if (ratings->get(coord.col, coord.row) == nullptr)
+  if (ratings->get(coord.col, coord.row) == nullptr) {
     ratings->put(coord.col, coord.row, new BLOB_CHOICE_LIST);
+  }
   BLOB_CHOICE_LIST *new_choices = ratings->get(coord.col, coord.row);
   BLOB_CHOICE *choice = FindMatchingChoice(correct_ngram_id, new_choices);
   if (choice != nullptr) {
     // Already there. Upgrade if new rating better.
-    if (new_rating < choice->rating())
+    if (new_rating < choice->rating()) {
       choice->set_rating(new_rating);
-    if (new_certainty < choice->certainty())
+    }
+    if (new_certainty < choice->certainty()) {
       choice->set_certainty(new_certainty);
+    }
     // DO NOT SORT!! It will mess up the iterator in LanguageModel::UpdateState.
   } else {
     // Need a new choice with the correct_ngram_id.
@@ -431,8 +448,9 @@ int Dict::LengthOfShortestAlphaRun(const WERD_CHOICE &WordChoice) const {
     if (WordChoice.unicharset()->get_isalpha(WordChoice.unichar_id(w))) {
       curr_len++;
     } else if (curr_len > 0) {
-      if (curr_len < shortest)
+      if (curr_len < shortest) {
         shortest = curr_len;
+      }
       curr_len = 0;
     }
   }
@@ -454,16 +472,18 @@ int Dict::UniformCertainties(const WERD_CHOICE &word) {
   float Mean, StdDev;
   int word_length = word.length();
 
-  if (word_length < 3)
+  if (word_length < 3) {
     return true;
+  }
 
   TotalCertainty = TotalCertaintySquared = 0.0;
   for (int i = 0; i < word_length; ++i) {
     Certainty = word.certainty(i);
     TotalCertainty += Certainty;
     TotalCertaintySquared += static_cast<double>(Certainty) * Certainty;
-    if (Certainty < WorstCertainty)
+    if (Certainty < WorstCertainty) {
       WorstCertainty = Certainty;
+    }
   }
 
   // Subtract off worst certainty from statistics.
@@ -474,20 +494,23 @@ int Dict::UniformCertainties(const WERD_CHOICE &word) {
   Mean = TotalCertainty / word_length;
   Variance = ((word_length * TotalCertaintySquared - TotalCertainty * TotalCertainty) /
               (word_length * (word_length - 1)));
-  if (Variance < 0.0)
+  if (Variance < 0.0) {
     Variance = 0.0;
+  }
   StdDev = sqrt(Variance);
 
   CertaintyThreshold = Mean - stopper_allowable_character_badness * StdDev;
-  if (CertaintyThreshold > stopper_nondict_certainty_base)
+  if (CertaintyThreshold > stopper_nondict_certainty_base) {
     CertaintyThreshold = stopper_nondict_certainty_base;
+  }
 
   if (word.certainty() < CertaintyThreshold) {
-    if (stopper_debug_level >= 1)
+    if (stopper_debug_level >= 1) {
       tprintf(
           "Stopper: Non-uniform certainty = %4.1f"
           " (m=%4.1f, s=%4.1f, t=%4.1f)\n",
           word.certainty(), Mean, StdDev, CertaintyThreshold);
+    }
     return false;
   } else {
     return true;

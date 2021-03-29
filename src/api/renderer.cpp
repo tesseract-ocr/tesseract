@@ -48,17 +48,19 @@ TessResultRenderer::TessResultRenderer(const char *outputbase, const char *exten
 
 TessResultRenderer::~TessResultRenderer() {
   if (fout_ != nullptr) {
-    if (fout_ != stdout)
+    if (fout_ != stdout) {
       fclose(fout_);
-    else
+    } else {
       clearerr(fout_);
+    }
   }
   delete next_;
 }
 
 void TessResultRenderer::insert(TessResultRenderer *next) {
-  if (next == nullptr)
+  if (next == nullptr) {
     return;
+  }
 
   TessResultRenderer *remainder = next_;
   next_ = next;
@@ -71,8 +73,9 @@ void TessResultRenderer::insert(TessResultRenderer *next) {
 }
 
 bool TessResultRenderer::BeginDocument(const char *title) {
-  if (!happy_)
+  if (!happy_) {
     return false;
+  }
   title_ = title;
   imagenum_ = -1;
   bool ok = BeginDocumentHandler();
@@ -83,8 +86,9 @@ bool TessResultRenderer::BeginDocument(const char *title) {
 }
 
 bool TessResultRenderer::AddImage(TessBaseAPI *api) {
-  if (!happy_)
+  if (!happy_) {
     return false;
+  }
   ++imagenum_;
   bool ok = AddImageHandler(api);
   if (next_) {
@@ -94,8 +98,9 @@ bool TessResultRenderer::AddImage(TessBaseAPI *api) {
 }
 
 bool TessResultRenderer::EndDocument() {
-  if (!happy_)
+  if (!happy_) {
     return false;
+  }
   bool ok = EndDocumentHandler();
   if (next_) {
     ok = next_->EndDocument() && ok;
@@ -108,8 +113,9 @@ void TessResultRenderer::AppendString(const char *s) {
 }
 
 void TessResultRenderer::AppendData(const char *s, int len) {
-  if (!tesseract::Serialize(fout_, s, len))
+  if (!tesseract::Serialize(fout_, s, len)) {
     happy_ = false;
+  }
   fflush(fout_);
 }
 
@@ -169,8 +175,9 @@ bool TessTsvRenderer::EndDocumentHandler() {
 
 bool TessTsvRenderer::AddImageHandler(TessBaseAPI *api) {
   const std::unique_ptr<const char[]> tsv(api->GetTSVText(imagenum()));
-  if (tsv == nullptr)
+  if (tsv == nullptr) {
     return false;
+  }
 
   AppendString(tsv.get());
 
@@ -185,8 +192,9 @@ TessUnlvRenderer::TessUnlvRenderer(const char *outputbase)
 
 bool TessUnlvRenderer::AddImageHandler(TessBaseAPI *api) {
   const std::unique_ptr<const char[]> unlv(api->GetUNLVText());
-  if (unlv == nullptr)
+  if (unlv == nullptr) {
     return false;
+  }
 
   AppendString(unlv.get());
 
@@ -201,8 +209,9 @@ TessBoxTextRenderer::TessBoxTextRenderer(const char *outputbase)
 
 bool TessBoxTextRenderer::AddImageHandler(TessBaseAPI *api) {
   const std::unique_ptr<const char[]> text(api->GetBoxText(imagenum()));
-  if (text == nullptr)
+  if (text == nullptr) {
     return false;
+  }
 
   AppendString(text.get());
 
@@ -218,8 +227,9 @@ TessOsdRenderer::TessOsdRenderer(const char *outputbase) : TessResultRenderer(ou
 
 bool TessOsdRenderer::AddImageHandler(TessBaseAPI *api) {
   char *osd = api->GetOsdText(imagenum());
-  if (osd == nullptr)
+  if (osd == nullptr) {
     return false;
+  }
 
   AppendString(osd);
   delete[] osd;

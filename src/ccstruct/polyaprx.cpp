@@ -66,13 +66,15 @@ TESSLINE *ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline) {
   EDGEPT *edgepts = stack_edgepts;
 
   // Use heap memory if the stack buffer is not big enough.
-  if (c_outline->pathlength() > FASTEDGELENGTH)
+  if (c_outline->pathlength() > FASTEDGELENGTH) {
     edgepts = new EDGEPT[c_outline->pathlength()];
+  }
 
   loop_box = c_outline->bounding_box();
   area = loop_box.height();
-  if (!poly_wide_objects_better && loop_box.width() > area)
+  if (!poly_wide_objects_better && loop_box.width() > area) {
     area = loop_box.width();
+  }
   area *= area;
   edgesteps_to_edgepts(c_outline, edgepts);
   fix2(edgepts, area);
@@ -100,8 +102,9 @@ TESSLINE *ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline) {
   } while (edgept != startpt);
   prev_result->next = result;
   result->prev = prev_result;
-  if (edgepts != stack_edgepts)
+  if (edgepts != stack_edgepts) {
     delete[] edgepts;
+  }
   return TESSLINE::BuildFromOutlineList(result);
 }
 
@@ -141,8 +144,9 @@ EDGEPT *edgesteps_to_edgepts( // convert outline
       dir += 128 - 16;
       vec += c_outline->step(stepindex + 1);
       stepinc = 2;
-    } else
+    } else {
       stepinc = 1;
+    }
     if (count == 0) {
       prevdir = dir;
       prev_vec = vec;
@@ -171,8 +175,9 @@ EDGEPT *edgesteps_to_edgepts( // convert outline
       prev_vec = vec;
       count = 1;
       prev_stepindex = stepindex;
-    } else
+    } else {
       count++;
+    }
     stepindex += stepinc;
   } while (stepindex < length);
   edgepts[epindex].pos.x = pos.x();
@@ -222,8 +227,9 @@ void fix2(         // polygonal approx
 
   edgept = start; /*start of loop */
   while (((edgept->flags[DIR] - edgept->prev->flags[DIR] + 1) & 7) < 3 &&
-         (dir1 = (edgept->prev->flags[DIR] - edgept->next->flags[DIR]) & 7) != 2 && dir1 != 6)
+         (dir1 = (edgept->prev->flags[DIR] - edgept->next->flags[DIR]) & 7) != 2 && dir1 != 6) {
     edgept = edgept->next; /*find suitable start */
+  }
   loopstart = edgept;      /*remember start */
 
   stopped = 0;                   /*not finished yet */
@@ -240,15 +246,17 @@ void fix2(         // polygonal approx
     if (((dir1 - dir2 + 1) & 7) < 3) {
       while (edgept->prev->flags[DIR] == edgept->next->flags[DIR]) {
         edgept = edgept->next; /*look at next */
-        if (edgept->flags[DIR] == dir1)
+        if (edgept->flags[DIR] == dir1) {
           /*sum lengths */
           sum1 += edgept->flags[RUNLENGTH];
-        else
+        } else {
           sum2 += edgept->flags[RUNLENGTH];
+        }
       }
 
-      if (edgept == loopstart)
+      if (edgept == loopstart) {
         stopped = 1; /*finished */
+      }
       if (sum2 + sum1 > 2 && linestart->prev->flags[DIR] == dir2 &&
           (linestart->prev->flags[RUNLENGTH] > linestart->flags[RUNLENGTH] || sum2 > sum1)) {
         /*start is back one */
@@ -260,8 +268,9 @@ void fix2(         // polygonal approx
           (edgept->flags[DIR] == dir1 && sum1 >= sum2) ||
           ((edgept->prev->flags[RUNLENGTH] < edgept->flags[RUNLENGTH] ||
             (edgept->flags[DIR] == dir2 && sum2 >= sum1)) &&
-           linestart->next != edgept))
+           linestart->next != edgept)) {
         edgept = edgept->next;
+      }
     }
     /*sharp bend */
     edgept->flags[FLAGS] |= FIXED;
@@ -303,42 +312,49 @@ void fix2(         // polygonal approx
   } while (edgept != start); /*until finished */
 
   stopped = 0;
-  if (area < 450)
+  if (area < 450) {
     area = 450;
+  }
 
   gapmin = area * fixed_dist * fixed_dist / 44000;
 
   edgept = start;
   fixed_count = 0;
   do {
-    if (edgept->flags[FLAGS] & FIXED)
+    if (edgept->flags[FLAGS] & FIXED) {
       fixed_count++;
+    }
     edgept = edgept->next;
   } while (edgept != start);
-  while ((edgept->flags[FLAGS] & FIXED) == 0)
+  while ((edgept->flags[FLAGS] & FIXED) == 0) {
     edgept = edgept->next;
+  }
   edgefix0 = edgept;
 
   edgept = edgept->next;
-  while ((edgept->flags[FLAGS] & FIXED) == 0)
+  while ((edgept->flags[FLAGS] & FIXED) == 0) {
     edgept = edgept->next;
+  }
   edgefix1 = edgept;
 
   edgept = edgept->next;
-  while ((edgept->flags[FLAGS] & FIXED) == 0)
+  while ((edgept->flags[FLAGS] & FIXED) == 0) {
     edgept = edgept->next;
+  }
   edgefix2 = edgept;
 
   edgept = edgept->next;
-  while ((edgept->flags[FLAGS] & FIXED) == 0)
+  while ((edgept->flags[FLAGS] & FIXED) == 0) {
     edgept = edgept->next;
+  }
   edgefix3 = edgept;
 
   startfix = edgefix2;
 
   do {
-    if (fixed_count <= 3)
+    if (fixed_count <= 3) {
       break; // already too few
+    }
     d12vec.diff(edgefix1->pos, edgefix2->pos);
     d12 = d12vec.length();
     // TODO(rays) investigate this change:
@@ -366,8 +382,9 @@ void fix2(         // polygonal approx
     edgefix2 = edgefix3;
     edgept = edgept->next;
     while ((edgept->flags[FLAGS] & FIXED) == 0) {
-      if (edgept == startfix)
+      if (edgept == startfix) {
         stopped = 1;
+      }
       edgept = edgept->next;
     }
     edgefix3 = edgept;
@@ -391,8 +408,9 @@ EDGEPT *poly2(       // second poly
   EDGEPT *linestart; /*start of line */
   int edgesum;       /*correction count */
 
-  if (area < 1200)
+  if (area < 1200) {
     area = 1200; /*minimum value */
+  }
 
   loopstart = nullptr; /*not found it yet */
   edgept = startpt;    /*start of loop */
@@ -424,28 +442,32 @@ EDGEPT *poly2(       // second poly
           edgesum += edgept->flags[RUNLENGTH];
           edgept = edgept->next; /*move on */
         } while ((edgept->flags[FLAGS] & FIXED) == 0 && edgept != loopstart && edgesum < 126);
-        if (poly_debug)
+        if (poly_debug) {
           tprintf("Poly2:starting at (%d,%d)+%d=(%d,%d),%d to (%d,%d)\n", linestart->pos.x,
                   linestart->pos.y, linestart->flags[DIR], linestart->vec.x, linestart->vec.y,
                   edgesum, edgept->pos.x, edgept->pos.y);
+        }
         /*reapproximate */
         cutline(linestart, edgept, area);
 
-        while ((edgept->next->flags[FLAGS] & FIXED) && edgept != loopstart)
+        while ((edgept->next->flags[FLAGS] & FIXED) && edgept != loopstart) {
           edgept = edgept->next; /*look for next non-fixed */
+        }
       }
       /*do all the loop */
       while (edgept != loopstart);
       edgesum = 0;
       do {
-        if (edgept->flags[FLAGS] & FIXED)
+        if (edgept->flags[FLAGS] & FIXED) {
           edgesum++;
+        }
         edgept = edgept->next;
       }
       // count fixed pts
       while (edgept != loopstart);
-      if (edgesum < 3)
+      if (edgesum < 3) {
         area /= 2; // must have 3 pts
+      }
     } while (edgesum < 3);
     do {
       linestart = edgept;
@@ -457,8 +479,9 @@ EDGEPT *poly2(       // second poly
       linestart->vec.x = edgept->pos.x - linestart->pos.x;
       linestart->vec.y = edgept->pos.y - linestart->pos.y;
     } while (edgept != loopstart);
-  } else
+  } else {
     edgept = startpt; /*start of loop */
+  }
 
   loopstart = edgept; /*new start */
   return loopstart;   /*correct exit */
@@ -484,8 +507,9 @@ void cutline(              // recursive refine
   int squaresum;    /*sum of perps */
 
   edge = first; /*start of line */
-  if (edge->next == last)
+  if (edge->next == last) {
     return; /*simple line */
+  }
 
   /*vector sum */
   vecsum.x = last->pos.x - edge->pos.x;
@@ -497,10 +521,11 @@ void cutline(              // recursive refine
   }
   /*absolute value */
   vlen = vecsum.x > 0 ? vecsum.x : -vecsum.x;
-  if (vecsum.y > vlen)
+  if (vecsum.y > vlen) {
     vlen = vecsum.y; /*maximum */
-  else if (-vecsum.y > vlen)
+  } else if (-vecsum.y > vlen) {
     vlen = -vecsum.y; /*absolute value */
+  }
 
   vec.x = edge->vec.x; /*accumulated vector */
   vec.y = edge->vec.y;
@@ -515,8 +540,9 @@ void cutline(              // recursive refine
     }
     squaresum += perp; /*sum squares */
     ptcount++;         /*count points */
-    if (poly_debug)
+    if (poly_debug) {
       tprintf("Cutline:Final perp=%d\n", perp);
+    }
     if (perp > maxperp) {
       maxperp = perp;
       maxpoint = edge; /*find greatest deviation */
@@ -536,16 +562,18 @@ void cutline(              // recursive refine
     maxperp /= perp;
     maxperp <<= 8; /*avoid overflow */
   }
-  if (squaresum < 256 * INT16_MAX)
+  if (squaresum < 256 * INT16_MAX) {
     /*mean squared perp */
     perp = (squaresum << 8) / (perp * ptcount);
-  else
+  } else {
     /*avoid overflow */
     perp = (squaresum / perp << 8) / ptcount;
+  }
 
-  if (poly_debug)
+  if (poly_debug) {
     tprintf("Cutline:A=%d, max=%.2f(%.2f%%), msd=%.2f(%.2f%%)\n", area, maxperp / 256.0,
             maxperp * 200.0 / area, perp / 256.0, perp * 300.0 / area);
+  }
   if (maxperp * par1 >= 10 * area || perp * par2 >= 10 * area || vlen >= 126) {
     maxpoint->flags[FLAGS] |= FIXED;
     /*partitions */

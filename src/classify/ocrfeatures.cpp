@@ -64,8 +64,9 @@ void FreeFeatureSet(FEATURE_SET FeatureSet) {
   int i;
 
   if (FeatureSet) {
-    for (i = 0; i < FeatureSet->NumFeatures; i++)
+    for (i = 0; i < FeatureSet->NumFeatures; i++) {
       FreeFeature(FeatureSet->Features[i]);
+    }
     free(FeatureSet);
   }
 } /* FreeFeatureSet */
@@ -144,8 +145,9 @@ FEATURE_SET ReadFeatureSet(FILE *File, const FEATURE_DESC_STRUCT *FeatureDesc) {
   ASSERT_HOST(NumFeatures >= 0);
 
   FEATURE_SET FeatureSet = NewFeatureSet(NumFeatures);
-  for (int i = 0; i < NumFeatures; i++)
+  for (int i = 0; i < NumFeatures; i++) {
     AddFeature(FeatureSet, ReadFeature(File, FeatureDesc));
+  }
 
   return FeatureSet;
 }

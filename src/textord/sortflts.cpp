@@ -30,16 +30,18 @@ void SORTED_FLOATS::add( // add new entry
     float value, int32_t key) {
   auto *new_float = new SORTED_FLOAT(value, key);
 
-  if (list.empty())
+  if (list.empty()) {
     it.add_after_stay_put(new_float);
-  else {
+  } else {
     it.move_to_first();
-    while (!it.at_last() && it.data()->entry < value)
+    while (!it.at_last() && it.data()->entry < value) {
       it.forward();
-    if (it.data()->entry < value)
+    }
+    if (it.data()->entry < value) {
       it.add_after_stay_put(new_float);
-    else
+    } else {
       it.add_before_stay_put(new_float);
+    }
   }
 }
 

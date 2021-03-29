@@ -70,8 +70,9 @@ void display_blob(TBLOB *blob, ScrollView::Color color) {
  **********************************************************************/
 void render_blob(ScrollView *window, TBLOB *blob, ScrollView::Color color) {
   /* No outline */
-  if (!blob)
+  if (!blob) {
     return;
+  }
 
   render_outline(window, blob->outlines, color);
 }
@@ -83,8 +84,9 @@ void render_blob(ScrollView *window, TBLOB *blob, ScrollView::Color color) {
  * that was supplied as input.
  **********************************************************************/
 void render_edgepts(ScrollView *window, EDGEPT *edgept, ScrollView::Color color) {
-  if (!edgept)
+  if (!edgept) {
     return;
+  }
 
   float x = edgept->pos.x;
   float y = edgept->pos.y;
@@ -108,11 +110,13 @@ void render_edgepts(ScrollView *window, EDGEPT *edgept, ScrollView::Color color)
  **********************************************************************/
 void render_outline(ScrollView *window, TESSLINE *outline, ScrollView::Color color) {
   /* No outline */
-  if (!outline)
+  if (!outline) {
     return;
+  }
   /* Draw Compact outline */
-  if (outline->loop)
+  if (outline->loop) {
     render_edgepts(window, outline->loop, color);
+  }
   /* Add on next outlines */
   render_outline(window, outline->next, color);
 }

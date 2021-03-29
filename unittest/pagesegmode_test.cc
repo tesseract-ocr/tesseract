@@ -36,7 +36,7 @@ static bool file_exists(const char *filename) {
 class PageSegModeTest : public testing::Test {
 protected:
   PageSegModeTest() = default;
-  ~PageSegModeTest() {
+  ~PageSegModeTest() override {
     pixDestroy(&src_pix_);
   }
 

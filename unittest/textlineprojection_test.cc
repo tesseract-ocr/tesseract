@@ -45,7 +45,7 @@ protected:
     denorm_ = nullptr;
     projection_ = nullptr;
   }
-  virtual ~TextlineProjectionTest() {
+  ~TextlineProjectionTest() override {
     pixDestroy(&src_pix_);
     pixDestroy(&bin_pix_);
     delete finder_;
@@ -84,7 +84,7 @@ protected:
     int width = pixGetWidth(bin_pix_);
     int height = pixGetHeight(bin_pix_);
     // First make a single block covering the whole image.
-    BLOCK *block = new BLOCK("", true, 0, 0, 0, 0, width, height);
+    auto *block = new BLOCK("", true, 0, 0, 0, 0, width, height);
     block->set_right_to_left(false);
     BLOCK_LIST src_blocks;
     BLOCK_IT block_it(&src_blocks);
@@ -184,8 +184,9 @@ protected:
       TBOX lower_box = word_box;
       lower_box.set_top(word_box.bottom());
       lower_box.set_bottom(word_box.bottom() - padding);
-      if (tall_word)
+      if (tall_word) {
         lower_box.move(ICOORD(0, padding / 2));
+      }
       EvaluateBox(lower_box, false, kMinStrongTextValue, text, "Lower Word");
       EvaluateBox(lower_box, true, -1, text, "Lower Word not vertical");
 
@@ -215,8 +216,9 @@ protected:
       upper_challenger.set_bottom(upper_box.top());
       upper_challenger.set_top(upper_box.top() + word_box.height());
       EvaluateDistance(upper_box, target_box, upper_challenger, text, "Upper Word");
-      if (tall_word)
+      if (tall_word) {
         lower_box.move(ICOORD(0, padding / 2));
+      }
       lower_box.set_bottom(lower_box.top() - padding);
       target_box = word_box;
       target_box.set_bottom(lower_box.top());

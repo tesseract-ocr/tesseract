@@ -18,28 +18,30 @@ namespace tesseract {
 
 class DENORMTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 
 public:
-  void TearDown() {}
+  void TearDown() override {}
 
   void ExpectCorrectTransform(const DENORM &denorm, const TPOINT &src, const TPOINT &result,
                               bool local) {
     TPOINT normed;
-    if (local)
+    if (local) {
       denorm.LocalNormTransform(src, &normed);
-    else
+    } else {
       denorm.NormTransform(nullptr, src, &normed);
+    }
     EXPECT_EQ(result.x, normed.x);
     EXPECT_EQ(result.y, normed.y);
     // Now undo
     TPOINT denormed;
-    if (local)
+    if (local) {
       denorm.LocalDenormTransform(normed, &denormed);
-    else
+    } else {
       denorm.DenormTransform(nullptr, normed, &denormed);
+    }
     EXPECT_EQ(src.x, denormed.x);
     EXPECT_EQ(src.y, denormed.y);
   }

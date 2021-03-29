@@ -166,8 +166,9 @@ private:
   // During a multiple merge operation, several compact indices may be
   // combined, so we need to be able to find the master of all.
   int MasterCompactIndex(int compact_index) const {
-    while (compact_index >= 0 && sparse_map_[compact_map_[compact_index]] != compact_index)
+    while (compact_index >= 0 && sparse_map_[compact_map_[compact_index]] != compact_index) {
       compact_index = sparse_map_[compact_map_[compact_index]];
+    }
     return compact_index;
   }
 

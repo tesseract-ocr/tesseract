@@ -41,14 +41,16 @@ public:
   int GetVal() {
     const int kInvalidVal = -1;
     const int kMaxNaturalNumberValue = 1 << num_bits_;
-    if (next_num_ >= kMaxNaturalNumberValue)
+    if (next_num_ >= kMaxNaturalNumberValue) {
       return kInvalidVal;
+    }
     int n = next_num_;
 
     while (next_num_ < kMaxNaturalNumberValue) {
       n = GetBinaryReversedInteger(next_num_++);
-      if (n < N_)
+      if (n < N_) {
         break;
+      }
     }
     return (next_num_ > kMaxNaturalNumberValue) ? kInvalidVal : n;
   }

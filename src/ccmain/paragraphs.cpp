@@ -98,14 +98,16 @@ static void PrintTable(const std::vector<std::vector<std::string>> &rows, const 
     for (int c = 0; c < num_columns; c++) {
       int num_unicodes = 0;
       for (char i : row[c]) {
-        if ((i & 0xC0) != 0x80)
+        if ((i & 0xC0) != 0x80) {
           num_unicodes++;
+        }
       }
       if (c >= max_col_widths.size()) {
         max_col_widths.push_back(num_unicodes);
       } else {
-        if (num_unicodes > max_col_widths[c])
+        if (num_unicodes > max_col_widths[c]) {
           max_col_widths[c] = num_unicodes;
+        }
       }
     }
   }
@@ -117,8 +119,9 @@ static void PrintTable(const std::vector<std::vector<std::string>> &rows, const 
 
   for (const auto &row : rows) {
     for (int c = 0; c < row.size(); c++) {
-      if (c > 0)
+      if (c > 0) {
         tprintf("%s", colsep);
+      }
       tprintf(col_width_patterns[c].c_str(), row[c].c_str());
     }
     tprintf("\n");
@@ -126,8 +129,9 @@ static void PrintTable(const std::vector<std::vector<std::string>> &rows, const 
 }
 
 static std::string RtlEmbed(const std::string &word, bool rtlify) {
-  if (rtlify)
+  if (rtlify) {
     return std::string(kRLE) + word + std::string(kPDF);
+  }
   return word;
 }
 
@@ -173,8 +177,9 @@ static void PrintDetectorState(const ParagraphTheory &theory,
 
 static void DebugDump(bool should_print, const char *phase, const ParagraphTheory &theory,
                       const std::vector<RowScratchRegisters> &rows) {
-  if (!should_print)
+  if (!should_print) {
     return;
+  }
   tprintf("# %s\n", phase);
   PrintDetectorState(theory, rows);
 }
@@ -223,8 +228,9 @@ static const char *SkipChars(const char *str, bool (*skip)(int)) {
 }
 
 static const char *SkipOne(const char *str, const char *toskip) {
-  if (*str != '\0' && strchr(toskip, *str))
+  if (*str != '\0' && strchr(toskip, *str)) {
     return str + 1;
+  }
   return str;
 }
 
@@ -251,16 +257,18 @@ static bool LikelyListNumeral(const std::string &word) {
       if (numeral_end == numeral_start) {
         // If there's a single latin letter, we can use that.
         numeral_end = SkipChars(numeral_start, IsLatinLetter);
-        if (numeral_end - numeral_start != 1)
+        if (numeral_end - numeral_start != 1) {
           break;
+        }
       }
     }
     // We got some sort of numeral.
     num_segments++;
     // Skip any trailing parens or punctuation.
     pos = SkipChars(SkipChars(numeral_end, kClose), kSep);
-    if (pos == numeral_end)
+    if (pos == numeral_end) {
       break;
+    }
   }
   return *pos == '\0';
 }
@@ -278,8 +286,9 @@ bool AsciiLikelyListItem(const std::string &word) {
 
 // Return the first Unicode Codepoint from werd[pos].
 int UnicodeFor(const UNICHARSET *u, const WERD_CHOICE *werd, int pos) {
-  if (!u || !werd || pos > werd->length())
+  if (!u || !werd || pos > werd->length()) {
     return 0;
+  }
   return UNICHAR(u->id_to_unichar(werd->unichar_id(pos)), -1).first_uni();
 }
 
@@ -308,15 +317,17 @@ private:
 };
 
 int UnicodeSpanSkipper::SkipPunc(int pos) {
-  while (pos < wordlen_ && u_->get_ispunctuation(word_->unichar_id(pos)))
+  while (pos < wordlen_ && u_->get_ispunctuation(word_->unichar_id(pos))) {
     pos++;
+  }
   return pos;
 }
 
 int UnicodeSpanSkipper::SkipDigits(int pos) {
   while (pos < wordlen_ &&
-         (u_->get_isdigit(word_->unichar_id(pos)) || IsDigitLike(UnicodeFor(u_, word_, pos))))
+         (u_->get_isdigit(word_->unichar_id(pos)) || IsDigitLike(UnicodeFor(u_, word_, pos)))) {
     pos++;
+  }
   return pos;
 }
 
@@ -324,16 +335,18 @@ int UnicodeSpanSkipper::SkipRomans(int pos) {
   const char *kRomans = "ivxlmdIVXLMD";
   while (pos < wordlen_) {
     int ch = UnicodeFor(u_, word_, pos);
-    if (ch >= 0xF0 || strchr(kRomans, ch) == nullptr)
+    if (ch >= 0xF0 || strchr(kRomans, ch) == nullptr) {
       break;
+    }
     pos++;
   }
   return pos;
 }
 
 int UnicodeSpanSkipper::SkipAlpha(int pos) {
-  while (pos < wordlen_ && u_->get_isalpha(word_->unichar_id(pos)))
+  while (pos < wordlen_ && u_->get_isalpha(word_->unichar_id(pos))) {
     pos++;
+  }
   return pos;
 }
 
@@ -367,32 +380,36 @@ static bool LikelyListMarkUnicode(int ch) {
 // start a list item.  Some examples include:
 //   A   I   iii.   VI   (2)   3.5.   [C-4]
 static bool UniLikelyListItem(const UNICHARSET *u, const WERD_CHOICE *werd) {
-  if (werd->length() == 1 && LikelyListMarkUnicode(UnicodeFor(u, werd, 0)))
+  if (werd->length() == 1 && LikelyListMarkUnicode(UnicodeFor(u, werd, 0))) {
     return true;
+  }
 
   UnicodeSpanSkipper m(u, werd);
   int num_segments = 0;
   int pos = 0;
   while (pos < werd->length() && num_segments < 3) {
     int numeral_start = m.SkipPunc(pos);
-    if (numeral_start > pos + 1)
+    if (numeral_start > pos + 1) {
       break;
+    }
     int numeral_end = m.SkipRomans(numeral_start);
     if (numeral_end == numeral_start) {
       numeral_end = m.SkipDigits(numeral_start);
       if (numeral_end == numeral_start) {
         // If there's a single latin letter, we can use that.
         numeral_end = m.SkipAlpha(numeral_start);
-        if (numeral_end - numeral_start != 1)
+        if (numeral_end - numeral_start != 1) {
           break;
+        }
       }
     }
     // We got some sort of numeral.
     num_segments++;
     // Skip any trailing punctuation.
     pos = m.SkipPunc(numeral_end);
-    if (pos == numeral_end)
+    if (pos == numeral_end) {
       break;
+    }
   }
   return pos == werd->length();
 }
@@ -506,10 +523,12 @@ void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
 
   int model_numbers = 0;
   for (const auto &hypothese : hypotheses_) {
-    if (hypothese.model == nullptr)
+    if (hypothese.model == nullptr) {
       continue;
-    if (model_numbers > 0)
+    }
+    if (model_numbers > 0) {
       model_string += ",";
+    }
     if (StrongModel(hypothese.model)) {
       model_string += std::to_string(1 + theory.IndexOf(hypothese.model));
     } else if (hypothese.model == kCrownLeft) {
@@ -519,8 +538,9 @@ void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
     }
     model_numbers++;
   }
-  if (model_numbers == 0)
+  if (model_numbers == 0) {
     model_string += "0";
+  }
 
   dbg.push_back(model_string);
 }
@@ -534,8 +554,9 @@ void RowScratchRegisters::Init(const RowInfo &row) {
 }
 
 LineType RowScratchRegisters::GetLineType() const {
-  if (hypotheses_.empty())
+  if (hypotheses_.empty()) {
     return LT_UNKNOWN;
+  }
   bool has_start = false;
   bool has_body = false;
   for (const auto &hypothese : hypotheses_) {
@@ -551,19 +572,22 @@ LineType RowScratchRegisters::GetLineType() const {
         break;
     }
   }
-  if (has_start && has_body)
+  if (has_start && has_body) {
     return LT_MULTIPLE;
+  }
   return has_start ? LT_START : LT_BODY;
 }
 
 LineType RowScratchRegisters::GetLineType(const ParagraphModel *model) const {
-  if (hypotheses_.empty())
+  if (hypotheses_.empty()) {
     return LT_UNKNOWN;
+  }
   bool has_start = false;
   bool has_body = false;
   for (const auto &hypothese : hypotheses_) {
-    if (hypothese.model != model)
+    if (hypothese.model != model) {
       continue;
+    }
     switch (hypothese.ty) {
       case LT_START:
         has_start = true;
@@ -576,8 +600,9 @@ LineType RowScratchRegisters::GetLineType(const ParagraphModel *model) const {
         break;
     }
   }
-  if (has_start && has_body)
+  if (has_start && has_body) {
     return LT_MULTIPLE;
+  }
   return has_start ? LT_START : LT_BODY;
 }
 
@@ -619,41 +644,47 @@ void RowScratchRegisters::AddBodyLine(const ParagraphModel *model) {
 
 void RowScratchRegisters::StartHypotheses(SetOfModels *models) const {
   for (const auto &hypothese : hypotheses_) {
-    if (hypothese.ty == LT_START && StrongModel(hypothese.model))
+    if (hypothese.ty == LT_START && StrongModel(hypothese.model)) {
       push_back_new(*models, hypothese.model);
+    }
   }
 }
 
 void RowScratchRegisters::StrongHypotheses(SetOfModels *models) const {
   for (const auto &hypothese : hypotheses_) {
-    if (StrongModel(hypothese.model))
+    if (StrongModel(hypothese.model)) {
       push_back_new(*models, hypothese.model);
+    }
   }
 }
 
 void RowScratchRegisters::NonNullHypotheses(SetOfModels *models) const {
   for (const auto &hypothese : hypotheses_) {
-    if (hypothese.model != nullptr)
+    if (hypothese.model != nullptr) {
       push_back_new(*models, hypothese.model);
+    }
   }
 }
 
 const ParagraphModel *RowScratchRegisters::UniqueStartHypothesis() const {
-  if (hypotheses_.size() != 1 || hypotheses_[0].ty != LT_START)
+  if (hypotheses_.size() != 1 || hypotheses_[0].ty != LT_START) {
     return nullptr;
+  }
   return hypotheses_[0].model;
 }
 
 const ParagraphModel *RowScratchRegisters::UniqueBodyHypothesis() const {
-  if (hypotheses_.size() != 1 || hypotheses_[0].ty != LT_BODY)
+  if (hypotheses_.size() != 1 || hypotheses_[0].ty != LT_BODY) {
     return nullptr;
+  }
   return hypotheses_[0].model;
 }
 
 // Discard any hypotheses whose model is not in the given list.
 void RowScratchRegisters::DiscardNonMatchingHypotheses(const SetOfModels &models) {
-  if (models.empty())
+  if (models.empty()) {
     return;
+  }
   for (int h = hypotheses_.size() - 1; h >= 0; h--) {
     if (!contains(models, hypotheses_[h].model)) {
       hypotheses_.erase(hypotheses_.begin() + h);
@@ -691,8 +722,9 @@ private:
 static int ClosestCluster(const std::vector<Cluster> &clusters, int value) {
   int best_index = 0;
   for (int i = 0; i < clusters.size(); i++) {
-    if (abs(value - clusters[i].center) < abs(value - clusters[best_index].center))
+    if (abs(value - clusters[i].center) < abs(value - clusters[best_index].center)) {
       best_index = i;
+    }
   }
   return best_index;
 }
@@ -716,8 +748,9 @@ void SimpleClusterer::GetClusters(std::vector<Cluster> *clusters) {
 static void CalculateTabStops(std::vector<RowScratchRegisters> *rows, int row_start, int row_end,
                               int tolerance, std::vector<Cluster> *left_tabs,
                               std::vector<Cluster> *right_tabs) {
-  if (!AcceptableRowArgs(0, 1, __func__, rows, row_start, row_end))
+  if (!AcceptableRowArgs(0, 1, __func__, rows, row_start, row_end)) {
     return;
+  }
   // First pass: toss all left and right indents into clusterers.
   SimpleClusterer initial_lefts(tolerance);
   SimpleClusterer initial_rights(tolerance);
@@ -744,10 +777,12 @@ static void CalculateTabStops(std::vector<RowScratchRegisters> *rows, int row_st
   // to how rare it is.  These outliers get re-added if we end up having too
   // few tab stops, to work with, however.
   int infrequent_enough_to_ignore = 0;
-  if (row_end - row_start >= 8)
+  if (row_end - row_start >= 8) {
     infrequent_enough_to_ignore = 1;
-  if (row_end - row_start >= 20)
+  }
+  if (row_end - row_start >= 20) {
     infrequent_enough_to_ignore = 2;
+  }
 
   for (int i = row_start; i < row_end; i++) {
     int lidx = ClosestCluster(initial_left_tabs, (*rows)[i].lindent_);
@@ -827,8 +862,9 @@ static void CalculateTabStops(std::vector<RowScratchRegisters> *rows, int row_st
 //     is greater than eop_threshold.
 static void MarkRowsWithModel(std::vector<RowScratchRegisters> *rows, int row_start, int row_end,
                               const ParagraphModel *model, bool ltr, int eop_threshold) {
-  if (!AcceptableRowArgs(0, 0, __func__, rows, row_start, row_end))
+  if (!AcceptableRowArgs(0, 0, __func__, rows, row_start, row_end)) {
     return;
+  }
   for (int row = row_start; row < row_end; row++) {
     bool valid_first = ValidFirstLine(rows, row, model);
     bool valid_body = ValidBodyLine(rows, row, model);
@@ -895,8 +931,9 @@ struct GeometricClassifierState {
 
   // Align tabs are the tab stops the text is aligned to.
   const std::vector<Cluster> &AlignTabs() const {
-    if (just == tesseract::JUSTIFICATION_RIGHT)
+    if (just == tesseract::JUSTIFICATION_RIGHT) {
       return right_tabs;
+    }
     return left_tabs;
   }
 
@@ -906,8 +943,9 @@ struct GeometricClassifierState {
   //     this function comment, the offside tabs are the horizontal tab stops
   //                 marking the beginning of ("Note", "this" and "marking").
   const std::vector<Cluster> &OffsideTabs() const {
-    if (just == tesseract::JUSTIFICATION_RIGHT)
+    if (just == tesseract::JUSTIFICATION_RIGHT) {
       return left_tabs;
+    }
     return right_tabs;
   }
 
@@ -933,8 +971,9 @@ struct GeometricClassifierState {
   }
 
   void Fail(int min_debug_level, const char *why) const {
-    if (debug_level < min_debug_level)
+    if (debug_level < min_debug_level) {
       return;
+    }
     tprintf("# %s\n", why);
     PrintRows();
   }
@@ -1009,8 +1048,9 @@ static void GeometricClassifyThreeTabStopTextBlock(int debug_level, GeometricCla
   for (int i = s.row_start; i < s.row_end; i++) {
     if (s.IsFullRow(i)) {
       num_full_rows++;
-      if (i == s.row_end - 1)
+      if (i == s.row_end - 1) {
         last_row_full++;
+      }
     }
   }
 
@@ -1093,8 +1133,9 @@ static void GeometricClassifyThreeTabStopTextBlock(int debug_level, GeometricCla
 // far more "full" lines than "short" lines.
 static void GeometricClassify(int debug_level, std::vector<RowScratchRegisters> *rows,
                               int row_start, int row_end, ParagraphTheory *theory) {
-  if (!AcceptableRowArgs(debug_level, 4, __func__, rows, row_start, row_end))
+  if (!AcceptableRowArgs(debug_level, 4, __func__, rows, row_start, row_end)) {
     return;
+  }
   if (debug_level > 1) {
     tprintf("###############################################\n");
     tprintf("##### GeometricClassify( rows[%d:%d) )   ####\n", row_start, row_end);
@@ -1257,24 +1298,27 @@ void ParagraphTheory::DiscardUnusedModels(const SetOfModels &used_models) {
 const ParagraphModel *ParagraphTheory::Fits(const std::vector<RowScratchRegisters> *rows,
                                             int start, int end) const {
   for (const auto *model : *models_) {
-    if (model->justification() != JUSTIFICATION_CENTER && RowsFitModel(rows, start, end, model))
+    if (model->justification() != JUSTIFICATION_CENTER && RowsFitModel(rows, start, end, model)) {
       return model;
+    }
   }
   return nullptr;
 }
 
 void ParagraphTheory::NonCenteredModels(SetOfModels *models) {
   for (const auto *model : *models_) {
-    if (model->justification() != JUSTIFICATION_CENTER)
+    if (model->justification() != JUSTIFICATION_CENTER) {
       push_back_new(*models, model);
+    }
   }
 }
 
 int ParagraphTheory::IndexOf(const ParagraphModel *model) const {
   int i = 0;
   for (const auto *m : *models_) {
-    if (m == model)
+    if (m == model) {
       return i;
+    }
     i++;
   }
   return -1;
@@ -1330,10 +1374,12 @@ ParagraphModelSmearer::ParagraphModelSmearer(std::vector<RowScratchRegisters> *r
 // see paragraphs_internal.h
 void ParagraphModelSmearer::CalculateOpenModels(int row_start, int row_end) {
   SetOfModels no_models;
-  if (row_start < row_start_)
+  if (row_start < row_start_) {
     row_start = row_start_;
-  if (row_end > row_end_)
+  }
+  if (row_end > row_end_) {
     row_end = row_end_;
+  }
 
   for (int row = (row_start > 0) ? row_start - 1 : row_start; row < row_end; row++) {
     if ((*rows_)[row].ri_->num_words == 0) {
@@ -1366,8 +1412,9 @@ void ParagraphModelSmearer::Smear() {
   // was recently used (an "open" model) which might model it well.
   for (int i = row_start_; i < row_end_; i++) {
     RowScratchRegisters &row = (*rows_)[i];
-    if (row.ri_->num_words == 0)
+    if (row.ri_->num_words == 0) {
       continue;
+    }
 
     // Step One:
     //   Figure out if there are "open" models which are left-alined or
@@ -1424,8 +1471,9 @@ void ParagraphModelSmearer::Smear() {
         theory_->NonCenteredModels(&last_line_models);
       }
       for (auto model : last_line_models) {
-        if (ValidBodyLine(rows_, i, model))
+        if (ValidBodyLine(rows_, i, model)) {
           row.AddBodyLine(model);
+        }
       }
     }
 
@@ -1498,8 +1546,9 @@ static void DowngradeWeakestToCrowns(int debug_level, ParagraphTheory *theory,
     while (end > 0 && (model = (*rows)[end - 1].UniqueBodyHypothesis()) == nullptr) {
       end--;
     }
-    if (end == 0)
+    if (end == 0) {
       break;
+    }
     start = end - 1;
     while (start >= 0 && (*rows)[start].UniqueBodyHypothesis() == model) {
       start--; // walk back to the first line that is not the same body type.
@@ -1510,21 +1559,24 @@ static void DowngradeWeakestToCrowns(int debug_level, ParagraphTheory *theory,
     }
     start++;
     // Now rows[start, end) is a sequence of unique body hypotheses of model.
-    if (StrongModel(model) && model->justification() == JUSTIFICATION_CENTER)
+    if (StrongModel(model) && model->justification() == JUSTIFICATION_CENTER) {
       continue;
+    }
     if (!StrongModel(model)) {
-      while (start > 0 && CrownCompatible(rows, start - 1, start, model))
+      while (start > 0 && CrownCompatible(rows, start - 1, start, model)) {
         start--;
+      }
     }
     if (start == 0 || (!StrongModel(model)) ||
         (StrongModel(model) && !ValidFirstLine(rows, start - 1, model))) {
       // crownify rows[start, end)
       const ParagraphModel *crown_model = model;
       if (StrongModel(model)) {
-        if (model->justification() == JUSTIFICATION_LEFT)
+        if (model->justification() == JUSTIFICATION_LEFT) {
           crown_model = kCrownLeft;
-        else
+        } else {
           crown_model = kCrownRight;
+        }
       }
       (*rows)[start].SetUnknown();
       (*rows)[start].AddStartLine(crown_model);
@@ -1555,8 +1607,9 @@ static void DowngradeWeakestToCrowns(int debug_level, ParagraphTheory *theory,
 // the common margin for each row in the run of rows[start, end).
 void RecomputeMarginsAndClearHypotheses(std::vector<RowScratchRegisters> *rows, int start,
                                         int end, int percentile) {
-  if (!AcceptableRowArgs(0, 0, __func__, rows, start, end))
+  if (!AcceptableRowArgs(0, 0, __func__, rows, start, end)) {
     return;
+  }
 
   int lmin, lmax, rmin, rmax;
   lmin = lmax = (*rows)[start].lmargin_ + (*rows)[start].lindent_;
@@ -1564,8 +1617,9 @@ void RecomputeMarginsAndClearHypotheses(std::vector<RowScratchRegisters> *rows, 
   for (int i = start; i < end; i++) {
     RowScratchRegisters &sr = (*rows)[i];
     sr.SetUnknown();
-    if (sr.ri_->num_words == 0)
+    if (sr.ri_->num_words == 0) {
       continue;
+    }
     UpdateRange(sr.lmargin_ + sr.lindent_, &lmin, &lmax);
     UpdateRange(sr.rmargin_ + sr.rindent_, &rmin, &rmax);
   }
@@ -1573,8 +1627,9 @@ void RecomputeMarginsAndClearHypotheses(std::vector<RowScratchRegisters> *rows, 
   STATS rights(rmin, rmax + 1);
   for (int i = start; i < end; i++) {
     RowScratchRegisters &sr = (*rows)[i];
-    if (sr.ri_->num_words == 0)
+    if (sr.ri_->num_words == 0) {
       continue;
+    }
     lefts.add(sr.lmargin_ + sr.lindent_, 1);
     rights.add(sr.rmargin_ + sr.rindent_, 1);
   }
@@ -1593,8 +1648,9 @@ void RecomputeMarginsAndClearHypotheses(std::vector<RowScratchRegisters> *rows, 
 
 // Return the median inter-word space in rows[row_start, row_end).
 int InterwordSpace(const std::vector<RowScratchRegisters> &rows, int row_start, int row_end) {
-  if (row_end < row_start + 1)
+  if (row_end < row_start + 1) {
     return 1;
+  }
   int word_height =
       (rows[row_start].ri_->lword_box.height() + rows[row_end - 1].ri_->lword_box.height()) / 2;
   int word_width =
@@ -1606,8 +1662,9 @@ int InterwordSpace(const std::vector<RowScratchRegisters> &rows, int row_start, 
     }
   }
   int minimum_reasonable_space = word_height / 3;
-  if (minimum_reasonable_space < 2)
+  if (minimum_reasonable_space < 2) {
     minimum_reasonable_space = 2;
+  }
   int median = spacing_widths.median();
   return (median > minimum_reasonable_space) ? median : minimum_reasonable_space;
 }
@@ -1616,8 +1673,9 @@ int InterwordSpace(const std::vector<RowScratchRegisters> &rows, int row_start, 
 // the end of the before line (knowing which way the text is aligned and read).
 bool FirstWordWouldHaveFit(const RowScratchRegisters &before, const RowScratchRegisters &after,
                            tesseract::ParagraphJustification justification) {
-  if (before.ri_->num_words == 0 || after.ri_->num_words == 0)
+  if (before.ri_->num_words == 0 || after.ri_->num_words == 0) {
     return true;
+  }
 
   if (justification == JUSTIFICATION_UNKNOWN) {
     tprintf("Don't call FirstWordWouldHaveFit(r, s, JUSTIFICATION_UNKNOWN).\n");
@@ -1630,8 +1688,9 @@ bool FirstWordWouldHaveFit(const RowScratchRegisters &before, const RowScratchRe
   }
   available_space -= before.ri_->average_interword_space;
 
-  if (before.ri_->ltr)
+  if (before.ri_->ltr) {
     return after.ri_->lword_box.width() < available_space;
+  }
   return after.ri_->rword_box.width() < available_space;
 }
 
@@ -1639,16 +1698,19 @@ bool FirstWordWouldHaveFit(const RowScratchRegisters &before, const RowScratchRe
 // the end of the before line (not knowing which way the text goes) in a left
 // or right alignment.
 bool FirstWordWouldHaveFit(const RowScratchRegisters &before, const RowScratchRegisters &after) {
-  if (before.ri_->num_words == 0 || after.ri_->num_words == 0)
+  if (before.ri_->num_words == 0 || after.ri_->num_words == 0) {
     return true;
+  }
 
   int available_space = before.lindent_;
-  if (before.rindent_ > available_space)
+  if (before.rindent_ > available_space) {
     available_space = before.rindent_;
+  }
   available_space -= before.ri_->average_interword_space;
 
-  if (before.ri_->ltr)
+  if (before.ri_->ltr) {
     return after.ri_->lword_box.width() < available_space;
+  }
   return after.ri_->rword_box.width() < available_space;
 }
 
@@ -1682,8 +1744,9 @@ static ParagraphModel InternalParagraphModelByOutline(
   bool ltr = (ltr_line_count >= (end - start) / 2);
 
   *consistent = true;
-  if (!AcceptableRowArgs(0, 2, __func__, rows, start, end))
+  if (!AcceptableRowArgs(0, 2, __func__, rows, start, end)) {
     return ParagraphModel();
+  }
 
   // Ensure the caller only passed us a region with a common rmargin and
   // lmargin.
@@ -1708,15 +1771,17 @@ static ParagraphModel InternalParagraphModelByOutline(
   int cdiff = cmax - cmin;
   if (rdiff > tolerance && ldiff > tolerance) {
     if (cdiff < tolerance * 2) {
-      if (end - start < 3)
+      if (end - start < 3) {
         return ParagraphModel();
+      }
       return ParagraphModel(JUSTIFICATION_CENTER, 0, 0, 0, tolerance);
     }
     *consistent = false;
     return ParagraphModel();
   }
-  if (end - start < 3) // Don't return a model for two line paras.
+  if (end - start < 3) { // Don't return a model for two line paras.
     return ParagraphModel();
+  }
 
   // These booleans keep us from saying something is aligned left when the body
   // left variance is too large.
@@ -1737,14 +1802,16 @@ static ParagraphModel InternalParagraphModelByOutline(
   // If the other is obviously ragged, it can't be the one aligned to.
   // [Note the last line is included in this raggedness.]
   if (tolerance < rdiff) {
-    if (body_admits_left_alignment && text_admits_left_alignment)
+    if (body_admits_left_alignment && text_admits_left_alignment) {
       return left_model;
+    }
     *consistent = false;
     return ParagraphModel();
   }
   if (tolerance < ldiff) {
-    if (body_admits_right_alignment && text_admits_right_alignment)
+    if (body_admits_right_alignment && text_admits_right_alignment) {
       return right_model;
+    }
     *consistent = false;
     return ParagraphModel();
   }
@@ -1756,10 +1823,12 @@ static ParagraphModel InternalParagraphModelByOutline(
   int first_left = (*rows)[start].lindent_;
   int first_right = (*rows)[start].rindent_;
 
-  if (ltr && body_admits_left_alignment && (first_left < lmin || first_left > lmax))
+  if (ltr && body_admits_left_alignment && (first_left < lmin || first_left > lmax)) {
     return left_model;
-  if (!ltr && body_admits_right_alignment && (first_right < rmin || first_right > rmax))
+  }
+  if (!ltr && body_admits_right_alignment && (first_right < rmin || first_right > rmax)) {
     return right_model;
+  }
 
   *consistent = false;
   return ParagraphModel();
@@ -1785,13 +1854,16 @@ static ParagraphModel ParagraphModelByOutline(int debug_level,
 // Do rows[start, end) form a single instance of the given paragraph model?
 bool RowsFitModel(const std::vector<RowScratchRegisters> *rows, int start, int end,
                   const ParagraphModel *model) {
-  if (!AcceptableRowArgs(0, 1, __func__, rows, start, end))
+  if (!AcceptableRowArgs(0, 1, __func__, rows, start, end)) {
     return false;
-  if (!ValidFirstLine(rows, start, model))
+  }
+  if (!ValidFirstLine(rows, start, model)) {
     return false;
+  }
   for (int i = start + 1; i < end; i++) {
-    if (!ValidBodyLine(rows, i, model))
+    if (!ValidBodyLine(rows, i, model)) {
       return false;
+    }
   }
   return true;
 }
@@ -1872,15 +1944,18 @@ static void MarkStrongEvidence(std::vector<RowScratchRegisters> *rows, int row_s
 static void ModelStrongEvidence(int debug_level, std::vector<RowScratchRegisters> *rows,
                                 int row_start, int row_end, bool allow_flush_models,
                                 ParagraphTheory *theory) {
-  if (!AcceptableRowArgs(debug_level, 2, __func__, rows, row_start, row_end))
+  if (!AcceptableRowArgs(debug_level, 2, __func__, rows, row_start, row_end)) {
     return;
+  }
 
   int start = row_start;
   while (start < row_end) {
-    while (start < row_end && (*rows)[start].GetLineType() != LT_START)
+    while (start < row_end && (*rows)[start].GetLineType() != LT_START) {
       start++;
-    if (start >= row_end - 1)
+    }
+    if (start >= row_end - 1) {
       break;
+    }
 
     int tolerance = Epsilon((*rows)[start + 1].ri_->average_interword_space);
     int end = start;
@@ -1960,8 +2035,9 @@ static void ModelStrongEvidence(int debug_level, std::vector<RowScratchRegisters
 //   (4) Smear the paragraph models to cover surrounding text.
 static void StrongEvidenceClassify(int debug_level, std::vector<RowScratchRegisters> *rows,
                                    int row_start, int row_end, ParagraphTheory *theory) {
-  if (!AcceptableRowArgs(debug_level, 2, __func__, rows, row_start, row_end))
+  if (!AcceptableRowArgs(debug_level, 2, __func__, rows, row_start, row_end)) {
     return;
+  }
 
   if (debug_level > 1) {
     tprintf("#############################################\n");
@@ -2015,8 +2091,9 @@ static void ConvertHypothesizedModelRunsToParagraphs(int debug_level,
     rows[start].NonNullHypotheses(&models);
     if (!models.empty()) {
       model = models[0];
-      if (rows[start].GetLineType(model) != LT_BODY)
+      if (rows[start].GetLineType(model) != LT_BODY) {
         single_line_paragraph = true;
+      }
     }
     if (model && !single_line_paragraph) {
       // walk back looking for more body lines and then a start line.
@@ -2140,8 +2217,9 @@ static bool RowIsStranded(const std::vector<RowScratchRegisters> &rows, int row)
           continues = false;
       }
     }
-    if (run_length > 2 || (!all_starts && run_length > 1))
+    if (run_length > 2 || (!all_starts && run_length > 1)) {
       return false;
+    }
   }
   return true;
 }
@@ -2187,10 +2265,11 @@ static void LeftoverSegments(const std::vector<RowScratchRegisters> &rows,
     }
 
     if (needs_fixing) {
-      if (!to_fix->empty() && to_fix->back().end == i - 1)
+      if (!to_fix->empty() && to_fix->back().end == i - 1) {
         to_fix->back().end = i;
-      else
+      } else {
         to_fix->push_back(Interval(i, i));
+      }
     }
   }
   // Convert inclusive intervals to half-open intervals.
@@ -2328,8 +2407,9 @@ static void InitializeTextAndBoxesPreRecognition(const MutableIterator &it, RowI
   if (!pit.Empty(RIL_WORD)) {
     do {
       fake_text += "x";
-      if (first_word)
+      if (first_word) {
         info->lword_text += "x";
+      }
       info->rword_text += "x";
       if (pit.IsAtFinalElement(RIL_WORD, RIL_SYMBOL) &&
           !pit.IsAtFinalElement(RIL_TEXTLINE, RIL_SYMBOL)) {
@@ -2339,8 +2419,9 @@ static void InitializeTextAndBoxesPreRecognition(const MutableIterator &it, RowI
       }
     } while (!pit.IsAtFinalElement(RIL_TEXTLINE, RIL_SYMBOL) && pit.Next(RIL_SYMBOL));
   }
-  if (fake_text.size() == 0)
+  if (fake_text.size() == 0) {
     return;
+  }
 
   int lspaces = info->pix_ldistance / info->average_interword_space;
   for (int i = 0; i < lspaces; i++) {
@@ -2358,19 +2439,23 @@ static void InitializeTextAndBoxesPreRecognition(const MutableIterator &it, RowI
   info->num_words = 0;
   do {
     if (word_res) {
-      if (!lword)
+      if (!lword) {
         lword = word_res;
-      if (rword != word_res)
+      }
+      if (rword != word_res) {
         info->num_words++;
+      }
       rword = word_res;
     }
     word_res = page_res_it.forward();
   } while (page_res_it.row() == this_row);
 
-  if (lword)
+  if (lword) {
     info->lword_box = lword->word->bounding_box();
-  if (rword)
+  }
+  if (rword) {
     info->rword_box = rword->word->bounding_box();
+  }
 }
 
 // Given a Tesseract Iterator pointing to a text line, fill in the paragraph
@@ -2414,14 +2499,17 @@ static void InitializeRowInfo(bool after_recognition, const MutableIterator &it,
   int trailing_ws_idx = strlen(text.get()); // strip trailing space
   while (trailing_ws_idx > 0 &&
          // isspace() only takes ASCII
-         isascii(text[trailing_ws_idx - 1]) && isspace(text[trailing_ws_idx - 1]))
+         isascii(text[trailing_ws_idx - 1]) && isspace(text[trailing_ws_idx - 1])) {
     trailing_ws_idx--;
+  }
   if (trailing_ws_idx > 0) {
     int lspaces = info->pix_ldistance / info->average_interword_space;
-    for (int i = 0; i < lspaces; i++)
+    for (int i = 0; i < lspaces; i++) {
       info->text += ' ';
-    for (int i = 0; i < trailing_ws_idx; i++)
+    }
+    for (int i = 0; i < trailing_ws_idx; i++) {
       info->text += text[i];
+    }
   }
 
   if (info->text.size() == 0) {
@@ -2440,8 +2528,9 @@ static void InitializeRowInfo(bool after_recognition, const MutableIterator &it,
       werds.push_back(word_res);
       ltr += word_res->AnyLtrCharsInWord() ? 1 : 0;
       rtl += word_res->AnyRtlCharsInWord() ? 1 : 0;
-      if (word_res->word->flag(W_REP_CHAR))
+      if (word_res->word->flag(W_REP_CHAR)) {
         num_leaders++;
+      }
     }
     word_res = page_res_it.forward();
   } while (page_res_it.row() == this_row);
@@ -2479,13 +2568,15 @@ void DetectParagraphs(int debug_level, bool after_text_recognition,
   // Convert the Tesseract structures to RowInfos
   // for the paragraph detection algorithm.
   MutableIterator row(*block_start);
-  if (row.Empty(RIL_TEXTLINE))
+  if (row.Empty(RIL_TEXTLINE)) {
     return; // end of input already.
+  }
 
   std::vector<RowInfo> row_infos;
   do {
-    if (!row.PageResIt()->row())
+    if (!row.PageResIt()->row()) {
       continue; // empty row.
+    }
     row.PageResIt()->row()->row->set_para(nullptr);
     row_infos.emplace_back();
     RowInfo &ri = row_infos.back();
@@ -2498,10 +2589,12 @@ void DetectParagraphs(int debug_level, bool after_text_recognition,
     int min_lmargin = row_infos[0].pix_ldistance;
     int min_rmargin = row_infos[0].pix_rdistance;
     for (unsigned i = 1; i < row_infos.size(); i++) {
-      if (row_infos[i].pix_ldistance < min_lmargin)
+      if (row_infos[i].pix_ldistance < min_lmargin) {
         min_lmargin = row_infos[i].pix_ldistance;
-      if (row_infos[i].pix_rdistance < min_rmargin)
+      }
+      if (row_infos[i].pix_rdistance < min_rmargin) {
         min_rmargin = row_infos[i].pix_rdistance;
+      }
     }
     if (min_lmargin > 0 || min_rmargin > 0) {
       for (auto &row_info : row_infos) {
@@ -2524,8 +2617,9 @@ void DetectParagraphs(int debug_level, bool after_text_recognition,
   // Now stitch in the row_owners into the rows.
   row = *block_start;
   for (auto &row_owner : row_owners) {
-    while (!row.PageResIt()->row())
+    while (!row.PageResIt()->row()) {
       row.Next(RIL_TEXTLINE);
+    }
     row.PageResIt()->row()->row->set_para(row_owner);
     row.Next(RIL_TEXTLINE);
   }

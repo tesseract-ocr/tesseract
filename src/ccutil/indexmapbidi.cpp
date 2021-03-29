@@ -58,13 +58,16 @@ bool IndexMap::Serialize(FILE *fp) const {
 // If swap is true, assumes a big/little-endian swap is needed.
 bool IndexMap::DeSerialize(bool swap, FILE *fp) {
   uint32_t sparse_size;
-  if (!tesseract::DeSerialize(fp, &sparse_size))
+  if (!tesseract::DeSerialize(fp, &sparse_size)) {
     return false;
-  if (swap)
+  }
+  if (swap) {
     ReverseN(&sparse_size, sizeof(sparse_size));
+  }
   // Arbitrarily limit the number of elements to protect against bad data.
-  if (sparse_size > UINT16_MAX)
+  if (sparse_size > UINT16_MAX) {
     return false;
+  }
   sparse_size_ = sparse_size;
   return tesseract::DeSerialize(swap, fp, compact_map_);
 }
@@ -81,8 +84,9 @@ IndexMapBiDi::~IndexMapBiDi() = default;
 // No need to call Setup after this.
 void IndexMapBiDi::InitAndSetupRange(int sparse_size, int start, int end) {
   Init(sparse_size, false);
-  for (int i = start; i < end; ++i)
+  for (int i = start; i < end; ++i) {
     SetMap(i, true);
+  }
   Setup();
 }
 
@@ -96,8 +100,9 @@ void IndexMapBiDi::Init(int size, bool all_mapped) {
   }
   sparse_map_.resize(size, -1);
   if (all_mapped) {
-    for (int i = 0; i < size; ++i)
+    for (int i = 0; i < size; ++i) {
       sparse_map_[i] = i;
+    }
   }
 }
 
@@ -153,8 +158,9 @@ bool IndexMapBiDi::Merge(int compact_index1, int compact_index2) {
   // This leaves behind a potential chain of parents that needs to be chased,
   // as above.
   sparse_map_[compact_map_[compact_index2]] = compact_index1;
-  if (compact_index1 >= 0)
+  if (compact_index1 >= 0) {
     compact_map_[compact_index2] = compact_map_[compact_index1];
+  }
   return true;
 }
 
@@ -174,16 +180,18 @@ void IndexMapBiDi::CompleteMerges() {
   for (int &i : sparse_map_) {
     int compact_index = MasterCompactIndex(i);
     i = compact_index;
-    if (compact_index >= compact_size)
+    if (compact_index >= compact_size) {
       compact_size = compact_index + 1;
+    }
   }
   // Re-generate the compact_map leaving holes for unused indices.
   compact_map_.clear();
   compact_map_.resize(compact_size, -1);
   for (int i = 0; i < sparse_map_.size(); ++i) {
     if (sparse_map_[i] >= 0) {
-      if (compact_map_[sparse_map_[i]] == -1)
+      if (compact_map_[sparse_map_[i]] == -1) {
         compact_map_[sparse_map_[i]] = i;
+      }
     }
   }
   // Compact the compact_map, leaving tmp_compact_map saying where each
@@ -207,8 +215,9 @@ void IndexMapBiDi::CompleteMerges() {
 
 // Writes to the given file. Returns false in case of error.
 bool IndexMapBiDi::Serialize(FILE *fp) const {
-  if (!IndexMap::Serialize(fp))
+  if (!IndexMap::Serialize(fp)) {
     return false;
+  }
   // Make a vector containing the rest of the map. If the map is many-to-one
   // then each additional sparse entry needs to be stored.
   // Normally we store only the compact map to save space.
@@ -225,11 +234,13 @@ bool IndexMapBiDi::Serialize(FILE *fp) const {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool IndexMapBiDi::DeSerialize(bool swap, FILE *fp) {
-  if (!IndexMap::DeSerialize(swap, fp))
+  if (!IndexMap::DeSerialize(swap, fp)) {
     return false;
+  }
   std::vector<int32_t> remaining_pairs;
-  if (!tesseract::DeSerialize(swap, fp, remaining_pairs))
+  if (!tesseract::DeSerialize(swap, fp, remaining_pairs)) {
     return false;
+  }
   sparse_map_.clear();
   sparse_map_.resize(sparse_size_, -1);
   for (int i = 0; i < compact_map_.size(); ++i) {

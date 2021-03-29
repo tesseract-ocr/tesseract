@@ -71,8 +71,9 @@ int ShapeClassifier::BestShapeForUnichar(const TrainingSample &sample, Pix *page
   int num_results = ClassifySample(sample, page_pix, 0, unichar_id, &results);
   for (int r = 0; r < num_results; ++r) {
     if (shapes->GetShape(results[r].shape_id).ContainsUnichar(unichar_id)) {
-      if (result != nullptr)
+      if (result != nullptr) {
         *result = results[r];
+      }
       return results[r].shape_id;
     }
   }
@@ -174,8 +175,8 @@ void ShapeClassifier::UnicharPrintResults(const char *context,
             GetUnicharset().id_to_unichar(result.unichar_id));
     if (!result.fonts.empty()) {
       tprintf(" Font Vector:");
-      for (int f = 0; f < result.fonts.size(); ++f) {
-        tprintf(" %d", result.fonts[f].fontinfo_id);
+      for (auto font : result.fonts) {
+        tprintf(" %d", font.fontinfo_id);
       }
     }
     tprintf("\n");
@@ -186,10 +187,12 @@ void ShapeClassifier::PrintResults(const char *context,
   tprintf("%s\n", context);
   for (const auto &result : results) {
     tprintf("%g:", result.rating);
-    if (result.joined)
+    if (result.joined) {
       tprintf("[J]");
-    if (result.broken)
+    }
+    if (result.broken) {
       tprintf("[B]");
+    }
     tprintf(" %s\n", GetShapeTable()->DebugStr(result.shape_id).c_str());
   }
 }
@@ -209,14 +212,17 @@ void ShapeClassifier::FilterDuplicateUnichars(std::vector<ShapeRating> *results)
         int s;
         for (s = 0; s < r; ++s) {
           const Shape &shape_s = shapes->GetShape((*results)[s].shape_id);
-          if (shape_s.ContainsUnichar(unichar_id))
+          if (shape_s.ContainsUnichar(unichar_id)) {
             break; // We found unichar_id.
+          }
         }
-        if (s == r)
+        if (s == r) {
           break; // We didn't find unichar_id.
+        }
       }
-      if (c == shape_r.size())
+      if (c == shape_r.size()) {
         continue; // We found all the unichar ids in previous answers.
+      }
     }
     filtered_results.push_back((*results)[r]);
   }

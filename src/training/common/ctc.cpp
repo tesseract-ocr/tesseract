@@ -93,8 +93,9 @@ bool CTC::ComputeLabelLimits() {
   min_labels_.resize(num_timesteps_, 0);
   max_labels_.resize(num_timesteps_, 0);
   int min_u = num_labels_ - 1;
-  if (labels_[min_u] == null_char_)
+  if (labels_[min_u] == null_char_) {
     --min_u;
+  }
   for (int t = num_timesteps_ - 1; t >= 0; --t) {
     min_labels_[t] = min_u;
     if (min_u > 0) {
@@ -107,8 +108,9 @@ bool CTC::ComputeLabelLimits() {
   int max_u = labels_[0] == null_char_;
   for (int t = 0; t < num_timesteps_; ++t) {
     max_labels_[t] = max_u;
-    if (max_labels_[t] < min_labels_[t])
+    if (max_labels_[t] < min_labels_[t]) {
       return false; // Not enough room.
+    }
     if (max_u + 1 < num_labels_) {
       ++max_u;
       if (labels_[max_u] == null_char_ && max_u + 1 < num_labels_ &&
@@ -141,13 +143,16 @@ void CTC::ComputeSimpleTargets(GENERIC_2D_ARRAY<float> *targets) const {
       }
       // Make sure that no space is left unoccupied and that non-nulls always
       // peak at 1 by stretching nulls to meet their neighbors.
-      if (l > 0)
+      if (l > 0) {
         left_half_width = mean - means[l - 1];
-      if (l + 1 < num_labels_)
+      }
+      if (l + 1 < num_labels_) {
         right_half_width = means[l + 1] - mean;
+      }
     }
-    if (mean >= 0 && mean < num_timesteps_)
+    if (mean >= 0 && mean < num_timesteps_) {
       targets->put(mean, label, 1.0f);
+    }
     for (int offset = 1; offset < left_half_width && mean >= offset; ++offset) {
       float prob = 1.0f - offset / left_half_width;
       if (mean - offset < num_timesteps_ && prob > targets->get(mean - offset, label)) {
@@ -171,10 +176,11 @@ void CTC::ComputeWidthsAndMeans(std::vector<float> *half_widths, std::vector<int
   // (optional null).
   int num_plus = 0, num_star = 0;
   for (int i = 0; i < num_labels_; ++i) {
-    if (labels_[i] != null_char_ || NeededNull(i))
+    if (labels_[i] != null_char_ || NeededNull(i)) {
       ++num_plus;
-    else
+    } else {
       ++num_star;
+    }
   }
   // Compute the size for each type. If there is enough space for everything
   // to have size>=1, then all are equal, otherwise plus_size=1 and star gets
@@ -208,8 +214,9 @@ static int BestLabel(const GENERIC_2D_ARRAY<float> &outputs, int t) {
   int num_classes = outputs.dim2();
   const float *outputs_t = outputs[t];
   for (int c = 1; c < num_classes; ++c) {
-    if (outputs_t[c] > outputs_t[result])
+    if (outputs_t[c] > outputs_t[result]) {
       result = c;
+    }
   }
   return result;
 }
@@ -221,10 +228,12 @@ float CTC::CalculateBiasFraction() {
   std::vector<int> output_labels;
   for (int t = 0; t < num_timesteps_; ++t) {
     int label = BestLabel(outputs_, t);
-    while (t + 1 < num_timesteps_ && BestLabel(outputs_, t + 1) == label)
+    while (t + 1 < num_timesteps_ && BestLabel(outputs_, t + 1) == label) {
       ++t;
-    if (label != null_char_)
+    }
+    if (label != null_char_) {
       output_labels.push_back(label);
+    }
   }
   // Simple bag of labels error calculation.
   std::vector<int> truth_counts(num_classes_);
@@ -238,8 +247,9 @@ float CTC::CalculateBiasFraction() {
   // Count the number of true and false positive non-nulls and truth labels.
   int true_pos = 0, false_pos = 0, total_labels = 0;
   for (int c = 0; c < num_classes_; ++c) {
-    if (c == null_char_)
+    if (c == null_char_) {
       continue;
+    }
     int truth_count = truth_counts[c];
     int ocr_count = output_counts[c];
     if (truth_count > 0) {
@@ -254,8 +264,9 @@ float CTC::CalculateBiasFraction() {
     // We don't need to count classes that don't exist in the truth as
     // false positives, because they don't affect CTC at all.
   }
-  if (total_labels == 0)
+  if (total_labels == 0) {
     return 0.0f;
+  }
   return exp(std::max(true_pos - false_pos, 1) * log(kMinProb_) / total_labels);
 }
 
@@ -274,8 +285,9 @@ static double LogSumExp(double ln_x, double ln_y) {
 void CTC::Forward(GENERIC_2D_ARRAY<double> *log_probs) const {
   log_probs->Resize(num_timesteps_, num_labels_, -FLT_MAX);
   log_probs->put(0, 0, log(outputs_(0, labels_[0])));
-  if (labels_[0] == null_char_)
+  if (labels_[0] == null_char_) {
     log_probs->put(0, 1, log(outputs_(0, labels_[1])));
+  }
   for (int t = 1; t < num_timesteps_; ++t) {
     const float *outputs_t = outputs_[t];
     for (int u = min_labels_[t]; u <= max_labels_[t]; ++u) {
@@ -301,8 +313,9 @@ void CTC::Forward(GENERIC_2D_ARRAY<double> *log_probs) const {
 void CTC::Backward(GENERIC_2D_ARRAY<double> *log_probs) const {
   log_probs->Resize(num_timesteps_, num_labels_, -FLT_MAX);
   log_probs->put(num_timesteps_ - 1, num_labels_ - 1, 0.0);
-  if (labels_[num_labels_ - 1] == null_char_)
+  if (labels_[num_labels_ - 1] == null_char_) {
     log_probs->put(num_timesteps_ - 1, num_labels_ - 2, 0.0);
+  }
   for (int t = num_timesteps_ - 2; t >= 0; --t) {
     const float *outputs_tp1 = outputs_[t + 1];
     for (int u = min_labels_[t]; u <= max_labels_[t]; ++u) {
@@ -331,20 +344,23 @@ void CTC::NormalizeSequence(GENERIC_2D_ARRAY<double> *probs) const {
     for (int t = 0; t < num_timesteps_; ++t) {
       // Separate impossible path from unlikely probs.
       double prob = probs->get(t, u);
-      if (prob > -FLT_MAX)
+      if (prob > -FLT_MAX) {
         prob = ClippedExp(prob - max_logprob);
-      else
+      } else {
         prob = 0.0;
+      }
       total += prob;
       probs->put(t, u, prob);
     }
     // Note that although this is a probability distribution over time and
     // therefore should sum to 1, it is important to allow some labels to be
     // all zero, (or at least tiny) as it is necessary to skip some blanks.
-    if (total < kMinTotalTimeProb_)
+    if (total < kMinTotalTimeProb_) {
       total = kMinTotalTimeProb_;
-    for (int t = 0; t < num_timesteps_; ++t)
+    }
+    for (int t = 0; t < num_timesteps_; ++t) {
       probs->put(t, u, probs->get(t, u) / total);
+    }
   }
 }
 
@@ -362,15 +378,17 @@ void CTC::LabelsToClasses(const GENERIC_2D_ARRAY<double> &probs, NetworkIO *targ
       // Note that although Graves specifies sum over all labels of the same
       // class, we need to allow skipped blanks to go to zero, so they don't
       // interfere with the non-blanks, so max is better than sum.
-      if (prob > class_probs[labels_[u]])
+      if (prob > class_probs[labels_[u]]) {
         class_probs[labels_[u]] = prob;
+      }
       //         class_probs[labels_[u]] += prob;
     }
     int best_class = 0;
     for (int c = 0; c < num_classes_; ++c) {
       targets_t[c] = class_probs[c];
-      if (class_probs[c] > class_probs[best_class])
+      if (class_probs[c] > class_probs[best_class]) {
         best_class = c;
+      }
     }
   }
 }
@@ -387,16 +405,19 @@ void CTC::NormalizeProbs(GENERIC_2D_ARRAY<float> *probs) {
     float *probs_t = (*probs)[t];
     // Compute the total and clip that to prevent amplification of noise.
     double total = 0.0;
-    for (int c = 0; c < num_classes; ++c)
+    for (int c = 0; c < num_classes; ++c) {
       total += probs_t[c];
-    if (total < kMinTotalFinalProb_)
+    }
+    if (total < kMinTotalFinalProb_) {
       total = kMinTotalFinalProb_;
+    }
     // Compute the increased total as a result of clipping.
     double increment = 0.0;
     for (int c = 0; c < num_classes; ++c) {
       double prob = probs_t[c] / total;
-      if (prob < kMinProb_)
+      if (prob < kMinProb_) {
         increment += kMinProb_ - prob;
+      }
     }
     // Now normalize with clipping. Any additional clipping is negligible.
     total += increment;

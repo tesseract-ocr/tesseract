@@ -45,8 +45,9 @@ ScrollView *to_win = nullptr;
  **********************************************************************/
 
 ScrollView *create_to_win(ICOORD page_tr) {
-  if (to_win != nullptr)
+  if (to_win != nullptr) {
     return to_win;
+  }
   to_win = new ScrollView(TO_WIN_NAME, TO_WIN_XPOS, TO_WIN_YPOS, page_tr.x() + 1, page_tr.y() + 1,
                           page_tr.x(), page_tr.y(), true);
   return to_win;
@@ -259,37 +260,44 @@ void plot_word_decisions( // draw words
       if ((blob_box.left() - prev_x >= row->min_space ||
            blob_box.left() - prev_x > row->space_threshold) &&
           blob_count > 0) {
-        if (pitch > 0 && textord_show_fixed_cuts)
+        if (pitch > 0 && textord_show_fixed_cuts) {
           plot_fp_cells(win, colour, &start_it, pitch, blob_count, &row->projection,
                         row->projection_left, row->projection_right,
                         row->xheight * textord_projection_scale);
+        }
         blob_count = 0;
         start_it = blob_it;
       }
-      if (colour == ScrollView::MAGENTA)
+      if (colour == ScrollView::MAGENTA) {
         colour = ScrollView::RED;
-      else
+      } else {
         colour = static_cast<ScrollView::Color>(colour + 1);
+      }
       if (blob_box.left() - prev_x < row->min_space) {
-        if (blob_box.left() - prev_x > row->space_threshold)
+        if (blob_box.left() - prev_x > row->space_threshold) {
           rect_colour = ScrollView::GOLDENROD;
-        else
+        } else {
           rect_colour = ScrollView::CORAL;
+        }
         // fill_color_index(win, rect_colour);
         win->Brush(rect_colour);
         win->Rectangle(prev_x, blob_box.bottom(), blob_box.left(), blob_box.top());
       }
     }
-    if (!blob->joined_to_prev())
+    if (!blob->joined_to_prev()) {
       prev_x = blob_box.right();
-    if (blob->cblob() != nullptr)
+    }
+    if (blob->cblob() != nullptr) {
       blob->cblob()->plot(win, colour, colour);
-    if (!blob->joined_to_prev() && blob->cblob() != nullptr)
+    }
+    if (!blob->joined_to_prev() && blob->cblob() != nullptr) {
       blob_count++;
+    }
   }
-  if (pitch > 0 && textord_show_fixed_cuts && blob_count > 0)
+  if (pitch > 0 && textord_show_fixed_cuts && blob_count > 0) {
     plot_fp_cells(win, colour, &start_it, pitch, blob_count, &row->projection, row->projection_left,
                   row->projection_right, row->xheight * textord_projection_scale);
+  }
 }
 
 /**********************************************************************
@@ -313,14 +321,16 @@ void plot_fp_cells(           // draw words
   FPSEGPT_IT seg_it;
   FPSEGPT *segpt; // current point
 
-  if (pitsync_linear_version)
+  if (pitsync_linear_version) {
     check_pitch_sync2(blob_it, blob_count, pitch, 2, projection, projection_left, projection_right,
                       projection_scale, occupation, &seg_list, 0, 0);
-  else
+  } else {
     check_pitch_sync(blob_it, blob_count, pitch, 2, projection, &seg_list);
+  }
   word_box = blob_it->data()->bounding_box();
-  for (; blob_count > 0; blob_count--)
+  for (; blob_count > 0; blob_count--) {
     word_box += box_next(blob_it);
+  }
   seg_it.set_to_list(&seg_list);
   for (seg_it.mark_cycle_pt(); !seg_it.cycled_list(); seg_it.forward()) {
     segpt = seg_it.data();
@@ -353,8 +363,9 @@ void plot_fp_cells2(          // draw words
   FPSEGPT *segpt; // current point
 
   word_box = blob_it.data()->bounding_box();
-  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list();)
+  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list();) {
     word_box += box_next(&blob_it);
+  }
   for (seg_it.mark_cycle_pt(); !seg_it.cycled_list(); seg_it.forward()) {
     segpt = seg_it.data();
     if (segpt->faked) {
@@ -387,8 +398,9 @@ void plot_row_cells(          // draw words
   ICOORDELT *cell; // current cell
 
   word_box = blob_it.data()->bounding_box();
-  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list();)
+  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list();) {
     word_box += box_next(&blob_it);
+  }
   win->Pen(colour);
   for (cell_it.mark_cycle_pt(); !cell_it.cycled_list(); cell_it.forward()) {
     cell = cell_it.data();

@@ -62,13 +62,15 @@ const int kNoisePadding = 4;
 // If textord_tabfind_show_images, debug images are appended to pixa_debug.
 Pix *ImageFind::FindImages(Pix *pix, DebugPixa *pixa_debug) {
   // Not worth looking at small images.
-  if (pixGetWidth(pix) < kMinImageFindSize || pixGetHeight(pix) < kMinImageFindSize)
+  if (pixGetWidth(pix) < kMinImageFindSize || pixGetHeight(pix) < kMinImageFindSize) {
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
+  }
 
   // Reduce by factor 2.
   Pix *pixr = pixReduceRankBinaryCascade(pix, 1, 0, 0, 0);
-  if (textord_tabfind_show_images && pixa_debug != nullptr)
+  if (textord_tabfind_show_images && pixa_debug != nullptr) {
     pixa_debug->AddPix(pixr, "CascadeReduced");
+  }
 
   // Get the halftone mask directly from Leptonica.
   //
@@ -85,21 +87,25 @@ Pix *ImageFind::FindImages(Pix *pix, DebugPixa *pixa_debug) {
   Pix *pixht2 = pixGenerateHalftoneMask(pixr, nullptr, &ht_found, pixadb);
   if (pixadb) {
     Pix *pixdb = pixaDisplayTiledInColumns(pixadb, 3, 1.0, 20, 2);
-    if (textord_tabfind_show_images && pixa_debug != nullptr)
+    if (textord_tabfind_show_images && pixa_debug != nullptr) {
       pixa_debug->AddPix(pixdb, "HalftoneMask");
+    }
     pixDestroy(&pixdb);
     pixaDestroy(&pixadb);
   }
   pixDestroy(&pixr);
-  if (!ht_found && pixht2 != nullptr)
+  if (!ht_found && pixht2 != nullptr) {
     pixDestroy(&pixht2);
-  if (pixht2 == nullptr)
+  }
+  if (pixht2 == nullptr) {
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
+  }
 
   // Expand back up again.
   Pix *pixht = pixExpandReplicate(pixht2, 2);
-  if (textord_tabfind_show_images && pixa_debug != nullptr)
+  if (textord_tabfind_show_images && pixa_debug != nullptr) {
     pixa_debug->AddPix(pixht, "HalftoneReplicated");
+  }
   pixDestroy(&pixht2);
 
   // Fill to capture pixels near the mask edges that were missed
@@ -110,16 +116,18 @@ Pix *ImageFind::FindImages(Pix *pix, DebugPixa *pixa_debug) {
   // Eliminate lines and bars that may be joined to images.
   Pix *pixfinemask = pixReduceRankBinaryCascade(pixht, 1, 1, 3, 3);
   pixDilateBrick(pixfinemask, pixfinemask, 5, 5);
-  if (textord_tabfind_show_images && pixa_debug != nullptr)
+  if (textord_tabfind_show_images && pixa_debug != nullptr) {
     pixa_debug->AddPix(pixfinemask, "FineMask");
+  }
   Pix *pixreduced = pixReduceRankBinaryCascade(pixht, 1, 1, 1, 1);
   Pix *pixreduced2 = pixReduceRankBinaryCascade(pixreduced, 3, 3, 3, 0);
   pixDestroy(&pixreduced);
   pixDilateBrick(pixreduced2, pixreduced2, 5, 5);
   Pix *pixcoarsemask = pixExpandReplicate(pixreduced2, 8);
   pixDestroy(&pixreduced2);
-  if (textord_tabfind_show_images && pixa_debug != nullptr)
+  if (textord_tabfind_show_images && pixa_debug != nullptr) {
     pixa_debug->AddPix(pixcoarsemask, "CoarseMask");
+  }
   // Combine the coarse and fine image masks.
   pixAnd(pixcoarsemask, pixcoarsemask, pixfinemask);
   pixDestroy(&pixfinemask);
@@ -127,13 +135,15 @@ Pix *ImageFind::FindImages(Pix *pix, DebugPixa *pixa_debug) {
   pixDilateBrick(pixcoarsemask, pixcoarsemask, 3, 3);
   Pix *pixmask = pixExpandReplicate(pixcoarsemask, 16);
   pixDestroy(&pixcoarsemask);
-  if (textord_tabfind_show_images && pixa_debug != nullptr)
+  if (textord_tabfind_show_images && pixa_debug != nullptr) {
     pixa_debug->AddPix(pixmask, "MaskDilated");
+  }
   // And the image mask with the line and bar remover.
   pixAnd(pixht, pixht, pixmask);
   pixDestroy(&pixmask);
-  if (textord_tabfind_show_images && pixa_debug != nullptr)
+  if (textord_tabfind_show_images && pixa_debug != nullptr) {
     pixa_debug->AddPix(pixht, "FinalMask");
+  }
   // Make the result image the same size as the input.
   Pix *result = pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
   pixOr(result, result, pixht);
@@ -153,21 +163,24 @@ void ImageFind::ConnCompAndRectangularize(Pix *pix, DebugPixa *pixa_debug, Boxa 
   *boxa = nullptr;
   *pixa = nullptr;
 
-  if (textord_tabfind_show_images && pixa_debug != nullptr)
+  if (textord_tabfind_show_images && pixa_debug != nullptr) {
     pixa_debug->AddPix(pix, "Conncompimage");
+  }
   // Find the individual image regions in the mask image.
   *boxa = pixConnComp(pix, pixa, 8);
   // Rectangularize the individual images. If a sharp edge in vertical and/or
   // horizontal occupancy can be found, it indicates a probably rectangular
   // image with unwanted bits merged on, so clip to the approximate rectangle.
   int npixes = 0;
-  if (*boxa != nullptr && *pixa != nullptr)
+  if (*boxa != nullptr && *pixa != nullptr) {
     npixes = pixaGetCount(*pixa);
+  }
   for (int i = 0; i < npixes; ++i) {
     int x_start, x_end, y_start, y_end;
     Pix *img_pix = pixaGetPix(*pixa, i, L_CLONE);
-    if (textord_tabfind_show_images && pixa_debug != nullptr)
+    if (textord_tabfind_show_images && pixa_debug != nullptr) {
       pixa_debug->AddPix(img_pix, "A component");
+    }
     if (pixNearlyRectangular(img_pix, kMinRectangularFraction, kMaxRectangularFraction,
                              kMaxRectangularGradient, &x_start, &y_start, &x_end, &y_end)) {
       Pix *simple_pix = pixCreate(x_end - x_start, y_end - y_start, 1);
@@ -202,18 +215,23 @@ static bool HScanForEdge(uint32_t *data, int wpl, int x_start, int x_end, int mi
     int pix_count = 0;
     uint32_t *line = data + wpl * y;
     for (int x = x_start; x < x_end; ++x) {
-      if (GET_DATA_BIT(line, x))
+      if (GET_DATA_BIT(line, x)) {
         ++pix_count;
+      }
     }
-    if (mid_rows == 0 && pix_count < min_count)
+    if (mid_rows == 0 && pix_count < min_count) {
       continue; // In the min phase.
-    if (mid_rows == 0)
+    }
+    if (mid_rows == 0) {
       *y_start = y; // Save the y_start where we came out of the min phase.
-    if (pix_count > max_count)
+    }
+    if (pix_count > max_count) {
       return true; // Found the pattern.
+    }
     ++mid_rows;
-    if (mid_rows > mid_width)
+    if (mid_rows > mid_width) {
       break; // Middle too big.
+    }
   }
   return false; // Never found max_count.
 }
@@ -232,18 +250,23 @@ static bool VScanForEdge(uint32_t *data, int wpl, int y_start, int y_end, int mi
     int pix_count = 0;
     uint32_t *line = data + y_start * wpl;
     for (int y = y_start; y < y_end; ++y, line += wpl) {
-      if (GET_DATA_BIT(line, x))
+      if (GET_DATA_BIT(line, x)) {
         ++pix_count;
+      }
     }
-    if (mid_cols == 0 && pix_count < min_count)
+    if (mid_cols == 0 && pix_count < min_count) {
       continue; // In the min phase.
-    if (mid_cols == 0)
+    }
+    if (mid_cols == 0) {
       *x_start = x; // Save the place where we came out of the min phase.
-    if (pix_count > max_count)
+    }
+    if (pix_count > max_count) {
       return true; // found the pattern.
+    }
     ++mid_cols;
-    if (mid_cols > mid_width)
+    if (mid_cols > mid_width) {
       break; // Middle too big.
+    }
   }
   return false; // Never found max_count.
 }
@@ -386,10 +409,11 @@ uint32_t ImageFind::ComposeRGB(uint32_t r, uint32_t g, uint32_t b) {
 
 // Returns the input value clipped to a uint8_t.
 uint8_t ImageFind::ClipToByte(double pixel) {
-  if (pixel < 0.0)
+  if (pixel < 0.0) {
     return 0;
-  else if (pixel >= 255.0)
+  } else if (pixel >= 255.0) {
     return 255;
+  }
   return static_cast<uint8_t>(pixel);
 }
 
@@ -419,8 +443,9 @@ void ImageFind::ComputeRectangleColors(const TBOX &rect, Pix *pix, int factor, P
   int bottom_pad = std::max(rect.bottom() - 2 * factor, 0) / factor;
   int width_pad = right_pad - left_pad;
   int height_pad = top_pad - bottom_pad;
-  if (width_pad < 1 || height_pad < 1 || width_pad + height_pad < 4)
+  if (width_pad < 1 || height_pad < 1 || width_pad + height_pad < 4) {
     return;
+  }
   // Now crop the pix to the rectangle.
   Box *scaled_box = boxCreate(left_pad, height - top_pad, width_pad, height_pad);
   Pix *scaled = pixClipRectangle(pix, scaled_box, nullptr);
@@ -564,13 +589,15 @@ bool ImageFind::BlankImageInBetween(const TBOX &box1, const TBOX &box2, const TB
   TBOX search_box(box1);
   search_box += box2;
   if (box1.x_gap(box2) >= box1.y_gap(box2)) {
-    if (box1.x_gap(box2) <= 0)
+    if (box1.x_gap(box2) <= 0) {
       return true;
+    }
     search_box.set_left(std::min(box1.right(), box2.right()));
     search_box.set_right(std::max(box1.left(), box2.left()));
   } else {
-    if (box1.y_gap(box2) <= 0)
+    if (box1.y_gap(box2) <= 0) {
       return true;
+    }
     search_box.set_top(std::max(box1.bottom(), box2.bottom()));
     search_box.set_bottom(std::min(box1.top(), box2.top()));
   }
@@ -583,8 +610,9 @@ int ImageFind::CountPixelsInRotatedBox(TBOX box, const TBOX &im_box, const FCOOR
                                        Pix *pix) {
   // Intersect it with the image box.
   box &= im_box; // This is in-place box intersection.
-  if (box.null_box())
+  if (box.null_box()) {
     return 0;
+  }
   box.rotate(rotation);
   TBOX rotated_im_box(im_box);
   rotated_im_box.rotate(rotation);
@@ -672,10 +700,12 @@ static void CutChunkFromParts(const TBOX &box, const TBOX &im_box, const FCOORD 
       if (box.left() > part_box.left()) {
         TBOX slice(part_box);
         slice.set_right(box.left());
-        if (box.top() < part_box.top())
+        if (box.top() < part_box.top()) {
           slice.set_top(box.top());
-        if (box.bottom() > part_box.bottom())
+        }
+        if (box.bottom() > part_box.bottom()) {
           slice.set_bottom(box.bottom());
+        }
         if (ImageFind::CountPixelsInRotatedBox(slice, im_box, rerotation, pix) > 0) {
           AttemptToShrinkBox(rotation, rerotation, im_box, pix, &slice);
           part_it.add_before_stay_put(
@@ -686,10 +716,12 @@ static void CutChunkFromParts(const TBOX &box, const TBOX &im_box, const FCOORD 
       if (box.right() < part_box.right()) {
         TBOX slice(part_box);
         slice.set_left(box.right());
-        if (box.top() < part_box.top())
+        if (box.top() < part_box.top()) {
           slice.set_top(box.top());
-        if (box.bottom() > part_box.bottom())
+        }
+        if (box.bottom() > part_box.bottom()) {
           slice.set_bottom(box.bottom());
+        }
         if (ImageFind::CountPixelsInRotatedBox(slice, im_box, rerotation, pix) > 0) {
           AttemptToShrinkBox(rotation, rerotation, im_box, pix, &slice);
           part_it.add_before_stay_put(
@@ -774,8 +806,9 @@ static int ExpandImageLeft(const TBOX &box, int left_limit, ColPartitionGrid *pa
     if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
       const TBOX &part_box(part->bounding_box());
       if (part_box.y_gap(box) < 0) {
-        if (part_box.right() > left_limit && part_box.right() < box.left())
+        if (part_box.right() > left_limit && part_box.right() < box.left()) {
           left_limit = part_box.right();
+        }
         break;
       }
     }
@@ -809,8 +842,9 @@ static int ExpandImageRight(const TBOX &box, int right_limit, ColPartitionGrid *
     if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
       const TBOX &part_box(part->bounding_box());
       if (part_box.y_gap(box) < 0) {
-        if (part_box.left() < right_limit && part_box.left() > box.right())
+        if (part_box.left() < right_limit && part_box.left() > box.right()) {
           right_limit = part_box.left();
+        }
         break;
       }
     }
@@ -823,8 +857,9 @@ static int ExpandImageRight(const TBOX &box, int right_limit, ColPartitionGrid *
       if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
         const TBOX &part_box(part->bounding_box());
         if (part_box.y_gap(box) < 0) {
-          if (part_box.left() < right_limit && part_box.left() > box.right())
+          if (part_box.left() < right_limit && part_box.left() > box.right()) {
             right_limit = part_box.left();
+          }
         }
       }
     }
@@ -843,8 +878,9 @@ static int ExpandImageBottom(const TBOX &box, int bottom_limit, ColPartitionGrid
     if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
       const TBOX &part_box(part->bounding_box());
       if (part_box.x_gap(box) < 0) {
-        if (part_box.top() > bottom_limit && part_box.top() < box.bottom())
+        if (part_box.top() > bottom_limit && part_box.top() < box.bottom()) {
           bottom_limit = part_box.top();
+        }
         break;
       }
     }
@@ -857,8 +893,9 @@ static int ExpandImageBottom(const TBOX &box, int bottom_limit, ColPartitionGrid
       if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
         const TBOX &part_box(part->bounding_box());
         if (part_box.x_gap(box) < 0) {
-          if (part_box.top() > bottom_limit && part_box.top() < box.bottom())
+          if (part_box.top() > bottom_limit && part_box.top() < box.bottom()) {
             bottom_limit = part_box.top();
+          }
         }
       }
     }
@@ -877,8 +914,9 @@ static int ExpandImageTop(const TBOX &box, int top_limit, ColPartitionGrid *part
     if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
       const TBOX &part_box(part->bounding_box());
       if (part_box.x_gap(box) < 0) {
-        if (part_box.bottom() < top_limit && part_box.bottom() > box.top())
+        if (part_box.bottom() < top_limit && part_box.bottom() > box.top()) {
           top_limit = part_box.bottom();
+        }
         break;
       }
     }
@@ -891,8 +929,9 @@ static int ExpandImageTop(const TBOX &box, int top_limit, ColPartitionGrid *part
       if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
         const TBOX &part_box(part->bounding_box());
         if (part_box.x_gap(box) < 0) {
-          if (part_box.bottom() < top_limit && part_box.bottom() > box.top())
+          if (part_box.bottom() < top_limit && part_box.bottom() > box.top()) {
             top_limit = part_box.bottom();
+          }
         }
       }
     }
@@ -1008,18 +1047,20 @@ static bool ExpandImageIntoParts(const TBOX &max_image_box, ColPartitionGridSear
     if (textord_tabfind_show_images > 1) {
       tprintf("Considering merge with part:");
       part->Print();
-      if (im_part_box.contains(part->bounding_box()))
+      if (im_part_box.contains(part->bounding_box())) {
         tprintf("Fully contained\n");
-      else if (!max_image_box.contains(part->bounding_box()))
+      } else if (!max_image_box.contains(part->bounding_box())) {
         tprintf("Not within text box\n");
-      else if (part->flow() == BTFT_STRONG_CHAIN)
+      } else if (part->flow() == BTFT_STRONG_CHAIN) {
         tprintf("Too strong text\n");
-      else
+      } else {
         tprintf("Real candidate\n");
+      }
     }
     if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_TEXT_ON_IMAGE ||
-        part->blob_type() == BRT_POLYIMAGE)
+        part->blob_type() == BRT_POLYIMAGE) {
       continue;
+    }
     TBOX box = part->bounding_box();
     if (max_image_box.contains(box) && part->blob_type() != BRT_NOISE) {
       if (im_part_box.contains(box)) {
@@ -1031,8 +1072,9 @@ static bool ExpandImageIntoParts(const TBOX &max_image_box, ColPartitionGridSear
       int x_dist = std::max(0, box.x_gap(im_part_box));
       int y_dist = std::max(0, box.y_gap(im_part_box));
       int dist = x_dist * x_dist + y_dist * y_dist;
-      if (dist > box.area() || dist > im_part_box.area())
+      if (dist > box.area() || dist > im_part_box.area()) {
         continue; // Not close enough.
+      }
       if (best_part == nullptr || dist < best_dist) {
         // We keep the nearest qualifier, which is not necessarily the nearest.
         best_part = part;
@@ -1151,8 +1193,9 @@ static bool ScanForOverlappingText(ColPartitionGrid *part_grid, TBOX *box) {
       }
     }
   }
-  if (!any_text_in_padded_rect)
+  if (!any_text_in_padded_rect) {
     *box = padded_box;
+  }
   return false;
 }
 
@@ -1162,8 +1205,9 @@ static bool ScanForOverlappingText(ColPartitionGrid *part_grid, TBOX *box) {
 // Box coordinates are rotated by rerotate to match the image.
 static void MarkAndDeleteImageParts(const FCOORD &rerotate, ColPartitionGrid *part_grid,
                                     ColPartition_LIST *image_parts, Pix *image_pix) {
-  if (image_pix == nullptr)
+  if (image_pix == nullptr) {
     return;
+  }
   int imageheight = pixGetHeight(image_pix);
   ColPartition_IT part_it(image_parts);
   for (; !part_it.empty(); part_it.forward()) {
@@ -1214,8 +1258,9 @@ void ImageFind::TransferImagePartsToImageMask(const FCOORD &rerotation, ColParti
 // keeping. We have to do this as a separate phase after creating the image
 // partitions as the small images are needed to join the larger ones together.
 static void DeleteSmallImages(ColPartitionGrid *part_grid) {
-  if (part_grid != nullptr)
+  if (part_grid != nullptr) {
     return;
+  }
   ColPartitionGridSearch gsearch(part_grid);
   gsearch.StartFullSearch();
   ColPartition *part;
@@ -1253,8 +1298,9 @@ void ImageFind::FindImagePartitions(Pix *image_pix, const FCOORD &rotation,
   ConnCompAndRectangularize(image_pix, pixa_debug, &boxa, &pixa);
   // Iterate the connected components in the image regions mask.
   int nboxes = 0;
-  if (boxa != nullptr && pixa != nullptr)
+  if (boxa != nullptr && pixa != nullptr) {
     nboxes = boxaGetCount(boxa);
+  }
   for (int i = 0; i < nboxes; ++i) {
     l_int32 x, y, width, height;
     boxaGetBoxGeometry(boxa, i, &x, &y, &width, &height);
@@ -1279,8 +1325,9 @@ void ImageFind::FindImagePartitions(Pix *image_pix, const FCOORD &rotation,
         ColPartition *part = part_it.extract();
         TBOX text_box(im_box);
         MaximalImageBoundingBox(part_grid, &text_box);
-        while (ExpandImageIntoParts(text_box, &rectsearch, part_grid, &part))
+        while (ExpandImageIntoParts(text_box, &rectsearch, part_grid, &part)) {
           ;
+        }
         part_it.set_to_list(&part_list);
         part_it.add_after_then_move(part);
         im_box = part->bounding_box();

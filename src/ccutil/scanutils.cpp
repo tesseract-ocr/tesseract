@@ -64,8 +64,9 @@ inline size_t LongBit() {
 
 static inline int SkipSpace(FILE *s) {
   int p;
-  while (isascii(p = fgetc(s)) && isspace(p))
+  while (isascii(p = fgetc(s)) && isspace(p)) {
     ;
+  }
   ungetc(p, s); // Make sure next char is available for reading
   return p;
 }
@@ -80,8 +81,9 @@ static inline int TestBit(unsigned long *bitmap, unsigned int bit) {
 
 static inline int DigitValue(int ch, int base) {
   if (ch >= '0' && ch <= '9') {
-    if (base >= 10 || ch <= '7')
+    if (base >= 10 || ch <= '7') {
       return ch - '0';
+    }
   } else if (ch >= 'A' && ch <= 'Z' && base == 16) {
     return ch - 'A' + 10;
   } else if (ch >= 'a' && ch <= 'z' && base == 16) {
@@ -96,8 +98,9 @@ static uintmax_t streamtoumax(FILE *s, int base) {
   uintmax_t v = 0;
   int d, c = 0;
 
-  for (c = fgetc(s); isascii(c) && isspace(c); c = fgetc(s))
+  for (c = fgetc(s); isascii(c) && isspace(c); c = fgetc(s)) {
     ;
+  }
 
   // Single optional + or -
   if (c == '-' || c == '+') {
@@ -119,14 +122,16 @@ static uintmax_t streamtoumax(FILE *s, int base) {
   } else if (base == 16) {
     if (c == '0') {
       c = fgetc(s);
-      if (c == 'x' || c == 'X')
+      if (c == 'x' || c == 'X') {
         c = fgetc(s);
+      }
     }
   }
 
   // Actual number parsing
-  for (; (c != EOF) && (d = DigitValue(c, base)) >= 0; c = fgetc(s))
+  for (; (c != EOF) && (d = DigitValue(c, base)) >= 0; c = fgetc(s)) {
     v = v * base + d;
+  }
 
   ungetc(c, s);
   return minus ? -v : v;
@@ -139,8 +144,9 @@ static double streamtofloat(FILE *s) {
   uint64_t k = 1;
   uint64_t w = 0;
 
-  for (c = fgetc(s); isascii(c) && isspace(c); c = fgetc(s))
+  for (c = fgetc(s); isascii(c) && isspace(c); c = fgetc(s)) {
     ;
+  }
 
   // Single optional + or -
   if (c == '-' || c == '+') {
@@ -149,8 +155,9 @@ static double streamtofloat(FILE *s) {
   }
 
   // Actual number parsing
-  for (; c != EOF && (d = DigitValue(c, 10)) >= 0; c = fgetc(s))
+  for (; c != EOF && (d = DigitValue(c, 10)) >= 0; c = fgetc(s)) {
     v = v * 10 + d;
+  }
   if (c == '.') {
     for (c = fgetc(s); c != EOF && (d = DigitValue(c, 10)) >= 0; c = fgetc(s)) {
       w = w * 10 + d;
@@ -231,8 +238,9 @@ static int tvfscanf(FILE *stream, const char *format, va_list ap) {
         } else if (isascii(ch) && isspace(ch)) {
           SkipSpace(stream);
         } else {
-          if (fgetc(stream) != ch)
+          if (fgetc(stream) != ch) {
             bail = BAIL_ERR; // Match failure
+          }
         }
         break;
 
@@ -284,10 +292,11 @@ static int tvfscanf(FILE *stream, const char *format, va_list ap) {
           default:
             // Output modifiers - terminal sequences
             state = ST_NORMAL;   // Next state will be normal
-            if (rank < kMinRank) // Canonicalize rank
+            if (rank < kMinRank) { // Canonicalize rank
               rank = kMinRank;
-            else if (rank > kMaxRank)
+            } else if (rank > kMaxRank) {
               rank = kMaxRank;
+            }
 
             switch (ch) {
               case 'P': // Upper case pointer
@@ -370,10 +379,11 @@ static int tvfscanf(FILE *stream, const char *format, va_list ap) {
                 {
                   double fval = streamtofloat(stream);
                   if (!(flags & FL_SPLAT)) {
-                    if (rank == RANK_INT)
+                    if (rank == RANK_INT) {
                       *va_arg(ap, float *) = static_cast<float>(fval);
-                    else if (rank == RANK_LONG)
+                    } else if (rank == RANK_LONG) {
                       *va_arg(ap, double *) = static_cast<double>(fval);
+                    }
                     converted++;
                   }
                 }
@@ -427,8 +437,9 @@ static int tvfscanf(FILE *stream, const char *format, va_list ap) {
                 break;
 
               case '%': // %% sequence
-                if (fgetc(stream) != '%')
+                if (fgetc(stream) != '%') {
                   bail = BAIL_ERR;
+                }
                 break;
 
               default:           // Anything else
@@ -464,8 +475,9 @@ static int tvfscanf(FILE *stream, const char *format, va_list ap) {
           goto match_run;
         } else {
           int i;
-          for (i = range_start; i < (static_cast<unsigned char>(ch)); i++)
+          for (i = range_start; i < (static_cast<unsigned char>(ch)); i++) {
             SetBit(matchmap, i);
+          }
           state = ST_MATCH;
         }
         break;
@@ -479,8 +491,9 @@ static int tvfscanf(FILE *stream, const char *format, va_list ap) {
             ungetc(q, stream);
             break;
           }
-          if (!(flags & FL_SPLAT))
+          if (!(flags & FL_SPLAT)) {
             *sarg = q;
+          }
           sarg++;
         }
         if (oarg == sarg) {
@@ -493,8 +506,9 @@ static int tvfscanf(FILE *stream, const char *format, va_list ap) {
     }
   }
 
-  if (bail == BAIL_EOF && !converted)
+  if (bail == BAIL_EOF && !converted) {
     converted = -1; // Return EOF (-1)
+  }
 
   return converted;
 }

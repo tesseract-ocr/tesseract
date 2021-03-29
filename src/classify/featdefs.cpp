@@ -103,8 +103,9 @@ void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs) {
  */
 void FreeCharDescription(CHAR_DESC CharDesc) {
   if (CharDesc) {
-    for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)
+    for (size_t i = 0; i < CharDesc->NumFeatureSets; i++) {
       FreeFeatureSet(CharDesc->FeatureSets[i]);
+    }
     free(CharDesc);
   }
 } /* FreeCharDescription */
@@ -124,8 +125,9 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
   CharDesc = static_cast<CHAR_DESC>(malloc(sizeof(CHAR_DESC_STRUCT)));
   CharDesc->NumFeatureSets = FeatureDefs.NumFeatureTypes;
 
-  for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)
+  for (size_t i = 0; i < CharDesc->NumFeatureSets; i++) {
     CharDesc->FeatureSets[i] = nullptr;
+  }
 
   return (CharDesc);
 } /* NewCharDescription */
@@ -148,9 +150,11 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
 void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC CharDesc, std::string &str) {
   int NumSetsToWrite = 0;
 
-  for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++)
-    if (CharDesc->FeatureSets[Type])
+  for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
+    if (CharDesc->FeatureSets[Type]) {
       NumSetsToWrite++;
+    }
+  }
 
   str += " " + std::to_string(NumSetsToWrite);
   str += "\n";
@@ -173,10 +177,11 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC Char
       for (int i = 0; i < CharDesc->FeatureSets[Type]->NumFeatures; i++) {
         FEATURE feat = CharDesc->FeatureSets[Type]->Features[i];
         for (int p = 0; p < feat->Type->NumParams; p++) {
-          if (std::isnan(feat->Params[p]) || std::isinf(feat->Params[p]))
+          if (std::isnan(feat->Params[p]) || std::isinf(feat->Params[p])) {
             well_formed = false;
-          else
+          } else {
             anything_written = true;
+          }
         }
       }
     } else {
@@ -238,9 +243,11 @@ CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, FILE *File
  * @return Feature type which corresponds to ShortName.
  */
 uint32_t ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs, const char *ShortName) {
-  for (int i = 0; i < FeatureDefs.NumFeatureTypes; i++)
-    if (!strcmp((FeatureDefs.FeatureDesc[i]->ShortName), ShortName))
+  for (int i = 0; i < FeatureDefs.NumFeatureTypes; i++) {
+    if (!strcmp((FeatureDefs.FeatureDesc[i]->ShortName), ShortName)) {
       return static_cast<uint32_t>(i);
+    }
+  }
   ASSERT_HOST(!"Illegal short name for a feature");
   return 0;
 }

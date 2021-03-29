@@ -132,14 +132,18 @@ struct EDGEPT {
     const EDGEPT *pt = this;
     do {
       pt = pt->next;
-      if (pt->pos.x < box.left())
+      if (pt->pos.x < box.left()) {
         box.set_left(pt->pos.x);
-      if (pt->pos.x > box.right())
+      }
+      if (pt->pos.x > box.right()) {
         box.set_right(pt->pos.x);
-      if (pt->pos.y < box.bottom())
+      }
+      if (pt->pos.y < box.bottom()) {
         box.set_bottom(pt->pos.y);
-      if (pt->pos.y > box.top())
+      }
+      if (pt->pos.y > box.top()) {
         box.set_top(pt->pos.y);
+      }
     } while (pt != end && pt != this);
     return box;
   }
@@ -162,8 +166,9 @@ struct EDGEPT {
     int count = 0;
     const EDGEPT *pt = this;
     do {
-      if (pt == end)
+      if (pt == end) {
         return true;
+      }
       pt = pt->next;
       ++count;
     } while (pt != this && count <= min_points);
@@ -251,8 +256,9 @@ struct TESSLINE {
     if (Contains(pt1) && Contains(pt2)) {
       EDGEPT *pt = loop;
       do {
-        if (TPOINT::IsCrossed(pt1, pt2, pt->pos, pt->next->pos))
+        if (TPOINT::IsCrossed(pt1, pt2, pt->pos, pt->next->pos)) {
           return true;
+        }
         pt = pt->next;
       } while (pt != loop);
     }
@@ -336,16 +342,18 @@ struct TBLOB {
   // Returns true if the given line segment crosses any outline of this blob.
   bool SegmentCrossesOutline(const TPOINT &pt1, const TPOINT &pt2) const {
     for (const TESSLINE *outline = outlines; outline != nullptr; outline = outline->next) {
-      if (outline->SegmentCrosses(pt1, pt2))
+      if (outline->SegmentCrosses(pt1, pt2)) {
         return true;
+      }
     }
     return false;
   }
   // Returns true if the point is contained within any of the outline boxes.
   bool Contains(const TPOINT &pt) const {
     for (const TESSLINE *outline = outlines; outline != nullptr; outline = outline->next) {
-      if (outline->Contains(pt))
+      if (outline->Contains(pt)) {
         return true;
+      }
     }
     return false;
   }
@@ -368,8 +376,9 @@ struct TBLOB {
 
   int BBArea() const {
     int total_area = 0;
-    for (TESSLINE *outline = outlines; outline != nullptr; outline = outline->next)
+    for (TESSLINE *outline = outlines; outline != nullptr; outline = outline->next) {
       total_area += outline->BBArea();
+    }
     return total_area;
   }
 

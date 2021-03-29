@@ -19,12 +19,12 @@ namespace tesseract {
 
 class TabVectorTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     vector_.reset();
   }
 
-  void TearDown() {}
+  void TearDown() override {}
 
   void MakeSimpleTabVector(int x1, int y1, int x2, int y2) {
     vector_ = std::make_unique<TabVector>();

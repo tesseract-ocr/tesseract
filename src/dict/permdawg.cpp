@@ -48,8 +48,9 @@ void Dict::go_deeper_dawg_fxn(const char *debug, const BLOB_CHOICE_LIST_VECTOR &
   auto *more_args = static_cast<DawgArgs *>(void_more_args);
   word_ending = (char_choice_index == char_choices.size() - 1);
   int word_index = word->length() - 1;
-  if (best_choice->rating() < *limit)
+  if (best_choice->rating() < *limit) {
     return;
+  }
   // Look up char in DAWG
 
   // If the current unichar is an ngram first try calling
@@ -87,8 +88,9 @@ void Dict::go_deeper_dawg_fxn(const char *debug, const BLOB_CHOICE_LIST_VECTOR &
       }
     }
     // Restore the word and copy the updated dawg state if needed.
-    while (num_unigrams-- > 0)
+    while (num_unigrams-- > 0) {
       word->remove_last_unichar_id();
+    }
     word->append_unichar_id_space_allocated(orig_uch_id, 1, 0.0, 0.0);
     if (unigrams_ok) {
       checked_unigrams = true;
@@ -159,8 +161,9 @@ WERD_CHOICE *Dict::dawg_permute_and_select(const BLOB_CHOICE_LIST_VECTOR &char_c
   auto *best_choice = new WERD_CHOICE(&getUnicharset());
   best_choice->make_bad();
   best_choice->set_rating(rating_limit);
-  if (char_choices.size() == 0 || char_choices.size() > MAX_WERD_LENGTH)
+  if (char_choices.size() == 0 || char_choices.size() > MAX_WERD_LENGTH) {
     return best_choice;
+  }
   auto *active_dawgs = new DawgPositionVector[char_choices.size() + 1];
   init_active_dawgs(&(active_dawgs[0]), true);
   DawgArgs dawg_args(&(active_dawgs[0]), &(active_dawgs[1]), NO_PERM);
@@ -201,8 +204,9 @@ void Dict::permute_choices(const char *debug, const BLOB_CHOICE_LIST_VECTOR &cha
                      prev_char_frag_info, word, certainties, limit, best_choice, attempts_left,
                      more_args);
       if (*attempts_left <= 0) {
-        if (debug)
+        if (debug) {
           tprintf("permute_choices(): attempts_left is 0\n");
+        }
         break;
       }
     }
@@ -306,8 +310,9 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id, float curr_rating, fl
   char_frag_info->certainty = curr_certainty;
   char_frag_info->num_fragments = 1;
   if (prev_fragment && !this_fragment) {
-    if (debug)
+    if (debug) {
       tprintf("Skip choice with incomplete fragment\n");
+    }
     return false;
   }
   if (this_fragment) {
@@ -315,8 +320,9 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id, float curr_rating, fl
     char_frag_info->unichar_id = INVALID_UNICHAR_ID;
     if (prev_fragment) {
       if (!this_fragment->is_continuation_of(prev_fragment)) {
-        if (debug)
+        if (debug) {
           tprintf("Non-matching fragment piece\n");
+        }
         return false;
       }
       if (this_fragment->is_ending()) {
@@ -327,8 +333,9 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id, float curr_rating, fl
                   getUnicharset().debug_str(char_frag_info->unichar_id).c_str());
         }
       } else {
-        if (debug)
+        if (debug) {
           tprintf("Record fragment continuation\n");
+        }
         char_frag_info->fragment = this_fragment;
       }
       // Update certainty and rating.
@@ -337,8 +344,9 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id, float curr_rating, fl
       char_frag_info->certainty = std::min(curr_certainty, prev_char_frag_info->certainty);
     } else {
       if (this_fragment->is_beginning()) {
-        if (debug)
+        if (debug) {
           tprintf("Record fragment beginning\n");
+        }
       } else {
         if (debug) {
           tprintf("Non-starting fragment piece with no prev_fragment\n");
@@ -348,8 +356,9 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id, float curr_rating, fl
     }
   }
   if (word_ending && char_frag_info->fragment) {
-    if (debug)
+    if (debug) {
       tprintf("Word can not end with a fragment\n");
+    }
     return false;
   }
   return true;

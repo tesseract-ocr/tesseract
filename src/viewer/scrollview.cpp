@@ -120,17 +120,20 @@ void ScrollView::MessageReceiver() {
       }
       cur->type = static_cast<SVEventType>(ev_type);
       // Correct selection coordinates so x,y is the min pt and size is +ve.
-      if (cur->x_size > 0)
+      if (cur->x_size > 0) {
         cur->x -= cur->x_size;
-      else
+      } else {
         cur->x_size = -cur->x_size;
-      if (cur->y_size > 0)
+      }
+      if (cur->y_size > 0) {
         cur->y -= cur->y_size;
-      else
+      } else {
         cur->y_size = -cur->y_size;
+      }
       // Returned y will be the bottom-left if y is reversed.
-      if (cur->window->y_axis_is_reversed_)
+      if (cur->window->y_axis_is_reversed_) {
         cur->y = cur->window->TranslateYCoordinate(cur->y + cur->y_size);
+      }
       cur->counter = counter_event_id;
       // Increase by 2 since we will also create an SVET_ANY event from cur,
       // which will have a counter_id of cur + 1 (and thus gets processed
@@ -375,8 +378,9 @@ ScrollView::~ScrollView() {
     // The event handler thread for this window *must* receive the
     // destroy event and set its pointer to this to nullptr before we allow
     // the destructor to exit.
-    while (!event_handler_ended_)
+    while (!event_handler_ended_) {
       Update();
+    }
   } else {
     svmap_mu->unlock();
   }
@@ -392,8 +396,9 @@ ScrollView::~ScrollView() {
 #ifndef GRAPHICS_DISABLED
 /// Send a message to the server, attaching the window id.
 void ScrollView::SendMsg(const char *format, ...) {
-  if (!points_->empty)
+  if (!points_->empty) {
     SendPolygon();
+  }
   va_list args;
   char message[kMaxMsgSize - 4];
 
@@ -602,8 +607,9 @@ void ScrollView::Stroke(float width) {
 // Draw a rectangle using the current pen color.
 // The rectangle is filled with the current brush color.
 void ScrollView::Rectangle(int x1, int y1, int x2, int y2) {
-  if (x1 == x2 && y1 == y2)
+  if (x1 == x2 && y1 == y2) {
     return; // Scrollviewer locks up.
+  }
   SendMsg("drawRectangle(%d,%d,%d,%d)", x1, TranslateYCoordinate(y1), x2, TranslateYCoordinate(y2));
 }
 
@@ -727,8 +733,9 @@ void ScrollView::UpdateWindow() {
 void ScrollView::Update() {
   std::lock_guard<std::mutex> guard(*svmap_mu);
   for (auto &iter : svmap) {
-    if (iter.second != nullptr)
+    if (iter.second != nullptr) {
       iter.second->UpdateWindow();
+    }
   }
 }
 
@@ -808,8 +815,9 @@ void ScrollView::Image(struct Pix *image, int x_pos, int y_pos) {
       remainder = 0;
     }
   }
-  if (bits_left > 0)
+  if (bits_left > 0) {
     base64[code_len++] = kBase64Table[remainder & 63];
+  }
   SendRawMessage(base64);
   delete[] base64;
   lept_free(data);
@@ -850,8 +858,9 @@ char ScrollView::Wait() {
   do {
     std::unique_ptr<SVEvent> ev(AwaitEvent(SVET_ANY));
     ev_type = ev->type;
-    if (ev_type == SVET_INPUT)
+    if (ev_type == SVET_INPUT) {
       ret = ev->parameter[0];
+    }
   } while (ev_type != SVET_INPUT && ev_type != SVET_CLICK);
   return ret;
 }

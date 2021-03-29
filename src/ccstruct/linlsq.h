@@ -74,22 +74,25 @@ public:
 
   // Returns the covariance.
   double covariance() const {
-    if (total_weight > 0.0)
+    if (total_weight > 0.0) {
       return (sigxy - sigx * sigy / total_weight) / total_weight;
-    else
+    } else {
       return 0.0;
+    }
   }
   double x_variance() const {
-    if (total_weight > 0.0)
+    if (total_weight > 0.0) {
       return (sigxx - sigx * sigx / total_weight) / total_weight;
-    else
+    } else {
       return 0.0;
+    }
   }
   double y_variance() const {
-    if (total_weight > 0.0)
+    if (total_weight > 0.0) {
       return (sigyy - sigy * sigy / total_weight) / total_weight;
-    else
+    } else {
       return 0.0;
+    }
   }
 
 private:

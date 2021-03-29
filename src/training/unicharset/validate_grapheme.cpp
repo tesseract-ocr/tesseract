@@ -29,8 +29,9 @@ bool ValidateGrapheme::ConsumeGraphemeIfValid() {
     }
 #endif
     if (prev_cc == CharClass::kVirama && cc == CharClass::kVirama) {
-      if (report_errors_)
+      if (report_errors_) {
         tprintf("ERROR: Two grapheme links in a row:0x%x 0x%x\n", prev_ch, ch);
+      }
       return false;
     }
     if (prev_cc != CharClass::kWhitespace && cc != CharClass::kWhitespace &&
@@ -40,35 +41,43 @@ bool ValidateGrapheme::ConsumeGraphemeIfValid() {
     bool prev_is_fwd_combiner = prev_ch == kZeroWidthJoiner || prev_cc == CharClass::kVirama ||
                                 (prev_ch == kZeroWidthNonJoiner &&
                                  (cc == CharClass::kVirama || prev_prev_ch == kZeroWidthJoiner));
-    if (num_codes_in_grapheme > 0 && !is_combiner && !prev_is_fwd_combiner)
+    if (num_codes_in_grapheme > 0 && !is_combiner && !prev_is_fwd_combiner) {
       break;
+    }
     CodeOnlyToOutput();
     ++num_codes_in_grapheme;
     prev_prev_ch = prev_ch;
     prev_ch = ch;
     prev_cc = cc;
   }
-  if (num_codes_in_grapheme > 0)
+  if (num_codes_in_grapheme > 0) {
     MultiCodePart(num_codes_in_grapheme);
+  }
   return true;
 }
 
 Validator::CharClass ValidateGrapheme::UnicodeToCharClass(char32 ch) const {
-  if (IsVedicAccent(ch))
+  if (IsVedicAccent(ch)) {
     return CharClass::kVedicMark;
+  }
   // The ZeroWidth[Non]Joiner characters are mapped to kCombiner as they
   // always combine with the previous character.
-  if (u_hasBinaryProperty(ch, UCHAR_GRAPHEME_LINK))
+  if (u_hasBinaryProperty(ch, UCHAR_GRAPHEME_LINK)) {
     return CharClass::kVirama;
-  if (u_isUWhiteSpace(ch))
+  }
+  if (u_isUWhiteSpace(ch)) {
     return CharClass::kWhitespace;
+  }
   // Workaround for Javanese Aksara's Taling, do not label it as a combiner
-  if (ch == 0xa9ba)
+  if (ch == 0xa9ba) {
     return CharClass::kConsonant;
+  }
   int char_type = u_charType(ch);
   if (char_type == U_NON_SPACING_MARK || char_type == U_ENCLOSING_MARK ||
-      char_type == U_COMBINING_SPACING_MARK || ch == kZeroWidthNonJoiner || ch == kZeroWidthJoiner)
+      char_type == U_COMBINING_SPACING_MARK || ch == kZeroWidthNonJoiner ||
+      ch == kZeroWidthJoiner) {
     return CharClass::kCombiner;
+  }
   return CharClass::kOther;
 }
 
@@ -76,13 +85,15 @@ Validator::CharClass ValidateGrapheme::UnicodeToCharClass(char32 ch) const {
 bool ValidateGrapheme::IsBadlyFormed(char32 prev_ch, char32 ch) {
   // Reject badly formed Indic vowels.
   if (IsBadlyFormedIndicVowel(prev_ch, ch)) {
-    if (report_errors_)
+    if (report_errors_) {
       tprintf("ERROR: Badly formed Indic vowel sequence:0x%x 0x%x\n", prev_ch, ch);
+    }
     return true;
   }
   if (IsBadlyFormedThai(prev_ch, ch)) {
-    if (report_errors_)
+    if (report_errors_) {
       tprintf("ERROR: Badly formed Thai:0x%x 0x%x\n", prev_ch, ch);
+    }
     return true;
   }
   return false;

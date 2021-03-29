@@ -42,8 +42,9 @@ LTRResultIterator::~LTRResultIterator() = default;
 // Returns the null terminated UTF-8 encoded text string for the current
 // object at the given level. Use delete [] to free after use.
 char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
-  if (it_->word() == nullptr)
+  if (it_->word() == nullptr) {
     return nullptr; // Already at the end!
+  }
   std::string text;
   PAGE_RES_IT res_it(*it_);
   WERD_CHOICE *best_choice = res_it.word()->best_choice;
@@ -70,8 +71,9 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
         eop = res_it.block() != res_it.prev_block() ||
               res_it.row()->row->para() != res_it.prev_row()->row->para();
       } while (level != RIL_TEXTLINE && !eop);
-      if (eop)
+      if (eop) {
         text += paragraph_separator_;
+      }
     } while (level == RIL_BLOCK && res_it.block() == res_it.prev_block());
   }
   int length = text.length() + 1;
@@ -93,8 +95,9 @@ void LTRResultIterator::SetParagraphSeparator(const char *new_para) {
 // Returns the mean confidence of the current object at the given level.
 // The number should be interpreted as a percent probability. (0.0f-100.0f)
 float LTRResultIterator::Confidence(PageIteratorLevel level) const {
-  if (it_->word() == nullptr)
+  if (it_->word() == nullptr) {
     return 0.0f; // Already at the end!
+  }
   float mean_certainty = 0.0f;
   int certainty_count = 0;
   PAGE_RES_IT res_it(*it_);
@@ -208,45 +211,53 @@ const char *LTRResultIterator::WordFontAttributes(bool *is_bold, bool *is_italic
 
 // Returns the name of the language used to recognize this word.
 const char *LTRResultIterator::WordRecognitionLanguage() const {
-  if (it_->word() == nullptr || it_->word()->tesseract == nullptr)
+  if (it_->word() == nullptr || it_->word()->tesseract == nullptr) {
     return nullptr;
+  }
   return it_->word()->tesseract->lang.c_str();
 }
 
 // Return the overall directionality of this word.
 StrongScriptDirection LTRResultIterator::WordDirection() const {
-  if (it_->word() == nullptr)
+  if (it_->word() == nullptr) {
     return DIR_NEUTRAL;
+  }
   bool has_rtl = it_->word()->AnyRtlCharsInWord();
   bool has_ltr = it_->word()->AnyLtrCharsInWord();
-  if (has_rtl && !has_ltr)
+  if (has_rtl && !has_ltr) {
     return DIR_RIGHT_TO_LEFT;
-  if (has_ltr && !has_rtl)
+  }
+  if (has_ltr && !has_rtl) {
     return DIR_LEFT_TO_RIGHT;
-  if (!has_ltr && !has_rtl)
+  }
+  if (!has_ltr && !has_rtl) {
     return DIR_NEUTRAL;
+  }
   return DIR_MIX;
 }
 
 // Returns true if the current word was found in a dictionary.
 bool LTRResultIterator::WordIsFromDictionary() const {
-  if (it_->word() == nullptr)
+  if (it_->word() == nullptr) {
     return false; // Already at the end!
+  }
   int permuter = it_->word()->best_choice->permuter();
   return permuter == SYSTEM_DAWG_PERM || permuter == FREQ_DAWG_PERM || permuter == USER_DAWG_PERM;
 }
 
 // Returns the number of blanks before the current word.
 int LTRResultIterator::BlanksBeforeWord() const {
-  if (it_->word() == nullptr)
+  if (it_->word() == nullptr) {
     return 1;
+  }
   return it_->word()->word->space();
 }
 
 // Returns true if the current word is numeric.
 bool LTRResultIterator::WordIsNumeric() const {
-  if (it_->word() == nullptr)
+  if (it_->word() == nullptr) {
     return false; // Already at the end!
+  }
   int permuter = it_->word()->best_choice->permuter();
   return permuter == NUMBER_PERM;
 }
@@ -281,8 +292,9 @@ const char *LTRResultIterator::GetBlamerMisadaptionDebug() const {
 
 // Returns true if a truth string was recorded for the current word.
 bool LTRResultIterator::HasTruthString() const {
-  if (it_->word() == nullptr)
+  if (it_->word() == nullptr) {
     return false; // Already at the end!
+  }
   if (it_->word()->blamer_bundle == nullptr || it_->word()->blamer_bundle->NoTruth()) {
     return false; // no truth information for this word
   }
@@ -292,8 +304,9 @@ bool LTRResultIterator::HasTruthString() const {
 // Returns true if the given string is equivalent to the truth string for
 // the current word.
 bool LTRResultIterator::EquivalentToTruth(const char *str) const {
-  if (!HasTruthString())
+  if (!HasTruthString()) {
     return false;
+  }
   ASSERT_HOST(it_->word()->uch_set != nullptr);
   WERD_CHOICE str_wd(str, *(it_->word()->uch_set));
   return it_->word()->blamer_bundle->ChoiceIsCorrect(&str_wd);
@@ -302,8 +315,9 @@ bool LTRResultIterator::EquivalentToTruth(const char *str) const {
 // Returns the null terminated UTF-8 encoded truth string for the current word.
 // Use delete [] to free after use.
 char *LTRResultIterator::WordTruthUTF8Text() const {
-  if (!HasTruthString())
+  if (!HasTruthString()) {
     return nullptr;
+  }
   std::string truth_text = it_->word()->blamer_bundle->TruthString();
   int length = truth_text.length() + 1;
   char *result = new char[length];
@@ -314,8 +328,9 @@ char *LTRResultIterator::WordTruthUTF8Text() const {
 // Returns the null terminated UTF-8 encoded normalized OCR string for the
 // current word. Use delete [] to free after use.
 char *LTRResultIterator::WordNormedUTF8Text() const {
-  if (it_->word() == nullptr)
+  if (it_->word() == nullptr) {
     return nullptr; // Already at the end!
+  }
   std::string ocr_text;
   WERD_CHOICE *best_choice = it_->word()->best_choice;
   const UNICHARSET *unicharset = it_->word()->uch_set;
@@ -332,10 +347,12 @@ char *LTRResultIterator::WordNormedUTF8Text() const {
 // Returns a pointer to serialized choice lattice.
 // Fills lattice_size with the number of bytes in lattice data.
 const char *LTRResultIterator::WordLattice(int *lattice_size) const {
-  if (it_->word() == nullptr)
+  if (it_->word() == nullptr) {
     return nullptr; // Already at the end!
-  if (it_->word()->blamer_bundle == nullptr)
+  }
+  if (it_->word()->blamer_bundle == nullptr) {
     return nullptr;
+  }
   *lattice_size = it_->word()->blamer_bundle->lattice_size();
   return it_->word()->blamer_bundle->lattice_data();
 }
@@ -344,8 +361,9 @@ const char *LTRResultIterator::WordLattice(int *lattice_size) const {
 // If iterating at a higher level object than symbols, eg words, then
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsSuperscript() const {
-  if (cblob_it_ == nullptr && it_->word() != nullptr)
+  if (cblob_it_ == nullptr && it_->word() != nullptr) {
     return it_->word()->best_choice->BlobPosition(blob_index_) == SP_SUPERSCRIPT;
+  }
   return false;
 }
 
@@ -353,8 +371,9 @@ bool LTRResultIterator::SymbolIsSuperscript() const {
 // If iterating at a higher level object than symbols, eg words, then
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsSubscript() const {
-  if (cblob_it_ == nullptr && it_->word() != nullptr)
+  if (cblob_it_ == nullptr && it_->word() != nullptr) {
     return it_->word()->best_choice->BlobPosition(blob_index_) == SP_SUBSCRIPT;
+  }
   return false;
 }
 
@@ -362,8 +381,9 @@ bool LTRResultIterator::SymbolIsSubscript() const {
 // If iterating at a higher level object than symbols, eg words, then
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsDropcap() const {
-  if (cblob_it_ == nullptr && it_->word() != nullptr)
+  if (cblob_it_ == nullptr && it_->word() != nullptr) {
     return it_->word()->best_choice->BlobPosition(blob_index_) == SP_DROPCAP;
+  }
   return false;
 }
 
@@ -391,8 +411,9 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator &result_it) {
       filterSpaces();
     }
   }
-  if ((oemLegacy || !lstm_choice_mode) && word_res_->ratings != nullptr)
+  if ((oemLegacy || !lstm_choice_mode) && word_res_->ratings != nullptr) {
     choices = word_res_->GetBlobChoices(result_it.blob_index_);
+  }
   if (choices != nullptr && !choices->empty()) {
     choice_it_ = new BLOB_CHOICE_IT(choices);
     choice_it_->mark_cycle_pt();
@@ -418,8 +439,9 @@ bool ChoiceIterator::Next() {
       return true;
     }
   } else {
-    if (choice_it_ == nullptr)
+    if (choice_it_ == nullptr) {
       return false;
+    }
     choice_it_->forward();
     return !choice_it_->cycled_list();
   }
@@ -432,8 +454,9 @@ const char *ChoiceIterator::GetUTF8Text() const {
     std::pair<const char *, float> choice = *LSTM_choice_it_;
     return choice.first;
   } else {
-    if (choice_it_ == nullptr)
+    if (choice_it_ == nullptr) {
       return nullptr;
+    }
     UNICHAR_ID id = choice_it_->data()->unichar_id();
     return word_res_->uch_set->id_to_unichar_ext(id);
   }
@@ -451,8 +474,9 @@ float ChoiceIterator::Confidence() const {
     std::pair<const char *, float> choice = *LSTM_choice_it_;
     confidence = 100 - rating_coefficient_ * choice.second;
   } else {
-    if (choice_it_ == nullptr)
+    if (choice_it_ == nullptr) {
       return 0.0f;
+    }
     confidence = 100 + 5 * choice_it_->data()->certainty();
   }
   return ClipToRange(confidence, 0.0f, 100.0f);
@@ -468,8 +492,9 @@ std::vector<std::vector<std::pair<const char *, float>>> *ChoiceIterator::Timest
 }
 
 void ChoiceIterator::filterSpaces() {
-  if (LSTM_choices_->empty())
+  if (LSTM_choices_->empty()) {
     return;
+  }
   std::vector<std::pair<const char *, float>>::iterator it;
   for (it = LSTM_choices_->begin(); it != LSTM_choices_->end();) {
     if (!strcmp(it->first, " ")) {

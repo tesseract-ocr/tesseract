@@ -19,8 +19,9 @@ namespace tesseract {
 // the BNF syntax, so who knows what they do.
 bool ValidateKhmer::ConsumeGraphemeIfValid() {
   const unsigned num_codes = codes_.size();
-  if (codes_used_ == num_codes)
+  if (codes_used_ == num_codes) {
     return false;
+  }
   if (codes_[codes_used_].first == CharClass::kOther) {
     UseMultiCode(1);
     return true;
@@ -31,21 +32,25 @@ bool ValidateKhmer::ConsumeGraphemeIfValid() {
     }
     return false;
   }
-  if (UseMultiCode(1))
+  if (UseMultiCode(1)) {
     return true;
+  }
   if (codes_[codes_used_].first == CharClass::kRobat ||
       codes_[codes_used_].first == CharClass::kNukta) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
   }
   while (codes_used_ + 1 < num_codes && codes_[codes_used_].first == CharClass::kVirama &&
          codes_[codes_used_ + 1].first == CharClass::kConsonant) {
     ASSERT_HOST(!CodeOnlyToOutput());
-    if (UseMultiCode(2))
+    if (UseMultiCode(2)) {
       return true;
+    }
     if (codes_[codes_used_].first == CharClass::kRobat) {
-      if (UseMultiCode(1))
+      if (UseMultiCode(1)) {
         return true;
+      }
     }
   }
   unsigned num_matra_parts = 0;
@@ -64,8 +69,9 @@ bool ValidateKhmer::ConsumeGraphemeIfValid() {
   if (codes_[codes_used_].first == CharClass::kMatra ||
       codes_[codes_used_].first == CharClass::kMatraPiece) {
     ++num_matra_parts;
-    if (UseMultiCode(num_matra_parts))
+    if (UseMultiCode(num_matra_parts)) {
       return true;
+    }
   } else if (num_matra_parts) {
     if (report_errors_) {
       tprintf("ERROR: Joiner with non-dependent vowel after it!:0x%x 0x%x\n", output_.back(),
@@ -75,48 +81,62 @@ bool ValidateKhmer::ConsumeGraphemeIfValid() {
   }
   if (codes_[codes_used_].first == CharClass::kMatraPiece &&
       codes_[codes_used_ - 1].first != CharClass::kMatraPiece) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
   }
   if (codes_[codes_used_].first == CharClass::kVowelModifier) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
   }
   if (codes_used_ + 1 < num_codes && codes_[codes_used_].first == CharClass::kVirama &&
       codes_[codes_used_ + 1].first == CharClass::kConsonant) {
     ASSERT_HOST(!CodeOnlyToOutput());
-    if (UseMultiCode(2))
+    if (UseMultiCode(2)) {
       return true;
+    }
   }
   return true;
 }
 
 Validator::CharClass ValidateKhmer::UnicodeToCharClass(char32 ch) const {
-  if (IsVedicAccent(ch))
+  if (IsVedicAccent(ch)) {
     return CharClass::kVedicMark;
-  if (ch == kZeroWidthNonJoiner)
+  }
+  if (ch == kZeroWidthNonJoiner) {
     return CharClass::kZeroWidthNonJoiner;
-  if (ch == kZeroWidthJoiner)
+  }
+  if (ch == kZeroWidthJoiner) {
     return CharClass::kZeroWidthJoiner;
+  }
   // Offset from the start of the relevant unicode code block aka code page.
   int off = ch - static_cast<char32>(script_);
   // Anything in another code block is other.
-  if (off < 0 || off >= kIndicCodePageSize)
+  if (off < 0 || off >= kIndicCodePageSize) {
     return CharClass::kOther;
-  if (off <= 0x33)
+  }
+  if (off <= 0x33) {
     return CharClass::kConsonant;
-  if (off <= 0x45)
+  }
+  if (off <= 0x45) {
     return CharClass::kMatra;
-  if (off == 0x46)
+  }
+  if (off == 0x46) {
     return CharClass::kMatraPiece;
-  if (off == 0x4c)
+  }
+  if (off == 0x4c) {
     return CharClass::kRobat;
-  if (off == 0x49 || off == 0x4a)
+  }
+  if (off == 0x49 || off == 0x4a) {
     return CharClass::kNukta;
-  if (off <= 0x51)
+  }
+  if (off <= 0x51) {
     return CharClass::kVowelModifier;
-  if (off == 0x52)
+  }
+  if (off == 0x52) {
     return CharClass::kVirama;
+  }
   return CharClass::kOther;
 }
 

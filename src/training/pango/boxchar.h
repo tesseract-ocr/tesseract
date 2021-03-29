@@ -75,10 +75,12 @@ public:
   // Sort function for sorting by left edge of box. Note that this will not
   // work properly until after InsertNewlines and InsertSpaces.
   bool operator<(const BoxChar &other) const {
-    if (box_ == nullptr)
+    if (box_ == nullptr) {
       return true;
-    if (other.box_ == nullptr)
+    }
+    if (other.box_ == nullptr) {
       return false;
+    }
     return box_->x < other.box_->x;
   }
   // Increments *num_rtl and *num_ltr according to the directionality of
@@ -133,8 +135,9 @@ private:
 // Sort predicate to sort a vector of BoxChar*.
 struct BoxCharPtrSort {
   bool operator()(const BoxChar *box1, const BoxChar *box2) const {
-    if (box1->rtl_index() >= 0 && box2->rtl_index() >= 0)
+    if (box1->rtl_index() >= 0 && box2->rtl_index() >= 0) {
       return box2->rtl_index() < box1->rtl_index();
+    }
     return *box1 < *box2;
   }
 };

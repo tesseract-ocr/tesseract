@@ -80,8 +80,9 @@ void Tesseract::TrainFromBoxes(const std::vector<TBOX> &boxes, const std::vector
   unsigned end_box = 0;
   // Don't let \t, which marks newlines in the box file, get into the line
   // content, as that makes the line unusable in training.
-  while (end_box < texts.size() && texts[end_box] == "\t")
+  while (end_box < texts.size() && texts[end_box] == "\t") {
     ++end_box;
+  }
   for (auto start_box = end_box; start_box < box_count; start_box = end_box) {
     // Find the textline of boxes starting at start and their bounding box.
     TBOX line_box = boxes[start_box];
@@ -96,8 +97,9 @@ void Tesseract::TrainFromBoxes(const std::vector<TBOX> &boxes, const std::vector
     BLOCK_IT b_it(block_list);
     for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
       BLOCK *block = b_it.data();
-      if (block->pdblk.poly_block() != nullptr && !block->pdblk.poly_block()->IsText())
+      if (block->pdblk.poly_block() != nullptr && !block->pdblk.poly_block()->IsText()) {
         continue; // Not a text block.
+      }
       TBOX block_box = block->pdblk.bounding_box();
       block_box.rotate(block->re_rotation());
       if (block_box.major_overlap(line_box)) {
@@ -114,12 +116,14 @@ void Tesseract::TrainFromBoxes(const std::vector<TBOX> &boxes, const std::vector
     } else {
       imagedata = GetLineData(line_box, boxes, texts, start_box, end_box, *best_block);
     }
-    if (imagedata != nullptr)
+    if (imagedata != nullptr) {
       training_data->AddPageToDocument(imagedata);
+    }
     // Don't let \t, which marks newlines in the box file, get into the line
     // content, as that makes the line unusable in training.
-    while (end_box < texts.size() && texts[end_box] == "\t")
+    while (end_box < texts.size() && texts[end_box] == "\t") {
       ++end_box;
+    }
   }
 }
 
@@ -131,8 +135,9 @@ ImageData *Tesseract::GetLineData(const TBOX &line_box, const std::vector<TBOX> 
                                   const BLOCK &block) {
   TBOX revised_box;
   ImageData *image_data = GetRectImage(line_box, block, kImagePadding, &revised_box);
-  if (image_data == nullptr)
+  if (image_data == nullptr) {
     return nullptr;
+  }
   image_data->set_page_number(applybox_page);
   // Copy the boxes and shift them so they are relative to the image.
   FCOORD block_rotation(block.re_rotation().x(), -block.re_rotation().y());
@@ -166,16 +171,18 @@ ImageData *Tesseract::GetRectImage(const TBOX &box, const BLOCK &block, int padd
   // Number of clockwise 90 degree rotations needed to get back to tesseract
   // coords from the clipped image.
   int num_rotations = 0;
-  if (block.re_rotation().y() > 0.0f)
+  if (block.re_rotation().y() > 0.0f) {
     num_rotations = 1;
-  else if (block.re_rotation().x() < 0.0f)
+  } else if (block.re_rotation().x() < 0.0f) {
     num_rotations = 2;
-  else if (block.re_rotation().y() < 0.0f)
+  } else if (block.re_rotation().y() < 0.0f) {
     num_rotations = 3;
+  }
   // Handle two cases automatically: 1 the box came from the block, 2 the box
   // came from a box file, and refers to the image, which the block may not.
-  if (block.pdblk.bounding_box().major_overlap(*revised_box))
+  if (block.pdblk.bounding_box().major_overlap(*revised_box)) {
     revised_box->rotate(block.re_rotation());
+  }
   // Now revised_box always refers to the image.
   // BestPix is never colormapped, but may be of any depth.
   Pix *pix = BestPix();
@@ -184,14 +191,16 @@ ImageData *Tesseract::GetRectImage(const TBOX &box, const BLOCK &block, int padd
   TBOX image_box(0, 0, width, height);
   // Clip to image bounds;
   *revised_box &= image_box;
-  if (revised_box->null_box())
+  if (revised_box->null_box()) {
     return nullptr;
+  }
   Box *clip_box = boxCreate(revised_box->left(), height - revised_box->top(), revised_box->width(),
                             revised_box->height());
   Pix *box_pix = pixClipRectangle(pix, clip_box, nullptr);
   boxDestroy(&clip_box);
-  if (box_pix == nullptr)
+  if (box_pix == nullptr) {
     return nullptr;
+  }
   if (num_rotations > 0) {
     Pix *rot_pix = pixRotateOrth(box_pix, num_rotations);
     pixDestroy(&box_pix);
@@ -210,8 +219,9 @@ ImageData *Tesseract::GetRectImage(const TBOX &box, const BLOCK &block, int padd
     // Rotated the clipped revised box back to internal coordinates.
     FCOORD rotation(block.re_rotation().x(), -block.re_rotation().y());
     revised_box->rotate(rotation);
-    if (num_rotations != 2)
+    if (num_rotations != 2) {
       vertical_text = true;
+    }
   }
   return new ImageData(vertical_text, box_pix);
 }
@@ -228,14 +238,17 @@ void Tesseract::LSTMRecognizeWord(const BLOCK &block, ROW *row, WERD_RES *word,
     word_box = TBOX(0, 0, ImageWidth(), ImageHeight());
   } else {
     float baseline = row->base_line((word_box.left() + word_box.right()) / 2);
-    if (baseline + row->descenders() < word_box.bottom())
+    if (baseline + row->descenders() < word_box.bottom()) {
       word_box.set_bottom(baseline + row->descenders());
-    if (baseline + row->x_height() + row->ascenders() > word_box.top())
+    }
+    if (baseline + row->x_height() + row->ascenders() > word_box.top()) {
       word_box.set_top(baseline + row->x_height() + row->ascenders());
+    }
   }
   ImageData *im_data = GetRectImage(word_box, block, kImagePadding, &word_box);
-  if (im_data == nullptr)
+  if (im_data == nullptr) {
     return;
+  }
 
   bool do_invert = tessedit_do_invert;
   lstm_recognizer_->RecognizeLine(*im_data, do_invert, classify_debug_level > 0,
@@ -254,8 +267,9 @@ void Tesseract::SearchWords(PointerVector<WERD_RES> *words) {
   // If we drop a word as junk, then there is always a space in front of the
   // next.
   const Dict *stopper_dict = lstm_recognizer_->GetDict();
-  if (stopper_dict == nullptr)
+  if (stopper_dict == nullptr) {
     stopper_dict = &getDict();
+  }
   bool any_nonspace_delimited = false;
   for (int w = 0; w < words->size(); ++w) {
     WERD_RES *word = (*words)[w];

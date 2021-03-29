@@ -117,8 +117,9 @@ bool TabFind::InsertBlob(bool h_spread, bool v_spread, BLOBNBOX *blob,
   blob->set_right_rule(RightEdgeForBox(box, false, false));
   blob->set_left_crossing_rule(LeftEdgeForBox(box, true, false));
   blob->set_right_crossing_rule(RightEdgeForBox(box, true, false));
-  if (blob->joined_to_prev())
+  if (blob->joined_to_prev()) {
     return false;
+  }
   grid->InsertBBox(h_spread, v_spread, blob);
   return true;
 }
@@ -165,14 +166,16 @@ int TabFind::GutterWidth(int bottom_y, int top_y, const TabVector &v, bool ignor
   BLOBNBOX *blob = nullptr;
   while ((blob = sidesearch.NextSideSearch(right_to_left)) != nullptr) {
     const TBOX &box = blob->bounding_box();
-    if (box.bottom() >= top_y || box.top() <= bottom_y)
+    if (box.bottom() >= top_y || box.top() <= bottom_y) {
       continue; // Doesn't overlap enough.
+    }
     if (box.height() >= gridsize() * 2 && box.height() > box.width() * kLineFragmentAspectRatio) {
       // Skip likely separator line residue.
       continue;
     }
-    if (ignore_unmergeables && BLOBNBOX::UnMergeableType(blob->region_type()))
+    if (ignore_unmergeables && BLOBNBOX::UnMergeableType(blob->region_type())) {
       continue; // Skip non-text if required.
+    }
     int mid_y = (box.bottom() + box.top()) / 2;
     // We use the x at the mid-y so that the required_shift guarantees
     // to clear all the blobs on the tab-stop. If we use the min/max
@@ -182,15 +185,18 @@ int TabFind::GutterWidth(int bottom_y, int top_y, const TabVector &v, bool ignor
     int gap;
     if (right_to_left) {
       gap = tab_x - box.right();
-      if (gap < 0 && box.left() - tab_x < *required_shift)
+      if (gap < 0 && box.left() - tab_x < *required_shift) {
         *required_shift = box.left() - tab_x;
+      }
     } else {
       gap = box.left() - tab_x;
-      if (gap < 0 && box.right() - tab_x > *required_shift)
+      if (gap < 0 && box.right() - tab_x > *required_shift) {
         *required_shift = box.right() - tab_x;
+      }
     }
-    if (gap > 0 && gap < min_gap)
+    if (gap > 0 && gap < min_gap) {
       min_gap = gap;
+    }
   }
   // Result may be negative, in which case,  this is a really bad tabstop.
   return min_gap - abs(*required_shift);
@@ -208,11 +214,13 @@ void TabFind::GutterWidthAndNeighbourGap(int tab_x, int mean_height, int max_gut
   *gutter_width = max_gutter;
   // If the box is away from the tabstop, we need to increase
   // the allowed gutter width.
-  if (tab_gap > 0)
+  if (tab_gap > 0) {
     *gutter_width += tab_gap;
+  }
   bool debug = WithinTestRegion(2, box.left(), box.bottom());
-  if (debug)
+  if (debug) {
     tprintf("Looking in gutter\n");
+  }
   // Find the nearest blob on the outside of the column.
   BLOBNBOX *gutter_bbox = AdjacentBlob(bbox, left, bbox->flow() == BTFT_TEXT_ON_IMAGE, 0.0,
                                        *gutter_width, box.top(), box.bottom());
@@ -227,21 +235,25 @@ void TabFind::GutterWidthAndNeighbourGap(int tab_x, int mean_height, int max_gut
       gutter_box.set_left(tab_x - max_gutter - 1);
       gutter_box.set_right(tab_x - max_gutter);
       int tab_gutter = RightEdgeForBox(gutter_box, true, false);
-      if (tab_gutter < tab_x - 1)
+      if (tab_gutter < tab_x - 1) {
         *gutter_width = tab_x - tab_gutter;
+      }
     } else {
       gutter_box.set_left(tab_x + max_gutter);
       gutter_box.set_right(tab_x + max_gutter + 1);
       int tab_gutter = LeftEdgeForBox(gutter_box, true, false);
-      if (tab_gutter > tab_x + 1)
+      if (tab_gutter > tab_x + 1) {
         *gutter_width = tab_gutter - tab_x;
+      }
     }
   }
-  if (*gutter_width > max_gutter)
+  if (*gutter_width > max_gutter) {
     *gutter_width = max_gutter;
+  }
   // Now look for a neighbour on the inside.
-  if (debug)
+  if (debug) {
     tprintf("Looking for neighbour\n");
+  }
   BLOBNBOX *neighbour = AdjacentBlob(bbox, !left, bbox->flow() == BTFT_TEXT_ON_IMAGE, 0.0,
                                      *gutter_width, box.top(), box.bottom());
   int neighbour_edge = left ? RightEdgeForBox(box, true, false) : LeftEdgeForBox(box, true, false);
@@ -251,10 +263,11 @@ void TabFind::GutterWidthAndNeighbourGap(int tab_x, int mean_height, int max_gut
       tprintf("Found neighbour:");
       n_box.print();
     }
-    if (left && n_box.left() < neighbour_edge)
+    if (left && n_box.left() < neighbour_edge) {
       neighbour_edge = n_box.left();
-    else if (!left && n_box.right() > neighbour_edge)
+    } else if (!left && n_box.right() > neighbour_edge) {
       neighbour_edge = n_box.right();
+    }
   }
   *neighbour_gap = left ? neighbour_edge - internal_x : internal_x - neighbour_edge;
 }
@@ -287,8 +300,9 @@ int TabFind::LeftEdgeForBox(const TBOX &box, bool crossing, bool extended) {
 // vector with a sort key less than the lower margin must pass to the left
 // of x at y.
 TabVector *TabFind::RightTabForBox(const TBOX &box, bool crossing, bool extended) {
-  if (v_it_.empty())
+  if (v_it_.empty()) {
     return nullptr;
+  }
   int top_y = box.top();
   int bottom_y = box.bottom();
   int mid_y = (top_y + bottom_y) / 2;
@@ -296,10 +310,12 @@ TabVector *TabFind::RightTabForBox(const TBOX &box, bool crossing, bool extended
   int min_key, max_key;
   SetupTabSearch(right, mid_y, &min_key, &max_key);
   // Position the iterator at the first TabVector with sort_key >= min_key.
-  while (!v_it_.at_first() && v_it_.data()->sort_key() >= min_key)
+  while (!v_it_.at_first() && v_it_.data()->sort_key() >= min_key) {
     v_it_.backward();
-  while (!v_it_.at_last() && v_it_.data()->sort_key() < min_key)
+  }
+  while (!v_it_.at_last() && v_it_.data()->sort_key() < min_key) {
     v_it_.forward();
+  }
   // Find the leftmost tab vector that overlaps and has XAtY(mid_y) >= right.
   TabVector *best_v = nullptr;
   int best_x = -1;
@@ -319,8 +335,9 @@ TabVector *TabFind::RightTabForBox(const TBOX &box, bool crossing, bool extended
     }
     // Break when the search is done to avoid wrapping the iterator and
     // thereby potentially slowing the next search.
-    if (v_it_.at_last() || (best_v != nullptr && v->sort_key() > key_limit))
+    if (v_it_.at_last() || (best_v != nullptr && v->sort_key() > key_limit)) {
       break; // Prevent restarting list for next call.
+    }
     v_it_.forward();
   } while (!v_it_.at_first());
   return best_v;
@@ -328,8 +345,9 @@ TabVector *TabFind::RightTabForBox(const TBOX &box, bool crossing, bool extended
 
 // As RightTabForBox, but finds the left TabVector instead.
 TabVector *TabFind::LeftTabForBox(const TBOX &box, bool crossing, bool extended) {
-  if (v_it_.empty())
+  if (v_it_.empty()) {
     return nullptr;
+  }
   int top_y = box.top();
   int bottom_y = box.bottom();
   int mid_y = (top_y + bottom_y) / 2;
@@ -337,8 +355,9 @@ TabVector *TabFind::LeftTabForBox(const TBOX &box, bool crossing, bool extended)
   int min_key, max_key;
   SetupTabSearch(left, mid_y, &min_key, &max_key);
   // Position the iterator at the last TabVector with sort_key <= max_key.
-  while (!v_it_.at_last() && v_it_.data()->sort_key() <= max_key)
+  while (!v_it_.at_last() && v_it_.data()->sort_key() <= max_key) {
     v_it_.forward();
+  }
   while (!v_it_.at_first() && v_it_.data()->sort_key() > max_key) {
     v_it_.backward();
   }
@@ -361,8 +380,9 @@ TabVector *TabFind::LeftTabForBox(const TBOX &box, bool crossing, bool extended)
     }
     // Break when the search is done to avoid wrapping the iterator and
     // thereby potentially slowing the next search.
-    if (v_it_.at_first() || (best_v != nullptr && v->sort_key() < key_limit))
+    if (v_it_.at_first() || (best_v != nullptr && v->sort_key() < key_limit)) {
       break; // Prevent restarting list for next call.
+    }
     v_it_.backward();
   } while (!v_it_.at_last());
   return best_v;
@@ -375,8 +395,9 @@ bool TabFind::CommonWidth(int width) {
   ICOORDELT_IT it(&column_widths_);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     ICOORDELT *w = it.data();
-    if (w->x() - 1 <= width && width <= w->y() + 1)
+    if (w->x() - 1 <= width && width <= w->y() + 1) {
       return true;
+    }
   }
   return false;
 }
@@ -407,8 +428,9 @@ bool TabFind::FindTabVectors(TabVector_LIST *hlines, BLOBNBOX_LIST *image_blobs,
   TabVector::MergeSimilarTabVectors(vertical_skew_, &vectors_, this);
   SortVectors();
   CleanupTabs();
-  if (!Deskew(hlines, image_blobs, block, deskew, reskew))
+  if (!Deskew(hlines, image_blobs, block, deskew, reskew)) {
     return false; // Skew angle is too large.
+  }
   part_grid->Deskew(*deskew);
   ApplyTabConstraints();
 #ifndef GRAPHICS_DISABLED
@@ -496,8 +518,9 @@ ScrollView *TabFind::FindInitialTabVectors(BLOBNBOX_LIST *image_blobs, int min_g
   }
 #endif
   // Prepare the grid.
-  if (image_blobs != nullptr)
+  if (image_blobs != nullptr) {
     InsertBlobsToGrid(true, false, image_blobs, this);
+  }
   InsertBlobsToGrid(true, false, &block->blobs, this);
   ScrollView *initial_win = FindTabBoxes(min_gutter_width, tabfind_aligned_gap_fraction);
   FindAllTabVectors(min_gutter_width);
@@ -506,8 +529,9 @@ ScrollView *TabFind::FindInitialTabVectors(BLOBNBOX_LIST *image_blobs, int min_g
   SortVectors();
   EvaluateTabs();
 #ifndef GRAPHICS_DISABLED
-  if (textord_tabfind_show_initialtabs && initial_win != nullptr)
+  if (textord_tabfind_show_initialtabs && initial_win != nullptr) {
     initial_win = DisplayTabVectors(initial_win);
+  }
 #endif
   MarkVerticalText();
   return initial_win;
@@ -544,10 +568,12 @@ ScrollView *TabFind::FindTabBoxes(int min_gutter_width, double tabfind_aligned_g
   while ((bbox = gsearch.NextFullSearch()) != nullptr) {
     if (TestBoxForTabs(bbox, min_gutter_width, tabfind_aligned_gap_fraction)) {
       // If it is any kind of tab, insert it into the vectors.
-      if (bbox->left_tab_type() != TT_NONE)
+      if (bbox->left_tab_type() != TT_NONE) {
         left_tab_boxes_.push_back(bbox);
-      if (bbox->right_tab_type() != TT_NONE)
+      }
+      if (bbox->right_tab_type() != TT_NONE) {
         right_tab_boxes_.push_back(bbox);
+      }
     }
   }
   // Sort left tabs by left and right by right to see the outermost one first
@@ -595,11 +621,13 @@ bool TabFind::TestBoxForTabs(BLOBNBOX *bbox, int min_gutter_width,
   // increased under the assumption that column partition is always larger
   // than line spacing.
   int min_spacing = static_cast<int>(height * tabfind_aligned_gap_fraction);
-  if (min_gutter_width > min_spacing)
+  if (min_gutter_width > min_spacing) {
     min_spacing = min_gutter_width;
+  }
   int min_ragged_gutter = kRaggedGutterMultiple * gridsize();
-  if (min_gutter_width > min_ragged_gutter)
+  if (min_gutter_width > min_ragged_gutter) {
     min_ragged_gutter = min_gutter_width;
+  }
   int target_right = left_x - min_spacing;
   int target_left = right_x + min_spacing;
   // We will be evaluating whether the left edge could be a left tab, and
@@ -640,81 +668,105 @@ bool TabFind::TestBoxForTabs(BLOBNBOX *bbox, int min_gutter_width,
   int alignment_tolerance = static_cast<int>(resolution_ * kAlignedFraction);
   BLOBNBOX *neighbour = nullptr;
   while ((neighbour = radsearch.NextRadSearch()) != nullptr) {
-    if (neighbour == bbox)
+    if (neighbour == bbox) {
       continue;
+    }
     TBOX nbox = neighbour->bounding_box();
     int n_left = nbox.left();
     int n_right = nbox.right();
-    if (debug)
+    if (debug) {
       tprintf("Neighbour at (%d,%d)->(%d,%d)\n", n_left, nbox.bottom(), n_right, nbox.top());
+    }
     // If the neighbouring blob is the wrong side of a separator line, then it
     // "doesn't exist" as far as we are concerned.
     if (n_right > right_column_edge || n_left < left_column_edge ||
-        left_x < neighbour->left_rule() || right_x > neighbour->right_rule())
+        left_x < neighbour->left_rule() || right_x > neighbour->right_rule()) {
       continue; // Separator line in the way.
+    }
     int n_mid_x = (n_left + n_right) / 2;
     int n_mid_y = (nbox.top() + nbox.bottom()) / 2;
     if (n_mid_x <= left_x && n_right >= target_right) {
-      if (debug)
+      if (debug) {
         tprintf("Not a left tab\n");
+      }
       is_left_tab = false;
-      if (n_mid_y < top_y)
+      if (n_mid_y < top_y) {
         maybe_left_tab_down = -INT32_MAX;
-      if (n_mid_y > bottom_y)
+      }
+      if (n_mid_y > bottom_y) {
         maybe_left_tab_up = -INT32_MAX;
+      }
     } else if (NearlyEqual(left_x, n_left, alignment_tolerance)) {
-      if (debug)
+      if (debug) {
         tprintf("Maybe a left tab\n");
-      if (n_mid_y > top_y && maybe_left_tab_up > -INT32_MAX)
+      }
+      if (n_mid_y > top_y && maybe_left_tab_up > -INT32_MAX) {
         ++maybe_left_tab_up;
-      if (n_mid_y < bottom_y && maybe_left_tab_down > -INT32_MAX)
+      }
+      if (n_mid_y < bottom_y && maybe_left_tab_down > -INT32_MAX) {
         ++maybe_left_tab_down;
+      }
     } else if (n_left < left_x && n_right >= left_x) {
       // Overlaps but not aligned so negative points on a maybe.
-      if (debug)
+      if (debug) {
         tprintf("Maybe Not a left tab\n");
-      if (n_mid_y > top_y && maybe_left_tab_up > -INT32_MAX)
+      }
+      if (n_mid_y > top_y && maybe_left_tab_up > -INT32_MAX) {
         --maybe_left_tab_up;
-      if (n_mid_y < bottom_y && maybe_left_tab_down > -INT32_MAX)
+      }
+      if (n_mid_y < bottom_y && maybe_left_tab_down > -INT32_MAX) {
         --maybe_left_tab_down;
+      }
     }
     if (n_left < left_x && nbox.y_overlap(box) && n_right >= target_right) {
       maybe_ragged_left = false;
-      if (debug)
+      if (debug) {
         tprintf("Not a ragged left\n");
+      }
     }
     if (n_mid_x >= right_x && n_left <= target_left) {
-      if (debug)
+      if (debug) {
         tprintf("Not a right tab\n");
+      }
       is_right_tab = false;
-      if (n_mid_y < top_y)
+      if (n_mid_y < top_y) {
         maybe_right_tab_down = -INT32_MAX;
-      if (n_mid_y > bottom_y)
+      }
+      if (n_mid_y > bottom_y) {
         maybe_right_tab_up = -INT32_MAX;
+      }
     } else if (NearlyEqual(right_x, n_right, alignment_tolerance)) {
-      if (debug)
+      if (debug) {
         tprintf("Maybe a right tab\n");
-      if (n_mid_y > top_y && maybe_right_tab_up > -INT32_MAX)
+      }
+      if (n_mid_y > top_y && maybe_right_tab_up > -INT32_MAX) {
         ++maybe_right_tab_up;
-      if (n_mid_y < bottom_y && maybe_right_tab_down > -INT32_MAX)
+      }
+      if (n_mid_y < bottom_y && maybe_right_tab_down > -INT32_MAX) {
         ++maybe_right_tab_down;
+      }
     } else if (n_right > right_x && n_left <= right_x) {
       // Overlaps but not aligned so negative points on a maybe.
-      if (debug)
+      if (debug) {
         tprintf("Maybe Not a right tab\n");
-      if (n_mid_y > top_y && maybe_right_tab_up > -INT32_MAX)
+      }
+      if (n_mid_y > top_y && maybe_right_tab_up > -INT32_MAX) {
         --maybe_right_tab_up;
-      if (n_mid_y < bottom_y && maybe_right_tab_down > -INT32_MAX)
+      }
+      if (n_mid_y < bottom_y && maybe_right_tab_down > -INT32_MAX) {
         --maybe_right_tab_down;
+      }
     }
     if (n_right > right_x && nbox.y_overlap(box) && n_left <= target_left) {
       maybe_ragged_right = false;
-      if (debug)
+      if (debug) {
         tprintf("Not a ragged right\n");
+      }
     }
     if (maybe_left_tab_down == -INT32_MAX && maybe_left_tab_up == -INT32_MAX &&
-        maybe_right_tab_down == -INT32_MAX && maybe_right_tab_up == -INT32_MAX)
+        maybe_right_tab_down == -INT32_MAX && maybe_right_tab_up == -INT32_MAX) {
       break;
+    }
   }
   if (is_left_tab || maybe_left_tab_up > 1 || maybe_left_tab_down > 1) {
     bbox->set_left_tab_type(TT_MAYBE_ALIGNED);
@@ -768,8 +820,9 @@ bool TabFind::NothingYOverlapsInBox(const TBOX &search_box, const TBOX &target_b
   BLOBNBOX *blob;
   while ((blob = rsearch.NextRectSearch()) != nullptr) {
     const TBOX &box = blob->bounding_box();
-    if (box.y_overlap(target_box) && !(box == target_box))
+    if (box.y_overlap(target_box) && !(box == target_box)) {
       return false;
+    }
   }
   return true;
 }
@@ -788,18 +841,21 @@ void TabFind::FindAllTabVectors(int min_gutter_width) {
                                       &dummy_vectors, &vertical_x, &vertical_y);
     vector_count += FindTabVectors(search_size, TA_RIGHT_ALIGNED, min_gutter_width, &dummy_vectors,
                                    &vertical_x, &vertical_y);
-    if (vector_count > 0)
+    if (vector_count > 0) {
       break;
+    }
   }
   // Get rid of the test vectors and reset the types of the tabs.
   dummy_vectors.clear();
   for (auto bbox : left_tab_boxes_) {
-    if (bbox->left_tab_type() == TT_CONFIRMED)
+    if (bbox->left_tab_type() == TT_CONFIRMED) {
       bbox->set_left_tab_type(TT_MAYBE_ALIGNED);
+    }
   }
   for (auto bbox : right_tab_boxes_) {
-    if (bbox->right_tab_type() == TT_CONFIRMED)
+    if (bbox->right_tab_type() == TT_CONFIRMED) {
       bbox->set_right_tab_type(TT_MAYBE_ALIGNED);
+    }
   }
   if (textord_debug_tabfind) {
     tprintf("Beginning real tab search with vertical = %d,%d...\n", vertical_x, vertical_y);
@@ -866,8 +922,9 @@ TabVector *TabFind::FindTabVector(int search_size_multiple, int min_gutter_width
 void TabFind::SetVerticalSkewAndParallelize(int vertical_x, int vertical_y) {
   // Fit the vertical vector into an ICOORD, which is 16 bit.
   vertical_skew_.set_with_shrink(vertical_x, vertical_y);
-  if (textord_debug_tabfind)
+  if (textord_debug_tabfind) {
     tprintf("Vertical skew vector=(%d,%d)\n", vertical_skew_.x(), vertical_skew_.y());
+  }
   v_it_.set_to_list(&vectors_);
   for (v_it_.mark_cycle_pt(); !v_it_.cycled_list(); v_it_.forward()) {
     TabVector *v = v_it_.data();
@@ -891,8 +948,9 @@ void TabFind::EvaluateTabs() {
     if (!tab->IsSeparator()) {
       tab->Evaluate(vertical_skew_, this);
       if (tab->BoxCount() < kMinEvaluatedTabs) {
-        if (textord_debug_tabfind > 2)
+        if (textord_debug_tabfind > 2) {
           tab->Print("Too few boxes");
+        }
         delete rule_it.extract();
         v_it_.set_to_list(&vectors_);
       } else if (WithinTestRegion(3, tab->startpt().x(), tab->startpt().y())) {
@@ -907,8 +965,9 @@ void TabFind::EvaluateTabs() {
 // can be tested for being a common width with a simple callback function.
 void TabFind::ComputeColumnWidths(ScrollView *tab_win, ColPartitionGrid *part_grid) {
 #ifndef GRAPHICS_DISABLED
-  if (tab_win != nullptr)
+  if (tab_win != nullptr) {
     tab_win->Pen(ScrollView::WHITE);
+  }
 #endif // !GRAPHICS_DISABLED
   // Accumulate column sections into a STATS
   int col_widths_size = (tright_.x() - bleft_.x()) / kColumnWidthFactor;
@@ -919,8 +978,9 @@ void TabFind::ComputeColumnWidths(ScrollView *tab_win, ColPartitionGrid *part_gr
     tab_win->Update();
   }
 #endif // !GRAPHICS_DISABLED
-  if (textord_debug_tabfind > 1)
+  if (textord_debug_tabfind > 1) {
     col_widths.print();
+  }
   // Now make a list of column widths.
   MakeColumnWidths(col_widths_size, &col_widths);
   // Turn the column width into a range.
@@ -941,17 +1001,20 @@ void TabFind::ApplyPartitionsToColumnWidths(ColPartitionGrid *part_grid, STATS *
   ColPartition *part;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
     BLOBNBOX_C_IT blob_it(part->boxes());
-    if (blob_it.empty())
+    if (blob_it.empty()) {
       continue;
+    }
     BLOBNBOX *left_blob = blob_it.data();
     blob_it.move_to_last();
     BLOBNBOX *right_blob = blob_it.data();
     TabVector *left_vector = LeftTabForBox(left_blob->bounding_box(), true, false);
-    if (left_vector == nullptr || left_vector->IsRightTab())
+    if (left_vector == nullptr || left_vector->IsRightTab()) {
       continue;
+    }
     TabVector *right_vector = RightTabForBox(right_blob->bounding_box(), true, false);
-    if (right_vector == nullptr || right_vector->IsLeftTab())
+    if (right_vector == nullptr || right_vector->IsLeftTab()) {
       continue;
+    }
 
     int line_left = left_vector->XAtY(left_blob->bounding_box().bottom());
     int line_right = right_vector->XAtY(right_blob->bounding_box().bottom());
@@ -959,8 +1022,9 @@ void TabFind::ApplyPartitionsToColumnWidths(ColPartitionGrid *part_grid, STATS *
     int width = line_right - line_left;
     if (col_widths != nullptr) {
       AddPartnerVector(left_blob, right_blob, left_vector, right_vector);
-      if (width >= kMinColumnWidth)
+      if (width >= kMinColumnWidth) {
         col_widths->add(width / kColumnWidthFactor, 1);
+      }
     } else {
       width /= kColumnWidthFactor;
       ICOORDELT_IT it(&column_widths_);
@@ -968,8 +1032,9 @@ void TabFind::ApplyPartitionsToColumnWidths(ColPartitionGrid *part_grid, STATS *
         ICOORDELT *w = it.data();
         if (NearlyEqual<int>(width, w->y(), 1)) {
           int true_width = part->bounding_box().width() / kColumnWidthFactor;
-          if (true_width <= w->y() && true_width > w->x())
+          if (true_width <= w->y() && true_width > w->x()) {
             w->set_x(true_width);
+          }
           break;
         }
       }
@@ -1003,9 +1068,10 @@ void TabFind::MakeColumnWidths(int col_widths_size, STATS *col_widths) {
         col_count > kMinFractionalLinesInColumn * total_col_count) {
       auto *w = new ICOORDELT(0, width);
       w_it.add_after_then_move(w);
-      if (textord_debug_tabfind)
+      if (textord_debug_tabfind) {
         tprintf("Column of width %d has %d = %.2f%% lines\n", width * kColumnWidthFactor, col_count,
                 100.0 * col_count / total_col_count);
+      }
     }
   }
 }
@@ -1013,14 +1079,16 @@ void TabFind::MakeColumnWidths(int col_widths_size, STATS *col_widths) {
 // Mark blobs as being in a vertical text line where that is the case.
 // Returns true if the majority of the image is vertical text lines.
 void TabFind::MarkVerticalText() {
-  if (textord_debug_tabfind)
+  if (textord_debug_tabfind) {
     tprintf("Checking for vertical lines\n");
+  }
   BlobGridSearch gsearch(this);
   gsearch.StartFullSearch();
   BLOBNBOX *blob = nullptr;
   while ((blob = gsearch.NextFullSearch()) != nullptr) {
-    if (blob->region_type() < BRT_UNKNOWN)
+    if (blob->region_type() < BRT_UNKNOWN) {
       continue;
+    }
     if (blob->UniquelyVertical()) {
       blob->set_region_type(BRT_VERT_TEXT);
     }
@@ -1036,19 +1104,22 @@ int TabFind::FindMedianGutterWidth(TabVector_LIST *lines) {
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     TabVector *v = it.data();
     TabVector *partner = v->GetSinglePartner();
-    if (!v->IsLeftTab() || v->IsSeparator() || !partner)
+    if (!v->IsLeftTab() || v->IsSeparator() || !partner) {
       continue;
+    }
     heights.add(partner->startpt().x() - v->startpt().x(), 1);
     if (prev_right > 0 && v->startpt().x() > prev_right) {
       gaps.add(v->startpt().x() - prev_right, 1);
     }
     prev_right = partner->startpt().x();
   }
-  if (textord_debug_tabfind)
+  if (textord_debug_tabfind) {
     tprintf("TabGutter total %d  median_gap %.2f  median_hgt %.2f\n", gaps.get_total(),
             gaps.median(), heights.median());
-  if (gaps.get_total() < kMinLinesInColumn)
+  }
+  if (gaps.get_total() < kMinLinesInColumn) {
     return 0;
+  }
   return static_cast<int>(gaps.median());
 }
 
@@ -1075,8 +1146,9 @@ BLOBNBOX *TabFind::AdjacentBlob(const BLOBNBOX *bbox, bool look_left, bool ignor
       tprintf("Adjacent blob: considering box:");
       neighbour->bounding_box().print();
     }
-    if (neighbour == bbox || (ignore_images && neighbour->region_type() < BRT_UNKNOWN))
+    if (neighbour == bbox || (ignore_images && neighbour->region_type() < BRT_UNKNOWN)) {
       continue;
+    }
     const TBOX &nbox = neighbour->bounding_box();
     int n_top_y = nbox.top();
     int n_bottom_y = nbox.bottom();
@@ -1092,25 +1164,28 @@ BLOBNBOX *TabFind::AdjacentBlob(const BLOBNBOX *bbox, bool look_left, bool ignor
       if (look_left == (n_mid_x < mid_x) && n_mid_x != mid_x) {
         if (h_gap > gap_limit) {
           // Hit a big gap before next tab so don't return anything.
-          if (debug)
+          if (debug) {
             tprintf("Giving up due to big gap = %d vs %d\n", h_gap, gap_limit);
+          }
           return result;
         }
         if (h_gap > 0 && (look_left ? neighbour->right_tab_type() : neighbour->left_tab_type()) >=
                              TT_CONFIRMED) {
           // Hit a tab facing the wrong way. Stop in case we are crossing
           // the column boundary.
-          if (debug)
+          if (debug) {
             tprintf("Collision with like tab of type %d at %d,%d\n",
                     look_left ? neighbour->right_tab_type() : neighbour->left_tab_type(), n_left,
                     nbox.bottom());
+          }
           return result;
         }
         // This is a good fit to the line. Continue with this
         // neighbour as the bbox if the best gap.
         if (result == nullptr || h_gap < best_gap) {
-          if (debug)
+          if (debug) {
             tprintf("Good result\n");
+          }
           result = neighbour;
           best_gap = h_gap;
         } else {
@@ -1124,8 +1199,9 @@ BLOBNBOX *TabFind::AdjacentBlob(const BLOBNBOX *bbox, bool look_left, bool ignor
       tprintf("Insufficient overlap\n");
     }
   }
-  if (WithinTestRegion(3, left, box.top()))
+  if (WithinTestRegion(3, left, box.top())) {
     tprintf("Giving up due to end of search\n");
+  }
   return result; // Hit the edge and found nothing.
 }
 
@@ -1211,8 +1287,9 @@ void TabFind::RotateBlobList(const FCOORD &rotation, BLOBNBOX_LIST *blobs) {
 bool TabFind::Deskew(TabVector_LIST *hlines, BLOBNBOX_LIST *image_blobs, TO_BLOCK *block,
                      FCOORD *deskew, FCOORD *reskew) {
   ComputeDeskewVectors(deskew, reskew);
-  if (deskew->x() < kCosMaxSkewAngle)
+  if (deskew->x() < kCosMaxSkewAngle) {
     return false;
+  }
   RotateBlobList(*deskew, image_blobs);
   RotateBlobList(*deskew, &block->blobs);
   RotateBlobList(*deskew, &block->small_blobs);
@@ -1266,8 +1343,9 @@ void TabFind::ResetForVerticalText(const FCOORD &rotate, const FCOORD &rerotate,
   // Adjust the min gutter width for better tabbox selection
   // in 2nd call to FindInitialTabVectors().
   int median_gutter = FindMedianGutterWidth(&vlines);
-  if (median_gutter > *min_gutter_width)
+  if (median_gutter > *min_gutter_width) {
     *min_gutter_width = median_gutter;
+  }
 
   TabVector_IT h_it(horizontal_lines);
   for (h_it.mark_cycle_pt(); !h_it.cycled_list(); h_it.forward()) {
@@ -1290,8 +1368,9 @@ void TabFind::ResetForVerticalText(const FCOORD &rotate, const FCOORD &rerotate,
 void TabFind::Reset() {
   v_it_.move_to_first();
   for (v_it_.mark_cycle_pt(); !v_it_.cycled_list(); v_it_.forward()) {
-    if (!v_it_.data()->IsSeparator())
+    if (!v_it_.data()->IsSeparator()) {
       delete v_it_.extract();
+    }
   }
   Clear();
 }
@@ -1351,22 +1430,25 @@ void TabFind::ApplyTabConstraints() {
   // list of partners like there is with the front-to-front.
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     TabVector *v = it.data();
-    if (!v->IsRightTab())
+    if (!v->IsRightTab()) {
       continue;
+    }
     // For each back-to-back pair of vectors, try for common top and bottom.
     TabVector_IT partner_it(it);
     for (partner_it.forward(); !partner_it.at_first(); partner_it.forward()) {
       TabVector *partner = partner_it.data();
-      if (!partner->IsLeftTab() || !v->VOverlap(*partner))
+      if (!partner->IsLeftTab() || !v->VOverlap(*partner)) {
         continue;
+      }
       v->SetupPartnerConstraints(partner);
     }
   }
   // Now actually apply the constraints to get common start/end points.
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     TabVector *v = it.data();
-    if (!v->IsSeparator())
+    if (!v->IsSeparator()) {
       v->ApplyConstraints();
+    }
   }
   // TODO(rays) Where constraint application fails, it would be good to try
   // checking the ends to see if they really should be moved.

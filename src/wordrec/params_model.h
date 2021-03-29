@@ -49,8 +49,9 @@ public:
   void Print();
   // Clears weights for all passes.
   void Clear() {
-    for (auto &p : weights_vec_)
+    for (auto &p : weights_vec_) {
       p.clear();
+    }
   }
   // Copies the weights of the given params model.
   void Copy(const ParamsModel &other_model);

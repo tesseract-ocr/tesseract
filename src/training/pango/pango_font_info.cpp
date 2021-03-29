@@ -102,8 +102,9 @@ PangoFontInfo::~PangoFontInfo() {
 }
 
 std::string PangoFontInfo::DescriptionName() const {
-  if (!desc_)
+  if (!desc_) {
     return "";
+  }
   char *desc_str = pango_font_description_to_string(desc_);
   std::string desc_name(desc_str);
   g_free(desc_str);
@@ -223,8 +224,9 @@ bool PangoFontInfo::CoversUTF8Text(const char *utf8_text, int byte_length) const
   PangoCoverage *coverage = pango_font_get_coverage(font, nullptr);
   for (UNICHAR::const_iterator it = UNICHAR::begin(utf8_text, byte_length);
        it != UNICHAR::end(utf8_text, byte_length); ++it) {
-    if (IsWhitespace(*it) || pango_is_zero_width(*it))
+    if (IsWhitespace(*it) || pango_is_zero_width(*it)) {
       continue;
+    }
     if (pango_coverage_get(coverage, *it) != PANGO_COVERAGE_EXACT) {
       char tmp[5];
       int len = it.get_utf8(tmp);
@@ -313,8 +315,9 @@ bool PangoFontInfo::GetSpacingProperties(const std::string &utf8_char, int *x_be
                                          int *x_advance) const {
   // Convert to equivalent PangoFont structure
   PangoFont *font = ToPangoFont();
-  if (!font)
+  if (!font) {
     return false;
+  }
   // Find the glyph index in the font for the supplied utf8 character.
   int total_advance = 0;
   int min_bearing = 0;
@@ -355,8 +358,9 @@ bool PangoFontInfo::CanRenderString(const char *utf8_word, int len) const {
 
 bool PangoFontInfo::CanRenderString(const char *utf8_word, int len,
                                     std::vector<std::string> *graphemes) const {
-  if (graphemes)
+  if (graphemes) {
     graphemes->clear();
+  }
   // We check for font coverage of the text first, as otherwise Pango could
   // (undesirably) fall back to another font that does have the required
   // coverage.
@@ -419,8 +423,9 @@ bool PangoFontInfo::CanRenderString(const char *utf8_word, int len,
       int end_glyph_index = cluster_iter.end_glyph;
       std::string cluster_text =
           std::string(utf8_word + start_byte_index, end_byte_index - start_byte_index);
-      if (graphemes)
+      if (graphemes) {
         graphemes->push_back(cluster_text);
+      }
       if (IsUTF8Whitespace(cluster_text.c_str())) {
         tlog(2, "Skipping whitespace\n");
         continue;
@@ -451,8 +456,9 @@ bool PangoFontInfo::CanRenderString(const char *utf8_word, int len,
   pango_layout_iter_free(run_iter);
   g_object_unref(context);
   g_object_unref(layout);
-  if (bad_glyph && graphemes)
+  if (bad_glyph && graphemes) {
     graphemes->clear();
+  }
   return !bad_glyph;
 }
 
@@ -523,8 +529,9 @@ static bool ShouldIgnoreFontFamilyName(const char *query) {
   static const char *kIgnoredFamilyNames[] = {"Sans", "Serif", "Monospace", nullptr};
   const char **list = kIgnoredFamilyNames;
   for (; *list != nullptr; ++list) {
-    if (!strcmp(*list, query))
+    if (!strcmp(*list, query)) {
       return true;
+    }
   }
   return false;
 }
@@ -577,8 +584,9 @@ int FontUtils::FontScore(const std::unordered_map<char32, int64_t> &ch_map,
   }
   PangoFont *font = font_info.ToPangoFont();
   PangoCoverage *coverage = nullptr;
-  if (font != nullptr)
+  if (font != nullptr) {
     coverage = pango_font_get_coverage(font, nullptr);
+  }
   if (ch_flags) {
     ch_flags->clear();
     ch_flags->reserve(ch_map.size());
@@ -669,20 +677,24 @@ bool FontUtils::SelectFont(const char *utf8_word, const int utf8_len, std::strin
 bool FontUtils::SelectFont(const char *utf8_word, const int utf8_len,
                            const std::vector<std::string> &all_fonts, std::string *font_name,
                            std::vector<std::string> *graphemes) {
-  if (font_name)
+  if (font_name) {
     font_name->clear();
-  if (graphemes)
+  }
+  if (graphemes) {
     graphemes->clear();
+  }
   for (const auto &all_font : all_fonts) {
     PangoFontInfo font;
     std::vector<std::string> found_graphemes;
     ASSERT_HOST_MSG(font.ParseFontDescriptionName(all_font), "Could not parse font desc name %s\n",
                     all_font.c_str());
     if (font.CanRenderString(utf8_word, utf8_len, &found_graphemes)) {
-      if (graphemes)
+      if (graphemes) {
         graphemes->swap(found_graphemes);
-      if (font_name)
+      }
+      if (font_name) {
         *font_name = all_font;
+      }
       return true;
     }
   }

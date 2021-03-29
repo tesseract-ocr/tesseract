@@ -272,8 +272,9 @@ int AddIntProto(INT_CLASS Class) {
   INT_PROTO Proto;
   uint32_t *Word;
 
-  if (Class->NumProtos >= MAX_NUM_PROTOS)
+  if (Class->NumProtos >= MAX_NUM_PROTOS) {
     return (NO_PROTO);
+  }
 
   Index = Class->NumProtos++;
 
@@ -294,8 +295,9 @@ int AddIntProto(INT_CLASS Class) {
   /* initialize proto so its length is zero and it isn't in any configs */
   Class->ProtoLengths[Index] = 0;
   Proto = ProtoForProtoId(Class, Index);
-  for (Word = Proto->Configs; Word < Proto->Configs + WERDS_PER_CONFIG_VEC; *Word++ = 0)
+  for (Word = Proto->Configs; Word < Proto->Configs + WERDS_PER_CONFIG_VEC; *Word++ = 0) {
     ;
+  }
 
   return (Index);
 }
@@ -354,8 +356,9 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId, INT_CLASS Class, bool debug
   int Index;
   PROTO_SET ProtoSet;
 
-  if (ProtoId >= Class->NumProtos)
+  if (ProtoId >= Class->NumProtos) {
     tprintf("AddProtoToProtoPruner:assert failed: %d < %d", ProtoId, Class->NumProtos);
+  }
   assert(ProtoId < Class->NumProtos);
 
   Index = IndexForProto(ProtoId);
@@ -419,8 +422,9 @@ uint8_t CircBucketFor(float param, float offset, int num_buckets) {
  * - ProtoShapes display list for protos
  */
 void UpdateMatchDisplay() {
-  if (IntMatchWindow != nullptr)
+  if (IntMatchWindow != nullptr) {
     IntMatchWindow->Update();
+  }
 } /* ClearMatchDisplay */
 #endif
 
@@ -471,17 +475,19 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
   P->C = TruncateParam(Param, -128, 127);
 
   Param = Proto->Angle * 256;
-  if (Param < 0 || Param >= 256)
+  if (Param < 0 || Param >= 256) {
     P->Angle = 0;
-  else
+  } else {
     P->Angle = static_cast<uint8_t>(Param);
+  }
 
   /* round proto length to nearest integer number of pico-features */
   Param = (Proto->Length / GetPicoFeatureLength()) + 0.5;
   Class->ProtoLengths[ProtoId] = TruncateParam(Param, 1, 255);
-  if (classify_learning_debug_level >= 2)
+  if (classify_learning_debug_level >= 2) {
     tprintf("Converted ffeat to (A=%d,B=%d,C=%d,L=%d)", P->A, P->B, P->C,
             Class->ProtoLengths[ProtoId]);
+  }
 } /* ConvertProto */
 
 /**
@@ -650,8 +656,9 @@ INT_TEMPLATES NewIntTemplates() {
   T->NumClasses = 0;
   T->NumClassPruners = 0;
 
-  for (i = 0; i < MAX_NUM_CLASSES; i++)
+  for (i = 0; i < MAX_NUM_CLASSES; i++) {
     ClassForClassId(T, i) = nullptr;
+  }
 
   return (T);
 } /* NewIntTemplates */
@@ -660,10 +667,12 @@ INT_TEMPLATES NewIntTemplates() {
 void free_int_templates(INT_TEMPLATES templates) {
   int i;
 
-  for (i = 0; i < templates->NumClasses; i++)
+  for (i = 0; i < templates->NumClasses; i++) {
     free_int_class(templates->Class[i]);
-  for (i = 0; i < templates->NumClassPruners; i++)
+  }
+  for (i = 0; i < templates->NumClassPruners; i++) {
     delete templates->ClassPruners[i];
+  }
   free(templates);
 }
 
@@ -699,16 +708,19 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   /* first read the high level template struct */
   Templates = NewIntTemplates();
   // Read Templates in parts for 64 bit compatibility.
-  if (fp->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1) != 1)
+  if (fp->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1) != 1) {
     tprintf("Bad read of inttemp!\n");
+  }
   if (fp->FReadEndian(&Templates->NumClasses, sizeof(Templates->NumClasses), 1) != 1 ||
-      fp->FReadEndian(&Templates->NumClassPruners, sizeof(Templates->NumClassPruners), 1) != 1)
+      fp->FReadEndian(&Templates->NumClassPruners, sizeof(Templates->NumClassPruners), 1) != 1) {
     tprintf("Bad read of inttemp!\n");
+  }
   if (Templates->NumClasses < 0) {
     // This file has a version id!
     version_id = -Templates->NumClasses;
-    if (fp->FReadEndian(&Templates->NumClasses, sizeof(Templates->NumClasses), 1) != 1)
+    if (fp->FReadEndian(&Templates->NumClasses, sizeof(Templates->NumClasses), 1) != 1) {
       tprintf("Bad read of inttemp!\n");
+    }
   }
 
   if (version_id < 3) {
@@ -745,9 +757,11 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   if (version_id < 2) {
     // Allocate enough class pruners to cover all the class ids.
     max_class_id = 0;
-    for (i = 0; i < Templates->NumClasses; i++)
-      if (ClassIdFor[i] > max_class_id)
+    for (i = 0; i < Templates->NumClasses; i++) {
+      if (ClassIdFor[i] > max_class_id) {
         max_class_id = ClassIdFor[i];
+      }
+    }
     for (i = 0; i <= CPrunerIdFor(max_class_id); i++) {
       Templates->ClassPruners[i] = new CLASS_PRUNER_STRUCT;
       memset(Templates->ClassPruners[i], 0, sizeof(CLASS_PRUNER_STRUCT));
@@ -756,16 +770,18 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     // to the new format (indexed by class id).
     last_cp_bit_number = NUM_BITS_PER_CLASS * Templates->NumClasses - 1;
     for (i = 0; i < Templates->NumClassPruners; i++) {
-      for (x = 0; x < NUM_CP_BUCKETS; x++)
-        for (y = 0; y < NUM_CP_BUCKETS; y++)
-          for (z = 0; z < NUM_CP_BUCKETS; z++)
+      for (x = 0; x < NUM_CP_BUCKETS; x++) {
+        for (y = 0; y < NUM_CP_BUCKETS; y++) {
+          for (z = 0; z < NUM_CP_BUCKETS; z++) {
             for (w = 0; w < WERDS_PER_CP_VECTOR; w++) {
-              if (TempClassPruner[i]->p[x][y][z][w] == 0)
+              if (TempClassPruner[i]->p[x][y][z][w] == 0) {
                 continue;
+              }
               for (b = 0; b < BITS_PER_WERD; b += NUM_BITS_PER_CLASS) {
                 bit_number = i * BITS_PER_CP_VECTOR + w * BITS_PER_WERD + b;
-                if (bit_number > last_cp_bit_number)
+                if (bit_number > last_cp_bit_number) {
                   break; // the rest of the bits in this word are not used
+                }
                 class_id = ClassIdFor[bit_number / NUM_BITS_PER_CLASS];
                 // Single out NUM_BITS_PER_CLASS bits relating to class_id.
                 Mask = SetBitsForMask << b;
@@ -787,6 +803,9 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
                 Templates->ClassPruners[new_i]->p[x][y][z][new_w] |= ClassBits;
               }
             }
+          }
+        }
+      }
     }
     for (i = 0; i < Templates->NumClassPruners; i++) {
       delete TempClassPruner[i];
@@ -799,14 +818,16 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     Class = static_cast<INT_CLASS>(malloc(sizeof(INT_CLASS_STRUCT)));
     if (fp->FReadEndian(&Class->NumProtos, sizeof(Class->NumProtos), 1) != 1 ||
         fp->FRead(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1) != 1 ||
-        fp->FRead(&Class->NumConfigs, sizeof(Class->NumConfigs), 1) != 1)
+        fp->FRead(&Class->NumConfigs, sizeof(Class->NumConfigs), 1) != 1) {
       tprintf("Bad read of inttemp!\n");
+    }
     if (version_id == 0) {
       // Only version 0 writes 5 pointless pointers to the file.
       for (j = 0; j < 5; ++j) {
         int32_t junk;
-        if (fp->FRead(&junk, sizeof(junk), 1) != 1)
+        if (fp->FRead(&junk, sizeof(junk), 1) != 1) {
           tprintf("Bad read of inttemp!\n");
+        }
       }
     }
     int num_configs = version_id < 4 ? MaxNumConfigs : Class->NumConfigs;
@@ -824,8 +845,10 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     Lengths = nullptr;
     if (MaxNumIntProtosIn(Class) > 0) {
       Lengths = static_cast<uint8_t *>(malloc(sizeof(uint8_t) * MaxNumIntProtosIn(Class)));
-      if (fp->FRead(Lengths, sizeof(uint8_t), MaxNumIntProtosIn(Class)) != MaxNumIntProtosIn(Class))
+      if (fp->FRead(Lengths, sizeof(uint8_t), MaxNumIntProtosIn(Class)) !=
+          MaxNumIntProtosIn(Class)) {
         tprintf("Bad read of inttemp!\n");
+      }
     }
     Class->ProtoLengths = Lengths;
 
@@ -834,17 +857,20 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
       ProtoSet = static_cast<PROTO_SET>(malloc(sizeof(PROTO_SET_STRUCT)));
       int num_buckets = NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR;
       if (fp->FReadEndian(&ProtoSet->ProtoPruner, sizeof(ProtoSet->ProtoPruner[0][0][0]),
-                          num_buckets) != num_buckets)
+                          num_buckets) != num_buckets) {
         tprintf("Bad read of inttemp!\n");
+      }
       for (x = 0; x < PROTOS_PER_PROTO_SET; x++) {
         if (fp->FRead(&ProtoSet->Protos[x].A, sizeof(ProtoSet->Protos[x].A), 1) != 1 ||
             fp->FRead(&ProtoSet->Protos[x].B, sizeof(ProtoSet->Protos[x].B), 1) != 1 ||
             fp->FRead(&ProtoSet->Protos[x].C, sizeof(ProtoSet->Protos[x].C), 1) != 1 ||
-            fp->FRead(&ProtoSet->Protos[x].Angle, sizeof(ProtoSet->Protos[x].Angle), 1) != 1)
+            fp->FRead(&ProtoSet->Protos[x].Angle, sizeof(ProtoSet->Protos[x].Angle), 1) != 1) {
           tprintf("Bad read of inttemp!\n");
+        }
         if (fp->FReadEndian(&ProtoSet->Protos[x].Configs, sizeof(ProtoSet->Protos[x].Configs[0]),
-                            WerdsPerConfigVec) != WerdsPerConfigVec)
+                            WerdsPerConfigVec) != WerdsPerConfigVec) {
           tprintf("Bad read of inttemp!\n");
+        }
       }
       Class->ProtoSets[j] = ProtoSet;
     }
@@ -970,8 +996,9 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
   fwrite(&Templates->NumClasses, sizeof(Templates->NumClasses), 1, File);
 
   /* then write out the class pruners */
-  for (i = 0; i < Templates->NumClassPruners; i++)
+  for (i = 0; i < Templates->NumClassPruners; i++) {
     fwrite(Templates->ClassPruners[i], sizeof(CLASS_PRUNER_STRUCT), 1, File);
+  }
 
   /* then write out each class */
   for (i = 0; i < Templates->NumClasses; i++) {
@@ -992,8 +1019,9 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
     }
 
     /* then write out the proto sets */
-    for (j = 0; j < Class->NumProtoSets; j++)
+    for (j = 0; j < Class->NumProtoSets; j++) {
       fwrite(Class->ProtoSets[j], sizeof(PROTO_SET_STRUCT), 1, File);
+    }
 
     /* then write the fonts info */
     fwrite(&Class->font_set_id, sizeof(int), 1, File);
@@ -1056,17 +1084,21 @@ void DoFill(FILL_SPEC *FillSpec, CLASS_PRUNER_STRUCT *Pruner, uint32_t ClassMask
   uint32_t OldWord;
 
   X = FillSpec->X;
-  if (X < 0)
+  if (X < 0) {
     X = 0;
-  if (X >= NUM_CP_BUCKETS)
+  }
+  if (X >= NUM_CP_BUCKETS) {
     X = NUM_CP_BUCKETS - 1;
+  }
 
-  if (FillSpec->YStart < 0)
+  if (FillSpec->YStart < 0) {
     FillSpec->YStart = 0;
-  if (FillSpec->YEnd >= NUM_CP_BUCKETS)
+  }
+  if (FillSpec->YEnd >= NUM_CP_BUCKETS) {
     FillSpec->YEnd = NUM_CP_BUCKETS - 1;
+  }
 
-  for (Y = FillSpec->YStart; Y <= FillSpec->YEnd; Y++)
+  for (Y = FillSpec->YStart; Y <= FillSpec->YEnd; Y++) {
     for (Angle = FillSpec->AngleStart;; CircularIncrement(Angle, NUM_CP_BUCKETS)) {
       OldWord = Pruner->p[X][Y][Angle][WordIndex];
       if (ClassCount > (OldWord & ClassMask)) {
@@ -1074,9 +1106,11 @@ void DoFill(FILL_SPEC *FillSpec, CLASS_PRUNER_STRUCT *Pruner, uint32_t ClassMask
         OldWord |= ClassCount;
         Pruner->p[X][Y][Angle][WordIndex] = OldWord;
       }
-      if (Angle == FillSpec->AngleEnd)
+      if (Angle == FillSpec->AngleEnd) {
         break;
+      }
     }
+  }
 } /* DoFill */
 
 /**
@@ -1112,24 +1146,29 @@ void FillPPCircularBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR]
                         float Center, float Spread, bool debug) {
   int i, FirstBucket, LastBucket;
 
-  if (Spread > 0.5)
+  if (Spread > 0.5) {
     Spread = 0.5;
+  }
 
   FirstBucket = static_cast<int>(std::floor((Center - Spread) * NUM_PP_BUCKETS));
-  if (FirstBucket < 0)
+  if (FirstBucket < 0) {
     FirstBucket += NUM_PP_BUCKETS;
+  }
 
   LastBucket = static_cast<int>(std::floor((Center + Spread) * NUM_PP_BUCKETS));
-  if (LastBucket >= NUM_PP_BUCKETS)
+  if (LastBucket >= NUM_PP_BUCKETS) {
     LastBucket -= NUM_PP_BUCKETS;
-  if (debug)
+  }
+  if (debug) {
     tprintf("Circular fill from %d to %d", FirstBucket, LastBucket);
+  }
   for (i = FirstBucket; true; CircularIncrement(i, NUM_PP_BUCKETS)) {
     SET_BIT(ParamTable[i], Bit);
 
     /* exit loop after we have set the bit for the last bucket */
-    if (i == LastBucket)
+    if (i == LastBucket) {
       break;
+    }
   }
 
 } /* FillPPCircularBits */
@@ -1153,17 +1192,21 @@ void FillPPLinearBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR], 
   int i, FirstBucket, LastBucket;
 
   FirstBucket = static_cast<int>(std::floor((Center - Spread) * NUM_PP_BUCKETS));
-  if (FirstBucket < 0)
+  if (FirstBucket < 0) {
     FirstBucket = 0;
+  }
 
   LastBucket = static_cast<int>(std::floor((Center + Spread) * NUM_PP_BUCKETS));
-  if (LastBucket >= NUM_PP_BUCKETS)
+  if (LastBucket >= NUM_PP_BUCKETS) {
     LastBucket = NUM_PP_BUCKETS - 1;
+  }
 
-  if (debug)
+  if (debug) {
     tprintf("Linear fill from %d to %d", FirstBucket, LastBucket);
-  for (i = FirstBucket; i <= LastBucket; i++)
+  }
+  for (i = FirstBucket; i <= LastBucket; i++) {
     SET_BIT(ParamTable[i], Bit);
+  }
 
 } /* FillPPLinearBits */
 
@@ -1277,8 +1320,9 @@ void GetCPPadsForLevel(int Level, float *EndPad, float *SidePad, float *AnglePad
       *AnglePad = classify_cp_angle_pad_tight / 360.0;
       break;
   }
-  if (*AnglePad > 0.5)
+  if (*AnglePad > 0.5) {
     *AnglePad = 0.5;
+  }
 
 } /* GetCPPadsForLevel */
 
@@ -1291,14 +1335,15 @@ ScrollView::Color GetMatchColorFor(float Evidence) {
   assert(Evidence >= 0.0);
   assert(Evidence <= 1.0);
 
-  if (Evidence >= 0.90)
+  if (Evidence >= 0.90) {
     return ScrollView::WHITE;
-  else if (Evidence >= 0.75)
+  } else if (Evidence >= 0.75) {
     return ScrollView::GREEN;
-  else if (Evidence >= 0.50)
+  } else if (Evidence >= 0.50) {
     return ScrollView::RED;
-  else
+  } else {
     return ScrollView::BLUE;
+  }
 } /* GetMatchColorFor */
 
 /**

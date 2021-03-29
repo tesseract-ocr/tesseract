@@ -135,13 +135,15 @@ public:
     // Default constructor is for arrays. Use Init to setup.
     FloatVec() : vec_(nullptr), data_(nullptr), scratch_space_(nullptr) {}
     ~FloatVec() {
-      if (scratch_space_ != nullptr)
+      if (scratch_space_ != nullptr) {
         scratch_space_->vec_stack_.Return(vec_);
+      }
     }
 
     void Init(int size, int reserve, NetworkScratch *scratch) {
-      if (scratch_space_ != nullptr && vec_ != nullptr)
+      if (scratch_space_ != nullptr && vec_ != nullptr) {
         scratch_space_->vec_stack_.Return(vec_);
+      }
       scratch_space_ = scratch;
       vec_ = scratch_space_->vec_stack_.Borrow();
       vec_->reserve(reserve);
@@ -180,13 +182,15 @@ public:
     // Default constructor is for arrays. Use Init to setup.
     GradientStore() : array_(nullptr), scratch_space_(nullptr) {}
     ~GradientStore() {
-      if (scratch_space_ != nullptr)
+      if (scratch_space_ != nullptr) {
         scratch_space_->array_stack_.Return(array_);
+      }
     }
 
     void Init(int size1, int size2, NetworkScratch *scratch) {
-      if (scratch_space_ != nullptr && array_ != nullptr)
+      if (scratch_space_ != nullptr && array_ != nullptr) {
         scratch_space_->array_stack_.Return(array_);
+      }
       scratch_space_ = scratch;
       array_ = scratch_space_->array_stack_.Borrow();
       array_->Resize(size1, size2, 0.0);
@@ -244,10 +248,12 @@ public:
       int index = stack_top_;
       while (--index >= 0 && stack_[index] != item) {
       }
-      if (index >= 0)
+      if (index >= 0) {
         flags_[index] = false;
-      while (stack_top_ > 0 && !flags_[stack_top_ - 1])
+      }
+      while (stack_top_ > 0 && !flags_[stack_top_ - 1]) {
         --stack_top_;
+      }
     }
 
   private:

@@ -102,8 +102,9 @@ void BoxChar::PrepareToWrite(std::vector<BoxChar *> *boxes) {
   InsertNewlines(rtl_rules, vertical_rules, boxes);
   InsertSpaces(rtl_rules, vertical_rules, boxes);
   for (size_t i = 0; i < boxes->size(); ++i) {
-    if ((*boxes)[i]->box_ == nullptr)
+    if ((*boxes)[i]->box_ == nullptr) {
       tprintf("Null box at index %zu\n", i);
+    }
   }
   if (rtl_rules) {
     ReorderRTLText(boxes);
@@ -123,8 +124,9 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules, std::vector<Bo
         do {
           delete (*boxes)[i];
           boxes->erase(boxes->begin() + i);
-          if (i == 0)
+          if (i == 0) {
             break;
+          }
         } while (i-- == boxes->size() && (*boxes)[i]->box_ == nullptr);
       }
       continue;
@@ -220,10 +222,12 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules, std::vector<BoxC
       }
       // Italic and stylized characters can produce negative spaces, which
       // Leptonica doesn't like, so clip to a positive size.
-      if (right <= left)
+      if (right <= left) {
         right = left + 1;
-      if (bottom <= top)
+      }
+      if (bottom <= top) {
         bottom = top + 1;
+      }
       (*boxes)[i]->AddBox(left, top, right - left, bottom - top);
       (*boxes)[i]->ch_ = " ";
     }
@@ -250,8 +254,9 @@ void BoxChar::ReorderRTLText(std::vector<BoxChar *> *boxes) {
   size_t end = 0;
   for (size_t start = 0; start < boxes->size(); start = end + 1) {
     end = start + 1;
-    while (end < boxes->size() && (*boxes)[end]->ch_ != "\t")
+    while (end < boxes->size() && (*boxes)[end]->ch_ != "\t") {
       ++end;
+    }
     std::sort(boxes->begin() + start, boxes->begin() + end, sorter);
   }
 }
@@ -288,8 +293,9 @@ bool BoxChar::MostlyVertical(const std::vector<BoxChar *> &boxes) {
 /* static */
 int BoxChar::TotalByteLength(const std::vector<BoxChar *> &boxes) {
   int total_length = 0;
-  for (auto boxe : boxes)
+  for (auto boxe : boxes) {
     total_length += boxe->ch_.size();
+  }
   return total_length;
 }
 
@@ -301,8 +307,9 @@ void BoxChar::RotateBoxes(float rotation, int xcenter, int ycenter, int start_bo
   Boxa *orig = boxaCreate(0);
   for (int i = start_box; i < end_box; ++i) {
     BOX *box = (*boxes)[i]->box_;
-    if (box)
+    if (box) {
       boxaAddBox(orig, box, L_CLONE);
+    }
   }
   Boxa *rotated = boxaRotate(orig, xcenter, ycenter, rotation);
   boxaDestroy(&orig);

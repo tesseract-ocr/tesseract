@@ -25,12 +25,12 @@ namespace tesseract {
 
 class ImagedataTest : public ::testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
     file::MakeTmpdir();
   }
 
-  ImagedataTest() {}
+  ImagedataTest() = default;
 
   // Creates a fake DocumentData, writes it to a file, and returns the filename.
   std::string MakeFakeDoc(int num_pages, unsigned doc_id, std::vector<std::string> *page_texts) {

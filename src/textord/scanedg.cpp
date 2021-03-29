@@ -77,8 +77,9 @@ void block_edges(Pix *t_pix,   // thresholded image
   ASSERT_HOST(tright.x() <= width);
   ASSERT_HOST(tright.y() <= height);
   int block_width = tright.x() - bleft.x();
-  for (int x = block_width; x >= 0; x--)
+  for (int x = block_width; x >= 0; x--) {
     ptrline[x] = nullptr; //  no lines in progress
+  }
 
   std::unique_ptr<uint8_t[]> bwline(new uint8_t[width]);
 
@@ -136,19 +137,23 @@ static void make_margins(   // get a line
           seg_it.forward();
           start = seg_it.data()->x();
           xext = seg_it.data()->y();
-        } else
+        } else {
           pixels[xindex - left] = margin;
+        }
       }
     } else {
-      for (xindex = left; xindex < right; xindex++)
+      for (xindex = left; xindex < right; xindex++) {
         pixels[xindex - left] = margin;
+      }
     }
   } else {
     start = line_it->get_line(y, xext);
-    for (xindex = left; xindex < start; xindex++)
+    for (xindex = left; xindex < start; xindex++) {
       pixels[xindex - left] = margin;
-    for (xindex = start + xext; xindex < right; xindex++)
+    }
+    for (xindex = start + xext; xindex < right; xindex++) {
       pixels[xindex - left] = margin;
+    }
   }
 }
 
@@ -194,10 +199,10 @@ static void line_edges(int16_t x,            // coord of line start
         }
         *prevline = nullptr; // no change this time
       } else {
-        if (colour == uppercolour)
+        if (colour == uppercolour) {
           *prevline = v_edge(colour - prevcolour, *prevline, &pos);
         // 8 vs 4 connection
-        else if (colour == WHITE_PIX) {
+        } else if (colour == WHITE_PIX) {
           join_edges(current, *prevline, free_cracks, outline_it);
           current = h_edge(uppercolour - colour, nullptr, &pos);
           *prevline = v_edge(colour - prevcolour, current, &pos);
@@ -213,10 +218,11 @@ static void line_edges(int16_t x,            // coord of line start
         *prevline = current = v_edge(colour - prevcolour, current, &pos);
         prevcolour = colour;
       }
-      if (colour != uppercolour)
+      if (colour != uppercolour) {
         current = h_edge(uppercolour - colour, current, &pos);
-      else
+      } else {
         current = nullptr; // no edge now
+      }
     }
   }
   if (current != nullptr) {

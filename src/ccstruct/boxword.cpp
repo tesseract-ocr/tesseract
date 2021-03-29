@@ -46,8 +46,9 @@ void BoxWord::CopyFrom(const BoxWord &src) {
   length_ = src.length_;
   boxes_.clear();
   boxes_.reserve(length_);
-  for (int i = 0; i < length_; ++i)
+  for (int i = 0; i < length_; ++i) {
     boxes_.push_back(src.boxes_[i]);
+  }
 }
 
 // Factory to build a BoxWord from a TWERD using the DENORMs on each blob to
@@ -97,25 +98,31 @@ void BoxWord::ClipToOriginalWord(const BLOCK *block, WERD *original_word) {
     C_BLOB_IT b_it(original_word->cblob_list());
     for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
       TBOX blob_box = b_it.data()->bounding_box();
-      if (block != nullptr)
+      if (block != nullptr) {
         blob_box.rotate(block->re_rotation());
+      }
       if (blob_box.major_overlap(box)) {
         original_box += blob_box;
       }
     }
     if (!original_box.null_box()) {
-      if (NearlyEqual<int>(original_box.left(), box.left(), kBoxClipTolerance))
+      if (NearlyEqual<int>(original_box.left(), box.left(), kBoxClipTolerance)) {
         box.set_left(original_box.left());
-      if (NearlyEqual<int>(original_box.right(), box.right(), kBoxClipTolerance))
+      }
+      if (NearlyEqual<int>(original_box.right(), box.right(), kBoxClipTolerance)) {
         box.set_right(original_box.right());
-      if (NearlyEqual<int>(original_box.top(), box.top(), kBoxClipTolerance))
+      }
+      if (NearlyEqual<int>(original_box.top(), box.top(), kBoxClipTolerance)) {
         box.set_top(original_box.top());
-      if (NearlyEqual<int>(original_box.bottom(), box.bottom(), kBoxClipTolerance))
+      }
+      if (NearlyEqual<int>(original_box.bottom(), box.bottom(), kBoxClipTolerance)) {
         box.set_bottom(original_box.bottom());
+      }
     }
     original_box = original_word->bounding_box();
-    if (block != nullptr)
+    if (block != nullptr) {
       original_box.rotate(block->re_rotation());
+    }
     boxes_[i] = box.intersection(original_box);
   }
   ComputeBoundingBox();
@@ -126,25 +133,28 @@ void BoxWord::ClipToOriginalWord(const BLOCK *block, WERD *original_word) {
 void BoxWord::MergeBoxes(int start, int end) {
   start = ClipToRange(start, 0, length_);
   end = ClipToRange(end, 0, length_);
-  if (end <= start + 1)
+  if (end <= start + 1) {
     return;
+  }
   for (int i = start + 1; i < end; ++i) {
     boxes_[start] += boxes_[i];
   }
   int shrinkage = end - 1 - start;
   length_ -= shrinkage;
-  for (int i = start + 1; i < length_; ++i)
+  for (int i = start + 1; i < length_; ++i) {
     boxes_[i] = boxes_[i + shrinkage];
+  }
   boxes_.resize(length_);
 }
 
 // Inserts a new box before the given index.
 // Recomputes the bounding box.
 void BoxWord::InsertBox(int index, const TBOX &box) {
-  if (index < length_)
+  if (index < length_) {
     boxes_.insert(boxes_.begin() + index, box);
-  else
+  } else {
     boxes_.push_back(box);
+  }
   length_ = boxes_.size();
   ComputeBoundingBox();
 }
@@ -175,8 +185,9 @@ void BoxWord::DeleteAllBoxes() {
 // Computes the bounding box of the word.
 void BoxWord::ComputeBoundingBox() {
   bbox_ = TBOX();
-  for (int i = 0; i < length_; ++i)
+  for (int i = 0; i < length_; ++i) {
     bbox_ += boxes_[i];
+  }
 }
 
 // This and other putatively are the same, so call the (permanent) callback
@@ -185,8 +196,9 @@ void BoxWord::ComputeBoundingBox() {
 void BoxWord::ProcessMatchedBlobs(const TWERD &other, std::function<void(int)> cb) const {
   for (int i = 0; i < length_ && i < other.NumBlobs(); ++i) {
     TBOX blob_box = other.blobs[i]->bounding_box();
-    if (blob_box == boxes_[i])
+    if (blob_box == boxes_[i]) {
       cb(i);
+    }
   }
 }
 

@@ -124,10 +124,12 @@ enum BlobTextFlowType {
 // this cannot be true if t1 == t2, so the result is undefined.
 inline bool DominatesInMerge(BlobTextFlowType type1, BlobTextFlowType type2) {
   // LEADER always loses.
-  if (type1 == BTFT_LEADER)
+  if (type1 == BTFT_LEADER) {
     return false;
-  if (type2 == BTFT_LEADER)
+  }
+  if (type2 == BTFT_LEADER) {
     return true;
+  }
   // With those out of the way, the ordering of the enum determines the result.
   return type1 >= type2;
 }
@@ -148,8 +150,9 @@ public:
     area = static_cast<int>(srcblob->area());
   }
   ~BLOBNBOX() {
-    if (owns_cblob_)
+    if (owns_cblob_) {
       delete cblob_ptr;
+    }
   }
   static BLOBNBOX *RealBlob(C_OUTLINE *outline) {
     auto *blob = new C_BLOB(outline);
@@ -470,8 +473,9 @@ public:
     right_rule_ = 0;
     left_crossing_rule_ = 0;
     right_crossing_rule_ = 0;
-    if (area_stroke_width_ == 0.0f && area > 0 && cblob() != nullptr && cblob()->perimeter() != 0)
+    if (area_stroke_width_ == 0.0f && area > 0 && cblob() != nullptr && cblob()->perimeter() != 0) {
       area_stroke_width_ = 2.0f * area / cblob()->perimeter();
+    }
     owner_ = nullptr;
     base_char_top_ = box.top();
     base_char_bottom_ = box.bottom();

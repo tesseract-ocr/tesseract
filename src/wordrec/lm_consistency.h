@@ -104,13 +104,15 @@ struct LMConsistencyInfo {
   }
   void ComputeXheightConsistency(const BLOB_CHOICE *b, bool is_punc);
   float BodyMinXHeight() const {
-    if (InconsistentXHeight())
+    if (InconsistentXHeight()) {
       return 0.0f;
+    }
     return xht_lo[kNORM];
   }
   float BodyMaxXHeight() const {
-    if (InconsistentXHeight())
+    if (InconsistentXHeight()) {
       return static_cast<float>(INT16_MAX);
+    }
     return xht_hi[kNORM];
   }
 

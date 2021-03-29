@@ -104,19 +104,21 @@ QSPLINE::QSPLINE(               // constructor
     /*first blob */
     pointindex = ptcounts[segment];
     if (pointindex > 0 && xpts[pointindex] != xpts[pointindex - 1] &&
-        xpts[pointindex] != xstarts[segment])
+        xpts[pointindex] != xstarts[segment]) {
       qlsq.add(xstarts[segment],
                ypts[pointindex - 1] + (ypts[pointindex] - ypts[pointindex - 1]) *
                                           (xstarts[segment] - xpts[pointindex - 1]) /
                                           (xpts[pointindex] - xpts[pointindex - 1]));
+    }
     for (; pointindex < ptcounts[segment + 1]; pointindex++) {
       qlsq.add(xpts[pointindex], ypts[pointindex]);
     }
-    if (pointindex > 0 && pointindex < pointcount && xpts[pointindex] != xstarts[segment + 1])
+    if (pointindex > 0 && pointindex < pointcount && xpts[pointindex] != xstarts[segment + 1]) {
       qlsq.add(xstarts[segment + 1],
                ypts[pointindex - 1] + (ypts[pointindex] - ypts[pointindex - 1]) *
                                           (xstarts[segment + 1] - xpts[pointindex - 1]) /
                                           (xpts[pointindex] - xpts[pointindex - 1]));
+    }
     qlsq.fit(degree);
     quadratics[segment].a = qlsq.get_a();
     quadratics[segment].b = qlsq.get_b();
@@ -224,10 +226,11 @@ int32_t QSPLINE::spline_index( // evaluate
   top = segments;
   while (top - bottom > 1) {
     index = (top + bottom) / 2; // centre of range
-    if (x >= xcoords[index])
+    if (x >= xcoords[index]) {
       bottom = index; // new min
-    else
+    } else {
       top = index; // new max
+    }
   }
   return bottom;
 }
@@ -290,10 +293,12 @@ void QSPLINE::extrapolate( // linear extrapolation
   int increment;      // in size
 
   increment = xmin < xcoords[0] ? 1 : 0;
-  if (xmax > xcoords[segments])
+  if (xmax > xcoords[segments]) {
     increment++;
-  if (increment == 0)
+  }
+  if (increment == 0) {
     return;
+  }
   xstarts = new int32_t[segments + 1 + increment];
   quads = new QUAD_COEFFS[segments + increment];
   if (xmin < xcoords[0]) {
@@ -302,8 +307,9 @@ void QSPLINE::extrapolate( // linear extrapolation
     quads[0].b = gradient;
     quads[0].c = y(xcoords[0]) - quads[0].b * xcoords[0];
     dest_segment = 1;
-  } else
+  } else {
     dest_segment = 0;
+  }
   for (segment = 0; segment < segments; segment++) {
     xstarts[dest_segment] = xcoords[segment];
     quads[dest_segment] = quadratics[segment];
@@ -345,10 +351,11 @@ void QSPLINE::plot(          // draw it
     increment = static_cast<double>(xcoords[segment + 1] - xcoords[segment]) / QSPLINE_PRECISION;
     x = xcoords[segment];
     for (step = 0; step <= QSPLINE_PRECISION; step++) {
-      if (segment == 0 && step == 0)
+      if (segment == 0 && step == 0) {
         window->SetCursor(x, quadratics[segment].y(x));
-      else
+      } else {
         window->DrawTo(x, quadratics[segment].y(x));
+      }
       x += increment;
     }
   }

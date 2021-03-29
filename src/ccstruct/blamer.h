@@ -144,8 +144,9 @@ struct BlamerBundle {
     return misadaption_debug_;
   }
   void UpdateBestRating(float rating) {
-    if (rating < best_correctly_segmented_rating_)
+    if (rating < best_correctly_segmented_rating_) {
       best_correctly_segmented_rating_ = rating;
+    }
   }
   int correct_segmentation_length() const {
     return correct_segmentation_cols_.size();
@@ -197,8 +198,9 @@ struct BlamerBundle {
   void ClearResults() {
     norm_truth_word_.DeleteAllBoxes();
     norm_box_tolerance_ = 0;
-    if (!NoTruth())
+    if (!NoTruth()) {
       incorrect_result_reason_ = IRR_CORRECT;
+    }
     debug_ = "";
     segsearch_is_looking_for_blame_ = false;
     best_correctly_segmented_rating_ = WERD_CHOICE::kBadRating;
@@ -296,8 +298,9 @@ private:
     debug_ = IncorrectReason();
     debug_ += " to blame: ";
     FillDebugString(msg, choice, debug_);
-    if (debug)
+    if (debug) {
       tprintf("SetBlame(): %s", debug_.c_str());
+    }
   }
 
 private:

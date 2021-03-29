@@ -98,12 +98,14 @@ struct FontInfo {
   bool get_spacing(UNICHAR_ID prev_uch_id, UNICHAR_ID uch_id, int *spacing) const {
     const FontSpacingInfo *prev_fsi = this->get_spacing(prev_uch_id);
     const FontSpacingInfo *fsi = this->get_spacing(uch_id);
-    if (prev_fsi == nullptr || fsi == nullptr)
+    if (prev_fsi == nullptr || fsi == nullptr) {
       return false;
+    }
     size_t i = 0;
     for (; i < prev_fsi->kerned_unichar_ids.size(); ++i) {
-      if (prev_fsi->kerned_unichar_ids[i] == uch_id)
+      if (prev_fsi->kerned_unichar_ids[i] == uch_id) {
         break;
+      }
     }
     if (i < prev_fsi->kerned_unichar_ids.size()) {
       *spacing = prev_fsi->kerned_x_gaps[i];
@@ -154,11 +156,13 @@ struct FontSet {
   int *configs; // FontInfo ids
 
   bool operator==(const FontSet &rhs) const {
-    if (size != rhs.size)
+    if (size != rhs.size) {
       return false;
+    }
     for (int i = 0; i < size; ++i) {
-      if (configs[i] != rhs.configs[i])
+      if (configs[i] != rhs.configs[i]) {
         return false;
+      }
     }
     return true;
   }

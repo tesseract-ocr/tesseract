@@ -316,8 +316,9 @@ public:
   // Clear the UNICHARSET (all the previous data is lost).
   void clear() {
     if (script_table != nullptr) {
-      for (int i = 0; i < script_table_size_used; ++i)
+      for (int i = 0; i < script_table_size_used; ++i) {
         delete[] script_table[i];
+      }
       delete[] script_table;
       script_table = nullptr;
       script_table_size_used = 0;
@@ -352,8 +353,9 @@ public:
   // Returns true if the operation is successful.
   bool save_to_file(const char *const filename) const {
     FILE *file = fopen(filename, "w+b");
-    if (file == nullptr)
+    if (file == nullptr) {
       return false;
+    }
     bool result = save_to_file(file);
     fclose(file);
     return result;
@@ -380,8 +382,9 @@ public:
   // Returns true if the operation is successful.
   bool load_from_file(const char *const filename, bool skip_fragments) {
     FILE *file = fopen(filename, "rb");
-    if (file == nullptr)
+    if (file == nullptr) {
       return false;
+    }
     bool result = load_from_file(file, skip_fragments);
     fclose(file);
     return result;
@@ -484,48 +487,54 @@ public:
 
   // Return the isalpha property of the given unichar.
   bool get_isalpha(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return false;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.isalpha;
   }
 
   // Return the islower property of the given unichar.
   bool get_islower(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return false;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.islower;
   }
 
   // Return the isupper property of the given unichar.
   bool get_isupper(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return false;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.isupper;
   }
 
   // Return the isdigit property of the given unichar.
   bool get_isdigit(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return false;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.isdigit;
   }
 
   // Return the ispunctuation property of the given unichar.
   bool get_ispunctuation(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return false;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.ispunctuation;
   }
 
   // Return the isngram property of the given unichar.
   bool get_isngram(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return false;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.isngram;
   }
@@ -641,8 +650,9 @@ public:
   // Returns true if the script of the given id is space delimited.
   // Returns false for Han and Thai scripts.
   bool IsSpaceDelimited(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return true;
+    }
     int script_id = get_script(unichar_id);
     return script_id != han_sid_ && script_id != thai_sid_ && script_id != hangul_sid_ &&
            script_id != hiragana_sid_ && script_id != katakana_sid_;
@@ -652,8 +662,9 @@ public:
   // The returned pointer will always be the same for the same script, it's
   // managed by unicharset and thus MUST NOT be deleted
   int get_script(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return null_sid_;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.script_id;
   }
@@ -673,45 +684,52 @@ public:
 
   // Get other_case unichar id in the properties for the given unichar id.
   UNICHAR_ID get_other_case(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return INVALID_UNICHAR_ID;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.other_case;
   }
 
   // Returns the direction property of the given unichar.
   Direction get_direction(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return UNICHARSET::U_OTHER_NEUTRAL;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.direction;
   }
 
   // Get mirror unichar id in the properties for the given unichar id.
   UNICHAR_ID get_mirror(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return INVALID_UNICHAR_ID;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.mirror;
   }
 
   // Returns UNICHAR_ID of the corresponding lower-case unichar.
   UNICHAR_ID to_lower(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return INVALID_UNICHAR_ID;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
-    if (unichars[unichar_id].properties.islower)
+    if (unichars[unichar_id].properties.islower) {
       return unichar_id;
+    }
     return unichars[unichar_id].properties.other_case;
   }
 
   // Returns UNICHAR_ID of the corresponding upper-case unichar.
   UNICHAR_ID to_upper(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return INVALID_UNICHAR_ID;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
-    if (unichars[unichar_id].properties.isupper)
+    if (unichars[unichar_id].properties.isupper) {
       return unichar_id;
+    }
     return unichars[unichar_id].properties.other_case;
   }
 
@@ -730,8 +748,9 @@ public:
   // Return a pointer to the CHAR_FRAGMENT class if the given
   // unichar id represents a character fragment.
   const CHAR_FRAGMENT *get_fragment(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id)
+    if (INVALID_UNICHAR_ID == unichar_id) {
       return nullptr;
+    }
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.fragment;
   }
@@ -819,8 +838,9 @@ public:
 
   // Returns normalized version of unichar with the given unichar_id.
   const char *get_normed_unichar(UNICHAR_ID unichar_id) const {
-    if (unichar_id == UNICHAR_SPACE)
+    if (unichar_id == UNICHAR_SPACE) {
       return " ";
+    }
     return unichars[unichar_id].properties.normed.c_str();
   }
   // Returns a vector of UNICHAR_IDs that represent the ids of the normalized
@@ -845,8 +865,9 @@ public:
 
   // Return the script string from its id
   const char *get_script_from_script_id(int id) const {
-    if (id >= script_table_size_used || id < 0)
+    if (id >= script_table_size_used || id < 0) {
       return null_script;
+    }
     return script_table[id];
   }
 

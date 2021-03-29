@@ -56,8 +56,9 @@ extern "C" int tesseract_shape_clustering_main(int argc, const char** argv)
   std::string file_prefix;
   auto trainer = tesseract::LoadTrainingData(argc, argv, false, nullptr, file_prefix);
 
-  if (!trainer)
+  if (!trainer) {
     return 1;
+  }
 
   if (FLAGS_display_cloud_font >= 0) {
 #ifndef GRAPHICS_DISABLED

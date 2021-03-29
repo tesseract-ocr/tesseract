@@ -239,16 +239,20 @@ protected:
     NODE_REF curr_next_node = next_node_from_edge_rec(edge_rec);
     bool curr_word_end = end_of_word_from_edge_rec(edge_rec);
     if (edge_rec_match(next_node, word_end, unichar_id, curr_next_node, curr_word_end,
-                       curr_unichar_id))
+                       curr_unichar_id)) {
       return 0;
-    if (unichar_id > curr_unichar_id)
+    }
+    if (unichar_id > curr_unichar_id) {
       return 1;
+    }
     if (unichar_id == curr_unichar_id) {
-      if (next_node > curr_next_node)
+      if (next_node > curr_next_node) {
         return 1;
+      }
       if (next_node == curr_next_node) {
-        if (word_end > curr_word_end)
+        if (word_end > curr_word_end) {
           return 1;
+        }
       }
     }
     return -1;
@@ -400,15 +404,17 @@ public:
       : Dawg(type, lang, perm, debug_level), edges_(edges), num_edges_(num_edges) {
     init(unicharset_size);
     num_forward_edges_in_node0 = num_forward_edges(0);
-    if (debug_level > 3)
+    if (debug_level > 3) {
       print_all("SquishedDawg:");
+    }
   }
   ~SquishedDawg() override;
 
   // Loads using the given TFile. Returns false on failure.
   bool Load(TFile *fp) {
-    if (!read_squished_dawg(fp))
+    if (!read_squished_dawg(fp)) {
       return false;
+    }
     num_forward_edges_in_node0 = num_forward_edges(0);
     return true;
   }
@@ -424,8 +430,9 @@ public:
   /// corresponding EDGE_REFs) for which there is an edge out of this node.
   void unichar_ids_of(NODE_REF node, NodeChildVector *vec, bool word_end) const override {
     EDGE_REF edge = node;
-    if (!edge_occupied(edge) || edge == NO_EDGE)
+    if (!edge_occupied(edge) || edge == NO_EDGE) {
       return;
+    }
     assert(forward_edge(edge)); // we don't expect any backward edges to
     do {                        // be present when this function is called
       if (!word_end || end_of_word_from_edge_rec(edges_[edge])) {
@@ -485,8 +492,9 @@ private:
   }
   /// Goes through all the edges and clears each one out.
   inline void clear_all_edges() {
-    for (int edge = 0; edge < num_edges_; edge++)
+    for (int edge = 0; edge < num_edges_; edge++) {
       set_empty_edge(edge);
+    }
   }
   /// Clears the last flag of this edge.
   inline void clear_marker_flag(EDGE_REF edge_ref) {
@@ -522,8 +530,9 @@ private:
   /// Prints the contents of the SquishedDawg.
   void print_all(const char *msg) {
     tprintf("\n__________________________\n%s\n", msg);
-    for (int i = 0; i < num_edges_; ++i)
+    for (int i = 0; i < num_edges_; ++i) {
       print_edge(i);
+    }
     tprintf("__________________________\n");
   }
   /// Constructs a mapping from the memory node indices to disk node indices.

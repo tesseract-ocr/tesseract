@@ -50,8 +50,9 @@ static bool is_hyphen_punc(const char32 ch) {
       0xff0d,                                                 // fullwidth hyphen-minus
   };
   for (int kHyphenPuncUnicode : kHyphenPuncUnicodes) {
-    if (kHyphenPuncUnicode == ch)
+    if (kHyphenPuncUnicode == ch) {
       return true;
+    }
   }
   return false;
 }
@@ -69,8 +70,9 @@ static bool is_single_quote(const char32 ch) {
       0xFF07, // fullwidth apostrophe
   };
   for (int kSingleQuoteUnicode : kSingleQuoteUnicodes) {
-    if (kSingleQuoteUnicode == ch)
+    if (kSingleQuoteUnicode == ch) {
       return true;
+    }
   }
   return false;
 }
@@ -89,8 +91,9 @@ static bool is_double_quote(const char32 ch) {
       0xFF02, // fullwidth quotation mark
   };
   for (int kDoubleQuoteUnicode : kDoubleQuoteUnicodes) {
-    if (kDoubleQuoteUnicode == ch)
+    if (kDoubleQuoteUnicode == ch) {
       return true;
+    }
   }
   return false;
 }
@@ -120,10 +123,12 @@ static void NormalizeUTF8ToUTF32(UnicodeNormMode u_mode, OCRNorm ocr_normalize, 
   for (int offset = 0; offset < norm_str.length(); offset = norm_str.moveIndex32(offset, 1)) {
     char32 ch = norm_str.char32At(offset);
     // Skip all ZWS, RTL and LTR marks.
-    if (Validator::IsZeroWidthMark(ch))
+    if (Validator::IsZeroWidthMark(ch)) {
       continue;
-    if (ocr_normalize == OCRNorm::kNormalize)
+    }
+    if (ocr_normalize == OCRNorm::kNormalize) {
       ch = OCRNormalize(ch);
+    }
     normed32->push_back(ch);
   }
 }
@@ -131,8 +136,9 @@ static void NormalizeUTF8ToUTF32(UnicodeNormMode u_mode, OCRNorm ocr_normalize, 
 // Helper removes joiners from strings that contain no letters.
 static void StripJoiners(std::vector<char32> *str32) {
   for (char32 ch : *str32) {
-    if (u_isalpha(ch))
+    if (u_isalpha(ch)) {
       return;
+    }
   }
   int len = 0;
   for (char32 ch : *str32) {
@@ -163,8 +169,9 @@ bool NormalizeUTF8String(UnicodeNormMode u_mode, OCRNorm ocr_normalize,
     }
     return success;
   }
-  if (normalized != nullptr)
+  if (normalized != nullptr) {
     *normalized = UNICHAR::UTF32ToUTF8(normed32);
+  }
   return true;
 }
 
@@ -202,12 +209,13 @@ bool NormalizeCleanAndSegmentUTF8(UnicodeNormMode u_mode, OCRNorm ocr_normalize,
 
 // Apply just the OCR-specific normalizations and return the normalized char.
 char32 OCRNormalize(char32 ch) {
-  if (is_hyphen_punc(ch))
+  if (is_hyphen_punc(ch)) {
     return '-';
-  else if (is_single_quote(ch))
+  } else if (is_single_quote(ch)) {
     return '\'';
-  else if (is_double_quote(ch))
+  } else if (is_double_quote(ch)) {
     return '"';
+  }
   return ch;
 }
 
@@ -233,8 +241,9 @@ unsigned int SpanUTF8Whitespace(const char *text) {
   int n_white = 0;
   for (UNICHAR::const_iterator it = UNICHAR::begin(text, strlen(text));
        it != UNICHAR::end(text, strlen(text)); ++it) {
-    if (!IsWhitespace(*it))
+    if (!IsWhitespace(*it)) {
       break;
+    }
     n_white += it.utf8_len();
   }
   return n_white;
@@ -244,8 +253,9 @@ unsigned int SpanUTF8NotWhitespace(const char *text) {
   int n_notwhite = 0;
   for (UNICHAR::const_iterator it = UNICHAR::begin(text, strlen(text));
        it != UNICHAR::end(text, strlen(text)); ++it) {
-    if (IsWhitespace(*it))
+    if (IsWhitespace(*it)) {
       break;
+    }
     n_notwhite += it.utf8_len();
   }
   return n_notwhite;
@@ -275,14 +285,17 @@ bool IsInterchangeValid7BitAscii(const char32 ch) {
 char32 FullwidthToHalfwidth(const char32 ch) {
   // Return unchanged if not in the fullwidth-halfwidth Unicode block.
   if (ch < 0xFF00 || ch > 0xFFEF || !IsValidCodepoint(ch)) {
-    if (ch != 0x3000)
+    if (ch != 0x3000) {
       return ch;
+    }
   }
   // Special case for fullwidth left and right "white parentheses".
-  if (ch == 0xFF5F)
+  if (ch == 0xFF5F) {
     return 0x2985;
-  if (ch == 0xFF60)
+  }
+  if (ch == 0xFF60) {
     return 0x2986;
+  }
   // Construct a full-to-half width transliterator.
   IcuErrorCode error_code;
   icu::UnicodeString uch_str(static_cast<UChar32>(ch));

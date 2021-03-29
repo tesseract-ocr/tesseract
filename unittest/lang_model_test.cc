@@ -101,11 +101,12 @@ TEST(LangModelTest, AddACharacter) {
   int null2 = trainer2.null_char();
   EXPECT_EQ(null1 + 1, null2);
   std::vector<int> labels1_v(labels1.size());
-  for (int i = 0; i < labels1.size(); ++i) {
-    if (labels1[i] == null1)
+  for (unsigned i = 0; i < labels1.size(); ++i) {
+    if (labels1[i] == null1) {
       labels1_v[i] = null2;
-    else
+    } else {
       labels1_v[i] = labels1[i];
+    }
   }
   EXPECT_THAT(labels1_v, testing::ElementsAreArray(&labels2[0], labels2.size()));
   // To make sure we we are not cheating somehow, we can now encode the Rupee
@@ -185,11 +186,12 @@ TEST(LangModelTest, AddACharacterHindi) {
   int null2 = trainer2.null_char();
   EXPECT_EQ(null1 + 1, null2);
   std::vector<int> labels1_v(labels1.size());
-  for (int i = 0; i < labels1.size(); ++i) {
-    if (labels1[i] == null1)
+  for (unsigned i = 0; i < labels1.size(); ++i) {
+    if (labels1[i] == null1) {
       labels1_v[i] = null2;
-    else
+    } else {
       labels1_v[i] = labels1[i];
+    }
   }
   EXPECT_THAT(labels1_v, testing::ElementsAreArray(&labels2[0], labels2.size()));
   // To make sure we we are not cheating somehow, we can now encode the Rupee

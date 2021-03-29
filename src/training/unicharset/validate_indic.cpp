@@ -25,8 +25,9 @@ bool ValidateIndic::ConsumeGraphemeIfValid() {
     case CharClass::kZeroWidthJoiner:
     case CharClass::kZeroWidthNonJoiner:
       // Apart from within an aksara, joiners are silently dropped.
-      if (report_errors_)
+      if (report_errors_) {
         tprintf("ERROR: Dropping isolated joiner: 0x%x\n", codes_[codes_used_].second);
+      }
       ++codes_used_;
       return true;
     case CharClass::kOther:
@@ -42,72 +43,98 @@ bool ValidateIndic::ConsumeGraphemeIfValid() {
 }
 
 Validator::CharClass ValidateIndic::UnicodeToCharClass(char32 ch) const {
-  if (IsVedicAccent(ch))
+  if (IsVedicAccent(ch)) {
     return CharClass::kVedicMark;
-  if (ch == kZeroWidthNonJoiner)
+  }
+  if (ch == kZeroWidthNonJoiner) {
     return CharClass::kZeroWidthNonJoiner;
-  if (ch == kZeroWidthJoiner)
+  }
+  if (ch == kZeroWidthJoiner) {
     return CharClass::kZeroWidthJoiner;
+  }
   // Offset from the start of the relevant unicode code block aka code page.
   int base = static_cast<char32>(script_);
   int off = ch - base;
   // Anything in another code block is other.
-  if (off < 0 || off >= kIndicCodePageSize)
+  if (off < 0 || off >= kIndicCodePageSize) {
     return CharClass::kOther;
+  }
   // Exception for Tamil. The aytham character is considered a letter.
-  if (script_ == ViramaScript::kTamil && off == 0x03)
+  if (script_ == ViramaScript::kTamil && off == 0x03) {
     return CharClass::kVowel;
-  if (off < 0x4)
+  }
+  if (off < 0x4) {
     return CharClass::kVowelModifier;
+  }
   if (script_ == ViramaScript::kSinhala) {
     // Sinhala is an exception.
-    if (off <= 0x19)
+    if (off <= 0x19) {
       return CharClass::kVowel;
-    if (off <= 0x49)
+    }
+    if (off <= 0x49) {
       return CharClass::kConsonant;
-    if (off == 0x4a)
+    }
+    if (off == 0x4a) {
       return CharClass::kVirama;
-    if (off <= 0x5f)
+    }
+    if (off <= 0x5f) {
       return CharClass::kMatra;
+    }
   } else {
-    if (off <= 0x14 || off == 0x50)
+    if (off <= 0x14 || off == 0x50) {
       return CharClass::kVowel;
-    if (off <= 0x3b || (0x58 <= off && off <= 0x5f))
+    }
+    if (off <= 0x3b || (0x58 <= off && off <= 0x5f)) {
       return CharClass::kConsonant;
+    }
     // Sinhala doesn't have Nukta or Avagraha.
-    if (off == 0x3c)
+    if (off == 0x3c) {
       return CharClass::kNukta;
-    if (off == 0x3d)
+    }
+    if (off == 0x3d) {
       return CharClass::kVowel; // avagraha
-    if (off <= 0x4c || (0x51 <= off && off <= 0x54))
+    }
+    if (off <= 0x4c || (0x51 <= off && off <= 0x54)) {
       return CharClass::kMatra;
-    if (0x55 <= off && off <= 0x57)
+    }
+    if (0x55 <= off && off <= 0x57) {
       return CharClass::kMatraPiece;
-    if (off == 0x4d)
+    }
+    if (off == 0x4d) {
       return CharClass::kVirama;
+    }
   }
-  if (off == 0x60 || off == 0x61)
+  if (off == 0x60 || off == 0x61) {
     return CharClass::kVowel;
-  if (off == 0x62 || off == 0x63)
+  }
+  if (off == 0x62 || off == 0x63) {
     return CharClass::kMatra;
+  }
   // Danda and digits up to 6f are OK as other.
   // 70-7f are script-specific.
   // 0BF0-0BF2 are Tamil numbers 10, 100 and 1000; treat as other.
-  if (script_ == ViramaScript::kTamil && (0x70 <= off && off <= 0x72))
+  if (script_ == ViramaScript::kTamil && (0x70 <= off && off <= 0x72)) {
     return CharClass::kOther;
+  }
   // 0BF3-0BFA are other Tamil symbols.
-  if (script_ == ViramaScript::kTamil && (0x73 <= off && off <= 0x7A))
+  if (script_ == ViramaScript::kTamil && (0x73 <= off && off <= 0x7A)) {
     return CharClass::kOther;
-  if (script_ == ViramaScript::kBengali && (off == 0x70 || off == 0x71))
+  }
+  if (script_ == ViramaScript::kBengali && (off == 0x70 || off == 0x71)) {
     return CharClass::kConsonant;
-  if (script_ == ViramaScript::kGurmukhi && (off == 0x72 || off == 0x73))
+  }
+  if (script_ == ViramaScript::kGurmukhi && (off == 0x72 || off == 0x73)) {
     return CharClass::kConsonant;
-  if (script_ == ViramaScript::kSinhala && off == 0x70)
+  }
+  if (script_ == ViramaScript::kSinhala && off == 0x70) {
     return CharClass::kConsonant;
-  if (script_ == ViramaScript::kDevanagari && off == 0x70)
+  }
+  if (script_ == ViramaScript::kDevanagari && off == 0x70) {
     return CharClass::kOther;
-  if (0x70 <= off && off <= 0x73)
+  }
+  if (0x70 <= off && off <= 0x73) {
     return CharClass::kVowelModifier;
+  }
   // Non Indic, Digits, Measures, danda, etc.
   return CharClass::kOther;
 }
@@ -126,8 +153,9 @@ bool ValidateIndic::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
     if (codes_used_ < num_codes && codes_[codes_used_].second == kZeroWidthJoiner) {
       // Post-matra viramas must be explicit, so no joiners allowed here.
       if (post_matra) {
-        if (report_errors_)
+        if (report_errors_) {
           tprintf("ERROR: ZWJ after a post-matra virama!!\n");
+        }
         return false;
       }
       if (codes_used_ + 1 < num_codes && codes_[codes_used_ - 2].second != kRayana &&
@@ -139,8 +167,9 @@ bool ValidateIndic::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
       } else {
         // Half-form with optional Nukta.
         unsigned len = output_.size() + 1 - output_used_;
-        if (UseMultiCode(len))
+        if (UseMultiCode(len)) {
           return true;
+        }
       }
       if (codes_used_ < num_codes && codes_[codes_used_].second == kZeroWidthNonJoiner) {
         if (output_used_ == output_.size() || output_[output_used_] != kRayana) {
@@ -150,8 +179,9 @@ bool ValidateIndic::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
           return false;
         }
         // Special Sinhala case of Stand-alone Repaya. ['RA' H Z z]
-        if (UseMultiCode(4))
+        if (UseMultiCode(4)) {
           return true;
+        }
       }
     } else if (codes_used_ == num_codes || codes_[codes_used_].first != CharClass::kConsonant ||
                post_matra) {
@@ -168,8 +198,9 @@ bool ValidateIndic::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
   } else {
     // Pre-virama joiner [{Z|z} H] requests specific conjunct.
     if (UseMultiCode(2)) {
-      if (report_errors_)
+      if (report_errors_) {
         tprintf("ERROR: Invalid pre-virama joiner with no 2nd consonant!!\n");
+      }
       return false;
     }
     if (codes_[codes_used_].second == kZeroWidthJoiner ||
@@ -233,42 +264,50 @@ bool ValidateIndic::ConsumeConsonantHeadIfValid() {
       }
     }
     if (codes_used_ < num_codes && codes_[codes_used_].first == CharClass::kVirama) {
-      if (!ConsumeViramaIfValid(joiner, false))
+      if (!ConsumeViramaIfValid(joiner, false)) {
         return false;
+      }
     } else {
       break; // No virama, so the run of consonants is over.
     }
   } while (codes_used_ < num_codes && codes_[codes_used_].first == CharClass::kConsonant);
-  if (output_used_ < output_.size())
+  if (output_used_ < output_.size()) {
     MultiCodePart(1);
+  }
   return true;
 }
 
 // Helper consumes/copies a tail part of a consonant, comprising optional
 // matra/piece, vowel modifier, vedic mark, terminating virama.
 bool ValidateIndic::ConsumeConsonantTailIfValid() {
-  if (codes_used_ == codes_.size())
+  if (codes_used_ == codes_.size()) {
     return true;
+  }
   // No virama: Finish the grapheme.
   // Are multiple matras allowed?
   if (codes_[codes_used_].first == CharClass::kMatra) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
     if (codes_[codes_used_].first == CharClass::kMatraPiece) {
-      if (UseMultiCode(1))
+      if (UseMultiCode(1)) {
         return true;
+      }
     }
   }
   while (codes_[codes_used_].first == CharClass::kVowelModifier) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
     // Only Malayalam allows only repeated 0xd02.
-    if (script_ != ViramaScript::kMalayalam || output_.back() != 0xd02)
+    if (script_ != ViramaScript::kMalayalam || output_.back() != 0xd02) {
       break;
+    }
   }
   while (codes_[codes_used_].first == CharClass::kVedicMark) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
   }
   if (codes_[codes_used_].first == CharClass::kVirama) {
     if (!ConsumeViramaIfValid(IndicPair(CharClass::kOther, 0), true)) {
@@ -276,26 +315,31 @@ bool ValidateIndic::ConsumeConsonantTailIfValid() {
     }
   }
   // What we have consumed so far is a valid consonant cluster.
-  if (output_used_ < output_.size())
+  if (output_used_ < output_.size()) {
     MultiCodePart(1);
+  }
 
   return true;
 }
 
 // Helper consumes/copies a vowel and optional modifiers.
 bool ValidateIndic::ConsumeVowelIfValid() {
-  if (UseMultiCode(1))
+  if (UseMultiCode(1)) {
     return true;
+  }
   while (codes_[codes_used_].first == CharClass::kVowelModifier) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
     // Only Malayalam allows repeated modifiers?
-    if (script_ != ViramaScript::kMalayalam)
+    if (script_ != ViramaScript::kMalayalam) {
       break;
+    }
   }
   while (codes_[codes_used_].first == CharClass::kVedicMark) {
-    if (UseMultiCode(1))
+    if (UseMultiCode(1)) {
       return true;
+    }
   }
   // What we have consumed so far is a valid vowel cluster.
   return true;

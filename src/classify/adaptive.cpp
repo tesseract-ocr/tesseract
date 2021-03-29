@@ -106,8 +106,9 @@ ADAPT_CLASS NewAdaptedClass() {
   zero_all_bits(Class->PermProtos, WordsInVectorOfSize(MAX_NUM_PROTOS));
   zero_all_bits(Class->PermConfigs, WordsInVectorOfSize(MAX_NUM_CONFIGS));
 
-  for (int i = 0; i < MAX_NUM_CONFIGS; i++)
+  for (int i = 0; i < MAX_NUM_CONFIGS; i++) {
     TempConfigFor(Class, i) = nullptr;
+  }
 
   return (Class);
 
@@ -116,10 +117,11 @@ ADAPT_CLASS NewAdaptedClass() {
 /*-------------------------------------------------------------------------*/
 void free_adapted_class(ADAPT_CLASS adapt_class) {
   for (int i = 0; i < MAX_NUM_CONFIGS; i++) {
-    if (ConfigIsPermanent(adapt_class, i) && PermConfigFor(adapt_class, i) != nullptr)
+    if (ConfigIsPermanent(adapt_class, i) && PermConfigFor(adapt_class, i) != nullptr) {
       FreePermConfig(PermConfigFor(adapt_class, i));
-    else if (!ConfigIsPermanent(adapt_class, i) && TempConfigFor(adapt_class, i) != nullptr)
+    } else if (!ConfigIsPermanent(adapt_class, i) && TempConfigFor(adapt_class, i) != nullptr) {
       FreeTempConfig(TempConfigFor(adapt_class, i));
+    }
   }
   FreeBitVector(adapt_class->PermProtos);
   FreeBitVector(adapt_class->PermConfigs);
@@ -167,8 +169,9 @@ int Classify::GetFontinfoId(ADAPT_CLASS Class, uint8_t ConfigId) {
 /*----------------------------------------------------------------------------*/
 void free_adapted_templates(ADAPT_TEMPLATES templates) {
   if (templates != nullptr) {
-    for (int i = 0; i < (templates->Templates)->NumClasses; i++)
+    for (int i = 0; i < (templates->Templates)->NumClasses; i++) {
       free_adapted_class(templates->Class[i]);
+    }
     free_int_templates(templates->Templates);
     free(templates);
   }
@@ -282,11 +285,13 @@ ADAPT_CLASS ReadAdaptedClass(TFile *fp) {
 
   /* then read in the adapted configs */
   fp->FRead(&NumConfigs, sizeof(int), 1);
-  for (i = 0; i < NumConfigs; i++)
-    if (test_bit(Class->PermConfigs, i))
+  for (i = 0; i < NumConfigs; i++) {
+    if (test_bit(Class->PermConfigs, i)) {
       Class->Config[i].Perm = ReadPermConfig(fp);
-    else
+    } else {
       Class->Config[i].Temp = ReadTempConfig(fp);
+    }
+  }
 
   return (Class);
 
@@ -398,11 +403,13 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
 
   /* then write out the adapted configs */
   fwrite(&NumConfigs, sizeof(int), 1, File);
-  for (i = 0; i < NumConfigs; i++)
-    if (test_bit(Class->PermConfigs, i))
+  for (i = 0; i < NumConfigs; i++) {
+    if (test_bit(Class->PermConfigs, i)) {
       WritePermConfig(File, Class->Config[i].Perm);
-    else
+    } else {
       WriteTempConfig(File, Class->Config[i].Temp);
+    }
+  }
 
 } /* WriteAdaptedClass */
 
@@ -444,8 +451,9 @@ void WritePermConfig(FILE *File, PERM_CONFIG Config) {
   uint8_t NumAmbigs = 0;
 
   assert(Config != nullptr);
-  while (Config->Ambigs[NumAmbigs] > 0)
+  while (Config->Ambigs[NumAmbigs] > 0) {
     ++NumAmbigs;
+  }
 
   fwrite(&NumAmbigs, sizeof(uint8_t), 1, File);
   fwrite(Config->Ambigs, sizeof(UNICHAR_ID), NumAmbigs, File);

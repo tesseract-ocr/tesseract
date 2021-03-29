@@ -203,8 +203,9 @@ void TessPDFRenderer::AppendPDFObject(const char *data) {
 static double prec(double x) {
   double kPrecision = 1000.0;
   double a = round(x * kPrecision) / kPrecision;
-  if (a == -0)
+  if (a == -0) {
     return 0;
+  }
   return a;
 }
 
@@ -295,8 +296,9 @@ static void ClipBaseline(int ppi, int x1, int y1, int x2, int y2, int *line_x1, 
   *line_y2 = y2;
   int rise = abs(y2 - y1) * 72;
   int run = abs(x2 - x1) * 72;
-  if (rise < 2 * ppi && 2 * ppi < run)
+  if (rise < 2 * ppi && 2 * ppi < run) {
     *line_y1 = *line_y2 = (y1 + y2) / 2;
+  }
 }
 
 static bool CodepointToUtf16be(int code, char utf16[kMaxBytesPerCodepoint]) {
@@ -428,8 +430,9 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
       res_it->WordFontAttributes(&bold, &italic, &underlined, &monospace, &serif, &smallcaps,
                                  &fontsize, &font_id);
       const int kDefaultFontsize = 8;
-      if (fontsize <= 0)
+      if (fontsize <= 0) {
         fontsize = kDefaultFontsize;
+      }
       if (fontsize != old_fontsize) {
         pdf_str << "/f-0-0 " << fontsize << " Tf ";
         old_fontsize = fontsize;
@@ -655,20 +658,24 @@ bool TessPDFRenderer::BeginDocumentHandler() {
 bool TessPDFRenderer::imageToPDFObj(Pix *pix, const char *filename, long int objnum,
                                     char **pdf_object, long int *pdf_object_size,
                                     const int jpg_quality) {
-  if (!pdf_object_size || !pdf_object)
+  if (!pdf_object_size || !pdf_object) {
     return false;
+  }
   *pdf_object = nullptr;
   *pdf_object_size = 0;
-  if (!filename && !pix)
+  if (!filename && !pix) {
     return false;
+  }
 
   L_Compressed_Data *cid = nullptr;
 
   int sad = 0;
-  if (pixGetInputFormat(pix) == IFF_PNG)
+  if (pixGetInputFormat(pix) == IFF_PNG) {
     sad = pixGenerateCIData(pix, L_FLATE_ENCODE, 0, 0, &cid);
-  else if (pixGetInputFormat(pix) == IFF_UNKNOWN)
+  }
+  else if (pixGetInputFormat(pix) == IFF_UNKNOWN) {
     sad = pixGenerateCIData(pix, L_FLATE_ENCODE, 0, 0, &cid);
+  }
   if (!cid) {
     sad = l_generateCIDataForPdf(filename, pix, jpg_quality, &cid);
   }
@@ -811,8 +818,9 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI *api) {
     destroy_pix = 1;
   }
   
-  if (!pix || ppi <= 0)
+  if (!pix || ppi <= 0) {
     return false;
+  }
   double width = pixGetWidth(pix) * 72.0 / ppi;
   double height = pixGetHeight(pix) * 72.0 / ppi;
 

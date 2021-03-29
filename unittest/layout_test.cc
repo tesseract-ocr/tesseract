@@ -64,7 +64,7 @@ protected:
   LayoutTest() {
     src_pix_ = nullptr;
   }
-  ~LayoutTest() {
+  ~LayoutTest() override {
     pixDestroy(&src_pix_);
   }
 
@@ -105,8 +105,9 @@ protected:
       }
       delete[] block_text;
       ++block_index;
-      if (strings[string_index] == nullptr)
+      if (strings[string_index] == nullptr) {
         break;
+      }
     } while (it->Next(tesseract::RIL_BLOCK));
     EXPECT_TRUE(strings[string_index] == nullptr);
   }
@@ -189,8 +190,9 @@ protected:
 // Tests that array sizes match their intended size.
 TEST_F(LayoutTest, ArraySizeTest) {
   int size = 0;
-  for (size = 0; kPolyBlockNames[size][0] != '\0'; ++size)
+  for (size = 0; kPolyBlockNames[size][0] != '\0'; ++size) {
     ;
+  }
   EXPECT_EQ(size, PT_COUNT);
 }
 

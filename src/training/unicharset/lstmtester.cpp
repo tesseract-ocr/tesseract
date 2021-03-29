@@ -132,8 +132,9 @@ void LSTMTester::ThreadFunc() {
 // if there is nothing running.
 bool LSTMTester::LockIfNotRunning() {
   std::lock_guard<std::mutex> lock(running_mutex_);
-  if (async_running_)
+  if (async_running_) {
     return false;
+  }
   async_running_ = true;
   return true;
 }

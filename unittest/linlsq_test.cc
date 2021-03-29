@@ -17,12 +17,12 @@ namespace tesseract {
 
 class LLSQTest : public testing::Test {
 protected:
-  void SetUp() {
+  void SetUp() override {
     std::locale::global(std::locale(""));
   }
 
 public:
-  void TearDown() {}
+  void TearDown() override {}
 
   void ExpectCorrectLine(const LLSQ &llsq, double m, double c, double rms, double pearson,
                          double tolerance) {
@@ -103,11 +103,11 @@ TEST_F(LLSQTest, Vectors) {
 //   sqrt( sum (!nvec * (x_i - x_avg))^2 / n)
 TEST_F(LLSQTest, RmsOrthWorksAsIntended) {
   std::vector<FCOORD> pts;
-  pts.push_back(FCOORD(0.56, 0.95));
-  pts.push_back(FCOORD(0.09, 0.09));
-  pts.push_back(FCOORD(0.13, 0.77));
-  pts.push_back(FCOORD(0.16, 0.83));
-  pts.push_back(FCOORD(0.45, 0.79));
+  pts.emplace_back(0.56, 0.95);
+  pts.emplace_back(0.09, 0.09);
+  pts.emplace_back(0.13, 0.77);
+  pts.emplace_back(0.16, 0.83);
+  pts.emplace_back(0.45, 0.79);
   VerifyRmsOrth(pts, FCOORD(1, 0));
   VerifyRmsOrth(pts, FCOORD(1, 1));
   VerifyRmsOrth(pts, FCOORD(1, 2));

@@ -27,16 +27,18 @@ Plumbing::Plumbing(const std::string &name) : Network(NT_PARALLEL, name, 0, 0) {
 // DeSerialize only operate on the run-time data if state is false.
 void Plumbing::SetEnableTraining(TrainingState state) {
   Network::SetEnableTraining(state);
-  for (auto &i : stack_)
+  for (auto &i : stack_) {
     i->SetEnableTraining(state);
+  }
 }
 
 // Sets flags that control the action of the network. See NetworkFlags enum
 // for bit values.
 void Plumbing::SetNetworkFlags(uint32_t flags) {
   Network::SetNetworkFlags(flags);
-  for (auto &i : stack_)
+  for (auto &i : stack_) {
     i->SetNetworkFlags(flags);
+  }
 }
 
 // Sets up the network for training. Initializes weights using weights of
@@ -46,8 +48,9 @@ void Plumbing::SetNetworkFlags(uint32_t flags) {
 // Returns the number of weights initialized.
 int Plumbing::InitWeights(float range, TRand *randomizer) {
   num_weights_ = 0;
-  for (auto &i : stack_)
+  for (auto &i : stack_) {
     num_weights_ += i->InitWeights(range, randomizer);
+  }
   return num_weights_;
 }
 
@@ -63,16 +66,18 @@ int Plumbing::RemapOutputs(int old_no, const std::vector<int> &code_map) {
 
 // Converts a float network to an int network.
 void Plumbing::ConvertToInt() {
-  for (auto &i : stack_)
+  for (auto &i : stack_) {
     i->ConvertToInt();
+  }
 }
 
 // Provides a pointer to a TRand for any networks that care to use it.
 // Note that randomizer is a borrowed pointer that should outlive the network
 // and should not be deleted by any of the networks.
 void Plumbing::SetRandomizer(TRand *randomizer) {
-  for (auto &i : stack_)
+  for (auto &i : stack_) {
     i->SetRandomizer(randomizer);
+  }
 }
 
 // Adds the given network to the stack.
@@ -99,8 +104,9 @@ bool Plumbing::SetupNeedsBackprop(bool needs_backprop) {
     needs_to_backprop_ = needs_backprop;
     bool retval = needs_backprop;
     for (auto &i : stack_) {
-      if (i->SetupNeedsBackprop(needs_backprop))
+      if (i->SetupNeedsBackprop(needs_backprop)) {
         retval = true;
+      }
     }
     return retval;
   }
@@ -129,16 +135,18 @@ void Plumbing::CacheXScaleFactor(int factor) {
 
 // Provides debug output on the weights.
 void Plumbing::DebugWeights() {
-  for (auto &i : stack_)
+  for (auto &i : stack_) {
     i->DebugWeights();
+  }
 }
 
 // Returns a set of strings representing the layer-ids of all layers below.
 void Plumbing::EnumerateLayers(const std::string *prefix, std::vector<std::string> &layers) const {
   for (int i = 0; i < stack_.size(); ++i) {
     std::string layer_name;
-    if (prefix)
+    if (prefix) {
       layer_name = *prefix;
+    }
     layer_name += ":" + std::to_string(i);
     if (stack_[i]->IsPlumbingType()) {
       auto *plumbing = static_cast<Plumbing *>(stack_[i]);
@@ -153,8 +161,9 @@ void Plumbing::EnumerateLayers(const std::string *prefix, std::vector<std::strin
 Network *Plumbing::GetLayer(const char *id) const {
   char *next_id;
   int index = strtol(id, &next_id, 10);
-  if (index < 0 || index >= stack_.size())
+  if (index < 0 || index >= stack_.size()) {
     return nullptr;
+  }
   if (stack_[index]->IsPlumbingType()) {
     auto *plumbing = static_cast<Plumbing *>(stack_[index]);
     ASSERT_HOST(*next_id == ':');
@@ -167,29 +176,35 @@ Network *Plumbing::GetLayer(const char *id) const {
 float *Plumbing::LayerLearningRatePtr(const char *id) {
   char *next_id;
   int index = strtol(id, &next_id, 10);
-  if (index < 0 || index >= stack_.size())
+  if (index < 0 || index >= stack_.size()) {
     return nullptr;
+  }
   if (stack_[index]->IsPlumbingType()) {
     auto *plumbing = static_cast<Plumbing *>(stack_[index]);
     ASSERT_HOST(*next_id == ':');
     return plumbing->LayerLearningRatePtr(next_id + 1);
   }
-  if (index >= learning_rates_.size())
+  if (index >= learning_rates_.size()) {
     return nullptr;
+  }
   return &learning_rates_[index];
 }
 
 // Writes to the given file. Returns false in case of error.
 bool Plumbing::Serialize(TFile *fp) const {
-  if (!Network::Serialize(fp))
+  if (!Network::Serialize(fp)) {
     return false;
+  }
   uint32_t size = stack_.size();
   // Can't use PointerVector::Serialize here as we need a special DeSerialize.
-  if (!fp->Serialize(&size))
+  if (!fp->Serialize(&size)) {
     return false;
-  for (uint32_t i = 0; i < size; ++i)
-    if (!stack_[i]->Serialize(fp))
+  }
+  for (uint32_t i = 0; i < size; ++i) {
+    if (!stack_[i]->Serialize(fp)) {
       return false;
+    }
+  }
   if ((network_flags_ & NF_LAYER_SPECIFIC_LR) && !fp->Serialize(learning_rates_)) {
     return false;
   }
@@ -204,12 +219,14 @@ bool Plumbing::DeSerialize(TFile *fp) {
   stack_.clear();
   no_ = 0; // We will be modifying this as we AddToStack.
   uint32_t size;
-  if (!fp->DeSerialize(&size))
+  if (!fp->DeSerialize(&size)) {
     return false;
+  }
   for (uint32_t i = 0; i < size; ++i) {
     Network *network = CreateFromFile(fp);
-    if (network == nullptr)
+    if (network == nullptr) {
       return false;
+    }
     AddToStack(network);
   }
   if ((network_flags_ & NF_LAYER_SPECIFIC_LR) && !fp->DeSerialize(learning_rates_)) {
@@ -223,10 +240,11 @@ bool Plumbing::DeSerialize(TFile *fp) {
 void Plumbing::Update(float learning_rate, float momentum, float adam_beta, int num_samples) {
   for (int i = 0; i < stack_.size(); ++i) {
     if (network_flags_ & NF_LAYER_SPECIFIC_LR) {
-      if (i < learning_rates_.size())
+      if (i < learning_rates_.size()) {
         learning_rate = learning_rates_[i];
-      else
+      } else {
         learning_rates_.push_back(learning_rate);
+      }
     }
     if (stack_[i]->IsTraining()) {
       stack_[i]->Update(learning_rate, momentum, adam_beta, num_samples);
@@ -241,8 +259,9 @@ void Plumbing::CountAlternators(const Network &other, double *same, double *chan
   ASSERT_HOST(other.type() == type_);
   const auto *plumbing = static_cast<const Plumbing *>(&other);
   ASSERT_HOST(plumbing->stack_.size() == stack_.size());
-  for (int i = 0; i < stack_.size(); ++i)
+  for (int i = 0; i < stack_.size(); ++i) {
     stack_[i]->CountAlternators(*plumbing->stack_[i], same, changed);
+  }
 }
 
 } // namespace tesseract.

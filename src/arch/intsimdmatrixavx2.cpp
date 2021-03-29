@@ -78,7 +78,7 @@ static inline void MultiplyGroup(const __m256i &rep_input, const __m256i &ones, 
 // We don't actually care what the top 64bits are, but this ends
 // up with them being zero.
 static inline __m128i load64_to_128(const int8_t *wi_) {
-  const int64_t *wi = reinterpret_cast<const int64_t *>(wi_);
+  const auto *wi = reinterpret_cast<const int64_t *>(wi_);
   return _mm_set_epi64x(0, wi[0]);
 }
 
@@ -322,8 +322,9 @@ static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const double *
   group_size /= 2;
   w_step /= 2;
 
-  if (output + group_size <= rounded_num_out)
+  if (output + group_size <= rounded_num_out) {
     PartialMatrixDotVector8(wi, scales, u, rounded_num_in, v);
+  }
 }
 
 const IntSimdMatrix IntSimdMatrix::intSimdMatrixAVX2 = {

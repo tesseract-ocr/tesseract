@@ -54,8 +54,9 @@ void ICOORD::set_with_shrink(int x, int y) {
   // Fit the vector into an ICOORD, which is 16 bit.
   int factor = 1;
   int max_extent = std::max(abs(x), abs(y));
-  if (max_extent > INT16_MAX)
+  if (max_extent > INT16_MAX) {
     factor = max_extent / INT16_MAX + 1;
+  }
   xcoord = x / factor;
   ycoord = y / factor;
 }
@@ -63,10 +64,11 @@ void ICOORD::set_with_shrink(int x, int y) {
 // The fortran/basic sgn function returns -1, 0, 1 if x < 0, x == 0, x > 0
 // respectively.
 static int sign(int x) {
-  if (x < 0)
+  if (x < 0) {
     return -1;
-  else
+  } else {
     return x > 0 ? 1 : 0;
+  }
 }
 
 // Writes to the given file. Returns false in case of error.
@@ -76,10 +78,12 @@ bool ICOORD::Serialize(FILE *fp) const {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool ICOORD::DeSerialize(bool swap, FILE *fp) {
-  if (!tesseract::DeSerialize(fp, &xcoord))
+  if (!tesseract::DeSerialize(fp, &xcoord)) {
     return false;
-  if (!tesseract::DeSerialize(fp, &ycoord))
+  }
+  if (!tesseract::DeSerialize(fp, &ycoord)) {
     return false;
+  }
   if (swap) {
     ReverseN(&xcoord, sizeof(xcoord));
     ReverseN(&ycoord, sizeof(ycoord));

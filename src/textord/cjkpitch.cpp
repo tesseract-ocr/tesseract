@@ -59,14 +59,18 @@ public:
   }
 
   float ile(double frac) {
-    if (!finalized_)
+    if (!finalized_) {
       Finish();
-    if (values_.empty())
+    }
+    if (values_.empty()) {
       return 0.0f;
-    if (frac >= 1.0)
+    }
+    if (frac >= 1.0) {
       return values_.back();
-    if (frac <= 0.0 || values_.size() == 1)
+    }
+    if (frac <= 0.0 || values_.size() == 1) {
       return values_[0];
+    }
     int index = static_cast<int>((values_.size() - 1) * frac);
     float reminder = (values_.size() - 1) * frac - index;
 
@@ -78,10 +82,12 @@ public:
   }
 
   float minimum() {
-    if (!finalized_)
+    if (!finalized_) {
       Finish();
-    if (values_.empty())
+    }
+    if (values_.empty()) {
       return 0.0f;
+    }
     return values_[0];
   }
 
@@ -130,10 +136,12 @@ public:
     int start = 0, end = values_.size();
     // Because the number of samples (used_) is assumed to be small,
     // just use linear search to find values within the range.
-    while (start < values_.size() && values_[start].x < x * (1.0 - r))
+    while (start < values_.size() && values_[start].x < x * (1.0 - r)) {
       start++;
-    while (end - 1 >= 0 && values_[end - 1].x > x * (1.0 + r))
+    }
+    while (end - 1 >= 0 && values_[end - 1].x > x * (1.0 + r)) {
       end--;
+    }
 
     // Fall back to the global average if there are no data within r
     // of x.
@@ -192,8 +200,9 @@ public:
   // consist of succeeding blobs on the same row.
   void Merge(const FPChar &next) {
     int gap = real_body_.x_gap(next.real_body_);
-    if (gap > max_gap_)
+    if (gap > max_gap_) {
       max_gap_ = gap;
+    }
 
     box_ += next.box_;
     real_body_ += next.real_body_;
@@ -332,8 +341,9 @@ public:
   }
 
   float height_pitch_ratio() {
-    if (good_pitches_.size() < 2)
+    if (good_pitches_.size() < 2) {
       return -1.0;
+    }
     return height_ / good_pitches_.median();
   }
 
@@ -390,8 +400,9 @@ public:
 
 private:
   static float x_overlap_fraction(const TBOX &box1, const TBOX &box2) {
-    if (std::min(box1.width(), box2.width()) == 0)
+    if (std::min(box1.width(), box2.width()) == 0) {
       return 0.0;
+    }
     return -box1.x_gap(box2) / static_cast<float>(std::min(box1.width(), box2.width()));
   }
 
@@ -400,8 +411,9 @@ private:
   }
 
   static bool significant_overlap(const TBOX &box1, const TBOX &box2) {
-    if (std::min(box1.width(), box2.width()) == 0)
+    if (std::min(box1.width(), box2.width()) == 0) {
       return false;
+    }
     int overlap = -box1.x_gap(box2);
     return overlap > 1 || x_overlap_fraction(box1, box2) > 0.1;
   }
@@ -416,12 +428,14 @@ private:
     if (box1.width() >= pitch * (1.0 + kFPTolerance) ||
         box2.width() >= pitch * (1.0 + kFPTolerance) ||
         box1.height() >= pitch * (1.0 + kFPTolerance) ||
-        box2.height() >= pitch * (1.0 + kFPTolerance))
+        box2.height() >= pitch * (1.0 + kFPTolerance)) {
       return false;
+    }
 
     const float real_pitch = box_pitch(box1, box2);
-    if (fabs(real_pitch - pitch) < pitch * kFPTolerance)
+    if (fabs(real_pitch - pitch) < pitch * kFPTolerance) {
       return true;
+    }
 
     if (textord_space_size_is_variable) {
       // Hangul characters usually have fixed pitch, but words are
@@ -442,8 +456,9 @@ private:
     int index = 0;
     for (int i = 0; i < characters_.size(); ++i) {
       if (!characters_[i].delete_flag()) {
-        if (index != i)
+        if (index != i) {
           characters_[index] = characters_[i];
+        }
         index++;
       }
     }
@@ -598,8 +613,9 @@ void FPRow::EstimatePitch(bool pass1) {
   good_gaps_.Clear();
   all_gaps_.Clear();
   heights_.Clear();
-  if (num_chars() == 0)
+  if (num_chars() == 0) {
     return;
+  }
 
   int32_t cx0, cx1;
   bool prev_was_good = is_good(0);
@@ -680,8 +696,9 @@ void FPRow::DebugOutputResult(int row_index) {
 }
 
 void FPRow::Pass1Analyze() {
-  if (num_chars() < 2)
+  if (num_chars() < 2) {
     return;
+  }
 
   if (estimated_pitch_ > 0.0f) {
     for (size_t i = 2; i < num_chars(); i++) {
@@ -707,8 +724,9 @@ bool FPRow::Pass2Analyze() {
     return false;
   }
   for (size_t i = 0; i < num_chars(); i++) {
-    if (is_final(i))
+    if (is_final(i)) {
       continue;
+    }
 
     FPChar::Alignment alignment = character(i)->alignment();
     bool intersecting = false;
@@ -739,8 +757,9 @@ bool FPRow::Pass2Analyze() {
       if (j >= 0 && significant_overlap(ibody, box(j))) {
         // character(j) lies on the character boundary and doesn't fit
         // well into the imaginary body.
-        if (!is_final(j))
+        if (!is_final(j)) {
           intersecting = true;
+        }
       } else {
         not_intersecting = true;
         if (i - j > 0) {
@@ -748,8 +767,9 @@ bool FPRow::Pass2Analyze() {
           // into the body nicely.
           if (i - j == 1) {
             // Only one char in the imaginary body.
-            if (!skipped_whitespaces)
+            if (!skipped_whitespaces) {
               mark_good(i);
+            }
             // set ibody as bounding box of this character to get
             // better pitch analysis result for halfwidth glyphs
             // followed by a halfwidth space.
@@ -788,14 +808,16 @@ bool FPRow::Pass2Analyze() {
       }
 
       if (j < num_chars() && significant_overlap(ibody, box(j))) {
-        if (!is_final(j))
+        if (!is_final(j)) {
           intersecting = true;
+        }
       } else {
         not_intersecting = true;
         if (j - i > 0) {
           if (j - i == 1) {
-            if (!skipped_whitespaces)
+            if (!skipped_whitespaces) {
               mark_good(i);
+            }
             if (box(i).width() <= estimated_pitch_ * 0.5) {
               ibody += box(i);
               character(i)->set_box(ibody);
@@ -813,8 +835,9 @@ bool FPRow::Pass2Analyze() {
 
     // This character doesn't fit well into the estimated imaginary
     // bodies. Mark it as bad.
-    if (intersecting && !not_intersecting)
+    if (intersecting && !not_intersecting) {
       mark_bad(i);
+    }
     if (character(i)->alignment() != alignment || character(i)->merge_to_prev()) {
       changed = true;
     }
@@ -842,8 +865,9 @@ void FPRow::MergeFragments() {
 void FPRow::FinalizeLargeChars() {
   float row_pitch = estimated_pitch();
   for (size_t i = 0; i < num_chars(); i++) {
-    if (is_final(i))
+    if (is_final(i)) {
       continue;
+    }
 
     // Finalize if both neighbors are finalized. We have no other choice.
     if (i > 0 && is_final(i - 1) && i < num_chars() - 1 && is_final(i + 1)) {
@@ -857,26 +881,30 @@ void FPRow::FinalizeLargeChars() {
       // The preceding character significantly intersects with the
       // imaginary body of this character. Let Pass2Analyze() handle
       // this case.
-      if (x_overlap_fraction(ibody, box(i - 1)) > 0.1)
+      if (x_overlap_fraction(ibody, box(i - 1)) > 0.1) {
         continue;
+      }
       if (!is_final(i - 1)) {
         TBOX merged = box(i);
         merged += box(i - 1);
-        if (merged.width() < row_pitch)
+        if (merged.width() < row_pitch) {
           continue;
+        }
         // This character cannot be finalized yet because it can be
         // merged with the previous one.  Again, let Pass2Analyze()
         // handle this case.
       }
     }
     if (i < num_chars() - 1) {
-      if (x_overlap_fraction(ibody, box(i + 1)) > 0.1)
+      if (x_overlap_fraction(ibody, box(i + 1)) > 0.1) {
         continue;
+      }
       if (!is_final(i + 1)) {
         TBOX merged = box(i);
         merged += box(i + 1);
-        if (merged.width() < row_pitch)
+        if (merged.width() < row_pitch) {
           continue;
+        }
       }
     }
     finalize(i);
@@ -888,8 +916,9 @@ void FPRow::FinalizeLargeChars() {
   // right, we mark C as good if the pitch between C and L is good,
   // regardless of the pitch between C and R.
   for (size_t i = 0; i < num_chars(); i++) {
-    if (!is_final(i))
+    if (!is_final(i)) {
       continue;
+    }
     bool good_pitch = false;
     bool bad_pitch = false;
     if (i > 0 && is_final(i - 1)) {
@@ -906,10 +935,11 @@ void FPRow::FinalizeLargeChars() {
         bad_pitch = true;
       }
     }
-    if (good_pitch && !bad_pitch)
+    if (good_pitch && !bad_pitch) {
       mark_good(i);
-    else if (!good_pitch && bad_pitch)
+    } else if (!good_pitch && bad_pitch) {
       mark_bad(i);
+    }
   }
 }
 
@@ -919,8 +949,9 @@ public:
   ~FPAnalyzer() = default;
 
   void Pass1Analyze() {
-    for (auto &row : rows_)
+    for (auto &row : rows_) {
       row.Pass1Analyze();
+    }
   }
 
   // Estimate character pitch for each row.  The argument pass1 can be
@@ -929,19 +960,22 @@ public:
   void EstimatePitch(bool pass1);
 
   bool maybe_fixed_pitch() {
-    if (rows_.empty() || rows_.size() <= num_bad_rows_ + num_tall_rows_ + 1)
+    if (rows_.empty() || rows_.size() <= num_bad_rows_ + num_tall_rows_ + 1) {
       return false;
+    }
     return true;
   }
 
   void MergeFragments() {
-    for (auto &row : rows_)
+    for (auto &row : rows_) {
       row.MergeFragments();
+    }
   }
 
   void FinalizeLargeChars() {
-    for (auto &row : rows_)
+    for (auto &row : rows_) {
       row.FinalizeLargeChars();
+    }
   }
 
   bool Pass2Analyze() {
@@ -955,15 +989,17 @@ public:
   }
 
   void OutputEstimations() {
-    for (auto &row : rows_)
+    for (auto &row : rows_) {
       row.OutputEstimations();
+    }
     // Don't we need page-level estimation of gaps/spaces?
   }
 
   void DebugOutputResult() {
     tprintf("FPAnalyzer: final result\n");
-    for (size_t i = 0; i < rows_.size(); i++)
+    for (size_t i = 0; i < rows_.size(); i++) {
       rows_[i].DebugOutputResult(i);
+    }
   }
 
   size_t num_rows() {
@@ -1010,10 +1046,12 @@ FPAnalyzer::FPAnalyzer(ICOORD page_tr, TO_BLOCK_LIST *port_blocks)
       row.Init(row_it.data());
       rows_.push_back(row);
       size_t num_chars = rows_.back().num_chars();
-      if (num_chars <= 1)
+      if (num_chars <= 1) {
         num_empty_rows_++;
-      if (num_chars > max_chars_per_row_)
+      }
+      if (num_chars > max_chars_per_row_) {
         max_chars_per_row_ = num_chars;
+      }
     }
   }
 }
@@ -1028,8 +1066,9 @@ void FPAnalyzer::EstimatePitch(bool pass1) {
     row.EstimatePitch(pass1);
     if (row.good_pitches()) {
       pitch_height_stats.Add(row.height() + row.gap(), row.pitch(), row.good_pitches());
-      if (row.height_pitch_ratio() > 1.1)
+      if (row.height_pitch_ratio() > 1.1) {
         num_tall_rows_++;
+      }
     } else {
       num_bad_rows_++;
     }
@@ -1058,8 +1097,9 @@ void FPAnalyzer::EstimatePitch(bool pass1) {
 
 void compute_fixed_pitch_cjk(ICOORD page_tr, TO_BLOCK_LIST *port_blocks) {
   FPAnalyzer analyzer(page_tr, port_blocks);
-  if (analyzer.num_rows() == 0)
+  if (analyzer.num_rows() == 0) {
     return;
+  }
 
   analyzer.Pass1Analyze();
   analyzer.EstimatePitch(true);
@@ -1091,8 +1131,9 @@ void compute_fixed_pitch_cjk(ICOORD page_tr, TO_BLOCK_LIST *port_blocks) {
   }
 
   analyzer.OutputEstimations();
-  if (textord_debug_pitch_test)
+  if (textord_debug_pitch_test) {
     analyzer.DebugOutputResult();
+  }
 }
 
 } // namespace tesseract
