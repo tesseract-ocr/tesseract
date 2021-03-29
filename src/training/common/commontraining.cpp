@@ -377,7 +377,6 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
   char unichar[UNICHAR_LEN + 1];
   LABELEDLIST char_sample;
   FEATURE_SET feature_samples;
-  CHAR_DESC char_desc;
   uint32_t feature_type = ShortNameToFeatureType(feature_definitions, feature_name);
 
   // Zero out the font_sample_count for all the classes.
@@ -407,18 +406,18 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
       char_sample = NewLabeledList(unichar);
       *training_samples = push(*training_samples, char_sample);
     }
-    char_desc = ReadCharDescription(feature_definitions, file);
+    auto char_desc = ReadCharDescription(feature_definitions, file);
     feature_samples = char_desc->FeatureSets[feature_type];
     if (char_sample->font_sample_count < max_samples || max_samples <= 0) {
       char_sample->List = push(char_sample->List, feature_samples);
       char_sample->SampleCount++;
       char_sample->font_sample_count++;
     } else {
-      FreeFeatureSet(feature_samples);
+      delete feature_samples;
     }
     for (size_t i = 0; i < char_desc->NumFeatureSets; i++) {
       if (feature_type != i) {
-        FreeFeatureSet(char_desc->FeatureSets[i]);
+        delete char_desc->FeatureSets[i];
       }
     }
     free(char_desc);
@@ -442,7 +441,7 @@ void FreeTrainingSamples(LIST CharList) {
     FeatureList = char_sample->List;
     iterate(FeatureList) { /* iterate through all of the classes */
       FeatureSet = reinterpret_cast<FEATURE_SET> first_node(FeatureList);
-      FreeFeatureSet(FeatureSet);
+      delete FeatureSet;
     }
     FreeLabeledList(char_sample);
   }
@@ -528,8 +527,8 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
     iterate(list_it) {
       auto *test_p = reinterpret_cast<PROTOTYPE *> first_node(list_it);
       if (test_p != Prototype && !test_p->Merged) {
-        float dist = ComputeDistance(Clusterer->SampleSize, Clusterer->ParamDesc, Prototype->Mean,
-                                     test_p->Mean);
+        float dist = ComputeDistance(Clusterer->SampleSize, Clusterer->ParamDesc, &Prototype->Mean[0],
+                                     &test_p->Mean[0]);
         if (dist < best_dist) {
           best_match = test_p;
           best_dist = dist;
@@ -544,7 +543,7 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
       }
       best_match->NumSamples =
           MergeClusters(Clusterer->SampleSize, Clusterer->ParamDesc, best_match->NumSamples,
-                        Prototype->NumSamples, best_match->Mean, best_match->Mean, Prototype->Mean);
+                        Prototype->NumSamples, &best_match->Mean[0], &best_match->Mean[0], &Prototype->Mean[0]);
       Prototype->NumSamples = 0;
       Prototype->Merged = true;
     } else if (best_match != nullptr) {
@@ -576,11 +575,11 @@ void CleanUpUnusedData(LIST ProtoList) {
 
   iterate(ProtoList) {
     Prototype = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
-    free(Prototype->Variance.Elliptical);
+    delete[] Prototype->Variance.Elliptical;
     Prototype->Variance.Elliptical = nullptr;
-    free(Prototype->Magnitude.Elliptical);
+    delete[] Prototype->Magnitude.Elliptical;
     Prototype->Magnitude.Elliptical = nullptr;
-    free(Prototype->Weight.Elliptical);
+    delete[] Prototype->Weight.Elliptical;
     Prototype->Weight.Elliptical = nullptr;
   }
 }
@@ -590,30 +589,21 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
 
 {
   LIST NewProtoList = NIL_LIST;
-  LIST pProtoList;
-  PROTOTYPE *Proto;
-  PROTOTYPE *NewProto;
-  int i;
-
-  pProtoList = ProtoList;
+  auto pProtoList = ProtoList;
   iterate(pProtoList) {
-    Proto = reinterpret_cast<PROTOTYPE *> first_node(pProtoList);
+    auto Proto = reinterpret_cast<PROTOTYPE *> first_node(pProtoList);
     if ((Proto->Significant && KeepSigProtos) || (!Proto->Significant && KeepInsigProtos)) {
-      NewProto = static_cast<PROTOTYPE *>(malloc(sizeof(PROTOTYPE)));
-
-      NewProto->Mean = static_cast<float *>(malloc(N * sizeof(float)));
+      auto NewProto = new PROTOTYPE;
+      NewProto->Mean = Proto->Mean;
       NewProto->Significant = Proto->Significant;
       NewProto->Style = Proto->Style;
       NewProto->NumSamples = Proto->NumSamples;
       NewProto->Cluster = nullptr;
-      NewProto->Distrib = nullptr;
+      NewProto->Distrib.clear();
 
-      for (i = 0; i < N; i++) {
-        NewProto->Mean[i] = Proto->Mean[i];
-      }
       if (Proto->Variance.Elliptical != nullptr) {
-        NewProto->Variance.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++) {
+        NewProto->Variance.Elliptical = new float[N];
+        for (int i = 0; i < N; i++) {
           NewProto->Variance.Elliptical[i] = Proto->Variance.Elliptical[i];
         }
       } else {
@@ -621,8 +611,8 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
       }
       //---------------------------------------------
       if (Proto->Magnitude.Elliptical != nullptr) {
-        NewProto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++) {
+        NewProto->Magnitude.Elliptical = new float[N];
+        for (int i = 0; i < N; i++) {
           NewProto->Magnitude.Elliptical[i] = Proto->Magnitude.Elliptical[i];
         }
       } else {
@@ -630,8 +620,8 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
       }
       //------------------------------------------------
       if (Proto->Weight.Elliptical != nullptr) {
-        NewProto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++) {
+        NewProto->Weight.Elliptical = new float[N];
+        for (int i = 0; i < N; i++) {
           NewProto->Weight.Elliptical[i] = Proto->Weight.Elliptical[i];
         }
       } else {
@@ -703,8 +693,8 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
   int NumWords;
   int i, j;
   float Values[3];
-  PROTO NewProto;
-  PROTO OldProto;
+  PROTO_STRUCT *NewProto;
+  PROTO_STRUCT *OldProto;
   BIT_VECTOR NewConfig;
   BIT_VECTOR OldConfig;
 
@@ -720,7 +710,7 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
     font_set.move(&MergeClass->Class->font_set);
     Class->NumProtos = NumProtos;
     Class->MaxNumProtos = NumProtos;
-    Class->Prototypes = static_cast<PROTO>(malloc(sizeof(PROTO_STRUCT) * NumProtos));
+    Class->Prototypes.resize(NumProtos);
     for (i = 0; i < NumProtos; i++) {
       NewProto = ProtoIn(Class, i);
       OldProto = ProtoIn(MergeClass->Class, i);
@@ -740,7 +730,7 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
     Class->NumConfigs = NumConfigs;
     Class->MaxNumConfigs = NumConfigs;
     Class->font_set.move(&font_set);
-    Class->Configurations = static_cast<BIT_VECTOR *>(malloc(sizeof(BIT_VECTOR) * NumConfigs));
+    Class->Configurations.resize(NumConfigs);
     NumWords = WordsInVectorOfSize(NumProtos);
     for (i = 0; i < NumConfigs; i++) {
       NewConfig = NewBitVector(NumProtos);

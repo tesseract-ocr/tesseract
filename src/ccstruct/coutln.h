@@ -2,7 +2,6 @@
  * File:        coutln.h
  * Description: Code for the C_OUTLINE class.
  * Author:      Ray Smith
- * Created:     Mon Oct 07 16:01:57 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -77,7 +76,6 @@ class C_OUTLINE : public ELIST_LINK {
 public:
   C_OUTLINE() {
     stepcount = 0;
-    steps = nullptr;
     offsets = nullptr;
   }
   C_OUTLINE(              // constructor
@@ -94,7 +92,6 @@ public:
   static void FakeOutline(const TBOX &box, C_OUTLINE_LIST *outlines);
 
   ~C_OUTLINE() { // destructor
-    free(steps);
     delete[] offsets;
   }
 
@@ -289,7 +286,7 @@ private:
   ICOORD start;            // start coord
   int16_t stepcount;       // no of steps
   BITS16 flags;            // flags about outline
-  uint8_t *steps;          // step array
+  std::vector<uint8_t> steps; // step array
   EdgeOffset *offsets;     // Higher precision edge.
   C_OUTLINE_LIST children; // child elements
   static ICOORD step_coords[4];

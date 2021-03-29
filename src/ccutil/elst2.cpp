@@ -104,33 +104,28 @@ int32_t ELIST2::length() const { // count elements
 void ELIST2::sort(  // sort elements
     int comparator( // comparison routine
         const void *, const void *)) {
-  ELIST2_ITERATOR it(this);
-  int32_t count;
-  ELIST2_LINK **base; // ptr array to sort
-  ELIST2_LINK **current;
-  int32_t i;
+  // Allocate an array of pointers, one per list element.
+  auto count = length();
+  if (count > 0) {
+    // ptr array to sort
+    std::vector<ELIST2_LINK *> base;
+    base.reserve(count);
 
-  /* Allocate an array of pointers, one per list element */
-  count = length();
-  base = static_cast<ELIST2_LINK **>(malloc(count * sizeof(ELIST2_LINK *)));
+    ELIST2_ITERATOR it(this);
 
-  /* Extract all elements, putting the pointers in the array */
-  current = base;
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    *current = it.extract();
-    current++;
+    // Extract all elements, putting the pointers in the array.
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      base.push_back(it.extract());
+    }
+
+    // Sort the pointer array.
+    qsort(&base[0], count, sizeof(base[0]), comparator);
+
+    // Rebuild the list from the sorted pointers.
+    for (auto current : base) {
+      it.add_to_end(current);
+    }
   }
-
-  /* Sort the pointer array */
-  qsort(base, count, sizeof(*base), comparator);
-
-  /* Rebuild the list from the sorted pointers */
-  current = base;
-  for (i = 0; i < count; i++) {
-    it.add_to_end(*current);
-    current++;
-  }
-  free(base);
 }
 
 // Assuming list has been sorted already, insert new_link to

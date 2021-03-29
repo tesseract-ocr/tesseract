@@ -99,8 +99,6 @@ void FreeOutlines(LIST Outlines);
 
 void MarkDirectionChanges(MFOUTLINE Outline);
 
-MFEDGEPT *NewEdgePoint();
-
 MFOUTLINE NextExtremity(MFOUTLINE EdgePoint);
 
 void NormalizeOutline(MFOUTLINE Outline, float XOrigin);
