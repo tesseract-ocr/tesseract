@@ -61,10 +61,9 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
   LIST Outlines;
   LIST RemainingOutlines;
   MFOUTLINE Outline;
-  FEATURE_SET FeatureSet;
   float XScale, YScale;
 
-  FeatureSet = NewFeatureSet(MAX_PICO_FEATURES);
+  auto FeatureSet = new FEATURE_SET_STRUCT(MAX_PICO_FEATURES);
   Outlines = ConvertBlob(Blob);
   NormalizeOutlines(Outlines, &XScale, &YScale);
   RemainingOutlines = Outlines;
@@ -98,7 +97,6 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
  * @param FeatureSet set to add pico-feature to
  */
 void ConvertSegmentToPicoFeat(FPOINT *Start, FPOINT *End, FEATURE_SET FeatureSet) {
-  FEATURE Feature;
   float Angle;
   float Length;
   int NumFeatures;
@@ -123,7 +121,7 @@ void ConvertSegmentToPicoFeat(FPOINT *Start, FPOINT *End, FEATURE_SET FeatureSet
 
   /* compute each pico feature in segment and add to feature set */
   for (i = 0; i < NumFeatures; i++) {
-    Feature = NewFeature(&PicoFeatDesc);
+    auto Feature = new FEATURE_STRUCT(&PicoFeatDesc);
     Feature->Params[PicoFeatDir] = Angle;
     Feature->Params[PicoFeatX] = Center.x;
     Feature->Params[PicoFeatY] = Center.y;
@@ -218,10 +216,9 @@ FEATURE_SET Classify::ExtractIntCNFeatures(const TBLOB &blob, const INT_FX_RESUL
 
   uint32_t num_features = sample->num_features();
   const INT_FEATURE_STRUCT *features = sample->features();
-  FEATURE_SET feature_set = NewFeatureSet(num_features);
+  auto feature_set = new FEATURE_SET_STRUCT(num_features);
   for (uint32_t f = 0; f < num_features; ++f) {
-    FEATURE feature = NewFeature(&IntFeatDesc);
-
+    auto feature = new FEATURE_STRUCT(&IntFeatDesc);
     feature->Params[IntX] = features[f].X;
     feature->Params[IntY] = features[f].Y;
     feature->Params[IntDir] = features[f].Theta;
@@ -248,8 +245,8 @@ FEATURE_SET Classify::ExtractIntGeoFeatures(const TBLOB &blob,
     return nullptr;
   }
 
-  FEATURE_SET feature_set = NewFeatureSet(1);
-  FEATURE feature = NewFeature(&IntFeatDesc);
+  auto feature_set = new FEATURE_SET_STRUCT(1);
+  auto feature = new FEATURE_STRUCT(&IntFeatDesc);
 
   feature->Params[GeoBottom] = sample->geo_feature(GeoBottom);
   feature->Params[GeoTop] = sample->geo_feature(GeoTop);

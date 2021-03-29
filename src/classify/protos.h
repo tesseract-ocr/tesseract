@@ -27,8 +27,6 @@
 
 namespace tesseract {
 
-using CONFIGS = BIT_VECTOR *;
-
 struct PROTO_STRUCT {
   float A;
   float B;
@@ -38,22 +36,15 @@ struct PROTO_STRUCT {
   float Angle;
   float Length;
 };
-using PROTO = PROTO_STRUCT *;
 
 struct CLASS_STRUCT {
-  CLASS_STRUCT()
-      : NumProtos(0)
-      , MaxNumProtos(0)
-      , NumConfigs(0)
-      , MaxNumConfigs(0)
-      , Prototypes(nullptr)
-      , Configurations(nullptr) {}
-  int16_t NumProtos;
-  int16_t MaxNumProtos;
-  int16_t NumConfigs;
-  int16_t MaxNumConfigs;
-  PROTO Prototypes;
-  CONFIGS Configurations;
+  CLASS_STRUCT() = default;
+  int16_t NumProtos = 0;
+  int16_t MaxNumProtos = 0;
+  int16_t NumConfigs = 0;
+  int16_t MaxNumConfigs = 0;
+  std::vector<PROTO_STRUCT> Prototypes;
+  std::vector<BIT_VECTOR> Configurations;
   UnicityTable<int> font_set;
 };
 using CLASS_TYPE = CLASS_STRUCT *;
@@ -74,7 +65,7 @@ using CLASSES = CLASS_STRUCT *;
  * ProtoIn
  *
  * Choose the selected prototype in this class record.  Return the
- * pointer to it (type PROTO).
+ * pointer to it (PROTO_STRUCT *).
  */
 
 #define ProtoIn(Class, Pid) (&(Class)->Prototypes[Pid])
@@ -89,7 +80,7 @@ TESS_API
 int AddProtoToClass(CLASS_TYPE Class);
 
 TESS_API
-void FillABC(PROTO Proto);
+void FillABC(PROTO_STRUCT *Proto);
 
 TESS_API
 void FreeClass(CLASS_TYPE Class);

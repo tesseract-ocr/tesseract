@@ -166,7 +166,7 @@ extern "C" int tesseract_cn_training_main(int argc, const char** argv)
         tprintf(
             "0 significant protos for %s."
             " Retrying clustering with MinSamples = %f%%\n",
-            CharSample->Label, Config.MinSamples);
+            CharSample->Label.c_str(), Config.MinSamples);
       }
     }
     Config.MinSamples = SavedMinSamples;
@@ -223,11 +223,11 @@ static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
           "\nEERROR: Not enough protos for %s: %d protos"
           " (%d significant protos"
           ", %d insignificant protos)\n",
-          LabeledProto->Label, N, NumberOfProtos(LabeledProto->List, true, false),
+          LabeledProto->Label.c_str(), N, NumberOfProtos(LabeledProto->List, true, false),
           NumberOfProtos(LabeledProto->List, false, true));
       exit(1);
     }
-    fprintf(File, "\n%s %d\n", LabeledProto->Label, N);
+    fprintf(File, "\n%s %d\n", LabeledProto->Label.c_str(), N);
     WriteProtos(File, feature_desc->NumParams, LabeledProto->List, true, false);
   }
   fclose(File);

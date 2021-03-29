@@ -126,33 +126,28 @@ int32_t CLIST::length() const { // count elements
 void CLIST::sort(   // sort elements
     int comparator( // comparison routine
         const void *, const void *)) {
-  CLIST_ITERATOR it(this);
-  int32_t count;
-  void **base; // ptr array to sort
-  void **current;
-  int32_t i;
+  // Allocate an array of pointers, one per list element.
+  auto count = length();
+  if (count > 0) {
+    // ptr array to sort
+    std::vector<void *> base;
+    base.reserve(count);
 
-  /* Allocate an array of pointers, one per list element */
-  count = length();
-  base = static_cast<void **>(malloc(count * sizeof(void *)));
+    CLIST_ITERATOR it(this);
 
-  /* Extract all elements, putting the pointers in the array */
-  current = base;
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    *current = it.extract();
-    current++;
+    // Extract all elements, putting the pointers in the array.
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      base.push_back(it.extract());
+    }
+
+    // Sort the pointer array.
+    qsort(&base[0], count, sizeof(base[0]), comparator);
+
+    // Rebuild the list from the sorted pointers.
+    for (auto current : base) {
+      it.add_to_end(current);
+    }
   }
-
-  /* Sort the pointer array */
-  qsort(base, count, sizeof(*base), comparator);
-
-  /* Rebuild the list from the sorted pointers */
-  current = base;
-  for (i = 0; i < count; i++) {
-    it.add_to_end(*current);
-    current++;
-  }
-  free(base);
 }
 
 // Assuming list has been sorted already, insert new_data to

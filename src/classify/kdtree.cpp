@@ -184,7 +184,7 @@ void KDTreeSearch::Search(int *result_count, float *distances, void **results) {
 /// @param KeySize  # of dimensions in the K-D tree
 /// @param KeyDesc  array of params to describe key dimensions
 KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
-  auto *KDTree = static_cast<KDTREE *>(malloc(sizeof(KDTREE) + (KeySize - 1) * sizeof(PARAM_DESC)));
+  auto *KDTree = new KDTREE(KeySize);
   for (int i = 0; i < KeySize; i++) {
     KDTree->KeyDesc[i].NonEssential = KeyDesc[i].NonEssential;
     KDTree->KeyDesc[i].Circular = KeyDesc[i].Circular;
@@ -214,13 +214,9 @@ KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
  * @param Data    ptr to data to be stored in the tree
  */
 void KDStore(KDTREE *Tree, float *Key, void *Data) {
-  int Level;
-  KDNODE *Node;
-  KDNODE **PtrToNode;
-
-  PtrToNode = &(Tree->Root.Left);
-  Node = *PtrToNode;
-  Level = NextLevel(Tree, -1);
+  auto PtrToNode = &(Tree->Root.Left);
+  auto Node = *PtrToNode;
+  auto Level = NextLevel(Tree, -1);
   while (Node != nullptr) {
     if (Key[Level] < Node->BranchPoint) {
       PtrToNode = &(Node->Left);
@@ -237,7 +233,7 @@ void KDStore(KDTREE *Tree, float *Key, void *Data) {
     Node = *PtrToNode;
   }
 
-  *PtrToNode = MakeKDNode(Tree, Key, Data, Level);
+  *PtrToNode = new KDNODE(Tree, Key, Data, Level);
 } /* KDStore */
 
 /**
@@ -287,7 +283,7 @@ void KDDelete(KDTREE *Tree, float Key[], void *Data) {
 
     InsertNodes(Tree, Current->Left);
     InsertNodes(Tree, Current->Right);
-    FreeSubTree(Current);
+    delete Current;
   }
 } /* KDDelete */
 
@@ -321,56 +317,9 @@ void KDWalk(KDTREE *Tree, void_proc action, void *context) {
   }
 }
 
-/*---------------------------------------------------------------------------*/
-/**
- * This routine frees all memory which is allocated to the
- * specified KD-tree.  This includes the data structure for
- * the kd-tree itself plus the data structures for each node
- * in the tree.  It does not include the Key and Data items
- * which are pointed to by the nodes.  This memory is left
- * untouched.
- * @param Tree  tree data structure to be released
- */
-void FreeKDTree(KDTREE *Tree) {
-  FreeSubTree(Tree->Root.Left);
-  free(Tree);
-} /* FreeKDTree */
-
 /*-----------------------------------------------------------------------------
               Private Code
 -----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-/**
- * This routine allocates memory for a new K-D tree node
- * and places the specified Key and Data into it.  The
- * left and right subtree pointers for the node are
- * initialized to empty subtrees.
- * @param tree  The tree to create the node for
- * @param Key  Access key for new node in KD tree
- * @param Data  ptr to data to be stored in new node
- * @param Index  index of Key to branch on
- * @return pointer to new K-D tree node
- */
-KDNODE *MakeKDNode(KDTREE *tree, float Key[], void *Data, int Index) {
-  KDNODE *NewNode;
-
-  NewNode = static_cast<KDNODE *>(malloc(sizeof(KDNODE)));
-
-  NewNode->Key = Key;
-  NewNode->Data = Data;
-  NewNode->BranchPoint = Key[Index];
-  NewNode->LeftBranch = tree->KeyDesc[Index].Min;
-  NewNode->RightBranch = tree->KeyDesc[Index].Max;
-  NewNode->Left = nullptr;
-  NewNode->Right = nullptr;
-
-  return NewNode;
-} /* MakeKDNode */
-
-/*---------------------------------------------------------------------------*/
-void FreeKDNode(KDNODE *Node) {
-  free(Node);
-}
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -387,7 +336,7 @@ void KDTreeSearch::SearchRec(int level, KDNODE *sub_tree) {
     return;
   }
 
-  results_.insert(DistanceSquared(tree_->KeySize, tree_->KeyDesc, query_point_, sub_tree->Key),
+  results_.insert(DistanceSquared(tree_->KeySize, &tree_->KeyDesc[0], query_point_, sub_tree->Key),
                   sub_tree->Data);
 
   if (query_point_[level] < sub_tree->BranchPoint) {
@@ -464,7 +413,7 @@ bool KDTreeSearch::BoxIntersectsSearch(float *lower, float *upper) {
   double total_distance = 0.0;
   double radius_squared =
       static_cast<double>(results_.max_insertable_key()) * results_.max_insertable_key();
-  PARAM_DESC *dim = tree_->KeyDesc;
+  PARAM_DESC *dim = &tree_->KeyDesc[0];
 
   for (int i = tree_->KeySize; i > 0; i--, dim++, query++, lower++, upper++) {
     if (dim->NonEssential) {
@@ -534,15 +483,6 @@ void InsertNodes(KDTREE *tree, KDNODE *nodes) {
   KDStore(tree, nodes->Key, nodes->Data);
   InsertNodes(tree, nodes->Left);
   InsertNodes(tree, nodes->Right);
-}
-
-/** Free all of the nodes of a sub tree. */
-void FreeSubTree(KDNODE *sub_tree) {
-  if (sub_tree != nullptr) {
-    FreeSubTree(sub_tree->Left);
-    FreeSubTree(sub_tree->Right);
-    free(sub_tree);
-  }
 }
 
 } // namespace tesseract

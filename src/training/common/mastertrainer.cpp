@@ -168,7 +168,7 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
       tprintf("ERROR: Bad format in tr file, reading box coords\n");
       continue;
     }
-    CHAR_DESC char_desc = ReadCharDescription(feature_defs, fp);
+    auto char_desc = ReadCharDescription(feature_defs, fp);
     auto *sample = new TrainingSample;
     sample->set_font_id(font_id);
     sample->set_page_num(page_number + page_images_.size());
@@ -176,7 +176,7 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
     sample->ExtractCharDesc(int_feature_type, micro_feature_type, cn_feature_type, geo_feature_type,
                             char_desc);
     AddSample(verification, unichar.c_str(), sample);
-    FreeCharDescription(char_desc);
+    delete char_desc;
   }
   charsetsize_ = unicharset_.size();
   fclose(fp);
@@ -616,7 +616,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   auto *classify = new tesseract::Classify();
   // Move the fontinfo table to classify.
   fontinfo_table_.MoveTo(&classify->get_fontinfo_table());
-  INT_TEMPLATES int_templates = classify->CreateIntTemplates(float_classes, shape_set);
+  INT_TEMPLATES_STRUCT *int_templates = classify->CreateIntTemplates(float_classes, shape_set);
   FILE *fp = fopen(inttemp_file, "wb");
   if (fp == nullptr) {
     tprintf("ERROR: Failed to open file \"%s\"\n", inttemp_file);
@@ -636,7 +636,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   }
   /* then write out each class */
   for (int i = 0; i < int_templates->NumClasses; ++i) {
-    INT_CLASS Class = ClassForClassId(int_templates, i);
+    INT_CLASS_STRUCT *Class = ClassForClassId(int_templates, i);
     // Todo: Test with min instead of max
     // int MaxLength = LengthForConfigId(Class, 0);
     uint16_t max_length = 0;
@@ -672,7 +672,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
     }
     fclose(fp);
   }
-  free_int_templates(int_templates);
+  delete int_templates;
   delete classify;
 }
 

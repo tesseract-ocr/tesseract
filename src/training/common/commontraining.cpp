@@ -20,6 +20,8 @@
 #  include "params.h"
 #  include "tprintf.h"
 
+namespace tesseract {
+
 INT_PARAM_FLAG(debug_level, 0, "Level of Trainer debugging");
 INT_PARAM_FLAG(load_images, 0, "Load images with tr files");
 STRING_PARAM_FLAG(configfile, "", "File to load more configs from");
@@ -34,8 +36,6 @@ STRING_PARAM_FLAG(fonts_dir, "",
                   "If empty it uses system default. Otherwise it overrides "
                   "system default font location");
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp", "Overrides fontconfig default temporary dir");
-
-using namespace tesseract;
 
 /**
  * This routine parses the command line arguments that were
@@ -59,6 +59,8 @@ void ParseArguments(int* argc, const char ***argv) {
   tesseract::ParseCommandLineFlags(usage.c_str(), argc, argv, true);
 }
 
+} // namespace tesseract.
+
 #else
 
 #  include <allheaders.h>
@@ -78,7 +80,7 @@ void ParseArguments(int* argc, const char ***argv) {
 #  include "tprintf.h"
 #  include "unicity_table.h"
 
-using namespace tesseract;
+namespace tesseract {
 
 // Global Variables.
 
@@ -142,7 +144,6 @@ void ParseArguments(int *argc, const char ***argv) {
   }
 }
 
-namespace tesseract {
 // Helper loads shape table from the given file.
 ShapeTable *LoadShapeTable(const std::string &file_prefix) {
   ShapeTable *shape_table = nullptr;
@@ -290,8 +291,6 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *arg
   return trainer;
 }
 
-} // namespace tesseract.
-
 /*---------------------------------------------------------------------------*/
 /**
  * This routine returns the next command line argument.  If
@@ -321,39 +320,18 @@ const char *GetNextFilename(int argc, const char *const *argv, int &tessoptind) 
  * @return Labeled list with the specified label or nullptr.
  * @note Globals: none
  */
-LABELEDLIST FindList(LIST List, char *Label) {
+LABELEDLIST FindList(LIST List, const std::string &Label) {
   LABELEDLIST LabeledList;
 
   iterate(List) {
     LabeledList = reinterpret_cast<LABELEDLIST> first_node(List);
-    if (strcmp(LabeledList->Label, Label) == 0) {
+    if (LabeledList->Label == Label) {
       return (LabeledList);
     }
   }
   return (nullptr);
 
 } /* FindList */
-
-/*---------------------------------------------------------------------------*/
-/**
- * This routine allocates a new, empty labeled list and gives
- * it the specified label.
- * @param Label label for new list
- * @return New, empty labeled list.
- * @note Globals: none
- */
-LABELEDLIST NewLabeledList(const char *Label) {
-  LABELEDLIST LabeledList;
-
-  LabeledList = static_cast<LABELEDLIST>(malloc(sizeof(LABELEDLISTNODE)));
-  LabeledList->Label = static_cast<char *>(malloc(strlen(Label) + 1));
-  strcpy(LabeledList->Label, Label);
-  LabeledList->List = NIL_LIST;
-  LabeledList->SampleCount = 0;
-  LabeledList->font_sample_count = 0;
-  return (LabeledList);
-
-} /* NewLabeledList */
 
 /*---------------------------------------------------------------------------*/
 // TODO(rays) This is now used only by cntraining. Convert cntraining to use
@@ -377,7 +355,6 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
   char unichar[UNICHAR_LEN + 1];
   LABELEDLIST char_sample;
   FEATURE_SET feature_samples;
-  CHAR_DESC char_desc;
   uint32_t feature_type = ShortNameToFeatureType(feature_definitions, feature_name);
 
   // Zero out the font_sample_count for all the classes.
@@ -404,24 +381,24 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
     }
     char_sample = FindList(*training_samples, unichar);
     if (char_sample == nullptr) {
-      char_sample = NewLabeledList(unichar);
+      char_sample = new LABELEDLISTNODE(unichar);
       *training_samples = push(*training_samples, char_sample);
     }
-    char_desc = ReadCharDescription(feature_definitions, file);
+    auto char_desc = ReadCharDescription(feature_definitions, file);
     feature_samples = char_desc->FeatureSets[feature_type];
     if (char_sample->font_sample_count < max_samples || max_samples <= 0) {
       char_sample->List = push(char_sample->List, feature_samples);
       char_sample->SampleCount++;
       char_sample->font_sample_count++;
     } else {
-      FreeFeatureSet(feature_samples);
+      delete feature_samples;
     }
     for (size_t i = 0; i < char_desc->NumFeatureSets; i++) {
       if (feature_type != i) {
-        FreeFeatureSet(char_desc->FeatureSets[i]);
+        delete char_desc->FeatureSets[i];
       }
     }
-    free(char_desc);
+    delete char_desc;
   }
 } // ReadTrainingSamples
 
@@ -442,7 +419,7 @@ void FreeTrainingSamples(LIST CharList) {
     FeatureList = char_sample->List;
     iterate(FeatureList) { /* iterate through all of the classes */
       FeatureSet = reinterpret_cast<FEATURE_SET> first_node(FeatureList);
-      FreeFeatureSet(FeatureSet);
+      delete FeatureSet;
     }
     FreeLabeledList(char_sample);
   }
@@ -459,8 +436,7 @@ void FreeTrainingSamples(LIST CharList) {
  */
 void FreeLabeledList(LABELEDLIST LabeledList) {
   destroy(LabeledList->List);
-  free(LabeledList->Label);
-  free(LabeledList);
+  delete LabeledList;
 } /* FreeLabeledList */
 
 /*---------------------------------------------------------------------------*/
@@ -478,8 +454,6 @@ void FreeLabeledList(LABELEDLIST LabeledList) {
 CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs, LABELEDLIST char_sample,
                               const char *program_feature_type) {
   uint16_t N;
-  int i, j;
-  float *Sample = nullptr;
   CLUSTERER *Clusterer;
   int32_t CharID;
   LIST FeatureList = nullptr;
@@ -491,20 +465,20 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs, LABELEDLIS
 
   FeatureList = char_sample->List;
   CharID = 0;
+  std::vector<float> Sample;
   iterate(FeatureList) {
     FeatureSet = reinterpret_cast<FEATURE_SET> first_node(FeatureList);
-    for (i = 0; i < FeatureSet->MaxNumFeatures; i++) {
-      if (Sample == nullptr) {
-        Sample = static_cast<float *>(malloc(N * sizeof(float)));
+    for (int i = 0; i < FeatureSet->MaxNumFeatures; i++) {
+      if (Sample.empty()) {
+        Sample.resize(N);
       }
-      for (j = 0; j < N; j++) {
+      for (int j = 0; j < N; j++) {
         Sample[j] = FeatureSet->Features[i]->Params[j];
       }
-      MakeSample(Clusterer, Sample, CharID);
+      MakeSample(Clusterer, &Sample[0], CharID);
     }
     CharID++;
   }
-  free(Sample);
   return Clusterer;
 
 } /* SetUpForClustering */
@@ -528,8 +502,8 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
     iterate(list_it) {
       auto *test_p = reinterpret_cast<PROTOTYPE *> first_node(list_it);
       if (test_p != Prototype && !test_p->Merged) {
-        float dist = ComputeDistance(Clusterer->SampleSize, Clusterer->ParamDesc, Prototype->Mean,
-                                     test_p->Mean);
+        float dist = ComputeDistance(Clusterer->SampleSize, Clusterer->ParamDesc, &Prototype->Mean[0],
+                                     &test_p->Mean[0]);
         if (dist < best_dist) {
           best_match = test_p;
           best_dist = dist;
@@ -544,7 +518,7 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
       }
       best_match->NumSamples =
           MergeClusters(Clusterer->SampleSize, Clusterer->ParamDesc, best_match->NumSamples,
-                        Prototype->NumSamples, best_match->Mean, best_match->Mean, Prototype->Mean);
+                        Prototype->NumSamples, &best_match->Mean[0], &best_match->Mean[0], &Prototype->Mean[0]);
       Prototype->NumSamples = 0;
       Prototype->Merged = true;
     } else if (best_match != nullptr) {
@@ -576,11 +550,11 @@ void CleanUpUnusedData(LIST ProtoList) {
 
   iterate(ProtoList) {
     Prototype = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
-    free(Prototype->Variance.Elliptical);
+    delete[] Prototype->Variance.Elliptical;
     Prototype->Variance.Elliptical = nullptr;
-    free(Prototype->Magnitude.Elliptical);
+    delete[] Prototype->Magnitude.Elliptical;
     Prototype->Magnitude.Elliptical = nullptr;
-    free(Prototype->Weight.Elliptical);
+    delete[] Prototype->Weight.Elliptical;
     Prototype->Weight.Elliptical = nullptr;
   }
 }
@@ -590,30 +564,21 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
 
 {
   LIST NewProtoList = NIL_LIST;
-  LIST pProtoList;
-  PROTOTYPE *Proto;
-  PROTOTYPE *NewProto;
-  int i;
-
-  pProtoList = ProtoList;
+  auto pProtoList = ProtoList;
   iterate(pProtoList) {
-    Proto = reinterpret_cast<PROTOTYPE *> first_node(pProtoList);
+    auto Proto = reinterpret_cast<PROTOTYPE *> first_node(pProtoList);
     if ((Proto->Significant && KeepSigProtos) || (!Proto->Significant && KeepInsigProtos)) {
-      NewProto = static_cast<PROTOTYPE *>(malloc(sizeof(PROTOTYPE)));
-
-      NewProto->Mean = static_cast<float *>(malloc(N * sizeof(float)));
+      auto NewProto = new PROTOTYPE;
+      NewProto->Mean = Proto->Mean;
       NewProto->Significant = Proto->Significant;
       NewProto->Style = Proto->Style;
       NewProto->NumSamples = Proto->NumSamples;
       NewProto->Cluster = nullptr;
-      NewProto->Distrib = nullptr;
+      NewProto->Distrib.clear();
 
-      for (i = 0; i < N; i++) {
-        NewProto->Mean[i] = Proto->Mean[i];
-      }
       if (Proto->Variance.Elliptical != nullptr) {
-        NewProto->Variance.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++) {
+        NewProto->Variance.Elliptical = new float[N];
+        for (int i = 0; i < N; i++) {
           NewProto->Variance.Elliptical[i] = Proto->Variance.Elliptical[i];
         }
       } else {
@@ -621,8 +586,8 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
       }
       //---------------------------------------------
       if (Proto->Magnitude.Elliptical != nullptr) {
-        NewProto->Magnitude.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++) {
+        NewProto->Magnitude.Elliptical = new float[N];
+        for (int i = 0; i < N; i++) {
           NewProto->Magnitude.Elliptical[i] = Proto->Magnitude.Elliptical[i];
         }
       } else {
@@ -630,8 +595,8 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
       }
       //------------------------------------------------
       if (Proto->Weight.Elliptical != nullptr) {
-        NewProto->Weight.Elliptical = static_cast<float *>(malloc(N * sizeof(float)));
-        for (i = 0; i < N; i++) {
+        NewProto->Weight.Elliptical = new float[N];
+        for (int i = 0; i < N; i++) {
           NewProto->Weight.Elliptical[i] = Proto->Weight.Elliptical[i];
         }
       } else {
@@ -648,30 +613,18 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
 } /* RemoveInsignificantProtos */
 
 /*----------------------------------------------------------------------------*/
-MERGE_CLASS FindClass(LIST List, const char *Label) {
+MERGE_CLASS FindClass(LIST List, const std::string &Label) {
   MERGE_CLASS MergeClass;
 
   iterate(List) {
     MergeClass = reinterpret_cast<MERGE_CLASS> first_node(List);
-    if (strcmp(MergeClass->Label, Label) == 0) {
+    if (MergeClass->Label == Label) {
       return (MergeClass);
     }
   }
   return (nullptr);
 
 } /* FindClass */
-
-/*---------------------------------------------------------------------------*/
-MERGE_CLASS NewLabeledClass(const char *Label) {
-  MERGE_CLASS MergeClass;
-
-  MergeClass = new MERGE_CLASS_NODE;
-  MergeClass->Label = static_cast<char *>(malloc(strlen(Label) + 1));
-  strcpy(MergeClass->Label, Label);
-  MergeClass->Class = NewClass(MAX_NUM_PROTOS, MAX_NUM_CONFIGS);
-  return (MergeClass);
-
-} /* NewLabeledClass */
 
 /*-----------------------------------------------------------------------------*/
 /**
@@ -686,7 +639,6 @@ void FreeLabeledClassList(LIST ClassList) {
   iterate(ClassList) /* iterate through all of the fonts */
   {
     MergeClass = reinterpret_cast<MERGE_CLASS> first_node(ClassList);
-    free(MergeClass->Label);
     FreeClass(MergeClass->Class);
     delete MergeClass;
   }
@@ -703,8 +655,8 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
   int NumWords;
   int i, j;
   float Values[3];
-  PROTO NewProto;
-  PROTO OldProto;
+  PROTO_STRUCT *NewProto;
+  PROTO_STRUCT *OldProto;
   BIT_VECTOR NewConfig;
   BIT_VECTOR OldConfig;
 
@@ -714,13 +666,13 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
   iterate(LabeledClassList) {
     UnicityTable<int> font_set;
     MergeClass = reinterpret_cast<MERGE_CLASS> first_node(LabeledClassList);
-    Class = &float_classes[unicharset.unichar_to_id(MergeClass->Label)];
+    Class = &float_classes[unicharset.unichar_to_id(MergeClass->Label.c_str())];
     NumProtos = MergeClass->Class->NumProtos;
     NumConfigs = MergeClass->Class->NumConfigs;
     font_set.move(&MergeClass->Class->font_set);
     Class->NumProtos = NumProtos;
     Class->MaxNumProtos = NumProtos;
-    Class->Prototypes = static_cast<PROTO>(malloc(sizeof(PROTO_STRUCT) * NumProtos));
+    Class->Prototypes.resize(NumProtos);
     for (i = 0; i < NumProtos; i++) {
       NewProto = ProtoIn(Class, i);
       OldProto = ProtoIn(MergeClass->Class, i);
@@ -740,7 +692,7 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
     Class->NumConfigs = NumConfigs;
     Class->MaxNumConfigs = NumConfigs;
     Class->font_set.move(&font_set);
-    Class->Configurations = static_cast<BIT_VECTOR *>(malloc(sizeof(BIT_VECTOR) * NumConfigs));
+    Class->Configurations.resize(NumConfigs);
     NumWords = WordsInVectorOfSize(NumProtos);
     for (i = 0; i < NumConfigs; i++) {
       NewConfig = NewBitVector(NumProtos);
@@ -786,13 +738,10 @@ void FreeNormProtoList(LIST CharList)
 } // FreeNormProtoList
 
 /*---------------------------------------------------------------------------*/
-void AddToNormProtosList(LIST *NormProtoList, LIST ProtoList, char *CharName) {
-  PROTOTYPE *Proto;
-  LABELEDLIST LabeledProtoList;
-
-  LabeledProtoList = NewLabeledList(CharName);
+void AddToNormProtosList(LIST *NormProtoList, LIST ProtoList, const std::string &CharName) {
+  auto LabeledProtoList = new LABELEDLISTNODE(CharName.c_str());
   iterate(ProtoList) {
-    Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
+    auto Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
     LabeledProtoList->List = push(LabeledProtoList->List, Proto);
   }
   *NormProtoList = push(*NormProtoList, LabeledProtoList);
@@ -809,5 +758,7 @@ int NumberOfProtos(LIST ProtoList, bool CountSigProtos, bool CountInsigProtos) {
   }
   return (N);
 }
+
+} // namespace tesseract.
 
 #endif // def DISABLED_LEGACY_ENGINE

@@ -252,8 +252,8 @@ void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Pix
       b = new_box1.bounding_union(new_box2);
     }
   }
-  free(im_coeffs);
-  free(box_coeffs);
+  lept_free(im_coeffs);
+  lept_free(box_coeffs);
 }
 
 // Computes the coefficients of a randomized projective transformation.

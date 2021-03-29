@@ -44,10 +44,6 @@
 struct Boxa;
 struct Pix;
 
-#ifdef _MSC_VER
-#  define strdup(s) _strdup(s)
-#endif
-
 namespace tesseract {
 
 class BoxChar;
@@ -98,8 +94,7 @@ public:
     underline_style_ = style;
   }
   void set_features(const char *features) {
-    free(features_);
-    features_ = strdup(features);
+    features_ = features;
   }
   void set_page(int page) {
     page_ = page;
@@ -199,7 +194,7 @@ protected:
   double underline_start_prob_;
   double underline_continuation_prob_;
   PangoUnderline underline_style_;
-  char *features_;
+  std::string features_;
   // Text filtering options
   bool drop_uncovered_chars_;
   bool strip_unrenderable_words_;

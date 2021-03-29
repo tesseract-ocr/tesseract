@@ -93,47 +93,6 @@ void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs) {
 
 /*---------------------------------------------------------------------------*/
 /**
- * Release the memory consumed by the specified character
- * description and all of the features in that description.
- *
- * @param CharDesc character description to be deallocated
- *
- * Globals:
- * - none
- */
-void FreeCharDescription(CHAR_DESC CharDesc) {
-  if (CharDesc) {
-    for (size_t i = 0; i < CharDesc->NumFeatureSets; i++) {
-      FreeFeatureSet(CharDesc->FeatureSets[i]);
-    }
-    free(CharDesc);
-  }
-} /* FreeCharDescription */
-
-/*---------------------------------------------------------------------------*/
-/**
- * Allocate a new character description, initialize its
- * feature sets to be empty, and return it.
- *
- * Globals:
- * - none
- *
- * @return New character description structure.
- */
-CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
-  CHAR_DESC CharDesc;
-  CharDesc = static_cast<CHAR_DESC>(malloc(sizeof(CHAR_DESC_STRUCT)));
-  CharDesc->NumFeatureSets = FeatureDefs.NumFeatureTypes;
-
-  for (size_t i = 0; i < CharDesc->NumFeatureSets; i++) {
-    CharDesc->FeatureSets[i] = nullptr;
-  }
-
-  return (CharDesc);
-} /* NewCharDescription */
-
-/*---------------------------------------------------------------------------*/
-/**
  * Appends a textual representation of CharDesc to str.
  * The format used is to write out the number of feature
  * sets which will be written followed by a representation of
@@ -147,7 +106,7 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
  * @param str            string to append CharDesc to
  * @param CharDesc       character description to write to File
  */
-void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC CharDesc, std::string &str) {
+void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC_STRUCT *CharDesc, std::string &str) {
   int NumSetsToWrite = 0;
 
   for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
@@ -169,7 +128,7 @@ void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC Char
 
 // Return whether all of the fields of the given feature set
 // are well defined (not inf or nan).
-bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC CharDesc) {
+bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC_STRUCT *CharDesc) {
   bool anything_written = false;
   bool well_formed = true;
   for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
@@ -210,17 +169,16 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC Char
  * @param File open text file to read character description from
  * @return Character description read from File.
  */
-CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, FILE *File) {
+CHAR_DESC_STRUCT *ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, FILE *File) {
   int NumSetsToRead;
   char ShortName[FEAT_NAME_SIZE];
-  CHAR_DESC CharDesc;
   int Type;
 
   ASSERT_HOST(tfscanf(File, "%d", &NumSetsToRead) == 1);
   ASSERT_HOST(NumSetsToRead >= 0);
   ASSERT_HOST(NumSetsToRead <= FeatureDefs.NumFeatureTypes);
 
-  CharDesc = NewCharDescription(FeatureDefs);
+  auto CharDesc = new CHAR_DESC_STRUCT(FeatureDefs);
   for (; NumSetsToRead > 0; NumSetsToRead--) {
     tfscanf(File, "%s", ShortName);
     Type = ShortNameToFeatureType(FeatureDefs, ShortName);

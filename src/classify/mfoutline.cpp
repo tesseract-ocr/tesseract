@@ -39,24 +39,20 @@ LIST ConvertBlob(TBLOB *blob) {
 /*---------------------------------------------------------------------------*/
 /** Convert a TESSLINE into the float-based MFOUTLINE micro-feature format. */
 MFOUTLINE ConvertOutline(TESSLINE *outline) {
-  MFEDGEPT *NewPoint;
   auto MFOutline = NIL_LIST;
-  EDGEPT *EdgePoint;
-  EDGEPT *StartPoint;
-  EDGEPT *NextPoint;
 
   if (outline == nullptr || outline->loop == nullptr) {
     return MFOutline;
   }
 
-  StartPoint = outline->loop;
-  EdgePoint = StartPoint;
+  auto StartPoint = outline->loop;
+  auto EdgePoint = StartPoint;
   do {
-    NextPoint = EdgePoint->next;
+    auto NextPoint = EdgePoint->next;
 
     /* filter out duplicate points */
     if (EdgePoint->pos.x != NextPoint->pos.x || EdgePoint->pos.y != NextPoint->pos.y) {
-      NewPoint = NewEdgePoint();
+      auto NewPoint = new MFEDGEPT;
       NewPoint->ClearMark();
       NewPoint->Hidden = EdgePoint->IsHidden();
       NewPoint->Point.x = EdgePoint->pos.x;
@@ -141,7 +137,7 @@ void FreeMFOutline(void *arg) { // MFOUTLINE Outline)
   Start = list_rest(Outline);
   set_rest(Outline, NIL_LIST);
   while (Start != nullptr) {
-    free(first_node(Start));
+    delete first_node(Start);
     Start = pop(Start);
   }
 
@@ -186,12 +182,6 @@ void MarkDirectionChanges(MFOUTLINE Outline) {
   } while (Last != First);
 
 } /* MarkDirectionChanges */
-
-/*---------------------------------------------------------------------------*/
-/** Return a new edge point for a micro-feature outline. */
-MFEDGEPT *NewEdgePoint() {
-  return reinterpret_cast<MFEDGEPT *>(malloc(sizeof(MFEDGEPT)));
-}
 
 /*---------------------------------------------------------------------------*/
 /**
