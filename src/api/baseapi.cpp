@@ -119,8 +119,6 @@ static const char *kInputFile = "noname.tif";
  * Temp file used for storing current parameters before applying retry values.
  */
 static const char *kOldVarsFile = "failed_vars.txt";
-/** Max string length of an int.  */
-const int kMaxIntSize = 22;
 
 #ifndef DISABLED_LEGACY_ENGINE
 static const char kUnknownFontName[] = "UnknownFont";
@@ -1086,10 +1084,12 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data, size_t size, co
     if (pix == nullptr) {
       break;
     }
-    tprintf("Page %d\n", page + 1);
-    char page_str[kMaxIntSize];
-    snprintf(page_str, kMaxIntSize - 1, "%d", page);
-    SetVariable("applybox_page", page_str);
+    if (offset || page > 0) {
+      // Only print page number for multipage TIFF file.
+      tprintf("Page %d\n", page + 1);
+    }
+    auto page_string = std::to_string(page);
+    SetVariable("applybox_page", page_string.c_str());
     bool r = ProcessPage(pix, page, filename, retry_config, timeout_millisec, renderer);
     pixDestroy(&pix);
     if (!r) {

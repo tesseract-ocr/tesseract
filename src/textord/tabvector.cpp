@@ -560,10 +560,9 @@ void TabVector::Display(ScrollView *tab_win) {
   tab_win->Pen(ScrollView::GREY);
   tab_win->Line(startpt_.x(), startpt_.y(), startpt_.x(), extended_ymin_);
   tab_win->Line(endpt_.x(), extended_ymax_, endpt_.x(), endpt_.y());
-  char score_buf[64];
-  snprintf(score_buf, sizeof(score_buf), "%d", percent_score_);
+  auto score_string = std::to_string(percent_score_);
   tab_win->TextAttributes("Times", 50, false, false, false);
-  tab_win->Text(startpt_.x(), startpt_.y(), score_buf);
+  tab_win->Text(startpt_.x(), startpt_.y(), score_string.c_str());
 }
 
 #endif

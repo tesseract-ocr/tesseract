@@ -139,9 +139,7 @@ bool ParamUtils::GetParamAsString(const char *name, const ParamsVectors *member_
   // Look for the parameter among int parameters.
   auto *ip = FindParam<IntParam>(name, GlobalParams()->int_params, member_params->int_params);
   if (ip) {
-    char buf[128];
-    snprintf(buf, sizeof(buf), "%d", int32_t(*ip));
-    *value = buf;
+    *value = std::to_string(int32_t(*ip));
     return true;
   }
   // Look for the parameter among bool parameters.
@@ -157,7 +155,7 @@ bool ParamUtils::GetParamAsString(const char *name, const ParamsVectors *member_
     std::ostringstream stream;
     stream.imbue(std::locale::classic());
     stream << double(*dp);
-    *value = stream.str().c_str();
+    *value = stream.str();
     return true;
   }
   return false;
@@ -191,21 +189,20 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
 
 // Resets all parameters back to default values;
 void ParamUtils::ResetToDefaults(ParamsVectors *member_params) {
-  int v, i;
   int num_iterations = (member_params == nullptr) ? 1 : 2;
-  for (v = 0; v < num_iterations; ++v) {
+  for (int v = 0; v < num_iterations; ++v) {
     ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
-    for (i = 0; i < vec->int_params.size(); ++i) {
-      vec->int_params[i]->ResetToDefault();
+    for (auto &param : vec->int_params) {
+      param->ResetToDefault();
     }
-    for (i = 0; i < vec->bool_params.size(); ++i) {
-      vec->bool_params[i]->ResetToDefault();
+    for (auto &param : vec->bool_params) {
+      param->ResetToDefault();
     }
-    for (auto &string_param : vec->string_params) {
-      string_param->ResetToDefault();
+    for (auto &param : vec->string_params) {
+      param->ResetToDefault();
     }
-    for (auto &double_param : vec->double_params) {
-      double_param->ResetToDefault();
+    for (auto &param : vec->double_params) {
+      param->ResetToDefault();
     }
   }
 }

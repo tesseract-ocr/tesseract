@@ -850,9 +850,8 @@ extern "C" int tesseract_main(int argc, const char **argv)
   FixPageSegMode(api, pagesegmode);
 
   if (dpi) {
-    char dpi_string[255];
-    snprintf(dpi_string, 254, "%d", dpi);
-    api.SetVariable("user_defined_dpi", dpi_string);
+    auto dpi_string = std::to_string(dpi);
+    api.SetVariable("user_defined_dpi", dpi_string.c_str());
   }
 
   if (visible_pdf_image_file) {

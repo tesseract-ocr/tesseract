@@ -545,7 +545,7 @@ void MasterTrainer::SetupFlatShapeTable(ShapeTable *shape_table) {
   int num_shapes = flat_shapes_.NumShapes();
   for (int s = 0; s < num_shapes; ++s) {
     int font = flat_shapes_.GetShape(s)[0].font_ids[0];
-    int f = 0;
+    unsigned f = 0;
     for (f = 0; f < active_fonts.size(); ++f) {
       if (active_fonts[f] == font) {
         break;
@@ -998,7 +998,7 @@ void MasterTrainer::ClusterShapes(int min_shapes, int max_shape_unichars, float 
     }
     min_dist = kInfiniteDist;
     for (int s1 = 0; s1 < num_shapes; ++s1) {
-      for (int i = 0; i < shape_dists[s1].size(); ++i) {
+      for (unsigned i = 0; i < shape_dists[s1].size(); ++i) {
         if (shape_dists[s1][i].distance < min_dist) {
           min_dist = shape_dists[s1][i].distance;
           min_s1 = s1;

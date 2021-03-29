@@ -50,7 +50,7 @@ public:
     std::sort(v->begin(), v->end());
     // Check that we have increasing order.
     EXPECT_LT((*v)[0].key(), v->back().key());
-    for (int i = 0; i < v->size(); ++i) {
+    for (unsigned i = 0; i < v->size(); ++i) {
       EXPECT_EQ((*v)[i].key(), heap->PeekTop().key());
       // Indices don't necessarily match for equal keys, so don't test them.
       if (i + 1 < v->size() && (*v)[i + 1].key() == (*v)[i].key()) {

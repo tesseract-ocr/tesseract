@@ -120,10 +120,9 @@ SVSemaphore::SVSemaphore() {
 #  ifdef _WIN32
   semaphore_ = CreateSemaphore(0, 0, 10, 0);
 #  elif defined(__APPLE__)
-  char name[50];
-  snprintf(name, sizeof(name), "%ld", random());
-  sem_unlink(name);
-  semaphore_ = sem_open(name, O_CREAT, S_IWUSR, 0);
+  auto name = std::to_string(random());
+  sem_unlink(name.c_str());
+  semaphore_ = sem_open(name.c_str(), O_CREAT, S_IWUSR, 0);
   if (semaphore_ == SEM_FAILED) {
     perror("sem_open");
   }
@@ -270,8 +269,7 @@ SVNetwork::SVNetwork(const char *hostname, int port) {
   buffer_ptr_ = nullptr;
 
   struct addrinfo *addr_info = nullptr;
-  char port_str[40];
-  snprintf(port_str, 40, "%d", port);
+  auto port_string = std::to_string(port);
 #  ifdef _WIN32
   // Initialize Winsock
   WSADATA wsaData;
@@ -281,7 +279,7 @@ SVNetwork::SVNetwork(const char *hostname, int port) {
   }
 #  endif // _WIN32
 
-  if (getaddrinfo(hostname, port_str, nullptr, &addr_info) != 0) {
+  if (getaddrinfo(hostname, port_string.c_str(), nullptr, &addr_info) != 0) {
     std::cerr << "Error resolving name for ScrollView host " << std::string(hostname) << ":" << port
               << std::endl;
 #  ifdef _WIN32
