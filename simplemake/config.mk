@@ -13,7 +13,9 @@ ARCH_CPPFLAGS = -mavx -msse4.1
 EXTRA_CPPFLAGS = -DDISABLED_LEGACY_ENGINE
 
 # Optimization flags (if disabled, comment out the marked lines in arch.mk too)
-OPTIMIZATION_CPPFLAGS = -DAVX -mavx -DAVX2 -mavx2 -DSSE4_1 -msse4.1 -mfpu=neon
+OPTIMIZATION_CPPFLAGS = -DAVX -mavx -DAVX2 -mavx2 -DSSE4_1 -msse4.1
+# Optimization for android
+#OPTIMIZATION_CPPFLAGS = -DAVX -mavx -DAVX2 -mavx2 -DSSE4_1 -msse4.1 -mfpu=neon
 
 # Enable legacy engine (uncomment lines to enable)
 #EXTRA_OBJ = $(CCMAIN_LEGACY_OBJ) $(CCSTRUCT_LEGACY_OBJ) $(CCUTIL_LEGACY_OBJ) $(CLASSIFY_LEGACY_OBJ) $(CUTIL_LEGACY_OBJ) $(DICT_LEGACY_OBJ) $(TEXTORD_LEGACY_OBJ) $(WORDREC_LEGACY_OBJ)
