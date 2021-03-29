@@ -39,7 +39,7 @@ namespace tesseract {
 Dawg::~Dawg() = default;
 
 bool Dawg::prefix_in_dawg(const WERD_CHOICE &word, bool requires_complete) const {
-  if (word.length() == 0) {
+  if (word.empty()) {
     return !requires_complete;
   }
   NODE_REF node = 0;

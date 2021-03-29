@@ -568,7 +568,7 @@ bool DocumentData::ReCachePages() {
         }
       }
       pages_.push_back(image_data);
-      if (image_data->imagefilename().length() == 0) {
+      if (image_data->imagefilename().empty()) {
         image_data->set_imagefilename(document_name_);
         image_data->set_page_number(page);
       }

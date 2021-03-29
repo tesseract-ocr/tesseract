@@ -217,7 +217,7 @@ int CombineLangModel(const UNICHARSET &unicharset, const std::string &script_dir
   }
   std::string radical_filename = script_dir + "/radical-stroke.txt";
   std::string radical_data = ReadFile(radical_filename, reader);
-  if (radical_data.length() == 0) {
+  if (radical_data.empty()) {
     tprintf("ERROR: Error reading radical code table %s\n", radical_filename.c_str());
     return EXIT_FAILURE;
   }

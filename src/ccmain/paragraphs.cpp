@@ -433,7 +433,7 @@ void LeftWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, c
   *is_list = false;
   *starts_idea = false;
   *ends_idea = false;
-  if (utf8.size() == 0 || (werd != nullptr && werd->length() == 0)) { // Empty
+  if (utf8.empty() || (werd != nullptr && werd->empty())) { // Empty
     *ends_idea = true;
     return;
   }
@@ -479,7 +479,7 @@ void RightWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, 
   *is_list = false;
   *starts_idea = false;
   *ends_idea = false;
-  if (utf8.size() == 0 || (werd != nullptr && werd->length() == 0)) { // Empty
+  if (utf8.empty() || (werd != nullptr && werd->empty())) { // Empty
     *ends_idea = true;
     return;
   }
@@ -2419,7 +2419,7 @@ static void InitializeTextAndBoxesPreRecognition(const MutableIterator &it, RowI
       }
     } while (!pit.IsAtFinalElement(RIL_TEXTLINE, RIL_SYMBOL) && pit.Next(RIL_SYMBOL));
   }
-  if (fake_text.size() == 0) {
+  if (fake_text.empty()) {
     return;
   }
 
@@ -2512,7 +2512,7 @@ static void InitializeRowInfo(bool after_recognition, const MutableIterator &it,
     }
   }
 
-  if (info->text.size() == 0) {
+  if (info->text.empty()) {
     return;
   }
 

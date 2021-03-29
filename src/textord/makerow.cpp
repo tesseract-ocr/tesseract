@@ -628,7 +628,7 @@ void delete_non_dropout_rows( // find lines
   TO_ROW_IT row_it = block->get_rows();
   BLOBNBOX_IT blob_it = &block->blobs;
 
-  if (row_it.length() == 0) {
+  if (row_it.empty()) {
     return; // empty block
   }
   block_box = deskew_block_coords(block, gradient);
@@ -1000,14 +1000,14 @@ void expand_rows(       // find lines
 
   adjust_row_limits(block); // shift min,max.
   if (textord_new_initial_xheight) {
-    if (block->get_rows()->length() == 0) {
+    if (block->get_rows()->empty()) {
       return;
     }
     compute_row_stats(block, textord_show_expanded_rows && testing_on);
   }
   assign_blobs_to_rows(block, &gradient, 4, true, false, false);
   // get real membership
-  if (block->get_rows()->length() == 0) {
+  if (block->get_rows()->empty()) {
     return;
   }
   fit_parallel_rows(block, gradient, rotation, block_edge,

@@ -55,6 +55,9 @@ public:
     code_[1] = code1;
     code_[2] = code2;
   }
+  bool empty() const {
+    return length_ == 0;
+  }
   // Accessors
   int length() const {
     return length_;

@@ -810,7 +810,7 @@ bool EqualIgnoringCaseAndTerminalPunct(const WERD_CHOICE &word1, const WERD_CHOI
  */
 void print_ratings_list(const char *msg, BLOB_CHOICE_LIST *ratings,
                         const UNICHARSET &current_unicharset) {
-  if (ratings->length() == 0) {
+  if (ratings->empty()) {
     tprintf("%s:<none>\n", msg);
     return;
   }

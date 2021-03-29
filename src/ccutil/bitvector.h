@@ -51,6 +51,10 @@ public:
   // Initializes the array to length * false.
   void Init(int length);
 
+  int empty() const {
+    return bit_size_ == 0;
+  }
+
   // Returns the number of bits that are accessible in the vector.
   int size() const {
     return bit_size_;

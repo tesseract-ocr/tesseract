@@ -211,7 +211,7 @@ void Classify::AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices) {
   ConvertMatchesToChoices(Blob->denorm(), Blob->bounding_box(), Results, Choices);
 
   // TODO(rays) Move to before ConvertMatchesToChoices!
-  if (LargeSpeckle(*Blob) || Choices->length() == 0) {
+  if (LargeSpeckle(*Blob) || Choices->empty()) {
     AddLargeSpeckleTo(Results->BlobLength, Choices);
   }
 

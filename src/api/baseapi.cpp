@@ -231,20 +231,6 @@ TessBaseAPI::TessBaseAPI()
     , rect_height_(0)
     , image_width_(0)
     , image_height_(0) {
-#if !defined(NDEBUG)
-  // The Tesseract executables would use the "C" locale by default,
-  // but other software which is linked against the Tesseract library
-  // typically uses the locale from the user's environment.
-  // Here the default is overridden to allow debugging of potential
-  // problems caused by the locale settings.
-
-  // Use the current locale if building debug code.
-  try {
-    std::locale::global(std::locale(""));
-  } catch (const std::runtime_error &ex) {
-    fprintf(stderr, "Warning: Could not set the current locale\n");
-  }
-#endif
 }
 
 TessBaseAPI::~TessBaseAPI() {
@@ -1410,12 +1396,11 @@ std::tuple<int,int,int,int> TessBaseAPI::GetTableBoundingBox(unsigned i)
   }
 
   const int height = tesseract_->ImageHeight();
-  
+
   return std::make_tuple<int,int,int,int>(
     t[i].box.left(), height - t[i].box.top(),
     t[i].box.right(), height - t[i].box.bottom());
 }
-
 
 std::vector<std::tuple<int,int,int,int>> TessBaseAPI::GetTableRows(unsigned i)
 {

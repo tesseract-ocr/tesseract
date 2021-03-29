@@ -48,7 +48,7 @@ using RSMap = std::unordered_map<int, std::unique_ptr<std::vector<int>>>;
 using RSCounts = std::unordered_map<int, int>;
 
 static bool DecodeRadicalLine(std::string &radical_data_line, RSMap *radical_map) {
-  if (radical_data_line.length() == 0 || (radical_data_line)[0] == '#') {
+  if (radical_data_line.empty() || (radical_data_line)[0] == '#') {
     return true;
   }
   std::vector<std::string> entries = split(radical_data_line, ' ');
@@ -169,7 +169,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
       }
     }
     // If the code is still empty, it wasn't Han or Hangul.
-    if (code.length() == 0) {
+    if (code.empty()) {
       // Special cases.
       if (u == UNICHAR_SPACE) {
         code.Set(0, 0); // Space.
