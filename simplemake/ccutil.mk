@@ -9,7 +9,6 @@ CCUTIL_HDR = \
 	../src/ccutil/elst.h \
 	../src/ccutil/errcode.h \
 	../src/ccutil/fileerr.h \
-	../src/ccutil/fileio.h \
 	../src/ccutil/genericheap.h \
 	../src/ccutil/genericvector.h \
 	../src/ccutil/helpers.h \
@@ -44,8 +43,7 @@ CCUTIL_SRC = \
 	../src/ccutil/unichar.cpp \
 	../src/ccutil/unicharcompress.cpp \
 	../src/ccutil/unicharmap.cpp \
-	../src/ccutil/unicharset.cpp \
-	../src/ccutil/unicodes.cpp
+	../src/ccutil/unicharset.cpp
 
 CCUTIL_LEGACY_SRC = \
 	../src/ccutil/ambigs.cpp \

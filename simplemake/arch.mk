@@ -10,11 +10,11 @@ ARCH_SRC = \
 
 ARCH_SRC_OPTIMIZED = \
 	../src/arch/dotproductavx.cpp \
-	../src/arch/dotproductfma.cpp \
 	../src/arch/dotproductsse.cpp \
 	../src/arch/intsimdmatrixavx2.cpp \
-	../src/arch/intsimdmatrixneon.cpp \
 	../src/arch/intsimdmatrixsse.cpp
+	#../src/arch/dotproductfma.cpp \
+	#../src/arch/intsimdmatrixneon.cpp
 
 # If optimizations are disabled, replace the following line with this one:
 #ARCH_OBJ = $(ARCH_SRC:.cpp=.o)
