@@ -1,14 +1,11 @@
 LSTM_INSTHDR = \
                ../src/lstm/convolve.h \
-               ../src/lstm/ctc.h \
                ../src/lstm/fullyconnected.h \
                ../src/lstm/functions.h \
                ../src/lstm/input.h \
                ../src/lstm/lstm.h \
                ../src/lstm/lstmrecognizer.h \
-               ../src/lstm/lstmtrainer.h \
                ../src/lstm/maxpool.h \
-               ../src/lstm/networkbuilder.h \
                ../src/lstm/network.h \
                ../src/lstm/networkio.h \
                ../src/lstm/networkscratch.h \
@@ -25,15 +22,12 @@ LSTM_INSTHDR = \
 
 LSTM_SRC = \
            ../src/lstm/convolve.cpp \
-           ../src/lstm/ctc.cpp \
            ../src/lstm/fullyconnected.cpp \
            ../src/lstm/functions.cpp \
            ../src/lstm/input.cpp \
            ../src/lstm/lstm.cpp \
            ../src/lstm/lstmrecognizer.cpp \
-           ../src/lstm/lstmtrainer.cpp \
            ../src/lstm/maxpool.cpp \
-           ../src/lstm/networkbuilder.cpp \
            ../src/lstm/network.cpp \
            ../src/lstm/networkio.cpp \
            ../src/lstm/parallel.cpp \

@@ -16,6 +16,7 @@ CONFIGS = \
           ../tessdata/configs/kannada \
           ../tessdata/configs/linebox \
           ../tessdata/configs/logfile \
+          ../tessdata/configs/lstmbox \
           ../tessdata/configs/lstmdebug \
           ../tessdata/configs/lstm.train \
           ../tessdata/configs/makebox \
@@ -25,7 +26,8 @@ CONFIGS = \
           ../tessdata/configs/strokewidth \
           ../tessdata/configs/tsv \
           ../tessdata/configs/txt \
-          ../tessdata/configs/unlv
+          ../tessdata/configs/unlv \
+          ../tessdata/configs/wordstrbox
 
 TESSCONFIGS = \
               ../tessdata/tessconfigs/batch \

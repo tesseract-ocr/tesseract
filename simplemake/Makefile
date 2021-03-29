@@ -1,7 +1,10 @@
 include config.mk
 
-VERSION = 4.0.0
-LIBVERSION = 4
+VERSION = 5.0.0-alpha-20201231
+VERSION_MAJ = 5
+VERSION_MIN = 0
+VERSION_MIC = 0
+LIBVERSION = 5
 
 CPPFLAGS = -DUSE_STD_NAMESPACE -DVERSION=\"$(VERSION)\" -DPACKAGE_VERSION=\"$(VERSION)\" \
            -DTESSDATA_PREFIX=$(TESSDATAPREFIX) \
@@ -42,6 +45,7 @@ include ccutil.mk
 include classify.mk
 include cutil.mk
 include dict.mk
+include include.mk
 include lstm.mk
 include opencl.mk
 include textord.mk
@@ -52,9 +56,7 @@ include wordrec.mk
 include tessdata.mk
 include scrollview.mk
 
-OBJ = $(API_OBJ) $(ARCH_OBJ) $(CCMAIN_OBJ) $(CCSTRUCT_OBJ) $(CCUTIL_OBJ) $(CLASSIFY_OBJ) $(CUTIL_OBJ) $(DICT_OBJ) $(LSTM_OBJ) $(OPENCL_OBJ) $(TEXTORD_OBJ) $(VIEWER_OBJ) $(WORDREC_OBJ) $(EXTRA_OBJ)
-
-INSTHDR = $(API_INSTHDR) $(ARCH_INSTHDR) $(CCMAIN_INSTHDR) $(CCSTRUCT_INSTHDR) $(CCUTIL_INSTHDR)
+OBJ = $(API_OBJ) $(ARCH_OBJ) $(CCMAIN_OBJ) $(CCSTRUCT_OBJ) $(CCUTIL_OBJ) $(CLASSIFY_OBJ) $(DICT_OBJ) $(LSTM_OBJ) $(OPENCL_OBJ) $(TEXTORD_OBJ) $(VIEWER_OBJ) $(WORDREC_OBJ) $(EXTRA_OBJ)
 
 
 # Inference rules

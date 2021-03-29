@@ -11,10 +11,15 @@ DICT_SRC = \
            ../src/dict/dawg.cpp \
            ../src/dict/dawg_cache.cpp \
            ../src/dict/dict.cpp \
-           ../src/dict/hyphen.cpp \
-           ../src/dict/permdawg.cpp \
            ../src/dict/stopper.cpp \
            ../src/dict/trie.cpp
 
+DICT_LEGACY_SRC = \
+           ../src/dict/hyphen.cpp \
+           ../src/dict/permdawg.cpp
+
 DICT_OBJ = $(DICT_SRC:.cpp=.o)
 $(DICT_OBJ): $(DICT_HDR)
+
+DICT_LEGACY_OBJ = $(DICT_LEGACY_SRC:.cpp=.o)
+$(DICT_LEGACY_OBJ): $(DICT_HDR)

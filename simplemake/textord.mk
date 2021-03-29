@@ -11,11 +11,9 @@ TEXTORD_HDR = \
               ../src/textord/colpartitiongrid.h \
               ../src/textord/colpartitionset.h \
               ../src/textord/devanagari_processing.h \
-              ../src/textord/drawedg.h \
               ../src/textord/drawtord.h \
               ../src/textord/edgblob.h \
               ../src/textord/edgloop.h \
-              ../src/textord/equationdetectbase.h \
               ../src/textord/fpchop.h \
               ../src/textord/gap_map.h \
               ../src/textord/imagefind.h \
@@ -40,6 +38,9 @@ TEXTORD_HDR = \
               ../src/textord/wordseg.h \
               ../src/textord/workingpartset.h
 
+TEXTORD_LEGACY_HDR = \
+              ../src/textord/equationdetectbase.h
+
 TEXTORD_SRC = \
               ../src/textord/alignedblob.cpp \
               ../src/textord/baselinedetect.cpp \
@@ -53,11 +54,9 @@ TEXTORD_SRC = \
               ../src/textord/colpartitiongrid.cpp \
               ../src/textord/colpartitionset.cpp \
               ../src/textord/devanagari_processing.cpp \
-              ../src/textord/drawedg.cpp \
               ../src/textord/drawtord.cpp \
               ../src/textord/edgblob.cpp \
               ../src/textord/edgloop.cpp \
-              ../src/textord/equationdetectbase.cpp \
               ../src/textord/fpchop.cpp \
               ../src/textord/gap_map.cpp \
               ../src/textord/imagefind.cpp \
@@ -83,5 +82,11 @@ TEXTORD_SRC = \
               ../src/textord/wordseg.cpp \
               ../src/textord/workingpartset.cpp
 
+TEXTORD_LEGACY_SRC = \
+              ../src/textord/equationdetectbase.cpp
+
 TEXTORD_OBJ = $(TEXTORD_SRC:.cpp=.o)
 $(TEXTORD_OBJ): $(TEXTORD_HDR)
+
+TEXTORD_LEGACY_OBJ = $(TEXTORD_LEGACY_SRC:.cpp=.o)
+$(TEXTORD_LEGACY_OBJ): $(TEXTORD_HDR) $(TEXTORD_LEGACY_HDR)

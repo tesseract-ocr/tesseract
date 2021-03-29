@@ -1,4 +1,7 @@
 WORDREC_HDR = \
+              ../src/wordrec/wordrec.h
+
+WORDREC_LEGACY_HDR = \
               ../src/wordrec/associate.h \
               ../src/wordrec/chop.h \
               ../src/wordrec/drawfx.h \
@@ -7,12 +10,10 @@ WORDREC_HDR = \
               ../src/wordrec/lm_consistency.h \
               ../src/wordrec/lm_pain_points.h \
               ../src/wordrec/lm_state.h \
-              ../src/wordrec/measure.h \
               ../src/wordrec/outlines.h \
               ../src/wordrec/params_model.h \
               ../src/wordrec/plotedges.h \
-              ../src/wordrec/render.h \
-              ../src/wordrec/wordrec.h
+              ../src/wordrec/render.h
 
 WORDREC_SRC = \
               ../src/wordrec/tface.cpp \

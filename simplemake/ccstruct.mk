@@ -1,4 +1,6 @@
 CCSTRUCT_HDR = \
+               ../include/tesseract/publictypes.h \
+               ../include/tesseract/unichar.h \
                ../src/ccstruct/blamer.h \
                ../src/ccstruct/blobbox.h \
                ../src/ccstruct/blobs.h \
@@ -11,7 +13,6 @@ CCSTRUCT_HDR = \
                ../src/ccstruct/debugpixa.h \
                ../src/ccstruct/detlinefit.h \
                ../src/ccstruct/dppoint.h \
-               ../src/ccstruct/fontinfo.h \
                ../src/ccstruct/imagedata.h \
                ../src/ccstruct/linlsq.h \
                ../src/ccstruct/matrix.h \
@@ -22,7 +23,6 @@ CCSTRUCT_HDR = \
                ../src/ccstruct/ocrrow.h \
                ../src/ccstruct/otsuthr.h \
                ../src/ccstruct/pageres.h \
-               ../src/ccstruct/params_training_featdef.h \
                ../src/ccstruct/pdblock.h \
                ../src/ccstruct/points.h \
                ../src/ccstruct/polyaprx.h \
@@ -37,10 +37,8 @@ CCSTRUCT_HDR = \
                ../src/ccstruct/split.h \
                ../src/ccstruct/statistc.h \
                ../src/ccstruct/stepblob.h \
-               ../src/ccstruct/vecfuncs.h \
+               ../src/ccstruct/tabletransfer.h \
                ../src/ccstruct/werd.h
-
-CCSTRUCT_INSTHDR = ../src/ccstruct/publictypes.h
 
 CCSTRUCT_SRC = \
                ../src/ccstruct/blamer.cpp \
@@ -53,7 +51,6 @@ CCSTRUCT_SRC = \
                ../src/ccstruct/coutln.cpp \
                ../src/ccstruct/detlinefit.cpp \
                ../src/ccstruct/dppoint.cpp \
-               ../src/ccstruct/fontinfo.cpp \
                ../src/ccstruct/imagedata.cpp \
                ../src/ccstruct/linlsq.cpp \
                ../src/ccstruct/matrix.cpp \
@@ -64,12 +61,10 @@ CCSTRUCT_SRC = \
                ../src/ccstruct/ocrrow.cpp \
                ../src/ccstruct/otsuthr.cpp \
                ../src/ccstruct/pageres.cpp \
-               ../src/ccstruct/params_training_featdef.cpp \
                ../src/ccstruct/pdblock.cpp \
                ../src/ccstruct/points.cpp \
                ../src/ccstruct/polyaprx.cpp \
                ../src/ccstruct/polyblk.cpp \
-               ../src/ccstruct/publictypes.cpp \
                ../src/ccstruct/quadlsq.cpp \
                ../src/ccstruct/quspline.cpp \
                ../src/ccstruct/ratngs.cpp \
@@ -79,8 +74,18 @@ CCSTRUCT_SRC = \
                ../src/ccstruct/split.cpp \
                ../src/ccstruct/statistc.cpp \
                ../src/ccstruct/stepblob.cpp \
-               ../src/ccstruct/vecfuncs.cpp \
                ../src/ccstruct/werd.cpp
 
+CCSTRUCT_LEGACY_SRC = \
+                      ../src/ccstruct/fontinfo.cpp \
+                      ../src/ccstruct/params_training_featdef.cpp
+
+CCSTRUCT_LEGACY_HDR = \
+                      ../src/ccstruct/fontinfo.h \
+                      ../src/ccstruct/params_training_featdef.h
+
 CCSTRUCT_OBJ = $(CCSTRUCT_SRC:.cpp=.o)
-$(CCSTRUCT_OBJ): $(CCSTRUCT_HDR) $(CCSTRUCT_INSTHDR)
+$(CCSTRUCT_OBJ): $(CCSTRUCT_HDR)
+
+CCSTRUCT_LEGACY_OBJ = $(CCSTRUCT_LEGACY_SRC:.cpp=.o)
+$(CCSTRUCT_LEGACY_OBJ): $(CCSTRUCT_HDR) $(CCSTRUCT_LEGACY_HDR)
