@@ -398,7 +398,7 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
         delete char_desc->FeatureSets[i];
       }
     }
-    free(char_desc);
+    delete char_desc;
   }
 } // ReadTrainingSamples
 
@@ -454,8 +454,6 @@ void FreeLabeledList(LABELEDLIST LabeledList) {
 CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs, LABELEDLIST char_sample,
                               const char *program_feature_type) {
   uint16_t N;
-  int i, j;
-  float *Sample = nullptr;
   CLUSTERER *Clusterer;
   int32_t CharID;
   LIST FeatureList = nullptr;
@@ -467,20 +465,20 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs, LABELEDLIS
 
   FeatureList = char_sample->List;
   CharID = 0;
+  std::vector<float> Sample;
   iterate(FeatureList) {
     FeatureSet = reinterpret_cast<FEATURE_SET> first_node(FeatureList);
-    for (i = 0; i < FeatureSet->MaxNumFeatures; i++) {
-      if (Sample == nullptr) {
-        Sample = static_cast<float *>(malloc(N * sizeof(float)));
+    for (int i = 0; i < FeatureSet->MaxNumFeatures; i++) {
+      if (Sample.empty()) {
+        Sample.resize(N);
       }
-      for (j = 0; j < N; j++) {
+      for (int j = 0; j < N; j++) {
         Sample[j] = FeatureSet->Features[i]->Params[j];
       }
-      MakeSample(Clusterer, Sample, CharID);
+      MakeSample(Clusterer, &Sample[0], CharID);
     }
     CharID++;
   }
-  free(Sample);
   return Clusterer;
 
 } /* SetUpForClustering */
