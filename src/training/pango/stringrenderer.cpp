@@ -3,7 +3,6 @@
  * Description: Class for rendering UTF-8 text to an image, and retrieving
  *              bounding boxes around each grapheme cluster.
  * Author:      Ranjith Unnikrishnan
- * Created:     Mon Nov 18 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -108,7 +107,6 @@ StringRenderer::StringRenderer(const std::string &font_desc, int page_width, int
     , underline_start_prob_(0)
     , underline_continuation_prob_(0)
     , underline_style_(PANGO_UNDERLINE_SINGLE)
-    , features_(nullptr)
     , drop_uncovered_chars_(true)
     , strip_unrenderable_words_(false)
     , add_ligatures_(false)
@@ -147,7 +145,6 @@ void StringRenderer::set_underline_continuation_prob(const double frac) {
 }
 
 StringRenderer::~StringRenderer() {
-  free(features_);
   ClearBoxes();
   FreePangoCairo();
 }
@@ -204,7 +201,7 @@ void StringRenderer::SetLayoutProperties() {
 #if (PANGO_VERSION_MAJOR == 1 && PANGO_VERSION_MINOR >= 38)
   if (add_ligatures_) {
     set_features("liga, clig, dlig, hlig");
-    PangoAttribute *feature_attr = pango_attr_font_features_new(features_);
+    PangoAttribute *feature_attr = pango_attr_font_features_new(features_.c_str());
     pango_attr_list_change(attr_list, feature_attr);
   }
 #endif
