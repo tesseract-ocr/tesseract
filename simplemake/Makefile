@@ -12,8 +12,8 @@ CPPFLAGS = -DUSE_STD_NAMESPACE -DVERSION=\"$(VERSION)\" -DPACKAGE_VERSION=\"$(VE
            -Wall \
            -fPIC \
            -O2 \
-           -std=c++11 \
-           -I../src/ \
+           -std=c++17 -std=c++20 \
+           -I ../include -I../src \
            -I../src/ccmain -I../src/api -I../src/ccutil -I../src/ccstruct -I../src/viewer -I../src/textord -I../src/dict -I../src/classify -I../src/display -I../src/wordrec -I../src/cutil -I../src/lstm -I../src/arch -I../src/opencl \
            $(LEPT_CPPFLAGS) \
            $(PANGO_CPPFLAGS) \
@@ -57,6 +57,7 @@ include tessdata.mk
 include scrollview.mk
 
 OBJ = $(API_OBJ) $(ARCH_OBJ) $(CCMAIN_OBJ) $(CCSTRUCT_OBJ) $(CCUTIL_OBJ) $(CLASSIFY_OBJ) $(DICT_OBJ) $(LSTM_OBJ) $(OPENCL_OBJ) $(TEXTORD_OBJ) $(VIEWER_OBJ) $(WORDREC_OBJ) $(EXTRA_OBJ)
+$(OBJ): $(INSTHDR)
 
 
 # Inference rules
