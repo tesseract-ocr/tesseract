@@ -27,7 +27,6 @@
 #include "pageiterator.h"
 #include "publictypes.h"
 #include "resultiterator.h"
-#include "thresholder.h"
 #include "unichar.h"
 
 #include <tesseract/version.h>
@@ -53,6 +52,7 @@ class Dawg;
 class Dict;
 class EquationDetect;
 class PageIterator;
+class ImageThresholder;
 class LTRResultIterator;
 class ResultIterator;
 class MutableIterator;
@@ -334,19 +334,6 @@ public:
    * can be recognized with the same image.
    */
   void SetRectangle(int left, int top, int width, int height);
-
-  /**
-   * In extreme cases only, usually with a subclass of Thresholder, it
-   * is possible to provide a different Thresholder. The Thresholder may
-   * be preloaded with an image, settings etc, or they may be set after.
-   * Note that Tesseract takes ownership of the Thresholder and will
-   * delete it when it it is replaced or the API is destructed.
-   */
-  void SetThresholder(ImageThresholder *thresholder) {
-    delete thresholder_;
-    thresholder_ = thresholder;
-    ClearResults();
-  }
 
   /**
    * Get a copy of the internal thresholded image from Tesseract.

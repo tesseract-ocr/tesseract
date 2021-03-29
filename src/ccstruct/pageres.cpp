@@ -954,7 +954,7 @@ void WERD_RES::BestChoiceToCorrectText() {
 // Returns true if anything was merged.
 bool WERD_RES::ConditionalBlobMerge(std::function<UNICHAR_ID(UNICHAR_ID, UNICHAR_ID)> class_cb,
                                     std::function<bool(const TBOX &, const TBOX &)> box_cb) {
-  ASSERT_HOST(best_choice->length() == 0 || ratings != nullptr);
+  ASSERT_HOST(best_choice->empty() || ratings != nullptr);
   bool modified = false;
   for (int i = 0; i + 1 < best_choice->length(); ++i) {
     UNICHAR_ID new_id = class_cb(best_choice->unichar_id(i), best_choice->unichar_id(i + 1));

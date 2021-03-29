@@ -31,7 +31,7 @@ namespace tesseract {
  * @return New MICROFEATURE
  */
 MICROFEATURE NewMicroFeature() {
-  return (static_cast<MICROFEATURE>(malloc(sizeof(MFBLOCK))));
+  return new MFBLOCK;
 } /* NewMicroFeature */
 
 /**
@@ -40,7 +40,11 @@ MICROFEATURE NewMicroFeature() {
  * @param MicroFeatures list of micro-features to be freed
  */
 void FreeMicroFeatures(MICROFEATURES MicroFeatures) {
-  destroy_nodes(MicroFeatures, free);
+  auto list = MicroFeatures;
+  while (list != NIL_LIST) {
+    delete first_node(list);
+    list = pop(list);
+  }
 } /* FreeMicroFeatures */
 
 } // namespace tesseract

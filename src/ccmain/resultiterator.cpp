@@ -286,7 +286,7 @@ void ResultIterator::CalculateTextlineOrder(bool paragraph_is_ltr,
                                             const std::vector<StrongScriptDirection> &word_dirs,
                                             std::vector<int> *reading_order) {
   reading_order->clear();
-  if (word_dirs.size() == 0) {
+  if (word_dirs.empty()) {
     return;
   }
 
@@ -382,7 +382,7 @@ void ResultIterator::MoveToLogicalStartOfWord() {
   }
   std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
-  if (blob_order.size() == 0 || blob_order[0] == 0) {
+  if (blob_order.empty() || blob_order[0] == 0) {
     return;
   }
   BeginWord(blob_order[0]);
@@ -394,7 +394,7 @@ bool ResultIterator::IsAtFinalSymbolOfWord() const {
   }
   std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
-  return blob_order.size() == 0 || blob_order.back() == blob_index_;
+  return blob_order.empty() || blob_order.back() == blob_index_;
 }
 
 bool ResultIterator::IsAtFirstSymbolOfWord() const {
@@ -403,7 +403,7 @@ bool ResultIterator::IsAtFirstSymbolOfWord() const {
   }
   std::vector<int> blob_order;
   CalculateBlobOrder(&blob_order);
-  return blob_order.size() == 0 || blob_order[0] == blob_index_;
+  return blob_order.empty() || blob_order[0] == blob_index_;
 }
 
 void ResultIterator::AppendSuffixMarks(std::string *text) const {

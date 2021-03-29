@@ -22,7 +22,7 @@
 #  include "config_auto.h"
 #endif
 
-#include "adaptive.h"        // for ADAPT_CLASS, free_adapted_templates
+#include "adaptive.h"        // for ADAPT_CLASS
 #include "ambigs.h"          // for UnicharIdVector, UnicharAmbigs
 #include "bitvec.h"          // for FreeBitVector, NewBitVector, BIT_VECTOR
 #include "blobs.h"           // for TBLOB, TWERD
@@ -39,13 +39,13 @@
 #include "mfoutline.h"       // for baseline, character, MF_SCALE_FACTOR
 #include "normalis.h"        // for DENORM, kBlnBaselineOffset, kBlnXHeight
 #include "normfeat.h"        // for ActualOutlineLength, CharNormLength
-#include "ocrfeatures.h"     // for FEATURE_STRUCT, FreeFeatureSet, FEATURE
+#include "ocrfeatures.h"     // for FEATURE_STRUCT, FEATURE
 #include "oldlist.h"         // for push, delete_d
 #include "outfeat.h"         // for OutlineFeatDir, OutlineFeatLength
 #include "pageres.h"         // for WERD_RES
 #include "params.h"          // for IntParam, BoolParam, DoubleParam, Str...
 #include "picofeat.h"        // for PicoFeatDir, PicoFeatX, PicoFeatY
-#include "protos.h"          // for PROTO_STRUCT, FillABC, PROTO
+#include "protos.h"          // for PROTO_STRUCT, FillABC
 #include "ratngs.h"          // for BLOB_CHOICE_IT, BLOB_CHOICE_LIST, BLO...
 #include "rect.h"            // for TBOX
 #include "scrollview.h"      // for ScrollView, ScrollView::BROWN, Scroll...
@@ -68,7 +68,6 @@
 #include <cmath>     // for fabs
 #include <cstdint>   // for INT32_MAX, UINT8_MAX
 #include <cstdio>    // for fflush, fclose, fopen, stdout, FILE
-#include <cstdlib>   // for malloc
 #include <cstring>   // for strstr, memset, strcmp
 
 namespace tesseract {
@@ -118,7 +117,7 @@ struct ADAPT_RESULTS {
 };
 
 struct PROTO_KEY {
-  ADAPT_TEMPLATES Templates;
+  ADAPT_TEMPLATES_STRUCT *Templates;
   CLASS_ID ClassId;
   int ConfigId;
 };
@@ -211,7 +210,7 @@ void Classify::AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices) {
   ConvertMatchesToChoices(Blob->denorm(), Blob->bounding_box(), Results, Choices);
 
   // TODO(rays) Move to before ConvertMatchesToChoices!
-  if (LargeSpeckle(*Blob) || Choices->length() == 0) {
+  if (LargeSpeckle(*Blob) || Choices->empty()) {
     AddLargeSpeckleTo(Results->BlobLength, Choices);
   }
 
@@ -476,17 +475,13 @@ void Classify::EndAdaptiveClassifier() {
     }
   }
 
-  if (AdaptedTemplates != nullptr) {
-    free_adapted_templates(AdaptedTemplates);
-    AdaptedTemplates = nullptr;
-  }
-  if (BackupAdaptedTemplates != nullptr) {
-    free_adapted_templates(BackupAdaptedTemplates);
-    BackupAdaptedTemplates = nullptr;
-  }
+  delete AdaptedTemplates;
+  AdaptedTemplates = nullptr;
+  delete BackupAdaptedTemplates;
+  BackupAdaptedTemplates = nullptr;
 
   if (PreTrainedTemplates != nullptr) {
-    free_int_templates(PreTrainedTemplates);
+    delete PreTrainedTemplates;
     PreTrainedTemplates = nullptr;
   }
   getDict().EndDangerousAmbigs();
@@ -575,7 +570,7 @@ void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
     std::string Filename = imagefile;
     Filename += ADAPT_TEMPLATE_SUFFIX;
     if (!fp.Open(Filename.c_str(), nullptr)) {
-      AdaptedTemplates = NewAdaptedTemplates(true);
+      AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
     } else {
       tprintf("\nReading pre-adapted templates from %s ...\n", Filename.c_str());
       fflush(stdout);
@@ -588,10 +583,8 @@ void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
       }
     }
   } else {
-    if (AdaptedTemplates != nullptr) {
-      free_adapted_templates(AdaptedTemplates);
-    }
-    AdaptedTemplates = NewAdaptedTemplates(true);
+    delete AdaptedTemplates;
+    AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
   }
 } /* InitAdaptiveClassifier */
 
@@ -599,11 +592,9 @@ void Classify::ResetAdaptiveClassifierInternal() {
   if (classify_learning_debug_level > 0) {
     tprintf("Resetting adaptive classifier (NumAdaptationsFailed=%d)\n", NumAdaptationsFailed);
   }
-  free_adapted_templates(AdaptedTemplates);
-  AdaptedTemplates = NewAdaptedTemplates(true);
-  if (BackupAdaptedTemplates != nullptr) {
-    free_adapted_templates(BackupAdaptedTemplates);
-  }
+  delete AdaptedTemplates;
+  AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+  delete BackupAdaptedTemplates;
   BackupAdaptedTemplates = nullptr;
   NumAdaptationsFailed = 0;
 }
@@ -619,7 +610,7 @@ void Classify::SwitchAdaptiveClassifier() {
     tprintf("Switch to backup adaptive classifier (NumAdaptationsFailed=%d)\n",
             NumAdaptationsFailed);
   }
-  free_adapted_templates(AdaptedTemplates);
+  delete AdaptedTemplates;
   AdaptedTemplates = BackupAdaptedTemplates;
   BackupAdaptedTemplates = nullptr;
   NumAdaptationsFailed = 0;
@@ -627,10 +618,8 @@ void Classify::SwitchAdaptiveClassifier() {
 
 // Resets the backup adaptive classifier to empty.
 void Classify::StartBackupAdaptiveClassifier() {
-  if (BackupAdaptedTemplates != nullptr) {
-    free_adapted_templates(BackupAdaptedTemplates);
-  }
-  BackupAdaptedTemplates = NewAdaptedTemplates(true);
+  delete BackupAdaptedTemplates;
+  BackupAdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -689,26 +678,25 @@ void Classify::SettupPass2() {
  * - BaselineCutoffs kludge needed to get cutoffs
  * - #PreTrainedTemplates kludge needed to get cutoffs
  */
-void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, ADAPT_CLASS Class,
-                                ADAPT_TEMPLATES Templates) {
+void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, ADAPT_CLASS_STRUCT *Class,
+                                ADAPT_TEMPLATES_STRUCT *Templates) {
   FEATURE_SET Features;
   int Fid, Pid;
   FEATURE Feature;
   int NumFeatures;
-  TEMP_PROTO TempProto;
-  PROTO Proto;
-  INT_CLASS IClass;
-  TEMP_CONFIG Config;
+  PROTO_STRUCT *Proto;
+  INT_CLASS_STRUCT *IClass;
+  TEMP_CONFIG_STRUCT *Config;
 
   classify_norm_method.set_value(baseline);
   Features = ExtractOutlineFeatures(Blob);
   NumFeatures = Features->NumFeatures;
   if (NumFeatures > UNLIKELY_NUM_FEAT || NumFeatures <= 0) {
-    FreeFeatureSet(Features);
+    delete Features;
     return;
   }
 
-  Config = NewTempConfig(NumFeatures - 1, FontinfoId);
+  Config = new TEMP_CONFIG_STRUCT(NumFeatures - 1, FontinfoId);
   TempConfigFor(Class, 0) = Config;
 
   /* this is a kludge to construct cutoffs for adapted templates */
@@ -723,7 +711,7 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
     assert(Pid != NO_PROTO);
 
     Feature = Features->Features[Fid];
-    TempProto = NewTempProto();
+    auto TempProto = new TEMP_PROTO_STRUCT;
     Proto = &(TempProto->Proto);
 
     /* compute proto params - NOTE that Y_DIM_OFFSET must be used because
@@ -743,7 +731,7 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
 
     Class->TempProtos = push(Class->TempProtos, TempProto);
   }
-  FreeFeatureSet(Features);
+  delete Features;
 
   AddIntConfig(IClass);
   ConvertConfig(AllProtosOn, 0, IClass);
@@ -792,7 +780,7 @@ int Classify::GetAdaptiveFeatures(TBLOB *Blob, INT_FEATURE_ARRAY IntFeatures,
 
   NumFeatures = Features->NumFeatures;
   if (NumFeatures == 0 || NumFeatures > UNLIKELY_NUM_FEAT) {
-    FreeFeatureSet(Features);
+    delete Features;
     return 0;
   }
 
@@ -848,13 +836,13 @@ bool Classify::AdaptableWord(WERD_RES *word) {
  * - AllConfigsOn dummy mask to match against all configs
  */
 void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float Threshold,
-                           ADAPT_TEMPLATES adaptive_templates) {
+                           ADAPT_TEMPLATES_STRUCT *adaptive_templates) {
   int NumFeatures;
   INT_FEATURE_ARRAY IntFeatures;
   UnicharRating int_result;
-  INT_CLASS IClass;
-  ADAPT_CLASS Class;
-  TEMP_CONFIG TempConfig;
+  INT_CLASS_STRUCT *IClass;
+  ADAPT_CLASS_STRUCT *Class;
+  TEMP_CONFIG_STRUCT *TempConfig;
   FEATURE_SET FloatFeatures;
   int NewTempConfigId;
 
@@ -896,7 +884,7 @@ void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float 
           tprintf("Found good match to perm config %d = %4.1f%%.\n", int_result.config,
                   int_result.rating * 100.0);
         }
-        FreeFeatureSet(FloatFeatures);
+        delete FloatFeatures;
         return;
       }
 
@@ -938,7 +926,7 @@ void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float 
       }
 #endif
     }
-    FreeFeatureSet(FloatFeatures);
+    delete FloatFeatures;
   }
 } /* AdaptToChar */
 
@@ -1043,7 +1031,7 @@ void Classify::AddNewResult(const UnicharRating &new_result, ADAPT_RESULTS *resu
  */
 void Classify::AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_features,
                                const INT_FX_RESULT_STRUCT &fx_info, const TBLOB *blob,
-                               INT_TEMPLATES templates, ADAPT_CLASS *classes,
+                               INT_TEMPLATES_STRUCT *templates, ADAPT_CLASS_STRUCT **classes,
                                UNICHAR_ID *ambiguities, ADAPT_RESULTS *results) {
   if (int_features.empty()) {
     return;
@@ -1078,9 +1066,9 @@ void Classify::AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_featur
 /*---------------------------------------------------------------------------*/
 /// Factored-out calls to IntegerMatcher based on class pruner results.
 /// Returns integer matcher results inside CLASS_PRUNER_RESULTS structure.
-void Classify::MasterMatcher(INT_TEMPLATES templates, int16_t num_features,
+void Classify::MasterMatcher(INT_TEMPLATES_STRUCT *templates, int16_t num_features,
                              const INT_FEATURE_STRUCT *features, const uint8_t *norm_factors,
-                             ADAPT_CLASS *classes, int debug, int matcher_multiplier,
+                             ADAPT_CLASS_STRUCT **classes, int debug, int matcher_multiplier,
                              const TBOX &blob_box, const std::vector<CP_RESULT_STRUCT> &results,
                              ADAPT_RESULTS *final_results) {
   int top = blob_box.top();
@@ -1106,7 +1094,7 @@ void Classify::MasterMatcher(INT_TEMPLATES templates, int16_t num_features,
 // unichar_ids represented, before applying a set of corrections to the
 // distance rating in int_result, (see ComputeCorrectedRating.)
 // The results are added to the final_results output.
-void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS *classes, bool debug, int class_id,
+void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, bool debug, int class_id,
                                                int bottom, int top, float cp_rating,
                                                int blob_length, int matcher_multiplier,
                                                const uint8_t *cn_factors, UnicharRating *int_result,
@@ -1231,7 +1219,7 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id, double cp_ra
 UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
                                          const std::vector<INT_FEATURE_STRUCT> &int_features,
                                          const INT_FX_RESULT_STRUCT &fx_info,
-                                         ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results) {
+                                         ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_RESULTS *Results) {
   if (int_features.empty()) {
     return nullptr;
   }
@@ -1620,9 +1608,9 @@ bool Classify::LooksLikeGarbage(TBLOB *blob) {
  *
  * @return Number of features extracted or 0 if an error occurred.
  */
-int Classify::GetCharNormFeature(const INT_FX_RESULT_STRUCT &fx_info, INT_TEMPLATES templates,
+int Classify::GetCharNormFeature(const INT_FX_RESULT_STRUCT &fx_info, INT_TEMPLATES_STRUCT *templates,
                                  uint8_t *pruner_norm_array, uint8_t *char_norm_array) {
-  FEATURE norm_feature = NewFeature(&CharNormDesc);
+  auto norm_feature = new FEATURE_STRUCT(&CharNormDesc);
   float baseline = kBlnBaselineOffset;
   float scale = MF_SCALE_FACTOR;
   norm_feature->Params[CharNormY] = (fx_info.Ymean - baseline) * scale;
@@ -1660,7 +1648,7 @@ void Classify::ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES
       }
     }
   }
-  FreeFeature(norm_feature);
+  delete norm_feature;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1676,11 +1664,11 @@ void Classify::ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES
  * @return The id of the new config created, a negative integer in
  * case of error.
  */
-int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates, CLASS_ID ClassId, int FontinfoId,
+int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, int FontinfoId,
                                      int NumFeatures, INT_FEATURE_ARRAY Features,
                                      FEATURE_SET FloatFeatures) {
-  INT_CLASS IClass;
-  ADAPT_CLASS Class;
+  INT_CLASS_STRUCT *IClass;
+  ADAPT_CLASS_STRUCT *Class;
   PROTO_ID OldProtos[MAX_NUM_PROTOS];
   FEATURE_ID BadFeatures[MAX_NUM_INT_FEATURES];
   int NumOldProtos;
@@ -1688,7 +1676,6 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates, CLASS_ID ClassId
   int MaxProtoId, OldMaxProtoId;
   int MaskSize;
   int ConfigId;
-  TEMP_CONFIG Config;
   int i;
   int debug_level = NO_DEBUG;
 
@@ -1733,7 +1720,7 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates, CLASS_ID ClassId
 
   ConfigId = AddIntConfig(IClass);
   ConvertConfig(TempProtoMask, ConfigId, IClass);
-  Config = NewTempConfig(MaxProtoId, FontinfoId);
+  auto Config = new TEMP_CONFIG_STRUCT(MaxProtoId, FontinfoId);
   TempConfigFor(Class, ConfigId) = Config;
   copy_all_bits(TempProtoMask, Config->Protos, Config->ProtoVectorSize);
 
@@ -1767,13 +1754,12 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates, CLASS_ID ClassId
  * @return Max proto id in class after all protos have been added.
  */
 PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATURE_ID BadFeat[],
-                                     INT_CLASS IClass, ADAPT_CLASS Class,
+                                     INT_CLASS_STRUCT *IClass, ADAPT_CLASS_STRUCT *Class,
                                      BIT_VECTOR TempProtoMask) {
   FEATURE_ID *ProtoStart;
   FEATURE_ID *ProtoEnd;
   FEATURE_ID *LastBad;
-  TEMP_PROTO TempProto;
-  PROTO Proto;
+  PROTO_STRUCT *Proto;
   FEATURE F1, F2;
   float X1, X2, Y1, Y2;
   float A1, A2, AngleDelta;
@@ -1815,7 +1801,7 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
       return (NO_PROTO);
     }
 
-    TempProto = NewTempProto();
+    auto TempProto = new TEMP_PROTO_STRUCT;
     Proto = &(TempProto->Proto);
 
     /* compute proto params - NOTE that Y_DIM_OFFSET must be used because
@@ -1848,15 +1834,13 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
  *
  * Globals: none
  */
-void Classify::MakePermanent(ADAPT_TEMPLATES Templates, CLASS_ID ClassId, int ConfigId,
+void Classify::MakePermanent(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, int ConfigId,
                              TBLOB *Blob) {
   UNICHAR_ID *Ambigs;
-  TEMP_CONFIG Config;
-  ADAPT_CLASS Class;
   PROTO_KEY ProtoKey;
 
-  Class = Templates->Class[ClassId];
-  Config = TempConfigFor(Class, ConfigId);
+  auto Class = Templates->Class[ClassId];
+  auto Config = TempConfigFor(Class, ConfigId);
 
   MakeConfigPermanent(Class, ConfigId);
   if (Class->NumPermConfigs == 0) {
@@ -1866,7 +1850,7 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates, CLASS_ID ClassId, int Co
 
   // Initialize permanent config.
   Ambigs = GetAmbiguities(Blob, ClassId);
-  auto Perm = static_cast<PERM_CONFIG>(malloc(sizeof(PERM_CONFIG_STRUCT)));
+  auto Perm = new PERM_CONFIG_STRUCT;
   Perm->Ambigs = Ambigs;
   Perm->FontinfoId = Config->FontinfoId;
 
@@ -1876,7 +1860,7 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates, CLASS_ID ClassId, int Co
   ProtoKey.ClassId = ClassId;
   ProtoKey.ConfigId = ConfigId;
   Class->TempProtos = delete_d(Class->TempProtos, &ProtoKey, MakeTempProtoPerm);
-  FreeTempConfig(Config);
+  delete Config;
 
   // Record permanent config.
   PermConfigFor(Class, ConfigId) = Perm;
@@ -1908,16 +1892,11 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates, CLASS_ID ClassId, int Co
  * @return true if TempProto is converted, false otherwise
  */
 int MakeTempProtoPerm(void *item1, void *item2) {
-  ADAPT_CLASS Class;
-  TEMP_CONFIG Config;
-  TEMP_PROTO TempProto;
-  PROTO_KEY *ProtoKey;
+  auto TempProto = static_cast<TEMP_PROTO_STRUCT *>(item1);
+  auto ProtoKey = static_cast<PROTO_KEY *>(item2);
 
-  TempProto = static_cast<TEMP_PROTO>(item1);
-  ProtoKey = static_cast<PROTO_KEY *>(item2);
-
-  Class = ProtoKey->Templates->Class[ProtoKey->ClassId];
-  Config = TempConfigFor(Class, ProtoKey->ConfigId);
+  auto Class = ProtoKey->Templates->Class[ProtoKey->ClassId];
+  auto Config = TempConfigFor(Class, ProtoKey->ConfigId);
 
   if (TempProto->ProtoId > Config->MaxProtoId || !test_bit(Config->Protos, TempProto->ProtoId)) {
     return false;
@@ -1925,7 +1904,7 @@ int MakeTempProtoPerm(void *item1, void *item2) {
 
   MakeProtoPermanent(Class, TempProto->ProtoId);
   AddProtoToClassPruner(&(TempProto->Proto), ProtoKey->ClassId, ProtoKey->Templates->Templates);
-  FreeTempProto(TempProto);
+  delete TempProto;
 
   return true;
 } /* MakeTempProtoPerm */
@@ -2153,9 +2132,9 @@ int Classify::ShapeIDToClassID(int shape_id) const {
   return -1;
 }
 
-// Returns true if the given TEMP_CONFIG is good enough to make it
+// Returns true if the given TEMP_CONFIG_STRUCT is good enough to make it
 // a permanent config.
-bool Classify::TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG &config) {
+bool Classify::TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG_STRUCT *config) {
   if (classify_learning_debug_level >= 1) {
     tprintf("NumTimesSeen for config of %s is %d\n",
             getDict().getUnicharset().debug_str(class_id).c_str(), config->NumTimesSeen);
@@ -2170,7 +2149,7 @@ bool Classify::TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG &config) 
     const UnicharIdVector *ambigs = getDict().getUnicharAmbigs().AmbigsForAdaption(class_id);
     int ambigs_size = (ambigs == nullptr) ? 0 : ambigs->size();
     for (int ambig = 0; ambig < ambigs_size; ++ambig) {
-      ADAPT_CLASS ambig_class = AdaptedTemplates->Class[(*ambigs)[ambig]];
+      ADAPT_CLASS_STRUCT *ambig_class = AdaptedTemplates->Class[(*ambigs)[ambig]];
       assert(ambig_class != nullptr);
       if (ambig_class->NumPermConfigs == 0 &&
           ambig_class->MaxNumTimesSeen < matcher_min_examples_for_prototyping) {
@@ -2197,12 +2176,12 @@ void Classify::UpdateAmbigsGroup(CLASS_ID class_id, TBLOB *Blob) {
   }
   for (int ambig = 0; ambig < ambigs_size; ++ambig) {
     CLASS_ID ambig_class_id = (*ambigs)[ambig];
-    const ADAPT_CLASS ambigs_class = AdaptedTemplates->Class[ambig_class_id];
+    const ADAPT_CLASS_STRUCT *ambigs_class = AdaptedTemplates->Class[ambig_class_id];
     for (int cfg = 0; cfg < MAX_NUM_CONFIGS; ++cfg) {
       if (ConfigIsPermanent(ambigs_class, cfg)) {
         continue;
       }
-      const TEMP_CONFIG config = TempConfigFor(AdaptedTemplates->Class[ambig_class_id], cfg);
+      const TEMP_CONFIG_STRUCT *config = TempConfigFor(AdaptedTemplates->Class[ambig_class_id], cfg);
       if (config != nullptr && TempConfigReliable(ambig_class_id, config)) {
         if (classify_learning_debug_level >= 1) {
           tprintf("Making config %d of %s permanent\n", cfg,

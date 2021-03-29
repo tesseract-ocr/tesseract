@@ -105,7 +105,7 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
   bool need_reject = false;
   UNICHAR_ID space = uchset.unichar_to_id(" ");
 
-  if ((word->unlv_crunch_mode != CR_NONE || word->best_choice->length() == 0) &&
+  if ((word->unlv_crunch_mode != CR_NONE || word->best_choice->empty()) &&
       !tessedit_zero_kelvin_rejection && !tessedit_word_for_word) {
     if ((word->unlv_crunch_mode != CR_DELETE) &&
         (!stats_.tilde_crunch_written ||

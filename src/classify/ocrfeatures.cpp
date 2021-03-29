@@ -38,71 +38,13 @@ namespace tesseract {
  */
 bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
   if (FeatureSet->NumFeatures >= FeatureSet->MaxNumFeatures) {
-    FreeFeature(Feature);
+    delete Feature;
     return false;
   }
 
   FeatureSet->Features[FeatureSet->NumFeatures++] = Feature;
   return true;
 } /* AddFeature */
-
-/**
- * Release the memory consumed by the specified feature.
- * @param Feature feature to be deallocated.
- */
-void FreeFeature(FEATURE Feature) {
-  free(Feature);
-} /* FreeFeature */
-
-/**
- * Release the memory consumed by the specified feature
- * set.  This routine also frees the memory consumed by the
- * features contained in the set.
- * @param FeatureSet  set of features to be freed
- */
-void FreeFeatureSet(FEATURE_SET FeatureSet) {
-  int i;
-
-  if (FeatureSet) {
-    for (i = 0; i < FeatureSet->NumFeatures; i++) {
-      FreeFeature(FeatureSet->Features[i]);
-    }
-    free(FeatureSet);
-  }
-} /* FreeFeatureSet */
-
-/**
- * Allocate and return a new feature of the specified
- * type.
- * @param FeatureDesc description of feature to be created.
- * @return New #FEATURE.
- */
-FEATURE NewFeature(const FEATURE_DESC_STRUCT *FeatureDesc) {
-  FEATURE Feature;
-
-  Feature = static_cast<FEATURE>(
-      malloc(sizeof(FEATURE_STRUCT) + (FeatureDesc->NumParams - 1) * sizeof(float)));
-  Feature->Type = FeatureDesc;
-  return (Feature);
-
-} /* NewFeature */
-
-/**
- * Allocate and return a new feature set large enough to
- * hold the specified number of features.
- * @param NumFeatures maximum # of features to be put in feature set
- * @return New #FEATURE_SET.
- */
-FEATURE_SET NewFeatureSet(int NumFeatures) {
-  FEATURE_SET FeatureSet;
-
-  FeatureSet = static_cast<FEATURE_SET>(
-      malloc(sizeof(FEATURE_SET_STRUCT) + (NumFeatures - 1) * sizeof(FEATURE)));
-  FeatureSet->MaxNumFeatures = NumFeatures;
-  FeatureSet->NumFeatures = 0;
-  return (FeatureSet);
-
-} /* NewFeatureSet */
 
 /**
  * Create a new feature of the specified type and read in
@@ -116,11 +58,8 @@ FEATURE_SET NewFeatureSet(int NumFeatures) {
  * @return New #FEATURE read from File.
  */
 static FEATURE ReadFeature(FILE *File, const FEATURE_DESC_STRUCT *FeatureDesc) {
-  FEATURE Feature;
-  int i;
-
-  Feature = NewFeature(FeatureDesc);
-  for (i = 0; i < Feature->Type->NumParams; i++) {
+  auto Feature = new FEATURE_STRUCT(FeatureDesc);
+  for (int i = 0; i < Feature->Type->NumParams; i++) {
     ASSERT_HOST(tfscanf(File, "%f", &(Feature->Params[i])) == 1);
 #ifndef _WIN32
     assert(!std::isnan(Feature->Params[i]));
@@ -144,7 +83,7 @@ FEATURE_SET ReadFeatureSet(FILE *File, const FEATURE_DESC_STRUCT *FeatureDesc) {
   ASSERT_HOST(tfscanf(File, "%d", &NumFeatures) == 1);
   ASSERT_HOST(NumFeatures >= 0);
 
-  FEATURE_SET FeatureSet = NewFeatureSet(NumFeatures);
+  auto FeatureSet = new FEATURE_SET_STRUCT(NumFeatures);
   for (int i = 0; i < NumFeatures; i++) {
     AddFeature(FeatureSet, ReadFeature(File, FeatureDesc));
   }

@@ -24,6 +24,7 @@
 #include <cassert>
 #include <cstdint> // for uint8_t
 #include <cstdio>
+#include <vector>  // for std::vector
 
 namespace tesseract {
 
@@ -41,15 +42,21 @@ public:
   // Fast lookup table to give the number of set bits in a byte.
   static const int hamming_table_[256];
 
-  BitVector();
+  BitVector() = default;
   // Initializes the array to length * false.
-  explicit BitVector(int length);
-  BitVector(const BitVector &src);
+  explicit BitVector(int length) : bit_size_(length), array_(WordLength()) {
+  }
+  BitVector(const BitVector &src) : bit_size_(src.bit_size_), array_(src.array_) {
+  }
   BitVector &operator=(const BitVector &src);
-  ~BitVector();
+  ~BitVector() = default;
 
   // Initializes the array to length * false.
   void Init(int length);
+
+  int empty() const {
+    return bit_size_ == 0;
+  }
 
   // Returns the number of bits that are accessible in the vector.
   int size() const {
@@ -124,17 +131,17 @@ private:
   }
   // Returns the number of bytes consumed by the array_.
   int ByteLength() const {
-    return WordLength() * sizeof(*array_);
+    return WordLength() * sizeof(array_[0]);
   }
 
   // Number of bits in this BitVector.
-  int32_t bit_size_;
+  int32_t bit_size_ = 0;
   // Array of words used to pack the bits.
   // Bits are stored little-endian by uint32_t word, ie by word first and then
   // starting with the least significant bit in each word.
-  uint32_t *array_;
+  std::vector<uint32_t> array_;
   // Number of bits in an array_ element.
-  static const int kBitFactor = sizeof(uint32_t) * 8;
+  static const int kBitFactor = sizeof(array_[0]) * 8;
 };
 
 } // namespace tesseract.

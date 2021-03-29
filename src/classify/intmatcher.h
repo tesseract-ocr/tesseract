@@ -53,10 +53,10 @@ struct ScratchEvidence {
   int sum_feature_evidence_[MAX_NUM_CONFIGS];
   uint8_t proto_evidence_[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
 
-  void Clear(const INT_CLASS class_template);
-  void ClearFeatureEvidence(const INT_CLASS class_template);
-  void NormalizeSums(INT_CLASS ClassTemplate, int16_t NumFeatures);
-  void UpdateSumOfProtoEvidences(INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask);
+  void Clear(const INT_CLASS_STRUCT *class_template);
+  void ClearFeatureEvidence(const INT_CLASS_STRUCT *class_template);
+  void NormalizeSums(INT_CLASS_STRUCT *ClassTemplate, int16_t NumFeatures);
+  void UpdateSumOfProtoEvidences(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ConfigMask);
 };
 
 class IntegerMatcher {
@@ -74,7 +74,7 @@ public:
 
   IntegerMatcher(tesseract::IntParam *classify_debug_level);
 
-  void Match(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+  void Match(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
              int16_t NumFeatures, const INT_FEATURE_STRUCT *Features,
              tesseract::UnicharRating *Result, int AdaptFeatureThreshold, int Debug,
              bool SeparateDebugWindows);
@@ -84,30 +84,30 @@ public:
   float ApplyCNCorrection(float rating, int blob_length, int normalization_factor,
                           int matcher_multiplier);
 
-  int FindGoodProtos(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+  int FindGoodProtos(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
                      int16_t NumFeatures, INT_FEATURE_ARRAY Features, PROTO_ID *ProtoArray,
                      int AdaptProtoThreshold, int Debug);
 
-  int FindBadFeatures(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+  int FindBadFeatures(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
                       int16_t NumFeatures, INT_FEATURE_ARRAY Features, FEATURE_ID *FeatureArray,
                       int AdaptFeatureThreshold, int Debug);
 
 private:
-  int UpdateTablesForFeature(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+  int UpdateTablesForFeature(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
                              int FeatureNum, const INT_FEATURE_STRUCT *Feature,
                              ScratchEvidence *evidence, int Debug);
 
-  int FindBestMatch(INT_CLASS ClassTemplate, const ScratchEvidence &tables,
+  int FindBestMatch(INT_CLASS_STRUCT *ClassTemplate, const ScratchEvidence &tables,
                     tesseract::UnicharRating *Result);
 
 #ifndef GRAPHICS_DISABLED
-  void DebugFeatureProtoError(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+  void DebugFeatureProtoError(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
                               const ScratchEvidence &tables, int16_t NumFeatures, int Debug);
 
-  void DisplayProtoDebugInfo(INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask,
+  void DisplayProtoDebugInfo(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ConfigMask,
                              const ScratchEvidence &tables, bool SeparateDebugWindows);
 
-  void DisplayFeatureDebugInfo(INT_CLASS ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
+  void DisplayFeatureDebugInfo(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
                                int16_t NumFeatures, const INT_FEATURE_STRUCT *Features,
                                int AdaptFeatureThreshold, int Debug, bool SeparateDebugWindows);
 #endif

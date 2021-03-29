@@ -686,9 +686,8 @@ int main(int argc, char **argv) {
   FixPageSegMode(api, pagesegmode);
 
   if (dpi) {
-    char dpi_string[255];
-    snprintf(dpi_string, 254, "%d", dpi);
-    api.SetVariable("user_defined_dpi", dpi_string);
+    auto dpi_string = std::to_string(dpi);
+    api.SetVariable("user_defined_dpi", dpi_string.c_str());
   }
 
   int ret_val = EXIT_SUCCESS;

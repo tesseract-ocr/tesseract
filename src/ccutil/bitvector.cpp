@@ -4,7 +4,6 @@
 // File:        bitvector.cpp
 // Description: Class replacement for BITVECTOR.
 // Author:      Ray Smith
-// Created:     Mon Jan 10 17:45:01 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,32 +71,10 @@ const int BitVector::hamming_table_[256] = {
     2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
     3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8};
 
-BitVector::BitVector() : bit_size_(0), array_(nullptr) {}
-
-BitVector::BitVector(int length) : bit_size_(length) {
-  array_ = new uint32_t[WordLength()];
-  SetAllFalse();
-}
-
-BitVector::BitVector(const BitVector &src) : bit_size_(src.bit_size_) {
-  if (src.bit_size_ > 0) {
-    array_ = new uint32_t[WordLength()];
-    memcpy(array_, src.array_, ByteLength());
-  } else {
-    array_ = nullptr;
-  }
-}
-
 BitVector &BitVector::operator=(const BitVector &src) {
-  Alloc(src.bit_size_);
-  if (src.bit_size_ > 0) {
-    memcpy(array_, src.array_, ByteLength());
-  }
+  array_ = src.array_;
+  bit_size_ = src.bit_size_;
   return *this;
-}
-
-BitVector::~BitVector() {
-  delete[] array_;
 }
 
 // Initializes the array to length * false.
@@ -139,10 +116,10 @@ bool BitVector::DeSerialize(bool swap, FILE *fp) {
 }
 
 void BitVector::SetAllFalse() {
-  memset(array_, 0, ByteLength());
+  memset(&array_[0], 0, ByteLength());
 }
 void BitVector::SetAllTrue() {
-  memset(array_, ~0, ByteLength());
+  memset(&array_[0], ~0, ByteLength());
 }
 
 // Returns the index of the next set bit after the given index.
@@ -246,8 +223,7 @@ void BitVector::Alloc(int length) {
   bit_size_ = length;
   int new_wordlength = WordLength();
   if (new_wordlength != initial_wordlength) {
-    delete[] array_;
-    array_ = new uint32_t[new_wordlength];
+    array_.resize(new_wordlength);
   }
 }
 

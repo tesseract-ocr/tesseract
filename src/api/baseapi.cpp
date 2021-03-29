@@ -34,6 +34,7 @@
 #  include "equationdetect.h" // for EquationDetect
 #endif
 #include "errcode.h" // for ASSERT_HOST
+#include "helpers.h" // for IntCastRounded, chomp_string
 #include "host.h"    // for MAX_PATH
 #include "imageio.h" // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...
 #ifndef DISABLED_LEGACY_ENGINE
@@ -57,14 +58,13 @@
 #include "tprintf.h"         // for tprintf
 #include "werd.h"            // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
 #include "tabletransfer.h"   // for detected tables from tablefind.h
+#include "thresholder.h"     // for ImageThresholder
 
 #include <tesseract/baseapi.h>
 #include <tesseract/ocrclass.h>       // for ETEXT_DESC
 #include <tesseract/osdetect.h>       // for OSResults, OSBestResult, OrientationId...
 #include <tesseract/renderer.h>       // for TessResultRenderer
 #include <tesseract/resultiterator.h> // for ResultIterator
-#include <tesseract/thresholder.h>    // for ImageThresholder
-#include "helpers.h"                  // for IntCastRounded, chomp_string
 
 #include <cmath>    // for round, M_PI
 #include <cstdint>  // for int32_t
@@ -119,8 +119,6 @@ static const char *kInputFile = "noname.tif";
  * Temp file used for storing current parameters before applying retry values.
  */
 static const char *kOldVarsFile = "failed_vars.txt";
-/** Max string length of an int.  */
-const int kMaxIntSize = 22;
 
 #ifndef DISABLED_LEGACY_ENGINE
 static const char kUnknownFontName[] = "UnknownFont";
@@ -215,8 +213,8 @@ TessBaseAPI::TessBaseAPI()
     , equ_detect_(nullptr)
     , reader_(nullptr)
     ,
-    // Thresholder is initialized to nullptr here, but will be set before use
-    // by: A constructor of a derived API,  SetThresholder(), or created
+    // thresholder_ is initialized to nullptr here, but will be set before use
+    // by: A constructor of a derived API or created
     // implicitly when used in InternalSetImage.
     thresholder_(nullptr)
     , paragraph_models_(nullptr)
@@ -230,20 +228,6 @@ TessBaseAPI::TessBaseAPI()
     , rect_height_(0)
     , image_width_(0)
     , image_height_(0) {
-#if !defined(NDEBUG)
-  // The Tesseract executables would use the "C" locale by default,
-  // but other software which is linked against the Tesseract library
-  // typically uses the locale from the user's environment.
-  // Here the default is overridden to allow debugging of potential
-  // problems caused by the locale settings.
-
-  // Use the current locale if building debug code.
-  try {
-    std::locale::global(std::locale(""));
-  } catch (const std::runtime_error &ex) {
-    fprintf(stderr, "Warning: Could not set the current locale\n");
-  }
-#endif
 }
 
 TessBaseAPI::~TessBaseAPI() {
@@ -1059,10 +1043,12 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data, size_t size, co
     if (pix == nullptr) {
       break;
     }
-    tprintf("Page %d\n", page + 1);
-    char page_str[kMaxIntSize];
-    snprintf(page_str, kMaxIntSize - 1, "%d", page);
-    SetVariable("applybox_page", page_str);
+    if (offset || page > 0) {
+      // Only print page number for multipage TIFF file.
+      tprintf("Page %d\n", page + 1);
+    }
+    auto page_string = std::to_string(page);
+    SetVariable("applybox_page", page_string.c_str());
     bool r = ProcessPage(pix, page, filename, retry_config, timeout_millisec, renderer);
     pixDestroy(&pix);
     if (!r) {
@@ -1383,12 +1369,11 @@ std::tuple<int,int,int,int> TessBaseAPI::GetTableBoundingBox(unsigned i)
   }
 
   const int height = tesseract_->ImageHeight();
-  
+
   return std::make_tuple<int,int,int,int>(
     t[i].box.left(), height - t[i].box.top(),
     t[i].box.right(), height - t[i].box.bottom());
 }
-
 
 std::vector<std::tuple<int,int,int,int>> TessBaseAPI::GetTableRows(unsigned i)
 {

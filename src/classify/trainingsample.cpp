@@ -183,7 +183,7 @@ TrainingSample *TrainingSample::CopyFromFeatures(const INT_FX_RESULT_STRUCT &fx_
 
 // Returns the cn_feature as a FEATURE_STRUCT* needed by cntraining.
 FEATURE_STRUCT *TrainingSample::GetCNFeature() const {
-  FEATURE feature = NewFeature(&CharNormDesc);
+  auto feature = new FEATURE_STRUCT(&CharNormDesc);
   for (int i = 0; i < kNumCNParams; ++i) {
     feature->Params[i] = cn_feature_[i];
   }

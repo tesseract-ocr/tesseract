@@ -118,7 +118,7 @@ static void PrintTable(const std::vector<std::vector<std::string>> &rows, const 
   }
 
   for (const auto &row : rows) {
-    for (int c = 0; c < row.size(); c++) {
+    for (unsigned c = 0; c < row.size(); c++) {
       if (c > 0) {
         tprintf("%s", colsep);
       }
@@ -148,7 +148,7 @@ static void PrintDetectorState(const ParagraphTheory &theory,
   RowScratchRegisters::AppendDebugHeaderFields(output.back());
   output.back().push_back("text");
 
-  for (int i = 0; i < rows.size(); i++) {
+  for (unsigned i = 0; i < rows.size(); i++) {
     output.emplace_back();
     std::vector<std::string> &row = output.back();
     const RowInfo &ri = *rows[i].ri_;
@@ -433,7 +433,7 @@ void LeftWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, c
   *is_list = false;
   *starts_idea = false;
   *ends_idea = false;
-  if (utf8.size() == 0 || (werd != nullptr && werd->length() == 0)) { // Empty
+  if (utf8.empty() || (werd != nullptr && werd->empty())) { // Empty
     *ends_idea = true;
     return;
   }
@@ -479,7 +479,7 @@ void RightWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd, 
   *is_list = false;
   *starts_idea = false;
   *ends_idea = false;
-  if (utf8.size() == 0 || (werd != nullptr && werd->length() == 0)) { // Empty
+  if (utf8.empty() || (werd != nullptr && werd->empty())) { // Empty
     *ends_idea = true;
     return;
   }
@@ -708,7 +708,7 @@ public:
   void Add(int value) {
     values_.push_back(value);
   }
-  int size() const {
+  size_t size() const {
     return values_.size();
   }
   void GetClusters(std::vector<Cluster> *clusters);
@@ -720,8 +720,8 @@ private:
 
 // Return the index of the cluster closest to value.
 static int ClosestCluster(const std::vector<Cluster> &clusters, int value) {
-  int best_index = 0;
-  for (int i = 0; i < clusters.size(); i++) {
+  unsigned best_index = 0;
+  for (unsigned i = 0; i < clusters.size(); i++) {
     if (abs(value - clusters[i].center) < abs(value - clusters[best_index].center)) {
       best_index = i;
     }
@@ -732,7 +732,7 @@ static int ClosestCluster(const std::vector<Cluster> &clusters, int value) {
 void SimpleClusterer::GetClusters(std::vector<Cluster> *clusters) {
   clusters->clear();
   std::sort(values_.begin(), values_.end());
-  for (int i = 0; i < values_.size();) {
+  for (unsigned i = 0; i < values_.size();) {
     int orig_i = i;
     int lo = values_[i];
     int hi = lo;
@@ -1457,7 +1457,7 @@ void ParagraphModelSmearer::Smear() {
     //   modelled paragraph, mark it up.
     if (likely_start) {
       // Add Start Hypotheses for all Open models that fit.
-      for (int m = 0; m < OpenModels(i).size(); m++) {
+      for (unsigned m = 0; m < OpenModels(i).size(); m++) {
         if (ValidFirstLine(rows_, i, OpenModels(i)[m])) {
           row.AddStartLine(OpenModels(i)[m]);
         }
@@ -2114,7 +2114,7 @@ static void ConvertHypothesizedModelRunsToParagraphs(int debug_level,
       // Crown paragraph.
       //   If we can find an existing ParagraphModel that fits, use it,
       //   else create a new one.
-      for (int row = end; row < rows.size(); row++) {
+      for (unsigned row = end; row < rows.size(); row++) {
         if ((*row_owners)[row] &&
             (ValidBodyLine(&rows, start, (*row_owners)[row]->model) &&
              (start == 0 || ValidFirstLine(&rows, start, (*row_owners)[row]->model)))) {
@@ -2200,7 +2200,7 @@ static bool RowIsStranded(const std::vector<RowScratchRegisters> &rows, int row)
       }
     }
     continues = true;
-    for (int i = row + 1; i < rows.size() && continues; i++) {
+    for (unsigned i = row + 1; i < rows.size() && continues; i++) {
       SetOfModels models;
       rows[i].NonNullHypotheses(&models);
       switch (rows[i].GetLineType(row_model)) {
@@ -2242,7 +2242,7 @@ static void LeftoverSegments(const std::vector<RowScratchRegisters> &rows,
     rows[i].NonNullHypotheses(&models_w_crowns);
     if (models.empty() && !models_w_crowns.empty()) {
       // Crown paragraph.  Is it followed by a modeled line?
-      for (int end = i + 1; end < rows.size(); end++) {
+      for (unsigned end = i + 1; end < rows.size(); end++) {
         SetOfModels end_models;
         SetOfModels strong_end_models;
         rows[end].NonNullHypotheses(&end_models);
@@ -2286,7 +2286,7 @@ void CanonicalizeDetectionResults(std::vector<PARA *> *row_owners, PARA_LIST *pa
   paragraphs->clear();
   PARA_IT out(paragraphs);
   PARA *formerly_null = nullptr;
-  for (int i = 0; i < rows.size(); i++) {
+  for (unsigned i = 0; i < rows.size(); i++) {
     if (rows[i] == nullptr) {
       if (i == 0 || rows[i - 1] != formerly_null) {
         rows[i] = formerly_null = new PARA();
@@ -2322,7 +2322,7 @@ void DetectParagraphs(int debug_level, std::vector<RowInfo> *row_infos,
 
   // Set up row scratch registers for the main algorithm.
   rows.resize(row_infos->size(), RowScratchRegisters());
-  for (int i = 0; i < row_infos->size(); i++) {
+  for (unsigned i = 0; i < row_infos->size(); i++) {
     rows[i].Init((*row_infos)[i]);
   }
 
@@ -2419,7 +2419,7 @@ static void InitializeTextAndBoxesPreRecognition(const MutableIterator &it, RowI
       }
     } while (!pit.IsAtFinalElement(RIL_TEXTLINE, RIL_SYMBOL) && pit.Next(RIL_SYMBOL));
   }
-  if (fake_text.size() == 0) {
+  if (fake_text.empty()) {
     return;
   }
 
@@ -2512,7 +2512,7 @@ static void InitializeRowInfo(bool after_recognition, const MutableIterator &it,
     }
   }
 
-  if (info->text.size() == 0) {
+  if (info->text.empty()) {
     return;
   }
 

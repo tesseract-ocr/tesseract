@@ -87,22 +87,23 @@ void SVSync::StartProcess(const char *executable, const char *args) {
     // broken socket detection seems to be useless.
     prctl(PR_SET_PDEATHSIG, 2, 0, 0, 0);
 #    endif
-    char *mutable_args = strdup(args);
+    std::string mutable_args(args);
     int argc = 1;
-    for (int i = 0; mutable_args[i]; ++i) {
-      if (mutable_args[i] == ' ') {
+    for (auto ch : mutable_args) {
+      if (ch == ' ') {
         ++argc;
       }
     }
     std::unique_ptr<char *[]> argv(new char *[argc + 2]);
-    argv[0] = strdup(executable);
-    argv[1] = mutable_args;
+    std::string argv0(executable);
+    argv[0] = &argv0[0];
+    argv[1] = &mutable_args[0];
     argc = 2;
     bool inquote = false;
     for (int i = 0; mutable_args[i]; ++i) {
       if (!inquote && mutable_args[i] == ' ') {
         mutable_args[i] = '\0';
-        argv[argc++] = mutable_args + i + 1;
+        argv[argc++] = &mutable_args[i + 1];
       } else if (mutable_args[i] == '"') {
         inquote = !inquote;
         mutable_args[i] = ' ';
@@ -110,8 +111,6 @@ void SVSync::StartProcess(const char *executable, const char *args) {
     }
     argv[argc] = nullptr;
     execvp(executable, argv.get());
-    free(argv[0]);
-    free(argv[1]);
   }
 #  endif
 }
@@ -120,10 +119,9 @@ SVSemaphore::SVSemaphore() {
 #  ifdef _WIN32
   semaphore_ = CreateSemaphore(0, 0, 10, 0);
 #  elif defined(__APPLE__)
-  char name[50];
-  snprintf(name, sizeof(name), "%ld", random());
-  sem_unlink(name);
-  semaphore_ = sem_open(name, O_CREAT, S_IWUSR, 0);
+  auto name = std::to_string(random());
+  sem_unlink(name.c_str());
+  semaphore_ = sem_open(name.c_str(), O_CREAT, S_IWUSR, 0);
   if (semaphore_ == SEM_FAILED) {
     perror("sem_open");
   }
@@ -270,8 +268,7 @@ SVNetwork::SVNetwork(const char *hostname, int port) {
   buffer_ptr_ = nullptr;
 
   struct addrinfo *addr_info = nullptr;
-  char port_str[40];
-  snprintf(port_str, 40, "%d", port);
+  auto port_string = std::to_string(port);
 #  ifdef _WIN32
   // Initialize Winsock
   WSADATA wsaData;
@@ -281,7 +278,7 @@ SVNetwork::SVNetwork(const char *hostname, int port) {
   }
 #  endif // _WIN32
 
-  if (getaddrinfo(hostname, port_str, nullptr, &addr_info) != 0) {
+  if (getaddrinfo(hostname, port_string.c_str(), nullptr, &addr_info) != 0) {
     std::cerr << "Error resolving name for ScrollView host " << std::string(hostname) << ":" << port
               << std::endl;
 #  ifdef _WIN32

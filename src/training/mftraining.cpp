@@ -109,7 +109,7 @@ static LIST ClusterOneConfig(int shape_id, const char *class_label, LIST mf_clas
   FreeClusterer(clusterer);
   MERGE_CLASS merge_class = FindClass(mf_classes, class_label);
   if (merge_class == nullptr) {
-    merge_class = NewLabeledClass(class_label);
+    merge_class = new MERGE_CLASS_NODE(class_label);
     mf_classes = push(mf_classes, merge_class);
   }
   int config_id = AddConfigToClass(merge_class->Class);

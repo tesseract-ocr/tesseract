@@ -161,7 +161,7 @@ WERD_CHOICE *Dict::dawg_permute_and_select(const BLOB_CHOICE_LIST_VECTOR &char_c
   auto *best_choice = new WERD_CHOICE(&getUnicharset());
   best_choice->make_bad();
   best_choice->set_rating(rating_limit);
-  if (char_choices.size() == 0 || char_choices.size() > MAX_WERD_LENGTH) {
+  if (char_choices.empty() || char_choices.size() > MAX_WERD_LENGTH) {
     return best_choice;
   }
   auto *active_dawgs = new DawgPositionVector[char_choices.size() + 1];

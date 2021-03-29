@@ -1,7 +1,5 @@
-name: unittest
-# autotools build on ubuntu. unittests with address sanitizers. with openmp.
-# [  FAILED  ] LSTMTrainerTest.DeterminismTest - clang version 9.0.0-2~ubuntu18.04.2
-# ubuntu-20.04-gcc-unittest - CI runs out of diskspace.
+name: unittest-macos
+# autotools build on homebrew. unittests with address sanitizers. with openmp.
 on:
   #push:
   schedule:
@@ -15,31 +13,34 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: ubuntu-18.04-gcc-unittest, os: ubuntu-18.04, cxx: g++ }
-          - { name: ubuntu-20.04-clang-unittest, os: ubuntu-20.04, cxx: clang++ }
+          - { name: macos-10.15-clang-unittest, os: macos-10.15, cxx: clang++ }
+          - { name: macos-10.15-gcc-unittest, os: macos-10.15, cxx: g++ }
+
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
 
-    - name: Install dependencies (Linux)
+    - name: Install dependencies (MacOS Homebrew)
       run: |
-           sudo apt-get install autoconf-archive libleptonica-dev libpango1.0-dev -y
-           sudo apt-get install cabextract -y
+           brew install automake autoconf-archive libarchive
+           brew install leptonica cairo pango
+           brew install cabextract abseil
 
     - name: Setup
       run: |
            mkdir -p m4
            ./autogen.sh
 
-    - name: Configure (Linux)
+    - name: Configure (MacOS Homebrew)
       run: |
-           ./configure '--disable-shared' 'CXX=${{ matrix.config.cxx }}' \
-               'CXXFLAGS=-g -O2 -fsanitize=address,undefined'
+           ./configure '--disable-shared' '--with-pic' \
+                'CXX=${{ matrix.config.cxx }}' \
+                'CXXFLAGS=-g -O2 -fsanitize=address,undefined' \
+                "PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/opt/libffi/lib/pkgconfig"
 
     - name: Make and Install Tesseract
       run: |
-           ${{ matrix.config.cxx }} --version
            make
            sudo make install
 
@@ -70,7 +71,7 @@ jobs:
       run: |
            make check
 
-    - name: Display Unit Tests Report and Compiler Version
+    - name: Display Unit Tests Report and compiler version
       run: |
            cat test-suite.log
            ${{ matrix.config.cxx }} --version
