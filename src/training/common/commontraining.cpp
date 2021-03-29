@@ -334,26 +334,6 @@ LABELEDLIST FindList(LIST List, const std::string &Label) {
 } /* FindList */
 
 /*---------------------------------------------------------------------------*/
-/**
- * This routine allocates a new, empty labeled list and gives
- * it the specified label.
- * @param Label label for new list
- * @return New, empty labeled list.
- * @note Globals: none
- */
-LABELEDLIST NewLabeledList(const char *Label) {
-  LABELEDLIST LabeledList;
-
-  LabeledList = static_cast<LABELEDLIST>(malloc(sizeof(LABELEDLISTNODE)));
-  LabeledList->Label = Label;
-  LabeledList->List = NIL_LIST;
-  LabeledList->SampleCount = 0;
-  LabeledList->font_sample_count = 0;
-  return (LabeledList);
-
-} /* NewLabeledList */
-
-/*---------------------------------------------------------------------------*/
 // TODO(rays) This is now used only by cntraining. Convert cntraining to use
 // the new method or get rid of it entirely.
 /**
@@ -401,7 +381,7 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
     }
     char_sample = FindList(*training_samples, unichar);
     if (char_sample == nullptr) {
-      char_sample = NewLabeledList(unichar);
+      char_sample = new LABELEDLISTNODE(unichar);
       *training_samples = push(*training_samples, char_sample);
     }
     auto char_desc = ReadCharDescription(feature_definitions, file);
@@ -456,7 +436,7 @@ void FreeTrainingSamples(LIST CharList) {
  */
 void FreeLabeledList(LABELEDLIST LabeledList) {
   destroy(LabeledList->List);
-  free(LabeledList);
+  delete LabeledList;
 } /* FreeLabeledList */
 
 /*---------------------------------------------------------------------------*/
@@ -761,12 +741,9 @@ void FreeNormProtoList(LIST CharList)
 
 /*---------------------------------------------------------------------------*/
 void AddToNormProtosList(LIST *NormProtoList, LIST ProtoList, const std::string &CharName) {
-  PROTOTYPE *Proto;
-  LABELEDLIST LabeledProtoList;
-
-  LabeledProtoList = NewLabeledList(CharName.c_str());
+  auto LabeledProtoList = new LABELEDLISTNODE(CharName.c_str());
   iterate(ProtoList) {
-    Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
+    auto Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
     LabeledProtoList->List = push(LabeledProtoList->List, Proto);
   }
   *NormProtoList = push(*NormProtoList, LabeledProtoList);

@@ -76,10 +76,15 @@ extern CLUSTERCONFIG Config;
 // Structs ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 struct LABELEDLISTNODE {
+  /// This constructor allocates a new, empty labeled list and gives
+  /// it the specified label.
+  /// @param Label label for new list
+  LABELEDLISTNODE(const char *label) : Label(label) {
+  }
   std::string Label;
-  int SampleCount;
-  int font_sample_count;
-  tesseract::LIST List;
+  int SampleCount = 0;
+  int font_sample_count = 0;
+  LIST List = nullptr;
 };
 using LABELEDLIST = LABELEDLISTNODE *;
 
@@ -124,9 +129,6 @@ TESS_COMMON_TRAINING_API
 const char *GetNextFilename(int argc, const char *const *argv, int &tessoptind);
 
 LABELEDLIST FindList(tesseract::LIST List, const std::string &Label);
-
-TESS_COMMON_TRAINING_API
-LABELEDLIST NewLabeledList(const char *Label);
 
 TESS_COMMON_TRAINING_API
 void ReadTrainingSamples(const tesseract::FEATURE_DEFS_STRUCT &feature_defs,
