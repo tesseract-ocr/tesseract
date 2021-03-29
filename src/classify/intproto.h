@@ -103,7 +103,7 @@ struct INT_CLASS_STRUCT {
   int font_set_id; // FontSet id, see above
 };
 
-struct INT_TEMPLATES_STRUCT {
+struct TESS_API INT_TEMPLATES_STRUCT {
   INT_TEMPLATES_STRUCT();
   ~INT_TEMPLATES_STRUCT();
   int NumClasses;
