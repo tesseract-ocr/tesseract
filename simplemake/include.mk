@@ -9,7 +9,6 @@ INSTHDR = \
 	../include/tesseract/publictypes.h \
 	../include/tesseract/renderer.h \
 	../include/tesseract/resultiterator.h \
-	../include/tesseract/thresholder.h \
 	../include/tesseract/unichar.h \
 	../include/tesseract/version.h
 

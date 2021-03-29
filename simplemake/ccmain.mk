@@ -5,7 +5,6 @@ CCMAIN_HDR = \
 	../include/tesseract/pageiterator.h \
 	../include/tesseract/publictypes.h \
 	../include/tesseract/resultiterator.h \
-	../include/tesseract/thresholder.h \
 	../include/tesseract/unichar.h \
 	../src/ccmain/control.h \
 	../src/ccmain/mutableiterator.h \

@@ -5,7 +5,6 @@ API_HDR = \
 	../include/tesseract/osdetect.h \
 	../include/tesseract/renderer.h \
 	../include/tesseract/resultiterator.h \
-	../include/tesseract/thresholder.h \
 	../src/api/pdf_ttf.h
 
 API_SRC = \
