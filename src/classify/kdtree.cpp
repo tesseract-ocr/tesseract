@@ -199,7 +199,6 @@ KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
       KDTree->KeyDesc[i].Max = MAXSEARCH;
     }
   }
-  KDTree->KeySize = KeySize;
   KDTree->Root.Left = nullptr;
   KDTree->Root.Right = nullptr;
   return KDTree;

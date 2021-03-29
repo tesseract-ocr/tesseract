@@ -20,7 +20,8 @@
 
 #include "ocrfeatures.h"
 
-#include <string>
+#include <array>  // for std::array
+#include <string> // for std::string
 
 namespace tesseract {
 
@@ -48,9 +49,6 @@ struct CHAR_DESC_STRUCT {
   /// feature sets to be empty, and return it.
   CHAR_DESC_STRUCT(const FEATURE_DEFS_STRUCT &FeatureDefs) {
     NumFeatureSets = FeatureDefs.NumFeatureTypes;
-    for (size_t i = 0; i < NumFeatureSets; i++) {
-      FeatureSets[i] = nullptr;
-    }
   }
 
   /// Release the memory consumed by the specified character
@@ -62,7 +60,7 @@ struct CHAR_DESC_STRUCT {
   }
 
   uint32_t NumFeatureSets;
-  FEATURE_SET FeatureSets[NUM_FEATURE_TYPES];
+  std::array<FEATURE_SET_STRUCT *, NUM_FEATURE_TYPES> FeatureSets;
 };
 
 /*----------------------------------------------------------------------
