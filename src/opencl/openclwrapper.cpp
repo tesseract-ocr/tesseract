@@ -23,8 +23,8 @@
 #  include "openclwrapper.h"
 
 // for micro-benchmark
-#  include <tesseract/thresholder.h>
 #  include "otsuthr.h"
+#  include "thresholder.h"
 
 // platform preprocessor commands
 #  if defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(__CYGWIN__) || \

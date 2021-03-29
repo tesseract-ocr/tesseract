@@ -70,7 +70,6 @@ pkginclude_HEADERS += include/tesseract/pageiterator.h
 pkginclude_HEADERS += include/tesseract/publictypes.h
 pkginclude_HEADERS += include/tesseract/renderer.h
 pkginclude_HEADERS += include/tesseract/resultiterator.h
-pkginclude_HEADERS += include/tesseract/thresholder.h
 pkginclude_HEADERS += include/tesseract/unichar.h
 
 # Rules for all subdirectories.
@@ -203,6 +202,7 @@ noinst_HEADERS += src/ccmain/paramsd.h
 noinst_HEADERS += src/ccmain/pgedit.h
 noinst_HEADERS += src/ccmain/tesseractclass.h
 noinst_HEADERS += src/ccmain/tessvars.h
+noinst_HEADERS += src/ccmain/thresholder.h
 noinst_HEADERS += src/ccmain/werdit.h
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += src/ccmain/docqual.h

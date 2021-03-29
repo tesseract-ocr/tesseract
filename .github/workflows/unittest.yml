@@ -2,6 +2,7 @@ name: unittest
 # autotools build on ubuntu and macOS homebrew.
 # unittests with address sanitizers.
 # [  FAILED  ] LSTMTrainerTest.DeterminismTest - clang version 9.0.0-2~ubuntu18.04.2
+# ubuntu-20.04-gcc-unittest - CI runs out of diskspace.
 on:
   #push:
   schedule:
@@ -17,9 +18,8 @@ jobs:
         config:
           - { name: macos-10.15-clang-unittest, os: macos-10.15, cxx: clang++ }
           - { name: ubuntu-18.04-clang-8-unittest, os: ubuntu-18.04, cxx: clang++-8 }
-          - { name: ubuntu-18.04-gcc-unittest, os: ubuntu-18.04, cxx: g++ }
           - { name: ubuntu-20.04-clang-10-unittest, os: ubuntu-20.04, cxx: clang++-10 }
-          - { name: ubuntu-20.04-gcc-unittest, os: ubuntu-20.04, cxx: g++ }
+          - { name: ubuntu-18.04-gcc-unittest, os: ubuntu-18.04, cxx: g++ }
 
     steps:
     - uses: actions/checkout@v2
@@ -61,12 +61,12 @@ jobs:
 
     - name: Make and Install Tesseract
       run: |
-           make -j 8
+           make -j 4
            sudo make install
 
     - name: Make and Install Training Tools
       run: |
-           make training -j 8
+           make training -j 4
            sudo make training-install
 
     - name: Display Version
@@ -90,7 +90,7 @@ jobs:
 
     - name: Make and run Unit Tests
       run: |
-           make check -j 4
+           make check -j 2
 
     - name: Display Unit Tests Report
       run: |

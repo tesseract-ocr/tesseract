@@ -34,6 +34,7 @@
 #  include "equationdetect.h" // for EquationDetect
 #endif
 #include "errcode.h" // for ASSERT_HOST
+#include "helpers.h" // for IntCastRounded, chomp_string
 #include "host.h"    // for MAX_PATH
 #include "imageio.h" // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...
 #ifndef DISABLED_LEGACY_ENGINE
@@ -57,14 +58,13 @@
 #include "tprintf.h"         // for tprintf
 #include "werd.h"            // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
 #include "tabletransfer.h"   // for detected tables from tablefind.h
+#include "thresholder.h"     // for ImageThresholder
 
 #include <tesseract/baseapi.h>
 #include <tesseract/ocrclass.h>       // for ETEXT_DESC
 #include <tesseract/osdetect.h>       // for OSResults, OSBestResult, OrientationId...
 #include <tesseract/renderer.h>       // for TessResultRenderer
 #include <tesseract/resultiterator.h> // for ResultIterator
-#include <tesseract/thresholder.h>    // for ImageThresholder
-#include "helpers.h"                  // for IntCastRounded, chomp_string
 
 #include <cmath>    // for round, M_PI
 #include <cstdint>  // for int32_t
@@ -217,8 +217,8 @@ TessBaseAPI::TessBaseAPI()
 #endif
     , reader_(nullptr)
     ,
-    // Thresholder is initialized to nullptr here, but will be set before use
-    // by: A constructor of a derived API,  SetThresholder(), or created
+    // thresholder_ is initialized to nullptr here, but will be set before use
+    // by: A constructor of a derived API or created
     // implicitly when used in InternalSetImage.
     thresholder_(nullptr)
     , paragraph_models_(nullptr)

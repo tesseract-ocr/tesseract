@@ -705,7 +705,6 @@ install(FILES
     include/tesseract/renderer.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/version.h
 
-    include/tesseract/thresholder.h
     include/tesseract/ltrresultiterator.h
     include/tesseract/pageiterator.h
     include/tesseract/resultiterator.h
