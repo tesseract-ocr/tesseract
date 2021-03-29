@@ -12,6 +12,7 @@ TRAINING_HDR = \
 	../src/training/unicharset/icuerrorcode.h \
 	../src/training/unicharset/lang_model_helpers.h \
 	../src/training/unicharset/lstmtester.h \
+	../src/training/unicharset/lstmtrainer.h \
 	../src/training/unicharset/normstrngs.h \
 	../src/training/unicharset/unicharset_training_utils.h \
 	../src/training/unicharset/validate_grapheme.h \
@@ -41,9 +42,11 @@ TRAINING_SRC = \
 	../src/training/pango/pango_font_info.cpp \
 	../src/training/pango/stringrenderer.cpp \
 	../src/training/pango/tlog.cpp \
+	../src/training/unicharset/fileio.cpp \
 	../src/training/unicharset/icuerrorcode.cpp \
 	../src/training/unicharset/lang_model_helpers.cpp \
 	../src/training/unicharset/lstmtester.cpp \
+	../src/training/unicharset/lstmtrainer.cpp \
 	../src/training/unicharset/normstrngs.cpp \
 	../src/training/unicharset/unicharset_training_utils.cpp \
 	../src/training/unicharset/validate_grapheme.cpp \

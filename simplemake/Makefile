@@ -8,13 +8,15 @@ LIBVERSION = 5
 
 CPPFLAGS = -DUSE_STD_NAMESPACE -DVERSION=\"$(VERSION)\" -DPACKAGE_VERSION=\"$(VERSION)\" \
            -DTESSDATA_PREFIX=$(TESSDATAPREFIX) \
+           -DTESS_COMMON_TRAINING_API= -DTESS_PANGO_TRAINING_API= -DTESS_COMMON_TRAINING_API= -DPANGO_ENABLE_ENGINE -DTESS_UNICHARSET_TRAINING_API= \
            $(OPTIMIZATION_CPPFLAGS) \
            -Wall \
            -fPIC \
            -O2 \
            -std=c++17 -std=c++20 \
-           -I ../include -I../src \
+           -I../include -I../src \
            -I../src/ccmain -I../src/api -I../src/ccutil -I../src/ccstruct -I../src/viewer -I../src/textord -I../src/dict -I../src/classify -I../src/display -I../src/wordrec -I../src/cutil -I../src/lstm -I../src/arch -I../src/opencl \
+           -I../src/training -I../src/training/common -I../src/training/pango -I../src/training/unicharset \
            $(LEPT_CPPFLAGS) \
            $(PANGO_CPPFLAGS) \
            $(OPENCL_CPPFLAGS) $(NOGRAPHICS_CPPFLAGS) $(EMBEDDED_CPPFLAGS) $(VISIBILITY_CPPFLAGS) $(ARCH_CPPFLAGS) \
@@ -101,11 +103,11 @@ $(BIN): ../src/api/tesseractmain.cpp $(LIB)
 
 $(TRAINING_BIN): $(LIB) $(TRAINING_LIB) $(TRAINING_BINSRC)
 	echo CXX $@
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PANGOCPPFLAGS) $@.cpp ../src/training/commontraining.cpp -o $@ -L.. -ltesseract -ltesseract_training $(LDFLAGS) $(ICU_LDFLAGS) $(PANGO_LDFLAGS) $(LEPT_LDFLAGS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PANGOCPPFLAGS) $@.cpp ../src/training/common/commontraining.cpp -o $@ -L.. -ltesseract -ltesseract_training $(LDFLAGS) $(ICU_LDFLAGS) $(PANGO_LDFLAGS) $(LEPT_LDFLAGS)
 
 $(TRAINING_LEGACY_BIN): $(LIB) $(TRAINING_LIB) $(TRAINING_LEGACY_BINSRC)
 	echo CXX $@
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PANGOCPPFLAGS) $@.cpp ../src/training/commontraining.cpp -o $@ -L.. -ltesseract -ltesseract_training $(LDFLAGS) $(ICU_LDFLAGS) $(PANGO_LDFLAGS) $(LEPT_LDFLAGS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PANGOCPPFLAGS) $@.cpp ../src/training/common/commontraining.cpp -o $@ -L.. -ltesseract -ltesseract_training $(LDFLAGS) $(ICU_LDFLAGS) $(PANGO_LDFLAGS) $(LEPT_LDFLAGS)
 
 $(SCROLLVIEW): $(SCROLLVIEW_CLASSES)
 	echo JAR $@
