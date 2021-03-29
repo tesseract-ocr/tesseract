@@ -111,9 +111,9 @@ void IndexMapBiDi::SetMap(int sparse_index, bool mapped) {
 // in the forward map to the compact space.
 void IndexMapBiDi::Setup() {
   int compact_size = 0;
-  for (int i = 0; i < sparse_map_.size(); ++i) {
-    if (sparse_map_[i] >= 0) {
-      sparse_map_[i] = compact_size++;
+  for (int &i : sparse_map_) {
+    if (i >= 0) {
+      i = compact_size++;
     }
   }
   compact_map_.clear();
@@ -171,9 +171,9 @@ bool IndexMapBiDi::Merge(int compact_index1, int compact_index2) {
 void IndexMapBiDi::CompleteMerges() {
   // Ensure each sparse_map_entry contains a master compact_map_ index.
   int compact_size = 0;
-  for (int i = 0; i < sparse_map_.size(); ++i) {
-    int compact_index = MasterCompactIndex(sparse_map_[i]);
-    sparse_map_[i] = compact_index;
+  for (int &i : sparse_map_) {
+    int compact_index = MasterCompactIndex(i);
+    i = compact_index;
     if (compact_index >= compact_size)
       compact_size = compact_index + 1;
   }
@@ -198,9 +198,9 @@ void IndexMapBiDi::CompleteMerges() {
   }
   compact_map_.resize(compact_size);
   // Now modify the entries in the sparse map to point to the new locations.
-  for (int i = 0; i < sparse_map_.size(); ++i) {
-    if (sparse_map_[i] >= 0) {
-      sparse_map_[i] = tmp_compact_map[sparse_map_[i]];
+  for (int &i : sparse_map_) {
+    if (i >= 0) {
+      i = tmp_compact_map[i];
     }
   }
 }

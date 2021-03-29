@@ -295,8 +295,8 @@ bool Trie::read_word_list(const char *filename, std::vector<std::string> *words)
 
 bool Trie::add_word_list(const std::vector<std::string> &words, const UNICHARSET &unicharset,
                          Trie::RTLReversePolicy reverse_policy) {
-  for (int i = 0; i < words.size(); ++i) {
-    WERD_CHOICE word(words[i].c_str(), unicharset);
+  for (const auto &i : words) {
+    WERD_CHOICE word(i.c_str(), unicharset);
     if (word.length() == 0 || word.contains_unichar_id(INVALID_UNICHAR_ID))
       continue;
     if ((reverse_policy == RRP_REVERSE_IF_HAS_RTL && word.has_rtl_unichar_id()) ||
@@ -306,7 +306,7 @@ bool Trie::add_word_list(const std::vector<std::string> &words, const UNICHARSET
     if (!word_in_dawg(word)) {
       add_word_to_dawg(word);
       if (!word_in_dawg(word)) {
-        tprintf("ERROR: Word '%s' not in DAWG after adding it.\n", words[i].c_str());
+        tprintf("ERROR: Word '%s' not in DAWG after adding it\n", i.c_str());
         return false;
       }
     }
@@ -629,8 +629,7 @@ void Trie::sort_edges(EDGE_VECTOR *edges) {
   std::vector<KDPairInc<UNICHAR_ID, EDGE_RECORD>> sort_vec;
   sort_vec.reserve(num_edges);
   for (int i = 0; i < num_edges; ++i) {
-    sort_vec.push_back(
-        KDPairInc<UNICHAR_ID, EDGE_RECORD>(unichar_id_from_edge_rec((*edges)[i]), (*edges)[i]));
+    sort_vec.emplace_back(unichar_id_from_edge_rec((*edges)[i]), (*edges)[i]);
   }
   std::sort(sort_vec.begin(), sort_vec.end());
   for (int i = 0; i < num_edges; ++i)
@@ -665,10 +664,10 @@ void Trie::reduce_node_input(NODE_REF node, NODE_MARKER reduced_nodes) {
     print_node(node, MAX_NODE_EDGES_DISPLAY);
   }
 
-  for (int i = 0; i < backward_edges.size(); ++i) {
-    if (DeadEdge(backward_edges[i]))
+  for (auto &backward_edge : backward_edges) {
+    if (DeadEdge(backward_edge))
       continue;
-    NODE_REF next_node = next_node_from_edge_rec(backward_edges[i]);
+    NODE_REF next_node = next_node_from_edge_rec(backward_edge);
     if (next_node != 0 && !reduced_nodes[next_node]) {
       reduce_node_input(next_node, reduced_nodes);
     }

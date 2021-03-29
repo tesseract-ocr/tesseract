@@ -52,7 +52,7 @@ MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
  * @return List of micro-features extracted from the blob.
  */
 MICROFEATURES BlobMicroFeatures(TBLOB *Blob, const DENORM &cn_denorm) {
-  MICROFEATURES MicroFeatures = NIL_LIST;
+  auto MicroFeatures = NIL_LIST;
   LIST Outlines;
   LIST RemainingOutlines;
   MFOUTLINE Outline;

@@ -120,13 +120,13 @@ void Dawg::iterate_words_rec(const WERD_CHOICE &word_so_far, NODE_REF to_explore
                              std::function<void(const WERD_CHOICE *)> cb) const {
   NodeChildVector children;
   this->unichar_ids_of(to_explore, &children, false);
-  for (int i = 0; i < children.size(); i++) {
+  for (auto &i : children) {
     WERD_CHOICE next_word(word_so_far);
-    next_word.append_unichar_id(children[i].unichar_id, 1, 0.0, 0.0);
-    if (this->end_of_word(children[i].edge_ref)) {
+    next_word.append_unichar_id(i.unichar_id, 1, 0.0, 0.0);
+    if (this->end_of_word(i.edge_ref)) {
       cb(&next_word);
     }
-    NODE_REF next = next_node(children[i].edge_ref);
+    NODE_REF next = next_node(i.edge_ref);
     if (next != 0) {
       iterate_words_rec(next_word, next, cb);
     }
@@ -141,8 +141,8 @@ bool Dawg::match_words(WERD_CHOICE *word, int32_t index, NODE_REF node, UNICHAR_
     bool any_matched = false;
     NodeChildVector vec;
     this->unichar_ids_of(node, &vec, false);
-    for (int i = 0; i < vec.size(); ++i) {
-      word->set_unichar_id(vec[i].unichar_id, index);
+    for (auto &i : vec) {
+      word->set_unichar_id(i.unichar_id, index);
       if (match_words(word, index, node, wildcard))
         any_matched = true;
     }

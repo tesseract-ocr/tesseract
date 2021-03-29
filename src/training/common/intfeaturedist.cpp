@@ -52,8 +52,7 @@ void IntFeatureDist::Init(const IntFeatureMap *feature_map) {
 void IntFeatureDist::Set(const std::vector<int> &indexed_features, int canonical_count,
                          bool value) {
   total_feature_weight_ = canonical_count;
-  for (int i = 0; i < indexed_features.size(); ++i) {
-    const int f = indexed_features[i];
+  for (int f : indexed_features) {
     features_[f] = value;
     for (int dir = -kNumOffsetMaps; dir <= kNumOffsetMaps; ++dir) {
       if (dir == 0)

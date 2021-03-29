@@ -62,8 +62,8 @@ MasterTrainer::MasterTrainer(NormalizationMode norm_mode, bool shape_analysis,
 
 MasterTrainer::~MasterTrainer() {
   delete[] fragments_;
-  for (int p = 0; p < page_images_.size(); ++p)
-    pixDestroy(&page_images_[p]);
+  for (auto &page_image : page_images_)
+    pixDestroy(&page_image);
 }
 
 // WARNING! Serialize/DeSerialize are only partial, providing
@@ -134,7 +134,7 @@ void MasterTrainer::ReadTrainingSamples(const char *page_name,
     tprintf("ERROR: Failed to open tr file: %s\n", page_name);
     return;
   }
-  tr_filenames_.push_back(std::string(page_name));
+  tr_filenames_.emplace_back(page_name);
   while (fgets(buffer, sizeof(buffer), fp) != nullptr) {
     if (buffer[0] == '\n')
       continue;

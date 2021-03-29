@@ -52,7 +52,7 @@ SVMenuNode::SVMenuNode() {
   is_check_box_entry_ = false;
 }
 
-SVMenuNode::~SVMenuNode() {}
+SVMenuNode::~SVMenuNode() = default;
 
 // Create a new sub menu node with just a caption.  This is used to create
 // nodes which act as parent nodes to other nodes (e.g. submenus).

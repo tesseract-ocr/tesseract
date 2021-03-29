@@ -166,21 +166,21 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
   stream.imbue(std::locale::classic());
   for (int v = 0; v < num_iterations; ++v) {
     const ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
-    for (int i = 0; i < vec->int_params.size(); ++i) {
-      stream << vec->int_params[i]->name_str() << '\t' << (int32_t)(*vec->int_params[i]) << '\t'
-             << vec->int_params[i]->info_str() << '\n';
+    for (auto int_param : vec->int_params) {
+      stream << int_param->name_str() << '\t' << (int32_t)(*int_param) << '\t'
+             << int_param->info_str() << '\n';
     }
-    for (int i = 0; i < vec->bool_params.size(); ++i) {
-      stream << vec->bool_params[i]->name_str() << '\t' << bool(*vec->bool_params[i]) << '\t'
-             << vec->bool_params[i]->info_str() << '\n';
+    for (auto bool_param : vec->bool_params) {
+      stream << bool_param->name_str() << '\t' << bool(*bool_param) << '\t'
+             << bool_param->info_str() << '\n';
     }
-    for (int i = 0; i < vec->string_params.size(); ++i) {
-      stream << vec->string_params[i]->name_str() << '\t' << vec->string_params[i]->c_str() << '\t'
-             << vec->string_params[i]->info_str() << '\n';
+    for (auto string_param : vec->string_params) {
+      stream << string_param->name_str() << '\t' << string_param->c_str() << '\t'
+             << string_param->info_str() << '\n';
     }
-    for (int i = 0; i < vec->double_params.size(); ++i) {
-      stream << vec->double_params[i]->name_str() << '\t' << (double)(*vec->double_params[i])
-             << '\t' << vec->double_params[i]->info_str() << '\n';
+    for (auto double_param : vec->double_params) {
+      stream << double_param->name_str() << '\t' << (double)(*double_param) << '\t'
+             << double_param->info_str() << '\n';
     }
   }
   fprintf(fp, "%s", stream.str().c_str());
@@ -198,11 +198,11 @@ void ParamUtils::ResetToDefaults(ParamsVectors *member_params) {
     for (i = 0; i < vec->bool_params.size(); ++i) {
       vec->bool_params[i]->ResetToDefault();
     }
-    for (int i = 0; i < vec->string_params.size(); ++i) {
-      vec->string_params[i]->ResetToDefault();
+    for (auto &string_param : vec->string_params) {
+      string_param->ResetToDefault();
     }
-    for (int i = 0; i < vec->double_params.size(); ++i) {
-      vec->double_params[i]->ResetToDefault();
+    for (auto &double_param : vec->double_params) {
+      double_param->ResetToDefault();
     }
   }
 }

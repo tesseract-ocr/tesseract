@@ -22,7 +22,7 @@ static bool IntFlagExists(const char *flag_name, int32_t *value) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<IntParam *> empty;
-  IntParam *p =
+  auto *p =
       ParamUtils::FindParam<IntParam>(full_flag_name.c_str(), GlobalParams()->int_params, empty);
   if (p == nullptr)
     return false;
@@ -34,8 +34,8 @@ static bool DoubleFlagExists(const char *flag_name, double *value) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<DoubleParam *> empty;
-  DoubleParam *p = ParamUtils::FindParam<DoubleParam>(full_flag_name.c_str(),
-                                                      GlobalParams()->double_params, empty);
+  auto *p = ParamUtils::FindParam<DoubleParam>(full_flag_name.c_str(),
+                                               GlobalParams()->double_params, empty);
   if (p == nullptr)
     return false;
   *value = static_cast<double>(*p);
@@ -46,7 +46,7 @@ static bool BoolFlagExists(const char *flag_name, bool *value) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<BoolParam *> empty;
-  BoolParam *p =
+  auto *p =
       ParamUtils::FindParam<BoolParam>(full_flag_name.c_str(), GlobalParams()->bool_params, empty);
   if (p == nullptr)
     return false;
@@ -58,8 +58,8 @@ static bool StringFlagExists(const char *flag_name, const char **value) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<StringParam *> empty;
-  StringParam *p = ParamUtils::FindParam<StringParam>(full_flag_name.c_str(),
-                                                      GlobalParams()->string_params, empty);
+  auto *p = ParamUtils::FindParam<StringParam>(full_flag_name.c_str(),
+                                               GlobalParams()->string_params, empty);
   *value = (p != nullptr) ? p->c_str() : nullptr;
   return p != nullptr;
 }
@@ -68,7 +68,7 @@ static void SetIntFlagValue(const char *flag_name, const int32_t new_val) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<IntParam *> empty;
-  IntParam *p =
+  auto *p =
       ParamUtils::FindParam<IntParam>(full_flag_name.c_str(), GlobalParams()->int_params, empty);
   ASSERT_HOST(p != nullptr);
   p->set_value(new_val);
@@ -78,8 +78,8 @@ static void SetDoubleFlagValue(const char *flag_name, const double new_val) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<DoubleParam *> empty;
-  DoubleParam *p = ParamUtils::FindParam<DoubleParam>(full_flag_name.c_str(),
-                                                      GlobalParams()->double_params, empty);
+  auto *p = ParamUtils::FindParam<DoubleParam>(full_flag_name.c_str(),
+                                               GlobalParams()->double_params, empty);
   ASSERT_HOST(p != nullptr);
   p->set_value(new_val);
 }
@@ -88,7 +88,7 @@ static void SetBoolFlagValue(const char *flag_name, const bool new_val) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<BoolParam *> empty;
-  BoolParam *p =
+  auto *p =
       ParamUtils::FindParam<BoolParam>(full_flag_name.c_str(), GlobalParams()->bool_params, empty);
   ASSERT_HOST(p != nullptr);
   p->set_value(new_val);
@@ -98,8 +98,8 @@ static void SetStringFlagValue(const char *flag_name, const char *new_val) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<StringParam *> empty;
-  StringParam *p = ParamUtils::FindParam<StringParam>(full_flag_name.c_str(),
-                                                      GlobalParams()->string_params, empty);
+  auto *p = ParamUtils::FindParam<StringParam>(full_flag_name.c_str(),
+                                               GlobalParams()->string_params, empty);
   ASSERT_HOST(p != nullptr);
   p->set_value(std::string(new_val));
 }

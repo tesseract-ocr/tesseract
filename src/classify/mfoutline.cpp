@@ -40,7 +40,7 @@ LIST ConvertBlob(TBLOB *blob) {
 /** Convert a TESSLINE into the float-based MFOUTLINE micro-feature format. */
 MFOUTLINE ConvertOutline(TESSLINE *outline) {
   MFEDGEPT *NewPoint;
-  MFOUTLINE MFOutline = NIL_LIST;
+  auto MFOutline = NIL_LIST;
   EDGEPT *EdgePoint;
   EDGEPT *StartPoint;
   EDGEPT *NextPoint;

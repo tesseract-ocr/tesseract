@@ -264,8 +264,7 @@ void WERD_CHOICE::init(const char *src_string, const char *src_lengths, float sr
 /**
  * WERD_CHOICE::~WERD_CHOICE
  */
-WERD_CHOICE::~WERD_CHOICE() {
-}
+WERD_CHOICE::~WERD_CHOICE() = default;
 
 const char *WERD_CHOICE::permuter_name() const {
   return kPermuterTypeNames[permuter_];

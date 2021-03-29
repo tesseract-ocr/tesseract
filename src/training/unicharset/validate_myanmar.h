@@ -9,7 +9,7 @@ namespace tesseract {
 class ValidateMyanmar : public Validator {
 public:
   ValidateMyanmar(ViramaScript script, bool report_errors) : Validator(script, report_errors) {}
-  ~ValidateMyanmar() {}
+  ~ValidateMyanmar() override = default;
 
 protected:
   // Returns whether codes matches the pattern for a Myanmar Grapheme.

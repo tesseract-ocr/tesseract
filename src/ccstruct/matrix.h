@@ -652,7 +652,7 @@ struct MATRIX_COORD {
   // Default constructor required by GenericHeap.
   MATRIX_COORD() : col(0), row(0) {}
   MATRIX_COORD(int c, int r) : col(c), row(r) {}
-  ~MATRIX_COORD() {}
+  ~MATRIX_COORD() = default;
 
   bool Valid(const MATRIX &m) const {
     return 0 <= col && col < m.dimension() && col <= row && row < col + m.bandwidth() &&

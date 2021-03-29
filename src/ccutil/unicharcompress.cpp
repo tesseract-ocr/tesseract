@@ -247,8 +247,7 @@ void UnicharCompress::DefragmentCodeValues(int encoded_null) {
   ComputeCodeRange();
   std::vector<int> offsets(code_range_);
   // Find which codes are used
-  for (int c = 0; c < encoder_.size(); ++c) {
-    const RecodedCharID &code = encoder_[c];
+  for (auto &code : encoder_) {
     for (int i = 0; i < code.length(); ++i) {
       offsets[code(i)] = 1;
     }
@@ -270,8 +269,8 @@ void UnicharCompress::DefragmentCodeValues(int encoded_null) {
     offsets[encoded_null] = offsets.size() + offsets.back() - encoded_null;
   }
   // Now apply the offsets.
-  for (int c = 0; c < encoder_.size(); ++c) {
-    RecodedCharID *code = &encoder_[c];
+  for (auto &c : encoder_) {
+    RecodedCharID *code = &c;
     for (int i = 0; i < code->length(); ++i) {
       int value = (*code)(i);
       code->Set(i, value + offsets[value]);
@@ -366,8 +365,7 @@ bool UnicharCompress::DecomposeHangul(int unicode, int *leading, int *vowel, int
 // Computes the value of code_range_ from the encoder_.
 void UnicharCompress::ComputeCodeRange() {
   code_range_ = -1;
-  for (int c = 0; c < encoder_.size(); ++c) {
-    const RecodedCharID &code = encoder_[c];
+  for (auto &code : encoder_) {
     for (int i = 0; i < code.length(); ++i) {
       if (code(i) > code_range_)
         code_range_ = code(i);

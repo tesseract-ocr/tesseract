@@ -1097,7 +1097,7 @@ int IntegerMatcher::FindBestMatch(INT_CLASS class_template, const ScratchEvidenc
       result->config = c;
       best_match = rating;
     }
-    result->fonts.push_back(ScoredFont(c, rating));
+    result->fonts.emplace_back(c, rating);
   }
 
   // Compute confidence on a Probability scale.

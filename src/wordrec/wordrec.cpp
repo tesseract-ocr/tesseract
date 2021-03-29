@@ -18,6 +18,8 @@
 
 #include "wordrec.h"
 
+#include <memory>
+
 #ifdef DISABLED_LEGACY_ENGINE
 
 #  include "params.h"
@@ -99,7 +101,7 @@ Wordrec::Wordrec()
                   params())
     , pass2_ok_split(0.0f) {
   prev_word_best_choice_ = nullptr;
-  language_model_.reset(new LanguageModel(&get_fontinfo_table(), &(getDict())));
+  language_model_ = std::make_unique<LanguageModel>(&get_fontinfo_table(), &(getDict()));
   fill_lattice_ = nullptr;
 }
 

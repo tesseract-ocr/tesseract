@@ -1056,8 +1056,8 @@ void Classify::MasterMatcher(INT_TEMPLATES templates, int16_t num_features,
   int top = blob_box.top();
   int bottom = blob_box.bottom();
   UnicharRating int_result;
-  for (int c = 0; c < results.size(); c++) {
-    CLASS_ID class_id = results[c].Class;
+  for (auto result : results) {
+    CLASS_ID class_id = result.Class;
     BIT_VECTOR protos = classes != nullptr ? classes[class_id]->PermProtos : AllProtosOn;
     BIT_VECTOR configs = classes != nullptr ? classes[class_id]->PermConfigs : AllConfigsOn;
 
@@ -1065,7 +1065,7 @@ void Classify::MasterMatcher(INT_TEMPLATES templates, int16_t num_features,
     im_.Match(ClassForClassId(templates, class_id), protos, configs, num_features, features,
               &int_result, classify_adapt_feature_threshold, debug, matcher_debug_separate_windows);
     bool is_debug = matcher_debug_level >= 2 || classify_debug_level > 1;
-    ExpandShapesAndApplyCorrections(classes, is_debug, class_id, bottom, top, results[c].Rating,
+    ExpandShapesAndApplyCorrections(classes, is_debug, class_id, bottom, top, result.Rating,
                                     final_results->BlobLength, matcher_multiplier, norm_factors,
                                     &int_result, final_results);
   }
@@ -1084,16 +1084,14 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS *classes, bool debug,
   if (classes != nullptr) {
     // Adapted result. Convert configs to fontinfo_ids.
     int_result->adapted = true;
-    for (int f = 0; f < int_result->fonts.size(); ++f) {
-      int_result->fonts[f].fontinfo_id =
-          GetFontinfoId(classes[class_id], int_result->fonts[f].fontinfo_id);
+    for (auto &font : int_result->fonts) {
+      font.fontinfo_id = GetFontinfoId(classes[class_id], font.fontinfo_id);
     }
   } else {
     // Pre-trained result. Map fonts using font_sets_.
     int_result->adapted = false;
-    for (int f = 0; f < int_result->fonts.size(); ++f) {
-      int_result->fonts[f].fontinfo_id =
-          ClassAndConfigIDToFontOrShapeID(class_id, int_result->fonts[f].fontinfo_id);
+    for (auto &font : int_result->fonts) {
+      font.fontinfo_id = ClassAndConfigIDToFontOrShapeID(class_id, font.fontinfo_id);
     }
     if (shape_table_ != nullptr) {
       // Two possible cases:
@@ -1121,9 +1119,8 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS *classes, bool debug,
             mapped_results[r].unichar_id = unichar_id;
             mapped_results[r].fonts.clear();
           }
-          for (int i = 0; i < shape[c].font_ids.size(); ++i) {
-            mapped_results[r].fonts.push_back(
-                ScoredFont(shape[c].font_ids[i], int_result->fonts[f].score));
+          for (int font_id : shape[c].font_ids) {
+            mapped_results[r].fonts.emplace_back(font_id, int_result->fonts[f].score);
           }
         }
       }
@@ -1298,8 +1295,8 @@ int Classify::CharNormTrainingSample(bool pruner_only, int keep_this, const Trai
                   matcher_debug_flags, classify_integer_matcher_multiplier, blob_box,
                   adapt_results->CPResults, adapt_results);
     // Convert master matcher results to output format.
-    for (unsigned i = 0; i < adapt_results->match.size(); i++) {
-      results->push_back(adapt_results->match[i]);
+    for (auto &i : adapt_results->match) {
+      results->push_back(i);
     }
     if (results->size() > 1) {
       std::sort(results->begin(), results->end(), SortDescendingRating);

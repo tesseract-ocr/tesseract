@@ -147,8 +147,8 @@ private:
   static std::string cache_dir_;
 
 private:
-  PangoFontInfo(const PangoFontInfo &);
-  void operator=(const PangoFontInfo &);
+  PangoFontInfo(const PangoFontInfo &) = delete;
+  void operator=(const PangoFontInfo &) = delete;
 };
 
 // Static utility methods for querying font availability and font-selection

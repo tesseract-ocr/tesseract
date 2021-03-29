@@ -124,12 +124,8 @@ public:
     flags2 = source.flags2;
   }
 
-  REJ &operator=(          // assign REJ
-      const REJ &source) { // from this
-    flags1 = source.flags1;
-    flags2 = source.flags2;
-    return *this;
-  }
+  REJ &operator=( // assign REJ
+      const REJ &source) = default;
 
   bool flag(REJ_FLAGS rej_flag) {
     if (rej_flag < 16)

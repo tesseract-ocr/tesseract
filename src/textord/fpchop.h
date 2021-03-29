@@ -53,7 +53,7 @@ public:
 
 private:
   // Copy constructor (currently unused, therefore private).
-  C_OUTLINE_FRAG(const C_OUTLINE_FRAG &other);
+  C_OUTLINE_FRAG(const C_OUTLINE_FRAG &other) = delete;
 };
 
 ELISTIZEH(C_OUTLINE_FRAG)

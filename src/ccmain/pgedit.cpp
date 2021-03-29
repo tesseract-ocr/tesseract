@@ -912,14 +912,14 @@ void Tesseract::blob_feature_display(PAGE_RES *page_res, const TBOX &selection_b
     // Display baseline features.
     ScrollView *bl_win = CreateFeatureSpaceWindow("BL Features", 512, 0);
     ClearFeatureSpaceWindow(baseline, bl_win);
-    for (int f = 0; f < bl_features.size(); ++f)
-      RenderIntFeature(bl_win, &bl_features[f], ScrollView::GREEN);
+    for (auto &bl_feature : bl_features)
+      RenderIntFeature(bl_win, &bl_feature, ScrollView::GREEN);
     bl_win->Update();
     // Display cn features.
     ScrollView *cn_win = CreateFeatureSpaceWindow("CN Features", 512, 0);
     ClearFeatureSpaceWindow(character, cn_win);
-    for (int f = 0; f < cn_features.size(); ++f)
-      RenderIntFeature(cn_win, &cn_features[f], ScrollView::GREEN);
+    for (auto &cn_feature : cn_features)
+      RenderIntFeature(cn_win, &cn_feature, ScrollView::GREEN);
     cn_win->Update();
 
     it->DeleteCurrentWord();

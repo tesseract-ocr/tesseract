@@ -49,8 +49,8 @@ static bool is_hyphen_punc(const char32 ch) {
       0xfe63,                                                 // small hyphen-minus
       0xff0d,                                                 // fullwidth hyphen-minus
   };
-  for (int i = 0; i < kNumHyphenPuncUnicodes; ++i) {
-    if (kHyphenPuncUnicodes[i] == ch)
+  for (int kHyphenPuncUnicode : kHyphenPuncUnicodes) {
+    if (kHyphenPuncUnicode == ch)
       return true;
   }
   return false;
@@ -68,8 +68,8 @@ static bool is_single_quote(const char32 ch) {
       0x300C, // left corner bracket (East Asian languages)
       0xFF07, // fullwidth apostrophe
   };
-  for (int i = 0; i < kNumSingleQuoteUnicodes; ++i) {
-    if (kSingleQuoteUnicodes[i] == ch)
+  for (int kSingleQuoteUnicode : kSingleQuoteUnicodes) {
+    if (kSingleQuoteUnicode == ch)
       return true;
   }
   return false;
@@ -88,8 +88,8 @@ static bool is_double_quote(const char32 ch) {
       0x301E, // close double prime (East Asian languages written horizontally)
       0xFF02, // fullwidth quotation mark
   };
-  for (int i = 0; i < kNumDoubleQuoteUnicodes; ++i) {
-    if (kDoubleQuoteUnicodes[i] == ch)
+  for (int kDoubleQuoteUnicode : kDoubleQuoteUnicodes) {
+    if (kDoubleQuoteUnicode == ch)
       return true;
   }
   return false;

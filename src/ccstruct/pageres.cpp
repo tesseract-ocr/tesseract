@@ -832,7 +832,7 @@ void WERD_RES::CloneChoppedToRebuild() {
   correct_text.reserve(word_len);
   for (int i = 0; i < word_len; ++i) {
     best_state.push_back(1);
-    correct_text.push_back(std::string(""));
+    correct_text.emplace_back("");
   }
 }
 
@@ -917,7 +917,7 @@ void WERD_RES::BestChoiceToCorrectText() {
   for (int i = 0; i < best_choice->length(); ++i) {
     UNICHAR_ID choice_id = best_choice->unichar_id(i);
     const char *blob_choice = uch_set->id_to_unichar(choice_id);
-    correct_text.push_back(std::string(blob_choice));
+    correct_text.emplace_back(blob_choice);
   }
 }
 
@@ -1215,8 +1215,7 @@ WERD_RES *PAGE_RES_IT::InsertSimpleCloneWord(const WERD_RES &clone_res, WERD *ne
 static void ComputeBlobEnds(const WERD_RES &word, const TBOX &clip_box,
                             C_BLOB_LIST *next_word_blobs, std::vector<int> *blob_ends) {
   C_BLOB_IT blob_it(word.word->cblob_list());
-  for (int i = 0; i < word.best_state.size(); ++i) {
-    int length = word.best_state[i];
+  for (int length : word.best_state) {
     // Get the bounding box of the fake blobs
     TBOX blob_box = blob_it.data()->bounding_box();
     blob_it.forward();

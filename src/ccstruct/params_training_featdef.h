@@ -134,7 +134,7 @@ public:
   // Starts a new hypothesis list.
   // Should be called at the beginning of a new run of the segmentation search.
   void StartHypothesisList() {
-    hyp_list_vec.push_back(ParamsTrainingHypothesisList());
+    hyp_list_vec.emplace_back();
   }
   // Adds a new ParamsTrainingHypothesis to the current hypothesis list
   // and returns the reference to the newly added entry.

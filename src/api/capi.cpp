@@ -205,8 +205,8 @@ int TessBaseAPIInit4(TessBaseAPI *handle, const char *datapath, const char *lang
   std::vector<std::string> varValues;
   if (vars_vec != nullptr && vars_values != nullptr) {
     for (size_t i = 0; i < vars_vec_size; i++) {
-      varNames.push_back(vars_vec[i]);
-      varValues.push_back(vars_values[i]);
+      varNames.emplace_back(vars_vec[i]);
+      varValues.emplace_back(vars_values[i]);
     }
   }
 

@@ -289,7 +289,7 @@ struct BlamerBundle {
 
 private:
   // Copy assignment operator (currently unused, therefore private).
-  BlamerBundle &operator=(const BlamerBundle &other);
+  BlamerBundle &operator=(const BlamerBundle &other) = delete;
   void SetBlame(IncorrectResultReason irr, const std::string &msg, const WERD_CHOICE *choice,
                 bool debug) {
     incorrect_result_reason_ = irr;

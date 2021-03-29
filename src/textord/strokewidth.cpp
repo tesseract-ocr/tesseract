@@ -462,7 +462,7 @@ void StrokeWidth::FindLeadersAndMarkNoise(TO_BLOCK *block, ColPartition_LIST *le
       if (bbox->neighbour(BND_RIGHT) == nullptr && bbox->neighbour(BND_LEFT) == nullptr)
         continue;
       // Put all the linked blobs into a ColPartition.
-      ColPartition *part = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
+      auto *part = new ColPartition(BRT_UNKNOWN, ICOORD(0, 1));
       BLOBNBOX *blob;
       for (blob = bbox; blob != nullptr && blob->flow() == BTFT_NONE;
            blob = blob->neighbour(BND_RIGHT))
@@ -1367,7 +1367,7 @@ void StrokeWidth::FindVerticalTextChains(ColPartitionGrid *part_grid) {
     if (bbox->owner() == nullptr && bbox->UniquelyVertical() &&
         (blob = MutualUnusedVNeighbour(bbox, BND_ABOVE)) != nullptr) {
       // Put all the linked blobs into a ColPartition.
-      ColPartition *part = new ColPartition(BRT_VERT_TEXT, ICOORD(0, 1));
+      auto *part = new ColPartition(BRT_VERT_TEXT, ICOORD(0, 1));
       part->AddBox(bbox);
       while (blob != nullptr) {
         part->AddBox(blob);
@@ -1409,7 +1409,7 @@ void StrokeWidth::FindHorizontalTextChains(ColPartitionGrid *part_grid) {
     if (bbox->owner() == nullptr && bbox->UniquelyHorizontal() &&
         (blob = MutualUnusedHNeighbour(bbox, BND_RIGHT)) != nullptr) {
       // Put all the linked blobs into a ColPartition.
-      ColPartition *part = new ColPartition(BRT_TEXT, ICOORD(0, 1));
+      auto *part = new ColPartition(BRT_TEXT, ICOORD(0, 1));
       part->AddBox(bbox);
       while (blob != nullptr) {
         part->AddBox(blob);
@@ -1788,7 +1788,7 @@ void StrokeWidth::MakePartitionsFromCellList(PageSegMode pageseg_mode, bool comb
   BLOBNBOX_C_IT cell_it(cell_list);
   if (combine) {
     BLOBNBOX *bbox = cell_it.extract();
-    ColPartition *part = new ColPartition(bbox->region_type(), ICOORD(0, 1));
+    auto *part = new ColPartition(bbox->region_type(), ICOORD(0, 1));
     part->AddBox(bbox);
     part->set_flow(bbox->flow());
     for (cell_it.forward(); !cell_it.empty(); cell_it.forward()) {
@@ -1798,7 +1798,7 @@ void StrokeWidth::MakePartitionsFromCellList(PageSegMode pageseg_mode, bool comb
   } else {
     for (; !cell_it.empty(); cell_it.forward()) {
       BLOBNBOX *bbox = cell_it.extract();
-      ColPartition *part = new ColPartition(bbox->region_type(), ICOORD(0, 1));
+      auto *part = new ColPartition(bbox->region_type(), ICOORD(0, 1));
       part->set_flow(bbox->flow());
       part->AddBox(bbox);
       CompletePartition(pageseg_mode, part, part_grid);

@@ -227,8 +227,8 @@ protected:
   int last_offset_;                              // Offset returned from last successful rendering
 
 private:
-  StringRenderer(const StringRenderer &);
-  void operator=(const StringRenderer &);
+  StringRenderer(const StringRenderer &) = delete;
+  void operator=(const StringRenderer &) = delete;
 };
 } // namespace tesseract
 

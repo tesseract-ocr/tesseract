@@ -73,7 +73,7 @@ ImageData *ImageData::Build(const char *name, int page_number, const char *lang,
     }
     image_data->transcription_ = truth_text;
     // If we have no boxes, the transcription is in the 0th box_texts_.
-    image_data->box_texts_.push_back(truth_text);
+    image_data->box_texts_.emplace_back(truth_text);
     // We will create a box for the whole image on PreScale, to save unpacking
     // the image now.
   } else if (truth_text != nullptr && truth_text[0] != '\0' &&
@@ -220,8 +220,7 @@ Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor,
   if (boxes != nullptr) {
     // Get the boxes.
     boxes->clear();
-    for (int b = 0; b < boxes_.size(); ++b) {
-      TBOX box = boxes_[b];
+    for (auto box : boxes_) {
       box.scale(im_factor);
       boxes->push_back(box);
     }
@@ -578,8 +577,7 @@ bool DocumentCache::LoadDocuments(const std::vector<std::string> &filenames,
   // determines which DocumentDatas are held entirely in memory.
   if (cache_strategy_ == CS_ROUND_ROBIN)
     fair_share_memory = max_memory_ / filenames.size();
-  for (int arg = 0; arg < filenames.size(); ++arg) {
-    std::string filename = filenames[arg];
+  for (auto filename : filenames) {
     auto *document = new DocumentData(filename);
     document->SetDocument(filename.c_str(), fair_share_memory, reader);
     AddToCache(document);

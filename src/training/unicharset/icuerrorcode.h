@@ -49,19 +49,19 @@ namespace tesseract {
 
 class IcuErrorCode : public icu::ErrorCode {
 public:
-  IcuErrorCode() {}
-  virtual ~IcuErrorCode();
+  IcuErrorCode() = default;
+  ~IcuErrorCode() override;
 
 protected:
-  virtual void handleFailure() const {
+  void handleFailure() const override {
     tprintf("ERROR: ICU: %s\n", errorName());
     exit(errorCode);
   }
 
 private:
   // Disallow implicit copying of object.
-  IcuErrorCode(const IcuErrorCode &);
-  void operator=(const IcuErrorCode &);
+  IcuErrorCode(const IcuErrorCode &) = delete;
+  void operator=(const IcuErrorCode &) = delete;
 };
 
 } // namespace tesseract

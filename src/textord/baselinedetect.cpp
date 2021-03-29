@@ -307,8 +307,8 @@ void BaselineRow::SetupBlobDisplacements(const FCOORD &direction) {
   // Set up a histogram using disp_quant_factor_ as the bucket size.
   STATS dist_stats(IntCastRounded(min_dist / disp_quant_factor_),
                    IntCastRounded(max_dist / disp_quant_factor_) + 1);
-  for (int i = 0; i < perp_blob_dists.size(); ++i) {
-    dist_stats.add(IntCastRounded(perp_blob_dists[i] / disp_quant_factor_), 1);
+  for (double perp_blob_dist : perp_blob_dists) {
+    dist_stats.add(IntCastRounded(perp_blob_dist / disp_quant_factor_), 1);
   }
   std::vector<KDPairInc<float, int>> scaled_modes;
   dist_stats.top_n_modes(kMaxDisplacementsModes, scaled_modes);
@@ -320,8 +320,8 @@ void BaselineRow::SetupBlobDisplacements(const FCOORD &direction) {
     }
   }
 #endif
-  for (int i = 0; i < scaled_modes.size(); ++i)
-    displacement_modes_.push_back(disp_quant_factor_ * scaled_modes[i].key());
+  for (auto &scaled_mode : scaled_modes)
+    displacement_modes_.push_back(disp_quant_factor_ * scaled_mode.key());
 }
 
 // Fits a line in the given direction to blobs that are close to the given
@@ -429,8 +429,7 @@ bool BaselineBlock::FitBaselinesAndFindSkew(bool use_box_bottoms) {
   if (non_text_block_)
     return false;
   std::vector<double> angles;
-  for (int r = 0; r < rows_.size(); ++r) {
-    BaselineRow *row = rows_[r];
+  for (auto row : rows_) {
     if (row->FitBaseline(use_box_bottoms)) {
       double angle = row->BaselineAngle();
       angles.push_back(angle);
@@ -462,8 +461,7 @@ void BaselineBlock::ParallelizeBaselines(double default_block_skew) {
   if (debug_level_ > 0)
     tprintf("Adjusting block to skew angle %g\n", skew_angle_);
   FCOORD direction(cos(skew_angle_), sin(skew_angle_));
-  for (int r = 0; r < rows_.size(); ++r) {
-    BaselineRow *row = rows_[r];
+  for (auto row : rows_) {
     row->AdjustBaselineToParallel(debug_level_, direction);
     if (debug_level_ > 1)
       row->Print();
@@ -646,8 +644,7 @@ bool BaselineBlock::ComputeLineSpacing() {
 void BaselineBlock::ComputeBaselinePositions(const FCOORD &direction,
                                              std::vector<double> *positions) {
   positions->clear();
-  for (int r = 0; r < rows_.size(); ++r) {
-    BaselineRow *row = rows_[r];
+  for (auto row : rows_) {
     const TBOX &row_box = row->bounding_box();
     float x_middle = (row_box.left() + row_box.right()) / 2.0f;
     FCOORD row_pos(x_middle, static_cast<float>(row->StraightYAtX(x_middle)));
@@ -739,16 +736,15 @@ double BaselineBlock::FitLineSpacingModel(const std::vector<double> &positions, 
   }
   std::vector<double> offsets;
   // Get the offset (remainder) linespacing for each line and choose the median.
-  for (int i = 0; i < positions.size(); ++i)
-    offsets.push_back(fmod(positions[i], m_in));
+  for (double position : positions)
+    offsets.push_back(fmod(position, m_in));
   // Get the median offset.
   double median_offset = MedianOfCircularValues(m_in, offsets);
   // Now fit a line to quantized line number and offset.
   LLSQ llsq;
   int min_index = INT32_MAX;
   int max_index = -INT32_MAX;
-  for (int i = 0; i < positions.size(); ++i) {
-    double y_pos = positions[i];
+  for (double y_pos : positions) {
     int row_index = IntCastRounded((y_pos - median_offset) / m_in);
     UpdateRange(row_index, &min_index, &max_index);
     llsq.add(row_index, y_pos);
@@ -758,8 +754,8 @@ double BaselineBlock::FitLineSpacingModel(const std::vector<double> &positions, 
   // Use the median offset rather than the mean.
   offsets.clear();
   if (*m_out != 0.0) {
-    for (int i = 0; i < positions.size(); ++i) {
-      offsets.push_back(fmod(positions[i], *m_out));
+    for (double position : positions) {
+      offsets.push_back(fmod(position, *m_out));
     }
     // Get the median offset.
     if (debug_level_ > 2) {
@@ -810,8 +806,7 @@ BaselineDetect::BaselineDetect(int debug_level, const FCOORD &page_skew, TO_BLOC
 // smoothing based on block/page-level skew and block-level linespacing.
 void BaselineDetect::ComputeStraightBaselines(bool use_box_bottoms) {
   std::vector<double> block_skew_angles;
-  for (int i = 0; i < blocks_.size(); ++i) {
-    BaselineBlock *bl_block = blocks_[i];
+  for (auto bl_block : blocks_) {
     if (debug_level_ > 0)
       tprintf("Fitting initial baselines...\n");
     if (bl_block->FitBaselinesAndFindSkew(use_box_bottoms)) {
@@ -828,8 +823,7 @@ void BaselineDetect::ComputeStraightBaselines(bool use_box_bottoms) {
   }
   // Set bad lines in each block to the default block skew and then force fit
   // a linespacing model where it makes sense to do so.
-  for (int i = 0; i < blocks_.size(); ++i) {
-    BaselineBlock *bl_block = blocks_[i];
+  for (auto bl_block : blocks_) {
     bl_block->ParallelizeBaselines(default_block_skew);
     bl_block->SetupBlockParameters(); // This replaced compute_row_stats.
   }
@@ -843,8 +837,7 @@ void BaselineDetect::ComputeStraightBaselines(bool use_box_bottoms) {
 void BaselineDetect::ComputeBaselineSplinesAndXheights(const ICOORD &page_tr, bool enable_splines,
                                                        bool remove_noise, bool show_final_rows,
                                                        Textord *textord) {
-  for (int i = 0; i < blocks_.size(); ++i) {
-    BaselineBlock *bl_block = blocks_[i];
+  for (auto bl_block : blocks_) {
     if (enable_splines)
       bl_block->PrepareForSplineFitting(page_tr, remove_noise);
     bl_block->FitBaselineSplines(enable_splines, show_final_rows, textord);

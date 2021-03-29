@@ -351,8 +351,7 @@ bool Dict::FinishLoad() {
   // in the successors_ vector is a vector of integers that represent the
   // indices into the dawgs_ vector of the successors for dawg i.
   successors_.reserve(dawgs_.size());
-  for (int i = 0; i < dawgs_.size(); ++i) {
-    const Dawg *dawg = dawgs_[i];
+  for (auto dawg : dawgs_) {
     auto *lst = new SuccessorList();
     for (int j = 0; j < dawgs_.size(); ++j) {
       const Dawg *other = dawgs_[j];
@@ -368,9 +367,9 @@ bool Dict::FinishLoad() {
 void Dict::End() {
   if (dawgs_.size() == 0)
     return; // Not safe to call twice.
-  for (int i = 0; i < dawgs_.size(); i++) {
-    if (!dawg_cache_->FreeDawg(dawgs_[i])) {
-      delete dawgs_[i];
+  for (auto &dawg : dawgs_) {
+    if (!dawg_cache_->FreeDawg(dawg)) {
+      delete dawg;
     }
   }
   dawg_cache_->FreeDawg(bigram_dawg_);
@@ -438,8 +437,7 @@ int Dict::def_letter_is_okay(void *void_dawg_args, const UNICHARSET &unicharset,
       if (punc_transition_edge != NO_EDGE) {
         // Find all successors, and see which can transition.
         const SuccessorList &slist = *(successors_[pos.punc_index]);
-        for (int s = 0; s < slist.size(); ++s) {
-          int sdawg_index = slist[s];
+        for (int sdawg_index : slist) {
           const Dawg *sdawg = dawgs_[sdawg_index];
           UNICHAR_ID ch = char_for_dawg(unicharset, unichar_id, sdawg);
           EDGE_REF dawg_edge = sdawg->edge_char_of(0, ch, word_end);
@@ -555,13 +553,13 @@ void Dict::ProcessPatternEdges(const Dawg *dawg, const DawgPosition &pos, UNICHA
   std::vector<UNICHAR_ID> unichar_id_patterns;
   unichar_id_patterns.push_back(unichar_id);
   dawg->unichar_id_to_patterns(unichar_id, getUnicharset(), &unichar_id_patterns);
-  for (int i = 0; i < unichar_id_patterns.size(); ++i) {
+  for (int unichar_id_pattern : unichar_id_patterns) {
     // On the first iteration check all the outgoing edges.
     // On the second iteration check all self-loops.
     for (int k = 0; k < 2; ++k) {
       EDGE_REF edge = (k == 0)
-                          ? dawg->edge_char_of(node, unichar_id_patterns[i], word_end)
-                          : dawg->pattern_loop_edge(pos.dawg_ref, unichar_id_patterns[i], word_end);
+                          ? dawg->edge_char_of(node, unichar_id_pattern, word_end)
+                          : dawg->pattern_loop_edge(pos.dawg_ref, unichar_id_pattern, word_end);
       if (edge == NO_EDGE)
         continue;
       if (dawg_debug_level >= 3) {
@@ -832,8 +830,8 @@ bool Dict::valid_bigram(const WERD_CHOICE &word1, const WERD_CHOICE &word2) cons
       bigram_string.insert(bigram_string.end(), normed_ids.begin(), normed_ids.end());
   }
   WERD_CHOICE normalized_word(&uchset, bigram_string.size());
-  for (int i = 0; i < bigram_string.size(); ++i) {
-    normalized_word.append_unichar_id_space_allocated(bigram_string[i], 1, 0.0f, 0.0f);
+  for (int i : bigram_string) {
+    normalized_word.append_unichar_id_space_allocated(i, 1, 0.0f, 0.0f);
   }
   return bigram_dawg_->word_in_dawg(normalized_word);
 }

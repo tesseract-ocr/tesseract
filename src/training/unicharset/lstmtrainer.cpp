@@ -1234,9 +1234,9 @@ double LSTMTrainer::ComputeWordError(std::string *truth_str, std::string *ocr_st
       --it->second;
   }
   int word_recall_errs = 0;
-  for (StrMap::const_iterator it = word_counts.begin(); it != word_counts.end(); ++it) {
-    if (it->second > 0)
-      word_recall_errs += it->second;
+  for (const auto &word_count : word_counts) {
+    if (word_count.second > 0)
+      word_recall_errs += word_count.second;
   }
   return static_cast<double>(word_recall_errs) / truth_words.size();
 }
