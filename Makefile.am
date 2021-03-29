@@ -1117,6 +1117,7 @@ unittest_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 unittest_CPPFLAGS += -I$(top_srcdir)/abseil
 if TENSORFLOW
 unittest_CPPFLAGS += -DINCLUDE_TENSORFLOW
+unittest_CPPFLAGS += -I$(top_srcdir)/unittest
 unittest_CPPFLAGS += -I/usr/include/tensorflow
 endif # TENSORFLOW
 
