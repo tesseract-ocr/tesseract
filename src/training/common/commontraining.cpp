@@ -20,6 +20,8 @@
 #  include "params.h"
 #  include "tprintf.h"
 
+namespace tesseract {
+
 INT_PARAM_FLAG(debug_level, 0, "Level of Trainer debugging");
 INT_PARAM_FLAG(load_images, 0, "Load images with tr files");
 STRING_PARAM_FLAG(configfile, "", "File to load more configs from");
@@ -34,8 +36,6 @@ STRING_PARAM_FLAG(fonts_dir, "",
                   "If empty it uses system default. Otherwise it overrides "
                   "system default font location");
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp", "Overrides fontconfig default temporary dir");
-
-using namespace tesseract;
 
 /**
  * This routine parses the command line arguments that were
@@ -59,6 +59,8 @@ void ParseArguments(int *argc, char ***argv) {
   tesseract::ParseCommandLineFlags(usage.c_str(), argc, argv, true);
 }
 
+} // namespace tesseract.
+
 #else
 
 #  include <allheaders.h>
@@ -78,7 +80,7 @@ void ParseArguments(int *argc, char ***argv) {
 #  include "tprintf.h"
 #  include "unicity_table.h"
 
-using namespace tesseract;
+namespace tesseract {
 
 // Global Variables.
 
@@ -142,7 +144,6 @@ void ParseArguments(int *argc, char ***argv) {
   }
 }
 
-namespace tesseract {
 // Helper loads shape table from the given file.
 ShapeTable *LoadShapeTable(const std::string &file_prefix) {
   ShapeTable *shape_table = nullptr;
@@ -290,8 +291,6 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *arg
   return trainer;
 }
 
-} // namespace tesseract.
-
 /*---------------------------------------------------------------------------*/
 /**
  * This routine returns the next command line argument.  If
@@ -321,12 +320,12 @@ const char *GetNextFilename(int argc, const char *const *argv, int &tessoptind) 
  * @return Labeled list with the specified label or nullptr.
  * @note Globals: none
  */
-LABELEDLIST FindList(LIST List, char *Label) {
+LABELEDLIST FindList(LIST List, const std::string &Label) {
   LABELEDLIST LabeledList;
 
   iterate(List) {
     LabeledList = reinterpret_cast<LABELEDLIST> first_node(List);
-    if (strcmp(LabeledList->Label, Label) == 0) {
+    if (LabeledList->Label == Label) {
       return (LabeledList);
     }
   }
@@ -346,8 +345,7 @@ LABELEDLIST NewLabeledList(const char *Label) {
   LABELEDLIST LabeledList;
 
   LabeledList = static_cast<LABELEDLIST>(malloc(sizeof(LABELEDLISTNODE)));
-  LabeledList->Label = static_cast<char *>(malloc(strlen(Label) + 1));
-  strcpy(LabeledList->Label, Label);
+  LabeledList->Label = Label;
   LabeledList->List = NIL_LIST;
   LabeledList->SampleCount = 0;
   LabeledList->font_sample_count = 0;
@@ -458,7 +456,6 @@ void FreeTrainingSamples(LIST CharList) {
  */
 void FreeLabeledList(LABELEDLIST LabeledList) {
   destroy(LabeledList->List);
-  free(LabeledList->Label);
   free(LabeledList);
 } /* FreeLabeledList */
 
@@ -638,30 +635,18 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
 } /* RemoveInsignificantProtos */
 
 /*----------------------------------------------------------------------------*/
-MERGE_CLASS FindClass(LIST List, const char *Label) {
+MERGE_CLASS FindClass(LIST List, const std::string &Label) {
   MERGE_CLASS MergeClass;
 
   iterate(List) {
     MergeClass = reinterpret_cast<MERGE_CLASS> first_node(List);
-    if (strcmp(MergeClass->Label, Label) == 0) {
+    if (MergeClass->Label == Label) {
       return (MergeClass);
     }
   }
   return (nullptr);
 
 } /* FindClass */
-
-/*---------------------------------------------------------------------------*/
-MERGE_CLASS NewLabeledClass(const char *Label) {
-  MERGE_CLASS MergeClass;
-
-  MergeClass = new MERGE_CLASS_NODE;
-  MergeClass->Label = static_cast<char *>(malloc(strlen(Label) + 1));
-  strcpy(MergeClass->Label, Label);
-  MergeClass->Class = NewClass(MAX_NUM_PROTOS, MAX_NUM_CONFIGS);
-  return (MergeClass);
-
-} /* NewLabeledClass */
 
 /*-----------------------------------------------------------------------------*/
 /**
@@ -676,7 +661,6 @@ void FreeLabeledClassList(LIST ClassList) {
   iterate(ClassList) /* iterate through all of the fonts */
   {
     MergeClass = reinterpret_cast<MERGE_CLASS> first_node(ClassList);
-    free(MergeClass->Label);
     FreeClass(MergeClass->Class);
     delete MergeClass;
   }
@@ -704,7 +688,7 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
   iterate(LabeledClassList) {
     UnicityTable<int> font_set;
     MergeClass = reinterpret_cast<MERGE_CLASS> first_node(LabeledClassList);
-    Class = &float_classes[unicharset.unichar_to_id(MergeClass->Label)];
+    Class = &float_classes[unicharset.unichar_to_id(MergeClass->Label.c_str())];
     NumProtos = MergeClass->Class->NumProtos;
     NumConfigs = MergeClass->Class->NumConfigs;
     font_set.move(&MergeClass->Class->font_set);
@@ -776,11 +760,11 @@ void FreeNormProtoList(LIST CharList)
 } // FreeNormProtoList
 
 /*---------------------------------------------------------------------------*/
-void AddToNormProtosList(LIST *NormProtoList, LIST ProtoList, char *CharName) {
+void AddToNormProtosList(LIST *NormProtoList, LIST ProtoList, const std::string &CharName) {
   PROTOTYPE *Proto;
   LABELEDLIST LabeledProtoList;
 
-  LabeledProtoList = NewLabeledList(CharName);
+  LabeledProtoList = NewLabeledList(CharName.c_str());
   iterate(ProtoList) {
     Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
     LabeledProtoList->List = push(LabeledProtoList->List, Proto);
@@ -799,5 +783,7 @@ int NumberOfProtos(LIST ProtoList, bool CountSigProtos, bool CountInsigProtos) {
   }
   return (N);
 }
+
+} // namespace tesseract.
 
 #endif // def DISABLED_LEGACY_ENGINE
