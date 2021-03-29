@@ -55,7 +55,7 @@ CLASSIFY_LEGACY_SRC = \
                ../src/classify/ocrfeatures.cpp \
                ../src/classify/outfeat.cpp \
                ../src/classify/picofeat.cpp \
-               ../src/classify/protos.cpp
+               ../src/classify/protos.cpp \
                ../src/classify/shapeclassifier.cpp \
                ../src/classify/shapetable.cpp \
                ../src/classify/tessclassifier.cpp \
