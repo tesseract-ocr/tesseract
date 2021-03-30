@@ -35,9 +35,9 @@ namespace tesseract {
 struct NORM_PROTOS {
   NORM_PROTOS(size_t n) : NumProtos(n), Protos(n) {
   }
-  int NumParams;
+  int NumParams = 0;
   int NumProtos;
-  PARAM_DESC *ParamDesc;
+  PARAM_DESC *ParamDesc = nullptr;
   std::vector<LIST> Protos;
 };
 

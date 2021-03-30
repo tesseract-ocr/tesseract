@@ -90,8 +90,7 @@ struct LABELEDLISTNODE {
 using LABELEDLIST = LABELEDLISTNODE *;
 
 struct MERGE_CLASS_NODE {
-  MERGE_CLASS_NODE(const char * label) : Label(label) {
-    NewClass(MAX_NUM_PROTOS, MAX_NUM_CONFIGS);
+  MERGE_CLASS_NODE(const char * label) : Label(label), Class(NewClass(MAX_NUM_PROTOS, MAX_NUM_CONFIGS)) {
   }
   std::string Label;
   int NumMerged[MAX_NUM_PROTOS];

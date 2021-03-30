@@ -28,6 +28,7 @@
 
 #include <cfloat> // for FLT_MAX
 #include <cmath>  // for M_PI
+#include <array>  // for std::array
 #include <vector> // for std::vector
 
 namespace tesseract {
@@ -1276,10 +1277,10 @@ struct BUCKETS {
   }
   ~BUCKETS() {
   }
-  DISTRIBUTION Distribution;        // distribution being tested for
-  uint32_t SampleCount;             // # of samples in histogram
-  double Confidence;                // confidence level of test
-  double ChiSquared;                // test threshold
+  DISTRIBUTION Distribution = normal; // distribution being tested for
+  uint32_t SampleCount = 0;         // # of samples in histogram
+  double Confidence = 0.0;          // confidence level of test
+  double ChiSquared = 0.0;          // test threshold
   uint16_t NumberOfBuckets;         // number of cells in histogram
   uint16_t Bucket[BUCKETTABLESIZE]; // mapping to histogram buckets
   std::vector<uint32_t> Count;      // frequency of occurrence histogram
