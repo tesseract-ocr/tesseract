@@ -478,7 +478,7 @@ protected:
   // Needed when the n-gram model is enabled, as the multi-length comparison
   // implementation will re-value existing paths to worse values.
   void ResetNGramSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle,
-                        std::vector<SegSearchPending> *pending);
+                        std::vector<SegSearchPending> &pending);
 
   // Add pain points for classifying blobs on the correct segmentation path
   // (so that we can evaluate correct segmentation path and discover the reason

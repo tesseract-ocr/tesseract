@@ -490,7 +490,7 @@ void Wordrec::improve_by_chopping(float rating_cert_scale, WERD_RES *word,
     if (language_model_->language_model_ngram_on) {
       // N-gram evaluation depends on the number of blobs in a chunk, so we
       // have to re-evaluate everything in the word.
-      ResetNGramSearch(word, best_choice_bundle, pending);
+      ResetNGramSearch(word, best_choice_bundle, *pending);
       blob_number = 0;
     }
     // Run language model incrementally. (Except with the n-gram model on.)

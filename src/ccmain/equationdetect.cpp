@@ -857,7 +857,8 @@ int EquationDetect::EstimateTextPartLineSpacing() {
 
   // Compute the line spacing from ygaps: use the mean of the first half.
   std::sort(ygaps.begin(), ygaps.end());
-  int spacing = 0, count;
+  int spacing = 0;
+  unsigned count;
   for (count = 0; count < ygaps.size() / 2; count++) {
     spacing += ygaps[count];
   }

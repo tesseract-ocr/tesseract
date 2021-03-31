@@ -323,7 +323,7 @@ void ResultIterator::CalculateTextlineOrder(bool paragraph_is_ltr,
           }
         }
         reading_order->push_back(kMinorRunStart);
-        for (int i = left; i < word_dirs.size(); i++) {
+        for (unsigned i = left; i < word_dirs.size(); i++) {
           reading_order->push_back(i);
           if (word_dirs[i] == DIR_MIX) {
             reading_order->push_back(kComplexWord);
@@ -450,7 +450,7 @@ void ResultIterator::MoveToLogicalStartOfTextline() {
   RestartRow();
   CalculateTextlineOrder(current_paragraph_is_ltr_, dynamic_cast<const LTRResultIterator &>(*this),
                          &word_indices);
-  int i = 0;
+  unsigned i = 0;
   for (; i < word_indices.size() && word_indices[i] < 0; i++) {
     if (word_indices[i] == kMinorRunStart) {
       in_minor_direction_ = true;
