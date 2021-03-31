@@ -76,7 +76,7 @@ private:
   int32_t index; // for extraction scan
 };
 
-void extract_edges(Pix *pix,      // thresholded image
+void extract_edges(Image pix,      // thresholded image
                    BLOCK *block); // block to scan
 void outlines_to_blobs(           // find blobs
     BLOCK *block,                 // block to scan

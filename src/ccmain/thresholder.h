@@ -113,13 +113,13 @@ public:
   /// SetImage for Pix clones its input, so the source pix may be pixDestroyed
   /// immediately after, but may not go away until after the Thresholder has
   /// finished with it.
-  void SetImage(const Pix *pix);
+  void SetImage(const Image pix);
 
   /// Threshold the source image as efficiently as possible to the output Pix.
   /// Creates a Pix and sets pix to point to the resulting pointer.
   /// Caller must use pixDestroy to free the created Pix.
   /// Returns false on error.
-  virtual bool ThresholdToPix(PageSegMode pageseg_mode, Pix **pix);
+  virtual bool ThresholdToPix(PageSegMode pageseg_mode, Image *pix);
 
   // Gets a pix that contains an 8 bit threshold value at each pixel. The
   // returned pix may be an integer reduction of the binary image such that
@@ -128,20 +128,20 @@ public:
   // Ideally the 8 bit threshold should be the exact threshold used to generate
   // the binary image in ThresholdToPix, but this is not a hard constraint.
   // Returns nullptr if the input is binary. PixDestroy after use.
-  virtual Pix *GetPixRectThresholds();
+  virtual Image GetPixRectThresholds();
 
   /// Get a clone/copy of the source image rectangle.
   /// The returned Pix must be pixDestroyed.
   /// This function will be used in the future by the page layout analysis, and
   /// the layout analysis that uses it will only be available with Leptonica,
   /// so there is no raw equivalent.
-  Pix *GetPixRect();
+  Image GetPixRect();
 
   // Get a clone/copy of the source image rectangle, reduced to greyscale,
   // and at the same resolution as the output binary.
   // The returned Pix must be pixDestroyed.
   // Provided to the classifier to extract features from the greyscale image.
-  virtual Pix *GetPixRectGrey();
+  virtual Image GetPixRectGrey();
 
 protected:
   // ----------------------------------------------------------------------
@@ -157,19 +157,19 @@ protected:
   }
 
   // Otsu thresholds the rectangle, taking the rectangle from *this.
-  void OtsuThresholdRectToPix(Pix *src_pix, Pix **out_pix) const;
+  void OtsuThresholdRectToPix(Image src_pix, Image *out_pix) const;
 
   /// Threshold the rectangle, taking everything except the src_pix
   /// from the class, using thresholds/hi_values to the output pix.
   /// NOTE that num_channels is the size of the thresholds and hi_values
   // arrays and also the bytes per pixel in src_pix.
-  void ThresholdRectToPix(Pix *src_pix, int num_channels, const std::vector<int> &thresholds,
-                          const std::vector <int> &hi_values, Pix **pix) const;
+  void ThresholdRectToPix(Image src_pix, int num_channels, const std::vector<int> &thresholds,
+                          const std::vector <int> &hi_values, Image *pix) const;
 
 protected:
   /// Clone or other copy of the source Pix.
   /// The pix will always be PixDestroy()ed on destruction of the class.
-  Pix *pix_;
+  Image pix_;
 
   int image_width_;  ///< Width of source pix_.
   int image_height_; ///< Height of source pix_.

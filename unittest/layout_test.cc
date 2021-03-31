@@ -65,11 +65,11 @@ protected:
     src_pix_ = nullptr;
   }
   ~LayoutTest() override {
-    pixDestroy(&src_pix_);
+    src_pix_.destroy();
   }
 
   void SetImage(const char *filename, const char *lang) {
-    pixDestroy(&src_pix_);
+    src_pix_.destroy();
     src_pix_ = pixRead(TestDataNameToPath(filename).c_str());
     api_.Init(TessdataPath().c_str(), lang, tesseract::OEM_TESSERACT_ONLY);
     api_.SetPageSegMode(tesseract::PSM_AUTO);
@@ -182,7 +182,7 @@ protected:
     } while (it->Next(tesseract::RIL_BLOCK));
   }
 
-  Pix *src_pix_;
+  Image src_pix_;
   std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };

@@ -175,7 +175,7 @@ Textord::Textord(CCStruct *ccstruct)
 
 // Make the textlines and words inside each block.
 void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD &reskew, int width, int height,
-                          Pix *binary_pix, Pix *thresholds_pix, Pix *grey_pix, bool use_box_bottoms,
+                          Image binary_pix, Image thresholds_pix, Image grey_pix, bool use_box_bottoms,
                           BLOBNBOX_LIST *diacritic_blobs, BLOCK_LIST *blocks,
                           TO_BLOCK_LIST *to_blocks) {
   page_tr_.set_x(width);

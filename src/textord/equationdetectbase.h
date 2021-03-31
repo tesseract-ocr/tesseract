@@ -20,7 +20,7 @@
 #ifndef TESSERACT_TEXTORD_EQUATIONDETECTBASE_H_
 #define TESSERACT_TEXTORD_EQUATIONDETECTBASE_H_
 
-#include <tesseract/export.h>
+#include "image.h"
 
 class BLOBNBOX_LIST;
 class TO_BLOCK;
@@ -53,7 +53,7 @@ public:
   // BSTT_ITALIC: green box
   // BSTT_UNCLEAR: blue box
   // All others: yellow box
-  static void RenderSpecialText(Pix *pix, BLOBNBOX *blob);
+  static void RenderSpecialText(Image pix, BLOBNBOX *blob);
 };
 
 } // namespace tesseract

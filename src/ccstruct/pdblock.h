@@ -91,7 +91,7 @@ public:
   // block. Rotates the coordinate system by rerotation prior to rendering.
   // If not nullptr, mask_box is filled with the position box of the returned
   // mask image.
-  Pix *render_mask(const FCOORD &rerotation, TBOX *mask_box);
+  Image render_mask(const FCOORD &rerotation, TBOX *mask_box);
 
 #ifndef GRAPHICS_DISABLED
   /// draw histogram

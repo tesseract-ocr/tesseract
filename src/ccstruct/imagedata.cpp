@@ -43,7 +43,7 @@ const int kMaxReadAhead = 8;
 
 ImageData::ImageData() : page_number_(-1), vertical_text_(false) {}
 // Takes ownership of the pix and destroys it.
-ImageData::ImageData(bool vertical, Pix *pix) : page_number_(0), vertical_text_(vertical) {
+ImageData::ImageData(bool vertical, Image pix) : page_number_(0), vertical_text_(vertical) {
   SetPix(pix);
 }
 ImageData::~ImageData() {
@@ -176,12 +176,12 @@ bool ImageData::SkipDeSerialize(TFile *fp) {
 // Saves the given Pix as a PNG-encoded string and destroys it.
 // In case of missing PNG support in Leptonica use PNM format,
 // which requires more memory.
-void ImageData::SetPix(Pix *pix) {
+void ImageData::SetPix(Image pix) {
   SetPixInternal(pix, &image_data_);
 }
 
 // Returns the Pix image for *this. Must be pixDestroyed after use.
-Pix *ImageData::GetPix() const {
+Image ImageData::GetPix() const {
   return GetPixInternal(image_data_);
 }
 
@@ -191,11 +191,11 @@ Pix *ImageData::GetPix() const {
 // The return value is the scaled Pix, which must be pixDestroyed after use,
 // and scale_factor (if not nullptr) is set to the scale factor that was applied
 // to the image to achieve the target_height.
-Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor, int *scaled_width,
+Image ImageData::PreScale(int target_height, int max_height, float *scale_factor, int *scaled_width,
                          int *scaled_height, std::vector<TBOX> *boxes) const {
   int input_width = 0;
   int input_height = 0;
-  Pix *src_pix = GetPix();
+  Image src_pix = GetPix();
   ASSERT_HOST(src_pix != nullptr);
   input_width = pixGetWidth(src_pix);
   input_height = pixGetHeight(src_pix);
@@ -210,11 +210,11 @@ Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor,
     *scaled_height = target_height;
   }
   // Get the scaled image.
-  Pix *pix = pixScale(src_pix, im_factor, im_factor);
+  Image pix = pixScale(src_pix, im_factor, im_factor);
   if (pix == nullptr) {
     tprintf("Scaling pix of size %d, %d by factor %g made null pix!!\n", input_width, input_height,
             im_factor);
-    pixDestroy(&src_pix);
+    src_pix.destroy();
     return nullptr;
   }
   if (scaled_width != nullptr) {
@@ -223,7 +223,7 @@ Pix *ImageData::PreScale(int target_height, int max_height, float *scale_factor,
   if (scaled_height != nullptr) {
     *scaled_height = pixGetHeight(pix);
   }
-  pixDestroy(&src_pix);
+  src_pix.destroy();
   if (boxes != nullptr) {
     // Get the boxes.
     boxes->clear();
@@ -253,7 +253,7 @@ int ImageData::MemoryUsed() const {
 void ImageData::Display() const {
   const int kTextSize = 64;
   // Draw the image.
-  Pix *pix = GetPix();
+  Image pix = GetPix();
   if (pix == nullptr) {
     return;
   }
@@ -263,7 +263,7 @@ void ImageData::Display() const {
       new ScrollView("Imagedata", 100, 100, 2 * (width + 2 * kTextSize),
                      2 * (height + 4 * kTextSize), width + 10, height + 3 * kTextSize, true);
   win->Image(pix, 0, height - 1);
-  pixDestroy(&pix);
+  pix.destroy();
   // Draw the boxes.
   win->Pen(ScrollView::RED);
   win->Brush(ScrollView::NONE);
@@ -306,7 +306,7 @@ void ImageData::AddBoxes(const std::vector<TBOX> &boxes, const std::vector<std::
 // Saves the given Pix as a PNG-encoded string and destroys it.
 // In case of missing PNG support in Leptonica use PNM format,
 // which requires more memory.
-void ImageData::SetPixInternal(Pix *pix, std::vector<char> *image_data) {
+void ImageData::SetPixInternal(Image pix, std::vector<char> *image_data) {
   l_uint8 *data;
   size_t size;
   l_int32 ret;
@@ -314,7 +314,7 @@ void ImageData::SetPixInternal(Pix *pix, std::vector<char> *image_data) {
   if (ret) {
     ret = pixWriteMem(&data, &size, pix, IFF_PNM);
   }
-  pixDestroy(&pix);
+  pix.destroy();
   // TODO: optimize resize (no init).
   image_data->resize(size);
   memcpy(&(*image_data)[0], data, size);
@@ -322,8 +322,8 @@ void ImageData::SetPixInternal(Pix *pix, std::vector<char> *image_data) {
 }
 
 // Returns the Pix image for the image_data. Must be pixDestroyed after use.
-Pix *ImageData::GetPixInternal(const std::vector<char> &image_data) {
-  Pix *pix = nullptr;
+Image ImageData::GetPixInternal(const std::vector<char> &image_data) {
+  Image pix = nullptr;
   if (!image_data.empty()) {
     // Convert the array to an image.
     const auto *u_data = reinterpret_cast<const unsigned char *>(&image_data[0]);

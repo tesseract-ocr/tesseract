@@ -40,7 +40,7 @@ protected:
     //      api_.ReadConfigFile(FLAGS_tess_config.c_str());
     api_.SetPageSegMode(tesseract::PSM_AUTO);
     api_.SetImage(src_pix_);
-    pixDestroy(&src_pix_);
+    src_pix_.destroy();
     src_pix_ = api_.GetInputImage();
   }
 
@@ -52,7 +52,7 @@ protected:
     int width = pixGetWidth(src_pix_);
     int height = pixGetHeight(src_pix_);
     int depth = pixGetDepth(src_pix_);
-    Pix *pix = pixCreate(width, height, depth);
+    Image pix = pixCreate(width, height, depth);
     EXPECT_TRUE(depth == 1 || depth == 8);
     if (depth == 8) {
       pixSetAll(pix);
@@ -68,7 +68,7 @@ protected:
       LOG(INFO) << "BBox: [L:" << left << ", T:" << top << ", R:" << right << ", B:" << bottom
                 << "]"
                 << "\n";
-      Pix *block_pix;
+      Image block_pix;
       if (depth == 1) {
         block_pix = it->GetBinaryImage(im_level);
         pixRasterop(pix, left, top, right - left, bottom - top, PIX_SRC ^ PIX_DST, block_pix, 0, 0);
@@ -78,14 +78,14 @@ protected:
                     PIX_SRC & PIX_DST, block_pix, 0, 0);
       }
       CHECK(block_pix != nullptr);
-      pixDestroy(&block_pix);
+      block_pix.destroy();
     } while (it->Next(level));
     //    if (base::GetFlag(FLAGS_v) >= 1)
     //      pixWrite(OutputNameToPath("rebuilt.png").c_str(), pix, IFF_PNG);
     pixRasterop(pix, 0, 0, width, height, PIX_SRC ^ PIX_DST, src_pix_, 0, 0);
     if (depth == 8) {
-      Pix *binary_pix = pixThresholdToBinary(pix, 128);
-      pixDestroy(&pix);
+      Image binary_pix = pixThresholdToBinary(pix, 128);
+      pix.destroy();
       pixInvert(binary_pix, binary_pix);
       pix = binary_pix;
     }
@@ -98,7 +98,7 @@ protected:
       LOG(INFO) << "outfile = " << outfile << "\n";
       pixWrite(outfile.c_str(), pix, IFF_PNG);
     }
-    pixDestroy(&pix);
+    pix.destroy();
     LOG(INFO) << absl::StrFormat("At level %d: pix diff = %d\n", level, pixcount);
     EXPECT_LE(pixcount, max_diff);
     //    if (base::GetFlag(FLAGS_v) > 1) CHECK_LE(pixcount, max_diff);
@@ -206,7 +206,7 @@ protected:
   }
 
   // Objects declared here can be used by all tests in the test case for Foo.
-  Pix *src_pix_; // Borrowed from api_. Do not destroy.
+  Image src_pix_; // Borrowed from api_. Do not destroy.
   std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };

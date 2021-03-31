@@ -631,7 +631,7 @@ Pix *TessBaseAPI::GetThresholdedImage() {
   if (tesseract_ == nullptr || thresholder_ == nullptr) {
     return nullptr;
   }
-  if (tesseract_->pix_binary() == nullptr && !Threshold(tesseract_->mutable_pix_binary())) {
+  if (tesseract_->pix_binary() == nullptr && !Threshold(&tesseract_->mutable_pix_binary()->pix_)) {
     return nullptr;
   }
   return pixClone(tesseract_->pix_binary());
@@ -2098,9 +2098,11 @@ bool TessBaseAPI::Threshold(Pix **pix) {
     thresholder_->SetSourceYResolution(kMinCredibleResolution);
   }
   auto pageseg_mode = static_cast<PageSegMode>(static_cast<int>(tesseract_->tessedit_pageseg_mode));
-  if (!thresholder_->ThresholdToPix(pageseg_mode, pix)) {
+  Image im(*pix);
+  if (!thresholder_->ThresholdToPix(pageseg_mode, &im)) {
     return false;
   }
+  *pix = im;
   thresholder_->GetImageSizes(&rect_left_, &rect_top_, &rect_width_, &rect_height_, &image_width_,
                               &image_height_);
   if (!thresholder_->IsBinary()) {
@@ -2144,7 +2146,7 @@ int TessBaseAPI::FindLines() {
     tesseract_->InitAdaptiveClassifier(nullptr);
 #endif
   }
-  if (tesseract_->pix_binary() == nullptr && !Threshold(tesseract_->mutable_pix_binary())) {
+  if (tesseract_->pix_binary() == nullptr && !Threshold(&tesseract_->mutable_pix_binary()->pix_)) {
     return -1;
   }
 
@@ -2270,7 +2272,7 @@ bool TessBaseAPI::DetectOS(OSResults *osr) {
     return false;
   }
   ClearResults();
-  if (tesseract_->pix_binary() == nullptr && !Threshold(tesseract_->mutable_pix_binary())) {
+  if (tesseract_->pix_binary() == nullptr && !Threshold(&tesseract_->mutable_pix_binary()->pix_)) {
     return false;
   }
 

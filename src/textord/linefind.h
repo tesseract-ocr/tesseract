@@ -58,8 +58,8 @@ public:
    *
    * The detected lines are removed from the pix.
    */
-  static void FindAndRemoveLines(int resolution, bool debug, Pix *pix, int *vertical_x,
-                                 int *vertical_y, Pix **pix_music_mask, TabVector_LIST *v_lines,
+  static void FindAndRemoveLines(int resolution, bool debug, Image pix, int *vertical_x,
+                                 int *vertical_y, Image *pix_music_mask, TabVector_LIST *v_lines,
                                  TabVector_LIST *h_lines);
 
   /**
@@ -83,9 +83,9 @@ private:
   // The output vectors are owned by the list and Frozen (cannot refit) by
   // having no boxes, as there is no need to refit or merge separator lines.
   // If no good lines are found, pix_vline is destroyed.
-  static void FindAndRemoveVLines(int resolution, Pix *pix_intersections, int *vertical_x,
-                                  int *vertical_y, Pix **pix_vline, Pix *pix_non_vline,
-                                  Pix *src_pix, TabVector_LIST *vectors);
+  static void FindAndRemoveVLines(int resolution, Image pix_intersections, int *vertical_x,
+                                  int *vertical_y, Image *pix_vline, Image pix_non_vline,
+                                  Image src_pix, TabVector_LIST *vectors);
 
   // Finds horizontal line objects in pix_vline and removes them from src_pix.
   // Uses the given resolution to determine size thresholds instead of any
@@ -95,8 +95,8 @@ private:
   // The output vectors are owned by the list and Frozen (cannot refit) by
   // having no boxes, as there is no need to refit or merge separator lines.
   // If no good lines are found, pix_hline is destroyed.
-  static void FindAndRemoveHLines(int resolution, Pix *pix_intersections, int vertical_x,
-                                  int vertical_y, Pix **pix_hline, Pix *pix_non_hline, Pix *src_pix,
+  static void FindAndRemoveHLines(int resolution, Image pix_intersections, int vertical_x,
+                                  int vertical_y, Image *pix_hline, Image pix_non_hline, Image src_pix,
                                   TabVector_LIST *vectors);
 
   // Finds vertical lines in the given list of BLOBNBOXes. bleft and tright
@@ -121,14 +121,14 @@ private:
   // None of the input (1st level) pointers may be nullptr except
   // pix_music_mask, which will disable music detection, and pixa_display, which
   // is for debug.
-  static void GetLineMasks(int resolution, Pix *src_pix, Pix **pix_vline, Pix **pix_non_vline,
-                           Pix **pix_hline, Pix **pix_non_hline, Pix **pix_intersections,
-                           Pix **pix_music_mask, Pixa *pixa_display);
+  static void GetLineMasks(int resolution, Image src_pix, Image *pix_vline, Image *pix_non_vline,
+                           Image *pix_hline, Image *pix_non_hline, Image *pix_intersections,
+                           Image *pix_music_mask, Pixa *pixa_display);
 
   // Returns a list of boxes corresponding to the candidate line segments. Sets
   // the line_crossings member of the boxes so we can later determine the number
   // of intersections touched by a full line.
-  static void GetLineBoxes(bool horizontal_lines, Pix *pix_lines, Pix *pix_intersections,
+  static void GetLineBoxes(bool horizontal_lines, Image pix_lines, Image pix_intersections,
                            C_BLOB_LIST *line_cblobs, BLOBNBOX_LIST *line_bblobs);
 };
 

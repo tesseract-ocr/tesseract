@@ -283,7 +283,7 @@ public:
 
   // Displays the pix in the given window. and returns the height of the pix.
   // The pix is pixDestroyed.
-  static int DisplayImage(Pix *pix, ScrollView *window);
+  static int DisplayImage(Image pix, ScrollView *window);
 
 protected:
   // Returns a random number in [-range, range].

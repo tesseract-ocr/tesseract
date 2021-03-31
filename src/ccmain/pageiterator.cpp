@@ -444,19 +444,19 @@ Pix *PageIterator::GetBinaryImage(PageIteratorLevel level) const {
     return cblob_it_->data()->render();
   }
   Box *box = boxCreate(left, top, right - left, bottom - top);
-  Pix *pix = pixClipRectangle(tesseract_->pix_binary(), box, nullptr);
+  Image pix = pixClipRectangle(tesseract_->pix_binary(), box, nullptr);
   boxDestroy(&box);
   if (level == RIL_BLOCK || level == RIL_PARA) {
     // Clip to the block polygon as well.
     TBOX mask_box;
-    Pix *mask = it_->block()->block->render_mask(&mask_box);
+    Image mask = it_->block()->block->render_mask(&mask_box);
     int mask_x = left - mask_box.left();
     int mask_y = top - (tesseract_->ImageHeight() - mask_box.top());
     // AND the mask and pix, putting the result in pix.
     pixRasterop(pix, std::max(0, -mask_x), std::max(0, -mask_y), pixGetWidth(pix),
                 pixGetHeight(pix), PIX_SRC & PIX_DST, mask, std::max(0, mask_x),
                 std::max(0, mask_y));
-    pixDestroy(&mask);
+    mask.destroy();
   }
   return pix;
 }
@@ -488,25 +488,25 @@ Pix *PageIterator::GetImage(PageIteratorLevel level, int padding, Pix *original_
   right = std::min(right + padding, rect_width_);
   bottom = std::min(bottom + padding, rect_height_);
   Box *box = boxCreate(*left, *top, right - *left, bottom - *top);
-  Pix *grey_pix = pixClipRectangle(original_img, box, nullptr);
+  Image grey_pix = pixClipRectangle(original_img, box, nullptr);
   boxDestroy(&box);
   if (level == RIL_BLOCK || level == RIL_PARA) {
     // Clip to the block polygon as well.
     TBOX mask_box;
-    Pix *mask = it_->block()->block->render_mask(&mask_box);
+    Image mask = it_->block()->block->render_mask(&mask_box);
     // Copy the mask registered correctly into an image the size of grey_pix.
     int mask_x = *left - mask_box.left();
     int mask_y = *top - (pixGetHeight(original_img) - mask_box.top());
     int width = pixGetWidth(grey_pix);
     int height = pixGetHeight(grey_pix);
-    Pix *resized_mask = pixCreate(width, height, 1);
+    Image resized_mask = pixCreate(width, height, 1);
     pixRasterop(resized_mask, std::max(0, -mask_x), std::max(0, -mask_y), width, height, PIX_SRC,
                 mask, std::max(0, mask_x), std::max(0, mask_y));
-    pixDestroy(&mask);
+    mask.destroy();
     pixDilateBrick(resized_mask, resized_mask, 2 * padding + 1, 2 * padding + 1);
     pixInvert(resized_mask, resized_mask);
     pixSetMasked(grey_pix, resized_mask, UINT32_MAX);
-    pixDestroy(&resized_mask);
+    resized_mask.destroy();
   }
   return grey_pix;
 }

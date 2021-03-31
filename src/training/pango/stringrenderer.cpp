@@ -74,14 +74,14 @@ static bool RandBool(const double prob, TRand *rand) {
 }
 
 /* static */
-static Pix *CairoARGB32ToPixFormat(cairo_surface_t *surface) {
+static Image CairoARGB32ToPixFormat(cairo_surface_t *surface) {
   if (cairo_image_surface_get_format(surface) != CAIRO_FORMAT_ARGB32) {
     printf("Unexpected surface format %d\n", cairo_image_surface_get_format(surface));
     return nullptr;
   }
   const int width = cairo_image_surface_get_width(surface);
   const int height = cairo_image_surface_get_height(surface);
-  Pix *pix = pixCreate(width, height, 32);
+  Image pix = pixCreate(width, height, 32);
   int byte_stride = cairo_image_surface_get_stride(surface);
 
   for (int i = 0; i < height; ++i) {
@@ -636,25 +636,25 @@ int StringRenderer::StripUnrenderableWords(std::string *utf8_text) const {
   return num_dropped;
 }
 
-int StringRenderer::RenderToGrayscaleImage(const char *text, int text_length, Pix **pix) {
-  Pix *orig_pix = nullptr;
+int StringRenderer::RenderToGrayscaleImage(const char *text, int text_length, Image *pix) {
+  Image orig_pix = nullptr;
   int offset = RenderToImage(text, text_length, &orig_pix);
   if (orig_pix) {
     *pix = pixConvertTo8(orig_pix, false);
-    pixDestroy(&orig_pix);
+    orig_pix.destroy();
   }
   return offset;
 }
 
 int StringRenderer::RenderToBinaryImage(const char *text, int text_length, int threshold,
-                                        Pix **pix) {
-  Pix *orig_pix = nullptr;
+                                        Image *pix) {
+  Image orig_pix = nullptr;
   int offset = RenderToImage(text, text_length, &orig_pix);
   if (orig_pix) {
-    Pix *gray_pix = pixConvertTo8(orig_pix, false);
-    pixDestroy(&orig_pix);
+    Image gray_pix = pixConvertTo8(orig_pix, false);
+    orig_pix.destroy();
     *pix = pixThresholdToBinary(gray_pix, threshold);
-    pixDestroy(&gray_pix);
+    gray_pix.destroy();
   } else {
     *pix = orig_pix;
   }
@@ -719,9 +719,9 @@ std::string StringRenderer::ConvertFullwidthLatinToBasicLatin(const std::string 
 }
 
 // Returns offset to end of text substring rendered in this method.
-int StringRenderer::RenderToImage(const char *text, int text_length, Pix **pix) {
+int StringRenderer::RenderToImage(const char *text, int text_length, Image *pix) {
   if (pix && *pix) {
-    pixDestroy(pix);
+    pix->destroy();
   }
   InitPangoCairo();
 
@@ -813,7 +813,7 @@ int StringRenderer::RenderToImage(const char *text, int text_length, Pix **pix) 
 //
 // int offset = 0;
 // do {
-//   Pix *pix;
+//   Image pix;
 //   offset += renderer.RenderAllFontsToImage(min_proportion, txt + offset,
 //                                            strlen(txt + offset), nullptr,
 //                                            &pix);
@@ -821,7 +821,7 @@ int StringRenderer::RenderToImage(const char *text, int text_length, Pix **pix) 
 // } while (offset < strlen(text));
 //
 int StringRenderer::RenderAllFontsToImage(double min_coverage, const char *text, int text_length,
-                                          std::string *font_used, Pix **image) {
+                                          std::string *font_used, Image *image) {
   *image = nullptr;
   // Select a suitable font to render the title with.
   const char kTitleTemplate[] = "%s : %d hits = %.2f%%, raw = %d = %.2f%%";
@@ -873,10 +873,10 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage, const char *text,
       // Add the font to the image.
       set_font(title_font);
       v_margin_ /= 8;
-      Pix *title_image = nullptr;
+      Image title_image = nullptr;
       RenderToBinaryImage(title, strlen(title), 128, &title_image);
       pixOr(*image, *image, title_image);
-      pixDestroy(&title_image);
+      title_image.destroy();
 
       v_margin_ *= 8;
       set_font(orig_font);

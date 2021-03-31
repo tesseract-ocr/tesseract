@@ -37,12 +37,12 @@ protected:
     src_pix_ = nullptr;
   }
   ~ApplyBoxTest() override {
-    pixDestroy(&src_pix_);
+    src_pix_.destroy();
   }
 
   bool SetImage(const char *filename) {
     bool found = false;
-    pixDestroy(&src_pix_);
+    src_pix_.destroy();
     src_pix_ = pixRead(TestDataNameToPath(filename).c_str());
     if (api_.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) != -1) {
       api_.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
@@ -101,7 +101,7 @@ protected:
     delete it;
   }
 
-  Pix *src_pix_;
+  Image src_pix_;
   std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };

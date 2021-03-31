@@ -331,7 +331,7 @@ static void ExtractFontProperties(const std::string &utf8_text, StringRenderer *
   File::WriteStringToFileOrDie(output_string, output_base + ".fontinfo");
 }
 
-static bool MakeIndividualGlyphs(Pix *pix, const std::vector<BoxChar *> &vbox,
+static bool MakeIndividualGlyphs(Image pix, const std::vector<BoxChar *> &vbox,
                                  const int input_tiff_page) {
   // If checks fail, return false without exiting text2image
   if (!pix) {
@@ -383,26 +383,26 @@ static bool MakeIndividualGlyphs(Pix *pix, const std::vector<BoxChar *> &vbox,
       continue;
     }
     // Crop the boxed character
-    Pix *pix_glyph = pixClipRectangle(pix, b, nullptr);
+    Image pix_glyph = pixClipRectangle(pix, b, nullptr);
     if (!pix_glyph) {
       tprintf("ERROR: MakeIndividualGlyphs(): Failed to clip, at i=%d\n", i);
       continue;
     }
     // Resize to square
-    Pix *pix_glyph_sq =
+    Image pix_glyph_sq =
         pixScaleToSize(pix_glyph, FLAGS_glyph_resized_size, FLAGS_glyph_resized_size);
     if (!pix_glyph_sq) {
       tprintf("ERROR: MakeIndividualGlyphs(): Failed to resize, at i=%d\n", i);
       continue;
     }
     // Zero-pad
-    Pix *pix_glyph_sq_pad = pixAddBorder(pix_glyph_sq, FLAGS_glyph_num_border_pixels_to_pad, 0);
+    Image pix_glyph_sq_pad = pixAddBorder(pix_glyph_sq, FLAGS_glyph_num_border_pixels_to_pad, 0);
     if (!pix_glyph_sq_pad) {
       tprintf("ERROR: MakeIndividualGlyphs(): Failed to zero-pad, at i=%d\n", i);
       continue;
     }
     // Write out
-    Pix *pix_glyph_sq_pad_8 = pixConvertTo8(pix_glyph_sq_pad, false);
+    Image pix_glyph_sq_pad_8 = pixConvertTo8(pix_glyph_sq_pad, false);
     char filename[1024];
     snprintf(filename, 1024, "%s_%d.jpg", FLAGS_outputbase.c_str(), glyph_count++);
     if (pixWriteJpeg(filename, pix_glyph_sq_pad_8, 100, 0)) {
@@ -413,10 +413,10 @@ static bool MakeIndividualGlyphs(Pix *pix, const std::vector<BoxChar *> &vbox,
       continue;
     }
 
-    pixDestroy(&pix_glyph);
-    pixDestroy(&pix_glyph_sq);
-    pixDestroy(&pix_glyph_sq_pad);
-    pixDestroy(&pix_glyph_sq_pad_8);
+    pix_glyph.destroy();
+    pix_glyph_sq.destroy();
+    pix_glyph_sq_pad.destroy();
+    pix_glyph_sq_pad_8.destroy();
     n_boxes_saved++;
     y_previous = y;
   }
@@ -625,7 +625,7 @@ static int Main() {
          offset < strlen(to_render_utf8) && (FLAGS_max_pages == 0 || page_num < FLAGS_max_pages);
          ++im, ++page_num) {
       tlog(1, "Starting page %d\n", im);
-      Pix *pix = nullptr;
+      Image pix = nullptr;
       if (FLAGS_find_fonts) {
         offset += render.RenderAllFontsToImage(FLAGS_min_coverage, to_render_utf8 + offset,
                                                strlen(to_render_utf8 + offset), &font_used, &pix);
@@ -655,10 +655,10 @@ static int Main() {
           page_rotation.push_back(rotation);
         }
 
-        Pix *gray_pix = pixConvertTo8(pix, false);
-        pixDestroy(&pix);
-        Pix *binary = pixThresholdToBinary(gray_pix, 128);
-        pixDestroy(&gray_pix);
+        Image gray_pix = pixConvertTo8(pix, false);
+        pix.destroy();
+        Image binary = pixThresholdToBinary(gray_pix, 128);
+        gray_pix.destroy();
         char tiff_name[1024];
         if (FLAGS_find_fonts) {
           if (FLAGS_render_per_font) {
@@ -681,7 +681,7 @@ static int Main() {
             tprintf("ERROR: Individual glyphs not saved\n");
           }
         }
-        pixDestroy(&binary);
+        binary.destroy();
       }
       if (FLAGS_find_fonts && offset != 0) {
         // We just want a list of names, or some sample images so we don't need

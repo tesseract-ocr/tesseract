@@ -58,21 +58,21 @@ const int kMaxCircleErosions = 8;
 // The returned pix must be pixDestroyed after use. nullptr may be returned
 // if the image doesn't meet the trivial conditions that it uses to determine
 // success.
-static Pix *RemoveEnclosingCircle(Pix *pixs) {
-  Pix *pixsi = pixInvert(nullptr, pixs);
-  Pix *pixc = pixCreateTemplate(pixs);
+static Image RemoveEnclosingCircle(Image pixs) {
+  Image pixsi = pixInvert(nullptr, pixs);
+  Image pixc = pixCreateTemplate(pixs);
   pixSetOrClearBorder(pixc, 1, 1, 1, 1, PIX_SET);
   pixSeedfillBinary(pixc, pixc, pixsi, 4);
   pixInvert(pixc, pixc);
-  pixDestroy(&pixsi);
-  Pix *pixt = pixAnd(nullptr, pixs, pixc);
+  pixsi.destroy();
+  Image pixt = pixAnd(nullptr, pixs, pixc);
   l_int32 max_count;
   pixCountConnComp(pixt, 8, &max_count);
   // The count has to go up before we start looking for the minimum.
   l_int32 min_count = INT32_MAX;
-  Pix *pixout = nullptr;
+  Image pixout = nullptr;
   for (int i = 1; i < kMaxCircleErosions; i++) {
-    pixDestroy(&pixt);
+    pixt.destroy();
     pixErodeBrick(pixc, pixc, 3, 3);
     pixt = pixAnd(nullptr, pixs, pixc);
     l_int32 count;
@@ -82,14 +82,14 @@ static Pix *RemoveEnclosingCircle(Pix *pixs) {
       min_count = count;
     } else if (count < min_count) {
       min_count = count;
-      pixDestroy(&pixout);
+      pixout.destroy();
       pixout = pixCopy(nullptr, pixt); // Save the best.
     } else if (count >= min_count) {
       break; // We have passed by the best.
     }
   }
-  pixDestroy(&pixt);
-  pixDestroy(&pixc);
+  pixt.destroy();
+  pixc.destroy();
   return pixout;
 }
 
@@ -148,9 +148,9 @@ int Tesseract::SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract
     deskew_ = FCOORD(1.0f, 0.0f);
     reskew_ = FCOORD(1.0f, 0.0f);
     if (pageseg_mode == PSM_CIRCLE_WORD) {
-      Pix *pixcleaned = RemoveEnclosingCircle(pix_binary_);
+      Image pixcleaned = RemoveEnclosingCircle(pix_binary_);
       if (pixcleaned != nullptr) {
-        pixDestroy(&pix_binary_);
+        pix_binary_.destroy();
         pix_binary_ = pixcleaned;
       }
     }
@@ -200,8 +200,8 @@ int Tesseract::SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract
  */
 int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks,
                            BLOBNBOX_LIST *diacritic_blobs, Tesseract *osd_tess, OSResults *osr) {
-  Pix *photomask_pix = nullptr;
-  Pix *musicmask_pix = nullptr;
+  Image photomask_pix = nullptr;
+  Image musicmask_pix = nullptr;
   // The blocks made by the ColumnFinder. Moved to blocks before return.
   BLOCK_LIST found_blocks;
   TO_BLOCK_LIST temp_blocks;
@@ -231,8 +231,8 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST *blocks, TO_BLOC
     }
     delete finder;
   }
-  pixDestroy(&photomask_pix);
-  pixDestroy(&musicmask_pix);
+  photomask_pix.destroy();
+  musicmask_pix.destroy();
   if (result < 0) {
     return result;
   }
@@ -272,8 +272,8 @@ static void AddAllScriptsConverted(const UNICHARSET &sid_set, const UNICHARSET &
 ColumnFinder *Tesseract::SetupPageSegAndDetectOrientation(PageSegMode pageseg_mode,
                                                           BLOCK_LIST *blocks, Tesseract *osd_tess,
                                                           OSResults *osr, TO_BLOCK_LIST *to_blocks,
-                                                          Pix **photo_mask_pix,
-                                                          Pix **music_mask_pix) {
+                                                          Image *photo_mask_pix,
+                                                          Image *music_mask_pix) {
   int vertical_x = 0;
   int vertical_y = 1;
   TabVector_LIST v_lines;
@@ -293,14 +293,14 @@ ColumnFinder *Tesseract::SetupPageSegAndDetectOrientation(PageSegMode pageseg_mo
   // Leptonica is used to find a mask of the photo regions in the input.
   *photo_mask_pix = ImageFind::FindImages(pix_binary_, &pixa_debug_);
   if (tessedit_dump_pageseg_images) {
-    Pix *pix_no_image_ = nullptr;
+    Image pix_no_image_ = nullptr;
     if (*photo_mask_pix != nullptr) {
       pix_no_image_ = pixSubtract(nullptr, pix_binary_, *photo_mask_pix);
     } else {
       pix_no_image_ = pixClone(pix_binary_);
     }
     pixa_debug_.AddPix(pix_no_image_, "NoImages");
-    pixDestroy(&pix_no_image_);
+    pix_no_image_.destroy();
   }
   if (!PSM_COL_FIND_ENABLED(pageseg_mode)) {
     v_lines.clear();

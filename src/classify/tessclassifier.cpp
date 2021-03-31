@@ -25,7 +25,7 @@ namespace tesseract {
 
 // Classifies the given [training] sample, writing to results.
 // See ShapeClassifier for a full description.
-int TessClassifier::UnicharClassifySample(const TrainingSample &sample, Pix *page_pix, int debug,
+int TessClassifier::UnicharClassifySample(const TrainingSample &sample, Image page_pix, int debug,
                                           UNICHAR_ID keep_this,
                                           std::vector<UnicharRating> *results) {
   const int old_matcher_level = classify_->matcher_debug_level;
@@ -62,7 +62,7 @@ const UNICHARSET &TessClassifier::GetUnicharset() const {
 // windows to the windows output and returns a new index that may be used
 // by any subsequent classifiers. Caller waits for the user to view and
 // then destroys the windows by clearing the vector.
-int TessClassifier::DisplayClassifyAs(const TrainingSample &sample, Pix *page_pix, int unichar_id,
+int TessClassifier::DisplayClassifyAs(const TrainingSample &sample, Image page_pix, int unichar_id,
                                       int index, std::vector<ScrollView *> &windows) {
   int shape_id = unichar_id;
   // TODO(rays) Fix this so it works with both flat and real shapetables.

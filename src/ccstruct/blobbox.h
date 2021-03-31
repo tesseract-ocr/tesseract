@@ -435,7 +435,7 @@ public:
   static void DeleteNoiseBlobs(BLOBNBOX_LIST *blobs);
   // Helper to compute edge offsets for  all the blobs on the list.
   // See coutln.h for an explanation of edge offsets.
-  static void ComputeEdgeOffsets(Pix *thresholds, Pix *grey, BLOBNBOX_LIST *blobs);
+  static void ComputeEdgeOffsets(Image thresholds, Image grey, BLOBNBOX_LIST *blobs);
 
 #ifndef GRAPHICS_DISABLED
   // Helper to draw all the blobs on the list in the given body_colour,
@@ -745,7 +745,7 @@ public:
   // Thresholds must either be the same size as grey or an integer down-scale
   // of grey.
   // See coutln.h for an explanation of edge offsets.
-  void ComputeEdgeOffsets(Pix *thresholds, Pix *grey);
+  void ComputeEdgeOffsets(Image thresholds, Image grey);
 
 #ifndef GRAPHICS_DISABLED
   // Draw the noise blobs from all lists in red.

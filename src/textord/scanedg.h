@@ -29,7 +29,7 @@ namespace tesseract {
 class C_OUTLINE_IT;
 class PDBLK;
 
-void block_edges(Pix *t_image, // thresholded image
+void block_edges(Image t_image, // thresholded image
                  PDBLK *block, // block in image
                  C_OUTLINE_IT *outline_it);
 

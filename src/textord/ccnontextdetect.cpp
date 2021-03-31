@@ -81,7 +81,7 @@ CCNonTextDetect::~CCNonTextDetect() {
 // The blob_block is the usual result of connected component analysis,
 // holding the detected blobs.
 // The returned Pix should be PixDestroyed after use.
-Pix *CCNonTextDetect::ComputeNonTextMask(bool debug, Pix *photo_map, TO_BLOCK *blob_block) {
+Image CCNonTextDetect::ComputeNonTextMask(bool debug, Image photo_map, TO_BLOCK *blob_block) {
   // Insert the smallest blobs into the grid.
   InsertBlobList(&blob_block->small_blobs);
   InsertBlobList(&blob_block->noise_blobs);
@@ -102,7 +102,7 @@ Pix *CCNonTextDetect::ComputeNonTextMask(bool debug, Pix *photo_map, TO_BLOCK *b
   }
   noise_density_ = ComputeNoiseDensity(debug, photo_map, &good_grid);
   good_grid.Clear(); // Not needed any more.
-  Pix *pix = noise_density_->ThresholdToPix(max_noise_count_);
+  Image pix = noise_density_->ThresholdToPix(max_noise_count_);
   if (debug) {
     pixWrite("junknoisemask.png", pix, IFF_PNG);
   }
@@ -148,7 +148,7 @@ Pix *CCNonTextDetect::ComputeNonTextMask(bool debug, Pix *photo_map, TO_BLOCK *b
 // more likely non-text.
 // The photo_map is used to bias the decision towards non-text, rather than
 // supplying definite decision.
-IntGrid *CCNonTextDetect::ComputeNoiseDensity(bool debug, Pix *photo_map, BlobGrid *good_grid) {
+IntGrid *CCNonTextDetect::ComputeNoiseDensity(bool debug, Image photo_map, BlobGrid *good_grid) {
   IntGrid *noise_counts = CountCellElements();
   IntGrid *noise_density = noise_counts->NeighbourhoodSum();
   IntGrid *good_counts = good_grid->CountCellElements();
@@ -235,7 +235,7 @@ static TBOX AttemptBoxExpansion(const TBOX &box, const IntGrid &noise_density, i
 // blobs are drawn on it in ok_color.
 void CCNonTextDetect::MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST *blobs, int max_blob_overlaps,
                                                 ScrollView *win, ScrollView::Color ok_color,
-                                                Pix *nontext_mask) {
+                                                Image nontext_mask) {
   int imageheight = tright().y() - bleft().x();
   BLOBNBOX_IT blob_it(blobs);
   BLOBNBOX_LIST dead_blobs;
@@ -255,10 +255,10 @@ void CCNonTextDetect::MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST *blobs, int max_bl
       if (noise_density_->AnyZeroInRect(box)) {
         // There is a danger that the bounding box may overlap real text, so
         // we need to render the outline.
-        Pix *blob_pix = blob->cblob()->render_outline();
+        Image blob_pix = blob->cblob()->render_outline();
         pixRasterop(nontext_mask, box.left(), imageheight - box.top(), box.width(), box.height(),
                     PIX_SRC | PIX_DST, blob_pix, 0, 0);
-        pixDestroy(&blob_pix);
+        blob_pix.destroy();
       } else {
         if (box.area() < gridsize() * gridsize()) {
           // It is a really bad idea to make lots of small components in the

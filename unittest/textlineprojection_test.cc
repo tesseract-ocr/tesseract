@@ -46,13 +46,13 @@ protected:
     projection_ = nullptr;
   }
   ~TextlineProjectionTest() override {
-    pixDestroy(&src_pix_);
-    pixDestroy(&bin_pix_);
+    src_pix_.destroy();
+    bin_pix_.destroy();
     delete finder_;
   }
 
   void SetImage(const char *filename) {
-    pixDestroy(&src_pix_);
+    src_pix_.destroy();
     src_pix_ = pixRead(file::JoinPath(TESTING_DIR, filename).c_str());
     api_.Init(TESSDATA_DIR, "eng", tesseract::OEM_TESSERACT_ONLY);
     api_.SetPageSegMode(tesseract::PSM_AUTO_OSD);
@@ -89,7 +89,7 @@ protected:
     BLOCK_LIST src_blocks;
     BLOCK_IT block_it(&src_blocks);
     block_it.add_to_end(block);
-    Pix *photomask_pix = nullptr;
+    Image photomask_pix = nullptr;
     // The blocks made by the ColumnFinder. Moved to blocks before return.
     BLOCK_LIST found_blocks;
     TO_BLOCK_LIST temp_blocks;
@@ -105,7 +105,7 @@ protected:
                                   nullptr, nullptr, &found_blocks, &diacritic_blobs, &to_blocks),
               0);
     projection_ = finder_->projection();
-    pixDestroy(&photomask_pix);
+    photomask_pix.destroy();
   }
 
   // Helper evaluates the given box, expects the result to be greater_than
@@ -232,8 +232,8 @@ protected:
     delete it;
   }
 
-  Pix *src_pix_;
-  Pix *bin_pix_;
+  Image src_pix_;
+  Image bin_pix_;
   BLOCK_LIST blocks_;
   std::string ocr_text_;
   tesseract::TessBaseAPI api_;

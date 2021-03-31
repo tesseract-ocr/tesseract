@@ -197,26 +197,26 @@ public:
     return reskew_;
   }
   // Destroy any existing pix and return a pointer to the pointer.
-  Pix **mutable_pix_binary() {
-    pixDestroy(&pix_binary_);
+  Image *mutable_pix_binary() {
+    pix_binary_.destroy();
     return &pix_binary_;
   }
-  Pix *pix_binary() const {
+  Image pix_binary() const {
     return pix_binary_;
   }
-  Pix *pix_grey() const {
+  Image pix_grey() const {
     return pix_grey_;
   }
-  void set_pix_grey(Pix *grey_pix) {
-    pixDestroy(&pix_grey_);
+  void set_pix_grey(Image grey_pix) {
+    pix_grey_.destroy();
     pix_grey_ = grey_pix;
   }
-  Pix *pix_original() const {
+  Image pix_original() const {
     return pix_original_;
   }
   // Takes ownership of the given original_pix.
-  void set_pix_original(Pix *original_pix) {
-    pixDestroy(&pix_original_);
+  void set_pix_original(Image original_pix) {
+    pix_original_.destroy();
     pix_original_ = original_pix;
     // Clone to sublangs as well.
     for (auto &lang : sub_langs_) {
@@ -231,7 +231,7 @@ public:
   // To tell the difference pixGetDepth() will return 32, 8 or 1.
   // In any case, the return value is a borrowed Pix, and should not be
   // deleted or pixDestroyed.
-  Pix *BestPix() const {
+  Image BestPix() const {
     if (pixGetWidth(pix_original_) == ImageWidth()) {
       return pix_original_;
     } else if (pix_grey_ != nullptr) {
@@ -240,8 +240,8 @@ public:
       return pix_binary_;
     }
   }
-  void set_pix_thresholds(Pix *thresholds) {
-    pixDestroy(&pix_thresholds_);
+  void set_pix_thresholds(Image thresholds) {
+    pix_thresholds_.destroy();
     pix_thresholds_ = thresholds;
   }
   int source_resolution() const {
@@ -256,13 +256,13 @@ public:
   int ImageHeight() const {
     return pixGetHeight(pix_binary_);
   }
-  Pix *scaled_color() const {
+  Image scaled_color() const {
     return scaled_color_;
   }
   int scaled_factor() const {
     return scaled_factor_;
   }
-  void SetScaledColor(int factor, Pix *color) {
+  void SetScaledColor(int factor, Image color) {
     scaled_factor_ = factor;
     scaled_color_ = color;
   }
@@ -328,8 +328,8 @@ public:
                   BLOBNBOX_LIST *diacritic_blobs, Tesseract *osd_tess, OSResults *osr);
   ColumnFinder *SetupPageSegAndDetectOrientation(PageSegMode pageseg_mode, BLOCK_LIST *blocks,
                                                  Tesseract *osd_tess, OSResults *osr,
-                                                 TO_BLOCK_LIST *to_blocks, Pix **photo_mask_pix,
-                                                 Pix **music_mask_pix);
+                                                 TO_BLOCK_LIST *to_blocks, Image *photo_mask_pix,
+                                                 Image *music_mask_pix);
   // par_control.cpp
   void PrerecAllWordsPar(const std::vector<WordData> &words);
 
@@ -1034,13 +1034,13 @@ private:
   std::string word_config_;
   // Image used for input to layout analysis and tesseract recognition.
   // May be modified by the ShiroRekhaSplitter to eliminate the top-line.
-  Pix *pix_binary_;
+  Image pix_binary_;
   // Grey-level input image if the input was not binary, otherwise nullptr.
-  Pix *pix_grey_;
+  Image pix_grey_;
   // Original input image. Color if the input was color.
-  Pix *pix_original_;
+  Image pix_original_;
   // Thresholds that were used to generate the thresholded image from grey.
-  Pix *pix_thresholds_;
+  Image pix_thresholds_;
   // Debug images. If non-empty, will be written on destruction.
   DebugPixa pixa_debug_;
   // Input image resolution after any scaling. The resolution is not well
@@ -1053,7 +1053,7 @@ private:
   Textord textord_;
   // True if the primary language uses right_to_left reading order.
   bool right_to_left_;
-  Pix *scaled_color_;
+  Image scaled_color_;
   int scaled_factor_;
   FCOORD deskew_;
   FCOORD reskew_;

@@ -61,7 +61,7 @@ public:
   }
 
   // Set up pix_binary for lang_tesseract_.
-  void SetPixBinary(Pix *pix) {
+  void SetPixBinary(Image pix) {
     CHECK_EQ(1, pixGetDepth(pix));
     *(lang_tesseract_->mutable_pix_binary()) = pix;
   }
@@ -137,7 +137,7 @@ protected:
   }
 
   // Add a BLOCK covering the whole page.
-  void AddPageBlock(Pix *pix, BLOCK_LIST *blocks) {
+  void AddPageBlock(Image pix, BLOCK_LIST *blocks) {
     CHECK(pix != nullptr);
     CHECK(blocks != nullptr);
     BLOCK_IT block_it(blocks);
@@ -183,7 +183,7 @@ TEST_F(EquationFinderTest, IdentifySpecialText) {
 #else // TODO: missing equ_gt1.tif
   // Load Image.
   std::string imagefile = file::JoinPath(testdata_dir_, "equ_gt1.tif");
-  Pix *pix_binary = pixRead(imagefile.c_str());
+  Image pix_binary = pixRead(imagefile.c_str());
   CHECK(pix_binary != nullptr && pixGetDepth(pix_binary) == 1);
 
   // Get components.
@@ -224,7 +224,7 @@ TEST_F(EquationFinderTest, IdentifySpecialText) {
   EXPECT_LE(10 - kCountRange, stt_count[BSTT_UNCLEAR]);
 
   // Release memory.
-  pixDestroy(&pix_binary);
+  pix_binary.destroy();
 #endif
 }
 
@@ -364,7 +364,7 @@ TEST_F(EquationFinderTest, CheckSeedBlobsCount) {
 TEST_F(EquationFinderTest, ComputeForegroundDensity) {
   // Create the pix with top half foreground, bottom half background.
   int width = 1024, height = 768;
-  Pix *pix = pixCreate(width, height, 1);
+  Image pix = pixCreate(width, height, 1);
   pixRasterop(pix, 0, 0, width, height / 2, PIX_SET, nullptr, 0, 0);
   TBOX box1(100, 0, 140, 140), box2(100, height / 2 - 20, 140, height / 2 + 20),
       box3(100, height - 40, 140, height);
@@ -402,7 +402,7 @@ TEST_F(EquationFinderTest, CountAlignment) {
 }
 
 TEST_F(EquationFinderTest, ComputeCPsSuperBBox) {
-  Pix *pix = pixCreate(1001, 1001, 1);
+  Image pix = pixCreate(1001, 1001, 1);
   equation_det_->SetPixBinary(pix);
   ColPartitionGrid part_grid(10, ICOORD(0, 0), ICOORD(1000, 1000));
 

@@ -34,7 +34,7 @@ namespace tesseract {
 // instead of weak vtables in every compilation unit.
 EquationDetectBase::~EquationDetectBase() = default;
 
-void EquationDetectBase::RenderSpecialText(Pix *pix, BLOBNBOX *blob) {
+void EquationDetectBase::RenderSpecialText(Image pix, BLOBNBOX *blob) {
   ASSERT_HOST(pix != nullptr && pixGetDepth(pix) == 32 && blob != nullptr);
   const TBOX &tbox = blob->bounding_box();
   int height = pixGetHeight(pix);

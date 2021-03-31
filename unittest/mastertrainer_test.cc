@@ -81,7 +81,7 @@ public:
   // If keep_this (a shape index) is >= 0, then the results should always
   // contain keep_this, and (if possible) anything of intermediate confidence.
   // The return value is the number of classes saved in results.
-  int ClassifySample(const TrainingSample &sample, Pix *page_pix, int debug, UNICHAR_ID keep_this,
+  int ClassifySample(const TrainingSample &sample, Image page_pix, int debug, UNICHAR_ID keep_this,
                      std::vector<ShapeRating> *results) override {
     results->clear();
     // Everything except the first kNumNonReject is a reject.

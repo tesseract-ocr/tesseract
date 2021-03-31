@@ -43,7 +43,7 @@ const double kRatingEpsilon = 1.0 / 32;
 // with a debug flag and a keep_this argument to find out what is going on.
 double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_level,
                                       CountTypes boosting_mode, const FontInfoTable &fontinfo_table,
-                                      const std::vector<Pix *> &page_images, SampleIterator *it,
+                                      const std::vector<Image > &page_images, SampleIterator *it,
                                       double *unichar_error, double *scaled_error,
                                       std::string *fonts_report) {
   const int fontsize = it->sample_set()->NumFonts();
@@ -59,7 +59,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_le
   for (it->Begin(); !it->AtEnd(); it->Next()) {
     TrainingSample *mutable_sample = it->MutableSample();
     int page_index = mutable_sample->page_num();
-    Pix *page_pix =
+    Image page_pix =
         0 <= page_index && page_index < page_images.size() ? page_images[page_index] : nullptr;
     // No debug, no keep this.
     classifier->UnicharClassifySample(*mutable_sample, page_pix, 0, INVALID_UNICHAR_ID, &results);
@@ -108,7 +108,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_le
 // and a keep_this argument to find out what is going on.
 void ErrorCounter::DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifier *old_classifier,
                                   CountTypes boosting_mode, const FontInfoTable &fontinfo_table,
-                                  const std::vector<Pix *> &page_images, SampleIterator *it) {
+                                  const std::vector<Image > &page_images, SampleIterator *it) {
   int fontsize = it->sample_set()->NumFonts();
   ErrorCounter old_counter(old_classifier->GetUnicharset(), fontsize);
   ErrorCounter new_counter(new_classifier->GetUnicharset(), fontsize);
@@ -121,7 +121,7 @@ void ErrorCounter::DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifi
   for (it->Begin(); !it->AtEnd(); it->Next()) {
     TrainingSample *mutable_sample = it->MutableSample();
     int page_index = mutable_sample->page_num();
-    Pix *page_pix =
+    Image page_pix =
         0 <= page_index && page_index < page_images.size() ? page_images[page_index] : nullptr;
     // No debug, no keep this.
     old_classifier->UnicharClassifySample(*mutable_sample, page_pix, 0, INVALID_UNICHAR_ID,

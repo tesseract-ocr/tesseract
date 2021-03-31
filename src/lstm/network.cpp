@@ -327,7 +327,7 @@ double Network::Random(double range) {
 // === Debug image display methods. ===
 // Displays the image of the matrix to the forward window.
 void Network::DisplayForward(const NetworkIO &matrix) {
-  Pix *image = matrix.ToPix();
+  Image image = matrix.ToPix();
   ClearWindow(false, name_.c_str(), pixGetWidth(image), pixGetHeight(image), &forward_win_);
   DisplayImage(image, forward_win_);
   forward_win_->Update();
@@ -335,7 +335,7 @@ void Network::DisplayForward(const NetworkIO &matrix) {
 
 // Displays the image of the matrix to the backward window.
 void Network::DisplayBackward(const NetworkIO &matrix) {
-  Pix *image = matrix.ToPix();
+  Image image = matrix.ToPix();
   std::string window_name = name_ + "-back";
   ClearWindow(false, window_name.c_str(), pixGetWidth(image), pixGetHeight(image), &backward_win_);
   DisplayImage(image, backward_win_);
@@ -371,10 +371,10 @@ void Network::ClearWindow(bool tess_coords, const char *window_name, int width, 
 
 // Displays the pix in the given window. and returns the height of the pix.
 // The pix is pixDestroyed.
-int Network::DisplayImage(Pix *pix, ScrollView *window) {
+int Network::DisplayImage(Image pix, ScrollView *window) {
   int height = pixGetHeight(pix);
   window->Image(pix, 0, 0);
-  pixDestroy(&pix);
+  pix.destroy();
   return height;
 }
 #endif // !GRAPHICS_DISABLED

@@ -36,7 +36,7 @@ namespace tesseract {
 // Classifies the given [training] sample, writing to results.
 // See shapeclassifier.h for a full description.
 // Default implementation calls the ShapeRating version.
-int ShapeClassifier::UnicharClassifySample(const TrainingSample &sample, Pix *page_pix, int debug,
+int ShapeClassifier::UnicharClassifySample(const TrainingSample &sample, Image page_pix, int debug,
                                            UNICHAR_ID keep_this,
                                            std::vector<UnicharRating> *results) {
   results->clear();
@@ -54,7 +54,7 @@ int ShapeClassifier::UnicharClassifySample(const TrainingSample &sample, Pix *pa
 // Classifies the given [training] sample, writing to results.
 // See shapeclassifier.h for a full description.
 // Default implementation aborts.
-int ShapeClassifier::ClassifySample(const TrainingSample &sample, Pix *page_pix, int debug,
+int ShapeClassifier::ClassifySample(const TrainingSample &sample, Image page_pix, int debug,
                                     int keep_this, std::vector<ShapeRating> *results) {
   ASSERT_HOST("Must implement ClassifySample!" == nullptr);
   return 0;
@@ -64,7 +64,7 @@ int ShapeClassifier::ClassifySample(const TrainingSample &sample, Pix *page_pix,
 // If result is not nullptr, it is set with the shape_id and rating.
 // Does not need to be overridden if ClassifySample respects the keep_this
 // rule.
-int ShapeClassifier::BestShapeForUnichar(const TrainingSample &sample, Pix *page_pix,
+int ShapeClassifier::BestShapeForUnichar(const TrainingSample &sample, Image page_pix,
                                          UNICHAR_ID unichar_id, ShapeRating *result) {
   std::vector<ShapeRating> results;
   const ShapeTable *shapes = GetShapeTable();
@@ -93,7 +93,7 @@ const UNICHARSET &ShapeClassifier::GetUnicharset() const {
 // the user has finished with debugging the sample.
 // Probably doesn't need to be overridden if the subclass provides
 // DisplayClassifyAs.
-void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Pix *page_pix,
+void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Image page_pix,
                                    UNICHAR_ID unichar_id) {
   static ScrollView *terminator = nullptr;
   if (terminator == nullptr) {
@@ -159,7 +159,7 @@ void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Pix *page_pix,
 // windows to the windows output and returns a new index that may be used
 // by any subsequent classifiers. Caller waits for the user to view and
 // then destroys the windows by clearing the vector.
-int ShapeClassifier::DisplayClassifyAs(const TrainingSample &sample, Pix *page_pix,
+int ShapeClassifier::DisplayClassifyAs(const TrainingSample &sample, Image page_pix,
                                        UNICHAR_ID unichar_id, int index,
                                        std::vector<ScrollView *> &windows) {
   // Does nothing in the default implementation.

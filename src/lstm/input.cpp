@@ -78,12 +78,12 @@ bool Input::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *sc
 // image_data. If non-null, *image_scale returns the image scale factor used.
 // Returns nullptr on error.
 /* static */
-Pix *Input::PrepareLSTMInputs(const ImageData &image_data, const Network *network, int min_width,
+Image Input::PrepareLSTMInputs(const ImageData &image_data, const Network *network, int min_width,
                               TRand *randomizer, float *image_scale) {
   // Note that NumInputs() is defined as input image height.
   int target_height = network->NumInputs();
   int width, height;
-  Pix *pix =
+  Image pix =
       image_data.PreScale(target_height, kMaxInputHeight, image_scale, &width, &height, nullptr);
   if (pix == nullptr) {
     tprintf("Bad pix from ImageData!\n");
@@ -91,7 +91,7 @@ Pix *Input::PrepareLSTMInputs(const ImageData &image_data, const Network *networ
   }
   if (width < min_width || height < min_width) {
     tprintf("Image too small to scale!! (%dx%d vs min width of %d)\n", width, height, min_width);
-    pixDestroy(&pix);
+    pix.destroy();
     return nullptr;
   }
   return pix;
@@ -104,12 +104,12 @@ Pix *Input::PrepareLSTMInputs(const ImageData &image_data, const Network *networ
 // height == 1. If height == 0 then no scaling.
 // NOTE: It isn't safe for multiple threads to call this on the same pix.
 /* static */
-void Input::PreparePixInput(const StaticShape &shape, const Pix *pix, TRand *randomizer,
+void Input::PreparePixInput(const StaticShape &shape, const Image pix, TRand *randomizer,
                             NetworkIO *input) {
   bool color = shape.depth() == 3;
-  Pix *var_pix = const_cast<Pix *>(pix);
+  Image var_pix = pix;
   int depth = pixGetDepth(var_pix);
-  Pix *normed_pix = nullptr;
+  Image normed_pix = nullptr;
   // On input to BaseAPI, an image is forced to be 1, 8 or 24 bit, without
   // colormap, so we just have to deal with depth conversion here.
   if (color) {
@@ -135,12 +135,12 @@ void Input::PreparePixInput(const StaticShape &shape, const Pix *pix, TRand *ran
   if (target_height != 0 && target_height != height) {
     // Get the scaled image.
     float im_factor = static_cast<float>(target_height) / height;
-    Pix *scaled_pix = pixScale(normed_pix, im_factor, im_factor);
-    pixDestroy(&normed_pix);
+    Image scaled_pix = pixScale(normed_pix, im_factor, im_factor);
+    normed_pix.destroy();
     normed_pix = scaled_pix;
   }
   input->FromPix(shape, normed_pix, randomizer);
-  pixDestroy(&normed_pix);
+  normed_pix.destroy();
 }
 
 } // namespace tesseract.

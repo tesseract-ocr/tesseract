@@ -107,7 +107,7 @@ public:
   // direction, so the textline projection_ map can be setup.
   // On return, IsVerticallyAlignedText may be called (now optionally) to
   // determine the gross textline alignment of the page.
-  void SetupAndFilterNoise(PageSegMode pageseg_mode, Pix *photo_mask_pix, TO_BLOCK *input_block);
+  void SetupAndFilterNoise(PageSegMode pageseg_mode, Image photo_mask_pix, TO_BLOCK *input_block);
 
   // Tests for vertical alignment of text (returning true if so), and generates
   // a list of blobs (in osd_blobs) for orientation and script detection.
@@ -156,8 +156,8 @@ public:
   // appropriate word after the rest of layout analysis.
   // Returns -1 if the user hits the 'd' key in the blocks window while running
   // in debug mode, which requests a retry with more debug info.
-  int FindBlocks(PageSegMode pageseg_mode, Pix *scaled_color, int scaled_factor, TO_BLOCK *block,
-                 Pix *photo_mask_pix, Pix *thresholds_pix, Pix *grey_pix, DebugPixa *pixa_debug,
+  int FindBlocks(PageSegMode pageseg_mode, Image scaled_color, int scaled_factor, TO_BLOCK *block,
+                 Image photo_mask_pix, Image thresholds_pix, Image grey_pix, DebugPixa *pixa_debug,
                  BLOCK_LIST *blocks, BLOBNBOX_LIST *diacritic_blobs, TO_BLOCK_LIST *to_blocks);
 
   // Get the rotation required to deskew, and its inverse rotation.
@@ -330,7 +330,7 @@ private:
   // Horizontal line separators.
   TabVector_LIST horizontal_lines_;
   // Image map of photo/noise areas on the page.
-  Pix *nontext_map_;
+  Image nontext_map_;
   // Textline projection map.
   TextlineProjection projection_;
   // Sequence of DENORMS that indicate how to get back to the original image

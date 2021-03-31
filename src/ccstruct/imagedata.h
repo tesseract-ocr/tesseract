@@ -19,6 +19,7 @@
 #ifndef TESSERACT_IMAGE_IMAGEDATA_H_
 #define TESSERACT_IMAGE_IMAGEDATA_H_
 
+#include "image.h"
 #include "points.h" // for FCOORD
 
 #include <mutex>  // for std::mutex
@@ -62,7 +63,7 @@ class TESS_API ImageData {
 public:
   ImageData();
   // Takes ownership of the pix.
-  ImageData(bool vertical, Pix *pix);
+  ImageData(bool vertical, Image pix);
   ~ImageData();
 
   // Builds and returns an ImageData from the basic data. Note that imagedata,
@@ -115,16 +116,16 @@ public:
   // Saves the given Pix as a PNG-encoded string and destroys it.
   // In case of missing PNG support in Leptonica use PNM format,
   // which requires more memory.
-  void SetPix(Pix *pix);
+  void SetPix(Image pix);
   // Returns the Pix image for *this. Must be pixDestroyed after use.
-  Pix *GetPix() const;
+  Image GetPix() const;
   // Gets anything and everything with a non-nullptr pointer, prescaled to a
   // given target_height (if 0, then the original image height), and aligned.
   // Also returns (if not nullptr) the width and height of the scaled image.
   // The return value is the scaled Pix, which must be pixDestroyed after use,
   // and scale_factor (if not nullptr) is set to the scale factor that was
   // applied to the image to achieve the target_height.
-  Pix *PreScale(int target_height, int max_height, float *scale_factor, int *scaled_width,
+  Image PreScale(int target_height, int max_height, float *scale_factor, int *scaled_width,
                 int *scaled_height, std::vector<TBOX> *boxes) const;
 
   int MemoryUsed() const;
@@ -141,9 +142,9 @@ private:
   // Saves the given Pix as a PNG-encoded string and destroys it.
   // In case of missing PNG support in Leptonica use PNM format,
   // which requires more memory.
-  static void SetPixInternal(Pix *pix, std::vector<char> *image_data);
+  static void SetPixInternal(Image pix, std::vector<char> *image_data);
   // Returns the Pix image for the image_data. Must be pixDestroyed after use.
-  static Pix *GetPixInternal(const std::vector<char> &image_data);
+  static Image GetPixInternal(const std::vector<char> &image_data);
   // Parses the text string as a box file and adds any discovered boxes that
   // match the page number. Returns false on error.
   bool AddBoxes(const char *box_text);

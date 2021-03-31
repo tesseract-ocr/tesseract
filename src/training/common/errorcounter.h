@@ -121,7 +121,7 @@ public:
   // * The return value is the un-weighted version of the scaled_error.
   static double ComputeErrorRate(ShapeClassifier *classifier, int report_level,
                                  CountTypes boosting_mode, const FontInfoTable &fontinfo_table,
-                                 const std::vector<Pix *> &page_images, SampleIterator *it,
+                                 const std::vector<Image > &page_images, SampleIterator *it,
                                  double *unichar_error, double *scaled_error, std::string *fonts_report);
   // Tests a pair of classifiers, debugging errors of the new against the old.
   // See errorcounter.h for description of arguments.
@@ -131,7 +131,7 @@ public:
   // with a debug flag and a keep_this argument to find out what is going on.
   static void DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifier *old_classifier,
                              CountTypes boosting_mode, const FontInfoTable &fontinfo_table,
-                             const std::vector<Pix *> &page_images, SampleIterator *it);
+                             const std::vector<Image > &page_images, SampleIterator *it);
 
 private:
   // Simple struct to hold an array of counts.

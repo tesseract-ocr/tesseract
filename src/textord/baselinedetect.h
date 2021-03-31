@@ -178,7 +178,7 @@ public:
   void DrawFinalRows(const ICOORD &page_tr);
 
   // Render the generated spline baselines for this block on pix_in.
-  void DrawPixSpline(Pix *pix_in);
+  void DrawPixSpline(Image pix_in);
 
 private:
   // Top-level line-spacing calculation. Computes an estimate of the line-

@@ -39,10 +39,10 @@ namespace tesseract {
 // Also returns the grid coords of the bottom-left of the Pix, in *left
 // and *bottom, which corresponds to (0, 0) on the Pix.
 // Note that the Pix is used upside-down, with (0, 0) being the bottom-left.
-Pix *TraceOutlineOnReducedPix(C_OUTLINE *outline, int gridsize, ICOORD bleft, int *left,
+Image TraceOutlineOnReducedPix(C_OUTLINE *outline, int gridsize, ICOORD bleft, int *left,
                               int *bottom);
 // As TraceOutlineOnReducedPix above, but on a BLOCK instead of a C_OUTLINE.
-Pix *TraceBlockOnReducedPix(BLOCK *block, int gridsize, ICOORD bleft, int *left, int *bottom);
+Image TraceBlockOnReducedPix(BLOCK *block, int gridsize, ICOORD bleft, int *left, int *bottom);
 
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 class GridSearch;
@@ -135,7 +135,7 @@ public:
 
   // Returns a full-resolution binary pix in which each cell over the given
   // threshold is filled as a black square. pixDestroy after use.
-  Pix *ThresholdToPix(int threshold) const;
+  Image ThresholdToPix(int threshold) const;
 
 private:
   int *grid_; // 2-d array of ints.
@@ -190,7 +190,7 @@ public:
   // grid (in grid coords), and the pix works up the grid from there.
   // WARNING: InsertPixPtBBox may invalidate an active GridSearch. Call
   // RepositionIterator() on any GridSearches that are active on this grid.
-  void InsertPixPtBBox(int left, int bottom, Pix *pix, BBC *bbox);
+  void InsertPixPtBBox(int left, int bottom, Image pix, BBC *bbox);
 
   // Remove the bbox from the grid.
   // WARNING: Any GridSearch operating on this grid could be invalidated!
@@ -559,7 +559,7 @@ void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::InsertBBox(bool h_spread, bool v_spread, 
 // WARNING: InsertPixPtBBox may invalidate an active GridSearch. Call
 // RepositionIterator() on any GridSearches that are active on this grid.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
-void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::InsertPixPtBBox(int left, int bottom, Pix *pix, BBC *bbox) {
+void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::InsertPixPtBBox(int left, int bottom, Image pix, BBC *bbox) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
   for (int y = 0; y < height; ++y) {

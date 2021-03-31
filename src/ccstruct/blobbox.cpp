@@ -390,7 +390,7 @@ void BLOBNBOX::DeleteNoiseBlobs(BLOBNBOX_LIST *blobs) {
 
 // Helper to compute edge offsets for  all the blobs on the list.
 // See coutln.h for an explanation of edge offsets.
-void BLOBNBOX::ComputeEdgeOffsets(Pix *thresholds, Pix *grey, BLOBNBOX_LIST *blobs) {
+void BLOBNBOX::ComputeEdgeOffsets(Image thresholds, Image grey, BLOBNBOX_LIST *blobs) {
   int grey_height = 0;
   int thr_height = 0;
   int scale_factor = 1;
@@ -1052,7 +1052,7 @@ void TO_BLOCK::DeleteUnownedNoise() {
 // Thresholds must either be the same size as grey or an integer down-scale
 // of grey.
 // See coutln.h for an explanation of edge offsets.
-void TO_BLOCK::ComputeEdgeOffsets(Pix *thresholds, Pix *grey) {
+void TO_BLOCK::ComputeEdgeOffsets(Image thresholds, Image grey) {
   BLOBNBOX::ComputeEdgeOffsets(thresholds, grey, &blobs);
   BLOBNBOX::ComputeEdgeOffsets(thresholds, grey, &small_blobs);
   BLOBNBOX::ComputeEdgeOffsets(thresholds, grey, &noise_blobs);
