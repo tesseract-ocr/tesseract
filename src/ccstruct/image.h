@@ -13,8 +13,8 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_IMAGE_IMAGE_H_
-#define TESSERACT_IMAGE_IMAGE_H_
+#ifndef TESSERACT_CCSTRUCT_IMAGE_H_
+#define TESSERACT_CCSTRUCT_IMAGE_H_
 
 #include <tesseract/export.h>
 
@@ -40,4 +40,4 @@ public:
 
 } // namespace tesseract
 
-#endif // TESSERACT_IMAGE_IMAGE_H_
+#endif // TESSERACT_CCSTRUCT_IMAGE_H_
