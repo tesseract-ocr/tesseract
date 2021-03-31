@@ -152,6 +152,11 @@ private:
 private:
   std::string imagefilename_; // File to read image from.
   int32_t page_number_;  // Page number if multi-page tif or -1.
+  // see https://github.com/tesseract-ocr/tesseract/pull/2965
+  // EP: reconsider for tess6.0/opencv
+#ifdef TESSERACT_IMAGEDATA_AS_PIX
+  Image internal_pix_;
+#endif
   std::vector<char> image_data_;  // PNG/PNM file data.
   std::string language_;          // Language code for image.
   std::string transcription_;     // UTF-8 ground truth of image.
