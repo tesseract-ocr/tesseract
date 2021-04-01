@@ -38,6 +38,7 @@ public:
   Image clone() const;                    // increases refcount
   Image copy(Image dest = nullptr) const; // does full copy
   void destroy();
+  bool isZero() const;
 };
 
 } // namespace tesseract

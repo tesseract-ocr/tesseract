@@ -33,4 +33,10 @@ void Image::destroy() {
   pixDestroy(&pix_);
 }
 
+bool Image::isZero() const {
+  l_int32 r;
+  pixZero(pix_, &r);
+  return r == 1;
+}
+
 }
