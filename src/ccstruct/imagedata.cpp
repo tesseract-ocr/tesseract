@@ -197,7 +197,7 @@ Image ImageData::GetPix() const {
 #  else
   /* pixCopy always does an actual copy, so the caller can modify the
    * changed data. */
-  return pixCopy(NULL, internal_pix_);
+  return internal_pix_.copy();
 #  endif
 #else
   return GetPixInternal(image_data_);

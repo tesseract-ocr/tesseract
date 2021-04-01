@@ -92,7 +92,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa *pixa_debug) {
   }
   // Create a copy of original image to store the splitting output.
   splitted_image_.destroy();
-  splitted_image_ = pixCopy(nullptr, orig_pix_);
+  splitted_image_ = orig_pix_.copy();
 
   // Initialize debug image if required.
   if (devanagari_split_debugimage) {
@@ -110,7 +110,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa *pixa_debug) {
     // A global measure is available for xheight, but no local information
     // exists.
     pix_for_ccs.destroy();
-    pix_for_ccs = pixCopy(nullptr, orig_pix_);
+    pix_for_ccs = orig_pix_.copy();
     PerformClose(pix_for_ccs, global_xheight_);
   }
   Pixa *ccs;
@@ -257,7 +257,7 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy, Image
   // Clear the ascender and descender regions of the word.
   // Obtain a vertical projection histogram for the resulting image.
   Box *box_to_clear = boxCreate(0, shirorekha_top - stroke_width / 3, width, 5 * stroke_width / 3);
-  Image word_in_xheight = pixCopy(nullptr, pix);
+  Image word_in_xheight = pix.copy();
   pixClearInRect(word_in_xheight, box_to_clear);
   // Also clear any pixels which are below shirorekha_bottom + some leeway.
   // The leeway is set to xheight if the information is available, else it is a

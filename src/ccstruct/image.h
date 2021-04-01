@@ -35,6 +35,7 @@ public:
   Pix *operator->() const { return pix_; }
 
   // api
+  Image copy(Image dest = nullptr) const;
   void destroy();
 };
 
