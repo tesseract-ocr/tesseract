@@ -35,7 +35,8 @@ public:
   Pix *operator->() const { return pix_; }
 
   // api
-  Image copy(Image dest = nullptr) const;
+  Image clone() const;                    // increases refcount
+  Image copy(Image dest = nullptr) const; // does full copy
   void destroy();
 };
 

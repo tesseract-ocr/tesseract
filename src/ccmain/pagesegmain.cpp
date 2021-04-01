@@ -297,7 +297,7 @@ ColumnFinder *Tesseract::SetupPageSegAndDetectOrientation(PageSegMode pageseg_mo
     if (*photo_mask_pix != nullptr) {
       pix_no_image_ = pixSubtract(nullptr, pix_binary_, *photo_mask_pix);
     } else {
-      pix_no_image_ = pixClone(pix_binary_);
+      pix_no_image_ = pix_binary_.clone();
     }
     pixa_debug_.AddPix(pix_no_image_, "NoImages");
     pix_no_image_.destroy();

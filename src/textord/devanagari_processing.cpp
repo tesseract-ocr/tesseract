@@ -70,7 +70,7 @@ void ShiroRekhaSplitter::set_orig_pix(Image pix) {
   if (orig_pix_) {
     orig_pix_.destroy();
   }
-  orig_pix_ = pixClone(pix);
+  orig_pix_ = pix.clone();
 }
 
 // Top-level method to perform splitting based on current settings.
@@ -102,7 +102,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa *pixa_debug) {
 
   // Determine all connected components in the input image. A close operation
   // may be required prior to this, depending on the current settings.
-  Image pix_for_ccs = pixClone(orig_pix_);
+  Image pix_for_ccs = orig_pix_.clone();
   if (perform_close_ && global_xheight_ != kUnspecifiedXheight && !segmentation_block_list_) {
     if (devanagari_split_debuglevel > 0) {
       tprintf("Performing a global close operation..\n");

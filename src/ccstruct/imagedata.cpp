@@ -193,7 +193,7 @@ Image ImageData::GetPix() const {
 #  ifdef GRAPHICS_DISABLED
   /* The only caller of this is the scaling functions to prescale the
    * source. Thus we can just return a new pointer to the same data. */
-  return pixClone(internal_pix_);
+  return internal_pix_.clone();
 #  else
   /* pixCopy always does an actual copy, so the caller can modify the
    * changed data. */

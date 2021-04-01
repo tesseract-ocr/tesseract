@@ -634,7 +634,7 @@ Pix *TessBaseAPI::GetThresholdedImage() {
   if (tesseract_->pix_binary() == nullptr && !Threshold(&tesseract_->mutable_pix_binary()->pix_)) {
     return nullptr;
   }
-  return pixClone(tesseract_->pix_binary());
+  return tesseract_->pix_binary().clone();
 }
 
 /**

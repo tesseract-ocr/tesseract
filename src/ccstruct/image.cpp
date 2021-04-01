@@ -21,8 +21,12 @@
 
 namespace tesseract {
 
+Image Image::clone() const {
+  return pixClone(pix_);
+}
+
 Image Image::copy(Image dest) const {
-  return pixCopy(dest, *this);
+  return pixCopy(dest, pix_);
 }
 
 void Image::destroy() {

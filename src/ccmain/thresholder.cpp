@@ -242,7 +242,7 @@ void ImageThresholder::Init() {
 Image ImageThresholder::GetPixRect() {
   if (IsFullImage()) {
     // Just clone the whole thing.
-    return pixClone(pix_);
+    return pix_.clone();
   } else {
     // Crop to the given rectangle.
     Box *box = boxCreate(rect_left_, rect_top_, rect_width_, rect_height_);
