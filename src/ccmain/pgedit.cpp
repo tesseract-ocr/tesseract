@@ -333,7 +333,7 @@ void Tesseract::do_re_display(bool (tesseract::Tesseract::*word_painter)(PAGE_RE
 
   image_win->Clear();
   if (display_image) {
-    image_win->Image(pix_binary_, 0, 0);
+    image_win->Draw(pix_binary_, 0, 0);
   }
 
   image_win->Brush(ScrollView::NONE);

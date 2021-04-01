@@ -670,7 +670,7 @@ void ScrollView::Text(int x, int y, const char *mystring) {
 }
 
 // Open and draw an image given a name at (x,y).
-void ScrollView::Image(const char *image, int x_pos, int y_pos) {
+void ScrollView::Draw(const char *image, int x_pos, int y_pos) {
   SendMsg("openImage('%s')", image);
   SendMsg("drawImage('%s',%d,%d)", image, x_pos, TranslateYCoordinate(y_pos));
 }
@@ -784,7 +784,7 @@ void ScrollView::ZoomToRectangle(int x1, int y1, int x2, int y2) {
 }
 
 // Send an image of type Pix.
-void ScrollView::Image(struct Image image, int x_pos, int y_pos) {
+void ScrollView::Draw(Image image, int x_pos, int y_pos) {
   l_uint8 *data;
   size_t size;
   pixWriteMem(&data, &size, image, IFF_PNG);

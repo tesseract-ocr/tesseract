@@ -147,7 +147,7 @@ void TextlineProjection::DisplayProjection() const {
     }
   }
   auto *win = new ScrollView("Projection", 0, 0, width, height, width, height);
-  win->Image(pixc, 0, 0);
+  win->Draw(pixc, 0, 0);
   win->Update();
   pixc.destroy();
 }

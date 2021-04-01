@@ -30,7 +30,7 @@ namespace tesseract {
 // If rotation is not nullptr, the clockwise rotation in radians is saved there.
 // The input pix must be 8 bit grey. (Binary with values 0 and 255 is OK.)
 // The input image is destroyed and a different image returned.
-struct Image DegradeImage(struct Image input, int exposure, TRand *randomizer, float *rotation);
+Image DegradeImage(Image input, int exposure, TRand *randomizer, float *rotation);
 
 // Creates and returns a Pix distorted by various means according to the bool
 // flags. If boxes is not nullptr, the boxes are resized/positioned according to
