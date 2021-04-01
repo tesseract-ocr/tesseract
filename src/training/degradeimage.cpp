@@ -86,9 +86,9 @@ const int kMinRampSize = 1000;
 // the edges.
 // Finally a greyscale ramp provides a continuum of effects between exposure
 // levels.
-Pix *DegradeImage(Pix *input, int exposure, TRand *randomizer, float *rotation) {
-  Pix *pix = pixConvertTo8(input, false);
-  pixDestroy(&input);
+Image DegradeImage(Image input, int exposure, TRand *randomizer, float *rotation) {
+  Image pix = pixConvertTo8(input, false);
+  input.destroy();
   input = pix;
   int width = pixGetWidth(input);
   int height = pixGetHeight(input);
@@ -99,12 +99,12 @@ Pix *DegradeImage(Pix *input, int exposure, TRand *randomizer, float *rotation) 
     // see http://www.leptonica.com/grayscale-morphology.html
     pix = input;
     input = pixErodeGray(pix, 3, 3);
-    pixDestroy(&pix);
+    pix.destroy();
   }
   // A convolution is essential to any mode as no scanner produces an
   // image as sharp as the electronic image.
   pix = pixBlockconv(input, 1, 1);
-  pixDestroy(&input);
+  input.destroy();
   // A small random rotation helps to make the edges jaggy in a realistic way.
   if (rotation != nullptr) {
     float radians_clockwise = 0.0f;
@@ -117,7 +117,7 @@ Pix *DegradeImage(Pix *input, int exposure, TRand *randomizer, float *rotation) 
     input = pixRotate(pix, radians_clockwise, L_ROTATE_AREA_MAP, L_BRING_IN_WHITE, 0, 0);
     // Rotate the boxes to match.
     *rotation = radians_clockwise;
-    pixDestroy(&pix);
+    pix.destroy();
   } else {
     input = pix;
   }
@@ -129,7 +129,7 @@ Pix *DegradeImage(Pix *input, int exposure, TRand *randomizer, float *rotation) 
     // see http://www.leptonica.com/grayscale-morphology.html
     pix = input;
     input = pixErodeGray(pix, 3, 3);
-    pixDestroy(&pix);
+    pix.destroy();
   }
   // The convolution really needed to be 2x2 to be realistic enough, but
   // we only have 3x3, so we have to bias the image darker or lose thin
@@ -176,27 +176,27 @@ Pix *DegradeImage(Pix *input, int exposure, TRand *randomizer, float *rotation) 
 // any spatial distortion and also by the integer reduction factor box_scale
 // so they will match what the network will output.
 // Returns nullptr on error. The returned Pix must be pixDestroyed.
-Pix *PrepareDistortedPix(const Pix *pix, bool perspective, bool invert, bool white_noise,
+Image PrepareDistortedPix(const Image pix, bool perspective, bool invert, bool white_noise,
                          bool smooth_noise, bool blur, int box_reduction, TRand *randomizer,
                          std::vector<TBOX> *boxes) {
-  Pix *distorted = pixCopy(nullptr, const_cast<Pix *>(pix));
+  Image distorted = pixCopy(nullptr, pix);
   // Things to do to synthetic training data.
   if ((white_noise || smooth_noise) && randomizer->SignedRand(1.0) > 0.0) {
     // TODO(rays) Cook noise in a more thread-safe manner than rand().
     // Attempt to make the sequences reproducible.
     srand(randomizer->IntRand());
-    Pix *pixn = pixAddGaussianNoise(distorted, 8.0);
-    pixDestroy(&distorted);
+    Image pixn = pixAddGaussianNoise(distorted, 8.0);
+    distorted.destroy();
     if (smooth_noise) {
       distorted = pixBlockconv(pixn, 1, 1);
-      pixDestroy(&pixn);
+      pixn.destroy();
     } else {
       distorted = pixn;
     }
   }
   if (blur && randomizer->SignedRand(1.0) > 0.0) {
-    Pix *blurred = pixBlockconv(distorted, 1, 1);
-    pixDestroy(&distorted);
+    Image blurred = pixBlockconv(distorted, 1, 1);
+    distorted.destroy();
     distorted = blurred;
   }
   if (perspective) {
@@ -219,7 +219,7 @@ Pix *PrepareDistortedPix(const Pix *pix, bool perspective, bool invert, bool whi
 // Distorts anything that has a non-null pointer with the same pseudo-random
 // perspective distortion. Width and height only need to be set if there
 // is no pix. If there is a pix, then they will be taken from there.
-void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Pix **pix,
+void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Image *pix,
                                    std::vector<TBOX> *boxes) {
   if (pix != nullptr && *pix != nullptr) {
     width = pixGetWidth(*pix);
@@ -230,12 +230,12 @@ void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Pix
   l_int32 incolor = ProjectiveCoeffs(width, height, randomizer, &im_coeffs, &box_coeffs);
   if (pix != nullptr && *pix != nullptr) {
     // Transform the image.
-    Pix *transformed = pixProjective(*pix, im_coeffs, incolor);
+    Image transformed = pixProjective(*pix, im_coeffs, incolor);
     if (transformed == nullptr) {
       tprintf("ERROR: Projective transformation failed!!\n");
       return;
     }
-    pixDestroy(pix);
+    pix->destroy();
     *pix = transformed;
   }
   if (boxes != nullptr) {

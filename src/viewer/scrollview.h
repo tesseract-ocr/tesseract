@@ -31,6 +31,8 @@
 #ifndef TESSERACT_VIEWER_SCROLLVIEW_H_
 #define TESSERACT_VIEWER_SCROLLVIEW_H_
 
+#include "image.h"
+
 #include <tesseract/export.h>   // for TS_PRINTFLIKE and TS_FORMAT_STRING
 
 #include <cstdio>
@@ -209,7 +211,7 @@ public:
    *******************************************************************************/
 
   // Draw a Pix on (x,y).
-  void Image(Pix *image, int x_pos, int y_pos);
+  void Image(Image image, int x_pos, int y_pos);
 
   // Flush buffers and update display.
   static void Update();
@@ -353,11 +355,11 @@ public:
 
 private:
   // Transfers a binary Image.
-  void TransferBinaryImage(struct Pix *image);
+  void TransferBinaryImage(struct Image image);
   // Transfers a gray scale Image.
-  void TransferGrayImage(struct Pix *image);
+  void TransferGrayImage(struct Image image);
   // Transfers a 32-Bit Image.
-  void Transfer32bppImage(struct Pix *image);
+  void Transfer32bppImage(struct Image image);
 
   // Sets up ScrollView, depending on the variables from the constructor.
   void Initialize(const char *name, int x_pos, int y_pos, int x_size, int y_size, int x_canvas_size,

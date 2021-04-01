@@ -321,7 +321,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
   // This ensures consistent recognition results.
   SetRandomSeed();
   int min_width = network_->XScaleFactor();
-  Pix *pix = Input::PrepareLSTMInputs(image_data, network_, min_width, &randomizer_, scale_factor);
+  Image pix = Input::PrepareLSTMInputs(image_data, network_, min_width, &randomizer_, scale_factor);
   if (pix == nullptr) {
     tprintf("ERROR: Line cannot be recognized!!\n");
     return false;
@@ -330,7 +330,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
   const int kMaxImageWidth = 128 * pixGetHeight(pix);
   if (network_->IsTraining() && pixGetWidth(pix) > kMaxImageWidth) {
     tprintf("ERROR: Image too large to learn!! Size = %dx%d\n", pixGetWidth(pix), pixGetHeight(pix));
-    pixDestroy(&pix);
+    pix.destroy();
     return false;
   }
   if (upside_down) {
@@ -370,7 +370,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
       network_->Forward(debug, *inputs, nullptr, &scratch_space_, outputs);
     }
   }
-  pixDestroy(&pix);
+  pix.destroy();
   if (debug) {
     std::vector<int> labels, coords;
     LabelsFromOutputs(*outputs, &labels, &coords);
@@ -404,7 +404,7 @@ std::string LSTMRecognizer::DecodeLabels(const std::vector<int> &labels) {
 void LSTMRecognizer::DisplayForward(const NetworkIO &inputs, const std::vector<int> &labels,
                                     const std::vector<int> &label_coords, const char *window_name,
                                     ScrollView **window) {
-  Pix *input_pix = inputs.ToPix();
+  Image input_pix = inputs.ToPix();
   Network::ClearWindow(false, window_name, pixGetWidth(input_pix), pixGetHeight(input_pix), window);
   int line_height = Network::DisplayImage(input_pix, *window);
   DisplayLSTMOutput(labels, label_coords, line_height, *window);

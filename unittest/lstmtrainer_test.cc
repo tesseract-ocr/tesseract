@@ -87,7 +87,7 @@ TEST_F(LSTMTrainerTest, ConvertModel) {
   // baseapi_test.cc).
   TessBaseAPI api;
   api.Init(FLAGS_test_tmpdir, "deu", tesseract::OEM_LSTM_ONLY);
-  Pix *src_pix = pixRead(TestingNameToPath("phototest.tif").c_str());
+  Image src_pix = pixRead(TestingNameToPath("phototest.tif").c_str());
   CHECK(src_pix);
   api.SetImage(src_pix);
   std::unique_ptr<char[]> result(api.GetUTF8Text());
@@ -96,7 +96,7 @@ TEST_F(LSTMTrainerTest, ConvertModel) {
       file::GetContents(TestingNameToPath("phototest.gold.txt"), &truth_text, file::Defaults()));
 
   EXPECT_STREQ(truth_text.c_str(), result.get());
-  pixDestroy(&src_pix);
+  src_pix.destroy();
 }
 
 } // namespace tesseract

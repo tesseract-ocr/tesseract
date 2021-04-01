@@ -30,20 +30,20 @@ namespace tesseract {
 // If rotation is not nullptr, the clockwise rotation in radians is saved there.
 // The input pix must be 8 bit grey. (Binary with values 0 and 255 is OK.)
 // The input image is destroyed and a different image returned.
-struct Pix *DegradeImage(struct Pix *input, int exposure, TRand *randomizer, float *rotation);
+struct Image DegradeImage(struct Image input, int exposure, TRand *randomizer, float *rotation);
 
 // Creates and returns a Pix distorted by various means according to the bool
 // flags. If boxes is not nullptr, the boxes are resized/positioned according to
 // any spatial distortion and also by the integer reduction factor box_scale
 // so they will match what the network will output.
 // Returns nullptr on error. The returned Pix must be pixDestroyed.
-Pix *PrepareDistortedPix(const Pix *pix, bool perspective, bool invert, bool white_noise,
+Image PrepareDistortedPix(const Image pix, bool perspective, bool invert, bool white_noise,
                          bool smooth_noise, bool blur, int box_reduction, TRand *randomizer,
                          std::vector<TBOX> *boxes);
 // Distorts anything that has a non-null pointer with the same pseudo-random
 // perspective distortion. Width and height only need to be set if there
 // is no pix. If there is a pix, then they will be taken from there.
-void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Pix **pix,
+void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Image *pix,
                                    std::vector<TBOX> *boxes);
 // Computes the coefficients of a randomized projective transformation.
 // The image transform requires backward transformation coefficient, and the

@@ -108,7 +108,7 @@ ColumnFinder::~ColumnFinder() {
   delete[] best_columns_;
   delete stroke_width_;
   delete input_blobs_win_;
-  pixDestroy(&nontext_map_);
+  nontext_map_.destroy();
   while (denorm_ != nullptr) {
     DENORM *dead_denorm = denorm_;
     denorm_ = const_cast<DENORM *>(denorm_->predecessor());
@@ -148,7 +148,7 @@ ColumnFinder::~ColumnFinder() {
 // direction, so the textline projection_ map can be setup.
 // On return, IsVerticallyAlignedText may be called (now optionally) to
 // determine the gross textline alignment of the page.
-void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode, Pix *photo_mask_pix,
+void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode, Image photo_mask_pix,
                                        TO_BLOCK *input_block) {
   part_grid_.Init(gridsize(), bleft(), tright());
   delete stroke_width_;
@@ -162,7 +162,7 @@ void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode, Pix *photo_mask
   }
 #endif // !GRAPHICS_DISABLED
   SetBlockRuleEdges(input_block);
-  pixDestroy(&nontext_map_);
+  nontext_map_.destroy();
   // Run a preliminary strokewidth neighbour detection on the medium blobs.
   stroke_width_->SetNeighboursOnMediumBlobs(input_block);
   CCNonTextDetect nontext_detect(gridsize(), bleft(), tright());
@@ -283,9 +283,9 @@ void ColumnFinder::CorrectOrientation(TO_BLOCK *block, bool vertical_text_lines,
 // noise/diacriticness determined via classification.
 // Returns -1 if the user hits the 'd' key in the blocks window while running
 // in debug mode, which requests a retry with more debug info.
-int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix *scaled_color, int scaled_factor,
-                             TO_BLOCK *input_block, Pix *photo_mask_pix, Pix *thresholds_pix,
-                             Pix *grey_pix, DebugPixa *pixa_debug, BLOCK_LIST *blocks,
+int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Image scaled_color, int scaled_factor,
+                             TO_BLOCK *input_block, Image photo_mask_pix, Image thresholds_pix,
+                             Image grey_pix, DebugPixa *pixa_debug, BLOCK_LIST *blocks,
                              BLOBNBOX_LIST *diacritic_blobs, TO_BLOCK_LIST *to_blocks) {
   pixOr(photo_mask_pix, photo_mask_pix, nontext_map_);
   stroke_width_->FindLeaderPartitions(input_block, &part_grid_);

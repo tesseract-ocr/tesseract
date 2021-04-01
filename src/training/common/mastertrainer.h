@@ -289,7 +289,7 @@ private:
   // Vector of Pix pointers used for classifiers that need the image.
   // Indexed by page_num_ in the samples.
   // These images are owned by the trainer and need to be pixDestroyed.
-  std::vector<Pix *> page_images_;
+  std::vector<Image > page_images_;
   // Vector of filenames of loaded tr files.
   std::vector<std::string> tr_filenames_;
 };

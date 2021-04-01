@@ -66,8 +66,8 @@ public:
 
 private:
   // Constructor holding the actual node data.
-  SVMenuNode(int command_event, const char *txt, int tv, bool check_box_entry, const char *val,
-             const char *desc);
+  SVMenuNode(int command_event, const char *txt, int tv, bool check_box_entry, const char *val = "",
+             const char *desc = "");
 
   // Adds a new menu node to the current node.
   void AddChild(SVMenuNode *svmn);

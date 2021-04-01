@@ -134,10 +134,10 @@ void PDBLK::move(    // reposition block
 
 // Returns a binary Pix mask with a 1 pixel for every pixel within the
 // block. Rotates the coordinate system by rerotation prior to rendering.
-Pix *PDBLK::render_mask(const FCOORD &rerotation, TBOX *mask_box) {
+Image PDBLK::render_mask(const FCOORD &rerotation, TBOX *mask_box) {
   TBOX rotated_box(box);
   rotated_box.rotate(rerotation);
-  Pix *pix = pixCreate(rotated_box.width(), rotated_box.height(), 1);
+  Image pix = pixCreate(rotated_box.width(), rotated_box.height(), 1);
   if (hand_poly != nullptr) {
     // We are going to rotate, so get a deep copy of the points and
     // make a new POLY_BLOCK with it.

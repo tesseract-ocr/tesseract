@@ -388,7 +388,7 @@ void C_BLOB::rotate(const FCOORD &rotation) {
 
 // Helper calls ComputeEdgeOffsets or ComputeBinaryOffsets recursively on the
 // outline list and its children.
-static void ComputeEdgeOffsetsOutlineList(int threshold, Pix *pix, C_OUTLINE_LIST *list) {
+static void ComputeEdgeOffsetsOutlineList(int threshold, Image pix, C_OUTLINE_LIST *list) {
   C_OUTLINE_IT it(list);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     C_OUTLINE *outline = it.data();
@@ -405,7 +405,7 @@ static void ComputeEdgeOffsetsOutlineList(int threshold, Pix *pix, C_OUTLINE_LIS
 
 // Adds sub-pixel resolution EdgeOffsets for the outlines using greyscale
 // if the supplied pix is 8-bit or the binary edges if nullptr.
-void C_BLOB::ComputeEdgeOffsets(int threshold, Pix *pix) {
+void C_BLOB::ComputeEdgeOffsets(int threshold, Image pix) {
   ComputeEdgeOffsetsOutlineList(threshold, pix, &outlines);
 }
 
@@ -491,7 +491,7 @@ int16_t C_BLOB::EstimateBaselinePosition() {
   return best_min == box.top() ? bottom : best_min;
 }
 
-static void render_outline_list(C_OUTLINE_LIST *list, int left, int top, Pix *pix) {
+static void render_outline_list(C_OUTLINE_LIST *list, int left, int top, Image pix) {
   C_OUTLINE_IT it(list);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     C_OUTLINE *outline = it.data();
@@ -502,7 +502,7 @@ static void render_outline_list(C_OUTLINE_LIST *list, int left, int top, Pix *pi
   }
 }
 
-static void render_outline_list_outline(C_OUTLINE_LIST *list, int left, int top, Pix *pix) {
+static void render_outline_list_outline(C_OUTLINE_LIST *list, int left, int top, Image pix) {
   C_OUTLINE_IT it(list);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     C_OUTLINE *outline = it.data();
@@ -511,18 +511,18 @@ static void render_outline_list_outline(C_OUTLINE_LIST *list, int left, int top,
 }
 
 // Returns a Pix rendering of the blob. pixDestroy after use.
-Pix *C_BLOB::render() {
+Image C_BLOB::render() {
   TBOX box = bounding_box();
-  Pix *pix = pixCreate(box.width(), box.height(), 1);
+  Image pix = pixCreate(box.width(), box.height(), 1);
   render_outline_list(&outlines, box.left(), box.top(), pix);
   return pix;
 }
 
 // Returns a Pix rendering of the outline of the blob. (no fill).
 // pixDestroy after use.
-Pix *C_BLOB::render_outline() {
+Image C_BLOB::render_outline() {
   TBOX box = bounding_box();
-  Pix *pix = pixCreate(box.width(), box.height(), 1);
+  Image pix = pixCreate(box.width(), box.height(), 1);
   render_outline_list_outline(&outlines, box.left(), box.top(), pix);
   return pix;
 }

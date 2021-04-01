@@ -66,17 +66,17 @@ CLISTIZE(WordWithBox)
  *
  * Set the horizontal and vertical stroke widths in the blob.
  **********************************************************************/
-void SetBlobStrokeWidth(Pix *pix, BLOBNBOX *blob) {
+void SetBlobStrokeWidth(Image pix, BLOBNBOX *blob) {
   // Cut the blob rectangle into a Pix.
   int pix_height = pixGetHeight(pix);
   const TBOX &box = blob->bounding_box();
   int width = box.width();
   int height = box.height();
   Box *blob_pix_box = boxCreate(box.left(), pix_height - box.top(), width, height);
-  Pix *pix_blob = pixClipRectangle(pix, blob_pix_box, nullptr);
+  Image pix_blob = pixClipRectangle(pix, blob_pix_box, nullptr);
   boxDestroy(&blob_pix_box);
-  Pix *dist_pix = pixDistanceFunction(pix_blob, 4, 8, L_BOUNDARY_BG);
-  pixDestroy(&pix_blob);
+  Image dist_pix = pixDistanceFunction(pix_blob, 4, 8, L_BOUNDARY_BG);
+  pix_blob.destroy();
   // Compute the stroke widths.
   uint32_t *data = pixGetData(dist_pix);
   int wpl = pixGetWpl(dist_pix);
@@ -129,7 +129,7 @@ void SetBlobStrokeWidth(Pix *pix, BLOBNBOX *blob) {
       pixel = next_pixel;
     }
   }
-  pixDestroy(&dist_pix);
+  dist_pix.destroy();
   // Store the horizontal and vertical width in the blob, keeping both
   // widths if there is enough information, otherwise only the one with
   // the most samples.
@@ -160,7 +160,7 @@ void SetBlobStrokeWidth(Pix *pix, BLOBNBOX *blob) {
  * Make a list of TO_BLOCKs for portrait and landscape orientation.
  **********************************************************************/
 
-void assign_blobs_to_blocks2(Pix *pix,
+void assign_blobs_to_blocks2(Image pix,
                              BLOCK_LIST *blocks,           // blocks to process
                              TO_BLOCK_LIST *port_blocks) { // output list
   BLOCK *block;                                            // current block
@@ -211,7 +211,7 @@ void assign_blobs_to_blocks2(Pix *pix,
  * grades on different lists in the matching TO_BLOCK in to_blocks.
  **********************************************************************/
 
-void Textord::find_components(Pix *pix, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks) {
+void Textord::find_components(Image pix, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
   if (width > INT16_MAX || height > INT16_MAX) {

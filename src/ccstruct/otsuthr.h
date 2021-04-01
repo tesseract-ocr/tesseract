@@ -19,6 +19,8 @@
 #ifndef TESSERACT_CCMAIN_OTSUTHR_H_
 #define TESSERACT_CCMAIN_OTSUTHR_H_
 
+#include "image.h"
+
 #include <vector> // for std::vector
 
 struct Pix;
@@ -35,7 +37,7 @@ const int kHistogramSize = 256; // The size of a histogram of pixel values.
 // that there is no apparent foreground. At least one hi_value will not be -1.
 // The return value is the number of channels in the input image, being
 // the size of the output thresholds and hi_values arrays.
-int OtsuThreshold(Pix *src_pix, int left, int top, int width, int height,
+int OtsuThreshold(Image src_pix, int left, int top, int width, int height,
                   std::vector<int> &thresholds,
                   std::vector<int> &hi_values);
 
@@ -43,7 +45,7 @@ int OtsuThreshold(Pix *src_pix, int left, int top, int width, int height,
 // single channel. Each channel is always one byte per pixel.
 // Histogram is always a kHistogramSize(256) element array to count
 // occurrences of each pixel value.
-void HistogramRect(Pix *src_pix, int channel, int left, int top, int width, int height,
+void HistogramRect(Image src_pix, int channel, int left, int top, int width, int height,
                    int *histogram);
 
 // Computes the Otsu threshold(s) for the given histogram.

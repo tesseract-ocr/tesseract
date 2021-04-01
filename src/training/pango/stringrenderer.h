@@ -37,6 +37,8 @@
 #include "pango/pangocairo.h"
 #include "pango_font_info.h"
 
+#include "image.h"
+
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -56,14 +58,14 @@ public:
   // Renders the text with the chosen font and returns the byte offset up to
   // which the text could be rendered so as to fit the specified page
   // dimensions.
-  int RenderToImage(const char *text, int text_length, Pix **pix);
-  int RenderToGrayscaleImage(const char *text, int text_length, Pix **pix);
-  int RenderToBinaryImage(const char *text, int text_length, int threshold, Pix **pix);
+  int RenderToImage(const char *text, int text_length, Image *pix);
+  int RenderToGrayscaleImage(const char *text, int text_length, Image *pix);
+  int RenderToBinaryImage(const char *text, int text_length, int threshold, Image *pix);
   // Renders a line of text with all available fonts that were able to render
   // at least min_coverage fraction of the input text. Use 1.0 to require that
   // a font be able to render all the text.
   int RenderAllFontsToImage(double min_coverage, const char *text, int text_length,
-                            std::string *font_used, Pix **pix);
+                            std::string *font_used, Image *pix);
 
   bool set_font(const std::string &desc);
   // Char spacing is in PIXELS!!!!.

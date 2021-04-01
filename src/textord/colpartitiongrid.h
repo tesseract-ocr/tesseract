@@ -98,7 +98,7 @@ public:
   // nontext_map, which is used to prevent the spread of text neighbourhoods
   // into images.
   // Returns true if anything was changed.
-  bool GridSmoothNeighbours(BlobTextFlowType source_type, Pix *nontext_map, const TBOX &im_box,
+  bool GridSmoothNeighbours(BlobTextFlowType source_type, Image nontext_map, const TBOX &im_box,
                             const FCOORD &rerotation);
 
   // Reflects the grid and its colpartitions in the y-axis, assuming that
@@ -199,7 +199,7 @@ private:
   // nontext_map, which is used to prevent the spread of text neighbourhoods
   // into images.
   // Returns true if the partition was changed.
-  bool SmoothRegionType(Pix *nontext_map, const TBOX &im_box, const FCOORD &rerotation, bool debug,
+  bool SmoothRegionType(Image nontext_map, const TBOX &im_box, const FCOORD &rerotation, bool debug,
                         ColPartition *part);
   // Executes the search for SmoothRegionType in a single direction.
   // Creates a bounding box that is padded in all directions except direction,
@@ -207,7 +207,7 @@ private:
   // partitions that makes a decisive result (if any) and returns the type
   // and the distance of the collection. If there are any pixels in the
   // nontext_map, then the decision is biased towards image.
-  BlobRegionType SmoothInOneDirection(BlobNeighbourDir direction, Pix *nontext_map,
+  BlobRegionType SmoothInOneDirection(BlobNeighbourDir direction, Image nontext_map,
                                       const TBOX &im_box, const FCOORD &rerotation, bool debug,
                                       const ColPartition &part, int *best_distance);
   // Counts the partitions in the given search_box by appending the gap
@@ -216,7 +216,7 @@ private:
   // vectors in the dists array are sorted in increasing order.
   // dists must be an array of vectors of size NPT_COUNT.
   void AccumulatePartDistances(const ColPartition &base_part, const ICOORD &dist_scaling,
-                               const TBOX &search_box, Pix *nontext_map, const TBOX &im_box,
+                               const TBOX &search_box, Image nontext_map, const TBOX &im_box,
                                const FCOORD &rerotation, bool debug, std::vector<int> *dists);
 
   // Improves the margins of the ColPartition by searching for

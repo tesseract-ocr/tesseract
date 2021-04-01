@@ -56,8 +56,8 @@ public:
   }
 
   // Methods to construct histograms from images. These clear any existing data.
-  void ConstructVerticalCountHist(Pix *pix);
-  void ConstructHorizontalCountHist(Pix *pix);
+  void ConstructVerticalCountHist(Image pix);
+  void ConstructHorizontalCountHist(Image pix);
 
   // This method returns the global-maxima for the histogram. The frequency of
   // the global maxima is returned in count, if specified.
@@ -118,16 +118,16 @@ public:
   // Returns the image obtained from shiro-rekha splitting. The returned object
   // is owned by this class. Callers may want to clone the returned pix to keep
   // it alive beyond the life of ShiroRekhaSplitter object.
-  Pix *splitted_image() {
+  Image splitted_image() {
     return splitted_image_;
   }
 
   // On setting the input image, a clone of it is owned by this class.
-  void set_orig_pix(Pix *pix);
+  void set_orig_pix(Image pix);
 
   // Returns the input image provided to the object. This object is owned by
   // this class. Callers may want to clone the returned pix to work with it.
-  Pix *orig_pix() {
+  Image orig_pix() {
     return orig_pix_;
   }
 
@@ -154,12 +154,12 @@ public:
   // This method returns the computed mode-height of blobs in the pix.
   // It also prunes very small blobs from calculation. Could be used to provide
   // a global xheight estimate for images which have the same point-size text.
-  static int GetModeHeight(Pix *pix);
+  static int GetModeHeight(Image pix);
 
 private:
   // Method to perform a close operation on the input image. The xheight
   // estimate decides the size of sel used.
-  static void PerformClose(Pix *pix, int xheight_estimate);
+  static void PerformClose(Image pix, int xheight_estimate);
 
   // This method resolves the cc bbox to a particular row and returns the row's
   // xheight. This uses block_list_ if available, else just returns the
@@ -173,7 +173,7 @@ private:
   // conservative estimate of stroke width along with an associated multiplier
   // is used in its place. It is advisable to have a specified xheight when
   // splitting for classification/training.
-  void SplitWordShiroRekha(SplitStrategy split_strategy, Pix *pix, int xheight, int word_left,
+  void SplitWordShiroRekha(SplitStrategy split_strategy, Image pix, int xheight, int word_left,
                            int word_top, Boxa *regions_to_clear);
 
   // Returns a new box object for the corresponding TBOX, based on the original
@@ -182,15 +182,15 @@ private:
 
   // This method returns y-extents of the shiro-rekha computed from the input
   // word image.
-  static void GetShiroRekhaYExtents(Pix *word_pix, int *shirorekha_top, int *shirorekha_bottom,
+  static void GetShiroRekhaYExtents(Image word_pix, int *shirorekha_top, int *shirorekha_bottom,
                                     int *shirorekha_ylevel);
 
-  Pix *orig_pix_;       // Just a clone of the input image passed.
-  Pix *splitted_image_; // Image produced after the last splitting round. The
+  Image orig_pix_;       // Just a clone of the input image passed.
+  Image splitted_image_; // Image produced after the last splitting round. The
                         // object is owned by this class.
   SplitStrategy pageseg_split_strategy_;
   SplitStrategy ocr_split_strategy_;
-  Pix *debug_image_;
+  Image debug_image_;
   // This block list is used as a golden segmentation when performing splitting.
   BLOCK_LIST *segmentation_block_list_;
   int global_xheight_;

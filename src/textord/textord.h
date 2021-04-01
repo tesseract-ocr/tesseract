@@ -88,7 +88,7 @@ public:
   // diacritic_blobs contain small confusing components that should be added
   // to the appropriate word(s) in case they are really diacritics.
   void TextordPage(PageSegMode pageseg_mode, const FCOORD &reskew, int width, int height,
-                   Pix *binary_pix, Pix *thresholds_pix, Pix *grey_pix, bool use_box_bottoms,
+                   Image binary_pix, Image thresholds_pix, Image grey_pix, bool use_box_bottoms,
                    BLOBNBOX_LIST *diacritic_blobs, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks);
 
   // If we were supposed to return only a single textline, and there is more
@@ -113,7 +113,7 @@ public:
                        FCOORD rotation // for drawing
   );
   // tordmain.cpp ///////////////////////////////////////////
-  void find_components(Pix *pix, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks);
+  void find_components(Image pix, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks);
   void filter_blobs(ICOORD page_tr, TO_BLOCK_LIST *blocks, bool testing_on);
 
 private:

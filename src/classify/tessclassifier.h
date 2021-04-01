@@ -40,7 +40,7 @@ public:
 
   // Classifies the given [training] sample, writing to results.
   // See ShapeClassifier for a full description.
-  int UnicharClassifySample(const TrainingSample &sample, Pix *page_pix, int debug,
+  int UnicharClassifySample(const TrainingSample &sample, Image page_pix, int debug,
                             UNICHAR_ID keep_this, std::vector<UnicharRating> *results) override;
   // Provides access to the ShapeTable that this classifier works with.
   const ShapeTable *GetShapeTable() const override;
@@ -53,7 +53,7 @@ public:
   // windows to the windows output and returns a new index that may be used
   // by any subsequent classifiers. Caller waits for the user to view and
   // then destroys the windows by clearing the vector.
-  int DisplayClassifyAs(const TrainingSample &sample, Pix *page_pix, int unichar_id, int index,
+  int DisplayClassifyAs(const TrainingSample &sample, Image page_pix, int unichar_id, int index,
                         std::vector<ScrollView *> &windows) override;
 
 private:

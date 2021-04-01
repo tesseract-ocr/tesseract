@@ -20,6 +20,7 @@
 
 #include <tesseract/baseapi.h>
 #include <tesseract/ocrclass.h>
+#include "image.h"
 
 #include <allheaders.h>
 #include "gmock/gmock.h"
@@ -93,7 +94,7 @@ void ClassicProgressTester(const char *imgname, const char *tessdatadir, const c
 
   auto api = std::make_unique<tesseract::TessBaseAPI>();
   ASSERT_FALSE(api->Init(tessdatadir, lang)) << "Could not initialize tesseract.";
-  Pix *image = pixRead(imgname);
+  Image image = pixRead(imgname);
   ASSERT_TRUE(image != nullptr) << "Failed to read test image.";
   api->SetImage(image);
 
@@ -109,7 +110,7 @@ void ClassicProgressTester(const char *imgname, const char *tessdatadir, const c
   EXPECT_GE(currentProgress, 50) << "The reported progress did not reach 50%";
 
   api->End();
-  pixDestroy(&image);
+  image.destroy();
 }
 
 void NewProgressTester(const char *imgname, const char *tessdatadir, const char *lang) {
@@ -124,7 +125,7 @@ void NewProgressTester(const char *imgname, const char *tessdatadir, const char 
 
   auto api = std::make_unique<tesseract::TessBaseAPI>();
   ASSERT_FALSE(api->Init(tessdatadir, lang)) << "Could not initialize tesseract.";
-  Pix *image = pixRead(imgname);
+  Image image = pixRead(imgname);
   ASSERT_TRUE(image != nullptr) << "Failed to read test image.";
   api->SetImage(image);
 
@@ -141,7 +142,7 @@ void NewProgressTester(const char *imgname, const char *tessdatadir, const char 
   EXPECT_GE(currentProgress, 50) << "The reported progress did not reach 50%";
 
   api->End();
-  pixDestroy(&image);
+  image.destroy();
 }
 
 TEST(QuickTest, ClassicProgressReporting) {

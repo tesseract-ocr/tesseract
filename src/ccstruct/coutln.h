@@ -235,18 +235,18 @@ public:
 
   // Adds sub-pixel resolution EdgeOffsets for the outline if the supplied
   // pix is 8-bit. Does nothing otherwise.
-  void ComputeEdgeOffsets(int threshold, Pix *pix);
+  void ComputeEdgeOffsets(int threshold, Image pix);
   // Adds sub-pixel resolution EdgeOffsets for the outline using only
   // a binary image source.
   void ComputeBinaryOffsets();
 
   // Renders the outline to the given pix, with left and top being
   // the coords of the upper-left corner of the pix.
-  void render(int left, int top, Pix *pix) const;
+  void render(int left, int top, Image pix) const;
 
   // Renders just the outline to the given pix (no fill), with left and top
   // being the coords of the upper-left corner of the pix.
-  void render_outline(int left, int top, Pix *pix) const;
+  void render_outline(int left, int top, Image pix) const;
 
 #ifndef GRAPHICS_DISABLED
   void plot(                           // draw one

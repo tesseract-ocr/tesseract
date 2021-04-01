@@ -304,7 +304,7 @@ void WERD_RES::InitForRetryRecognition(const WERD_RES &source) {
 // normalization scale and offset.
 // Returns false if the word is empty and sets up fake results.
 bool WERD_RES::SetupForRecognition(const UNICHARSET &unicharset_in, tesseract::Tesseract *tess,
-                                   Pix *pix, int norm_mode, const TBOX *norm_box, bool numeric_mode,
+                                   Image pix, int norm_mode, const TBOX *norm_box, bool numeric_mode,
                                    bool use_body_size, bool allow_detailed_fx, ROW *row,
                                    const BLOCK *block) {
   auto norm_mode_hint = static_cast<tesseract::OcrEngineMode>(norm_mode);

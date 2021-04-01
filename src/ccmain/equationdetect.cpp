@@ -583,13 +583,13 @@ void EquationDetect::IdentifySeedParts() {
 }
 
 float EquationDetect::ComputeForegroundDensity(const TBOX &tbox) {
-  Pix *pix_bi = lang_tesseract_->pix_binary();
+  Image pix_bi = lang_tesseract_->pix_binary();
   const int pix_height = pixGetHeight(pix_bi);
   Box *box = boxCreate(tbox.left(), pix_height - tbox.top(), tbox.width(), tbox.height());
-  Pix *pix_sub = pixClipRectangle(pix_bi, box, nullptr);
+  Image pix_sub = pixClipRectangle(pix_bi, box, nullptr);
   l_float32 fract;
   pixForegroundFraction(pix_sub, &fract);
-  pixDestroy(&pix_sub);
+  pix_sub.destroy();
   boxDestroy(&box);
 
   return fract;
@@ -857,7 +857,8 @@ int EquationDetect::EstimateTextPartLineSpacing() {
 
   // Compute the line spacing from ygaps: use the mean of the first half.
   std::sort(ygaps.begin(), ygaps.end());
-  int spacing = 0, count;
+  int spacing = 0;
+  unsigned count;
   for (count = 0; count < ygaps.size() / 2; count++) {
     spacing += ygaps[count];
   }
@@ -1394,7 +1395,7 @@ void EquationDetect::GetOutputTiffName(const char *name, std::string &image_name
 }
 
 void EquationDetect::PaintSpecialTexts(const std::string &outfile) const {
-  Pix *pix = nullptr, *pixBi = lang_tesseract_->pix_binary();
+  Image pix = nullptr, pixBi = lang_tesseract_->pix_binary();
   pix = pixConvertTo32(pixBi);
   ColPartitionGridSearch gsearch(part_grid_);
   ColPartition *part = nullptr;
@@ -1407,11 +1408,11 @@ void EquationDetect::PaintSpecialTexts(const std::string &outfile) const {
   }
 
   pixWrite(outfile.c_str(), pix, IFF_TIFF_LZW);
-  pixDestroy(&pix);
+  pix.destroy();
 }
 
 void EquationDetect::PaintColParts(const std::string &outfile) const {
-  Pix *pix = pixConvertTo32(lang_tesseract_->BestPix());
+  Image pix = pixConvertTo32(lang_tesseract_->BestPix());
   ColPartitionGridSearch gsearch(part_grid_);
   gsearch.StartFullSearch();
   ColPartition *part = nullptr;
@@ -1429,7 +1430,7 @@ void EquationDetect::PaintColParts(const std::string &outfile) const {
   }
 
   pixWrite(outfile.c_str(), pix, IFF_TIFF_LZW);
-  pixDestroy(&pix);
+  pix.destroy();
 }
 
 void EquationDetect::PrintSpecialBlobsDensity(const ColPartition *part) const {

@@ -608,7 +608,7 @@ void ColPartitionGrid::SplitOverlappingPartitions(ColPartition_LIST *big_parts) 
 // nontext_map, which is used to prevent the spread of text neighbourhoods
 // into images.
 // Returns true if anything was changed.
-bool ColPartitionGrid::GridSmoothNeighbours(BlobTextFlowType source_type, Pix *nontext_map,
+bool ColPartitionGrid::GridSmoothNeighbours(BlobTextFlowType source_type, Image nontext_map,
                                             const TBOX &im_box, const FCOORD &rotation) {
   // Iterate the ColPartitions in the grid.
   ColPartitionGridSearch gsearch(this);
@@ -1392,7 +1392,7 @@ void ColPartitionGrid::FindMergeCandidates(const ColPartition *part, const TBOX 
 // nontext_map, which is used to prevent the spread of text neighbourhoods
 // into images.
 // Returns true if the partition was changed.
-bool ColPartitionGrid::SmoothRegionType(Pix *nontext_map, const TBOX &im_box,
+bool ColPartitionGrid::SmoothRegionType(Image nontext_map, const TBOX &im_box,
                                         const FCOORD &rerotation, bool debug, ColPartition *part) {
   const TBOX &part_box = part->bounding_box();
   if (debug) {
@@ -1511,7 +1511,7 @@ enum NeighbourPartitionType {
 // partitions that makes a decisive result (if any) and returns the type
 // and the distance of the collection. If there are any pixels in the
 // nontext_map, then the decision is biased towards image.
-BlobRegionType ColPartitionGrid::SmoothInOneDirection(BlobNeighbourDir direction, Pix *nontext_map,
+BlobRegionType ColPartitionGrid::SmoothInOneDirection(BlobNeighbourDir direction, Image nontext_map,
                                                       const TBOX &im_box, const FCOORD &rerotation,
                                                       bool debug, const ColPartition &part,
                                                       int *best_distance) {
@@ -1594,7 +1594,7 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(BlobNeighbourDir direction
 // dists must be an array of vectors of size NPT_COUNT.
 void ColPartitionGrid::AccumulatePartDistances(const ColPartition &base_part,
                                                const ICOORD &dist_scaling, const TBOX &search_box,
-                                               Pix *nontext_map, const TBOX &im_box,
+                                               Image nontext_map, const TBOX &im_box,
                                                const FCOORD &rerotation, bool debug,
                                                std::vector<int> *dists) {
   const TBOX &part_box = base_part.bounding_box();

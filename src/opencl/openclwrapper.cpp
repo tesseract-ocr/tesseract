@@ -629,7 +629,7 @@ static cl_mem allocateZeroCopyBuffer(const KernelEnv &rEnv, l_uint32 *hostbuffer
   return membuffer;
 }
 
-static Pix *mapOutputCLBuffer(const KernelEnv &rEnv, cl_mem clbuffer, Pix *pixd, Pix *pixs,
+static Image mapOutputCLBuffer(const KernelEnv &rEnv, cl_mem clbuffer, Image pixd, Image pixs,
                               int elements, cl_mem_flags flags, bool memcopy = false,
                               bool sync = true) {
   if (!pixd) {
@@ -673,7 +673,7 @@ void OpenclDevice::releaseMorphCLBuffers() {
   pixdCLIntermediate = pixsCLBuffer = pixdCLBuffer = pixThBuffer = nullptr;
 }
 
-int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, Pix *pixs) {
+int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, Image pixs) {
   SetKernelEnv(&rEnv);
 
   if (pixThBuffer != nullptr) {
@@ -1455,8 +1455,8 @@ static cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1, cl_me
 // OpenCL implementation of Get Lines from pix function
 // Note: Assumes the source and dest opencl buffer are initialized. No check
 // done
-void OpenclDevice::pixGetLinesCL(Pix *pixd, Pix *pixs, Pix **pix_vline, Pix **pix_hline,
-                                 Pix **pixClosed, bool getpixClosed, l_int32 close_hsize,
+void OpenclDevice::pixGetLinesCL(Image pixd, Image pixs, Image *pix_vline, Image *pix_hline,
+                                 Image *pixClosed, bool getpixClosed, l_int32 close_hsize,
                                  l_int32 close_vsize, l_int32 open_hsize, l_int32 open_vsize,
                                  l_int32 line_hsize, l_int32 line_vsize) {
   l_uint32 wpl, h;
@@ -1678,7 +1678,7 @@ int OpenclDevice::HistogramRectOCL(void *imageData, int bytes_per_pixel, int byt
  ************************************************************************/
 int OpenclDevice::ThresholdRectToPixOCL(unsigned char *imageData, int bytes_per_pixel,
                                         int bytes_per_line, int *thresholds, int *hi_values,
-                                        Pix **pix, int height, int width, int top, int left) {
+                                        Image *pix, int height, int width, int top, int left) {
   int retVal = 0;
   /* create pix result buffer */
   *pix = pixCreate(width, height, 1);
@@ -1783,7 +1783,7 @@ struct TessScoreEvaluationInputData {
   int width;
   int numChannels;
   unsigned char *imageData;
-  Pix *pix;
+  Image pix;
 };
 
 static void populateTessScoreEvaluationInputData(TessScoreEvaluationInputData *input) {
@@ -1928,7 +1928,7 @@ static double composeRGBPixelMicroBench(GPUEnv *env, TessScoreEvaluationInputDat
 #  else
     clock_gettime(CLOCK_MONOTONIC, &time_funct_start);
 #  endif
-    Pix *pix = pixCreate(input.width, input.height, 32);
+    Image pix = pixCreate(input.width, input.height, 32);
     l_uint32 *pixData = pixGetData(pix);
     int i, j;
     int idx = 0;
@@ -1954,7 +1954,7 @@ static double composeRGBPixelMicroBench(GPUEnv *env, TessScoreEvaluationInputDat
     time = (time_funct_end.tv_sec - time_funct_start.tv_sec) * 1.0 +
            (time_funct_end.tv_nsec - time_funct_start.tv_nsec) / 1000000000.0;
 #  endif
-    pixDestroy(&pix);
+    pix.destroy();
   }
 
   return time;
@@ -2044,7 +2044,7 @@ static double histogramRectMicroBench(GPUEnv *env, TessScoreEvaluationInputData 
 // Reproducing the ThresholdRectToPix native version
 static void ThresholdRectToPix_Native(const unsigned char *imagedata, int bytes_per_pixel,
                                       int bytes_per_line, const int *thresholds,
-                                      const int *hi_values, Pix **pix) {
+                                      const int *hi_values, Image *pix) {
   int top = 0;
   int left = 0;
   int width = pixGetWidth(*pix);
@@ -2193,7 +2193,7 @@ static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputD
 #  endif
     OpenclDevice::gpuEnv = *env;
     OpenclDevice::initMorphCLAllocations(wpl, input.height, input.pix);
-    Pix *pix_vline = nullptr, *pix_hline = nullptr, *pix_closed = nullptr;
+    Image pix_vline = nullptr, *pix_hline = nullptr, *pix_closed = nullptr;
     OpenclDevice::pixGetLinesCL(nullptr, input.pix, &pix_vline, &pix_hline, &pix_closed, true,
                                 closing_brick, closing_brick, max_line_width, max_line_width,
                                 min_line_length, min_line_length);
@@ -2221,16 +2221,16 @@ static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputD
 #  endif
 
     // native serial code
-    Pix *src_pix = input.pix;
-    Pix *pix_closed = pixCloseBrick(nullptr, src_pix, closing_brick, closing_brick);
-    Pix *pix_solid = pixOpenBrick(nullptr, pix_closed, max_line_width, max_line_width);
-    Pix *pix_hollow = pixSubtract(nullptr, pix_closed, pix_solid);
-    pixDestroy(&pix_solid);
-    Pix *pix_vline = pixOpenBrick(nullptr, pix_hollow, 1, min_line_length);
-    Pix *pix_hline = pixOpenBrick(nullptr, pix_hollow, min_line_length, 1);
-    pixDestroy(&pix_hline);
-    pixDestroy(&pix_vline);
-    pixDestroy(&pix_hollow);
+    Image src_pix = input.pix;
+    Image pix_closed = pixCloseBrick(nullptr, src_pix, closing_brick, closing_brick);
+    Image pix_solid = pixOpenBrick(nullptr, pix_closed, max_line_width, max_line_width);
+    Image pix_hollow = pixSubtract(nullptr, pix_closed, pix_solid);
+    pix_solid.destroy();
+    Image pix_vline = pixOpenBrick(nullptr, pix_hollow, 1, min_line_length);
+    Image pix_hline = pixOpenBrick(nullptr, pix_hollow, min_line_length, 1);
+    pix_hline.destroy();
+    pix_vline.destroy();
+    pix_hollow.destroy();
 
 #  if ON_WINDOWS
     QueryPerformanceCounter(&time_funct_end);

@@ -351,7 +351,7 @@ void StrokeWidth::RemoveLineResidue(ColPartition_LIST *big_part_list) {
 // Large blobs that cause overlap are put in separate partitions and added
 // to the big_parts list.
 void StrokeWidth::GradeBlobsIntoPartitions(PageSegMode pageseg_mode, const FCOORD &rerotation,
-                                           TO_BLOCK *block, Pix *nontext_pix, const DENORM *denorm,
+                                           TO_BLOCK *block, Image nontext_pix, const DENORM *denorm,
                                            bool cjk_script, TextlineProjection *projection,
                                            BLOBNBOX_LIST *diacritic_blobs,
                                            ColPartitionGrid *part_grid,

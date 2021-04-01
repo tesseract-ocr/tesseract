@@ -123,7 +123,7 @@ void NetworkIO::ZeroInvalidElements() {
 // of text, so a horizontal line through the middle of the image passes through
 // at least some of it, so local minima and maxima are a good proxy for black
 // and white pixel samples.
-static void ComputeBlackWhite(Pix *pix, float *black, float *white) {
+static void ComputeBlackWhite(Image pix, float *black, float *white) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
   STATS mins(0, 256), maxes(0, 256);
@@ -159,21 +159,21 @@ static void ComputeBlackWhite(Pix *pix, float *black, float *white) {
 // Sets up the array from the given image, using the currently set int_mode_.
 // If the image width doesn't match the shape, the image is truncated or padded
 // with noise to match.
-void NetworkIO::FromPix(const StaticShape &shape, const Pix *pix, TRand *randomizer) {
-  std::vector<const Pix *> pixes(1, pix);
+void NetworkIO::FromPix(const StaticShape &shape, const Image pix, TRand *randomizer) {
+  std::vector<Image> pixes(1, pix);
   FromPixes(shape, pixes, randomizer);
 }
 
 // Sets up the array from the given set of images, using the currently set
 // int_mode_. If the image width doesn't match the shape, the images are
 // truncated or padded with noise to match.
-void NetworkIO::FromPixes(const StaticShape &shape, const std::vector<const Pix *> &pixes,
+void NetworkIO::FromPixes(const StaticShape &shape, const std::vector<Image> &pixes,
                           TRand *randomizer) {
   int target_height = shape.height();
   int target_width = shape.width();
   std::vector<std::pair<int, int>> h_w_pairs;
   for (auto pix : pixes) {
-    Pix *var_pix = const_cast<Pix *>(pix);
+    Image var_pix = pix;
     int width = pixGetWidth(var_pix);
     if (target_width != 0) {
       width = target_width;
@@ -188,7 +188,7 @@ void NetworkIO::FromPixes(const StaticShape &shape, const std::vector<const Pix 
   ResizeToMap(int_mode(), stride_map_, shape.depth());
   // Iterate over the images again to copy the data.
   for (size_t b = 0; b < pixes.size(); ++b) {
-    Pix *pix = const_cast<Pix *>(pixes[b]);
+    Image pix = pixes[b];
     float black = 0.0f, white = 255.0f;
     if (shape.depth() != 3) {
       ComputeBlackWhite(pix, &black, &white);
@@ -212,7 +212,7 @@ void NetworkIO::FromPixes(const StaticShape &shape, const std::vector<const Pix 
 // of input channels, the height is the height of the image, and the width
 // is the width of the image, or truncated/padded with noise if the width
 // is a fixed size.
-void NetworkIO::Copy2DImage(int batch, Pix *pix, float black, float contrast, TRand *randomizer) {
+void NetworkIO::Copy2DImage(int batch, Image pix, float black, float contrast, TRand *randomizer) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
   int wpl = pixGetWpl(pix);
@@ -253,7 +253,7 @@ void NetworkIO::Copy2DImage(int batch, Pix *pix, float black, float contrast, TR
 // above, except that the output depth is the height of the input image, the
 // output height is 1, and the output width as for Copy2DImage.
 // The image is thus treated as a 1-d set of vertical pixel strips.
-void NetworkIO::Copy1DGreyImage(int batch, Pix *pix, float black, float contrast,
+void NetworkIO::Copy1DGreyImage(int batch, Image pix, float black, float contrast,
                                 TRand *randomizer) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
@@ -296,7 +296,7 @@ void NetworkIO::SetPixel(int t, int f, int pixel, float black, float contrast) {
 }
 
 // Converts the array to a Pix. Must be pixDestroyed after use.
-Pix *NetworkIO::ToPix() const {
+Image NetworkIO::ToPix() const {
   // Count the width of the image, and find the max multiplication factor.
   int im_width = stride_map_.Size(FD_WIDTH);
   int im_height = stride_map_.Size(FD_HEIGHT);
@@ -307,7 +307,7 @@ Pix *NetworkIO::ToPix() const {
     num_features = 1;
     feature_factor = 3;
   }
-  Pix *pix = pixCreate(im_width, im_height * num_features, 32);
+  Image pix = pixCreate(im_width, im_height * num_features, 32);
   StrideMap::Index index(stride_map_);
   do {
     int im_x = index.index(FD_WIDTH);

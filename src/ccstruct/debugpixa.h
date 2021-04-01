@@ -1,6 +1,8 @@
 #ifndef TESSERACT_CCSTRUCT_DEBUGPIXA_H_
 #define TESSERACT_CCSTRUCT_DEBUGPIXA_H_
 
+#include "image.h"
+
 #include <allheaders.h>
 
 namespace tesseract {
@@ -27,11 +29,11 @@ public:
 
   // Adds the given pix to the set of pages in the PDF file, with the given
   // caption added to the top.
-  void AddPix(const Pix *pix, const char *caption) {
-    int depth = pixGetDepth(const_cast<Pix *>(pix));
+  void AddPix(const Image pix, const char *caption) {
+    int depth = pixGetDepth(pix);
     int color = depth < 8 ? 1 : (depth > 8 ? 0x00ff0000 : 0x80);
-    Pix *pix_debug =
-        pixAddSingleTextblock(const_cast<Pix *>(pix), fonts_, caption, color, L_ADD_BELOW, nullptr);
+    Image pix_debug =
+        pixAddSingleTextblock(pix, fonts_, caption, color, L_ADD_BELOW, nullptr);
     pixaAddPix(pixa_, pix_debug, L_INSERT);
   }
 

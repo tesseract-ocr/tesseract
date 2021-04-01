@@ -736,7 +736,7 @@ static bool EvaluateHorizontalDiff(const l_uint32 *line, int diff_sign, int x, i
  * for each horizontal step, and the conflict in step direction and gradient
  * direction can be used to ignore the vertical steps.
  */
-void C_OUTLINE::ComputeEdgeOffsets(int threshold, Pix *pix) {
+void C_OUTLINE::ComputeEdgeOffsets(int threshold, Image pix) {
   if (pixGetDepth(pix) != 8) {
     return;
   }
@@ -904,7 +904,7 @@ void C_OUTLINE::ComputeBinaryOffsets() {
  * Renders the outline to the given pix, with left and top being
  * the coords of the upper-left corner of the pix.
  */
-void C_OUTLINE::render(int left, int top, Pix *pix) const {
+void C_OUTLINE::render(int left, int top, Image pix) const {
   ICOORD pos = start;
   for (int stepindex = 0; stepindex < stepcount; ++stepindex) {
     ICOORD next_step = step(stepindex);
@@ -924,7 +924,7 @@ void C_OUTLINE::render(int left, int top, Pix *pix) const {
  * @param top coord
  * @param pix the pix to outline
  */
-void C_OUTLINE::render_outline(int left, int top, Pix *pix) const {
+void C_OUTLINE::render_outline(int left, int top, Image pix) const {
   ICOORD pos = start;
   for (int stepindex = 0; stepindex < stepcount; ++stepindex) {
     ICOORD next_step = step(stepindex);

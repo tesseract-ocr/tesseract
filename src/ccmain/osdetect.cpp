@@ -158,7 +158,7 @@ void OSResults::accumulate(const OSResults &osr) {
 // image, so that non-text blobs are removed from consideration.
 static void remove_nontext_regions(tesseract::Tesseract *tess, BLOCK_LIST *blocks,
                                    TO_BLOCK_LIST *to_blocks) {
-  Pix *pix = tess->pix_binary();
+  Image pix = tess->pix_binary();
   ASSERT_HOST(pix != nullptr);
   int vertical_x = 0;
   int vertical_y = 1;
@@ -174,10 +174,10 @@ static void remove_nontext_regions(tesseract::Tesseract *tess, BLOCK_LIST *block
 
   tesseract::LineFinder::FindAndRemoveLines(resolution, false, pix, &vertical_x, &vertical_y,
                                             nullptr, &v_lines, &h_lines);
-  Pix *im_pix = tesseract::ImageFind::FindImages(pix, nullptr);
+  Image im_pix = tesseract::ImageFind::FindImages(pix, nullptr);
   if (im_pix != nullptr) {
     pixSubtract(pix, pix, im_pix);
-    pixDestroy(&im_pix);
+    im_pix.destroy();
   }
   tess->mutable_textord()->find_components(tess->pix_binary(), blocks, to_blocks);
 }

@@ -63,7 +63,7 @@ MasterTrainer::MasterTrainer(NormalizationMode norm_mode, bool shape_analysis,
 MasterTrainer::~MasterTrainer() {
   delete[] fragments_;
   for (auto &page_image : page_images_) {
-    pixDestroy(&page_image);
+    page_image.destroy();
   }
 }
 
@@ -219,7 +219,7 @@ void MasterTrainer::AddSample(bool verification, const char *unichar, TrainingSa
 void MasterTrainer::LoadPageImages(const char *filename) {
   size_t offset = 0;
   int page;
-  Pix *pix;
+  Image pix;
   for (page = 0;; page++) {
     pix = pixReadFromMultipageTiff(filename, &offset);
     if (!pix) {

@@ -113,7 +113,7 @@ public:
   // Large blobs that cause overlap are put in separate partitions and added
   // to the big_parts list.
   void GradeBlobsIntoPartitions(PageSegMode pageseg_mode, const FCOORD &rerotation, TO_BLOCK *block,
-                                Pix *nontext_pix, const DENORM *denorm, bool cjk_script,
+                                Image nontext_pix, const DENORM *denorm, bool cjk_script,
                                 TextlineProjection *projection, BLOBNBOX_LIST *diacritic_blobs,
                                 ColPartitionGrid *part_grid, ColPartition_LIST *big_parts);
 
@@ -306,7 +306,7 @@ private:
 
 private:
   // Image map of photo/noise areas on the page. Borrowed pointer (not owned.)
-  Pix *nontext_map_;
+  Image nontext_map_;
   // Textline projection map. Borrowed pointer.
   TextlineProjection *projection_;
   // DENORM used by projection_ to get back to image coords. Borrowed pointer.

@@ -322,7 +322,7 @@ void OL_BUCKETS::extract_children( // recursive count
  * Run the edge detector over the block and return a list of blobs.
  */
 
-void extract_edges(Pix *pix,       // thresholded image
+void extract_edges(Image pix,       // thresholded image
                    BLOCK *block) { // block to scan
   C_OUTLINE_LIST outlines;         // outlines in block
   C_OUTLINE_IT out_it = &outlines;

@@ -61,7 +61,7 @@ protected:
     PangoFontInfo::SoftInitFontConfig(); // init early
   }
 
-  void DisplayClusterBoxes(Pix *pix) {
+  void DisplayClusterBoxes(Image pix) {
     if (!FLAGS_display) {
       return;
     }
@@ -72,34 +72,34 @@ protected:
         boxaAddBox(boxes, const_cast<Box *>(boxchar->box()), L_CLONE);
       }
     }
-    Pix *box_pix = pixDrawBoxaRandom(pix, boxes, 1);
+    Image box_pix = pixDrawBoxaRandom(pix, boxes, 1);
     boxaDestroy(&boxes);
     pixDisplay(box_pix, 0, 0);
-    pixDestroy(&box_pix);
+    box_pix.destroy();
   }
   std::unique_ptr<StringRenderer> renderer_;
 };
 
 TEST_F(StringRendererTest, DoesRenderToImage) {
   renderer_ = std::make_unique<StringRenderer>("Verdana 10", 600, 600);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   EXPECT_EQ(strlen(kEngText), renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
   EXPECT_TRUE(pix != nullptr);
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
 
   renderer_ = std::make_unique<StringRenderer>("UnBatang 10", 600, 600);
   EXPECT_EQ(strlen(kKorText), renderer_->RenderToImage(kKorText, strlen(kKorText), &pix));
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
 
   renderer_ = std::make_unique<StringRenderer>("Lohit Hindi 10", 600, 600);
   EXPECT_EQ(strlen(kHinText), renderer_->RenderToImage(kHinText, strlen(kHinText), &pix));
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
 
   // RTL text
   renderer_ = std::make_unique<StringRenderer>("Arab 10", 600, 600);
@@ -107,7 +107,7 @@ TEST_F(StringRendererTest, DoesRenderToImage) {
   EXPECT_TRUE(pix != nullptr);
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
 
   // Mixed direction Arabic + english text
   renderer_ = std::make_unique<StringRenderer>("Arab 10", 600, 600);
@@ -115,7 +115,7 @@ TEST_F(StringRendererTest, DoesRenderToImage) {
   EXPECT_TRUE(pix != nullptr);
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
 }
 
 TEST_F(StringRendererTest, DoesRenderToImageWithUnderline) {
@@ -123,12 +123,12 @@ TEST_F(StringRendererTest, DoesRenderToImageWithUnderline) {
   // Underline all words but NOT intervening spaces.
   renderer_->set_underline_start_prob(1.0);
   renderer_->set_underline_continuation_prob(0);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   EXPECT_EQ(strlen(kEngText), renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
   EXPECT_TRUE(pix != nullptr);
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
   renderer_->ClearBoxes();
 
   // Underline all words AND intervening spaces.
@@ -138,7 +138,7 @@ TEST_F(StringRendererTest, DoesRenderToImageWithUnderline) {
   EXPECT_TRUE(pix != nullptr);
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
   renderer_->ClearBoxes();
 
   // Underline words and intervening spaces with 0.5 prob.
@@ -148,14 +148,14 @@ TEST_F(StringRendererTest, DoesRenderToImageWithUnderline) {
   EXPECT_TRUE(pix != nullptr);
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
 }
 
 TEST_F(StringRendererTest, DoesHandleNewlineCharacters) {
   const char kRawText[] = "\n\n\n A \nB \nC \n\n\n";
   const char kStrippedText[] = " A B C "; // text with newline chars removed
   renderer_ = std::make_unique<StringRenderer>("Verdana 10", 600, 600);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   EXPECT_EQ(strlen(kRawText), renderer_->RenderToImage(kRawText, strlen(kRawText), &pix));
   EXPECT_TRUE(pix != nullptr);
   const std::vector<BoxChar *> &boxchars = renderer_->GetBoxes();
@@ -168,14 +168,14 @@ TEST_F(StringRendererTest, DoesHandleNewlineCharacters) {
     }
   }
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
 }
 
 TEST_F(StringRendererTest, DoesRenderLigatures) {
   renderer_ = std::make_unique<StringRenderer>("Arab 12", 600, 250);
   const char kArabicLigature[] = "لا";
 
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   EXPECT_EQ(strlen(kArabicLigature),
             renderer_->RenderToImage(kArabicLigature, strlen(kArabicLigature), &pix));
   EXPECT_TRUE(pix != nullptr);
@@ -185,13 +185,13 @@ TEST_F(StringRendererTest, DoesRenderLigatures) {
   EXPECT_TRUE(boxes[0]->box() != nullptr);
   EXPECT_STREQ(kArabicLigature, boxes[0]->ch().c_str());
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
 
   renderer_ = std::make_unique<StringRenderer>("Arab 12", 600, 250);
   const char kArabicMixedText[] = "والفكر والصراع 1234,\nوالفكر لا والصراع";
   renderer_->RenderToImage(kArabicMixedText, strlen(kArabicMixedText), &pix);
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
 }
 
 static int FindBoxCharXCoord(const std::vector<BoxChar *> &boxchars, const std::string &ch) {
@@ -205,7 +205,7 @@ static int FindBoxCharXCoord(const std::vector<BoxChar *> &boxchars, const std::
 
 TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
   renderer_ = std::make_unique<StringRenderer>("Arab 10", 600, 600);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   // Arabic letters should be in decreasing x-coordinates
   const char kArabicWord[] = "\u0644\u0627\u0641\u0643\u0631";
   const std::string kRevWord = "\u0631\u0643\u0641\u0627\u0644";
@@ -225,12 +225,12 @@ TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
   // Just to prove there was a ligature, the number of texts is less than the
   // number of unicodes.
   EXPECT_LT(texts.size(), 5);
-  pixDestroy(&pix);
+  pix.destroy();
 }
 
 TEST_F(StringRendererTest, DoesOutputBoxcharsInReadingOrder) {
   renderer_ = std::make_unique<StringRenderer>("Arab 10", 600, 600);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   // Arabic letters should be in decreasing x-coordinates
   const char kArabicWord[] = "والفكر";
   renderer_->RenderToImage(kArabicWord, strlen(kArabicWord), &pix);
@@ -239,7 +239,7 @@ TEST_F(StringRendererTest, DoesOutputBoxcharsInReadingOrder) {
   for (size_t i = 1; i < boxchars.size(); ++i) {
     EXPECT_GT(boxchars[i - 1]->box()->x, boxchars[i]->box()->x) << boxchars[i - 1]->ch();
   }
-  pixDestroy(&pix);
+  pix.destroy();
 
   // English letters should be in increasing x-coordinates
   const char kEnglishWord[] = "Google";
@@ -249,7 +249,7 @@ TEST_F(StringRendererTest, DoesOutputBoxcharsInReadingOrder) {
   for (size_t i = 1; i < boxchars.size(); ++i) {
     EXPECT_LT(boxchars[i - 1]->box()->x, boxchars[i]->box()->x) << boxchars[i - 1]->ch();
   }
-  pixDestroy(&pix);
+  pix.destroy();
 
   // Mixed text should satisfy both.
   renderer_->ClearBoxes();
@@ -257,30 +257,30 @@ TEST_F(StringRendererTest, DoesOutputBoxcharsInReadingOrder) {
   EXPECT_LT(FindBoxCharXCoord(boxchars, "a"), FindBoxCharXCoord(boxchars, "b"));
   EXPECT_LT(FindBoxCharXCoord(boxchars, "1"), FindBoxCharXCoord(boxchars, "2"));
   EXPECT_GT(FindBoxCharXCoord(boxchars, "و"), FindBoxCharXCoord(boxchars, "ر"));
-  pixDestroy(&pix);
+  pix.destroy();
 }
 
 TEST_F(StringRendererTest, DoesRenderVerticalText) {
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   renderer_ = std::make_unique<StringRenderer>("UnBatang 10", 600, 600);
   renderer_->set_vertical_text(true);
   EXPECT_EQ(strlen(kKorText), renderer_->RenderToImage(kKorText, strlen(kKorText), &pix));
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   DisplayClusterBoxes(pix);
-  pixDestroy(&pix);
+  pix.destroy();
 }
 
 // Checks that we preserve charboxes across RenderToImage calls, with
 // appropriate page numbers.
 TEST_F(StringRendererTest, DoesKeepAllImageBoxes) {
   renderer_ = std::make_unique<StringRenderer>("Verdana 10", 600, 600);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   int num_boxes_per_page = 0;
   const int kNumTrials = 2;
   for (int i = 0; i < kNumTrials; ++i) {
     EXPECT_EQ(strlen(kEngText), renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
     EXPECT_TRUE(pix != nullptr);
-    pixDestroy(&pix);
+    pix.destroy();
     EXPECT_GT(renderer_->GetBoxes().size(), 0);
     if (!num_boxes_per_page) {
       num_boxes_per_page = renderer_->GetBoxes().size();
@@ -295,25 +295,25 @@ TEST_F(StringRendererTest, DoesKeepAllImageBoxes) {
 
 TEST_F(StringRendererTest, DoesClearBoxes) {
   renderer_ = std::make_unique<StringRenderer>("Verdana 10", 600, 600);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   EXPECT_EQ(strlen(kEngText), renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
-  pixDestroy(&pix);
+  pix.destroy();
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   const int num_boxes_per_page = renderer_->GetBoxes().size();
 
   renderer_->ClearBoxes();
   EXPECT_EQ(strlen(kEngText), renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
-  pixDestroy(&pix);
+  pix.destroy();
   EXPECT_EQ(num_boxes_per_page, renderer_->GetBoxes().size());
 }
 
 TEST_F(StringRendererTest, DoesLigatureTextForRendering) {
   renderer_ = std::make_unique<StringRenderer>("Verdana 10", 600, 600);
   renderer_->set_add_ligatures(true);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   EXPECT_EQ(strlen(kEngNonLigatureText),
             renderer_->RenderToImage(kEngNonLigatureText, strlen(kEngNonLigatureText), &pix));
-  pixDestroy(&pix);
+  pix.destroy();
   // There should be one less box than letters due to the 'fi' ligature.
   EXPECT_EQ(strlen(kEngNonLigatureText) - 1, renderer_->GetBoxes().size());
   // The output box text should be ligatured.
@@ -322,10 +322,10 @@ TEST_F(StringRendererTest, DoesLigatureTextForRendering) {
 
 TEST_F(StringRendererTest, DoesRetainInputLigatureForRendering) {
   renderer_ = std::make_unique<StringRenderer>("Verdana 10", 600, 600);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   EXPECT_EQ(strlen(kEngLigatureText),
             renderer_->RenderToImage(kEngLigatureText, strlen(kEngLigatureText), &pix));
-  pixDestroy(&pix);
+  pix.destroy();
   // There should be one less box than letters due to the 'fi' ligature.
   EXPECT_EQ(strlen(kEngNonLigatureText) - 1, renderer_->GetBoxes().size());
   // The output box text should be ligatured.
@@ -344,9 +344,9 @@ TEST_F(StringRendererTest, DoesStripUnrenderableWords) {
 TEST_F(StringRendererTest, DoesRenderWordBoxes) {
   renderer_ = std::make_unique<StringRenderer>("Verdana 10", 600, 600);
   renderer_->set_output_word_boxes(true);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   EXPECT_EQ(strlen(kEngText), renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
-  pixDestroy(&pix);
+  pix.destroy();
   // Verify #boxchars = #words + #spaces
   std::vector<std::string> words = absl::StrSplit(kEngText, ' ', absl::SkipEmpty());
   const int kNumSpaces = words.size() - 1;
@@ -366,10 +366,10 @@ TEST_F(StringRendererTest, DoesRenderWordBoxes) {
 TEST_F(StringRendererTest, DoesRenderWordBoxesFromMultiLineText) {
   renderer_ = std::make_unique<StringRenderer>("Verdana 10", 600, 600);
   renderer_->set_output_word_boxes(true);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   const char kMultlineText[] = "the quick brown fox\njumps over the lazy dog";
   EXPECT_EQ(strlen(kMultlineText), renderer_->RenderToImage(kMultlineText, strlen(kEngText), &pix));
-  pixDestroy(&pix);
+  pix.destroy();
   // Verify #boxchars = #words + #spaces + #newlines
   std::vector<std::string> words =
       absl::StrSplit(kMultlineText, absl::ByAnyChar(" \n"), absl::SkipEmpty());
@@ -392,7 +392,7 @@ TEST_F(StringRendererTest, DoesRenderAllFontsToImage) {
   size_t offset = 0;
   std::string font_used;
   do {
-    Pix *pix = nullptr;
+    Image pix = nullptr;
     font_used.clear();
     offset += renderer_->RenderAllFontsToImage(1.0, kEngText + offset, strlen(kEngText + offset),
                                                &font_used, &pix);
@@ -403,7 +403,7 @@ TEST_F(StringRendererTest, DoesRenderAllFontsToImage) {
     if (FLAGS_display) {
       pixDisplay(pix, 0, 0);
     }
-    pixDestroy(&pix);
+    pix.destroy();
   } while (offset < strlen(kEngText));
 }
 
@@ -411,9 +411,9 @@ TEST_F(StringRendererTest, DoesNotRenderWordJoiner) {
   renderer_ = std::make_unique<StringRenderer>("Verdana 10", 500, 200);
   const std::string word = "A- -B C-D A BC";
   const std::string joined_word = StringRenderer::InsertWordJoiners(word);
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   renderer_->RenderToImage(joined_word.c_str(), joined_word.length(), &pix);
-  pixDestroy(&pix);
+  pix.destroy();
   const std::vector<BoxChar *> &boxchars = renderer_->GetBoxes();
   const std::string kWordJoinerUTF8 = "\u2060";
   ASSERT_EQ(word.length(), boxchars.size());
@@ -428,11 +428,11 @@ TEST_F(StringRendererTest, DISABLED_DoesDropUncoveredChars) {
   renderer_->set_drop_uncovered_chars(true);
   const std::string kWord = "oﬀice";
   const std::string kCleanWord = "oice";
-  Pix *pix = nullptr;
+  Image pix = nullptr;
   EXPECT_FALSE(renderer_->font().CanRenderString(kWord.c_str(), kWord.length()));
   EXPECT_FALSE(renderer_->font().CoversUTF8Text(kWord.c_str(), kWord.length()));
   int offset = renderer_->RenderToImage(kWord.c_str(), kWord.length(), &pix);
-  pixDestroy(&pix);
+  pix.destroy();
   const std::vector<BoxChar *> &boxchars = renderer_->GetBoxes();
   EXPECT_EQ(kWord.length(), offset);
   ASSERT_EQ(kCleanWord.length(), boxchars.size());
