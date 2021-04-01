@@ -65,7 +65,7 @@ static Image RemoveEnclosingCircle(Image pixs) {
   pixSeedfillBinary(pixc, pixc, pixsi, 4);
   pixInvert(pixc, pixc);
   pixsi.destroy();
-  Image pixt = pixAnd(nullptr, pixs, pixc);
+  Image pixt = pixs & pixc;
   l_int32 max_count;
   pixCountConnComp(pixt, 8, &max_count);
   // The count has to go up before we start looking for the minimum.
@@ -74,7 +74,7 @@ static Image RemoveEnclosingCircle(Image pixs) {
   for (int i = 1; i < kMaxCircleErosions; i++) {
     pixt.destroy();
     pixErodeBrick(pixc, pixc, 3, 3);
-    pixt = pixAnd(nullptr, pixs, pixc);
+    pixt = pixs & pixc;
     l_int32 count;
     pixCountConnComp(pixt, 8, &count);
     if (i == 1 || count > max_count) {

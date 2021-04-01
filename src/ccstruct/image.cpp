@@ -39,8 +39,22 @@ bool Image::isZero() const {
   return r == 1;
 }
 
-void Image::operator|=(Image i) {
+Image Image::operator|(Image i) const {
+  return pixOr(nullptr, pix_, i);
+}
+
+Image &Image::operator|=(Image i) {
   pixOr(pix_, pix_, i);
+  return *this;
+}
+
+Image Image::operator&(Image i) const {
+  return pixAnd(nullptr, pix_, i);
+}
+
+Image &Image::operator&=(Image i) {
+  pixAnd(pix_, pix_, i);
+  return *this;
 }
 
 }

@@ -259,7 +259,7 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Image pix, int *
   if (pix_hline != nullptr) {
     // Recompute intersections and re-filter false positive h-lines.
     if (pix_vline != nullptr) {
-      pixAnd(pix_intersections, pix_vline, pix_hline);
+      pix_intersections = pix_vline & pix_hline;
     } else {
       pix_intersections.destroy();
     }
@@ -278,7 +278,7 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Image pix, int *
   if (pix_vline != nullptr && pix_hline != nullptr) {
     // Remove joins (intersections) where lines cross, and the residue.
     // Recalculate the intersections, since some lines have been deleted.
-    pixAnd(pix_intersections, pix_vline, pix_hline);
+    pix_intersections = pix_vline & pix_hline;
     // Fatten up the intersections and seed-fill to get the intersection
     // residue.
     Image pix_join_residue = pixDilateBrick(nullptr, pix_intersections, 5, 5);
@@ -483,7 +483,7 @@ void LineFinder::FindLineVectors(const ICOORD &bleft, const ICOORD &tright,
 static Image FilterMusic(int resolution, Image pix_closed, Image pix_vline, Image pix_hline,
                         bool &v_empty, bool &h_empty) {
   int max_stave_height = static_cast<int>(resolution * kMaxStaveHeight);
-  Image intersection_pix = pixAnd(nullptr, pix_vline, pix_hline);
+  Image intersection_pix = pix_vline & pix_hline;
   Boxa *boxa = pixConnComp(pix_vline, nullptr, 8);
   // Iterate over the boxes to find music bars.
   int nboxes = boxaGetCount(boxa);
@@ -637,7 +637,7 @@ void LineFinder::GetLineMasks(int resolution, Image src_pix, Image *pix_vline, I
     if (!h_empty) {
       pixSubtract(pix_nonlines, pix_nonlines, *pix_hline);
       // Intersections are a useful indicator for likelihood of being a line.
-      *pix_intersections = pixAnd(nullptr, *pix_vline, *pix_hline);
+      *pix_intersections = *pix_vline & *pix_hline;
       // Candidate vlines are not hlines (apart from the intersections)
       // and vice versa.
       extra_non_hlines = pixSubtract(nullptr, *pix_vline, *pix_intersections);

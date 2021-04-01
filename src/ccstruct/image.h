@@ -39,7 +39,12 @@ public:
   Image copy() const;  // does full copy
   void destroy();
   bool isZero() const;
-  void operator|=(Image);
+
+  // ops
+  Image operator|(Image) const;
+  Image &operator|=(Image);
+  Image operator&(Image) const;
+  Image &operator&=(Image);
 };
 
 } // namespace tesseract
