@@ -110,7 +110,7 @@ Image ImageFind::FindImages(Image pix, DebugPixa *pixa_debug) {
 
   // Fill to capture pixels near the mask edges that were missed
   Image pixt = pixSeedfillBinary(nullptr, pixht, pix, 8);
-  pixOr(pixht, pixht, pixt);
+  pixht |= pixt;
   pixt.destroy();
 
   // Eliminate lines and bars that may be joined to images.
@@ -146,7 +146,7 @@ Image ImageFind::FindImages(Image pix, DebugPixa *pixa_debug) {
   }
   // Make the result image the same size as the input.
   Image result = pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
-  pixOr(result, result, pixht);
+  result |= pixht;
   pixht.destroy();
   return result;
 }

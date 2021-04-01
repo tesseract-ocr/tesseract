@@ -646,7 +646,7 @@ void LineFinder::GetLineMasks(int resolution, Image src_pix, Image *pix_vline, I
     pixSeedfillBinary(*pix_non_vline, *pix_non_vline, pix_nonlines, 8);
     if (!h_empty) {
       // Candidate hlines are not vlines.
-      pixOr(*pix_non_vline, *pix_non_vline, *pix_hline);
+      *pix_non_vline |= *pix_hline;
       pixSubtract(*pix_non_vline, *pix_non_vline, *pix_intersections);
     }
     if (!FilterFalsePositives(resolution, *pix_non_vline, *pix_intersections, *pix_vline)) {
@@ -670,7 +670,7 @@ void LineFinder::GetLineMasks(int resolution, Image src_pix, Image *pix_vline, I
     *pix_non_hline = pixErodeBrick(nullptr, pix_nonlines, 1, kMaxLineResidue);
     pixSeedfillBinary(*pix_non_hline, *pix_non_hline, pix_nonlines, 8);
     if (extra_non_hlines != nullptr) {
-      pixOr(*pix_non_hline, *pix_non_hline, extra_non_hlines);
+      *pix_non_hline |= extra_non_hlines;
       extra_non_hlines.destroy();
     }
     if (!FilterFalsePositives(resolution, *pix_non_hline, *pix_intersections, *pix_hline)) {

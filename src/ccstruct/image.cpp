@@ -39,4 +39,8 @@ bool Image::isZero() const {
   return r == 1;
 }
 
+void Image::operator|=(Image i) {
+  pixOr(pix_, pix_, i);
+}
+
 }

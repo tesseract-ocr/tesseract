@@ -216,7 +216,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST *blocks, TO_BLOC
     if (musicmask_pix != nullptr) {
       // TODO(rays) pass the musicmask_pix into FindBlocks and mark music
       // blocks separately. For now combine with photomask_pix.
-      pixOr(photomask_pix, photomask_pix, musicmask_pix);
+      photomask_pix |= musicmask_pix;
     }
 #ifndef DISABLED_LEGACY_ENGINE
     if (equ_detect_) {
