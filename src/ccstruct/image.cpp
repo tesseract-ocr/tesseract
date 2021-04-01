@@ -25,8 +25,8 @@ Image Image::clone() const {
   return pixClone(pix_);
 }
 
-Image Image::copy(Image dest) const {
-  return pixCopy(dest, pix_);
+Image Image::copy() const {
+  return pixCopy(nullptr, pix_);
 }
 
 void Image::destroy() {
