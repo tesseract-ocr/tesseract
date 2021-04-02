@@ -47,6 +47,7 @@ jobs:
 
     - name: Install Compiler
       run: |
+           sudo apt-get update
            sudo apt-get install -y ${{ matrix.config.cxx }}
 
     - name: Install dependencies
