@@ -542,13 +542,14 @@ public:
   SVMenuNode *build_menu_new();
 #ifndef GRAPHICS_DISABLED
   void pgeditor_main(int width, int height, PAGE_RES *page_res);
-#endif                      // !GRAPHICS_DISABLED
+
   void process_image_event( // action in image win
       const SVEvent &event);
   bool process_cmd_win_event( // UI command semantics
       int32_t cmd_event,      // which menu item?
       char *new_value         // any prompt data
   );
+#endif // !GRAPHICS_DISABLED
   void debug_word(PAGE_RES *page_res, const TBOX &selection_box);
   void do_re_display(bool (tesseract::Tesseract::*word_painter)(PAGE_RES_IT *pr_it));
   bool word_display(PAGE_RES_IT *pr_it);

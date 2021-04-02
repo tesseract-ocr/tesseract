@@ -61,9 +61,10 @@ public:
   // Move by adding shift to all coordinates.
   void move(ICOORD shift);
 
+#ifndef GRAPHICS_DISABLED
+
   void plot(ScrollView *window, int32_t num);
 
-#ifndef GRAPHICS_DISABLED
   void fill(ScrollView *window, ScrollView::Color colour);
 #endif // !GRAPHICS_DISABLED
 

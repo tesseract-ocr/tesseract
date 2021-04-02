@@ -27,6 +27,8 @@
 #ifndef TESSERACT_VIEWER_SVMNODE_H_
 #define TESSERACT_VIEWER_SVMNODE_H_
 
+#ifndef GRAPHICS_DISABLED
+
 #include <string>
 
 namespace tesseract {
@@ -94,5 +96,7 @@ private:
 };
 
 } // namespace tesseract
+
+#endif // !GRAPHICS_DISABLED
 
 #endif // TESSERACT_VIEWER_SVMNODE_H_
