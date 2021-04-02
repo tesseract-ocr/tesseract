@@ -337,17 +337,19 @@ private:
   // coordinate space. The destructor must delete all the DENORMs in the chain.
   DENORM *denorm_;
 
-  // Various debug windows that automatically go away on completion.
-  ScrollView *input_blobs_win_;
-
   // The equation region detector pointer. Note: This pointer is passed in by
   // member function SetEquationDetect, and releasing it is NOT owned by this
   // class.
   EquationDetectBase *equation_detect_;
 
+#ifndef GRAPHICS_DISABLED
+  // Various debug windows that automatically go away on completion.
+  ScrollView *input_blobs_win_ = nullptr;
+
   // Allow a subsequent instance to reuse the blocks window.
   // Not thread-safe, but multiple threads shouldn't be using windows anyway.
   static ScrollView *blocks_win_;
+#endif
 };
 
 } // namespace tesseract.

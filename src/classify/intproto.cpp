@@ -33,7 +33,9 @@
 #include "picofeat.h"
 #include "points.h"
 #include "shapetable.h"
+#ifndef GRAPHICS_DISABLED
 #include "svmnode.h"
+#endif
 
 #include "helpers.h"
 

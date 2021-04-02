@@ -27,7 +27,9 @@
 
 #include "scrollview.h"
 #include "shapetable.h"
+#ifndef GRAPHICS_DISABLED
 #include "svmnode.h"
+#endif
 #include "tprintf.h"
 #include "trainingsample.h"
 
