@@ -226,13 +226,12 @@ bool TessBoxTextRenderer::AddImageHandler(TessBaseAPI *api) {
 TessOsdRenderer::TessOsdRenderer(const char *outputbase) : TessResultRenderer(outputbase, "osd") {}
 
 bool TessOsdRenderer::AddImageHandler(TessBaseAPI *api) {
-  char *osd = api->GetOsdText(imagenum());
+  const std::unique_ptr<const char[]> osd(api->GetOsdText(imagenum()));
   if (osd == nullptr) {
     return false;
   }
 
-  AppendString(osd);
-  delete[] osd;
+  AppendString(osd.get());
 
   return true;
 }
