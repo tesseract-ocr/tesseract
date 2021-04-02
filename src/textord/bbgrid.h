@@ -204,6 +204,8 @@ public:
   // Returned IntGrid must be deleted after use.
   IntGrid *CountCellElements();
 
+#ifndef GRAPHICS_DISABLED
+
   // Make a window of an appropriate size to display things in the grid.
   ScrollView *MakeWindow(int x, int y, const char *window_name);
 
@@ -211,6 +213,8 @@ public:
   // Use of this function requires an additional member of the BBC class:
   // ScrollView::Color BBC::BoxColor() const.
   void DisplayBoxes(ScrollView *window);
+
+#endif // !GRAPHICS_DISABLED
 
   // ASSERT_HOST that every cell contains no more than one copy of each entry.
   void AssertNoDuplicates();
@@ -616,6 +620,7 @@ IntGrid *BBGrid<BBC, BBC_CLIST, BBC_C_IT>::CountCellElements() {
   return intgrid;
 }
 
+#ifndef GRAPHICS_DISABLED
 template <class G>
 class TabEventHandler : public SVEventHandler {
 public:
@@ -629,8 +634,6 @@ public:
 private:
   G *grid_;
 };
-
-#ifndef GRAPHICS_DISABLED
 
 // Make a window of an appropriate size to display things in the grid.
 // Position the window at the given x,y.

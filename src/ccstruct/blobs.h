@@ -456,7 +456,9 @@ struct TWERD {
   // the blobs between start and end.
   void MergeBlobs(int start, int end);
 
+#ifndef GRAPHICS_DISABLED
   void plot(ScrollView *window);
+#endif // !GRAPHICS_DISABLED
 
   std::vector<TBLOB *> blobs; // Blobs in word.
   bool latin_script;          // This word is in a latin-based script.
