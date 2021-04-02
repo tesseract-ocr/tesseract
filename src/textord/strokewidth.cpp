@@ -118,20 +118,12 @@ StrokeWidth::StrokeWidth(int gridsize, const ICOORD &bleft, const ICOORD &tright
     , denorm_(nullptr)
     , grid_box_(bleft, tright)
     , rerotation_(1.0f, 0.0f) {
-  leaders_win_ = nullptr;
-  widths_win_ = nullptr;
-  initial_widths_win_ = nullptr;
-  chains_win_ = nullptr;
-  diacritics_win_ = nullptr;
-  textlines_win_ = nullptr;
-  smoothed_win_ = nullptr;
 }
 
 StrokeWidth::~StrokeWidth() {
-  if (widths_win_ != nullptr) {
 #ifndef GRAPHICS_DISABLED
+  if (widths_win_ != nullptr) {
     delete widths_win_->AwaitEvent(SVET_DESTROY);
-#endif // !GRAPHICS_DISABLED
     if (textord_tabfind_only_strokewidths) {
       exit(0);
     }
@@ -143,6 +135,7 @@ StrokeWidth::~StrokeWidth() {
   delete textlines_win_;
   delete smoothed_win_;
   delete diacritics_win_;
+#endif
 }
 
 // Sets the neighbours member of the medium-sized blobs in the block.

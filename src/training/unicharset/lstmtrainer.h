@@ -381,6 +381,7 @@ protected:
                                TestCallback tester);
 
 protected:
+#ifndef GRAPHICS_DISABLED
   // Alignment display window.
   ScrollView *align_win_;
   // CTC target display window.
@@ -389,6 +390,7 @@ protected:
   ScrollView *ctc_win_;
   // Reconstructed image window.
   ScrollView *recon_win_;
+#endif
   // How often to display a debug image.
   int debug_interval_;
   // Iteration at which the last checkpoint was dumped.

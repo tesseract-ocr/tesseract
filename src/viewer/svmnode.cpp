@@ -30,14 +30,14 @@
 #  include "config_auto.h"
 #endif
 
+#ifndef GRAPHICS_DISABLED
+
 #include "svmnode.h"
 
 #include <cstring>
 #include <iostream>
 
-#ifndef GRAPHICS_DISABLED
-
-#  include "scrollview.h"
+#include "scrollview.h"
 
 namespace tesseract {
 
