@@ -110,7 +110,7 @@ Image ImageFind::FindImages(Image pix, DebugPixa *pixa_debug) {
 
   // Fill to capture pixels near the mask edges that were missed
   Image pixt = pixSeedfillBinary(nullptr, pixht, pix, 8);
-  pixOr(pixht, pixht, pixt);
+  pixht |= pixt;
   pixt.destroy();
 
   // Eliminate lines and bars that may be joined to images.
@@ -129,7 +129,7 @@ Image ImageFind::FindImages(Image pix, DebugPixa *pixa_debug) {
     pixa_debug->AddPix(pixcoarsemask, "CoarseMask");
   }
   // Combine the coarse and fine image masks.
-  pixAnd(pixcoarsemask, pixcoarsemask, pixfinemask);
+  pixcoarsemask &= pixfinemask;
   pixfinemask.destroy();
   // Dilate a bit to make sure we get everything.
   pixDilateBrick(pixcoarsemask, pixcoarsemask, 3, 3);
@@ -139,14 +139,14 @@ Image ImageFind::FindImages(Image pix, DebugPixa *pixa_debug) {
     pixa_debug->AddPix(pixmask, "MaskDilated");
   }
   // And the image mask with the line and bar remover.
-  pixAnd(pixht, pixht, pixmask);
+  pixht &= pixmask;
   pixmask.destroy();
   if (textord_tabfind_show_images && pixa_debug != nullptr) {
     pixa_debug->AddPix(pixht, "FinalMask");
   }
   // Make the result image the same size as the input.
   Image result = pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
-  pixOr(result, result, pixht);
+  result |= pixht;
   pixht.destroy();
   return result;
 }

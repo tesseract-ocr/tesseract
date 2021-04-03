@@ -179,7 +179,7 @@ Image DegradeImage(Image input, int exposure, TRand *randomizer, float *rotation
 Image PrepareDistortedPix(const Image pix, bool perspective, bool invert, bool white_noise,
                          bool smooth_noise, bool blur, int box_reduction, TRand *randomizer,
                          std::vector<TBOX> *boxes) {
-  Image distorted = pixCopy(nullptr, pix);
+  Image distorted = pix.copy();
   // Things to do to synthetic training data.
   if ((white_noise || smooth_noise) && randomizer->SignedRand(1.0) > 0.0) {
     // TODO(rays) Cook noise in a more thread-safe manner than rand().

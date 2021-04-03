@@ -65,7 +65,7 @@ static Image RemoveEnclosingCircle(Image pixs) {
   pixSeedfillBinary(pixc, pixc, pixsi, 4);
   pixInvert(pixc, pixc);
   pixsi.destroy();
-  Image pixt = pixAnd(nullptr, pixs, pixc);
+  Image pixt = pixs & pixc;
   l_int32 max_count;
   pixCountConnComp(pixt, 8, &max_count);
   // The count has to go up before we start looking for the minimum.
@@ -74,7 +74,7 @@ static Image RemoveEnclosingCircle(Image pixs) {
   for (int i = 1; i < kMaxCircleErosions; i++) {
     pixt.destroy();
     pixErodeBrick(pixc, pixc, 3, 3);
-    pixt = pixAnd(nullptr, pixs, pixc);
+    pixt = pixs & pixc;
     l_int32 count;
     pixCountConnComp(pixt, 8, &count);
     if (i == 1 || count > max_count) {
@@ -83,7 +83,7 @@ static Image RemoveEnclosingCircle(Image pixs) {
     } else if (count < min_count) {
       min_count = count;
       pixout.destroy();
-      pixout = pixCopy(nullptr, pixt); // Save the best.
+      pixout = pixt.copy(); // Save the best.
     } else if (count >= min_count) {
       break; // We have passed by the best.
     }
@@ -216,7 +216,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST *blocks, TO_BLOC
     if (musicmask_pix != nullptr) {
       // TODO(rays) pass the musicmask_pix into FindBlocks and mark music
       // blocks separately. For now combine with photomask_pix.
-      pixOr(photomask_pix, photomask_pix, musicmask_pix);
+      photomask_pix |= musicmask_pix;
     }
 #ifndef DISABLED_LEGACY_ENGINE
     if (equ_detect_) {
@@ -297,7 +297,7 @@ ColumnFinder *Tesseract::SetupPageSegAndDetectOrientation(PageSegMode pageseg_mo
     if (*photo_mask_pix != nullptr) {
       pix_no_image_ = pixSubtract(nullptr, pix_binary_, *photo_mask_pix);
     } else {
-      pix_no_image_ = pixClone(pix_binary_);
+      pix_no_image_ = pix_binary_.clone();
     }
     pixa_debug_.AddPix(pix_no_image_, "NoImages");
     pix_no_image_.destroy();

@@ -115,14 +115,14 @@ void Input::PreparePixInput(const StaticShape &shape, const Image pix, TRand *ra
   if (color) {
     // Force RGB.
     if (depth == 32) {
-      normed_pix = pixClone(var_pix);
+      normed_pix = var_pix.clone();
     } else {
       normed_pix = pixConvertTo32(var_pix);
     }
   } else {
     // Convert non-8-bit images to 8 bit.
     if (depth == 8) {
-      normed_pix = pixClone(var_pix);
+      normed_pix = var_pix.clone();
     } else {
       normed_pix = pixConvertTo8(var_pix, false);
     }

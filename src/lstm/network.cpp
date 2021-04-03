@@ -376,7 +376,7 @@ void Network::ClearWindow(bool tess_coords, const char *window_name, int width, 
 // The pix is pixDestroyed.
 int Network::DisplayImage(Image pix, ScrollView *window) {
   int height = pixGetHeight(pix);
-  window->Image(pix, 0, 0);
+  window->Draw(pix, 0, 0);
   pix.destroy();
   return height;
 }

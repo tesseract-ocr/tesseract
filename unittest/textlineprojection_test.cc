@@ -78,7 +78,7 @@ protected:
                                          nullptr, 0, nullptr, nullptr, false, &mgr),
               0);
     bin_pix_ = api_.GetThresholdedImage();
-    *tesseract_->mutable_pix_binary() = pixClone(bin_pix_);
+    *tesseract_->mutable_pix_binary() = bin_pix_.clone();
     osd_tess->set_source_resolution(api_.tesseract()->source_resolution());
     tesseract_->set_source_resolution(api_.tesseract()->source_resolution());
     int width = pixGetWidth(bin_pix_);

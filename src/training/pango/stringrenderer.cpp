@@ -877,7 +877,7 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage, const char *text,
       v_margin_ /= 8;
       Image title_image = nullptr;
       RenderToBinaryImage(title, strlen(title), 128, &title_image);
-      pixOr(*image, *image, title_image);
+      *image |= title_image;
       title_image.destroy();
 
       v_margin_ *= 8;

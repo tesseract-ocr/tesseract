@@ -287,7 +287,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Image scaled_color, int s
                              TO_BLOCK *input_block, Image photo_mask_pix, Image thresholds_pix,
                              Image grey_pix, DebugPixa *pixa_debug, BLOCK_LIST *blocks,
                              BLOBNBOX_LIST *diacritic_blobs, TO_BLOCK_LIST *to_blocks) {
-  pixOr(photo_mask_pix, photo_mask_pix, nontext_map_);
+  photo_mask_pix |= nontext_map_;
   stroke_width_->FindLeaderPartitions(input_block, &part_grid_);
   stroke_width_->RemoveLineResidue(&big_parts_);
   FindInitialTabVectors(nullptr, min_gutter_width_, tabfind_aligned_gap_fraction_, input_block);

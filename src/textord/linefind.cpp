@@ -31,8 +31,6 @@
 #  include "openclwrapper.h" // for OpenclDevice
 #endif
 
-#include <allheaders.h>
-
 #include <algorithm>
 
 namespace tesseract {
@@ -261,7 +259,7 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Image pix, int *
   if (pix_hline != nullptr) {
     // Recompute intersections and re-filter false positive h-lines.
     if (pix_vline != nullptr) {
-      pixAnd(pix_intersections, pix_vline, pix_hline);
+      pix_intersections = pix_vline & pix_hline;
     } else {
       pix_intersections.destroy();
     }
@@ -280,7 +278,7 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Image pix, int *
   if (pix_vline != nullptr && pix_hline != nullptr) {
     // Remove joins (intersections) where lines cross, and the residue.
     // Recalculate the intersections, since some lines have been deleted.
-    pixAnd(pix_intersections, pix_vline, pix_hline);
+    pix_intersections = pix_vline & pix_hline;
     // Fatten up the intersections and seed-fill to get the intersection
     // residue.
     Image pix_join_residue = pixDilateBrick(nullptr, pix_intersections, 5, 5);
@@ -483,9 +481,9 @@ void LineFinder::FindLineVectors(const ICOORD &bleft, const ICOORD &tright,
 // component is added to the output music mask and subtracted from the lines.
 // Returns nullptr and does minimal work if no music is found.
 static Image FilterMusic(int resolution, Image pix_closed, Image pix_vline, Image pix_hline,
-                        l_int32 *v_empty, l_int32 *h_empty) {
+                        bool &v_empty, bool &h_empty) {
   int max_stave_height = static_cast<int>(resolution * kMaxStaveHeight);
-  Image intersection_pix = pixAnd(nullptr, pix_vline, pix_hline);
+  Image intersection_pix = pix_vline & pix_hline;
   Boxa *boxa = pixConnComp(pix_vline, nullptr, 8);
   // Iterate over the boxes to find music bars.
   int nboxes = boxaGetCount(boxa);
@@ -535,17 +533,15 @@ static Image FilterMusic(int resolution, Image pix_closed, Image pix_vline, Imag
       }
       boxDestroy(&box);
     }
-    l_int32 no_remaining_music;
     boxaDestroy(&boxa);
-    pixZero(music_mask, &no_remaining_music);
-    if (no_remaining_music) {
+    if (music_mask.isZero()) {
       music_mask.destroy();
     } else {
       pixSubtract(pix_vline, pix_vline, music_mask);
       pixSubtract(pix_hline, pix_hline, music_mask);
       // We may have deleted all the lines
-      pixZero(pix_vline, v_empty);
-      pixZero(pix_hline, h_empty);
+      v_empty = pix_vline.isZero();
+      h_empty = pix_hline.isZero();
     }
   }
   return music_mask;
@@ -621,14 +617,12 @@ void LineFinder::GetLineMasks(int resolution, Image src_pix, Image *pix_vline, I
 #endif
 
   // Lines are sufficiently rare, that it is worth checking for a zero image.
-  l_int32 v_empty = 0;
-  l_int32 h_empty = 0;
-  pixZero(*pix_vline, &v_empty);
-  pixZero(*pix_hline, &h_empty);
+  bool v_empty = pix_vline->isZero();
+  bool h_empty = pix_hline->isZero();
   if (pix_music_mask != nullptr) {
     if (!v_empty && !h_empty) {
       *pix_music_mask =
-          FilterMusic(resolution, pix_closed, *pix_vline, *pix_hline, &v_empty, &h_empty);
+          FilterMusic(resolution, pix_closed, *pix_vline, *pix_hline, v_empty, h_empty);
     } else {
       *pix_music_mask = nullptr;
     }
@@ -643,7 +637,7 @@ void LineFinder::GetLineMasks(int resolution, Image src_pix, Image *pix_vline, I
     if (!h_empty) {
       pixSubtract(pix_nonlines, pix_nonlines, *pix_hline);
       // Intersections are a useful indicator for likelihood of being a line.
-      *pix_intersections = pixAnd(nullptr, *pix_vline, *pix_hline);
+      *pix_intersections = *pix_vline & *pix_hline;
       // Candidate vlines are not hlines (apart from the intersections)
       // and vice versa.
       extra_non_hlines = pixSubtract(nullptr, *pix_vline, *pix_intersections);
@@ -652,7 +646,7 @@ void LineFinder::GetLineMasks(int resolution, Image src_pix, Image *pix_vline, I
     pixSeedfillBinary(*pix_non_vline, *pix_non_vline, pix_nonlines, 8);
     if (!h_empty) {
       // Candidate hlines are not vlines.
-      pixOr(*pix_non_vline, *pix_non_vline, *pix_hline);
+      *pix_non_vline |= *pix_hline;
       pixSubtract(*pix_non_vline, *pix_non_vline, *pix_intersections);
     }
     if (!FilterFalsePositives(resolution, *pix_non_vline, *pix_intersections, *pix_vline)) {
@@ -676,7 +670,7 @@ void LineFinder::GetLineMasks(int resolution, Image src_pix, Image *pix_vline, I
     *pix_non_hline = pixErodeBrick(nullptr, pix_nonlines, 1, kMaxLineResidue);
     pixSeedfillBinary(*pix_non_hline, *pix_non_hline, pix_nonlines, 8);
     if (extra_non_hlines != nullptr) {
-      pixOr(*pix_non_hline, *pix_non_hline, extra_non_hlines);
+      *pix_non_hline |= extra_non_hlines;
       extra_non_hlines.destroy();
     }
     if (!FilterFalsePositives(resolution, *pix_non_hline, *pix_intersections, *pix_hline)) {

@@ -174,7 +174,7 @@ void ImageThresholder::SetImage(const Image pix) {
   } else if (depth > 1 && depth < 8) {
     pix_ = pixConvertTo8(src, false);
   } else {
-    pix_ = pixCopy(nullptr, src);
+    pix_ = src.copy();
   }
   depth = pixGetDepth(pix_);
   pix_channels_ = depth / 8;
@@ -197,7 +197,7 @@ bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Image *pix) {
     // We have a binary image, but it still has to be copied, as this API
     // allows the caller to modify the output.
     Image original = GetPixRect();
-    *pix = pixCopy(nullptr, original);
+    *pix = original.copy();
     original.destroy();
   } else {
     OtsuThresholdRectToPix(pix_, pix);
@@ -242,7 +242,7 @@ void ImageThresholder::Init() {
 Image ImageThresholder::GetPixRect() {
   if (IsFullImage()) {
     // Just clone the whole thing.
-    return pixClone(pix_);
+    return pix_.clone();
   } else {
     // Crop to the given rectangle.
     Box *box = boxCreate(rect_left_, rect_top_, rect_width_, rect_height_);

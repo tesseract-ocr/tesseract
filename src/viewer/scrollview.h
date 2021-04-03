@@ -38,8 +38,6 @@
 #include <cstdio>
 #include <mutex>
 
-struct Pix;
-
 namespace tesseract {
 
 class ScrollView;
@@ -210,8 +208,8 @@ public:
    * constructor, so this is not listed here)
    *******************************************************************************/
 
-  // Draw a Pix on (x,y).
-  void Image(Image image, int x_pos, int y_pos);
+  // Draw an image on (x,y).
+  void Draw(Image image, int x_pos, int y_pos);
 
   // Flush buffers and update display.
   static void Update();
@@ -269,7 +267,7 @@ public:
   // createImage. WARNING: This only works on a local machine. This also only
   // works image types supported by java (like bmp,jpeg,gif,png) since the image
   // is opened by the server.
-  void Image(const char *image, int x_pos, int y_pos);
+  void Draw(const char *image, int x_pos, int y_pos);
 
   // Set the current position to draw from (x,y). In conjunction with...
   void SetCursor(int x, int y);
@@ -355,11 +353,11 @@ public:
 
 private:
   // Transfers a binary Image.
-  void TransferBinaryImage(struct Image image);
+  void TransferBinaryImage(Image image);
   // Transfers a gray scale Image.
-  void TransferGrayImage(struct Image image);
+  void TransferGrayImage(Image image);
   // Transfers a 32-Bit Image.
-  void Transfer32bppImage(struct Image image);
+  void Transfer32bppImage(Image image);
 
   // Sets up ScrollView, depending on the variables from the constructor.
   void Initialize(const char *name, int x_pos, int y_pos, int x_size, int y_size, int x_canvas_size,

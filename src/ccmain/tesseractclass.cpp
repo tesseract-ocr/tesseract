@@ -519,7 +519,7 @@ void Tesseract::PrepareForPageseg() {
       max_pageseg_strategy = pageseg_strategy;
     }
     sub_lang->pix_binary_.destroy();
-    sub_lang->pix_binary_ = pixClone(pix_binary());
+    sub_lang->pix_binary_ = pix_binary().clone();
   }
   // Perform shiro-rekha (top-line) splitting and replace the current image by
   // the newly split image.
@@ -528,7 +528,7 @@ void Tesseract::PrepareForPageseg() {
   if (splitter_.Split(true, &pixa_debug_)) {
     ASSERT_HOST(splitter_.splitted_image());
     pix_binary_.destroy();
-    pix_binary_ = pixClone(splitter_.splitted_image());
+    pix_binary_ = splitter_.splitted_image().clone();
   }
 }
 
@@ -556,7 +556,7 @@ void Tesseract::PrepareForTessOCR(BLOCK_LIST *block_list, Tesseract *osd_tess, O
   // Restore pix_binary to the binarized original pix for future reference.
   ASSERT_HOST(splitter_.orig_pix());
   pix_binary_.destroy();
-  pix_binary_ = pixClone(splitter_.orig_pix());
+  pix_binary_ = splitter_.orig_pix().clone();
   // If the pageseg and ocr strategies are different, refresh the block list
   // (from the last SegmentImage call) with blobs from the real image to be used
   // for OCR.

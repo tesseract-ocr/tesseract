@@ -193,11 +193,11 @@ Image ImageData::GetPix() const {
 #  ifdef GRAPHICS_DISABLED
   /* The only caller of this is the scaling functions to prescale the
    * source. Thus we can just return a new pointer to the same data. */
-  return pixClone(internal_pix_);
+  return internal_pix_.clone();
 #  else
   /* pixCopy always does an actual copy, so the caller can modify the
    * changed data. */
-  return pixCopy(NULL, internal_pix_);
+  return internal_pix_.copy();
 #  endif
 #else
   return GetPixInternal(image_data_);
@@ -281,7 +281,7 @@ void ImageData::Display() const {
   auto *win =
       new ScrollView("Imagedata", 100, 100, 2 * (width + 2 * kTextSize),
                      2 * (height + 4 * kTextSize), width + 10, height + 3 * kTextSize, true);
-  win->Image(pix, 0, height - 1);
+  win->Draw(pix, 0, height - 1);
   pix.destroy();
   // Draw the boxes.
   win->Pen(ScrollView::RED);

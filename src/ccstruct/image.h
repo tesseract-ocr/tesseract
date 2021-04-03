@@ -35,7 +35,16 @@ public:
   Pix *operator->() const { return pix_; }
 
   // api
+  Image clone() const; // increases refcount
+  Image copy() const;  // does full copy
   void destroy();
+  bool isZero() const;
+
+  // ops
+  Image operator|(Image) const;
+  Image &operator|=(Image);
+  Image operator&(Image) const;
+  Image &operator&=(Image);
 };
 
 } // namespace tesseract

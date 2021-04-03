@@ -220,7 +220,7 @@ public:
     pix_original_ = original_pix;
     // Clone to sublangs as well.
     for (auto &lang : sub_langs_) {
-      lang->set_pix_original(original_pix ? pixClone(original_pix) : nullptr);
+      lang->set_pix_original(original_pix ? original_pix.clone() : nullptr);
     }
   }
   // Returns a pointer to a Pix representing the best available resolution image
