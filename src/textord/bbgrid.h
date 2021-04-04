@@ -228,14 +228,6 @@ protected:
 private:
 };
 
-// Hash functor for generic pointers.
-template <typename T>
-struct PtrHash {
-  size_t operator()(const T *ptr) const {
-    return reinterpret_cast<uintptr_t>(ptr) / sizeof(T);
-  }
-};
-
 // The GridSearch class enables neighbourhood searching on a BBGrid.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 class GridSearch {
@@ -367,7 +359,7 @@ private:
   // An iterator over the list at (x_, y_) in the grid_.
   BBC_C_IT it_;
   // Set of unique returned elements used when unique_mode_ is true.
-  std::unordered_set<BBC *, PtrHash<BBC>> returns_;
+  std::unordered_set<BBC *> returns_;
 };
 
 // Sort function to sort a BBC by bounding_box().left().
