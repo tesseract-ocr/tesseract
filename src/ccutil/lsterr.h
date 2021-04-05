@@ -23,8 +23,6 @@
 
 namespace tesseract {
 
-constexpr ERRCODE DONT_CONSTRUCT_LIST_BY_COPY("Can't create a list by assignment");
-constexpr ERRCODE DONT_ASSIGN_LISTS("Can't assign to lists");
 constexpr ERRCODE SERIALISE_LINKS("Attempted to (de)serialise a link element");
 
 #ifndef NDEBUG

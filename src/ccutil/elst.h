@@ -91,12 +91,13 @@ public:
   }
   // constructor
 
-  ELIST_LINK(const ELIST_LINK &) { // don't copy link.
+  // The special copy constructor is used by lots of classes.
+  ELIST_LINK(const ELIST_LINK &) {
     next = nullptr;
   }
 
-  void operator=( // don't copy links
-      const ELIST_LINK &) {
+  // The special assignment operator is used by lots of classes.
+  void operator=(const ELIST_LINK &) {
     next = nullptr;
   }
 };
@@ -876,14 +877,9 @@ ELISTIZEH_C.
     /* Become a deep copy of src_list*/                                                        \
     void deep_copy(const CLASSNAME##_LIST *src_list, CLASSNAME *(*copier)(const CLASSNAME *)); \
                                                                                                \
-  private:                                                                                     \
     /* Prevent assign and copy construction. */                                                \
-    CLASSNAME##_LIST(const CLASSNAME##_LIST &) {                                               \
-      DONT_CONSTRUCT_LIST_BY_COPY.error(QUOTE_IT(CLASSNAME##_LIST), ABORT, nullptr);           \
-    }                                                                                          \
-    void operator=(const CLASSNAME##_LIST &) {                                                 \
-      DONT_ASSIGN_LISTS.error(QUOTE_IT(CLASSNAME##_LIST), ABORT, nullptr);                     \
-    }
+    CLASSNAME##_LIST(const CLASSNAME##_LIST &) = delete;                                       \
+    void operator=(const CLASSNAME##_LIST &) = delete;                                         \
 
 #define ELISTIZEH_C(CLASSNAME)                                                     \
   }                                                                                \
