@@ -51,15 +51,8 @@ public:
     data = next = nullptr;
   }
 
-  CLIST_LINK(               // copy constructor
-      const CLIST_LINK &) { // don't copy link
-    data = next = nullptr;
-  }
-
-  void operator=( // don't copy links
-      const CLIST_LINK &) {
-    data = next = nullptr;
-  }
+  CLIST_LINK(const CLIST_LINK &) = delete;
+  void operator=(const CLIST_LINK &) = delete;
 };
 
 /**********************************************************************
@@ -846,21 +839,13 @@ CLISTIZEH_C.
     CLASSNAME##_CLIST() : CLIST() {}                                                  \
     /* constructor */                                                                 \
                                                                                       \
-    CLASSNAME##_CLIST(                           /* don't construct */                \
-                      const CLASSNAME##_CLIST &) /*by initial assign*/                \
-    {                                                                                 \
-      DONT_CONSTRUCT_LIST_BY_COPY.error(QUOTE_IT(CLASSNAME##_CLIST), ABORT, nullptr); \
-    }                                                                                 \
+    CLASSNAME##_CLIST(const CLASSNAME##_CLIST &) = delete;                            \
+    void operator=(const CLASSNAME##_CLIST &) = delete;                               \
                                                                                       \
     void deep_clear() /* delete elements */                                           \
     {                                                                                 \
       CLIST::internal_deep_clear(&CLASSNAME##_c1_zapper);                             \
     }                                                                                 \
-                                                                                      \
-    void operator=(/* prevent assign */                                               \
-                   const CLASSNAME##_CLIST &) {                                       \
-      DONT_ASSIGN_LISTS.error(QUOTE_IT(CLASSNAME##_CLIST), ABORT, nullptr);           \
-    }
 
 #define CLISTIZEH_C(CLASSNAME)                                                \
   }                                                                           \
