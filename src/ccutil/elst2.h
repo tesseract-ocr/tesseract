@@ -70,13 +70,10 @@ public:
     prev = next = nullptr;
   }
 
-  ELIST2_LINK(               // copy constructor
-      const ELIST2_LINK &) { // don't copy link
-    prev = next = nullptr;
-  }
+  ELIST2_LINK(const ELIST2_LINK &) = delete;
 
-  void operator=( // don't copy links
-      const ELIST2_LINK &) {
+  // The assignment operator is required for WERD.
+  void operator=(const ELIST2_LINK &) {
     prev = next = nullptr;
   }
 };
@@ -892,11 +889,8 @@ ELIST2IZEH_C.
     CLASSNAME##_LIST() : ELIST2() {}                                                           \
     /* constructor */                                                                          \
                                                                                                \
-    CLASSNAME##_LIST(                          /* don't construct */                           \
-                     const CLASSNAME##_LIST &) /*by initial assign*/                           \
-    {                                                                                          \
-      DONT_CONSTRUCT_LIST_BY_COPY.error(QUOTE_IT(CLASSNAME##_LIST), ABORT, nullptr);           \
-    }                                                                                          \
+    CLASSNAME##_LIST(const CLASSNAME##_LIST &) = delete;                                       \
+    void operator=(const CLASSNAME##_LIST &) = delete;                                         \
                                                                                                \
     void clear() /* delete elements */                                                         \
     {                                                                                          \
@@ -910,11 +904,6 @@ ELIST2IZEH_C.
                                                                                                \
     /* Become a deep copy of src_list*/                                                        \
     void deep_copy(const CLASSNAME##_LIST *src_list, CLASSNAME *(*copier)(const CLASSNAME *)); \
-                                                                                               \
-    void operator=(/* prevent assign */                                                        \
-                   const CLASSNAME##_LIST &) {                                                 \
-      DONT_ASSIGN_LISTS.error(QUOTE_IT(CLASSNAME##_LIST), ABORT, nullptr);                     \
-    }
 
 #define ELIST2IZEH_C(CLASSNAME)                                                     \
   }                                                                                 \
