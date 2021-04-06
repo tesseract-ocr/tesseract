@@ -91,12 +91,13 @@ public:
   }
   // constructor
 
-  ELIST_LINK(const ELIST_LINK &) { // don't copy link.
+  // The special copy constructor is used by lots of classes.
+  ELIST_LINK(const ELIST_LINK &) {
     next = nullptr;
   }
 
-  void operator=( // don't copy links
-      const ELIST_LINK &) {
+  // The special assignment operator is used by lots of classes.
+  void operator=(const ELIST_LINK &) {
     next = nullptr;
   }
 };
@@ -146,7 +147,17 @@ public:
       ELIST_ITERATOR *start_it, // from list start
       ELIST_ITERATOR *end_it);  // from list end
 
-  int32_t length() const; // # elements in list
+  // # elements in list
+  int32_t length() const {
+    int32_t count = 0;
+    if (last != nullptr) {
+      count = 1;
+      for (auto it = last->next; it != last; it = it->next) {
+        count++;
+      }
+    }
+    return count;
+  }
 
   void sort(          // sort elements
       int comparator( // comparison routine
@@ -247,7 +258,7 @@ public:
 
   void mark_cycle_pt(); // remember current
 
-  bool empty() { // is list empty?
+  bool empty() const { // is list empty?
 #ifndef NDEBUG
     if (!list) {
       NO_LIST.error("ELIST_ITERATOR::empty", ABORT, nullptr);
@@ -256,15 +267,15 @@ public:
     return list->empty();
   }
 
-  bool current_extracted() { // current extracted?
+  bool current_extracted() const { // current extracted?
     return !current;
   }
 
-  bool at_first(); // Current is first?
+  bool at_first() const; // Current is first?
 
-  bool at_last(); // Current is last?
+  bool at_last() const; // Current is last?
 
-  bool cycled_list(); // Completed a cycle?
+  bool cycled_list() const; // Completed a cycle?
 
   void add_to_end(           // add at end &
       ELIST_LINK *new_link); // don't move
@@ -272,7 +283,10 @@ public:
   void exchange(                 // positions of 2 links
       ELIST_ITERATOR *other_it); // other iterator
 
-  int32_t length(); //# elements in list
+  //# elements in list
+  int32_t length() const {
+    return list->length();
+  }
 
   void sort(          // sort elements
       int comparator( // comparison routine
@@ -683,7 +697,7 @@ inline void ELIST_ITERATOR::mark_cycle_pt() {
  *
  **********************************************************************/
 
-inline bool ELIST_ITERATOR::at_first() {
+inline bool ELIST_ITERATOR::at_first() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::at_first", ABORT, nullptr);
@@ -703,7 +717,7 @@ inline bool ELIST_ITERATOR::at_first() {
  *
  **********************************************************************/
 
-inline bool ELIST_ITERATOR::at_last() {
+inline bool ELIST_ITERATOR::at_last() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::at_last", ABORT, nullptr);
@@ -723,7 +737,7 @@ inline bool ELIST_ITERATOR::at_last() {
  *
  **********************************************************************/
 
-inline bool ELIST_ITERATOR::cycled_list() {
+inline bool ELIST_ITERATOR::cycled_list() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::cycled_list", ABORT, nullptr);
@@ -731,23 +745,6 @@ inline bool ELIST_ITERATOR::cycled_list() {
 #endif
 
   return ((list->empty()) || ((current == cycle_pt) && started_cycling));
-}
-
-/***********************************************************************
- *                          ELIST_ITERATOR::length()
- *
- *  Return the length of the list
- *
- **********************************************************************/
-
-inline int32_t ELIST_ITERATOR::length() {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("ELIST_ITERATOR::length", ABORT, nullptr);
-  }
-#endif
-
-  return list->length();
 }
 
 /***********************************************************************
@@ -876,14 +873,9 @@ ELISTIZEH_C.
     /* Become a deep copy of src_list*/                                                        \
     void deep_copy(const CLASSNAME##_LIST *src_list, CLASSNAME *(*copier)(const CLASSNAME *)); \
                                                                                                \
-  private:                                                                                     \
     /* Prevent assign and copy construction. */                                                \
-    CLASSNAME##_LIST(const CLASSNAME##_LIST &) {                                               \
-      DONT_CONSTRUCT_LIST_BY_COPY.error(QUOTE_IT(CLASSNAME##_LIST), ABORT, nullptr);           \
-    }                                                                                          \
-    void operator=(const CLASSNAME##_LIST &) {                                                 \
-      DONT_ASSIGN_LISTS.error(QUOTE_IT(CLASSNAME##_LIST), ABORT, nullptr);                     \
-    }
+    CLASSNAME##_LIST(const CLASSNAME##_LIST &) = delete;                                       \
+    void operator=(const CLASSNAME##_LIST &) = delete;                                         \
 
 #define ELISTIZEH_C(CLASSNAME)                                                     \
   }                                                                                \
