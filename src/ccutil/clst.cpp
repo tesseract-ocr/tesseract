@@ -102,22 +102,6 @@ void CLIST::assign_to_sublist( // to this list
 }
 
 /***********************************************************************
- *              CLIST::length
- *
- *  Return count of elements on list
- **********************************************************************/
-
-int32_t CLIST::length() const { // count elements
-  CLIST_ITERATOR it(const_cast<CLIST *>(this));
-  int32_t count = 0;
-
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    count++;
-  }
-  return count;
-}
-
-/***********************************************************************
  *              CLIST::sort
  *
  *  Sort elements on list

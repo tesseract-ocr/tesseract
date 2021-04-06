@@ -64,16 +64,19 @@ public:
 class TESS_API CLIST {
   friend class CLIST_ITERATOR;
 
-  CLIST_LINK *last; // End of list
+  CLIST_LINK *last = nullptr; // End of list
+
   //(Points to head)
   CLIST_LINK *First() { // return first
     return last != nullptr ? last->next : nullptr;
   }
 
-public:
-  CLIST() { // constructor
-    last = nullptr;
+  const CLIST_LINK *First() const { // return first
+    return last != nullptr ? last->next : nullptr;
   }
+
+public:
+  CLIST() = default;
 
   ~CLIST() { // destructor
     shallow_clear();
@@ -102,7 +105,16 @@ public:
       CLIST_ITERATOR *start_it, // from list start
       CLIST_ITERATOR *end_it);  // from list end
 
-  int32_t length() const; //# elements in list
+  int32_t length() const { //# elements in list
+    int32_t count = 0;
+    if (last != nullptr) {
+      count = 1;
+      for (auto it = last->next; it != last; it = it->next) {
+        count++;
+      }
+    }
+    return count;
+  }
 
   void sort(          // sort elements
       int comparator( // comparison routine
@@ -202,7 +214,7 @@ public:
 
   void mark_cycle_pt(); // remember current
 
-  bool empty() { // is list empty?
+  bool empty() const { // is list empty?
 #ifndef NDEBUG
     if (!list) {
       NO_LIST.error("CLIST_ITERATOR::empty", ABORT, nullptr);
@@ -211,15 +223,15 @@ public:
     return list->empty();
   }
 
-  bool current_extracted() { // current extracted?
+  bool current_extracted() const { // current extracted?
     return !current;
   }
 
-  bool at_first(); // Current is first?
+  bool at_first() const; // Current is first?
 
-  bool at_last(); // Current is last?
+  bool at_last() const; // Current is last?
 
-  bool cycled_list(); // Completed a cycle?
+  bool cycled_list() const; // Completed a cycle?
 
   void add_to_end(     // add at end &
       void *new_data); // don't move
@@ -227,7 +239,7 @@ public:
   void exchange(                 // positions of 2 links
       CLIST_ITERATOR *other_it); // other iterator
 
-  int32_t length(); //# elements in list
+  int32_t length() const; //# elements in list
 
   void sort(          // sort elements
       int comparator( // comparison routine
@@ -648,7 +660,7 @@ inline void CLIST_ITERATOR::mark_cycle_pt() {
  *
  **********************************************************************/
 
-inline bool CLIST_ITERATOR::at_first() {
+inline bool CLIST_ITERATOR::at_first() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("CLIST_ITERATOR::at_first", ABORT, nullptr);
@@ -668,7 +680,7 @@ inline bool CLIST_ITERATOR::at_first() {
  *
  **********************************************************************/
 
-inline bool CLIST_ITERATOR::at_last() {
+inline bool CLIST_ITERATOR::at_last() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("CLIST_ITERATOR::at_last", ABORT, nullptr);
@@ -688,7 +700,7 @@ inline bool CLIST_ITERATOR::at_last() {
  *
  **********************************************************************/
 
-inline bool CLIST_ITERATOR::cycled_list() {
+inline bool CLIST_ITERATOR::cycled_list() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("CLIST_ITERATOR::cycled_list", ABORT, nullptr);
@@ -705,7 +717,7 @@ inline bool CLIST_ITERATOR::cycled_list() {
  *
  **********************************************************************/
 
-inline int32_t CLIST_ITERATOR::length() {
+inline int32_t CLIST_ITERATOR::length() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("CLIST_ITERATOR::length", ABORT, nullptr);
