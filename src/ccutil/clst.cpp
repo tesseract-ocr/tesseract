@@ -211,10 +211,6 @@ void CLIST::set_subtract(int comparator(const void *, const void *), bool unique
  **********************************************************************/
 
 void *CLIST_ITERATOR::forward() {
-#ifndef NDEBUG
-  if (!list)
-    NO_LIST.error("CLIST_ITERATOR::forward", ABORT, nullptr);
-#endif
   if (list->empty()) {
     return nullptr;
   }
@@ -231,13 +227,6 @@ void *CLIST_ITERATOR::forward() {
     }
     current = next;
   }
-
-#ifndef NDEBUG
-  if (!current)
-    NULL_DATA.error("CLIST_ITERATOR::forward", ABORT, nullptr);
-  if (!next)
-    NULL_NEXT.error("CLIST_ITERATOR::forward", ABORT, "This is: %p  Current is: %p", this, current);
-#endif
 
   next = current->next;
   return current->data;
@@ -272,11 +261,6 @@ void *CLIST_ITERATOR::data_relative( // get data + or - ...
     }
   }
 
-#ifndef NDEBUG
-  if (!ptr)
-    NULL_DATA.error("CLIST_ITERATOR::data_relative", ABORT, nullptr);
-#endif
-
   return ptr->data;
 }
 
@@ -289,11 +273,6 @@ void *CLIST_ITERATOR::data_relative( // get data + or - ...
  **********************************************************************/
 
 void *CLIST_ITERATOR::move_to_last() {
-#ifndef NDEBUG
-  if (!list)
-    NO_LIST.error("CLIST_ITERATOR::move_to_last", ABORT, nullptr);
-#endif
-
   while (current != list->last) {
     forward();
   }
@@ -318,15 +297,6 @@ void *CLIST_ITERATOR::move_to_last() {
 void CLIST_ITERATOR::exchange(  // positions of 2 links
     CLIST_ITERATOR *other_it) { // other iterator
   constexpr ERRCODE DONT_EXCHANGE_DELETED("Can't exchange deleted elements of lists");
-
-#ifndef NDEBUG
-  if (!list)
-    NO_LIST.error("CLIST_ITERATOR::exchange", ABORT, nullptr);
-  if (!other_it)
-    BAD_PARAMETER.error("CLIST_ITERATOR::exchange", ABORT, "other_it nullptr");
-  if (!(other_it->list))
-    NO_LIST.error("CLIST_ITERATOR::exchange", ABORT, "other_it");
-#endif
 
   /* Do nothing if either list is empty or if both iterators reference the same
 link */
@@ -418,10 +388,6 @@ CLIST_LINK *CLIST_ITERATOR::extract_sublist( // from this current
   constexpr ERRCODE BAD_EXTRACTION_PTS("Can't extract sublist from points on different lists");
   constexpr ERRCODE DONT_EXTRACT_DELETED("Can't extract a sublist marked by deleted points");
 
-  if (!other_it)
-    BAD_PARAMETER.error("CLIST_ITERATOR::extract_sublist", ABORT, "other_it nullptr");
-  if (!list)
-    NO_LIST.error("CLIST_ITERATOR::extract_sublist", ABORT, nullptr);
   if (list != other_it->list)
     BAD_EXTRACTION_PTS.error("CLIST_ITERATOR.extract_sublist", ABORT, nullptr);
   if (list->empty())

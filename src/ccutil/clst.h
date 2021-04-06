@@ -194,9 +194,6 @@ public:
     if (!list) {
       NO_LIST.error("CLIST_ITERATOR::data", ABORT, nullptr);
     }
-    if (!current) {
-      NULL_DATA.error("CLIST_ITERATOR::data", ABORT, nullptr);
-    }
 #endif
     return current->data;
   }
@@ -215,11 +212,6 @@ public:
   void mark_cycle_pt(); // remember current
 
   bool empty() const { // is list empty?
-#ifndef NDEBUG
-    if (!list) {
-      NO_LIST.error("CLIST_ITERATOR::empty", ABORT, nullptr);
-    }
-#endif
     return list->empty();
   }
 
@@ -255,12 +247,6 @@ public:
 
 inline void CLIST_ITERATOR::set_to_list( // change list
     CLIST *list_to_iterate) {
-#ifndef NDEBUG
-  if (!list_to_iterate) {
-    BAD_PARAMETER.error("CLIST_ITERATOR::set_to_list", ABORT, "list_to_iterate is nullptr");
-  }
-#endif
-
   list = list_to_iterate;
   prev = list->last;
   current = list->First();
@@ -291,9 +277,6 @@ inline CLIST_ITERATOR::CLIST_ITERATOR(CLIST *list_to_iterate) {
 inline void CLIST_ITERATOR::add_after_then_move( // element to add
     void *new_data) {
 #ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_after_then_move", ABORT, nullptr);
-  }
   if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_after_then_move", ABORT, "new_data is nullptr");
   }
@@ -338,9 +321,6 @@ inline void CLIST_ITERATOR::add_after_then_move( // element to add
 inline void CLIST_ITERATOR::add_after_stay_put( // element to add
     void *new_data) {
 #ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_after_stay_put", ABORT, nullptr);
-  }
   if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_after_stay_put", ABORT, "new_data is nullptr");
   }
@@ -387,9 +367,6 @@ inline void CLIST_ITERATOR::add_after_stay_put( // element to add
 inline void CLIST_ITERATOR::add_before_then_move( // element to add
     void *new_data) {
 #ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_before_then_move", ABORT, nullptr);
-  }
   if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_before_then_move", ABORT, "new_data is nullptr");
   }
@@ -430,9 +407,6 @@ inline void CLIST_ITERATOR::add_before_then_move( // element to add
 inline void CLIST_ITERATOR::add_before_stay_put( // element to add
     void *new_data) {
 #ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_before_stay_put", ABORT, nullptr);
-  }
   if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_before_stay_put", ABORT, "new_data is nullptr");
   }
@@ -473,15 +447,6 @@ inline void CLIST_ITERATOR::add_before_stay_put( // element to add
  **********************************************************************/
 
 inline void CLIST_ITERATOR::add_list_after(CLIST *list_to_add) {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_list_after", ABORT, nullptr);
-  }
-  if (!list_to_add) {
-    BAD_PARAMETER.error("CLIST_ITERATOR::add_list_after", ABORT, "list_to_add is nullptr");
-  }
-#endif
-
   if (!list_to_add->empty()) {
     if (list->empty()) {
       list->last = list_to_add->last;
@@ -520,15 +485,6 @@ inline void CLIST_ITERATOR::add_list_after(CLIST *list_to_add) {
  **********************************************************************/
 
 inline void CLIST_ITERATOR::add_list_before(CLIST *list_to_add) {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_list_before", ABORT, nullptr);
-  }
-  if (!list_to_add) {
-    BAD_PARAMETER.error("CLIST_ITERATOR::add_list_before", ABORT, "list_to_add is nullptr");
-  }
-#endif
-
   if (!list_to_add->empty()) {
     if (list->empty()) {
       list->last = list_to_add->last;
@@ -567,9 +523,6 @@ inline void CLIST_ITERATOR::add_list_before(CLIST *list_to_add) {
 
 inline void *CLIST_ITERATOR::extract() {
 #ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::extract", ABORT, nullptr);
-  }
   if (!current) { // list empty or
                   // element extracted
     NULL_CURRENT.error("CLIST_ITERATOR::extract", ABORT, nullptr);
@@ -605,12 +558,6 @@ inline void *CLIST_ITERATOR::extract() {
  **********************************************************************/
 
 inline void *CLIST_ITERATOR::move_to_first() {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::move_to_first", ABORT, nullptr);
-  }
-#endif
-
   current = list->First();
   prev = list->last;
   next = current != nullptr ? current->next : nullptr;
@@ -651,12 +598,6 @@ inline void CLIST_ITERATOR::mark_cycle_pt() {
  **********************************************************************/
 
 inline bool CLIST_ITERATOR::at_first() const {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::at_first", ABORT, nullptr);
-  }
-#endif
-
   // we're at a deleted
   return ((list->empty()) || (current == list->First()) ||
           ((current == nullptr) && (prev == list->last) && // NON-last pt between
@@ -671,12 +612,6 @@ inline bool CLIST_ITERATOR::at_first() const {
  **********************************************************************/
 
 inline bool CLIST_ITERATOR::at_last() const {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::at_last", ABORT, nullptr);
-  }
-#endif
-
   // we're at a deleted
   return ((list->empty()) || (current == list->last) ||
           ((current == nullptr) && (prev == list->last) && // last point between
@@ -691,12 +626,6 @@ inline bool CLIST_ITERATOR::at_last() const {
  **********************************************************************/
 
 inline bool CLIST_ITERATOR::cycled_list() const {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::cycled_list", ABORT, nullptr);
-  }
-#endif
-
   return ((list->empty()) || ((current == cycle_pt) && started_cycling));
 }
 
@@ -708,12 +637,6 @@ inline bool CLIST_ITERATOR::cycled_list() const {
  **********************************************************************/
 
 inline int32_t CLIST_ITERATOR::length() const {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::length", ABORT, nullptr);
-  }
-#endif
-
   return list->length();
 }
 
@@ -727,12 +650,6 @@ inline int32_t CLIST_ITERATOR::length() const {
 inline void CLIST_ITERATOR::sort( // sort elements
     int comparator(               // comparison routine
         const void *, const void *)) {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::sort", ABORT, nullptr);
-  }
-#endif
-
   list->sort(comparator);
   move_to_first();
 }
