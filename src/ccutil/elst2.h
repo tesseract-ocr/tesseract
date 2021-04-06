@@ -824,7 +824,7 @@ inline void ELIST2_ITERATOR::add_to_end( // element to add
   }
 }
 
-#define ELIST2IZEH(CLASSNAME)                                                 \
+#define ELIST2IZEH(CLASSNAME)                                                  \
   class CLASSNAME##_LIST : public X_LIST<ELIST2, ELIST2_ITERATOR, CLASSNAME> { \
   public:                                                                      \
     using X_LIST<ELIST2, ELIST2_ITERATOR, CLASSNAME>::X_LIST;                  \
