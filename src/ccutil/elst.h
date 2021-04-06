@@ -896,34 +896,20 @@ ELISTIZEH_C.
     CLASSNAME *data() {                                                            \
       return reinterpret_cast<CLASSNAME *>(ELIST_ITERATOR::data());                \
     }                                                                              \
-                                                                                   \
     CLASSNAME *data_relative(int8_t offset) {                                      \
       return reinterpret_cast<CLASSNAME *>(ELIST_ITERATOR::data_relative(offset)); \
     }                                                                              \
-                                                                                   \
     CLASSNAME *forward() {                                                         \
       return reinterpret_cast<CLASSNAME *>(ELIST_ITERATOR::forward());             \
     }                                                                              \
-                                                                                   \
     CLASSNAME *extract() {                                                         \
       return reinterpret_cast<CLASSNAME *>(ELIST_ITERATOR::extract());             \
-    }                                                                              \
-                                                                                   \
-    CLASSNAME *move_to_first() {                                                   \
-      return reinterpret_cast<CLASSNAME *>(ELIST_ITERATOR::move_to_first());       \
-    }                                                                              \
-                                                                                   \
-    CLASSNAME *move_to_last() {                                                    \
-      return reinterpret_cast<CLASSNAME *>(ELIST_ITERATOR::move_to_last());        \
     }                                                                              \
   };
 
 #define ELISTIZEH(CLASSNAME) \
-                             \
   ELISTIZEH_A(CLASSNAME)     \
-                             \
   ELISTIZEH_B(CLASSNAME)     \
-                             \
   ELISTIZEH_C(CLASSNAME)
 
 /***********************************************************************

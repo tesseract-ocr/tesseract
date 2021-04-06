@@ -915,29 +915,17 @@ ELIST2IZEH_C.
     CLASSNAME *data() {                                                             \
       return reinterpret_cast<CLASSNAME *>(ELIST2_ITERATOR::data());                \
     }                                                                               \
-                                                                                    \
     CLASSNAME *data_relative(int8_t offset) {                                       \
       return reinterpret_cast<CLASSNAME *>(ELIST2_ITERATOR::data_relative(offset)); \
     }                                                                               \
-                                                                                    \
     CLASSNAME *forward() {                                                          \
       return reinterpret_cast<CLASSNAME *>(ELIST2_ITERATOR::forward());             \
     }                                                                               \
-                                                                                    \
     CLASSNAME *backward() {                                                         \
       return reinterpret_cast<CLASSNAME *>(ELIST2_ITERATOR::backward());            \
     }                                                                               \
-                                                                                    \
     CLASSNAME *extract() {                                                          \
       return reinterpret_cast<CLASSNAME *>(ELIST2_ITERATOR::extract());             \
-    }                                                                               \
-                                                                                    \
-    CLASSNAME *move_to_first() {                                                    \
-      return reinterpret_cast<CLASSNAME *>(ELIST2_ITERATOR::move_to_first());       \
-    }                                                                               \
-                                                                                    \
-    CLASSNAME *move_to_last() {                                                     \
-      return reinterpret_cast<CLASSNAME *>(ELIST2_ITERATOR::move_to_last());        \
     }                                                                               \
                                                                                     \
   private:                                                                          \
@@ -945,11 +933,8 @@ ELIST2IZEH_C.
   };
 
 #define ELIST2IZEH(CLASSNAME) \
-                              \
   ELIST2IZEH_A(CLASSNAME)     \
-                              \
   ELIST2IZEH_B(CLASSNAME)     \
-                              \
   ELIST2IZEH_C(CLASSNAME)
 
 /***********************************************************************
