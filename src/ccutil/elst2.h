@@ -826,14 +826,6 @@ inline void ELIST2_ITERATOR::add_to_end( // element to add
 }
 
 /***********************************************************************
-  QUOTE_IT   MACRO DEFINITION
-  ===========================
-Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
-***********************************************************************/
-
-#define QUOTE_IT(parm) #parm
-
-/***********************************************************************
   ELIST2IZE(CLASSNAME) MACRO DEFINITION
   ======================================
 
