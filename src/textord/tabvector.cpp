@@ -166,7 +166,6 @@ void TabConstraint::GetConstraints(TabConstraint_LIST *constraints, int *y_min, 
 }
 
 ELIST2IZE(TabVector)
-CLISTIZE(TabVector)
 
 // The constructor is private. See the bottom of the file...
 

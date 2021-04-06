@@ -24,7 +24,6 @@
 namespace tesseract {
 
 ELISTIZE(FPSEGPT)
-CLISTIZE(FPSEGPT_LIST)
 
 INT_VAR(pitsync_linear_version, 6, "Use new fast algorithm");
 double_VAR(pitsync_joined_edge, 0.75, "Dist inside big blob for chopping");

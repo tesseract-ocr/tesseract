@@ -46,7 +46,6 @@ struct Pix;
 namespace tesseract {
 
 ELISTIZE(BLOCK_RES)
-CLISTIZE(BLOCK_RES)
 ELISTIZE(ROW_RES)
 ELISTIZE(WERD_RES)
 

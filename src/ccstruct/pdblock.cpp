@@ -36,7 +36,6 @@ namespace tesseract {
 constexpr ERRCODE BADBLOCKLINE("Y coordinate in block out of bounds");
 constexpr ERRCODE LOSTBLOCKLINE("Can't find rectangle for line");
 
-CLISTIZE(PDBLK)
 /**********************************************************************
  * PDBLK::PDBLK
  *

@@ -44,7 +44,6 @@ public:
 };
 
 CLISTIZEH(Clst)
-CLISTIZE(Clst)
 ELISTIZEH(Elst)
 ELISTIZE(Elst)
 ELIST2IZEH(Elst2)

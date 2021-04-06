@@ -151,7 +151,6 @@ static BOOL_VAR(textord_tablefind_recognize_tables, false,
                 "Enables the table recognizer for table layout and filtering.");
 
 ELISTIZE(ColSegment)
-CLISTIZE(ColSegment)
 
 // Templated helper function used to create destructor callbacks for the
 // BBGrid::ClearGridData() method.

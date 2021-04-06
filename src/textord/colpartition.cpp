@@ -36,7 +36,6 @@
 namespace tesseract {
 
 ELIST2IZE(ColPartition)
-CLISTIZE(ColPartition)
 
 //////////////// ColPartition Implementation ////////////////
 
