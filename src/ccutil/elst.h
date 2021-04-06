@@ -248,7 +248,7 @@ public:
 
   void mark_cycle_pt(); // remember current
 
-  bool empty() { // is list empty?
+  bool empty() const { // is list empty?
 #ifndef NDEBUG
     if (!list) {
       NO_LIST.error("ELIST_ITERATOR::empty", ABORT, nullptr);
@@ -257,15 +257,15 @@ public:
     return list->empty();
   }
 
-  bool current_extracted() { // current extracted?
+  bool current_extracted() const { // current extracted?
     return !current;
   }
 
-  bool at_first(); // Current is first?
+  bool at_first() const; // Current is first?
 
-  bool at_last(); // Current is last?
+  bool at_last() const; // Current is last?
 
-  bool cycled_list(); // Completed a cycle?
+  bool cycled_list() const; // Completed a cycle?
 
   void add_to_end(           // add at end &
       ELIST_LINK *new_link); // don't move
@@ -273,7 +273,7 @@ public:
   void exchange(                 // positions of 2 links
       ELIST_ITERATOR *other_it); // other iterator
 
-  int32_t length(); //# elements in list
+  int32_t length() const; //# elements in list
 
   void sort(          // sort elements
       int comparator( // comparison routine
@@ -684,7 +684,7 @@ inline void ELIST_ITERATOR::mark_cycle_pt() {
  *
  **********************************************************************/
 
-inline bool ELIST_ITERATOR::at_first() {
+inline bool ELIST_ITERATOR::at_first() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::at_first", ABORT, nullptr);
@@ -704,7 +704,7 @@ inline bool ELIST_ITERATOR::at_first() {
  *
  **********************************************************************/
 
-inline bool ELIST_ITERATOR::at_last() {
+inline bool ELIST_ITERATOR::at_last() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::at_last", ABORT, nullptr);
@@ -724,7 +724,7 @@ inline bool ELIST_ITERATOR::at_last() {
  *
  **********************************************************************/
 
-inline bool ELIST_ITERATOR::cycled_list() {
+inline bool ELIST_ITERATOR::cycled_list() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::cycled_list", ABORT, nullptr);
@@ -741,7 +741,7 @@ inline bool ELIST_ITERATOR::cycled_list() {
  *
  **********************************************************************/
 
-inline int32_t ELIST_ITERATOR::length() {
+inline int32_t ELIST_ITERATOR::length() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::length", ABORT, nullptr);
