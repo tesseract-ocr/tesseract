@@ -35,15 +35,12 @@ namespace tesseract {
 
 void CLIST::internal_deep_clear( // destroy all links
     void (*zapper)(void *)) {    // ptr to zapper functn
-  CLIST_LINK *ptr;
-  CLIST_LINK *next;
-
   if (!empty()) {
-    ptr = last->next;     // set to first
+    auto ptr = last->next;     // set to first
     last->next = nullptr; // break circle
     last = nullptr;       // set list empty
     while (ptr) {
-      next = ptr->next;
+      auto next = ptr->next;
       zapper(ptr->data);
       delete (ptr);
       ptr = next;
@@ -61,15 +58,12 @@ void CLIST::internal_deep_clear( // destroy all links
  **********************************************************************/
 
 void CLIST::shallow_clear() { // destroy all links
-  CLIST_LINK *ptr;
-  CLIST_LINK *next;
-
   if (!empty()) {
-    ptr = last->next;     // set to first
+    auto ptr = last->next;     // set to first
     last->next = nullptr; // break circle
     last = nullptr;       // set list empty
     while (ptr) {
-      next = ptr->next;
+      auto next = ptr->next;
       delete (ptr);
       ptr = next;
     }
@@ -325,8 +319,6 @@ void CLIST_ITERATOR::exchange(  // positions of 2 links
     CLIST_ITERATOR *other_it) { // other iterator
   constexpr ERRCODE DONT_EXCHANGE_DELETED("Can't exchange deleted elements of lists");
 
-  CLIST_LINK *old_current;
-
 #ifndef NDEBUG
   if (!list)
     NO_LIST.error("CLIST_ITERATOR::exchange", ABORT, nullptr);
@@ -402,7 +394,7 @@ non-adjacent elements. */
 
   /* The actual exchange - in all cases*/
 
-  old_current = current;
+  auto old_current = current;
   current = other_it->current;
   other_it->current = old_current;
 }
@@ -420,7 +412,6 @@ non-adjacent elements. */
 CLIST_LINK *CLIST_ITERATOR::extract_sublist( // from this current
     CLIST_ITERATOR *other_it) {              // to other current
   CLIST_ITERATOR temp_it = *this;
-  CLIST_LINK *end_of_new_list;
 
   constexpr ERRCODE BAD_SUBLIST("Can't find sublist end point in original list");
 #ifndef NDEBUG
@@ -468,7 +459,7 @@ CLIST_LINK *CLIST_ITERATOR::extract_sublist( // from this current
 
   // circularise sublist
   other_it->current->next = current;
-  end_of_new_list = other_it->current;
+  auto end_of_new_list = other_it->current;
 
   // sublist = whole list
   if (prev == other_it->current) {

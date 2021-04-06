@@ -290,8 +290,6 @@ inline CLIST_ITERATOR::CLIST_ITERATOR(CLIST *list_to_iterate) {
 
 inline void CLIST_ITERATOR::add_after_then_move( // element to add
     void *new_data) {
-  CLIST_LINK *new_element;
-
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_after_then_move", ABORT, nullptr);
@@ -301,7 +299,7 @@ inline void CLIST_ITERATOR::add_after_then_move( // element to add
   }
 #endif
 
-  new_element = new CLIST_LINK;
+  auto new_element = new CLIST_LINK;
   new_element->data = new_data;
 
   if (list->empty()) {
@@ -339,8 +337,6 @@ inline void CLIST_ITERATOR::add_after_then_move( // element to add
 
 inline void CLIST_ITERATOR::add_after_stay_put( // element to add
     void *new_data) {
-  CLIST_LINK *new_element;
-
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_after_stay_put", ABORT, nullptr);
@@ -350,7 +346,7 @@ inline void CLIST_ITERATOR::add_after_stay_put( // element to add
   }
 #endif
 
-  new_element = new CLIST_LINK;
+  auto new_element = new CLIST_LINK;
   new_element->data = new_data;
 
   if (list->empty()) {
@@ -390,8 +386,6 @@ inline void CLIST_ITERATOR::add_after_stay_put( // element to add
 
 inline void CLIST_ITERATOR::add_before_then_move( // element to add
     void *new_data) {
-  CLIST_LINK *new_element;
-
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_before_then_move", ABORT, nullptr);
@@ -401,7 +395,7 @@ inline void CLIST_ITERATOR::add_before_then_move( // element to add
   }
 #endif
 
-  new_element = new CLIST_LINK;
+  auto new_element = new CLIST_LINK;
   new_element->data = new_data;
 
   if (list->empty()) {
@@ -435,8 +429,6 @@ inline void CLIST_ITERATOR::add_before_then_move( // element to add
 
 inline void CLIST_ITERATOR::add_before_stay_put( // element to add
     void *new_data) {
-  CLIST_LINK *new_element;
-
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_before_stay_put", ABORT, nullptr);
@@ -446,7 +438,7 @@ inline void CLIST_ITERATOR::add_before_stay_put( // element to add
   }
 #endif
 
-  new_element = new CLIST_LINK;
+  auto new_element = new CLIST_LINK;
   new_element->data = new_data;
 
   if (list->empty()) {
@@ -574,8 +566,6 @@ inline void CLIST_ITERATOR::add_list_before(CLIST *list_to_add) {
  **********************************************************************/
 
 inline void *CLIST_ITERATOR::extract() {
-  void *extracted_data;
-
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("CLIST_ITERATOR::extract", ABORT, nullptr);
@@ -601,7 +591,7 @@ inline void *CLIST_ITERATOR::extract() {
   }
   // Always set ex_current_was_cycle_pt so an add/forward will work in a loop.
   ex_current_was_cycle_pt = (current == cycle_pt);
-  extracted_data = current->data;
+  auto extracted_data = current->data;
   delete (current); // destroy CONS cell
   current = nullptr;
   return extracted_data;
@@ -759,8 +749,6 @@ inline void CLIST_ITERATOR::sort( // sort elements
 
 inline void CLIST_ITERATOR::add_to_end( // element to add
     void *new_data) {
-  CLIST_LINK *new_element;
-
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_to_end", ABORT, nullptr);
@@ -777,7 +765,7 @@ inline void CLIST_ITERATOR::add_to_end( // element to add
       this->add_before_stay_put(new_data);
       list->last = prev;
     } else { // Iteratr is elsewhere
-      new_element = new CLIST_LINK;
+      auto new_element = new CLIST_LINK;
       new_element->data = new_data;
 
       new_element->next = list->last->next;
