@@ -147,7 +147,17 @@ public:
       ELIST_ITERATOR *start_it, // from list start
       ELIST_ITERATOR *end_it);  // from list end
 
-  int32_t length() const; // # elements in list
+  // # elements in list
+  int32_t length() const {
+    int32_t count = 0;
+    if (last != nullptr) {
+      count = 1;
+      for (auto it = last->next; it != last; it = it->next) {
+        count++;
+      }
+    }
+    return count;
+  }
 
   void sort(          // sort elements
       int comparator( // comparison routine
@@ -273,7 +283,10 @@ public:
   void exchange(                 // positions of 2 links
       ELIST_ITERATOR *other_it); // other iterator
 
-  int32_t length() const; //# elements in list
+  //# elements in list
+  int32_t length() const {
+    return list->length();
+  }
 
   void sort(          // sort elements
       int comparator( // comparison routine
@@ -732,23 +745,6 @@ inline bool ELIST_ITERATOR::cycled_list() const {
 #endif
 
   return ((list->empty()) || ((current == cycle_pt) && started_cycling));
-}
-
-/***********************************************************************
- *                          ELIST_ITERATOR::length()
- *
- *  Return the length of the list
- *
- **********************************************************************/
-
-inline int32_t ELIST_ITERATOR::length() const {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("ELIST_ITERATOR::length", ABORT, nullptr);
-  }
-#endif
-
-  return list->length();
 }
 
 /***********************************************************************

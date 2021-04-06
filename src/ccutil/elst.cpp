@@ -77,22 +77,6 @@ void ELIST::assign_to_sublist( // to this list
 }
 
 /***********************************************************************
- *              ELIST::length
- *
- *  Return count of elements on list
- **********************************************************************/
-
-int32_t ELIST::length() const { // count elements
-  ELIST_ITERATOR it(const_cast<ELIST *>(this));
-  int32_t count = 0;
-
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    count++;
-  }
-  return count;
-}
-
-/***********************************************************************
  *              ELIST::sort
  *
  *  Sort elements on list
