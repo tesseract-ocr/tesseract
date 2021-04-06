@@ -19,6 +19,7 @@
 #ifndef CLST_H
 #define CLST_H
 
+#include "list_iterator.h"
 #include "lsterr.h"
 #include "serialis.h"
 
@@ -703,38 +704,15 @@ public:
   }
 };
 
-template <typename CLASSNAME>
-class X_C_IT : public CLIST_ITERATOR {
-public:
-  X_C_IT() = default;
-protected:
-  template <typename U>
-  X_C_IT(U *list) : CLIST_ITERATOR(list) {}
-
-public:
-  CLASSNAME *data() {
-    return static_cast<CLASSNAME *>(CLIST_ITERATOR::data());
-  }
-  CLASSNAME *data_relative(int8_t offset) {
-    return static_cast<CLASSNAME *>(CLIST_ITERATOR::data_relative(offset));
-  }
-  CLASSNAME *forward() {
-    return static_cast<CLASSNAME *>(CLIST_ITERATOR::forward());
-  }
-  CLASSNAME *extract() {
-    return static_cast<CLASSNAME *>(CLIST_ITERATOR::extract());
-  }
-};
-
-#define CLISTIZEH(CLASSNAME)                                    \
-  class CLASSNAME##_CLIST : public X_CLIST<CLASSNAME> {         \
-  public:                                                       \
-    using X_CLIST<CLASSNAME>::X_CLIST;                          \
-  };                                                            \
-  class CLASSNAME##_C_IT : public X_C_IT<CLASSNAME> {           \
-  public:                                                       \
-    using X_C_IT<CLASSNAME>::X_C_IT;                            \
-    CLASSNAME##_C_IT(CLASSNAME##_CLIST *list) : X_C_IT(list) {} \
+#define CLISTIZEH(CLASSNAME)                                          \
+  class CLASSNAME##_CLIST : public X_CLIST<CLASSNAME> {               \
+  public:                                                             \
+    using X_CLIST<CLASSNAME>::X_CLIST;                                \
+  };                                                                  \
+  class CLASSNAME##_C_IT : public X_ITER<CLIST_ITERATOR, CLASSNAME> { \
+  public:                                                             \
+    using X_ITER<CLIST_ITERATOR, CLASSNAME>::X_ITER;                  \
+    CLASSNAME##_C_IT(CLASSNAME##_CLIST *list) : X_ITER(list) {}       \
   };
 
 } // namespace tesseract

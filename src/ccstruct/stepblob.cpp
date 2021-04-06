@@ -35,7 +35,6 @@ class DENORM;
 // Max perimeter to width ratio for a baseline position above box bottom.
 const double kMaxPerimeterWidthRatio = 8.0;
 
-ELISTIZE(C_BLOB)
 /**********************************************************************
  * position_outline
  *

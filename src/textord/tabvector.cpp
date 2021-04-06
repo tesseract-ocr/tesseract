@@ -59,8 +59,6 @@ double_VAR(textord_tabvector_vertical_gap_fraction, 0.5,
 double_VAR(textord_tabvector_vertical_box_ratio, 0.5,
            "Fraction of box matches required to declare a line vertical");
 
-ELISTIZE(TabConstraint)
-
 // Create a constraint for the top or bottom of this TabVector.
 void TabConstraint::CreateConstraint(TabVector *vector, bool is_top) {
   auto *constraint = new TabConstraint(vector, is_top);

@@ -24,8 +24,6 @@
 
 namespace tesseract {
 
-ELISTIZE(PARA)
-
 using tesseract::JUSTIFICATION_CENTER;
 using tesseract::JUSTIFICATION_LEFT;
 using tesseract::JUSTIFICATION_RIGHT;

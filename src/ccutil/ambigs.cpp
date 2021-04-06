@@ -47,8 +47,6 @@ AmbigSpec::AmbigSpec() {
   wrong_ngram_size = 0;
 }
 
-ELISTIZE(AmbigSpec)
-
 // Initializes the ambigs by adding a nullptr pointer to each table.
 void UnicharAmbigs::InitUnicharAmbigs(const UNICHARSET &unicharset, bool use_ambigs_for_adaption) {
   for (int i = 0; i < unicharset.size(); ++i) {

@@ -32,8 +32,6 @@
 
 namespace tesseract {
 
-ELISTIZE(TrainingSample)
-
 // Center of randomizing operations.
 const int kRandomizingCenter = 128;
 

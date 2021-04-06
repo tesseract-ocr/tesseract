@@ -30,8 +30,6 @@ namespace tesseract {
 // Minimum width of a column to be interesting as a multiple of resolution.
 const double kMinColumnWidth = 2.0 / 3;
 
-ELISTIZE(ColPartitionSet)
-
 ColPartitionSet::ColPartitionSet(ColPartition_LIST *partitions) {
   ColPartition_IT it(&parts_);
   it.add_list_after(partitions);

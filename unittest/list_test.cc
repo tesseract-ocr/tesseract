@@ -45,7 +45,6 @@ public:
 
 CLISTIZEH(Clst)
 ELISTIZEH(Elst)
-ELISTIZE(Elst)
 ELIST2IZEH(Elst2)
 ELIST2IZE(Elst2)
 

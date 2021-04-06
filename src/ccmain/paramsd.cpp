@@ -54,8 +54,6 @@ static std::map<int, ParamContent *> vcMap;
 static int nrParams = 0;
 static int writeCommands[2];
 
-ELISTIZE(ParamContent)
-
 // Constructors for the various ParamTypes.
 ParamContent::ParamContent(tesseract::StringParam *it) {
   my_id_ = nrParams;

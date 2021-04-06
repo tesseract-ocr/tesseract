@@ -42,7 +42,6 @@
 
 namespace tesseract {
 
-ELISTIZE(C_OUTLINE)
 ICOORD C_OUTLINE::step_coords[4] = {ICOORD(-1, 0), ICOORD(0, -1), ICOORD(1, 0), ICOORD(0, 1)};
 
 /**
