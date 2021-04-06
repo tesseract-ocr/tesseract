@@ -164,12 +164,12 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
   hocr_str.imbue(std::locale::classic());
   // Use 8 digits for double values.
   hocr_str.precision(8);
-  hocr_str << "  <div class='ocr_page'";
-  hocr_str << " id='"
-           << "page_" << page_id << "'";
-  hocr_str << " title='image \"";
+  hocr_str << "  <div class='ocr_page'"
+           << " id='"
+           << "page_" << page_id << "'"
+           << " title='image \"";
   if (!input_file_.empty()) {
-    hocr_str << HOcrEscape(input_file_.c_str()).c_str();
+    hocr_str << HOcrEscape(input_file_.c_str());
   } else {
     hocr_str << "unknown";
   }
