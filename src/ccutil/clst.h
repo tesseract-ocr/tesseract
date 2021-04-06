@@ -20,7 +20,6 @@
 #define CLST_H
 
 #include "lsterr.h"
-
 #include "serialis.h"
 
 #include <cstdio>
