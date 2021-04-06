@@ -725,12 +725,6 @@ public:
   CLASSNAME *extract() {
     return static_cast<CLASSNAME *>(CLIST_ITERATOR::extract());
   }
-  CLASSNAME *move_to_first() {
-    return static_cast<CLASSNAME *>(CLIST_ITERATOR::move_to_first());
-  }
-  CLASSNAME *move_to_last() {
-    return static_cast<CLASSNAME *>(CLIST_ITERATOR::move_to_last());
-  }
 };
 
 #define CLISTIZEH(CLASSNAME)                                    \
