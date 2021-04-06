@@ -2,7 +2,7 @@
 # Build Tesseract on Windows using cmake. No Training Tools.
 name: cmake-win64
 on:
-  push:
+  #push:
   schedule:
     - cron: 0 23 * * *
 
