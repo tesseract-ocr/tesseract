@@ -35,8 +35,6 @@
 
 namespace tesseract {
 
-ELIST2IZE(ColPartition)
-
 //////////////// ColPartition Implementation ////////////////
 
 // enum to refer to the entries in a neighbourhood of lines.

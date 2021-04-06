@@ -46,7 +46,6 @@ public:
 CLISTIZEH(Clst)
 ELISTIZEH(Elst)
 ELIST2IZEH(Elst2)
-ELIST2IZE(Elst2)
 
 TEST_F(ListTest, TestCLIST) {
   Clst_CLIST list;

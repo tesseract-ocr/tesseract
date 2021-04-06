@@ -19,7 +19,7 @@
 #ifndef ELST_H
 #define ELST_H
 
-#include "list_iterator.h"
+#include "list.h"
 #include "lsterr.h"
 #include "serialis.h"
 
@@ -124,7 +124,7 @@ public:
 
   void internal_clear( // destroy all links
                        // ptr to zapper functn
-      void (*zapper)(ELIST_LINK *));
+      void (*zapper)(void *));
 
   bool empty() const { // is list empty?
     return !last;
@@ -805,43 +805,15 @@ inline void ELIST_ITERATOR::add_to_end( // element to add
   }
 }
 
-template <typename CLASSNAME>
-class X_LIST : public ELIST {
-public:
-  X_LIST() = default;
-  X_LIST(const X_LIST &) = delete;
-  X_LIST &operator=(const X_LIST &) = delete;
-  ~X_LIST() {
-    clear();
-  }
-
-  /* delete elements */
-  void clear() {
-    ELIST::internal_clear([](ELIST_LINK *link) {delete reinterpret_cast<CLASSNAME *>(link);});
-  }
-
-  /* Become a deep copy of src_list */
-  template <typename U>
-  void deep_copy(const U *src_list, CLASSNAME *(*copier)(const CLASSNAME *)) {
-    static_assert(std::is_base_of_v<X_LIST, U>);
-
-    X_ITER<ELIST_ITERATOR, CLASSNAME> from_it(const_cast<U *>(src_list));
-    X_ITER<ELIST_ITERATOR, CLASSNAME> to_it(this);
-
-    for (from_it.mark_cycle_pt(); !from_it.cycled_list(); from_it.forward())
-      to_it.add_after_then_move((*copier)(from_it.data()));
-  }
-};
-
-#define ELISTIZEH(CLASSNAME)                                        \
-  class CLASSNAME##_LIST : public X_LIST<CLASSNAME> {               \
-  public:                                                           \
-    using X_LIST<CLASSNAME>::X_LIST;                                \
-  };                                                                \
-  class CLASSNAME##_IT : public X_ITER<ELIST_ITERATOR, CLASSNAME> { \
-  public:                                                           \
-    using X_ITER<ELIST_ITERATOR, CLASSNAME>::X_ITER;                \
-    CLASSNAME##_IT(CLASSNAME##_LIST *list) : X_ITER(list) {}        \
+#define ELISTIZEH(CLASSNAME)                                                 \
+  class CLASSNAME##_LIST : public X_LIST<ELIST, ELIST_ITERATOR, CLASSNAME> { \
+  public:                                                                    \
+    using X_LIST<ELIST, ELIST_ITERATOR, CLASSNAME>::X_LIST;                  \
+  };                                                                         \
+  class CLASSNAME##_IT : public X_ITER<ELIST_ITERATOR, CLASSNAME> {          \
+  public:                                                                    \
+    using X_ITER<ELIST_ITERATOR, CLASSNAME>::X_ITER;                         \
+    CLASSNAME##_IT(CLASSNAME##_LIST *list) : X_ITER(list) {}                 \
   };
 
 } // namespace tesseract

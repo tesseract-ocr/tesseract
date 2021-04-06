@@ -33,8 +33,6 @@ namespace tesseract {
 #define LAST_COLOUR ScrollView::AQUAMARINE ///< last rainbow colour
 #define CHILD_COLOUR ScrollView::BROWN     ///< colour of children
 
-ELIST2IZE(WERD)
-
 /**
  * WERD::WERD
  *

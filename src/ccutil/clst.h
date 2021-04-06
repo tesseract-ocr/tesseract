@@ -19,7 +19,7 @@
 #ifndef CLST_H
 #define CLST_H
 
-#include "list_iterator.h"
+#include "list.h"
 #include "lsterr.h"
 #include "serialis.h"
 

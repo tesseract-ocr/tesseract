@@ -39,8 +39,6 @@
 
 namespace tesseract {
 
-ELIST2IZE(TO_ROW)
-
 // Up to 30 degrees is allowed for rotations of diacritic blobs.
 const double kCosSmallAngle = 0.866;
 // Min aspect ratio for a joined word to indicate an obvious flow direction.

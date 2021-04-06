@@ -34,7 +34,7 @@ namespace tesseract {
  **********************************************************************/
 
 void ELIST::internal_clear( // destroy all links
-    void (*zapper)(ELIST_LINK *)) {
+    void (*zapper)(void *)) {
   // ptr to zapper functn
   ELIST_LINK *ptr;
   ELIST_LINK *next;

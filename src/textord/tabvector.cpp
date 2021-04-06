@@ -163,8 +163,6 @@ void TabConstraint::GetConstraints(TabConstraint_LIST *constraints, int *y_min, 
   }
 }
 
-ELIST2IZE(TabVector)
-
 // The constructor is private. See the bottom of the file...
 
 // Public factory to build a TabVector from a list of boxes.
