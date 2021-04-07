@@ -51,14 +51,11 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM &cn_denorm) {
 
   for (auto &f : features) {
     auto Feature = new FEATURE_STRUCT(&MicroFeatureDesc);
-    Feature->Params[MFDirection] = f[ORIENTATION];
-    Feature->Params[MFXPosition] = f[XPOSITION];
-    Feature->Params[MFYPosition] = f[YPOSITION];
-    Feature->Params[MFLength] = f[MFLENGTH];
-
-    // Bulge features are deprecated and should not be used.  Set to 0.
-    Feature->Params[MFBulge1] = 0.0f;
-    Feature->Params[MFBulge2] = 0.0f;
+    for (int i = 0; i < (int)MicroFeatureParameter::MFCount; ++i)
+      Feature->Params[i] = f[i];
+    // Bulge features are deprecated and should not be used. Set to 0.
+    Feature->Params[(int)MicroFeatureParameter::MFBulge1] = 0.0f;
+    Feature->Params[(int)MicroFeatureParameter::MFBulge2] = 0.0f;
 
 #ifndef _WIN32
     // Assert that feature parameters are well defined.

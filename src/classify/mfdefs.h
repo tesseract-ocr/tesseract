@@ -18,29 +18,24 @@
 #ifndef MFDEFS_H
 #define MFDEFS_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
-#include "matchdefs.h"
-#include "oldlist.h"
-
 #include <array>
 #include <forward_list>
 
 namespace tesseract {
 
-/* definition of a list of micro-features */
-using MICROFEATURE = float;
-using MFBLOCK = std::array<MICROFEATURE, 6>;
-using MICROFEATURES = std::forward_list<MFBLOCK>;
+enum class MicroFeatureParameter {
+  MFXPosition,
+  MFYPosition,
+  MFLength,
+  MFDirection,
+  MFBulge1,
+  MFBulge2,
 
-/* definitions of individual micro-feature parameters */
-#define XPOSITION 0
-#define YPOSITION 1
-#define MFLENGTH 2
-#define ORIENTATION 3
-#define FIRSTBULGE 4
-#define SECONDBULGE 5
+  MFCount // For array sizes.
+};
+
+using MicroFeature = std::array<float, (int)MicroFeatureParameter::MFCount>;
+using MICROFEATURES = std::forward_list<MicroFeature>;
 
 } // namespace tesseract
 

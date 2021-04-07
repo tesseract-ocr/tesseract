@@ -36,7 +36,7 @@ double_VAR(classify_max_slope, 2.414213562, "Slope above which lines are called 
 
 MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline, MICROFEATURES MicroFeatures);
 
-MFBLOCK ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
+MicroFeature ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
 
 /*----------------------------------------------------------------------------
             Public Code
@@ -125,19 +125,19 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline, MICROFEATURES MicroFeatu
  * @return New micro-feature or nullptr if the feature was rejected.
  * @note Globals: none
  */
-MFBLOCK ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
+MicroFeature ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
   MFEDGEPT *P1, *P2;
 
   P1 = PointAt(Start);
   P2 = PointAt(End);
 
-  MFBLOCK NewFeature;
-  NewFeature[XPOSITION] = AverageOf(P1->Point.x, P2->Point.x);
-  NewFeature[YPOSITION] = AverageOf(P1->Point.y, P2->Point.y);
-  NewFeature[MFLENGTH] = DistanceBetween(P1->Point, P2->Point);
-  NewFeature[ORIENTATION] = NormalizedAngleFrom(&P1->Point, &P2->Point, 1.0);
-  NewFeature[FIRSTBULGE] = 0.0f;  // deprecated
-  NewFeature[SECONDBULGE] = 0.0f; // deprecated
+  MicroFeature NewFeature;
+  NewFeature[(int)MicroFeatureParameter::MFXPosition] = AverageOf(P1->Point.x, P2->Point.x);
+  NewFeature[(int)MicroFeatureParameter::MFYPosition] = AverageOf(P1->Point.y, P2->Point.y);
+  NewFeature[(int)MicroFeatureParameter::MFLength] = DistanceBetween(P1->Point, P2->Point);
+  NewFeature[(int)MicroFeatureParameter::MFDirection] = NormalizedAngleFrom(&P1->Point, &P2->Point, 1.0);
+  NewFeature[(int)MicroFeatureParameter::MFBulge1] = 0.0f;  // deprecated
+  NewFeature[(int)MicroFeatureParameter::MFBulge2] = 0.0f; // deprecated
 
   return NewFeature;
 } /* ExtractMicroFeature */
