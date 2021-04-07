@@ -439,7 +439,6 @@ libtesseract_la_SOURCES += src/classify/intmatcher.cpp
 libtesseract_la_SOURCES += src/classify/intproto.cpp
 libtesseract_la_SOURCES += src/classify/kdtree.cpp
 libtesseract_la_SOURCES += src/classify/mf.cpp
-libtesseract_la_SOURCES += src/classify/mfdefs.cpp
 libtesseract_la_SOURCES += src/classify/mfoutline.cpp
 libtesseract_la_SOURCES += src/classify/mfx.cpp
 libtesseract_la_SOURCES += src/classify/normfeat.cpp
