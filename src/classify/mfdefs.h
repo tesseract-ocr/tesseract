@@ -24,15 +24,15 @@
 #include "matchdefs.h"
 #include "oldlist.h"
 
+#include <array>
+#include <forward_list>
+
 namespace tesseract {
 
 /* definition of a list of micro-features */
-using MICROFEATURES = LIST;
-
-/* definition of structure of micro-features */
-#define MFSIZE 6
-typedef float MFBLOCK[MFSIZE];
-using MICROFEATURE = float *;
+using MICROFEATURE = float;
+using MFBLOCK = std::array<MICROFEATURE, 6>;
+using MICROFEATURES = std::forward_list<MFBLOCK>;
 
 /* definitions of individual micro-feature parameters */
 #define XPOSITION 0
@@ -41,20 +41,6 @@ using MICROFEATURE = float *;
 #define ORIENTATION 3
 #define FIRSTBULGE 4
 #define SECONDBULGE 5
-
-/**----------------------------------------------------------------------------
-            Macros
-----------------------------------------------------------------------------**/
-
-/* macros for accessing micro-feature lists */
-#define NextFeatureOf(L) ((MICROFEATURE)first_node(L))
-
-/**----------------------------------------------------------------------------
-          Public Function Prototypes
-----------------------------------------------------------------------------**/
-MICROFEATURE NewMicroFeature();
-
-void FreeMicroFeatures(MICROFEATURES MicroFeatures);
 
 } // namespace tesseract
 

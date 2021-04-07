@@ -36,7 +36,7 @@ double_VAR(classify_max_slope, 2.414213562, "Slope above which lines are called 
 
 MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline, MICROFEATURES MicroFeatures);
 
-MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
+MFBLOCK ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
 
 /*----------------------------------------------------------------------------
             Public Code
@@ -52,7 +52,7 @@ MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
  * @return List of micro-features extracted from the blob.
  */
 MICROFEATURES BlobMicroFeatures(TBLOB *Blob, const DENORM &cn_denorm) {
-  auto MicroFeatures = NIL_LIST;
+  MICROFEATURES MicroFeatures;
   LIST Outlines;
   LIST RemainingOutlines;
   MFOUTLINE Outline;
@@ -93,7 +93,6 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline, MICROFEATURES MicroFeatu
   MFOUTLINE Current;
   MFOUTLINE Last;
   MFOUTLINE First;
-  MICROFEATURE NewFeature;
 
   if (DegenerateOutline(Outline)) {
     return (MicroFeatures);
@@ -104,15 +103,13 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline, MICROFEATURES MicroFeatu
   do {
     Current = NextExtremity(Last);
     if (!PointAt(Current)->Hidden) {
-      NewFeature = ExtractMicroFeature(Last, Current);
-      if (NewFeature != nullptr) {
-        MicroFeatures = push(MicroFeatures, NewFeature);
-      }
+      auto NewFeature = ExtractMicroFeature(Last, Current);
+      MicroFeatures.push_front(NewFeature);
     }
     Last = Current;
   } while (Last != First);
 
-  return (MicroFeatures);
+  return MicroFeatures;
 } /* ConvertToMicroFeatures */
 
 /**
@@ -128,14 +125,13 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline, MICROFEATURES MicroFeatu
  * @return New micro-feature or nullptr if the feature was rejected.
  * @note Globals: none
  */
-MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
-  MICROFEATURE NewFeature;
+MFBLOCK ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
   MFEDGEPT *P1, *P2;
 
   P1 = PointAt(Start);
   P2 = PointAt(End);
 
-  NewFeature = NewMicroFeature();
+  MFBLOCK NewFeature;
   NewFeature[XPOSITION] = AverageOf(P1->Point.x, P2->Point.x);
   NewFeature[YPOSITION] = AverageOf(P1->Point.y, P2->Point.y);
   NewFeature[MFLENGTH] = DistanceBetween(P1->Point, P2->Point);

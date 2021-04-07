@@ -39,25 +39,22 @@ namespace tesseract {
  * @return Micro-features for Blob.
  */
 FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM &cn_denorm) {
-  int NumFeatures;
-  MICROFEATURES Features, OldFeatures;
-  MICROFEATURE OldFeature;
-
-  OldFeatures = BlobMicroFeatures(Blob, cn_denorm);
-  if (OldFeatures == nullptr) {
+  auto features = BlobMicroFeatures(Blob, cn_denorm);
+  if (features.empty()) {
     return nullptr;
   }
-  NumFeatures = count(OldFeatures);
-  auto FeatureSet = new FEATURE_SET_STRUCT(NumFeatures);
+  int n = 0;
+  for (auto &f : features) {
+    ++n;
+  }
+  auto FeatureSet = new FEATURE_SET_STRUCT(n);
 
-  Features = OldFeatures;
-  iterate(Features) {
-    OldFeature = reinterpret_cast<MICROFEATURE> first_node(Features);
+  for (auto &f : features) {
     auto Feature = new FEATURE_STRUCT(&MicroFeatureDesc);
-    Feature->Params[MFDirection] = OldFeature[ORIENTATION];
-    Feature->Params[MFXPosition] = OldFeature[XPOSITION];
-    Feature->Params[MFYPosition] = OldFeature[YPOSITION];
-    Feature->Params[MFLength] = OldFeature[MFLENGTH];
+    Feature->Params[MFDirection] = f[ORIENTATION];
+    Feature->Params[MFXPosition] = f[XPOSITION];
+    Feature->Params[MFYPosition] = f[YPOSITION];
+    Feature->Params[MFLength] = f[MFLENGTH];
 
     // Bulge features are deprecated and should not be used.  Set to 0.
     Feature->Params[MFBulge1] = 0.0f;
@@ -73,7 +70,6 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM &cn_denorm) {
 
     AddFeature(FeatureSet, Feature);
   }
-  FreeMicroFeatures(OldFeatures);
   return FeatureSet;
 } /* ExtractMicros */
 
