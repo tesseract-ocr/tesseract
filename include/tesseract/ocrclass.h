@@ -105,32 +105,36 @@ public:
   /** Progress monitor covers word recognition and it does not cover layout
    * analysis.
    * See Ray comment in https://github.com/tesseract-ocr/tesseract/pull/27 */
-  int8_t more_to_come{0};                   /// true if not last
-  volatile int8_t ocr_alive{0};             /// ocr sets to 1, HP 0
-  int8_t err_code{0};                       /// for errcode use
-  CANCEL_FUNC cancel{nullptr};              /// returns true to cancel
-  PROGRESS_FUNC progress_callback{nullptr}; /// called whenever progress increases
-  PROGRESS_FUNC2 progress_callback2;        /// monitor-aware progress callback
-  void *cancel_this{nullptr};               /// this or other data for cancel
+  int8_t more_to_come{0};       /// true if not last
+  volatile int8_t ocr_alive{0}; /// ocr sets to 1, HP 0
+  int8_t err_code{0};           /// for errcode use
+  CANCEL_FUNC cancel{nullptr};  /// returns true to cancel
+  PROGRESS_FUNC progress_callback{
+      nullptr};                      /// called whenever progress increases
+  PROGRESS_FUNC2 progress_callback2; /// monitor-aware progress callback
+  void *cancel_this{nullptr};        /// this or other data for cancel
   std::chrono::steady_clock::time_point end_time;
   /// Time to stop. Expected to be set only
   /// by call to set_deadline_msecs().
   EANYCODE_CHAR text[1]{}; /// character data
 
   ETEXT_DESC() : progress_callback2(&default_progress_func) {
-    end_time = std::chrono::time_point<std::chrono::steady_clock, std::chrono::milliseconds>();
+    end_time = std::chrono::time_point<std::chrono::steady_clock,
+                                       std::chrono::milliseconds>();
   }
 
   // Sets the end time to be deadline_msecs milliseconds from now.
   void set_deadline_msecs(int32_t deadline_msecs) {
     if (deadline_msecs > 0) {
-      end_time = std::chrono::steady_clock::now() + std::chrono::milliseconds(deadline_msecs);
+      end_time = std::chrono::steady_clock::now() +
+                 std::chrono::milliseconds(deadline_msecs);
     }
   }
 
   // Returns false if we've not passed the end_time, or have not set a deadline.
   bool deadline_exceeded() const {
-    if (end_time.time_since_epoch() == std::chrono::steady_clock::duration::zero()) {
+    if (end_time.time_since_epoch() ==
+        std::chrono::steady_clock::duration::zero()) {
       return false;
     }
     auto now = std::chrono::steady_clock::now();
@@ -138,9 +142,11 @@ public:
   }
 
 private:
-  static bool default_progress_func(ETEXT_DESC *ths, int left, int right, int top, int bottom) {
+  static bool default_progress_func(ETEXT_DESC *ths, int left, int right,
+                                    int top, int bottom) {
     if (ths->progress_callback != nullptr) {
-      return (*(ths->progress_callback))(ths->progress, left, right, top, bottom);
+      return (*(ths->progress_callback))(ths->progress, left, right, top,
+                                         bottom);
     }
     return true;
   }

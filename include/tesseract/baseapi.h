@@ -32,8 +32,8 @@
 #include <tesseract/version.h>
 
 #include <cstdio>
-#include <vector> // for std::vector
 #include <tuple>  // for std::tuple
+#include <vector> // for std::vector
 
 struct Pix;
 struct Pixa;
@@ -63,9 +63,10 @@ class Tesseract;
 // Returns false on failure.
 using FileReader = bool (*)(const char *filename, std::vector<char> *data);
 
-using DictFunc = int (Dict::*)(void *, const UNICHARSET &, UNICHAR_ID, bool) const;
-using ProbabilityInContextFunc = double (Dict::*)(const char *, const char *, int, const char *,
-                                                  int);
+using DictFunc = int (Dict::*)(void *, const UNICHARSET &, UNICHAR_ID,
+                               bool) const;
+using ProbabilityInContextFunc = double (Dict::*)(const char *, const char *,
+                                                  int, const char *, int);
 
 /**
  * Base class for all tesseract APIs.
@@ -196,21 +197,25 @@ public:
    * If set_only_non_debug_params is true, only params that do not contain
    * "debug" in the name will be set.
    */
-  int Init(const char *datapath, const char *language, OcrEngineMode mode, char **configs,
-           int configs_size, const std::vector<std::string> *vars_vec,
-           const std::vector<std::string> *vars_values, bool set_only_non_debug_params);
+  int Init(const char *datapath, const char *language, OcrEngineMode mode,
+           char **configs, int configs_size,
+           const std::vector<std::string> *vars_vec,
+           const std::vector<std::string> *vars_values,
+           bool set_only_non_debug_params);
   int Init(const char *datapath, const char *language, OcrEngineMode oem) {
     return Init(datapath, language, oem, nullptr, 0, nullptr, nullptr, false);
   }
   int Init(const char *datapath, const char *language) {
-    return Init(datapath, language, OEM_DEFAULT, nullptr, 0, nullptr, nullptr, false);
+    return Init(datapath, language, OEM_DEFAULT, nullptr, 0, nullptr, nullptr,
+                false);
   }
   // In-memory version reads the traineddata file directly from the given
   // data[data_size] array, and/or reads data via a FileReader.
-  int Init(const char *data, int data_size, const char *language, OcrEngineMode mode,
-           char **configs, int configs_size, const std::vector<std::string> *vars_vec,
-           const std::vector<std::string> *vars_values, bool set_only_non_debug_params,
-           FileReader reader);
+  int Init(const char *data, int data_size, const char *language,
+           OcrEngineMode mode, char **configs, int configs_size,
+           const std::vector<std::string> *vars_vec,
+           const std::vector<std::string> *vars_values,
+           bool set_only_non_debug_params, FileReader reader);
 
   /**
    * Returns the languages string used in the last valid initialization.
@@ -285,8 +290,9 @@ public:
    * For advanced uses, use SetImage, (optionally) SetRectangle, Recognize,
    * and one or more of the Get*Text functions below.
    */
-  char *TesseractRect(const unsigned char *imagedata, int bytes_per_pixel, int bytes_per_line,
-                      int left, int top, int width, int height);
+  char *TesseractRect(const unsigned char *imagedata, int bytes_per_pixel,
+                      int bytes_per_line, int left, int top, int width,
+                      int height);
 
   /**
    * Call between pages or documents etc to free up memory and forget
@@ -309,8 +315,8 @@ public:
    * full image, so it may be followed immediately by a GetUTF8Text, and it
    * will automatically perform recognition.
    */
-  void SetImage(const unsigned char *imagedata, int width, int height, int bytes_per_pixel,
-                int bytes_per_line);
+  void SetImage(const unsigned char *imagedata, int width, int height,
+                int bytes_per_pixel, int bytes_per_line);
 
   /**
    * Provide an image for Tesseract to recognize. As with SetImage above,
@@ -360,7 +366,8 @@ public:
    * nullptr, the paragraph-id of each line within its block is also returned as
    * an array of one element per line. delete [] after use.
    */
-  Boxa *GetTextlines(bool raw_image, int raw_padding, Pixa **pixa, int **blockids, int **paraids);
+  Boxa *GetTextlines(bool raw_image, int raw_padding, Pixa **pixa,
+                     int **blockids, int **paraids);
   /*
    Helper method to extract from the thresholded image. (most common usage)
 */
@@ -407,12 +414,14 @@ public:
    * extracted instead of the thresholded image and padded with raw_padding. If
    * text_only is true, then only text components are returned.
    */
-  Boxa *GetComponentImages(PageIteratorLevel level, bool text_only, bool raw_image, int raw_padding,
-                           Pixa **pixa, int **blockids, int **paraids);
+  Boxa *GetComponentImages(PageIteratorLevel level, bool text_only,
+                           bool raw_image, int raw_padding, Pixa **pixa,
+                           int **blockids, int **paraids);
   // Helper function to get binary images with no padding (most common usage).
-  Boxa *GetComponentImages(const PageIteratorLevel level, const bool text_only, Pixa **pixa,
-                           int **blockids) {
-    return GetComponentImages(level, text_only, false, 0, pixa, blockids, nullptr);
+  Boxa *GetComponentImages(const PageIteratorLevel level, const bool text_only,
+                           Pixa **pixa, int **blockids) {
+    return GetComponentImages(level, text_only, false, 0, pixa, blockids,
+                              nullptr);
   }
 
   /**
@@ -476,11 +485,11 @@ public:
    *
    * Returns true if successful, false on error.
    */
-  bool ProcessPages(const char *filename, const char *retry_config, int timeout_millisec,
-                    TessResultRenderer *renderer);
+  bool ProcessPages(const char *filename, const char *retry_config,
+                    int timeout_millisec, TessResultRenderer *renderer);
   // Does the real work of ProcessPages.
-  bool ProcessPagesInternal(const char *filename, const char *retry_config, int timeout_millisec,
-                            TessResultRenderer *renderer);
+  bool ProcessPagesInternal(const char *filename, const char *retry_config,
+                            int timeout_millisec, TessResultRenderer *renderer);
 
   /**
    * Turn a single image into symbolic text.
@@ -491,8 +500,9 @@ public:
    *
    * See ProcessPages for desciptions of other parameters.
    */
-  bool ProcessPage(Pix *pix, int page_index, const char *filename, const char *retry_config,
-                   int timeout_millisec, TessResultRenderer *renderer);
+  bool ProcessPage(Pix *pix, int page_index, const char *filename,
+                   const char *retry_config, int timeout_millisec,
+                   TessResultRenderer *renderer);
 
   /**
    * Get a reading-order iterator to the results of LayoutAnalysis and/or
@@ -519,27 +529,30 @@ public:
    * as UTF8 and must be freed with the delete [] operator.
    */
   char *GetUTF8Text();
-  
+
   size_t GetNumberOfTables();
-  
+
   /// Return the i-th table bounding box coordinates
   ///
-  ///Gives the (top_left.x, top_left.y, bottom_right.x, bottom_right.y)
+  /// Gives the (top_left.x, top_left.y, bottom_right.x, bottom_right.y)
   /// coordinates of the i-th table.
-  std::tuple<int,int,int,int> GetTableBoundingBox(
-    unsigned i///< Index of the table, for upper limit \see GetNumberOfTables()
+  std::tuple<int, int, int, int> GetTableBoundingBox(
+      unsigned
+          i ///< Index of the table, for upper limit \see GetNumberOfTables()
   );
-  
+
   /// Get bounding boxes of the rows of a table
   /// return values are (top_left.x, top_left.y, bottom_right.x, bottom_right.y)
-  std::vector<std::tuple<int,int,int,int> > GetTableRows(
-    unsigned i///< Index of the table, for upper limit \see GetNumberOfTables()
+  std::vector<std::tuple<int, int, int, int> > GetTableRows(
+      unsigned
+          i ///< Index of the table, for upper limit \see GetNumberOfTables()
   );
-  
+
   /// Get bounding boxes of the cols of a table
   /// return values are (top_left.x, top_left.y, bottom_right.x, bottom_right.y)
-  std::vector<std::tuple<int,int,int,int> > GetTableCols(
-    unsigned i///< Index of the table, for upper limit \see GetNumberOfTables()
+  std::vector<std::tuple<int, int, int, int> > GetTableCols(
+      unsigned
+          i ///< Index of the table, for upper limit \see GetNumberOfTables()
   );
 
   /**
@@ -621,8 +634,8 @@ public:
    * script_conf is confidence level in the script
    * Returns true on success and writes values to each parameter as an output
    */
-  bool DetectOrientationScript(int *orient_deg, float *orient_conf, const char **script_name,
-                               float *script_conf);
+  bool DetectOrientationScript(int *orient_deg, float *orient_conf,
+                               const char **script_name, float *script_conf);
 
   /**
    * The recognized text is returned as a char* which is coded
@@ -710,7 +723,8 @@ public:
    * Return text orientation of each block as determined by an earlier run
    * of layout analysis.
    */
-  void GetBlockTextOrientations(int **block_orientation, bool **vertical_writing);
+  void GetBlockTextOrientations(int **block_orientation,
+                                bool **vertical_writing);
 
   /** This method returns the string form of the specified unichar. */
   const char *GetUnichar(int unichar_id);
@@ -805,13 +819,16 @@ protected:
 
 private:
   // A list of image filenames gets special consideration
-  bool ProcessPagesFileList(FILE *fp, std::string *buf, const char *retry_config,
-                            int timeout_millisec, TessResultRenderer *renderer,
+  bool ProcessPagesFileList(FILE *fp, std::string *buf,
+                            const char *retry_config, int timeout_millisec,
+                            TessResultRenderer *renderer,
                             int tessedit_page_number);
   // TIFF supports multipage so gets special consideration.
-  bool ProcessPagesMultipageTiff(const unsigned char *data, size_t size, const char *filename,
-                                 const char *retry_config, int timeout_millisec,
-                                 TessResultRenderer *renderer, int tessedit_page_number);
+  bool ProcessPagesMultipageTiff(const unsigned char *data, size_t size,
+                                 const char *filename, const char *retry_config,
+                                 int timeout_millisec,
+                                 TessResultRenderer *renderer,
+                                 int tessedit_page_number);
 }; // class TessBaseAPI.
 
 /** Escape a char string - remove &<>"' with HTML codes. */
