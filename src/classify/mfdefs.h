@@ -2,7 +2,6 @@
  ** Filename:    mfdefs.h
  ** Purpose:     Definition of micro-features
  ** Author:      Dan Johnson
- ** History:     Mon Jan 22 08:42:13 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");

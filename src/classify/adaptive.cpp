@@ -164,9 +164,9 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templat
     IClass = Templates->Templates->Class[i];
     AClass = Templates->Class[i];
     if (!IsEmptyAdaptedClass(AClass)) {
-      fprintf(File, "%5d  %s %3d %3d %3d %3d\n", i, unicharset.id_to_unichar(i), IClass->NumConfigs,
+      fprintf(File, "%5d  %s %3d %3d %3d %3zd\n", i, unicharset.id_to_unichar(i), IClass->NumConfigs,
               AClass->NumPermConfigs, IClass->NumProtos,
-              IClass->NumProtos - count(AClass->TempProtos));
+              IClass->NumProtos - AClass->TempProtos->size());
     }
   }
   fprintf(File, "\n");
@@ -305,10 +305,6 @@ TEMP_CONFIG_STRUCT *ReadTempConfig(TFile *fp) {
  * @note Globals: none
  */
 void WriteAdaptedClass(FILE *File, ADAPT_CLASS_STRUCT *Class, int NumConfigs) {
-  int NumTempProtos;
-  LIST TempProtos;
-  int i;
-
   /* first write high level adapted class structure */
   fwrite(Class, sizeof(ADAPT_CLASS_STRUCT), 1, File);
 
@@ -317,9 +313,9 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS_STRUCT *Class, int NumConfigs) {
   fwrite(Class->PermConfigs, sizeof(uint32_t), WordsInVectorOfSize(MAX_NUM_CONFIGS), File);
 
   /* then write out the list of temporary protos */
-  NumTempProtos = count(Class->TempProtos);
-  fwrite(&NumTempProtos, sizeof(int), 1, File);
-  TempProtos = Class->TempProtos;
+  uint32_t NumTempProtos = Class->TempProtos->size();
+  fwrite(&NumTempProtos, sizeof(NumTempProtos), 1, File);
+  auto TempProtos = Class->TempProtos;
   iterate(TempProtos) {
     void *proto = TempProtos->node;
     fwrite(proto, sizeof(TEMP_PROTO_STRUCT), 1, File);
@@ -327,7 +323,7 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS_STRUCT *Class, int NumConfigs) {
 
   /* then write out the adapted configs */
   fwrite(&NumConfigs, sizeof(int), 1, File);
-  for (i = 0; i < NumConfigs; i++) {
+  for (int i = 0; i < NumConfigs; i++) {
     if (test_bit(Class->PermConfigs, i)) {
       WritePermConfig(File, Class->Config[i].Perm);
     } else {

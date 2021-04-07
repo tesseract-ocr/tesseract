@@ -59,8 +59,7 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM &cn_denorm) {
 
 #ifndef _WIN32
     // Assert that feature parameters are well defined.
-    int i;
-    for (i = 0; i < Feature->Type->NumParams; i++) {
+    for (int i = 0; i < Feature->Type->NumParams; i++) {
       ASSERT_HOST(!std::isnan(Feature->Params[i]));
     }
 #endif

@@ -55,7 +55,7 @@ void display_edgepts(LIST outlines) {
   auto window = edge_window;
   /* Reclaim old memory */
   iterate(outlines) {
-    render_edgepts(window, reinterpret_cast<EDGEPT *> first_node(outlines), ScrollView::WHITE);
+    render_edgepts(window, reinterpret_cast<EDGEPT *>(outlines->first_node()), ScrollView::WHITE);
   }
 }
 
