@@ -65,10 +65,10 @@ public:
   const char *GetName() const;
   const char *GetDescription() const;
 
-  int GetId() {
+  int GetId() const {
     return my_id_;
   }
-  bool HasChanged() {
+  bool HasChanged() const {
     return changed_;
   }
 

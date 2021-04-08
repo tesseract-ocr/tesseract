@@ -555,7 +555,7 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
   } // iterate over each orientation
 }
 
-bool ScriptDetector::must_stop(int orientation) {
+bool ScriptDetector::must_stop(int orientation) const {
   osr_->update_best_script(orientation);
   return osr_->best_result.sconfidence > 1;
 }

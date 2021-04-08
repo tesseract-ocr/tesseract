@@ -720,10 +720,8 @@ public:
 
   void print_rows() { // debug info
     TO_ROW_IT row_it = &row_list;
-    TO_ROW *row;
-
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
-      row = row_it.data();
+      auto row = row_it.data();
       tprintf("Row range (%g,%g), para_c=%g, blobcount=%" PRId32 "\n", row->min_y(), row->max_y(),
               row->parallel_c(), row->blob_list()->length());
     }

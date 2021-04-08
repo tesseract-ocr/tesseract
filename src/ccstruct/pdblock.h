@@ -130,7 +130,7 @@ public:
   void forward();
 
   /// test end
-  bool cycled_rects() {
+  bool cycled_rects() const {
     return left_it.cycled_list() && right_it.cycled_list();
   }
 

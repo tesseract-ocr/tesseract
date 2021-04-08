@@ -151,7 +151,7 @@ public:
   void copy_on(WERD *other);
 
   // tprintf word metadata (but not blob innards)
-  void print();
+  void print() const;
 
 #ifndef GRAPHICS_DISABLED
   // plot word on window in a uniform colour

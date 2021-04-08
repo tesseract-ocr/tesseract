@@ -546,9 +546,9 @@ public:
 
   // Returns the sum of the widths of the blob between start_blob and last_blob
   // inclusive.
-  int GetBlobsWidth(int start_blob, int last_blob);
+  int GetBlobsWidth(int start_blob, int last_blob) const;
   // Returns the width of a gap between the specified blob and the next one.
-  int GetBlobsGap(int blob_index);
+  int GetBlobsGap(int blob_index) const;
 
   // Returns the BLOB_CHOICE corresponding to the given index in the
   // best choice word taken from the appropriate cell in the ratings MATRIX.

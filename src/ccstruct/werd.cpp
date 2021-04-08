@@ -259,7 +259,7 @@ void WERD::copy_on(WERD *other) {
  * Display members
  */
 
-void WERD::print() {
+void WERD::print() const {
   tprintf("Blanks= %d\n", blanks);
   bounding_box().print();
   tprintf("Flags = %lu = 0%lo\n", flags.to_ulong(), flags.to_ulong());

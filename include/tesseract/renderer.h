@@ -90,7 +90,7 @@ public:
   }
 
   // Is everything fine? Otherwise something went wrong.
-  bool happy() {
+  bool happy() const {
     return happy_;
   }
 

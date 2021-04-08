@@ -247,11 +247,11 @@ public:
   const char *c_str() const {
     return value_.c_str();
   }
-  bool contains(char c) {
+  bool contains(char c) const {
     return value_.find(c) != std::string::npos;
   }
-  bool empty() {
-    return value_.length() <= 0;
+  bool empty() const {
+    return value_.empty();
   }
   bool operator==(const std::string &other) {
     return value_ == other;

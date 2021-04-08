@@ -99,7 +99,7 @@ public:
   ScriptDetector(const std::vector<int> *allowed_scripts, OSResults *osr,
                  tesseract::Tesseract *tess);
   void detect_blob(BLOB_CHOICE_LIST *scores);
-  bool must_stop(int orientation);
+  bool must_stop(int orientation) const;
 
 private:
   OSResults *osr_;

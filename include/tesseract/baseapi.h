@@ -158,7 +158,7 @@ public:
   /**
    * Get value of named variable as a string, if it exists.
    */
-  bool GetVariableAsString(const char *name, std::string *val);
+  bool GetVariableAsString(const char *name, std::string *val) const;
 
   /**
    * Instances are now mostly thread-safe and totally independent,
@@ -530,7 +530,7 @@ public:
    */
   char *GetUTF8Text();
 
-  size_t GetNumberOfTables();
+  size_t GetNumberOfTables() const;
 
   /// Return the i-th table bounding box coordinates
   ///
@@ -699,9 +699,9 @@ public:
    * @warning temporary! This function will be removed from here and placed
    * in a separate API at some future time.
    */
-  int IsValidWord(const char *word);
+  int IsValidWord(const char *word) const;
   // Returns true if utf8_character is defined in the UniCharset.
-  bool IsValidCharacter(const char *utf8_character);
+  bool IsValidCharacter(const char *utf8_character) const;
 
   bool GetTextDirection(int *out_offset, float *out_slope);
 
@@ -727,7 +727,7 @@ public:
                                 bool **vertical_writing);
 
   /** This method returns the string form of the specified unichar. */
-  const char *GetUnichar(int unichar_id);
+  const char *GetUnichar(int unichar_id) const;
 
   /** Return the pointer to the i-th dawg loaded into tesseract_ object. */
   const Dawg *GetDawg(int i) const;
@@ -779,7 +779,7 @@ protected:
    * and assuming a single character reject marker for each rejected character.
    * Also return the number of recognized blobs in blob_count.
    */
-  int TextLength(int *blob_count);
+  int TextLength(int *blob_count) const;
 
   //// paragraphs.cpp ////////////////////////////////////////////////////
   void DetectParagraphs(bool after_text_recognition);
