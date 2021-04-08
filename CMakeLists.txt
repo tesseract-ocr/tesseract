@@ -655,6 +655,10 @@ else()
     target_link_libraries       (libtesseract PUBLIC
         ${Leptonica_LIBRARIES}
         ${LibArchive_LIBRARIES}
+        z
+        png
+        tiff
+        jpeg
     )
     export(TARGETS libtesseract FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake NAMESPACE Tesseract::)
 endif()
