@@ -346,7 +346,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
   if (invert) {
     float pos_min, pos_mean, pos_sd;
     OutputStats(*outputs, &pos_min, &pos_mean, &pos_sd);
-    if (pos_mean < 0.5) {
+    if (pos_mean < 0.5f) {
       // Run again inverted and see if it is any better.
       NetworkIO inv_inputs, inv_outputs;
       inv_inputs.set_int_mode(IsIntMode());
