@@ -97,15 +97,10 @@ enum REJ_FLAGS {
 #define MAP_REJECT_POTENTIAL '3'
 
 class REJ {
-  std::bitset<16> flags1;
-  std::bitset<16> flags2;
+  std::bitset<32> flags;
 
   void set_flag(REJ_FLAGS rej_flag) {
-    if (rej_flag < 16) {
-      flags1.set(rej_flag);
-    } else {
-      flags2.set(rej_flag - 16);
-    }
+    flags.set(rej_flag);
   }
 
 public:
@@ -113,19 +108,14 @@ public:
 
   REJ( // classwise copy
       const REJ &source) {
-    flags1 = source.flags1;
-    flags2 = source.flags2;
+    flags = source.flags;
   }
 
   REJ &operator=( // assign REJ
       const REJ &source) = default;
 
   bool flag(REJ_FLAGS rej_flag) const {
-    if (rej_flag < 16) {
-      return flags1[rej_flag];
-    } else {
-      return flags2[rej_flag - 16];
-    }
+    return flags[rej_flag];
   }
 
   char display_char() const {
