@@ -24,39 +24,39 @@
 
 namespace tesseract {
 
-bool REJ::perm_rejected() { // Is char perm reject?
+bool REJ::perm_rejected() const { // Is char perm reject?
   return (flag(R_TESS_FAILURE) || flag(R_SMALL_XHT) || flag(R_EDGE_CHAR) || flag(R_1IL_CONFLICT) ||
           flag(R_POSTNN_1IL) || flag(R_REJ_CBLOB) || flag(R_BAD_REPETITION) || flag(R_MM_REJECT));
 }
 
-bool REJ::rej_before_nn_accept() {
+bool REJ::rej_before_nn_accept() const {
   return flag(R_POOR_MATCH) || flag(R_NOT_TESS_ACCEPTED) || flag(R_CONTAINS_BLANKS) ||
          flag(R_BAD_PERMUTER);
 }
 
-bool REJ::rej_between_nn_and_mm() {
+bool REJ::rej_between_nn_and_mm() const {
   return flag(R_HYPHEN) || flag(R_DUBIOUS) || flag(R_NO_ALPHANUMS) || flag(R_MOSTLY_REJ) ||
          flag(R_XHT_FIXUP);
 }
 
-bool REJ::rej_between_mm_and_quality_accept() {
+bool REJ::rej_between_mm_and_quality_accept() const {
   return flag(R_BAD_QUALITY);
 }
 
-bool REJ::rej_between_quality_and_minimal_rej_accept() {
+bool REJ::rej_between_quality_and_minimal_rej_accept() const {
   return flag(R_DOC_REJ) || flag(R_BLOCK_REJ) || flag(R_ROW_REJ) || flag(R_UNLV_REJ);
 }
 
-bool REJ::rej_before_mm_accept() {
+bool REJ::rej_before_mm_accept() const {
   return rej_between_nn_and_mm() ||
          (rej_before_nn_accept() && !flag(R_NN_ACCEPT) && !flag(R_HYPHEN_ACCEPT));
 }
 
-bool REJ::rej_before_quality_accept() {
+bool REJ::rej_before_quality_accept() const {
   return rej_between_mm_and_quality_accept() || (!flag(R_MM_ACCEPT) && rej_before_mm_accept());
 }
 
-bool REJ::rejected() { // Is char rejected?
+bool REJ::rejected() const { // Is char rejected?
   if (flag(R_MINIMAL_REJ_ACCEPT)) {
     return false;
   } else {
@@ -65,7 +65,7 @@ bool REJ::rejected() { // Is char rejected?
   }
 }
 
-bool REJ::accept_if_good_quality() { // potential rej?
+bool REJ::accept_if_good_quality() const { // potential rej?
   return (rejected() && !perm_rejected() && flag(R_BAD_PERMUTER) && !flag(R_POOR_MATCH) &&
           !flag(R_NOT_TESS_ACCEPTED) && !flag(R_CONTAINS_BLANKS) &&
           (!rej_between_nn_and_mm() && !rej_between_mm_and_quality_accept() &&
@@ -183,7 +183,7 @@ void REJ::setrej_minimal_rej_accept() {
   set_flag(R_MINIMAL_REJ_ACCEPT);
 }
 
-void REJ::full_print(FILE *fp) {
+void REJ::full_print(FILE *fp) const {
   fprintf(fp, "R_TESS_FAILURE: %s\n", flag(R_TESS_FAILURE) ? "T" : "F");
   fprintf(fp, "R_SMALL_XHT: %s\n", flag(R_SMALL_XHT) ? "T" : "F");
   fprintf(fp, "R_EDGE_CHAR: %s\n", flag(R_EDGE_CHAR) ? "T" : "F");
@@ -226,7 +226,7 @@ void REJMAP::initialise(int16_t length) {
   len = length;
 }
 
-int16_t REJMAP::accept_count() { // How many accepted?
+int16_t REJMAP::accept_count() const { // How many accepted?
   int i;
   int16_t count = 0;
 
@@ -238,7 +238,7 @@ int16_t REJMAP::accept_count() { // How many accepted?
   return count;
 }
 
-bool REJMAP::recoverable_rejects() { // Any non perm rejs?
+bool REJMAP::recoverable_rejects() const { // Any non perm rejs?
   for (int i = 0; i < len; i++) {
     if (ptr[i].recoverable()) {
       return true;
@@ -247,7 +247,7 @@ bool REJMAP::recoverable_rejects() { // Any non perm rejs?
   return false;
 }
 
-bool REJMAP::quality_recoverable_rejects() { // Any potential rejs?
+bool REJMAP::quality_recoverable_rejects() const { // Any potential rejs?
   for (int i = 0; i < len; i++) {
     if (ptr[i].accept_if_good_quality()) {
       return true;
@@ -269,7 +269,7 @@ void REJMAP::remove_pos( // Cut out an element
   }
 }
 
-void REJMAP::print(FILE *fp) {
+void REJMAP::print(FILE *fp) const {
   int i;
   char buff[512];
 
@@ -280,7 +280,7 @@ void REJMAP::print(FILE *fp) {
   fprintf(fp, "\"%s\"", buff);
 }
 
-void REJMAP::full_print(FILE *fp) {
+void REJMAP::full_print(FILE *fp) const {
   int i;
 
   for (i = 0; i < len; i++) {

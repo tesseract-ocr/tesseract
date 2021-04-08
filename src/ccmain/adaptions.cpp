@@ -40,7 +40,7 @@ bool Tesseract::word_adaptable( // should we adapt?
   }
 
   bool status = false;
-  BITS16 flags(mode);
+  std::bitset<16> flags(mode);
 
   enum MODES {
     ADAPTABLE_WERD,

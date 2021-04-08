@@ -2,7 +2,6 @@
  * File:        rejctmap.h  (Formerly rejmap.h)
  * Description: REJ and REJMAP class functions.
  * Author:    Phil Cheatle
- * Created:   Thu Jun  9 13:46:38 BST 1994
  *
  * (C) Copyright 1994, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,10 +40,10 @@ OF THIS IMPLIED TEMPORAL ORDERING OF THE FLAGS!!!!
 #ifndef REJCTMAP_H
 #define REJCTMAP_H
 
-#include "bits16.h"
 #include "errcode.h"
 #include "params.h"
 
+#include <bitset>
 #include <memory>
 
 namespace tesseract {
@@ -98,8 +97,8 @@ enum REJ_FLAGS {
 #define MAP_REJECT_POTENTIAL '3'
 
 class REJ {
-  BITS16 flags1;
-  BITS16 flags2;
+  std::bitset<16> flags1;
+  std::bitset<16> flags2;
 
   void set_flag(REJ_FLAGS rej_flag) {
     if (rej_flag < 16) {
@@ -109,12 +108,12 @@ class REJ {
     }
   }
 
-  bool rej_before_nn_accept();
-  bool rej_between_nn_and_mm();
-  bool rej_between_mm_and_quality_accept();
-  bool rej_between_quality_and_minimal_rej_accept();
-  bool rej_before_mm_accept();
-  bool rej_before_quality_accept();
+  bool rej_before_nn_accept() const;
+  bool rej_between_nn_and_mm() const;
+  bool rej_between_mm_and_quality_accept() const;
+  bool rej_between_quality_and_minimal_rej_accept() const;
+  bool rej_before_mm_accept() const;
+  bool rej_before_quality_accept() const;
 
 public:
   REJ() = default;
@@ -128,7 +127,7 @@ public:
   REJ &operator=( // assign REJ
       const REJ &source) = default;
 
-  bool flag(REJ_FLAGS rej_flag) {
+  bool flag(REJ_FLAGS rej_flag) const {
     if (rej_flag < 16) {
       return flags1[rej_flag];
     } else {
@@ -136,7 +135,7 @@ public:
     }
   }
 
-  char display_char() {
+  char display_char() const {
     if (perm_rejected()) {
       return MAP_REJECT_PERM;
     } else if (accept_if_good_quality()) {
@@ -148,18 +147,18 @@ public:
     }
   }
 
-  bool perm_rejected(); // Is char perm reject?
+  bool perm_rejected() const; // Is char perm reject?
 
-  bool rejected(); // Is char rejected?
+  bool rejected() const; // Is char rejected?
 
-  bool accepted() { // Is char accepted?
+  bool accepted() const { // Is char accepted?
     return !rejected();
   }
 
   // potential rej?
-  bool accept_if_good_quality();
+  bool accept_if_good_quality() const;
 
-  bool recoverable() {
+  bool recoverable() const {
     return (rejected() && !perm_rejected());
   }
 
@@ -196,7 +195,7 @@ public:
   // Accept all except blank
   void setrej_minimal_rej_accept();
 
-  void full_print(FILE *fp);
+  void full_print(FILE *fp) const;
 };
 
 class REJMAP {
@@ -226,22 +225,22 @@ public:
     return len;
   }
 
-  int16_t accept_count(); // How many accepted?
+  int16_t accept_count() const; // How many accepted?
 
-  int16_t reject_count() { // How many rejects?
+  int16_t reject_count() const { // How many rejects?
     return len - accept_count();
   }
 
   void remove_pos(  // Cut out an element
       int16_t pos); // element to remove
 
-  void print(FILE *fp);
+  void print(FILE *fp) const;
 
-  void full_print(FILE *fp);
+  void full_print(FILE *fp) const;
 
-  bool recoverable_rejects(); // Any non perm rejs?
+  bool recoverable_rejects() const; // Any non perm rejs?
 
-  bool quality_recoverable_rejects();
+  bool quality_recoverable_rejects() const;
   // Any potential rejs?
 
   void rej_word_small_xht(); // Reject whole word

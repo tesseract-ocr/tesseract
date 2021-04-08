@@ -335,7 +335,6 @@ if !NO_TESSDATA_PREFIX
 libtesseract_ccutil_la_CPPFLAGS += -DTESSDATA_PREFIX=@datadir@
 endif
 
-noinst_HEADERS += src/ccutil/bits16.h
 noinst_HEADERS += src/ccutil/ccutil.h
 noinst_HEADERS += src/ccutil/clst.h
 noinst_HEADERS += src/ccutil/elst2.h
