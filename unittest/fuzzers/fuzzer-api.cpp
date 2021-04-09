@@ -68,7 +68,7 @@ extern "C" int LLVMFuzzerInitialize(int * /*pArgc*/, char ***pArgv) {
 }
 
 static PIX *createPix(BitReader &BR, const size_t width, const size_t height) {
-  Image pix = pixCreate(width, height, 1);
+  Pix *pix = pixCreate(width, height, 1);
 
   if (pix == nullptr) {
     printf("pix creation failed\n");
@@ -93,7 +93,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
   char *outText = api->GetUTF8Text();
 
-  pix.destroy();
+  pixDestroy(&pix);
   delete[] outText;
 
   return 0;
