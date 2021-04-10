@@ -378,7 +378,7 @@ void BLOBNBOX::DeleteNoiseBlobs(BLOBNBOX_LIST *blobs) {
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     BLOBNBOX *blob = blob_it.data();
     if (blob->DeletableNoise()) {
-      delete blob->cblob();
+      delete blob->remove_cblob();
       delete blob_it.extract();
     }
   }
@@ -926,16 +926,6 @@ TO_BLOCK::TO_BLOCK(  // make a block
   block = src_block;
 }
 
-static void clear_blobnboxes(BLOBNBOX_LIST *boxes) {
-  BLOBNBOX_IT it = boxes;
-  // A BLOBNBOX generally doesn't own its blobs, so if they do, you
-  // have to delete them explicitly.
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    BLOBNBOX *box = it.data();
-    delete box->cblob();
-  }
-}
-
 /**********************************************************************
  * TO_BLOCK::clear
  *
@@ -963,11 +953,11 @@ void TO_BLOCK::clear() {
 
 TO_BLOCK::~TO_BLOCK() {
   // Any residual BLOBNBOXes at this stage own their blobs, so delete them.
-  clear_blobnboxes(&blobs);
-  clear_blobnboxes(&underlines);
-  clear_blobnboxes(&noise_blobs);
-  clear_blobnboxes(&small_blobs);
-  clear_blobnboxes(&large_blobs);
+  BLOBNBOX::clear_blobnboxes(&blobs);
+  BLOBNBOX::clear_blobnboxes(&underlines);
+  BLOBNBOX::clear_blobnboxes(&noise_blobs);
+  BLOBNBOX::clear_blobnboxes(&small_blobs);
+  BLOBNBOX::clear_blobnboxes(&large_blobs);
 }
 
 // Helper function to divide the input blobs over noise, small, medium

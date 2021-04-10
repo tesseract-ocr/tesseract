@@ -181,6 +181,7 @@ void assign_blobs_to_blocks2(Image pix,
     for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
       blob = blob_it.extract();
       newblob = new BLOBNBOX(blob); // Convert blob to BLOBNBOX.
+      newblob->set_owns_cblob(true);
       SetBlobStrokeWidth(pix, newblob);
       port_box_it.add_after_then_move(newblob);
     }

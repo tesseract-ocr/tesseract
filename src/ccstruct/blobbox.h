@@ -154,6 +154,18 @@ public:
       delete cblob_ptr;
     }
   }
+
+  static void clear_blobnboxes(BLOBNBOX_LIST *boxes) {
+    BLOBNBOX_IT it = boxes;
+    // A BLOBNBOX generally doesn't own its blobs, so if they do, you
+    // have to delete them explicitly.
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      BLOBNBOX *box = it.data();
+      // TODO: remove next line, currently still needed for resultiterator_test.
+      delete box->remove_cblob();
+    }
+  }
+
   static BLOBNBOX *RealBlob(C_OUTLINE *outline) {
     auto *blob = new C_BLOB(outline);
     return new BLOBNBOX(blob);
@@ -264,6 +276,12 @@ public:
   }
   C_BLOB *cblob() const {
     return cblob_ptr;
+  }
+  C_BLOB *remove_cblob() {
+    auto blob = cblob_ptr;
+    cblob_ptr = nullptr;
+    owns_cblob_ = false;
+    return blob;
   }
   TabType left_tab_type() const {
     return left_tab_type_;

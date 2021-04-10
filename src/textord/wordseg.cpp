@@ -62,15 +62,17 @@ void make_single_word(bool one_blob, TO_ROW_LIST *rows, ROW_LIST *real_rows) {
     for (; !box_it.empty(); box_it.forward()) {
       BLOBNBOX *bblob = box_it.extract();
       if (bblob->joined_to_prev() || (one_blob && !cblob_it.empty())) {
-        if (bblob->cblob() != nullptr) {
+        auto cblob = bblob->remove_cblob();
+        if (cblob != nullptr) {
           C_OUTLINE_IT cout_it(cblob_it.data()->out_list());
           cout_it.move_to_last();
-          cout_it.add_list_after(bblob->cblob()->out_list());
-          delete bblob->cblob();
+          cout_it.add_list_after(cblob->out_list());
+          delete cblob;
         }
       } else {
-        if (bblob->cblob() != nullptr) {
-          cblob_it.add_after_then_move(bblob->cblob());
+        auto cblob = bblob->remove_cblob();
+        if (cblob != nullptr) {
+          cblob_it.add_after_then_move(cblob);
         }
       }
       delete bblob;

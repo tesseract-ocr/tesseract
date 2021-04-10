@@ -267,7 +267,7 @@ void split_to_blob(                 // split the blob
   C_BLOB *real_cblob; // cblob to chop
 
   if (blob != nullptr) {
-    real_cblob = blob->cblob();
+    real_cblob = blob->remove_cblob();
   } else {
     real_cblob = nullptr;
   }
