@@ -563,22 +563,21 @@ WERD *make_real_word(BLOBNBOX_IT *box_it, // iterator
   C_OUTLINE_IT cout_it;
   C_BLOB_LIST cblobs;
   C_BLOB_IT cblob_it = &cblobs;
-  WERD *word;        // new word
-  BLOBNBOX *bblob;   // current blob
-  int32_t blobindex; // in row
 
-  for (blobindex = 0; blobindex < blobcount; blobindex++) {
-    bblob = box_it->extract();
+  for (int blobindex = 0; blobindex < blobcount; blobindex++) {
+    auto bblob = box_it->extract();
     if (bblob->joined_to_prev()) {
-      if (bblob->cblob() != nullptr) {
+      auto cblob = bblob->remove_cblob();
+      if (cblob != nullptr) {
         cout_it.set_to_list(cblob_it.data()->out_list());
         cout_it.move_to_last();
-        cout_it.add_list_after(bblob->cblob()->out_list());
-        delete bblob->cblob();
+        cout_it.add_list_after(cblob->out_list());
+        delete cblob;
       }
     } else {
-      if (bblob->cblob() != nullptr) {
-        cblob_it.add_after_then_move(bblob->cblob());
+      auto cblob = bblob->remove_cblob();
+      if (cblob != nullptr) {
+        cblob_it.add_after_then_move(cblob);
       }
     }
     delete bblob;
@@ -589,7 +588,7 @@ WERD *make_real_word(BLOBNBOX_IT *box_it, // iterator
     blanks = 1;
   }
 
-  word = new WERD(&cblobs, blanks, nullptr);
+  auto word = new WERD(&cblobs, blanks, nullptr);
 
   if (bol) {
     word->set_flag(W_BOL, true);
