@@ -902,7 +902,7 @@ public:
   INT_VAR_H(fixsp_non_noise_limit, 1, "How many non-noise blbs either side?");
   double_VAR_H(fixsp_small_outlines_size, 0.28, "Small if lt xht x this");
   BOOL_VAR_H(tessedit_prefer_joined_punct, false, "Reward punctuation joins");
-  INT_VAR_H(fixsp_done_mode, 1, "What constitues done for spacing");
+  INT_VAR_H(fixsp_done_mode, 1, "What constitutes done for spacing");
   INT_VAR_H(debug_fix_space_level, 0, "Contextual fixspace debug");
   STRING_VAR_H(numeric_punctuation, ".,", "Punct. chs expected WITHIN numbers");
   INT_VAR_H(x_ht_acceptance_tolerance, 8, "Max allowed deviation of blob top outside of font data");

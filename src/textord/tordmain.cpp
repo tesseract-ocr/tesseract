@@ -502,14 +502,14 @@ bool Textord::clean_noise_from_row( // remove empties
           blob_box = outline->bounding_box();
           blob_size = blob_box.width() > blob_box.height() ? blob_box.width() : blob_box.height();
           if (blob_size < textord_noise_sizelimit * row->x_height()) {
-            dot_count++; // count smal outlines
+            dot_count++; // count small outlines
           }
           if (!outline->child()->empty() &&
               blob_box.height() < (1 + textord_noise_syfract) * row->x_height() &&
               blob_box.height() > (1 - textord_noise_syfract) * row->x_height() &&
               blob_box.width() < (1 + textord_noise_sxfract) * row->x_height() &&
               blob_box.width() > (1 - textord_noise_sxfract) * row->x_height()) {
-            super_norm_count++; // count smal outlines
+            super_norm_count++; // count small outlines
           }
         }
       } else {
@@ -598,14 +598,14 @@ void Textord::clean_noise_from_words( // remove empties
           blob_box = outline->bounding_box();
           blob_size = blob_box.width() > blob_box.height() ? blob_box.width() : blob_box.height();
           if (blob_size < textord_noise_sizelimit * row->x_height()) {
-            dot_count++; // count smal outlines
+            dot_count++; // count small outlines
           }
           if (!outline->child()->empty() &&
               blob_box.height() < (1 + textord_noise_syfract) * row->x_height() &&
               blob_box.height() > (1 - textord_noise_syfract) * row->x_height() &&
               blob_box.width() < (1 + textord_noise_sxfract) * row->x_height() &&
               blob_box.width() > (1 - textord_noise_sxfract) * row->x_height()) {
-            norm_count++; // count smal outlines
+            norm_count++; // count small outlines
           }
         }
       } else {

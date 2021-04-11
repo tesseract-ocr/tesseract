@@ -733,7 +733,7 @@ int StructuredTable::CountHorizontalIntersections(int y) {
 }
 
 // Counts how many text partitions are in this box.
-// This is used to count partitons in cells, as that can indicate
+// This is used to count partitions in cells, as that can indicate
 // how "strong" a potential table row/column (or even full table) actually is.
 int StructuredTable::CountPartitions(const TBOX &box) {
   ColPartitionGridSearch gsearch(text_grid_);

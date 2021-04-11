@@ -335,7 +335,7 @@ private:
                               int xCoord);
 
   // Calculates more accurate character boundaries which can be used to
-  // provide more acurate alternative symbol choices.
+  // provide more accurate alternative symbol choices.
   static void calculateCharBoundaries(std::vector<int> *starts, std::vector<int> *ends,
                                       std::vector<int> *character_boundaries_, int maxWidth);
 

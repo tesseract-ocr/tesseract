@@ -296,7 +296,7 @@ void fix2(         // polygonal approx
     /*single fixed step */
     if (edgept->flags[FLAGS] & FIXED &&
         edgept->flags[RUNLENGTH] == 1
-        /*and neighours free */
+        /*and neighbours free */
         && edgept->next->flags[FLAGS] & FIXED &&
         (edgept->prev->flags[FLAGS] & FIXED) == 0
         /*same pair of dirs */

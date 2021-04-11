@@ -498,7 +498,7 @@ public:
    * metadata used by side-effect processes, such as reading a box
    * file or formatting as hOCR.
    *
-   * See ProcessPages for desciptions of other parameters.
+   * See ProcessPages for descriptions of other parameters.
    */
   bool ProcessPage(Pix *pix, int page_index, const char *filename,
                    const char *retry_config, int timeout_millisec,

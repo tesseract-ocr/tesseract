@@ -217,7 +217,7 @@ public:
   std::vector<std::vector<std::pair<const char *, float>>> timesteps;
   // Stores the lstm choices of every timestep segmented by character
   std::vector<std::vector<std::vector<std::pair<const char *, float>>>> segmented_timesteps;
-  // Symbolchoices aquired during CTC
+  // Symbolchoices acquired during CTC
   std::vector<std::vector<std::pair<const char *, float>>> CTC_symbol_choices;
   // Stores if the timestep vector starts with a space
   bool leading_space = false;

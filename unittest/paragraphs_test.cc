@@ -182,7 +182,7 @@ void EvaluateParagraphDetection(const TextAndModel *correct, int n,
       }
       dbg_lines.push_back(absl::StrCat(correct[i].ascii, annotation));
     }
-    LOG(INFO) << "Discrepency!\n" << absl::StrJoin(dbg_lines, "\n");
+    LOG(INFO) << "Discrepancy!\n" << absl::StrJoin(dbg_lines, "\n");
   }
 }
 

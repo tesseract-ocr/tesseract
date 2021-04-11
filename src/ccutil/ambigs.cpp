@@ -333,7 +333,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(int line_num, int version, int debug_leve
     return false;
   }
   if (version > 0) {
-    // The next field being true indicates that the abiguity should
+    // The next field being true indicates that the ambiguity should
     // always be substituted (e.g. '' should always be changed to ").
     // For such "certain" n -> m ambigs tesseract will insert character
     // fragments for the n pieces in the unicharset. AmbigsFound()

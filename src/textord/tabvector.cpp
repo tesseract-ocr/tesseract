@@ -776,7 +776,7 @@ void TabVector::Evaluate(const ICOORD &vertical, TabFind *finder) {
 }
 
 // (Re)Fit a line to the stored points. Returns false if the line
-// is degenerate. Althougth the TabVector code mostly doesn't care about the
+// is degenerate. Although the TabVector code mostly doesn't care about the
 // direction of lines, XAtY would give silly results for a horizontal line.
 // The class is mostly aimed at use for vertical lines representing
 // horizontal tab stops.

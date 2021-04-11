@@ -190,7 +190,7 @@ void SetAdaptiveThreshold(float Threshold);
  * @param Blob    blob to be classified
  * @param[out] Choices    List of choices found by adaptive matcher.
  * filled on return with the choices found by the
- * class pruner and the ratings therefrom. Also
+ * class pruner and the ratings there from. Also
  * contains the detailed results of the integer matcher.
  *
  */

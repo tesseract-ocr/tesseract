@@ -64,7 +64,7 @@ void Textord::to_spacing(ICOORD page_tr,       // topright of page
                         block_non_space_gap_width);
     // Make sure relative values of block-level space and non-space gap
     // widths are reasonable. The ratio of 1:3 is also used in
-    // block_spacing_stats, to corrrect the block_space_gap_width
+    // block_spacing_stats, to correct the block_space_gap_width
     // Useful for arabic and hindi, when the non-space gap width is
     // often over-estimated and should not be trusted. A similar ratio
     // is found in block_spacing_stats.
@@ -1695,7 +1695,7 @@ TBOX Textord::reduced_box_next(TO_ROW *row,    // current row
  * the xheight.
  *
  *
- * !!!!!!! WONT WORK WITH LARGE UPPER CASE CHARS - T F V W - look at examples on
+ * !!!!!!! WON'T WORK WITH LARGE UPPER CASE CHARS - T F V W - look at examples on
  *         "home".  Perhaps we need something which say if the width ABOVE the
  *         xht alone includes the whole of the reduced width, then use the full
  *         blob box - Might still fail on italic F

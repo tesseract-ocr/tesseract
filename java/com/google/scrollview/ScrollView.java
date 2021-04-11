@@ -85,7 +85,7 @@ public class ScrollView {
   }
 
   /**
-   * The main program loop. Basically loops trough receiving messages and
+   * The main program loop. Basically loops through receiving messages and
    * processing them and then sending messages (if there are any).
    */
   private static void IOLoop() {
