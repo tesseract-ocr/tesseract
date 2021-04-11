@@ -24,8 +24,6 @@
 #include "ocrblock.h"
 #include "params.h"
 
-#include <ctime>
-
 struct Pix;
 
 namespace tesseract {

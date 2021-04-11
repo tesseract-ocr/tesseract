@@ -54,6 +54,7 @@
 #include <cfloat>  // for FLT_MAX
 #include <cmath>   // for ceil, floor, M_PI
 #include <cstdint> // for INT16_MAX, uint32_t, int32_t, int16_t
+#include <memory>
 
 namespace tesseract {
 
