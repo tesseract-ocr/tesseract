@@ -1016,7 +1016,27 @@ fuzzer-api: unittest/fuzzers/fuzzer-api.cpp
           $(libcurl_LIBS) \
           -o $@
 
-CLEANFILES += fuzzer-api
+fuzzer-api-512x256: libtesseract.la
+fuzzer-api-512x256: unittest/fuzzers/fuzzer-api.cpp
+	$(CXX) $(CXXFLAGS) -g $(LIB_FUZZING_ENGINE) \
+          -DTESSERACT_FUZZER_WIDTH=512 \
+          -DTESSERACT_FUZZER_HEIGHT=256 \
+          -I $(top_srcdir)/include \
+          -I $(builddir)/include \
+          -I $(top_srcdir)/src/ccmain \
+          -I $(top_srcdir)/src/ccstruct \
+          -I $(top_srcdir)/src/ccutil \
+          $(LEPTONICA_CFLAGS) \
+          $(OPENMP_CXXFLAGS) \
+          $< \
+          $(builddir)/.libs/libtesseract.a \
+          $(LEPTONICA_LIBS) \
+          $(TENSORFLOW_LIBS) \
+          $(libarchive_LIBS) \
+          $(libcurl_LIBS) \
+          -o $@
+
+CLEANFILES += fuzzer-api fuzzer-api-512x256
 
 if ASCIIDOC
 
