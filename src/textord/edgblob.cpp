@@ -26,8 +26,6 @@
 #include "edgloop.h"
 #include "scanedg.h"
 
-#include <memory>
-
 #define BUCKETSIZE 16
 
 namespace tesseract {

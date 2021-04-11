@@ -25,7 +25,6 @@
 #include "params.h"
 #include "scrollview.h"
 
-#include <memory>
 #include <vector>
 
 namespace tesseract {
