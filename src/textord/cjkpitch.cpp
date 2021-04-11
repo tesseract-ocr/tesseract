@@ -158,10 +158,8 @@ public:
     float rc = 0;
     int vote = 0;
     for (int i = start; i < end; i++) {
-      if (values_[i].x != 0.0f) {
-        rc += values_[i].vote * x * values_[i].y / values_[i].x;
-        vote += values_[i].vote;
-      }
+      rc += values_[i].vote * x * values_[i].y / values_[i].x;
+      vote += values_[i].vote;
     }
 
     return vote == 0 ? 0.0f : rc / vote;
