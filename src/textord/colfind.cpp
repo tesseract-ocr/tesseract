@@ -953,7 +953,6 @@ static void ReleaseAllBlobsAndDeleteUnused(BLOBNBOX_LIST *blobs) {
   for (BLOBNBOX_IT blob_it(blobs); !blob_it.empty(); blob_it.forward()) {
     BLOBNBOX *blob = blob_it.extract();
     if (blob->owner() == nullptr) {
-      delete blob->cblob();
       delete blob;
     }
   }
