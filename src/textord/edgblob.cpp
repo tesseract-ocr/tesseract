@@ -23,10 +23,12 @@
 
 #include "edgblob.h"
 
-#include <memory>
-
 #include "edgloop.h"
 #include "scanedg.h"
+
+#include <memory>
+
+#define BUCKETSIZE 16
 
 namespace tesseract {
 
@@ -58,12 +60,11 @@ static double_VAR(edges_boxarea, 0.875, "Min area fraction of grandchild for box
 
 OL_BUCKETS::OL_BUCKETS(ICOORD bleft, // corners
                        ICOORD tright)
-    : bl(bleft), tr(tright) {
-  bxdim = (tright.x() - bleft.x()) / BUCKETSIZE + 1;
-  bydim = (tright.y() - bleft.y()) / BUCKETSIZE + 1;
-  // make array
-  buckets = std::make_unique<C_OUTLINE_LIST[]>(bxdim * bydim);
-  index = 0;
+    : bxdim((tright.x() - bleft.x()) / BUCKETSIZE + 1),
+      bydim((tright.y() - bleft.y()) / BUCKETSIZE + 1),
+      buckets(bxdim * bydim),
+      bl(bleft),
+      tr(tright) {
 }
 
 /**
@@ -77,6 +78,21 @@ C_OUTLINE_LIST *OL_BUCKETS::operator()( // array access
     int16_t x,                          // image coords
     int16_t y) {
   return &buckets[(y - bl.y()) / BUCKETSIZE * bxdim + (x - bl.x()) / BUCKETSIZE];
+}
+
+C_OUTLINE_LIST *OL_BUCKETS::start_scan() {
+  return scan_next(buckets.begin());
+}
+
+C_OUTLINE_LIST *OL_BUCKETS::scan_next() {
+  return scan_next(it);
+}
+
+C_OUTLINE_LIST *OL_BUCKETS::scan_next(decltype(buckets)::iterator in_it) {
+  it = std::find_if(in_it, buckets.end(), [](auto &&b) { return !b.empty(); });
+  if (it == buckets.end())
+    return nullptr;
+  return &*it;
 }
 
 /**
@@ -408,7 +424,10 @@ void empty_buckets(     // find blobs
     good_blob = capture_children(buckets, &junk_blobs, &out_it);
     C_BLOB::ConstructBlobsFromOutlines(good_blob, &outlines, &good_blobs, &junk_blobs);
 
-    bucket_it.set_to_list(buckets->scan_next());
+    if (auto l = buckets->scan_next())
+      bucket_it.set_to_list(l);
+    else
+      break;
   }
 }
 

@@ -26,10 +26,9 @@
 #include "scrollview.h"
 
 #include <memory>
+#include <vector>
 
 namespace tesseract {
-
-#define BUCKETSIZE 16
 
 class OL_BUCKETS {
 public:
@@ -37,25 +36,13 @@ public:
       ICOORD bleft, // corners
       ICOORD tright);
 
-  ~OL_BUCKETS() = default;
-
   C_OUTLINE_LIST *operator()( // array access
       int16_t x,              // image coords
       int16_t y);
   // first non-empty bucket
-  C_OUTLINE_LIST *start_scan() {
-    for (index = 0; buckets[index].empty() && index < bxdim * bydim - 1; index++) {
-      ;
-    }
-    return &buckets[index];
-  }
+  C_OUTLINE_LIST *start_scan();
   // next non-empty bucket
-  C_OUTLINE_LIST *scan_next() {
-    for (; buckets[index].empty() && index < bxdim * bydim - 1; index++) {
-      ;
-    }
-    return &buckets[index];
-  }
+  C_OUTLINE_LIST *scan_next();
   int32_t count_children(     // recursive sum
       C_OUTLINE *outline,     // parent outline
       int32_t max_count);     // max output
@@ -68,12 +55,14 @@ public:
       C_OUTLINE_IT *it);      // destination iterator
 
 private:
-  std::unique_ptr<C_OUTLINE_LIST[]> buckets; // array of buckets
   int16_t bxdim;                             // size of array
   int16_t bydim;
+  std::vector<C_OUTLINE_LIST> buckets; // array of buckets
   ICOORD bl; // corners
   ICOORD tr;
-  int32_t index; // for extraction scan
+  decltype(buckets)::iterator it; // for extraction scan
+
+  C_OUTLINE_LIST *scan_next(decltype(buckets)::iterator it);
 };
 
 void extract_edges(Image pix,      // thresholded image
