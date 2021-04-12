@@ -10,7 +10,7 @@ CONFIGS = \
 	../tessdata/configs/box.train \
 	../tessdata/configs/box.train.stderr \
 	../tessdata/configs/digits \
-	../tessdata/configs/get.image \
+	../tessdata/configs/get.images \
 	../tessdata/configs/hocr \
 	../tessdata/configs/inter \
 	../tessdata/configs/kannada \
