@@ -27,7 +27,6 @@
 #include "coutln.h"     // for C_OUTLINE_IT, C_OUTLINE_LIST
 #include "dawg_cache.h" // for DawgCache
 #include "dict.h"       // for Dict
-#include "edgblob.h"    // for extract_edges
 #include "elst.h"       // for ELIST_ITERATOR, ELISTIZE, ELISTIZEH
 #include "environ.h"    // for l_uint8
 #ifndef DISABLED_LEGACY_ENGINE

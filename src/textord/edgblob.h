@@ -19,11 +19,9 @@
 #ifndef EDGBLOB_H
 #define EDGBLOB_H
 
-#include "coutln.h"
-#include "crakedge.h"
-#include "ocrblock.h"
-#include "params.h"
-#include "scrollview.h"
+#include "coutln.h"   // for C_OUTLINE
+#include "ocrblock.h" // for BLOCK
+#include "points.h"   // for ICOORD
 
 #include <vector>
 
@@ -54,35 +52,22 @@ public:
       C_OUTLINE_IT *it);      // destination iterator
 
 private:
-  int16_t bxdim;                             // size of array
+  int16_t bxdim; // size of array
   int16_t bydim;
   std::vector<C_OUTLINE_LIST> buckets; // array of buckets
-  ICOORD bl; // corners
+  ICOORD bl;                           // corners
   ICOORD tr;
   decltype(buckets)::iterator it; // for extraction scan
 
   C_OUTLINE_LIST *scan_next(decltype(buckets)::iterator it);
 };
 
-void extract_edges(Image pix,      // thresholded image
+void extract_edges(Image pix,     // thresholded image
                    BLOCK *block); // block to scan
 void outlines_to_blobs(           // find blobs
     BLOCK *block,                 // block to scan
     ICOORD bleft,                 // block box //outlines in block
     ICOORD tright, C_OUTLINE_LIST *outlines);
-void fill_buckets(            // find blobs
-    C_OUTLINE_LIST *outlines, // outlines in block
-    OL_BUCKETS *buckets       // output buckets
-);
-void empty_buckets(     // find blobs
-    BLOCK *block,       // block to scan
-    OL_BUCKETS *buckets // output buckets
-);
-bool capture_children(    // find children
-    OL_BUCKETS *buckets,  // bucket sort clanss
-    C_BLOB_IT *reject_it, // dead grandchildren
-    C_OUTLINE_IT *blob_it // output outlines
-);
 
 } // namespace tesseract
 
