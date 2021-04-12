@@ -421,7 +421,11 @@ static void empty_buckets(BLOCK *block,       // block to scan
   C_OUTLINE_LIST outlines; // outlines in block
                            // iterator
   C_OUTLINE_IT out_it = &outlines;
-  C_OUTLINE_IT bucket_it = buckets->start_scan();
+  auto start_scan = buckets->start_scan();
+  if (start_scan == nullptr) {
+    return;
+  }
+  C_OUTLINE_IT bucket_it = start_scan;
   C_BLOB_IT good_blobs = block->blob_list();
   C_BLOB_IT junk_blobs = block->reject_blobs();
 
