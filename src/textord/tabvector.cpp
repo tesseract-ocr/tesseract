@@ -59,8 +59,6 @@ double_VAR(textord_tabvector_vertical_gap_fraction, 0.5,
 double_VAR(textord_tabvector_vertical_box_ratio, 0.5,
            "Fraction of box matches required to declare a line vertical");
 
-ELISTIZE(TabConstraint)
-
 // Create a constraint for the top or bottom of this TabVector.
 void TabConstraint::CreateConstraint(TabVector *vector, bool is_top) {
   auto *constraint = new TabConstraint(vector, is_top);
@@ -164,9 +162,6 @@ void TabConstraint::GetConstraints(TabConstraint_LIST *constraints, int *y_min, 
     *y_max = std::min(*y_max, constraint->y_max_);
   }
 }
-
-ELIST2IZE(TabVector)
-CLISTIZE(TabVector)
 
 // The constructor is private. See the bottom of the file...
 

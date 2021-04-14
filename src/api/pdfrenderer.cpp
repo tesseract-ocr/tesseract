@@ -351,7 +351,7 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
   int line_x2 = 0;
   int line_y2 = 0;
 
-  ResultIterator *res_it = api->GetIterator();
+  const std::unique_ptr</*non-const*/ ResultIterator> res_it(api->GetIterator());
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
       pdf_str << "BT\n3 Tr"; // Begin text object, use invisible ink
@@ -477,7 +477,6 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
   const std::string &text = pdf_str.str();
   char *result = new char[text.length() + 1];
   strcpy(result, text.c_str());
-  delete res_it;
   return result;
 }
 

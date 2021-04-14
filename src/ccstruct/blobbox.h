@@ -677,7 +677,7 @@ private:
 };
 
 ELIST2IZEH(TO_ROW)
-class TO_BLOCK : public ELIST_LINK {
+class TESS_API TO_BLOCK : public ELIST_LINK {
 public:
   TO_BLOCK() : pitch_decision(PITCH_DUNNO) {
     clear();

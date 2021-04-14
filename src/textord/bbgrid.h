@@ -747,7 +747,7 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::StartRadSearch(int x, int y, int max_
 // maximum radius has been reached.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextRadSearch() {
-  do {
+  for (;;) {
     while (it_.cycled_list()) {
       ++rad_index_;
       if (rad_index_ >= radius_) {
@@ -771,9 +771,13 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextRadSearch() {
       }
     }
     CommonNext();
-  } while (unique_mode_ && returns_.find(previous_return_) != returns_.end());
-  if (unique_mode_) {
-    returns_.insert(previous_return_);
+    if (!unique_mode_) {
+      break;
+    }
+    auto inserted = returns_.insert(previous_return_);
+    if (inserted.second) {
+      break;
+    }
   }
   return previous_return_;
 }
@@ -796,7 +800,7 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::StartSideSearch(int x, int ymin, int 
 // according to the flag.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextSideSearch(bool right_to_left) {
-  do {
+  for (;;) {
     while (it_.cycled_list()) {
       ++rad_index_;
       if (rad_index_ > radius_) {
@@ -816,9 +820,13 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextSideSearch(bool right_to_left) {
       }
     }
     CommonNext();
-  } while (unique_mode_ && returns_.find(previous_return_) != returns_.end());
-  if (unique_mode_) {
-    returns_.insert(previous_return_);
+    if (!unique_mode_) {
+      break;
+    }
+    auto inserted = returns_.insert(previous_return_);
+    if (inserted.second) {
+      break;
+    }
   }
   return previous_return_;
 }
@@ -839,7 +847,7 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::StartVerticalSearch(int xmin, int xma
 // according to the flag.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextVerticalSearch(bool top_to_bottom) {
-  do {
+  for (;;) {
     while (it_.cycled_list()) {
       ++rad_index_;
       if (rad_index_ > radius_) {
@@ -859,9 +867,13 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextVerticalSearch(bool top_to_bottom
       }
     }
     CommonNext();
-  } while (unique_mode_ && returns_.find(previous_return_) != returns_.end());
-  if (unique_mode_) {
-    returns_.insert(previous_return_);
+    if (!unique_mode_) {
+      break;
+    }
+    auto inserted = returns_.insert(previous_return_);
+    if (inserted.second) {
+      break;
+    }
   }
   return previous_return_;
 }
@@ -882,7 +894,7 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::StartRectSearch(const TBOX &rect) {
 // Return the next bbox in the rectangular search or nullptr if complete.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextRectSearch() {
-  do {
+  for (;;) {
     while (it_.cycled_list()) {
       ++x_;
       if (x_ > max_radius_) {
@@ -895,10 +907,16 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextRectSearch() {
       SetIterator();
     }
     CommonNext();
-  } while (!rect_.overlap(previous_return_->bounding_box()) ||
-           (unique_mode_ && returns_.find(previous_return_) != returns_.end()));
-  if (unique_mode_) {
-    returns_.insert(previous_return_);
+    if (!rect_.overlap(previous_return_->bounding_box())) {
+      continue;
+    }
+    if (!unique_mode_) {
+      break;
+    }
+    auto inserted = returns_.insert(previous_return_);
+    if (inserted.second) {
+      break;
+    }
   }
   return previous_return_;
 }

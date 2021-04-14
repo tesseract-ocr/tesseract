@@ -709,9 +709,9 @@ Boxa *TessBaseAPI::GetConnectedComponents(Pixa **pixa) {
 Boxa *TessBaseAPI::GetComponentImages(PageIteratorLevel level, bool text_only, bool raw_image,
                                       const int raw_padding, Pixa **pixa, int **blockids,
                                       int **paraids) {
-  PageIterator *page_it = GetIterator();
+  /*non-const*/ std::unique_ptr</*non-const*/ PageIterator> page_it(GetIterator());
   if (page_it == nullptr) {
-    page_it = AnalyseLayout();
+    page_it.reset(AnalyseLayout());
   }
   if (page_it == nullptr) {
     return nullptr; // Failed.
@@ -791,7 +791,6 @@ Boxa *TessBaseAPI::GetComponentImages(PageIteratorLevel level, bool text_only, b
       ++component_index;
     }
   } while (page_it->Next(level));
-  delete page_it;
   return boxa;
 }
 
@@ -1263,12 +1262,8 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
 
   if (tesseract_->tessedit_pageseg_mode == PSM_AUTO_ONLY) {
     // Disabled character recognition
-    PageIterator *it = AnalyseLayout();
-
-    if (it == nullptr) {
+    if (! std::unique_ptr<const PageIterator>(AnalyseLayout())) {
       failed = true;
-    } else {
-      delete it;
     }
   } else if (tesseract_->tessedit_pageseg_mode == PSM_OSD_ONLY) {
     failed = FindLines() != 0;
@@ -1368,7 +1363,7 @@ char *TessBaseAPI::GetUTF8Text() {
     return nullptr;
   }
   std::string text("");
-  ResultIterator *it = GetIterator();
+  const std::unique_ptr</*non-const*/ ResultIterator> it(GetIterator());
   do {
     if (it->Empty(RIL_PARA)) {
       continue;
@@ -1378,7 +1373,6 @@ char *TessBaseAPI::GetUTF8Text() {
   } while (it->Next(RIL_PARA));
   char *result = new char[text.length() + 1];
   strncpy(result, text.c_str(), text.length() + 1);
-  delete it;
   return result;
 }
 
@@ -1482,7 +1476,7 @@ char *TessBaseAPI::GetTSVText(int page_number) {
   tsv_str += "\t" + std::to_string(rect_height_);
   tsv_str += "\t-1\t\n";
 
-  ResultIterator *res_it = GetIterator();
+  const std::unique_ptr</*non-const*/ ResultIterator> res_it(GetIterator());
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_WORD)) {
       res_it->Next(RIL_WORD);
@@ -1500,7 +1494,7 @@ char *TessBaseAPI::GetTSVText(int page_number) {
       tsv_str += "\t" + std::to_string(par_num);
       tsv_str += "\t" + std::to_string(line_num);
       tsv_str += "\t" + std::to_string(word_num);
-      AddBoxToTSV(res_it, RIL_BLOCK, tsv_str);
+      AddBoxToTSV(res_it.get(), RIL_BLOCK, tsv_str);
       tsv_str += "\t-1\t\n"; // end of row for block
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
@@ -1512,7 +1506,7 @@ char *TessBaseAPI::GetTSVText(int page_number) {
       tsv_str += "\t" + std::to_string(par_num);
       tsv_str += "\t" + std::to_string(line_num);
       tsv_str += "\t" + std::to_string(word_num);
-      AddBoxToTSV(res_it, RIL_PARA, tsv_str);
+      AddBoxToTSV(res_it.get(), RIL_PARA, tsv_str);
       tsv_str += "\t-1\t\n"; // end of row for para
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
@@ -1523,7 +1517,7 @@ char *TessBaseAPI::GetTSVText(int page_number) {
       tsv_str += "\t" + std::to_string(par_num);
       tsv_str += "\t" + std::to_string(line_num);
       tsv_str += "\t" + std::to_string(word_num);
-      AddBoxToTSV(res_it, RIL_TEXTLINE, tsv_str);
+      AddBoxToTSV(res_it.get(), RIL_TEXTLINE, tsv_str);
       tsv_str += "\t-1\t\n"; // end of row for line
     }
 
@@ -1564,7 +1558,6 @@ char *TessBaseAPI::GetTSVText(int page_number) {
 
   char *ret = new char[tsv_str.length() + 1];
   strcpy(ret, tsv_str.c_str());
-  delete res_it;
   return ret;
 }
 
@@ -2023,7 +2016,7 @@ bool TessBaseAPI::IsValidCharacter(const char *utf8_character) {
 // TODO(rays) Obsolete this function and replace with a more aptly named
 // function that returns image coordinates rather than tesseract coordinates.
 bool TessBaseAPI::GetTextDirection(int *out_offset, float *out_slope) {
-  PageIterator *it = AnalyseLayout();
+  const std::unique_ptr<const PageIterator> it(AnalyseLayout());
   if (it == nullptr) {
     return false;
   }
@@ -2040,7 +2033,6 @@ bool TessBaseAPI::GetTextDirection(int *out_offset, float *out_slope) {
   // textline's bounding box.
   int left, top, right, bottom;
   if (!it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom)) {
-    delete it;
     return false;
   }
   int left_y = IntCastRounded(*out_slope * left + *out_offset);
@@ -2053,7 +2045,6 @@ bool TessBaseAPI::GetTextDirection(int *out_offset, float *out_slope) {
   // the slope and height - offset for the offset.
   *out_slope = -*out_slope;
   *out_offset = rect_height_ - *out_offset;
-  delete it;
 
   return true;
 }

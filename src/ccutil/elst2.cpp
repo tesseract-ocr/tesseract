@@ -35,7 +35,7 @@ namespace tesseract {
  **********************************************************************/
 
 void ELIST2::internal_clear( // destroy all links
-    void (*zapper)(ELIST2_LINK *)) {
+    void (*zapper)(void *)) {
   // ptr to zapper functn
   ELIST2_LINK *ptr;
   ELIST2_LINK *next;
@@ -75,22 +75,6 @@ void ELIST2::assign_to_sublist( // to this list
   }
 
   last = start_it->extract_sublist(end_it);
-}
-
-/***********************************************************************
- *              ELIST2::length
- *
- *  Return count of elements on list
- **********************************************************************/
-
-int32_t ELIST2::length() const { // count elements
-  ELIST2_ITERATOR it(const_cast<ELIST2 *>(this));
-  int32_t count = 0;
-
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    count++;
-  }
-  return count;
 }
 
 /***********************************************************************

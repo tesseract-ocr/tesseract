@@ -45,11 +45,6 @@ struct Pix;
 
 namespace tesseract {
 
-ELISTIZE(BLOCK_RES)
-CLISTIZE(BLOCK_RES)
-ELISTIZE(ROW_RES)
-ELISTIZE(WERD_RES)
-
 // Gain factor for computing thresholds that determine the ambiguity of a
 // word.
 static const double kStopperAmbiguityThresholdGain = 8.0;

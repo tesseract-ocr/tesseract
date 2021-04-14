@@ -26,7 +26,6 @@
 
 namespace tesseract {
 
-ELISTIZE(BLOCK)
 /**
  * BLOCK::BLOCK
  *

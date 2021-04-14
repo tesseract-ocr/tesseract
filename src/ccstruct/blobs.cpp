@@ -56,8 +56,6 @@ const TPOINT kDivisibleVerticalItalic(1, 5);
               F u n c t i o n s
 ----------------------------------------------------------------------*/
 
-CLISTIZE(EDGEPT)
-
 // Returns true when the two line segments cross each other.
 // (Moved from outlines.cpp).
 // Finds where the projected lines would cross and then checks to see if the

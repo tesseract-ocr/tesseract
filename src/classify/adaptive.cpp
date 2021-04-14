@@ -86,9 +86,7 @@ ADAPT_CLASS_STRUCT::~ADAPT_CLASS_STRUCT() {
   FreeBitVector(PermConfigs);
   auto list = TempProtos;
   while (list != nullptr) {
-    if (first_node(list) != nullptr) {
-      delete first_node(list);
-    }
+    delete reinterpret_cast<TEMP_PROTO_STRUCT *>(list->node);
     list = pop(list);
   }
 }
@@ -323,7 +321,7 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS_STRUCT *Class, int NumConfigs) {
   fwrite(&NumTempProtos, sizeof(int), 1, File);
   TempProtos = Class->TempProtos;
   iterate(TempProtos) {
-    void *proto = first_node(TempProtos);
+    void *proto = TempProtos->node;
     fwrite(proto, sizeof(TEMP_PROTO_STRUCT), 1, File);
   }
 

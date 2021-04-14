@@ -59,8 +59,6 @@ namespace tesseract {
 
 #define MAX_NEAREST_DIST 600 // for block skew stats
 
-CLISTIZE(WordWithBox)
-
 /**********************************************************************
  * SetBlobStrokeWidth
  *

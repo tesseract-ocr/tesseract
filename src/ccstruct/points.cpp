@@ -29,7 +29,6 @@
 
 namespace tesseract {
 
-ELISTIZE(ICOORDELT)        // turn to list
 bool FCOORD::normalise() { // Convert to unit vec
   float len = length();
 

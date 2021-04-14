@@ -20,7 +20,6 @@
 
 namespace tesseract {
 
-ELISTIZE(SORTED_FLOAT)
 /**
  * @name SORTED_FLOATS::add
  *
