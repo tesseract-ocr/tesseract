@@ -106,11 +106,11 @@ Before you submit an issue, please review **[the guidelines for this repository]
 
 For support, first read the [documentation](https://tesseract-ocr.github.io/tessdoc/),
 particularly the [FAQ](https://tesseract-ocr.github.io/tessdoc/FAQ.html) to see if your problem is addressed there.
-If not, search the [Tesseract user forum](https://groups.google.com/d/forum/tesseract-ocr), the [Tesseract developer forum](https://groups.google.com/d/forum/tesseract-dev) and [past issues](https://github.com/tesseract-ocr/tesseract/issues), and if you still can't find what you need, ask for support in the mailing-lists.
+If not, search the [Tesseract user forum](https://groups.google.com/g/tesseract-ocr), the [Tesseract developer forum](https://groups.google.com/g/tesseract-dev) and [past issues](https://github.com/tesseract-ocr/tesseract/issues), and if you still can't find what you need, ask for support in the mailing-lists.
 
 Mailing-lists:
-* [tesseract-ocr](https://groups.google.com/d/forum/tesseract-ocr) - For tesseract users.
-* [tesseract-dev](https://groups.google.com/d/forum/tesseract-dev) - For tesseract developers.
+* [tesseract-ocr](https://groups.google.com/g/tesseract-ocr) - For tesseract users.
+* [tesseract-dev](https://groups.google.com/g/tesseract-dev) - For tesseract developers.
 
 Please report an issue only for a **bug**, not for asking questions.
 

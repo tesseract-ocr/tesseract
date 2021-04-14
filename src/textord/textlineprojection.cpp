@@ -35,7 +35,7 @@ const int kWrongWayPenalty = 4;
 // Ratio between parallel gap and perpendicular gap used to measure total
 // distance of a box from a target box in curved textline space.
 // parallel-gap is treated more favorably by this factor to allow catching
-// quotes and elipsis at the end of textlines.
+// quotes and ellipsis at the end of textlines.
 const int kParaPerpDistRatio = 4;
 // Multiple of scale_factor_ that the inter-line gap must be before we start
 // padding the increment box perpendicular to the text line.

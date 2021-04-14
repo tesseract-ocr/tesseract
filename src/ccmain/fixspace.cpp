@@ -25,7 +25,7 @@
 #include "errcode.h"        // for ASSERT_HOST
 #include "normalis.h"       // for kBlnXHeight, kBlnBaselineOffset
 #include "pageres.h"        // for WERD_RES_IT, WERD_RES, WERD_RES_LIST
-#include "params.h"         // for IntParam, StringParam, BoolParam, Doub...
+#include "params.h"         // for IntParam, StringParam, BoolParam, DoubleParam, ...
 #include "ratngs.h"         // for WERD_CHOICE, FREQ_DAWG_PERM, NUMBER_PERM
 #include "rect.h"           // for TBOX
 #include "stepblob.h"       // for C_BLOB_IT, C_BLOB_LIST, C_BLOB

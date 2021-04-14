@@ -256,7 +256,7 @@ Tesseract::Tesseract()
     , INT_MEMBER(fixsp_non_noise_limit, 1, "How many non-noise blbs either side?", this->params())
     , double_MEMBER(fixsp_small_outlines_size, 0.28, "Small if lt xht x this", this->params())
     , BOOL_MEMBER(tessedit_prefer_joined_punct, false, "Reward punctuation joins", this->params())
-    , INT_MEMBER(fixsp_done_mode, 1, "What constitues done for spacing", this->params())
+    , INT_MEMBER(fixsp_done_mode, 1, "What constitutes done for spacing", this->params())
     , INT_MEMBER(debug_fix_space_level, 0, "Contextual fixspace debug", this->params())
     , STRING_MEMBER(numeric_punctuation, ".,", "Punct. chs expected WITHIN numbers", this->params())
     , INT_MEMBER(x_ht_acceptance_tolerance, 8,

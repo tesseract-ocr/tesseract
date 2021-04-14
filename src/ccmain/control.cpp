@@ -235,7 +235,7 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT 
         continue;
       }
     }
-    // Sync pr_it with the wth WordData.
+    // Sync pr_it with the WordData.
     while (pr_it->word() != nullptr && pr_it->word() != word->word) {
       pr_it->forward();
     }
