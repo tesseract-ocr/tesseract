@@ -16,7 +16,10 @@ endif
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
-EXTRA_DIST += tesseract.pc.in java doc
+EXTRA_DIST += tesseract.pc.in doc
+if !GRAPHICS_DISABLED
+EXTRA_DIST += java
+endif
 EXTRA_DIST += CMakeLists.txt tesseract.pc.cmake cmake VERSION
 
 DIST_SUBDIRS = $(SUBDIRS)
@@ -33,11 +36,13 @@ dist-hook:
 	rm -f `find $(distdir) -name '*~'`
 	rm -rf $(distdir)/doc/html/* $(distdir)/doc/*.log
 
+if !GRAPHICS_DISABLED
 ScrollView.jar:
 	@cd "$(top_builddir)/java" && $(MAKE) $@
 
 install-jars:
 	@cd "$(top_builddir)/java" && $(MAKE) $@
+endif
 
 doc:
 	-srcdir="$(top_srcdir)" builddir="$(top_builddir)" \
@@ -221,8 +226,10 @@ libtesseract_la_SOURCES += src/ccmain/pageiterator.cpp
 libtesseract_la_SOURCES += src/ccmain/pagesegmain.cpp
 libtesseract_la_SOURCES += src/ccmain/pagewalk.cpp
 libtesseract_la_SOURCES += src/ccmain/paragraphs.cpp
+if !GRAPHICS_DISABLED
 libtesseract_la_SOURCES += src/ccmain/paramsd.cpp
 libtesseract_la_SOURCES += src/ccmain/pgedit.cpp
+endif
 libtesseract_la_SOURCES += src/ccmain/reject.cpp
 libtesseract_la_SOURCES += src/ccmain/resultiterator.cpp
 libtesseract_la_SOURCES += src/ccmain/tessedit.cpp
@@ -659,6 +666,7 @@ endif
 
 # Rules for src/viewer.
 
+if !GRAPHICS_DISABLED
 noinst_HEADERS += src/viewer/scrollview.h
 noinst_HEADERS += src/viewer/svmnode.h
 noinst_HEADERS += src/viewer/svutil.h
@@ -666,6 +674,7 @@ noinst_HEADERS += src/viewer/svutil.h
 libtesseract_la_SOURCES += src/viewer/scrollview.cpp
 libtesseract_la_SOURCES += src/viewer/svmnode.cpp
 libtesseract_la_SOURCES += src/viewer/svutil.cpp
+endif
 
 # TODO: Add rule to generate svpaint from svpaint.cpp.
 
@@ -703,7 +712,9 @@ libtesseract_la_SOURCES += src/wordrec/lm_state.cpp
 libtesseract_la_SOURCES += src/wordrec/outlines.cpp
 libtesseract_la_SOURCES += src/wordrec/params_model.cpp
 libtesseract_la_SOURCES += src/wordrec/pieces.cpp
+if !GRAPHICS_DISABLED
 libtesseract_la_SOURCES += src/wordrec/plotedges.cpp
+endif
 libtesseract_la_SOURCES += src/wordrec/render.cpp
 libtesseract_la_SOURCES += src/wordrec/segsearch.cpp
 libtesseract_la_SOURCES += src/wordrec/wordclass.cpp

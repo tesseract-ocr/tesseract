@@ -29,6 +29,7 @@ class PAGE_RES;
 
 class Tesseract;
 
+#ifndef GRAPHICS_DISABLED
 // A small event handler class to process incoming events to
 // this window.
 class PGEventHandler : public SVEventHandler {
@@ -39,6 +40,7 @@ public:
 private:
   tesseract::Tesseract *tess_;
 };
+#endif // !GRAPHICS_DISABLED
 
 extern BLOCK_LIST *current_block_list;
 extern STRING_VAR_H(editor_image_win_name, "EditorImage", "Editor image window name");

@@ -32,7 +32,9 @@
 #include "sampleiterator.h"
 #include "shapeclassifier.h"
 #include "shapetable.h"
+#ifndef GRAPHICS_DISABLED
 #include "svmnode.h"
+#endif
 
 #include "scanutils.h"
 

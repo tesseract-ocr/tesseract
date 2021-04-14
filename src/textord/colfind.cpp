@@ -95,7 +95,6 @@ ColumnFinder::ColumnFinder(int gridsize, const ICOORD &bleft, const ICOORD &trig
     , nontext_map_(nullptr)
     , projection_(resolution)
     , denorm_(nullptr)
-    , input_blobs_win_(nullptr)
     , equation_detect_(nullptr) {
   TabVector_IT h_it(&horizontal_lines_);
   h_it.add_list_after(hlines);
@@ -107,7 +106,9 @@ ColumnFinder::~ColumnFinder() {
   }
   delete[] best_columns_;
   delete stroke_width_;
+#ifndef GRAPHICS_DISABLED
   delete input_blobs_win_;
+#endif
   nontext_map_.destroy();
   while (denorm_ != nullptr) {
     DENORM *dead_denorm = denorm_;

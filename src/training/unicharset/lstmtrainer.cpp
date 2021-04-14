@@ -84,10 +84,12 @@ LSTMTrainer::LSTMTrainer(const char *model_base, const char *checkpoint_name, in
 }
 
 LSTMTrainer::~LSTMTrainer() {
+#ifndef GRAPHICS_DISABLED
   delete align_win_;
   delete target_win_;
   delete ctc_win_;
   delete recon_win_;
+#endif
 }
 
 // Tries to deserialize a trainer from the given file and silently returns
@@ -1078,10 +1080,12 @@ void LSTMTrainer::SetNullChar() {
 
 // Factored sub-constructor sets up reasonable default values.
 void LSTMTrainer::EmptyConstructor() {
+#ifndef GRAPHICS_DISABLED
   align_win_ = nullptr;
   target_win_ = nullptr;
   ctc_win_ = nullptr;
   recon_win_ = nullptr;
+#endif
   checkpoint_iteration_ = 0;
   training_stage_ = 0;
   num_training_stages_ = 2;

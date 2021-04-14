@@ -204,6 +204,8 @@ public:
   // Returned IntGrid must be deleted after use.
   IntGrid *CountCellElements();
 
+#ifndef GRAPHICS_DISABLED
+
   // Make a window of an appropriate size to display things in the grid.
   ScrollView *MakeWindow(int x, int y, const char *window_name);
 
@@ -211,6 +213,8 @@ public:
   // Use of this function requires an additional member of the BBC class:
   // ScrollView::Color BBC::BoxColor() const.
   void DisplayBoxes(ScrollView *window);
+
+#endif // !GRAPHICS_DISABLED
 
   // ASSERT_HOST that every cell contains no more than one copy of each entry.
   void AssertNoDuplicates();
@@ -222,14 +226,6 @@ protected:
   BBC_CLIST *grid_; // 2-d array of CLISTS of BBC elements.
 
 private:
-};
-
-// Hash functor for generic pointers.
-template <typename T>
-struct PtrHash {
-  size_t operator()(const T *ptr) const {
-    return reinterpret_cast<uintptr_t>(ptr) / sizeof(T);
-  }
 };
 
 // The GridSearch class enables neighbourhood searching on a BBGrid.
@@ -363,7 +359,7 @@ private:
   // An iterator over the list at (x_, y_) in the grid_.
   BBC_C_IT it_;
   // Set of unique returned elements used when unique_mode_ is true.
-  std::unordered_set<BBC *, PtrHash<BBC>> returns_;
+  std::unordered_set<BBC *> returns_;
 };
 
 // Sort function to sort a BBC by bounding_box().left().
@@ -616,6 +612,7 @@ IntGrid *BBGrid<BBC, BBC_CLIST, BBC_C_IT>::CountCellElements() {
   return intgrid;
 }
 
+#ifndef GRAPHICS_DISABLED
 template <class G>
 class TabEventHandler : public SVEventHandler {
 public:
@@ -629,8 +626,6 @@ public:
 private:
   G *grid_;
 };
-
-#ifndef GRAPHICS_DISABLED
 
 // Make a window of an appropriate size to display things in the grid.
 // Position the window at the given x,y.
