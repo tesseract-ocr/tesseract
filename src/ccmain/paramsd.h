@@ -104,16 +104,6 @@ public:
   void Notify(const SVEvent *sve) override;
 
 private:
-  // Gets the up to the first 3 prefixes from s (split by _).
-  // For example, tesseract_foo_bar will be split into tesseract,foo and bar.
-  void GetPrefixes(const char *s, std::string *level_one, std::string *level_two, std::string *level_three);
-
-  // Gets the first n words (split by _) and puts them in t.
-  // For example, tesseract_foo_bar with N=2 will yield tesseract_foo_.
-  void GetFirstWords(const char *s, // source string
-                     int n,         // number of words
-                     char *t);      // target string
-
   // Find all editable parameters used within tesseract and create a
   // SVMenuNode tree from it.
   SVMenuNode *BuildListOfAllLeaves(tesseract::Tesseract *tess);
