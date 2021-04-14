@@ -165,7 +165,7 @@ static void PrintVersionInfo() {
     tprintf(" Found FMA\n");
   }
   if (tesseract::SIMDDetect::IsSSEAvailable()) {
-    tprintf(" Found SSE\n");
+    tprintf(" Found SSE4.1\n");
   }
 #endif
 #ifdef _OPENMP

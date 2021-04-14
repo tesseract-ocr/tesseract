@@ -335,7 +335,7 @@ bool TessBaseAPI::GetDoubleVariable(const char *name, double *value) const {
 }
 
 /** Get value of named variable as a string, if it exists. */
-bool TessBaseAPI::GetVariableAsString(const char *name, std::string *val) {
+bool TessBaseAPI::GetVariableAsString(const char *name, std::string *val) const {
   return ParamUtils::GetParamAsString(name, tesseract_->params(), val);
 }
 
@@ -1376,7 +1376,7 @@ char *TessBaseAPI::GetUTF8Text() {
   return result;
 }
 
-size_t TessBaseAPI::GetNumberOfTables()
+size_t TessBaseAPI::GetNumberOfTables() const
 {
   return constUniqueInstance<std::vector<TessTable>>().size();
 }
@@ -2005,11 +2005,11 @@ void TessBaseAPI::ClearPersistentCache() {
  * Check whether a word is valid according to Tesseract's language model
  * returns 0 if the word is invalid, non-zero if valid
  */
-int TessBaseAPI::IsValidWord(const char *word) {
+int TessBaseAPI::IsValidWord(const char *word) const {
   return tesseract_->getDict().valid_word(word);
 }
 // Returns true if utf8_character is defined in the UniCharset.
-bool TessBaseAPI::IsValidCharacter(const char *utf8_character) {
+bool TessBaseAPI::IsValidCharacter(const char *utf8_character) const {
   return tesseract_->unicharset.contains_unichar(utf8_character);
 }
 
@@ -2257,7 +2257,7 @@ void TessBaseAPI::ClearResults() {
  * character.
  * Also return the number of recognized blobs in blob_count.
  */
-int TessBaseAPI::TextLength(int *blob_count) {
+int TessBaseAPI::TextLength(int *blob_count) const {
   if (tesseract_ == nullptr || page_res_ == nullptr) {
     return 0;
   }
@@ -2384,7 +2384,7 @@ void TessBaseAPI::DetectParagraphs(bool after_text_recognition) {
 }
 
 /** This method returns the string form of the specified unichar. */
-const char *TessBaseAPI::GetUnichar(int unichar_id) {
+const char *TessBaseAPI::GetUnichar(int unichar_id) const {
   return tesseract_->unicharset.id_to_unichar(unichar_id);
 }
 

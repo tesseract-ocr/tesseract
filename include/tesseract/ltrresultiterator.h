@@ -60,8 +60,9 @@ public:
   // The scaled_yres indicates the effective resolution of the binary image
   // that tesseract has been given by the Thresholder.
   // After the constructor, Begin has already been called.
-  LTRResultIterator(PAGE_RES *page_res, Tesseract *tesseract, int scale, int scaled_yres,
-                    int rect_left, int rect_top, int rect_width, int rect_height);
+  LTRResultIterator(PAGE_RES *page_res, Tesseract *tesseract, int scale,
+                    int scaled_yres, int rect_left, int rect_top,
+                    int rect_width, int rect_height);
 
   ~LTRResultIterator() override;
 
@@ -93,7 +94,8 @@ public:
   float Confidence(PageIteratorLevel level) const;
 
   // Returns the attributes of the current row.
-  void RowAttributes(float *row_height, float *descenders, float *ascenders) const;
+  void RowAttributes(float *row_height, float *descenders,
+                     float *ascenders) const;
 
   // ============= Functions that refer to words only ============.
 
@@ -105,8 +107,9 @@ public:
   // the iterator itself, ie rendered invalid by various members of
   // TessBaseAPI, including Init, SetImage, End or deleting the TessBaseAPI.
   // Pointsize is returned in printers points (1/72 inch.)
-  const char *WordFontAttributes(bool *is_bold, bool *is_italic, bool *is_underlined,
-                                 bool *is_monospace, bool *is_serif, bool *is_smallcaps,
+  const char *WordFontAttributes(bool *is_bold, bool *is_italic,
+                                 bool *is_underlined, bool *is_monospace,
+                                 bool *is_serif, bool *is_smallcaps,
                                  int *pointsize, int *font_id) const;
 
   // Return the name of the language used to recognize this word.

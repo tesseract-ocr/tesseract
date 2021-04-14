@@ -275,12 +275,11 @@ void CCNonTextDetect::MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST *blobs, int max_bl
         blob->plot(win, ScrollView::RED, ScrollView::RED);
       }
 #endif // !GRAPHICS_DISABLED
-       // It is safe to delete the cblob now, as it isn't used by the grid
-       // or BlobOverlapsTooMuch, and the BLOBNBOXes will go away with the
-       // dead_blobs list.
-       // TODO(rays) delete the delete when the BLOBNBOX destructor deletes
-       // the cblob.
-      delete blob->cblob();
+      // It is safe to delete the cblob now, as it isn't used by the grid
+      // or BlobOverlapsTooMuch, and the BLOBNBOXes will go away with the
+      // dead_blobs list.
+      // TODO: remove next line, currently still needed for resultiterator_test.
+      delete blob->remove_cblob();
       dead_it.add_to_end(blob_it.extract());
     }
   }

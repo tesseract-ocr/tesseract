@@ -499,7 +499,6 @@ if (DISABLED_LEGACY_ENGINE)
         src/classify/intproto.cpp
         src/classify/kdtree.cpp
         src/classify/mf.cpp
-        src/classify/mfdefs.cpp
         src/classify/mfoutline.cpp
         src/classify/mfx.cpp
         src/classify/normfeat.cpp

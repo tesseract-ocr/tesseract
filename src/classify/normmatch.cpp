@@ -92,13 +92,6 @@ const double kWidthErrorWeighting = 0.125;
  * @return Best match rating for Feature against protos of ClassId.
  */
 float Classify::ComputeNormMatch(CLASS_ID ClassId, const FEATURE_STRUCT &feature, bool DebugMatch) {
-  LIST Protos;
-  float BestMatch;
-  float Match;
-  float Delta;
-  PROTOTYPE *Proto;
-  int ProtoId;
-
   if (ClassId >= NormProtos->NumProtos) {
     ClassId = NO_CLASS;
   }
@@ -106,24 +99,24 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId, const FEATURE_STRUCT &feature
   /* handle requests for classification as noise */
   if (ClassId == NO_CLASS) {
     /* kludge - clean up constants and make into control knobs later */
-    Match = (feature.Params[CharNormLength] * feature.Params[CharNormLength] * 500.0 +
-             feature.Params[CharNormRx] * feature.Params[CharNormRx] * 8000.0 +
-             feature.Params[CharNormRy] * feature.Params[CharNormRy] * 8000.0);
-    return (1.0 - NormEvidenceOf(Match));
+    float Match = (feature.Params[CharNormLength] * feature.Params[CharNormLength] * 500.0f +
+                   feature.Params[CharNormRx] * feature.Params[CharNormRx] * 8000.0f +
+                   feature.Params[CharNormRy] * feature.Params[CharNormRy] * 8000.0f);
+    return (1.0f - NormEvidenceOf(Match));
   }
 
-  BestMatch = FLT_MAX;
-  Protos = NormProtos->Protos[ClassId];
+  float BestMatch = FLT_MAX;
+  LIST Protos = NormProtos->Protos[ClassId];
 
   if (DebugMatch) {
     tprintf("\nChar norm for class %s\n", unicharset.id_to_unichar(ClassId));
   }
 
-  ProtoId = 0;
+  int ProtoId = 0;
   iterate(Protos) {
-    Proto = reinterpret_cast<PROTOTYPE *> first_node(Protos);
-    Delta = feature.Params[CharNormY] - Proto->Mean[CharNormY];
-    Match = Delta * Delta * Proto->Weight.Elliptical[CharNormY];
+    auto Proto = reinterpret_cast<PROTOTYPE *>(Protos->first_node());
+    float Delta = feature.Params[CharNormY] - Proto->Mean[CharNormY];
+    float Match = Delta * Delta * Proto->Weight.Elliptical[CharNormY];
     if (DebugMatch) {
       tprintf("YMiddle: Proto=%g, Delta=%g, Var=%g, Dist=%g\n", Proto->Mean[CharNormY], Delta,
               Proto->Weight.Elliptical[CharNormY], Match);

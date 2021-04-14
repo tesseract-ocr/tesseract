@@ -1,21 +1,19 @@
 BasedOnStyle: Google
+
+# Modifications for Tesseract.
+
 # Only merge empty functions.
 AllowShortFunctionsOnASingleLine: Empty
 # Do not allow short if statements.
 AllowShortIfStatementsOnASingleLine: false
-# Enforce always the same pointer alignment.
-DerivePointerAlignment: false
 IndentPPDirectives: AfterHash
 
-PointerAlignment: Right
-IncludeBlocks: Preserve
-FixNamespaceComments: true
-ColumnLimit: 100
-IndentWidth: 2
-#IndentAccessModifiers: false # not accepted atm
-AccessModifierOffset: -2 # set to minus IndentWidth (-IndentWidth)
-SpacesBeforeTrailingComments: 1
-AllowShortIfStatementsOnASingleLine: false
+# Default style for some settings.
+
+AccessModifierOffset: -2
 AllowShortLoopsOnASingleLine: false
-BreakConstructorInitializers: BeforeComma
-#ConstructorInitializerAllOnOneLineOrOnePerLine: false
+# Enforce always the same pointer alignment.
+DerivePointerAlignment: false
+IncludeBlocks: Preserve
+PointerAlignment: Right
+SpacesBeforeTrailingComments: 1

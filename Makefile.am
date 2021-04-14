@@ -346,7 +346,6 @@ if !NO_TESSDATA_PREFIX
 libtesseract_ccutil_la_CPPFLAGS += -DTESSDATA_PREFIX=@datadir@
 endif
 
-noinst_HEADERS += src/ccutil/bits16.h
 noinst_HEADERS += src/ccutil/ccutil.h
 noinst_HEADERS += src/ccutil/clst.h
 noinst_HEADERS += src/ccutil/elst2.h
@@ -450,7 +449,6 @@ libtesseract_la_SOURCES += src/classify/intmatcher.cpp
 libtesseract_la_SOURCES += src/classify/intproto.cpp
 libtesseract_la_SOURCES += src/classify/kdtree.cpp
 libtesseract_la_SOURCES += src/classify/mf.cpp
-libtesseract_la_SOURCES += src/classify/mfdefs.cpp
 libtesseract_la_SOURCES += src/classify/mfoutline.cpp
 libtesseract_la_SOURCES += src/classify/mfx.cpp
 libtesseract_la_SOURCES += src/classify/normfeat.cpp

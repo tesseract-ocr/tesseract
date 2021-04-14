@@ -38,7 +38,8 @@ class Tesseract;
 const int kMaxNumberOfScripts = 116 + 1 + 2 + 1;
 
 struct OSBestResult {
-  OSBestResult() : orientation_id(0), script_id(0), sconfidence(0.0), oconfidence(0.0) {}
+  OSBestResult()
+      : orientation_id(0), script_id(0), sconfidence(0.0), oconfidence(0.0) {}
   int orientation_id;
   int script_id;
   float sconfidence;
@@ -83,7 +84,8 @@ struct OSResults {
 
 class OrientationDetector {
 public:
-  OrientationDetector(const std::vector<int> *allowed_scripts, OSResults *results);
+  OrientationDetector(const std::vector<int> *allowed_scripts,
+                      OSResults *results);
   bool detect_blob(BLOB_CHOICE_LIST *scores);
   int get_orientation();
 
@@ -97,7 +99,7 @@ public:
   ScriptDetector(const std::vector<int> *allowed_scripts, OSResults *osr,
                  tesseract::Tesseract *tess);
   void detect_blob(BLOB_CHOICE_LIST *scores);
-  bool must_stop(int orientation);
+  bool must_stop(int orientation) const;
 
 private:
   OSResults *osr_;
@@ -116,15 +118,18 @@ private:
   const std::vector<int> *allowed_scripts_;
 };
 
-int orientation_and_script_detection(const char *filename, OSResults *, tesseract::Tesseract *);
+int orientation_and_script_detection(const char *filename, OSResults *,
+                                     tesseract::Tesseract *);
 
-int os_detect(TO_BLOCK_LIST *port_blocks, OSResults *osr, tesseract::Tesseract *tess);
+int os_detect(TO_BLOCK_LIST *port_blocks, OSResults *osr,
+              tesseract::Tesseract *tess);
 
-int os_detect_blobs(const std::vector<int> *allowed_scripts, BLOBNBOX_CLIST *blob_list,
-                    OSResults *osr, tesseract::Tesseract *tess);
-
-bool os_detect_blob(BLOBNBOX *bbox, OrientationDetector *o, ScriptDetector *s, OSResults *,
+int os_detect_blobs(const std::vector<int> *allowed_scripts,
+                    BLOBNBOX_CLIST *blob_list, OSResults *osr,
                     tesseract::Tesseract *tess);
+
+bool os_detect_blob(BLOBNBOX *bbox, OrientationDetector *o, ScriptDetector *s,
+                    OSResults *, tesseract::Tesseract *tess);
 
 // Helper method to convert an orientation index to its value in degrees.
 // The value represents the amount of clockwise rotation in degrees that must be

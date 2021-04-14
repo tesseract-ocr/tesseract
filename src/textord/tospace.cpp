@@ -864,8 +864,6 @@ the gap between the word being built and the next one. */
   float repetition_spacing; // gap between repetitions
   int32_t xstarts[2];       // row ends
   int32_t prev_x;           // end of prev blob
-  BLOBNBOX *bblob;          // current blob
-  TBOX blob_box;            // bounding box
   BLOBNBOX_IT box_it;       // iterator
   TBOX prev_blob_box;
   TBOX next_blob_box;
@@ -935,18 +933,21 @@ the gap between the word being built and the next one. */
 
     peek_at_next_gap(row, box_it, next_blob_box, next_gap, next_within_xht_gap);
     do {
-      bblob = box_it.data();
-      blob_box = bblob->bounding_box();
+      auto bblob = box_it.data();
+      auto blob_box = bblob->bounding_box();
       if (bblob->joined_to_prev()) {
-        if (bblob->cblob() != nullptr) {
+        auto cblob = bblob->remove_cblob();
+        if (cblob != nullptr) {
           cout_it.set_to_list(cblob_it.data()->out_list());
           cout_it.move_to_last();
-          cout_it.add_list_after(bblob->cblob()->out_list());
-          delete bblob->cblob();
+          cout_it.add_list_after(cblob->out_list());
+          delete cblob;
         }
       } else {
-        if (bblob->cblob() != nullptr) {
-          cblob_it.add_after_then_move(bblob->cblob());
+        auto cblob = bblob->cblob();
+        if (cblob != nullptr) {
+          bblob->set_owns_cblob(false);
+          cblob_it.add_after_then_move(cblob);
         }
         prev_x = blob_box.right();
       }

@@ -263,7 +263,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type, int micro_type, int c
     num_micro_features_ = char_features->NumFeatures;
     micro_features_ = new MicroFeature[num_micro_features_];
     for (uint32_t f = 0; f < num_micro_features_; ++f) {
-      for (int d = 0; d < MFCount; ++d) {
+      for (int d = 0; d < (int)MicroFeatureParameter::MFCount; ++d) {
         micro_features_[f][d] = char_features->Features[f]->Params[d];
       }
     }
