@@ -49,6 +49,8 @@ class SVSemaphore {
  public:
   /// Sets up a semaphore.
   SVSemaphore();
+  /// Cleans up the mutex
+  ~SVSemaphore();
   /// Signal a semaphore.
   void Signal();
   /// Wait on a semaphore.
@@ -69,6 +71,8 @@ class SVMutex {
  public:
   /// Sets up a new mutex.
   SVMutex();
+  /// Destroys the mutex
+  ~SVMutex();
   /// Locks on a mutex.
   void Lock();
   /// Unlocks on a mutex.
