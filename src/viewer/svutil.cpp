@@ -61,6 +61,14 @@ SVMutex::SVMutex() {
 #endif
 }
 
+SVMutex::~SVMutex() {
+#ifdef _WIN32
+  CloseHandle(mutex_);
+#else
+  pthread_mutex_destroy(&mutex_);
+#endif
+}
+
 void SVMutex::Lock() {
 #ifdef _WIN32
   WaitForSingleObject(mutex_, INFINITE);
@@ -176,6 +184,16 @@ SVSemaphore::SVSemaphore() {
   }
 #else
   sem_init(&semaphore_, 0, 0);
+#endif
+}
+
+SVSemaphore::~SVSemaphore() {
+#ifdef _WIN32
+  CloseHandle(semaphore_);
+#elif defined(__APPLE__)
+  sem_close(semaphore_);
+#else
+  sem_close(&semaphore_);
 #endif
 }
 
