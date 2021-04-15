@@ -130,6 +130,16 @@ SVSemaphore::SVSemaphore() {
 #  endif
 }
 
+SVSemaphore::~SVSemaphore() {
+#ifdef _WIN32
+  CloseHandle(semaphore_);
+#elif defined(__APPLE__)
+  sem_close(semaphore_);
+#else
+  sem_close(&semaphore_);
+#endif
+}
+
 void SVSemaphore::Signal() {
 #  ifdef _WIN32
   ReleaseSemaphore(semaphore_, 1, nullptr);
