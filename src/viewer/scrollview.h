@@ -414,7 +414,7 @@ private:
   SVEvent *event_table_[SVET_COUNT];
 
   // Mutex to access the event_table_ in a synchronized fashion.
-  std::mutex *mutex_;
+  std::mutex mutex_;
 
   // Semaphore to the thread belonging to this window.
   SVSemaphore *semaphore_;
