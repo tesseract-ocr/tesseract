@@ -104,10 +104,10 @@ static void preserve_outline(EDGEPT *start) {
   }
   srcpt = start;
   do {
-    srcpt->flags[1] = 1;
+    srcpt->runlength = 1;
     srcpt = srcpt->next;
   } while (srcpt != start);
-  srcpt->flags[1] = 2;
+  srcpt->runlength = 2;
 }
 
 static void preserve_outline_tree(TESSLINE *srcline) {
@@ -132,7 +132,7 @@ static EDGEPT *restore_outline(EDGEPT *start) {
   }
   srcpt = start;
   do {
-    if (srcpt->flags[1] == 2) {
+    if (srcpt->runlength == 2) {
       break;
     }
     srcpt = srcpt->next;
@@ -140,7 +140,7 @@ static EDGEPT *restore_outline(EDGEPT *start) {
   real_start = srcpt;
   do {
     srcpt = srcpt->next;
-    if (srcpt->prev->flags[1] == 0) {
+    if (srcpt->prev->runlength == 0) {
       remove_edgept(srcpt->prev);
     }
   } while (srcpt != real_start);

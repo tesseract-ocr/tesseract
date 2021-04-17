@@ -29,7 +29,6 @@
 #include <tesseract/publictypes.h> // for OcrEngineMode
 
 #include <cstdint> // for int16_t
-#include <cstring> // for memcpy, memset
 
 struct Pix;
 
@@ -45,7 +44,6 @@ class WERD;
 /*----------------------------------------------------------------------
               T y p e s
 ----------------------------------------------------------------------*/
-#define EDGEPTFLAGS 4 /*concavity,length etc. */
 
 struct TPOINT {
   TPOINT() : x(0), y(0) {}
@@ -95,9 +93,7 @@ struct TPOINT {
 using VECTOR = TPOINT; // structure for coordinates.
 
 struct EDGEPT {
-  EDGEPT() : next(nullptr), prev(nullptr), src_outline(nullptr), start_step(0), step_count(0) {
-    memset(flags, 0, EDGEPTFLAGS * sizeof(flags[0]));
-  }
+  EDGEPT() = default;
   EDGEPT(const EDGEPT &src) : next(nullptr), prev(nullptr) {
     CopyFrom(src);
   }
@@ -109,7 +105,10 @@ struct EDGEPT {
   void CopyFrom(const EDGEPT &src) {
     pos = src.pos;
     vec = src.vec;
-    memcpy(flags, src.flags, EDGEPTFLAGS * sizeof(flags[0]));
+    is_hidden = src.is_hidden;
+    runlength = src.runlength;
+    dir = src.dir;
+    fixed = src.fixed;
     src_outline = src.src_outline;
     start_step = src.start_step;
     step_count = src.step_count;
@@ -177,33 +176,33 @@ struct EDGEPT {
 
   // Accessors to hide or reveal a cut edge from feature extractors.
   void Hide() {
-    flags[0] = true;
+    is_hidden = true;
   }
   void Reveal() {
-    flags[0] = false;
+    is_hidden = false;
   }
   bool IsHidden() const {
-    return flags[0] != 0;
+    return is_hidden;
   }
   void MarkChop() {
-    flags[2] = true;
+    dir = 1;
   }
   bool IsChopPt() const {
-    return flags[2] != 0;
+    return dir != 0;
   }
 
   TPOINT pos; // position
   VECTOR vec; // vector to next point
-  // TODO(rays) Remove flags and replace with
-  // is_hidden, runlength, dir, and fixed. The only use
-  // of the flags other than is_hidden is in polyaprx.cpp.
-  char flags[EDGEPTFLAGS]; // concavity, length etc
-  EDGEPT *next;            // anticlockwise element
-  EDGEPT *prev;            // clockwise element
-  C_OUTLINE *src_outline;  // Outline it came from.
+  bool is_hidden = false;
+  uint8_t runlength = 0;
+  int8_t dir = 0;
+  int8_t fixed = 0;
+  EDGEPT *next = nullptr;           // anticlockwise element
+  EDGEPT *prev = nullptr;           // clockwise element
+  C_OUTLINE *src_outline = nullptr; // Outline it came from.
   // The following fields are not used if src_outline is nullptr.
-  int start_step; // Location of pos in src_outline.
-  int step_count; // Number of steps used (may wrap around).
+  int start_step = 0; // Location of pos in src_outline.
+  int step_count = 0; // Number of steps used (may wrap around).
 };
 
 // For use in chop and findseam to keep a list of which EDGEPTs were inserted.
