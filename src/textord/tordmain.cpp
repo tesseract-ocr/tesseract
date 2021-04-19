@@ -162,26 +162,22 @@ void SetBlobStrokeWidth(Image pix, BLOBNBOX *blob) {
 void assign_blobs_to_blocks2(Image pix,
                              BLOCK_LIST *blocks,           // blocks to process
                              TO_BLOCK_LIST *port_blocks) { // output list
-  BLOCK *block;                                            // current block
-  BLOBNBOX *newblob;                                       // created blob
-  C_BLOB *blob;                                            // current blob
   BLOCK_IT block_it = blocks;
   C_BLOB_IT blob_it;       // iterator
   BLOBNBOX_IT port_box_it; // iterator
                            // destination iterator
   TO_BLOCK_IT port_block_it = port_blocks;
-  TO_BLOCK *port_block; // created block
 
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
-    block = block_it.data();
-    port_block = new TO_BLOCK(block);
+    auto block = block_it.data();
+    auto port_block = new TO_BLOCK(block);
 
     // Convert the good outlines to block->blob_list
     port_box_it.set_to_list(&port_block->blobs);
     blob_it.set_to_list(block->blob_list());
     for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
-      blob = blob_it.extract();
-      newblob = new BLOBNBOX(blob); // Convert blob to BLOBNBOX.
+      auto blob = blob_it.extract();
+      auto newblob = new BLOBNBOX(blob); // Convert blob to BLOBNBOX.
       newblob->set_owns_cblob(true);
       SetBlobStrokeWidth(pix, newblob);
       port_box_it.add_after_then_move(newblob);
@@ -193,8 +189,9 @@ void assign_blobs_to_blocks2(Image pix,
     port_box_it.set_to_list(&port_block->noise_blobs);
     blob_it.set_to_list(block->reject_blobs());
     for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
-      blob = blob_it.extract();
-      newblob = new BLOBNBOX(blob); // Convert blob to BLOBNBOX.
+      auto blob = blob_it.extract();
+      auto newblob = new BLOBNBOX(blob); // Convert blob to BLOBNBOX.
+      newblob->set_owns_cblob(true);
       SetBlobStrokeWidth(pix, newblob);
       port_box_it.add_after_then_move(newblob);
     }
