@@ -1839,8 +1839,8 @@ bool TableFinder::GapInXProjection(int *xprojection, int length) {
 //       (rejected before)
 // Overall, this just needs some more work.
 void TableFinder::RecognizeTables() {
-  ScrollView *table_win = nullptr;
 #ifndef GRAPHICS_DISABLED
+  ScrollView *table_win = nullptr;
   if (textord_show_tables) {
     table_win = MakeWindow(0, 0, "Step 9: Table Structure");
     DisplayColPartitions(table_win, &fragmented_text_grid_, ScrollView::BLUE,
