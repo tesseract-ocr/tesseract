@@ -47,6 +47,8 @@ class SVSemaphore {
 public:
   /// Sets up a semaphore.
   SVSemaphore();
+  /// Cleans up the mutex
+  ~SVSemaphore();
   /// Signal a semaphore.
   void Signal();
   /// Wait on a semaphore.

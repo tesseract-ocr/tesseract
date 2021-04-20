@@ -376,8 +376,8 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
 // vars_vec is an optional vector of variables to set.
 // vars_values is an optional corresponding vector of values for the variables
 // in vars_vec.
-// If set_only_init_params is true, then only the initialization variables
-// will be set.
+// If set_only_non_debug_params is true, only params that do not contain
+// "debug" in the name will be set.
 int Tesseract::init_tesseract_internal(const std::string &arg0, const std::string &textbase,
                                        const std::string &language, OcrEngineMode oem,
                                        const char **configs, int configs_size,

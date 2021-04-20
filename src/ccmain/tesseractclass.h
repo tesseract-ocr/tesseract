@@ -491,7 +491,7 @@ public:
   int init_tesseract(const std::string &arg0, const std::string &textbase,
                      const std::string &language, OcrEngineMode oem, const char **configs,
                      int configs_size, const std::vector<std::string> *vars_vec,
-                     const std::vector<std::string> *vars_values, bool set_only_init_params,
+                     const std::vector<std::string> *vars_values, bool set_only_non_debug_params,
                      TessdataManager *mgr);
   int init_tesseract(const std::string &datapath, const std::string &language, OcrEngineMode oem) {
     TessdataManager mgr;
@@ -511,13 +511,13 @@ public:
   // vars_vec is an optional vector of variables to set.
   // vars_values is an optional corresponding vector of values for the variables
   // in vars_vec.
-  // If set_only_init_params is true, then only the initialization variables
-  // will be set.
+  // If set_only_non_debug_params is true, only params that do not contain
+  // "debug" in the name will be set.
   int init_tesseract_internal(const std::string &arg0, const std::string &textbase,
                               const std::string &language, OcrEngineMode oem, const char **configs,
                               int configs_size, const std::vector<std::string> *vars_vec,
                               const std::vector<std::string> *vars_values,
-                              bool set_only_init_params, TessdataManager *mgr);
+                              bool set_only_non_debug_params, TessdataManager *mgr);
 
   // Set the universal_id member of each font to be unique among all
   // instances of the same font loaded.
@@ -533,7 +533,7 @@ public:
                                 const std::string &language, OcrEngineMode oem, const char **configs,
                                 int configs_size, const std::vector<std::string> *vars_vec,
                                 const std::vector<std::string> *vars_values,
-                                bool set_only_init_params, TessdataManager *mgr);
+                                bool set_only_non_debug_params, TessdataManager *mgr);
 
   void ParseLanguageString(const std::string &lang_str, std::vector<std::string> *to_load,
                            std::vector<std::string> *not_to_load);
