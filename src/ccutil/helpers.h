@@ -252,7 +252,7 @@ bool Serialize(FILE *fp, const std::vector<T> &data) {
   uint32_t size = data.size();
   if (fwrite(&size, sizeof(size), 1, fp) != 1) {
     return false;
-  } else if constexpr (std::is_class_v<T>) {
+  } else if constexpr (std::is_class<T>::value) {
     // Serialize a tesseract class.
     for (auto &item : data) {
       if (!item.Serialize(fp)) {
