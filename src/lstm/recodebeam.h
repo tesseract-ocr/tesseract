@@ -28,7 +28,6 @@
 #include "dawg.h"
 #include "dict.h"
 #include "genericheap.h"
-#include "genericvector.h"
 #include "kdpair.h"
 #include "networkio.h"
 #include "ratngs.h"
