@@ -276,7 +276,6 @@ void TessBaseAPI::SetVisiblePdfImageFilename(const char* name) {
   visible_pdf_image_file_ = name ? name : "";
 }
 
-
 /** Set the name of the output files. Needed only for debugging. */
 void TessBaseAPI::SetOutputName(const char *name) {
   output_file_ = name ? name : "";
