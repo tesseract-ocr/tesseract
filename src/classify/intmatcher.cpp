@@ -1110,7 +1110,7 @@ void ScratchEvidence::UpdateSumOfProtoEvidences(INT_CLASS_STRUCT *ClassTemplate,
  * the Feature Lengths and the Proto Lengths for each configuration.
  */
 void ScratchEvidence::NormalizeSums(INT_CLASS_STRUCT *ClassTemplate, int16_t NumFeatures) {
-  assert(ClassTemplate->NumConfigs < MAX_NUM_CONFIGS);
+  // ClassTemplate->NumConfigs can become larger than MAX_NUM_CONFIGS.
   for (int i = 0; i < MAX_NUM_CONFIGS && i < ClassTemplate->NumConfigs; i++) {
     sum_feature_evidence_[i] =
         (sum_feature_evidence_[i] << 8) / (NumFeatures + ClassTemplate->ConfigLengths[i]);
@@ -1129,8 +1129,8 @@ int IntegerMatcher::FindBestMatch(INT_CLASS_STRUCT *class_template, const Scratc
   result->fonts.clear();
   result->fonts.reserve(class_template->NumConfigs);
 
-  /* Find best match */
-  assert(class_template->NumConfigs < MAX_NUM_CONFIGS);
+  // Find best match.
+  // ClassTemplate->NumConfigs can become larger than MAX_NUM_CONFIGS.
   for (int c = 0; c < MAX_NUM_CONFIGS && c < class_template->NumConfigs; ++c) {
     int rating = tables.sum_feature_evidence_[c];
     if (*classify_debug_level_ > 2) {
