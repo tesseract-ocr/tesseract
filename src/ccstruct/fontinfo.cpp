@@ -138,7 +138,7 @@ void FontInfoDeleteCallback(FontInfo f) {
   f.name = nullptr;
 }
 void FontSetDeleteCallback(FontSet fs) {
-  delete[] fs.configs;
+  delete fs;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -222,16 +222,18 @@ bool write_spacing_info(FILE *f, const FontInfo &fi) {
   return true;
 }
 
-bool read_set(TFile *f, FontSet *fs) {
-  if (!f->DeSerialize(&fs->size)) {
+bool read_set(TFile *f, FontSet &fs) {
+  int size;
+  if (!f->DeSerialize(&size)) {
     return false;
   }
-  fs->configs = new int[fs->size];
-  return f->DeSerialize(&fs->configs[0], fs->size);
+  fs->resize(size);
+  return f->DeSerialize(&(*fs)[0], size);
 }
 
 bool write_set(FILE *f, const FontSet &fs) {
-  return tesseract::Serialize(f, &fs.size) && tesseract::Serialize(f, &fs.configs[0], fs.size);
+  int size = fs->size();
+  return tesseract::Serialize(f, &size) && tesseract::Serialize(f, &(*fs)[0], size);
 }
 
 } // namespace tesseract.
