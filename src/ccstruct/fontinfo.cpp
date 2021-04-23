@@ -137,9 +137,6 @@ void FontInfoDeleteCallback(FontInfo f) {
   delete[] f.name;
   f.name = nullptr;
 }
-void FontSetDeleteCallback(FontSet fs) {
-  delete fs;
-}
 
 /*---------------------------------------------------------------------------*/
 // Callbacks used by UnicityTable to read/write FontInfo/FontSet structures.
@@ -222,21 +219,9 @@ bool write_spacing_info(FILE *f, const FontInfo &fi) {
   return true;
 }
 
-bool read_set(TFile *f, FontSet &fs) {
-  fs = new FontSetBase;
-  int size;
-  if (!f->DeSerialize(&size)) {
-    return false;
-  }
-  if (!size)
-    return true;
-  fs->resize(size);
-  return f->DeSerialize(&(*fs)[0], size);
-}
-
 bool write_set(FILE *f, const FontSet &fs) {
-  int size = fs->size();
-  return tesseract::Serialize(f, &size) && tesseract::Serialize(f, &(*fs)[0], size);
+  int size = fs.size();
+  return tesseract::Serialize(f, &size) && tesseract::Serialize(f, &fs[0], size);
 }
 
 } // namespace tesseract.

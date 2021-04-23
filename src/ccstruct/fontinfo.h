@@ -152,8 +152,7 @@ struct FontInfo {
 // lot of FontSet that differ only by one font. Rather than storing directly
 // the FontInfo in the FontSet structure, it's better to share FontInfos among
 // FontSets (Classify::fontinfo_table_).
-using FontSetBase = std::vector<int>;
-using FontSet = FontSetBase *;
+using FontSet = std::vector<int>;
 
 // Class that adds a bit of functionality on top of GenericVector to
 // implement a table of FontInfo that replaces UniCityTable<FontInfo>.
@@ -193,14 +192,12 @@ public:
 
 // Deletion callbacks for GenericVector.
 void FontInfoDeleteCallback(FontInfo f);
-void FontSetDeleteCallback(FontSet fs);
 
 // Callbacks used by UnicityTable to read/write FontInfo/FontSet structures.
 bool read_info(TFile *f, FontInfo *fi);
 bool write_info(FILE *f, const FontInfo &fi);
 bool read_spacing_info(TFile *f, FontInfo *fi);
 bool write_spacing_info(FILE *f, const FontInfo &fi);
-bool read_set(TFile *f, FontSet &fs);
 bool write_set(FILE *f, const FontSet &fs);
 
 } // namespace tesseract.
