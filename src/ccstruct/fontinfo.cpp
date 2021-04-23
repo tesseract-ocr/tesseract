@@ -223,10 +223,13 @@ bool write_spacing_info(FILE *f, const FontInfo &fi) {
 }
 
 bool read_set(TFile *f, FontSet &fs) {
+  fs = new FontSetBase;
   int size;
   if (!f->DeSerialize(&size)) {
     return false;
   }
+  if (!size)
+    return true;
   fs->resize(size);
   return f->DeSerialize(&(*fs)[0], size);
 }
