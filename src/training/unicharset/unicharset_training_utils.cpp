@@ -131,7 +131,7 @@ void SetupBasicProperties(bool report_errors, bool decompose, UNICHARSET *unicha
     std::string normed_str;
     if (unichar_id != 0 &&
         tesseract::NormalizeUTF8String(
-            decompose ? tesseract::UnicodeNormMode::kNFKD : tesseract::UnicodeNormMode::kNFKC,
+            decompose ? tesseract::UnicodeNormMode::kNFD : tesseract::UnicodeNormMode::kNFC,
             tesseract::OCRNorm::kNormalize, tesseract::GraphemeNorm::kNone, unichar_str,
             &normed_str) &&
         !normed_str.empty()) {

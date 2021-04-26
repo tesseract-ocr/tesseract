@@ -66,13 +66,13 @@ LigatureTable::LigatureTable()
 void LigatureTable::Init() {
   if (norm_to_lig_table_.empty()) {
     for (char32 lig = kMinLigature; lig <= kMaxLigature; ++lig) {
-      // For each char in the range, convert to utf8, nfkc normalize, and if
+      // For each char in the range, convert to utf8, nfc normalize, and if
       // the strings are different put the both mappings in the hash_maps.
       std::string lig8 = EncodeAsUTF8(lig);
       icu::UnicodeString unicode_lig8(static_cast<UChar32>(lig));
       icu::UnicodeString normed8_result;
       icu::ErrorCode status;
-      icu::Normalizer::normalize(unicode_lig8, UNORM_NFKC, 0, normed8_result, status);
+      icu::Normalizer::normalize(unicode_lig8, UNORM_NFC, 0, normed8_result, status);
       std::string normed8;
       normed8_result.toUTF8String(normed8);
       // The icu::Normalizer maps the "LONG S T" ligature to "st". Correct that
