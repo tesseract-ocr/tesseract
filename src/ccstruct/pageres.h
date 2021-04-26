@@ -31,7 +31,6 @@
 #include "werd.h"       // for WERD, W_BOL, W_EOL
 
 #include <tesseract/unichar.h> // for UNICHAR_ID, INVALID_UNICHAR_ID
-#include "genericvector.h"     // for PointerVector (ptr only)
 
 #include <sys/types.h> // for int8_t
 #include <cstdint>     // for int32_t, int16_t

@@ -45,7 +45,6 @@
 
 #include <tesseract/publictypes.h> // for OcrEngineMode, PageSegMode, OEM_L...
 #include <tesseract/unichar.h>     // for UNICHAR_ID
-#include "genericvector.h"         // for PointerVector
 
 #include <allheaders.h> // for pixDestroy, pixGetWidth, pixGetHe...
 

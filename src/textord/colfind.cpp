@@ -641,7 +641,7 @@ void ColumnFinder::ImproveColumnCandidates(PartSetVector *src_sets, PartSetVecto
   } while (column_sets->empty() && !good_only);
   if (column_sets->empty()) {
     // TODO: optimize.
-    column_sets = &temp_cols;
+    *column_sets = temp_cols;
     temp_cols.clear();
   } else {
     for (auto data : temp_cols) {

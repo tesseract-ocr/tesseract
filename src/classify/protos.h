@@ -38,7 +38,6 @@ struct PROTO_STRUCT {
 };
 
 struct CLASS_STRUCT {
-  CLASS_STRUCT() = default;
   int16_t NumProtos = 0;
   int16_t MaxNumProtos = 0;
   int16_t NumConfigs = 0;
