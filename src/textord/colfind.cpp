@@ -1527,7 +1527,8 @@ static void RotateAndExplodeBlobList(const FCOORD &blob_rotation, BLOBNBOX_LIST 
         it.add_after_stay_put(new_blob);
       }
       it.extract();
-      delete cblob;
+      if (!blob->owns_cblob())
+        delete cblob;
       delete blob;
     } else {
       if (blob_rotation.x() != 1.0f || blob_rotation.y() != 0.0f) {

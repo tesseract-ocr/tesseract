@@ -171,6 +171,10 @@ public:
     return new BLOBNBOX(blob);
   }
 
+  bool owns_cblob() const {
+    return owns_cblob_;
+  }
+
   // Rotates the box and the underlying blob.
   void rotate(FCOORD rotation);
 
