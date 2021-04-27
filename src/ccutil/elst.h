@@ -111,22 +111,17 @@ public:
 class TESS_API ELIST {
   friend class ELIST_ITERATOR;
 
-  ELIST_LINK *last; // End of list
+  ELIST_LINK *last = nullptr; // End of list
   //(Points to head)
   ELIST_LINK *First() { // return first
     return last ? last->next : nullptr;
   }
 
 public:
-  ELIST() { // constructor
-    last = nullptr;
-  }
+  // destroy all links
+  void internal_clear(void (*zapper)(void *));
 
-  void internal_clear( // destroy all links
-                       // ptr to zapper functn
-      void (*zapper)(void *));
-
-  bool empty() const { // is list empty?
+  bool empty() const { 
     return !last;
   }
 

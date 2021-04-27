@@ -76,8 +76,6 @@ class TESS_API CLIST {
   }
 
 public:
-  CLIST() = default;
-
   ~CLIST() { // destructor
     shallow_clear();
   }
