@@ -39,6 +39,8 @@ if(NOT ${CMAKE_VERSION} VERSION_LESS "3.15.0")
     endif()
 endif()
 
+cmake_policy(SET CMP0074 NEW) # find_package() uses <PackageName>_ROOT variables
+
 ###############################################################################
 #
 # project settings
@@ -86,11 +88,11 @@ option(GRAPHICS_DISABLED "Disable graphics (ScrollView)" OFF)
 option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" ON)
 option(ENABLE_LTO "Enable link-time optimization" OFF)
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
-option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_TESTS "Build tests" ON)
 option(USE_SYSTEM_ICU "Use system ICU" OFF)
 if(NOT ${CMAKE_VERSION} VERSION_LESS "3.15.0")
     if(WIN32 AND MSVC)
-        option(WIN32_MT_BUILD "Build with MT flag for MSVC" OFF)
+        option(WIN32_MT_BUILD "Build with MT flag for MSVC" ON)
     endif()
 endif()
 

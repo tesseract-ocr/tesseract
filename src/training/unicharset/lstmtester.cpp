@@ -16,7 +16,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "lstmtester.h"
-#include "lstmtrainer.h"
 #include <thread>   // for std::thread
 #include "fileio.h" // for LoadFileLinesToStrings
 
