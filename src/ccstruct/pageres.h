@@ -29,6 +29,7 @@
 #include "rejctmap.h"   // for REJMAP
 #include "unicharset.h" // for UNICHARSET, UNICHARSET::Direction, UNI...
 #include "werd.h"       // for WERD, W_BOL, W_EOL
+#include "genericvector.h"     // for PointerVector (ptr only)
 
 #include <tesseract/unichar.h> // for UNICHAR_ID, INVALID_UNICHAR_ID
 

@@ -16,6 +16,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "lstmtester.h"
+#include "lstmtrainer.h"
 #include <thread>   // for std::thread
 #include "fileio.h" // for LoadFileLinesToStrings
 
@@ -93,7 +94,7 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
     const ImageData *trainingdata = test_data_.GetPageBySerial(eval_iteration);
     std::vector<int> truth_labels;
     if (!EncodeString(trainingdata->transcription(), &truth_labels)) {
-      continue
+		continue;
     }
     std::string truth_text = trainer.DecodeLabels(truth_labels);
     trainer.SetIteration(++eval_iteration);

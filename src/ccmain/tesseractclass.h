@@ -42,6 +42,7 @@
 #include "tessdatamanager.h" // for TessdataManager
 #include "textord.h"         // for Textord
 #include "wordrec.h"         // for Wordrec
+#include "genericvector.h"     // for PointerVector (ptr only)
 
 #include <tesseract/publictypes.h> // for OcrEngineMode, PageSegMode, OEM_L...
 #include <tesseract/unichar.h>     // for UNICHAR_ID
