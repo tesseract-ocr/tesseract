@@ -86,20 +86,15 @@ public:
 class TESS_API ELIST2 {
   friend class ELIST2_ITERATOR;
 
-  ELIST2_LINK *last; // End of list
+  ELIST2_LINK *last = nullptr; // End of list
   //(Points to head)
   ELIST2_LINK *First() { // return first
     return last ? last->next : nullptr;
   }
 
 public:
-  ELIST2() { // constructor
-    last = nullptr;
-  }
-
-  void internal_clear( // destroy all links
-      void (*zapper)(void *));
-  // ptr to zapper functn
+  // destroy all links
+  void internal_clear(void (*zapper)(void *));
 
   bool empty() const { // is list empty?
     return !last;
