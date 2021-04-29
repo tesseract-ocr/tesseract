@@ -330,6 +330,8 @@ bool TessBaseAPI::GetVariableAsString(const char *name, std::string *val) const 
   return ParamUtils::GetParamAsString(name, tesseract_->params(), val);
 }
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 /** Print Tesseract fonts table to the given file. */
 void TessBaseAPI::PrintFontsTable(FILE *fp) const {
   const int fontinfo_size = tesseract_->get_fontinfo_table().size();
@@ -345,6 +347,8 @@ void TessBaseAPI::PrintFontsTable(FILE *fp) const {
                 font.is_fraktur() ? "true" : "false");
   }
 }
+
+#endif
 
 /** Print Tesseract parameters to the given file. */
 void TessBaseAPI::PrintVariables(FILE *fp) const {
