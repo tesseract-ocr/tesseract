@@ -47,7 +47,7 @@ jobs:
       - name: Build and Install libpng
         shell: cmd
         run: |
-             curl -sSL -o lpng1637.zip https://vorboss.dl.sourceforge.net/project/libpng/libpng16/1.6.37/lpng1637.zip
+             curl -sSL -o lpng1637.zip https://download.sourceforge.net/libpng/lpng1637.zip
              unzip.exe lpng1637.zip
              cd lpng1637
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=d:/a/local -DCMAKE_INSTALL_PREFIX=d:/a/local
