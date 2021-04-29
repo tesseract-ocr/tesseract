@@ -330,6 +330,22 @@ bool TessBaseAPI::GetVariableAsString(const char *name, std::string *val) const 
   return ParamUtils::GetParamAsString(name, tesseract_->params(), val);
 }
 
+/** Print Tesseract fonts table to the given file. */
+void TessBaseAPI::PrintFontsTable(FILE *fp) const {
+  const int fontinfo_size = tesseract_->get_fontinfo_table().size();
+  for (int font_index = 1; font_index < fontinfo_size; ++font_index) {
+    FontInfo font = tesseract_->get_fontinfo_table().at(font_index);
+    fprintf(fp, "ID=%3d: %s is_italic=%s is_bold=%s"
+                " is_fixed_pitch=%s is_serif=%s is_fraktur=%s\n",
+                font_index, font.name,
+                font.is_italic() ? "true" : "false",
+                font.is_bold() ? "true" : "false",
+                font.is_fixed_pitch() ? "true" : "false",
+                font.is_serif() ? "true" : "false",
+                font.is_fraktur() ? "true" : "false");
+  }
+}
+
 /** Print Tesseract parameters to the given file. */
 void TessBaseAPI::PrintVariables(FILE *fp) const {
   ParamUtils::PrintParams(fp, tesseract_->params());

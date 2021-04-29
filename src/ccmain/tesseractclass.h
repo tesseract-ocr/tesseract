@@ -798,6 +798,8 @@ public:
   BOOL_VAR_H(tessedit_fix_hyphens, true, "Crunch double hyphens?");
   BOOL_VAR_H(tessedit_enable_doc_dict, true, "Add words to the document dictionary");
   BOOL_VAR_H(tessedit_debug_fonts, false, "Output font info per char");
+  INT_VAR_H(tessedit_font_id, 0, "Disable font detection and use the font"
+                                 " corresponding to the ID specified instead");
   BOOL_VAR_H(tessedit_debug_block_rejection, false, "Block and Row stats");
   BOOL_VAR_H(tessedit_enable_bigram_correction, true,
              "Enable correction based on the word bigram dictionary.");
