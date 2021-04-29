@@ -150,10 +150,14 @@ public:
    */
   const char *GetStringVariable(const char *name) const;
 
+#ifndef DISABLED_LEGACY_ENGINE
+
   /**
    * Print Tesseract fonts table to the given file.
    */
   void PrintFontsTable(FILE* fp) const;
+
+#endif
 
   /**
    * Print Tesseract parameters to the given file.
