@@ -129,6 +129,7 @@ Tesseract::Tesseract()
     , BOOL_MEMBER(tessedit_enable_doc_dict, true, "Add words to the document dictionary",
                   this->params())
     , BOOL_MEMBER(tessedit_debug_fonts, false, "Output font info per char", this->params())
+    , INT_MEMBER(tessedit_font_id, 0, "Font ID to use or zero", this->params())
     , BOOL_MEMBER(tessedit_debug_block_rejection, false, "Block and Row stats", this->params())
     , BOOL_MEMBER(tessedit_enable_bigram_correction, true,
                   "Enable correction based on the word bigram dictionary.", this->params())

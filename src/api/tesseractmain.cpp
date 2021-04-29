@@ -234,6 +234,9 @@ static void PrintHelpExtra(const char *program) {
 #endif
       "--version\n"
       "  %s --list-langs [--tessdata-dir PATH]\n"
+#ifndef DISABLED_LEGACY_ENGINE
+      "  %s --print-fonts-table [options...] [configfile...]\n"
+#endif  // ndef DISABLED_LEGACY_ENGINE
       "  %s --print-parameters [options...] [configfile...]\n"
       "  %s imagename|imagelist|stdin outputbase|stdout [options...] "
       "[configfile...]\n"
@@ -252,7 +255,11 @@ static void PrintHelpExtra(const char *program) {
 #endif
       "NOTE: These options must occur before any configfile.\n"
       "\n",
-      program, program, program, program);
+      program, program, program, program
+#ifndef DISABLED_LEGACY_ENGINE
+      , program
+#endif  // ndef DISABLED_LEGACY_ENGINE
+  );
 
   PrintHelpForPSM();
 #ifndef DISABLED_LEGACY_ENGINE
@@ -271,6 +278,9 @@ static void PrintHelpExtra(const char *program) {
 #endif
       "  -v, --version         Show version information.\n"
       "  --list-langs          List available languages for tesseract engine.\n"
+#ifndef DISABLED_LEGACY_ENGINE
+      "  --print-fonts-table   Print tesseract fonts table.\n"
+#endif  // ndef DISABLED_LEGACY_ENGINE
       "  --print-parameters    Print tesseract parameters.\n");
 }
 
@@ -468,7 +478,7 @@ static bool ParseArgs(int argc, const char **argv, const char **lang, const char
                       const char **outputbase, const char **datapath, l_int32 *dpi,
                       bool *list_langs, 
                       const char **visible_pdf_image_file,
-                      bool *print_parameters, std::vector<std::string> *vars_vec,
+                      bool *print_parameters, bool* print_fonts_table, std::vector<std::string> *vars_vec,
                       std::vector<std::string> *vars_values, l_int32 *arg_i,
                       tesseract::PageSegMode *pagesegmode, tesseract::OcrEngineMode *enginemode) {
   int i = 1;
@@ -561,6 +571,11 @@ static bool ParseArgs(int argc, const char **argv, const char **lang, const char
     } else if (strcmp(argv[i], "--print-parameters") == 0) {
       noocr = true;
       *print_parameters = true;
+#ifndef DISABLED_LEGACY_ENGINE
+    } else if (strcmp(argv[i], "--print-fonts-table") == 0) {
+      noocr = true;
+      *print_fonts_table = true;
+#endif  // ndef DISABLED_LEGACY_ENGINE
     } else if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
       // handled properly after api init
       ++i;
@@ -764,6 +779,7 @@ extern "C" int tesseract_main(int argc, const char **argv)
   const char *visible_pdf_image_file = nullptr;
   bool list_langs = false;
   bool print_parameters = false;
+  bool print_fonts_table = false;
   l_int32 dpi = 0;
   int arg_i = 1;
   int ret_val = EXIT_SUCCESS;
@@ -798,7 +814,7 @@ extern "C" int tesseract_main(int argc, const char **argv)
 
   if (!ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &dpi, &list_langs,
                  &visible_pdf_image_file,
-                 &print_parameters, &vars_vec, &vars_values, &arg_i, &pagesegmode, &enginemode)) {
+                 &print_parameters, &print_fonts_table, &vars_vec, &vars_values, &arg_i, &pagesegmode, &enginemode)) {
     return EXIT_FAILURE;
   }
 
@@ -807,7 +823,7 @@ extern "C" int tesseract_main(int argc, const char **argv)
     lang = "eng";
   }
 
-  if (image == nullptr && !list_langs && !print_parameters) {
+  if (image == nullptr && !list_langs && !print_parameters && !print_fonts_table) {
     return EXIT_SUCCESS;
   }
 
@@ -847,6 +863,16 @@ extern "C" int tesseract_main(int argc, const char **argv)
     api.End();
     return EXIT_SUCCESS;
   }
+
+#ifndef DISABLED_LEGACY_ENGINE
+  if (print_fonts_table) {
+    FILE* fout = stdout;
+    fprintf(stdout, "Tesseract fonts table:\n");
+    api.PrintFontsTable(fout);
+    api.End();
+    return EXIT_SUCCESS;
+  }
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
   FixPageSegMode(api, pagesegmode);
 
