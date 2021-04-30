@@ -524,7 +524,7 @@ PKG_CHECK_MODULES([ICU_I18N], [icu-i18n >= 52.1], [have_icu_i18n=true], [have_ic
 if !($have_icu_uc && $have_icu_i18n); then
   AC_MSG_WARN([icu 52.1 or higher is required, but was not found.])
   AC_MSG_WARN([Training tools WILL NOT be built.])
-  AC_MSG_WARN([Try to install libicu-devel package.])
+  AC_MSG_WARN([Try to install libicu-dev package.])
   AM_CONDITIONAL([ENABLE_TRAINING], false)
 fi
 
