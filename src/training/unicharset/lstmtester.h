@@ -62,6 +62,9 @@ public:
   std::string RunEvalSync(int iteration, const double *training_errors, const TessdataManager &model_mgr,
                           int training_stage, int verbosity);
 
+  // Returns the confidence for all best labels over a set of outputs.
+  float ConfidenceFromOutputs(NetworkIO *outputs, int null_char);
+
 private:
   // Helper thread function for RunEvalAsync.
   // LockIfNotRunning must have returned true before calling ThreadFunc, and
