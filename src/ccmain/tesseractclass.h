@@ -35,6 +35,7 @@
 #ifndef DISABLED_LEGACY_ENGINE
 #  include "docqual.h" // for GARBAGE_LEVEL
 #endif
+#include "genericvector.h"   // for PointerVector
 #include "pageres.h"         // for WERD_RES (ptr only), PAGE_RES (pt...
 #include "params.h"          // for BOOL_VAR_H, BoolParam, DoubleParam
 #include "points.h"          // for FCOORD

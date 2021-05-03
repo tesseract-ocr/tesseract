@@ -21,6 +21,7 @@
 
 #include "blamer.h"     // for BlamerBundle (ptr only), IRR_NUM_REASONS
 #include "clst.h"       // for CLIST_ITERATOR, CLISTIZEH
+#include "genericvector.h" // for PointerVector
 #include "elst.h"       // for ELIST_ITERATOR, ELIST_LINK, ELISTIZEH
 #include "matrix.h"     // for MATRIX
 #include "normalis.h"   // for DENORM
@@ -32,11 +33,12 @@
 
 #include <tesseract/unichar.h> // for UNICHAR_ID, INVALID_UNICHAR_ID
 
-#include <sys/types.h> // for int8_t
 #include <cstdint>     // for int32_t, int16_t
 #include <functional>  // for std::function
 #include <set>         // for std::pair
 #include <vector>      // for std::vector
+
+#include <sys/types.h> // for int8_t
 
 struct Pix;
 
