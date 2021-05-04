@@ -19,8 +19,8 @@
 #ifndef SCANEDG_H
 #define SCANEDG_H
 
+#include "image.h"
 #include "params.h"
-#include "scrollview.h"
 
 struct Pix;
 
