@@ -32,6 +32,7 @@ public:
 
   // service
   operator Pix *() const { return pix_; }
+  explicit operator Pix **() { return &pix_; }
   Pix *operator->() const { return pix_; }
 
   // api
