@@ -74,6 +74,9 @@ Tesseract::Tesseract()
                "11=sparse_text, 12=sparse_text+osd, 13=raw_line"
                " (Values from PageSegMode enum in tesseract/publictypes.h)",
                this->params())
+    , INT_MEMBER(thresholding_method, OTSU_TRESH,
+            "Thresholding method: 0 = Otsu, 1 = Adaptive Otsu, 2 = Sauvola",
+            this->params())
     , INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
                       "Which OCR engine(s) to run (Tesseract, LSTM, both)."
                       " Defaults to loading and running the most accurate"

@@ -33,6 +33,8 @@ public:
   // service
   operator Pix *() const { return pix_; }
   Pix *operator->() const { return pix_; }
+  Pix **a() { return &pix_; }
+
 
   // api
   Image clone() const; // increases refcount
