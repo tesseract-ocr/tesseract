@@ -279,14 +279,14 @@ enum OcrEngineMode {
 };
 
 /** 
- * Except when OTSU_TRESH is chosen
+ * Except when Otsu is chosen
  * Leptonica is used for thresholding 
  */
-enum ThreshMethod {
-  OTSU_TRESH,          // Legacy Tesseract's Otsu thresholding
-  ADAPTIVE_OTSU_TRESH,
-  SAUVOLA_TILED_TRESH,
-  TRESH_METHODS_COUNT, // Number of Thresholding methods
+enum class ThreshMethod {
+  Otsu,         // Legacy Tesseract's Otsu thresholding
+  AdaptiveOtsu,
+  TiledSauvola,
+  Count,        // Number of Thresholding methods
 };
 
 } // namespace tesseract.

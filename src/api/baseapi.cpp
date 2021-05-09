@@ -2115,7 +2115,7 @@ bool TessBaseAPI::Threshold(Pix **pix) {
 
   auto thresholding_method = static_cast<ThreshMethod>(static_cast<int>(tesseract_->thresholding_method));
 
-  if (thresholding_method == OTSU_TRESH) {
+  if (thresholding_method == ThreshMethod::Otsu) {
     if (!thresholder_->ThresholdToPix(pageseg_mode, &pix_binary)) {
       return false;
     }

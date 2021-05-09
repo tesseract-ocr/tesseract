@@ -207,15 +207,15 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
 
   pix_grey = GetPixRectGrey();
 
-  if (method == OTSU_TRESH || method >= TRESH_METHODS_COUNT) {
-    method = ADAPTIVE_OTSU_TRESH;
+  if (method == ThreshMethod::Otsu || method >= ThreshMethod::Count) {
+    method = ThreshMethod::AdaptiveOtsu;
   }
 
   int r;
-  if (method == ADAPTIVE_OTSU_TRESH) {
+  if (method == ThreshMethod::AdaptiveOtsu) {
     r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1, 
                                  pix_thresholds.a(), pix_binary.a());
-  } else if (method == SAUVOLA_TILED_TRESH) {
+  } else if (method == ThreshMethod::TiledSauvola) {
     r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, pix_thresholds.a(), 
                                 pix_binary.a());
   }
