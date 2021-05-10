@@ -762,6 +762,9 @@ public:
             "Page seg mode: 0=osd only, 1=auto+osd, 2=auto, 3=col, 4=block,"
             " 5=line, 6=word, 7=char"
             " (Values from PageSegMode enum in tesseract/publictypes.h)");
+  INT_VAR_H(thresholding_method,
+            static_cast<int>(tesseract::ThreshMethod::Otsu), "Thresholding "
+            "method: 0 = Otsu, 1 = Adaptive Otsu, 2 = Sauvola");
   INT_VAR_H(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
             "Which OCR engine(s) to run (Tesseract, LSTM, both). Defaults"
             " to loading and running the most accurate available.");

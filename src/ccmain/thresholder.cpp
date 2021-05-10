@@ -20,6 +20,7 @@
 
 #include <cstdint> // for uint32_t
 #include <cstring>
+#include <tuple>
 
 #include "otsuthr.h"
 #include "thresholder.h"
@@ -182,6 +183,45 @@ void ImageThresholder::SetImage(const Image pix) {
   scale_ = 1;
   estimated_res_ = yres_ = pixGetYRes(pix_);
   Init();
+}
+
+std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
+                                                         ThreshMethod method) {
+  Image pix_grey = nullptr;
+  Image pix_binary = nullptr;
+  Image pix_thresholds = nullptr;
+
+  if (image_width_ > INT16_MAX || image_height_ > INT16_MAX) {
+    tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
+    return std::make_tuple(false, nullptr, nullptr, nullptr);
+  }
+  
+  if (pix_channels_ == 0) {
+    // We have a binary image, but it still has to be copied, as this API
+    // allows the caller to modify the output.
+    Image original = GetPixRect();
+    pix_binary = original.copy();
+    original.destroy();
+    return std::make_tuple(false, nullptr, pix_binary, nullptr);
+  }
+
+  pix_grey = GetPixRectGrey();
+
+  if (method == ThreshMethod::Otsu || method >= ThreshMethod::Count) {
+    method = ThreshMethod::AdaptiveOtsu;
+  }
+
+  int r;
+  if (method == ThreshMethod::AdaptiveOtsu) {
+    r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1, 
+                                 pix_thresholds.a(), pix_binary.a());
+  } else if (method == ThreshMethod::TiledSauvola) {
+    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, pix_thresholds.a(), 
+                                pix_binary.a());
+  }
+  
+  bool ok = r == 0 ? true : false;
+  return std::make_tuple(ok, pix_grey, pix_binary, pix_thresholds);
 }
 
 // Threshold the source image as efficiently as possible to the output Pix.
