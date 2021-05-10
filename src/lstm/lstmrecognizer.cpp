@@ -321,7 +321,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
   // This ensures consistent recognition results.
   SetRandomSeed();
   int min_width = network_->XScaleFactor();
-  Pix *pix = Input::PrepareLSTMInputs(image_data, network_, min_width, &randomizer_, scale_factor);
+  Image pix = Input::PrepareLSTMInputs(image_data, network_, min_width, &randomizer_, scale_factor);
   if (pix == nullptr) {
     tprintf("Line cannot be recognized!!\n");
     return false;
@@ -330,7 +330,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
   const int kMaxImageWidth = 128 * pixGetHeight(pix);
   if (network_->IsTraining() && pixGetWidth(pix) > kMaxImageWidth) {
     tprintf("Image too large to learn!! Size = %dx%d\n", pixGetWidth(pix), pixGetHeight(pix));
-    pixDestroy(&pix);
+    pix.destroy();
     return false;
   }
   if (upside_down) {
@@ -343,34 +343,37 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
   Input::PreparePixInput(network_->InputShape(), pix, &randomizer_, inputs);
   network_->Forward(debug, *inputs, nullptr, &scratch_space_, outputs);
   // Check for auto inversion.
-  float pos_min, pos_mean, pos_sd;
-  OutputStats(*outputs, &pos_min, &pos_mean, &pos_sd);
-  if (invert && pos_mean < 0.5) {
-    // Run again inverted and see if it is any better.
-    NetworkIO inv_inputs, inv_outputs;
-    inv_inputs.set_int_mode(IsIntMode());
-    SetRandomSeed();
-    pixInvert(pix, pix);
-    Input::PreparePixInput(network_->InputShape(), pix, &randomizer_, &inv_inputs);
-    network_->Forward(debug, inv_inputs, nullptr, &scratch_space_, &inv_outputs);
-    float inv_min, inv_mean, inv_sd;
-    OutputStats(inv_outputs, &inv_min, &inv_mean, &inv_sd);
-    if (inv_mean > pos_mean) {
-      // Inverted did better. Use inverted data.
-      if (debug) {
-        tprintf("Inverting image: old min=%g, mean=%g, sd=%g, inv %g,%g,%g\n", pos_min, pos_mean,
-                pos_sd, inv_min, inv_mean, inv_sd);
-      }
-      *outputs = inv_outputs;
-      *inputs = inv_inputs;
-    } else if (re_invert) {
-      // Inverting was not an improvement, so undo and run again, so the
-      // outputs match the best forward result.
+  if (invert) {
+    float pos_min, pos_mean, pos_sd;
+    OutputStats(*outputs, &pos_min, &pos_mean, &pos_sd);
+    if (pos_mean < 0.5f) {
+      // Run again inverted and see if it is any better.
+      NetworkIO inv_inputs, inv_outputs;
+      inv_inputs.set_int_mode(IsIntMode());
       SetRandomSeed();
-      network_->Forward(debug, *inputs, nullptr, &scratch_space_, outputs);
+      pixInvert(pix, pix);
+      Input::PreparePixInput(network_->InputShape(), pix, &randomizer_, &inv_inputs);
+      network_->Forward(debug, inv_inputs, nullptr, &scratch_space_, &inv_outputs);
+      float inv_min, inv_mean, inv_sd;
+      OutputStats(inv_outputs, &inv_min, &inv_mean, &inv_sd);
+      if (inv_mean > pos_mean) {
+        // Inverted did better. Use inverted data.
+        if (debug) {
+          tprintf("Inverting image: old min=%g, mean=%g, sd=%g, inv %g,%g,%g\n", pos_min, pos_mean,
+                  pos_sd, inv_min, inv_mean, inv_sd);
+        }
+        *outputs = inv_outputs;
+        *inputs = inv_inputs;
+      } else if (re_invert) {
+        // Inverting was not an improvement, so undo and run again, so the
+        // outputs match the best forward result.
+        SetRandomSeed();
+        network_->Forward(debug, *inputs, nullptr, &scratch_space_, outputs);
+      }
     }
   }
-  pixDestroy(&pix);
+
+  pix.destroy();
   if (debug) {
     std::vector<int> labels, coords;
     LabelsFromOutputs(*outputs, &labels, &coords);
@@ -404,7 +407,7 @@ std::string LSTMRecognizer::DecodeLabels(const std::vector<int> &labels) {
 void LSTMRecognizer::DisplayForward(const NetworkIO &inputs, const std::vector<int> &labels,
                                     const std::vector<int> &label_coords, const char *window_name,
                                     ScrollView **window) {
-  Pix *input_pix = inputs.ToPix();
+  Image input_pix = inputs.ToPix();
   Network::ClearWindow(false, window_name, pixGetWidth(input_pix), pixGetHeight(input_pix), window);
   int line_height = Network::DisplayImage(input_pix, *window);
   DisplayLSTMOutput(labels, label_coords, line_height, *window);

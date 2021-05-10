@@ -19,10 +19,11 @@
 #ifndef WERD_H
 #define WERD_H
 
-#include "bits16.h"
 #include "elst2.h"
 #include "params.h"
 #include "stepblob.h"
+
+#include <bitset>
 
 namespace tesseract {
 
@@ -96,7 +97,7 @@ public:
     return &cblobs;
   }
 
-  uint8_t space() { // access function
+  uint8_t space() const { // access function
     return blanks;
   }
   void set_blanks(uint8_t new_blanks) {
@@ -150,7 +151,7 @@ public:
   void copy_on(WERD *other);
 
   // tprintf word metadata (but not blob innards)
-  void print();
+  void print() const;
 
 #ifndef GRAPHICS_DISABLED
   // plot word on window in a uniform colour
@@ -187,8 +188,8 @@ public:
 
 private:
   uint8_t blanks = 0;     // no of blanks
-  BITS16 flags;           // flags about word
-  BITS16 disp_flags;      // display flags
+  std::bitset<16> flags;  // flags about word
+  std::bitset<16> disp_flags; // display flags
   int16_t script_id_ = 0; // From unicharset.
   std::string correct;    // correct text
   C_BLOB_LIST cblobs;     // compacted blobs

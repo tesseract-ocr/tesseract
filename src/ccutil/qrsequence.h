@@ -2,7 +2,6 @@
 // File:        qrsequence.h
 // Description: Quasi-random sequence generator class.
 // Author:      Ranjith Unnikrishnan
-// Created:     Wed May 20 2009
 //
 // Class to generate a (deterministic) quasi-random Van der Corput sequence that
 // covers the interval [0,N) without repetition.

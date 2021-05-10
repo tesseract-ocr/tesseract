@@ -74,6 +74,11 @@ Tesseract::Tesseract()
                "11=sparse_text, 12=sparse_text+osd, 13=raw_line"
                " (Values from PageSegMode enum in tesseract/publictypes.h)",
                this->params())
+    , INT_MEMBER(thresholding_method,
+                 static_cast<int>(tesseract::ThresholdMethod::Otsu),
+                 "Thresholding "
+                 "method: 0 = Otsu, 1 = Adaptive Otsu, 2 = Sauvola",
+                 this->params())
     , INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
                       "Which OCR engine(s) to run (Tesseract, LSTM, both)."
                       " Defaults to loading and running the most accurate"
@@ -129,6 +134,7 @@ Tesseract::Tesseract()
     , BOOL_MEMBER(tessedit_enable_doc_dict, true, "Add words to the document dictionary",
                   this->params())
     , BOOL_MEMBER(tessedit_debug_fonts, false, "Output font info per char", this->params())
+    , INT_MEMBER(tessedit_font_id, 0, "Font ID to use or zero", this->params())
     , BOOL_MEMBER(tessedit_debug_block_rejection, false, "Block and Row stats", this->params())
     , BOOL_MEMBER(tessedit_enable_bigram_correction, true,
                   "Enable correction based on the word bigram dictionary.", this->params())
@@ -256,7 +262,7 @@ Tesseract::Tesseract()
     , INT_MEMBER(fixsp_non_noise_limit, 1, "How many non-noise blbs either side?", this->params())
     , double_MEMBER(fixsp_small_outlines_size, 0.28, "Small if lt xht x this", this->params())
     , BOOL_MEMBER(tessedit_prefer_joined_punct, false, "Reward punctuation joins", this->params())
-    , INT_MEMBER(fixsp_done_mode, 1, "What constitues done for spacing", this->params())
+    , INT_MEMBER(fixsp_done_mode, 1, "What constitutes done for spacing", this->params())
     , INT_MEMBER(debug_fix_space_level, 0, "Contextual fixspace debug", this->params())
     , STRING_MEMBER(numeric_punctuation, ".,", "Punct. chs expected WITHIN numbers", this->params())
     , INT_MEMBER(x_ht_acceptance_tolerance, 8,
@@ -421,7 +427,7 @@ Tesseract::Tesseract()
 
 Tesseract::~Tesseract() {
   Clear();
-  pixDestroy(&pix_original_);
+  pix_original_.destroy();
   end_tesseract();
   for (auto *lang : sub_langs_) {
     delete lang;
@@ -442,10 +448,10 @@ Dict &Tesseract::getDict() {
 void Tesseract::Clear() {
   std::string debug_name = imagebasename + "_debug.pdf";
   pixa_debug_.WritePDF(debug_name.c_str());
-  pixDestroy(&pix_binary_);
-  pixDestroy(&pix_grey_);
-  pixDestroy(&pix_thresholds_);
-  pixDestroy(&scaled_color_);
+  pix_binary_.destroy();
+  pix_grey_.destroy();
+  pix_thresholds_.destroy();
+  scaled_color_.destroy();
   deskew_ = FCOORD(1.0f, 0.0f);
   reskew_ = FCOORD(1.0f, 0.0f);
   splitter_.Clear();
@@ -518,8 +524,8 @@ void Tesseract::PrepareForPageseg() {
     if (pageseg_strategy > max_pageseg_strategy) {
       max_pageseg_strategy = pageseg_strategy;
     }
-    pixDestroy(&sub_lang->pix_binary_);
-    sub_lang->pix_binary_ = pixClone(pix_binary());
+    sub_lang->pix_binary_.destroy();
+    sub_lang->pix_binary_ = pix_binary().clone();
   }
   // Perform shiro-rekha (top-line) splitting and replace the current image by
   // the newly split image.
@@ -527,8 +533,8 @@ void Tesseract::PrepareForPageseg() {
   splitter_.set_pageseg_split_strategy(max_pageseg_strategy);
   if (splitter_.Split(true, &pixa_debug_)) {
     ASSERT_HOST(splitter_.splitted_image());
-    pixDestroy(&pix_binary_);
-    pix_binary_ = pixClone(splitter_.splitted_image());
+    pix_binary_.destroy();
+    pix_binary_ = splitter_.splitted_image().clone();
   }
 }
 
@@ -555,14 +561,14 @@ void Tesseract::PrepareForTessOCR(BLOCK_LIST *block_list, Tesseract *osd_tess, O
   bool split_for_ocr = splitter_.Split(false, &pixa_debug_);
   // Restore pix_binary to the binarized original pix for future reference.
   ASSERT_HOST(splitter_.orig_pix());
-  pixDestroy(&pix_binary_);
-  pix_binary_ = pixClone(splitter_.orig_pix());
+  pix_binary_.destroy();
+  pix_binary_ = splitter_.orig_pix().clone();
   // If the pageseg and ocr strategies are different, refresh the block list
   // (from the last SegmentImage call) with blobs from the real image to be used
   // for OCR.
   if (splitter_.HasDifferentSplitStrategies()) {
     BLOCK block("", true, 0, 0, 0, 0, pixGetWidth(pix_binary_), pixGetHeight(pix_binary_));
-    Pix *pix_for_ocr = split_for_ocr ? splitter_.splitted_image() : splitter_.orig_pix();
+    Image pix_for_ocr = split_for_ocr ? splitter_.splitted_image() : splitter_.orig_pix();
     extract_edges(pix_for_ocr, &block);
     splitter_.RefreshSegmentationWithNewBlobs(block.blob_list());
   }

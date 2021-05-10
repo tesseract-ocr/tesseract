@@ -20,11 +20,6 @@
 #ifndef THIRD_PARTY_TESSERACT_LSTM_RECODEBEAM_H_
 #define THIRD_PARTY_TESSERACT_LSTM_RECODEBEAM_H_
 
-#include <deque>
-#include <set>
-#include <tuple>
-#include <unordered_set>
-#include <vector>
 #include "dawg.h"
 #include "dict.h"
 #include "genericheap.h"
@@ -33,6 +28,12 @@
 #include "networkio.h"
 #include "ratngs.h"
 #include "unicharcompress.h"
+
+#include <deque>
+#include <set>
+#include <tuple>
+#include <unordered_set>
+#include <vector>
 
 namespace tesseract {
 
@@ -335,7 +336,7 @@ private:
                               int xCoord);
 
   // Calculates more accurate character boundaries which can be used to
-  // provide more acurate alternative symbol choices.
+  // provide more accurate alternative symbol choices.
   static void calculateCharBoundaries(std::vector<int> *starts, std::vector<int> *ends,
                                       std::vector<int> *character_boundaries_, int maxWidth);
 

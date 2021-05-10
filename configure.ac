@@ -28,8 +28,8 @@ AM_INIT_AUTOMAKE([foreign subdir-objects])
 
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
-PACKAGE_YEAR=2020
-PACKAGE_DATE="12/31"
+PACKAGE_YEAR=2021
+PACKAGE_DATE="04/01"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 
@@ -332,7 +332,7 @@ AC_SUBST([OPENCL_LDFLAGS])
 
 # check whether to build tesseract with -fvisibility=hidden -fvisibility-inlines-hidden
 # http://gcc.gnu.org/wiki/Visibility
-# http://groups.google.com/group/tesseract-dev/browse_thread/thread/976645ae98189127
+# https://groups.google.com/g/tesseract-dev/c/l2ZFrpgYkSc/m/_cdYSRDSXuUJ
 AC_MSG_CHECKING([--enable-visibility argument])
 AC_ARG_ENABLE([visibility],
   AS_HELP_STRING([--enable-visibility],
@@ -524,7 +524,7 @@ PKG_CHECK_MODULES([ICU_I18N], [icu-i18n >= 52.1], [have_icu_i18n=true], [have_ic
 if !($have_icu_uc && $have_icu_i18n); then
   AC_MSG_WARN([icu 52.1 or higher is required, but was not found.])
   AC_MSG_WARN([Training tools WILL NOT be built.])
-  AC_MSG_WARN([Try to install libicu-devel package.])
+  AC_MSG_WARN([Try to install libicu-dev package.])
   AM_CONDITIONAL([ENABLE_TRAINING], false)
 fi
 

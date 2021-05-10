@@ -75,7 +75,8 @@ public:
    * For instance, IsAtFinalElement(RIL_PARA, RIL_WORD) returns whether we
    * point at the last word in a paragraph.  See PageIterator for full comment.
    */
-  bool IsAtFinalElement(PageIteratorLevel level, PageIteratorLevel element) const override;
+  bool IsAtFinalElement(PageIteratorLevel level,
+                        PageIteratorLevel element) const override;
 
   // ============= Functions that refer to words only ============.
   // Returns the number of blanks before the current word.
@@ -94,8 +95,8 @@ public:
    */
   virtual std::vector<std::vector<std::vector<std::pair<const char *, float>>>>
       *GetRawLSTMTimesteps() const;
-  virtual std::vector<std::vector<std::pair<const char *, float>>> *GetBestLSTMSymbolChoices()
-      const;
+  virtual std::vector<std::vector<std::pair<const char *, float>>>
+      *GetBestLSTMSymbolChoices() const;
 
   /**
    * Return whether the current paragraph's dominant reading direction
@@ -127,9 +128,10 @@ public:
    * Left-to-Right except for an RTL phrase in words 2, 3 in an ltr paragraph:
    *     { 0, 1, kMinorRunStart, 3, 2, kMinorRunEnd, 4 }
    */
-  static void CalculateTextlineOrder(bool paragraph_is_ltr,
-                                     const std::vector<StrongScriptDirection> &word_dirs,
-                                     std::vector<int> *reading_order);
+  static void CalculateTextlineOrder(
+      bool paragraph_is_ltr,
+      const std::vector<StrongScriptDirection> &word_dirs,
+      std::vector<int> *reading_order);
 
   static const int kMinorRunStart;
   static const int kMinorRunEnd;
@@ -162,10 +164,12 @@ private:
    *   kComplexWord    The previous word contains both left-to-right and
    *                   right-to-left characters and was treated as neutral.
    */
-  void CalculateTextlineOrder(bool paragraph_is_ltr, const LTRResultIterator &resit,
+  void CalculateTextlineOrder(bool paragraph_is_ltr,
+                              const LTRResultIterator &resit,
                               std::vector<int> *indices) const;
   /** Same as above, but the caller's ssd gets filled in if ssd != nullptr. */
-  void CalculateTextlineOrder(bool paragraph_is_ltr, const LTRResultIterator &resit,
+  void CalculateTextlineOrder(bool paragraph_is_ltr,
+                              const LTRResultIterator &resit,
                               std::vector<StrongScriptDirection> *ssd,
                               std::vector<int> *indices) const;
 

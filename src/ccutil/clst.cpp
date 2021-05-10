@@ -35,15 +35,12 @@ namespace tesseract {
 
 void CLIST::internal_deep_clear( // destroy all links
     void (*zapper)(void *)) {    // ptr to zapper functn
-  CLIST_LINK *ptr;
-  CLIST_LINK *next;
-
   if (!empty()) {
-    ptr = last->next;     // set to first
+    auto ptr = last->next;     // set to first
     last->next = nullptr; // break circle
     last = nullptr;       // set list empty
     while (ptr) {
-      next = ptr->next;
+      auto next = ptr->next;
       zapper(ptr->data);
       delete (ptr);
       ptr = next;
@@ -61,15 +58,12 @@ void CLIST::internal_deep_clear( // destroy all links
  **********************************************************************/
 
 void CLIST::shallow_clear() { // destroy all links
-  CLIST_LINK *ptr;
-  CLIST_LINK *next;
-
   if (!empty()) {
-    ptr = last->next;     // set to first
+    auto ptr = last->next;     // set to first
     last->next = nullptr; // break circle
     last = nullptr;       // set list empty
     while (ptr) {
-      next = ptr->next;
+      auto next = ptr->next;
       delete (ptr);
       ptr = next;
     }
@@ -99,22 +93,6 @@ void CLIST::assign_to_sublist( // to this list
   }
 
   last = start_it->extract_sublist(end_it);
-}
-
-/***********************************************************************
- *              CLIST::length
- *
- *  Return count of elements on list
- **********************************************************************/
-
-int32_t CLIST::length() const { // count elements
-  CLIST_ITERATOR it(const_cast<CLIST *>(this));
-  int32_t count = 0;
-
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    count++;
-  }
-  return count;
 }
 
 /***********************************************************************
@@ -233,10 +211,6 @@ void CLIST::set_subtract(int comparator(const void *, const void *), bool unique
  **********************************************************************/
 
 void *CLIST_ITERATOR::forward() {
-#ifndef NDEBUG
-  if (!list)
-    NO_LIST.error("CLIST_ITERATOR::forward", ABORT, nullptr);
-#endif
   if (list->empty()) {
     return nullptr;
   }
@@ -253,13 +227,6 @@ void *CLIST_ITERATOR::forward() {
     }
     current = next;
   }
-
-#ifndef NDEBUG
-  if (!current)
-    NULL_DATA.error("CLIST_ITERATOR::forward", ABORT, nullptr);
-  if (!next)
-    NULL_NEXT.error("CLIST_ITERATOR::forward", ABORT, "This is: %p  Current is: %p", this, current);
-#endif
 
   next = current->next;
   return current->data;
@@ -294,11 +261,6 @@ void *CLIST_ITERATOR::data_relative( // get data + or - ...
     }
   }
 
-#ifndef NDEBUG
-  if (!ptr)
-    NULL_DATA.error("CLIST_ITERATOR::data_relative", ABORT, nullptr);
-#endif
-
   return ptr->data;
 }
 
@@ -311,11 +273,6 @@ void *CLIST_ITERATOR::data_relative( // get data + or - ...
  **********************************************************************/
 
 void *CLIST_ITERATOR::move_to_last() {
-#ifndef NDEBUG
-  if (!list)
-    NO_LIST.error("CLIST_ITERATOR::move_to_last", ABORT, nullptr);
-#endif
-
   while (current != list->last) {
     forward();
   }
@@ -340,17 +297,6 @@ void *CLIST_ITERATOR::move_to_last() {
 void CLIST_ITERATOR::exchange(  // positions of 2 links
     CLIST_ITERATOR *other_it) { // other iterator
   constexpr ERRCODE DONT_EXCHANGE_DELETED("Can't exchange deleted elements of lists");
-
-  CLIST_LINK *old_current;
-
-#ifndef NDEBUG
-  if (!list)
-    NO_LIST.error("CLIST_ITERATOR::exchange", ABORT, nullptr);
-  if (!other_it)
-    BAD_PARAMETER.error("CLIST_ITERATOR::exchange", ABORT, "other_it nullptr");
-  if (!(other_it->list))
-    NO_LIST.error("CLIST_ITERATOR::exchange", ABORT, "other_it");
-#endif
 
   /* Do nothing if either list is empty or if both iterators reference the same
 link */
@@ -418,7 +364,7 @@ non-adjacent elements. */
 
   /* The actual exchange - in all cases*/
 
-  old_current = current;
+  auto old_current = current;
   current = other_it->current;
   other_it->current = old_current;
 }
@@ -436,17 +382,12 @@ non-adjacent elements. */
 CLIST_LINK *CLIST_ITERATOR::extract_sublist( // from this current
     CLIST_ITERATOR *other_it) {              // to other current
   CLIST_ITERATOR temp_it = *this;
-  CLIST_LINK *end_of_new_list;
 
   constexpr ERRCODE BAD_SUBLIST("Can't find sublist end point in original list");
 #ifndef NDEBUG
   constexpr ERRCODE BAD_EXTRACTION_PTS("Can't extract sublist from points on different lists");
   constexpr ERRCODE DONT_EXTRACT_DELETED("Can't extract a sublist marked by deleted points");
 
-  if (!other_it)
-    BAD_PARAMETER.error("CLIST_ITERATOR::extract_sublist", ABORT, "other_it nullptr");
-  if (!list)
-    NO_LIST.error("CLIST_ITERATOR::extract_sublist", ABORT, nullptr);
   if (list != other_it->list)
     BAD_EXTRACTION_PTS.error("CLIST_ITERATOR.extract_sublist", ABORT, nullptr);
   if (list->empty())
@@ -484,7 +425,7 @@ CLIST_LINK *CLIST_ITERATOR::extract_sublist( // from this current
 
   // circularise sublist
   other_it->current->next = current;
-  end_of_new_list = other_it->current;
+  auto end_of_new_list = other_it->current;
 
   // sublist = whole list
   if (prev == other_it->current) {

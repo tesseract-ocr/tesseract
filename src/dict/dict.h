@@ -322,7 +322,7 @@ public:
    * initialized to NO_EDGE.  Since the punctuation dawg includes the empty
    * pattern " " (meaning anything without surrounding punctuation), having a
    * single entry for the punctuation dawg will cover all dawgs reachable
-   * therefrom -- that includes all number and word dawgs. The only dawg
+   * there from -- that includes all number and word dawgs. The only dawg
    * non-reachable from the punctuation_dawg is the pattern dawg.
    * If hyphen state needs to be applied, initial dawg_args->active_dawgs can
    * be copied from the saved hyphen state (maintained by Dict).

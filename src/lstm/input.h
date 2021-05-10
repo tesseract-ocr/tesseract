@@ -77,7 +77,7 @@ public:
   // image_data. If non-null, *image_scale returns the image scale factor used.
   // Returns nullptr on error.
   /* static */
-  static Pix *PrepareLSTMInputs(const ImageData &image_data, const Network *network, int min_width,
+  static Image PrepareLSTMInputs(const ImageData &image_data, const Network *network, int min_width,
                                 TRand *randomizer, float *image_scale);
   // Converts the given pix to a NetworkIO of height and depth appropriate to
   // the given StaticShape:
@@ -85,7 +85,7 @@ public:
   // Scale to target height, if the shape's height is > 1, or its depth if the
   // height == 1. If height == 0 then no scaling.
   // NOTE: It isn't safe for multiple threads to call this on the same pix.
-  static void PreparePixInput(const StaticShape &shape, const Pix *pix, TRand *randomizer,
+  static void PreparePixInput(const StaticShape &shape, const Image pix, TRand *randomizer,
                               NetworkIO *input);
 
 private:

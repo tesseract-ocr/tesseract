@@ -20,7 +20,10 @@
 #ifndef TESSERACT_CLASSIFY_SHAPECLASSIFIER_H_
 #define TESSERACT_CLASSIFY_SHAPECLASSIFIER_H_
 
+#include "image.h"
+
 #include <tesseract/unichar.h>
+
 #include <vector>
 
 struct Pix;
@@ -61,11 +64,11 @@ public:
   // classifiers.
   // NOTE: Neither overload of ClassifySample is pure, but at least one must
   // be overridden by a classifier in order for it to do anything.
-  virtual int UnicharClassifySample(const TrainingSample &sample, Pix *page_pix, int debug,
+  virtual int UnicharClassifySample(const TrainingSample &sample, Image page_pix, int debug,
                                     UNICHAR_ID keep_this, std::vector<UnicharRating> *results);
 
 protected:
-  virtual int ClassifySample(const TrainingSample &sample, Pix *page_pix, int debug,
+  virtual int ClassifySample(const TrainingSample &sample, Image page_pix, int debug,
                              UNICHAR_ID keep_this, std::vector<ShapeRating> *results);
 
 public:
@@ -74,7 +77,7 @@ public:
   // Returns -1 if ClassifySample fails to provide any result containing
   // unichar_id. BestShapeForUnichar does not need to be overridden if
   // ClassifySample respects the keep_this rule.
-  virtual int BestShapeForUnichar(const TrainingSample &sample, Pix *page_pix,
+  virtual int BestShapeForUnichar(const TrainingSample &sample, Image page_pix,
                                   UNICHAR_ID unichar_id, ShapeRating *result);
 
   // Provides access to the ShapeTable that this classifier works with.
@@ -88,14 +91,14 @@ public:
   // the user has finished with debugging the sample.
   // Probably doesn't need to be overridden if the subclass provides
   // DisplayClassifyAs.
-  void DebugDisplay(const TrainingSample &sample, Pix *page_pix, UNICHAR_ID unichar_id);
+  void DebugDisplay(const TrainingSample &sample, Image page_pix, UNICHAR_ID unichar_id);
 
   // Displays classification as the given unichar_id. Creates as many windows
   // as it feels fit, using index as a guide for placement. Adds any created
   // windows to the windows output and returns a new index that may be used
   // by any subsequent classifiers. Caller waits for the user to view and
   // then destroys the windows by clearing the vector.
-  virtual int DisplayClassifyAs(const TrainingSample &sample, Pix *page_pix, UNICHAR_ID unichar_id,
+  virtual int DisplayClassifyAs(const TrainingSample &sample, Image page_pix, UNICHAR_ID unichar_id,
                                 int index, std::vector<ScrollView *> &windows);
 
   // Prints debug information on the results. context is some introductory/title

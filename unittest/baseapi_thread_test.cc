@@ -32,6 +32,7 @@
 #include "commandlineflags.h"
 #include "include_gunit.h"
 #include "log.h"
+#include "image.h"
 
 // Run with Tesseract instances.
 BOOL_PARAM_FLAG(test_tesseract, true, "Test tesseract instances");
@@ -97,7 +98,7 @@ protected:
     const int n = num_langs_ * FLAGS_reps;
     for (int i = 0; i < n; ++i) {
       std::string path = TESTING_DIR "/" + image_files[i % num_langs_];
-      Pix *new_pix = pixRead(path.c_str());
+      Image new_pix = pixRead(path.c_str());
       QCHECK(new_pix != nullptr) << "Could not read " << path;
       pix_.push_back(new_pix);
     }
@@ -110,7 +111,7 @@ protected:
 
   static void TearDownTestCase() {
     for (auto &pix : pix_) {
-      pixDestroy(&pix);
+      pix.destroy();
     }
   }
 
@@ -127,7 +128,7 @@ protected:
   std::unique_ptr<tensorflow::thread::ThreadPool> pool_;
   static int pool_size_;
 #endif
-  static std::vector<Pix *> pix_;
+  static std::vector<Image > pix_;
   static std::vector<std::string> langs_;
   static std::vector<std::string> gt_text_;
   static int num_langs_;
@@ -137,7 +138,7 @@ protected:
 #ifdef INCLUDE_TENSORFLOW
 int BaseapiThreadTest::pool_size_;
 #endif
-std::vector<Pix *> BaseapiThreadTest::pix_;
+std::vector<Image > BaseapiThreadTest::pix_;
 std::vector<std::string> BaseapiThreadTest::langs_;
 std::vector<std::string> BaseapiThreadTest::gt_text_;
 int BaseapiThreadTest::num_langs_;
@@ -147,7 +148,7 @@ static void InitTessInstance(TessBaseAPI *tess, const std::string &lang) {
   EXPECT_EQ(0, tess->Init(TESSDATA_DIR, lang.c_str()));
 }
 
-static void GetCleanedText(TessBaseAPI *tess, Pix *pix, std::string *ocr_text) {
+static void GetCleanedText(TessBaseAPI *tess, Image pix, std::string *ocr_text) {
   tess->SetImage(pix);
   char *result = tess->GetUTF8Text();
   *ocr_text = result;
@@ -155,7 +156,7 @@ static void GetCleanedText(TessBaseAPI *tess, Pix *pix, std::string *ocr_text) {
   absl::StripAsciiWhitespace(ocr_text);
 }
 
-static void VerifyTextResult(TessBaseAPI *tess, Pix *pix, const std::string &lang,
+static void VerifyTextResult(TessBaseAPI *tess, Image pix, const std::string &lang,
                              const std::string &expected_text) {
   TessBaseAPI *tess_local = nullptr;
   if (tess) {

@@ -44,7 +44,7 @@ public:
   // The rotation is a multiple of 90 degrees, ie no deskew yet.
   // The blobs have had their left and right rules set to also limit
   // the range of projection.
-  void ConstructProjection(TO_BLOCK *input_block, const FCOORD &rotation, Pix *nontext_map);
+  void ConstructProjection(TO_BLOCK *input_block, const FCOORD &rotation, Image nontext_map);
 
   // Display the blobs in the window colored according to textline quality.
   void PlotGradedBlobs(BLOBNBOX_LIST *blobs, ScrollView *win);
@@ -165,7 +165,7 @@ private:
   // flags, but the spreading is truncated by set pixels in the nontext_map
   // and also by the horizontal rule line limits on the blobs.
   void ProjectBlobs(BLOBNBOX_LIST *blobs, const FCOORD &rotation, const TBOX &image_box,
-                    Pix *nontext_map);
+                    Image nontext_map);
   // Pads the bounding box of the given blob according to whether it is on
   // a horizontal or vertical text line, taking into account tab-stops near
   // the blob. Returns true if padding was in the horizontal direction.
@@ -192,7 +192,7 @@ private:
   // The image of horizontally smeared blob boxes summed to provide a
   // textline density map. As with a horizontal projection, the map has
   // dips in the gaps between textlines.
-  Pix *pix_;
+  Image pix_;
 };
 
 } // namespace tesseract.

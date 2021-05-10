@@ -25,6 +25,7 @@
 #include <memory> // std::unique_ptr
 #include <string>
 #include "include_gunit.h"
+#include "image.h"
 
 namespace tesseract {
 
@@ -37,7 +38,7 @@ static void OSDTester(int expected_deg, const char *imgname, const char *tessdat
   // log.info() << tessdatadir << " for image: " << imgname << std::endl;
   auto api = std::make_unique<tesseract::TessBaseAPI>();
   ASSERT_FALSE(api->Init(tessdatadir, "osd")) << "Could not initialize tesseract.";
-  Pix *image = pixRead(imgname);
+  Image image = pixRead(imgname);
   ASSERT_TRUE(image != nullptr) << "Failed to read test image.";
   api->SetImage(image);
   int orient_deg;
@@ -53,7 +54,7 @@ static void OSDTester(int expected_deg, const char *imgname, const char *tessdat
       orient_deg, orient_conf, script_name, script_conf);
   EXPECT_EQ(expected_deg, orient_deg);
   api->End();
-  pixDestroy(&image);
+  image.destroy();
 }
 #endif
 

@@ -23,10 +23,10 @@
 
 #include "edgblob.h"
 
-#include <memory>
-
 #include "edgloop.h"
 #include "scanedg.h"
+
+#define BUCKETSIZE 16
 
 namespace tesseract {
 
@@ -35,20 +35,25 @@ namespace tesseract {
 //  - number of children exceeds edges_max_children_per_outline
 //  - number of nested layers exceeds edges_max_children_layers
 //  - joint complexity exceeds edges_children_count_limit(as in child_count())
-static BOOL_VAR(edges_use_new_outline_complexity, false, "Use the new outline complexity module");
+static BOOL_VAR(edges_use_new_outline_complexity, false,
+                "Use the new outline complexity module");
 static INT_VAR(edges_max_children_per_outline, 10,
                "Max number of children inside a character outline");
 static INT_VAR(edges_max_children_layers, 5,
                "Max layers of nested children inside a character outline");
 static BOOL_VAR(edges_debug, false, "turn on debugging for this module");
 
-static INT_VAR(edges_children_per_grandchild, 10, "Importance ratio for chucking outlines");
+static INT_VAR(edges_children_per_grandchild, 10,
+               "Importance ratio for chucking outlines");
 static INT_VAR(edges_children_count_limit, 45, "Max holes allowed in blob");
-static BOOL_VAR(edges_children_fix, false, "Remove boxy parents of char-like children");
+static BOOL_VAR(edges_children_fix, false,
+                "Remove boxy parents of char-like children");
 static INT_VAR(edges_min_nonhole, 12, "Min pixels for potential char in box");
-static INT_VAR(edges_patharea_ratio, 40, "Max lensq/area for acceptable child outline");
+static INT_VAR(edges_patharea_ratio, 40,
+               "Max lensq/area for acceptable child outline");
 static double_VAR(edges_childarea, 0.5, "Min area fraction of child outline");
-static double_VAR(edges_boxarea, 0.875, "Min area fraction of grandchild for box");
+static double_VAR(edges_boxarea, 0.875,
+                  "Min area fraction of grandchild for box");
 
 /**
  * @name OL_BUCKETS::OL_BUCKETS
@@ -58,13 +63,11 @@ static double_VAR(edges_boxarea, 0.875, "Min area fraction of grandchild for box
 
 OL_BUCKETS::OL_BUCKETS(ICOORD bleft, // corners
                        ICOORD tright)
-    : bl(bleft), tr(tright) {
-  bxdim = (tright.x() - bleft.x()) / BUCKETSIZE + 1;
-  bydim = (tright.y() - bleft.y()) / BUCKETSIZE + 1;
-  // make array
-  buckets = std::make_unique<C_OUTLINE_LIST[]>(bxdim * bydim);
-  index = 0;
-}
+    : bxdim((tright.x() - bleft.x()) / BUCKETSIZE + 1),
+      bydim((tright.y() - bleft.y()) / BUCKETSIZE + 1),
+      buckets(bxdim * bydim),
+      bl(bleft),
+      tr(tright) {}
 
 /**
  * @name OL_BUCKETS::operator(
@@ -76,7 +79,23 @@ OL_BUCKETS::OL_BUCKETS(ICOORD bleft, // corners
 C_OUTLINE_LIST *OL_BUCKETS::operator()( // array access
     int16_t x,                          // image coords
     int16_t y) {
-  return &buckets[(y - bl.y()) / BUCKETSIZE * bxdim + (x - bl.x()) / BUCKETSIZE];
+  return &buckets[(y - bl.y()) / BUCKETSIZE * bxdim +
+                  (x - bl.x()) / BUCKETSIZE];
+}
+
+C_OUTLINE_LIST *OL_BUCKETS::start_scan() {
+  return scan_next(buckets.begin());
+}
+
+C_OUTLINE_LIST *OL_BUCKETS::scan_next() {
+  return scan_next(it);
+}
+
+C_OUTLINE_LIST *OL_BUCKETS::scan_next(decltype(buckets)::iterator in_it) {
+  it = std::find_if(in_it, buckets.end(), [](auto &&b) { return !b.empty(); });
+  if (it == buckets.end())
+    return nullptr;
+  return &*it;
 }
 
 /**
@@ -128,7 +147,8 @@ int32_t OL_BUCKETS::outline_complexity(C_OUTLINE *outline, // parent outline
       if (child_it.empty()) {
         continue;
       }
-      for (child_it.mark_cycle_pt(); !child_it.cycled_list(); child_it.forward()) {
+      for (child_it.mark_cycle_pt(); !child_it.cycled_list();
+           child_it.forward()) {
         child = child_it.data();
         if (child == outline || !(*child < *outline)) {
           continue;
@@ -140,7 +160,8 @@ int32_t OL_BUCKETS::outline_complexity(C_OUTLINE *outline, // parent outline
             tprintf(
                 "Discard outline on child_count=%d > "
                 "max_children_per_outline=%d\n",
-                child_count, static_cast<int32_t>(edges_max_children_per_outline));
+                child_count,
+                static_cast<int32_t>(edges_max_children_per_outline));
           }
           return max_count + child_count;
         }
@@ -148,8 +169,8 @@ int32_t OL_BUCKETS::outline_complexity(C_OUTLINE *outline, // parent outline
         // Compute the "complexity" of each child recursively
         int32_t remaining_count = max_count - child_count - grandchild_count;
         if (remaining_count > 0) {
-          grandchild_count +=
-              edges_children_per_grandchild * outline_complexity(child, remaining_count, depth);
+          grandchild_count += edges_children_per_grandchild *
+                              outline_complexity(child, remaining_count, depth);
         }
         if (child_count + grandchild_count > max_count) { // too complex
           if (edges_debug) {
@@ -206,22 +227,25 @@ int32_t OL_BUCKETS::count_children( // recursive count
       if (child_it.empty()) {
         continue;
       }
-      for (child_it.mark_cycle_pt(); !child_it.cycled_list(); child_it.forward()) {
+      for (child_it.mark_cycle_pt(); !child_it.cycled_list();
+           child_it.forward()) {
         child = child_it.data();
         if (child != outline && *child < *outline) {
           child_count++;
           if (child_count <= max_count) {
-            int max_grand = (max_count - child_count) / edges_children_per_grandchild;
+            int max_grand =
+                (max_count - child_count) / edges_children_per_grandchild;
             if (max_grand > 0) {
-              grandchild_count += count_children(child, max_grand) * edges_children_per_grandchild;
+              grandchild_count += count_children(child, max_grand) *
+                                  edges_children_per_grandchild;
             } else {
               grandchild_count += count_children(child, 1);
             }
           }
           if (child_count + grandchild_count > max_count) {
             if (edges_debug) {
-              tprintf("Discarding parent with child count=%d, gc=%d\n", child_count,
-                      grandchild_count);
+              tprintf("Discarding parent with child count=%d, gc=%d\n",
+                      child_count, grandchild_count);
             }
             return child_count + grandchild_count;
           }
@@ -236,7 +260,8 @@ int32_t OL_BUCKETS::count_children( // recursive count
             }
           }
           if (parent_box &&
-              (!edges_children_fix || child->bounding_box().height() > edges_min_nonhole)) {
+              (!edges_children_fix ||
+               child->bounding_box().height() > edges_min_nonhole)) {
             child_area = child->outer_area();
             if (child_area < 0) {
               child_area = -child_area;
@@ -251,12 +276,14 @@ int32_t OL_BUCKETS::count_children( // recursive count
                   tprintf(
                       "Discarding parent of area %d, child area=%d, max%g "
                       "with gc=%d\n",
-                      parent_area, child_area, max_parent_area, grandchild_count);
+                      parent_area, child_area, max_parent_area,
+                      grandchild_count);
                 }
                 return max_count + 1;
               }
               child_length = child->pathlength();
-              if (child_length * child_length > child_area * edges_patharea_ratio) {
+              if (child_length * child_length >
+                  child_area * edges_patharea_ratio) {
                 if (edges_debug) {
                   tprintf(
                       "Discarding parent of area %d, child area=%d, max%g "
@@ -271,7 +298,8 @@ int32_t OL_BUCKETS::count_children( // recursive count
                 tprintf(
                     "Discarding parent of area %d, child area=%d, max%g "
                     "with child rect=%d\n",
-                    parent_area, child_area, max_parent_area, child->bounding_box().area());
+                    parent_area, child_area, max_parent_area,
+                    child->bounding_box().area());
               }
               return max_count + 1;
             }
@@ -307,7 +335,8 @@ void OL_BUCKETS::extract_children( // recursive count
   for (yindex = ymin; yindex <= ymax; yindex++) {
     for (xindex = xmin; xindex <= xmax; xindex++) {
       child_it.set_to_list(&buckets[yindex * bxdim + xindex]);
-      for (child_it.mark_cycle_pt(); !child_it.cycled_list(); child_it.forward()) {
+      for (child_it.mark_cycle_pt(); !child_it.cycled_list();
+           child_it.forward()) {
         if (*child_it.data() < *outline) {
           it->add_after_then_move(child_it.extract());
         }
@@ -316,13 +345,9 @@ void OL_BUCKETS::extract_children( // recursive count
   }
 }
 
-/**
- * @name extract_edges
- *
- * Run the edge detector over the block and return a list of blobs.
- */
+/// @name extract_edges
 
-void extract_edges(Pix *pix,       // thresholded image
+void extract_edges(Image pix,      // thresholded image
                    BLOCK *block) { // block to scan
   C_OUTLINE_LIST outlines;         // outlines in block
   C_OUTLINE_IT out_it = &outlines;
@@ -333,6 +358,100 @@ void extract_edges(Pix *pix,       // thresholded image
   block->pdblk.bounding_box(bleft, tright);
   // make blobs
   outlines_to_blobs(block, bleft, tright, &outlines);
+}
+
+/// @name fill_buckets
+
+static void fill_buckets(C_OUTLINE_LIST *outlines, // outlines in block
+                         OL_BUCKETS *buckets       // output buckets
+) {
+  C_OUTLINE_IT out_it = outlines; // iterator
+  C_OUTLINE_IT bucket_it;         // iterator in bucket
+
+  for (out_it.mark_cycle_pt(); !out_it.cycled_list(); out_it.forward()) {
+    auto outline = out_it.extract(); // take off list
+                                     // get box
+    const TBOX &ol_box(outline->bounding_box());
+    bucket_it.set_to_list((*buckets)(ol_box.left(), ol_box.bottom()));
+    bucket_it.add_to_end(outline);
+  }
+}
+
+/**
+ * @name capture_children
+ *
+ * Find all neighbouring outlines that are children of this outline
+ * and either move them to the output list or declare this outline
+ * illegal and return false.
+ */
+
+static bool capture_children(OL_BUCKETS *buckets,  // bucket sort class
+                             C_BLOB_IT *reject_it, // dead grandchildren
+                             C_OUTLINE_IT *blob_it // output outlines
+) {
+  // master outline
+  auto outline = blob_it->data();
+  // no of children
+  int32_t child_count;
+  if (edges_use_new_outline_complexity) {
+    child_count =
+        buckets->outline_complexity(outline, edges_children_count_limit, 0);
+  } else {
+    child_count = buckets->count_children(outline, edges_children_count_limit);
+  }
+  if (child_count > edges_children_count_limit) {
+    return false;
+  }
+
+  if (child_count > 0) {
+    buckets->extract_children(outline, blob_it);
+  }
+  return true;
+}
+
+/**
+ * @name empty_buckets
+ *
+ * Run the edge detector over the block and return a list of blobs.
+ */
+
+static void empty_buckets(BLOCK *block,       // block to scan
+                          OL_BUCKETS *buckets // output buckets
+) {
+  C_OUTLINE_LIST outlines; // outlines in block
+                           // iterator
+  C_OUTLINE_IT out_it = &outlines;
+  auto start_scan = buckets->start_scan();
+  if (start_scan == nullptr) {
+    return;
+  }
+  C_OUTLINE_IT bucket_it = start_scan;
+  C_BLOB_IT good_blobs = block->blob_list();
+  C_BLOB_IT junk_blobs = block->reject_blobs();
+
+  while (!bucket_it.empty()) {
+    out_it.set_to_list(&outlines);
+    C_OUTLINE_IT parent_it; // parent outline
+    do {
+      parent_it = bucket_it; // find outermost
+      do {
+        bucket_it.forward();
+      } while (!bucket_it.at_first() &&
+               !(*parent_it.data() < *bucket_it.data()));
+    } while (!bucket_it.at_first());
+
+    // move to new list
+    out_it.add_after_then_move(parent_it.extract());
+    // healthy blob
+    bool good_blob = capture_children(buckets, &junk_blobs, &out_it);
+    C_BLOB::ConstructBlobsFromOutlines(good_blob, &outlines, &good_blobs,
+                                       &junk_blobs);
+
+    if (auto l = buckets->scan_next())
+      bucket_it.set_to_list(l);
+    else
+      break;
+  }
 }
 
 /**
@@ -349,99 +468,6 @@ void outlines_to_blobs( // find blobs
 
   fill_buckets(outlines, &buckets);
   empty_buckets(block, &buckets);
-}
-
-/**
- * @name fill_buckets
- *
- * Run the edge detector over the block and return a list of blobs.
- */
-
-void fill_buckets(            // find blobs
-    C_OUTLINE_LIST *outlines, // outlines in block
-    OL_BUCKETS *buckets       // output buckets
-) {
-  TBOX ol_box;                    // outline box
-  C_OUTLINE_IT out_it = outlines; // iterator
-  C_OUTLINE_IT bucket_it;         // iterator in bucket
-  C_OUTLINE *outline;             // current outline
-
-  for (out_it.mark_cycle_pt(); !out_it.cycled_list(); out_it.forward()) {
-    outline = out_it.extract(); // take off list
-                                // get box
-    ol_box = outline->bounding_box();
-    bucket_it.set_to_list((*buckets)(ol_box.left(), ol_box.bottom()));
-    bucket_it.add_to_end(outline);
-  }
-}
-
-/**
- * @name empty_buckets
- *
- * Run the edge detector over the block and return a list of blobs.
- */
-
-void empty_buckets(     // find blobs
-    BLOCK *block,       // block to scan
-    OL_BUCKETS *buckets // output buckets
-) {
-  bool good_blob;          // healthy blob
-  C_OUTLINE_LIST outlines; // outlines in block
-                           // iterator
-  C_OUTLINE_IT out_it = &outlines;
-  C_OUTLINE_IT bucket_it = buckets->start_scan();
-  C_OUTLINE_IT parent_it; // parent outline
-  C_BLOB_IT good_blobs = block->blob_list();
-  C_BLOB_IT junk_blobs = block->reject_blobs();
-
-  while (!bucket_it.empty()) {
-    out_it.set_to_list(&outlines);
-    do {
-      parent_it = bucket_it; // find outermost
-      do {
-        bucket_it.forward();
-      } while (!bucket_it.at_first() && !(*parent_it.data() < *bucket_it.data()));
-    } while (!bucket_it.at_first());
-
-    // move to new list
-    out_it.add_after_then_move(parent_it.extract());
-    good_blob = capture_children(buckets, &junk_blobs, &out_it);
-    C_BLOB::ConstructBlobsFromOutlines(good_blob, &outlines, &good_blobs, &junk_blobs);
-
-    bucket_it.set_to_list(buckets->scan_next());
-  }
-}
-
-/**
- * @name capture_children
- *
- * Find all neighbouring outlines that are children of this outline
- * and either move them to the output list or declare this outline
- * illegal and return false.
- */
-
-bool capture_children(    // find children
-    OL_BUCKETS *buckets,  // bucket sort clanss
-    C_BLOB_IT *reject_it, // dead grandchildren
-    C_OUTLINE_IT *blob_it // output outlines
-) {
-  C_OUTLINE *outline;  // master outline
-  int32_t child_count; // no of children
-
-  outline = blob_it->data();
-  if (edges_use_new_outline_complexity) {
-    child_count = buckets->outline_complexity(outline, edges_children_count_limit, 0);
-  } else {
-    child_count = buckets->count_children(outline, edges_children_count_limit);
-  }
-  if (child_count > edges_children_count_limit) {
-    return false;
-  }
-
-  if (child_count > 0) {
-    buckets->extract_children(outline, blob_it);
-  }
-  return true;
 }
 
 } // namespace tesseract

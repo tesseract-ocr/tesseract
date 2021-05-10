@@ -185,7 +185,7 @@ ImageData *Tesseract::GetRectImage(const TBOX &box, const BLOCK &block, int padd
   }
   // Now revised_box always refers to the image.
   // BestPix is never colormapped, but may be of any depth.
-  Pix *pix = BestPix();
+  Image pix = BestPix();
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
   TBOX image_box(0, 0, width, height);
@@ -196,22 +196,22 @@ ImageData *Tesseract::GetRectImage(const TBOX &box, const BLOCK &block, int padd
   }
   Box *clip_box = boxCreate(revised_box->left(), height - revised_box->top(), revised_box->width(),
                             revised_box->height());
-  Pix *box_pix = pixClipRectangle(pix, clip_box, nullptr);
+  Image box_pix = pixClipRectangle(pix, clip_box, nullptr);
   boxDestroy(&clip_box);
   if (box_pix == nullptr) {
     return nullptr;
   }
   if (num_rotations > 0) {
-    Pix *rot_pix = pixRotateOrth(box_pix, num_rotations);
-    pixDestroy(&box_pix);
+    Image rot_pix = pixRotateOrth(box_pix, num_rotations);
+    box_pix.destroy();
     box_pix = rot_pix;
   }
   // Convert sub-8-bit images to 8 bit.
   int depth = pixGetDepth(box_pix);
   if (depth < 8) {
-    Pix *grey;
+    Image grey;
     grey = pixConvertTo8(box_pix, false);
-    pixDestroy(&box_pix);
+    box_pix.destroy();
     box_pix = grey;
   }
   bool vertical_text = false;

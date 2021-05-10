@@ -25,7 +25,9 @@
 namespace tesseract {
 
 extern STRING_VAR_H(fx_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
+#ifndef GRAPHICS_DISABLED
 extern ScrollView *fx_win;
+#endif // !GRAPHICS_DISABLED
 extern FILE *fx_debug;
 void create_fx_win();      // make features win
 void clear_fx_win();       // make features win

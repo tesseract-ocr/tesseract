@@ -93,7 +93,7 @@ enum BlobSpecialTextType {
   BSTT_NONE,    // No special.
   BSTT_ITALIC,  // Italic style.
   BSTT_DIGIT,   // Digit symbols.
-  BSTT_MATH,    // Mathmatical symobls (not including digit).
+  BSTT_MATH,    // Mathematical symbols (not including digit).
   BSTT_UNCLEAR, // Characters with low recognition rate.
   BSTT_SKIP,    // Characters that we skip labeling (usually too small).
   BSTT_COUNT
@@ -154,6 +154,18 @@ public:
       delete cblob_ptr;
     }
   }
+
+  static void clear_blobnboxes(BLOBNBOX_LIST *boxes) {
+    BLOBNBOX_IT it = boxes;
+    // A BLOBNBOX generally doesn't own its blobs, so if they do, you
+    // have to delete them explicitly.
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      BLOBNBOX *box = it.data();
+      // TODO: remove next line, currently still needed for resultiterator_test.
+      delete box->remove_cblob();
+    }
+  }
+
   static BLOBNBOX *RealBlob(C_OUTLINE *outline) {
     auto *blob = new C_BLOB(outline);
     return new BLOBNBOX(blob);
@@ -264,6 +276,12 @@ public:
   }
   C_BLOB *cblob() const {
     return cblob_ptr;
+  }
+  C_BLOB *remove_cblob() {
+    auto blob = cblob_ptr;
+    cblob_ptr = nullptr;
+    owns_cblob_ = false;
+    return blob;
   }
   TabType left_tab_type() const {
     return left_tab_type_;
@@ -435,7 +453,7 @@ public:
   static void DeleteNoiseBlobs(BLOBNBOX_LIST *blobs);
   // Helper to compute edge offsets for  all the blobs on the list.
   // See coutln.h for an explanation of edge offsets.
-  static void ComputeEdgeOffsets(Pix *thresholds, Pix *grey, BLOBNBOX_LIST *blobs);
+  static void ComputeEdgeOffsets(Image thresholds, Image grey, BLOBNBOX_LIST *blobs);
 
 #ifndef GRAPHICS_DISABLED
   // Helper to draw all the blobs on the list in the given body_colour,
@@ -677,7 +695,7 @@ private:
 };
 
 ELIST2IZEH(TO_ROW)
-class TO_BLOCK : public ELIST_LINK {
+class TESS_API TO_BLOCK : public ELIST_LINK {
 public:
   TO_BLOCK() : pitch_decision(PITCH_DUNNO) {
     clear();
@@ -720,10 +738,8 @@ public:
 
   void print_rows() { // debug info
     TO_ROW_IT row_it = &row_list;
-    TO_ROW *row;
-
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
-      row = row_it.data();
+      auto row = row_it.data();
       tprintf("Row range (%g,%g), para_c=%g, blobcount=%" PRId32 "\n", row->min_y(), row->max_y(),
               row->parallel_c(), row->blob_list()->length());
     }
@@ -745,7 +761,7 @@ public:
   // Thresholds must either be the same size as grey or an integer down-scale
   // of grey.
   // See coutln.h for an explanation of edge offsets.
-  void ComputeEdgeOffsets(Pix *thresholds, Pix *grey);
+  void ComputeEdgeOffsets(Image thresholds, Image grey);
 
 #ifndef GRAPHICS_DISABLED
   // Draw the noise blobs from all lists in red.

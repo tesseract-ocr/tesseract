@@ -162,7 +162,7 @@ public:
       vote += values_[i].vote;
     }
 
-    return rc / vote;
+    return vote == 0 ? 0.0f : rc / vote;
   }
 
 private:

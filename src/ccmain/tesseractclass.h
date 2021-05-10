@@ -35,6 +35,7 @@
 #ifndef DISABLED_LEGACY_ENGINE
 #  include "docqual.h" // for GARBAGE_LEVEL
 #endif
+#include "genericvector.h"   // for PointerVector
 #include "pageres.h"         // for WERD_RES (ptr only), PAGE_RES (pt...
 #include "params.h"          // for BOOL_VAR_H, BoolParam, DoubleParam
 #include "points.h"          // for FCOORD
@@ -45,7 +46,6 @@
 
 #include <tesseract/publictypes.h> // for OcrEngineMode, PageSegMode, OEM_L...
 #include <tesseract/unichar.h>     // for UNICHAR_ID
-#include "genericvector.h"         // for PointerVector
 
 #include <allheaders.h> // for pixDestroy, pixGetWidth, pixGetHe...
 
@@ -197,30 +197,30 @@ public:
     return reskew_;
   }
   // Destroy any existing pix and return a pointer to the pointer.
-  Pix **mutable_pix_binary() {
-    pixDestroy(&pix_binary_);
+  Image *mutable_pix_binary() {
+    pix_binary_.destroy();
     return &pix_binary_;
   }
-  Pix *pix_binary() const {
+  Image pix_binary() const {
     return pix_binary_;
   }
-  Pix *pix_grey() const {
+  Image pix_grey() const {
     return pix_grey_;
   }
-  void set_pix_grey(Pix *grey_pix) {
-    pixDestroy(&pix_grey_);
+  void set_pix_grey(Image grey_pix) {
+    pix_grey_.destroy();
     pix_grey_ = grey_pix;
   }
-  Pix *pix_original() const {
+  Image pix_original() const {
     return pix_original_;
   }
   // Takes ownership of the given original_pix.
-  void set_pix_original(Pix *original_pix) {
-    pixDestroy(&pix_original_);
+  void set_pix_original(Image original_pix) {
+    pix_original_.destroy();
     pix_original_ = original_pix;
     // Clone to sublangs as well.
     for (auto &lang : sub_langs_) {
-      lang->set_pix_original(original_pix ? pixClone(original_pix) : nullptr);
+      lang->set_pix_original(original_pix ? original_pix.clone() : nullptr);
     }
   }
   // Returns a pointer to a Pix representing the best available resolution image
@@ -231,7 +231,7 @@ public:
   // To tell the difference pixGetDepth() will return 32, 8 or 1.
   // In any case, the return value is a borrowed Pix, and should not be
   // deleted or pixDestroyed.
-  Pix *BestPix() const {
+  Image BestPix() const {
     if (pixGetWidth(pix_original_) == ImageWidth()) {
       return pix_original_;
     } else if (pix_grey_ != nullptr) {
@@ -240,8 +240,8 @@ public:
       return pix_binary_;
     }
   }
-  void set_pix_thresholds(Pix *thresholds) {
-    pixDestroy(&pix_thresholds_);
+  void set_pix_thresholds(Image thresholds) {
+    pix_thresholds_.destroy();
     pix_thresholds_ = thresholds;
   }
   int source_resolution() const {
@@ -256,13 +256,13 @@ public:
   int ImageHeight() const {
     return pixGetHeight(pix_binary_);
   }
-  Pix *scaled_color() const {
+  Image scaled_color() const {
     return scaled_color_;
   }
   int scaled_factor() const {
     return scaled_factor_;
   }
-  void SetScaledColor(int factor, Pix *color) {
+  void SetScaledColor(int factor, Image color) {
     scaled_factor_ = factor;
     scaled_color_ = color;
   }
@@ -328,8 +328,8 @@ public:
                   BLOBNBOX_LIST *diacritic_blobs, Tesseract *osd_tess, OSResults *osr);
   ColumnFinder *SetupPageSegAndDetectOrientation(PageSegMode pageseg_mode, BLOCK_LIST *blocks,
                                                  Tesseract *osd_tess, OSResults *osr,
-                                                 TO_BLOCK_LIST *to_blocks, Pix **photo_mask_pix,
-                                                 Pix **music_mask_pix);
+                                                 TO_BLOCK_LIST *to_blocks, Image *photo_mask_pix,
+                                                 Image *music_mask_pix);
   // par_control.cpp
   void PrerecAllWordsPar(const std::vector<WordData> &words);
 
@@ -491,7 +491,7 @@ public:
   int init_tesseract(const std::string &arg0, const std::string &textbase,
                      const std::string &language, OcrEngineMode oem, char **configs,
                      int configs_size, const std::vector<std::string> *vars_vec,
-                     const std::vector<std::string> *vars_values, bool set_only_init_params,
+                     const std::vector<std::string> *vars_values, bool set_only_non_debug_params,
                      TessdataManager *mgr);
   int init_tesseract(const std::string &datapath, const std::string &language, OcrEngineMode oem) {
     TessdataManager mgr;
@@ -511,13 +511,13 @@ public:
   // vars_vec is an optional vector of variables to set.
   // vars_values is an optional corresponding vector of values for the variables
   // in vars_vec.
-  // If set_only_init_params is true, then only the initialization variables
-  // will be set.
+  // If set_only_non_debug_params is true, only params that do not contain
+  // "debug" in the name will be set.
   int init_tesseract_internal(const std::string &arg0, const std::string &textbase,
                               const std::string &language, OcrEngineMode oem, char **configs,
                               int configs_size, const std::vector<std::string> *vars_vec,
                               const std::vector<std::string> *vars_values,
-                              bool set_only_init_params, TessdataManager *mgr);
+                              bool set_only_non_debug_params, TessdataManager *mgr);
 
   // Set the universal_id member of each font to be unique among all
   // instances of the same font loaded.
@@ -533,7 +533,7 @@ public:
                                 const std::string &language, OcrEngineMode oem, char **configs,
                                 int configs_size, const std::vector<std::string> *vars_vec,
                                 const std::vector<std::string> *vars_values,
-                                bool set_only_init_params, TessdataManager *mgr);
+                                bool set_only_non_debug_params, TessdataManager *mgr);
 
   void ParseLanguageString(const std::string &lang_str, std::vector<std::string> *to_load,
                            std::vector<std::string> *not_to_load);
@@ -542,13 +542,14 @@ public:
   SVMenuNode *build_menu_new();
 #ifndef GRAPHICS_DISABLED
   void pgeditor_main(int width, int height, PAGE_RES *page_res);
-#endif                      // !GRAPHICS_DISABLED
+
   void process_image_event( // action in image win
       const SVEvent &event);
   bool process_cmd_win_event( // UI command semantics
       int32_t cmd_event,      // which menu item?
       char *new_value         // any prompt data
   );
+#endif // !GRAPHICS_DISABLED
   void debug_word(PAGE_RES *page_res, const TBOX &selection_box);
   void do_re_display(bool (tesseract::Tesseract::*word_painter)(PAGE_RES_IT *pr_it));
   bool word_display(PAGE_RES_IT *pr_it);
@@ -761,6 +762,9 @@ public:
             "Page seg mode: 0=osd only, 1=auto+osd, 2=auto, 3=col, 4=block,"
             " 5=line, 6=word, 7=char"
             " (Values from PageSegMode enum in tesseract/publictypes.h)");
+  INT_VAR_H(thresholding_method,
+            static_cast<int>(tesseract::ThreshMethod::Otsu), "Thresholding "
+            "method: 0 = Otsu, 1 = Adaptive Otsu, 2 = Sauvola");
   INT_VAR_H(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
             "Which OCR engine(s) to run (Tesseract, LSTM, both). Defaults"
             " to loading and running the most accurate available.");
@@ -798,6 +802,8 @@ public:
   BOOL_VAR_H(tessedit_fix_hyphens, true, "Crunch double hyphens?");
   BOOL_VAR_H(tessedit_enable_doc_dict, true, "Add words to the document dictionary");
   BOOL_VAR_H(tessedit_debug_fonts, false, "Output font info per char");
+  INT_VAR_H(tessedit_font_id, 0, "Disable font detection and use the font"
+                                 " corresponding to the ID specified instead");
   BOOL_VAR_H(tessedit_debug_block_rejection, false, "Block and Row stats");
   BOOL_VAR_H(tessedit_enable_bigram_correction, true,
              "Enable correction based on the word bigram dictionary.");
@@ -901,7 +907,7 @@ public:
   INT_VAR_H(fixsp_non_noise_limit, 1, "How many non-noise blbs either side?");
   double_VAR_H(fixsp_small_outlines_size, 0.28, "Small if lt xht x this");
   BOOL_VAR_H(tessedit_prefer_joined_punct, false, "Reward punctuation joins");
-  INT_VAR_H(fixsp_done_mode, 1, "What constitues done for spacing");
+  INT_VAR_H(fixsp_done_mode, 1, "What constitutes done for spacing");
   INT_VAR_H(debug_fix_space_level, 0, "Contextual fixspace debug");
   STRING_VAR_H(numeric_punctuation, ".,", "Punct. chs expected WITHIN numbers");
   INT_VAR_H(x_ht_acceptance_tolerance, 8, "Max allowed deviation of blob top outside of font data");
@@ -1034,13 +1040,13 @@ private:
   std::string word_config_;
   // Image used for input to layout analysis and tesseract recognition.
   // May be modified by the ShiroRekhaSplitter to eliminate the top-line.
-  Pix *pix_binary_;
+  Image pix_binary_;
   // Grey-level input image if the input was not binary, otherwise nullptr.
-  Pix *pix_grey_;
+  Image pix_grey_;
   // Original input image. Color if the input was color.
-  Pix *pix_original_;
+  Image pix_original_;
   // Thresholds that were used to generate the thresholded image from grey.
-  Pix *pix_thresholds_;
+  Image pix_thresholds_;
   // Debug images. If non-empty, will be written on destruction.
   DebugPixa pixa_debug_;
   // Input image resolution after any scaling. The resolution is not well
@@ -1053,7 +1059,7 @@ private:
   Textord textord_;
   // True if the primary language uses right_to_left reading order.
   bool right_to_left_;
-  Pix *scaled_color_;
+  Image scaled_color_;
   int scaled_factor_;
   FCOORD deskew_;
   FCOORD reskew_;

@@ -19,8 +19,8 @@
 #ifndef CLST_H
 #define CLST_H
 
+#include "list.h"
 #include "lsterr.h"
-
 #include "serialis.h"
 
 #include <cstdio>
@@ -51,15 +51,8 @@ public:
     data = next = nullptr;
   }
 
-  CLIST_LINK(               // copy constructor
-      const CLIST_LINK &) { // don't copy link
-    data = next = nullptr;
-  }
-
-  void operator=( // don't copy links
-      const CLIST_LINK &) {
-    data = next = nullptr;
-  }
+  CLIST_LINK(const CLIST_LINK &) = delete;
+  void operator=(const CLIST_LINK &) = delete;
 };
 
 /**********************************************************************
@@ -71,17 +64,18 @@ public:
 class TESS_API CLIST {
   friend class CLIST_ITERATOR;
 
-  CLIST_LINK *last; // End of list
+  CLIST_LINK *last = nullptr; // End of list
+
   //(Points to head)
   CLIST_LINK *First() { // return first
     return last != nullptr ? last->next : nullptr;
   }
 
-public:
-  CLIST() { // constructor
-    last = nullptr;
+  const CLIST_LINK *First() const { // return first
+    return last != nullptr ? last->next : nullptr;
   }
 
+public:
   ~CLIST() { // destructor
     shallow_clear();
   }
@@ -109,7 +103,16 @@ public:
       CLIST_ITERATOR *start_it, // from list start
       CLIST_ITERATOR *end_it);  // from list end
 
-  int32_t length() const; //# elements in list
+  int32_t length() const { //# elements in list
+    int32_t count = 0;
+    if (last != nullptr) {
+      count = 1;
+      for (auto it = last->next; it != last; it = it->next) {
+        count++;
+      }
+    }
+    return count;
+  }
 
   void sort(          // sort elements
       int comparator( // comparison routine
@@ -189,9 +192,6 @@ public:
     if (!list) {
       NO_LIST.error("CLIST_ITERATOR::data", ABORT, nullptr);
     }
-    if (!current) {
-      NULL_DATA.error("CLIST_ITERATOR::data", ABORT, nullptr);
-    }
 #endif
     return current->data;
   }
@@ -209,24 +209,19 @@ public:
 
   void mark_cycle_pt(); // remember current
 
-  bool empty() { // is list empty?
-#ifndef NDEBUG
-    if (!list) {
-      NO_LIST.error("CLIST_ITERATOR::empty", ABORT, nullptr);
-    }
-#endif
+  bool empty() const { // is list empty?
     return list->empty();
   }
 
-  bool current_extracted() { // current extracted?
+  bool current_extracted() const { // current extracted?
     return !current;
   }
 
-  bool at_first(); // Current is first?
+  bool at_first() const; // Current is first?
 
-  bool at_last(); // Current is last?
+  bool at_last() const; // Current is last?
 
-  bool cycled_list(); // Completed a cycle?
+  bool cycled_list() const; // Completed a cycle?
 
   void add_to_end(     // add at end &
       void *new_data); // don't move
@@ -234,7 +229,7 @@ public:
   void exchange(                 // positions of 2 links
       CLIST_ITERATOR *other_it); // other iterator
 
-  int32_t length(); //# elements in list
+  int32_t length() const; //# elements in list
 
   void sort(          // sort elements
       int comparator( // comparison routine
@@ -250,12 +245,6 @@ public:
 
 inline void CLIST_ITERATOR::set_to_list( // change list
     CLIST *list_to_iterate) {
-#ifndef NDEBUG
-  if (!list_to_iterate) {
-    BAD_PARAMETER.error("CLIST_ITERATOR::set_to_list", ABORT, "list_to_iterate is nullptr");
-  }
-#endif
-
   list = list_to_iterate;
   prev = list->last;
   current = list->First();
@@ -285,18 +274,13 @@ inline CLIST_ITERATOR::CLIST_ITERATOR(CLIST *list_to_iterate) {
 
 inline void CLIST_ITERATOR::add_after_then_move( // element to add
     void *new_data) {
-  CLIST_LINK *new_element;
-
 #ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_after_then_move", ABORT, nullptr);
-  }
   if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_after_then_move", ABORT, "new_data is nullptr");
   }
 #endif
 
-  new_element = new CLIST_LINK;
+  auto new_element = new CLIST_LINK;
   new_element->data = new_data;
 
   if (list->empty()) {
@@ -334,18 +318,13 @@ inline void CLIST_ITERATOR::add_after_then_move( // element to add
 
 inline void CLIST_ITERATOR::add_after_stay_put( // element to add
     void *new_data) {
-  CLIST_LINK *new_element;
-
 #ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_after_stay_put", ABORT, nullptr);
-  }
   if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_after_stay_put", ABORT, "new_data is nullptr");
   }
 #endif
 
-  new_element = new CLIST_LINK;
+  auto new_element = new CLIST_LINK;
   new_element->data = new_data;
 
   if (list->empty()) {
@@ -385,18 +364,13 @@ inline void CLIST_ITERATOR::add_after_stay_put( // element to add
 
 inline void CLIST_ITERATOR::add_before_then_move( // element to add
     void *new_data) {
-  CLIST_LINK *new_element;
-
 #ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_before_then_move", ABORT, nullptr);
-  }
   if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_before_then_move", ABORT, "new_data is nullptr");
   }
 #endif
 
-  new_element = new CLIST_LINK;
+  auto new_element = new CLIST_LINK;
   new_element->data = new_data;
 
   if (list->empty()) {
@@ -430,18 +404,13 @@ inline void CLIST_ITERATOR::add_before_then_move( // element to add
 
 inline void CLIST_ITERATOR::add_before_stay_put( // element to add
     void *new_data) {
-  CLIST_LINK *new_element;
-
 #ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_before_stay_put", ABORT, nullptr);
-  }
   if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_before_stay_put", ABORT, "new_data is nullptr");
   }
 #endif
 
-  new_element = new CLIST_LINK;
+  auto new_element = new CLIST_LINK;
   new_element->data = new_data;
 
   if (list->empty()) {
@@ -476,15 +445,6 @@ inline void CLIST_ITERATOR::add_before_stay_put( // element to add
  **********************************************************************/
 
 inline void CLIST_ITERATOR::add_list_after(CLIST *list_to_add) {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_list_after", ABORT, nullptr);
-  }
-  if (!list_to_add) {
-    BAD_PARAMETER.error("CLIST_ITERATOR::add_list_after", ABORT, "list_to_add is nullptr");
-  }
-#endif
-
   if (!list_to_add->empty()) {
     if (list->empty()) {
       list->last = list_to_add->last;
@@ -523,15 +483,6 @@ inline void CLIST_ITERATOR::add_list_after(CLIST *list_to_add) {
  **********************************************************************/
 
 inline void CLIST_ITERATOR::add_list_before(CLIST *list_to_add) {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_list_before", ABORT, nullptr);
-  }
-  if (!list_to_add) {
-    BAD_PARAMETER.error("CLIST_ITERATOR::add_list_before", ABORT, "list_to_add is nullptr");
-  }
-#endif
-
   if (!list_to_add->empty()) {
     if (list->empty()) {
       list->last = list_to_add->last;
@@ -569,12 +520,7 @@ inline void CLIST_ITERATOR::add_list_before(CLIST *list_to_add) {
  **********************************************************************/
 
 inline void *CLIST_ITERATOR::extract() {
-  void *extracted_data;
-
 #ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::extract", ABORT, nullptr);
-  }
   if (!current) { // list empty or
                   // element extracted
     NULL_CURRENT.error("CLIST_ITERATOR::extract", ABORT, nullptr);
@@ -596,7 +542,7 @@ inline void *CLIST_ITERATOR::extract() {
   }
   // Always set ex_current_was_cycle_pt so an add/forward will work in a loop.
   ex_current_was_cycle_pt = (current == cycle_pt);
-  extracted_data = current->data;
+  auto extracted_data = current->data;
   delete (current); // destroy CONS cell
   current = nullptr;
   return extracted_data;
@@ -610,12 +556,6 @@ inline void *CLIST_ITERATOR::extract() {
  **********************************************************************/
 
 inline void *CLIST_ITERATOR::move_to_first() {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::move_to_first", ABORT, nullptr);
-  }
-#endif
-
   current = list->First();
   prev = list->last;
   next = current != nullptr ? current->next : nullptr;
@@ -655,13 +595,7 @@ inline void CLIST_ITERATOR::mark_cycle_pt() {
  *
  **********************************************************************/
 
-inline bool CLIST_ITERATOR::at_first() {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::at_first", ABORT, nullptr);
-  }
-#endif
-
+inline bool CLIST_ITERATOR::at_first() const {
   // we're at a deleted
   return ((list->empty()) || (current == list->First()) ||
           ((current == nullptr) && (prev == list->last) && // NON-last pt between
@@ -675,13 +609,7 @@ inline bool CLIST_ITERATOR::at_first() {
  *
  **********************************************************************/
 
-inline bool CLIST_ITERATOR::at_last() {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::at_last", ABORT, nullptr);
-  }
-#endif
-
+inline bool CLIST_ITERATOR::at_last() const {
   // we're at a deleted
   return ((list->empty()) || (current == list->last) ||
           ((current == nullptr) && (prev == list->last) && // last point between
@@ -695,13 +623,7 @@ inline bool CLIST_ITERATOR::at_last() {
  *
  **********************************************************************/
 
-inline bool CLIST_ITERATOR::cycled_list() {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::cycled_list", ABORT, nullptr);
-  }
-#endif
-
+inline bool CLIST_ITERATOR::cycled_list() const {
   return ((list->empty()) || ((current == cycle_pt) && started_cycling));
 }
 
@@ -712,13 +634,7 @@ inline bool CLIST_ITERATOR::cycled_list() {
  *
  **********************************************************************/
 
-inline int32_t CLIST_ITERATOR::length() {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::length", ABORT, nullptr);
-  }
-#endif
-
+inline int32_t CLIST_ITERATOR::length() const {
   return list->length();
 }
 
@@ -732,12 +648,6 @@ inline int32_t CLIST_ITERATOR::length() {
 inline void CLIST_ITERATOR::sort( // sort elements
     int comparator(               // comparison routine
         const void *, const void *)) {
-#ifndef NDEBUG
-  if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::sort", ABORT, nullptr);
-  }
-#endif
-
   list->sort(comparator);
   move_to_first();
 }
@@ -754,8 +664,6 @@ inline void CLIST_ITERATOR::sort( // sort elements
 
 inline void CLIST_ITERATOR::add_to_end( // element to add
     void *new_data) {
-  CLIST_LINK *new_element;
-
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("CLIST_ITERATOR::add_to_end", ABORT, nullptr);
@@ -772,7 +680,7 @@ inline void CLIST_ITERATOR::add_to_end( // element to add
       this->add_before_stay_put(new_data);
       list->last = prev;
     } else { // Iteratr is elsewhere
-      new_element = new CLIST_LINK;
+      auto new_element = new CLIST_LINK;
       new_element->data = new_data;
 
       new_element->next = list->last->next;
@@ -782,161 +690,28 @@ inline void CLIST_ITERATOR::add_to_end( // element to add
   }
 }
 
-/***********************************************************************
-  QUOTE_IT   MACRO DEFINITION
-  ===========================
-Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
-***********************************************************************/
+template <typename CLASSNAME>
+class X_CLIST : public CLIST {
+public:
+  X_CLIST() = default;
+  X_CLIST(const X_CLIST &) = delete;
+  X_CLIST &operator=(const X_CLIST &) = delete;
 
-#define QUOTE_IT(parm) #parm
-
-/***********************************************************************
-  CLISTIZE(CLASSNAME) MACRO DEFINITION
-  ======================================
-
-CLASSNAME is assumed to be the name of a class to be used in a CONS list
-
-NOTE:  Because we don't use virtual functions in the list code, the list code
-will NOT work correctly for classes derived from this.
-
-The macro generates:
-  - An element deletion function:      CLASSNAME##_c1_zapper
-  - An element copier function:
-              CLASSNAME##_c1_copier
-  - A CLIST subclass:   CLASSNAME##_CLIST
-  - A CLIST_ITERATOR subclass:
-              CLASSNAME##_C_IT
-
-NOTE:
-Generated names do NOT clash with those generated by ELISTIZE and ELIST2ISE.
-
-Two macros are provided: CLISTIZE and CLISTIZEH
-The ...IZEH macros just define the class names for use in .h files
-The ...IZE macros define the code use in .c files
-***********************************************************************/
-
-/***********************************************************************
-  CLISTIZEH(CLASSNAME)  MACRO
-
-CLISTIZEH is a concatenation of 3 fragments CLISTIZEH_A, CLISTIZEH_B and
-CLISTIZEH_C.
-***********************************************************************/
-
-#define CLISTIZEH_A(CLASSNAME)                                                \
-                                                                              \
-  extern void CLASSNAME##_c1_zapper(             /*delete a link*/            \
-                                    void *link); /*link to delete*/           \
-                                                                              \
-  extern void *CLASSNAME##_c1_copier(                    /*deep copy a link*/ \
-                                     void *old_element); /*source link */
-
-#define CLISTIZEH_B(CLASSNAME)                                                        \
-                                                                                      \
-  /***********************************************************************            \
-   *             CLASS -                                                              \
-   *CLASSNAME##_CLIST                                                                 \
-   *                                                                                  \
-   *             List class for class                                                 \
-   *CLASSNAME                                                                         \
-   *                                                                                  \
-   **********************************************************************/            \
-                                                                                      \
-  class CLASSNAME##_CLIST : public CLIST {                                            \
-  public:                                                                             \
-    CLASSNAME##_CLIST() : CLIST() {}                                                  \
-    /* constructor */                                                                 \
-                                                                                      \
-    CLASSNAME##_CLIST(                           /* don't construct */                \
-                      const CLASSNAME##_CLIST &) /*by initial assign*/                \
-    {                                                                                 \
-      DONT_CONSTRUCT_LIST_BY_COPY.error(QUOTE_IT(CLASSNAME##_CLIST), ABORT, nullptr); \
-    }                                                                                 \
-                                                                                      \
-    void deep_clear() /* delete elements */                                           \
-    {                                                                                 \
-      CLIST::internal_deep_clear(&CLASSNAME##_c1_zapper);                             \
-    }                                                                                 \
-                                                                                      \
-    void operator=(/* prevent assign */                                               \
-                   const CLASSNAME##_CLIST &) {                                       \
-      DONT_ASSIGN_LISTS.error(QUOTE_IT(CLASSNAME##_CLIST), ABORT, nullptr);           \
-    }
-
-#define CLISTIZEH_C(CLASSNAME)                                                \
-  }                                                                           \
-  ;                                                                           \
-                                                                              \
-  /***********************************************************************    \
-   *             CLASS - CLASSNAME##_C_IT                                     \
-   *                                                                          \
-   *             Iterator class for class CLASSNAME##_CLIST                   \
-   *                                                                          \
-   *  Note: We don't need to coerce pointers to member functions input        \
-   *  parameters as these are automatically converted to the type of the base \
-   *  type. ("A ptr to a class may be converted to a pointer to a public base \
-   *  class of that class")                                                   \
-   **********************************************************************/    \
-                                                                              \
-  class CLASSNAME##_C_IT : public CLIST_ITERATOR {                            \
-  public:                                                                     \
-    CLASSNAME##_C_IT() : CLIST_ITERATOR() {}                                  \
-                                                                              \
-    CLASSNAME##_C_IT(CLASSNAME##_CLIST *list) : CLIST_ITERATOR(list) {}       \
-                                                                              \
-    CLASSNAME *data() {                                                       \
-      return static_cast<CLASSNAME *>(CLIST_ITERATOR::data());                \
-    }                                                                         \
-                                                                              \
-    CLASSNAME *data_relative(int8_t offset) {                                 \
-      return static_cast<CLASSNAME *>(CLIST_ITERATOR::data_relative(offset)); \
-    }                                                                         \
-                                                                              \
-    CLASSNAME *forward() {                                                    \
-      return static_cast<CLASSNAME *>(CLIST_ITERATOR::forward());             \
-    }                                                                         \
-                                                                              \
-    CLASSNAME *extract() {                                                    \
-      return static_cast<CLASSNAME *>(CLIST_ITERATOR::extract());             \
-    }                                                                         \
-                                                                              \
-    CLASSNAME *move_to_first() {                                              \
-      return static_cast<CLASSNAME *>(CLIST_ITERATOR::move_to_first());       \
-    }                                                                         \
-                                                                              \
-    CLASSNAME *move_to_last() {                                               \
-      return static_cast<CLASSNAME *>(CLIST_ITERATOR::move_to_last());        \
-    }                                                                         \
-  };
-
-#define CLISTIZEH(CLASSNAME) \
-                             \
-  CLISTIZEH_A(CLASSNAME)     \
-                             \
-  CLISTIZEH_B(CLASSNAME)     \
-                             \
-  CLISTIZEH_C(CLASSNAME)
-
-/***********************************************************************
-  CLISTIZE(CLASSNAME)  MACRO
-***********************************************************************/
-
-#define CLISTIZE(CLASSNAME)                                                   \
-                                                                              \
-  /***********************************************************************    \
-   *             CLASSNAME##_c1_zapper                                        \
-   *                                                                          \
-   *  A function which can delete a CLASSNAME element.  This is passed to the \
-   *  generic deep_clear list member function so that when a list is cleared  \
-   *the                                                                       \
-   *  elements on the list are properly destroyed from the base class, even   \
-   *  though we don't use a virtual destructor function.                      \
-   **********************************************************************/    \
-                                                                              \
-  void CLASSNAME##_c1_zapper(            /*delete a link*/                    \
-                             void *link) /*link to delete*/                   \
-  {                                                                           \
-    delete static_cast<CLASSNAME *>(link);                                    \
+  void deep_clear() {
+    internal_deep_clear([](void *link) {delete static_cast<CLASSNAME *>(link);});
   }
+};
+
+#define CLISTIZEH(CLASSNAME)                                          \
+  class CLASSNAME##_CLIST : public X_CLIST<CLASSNAME> {               \
+  public:                                                             \
+    using X_CLIST<CLASSNAME>::X_CLIST;                                \
+  };                                                                  \
+  class CLASSNAME##_C_IT : public X_ITER<CLIST_ITERATOR, CLASSNAME> { \
+  public:                                                             \
+    using X_ITER<CLIST_ITERATOR, CLASSNAME>::X_ITER;                  \
+    CLASSNAME##_C_IT(CLASSNAME##_CLIST *list) : X_ITER(list) {}       \
+  };
 
 } // namespace tesseract
 

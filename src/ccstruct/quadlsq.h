@@ -2,7 +2,6 @@
  * File:        quadlsq.h  (Formerly qlsq.h)
  * Description: Code for least squares approximation of quadratics.
  * Author:      Ray Smith
- * Created:     Wed Oct  6 15:14:23 BST 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,13 +42,13 @@ public:
 
   void fit(        // fit the given
       int degree); // return actual
-  double get_a() { // get x squard
+  double get_a() const { // get x squard
     return a;
   }
-  double get_b() { // get x squard
+  double get_b() const { // get x squard
     return b;
   }
-  double get_c() { // get x squard
+  double get_c() const { // get x squard
     return c;
   }
 

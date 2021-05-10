@@ -58,17 +58,13 @@ void NormalizePicoX(FEATURE_SET FeatureSet);
  * @return Pico-features for Blob.
  */
 FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
-  LIST Outlines;
-  LIST RemainingOutlines;
-  MFOUTLINE Outline;
-  float XScale, YScale;
-
   auto FeatureSet = new FEATURE_SET_STRUCT(MAX_PICO_FEATURES);
-  Outlines = ConvertBlob(Blob);
+  auto Outlines = ConvertBlob(Blob);
+  float XScale, YScale;
   NormalizeOutlines(Outlines, &XScale, &YScale);
-  RemainingOutlines = Outlines;
+  auto RemainingOutlines = Outlines;
   iterate(RemainingOutlines) {
-    Outline = static_cast<MFOUTLINE> first_node(RemainingOutlines);
+    auto Outline = static_cast<MFOUTLINE>(RemainingOutlines->first_node());
     ConvertToPicoFeatures2(Outline, FeatureSet);
   }
   if (classify_norm_method == baseline) {

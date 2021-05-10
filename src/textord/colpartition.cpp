@@ -35,9 +35,6 @@
 
 namespace tesseract {
 
-ELIST2IZE(ColPartition)
-CLISTIZE(ColPartition)
-
 //////////////// ColPartition Implementation ////////////////
 
 // enum to refer to the entries in a neighbourhood of lines.
@@ -325,7 +322,8 @@ void ColPartition::DeleteBoxes() {
   // and the BLOBNBOXes own the underlying C_BLOBs.
   for (BLOBNBOX_C_IT bb_it(&boxes_); !bb_it.empty(); bb_it.forward()) {
     BLOBNBOX *bblob = bb_it.extract();
-    delete bblob->cblob();
+    // TODO: remove next line, currently still needed for resultiterator_test.
+    delete bblob->remove_cblob();
     delete bblob;
   }
 }

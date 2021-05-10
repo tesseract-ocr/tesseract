@@ -235,7 +235,7 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT 
         continue;
       }
     }
-    // Sync pr_it with the wth WordData.
+    // Sync pr_it with the WordData.
     while (pr_it->word() != nullptr && pr_it->word() != word->word) {
       pr_it->forward();
     }
@@ -1922,9 +1922,21 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   ASSERT_HOST(word->best_choice != nullptr);
 
 #ifndef DISABLED_LEGACY_ENGINE
-  const int fontinfo_size = get_fontinfo_table().size();
+  const int fontinfo_size = fontinfo_table_.size();
   if (fontinfo_size == 0) {
     return;
+  }
+  if (tessedit_font_id > 0) {
+    if (tessedit_font_id >= fontinfo_size) {
+      tprintf("Error, invalid font ID provided: must be below %d.\n"
+              "Falling back to font auto-detection.\n", fontinfo_size);
+    } else {
+      word->fontinfo = &fontinfo_table_.at(tessedit_font_id);
+      word->fontinfo2 = nullptr;
+      word->fontinfo_id_count = INT8_MAX;
+      word->fontinfo_id2_count = 0;
+      return;
+    }
   }
   std::vector<int> font_total_score(fontinfo_size);
 

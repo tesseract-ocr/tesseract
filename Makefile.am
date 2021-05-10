@@ -13,7 +13,10 @@ SUBDIRS = . tessdata
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
-EXTRA_DIST += tesseract.pc.in java doc
+EXTRA_DIST += tesseract.pc.in doc
+if !GRAPHICS_DISABLED
+EXTRA_DIST += java
+endif
 EXTRA_DIST += CMakeLists.txt tesseract.pc.cmake cmake VERSION
 
 DIST_SUBDIRS = $(SUBDIRS)
@@ -30,11 +33,13 @@ dist-hook:
 	rm -f `find $(distdir) -name '*~'`
 	rm -rf $(distdir)/doc/html/* $(distdir)/doc/*.log
 
+if !GRAPHICS_DISABLED
 ScrollView.jar:
 	@cd "$(top_builddir)/java" && $(MAKE) $@
 
 install-jars:
 	@cd "$(top_builddir)/java" && $(MAKE) $@
+endif
 
 doc:
 	-srcdir="$(top_srcdir)" builddir="$(top_builddir)" \
@@ -210,8 +215,10 @@ libtesseract_la_SOURCES += src/ccmain/pageiterator.cpp
 libtesseract_la_SOURCES += src/ccmain/pagesegmain.cpp
 libtesseract_la_SOURCES += src/ccmain/pagewalk.cpp
 libtesseract_la_SOURCES += src/ccmain/paragraphs.cpp
+if !GRAPHICS_DISABLED
 libtesseract_la_SOURCES += src/ccmain/paramsd.cpp
 libtesseract_la_SOURCES += src/ccmain/pgedit.cpp
+endif
 libtesseract_la_SOURCES += src/ccmain/reject.cpp
 libtesseract_la_SOURCES += src/ccmain/resultiterator.cpp
 libtesseract_la_SOURCES += src/ccmain/tessedit.cpp
@@ -247,6 +254,7 @@ noinst_HEADERS += src/ccstruct/crakedge.h
 noinst_HEADERS += src/ccstruct/debugpixa.h
 noinst_HEADERS += src/ccstruct/detlinefit.h
 noinst_HEADERS += src/ccstruct/dppoint.h
+noinst_HEADERS += src/ccstruct/image.h
 noinst_HEADERS += src/ccstruct/imagedata.h
 noinst_HEADERS += src/ccstruct/linlsq.h
 noinst_HEADERS += src/ccstruct/matrix.h
@@ -288,6 +296,7 @@ libtesseract_la_SOURCES += src/ccstruct/ccstruct.cpp
 libtesseract_la_SOURCES += src/ccstruct/coutln.cpp
 libtesseract_la_SOURCES += src/ccstruct/detlinefit.cpp
 libtesseract_la_SOURCES += src/ccstruct/dppoint.cpp
+libtesseract_la_SOURCES += src/ccstruct/image.cpp
 libtesseract_la_SOURCES += src/ccstruct/imagedata.cpp
 libtesseract_la_SOURCES += src/ccstruct/linlsq.cpp
 libtesseract_la_SOURCES += src/ccstruct/matrix.cpp
@@ -326,7 +335,6 @@ if !NO_TESSDATA_PREFIX
 libtesseract_ccutil_la_CPPFLAGS += -DTESSDATA_PREFIX=@datadir@
 endif
 
-noinst_HEADERS += src/ccutil/bits16.h
 noinst_HEADERS += src/ccutil/ccutil.h
 noinst_HEADERS += src/ccutil/clst.h
 noinst_HEADERS += src/ccutil/elst2.h
@@ -430,7 +438,6 @@ libtesseract_la_SOURCES += src/classify/intmatcher.cpp
 libtesseract_la_SOURCES += src/classify/intproto.cpp
 libtesseract_la_SOURCES += src/classify/kdtree.cpp
 libtesseract_la_SOURCES += src/classify/mf.cpp
-libtesseract_la_SOURCES += src/classify/mfdefs.cpp
 libtesseract_la_SOURCES += src/classify/mfoutline.cpp
 libtesseract_la_SOURCES += src/classify/mfx.cpp
 libtesseract_la_SOURCES += src/classify/normfeat.cpp
@@ -646,6 +653,7 @@ endif
 
 # Rules for src/viewer.
 
+if !GRAPHICS_DISABLED
 noinst_HEADERS += src/viewer/scrollview.h
 noinst_HEADERS += src/viewer/svmnode.h
 noinst_HEADERS += src/viewer/svutil.h
@@ -653,6 +661,7 @@ noinst_HEADERS += src/viewer/svutil.h
 libtesseract_la_SOURCES += src/viewer/scrollview.cpp
 libtesseract_la_SOURCES += src/viewer/svmnode.cpp
 libtesseract_la_SOURCES += src/viewer/svutil.cpp
+endif
 
 # TODO: Add rule to generate svpaint from svpaint.cpp.
 
@@ -690,7 +699,9 @@ libtesseract_la_SOURCES += src/wordrec/lm_state.cpp
 libtesseract_la_SOURCES += src/wordrec/outlines.cpp
 libtesseract_la_SOURCES += src/wordrec/params_model.cpp
 libtesseract_la_SOURCES += src/wordrec/pieces.cpp
+if !GRAPHICS_DISABLED
 libtesseract_la_SOURCES += src/wordrec/plotedges.cpp
+endif
 libtesseract_la_SOURCES += src/wordrec/render.cpp
 libtesseract_la_SOURCES += src/wordrec/segsearch.cpp
 libtesseract_la_SOURCES += src/wordrec/wordclass.cpp
@@ -1005,7 +1016,27 @@ fuzzer-api: unittest/fuzzers/fuzzer-api.cpp
           $(libcurl_LIBS) \
           -o $@
 
-CLEANFILES += fuzzer-api
+fuzzer-api-512x256: libtesseract.la
+fuzzer-api-512x256: unittest/fuzzers/fuzzer-api.cpp
+	$(CXX) $(CXXFLAGS) -g $(LIB_FUZZING_ENGINE) \
+          -DTESSERACT_FUZZER_WIDTH=512 \
+          -DTESSERACT_FUZZER_HEIGHT=256 \
+          -I $(top_srcdir)/include \
+          -I $(builddir)/include \
+          -I $(top_srcdir)/src/ccmain \
+          -I $(top_srcdir)/src/ccstruct \
+          -I $(top_srcdir)/src/ccutil \
+          $(LEPTONICA_CFLAGS) \
+          $(OPENMP_CXXFLAGS) \
+          $< \
+          $(builddir)/.libs/libtesseract.a \
+          $(LEPTONICA_LIBS) \
+          $(TENSORFLOW_LIBS) \
+          $(libarchive_LIBS) \
+          $(libcurl_LIBS) \
+          -o $@
+
+CLEANFILES += fuzzer-api fuzzer-api-512x256
 
 if ASCIIDOC
 

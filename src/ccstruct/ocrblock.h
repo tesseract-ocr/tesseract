@@ -152,7 +152,7 @@ public:
     median_size_.set_y(y);
   }
 
-  Pix *render_mask(TBOX *mask_box) {
+  Image render_mask(TBOX *mask_box) {
     return pdblk.render_mask(re_rotation_, mask_box);
   }
 

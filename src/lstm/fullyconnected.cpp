@@ -143,7 +143,7 @@ void FullyConnected::Forward(bool debug, const NetworkIO &input,
     ro = IntSimdMatrix::intSimdMatrix->RoundOutputs(ro);
   }
   for (int i = 0; i < kNumThreads; ++i) {
-    temp_lines[i].Init(no_, ro, scratch);
+    temp_lines[i].Init(ro, scratch);
     curr_input[i].Init(ni_, scratch);
   }
 #ifdef _OPENMP

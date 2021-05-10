@@ -36,14 +36,6 @@ namespace tesseract {
 static BOOL_VAR(poly_debug, false, "Debug old poly");
 static BOOL_VAR(poly_wide_objects_better, true, "More accurate approx on wide things");
 
-#define FIXED 4 /*OUTLINE point is fixed */
-
-#define RUNLENGTH 1 /*length of run */
-
-#define DIR 2 /*direction of run */
-
-#define FLAGS 0
-
 #define fixed_dist 20  // really an int_variable
 #define approx_dist 15 // really an int_variable
 
@@ -60,8 +52,6 @@ const int par2 = 6750 / (approx_dist * approx_dist);
  **********************************************************************/
 
 TESSLINE *ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline) {
-  TBOX loop_box;                        // bounding box
-  int32_t area;                         // loop area
   EDGEPT stack_edgepts[FASTEDGELENGTH]; // converted path
   EDGEPT *edgepts = stack_edgepts;
 
@@ -70,8 +60,9 @@ TESSLINE *ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline) {
     edgepts = new EDGEPT[c_outline->pathlength()];
   }
 
-  loop_box = c_outline->bounding_box();
-  area = loop_box.height();
+  // bounding box
+  const auto &loop_box = c_outline->bounding_box();
+  int32_t area = loop_box.height();
   if (!poly_wide_objects_better && loop_box.width() > area) {
     area = loop_box.width();
   }
@@ -123,11 +114,10 @@ EDGEPT *edgesteps_to_edgepts( // convert outline
   int32_t stepindex; // current step
   int32_t stepinc;   // increment
   int32_t epindex;   // current EDGEPT
-  int32_t count;     // repeated steps
   ICOORD vec;        // for this 8 step
   ICOORD prev_vec;
   int8_t epdir;   // of this step
-  DIR128 prevdir; // prvious dir
+  DIR128 prevdir; // previous dir
   DIR128 dir;     // of this step
 
   pos = c_outline->start_pos(); // start of loop
@@ -135,7 +125,8 @@ EDGEPT *edgesteps_to_edgepts( // convert outline
   stepindex = 0;
   epindex = 0;
   prevdir = -1;
-  count = 0;
+  // repeated steps
+  uint32_t count = 0;
   int prev_stepindex = 0;
   do {
     dir = c_outline->step_dir(stepindex);
@@ -158,15 +149,16 @@ EDGEPT *edgesteps_to_edgepts( // convert outline
       edgepts[epindex].vec.x = prev_vec.x();
       edgepts[epindex].vec.y = prev_vec.y();
       pos += prev_vec;
-      edgepts[epindex].flags[RUNLENGTH] = count;
+      edgepts[epindex].runlength = count;
       edgepts[epindex].prev = &edgepts[epindex - 1];
-      edgepts[epindex].flags[FLAGS] = 0;
+      // TODO: reset is_hidden, too?
+      edgepts[epindex].fixed = false;
       edgepts[epindex].next = &edgepts[epindex + 1];
       prevdir += 64;
       epdir = DIR128(0) - prevdir;
       epdir >>= 4;
       epdir &= 7;
-      edgepts[epindex].flags[DIR] = epdir;
+      edgepts[epindex].dir = epdir;
       edgepts[epindex].src_outline = c_outline;
       edgepts[epindex].start_step = prev_stepindex;
       edgepts[epindex].step_count = stepindex - prev_stepindex;
@@ -186,8 +178,9 @@ EDGEPT *edgesteps_to_edgepts( // convert outline
   edgepts[epindex].vec.x = prev_vec.x();
   edgepts[epindex].vec.y = prev_vec.y();
   pos += prev_vec;
-  edgepts[epindex].flags[RUNLENGTH] = count;
-  edgepts[epindex].flags[FLAGS] = 0;
+  edgepts[epindex].runlength = count;
+  // TODO: reset is_hidden, too?
+  edgepts[epindex].fixed = false;
   edgepts[epindex].src_outline = c_outline;
   edgepts[epindex].start_step = prev_stepindex;
   edgepts[epindex].step_count = stepindex - prev_stepindex;
@@ -197,7 +190,7 @@ EDGEPT *edgesteps_to_edgepts( // convert outline
   epdir = DIR128(0) - prevdir;
   epdir >>= 4;
   epdir &= 7;
-  edgepts[epindex].flags[DIR] = epdir;
+  edgepts[epindex].dir = epdir;
   edgepts[0].prev = &edgepts[epindex];
   ASSERT_HOST(pos.x() == c_outline->start_pos().x() && pos.y() == c_outline->start_pos().y());
   return &edgepts[0];
@@ -207,8 +200,6 @@ EDGEPT *edgesteps_to_edgepts( // convert outline
  *fix2(start,area) fixes points on the outline according to a trial method*
  **********************************************************************/
 
-//#pragma OPT_LEVEL 1 /*stop compiler bugs*/
-
 void fix2(         // polygonal approx
     EDGEPT *start, /*loop to approimate */
     int area) {
@@ -216,77 +207,76 @@ void fix2(         // polygonal approx
   EDGEPT *edgept1;
   EDGEPT *loopstart; /*modified start of loop */
   EDGEPT *linestart; /*start of line segment */
-  int dir1, dir2;    /*directions of line */
-  int sum1, sum2;    /*lengths in dir1,dir2 */
   int stopped;       /*completed flag */
   int fixed_count;   // no of fixed points
+  int8_t dir;
   int d01, d12, d23, gapmin;
   TPOINT d01vec, d12vec, d23vec;
   EDGEPT *edgefix, *startfix;
   EDGEPT *edgefix0, *edgefix1, *edgefix2, *edgefix3;
 
   edgept = start; /*start of loop */
-  while (((edgept->flags[DIR] - edgept->prev->flags[DIR] + 1) & 7) < 3 &&
-         (dir1 = (edgept->prev->flags[DIR] - edgept->next->flags[DIR]) & 7) != 2 && dir1 != 6) {
+  while (((edgept->dir - edgept->prev->dir + 1) & 7) < 3 &&
+         (dir = (edgept->prev->dir - edgept->next->dir) & 7) != 2 && dir != 6) {
     edgept = edgept->next; /*find suitable start */
   }
   loopstart = edgept;      /*remember start */
 
   stopped = 0;                   /*not finished yet */
-  edgept->flags[FLAGS] |= FIXED; /*fix it */
+  edgept->fixed = true; //fix it
   do {
     linestart = edgept;        /*possible start of line */
-    dir1 = edgept->flags[DIR]; /*first direction */
-                               /*length of dir1 */
-    sum1 = edgept->flags[RUNLENGTH];
+    auto dir1 = edgept->dir; //first direction
+    //length of dir1
+    auto sum1 = edgept->runlength;
     edgept = edgept->next;
-    dir2 = edgept->flags[DIR]; /*2nd direction */
-                               /*length in dir2 */
-    sum2 = edgept->flags[RUNLENGTH];
+    auto dir2 = edgept->dir; //2nd direction
+    //length in dir2
+    auto sum2 = edgept->runlength;
     if (((dir1 - dir2 + 1) & 7) < 3) {
-      while (edgept->prev->flags[DIR] == edgept->next->flags[DIR]) {
+      while (edgept->prev->dir == edgept->next->dir) {
         edgept = edgept->next; /*look at next */
-        if (edgept->flags[DIR] == dir1) {
+        if (edgept->dir == dir1) {
           /*sum lengths */
-          sum1 += edgept->flags[RUNLENGTH];
+          sum1 += edgept->runlength;
         } else {
-          sum2 += edgept->flags[RUNLENGTH];
+          sum2 += edgept->runlength;
         }
       }
 
       if (edgept == loopstart) {
         stopped = 1; /*finished */
       }
-      if (sum2 + sum1 > 2 && linestart->prev->flags[DIR] == dir2 &&
-          (linestart->prev->flags[RUNLENGTH] > linestart->flags[RUNLENGTH] || sum2 > sum1)) {
+      if (sum2 + sum1 > 2 && linestart->prev->dir == dir2 &&
+          (linestart->prev->runlength > linestart->runlength || sum2 > sum1)) {
         /*start is back one */
         linestart = linestart->prev;
-        linestart->flags[FLAGS] |= FIXED;
+        linestart->fixed = true;
       }
 
-      if (((edgept->next->flags[DIR] - edgept->flags[DIR] + 1) & 7) >= 3 ||
-          (edgept->flags[DIR] == dir1 && sum1 >= sum2) ||
-          ((edgept->prev->flags[RUNLENGTH] < edgept->flags[RUNLENGTH] ||
-            (edgept->flags[DIR] == dir2 && sum2 >= sum1)) &&
+      if (((edgept->next->dir - edgept->dir + 1) & 7) >= 3 ||
+          (edgept->dir == dir1 && sum1 >= sum2) ||
+          ((edgept->prev->runlength < edgept->runlength ||
+            (edgept->dir == dir2 && sum2 >= sum1)) &&
            linestart->next != edgept)) {
         edgept = edgept->next;
       }
     }
     /*sharp bend */
-    edgept->flags[FLAGS] |= FIXED;
+    edgept->fixed = true;
   }
   /*do whole loop */
   while (edgept != loopstart && !stopped);
 
   edgept = start;
   do {
-    if (((edgept->flags[RUNLENGTH] >= 8) && (edgept->flags[DIR] != 2) &&
-         (edgept->flags[DIR] != 6)) ||
-        ((edgept->flags[RUNLENGTH] >= 8) &&
-         ((edgept->flags[DIR] == 2) || (edgept->flags[DIR] == 6)))) {
-      edgept->flags[FLAGS] |= FIXED;
+    if (((edgept->runlength >= 8) && (edgept->dir != 2) &&
+         (edgept->dir != 6)) ||
+        ((edgept->runlength >= 8) &&
+         ((edgept->dir == 2) || (edgept->dir == 6)))) {
+      edgept->fixed = true;
       edgept1 = edgept->next;
-      edgept1->flags[FLAGS] |= FIXED;
+      edgept1->fixed = true;
     }
     edgept = edgept->next;
   } while (edgept != start);
@@ -294,19 +284,19 @@ void fix2(         // polygonal approx
   edgept = start;
   do {
     /*single fixed step */
-    if (edgept->flags[FLAGS] & FIXED &&
-        edgept->flags[RUNLENGTH] == 1
-        /*and neighours free */
-        && edgept->next->flags[FLAGS] & FIXED &&
-        (edgept->prev->flags[FLAGS] & FIXED) == 0
+    if (edgept->fixed &&
+        edgept->runlength == 1
+        /*and neighbours free */
+        && edgept->next->fixed &&
+        !edgept->prev->fixed
         /*same pair of dirs */
-        && (edgept->next->next->flags[FLAGS] & FIXED) == 0 &&
-        edgept->prev->flags[DIR] == edgept->next->flags[DIR] &&
-        edgept->prev->prev->flags[DIR] == edgept->next->next->flags[DIR] &&
-        ((edgept->prev->flags[DIR] - edgept->flags[DIR] + 1) & 7) < 3) {
-      /*unfix it */
-      edgept->flags[FLAGS] &= ~FIXED;
-      edgept->next->flags[FLAGS] &= ~FIXED;
+        && !edgept->next->next->fixed &&
+        edgept->prev->dir == edgept->next->dir &&
+        edgept->prev->prev->dir == edgept->next->next->dir &&
+        ((edgept->prev->dir - edgept->dir + 1) & 7) < 3) {
+      // unfix it
+      edgept->fixed = false;
+      edgept->next->fixed = false;
     }
     edgept = edgept->next;   /*do all points */
   } while (edgept != start); /*until finished */
@@ -321,30 +311,30 @@ void fix2(         // polygonal approx
   edgept = start;
   fixed_count = 0;
   do {
-    if (edgept->flags[FLAGS] & FIXED) {
+    if (edgept->fixed) {
       fixed_count++;
     }
     edgept = edgept->next;
   } while (edgept != start);
-  while ((edgept->flags[FLAGS] & FIXED) == 0) {
+  while (!edgept->fixed) {
     edgept = edgept->next;
   }
   edgefix0 = edgept;
 
   edgept = edgept->next;
-  while ((edgept->flags[FLAGS] & FIXED) == 0) {
+  while (!edgept->fixed) {
     edgept = edgept->next;
   }
   edgefix1 = edgept;
 
   edgept = edgept->next;
-  while ((edgept->flags[FLAGS] & FIXED) == 0) {
+  while (!edgept->fixed) {
     edgept = edgept->next;
   }
   edgefix2 = edgept;
 
   edgept = edgept->next;
-  while ((edgept->flags[FLAGS] & FIXED) == 0) {
+  while (!edgept->fixed) {
     edgept = edgept->next;
   }
   edgefix3 = edgept;
@@ -368,10 +358,10 @@ void fix2(         // polygonal approx
       d23vec.diff(edgefix2->pos, edgefix3->pos);
       d23 = d23vec.length();
       if (d01 > d23) {
-        edgefix2->flags[FLAGS] &= ~FIXED;
+        edgefix2->fixed = false;
         fixed_count--;
       } else {
-        edgefix1->flags[FLAGS] &= ~FIXED;
+        edgefix1->fixed = false;
         fixed_count--;
         edgefix1 = edgefix2;
       }
@@ -381,7 +371,7 @@ void fix2(         // polygonal approx
     }
     edgefix2 = edgefix3;
     edgept = edgept->next;
-    while ((edgept->flags[FLAGS] & FIXED) == 0) {
+    while (!edgept->fixed) {
       if (edgept == startfix) {
         stopped = 1;
       }
@@ -391,8 +381,6 @@ void fix2(         // polygonal approx
     edgefix = edgefix2;
   } while ((edgefix != startfix) && (!stopped));
 }
-
-//#pragma OPT_LEVEL 2 /*stop compiler bugs*/
 
 /**********************************************************************
  *poly2(startpt,area,path) applies a second approximation to the outline
@@ -416,19 +404,17 @@ EDGEPT *poly2(       // second poly
   edgept = startpt;    /*start of loop */
 
   do {
-    /*current point fixed */
-    if (edgept->flags[FLAGS] & FIXED
-        /*and next not */
-        && (edgept->next->flags[FLAGS] & FIXED) == 0) {
+    // current point fixed and next not
+    if (edgept->fixed && !edgept->next->fixed) {
       loopstart = edgept; /*start of repoly */
       break;
     }
     edgept = edgept->next;     /*next point */
   } while (edgept != startpt); /*until found or finished */
 
-  if (loopstart == nullptr && (startpt->flags[FLAGS] & FIXED) == 0) {
+  if (loopstart == nullptr && !startpt->fixed) {
     /*fixed start of loop */
-    startpt->flags[FLAGS] |= FIXED;
+    startpt->fixed = true;
     loopstart = startpt; /*or start of loop */
   }
   if (loopstart) {
@@ -439,18 +425,18 @@ EDGEPT *poly2(       // second poly
         edgesum = 0; /*sum of lengths */
         do {
           /*sum lengths */
-          edgesum += edgept->flags[RUNLENGTH];
+          edgesum += edgept->runlength;
           edgept = edgept->next; /*move on */
-        } while ((edgept->flags[FLAGS] & FIXED) == 0 && edgept != loopstart && edgesum < 126);
+        } while (!edgept->fixed && edgept != loopstart && edgesum < 126);
         if (poly_debug) {
           tprintf("Poly2:starting at (%d,%d)+%d=(%d,%d),%d to (%d,%d)\n", linestart->pos.x,
-                  linestart->pos.y, linestart->flags[DIR], linestart->vec.x, linestart->vec.y,
+                  linestart->pos.y, linestart->dir, linestart->vec.x, linestart->vec.y,
                   edgesum, edgept->pos.x, edgept->pos.y);
         }
         /*reapproximate */
         cutline(linestart, edgept, area);
 
-        while ((edgept->next->flags[FLAGS] & FIXED) && edgept != loopstart) {
+        while (edgept->next->fixed && edgept != loopstart) {
           edgept = edgept->next; /*look for next non-fixed */
         }
       }
@@ -458,7 +444,7 @@ EDGEPT *poly2(       // second poly
       while (edgept != loopstart);
       edgesum = 0;
       do {
-        if (edgept->flags[FLAGS] & FIXED) {
+        if (edgept->fixed) {
           edgesum++;
         }
         edgept = edgept->next;
@@ -473,7 +459,7 @@ EDGEPT *poly2(       // second poly
       linestart = edgept;
       do {
         edgept = edgept->next;
-      } while ((edgept->flags[FLAGS] & FIXED) == 0);
+      } while (!edgept->fixed);
       linestart->next = edgept;
       edgept->prev = linestart;
       linestart->vec.x = edgept->pos.x - linestart->pos.x;
@@ -575,7 +561,7 @@ void cutline(              // recursive refine
             maxperp * 200.0 / area, perp / 256.0, perp * 300.0 / area);
   }
   if (maxperp * par1 >= 10 * area || perp * par2 >= 10 * area || vlen >= 126) {
-    maxpoint->flags[FLAGS] |= FIXED;
+    maxpoint->fixed = true;
     /*partitions */
     cutline(first, maxpoint, area);
     cutline(maxpoint, last, area);

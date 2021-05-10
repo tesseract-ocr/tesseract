@@ -2,7 +2,6 @@
 // File:        strokewidth.h
 // Description: Subclass of BBGrid to find uniformity of strokewidth.
 // Author:      Ray Smith
-// Created:     Mon Mar 31 16:17:01 PST 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -113,7 +112,7 @@ public:
   // Large blobs that cause overlap are put in separate partitions and added
   // to the big_parts list.
   void GradeBlobsIntoPartitions(PageSegMode pageseg_mode, const FCOORD &rerotation, TO_BLOCK *block,
-                                Pix *nontext_pix, const DENORM *denorm, bool cjk_script,
+                                Image nontext_pix, const DENORM *denorm, bool cjk_script,
                                 TextlineProjection *projection, BLOBNBOX_LIST *diacritic_blobs,
                                 ColPartitionGrid *part_grid, ColPartition_LIST *big_parts);
 
@@ -297,16 +296,18 @@ private:
   // Returns true if there is no significant noise in between the boxes.
   bool NoNoiseInBetween(const TBOX &box1, const TBOX &box2) const;
 
+#ifndef GRAPHICS_DISABLED
   // Displays the blobs colored according to the number of good neighbours
   // and the vertical/horizontal flow.
   ScrollView *DisplayGoodBlobs(const char *window_name, int x, int y);
 
   // Displays blobs colored according to whether or not they are diacritics.
   ScrollView *DisplayDiacritics(const char *window_name, int x, int y, TO_BLOCK *block);
+#endif
 
 private:
   // Image map of photo/noise areas on the page. Borrowed pointer (not owned.)
-  Pix *nontext_map_;
+  Image nontext_map_;
   // Textline projection map. Borrowed pointer.
   TextlineProjection *projection_;
   // DENORM used by projection_ to get back to image coords. Borrowed pointer.
@@ -315,14 +316,16 @@ private:
   TBOX grid_box_;
   // Rerotation to get back to the original image.
   FCOORD rerotation_;
+#ifndef GRAPHICS_DISABLED
   // Windows for debug display.
-  ScrollView *leaders_win_;
-  ScrollView *initial_widths_win_;
-  ScrollView *widths_win_;
-  ScrollView *chains_win_;
-  ScrollView *diacritics_win_;
-  ScrollView *textlines_win_;
-  ScrollView *smoothed_win_;
+  ScrollView *leaders_win_ = nullptr;
+  ScrollView *initial_widths_win_ = nullptr;
+  ScrollView *widths_win_ = nullptr;
+  ScrollView *chains_win_ = nullptr;
+  ScrollView *diacritics_win_ = nullptr;
+  ScrollView *textlines_win_ = nullptr;
+  ScrollView *smoothed_win_ = nullptr;
+#endif
 };
 
 } // namespace tesseract.

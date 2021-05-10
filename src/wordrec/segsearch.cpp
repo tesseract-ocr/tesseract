@@ -215,7 +215,7 @@ void Wordrec::UpdateSegSearchNodes(float rating_cert_scale, int starting_col,
   }
   // The segsearch is completed. Reset all updated flags on all VSEs and reset
   // all pendings.
-  for (int col = 0; col < pending->size(); ++col) {
+  for (unsigned col = 0; col < pending->size(); ++col) {
     (*pending)[col].Clear();
     ViterbiStateEntry_IT vse_it(&best_choice_bundle->beam[col]->viterbi_state_entries);
     for (vse_it.mark_cycle_pt(); !vse_it.cycled_list(); vse_it.forward()) {
@@ -282,7 +282,7 @@ void Wordrec::ProcessSegSearchPainPoint(float pain_point_priority, const MATRIX_
 // Needed when the n-gram model is enabled, as the multi-length comparison
 // implementation will re-value existing paths to worse values.
 void Wordrec::ResetNGramSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle,
-                               std::vector<SegSearchPending> *pending) {
+                               std::vector<SegSearchPending> &pending) {
   // TODO(rays) More refactoring required here.
   // Delete existing viterbi states.
   for (auto &col : best_choice_bundle->beam) {
@@ -292,9 +292,9 @@ void Wordrec::ResetNGramSearch(WERD_RES *word_res, BestChoiceBundle *best_choice
   word_res->ClearWordChoices();
   best_choice_bundle->best_vse = nullptr;
   // Clear out all existing pendings and add a new one for the first column.
-  (*pending)[0].SetColumnClassified();
-  for (int i = 1; i < pending->size(); ++i) {
-    (*pending)[i].Clear();
+  pending[0].SetColumnClassified();
+  for (auto &data : pending) {
+    data.Clear();
   }
 }
 

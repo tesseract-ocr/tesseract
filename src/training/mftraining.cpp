@@ -58,7 +58,7 @@ static void DisplayProtoList(const char *ch, LIST protolist) {
   auto window = std::make_unique<ScrollView>("Char samples", 50, 200, 520, 520, 260, 260, true);
   LIST proto = protolist;
   iterate(proto) {
-    auto *prototype = reinterpret_cast<PROTOTYPE *>(first_node(proto));
+    auto *prototype = reinterpret_cast<PROTOTYPE *>(proto->first_node());
     if (prototype->Significant) {
       window->Pen(ScrollView::GREEN);
     } else if (prototype->NumSamples == 0) {
@@ -116,7 +116,7 @@ static LIST ClusterOneConfig(int shape_id, const char *class_label, LIST mf_clas
   merge_class->Class->font_set.push_back(shape_id);
   LIST proto_it = proto_list;
   iterate(proto_it) {
-    auto *prototype = reinterpret_cast<PROTOTYPE *>(first_node(proto_it));
+    auto *prototype = reinterpret_cast<PROTOTYPE *>(proto_it->first_node());
     // See if proto can be approximated by existing proto.
     int p_id = FindClosestExistingProto(merge_class->Class, merge_class->NumMerged, prototype);
     if (p_id == NO_PROTO) {

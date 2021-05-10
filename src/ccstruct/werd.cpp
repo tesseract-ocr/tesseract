@@ -33,8 +33,6 @@ namespace tesseract {
 #define LAST_COLOUR ScrollView::AQUAMARINE ///< last rainbow colour
 #define CHILD_COLOUR ScrollView::BROWN     ///< colour of children
 
-ELIST2IZE(WERD)
-
 /**
  * WERD::WERD
  *
@@ -261,7 +259,7 @@ void WERD::copy_on(WERD *other) {
  * Display members
  */
 
-void WERD::print() {
+void WERD::print() const {
   tprintf("Blanks= %d\n", blanks);
   bounding_box().print();
   tprintf("Flags = %lu = 0%lo\n", flags.to_ulong(), flags.to_ulong());
@@ -362,14 +360,9 @@ WERD &WERD::operator=(const WERD &source) {
   flags = source.flags;
   script_id_ = source.script_id_;
   correct = source.correct;
-  if (!cblobs.empty()) {
-    cblobs.clear();
-  }
+  cblobs.clear();
   cblobs.deep_copy(&source.cblobs, &C_BLOB::deep_copy);
-
-  if (!rej_cblobs.empty()) {
-    rej_cblobs.clear();
-  }
+  rej_cblobs.clear();
   rej_cblobs.deep_copy(&source.rej_cblobs, &C_BLOB::deep_copy);
   return *this;
 }
@@ -539,7 +532,7 @@ bool WERD::AddSelectedOutlines(const std::vector<bool> &wanted,
     *make_next_word_fuzzy = false;
   }
   C_BLOB_IT rej_it(&rej_cblobs);
-  for (int i = 0; i < outlines.size(); ++i) {
+  for (unsigned i = 0; i < outlines.size(); ++i) {
     C_OUTLINE *outline = outlines[i];
     if (outline == nullptr) {
       continue; // Already used it.

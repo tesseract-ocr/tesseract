@@ -608,7 +608,7 @@ void BaselineBlock::DrawFinalRows(const ICOORD &page_tr) {
 
 #endif // !GRAPHICS_DISABLED
 
-void BaselineBlock::DrawPixSpline(Pix *pix_in) {
+void BaselineBlock::DrawPixSpline(Image pix_in) {
   if (non_text_block_) {
     return;
   }

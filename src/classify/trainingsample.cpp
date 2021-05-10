@@ -32,8 +32,6 @@
 
 namespace tesseract {
 
-ELISTIZE(TrainingSample)
-
 // Center of randomizing operations.
 const int kRandomizingCenter = 128;
 
@@ -265,7 +263,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type, int micro_type, int c
     num_micro_features_ = char_features->NumFeatures;
     micro_features_ = new MicroFeature[num_micro_features_];
     for (uint32_t f = 0; f < num_micro_features_; ++f) {
-      for (int d = 0; d < MFCount; ++d) {
+      for (int d = 0; d < (int)MicroFeatureParameter::MFCount; ++d) {
         micro_features_[f][d] = char_features->Features[f]->Params[d];
       }
     }
@@ -305,8 +303,8 @@ void TrainingSample::IndexFeatures(const IntFeatureSpace &feature_space) {
 }
 
 // Returns a pix representing the sample. (Int features only.)
-Pix *TrainingSample::RenderToPix(const UNICHARSET *unicharset) const {
-  Pix *pix = pixCreate(kIntFeatureExtent, kIntFeatureExtent, 1);
+Image TrainingSample::RenderToPix(const UNICHARSET *unicharset) const {
+  Image pix = pixCreate(kIntFeatureExtent, kIntFeatureExtent, 1);
   for (uint32_t f = 0; f < num_features_; ++f) {
     int start_x = features_[f].X;
     int start_y = kIntFeatureExtent - features_[f].Y;
@@ -341,7 +339,7 @@ void TrainingSample::DisplayFeatures(ScrollView::Color color, ScrollView *window
 // by padding wherever possible.
 // The returned Pix must be pixDestroyed after use.
 // If the input page_pix is nullptr, nullptr is returned.
-Pix *TrainingSample::GetSamplePix(int padding, Pix *page_pix) const {
+Image TrainingSample::GetSamplePix(int padding, Image page_pix) const {
   if (page_pix == nullptr) {
     return nullptr;
   }
@@ -354,7 +352,7 @@ Pix *TrainingSample::GetSamplePix(int padding, Pix *page_pix) const {
   padded_box &= page_box;
   Box *box =
       boxCreate(page_box.left(), page_height - page_box.top(), page_box.width(), page_box.height());
-  Pix *sample_pix = pixClipRectangle(page_pix, box, nullptr);
+  Image sample_pix = pixClipRectangle(page_pix, box, nullptr);
   boxDestroy(&box);
   return sample_pix;
 }

@@ -19,6 +19,7 @@
 #include <string>
 #include "helpers.h"
 #include "include_gunit.h"
+#include "image.h"
 #include "log.h"
 
 namespace tesseract {
@@ -37,7 +38,7 @@ class PageSegModeTest : public testing::Test {
 protected:
   PageSegModeTest() = default;
   ~PageSegModeTest() override {
-    pixDestroy(&src_pix_);
+    src_pix_.destroy();
   }
 
   void SetUp() override {
@@ -46,7 +47,7 @@ protected:
   }
 
   void SetImage(const char *filename) {
-    pixDestroy(&src_pix_);
+    src_pix_.destroy();
     src_pix_ = pixRead(filename);
     api_.Init(TESSDATA_DIR, "eng", tesseract::OEM_TESSERACT_ONLY);
     api_.SetImage(src_pix_);
@@ -76,7 +77,7 @@ protected:
     delete[] result;
   }
 
-  Pix *src_pix_ = nullptr;
+  Image src_pix_ = nullptr;
   std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };

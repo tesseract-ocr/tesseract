@@ -32,7 +32,9 @@
 #include "sampleiterator.h"
 #include "shapeclassifier.h"
 #include "shapetable.h"
+#ifndef GRAPHICS_DISABLED
 #include "svmnode.h"
+#endif
 
 #include "scanutils.h"
 
@@ -63,7 +65,7 @@ MasterTrainer::MasterTrainer(NormalizationMode norm_mode, bool shape_analysis,
 MasterTrainer::~MasterTrainer() {
   delete[] fragments_;
   for (auto &page_image : page_images_) {
-    pixDestroy(&page_image);
+    page_image.destroy();
   }
 }
 
@@ -219,7 +221,7 @@ void MasterTrainer::AddSample(bool verification, const char *unichar, TrainingSa
 void MasterTrainer::LoadPageImages(const char *filename) {
   size_t offset = 0;
   int page;
-  Pix *pix;
+  Image pix;
   for (page = 0;; page++) {
     pix = pixReadFromMultipageTiff(filename, &offset);
     if (!pix) {
@@ -574,7 +576,7 @@ CLUSTERER *MasterTrainer::SetupForClustering(const ShapeTable &shape_table,
                                              int *num_samples) {
   int desc_index = ShortNameToFeatureType(feature_defs, kMicroFeatureType);
   int num_params = feature_defs.FeatureDesc[desc_index]->NumParams;
-  ASSERT_HOST(num_params == MFCount);
+  ASSERT_HOST(num_params == (int)MicroFeatureParameter::MFCount);
   CLUSTERER *clusterer = MakeClusterer(num_params, feature_defs.FeatureDesc[desc_index]->ParamDesc);
 
   // We want to iterate over the samples of just the one shape.
@@ -594,7 +596,7 @@ CLUSTERER *MasterTrainer::SetupForClustering(const ShapeTable &shape_table,
     const TrainingSample *sample = sample_ptrs[i];
     uint32_t num_features = sample->num_micro_features();
     for (uint32_t f = 0; f < num_features; ++f) {
-      MakeSample(clusterer, sample->micro_features()[f], sample_id);
+      MakeSample(clusterer, sample->micro_features()[f].data(), sample_id);
     }
     ++sample_id;
   }

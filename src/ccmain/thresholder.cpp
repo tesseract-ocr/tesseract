@@ -16,11 +16,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <allheaders.h>
-
-#include <cstdint> // for uint32_t
-#include <cstring>
-
 #include "otsuthr.h"
 #include "thresholder.h"
 #include "tprintf.h" // for tprintf
@@ -28,6 +23,12 @@
 #if defined(USE_OPENCL)
 #  include "openclwrapper.h" // for OpenclDevice
 #endif
+
+#include <allheaders.h>
+
+#include <cstdint> // for uint32_t
+#include <cstring>
+#include <tuple>
 
 namespace tesseract {
 
@@ -49,7 +50,7 @@ ImageThresholder::~ImageThresholder() {
 
 // Destroy the Pix if there is one, freeing memory.
 void ImageThresholder::Clear() {
-  pixDestroy(&pix_);
+  pix_.destroy();
 }
 
 // Return true if no image has been set.
@@ -71,7 +72,7 @@ void ImageThresholder::SetImage(const unsigned char *imagedata, int width, int h
   if (bpp == 0) {
     bpp = 1;
   }
-  Pix *pix = pixCreate(width, height, bpp == 24 ? 32 : bpp);
+  Image pix = pixCreate(width, height, bpp == 24 ? 32 : bpp);
   l_uint32 *data = pixGetData(pix);
   int wpl = pixGetWpl(pix);
   switch (bpp) {
@@ -121,7 +122,7 @@ void ImageThresholder::SetImage(const unsigned char *imagedata, int width, int h
       tprintf("Cannot convert RAW image to Pix with bpp = %d\n", bpp);
   }
   SetImage(pix);
-  pixDestroy(&pix);
+  pix.destroy();
 }
 
 // Store the coordinates of the rectangle to process for later use.
@@ -152,29 +153,29 @@ void ImageThresholder::GetImageSizes(int *left, int *top, int *width, int *heigh
 // SetImage for Pix clones its input, so the source pix may be pixDestroyed
 // immediately after, but may not go away until after the Thresholder has
 // finished with it.
-void ImageThresholder::SetImage(const Pix *pix) {
+void ImageThresholder::SetImage(const Image pix) {
   if (pix_ != nullptr) {
-    pixDestroy(&pix_);
+    pix_.destroy();
   }
-  Pix *src = const_cast<Pix *>(pix);
+  Image src = pix;
   int depth;
   pixGetDimensions(src, &image_width_, &image_height_, &depth);
   // Convert the image as necessary so it is one of binary, plain RGB, or
   // 8 bit with no colormap. Guarantee that we always end up with our own copy,
   // not just a clone of the input.
   if (pixGetColormap(src)) {
-    Pix *tmp = pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC);
+    Image tmp = pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC);
     depth = pixGetDepth(tmp);
     if (depth > 1 && depth < 8) {
       pix_ = pixConvertTo8(tmp, false);
-      pixDestroy(&tmp);
+      tmp.destroy();
     } else {
       pix_ = tmp;
     }
   } else if (depth > 1 && depth < 8) {
     pix_ = pixConvertTo8(src, false);
   } else {
-    pix_ = pixCopy(nullptr, src);
+    pix_ = src.copy();
   }
   depth = pixGetDepth(pix_);
   pix_channels_ = depth / 8;
@@ -184,11 +185,50 @@ void ImageThresholder::SetImage(const Pix *pix) {
   Init();
 }
 
+std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
+                                                         ThresholdMethod method) {
+  Image pix_grey = nullptr;
+  Image pix_binary = nullptr;
+  Image pix_thresholds = nullptr;
+
+  if (image_width_ > INT16_MAX || image_height_ > INT16_MAX) {
+    tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
+    return std::make_tuple(false, nullptr, nullptr, nullptr);
+  }
+
+  if (pix_channels_ == 0) {
+    // We have a binary image, but it still has to be copied, as this API
+    // allows the caller to modify the output.
+    Image original = GetPixRect();
+    pix_binary = original.copy();
+    original.destroy();
+    return std::make_tuple(false, nullptr, pix_binary, nullptr);
+  }
+
+  pix_grey = GetPixRectGrey();
+
+  if (method == ThresholdMethod::Otsu || method >= ThresholdMethod::Max) {
+    method = ThresholdMethod::AdaptiveOtsu;
+  }
+
+  int r;
+  if (method == ThresholdMethod::AdaptiveOtsu) {
+    r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1,
+                                 pix_thresholds, pix_binary);
+  } else if (method == ThresholdMethod::TiledSauvola) {
+    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, pix_thresholds,
+                                pix_binary);
+  }
+
+  bool ok = r == 0 ? true : false;
+  return std::make_tuple(ok, pix_grey, pix_binary, pix_thresholds);
+}
+
 // Threshold the source image as efficiently as possible to the output Pix.
 // Creates a Pix and sets pix to point to the resulting pointer.
 // Caller must use pixDestroy to free the created Pix.
 /// Returns false on error.
-bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix **pix) {
+bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Image *pix) {
   if (image_width_ > INT16_MAX || image_height_ > INT16_MAX) {
     tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
     return false;
@@ -196,9 +236,9 @@ bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix **pix) {
   if (pix_channels_ == 0) {
     // We have a binary image, but it still has to be copied, as this API
     // allows the caller to modify the output.
-    Pix *original = GetPixRect();
-    *pix = pixCopy(nullptr, original);
-    pixDestroy(&original);
+    Image original = GetPixRect();
+    *pix = original.copy();
+    original.destroy();
   } else {
     OtsuThresholdRectToPix(pix_, pix);
   }
@@ -212,18 +252,18 @@ bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix **pix) {
 // Ideally the 8 bit threshold should be the exact threshold used to generate
 // the binary image in ThresholdToPix, but this is not a hard constraint.
 // Returns nullptr if the input is binary. PixDestroy after use.
-Pix *ImageThresholder::GetPixRectThresholds() {
+Image ImageThresholder::GetPixRectThresholds() {
   if (IsBinary()) {
     return nullptr;
   }
-  Pix *pix_grey = GetPixRectGrey();
+  Image pix_grey = GetPixRectGrey();
   int width = pixGetWidth(pix_grey);
   int height = pixGetHeight(pix_grey);
   std::vector<int> thresholds;
   std::vector<int> hi_values;
   OtsuThreshold(pix_grey, 0, 0, width, height, thresholds, hi_values);
-  pixDestroy(&pix_grey);
-  Pix *pix_thresholds = pixCreate(width, height, 8);
+  pix_grey.destroy();
+  Image pix_thresholds = pixCreate(width, height, 8);
   int threshold = thresholds[0] > 0 ? thresholds[0] : 128;
   pixSetAllArbitrary(pix_thresholds, threshold);
   return pix_thresholds;
@@ -239,14 +279,14 @@ void ImageThresholder::Init() {
 // This function will be used in the future by the page layout analysis, and
 // the layout analysis that uses it will only be available with Leptonica,
 // so there is no raw equivalent.
-Pix *ImageThresholder::GetPixRect() {
+Image ImageThresholder::GetPixRect() {
   if (IsFullImage()) {
     // Just clone the whole thing.
-    return pixClone(pix_);
+    return pix_.clone();
   } else {
     // Crop to the given rectangle.
     Box *box = boxCreate(rect_left_, rect_top_, rect_width_, rect_height_);
-    Pix *cropped = pixClipRectangle(pix_, box, nullptr);
+    Image cropped = pixClipRectangle(pix_, box, nullptr);
     boxDestroy(&box);
     return cropped;
   }
@@ -256,24 +296,24 @@ Pix *ImageThresholder::GetPixRect() {
 // and at the same resolution as the output binary.
 // The returned Pix must be pixDestroyed.
 // Provided to the classifier to extract features from the greyscale image.
-Pix *ImageThresholder::GetPixRectGrey() {
+Image ImageThresholder::GetPixRectGrey() {
   auto pix = GetPixRect(); // May have to be reduced to grey.
   int depth = pixGetDepth(pix);
   if (depth != 8) {
     if (depth == 24) {
       auto tmp = pixConvert24To32(pix);
-      pixDestroy(&pix);
+      pix.destroy();
       pix = tmp;
     }
     auto result = pixConvertTo8(pix, false);
-    pixDestroy(&pix);
+    pix.destroy();
     return result;
   }
   return pix;
 }
 
 // Otsu thresholds the rectangle, taking the rectangle from *this.
-void ImageThresholder::OtsuThresholdRectToPix(Pix *src_pix, Pix **out_pix) const {
+void ImageThresholder::OtsuThresholdRectToPix(Image src_pix, Image *out_pix) const {
   std::vector<int> thresholds;
   std::vector<int> hi_values;
 
@@ -298,8 +338,8 @@ void ImageThresholder::OtsuThresholdRectToPix(Pix *src_pix, Pix **out_pix) const
 /// from the class, using thresholds/hi_values to the output pix.
 /// NOTE that num_channels is the size of the thresholds and hi_values
 // arrays and also the bytes per pixel in src_pix.
-void ImageThresholder::ThresholdRectToPix(Pix *src_pix, int num_channels, const std::vector<int> &thresholds,
-                                          const std::vector<int> &hi_values, Pix **pix) const {
+void ImageThresholder::ThresholdRectToPix(Image src_pix, int num_channels, const std::vector<int> &thresholds,
+                                          const std::vector<int> &hi_values, Image *pix) const {
   *pix = pixCreate(rect_width_, rect_height_, 1);
   uint32_t *pixdata = pixGetData(*pix);
   int wpl = pixGetWpl(*pix);

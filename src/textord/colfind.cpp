@@ -95,7 +95,6 @@ ColumnFinder::ColumnFinder(int gridsize, const ICOORD &bleft, const ICOORD &trig
     , nontext_map_(nullptr)
     , projection_(resolution)
     , denorm_(nullptr)
-    , input_blobs_win_(nullptr)
     , equation_detect_(nullptr) {
   TabVector_IT h_it(&horizontal_lines_);
   h_it.add_list_after(hlines);
@@ -107,8 +106,10 @@ ColumnFinder::~ColumnFinder() {
   }
   delete[] best_columns_;
   delete stroke_width_;
+#ifndef GRAPHICS_DISABLED
   delete input_blobs_win_;
-  pixDestroy(&nontext_map_);
+#endif
+  nontext_map_.destroy();
   while (denorm_ != nullptr) {
     DENORM *dead_denorm = denorm_;
     denorm_ = const_cast<DENORM *>(denorm_->predecessor());
@@ -148,7 +149,7 @@ ColumnFinder::~ColumnFinder() {
 // direction, so the textline projection_ map can be setup.
 // On return, IsVerticallyAlignedText may be called (now optionally) to
 // determine the gross textline alignment of the page.
-void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode, Pix *photo_mask_pix,
+void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode, Image photo_mask_pix,
                                        TO_BLOCK *input_block) {
   part_grid_.Init(gridsize(), bleft(), tright());
   delete stroke_width_;
@@ -162,7 +163,7 @@ void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode, Pix *photo_mask
   }
 #endif // !GRAPHICS_DISABLED
   SetBlockRuleEdges(input_block);
-  pixDestroy(&nontext_map_);
+  nontext_map_.destroy();
   // Run a preliminary strokewidth neighbour detection on the medium blobs.
   stroke_width_->SetNeighboursOnMediumBlobs(input_block);
   CCNonTextDetect nontext_detect(gridsize(), bleft(), tright());
@@ -283,11 +284,11 @@ void ColumnFinder::CorrectOrientation(TO_BLOCK *block, bool vertical_text_lines,
 // noise/diacriticness determined via classification.
 // Returns -1 if the user hits the 'd' key in the blocks window while running
 // in debug mode, which requests a retry with more debug info.
-int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix *scaled_color, int scaled_factor,
-                             TO_BLOCK *input_block, Pix *photo_mask_pix, Pix *thresholds_pix,
-                             Pix *grey_pix, DebugPixa *pixa_debug, BLOCK_LIST *blocks,
+int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Image scaled_color, int scaled_factor,
+                             TO_BLOCK *input_block, Image photo_mask_pix, Image thresholds_pix,
+                             Image grey_pix, DebugPixa *pixa_debug, BLOCK_LIST *blocks,
                              BLOBNBOX_LIST *diacritic_blobs, TO_BLOCK_LIST *to_blocks) {
-  pixOr(photo_mask_pix, photo_mask_pix, nontext_map_);
+  photo_mask_pix |= nontext_map_;
   stroke_width_->FindLeaderPartitions(input_block, &part_grid_);
   stroke_width_->RemoveLineResidue(&big_parts_);
   FindInitialTabVectors(nullptr, min_gutter_width_, tabfind_aligned_gap_fraction_, input_block);
@@ -640,7 +641,7 @@ void ColumnFinder::ImproveColumnCandidates(PartSetVector *src_sets, PartSetVecto
   } while (column_sets->empty() && !good_only);
   if (column_sets->empty()) {
     // TODO: optimize.
-    column_sets = &temp_cols;
+    *column_sets = temp_cols;
     temp_cols.clear();
   } else {
     for (auto data : temp_cols) {
@@ -952,7 +953,6 @@ static void ReleaseAllBlobsAndDeleteUnused(BLOBNBOX_LIST *blobs) {
   for (BLOBNBOX_IT blob_it(blobs); !blob_it.empty(); blob_it.forward()) {
     BLOBNBOX *blob = blob_it.extract();
     if (blob->owner() == nullptr) {
-      delete blob->cblob();
       delete blob;
     }
   }
@@ -1527,7 +1527,6 @@ static void RotateAndExplodeBlobList(const FCOORD &blob_rotation, BLOBNBOX_LIST 
         it.add_after_stay_put(new_blob);
       }
       it.extract();
-      delete cblob;
       delete blob;
     } else {
       if (blob_rotation.x() != 1.0f || blob_rotation.y() != 0.0f) {

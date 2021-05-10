@@ -47,8 +47,6 @@ AmbigSpec::AmbigSpec() {
   wrong_ngram_size = 0;
 }
 
-ELISTIZE(AmbigSpec)
-
 // Initializes the ambigs by adding a nullptr pointer to each table.
 void UnicharAmbigs::InitUnicharAmbigs(const UNICHARSET &unicharset, bool use_ambigs_for_adaption) {
   for (int i = 0; i < unicharset.size(); ++i) {
@@ -335,7 +333,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(int line_num, int version, int debug_leve
     return false;
   }
   if (version > 0) {
-    // The next field being true indicates that the abiguity should
+    // The next field being true indicates that the ambiguity should
     // always be substituted (e.g. '' should always be changed to ").
     // For such "certain" n -> m ambigs tesseract will insert character
     // fragments for the n pieces in the unicharset. AmbigsFound()

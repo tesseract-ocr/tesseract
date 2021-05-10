@@ -30,14 +30,14 @@
 #  include "config_auto.h"
 #endif
 
+#ifndef GRAPHICS_DISABLED
+
 #include "svmnode.h"
 
 #include <cstring>
 #include <iostream>
 
-#ifndef GRAPHICS_DISABLED
-
-#  include "scrollview.h"
+#include "scrollview.h"
 
 namespace tesseract {
 
@@ -57,20 +57,20 @@ SVMenuNode::~SVMenuNode() = default;
 // Create a new sub menu node with just a caption.  This is used to create
 // nodes which act as parent nodes to other nodes (e.g. submenus).
 SVMenuNode *SVMenuNode::AddChild(const char *txt) {
-  auto *s = new SVMenuNode(-1, txt, false, false, nullptr, nullptr);
+  auto *s = new SVMenuNode(-1, txt, false, false);
   this->AddChild(s);
   return s;
 }
 
 // Create a "normal" menu node which is associated with a command event.
 void SVMenuNode::AddChild(const char *txt, int command_event) {
-  this->AddChild(new SVMenuNode(command_event, txt, false, false, nullptr, nullptr));
+  this->AddChild(new SVMenuNode(command_event, txt, false, false));
 }
 
 // Create a menu node with an associated value (which might be changed
 // through the gui).
 void SVMenuNode::AddChild(const char *txt, int command_event, const char *val) {
-  this->AddChild(new SVMenuNode(command_event, txt, false, false, val, nullptr));
+  this->AddChild(new SVMenuNode(command_event, txt, false, false, val));
 }
 
 // Create a menu node with an associated value and description_.
@@ -80,7 +80,7 @@ void SVMenuNode::AddChild(const char *txt, int command_event, const char *val, c
 
 // Create a flag menu node.
 void SVMenuNode::AddChild(const char *txt, int command_event, int tv) {
-  this->AddChild(new SVMenuNode(command_event, txt, tv, true, nullptr, nullptr));
+  this->AddChild(new SVMenuNode(command_event, txt, tv, true));
 }
 
 // Convenience function called from the different constructors to initialize

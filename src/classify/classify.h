@@ -273,7 +273,9 @@ public:
     return AdaptedTemplates->NumPermClasses == 0;
   }
   bool LooksLikeGarbage(TBLOB *blob);
+#ifndef GRAPHICS_DISABLED
   void RefreshDebugWindow(ScrollView **win, const char *msg, int y_offset, const TBOX &wbox);
+#endif
   // intfx.cpp
   // Computes the DENORMS for bl(baseline) and cn(character) normalization
   // during feature extraction. The input denorm describes the current state
@@ -471,9 +473,11 @@ protected:
 private:
   // The currently active static classifier.
   ShapeClassifier *static_classifier_ = nullptr;
+#ifndef GRAPHICS_DISABLED
   ScrollView *learn_debug_win_ = nullptr;
   ScrollView *learn_fragmented_word_debug_win_ = nullptr;
   ScrollView *learn_fragments_debug_win_ = nullptr;
+#endif
 
   // Training data gathered here for all the images in a document.
   std::string tr_file_data_;

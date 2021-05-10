@@ -34,8 +34,6 @@ namespace tesseract {
 INT_VAR(textord_fp_chop_error, 2, "Max allowed bending of chop cells");
 double_VAR(textord_fp_chop_snap, 0.5, "Max distance of chop pt from vertex");
 
-ELISTIZE(C_OUTLINE_FRAG)
-
 static WERD *add_repeated_word(WERD_IT *rep_it, int16_t &rep_left, int16_t &prev_chop_coord,
                                uint8_t &blanks, float pitch, WERD_IT *word_it);
 
@@ -269,7 +267,7 @@ void split_to_blob(                 // split the blob
   C_BLOB *real_cblob; // cblob to chop
 
   if (blob != nullptr) {
-    real_cblob = blob->cblob();
+    real_cblob = blob->remove_cblob();
   } else {
     real_cblob = nullptr;
   }

@@ -33,7 +33,9 @@
 #include "picofeat.h"
 #include "points.h"
 #include "shapetable.h"
+#ifndef GRAPHICS_DISABLED
 #include "svmnode.h"
+#endif
 
 #include "helpers.h"
 
@@ -504,15 +506,12 @@ INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
     }
     assert(UnusedClassIdIn(IntTemplates, ClassId));
     IClass = new INT_CLASS_STRUCT(FClass->NumProtos, FClass->NumConfigs);
-    FontSet fs;
-    fs.size = FClass->font_set.size();
-    fs.configs = new int[fs.size];
-    for (int i = 0; i < fs.size; ++i) {
-      fs.configs[i] = FClass->font_set.at(i);
+    FontSet fs{FClass->font_set.size()};
+    for (int i = 0; i < fs.size(); ++i) {
+      fs[i] = FClass->font_set.at(i);
     }
     if (this->fontset_table_.contains(fs)) {
       IClass->font_set_id = this->fontset_table_.get_id(fs);
-      delete[] fs.configs;
     } else {
       IClass->font_set_id = this->fontset_table_.push_back(fs);
     }
@@ -852,7 +851,7 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
     if (version_id >= 5) {
       this->fontinfo_table_.read(fp, std::bind(read_spacing_info, _1, _2));
     }
-    this->fontset_table_.read(fp, std::bind(read_set, _1, _2));
+    this->fontset_table_.read(fp, [](auto *f, auto *fs) { return f->DeSerialize(*fs); } );
   }
 
   return (Templates);
@@ -950,7 +949,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
     /* first write out the high level struct for the class */
     fwrite(&Class->NumProtos, sizeof(Class->NumProtos), 1, File);
     fwrite(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1, File);
-    ASSERT_HOST(Class->NumConfigs == this->fontset_table_.at(Class->font_set_id).size);
+    ASSERT_HOST(Class->NumConfigs == this->fontset_table_.at(Class->font_set_id).size());
     fwrite(&Class->NumConfigs, sizeof(Class->NumConfigs), 1, File);
     for (j = 0; j < Class->NumConfigs; ++j) {
       fwrite(&Class->ConfigLengths[j], sizeof(uint16_t), 1, File);

@@ -94,13 +94,13 @@ struct INT_CLASS_STRUCT {
   INT_CLASS_STRUCT() = default;
   INT_CLASS_STRUCT(int MaxNumProtos, int MaxNumConfigs);
   ~INT_CLASS_STRUCT();
-  uint16_t NumProtos;
-  uint8_t NumProtoSets;
-  uint8_t NumConfigs;
+  uint16_t NumProtos = 0;
+  uint8_t NumProtoSets = 0;
+  uint8_t NumConfigs = 0;
   PROTO_SET_STRUCT *ProtoSets[MAX_NUM_PROTO_SETS];
   std::vector<uint8_t> ProtoLengths;
   uint16_t ConfigLengths[MAX_NUM_CONFIGS];
-  int font_set_id; // FontSet id, see above
+  int font_set_id = 0; // FontSet id, see above
 };
 
 struct TESS_API INT_TEMPLATES_STRUCT {
@@ -205,10 +205,12 @@ void DisplayIntProto(INT_CLASS_STRUCT *Class, PROTO_ID ProtoId, float Evidence);
 
 void ShowMatchDisplay();
 
+#ifndef GRAPHICS_DISABLED
 // Clears the given window and draws the featurespace guides for the
 // appropriate normalization method.
 TESS_API
 void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView *window);
+#endif // !GRAPHICS_DISABLED
 
 /*----------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED

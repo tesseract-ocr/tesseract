@@ -26,7 +26,6 @@
 
 namespace tesseract {
 
-ELISTIZE(ROW)
 /**********************************************************************
  * ROW::ROW
  *
@@ -167,7 +166,7 @@ void ROW::move(      // reposition row
 
 void ROW::print( // print
     FILE *fp     // file to print on
-) {
+) const {
   tprintf("Kerning= %d\n", kerning);
   tprintf("Spacing= %d\n", spacing);
   bound_box.print();

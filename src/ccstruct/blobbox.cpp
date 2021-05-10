@@ -39,10 +39,6 @@
 
 namespace tesseract {
 
-ELISTIZE(BLOBNBOX)
-ELIST2IZE(TO_ROW)
-ELISTIZE(TO_BLOCK)
-
 // Up to 30 degrees is allowed for rotations of diacritic blobs.
 const double kCosSmallAngle = 0.866;
 // Min aspect ratio for a joined word to indicate an obvious flow direction.
@@ -382,7 +378,7 @@ void BLOBNBOX::DeleteNoiseBlobs(BLOBNBOX_LIST *blobs) {
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     BLOBNBOX *blob = blob_it.data();
     if (blob->DeletableNoise()) {
-      delete blob->cblob();
+      delete blob->remove_cblob();
       delete blob_it.extract();
     }
   }
@@ -390,7 +386,7 @@ void BLOBNBOX::DeleteNoiseBlobs(BLOBNBOX_LIST *blobs) {
 
 // Helper to compute edge offsets for  all the blobs on the list.
 // See coutln.h for an explanation of edge offsets.
-void BLOBNBOX::ComputeEdgeOffsets(Pix *thresholds, Pix *grey, BLOBNBOX_LIST *blobs) {
+void BLOBNBOX::ComputeEdgeOffsets(Image thresholds, Image grey, BLOBNBOX_LIST *blobs) {
   int grey_height = 0;
   int thr_height = 0;
   int scale_factor = 1;
@@ -930,16 +926,6 @@ TO_BLOCK::TO_BLOCK(  // make a block
   block = src_block;
 }
 
-static void clear_blobnboxes(BLOBNBOX_LIST *boxes) {
-  BLOBNBOX_IT it = boxes;
-  // A BLOBNBOX generally doesn't own its blobs, so if they do, you
-  // have to delete them explicitly.
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    BLOBNBOX *box = it.data();
-    delete box->cblob();
-  }
-}
-
 /**********************************************************************
  * TO_BLOCK::clear
  *
@@ -967,11 +953,11 @@ void TO_BLOCK::clear() {
 
 TO_BLOCK::~TO_BLOCK() {
   // Any residual BLOBNBOXes at this stage own their blobs, so delete them.
-  clear_blobnboxes(&blobs);
-  clear_blobnboxes(&underlines);
-  clear_blobnboxes(&noise_blobs);
-  clear_blobnboxes(&small_blobs);
-  clear_blobnboxes(&large_blobs);
+  BLOBNBOX::clear_blobnboxes(&blobs);
+  BLOBNBOX::clear_blobnboxes(&underlines);
+  BLOBNBOX::clear_blobnboxes(&noise_blobs);
+  BLOBNBOX::clear_blobnboxes(&small_blobs);
+  BLOBNBOX::clear_blobnboxes(&large_blobs);
 }
 
 // Helper function to divide the input blobs over noise, small, medium
@@ -1052,7 +1038,7 @@ void TO_BLOCK::DeleteUnownedNoise() {
 // Thresholds must either be the same size as grey or an integer down-scale
 // of grey.
 // See coutln.h for an explanation of edge offsets.
-void TO_BLOCK::ComputeEdgeOffsets(Pix *thresholds, Pix *grey) {
+void TO_BLOCK::ComputeEdgeOffsets(Image thresholds, Image grey) {
   BLOBNBOX::ComputeEdgeOffsets(thresholds, grey, &blobs);
   BLOBNBOX::ComputeEdgeOffsets(thresholds, grey, &small_blobs);
   BLOBNBOX::ComputeEdgeOffsets(thresholds, grey, &noise_blobs);

@@ -59,7 +59,7 @@ static CRACKEDGE *v_edge(int sign, CRACKEDGE *join, CrackPos *pos);
  * Extract edges from a PDBLK.
  **********************************************************************/
 
-void block_edges(Pix *t_pix,   // thresholded image
+void block_edges(Image t_pix,   // thresholded image
                  PDBLK *block, // block in image
                  C_OUTLINE_IT *outline_it) {
   ICOORD bleft; // bounding box

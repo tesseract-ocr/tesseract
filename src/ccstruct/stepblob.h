@@ -83,17 +83,17 @@ public:
 
   // Adds sub-pixel resolution EdgeOffsets for the outlines using greyscale
   // if the supplied pix is 8-bit or the binary edges if nullptr.
-  void ComputeEdgeOffsets(int threshold, Pix *pix);
+  void ComputeEdgeOffsets(int threshold, Image pix);
 
   // Estimates and returns the baseline position based on the shape of the
   // outlines.
   int16_t EstimateBaselinePosition();
 
   // Returns a Pix rendering of the blob. pixDestroy after use.
-  Pix *render();
+  Image render();
   // Returns a Pix rendering of the outline of the blob. (no fill).
   // pixDestroy after use.
-  Pix *render_outline();
+  Image render_outline();
 
 #ifndef GRAPHICS_DISABLED
   void plot(                           // draw one

@@ -33,7 +33,7 @@ class QUAD_COEFFS;
 class ROW;
 class TBOX;
 
-class QSPLINE {
+class TESS_API QSPLINE {
   friend void make_first_baseline(TBOX *, int, int *, int *, QSPLINE *, QSPLINE *, float);
   friend void make_holed_baseline(TBOX *, int, QSPLINE *, QSPLINE *, float);
   friend void tweak_row_baseline(ROW *, double, double);
@@ -82,7 +82,7 @@ public:
 
   // Paint the baseline over pix. If pix has depth of 32, then the line will
   // be painted in red. Otherwise it will be painted in black.
-  void plot(Pix *pix) const;
+  void plot(Image pix) const;
 
   QSPLINE &operator=(const QSPLINE &source); // from this
 

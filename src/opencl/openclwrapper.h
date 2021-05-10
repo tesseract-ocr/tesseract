@@ -127,10 +127,10 @@ public:
   /* OpenCL implementations of Morphological operations*/
 
   // Initialization of OCL buffers used in Morph operations
-  static int initMorphCLAllocations(l_int32 wpl, l_int32 h, Pix *pixs);
+  static int initMorphCLAllocations(l_int32 wpl, l_int32 h, Image pixs);
   static void releaseMorphCLBuffers();
 
-  static void pixGetLinesCL(Pix *pixd, Pix *pixs, Pix **pix_vline, Pix **pix_hline, Pix **pixClosed,
+  static void pixGetLinesCL(Image pixd, Image pixs, Image *pix_vline, Image *pix_hline, Image *pixClosed,
                             bool getpixClosed, l_int32 close_hsize, l_int32 close_vsize,
                             l_int32 open_hsize, l_int32 open_vsize, l_int32 line_hsize,
                             l_int32 line_vsize);
@@ -161,7 +161,7 @@ public:
                               int *histogramAllChannels);
 
   static int ThresholdRectToPixOCL(unsigned char *imagedata, int bytes_per_pixel,
-                                   int bytes_per_line, int *thresholds, int *hi_values, Pix **pix,
+                                   int bytes_per_line, int *thresholds, int *hi_values, Image *pix,
                                    int rect_height, int rect_width, int rect_top, int rect_left);
 
   static ds_device getDeviceSelection();

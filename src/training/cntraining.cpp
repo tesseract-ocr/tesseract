@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
   std::vector<LIST> freeable_protos;
   iterate(pCharList) {
     // Cluster
-    CharSample = reinterpret_cast<LABELEDLIST> first_node(pCharList);
+    CharSample = reinterpret_cast<LABELEDLIST>(pCharList->first_node());
     Clusterer = SetUpForClustering(FeatureDefs, CharSample, PROGRAM_FEATURE_TYPE);
     if (Clusterer == nullptr) { // To avoid a SIGSEGV
       fprintf(stderr, "Error: nullptr clusterer!\n");
@@ -209,7 +209,7 @@ static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
   fprintf(File, "%0d\n", feature_desc->NumParams);
   WriteParamDesc(File, feature_desc->NumParams, feature_desc->ParamDesc);
   iterate(LabeledProtoList) {
-    LabeledProto = reinterpret_cast<LABELEDLIST> first_node(LabeledProtoList);
+    LabeledProto = reinterpret_cast<LABELEDLIST>(LabeledProtoList->first_node());
     N = NumberOfProtos(LabeledProto->List, true, false);
     if (N < 1) {
       printf(
@@ -235,7 +235,7 @@ static void WriteProtos(FILE *File, uint16_t N, LIST ProtoList, bool WriteSigPro
 
   // write prototypes
   iterate(ProtoList) {
-    Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
+    Proto = reinterpret_cast<PROTOTYPE *>(ProtoList->first_node());
     if ((Proto->Significant && WriteSigProtos) || (!Proto->Significant && WriteInsigProtos)) {
       WritePrototype(File, N, Proto);
     }

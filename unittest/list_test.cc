@@ -44,11 +44,8 @@ public:
 };
 
 CLISTIZEH(Clst)
-CLISTIZE(Clst)
 ELISTIZEH(Elst)
-ELISTIZE(Elst)
 ELIST2IZEH(Elst2)
-ELIST2IZE(Elst2)
 
 TEST_F(ListTest, TestCLIST) {
   Clst_CLIST list;

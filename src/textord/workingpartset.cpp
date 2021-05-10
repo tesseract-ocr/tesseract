@@ -23,8 +23,6 @@
 
 namespace tesseract {
 
-ELISTIZE(WorkingPartSet)
-
 // Add the partition to this WorkingPartSet. Unrelated partitions are
 // stored in the order in which they are received, but if the partition
 // has a SingletonPartner, make sure that it stays with its partner.

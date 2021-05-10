@@ -56,8 +56,6 @@ const TPOINT kDivisibleVerticalItalic(1, 5);
               F u n c t i o n s
 ----------------------------------------------------------------------*/
 
-CLISTIZE(EDGEPT)
-
 // Returns true when the two line segments cross each other.
 // (Moved from outlines.cpp).
 // Finds where the projected lines would cross and then checks to see if the
@@ -401,7 +399,7 @@ void TBLOB::Clear() {
 // this blob and the Pix for the full image.
 void TBLOB::Normalize(const BLOCK *block, const FCOORD *rotation, const DENORM *predecessor,
                       float x_origin, float y_origin, float x_scale, float y_scale,
-                      float final_xshift, float final_yshift, bool inverse, Pix *pix) {
+                      float final_xshift, float final_yshift, bool inverse, Image pix) {
   denorm_.SetupNormalization(block, rotation, predecessor, x_origin, y_origin, x_scale, y_scale,
                              final_xshift, final_yshift);
   denorm_.set_inverse(inverse);
@@ -789,7 +787,7 @@ TWERD *TWERD::PolygonalCopy(bool allow_detailed_fx, WERD *src) {
 
 // Baseline normalizes the blobs in-place, recording the normalization in the
 // DENORMs in the blobs.
-void TWERD::BLNormalize(const BLOCK *block, const ROW *row, Pix *pix, bool inverse, float x_height,
+void TWERD::BLNormalize(const BLOCK *block, const ROW *row, Image pix, bool inverse, float x_height,
                         float baseline_shift, bool numeric_mode, tesseract::OcrEngineMode hint,
                         const TBOX *norm_box, DENORM *word_denorm) {
   TBOX word_box = bounding_box();

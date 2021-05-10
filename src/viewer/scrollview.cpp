@@ -304,7 +304,6 @@ void ScrollView::Initialize(const char *name, int x_pos, int y_pos, int x_size, 
     i = nullptr;
   }
 
-  mutex_ = new std::mutex();
   semaphore_ = new SVSemaphore();
 
   // Set up an actual Window on the client side.
@@ -330,7 +329,7 @@ void ScrollView::StartEventHandler() {
     new_event = nullptr;
     int serial = -1;
     int k = -1;
-    mutex_->lock();
+    mutex_.lock();
     // Check every table entry if he is is valid and not already processed.
 
     for (int i = 0; i < SVET_COUNT; i++) {
@@ -343,7 +342,7 @@ void ScrollView::StartEventHandler() {
     // If we didn't find anything we had an old alarm and just sleep again.
     if (new_event != nullptr) {
       event_table_[k] = nullptr;
-      mutex_->unlock();
+      mutex_.unlock();
       if (event_handler_ != nullptr) {
         event_handler_->Notify(new_event);
       }
@@ -355,7 +354,7 @@ void ScrollView::StartEventHandler() {
       }
       delete new_event; // Delete the pointer after it has been processed.
     } else {
-      mutex_->unlock();
+      mutex_.unlock();
     }
     // The thread should run as long as its associated window is alive.
   }
@@ -384,7 +383,6 @@ ScrollView::~ScrollView() {
   } else {
     svmap_mu->unlock();
   }
-  delete mutex_;
   delete semaphore_;
   delete points_;
   for (auto &i : event_table_) {
@@ -434,7 +432,7 @@ void ScrollView::SetEvent(SVEvent *svevent) {
   any->counter = specific->counter + 1;
 
   // Place both events into the queue.
-  std::lock_guard<std::mutex> guard(*mutex_);
+  std::lock_guard<std::mutex> guard(mutex_);
   // Delete the old objects..
   delete event_table_[specific->type];
   delete event_table_[SVET_ANY];
@@ -670,7 +668,7 @@ void ScrollView::Text(int x, int y, const char *mystring) {
 }
 
 // Open and draw an image given a name at (x,y).
-void ScrollView::Image(const char *image, int x_pos, int y_pos) {
+void ScrollView::Draw(const char *image, int x_pos, int y_pos) {
   SendMsg("openImage('%s')", image);
   SendMsg("drawImage('%s',%d,%d)", image, x_pos, TranslateYCoordinate(y_pos));
 }
@@ -784,7 +782,7 @@ void ScrollView::ZoomToRectangle(int x1, int y1, int x2, int y2) {
 }
 
 // Send an image of type Pix.
-void ScrollView::Image(struct Pix *image, int x_pos, int y_pos) {
+void ScrollView::Draw(Image image, int x_pos, int y_pos) {
   l_uint8 *data;
   size_t size;
   pixWriteMem(&data, &size, image, IFF_PNG);

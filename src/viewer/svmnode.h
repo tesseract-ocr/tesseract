@@ -27,6 +27,8 @@
 #ifndef TESSERACT_VIEWER_SVMNODE_H_
 #define TESSERACT_VIEWER_SVMNODE_H_
 
+#ifndef GRAPHICS_DISABLED
+
 #include <string>
 
 namespace tesseract {
@@ -66,8 +68,8 @@ public:
 
 private:
   // Constructor holding the actual node data.
-  SVMenuNode(int command_event, const char *txt, int tv, bool check_box_entry, const char *val,
-             const char *desc);
+  SVMenuNode(int command_event, const char *txt, int tv, bool check_box_entry, const char *val = "",
+             const char *desc = "");
 
   // Adds a new menu node to the current node.
   void AddChild(SVMenuNode *svmn);
@@ -94,5 +96,7 @@ private:
 };
 
 } // namespace tesseract
+
+#endif // !GRAPHICS_DISABLED
 
 #endif // TESSERACT_VIEWER_SVMNODE_H_

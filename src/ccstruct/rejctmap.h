@@ -2,7 +2,6 @@
  * File:        rejctmap.h  (Formerly rejmap.h)
  * Description: REJ and REJMAP class functions.
  * Author:    Phil Cheatle
- * Created:   Thu Jun  9 13:46:38 BST 1994
  *
  * (C) Copyright 1994, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,10 +40,10 @@ OF THIS IMPLIED TEMPORAL ORDERING OF THE FLAGS!!!!
 #ifndef REJCTMAP_H
 #define REJCTMAP_H
 
-#include "bits16.h"
 #include "errcode.h"
 #include "params.h"
 
+#include <bitset>
 #include <memory>
 
 namespace tesseract {
@@ -98,45 +97,28 @@ enum REJ_FLAGS {
 #define MAP_REJECT_POTENTIAL '3'
 
 class REJ {
-  BITS16 flags1;
-  BITS16 flags2;
+  std::bitset<32> flags;
 
   void set_flag(REJ_FLAGS rej_flag) {
-    if (rej_flag < 16) {
-      flags1.set(rej_flag);
-    } else {
-      flags2.set(rej_flag - 16);
-    }
+    flags.set(rej_flag);
   }
-
-  bool rej_before_nn_accept();
-  bool rej_between_nn_and_mm();
-  bool rej_between_mm_and_quality_accept();
-  bool rej_between_quality_and_minimal_rej_accept();
-  bool rej_before_mm_accept();
-  bool rej_before_quality_accept();
 
 public:
   REJ() = default;
 
   REJ( // classwise copy
       const REJ &source) {
-    flags1 = source.flags1;
-    flags2 = source.flags2;
+    flags = source.flags;
   }
 
   REJ &operator=( // assign REJ
       const REJ &source) = default;
 
-  bool flag(REJ_FLAGS rej_flag) {
-    if (rej_flag < 16) {
-      return flags1[rej_flag];
-    } else {
-      return flags2[rej_flag - 16];
-    }
+  bool flag(REJ_FLAGS rej_flag) const {
+    return flags[rej_flag];
   }
 
-  char display_char() {
+  char display_char() const {
     if (perm_rejected()) {
       return MAP_REJECT_PERM;
     } else if (accept_if_good_quality()) {
@@ -148,55 +130,181 @@ public:
     }
   }
 
-  bool perm_rejected(); // Is char perm reject?
+  bool perm_rejected() const { // Is char perm reject?
+    return (flag(R_TESS_FAILURE) || flag(R_SMALL_XHT) || flag(R_EDGE_CHAR) ||
+            flag(R_1IL_CONFLICT) || flag(R_POSTNN_1IL) || flag(R_REJ_CBLOB) ||
+            flag(R_BAD_REPETITION) || flag(R_MM_REJECT));
+  }
 
-  bool rejected(); // Is char rejected?
+private:
+  bool rej_before_nn_accept() const {
+    return flag(R_POOR_MATCH) || flag(R_NOT_TESS_ACCEPTED) ||
+           flag(R_CONTAINS_BLANKS) || flag(R_BAD_PERMUTER);
+  }
 
-  bool accepted() { // Is char accepted?
+  bool rej_between_nn_and_mm() const {
+    return flag(R_HYPHEN) || flag(R_DUBIOUS) || flag(R_NO_ALPHANUMS) ||
+           flag(R_MOSTLY_REJ) || flag(R_XHT_FIXUP);
+  }
+
+  bool rej_between_mm_and_quality_accept() const {
+    return flag(R_BAD_QUALITY);
+  }
+
+  bool rej_between_quality_and_minimal_rej_accept() const {
+    return flag(R_DOC_REJ) || flag(R_BLOCK_REJ) || flag(R_ROW_REJ) ||
+           flag(R_UNLV_REJ);
+  }
+
+  bool rej_before_mm_accept() const {
+    return rej_between_nn_and_mm() ||
+           (rej_before_nn_accept() && !flag(R_NN_ACCEPT) &&
+            !flag(R_HYPHEN_ACCEPT));
+  }
+
+  bool rej_before_quality_accept() const {
+    return rej_between_mm_and_quality_accept() ||
+           (!flag(R_MM_ACCEPT) && rej_before_mm_accept());
+  }
+
+public:
+  bool rejected() const { // Is char rejected?
+    if (flag(R_MINIMAL_REJ_ACCEPT)) {
+      return false;
+    } else {
+      return (perm_rejected() || rej_between_quality_and_minimal_rej_accept() ||
+              (!flag(R_QUALITY_ACCEPT) && rej_before_quality_accept()));
+    }
+  }
+
+  bool accept_if_good_quality() const { // potential rej?
+    return (rejected() && !perm_rejected() && flag(R_BAD_PERMUTER) &&
+            !flag(R_POOR_MATCH) && !flag(R_NOT_TESS_ACCEPTED) &&
+            !flag(R_CONTAINS_BLANKS) &&
+            (!rej_between_nn_and_mm() && !rej_between_mm_and_quality_accept() &&
+             !rej_between_quality_and_minimal_rej_accept()));
+  }
+
+  void setrej_tess_failure() { // Tess generated blank
+    set_flag(R_TESS_FAILURE);
+  }
+
+  void setrej_small_xht() { // Small xht char/wd
+    set_flag(R_SMALL_XHT);
+  }
+
+  void setrej_edge_char() { // Close to image edge
+    set_flag(R_EDGE_CHAR);
+  }
+
+  void setrej_1Il_conflict() { // Initial reject map
+    set_flag(R_1IL_CONFLICT);
+  }
+
+  void setrej_postNN_1Il() { // 1Il after NN
+    set_flag(R_POSTNN_1IL);
+  }
+
+  void setrej_rej_cblob() { // Insert duff blob
+    set_flag(R_REJ_CBLOB);
+  }
+
+  void setrej_mm_reject() { // Matrix matcher
+    set_flag(R_MM_REJECT);
+  }
+
+  void setrej_bad_repetition() { // Odd repeated char
+    set_flag(R_BAD_REPETITION);
+  }
+
+  void setrej_poor_match() { // Failed Rays heuristic
+    set_flag(R_POOR_MATCH);
+  }
+
+  void setrej_not_tess_accepted() {
+    // TEMP reject_word
+    set_flag(R_NOT_TESS_ACCEPTED);
+  }
+
+  void setrej_contains_blanks() {
+    // TEMP reject_word
+    set_flag(R_CONTAINS_BLANKS);
+  }
+
+  void setrej_bad_permuter() { // POTENTIAL reject_word
+    set_flag(R_BAD_PERMUTER);
+  }
+
+  void setrej_hyphen() { // PostNN dubious hyphen or .
+    set_flag(R_HYPHEN);
+  }
+
+  void setrej_dubious() { // PostNN dubious limit
+    set_flag(R_DUBIOUS);
+  }
+
+  void setrej_no_alphanums() { // TEMP reject_word
+    set_flag(R_NO_ALPHANUMS);
+  }
+
+  void setrej_mostly_rej() { // TEMP reject_word
+    set_flag(R_MOSTLY_REJ);
+  }
+
+  void setrej_xht_fixup() { // xht fixup
+    set_flag(R_XHT_FIXUP);
+  }
+
+  void setrej_bad_quality() { // TEMP reject_word
+    set_flag(R_BAD_QUALITY);
+  }
+
+  void setrej_doc_rej() { // TEMP reject_word
+    set_flag(R_DOC_REJ);
+  }
+
+  void setrej_block_rej() { // TEMP reject_word
+    set_flag(R_BLOCK_REJ);
+  }
+
+  void setrej_row_rej() { // TEMP reject_word
+    set_flag(R_ROW_REJ);
+  }
+
+  void setrej_unlv_rej() { // TEMP reject_word
+    set_flag(R_UNLV_REJ);
+  }
+
+  void setrej_hyphen_accept() { // NN Flipped a char
+    set_flag(R_HYPHEN_ACCEPT);
+  }
+
+  void setrej_nn_accept() { // NN Flipped a char
+    set_flag(R_NN_ACCEPT);
+  }
+
+  void setrej_mm_accept() { // Matrix matcher
+    set_flag(R_MM_ACCEPT);
+  }
+
+  void setrej_quality_accept() { // Quality flip a char
+    set_flag(R_QUALITY_ACCEPT);
+  }
+
+  void setrej_minimal_rej_accept() {
+    // Accept all except blank
+    set_flag(R_MINIMAL_REJ_ACCEPT);
+  }
+
+  bool accepted() const { // Is char accepted?
     return !rejected();
   }
 
-  // potential rej?
-  bool accept_if_good_quality();
-
-  bool recoverable() {
+  bool recoverable() const {
     return (rejected() && !perm_rejected());
   }
 
-  void setrej_tess_failure(); // Tess generated blank
-  void setrej_small_xht();    // Small xht char/wd
-  void setrej_edge_char();    // Close to image edge
-  void setrej_1Il_conflict(); // Initial reject map
-  void setrej_postNN_1Il();   // 1Il after NN
-  void setrej_rej_cblob();    // Insert duff blob
-  void setrej_mm_reject();    // Matrix matcher
-                              // Odd repeated char
-  void setrej_bad_repetition();
-  void setrej_poor_match(); // Failed Rays heuristic
-                            // TEMP reject_word
-  void setrej_not_tess_accepted();
-  // TEMP reject_word
-  void setrej_contains_blanks();
-  void setrej_bad_permuter();  // POTENTIAL reject_word
-  void setrej_hyphen();        // PostNN dubious hyph or .
-  void setrej_dubious();       // PostNN dubious limit
-  void setrej_no_alphanums();  // TEMP reject_word
-  void setrej_mostly_rej();    // TEMP reject_word
-  void setrej_xht_fixup();     // xht fixup
-  void setrej_bad_quality();   // TEMP reject_word
-  void setrej_doc_rej();       // TEMP reject_word
-  void setrej_block_rej();     // TEMP reject_word
-  void setrej_row_rej();       // TEMP reject_word
-  void setrej_unlv_rej();      // TEMP reject_word
-  void setrej_nn_accept();     // NN Flipped a char
-  void setrej_hyphen_accept(); // Good aspect ratio
-  void setrej_mm_accept();     // Matrix matcher
-                               // Quality flip a char
-  void setrej_quality_accept();
-  // Accept all except blank
-  void setrej_minimal_rej_accept();
-
-  void full_print(FILE *fp);
+  void full_print(FILE *fp) const;
 };
 
 class REJMAP {
@@ -226,22 +334,22 @@ public:
     return len;
   }
 
-  int16_t accept_count(); // How many accepted?
+  int16_t accept_count() const; // How many accepted?
 
-  int16_t reject_count() { // How many rejects?
+  int16_t reject_count() const { // How many rejects?
     return len - accept_count();
   }
 
   void remove_pos(  // Cut out an element
       int16_t pos); // element to remove
 
-  void print(FILE *fp);
+  void print(FILE *fp) const;
 
-  void full_print(FILE *fp);
+  void full_print(FILE *fp) const;
 
-  bool recoverable_rejects(); // Any non perm rejs?
+  bool recoverable_rejects() const; // Any non perm rejs?
 
-  bool quality_recoverable_rejects();
+  bool quality_recoverable_rejects() const;
   // Any potential rejs?
 
   void rej_word_small_xht(); // Reject whole word

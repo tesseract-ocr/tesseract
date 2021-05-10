@@ -19,14 +19,15 @@
 #ifndef TESSERACT_LSTM_NETWORKIO_H_
 #define TESSERACT_LSTM_NETWORKIO_H_
 
-#include <cmath>
-#include <cstdio>
-#include <vector>
-
 #include "helpers.h"
+#include "image.h"
 #include "static_shape.h"
 #include "stridemap.h"
 #include "weightmatrix.h"
+
+#include <cmath>
+#include <cstdio>
+#include <vector>
 
 struct Pix;
 
@@ -66,11 +67,11 @@ public:
   // Sets up the array from the given image, using the currently set int_mode_.
   // If the image width doesn't match the shape, the image is truncated or
   // padded with noise to match.
-  void FromPix(const StaticShape &shape, const Pix *pix, TRand *randomizer);
+  void FromPix(const StaticShape &shape, const Image pix, TRand *randomizer);
   // Sets up the array from the given set of images, using the currently set
   // int_mode_. If the image width doesn't match the shape, the images are
   // truncated or padded with noise to match.
-  void FromPixes(const StaticShape &shape, const std::vector<const Pix *> &pixes,
+  void FromPixes(const StaticShape &shape, const std::vector<Image> &pixes,
                  TRand *randomizer);
   // Copies the given pix to *this at the given batch index, stretching and
   // clipping the pixel values so that [black, black + 2*contrast] maps to the
@@ -79,12 +80,12 @@ public:
   // of input channels, the height is the height of the image, and the width
   // is the width of the image, or truncated/padded with noise if the width
   // is a fixed size.
-  void Copy2DImage(int batch, Pix *pix, float black, float contrast, TRand *randomizer);
+  void Copy2DImage(int batch, Image pix, float black, float contrast, TRand *randomizer);
   // Copies the given pix to *this at the given batch index, as Copy2DImage
   // above, except that the output depth is the height of the input image, the
   // output height is 1, and the output width as for Copy2DImage.
   // The image is thus treated as a 1-d set of vertical pixel strips.
-  void Copy1DGreyImage(int batch, Pix *pix, float black, float contrast, TRand *randomizer);
+  void Copy1DGreyImage(int batch, Image pix, float black, float contrast, TRand *randomizer);
   // Helper stores the pixel value in i_ or f_ according to int_mode_.
   // t: is the index from the StrideMap corresponding to the current
   //   [batch,y,x] position
@@ -94,7 +95,7 @@ public:
   // contrast: the range of pixel values to stretch to half the range of *this.
   void SetPixel(int t, int f, int pixel, float black, float contrast);
   // Converts the array to a Pix. Must be pixDestroyed after use.
-  Pix *ToPix() const;
+  Image ToPix() const;
   // Prints the first and last num timesteps of the array for each feature.
   void Print(int num) const;
 

@@ -150,9 +150,6 @@ static BOOL_VAR(textord_tablefind_show_stats, false,
 static BOOL_VAR(textord_tablefind_recognize_tables, false,
                 "Enables the table recognizer for table layout and filtering.");
 
-ELISTIZE(ColSegment)
-CLISTIZE(ColSegment)
-
 // Templated helper function used to create destructor callbacks for the
 // BBGrid::ClearGridData() method.
 template <typename T>
@@ -1842,8 +1839,8 @@ bool TableFinder::GapInXProjection(int *xprojection, int length) {
 //       (rejected before)
 // Overall, this just needs some more work.
 void TableFinder::RecognizeTables() {
-  ScrollView *table_win = nullptr;
 #ifndef GRAPHICS_DISABLED
+  ScrollView *table_win = nullptr;
   if (textord_show_tables) {
     table_win = MakeWindow(0, 0, "Step 9: Table Structure");
     DisplayColPartitions(table_win, &fragmented_text_grid_, ScrollView::BLUE,

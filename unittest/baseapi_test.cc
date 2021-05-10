@@ -44,7 +44,7 @@ class FriendlyTessBaseAPI : public tesseract::TessBaseAPI {
   FRIEND_TEST(TesseractTest, LSTMGeometryTest);
 };
 
-std::string GetCleanedTextResult(tesseract::TessBaseAPI *tess, Pix *pix) {
+std::string GetCleanedTextResult(tesseract::TessBaseAPI *tess, Image pix) {
   tess->SetImage(pix);
   char *result = tess->GetUTF8Text();
   std::string ocr_result = result;
@@ -70,14 +70,14 @@ TEST_F(TesseractTest, BasicTesseractTest) {
   std::string truth_text;
   std::string ocr_text;
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) != -1) {
-    Pix *src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
+    Image src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
     CHECK(src_pix);
     ocr_text = GetCleanedTextResult(&api, src_pix);
     CHECK_OK(
         file::GetContents(TestDataNameToPath("phototest.gold.txt"), &truth_text, file::Defaults()));
     absl::StripAsciiWhitespace(&truth_text);
     EXPECT_STREQ(truth_text.c_str(), ocr_text.c_str());
-    pixDestroy(&src_pix);
+    src_pix.destroy();
   } else {
     // eng.traineddata not found.
     GTEST_SKIP();
@@ -105,7 +105,7 @@ TEST_F(TesseractTest, IteratesParagraphsEvenIfNotDetected) {
     EXPECT_GE(boxaGetCount(para_boxes), boxaGetCount(block_boxes));
     boxaDestroy(&block_boxes);
     boxaDestroy(&para_boxes);
-    pixDestroy(&src_pix);
+    src_pix.destroy();
 #endif
   } else {
     // eng.traineddata not found.
@@ -122,7 +122,7 @@ TEST_F(TesseractTest, HOCRWorksWithoutSetInputName) {
     GTEST_SKIP();
     return;
   }
-  Pix *src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
+  Image src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
   CHECK(src_pix);
   api.SetImage(src_pix);
   char *result = api.GetHOCRText(0);
@@ -130,7 +130,7 @@ TEST_F(TesseractTest, HOCRWorksWithoutSetInputName) {
   EXPECT_THAT(result, HasSubstr("Hello"));
   EXPECT_THAT(result, HasSubstr("<div class='ocr_page'"));
   delete[] result;
-  pixDestroy(&src_pix);
+  src_pix.destroy();
 }
 
 // hOCR output should contain baseline info for upright textlines.
@@ -141,7 +141,7 @@ TEST_F(TesseractTest, HOCRContainsBaseline) {
     GTEST_SKIP();
     return;
   }
-  Pix *src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
+  Image src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
   CHECK(src_pix);
   api.SetInputName("HelloGoogle.tif");
   api.SetImage(src_pix);
@@ -152,7 +152,7 @@ TEST_F(TesseractTest, HOCRContainsBaseline) {
       result, std::regex{"<span class='ocr_line'[^>]* baseline [-.0-9]+ [-.0-9]+"}));
 
   delete[] result;
-  pixDestroy(&src_pix);
+  src_pix.destroy();
 }
 
 // Tests that Tesseract gets exactly the right answer on some page numbers.
@@ -182,23 +182,23 @@ TEST_F(TesseractTest, AdaptToWordStrTest) {
   // Train on the training text.
   for (int i = 0; kTrainingPages[i] != nullptr; ++i) {
     std::string image_file = TestDataNameToPath(kTrainingPages[i]);
-    Pix *src_pix = pixRead(image_file.c_str());
+    Image src_pix = pixRead(image_file.c_str());
     CHECK(src_pix);
     api.SetImage(src_pix);
     EXPECT_TRUE(api.AdaptToWordStr(tesseract::PSM_SINGLE_WORD, kTrainingText[i]))
         << "Failed to adapt to text \"" << kTrainingText[i] << "\" on image " << image_file;
-    pixDestroy(&src_pix);
+    src_pix.destroy();
   }
   // Test the test text.
   api.SetVariable("tess_bn_matching", "1");
   api.SetPageSegMode(tesseract::PSM_SINGLE_WORD);
   for (int i = 0; kTestPages[i] != nullptr; ++i) {
-    Pix *src_pix = pixRead(TestDataNameToPath(kTestPages[i]).c_str());
+    Image src_pix = pixRead(TestDataNameToPath(kTestPages[i]).c_str());
     CHECK(src_pix);
     ocr_text = GetCleanedTextResult(&api, src_pix);
     absl::StripAsciiWhitespace(&truth_text);
     EXPECT_STREQ(kTestText[i], ocr_text.c_str());
-    pixDestroy(&src_pix);
+    src_pix.destroy();
   }
 #endif
 }
@@ -213,14 +213,14 @@ TEST_F(TesseractTest, BasicLSTMTest) {
     GTEST_SKIP();
     return;
   }
-  Pix *src_pix = pixRead(TestDataNameToPath("phototest_2.tif").c_str());
+  Image src_pix = pixRead(TestDataNameToPath("phototest_2.tif").c_str());
   CHECK(src_pix);
   ocr_text = GetCleanedTextResult(&api, src_pix);
   CHECK_OK(
       file::GetContents(TestDataNameToPath("phototest.gold.txt"), &truth_text, file::Defaults()));
   absl::StripAsciiWhitespace(&truth_text);
   EXPECT_STREQ(truth_text.c_str(), ocr_text.c_str());
-  pixDestroy(&src_pix);
+  src_pix.destroy();
 }
 
 // Test that LSTM's character bounding boxes are properly converted to
@@ -230,7 +230,7 @@ TEST_F(TesseractTest, BasicLSTMTest) {
 // errors due to float/int conversions (e.g., see OUTLINE::move() in
 // ccstruct/poutline.h) Instead, we do a loose check.
 TEST_F(TesseractTest, LSTMGeometryTest) {
-  Pix *src_pix = pixRead(TestDataNameToPath("deslant.tif").c_str());
+  Image src_pix = pixRead(TestDataNameToPath("deslant.tif").c_str());
   FriendlyTessBaseAPI api;
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
     // eng.traineddata not found.
@@ -270,7 +270,7 @@ TEST_F(TesseractTest, LSTMGeometryTest) {
       EXPECT_LT(lstm_blob_box.top() - tess_blob_box.top(), 5);
     }
   }
-  pixDestroy(&src_pix);
+  src_pix.destroy();
 }
 
 TEST_F(TesseractTest, InitConfigOnlyTest) {
@@ -315,7 +315,7 @@ TEST(TesseractInstanceTest, TestMultipleTessInstances) {
   const std::string kTessdataPath = TESSDATA_DIR;
 
   // Preload images and verify that OCR is correct on them individually.
-  std::vector<Pix *> pix(num_langs);
+  std::vector<Image > pix(num_langs);
   for (int i = 0; i < num_langs; ++i) {
     SCOPED_TRACE(absl::StrCat("Single instance test with lang = ", langs[i]));
     std::string path = file::JoinPath(TESTING_DIR, image_files[i]);
@@ -346,7 +346,7 @@ TEST(TesseractInstanceTest, TestMultipleTessInstances) {
   }
 
   for (int i = 0; i < num_langs; ++i) {
-    pixDestroy(&pix[i]);
+    pix[i].destroy();
   }
 }
 

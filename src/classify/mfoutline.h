@@ -63,15 +63,15 @@ const float MF_SCALE_FACTOR = 0.5f / kBlnXHeight;
 // Inline functions for manipulating micro-feature outlines.
 
 static inline bool DegenerateOutline(MFOUTLINE Outline) {
-  return (Outline == NIL_LIST) || (Outline == list_rest(Outline));
+  return (Outline == NIL_LIST) || (Outline == Outline->list_rest());
 }
 
 static inline MFEDGEPT *PointAt(MFOUTLINE Outline) {
-  return reinterpret_cast<MFEDGEPT *> first_node(Outline);
+  return reinterpret_cast<MFEDGEPT *>(Outline->first_node());
 }
 
 static inline MFOUTLINE NextPointAfter(MFOUTLINE Outline) {
-  return list_rest(Outline);
+  return Outline->list_rest();
 }
 
 static inline void MakeOutlineCircular(MFOUTLINE Outline) {

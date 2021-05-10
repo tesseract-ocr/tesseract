@@ -324,7 +324,7 @@ LABELEDLIST FindList(LIST List, const std::string &Label) {
   LABELEDLIST LabeledList;
 
   iterate(List) {
-    LabeledList = reinterpret_cast<LABELEDLIST> first_node(List);
+    LabeledList = reinterpret_cast<LABELEDLIST>(List->first_node());
     if (LabeledList->Label == Label) {
       return (LabeledList);
     }
@@ -360,7 +360,7 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
   // Zero out the font_sample_count for all the classes.
   LIST it = *training_samples;
   iterate(it) {
-    char_sample = reinterpret_cast<LABELEDLIST>(first_node(it));
+    char_sample = reinterpret_cast<LABELEDLIST>(it->first_node());
     char_sample->font_sample_count = 0;
   }
 
@@ -415,10 +415,10 @@ void FreeTrainingSamples(LIST CharList) {
 
   LIST nodes = CharList;
   iterate(CharList) { /* iterate through all of the fonts */
-    char_sample = reinterpret_cast<LABELEDLIST> first_node(CharList);
+    char_sample = reinterpret_cast<LABELEDLIST>(CharList->first_node());
     FeatureList = char_sample->List;
     iterate(FeatureList) { /* iterate through all of the classes */
-      FeatureSet = reinterpret_cast<FEATURE_SET> first_node(FeatureList);
+      FeatureSet = reinterpret_cast<FEATURE_SET>(FeatureList->first_node());
       delete FeatureSet;
     }
     FreeLabeledList(char_sample);
@@ -467,7 +467,7 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs, LABELEDLIS
   CharID = 0;
   std::vector<float> Sample;
   iterate(FeatureList) {
-    FeatureSet = reinterpret_cast<FEATURE_SET> first_node(FeatureList);
+    FeatureSet = reinterpret_cast<FEATURE_SET>(FeatureList->first_node());
     for (int i = 0; i < FeatureSet->MaxNumFeatures; i++) {
       if (Sample.empty()) {
         Sample.resize(N);
@@ -491,7 +491,7 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
 
   LIST pProtoList = ProtoList;
   iterate(pProtoList) {
-    Prototype = reinterpret_cast<PROTOTYPE *> first_node(pProtoList);
+    Prototype = reinterpret_cast<PROTOTYPE *>(pProtoList->first_node());
     if (Prototype->Significant || Prototype->Merged) {
       continue;
     }
@@ -500,7 +500,7 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
     // Find the nearest alive prototype.
     LIST list_it = ProtoList;
     iterate(list_it) {
-      auto *test_p = reinterpret_cast<PROTOTYPE *> first_node(list_it);
+      auto *test_p = reinterpret_cast<PROTOTYPE *>(list_it->first_node());
       if (test_p != Prototype && !test_p->Merged) {
         float dist = ComputeDistance(Clusterer->SampleSize, Clusterer->ParamDesc, &Prototype->Mean[0],
                                      &test_p->Mean[0]);
@@ -533,7 +533,7 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
   int min_samples = static_cast<int32_t>(clusterconfig->MinSamples * Clusterer->NumChar);
   pProtoList = ProtoList;
   iterate(pProtoList) {
-    Prototype = reinterpret_cast<PROTOTYPE *> first_node(pProtoList);
+    Prototype = reinterpret_cast<PROTOTYPE *>(pProtoList->first_node());
     // Process insignificant protos that do not match a green one
     if (!Prototype->Significant && Prototype->NumSamples >= min_samples && !Prototype->Merged) {
       if (debug) {
@@ -549,7 +549,7 @@ void CleanUpUnusedData(LIST ProtoList) {
   PROTOTYPE *Prototype;
 
   iterate(ProtoList) {
-    Prototype = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
+    Prototype = reinterpret_cast<PROTOTYPE *>(ProtoList->first_node());
     delete[] Prototype->Variance.Elliptical;
     Prototype->Variance.Elliptical = nullptr;
     delete[] Prototype->Magnitude.Elliptical;
@@ -566,7 +566,7 @@ LIST RemoveInsignificantProtos(LIST ProtoList, bool KeepSigProtos, bool KeepInsi
   LIST NewProtoList = NIL_LIST;
   auto pProtoList = ProtoList;
   iterate(pProtoList) {
-    auto Proto = reinterpret_cast<PROTOTYPE *> first_node(pProtoList);
+    auto Proto = reinterpret_cast<PROTOTYPE *>(pProtoList->first_node());
     if ((Proto->Significant && KeepSigProtos) || (!Proto->Significant && KeepInsigProtos)) {
       auto NewProto = new PROTOTYPE;
       NewProto->Mean = Proto->Mean;
@@ -617,7 +617,7 @@ MERGE_CLASS FindClass(LIST List, const std::string &Label) {
   MERGE_CLASS MergeClass;
 
   iterate(List) {
-    MergeClass = reinterpret_cast<MERGE_CLASS> first_node(List);
+    MergeClass = reinterpret_cast<MERGE_CLASS>(List->first_node());
     if (MergeClass->Label == Label) {
       return (MergeClass);
     }
@@ -638,7 +638,7 @@ void FreeLabeledClassList(LIST ClassList) {
   LIST nodes = ClassList;
   iterate(ClassList) /* iterate through all of the fonts */
   {
-    MergeClass = reinterpret_cast<MERGE_CLASS> first_node(ClassList);
+    MergeClass = reinterpret_cast<MERGE_CLASS>(ClassList->first_node());
     FreeClass(MergeClass->Class);
     delete MergeClass;
   }
@@ -665,7 +665,7 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
   auto *float_classes = new CLASS_STRUCT[unicharset.size()];
   iterate(LabeledClassList) {
     UnicityTable<int> font_set;
-    MergeClass = reinterpret_cast<MERGE_CLASS> first_node(LabeledClassList);
+    MergeClass = reinterpret_cast<MERGE_CLASS>(LabeledClassList->first_node());
     Class = &float_classes[unicharset.unichar_to_id(MergeClass->Label.c_str())];
     NumProtos = MergeClass->Class->NumProtos;
     NumConfigs = MergeClass->Class->NumConfigs;
@@ -730,7 +730,7 @@ void FreeNormProtoList(LIST CharList)
   LIST nodes = CharList;
   iterate(CharList) /* iterate through all of the fonts */
   {
-    char_sample = reinterpret_cast<LABELEDLIST> first_node(CharList);
+    char_sample = reinterpret_cast<LABELEDLIST>(CharList->first_node());
     FreeLabeledList(char_sample);
   }
   destroy(nodes);
@@ -741,7 +741,7 @@ void FreeNormProtoList(LIST CharList)
 void AddToNormProtosList(LIST *NormProtoList, LIST ProtoList, const std::string &CharName) {
   auto LabeledProtoList = new LABELEDLISTNODE(CharName.c_str());
   iterate(ProtoList) {
-    auto Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
+    auto Proto = reinterpret_cast<PROTOTYPE *>(ProtoList->first_node());
     LabeledProtoList->List = push(LabeledProtoList->List, Proto);
   }
   *NormProtoList = push(*NormProtoList, LabeledProtoList);
@@ -751,7 +751,7 @@ void AddToNormProtosList(LIST *NormProtoList, LIST ProtoList, const std::string 
 int NumberOfProtos(LIST ProtoList, bool CountSigProtos, bool CountInsigProtos) {
   int N = 0;
   iterate(ProtoList) {
-    auto *Proto = reinterpret_cast<PROTOTYPE *> first_node(ProtoList);
+    auto *Proto = reinterpret_cast<PROTOTYPE *>(ProtoList->first_node());
     if ((Proto->Significant && CountSigProtos) || (!Proto->Significant && CountInsigProtos)) {
       N++;
     }

@@ -39,10 +39,10 @@ namespace tesseract {
 // Also returns the grid coords of the bottom-left of the Pix, in *left
 // and *bottom, which corresponds to (0, 0) on the Pix.
 // Note that the Pix is used upside-down, with (0, 0) being the bottom-left.
-Pix *TraceOutlineOnReducedPix(C_OUTLINE *outline, int gridsize, ICOORD bleft, int *left,
+Image TraceOutlineOnReducedPix(C_OUTLINE *outline, int gridsize, ICOORD bleft, int *left,
                               int *bottom);
 // As TraceOutlineOnReducedPix above, but on a BLOCK instead of a C_OUTLINE.
-Pix *TraceBlockOnReducedPix(BLOCK *block, int gridsize, ICOORD bleft, int *left, int *bottom);
+Image TraceBlockOnReducedPix(BLOCK *block, int gridsize, ICOORD bleft, int *left, int *bottom);
 
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 class GridSearch;
@@ -135,7 +135,7 @@ public:
 
   // Returns a full-resolution binary pix in which each cell over the given
   // threshold is filled as a black square. pixDestroy after use.
-  Pix *ThresholdToPix(int threshold) const;
+  Image ThresholdToPix(int threshold) const;
 
 private:
   int *grid_; // 2-d array of ints.
@@ -190,7 +190,7 @@ public:
   // grid (in grid coords), and the pix works up the grid from there.
   // WARNING: InsertPixPtBBox may invalidate an active GridSearch. Call
   // RepositionIterator() on any GridSearches that are active on this grid.
-  void InsertPixPtBBox(int left, int bottom, Pix *pix, BBC *bbox);
+  void InsertPixPtBBox(int left, int bottom, Image pix, BBC *bbox);
 
   // Remove the bbox from the grid.
   // WARNING: Any GridSearch operating on this grid could be invalidated!
@@ -204,6 +204,8 @@ public:
   // Returned IntGrid must be deleted after use.
   IntGrid *CountCellElements();
 
+#ifndef GRAPHICS_DISABLED
+
   // Make a window of an appropriate size to display things in the grid.
   ScrollView *MakeWindow(int x, int y, const char *window_name);
 
@@ -211,6 +213,8 @@ public:
   // Use of this function requires an additional member of the BBC class:
   // ScrollView::Color BBC::BoxColor() const.
   void DisplayBoxes(ScrollView *window);
+
+#endif // !GRAPHICS_DISABLED
 
   // ASSERT_HOST that every cell contains no more than one copy of each entry.
   void AssertNoDuplicates();
@@ -222,14 +226,6 @@ protected:
   BBC_CLIST *grid_; // 2-d array of CLISTS of BBC elements.
 
 private:
-};
-
-// Hash functor for generic pointers.
-template <typename T>
-struct PtrHash {
-  size_t operator()(const T *ptr) const {
-    return reinterpret_cast<uintptr_t>(ptr) / sizeof(T);
-  }
 };
 
 // The GridSearch class enables neighbourhood searching on a BBGrid.
@@ -363,7 +359,7 @@ private:
   // An iterator over the list at (x_, y_) in the grid_.
   BBC_C_IT it_;
   // Set of unique returned elements used when unique_mode_ is true.
-  std::unordered_set<BBC *, PtrHash<BBC>> returns_;
+  std::unordered_set<BBC *> returns_;
 };
 
 // Sort function to sort a BBC by bounding_box().left().
@@ -559,7 +555,7 @@ void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::InsertBBox(bool h_spread, bool v_spread, 
 // WARNING: InsertPixPtBBox may invalidate an active GridSearch. Call
 // RepositionIterator() on any GridSearches that are active on this grid.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
-void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::InsertPixPtBBox(int left, int bottom, Pix *pix, BBC *bbox) {
+void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::InsertPixPtBBox(int left, int bottom, Image pix, BBC *bbox) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
   for (int y = 0; y < height; ++y) {
@@ -616,6 +612,7 @@ IntGrid *BBGrid<BBC, BBC_CLIST, BBC_C_IT>::CountCellElements() {
   return intgrid;
 }
 
+#ifndef GRAPHICS_DISABLED
 template <class G>
 class TabEventHandler : public SVEventHandler {
 public:
@@ -629,8 +626,6 @@ public:
 private:
   G *grid_;
 };
-
-#ifndef GRAPHICS_DISABLED
 
 // Make a window of an appropriate size to display things in the grid.
 // Position the window at the given x,y.
@@ -752,7 +747,7 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::StartRadSearch(int x, int y, int max_
 // maximum radius has been reached.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextRadSearch() {
-  do {
+  for (;;) {
     while (it_.cycled_list()) {
       ++rad_index_;
       if (rad_index_ >= radius_) {
@@ -776,9 +771,13 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextRadSearch() {
       }
     }
     CommonNext();
-  } while (unique_mode_ && returns_.find(previous_return_) != returns_.end());
-  if (unique_mode_) {
-    returns_.insert(previous_return_);
+    if (!unique_mode_) {
+      break;
+    }
+    auto inserted = returns_.insert(previous_return_);
+    if (inserted.second) {
+      break;
+    }
   }
   return previous_return_;
 }
@@ -801,7 +800,7 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::StartSideSearch(int x, int ymin, int 
 // according to the flag.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextSideSearch(bool right_to_left) {
-  do {
+  for (;;) {
     while (it_.cycled_list()) {
       ++rad_index_;
       if (rad_index_ > radius_) {
@@ -821,9 +820,13 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextSideSearch(bool right_to_left) {
       }
     }
     CommonNext();
-  } while (unique_mode_ && returns_.find(previous_return_) != returns_.end());
-  if (unique_mode_) {
-    returns_.insert(previous_return_);
+    if (!unique_mode_) {
+      break;
+    }
+    auto inserted = returns_.insert(previous_return_);
+    if (inserted.second) {
+      break;
+    }
   }
   return previous_return_;
 }
@@ -844,7 +847,7 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::StartVerticalSearch(int xmin, int xma
 // according to the flag.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextVerticalSearch(bool top_to_bottom) {
-  do {
+  for (;;) {
     while (it_.cycled_list()) {
       ++rad_index_;
       if (rad_index_ > radius_) {
@@ -864,9 +867,13 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextVerticalSearch(bool top_to_bottom
       }
     }
     CommonNext();
-  } while (unique_mode_ && returns_.find(previous_return_) != returns_.end());
-  if (unique_mode_) {
-    returns_.insert(previous_return_);
+    if (!unique_mode_) {
+      break;
+    }
+    auto inserted = returns_.insert(previous_return_);
+    if (inserted.second) {
+      break;
+    }
   }
   return previous_return_;
 }
@@ -887,7 +894,7 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::StartRectSearch(const TBOX &rect) {
 // Return the next bbox in the rectangular search or nullptr if complete.
 template <class BBC, class BBC_CLIST, class BBC_C_IT>
 BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextRectSearch() {
-  do {
+  for (;;) {
     while (it_.cycled_list()) {
       ++x_;
       if (x_ > max_radius_) {
@@ -900,10 +907,16 @@ BBC *GridSearch<BBC, BBC_CLIST, BBC_C_IT>::NextRectSearch() {
       SetIterator();
     }
     CommonNext();
-  } while (!rect_.overlap(previous_return_->bounding_box()) ||
-           (unique_mode_ && returns_.find(previous_return_) != returns_.end()));
-  if (unique_mode_) {
-    returns_.insert(previous_return_);
+    if (!rect_.overlap(previous_return_->bounding_box())) {
+      continue;
+    }
+    if (!unique_mode_) {
+      break;
+    }
+    auto inserted = returns_.insert(previous_return_);
+    if (inserted.second) {
+      break;
+    }
   }
   return previous_return_;
 }

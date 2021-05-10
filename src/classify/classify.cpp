@@ -144,16 +144,17 @@ Classify::Classify()
     , dict_(this) {
   using namespace std::placeholders; // for _1, _2
   fontinfo_table_.set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
-  fontset_table_.set_clear_callback(std::bind(FontSetDeleteCallback, _1));
 
   InitFeatureDefs(&feature_defs_);
 }
 
 Classify::~Classify() {
   EndAdaptiveClassifier();
+#ifndef GRAPHICS_DISABLED
   delete learn_debug_win_;
   delete learn_fragmented_word_debug_win_;
   delete learn_fragments_debug_win_;
+#endif
 }
 
 // Takes ownership of the given classifier, and uses it for future calls

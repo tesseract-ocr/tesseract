@@ -31,6 +31,7 @@
 #include <memory> // std::unique_ptr
 #include <string>
 #include "include_gunit.h"
+#include "image.h"
 
 namespace tesseract {
 
@@ -66,7 +67,7 @@ void OCRTester(const char *imgname, const char *groundtruth, const char *tessdat
   std::string gtText((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
   auto api = std::make_unique<tesseract::TessBaseAPI>();
   ASSERT_FALSE(api->Init(tessdatadir, lang)) << "Could not initialize tesseract.";
-  Pix *image = pixRead(imgname);
+  Image image = pixRead(imgname);
   ASSERT_TRUE(image != nullptr) << "Failed to read test image.";
   api->SetImage(image);
   outText = api->GetUTF8Text();
@@ -74,7 +75,7 @@ void OCRTester(const char *imgname, const char *groundtruth, const char *tessdat
                              << ::testing::PrintToString(lang);
   api->End();
   delete[] outText;
-  pixDestroy(&image);
+  image.destroy();
 }
 
 class MatchGroundTruth : public QuickTest, public ::testing::WithParamInterface<const char *> {};

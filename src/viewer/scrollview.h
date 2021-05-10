@@ -31,12 +31,12 @@
 #ifndef TESSERACT_VIEWER_SCROLLVIEW_H_
 #define TESSERACT_VIEWER_SCROLLVIEW_H_
 
+#include "image.h"
+
 #include <tesseract/export.h>
 
 #include <cstdio>
 #include <mutex>
-
-struct Pix;
 
 namespace tesseract {
 
@@ -208,8 +208,8 @@ public:
    * constructor, so this is not listed here)
    *******************************************************************************/
 
-  // Draw a Pix on (x,y).
-  void Image(Pix *image, int x_pos, int y_pos);
+  // Draw an image on (x,y).
+  void Draw(Image image, int x_pos, int y_pos);
 
   // Flush buffers and update display.
   static void Update();
@@ -267,7 +267,7 @@ public:
   // createImage. WARNING: This only works on a local machine. This also only
   // works image types supported by java (like bmp,jpeg,gif,png) since the image
   // is opened by the server.
-  void Image(const char *image, int x_pos, int y_pos);
+  void Draw(const char *image, int x_pos, int y_pos);
 
   // Set the current position to draw from (x,y). In conjunction with...
   void SetCursor(int x, int y);
@@ -353,11 +353,11 @@ public:
 
 private:
   // Transfers a binary Image.
-  void TransferBinaryImage(struct Pix *image);
+  void TransferBinaryImage(Image image);
   // Transfers a gray scale Image.
-  void TransferGrayImage(struct Pix *image);
+  void TransferGrayImage(Image image);
   // Transfers a 32-Bit Image.
-  void Transfer32bppImage(struct Pix *image);
+  void Transfer32bppImage(Image image);
 
   // Sets up ScrollView, depending on the variables from the constructor.
   void Initialize(const char *name, int x_pos, int y_pos, int x_size, int y_size, int x_canvas_size,
@@ -414,7 +414,7 @@ private:
   SVEvent *event_table_[SVET_COUNT];
 
   // Mutex to access the event_table_ in a synchronized fashion.
-  std::mutex *mutex_;
+  std::mutex mutex_;
 
   // Semaphore to the thread belonging to this window.
   SVSemaphore *semaphore_;

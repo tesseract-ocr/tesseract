@@ -22,6 +22,7 @@
 #include "intmatcher.h"
 #include "matrix.h"
 #include "mf.h"
+#include "mfdefs.h"
 #include "picofeat.h"
 #include "shapetable.h"
 #include "unicharset.h"
@@ -104,7 +105,7 @@ public:
   void IndexFeatures(const IntFeatureSpace &feature_space);
 
   // Returns a pix representing the sample. (Int features only.)
-  Pix *RenderToPix(const UNICHARSET *unicharset) const;
+  Image RenderToPix(const UNICHARSET *unicharset) const;
   // Displays the features in the given window with the given color.
   void DisplayFeatures(ScrollView::Color color, ScrollView *window) const;
 
@@ -112,7 +113,7 @@ public:
   // by padding wherever possible.
   // The returned Pix must be pixDestroyed after use.
   // If the input page_pix is nullptr, nullptr is returned.
-  Pix *GetSamplePix(int padding, Pix *page_pix) const;
+  Image GetSamplePix(int padding, Image page_pix) const;
 
   // Accessors.
   UNICHAR_ID class_id() const {

@@ -28,6 +28,7 @@
 
 #include <cfloat> // for FLT_MAX
 #include <cmath>  // for M_PI
+#include <array>  // for std::array
 #include <vector> // for std::vector
 
 namespace tesseract {
@@ -1276,10 +1277,10 @@ struct BUCKETS {
   }
   ~BUCKETS() {
   }
-  DISTRIBUTION Distribution;        // distribution being tested for
-  uint32_t SampleCount;             // # of samples in histogram
-  double Confidence;                // confidence level of test
-  double ChiSquared;                // test threshold
+  DISTRIBUTION Distribution = normal; // distribution being tested for
+  uint32_t SampleCount = 0;         // # of samples in histogram
+  double Confidence = 0.0;          // confidence level of test
+  double ChiSquared = 0.0;          // test threshold
   uint16_t NumberOfBuckets;         // number of cells in histogram
   uint16_t Bucket[BUCKETTABLESIZE]; // mapping to histogram buckets
   std::vector<uint32_t> Count;      // frequency of occurrence histogram
@@ -1556,7 +1557,7 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
   // out, which makes it safe to delete the clusterer.
   LIST proto_list = Clusterer->ProtoList;
   iterate(proto_list) {
-    auto *proto = reinterpret_cast<PROTOTYPE *>(first_node(proto_list));
+    auto *proto = reinterpret_cast<PROTOTYPE *>(proto_list->first_node());
     proto->Cluster = nullptr;
   }
   return Clusterer->ProtoList;
@@ -1641,7 +1642,7 @@ CLUSTER *NextSample(LIST *SearchState) {
   if (*SearchState == NIL_LIST) {
     return (nullptr);
   }
-  Cluster = reinterpret_cast<CLUSTER *> first_node(*SearchState);
+  Cluster = reinterpret_cast<CLUSTER *>((*SearchState)->first_node());
   *SearchState = pop(*SearchState);
   for (;;) {
     if (Cluster->Left == nullptr) {
@@ -1921,7 +1922,7 @@ static void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
     // remove the next cluster to be analyzed from the stack
     // try to make a prototype from the cluster
     // if successful, put it on the proto list, else split the cluster
-    Cluster = reinterpret_cast<CLUSTER *> first_node(ClusterStack);
+    Cluster = reinterpret_cast<CLUSTER *>(ClusterStack->first_node());
     ClusterStack = pop(ClusterStack);
     Prototype = MakePrototype(Clusterer, Config, Cluster);
     if (Prototype != nullptr) {
@@ -2775,8 +2776,8 @@ static double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha)
    for the specified number of degrees of freedom.  Search the list for
    the desired chi-squared. */
   CHISTRUCT SearchKey(0.0, Alpha);
-  auto OldChiSquared = reinterpret_cast<CHISTRUCT *> first_node(
-      search(ChiWith[DegreesOfFreedom], &SearchKey, AlphaMatch));
+  auto OldChiSquared = reinterpret_cast<CHISTRUCT *>(
+      search(ChiWith[DegreesOfFreedom], &SearchKey, AlphaMatch)->first_node());
 
   if (OldChiSquared == nullptr) {
     OldChiSquared = new CHISTRUCT(DegreesOfFreedom, Alpha);

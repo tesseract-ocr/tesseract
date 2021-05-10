@@ -65,8 +65,9 @@ public:
    * that tesseract has been given by the Thresholder.
    * After the constructor, Begin has already been called.
    */
-  PageIterator(PAGE_RES *page_res, Tesseract *tesseract, int scale, int scaled_yres, int rect_left,
-               int rect_top, int rect_width, int rect_height);
+  PageIterator(PAGE_RES *page_res, Tesseract *tesseract, int scale,
+               int scaled_yres, int rect_left, int rect_top, int rect_width,
+               int rect_height);
   virtual ~PageIterator();
 
   /**
@@ -153,7 +154,8 @@ public:
    *  it.IsAtFinalElement(RIL_PARA, RIL_WORD) = true
    *  it.IsAtFinalElement(RIL_BLOCK, RIL_WORD) = false
    */
-  virtual bool IsAtFinalElement(PageIteratorLevel level, PageIteratorLevel element) const;
+  virtual bool IsAtFinalElement(PageIteratorLevel level,
+                                PageIteratorLevel element) const;
 
   /**
    * Returns whether this iterator is positioned
@@ -185,7 +187,8 @@ public:
    * where the placement is obvious, and after recognition, it doesn't make as
    * much difference, as the diacritics will already be included in the word.
    */
-  void SetBoundingBoxComponents(bool include_upper_dots, bool include_lower_dots) {
+  void SetBoundingBoxComponents(bool include_upper_dots,
+                                bool include_lower_dots) {
     include_upper_dots_ = include_upper_dots;
     include_lower_dots_ = include_lower_dots;
   }
@@ -199,16 +202,17 @@ public:
    * from a grey image. The padding argument to GetImage can be used to expand
    * the image to include more foreground pixels. See GetImage below.
    */
-  bool BoundingBox(PageIteratorLevel level, int *left, int *top, int *right, int *bottom) const;
-  bool BoundingBox(PageIteratorLevel level, int padding, int *left, int *top, int *right,
+  bool BoundingBox(PageIteratorLevel level, int *left, int *top, int *right,
                    int *bottom) const;
+  bool BoundingBox(PageIteratorLevel level, int padding, int *left, int *top,
+                   int *right, int *bottom) const;
   /**
    * Returns the bounding rectangle of the object in a coordinate system of the
    * working image rectangle having its origin at (rect_left_, rect_top_) with
    * respect to the original image and is scaled by a factor scale_.
    */
-  bool BoundingBoxInternal(PageIteratorLevel level, int *left, int *top, int *right,
-                           int *bottom) const;
+  bool BoundingBoxInternal(PageIteratorLevel level, int *left, int *top,
+                           int *right, int *bottom) const;
 
   /** Returns whether there is no object of a given level. */
   bool Empty(PageIteratorLevel level) const;
@@ -247,7 +251,8 @@ public:
    * If you do not supply an original image, you will get a binary one.
    * Use pixDestroy to delete the image after use.
    */
-  Pix *GetImage(PageIteratorLevel level, int padding, Pix *original_img, int *left, int *top) const;
+  Pix *GetImage(PageIteratorLevel level, int padding, Pix *original_img,
+                int *left, int *top) const;
 
   /**
    * Returns the baseline of the current object at the given level.
@@ -255,7 +260,8 @@ public:
    * WARNING: with vertical text, baselines may be vertical!
    * Returns false if there is no baseline at the current position.
    */
-  bool Baseline(PageIteratorLevel level, int *x1, int *y1, int *x2, int *y2) const;
+  bool Baseline(PageIteratorLevel level, int *x1, int *y1, int *x2,
+                int *y2) const;
 
   /**
    * Returns orientation for the block the iterator points to.
@@ -267,7 +273,8 @@ public:
    */
   void Orientation(tesseract::Orientation *orientation,
                    tesseract::WritingDirection *writing_direction,
-                   tesseract::TextlineOrder *textline_order, float *deskew_angle) const;
+                   tesseract::TextlineOrder *textline_order,
+                   float *deskew_angle) const;
 
   /**
    * Returns information about the current paragraph, if available.
@@ -297,8 +304,9 @@ public:
    *             first_line_indent for subsequent paragraphs in this block
    *             of text.
    */
-  void ParagraphInfo(tesseract::ParagraphJustification *justification, bool *is_list_item,
-                     bool *is_crown, int *first_line_indent) const;
+  void ParagraphInfo(tesseract::ParagraphJustification *justification,
+                     bool *is_list_item, bool *is_crown,
+                     int *first_line_indent) const;
 
   // If the current WERD_RES (it_->word()) is not nullptr, sets the BlamerBundle
   // of the current word to the given pointer (takes ownership of the pointer)

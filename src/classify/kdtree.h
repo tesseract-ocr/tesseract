@@ -62,7 +62,7 @@ struct KDNODE {
 };
 
 struct KDTREE {
-  KDTREE(size_t n) : KeyDesc(n) {
+  KDTREE(size_t n) : KeySize(n), KeyDesc(n) {
   }
 
   // The destructor frees all memory which is allocated to the
@@ -74,8 +74,9 @@ struct KDTREE {
   ~KDTREE() {
   }
 
-  int16_t KeySize;       /* number of dimensions in the tree */
-  KDNODE Root;           /* Root.Left points to actual root node */
+  // TODO: KeySize might be replaced by KeyDesc.size().
+  int16_t KeySize = 0;   // number of dimensions in the tree
+  KDNODE Root;           // Root.Left points to actual root node
   std::vector<PARAM_DESC> KeyDesc; // description of each dimension
 };
 

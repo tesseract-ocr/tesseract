@@ -130,14 +130,13 @@ void FindDirectionChanges(MFOUTLINE Outline, float MinSlope, float MaxSlope) {
  * @param arg   micro-feature outline to be freed
  */
 void FreeMFOutline(void *arg) { // MFOUTLINE Outline)
-  MFOUTLINE Start;
   auto Outline = static_cast<MFOUTLINE>(arg);
 
   /* break the circular outline so we can use std. techniques to deallocate */
-  Start = list_rest(Outline);
+  MFOUTLINE Start = Outline->list_rest();
   set_rest(Outline, NIL_LIST);
   while (Start != nullptr) {
-    delete first_node(Start);
+    delete reinterpret_cast<MFEDGEPT *>(Start->first_node());
     Start = pop(Start);
   }
 
@@ -257,7 +256,7 @@ void Classify::NormalizeOutlines(LIST Outlines, float *XScale, float *YScale) {
 
     case baseline:
       iterate(Outlines) {
-        Outline = static_cast<MFOUTLINE> first_node(Outlines);
+        Outline = static_cast<MFOUTLINE>(Outlines->first_node());
         NormalizeOutline(Outline, 0.0);
       }
       *XScale = *YScale = MF_SCALE_FACTOR;

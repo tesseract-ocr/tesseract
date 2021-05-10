@@ -127,7 +127,7 @@ public:
       const ICOORD vec); // by vector
 
   void print(    // print
-      FILE *fp); // file to print on
+      FILE *fp) const; // file to print on
 
 #ifndef GRAPHICS_DISABLED
   void plot(                     // draw one

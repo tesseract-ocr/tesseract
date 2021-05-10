@@ -75,12 +75,14 @@ inline bool PTIsLineType(PolyBlockType type) {
 }
 /** Returns true if PolyBlockType is of image type */
 inline bool PTIsImageType(PolyBlockType type) {
-  return type == PT_FLOWING_IMAGE || type == PT_HEADING_IMAGE || type == PT_PULLOUT_IMAGE;
+  return type == PT_FLOWING_IMAGE || type == PT_HEADING_IMAGE ||
+         type == PT_PULLOUT_IMAGE;
 }
 /** Returns true if PolyBlockType is of text type */
 inline bool PTIsTextType(PolyBlockType type) {
-  return type == PT_FLOWING_TEXT || type == PT_HEADING_TEXT || type == PT_PULLOUT_TEXT ||
-         type == PT_TABLE || type == PT_VERTICAL_TEXT || type == PT_CAPTION_TEXT ||
+  return type == PT_FLOWING_TEXT || type == PT_HEADING_TEXT ||
+         type == PT_PULLOUT_TEXT || type == PT_TABLE ||
+         type == PT_VERTICAL_TEXT || type == PT_CAPTION_TEXT ||
          type == PT_INLINE_EQUATION;
 }
 // Returns true if PolyBlockType is of pullout(inter-column) type
@@ -155,23 +157,24 @@ enum TextlineOrder {
  * so that the inequality test macros below work.
  */
 enum PageSegMode {
-  PSM_OSD_ONLY = 0,               ///< Orientation and script detection only.
-  PSM_AUTO_OSD = 1,               ///< Automatic page segmentation with orientation and
-                                  ///< script detection. (OSD)
-  PSM_AUTO_ONLY = 2,              ///< Automatic page segmentation, but no OSD, or OCR.
-  PSM_AUTO = 3,                   ///< Fully automatic page segmentation, but no OSD.
-  PSM_SINGLE_COLUMN = 4,          ///< Assume a single column of text of variable sizes.
+  PSM_OSD_ONLY = 0,      ///< Orientation and script detection only.
+  PSM_AUTO_OSD = 1,      ///< Automatic page segmentation with orientation and
+                         ///< script detection. (OSD)
+  PSM_AUTO_ONLY = 2,     ///< Automatic page segmentation, but no OSD, or OCR.
+  PSM_AUTO = 3,          ///< Fully automatic page segmentation, but no OSD.
+  PSM_SINGLE_COLUMN = 4, ///< Assume a single column of text of variable sizes.
   PSM_SINGLE_BLOCK_VERT_TEXT = 5, ///< Assume a single uniform block of
                                   ///< vertically aligned text.
-  PSM_SINGLE_BLOCK = 6,           ///< Assume a single uniform block of text. (Default.)
-  PSM_SINGLE_LINE = 7,            ///< Treat the image as a single text line.
-  PSM_SINGLE_WORD = 8,            ///< Treat the image as a single word.
-  PSM_CIRCLE_WORD = 9,            ///< Treat the image as a single word in a circle.
-  PSM_SINGLE_CHAR = 10,           ///< Treat the image as a single character.
-  PSM_SPARSE_TEXT = 11,           ///< Find as much text as possible in no particular order.
-  PSM_SPARSE_TEXT_OSD = 12,       ///< Sparse text with orientation and script det.
-  PSM_RAW_LINE = 13,              ///< Treat the image as a single text line, bypassing
-                                  ///< hacks that are Tesseract-specific.
+  PSM_SINGLE_BLOCK = 6, ///< Assume a single uniform block of text. (Default.)
+  PSM_SINGLE_LINE = 7,  ///< Treat the image as a single text line.
+  PSM_SINGLE_WORD = 8,  ///< Treat the image as a single word.
+  PSM_CIRCLE_WORD = 9,  ///< Treat the image as a single word in a circle.
+  PSM_SINGLE_CHAR = 10, ///< Treat the image as a single character.
+  PSM_SPARSE_TEXT =
+      11, ///< Find as much text as possible in no particular order.
+  PSM_SPARSE_TEXT_OSD = 12, ///< Sparse text with orientation and script det.
+  PSM_RAW_LINE = 13, ///< Treat the image as a single text line, bypassing
+                     ///< hacks that are Tesseract-specific.
 
   PSM_COUNT ///< Number of enum entries.
 };
@@ -273,6 +276,18 @@ enum OcrEngineMode {
                                // in any of the above should be set to the
                                // default OEM_TESSERACT_ONLY.
   OEM_COUNT                    // Number of OEMs
+};
+
+/**
+ * Except when Otsu is chosen
+ * Leptonica is used for thresholding
+ */
+enum class ThresholdMethod {
+  Otsu,         // Legacy Tesseract's Otsu thresholding
+  AdaptiveOtsu,
+  TiledSauvola,
+
+  Max,        // Number of Thresholding methods
 };
 
 } // namespace tesseract.

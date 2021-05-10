@@ -42,7 +42,7 @@ public:
   // The blob_block is the usual result of connected component analysis,
   // holding the detected blobs.
   // The returned Pix should be PixDestroyed after use.
-  Pix *ComputeNonTextMask(bool debug, Pix *photo_map, TO_BLOCK *blob_block);
+  Image ComputeNonTextMask(bool debug, Image photo_map, TO_BLOCK *blob_block);
 
 private:
   // Computes and returns the noise_density IntGrid, at the same gridsize as
@@ -52,7 +52,7 @@ private:
   // more likely non-text.
   // The photo_map is used to bias the decision towards non-text, rather than
   // supplying definite decision.
-  IntGrid *ComputeNoiseDensity(bool debug, Pix *photo_map, BlobGrid *good_grid);
+  IntGrid *ComputeNoiseDensity(bool debug, Image photo_map, BlobGrid *good_grid);
 
   // Tests each blob in the list to see if it is certain non-text using 2
   // conditions:
@@ -68,7 +68,7 @@ private:
   // Clear()ed immediately after MarkAndDeleteNonTextBlobs is called.
   // If the win is not nullptr, deleted blobs are drawn on it in red, and kept
   void MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST *blobs, int max_blob_overlaps, ScrollView *win,
-                                 ScrollView::Color ok_color, Pix *nontext_mask);
+                                 ScrollView::Color ok_color, Image nontext_mask);
   // Returns true if the given blob overlaps more than max_overlaps blobs
   // in the current grid.
   bool BlobOverlapsTooMuch(BLOBNBOX *blob, int max_overlaps);

@@ -19,8 +19,10 @@
 #ifndef NORMALIS_H
 #define NORMALIS_H
 
-#include <vector>
+#include "image.h"
+
 #include <tesseract/export.h>
+
 #include <vector>
 
 struct Pix;
@@ -232,10 +234,10 @@ public:
   // Prints the content of the DENORM for debug purposes.
   void Print() const;
 
-  Pix *pix() const {
+  Image pix() const {
     return pix_;
   }
-  void set_pix(Pix *pix) {
+  void set_pix(Image pix) {
     pix_ = pix;
   }
   bool inverse() const {
@@ -274,7 +276,7 @@ private:
   void Init();
 
   // Best available image.
-  Pix *pix_;
+  Image pix_;
   // True if the source image is white-on-black.
   bool inverse_;
   // Block the word came from. If not null, block->re_rotation() takes the

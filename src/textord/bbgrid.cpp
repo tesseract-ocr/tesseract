@@ -187,8 +187,8 @@ bool IntGrid::AnyZeroInRect(const TBOX &rect) const {
 // Returns a full-resolution binary pix in which each cell over the given
 // threshold is filled as a black square. pixDestroy after use.
 // Edge cells, which have a zero 4-neighbour, are not marked.
-Pix *IntGrid::ThresholdToPix(int threshold) const {
-  Pix *pix = pixCreate(tright().x() - bleft().x(), tright().y() - bleft().y(), 1);
+Image IntGrid::ThresholdToPix(int threshold) const {
+  Image pix = pixCreate(tright().x() - bleft().x(), tright().y() - bleft().y(), 1);
   int cellsize = gridsize();
   for (int y = 0; y < gridheight(); ++y) {
     for (int x = 0; x < gridwidth(); ++x) {
@@ -204,7 +204,7 @@ Pix *IntGrid::ThresholdToPix(int threshold) const {
 }
 
 // Make a Pix of the correct scaled size for the TraceOutline functions.
-static Pix *GridReducedPix(const TBOX &box, int gridsize, ICOORD bleft, int *left, int *bottom) {
+static Image GridReducedPix(const TBOX &box, int gridsize, ICOORD bleft, int *left, int *bottom) {
   // Compute grid bounds of the outline and pad all round by 1.
   int grid_left = (box.left() - bleft.x()) / gridsize - 1;
   int grid_bottom = (box.bottom() - bleft.y()) / gridsize - 1;
@@ -221,10 +221,10 @@ static Pix *GridReducedPix(const TBOX &box, int gridsize, ICOORD bleft, int *lef
 // Also returns the grid coords of the bottom-left of the Pix, in *left
 // and *bottom, which corresponds to (0, 0) on the Pix.
 // Note that the Pix is used upside-down, with (0, 0) being the bottom-left.
-Pix *TraceOutlineOnReducedPix(C_OUTLINE *outline, int gridsize, ICOORD bleft, int *left,
+Image TraceOutlineOnReducedPix(C_OUTLINE *outline, int gridsize, ICOORD bleft, int *left,
                               int *bottom) {
   const TBOX &box = outline->bounding_box();
-  Pix *pix = GridReducedPix(box, gridsize, bleft, left, bottom);
+  Image pix = GridReducedPix(box, gridsize, bleft, left, bottom);
   int wpl = pixGetWpl(pix);
   l_uint32 *data = pixGetData(pix);
   int length = outline->pathlength();
@@ -243,13 +243,13 @@ Pix *TraceOutlineOnReducedPix(C_OUTLINE *outline, int gridsize, ICOORD bleft, in
   Pix* pix = TraceOutlineOnReducedPix(ol_it.data(), gridsize_, bleft_,
                                       &grid_left, &grid_bottom);
   grid->InsertPixPtBBox(grid_left, grid_bottom, pix, blob);
-  pixDestroy(&pix);
+  pix.destroy();
 #endif
 
 // As TraceOutlineOnReducedPix above, but on a BLOCK instead of a C_OUTLINE.
-Pix *TraceBlockOnReducedPix(BLOCK *block, int gridsize, ICOORD bleft, int *left, int *bottom) {
+Image TraceBlockOnReducedPix(BLOCK *block, int gridsize, ICOORD bleft, int *left, int *bottom) {
   const TBOX &box = block->pdblk.bounding_box();
-  Pix *pix = GridReducedPix(box, gridsize, bleft, left, bottom);
+  Image pix = GridReducedPix(box, gridsize, bleft, left, bottom);
   int wpl = pixGetWpl(pix);
   l_uint32 *data = pixGetData(pix);
   ICOORDELT_IT it(block->pdblk.poly_block()->points());

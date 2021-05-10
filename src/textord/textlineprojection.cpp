@@ -35,7 +35,7 @@ const int kWrongWayPenalty = 4;
 // Ratio between parallel gap and perpendicular gap used to measure total
 // distance of a box from a target box in curved textline space.
 // parallel-gap is treated more favorably by this factor to allow catching
-// quotes and elipsis at the end of textlines.
+// quotes and ellipsis at the end of textlines.
 const int kParaPerpDistRatio = 4;
 // Multiple of scale_factor_ that the inter-line gap must be before we start
 // padding the increment box perpendicular to the text line.
@@ -53,7 +53,7 @@ TextlineProjection::TextlineProjection(int resolution) : x_origin_(0), y_origin_
   }
 }
 TextlineProjection::~TextlineProjection() {
-  pixDestroy(&pix_);
+  pix_.destroy();
 }
 
 // Build the projection profile given the input_block containing lists of
@@ -64,8 +64,8 @@ TextlineProjection::~TextlineProjection() {
 // The blobs have had their left and right rules set to also limit
 // the range of projection.
 void TextlineProjection::ConstructProjection(TO_BLOCK *input_block, const FCOORD &rotation,
-                                             Pix *nontext_map) {
-  pixDestroy(&pix_);
+                                             Image nontext_map) {
+  pix_.destroy();
   TBOX image_box(0, 0, pixGetWidth(nontext_map), pixGetHeight(nontext_map));
   x_origin_ = 0;
   y_origin_ = image_box.height();
@@ -75,9 +75,9 @@ void TextlineProjection::ConstructProjection(TO_BLOCK *input_block, const FCOORD
   pix_ = pixCreate(width, height, 8);
   ProjectBlobs(&input_block->blobs, rotation, image_box, nontext_map);
   ProjectBlobs(&input_block->large_blobs, rotation, image_box, nontext_map);
-  Pix *final_pix = pixBlockconv(pix_, 1, 1);
+  Image final_pix = pixBlockconv(pix_, 1, 1);
   //  Pix* final_pix = pixBlockconv(pix_, 2, 2);
-  pixDestroy(&pix_);
+  pix_.destroy();
   pix_ = final_pix;
 }
 
@@ -127,7 +127,7 @@ void TextlineProjection::MoveNonTextlineBlobs(BLOBNBOX_LIST *blobs,
 void TextlineProjection::DisplayProjection() const {
   int width = pixGetWidth(pix_);
   int height = pixGetHeight(pix_);
-  Pix *pixc = pixCreate(width, height, 32);
+  Image pixc = pixCreate(width, height, 32);
   int src_wpl = pixGetWpl(pix_);
   int col_wpl = pixGetWpl(pixc);
   uint32_t *src_data = pixGetData(pix_);
@@ -147,9 +147,9 @@ void TextlineProjection::DisplayProjection() const {
     }
   }
   auto *win = new ScrollView("Projection", 0, 0, width, height, width, height);
-  win->Image(pixc, 0, 0);
+  win->Draw(pixc, 0, 0);
   win->Update();
-  pixDestroy(&pixc);
+  pixc.destroy();
 }
 
 #endif // !GRAPHICS_DISABLED
@@ -570,7 +570,7 @@ int TextlineProjection::MeanPixelsInLineSegment(const DENORM *denorm, int offset
 // The function converts between tesseract coords and the pix coords assuming
 // that this pix is full resolution equal in size to the original image.
 // Returns an empty box if there are no black pixels in the source box.
-static TBOX BoundsWithinBox(Pix *pix, const TBOX &box) {
+static TBOX BoundsWithinBox(Image pix, const TBOX &box) {
   int im_height = pixGetHeight(pix);
   Box *input_box = boxCreate(box.left(), im_height - box.top(), box.width(), box.height());
   Box *output_box = nullptr;
@@ -593,7 +593,7 @@ static TBOX BoundsWithinBox(Pix *pix, const TBOX &box) {
 // and checks for nontext_map pixels in each half. Reduces the bbox so that it
 // still includes the middle point, but does not touch any fg pixels in
 // nontext_map. An empty box may be returned if there is no such box.
-static void TruncateBoxToMissNonText(int x_middle, int y_middle, bool split_on_x, Pix *nontext_map,
+static void TruncateBoxToMissNonText(int x_middle, int y_middle, bool split_on_x, Image nontext_map,
                                      TBOX *bbox) {
   TBOX box1(*bbox);
   TBOX box2(*bbox);
@@ -652,7 +652,7 @@ void TextlineProjection::IncrementRectangle8Bit(const TBOX &box) {
 // flags, but the spreading is truncated by set pixels in the nontext_map
 // and also by the horizontal rule line limits on the blobs.
 void TextlineProjection::ProjectBlobs(BLOBNBOX_LIST *blobs, const FCOORD &rotation,
-                                      const TBOX &nontext_map_box, Pix *nontext_map) {
+                                      const TBOX &nontext_map_box, Image nontext_map) {
   BLOBNBOX_IT blob_it(blobs);
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     BLOBNBOX *blob = blob_it.data();
