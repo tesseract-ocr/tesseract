@@ -20,19 +20,21 @@
 #ifndef THIRD_PARTY_TESSERACT_LSTM_RECODEBEAM_H_
 #define THIRD_PARTY_TESSERACT_LSTM_RECODEBEAM_H_
 
-#include <deque>
-#include <set>
-#include <tuple>
-#include <unordered_set>
-#include <vector>
 #include "dawg.h"
 #include "dict.h"
 #include "genericheap.h"
+#include "genericvector.h"
 #include "kdpair.h"
 #include "networkio.h"
 #include "ratngs.h"
 #include "unicharcompress.h"
 #include "genericvector.h"     // for PointerVector (ptr only)
+
+#include <deque>
+#include <set>
+#include <tuple>
+#include <unordered_set>
+#include <vector>
 
 namespace tesseract {
 
