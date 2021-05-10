@@ -16,12 +16,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <allheaders.h>
-
-#include <cstdint> // for uint32_t
-#include <cstring>
-#include <tuple>
-
 #include "otsuthr.h"
 #include "thresholder.h"
 #include "tprintf.h" // for tprintf
@@ -29,6 +23,12 @@
 #if defined(USE_OPENCL)
 #  include "openclwrapper.h" // for OpenclDevice
 #endif
+
+#include <allheaders.h>
+
+#include <cstdint> // for uint32_t
+#include <cstring>
+#include <tuple>
 
 namespace tesseract {
 
@@ -186,7 +186,7 @@ void ImageThresholder::SetImage(const Image pix) {
 }
 
 std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
-                                                         ThreshMethod method) {
+                                                         ThresholdMethod method) {
   Image pix_grey = nullptr;
   Image pix_binary = nullptr;
   Image pix_thresholds = nullptr;
@@ -195,7 +195,7 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
     return std::make_tuple(false, nullptr, nullptr, nullptr);
   }
-  
+
   if (pix_channels_ == 0) {
     // We have a binary image, but it still has to be copied, as this API
     // allows the caller to modify the output.
@@ -207,19 +207,19 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
 
   pix_grey = GetPixRectGrey();
 
-  if (method == ThreshMethod::Otsu || method >= ThreshMethod::Count) {
-    method = ThreshMethod::AdaptiveOtsu;
+  if (method == ThresholdMethod::Otsu || method >= ThresholdMethod::Max) {
+    method = ThresholdMethod::AdaptiveOtsu;
   }
 
   int r;
-  if (method == ThreshMethod::AdaptiveOtsu) {
-    r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1, 
-                                 pix_thresholds.a(), pix_binary.a());
-  } else if (method == ThreshMethod::TiledSauvola) {
-    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, pix_thresholds.a(), 
-                                pix_binary.a());
+  if (method == ThresholdMethod::AdaptiveOtsu) {
+    r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1,
+                                 pix_thresholds, pix_binary);
+  } else if (method == ThresholdMethod::TiledSauvola) {
+    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, pix_thresholds,
+                                pix_binary);
   }
-  
+
   bool ok = r == 0 ? true : false;
   return std::make_tuple(ok, pix_grey, pix_binary, pix_thresholds);
 }

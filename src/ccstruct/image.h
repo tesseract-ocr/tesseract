@@ -31,11 +31,12 @@ public:
   Image(Pix *pix) : pix_(pix) {}
 
   // service
+  bool operator==(decltype(nullptr)) const { return pix_ == nullptr; }
+  bool operator!=(decltype(nullptr)) const { return pix_ != nullptr; }
+  explicit operator bool() const { return pix_ != nullptr; }
   operator Pix *() const { return pix_; }
-  explicit operator Pix **() { return &pix_; }
+  operator Pix **() { return &pix_; }
   Pix *operator->() const { return pix_; }
-  Pix **a() { return &pix_; }
-
 
   // api
   Image clone() const; // increases refcount

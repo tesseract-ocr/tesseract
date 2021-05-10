@@ -122,7 +122,7 @@ public:
   virtual bool ThresholdToPix(PageSegMode pageseg_mode, Image *pix);
 
   virtual std::tuple<bool, Image, Image, Image> Threshold(
-                                                          ThreshMethod method);
+                                                          ThresholdMethod method);
 
   // Gets a pix that contains an 8 bit threshold value at each pixel. The
   // returned pix may be an integer reduction of the binary image such that

@@ -2113,14 +2113,14 @@ bool TessBaseAPI::Threshold(Pix **pix) {
   Image pix_grey;
   Image pix_thresholds;
 
-  auto thresholding_method = static_cast<ThreshMethod>(static_cast<int>(tesseract_->thresholding_method));
+  auto thresholding_method = static_cast<ThresholdMethod>(static_cast<int>(tesseract_->thresholding_method));
 
-  if (thresholding_method == ThreshMethod::Otsu) {
+  if (thresholding_method == ThresholdMethod::Otsu) {
     if (!thresholder_->ThresholdToPix(pageseg_mode, &pix_binary)) {
       return false;
     }
     *pix = pix_binary;
-  
+
     if (!thresholder_->IsBinary()) {
       tesseract_->set_pix_thresholds(thresholder_->GetPixRectThresholds());
       tesseract_->set_pix_grey(thresholder_->GetPixRectGrey());
@@ -2137,12 +2137,12 @@ bool TessBaseAPI::Threshold(Pix **pix) {
     *pix = pix_binary;
 
     tesseract_->set_pix_thresholds(pix_thresholds);
-    tesseract_->set_pix_grey(pix_grey); 
-  } 
-   
+    tesseract_->set_pix_grey(pix_grey);
+  }
+
   thresholder_->GetImageSizes(&rect_left_, &rect_top_, &rect_width_, &rect_height_, &image_width_,
                               &image_height_);
-  
+
   // Set the internal resolution that is used for layout parameters from the
   // estimated resolution, rather than the image resolution, which may be
   // fabricated, but we will use the image resolution, if there is one, to
