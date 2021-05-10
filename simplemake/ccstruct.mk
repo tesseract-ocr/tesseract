@@ -13,6 +13,7 @@ CCSTRUCT_HDR = \
 	../src/ccstruct/debugpixa.h \
 	../src/ccstruct/detlinefit.h \
 	../src/ccstruct/dppoint.h \
+	../src/ccstruct/image.h \
 	../src/ccstruct/imagedata.h \
 	../src/ccstruct/linlsq.h \
 	../src/ccstruct/matrix.h \
@@ -51,6 +52,7 @@ CCSTRUCT_SRC = \
 	../src/ccstruct/coutln.cpp \
 	../src/ccstruct/detlinefit.cpp \
 	../src/ccstruct/dppoint.cpp \
+	../src/ccstruct/image.cpp \
 	../src/ccstruct/imagedata.cpp \
 	../src/ccstruct/linlsq.cpp \
 	../src/ccstruct/matrix.cpp \

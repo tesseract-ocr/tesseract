@@ -2,7 +2,6 @@ CCUTIL_HDR = \
 	../include/tesseract/export.h \
 	../include/tesseract/publictypes.h \
 	../include/tesseract/unichar.h \
-	../src/ccutil/bits16.h \
 	../src/ccutil/ccutil.h \
 	../src/ccutil/clst.h \
 	../src/ccutil/elst2.h \
