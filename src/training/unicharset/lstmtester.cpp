@@ -105,6 +105,11 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
         trainer.LabelsFromOutputs(fwd_outputs, &ocr_labels, &xcoords);
         std::string ocr_text = trainer.DecodeLabels(ocr_labels);
         tprintf("OCR  :%s\n", ocr_text.c_str());
+        if (verbosity > 2 || (verbosity > 1 && result != PERFECT)) {
+          tprintf("Line Char error rate=%f, Word error rate=%f\n\n",
+                  trainer.NewSingleError(tesseract::ET_CHAR_ERROR),
+                  trainer.NewSingleError(tesseract::ET_WORD_RECERR));
+        }
       }
     }
   }
