@@ -261,7 +261,7 @@ AC_ARG_WITH([tensorflow],
 AM_CONDITIONAL([TENSORFLOW], false)
 TENSORFLOW_LIBS=
 AS_IF([test "x$with_tensorflow" != xno],
-  [AC_CHECK_HEADERS(["tensorflow/core/framework/graph.pb.h"],
+  [AC_CHECK_HEADERS([tensorflow/core/framework/graph.pb.h],
     [AC_SUBST([TENSORFLOW_LIBS], ["-lprotobuf -ltensorflow_cc"])
       AM_CONDITIONAL([TENSORFLOW], true)
     ],
