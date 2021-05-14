@@ -187,7 +187,6 @@ void ImageThresholder::SetImage(const Image pix) {
 
 std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
                                                          ThresholdMethod method) {
-  Image pix_grey = nullptr;
   Image pix_binary = nullptr;
   Image pix_thresholds = nullptr;
 
@@ -205,22 +204,19 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     return std::make_tuple(false, nullptr, pix_binary, nullptr);
   }
 
-  pix_grey = GetPixRectGrey();
-
-  if (method == ThresholdMethod::Otsu || method >= ThresholdMethod::Max) {
-    method = ThresholdMethod::AdaptiveOtsu;
-  }
+  auto pix_grey = GetPixRectGrey();
 
   int r;
-  if (method == ThresholdMethod::AdaptiveOtsu) {
-    r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1,
-                                 pix_thresholds, pix_binary);
-  } else if (method == ThresholdMethod::TiledSauvola) {
+  if (method == ThresholdMethod::TiledSauvola) {
     r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, pix_thresholds,
                                 pix_binary);
+  } else {
+    // AdaptiveOtsu.
+    r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1,
+                                 pix_thresholds, pix_binary);
   }
 
-  bool ok = r == 0 ? true : false;
+  bool ok = (r == 0);
   return std::make_tuple(ok, pix_grey, pix_binary, pix_thresholds);
 }
 
