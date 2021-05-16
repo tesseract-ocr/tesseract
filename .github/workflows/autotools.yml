@@ -52,7 +52,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-           sudo apt-get install autoconf-archive libleptonica-dev -y
+           sudo apt-get install autoconf libleptonica-dev -y
            sudo apt-get install libicu-dev libpango1.0-dev libcairo2-dev -y
            sudo apt-get install cabextract libarchive-dev -y
            sudo apt-get install libcurl4-openssl-dev libcurl4 curl -y
