@@ -51,7 +51,7 @@ jobs:
       - name: Install dependencies on Linux
         run: |
            sudo apt-get install autoconf libleptonica-dev -y
-           sudo apt-get install libicu-dev libpango1.0-dev libcairo2-dev -y
+           sudo apt-get install libpango1.0-dev -y
            sudo apt-get install cabextract -y
            sudo apt-get install ninja-build -y
         if: runner.os == 'Linux'

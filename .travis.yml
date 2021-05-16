@@ -21,7 +21,7 @@ cache:
     - leptonica-$LEPT_VER
 
 before_install:
-  - sudo apt-get install libpango1.0-dev libicu-dev libtiff5-dev -y
+  - sudo apt-get install libpango1.0-dev libtiff5-dev -y
   - rm -rf leptonica-$LEPT_VER/usr
   
 install:
