@@ -15,7 +15,7 @@ jobs:
       matrix:
         config:
 
-          - { name: macos-10.15-clang-12-cmake, os: macos-10.15, cxx: clang++ } # defualt
+          - { name: macos-10.15-clang-12-cmake, os: macos-10.15, cxx: clang++ } # default
           - { name: macos-10.15-clang-11-cmake, os: macos-10.15, cxx: '$(brew --prefix llvm)/bin/clang++' }  #installed
           - { name: macos-10.15-gcc-8-cmake, os: macos-10.15, cxx: g++-8 } #installed
           - { name: macos-10.15-gcc-9-cmake, os: macos-10.15, cxx: g++-9 } #installed
