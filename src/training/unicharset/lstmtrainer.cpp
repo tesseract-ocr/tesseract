@@ -65,9 +65,11 @@ const double kHighConfidence = 0.9375; // 15/16.
 const double kImprovementFraction = 15.0 / 16.0;
 // Fraction of last written best to make it worth writing another.
 const double kBestCheckpointFraction = 31.0 / 32.0;
+#ifndef GRAPHICS_DISABLED
 // Scale factor for display of target activations of CTC.
 const int kTargetXScale = 5;
 const int kTargetYScale = 100;
+#endif // !GRAPHICS_DISABLED
 
 LSTMTrainer::LSTMTrainer() : randomly_rotate_(false), training_data_(0), sub_trainer_(nullptr) {
   EmptyConstructor();

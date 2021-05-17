@@ -68,7 +68,7 @@ GENERIC_RELEASE=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
 AC_SUBST([GENERIC_RELEASE])
 AC_SUBST([GENERIC_VERSION])
 
-AC_CONFIG_HEADERS([config_auto.h:config/config.h.in])
+AC_CONFIG_HEADERS([include/config_auto.h:config/config.h.in])
 
 # default conditional
 AM_CONDITIONAL([T_WIN], false)
@@ -274,7 +274,7 @@ AC_ARG_WITH([tensorflow],
 AM_CONDITIONAL([TENSORFLOW], false)
 TENSORFLOW_LIBS=
 AS_IF([test "x$with_tensorflow" != xno],
-  [AC_CHECK_HEADERS(["tensorflow/core/framework/graph.pb.h"],
+  [AC_CHECK_HEADERS([tensorflow/core/framework/graph.pb.h],
     [AC_SUBST([TENSORFLOW_LIBS], ["-lprotobuf -ltensorflow_cc"])
       AM_CONDITIONAL([TENSORFLOW], true)
     ],

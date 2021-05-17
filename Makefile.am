@@ -9,6 +9,8 @@ ACLOCAL_AMFLAGS = -I m4
 
 CLEANFILES =
 
+DEFAULT_INCLUDES =
+
 SUBDIRS = . tessdata
 if MINGW
 SUBDIRS += nsis
