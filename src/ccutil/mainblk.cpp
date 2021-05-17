@@ -35,7 +35,7 @@ namespace tesseract {
 /**
  * @brief CCUtil::main_setup - set location of tessdata and name of image
  *
- * @param argv0 - paths to the directory with language files and config files.
+ * @param argv0 - path to the directory with language files and config files.
  * An actual value of argv0 is used if not nullptr, otherwise TESSDATA_PREFIX is
  * used if not nullptr, next try to use compiled in -DTESSDATA_PREFIX. If
  * previous is not successful - use current directory.

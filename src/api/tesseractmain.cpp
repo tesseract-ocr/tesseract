@@ -226,6 +226,7 @@ static void PrintHelpForOEM() {
 #endif // ndef DISABLED_LEGACY_ENGINE
 
 static void PrintHelpExtra(const char *program) {
+  program = basename(program);
   tprintf(
       "Usage:\n"
       "  %s --help | --help-extra | --help-psm | "
