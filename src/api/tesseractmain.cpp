@@ -225,6 +225,18 @@ static void PrintHelpForOEM() {
 }
 #endif // ndef DISABLED_LEGACY_ENGINE
 
+static const char* basename(const char* path)
+{
+	size_t i;
+	size_t len = strlen(path);
+	for (i = strcspn(path, ":/\\"); i < len; i = strcspn(path, ":/\\"))
+	{
+		path = path + i + 1;
+		len -= i + 1;
+}
+	return path;
+}
+
 static void PrintHelpExtra(const char *program) {
   program = basename(program);
   tprintf(
@@ -283,18 +295,6 @@ static void PrintHelpExtra(const char *program) {
       "  --print-fonts-table   Print tesseract fonts table.\n"
 #endif  // ndef DISABLED_LEGACY_ENGINE
       "  --print-parameters    Print tesseract parameters.\n");
-}
-
-static const char *basename(const char *path)
-{
-  size_t i;
-  size_t len = strlen(path);
-  for (i = strcspn(path, ":/\\"); i < len; i = strcspn(path, ":/\\"))
-  {
-    path = path + i + 1;
-    len -= i + 1;
-  }
-  return path;
 }
 
 static void PrintHelpMessage(const char *program) {
