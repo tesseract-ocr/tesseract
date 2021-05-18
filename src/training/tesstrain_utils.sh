@@ -129,6 +129,17 @@ parse_flags() {
                     j=$((j+1))
                 done
                 i=$((j-1)) ;;
+            --vertical_fontlist)
+                fn=0
+                OPTIONAL_VERTICAL_FONTS=""
+                while test $j -lt ${#ARGV[@]}; do
+                    test -z "${ARGV[$j]}" && break
+                    test $(echo ${ARGV[$j]} | cut -c -2) = "--" && break
+                    OPTIONAL_VERTICAL_FONTS[$fn]="${ARGV[$j]}"
+                    fn=$((fn+1))
+                    j=$((j+1))
+                done
+                i=$((j-1)) ;;
             --exposures)
                 exp=""
                 while test $j -lt ${#ARGV[@]}; do

@@ -1179,6 +1179,10 @@ set_lang_specific_parameters() {
 
   # Default to 0 exposure if it hasn't been set
   test -z "$EXPOSURES" && EXPOSURES=0
+
+  # Overrides VERTICAL_FONTS if --vertical_fontlist option have been set
+  test -n "${OPTIONAL_VERTICAL_FONTS:-}" && VERTICAL_FONTS=( "${OPTIONAL_VERTICAL_FONTS[@]}" )
+
   # Set right-to-left and normalization mode.
   case "${LANG_CODE}" in
     ara | div| fas | pus | snd | syr | uig | urd | kur_ara | heb | yid )

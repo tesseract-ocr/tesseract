@@ -19,6 +19,7 @@ display_usage() {
 echo -e 'USAGE: tesstrain.sh
      --exposures EXPOSURES      # A list of exposure levels to use (e.g. "-1 0 1").
      --fontlist FONTS           # A list of fontnames to train on.
+     --vertical_fontlist FONTS  # A list of fontnames to render vertical text.
      --fonts_dir FONTS_PATH     # Path to font files.
      --lang LANG_CODE           # ISO 639 code.
      --langdata_dir DATADIR     # Path to tesseract/training/langdata directory.
