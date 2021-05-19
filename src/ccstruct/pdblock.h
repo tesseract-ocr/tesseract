@@ -41,10 +41,10 @@ public:
     index_ = 0;
   }
   /// simple constructor
-  PDBLK(int16_t xmin, ///< bottom left
-        int16_t ymin,
-        int16_t xmax, ///< top right
-        int16_t ymax);
+  PDBLK(int32_t xmin, ///< bottom left
+        int32_t ymin,
+        int32_t xmax, ///< top right
+        int32_t ymax);
 
   /// set vertex lists
   ///@param left list of left vertices
@@ -145,8 +145,8 @@ public:
   }
 
 private:
-  int16_t ymin = 0;       ///< bottom of rectangle
-  int16_t ymax = 0;       ///< top of rectangle
+  int32_t ymin = 0;       ///< bottom of rectangle
+  int32_t ymax = 0;       ///< top of rectangle
   PDBLK *block = nullptr; ///< block to iterate
   ICOORDELT_IT left_it;   ///< boundary iterators
   ICOORDELT_IT right_it;
@@ -172,7 +172,7 @@ public:
   /// get a line
   ///@param y line to get
   ///@param xext output extent
-  int16_t get_line(int16_t y, int16_t &xext);
+  int32_t get_line(int32_t y, int32_t &xext);
 
 private:
   PDBLK *block;          ///< block to iterate
