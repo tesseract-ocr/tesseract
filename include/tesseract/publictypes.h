@@ -286,6 +286,8 @@ enum class ThresholdMethod {
   Otsu,         // Legacy Tesseract's Otsu thresholding
   AdaptiveOtsu,
   TiledSauvola,
+  OtsuOnNormalizedBackground,
+  MaskingAndOtsuOnNormalizedBackground,
 
   Max,        // Number of Thresholding methods
 };

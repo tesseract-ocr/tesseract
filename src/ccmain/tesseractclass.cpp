@@ -77,7 +77,9 @@ Tesseract::Tesseract()
     , INT_MEMBER(thresholding_method,
                  static_cast<int>(tesseract::ThresholdMethod::Otsu),
                  "Thresholding "
-                 "method: 0 = Otsu, 1 = Adaptive Otsu, 2 = Sauvola",
+                 "method: 0 = Otsu, 1 = Adaptive Otsu, 2 = Sauvola, 3 = Otsu on"
+                 " adaptive normalized background, 4 = Masking and Otsu on "
+                 "adaptive normalized background",
                  this->params())
     , INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
                       "Which OCR engine(s) to run (Tesseract, LSTM, both)."
