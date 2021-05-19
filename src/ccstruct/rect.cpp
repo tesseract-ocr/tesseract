@@ -83,10 +83,10 @@ void TBOX::rotate_large(const FCOORD &vec) {
 
 TBOX TBOX::intersection( // shared area box
     const TBOX &box) const {
-  int16_t left;
-  int16_t bottom;
-  int16_t right;
-  int16_t top;
+  TDimension left;
+  TDimension bottom;
+  TDimension right;
+  TDimension top;
   if (overlap(box)) {
     if (box.bot_left.x() > bot_left.x()) {
       left = box.bot_left.x();
