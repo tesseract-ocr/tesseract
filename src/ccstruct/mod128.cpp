@@ -1,7 +1,7 @@
 /**********************************************************************
  * File:        mod128.cpp  (Formerly dir128.c)
  * Description: Code to convert a DIR128 to an ICOORD.
- * Author:          Ray Smith
+ * Author:      Ray Smith
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@
 
 namespace tesseract {
 
-static const int16_t idirtab[] = {
+static const int32_t idirtab[] = {
     1000, 0,    998,  49,   995,  98,   989,  146,  980,   195,  970,  242,  956,  290,   941,
     336,  923,  382,  903,  427,  881,  471,  857,  514,   831,  555,  803,  595,  773,   634,
     740,  671,  707,  707,  671,  740,  634,  773,  595,   803,  555,  831,  514,  857,   471,
