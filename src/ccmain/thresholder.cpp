@@ -205,19 +205,19 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
   l_int32 threshold_val = 0;
   
   if (method == ThresholdMethod::Sauvola) {
-    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, pix_thresholds,
+    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40f, 300, 300, pix_thresholds,
                                 pix_binary);
   } else if (method == ThresholdMethod::OtsuOnNormalizedBackground) {
     pix_binary = pixOtsuThreshOnBackgroundNorm(pix_grey, nullptr, 10, 15, 100,
-                                               50, 255, 2, 2, 0.1,
+                                               50, 255, 2, 2, 0.1f,
                                                &threshold_val);
   } else if (method == ThresholdMethod::MaskingAndOtsuOnNormalizedBackground) {
     pix_binary = pixMaskedThreshOnBackgroundNorm(pix_grey, nullptr, 10, 15,
-                                                 100, 50, 2, 2, 0.1,
+                                                 100, 50, 2, 2, 0.1f,
                                                  &threshold_val);
   } else {
     // AdaptiveOtsu.
-    r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1,
+    r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1f,
                                  pix_thresholds, pix_binary);
   }
 
