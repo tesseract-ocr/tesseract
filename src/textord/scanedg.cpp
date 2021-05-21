@@ -44,11 +44,11 @@ static void free_crackedges(CRACKEDGE *start);
 static void join_edges(CRACKEDGE *edge1, CRACKEDGE *edge2, CRACKEDGE **free_cracks,
                        C_OUTLINE_IT *outline_it);
 
-static void line_edges(int16_t x, int16_t y, int16_t xext, uint8_t uppercolour, uint8_t *bwpos,
+static void line_edges(int32_t x, int32_t y, int32_t xext, uint8_t uppercolour, uint8_t *bwpos,
                        CRACKEDGE **prevline, CRACKEDGE **free_cracks, C_OUTLINE_IT *outline_it);
 
 static void make_margins(PDBLK *block, BLOCK_LINE_IT *line_it, uint8_t *pixels, uint8_t margin,
-                         int16_t left, int16_t right, int16_t y);
+                         int32_t left, int32_t right, int32_t y);
 
 static CRACKEDGE *h_edge(int sign, CRACKEDGE *join, CrackPos *pos);
 static CRACKEDGE *v_edge(int sign, CRACKEDGE *join, CrackPos *pos);
@@ -114,14 +114,11 @@ static void make_margins(   // get a line
     BLOCK_LINE_IT *line_it, // for old style
     uint8_t *pixels,        // pixels to strip
     uint8_t margin,         // white-out pixel
-    int16_t left,           // block edges
-    int16_t right,
-    int16_t y // line coord
+    int32_t left,           // block edges
+    int32_t right,
+    int32_t y // line coord
 ) {
   ICOORDELT_IT seg_it;
-  int32_t start; // of segment
-  int16_t xext;  // of segment
-  int xindex;    // index to pixel
 
   if (block->poly_block() != nullptr) {
     std::unique_ptr<PB_LINE_IT> lines(new PB_LINE_IT(block->poly_block()));
@@ -129,9 +126,9 @@ static void make_margins(   // get a line
     if (!segments->empty()) {
       seg_it.set_to_list(segments.get());
       seg_it.mark_cycle_pt();
-      start = seg_it.data()->x();
-      xext = seg_it.data()->y();
-      for (xindex = left; xindex < right; xindex++) {
+      auto start = seg_it.data()->x();
+      auto xext = seg_it.data()->y();
+      for (auto xindex = left; xindex < right; xindex++) {
         if (xindex >= start && !seg_it.cycled_list()) {
           xindex = start + xext - 1;
           seg_it.forward();
@@ -142,16 +139,17 @@ static void make_margins(   // get a line
         }
       }
     } else {
-      for (xindex = left; xindex < right; xindex++) {
+      for (auto xindex = left; xindex < right; xindex++) {
         pixels[xindex - left] = margin;
       }
     }
   } else {
-    start = line_it->get_line(y, xext);
-    for (xindex = left; xindex < start; xindex++) {
+    int32_t xext;  // of segment
+    auto start = line_it->get_line(y, xext);
+    for (auto xindex = left; xindex < start; xindex++) {
       pixels[xindex - left] = margin;
     }
-    for (xindex = start + xext; xindex < right; xindex++) {
+    for (auto xindex = start + xext; xindex < right; xindex++) {
       pixels[xindex - left] = margin;
     }
   }
@@ -164,9 +162,9 @@ static void make_margins(   // get a line
  * When edges close into loops, send them for approximation.
  **********************************************************************/
 
-static void line_edges(int16_t x,            // coord of line start
-                       int16_t y,            // coord of line
-                       int16_t xext,         // width of line
+static void line_edges(int32_t x,            // coord of line start
+                       int32_t y,            // coord of line
+                       int32_t xext,         // width of line
                        uint8_t uppercolour,  // start of prev line
                        uint8_t *bwpos,       // thresholded line
                        CRACKEDGE **prevline, // edges in progress

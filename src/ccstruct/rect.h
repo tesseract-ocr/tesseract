@@ -53,7 +53,7 @@ public:
   //        in the right order.
   //*********************************************************************
   TBOX( // constructor
-      int16_t left, int16_t bottom, int16_t right, int16_t top)
+      int32_t left, int32_t bottom, int32_t right, int32_t top)
       : bot_left(left, bottom), top_right(right, top) {}
 
   TBOX( // box around FCOORD
@@ -67,28 +67,28 @@ public:
     return bot_left == other.bot_left && top_right == other.top_right;
   }
 
-  int16_t top() const { // coord of top
+  int32_t top() const { // coord of top
     return top_right.y();
   }
   void set_top(int y) {
     top_right.set_y(y);
   }
 
-  int16_t bottom() const { // coord of bottom
+  int32_t bottom() const { // coord of bottom
     return bot_left.y();
   }
   void set_bottom(int y) {
     bot_left.set_y(y);
   }
 
-  int16_t left() const { // coord of left
+  int32_t left() const { // coord of left
     return bot_left.x();
   }
   void set_left(int x) {
     bot_left.set_x(x);
   }
 
-  int16_t right() const { // coord of right
+  int32_t right() const { // coord of right
     return top_right.x();
   }
   void set_right(int x) {
@@ -117,7 +117,7 @@ public:
     return top_right;
   }
 
-  int16_t height() const { // how high is it?
+  int32_t height() const { // how high is it?
     if (!null_box()) {
       return top_right.y() - bot_left.y();
     } else {
@@ -125,7 +125,7 @@ public:
     }
   }
 
-  int16_t width() const { // how high is it?
+  int32_t width() const { // how high is it?
     if (!null_box()) {
       return top_right.x() - bot_left.x();
     } else {
@@ -150,22 +150,22 @@ public:
   }
 
   void move_bottom_edge( // move one edge
-      const int16_t y) { // by +/- y
+      const int32_t y) { // by +/- y
     bot_left += ICOORD(0, y);
   }
 
   void move_left_edge(   // move one edge
-      const int16_t x) { // by +/- x
+      const int32_t x) { // by +/- x
     bot_left += ICOORD(x, 0);
   }
 
   void move_right_edge(  // move one edge
-      const int16_t x) { // by +/- x
+      const int32_t x) { // by +/- x
     top_right += ICOORD(x, 0);
   }
 
   void move_top_edge(    // move one edge
-      const int16_t y) { // by +/- y
+      const int32_t y) { // by +/- y
     top_right += ICOORD(0, y);
   }
 
@@ -177,33 +177,33 @@ public:
 
   void move(              // move box
       const FCOORD vec) { // by float vector
-    bot_left.set_x(static_cast<int16_t>(std::floor(bot_left.x() + vec.x())));
+    bot_left.set_x(static_cast<int32_t>(std::floor(bot_left.x() + vec.x())));
     // round left
-    bot_left.set_y(static_cast<int16_t>(std::floor(bot_left.y() + vec.y())));
+    bot_left.set_y(static_cast<int32_t>(std::floor(bot_left.y() + vec.y())));
     // round down
-    top_right.set_x(static_cast<int16_t>(std::ceil(top_right.x() + vec.x())));
+    top_right.set_x(static_cast<int32_t>(std::ceil(top_right.x() + vec.x())));
     // round right
-    top_right.set_y(static_cast<int16_t>(std::ceil(top_right.y() + vec.y())));
+    top_right.set_y(static_cast<int32_t>(std::ceil(top_right.y() + vec.y())));
     // round up
   }
 
   void scale(          // scale box
       const float f) { // by multiplier
     // round left
-    bot_left.set_x(static_cast<int16_t>(std::floor(bot_left.x() * f)));
+    bot_left.set_x(static_cast<int32_t>(std::floor(bot_left.x() * f)));
     // round down
-    bot_left.set_y(static_cast<int16_t>(std::floor(bot_left.y() * f)));
+    bot_left.set_y(static_cast<int32_t>(std::floor(bot_left.y() * f)));
     // round right
-    top_right.set_x(static_cast<int16_t>(std::ceil(top_right.x() * f)));
+    top_right.set_x(static_cast<int32_t>(std::ceil(top_right.x() * f)));
     // round up
-    top_right.set_y(static_cast<int16_t>(std::ceil(top_right.y() * f)));
+    top_right.set_y(static_cast<int32_t>(std::ceil(top_right.y() * f)));
   }
   void scale(             // scale box
       const FCOORD vec) { // by float vector
-    bot_left.set_x(static_cast<int16_t>(std::floor(bot_left.x() * vec.x())));
-    bot_left.set_y(static_cast<int16_t>(std::floor(bot_left.y() * vec.y())));
-    top_right.set_x(static_cast<int16_t>(std::ceil(top_right.x() * vec.x())));
-    top_right.set_y(static_cast<int16_t>(std::ceil(top_right.y() * vec.y())));
+    bot_left.set_x(static_cast<int32_t>(std::floor(bot_left.x() * vec.x())));
+    bot_left.set_y(static_cast<int32_t>(std::floor(bot_left.y() * vec.y())));
+    top_right.set_x(static_cast<int32_t>(std::ceil(top_right.x() * vec.x())));
+    top_right.set_y(static_cast<int32_t>(std::ceil(top_right.y() * vec.y())));
   }
 
   // rotate doesn't enlarge the box - it just rotates the bottom-left
@@ -337,9 +337,9 @@ inline TBOX::TBOX(  // constructor
     const FCOORD pt // floating centre
 ) {
   bot_left =
-      ICOORD(static_cast<int16_t>(std::floor(pt.x())), static_cast<int16_t>(std::floor(pt.y())));
+      ICOORD(static_cast<int32_t>(std::floor(pt.x())), static_cast<int32_t>(std::floor(pt.y())));
   top_right =
-      ICOORD(static_cast<int16_t>(std::ceil(pt.x())), static_cast<int16_t>(std::ceil(pt.y())));
+      ICOORD(static_cast<int32_t>(std::ceil(pt.x())), static_cast<int32_t>(std::ceil(pt.y())));
 }
 
 /**********************************************************************
@@ -423,7 +423,7 @@ inline bool TBOX::x_overlap(const TBOX &box) const {
  **********************************************************************/
 
 inline bool TBOX::major_x_overlap(const TBOX &box) const {
-  int16_t overlap = box.width();
+  int32_t overlap = box.width();
   if (this->left() > box.left()) {
     overlap -= this->left() - box.left();
   }
@@ -449,7 +449,7 @@ inline bool TBOX::y_overlap(const TBOX &box) const {
  **********************************************************************/
 
 inline bool TBOX::major_y_overlap(const TBOX &box) const {
-  int16_t overlap = box.height();
+  int32_t overlap = box.height();
   if (this->bottom() > box.bottom()) {
     overlap -= this->bottom() - box.bottom();
   }
