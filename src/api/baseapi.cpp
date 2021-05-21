@@ -2138,15 +2138,12 @@ bool TessBaseAPI::Threshold(Pix **pix) {
     }
     thresholder_->SetSourceYResolution(kMinCredibleResolution);
   }
-  auto pageseg_mode = static_cast<PageSegMode>(static_cast<int>(tesseract_->tessedit_pageseg_mode));
-
-  Image pix_binary(*pix);
-  Image pix_grey;
-  Image pix_thresholds;
 
   auto thresholding_method = static_cast<ThresholdMethod>(static_cast<int>(tesseract_->thresholding_method));
 
   if (thresholding_method == ThresholdMethod::Otsu) {
+    auto pageseg_mode = static_cast<PageSegMode>(static_cast<int>(tesseract_->tessedit_pageseg_mode));
+    Image pix_binary(*pix);
     if (!thresholder_->ThresholdToPix(pageseg_mode, &pix_binary)) {
       return false;
     }
