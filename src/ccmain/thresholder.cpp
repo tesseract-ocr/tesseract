@@ -202,7 +202,7 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
   auto pix_grey = GetPixRectGrey();
 
   int r;
-  if (method == ThresholdMethod::TiledSauvola) {
+  if (method == ThresholdMethod::Sauvola) {
     r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, pix_thresholds,
                                 pix_binary);
   } else {
