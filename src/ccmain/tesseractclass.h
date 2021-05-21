@@ -764,8 +764,10 @@ public:
             " 5=line, 6=word, 7=char"
             " (Values from PageSegMode enum in tesseract/publictypes.h)");
   INT_VAR_H(thresholding_method,
-            static_cast<int>(tesseract::ThreshMethod::Otsu), "Thresholding "
-            "method: 0 = Otsu, 1 = Adaptive Otsu, 2 = Sauvola");
+            static_cast<int>(tesseract::ThresholdMethod::Otsu), "Thresholding "
+            "method: 0 = Otsu, 1 = Adaptive Otsu, 2 = Sauvola, 3 = Otsu on "
+            "adaptive normalized background, 4 = Masking and Otsu on adaptive "
+            "normalized background");
   INT_VAR_H(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
             "Which OCR engine(s) to run (Tesseract, LSTM, both). Defaults"
             " to loading and running the most accurate available.");
