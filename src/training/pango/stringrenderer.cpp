@@ -200,13 +200,13 @@ void StringRenderer::SetLayoutProperties() {
     spacing_attr->end_index = static_cast<guint>(-1);
     pango_attr_list_change(attr_list, spacing_attr);
   }
-#if (PANGO_VERSION_MAJOR == 1 && PANGO_VERSION_MINOR >= 38)
+
   if (add_ligatures_) {
     set_features("liga, clig, dlig, hlig");
     PangoAttribute *feature_attr = pango_attr_font_features_new(features_.c_str());
     pango_attr_list_change(attr_list, feature_attr);
   }
-#endif
+
   pango_layout_set_attributes(layout_, attr_list);
   pango_attr_list_unref(attr_list);
   // Adjust line spacing
