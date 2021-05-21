@@ -29,7 +29,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-           brew install automake autoconf-archive
+           brew install autoconf automake
            brew install leptonica
            brew install cairo pango icu4c
            brew install cabextract
@@ -133,7 +133,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
-           sudo port install autoconf autoconf-archive automake libtool pkgconfig
+           sudo port install autoconf automake libtool pkgconfig
            sudo port install leptonica
            sudo port install cairo pango
            sudo port install icu +devel

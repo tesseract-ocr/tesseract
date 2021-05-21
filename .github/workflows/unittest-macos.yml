@@ -23,7 +23,7 @@ jobs:
 
     - name: Install dependencies (MacOS Homebrew)
       run: |
-           brew install automake autoconf-archive libarchive
+           brew install autoconf automake libarchive
            brew install leptonica cairo pango
            brew install cabextract abseil
 

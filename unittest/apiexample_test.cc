@@ -74,6 +74,7 @@ void OCRTester(const char *imgname, const char *groundtruth, const char *tessdat
   EXPECT_EQ(gtText, outText) << "Phototest.tif OCR does not match ground truth for "
                              << ::testing::PrintToString(lang);
   api->End();
+  api->ClearPersistentCache();
   delete[] outText;
   image.destroy();
 }

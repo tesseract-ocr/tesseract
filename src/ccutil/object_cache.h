@@ -95,10 +95,10 @@ public:
 
   void DeleteUnusedObjects() {
     std::lock_guard<std::mutex> guard(mu_);
-    for (auto i = cache_.size() - 1; i >= 0; i--) {
-      if (cache_[i].count <= 0) {
-        delete cache_[i].object;
-        cache_.erase(cache_.begin() + i);
+    for (auto it = cache_.rbegin(); it != cache_.rend(); ++it) {
+      if (it->count <= 0) {
+        delete it->object;
+        cache_.erase(std::next(it).base());
       }
     }
   }

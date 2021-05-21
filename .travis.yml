@@ -1,4 +1,5 @@
 # Travis CI configuration for Tesseract
+
 sudo: false
 notifications:
   email: false
@@ -15,24 +16,18 @@ compiler:
   - gcc
   - clang
 env:
-  - LEPT_VER=1.80.0
 cache:
   directories:
-    - leptonica-$LEPT_VER
 
 before_install:
-  - sudo apt-get install libpango1.0-dev libicu-dev libtiff5-dev -y
-  - rm -rf leptonica-$LEPT_VER/usr
+  - sudo apt-get install libleptonica-dev libpango1.0-dev libtiff5-dev -y
   
 install:
-  - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
-  - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
-  - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
 
 script:
   - mkdir build
   - cd build
-  - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build -DSW_BUILD=OFF
+  - cmake .. -DSW_BUILD=OFF
   - make
   - sudo make install
   

@@ -81,7 +81,7 @@ class Tesseract;
 // complete, Tesseract will be thread-safe. UNTIL THEN, IT IS NOT!
 //
 // NOTE to developers: Do not create cyclic dependencies through this class!
-// The directory dependency tree must remain a tree! The keep this clean,
+// The directory dependency tree must remain a tree! To keep this clean,
 // lower-level code (eg in ccutil, the bottom level) must never need to
 // know about the content of a higher-level directory.
 // The following scheme will grant the easiest access to lower-level
