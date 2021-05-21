@@ -15,7 +15,7 @@
 //
 // Use --xsize 800 for text2image to be similar to original training data.
 //
-// src/training/tesstrain.sh --fonts_dir /usr/share/fonts --lang eng \
+// tesstrain.py --fonts_dir /usr/share/fonts --lang eng \
 // --linedata_only   --noextract_font_properties --langdata_dir ../langdata_lstm \
 // --tessdata_dir ../tessdata --output_dir ~/tesseract/test/testdata \
 // --fontlist "Arial" --maxpages 10
