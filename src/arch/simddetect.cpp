@@ -285,6 +285,11 @@ void SIMDDetect::Update() {
     // Native optimized code selected by config variable.
     SetDotProduct(DotProductNative);
     dotproduct_method = "native";
+#if defined(HAVE_FRAMEWORK_ACCELERATE)
+  } else if (dotproduct == "accelerate") {
+    SetDotProduct(DotProductAccelerate);
+    dotproduct_method = "accelerate";
+#endif
 #if defined(HAVE_AVX2)
   } else if (!strcmp(dotproduct.c_str(), "avx2")) {
     // AVX2 selected by config variable.
@@ -319,8 +324,17 @@ void SIMDDetect::Update() {
             dotproduct.c_str());
     tprintf(
         "Support values for dotproduct: auto generic native"
+#if defined(HAVE_FRAMEWORK_ACCELERATE)
+        " accelerate"
+#endif
+#if defined(HAVE_AVX2)
+        " avx2"
+#endif
 #if defined(HAVE_AVX)
         " avx"
+#endif
+#if defined(HAVE_FMA)
+        " fma"
 #endif
 #if defined(HAVE_SSE4_1)
         " sse"
