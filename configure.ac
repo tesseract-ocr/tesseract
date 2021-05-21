@@ -529,9 +529,9 @@ if !($have_icu_uc && $have_icu_i18n); then
 fi
 
 # Check location of pango headers
-PKG_CHECK_MODULES([pango], [pango >= 1.22.0], [have_pango=true], [have_pango=false])
+PKG_CHECK_MODULES([pango], [pango >= 1.38.0], [have_pango=true], [have_pango=false])
 if !($have_pango); then
-        AC_MSG_WARN([pango 1.22.0 or higher is required, but was not found.])
+        AC_MSG_WARN([pango 1.38.0 or higher is required, but was not found.])
         AC_MSG_WARN([Training tools WILL NOT be built.])
         AC_MSG_WARN([Try to install libpango1.0-dev package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
