@@ -229,7 +229,7 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
 // Creates a Pix and sets pix to point to the resulting pointer.
 // Caller must use pixDestroy to free the created Pix.
 /// Returns false on error.
-bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Image *pix) {
+bool ImageThresholder::ThresholdToPix(Image *pix) {
   if (image_width_ > INT16_MAX || image_height_ > INT16_MAX) {
     tprintf("ERROR: Image too large: (%d, %d)\n", image_width_, image_height_);
     return false;
