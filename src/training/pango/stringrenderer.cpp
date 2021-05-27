@@ -28,7 +28,7 @@
 
 #include <tesseract/unichar.h>
 
-#if defined(PANGO_ENABLE_ENGINE)
+#if defined(PANGO_ENABLE_ENGINE) && defined(HAS_LIBICU)
 
 #include "pango/pango-font.h"
 #include "pango/pango-glyph-item.h"

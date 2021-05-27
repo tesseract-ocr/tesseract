@@ -26,7 +26,7 @@
 #include "tprintf.h"
 #include "unicharset.h"
 
-#if defined(PANGO_ENABLE_ENGINE)
+#if defined(PANGO_ENABLE_ENGINE) && defined(HAS_LIBICU)
 
 #include "unicode/uchar.h" // from libicu
 
