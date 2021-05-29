@@ -291,7 +291,7 @@ public:
   void operator+=(const GENERIC_2D_ARRAY<T> &addend) {
     if (dim2_ == addend.dim2_) {
       // Faster if equal size in the major dimension.
-      int size = std::min(num_elements(), addend.num_elements());
+      int size = std::min<int>(num_elements(), addend.num_elements());
       for (int i = 0; i < size; ++i) {
         array_[i] += addend.array_[i];
       }
@@ -307,7 +307,7 @@ public:
   void operator-=(const GENERIC_2D_ARRAY<T> &minuend) {
     if (dim2_ == minuend.dim2_) {
       // Faster if equal size in the major dimension.
-      int size = std::min(num_elements(), minuend.num_elements());
+      int size = std::min<int>(num_elements(), minuend.num_elements());
       for (int i = 0; i < size; ++i) {
         array_[i] -= minuend.array_[i];
       }
@@ -467,8 +467,8 @@ public:
   // Higher dimensions above 2 are strictly the responsibility of the caller.
   void RotatingTranspose(const int *dims, int num_dims, int src_dim, int dest_dim,
                          GENERIC_2D_ARRAY<T> *result) const {
-    int max_d = std::max(src_dim, dest_dim);
-    int min_d = std::min(src_dim, dest_dim);
+    int max_d = std::max<int>(src_dim, dest_dim);
+    int min_d = std::min<int>(src_dim, dest_dim);
     // In a tensor of shape [d0, d1... min_d, ... max_d, ... dn-2, dn-1], the
     // ends outside of min_d and max_d are unaffected, with [max_d +1, dn-1]
     // being contiguous blocks of data that will move together, and
@@ -632,7 +632,7 @@ public:
   // to *this.
   void AttachOnCorner(BandTriMatrix<T> *array2) {
     int new_dim1 = this->dim1_ + array2->dim1_;
-    int new_dim2 = std::max(this->dim2_, array2->dim2_);
+    int new_dim2 = std::max<int>(this->dim2_, array2->dim2_);
     T *new_array = new T[new_dim1 * new_dim2];
     for (int col = 0; col < new_dim1; ++col) {
       for (int j = 0; j < new_dim2; ++j) {
