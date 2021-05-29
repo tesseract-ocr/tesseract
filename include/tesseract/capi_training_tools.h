@@ -24,13 +24,13 @@
 extern "C" {
 #endif
 
-#if !defined(DISABLED_LEGACY_ENGINE)
+// #if !defined(DISABLED_LEGACY_ENGINE)
 TESS_API int tesseract_ambiguous_words_main(int argc, const char** argv);
 TESS_API int tesseract_classifier_tester_main(int argc, const char** argv);
 TESS_API int tesseract_cn_training_main(int argc, const char** argv);
 TESS_API int tesseract_mf_training_main(int argc, const char** argv);
 TESS_API int tesseract_shape_clustering_main(int argc, const char** argv);
-#endif
+// #endif
 TESS_API int tesseract_combine_lang_model_main(int argc, const char** argv);
 TESS_API int tesseract_combine_tessdata_main(int argc, const char** argv);
 TESS_API int tesseract_dawg2wordlist_main(int argc, const char** argv);
@@ -38,9 +38,9 @@ TESS_API int tesseract_lstm_eval_main(int argc, const char** argv);
 TESS_API int tesseract_lstm_training_main(int argc, const char** argv);
 TESS_API int tesseract_merge_unicharsets_main(int argc, const char** argv);
 TESS_API int tesseract_set_unicharset_properties_main(int argc, const char** argv);
-#if defined(PANGO_ENABLE_ENGINE)
+// #if defined(PANGO_ENABLE_ENGINE)
 TESS_API int tesseract_text2image_main(int argc, const char** argv);
-#endif
+// #endif
 TESS_API int tesseract_unicharset_extractor_main(int argc, const char** argv);
 TESS_API int tesseract_wordlist2dawg_main(int argc, const char** argv);
 
