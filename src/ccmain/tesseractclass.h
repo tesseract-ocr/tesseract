@@ -220,8 +220,8 @@ public:
     pix_original_.destroy();
     pix_original_ = original_pix;
     // Clone to sublangs as well.
-    for (auto &lang : sub_langs_) {
-      lang->set_pix_original(original_pix ? original_pix.clone() : nullptr);
+    for (auto &lang_ref : sub_langs_) {
+      lang_ref->set_pix_original(original_pix ? original_pix.clone() : nullptr);
     }
   }
   // Returns a pointer to a Pix representing the best available resolution image
@@ -288,8 +288,8 @@ public:
     if (tessedit_ocr_engine_mode != OEM_LSTM_ONLY) {
       return true;
     }
-    for (auto &lang : sub_langs_) {
-      if (lang->tessedit_ocr_engine_mode != OEM_LSTM_ONLY) {
+    for (auto &lang_ref : sub_langs_) {
+      if (lang_ref->tessedit_ocr_engine_mode != OEM_LSTM_ONLY) {
         return true;
       }
     }
@@ -300,8 +300,8 @@ public:
     if (tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY) {
       return true;
     }
-    for (auto &lang : sub_langs_) {
-      if (lang->tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY) {
+    for (auto &lang_ref : sub_langs_) {
+      if (lang_ref->tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY) {
         return true;
       }
     }

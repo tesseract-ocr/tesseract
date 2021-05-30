@@ -57,11 +57,11 @@ public:
   static const int kMaxChunks = 5;
 
   // Setters and Getters.
-  inline void set_all(const char *unichar, int pos, int total, bool natural) {
-    set_unichar(unichar);
-    set_pos(pos);
-    set_total(total);
-    set_natural(natural);
+  inline void set_all(const char *unichar_c, int pos_i, int total_i, bool natural_b) {
+    set_unichar(unichar_c);
+    set_pos(pos_i);
+    set_total(total_i);
+    set_natural(natural_b);
   }
   inline void set_unichar(const char *uch) {
     strncpy(this->unichar, uch, sizeof(this->unichar));
