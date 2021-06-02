@@ -9,15 +9,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <allheaders.h>
 #if defined(_WIN32)
 #include <io.h>         // for _access
 #else
 #include <unistd.h>     // for access
 #endif
 #include <string>
-#include "allheaders.h"
-#include <tesseract/baseapi.h>
-#include <tesseract/helpers.h>
+#include "baseapi.h"
+#include "helpers.h"
 #include "log.h"
 #include "include_gunit.h"
 

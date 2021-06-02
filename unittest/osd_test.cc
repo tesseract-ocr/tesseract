@@ -19,12 +19,12 @@
 // expects clones of tessdata, tessdata_fast and tessdata_best repos
 
 //#include "log.h"
+#include <allheaders.h>
 #include <iostream>
 #include <memory>               // std::unique_ptr
 #include <string>
 #include "baseapi.h"
 #include "include_gunit.h"
-#include "leptonica/allheaders.h"
 
 namespace {
 

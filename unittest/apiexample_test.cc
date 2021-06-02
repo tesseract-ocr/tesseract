@@ -22,6 +22,7 @@
 // expects clone of tessdata_fast repo in ../../tessdata_fast
 
 //#include "log.h"
+#include <allheaders.h>
 #include <limits.h>
 #include <time.h>
 #include <fstream>
@@ -31,7 +32,6 @@
 #include <string>
 #include "baseapi.h"
 #include "include_gunit.h"
-#include "leptonica/allheaders.h"
 
 namespace {
 

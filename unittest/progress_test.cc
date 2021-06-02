@@ -16,6 +16,7 @@
 
 // expects clone of tessdata_fast repo in ../../tessdata_fast
 
+#include <allheaders.h>
 #include <limits.h>
 #include <time.h>
 #include <fstream>
@@ -26,7 +27,6 @@
 #include "baseapi.h"
 #include "gmock/gmock.h"
 #include "include_gunit.h"
-#include "leptonica/allheaders.h"
 #include "ocrclass.h"
 
 namespace {
