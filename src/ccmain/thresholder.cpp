@@ -201,7 +201,7 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
 
   auto pix_grey = GetPixRectGrey();
 
-  int r;
+  int r = 0;
   l_int32 threshold_val = 0;
   
   if (method == ThresholdMethod::Sauvola) {
