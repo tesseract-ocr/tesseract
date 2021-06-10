@@ -101,6 +101,7 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
     NetworkIO fwd_outputs, targets;
     Trainability result = trainer.PrepareForBackward(trainingdata, &fwd_outputs, &targets);
     if (result != UNENCODABLE) {
+      float confidence = ConfidenceFromOutputs(&fwd_outputs, trainer.null_char());
       char_error += trainer.NewSingleError(tesseract::ET_CHAR_ERROR);
       word_error += trainer.NewSingleError(tesseract::ET_WORD_RECERR);
       ++error_count;
@@ -112,10 +113,11 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
         std::string ocr_text = trainer.DecodeLabels(ocr_labels);
         tprintf("OCR  :%s\n", ocr_text.c_str());
         if (verbosity > 2 || (verbosity > 1 && result != PERFECT)) {
-          tprintf("Line Char error rate=%f, Word error rate=%f\n\n",
+          tprintf("Line Char error rate=%f, Word error rate=%f, Confidence=%f\n\n",
                   trainer.NewSingleError(tesseract::ET_CHAR_ERROR),
-                  trainer.NewSingleError(tesseract::ET_WORD_RECERR));
-        }
+                  trainer.NewSingleError(tesseract::ET_WORD_RECERR),
+                  confidence);
+		}
       }
     }
   }
@@ -127,6 +129,22 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
   result += ", Eval Char error rate=" + std::to_string(char_error);
   result += ", Word error rate=" + std::to_string(word_error);
   return result;
+}
+
+// Returns the confidence for all best labels over a set of outputs.
+float LSTMTester::ConfidenceFromOutputs(NetworkIO *outputs, int null_char) {
+  float total = 0.0f;
+  int num = 0;
+  for(int timestep = 0; timestep < outputs->Width(); ++timestep) {
+    float score;
+    const int label = outputs->BestLabel(timestep, &score);
+    if (label == null_char) {
+      continue;
+    }
+    total += -score;
+    num++;
+  }
+  return 1 - (total / num);
 }
 
 // Helper thread function for RunEvalAsync.

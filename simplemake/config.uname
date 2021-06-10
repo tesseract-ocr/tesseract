@@ -1,0 +1,34 @@
+#!/bin/sh
+# Prints configuration directives for exotic systems based on uname
+
+os=`uname`
+
+case $os in
+	MINGW* | Windows_NT )
+		echo Configuring for MinGW >&2
+		echo '# Extra configuration for MinGW (from config.uname)'
+		echo 'EXTRA_CPPFLAGS = -std=gnu++11 -Ivs2010/port -DWINDLLNAME=\"libtesseract\"'
+		echo 'EXTRA_LDFLAGS = -Wl,-no-undefined -Wl,--as-needed -lws2_32'
+		echo 'EXTRA_OBJ = vs2010/port/strtok_r.o'
+		echo 'PKG_CONFIG = false'
+		echo 'ICU_LDFLAGS = -licuin -licuuc'
+		echo 'PANGO_CPPFLAGS = -DPANGO_ENABLE_ENGINE'
+		echo 'PANGO_LDFLAGS = -lpangocairo-1.0 -lpango-1.0 -lcairo -lgobject-2.0 -lglib-2.0'
+		;;
+	Darwin )
+		echo Configuring for Darwin >&2
+		echo '# Extra configuration for Darwin (from config.uname)'
+		echo '#OPENCL_CPPFLAGS = -DUSE_OPENCL'
+		echo '#OPENCL_LDFLAGS = -framework OpenCL'
+		echo 'EXTRA_CPPFLAGS = -I/opt/local/include -I/sw/include'
+		echo 'EXTRA_LDFLAGS = -L/opt/local/lib -L/sw/lib -stdlib=libc++'
+		echo 'PKG_CONFIG = false'
+		echo 'PANGO_CPPFLAGS = -DPANGO_ENABLE_ENGINE'
+		echo 'PANGO_LDFLAGS = -lpangocairo-1.0 -lpango-1.0 -lcairo -lgobject-2.0 -lglib-2.0'
+		;;
+	SunOS )
+		echo Configuring for Solaris >&2
+		echo '# Extra configuration for Solaris (from config.uname)'
+		echo 'EXTRA_LDFLAGS = -lsocket -lnsl -lrt -lxnet'
+		;;
+esac

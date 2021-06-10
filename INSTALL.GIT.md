@@ -64,4 +64,36 @@ There is alternative build system based on multiplatform [cmake](https://cmake.o
 
 ## WINDOWS
 
+You need to use leptonica with cmake patch:
+
+    git clone https://github.com/DanBloomberg/leptonica.git
+    cd leptonica
+    mkdir build
+    cd build
+    cmake ..
+    cmake --build .
+    cd ..\..
+    git clone https://github.com/tesseract-ocr/tesseract.git
+    cd tesseract
+    mkdir build
+    cd build
+    cmake .. -DLeptonica_BUILD_DIR=\abs\path\to\leptonica\build
+    cmake --build .
+
+
+# BASIC MAKEFILES
+
+There is another build system available which just uses regular makefiles, and should work on any unix-like systems.
+
+To configure install paths, library locations, etc. edit the simplemake/config.mk file.
+
+    $ cd simplemake
+    $ make
+    $ make training # (optional)
+
+
+# WINDOWS Visual Studio
+
+Please read http://vorba.ch/2014/tesseract-3.03-vs2013.html
+
 See the [documentation](https://tesseract-ocr.github.io/tessdoc/) for more information on this.
