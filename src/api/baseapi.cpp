@@ -955,6 +955,8 @@ const char *TessBaseAPI::GetDatapath() {
 }
 
 int TessBaseAPI::GetSourceYResolution() {
+  if (thresholder_ == nullptr)
+    return;
   return thresholder_->GetSourceYResolution();
 }
 
