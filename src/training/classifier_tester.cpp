@@ -25,6 +25,9 @@
 #include "tessclassifier.h"
 #include "tesseractclass.h"
 
+#include "tesseract/capi_training_tools.h"
+
+
 using namespace tesseract;
 
 #if !defined(DISABLED_LEGACY_ENGINE)
@@ -100,7 +103,7 @@ static tesseract::ShapeClassifier *InitializeClassifier(const char *classifer_na
 // pruner   : Tesseract class pruner only.
 // full     : Tesseract full classifier.
 //            with an input trainer.)
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char** argv)
 #else
 extern "C" int tesseract_classifier_tester_main(int argc, const char** argv)

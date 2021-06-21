@@ -27,9 +27,12 @@
 #include <tesseract/baseapi.h>
 #include "helpers.h"
 
+#include "tesseract/capi_training_tools.h"
+
+
 #if !defined(DISABLED_LEGACY_ENGINE)
 
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char **argv)
 #else
 extern "C" int tesseract_ambiguous_words_main(int argc, const char **argv)

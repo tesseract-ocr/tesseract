@@ -18,6 +18,8 @@
 #ifndef API_CAPI_TRAINING_TOOLS_H_
 #define API_CAPI_TRAINING_TOOLS_H_
 
+#if defined(BUILD_MONOLITHIC)
+
 #include "export.h"
 
 #ifdef __cplusplus
@@ -46,6 +48,8 @@ TESS_API int tesseract_wordlist2dawg_main(int argc, const char** argv);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 #endif  // API_CAPI_H_

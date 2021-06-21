@@ -24,6 +24,9 @@
 #include "common/mastertrainer.h"
 #include "params.h"
 
+#include "tesseract/capi_training_tools.h"
+
+
 #if !defined(DISABLED_LEGACY_ENGINE)
 
 using namespace tesseract;
@@ -43,7 +46,7 @@ static STRING_PARAM_FLAG(canonical_class2, "", "Class to show ambigs for");
 // NOT in the cloud.
 // Otherwise, if FLAGS_canonical_class1 is set, prints a table of font-wise
 // cluster distances between FLAGS_canonical_class1 and FLAGS_canonical_class2.
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char** argv)
 #else
 extern "C" int tesseract_shape_clustering_main(int argc, const char** argv)

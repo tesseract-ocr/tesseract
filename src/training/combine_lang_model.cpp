@@ -22,6 +22,9 @@
 #include "tprintf.h"
 #include "unicharset/unicharset_training_utils.h"
 
+#include "tesseract/capi_training_tools.h"
+
+
 #if defined(HAS_LIBICU)
 
 using namespace tesseract;
@@ -40,7 +43,7 @@ static BOOL_PARAM_FLAG(pass_through_recoder, false,
                        "If true, the recoder is a simple pass-through of the "
                        "unicharset. Otherwise, potentially a compression of it");
 
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char **argv)
 #else
 extern "C" int tesseract_combine_lang_model_main(int argc, const char **argv)

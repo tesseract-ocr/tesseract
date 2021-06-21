@@ -47,6 +47,8 @@
 #include <utility>
 #include <vector>
 
+#include "tesseract/capi_training_tools.h"
+
 #if defined(PANGO_ENABLE_ENGINE)
 
 #include "pango/stringrenderer.h"
@@ -714,7 +716,7 @@ static int Main() {
   return 0;
 }
 
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char **argv)
 #else
 extern "C" int tesseract_text2image_main(int argc, const char **argv)

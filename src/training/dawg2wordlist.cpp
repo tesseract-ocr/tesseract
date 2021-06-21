@@ -68,7 +68,7 @@ static int WriteDawgAsWordlist(const UNICHARSET &unicharset, const tesseract::Da
   return fclose(out);
 }
 
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char** argv)
 #else
 extern "C" int tesseract_dawg2wordlist_main(int argc, const char** argv)

@@ -30,6 +30,9 @@
 #include "ocrfeatures.h"
 #include "oldlist.h"
 
+#include "tesseract/capi_training_tools.h"
+
+
 #define PROGRAM_FEATURE_TYPE "cn"
 
 #if !defined(DISABLED_LEGACY_ENGINE)
@@ -102,7 +105,7 @@ static const CLUSTERCONFIG CNConfig = {elliptical, 0.025, 0.05, 0.8, 1e-3, 0};
 * @param argv  array of command line arguments
 * @return 0 on success
 */
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char** argv)
 #else
 extern "C" int tesseract_cn_training_main(int argc, const char** argv)

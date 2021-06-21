@@ -48,6 +48,9 @@
 #include "tprintf.h"
 #include "unicity_table.h"
 
+#include "tesseract/capi_training_tools.h"
+
+
 #if !defined(DISABLED_LEGACY_ENGINE)
 
 using namespace tesseract;
@@ -192,7 +195,7 @@ static void SetupConfigMap(ShapeTable *shape_table, IndexMapBiDi *config_map) {
  * @param  argv  array of command line arguments
  * @return 0 if no error occurred
  */
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char **argv)
 #else
 extern "C" int tesseract_mf_training_main(int argc, const char **argv)

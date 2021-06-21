@@ -69,7 +69,7 @@ using namespace tesseract;
 // This will create  /home/$USER/temp/eng.* files with individual tessdata
 // components from tessdata/eng.traineddata.
 //
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char** argv)
 #else
 extern "C" int tesseract_combine_tessdata_main(int argc, const char** argv)

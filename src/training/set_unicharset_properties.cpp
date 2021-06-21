@@ -17,6 +17,9 @@
 #include "tprintf.h"
 #include "unicharset/unicharset_training_utils.h"
 
+#include "tesseract/capi_training_tools.h"
+
+
 #if defined(HAS_LIBICU)
 
 using namespace tesseract;
@@ -24,7 +27,7 @@ using namespace tesseract;
 // The directory that is searched for universal script unicharsets.
 static STRING_PARAM_FLAG(script_dir, "", "Directory name for input script unicharsets/xheights");
 
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char **argv)
 #else
 extern "C" int tesseract_set_unicharset_properties_main(int argc, const char **argv)

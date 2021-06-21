@@ -70,7 +70,7 @@ const int kNumPagesPerBatch = 100;
 // were previously created using tesseract with the lstm.train config file.
 // The program iterates over the inputs, feeding the data to the network,
 // until the error rate reaches a specified target or max_iterations is reached.
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char** argv)
 #else
 extern "C" int tesseract_lstm_training_main(int argc, const char** argv)

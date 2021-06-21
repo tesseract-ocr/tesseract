@@ -29,7 +29,7 @@ static STRING_PARAM_FLAG(eval_listfile, "", "File listing sample files in lstmf 
 static INT_PARAM_FLAG(max_image_MB, 2000, "Max memory to use for images.");
 static INT_PARAM_FLAG(verbosity, 1, "Amount of diagnosting information to output (0-2).");
 
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char **argv)
 #else
 extern "C" int tesseract_lstm_eval_main(int argc, const char **argv)

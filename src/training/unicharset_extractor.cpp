@@ -29,6 +29,9 @@
 #include "unicharset.h"
 #include "unicharset/unicharset_training_utils.h"
 
+#include "tesseract/capi_training_tools.h"
+
+
 #if defined(HAS_LIBICU)
 
 using namespace tesseract;
@@ -95,7 +98,7 @@ static int Main(int argc, const char **argv) {
 
 } // namespace tesseract
 
-#ifdef TESSERACT_STANDALONE
+#if defined(TESSERACT_STANDALONE) && !defined(BUILD_MONOLITHIC)
 extern "C" int main(int argc, const char **argv)
 #else
 extern "C" int tesseract_unicharset_extractor_main(int argc, const char **argv)
