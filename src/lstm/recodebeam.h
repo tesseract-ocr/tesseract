@@ -377,6 +377,9 @@ private:
   // Searches the heap for an entry matching new_node, and updates the entry
   // with reshuffle if needed. Returns true if there was a match.
   bool UpdateHeapIfMatched(RecodeNode *new_node, RecodeHeap *heap);
+  // Determines if new node can be added to the heap for the current beam.
+  // Returns false if we are in possible diplopia situation
+  bool AddToHeapIsAllowed(RecodeNode *new_node);
   // Computes and returns the code-hash for the given code and prev.
   uint64_t ComputeCodeHash(int code, bool dup, const RecodeNode *prev) const;
   // Backtracks to extract the best path through the lattice that was built
@@ -425,6 +428,11 @@ private:
   bool is_simple_text_;
   // The encoded (class label) of the null/reject character.
   int null_char_;
+  // Variables used in tracking possible diplopia case
+  // Refer to ComputeTopN routine for more information
+  bool in_possible_diplopia_;
+  int first_diplopia_code_;
+  int second_diplopia_code_;
 };
 
 } // namespace tesseract.

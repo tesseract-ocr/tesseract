@@ -65,9 +65,9 @@ RecodeBeamSearch::RecodeBeamSearch(const UnicharCompress &recoder, int null_char
     , beam_size_(0)
     , top_code_(-1)
     , second_code_(-1)
-    , in_possible_diplopia_(false)
-    , first_diplopia_code_(-1)
-    , second_diplopia_code_(-1)
+    , in_double_whammy_(false)  // JDWTODO
+    , first_whammy_(-1)  // JDWTODO
+    , second_whammy_(-1)  // JDWTODO
     , dict_(dict)
     , space_delimited_(true)
     , is_simple_text_(simple_text)
@@ -92,10 +92,12 @@ void RecodeBeamSearch::Decode(const NetworkIO &output, double dict_ratio, double
                               int lstm_choice_mode) {
   beam_size_ = 0;
   int width = output.Width();
+  fprintf(stderr, "recodebeam decode #1 outputwidth= %i lstmchoice= %i \n", width, lstm_choice_mode);  // JDWDEBUG
   if (lstm_choice_mode) {
     timesteps.clear();
   }
   for (int t = 0; t < width; ++t) {
+    fprintf(stderr, "recodebeam decode #1 unicharid,code= timestep# %i \n", t);  // JDWDEBUG
     ComputeTopN(output.f(t), output.NumFeatures(), kBeamWidths[0]);
     DecodeStep(output.f(t), t, dict_ratio, cert_offset, worst_dict_cert, charset);
     if (lstm_choice_mode) {
@@ -103,12 +105,15 @@ void RecodeBeamSearch::Decode(const NetworkIO &output, double dict_ratio, double
     }
   }
 }
+    
 void RecodeBeamSearch::Decode(const GENERIC_2D_ARRAY<float> &output, double dict_ratio,
                               double cert_offset, double worst_dict_cert,
                               const UNICHARSET *charset) {
+  fprintf(stderr, "recodebeam decode #2 \n");  // JDWDEBUG
   beam_size_ = 0;
   int width = output.dim1();
   for (int t = 0; t < width; ++t) {
+    fprintf(stderr, "recodebeam decode #@ unicharid,code= timestep# %i \n", t);  // JDWDEBUG
     ComputeTopN(output[t], output.dim2(), kBeamWidths[0]);
     DecodeStep(output[t], t, dict_ratio, cert_offset, worst_dict_cert, charset);
   }
@@ -117,6 +122,7 @@ void RecodeBeamSearch::Decode(const GENERIC_2D_ARRAY<float> &output, double dict
 void RecodeBeamSearch::DecodeSecondaryBeams(const NetworkIO &output, double dict_ratio,
                                             double cert_offset, double worst_dict_cert,
                                             const UNICHARSET *charset, int lstm_choice_mode) {
+  fprintf(stderr, "recodebeam decode secondary \n");  // JDWDEBUG
   for (auto data : secondary_beam_) {
     delete data;
   }
@@ -139,6 +145,7 @@ void RecodeBeamSearch::DecodeSecondaryBeams(const NetworkIO &output, double dict
 
 void RecodeBeamSearch::SaveMostCertainChoices(const float *outputs, int num_outputs,
                                               const UNICHARSET *charset, int xCoord) {
+  fprintf(stderr, "recodebeam savemostcertainchoices \n");  // JDWDEBUG
   std::vector<std::pair<const char *, float>> choices;
   for (int i = 0; i < num_outputs; ++i) {
     if (outputs[i] >= 0.01f) {
@@ -185,9 +192,12 @@ RecodeBeamSearch::combineSegmentedTimesteps(
 
 void RecodeBeamSearch::calculateCharBoundaries(std::vector<int> *starts, std::vector<int> *ends,
                                                std::vector<int> *char_bounds_, int maxWidth) {
-  char_bounds_->push_back(0);
+  fprintf(stderr, "recodebeam calculatecharboundaries maxwidth= %i \n", maxWidth);  // JDWDEBUG
+  // char_bounds_->push_back(0);   // JDWTODO
+  char_bounds_->push_back((*starts)[0]);   // JDWTODO
   for (int i = 0; i < ends->size(); ++i) {
     int middle = ((*starts)[i + 1] - (*ends)[i]) / 2;
+    fprintf(stderr, "%s %i %i %i \n", "calculatecharboundaries start&end&middle=", (*starts)[i + 1], (*ends)[i], middle);
     char_bounds_->push_back((*ends)[i] + middle);
   }
   char_bounds_->pop_back();
@@ -197,6 +207,7 @@ void RecodeBeamSearch::calculateCharBoundaries(std::vector<int> *starts, std::ve
 // Returns the best path as labels/scores/xcoords similar to simple CTC.
 void RecodeBeamSearch::ExtractBestPathAsLabels(std::vector<int> *labels,
                                                std::vector<int> *xcoords) const {
+  fprintf(stderr, "recodebeam extractbestpathaslabels \n");  // JDWDEBUG
   labels->clear();
   xcoords->clear();
   std::vector<const RecodeNode *> best_nodes;
@@ -223,6 +234,7 @@ void RecodeBeamSearch::ExtractBestPathAsUnicharIds(bool debug, const UNICHARSET 
                                                    std::vector<float> *certs,
                                                    std::vector<float> *ratings,
                                                    std::vector<int> *xcoords) const {
+  fprintf(stderr, "recodebeam extractbestpathasunicharids \n");  // JDWDEBUG
   std::vector<const RecodeNode *> best_nodes;
   ExtractBestPaths(&best_nodes, nullptr);
   ExtractPathAsUnicharIds(best_nodes, unichar_ids, certs, ratings, xcoords);
@@ -237,7 +249,8 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX &line_box, float scale_
                                               const UNICHARSET *unicharset,
                                               PointerVector<WERD_RES> *words,
                                               int lstm_choice_mode) {
-  words->truncate(0);
+fprintf(stderr, "recodebeam extractbestpathaswords \n");  // JDWDEBUG
+words->truncate(0);
   std::vector<int> unichar_ids;
   std::vector<float> certs;
   std::vector<float> ratings;
@@ -258,6 +271,12 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX &line_box, float scale_
   ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings, &xcoords,
                           &character_boundaries_);
   int num_ids = unichar_ids.size();
+  // JDWDEBUG START
+  for (int i = 0; i < num_ids; i++){
+    const char *c = unicharset->id_to_unichar_ext(unichar_ids[i]);
+    fprintf(stderr, "recodebeam extractbestpathaswords unichar,unicharid= %s %i \n", c, unichar_ids[i]);
+  }
+  // JDWDEBUG END
   if (debug) {
     DebugUnicharPath(unicharset, best_nodes, unichar_ids, certs, ratings, xcoords);
   }
@@ -398,6 +417,7 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
   if (character_boundaries_.size() < 2) {
     return;
   }
+  fprintf(stderr, "recodebeam extractsymbolchoices \n");  // JDWDEBUG
   // For the first iteration the original beam is analyzed. After that a
   // new beam is calculated based on the results from the original beam.
   std::vector<RecodeBeam *> &currentBeam = secondary_beam_.empty() ? beam_ : secondary_beam_;
@@ -497,6 +517,7 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
 
 // Generates debug output of the content of the beams after a Decode.
 void RecodeBeamSearch::DebugBeams(const UNICHARSET &unicharset) const {
+  fprintf(stderr, "recodebeam debugbeams \n");  // JDWDEBUG
   for (int p = 0; p < beam_size_; ++p) {
     for (int d = 0; d < 2; ++d) {
       for (int c = 0; c < NC_COUNT; ++c) {
@@ -558,24 +579,36 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(const std::vector<const RecodeNod
   std::vector<int> starts;
   std::vector<int> ends;
   // Backtrack extracting only valid, non-duplicate unichar-ids.
+  fprintf(stderr, "recodebeam extractpathasunicharids \n");  // JDWDEBUG
   int t = 0;
   int width = best_nodes.size();
+  fprintf(stderr, "%s %i \n", "extractpathasunicharids width=", width);
   while (t < width) {
     double certainty = 0.0;
     double rating = 0.0;
+    bool foundInvalid = false;    // JDWDEBUG
     while (t < width && best_nodes[t]->unichar_id == INVALID_UNICHAR_ID) {
+      fprintf(stderr, "%s %i \n", "extractpathasunicharids bypass invalid unicharid code=", best_nodes[t]->code);   // JDWDEBUG
+      foundInvalid = true;    // JDWDEBUG
       double cert = best_nodes[t++]->certainty;
       if (cert < certainty) {
         certainty = cert;
       }
       rating -= cert;
     }
-    starts.push_back(t);
+    // starts.push_back(t);    // JDWTODO
     if (t < width) {
+      starts.push_back(t);    // JDWTODO
+      fprintf(stderr, "%s %i %i %f \n", "extractpathasunicharids valid unicharid,code,score=", best_nodes[t]->unichar_id, best_nodes[t]->code, best_nodes[t]->score);   // JDWDEBUG
+      // JDWDEBUG START
+      if (!foundInvalid)
+        fprintf(stderr, "%s \n", "extractpathasunicharids foundvalid with no invalid");
+      // JDWDEBUG END
       int unichar_id = best_nodes[t]->unichar_id;
       if (unichar_id == UNICHAR_SPACE && !certs->empty() && best_nodes[t]->permuter != NO_PERM) {
         // All the rating and certainty go on the previous character except
         // for the space itself.
+        fprintf(stderr, "%s %i \n", "extractpathasunicharids unicharid space", best_nodes[t]->code);  // JDWDEBUG
         if (certainty < certs->back()) {
           certs->back() = certainty;
         }
@@ -583,10 +616,13 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(const std::vector<const RecodeNod
         certainty = 0.0;
         rating = 0.0;
       }
-      unichar_ids->push_back(unichar_id);
       xcoords->push_back(t);
-      do {
-        double cert = best_nodes[t++]->certainty;
+      unichar_ids->push_back(unichar_id);
+      t++;  // JDWTODO
+      // do {   // JDWTODO
+      while (t < width && best_nodes[t]->duplicate) {   // JDWTODO
+        // double cert = best_nodes[t++]->certainty;    // JDWTODO
+        double cert = best_nodes[t]->certainty;    // JDWTODO
         // Special-case NO-PERM space to forget the certainty of the previous
         // nulls. See long comment in ContinueContext.
         if (cert < certainty ||
@@ -594,7 +630,13 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(const std::vector<const RecodeNod
           certainty = cert;
         }
         rating -= cert;
-      } while (t < width && best_nodes[t]->duplicate);
+        // JDWDEBUG START
+        if (t < width && best_nodes[t]->duplicate)
+          fprintf(stderr, "%s %i %i \n", "extractpathasunicharids duplicate removed unicharid,code=", best_nodes[t]->unichar_id, best_nodes[t]->code);  // JDWDEBUG
+        // JDWDEBUG END
+        t++;    // JDWTODO
+      }   // JDWTODO
+      // } while (t < width && best_nodes[t]->duplicate);   // JDWTODO
       ends.push_back(t);
       certs->push_back(certainty);
       ratings->push_back(rating);
@@ -619,6 +661,8 @@ WERD_RES *RecodeBeamSearch::InitializeWord(bool leading_space, const TBOX &line_
                                            const UNICHARSET *unicharset,
                                            const std::vector<int> &xcoords, float scale_factor) {
   // Make a fake blob for each non-zero label.
+  fprintf(stderr, "recodebeam initializeword scalefactor= %f \n", scale_factor);  // JDWDEBUG
+  fprintf(stderr, "recodebeam initializeword start,end= %i %i \n", word_start, word_end);  // JDWDEBUG
   C_BLOB_LIST blobs;
   C_BLOB_IT b_it(&blobs);
   for (int i = word_start; i < word_end; ++i) {
@@ -629,6 +673,12 @@ WERD_RES *RecodeBeamSearch::InitializeWord(bool leading_space, const TBOX &line_
                static_cast<int16_t>(std::ceil(character_boundaries_[i + 1] * scale_factor)) +
                    line_box.left(),
                line_box.top());
+      // JDWDEBUG START
+      std::string debug_str;
+      debug_str = "fake boxblob for werd being built in recodebeam ";
+      box.print_to_str(debug_str);
+      fprintf(stderr, "%s %i %i %i \n", debug_str.c_str(), i, character_boundaries_[i], character_boundaries_[i + 1]);
+      // JDWDEBUG END
       b_it.add_after_then_move(C_BLOB::FakeBlob(box));
     }
   }
@@ -647,6 +697,7 @@ WERD_RES *RecodeBeamSearch::InitializeWord(bool leading_space, const TBOX &line_
 // Fills top_n_flags_ with bools that are true iff the corresponding output
 // is one of the top_n.
 void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int top_n) {
+  fprintf(stderr, "recodebeam computetopn \n");  // JDWDEBUG
   top_n_flags_.resize(num_outputs, TN_ALSO_RAN);
   top_code_ = -1;
   second_code_ = -1;
@@ -660,25 +711,63 @@ void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int to
       }
     }
   }
+
+  float top_key = 0.0F;   // JDWTODO
+  float second_key = 0.0F;   // JDWTODO
+  bool found_first_whammy = false;    // JDWTODO
+  bool found_second_whammy = false;    // JDWTODO
   while (!top_heap_.empty()) {
     TopPair entry;
     top_heap_.Pop(&entry);
+    if (in_double_whammy_ && entry.data() == first_whammy_)    // JDWTODO
+      found_first_whammy = true;    // JDWTODO
+    if (in_double_whammy_ && entry.data() == second_whammy_)    // JDWTODO
+      found_second_whammy = true;    // JDWTODO
     if (top_heap_.size() > 1) {
       top_n_flags_[entry.data()] = TN_TOPN;
+      fprintf(stderr, "recodebeam computetopn topn code,key= %i %f \n", entry.data(), entry.key());  // JDWDEBUG
     } else {
       top_n_flags_[entry.data()] = TN_TOP2;
+      fprintf(stderr, "recodebeam computetopn top2 code,key= %i %f \n", entry.data(), entry.key());  // JDWDEBUG
       if (top_heap_.empty()) {
         top_code_ = entry.data();
+        top_key = entry.key();   // JDWTODO
       } else {
         second_code_ = entry.data();
+        second_key = entry.key();   // JDWTODO
       }
     }
   }
+
+  // JDWTODO START
+  if (in_double_whammy_) {
+    if (!found_first_whammy && !found_second_whammy){
+      in_double_whammy_ = false;
+      first_whammy_ = -1;
+      second_whammy_ = -1;
+      fprintf(stderr, "recodebeam computetopn double whammy cleared unicharid,code= \n");
+    }
+  }
+  // JDWTODO END
+
+  // JDWTODO START
+  if (!in_double_whammy_) {
+    if (top_code_ != null_char_ && second_code_ != null_char_ && top_key > 0.25F && second_key > 0.25F){
+      in_double_whammy_ = true;
+      first_whammy_ = top_code_;
+      second_whammy_ = second_code_;
+      fprintf(stderr, "recodebeam computetopn double whammy found unicharid,code= %f %f \n", top_key, second_key);
+    }
+  }
+  // JDWTODO END
+
+  fprintf(stderr, "recodebeam computetopn unicharid,code= top_code,second_code= %i %i \n", top_code_, second_code_);  // JDWDEBUG
   top_n_flags_[null_char_] = TN_TOP2;
 }
 
 void RecodeBeamSearch::ComputeSecTopN(std::unordered_set<int> *exList, const float *outputs,
                                       int num_outputs, int top_n) {
+  fprintf(stderr, "recodebeam computesectopn \n");  // JDWDEBUG
   top_n_flags_.resize(num_outputs, TN_ALSO_RAN);
   top_code_ = -1;
   second_code_ = -1;
@@ -715,6 +804,7 @@ void RecodeBeamSearch::ComputeSecTopN(std::unordered_set<int> *exList, const flo
 void RecodeBeamSearch::DecodeStep(const float *outputs, int t, double dict_ratio,
                                   double cert_offset, double worst_dict_cert,
                                   const UNICHARSET *charset, bool debug) {
+  fprintf(stderr, "recodebeam decodestep timestep= %i \n", t);  // JDWDEBUG
   if (t == beam_.size()) {
     beam_.push_back(new RecodeBeam);
   }
@@ -773,6 +863,7 @@ void RecodeBeamSearch::DecodeStep(const float *outputs, int t, double dict_ratio
     // enough, but there is only one, so it doesn't blow up the beam.
     for (int c = 0; c < NC_COUNT; ++c) {
       if (step->best_initial_dawgs_[c].code >= 0) {
+        fprintf(stderr, "recodebeam decodestep special case initial dawg %i \n", t);  // JDWDEBUG
         int index = BeamIndex(true, static_cast<NodeContinuation>(c), 0);
         RecodeHeap *dawg_heap = &step->beams_[index];
         PushHeapIfBetter(kBeamWidths[0], &step->best_initial_dawgs_[c], dawg_heap);
@@ -784,6 +875,7 @@ void RecodeBeamSearch::DecodeStep(const float *outputs, int t, double dict_ratio
 void RecodeBeamSearch::DecodeSecondaryStep(const float *outputs, int t, double dict_ratio,
                                            double cert_offset, double worst_dict_cert,
                                            const UNICHARSET *charset, bool debug) {
+  fprintf(stderr, "recodebeam decodesecondarystep \n");  // JDWDEBUG
   if (t == secondary_beam_.size()) {
     secondary_beam_.push_back(new RecodeBeam);
   }
@@ -857,6 +949,15 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
                                        TopNState top_n_flag, const UNICHARSET *charset,
                                        double dict_ratio, double cert_offset,
                                        double worst_dict_cert, RecodeBeam *step) {
+  // JDWDEBUG START
+  if (prev != nullptr) {
+    const char *ucc = charset->id_to_unichar_ext(prev->unichar_id);
+    fprintf(stderr, "recodebeam continuecontext unicharid,code,unichar,index,topn = %i %i %s %i %i \n", prev->unichar_id, prev->code, ucc, index, top_n_flag);
+  }
+  else {
+    fprintf(stderr, "recodebeam continuecontext top prev null index,topn = %i %i \n", index, top_n_flag);
+  }
+  // JDWDEBUG END
   RecodedCharID prefix;
   RecodedCharID full_code;
   const RecodeNode *previous = prev;
@@ -865,6 +966,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
   NodeContinuation prev_cont = ContinuationFromBeamsIndex(index);
   for (int p = length - 1; p >= 0; --p, previous = previous->prev) {
     while (previous != nullptr && (previous->duplicate || previous->code == null_char_)) {
+      fprintf(stderr, "recodebeam continuecontext stepping back code= %i \n", previous->code);
       previous = previous->prev;
     }
     if (previous != nullptr) {
@@ -876,12 +978,14 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
     if (top_n_flags_[prev->code] == top_n_flag) {
       if (prev_cont != NC_NO_DUP) {
         float cert = NetworkIO::ProbToCertainty(outputs[prev->code]) + cert_offset;
+        fprintf(stderr, "recodebeam continuecontext before pushdupornodawgifbetter unicharid,dup= %i %i \n", prev->unichar_id, 1);
         PushDupOrNoDawgIfBetter(length, true, prev->code, prev->unichar_id, cert, worst_dict_cert,
                                 dict_ratio, use_dawgs, NC_ANYTHING, prev, step);
       }
       if (prev_cont == NC_ANYTHING && top_n_flag == TN_TOP2 && prev->code != null_char_) {
         float cert =
             NetworkIO::ProbToCertainty(outputs[prev->code] + outputs[null_char_]) + cert_offset;
+        fprintf(stderr, "recodebeam continuecontext before pushdupornodawgifbetter unicharid,dup= %i %i \n", prev->unichar_id, 1);
         PushDupOrNoDawgIfBetter(length, true, prev->code, prev->unichar_id, cert, worst_dict_cert,
                                 dict_ratio, use_dawgs, NC_NO_DUP, prev, step);
       }
@@ -893,6 +997,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
       // Allow nulls within multi code sequences, as the nulls within are not
       // explicitly included in the code sequence.
       float cert = NetworkIO::ProbToCertainty(outputs[null_char_]) + cert_offset;
+      fprintf(stderr, "recodebeam continuecontext before pushdupornodawgifbetter unicharid,dup= %i %i \n", INVALID_UNICHAR_ID, 0);
       PushDupOrNoDawgIfBetter(length, false, null_char_, INVALID_UNICHAR_ID, cert, worst_dict_cert,
                               dict_ratio, use_dawgs, NC_ANYTHING, prev, step);
     }
@@ -945,6 +1050,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
         continue;
       }
       float cert = NetworkIO::ProbToCertainty(outputs[code]) + cert_offset;
+      fprintf(stderr, "recodebeam continuecontext before pushdupornodawgifbetter unicharid,dup= %i %i \n", INVALID_UNICHAR_ID, 0);
       PushDupOrNoDawgIfBetter(length + 1, false, code, INVALID_UNICHAR_ID, cert, worst_dict_cert,
                               dict_ratio, use_dawgs, NC_ANYTHING, prev, step);
       if (top_n_flag == TN_TOP2 && code != null_char_) {
@@ -955,6 +1061,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
           prob += outputs[prev->code];
         }
         float cert = NetworkIO::ProbToCertainty(prob) + cert_offset;
+        fprintf(stderr, "recodebeam continuecontext before pushdupornodawgifbetter unicharid,dup= %i %i \n", INVALID_UNICHAR_ID, 0);
         PushDupOrNoDawgIfBetter(length + 1, false, code, INVALID_UNICHAR_ID, cert, worst_dict_cert,
                                 dict_ratio, use_dawgs, NC_ONLY_DUP, prev, step);
       }
@@ -966,12 +1073,14 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
 void RecodeBeamSearch::ContinueUnichar(int code, int unichar_id, float cert, float worst_dict_cert,
                                        float dict_ratio, bool use_dawgs, NodeContinuation cont,
                                        const RecodeNode *prev, RecodeBeam *step) {
+  fprintf(stderr, "recodebeam ContinueUnichar unicharid,code,cont= %i %i %i \n", unichar_id, code, cont);  // JDWDEBUG
   if (use_dawgs) {
     if (cert > worst_dict_cert) {
       ContinueDawg(code, unichar_id, cert, cont, prev, step);
     }
   } else {
     RecodeHeap *nodawg_heap = &step->beams_[BeamIndex(false, cont, 0)];
+    fprintf(stderr, "recodebeam ContinueUnichar before pushheapifbetter unicharid,dup= %i %i \n", unichar_id, 0 );  // JDWDEBUG
     PushHeapIfBetter(kBeamWidths[0], code, unichar_id, TOP_CHOICE_PERM, false, false, false, false,
                      cert * dict_ratio, prev, nullptr, nodawg_heap);
     if (dict_ != nullptr && ((unichar_id == UNICHAR_SPACE && cert > worst_dict_cert) ||
@@ -995,6 +1104,7 @@ void RecodeBeamSearch::ContinueUnichar(int code, int unichar_id, float cert, flo
       } else {
         dawg_cert *= dict_ratio;
       }
+      fprintf(stderr, "recodebeam ContinueUnichar before pushinitialdawgifbetter unicharid,dup= %i %i \n", unichar_id, 0 );  // JDWDEBUG
       PushInitialDawgIfBetter(code, unichar_id, permuter, false, false, dawg_cert, cont, prev,
                               step);
     }
@@ -1006,9 +1116,11 @@ void RecodeBeamSearch::ContinueUnichar(int code, int unichar_id, float cert, flo
 // is a valid continuation of whatever is in prev.
 void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert, NodeContinuation cont,
                                     const RecodeNode *prev, RecodeBeam *step) {
+  fprintf(stderr, "recodebeam ContinueDawg unicharid,code,cont= %i %i %i \n", unichar_id, code, cont);  // JDWDEBUG
   RecodeHeap *dawg_heap = &step->beams_[BeamIndex(true, cont, 0)];
   RecodeHeap *nodawg_heap = &step->beams_[BeamIndex(false, cont, 0)];
   if (unichar_id == INVALID_UNICHAR_ID) {
+    fprintf(stderr, "recodebeam ContinueDawg before pushheapifbetter unicharid,dup= %i %i \n", unichar_id, 0 );  // JDWDEBUG
     PushHeapIfBetter(kBeamWidths[0], code, unichar_id, NO_PERM, false, false, false, false, cert,
                      prev, nullptr, dawg_heap);
     return;
@@ -1033,8 +1145,10 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert, NodeCo
     if (uni_prev != nullptr && uni_prev->end_of_word) {
       // Space is good. Push initial state, to the dawg beam and a regular
       // space to the top choice beam.
+      fprintf(stderr, "recodebeam ContinueDawg before PushInitialDawgIfBetter unicharid= %i \n", unichar_id);  // JDWDEBUG
       PushInitialDawgIfBetter(code, unichar_id, uni_prev->permuter, false, false, cert, cont, prev,
                               step);
+      fprintf(stderr, "recodebeam ContinueDawg before pushheapifbetter unicharid,dup= %i %i \n", unichar_id, 0 );  // JDWDEBUG
       PushHeapIfBetter(kBeamWidths[0], code, unichar_id, uni_prev->permuter, false, false, false,
                        false, cert, prev, nullptr, nodawg_heap);
     }
@@ -1069,7 +1183,9 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert, NodeCo
       // We can start another word right away, so push initial state as well,
       // to the dawg beam, and the regular character to the top choice beam,
       // since non-dict words can start here too.
+      fprintf(stderr, "recodebeam ContinueDawg before PushInitialDawgIfBetter unicharid= %i \n", unichar_id);  // JDWDEBUG
       PushInitialDawgIfBetter(code, unichar_id, permuter, word_start, true, cert, cont, prev, step);
+      fprintf(stderr, "recodebeam ContinueDawg before pushheapifbetter unicharid,dup= %i %i \n", unichar_id, 0 );  // JDWDEBUG
       PushHeapIfBetter(kBeamWidths[0], code, unichar_id, permuter, false, word_start, true, false,
                        cert, prev, nullptr, nodawg_heap);
     }
@@ -1085,6 +1201,7 @@ void RecodeBeamSearch::PushInitialDawgIfBetter(int code, int unichar_id, Permute
                                                bool start, bool end, float cert,
                                                NodeContinuation cont, const RecodeNode *prev,
                                                RecodeBeam *step) {
+  fprintf(stderr, "recodebeam PushInitialDawgIfBetter unicharid,code= %i %i \n", unichar_id, code);  // JDWDEBUG
   RecodeNode *best_initial_dawg = &step->best_initial_dawgs_[cont];
   float score = cert;
   if (prev != nullptr) {
@@ -1093,6 +1210,7 @@ void RecodeBeamSearch::PushInitialDawgIfBetter(int code, int unichar_id, Permute
   if (best_initial_dawg->code < 0 || score > best_initial_dawg->score) {
     auto *initial_dawgs = new DawgPositionVector;
     dict_->default_dawgs(initial_dawgs, false);
+    fprintf(stderr, "recodebeam PushInitialDawgIfBetter adding new node unicharid,code= %i %i \n", unichar_id, code);  // JDWDEBUG
     RecodeNode node(code, unichar_id, permuter, true, start, end, false, cert, score, prev,
                     initial_dawgs, ComputeCodeHash(code, false, prev));
     *best_initial_dawg = node;
@@ -1107,6 +1225,7 @@ void RecodeBeamSearch::PushDupOrNoDawgIfBetter(int length, bool dup, int code, i
                                                float cert, float worst_dict_cert, float dict_ratio,
                                                bool use_dawgs, NodeContinuation cont,
                                                const RecodeNode *prev, RecodeBeam *step) {
+  fprintf(stderr, "recodebeam PushDupOrNoDawgIfBetter %i \n", unichar_id);  // JDWDEBUG
   int index = BeamIndex(use_dawgs, cont, length);
   if (use_dawgs) {
     if (cert > worst_dict_cert) {
@@ -1130,6 +1249,7 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
                                         PermuterType permuter, bool dawg_start, bool word_start,
                                         bool end, bool dup, float cert, const RecodeNode *prev,
                                         DawgPositionVector *d, RecodeHeap *heap) {
+  fprintf(stderr, "recodebeam PushHeapIfBetter #1 %i \n", unichar_id);  // JDWDEBUG
   float score = cert;
   if (prev != nullptr) {
     score += prev->score;
@@ -1141,6 +1261,12 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
     if (UpdateHeapIfMatched(&node, heap)) {
       return;
     }
+    // JDWTODO START
+    if (!AddToHeapIsAllowed(&node)) {
+      return;
+    }
+    // JDWTODO END
+    fprintf(stderr, "recodebeam PushHeapIfBetter #1 adding node unicharid,code= %i %i \n", unichar_id, code);  // JDWDEBUG
     RecodePair entry(score, node);
     heap->Push(&entry);
     ASSERT_HOST(entry.data().dawgs == nullptr);
@@ -1155,10 +1281,12 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
 // Adds a RecodeNode to heap if there is room
 // or if better than the current worst element if already full.
 void RecodeBeamSearch::PushHeapIfBetter(int max_size, RecodeNode *node, RecodeHeap *heap) {
+  fprintf(stderr, "recodebeam PushHeapIfBetter #1 %i \n", node->unichar_id);  // JDWDEBUG
   if (heap->size() < max_size || node->score > heap->PeekTop().data().score) {
     if (UpdateHeapIfMatched(node, heap)) {
       return;
     }
+    fprintf(stderr, "recodebeam PushHeapIfBetter #2 adding node unicharid,code= %i %i \n", node->unichar_id, node->code);  // JDWDEBUG
     RecodePair entry(node->score, *node);
     heap->Push(&entry);
     ASSERT_HOST(entry.data().dawgs == nullptr);
@@ -1174,6 +1302,7 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode *new_node, RecodeHeap *hea
   // TODO(rays) consider hash map instead of linear search.
   // It might not be faster because the hash map would have to be updated
   // every time a heap reshuffle happens, and that would be a lot of overhead.
+  fprintf(stderr, "recodebeam UpdateHeapIfMatched %i \n", new_node->unichar_id);  // JDWDEBUG
   std::vector<RecodePair> &nodes = heap->heap();
   for (auto &i : nodes) {
     RecodeNode &node = i.data();
@@ -1182,6 +1311,7 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode *new_node, RecodeHeap *hea
       if (new_node->score > node.score) {
         // The new one is better. Update the entire node in the heap and
         // reshuffle.
+        fprintf(stderr, "recodebeam UpdateHeapIfMatched doing update unicharid,code= %i %i \n", new_node->unichar_id, new_node->code);  // JDWDEBUG
         node = *new_node;
         i.key() = node.score;
         heap->Reshuffle(&i);
@@ -1191,6 +1321,29 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode *new_node, RecodeHeap *hea
   }
   return false;
 }
+
+// JDWTODO START
+bool RecodeBeamSearch::AddToHeapIsAllowed(RecodeNode *new_node) {
+  if (!in_double_whammy_)
+    return true;
+  const RecodeNode *prev_node = new_node->prev;
+  if (prev_node != nullptr && prev_node->code == first_whammy_ && new_node->code == second_whammy_) {
+    fprintf(stderr, "recodebeam AddToHeapIsAllowed second whammy not allowed unicharid,code= + prevcode %i %i %i \n", new_node->unichar_id, new_node->code, prev_node->code);
+    return false;
+  }
+  if (prev_node != nullptr && prev_node->code == second_whammy_ && new_node->code == first_whammy_) {
+    fprintf(stderr, "recodebeam AddToHeapIsAllowed first whammy not allowed unicharid,code= + prevcode %i %i %i \n", new_node->unichar_id, new_node->code, prev_node->code);
+    return false;
+  }
+if (prev_node != nullptr){
+  fprintf(stderr, "recodebeam AddToHeapIsAllowed allowed unicharid,code= + prevcode %i %i %i \n", new_node->unichar_id, new_node->code, prev_node->code);
+}
+else {
+  fprintf(stderr, "recodebeam AddToHeapIsAllowed allowed unicharid,code= + prevcode %i %i null \n", new_node->unichar_id, new_node->code);
+}
+  return true;
+}
+// JDWTODO END
 
 // Computes and returns the code-hash for the given code and prev.
 uint64_t RecodeBeamSearch::ComputeCodeHash(int code, bool dup, const RecodeNode *prev) const {
@@ -1212,6 +1365,7 @@ uint64_t RecodeBeamSearch::ComputeCodeHash(int code, bool dup, const RecodeNode 
 void RecodeBeamSearch::ExtractBestPaths(std::vector<const RecodeNode *> *best_nodes,
                                         std::vector<const RecodeNode *> *second_nodes) const {
   // Scan both beams to extract the best and second best paths.
+  fprintf(stderr, "recodebeam extractbestpaths \n");  // JDWDEBUG
   const RecodeNode *best_node = nullptr;
   const RecodeNode *second_best_node = nullptr;
   const RecodeBeam *last_beam = beam_[beam_size_ - 1];
@@ -1242,15 +1396,19 @@ void RecodeBeamSearch::ExtractBestPaths(std::vector<const RecodeNode *> *best_no
         if (best_node == nullptr || node->score > best_node->score) {
           second_best_node = best_node;
           best_node = node;
+          fprintf(stderr, "recodebeam extractbestpaths bestnodebeam= %i \n", beam_index);  // JDWDEBUG
         } else if (second_best_node == nullptr || node->score > second_best_node->score) {
           second_best_node = node;
+          fprintf(stderr, "recodebeam extractbestpaths secondbestnodebeam= %i \n", beam_index);  // JDWDEBUG
         }
       }
     }
   }
   if (second_nodes != nullptr) {
+    fprintf(stderr, "recodebeam extractbestpaths extract second best \n");  // JDWDEBUG
     ExtractPath(second_best_node, second_nodes);
   }
+  fprintf(stderr, "recodebeam extractbestpaths extract best \n");  // JDWDEBUG
   ExtractPath(best_node, best_nodes);
 }
 
@@ -1260,6 +1418,7 @@ void RecodeBeamSearch::ExtractPath(const RecodeNode *node,
                                    std::vector<const RecodeNode *> *path) const {
   path->clear();
   while (node != nullptr) {
+    fprintf(stderr, "recodebeam extractpath unicharid,code,cert,score= %i %i %f %f %i \n", node->unichar_id, node->code, node->certainty, node->score, node->duplicate);  // JDWDEBUG
     path->push_back(node);
     node = node->prev;
   }
