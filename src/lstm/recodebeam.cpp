@@ -185,7 +185,7 @@ RecodeBeamSearch::combineSegmentedTimesteps(
 
 void RecodeBeamSearch::calculateCharBoundaries(std::vector<int> *starts, std::vector<int> *ends,
                                                std::vector<int> *char_bounds_, int maxWidth) {
-  char_bounds_->push_back(0);
+  char_bounds_->push_back((*starts)[0]); 
   for (int i = 0; i < ends->size(); ++i) {
     int middle = ((*starts)[i + 1] - (*ends)[i]) / 2;
     char_bounds_->push_back((*ends)[i] + middle);
@@ -570,8 +570,8 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(const std::vector<const RecodeNod
       }
       rating -= cert;
     }
-    starts.push_back(t);
     if (t < width) {
+      starts.push_back(t);
       int unichar_id = best_nodes[t]->unichar_id;
       if (unichar_id == UNICHAR_SPACE && !certs->empty() && best_nodes[t]->permuter != NO_PERM) {
         // All the rating and certainty go on the previous character except
@@ -585,8 +585,9 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(const std::vector<const RecodeNod
       }
       unichar_ids->push_back(unichar_id);
       xcoords->push_back(t);
-      do {
-        double cert = best_nodes[t++]->certainty;
+      t++;
+      while (t < width && best_nodes[t]->duplicate) {
+        double cert = best_nodes[t]->certainty;
         // Special-case NO-PERM space to forget the certainty of the previous
         // nulls. See long comment in ContinueContext.
         if (cert < certainty ||
@@ -594,7 +595,8 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(const std::vector<const RecodeNod
           certainty = cert;
         }
         rating -= cert;
-      } while (t < width && best_nodes[t]->duplicate);
+        t++;
+      }
       ends.push_back(t);
       certs->push_back(certainty);
       ratings->push_back(rating);
