@@ -40,6 +40,11 @@ const int RecodeBeamSearch::kBeamWidths[RecodedCharID::kMaxCodeLen + 1] = {
 
 static const char *kNodeContNames[] = {"Anything", "OnlyDup", "NoDup"};
 
+// the minimum diplopia key is the minimum score (key) from
+// the network output to qualify as a likely 'real' character
+// for the purposes of identifying possible diplopia
+static const float kMinDiplopiaKey = 0.25;
+
 // Prints debug details of the node.
 void RecodeNode::Print(int null_char, const UNICHARSET &unicharset, int depth) const {
   if (code == null_char) {
@@ -696,7 +701,7 @@ void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int to
     }
   }
   if (!in_possible_diplopia_) {
-    if (top_code_ != null_char_ && second_code_ != null_char_ && top_key > 0.25F && second_key > 0.25F){
+    if (top_code_ != null_char_ && second_code_ != null_char_ && top_key > kMinDiplopiaKey && second_key > kMinDiplopiaKey){
       in_possible_diplopia_ = true;
       first_diplopia_code_ = top_code_;
       second_diplopia_code_ = second_code_;

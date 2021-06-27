@@ -429,7 +429,7 @@ private:
   // The encoded (class label) of the null/reject character.
   int null_char_;
   // Variables used in tracking possible diplopia case
-  // Refer to ComputeTopN routine for more information
+  // Refer to ComputeTopN routine for use of these variables
   bool in_possible_diplopia_;
   int first_diplopia_code_;
   int second_diplopia_code_;
