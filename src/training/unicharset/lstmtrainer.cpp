@@ -200,6 +200,8 @@ void LSTMTrainer::InitIterations() {
   worst_error_rate_ = 0.0;
   worst_iteration_ = 0;
   stall_iteration_ = kMinStallIterations;
+  best_error_history_.clear();
+  best_error_iterations_.clear();
   improvement_steps_ = kMinStallIterations;
   perfect_delay_ = 0;
   last_perfect_training_iteration_ = 0;
