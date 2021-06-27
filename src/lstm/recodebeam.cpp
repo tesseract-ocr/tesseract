@@ -662,18 +662,44 @@ void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int to
       }
     }
   }
+  float top_key = 0.0F;
+  float second_key = 0.0F;
+  bool found_first_code = false;
+  bool found_second_code = false;
   while (!top_heap_.empty()) {
     TopPair entry;
     top_heap_.Pop(&entry);
+    if (in_possible_diplopia_ && entry.data() == first_diplopia_code_)
+      found_first_code = true;
+    if (in_possible_diplopia_ && entry.data() == second_diplopia_code_)
+      found_second_code = true;
     if (top_heap_.size() > 1) {
       top_n_flags_[entry.data()] = TN_TOPN;
     } else {
       top_n_flags_[entry.data()] = TN_TOP2;
       if (top_heap_.empty()) {
         top_code_ = entry.data();
+        top_key = entry.key();
       } else {
         second_code_ = entry.data();
+        second_key = entry.key();
       }
+    }
+  }
+  // need to identify if we are in a potential diplopia situation
+  // or if we already are, then determine if it is ended
+  if (in_possible_diplopia_) {
+    if (!found_first_code && !found_second_code){
+      in_possible_diplopia_ = false;
+      first_diplopia_code_ = -1;
+      second_diplopia_code_ = -1;
+    }
+  }
+  if (!in_possible_diplopia_) {
+    if (top_code_ != null_char_ && second_code_ != null_char_ && top_key > 0.25F && second_key > 0.25F){
+      in_possible_diplopia_ = true;
+      first_diplopia_code_ = top_code_;
+      second_diplopia_code_ = second_code_;
     }
   }
   top_n_flags_[null_char_] = TN_TOP2;
@@ -1143,6 +1169,10 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
     if (UpdateHeapIfMatched(&node, heap)) {
       return;
     }
+    // check to see if node is possible diplopia
+    if (!AddToHeapIsAllowed(&node)) {
+      return;
+    }
     RecodePair entry(score, node);
     heap->Push(&entry);
     ASSERT_HOST(entry.data().dawgs == nullptr);
@@ -1192,6 +1222,20 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode *new_node, RecodeHeap *hea
     }
   }
   return false;
+}
+
+// Determines if node can be added to heap based on possible diplopia status
+bool RecodeBeamSearch::AddToHeapIsAllowed(RecodeNode *new_node) {
+  if (!in_possible_diplopia_)
+    return true;
+  const RecodeNode *prev_node = new_node->prev;
+  if (prev_node != nullptr && prev_node->code == first_diplopia_code_ && new_node->code == second_diplopia_code_) {
+    return false;
+  }
+  if (prev_node != nullptr && prev_node->code == second_diplopia_code_ && new_node->code == first_diplopia_code_) {
+    return false;
+  }
+  return true;
 }
 
 // Computes and returns the code-hash for the given code and prev.
