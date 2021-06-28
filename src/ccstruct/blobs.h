@@ -28,7 +28,7 @@
 
 #include <tesseract/publictypes.h> // for OcrEngineMode
 
-#include <cstdint> // for int16_t
+#include <cstdint> // for int32_t
 
 struct Pix;
 
@@ -46,8 +46,8 @@ class WERD;
 ----------------------------------------------------------------------*/
 
 struct TPOINT {
-  TPOINT() : x(0), y(0) {}
-  TPOINT(int16_t vx, int16_t vy) : x(vx), y(vy) {}
+  TPOINT() = default;
+  TPOINT(int32_t vx, int32_t vy) : x(vx), y(vy) {}
   TPOINT(const ICOORD &ic) : x(ic.x()), y(ic.y()) {}
 
   void operator+=(const TPOINT &other) {
@@ -86,8 +86,8 @@ struct TPOINT {
     return x * x + y * y;
   }
 
-  int16_t x; // absolute x coord.
-  int16_t y; // absolute y coord.
+  int32_t x = 0; // absolute x coord.
+  int32_t y = 0; // absolute y coord.
 };
 
 using VECTOR = TPOINT; // structure for coordinates.

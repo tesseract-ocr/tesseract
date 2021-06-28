@@ -43,7 +43,7 @@ public:
   /// constructor
   ///@param xin x value
   ///@param yin y value
-  ICOORD(int16_t xin, int16_t yin) {
+  ICOORD(int32_t xin, int32_t yin) {
     xcoord = xin;
     ycoord = yin;
   }
@@ -54,20 +54,20 @@ public:
   bool Serialize(TFile *f) const;
 
   /// access function
-  int16_t x() const {
+  int32_t x() const {
     return xcoord;
   }
   /// access_function
-  int16_t y() const {
+  int32_t y() const {
     return ycoord;
   }
 
   /// rewrite function
-  void set_x(int16_t xin) {
+  void set_x(int32_t xin) {
     xcoord = xin; // write new value
   }
   /// rewrite function
-  void set_y(int16_t yin) { // value to set
+  void set_y(int32_t yin) { // value to set
     ycoord = yin;
   }
 
@@ -128,15 +128,15 @@ public:
   /// cross product
   friend int32_t operator*(const ICOORD &, const ICOORD &);
   /// multiply
-  friend ICOORD operator*(const ICOORD &, int16_t);
+  friend ICOORD operator*(const ICOORD &, int32_t);
   /// multiply
-  friend ICOORD operator*(int16_t, const ICOORD &);
+  friend ICOORD operator*(int32_t, const ICOORD &);
   /// multiply
-  friend ICOORD &operator*=(ICOORD &, int16_t);
+  friend ICOORD &operator*=(ICOORD &, int32_t);
   /// divide
-  friend ICOORD operator/(const ICOORD &, int16_t);
+  friend ICOORD operator/(const ICOORD &, int32_t);
   /// divide
-  friend ICOORD &operator/=(ICOORD &, int16_t);
+  friend ICOORD &operator/=(ICOORD &, int32_t);
   /// rotate
   ///@param vec by vector
   void rotate(const FCOORD &vec);
@@ -155,8 +155,8 @@ public:
   bool DeSerialize(bool swap, FILE *fp);
 
 protected:
-  int16_t xcoord; ///< x value
-  int16_t ycoord; ///< y value
+  int32_t xcoord; ///< x value
+  int32_t ycoord; ///< y value
 };
 
 class ICOORDELT : public ELIST_LINK,
@@ -171,7 +171,7 @@ public:
   /// constructor
   ///@param xin x value
   ///@param yin y value
-  ICOORDELT(int16_t xin, int16_t yin) {
+  ICOORDELT(int32_t xin, int32_t yin) {
     xcoord = xin;
     ycoord = yin;
   }
@@ -438,7 +438,7 @@ inline int32_t operator*( // cross product
 
 inline ICOORD operator*( // scalar multiply
     const ICOORD &op1,   // operands
-    int16_t scale) {
+    int32_t scale) {
   ICOORD result; // output
 
   result.xcoord = op1.xcoord * scale;
@@ -447,7 +447,7 @@ inline ICOORD operator*( // scalar multiply
 }
 
 inline ICOORD operator*( // scalar multiply
-    int16_t scale,
+    int32_t scale,
     const ICOORD &op1 // operands
 ) {
   ICOORD result; // output
@@ -465,7 +465,7 @@ inline ICOORD operator*( // scalar multiply
 
 inline ICOORD &operator*=( // scalar multiply
     ICOORD &op1,           // operands
-    int16_t scale) {
+    int32_t scale) {
   op1.xcoord *= scale;
   op1.ycoord *= scale;
   return op1;
@@ -479,7 +479,7 @@ inline ICOORD &operator*=( // scalar multiply
 
 inline ICOORD operator/( // scalar divide
     const ICOORD &op1,   // operands
-    int16_t scale) {
+    int32_t scale) {
   ICOORD result; // output
 
   result.xcoord = op1.xcoord / scale;
@@ -495,7 +495,7 @@ inline ICOORD operator/( // scalar divide
 
 inline ICOORD &operator/=( // scalar divide
     ICOORD &op1,           // operands
-    int16_t scale) {
+    int32_t scale) {
   op1.xcoord /= scale;
   op1.ycoord /= scale;
   return op1;
@@ -509,8 +509,8 @@ inline ICOORD &operator/=( // scalar divide
 
 inline void ICOORD::rotate( // rotate by vector
     const FCOORD &vec) {
-  auto tmp = static_cast<int16_t>(std::floor(xcoord * vec.x() - ycoord * vec.y() + 0.5f));
-  ycoord = static_cast<int16_t>(std::floor(ycoord * vec.x() + xcoord * vec.y() + 0.5f));
+  auto tmp = static_cast<int32_t>(std::floor(xcoord * vec.x() - ycoord * vec.y() + 0.5f));
+  ycoord = static_cast<int32_t>(std::floor(ycoord * vec.x() + xcoord * vec.y() + 0.5f));
   xcoord = tmp;
 }
 

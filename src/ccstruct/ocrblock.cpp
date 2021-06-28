@@ -35,9 +35,9 @@ BLOCK::BLOCK(const char *name,           ///< filename
              bool prop,                  ///< proportional
              int16_t kern,               ///< kerning
              int16_t space,              ///< spacing
-             int16_t xmin,               ///< bottom left
-             int16_t ymin, int16_t xmax, ///< top right
-             int16_t ymax)
+             int32_t xmin,               ///< bottom left
+             int32_t ymin, int32_t xmax, ///< top right
+             int32_t ymax)
     : pdblk(xmin, ymin, xmax, ymax)
     , filename(name)
     , re_rotation_(1.0f, 0.0f)

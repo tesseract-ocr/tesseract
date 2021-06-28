@@ -34,8 +34,8 @@ public:
       ICOORD tright);
 
   C_OUTLINE_LIST *operator()( // array access
-      int16_t x,              // image coords
-      int16_t y);
+      int32_t x,              // image coords
+      int32_t y);
   // first non-empty bucket
   C_OUTLINE_LIST *start_scan();
   // next non-empty bucket
