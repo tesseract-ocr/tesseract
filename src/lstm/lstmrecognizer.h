@@ -157,6 +157,26 @@ public:
     series->ScaleLayerLearningRate(&id[1], factor);
   }
 
+  // Set the all the learning rate(s) to the given value.
+  void SetLearningRate(float learning_rate)
+  {
+    ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
+    learning_rate_ = learning_rate;
+    if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
+      for (auto &id : EnumerateLayers()) {
+        SetLayerLearningRate(id, learning_rate);
+      }
+    }
+  }
+  // Set the learning rate of the layer with id, by the given value.
+  void SetLayerLearningRate(const std::string &id, float learning_rate)
+  {
+    ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
+    ASSERT_HOST(id.length() > 1 && id[0] == ':');
+    auto *series = static_cast<Series *>(network_);
+    series->SetLayerLearningRate(&id[1], learning_rate);
+  }
+
   // Converts the network to int if not already.
   void ConvertToInt() {
     if ((training_flags_ & TF_INT_MODE) == 0) {
