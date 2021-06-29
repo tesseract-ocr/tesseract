@@ -256,6 +256,9 @@ if(CLANG)  # clang all platforms
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG -pedantic -O0")
 endif()
 
+if (OPENMP_BUILD AND MSVC AND ${MSVC_VERSION} LESS 1929)
+    set(OPENMP_BUILD OFF)
+endif()
 if (OPENMP_BUILD)
     find_package(OpenMP QUIET)
     if (OpenMP_FOUND)
@@ -279,6 +282,10 @@ if (OPENMP_BUILD)
         endif()
         set(OpenMP_FOUND 1)
         add_definitions(-D_OPENMP=201107)  # 3.1 version is supported from Clang 3.8.0
+    endif()
+    if (MSVC)
+        string(REPLACE "/openmp" "/openmp:llvm" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+        string(REPLACE "-openmp" "/openmp:llvm" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
     endif()
 endif()
 
