@@ -674,10 +674,12 @@ void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int to
   while (!top_heap_.empty()) {
     TopPair entry;
     top_heap_.Pop(&entry);
-    if (in_possible_diplopia_ && entry.data() == first_diplopia_code_)
+    if (in_possible_diplopia_ && entry.data() == first_diplopia_code_) {
       found_first_code = true;
-    if (in_possible_diplopia_ && entry.data() == second_diplopia_code_)
+    }
+    if (in_possible_diplopia_ && entry.data() == second_diplopia_code_) {
       found_second_code = true;
+    }
     if (top_heap_.size() > 1) {
       top_n_flags_[entry.data()] = TN_TOPN;
     } else {
@@ -1231,8 +1233,9 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode *new_node, RecodeHeap *hea
 
 // Determines if node can be added to heap based on possible diplopia status
 bool RecodeBeamSearch::AddToHeapIsAllowed(RecodeNode *new_node) {
-  if (!in_possible_diplopia_)
+  if (!in_possible_diplopia_) {
     return true;
+  }
   const RecodeNode *prev_node = new_node->prev;
   if (prev_node != nullptr && prev_node->code == first_diplopia_code_ && new_node->code == second_diplopia_code_) {
     return false;
