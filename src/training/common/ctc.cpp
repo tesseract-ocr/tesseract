@@ -87,7 +87,9 @@ CTC::CTC(const std::vector<int> &labels, int null_char, const GENERIC_2D_ARRAY<f
 // Computes vectors of min and max label index for each timestep, based on
 // whether skippability of nulls makes it possible to complete a valid path.
 bool CTC::ComputeLabelLimits() {
+  min_labels_.clear();
   min_labels_.resize(num_timesteps_, 0);
+  max_labels_.clear();
   max_labels_.resize(num_timesteps_, 0);
   int min_u = num_labels_ - 1;
   if (labels_[min_u] == null_char_) {

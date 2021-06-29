@@ -901,6 +901,7 @@ void WERD_RES::FakeClassifyWord(int blob_count, BLOB_CHOICE **choices) {
   }
   FakeWordFromRatings(TOP_CHOICE_PERM);
   reject_map.initialise(blob_count);
+  best_state.clear();
   best_state.resize(blob_count, 1);
   done = true;
 }

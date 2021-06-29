@@ -644,6 +644,7 @@ WERD_RES *RecodeBeamSearch::InitializeWord(bool leading_space, const TBOX &line_
 // Fills top_n_flags_ with bools that are true iff the corresponding output
 // is one of the top_n.
 void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int top_n) {
+  top_n_flags_.clear();
   top_n_flags_.resize(num_outputs, TN_ALSO_RAN);
   top_code_ = -1;
   second_code_ = -1;
@@ -676,6 +677,7 @@ void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int to
 
 void RecodeBeamSearch::ComputeSecTopN(std::unordered_set<int> *exList, const float *outputs,
                                       int num_outputs, int top_n) {
+  top_n_flags_.clear();
   top_n_flags_.resize(num_outputs, TN_ALSO_RAN);
   top_code_ = -1;
   second_code_ = -1;
