@@ -110,6 +110,7 @@ bool ParamsModel::LoadFromFp(const char *lang, TFile *fp) {
   lang_ = lang;
   // Load weights for passes with adaption on.
   std::vector<float> &weights = weights_vec_[pass_];
+  weights.clear();
   weights.resize(PTRAIN_NUM_FEATURE_TYPES, 0.0f);
 
   while (fp->FGets(line, kMaxLineSize) != nullptr) {

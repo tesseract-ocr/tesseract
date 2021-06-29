@@ -208,7 +208,8 @@ void LSTMTrainer::InitIterations() {
   for (int i = 0; i < ET_COUNT; ++i) {
     best_error_rates_[i] = 100.0;
     worst_error_rates_[i] = 0.0;
-    error_buffers_[i].resize(kRollingBufferSize_, 0.0);
+    error_buffers_[i].clear();
+    error_buffers_[i].resize(kRollingBufferSize_);
     error_rates_[i] = 100.0;
   }
   error_rate_of_last_saved_best_ = kMinStartedErrorRate;
@@ -669,8 +670,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
   };
   std::vector<std::string> layers = EnumerateLayers();
   int num_layers = layers.size();
-  std::vector<int> num_weights;
-  num_weights.resize(num_layers, 0);
+  std::vector<int> num_weights(num_layers);
   std::vector<double> bad_sums[LR_COUNT];
   std::vector<double> ok_sums[LR_COUNT];
   for (int i = 0; i < LR_COUNT; ++i) {
@@ -1263,8 +1263,7 @@ double LSTMTrainer::ComputeWinnerError(const NetworkIO &deltas) {
 // Computes a very simple bag of chars char error rate.
 double LSTMTrainer::ComputeCharError(const std::vector<int> &truth_str,
                                      const std::vector<int> &ocr_str) {
-  std::vector<int> label_counts;
-  label_counts.resize(NumOutputs(), 0);
+  std::vector<int> label_counts(NumOutputs());
   int truth_size = 0;
   for (auto ch : truth_str) {
     if (ch != null_char_) {
