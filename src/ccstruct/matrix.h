@@ -417,7 +417,7 @@ public:
 
   // Accumulates the element-wise sums of squares of src into *this.
   void SumSquares(const GENERIC_2D_ARRAY<T> &src, const T &decay_factor) {
-    T update_factor = 1.0 - decay_factor;
+    T update_factor = 1 - decay_factor;
     int size = num_elements();
     for (int i = 0; i < size; ++i) {
       array_[i] = array_[i] * decay_factor + update_factor * src.array_[i] * src.array_[i];
