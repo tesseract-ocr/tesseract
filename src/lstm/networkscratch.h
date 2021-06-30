@@ -148,7 +148,8 @@ public:
       vec_ = scratch_space_->vec_stack_.Borrow();
       vec_->reserve(reserve);
       vec_->resize(size);
-      data_ = &(*vec_)[0];
+      // use vector.at(0) to make sure we do not trigger UB on an empty vector
+      data_ = &vec_->at(0);
     }
 
     void Init(int size, NetworkScratch *scratch) {
