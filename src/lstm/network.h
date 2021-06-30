@@ -235,7 +235,7 @@ public:
   // Sums the products of weight updates in *this and other, splitting into
   // positive (same direction) in *same and negative (different direction) in
   // *changed.
-  virtual void CountAlternators(const Network &other, double *same, double *changed) const {}
+  virtual void CountAlternators(const Network &other, TFloat *same, TFloat *changed) const {}
 
   // Reads from the given file. Returns nullptr in case of error.
   // Determines the type of the serialized class and calls its DeSerialize

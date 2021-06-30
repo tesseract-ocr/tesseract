@@ -15,13 +15,17 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+#include "intsimdmatrix.h"
+
 #if !defined(__AVX2__)
 #  if defined(__i686__) || defined(__x86_64__)
 #    error Implementation only for AVX2 capable architectures
 #  endif
+#elif defined(FAST_FLOAT)
+namespace tesseract {
+const IntSimdMatrix *IntSimdMatrix::intSimdMatrixAVX2 = nullptr;
+}
 #else
-
-#  include "intsimdmatrix.h"
 
 #  include <immintrin.h>
 #  include <algorithm>
@@ -331,7 +335,7 @@ static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const double *
   }
 }
 
-const IntSimdMatrix IntSimdMatrix::intSimdMatrixAVX2 = {
+static const IntSimdMatrix simdMatrix = {
     // Function.
     matrixDotVector,
     // Number of 32 bit outputs held in each register.
@@ -341,7 +345,10 @@ const IntSimdMatrix IntSimdMatrix::intSimdMatrixAVX2 = {
     // Number of 8 bit inputs in the inputs register.
     kNumInputsPerRegister,
     // Number of inputs in each weight group.
-    kNumInputsPerGroup};
+    kNumInputsPerGroup
+};
+
+const IntSimdMatrix *IntSimdMatrix::intSimdMatrixAVX2 = &simdMatrix;
 
 } // namespace tesseract.
 
