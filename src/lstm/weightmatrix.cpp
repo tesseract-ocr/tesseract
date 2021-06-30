@@ -26,7 +26,7 @@
 namespace tesseract {
 
 #if defined(ANDROID)
-static inline double log2(double n) {
+static inline TFloat log2(TFloat n) {
   return log(n) / log(2.0);
 }
 #endif // ANDROID
@@ -34,7 +34,7 @@ static inline double log2(double n) {
 // Number of iterations after which the correction effectively becomes unity.
 const int kAdamCorrectionIterations = 200000;
 // Epsilon in Adam to prevent division by zero.
-const double kAdamEpsilon = 1e-8;
+const TFloat kAdamEpsilon = 1e-8;
 
 // Computes matrix.vector v = Wu.
 // u is of size W.dim2() - add_bias_fwd and the output v is of size
@@ -44,13 +44,13 @@ const double kAdamEpsilon = 1e-8;
 // If skip_bias_back, we are actually performing the backwards product on a
 // transposed matrix, so we need to drop the v output corresponding to the last
 // element in dim1.
-static inline void MatrixDotVectorInternal(const GENERIC_2D_ARRAY<double> &w, bool add_bias_fwd,
-                                           bool skip_bias_back, const double *u, double *v) {
+static inline void MatrixDotVectorInternal(const GENERIC_2D_ARRAY<TFloat> &w, bool add_bias_fwd,
+                                           bool skip_bias_back, const TFloat *u, TFloat *v) {
   int num_results = w.dim1() - skip_bias_back;
   int extent = w.dim2() - add_bias_fwd;
   for (int i = 0; i < num_results; ++i) {
-    const double *wi = w[i];
-    double total = DotProduct(wi, u, extent);
+    const TFloat *wi = w[i];
+    TFloat total = DotProduct(wi, u, extent);
     if (add_bias_fwd) {
       total += wi[extent]; // The bias value.
     }
@@ -58,8 +58,8 @@ static inline void MatrixDotVectorInternal(const GENERIC_2D_ARRAY<double> &w, bo
   }
 }
 
-// Copies the whole input transposed, converted to double, into *this.
-void TransposedArray::Transpose(const GENERIC_2D_ARRAY<double> &input) {
+// Copies the whole input transposed, converted to TFloat, into *this.
+void TransposedArray::Transpose(const GENERIC_2D_ARRAY<TFloat> &input) {
   int width = input.dim1();
   int num_features = input.dim2();
   ResizeNoInit(num_features, width);
@@ -97,25 +97,25 @@ int WeightMatrix::InitWeightsFloat(int no, int ni, bool use_adam, float weight_r
 // for all outputs with negative code_map entries. Returns the new number of
 // weights.
 int WeightMatrix::RemapOutputs(const std::vector<int> &code_map) {
-  GENERIC_2D_ARRAY<double> old_wf(wf_);
+  GENERIC_2D_ARRAY<TFloat> old_wf(wf_);
   int old_no = wf_.dim1();
   int new_no = code_map.size();
   int ni = wf_.dim2();
-  std::vector<double> means(ni, 0.0);
+  std::vector<TFloat> means(ni, 0.0);
   for (int c = 0; c < old_no; ++c) {
-    const double *weights = wf_[c];
+    const TFloat *weights = wf_[c];
     for (int i = 0; i < ni; ++i) {
       means[i] += weights[i];
     }
   }
-  for (double &mean : means) {
+  for (TFloat &mean : means) {
     mean /= old_no;
   }
   wf_.Resize(new_no, ni, 0.0);
   InitBackward();
   for (int dest = 0; dest < new_no; ++dest) {
     int src = code_map[dest];
-    const double *src_data = src >= 0 ? old_wf[src] : means.data();
+    const TFloat *src_data = src >= 0 ? old_wf[src] : means.data();
     memcpy(wf_[dest], src_data, ni * sizeof(*src_data));
   }
   return ni * new_no;
@@ -126,23 +126,23 @@ int WeightMatrix::RemapOutputs(const std::vector<int> &code_map) {
 // Compute the max absolute value of the weight set.
 // Scale so the max absolute value becomes INT8_MAX.
 // Round to integer.
-// Store a multiplicative scale factor (as a double) that will reproduce
+// Store a multiplicative scale factor (as a TFloat) that will reproduce
 // the original value, subject to rounding errors.
 void WeightMatrix::ConvertToInt() {
   wi_.ResizeNoInit(wf_.dim1(), wf_.dim2());
   scales_.reserve(wi_.dim1());
   int dim2 = wi_.dim2();
   for (int t = 0; t < wi_.dim1(); ++t) {
-    double *f_line = wf_[t];
+    TFloat *f_line = wf_[t];
     int8_t *i_line = wi_[t];
-    double max_abs = 0.0;
+    TFloat max_abs = 0.0;
     for (int f = 0; f < dim2; ++f) {
-      double abs_val = fabs(f_line[f]);
+      TFloat abs_val = fabs(f_line[f]);
       if (abs_val > max_abs) {
         max_abs = abs_val;
       }
     }
-    double scale = max_abs / INT8_MAX;
+    TFloat scale = max_abs / INT8_MAX;
     scales_.push_back(scale / INT8_MAX);
     if (scale == 0.0) {
       scale = 1.0;
@@ -177,9 +177,9 @@ void WeightMatrix::InitBackward() {
 const int kInt8Flag = 1;
 // Flag on mode to indicate that this weightmatrix uses adam.
 const int kAdamFlag = 4;
-// Flag on mode to indicate that this weightmatrix uses double. Set
+// Flag on mode to indicate that this weightmatrix uses TFloat. Set
 // independently of kInt8Flag as even in int mode the scales can
-// be float or double.
+// be float or TFloat.
 const int kDoubleFlag = 128;
 
 // Writes to the given file. Returns false in case of error.
@@ -242,6 +242,16 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
     if (!fp->DeSerialize(&size)) {
       return false;
     }
+#ifdef FAST_FLOAT
+    scales_.reserve(size);
+    for (auto n = size; n > 0; n--) {
+      double val;
+      if (!fp->DeSerialize(&val)) {
+        return false;
+      }
+      scales_.push_back(val / INT8_MAX);
+    }
+#else
     scales_.resize(size);
     if (!fp->DeSerialize(&scales_[0], size)) {
       return false;
@@ -249,6 +259,7 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
     for (auto &scale : scales_) {
       scale /= INT8_MAX;
     }
+#endif
     if (IntSimdMatrix::intSimdMatrix) {
       int32_t rounded_num_out;
       IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_, rounded_num_out);
@@ -312,12 +323,12 @@ bool WeightMatrix::DeSerializeOld(bool training, TFile *fp) {
 // u is imagined to have an extra element at the end with value 1, to
 // implement the bias, but it doesn't actually have it.
 // Asserts that the call matches what we have.
-void WeightMatrix::MatrixDotVector(const double *u, double *v) const {
+void WeightMatrix::MatrixDotVector(const TFloat *u, TFloat *v) const {
   assert(!int_mode_);
   MatrixDotVectorInternal(wf_, true, false, u, v);
 }
 
-void WeightMatrix::MatrixDotVector(const int8_t *u, double *v) const {
+void WeightMatrix::MatrixDotVector(const int8_t *u, TFloat *v) const {
   assert(int_mode_);
   if (IntSimdMatrix::intSimdMatrix) {
     IntSimdMatrix::intSimdMatrix->matrixDotVectorFunction(wi_.dim1(), wi_.dim2(), &shaped_w_[0],
@@ -329,11 +340,11 @@ void WeightMatrix::MatrixDotVector(const int8_t *u, double *v) const {
 
 // MatrixDotVector for peep weights, MultiplyAccumulate adds the
 // component-wise products of *this[0] and v to inout.
-void WeightMatrix::MultiplyAccumulate(const double *v, double *inout) {
+void WeightMatrix::MultiplyAccumulate(const TFloat *v, TFloat *inout) {
   assert(!int_mode_);
   assert(wf_.dim1() == 1);
   int n = wf_.dim2();
-  const double *u = wf_[0];
+  const TFloat *u = wf_[0];
   for (int i = 0; i < n; ++i) {
     inout[i] += u[i] * v[i];
   }
@@ -343,7 +354,7 @@ void WeightMatrix::MultiplyAccumulate(const double *v, double *inout) {
 // u is of size W.dim1() and the output v is of size W.dim2() - 1.
 // The last result is discarded, as v is assumed to have an imaginary
 // last value of 1, as with MatrixDotVector.
-void WeightMatrix::VectorDotMatrix(const double *u, double *v) const {
+void WeightMatrix::VectorDotMatrix(const TFloat *u, TFloat *v) const {
   assert(!int_mode_);
   MatrixDotVectorInternal(wf_t_, false, true, u, v);
 }
@@ -367,13 +378,13 @@ void WeightMatrix::SumOuterTransposed(const TransposedArray &u, const Transposed
 #  pragma omp parallel for num_threads(4) if (in_parallel)
 #endif
   for (int i = 0; i < num_outputs; ++i) {
-    double *dwi = dw_[i];
-    const double *ui = u[i];
+    TFloat *dwi = dw_[i];
+    const TFloat *ui = u[i];
     for (int j = 0; j < num_inputs; ++j) {
       dwi[j] = DotProduct(ui, v[j], num_samples);
     }
     // The last element of v is missing, presumed 1.0f.
-    double total = 0.0;
+    TFloat total = 0.0;
     for (int k = 0; k < num_samples; ++k) {
       total += ui[k];
     }
@@ -419,17 +430,17 @@ void WeightMatrix::AddDeltas(const WeightMatrix &other) {
 // Sums the products of weight updates in *this and other, splitting into
 // positive (same direction) in *same and negative (different direction) in
 // *changed.
-void WeightMatrix::CountAlternators(const WeightMatrix &other, double *same,
-                                    double *changed) const {
+void WeightMatrix::CountAlternators(const WeightMatrix &other, TFloat *same,
+                                    TFloat *changed) const {
   int num_outputs = updates_.dim1();
   int num_inputs = updates_.dim2();
   assert(num_outputs == other.updates_.dim1());
   assert(num_inputs == other.updates_.dim2());
   for (int i = 0; i < num_outputs; ++i) {
-    const double *this_i = updates_[i];
-    const double *other_i = other.updates_[i];
+    const TFloat *this_i = updates_[i];
+    const TFloat *other_i = other.updates_[i];
     for (int j = 0; j < num_inputs; ++j) {
-      double product = this_i[j] * other_i[j];
+      TFloat product = this_i[j] * other_i[j];
       if (product < 0.0) {
         *changed -= product;
       } else {
@@ -442,10 +453,10 @@ void WeightMatrix::CountAlternators(const WeightMatrix &other, double *same,
 // Helper computes an integer histogram bucket for a weight and adds it
 // to the histogram.
 const int kHistogramBuckets = 16;
-static void HistogramWeight(double weight, STATS *histogram) {
+static void HistogramWeight(TFloat weight, STATS *histogram) {
   int bucket = kHistogramBuckets - 1;
   if (weight != 0.0) {
-    double logval = -log2(fabs(weight));
+    TFloat logval = -log2(fabs(weight));
     bucket = ClipToRange(IntCastRounded(logval), 0, kHistogramBuckets - 1);
   }
   histogram->add(bucket, 1);
@@ -471,17 +482,17 @@ void WeightMatrix::Debug2D(const char *msg) {
 }
 
 // Utility function converts an array of float to the corresponding array
-// of double.
+// of TFloat.
 /* static */
-void WeightMatrix::FloatToDouble(const GENERIC_2D_ARRAY<float> &wf, GENERIC_2D_ARRAY<double> *wd) {
+void WeightMatrix::FloatToDouble(const GENERIC_2D_ARRAY<float> &wf, GENERIC_2D_ARRAY<TFloat> *wd) {
   int dim1 = wf.dim1();
   int dim2 = wf.dim2();
   wd->ResizeNoInit(dim1, dim2);
   for (int i = 0; i < dim1; ++i) {
     const float *wfi = wf[i];
-    double *wdi = (*wd)[i];
+    TFloat *wdi = (*wd)[i];
     for (int j = 0; j < dim2; ++j) {
-      wdi[j] = static_cast<double>(wfi[j]);
+      wdi[j] = static_cast<TFloat>(wfi[j]);
     }
   }
 }

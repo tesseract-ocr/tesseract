@@ -229,7 +229,7 @@ bool Plumbing::DeSerialize(TFile *fp) {
     }
     AddToStack(network);
   }
-  if ((network_flags_ & NF_LAYER_SPECIFIC_LR) && !fp->DeSerialize(learning_rates_)) {
+  if ((network_flags_ & NF_LAYER_SPECIFIC_LR) && !fp->DeSerializeTFloat(learning_rates_)) {
     return false;
   }
   return true;
@@ -255,7 +255,7 @@ void Plumbing::Update(float learning_rate, float momentum, float adam_beta, int 
 // Sums the products of weight updates in *this and other, splitting into
 // positive (same direction) in *same and negative (different direction) in
 // *changed.
-void Plumbing::CountAlternators(const Network &other, double *same, double *changed) const {
+void Plumbing::CountAlternators(const Network &other, TFloat *same, TFloat *changed) const {
   ASSERT_HOST(other.type() == type_);
   const auto *plumbing = static_cast<const Plumbing *>(&other);
   ASSERT_HOST(plumbing->stack_.size() == stack_.size());

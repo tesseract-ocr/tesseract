@@ -156,7 +156,7 @@ void FullyConnected::Forward(bool debug, const NetworkIO &input,
     // Thread-local pointer to temporary storage.
     int thread_id = 0;
 #endif
-    double *temp_line = temp_lines[thread_id];
+    TFloat *temp_line = temp_lines[thread_id];
     if (input.int_mode()) {
       ForwardTimeStep(input.i(t), t, temp_line);
     } else {
@@ -200,7 +200,7 @@ void FullyConnected::SetupForward(const NetworkIO &input, const TransposedArray 
   }
 }
 
-void FullyConnected::ForwardTimeStep(int t, double *output_line) {
+void FullyConnected::ForwardTimeStep(int t, TFloat *output_line) {
   if (type_ == NT_TANH) {
     FuncInplace<GFunc>(no_, output_line);
   } else if (type_ == NT_LOGISTIC) {
@@ -218,7 +218,7 @@ void FullyConnected::ForwardTimeStep(int t, double *output_line) {
   }
 }
 
-void FullyConnected::ForwardTimeStep(const double *d_input, int t, double *output_line) {
+void FullyConnected::ForwardTimeStep(const TFloat *d_input, int t, TFloat *output_line) {
   // input is copied to source_ line-by-line for cache coherency.
   if (IsTraining() && external_source_ == nullptr) {
     source_t_.WriteStrided(t, d_input);
@@ -227,7 +227,7 @@ void FullyConnected::ForwardTimeStep(const double *d_input, int t, double *outpu
   ForwardTimeStep(t, output_line);
 }
 
-void FullyConnected::ForwardTimeStep(const int8_t *i_input, int t, double *output_line) {
+void FullyConnected::ForwardTimeStep(const int8_t *i_input, int t, TFloat *output_line) {
   // input is copied to source_ line-by-line for cache coherency.
   weights_.MatrixDotVector(i_input, output_line);
   ForwardTimeStep(t, output_line);
@@ -265,11 +265,11 @@ bool FullyConnected::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkSc
   for (int t = 0; t < width; ++t) {
     int thread_id = 0;
 #endif
-    double *backprop = nullptr;
+    TFloat *backprop = nullptr;
     if (needs_to_backprop_) {
       backprop = temp_backprops[thread_id];
     }
-    double *curr_errors = errors[thread_id];
+    TFloat *curr_errors = errors[thread_id];
     BackwardTimeStep(fwd_deltas, t, curr_errors, errors_t.get(), backprop);
     if (backprop != nullptr) {
       back_deltas->WriteTimeStep(t, backprop);
@@ -287,8 +287,8 @@ bool FullyConnected::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkSc
   return false; // No point going further back.
 }
 
-void FullyConnected::BackwardTimeStep(const NetworkIO &fwd_deltas, int t, double *curr_errors,
-                                      TransposedArray *errors_t, double *backprop) {
+void FullyConnected::BackwardTimeStep(const NetworkIO &fwd_deltas, int t, TFloat *curr_errors,
+                                      TransposedArray *errors_t, TFloat *backprop) {
   if (type_ == NT_TANH) {
     acts_.FuncMultiply<GPrime>(fwd_deltas, t, curr_errors);
   } else if (type_ == NT_LOGISTIC) {
@@ -328,7 +328,7 @@ void FullyConnected::Update(float learning_rate, float momentum, float adam_beta
 // Sums the products of weight updates in *this and other, splitting into
 // positive (same direction) in *same and negative (different direction) in
 // *changed.
-void FullyConnected::CountAlternators(const Network &other, double *same, double *changed) const {
+void FullyConnected::CountAlternators(const Network &other, TFloat *same, TFloat *changed) const {
   ASSERT_HOST(other.type() == type_);
   const auto *fc = static_cast<const FullyConnected *>(&other);
   weights_.CountAlternators(fc->weights_, same, changed);

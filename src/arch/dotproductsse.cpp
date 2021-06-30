@@ -30,6 +30,15 @@ namespace tesseract {
 
 // Computes and returns the dot product of the n-vectors u and v.
 // Uses Intel SSE intrinsics to access the SIMD instruction set.
+#if defined(FAST_FLOAT)
+TFloat DotProductSSE(const TFloat *u, const TFloat *v, int n) {
+  TFloat total = 0.0;
+  for (int k = 0; k < n; ++k) {
+    total += u[k] * v[k];
+  }
+  return total;
+}
+#else
 double DotProductSSE(const double *u, const double *v, int n) {
   int max_offset = n - 2;
   int offset = 0;
@@ -78,6 +87,7 @@ double DotProductSSE(const double *u, const double *v, int n) {
   }
   return result;
 }
+#endif
 
 } // namespace tesseract.
 
