@@ -1232,9 +1232,14 @@ OR  The real gap is less than the kerning estimate
           fuzzy_non = true;
         }
       } else {
-        blanks = static_cast<uint8_t>(current_gap / row->space_size);
-        if (blanks < 1) {
+        if (row->space_size == 0.0f) {
+          // Avoid FP division by 0.
           blanks = 1;
+        } else {
+          blanks = static_cast<uint8_t>(current_gap / row->space_size);
+          if (blanks < 1) {
+            blanks = 1;
+          }
         }
         fuzzy_sp = false;
         fuzzy_non = false;
