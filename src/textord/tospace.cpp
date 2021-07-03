@@ -64,13 +64,13 @@ void Textord::to_spacing(ICOORD page_tr,       // topright of page
                         block_non_space_gap_width);
     // Make sure relative values of block-level space and non-space gap
     // widths are reasonable. The ratio of 1:3 is also used in
-    // block_spacing_stats, to correct the block_space_gap_width
+    // block_spacing_stats, to correct the block_space_gap_width.
     // Useful for arabic and hindi, when the non-space gap width is
     // often over-estimated and should not be trusted. A similar ratio
     // is found in block_spacing_stats.
     if (tosp_old_to_method && tosp_old_to_constrain_sp_kn &&
-        static_cast<float>(block_space_gap_width) / block_non_space_gap_width < 3.0) {
-      block_non_space_gap_width = static_cast<int16_t>(floor(block_space_gap_width / 3.0));
+        block_non_space_gap_width > block_space_gap_width / 3) {
+      block_non_space_gap_width = block_space_gap_width / 3;
     }
     // row iterator
     TO_ROW_IT row_it(block->get_rows());
