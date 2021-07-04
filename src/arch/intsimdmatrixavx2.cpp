@@ -278,8 +278,8 @@ static inline void PartialMatrixDotVector8(const int8_t *wi, const double *scale
   ExtractResults8(result0, wi, scales, v);
 }
 
-static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const double *scales,
-                            const int8_t *u, double *v) {
+static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const TFloat *scales,
+                            const int8_t *u, TFloat *v) {
   const int num_out = dim1;
   const int num_in = dim2 - 1;
   // Each call to a partial_func_ produces group_size outputs, except the
