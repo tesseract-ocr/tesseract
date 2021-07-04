@@ -404,6 +404,7 @@ bool MasterTrainer::LoadFontInfo(const char *filename) {
 // Returns false on failure.
 bool MasterTrainer::LoadXHeights(const char *filename) {
   tprintf("fontinfo table is of size %d\n", fontinfo_table_.size());
+  xheights_.clear();
   xheights_.resize(fontinfo_table_.size(), -1);
   if (filename == nullptr) {
     return true;

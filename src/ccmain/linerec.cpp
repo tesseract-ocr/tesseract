@@ -151,8 +151,7 @@ ImageData *Tesseract::GetLineData(const TBOX &line_box, const std::vector<TBOX> 
     line_boxes.push_back(box);
     line_texts.push_back(texts[b]);
   }
-  std::vector<int> page_numbers;
-  page_numbers.resize(line_boxes.size(), applybox_page);
+  std::vector<int> page_numbers(line_boxes.size(), applybox_page);
   image_data->AddBoxes(line_boxes, line_texts, page_numbers);
   return image_data;
 }

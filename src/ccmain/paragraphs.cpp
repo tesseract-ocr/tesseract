@@ -2314,14 +2314,14 @@ void CanonicalizeDetectionResults(std::vector<PARA *> *row_owners, PARA_LIST *pa
 void DetectParagraphs(int debug_level, std::vector<RowInfo> *row_infos,
                       std::vector<PARA *> *row_owners, PARA_LIST *paragraphs,
                       std::vector<ParagraphModel *> *models) {
-  std::vector<RowScratchRegisters> rows;
   ParagraphTheory theory(models);
 
   // Initialize row_owners to be a bunch of nullptr pointers.
+  row_owners->clear();
   row_owners->resize(row_infos->size());
 
   // Set up row scratch registers for the main algorithm.
-  rows.resize(row_infos->size(), RowScratchRegisters());
+  std::vector<RowScratchRegisters> rows(row_infos->size());
   for (unsigned i = 0; i < row_infos->size(); i++) {
     rows[i].Init((*row_infos)[i]);
   }

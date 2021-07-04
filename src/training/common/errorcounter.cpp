@@ -160,7 +160,9 @@ ErrorCounter::ErrorCounter(const UNICHARSET &unicharset, int fontsize)
     , bad_score_hist_(0, 101)
     , unicharset_(unicharset) {
   Counts empty_counts;
+  font_counts_.clear();
   font_counts_.resize(fontsize, empty_counts);
+  multi_unichar_counts_.clear();
   multi_unichar_counts_.resize(unicharset.size(), 0);
 }
 

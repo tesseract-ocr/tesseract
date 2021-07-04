@@ -142,16 +142,12 @@ if(COMPILER_SUPPORTS_MARCH_NATIVE)
     set(MARCH_NATIVE_OPT ON)
 endif()
 
-if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64.*|AARCH64.*")
- set(AARCH64 TRUE)
-endif()
+message("CMAKE_SYSTEM_PROCESSOR=<${CMAKE_SYSTEM_PROCESSOR}>")
 
-if(AARCH64)
+# Flags for SIMD support
+set(HAVE_NEON FALSE)
 
-add_definitions("-DHAVE_NEON")
-set(HAVE_NEON TRUE)
-
-else()
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64")
 
 CHECK_CXX_COMPILER_FLAG("-mavx" HAVE_AVX)
 if(HAVE_AVX)
@@ -176,15 +172,6 @@ if(HAVE_SSE4_1)
     set(SSE4_1_COMPILE_FLAGS "-msse4.1")
     add_definitions("-DHAVE_SSE4_1")
 endif()
-
-if(NOT APPLE)
-    # NEON support relies on getauxval, which is not available on OSX, only on Linux and Android
-    CHECK_CXX_COMPILER_FLAG("-mfpu=neon" HAVE_NEON)
-    if(HAVE_NEON)
-        set(NEON_COMPILE_FLAGS "-mfpu=neon")
-        add_definitions("-DHAVE_NEON")
-    endif()
-endif(NOT APPLE)
 
 if(MSVC)
     if(NOT HAVE_AVX)
@@ -219,7 +206,30 @@ if(MSVC)
     endif(CLANG)
 endif(MSVC)
 
-endif(AARCH64)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64.*|AARCH64.*")
+
+set(HAVE_AVX FALSE)
+set(HAVE_AVX2 FALSE)
+set(HAVE_FMA FALSE)
+set(HAVE_SSE4_1 FALSE)
+
+add_definitions("-DHAVE_NEON")
+set(HAVE_NEON TRUE)
+
+else()
+
+set(HAVE_AVX FALSE)
+set(HAVE_AVX2 FALSE)
+set(HAVE_FMA FALSE)
+set(HAVE_SSE4_1 FALSE)
+
+CHECK_CXX_COMPILER_FLAG("-mfpu=neon" HAVE_NEON)
+if(HAVE_NEON)
+    set(NEON_COMPILE_FLAGS "-mfpu=neon")
+    add_definitions("-DHAVE_NEON")
+endif()
+
+endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64")
 
 # auto optimize - used only for information about available vectors
 include(OptimizeForArchitecture)
@@ -258,6 +268,9 @@ if(CLANG)  # clang all platforms
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG -pedantic -O0")
 endif()
 
+if (OPENMP_BUILD AND MSVC AND "${MSVC_VERSION}" LESS 1929)
+    set(OPENMP_BUILD OFF)
+endif()
 if (OPENMP_BUILD)
     find_package(OpenMP QUIET)
     if (OpenMP_FOUND)
@@ -281,6 +294,10 @@ if (OPENMP_BUILD)
         endif()
         set(OpenMP_FOUND 1)
         add_definitions(-D_OPENMP=201107)  # 3.1 version is supported from Clang 3.8.0
+    endif()
+    if (MSVC)
+        string(REPLACE "/openmp" "/openmp:llvm" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+        string(REPLACE "-openmp" "/openmp:llvm" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
     endif()
 endif()
 

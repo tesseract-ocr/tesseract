@@ -97,6 +97,7 @@ public:
     rej_count = 0;
     rejected = false;
     prev_word_best_choice = nullptr;
+    blame_reasons.clear();
     blame_reasons.resize(IRR_NUM_REASONS);
   }
 

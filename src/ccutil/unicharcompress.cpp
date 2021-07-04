@@ -395,7 +395,8 @@ void UnicharCompress::ComputeCodeRange() {
 // Initializes the decoding hash_map from the encoding array.
 void UnicharCompress::SetupDecoder() {
   Cleanup();
-  is_valid_start_.resize(code_range_, false);
+  is_valid_start_.clear();
+  is_valid_start_.resize(code_range_);
   for (int c = 0; c < encoder_.size(); ++c) {
     const RecodedCharID &code = encoder_[c];
     decoder_[code] = c;
