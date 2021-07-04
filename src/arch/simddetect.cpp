@@ -118,8 +118,8 @@ static double DotProductAccelerate(const double* u, const double* v, int n) {
 #endif
 
 // Computes and returns the dot product of the two n-vectors u and v.
-static double DotProductGeneric(const double *u, const double *v, int n) {
-  double total = 0.0;
+static TFloat DotProductGeneric(const TFloat *u, const TFloat *v, int n) {
+  TFloat total = 0.0;
   for (int k = 0; k < n; ++k) {
     total += u[k] * v[k];
   }
@@ -127,7 +127,7 @@ static double DotProductGeneric(const double *u, const double *v, int n) {
 }
 
 // Compute dot product using std::inner_product.
-static double DotProductStdInnerProduct(const double *u, const double *v, int n) {
+static TFloat DotProductStdInnerProduct(const TFloat *u, const TFloat *v, int n) {
   return std::inner_product(u, u + n, v, 0.0);
 }
 
@@ -251,22 +251,22 @@ SIMDDetect::SIMDDetect() {
 #if defined(HAVE_AVX2)
   } else if (avx2_available_) {
     // AVX2 detected.
-    SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixAVX2);
+    SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixAVX2);
 #endif
 #if defined(HAVE_AVX)
   } else if (avx_available_) {
     // AVX detected.
-    SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixSSE);
+    SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixSSE);
 #endif
 #if defined(HAVE_SSE4_1)
   } else if (sse_available_) {
     // SSE detected.
-    SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
+    SetDotProduct(DotProductSSE, IntSimdMatrix::intSimdMatrixSSE);
 #endif
 #if defined(HAVE_NEON) || defined(__aarch64__)
   } else if (neon_available_) {
     // NEON detected.
-    SetDotProduct(DotProduct, &IntSimdMatrix::intSimdMatrixNEON);
+    SetDotProduct(DotProduct, IntSimdMatrix::intSimdMatrixNEON);
 #endif
   }
 }
@@ -293,13 +293,13 @@ void SIMDDetect::Update() {
 #if defined(HAVE_AVX2)
   } else if (!strcmp(dotproduct.c_str(), "avx2")) {
     // AVX2 selected by config variable.
-    SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixAVX2);
+    SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixAVX2);
     dotproduct_method = "avx2";
 #endif
 #if defined(HAVE_AVX)
   } else if (!strcmp(dotproduct.c_str(), "avx")) {
     // AVX selected by config variable.
-    SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixSSE);
+    SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "avx";
 #endif
 #if defined(HAVE_FMA)
@@ -311,7 +311,7 @@ void SIMDDetect::Update() {
 #if defined(HAVE_SSE4_1)
   } else if (!strcmp(dotproduct.c_str(), "sse")) {
     // SSE selected by config variable.
-    SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
+    SetDotProduct(DotProductSSE, IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "sse";
 #endif
   } else if (!strcmp(dotproduct.c_str(), "std::inner_product")) {

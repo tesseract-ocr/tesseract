@@ -26,6 +26,7 @@
 #include <cstring>
 #include <type_traits>
 #include <vector> // std::vector
+#include "tfloat.h"
 
 namespace tesseract {
 
@@ -95,6 +96,29 @@ public:
   bool DeSerialize(std::string &data);
   bool DeSerialize(std::vector<char> &data);
   //bool DeSerialize(std::vector<std::string> &data);
+  bool DeSerializeTFloat(std::vector<TFloat> &data) {
+    uint32_t size;
+    if (!DeSerialize(&size)) {
+      return false;
+    } else if (size == 0) {
+      data.clear();
+    } else if (size > 50000000) {
+      // Arbitrarily limit the number of elements to protect against bad data.
+      return false;
+    } else {
+      // Deserialize a non-class.
+      data.clear();
+      data.reserve(size);
+      for (auto n = size; n > 0; n++) {
+        double val;
+	if (!DeSerialize(&val)) {
+	  return false;
+	}
+	data.push_back(val);
+      }
+    }
+    return true;
+  }
   template <typename T>
   bool DeSerialize(T *data, size_t count = 1) {
     return FReadEndian(data, sizeof(T), count) == static_cast<int>(count);

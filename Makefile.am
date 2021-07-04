@@ -154,11 +154,13 @@ noinst_LTLIBRARIES += libtesseract_native.la
 libtesseract_native_la_CXXFLAGS = -O3 -ffast-math
 if MARCH_NATIVE_OPT
 libtesseract_native_la_CXXFLAGS += -march=native -mtune=native
+libtesseract_native_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 endif
 libtesseract_native_la_SOURCES = src/arch/dotproduct.cpp
 
 if HAVE_AVX
 libtesseract_avx_la_CXXFLAGS = -mavx
+libtesseract_avx_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 libtesseract_avx_la_SOURCES = src/arch/dotproductavx.cpp
 libtesseract_la_LIBADD += libtesseract_avx.la
 noinst_LTLIBRARIES += libtesseract_avx.la
@@ -166,6 +168,7 @@ endif
 
 if HAVE_AVX2
 libtesseract_avx2_la_CXXFLAGS = -mavx2
+libtesseract_avx2_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 libtesseract_avx2_la_SOURCES = src/arch/intsimdmatrixavx2.cpp
 libtesseract_la_LIBADD += libtesseract_avx2.la
 noinst_LTLIBRARIES += libtesseract_avx2.la
@@ -173,6 +176,7 @@ endif
 
 if HAVE_FMA
 libtesseract_fma_la_CXXFLAGS = -mfma
+libtesseract_fma_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 libtesseract_fma_la_SOURCES = src/arch/dotproductfma.cpp
 libtesseract_la_LIBADD += libtesseract_fma.la
 noinst_LTLIBRARIES += libtesseract_fma.la
@@ -180,6 +184,7 @@ endif
 
 if HAVE_SSE4_1
 libtesseract_sse_la_CXXFLAGS = -msse4.1
+libtesseract_sse_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 libtesseract_sse_la_SOURCES = src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp
 libtesseract_la_LIBADD += libtesseract_sse.la
 noinst_LTLIBRARIES += libtesseract_sse.la
@@ -187,6 +192,7 @@ endif
 
 if HAVE_NEON
 libtesseract_neon_la_CXXFLAGS = $(NEON_CXXFLAGS)
+libtesseract_neon_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 libtesseract_neon_la_SOURCES = src/arch/intsimdmatrixneon.cpp
 libtesseract_la_LIBADD += libtesseract_neon.la
 noinst_LTLIBRARIES += libtesseract_neon.la

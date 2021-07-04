@@ -86,7 +86,7 @@ static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const double *
   }
 }
 
-const IntSimdMatrix IntSimdMatrix::intSimdMatrixSSE = {
+static const IntSimdMatrix intSimdMatrix = {
     matrixDotVector,
     // Number of 32 bit outputs held in each register.
     1,
@@ -95,7 +95,10 @@ const IntSimdMatrix IntSimdMatrix::intSimdMatrixSSE = {
     // Number of 8 bit inputs in the inputs register.
     1,
     // Number of inputs in each weight group.
-    1};
+    1
+};
+
+const IntSimdMatrix *IntSimdMatrix::intSimdMatrixSSE = &intSimdMatrix;
 
 } // namespace tesseract.
 

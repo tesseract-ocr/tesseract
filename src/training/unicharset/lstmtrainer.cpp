@@ -661,7 +661,7 @@ void LSTMTrainer::ReduceLearningRates(LSTMTrainer *samples_trainer, std::string 
 // Even if it looks like all weights should remain the same, an adjustment
 // will be made to guarantee a different result when reverting to an old best.
 // Returns the number of layer learning rates that were reduced.
-int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
+int LSTMTrainer::ReduceLayerLearningRates(TFloat factor, int num_samples,
                                           LSTMTrainer *samples_trainer) {
   enum WhichWay {
     LR_DOWN, // Learning rate will go down by factor.
@@ -671,13 +671,13 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
   std::vector<std::string> layers = EnumerateLayers();
   int num_layers = layers.size();
   std::vector<int> num_weights(num_layers);
-  std::vector<double> bad_sums[LR_COUNT];
-  std::vector<double> ok_sums[LR_COUNT];
+  std::vector<TFloat> bad_sums[LR_COUNT];
+  std::vector<TFloat> ok_sums[LR_COUNT];
   for (int i = 0; i < LR_COUNT; ++i) {
     bad_sums[i].resize(num_layers, 0.0);
     ok_sums[i].resize(num_layers, 0.0);
   }
-  double momentum_factor = 1.0 / (1.0 - momentum_);
+  TFloat momentum_factor = 1.0 / (1.0 - momentum_);
   std::vector<char> orig_trainer;
   samples_trainer->SaveTrainingDump(LIGHT, *this, &orig_trainer);
   for (int i = 0; i < num_layers; ++i) {
@@ -748,10 +748,10 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
     }
     Network *layer = GetLayer(layers[i]);
     float lr = GetLayerLearningRate(layers[i]);
-    double total_down = bad_sums[LR_DOWN][i] + ok_sums[LR_DOWN][i];
-    double total_same = bad_sums[LR_SAME][i] + ok_sums[LR_SAME][i];
-    double frac_down = bad_sums[LR_DOWN][i] / total_down;
-    double frac_same = bad_sums[LR_SAME][i] / total_same;
+    TFloat total_down = bad_sums[LR_DOWN][i] + ok_sums[LR_DOWN][i];
+    TFloat total_same = bad_sums[LR_SAME][i] + ok_sums[LR_SAME][i];
+    TFloat frac_down = bad_sums[LR_DOWN][i] / total_down;
+    TFloat frac_same = bad_sums[LR_SAME][i] / total_same;
     tprintf("Layer %d=%s: lr %g->%g%%, lr %g->%g%%", i, layer->name().c_str(), lr * factor,
             100.0 * frac_down, lr, 100.0 * frac_same);
     if (frac_down < frac_same * kImprovementFraction) {
