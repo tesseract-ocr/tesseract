@@ -140,14 +140,14 @@ public:
       }
     }
 
-    void Init(int size, int reserve, NetworkScratch *scratch) {
+    void Init(int /*size*/, int reserve, NetworkScratch *scratch) {
       if (scratch_space_ != nullptr && vec_ != nullptr) {
         scratch_space_->vec_stack_.Return(vec_);
       }
       scratch_space_ = scratch;
       vec_ = scratch_space_->vec_stack_.Borrow();
-      vec_->reserve(reserve);
-      vec_->resize(size);
+      // TODO: optimize.
+      vec_->resize(reserve);
       data_ = &(*vec_)[0];
     }
 
