@@ -94,7 +94,7 @@ static TFloat DotProductGeneric(const TFloat *u, const TFloat *v, int n) {
 
 // Compute dot product using std::inner_product.
 static TFloat DotProductStdInnerProduct(const TFloat *u, const TFloat *v, int n) {
-  return std::inner_product(u, u + n, v, 0.0);
+  return std::inner_product(u, u + n, v, static_cast<TFloat>(0));
 }
 
 static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr) {
@@ -110,6 +110,12 @@ static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr
 SIMDDetect::SIMDDetect() {
   // The fallback is a generic dot product calculation.
   SetDotProduct(DotProductGeneric);
+  const char *env = getenv("dotproduct");
+  if (env) {
+    dotproduct = env;
+    Update();
+    return;
+  }
 
 #if defined(HAS_CPUID)
 #  if defined(__GNUC__)
@@ -239,6 +245,9 @@ void SIMDDetect::Update() {
     // AVX2 selected by config variable.
     SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixAVX2);
     dotproduct_method = "avx2";
+  } else if (dotproduct == "avx-1") {
+    SetDotProduct(DotProductAVX1, IntSimdMatrix::intSimdMatrixAVX2);
+    dotproduct_method = "avx-1";
 #endif
 #if defined(HAVE_AVX)
   } else if (!strcmp(dotproduct.c_str(), "avx")) {
