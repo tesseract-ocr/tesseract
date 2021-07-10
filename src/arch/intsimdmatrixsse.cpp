@@ -15,9 +15,9 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if defined(__SSE4_1__)
+#include "intsimdmatrix.h"
 
-#  include "intsimdmatrix.h"
+#if defined(__SSE4_1__)
 
 #  include <emmintrin.h>
 #  include <smmintrin.h>
@@ -86,7 +86,7 @@ static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const double *
   }
 }
 
-static const IntSimdMatrix intSimdMatrix = {
+static const IntSimdMatrix simdMatrix = {
     matrixDotVector,
     // Number of 32 bit outputs held in each register.
     1,
@@ -98,7 +98,7 @@ static const IntSimdMatrix intSimdMatrix = {
     1
 };
 
-const IntSimdMatrix *IntSimdMatrix::intSimdMatrixSSE = &intSimdMatrix;
+const IntSimdMatrix *IntSimdMatrix::intSimdMatrixSSE = &simdMatrix;
 
 } // namespace tesseract.
 

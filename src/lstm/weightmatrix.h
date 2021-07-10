@@ -160,10 +160,6 @@ public:
 
   void Debug2D(const char *msg);
 
-  // Utility function converts an array of float to the corresponding array
-  // of TFloat.
-  static void FloatToDouble(const GENERIC_2D_ARRAY<float> &wf, GENERIC_2D_ARRAY<TFloat> *wd);
-
 private:
   // Choice between float and 8 bit int implementations.
   GENERIC_2D_ARRAY<TFloat> wf_;

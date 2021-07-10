@@ -71,15 +71,13 @@ protected:
         if (IntSimdMatrix::intSimdMatrix) {
           ro = IntSimdMatrix::intSimdMatrix->RoundOutputs(ro);
         }
-        std::vector<TFloat> base_result(ro);
-        base_result.resize(num_out);
+        std::vector<TFloat> base_result(num_out);
         IntSimdMatrix::MatrixDotVector(w, scales, u.data(), base_result.data());
         std::vector<TFloat> test_result(ro);
-        test_result.resize(num_out);
         std::vector<int8_t> shaped_wi;
         int32_t rounded_num_out;
         matrix.Init(w, shaped_wi, rounded_num_out);
-        scales.reserve(rounded_num_out);
+        scales.resize(rounded_num_out);
         if (matrix.matrixDotVectorFunction) {
           matrix.matrixDotVectorFunction(w.dim1(), w.dim2(), &shaped_wi[0], &scales[0], &u[0],
                                          &test_result[0]);
@@ -116,7 +114,7 @@ TEST_F(IntSimdMatrixTest, SSE) {
     GTEST_LOG_(INFO) << "No SSE found! Not tested!";
     GTEST_SKIP();
   }
-  ExpectEqualResults(IntSimdMatrix::intSimdMatrixSSE);
+  ExpectEqualResults(*IntSimdMatrix::intSimdMatrixSSE);
 #else
   GTEST_LOG_(INFO) << "SSE unsupported! Not tested!";
   GTEST_SKIP();
@@ -130,7 +128,7 @@ TEST_F(IntSimdMatrixTest, AVX2) {
     GTEST_LOG_(INFO) << "No AVX2 found! Not tested!";
     GTEST_SKIP();
   }
-  ExpectEqualResults(IntSimdMatrix::intSimdMatrixAVX2);
+  ExpectEqualResults(*IntSimdMatrix::intSimdMatrixAVX2);
 #else
   GTEST_LOG_(INFO) << "AVX2 unsupported! Not tested!";
   GTEST_SKIP();

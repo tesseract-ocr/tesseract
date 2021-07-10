@@ -21,7 +21,7 @@
 #include "intsimdmatrix.h"
 #include "simddetect.h" // for DotProduct
 #include "statistc.h"
-#include "tprintf.h"
+#include "tprintf.h"    // forTFloat
 
 namespace tesseract {
 
@@ -35,6 +35,58 @@ static inline TFloat log2(TFloat n) {
 const int kAdamCorrectionIterations = 200000;
 // Epsilon in Adam to prevent division by zero.
 const TFloat kAdamEpsilon = 1e-8;
+
+// Utility functions convert between double and float arrays.
+#ifdef FAST_FLOAT
+static void DoubleToFloat(const GENERIC_2D_ARRAY<double> &src, GENERIC_2D_ARRAY<float> &dst) {
+  const auto dim1 = src.dim1();
+  const auto dim2 = src.dim2();
+  dst.ResizeNoInit(dim1, dim2);
+  for (int i = 0; i < dim1; ++i) {
+    const auto *src_i = src[i];
+    auto *dst_i = dst[i];
+    for (int j = 0; j < dim2; ++j) {
+      dst_i[j] = static_cast<float>(src_i[j]);
+    }
+  }
+}
+#endif
+
+static void FloatToDouble(const GENERIC_2D_ARRAY<float> &src, GENERIC_2D_ARRAY<double> &dst) {
+  const auto dim1 = src.dim1();
+  const auto dim2 = src.dim2();
+  dst.ResizeNoInit(dim1, dim2);
+  for (int i = 0; i < dim1; ++i) {
+    const auto *src_i = src[i];
+    auto *dst_i = dst[i];
+    for (int j = 0; j < dim2; ++j) {
+      dst_i[j] = static_cast<double>(src_i[j]);
+    }
+  }
+}
+
+static bool DeSerialize(TFile *fp, GENERIC_2D_ARRAY<TFloat> &tfloat_array) {
+#ifdef FAST_FLOAT
+  GENERIC_2D_ARRAY<double> double_array;
+  if (!double_array.DeSerialize(fp)) {
+    return false;
+  }
+  DoubleToFloat(double_array, tfloat_array);
+  return true;
+#else
+  return tfloat_array.DeSerialize(fp);
+#endif
+}
+
+static bool Serialize(TFile *fp, const GENERIC_2D_ARRAY<TFloat> &tfloat_array) {
+#ifdef FAST_FLOAT
+  GENERIC_2D_ARRAY<double> double_array;
+  FloatToDouble(tfloat_array, double_array);
+  return double_array.Serialize(fp);
+#else
+  return tfloat_array.Serialize(fp);
+#endif
+}
 
 // Computes matrix.vector v = Wu.
 // u is of size W.dim2() - add_bias_fwd and the output v is of size
@@ -205,18 +257,25 @@ bool WeightMatrix::Serialize(bool training, TFile *fp) const {
     if (!fp->Serialize(&size)) {
       return false;
     }
+#ifdef FAST_FLOAT
+    assert(!"not implemented");
+    return false;
+#else
     if (!fp->Serialize(&scales[0], size)) {
       return false;
     }
+#endif
   } else {
-    if (!wf_.Serialize(fp)) {
+    if (!tesseract::Serialize(fp, wf_)) {
       return false;
     }
-    if (training && !updates_.Serialize(fp)) {
-      return false;
-    }
-    if (training && use_adam_ && !dw_sq_sum_.Serialize(fp)) {
-      return false;
+    if (training) {
+      if (!tesseract::Serialize(fp, updates_)) {
+        return false;
+      }
+      if (use_adam_ && !tesseract::Serialize(fp, dw_sq_sum_)) {
+        return false;
+      }
     }
   }
   return true;
@@ -266,16 +325,18 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
       scales_.resize(rounded_num_out);
     }
   } else {
-    if (!wf_.DeSerialize(fp)) {
+    if (!tesseract::DeSerialize(fp, wf_)) {
       return false;
     }
     if (training) {
       InitBackward();
-      if (!updates_.DeSerialize(fp)) {
+      if (!tesseract::DeSerialize(fp, updates_)) {
         return false;
       }
-      if (use_adam_ && !dw_sq_sum_.DeSerialize(fp)) {
-        return false;
+      if (use_adam_) {
+        if (!tesseract::DeSerialize(fp, dw_sq_sum_)) {
+          return false;
+        }
       }
     }
   }
@@ -285,7 +346,11 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
 // As DeSerialize, but reads an old (float) format WeightMatrix for
 // backward compatibility.
 bool WeightMatrix::DeSerializeOld(bool training, TFile *fp) {
-  GENERIC_2D_ARRAY<float> float_array;
+#ifdef FAST_FLOAT
+  // Not implemented.
+  assert(!"not implemented");
+  return false;
+#else
   if (int_mode_) {
     if (!wi_.DeSerialize(fp)) {
       return false;
@@ -299,23 +364,26 @@ bool WeightMatrix::DeSerializeOld(bool training, TFile *fp) {
       scales_.push_back(old_scale);
     }
   } else {
+    GENERIC_2D_ARRAY<float> float_array;
     if (!float_array.DeSerialize(fp)) {
       return false;
     }
-    FloatToDouble(float_array, &wf_);
+    FloatToDouble(float_array, wf_);
   }
   if (training) {
     InitBackward();
+    GENERIC_2D_ARRAY<float> float_array;
     if (!float_array.DeSerialize(fp)) {
       return false;
     }
-    FloatToDouble(float_array, &updates_);
+    FloatToDouble(float_array, updates_);
     // Errs was only used in int training, which is now dead.
     if (!float_array.DeSerialize(fp)) {
       return false;
     }
   }
   return true;
+#endif
 }
 
 // Computes matrix.vector v = Wu.
@@ -479,22 +547,6 @@ void WeightMatrix::Debug2D(const char *msg) {
   }
   tprintf("%s\n", msg);
   histogram.print();
-}
-
-// Utility function converts an array of float to the corresponding array
-// of TFloat.
-/* static */
-void WeightMatrix::FloatToDouble(const GENERIC_2D_ARRAY<float> &wf, GENERIC_2D_ARRAY<TFloat> *wd) {
-  int dim1 = wf.dim1();
-  int dim2 = wf.dim2();
-  wd->ResizeNoInit(dim1, dim2);
-  for (int i = 0; i < dim1; ++i) {
-    const float *wfi = wf[i];
-    TFloat *wdi = (*wd)[i];
-    for (int j = 0; j < dim2; ++j) {
-      wdi[j] = static_cast<TFloat>(wfi[j]);
-    }
-  }
 }
 
 } // namespace tesseract.
