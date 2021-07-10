@@ -435,15 +435,17 @@ void DocumentData::LoadPageInBackground(int index) {
   if (IsPageAvailable(index, &page)) {
     return;
   }
-  std::lock_guard<std::mutex> lock(pages_mutex_);
-  if (pages_offset_ == index) {
-    return;
+  {
+    std::lock_guard<std::mutex> lock(pages_mutex_);
+    if (pages_offset_ == index) {
+      return;
+    }
+    pages_offset_ = index;
+    for (auto page : pages_) {
+      delete page;
+    }
+    pages_.clear();
   }
-  pages_offset_ = index;
-  for (auto page : pages_) {
-    delete page;
-  }
-  pages_.clear();
   if (thread.joinable()) {
     thread.join();
   }
