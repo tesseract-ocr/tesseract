@@ -109,12 +109,12 @@ public:
       // Deserialize a non-class.
       data.clear();
       data.reserve(size);
-      for (auto n = size; n > 0; n++) {
+      for (auto n = size; n > 0; n--) {
         double val;
-	if (!DeSerialize(&val)) {
-	  return false;
-	}
-	data.push_back(val);
+        if (!DeSerialize(&val)) {
+          return false;
+        }
+        data.push_back(val);
       }
     }
     return true;
@@ -157,9 +157,9 @@ public:
       data.resize(size);
       for (uint32_t i = 0; i < size; i++) {
         uint8_t non_null;
-	if (!DeSerialize(&non_null)) {
+        if (!DeSerialize(&non_null)) {
           return false;
-	}
+        }
         if (non_null) {
           typedef typename std::remove_pointer<T>::type ST;
           auto item = new ST;
@@ -210,14 +210,14 @@ public:
       // Serialize pointers.
       for (auto &item : data) {
         uint8_t non_null = (item != nullptr);
-	if (!Serialize(&non_null)) {
+        if (!Serialize(&non_null)) {
           return false;
-	}
+        }
         if (non_null) {
           if (!item->Serialize(this)) {
             return false;
-	  }
-	}
+          }
+        }
       }
     } else if (size > 0) {
       // Serialize a non-class.

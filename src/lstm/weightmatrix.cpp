@@ -258,8 +258,16 @@ bool WeightMatrix::Serialize(bool training, TFile *fp) const {
       return false;
     }
 #ifdef FAST_FLOAT
-    assert(!"not implemented");
-    return false;
+	//if (!fp->Serialize(&scales[0], size)) {
+	//  return false;
+	//}
+	for (auto n = 0; n < size; n++) {
+		double val = scales[n];
+		if (!fp->Serialize(&val, sizeof(val))) {
+			return false;
+        }
+    }
+	return false;
 #else
     if (!fp->Serialize(&scales[0], size)) {
       return false;
