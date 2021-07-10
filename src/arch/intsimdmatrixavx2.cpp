@@ -15,9 +15,9 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if defined(__AVX2__)
-
 #  include "intsimdmatrix.h"
+
+#if defined(__AVX2__) && 0
 
 #  include <immintrin.h>
 #  include <algorithm>
@@ -82,54 +82,54 @@ static inline __m128i load64_to_128(const int8_t *wi_) {
   return _mm_set_epi64x(0, wi[0]);
 }
 
-static inline void ExtractResults8(__m256i result, const int8_t *wi, const double *scales,
-                                   double *v) {
+static inline void ExtractResults8(__m256i result, const int8_t *wi, const TFloat *scales,
+                                   TFloat *v) {
   __m128i w128 = load64_to_128(wi);          // 8x8bit vals in bottom of 128bit reg
   __m256i w256 = _mm256_cvtepi8_epi32(w128); // 8x32bit vals in 256bit reg
   __m256i bias_scale = _mm256_set_epi32(127, 127, 127, 127, 127, 127, 127, 127);
-  __m256d scale0123 = _mm256_loadu_pd(scales);
-  __m256d scale4567 = _mm256_loadu_pd(scales + 4);
+  __m256 scale0123 = _mm256_loadu_ps(scales);
+  __m256 scale4567 = _mm256_loadu_ps(scales + 4);
   w256 = _mm256_mullo_epi32(w256, bias_scale); // 8x32 <bias * 127>
   result = _mm256_add_epi32(result, w256);     // result += bias * 127
-  __m256d res0123 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result));
+  __m256 res0123 = _mm256_cvtepi32_ps(_mm256_castsi256_si128(result));
   result = _mm256_permute4x64_epi64(result, 2 + (3 << 2));
-  __m256d res4567 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result));
-  res0123 = _mm256_mul_pd(res0123, scale0123);
-  res4567 = _mm256_mul_pd(res4567, scale4567);
-  _mm256_storeu_pd(v, res0123);
-  _mm256_storeu_pd(v + 4, res4567);
+  __m256 res4567 = _mm256_cvtepi32_ps(_mm256_castsi256_si128(result));
+  res0123 = _mm256_mul_ps(res0123, scale0123);
+  res4567 = _mm256_mul_ps(res4567, scale4567);
+  _mm256_storeu_ps(v, res0123);
+  _mm256_storeu_ps(v + 4, res4567);
 }
 
 static inline void ExtractResults16(__m256i result0, __m256i result1, const int8_t *&wi,
-                                    const double *&scales, double *&v) {
+                                    const TFloat *&scales, TFloat *&v) {
   __m128i w8 = _mm_loadu_si128(reinterpret_cast<const __m128i *>(wi));
   // 8x8bit vals in bottom of 128bit reg
   const __m256i bias_scale = _mm256_set_epi32(127, 127, 127, 127, 127, 127, 127, 127);
   __m256i w256 = _mm256_cvtepi8_epi32(w8); // 8x32bit vals in 256bit reg
-  __m256d scale0123 = _mm256_loadu_pd(scales);
-  __m256d scale4567 = _mm256_loadu_pd(scales + 4);
+  __m256 scale0123 = _mm256_loadu_ps(scales);
+  __m256 scale4567 = _mm256_loadu_ps(scales + 4);
   w256 = _mm256_mullo_epi32(w256, bias_scale); // 8x32 <bias * 127>
   result0 = _mm256_add_epi32(result0, w256);   // result += bias * 127
-  __m256d res0123 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result0));
+  __m256 res0123 = _mm256_cvtepi32_ps(_mm256_castsi256_si128(result0));
   result0 = _mm256_permute4x64_epi64(result0, 2 + (3 << 2));
-  __m256d res4567 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result0));
-  res0123 = _mm256_mul_pd(res0123, scale0123);
-  res4567 = _mm256_mul_pd(res4567, scale4567);
-  _mm256_storeu_pd(v, res0123);
-  _mm256_storeu_pd(v + 4, res4567);
+  __m256 res4567 = _mm256_cvtepi32_ps(_mm256_castsi256_si128(result0));
+  res0123 = _mm256_mul_ps(res0123, scale0123);
+  res4567 = _mm256_mul_ps(res4567, scale4567);
+  _mm256_storeu_ps(v, res0123);
+  _mm256_storeu_ps(v + 4, res4567);
   w8 = _mm_shuffle_epi32(w8, 2 + (3 << 2));
   w256 = _mm256_cvtepi8_epi32(w8); // 8x32bit vals in 256bit reg
-  scale0123 = _mm256_loadu_pd(scales + 8);
-  scale4567 = _mm256_loadu_pd(scales + 12);
+  scale0123 = _mm256_loadu_ps(scales + 8);
+  scale4567 = _mm256_loadu_ps(scales + 12);
   w256 = _mm256_mullo_epi32(w256, bias_scale); // 8x32 <bias * 127>
   result1 = _mm256_add_epi32(result1, w256);   // result += bias * 127
-  res0123 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result1));
+  res0123 = _mm256_cvtepi32_ps(_mm256_castsi256_si128(result1));
   result1 = _mm256_permute4x64_epi64(result1, 2 + (3 << 2));
-  res4567 = _mm256_cvtepi32_pd(_mm256_castsi256_si128(result1));
-  res0123 = _mm256_mul_pd(res0123, scale0123);
-  res4567 = _mm256_mul_pd(res4567, scale4567);
-  _mm256_storeu_pd(v + 8, res0123);
-  _mm256_storeu_pd(v + 12, res4567);
+  res4567 = _mm256_cvtepi32_ps(_mm256_castsi256_si128(result1));
+  res0123 = _mm256_mul_ps(res0123, scale0123);
+  res4567 = _mm256_mul_ps(res4567, scale4567);
+  _mm256_storeu_ps(v + 8, res0123);
+  _mm256_storeu_ps(v + 12, res4567);
   wi += 16;
   scales += 16;
   v += 16;
@@ -142,8 +142,8 @@ static inline void ExtractResults16(__m256i result0, __m256i result1, const int8
 // bias weights, before continuing with any more weights.
 // u must be padded out with zeros to
 // kNumInputsPerGroup*ceil(num_in/kNumInputsPerGroup) elements.
-static void PartialMatrixDotVector64(const int8_t *wi, const double *scales, const int8_t *u,
-                                     int num_in, double *v) {
+static void PartialMatrixDotVector64(const int8_t *wi, const TFloat *scales, const int8_t *u,
+                                     int num_in, TFloat *v) {
   // Register containing 16-bit ones for horizontal add with 16->32 bit
   // conversion.
   __m256i ones = _mm256_set_epi16(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
@@ -187,8 +187,8 @@ static void PartialMatrixDotVector64(const int8_t *wi, const double *scales, con
 
 // Computes part of matrix.vector v = Wu. Computes N=32 results.
 // For details see PartialMatrixDotVector64 with N=32.
-static void PartialMatrixDotVector32(const int8_t *wi, const double *scales, const int8_t *u,
-                                     int num_in, double *v) {
+static void PartialMatrixDotVector32(const int8_t *wi, const TFloat *scales, const int8_t *u,
+                                     int num_in, TFloat *v) {
   // Register containing 16-bit ones for horizontal add with 16->32 bit
   // conversion.
   __m256i ones = _mm256_set_epi16(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
@@ -222,8 +222,8 @@ static void PartialMatrixDotVector32(const int8_t *wi, const double *scales, con
 
 // Computes part of matrix.vector v = Wu. Computes N=16 results.
 // For details see PartialMatrixDotVector64 with N=16.
-static void PartialMatrixDotVector16(const int8_t *wi, const double *scales, const int8_t *u,
-                                     int num_in, double *v) {
+static void PartialMatrixDotVector16(const int8_t *wi, const TFloat *scales, const int8_t *u,
+                                     int num_in, TFloat *v) {
   // Register containing 16-bit ones for horizontal add with 16->32 bit
   // conversion.
   __m256i ones = _mm256_set_epi16(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
@@ -252,8 +252,8 @@ static void PartialMatrixDotVector16(const int8_t *wi, const double *scales, con
 
 // Computes part of matrix.vector v = Wu. Computes N=8 results.
 // For details see PartialMatrixDotVector64 with N=8.
-static inline void PartialMatrixDotVector8(const int8_t *wi, const double *scales, const int8_t *u,
-                                           int num_in, double *v) {
+static inline void PartialMatrixDotVector8(const int8_t *wi, const TFloat *scales, const int8_t *u,
+                                           int num_in, TFloat *v) {
   // Register containing 16-bit ones for horizontal add with 16->32 bit
   // conversion.
   __m256i ones = _mm256_set_epi16(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
@@ -341,6 +341,14 @@ static const IntSimdMatrix simdMatrix = {
 };
 
 const IntSimdMatrix *IntSimdMatrix::intSimdMatrixAVX2 = &simdMatrix;
+
+} // namespace tesseract.
+
+#else
+
+namespace tesseract {
+
+	const IntSimdMatrix* IntSimdMatrix::intSimdMatrixAVX2 = nullptr;
 
 } // namespace tesseract.
 

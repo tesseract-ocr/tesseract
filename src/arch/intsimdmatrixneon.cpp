@@ -16,9 +16,9 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if defined(__ARM_NEON)
-
 #  include "intsimdmatrix.h"
+
+#if defined(HAVE_NEON)
 
 #  include <algorithm>
 #  include <cstdint>
@@ -200,6 +200,14 @@ static const IntSimdMatrix intSimdMatrix = {
 };
 
 const IntSimdMatrix *IntSimdMatrix::intSimdMatrixNEON = &intSimdMatrix;
+
+} // namespace tesseract.
+
+#else
+
+namespace tesseract {
+
+	const IntSimdMatrix* IntSimdMatrix::intSimdMatrixNEON = nullptr;
 
 } // namespace tesseract.
 

@@ -93,20 +93,20 @@ SIMDDetect SIMDDetect::detector;
 #if defined(__aarch64__)
 // ARMv8 always has NEON.
 bool SIMDDetect::neon_available_ = true;
-#elif defined(HAVE_NEON)
-// If true, then Neon has been detected.
-bool SIMDDetect::neon_available_;
 #else
-// If true, then AVX has been detected.
-bool SIMDDetect::avx_available_;
-bool SIMDDetect::avx2_available_;
-bool SIMDDetect::avx512F_available_;
-bool SIMDDetect::avx512BW_available_;
-// If true, then FMA has been detected.
-bool SIMDDetect::fma_available_;
-// If true, then SSe4.1 has been detected.
-bool SIMDDetect::sse_available_;
+// If true, then Neon has been detected.
+bool SIMDDetect::neon_available_ = false;
 #endif
+// If true, then AVX has been detected.
+bool SIMDDetect::avx_available_ = false;
+bool SIMDDetect::avx2_available_ = false;
+bool SIMDDetect::avx512F_available_ = false;
+bool SIMDDetect::avx512BW_available_ = false;
+// If true, then FMA has been detected.
+bool SIMDDetect::fma_available_ = false;
+// If true, then SSE4.1 has been detected.
+bool SIMDDetect::sse_available_ = false;
+
 
 // Computes and returns the dot product of the two n-vectors u and v.
 static TFloat DotProductGeneric(const TFloat *u, const TFloat *v, int n) {
@@ -239,26 +239,18 @@ SIMDDetect::SIMDDetect() {
   // Select code for calculation of dot product based on autodetection.
   if (false) {
     // This is a dummy to support conditional compilation.
-#if defined(HAVE_AVX2)
   } else if (avx2_available_) {
     // AVX2 detected.
     SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixAVX2);
-#endif
-#if defined(HAVE_AVX)
   } else if (avx_available_) {
     // AVX detected.
     SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixSSE);
-#endif
-#if defined(HAVE_SSE4_1)
   } else if (sse_available_) {
     // SSE detected.
     SetDotProduct(DotProductSSE, IntSimdMatrix::intSimdMatrixSSE);
-#endif
-#if defined(HAVE_NEON) || defined(__aarch64__)
   } else if (neon_available_) {
     // NEON detected.
     SetDotProduct(DotProduct, IntSimdMatrix::intSimdMatrixNEON);
-#endif
   }
 }
 
