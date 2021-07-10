@@ -1236,6 +1236,7 @@ check_PROGRAMS += commandlineflags_test
 check_PROGRAMS += dawg_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += denorm_test
+check_PROGRAMS += dotproduct_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += equationdetect_test
 endif # !DISABLED_LEGACY_ENGINE
@@ -1361,6 +1362,16 @@ dawg_test_LDADD = $(TRAINING_LIBS)
 denorm_test_SOURCES = unittest/denorm_test.cc
 denorm_test_CPPFLAGS = $(unittest_CPPFLAGS)
 denorm_test_LDADD = $(TESS_LIBS)
+
+dotproduct_test_SOURCES = unittest/dotproduct_test.cc
+dotproduct_test_CPPFLAGS = $(unittest_CPPFLAGS)
+if HAVE_AVX2
+dotproduct_test_CPPFLAGS += -DHAVE_AVX2
+endif
+if HAVE_SSE4_1
+dotproduct_test_CPPFLAGS += -DHAVE_SSE4_1
+endif
+dotproduct_test_LDADD = $(TESS_LIBS)
 
 if !DISABLED_LEGACY_ENGINE
 equationdetect_test_SOURCES = unittest/equationdetect_test.cc
