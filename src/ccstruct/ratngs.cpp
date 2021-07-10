@@ -537,6 +537,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD *word, int debug) {
 
   int position_counts[4] = {0, 0, 0, 0};
 
+  {
   int chunk_index = 0;
   for (int blob_index = 0; blob_index < length_; ++blob_index, ++chunk_index) {
     TBLOB *tblob = word->blobs[chunk_index];
@@ -554,6 +555,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD *word, int debug) {
       script_pos_[blob_index] = tesseract::SP_NORMAL;
     }
     position_counts[script_pos_[blob_index]]++;
+  }
   }
   // If almost everything looks like a superscript or subscript,
   // we most likely just got the baseline wrong.

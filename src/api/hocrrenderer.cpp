@@ -319,7 +319,6 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
             hocr_str << "\n        </span>";
             ++scnt;
           } else if (lstm_choice_mode == 2) {
-            tesseract::ChoiceIterator ci(*res_it);
             hocr_str << "\n        <span class='ocrx_cinfo'"
                      << " id='"
                      << "lstm_choices_" << page_id << "_" << wcnt << "_" << tcnt << "'>";

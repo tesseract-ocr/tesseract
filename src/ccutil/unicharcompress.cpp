@@ -406,9 +406,11 @@ void UnicharCompress::SetupDecoder() {
     prefix.Truncate(len);
     auto final_it = final_codes_.find(prefix);
     if (final_it == final_codes_.end()) {
+	  {
       auto *code_list = new std::vector<int>;
       code_list->push_back(code(len));
       final_codes_[prefix] = code_list;
+	  }
       while (--len >= 0) {
         prefix.Truncate(len);
         auto next_it = next_codes_.find(prefix);
