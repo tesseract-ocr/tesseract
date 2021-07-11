@@ -37,6 +37,8 @@ const int kAdamCorrectionIterations = 200000;
 // Epsilon in Adam to prevent division by zero.
 const TFloat kAdamEpsilon = 1e-8;
 
+#if 0
+
 // Utility functions convert between double and float arrays.
 static void DoubleToFloat(const GENERIC_2D_ARRAY<double> &src, GENERIC_2D_ARRAY<float> &dst) {
   const auto dim1 = src.dim1();
@@ -64,29 +66,6 @@ static void FloatToDouble(const GENERIC_2D_ARRAY<float> &src, GENERIC_2D_ARRAY<d
   }
 }
 
-#if 0
-static bool DeSerialize(TFile *fp, GENERIC_2D_ARRAY<TFloat> &tfloat_array) {
-#ifdef FAST_FLOAT
-  GENERIC_2D_ARRAY<double> double_array;
-  if (!double_array.DeSerialize(fp)) {
-    return false;
-  }
-  DoubleToFloat(double_array, tfloat_array);
-  return true;
-#else
-  return tfloat_array.DeSerialize(fp);
-#endif
-}
-
-static bool Serialize(TFile *fp, const GENERIC_2D_ARRAY<TFloat> &tfloat_array) {
-#ifdef FAST_FLOAT
-  GENERIC_2D_ARRAY<double> double_array;
-  FloatToDouble(tfloat_array, double_array);
-  return double_array.Serialize(fp);
-#else
-  return tfloat_array.Serialize(fp);
-#endif
-}
 #endif
 
 
@@ -259,7 +238,7 @@ bool WeightMatrix::Serialize(bool training, TFile *fp) const {
     if (!fp->Serialize(&size)) {
       return false;
     }
-    if (!fp->Serialize<double>(&scales[0], size)) {
+    if (!fp->Serialize<TFloat, double>(&scales[0], size)) {
       return false;
     }
   } else {
@@ -299,7 +278,7 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
       return false;
     }
     scales_.resize(size);
-    if (!fp->DeSerialize<double>(&scales_[0], size)) {
+    if (!fp->DeSerialize<TFloat, double>(&scales_[0], size)) {
       return false;
     }
     for (auto &scale : scales_) {
@@ -334,7 +313,7 @@ bool WeightMatrix::DeSerializeOld(bool training, TFile *fp) {
     if (!wi_.DeSerialize<int8_t>(fp)) {
       return false;
     }
-    if (!fp->DeSerialize<double, float>(scales_)) {
+    if (!fp->DeSerialize<TFloat, float>(scales_)) {
       return false;
     }
   } else {

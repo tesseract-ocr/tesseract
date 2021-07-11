@@ -82,6 +82,51 @@ static inline __m128i load64_to_128(const int8_t *wi_) {
   return _mm_set_epi64x(0, wi[0]);
 }
 
+#if defined(FAST_FLOAT)
+
+static inline void ExtractResults8(__m256i result, const int8_t* wi, const TFloat* scales,
+	TFloat* v) {
+	__m128i w128 = load64_to_128(wi);          // 8x8bit vals in bottom of 128bit reg
+	__m256i w256 = _mm256_cvtepi8_epi32(w128); // 8x32bit vals in 256bit reg
+	__m256i bias_scale = _mm256_set_epi32(127, 127, 127, 127, 127, 127, 127, 127);
+	__m256 scale01234567 = _mm256_loadu_ps(scales);
+	w256 = _mm256_mullo_epi32(w256, bias_scale); // 8x32 <bias * 127>
+	result = _mm256_add_epi32(result, w256);     // result += bias * 127
+	__m256 res01234567 = _mm256_cvtepi32_ps(result);
+	result = _mm256_permute4x64_epi64(result, 2 + (3 << 2));
+	res01234567 = _mm256_mul_ps(res01234567, scale01234567);
+	_mm256_storeu_ps(v, res01234567);
+}
+
+static inline void ExtractResults16(__m256i result0, __m256i result1, const int8_t*& wi,
+	const TFloat*& scales, TFloat*& v) {
+	__m128i w8 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(wi));
+	// 8x8bit vals in bottom of 128bit reg
+	const __m256i bias_scale = _mm256_set_epi32(127, 127, 127, 127, 127, 127, 127, 127);
+	__m256i w256 = _mm256_cvtepi8_epi32(w8); // 8x32bit vals in 256bit reg
+	__m256 scale01234567 = _mm256_loadu_ps(scales);
+	w256 = _mm256_mullo_epi32(w256, bias_scale); // 8x32 <bias * 127>
+	result0 = _mm256_add_epi32(result0, w256);   // result += bias * 127
+	__m256 res01234567 = _mm256_cvtepi32_ps(result0);
+	result0 = _mm256_permute4x64_epi64(result0, 2 + (3 << 2));
+	res01234567 = _mm256_mul_ps(res01234567, scale01234567);
+	_mm256_storeu_ps(v, res01234567);
+	w8 = _mm_shuffle_epi32(w8, 2 + (3 << 2));
+	w256 = _mm256_cvtepi8_epi32(w8); // 8x32bit vals in 256bit reg
+	scale01234567 = _mm256_loadu_ps(scales + 8);
+	w256 = _mm256_mullo_epi32(w256, bias_scale); // 8x32 <bias * 127>
+	result1 = _mm256_add_epi32(result1, w256);   // result += bias * 127
+	res01234567 = _mm256_cvtepi32_ps(result1);
+	result1 = _mm256_permute4x64_epi64(result1, 2 + (3 << 2));
+	res01234567 = _mm256_mul_ps(res01234567, scale01234567);
+	_mm256_storeu_ps(v + 8, res01234567);
+	wi += 16;
+	scales += 16;
+	v += 16;
+}
+
+#else
+
 static inline void ExtractResults8(__m256i result, const int8_t *wi, const TFloat *scales,
                                    TFloat *v) {
   __m128i w128 = load64_to_128(wi);          // 8x8bit vals in bottom of 128bit reg
@@ -134,6 +179,8 @@ static inline void ExtractResults16(__m256i result0, __m256i result1, const int8
   scales += 16;
   v += 16;
 }
+
+#endif
 
 // Computes part of matrix.vector v = Wu. Computes N=64 results.
 // The weights *must* be arranged so that consecutive reads from wi
@@ -326,6 +373,7 @@ static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const TFloat *
     PartialMatrixDotVector8(wi, scales, u, rounded_num_in, v);
   }
 }
+
 
 static const IntSimdMatrix simdMatrix = {
     // Function.

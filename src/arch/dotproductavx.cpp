@@ -29,17 +29,10 @@ namespace tesseract {
 // Uses Intel AVX intrinsics to access the SIMD instruction set.
 #if defined(FAST_FLOAT)
 float DotProductAVX(const float *u, const float *v, int n) {
-#ifndef FAST_FLOAT16
-  const unsigned quot = n / 8;
-  const unsigned rem = n % 8;
-#else
   const unsigned quot = n / 16;
   const unsigned rem = n % 16;
-#endif
   __m256 t0 = _mm256_setzero_ps();
-#ifdef FAST_FLOAT16
   __m256 t1 = _mm256_setzero_ps();
-#endif
   for (unsigned k = 0; k < quot; k++) {
     __m256 f0 = _mm256_loadu_ps(u);
     __m256 f1 = _mm256_loadu_ps(v);
@@ -47,18 +40,14 @@ float DotProductAVX(const float *u, const float *v, int n) {
     t0 = _mm256_add_ps(t0, f0);
     u += 8;
     v += 8;
-#ifdef FAST_FLOAT16
     __m256 f2 = _mm256_loadu_ps(u);
     __m256 f3 = _mm256_loadu_ps(v);
     f2 = _mm256_mul_ps(f2, f3);
     t1 = _mm256_add_ps(t1, f2);
     u += 8;
     v += 8;
-#endif
   }
-#ifdef FAST_FLOAT16
   t0 = _mm256_hadd_ps(t0, t1);
-#endif
   alignas(32) float tmp[8];
   _mm256_store_ps(tmp, t0);
   float result = tmp[0] + tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
@@ -99,5 +88,17 @@ double DotProductAVX(const double *u, const double *v, int n) {
 #endif
 
 } // namespace tesseract.
+
+#else
+
+namespace tesseract {
+
+	// Computes and returns the dot product of the n-vectors u and v.
+	// Uses Intel FMA intrinsics to access the SIMD instruction set.
+	inline TFloat DotProductAVX(const TFloat* u, const TFloat* v, int n) {
+		return DotProductFMA(u, v, n);
+	}
+
+}
 
 #endif

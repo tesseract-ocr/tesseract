@@ -169,11 +169,11 @@ public:
     if (!SerializeSize(fp)) {
       return false;
     }
-    if (!fp->Serialize<ST>(&empty_)) {
+    if (!fp->Serialize<T, ST>(&empty_)) {
       return false;
     }
     int size = num_elements();
-    return fp->Serialize<ST>(&array_[0], size);
+    return fp->Serialize<T, ST>(&array_[0], size);
   }
 
   // Reads from the given file. Returns false in case of error.

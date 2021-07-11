@@ -27,12 +27,56 @@ namespace tesseract {
 // Computes and returns the dot product of the n-vectors u and v.
 // Uses Intel SSE intrinsics to access the SIMD instruction set.
 #if defined(FAST_FLOAT)
-TFloat DotProductSSE(const TFloat *u, const TFloat *v, int n) {
-  TFloat total = 0.0;
-  for (int k = 0; k < n; ++k) {
-    total += u[k] * v[k];
-  }
-  return total;
+float DotProductSSE(const float *u, const float *v, int n) {
+	int max_offset = n - 4;
+	int offset = 0;
+	// Accumulate a set of 4 sums in sum, by loading pairs of 4 values from u and
+	// v, and multiplying them together in parallel.
+	__m128 sum = _mm_setzero_ps();
+	if (offset <= max_offset) {
+		offset = 4;
+		// Aligned load is reputedly faster but requires 16 byte aligned input.
+		if ((reinterpret_cast<uintptr_t>(u) & 15) == 0 && (reinterpret_cast<uintptr_t>(v) & 15) == 0) {
+			// Use aligned load.
+			sum = _mm_load_ps(u);
+			__m128 floats2 = _mm_load_ps(v);
+			// Multiply.
+			sum = _mm_mul_ps(sum, floats2);
+			while (offset <= max_offset) {
+				__m128 floats1 = _mm_load_ps(u + offset);
+				floats2 = _mm_load_ps(v + offset);
+				offset += 4;
+				floats1 = _mm_mul_ps(floats1, floats2);
+				sum = _mm_add_ps(sum, floats1);
+			}
+		}
+		else {
+			// Use unaligned load.
+			sum = _mm_loadu_ps(u);
+			__m128 floats2 = _mm_loadu_ps(v);
+			// Multiply.
+			sum = _mm_mul_ps(sum, floats2);
+			while (offset <= max_offset) {
+				__m128 floats1 = _mm_loadu_ps(u + offset);
+				floats2 = _mm_loadu_ps(v + offset);
+				offset += 4;
+				floats1 = _mm_mul_ps(floats1, floats2);
+				sum = _mm_add_ps(sum, floats1);
+			}
+		}
+	}
+	// Add the 4 sums in sum horizontally.
+	sum = _mm_hadd_ps(sum, sum);
+	// Extract the low result.
+	//double result = _mm_cvtsd_f64(sum);
+	float result;
+	_MM_EXTRACT_FLOAT(result, sum, 0);
+	// Add on any left-over products.
+	while (offset < n) {
+		result += u[offset] * v[offset];
+		++offset;
+	}
+	return result;
 }
 #else
 double DotProductSSE(const double *u, const double *v, int n) {
@@ -86,5 +130,17 @@ double DotProductSSE(const double *u, const double *v, int n) {
 #endif
 
 } // namespace tesseract.
+
+#else
+
+namespace tesseract {
+
+	// Computes and returns the dot product of the n-vectors u and v.
+	// Uses Intel FMA intrinsics to access the SIMD instruction set.
+	inline TFloat DotProductSSE(const TFloat* u, const TFloat* v, int n) {
+		return DotProductNative(u, v, n);
+	}
+
+}
 
 #endif

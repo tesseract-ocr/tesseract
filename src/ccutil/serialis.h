@@ -243,8 +243,31 @@ public:
   bool Serialize(const std::string &data);
   bool Serialize(const std::vector<char> &data);
   template <typename T>
+  bool Serialize(const T* data, size_t count = 1) {
+	  return FWrite(data, sizeof(T), count) == static_cast<int>(count);
+  }
+  template <typename T, typename ST>
   bool Serialize(const T *data, size_t count = 1) {
-    return FWrite(data, sizeof(T), count) == static_cast<int>(count);
+	  ST* arr = new ST[count];
+  	  for (size_t i = 0; i < count; i++)
+	  {
+		arr[i] = data[i];
+	  }
+	  bool rv = (FWrite(&arr[0], sizeof(ST), count) == static_cast<int>(count));
+	  delete[] arr;
+	  return rv;
+  }
+  template <typename T, typename ST>
+  bool Serialize(const std::vector<T>& data)
+  {
+	  std::vector<ST> arr;
+		size_t len = data.size();
+		arr.resize(len);
+		for (size_t i = 0; i < len; i++) {
+			arr[i] = data[i];
+		}
+		bool rv = Serialize(arr);
+		return rv;
   }
   template <typename T>
   bool Serialize(const std::vector<T> &data) {

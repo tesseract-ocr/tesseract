@@ -247,18 +247,21 @@ SIMDDetect::SIMDDetect() {
   // Select code for calculation of dot product based on autodetection.
   if (false) {
     // This is a dummy to support conditional compilation.
-  } else if (avx2_available_) {
+  } else if (avx2_available_ && IntSimdMatrix::intSimdMatrixAVX2 != nullptr) {
     // AVX2 detected.
     SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixAVX2);
-  } else if (avx_available_) {
+  } else if (avx_available_ && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
     // AVX detected.
     SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixSSE);
-  } else if (sse_available_) {
+  } else if (fma_available_ && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
+    // FMA detected.
+    SetDotProduct(DotProductFMA, IntSimdMatrix::intSimdMatrixSSE);
+  } else if (sse_available_ && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
     // SSE detected.
     SetDotProduct(DotProductSSE, IntSimdMatrix::intSimdMatrixSSE);
-  } else if (neon_available_) {
+  } else if (neon_available_ && IntSimdMatrix::intSimdMatrixNEON != nullptr) {
     // NEON detected.
-    SetDotProduct(DotProduct, IntSimdMatrix::intSimdMatrixNEON);
+    SetDotProduct(DotProductNative, IntSimdMatrix::intSimdMatrixNEON);
   }
 }
 
@@ -281,25 +284,25 @@ void SIMDDetect::Update() {
     SetDotProduct(DotProductAccelerate);
     dotproduct_method = "accelerate";
 #endif
-  } else if (!strcmp(dotproduct.c_str(), "avx2") && IntSimdMatrix::intSimdMatrixAVX2 != nullptr) {
+  } else if (!strcmp(dotproduct.c_str(), "avx2") && avx2_available_ && IntSimdMatrix::intSimdMatrixAVX2 != nullptr) {
     // AVX2 selected by config variable.
     SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixAVX2);
     dotproduct_method = "avx2";
-  } else if (!strcmp(dotproduct.c_str(), "avx") && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
+  } else if (!strcmp(dotproduct.c_str(), "avx") && avx_available_ && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
     // AVX selected by config variable.
     SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "avx";
-  } else if (!strcmp(dotproduct.c_str(), "fma") && IntSimdMatrix::intSimdMatrix != nullptr) {
+  } else if (!strcmp(dotproduct.c_str(), "fma") && fma_available_ && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
     // FMA selected by config variable.
-    SetDotProduct(DotProductFMA, IntSimdMatrix::intSimdMatrix);
+    SetDotProduct(DotProductFMA, IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "fma";
-  } else if (!strcmp(dotproduct.c_str(), "sse") && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
+  } else if (!strcmp(dotproduct.c_str(), "sse") && sse_available_ && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
     // SSE selected by config variable.
     SetDotProduct(DotProductSSE, IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "sse";
-  } else if (!strcmp(dotproduct.c_str(), "neon") && IntSimdMatrix::intSimdMatrixNEON != nullptr) {
+  } else if (!strcmp(dotproduct.c_str(), "neon") && neon_available_ && IntSimdMatrix::intSimdMatrixNEON != nullptr) {
     // NEON selected by config variable.
-    SetDotProduct(DotProduct, IntSimdMatrix::intSimdMatrixNEON);
+    SetDotProduct(DotProductNative, IntSimdMatrix::intSimdMatrixNEON);
     dotproduct_method = "neon";
   } else if (!strcmp(dotproduct.c_str(), "std::inner_product")) {
     // std::inner_product selected by config variable.
@@ -315,11 +318,11 @@ void SIMDDetect::Update() {
         " accelerate"
 #endif
 		"%s%s%s%s%s%s",
-		IntSimdMatrix::intSimdMatrixAVX2 != nullptr ? " avx2" : "",
-		IntSimdMatrix::intSimdMatrixSSE != nullptr ? " avx" : "",
-		IntSimdMatrix::intSimdMatrix != nullptr ? " fma" : "",
-		IntSimdMatrix::intSimdMatrixSSE != nullptr ? " sse" : "",
-		IntSimdMatrix::intSimdMatrixNEON != nullptr ? " neon" : "",
+		(avx2_available_&& IntSimdMatrix::intSimdMatrixAVX2 != nullptr) ? " avx2" : "",
+		(avx_available_&& IntSimdMatrix::intSimdMatrixSSE != nullptr) ? " avx" : "",
+		(fma_available_&& IntSimdMatrix::intSimdMatrixSSE != nullptr) ? " fma" : "",
+		(sse_available_&& IntSimdMatrix::intSimdMatrixSSE != nullptr) ? " sse" : "",
+		(neon_available_&& IntSimdMatrix::intSimdMatrixNEON != nullptr) ? " neon" : "",
 		" std::inner_product.\n");
   }
 
