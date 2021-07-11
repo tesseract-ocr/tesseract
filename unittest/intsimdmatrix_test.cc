@@ -109,30 +109,20 @@ TEST_F(IntSimdMatrixTest, C) {
 
 // Tests that the SSE implementation gets the same result as the vanilla.
 TEST_F(IntSimdMatrixTest, SSE) {
-#if defined(HAVE_SSE4_1) && !defined(FAST_FLOAT)
   if (!SIMDDetect::IsSSEAvailable()) {
     GTEST_LOG_(INFO) << "No SSE found! Not tested!";
     GTEST_SKIP();
   }
   ExpectEqualResults(*IntSimdMatrix::intSimdMatrixSSE);
-#else
-  GTEST_LOG_(INFO) << "SSE unsupported! Not tested!";
-  GTEST_SKIP();
-#endif
 }
 
 // Tests that the AVX2 implementation gets the same result as the vanilla.
 TEST_F(IntSimdMatrixTest, AVX2) {
-#if defined(HAVE_AVX2) && !defined(FAST_FLOAT)
   if (!SIMDDetect::IsAVX2Available()) {
     GTEST_LOG_(INFO) << "No AVX2 found! Not tested!";
     GTEST_SKIP();
   }
   ExpectEqualResults(*IntSimdMatrix::intSimdMatrixAVX2);
-#else
-  GTEST_LOG_(INFO) << "AVX2 unsupported! Not tested!";
-  GTEST_SKIP();
-#endif
 }
 
 } // namespace tesseract

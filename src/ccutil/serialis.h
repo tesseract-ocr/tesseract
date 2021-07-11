@@ -70,6 +70,53 @@ bool Serialize(FILE *fp, const T *data, size_t n = 1) {
   return fwrite(data, sizeof(T), n, fp) == n;
 }
 
+// Deserialize data from file.
+template <typename T, typename ST>
+bool DeSerialize(FILE* fp, T* data, size_t n = 1) {
+	ST* arr = new ST[n];
+	bool rv = (fread(&arr[0], sizeof(ST), n, fp) == n);
+	if (rv) {
+		for (size_t i = 0; i < n; i++) {
+			data[i] = arr[i];
+		}
+	}
+	delete[] arr;
+	return rv;
+}
+
+template
+bool DeSerialize<double, double>(FILE* fp, double* data, size_t n);
+template
+bool DeSerialize<double, float>(FILE* fp, double* data, size_t n);
+template
+bool DeSerialize<float, float>(FILE* fp, float* data, size_t n);
+template
+bool DeSerialize<float, double>(FILE* fp, float* data, size_t n);
+
+// Serialize data to file.
+template <typename T, typename ST>
+bool Serialize(FILE* fp, const T* data, size_t n = 1) {
+	ST* arr = new ST[n];
+	for (size_t i = 0; i < n; i++) {
+		arr[i] = data[i];
+	}
+	bool rv = (fwrite(&arr[0], sizeof(ST), n, fp) == n);
+	delete[] arr;
+	return rv;
+}
+
+template 
+bool Serialize<double, double>(FILE* fp, const double* data, size_t n);
+template
+bool Serialize<double, float>(FILE* fp, const double* data, size_t n);
+template
+bool Serialize<float, float>(FILE* fp, const float* data, size_t n);
+template
+bool Serialize<float, double>(FILE* fp, const float* data, size_t n);
+
+
+
+
 // Simple file class.
 // Allows for portable file input from memory and from foreign file systems.
 class TESS_API TFile {
@@ -96,29 +143,6 @@ public:
   bool DeSerialize(std::string &data);
   bool DeSerialize(std::vector<char> &data);
   //bool DeSerialize(std::vector<std::string> &data);
-  bool DeSerializeTFloat(std::vector<TFloat> &data) {
-    uint32_t size;
-    if (!DeSerialize(&size)) {
-      return false;
-    } else if (size == 0) {
-      data.clear();
-    } else if (size > 50000000) {
-      // Arbitrarily limit the number of elements to protect against bad data.
-      return false;
-    } else {
-      // Deserialize a non-class.
-      data.clear();
-      data.reserve(size);
-      for (auto n = size; n > 0; n--) {
-        double val;
-        if (!DeSerialize(&val)) {
-          return false;
-        }
-        data.push_back(val);
-      }
-    }
-    return true;
-  }
   template <typename T>
   bool DeSerialize(T *data, size_t count = 1) {
     return FReadEndian(data, sizeof(T), count) == static_cast<int>(count);
@@ -178,6 +202,42 @@ public:
     }
     return true;
   }
+  template <typename T, typename ST>
+  bool DeSerialize(T* data, size_t count = 1)
+  {
+	  ST* arr = new ST[count];
+	  bool rv = (FReadEndian(&arr[0], sizeof(ST), count) == static_cast<int>(count));
+	  if (rv)
+	  {
+		  for (size_t i = 0; i < count; i++)
+		  {
+			  data[i] = arr[i];
+		  }
+	  }
+	  delete[] arr;
+	  return rv;
+  }
+  template <typename T, typename ST>
+  bool DeSerialize(std::vector<T>& data)
+  {
+	  std::vector<ST> arr;
+	  bool rv = DeSerialize(arr);
+	  if (rv)
+	  {
+		  size_t len = arr.size();
+		  data.resize(len);
+		  for (size_t i = 0; i < len; i++) {
+			  data[i] = arr[i];
+		  }
+	  }
+	  return rv;
+  }
+#if 0
+  template bool DeSerialize<double, double>(double* data, size_t count);
+  template bool DeSerialize<double, float>(double* data, size_t count);
+  template bool DeSerialize<float, float>(float* data, size_t count);
+  template bool DeSerialize<float, double>(float* data, size_t count);
+#endif
 
   // Serialize data.
   bool Serialize(const std::string &data);

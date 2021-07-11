@@ -145,45 +145,53 @@ public:
     }
   }
 
+  // -----------------------------------------------------------
+  // Serialization & Deserialization to disk uses specific Storage Types (ST)
+  // which MAY not be identical to the run-time Type (T).
+  // -----------------------------------------------------------
+  
   // Writes to the given file. Returns false in case of error.
   // Only works with bitwise-serializeable types!
+  template <class ST>
   bool Serialize(FILE *fp) const {
     if (!SerializeSize(fp)) {
       return false;
     }
-    if (!tesseract::Serialize(fp, &empty_)) {
+    if (!tesseract::Serialize<ST>(fp, &empty_)) {
       return false;
     }
     int size = num_elements();
-    return tesseract::Serialize(fp, &array_[0], size);
+	return tesseract::Serialize<ST>(fp, &array_[0], size);
   }
 
+  template <class ST>
   bool Serialize(TFile *fp) const {
     if (!SerializeSize(fp)) {
       return false;
     }
-    if (!fp->Serialize(&empty_)) {
+    if (!fp->Serialize<ST>(&empty_)) {
       return false;
     }
     int size = num_elements();
-    return fp->Serialize(&array_[0], size);
+    return fp->Serialize<ST>(&array_[0], size);
   }
 
   // Reads from the given file. Returns false in case of error.
   // Only works with bitwise-serializeable types!
   // If swap is true, assumes a big/little-endian swap is needed.
+  template <class ST>
   bool DeSerialize(bool swap, FILE *fp) {
     if (!DeSerializeSize(swap, fp)) {
       return false;
     }
-    if (!tesseract::DeSerialize(fp, &empty_)) {
+    if (!tesseract::DeSerialize<ST>(fp, &empty_)) {
       return false;
     }
     if (swap) {
       ReverseN(&empty_, sizeof(empty_));
     }
     int size = num_elements();
-    if (!tesseract::DeSerialize(fp, &array_[0], size)) {
+    if (!tesseract::DeSerialize<ST>(fp, &array_[0], size)) {
       return false;
     }
     if (swap) {
@@ -194,9 +202,10 @@ public:
     return true;
   }
 
+  template <class ST>
   bool DeSerialize(TFile *fp) {
-    return DeSerializeSize(fp) && fp->DeSerialize(&empty_) &&
-           fp->DeSerialize(&array_[0], num_elements());
+    return DeSerializeSize(fp) && fp->DeSerialize<T, ST>(&empty_) &&
+           fp->DeSerialize<T, ST>(&array_[0], num_elements());
   }
 
   // Writes to the given file. Returns false in case of error.

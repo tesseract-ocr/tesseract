@@ -229,7 +229,7 @@ bool Plumbing::DeSerialize(TFile *fp) {
     }
     AddToStack(network);
   }
-  if ((network_flags_ & NF_LAYER_SPECIFIC_LR) && !fp->DeSerializeTFloat(learning_rates_)) {
+  if ((network_flags_ & NF_LAYER_SPECIFIC_LR) && !fp->DeSerialize(learning_rates_)) {
     return false;
   }
   return true;
