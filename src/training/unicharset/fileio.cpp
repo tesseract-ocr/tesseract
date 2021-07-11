@@ -14,7 +14,7 @@
  *
  **********************************************************************/
 
-#ifdef _WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #  ifndef unlink
 #    include <io.h>
 #  endif
@@ -87,7 +87,7 @@ std::string File::JoinPath(const std::string &prefix, const std::string &suffix)
 }
 
 bool File::Delete(const char *pathname) {
-#if !defined(_WIN32) || defined(__MINGW32__)
+#if !(defined(WIN32) || defined(_WIN32) || defined(_WIN64)) || defined(__MINGW32__)
   const int status = unlink(pathname);
 #else
   const int status = _unlink(pathname);
@@ -99,7 +99,7 @@ bool File::Delete(const char *pathname) {
   return true;
 }
 
-#ifdef _WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 bool File::DeleteMatchingFiles(const char *pattern) {
   WIN32_FIND_DATA data;
   BOOL result = TRUE;

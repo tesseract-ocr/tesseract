@@ -32,9 +32,9 @@
 
 // Number of threads to use for parallel calculation of Forward and Backward.
 #ifdef _OPENMP
-const int kNumThreads = 4;
+static const int kNumThreads = 4;
 #else
-const int kNumThreads = 1;
+static const int kNumThreads = 1;
 #endif
 
 namespace tesseract {

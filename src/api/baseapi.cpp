@@ -85,7 +85,7 @@
 #  include <csignal> // for sigaction, SA_RESETHAND, SIGBUS, SIGFPE
 #endif
 
-#if defined(_WIN32)
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #  include <fcntl.h>
 #  include <io.h>
 #else
@@ -156,7 +156,7 @@ static void addAvailableLanguages(const std::string &datadir, const std::string 
     base2 += "/";
   }
   const size_t extlen = sizeof(kTrainedDataSuffix);
-#ifdef _WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
   WIN32_FIND_DATA data;
   HANDLE handle = FindFirstFile((datadir + base2 + "*").c_str(), &data);
   if (handle != INVALID_HANDLE_VALUE) {
@@ -1150,7 +1150,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
                                        int timeout_millisec, TessResultRenderer *renderer) {
   bool stdInput = !strcmp(filename, "stdin") || !strcmp(filename, "/dev/stdin") || !strcmp(filename, "-");
   if (stdInput) {
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
     if (_setmode(_fileno(stdin), _O_BINARY) == -1)
       tprintf("ERROR: Cannot set STDIN to binary: %s\n", strerror(errno));
 #endif // WIN32

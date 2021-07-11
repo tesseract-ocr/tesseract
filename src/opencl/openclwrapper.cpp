@@ -10,7 +10,7 @@
 
 #ifdef USE_OPENCL
 
-#  ifdef _WIN32
+#  if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #    include <io.h>
 #  else
 #    include <sys/types.h>
@@ -28,7 +28,7 @@
 
 // platform preprocessor commands
 #  if defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(__CYGWIN__) || \
-      defined(__MINGW32__)
+      defined(__MINGW32__) || defined(_WIN64)
 #    define ON_WINDOWS 1
 #    define ON_APPLE 0
 #  elif defined(__linux__)
@@ -598,7 +598,7 @@ static void populateGPUEnvFromDevice(GPUEnv *gpuInfo, cl_device_id device) {
 }
 
 int OpenclDevice::LoadOpencl() {
-#  ifdef WIN32
+#  if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
   HINSTANCE HOpenclDll = nullptr;
   void *OpenclDll = nullptr;
   // fprintf(stderr, " LoadOpenclDllxx... \n");

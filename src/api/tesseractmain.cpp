@@ -50,7 +50,7 @@
 #  include <curl/curl.h>
 #endif
 
-#if defined(_WIN32)
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #  include <fcntl.h>
 #  include <io.h>
 #  if defined(HAVE_TIFFIO_H)
@@ -467,7 +467,7 @@ namespace filesystem {
 }
 
 bool std::filesystem::exists(const char* filename) {
-#if defined(_WIN32)
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
   return _access(filename, 0) == 0;
 #else
   return access(filename, 0) == 0;
@@ -670,7 +670,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
 
     api.GetBoolVariable("tessedit_create_pdf", &b);
     if (b) {
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
       if (_setmode(_fileno(stdout), _O_BINARY) == -1)
         tprintf("ERROR: Cannot set STDIN to binary: %s", strerror(errno));
 #endif // WIN32
@@ -807,7 +807,7 @@ extern "C" int tesseract_main(int argc, const char **argv)
 #endif
   }
 
-#if defined(HAVE_TIFFIO_H) && defined(_WIN32)
+#if defined(HAVE_TIFFIO_H) && (defined(WIN32) || defined(_WIN32) || defined(_WIN64))
   /* Show libtiff errors and warnings on console (not in GUI). */
   TIFFSetErrorHandler(Win32ErrorHandler);
   TIFFSetWarningHandler(Win32WarningHandler);

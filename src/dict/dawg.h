@@ -33,7 +33,7 @@
 #include "ratngs.h"
 
 #ifndef __GNUC__
-#  ifdef _WIN32
+#  if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #    define NO_EDGE (int64_t)0xffffffffffffffffi64
 #  endif /*_WIN32*/
 #else

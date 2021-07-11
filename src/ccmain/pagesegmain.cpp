@@ -16,7 +16,7 @@
  *
  **********************************************************************/
 
-#ifdef _WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #  ifndef unlink
 #    include <io.h>
 #  endif

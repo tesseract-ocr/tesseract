@@ -53,13 +53,13 @@ void ERRCODE::error(         // handle error
   if (format != nullptr) {
     msgptr += sprintf(msgptr, ":");
     va_start(args, format); // variable list
-#ifdef _WIN32
-                            // print remainder
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
+    // print remainder
     msgptr += _vsnprintf(msgptr, MAX_MSG - 2 - (msgptr - msg), format, args);
     msg[MAX_MSG - 2] = '\0'; // ensure termination
     strcat(msg, "\n");
 #else
-                            // print remainder
+    // print remainder
     msgptr += vsprintf(msgptr, format, args);
     // no specific
     msgptr += sprintf(msgptr, "\n");

@@ -75,7 +75,7 @@ TESS_API void tprintf(const char *format, ...) {
     return;
   }
 
-#ifdef _WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
   // Replace /dev/null by nul for Windows.
   if (strcmp(debug_file_name, "/dev/null") == 0) {
     debug_file_name = "nul";

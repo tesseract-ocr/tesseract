@@ -26,7 +26,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#if defined(_WIN32)
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #  include <direct.h>
 #endif
 
@@ -45,7 +45,7 @@ bool WriteFile(const std::string &output_dir, const std::string &lang, const std
   std::string dirname = output_dir + "/" + lang;
   // Attempt to make the directory, but ignore errors, as it may not be a
   // standard filesystem, and the writer will complain if not successful.
-#if defined(_WIN32)
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
   _mkdir(dirname.c_str());
 #else
   mkdir(dirname.c_str(), S_IRWXU | S_IRWXG);

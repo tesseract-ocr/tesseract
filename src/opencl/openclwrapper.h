@@ -148,7 +148,7 @@ public:
   // *kernelName, KernelEnv *env, cl_kernel_function *function );
 
   static int LoadOpencl();
-#  ifdef WIN32
+#  if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
   // static int OpenclInite();
   static void FreeOpenclDll();
 #  endif

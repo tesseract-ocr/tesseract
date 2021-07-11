@@ -23,7 +23,7 @@
 #ifndef TESSERACT_VIEWER_SVUTIL_H_
 #define TESSERACT_VIEWER_SVUTIL_H_
 
-#ifdef _WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #  include "host.h" // also includes windows.h
 #else
 #  include <semaphore.h>
@@ -55,7 +55,7 @@ public:
   void Wait();
 
 private:
-#ifdef _WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
   HANDLE semaphore_;
 #elif defined(__APPLE__)
   sem_t *semaphore_;

@@ -18,7 +18,7 @@
 
 #include <cstdlib>
 #include <cstring> // for std::strrchr
-#if defined(_WIN32)
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #  include <io.h> // for _access
 #endif
 
@@ -52,7 +52,7 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
   } else if (tessdata_prefix) {
     /* Use tessdata prefix from the environment. */
     datadir = tessdata_prefix;
-#if defined(_WIN32)
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
   } else if (datadir.empty() || _access(datadir.c_str(), 0) != 0) {
     /* Look for tessdata in directory of executable. */
     char path[_MAX_PATH];
