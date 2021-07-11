@@ -54,7 +54,7 @@
 #if defined(HAS_CPUID)
 #  if defined(__GNUC__)
 #    include <cpuid.h>
-#  elif defined(_WIN32)
+#  elif defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #    include <intrin.h>
 #  endif
 #endif
@@ -190,7 +190,7 @@ SIMDDetect::SIMDDetect() {
     }
 #    endif
   }
-#  elif defined(_WIN32)
+#  elif defined(WIN32) || defined(_WIN32) || defined(_WIN64)
   int cpuInfo[4];
   int max_function_id;
   __cpuid(cpuInfo, 0);
@@ -281,30 +281,26 @@ void SIMDDetect::Update() {
     SetDotProduct(DotProductAccelerate);
     dotproduct_method = "accelerate";
 #endif
-#if defined(HAVE_AVX2)
-  } else if (!strcmp(dotproduct.c_str(), "avx2")) {
+  } else if (!strcmp(dotproduct.c_str(), "avx2") && IntSimdMatrix::intSimdMatrixAVX2 != nullptr) {
     // AVX2 selected by config variable.
     SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixAVX2);
     dotproduct_method = "avx2";
-#endif
-#if defined(HAVE_AVX)
-  } else if (!strcmp(dotproduct.c_str(), "avx")) {
+  } else if (!strcmp(dotproduct.c_str(), "avx") && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
     // AVX selected by config variable.
     SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "avx";
-#endif
-#if defined(HAVE_FMA)
-  } else if (!strcmp(dotproduct.c_str(), "fma")) {
+  } else if (!strcmp(dotproduct.c_str(), "fma") && IntSimdMatrix::intSimdMatrix != nullptr) {
     // FMA selected by config variable.
     SetDotProduct(DotProductFMA, IntSimdMatrix::intSimdMatrix);
     dotproduct_method = "fma";
-#endif
-#if defined(HAVE_SSE4_1)
-  } else if (!strcmp(dotproduct.c_str(), "sse")) {
+  } else if (!strcmp(dotproduct.c_str(), "sse") && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
     // SSE selected by config variable.
     SetDotProduct(DotProductSSE, IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "sse";
-#endif
+  } else if (!strcmp(dotproduct.c_str(), "neon") && IntSimdMatrix::intSimdMatrixNEON != nullptr) {
+    // NEON selected by config variable.
+    SetDotProduct(DotProduct, IntSimdMatrix::intSimdMatrixNEON);
+    dotproduct_method = "neon";
   } else if (!strcmp(dotproduct.c_str(), "std::inner_product")) {
     // std::inner_product selected by config variable.
     SetDotProduct(DotProductStdInnerProduct);
@@ -318,19 +314,13 @@ void SIMDDetect::Update() {
 #if defined(HAVE_FRAMEWORK_ACCELERATE)
         " accelerate"
 #endif
-#if defined(HAVE_AVX2)
-        " avx2"
-#endif
-#if defined(HAVE_AVX)
-        " avx"
-#endif
-#if defined(HAVE_FMA)
-        " fma"
-#endif
-#if defined(HAVE_SSE4_1)
-        " sse"
-#endif
-        " std::inner_product.\n");
+		"%s%s%s%s%s%s",
+		IntSimdMatrix::intSimdMatrixAVX2 != nullptr ? " avx2" : "",
+		IntSimdMatrix::intSimdMatrixSSE != nullptr ? " avx" : "",
+		IntSimdMatrix::intSimdMatrix != nullptr ? " fma" : "",
+		IntSimdMatrix::intSimdMatrixSSE != nullptr ? " sse" : "",
+		IntSimdMatrix::intSimdMatrixNEON != nullptr ? " neon" : "",
+		" std::inner_product.\n");
   }
 
   dotproduct.set_value(dotproduct_method);
