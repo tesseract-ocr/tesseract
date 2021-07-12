@@ -3,7 +3,7 @@
 
 namespace tesseract {
 
-#define FAST_FLOAT 1
+//#define FAST_FLOAT 1
 
 #ifdef FAST_FLOAT
 	typedef float TFloat;

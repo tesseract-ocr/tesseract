@@ -44,9 +44,9 @@ TFloat DotProductFMA(const TFloat *u, const TFloat *v, int n) {
     v += 8;
   }
   t0 = _mm256_hadd_ps(t0, t1);
-  alignas(32) TFloat tmp[4];
+  alignas(32) TFloat tmp[8];
   _mm256_store_ps(tmp, t0);
-  TFloat result = tmp[0] + tmp[1] + tmp[2] + tmp[3];
+  TFloat result = tmp[0] + tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
   for (unsigned k = 0; k < rem; k++) {
     result += *u++ * *v++;
   }

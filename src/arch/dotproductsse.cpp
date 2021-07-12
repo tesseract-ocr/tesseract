@@ -45,9 +45,9 @@ float DotProductSSE(const float *u, const float *v, int n) {
 			while (offset <= max_offset) {
 				__m128 floats1 = _mm_load_ps(u + offset);
 				floats2 = _mm_load_ps(v + offset);
-				offset += 4;
 				floats1 = _mm_mul_ps(floats1, floats2);
 				sum = _mm_add_ps(sum, floats1);
+				offset += 4;
 			}
 		}
 		else {
@@ -59,18 +59,25 @@ float DotProductSSE(const float *u, const float *v, int n) {
 			while (offset <= max_offset) {
 				__m128 floats1 = _mm_loadu_ps(u + offset);
 				floats2 = _mm_loadu_ps(v + offset);
-				offset += 4;
 				floats1 = _mm_mul_ps(floats1, floats2);
 				sum = _mm_add_ps(sum, floats1);
+				offset += 4;
 			}
 		}
 	}
 	// Add the 4 sums in sum horizontally.
-	sum = _mm_hadd_ps(sum, sum);
+#if 0
+	alignas(32) TFloat tmp[4];
+	_mm_store_ps(tmp, sum);
+	float result = tmp[0] + tmp[1] + tmp[2] + tmp[3];
+#else
+	__m128 zero = _mm_setzero_ps();
+	// https://www.felixcloutier.com/x86/haddps
+	sum = _mm_hadd_ps(sum, zero);
+	sum = _mm_hadd_ps(sum, zero);
 	// Extract the low result.
-	//double result = _mm_cvtsd_f64(sum);
-	float result;
-	_MM_EXTRACT_FLOAT(result, sum, 0);
+	float result = _mm_cvtss_f32(sum);
+#endif
 	// Add on any left-over products.
 	while (offset < n) {
 		result += u[offset] * v[offset];
@@ -117,6 +124,7 @@ double DotProductSSE(const double *u, const double *v, int n) {
     }
   }
   // Add the 2 sums in sum horizontally.
+  // https://www.felixcloutier.com/x86/haddpd
   sum = _mm_hadd_pd(sum, sum);
   // Extract the low result.
   double result = _mm_cvtsd_f64(sum);
