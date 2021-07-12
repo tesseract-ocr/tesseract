@@ -13,17 +13,20 @@
 #include "normstrngs.h"
 #include "normstrngs_test.h"
 
+
+#if defined(HAS_LIBICU)
+
 namespace tesseract {
 
 // Test some random Khmer words.
 TEST(ValidateKhmerTest, GoodKhmerWords) {
-  std::string str = "ព័ត៏មានប្លែកៗ";
+  std::string str = u8"ព័ត៏មានប្លែកៗ";
   ExpectGraphemeModeResults(str, UnicodeNormMode::kNFC, 13, 12, 7, str);
-  str = "ទំនុកច្រៀង";
+  str = u8"ទំនុកច្រៀង";
   ExpectGraphemeModeResults(str, UnicodeNormMode::kNFC, 10, 9, 5, str);
-  str = "កាលីហ្វូញ៉ា";
+  str = u8"កាលីហ្វូញ៉ា";
   ExpectGraphemeModeResults(str, UnicodeNormMode::kNFC, 11, 10, 4, str);
-  str = "ចាប់ពីផ្លូវ";
+  str = u8"ចាប់ពីផ្លូវ";
   ExpectGraphemeModeResults(str, UnicodeNormMode::kNFC, 11, 10, 5, str);
 }
 
@@ -31,17 +34,19 @@ TEST(ValidateKhmerTest, GoodKhmerWords) {
 TEST(ValidateKhmerTest, BadKhmerWords) {
   std::string result;
   // Multiple dependent vowels not allowed
-  std::string str = "\u1796\u17b6\u17b7";
+  std::string str = u8"\u1796\u17b6\u17b7";
   EXPECT_FALSE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone, GraphemeNorm::kNormalize,
                                    str.c_str(), &result));
   // Multiple shifters not allowed
-  str = "\u1798\u17c9\u17ca";
+  str = u8"\u1798\u17c9\u17ca";
   EXPECT_FALSE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone, GraphemeNorm::kNormalize,
                                    str.c_str(), &result));
   // Multiple signs not allowed
-  str = "\u1780\u17b6\u17cb\u17cd";
+  str = u8"\u1780\u17b6\u17cb\u17cd";
   EXPECT_FALSE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone, GraphemeNorm::kNormalize,
                                    str.c_str(), &result));
 }
 
 } // namespace tesseract
+
+#endif

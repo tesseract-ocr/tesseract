@@ -23,6 +23,8 @@
 #  include "config_auto.h"
 #endif
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 #include "shapeclassifier.h"
 
 #include "scrollview.h"
@@ -231,3 +233,5 @@ void ShapeClassifier::FilterDuplicateUnichars(std::vector<ShapeRating> *results)
 }
 
 } // namespace tesseract.
+
+#endif

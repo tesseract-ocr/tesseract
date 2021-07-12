@@ -13,6 +13,8 @@
 #include <tesseract/baseapi.h>
 #include "lstm_test.h"
 
+#include "testdata.h"
+
 namespace tesseract {
 
 TEST_F(LSTMTrainerTest, EncodesEng) {

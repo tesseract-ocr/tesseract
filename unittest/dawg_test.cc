@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#include "testdata.h"
+
 #ifndef SW_TESTING
 #  define wordlist2dawg_prog "wordlist2dawg"
 #  define dawg2wordlist_prog "dawg2wordlist"

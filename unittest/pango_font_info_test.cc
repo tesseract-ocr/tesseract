@@ -9,6 +9,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if defined(PANGO_ENABLE_ENGINE)
+
 #include "pango_font_info.h"
 #include <pango/pango.h>
 #include <cstdio>
@@ -328,3 +330,5 @@ TEST_F(FontUtilsTest, GetAllRenderableCharacters) {
 #endif
 
 } // namespace tesseract
+
+#endif

@@ -15,6 +15,8 @@
  ** limitations under the License.
  ******************************************************************************/
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 #include "adaptive.h"
 
 #include "classify.h"
@@ -399,3 +401,6 @@ void WriteTempConfig(FILE *File, TEMP_CONFIG_STRUCT *Config) {
 } /* WriteTempConfig */
 
 } // namespace tesseract
+
+#endif
+

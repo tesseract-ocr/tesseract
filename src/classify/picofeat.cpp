@@ -15,6 +15,8 @@
  ** limitations under the License.
  ******************************************************************************/
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 #include "picofeat.h"
 
 #include "classify.h"
@@ -254,3 +256,5 @@ FEATURE_SET Classify::ExtractIntGeoFeatures(const TBLOB &blob,
 } /* ExtractIntGeoFeatures */
 
 } // namespace tesseract.
+
+#endif

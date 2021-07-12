@@ -33,6 +33,8 @@
 
 #include <time.h>
 
+#include "testdata.h"
+
 namespace tesseract {
 
 class QuickTest : public testing::Test {

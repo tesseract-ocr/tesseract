@@ -21,12 +21,17 @@
 #include <string>
 #include <utility>
 
+#include "testdata.h"
+
 #define ENABLE_IdentifySpecialText_TEST 0
 #if ENABLE_IdentifySpecialText_TEST
 #  define EQU_TRAINEDDATA_NAME "equ"
 #else
 #  define EQU_TRAINEDDATA_NAME "equINTENTIONALLY_MISSING_FILE"
 #endif
+
+
+#if defined(HAS_LIBICU)
 
 namespace tesseract {
 
@@ -520,3 +525,5 @@ TEST_F(EquationFinderTest, SplitCPHor) {
 }
 
 } // namespace tesseract
+
+#endif

@@ -13,6 +13,9 @@
 #include "normstrngs.h"
 #include "normstrngs_test.h"
 
+
+#if defined(HAS_LIBICU)
+
 namespace tesseract {
 
 // Test some random Myanmar words.
@@ -50,3 +53,5 @@ TEST(ValidateMyanmarTest, BadMyanmarWords) {
 }
 
 } // namespace tesseract
+
+#endif

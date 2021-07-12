@@ -9,6 +9,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if defined(PANGO_ENABLE_ENGINE)
+
 #include "ligature_table.h"
 #include "commandlineflags.h"
 #include "fileio.h"
@@ -17,13 +19,13 @@
 
 namespace tesseract {
 
-const char kEngNonLigatureText[] = "fidelity effigy ſteep";
+const char kEngNonLigatureText[] = u8"fidelity effigy ſteep";
 // Same as above text, but with "fi" in the first word and "ffi" in the second
 // word replaced with their respective ligatures.
-const char kEngLigatureText[] = "ﬁdelity eﬃgy ﬅeep";
+const char kEngLigatureText[] = u8"ﬁdelity eﬃgy ﬅeep";
 // Same as kEngLigatureText but with "fi" in both words replaced with their
 // ligature. The test Verdana font does not support the "ffi" or "ſt" ligature.
-const char kRenderableEngLigatureText[] = "ﬁdelity efﬁgy ſteep";
+const char kRenderableEngLigatureText[] = u8"ﬁdelity efﬁgy ſteep";
 
 static PangoFontMap *font_map;
 
@@ -79,8 +81,8 @@ TEST_F(LigatureTableTest, DoesRemoveLigatures) {
 
 TEST_F(LigatureTableTest, TestCustomLigatures) {
   const char *kTestCases[] = {
-      "act",       "a\uE003", "publiſh",    "publi\uE006", "ſince",
-      "\uE007nce", "aſleep",  "a\uE008eep", "neceſſary",   "nece\uE009ary",
+      u8"act",       u8"a\uE003", u8"publiſh",    u8"publi\uE006", u8"ſince",
+      u8"\uE007nce", u8"aſleep",  u8"a\uE008eep", u8"neceſſary",   u8"nece\uE009ary",
   };
   for (size_t i = 0; i < countof(kTestCases); i += 2) {
     EXPECT_STREQ(kTestCases[i + 1], lig_table_->AddLigatures(kTestCases[i], nullptr).c_str());
@@ -92,8 +94,8 @@ TEST_F(LigatureTableTest, TestCustomLigatures) {
 TEST_F(LigatureTableTest, TestRemovesCustomLigatures) {
   const char *kTestCases[] = {
       "fiction",
-      "ﬁ\uE003ion",
-      "ﬁction",
+      u8"ﬁ\uE003ion",
+      u8"ﬁction",
   };
   for (size_t i = 0; i < countof(kTestCases); i += 3) {
     EXPECT_STREQ(kTestCases[i + 1], lig_table_->AddLigatures(kTestCases[i], nullptr).c_str());
@@ -101,3 +103,5 @@ TEST_F(LigatureTableTest, TestRemovesCustomLigatures) {
   }
 }
 } // namespace tesseract
+
+#endif

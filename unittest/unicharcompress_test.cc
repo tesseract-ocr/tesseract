@@ -22,6 +22,11 @@
 #include "tprintf.h"
 #include "unicharcompress.h"
 
+#include "testdata.h"
+
+
+#if defined(HAS_LIBICU)
+
 namespace tesseract {
 
 class UnicharcompressTest : public ::testing::Test {
@@ -249,3 +254,5 @@ TEST_F(UnicharcompressTest, GetEncodingAsString) {
 }
 
 } // namespace tesseract
+
+#endif

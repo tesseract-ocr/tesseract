@@ -15,6 +15,8 @@
  ** limitations under the License.
  ******************************************************************************/
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 #include "outfeat.h"
 
 #include "classify.h"
@@ -158,3 +160,5 @@ void NormalizeOutlineX(FEATURE_SET FeatureSet) {
 } /* NormalizeOutlineX */
 
 } // namespace tesseract
+
+#endif

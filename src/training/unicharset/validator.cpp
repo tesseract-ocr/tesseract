@@ -11,6 +11,9 @@
 
 #include "unicode/uchar.h"   // From libicu
 #include "unicode/uscript.h" // From libicu
+
+#endif
+
 #include "validate_grapheme.h"
 #include "validate_indic.h"
 #include "validate_javanese.h"
@@ -31,6 +34,9 @@ const char32 Validator::kInvalid = 0xfffd;
 // It is defined here, so the compiler can create a single vtable
 // instead of weak vtables in every compilation unit.
 Validator::~Validator() = default;
+
+
+#if defined(HAS_LIBICU)
 
 // Validates and cleans the src vector of unicodes to the *dest, according to
 // g_mode. In the case of kSingleString, a single vector containing the whole
@@ -83,6 +89,9 @@ std::unique_ptr<Validator> Validator::ScriptValidator(ViramaScript script, bool 
       return std::make_unique<ValidateIndic>(script, report_errors);
   }
 }
+
+#endif
+
 
 // Internal version of the public static ValidateCleanAndSegment.
 // Validates and cleans the src vector of unicodes to the *dest, according to
@@ -137,6 +146,9 @@ static bool CmpPairSecond(const std::pair<int, int> &p1, const std::pair<int, in
 /* static */
 ViramaScript Validator::MostFrequentViramaScript(const std::vector<char32> &utf32) {
   std::unordered_map<int, int> histogram;
+
+#if defined(HAS_LIBICU)
+
   for (char32 ch : utf32) {
     // Determine the codepage base. For the Indic scripts, Khmer and Javanese,
     // it is sufficient to divide by kIndicCodePageSize but Myanmar is all over
@@ -152,6 +164,9 @@ ViramaScript Validator::MostFrequentViramaScript(const std::vector<char32> &utf3
       ++histogram[base];
     }
   }
+
+#endif
+
   if (!histogram.empty()) {
     int base = std::max_element(histogram.begin(), histogram.end(), CmpPairSecond)->first;
     auto codebase = static_cast<char32>(base * kIndicCodePageSize);
@@ -208,4 +223,3 @@ void Validator::Clear() {
 
 } // namespace tesseract
 
-#endif

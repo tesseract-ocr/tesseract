@@ -25,6 +25,8 @@
 #include "polyblk.h"
 #include "stepblob.h"
 
+#include "testdata.h"
+
 namespace tesseract {
 
 /** String name for each block type. Keep in sync with PolyBlockType. */

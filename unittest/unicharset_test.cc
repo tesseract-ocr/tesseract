@@ -15,6 +15,11 @@
 #include "include_gunit.h"
 #include "log.h" // for LOG
 
+#include "testdata.h"
+
+
+#if defined(HAS_LIBICU)
+
 using testing::ElementsAreArray;
 
 namespace tesseract {
@@ -37,7 +42,7 @@ TEST(UnicharsetTest, Basics) {
   EXPECT_EQ(u.size(), 6);
   // The fi ligature is NOT added because it can be encoded with a cleanup as f
   // then i.
-  u.unichar_insert("\ufb01");
+  u.unichar_insert(u8"\ufb01");
   EXPECT_EQ(u.size(), 6);
   u.unichar_insert("e");
   EXPECT_EQ(u.size(), 7);
@@ -46,7 +51,7 @@ TEST(UnicharsetTest, Basics) {
   EXPECT_EQ(u.unichar_to_id("f"), 4);
   EXPECT_EQ(u.unichar_to_id("i"), 5);
   // The fi ligature has no valid id.
-  EXPECT_EQ(u.unichar_to_id("\ufb01"), INVALID_UNICHAR_ID);
+  EXPECT_EQ(u.unichar_to_id(u8"\ufb01"), INVALID_UNICHAR_ID);
   // The fi pair has no valid id.
   EXPECT_EQ(u.unichar_to_id("fi"), INVALID_UNICHAR_ID);
   std::vector<int> labels;
@@ -54,7 +59,7 @@ TEST(UnicharsetTest, Basics) {
   std::vector<int> v(&labels[0], &labels[0] + labels.size());
   EXPECT_THAT(v, ElementsAreArray({3, 4, 4, 5, 7, 6}));
   // With the fi ligature encoding fails without a pre-cleanup.
-  std::string lig_str = "af\ufb01ne";
+  std::string lig_str = u8"af\ufb01ne";
   EXPECT_FALSE(u.encode_string(lig_str.c_str(), true, &labels, nullptr, nullptr));
   lig_str = u.CleanupString(lig_str.c_str());
   EXPECT_TRUE(u.encode_string(lig_str.c_str(), true, &labels, nullptr, nullptr));
@@ -68,38 +73,38 @@ TEST(UnicharsetTest, Multibyte) {
   // unicodes instead of single byte.
   UNICHARSET u;
   // Insert some Arabic letters.
-  u.unichar_insert("\u0627");
+  u.unichar_insert(u8"\u0627");
   EXPECT_EQ(u.size(), 4);
-  u.unichar_insert("\u062c");
+  u.unichar_insert(u8"\u062c");
   EXPECT_EQ(u.size(), 5);
-  u.unichar_insert("\u062f");
+  u.unichar_insert(u8"\u062f");
   EXPECT_EQ(u.size(), 6);
-  u.unichar_insert("\ufb01"); // fi ligature is added as fi pair.
+  u.unichar_insert(u8"\ufb01"); // fi ligature is added as fi pair.
   EXPECT_EQ(u.size(), 7);
-  u.unichar_insert("\u062b");
+  u.unichar_insert(u8"\u062b");
   EXPECT_EQ(u.size(), 8);
-  u.unichar_insert("\u0635");
+  u.unichar_insert(u8"\u0635");
   EXPECT_EQ(u.size(), 9);
-  EXPECT_EQ(u.unichar_to_id("\u0627"), 3);
-  EXPECT_EQ(u.unichar_to_id("\u062c"), 4);
+  EXPECT_EQ(u.unichar_to_id(u8"\u0627"), 3);
+  EXPECT_EQ(u.unichar_to_id(u8"\u062c"), 4);
   // The first two bytes of this string is \u0627, which matches id 3;
-  EXPECT_EQ(u.unichar_to_id("\u0627\u062c", 2), 3);
-  EXPECT_EQ(u.unichar_to_id("\u062f"), 5);
+  EXPECT_EQ(u.unichar_to_id(u8"\u0627\u062c", 2), 3);
+  EXPECT_EQ(u.unichar_to_id(u8"\u062f"), 5);
   // Individual f and i are not present, but they are there as a pair.
   EXPECT_EQ(u.unichar_to_id("f"), INVALID_UNICHAR_ID);
   EXPECT_EQ(u.unichar_to_id("i"), INVALID_UNICHAR_ID);
   EXPECT_EQ(u.unichar_to_id("fi"), 6);
   // The fi ligature is findable.
-  EXPECT_EQ(u.unichar_to_id("\ufb01"), 6);
+  EXPECT_EQ(u.unichar_to_id(u8"\ufb01"), 6);
   std::vector<int> labels;
   EXPECT_TRUE(
-      u.encode_string("\u0627\u062c\u062c\u062f\u0635\u062b", true, &labels, nullptr, nullptr));
+      u.encode_string(u8"\u0627\u062c\u062c\u062f\u0635\u062b", true, &labels, nullptr, nullptr));
   std::vector<int> v(&labels[0], &labels[0] + labels.size());
   EXPECT_THAT(v, ElementsAreArray({3, 4, 4, 5, 8, 7}));
   // With the fi ligature the fi is picked out.
   std::vector<char> lengths;
   unsigned encoded_length;
-  std::string src_str = "\u0627\u062c\ufb01\u0635\u062b";
+  std::string src_str= u8"\u0627\u062c\ufb01\u0635\u062b";
   // src_str has to be pre-cleaned for lengths to be correct.
   std::string cleaned = u.CleanupString(src_str.c_str());
   EXPECT_TRUE(u.encode_string(cleaned.c_str(), true, &labels, &lengths, &encoded_length));
@@ -116,19 +121,19 @@ TEST(UnicharsetTest, MultibyteBigrams) {
   // unicodes instead of single byte.
   UNICHARSET u;
   // Insert some Arabic letters.
-  u.unichar_insert("\u0c9c");
+  u.unichar_insert(u8"\u0c9c");
   EXPECT_EQ(u.size(), 4);
-  u.unichar_insert("\u0cad");
+  u.unichar_insert(u8"\u0cad");
   EXPECT_EQ(u.size(), 5);
-  u.unichar_insert("\u0ccd\u0c9c");
+  u.unichar_insert(u8"\u0ccd\u0c9c");
   EXPECT_EQ(u.size(), 6);
-  u.unichar_insert("\u0ccd");
+  u.unichar_insert(u8"\u0ccd");
   EXPECT_EQ(u.size(), 7);
   // By default the encodable bigram is NOT added.
-  u.unichar_insert("\u0ccd\u0cad");
+  u.unichar_insert(u8"\u0ccd\u0cad");
   EXPECT_EQ(u.size(), 7);
   // It is added if we force it to be.
-  u.unichar_insert("\u0ccd\u0cad", OldUncleanUnichars::kTrue);
+  u.unichar_insert(u8"\u0ccd\u0cad", OldUncleanUnichars::kTrue);
   EXPECT_EQ(u.size(), 8);
   std::vector<char> data;
   tesseract::TFile fp;
@@ -137,11 +142,11 @@ TEST(UnicharsetTest, MultibyteBigrams) {
   fp.Open(&data[0], data.size());
   UNICHARSET v;
   v.load_from_file(&fp, false);
-  EXPECT_EQ(v.unichar_to_id("\u0c9c"), 3);
-  EXPECT_EQ(v.unichar_to_id("\u0cad"), 4);
-  EXPECT_EQ(v.unichar_to_id("\u0ccd\u0c9c"), 5);
-  EXPECT_EQ(v.unichar_to_id("\u0ccd"), 6);
-  EXPECT_EQ(v.unichar_to_id("\u0ccd\u0cad"), 7);
+  EXPECT_EQ(v.unichar_to_id(u8"\u0c9c"), 3);
+  EXPECT_EQ(v.unichar_to_id(u8"\u0cad"), 4);
+  EXPECT_EQ(v.unichar_to_id(u8"\u0ccd\u0c9c"), 5);
+  EXPECT_EQ(v.unichar_to_id(u8"\u0ccd"), 6);
+  EXPECT_EQ(v.unichar_to_id(u8"\u0ccd\u0cad"), 7);
 }
 
 TEST(UnicharsetTest, OldStyle) {
@@ -155,3 +160,5 @@ TEST(UnicharsetTest, OldStyle) {
 }
 
 } // namespace tesseract
+
+#endif

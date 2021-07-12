@@ -23,6 +23,7 @@
 
 #include "equationdetect.h"
 
+#include "blobs.h"   // for TPOINT, TWERD, TBLOB
 #include "bbgrid.h"
 #include "classify.h"
 #include "colpartition.h"
@@ -143,6 +144,8 @@ int EquationDetect::LabelSpecialText(TO_BLOCK *to_block) {
 
   return 0;
 }
+
+#ifndef DISABLED_LEGACY_ENGINE
 
 void EquationDetect::IdentifySpecialText(BLOBNBOX *blobnbox, const int height_th) {
   ASSERT_HOST(blobnbox != nullptr);
@@ -292,6 +295,9 @@ void EquationDetect::IdentifySpecialText() {
     PaintSpecialTexts(outfile);
   }
 }
+
+#endif
+
 
 void EquationDetect::IdentifyBlobsToSkip(ColPartition *part) {
   ASSERT_HOST(part);

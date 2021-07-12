@@ -15,6 +15,8 @@
  ** limitations under the License.
  ******************************************************************************/
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 #include <cstdio>
 
 #include "classify.h"
@@ -71,3 +73,5 @@ bool Classify::WriteTRFile(const char *filename) {
 }
 
 } // namespace tesseract
+
+#endif

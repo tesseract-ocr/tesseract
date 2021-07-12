@@ -18,6 +18,8 @@
 
 #include "docqual.h"
 #include <cctype>
+#include "werd.h"
+#include "blobs.h"
 #include "reject.h"
 #include "tesseractclass.h"
 #include "tessvars.h"
@@ -117,6 +119,10 @@ int16_t Tesseract::count_outline_errs(char c, int16_t outline_count) {
   return abs(outline_count - expected_outline_count);
 }
 
+
+
+#ifndef DISABLED_LEGACY_ENGINE
+
 void Tesseract::quality_based_rejection(PAGE_RES_IT &page_res_it, bool good_quality_doc) {
   if ((tessedit_good_quality_unrej && good_quality_doc)) {
     unrej_good_quality_words(page_res_it);
@@ -127,6 +133,9 @@ void Tesseract::quality_based_rejection(PAGE_RES_IT &page_res_it, bool good_qual
     tilde_delete(page_res_it);
   }
 }
+
+#endif
+
 
 /*************************************************************************
  * unrej_good_quality_words()
@@ -370,6 +379,9 @@ void reject_whole_page(PAGE_RES_IT &page_res_it) {
   page_res_it.page_res->rejected = true;
 }
 
+
+#ifndef DISABLED_LEGACY_ENGINE
+
 void Tesseract::tilde_crunch(PAGE_RES_IT &page_res_it) {
   WERD_RES *word;
   GARBAGE_LEVEL garbage_level;
@@ -446,6 +458,7 @@ void Tesseract::tilde_crunch(PAGE_RES_IT &page_res_it) {
     page_res_it.forward();
   }
 }
+
 
 bool Tesseract::terrible_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_level) {
   float rating_per_ch;
@@ -526,6 +539,9 @@ bool Tesseract::potential_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_leve
   }
   return poor_indicator_count >= crunch_pot_indicators;
 }
+
+#endif
+
 
 void Tesseract::tilde_delete(PAGE_RES_IT &page_res_it) {
   WERD_RES *word;
@@ -612,6 +628,9 @@ void Tesseract::convert_bad_unlv_chs(WERD_RES *word_res) {
     }
   }
 }
+
+
+#ifndef DISABLED_LEGACY_ENGINE
 
 GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, bool ok_dict_word) {
   enum STATES {
@@ -805,6 +824,9 @@ GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, bool ok_dict_word) {
     }
   }
 }
+
+#endif
+
 
 /*************************************************************************
  * word_deletable()

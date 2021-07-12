@@ -20,6 +20,9 @@
 
 #include "include_gunit.h"
 
+
+#if defined(HAS_LIBICU)
+
 namespace tesseract {
 
 #if defined(MISSING_CODE)
@@ -126,36 +129,36 @@ TEST(NormstrngsTest, NonIndicTextDoesntBreakIndicRules) {
 }
 
 TEST(NormstrngsTest, NoLonelyJoiners) {
-  std::string str = "x\u200d\u0d06\u0d34\u0d02";
+  std::string str = u8"x\u200d\u0d06\u0d34\u0d02";
   std::vector<std::string> glyphs;
   // Returns true, but the joiner is gone.
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kCombined, true, str.c_str(), &glyphs))
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(glyphs.size(), 3);
-  EXPECT_EQ(glyphs[0], std::string("x"));
-  EXPECT_EQ(glyphs[1], std::string("\u0d06"));
-  EXPECT_EQ(glyphs[2], std::string("\u0d34\u0d02"));
+  EXPECT_EQ(glyphs[0], std::string(u8"x"));
+  EXPECT_EQ(glyphs[1], std::string(u8"\u0d06"));
+  EXPECT_EQ(glyphs[2], std::string(u8"\u0d34\u0d02"));
 }
 
 TEST(NormstrngsTest, NoLonelyJoinersPlus) {
-  std::string str = "\u0d2a\u200d+\u0d2a\u0d4b";
+  std::string str = u8"\u0d2a\u200d+\u0d2a\u0d4b";
   std::vector<std::string> glyphs;
   // Returns true, but the joiner is gone.
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kCombined, true, str.c_str(), &glyphs))
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(glyphs.size(), 3);
-  EXPECT_EQ(glyphs[0], std::string("\u0d2a"));
-  EXPECT_EQ(glyphs[1], std::string("+"));
-  EXPECT_EQ(glyphs[2], std::string("\u0d2a\u0d4b"));
+  EXPECT_EQ(glyphs[0], std::string(u8"\u0d2a"));
+  EXPECT_EQ(glyphs[1], std::string(u8"+"));
+  EXPECT_EQ(glyphs[2], std::string(u8"\u0d2a\u0d4b"));
 }
 
 TEST(NormstrngsTest, NoLonelyJoinersNonAlpha) {
-  std::string str = "\u200d+\u200c\u200d";
+  std::string str = u8"\u200d+\u200c\u200d";
   // Returns true, but the joiners are gone.
   ExpectGraphemeModeResults(str, UnicodeNormMode::kNFC, 1, 1, 1, std::string("+"));
-  str = "\u200d\u200c\u200d";
+  str = u8"\u200d\u200c\u200d";
   // Without the plus, the string is invalid.
   std::string result;
   EXPECT_FALSE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone, GraphemeNorm::kNormalize,
@@ -164,20 +167,20 @@ TEST(NormstrngsTest, NoLonelyJoinersNonAlpha) {
 }
 
 TEST(NormstrngsTest, JoinersStayInArabic) {
-  std::string str = "\u0628\u200c\u0628\u200d\u0628";
+  std::string str = u8"\u0628\u200c\u0628\u200d\u0628";
   // Returns true, string untouched.
   ExpectGraphemeModeResults(str, UnicodeNormMode::kNFC, 5, 5, 2, str);
 }
 
 TEST(NormstrngsTest, DigitOK) {
-  std::string str = "\u0cea"; // Digit 4.
+  std::string str = u8"\u0cea"; // Digit 4.
   ExpectGraphemeModeResults(str, UnicodeNormMode::kNFC, 1, 1, 1, str);
 }
 
 TEST(NormstrngsTest, DandaOK) {
-  std::string str = "\u0964"; // Single danda.
+  std::string str = u8"\u0964"; // Single danda.
   ExpectGraphemeModeResults(str, UnicodeNormMode::kNFC, 1, 1, 1, str);
-  str = "\u0965"; // Double danda.
+  str = u8"\u0965"; // Double danda.
   ExpectGraphemeModeResults(str, UnicodeNormMode::kNFC, 1, 1, 1, str);
 }
 
@@ -332,9 +335,9 @@ TEST(NormstrngsTest, SpanUTF8Whitespace) {
 }
 
 TEST(NormstrngsTest, SpanUTF8NotWhitespace) {
-  const char kHinText[] = "पिताने विवाह";
-  const char kKorText[] = "이는 것으로 다시 넣을";
-  const char kMixedText[] = "والفكر 123 والصراع abc";
+  const char kHinText[] = u8"पिताने विवाह";
+  const char kKorText[] = u8"이는 것으로 다시 넣을";
+  const char kMixedText[] = u8"والفكر 123 والصراع abc";
 
   EXPECT_EQ(0, SpanUTF8NotWhitespace(""));
   EXPECT_EQ(0, SpanUTF8NotWhitespace(" abc"));
@@ -406,3 +409,5 @@ TEST(NormstrngsTest, FullwidthToHalfwidth) {
 }
 
 } // namespace tesseract
+
+#endif

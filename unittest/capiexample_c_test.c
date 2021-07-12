@@ -13,6 +13,11 @@
 // Verifies that C is able to include capi header.
 #include <tesseract/capi.h>
 
+
+#if defined(BUILD_MONOLITHIC)
+#define main      tesseract_capi_test_main
+#endif
+
 // Verifies that the libtesseract library has C API symbols.
 int main() {
   printf("%s\n", TessVersion());

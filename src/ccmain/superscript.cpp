@@ -18,6 +18,8 @@
 
 #include "normalis.h"
 #include "tesseractclass.h"
+#include "blobs.h"
+
 
 namespace tesseract {
 
@@ -342,6 +344,9 @@ void Tesseract::GetSubAndSuperscriptCandidates(const WERD_RES *word, int *num_re
   }
 }
 
+
+#ifndef DISABLED_LEGACY_ENGINE
+
 /**
  * Try splitting off the given number of (chopped) blobs from the front and
  * back of the given word and recognizing the pieces.
@@ -588,5 +593,7 @@ bool Tesseract::BelievableSuperscript(bool debug, const WERD_RES &word, float ce
   }
   return all_ok;
 }
+
+#endif
 
 } // namespace tesseract

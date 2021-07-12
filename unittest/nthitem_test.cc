@@ -15,7 +15,7 @@
 
 namespace tesseract {
 
-int test_data[] = {8, 1, 2, -4, 7, 9, 65536, 4, 9, 0, -32767, 6, 7};
+static int test_data[] = {8, 1, 2, -4, 7, 9, 65536, 4, 9, 0, -32767, 6, 7};
 
 // The fixture for testing GenericHeap and DoublePtr.
 class NthItemTest : public testing::Test {

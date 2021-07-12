@@ -24,6 +24,8 @@
 #include "tesseractclass.h"
 #include "textlineprojection.h"
 
+#include "testdata.h"
+
 namespace tesseract {
 
 // Minimum score for a STRONG_CHAIN textline.

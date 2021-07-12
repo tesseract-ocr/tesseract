@@ -17,6 +17,9 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
+
+#ifndef DISABLED_LEGACY_ENGINE
+
 #include "normmatch.h"
 
 #include "classify.h"
@@ -211,3 +214,5 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
 } /* ReadNormProtos */
 
 } // namespace tesseract
+
+#endif

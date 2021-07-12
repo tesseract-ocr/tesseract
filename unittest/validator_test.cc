@@ -14,6 +14,9 @@
 #include "gmock/gmock.h" // for testing::ElementsAreArray
 #include "include_gunit.h"
 
+
+#if defined(HAS_LIBICU)
+
 namespace tesseract {
 
 class TestableValidator : public Validator {
@@ -65,3 +68,5 @@ TEST(ValidatorTest, Idempotency) {
 }
 
 } // namespace tesseract
+
+#endif

@@ -22,6 +22,8 @@
 #include "image.h"
 #include "log.h"
 
+#include "testdata.h"
+
 namespace tesseract {
 
 // Replacement for std::filesystem::exists (C++-17)

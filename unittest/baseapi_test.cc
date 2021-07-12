@@ -28,6 +28,8 @@
 #include <string>
 #include <vector>
 
+#include "testdata.h"
+
 namespace tesseract {
 
 using ::testing::ContainsRegex;

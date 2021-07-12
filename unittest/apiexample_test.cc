@@ -33,6 +33,8 @@
 #include "include_gunit.h"
 #include "image.h"
 
+#include "testdata.h"
+
 namespace tesseract {
 
 class QuickTest : public testing::Test {

@@ -9,6 +9,8 @@
 #include "include_gunit.h"
 #include "log.h" // for LOG
 
+#include "testdata.h"
+
 namespace tesseract {
 
 // DEFINE_string(tess_config, "", "config file for tesseract");

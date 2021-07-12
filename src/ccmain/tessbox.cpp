@@ -17,6 +17,8 @@
  *
  **********************************************************************/
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 #include "mfoutline.h"
 #include "tesseractclass.h"
 
@@ -73,4 +75,7 @@ bool Tesseract::tess_acceptable_word(WERD_RES *word) {
 void Tesseract::tess_add_doc_word(WERD_CHOICE *word_choice) {
   getDict().add_document_word(*word_choice);
 }
+
 } // namespace tesseract
+
+#endif

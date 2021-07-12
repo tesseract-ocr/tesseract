@@ -23,6 +23,8 @@
 #  include "util/utf8/unicodetext.h" // for UnicodeText
 #endif
 
+#include "testdata.h"
+
 namespace tesseract {
 
 // Replacement for std::filesystem::exists (C++-17)

@@ -22,6 +22,7 @@
 #ifndef TESSERACT_CLASSIFY_SHAPETABLE_H_
 #define TESSERACT_CLASSIFY_SHAPETABLE_H_
 
+#include "tprintf.h"         // for tprintf
 #include "bitvector.h"
 #include "fontinfo.h"
 #include "genericheap.h"

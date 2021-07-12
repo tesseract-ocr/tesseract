@@ -14,6 +14,8 @@
 #include "include_gunit.h"
 #include "scanutils.h"
 
+#include "testdata.h"
+
 namespace tesseract {
 
 class ScanutilsTest : public ::testing::Test {

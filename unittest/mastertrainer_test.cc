@@ -39,6 +39,8 @@
 #include <utility>
 #include <vector>
 
+#include "testdata.h"
+
 using namespace tesseract;
 
 // Specs of the MockClassifier.
@@ -145,7 +147,9 @@ const double kMin1lDistance = 0.25;
 
 // The fixture for testing Tesseract.
 class MasterTrainerTest : public testing::Test {
-#ifndef DISABLED_LEGACY_ENGINE
+
+#if !defined(DISABLED_LEGACY_ENGINE)
+
 protected:
   void SetUp() override {
     std::locale::global(std::locale(""));
@@ -230,7 +234,9 @@ protected:
   // Objects declared here can be used by all tests in the test case for Foo.
   ShapeTable *shape_table_;
   std::unique_ptr<MasterTrainer> master_trainer_;
+
 #endif
+
 };
 
 // Tests that the MasterTrainer correctly loads its data and reaches the correct

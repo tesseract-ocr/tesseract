@@ -137,8 +137,12 @@ protected:
   Validator(ViramaScript script, bool report_errors)
       : script_(script), codes_used_(0), output_used_(0), report_errors_(report_errors) {}
 
+#if defined(HAS_LIBICU)
+
   // Factory method that understands how to map script to the right subclass.
   static std::unique_ptr<Validator> ScriptValidator(ViramaScript script, bool report_errors);
+
+#endif
 
   // Internal version of the public static ValidateCleanAndSegment.
   // Validates and cleans the src vector of unicodes to the *dest, according to

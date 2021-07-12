@@ -21,6 +21,8 @@
 #include <memory> // std::unique_ptr
 #include "include_gunit.h"
 
+#include "testdata.h"
+
 namespace tesseract {
 
 class QuickTest : public testing::Test {

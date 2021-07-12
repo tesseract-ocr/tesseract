@@ -5,6 +5,8 @@
 
 #include "unicode/uchar.h" // From libicu
 
+#endif
+
 namespace tesseract {
 
 bool ValidateGrapheme::ConsumeGraphemeIfValid() {
@@ -60,6 +62,9 @@ Validator::CharClass ValidateGrapheme::UnicodeToCharClass(char32 ch) const {
   if (IsVedicAccent(ch)) {
     return CharClass::kVedicMark;
   }
+
+#if defined(HAS_LIBICU)
+
   // The ZeroWidth[Non]Joiner characters are mapped to kCombiner as they
   // always combine with the previous character.
   if (u_hasBinaryProperty(ch, UCHAR_GRAPHEME_LINK)) {
@@ -78,6 +83,9 @@ Validator::CharClass ValidateGrapheme::UnicodeToCharClass(char32 ch) const {
       ch == kZeroWidthJoiner) {
     return CharClass::kCombiner;
   }
+
+#endif
+
   return CharClass::kOther;
 }
 
@@ -195,5 +203,3 @@ bool ValidateGrapheme::IsBadlyFormedThai(char32 prev_ch, char32 ch) {
 }
 
 } // namespace tesseract
-
-#endif

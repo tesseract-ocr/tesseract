@@ -618,13 +618,15 @@ public:
 #ifndef DISABLED_LEGACY_ENGINE
   GARBAGE_LEVEL garbage_word(WERD_RES *word, bool ok_dict_word);
   bool potential_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_level, bool ok_dict_word);
-#endif
   void tilde_crunch(PAGE_RES_IT &page_res_it);
+#endif
   void unrej_good_quality_words( // unreject potential
       PAGE_RES_IT &page_res_it);
   void doc_and_block_rejection( // reject big chunks
       PAGE_RES_IT &page_res_it, bool good_quality_doc);
+#ifndef DISABLED_LEGACY_ENGINE
   void quality_based_rejection(PAGE_RES_IT &page_res_it, bool good_quality_doc);
+#endif
   void convert_bad_unlv_chs(WERD_RES *word_res);
   void tilde_delete(PAGE_RES_IT &page_res_it);
   int16_t word_blob_quality(WERD_RES *word);

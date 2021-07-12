@@ -18,7 +18,28 @@
 #include "gtest/gtest.h"
 #include "log.h" // for LOG
 
-const char *FLAGS_test_tmpdir = "./tmp";
+
+#define TST_DECLARE_string(name)                                        \
+  namespace TStest {                                                    \
+    extern const char *FLAGS_##name;                                    \
+  }                                                                     \
+  using TStest::FLAGS_##name
+#define TST_DEFINE_string(name, value, meaning)                         \
+  namespace TStest {                                                    \
+    const char *FLAGS_##name = (value);                                 \
+  }                                                                     \
+  using TStest::FLAGS_##name
+
+#if defined(BUILD_MONOLITHIC) && !defined(BUILD_MONOLITHIC_SINGLE_INSTANCE_NOW)
+
+TST_DECLARE_string(test_tmpdir);
+
+#else
+
+TST_DEFINE_string(test_tmpdir, "./tmp", "Dir we use for temp files");
+
+#endif
+
 
 class file : public tesseract::File {
 public:

@@ -15,7 +15,9 @@
  ** limitations under the License.
  ******************************************************************************/
 
-/*-----------------------------------------------------------------------------
+#ifndef DISABLED_LEGACY_ENGINE
+
+ /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 #ifdef HAVE_CONFIG_H
@@ -2193,3 +2195,5 @@ void Classify::UpdateAmbigsGroup(CLASS_ID class_id, TBLOB *Blob) {
 }
 
 } // namespace tesseract
+
+#endif

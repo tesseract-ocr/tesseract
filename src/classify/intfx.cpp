@@ -71,6 +71,9 @@ FCOORD FeatureDirection(uint8_t theta) {
   return FCOORD(cos_table[theta], sin_table[theta]);
 }
 
+
+#ifndef DISABLED_LEGACY_ENGINE
+
 // Generates a TrainingSample from a TBLOB. Extracts features and sets
 // the bounding box, so classifiers that operate on the image can work.
 // TODO(rays) Make BlobToTrainingSample a member of Classify now that
@@ -478,5 +481,7 @@ void Classify::ExtractFeatures(const TBLOB &blob, bool nonlinear_norm,
   results->YTop = blob.bounding_box().top();
   results->Width = blob.bounding_box().width();
 }
+
+#endif
 
 } // namespace tesseract

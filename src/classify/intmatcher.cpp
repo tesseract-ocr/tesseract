@@ -14,6 +14,8 @@
  ** limitations under the License.
  ******************************************************************************/
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #  include "config_auto.h"
@@ -1164,3 +1166,5 @@ float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length, int norma
 }
 
 } // namespace tesseract
+
+#endif

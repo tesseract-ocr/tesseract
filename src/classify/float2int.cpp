@@ -15,6 +15,8 @@
  ** limitations under the License.
  ******************************************************************************/
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 #include "float2int.h"
 
 #include "classify.h"
@@ -103,3 +105,5 @@ void Classify::ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFea
 } /* ComputeIntFeatures */
 
 } // namespace tesseract
+
+#endif

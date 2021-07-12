@@ -16,6 +16,8 @@
  *
  **********************************************************************/
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 #include <cmath>
 
 #include "blamer.h"
@@ -304,3 +306,5 @@ void Tesseract::join_words(WERD_RES *word, WERD_RES *word2, BlamerBundle *orig_b
 }
 
 } // namespace tesseract
+
+#endif

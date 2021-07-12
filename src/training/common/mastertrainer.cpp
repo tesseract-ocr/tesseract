@@ -735,7 +735,11 @@ void MasterTrainer::DebugCanonical(const char *unichar_str1, const char *unichar
   }
 }
 
+
+#ifndef DISABLED_LEGACY_ENGINE
+
 #ifndef GRAPHICS_DISABLED
+
 // Debugging for cloud/canonical features.
 // Displays a Features window containing:
 // If unichar_str2 is in the unicharset, and canonical_font is non-negative,
@@ -792,7 +796,11 @@ void MasterTrainer::DisplaySamples(const char *unichar_str1, int cloud_font,
     delete ev;
   } while (ev_type != SVET_DESTROY);
 }
+
 #endif // !GRAPHICS_DISABLED
+
+#endif
+
 
 void MasterTrainer::TestClassifierVOld(bool replicate_samples, ShapeClassifier *test_classifier,
                                        ShapeClassifier *old_classifier) {

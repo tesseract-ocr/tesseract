@@ -18,6 +18,8 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 #include <cstdio>
 #include <sstream> // for std::istringstream
 #include <string>  // for std::string
@@ -72,3 +74,5 @@ void Classify::ReadNewCutoffs(TFile *fp, uint16_t *Cutoffs) {
 }
 
 } // namespace tesseract
+
+#endif

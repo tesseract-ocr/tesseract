@@ -193,7 +193,10 @@ public:
   // Generates debug output relating to the canonical distance between the
   // two given UTF8 grapheme strings.
   void DebugCanonical(const char *unichar_str1, const char *unichar_str2);
+
+#ifndef DISABLED_LEGACY_ENGINE
 #ifndef GRAPHICS_DISABLED
+
   // Debugging for cloud/canonical features.
   // Displays a Features window containing:
   // If unichar_str2 is in the unicharset, and canonical_font is non-negative,
@@ -206,7 +209,9 @@ public:
   // will display the samples that have that feature in a separate window.
   void DisplaySamples(const char *unichar_str1, int cloud_font, const char *unichar_str2,
                       int canonical_font);
+
 #endif // !GRAPHICS_DISABLED
+#endif
 
   void TestClassifierVOld(bool replicate_samples, ShapeClassifier *test_classifier,
                           ShapeClassifier *old_classifier);

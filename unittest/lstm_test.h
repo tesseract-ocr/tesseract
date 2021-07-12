@@ -28,6 +28,8 @@
 #include "lstmtrainer.h"
 #include "unicharset.h"
 
+#include "testdata.h"
+
 namespace tesseract {
 
 #if DEBUG_DETAIL == 0
@@ -81,7 +83,7 @@ protected:
     std::string checkpoint_path = model_path + "_checkpoint";
     trainer_ = std::make_unique<LSTMTrainer>(model_path.c_str(), checkpoint_path.c_str(), 0, 0);
     trainer_->InitCharSet(
-        file::JoinPath(FLAGS_test_tmpdir, kLang, absl::StrCat(kLang, ".traineddata")));
+        file::JoinPath(FLAGS_test_tmpdir, kLang, kLang + ".traineddata"));
     int net_mode = adam ? NF_ADAM : 0;
     // Adam needs a higher learning rate, due to not multiplying the effective
     // rate by 1/(1-momentum).

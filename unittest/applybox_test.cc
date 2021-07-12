@@ -18,6 +18,8 @@
 
 #include "include_gunit.h"
 
+#include "testdata.h"
+
 namespace tesseract {
 
 const char *kTruthTextWords = "To simple burn running of goods lately.\n";

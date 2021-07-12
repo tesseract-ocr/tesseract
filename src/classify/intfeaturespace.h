@@ -19,6 +19,12 @@
 #ifndef TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 #define TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 
+#include <tesseract/export.h>       // for TESS_API
+#include <tesseract/unichar.h>
+
+#include <climits> // INT16_MAX
+#include <cstdint> // int16_t
+
 #include "intproto.h"
 
 // Extent of x,y,theta in the input feature space. [0,255].

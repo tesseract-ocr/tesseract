@@ -13,23 +13,26 @@
 #include "normstrngs.h"
 #include "normstrngs_test.h"
 
+
+#if defined(HAS_LIBICU)
+
 namespace tesseract {
 
 TEST(ValidateGraphemeTest, MultipleSyllablesAreNotASingleGrapheme) {
-  std::string str = "\u0c15\u0c3f\u0c15\u0c0e"; // KA - dep I - KA - ind E.
+  std::string str = u8"\u0c15\u0c3f\u0c15\u0c0e"; // KA - dep I - KA - ind E.
   std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kCombined, true, str.c_str(), &glyphs))
       << PrintString32WithUnicodes(str);
   // It made 3 graphemes.
   EXPECT_EQ(glyphs.size(), 3);
-  EXPECT_EQ(glyphs[0], std::string("\u0c15\u0c3f"));
-  EXPECT_EQ(glyphs[1], std::string("\u0c15"));
-  EXPECT_EQ(glyphs[2], std::string("\u0c0e"));
+  EXPECT_EQ(glyphs[0], std::string(u8"\u0c15\u0c3f"));
+  EXPECT_EQ(glyphs[1], std::string(u8"\u0c15"));
+  EXPECT_EQ(glyphs[2], std::string(u8"\u0c0e"));
 }
 
 TEST(ValidateGraphemeTest, SingleConsonantOK) {
-  std::string str = "\u0cb9"; // HA
+  std::string str = u8"\u0cb9"; // HA
   std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kCombined, true, str.c_str(), &glyphs))
@@ -39,7 +42,7 @@ TEST(ValidateGraphemeTest, SingleConsonantOK) {
 }
 
 TEST(ValidateGraphemeTest, SimpleCV) {
-  std::string str = "\u0cb9\u0cbf"; // HA I
+  std::string str = u8"\u0cb9\u0cbf"; // HA I
   std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kCombined, true, str.c_str(), &glyphs))
@@ -49,7 +52,7 @@ TEST(ValidateGraphemeTest, SimpleCV) {
 }
 
 TEST(ValidateGraphemeTest, SubscriptConjunct) {
-  std::string str = "\u0cb9\u0ccd\u0c95\u0cbf"; // HA Virama KA I
+  std::string str = u8"\u0cb9\u0ccd\u0c95\u0cbf"; // HA Virama KA I
   std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kCombined, true, str.c_str(), &glyphs))
@@ -61,11 +64,11 @@ TEST(ValidateGraphemeTest, SubscriptConjunct) {
                                            &glyphs))
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(glyphs.size(), 3);
-  EXPECT_EQ(glyphs[1], std::string("\u0ccd\u0c95"));
+  EXPECT_EQ(glyphs[1], std::string(u8"\u0ccd\u0c95"));
 }
 
 TEST(ValidateGraphemeTest, HalfFormJoiner) {
-  std::string str = "\u0d15\u0d4d\u200d\u0d24"; // KA Virama ZWJ Ta
+  std::string str = u8"\u0d15\u0d4d\u200d\u0d24"; // KA Virama ZWJ Ta
   std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kCombined, true, str.c_str(), &glyphs))
@@ -77,11 +80,11 @@ TEST(ValidateGraphemeTest, HalfFormJoiner) {
                                            &glyphs))
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(glyphs.size(), 2) << PrintStringVectorWithUnicodes(glyphs);
-  EXPECT_EQ(glyphs[0], std::string("\u0d15\u0d4d\u200d"));
+  EXPECT_EQ(glyphs[0], std::string(u8"\u0d15\u0d4d\u200d"));
 }
 
 TEST(ValidateGraphemeTest, TraditionalConjunctJoiner) {
-  std::string str = "\u0d15\u200d\u0d4d\u0d24"; // KA ZWI Virama Ta
+  std::string str = u8"\u0d15\u200d\u0d4d\u0d24"; // KA ZWI Virama Ta
   std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kCombined, true, str.c_str(), &glyphs))
@@ -93,11 +96,11 @@ TEST(ValidateGraphemeTest, TraditionalConjunctJoiner) {
                                            &glyphs))
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(glyphs.size(), 3);
-  EXPECT_EQ(glyphs[1], std::string("\u200d\u0d4d"));
+  EXPECT_EQ(glyphs[1], std::string(u8"\u200d\u0d4d"));
 }
 
 TEST(ValidateGraphemeTest, OpenConjunctNonJoiner) {
-  std::string str = "\u0d15\u200c\u0d4d\u0d24"; // KA ZWNJ Virama Ta
+  std::string str = u8"\u0d15\u200c\u0d4d\u0d24"; // KA ZWNJ Virama Ta
   std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kCombined, true, str.c_str(), &glyphs))
@@ -109,9 +112,9 @@ TEST(ValidateGraphemeTest, OpenConjunctNonJoiner) {
                                            &glyphs))
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(glyphs.size(), 3);
-  EXPECT_EQ(glyphs[1], std::string("\u200c\u0d4d"));
+  EXPECT_EQ(glyphs[1], std::string(u8"\u200c\u0d4d"));
   // Malaylam only, so not allowed in Telugu.
-  str = "\u0c15\u200c\u0c4d\u0c24"; // KA ZWNJ Virama Ta
+  str = u8"\u0c15\u200c\u0c4d\u0c24"; // KA ZWNJ Virama Ta
   EXPECT_FALSE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                             GraphemeNormMode::kCombined, true, str.c_str(),
                                             &glyphs))
@@ -119,24 +122,24 @@ TEST(ValidateGraphemeTest, OpenConjunctNonJoiner) {
 }
 
 TEST(ValidateGraphemeTest, ExplicitViramaNonJoiner) {
-  std::string str = "\u0d15\u0d4d\u200c\u0d24"; // KA Virama ZWNJ Ta
+  std::string str = u8"\u0d15\u0d4d\u200c\u0d24"; // KA Virama ZWNJ Ta
   std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kCombined, true, str.c_str(), &glyphs))
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(glyphs.size(), 2);
-  EXPECT_EQ(glyphs[1], std::string("\u0d24"));
+  EXPECT_EQ(glyphs[1], std::string(u8"\u0d24"));
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kGlyphSplit, true, str.c_str(),
                                            &glyphs))
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(glyphs.size(), 3);
-  EXPECT_EQ(glyphs[1], std::string("\u0d4d\u200c"));
+  EXPECT_EQ(glyphs[1], std::string(u8"\u0d4d\u200c"));
 }
 
 TEST(ValidateGraphemeTest, ThaiGraphemes) {
   // This is a single grapheme unless in glyph split mode
-  std::string str = "\u0e14\u0e38\u0e4a";
+  std::string str = u8"\u0e14\u0e38\u0e4a";
   std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                            GraphemeNormMode::kCombined, true, str.c_str(), &glyphs))
@@ -148,11 +151,11 @@ TEST(ValidateGraphemeTest, ThaiGraphemes) {
                                            &glyphs))
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(glyphs.size(), 3);
-  EXPECT_EQ(glyphs[0], std::string("\u0e14"));
+  EXPECT_EQ(glyphs[0], std::string(u8"\u0e14"));
 }
 
 TEST(ValidateGraphemeTest, NoLonelyJoinersQuote) {
-  std::string str = "'\u0d24\u0d23\u0d32\u0d4d'\u200d";
+  std::string str = u8"'\u0d24\u0d23\u0d32\u0d4d'\u200d";
   std::vector<std::string> glyphs;
   // Returns true, but the joiner is gone.
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
@@ -160,10 +163,12 @@ TEST(ValidateGraphemeTest, NoLonelyJoinersQuote) {
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(glyphs.size(), 5);
   EXPECT_EQ(glyphs[0], std::string("'"));
-  EXPECT_EQ(glyphs[1], std::string("\u0d24"));
-  EXPECT_EQ(glyphs[2], std::string("\u0d23"));
-  EXPECT_EQ(glyphs[3], std::string("\u0d32\u0d4d\u200c"));
+  EXPECT_EQ(glyphs[1], std::string(u8"\u0d24"));
+  EXPECT_EQ(glyphs[2], std::string(u8"\u0d23"));
+  EXPECT_EQ(glyphs[3], std::string(u8"\u0d32\u0d4d\u200c"));
   EXPECT_EQ(glyphs[4], std::string("'"));
 }
 
 } // namespace tesseract
+
+#endif

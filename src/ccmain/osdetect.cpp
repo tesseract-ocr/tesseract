@@ -19,6 +19,7 @@
 
 #include <tesseract/osdetect.h>
 
+#include "blobs.h"   // for TPOINT, TWERD, TBLOB
 #include "blobbox.h"
 #include "blread.h"
 #include "colfind.h"
@@ -317,6 +318,9 @@ int os_detect_blobs(const std::vector<int> *allowed_scripts, BLOBNBOX_CLIST *blo
   return num_blobs_evaluated;
 }
 
+
+#ifndef DISABLED_LEGACY_ENGINE
+
 // Processes a single blob to estimate script and orientation.
 // Return true if estimate of orientation and script satisfies stopping
 // criteria.
@@ -360,6 +364,9 @@ bool os_detect_blob(BLOBNBOX *bbox, OrientationDetector *o, ScriptDetector *s, O
   stop = s->must_stop(orientation) && stop;
   return stop;
 }
+
+#endif
+
 
 OrientationDetector::OrientationDetector(const std::vector<int> *allowed_scripts, OSResults *osr) {
   osr_ = osr;
@@ -455,6 +462,9 @@ ScriptDetector::ScriptDetector(const std::vector<int> *allowed_scripts, OSResult
   latin_id_ = tess_->unicharset.add_script(latin_script);
   fraktur_id_ = tess_->unicharset.add_script(fraktur_script_);
 }
+
+
+#ifndef DISABLED_LEGACY_ENGINE
 
 // Score the given blob and return true if it is now sure of the script after
 // adding this blob.
@@ -554,6 +564,9 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
     }
   } // iterate over each orientation
 }
+
+#endif
+
 
 bool ScriptDetector::must_stop(int orientation) const {
   osr_->update_best_script(orientation);

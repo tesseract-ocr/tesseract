@@ -27,6 +27,8 @@
 #include "include_gunit.h"
 #include "image.h"
 
+#include "testdata.h"
+
 namespace tesseract {
 
 class TestClass : public testing::Test {

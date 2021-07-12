@@ -15,6 +15,8 @@
  ** limitations under the License.
  ******************************************************************************/
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 #include "mfoutline.h"
 
 #include "blobs.h"
@@ -415,3 +417,5 @@ MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint) {
 }
 
 } // namespace tesseract
+
+#endif

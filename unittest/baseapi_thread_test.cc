@@ -34,6 +34,8 @@
 #include "log.h"
 #include "image.h"
 
+#include "testdata.h"
+
 // Run with Tesseract instances.
 BOOL_PARAM_FLAG(test_tesseract, true, "Test tesseract instances");
 // Run with Cube instances.

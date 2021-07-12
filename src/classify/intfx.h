@@ -54,6 +54,8 @@ void InitIntegerFX();
 TESS_API
 FCOORD FeatureDirection(uint8_t theta);
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 // Generates a TrainingSample from a TBLOB. Extracts features and sets
 // the bounding box, so classifiers that operate on the image can work.
 // TODO(rays) BlobToTrainingSample must remain a global function until
@@ -62,6 +64,8 @@ FCOORD FeatureDirection(uint8_t theta);
 TrainingSample *BlobToTrainingSample(const TBLOB &blob, bool nonlinear_norm,
                                      INT_FX_RESULT_STRUCT *fx_info,
                                      std::vector<INT_FEATURE_STRUCT> *bl_features);
+
+#endif
 
 } // namespace tesseract
 

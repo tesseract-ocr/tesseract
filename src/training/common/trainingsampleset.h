@@ -16,6 +16,7 @@
 #ifndef TESSERACT_TRAINING_TRAININGSAMPLESET_H_
 #define TESSERACT_TRAINING_TRAININGSAMPLESET_H_
 
+#include "unicharset.h"          // for UNICHARSET
 #include "bitvector.h"
 #include "indexmapbidi.h"
 #include "matrix.h"

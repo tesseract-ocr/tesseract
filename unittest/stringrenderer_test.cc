@@ -9,6 +9,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if defined(PANGO_ENABLE_ENGINE)
+
 #include "include_gunit.h"
 
 #include "boxchar.h"
@@ -523,3 +525,5 @@ TEST(ConvertFullwidthLatinToBasicLatinTest, DoesNotConvertSpace) {
   EXPECT_EQ(kFullSpace, StringRenderer::ConvertFullwidthLatinToBasicLatin(kFullSpace));
 }
 } // namespace tesseract
+
+#endif

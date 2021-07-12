@@ -17,6 +17,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "tesseractclass.h"
+#include "blobs.h"
+
 #ifdef _OPENMP
 #  include <omp.h>
 #endif // _OPENMP
@@ -34,6 +36,9 @@ struct BlobData {
   Tesseract *tesseract = nullptr;
   BLOB_CHOICE_LIST **choices = nullptr;
 };
+
+
+#ifndef DISABLED_LEGACY_ENGINE
 
 void Tesseract::PrerecAllWordsPar(const std::vector<WordData> &words) {
   // Prepare all the blobs.
@@ -66,5 +71,7 @@ void Tesseract::PrerecAllWordsPar(const std::vector<WordData> &words) {
     }
   }
 }
+
+#endif
 
 } // namespace tesseract.
