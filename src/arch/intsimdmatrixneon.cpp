@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #  include "intsimdmatrix.h"
+#  include "tfloat.h"
 
 #if defined(HAVE_NEON)
 
@@ -26,6 +27,12 @@
 #  include "arm_neon.h"
 
 namespace tesseract {
+
+#if defined(FAST_FLOAT)
+
+const IntSimdMatrix *IntSimdMatrix::intSimdMatrixNEON = nullptr;
+
+#else
 
 // Number of outputs held in each register. (Actually, we use a
 // pair of 4x32 registers, so 8 x 32 bit ints).
@@ -186,7 +193,7 @@ static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const double *
                             num_out & (kNumOutputsPerRegister - 1));
 }
 
-static const IntSimdMatrix intSimdMatrix = {
+static const IntSimdMatrix simdMatrix = {
     // Function.
     matrixDotVector,
     // Number of 32 bit outputs held in each register.
@@ -199,7 +206,9 @@ static const IntSimdMatrix intSimdMatrix = {
     kNumInputsPerGroup
 };
 
-const IntSimdMatrix *IntSimdMatrix::intSimdMatrixNEON = &intSimdMatrix;
+const IntSimdMatrix *IntSimdMatrix::intSimdMatrixNEON = &simdMatrix;
+
+#endif // FAST_FLOAT
 
 } // namespace tesseract.
 

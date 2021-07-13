@@ -154,8 +154,8 @@ noinst_LTLIBRARIES += libtesseract_native.la
 libtesseract_native_la_CXXFLAGS = -O3 -ffast-math
 if MARCH_NATIVE_OPT
 libtesseract_native_la_CXXFLAGS += -march=native -mtune=native
-libtesseract_native_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 endif
+libtesseract_native_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 libtesseract_native_la_SOURCES = src/arch/dotproduct.cpp
 
 if HAVE_AVX

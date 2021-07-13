@@ -108,10 +108,14 @@ bool SIMDDetect::fma_available_ = false;
 bool SIMDDetect::sse_available_ = false;
 
 #if defined(HAVE_FRAMEWORK_ACCELERATE)
-static double DotProductAccelerate(const double* u, const double* v, int n) {
-  double total = 0.0;
+TFloat DotProductAccelerate(const TFloat* u, const TFloat* v, int n) {
+  TFloat total = 0;
   const int stride = 1;
+#if defined(FAST_FLOAT)
+  vDSP_dotpr(u, stride, v, stride, &total, n);
+#else
   vDSP_dotprD(u, stride, v, stride, &total, n);
+#endif
   return total;
 }
 #endif
@@ -143,10 +147,17 @@ static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr
 SIMDDetect::SIMDDetect() {
   // The fallback is a generic dot product calculation.
   SetDotProduct(DotProductGeneric);
-  const char *env = getenv("dotproduct");
-  if (env) {
-    dotproduct = env;
+  const char* dotproduct_env = getenv("DOTPRODUCT");
+  if (dotproduct_env != nullptr) {
+    dotproduct = dotproduct_env;
     Update();
+    if (strcmp(dotproduct_env, "native") == 0) {
+      SetDotProduct(DotProductNative);
+#if defined(HAVE_FRAMEWORK_ACCELERATE)
+    } else if (strcmp(dotproduct_env, "accelerate") == 0) {
+      SetDotProduct(DotProductAccelerate);
+#endif
+    }
     return;
   }
 
