@@ -28,6 +28,8 @@ class DotProductTest : public ::testing::Test {
 protected:
   void SetUp() override {
     std::locale::global(std::locale(""));
+    u[0] = static_cast<TFloat>(1.41421);
+    v[0] = static_cast<TFloat>(1.41421);
   }
   void RunTest(TFloat (*f)(const TFloat *u, const TFloat *v, int n));
   static const size_t multiplications = 5000000000U;
@@ -38,8 +40,12 @@ protected:
 };
 
 void DotProductTest::RunTest(TFloat (*f)(const TFloat *u, const TFloat *v, int n)) {
+  TFloat dp = 0;
   for (auto i = multiplications / n; i > 0; i--) {
-    f(u, v, n);
+    dp = f(u, v, n);
+  }
+  if (std::abs(2.0 - dp) > 0.0001) {
+    printf("warning: dp=%f, expected %f\n", dp, 2.0);
   }
 }
 
