@@ -30,7 +30,7 @@ protected:
     std::locale::global(std::locale(""));
   }
   void RunTest(TFloat (*f)(const TFloat *u, const TFloat *v, int n));
-  static const size_t multiplications = 500000000;
+  static const size_t multiplications = 5000000000U;
   static const size_t n = 40;
   //static const size_t n = 1000000;
   TFloat u[n];
@@ -117,5 +117,27 @@ TEST_F(DotProductTest, FMA) {
   GTEST_SKIP();
 #endif
 }
+
+#if defined(HAVE_FRAMEWORK_ACCELERATE)
+TEST_F(DotProductTest, Accelerate) {
+  RunTest(DotProductAccelerate);
+}
+#endif
+
+#if 0
+// Tests that the NEON implementation gets the same result as the vanilla.
+TEST_F(DotProductTest, NEON) {
+#if defined(HAVE_NEON)
+  if (!SIMDDetect::IsNEONAvailable()) {
+    GTEST_LOG_(INFO) << "No NEON found! Not tested!";
+    GTEST_SKIP();
+  }
+  RunTest(DotProductNEON);
+#else
+  GTEST_LOG_(INFO) << "NEON unsupported! Not tested!";
+  GTEST_SKIP();
+#endif
+}
+#endif
 
 } // namespace tesseract
