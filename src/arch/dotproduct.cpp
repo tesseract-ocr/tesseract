@@ -21,7 +21,9 @@ namespace tesseract {
 // Computes and returns the dot product of the two n-vectors u and v.
 TFloat DotProductNative(const TFloat *u, const TFloat *v, int n) {
   TFloat total = 0;
-#pragma omp simdi reduction(+:total)
+#if defined(OPENMP_SIMD)
+#pragma omp simd reduction(+:total)
+#endif
   for (int k = 0; k < n; k++) {
     total += u[k] * v[k];
   }
