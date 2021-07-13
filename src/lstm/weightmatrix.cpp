@@ -351,25 +351,15 @@ void WeightMatrix::MatrixDotVector(const TFloat *u, TFloat *v) const {
   MatrixDotVectorInternal(wf_, true, false, u, v);
 }
 
-void WeightMatrix::MatrixDotVector(const int8_t *u, float *v) const {
+void WeightMatrix::MatrixDotVector(const int8_t *u, TFloat *v) const {
   assert(int_mode_);
   if (IntSimdMatrix::intSimdMatrix) {
-    IntSimdMatrix::intSimdMatrix->matrixDotVectorFunctionFP32(wi_.dim1(), wi_.dim2(), &shaped_w_[0],
+    IntSimdMatrix::intSimdMatrix->matrixDotVectorFunction(wi_.dim1(), wi_.dim2(), &shaped_w_[0],
                                                           &scales_[0], u, v);
   } else {
     IntSimdMatrix::MatrixDotVector(wi_, scales_, u, v);
   }
 }
-void WeightMatrix::MatrixDotVector(const int8_t *u, double *v) const {
-  assert(int_mode_);
-  if (IntSimdMatrix::intSimdMatrix) {
-    IntSimdMatrix::intSimdMatrix->matrixDotVectorFunctionFP64(wi_.dim1(), wi_.dim2(), &shaped_w_[0],
-                                                          &scales_[0], u, v);
-  } else {
-    IntSimdMatrix::MatrixDotVector(wi_, scales_, u, v);
-  }
-}
-
 
 // MatrixDotVector for peep weights, MultiplyAccumulate adds the
 // component-wise products of *this[0] and v to inout.
