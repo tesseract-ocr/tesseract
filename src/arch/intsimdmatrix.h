@@ -97,9 +97,12 @@ struct TESS_API IntSimdMatrix {
   // RoundInputs above.
   // The input will be over-read to the extent of the padding. There are no
   // alignment requirements.
-  using MatrixDotVectorFunction = void (*)(int, int, const int8_t *, const TFloat *, const int8_t *,
-                                           TFloat *);
-  MatrixDotVectorFunction matrixDotVectorFunction;
+  using MatrixDotVectorFunctionFP32 = void (*)(int, int, const int8_t *, const float *, const int8_t *,
+                                           float *);
+  using MatrixDotVectorFunctionFP64 = void (*)(int, int, const int8_t *, const double *, const int8_t *,
+                                           double *);
+  MatrixDotVectorFunctionFP32 matrixDotVectorFunctionFP32;
+  MatrixDotVectorFunctionFP64 matrixDotVectorFunctionFP64;
 
   // Number of 32 bit outputs held in each register.
   int num_outputs_per_register_;
