@@ -337,26 +337,19 @@ bool WeightMatrix::DeSerializeOld(bool training, TFile *fp) {
     if (!fp->DeSerialize<TFloat, float>(scales_)) {
       return false;
     }
-    scales_.reserve(old_scales.size());
-    for (float old_scale : old_scales) {
-      scales_.push_back(old_scale);
-    }
   } else {
-    GENERIC_2D_ARRAY<float> float_array;
-    if (!float_array.DeSerialize(fp)) {
+    if (!wf_.DeSerialize<float>(fp)) {
       return false;
     }
-    FloatToDouble(float_array, wf_);
   }
   if (training) {
     InitBackward();
-    GENERIC_2D_ARRAY<float> float_array;
     if (!updates_.DeSerialize<float>(fp)) {
       return false;
     }
-    FloatToDouble(float_array, updates_);
     // Errs was only used in int training, which is now dead.
-    if (!float_array.DeSerialize<float>(fp)) {
+	GENERIC_2D_ARRAY<float> float_array;
+	if (!float_array.DeSerialize<float>(fp)) {
       return false;
     }
   }
