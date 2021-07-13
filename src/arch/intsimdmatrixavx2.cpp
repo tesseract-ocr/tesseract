@@ -15,7 +15,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#  include "intsimdmatrix.h"
+#include "intsimdmatrix.h"
 
 #if defined(__AVX2__)
 

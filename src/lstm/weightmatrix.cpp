@@ -21,7 +21,7 @@
 #include "intsimdmatrix.h"
 #include "simddetect.h" // for DotProduct
 #include "statistc.h"
-#include "tprintf.h"
+#include "tprintf.h"    // forTFloat
 #include "tfloat.h"
 
 namespace tesseract {
@@ -36,8 +36,6 @@ static inline TFloat log2(TFloat n) {
 const int kAdamCorrectionIterations = 200000;
 // Epsilon in Adam to prevent division by zero.
 const TFloat kAdamEpsilon = 1e-8;
-
-#if 0
 
 // Utility functions convert between double and float arrays.
 static void DoubleToFloat(const GENERIC_2D_ARRAY<double> &src, GENERIC_2D_ARRAY<float> &dst) {
@@ -66,7 +64,28 @@ static void FloatToDouble(const GENERIC_2D_ARRAY<float> &src, GENERIC_2D_ARRAY<d
   }
 }
 
+static bool DeSerialize(TFile *fp, GENERIC_2D_ARRAY<TFloat> &tfloat_array) {
+#ifdef FAST_FLOAT
+  GENERIC_2D_ARRAY<double> double_array;
+  if (!double_array.DeSerialize(fp)) {
+    return false;
+  }
+  DoubleToFloat(double_array, tfloat_array);
+  return true;
+#else
+  return tfloat_array.DeSerialize(fp);
 #endif
+}
+
+static bool Serialize(TFile *fp, const GENERIC_2D_ARRAY<TFloat> &tfloat_array) {
+#ifdef FAST_FLOAT
+  GENERIC_2D_ARRAY<double> double_array;
+  FloatToDouble(tfloat_array, double_array);
+  return double_array.Serialize(fp);
+#else
+  return tfloat_array.Serialize(fp);
+#endif
+}
 
 
 // Computes matrix.vector v = Wu.
@@ -242,14 +261,14 @@ bool WeightMatrix::Serialize(bool training, TFile *fp) const {
       return false;
     }
   } else {
-    if (!wf_.Serialize<double>(fp)) {
+    if (!tesseract::Serialize(fp, wf_)) {
       return false;
     }
     if (training) {
-      if (!updates_.Serialize<double>(fp)) {
+      if (!tesseract::Serialize(fp, updates_)) {
         return false;
       }
-      if (use_adam_ && !dw_sq_sum_.Serialize<double>(fp)) {
+      if (use_adam_ && !tesseract::Serialize(fp, dw_sq_sum_)) {
         return false;
       }
     }
@@ -290,16 +309,18 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
       scales_.resize(rounded_num_out);
     }
   } else {
-    if (!wf_.DeSerialize<double>(fp)) {
+    if (!tesseract::DeSerialize(fp, wf_)) {
       return false;
     }
     if (training) {
       InitBackward();
-      if (!updates_.DeSerialize<double>(fp)) {
+      if (!tesseract::DeSerialize(fp, updates_)) {
         return false;
       }
-      if (use_adam_ && !dw_sq_sum_.DeSerialize<double>(fp)) {
-        return false;
+      if (use_adam_) {
+        if (!tesseract::DeSerialize(fp, dw_sq_sum_)) {
+          return false;
+        }
       }
     }
   }
@@ -316,19 +337,26 @@ bool WeightMatrix::DeSerializeOld(bool training, TFile *fp) {
     if (!fp->DeSerialize<TFloat, float>(scales_)) {
       return false;
     }
+    scales_.reserve(old_scales.size());
+    for (float old_scale : old_scales) {
+      scales_.push_back(old_scale);
+    }
   } else {
-    if (!wf_.DeSerialize<float>(fp)) {
+    GENERIC_2D_ARRAY<float> float_array;
+    if (!float_array.DeSerialize(fp)) {
       return false;
     }
+    FloatToDouble(float_array, wf_);
   }
   if (training) {
     InitBackward();
+    GENERIC_2D_ARRAY<float> float_array;
     if (!updates_.DeSerialize<float>(fp)) {
       return false;
     }
+    FloatToDouble(float_array, updates_);
     // Errs was only used in int training, which is now dead.
-	GENERIC_2D_ARRAY<float> float_array;
-	if (!float_array.DeSerialize<float>(fp)) {
+    if (!float_array.DeSerialize<float>(fp)) {
       return false;
     }
   }

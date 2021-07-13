@@ -127,7 +127,7 @@ static TFloat DotProductGeneric(const TFloat *u, const TFloat *v, int n) {
 
 // Compute dot product using std::inner_product.
 static TFloat DotProductStdInnerProduct(const TFloat *u, const TFloat *v, int n) {
-  return std::inner_product(u, u + n, v, 0.0);
+  return std::inner_product(u, u + n, v, static_cast<TFloat>(0));
 }
 
 static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr) {
@@ -143,15 +143,10 @@ static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr
 SIMDDetect::SIMDDetect() {
   // The fallback is a generic dot product calculation.
   SetDotProduct(DotProductGeneric);
-  const char* dotproduct_env = getenv("DOTPRODUCT");
-  if (dotproduct_env != nullptr) {
-    if (strcmp(dotproduct_env, "native") == 0) {
-      SetDotProduct(DotProductNative);
-#if defined(HAVE_FRAMEWORK_ACCELERATE)
-    } else if (strcmp(dotproduct_env, "accelerate") == 0) {
-      SetDotProduct(DotProductAccelerate);
-#endif
-    }
+  const char *env = getenv("dotproduct");
+  if (env) {
+    dotproduct = env;
+    Update();
     return;
   }
 
@@ -288,6 +283,10 @@ void SIMDDetect::Update() {
     // AVX2 selected by config variable.
     SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixAVX2);
     dotproduct_method = "avx2";
+  } else if (!strcmp(dotproduct.c_str(), "avx-1") && avx_available_ && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
+    // AVX2 (Alternative Implementation) selected by config variable.
+    SetDotProduct(DotProductAVX1, IntSimdMatrix::intSimdMatrixAVX2);
+    dotproduct_method = "avx-1";
   } else if (!strcmp(dotproduct.c_str(), "avx") && avx_available_ && IntSimdMatrix::intSimdMatrixSSE != nullptr) {
     // AVX selected by config variable.
     SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixSSE);
