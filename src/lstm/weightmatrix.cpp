@@ -65,26 +65,11 @@ static void FloatToDouble(const GENERIC_2D_ARRAY<float> &src, GENERIC_2D_ARRAY<d
 }
 
 static bool DeSerialize(TFile *fp, GENERIC_2D_ARRAY<TFloat> &tfloat_array) {
-#ifdef FAST_FLOAT
-  GENERIC_2D_ARRAY<double> double_array;
-  if (!double_array.DeSerialize(fp)) {
-    return false;
-  }
-  DoubleToFloat(double_array, tfloat_array);
-  return true;
-#else
-  return tfloat_array.DeSerialize(fp);
-#endif
+  return tfloat_array.DeSerialize<double>(fp);
 }
 
 static bool Serialize(TFile *fp, const GENERIC_2D_ARRAY<TFloat> &tfloat_array) {
-#ifdef FAST_FLOAT
-  GENERIC_2D_ARRAY<double> double_array;
-  FloatToDouble(tfloat_array, double_array);
-  return double_array.Serialize(fp);
-#else
-  return tfloat_array.Serialize(fp);
-#endif
+  return tfloat_array.Serialize<double>(fp);
 }
 
 

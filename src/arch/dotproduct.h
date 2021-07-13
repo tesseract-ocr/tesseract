@@ -22,22 +22,43 @@
 namespace tesseract {
 
 // Computes and returns the dot product of the n-vectors u and v.
+template <class TFloat>
 TFloat DotProductNative(const TFloat *u, const TFloat *v, int n);
 
+// ------------ FAST FLOAT specializations -----------------
+
 // Uses Intel AVX intrinsics to access the SIMD instruction set.
-TFloat DotProductAVX(const TFloat *u, const TFloat *v, int n);
-TFloat DotProductAVX1(const TFloat *u, const TFloat *v, int n);
-TFloat DotProductAVX2(const TFloat *u, const TFloat *v, int n);
-TFloat DotProductAVX3(const TFloat *u, const TFloat *v, int n);
-TFloat DotProductAVX4(const TFloat *u, const TFloat *v, int n);
+float DotProductAVX(const float *u, const float *v, int n);
+float DotProductAVX1(const float *u, const float *v, int n);
+float DotProductAVX2(const float *u, const float *v, int n);
+float DotProductAVX3(const float *u, const float *v, int n);
+float DotProductAVX4(const float *u, const float *v, int n);
 
 // Use Intel FMA.
-TFloat DotProductFMA(const TFloat *u, const TFloat *v, int n);
+float DotProductFMA(const float *u, const float *v, int n);
 
 // Uses Intel SSE intrinsics to access the SIMD instruction set.
-TFloat DotProductSSE(const TFloat *u, const TFloat *v, int n);
+float DotProductSSE(const float *u, const float *v, int n);
 
-TFloat DotProductAccelerate(const TFloat *u, const TFloat *v, int n);
+float DotProductAccelerate(const float *u, const float *v, int n);
+
+// ------------ HIGH PRECISION DOUBLE specializations -----------------
+
+// Uses Intel AVX intrinsics to access the SIMD instruction set.
+double DotProductAVX(const double *u, const double *v, int n);
+double DotProductAVX1(const double *u, const double *v, int n);
+double DotProductAVX2(const double *u, const double *v, int n);
+double DotProductAVX3(const double *u, const double *v, int n);
+double DotProductAVX4(const double *u, const double *v, int n);
+
+// Use Intel FMA.
+double DotProductFMA(const double *u, const double *v, int n);
+
+// Uses Intel SSE intrinsics to access the SIMD instruction set.
+double DotProductSSE(const double *u, const double *v, int n);
+
+double DotProductAccelerate(const double *u, const double *v, int n);
+
 } // namespace tesseract.
 
 #endif // TESSERACT_ARCH_DOTPRODUCT_H_

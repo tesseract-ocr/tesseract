@@ -23,10 +23,11 @@
 
 namespace tesseract {
 
+// ---------------------------- FAST FLOAT section ------------------------
+
 // Computes and returns the dot product of the n-vectors u and v.
 // Uses Intel FMA intrinsics to access the SIMD instruction set.
-#if defined(FAST_FLOAT)
-TFloat DotProductFMA(const TFloat *u, const TFloat *v, int n) {
+float DotProductFMA(const float *u, const float *v, int n) {
   const unsigned quot = n / 16;
   const unsigned rem = n % 16;
   __m256 t0 = _mm256_setzero_ps();
@@ -44,15 +45,17 @@ TFloat DotProductFMA(const TFloat *u, const TFloat *v, int n) {
     v += 8;
   }
   t0 = _mm256_hadd_ps(t0, t1);
-  alignas(32) TFloat tmp[8];
+  alignas(32) float tmp[8];
   _mm256_store_ps(tmp, t0);
-  TFloat result = tmp[0] + tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
+  float result = tmp[0] + tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
   for (unsigned k = 0; k < rem; k++) {
     result += *u++ * *v++;
   }
   return result;
 }
-#else
+
+// ---------------------------- HIGH-PRECISION DOUBLE section ------------------------
+
 double DotProductFMA(const double *u, const double *v, int n) {
   const unsigned quot = n / 8;
   const unsigned rem = n % 8;
@@ -79,7 +82,8 @@ double DotProductFMA(const double *u, const double *v, int n) {
   }
   return result;
 }
-#endif
+
+// ---------------------------- END section ------------------------
 
 } // namespace tesseract.
 
@@ -87,11 +91,14 @@ double DotProductFMA(const double *u, const double *v, int n) {
 
 namespace tesseract {
 
-	// Computes and returns the dot product of the n-vectors u and v.
-	// Uses Intel FMA intrinsics to access the SIMD instruction set.
-	inline TFloat DotProductFMA(const TFloat* u, const TFloat* v, int n) {
-		return DotProductSSE(u, v, n);
-	}
+// Computes and returns the dot product of the n-vectors u and v.
+// Uses Intel FMA intrinsics to access the SIMD instruction set.
+inline float DotProductFMA(const float *u, const float *v, int n) {
+	return DotProductSSE(u, v, n);
+}
+inline double DotProductFMA(const double *u, const double *v, int n) {
+  return DotProductSSE(u, v, n);
+}
 
 }
 
