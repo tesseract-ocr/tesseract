@@ -39,7 +39,7 @@ TFloat DotProductSSE(const TFloat *u, const TFloat *v, int n) {
   return total;
 }
 #else
-double DotProductSSE(const double *u, const double *v, int n) {
+TFloat DotProductSSE(const TFloat *u, const TFloat *v, int n) {
   int max_offset = n - 2;
   int offset = 0;
   // Accumulate a set of 2 sums in sum, by loading pairs of 2 values from u and
