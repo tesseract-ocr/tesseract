@@ -115,7 +115,7 @@ struct TESS_API IntSimdMatrix {
   static const IntSimdMatrix *intSimdMatrix;
   // Only available with NEON.
   static const IntSimdMatrix *intSimdMatrixNEON;
-  // Only available with AVX2 / SSE.
+  // Only available with AVX2 / AVX / FMA / SSE.
   static const IntSimdMatrix *intSimdMatrixAVX2;
   static const IntSimdMatrix *intSimdMatrixSSE;
 };
