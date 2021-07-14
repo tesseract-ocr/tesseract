@@ -172,7 +172,7 @@ public:
   int PositionOfBestMatch(const std::vector<int> &labels, int start, int end) const;
   // Returns the cumulative score of the given labels starting at start, and
   // using one label per time-step.
-  double ScoreOfLabels(const std::vector<int> &labels, int start) const;
+  TFloat ScoreOfLabels(const std::vector<int> &labels, int start) const;
   // Helper function sets all the outputs for a single timestep, such that
   // label has value ok_score, and the other labels share 1 - ok_score.
   // Assumes float mode.
@@ -193,16 +193,16 @@ public:
   bool AnySuspiciousTruth(float confidence_thr) const;
 
   // Reads a single timestep to floats in the range [-1, 1].
-  void ReadTimeStep(int t, double *output) const;
+  void ReadTimeStep(int t, TFloat *output) const;
   // Adds a single timestep to floats.
-  void AddTimeStep(int t, double *inout) const;
+  void AddTimeStep(int t, TFloat *inout) const;
   // Adds part of a single timestep to floats.
   void AddTimeStepPart(int t, int offset, int num_features, float *inout) const;
   // Writes a single timestep from floats in the range [-1, 1].
-  void WriteTimeStep(int t, const double *input);
+  void WriteTimeStep(int t, const TFloat *input);
   // Writes a single timestep from floats in the range [-1, 1] writing only
   // num_features elements of input to (*this)[t], starting at offset.
-  void WriteTimeStepPart(int t, int offset, int num_features, const double *input);
+  void WriteTimeStepPart(int t, int offset, int num_features, const TFloat *input);
   // Maxpools a single time step from src.
   void MaxpoolTimeStep(int dest_t, const NetworkIO &src, int src_t, int *max_line);
   // Runs maxpool backward, using maxes to index timesteps in *this.
@@ -253,9 +253,9 @@ public:
 
   // Applies Func to timestep t of *this (u) and multiplies the result by v
   // component-wise, putting the product in *product.
-  // *this and v may be int or float, but must match. The outputs are double.
+  // *this and v may be int or float, but must match. The outputs are TFloat.
   template <class Func>
-  void FuncMultiply(const NetworkIO &v_io, int t, double *product) {
+  void FuncMultiply(const NetworkIO &v_io, int t, TFloat *product) {
     Func f;
     ASSERT_HOST(!int_mode_);
     ASSERT_HOST(!v_io.int_mode_);
@@ -264,7 +264,7 @@ public:
       const int8_t *u = i_[t];
       const int8_t *v = v_io.i_[t];
       for (int i = 0; i < dim; ++i) {
-        product[i] = f(u[i] / static_cast<double>(INT8_MAX)) * v[i] / static_cast<double>(INT8_MAX);
+        product[i] = f(u[i] / static_cast<TFloat>(INT8_MAX)) * v[i] / INT8_MAX;
       }
     } else {
       const float *u = f_[t];
@@ -278,8 +278,8 @@ public:
   // component-wise, putting the product in *product.
   // All NetworkIOs are assumed to be float.
   template <class Func>
-  void FuncMultiply3(int u_t, const NetworkIO &v_io, int v_t, const double *w,
-                     double *product) const {
+  void FuncMultiply3(int u_t, const NetworkIO &v_io, int v_t, const TFloat *w,
+                     TFloat *product) const {
     ASSERT_HOST(!int_mode_);
     ASSERT_HOST(!v_io.int_mode_);
     Func f;
@@ -294,7 +294,7 @@ public:
   // component-wise, adding the product to *product.
   // All NetworkIOs are assumed to be float.
   template <class Func>
-  void FuncMultiply3Add(const NetworkIO &v_io, int t, const double *w, double *product) const {
+  void FuncMultiply3Add(const NetworkIO &v_io, int t, const TFloat *w, TFloat *product) const {
     ASSERT_HOST(!int_mode_);
     ASSERT_HOST(!v_io.int_mode_);
     Func f;
@@ -309,7 +309,7 @@ public:
   // component-wise, putting the product in product, all at timestep t, except
   // w, which is a simple array. All NetworkIOs are assumed to be float.
   template <class Func1, class Func2>
-  void Func2Multiply3(const NetworkIO &v_io, int t, const double *w, double *product) const {
+  void Func2Multiply3(const NetworkIO &v_io, int t, const TFloat *w, TFloat *product) const {
     ASSERT_HOST(!int_mode_);
     ASSERT_HOST(!v_io.int_mode_);
     Func1 f;

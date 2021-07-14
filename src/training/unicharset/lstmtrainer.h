@@ -237,7 +237,7 @@ public:
   // Even if it looks like all weights should remain the same, an adjustment
   // will be made to guarantee a different result when reverting to an old best.
   // Returns the number of layer learning rates that were reduced.
-  int ReduceLayerLearningRates(double factor, int num_samples, LSTMTrainer *samples_trainer);
+  int ReduceLayerLearningRates(TFloat factor, int num_samples, LSTMTrainer *samples_trainer);
 
   // Converts the string to integer class labels, with appropriate null_char_s
   // in between if not in SimpleTextOutput mode. Returns false on failure.

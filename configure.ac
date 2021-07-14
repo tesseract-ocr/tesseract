@@ -297,13 +297,14 @@ OPENCL_CPPFLAGS=''
 OPENCL_LDFLAGS=''
 case "${host_os}" in
   *darwin* | *-macos10*)
-    echo "checking for OpenCL framework"
-    MY_CHECK_FRAMEWORK([OpenCL])
-    if test $my_cv_framework_OpenCL = yes; then
-       have_opencl_lib=true
+    MY_CHECK_FRAMEWORK([Accelerate])
+    if test $my_cv_framework_Accelerate = yes; then
+      AM_CPPFLAGS="-DHAVE_FRAMEWORK_ACCELERATE $AM_CPPFLAGS"
+      LDFLAGS="$LDFLAGS -framework Accelerate"
     fi
+    MY_CHECK_FRAMEWORK([OpenCL])
     if test "$enable_opencl" = "yes"; then
-      if !($have_opencl_lib); then
+      if test $my_cv_framework_OpenCL = no; then
         AC_MSG_ERROR([Required OpenCL library not found!])
       fi
       AM_CPPFLAGS="-DUSE_OPENCL $AM_CPPFLAGS"

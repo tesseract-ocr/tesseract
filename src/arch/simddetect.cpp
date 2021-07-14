@@ -25,6 +25,23 @@
 #include "simddetect.h"
 #include "tprintf.h" // for tprintf
 
+#if defined(HAVE_FRAMEWORK_ACCELERATE)
+
+// Use Apple Accelerate framework.
+// https://developer.apple.com/documentation/accelerate/simd
+
+// Comparison of execution time with different dot product implementations.
+// time DOTPRODUCT=accelerate lstm_squashed_test
+// Results for Apple M1:
+// DotProductGeneric       64 s
+// DotProduct              60 s
+// DotProductAccelerate    33 s
+// DotProductNative        30 s
+
+#include <Accelerate/Accelerate.h>
+
+#endif
+
 #if defined(HAVE_AVX) || defined(HAVE_AVX2) || defined(HAVE_FMA) || defined(HAVE_SSE4_1)
 #  define HAS_CPUID
 #endif
@@ -83,9 +100,22 @@ bool SIMDDetect::fma_available_;
 bool SIMDDetect::sse_available_;
 #endif
 
+#if defined(HAVE_FRAMEWORK_ACCELERATE)
+TFloat DotProductAccelerate(const TFloat* u, const TFloat* v, int n) {
+  TFloat total = 0;
+  const int stride = 1;
+#if defined(FAST_FLOAT)
+  vDSP_dotpr(u, stride, v, stride, &total, n);
+#else
+  vDSP_dotprD(u, stride, v, stride, &total, n);
+#endif
+  return total;
+}
+#endif
+
 // Computes and returns the dot product of the two n-vectors u and v.
-static double DotProductGeneric(const double *u, const double *v, int n) {
-  double total = 0.0;
+static TFloat DotProductGeneric(const TFloat *u, const TFloat *v, int n) {
+  TFloat total = 0.0;
   for (int k = 0; k < n; ++k) {
     total += u[k] * v[k];
   }
@@ -93,8 +123,8 @@ static double DotProductGeneric(const double *u, const double *v, int n) {
 }
 
 // Compute dot product using std::inner_product.
-static double DotProductStdInnerProduct(const double *u, const double *v, int n) {
-  return std::inner_product(u, u + n, v, 0.0);
+static TFloat DotProductStdInnerProduct(const TFloat *u, const TFloat *v, int n) {
+  return std::inner_product(u, u + n, v, static_cast<TFloat>(0));
 }
 
 static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr) {
@@ -110,6 +140,19 @@ static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr
 SIMDDetect::SIMDDetect() {
   // The fallback is a generic dot product calculation.
   SetDotProduct(DotProductGeneric);
+  const char* dotproduct_env = getenv("DOTPRODUCT");
+  if (dotproduct_env != nullptr) {
+    dotproduct = dotproduct_env;
+    Update();
+    if (strcmp(dotproduct_env, "native") == 0) {
+      SetDotProduct(DotProductNative);
+#if defined(HAVE_FRAMEWORK_ACCELERATE)
+    } else if (strcmp(dotproduct_env, "accelerate") == 0) {
+      SetDotProduct(DotProductAccelerate);
+#endif
+    }
+    return;
+  }
 
 #if defined(HAS_CPUID)
 #  if defined(__GNUC__)
@@ -200,22 +243,22 @@ SIMDDetect::SIMDDetect() {
 #if defined(HAVE_AVX2)
   } else if (avx2_available_) {
     // AVX2 detected.
-    SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixAVX2);
+    SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixAVX2);
 #endif
 #if defined(HAVE_AVX)
   } else if (avx_available_) {
     // AVX detected.
-    SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixSSE);
+    SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixSSE);
 #endif
 #if defined(HAVE_SSE4_1)
   } else if (sse_available_) {
     // SSE detected.
-    SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
+    SetDotProduct(DotProductSSE, IntSimdMatrix::intSimdMatrixSSE);
 #endif
 #if defined(HAVE_NEON) || defined(__aarch64__)
   } else if (neon_available_) {
     // NEON detected.
-    SetDotProduct(DotProduct, &IntSimdMatrix::intSimdMatrixNEON);
+    SetDotProduct(DotProduct, IntSimdMatrix::intSimdMatrixNEON);
 #endif
   }
 }
@@ -234,16 +277,24 @@ void SIMDDetect::Update() {
     // Native optimized code selected by config variable.
     SetDotProduct(DotProductNative);
     dotproduct_method = "native";
+#if defined(HAVE_FRAMEWORK_ACCELERATE)
+  } else if (dotproduct == "accelerate") {
+    SetDotProduct(DotProductAccelerate);
+    dotproduct_method = "accelerate";
+#endif
 #if defined(HAVE_AVX2)
   } else if (!strcmp(dotproduct.c_str(), "avx2")) {
     // AVX2 selected by config variable.
-    SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixAVX2);
+    SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixAVX2);
     dotproduct_method = "avx2";
+  } else if (dotproduct == "avx-1") {
+    SetDotProduct(DotProductAVX1, IntSimdMatrix::intSimdMatrixAVX2);
+    dotproduct_method = "avx-1";
 #endif
 #if defined(HAVE_AVX)
   } else if (!strcmp(dotproduct.c_str(), "avx")) {
     // AVX selected by config variable.
-    SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixSSE);
+    SetDotProduct(DotProductAVX, IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "avx";
 #endif
 #if defined(HAVE_FMA)
@@ -255,7 +306,7 @@ void SIMDDetect::Update() {
 #if defined(HAVE_SSE4_1)
   } else if (!strcmp(dotproduct.c_str(), "sse")) {
     // SSE selected by config variable.
-    SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
+    SetDotProduct(DotProductSSE, IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "sse";
 #endif
   } else if (!strcmp(dotproduct.c_str(), "std::inner_product")) {
@@ -268,8 +319,17 @@ void SIMDDetect::Update() {
             dotproduct.c_str());
     tprintf(
         "Support values for dotproduct: auto generic native"
+#if defined(HAVE_FRAMEWORK_ACCELERATE)
+        " accelerate"
+#endif
+#if defined(HAVE_AVX2)
+        " avx2"
+#endif
 #if defined(HAVE_AVX)
         " avx"
+#endif
+#if defined(HAVE_FMA)
+        " fma"
 #endif
 #if defined(HAVE_SSE4_1)
         " sse"

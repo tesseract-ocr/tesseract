@@ -1,7 +1,7 @@
 // Generated code with lookup tables
 #include "functions.h"
 namespace tesseract {
-const double TanhTable[] = {
+const TFloat TanhTable[] = {
     0.0,
     0.00390623013190634,
     0.007812341058161014,
@@ -4099,7 +4099,7 @@ const double TanhTable[] = {
     0.9999999999999742,
     0.9999999999999745,
 };
-const double LogisticTable[] = {
+const TFloat LogisticTable[] = {
     0.5,
     0.5009765612582384,
     0.5019531150659532,

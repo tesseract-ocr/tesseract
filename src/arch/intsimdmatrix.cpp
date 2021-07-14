@@ -76,7 +76,7 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t> &w, std::vector<int8_t> 
 // u is imagined to have an extra element at the end with value 1, to
 // implement the bias, but it doesn't actually have it.
 void IntSimdMatrix::MatrixDotVector(const GENERIC_2D_ARRAY<int8_t> &w,
-                                    const std::vector<double> &scales, const int8_t *u, double *v) {
+                                    const std::vector<TFloat> &scales, const int8_t *u, TFloat *v) {
   int num_out = w.dim1();
   int num_in = w.dim2() - 1;
   // Base implementation.
