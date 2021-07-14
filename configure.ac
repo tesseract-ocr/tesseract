@@ -186,6 +186,8 @@ esac
 
 AX_CHECK_COMPILE_FLAG([-march=native], [arch_native=true], [arch_native=false], [$WERROR])
 AM_CONDITIONAL([MARCH_NATIVE_OPT], $arch_native)
+AX_CHECK_COMPILE_FLAG([-fopenmp-simd], [openmp_simd=true], [openmp_simd=false], [$WERROR])
+AM_CONDITIONAL([OPENMP_SIMD], $openmp_simd)
 
 AC_ARG_WITH([extra-includes],
             [AS_HELP_STRING([--with-extra-includes=DIR],
@@ -284,7 +286,7 @@ m4_define([MY_CHECK_FRAMEWORK],
     ])
    if test "$my_cv_framework_$1"="yes"; then
      AC_DEFINE(AS_TR_CPP([HAVE_FRAMEWORK_$1]), 1,
-            [Define if you have the  $1 framework])
+            [Define if you have the $1 framework])
      AS_TR_CPP([FRAMEWORK_$1])="-framework $1"
      AC_SUBST(AS_TR_CPP([FRAMEWORK_$1]))
    fi]
