@@ -44,7 +44,7 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM &cn_denorm) {
     return nullptr;
   }
   int n = 0;
-  for (auto &f : features) {
+  for (auto &f __attribute__((unused)): features) {
     ++n;
   }
   auto FeatureSet = new FEATURE_SET_STRUCT(n);
