@@ -226,7 +226,9 @@ static void ComputeEdgeDensityProfiles(const TBOX &box, const GENERIC_2D_ARRAY<i
                                        std::vector<float> &hx, std::vector<float> &hy) {
   int width = box.width();
   int height = box.height();
+  hx.clear();
   hx.resize(width + 1);
+  hy.clear();
   hy.resize(height + 1);
   double total = 0.0;
   for (int iy = 0; iy < height; ++iy) {

@@ -144,6 +144,9 @@ noinst_HEADERS += src/arch/simddetect.h
 noinst_LTLIBRARIES += libtesseract_native.la
 
 libtesseract_native_la_CXXFLAGS = -O3 -ffast-math
+if OPENMP_SIMD
+libtesseract_native_la_CXXFLAGS += -fopenmp-simd -DOPENMP_SIMD
+endif
 if MARCH_NATIVE_OPT
 libtesseract_native_la_CXXFLAGS += -march=native -mtune=native
 endif
@@ -794,10 +797,6 @@ training_CPPFLAGS += -I$(top_srcdir)/src/cutil
 training_CPPFLAGS += $(ICU_UC_CFLAGS) $(ICU_I18N_CFLAGS)
 training_CPPFLAGS += $(pango_CFLAGS)
 training_CPPFLAGS += $(cairo_CFLAGS)
-
-bin_SCRIPTS = src/training/language-specific.sh src/training/tesstrain.sh
-scripts_DATA = src/training/tesstrain_utils.sh
-scriptsdir = $(bindir)
 
 if DISABLED_LEGACY_ENGINE
 training_CPPFLAGS += -DDISABLED_LEGACY_ENGINE

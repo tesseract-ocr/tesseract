@@ -37,7 +37,7 @@ public:
   ~Convolve() override = default;
 
   std::string spec() const override {
-    return "C" + std::to_string(half_x_ * 2 + 1) + "," + std::to_string(half_y_ * 2 + 1);
+    return "C" + std::to_string(half_y_ * 2 + 1) + "," + std::to_string(half_x_ * 2 + 1);
   }
 
   // Writes to the given file. Returns false in case of error.

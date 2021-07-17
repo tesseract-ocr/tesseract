@@ -156,6 +156,7 @@ void Wordrec::InitialSegSearch(WERD_RES *word_res, LMPainPoints *pain_points,
   // children are considered in the non-decreasing order of their column, since
   // this guarantees that all the parents would be up to date before an update
   // of a child is done.
+  pending->clear();
   pending->resize(word_res->ratings->dimension(), SegSearchPending());
 
   // Search the ratings matrix for the initial best path.

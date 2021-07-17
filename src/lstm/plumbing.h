@@ -120,6 +120,14 @@ public:
     ASSERT_HOST(lr_ptr != nullptr);
     *lr_ptr *= factor;
   }
+
+  // Set the learning rate for a specific layer of the stack to the given value.
+  void SetLayerLearningRate(const char *id, float learning_rate) {
+    float *lr_ptr = LayerLearningRatePtr(id);
+    ASSERT_HOST(lr_ptr != nullptr);
+    *lr_ptr = learning_rate;
+  }
+
   // Returns a pointer to the learning rate for the given layer id.
   TESS_API
   float *LayerLearningRatePtr(const char *id);

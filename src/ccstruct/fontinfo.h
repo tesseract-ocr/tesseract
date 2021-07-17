@@ -77,8 +77,7 @@ struct FontInfo {
 
   // Reserves unicharset_size spots in spacing_vec.
   void init_spacing(int unicharset_size) {
-    spacing_vec = new std::vector<FontSpacingInfo *>();
-    spacing_vec->resize(unicharset_size);
+    spacing_vec = new std::vector<FontSpacingInfo *>(unicharset_size);
   }
   // Adds the given pointer to FontSpacingInfo to spacing_vec member
   // (FontInfo class takes ownership of the pointer).

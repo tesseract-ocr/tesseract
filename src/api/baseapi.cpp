@@ -955,6 +955,8 @@ const char *TessBaseAPI::GetDatapath() {
 }
 
 int TessBaseAPI::GetSourceYResolution() {
+  if (thresholder_ == nullptr)
+    return -1;
   return thresholder_->GetSourceYResolution();
 }
 
@@ -2111,9 +2113,8 @@ bool TessBaseAPI::Threshold(Pix **pix) {
   auto thresholding_method = static_cast<ThresholdMethod>(static_cast<int>(tesseract_->thresholding_method));
 
   if (thresholding_method == ThresholdMethod::Otsu) {
-    auto pageseg_mode = static_cast<PageSegMode>(static_cast<int>(tesseract_->tessedit_pageseg_mode));
     Image pix_binary(*pix);
-    if (!thresholder_->ThresholdToPix(pageseg_mode, &pix_binary)) {
+    if (!thresholder_->ThresholdToPix(&pix_binary)) {
       return false;
     }
     *pix = pix_binary;

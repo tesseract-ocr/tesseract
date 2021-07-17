@@ -194,6 +194,16 @@ int main(int argc, char **argv) {
                 << ", learning_rate=" << recognizer.learning_rate()
                 << ", momentum=" << recognizer.GetMomentum()
                 << ", adam_beta=" << recognizer.GetAdamBeta() << '\n';
+
+      std::cout << "Layer Learning Rates: ";
+      auto layers = recognizer.EnumerateLayers();
+      for (auto id : layers) {
+        auto layer = recognizer.GetLayer(id);
+        std::cout << id << "(" << layer->name() << ")"
+                  << "=" << recognizer.GetLayerLearningRate(id)
+                  << (layers[layers.size()-1] != id ? ", " : "");
+      }
+      std::cout << "\n";
     }
     return EXIT_SUCCESS;
   } else {
