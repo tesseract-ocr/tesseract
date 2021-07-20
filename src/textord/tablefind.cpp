@@ -2003,7 +2003,7 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **all_
                          ScrollView::BLUE, ScrollView::LIGHT_BLUE);
   }
 #endif  // GRAPHICS_DISABLED
-  
+
   // initializing recognizer in order to extract table row and columnd info
   TableRecognizer recognizer;
   {
@@ -2013,7 +2013,7 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **all_
     recognizer.set_max_text_height(global_median_xheight_ * 2.0);
     recognizer.set_min_height(1.5 * gridheight());
   }
-  
+
   // Since we have table blocks already, remove table tags from all
   // colpartitions
   GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> gsearch(grid);
@@ -2068,7 +2068,7 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **all_
       table_partition->set_flow(BTFT_CHAIN);
       table_partition->SetBlobTypes();
       grid->InsertBBox(true, true, table_partition);
-      
+   
       // Insert table columns and rows into an api accessible object
       StructuredTable* table_structure = recognizer.RecognizeTable(table_box);
       if (table_structure != nullptr) {
@@ -2086,7 +2086,7 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **all_
       }
     }
   }
-  
+
 #ifndef GRAPHICS_DISABLED
   if (textord_show_tables) {
     table_grid_.DisplayBoxes(table_win);

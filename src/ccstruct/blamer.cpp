@@ -441,7 +441,7 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD *word, bool debug) {
   }
   if (blob_index < num_blobs || // trailing blobs
       correct_segmentation_cols_.size() != norm_truth_word_.length()) {
-    debug_str += 
+    debug_str +=
         "Blamer failed to find correct segmentation"
         " (tolerance=" +
         std::to_string(norm_box_tolerance_);

@@ -323,7 +323,7 @@ std::vector<TBOX> StructuredTable::getRows()
     const ICOORD right(bounding_box_.right(), cell_y_[i + 1]);
     rows[ct - i] = TBOX(left, right);
   }
- 
+
   return rows;
 }
 
@@ -339,7 +339,7 @@ std::vector<TBOX> StructuredTable::getCols()
     const ICOORD bot(cell_x_[i+1], bounding_box_.bottom());
     cols[i] = TBOX(top, bot);
   }
- 
+
   return cols;
 }
 
