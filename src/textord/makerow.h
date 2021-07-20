@@ -49,12 +49,10 @@ extern BOOL_VAR_H(textord_show_final_blobs, false, "Display blob bounds after pr
 extern BOOL_VAR_H(textord_test_landscape, false, "Tests refer to land/port");
 extern BOOL_VAR_H(textord_parallel_baselines, true, "Force parallel baselines");
 extern BOOL_VAR_H(textord_straight_baselines, false, "Force straight baselines");
-extern BOOL_VAR_H(textord_quadratic_baselines, false, "Use quadratic splines");
 extern BOOL_VAR_H(textord_old_baselines, true, "Use old baseline algorithm");
 extern BOOL_VAR_H(textord_old_xheight, true, "Use old xheight algorithm");
 extern BOOL_VAR_H(textord_fix_xheight_bug, true, "Use spline baseline");
 extern BOOL_VAR_H(textord_fix_makerow_bug, true, "Prevent multiple baselines");
-extern BOOL_VAR_H(textord_cblob_blockocc, true, "Use new projection for underlines");
 extern BOOL_VAR_H(textord_debug_xheights, false, "Test xheight algorithms");
 extern INT_VAR_H(textord_test_x, -INT32_MAX, "coord of test pt");
 extern INT_VAR_H(textord_test_y, -INT32_MAX, "coord of test pt");
@@ -63,7 +61,6 @@ extern INT_VAR_H(textord_spline_minblobs, 8, "Min blobs in each spline segment")
 extern INT_VAR_H(textord_spline_medianwin, 6, "Size of window for spline segmentation");
 extern INT_VAR_H(textord_min_xheight, 10, "Min credible pixel xheight");
 extern double_VAR_H(textord_spline_shift_fraction, 0.02, "Fraction of line spacing for quad");
-extern double_VAR_H(textord_spline_outlier_fraction, 0.1, "Fraction of line spacing for outlier");
 extern double_VAR_H(textord_skew_ile, 0.5, "Ile of gradients for page skew");
 extern double_VAR_H(textord_skew_lag, 0.75, "Lag for skew on row accumulation");
 extern double_VAR_H(textord_linespace_iqrlimit, 0.2, "Max iqr/median for linespace");

@@ -26,7 +26,6 @@ namespace tesseract {
 INT_VAR(pitsync_linear_version, 6, "Use new fast algorithm");
 double_VAR(pitsync_joined_edge, 0.75, "Dist inside big blob for chopping");
 double_VAR(pitsync_offset_freecut_fraction, 0.25, "Fraction of cut for free cuts");
-INT_VAR(pitsync_fake_depth, 1, "Max advance fake generation");
 
 /**********************************************************************
  * FPSEGPT::FPSEGPT

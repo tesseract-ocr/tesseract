@@ -234,10 +234,6 @@ public:
 
 #define END_OF_WERD_CODE 255
 
-extern BOOL_VAR_H(blockocc_show_result, false, "Show intermediate results");
-extern INT_VAR_H(blockocc_desc_height, 0, "Descender height after normalisation");
-extern INT_VAR_H(blockocc_asc_height, 255, "Ascender height after normalisation");
-extern INT_VAR_H(blockocc_band_count, 4, "Number of bands used");
 extern double_VAR_H(textord_underline_threshold, 0.9, "Fraction of width occupied");
 
 bool test_underline(  // look for underlines
