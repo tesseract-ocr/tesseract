@@ -39,8 +39,6 @@ namespace tesseract {
 // title of window
 #  define DEBUG_WIN_NAME "FXDebug"
 
-STRING_VAR(fx_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
-
 ScrollView *fx_win = nullptr;
 FILE *fx_debug = nullptr;
 

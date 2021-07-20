@@ -68,7 +68,6 @@ INT_VAR(textord_spline_medianwin, 6, "Size of window for spline segmentation");
 static INT_VAR(textord_max_blob_overlaps, 4, "Max number of blobs a big blob can overlap");
 INT_VAR(textord_min_xheight, 10, "Min credible pixel xheight");
 double_VAR(textord_spline_shift_fraction, 0.02, "Fraction of line spacing for quad");
-double_VAR(textord_spline_outlier_fraction, 0.1, "Fraction of line spacing for outlier");
 double_VAR(textord_skew_ile, 0.5, "Ile of gradients for page skew");
 double_VAR(textord_skew_lag, 0.02, "Lag for skew on row accumulation");
 double_VAR(textord_linespace_iqrlimit, 0.2, "Max iqr/median for linespace");

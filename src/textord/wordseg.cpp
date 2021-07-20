@@ -36,7 +36,6 @@
 
 namespace tesseract {
 
-BOOL_VAR(textord_fp_chopping, true, "Do fixed pitch chopping");
 BOOL_VAR(textord_force_make_prop_words, false, "Force proportional word segmentation on all rows");
 BOOL_VAR(textord_chopper_test, false, "Chopper is being tested.");
 

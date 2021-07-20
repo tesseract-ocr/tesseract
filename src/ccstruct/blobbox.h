@@ -803,7 +803,6 @@ private:
 };
 
 ELISTIZEH(TO_BLOCK)
-extern double_VAR_H(textord_error_weight, 3, "Weighting for error in believability");
 void find_cblob_limits( // get y limits
     C_BLOB *blob,       // blob to search
     float leftx,        // x limits
