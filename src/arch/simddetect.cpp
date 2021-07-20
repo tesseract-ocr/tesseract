@@ -30,14 +30,6 @@
 // Use Apple Accelerate framework.
 // https://developer.apple.com/documentation/accelerate/simd
 
-// Comparison of execution time with different dot product implementations.
-// time DOTPRODUCT=accelerate lstm_squashed_test
-// Results for Apple M1:
-// DotProductGeneric       64 s
-// DotProduct              60 s
-// DotProductAccelerate    33 s
-// DotProductNative        30 s
-
 #include <Accelerate/Accelerate.h>
 
 #endif
@@ -136,15 +128,10 @@ static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr
 SIMDDetect::SIMDDetect() {
   // The fallback is a generic dot product calculation.
   SetDotProduct(DotProductGeneric);
-  const char* dotproduct_env = getenv("DOTPRODUCT");
+  const char *dotproduct_env = getenv("DOTPRODUCT");
   if (dotproduct_env != nullptr) {
-    if (strcmp(dotproduct_env, "native") == 0) {
-      SetDotProduct(DotProductNative);
-#if defined(HAVE_FRAMEWORK_ACCELERATE)
-    } else if (strcmp(dotproduct_env, "accelerate") == 0) {
-      SetDotProduct(DotProductAccelerate);
-    }
-#endif
+    dotproduct = dotproduct_env;
+    Update();
     return;
   }
 
@@ -261,41 +248,45 @@ void SIMDDetect::Update() {
   // Select code for calculation of dot product based on the
   // value of the config variable if that value is not empty.
   const char *dotproduct_method = "generic";
-  if (!strcmp(dotproduct.c_str(), "auto")) {
+  if (dotproduct == "auto") {
     // Automatic detection. Nothing to be done.
-  } else if (!strcmp(dotproduct.c_str(), "generic")) {
+  } else if (dotproduct == "generic") {
     // Generic code selected by config variable.
     SetDotProduct(DotProductGeneric);
     dotproduct_method = "generic";
-  } else if (!strcmp(dotproduct.c_str(), "native")) {
+  } else if (dotproduct == "native") {
     // Native optimized code selected by config variable.
     SetDotProduct(DotProductNative);
     dotproduct_method = "native";
 #if defined(HAVE_AVX2)
-  } else if (!strcmp(dotproduct.c_str(), "avx2")) {
+  } else if (dotproduct == "avx2") {
     // AVX2 selected by config variable.
     SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixAVX2);
     dotproduct_method = "avx2";
 #endif
 #if defined(HAVE_AVX)
-  } else if (!strcmp(dotproduct.c_str(), "avx")) {
+  } else if (dotproduct == "avx") {
     // AVX selected by config variable.
     SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "avx";
 #endif
 #if defined(HAVE_FMA)
-  } else if (!strcmp(dotproduct.c_str(), "fma")) {
+  } else if (dotproduct == "fma") {
     // FMA selected by config variable.
     SetDotProduct(DotProductFMA, IntSimdMatrix::intSimdMatrix);
     dotproduct_method = "fma";
 #endif
 #if defined(HAVE_SSE4_1)
-  } else if (!strcmp(dotproduct.c_str(), "sse")) {
+  } else if (dotproduct == "sse") {
     // SSE selected by config variable.
     SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "sse";
 #endif
-  } else if (!strcmp(dotproduct.c_str(), "std::inner_product")) {
+#if defined(HAVE_FRAMEWORK_ACCELERATE)
+  } else if (dotproduct == "accelerate") {
+    SetDotProduct(DotProductAccelerate);
+#endif
+  } else if (dotproduct == "std::inner_product") {
     // std::inner_product selected by config variable.
     SetDotProduct(DotProductStdInnerProduct);
     dotproduct_method = "std::inner_product";
@@ -304,12 +295,18 @@ void SIMDDetect::Update() {
     tprintf("Warning, ignoring unsupported config variable value: dotproduct=%s\n",
             dotproduct.c_str());
     tprintf(
-        "Support values for dotproduct: auto generic native"
+        "Supported values for dotproduct: auto generic native"
+#if defined(HAVE_AVX2)
+        " avx2"
+#endif
 #if defined(HAVE_AVX)
         " avx"
 #endif
 #if defined(HAVE_SSE4_1)
         " sse"
+#endif
+#if defined(HAVE_FRAMEWORK_ACCELERATE)
+        " accelerate"
 #endif
         " std::inner_product.\n");
   }
