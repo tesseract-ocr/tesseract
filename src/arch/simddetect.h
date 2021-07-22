@@ -18,11 +18,12 @@
 #define TESSERACT_ARCH_SIMDDETECT_H_
 
 #include <tesseract/export.h>
+#include "tesstypes.h"
 
 namespace tesseract {
 
 // Function pointer for best calculation of dot product.
-using DotProductFunction = double (*)(const double *, const double *, int);
+using DotProductFunction = TFloat (*)(const TFloat *, const TFloat *, int);
 extern DotProductFunction DotProduct;
 
 // Architecture detector. Add code here to detect any other architectures for

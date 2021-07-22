@@ -19,6 +19,7 @@
 #define TESSERACT_LSTM_FUNCTIONS_H_
 
 #include "helpers.h"
+#include "tesstypes.h"
 
 // Setting this to 1 or more causes massive dumps of debug data: weights,
 // updates, internal calculations etc, and reduces the number of test iterations
@@ -33,14 +34,14 @@ namespace tesseract {
 // Size of static tables.
 constexpr int kTableSize = 4096;
 // Scale factor for float arg to int index.
-constexpr double kScaleFactor = 256.0;
+constexpr TFloat kScaleFactor = 256.0;
 
 // Generated lookup tables.
-extern const double TanhTable[];
-extern const double LogisticTable[];
+extern const TFloat TanhTable[];
+extern const TFloat LogisticTable[];
 
 // Non-linearity (sigmoid) functions with cache tables and clipping.
-inline double Tanh(double x) {
+inline TFloat Tanh(TFloat x) {
   if (x < 0.0) {
     return -Tanh(-x);
   }
@@ -49,13 +50,13 @@ inline double Tanh(double x) {
   if (index >= (kTableSize - 1)) {
     return 1.0;
   }
-  double tanh_i0 = TanhTable[index];
-  double tanh_i1 = TanhTable[index + 1];
+  TFloat tanh_i0 = TanhTable[index];
+  TFloat tanh_i1 = TanhTable[index + 1];
   // Linear interpolation.
   return tanh_i0 + (tanh_i1 - tanh_i0) * (x - index);
 }
 
-inline double Logistic(double x) {
+inline TFloat Logistic(TFloat x) {
   if (x < 0.0) {
     return 1.0 - Logistic(-x);
   }
@@ -64,25 +65,25 @@ inline double Logistic(double x) {
   if (index >= (kTableSize - 1)) {
     return 1.0;
   }
-  double l0 = LogisticTable[index];
-  double l1 = LogisticTable[index + 1];
+  TFloat l0 = LogisticTable[index];
+  TFloat l1 = LogisticTable[index + 1];
   // Linear interpolation.
   return l0 + (l1 - l0) * (x - index);
 }
 
 // Non-linearity (sigmoid) functions and their derivatives.
 struct FFunc {
-  inline double operator()(double x) const {
+  inline TFloat operator()(TFloat x) const {
     return Logistic(x);
   }
 };
 struct FPrime {
-  inline double operator()(double y) const {
+  inline TFloat operator()(TFloat y) const {
     return y * (1.0 - y);
   }
 };
 struct ClipFFunc {
-  inline double operator()(double x) const {
+  inline TFloat operator()(TFloat x) const {
     if (x <= 0.0) {
       return 0.0;
     }
@@ -93,12 +94,12 @@ struct ClipFFunc {
   }
 };
 struct ClipFPrime {
-  inline double operator()(double y) const {
+  inline TFloat operator()(TFloat y) const {
     return 0.0 < y && y < 1.0 ? 1.0 : 0.0;
   }
 };
 struct Relu {
-  inline double operator()(double x) const {
+  inline TFloat operator()(TFloat x) const {
     if (x <= 0.0) {
       return 0.0;
     }
@@ -106,22 +107,22 @@ struct Relu {
   }
 };
 struct ReluPrime {
-  inline double operator()(double y) const {
+  inline TFloat operator()(TFloat y) const {
     return 0.0 < y ? 1.0 : 0.0;
   }
 };
 struct GFunc {
-  inline double operator()(double x) const {
+  inline TFloat operator()(TFloat x) const {
     return Tanh(x);
   }
 };
 struct GPrime {
-  inline double operator()(double y) const {
+  inline TFloat operator()(TFloat y) const {
     return 1.0 - y * y;
   }
 };
 struct ClipGFunc {
-  inline double operator()(double x) const {
+  inline TFloat operator()(TFloat x) const {
     if (x <= -1.0) {
       return -1.0;
     }
@@ -132,35 +133,35 @@ struct ClipGFunc {
   }
 };
 struct ClipGPrime {
-  inline double operator()(double y) const {
+  inline TFloat operator()(TFloat y) const {
     return -1.0 < y && y < 1.0 ? 1.0 : 0.0;
   }
 };
 struct HFunc {
-  inline double operator()(double x) const {
+  inline TFloat operator()(TFloat x) const {
     return Tanh(x);
   }
 };
 struct HPrime {
-  inline double operator()(double y) const {
-    double u = Tanh(y);
-    return 1.0 - u * u;
+  inline TFloat operator()(TFloat y) const {
+    TFloat u = Tanh(y);
+    return 1 - u * u;
   }
 };
 struct UnityFunc {
-  inline double operator()(double /*x*/) const {
+  inline TFloat operator()(TFloat /*x*/) const {
     return 1.0;
   }
 };
 struct IdentityFunc {
-  inline double operator()(double x) const {
+  inline TFloat operator()(TFloat x) const {
     return x;
   }
 };
 
 // Applies Func in-place to inout, of size n.
 template <class Func>
-inline void FuncInplace(int n, double *inout) {
+inline void FuncInplace(int n, TFloat *inout) {
   Func f;
   for (int i = 0; i < n; ++i) {
     inout[i] = f(inout[i]);
@@ -169,7 +170,7 @@ inline void FuncInplace(int n, double *inout) {
 // Applies Func to u and multiplies the result by v component-wise,
 // putting the product in out, all of size n.
 template <class Func>
-inline void FuncMultiply(const double *u, const double *v, int n, double *out) {
+inline void FuncMultiply(const TFloat *u, const TFloat *v, int n, TFloat *out) {
   Func f;
   for (int i = 0; i < n; ++i) {
     out[i] = f(u[i]) * v[i];
@@ -206,34 +207,34 @@ inline void SoftmaxInPlace(int n, T *inout) {
 }
 
 // Copies n values of the given src vector to dest.
-inline void CopyVector(int n, const double *src, double *dest) {
+inline void CopyVector(int n, const TFloat *src, TFloat *dest) {
   memcpy(dest, src, n * sizeof(dest[0]));
 }
 
 // Adds n values of the given src vector to dest.
-inline void AccumulateVector(int n, const double *src, double *dest) {
+inline void AccumulateVector(int n, const TFloat *src, TFloat *dest) {
   for (int i = 0; i < n; ++i) {
     dest[i] += src[i];
   }
 }
 
 // Multiplies n values of inout in-place element-wise by the given src vector.
-inline void MultiplyVectorsInPlace(int n, const double *src, double *inout) {
+inline void MultiplyVectorsInPlace(int n, const TFloat *src, TFloat *inout) {
   for (int i = 0; i < n; ++i) {
     inout[i] *= src[i];
   }
 }
 
 // Multiplies n values of u by v, element-wise, accumulating to out.
-inline void MultiplyAccumulate(int n, const double *u, const double *v, double *out) {
+inline void MultiplyAccumulate(int n, const TFloat *u, const TFloat *v, TFloat *out) {
   for (int i = 0; i < n; i++) {
     out[i] += u[i] * v[i];
   }
 }
 
 // Sums the given 5 n-vectors putting the result into sum.
-inline void SumVectors(int n, const double *v1, const double *v2, const double *v3,
-                       const double *v4, const double *v5, double *sum) {
+inline void SumVectors(int n, const TFloat *v1, const TFloat *v2, const TFloat *v3,
+                       const TFloat *v4, const TFloat *v5, TFloat *sum) {
   for (int i = 0; i < n; ++i) {
     sum[i] = v1[i] + v2[i] + v3[i] + v4[i] + v5[i];
   }
@@ -255,12 +256,12 @@ inline void ClipVector(int n, T lower, T upper, T *vec) {
 
 // Converts the given n-vector to a binary encoding of the maximum value,
 // encoded as vector of nf binary values.
-inline void CodeInBinary(int n, int nf, double *vec) {
+inline void CodeInBinary(int n, int nf, TFloat *vec) {
   if (nf <= 0 || n < nf) {
     return;
   }
   int index = 0;
-  double best_score = vec[0];
+  TFloat best_score = vec[0];
   for (int i = 1; i < n; ++i) {
     if (vec[i] > best_score) {
       best_score = vec[i];
