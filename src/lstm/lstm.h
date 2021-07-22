@@ -109,7 +109,7 @@ public:
   // Sums the products of weight updates in *this and other, splitting into
   // positive (same direction) in *same and negative (different direction) in
   // *changed.
-  void CountAlternators(const Network &other, double *same, double *changed) const override;
+  void CountAlternators(const Network &other, TFloat *same, TFloat *changed) const override;
   // Prints the weights for debug purposes.
   void PrintW();
   // Prints the weight deltas for debug purposes.

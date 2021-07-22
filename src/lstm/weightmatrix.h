@@ -22,17 +22,18 @@
 #include <vector>
 #include "intsimdmatrix.h"
 #include "matrix.h"
+#include "tesstypes.h"
 #include "tprintf.h"
 
 namespace tesseract {
 
-// Convenience instantiation of GENERIC_2D_ARRAY<double> with additional
+// Convenience instantiation of GENERIC_2D_ARRAY<TFloat> with additional
 // operations to write a strided vector, so the transposed form of the input
 // is memory-contiguous.
-class TransposedArray : public GENERIC_2D_ARRAY<double> {
+class TransposedArray : public GENERIC_2D_ARRAY<TFloat> {
 public:
-  // Copies the whole input transposed, converted to double, into *this.
-  void Transpose(const GENERIC_2D_ARRAY<double> &input);
+  // Copies the whole input transposed, converted to TFloat, into *this.
+  void Transpose(const GENERIC_2D_ARRAY<TFloat> &input);
   // Writes a vector of data representing a timestep (gradients or sources).
   // The data is assumed to be of size1 in size (the strided dimension).
   ~TransposedArray() override;
@@ -107,11 +108,11 @@ public:
     return int_mode_ ? wi_.dim1() : wf_.dim1();
   }
   // Provides one set of weights. Only used by peep weight maxpool.
-  const double *GetWeights(int index) const {
+  const TFloat *GetWeights(int index) const {
     return wf_[index];
   }
   // Provides access to the deltas (dw_).
-  double GetDW(int i, int j) const {
+  TFloat GetDW(int i, int j) const {
     return dw_(i, j);
   }
 
@@ -132,16 +133,16 @@ public:
   // u is imagined to have an extra element at the end with value 1, to
   // implement the bias, but it doesn't actually have it.
   // Asserts that the call matches what we have.
-  void MatrixDotVector(const double *u, double *v) const;
-  void MatrixDotVector(const int8_t *u, double *v) const;
+  void MatrixDotVector(const TFloat *u, TFloat *v) const;
+  void MatrixDotVector(const int8_t *u, TFloat *v) const;
   // MatrixDotVector for peep weights, MultiplyAccumulate adds the
   // component-wise products of *this[0] and v to inout.
-  void MultiplyAccumulate(const double *v, double *inout);
+  void MultiplyAccumulate(const TFloat *v, TFloat *inout);
   // Computes vector.matrix v = uW.
   // u is of size W.dim1() and the output v is of size W.dim2() - 1.
   // The last result is discarded, as v is assumed to have an imaginary
   // last value of 1, as with MatrixDotVector.
-  void VectorDotMatrix(const double *u, double *v) const;
+  void VectorDotMatrix(const TFloat *u, TFloat *v) const;
   // Fills dw_[i][j] with the dot product u[i][] . v[j][], using elements
   // from u and v, starting with u[i][offset] and v[j][offset].
   // Note that (matching MatrixDotVector) v[last][] is missing, presumed 1.0.
@@ -155,17 +156,13 @@ public:
   // Sums the products of weight updates in *this and other, splitting into
   // positive (same direction) in *same and negative (different direction) in
   // *changed.
-  void CountAlternators(const WeightMatrix &other, double *same, double *changed) const;
+  void CountAlternators(const WeightMatrix &other, TFloat *same, TFloat *changed) const;
 
   void Debug2D(const char *msg);
 
-  // Utility function converts an array of float to the corresponding array
-  // of double.
-  static void FloatToDouble(const GENERIC_2D_ARRAY<float> &wf, GENERIC_2D_ARRAY<double> *wd);
-
 private:
   // Choice between float and 8 bit int implementations.
-  GENERIC_2D_ARRAY<double> wf_;
+  GENERIC_2D_ARRAY<TFloat> wf_;
   GENERIC_2D_ARRAY<int8_t> wi_;
   // Transposed copy of wf_, used only for Backward, and set with each Update.
   TransposedArray wf_t_;
@@ -175,14 +172,14 @@ private:
   bool use_adam_;
   // If we are using wi_, then scales_ is a factor to restore the row product
   // with a vector to the correct range.
-  std::vector<double> scales_;
+  std::vector<TFloat> scales_;
   // Weight deltas. dw_ is the new delta, and updates_ the momentum-decaying
   // amount to be added to wf_/wi_.
-  GENERIC_2D_ARRAY<double> dw_;
-  GENERIC_2D_ARRAY<double> updates_;
+  GENERIC_2D_ARRAY<TFloat> dw_;
+  GENERIC_2D_ARRAY<TFloat> updates_;
   // Iff use_adam_, the sum of squares of dw_. The number of samples is
   // given to Update(). Serialized iff use_adam_.
-  GENERIC_2D_ARRAY<double> dw_sq_sum_;
+  GENERIC_2D_ARRAY<TFloat> dw_sq_sum_;
   // The weights matrix reorganized in whatever way suits this instance.
   std::vector<int8_t> shaped_w_;
 };
