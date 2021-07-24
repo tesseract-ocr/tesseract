@@ -25,7 +25,11 @@ namespace tesseract {
 using TDimension = int16_t;
 
 // Floating point data type used for LSTM calculations.
+#if defined(FAST_FLOAT)
+using TFloat = float;
+#else
 using TFloat = double;
+#endif
 
 }
 

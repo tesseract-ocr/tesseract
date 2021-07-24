@@ -96,7 +96,11 @@ bool SIMDDetect::sse_available_;
 static TFloat DotProductAccelerate(const TFloat* u, const TFloat* v, int n) {
   TFloat total = 0;
   const int stride = 1;
+#if defined(FAST_FLOAT)
+  vDSP_dotpr(u, stride, v, stride, &total, n);
+#else
   vDSP_dotprD(u, stride, v, stride, &total, n);
+#endif
   return total;
 }
 #endif
