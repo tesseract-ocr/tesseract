@@ -534,81 +534,42 @@ public:
   /// Variable members.
   /// These have to be declared and initialized after image_ptr_, which contains
   /// the pointer to the params vector - the member of its base CCUtil class.
-  STRING_VAR_H(user_words_file, "", "A filename of user-provided words.");
-  STRING_VAR_H(user_words_suffix, "", "A suffix of user-provided words located in tessdata.");
-  STRING_VAR_H(user_patterns_file, "", "A filename of user-provided patterns.");
-  STRING_VAR_H(user_patterns_suffix, "", "A suffix of user-provided patterns located in tessdata.");
-  BOOL_VAR_H(load_system_dawg, true, "Load system word dawg.");
-  BOOL_VAR_H(load_freq_dawg, true, "Load frequent word dawg.");
-  BOOL_VAR_H(load_unambig_dawg, true, "Load unambiguous word dawg.");
-  BOOL_VAR_H(load_punc_dawg, true, "Load dawg with punctuation patterns.");
-  BOOL_VAR_H(load_number_dawg, true, "Load dawg with number patterns.");
-  BOOL_VAR_H(load_bigram_dawg, true, "Load dawg with special word bigrams.");
-  double_VAR_H(xheight_penalty_subscripts, 0.125,
-               "Score penalty (0.1 = 10%) added if there are subscripts "
-               "or superscripts in a word, but it is otherwise OK.");
-  double_VAR_H(xheight_penalty_inconsistent, 0.25,
-               "Score penalty (0.1 = 10%) added if an xheight is "
-               "inconsistent.");
-  double_VAR_H(segment_penalty_dict_frequent_word, 1.0,
-               "Score multiplier for word matches which have good case and"
-               "are frequent in the given language (lower is better).");
-
-  double_VAR_H(segment_penalty_dict_case_ok, 1.1,
-               "Score multiplier for word matches that have good case "
-               "(lower is better).");
-
-  double_VAR_H(segment_penalty_dict_case_bad, 1.3125,
-               "Default score multiplier for word matches, which may have "
-               "case issues (lower is better).");
-
-  double_VAR_H(segment_penalty_dict_nonword, 1.25,
-               "Score multiplier for glyph fragment segmentations which "
-               "do not match a dictionary word (lower is better).");
-
-  double_VAR_H(segment_penalty_garbage, 1.50,
-               "Score multiplier for poorly cased strings that are not in"
-               " the dictionary and generally look like garbage (lower is"
-               " better).");
-  STRING_VAR_H(output_ambig_words_file, "", "Output file for ambiguities found in the dictionary");
-  INT_VAR_H(dawg_debug_level, 0,
-            "Set to 1 for general debug info"
-            ", to 2 for more details, to 3 to see all the debug messages");
-  INT_VAR_H(hyphen_debug_level, 0, "Debug level for hyphenated words.");
-  BOOL_VAR_H(use_only_first_uft8_step, false,
-             "Use only the first UTF8 step of the given string"
-             " when computing log probabilities.");
-  double_VAR_H(certainty_scale, 20.0, "Certainty scaling factor");
-  double_VAR_H(stopper_nondict_certainty_base, -2.50, "Certainty threshold for non-dict words");
-  double_VAR_H(stopper_phase2_certainty_rejection_offset, 1.0, "Reject certainty offset");
-  INT_VAR_H(stopper_smallword_size, 2, "Size of dict word to be treated as non-dict word");
-  double_VAR_H(stopper_certainty_per_char, -0.50,
-               "Certainty to add for each dict char above small word size.");
-  double_VAR_H(stopper_allowable_character_badness, 3.0,
-               "Max certaintly variation allowed in a word (in sigma)");
-  INT_VAR_H(stopper_debug_level, 0, "Stopper debug level");
-  BOOL_VAR_H(stopper_no_acceptable_choices, false,
-             "Make AcceptableChoice() always return false. Useful"
-             " when there is a need to explore all segmentations");
-  INT_VAR_H(tessedit_truncate_wordchoice_log, 10, "Max words to keep in list");
-  STRING_VAR_H(word_to_debug, "",
-               "Word for which stopper debug information"
-               " should be printed to stdout");
-  BOOL_VAR_H(segment_nonalphabetic_script, false,
-             "Don't use any alphabetic-specific tricks."
-             "Set to true in the traineddata config file for"
-             " scripts that are cursive or inherently fixed-pitch");
-  BOOL_VAR_H(save_doc_words, 0, "Save Document Words");
-  double_VAR_H(doc_dict_pending_threshold, 0.0, "Worst certainty for using pending dictionary");
-  double_VAR_H(doc_dict_certainty_threshold, -2.25,
-               "Worst certainty"
-               " for words that can be inserted into the document dictionary");
-  INT_VAR_H(max_permuter_attempts, 10000,
-            "Maximum number of different"
-            " character choices to consider during permutation."
-            " This limit is especially useful when user patterns"
-            " are specified, since overly generic patterns can result in"
-            " dawg search exploring an overly large number of options.");
+  STRING_VAR_H(user_words_file);
+  STRING_VAR_H(user_words_suffix);
+  STRING_VAR_H(user_patterns_file);
+  STRING_VAR_H(user_patterns_suffix);
+  BOOL_VAR_H(load_system_dawg);
+  BOOL_VAR_H(load_freq_dawg);
+  BOOL_VAR_H(load_unambig_dawg);
+  BOOL_VAR_H(load_punc_dawg);
+  BOOL_VAR_H(load_number_dawg);
+  BOOL_VAR_H(load_bigram_dawg);
+  double_VAR_H(xheight_penalty_subscripts);
+  double_VAR_H(xheight_penalty_inconsistent);
+  double_VAR_H(segment_penalty_dict_frequent_word);
+  double_VAR_H(segment_penalty_dict_case_ok);
+  double_VAR_H(segment_penalty_dict_case_bad);
+  double_VAR_H(segment_penalty_dict_nonword);
+  double_VAR_H(segment_penalty_garbage);
+  STRING_VAR_H(output_ambig_words_file);
+  INT_VAR_H(dawg_debug_level);
+  INT_VAR_H(hyphen_debug_level);
+  BOOL_VAR_H(use_only_first_uft8_step);
+  double_VAR_H(certainty_scale);
+  double_VAR_H(stopper_nondict_certainty_base);
+  double_VAR_H(stopper_phase2_certainty_rejection_offset);
+  INT_VAR_H(stopper_smallword_size);
+  double_VAR_H(stopper_certainty_per_char);
+  double_VAR_H(stopper_allowable_character_badness);
+  INT_VAR_H(stopper_debug_level);
+  BOOL_VAR_H(stopper_no_acceptable_choices);
+  INT_VAR_H(tessedit_truncate_wordchoice_log);
+  STRING_VAR_H(word_to_debug);
+  BOOL_VAR_H(segment_nonalphabetic_script);
+  BOOL_VAR_H(save_doc_words);
+  double_VAR_H(doc_dict_pending_threshold);
+  double_VAR_H(doc_dict_certainty_threshold);
+  INT_VAR_H(max_permuter_attempts);
 };
 
 } // namespace tesseract

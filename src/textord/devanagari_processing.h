@@ -23,10 +23,9 @@ struct Boxa;
 
 namespace tesseract {
 
-extern INT_VAR_H(devanagari_split_debuglevel, 0, "Debug level for split shiro-rekha process.");
+extern INT_VAR_H(devanagari_split_debuglevel);
 
-extern BOOL_VAR_H(devanagari_split_debugimage, 0,
-                  "Whether to create a debug image for split shiro-rekha process.");
+extern BOOL_VAR_H(devanagari_split_debugimage);
 
 class TBOX;
 class DebugPixa;

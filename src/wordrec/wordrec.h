@@ -42,9 +42,8 @@ class TESS_API Wordrec : public Classify {
 public:
   // config parameters
 
-  BOOL_VAR_H(wordrec_debug_blamer, false, "Print blamer debug messages");
-
-  BOOL_VAR_H(wordrec_run_blamer, false, "Try to set the blame for errors");
+  BOOL_VAR_H(wordrec_debug_blamer);
+  BOOL_VAR_H(wordrec_run_blamer);
 
   // methods
   Wordrec();
@@ -187,52 +186,41 @@ ELISTIZEH(FRAGMENT)
 class TESS_API Wordrec : public Classify {
 public:
   // config parameters *******************************************************
-  BOOL_VAR_H(merge_fragments_in_matrix, true,
-             "Merge the fragments in the ratings matrix and delete them "
-             "after merging");
-  BOOL_VAR_H(wordrec_enable_assoc, true, "Associator Enable");
-  BOOL_VAR_H(force_word_assoc, false,
-             "force associator to run regardless of what enable_assoc is."
-             "This is used for CJK where component grouping is necessary.");
-  INT_VAR_H(repair_unchopped_blobs, 1, "Fix blobs that aren't chopped");
-  double_VAR_H(tessedit_certainty_threshold, -2.25, "Good blob limit");
-  INT_VAR_H(chop_debug, 0, "Chop debug");
-  BOOL_VAR_H(chop_enable, 1, "Chop enable");
-  BOOL_VAR_H(chop_vertical_creep, 0, "Vertical creep");
-  INT_VAR_H(chop_split_length, 10000, "Split Length");
-  INT_VAR_H(chop_same_distance, 2, "Same distance");
-  INT_VAR_H(chop_min_outline_points, 6, "Min Number of Points on Outline");
-  INT_VAR_H(chop_seam_pile_size, 150, "Max number of seams in seam_pile");
-  BOOL_VAR_H(chop_new_seam_pile, 1, "Use new seam_pile");
-  INT_VAR_H(chop_inside_angle, -50, "Min Inside Angle Bend");
-  INT_VAR_H(chop_min_outline_area, 2000, "Min Outline Area");
-  double_VAR_H(chop_split_dist_knob, 0.5, "Split length adjustment");
-  double_VAR_H(chop_overlap_knob, 0.9, "Split overlap adjustment");
-  double_VAR_H(chop_center_knob, 0.15, "Split center adjustment");
-  INT_VAR_H(chop_centered_maxwidth, 90,
-            "Width of (smaller) chopped blobs "
-            "above which we don't care that a chop is not near the center.");
-  double_VAR_H(chop_sharpness_knob, 0.06, "Split sharpness adjustment");
-  double_VAR_H(chop_width_change_knob, 5.0, "Width change adjustment");
-  double_VAR_H(chop_ok_split, 100.0, "OK split limit");
-  double_VAR_H(chop_good_split, 50.0, "Good split limit");
-  INT_VAR_H(chop_x_y_weight, 3, "X / Y  length weight");
-  BOOL_VAR_H(assume_fixed_pitch_char_segment, false,
-             "include fixed-pitch heuristics in char segmentation");
-  INT_VAR_H(wordrec_debug_level, 0, "Debug level for wordrec");
-  INT_VAR_H(wordrec_max_join_chunks, 4, "Max number of broken pieces to associate");
-  BOOL_VAR_H(wordrec_skip_no_truth_words, false,
-             "Only run OCR for words that had truth recorded in BlamerBundle");
-  BOOL_VAR_H(wordrec_debug_blamer, false, "Print blamer debug messages");
-  BOOL_VAR_H(wordrec_run_blamer, false, "Try to set the blame for errors");
-  INT_VAR_H(segsearch_debug_level, 0, "SegSearch debug level");
-  INT_VAR_H(segsearch_max_pain_points, 2000, "Maximum number of pain points stored in the queue");
-  INT_VAR_H(segsearch_max_futile_classifications, 10,
-            "Maximum number of pain point classifications per word.");
-  double_VAR_H(segsearch_max_char_wh_ratio, 2.0, "Maximum character width-to-height ratio");
-  BOOL_VAR_H(save_alt_choices, true,
-             "Save alternative paths found during chopping "
-             "and segmentation search");
+  BOOL_VAR_H(merge_fragments_in_matrix);
+  BOOL_VAR_H(wordrec_enable_assoc);
+  BOOL_VAR_H(force_word_assoc);
+  INT_VAR_H(repair_unchopped_blobs);
+  double_VAR_H(tessedit_certainty_threshold);
+  INT_VAR_H(chop_debug);
+  BOOL_VAR_H(chop_enable);
+  BOOL_VAR_H(chop_vertical_creep);
+  INT_VAR_H(chop_split_length);
+  INT_VAR_H(chop_same_distance);
+  INT_VAR_H(chop_min_outline_points);
+  INT_VAR_H(chop_seam_pile_size);
+  BOOL_VAR_H(chop_new_seam_pile);
+  INT_VAR_H(chop_inside_angle);
+  INT_VAR_H(chop_min_outline_area);
+  double_VAR_H(chop_split_dist_knob);
+  double_VAR_H(chop_overlap_knob);
+  double_VAR_H(chop_center_knob);
+  INT_VAR_H(chop_centered_maxwidth);
+  double_VAR_H(chop_sharpness_knob);
+  double_VAR_H(chop_width_change_knob);
+  double_VAR_H(chop_ok_split);
+  double_VAR_H(chop_good_split);
+  INT_VAR_H(chop_x_y_weight);
+  BOOL_VAR_H(assume_fixed_pitch_char_segment);
+  INT_VAR_H(wordrec_debug_level);
+  INT_VAR_H(wordrec_max_join_chunks);
+  BOOL_VAR_H(wordrec_skip_no_truth_words);
+  BOOL_VAR_H(wordrec_debug_blamer);
+  BOOL_VAR_H(wordrec_run_blamer);
+  INT_VAR_H(segsearch_debug_level);
+  INT_VAR_H(segsearch_max_pain_points);
+  INT_VAR_H(segsearch_max_futile_classifications);
+  double_VAR_H(segsearch_max_char_wh_ratio);
+  BOOL_VAR_H(save_alt_choices);
 
   // methods from wordrec/*.cpp ***********************************************
   Wordrec();

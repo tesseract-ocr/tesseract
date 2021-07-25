@@ -234,7 +234,7 @@ public:
 
 #define END_OF_WERD_CODE 255
 
-extern double_VAR_H(textord_underline_threshold, 0.9, "Fraction of width occupied");
+extern double_VAR_H(textord_underline_threshold);
 
 bool test_underline(  // look for underlines
     bool testing_on,  // drawing blob

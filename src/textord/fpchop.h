@@ -58,7 +58,7 @@ private:
 
 ELISTIZEH(C_OUTLINE_FRAG)
 
-extern INT_VAR_H(textord_fp_chop_error, 2, "Max allowed bending of chop cells");
+extern INT_VAR_H(textord_fp_chop_error);
 
 ROW *fixed_pitch_words( // find lines
     TO_ROW *row,        // row to do

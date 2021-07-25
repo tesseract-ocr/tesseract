@@ -48,7 +48,7 @@ typedef enum { PicoFeatY, PicoFeatDir, PicoFeatX } PICO_FEAT_PARAM_NAME;
           Variables
 ----------------------------------------------------------------------------*/
 
-extern double_VAR_H(classify_pico_feature_length, 0.05, "Pico Feature Length");
+extern double_VAR_H(classify_pico_feature_length);
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
