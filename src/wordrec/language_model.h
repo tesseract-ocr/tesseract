@@ -289,43 +289,30 @@ protected:
 
 public:
   // Parameters.
-  INT_VAR_H(language_model_debug_level, 0, "Language model debug level");
-  BOOL_VAR_H(language_model_ngram_on, false, "Turn on/off the use of character ngram model");
-  INT_VAR_H(language_model_ngram_order, 8, "Maximum order of the character ngram model");
-  INT_VAR_H(language_model_viterbi_list_max_num_prunable, 10,
-            "Maximum number of prunable (those for which PrunablePath() is"
-            " true) entries in each viterbi list recorded in BLOB_CHOICEs");
-  INT_VAR_H(language_model_viterbi_list_max_size, 500,
-            "Maximum size of viterbi lists recorded in BLOB_CHOICEs");
-  double_VAR_H(language_model_ngram_small_prob, 0.000001,
-               "To avoid overly small denominators use this as the floor"
-               " of the probability returned by the ngram model");
-  double_VAR_H(language_model_ngram_nonmatch_score, -40.0,
-               "Average classifier score of a non-matching unichar");
-  BOOL_VAR_H(language_model_ngram_use_only_first_uft8_step, false,
-             "Use only the first UTF8 step of the given string"
-             " when computing log probabilities");
-  double_VAR_H(language_model_ngram_scale_factor, 0.03,
-               "Strength of the character ngram model relative to the"
-               " character classifier ");
-  double_VAR_H(language_model_ngram_rating_factor, 16.0,
-               "Factor to bring log-probs into the same range as ratings"
-               " when multiplied by outline length ");
-  BOOL_VAR_H(language_model_ngram_space_delimited_language, true, "Words are delimited by space");
-  INT_VAR_H(language_model_min_compound_length, 3, "Minimum length of compound words");
+  INT_VAR_H(language_model_debug_level);
+  BOOL_VAR_H(language_model_ngram_on);
+  INT_VAR_H(language_model_ngram_order);
+  INT_VAR_H(language_model_viterbi_list_max_num_prunable);
+  INT_VAR_H(language_model_viterbi_list_max_size);
+  double_VAR_H(language_model_ngram_small_prob);
+  double_VAR_H(language_model_ngram_nonmatch_score);
+  BOOL_VAR_H(language_model_ngram_use_only_first_uft8_step);
+  double_VAR_H(language_model_ngram_scale_factor);
+  double_VAR_H(language_model_ngram_rating_factor);
+  BOOL_VAR_H(language_model_ngram_space_delimited_language);
+  INT_VAR_H(language_model_min_compound_length);
   // Penalties used for adjusting path costs and final word rating.
-  double_VAR_H(language_model_penalty_non_freq_dict_word, 0.1,
-               "Penalty for words not in the frequent word dictionary");
-  double_VAR_H(language_model_penalty_non_dict_word, 0.15, "Penalty for non-dictionary words");
-  double_VAR_H(language_model_penalty_punc, 0.2, "Penalty for inconsistent punctuation");
-  double_VAR_H(language_model_penalty_case, 0.1, "Penalty for inconsistent case");
-  double_VAR_H(language_model_penalty_script, 0.5, "Penalty for inconsistent script");
-  double_VAR_H(language_model_penalty_chartype, 0.3, "Penalty for inconsistent character type");
-  double_VAR_H(language_model_penalty_font, 0.00, "Penalty for inconsistent font");
-  double_VAR_H(language_model_penalty_spacing, 0.05, "Penalty for inconsistent spacing");
-  double_VAR_H(language_model_penalty_increment, 0.01, "Penalty increment");
-  INT_VAR_H(wordrec_display_segmentations, 0, "Display Segmentations");
-  BOOL_VAR_H(language_model_use_sigmoidal_certainty, false, "Use sigmoidal score for certainty");
+  double_VAR_H(language_model_penalty_non_freq_dict_word);
+  double_VAR_H(language_model_penalty_non_dict_word);
+  double_VAR_H(language_model_penalty_punc);
+  double_VAR_H(language_model_penalty_case);
+  double_VAR_H(language_model_penalty_script);
+  double_VAR_H(language_model_penalty_chartype);
+  double_VAR_H(language_model_penalty_font);
+  double_VAR_H(language_model_penalty_spacing);
+  double_VAR_H(language_model_penalty_increment);
+  INT_VAR_H(wordrec_display_segmentations);
+  BOOL_VAR_H(language_model_use_sigmoidal_certainty);
 
 protected:
   // Member Variables.

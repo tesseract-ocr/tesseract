@@ -28,7 +28,7 @@ namespace tesseract {
 
 #define NO_SMD "none"
 
-extern BOOL_VAR_H(textord_show_fixed_cuts, false, "Draw fixed pitch cell boundaries");
+extern BOOL_VAR_H(textord_show_fixed_cuts);
 extern ScrollView *to_win;
 extern FILE *to_debug;
 // Creates a static display window for textord, and returns a pointer to it.

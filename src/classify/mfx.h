@@ -31,9 +31,8 @@ struct TBLOB;
 ----------------------------------------------------------------------------**/
 
 /* old numbers corresponded to 10.0 degrees and 80.0 degrees */
-extern double_VAR_H(classify_min_slope, 0.414213562,
-                    "Slope below which lines are called horizontal");
-extern double_VAR_H(classify_max_slope, 2.414213562, "Slope above which lines are called vertical");
+extern double_VAR_H(classify_min_slope);
+extern double_VAR_H(classify_max_slope);
 
 /*----------------------------------------------------------------------------
           Public Function Prototypes

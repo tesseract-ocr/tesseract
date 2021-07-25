@@ -41,14 +41,10 @@ public:
 
   // Member variables.
 
-  INT_VAR_H(classify_debug_level, 0, "Classify debug level");
-
-  BOOL_VAR_H(classify_bln_numeric_mode, 0, "Assume the input is numbers [0-9].");
-
-  double_VAR_H(classify_max_rating_ratio, 1.5, "Veto ratio between classifier ratings");
-
-  double_VAR_H(classify_max_certainty_margin, 5.5,
-               "Veto difference between classifier certainties");
+  INT_VAR_H(classify_debug_level);
+  BOOL_VAR_H(classify_bln_numeric_mode);
+  double_VAR_H(classify_max_rating_ratio);
+  double_VAR_H(classify_max_certainty_margin);
 
 private:
   Dict dict_;
@@ -360,80 +356,65 @@ public:
   // Parameters.
   // Set during training (in lang.config) to indicate whether the divisible
   // blobs chopper should be used (true for latin script.)
-  BOOL_VAR_H(allow_blob_division, true, "Use divisible blobs chopping");
+  BOOL_VAR_H(allow_blob_division);
   // Set during training (in lang.config) to indicate whether the divisible
   // blobs chopper should be used in preference to chopping. Set to true for
   // southern Indic scripts.
-  BOOL_VAR_H(prioritize_division, false, "Prioritize blob division over chopping");
-  BOOL_VAR_H(classify_enable_learning, true, "Enable adaptive classifier");
-  INT_VAR_H(classify_debug_level, 0, "Classify debug level");
+  BOOL_VAR_H(prioritize_division);
+  BOOL_VAR_H(classify_enable_learning);
+  INT_VAR_H(classify_debug_level);
 
   /* mfoutline.cpp ***********************************************************/
   /* control knobs used to control normalization of outlines */
-  INT_VAR_H(classify_norm_method, character, "Normalization Method   ...");
-  double_VAR_H(classify_char_norm_range, 0.2, "Character Normalization Range ...");
-  double_VAR_H(classify_max_rating_ratio, 1.5, "Veto ratio between classifier ratings");
-  double_VAR_H(classify_max_certainty_margin, 5.5,
-               "Veto difference between classifier certainties");
+  INT_VAR_H(classify_norm_method);
+  double_VAR_H(classify_char_norm_range);
+  double_VAR_H(classify_max_rating_ratio);
+  double_VAR_H(classify_max_certainty_margin);
 
   /* adaptmatch.cpp ***********************************************************/
-  BOOL_VAR_H(tess_cn_matching, 0, "Character Normalized Matching");
-  BOOL_VAR_H(tess_bn_matching, 0, "Baseline Normalized Matching");
-  BOOL_VAR_H(classify_enable_adaptive_matcher, 1, "Enable adaptive classifier");
-  BOOL_VAR_H(classify_use_pre_adapted_templates, 0, "Use pre-adapted classifier templates");
-  BOOL_VAR_H(classify_save_adapted_templates, 0, "Save adapted templates to a file");
-  BOOL_VAR_H(classify_enable_adaptive_debugger, 0, "Enable match debugger");
-  BOOL_VAR_H(classify_nonlinear_norm, 0, "Non-linear stroke-density normalization");
-  INT_VAR_H(matcher_debug_level, 0, "Matcher Debug Level");
-  INT_VAR_H(matcher_debug_flags, 0, "Matcher Debug Flags");
-  INT_VAR_H(classify_learning_debug_level, 0, "Learning Debug Level: ");
-  double_VAR_H(matcher_good_threshold, 0.125, "Good Match (0-1)");
-  double_VAR_H(matcher_reliable_adaptive_result, 0.0, "Great Match (0-1)");
-  double_VAR_H(matcher_perfect_threshold, 0.02, "Perfect Match (0-1)");
-  double_VAR_H(matcher_bad_match_pad, 0.15, "Bad Match Pad (0-1)");
-  double_VAR_H(matcher_rating_margin, 0.1, "New template margin (0-1)");
-  double_VAR_H(matcher_avg_noise_size, 12.0, "Avg. noise blob length: ");
-  INT_VAR_H(matcher_permanent_classes_min, 1, "Min # of permanent classes");
-  INT_VAR_H(matcher_min_examples_for_prototyping, 3, "Reliable Config Threshold");
-  INT_VAR_H(matcher_sufficient_examples_for_prototyping, 5,
-            "Enable adaption even if the ambiguities have not been seen");
-  double_VAR_H(matcher_clustering_max_angle_delta, 0.015,
-               "Maximum angle delta for prototype clustering");
-  double_VAR_H(classify_misfit_junk_penalty, 0.0,
-               "Penalty to apply when a non-alnum is vertically out of "
-               "its expected textline position");
-  double_VAR_H(rating_scale, 1.5, "Rating scaling factor");
-  double_VAR_H(certainty_scale, 20.0, "Certainty scaling factor");
-  double_VAR_H(tessedit_class_miss_scale, 0.00390625, "Scale factor for features not used");
-  double_VAR_H(classify_adapted_pruning_factor, 2.5,
-               "Prune poor adapted results this much worse than best result");
-  double_VAR_H(classify_adapted_pruning_threshold, -1.0,
-               "Threshold at which classify_adapted_pruning_factor starts");
-  INT_VAR_H(classify_adapt_proto_threshold, 230, "Threshold for good protos during adaptive 0-255");
-  INT_VAR_H(classify_adapt_feature_threshold, 230,
-            "Threshold for good features during adaptive 0-255");
-  BOOL_VAR_H(disable_character_fragments, true,
-             "Do not include character fragments in the"
-             " results of the classifier");
-  double_VAR_H(classify_character_fragments_garbage_certainty_threshold, -3.0,
-               "Exclude fragments that do not match any whole character"
-               " with at least this certainty");
-  BOOL_VAR_H(classify_debug_character_fragments, false,
-             "Bring up graphical debugging windows for fragments training");
-  BOOL_VAR_H(matcher_debug_separate_windows, false,
-             "Use two different windows for debugging the matching: "
-             "One for the protos and one for the features.");
-  STRING_VAR_H(classify_learn_debug_str, "", "Class str to debug learning");
+  BOOL_VAR_H(tess_cn_matching);
+  BOOL_VAR_H(tess_bn_matching);
+  BOOL_VAR_H(classify_enable_adaptive_matcher);
+  BOOL_VAR_H(classify_use_pre_adapted_templates);
+  BOOL_VAR_H(classify_save_adapted_templates);
+  BOOL_VAR_H(classify_enable_adaptive_debugger);
+  BOOL_VAR_H(classify_nonlinear_norm);
+  INT_VAR_H(matcher_debug_level);
+  INT_VAR_H(matcher_debug_flags);
+  INT_VAR_H(classify_learning_debug_level);
+  double_VAR_H(matcher_good_threshold);
+  double_VAR_H(matcher_reliable_adaptive_result);
+  double_VAR_H(matcher_perfect_threshold);
+  double_VAR_H(matcher_bad_match_pad);
+  double_VAR_H(matcher_rating_margin);
+  double_VAR_H(matcher_avg_noise_size);
+  INT_VAR_H(matcher_permanent_classes_min);
+  INT_VAR_H(matcher_min_examples_for_prototyping);
+  INT_VAR_H(matcher_sufficient_examples_for_prototyping);
+  double_VAR_H(matcher_clustering_max_angle_delta);
+  double_VAR_H(classify_misfit_junk_penalty);
+  double_VAR_H(rating_scale);
+  double_VAR_H(certainty_scale);
+  double_VAR_H(tessedit_class_miss_scale);
+  double_VAR_H(classify_adapted_pruning_factor);
+  double_VAR_H(classify_adapted_pruning_threshold);
+  INT_VAR_H(classify_adapt_proto_threshold);
+  INT_VAR_H(classify_adapt_feature_threshold);
+  BOOL_VAR_H(disable_character_fragments);
+  double_VAR_H(classify_character_fragments_garbage_certainty_threshold);
+  BOOL_VAR_H(classify_debug_character_fragments);
+  BOOL_VAR_H(matcher_debug_separate_windows);
+  STRING_VAR_H(classify_learn_debug_str);
 
   /* intmatcher.cpp **********************************************************/
-  INT_VAR_H(classify_class_pruner_threshold, 229, "Class Pruner Threshold 0-255");
-  INT_VAR_H(classify_class_pruner_multiplier, 15, "Class Pruner Multiplier 0-255:       ");
-  INT_VAR_H(classify_cp_cutoff_strength, 7, "Class Pruner CutoffStrength:         ");
-  INT_VAR_H(classify_integer_matcher_multiplier, 10, "Integer Matcher Multiplier  0-255:   ");
+  INT_VAR_H(classify_class_pruner_threshold);
+  INT_VAR_H(classify_class_pruner_multiplier);
+  INT_VAR_H(classify_cp_cutoff_strength);
+  INT_VAR_H(classify_integer_matcher_multiplier);
 
-  BOOL_VAR_H(classify_bln_numeric_mode, 0, "Assume the input is numbers [0-9].");
-  double_VAR_H(speckle_large_max_size, 0.30, "Max large speckle size");
-  double_VAR_H(speckle_rating_penalty, 10.0, "Penalty to add to worst rating for noise");
+  BOOL_VAR_H(classify_bln_numeric_mode);
+  double_VAR_H(speckle_large_max_size);
+  double_VAR_H(speckle_rating_penalty);
 
   // Use class variables to hold onto built-in templates and adapted templates.
   INT_TEMPLATES_STRUCT *PreTrainedTemplates = nullptr;
