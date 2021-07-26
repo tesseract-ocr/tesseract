@@ -59,7 +59,9 @@ public:
   /// Return the id of the T object.
   /// This method NEEDS a compare_callback to be passed to
   /// set_compare_callback.
-  int get_id(T object) const;
+  int get_index(T object) const {
+    return table_.get_index(object);
+  }
 
   /// Return true if T is in the table
   bool contains(T object) const;
@@ -124,22 +126,16 @@ T UnicityTable<T>::contains_id(int id) const {
   return table_.contains_index(id);
 }
 
-// Return the id of the T object.
-template <typename T>
-int UnicityTable<T>::get_id(T object) const {
-  return table_.get_index(object);
-}
-
 // Return true if T is in the table
 template <typename T>
 bool UnicityTable<T>::contains(T object) const {
-  return get_id(object) != -1;
+  return get_index(object) != -1;
 }
 
 // Add an element in the table
 template <typename T>
 int UnicityTable<T>::push_back(T object) {
-  int idx = get_id(object);
+  auto idx = get_index(object);
   if (idx == -1) {
     table_.push_back(object);
     idx = size();

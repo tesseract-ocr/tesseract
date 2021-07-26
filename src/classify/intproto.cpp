@@ -511,7 +511,7 @@ INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
       fs[i] = FClass->font_set.at(i);
     }
     if (this->fontset_table_.contains(fs)) {
-      IClass->font_set_id = this->fontset_table_.get_id(fs);
+      IClass->font_set_id = this->fontset_table_.get_index(fs);
     } else {
       IClass->font_set_id = this->fontset_table_.push_back(fs);
     }
