@@ -17,6 +17,10 @@
 #ifndef TESSERACT_TESSTYPES_H
 #define TESSERACT_TESSTYPES_H
 
+#ifdef HAVE_CONFIG_H
+#  include "config_auto.h" // FAST_FLOAT
+#endif
+
 #include <cstdint> // for int16_t
 
 namespace tesseract {
