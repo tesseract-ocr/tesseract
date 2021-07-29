@@ -207,6 +207,14 @@ AC_ARG_WITH([extra-libraries],
                AC_MSG_ERROR([Cannot stat directory $withval])
              fi])
 
+AC_MSG_CHECKING([--enable-float32 argument])
+AC_ARG_ENABLE([float32],
+  AS_HELP_STRING([--enable-float32], [enable float for LSTM [default=no]]))
+AC_MSG_RESULT([$enable_float32])
+if test "$enable_float32" = "yes"; then
+  AC_DEFINE([FAST_FLOAT], [1], [Enable float for LSTM])
+fi
+
 AC_MSG_CHECKING([--enable-graphics argument])
 AC_ARG_ENABLE([graphics],
   AS_HELP_STRING([--disable-graphics], [disable graphics (ScrollView)]))
