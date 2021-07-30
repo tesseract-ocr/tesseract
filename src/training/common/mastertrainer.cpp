@@ -396,7 +396,8 @@ bool MasterTrainer::LoadFontInfo(const char *filename) {
     }
     fontinfo.properties = (italic << 0) + (bold << 1) + (fixed << 2) +
                           (serif << 3) + (fraktur << 4);
-    if (!fontinfo_table_.contains(fontinfo)) {
+    if (fontinfo_table_.get_index(fontinfo) < 0) {
+      // fontinfo not in table.
       fontinfo_table_.push_back(fontinfo);
     } else {
       delete[] font_name;
@@ -434,10 +435,11 @@ bool MasterTrainer::LoadXHeights(const char *filename) {
     }
     buffer[1023] = '\0';
     fontinfo.name = buffer;
-    if (!fontinfo_table_.contains(fontinfo)) {
+    auto fontinfo_id = fontinfo_table_.get_index(fontinfo);
+    if (fontinfo_id < 0) {
+      // fontinfo not in table.
       continue;
     }
-    int fontinfo_id = fontinfo_table_.get_index(fontinfo);
     xheights_[fontinfo_id] = xht;
     total_xheight += xht;
     ++xheight_count;
