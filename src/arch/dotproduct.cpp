@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        dotproduct.h
+// File:        dotproduct.cpp
 // Description: Native dot product function.
 //
 // (C) Copyright 2018, Google Inc.
