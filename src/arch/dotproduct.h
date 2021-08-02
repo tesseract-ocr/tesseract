@@ -33,6 +33,9 @@ TFloat DotProductFMA(const TFloat *u, const TFloat *v, int n);
 // Uses Intel SSE intrinsics to access the SIMD instruction set.
 TFloat DotProductSSE(const TFloat *u, const TFloat *v, int n);
 
+// Use NEON intrinsics.
+TFloat DotProductNEON(const TFloat *u, const TFloat *v, int n);
+
 } // namespace tesseract.
 
 #endif // TESSERACT_ARCH_DOTPRODUCT_H_

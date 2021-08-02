@@ -187,8 +187,13 @@ endif
 
 if HAVE_NEON
 libtesseract_neon_la_CXXFLAGS = $(NEON_CXXFLAGS)
+libtesseract_neon_la_CXXFLAGS += -O3
+if OPENMP_SIMD
+libtesseract_neon_la_CXXFLAGS += -fopenmp-simd -DOPENMP_SIMD
+endif
 libtesseract_neon_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 libtesseract_neon_la_SOURCES = src/arch/intsimdmatrixneon.cpp
+libtesseract_neon_la_SOURCES += src/arch/dotproductneon.cpp
 libtesseract_la_LIBADD += libtesseract_neon.la
 noinst_LTLIBRARIES += libtesseract_neon.la
 endif
