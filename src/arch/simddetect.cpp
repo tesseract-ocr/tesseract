@@ -132,12 +132,6 @@ static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr
 SIMDDetect::SIMDDetect() {
   // The fallback is a generic dot product calculation.
   SetDotProduct(DotProductGeneric);
-  const char *dotproduct_env = getenv("DOTPRODUCT");
-  if (dotproduct_env != nullptr) {
-    dotproduct = dotproduct_env;
-    Update();
-    return;
-  }
 
 #if defined(HAS_CPUID)
 #  if defined(__GNUC__)
@@ -246,6 +240,13 @@ SIMDDetect::SIMDDetect() {
     SetDotProduct(DotProductNative, &IntSimdMatrix::intSimdMatrixNEON);
 #endif
   }
+
+  const char *dotproduct_env = getenv("DOTPRODUCT");
+  if (dotproduct_env != nullptr) {
+    // Override automatic settings by value from environment variable.
+    dotproduct = dotproduct_env;
+    Update();
+  }
 }
 
 void SIMDDetect::Update() {
@@ -260,7 +261,7 @@ void SIMDDetect::Update() {
     dotproduct_method = "generic";
   } else if (dotproduct == "native") {
     // Native optimized code selected by config variable.
-    SetDotProduct(DotProductNative);
+    SetDotProduct(DotProductNative, IntSimdMatrix::intSimdMatrix);
     dotproduct_method = "native";
 #if defined(HAVE_AVX2)
   } else if (dotproduct == "avx2") {
@@ -288,7 +289,7 @@ void SIMDDetect::Update() {
 #endif
 #if defined(HAVE_FRAMEWORK_ACCELERATE)
   } else if (dotproduct == "accelerate") {
-    SetDotProduct(DotProductAccelerate);
+    SetDotProduct(DotProductAccelerate, IntSimdMatrix::intSimdMatrix);
 #endif
 #if defined(HAVE_NEON) || defined(__aarch64__)
   } else if (dotproduct == "neon" && neon_available_) {
@@ -298,7 +299,7 @@ void SIMDDetect::Update() {
 #endif
   } else if (dotproduct == "std::inner_product") {
     // std::inner_product selected by config variable.
-    SetDotProduct(DotProductStdInnerProduct);
+    SetDotProduct(DotProductStdInnerProduct, IntSimdMatrix::intSimdMatrix);
     dotproduct_method = "std::inner_product";
   } else {
     // Unsupported value of config variable.
