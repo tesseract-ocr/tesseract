@@ -32,7 +32,6 @@
 #include "trainingsample.h"
 #include "unicharset.h"
 
-#include "absl/strings/numbers.h"   // for safe_strto32
 #include "absl/strings/str_split.h" // for absl::StrSplit
 
 #include <string>

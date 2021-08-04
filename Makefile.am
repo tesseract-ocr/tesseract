@@ -1521,7 +1521,7 @@ qrsequence_test_LDADD = $(ABSEIL_LIBS) $(TESS_LIBS)
 
 recodebeam_test_SOURCES = unittest/recodebeam_test.cc
 recodebeam_test_CPPFLAGS = $(unittest_CPPFLAGS)
-recodebeam_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+recodebeam_test_LDADD = $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 rect_test_SOURCES = unittest/rect_test.cc
 rect_test_CPPFLAGS = $(unittest_CPPFLAGS)
@@ -1529,7 +1529,7 @@ rect_test_LDADD = $(TESS_LIBS)
 
 resultiterator_test_SOURCES = unittest/resultiterator_test.cc
 resultiterator_test_CPPFLAGS = $(unittest_CPPFLAGS)
-resultiterator_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+resultiterator_test_LDADD = $(TRAINING_LIBS)
 resultiterator_test_LDADD += $(LEPTONICA_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 scanutils_test_SOURCES = unittest/scanutils_test.cc
@@ -1580,7 +1580,7 @@ tatweel_test_LDADD = $(TRAINING_LIBS)
 
 textlineprojection_test_SOURCES = unittest/textlineprojection_test.cc
 textlineprojection_test_CPPFLAGS = $(unittest_CPPFLAGS)
-textlineprojection_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+textlineprojection_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
 tfile_test_SOURCES = unittest/tfile_test.cc
 tfile_test_CPPFLAGS = $(unittest_CPPFLAGS)
