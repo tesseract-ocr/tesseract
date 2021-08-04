@@ -155,6 +155,7 @@ static void GetCleanedText(TessBaseAPI *tess, Image pix, std::string &ocr_text) 
   trim(ocr_text);
 }
 
+#ifdef INCLUDE_TENSORFLOW
 static void VerifyTextResult(TessBaseAPI *tess, Image pix, const std::string &lang,
                              const std::string &expected_text) {
   TessBaseAPI *tess_local = nullptr;
@@ -171,6 +172,7 @@ static void VerifyTextResult(TessBaseAPI *tess, Image pix, const std::string &la
     delete tess_local;
   }
 }
+#endif
 
 // Check that Tesseract/Cube produce the correct results in single-threaded
 // operation. If not, it is pointless to run the real multi-threaded tests.
