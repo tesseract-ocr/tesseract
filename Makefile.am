@@ -1173,13 +1173,11 @@ libgtest_main_la_CPPFLAGS = $(libgtest_la_CPPFLAGS)
 # Build Abseil (needed for some unit tests).
 check_LTLIBRARIES += libabseil.la
 libabseil_la_SOURCES =
-libabseil_la_SOURCES += abseil/absl/base/internal/cycleclock.cc
 libabseil_la_SOURCES += abseil/absl/base/internal/raw_logging.cc
 libabseil_la_SOURCES += abseil/absl/base/internal/spinlock.cc
 libabseil_la_SOURCES += abseil/absl/base/internal/spinlock_wait.cc
 libabseil_la_SOURCES += abseil/absl/base/internal/sysinfo.cc
 libabseil_la_SOURCES += abseil/absl/base/internal/throw_delegate.cc
-libabseil_la_SOURCES += abseil/absl/base/internal/unscaledcycleclock.cc
 libabseil_la_SOURCES += abseil/absl/numeric/int128.cc
 libabseil_la_SOURCES += abseil/absl/strings/ascii.cc
 libabseil_la_SOURCES += abseil/absl/strings/charconv.cc
@@ -1197,8 +1195,6 @@ libabseil_la_SOURCES += abseil/absl/strings/numbers.cc
 libabseil_la_SOURCES += abseil/absl/strings/str_cat.cc
 libabseil_la_SOURCES += abseil/absl/strings/str_split.cc
 libabseil_la_SOURCES += abseil/absl/strings/string_view.cc
-libabseil_la_SOURCES += abseil/absl/time/clock.cc
-libabseil_la_SOURCES += abseil/absl/time/duration.cc
 libabseil_la_CPPFLAGS = -I$(top_srcdir)/abseil
 
 GMOCK_INCLUDES = -I$(top_srcdir)/googletest/googlemock/include \
