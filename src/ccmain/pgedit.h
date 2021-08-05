@@ -43,25 +43,16 @@ private:
 #endif // !GRAPHICS_DISABLED
 
 extern BLOCK_LIST *current_block_list;
-extern STRING_VAR_H(editor_image_win_name, "EditorImage", "Editor image window name");
-extern INT_VAR_H(editor_image_xpos, 590, "Editor image X Pos");
-extern INT_VAR_H(editor_image_ypos, 10, "Editor image Y Pos");
-extern INT_VAR_H(editor_image_height, 680, "Editor image height");
-extern INT_VAR_H(editor_image_width, 655, "Editor image width");
-extern INT_VAR_H(editor_image_word_bb_color, BLUE, "Word bounding box colour");
-extern INT_VAR_H(editor_image_blob_bb_color, YELLOW, "Blob bounding box colour");
-extern INT_VAR_H(editor_image_text_color, WHITE, "Correct text colour");
-extern STRING_VAR_H(editor_dbwin_name, "EditorDBWin", "Editor debug window name");
-extern INT_VAR_H(editor_dbwin_xpos, 50, "Editor debug window X Pos");
-extern INT_VAR_H(editor_dbwin_ypos, 500, "Editor debug window Y Pos");
-extern INT_VAR_H(editor_dbwin_height, 24, "Editor debug window height");
-extern INT_VAR_H(editor_dbwin_width, 80, "Editor debug window width");
-extern STRING_VAR_H(editor_word_name, "BlnWords", "BL normalised word window");
-extern INT_VAR_H(editor_word_xpos, 60, "Word window X Pos");
-extern INT_VAR_H(editor_word_ypos, 510, "Word window Y Pos");
-extern INT_VAR_H(editor_word_height, 240, "Word window height");
-extern INT_VAR_H(editor_word_width, 655, "Word window width");
-extern double_VAR_H(editor_smd_scale_factor, 1.0, "Scaling for smd image");
+extern STRING_VAR_H(editor_image_win_name);
+extern INT_VAR_H(editor_image_xpos);
+extern INT_VAR_H(editor_image_ypos);
+extern INT_VAR_H(editor_image_word_bb_color);
+extern INT_VAR_H(editor_image_blob_bb_color);
+extern STRING_VAR_H(editor_word_name);
+extern INT_VAR_H(editor_word_xpos);
+extern INT_VAR_H(editor_word_ypos);
+extern INT_VAR_H(editor_word_height);
+extern INT_VAR_H(editor_word_width);
 
 } // namespace tesseract
 

@@ -19,6 +19,7 @@
 #if defined(__ARM_NEON)
 
 #  include "intsimdmatrix.h"
+#  include "tesstypes.h"
 
 #  include <algorithm>
 #  include <cstdint>
@@ -52,9 +53,9 @@ constexpr int kNumInputsPerGroup = 8;
 // u must be padded out with zeros to
 // kNumInputsPerGroup*ceil(num_in/kNumInputsPerGroup) elements.
 static inline void PartialMatrixDotVector8(const int8_t *__restrict wi,
-                                           const double *__restrict scales,
+                                           const TFloat *__restrict scales,
                                            const int8_t *__restrict u, int num_in,
-                                           double *__restrict v, int num_out) {
+                                           TFloat *__restrict v, int num_out) {
   // Initialize all the results to 0.
   int32x4_t result0123 = {0, 0, 0, 0};
   int32x4_t result4567 = {0, 0, 0, 0};
@@ -163,8 +164,8 @@ static inline void PartialMatrixDotVector8(const int8_t *__restrict wi,
   }
 }
 
-static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const double *scales,
-                            const int8_t *u, double *v) {
+static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const TFloat *scales,
+                            const int8_t *u, TFloat *v) {
   const int num_out = dim1;
   const int num_in = dim2 - 1;
   // Each call to a partial_func_ produces group_size outputs, except the
@@ -196,7 +197,8 @@ const IntSimdMatrix IntSimdMatrix::intSimdMatrixNEON = {
     // Number of 8 bit inputs in the inputs register.
     kNumInputsPerRegister,
     // Number of inputs in each weight group.
-    kNumInputsPerGroup};
+    kNumInputsPerGroup
+};
 
 } // namespace tesseract.
 

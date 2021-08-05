@@ -345,13 +345,13 @@ ParamsVectors *GlobalParams();
  * (there is no such guarantee for parameters defined with the other macros).
  *************************************************************************/
 
-#define INT_VAR_H(name, val, comment) ::tesseract::IntParam name
+#define INT_VAR_H(name) ::tesseract::IntParam name
 
-#define BOOL_VAR_H(name, val, comment) ::tesseract::BoolParam name
+#define BOOL_VAR_H(name) ::tesseract::BoolParam name
 
-#define STRING_VAR_H(name, val, comment) ::tesseract::StringParam name
+#define STRING_VAR_H(name) ::tesseract::StringParam name
 
-#define double_VAR_H(name, val, comment) ::tesseract::DoubleParam name
+#define double_VAR_H(name) ::tesseract::DoubleParam name
 
 #define INT_VAR(name, val, comment) \
   ::tesseract::IntParam name(val, #name, comment, false, ::tesseract::GlobalParams())

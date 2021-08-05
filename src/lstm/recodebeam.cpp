@@ -928,7 +928,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
              (code == top_code_ && prev->code == second_code_))) {
           prob += outputs[prev->code];
         }
-        float cert = NetworkIO::ProbToCertainty(prob) + cert_offset;
+        cert = NetworkIO::ProbToCertainty(prob) + cert_offset;
         ContinueUnichar(code, unichar_id, cert, worst_dict_cert, dict_ratio, use_dawgs, NC_ONLY_DUP,
                         prev, step);
       }
@@ -953,7 +953,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode *prev, int index, const 
              (code == top_code_ && prev->code == second_code_))) {
           prob += outputs[prev->code];
         }
-        float cert = NetworkIO::ProbToCertainty(prob) + cert_offset;
+        cert = NetworkIO::ProbToCertainty(prob) + cert_offset;
         PushDupOrNoDawgIfBetter(length + 1, false, code, INVALID_UNICHAR_ID, cert, worst_dict_cert,
                                 dict_ratio, use_dawgs, NC_ONLY_DUP, prev, step);
       }

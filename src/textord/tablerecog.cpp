@@ -310,39 +310,6 @@ void StructuredTable::Display(ScrollView *window, ScrollView::Color color) {
 
 #endif
 
-std::vector<TBOX> StructuredTable::getRows()
-{
-  if (cell_y_.size() < 2) {
-    return std::vector<TBOX>();
-  }
-
-  std::vector<TBOX> rows(cell_y_.size() - 1);
-  unsigned ct = cell_y_.size() - 2;
-  for(unsigned i = 0; i + 1 < cell_y_.size(); i++) {
-    const ICOORD left(bounding_box_.left(), cell_y_[i]);
-    const ICOORD right(bounding_box_.right(), cell_y_[i + 1]);
-    rows[ct - i] = TBOX(left, right);
-  }
- 
-  return rows;
-}
-
-std::vector<TBOX> StructuredTable::getCols()
-{
-  if (cell_x_.size() < 2) {
-    return std::vector<TBOX>();
-  }
-
-  std::vector<TBOX> cols(cell_x_.size() - 1);
-  for(unsigned i = 0; i + 1 < cell_x_.size(); i++) {
-    const ICOORD top(cell_x_[i], bounding_box_.top());
-    const ICOORD bot(cell_x_[i+1], bounding_box_.bottom());
-    cols[i] = TBOX(top, bot);
-  }
- 
-  return cols;
-}
-
 // Clear structure information.
 void StructuredTable::ClearStructure() {
   cell_x_.clear();

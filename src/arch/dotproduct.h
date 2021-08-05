@@ -17,19 +17,24 @@
 #ifndef TESSERACT_ARCH_DOTPRODUCT_H_
 #define TESSERACT_ARCH_DOTPRODUCT_H_
 
+#include "tesstypes.h"
+
 namespace tesseract {
 
 // Computes and returns the dot product of the n-vectors u and v.
-double DotProductNative(const double *u, const double *v, int n);
+TFloat DotProductNative(const TFloat *u, const TFloat *v, int n);
 
 // Uses Intel AVX intrinsics to access the SIMD instruction set.
-double DotProductAVX(const double *u, const double *v, int n);
+TFloat DotProductAVX(const TFloat *u, const TFloat *v, int n);
 
 // Use Intel FMA.
-double DotProductFMA(const double *u, const double *v, int n);
+TFloat DotProductFMA(const TFloat *u, const TFloat *v, int n);
 
 // Uses Intel SSE intrinsics to access the SIMD instruction set.
-double DotProductSSE(const double *u, const double *v, int n);
+TFloat DotProductSSE(const TFloat *u, const TFloat *v, int n);
+
+// Use NEON intrinsics.
+TFloat DotProductNEON(const TFloat *u, const TFloat *v, int n);
 
 } // namespace tesseract.
 

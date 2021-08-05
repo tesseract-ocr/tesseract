@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        dotproduct.cpp
-// Description: Native dot product function.
+// File:        tesstypes.h
+// Description: Simple data types used by Tesseract code.
+// Author:      Stefan Weil
 //
-// (C) Copyright 2018, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,20 +14,27 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#include "dotproduct.h"
+#ifndef TESSERACT_TESSTYPES_H
+#define TESSERACT_TESSTYPES_H
+
+#ifdef HAVE_CONFIG_H
+#  include "config_auto.h" // FAST_FLOAT
+#endif
+
+#include <cstdint> // for int16_t
 
 namespace tesseract {
 
-// Computes and returns the dot product of the two n-vectors u and v.
-TFloat DotProductNative(const TFloat *u, const TFloat *v, int n) {
-  TFloat total = 0;
-#if defined(OPENMP_SIMD) || defined(_OPENMP)
-#pragma omp simd reduction(+:total)
+// Image dimensions (width and height, coordinates).
+using TDimension = int16_t;
+
+// Floating point data type used for LSTM calculations.
+#if defined(FAST_FLOAT)
+using TFloat = float;
+#else
+using TFloat = double;
 #endif
-  for (int k = 0; k < n; k++) {
-    total += u[k] * v[k];
-  }
-  return total;
+
 }
 
-} // namespace tesseract
+#endif // TESSERACT_TESSTYPES_H

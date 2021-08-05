@@ -32,7 +32,6 @@ namespace tesseract {
 // at least 4. Must not exceed 31 without changing the coding of length.
 #define UNICHAR_LEN 30
 
-// TODO(rays) Move these to the tesseract namespace.
 // A UNICHAR_ID is the unique id of a unichar.
 using UNICHAR_ID = int;
 

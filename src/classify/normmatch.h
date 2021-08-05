@@ -25,8 +25,8 @@
 namespace tesseract {
 
 /* control knobs used to control the normalization adjustment process */
-extern double_VAR_H(classify_norm_adj_midpoint, 32.0, "Norm adjust midpoint ...");
-extern double_VAR_H(classify_norm_adj_curl, 2.0, "Norm adjust curl ...");
+extern double_VAR_H(classify_norm_adj_midpoint);
+extern double_VAR_H(classify_norm_adj_curl);
 
 } // namespace tesseract
 

@@ -64,6 +64,12 @@ protected:
   }
 };
 
+// Test static TessBaseAPI (like it is used by tesserocr).
+TEST_F(TesseractTest, StaticTessBaseAPI) {
+  static tesseract::TessBaseAPI api;
+  api.End();
+}
+
 // Tests that Tesseract gets exactly the right answer on phototest.
 TEST_F(TesseractTest, BasicTesseractTest) {
   tesseract::TessBaseAPI api;

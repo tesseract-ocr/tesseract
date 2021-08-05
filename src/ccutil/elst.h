@@ -121,7 +121,7 @@ public:
   // destroy all links
   void internal_clear(void (*zapper)(void *));
 
-  bool empty() const { 
+  bool empty() const {
     return !last;
   }
 

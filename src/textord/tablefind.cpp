@@ -28,7 +28,6 @@
 
 #include "colpartitionset.h"
 #include "tablerecog.h"
-#include "tabletransfer.h"
 
 namespace tesseract {
 
@@ -263,13 +262,12 @@ void TableFinder::LocateTables(ColPartitionGrid *grid, ColPartitionSet **all_col
 
 #ifndef GRAPHICS_DISABLED
   if (textord_show_tables) {
-    ScrollView *table_win = MakeWindow(0, 300,
-                                       "Step 1: Column Partitions & Neighbors");
+    ScrollView *table_win = MakeWindow(0, 300, "Column Partitions & Neighbors");
     DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
     DisplayColPartitions(table_win, &leader_and_ruling_grid_, ScrollView::AQUAMARINE);
     DisplayColPartitionConnections(table_win, &clean_part_grid_, ScrollView::ORANGE);
 
-    table_win = MakeWindow(100, 300, "Step 2: Fragmented Text");
+    table_win = MakeWindow(100, 300, "Fragmented Text");
     DisplayColPartitions(table_win, &fragmented_text_grid_, ScrollView::BLUE);
   }
 #endif // !GRAPHICS_DISABLED
@@ -304,8 +302,7 @@ void TableFinder::LocateTables(ColPartitionGrid *grid, ColPartitionSet **all_col
 
 #ifndef GRAPHICS_DISABLED
   if (textord_tablefind_show_mark) {
-    ScrollView *table_win = MakeWindow(1200, 300,
-                                       "Step 7: Table Columns and Regions");
+    ScrollView *table_win = MakeWindow(1200, 300, "Table Columns and Regions");
     DisplayColSegments(table_win, &table_columns, ScrollView::DARK_TURQUOISE);
     DisplayColSegments(table_win, &table_regions, ScrollView::YELLOW);
   }
@@ -327,8 +324,7 @@ void TableFinder::LocateTables(ColPartitionGrid *grid, ColPartitionSet **all_col
 
 #ifndef GRAPHICS_DISABLED
     if (textord_show_tables) {
-      ScrollView *table_win = MakeWindow(1200, 300,
-                                         "Step 8: Detected Table Locations");
+      ScrollView *table_win = MakeWindow(1200, 300, "Detected Table Locations");
       DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
       DisplayColSegments(table_win, &table_columns, ScrollView::KHAKI);
       table_grid_.DisplayBoxes(table_win);
@@ -342,10 +338,8 @@ void TableFinder::LocateTables(ColPartitionGrid *grid, ColPartitionSet **all_col
 
 #ifndef GRAPHICS_DISABLED
     if (textord_show_tables) {
-      ScrollView *table_win = MakeWindow(1400, 600,
-                                         "Step 10: Recognized Tables");
-      DisplayColPartitions(table_win, &clean_part_grid_,
-                           ScrollView::BLUE, ScrollView::BLUE);
+      ScrollView *table_win = MakeWindow(1400, 600, "Recognized Tables");
+      DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE, ScrollView::BLUE);
       table_grid_.DisplayBoxes(table_win);
     }
 #endif // !GRAPHICS_DISABLED
@@ -358,9 +352,8 @@ void TableFinder::LocateTables(ColPartitionGrid *grid, ColPartitionSet **all_col
 
 #ifndef GRAPHICS_DISABLED
     if (textord_show_tables) {
-      ScrollView *table_win = MakeWindow(1500, 300, "Step 11: Detected Tables");
-      DisplayColPartitions(table_win, &clean_part_grid_,
-                           ScrollView::BLUE, ScrollView::BLUE);
+      ScrollView *table_win = MakeWindow(1500, 300, "Detected Tables");
+      DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE, ScrollView::BLUE);
       table_grid_.DisplayBoxes(table_win);
     }
 #endif // !GRAPHICS_DISABLED
@@ -782,8 +775,7 @@ void TableFinder::MarkTablePartitions() {
   MarkPartitionsUsingLocalInformation();
 #ifndef GRAPHICS_DISABLED
   if (textord_tablefind_show_mark) {
-    ScrollView *table_win = MakeWindow(300, 300,
-                                       "Step 3: Initial Table Partitions");
+    ScrollView *table_win = MakeWindow(300, 300, "Initial Table Partitions");
     DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
     DisplayColPartitions(table_win, &leader_and_ruling_grid_, ScrollView::AQUAMARINE);
   }
@@ -791,8 +783,7 @@ void TableFinder::MarkTablePartitions() {
   FilterFalseAlarms();
 #ifndef GRAPHICS_DISABLED
   if (textord_tablefind_show_mark) {
-    ScrollView *table_win = MakeWindow(600, 300,
-                                       "Step 4: Filtered Table Partitions");
+    ScrollView *table_win = MakeWindow(600, 300, "Filtered Table Partitions");
     DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
     DisplayColPartitions(table_win, &leader_and_ruling_grid_, ScrollView::AQUAMARINE);
   }
@@ -800,8 +791,7 @@ void TableFinder::MarkTablePartitions() {
   SmoothTablePartitionRuns();
 #ifndef GRAPHICS_DISABLED
   if (textord_tablefind_show_mark) {
-    ScrollView *table_win = MakeWindow(900, 300,
-                                       "Step 5: Smoothed Table Partitions");
+    ScrollView *table_win = MakeWindow(900, 300, "Smoothed Table Partitions");
     DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
     DisplayColPartitions(table_win, &leader_and_ruling_grid_, ScrollView::AQUAMARINE);
   }
@@ -809,8 +799,7 @@ void TableFinder::MarkTablePartitions() {
   FilterFalseAlarms();
 #ifndef GRAPHICS_DISABLED
   if (textord_tablefind_show_mark || textord_show_tables) {
-    ScrollView *table_win = MakeWindow(900, 300,
-                                       "Step 6: Final Table Partitions");
+    ScrollView *table_win = MakeWindow(900, 300, "Final Table Partitions");
     DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
     DisplayColPartitions(table_win, &leader_and_ruling_grid_, ScrollView::AQUAMARINE);
   }
@@ -1842,7 +1831,7 @@ void TableFinder::RecognizeTables() {
 #ifndef GRAPHICS_DISABLED
   ScrollView *table_win = nullptr;
   if (textord_show_tables) {
-    table_win = MakeWindow(0, 0, "Step 9: Table Structure");
+    table_win = MakeWindow(0, 0, "Table Structure");
     DisplayColPartitions(table_win, &fragmented_text_grid_, ScrollView::BLUE,
                          ScrollView::LIGHT_BLUE);
     // table_grid_.DisplayBoxes(table_win);
@@ -1995,25 +1984,6 @@ void TableFinder::DisplayColPartitionConnections(ScrollView *win, ColPartitionGr
 // assigned to any table to their original types.
 void TableFinder::MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **all_columns,
                                   WidthCallback width_cb) {
-#ifndef GRAPHICS_DISABLED
-  ScrollView* table_win = nullptr;
-  if (textord_show_tables) {
-    table_win = MakeWindow(0, 0, "Step 12: Final tables");
-    DisplayColPartitions(table_win, &fragmented_text_grid_,
-                         ScrollView::BLUE, ScrollView::LIGHT_BLUE);
-  }
-#endif  // GRAPHICS_DISABLED
-  
-  // initializing recognizer in order to extract table row and columnd info
-  TableRecognizer recognizer;
-  {
-    recognizer.Init();
-    recognizer.set_line_grid(&leader_and_ruling_grid_);
-    recognizer.set_text_grid(&fragmented_text_grid_);
-    recognizer.set_max_text_height(global_median_xheight_ * 2.0);
-    recognizer.set_min_height(1.5 * gridheight());
-  }
-  
   // Since we have table blocks already, remove table tags from all
   // colpartitions
   GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> gsearch(grid);
@@ -2068,30 +2038,8 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **all_
       table_partition->set_flow(BTFT_CHAIN);
       table_partition->SetBlobTypes();
       grid->InsertBBox(true, true, table_partition);
-      
-      // Insert table columns and rows into an api accessible object
-      StructuredTable* table_structure = recognizer.RecognizeTable(table_box);
-      if (table_structure != nullptr) {
-#ifndef GRAPHICS_DISABLED
-      if (textord_show_tables) {
-        table_structure->Display(table_win, ScrollView::LIME_GREEN);
-      }
-#endif  // GRAPHICS_DISABLED
-
-      auto &tables = uniqueInstance<std::vector<TessTable>>();
-      tables.push_back(
-          TessTable{table_box, table_structure->getRows(), table_structure->getCols()});
-
-      delete table_structure;
-      }
     }
   }
-  
-#ifndef GRAPHICS_DISABLED
-  if (textord_show_tables) {
-    table_grid_.DisplayBoxes(table_win);
-  }
-#endif  // GRAPHICS_DISABLED
 }
 
 //////// ColSegment code

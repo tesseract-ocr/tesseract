@@ -412,7 +412,7 @@ static void CollectFonts(const UnicityTable<FontInfo> &new_fonts,
 // Helper assigns an id to lang_fonts using the index in all_fonts table.
 static void AssignIds(const UnicityTable<FontInfo> &all_fonts, UnicityTable<FontInfo> *lang_fonts) {
   for (int i = 0; i < lang_fonts->size(); ++i) {
-    int index = all_fonts.get_id(lang_fonts->at(i));
+    auto index = all_fonts.get_index(lang_fonts->at(i));
     lang_fonts->at(i).universal_id = index;
   }
 }

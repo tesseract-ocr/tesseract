@@ -321,7 +321,7 @@ Network *Network::CreateFromFile(TFile *fp) {
 }
 
 // Returns a random number in [-range, range].
-double Network::Random(double range) {
+TFloat Network::Random(TFloat range) {
   ASSERT_HOST(randomizer_ != nullptr);
   return randomizer_->SignedRand(range);
 }
