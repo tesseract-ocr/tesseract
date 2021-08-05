@@ -1535,7 +1535,7 @@ scanutils_test_LDADD = $(TRAINING_LIBS)
 if !DISABLED_LEGACY_ENGINE
 shapetable_test_SOURCES = unittest/shapetable_test.cc
 shapetable_test_CPPFLAGS = $(unittest_CPPFLAGS)
-shapetable_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+shapetable_test_LDADD = $(TRAINING_LIBS)
 endif # !DISABLED_LEGACY_ENGINE
 
 stats_test_SOURCES = unittest/stats_test.cc
