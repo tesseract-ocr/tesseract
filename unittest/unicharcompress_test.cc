@@ -13,7 +13,6 @@
 
 #include <allheaders.h>
 #include "absl/strings/ascii.h"
-#include "absl/strings/str_cat.h"
 #include "absl/strings/str_split.h"
 
 #include "include_gunit.h"
@@ -46,7 +45,7 @@ protected:
     compressed_.EncodeUnichar(null_char_, &code);
     encoded_null_char_ = code(0);
     std::string output_name =
-        file::JoinPath(FLAGS_test_tmpdir, absl::StrCat(unicharset_name, ".encoding.txt"));
+        file::JoinPath(FLAGS_test_tmpdir, unicharset_name) + ".encoding.txt";
     std::string encoding = compressed_.GetEncodingAsString(unicharset_);
     std::string encoding_str(&encoding[0], encoding.size());
     CHECK_OK(file::SetContents(output_name, encoding_str, file::Defaults()));

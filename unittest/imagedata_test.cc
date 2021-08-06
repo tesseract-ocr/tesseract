@@ -12,8 +12,6 @@
 #include <string>
 #include <vector>
 
-#include "absl/strings/str_cat.h"
-
 #include "imagedata.h"
 #include "include_gunit.h"
 #include "log.h"
@@ -52,7 +50,8 @@ protected:
     }
     // Write it to a file.
     std::string filename =
-        file::JoinPath(FLAGS_test_tmpdir, absl::StrCat("documentdata", doc_id, ".lstmf"));
+        file::JoinPath(FLAGS_test_tmpdir, "documentdata");
+    filename += std::to_string(doc_id) + ".lstmf";
     EXPECT_TRUE(write_doc.SaveDocument(filename.c_str(), nullptr));
     return filename;
   }

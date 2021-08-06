@@ -13,7 +13,6 @@
 #include <pango/pango.h>
 #include <cstdio>
 #include <string>
-#include "absl/strings/str_cat.h" // for absl::StrCat
 #include "commandlineflags.h"
 #include "fileio.h"
 #include "gmock/gmock-matchers.h" // for EXPECT_THAT
@@ -316,7 +315,8 @@ TEST_F(FontUtilsTest, GetAllRenderableCharacters) {
   // Check that none of the included fonts cover the Mongolian or Ogham space
   // characters.
   for (size_t f = 0; f < countof(kExpectedFontNames); ++f) {
-    SCOPED_TRACE(absl::StrCat("Testing ", kExpectedFontNames[f]));
+    std::string tracestring = "Testing " + kExpectedFontNames[f];
+    SCOPED_TRACE(tracestring);
     FontUtils::GetAllRenderableCharacters(kExpectedFontNames[f], &unicode_mask);
 #  if 0 // TODO: check fails because DejaVu Sans Ultra-Light supports ogham
     EXPECT_FALSE(unicode_mask[kOghamChar]);

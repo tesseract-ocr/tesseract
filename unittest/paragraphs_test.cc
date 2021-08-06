@@ -11,7 +11,6 @@
 
 #include <string> // for std::string
 
-#include "absl/strings/str_cat.h"   // for absl::StrCat
 #include "absl/strings/str_join.h"  // for absl::StrJoin
 #include "absl/strings/str_split.h" // for absl::StrSplit
 
@@ -156,10 +155,11 @@ void EvaluateParagraphDetection(const TextAndModel *correct, int n,
     dbg_lines.emplace_back("# ==========================");
     for (int i = 0; i < n; i++) {
       if (correct[i].model_type != PCONT) {
-        dbg_lines.push_back(absl::StrCat(correct[i].ascii, "  #  ",
-                                         correct[i].model.ToString().c_str(),
-                                         correct[i].is_very_first_or_continuation ? " crown" : "",
-                                         correct[i].is_list_item ? " li" : ""));
+        std::string s = std::string(correct[i].ascii) + "  #  " +
+                        correct[i].model.ToString() +
+                        (correct[i].is_very_first_or_continuation ? " crown" : "") +
+                        (correct[i].is_list_item ? " li" : "");
+        dbg_lines.push_back(s);
       } else {
         dbg_lines.emplace_back(correct[i].ascii);
       }
@@ -173,14 +173,15 @@ void EvaluateParagraphDetection(const TextAndModel *correct, int n,
       if (i == 0 || (detector_output[i - 1] != detector_output[i])) {
         if (detector_output[i] && detector_output[i]->model) {
           annotation +=
-              absl::StrCat("  #  ", detector_output[i]->model->ToString().c_str(),
-                           detector_output[i]->is_very_first_or_continuation ? " crown" : "",
-                           detector_output[i]->is_list_item ? " li" : "");
+              "  #  " + detector_output[i]->model->ToString() +
+              (detector_output[i]->is_very_first_or_continuation ? " crown" : "") +
+              (detector_output[i]->is_list_item ? " li" : "");
         } else {
           annotation = "  #  Unmodeled paragraph.";
         }
       }
-      dbg_lines.push_back(absl::StrCat(correct[i].ascii, annotation));
+      std::string s = correct[i].ascii + annotation;
+      dbg_lines.push_back(s);
     }
     LOG(INFO) << "Discrepancy!\n" << absl::StrJoin(dbg_lines, "\n");
   }

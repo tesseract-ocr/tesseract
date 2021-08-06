@@ -16,7 +16,6 @@
 #include <sstream> // for std::stringstream
 #include <string>
 #include <vector>
-#include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 
 namespace tesseract {
@@ -33,7 +32,9 @@ inline std::string CodepointList(const std::vector<char32> &str32) {
 
 inline std::string PrintString32WithUnicodes(const std::string &str) {
   std::vector<char32> str32 = UNICHAR::UTF8ToUTF32(str.c_str());
-  return absl::StrCat("\"", str, "\" ", CodepointList(str32));
+  std::string s = "\"";
+  s += "\" " + CodepointList(str32);
+  return s;
 }
 
 inline std::string PrintStringVectorWithUnicodes(const std::vector<std::string> &glyphs) {

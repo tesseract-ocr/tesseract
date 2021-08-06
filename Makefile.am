@@ -1192,7 +1192,6 @@ libabseil_la_SOURCES += abseil/absl/strings/internal/str_format/output.cc
 libabseil_la_SOURCES += abseil/absl/strings/internal/str_format/parser.cc
 libabseil_la_SOURCES += abseil/absl/strings/match.cc
 libabseil_la_SOURCES += abseil/absl/strings/numbers.cc
-libabseil_la_SOURCES += abseil/absl/strings/str_cat.cc
 libabseil_la_SOURCES += abseil/absl/strings/str_split.cc
 libabseil_la_SOURCES += abseil/absl/strings/string_view.cc
 libabseil_la_CPPFLAGS = -I$(top_srcdir)/abseil
@@ -1381,7 +1380,7 @@ heap_test_LDADD = $(TESS_LIBS)
 
 imagedata_test_SOURCES = unittest/imagedata_test.cc
 imagedata_test_CPPFLAGS = $(unittest_CPPFLAGS)
-imagedata_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+imagedata_test_LDADD = $(TRAINING_LIBS)
 
 if !DISABLED_LEGACY_ENGINE
 indexmapbidi_test_SOURCES = unittest/indexmapbidi_test.cc
@@ -1407,7 +1406,7 @@ intsimdmatrix_test_LDADD = $(TESS_LIBS)
 
 lang_model_test_SOURCES = unittest/lang_model_test.cc
 lang_model_test_CPPFLAGS = $(unittest_CPPFLAGS)
-lang_model_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+lang_model_test_LDADD = $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 layout_test_SOURCES = unittest/layout_test.cc
 layout_test_CPPFLAGS = $(unittest_CPPFLAGS)

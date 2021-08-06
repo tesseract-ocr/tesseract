@@ -20,7 +20,6 @@
 
 #include <allheaders.h>
 #include "absl/strings/ascii.h"
-#include "absl/strings/str_cat.h"
 #include "gmock/gmock-matchers.h"
 
 #include <memory>
@@ -323,7 +322,9 @@ TEST(TesseractInstanceTest, TestMultipleTessInstances) {
   // Preload images and verify that OCR is correct on them individually.
   std::vector<Image > pix(num_langs);
   for (int i = 0; i < num_langs; ++i) {
-    SCOPED_TRACE(absl::StrCat("Single instance test with lang = ", langs[i]));
+    std::string tracestring = "Single instance test with lang = ";
+    tracestring += langs[i];
+    SCOPED_TRACE(tracestring);
     std::string path = file::JoinPath(TESTING_DIR, image_files[i]);
     pix[i] = pixRead(path.c_str());
     QCHECK(pix[i] != nullptr) << "Could not read " << path;
