@@ -592,9 +592,9 @@ if(HAVE_SSE4_1)
                                 PROPERTIES COMPILE_FLAGS ${SSE4_1_COMPILE_FLAGS})
 endif(HAVE_SSE4_1)
 if(HAVE_NEON)
-   list(APPEND arch_files_opt src/arch/intsimdmatrixneon.cpp)
+   list(APPEND arch_files_opt src/arch/dotproductneon.cpp src/arch/intsimdmatrixneon.cpp)
    if(NEON_COMPILE_FLAGS)
-       set_source_files_properties(src/arch/intsimdmatrixneon.cpp
+       set_source_files_properties(src/arch/dotproductneon.cpp src/arch/intsimdmatrixneon.cpp
                                    PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
    endif()
 endif(HAVE_NEON)
