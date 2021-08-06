@@ -11,8 +11,6 @@
 
 #include <string> // for std::string
 
-#include "absl/strings/str_split.h" // for absl::StrSplit
-
 #include "include_gunit.h" // for TEST
 #include "log.h"           // for LOG
 
@@ -60,7 +58,7 @@ void AsciiToRowInfo(const char *text, int row_number, RowInfo *info) {
   info->lword_text = info->rword_text = "";
   info->ltr = true;
 
-  std::vector<std::string> words = absl::StrSplit(text, ' ', absl::SkipEmpty());
+  std::vector<std::string> words = split(text, ' ');
   info->num_words = words.size();
   if (info->num_words < 1) {
     return;

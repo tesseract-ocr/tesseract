@@ -1192,7 +1192,6 @@ libabseil_la_SOURCES += abseil/absl/strings/internal/str_format/output.cc
 libabseil_la_SOURCES += abseil/absl/strings/internal/str_format/parser.cc
 libabseil_la_SOURCES += abseil/absl/strings/match.cc
 libabseil_la_SOURCES += abseil/absl/strings/numbers.cc
-libabseil_la_SOURCES += abseil/absl/strings/str_split.cc
 libabseil_la_SOURCES += abseil/absl/strings/string_view.cc
 libabseil_la_CPPFLAGS = -I$(top_srcdir)/abseil
 
@@ -1372,7 +1371,7 @@ endif # !DISABLED_LEGACY_ENGINE
 
 fileio_test_SOURCES = unittest/fileio_test.cc
 fileio_test_CPPFLAGS = $(unittest_CPPFLAGS)
-fileio_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS)
+fileio_test_LDADD = $(TRAINING_LIBS)
 
 heap_test_SOURCES = unittest/heap_test.cc
 heap_test_CPPFLAGS = $(unittest_CPPFLAGS)
@@ -1450,7 +1449,7 @@ lstmtrainer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 if !DISABLED_LEGACY_ENGINE
 mastertrainer_test_SOURCES = unittest/mastertrainer_test.cc
 mastertrainer_test_CPPFLAGS = $(unittest_CPPFLAGS)
-mastertrainer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+mastertrainer_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 endif # !DISABLED_LEGACY_ENGINE
 
 matrix_test_SOURCES = unittest/matrix_test.cc
@@ -1497,7 +1496,7 @@ pango_font_info_test_LDADD += $(pangoft2_LIBS)
 
 paragraphs_test_SOURCES = unittest/paragraphs_test.cc
 paragraphs_test_CPPFLAGS = $(unittest_CPPFLAGS)
-paragraphs_test_LDADD = $(ABSEIL_LIBS) $(TESS_LIBS)
+paragraphs_test_LDADD = $(TESS_LIBS)
 
 if !DISABLED_LEGACY_ENGINE
 params_model_test_SOURCES = unittest/params_model_test.cc
@@ -1547,7 +1546,7 @@ stridemap_test_LDADD = $(TESS_LIBS)
 
 stringrenderer_test_SOURCES = unittest/stringrenderer_test.cc
 stringrenderer_test_CPPFLAGS = $(unittest_CPPFLAGS)
-stringrenderer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+stringrenderer_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 stringrenderer_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 stringrenderer_test_LDADD += $(pangocairo_LIBS) $(pangoft2_LIBS)
 stringrenderer_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
@@ -1587,7 +1586,7 @@ unichar_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
 
 unicharcompress_test_SOURCES = unittest/unicharcompress_test.cc
 unicharcompress_test_CPPFLAGS = $(unittest_CPPFLAGS)
-unicharcompress_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_UC_LIBS)
+unicharcompress_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
 
 unicharset_test_SOURCES = unittest/unicharset_test.cc
 unicharset_test_CPPFLAGS = $(unittest_CPPFLAGS)

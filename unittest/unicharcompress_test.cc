@@ -12,8 +12,6 @@
 #include <string>
 
 #include <allheaders.h>
-#include "absl/strings/ascii.h"
-#include "absl/strings/str_split.h"
 
 #include "include_gunit.h"
 #include "log.h" // for LOG
@@ -232,7 +230,7 @@ TEST_F(UnicharcompressTest, GetEncodingAsString) {
   ExpectCorrect("trivial");
   std::string encoding = compressed_.GetEncodingAsString(unicharset_);
   std::string encoding_str(&encoding[0], encoding.length());
-  std::vector<std::string> lines = absl::StrSplit(encoding_str, "\n", absl::SkipEmpty());
+  std::vector<std::string> lines = split(encoding_str, '\n');
   EXPECT_EQ(5, lines.size());
   // The first line is always space.
   EXPECT_EQ("0\t ", lines[0]);
