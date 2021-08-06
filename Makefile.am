@@ -1467,7 +1467,7 @@ normstrngs_test_SOURCES += unittest/third_party/utf/rune.c
 normstrngs_test_SOURCES += unittest/util/utf8/unilib.cc
 endif # TENSORFLOW
 normstrngs_test_CPPFLAGS = $(unittest_CPPFLAGS)
-normstrngs_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+normstrngs_test_LDADD = $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 nthitem_test_SOURCES = unittest/nthitem_test.cc
 nthitem_test_CPPFLAGS = $(unittest_CPPFLAGS)
@@ -1595,19 +1595,19 @@ unicharset_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
 
 validate_grapheme_test_SOURCES = unittest/validate_grapheme_test.cc
 validate_grapheme_test_CPPFLAGS = $(unittest_CPPFLAGS)
-validate_grapheme_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+validate_grapheme_test_LDADD = $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 validate_indic_test_SOURCES = unittest/validate_indic_test.cc
 validate_indic_test_CPPFLAGS = $(unittest_CPPFLAGS)
-validate_indic_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+validate_indic_test_LDADD = $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 validate_khmer_test_SOURCES = unittest/validate_khmer_test.cc
 validate_khmer_test_CPPFLAGS = $(unittest_CPPFLAGS)
-validate_khmer_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+validate_khmer_test_LDADD = $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 validate_myanmar_test_SOURCES = unittest/validate_myanmar_test.cc
 validate_myanmar_test_CPPFLAGS = $(unittest_CPPFLAGS)
-validate_myanmar_test_LDADD = $(ABSEIL_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+validate_myanmar_test_LDADD = $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 validator_test_SOURCES = unittest/validator_test.cc
 validator_test_CPPFLAGS = $(unittest_CPPFLAGS)

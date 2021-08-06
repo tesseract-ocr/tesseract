@@ -11,7 +11,6 @@
 
 #include <string> // for std::string
 
-#include "absl/strings/str_join.h"  // for absl::StrJoin
 #include "absl/strings/str_split.h" // for absl::StrSplit
 
 #include "include_gunit.h" // for TEST
@@ -183,7 +182,11 @@ void EvaluateParagraphDetection(const TextAndModel *correct, int n,
       std::string s = correct[i].ascii + annotation;
       dbg_lines.push_back(s);
     }
-    LOG(INFO) << "Discrepancy!\n" << absl::StrJoin(dbg_lines, "\n");
+    std::string s;
+    for (auto &dbg_line : dbg_lines) {
+      s += dbg_line + "\n";
+    }
+    LOG(INFO) << "Discrepancy!\n" << s;
   }
 }
 
