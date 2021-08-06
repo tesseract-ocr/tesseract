@@ -696,7 +696,7 @@ endif()
 
 add_executable                  (tesseract src/api/tesseractmain.cpp)
 target_link_libraries           (tesseract libtesseract)
-if (HAVE_TIFFIO_H)
+if (WIN32 AND HAVE_TIFFIO_H)
     target_link_libraries(tesseract tiff)
 endif()
 
