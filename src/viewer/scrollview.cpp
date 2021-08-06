@@ -113,10 +113,11 @@ void ScrollView::MessageReceiver() {
     cur->window = svmap[window_id];
 
     if (cur->window != nullptr) {
-      cur->parameter = new char[strlen(p) + 1];
+      auto length = strlen(p);
+      cur->parameter = new char[length + 1];
       strcpy(cur->parameter, p);
-      if (strlen(p) > 0) { // remove the last \n
-        cur->parameter[strlen(p)] = '\0';
+      if (length > 0) { // remove the last \n
+        cur->parameter[length - 1] = '\0';
       }
       cur->type = static_cast<SVEventType>(ev_type);
       // Correct selection coordinates so x,y is the min pt and size is +ve.
