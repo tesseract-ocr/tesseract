@@ -60,7 +60,7 @@
 │   └── script
 │       └── Latin.traineddata
 └── tesseract
-    ├── abseil
+    ├── googletest
     ...
     ├── test
     ├── unittest

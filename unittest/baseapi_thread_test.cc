@@ -28,7 +28,6 @@
 #endif
 #include <allheaders.h>
 #include <tesseract/baseapi.h>
-#include "absl/strings/ascii.h" // for absl::StripAsciiWhitespace
 #include "commandlineflags.h"
 #include "include_gunit.h"
 #include "log.h"
@@ -148,12 +147,12 @@ static void InitTessInstance(TessBaseAPI *tess, const std::string &lang) {
   EXPECT_EQ(0, tess->Init(TESSDATA_DIR, lang.c_str()));
 }
 
-static void GetCleanedText(TessBaseAPI *tess, Image pix, std::string *ocr_text) {
+static void GetCleanedText(TessBaseAPI *tess, Image pix, std::string &ocr_text) {
   tess->SetImage(pix);
   char *result = tess->GetUTF8Text();
-  *ocr_text = result;
+  ocr_text = result;
   delete[] result;
-  absl::StripAsciiWhitespace(ocr_text);
+  trim(ocr_text);
 }
 
 static void VerifyTextResult(TessBaseAPI *tess, Image pix, const std::string &lang,
@@ -166,7 +165,7 @@ static void VerifyTextResult(TessBaseAPI *tess, Image pix, const std::string &la
     InitTessInstance(tess_local, lang);
   }
   std::string ocr_text;
-  GetCleanedText(tess_local, pix, &ocr_text);
+  GetCleanedText(tess_local, pix, ocr_text);
   EXPECT_STREQ(expected_text.c_str(), ocr_text.c_str());
   if (tess_local != tess) {
     delete tess_local;
@@ -180,7 +179,7 @@ TEST_F(BaseapiThreadTest, TestBasicSanity) {
     TessBaseAPI tess;
     InitTessInstance(&tess, langs_[i]);
     std::string ocr_text;
-    GetCleanedText(&tess, pix_[i], &ocr_text);
+    GetCleanedText(&tess, pix_[i], ocr_text);
     CHECK(strcmp(gt_text_[i].c_str(), ocr_text.c_str()) == 0) << "Failed with lang = " << langs_[i];
   }
 }
