@@ -31,11 +31,11 @@ namespace tesseract {
  * Base Renderer interface implementation
  **********************************************************************/
 TessResultRenderer::TessResultRenderer(const char *outputbase, const char *extension)
-    : file_extension_(extension)
+    : next_(nullptr)
+    , fout_(stdout)
+    , file_extension_(extension)
     , title_("")
     , imagenum_(-1)
-    , fout_(stdout)
-    , next_(nullptr)
     , happy_(true) {
   if (strcmp(outputbase, "-") && strcmp(outputbase, "stdout")) {
     std::string outfile = std::string(outputbase) + "." + extension;
