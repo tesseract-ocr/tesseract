@@ -55,7 +55,17 @@ static void AddBoxToAlto(const ResultIterator *it, PageIteratorLevel level,
 /// Append the ALTO XML for the beginning of the document
 ///
 bool TessAltoRenderer::BeginDocumentHandler() {
-  AppendString(
+  // Delay the XML output because we need the name of the image file.
+  begin_document = true;
+  return true;
+}
+
+///
+/// Append the ALTO XML for the layout of the image
+///
+bool TessAltoRenderer::AddImageHandler(TessBaseAPI *api) {
+  if (begin_document) {
+    AppendString(
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v3#\" "
       "xmlns:xlink=\"http://www.w3.org/1999/xlink\" "
@@ -67,31 +77,26 @@ bool TessAltoRenderer::BeginDocumentHandler() {
       "\t\t<sourceImageInformation>\n"
       "\t\t\t<fileName>");
 
-  AppendString(title());
+    AppendString(api->GetInputName());
 
-  AppendString(
+    AppendString(
       "</fileName>\n"
       "\t\t</sourceImageInformation>\n"
       "\t\t<OCRProcessing ID=\"OCR_0\">\n"
       "\t\t\t<ocrProcessingStep>\n"
       "\t\t\t\t<processingSoftware>\n"
       "\t\t\t\t\t<softwareName>tesseract ");
-  AppendString(TessBaseAPI::Version());
-  AppendString(
+    AppendString(TessBaseAPI::Version());
+    AppendString(
       "</softwareName>\n"
       "\t\t\t\t</processingSoftware>\n"
       "\t\t\t</ocrProcessingStep>\n"
       "\t\t</OCRProcessing>\n"
       "\t</Description>\n"
       "\t<Layout>\n");
+    begin_document = false;
+  }
 
-  return true;
-}
-
-///
-/// Append the ALTO XML for the layout of the image
-///
-bool TessAltoRenderer::AddImageHandler(TessBaseAPI *api) {
   const std::unique_ptr<const char[]> text(api->GetAltoText(imagenum()));
   if (text == nullptr) {
     return false;
@@ -112,7 +117,8 @@ bool TessAltoRenderer::EndDocumentHandler() {
 }
 
 TessAltoRenderer::TessAltoRenderer(const char *outputbase)
-    : TessResultRenderer(outputbase, "xml") {}
+    : TessResultRenderer(outputbase, "xml"),
+      begin_document(false) {}
 
 ///
 /// Make an XML-formatted string with ALTO markup from the internal

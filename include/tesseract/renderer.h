@@ -189,6 +189,9 @@ protected:
   bool BeginDocumentHandler() override;
   bool AddImageHandler(TessBaseAPI *api) override;
   bool EndDocumentHandler() override;
+
+private:
+  bool begin_document;
 };
 
 /**
