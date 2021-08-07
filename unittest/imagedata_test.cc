@@ -12,9 +12,6 @@
 #include <string>
 #include <vector>
 
-#include "absl/strings/str_cat.h"
-#include "absl/strings/str_format.h"
-
 #include "imagedata.h"
 #include "include_gunit.h"
 #include "log.h"
@@ -42,7 +39,9 @@ protected:
     DocumentData write_doc("My document");
     for (int p = 0; p < num_pages; ++p) {
       // Make some fake text that is different for each page and save it.
-      page_texts->push_back(absl::StrFormat("Page %d of %d in doc %u", p, num_pages, doc_id));
+      char text[80];
+      snprintf(text, sizeof(text), "Page %d of %d in doc %u", p, num_pages, doc_id);
+      page_texts->push_back(text);
       // Make an imagedata and put it in the document.
       ImageData *imagedata = ImageData::Build("noname", p, "eng", fake_image.data(),
                                               fake_image.size(), (*page_texts)[p].c_str(), nullptr);
@@ -51,7 +50,8 @@ protected:
     }
     // Write it to a file.
     std::string filename =
-        file::JoinPath(FLAGS_test_tmpdir, absl::StrCat("documentdata", doc_id, ".lstmf"));
+        file::JoinPath(FLAGS_test_tmpdir, "documentdata");
+    filename += std::to_string(doc_id) + ".lstmf";
     EXPECT_TRUE(write_doc.SaveDocument(filename.c_str(), nullptr));
     return filename;
   }

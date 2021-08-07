@@ -20,6 +20,19 @@
 
 const char *FLAGS_test_tmpdir = "./tmp";
 
+namespace tesseract {
+
+void trim(std::string &s) {
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+    return !std::isspace(ch);
+  }));
+  s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+    return !std::isspace(ch);
+  }).base(), s.end());
+}
+
+} // namespace tesseract
+
 class file : public tesseract::File {
 public:
   static void MakeTmpdir() {

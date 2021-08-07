@@ -16,8 +16,6 @@
 #include <sstream> // for std::stringstream
 #include <string>
 #include <vector>
-#include "absl/strings/str_cat.h"
-#include "absl/strings/str_join.h"
 
 namespace tesseract {
 
@@ -33,7 +31,9 @@ inline std::string CodepointList(const std::vector<char32> &str32) {
 
 inline std::string PrintString32WithUnicodes(const std::string &str) {
   std::vector<char32> str32 = UNICHAR::UTF8ToUTF32(str.c_str());
-  return absl::StrCat("\"", str, "\" ", CodepointList(str32));
+  std::string s = "\"";
+  s += "\" " + CodepointList(str32);
+  return s;
 }
 
 inline std::string PrintStringVectorWithUnicodes(const std::vector<std::string> &glyphs) {
@@ -49,18 +49,30 @@ inline void ExpectGraphemeModeResults(const std::string &str, UnicodeNormMode u_
                                       int unicode_count, int glyph_count, int grapheme_count,
                                       const std::string &target_str) {
   std::vector<std::string> glyphs;
+  std::string s;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(
       u_mode, OCRNorm::kNone, GraphemeNormMode::kIndividualUnicodes, true, str.c_str(), &glyphs));
   EXPECT_EQ(glyphs.size(), unicode_count) << PrintStringVectorWithUnicodes(glyphs);
-  EXPECT_EQ(target_str, absl::StrJoin(glyphs.begin(), glyphs.end(), ""));
+  for (auto &glyph : glyphs) {
+    s += glyph;
+  }
+  EXPECT_EQ(target_str, s);
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(u_mode, OCRNorm::kNone, GraphemeNormMode::kGlyphSplit,
                                            true, str.c_str(), &glyphs));
   EXPECT_EQ(glyphs.size(), glyph_count) << PrintStringVectorWithUnicodes(glyphs);
-  EXPECT_EQ(target_str, absl::StrJoin(glyphs.begin(), glyphs.end(), ""));
+  s.clear();
+  for (auto &glyph : glyphs) {
+    s += glyph;
+  }
+  EXPECT_EQ(target_str, s);
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(u_mode, OCRNorm::kNone, GraphemeNormMode::kCombined,
                                            true, str.c_str(), &glyphs));
   EXPECT_EQ(glyphs.size(), grapheme_count) << PrintStringVectorWithUnicodes(glyphs);
-  EXPECT_EQ(target_str, absl::StrJoin(glyphs.begin(), glyphs.end(), ""));
+  s.clear();
+  for (auto &glyph : glyphs) {
+    s += glyph;
+  }
+  EXPECT_EQ(target_str, s);
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(u_mode, OCRNorm::kNone, GraphemeNormMode::kSingleString,
                                            true, str.c_str(), &glyphs));
   EXPECT_EQ(glyphs.size(), 1) << PrintStringVectorWithUnicodes(glyphs);

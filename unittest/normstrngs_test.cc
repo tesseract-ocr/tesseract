@@ -11,7 +11,6 @@
 
 #include "normstrngs.h"
 #include <tesseract/unichar.h>
-#include "absl/strings/str_format.h" // for absl::StrFormat
 #include "include_gunit.h"
 #include "normstrngs_test.h"
 #ifdef INCLUDE_TENSORFLOW
@@ -315,7 +314,9 @@ TEST(NormstrngsTest, IsWhitespace) {
   EXPECT_TRUE(IsWhitespace('\n'));
   // U+2000 through U+200A
   for (char32 ch = 0x2000; ch <= 0x200A; ++ch) {
-    SCOPED_TRACE(absl::StrFormat("Failed at U+%x", ch));
+    char text[80];
+    snprintf(text, sizeof(text), "Failed at U+%x", ch);
+    SCOPED_TRACE(text);
     EXPECT_TRUE(IsWhitespace(ch));
   }
   // U+3000 is whitespace
@@ -354,7 +355,9 @@ TEST(NormstrngsTest, IsInterchangeValid) {
   const int32_t kMinUnicodeValue = 33;
   const int32_t kMaxUnicodeValue = 0x10FFFF;
   for (int32_t ch = kMinUnicodeValue; ch <= kMaxUnicodeValue; ++ch) {
-    SCOPED_TRACE(absl::StrFormat("Failed at U+%x", ch));
+    char text[80];
+    snprintf(text, sizeof(text), "Failed at U+%x", ch);
+    SCOPED_TRACE(text);
     EXPECT_EQ(UniLib::IsInterchangeValid(ch), IsInterchangeValid(ch));
   }
 #else
@@ -369,7 +372,9 @@ TEST(NormstrngsTest, IsInterchangeValid7BitAscii) {
   const int32_t kMinUnicodeValue = 33;
   const int32_t kMaxUnicodeValue = 0x10FFFF;
   for (int32_t ch = kMinUnicodeValue; ch <= kMaxUnicodeValue; ++ch) {
-    SCOPED_TRACE(absl::StrFormat("Failed at U+%x", ch));
+    char text[80];
+    snprintf(text, sizeof(text), "Failed at U+%x", ch);
+    SCOPED_TRACE(text);
     std::string str = EncodeAsUTF8(ch);
     EXPECT_EQ(UniLib::IsInterchangeValid7BitAscii(str), IsInterchangeValid7BitAscii(ch));
   }
@@ -396,7 +401,9 @@ TEST(NormstrngsTest, FullwidthToHalfwidth) {
   for (int32_t ch = kMinUnicodeValue; ch <= kMaxUnicodeValue; ++ch) {
     if (!IsValidCodepoint(ch))
       continue;
-    SCOPED_TRACE(absl::StrFormat("Failed at U+%x", ch));
+    char text[80];
+    snprintf(text, sizeof(text), "Failed at U+%x", ch);
+    SCOPED_TRACE(text);
     std::string str = EncodeAsUTF8(ch);
     const std::string expected_half_str =
         UniLib::FullwidthToHalfwidth(str.c_str(), str.length(), true);

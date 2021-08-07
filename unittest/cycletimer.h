@@ -13,10 +13,16 @@
 #ifndef TESSERACT_UNITTEST_CYCLETIMER_H
 #define TESSERACT_UNITTEST_CYCLETIMER_H
 
-#include "absl/time/clock.h" // for GetCurrentTimeNanos
+#include <chrono> // for std::chrono
 
 // See https://github.com/google/or-tools/blob/master/ortools/base/timer.h
 class CycleTimer {
+private:
+  static int64_t now() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now().time_since_epoch()).count();
+  }
+
 public:
   CycleTimer() {
     Reset();
@@ -31,7 +37,7 @@ public:
   // When Start() is called multiple times, only the most recent is used.
   void Start() {
     running_ = true;
-    start_ = absl::GetCurrentTimeNanos();
+    start_ = now();
   }
 
   void Restart() {
@@ -41,17 +47,12 @@ public:
 
   void Stop() {
     if (running_) {
-      sum_ += absl::GetCurrentTimeNanos() - start_;
+      sum_ += now() - start_;
       running_ = false;
     }
   }
   int64_t GetInMs() const {
-    return GetNanos() / 1000000;
-  }
-
-protected:
-  int64_t GetNanos() const {
-    return running_ ? absl::GetCurrentTimeNanos() - start_ + sum_ : sum_;
+    return running_ ? now() - start_ + sum_ : sum_;
   }
 
 private:

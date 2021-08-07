@@ -17,7 +17,6 @@
 #include "stringrenderer.h"
 
 #include <allheaders.h>
-#include "absl/strings/str_split.h" // for absl::StrSplit
 
 #include <memory>
 #include <string>
@@ -348,7 +347,7 @@ TEST_F(StringRendererTest, DoesRenderWordBoxes) {
   EXPECT_EQ(strlen(kEngText), renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
   pix.destroy();
   // Verify #boxchars = #words + #spaces
-  std::vector<std::string> words = absl::StrSplit(kEngText, ' ', absl::SkipEmpty());
+  std::vector<std::string> words = split(kEngText, ' ');
   const int kNumSpaces = words.size() - 1;
   const int kExpectedNumBoxes = words.size() + kNumSpaces;
   const std::vector<BoxChar *> &boxchars = renderer_->GetBoxes();
@@ -371,8 +370,12 @@ TEST_F(StringRendererTest, DoesRenderWordBoxesFromMultiLineText) {
   EXPECT_EQ(strlen(kMultlineText), renderer_->RenderToImage(kMultlineText, strlen(kEngText), &pix));
   pix.destroy();
   // Verify #boxchars = #words + #spaces + #newlines
-  std::vector<std::string> words =
-      absl::StrSplit(kMultlineText, absl::ByAnyChar(" \n"), absl::SkipEmpty());
+  std::vector<std::string> words;
+  for (auto &line : split(kMultlineText, '\n')) {
+    for (auto &word : split(line, ' ')) {
+      words.push_back(word);
+    }
+  }
   const int kNumSeparators = words.size() - 1;
   const int kExpectedNumBoxes = words.size() + kNumSeparators;
   const std::vector<BoxChar *> &boxchars = renderer_->GetBoxes();
