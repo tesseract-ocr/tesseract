@@ -18,11 +18,11 @@
 #include "gtest/gtest.h"
 #include "log.h" // for LOG
 
-const char *FLAGS_test_tmpdir = "./tmp";
+static const char *FLAGS_test_tmpdir = "./tmp";
 
 namespace tesseract {
 
-void trim(std::string &s) {
+static inline void trim(std::string &s) {
   s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
     return !std::isspace(ch);
   }));
@@ -77,6 +77,7 @@ public:
     if (!(condition))      \
     LOG(FATAL) << "Check failed: " #condition " "
 #  define CHECK_EQ(test, value) CHECK((test) == (value))
+#  define CHECK_GE(test, value) CHECK((test) >= (value))
 #  define CHECK_GT(test, value) CHECK((test) > (value))
 #  define CHECK_LT(test, value) CHECK((test) < (value))
 #  define CHECK_LE(test, value) CHECK((test) <= (value))

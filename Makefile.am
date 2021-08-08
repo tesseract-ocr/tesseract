@@ -1156,9 +1156,9 @@ unittest_CPPFLAGS += $(pangocairo_CFLAGS)
 endif # ENABLE_TRAINING
 unittest_CPPFLAGS += -I$(top_srcdir)/src/viewer
 unittest_CPPFLAGS += -I$(top_srcdir)/src/wordrec
+unittest_CPPFLAGS += -I$(top_srcdir)/unittest
 if TENSORFLOW
 unittest_CPPFLAGS += -DINCLUDE_TENSORFLOW
-unittest_CPPFLAGS += -I$(top_srcdir)/unittest
 unittest_CPPFLAGS += -I/usr/include/tensorflow
 endif # TENSORFLOW
 
@@ -1536,11 +1536,9 @@ tabvector_test_CPPFLAGS = $(unittest_CPPFLAGS)
 tabvector_test_LDADD = $(TESS_LIBS)
 
 tatweel_test_SOURCES = unittest/tatweel_test.cc
-if TENSORFLOW
 tatweel_test_SOURCES += unittest/third_party/utf/rune.c
 tatweel_test_SOURCES += unittest/util/utf8/unicodetext.cc
 tatweel_test_SOURCES += unittest/util/utf8/unilib.cc
-endif # TENSORFLOW
 tatweel_test_CPPFLAGS = $(unittest_CPPFLAGS)
 tatweel_test_LDADD = $(TRAINING_LIBS)
 
