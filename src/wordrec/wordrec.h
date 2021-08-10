@@ -318,10 +318,6 @@ public:
                         std::vector<SegSearchPending> *pending,
                         BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle);
 
-  // Runs SegSearch() function (above) without needing a best_choice_bundle
-  // or blamer_bundle. Used for testing.
-  void DoSegSearch(WERD_RES *word_res);
-
   // chop.cpp
   PRIORITY point_priority(EDGEPT *point);
   void add_point_to_list(PointHeap *point_heap, EDGEPT *point);
@@ -380,32 +376,6 @@ public:
   virtual BLOB_CHOICE_LIST *classify_piece(const std::vector<SEAM *> &seams, int16_t start,
                                            int16_t end, const char *description, TWERD *word,
                                            BlamerBundle *blamer_bundle);
-  // Try to merge fragments in the ratings matrix and put the result in
-  // the corresponding row and column
-  void merge_fragments(MATRIX *ratings, int16_t num_blobs);
-  // Recursively go through the ratings matrix to find lists of fragments
-  // to be merged in the function merge_and_put_fragment_lists.
-  // current_frag is the position of the piece we are looking for.
-  // current_row is the row in the rating matrix we are currently at.
-  // start is the row we started initially, so that we can know where
-  // to append the results to the matrix. num_frag_parts is the total
-  // number of pieces we are looking for and num_blobs is the size of the
-  // ratings matrix.
-  void get_fragment_lists(int16_t current_frag, int16_t current_row, int16_t start,
-                          int16_t num_frag_parts, int16_t num_blobs, MATRIX *ratings,
-                          BLOB_CHOICE_LIST *choice_lists);
-  // Merge the fragment lists in choice_lists and append it to the
-  // ratings matrix
-  void merge_and_put_fragment_lists(int16_t row, int16_t column, int16_t num_frag_parts,
-                                    BLOB_CHOICE_LIST *choice_lists, MATRIX *ratings);
-  // Filter the fragment list so that the filtered_choices only contain
-  // fragments that are in the correct position. choices is the list
-  // that we are going to filter. fragment_pos is the position in the
-  // fragment that we are looking for and num_frag_parts is the the
-  // total number of pieces. The result will be appended to
-  // filtered_choices.
-  void fill_filtered_fragment_list(BLOB_CHOICE_LIST *choices, int fragment_pos, int num_frag_parts,
-                                   BLOB_CHOICE_LIST *filtered_choices);
 
   // Member variables.
 

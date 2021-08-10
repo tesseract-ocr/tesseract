@@ -30,12 +30,6 @@
 
 namespace tesseract {
 
-void Wordrec::DoSegSearch(WERD_RES *word_res) {
-  BestChoiceBundle best_choice_bundle(word_res->ratings->dimension());
-  // Run Segmentation Search.
-  SegSearch(word_res, &best_choice_bundle, nullptr);
-}
-
 void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle,
                         BlamerBundle *blamer_bundle) {
   LMPainPoints pain_points(segsearch_max_pain_points, segsearch_max_char_wh_ratio,

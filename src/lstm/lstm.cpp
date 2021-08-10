@@ -772,6 +772,8 @@ void LSTM::CountAlternators(const Network &other, TFloat *same, TFloat *changed)
   }
 }
 
+#if DEBUG_DETAIL > 3
+
 // Prints the weights for debug purposes.
 void LSTM::PrintW() {
   tprintf("Weight state:%s\n", name_.c_str());
@@ -833,6 +835,8 @@ void LSTM::PrintDW() {
     tprintf("\n");
   }
 }
+
+#endif
 
 // Resizes forward data to cope with an input image of the given width.
 void LSTM::ResizeForward(const NetworkIO &input) {
