@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        drawfx.cpp  (Formerly drawfx.c)
+ * File:        drawfx.cpp
  * Description: Draw things to do with feature extraction.
  * Author:      Ray Smith
  *
@@ -40,7 +40,6 @@ namespace tesseract {
 #  define DEBUG_WIN_NAME "FXDebug"
 
 ScrollView *fx_win = nullptr;
-FILE *fx_debug = nullptr;
 
 /**********************************************************************
  * create_fx_win
