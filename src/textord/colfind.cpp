@@ -465,7 +465,9 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Image scaled_color, int s
   }
 
 #ifndef GRAPHICS_DISABLED
-  DisplayBlocks(blocks);
+  if (textord_tabfind_show_blocks) {
+    DisplayBlocks(blocks);
+  }
 #endif
   RotateAndReskewBlocks(input_is_rtl, to_blocks);
   int result = 0;
@@ -512,22 +514,20 @@ void ColumnFinder::SetEquationDetect(EquationDetectBase *detect) {
 
 // Displays the blob and block bounding boxes in a window called Blocks.
 void ColumnFinder::DisplayBlocks(BLOCK_LIST *blocks) {
-  if (textord_tabfind_show_blocks) {
-    if (blocks_win_ == nullptr) {
-      blocks_win_ = MakeWindow(700, 300, "Blocks");
-    } else {
-      blocks_win_->Clear();
-    }
-    DisplayBoxes(blocks_win_);
-    BLOCK_IT block_it(blocks);
-    int serial = 1;
-    for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
-      BLOCK *block = block_it.data();
-      block->pdblk.plot(blocks_win_, serial++,
-                        textord_debug_printable ? ScrollView::BLUE : ScrollView::GREEN);
-    }
-    blocks_win_->Update();
+  if (blocks_win_ == nullptr) {
+    blocks_win_ = MakeWindow(700, 300, "Blocks");
+  } else {
+    blocks_win_->Clear();
   }
+  DisplayBoxes(blocks_win_);
+  BLOCK_IT block_it(blocks);
+  int serial = 1;
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
+    BLOCK *block = block_it.data();
+    block->pdblk.plot(blocks_win_, serial++,
+                      textord_debug_printable ? ScrollView::BLUE : ScrollView::GREEN);
+  }
+  blocks_win_->Update();
 }
 
 // Displays the column edges at each grid y coordinate defined by
