@@ -22,7 +22,7 @@
 namespace tesseract {
 
 Image Image::clone() const {
-  return pixClone(pix_);
+  return pix_ ? pixClone(pix_) : nullptr;
 }
 
 Image Image::copy() const {
