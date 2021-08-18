@@ -62,15 +62,20 @@ bool TessAltoRenderer::BeginDocumentHandler() {
       "xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v3# "
       "http://www.loc.gov/alto/v3/alto-3-0.xsd\">\n"
       "\t<Description>\n"
-      "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
+      "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n");
+
+  auto name = title();
+  if (name[0] != '\0') {
+    AppendString(
       "\t\t<sourceImageInformation>\n"
       "\t\t\t<fileName>");
-
-  AppendString(title());
+    AppendString(name);
+    AppendString(
+      "</fileName>\n"
+      "\t\t</sourceImageInformation>\n");
+  }
 
   AppendString(
-      "</fileName>\n"
-      "\t\t</sourceImageInformation>\n"
       "\t\t<OCRProcessing ID=\"OCR_0\">\n"
       "\t\t\t<ocrProcessingStep>\n"
       "\t\t\t\t<processingSoftware>\n"
