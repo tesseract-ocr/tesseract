@@ -203,12 +203,12 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
 
   int r;
   if (method == ThresholdMethod::Sauvola) {
-    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, pix_thresholds,
-                                pix_binary);
+    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, (PIX**)pix_thresholds,
+                                (PIX**)pix_binary);
   } else {
     // AdaptiveOtsu.
     r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1,
-                                 pix_thresholds, pix_binary);
+                                 (PIX**)pix_thresholds, (PIX**)pix_binary);
   }
 
   bool ok = (r == 0);
