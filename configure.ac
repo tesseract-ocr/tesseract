@@ -312,7 +312,7 @@ case "${host_os}" in
     MY_CHECK_FRAMEWORK([Accelerate])
     if test $my_cv_framework_Accelerate = yes; then
       AM_CPPFLAGS="-DHAVE_FRAMEWORK_ACCELERATE $AM_CPPFLAGS"
-      LDFLAGS="$LDFLAGS -framework Accelerate"
+      AM_LDFLAGS="$AM_LDFLAGS -framework Accelerate"
     fi
     MY_CHECK_FRAMEWORK([OpenCL])
     if test "$enable_opencl" = "yes"; then
