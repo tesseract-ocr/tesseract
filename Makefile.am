@@ -402,7 +402,6 @@ if !DISABLED_LEGACY_ENGINE
 libtesseract_ccutil_la_SOURCES += src/ccutil/ambigs.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/bitvector.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/indexmapbidi.cpp
-libtesseract_ccutil_la_SOURCES += src/ccutil/universalambigs.cpp
 endif
 
 # Rules for src/classify.
