@@ -1,5 +1,0 @@
-load_bigram_dawg	True
-tessedit_enable_bigram_correction	True
-tessedit_bigram_debug	3
-save_raw_choices	True
-save_alt_choices	True

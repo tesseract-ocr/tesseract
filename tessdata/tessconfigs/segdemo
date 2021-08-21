@@ -1,9 +1,0 @@
-#################################################
-# Adaptive Matcher Using PreAdapted Templates
-#################################################
-
-wordrec_display_splits          0
-wordrec_display_all_blobs       1
-wordrec_display_segmentations   2
-classify_debug_level		1
-stopper_debug_level 1
