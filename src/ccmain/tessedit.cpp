@@ -296,9 +296,9 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
   // Add any languages that this language requires
   bool loaded_primary = false;
   // Load the rest into sub_langs_.
-  for (unsigned lang_index = 0; lang_index < langs_to_load.size(); ++lang_index) {
-    if (!IsStrInList(langs_to_load[lang_index], langs_not_to_load)) {
-      const char *lang_str = langs_to_load[lang_index].c_str();
+  for (auto &lang_to_load : langs_to_load) {
+    if (!IsStrInList(lang_to_load, langs_not_to_load)) {
+      const char *lang_str = lang_to_load.c_str();
       Tesseract *tess_to_init;
       if (!loaded_primary) {
         tess_to_init = this;
@@ -316,7 +316,7 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
         if (result < 0) {
           tprintf("Failed loading language '%s'\n", lang_str);
         } else {
-          ParseLanguageString(tess_to_init->tessedit_load_sublangs.c_str(), &langs_to_load,
+          ParseLanguageString(tess_to_init->tessedit_load_sublangs, &langs_to_load,
                               &langs_not_to_load);
           loaded_primary = true;
         }
@@ -327,7 +327,7 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
         } else {
           sub_langs_.push_back(tess_to_init);
           // Add any languages that this language requires
-          ParseLanguageString(tess_to_init->tessedit_load_sublangs.c_str(), &langs_to_load,
+          ParseLanguageString(tess_to_init->tessedit_load_sublangs, &langs_to_load,
                               &langs_not_to_load);
         }
       }
