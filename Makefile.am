@@ -347,7 +347,7 @@ endif
 libtesseract_ccutil_la_CPPFLAGS = $(AM_CPPFLAGS)
 libtesseract_ccutil_la_CPPFLAGS += $(libarchive_CFLAGS)
 if !NO_TESSDATA_PREFIX
-libtesseract_ccutil_la_CPPFLAGS += -DTESSDATA_PREFIX=@datadir@
+libtesseract_ccutil_la_CPPFLAGS += -DTESSDATA_PREFIX='"@datadir@"'
 endif
 
 noinst_HEADERS += src/ccutil/ccutil.h
@@ -513,7 +513,7 @@ libtesseract_lstm_la_CPPFLAGS += -DINCLUDE_TENSORFLOW
 libtesseract_lstm_la_CPPFLAGS += -I/usr/include/tensorflow
 endif
 if !NO_TESSDATA_PREFIX
-libtesseract_lstm_la_CPPFLAGS += -DTESSDATA_PREFIX=@datadir@
+libtesseract_lstm_la_CPPFLAGS += -DTESSDATA_PREFIX='"@datadir@"'
 endif
 
 noinst_HEADERS += src/lstm/convolve.h
