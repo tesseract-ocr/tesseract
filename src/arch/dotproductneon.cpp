@@ -14,6 +14,8 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+#if defined(__ARM_NEON)
+
 #include <arm_neon.h>
 #include "dotproduct.h"
 
@@ -65,3 +67,5 @@ TFloat DotProductNEON(const TFloat *u, const TFloat *v, int n) {
 #endif
 
 } // namespace tesseract
+
+#endif /* __ARM_NEON */
