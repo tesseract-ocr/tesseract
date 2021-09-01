@@ -1276,7 +1276,12 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
 
   if (tesseract_->tessedit_write_images) {
     Pix *page_pix = GetThresholdedImage();
-    pixWrite("tessinput.tif", page_pix, IFF_TIFF_G4);
+    std::string output_filename = output_file_ + ".processed";
+    if (page_index > 0) {
+      output_filename += std::to_string(page_index);
+    }
+    output_filename += ".tif";
+    pixWrite(output_filename.c_str(), page_pix, IFF_TIFF_G4);
   }
 
   if (failed && retry_config != nullptr && retry_config[0] != '\0') {
