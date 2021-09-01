@@ -421,7 +421,7 @@ void Classify::LearnPieces(const char *fontname, int start, int length, float th
     LearnBlob(fontname, rotated_blob, cn_denorm, fx_info, correct_text);
   } else if (unicharset.contains_unichar(correct_text)) {
     UNICHAR_ID class_id = unicharset.unichar_to_id(correct_text);
-    int font_id = word->fontinfo != nullptr ? fontinfo_table_.get_id(*word->fontinfo) : 0;
+    int font_id = word->fontinfo != nullptr ? fontinfo_table_.get_index(*word->fontinfo) : 0;
     if (classify_learning_debug_level >= 1) {
       tprintf("Adapting to char = %s, thr= %g font_id= %d\n", unicharset.id_to_unichar(class_id),
               threshold, font_id);

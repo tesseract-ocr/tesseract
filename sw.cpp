@@ -69,6 +69,8 @@ void build(Solution &s)
 
         // check fma flags
         libtesseract -= "src/arch/dotproductfma.cpp";
+        // check arch (arm)
+        libtesseract -= "src/arch/dotproductneon.cpp";
 
         if (libtesseract.getBuildSettings().TargetOS.Type != OSType::Windows)
         {
@@ -203,6 +205,7 @@ void build(Solution &s)
             auto &t = test.addTarget<ExecutableTarget>(name);
             t += cppstd;
             t += FileRegex("unittest", name + "_test.*", false);
+            t += "unittest"_idir;
 
             t += "SW_TESTING"_def;
 
@@ -222,7 +225,6 @@ void build(Solution &s)
             t += pango_training;
             t += "org.sw.demo.google.googletest.gmock.main"_dep;
             t += "org.sw.demo.google.googletest.gtest.main"_dep;
-            t += "org.sw.demo.google.abseil"_dep;
 
             if (t.getCompilerType() == CompilerType::MSVC)
                 t.CompileOptions.push_back("-utf-8");
@@ -301,7 +303,6 @@ void build(Solution &s)
             "tablefind",
             "tablerecog",
             "tabvector",
-            "tatweel",
             "textlineprojection",
             "tfile",
             "unichar",
@@ -318,6 +319,10 @@ void build(Solution &s)
         auto &dt = add_test("dawg");
         dt += Definition("wordlist2dawg_prog=\"" + to_printable_string(normalize_path(wordlist2dawg.getOutputFile())) + "\"");
         dt += Definition("dawg2wordlist_prog=\"" + to_printable_string(normalize_path(dawg2wordlist.getOutputFile())) + "\"");
+
+        auto &tw = add_test("tatweel");
+        tw += "unittest/util/.*"_rr;
+        tw += "unittest/third_party/.*"_rr;
     }
 }
 

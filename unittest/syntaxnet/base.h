@@ -16,11 +16,14 @@ limitations under the License.
 #ifndef SYNTAXNET_BASE_H_
 #define SYNTAXNET_BASE_H_
 
+#include <map>
 #include <functional>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#ifdef INCLUDE_TENSORFLOW
 
 #include "google/protobuf/util/message_differencer.h"
 
@@ -31,11 +34,14 @@ limitations under the License.
 #include "tensorflow/core/platform/mutex.h"
 #include "tensorflow/core/platform/protobuf.h"
 
+#endif
+
 using std::map;
 using std::pair;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
+#ifdef INCLUDE_TENSORFLOW
 using tensorflow::int16;
 using tensorflow::int32;
 using tensorflow::int64;
@@ -47,10 +53,13 @@ using tensorflow::uint32;
 using tensorflow::uint64;
 using tensorflow::uint8;
 using tensorflow::protobuf::TextFormat;
+#endif
 typedef signed int char32;
 
 using std::string;
+#ifdef INCLUDE_TENSORFLOW
 using tensorflow::StringPiece;
+#endif
 
 // namespace syntaxnet
 

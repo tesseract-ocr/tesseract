@@ -35,7 +35,7 @@ public:
   // Loads a set of lstmf files that were created using the lstm.train config to
   // tesseract into memory ready for testing. Returns false if nothing was
   // loaded. The arg is a filename of a file that lists the filenames, with one
-  // name per line. Conveniently, tesstrain.sh generates such a file, along
+  // name per line. Conveniently, tesstrain.py generates such a file, along
   // with the files themselves.
   bool LoadAllEvalData(const char *filenames_file);
   // Loads a set of lstmf files that were created using the lstm.train config to

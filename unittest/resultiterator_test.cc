@@ -5,7 +5,6 @@
 #include <string>
 #include "scrollview.h"
 
-#include "absl/strings/str_format.h" // for absl::StrFormat
 #include "include_gunit.h"
 #include "log.h" // for LOG
 
@@ -99,7 +98,7 @@ protected:
       pixWrite(outfile.c_str(), pix, IFF_PNG);
     }
     pix.destroy();
-    LOG(INFO) << absl::StrFormat("At level %d: pix diff = %d\n", level, pixcount);
+    LOG(INFO) << "At level " << level << ": pix diff = " << pixcount << "\n";
     EXPECT_LE(pixcount, max_diff);
     //    if (base::GetFlag(FLAGS_v) > 1) CHECK_LE(pixcount, max_diff);
   }
@@ -293,7 +292,8 @@ TEST_F(ResultIteratorTest, EasyTest) {
   // Test baseline of the first line.
   int x1, y1, x2, y2;
   r_it->Baseline(tesseract::RIL_TEXTLINE, &x1, &y1, &x2, &y2);
-  LOG(INFO) << absl::StrFormat("Baseline (%d,%d)->(%d,%d)", x1, y1, x2, y2) << "\n";
+  LOG(INFO) << "Baseline ("
+     << x1 << ',' << y1 << ")->(" << x2 << ',' << y2 << ")\n";
   // Make sure we have a decent vector.
   EXPECT_GE(x2, x1 + 400);
   // The point 200,116 should be very close to the baseline.
@@ -315,9 +315,9 @@ TEST_F(ResultIteratorTest, EasyTest) {
     float confidence = r_it->Confidence(tesseract::RIL_WORD);
     EXPECT_GE(confidence, 80.0f);
     char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
-    LOG(INFO) << absl::StrFormat("Word %s in font %s, id %d, size %d, conf %g", word_str, font,
-                                 font_id, pointsize, confidence)
-              << "\n";
+    LOG(INFO) << "Word " << word_str << " in font " << font
+      << ", id " << font_id << ", size " << pointsize
+      << ", conf " << confidence << "\n";
     delete[] word_str;
     EXPECT_FALSE(bold);
     EXPECT_FALSE(italic);
@@ -372,8 +372,8 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
                              &pointsize, &font_id);
     char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     if (word_str != nullptr) {
-      LOG(INFO) << absl::StrFormat("Word %s is %s", word_str, smallcaps ? "SMALLCAPS" : "Normal")
-                << "\n";
+      LOG(INFO) << "Word " << word_str
+        << " is " << (smallcaps ? "SMALLCAPS" : "Normal") << "\n";
       if (r_it->SymbolIsDropcap()) {
         ++found_dropcaps;
       }
@@ -392,7 +392,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
       while (s_it.Next(tesseract::RIL_SYMBOL) && !s_it.IsAtBeginningOf(tesseract::RIL_WORD)) {
         if (s_it.SymbolIsDropcap()) {
           char *sym_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
-          LOG(ERROR) << absl::StrFormat("Symbol %s of word %s is dropcap", sym_str, word_str);
+          LOG(ERROR) << "Symbol " << sym_str << " of word " << word_str << " is dropcap";
           delete[] sym_str;
         }
         EXPECT_FALSE(s_it.SymbolIsDropcap());
@@ -433,8 +433,7 @@ TEST_F(ResultIteratorTest, SubSuperTest) {
       result = r_it->GetUTF8Text(tesseract::RIL_SYMBOL);
       if (strchr(kAllowedSupers, result[0]) == nullptr) {
         char* word = r_it->GetUTF8Text(tesseract::RIL_WORD);
-        LOG(ERROR) << absl::StrFormat("Char %s in word %s is unexpected super!",
-                                    result, word);
+        LOG(ERROR) << "Char " << result << " in word " << word << " is unexpected super!";
         delete [] word;
         EXPECT_TRUE(strchr(kAllowedSupers, result[0]) != nullptr);
       }
@@ -445,8 +444,8 @@ TEST_F(ResultIteratorTest, SubSuperTest) {
     }
   } while (r_it->Next(tesseract::RIL_SYMBOL));
   delete r_it;
-  LOG(INFO) << absl::StrFormat("Subs = %d, supers= %d, normal = %d",
-                          found_subs, found_supers, found_normal) << "\n";
+  LOG(INFO) << "Subs = " << found_subs << ", supers= " << found_supers
+    << ", normal = " << found_normal << "\n";
   EXPECT_GE(found_subs, 25);
   EXPECT_GE(found_supers, 25);
   EXPECT_GE(found_normal, 1350);
@@ -528,7 +527,7 @@ TEST_F(ResultIteratorTest, DISABLED_NonNullChoicesTest) {
   do {
     char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     if (word_str != nullptr) {
-      LOG(INFO) << absl::StrFormat("Word %s:", word_str) << "\n";
+      LOG(INFO) << "Word " << word_str << ":\n";
       ResultIterator s_it = *r_it;
       do {
         tesseract::ChoiceIterator c_it(s_it);
@@ -571,7 +570,7 @@ TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
         const char *char_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
         CHECK(char_str != nullptr);
         float confidence = s_it.Confidence(tesseract::RIL_SYMBOL);
-        LOG(INFO) << absl::StrFormat("Char %s has confidence %g\n", char_str, confidence);
+        LOG(INFO) << "Char " << char_str << " has confidence " << confidence << "\n";
         delete[] char_str;
       } while (!s_it.IsAtFinalElement(tesseract::RIL_WORD, tesseract::RIL_SYMBOL) &&
                s_it.Next(tesseract::RIL_SYMBOL));

@@ -19,9 +19,7 @@
 #include "include_gunit.h"
 #include "trie.h"
 #include "unicharset.h"
-#ifdef INCLUDE_TENSORFLOW
-#  include "util/utf8/unicodetext.h" // for UnicodeText
-#endif
+#include "util/utf8/unicodetext.h" // for UnicodeText
 
 namespace tesseract {
 
@@ -42,10 +40,9 @@ protected:
   }
 
   TatweelTest() {
-#ifdef INCLUDE_TENSORFLOW
     std::string filename = TestDataNameToPath("ara.wordlist");
     if (file_exists(filename.c_str())) {
-      std::string wordlist(u8"\u0640");
+      std::string wordlist("\u0640");
       CHECK_OK(file::GetContents(filename, &wordlist, file::Defaults()));
       // Put all the unicodes in the unicharset_.
       UnicodeText text;
@@ -53,14 +50,13 @@ protected:
       int num_tatweel = 0;
       for (auto it = text.begin(); it != text.end(); ++it) {
         std::string utf8 = it.get_utf8_string();
-        if (utf8.find(u8"\u0640") != std::string::npos)
+        if (utf8.find("\u0640") != std::string::npos)
           ++num_tatweel;
         unicharset_.unichar_insert(utf8.c_str());
       }
       LOG(INFO) << "Num tatweels in source data=" << num_tatweel;
       EXPECT_GT(num_tatweel, 0);
     }
-#endif
   }
 
   std::string TestDataNameToPath(const std::string &name) {

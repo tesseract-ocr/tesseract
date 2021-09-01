@@ -11,8 +11,6 @@
 
 #include <string> // for std::string
 
-#include "absl/strings/str_cat.h"
-
 #include "gmock/gmock.h" // for testing::ElementsAreArray
 
 #include "include_gunit.h"
@@ -59,7 +57,7 @@ TEST(LangModelTest, AddACharacter) {
                                 pass_through_recoder, words, puncs, numbers, lang_is_rtl, nullptr,
                                 nullptr));
   // Init a trainer with it, and encode kTestString.
-  std::string traineddata1 = file::JoinPath(output_dir, lang1, absl::StrCat(lang1, ".traineddata"));
+  std::string traineddata1 = file::JoinPath(output_dir, lang1, lang1) + ".traineddata";
   LSTMTrainer trainer1;
   trainer1.InitCharSet(traineddata1);
   std::vector<int> labels1;
@@ -79,7 +77,7 @@ TEST(LangModelTest, AddACharacter) {
                                            pass_through_recoder, words, puncs, numbers, lang_is_rtl,
                                            nullptr, nullptr));
   // Init a trainer with it, and encode kTestString.
-  std::string traineddata2 = file::JoinPath(output_dir, lang2, absl::StrCat(lang2, ".traineddata"));
+  std::string traineddata2 = file::JoinPath(output_dir, lang2, lang2) + ".traineddata";
   LSTMTrainer trainer2;
   trainer2.InitCharSet(traineddata2);
   std::vector<int> labels2;
@@ -144,7 +142,7 @@ TEST(LangModelTest, AddACharacterHindi) {
                                 pass_through_recoder, words, puncs, numbers, lang_is_rtl, nullptr,
                                 nullptr));
   // Init a trainer with it, and encode kTestString.
-  std::string traineddata1 = file::JoinPath(output_dir, lang1, absl::StrCat(lang1, ".traineddata"));
+  std::string traineddata1 = file::JoinPath(output_dir, lang1, lang1) + ".traineddata";
   LSTMTrainer trainer1;
   trainer1.InitCharSet(traineddata1);
   std::vector<int> labels1;
@@ -164,7 +162,7 @@ TEST(LangModelTest, AddACharacterHindi) {
                                            pass_through_recoder, words, puncs, numbers, lang_is_rtl,
                                            nullptr, nullptr));
   // Init a trainer with it, and encode kTestString.
-  std::string traineddata2 = file::JoinPath(output_dir, lang2, absl::StrCat(lang2, ".traineddata"));
+  std::string traineddata2 = file::JoinPath(output_dir, lang2, lang2) + ".traineddata";
   LSTMTrainer trainer2;
   trainer2.InitCharSet(traineddata2);
   std::vector<int> labels2;

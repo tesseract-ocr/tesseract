@@ -286,7 +286,7 @@ endif()
 if (PKG_CONFIG_FOUND OR SW_BUILD)
 
 if (PKG_CONFIG_FOUND)
-pkg_check_modules(Pango REQUIRED pango>=1.22.0)
+pkg_check_modules(Pango REQUIRED pango>=1.38.0)
 pkg_check_modules(Cairo REQUIRED cairo)
 pkg_check_modules(PangoFt2 REQUIRED pangoft2)
 pkg_check_modules(PangoCairo REQUIRED pangocairo)

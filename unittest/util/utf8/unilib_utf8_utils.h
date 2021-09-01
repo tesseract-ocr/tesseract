@@ -29,13 +29,14 @@ namespace UniLib {
 // (i.e., is not a surrogate codepoint). See also
 // IsValidCodepoint(const char* src) in util/utf8/public/unilib.h.
 inline bool IsValidCodepoint(char32 c) {
-  return (static_cast<uint32>(c) < 0xD800) || (c >= 0xE000 && c <= 0x10FFFF);
+  return (static_cast<uint32_t>(c) < 0xD800) || (c >= 0xE000 && c <= 0x10FFFF);
 }
 
 // Returns true if 'str' is the start of a structurally valid UTF-8
 // sequence and is not a surrogate codepoint. Returns false if str.empty()
 // or if str.length() < UniLib::OneCharLen(str[0]). Otherwise, this function
 // will access 1-4 bytes of src, where n is UniLib::OneCharLen(src[0]).
+#ifdef INCLUDE_TENSORFLOW
 inline bool IsUTF8ValidCodepoint(StringPiece str) {
   char32 c;
   int consumed;
@@ -43,6 +44,7 @@ inline bool IsUTF8ValidCodepoint(StringPiece str) {
   return !str.empty() && isvalidcharntorune(str.data(), str.size(), &c, &consumed) &&
          IsValidCodepoint(c);
 }
+#endif
 
 // Returns the length (number of bytes) of the Unicode code point
 // starting at src, based on inspecting just that one byte. This

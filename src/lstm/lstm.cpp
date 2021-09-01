@@ -68,9 +68,9 @@ namespace tesseract {
 
 // Max absolute value of state_. It is reasonably high to enable the state
 // to count things.
-const double kStateClip = 100.0;
+const TFloat kStateClip = 100.0;
 // Max absolute value of gate_errors (the gradients).
-const double kErrClip = 1.0f;
+const TFloat kErrClip = 1.0f;
 
 // Calculate ceil(log2(n)).
 static inline uint32_t ceil_log2(uint32_t n) {
@@ -312,9 +312,9 @@ void LSTM::Forward(bool debug, const NetworkIO &input, const TransposedArray *in
   // Single timestep buffers for the current/recurrent output and state.
   NetworkScratch::FloatVec curr_state, curr_output;
   curr_state.Init(ns_, scratch);
-  ZeroVector<double>(ns_, curr_state);
+  ZeroVector<TFloat>(ns_, curr_state);
   curr_output.Init(ns_, scratch);
-  ZeroVector<double>(ns_, curr_output);
+  ZeroVector<TFloat>(ns_, curr_output);
   // Rotating buffers of width buf_width allow storage of the state and output
   // for the other dimension, used only when working in true 2D mode. The width
   // is enough to hold an entire strip of the major direction.
@@ -325,9 +325,9 @@ void LSTM::Forward(bool debug, const NetworkIO &input, const TransposedArray *in
     outputs.resize(buf_width);
     for (int i = 0; i < buf_width; ++i) {
       states[i].Init(ns_, scratch);
-      ZeroVector<double>(ns_, states[i]);
+      ZeroVector<TFloat>(ns_, states[i]);
       outputs[i].Init(ns_, scratch);
-      ZeroVector<double>(ns_, outputs[i]);
+      ZeroVector<TFloat>(ns_, outputs[i]);
     }
   }
   // Used only if a softmax LSTM.
@@ -335,7 +335,7 @@ void LSTM::Forward(bool debug, const NetworkIO &input, const TransposedArray *in
   NetworkScratch::IO int_output;
   if (softmax_ != nullptr) {
     softmax_output.Init(no_, scratch);
-    ZeroVector<double>(no_, softmax_output);
+    ZeroVector<TFloat>(no_, softmax_output);
     int rounded_softmax_inputs = gate_weights_[CI].RoundInputs(ns_);
     if (input.int_mode()) {
       int_output.Resize2d(true, 1, rounded_softmax_inputs, scratch);
@@ -429,7 +429,7 @@ void LSTM::Forward(bool debug, const NetworkIO &input, const TransposedArray *in
       int8_t *which_fg_col = which_fg_[t];
       memset(which_fg_col, 1, ns_ * sizeof(which_fg_col[0]));
       if (valid_2d) {
-        const double *stepped_state = states[mod_t];
+        const TFloat *stepped_state = states[mod_t];
         for (int i = 0; i < ns_; ++i) {
           if (temp_lines[GF1][i] < temp_lines[GFS][i]) {
             curr_state[i] = temp_lines[GFS][i] * stepped_state[i];
@@ -440,7 +440,7 @@ void LSTM::Forward(bool debug, const NetworkIO &input, const TransposedArray *in
     }
     MultiplyAccumulate(ns_, temp_lines[CI], temp_lines[GI], curr_state);
     // Clip curr_state to a sane range.
-    ClipVector<double>(ns_, -kStateClip, kStateClip, curr_state);
+    ClipVector<TFloat>(ns_, -kStateClip, kStateClip, curr_state);
     if (IsTraining()) {
       // Save the gate node values.
       node_values_[CI].WriteTimeStep(t, temp_lines[CI]);
@@ -483,8 +483,8 @@ void LSTM::Forward(bool debug, const NetworkIO &input, const TransposedArray *in
     // Always zero the states at the end of every row, but only for the major
     // direction. The 2-D state remains intact.
     if (src_index.IsLast(FD_WIDTH)) {
-      ZeroVector<double>(ns_, curr_state);
-      ZeroVector<double>(ns_, curr_output);
+      ZeroVector<TFloat>(ns_, curr_state);
+      ZeroVector<TFloat>(ns_, curr_output);
     }
   } while (src_index.Increment());
 #if DEBUG_DETAIL > 0
@@ -520,8 +520,8 @@ bool LSTM::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scr
   NetworkScratch::FloatVec curr_stateerr, curr_sourceerr;
   curr_stateerr.Init(ns_, scratch);
   curr_sourceerr.Init(na_, scratch);
-  ZeroVector<double>(ns_, curr_stateerr);
-  ZeroVector<double>(na_, curr_sourceerr);
+  ZeroVector<TFloat>(ns_, curr_stateerr);
+  ZeroVector<TFloat>(na_, curr_sourceerr);
   // Errors in the gates.
   NetworkScratch::FloatVec gate_errors[WT_COUNT];
   for (auto &gate_error : gate_errors) {
@@ -537,8 +537,8 @@ bool LSTM::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scr
     for (int t = 0; t < buf_width; ++t) {
       stateerr[t].Init(ns_, scratch);
       sourceerr[t].Init(na_, scratch);
-      ZeroVector<double>(ns_, stateerr[t]);
-      ZeroVector<double>(na_, sourceerr[t]);
+      ZeroVector<TFloat>(ns_, stateerr[t]);
+      ZeroVector<TFloat>(na_, sourceerr[t]);
     }
   }
   // Parallel-generated sourceerr from each of the gates.
@@ -559,7 +559,7 @@ bool LSTM::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scr
     softmax_errors.Init(no_, scratch);
     softmax_errors_t.Init(no_, width, scratch);
   }
-  double state_clip = Is2D() ? 9.0 : 4.0;
+  TFloat state_clip = Is2D() ? 9.0 : 4.0;
 #if DEBUG_DETAIL > 1
   tprintf("fwd_deltas:%s\n", name_.c_str());
   fwd_deltas.Print(10);
@@ -594,8 +594,8 @@ bool LSTM::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scr
     int mod_t = Modulo(t, buf_width); // Current timestep.
     // Zero the state in the major direction only at the end of every row.
     if (at_last_x) {
-      ZeroVector<double>(na_, curr_sourceerr);
-      ZeroVector<double>(ns_, curr_stateerr);
+      ZeroVector<TFloat>(na_, curr_sourceerr);
+      ZeroVector<TFloat>(ns_, curr_stateerr);
     }
     // Setup the outputerr.
     if (type_ == NT_LSTM_SUMMARY) {
@@ -603,7 +603,7 @@ bool LSTM::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scr
         fwd_deltas.ReadTimeStep(src_index.t(), outputerr);
         src_index.Decrement();
       } else {
-        ZeroVector<double>(ns_, outputerr);
+        ZeroVector<TFloat>(ns_, outputerr);
       }
     } else if (softmax_ == nullptr) {
       fwd_deltas.ReadTimeStep(t, outputerr);
@@ -631,7 +631,7 @@ bool LSTM::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scr
       }
       if (down_pos >= 0) {
         const float *right_node_gfs = node_values_[GFS].f(down_pos);
-        const double *right_stateerr = stateerr[mod_t];
+        const TFloat *right_stateerr = stateerr[mod_t];
         for (int i = 0; i < ns_; ++i) {
           if (which_fg_[down_pos][i] == 2) {
             curr_stateerr[i] += right_stateerr[i] * right_node_gfs[i];
@@ -641,7 +641,7 @@ bool LSTM::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scr
     }
     state_.FuncMultiply3Add<HPrime>(node_values_[GO], t, outputerr, curr_stateerr);
     // Clip stateerr_ to a sane range.
-    ClipVector<double>(ns_, -state_clip, state_clip, curr_stateerr);
+    ClipVector<TFloat>(ns_, -state_clip, state_clip, curr_stateerr);
 #if DEBUG_DETAIL > 1
     if (t + 10 > width) {
       tprintf("t=%d, stateerr=", t);
@@ -758,7 +758,7 @@ void LSTM::Update(float learning_rate, float momentum, float adam_beta, int num_
 // Sums the products of weight updates in *this and other, splitting into
 // positive (same direction) in *same and negative (different direction) in
 // *changed.
-void LSTM::CountAlternators(const Network &other, double *same, double *changed) const {
+void LSTM::CountAlternators(const Network &other, TFloat *same, TFloat *changed) const {
   ASSERT_HOST(other.type() == type_);
   const LSTM *lstm = static_cast<const LSTM *>(&other);
   for (int w = 0; w < WT_COUNT; ++w) {
@@ -771,6 +771,8 @@ void LSTM::CountAlternators(const Network &other, double *same, double *changed)
     softmax_->CountAlternators(*lstm->softmax_, same, changed);
   }
 }
+
+#if DEBUG_DETAIL > 3
 
 // Prints the weights for debug purposes.
 void LSTM::PrintW() {
@@ -833,6 +835,8 @@ void LSTM::PrintDW() {
     tprintf("\n");
   }
 }
+
+#endif
 
 // Resizes forward data to cope with an input image of the given width.
 void LSTM::ResizeForward(const NetworkIO &input) {

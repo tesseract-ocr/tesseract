@@ -80,10 +80,9 @@ private:
 
 ELISTIZEH(FPSEGPT)
 CLISTIZEH(FPSEGPT_LIST)
-extern INT_VAR_H(pitsync_linear_version, 0, "Use new fast algorithm");
-extern double_VAR_H(pitsync_joined_edge, 0.75, "Dist inside big blob for chopping");
-extern double_VAR_H(pitsync_offset_freecut_fraction, 0.25, "Fraction of cut for free cuts");
-extern INT_VAR_H(pitsync_fake_depth, 1, "Max advance fake generation");
+extern INT_VAR_H(pitsync_linear_version);
+extern double_VAR_H(pitsync_joined_edge);
+extern double_VAR_H(pitsync_offset_freecut_fraction);
 double check_pitch_sync(   // find segmentation
     BLOBNBOX_IT *blob_it,  // blobs to do
     int16_t blob_count,    // no of blobs

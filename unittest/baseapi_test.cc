@@ -19,8 +19,6 @@
 #include <tesseract/baseapi.h>
 
 #include <allheaders.h>
-#include "absl/strings/ascii.h"
-#include "absl/strings/str_cat.h"
 #include "gmock/gmock-matchers.h"
 
 #include <memory>
@@ -49,7 +47,7 @@ std::string GetCleanedTextResult(tesseract::TessBaseAPI *tess, Image pix) {
   char *result = tess->GetUTF8Text();
   std::string ocr_result = result;
   delete[] result;
-  absl::StripAsciiWhitespace(&ocr_result);
+  trim(ocr_result);
   return ocr_result;
 }
 
@@ -64,6 +62,12 @@ protected:
   }
 };
 
+// Test static TessBaseAPI (like it is used by tesserocr).
+TEST_F(TesseractTest, StaticTessBaseAPI) {
+  static tesseract::TessBaseAPI api;
+  api.End();
+}
+
 // Tests that Tesseract gets exactly the right answer on phototest.
 TEST_F(TesseractTest, BasicTesseractTest) {
   tesseract::TessBaseAPI api;
@@ -75,7 +79,7 @@ TEST_F(TesseractTest, BasicTesseractTest) {
     ocr_text = GetCleanedTextResult(&api, src_pix);
     CHECK_OK(
         file::GetContents(TestDataNameToPath("phototest.gold.txt"), &truth_text, file::Defaults()));
-    absl::StripAsciiWhitespace(&truth_text);
+    trim(truth_text);
     EXPECT_STREQ(truth_text.c_str(), ocr_text.c_str());
     src_pix.destroy();
   } else {
@@ -196,7 +200,7 @@ TEST_F(TesseractTest, AdaptToWordStrTest) {
     Image src_pix = pixRead(TestDataNameToPath(kTestPages[i]).c_str());
     CHECK(src_pix);
     ocr_text = GetCleanedTextResult(&api, src_pix);
-    absl::StripAsciiWhitespace(&truth_text);
+    trim(truth_text);
     EXPECT_STREQ(kTestText[i], ocr_text.c_str());
     src_pix.destroy();
   }
@@ -218,7 +222,7 @@ TEST_F(TesseractTest, BasicLSTMTest) {
   ocr_text = GetCleanedTextResult(&api, src_pix);
   CHECK_OK(
       file::GetContents(TestDataNameToPath("phototest.gold.txt"), &truth_text, file::Defaults()));
-  absl::StripAsciiWhitespace(&truth_text);
+  trim(truth_text);
   EXPECT_STREQ(truth_text.c_str(), ocr_text.c_str());
   src_pix.destroy();
 }
@@ -317,7 +321,9 @@ TEST(TesseractInstanceTest, TestMultipleTessInstances) {
   // Preload images and verify that OCR is correct on them individually.
   std::vector<Image > pix(num_langs);
   for (int i = 0; i < num_langs; ++i) {
-    SCOPED_TRACE(absl::StrCat("Single instance test with lang = ", langs[i]));
+    std::string tracestring = "Single instance test with lang = ";
+    tracestring += langs[i];
+    SCOPED_TRACE(tracestring);
     std::string path = file::JoinPath(TESTING_DIR, image_files[i]);
     pix[i] = pixRead(path.c_str());
     QCHECK(pix[i] != nullptr) << "Could not read " << path;

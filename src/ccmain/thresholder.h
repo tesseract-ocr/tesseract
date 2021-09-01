@@ -119,7 +119,7 @@ public:
   /// Creates a Pix and sets pix to point to the resulting pointer.
   /// Caller must use pixDestroy to free the created Pix.
   /// Returns false on error.
-  virtual bool ThresholdToPix(PageSegMode pageseg_mode, Image *pix);
+  virtual bool ThresholdToPix(Image *pix);
 
   virtual std::tuple<bool, Image, Image, Image> Threshold(
                                                           ThresholdMethod method);

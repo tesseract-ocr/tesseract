@@ -682,6 +682,7 @@ bool ShapeTable::CommonFont(int shape_id1, int shape_id2) const {
 // If not nullptr, shape_map is set to map other shape_ids to this's shape_ids.
 void ShapeTable::AppendMasterShapes(const ShapeTable &other, std::vector<int> *shape_map) {
   if (shape_map != nullptr) {
+    shape_map->clear();
     shape_map->resize(other.NumShapes(), -1);
   }
   for (int s = 0; s < other.shape_table_.size(); ++s) {

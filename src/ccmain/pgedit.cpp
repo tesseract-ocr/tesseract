@@ -122,13 +122,6 @@ INT_VAR(editor_image_ypos, 10, "Editor image Y Pos");
 static INT_VAR(editor_image_menuheight, 50, "Add to image height for menu bar");
 INT_VAR(editor_image_word_bb_color, ScrollView::BLUE, "Word bounding box colour");
 INT_VAR(editor_image_blob_bb_color, ScrollView::YELLOW, "Blob bounding box colour");
-INT_VAR(editor_image_text_color, ScrollView::WHITE, "Correct text colour");
-
-STRING_VAR(editor_dbwin_name, "EditorDBWin", "Editor debug window name");
-INT_VAR(editor_dbwin_xpos, 50, "Editor debug window X Pos");
-INT_VAR(editor_dbwin_ypos, 500, "Editor debug window Y Pos");
-INT_VAR(editor_dbwin_height, 24, "Editor debug window height");
-INT_VAR(editor_dbwin_width, 80, "Editor debug window width");
 
 STRING_VAR(editor_word_name, "BlnWords", "BL normalized word window");
 INT_VAR(editor_word_xpos, 60, "Word window X Pos");

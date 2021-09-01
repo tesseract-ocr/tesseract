@@ -20,6 +20,7 @@
 
 #include "network.h"
 #include "networkscratch.h"
+#include "tesstypes.h"
 
 namespace tesseract {
 
@@ -90,17 +91,17 @@ public:
                NetworkScratch *scratch, NetworkIO *output) override;
   // Components of Forward so FullyConnected can be reused inside LSTM.
   void SetupForward(const NetworkIO &input, const TransposedArray *input_transpose);
-  void ForwardTimeStep(int t, double *output_line);
-  void ForwardTimeStep(const double *d_input, int t, double *output_line);
-  void ForwardTimeStep(const int8_t *i_input, int t, double *output_line);
+  void ForwardTimeStep(int t, TFloat *output_line);
+  void ForwardTimeStep(const TFloat *d_input, int t, TFloat *output_line);
+  void ForwardTimeStep(const int8_t *i_input, int t, TFloat *output_line);
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
   bool Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
                 NetworkIO *back_deltas) override;
   // Components of Backward so FullyConnected can be reused inside LSTM.
-  void BackwardTimeStep(const NetworkIO &fwd_deltas, int t, double *curr_errors,
-                        TransposedArray *errors_t, double *backprop);
+  void BackwardTimeStep(const NetworkIO &fwd_deltas, int t, TFloat *curr_errors,
+                        TransposedArray *errors_t, TFloat *backprop);
   void FinishBackward(const TransposedArray &errors_t);
 
   // Updates the weights using the given learning rate, momentum and adam_beta.
@@ -109,7 +110,7 @@ public:
   // Sums the products of weight updates in *this and other, splitting into
   // positive (same direction) in *same and negative (different direction) in
   // *changed.
-  void CountAlternators(const Network &other, double *same, double *changed) const override;
+  void CountAlternators(const Network &other, TFloat *same, TFloat *changed) const override;
 
 protected:
   // Weight arrays of size [no, ni + 1].

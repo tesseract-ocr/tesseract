@@ -91,7 +91,7 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET &encoder_set, TFile *ambi
 
   // Determine the version of the ambigs file.
   int version = 0;
-  ASSERT_HOST(ambig_file->FGets(buffer, kBufferSize) != nullptr && strlen(buffer) > 0);
+  ASSERT_HOST(ambig_file->FGets(buffer, kBufferSize) != nullptr && buffer[0] != '\0');
   if (*buffer == 'v') {
     version = static_cast<int>(strtol(buffer + 1, nullptr, 10));
     ++line_num;

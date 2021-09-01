@@ -40,10 +40,10 @@ private:
 
 /*-----------------------------*/
 
-extern BOOL_VAR_H(gapmap_debug, false, "Say which blocks have tables");
-extern BOOL_VAR_H(gapmap_use_ends, false, "Use large space at start and end of rows");
-extern BOOL_VAR_H(gapmap_no_isolated_quanta, false, "Ensure gaps not less than 2quanta wide");
-extern double_VAR_H(gapmap_big_gaps, 1.75, "xht multiplier");
+extern BOOL_VAR_H(gapmap_debug);
+extern BOOL_VAR_H(gapmap_use_ends);
+extern BOOL_VAR_H(gapmap_no_isolated_quanta);
+extern double_VAR_H(gapmap_big_gaps);
 
 } // namespace tesseract
 

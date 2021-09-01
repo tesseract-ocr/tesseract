@@ -12,7 +12,6 @@
 #include <allheaders.h>
 #include <string> // for std::string
 
-#include "absl/strings/str_format.h" // for absl::StrFormat
 #include "include_gunit.h"
 
 #include <tesseract/baseapi.h>
@@ -114,13 +113,12 @@ protected:
                    const char *message) {
     int value = projection_->EvaluateBox(box, denorm_, false);
     if (greater_or_equal != (value > target_value)) {
-      LOG(INFO) << absl::StrFormat(
-          "EvaluateBox too %s:%d vs %d for %s word '%s' at:", greater_or_equal ? "low" : "high",
-          value, target_value, message, text);
+      LOG(INFO) << "EvaluateBox too " << (greater_or_equal ? "low" : "high")
+        << ":" << value << " vs " << target_value << " for " << message << " word '" << text << "' at:";
       box.print();
       value = projection_->EvaluateBox(box, denorm_, true);
     } else {
-      LOG(INFO) << absl::StrFormat("EvaluateBox OK(%d) for %s word '%s'", value, message, text);
+      LOG(INFO) << "EvaluateBox OK(" << value << ") for " << message << " word '" << text << "'";
     }
     if (greater_or_equal) {
       EXPECT_GE(value, target_value);
@@ -136,14 +134,14 @@ protected:
     int true_dist = projection_->DistanceOfBoxFromBox(box, true_box, true, denorm_, false);
     int false_dist = projection_->DistanceOfBoxFromBox(box, false_box, true, denorm_, false);
     if (false_dist <= true_dist) {
-      LOG(INFO) << absl::StrFormat("Distance wrong:%d vs %d for %s word '%s' at:", false_dist,
-                                   true_dist, message, text);
+      LOG(INFO) << "Distance wrong:" << false_dist << " vs " << true_dist
+        << " for " << message << " word '" << text << "' at:";
       true_box.print();
       projection_->DistanceOfBoxFromBox(box, true_box, true, denorm_, true);
       projection_->DistanceOfBoxFromBox(box, false_box, true, denorm_, true);
     } else {
-      LOG(INFO) << absl::StrFormat("Distance OK(%d vs %d) for %s word '%s'", false_dist, true_dist,
-                                   message, text);
+      LOG(INFO) << "Distance OK(" << false_dist << " vs " << true_dist
+        << ") for " << message << " word '" << text << "'";
     }
   }
 

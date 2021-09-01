@@ -200,13 +200,16 @@ void LSTMTrainer::InitIterations() {
   worst_error_rate_ = 0.0;
   worst_iteration_ = 0;
   stall_iteration_ = kMinStallIterations;
+  best_error_history_.clear();
+  best_error_iterations_.clear();
   improvement_steps_ = kMinStallIterations;
   perfect_delay_ = 0;
   last_perfect_training_iteration_ = 0;
   for (int i = 0; i < ET_COUNT; ++i) {
     best_error_rates_[i] = 100.0;
     worst_error_rates_[i] = 0.0;
-    error_buffers_[i].resize(kRollingBufferSize_, 0.0);
+    error_buffers_[i].clear();
+    error_buffers_[i].resize(kRollingBufferSize_);
     error_rates_[i] = 100.0;
   }
   error_rate_of_last_saved_best_ = kMinStartedErrorRate;
@@ -658,7 +661,7 @@ void LSTMTrainer::ReduceLearningRates(LSTMTrainer *samples_trainer, std::string 
 // Even if it looks like all weights should remain the same, an adjustment
 // will be made to guarantee a different result when reverting to an old best.
 // Returns the number of layer learning rates that were reduced.
-int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
+int LSTMTrainer::ReduceLayerLearningRates(TFloat factor, int num_samples,
                                           LSTMTrainer *samples_trainer) {
   enum WhichWay {
     LR_DOWN, // Learning rate will go down by factor.
@@ -667,15 +670,14 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
   };
   std::vector<std::string> layers = EnumerateLayers();
   int num_layers = layers.size();
-  std::vector<int> num_weights;
-  num_weights.resize(num_layers, 0);
-  std::vector<double> bad_sums[LR_COUNT];
-  std::vector<double> ok_sums[LR_COUNT];
+  std::vector<int> num_weights(num_layers);
+  std::vector<TFloat> bad_sums[LR_COUNT];
+  std::vector<TFloat> ok_sums[LR_COUNT];
   for (int i = 0; i < LR_COUNT; ++i) {
     bad_sums[i].resize(num_layers, 0.0);
     ok_sums[i].resize(num_layers, 0.0);
   }
-  double momentum_factor = 1.0 / (1.0 - momentum_);
+  auto momentum_factor = 1 / (1 - momentum_);
   std::vector<char> orig_trainer;
   samples_trainer->SaveTrainingDump(LIGHT, *this, &orig_trainer);
   for (int i = 0; i < num_layers; ++i) {
@@ -687,7 +689,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
     // Which way will we modify the learning rate?
     for (int ww = 0; ww < LR_COUNT; ++ww) {
       // Transfer momentum to learning rate and adjust by the ww factor.
-      float ww_factor = momentum_factor;
+      auto ww_factor = momentum_factor;
       if (ww == LR_DOWN) {
         ww_factor *= factor;
       }
@@ -746,10 +748,10 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
     }
     Network *layer = GetLayer(layers[i]);
     float lr = GetLayerLearningRate(layers[i]);
-    double total_down = bad_sums[LR_DOWN][i] + ok_sums[LR_DOWN][i];
-    double total_same = bad_sums[LR_SAME][i] + ok_sums[LR_SAME][i];
-    double frac_down = bad_sums[LR_DOWN][i] / total_down;
-    double frac_same = bad_sums[LR_SAME][i] / total_same;
+    TFloat total_down = bad_sums[LR_DOWN][i] + ok_sums[LR_DOWN][i];
+    TFloat total_same = bad_sums[LR_SAME][i] + ok_sums[LR_SAME][i];
+    TFloat frac_down = bad_sums[LR_DOWN][i] / total_down;
+    TFloat frac_same = bad_sums[LR_SAME][i] / total_same;
     tprintf("Layer %d=%s: lr %g->%g%%, lr %g->%g%%", i, layer->name().c_str(), lr * factor,
             100.0 * frac_down, lr, 100.0 * frac_same);
     if (frac_down < frac_same * kImprovementFraction) {
@@ -1261,8 +1263,7 @@ double LSTMTrainer::ComputeWinnerError(const NetworkIO &deltas) {
 // Computes a very simple bag of chars char error rate.
 double LSTMTrainer::ComputeCharError(const std::vector<int> &truth_str,
                                      const std::vector<int> &ocr_str) {
-  std::vector<int> label_counts;
-  label_counts.resize(NumOutputs(), 0);
+  std::vector<int> label_counts(NumOutputs());
   int truth_size = 0;
   for (auto ch : truth_str) {
     if (ch != null_char_) {

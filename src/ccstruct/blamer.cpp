@@ -311,7 +311,6 @@ void BlamerBundle::SetChopperBlame(const WERD_RES *word, bool debug) {
   if (NoTruth() || !truth_has_char_boxes_ || word->chopped_word->blobs.empty()) {
     return;
   }
-  std::string debug_str;
   bool missing_chop = false;
   int num_blobs = word->chopped_word->blobs.size();
   int box_index = 0;
@@ -442,7 +441,7 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD *word, bool debug) {
   }
   if (blob_index < num_blobs || // trailing blobs
       correct_segmentation_cols_.size() != norm_truth_word_.length()) {
-    debug_str += 
+    debug_str +=
         "Blamer failed to find correct segmentation"
         " (tolerance=" +
         std::to_string(norm_box_tolerance_);

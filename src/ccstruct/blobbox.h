@@ -740,8 +740,11 @@ public:
     TO_ROW_IT row_it = &row_list;
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
       auto row = row_it.data();
-      tprintf("Row range (%g,%g), para_c=%g, blobcount=%" PRId32 "\n", row->min_y(), row->max_y(),
-              row->parallel_c(), row->blob_list()->length());
+      tprintf("Row range (%g,%g), para_c=%g, blobcount=%" PRId32 "\n",
+              static_cast<double>(row->min_y()),
+              static_cast<double>(row->max_y()),
+              static_cast<double>(row->parallel_c()),
+              row->blob_list()->length());
     }
   }
 
@@ -803,7 +806,6 @@ private:
 };
 
 ELISTIZEH(TO_BLOCK)
-extern double_VAR_H(textord_error_weight, 3, "Weighting for error in believability");
 void find_cblob_limits( // get y limits
     C_BLOB *blob,       // blob to search
     float leftx,        // x limits

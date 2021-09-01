@@ -529,9 +529,9 @@ int NetworkIO::PositionOfBestMatch(const std::vector<int> &labels, int start, in
   int length = labels.size();
   int last_start = end - length;
   int best_start = -1;
-  double best_score = 0.0;
+  TFloat best_score = 0;
   for (int s = start; s <= last_start; ++s) {
-    double score = ScoreOfLabels(labels, s);
+    TFloat score = ScoreOfLabels(labels, s);
     if (score > best_score || best_start < 0) {
       best_score = score;
       best_start = s;
@@ -542,9 +542,9 @@ int NetworkIO::PositionOfBestMatch(const std::vector<int> &labels, int start, in
 
 // Returns the cumulative score of the given labels starting at start, and
 // using one label per time-step.
-double NetworkIO::ScoreOfLabels(const std::vector<int> &labels, int start) const {
+TFloat NetworkIO::ScoreOfLabels(const std::vector<int> &labels, int start) const {
   int length = labels.size();
-  double score = 0.0;
+  TFloat score = 0;
   for (int i = 0; i < length; ++i) {
     score += f_(start + i, labels[i]);
   }
@@ -615,27 +615,27 @@ bool NetworkIO::AnySuspiciousTruth(float confidence_thr) const {
 }
 
 // Reads a single timestep to floats in the range [-1, 1].
-void NetworkIO::ReadTimeStep(int t, double *output) const {
+void NetworkIO::ReadTimeStep(int t, TFloat *output) const {
   if (int_mode_) {
     const int8_t *line = i_[t];
     for (int i = 0; i < i_.dim2(); ++i) {
-      output[i] = static_cast<double>(line[i]) / INT8_MAX;
+      output[i] = static_cast<TFloat>(line[i]) / INT8_MAX;
     }
   } else {
     const float *line = f_[t];
     for (int i = 0; i < f_.dim2(); ++i) {
-      output[i] = static_cast<double>(line[i]);
+      output[i] = static_cast<TFloat>(line[i]);
     }
   }
 }
 
 // Adds a single timestep to floats.
-void NetworkIO::AddTimeStep(int t, double *inout) const {
+void NetworkIO::AddTimeStep(int t, TFloat *inout) const {
   int num_features = NumFeatures();
   if (int_mode_) {
     const int8_t *line = i_[t];
     for (int i = 0; i < num_features; ++i) {
-      inout[i] += static_cast<double>(line[i]) / INT8_MAX;
+      inout[i] += static_cast<TFloat>(line[i]) / INT8_MAX;
     }
   } else {
     const float *line = f_[t];
@@ -661,13 +661,13 @@ void NetworkIO::AddTimeStepPart(int t, int offset, int num_features, float *inou
 }
 
 // Writes a single timestep from floats in the range [-1, 1].
-void NetworkIO::WriteTimeStep(int t, const double *input) {
+void NetworkIO::WriteTimeStep(int t, const TFloat *input) {
   WriteTimeStepPart(t, 0, NumFeatures(), input);
 }
 
 // Writes a single timestep from floats in the range [-1, 1] writing only
 // num_features elements of input to (*this)[t], starting at offset.
-void NetworkIO::WriteTimeStepPart(int t, int offset, int num_features, const double *input) {
+void NetworkIO::WriteTimeStepPart(int t, int offset, int num_features, const TFloat *input) {
   if (int_mode_) {
     int8_t *line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {

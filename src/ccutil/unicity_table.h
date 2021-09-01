@@ -37,14 +37,20 @@ template <typename T>
 class UnicityTable {
 public:
   /// Clear the structures and deallocate internal structures.
-  ~UnicityTable();
+  ~UnicityTable() {
+    clear();
+  }
 
   /// Reserve some memory. If there is size or more elements, the table will
   /// then allocate size * 2 elements.
-  void reserve(int size);
+  void reserve(int size) {
+    table_.reserve(size);
+  }
 
   /// Return the size used.
-  int size() const;
+  int size() const  {
+    return table_.size();
+  }
 
   /// Return the object from an id.
   const T &at(int id) const {
@@ -59,16 +65,29 @@ public:
   /// Return the id of the T object.
   /// This method NEEDS a compare_callback to be passed to
   /// set_compare_callback.
-  int get_id(T object) const;
+  int get_index(T object) const {
+    return table_.get_index(object);
+  }
 
   /// Return true if T is in the table
-  bool contains(T object) const;
+  bool contains(T object) const {
+    return get_index(object) != -1;
+  }
 
   /// Return true if the id is valid
-  T contains_id(int id) const;
+  T contains_id(int id) const  {
+    return table_.contains_index(id);
+  }
 
   /// Add an element in the table
-  int push_back(T object);
+  int push_back(T object)  {
+    auto idx = get_index(object);
+    if (idx == -1) {
+      table_.push_back(object);
+      idx = size();
+    }
+    return idx;
+  }
 
   /// Add a callback to be called to delete the elements when the table took
   /// their ownership.
@@ -80,11 +99,15 @@ public:
   /// All the owned Callbacks are also deleted.
   /// If you don't want the Callbacks to be deleted, before calling clear, set
   /// the callback to nullptr.
-  void clear();
+  void clear()  {
+    table_.clear();
+  }
 
   /// This method clear the current object, then, does a shallow copy of
   /// its argument, and finally invalidate its argument.
-  void move(UnicityTable<T> *from);
+  void move(UnicityTable<T> *from) {
+    table_.move(&from->table_);
+  }
 
   /// Read/Write the table to a file. This does _NOT_ read/write the callbacks.
   /// The Callback given must be permanent since they will be called more than
@@ -100,65 +123,6 @@ public:
 private:
   GenericVector<T> table_;
 };
-
-template <typename T>
-UnicityTable<T>::~UnicityTable() {
-  clear();
-}
-
-template <typename T>
-int UnicityTable<T>::size() const {
-  return table_.size();
-}
-
-// Reserve some memory. If there is size or more elements, the table will
-// then allocate size * 2 elements.
-template <typename T>
-void UnicityTable<T>::reserve(int size) {
-  table_.reserve(size);
-}
-
-// Return true if the id is valid
-template <typename T>
-T UnicityTable<T>::contains_id(int id) const {
-  return table_.contains_index(id);
-}
-
-// Return the id of the T object.
-template <typename T>
-int UnicityTable<T>::get_id(T object) const {
-  return table_.get_index(object);
-}
-
-// Return true if T is in the table
-template <typename T>
-bool UnicityTable<T>::contains(T object) const {
-  return get_id(object) != -1;
-}
-
-// Add an element in the table
-template <typename T>
-int UnicityTable<T>::push_back(T object) {
-  int idx = get_id(object);
-  if (idx == -1) {
-    table_.push_back(object);
-    idx = size();
-  }
-  return idx;
-}
-
-// Clear the table, calling the callback function if any.
-template <typename T>
-void UnicityTable<T>::clear() {
-  table_.clear();
-}
-
-// This method clear the current object, then, does a shallow copy of
-// its argument, and finally invalidate its argument.
-template <typename T>
-void UnicityTable<T>::move(UnicityTable<T> *from) {
-  table_.move(&from->table_);
-}
 
 } // namespace tesseract
 

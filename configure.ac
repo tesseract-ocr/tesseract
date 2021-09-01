@@ -29,7 +29,7 @@ AM_INIT_AUTOMAKE([foreign subdir-objects])
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 PACKAGE_YEAR=2021
-PACKAGE_DATE="04/01"
+PACKAGE_DATE="08/15"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 
@@ -186,6 +186,8 @@ esac
 
 AX_CHECK_COMPILE_FLAG([-march=native], [arch_native=true], [arch_native=false], [$WERROR])
 AM_CONDITIONAL([MARCH_NATIVE_OPT], $arch_native)
+AX_CHECK_COMPILE_FLAG([-fopenmp-simd], [openmp_simd=true], [openmp_simd=false], [$WERROR])
+AM_CONDITIONAL([OPENMP_SIMD], $openmp_simd)
 
 AC_ARG_WITH([extra-includes],
             [AS_HELP_STRING([--with-extra-includes=DIR],
@@ -204,6 +206,14 @@ AC_ARG_WITH([extra-libraries],
              else
                AC_MSG_ERROR([Cannot stat directory $withval])
              fi])
+
+AC_MSG_CHECKING([--enable-float32 argument])
+AC_ARG_ENABLE([float32],
+  AS_HELP_STRING([--enable-float32], [enable float for LSTM [default=no]]))
+AC_MSG_RESULT([$enable_float32])
+if test "$enable_float32" = "yes"; then
+  AC_DEFINE([FAST_FLOAT], [1], [Enable float for LSTM])
+fi
 
 AC_MSG_CHECKING([--enable-graphics argument])
 AC_ARG_ENABLE([graphics],
@@ -284,7 +294,7 @@ m4_define([MY_CHECK_FRAMEWORK],
     ])
    if test "$my_cv_framework_$1"="yes"; then
      AC_DEFINE(AS_TR_CPP([HAVE_FRAMEWORK_$1]), 1,
-            [Define if you have the  $1 framework])
+            [Define if you have the $1 framework])
      AS_TR_CPP([FRAMEWORK_$1])="-framework $1"
      AC_SUBST(AS_TR_CPP([FRAMEWORK_$1]))
    fi]
@@ -295,13 +305,14 @@ OPENCL_CPPFLAGS=''
 OPENCL_LDFLAGS=''
 case "${host_os}" in
   *darwin* | *-macos10*)
-    echo "checking for OpenCL framework"
-    MY_CHECK_FRAMEWORK([OpenCL])
-    if test $my_cv_framework_OpenCL = yes; then
-       have_opencl_lib=true
+    MY_CHECK_FRAMEWORK([Accelerate])
+    if test $my_cv_framework_Accelerate = yes; then
+      AM_CPPFLAGS="-DHAVE_FRAMEWORK_ACCELERATE $AM_CPPFLAGS"
+      LDFLAGS="$LDFLAGS -framework Accelerate"
     fi
+    MY_CHECK_FRAMEWORK([OpenCL])
     if test "$enable_opencl" = "yes"; then
-      if !($have_opencl_lib); then
+      if test $my_cv_framework_OpenCL = no; then
         AC_MSG_ERROR([Required OpenCL library not found!])
       fi
       AM_CPPFLAGS="-DUSE_OPENCL $AM_CPPFLAGS"
@@ -529,9 +540,9 @@ if !($have_icu_uc && $have_icu_i18n); then
 fi
 
 # Check location of pango headers
-PKG_CHECK_MODULES([pango], [pango >= 1.22.0], [have_pango=true], [have_pango=false])
+PKG_CHECK_MODULES([pango], [pango >= 1.38.0], [have_pango=true], [have_pango=false])
 if !($have_pango); then
-        AC_MSG_WARN([pango 1.22.0 or higher is required, but was not found.])
+        AC_MSG_WARN([pango 1.38.0 or higher is required, but was not found.])
         AC_MSG_WARN([Training tools WILL NOT be built.])
         AC_MSG_WARN([Try to install libpango1.0-dev package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)

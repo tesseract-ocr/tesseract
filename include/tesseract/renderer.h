@@ -141,12 +141,12 @@ protected:
   void AppendData(const char *s, int len);
 
 private:
+  TessResultRenderer *next_; // Can link multiple renderers together
+  FILE *fout_;               // output file pointer
   const char *file_extension_; // standard extension for generated output
   std::string title_;          // title of document being rendered
   int imagenum_;               // index of last image added
 
-  FILE *fout_;               // output file pointer
-  TessResultRenderer *next_; // Can link multiple renderers together
   bool happy_;               // I get grumpy when the disk fills up, etc.
 };
 
@@ -189,6 +189,9 @@ protected:
   bool BeginDocumentHandler() override;
   bool AddImageHandler(TessBaseAPI *api) override;
   bool EndDocumentHandler() override;
+
+private:
+  bool begin_document;
 };
 
 /**

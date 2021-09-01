@@ -34,9 +34,9 @@ struct TESSLINE;
 extern ScrollView *blob_window;        // Window for blobs
 extern ScrollView::Color color_list[]; // Colors for outlines
 
-extern BOOL_VAR_H(wordrec_display_all_blobs, 0, "Display Blobs");
+extern BOOL_VAR_H(wordrec_display_all_blobs);
 
-extern BOOL_VAR_H(wordrec_blob_pause, 0, "Blob pause");
+extern BOOL_VAR_H(wordrec_blob_pause);
 
 #define NUM_COLORS 6
 

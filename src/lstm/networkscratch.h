@@ -140,14 +140,14 @@ public:
       }
     }
 
-    void Init(int size, int reserve, NetworkScratch *scratch) {
+    void Init(int /*size*/, int reserve, NetworkScratch *scratch) {
       if (scratch_space_ != nullptr && vec_ != nullptr) {
         scratch_space_->vec_stack_.Return(vec_);
       }
       scratch_space_ = scratch;
       vec_ = scratch_space_->vec_stack_.Borrow();
-      vec_->reserve(reserve);
-      vec_->resize(size);
+      // TODO: optimize.
+      vec_->resize(reserve);
       data_ = &(*vec_)[0];
     }
 
@@ -156,25 +156,25 @@ public:
     }
 
     // Use the cast operator instead of operator[] so the FloatVec can be used
-    // as a double* argument to a function call.
-    operator double *() const {
+    // as a TFloat* argument to a function call.
+    operator TFloat *() const {
       return data_;
     }
-    double *get() {
+    TFloat *get() {
       return data_;
     }
 
   private:
     // Vector borrowed from the scratch space. Use Return to free it.
-    std::vector<double> *vec_;
+    std::vector<TFloat> *vec_;
     // Short-cut pointer to the underlying array.
-    double *data_;
+    TFloat *data_;
     // The source scratch_space_. Borrowed pointer, used to free the
     // vector. Don't delete!
     NetworkScratch *scratch_space_;
   }; // class FloatVec
 
-  // Class that acts like a 2-D array of double, yet actually uses space
+  // Class that acts like a 2-D array of TFloat, yet actually uses space
   // from the source NetworkScratch, and knows how to unstack the borrowed
   // array on destruction.
   class GradientStore {
@@ -270,7 +270,7 @@ private:
   // deleted until the NetworkScratch is deleted.
   Stack<NetworkIO> int_stack_;
   Stack<NetworkIO> float_stack_;
-  Stack<std::vector<double>> vec_stack_;
+  Stack<std::vector<TFloat>> vec_stack_;
   Stack<TransposedArray> array_stack_;
 };
 

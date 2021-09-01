@@ -24,13 +24,13 @@
 #include <cstdlib>
 
 #define INT_PARAM_FLAG(name, val, comment) INT_VAR(FLAGS_##name, val, comment)
-#define DECLARE_INT_PARAM_FLAG(name) extern INT_VAR_H(FLAGS_##name, 0, "")
+#define DECLARE_INT_PARAM_FLAG(name) extern INT_VAR_H(FLAGS_##name)
 #define DOUBLE_PARAM_FLAG(name, val, comment) double_VAR(FLAGS_##name, val, comment)
-#define DECLARE_DOUBLE_PARAM_FLAG(name) extern double_VAR_H(FLAGS_##name, "", "")
+#define DECLARE_DOUBLE_PARAM_FLAG(name) extern double_VAR_H(FLAGS_##name)
 #define BOOL_PARAM_FLAG(name, val, comment) BOOL_VAR(FLAGS_##name, val, comment)
-#define DECLARE_BOOL_PARAM_FLAG(name) extern BOOL_VAR_H(FLAGS_##name, 0, "")
+#define DECLARE_BOOL_PARAM_FLAG(name) extern BOOL_VAR_H(FLAGS_##name)
 #define STRING_PARAM_FLAG(name, val, comment) STRING_VAR(FLAGS_##name, val, comment)
-#define DECLARE_STRING_PARAM_FLAG(name) extern STRING_VAR_H(FLAGS_##name, "", "")
+#define DECLARE_STRING_PARAM_FLAG(name) extern STRING_VAR_H(FLAGS_##name)
 
 namespace tesseract {
 

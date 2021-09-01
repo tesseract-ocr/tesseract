@@ -202,13 +202,13 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
   auto pix_grey = GetPixRectGrey();
 
   int r;
-  if (method == ThresholdMethod::TiledSauvola) {
-    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, pix_thresholds,
-                                pix_binary);
+  if (method == ThresholdMethod::Sauvola) {
+    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, (PIX**)pix_thresholds,
+                                (PIX**)pix_binary);
   } else {
     // AdaptiveOtsu.
     r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1,
-                                 pix_thresholds, pix_binary);
+                                 (PIX**)pix_thresholds, (PIX**)pix_binary);
   }
 
   bool ok = (r == 0);
@@ -219,7 +219,7 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
 // Creates a Pix and sets pix to point to the resulting pointer.
 // Caller must use pixDestroy to free the created Pix.
 /// Returns false on error.
-bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Image *pix) {
+bool ImageThresholder::ThresholdToPix(Image *pix) {
   if (image_width_ > INT16_MAX || image_height_ > INT16_MAX) {
     tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
     return false;

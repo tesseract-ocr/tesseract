@@ -32,9 +32,6 @@
 #include "trainingsample.h"
 #include "unicharset.h"
 
-#include "absl/strings/numbers.h"   // for safe_strto32
-#include "absl/strings/str_split.h" // for absl::StrSplit
-
 #include <string>
 #include <utility>
 #include <vector>
@@ -268,7 +265,7 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
                                            shape_classifier.get(), &accuracy_report);
   LOG(INFO) << accuracy_report.c_str();
   std::string result_string = accuracy_report.c_str();
-  std::vector<std::string> results = absl::StrSplit(result_string, '\t', absl::SkipEmpty());
+  std::vector<std::string> results = split(result_string, '\t');
   EXPECT_EQ(tesseract::CT_SIZE + 1, results.size());
   int result_values[tesseract::CT_SIZE];
   for (int i = 0; i < tesseract::CT_SIZE; ++i) {

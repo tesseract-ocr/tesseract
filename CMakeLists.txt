@@ -85,6 +85,7 @@ option(OPENMP_BUILD "Build with openmp support" OFF)  # see issue #1662
 option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
 option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
 option(ENABLE_LTO "Enable link-time optimization" OFF)
+option(FAST_FLOAT "Enable float for LSTM" OFF)
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
 option(USE_SYSTEM_ICU "Use system ICU" OFF)
@@ -140,23 +141,11 @@ if(COMPILER_SUPPORTS_MARCH_NATIVE)
     set(MARCH_NATIVE_OPT ON)
 endif()
 
-# Flags for SIMD support
-set(HAVE_AVX FALSE)
-set(HAVE_AVX2 FALSE)
-set(HAVE_FMA FALSE)
-set(HAVE_SSE4_1 FALSE)
+message("CMAKE_SYSTEM_PROCESSOR=<${CMAKE_SYSTEM_PROCESSOR}>")
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64")
+
 set(HAVE_NEON FALSE)
-
-if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64.*|AARCH64.*")
- set(AARCH64 TRUE)
-endif()
-
-if(AARCH64)
-
-add_definitions("-DHAVE_NEON")
-set(HAVE_NEON TRUE)
-
-else()
 
 CHECK_CXX_COMPILER_FLAG("-mavx" HAVE_AVX)
 if(HAVE_AVX)
@@ -181,15 +170,6 @@ if(HAVE_SSE4_1)
     set(SSE4_1_COMPILE_FLAGS "-msse4.1")
     add_definitions("-DHAVE_SSE4_1")
 endif()
-
-if(NOT APPLE)
-    # NEON support relies on getauxval, which is not available on OSX, only on Linux and Android
-    CHECK_CXX_COMPILER_FLAG("-mfpu=neon" HAVE_NEON)
-    if(HAVE_NEON)
-        set(NEON_COMPILE_FLAGS "-mfpu=neon")
-        add_definitions("-DHAVE_NEON")
-    endif()
-endif(NOT APPLE)
 
 if(MSVC)
     if(NOT HAVE_AVX)
@@ -224,7 +204,30 @@ if(MSVC)
     endif(CLANG)
 endif(MSVC)
 
-endif(AARCH64)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64.*|AARCH64.*")
+
+set(HAVE_AVX FALSE)
+set(HAVE_AVX2 FALSE)
+set(HAVE_FMA FALSE)
+set(HAVE_SSE4_1 FALSE)
+
+add_definitions("-DHAVE_NEON")
+set(HAVE_NEON TRUE)
+
+else()
+
+set(HAVE_AVX FALSE)
+set(HAVE_AVX2 FALSE)
+set(HAVE_FMA FALSE)
+set(HAVE_SSE4_1 FALSE)
+
+CHECK_CXX_COMPILER_FLAG("-mfpu=neon" HAVE_NEON)
+if(HAVE_NEON)
+    set(NEON_COMPILE_FLAGS "-mfpu=neon")
+    add_definitions("-DHAVE_NEON")
+endif()
+
+endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64")
 
 # auto optimize - used only for information about available vectors
 include(OptimizeForArchitecture)
@@ -263,6 +266,9 @@ if(CLANG)  # clang all platforms
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG -pedantic -O0")
 endif()
 
+if (OPENMP_BUILD AND MSVC AND "${MSVC_VERSION}" LESS 1929)
+    set(OPENMP_BUILD OFF)
+endif()
 if (OPENMP_BUILD)
     find_package(OpenMP QUIET)
     if (OpenMP_FOUND)
@@ -286,6 +292,10 @@ if (OPENMP_BUILD)
         endif()
         set(OpenMP_FOUND 1)
         add_definitions(-D_OPENMP=201107)  # 3.1 version is supported from Clang 3.8.0
+    endif()
+    if (MSVC)
+        string(REPLACE "/openmp" "/openmp:llvm" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+        string(REPLACE "-openmp" "/openmp:llvm" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
     endif()
 endif()
 
@@ -425,6 +435,7 @@ message( STATUS "Link-time optimization: ${CMAKE_INTERPROCEDURAL_OPTIMIZATION}")
 message( STATUS "--------------------------------------------------------")
 message( STATUS "Build with sw [SW_BUILD]: ${SW_BUILD}")
 message( STATUS "Build with openmp support [OPENMP_BUILD]: ${OPENMP_BUILD}")
+message( STATUS "Enable float for LSTM [FAST_FLOAT]: ${FAST_FLOAT}")
 message( STATUS "Disable disable graphics (ScrollView) [GRAPHICS_DISABLED]: ${GRAPHICS_DISABLED}")
 message( STATUS "Disable the legacy OCR engine [DISABLED_LEGACY_ENGINE]: ${DISABLED_LEGACY_ENGINE}")
 message( STATUS "Build training tools [BUILD_TRAINING_TOOLS]: ${BUILD_TRAINING_TOOLS}")
@@ -498,7 +509,6 @@ if (DISABLED_LEGACY_ENGINE)
         src/ccutil/ambigs.cpp
         src/ccutil/bitvector.cpp
         src/ccutil/indexmapbidi.cpp
-        src/ccutil/universalambigs.cpp
         src/classify/adaptive.cpp
         src/classify/adaptmatch.cpp
         src/classify/blobclass.cpp
@@ -581,9 +591,9 @@ if(HAVE_SSE4_1)
                                 PROPERTIES COMPILE_FLAGS ${SSE4_1_COMPILE_FLAGS})
 endif(HAVE_SSE4_1)
 if(HAVE_NEON)
-   list(APPEND arch_files_opt src/arch/intsimdmatrixneon.cpp)
+   list(APPEND arch_files_opt src/arch/dotproductneon.cpp src/arch/intsimdmatrixneon.cpp)
    if(NEON_COMPILE_FLAGS)
-       set_source_files_properties(src/arch/intsimdmatrixneon.cpp
+       set_source_files_properties(src/arch/dotproductneon.cpp src/arch/intsimdmatrixneon.cpp
                                    PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
    endif()
 endif(HAVE_NEON)
@@ -685,7 +695,7 @@ endif()
 
 add_executable                  (tesseract src/api/tesseractmain.cpp)
 target_link_libraries           (tesseract libtesseract)
-if (HAVE_TIFFIO_H)
+if (WIN32 AND HAVE_TIFFIO_H)
     target_link_libraries(tesseract tiff)
 endif()
 
@@ -708,7 +718,7 @@ get_target_property(tesseract_VERSION libtesseract VERSION)
 get_target_property(tesseract_OUTPUT_NAME libtesseract OUTPUT_NAME)
 configure_file(tesseract.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc DESTINATION lib/pkgconfig)
-install(TARGETS tesseract RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+install(TARGETS tesseract DESTINATION bin)
 install(TARGETS libtesseract EXPORT TesseractTargets RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 install(EXPORT TesseractTargets NAMESPACE Tesseract:: DESTINATION lib/cmake/tesseract)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake DESTINATION lib)

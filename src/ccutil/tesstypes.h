@@ -1,4 +1,8 @@
 ///////////////////////////////////////////////////////////////////////
+// File:        tesstypes.h
+// Description: Simple data types used by Tesseract code.
+// Author:      Stefan Weil
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -10,51 +14,27 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-// Include automatically generated configuration file if running autoconf.
+#ifndef TESSERACT_TESSTYPES_H
+#define TESSERACT_TESSTYPES_H
+
 #ifdef HAVE_CONFIG_H
-#  include "config_auto.h"
+#  include "config_auto.h" // FAST_FLOAT
 #endif
 
-#include "image.h"
-
-#include <allheaders.h>
+#include <cstdint> // for int16_t
 
 namespace tesseract {
 
-Image Image::clone() const {
-  return pix_ ? pixClone(pix_) : nullptr;
-}
+// Image dimensions (width and height, coordinates).
+using TDimension = int16_t;
 
-Image Image::copy() const {
-  return pixCopy(nullptr, pix_);
-}
-
-void Image::destroy() {
-  pixDestroy(&pix_);
-}
-
-bool Image::isZero() const {
-  l_int32 r = 0;
-  pixZero(pix_, &r);
-  return r == 1;
-}
-
-Image Image::operator|(Image i) const {
-  return pixOr(nullptr, pix_, i);
-}
-
-Image &Image::operator|=(Image i) {
-  pixOr(pix_, pix_, i);
-  return *this;
-}
-
-Image Image::operator&(Image i) const {
-  return pixAnd(nullptr, pix_, i);
-}
-
-Image &Image::operator&=(Image i) {
-  pixAnd(pix_, pix_, i);
-  return *this;
-}
+// Floating point data type used for LSTM calculations.
+#if defined(FAST_FLOAT)
+using TFloat = float;
+#else
+using TFloat = double;
+#endif
 
 }
+
+#endif // TESSERACT_TESSTYPES_H

@@ -431,8 +431,7 @@ int16_t C_BLOB::EstimateBaselinePosition() {
     return bottom; // This is only for non-CJK blobs.
   }
   // Get the minimum y coordinate at each x-coordinate.
-  std::vector<int> y_mins;
-  y_mins.resize(width + 1, box.top());
+  std::vector<int> y_mins(width + 1, box.top());
   C_OUTLINE_IT it(&outlines);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     C_OUTLINE *outline = it.data();

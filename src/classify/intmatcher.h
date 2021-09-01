@@ -26,11 +26,9 @@ namespace tesseract {
 // but turned on/off on the language-by-language basis or depending
 // on particular properties of the corpus (e.g. when we expect the
 // images to have low exposure).
-extern BOOL_VAR_H(disable_character_fragments, false,
-                  "Do not include character fragments in the"
-                  " results of the classifier");
+extern BOOL_VAR_H(disable_character_fragments);
 
-extern INT_VAR_H(classify_integer_matcher_multiplier, 10, "Integer Matcher Multiplier  0-255:   ");
+extern INT_VAR_H(classify_integer_matcher_multiplier);
 
 struct UnicharRating;
 
