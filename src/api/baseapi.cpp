@@ -1142,7 +1142,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
   if (stdInput) {
     buf.assign((std::istreambuf_iterator<char>(std::cin)), (std::istreambuf_iterator<char>()));
     data = reinterpret_cast<const l_uint8 *>(buf.data());
-  } else if (strncmp(filename, "http:", 5) == 0 || strncmp(filename, "https:", 6) == 0) {
+  } else if (strstr(filename, "://") != nullptr) {
     // Get image or image list by URL.
 #ifdef HAVE_LIBCURL
     CURL *curl = curl_easy_init();
