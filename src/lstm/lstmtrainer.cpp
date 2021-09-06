@@ -132,6 +132,10 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char* filename,
   if (!(*file_reader_)(filename, &data)) return false;
   tprintf("Loaded file %s, unpacking...\n", filename);
   if (!checkpoint_reader_->Run(data, this)) return false;
+  if (IsIntMode()) {
+    tprintf("Error, %s is an integer (fast) model, cannot continue training\n", filename);
+    return false;
+  }
   StaticShape shape = network_->OutputShape(network_->InputShape());
   if (((old_traineddata == nullptr || *old_traineddata == '\0') &&
        network_->NumOutputs() == recoder_.code_range()) ||
