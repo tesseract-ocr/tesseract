@@ -92,7 +92,7 @@ jobs:
       run: |
            export "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig"
            cd test
-           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp -I/usr/local/include -L/usr/local/lib `pkg-config --cflags --libs tesseract lept ` -pthread -std=c++11
+           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp $(pkg-config --cflags --libs tesseract lept) -pthread -std=c++11 -framework accelerate
            ./basicapitest
 
     - name: Display Compiler Version
@@ -189,7 +189,7 @@ jobs:
       run: |
            export "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig"
            cd test
-           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp -I/opt/local/include -L/opt/local/lib -I/usr/local/include -L/usr/local/lib `pkg-config --cflags --libs tesseract lept ` -pthread -std=c++11
+           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp -I/opt/local/include -L/opt/local/lib $(pkg-config --cflags --libs tesseract lept) -pthread -std=c++11 -framework Accelerate
            ./basicapitest
 
     - name: Display Compiler Version
