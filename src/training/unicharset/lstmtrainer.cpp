@@ -105,6 +105,10 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char *filename, const char *old_tra
   if (!ReadTrainingDump(data, *this)) {
     return false;
   }
+  if (IsIntMode()) {
+    tprintf("Error, %s is an integer (fast) model, cannot continue training\n", filename);
+    return false;
+  }
   if (((old_traineddata == nullptr || *old_traineddata == '\0') &&
        network_->NumOutputs() == recoder_.code_range()) ||
       filename == old_traineddata) {
