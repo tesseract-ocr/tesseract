@@ -15,7 +15,7 @@ jobs:
         os: [windows-2019]
 
     steps:
-      - name: Checkout Tesseract Source (--head from master branch)
+      - name: Checkout Tesseract Source (--head from main branch)
         uses: actions/checkout@v2
         with:
           submodules: recursive
@@ -35,7 +35,7 @@ jobs:
         run: |
              vcpkg/vcpkg install leptonica:x64-windows
 
-      - name: Configure and Build Tesseract (--head from master branch) with cmake
+      - name: Configure and Build Tesseract (--head from main branch) with cmake
         run: |
              cmake . -B build -DCMAKE_BUILD_TYPE=Release -DSW_BUILD=OFF -DOPENMP_BUILD=OFF -DBUILD_TRAINING_TOOLS=OFF "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake"
              cmake --build build --config Release --target install

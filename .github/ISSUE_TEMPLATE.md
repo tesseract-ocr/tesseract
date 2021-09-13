@@ -1,4 +1,4 @@
-Before you submit an issue, please review [the guidelines for this repository](https://github.com/tesseract-ocr/tesseract/blob/master/CONTRIBUTING.md).
+Before you submit an issue, please review [the guidelines for this repository](https://github.com/tesseract-ocr/tesseract/blob/main/CONTRIBUTING.md).
 
 Please report an issue only for a BUG, not for asking questions.
 

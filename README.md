@@ -8,7 +8,7 @@
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/tesseract-ocr/tesseract.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesseract-ocr/tesseract/alerts)
 [![OSS-Fuzz](https://img.shields.io/badge/oss--fuzz-fuzzing-brightgreen)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=2&q=proj:tesseract-ocr)
 <br/>
-[![GitHub license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://raw.githubusercontent.com/tesseract-ocr/tesseract/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://raw.githubusercontent.com/tesseract-ocr/tesseract/main/LICENSE)
 [![Downloads](https://img.shields.io/badge/download-all%20releases-brightgreen.svg)](https://github.com/tesseract-ocr/tesseract/releases/)
 
 ## About
@@ -22,12 +22,12 @@ It also needs [traineddata](https://tesseract-ocr.github.io/tessdoc/Data-Files.h
 those from the tessdata repository.
 
 The lead developer is Ray Smith. The maintainer is Zdenko Podobny.
-For a list of contributors see [AUTHORS](https://github.com/tesseract-ocr/tesseract/blob/master/AUTHORS)
+For a list of contributors see [AUTHORS](https://github.com/tesseract-ocr/tesseract/blob/main/AUTHORS)
 and GitHub's log of [contributors](https://github.com/tesseract-ocr/tesseract/graphs/contributors).
 
 Tesseract has **unicode (UTF-8) support**, and can **recognize more than 100 languages** "out of the box".
 
-Tesseract supports **various output formats**: plain text, hOCR (HTML), PDF, invisible-text-only PDF, TSV. The master branch also has experimental support for ALTO (XML) output.
+Tesseract supports **various output formats**: plain text, hOCR (HTML), PDF, invisible-text-only PDF, TSV. The main branch also has experimental support for ALTO (XML) output.
 
 You should note that in many cases, in order to get better OCR results,
 you'll need to **[improve the quality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html) of the image** you are giving Tesseract.
@@ -46,7 +46,7 @@ more changes made in 1996 to port to Windows, and some C++izing in 1998.
 In 2005 Tesseract was open sourced by HP. From 2006 until November 2018 it was developed by Google.
 
 The latest (LSTM based) stable version is **[4.1.1](https://github.com/tesseract-ocr/tesseract/releases/tag/4.1.1)**, released on December 26, 2019.
-Latest source code is available from [master branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/master).
+Latest source code is available from [main branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/main).
 Open issues can be found in [issue tracker](https://github.com/tesseract-ocr/tesseract/issues),
 and [planning documentation](https://tesseract-ocr.github.io/tessdoc/Planning.html).
 
@@ -54,7 +54,7 @@ The latest 3.0x version is **[3.05.02](https://github.com/tesseract-ocr/tesserac
 There is no development for this version, but it can be used for special cases (e.g. see [Regression of features from 3.0x](https://tesseract-ocr.github.io/tessdoc/Planning.html#regression-of-features-from-30x)).
 
 See **[Release Notes](https://tesseract-ocr.github.io/tessdoc/ReleaseNotes.html)**
-and **[Change Log](https://github.com/tesseract-ocr/tesseract/blob/master/ChangeLog)** for more details of the releases.
+and **[Change Log](https://github.com/tesseract-ocr/tesseract/blob/main/ChangeLog)** for more details of the releases.
 
 ## Installing Tesseract
 
@@ -75,8 +75,8 @@ Examples can be found in the [documentation](https://tesseract-ocr.github.io/tes
 
 ## For developers
 
-Developers can use `libtesseract` [C](https://github.com/tesseract-ocr/tesseract/blob/master/include/tesseract/capi.h) or
-[C++](https://github.com/tesseract-ocr/tesseract/blob/master/include/tesseract/baseapi.h) API to build their own application.
+Developers can use `libtesseract` [C](https://github.com/tesseract-ocr/tesseract/blob/main/include/tesseract/capi.h) or
+[C++](https://github.com/tesseract-ocr/tesseract/blob/main/include/tesseract/baseapi.h) API to build their own application.
 If you need bindings to `libtesseract` for other programming languages, please see the
 [wrapper](https://tesseract-ocr.github.io/tessdoc/AddOns.html#tesseract-wrappers) section in the AddOns documentation.
 
@@ -84,7 +84,7 @@ Documentation of Tesseract generated from source code by doxygen can be found on
 
 ## Support
 
-Before you submit an issue, please review **[the guidelines for this repository](https://github.com/tesseract-ocr/tesseract/blob/master/CONTRIBUTING.md)**.
+Before you submit an issue, please review **[the guidelines for this repository](https://github.com/tesseract-ocr/tesseract/blob/main/CONTRIBUTING.md)**.
 
 For support, first read the [documentation](https://tesseract-ocr.github.io/tessdoc/),
 particularly the [FAQ](https://tesseract-ocr.github.io/tessdoc/FAQ.html) to see if your problem is addressed there.
@@ -127,4 +127,4 @@ It is suggested to use leptonica with built-in support for [zlib](https://zlib.n
 
 For the latest online version of the README.md see:
 
-https://github.com/tesseract-ocr/tesseract/blob/master/README.md
+https://github.com/tesseract-ocr/tesseract/blob/main/README.md
