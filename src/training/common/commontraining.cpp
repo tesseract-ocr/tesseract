@@ -238,7 +238,7 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *arg
   trainer->SetFeatureSpace(fs);
   const char *page_name;
   // Load training data from .tr files on the command line.
-  int tessoptind = 0;
+  int tessoptind = 1;
   while ((page_name = GetNextFilename(argc, argv, tessoptind)) != nullptr) {
     tprintf("Reading %s ...\n", page_name);
     trainer->ReadTrainingSamples(page_name, feature_defs, false);
