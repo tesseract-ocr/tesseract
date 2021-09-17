@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
   std::string file_prefix;
-  auto trainer = tesseract::LoadTrainingData(argc, argv, false, nullptr, file_prefix);
+  auto trainer = tesseract::LoadTrainingData(argv + 1, false, nullptr, file_prefix);
   tesseract::TessBaseAPI *api;
   // Decode the classifier string.
   tesseract::ShapeClassifier *shape_classifier =

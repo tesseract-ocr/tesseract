@@ -121,11 +121,8 @@ void WriteShapeTable(const std::string &file_prefix, const ShapeTable &shape_tab
 // If shape_table is not nullptr, but failed to load, make a fake flat one,
 // as shape clustering was not run.
 TESS_COMMON_TRAINING_API
-std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *argv, bool replication,
+std::unique_ptr<MasterTrainer> LoadTrainingData(const char *const *filelist, bool replication,
                                                 ShapeTable **shape_table, std::string &file_prefix);
-
-TESS_COMMON_TRAINING_API
-const char *GetNextFilename(int argc, const char *const *argv, int &tessoptind);
 
 LABELEDLIST FindList(tesseract::LIST List, const std::string &Label);
 

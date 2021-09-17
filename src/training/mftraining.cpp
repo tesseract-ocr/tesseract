@@ -198,7 +198,7 @@ int main(int argc, char **argv) {
   ShapeTable *shape_table = nullptr;
   std::string file_prefix;
   // Load the training data.
-  auto trainer = tesseract::LoadTrainingData(argc, argv, false, &shape_table, file_prefix);
+  auto trainer = tesseract::LoadTrainingData(argv + 1, false, &shape_table, file_prefix);
   if (trainer == nullptr) {
     return 1; // Failed.
   }

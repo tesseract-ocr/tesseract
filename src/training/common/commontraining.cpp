@@ -197,7 +197,7 @@ void WriteShapeTable(const std::string &file_prefix, const ShapeTable &shape_tab
  * If shape_table is not nullptr, but failed to load, make a fake flat one,
  * as shape clustering was not run.
  */
-std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *argv, bool replication,
+std::unique_ptr<MasterTrainer> LoadTrainingData(const char *const *filelist, bool replication,
                                                 ShapeTable **shape_table, std::string &file_prefix) {
   InitFeatureDefs(&feature_defs);
   InitIntegerFX();
@@ -236,10 +236,8 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *arg
     }
   }
   trainer->SetFeatureSpace(fs);
-  const char *page_name;
-  // Load training data from .tr files on the command line.
-  int tessoptind = 1;
-  while ((page_name = GetNextFilename(argc, argv, tessoptind)) != nullptr) {
+  // Load training data from .tr files in filelist (terminated by nullptr).
+  for (const char *page_name = *filelist++; page_name != nullptr; page_name = *filelist++) {
     tprintf("Reading %s ...\n", page_name);
     trainer->ReadTrainingSamples(page_name, feature_defs, false);
 
@@ -290,25 +288,6 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(int argc, const char *const *arg
   }
   return trainer;
 }
-
-/*---------------------------------------------------------------------------*/
-/**
- * This routine returns the next command line argument.  If
- * there are no remaining command line arguments, it returns
- * nullptr.  This routine should only be called after all option
- * arguments have been parsed and removed with ParseArguments.
- *
- * Globals:
- * - tessoptind defined by tessopt sys call
- * @return Next command line argument or nullptr.
- */
-const char *GetNextFilename(int argc, const char *const *argv, int &tessoptind) {
-  if (tessoptind < argc) {
-    return argv[tessoptind++];
-  } else {
-    return nullptr;
-  }
-} /* GetNextFilename */
 
 /*---------------------------------------------------------------------------*/
 /**
