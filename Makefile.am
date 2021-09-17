@@ -80,7 +80,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/include
 AM_CPPFLAGS += -I$(top_builddir)/include
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS
-AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
+AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden -fPIC
 endif
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
 
