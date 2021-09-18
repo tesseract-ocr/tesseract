@@ -14,4 +14,4 @@ RUN bundle install --gemfile ~/.travis/travis-build/Gemfile
 ADD . /tesseract
 WORKDIR /tesseract
 
-RUN travis compile | sed -e "s/--branch\\\=\\\'\\\'/--branch=master/g" | bash
+RUN travis compile | sed -e "s/--branch\\\=\\\'\\\'/--branch=4.1/g" | bash
