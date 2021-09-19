@@ -115,7 +115,10 @@ include(CheckCXXCompilerFlag)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # cygwin gnu c++ needs to use -std=gnu++17 instead of -std=c++17
+    set(CMAKE_CXX_EXTENSIONS OFF)
+endif ()
 
 if (BUILD_SHARED_LIBS)
     set(CMAKE_CXX_VISIBILITY_PRESET hidden)
