@@ -406,6 +406,10 @@ if (NOT MSVC)
    set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -O3 -ffast-math")
 endif()
 
+if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIBDIR lib)
+endif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+
 set(AUTOCONFIG_SRC ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h.in)
 set(AUTOCONFIG ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
 add_definitions(-DHAVE_CONFIG_H)
@@ -419,6 +423,7 @@ include(Configure)
 configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 
 set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
+set(LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/tesseract/version.h.in
@@ -429,8 +434,8 @@ include(GenerateExportHeader)
 configure_package_config_file(
     cmake/templates/TesseractConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/cmake/tesseract/TesseractConfig.cmake
-    INSTALL_DESTINATION lib/cmake/tesseract
-    PATH_VARS INCLUDE_DIR)
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tesseract
+    PATH_VARS INCLUDE_DIR LIBRARY_DIRS)
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/cmake/tesseract/TesseractConfigVersion.cmake
     VERSION ${PACKAGE_VERSION}
@@ -754,11 +759,11 @@ get_target_property(tesseract_NAME libtesseract NAME)
 get_target_property(tesseract_VERSION libtesseract VERSION)
 get_target_property(tesseract_OUTPUT_NAME libtesseract OUTPUT_NAME)
 configure_file(tesseract.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc DESTINATION lib/pkgconfig)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 install(TARGETS tesseract DESTINATION bin)
-install(TARGETS libtesseract EXPORT TesseractTargets RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
-install(EXPORT TesseractTargets NAMESPACE Tesseract:: DESTINATION lib/cmake/tesseract)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake DESTINATION lib)
+install(TARGETS libtesseract EXPORT TesseractTargets RUNTIME DESTINATION bin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(EXPORT TesseractTargets NAMESPACE Tesseract:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tesseract)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES
     include/tesseract/baseapi.h
