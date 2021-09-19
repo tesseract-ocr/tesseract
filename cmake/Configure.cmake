@@ -94,7 +94,6 @@ set(include_files_list
     CL/cl.h
     OpenCL/cl.h
     pango-1.0/pango/pango-features.h
-    tiffio.h
     unicode/uchar.h
 )
 check_includes(include_files_list)
@@ -111,6 +110,7 @@ file(APPEND ${AUTOCONFIG_SRC} "
 #cmakedefine GRAPHICS_DISABLED ${GRAPHICS_DISABLED}
 #cmakedefine FAST_FLOAT ${FAST_FLOAT}
 #cmakedefine DISABLED_LEGACY_ENGINE ${DISABLED_LEGACY_ENGINE}
+#cmakedefine HAVE_TIFFIO_H ${HAVE_TIFFIO_H}
 #cmakedefine HAVE_LIBARCHIVE ${HAVE_LIBARCHIVE}
 #cmakedefine HAVE_LIBCURL ${HAVE_LIBCURL}
 ")

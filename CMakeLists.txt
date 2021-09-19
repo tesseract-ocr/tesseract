@@ -343,17 +343,28 @@ if (SW_BUILD)
     sw_execute()
 else()
     find_package(PkgConfig)
-    if(PKG_CONFIG_EXECUTABLE AND NOT Leptonica_DIR)
+    # Check for required library.
+    # option -DLeptonica_DIR=path => cmake hint where to find leptonica
+    find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
+    if (NOT Leptonica_FOUND AND PKG_CONFIG_EXECUTABLE)
         pkg_check_modules(Leptonica REQUIRED lept>=${MINIMUM_LEPTONICA_VERSION})
         link_directories(${Leptonica_LIBRARY_DIRS})
-    else()
-        find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
     endif()
     if (NOT Leptonica_FOUND)
         message(FATAL_ERROR "Cannot find required library Leptonica. Quitting!")
     endif(NOT Leptonica_FOUND)
+    include_directories(${Leptonica_INCLUDE_DIRS})
 
     # Check for optional libraries.
+    find_package(TIFF)  # for tesseractmain
+    if(NOT TIFF_FOUND AND PKG_CONFIG_EXECUTABLE)
+            # try PKG_CONFIG to find libarchive if cmake failed
+            pkg_check_modules(LibArchive libarchive)
+    endif()
+    if(TIFF_FOUND)
+        set(HAVE_TIFFIO_H ON)
+        include_directories(${TIFF_INCLUDE_DIRS})
+    endif(TIFF_FOUND)
     if(DISABLE_ARCHIVE)
         set(HAVE_LIBARCHIVE OFF)
     else(DISABLE_ARCHIVE)
@@ -480,9 +491,6 @@ include(BuildFunctions)
 include(SourceGroups)
 
 add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1)
-
-include_directories(${Leptonica_INCLUDE_DIRS})
-include_directories(${LibArchive_INCLUDE_DIRS})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
@@ -724,12 +732,12 @@ endif()
 
 add_executable                  (tesseract src/api/tesseractmain.cpp)
 target_link_libraries           (tesseract libtesseract)
-if (WIN32 AND HAVE_TIFFIO_H)
-    target_link_libraries(tesseract tiff)
+if (HAVE_TIFFIO_H AND WIN32)
+    target_link_libraries       (tesseract ${TIFF_LIBRARIES})
 endif()
 
 if (OPENMP_BUILD AND UNIX)
-target_link_libraries           (tesseract pthread)
+    target_link_libraries       (tesseract pthread)
 endif()
 
 ########################################
