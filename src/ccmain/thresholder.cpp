@@ -203,10 +203,29 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
 
   int r;
   if (method == ThresholdMethod::Sauvola) {
-    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, (PIX**)pix_thresholds,
+    // TODO: Convert this constant to config var
+    // window half-width for measuring local statistics
+    constexpr l_int32 whsize = 25;
+    // factor for image division into tiles; >= 1
+    l_int32 nx, ny;
+//  // tiles size will be approx. 250 x 250 pixels
+    l_int32 pix_w, pix_h;
+    pixGetDimensions(pix_grey, &pix_w, &pix_h, nullptr);
+    nx = std::max(1, (pix_w + 125) / 250);
+    ny = std::max(1, (pix_h + 125) / 250);
+    auto xrat = pix_w / nx;
+    auto yrat = pix_h / ny;
+    if (xrat < whsize + 2) {
+      nx = pix_w / (whsize + 2);
+    }
+    if (yrat < whsize + 2) {
+      ny = pix_h / (whsize + 2);
+    }
+
+    r = pixSauvolaBinarizeTiled(pix_grey, whsize, 0.40, nx, ny,
+                               (PIX**)pix_thresholds,
                                 (PIX**)pix_binary);
-  } else {
-    // AdaptiveOtsu.
+  } else { // if (method == ThresholdMethod::AdaptiveOtsu)
     r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1,
                                  (PIX**)pix_thresholds, (PIX**)pix_binary);
   }
