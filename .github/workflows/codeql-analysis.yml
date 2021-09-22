@@ -43,6 +43,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+           sudo apt-get update
            sudo apt-get install autoconf libleptonica-dev -y
            sudo apt-get install libpango1.0-dev -y
            sudo apt-get install cabextract libarchive-dev -y
