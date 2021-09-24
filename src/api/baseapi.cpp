@@ -2071,7 +2071,7 @@ bool TessBaseAPI::Threshold(Pix **pix) {
       tesseract_->set_pix_grey(nullptr);
     }
   } else {
-    auto [ok, pix_grey, pix_binary, pix_thresholds] = thresholder_->Threshold(thresholding_method);
+    auto [ok, pix_grey, pix_binary, pix_thresholds] = thresholder_->Threshold(this, thresholding_method);
 
     if (!ok) {
       return false;

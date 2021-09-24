@@ -79,6 +79,30 @@ Tesseract::Tesseract()
                  "Thresholding "
                  "method: 0 = Otsu, 1 = Adaptive Otsu, 2 = Sauvola",
                  this->params())
+    , INT_MEMBER(thresholding_sauvola_window_half_width, 25,
+                 "Window half-width for measuring local statistics",
+                 this->params())
+    , double_MEMBER(thresholding_sauvola_kfactor, 0.40,
+                 "Factor for reducing threshold due to variance. Must be 0 or positive number",
+                 this->params())
+    , INT_MEMBER(thresholding_adaptive_otsu_tile_x, 300,
+                 "Desired tile width. Actual size may vary. Must be >= 16",
+                 this->params())
+    , INT_MEMBER(thresholding_adaptive_otsu_tile_y, 300,
+                 "Desired tile height. Actual size may vary. Must be >= 16",
+                 this->params())
+    , INT_MEMBER(thresholding_adaptive_otsu_smooth_x, 0,
+                 "Half-width of convolution kernel applied to threshold array: "
+                 "Use 0 for no smoothing",
+                 this->params())
+    , INT_MEMBER(thresholding_adaptive_otsu_smooth_y, 0,
+                 "Half-width of convolution kernel applied to threshold array: "
+                 "Use 0 for no smoothing",
+                 this->params())
+    , double_MEMBER(thresholding_adaptive_otsu_score_fract, 0.1,
+                 "Fraction of the max Otsu score. Typically 0.1. Use 0.0 for "
+                 "standard Otsu",
+                 this->params())
     , INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
                       "Which OCR engine(s) to run (Tesseract, LSTM, both)."
                       " Defaults to loading and running the most accurate"

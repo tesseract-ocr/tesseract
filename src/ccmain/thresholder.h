@@ -28,6 +28,8 @@ struct Pix;
 
 namespace tesseract {
 
+class TessBaseAPI;
+
 /// Base class for all tesseract image thresholding classes.
 /// Specific classes can add new thresholding methods by
 /// overriding ThresholdToPix.
@@ -121,7 +123,7 @@ public:
   /// Returns false on error.
   virtual bool ThresholdToPix(Image *pix);
 
-  virtual std::tuple<bool, Image, Image, Image> Threshold(
+  virtual std::tuple<bool, Image, Image, Image> Threshold(TessBaseAPI *api,
                                                           ThresholdMethod method);
 
   // Gets a pix that contains an 8 bit threshold value at each pixel. The

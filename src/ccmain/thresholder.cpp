@@ -25,6 +25,7 @@
 #endif
 
 #include <allheaders.h>
+#include <tesseract/baseapi.h> // for api->GetIntVariable()
 
 #include <cstdint> // for uint32_t
 #include <cstring>
@@ -186,7 +187,8 @@ void ImageThresholder::SetImage(const Image pix) {
 }
 
 std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
-                                                         ThresholdMethod method) {
+                                                      TessBaseAPI *api,
+                                                      ThresholdMethod method) {
   Image pix_binary = nullptr;
   Image pix_thresholds = nullptr;
 
@@ -203,9 +205,10 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
 
   int r;
   if (method == ThresholdMethod::Sauvola) {
-    // TODO: Convert this constant to config var
-    // window half-width for measuring local statistics
-    constexpr l_int32 whsize = 25;
+    bool b;
+    int window_half_w;
+    b = api->GetIntVariable("thresholding_sauvola_window_half_width",
+                            &window_half_w);
     // factor for image division into tiles; >= 1
     l_int32 nx, ny;
 //  // tiles size will be approx. 250 x 250 pixels
@@ -215,19 +218,34 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     ny = std::max(1, (pix_h + 125) / 250);
     auto xrat = pix_w / nx;
     auto yrat = pix_h / ny;
-    if (xrat < whsize + 2) {
-      nx = pix_w / (whsize + 2);
+    if (xrat < window_half_w + 2) {
+      nx = pix_w / (window_half_w + 2);
     }
-    if (yrat < whsize + 2) {
-      ny = pix_h / (whsize + 2);
+    if (yrat < window_half_w + 2) {
+      ny = pix_h / (window_half_w + 2);
     }
 
-    r = pixSauvolaBinarizeTiled(pix_grey, whsize, 0.40, nx, ny,
+    double kfactor;
+    b = api->GetDoubleVariable("thresholding_sauvola_kfactor", &kfactor);
+    r = pixSauvolaBinarizeTiled(pix_grey, window_half_w, kfactor, nx, ny,
                                (PIX**)pix_thresholds,
                                 (PIX**)pix_binary);
   } else { // if (method == ThresholdMethod::AdaptiveOtsu)
-    r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1,
-                                 (PIX**)pix_thresholds, (PIX**)pix_binary);
+    bool b;
+    int tile_x;
+    b = api->GetIntVariable("thresholding_adaptive_otsu_tile_x", &tile_x);
+    int tile_y;
+    b = api->GetIntVariable("thresholding_adaptive_otsu_tile_y", &tile_y);
+    int smooth_x;
+    b = api->GetIntVariable("thresholding_adaptive_otsu_smooth_x", &smooth_x);
+    int smooth_y;
+    b = api->GetIntVariable("thresholding_adaptive_otsu_smooth_y", &smooth_y);
+    double score_fract;
+    b =
+        api->GetDoubleVariable("thresholding_adaptive_otsu_score_fract",
+                               &score_fract);
+    r = pixOtsuAdaptiveThreshold(pix_grey, tile_x, tile_y, smooth_x, smooth_y,
+    score_fract, (PIX**)pix_thresholds, (PIX**)pix_binary);
   }
 
   bool ok = (r == 0);
