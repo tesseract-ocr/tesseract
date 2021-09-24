@@ -76,6 +76,10 @@ AM_CONDITIONAL([OSX], false)
 AM_CONDITIONAL([GRAPHICS_DISABLED], false)
 AC_SUBST([AM_CPPFLAGS])
 
+# Be less noisy by default.
+# Can be overridden with `configure --disable-silent-rules` or with `make V=1`.
+AM_SILENT_RULES([yes])
+
 OPENCL_INC="/opt/AMDAPP/include"
 OPENCL_LIBS="-lOpenCL"
 #############################

@@ -7,6 +7,7 @@
   * Extend URI support for Tesseract with libcurl
   * Abort LSTM training with integer model (fixes issue #1573)
   * Update documentation
+  * Make automake builds less noisy by default
 
 2019-12-26 - V4.1.1
   * Implemented sw build (cppan is depreciated)
