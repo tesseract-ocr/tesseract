@@ -57,7 +57,7 @@ jobs:
              include_directories(${Leptonica_INCLUDE_DIRS})
              add_executable( basicapitest testing/basicapitest.cpp )
              target_link_libraries(basicapitest ${Leptonica_LIBRARIES})
-             target_link_libraries(basicapitest ${Tesseract_LIBRARIES})
+             target_link_libraries(basicapitest Tesseract::libtesseract)
              add_library(libtesseract UNKNOWN IMPORTED)
              set_property(TARGET libtesseract PROPERTY IMPORTED_LOCATION D:/a/tesseract/tesseract/build/Release/tesseract50.lib)
              target_link_libraries(basicapitest libtesseract)
