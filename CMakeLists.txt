@@ -345,9 +345,9 @@ else()
     find_package(PkgConfig)
     # Check for required library.
     # option -DLeptonica_DIR=path => cmake hint where to find leptonica
-    find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
+    find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} CONFIG)
     if (NOT Leptonica_FOUND AND PKG_CONFIG_EXECUTABLE)
-        pkg_check_modules(Leptonica REQUIRED lept>=${MINIMUM_LEPTONICA_VERSION})
+        pkg_check_modules(Leptonica lept>=${MINIMUM_LEPTONICA_VERSION})
         link_directories(${Leptonica_LIBRARY_DIRS})
     endif()
     if (NOT Leptonica_FOUND)
