@@ -60,7 +60,7 @@ jobs:
              target_link_libraries(basicapitest ${Tesseract_LIBRARIES})
              add_library(libtesseract UNKNOWN IMPORTED)
              set_property(TARGET libtesseract PROPERTY IMPORTED_LOCATION D:/a/tesseract/tesseract/build/Release/tesseract50.lib)
-             target_link_libraries(basicapitest libtesseract)
+             target_link_libraries(basicapitest Tesseract::libtesseract)
              EOF
              cat CMakeLists.txt
 
