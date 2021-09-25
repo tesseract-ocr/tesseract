@@ -358,8 +358,8 @@ else()
     # Check for optional libraries.
     find_package(TIFF)  # for tesseractmain
     if(NOT TIFF_FOUND AND PKG_CONFIG_EXECUTABLE)
-            # try PKG_CONFIG to find libarchive if cmake failed
-            pkg_check_modules(LibArchive libarchive)
+            # try PKG_CONFIG to find libtiff if cmake failed
+            pkg_check_modules(TIFF libtiff-4)
     endif()
     if(TIFF_FOUND)
         set(HAVE_TIFFIO_H ON)
