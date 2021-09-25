@@ -105,7 +105,7 @@ endif()
 ###############################################################################
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(CLANG 1)
+    set(CLANG 1)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -403,7 +403,7 @@ find_package(OpenCL QUIET)
 ###############################################################################
 
 if (NOT MSVC)
-   set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -O3 -ffast-math")
+    set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -O3 -ffast-math")
 endif()
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
@@ -491,8 +491,8 @@ add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 if(ANDROID_TOOLCHAIN)
-  include_directories(${ANDROID_TOOLCHAIN}/sysroot/usr/include)
-  add_compile_definitions(__ANDROID_API_FUTURE__)
+    include_directories(${ANDROID_TOOLCHAIN}/sysroot/usr/include)
+    add_compile_definitions(__ANDROID_API_FUTURE__)
 endif()
 
 ########################################
@@ -621,11 +621,11 @@ if(HAVE_SSE4_1)
                                 PROPERTIES COMPILE_FLAGS ${SSE4_1_COMPILE_FLAGS})
 endif(HAVE_SSE4_1)
 if(HAVE_NEON)
-   list(APPEND arch_files_opt src/arch/dotproductneon.cpp src/arch/intsimdmatrixneon.cpp)
-   if(NEON_COMPILE_FLAGS)
+    list(APPEND arch_files_opt src/arch/dotproductneon.cpp src/arch/intsimdmatrixneon.cpp)
+    if(NEON_COMPILE_FLAGS)
        set_source_files_properties(src/arch/dotproductneon.cpp src/arch/intsimdmatrixneon.cpp
                                    PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
-   endif()
+    endif()
 endif(HAVE_NEON)
 
 file(GLOB_RECURSE tesseract_hdr
@@ -698,10 +698,10 @@ endif(CURL_FOUND)
 set_target_properties           (libtesseract PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 set_target_properties           (libtesseract PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 if (WIN32)
-set_target_properties           (libtesseract PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
-set_target_properties           (libtesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
+    set_target_properties       (libtesseract PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
+    set_target_properties       (libtesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
 else()
-set_target_properties           (libtesseract PROPERTIES OUTPUT_NAME tesseract)
+    set_target_properties       (libtesseract PROPERTIES OUTPUT_NAME tesseract)
 endif()
 
 if (SW_BUILD)
@@ -743,7 +743,7 @@ if (BUILD_TESTS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt
 endif()
 
 if (BUILD_TRAINING_TOOLS)
-add_subdirectory(src/training)
+    add_subdirectory(src/training)
 endif()
 
 get_target_property(tesseract_NAME libtesseract NAME)
@@ -764,7 +764,9 @@ write_basic_package_version_file(
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 install(TARGETS tesseract DESTINATION bin)
-install(TARGETS libtesseract EXPORT TesseractTargets RUNTIME DESTINATION bin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS libtesseract EXPORT TesseractTargets RUNTIME DESTINATION bin LIBRARY
+        DESTINATION ${CMAKE_INSTALL_LIBDIR} 
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(EXPORT TesseractTargets NAMESPACE Tesseract:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tesseract)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
