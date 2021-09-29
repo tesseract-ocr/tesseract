@@ -236,7 +236,7 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     b = api->GetIntVariable("thresholding_tile_size", &tile_size);
     int smooth_size;
     b = api->GetIntVariable("thresholding_smooth_size", &smooth_size);
-    int half_smooth_size = smooth_size;
+    int half_smooth_size = smooth_size / 2;
     double score_fraction;
     b = api->GetDoubleVariable("thresholding_score_fraction", &score_fraction);
     r = pixOtsuAdaptiveThreshold(pix_grey, tile_size, tile_size,
