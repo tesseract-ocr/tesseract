@@ -757,6 +757,11 @@ public:
   BOOL_VAR_H(tessedit_do_invert);
   INT_VAR_H(tessedit_pageseg_mode);
   INT_VAR_H(thresholding_method);
+  INT_VAR_H(thresholding_window_size);
+  double_VAR_H(thresholding_kfactor);
+  INT_VAR_H(thresholding_tile_size);
+  INT_VAR_H(thresholding_smooth_size);
+  double_VAR_H(thresholding_score_fraction);
   INT_VAR_H(tessedit_ocr_engine_mode);
   STRING_VAR_H(tessedit_char_blacklist);
   STRING_VAR_H(tessedit_char_whitelist);
