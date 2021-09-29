@@ -206,9 +206,9 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
   int r;
   if (method == ThresholdMethod::Sauvola) {
     bool b;
-    int window_half_w;
-    b = api->GetIntVariable("thresholding_sauvola_window_half_width",
-                            &window_half_w);
+    int window_size;
+    b = api->GetIntVariable("thresholding_window_size", &window_size);
+    int half_window_size = window_size / 2;
     // factor for image division into tiles; >= 1
     l_int32 nx, ny;
 //  // tiles size will be approx. 250 x 250 pixels
@@ -218,34 +218,32 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     ny = std::max(1, (pix_h + 125) / 250);
     auto xrat = pix_w / nx;
     auto yrat = pix_h / ny;
-    if (xrat < window_half_w + 2) {
-      nx = pix_w / (window_half_w + 2);
+    if (xrat < half_window_size + 2) {
+      nx = pix_w / (half_window_size + 2);
     }
-    if (yrat < window_half_w + 2) {
-      ny = pix_h / (window_half_w + 2);
+    if (yrat < half_window_size + 2) {
+      ny = pix_h / (half_window_size + 2);
     }
 
     double kfactor;
-    b = api->GetDoubleVariable("thresholding_sauvola_kfactor", &kfactor);
-    r = pixSauvolaBinarizeTiled(pix_grey, window_half_w, kfactor, nx, ny,
+    b = api->GetDoubleVariable("thresholding_kfactor", &kfactor);
+    r = pixSauvolaBinarizeTiled(pix_grey, half_window_size, kfactor, nx, ny,
                                (PIX**)pix_thresholds,
                                 (PIX**)pix_binary);
   } else { // if (method == ThresholdMethod::AdaptiveOtsu)
     bool b;
-    int tile_x;
-    b = api->GetIntVariable("thresholding_adaptive_otsu_tile_x", &tile_x);
-    int tile_y;
-    b = api->GetIntVariable("thresholding_adaptive_otsu_tile_y", &tile_y);
-    int smooth_x;
-    b = api->GetIntVariable("thresholding_adaptive_otsu_smooth_x", &smooth_x);
-    int smooth_y;
-    b = api->GetIntVariable("thresholding_adaptive_otsu_smooth_y", &smooth_y);
-    double score_fract;
-    b =
-        api->GetDoubleVariable("thresholding_adaptive_otsu_score_fract",
-                               &score_fract);
-    r = pixOtsuAdaptiveThreshold(pix_grey, tile_x, tile_y, smooth_x, smooth_y,
-    score_fract, (PIX**)pix_thresholds, (PIX**)pix_binary);
+    int tile_size;
+    b = api->GetIntVariable("thresholding_tile_size", &tile_size);
+    int smooth_size;
+    b = api->GetIntVariable("thresholding_smooth_size", &smooth_size);
+    int half_smooth_size = smooth_size;
+    double score_fraction;
+    b = api->GetDoubleVariable("thresholding_score_fraction", &score_fraction);
+    r = pixOtsuAdaptiveThreshold(pix_grey, tile_size, tile_size,
+                                 half_smooth_size, half_smooth_size,
+                                 score_fraction, 
+                                 (PIX**)pix_thresholds,
+                                 (PIX**)pix_binary);
   }
 
   bool ok = (r == 0);
