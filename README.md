@@ -11,6 +11,21 @@
 [![GitHub license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://raw.githubusercontent.com/tesseract-ocr/tesseract/main/LICENSE)
 [![Downloads](https://img.shields.io/badge/download-all%20releases-brightgreen.svg)](https://github.com/tesseract-ocr/tesseract/releases/)
 
+Table of Contents
+=================
+
+* [Tesseract OCR](#tesseract-ocr)
+   * [About](#about)
+   * [Brief history](#brief-history)
+   * [Installing Tesseract](#installing-tesseract)
+   * [Running Tesseract](#running-tesseract)
+   * [For developers](#for-developers)
+   * [Support](#support)
+   * [License](#license)
+   * [Dependencies](#dependencies)
+   * [Latest Version of README](#latest-version-of-readme)
+
+
 ## About
 
 This package contains an **OCR engine** - `libtesseract` and a **command line program** - `tesseract`.
