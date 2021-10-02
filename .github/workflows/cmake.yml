@@ -21,6 +21,12 @@ jobs:
           - { name: macos-10.15-gcc-10-cmake, os: macos-10.15, cxx: g++-10 } #installed
           - { name: macos-10.15-gcc-11-cmake, os: macos-10.15, cxx: g++-11 } #installed
 
+          - { name: macos-11-clang-12-cmake, os: macos-11, cxx: clang++ } # default
+          - { name: macos-11-clang-11-cmake, os: macos-11, cxx: '$(brew --prefix llvm)/bin/clang++' }  #installed
+          - { name: macos-11-gcc-9-cmake, os: macos-11, cxx: g++-9 } #installed
+          - { name: macos-11-gcc-10-cmake, os: macos-11, cxx: g++-10 } #installed
+          - { name: macos-11-gcc-11-cmake, os: macos-11, cxx: g++-11 } #installed
+
           - { name: ubuntu-18.04-clang-7-cmake, os: ubuntu-18.04, cxx: clang++-7 }
           - { name: ubuntu-18.04-clang-8-cmake, os: ubuntu-18.04, cxx: clang++-8 } #installed
           - { name: ubuntu-18.04-clang-9-cmake, os: ubuntu-18.04, cxx: clang++-9 } #installed
@@ -137,12 +143,21 @@ jobs:
              build/inst/bin/tesseract test/testing/eurotext.tif - -l fra --oem 1 --tessdata-dir ../tessdata_best
              build/inst/bin/tesseract test/testing/arabic.tif - -l ara --oem 1 --psm 6  --tessdata-dir ../tessdata
 
-      - name: Build and run basicapitest
+      - name: Build and run basicapitest (Linux)
         run: |
              export "PKG_CONFIG_PATH=$GITHUB_WORKSPACE/build/inst/lib/pkgconfig/:$PKG_CONFIG_PATH"
              cd test
              ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp "-I$GITHUB_WORKSPACE/build/inst/include" "-L$GITHUB_WORKSPACE/build/inst/lib" `pkg-config --cflags --libs tesseract lept ` -pthread -std=c++11
              ./basicapitest
+        if: runner.os == 'Linux'
+
+      - name: Build and run basicapitest (macOS)
+        run: |
+             export "PKG_CONFIG_PATH=$GITHUB_WORKSPACE/build/inst/lib/pkgconfig/:$PKG_CONFIG_PATH"
+             cd test
+             ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp "-I$GITHUB_WORKSPACE/build/inst/include" "-L$GITHUB_WORKSPACE/build/inst/lib" `pkg-config --cflags --libs tesseract lept ` -lcurl -pthread -std=c++11
+             ./basicapitest
+        if: runner.os == 'macOS'      
 
       - name: Display Compiler Version
         run: |
