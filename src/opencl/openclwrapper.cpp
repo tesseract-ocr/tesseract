@@ -47,10 +47,14 @@
 #  endif
 
 #  include <cstdio>
+#  include <cstdlib>
 #  include <cstring> // for memset, strcpy, ...
 #  include <vector>
 
 #  include "errcode.h" // for ASSERT_HOST
+#  include "image.h"   // for Image
+
+namespace tesseract {
 
 GPUEnv OpenclDevice::gpuEnv;
 
@@ -2193,7 +2197,7 @@ static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputD
 #  endif
     OpenclDevice::gpuEnv = *env;
     OpenclDevice::initMorphCLAllocations(wpl, input.height, input.pix);
-    Image pix_vline = nullptr, *pix_hline = nullptr, *pix_closed = nullptr;
+    Image pix_vline = nullptr, pix_hline = nullptr, pix_closed = nullptr;
     OpenclDevice::pixGetLinesCL(nullptr, input.pix, &pix_vline, &pix_hline, &pix_closed, true,
                                 closing_brick, closing_brick, max_line_width, max_line_width,
                                 min_line_length, min_line_length);
@@ -2251,8 +2255,6 @@ static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputD
 /******************************************************************************
  * Device Selection
  *****************************************************************************/
-
-#  include <cstdlib>
 
 // encode score object as byte string
 static ds_status serializeScore(ds_device *device, uint8_t **serializedScore,
@@ -2452,5 +2454,7 @@ bool OpenclDevice::selectedDeviceIsOpenCL() {
   ds_device device = getDeviceSelection();
   return (device.type == DS_DEVICE_OPENCL_DEVICE);
 }
+
+} // namespace
 
 #endif

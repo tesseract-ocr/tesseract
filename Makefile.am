@@ -727,6 +727,9 @@ tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccutil
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/dict
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/viewer
+if OPENCL
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/opencl
+endif
 tesseract_CPPFLAGS += $(AM_CPPFLAGS)
 if VISIBILITY
 tesseract_CPPFLAGS += -DTESS_IMPORTS
