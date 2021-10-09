@@ -592,7 +592,7 @@ CLUSTERER *MasterTrainer::SetupForClustering(const ShapeTable &shape_table,
   for (it.Begin(); !it.AtEnd(); it.Next()) {
     sample_ptrs.push_back(&it.GetSample());
   }
-  int sample_id = 0;
+  uint32_t sample_id = 0;
   for (int i = sample_ptrs.size() - 1; i >= 0; --i) {
     const TrainingSample *sample = sample_ptrs[i];
     uint32_t num_features = sample->num_micro_features();
