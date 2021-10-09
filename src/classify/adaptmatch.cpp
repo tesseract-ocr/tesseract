@@ -143,7 +143,7 @@ inline bool MarginalMatch(float confidence, float matcher_great_threshold) {
 -----------------------------------------------------------------------------*/
 // Returns the index of the given id in results, if present, or the size of the
 // vector (index it will go at) if not present.
-static int FindScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
+static unsigned FindScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
   for (unsigned i = 0; i < results.match.size(); i++) {
     if (results.match[i].unichar_id == id) {
       return i;
@@ -807,7 +807,7 @@ bool Classify::AdaptableWord(WERD_RES *word) {
   if (word->best_choice == nullptr) {
     return false;
   }
-  int BestChoiceLength = word->best_choice->length();
+  auto BestChoiceLength = word->best_choice->length();
   float adaptable_score = getDict().segment_penalty_dict_case_ok + ADAPTABLE_WERD_ADJUSTMENT;
   return // rules that apply in general - simplest to compute first
       BestChoiceLength > 0 && BestChoiceLength == word->rebuild_word->NumBlobs() &&
@@ -979,7 +979,7 @@ void Classify::DisplayAdaptedChar(TBLOB *blob, INT_CLASS_STRUCT *int_class) {
  * @param[out] results results to add new result to
  */
 void Classify::AddNewResult(const UnicharRating &new_result, ADAPT_RESULTS *results) {
-  unsigned old_match = FindScoredUnichar(new_result.unichar_id, *results);
+  auto old_match = FindScoredUnichar(new_result.unichar_id, *results);
 
   if (new_result.rating + matcher_bad_match_pad < results->best_rating ||
       (old_match < results->match.size() &&

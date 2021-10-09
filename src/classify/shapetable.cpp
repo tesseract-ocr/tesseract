@@ -37,7 +37,7 @@ namespace tesseract {
 // Returns -1 if the unichar_id is not found
 int ShapeRating::FirstResultWithUnichar(const std::vector<ShapeRating> &results,
                                         const ShapeTable &shape_table, UNICHAR_ID unichar_id) {
-  for (int r = 0; r < results.size(); ++r) {
+  for (unsigned r = 0; r < results.size(); ++r) {
     const int shape_id = results[r].shape_id;
     const Shape &shape = shape_table.GetShape(shape_id);
     if (shape.ContainsUnichar(unichar_id)) {
@@ -53,7 +53,7 @@ int ShapeRating::FirstResultWithUnichar(const std::vector<ShapeRating> &results,
 // Returns -1 if the unichar_id is not found
 int UnicharRating::FirstResultWithUnichar(const std::vector<UnicharRating> &results,
                                           UNICHAR_ID unichar_id) {
-  for (int r = 0; r < results.size(); ++r) {
+  for (unsigned r = 0; r < results.size(); ++r) {
     if (results[r].unichar_id == unichar_id) {
       return r;
     }
@@ -122,7 +122,7 @@ void Shape::AddToShape(int unichar_id, int font_id) {
 // Adds everything in other to this.
 void Shape::AddShape(const Shape &other) {
   for (const auto &unichar : other.unichars_) {
-    for (int f = 0; f < unichar.font_ids.size(); ++f) {
+    for (unsigned f = 0; f < unichar.font_ids.size(); ++f) {
       AddToShape(unichar.unichar_id, unichar.font_ids[f]);
     }
   }
@@ -229,7 +229,7 @@ bool Shape::IsEqualUnichars(Shape *other) {
   if (!other->unichars_sorted_) {
     other->SortUnichars();
   }
-  for (int c = 0; c < unichars_.size(); ++c) {
+  for (unsigned c = 0; c < unichars_.size(); ++c) {
     if (unichars_[c].unichar_id != other->unichars_[c].unichar_id) {
       return false;
     }
@@ -326,7 +326,7 @@ std::string ShapeTable::SummaryStr() const {
   int max_unichars = 0;
   int num_multi_shapes = 0;
   int num_master_shapes = 0;
-  for (int s = 0; s < shape_table_.size(); ++s) {
+  for (unsigned s = 0; s < shape_table_.size(); ++s) {
     if (MasterDestinationIndex(s) != s) {
       continue;
     }
@@ -398,7 +398,7 @@ void ShapeTable::AddShapeToShape(int shape_id, const Shape &other) {
 // If font_id < 0, the font_id is ignored and the first shape that matches
 // the unichar_id is returned.
 int ShapeTable::FindShape(int unichar_id, int font_id) const {
-  for (int s = 0; s < shape_table_.size(); ++s) {
+  for (unsigned s = 0; s < shape_table_.size(); ++s) {
     const Shape &shape = GetShape(s);
     for (int c = 0; c < shape.size(); ++c) {
       if (shape[c].unichar_id == unichar_id) {
@@ -428,7 +428,7 @@ void ShapeTable::GetFirstUnicharAndFont(int shape_id, int *unichar_id, int *font
 int ShapeTable::BuildFromShape(const Shape &shape, const ShapeTable &master_shapes) {
   BitVector shape_map(master_shapes.NumShapes());
   for (int u_ind = 0; u_ind < shape.size(); ++u_ind) {
-    for (int f_ind = 0; f_ind < shape[u_ind].font_ids.size(); ++f_ind) {
+    for (unsigned f_ind = 0; f_ind < shape[u_ind].font_ids.size(); ++f_ind) {
       int c = shape[u_ind].unichar_id;
       int f = shape[u_ind].font_ids[f_ind];
       int master_id = master_shapes.FindShape(c, f);
@@ -685,7 +685,7 @@ void ShapeTable::AppendMasterShapes(const ShapeTable &other, std::vector<int> *s
     shape_map->clear();
     shape_map->resize(other.NumShapes(), -1);
   }
-  for (int s = 0; s < other.shape_table_.size(); ++s) {
+  for (unsigned s = 0; s < other.shape_table_.size(); ++s) {
     if (other.shape_table_[s]->destination_index() < 0) {
       int index = AddShape(*other.shape_table_[s]);
       if (shape_map != nullptr) {

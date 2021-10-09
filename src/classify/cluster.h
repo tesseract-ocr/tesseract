@@ -95,7 +95,7 @@ struct CLUSTERER {
   KDTREE *KDTree;          // for optimal nearest neighbor searching
   CLUSTER *Root;           // ptr to root cluster of cluster tree
   LIST ProtoList;          // list of prototypes
-  int32_t NumChar;         // # of characters represented by samples
+  uint32_t NumChar;        // # of characters represented by samples
   // cache of reusable histograms by distribution type and number of buckets.
   BUCKETS *bucket_cache[DISTRIBUTION_COUNT][MAXBUCKETS + 1 - MINBUCKETS];
 };
@@ -116,7 +116,7 @@ TESS_API
 CLUSTERER *MakeClusterer(int16_t SampleSize, const PARAM_DESC ParamDesc[]);
 
 TESS_API
-SAMPLE *MakeSample(CLUSTERER *Clusterer, const float *Feature, int32_t CharID);
+SAMPLE *MakeSample(CLUSTERER *Clusterer, const float *Feature, uint32_t CharID);
 
 TESS_API
 LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config);

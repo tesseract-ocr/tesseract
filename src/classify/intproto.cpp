@@ -507,7 +507,7 @@ INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
     assert(UnusedClassIdIn(IntTemplates, ClassId));
     IClass = new INT_CLASS_STRUCT(FClass->NumProtos, FClass->NumConfigs);
     FontSet fs{FClass->font_set.size()};
-    for (int i = 0; i < fs.size(); ++i) {
+    for (unsigned i = 0; i < fs.size(); ++i) {
       fs[i] = FClass->font_set.at(i);
     }
     if (this->fontset_table_.contains(fs)) {
