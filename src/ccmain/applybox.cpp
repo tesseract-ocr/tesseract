@@ -243,7 +243,7 @@ void Tesseract::MaximallyChopWord(const std::vector<TBOX> &boxes, BLOCK *block, 
   std::vector<BLOB_CHOICE *> blob_choices;
   ASSERT_HOST(!word_res->chopped_word->blobs.empty());
   auto rating = static_cast<float>(INT8_MAX);
-  for (int i = 0; i < word_res->chopped_word->NumBlobs(); ++i) {
+  for (unsigned i = 0; i < word_res->chopped_word->NumBlobs(); ++i) {
     // The rating and certainty are not quite arbitrary. Since
     // select_blob_to_chop uses the worst certainty to choose, they all have
     // to be different, so starting with INT8_MAX, subtract 1/8 for each blob
@@ -257,7 +257,7 @@ void Tesseract::MaximallyChopWord(const std::vector<TBOX> &boxes, BLOCK *block, 
     rating -= 0.125f;
   }
   const double e = exp(1.0); // The base of natural logs.
-  int blob_number;
+  unsigned blob_number;
   int right_chop_index = 0;
   if (!assume_fixed_pitch_char_segment) {
     // We only chop if the language is not fixed pitch like CJK.
@@ -613,8 +613,8 @@ bool Tesseract::FindSegmentation(const std::vector<UNICHAR_ID> &target_text, WER
 /// @param best_rating
 /// @param best_segmentation
 void Tesseract::SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, int choices_pos,
-                              int choices_length, const std::vector<UNICHAR_ID> &target_text,
-                              int text_index, float rating, std::vector<int> *segmentation,
+                              unsigned choices_length, const std::vector<UNICHAR_ID> &target_text,
+                              unsigned text_index, float rating, std::vector<int> *segmentation,
                               float *best_rating, std::vector<int> *best_segmentation) {
   const UnicharAmbigsVector &table = getDict().getUnicharAmbigs().dang_ambigs();
   for (unsigned length = 1; length <= choices[choices_pos].size(); ++length) {
@@ -625,12 +625,12 @@ void Tesseract::SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, in
     for (choice_it.mark_cycle_pt(); !choice_it.cycled_list(); choice_it.forward()) {
       const BLOB_CHOICE *choice = choice_it.data();
       choice_rating = choice->rating();
-      UNICHAR_ID class_id = choice->unichar_id();
+      auto class_id = choice->unichar_id();
       if (class_id == target_text[text_index]) {
         break;
       }
       // Search ambigs table.
-      if (class_id < table.size() && table[class_id] != nullptr) {
+      if (static_cast<size_t>(class_id) < table.size() && table[class_id] != nullptr) {
         AmbigSpec_IT spec_it(table[class_id]);
         for (spec_it.mark_cycle_pt(); !spec_it.cycled_list(); spec_it.forward()) {
           const AmbigSpec *ambig_spec = spec_it.data();
