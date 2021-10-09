@@ -205,9 +205,8 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
 
   int r;
   if (method == ThresholdMethod::Sauvola) {
-    bool b;
     int window_size;
-    b = api->GetIntVariable("thresholding_window_size", &window_size);
+    api->GetIntVariable("thresholding_window_size", &window_size);
     int half_window_size = window_size / 2;
     // factor for image division into tiles; >= 1
     l_int32 nx, ny;
@@ -226,19 +225,18 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     }
 
     double kfactor;
-    b = api->GetDoubleVariable("thresholding_kfactor", &kfactor);
+    api->GetDoubleVariable("thresholding_kfactor", &kfactor);
     r = pixSauvolaBinarizeTiled(pix_grey, half_window_size, kfactor, nx, ny,
                                (PIX**)pix_thresholds,
                                 (PIX**)pix_binary);
   } else { // if (method == ThresholdMethod::AdaptiveOtsu)
-    bool b;
     int tile_size;
-    b = api->GetIntVariable("thresholding_tile_size", &tile_size);
+    api->GetIntVariable("thresholding_tile_size", &tile_size);
     int smooth_size;
-    b = api->GetIntVariable("thresholding_smooth_size", &smooth_size);
+    api->GetIntVariable("thresholding_smooth_size", &smooth_size);
     int half_smooth_size = smooth_size / 2;
     double score_fraction;
-    b = api->GetDoubleVariable("thresholding_score_fraction", &score_fraction);
+    api->GetDoubleVariable("thresholding_score_fraction", &score_fraction);
     r = pixOtsuAdaptiveThreshold(pix_grey, tile_size, tile_size,
                                  half_smooth_size, half_smooth_size,
                                  score_fraction, 
