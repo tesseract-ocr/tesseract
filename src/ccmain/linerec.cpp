@@ -269,14 +269,6 @@ void Tesseract::SearchWords(PointerVector<WERD_RES> *words) {
   if (stopper_dict == nullptr) {
     stopper_dict = &getDict();
   }
-  bool any_nonspace_delimited = false;
-  for (int w = 0; w < words->size(); ++w) {
-    WERD_RES *word = (*words)[w];
-    if (word->best_choice != nullptr && word->best_choice->ContainsAnyNonSpaceDelimited()) {
-      any_nonspace_delimited = true;
-      break;
-    }
-  }
   for (int w = 0; w < words->size(); ++w) {
     WERD_RES *word = (*words)[w];
     if (word->best_choice == nullptr) {
