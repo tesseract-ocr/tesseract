@@ -238,7 +238,7 @@ double BaselineRow::AdjustBaselineToGrid(int debug, const FCOORD &direction, dou
   // Find the displacement_modes_ entry nearest to the grid.
   double best_error = 0.0;
   int best_index = -1;
-  for (int i = 0; i < displacement_modes_.size(); ++i) {
+  for (unsigned i = 0; i < displacement_modes_.size(); ++i) {
     double blob_y = displacement_modes_[i];
     double error = BaselineBlock::SpacingModelError(blob_y, line_spacing, line_offset);
     if (debug > 1) {
@@ -482,9 +482,9 @@ void BaselineBlock::ParallelizeBaselines(double default_block_skew) {
   // Enforce the line spacing model on all lines that don't yet have a good
   // baseline.
   // Start by finding the row that is best fitted to the model.
-  int best_row = 0;
+  unsigned best_row = 0;
   double best_error = SpacingModelError(rows_[0]->PerpDisp(direction), line_spacing_, line_offset_);
-  for (int r = 1; r < rows_.size(); ++r) {
+  for (unsigned r = 1; r < rows_.size(); ++r) {
     double error = SpacingModelError(rows_[r]->PerpDisp(direction), line_spacing_, line_offset_);
     if (error < best_error) {
       best_error = error;
@@ -493,7 +493,7 @@ void BaselineBlock::ParallelizeBaselines(double default_block_skew) {
   }
   // Starting at the best fitting row, work outwards, syncing the offset.
   double offset = line_offset_;
-  for (int r = best_row + 1; r < rows_.size(); ++r) {
+  for (auto r = best_row + 1; r < rows_.size(); ++r) {
     offset = rows_[r]->AdjustBaselineToGrid(debug_level_, direction, line_spacing_, offset);
   }
   offset = line_offset_;
@@ -516,7 +516,7 @@ void BaselineBlock::SetupBlockParameters() const {
   }
   // Setup the parameters on all the rows.
   TO_ROW_IT row_it(block_->get_rows());
-  for (int r = 0; r < rows_.size(); ++r, row_it.forward()) {
+  for (unsigned r = 0; r < rows_.size(); ++r, row_it.forward()) {
     BaselineRow *row = rows_[r];
     TO_ROW *to_row = row_it.data();
     row->SetupOldLineParameters(to_row);
@@ -637,7 +637,7 @@ bool BaselineBlock::ComputeLineSpacing() {
   double max_baseline_error = kMaxBaselineError * line_spacing_;
   int non_trivial_gaps = 0;
   int fitting_gaps = 0;
-  for (int i = 1; i < row_positions.size(); ++i) {
+  for (unsigned i = 1; i < row_positions.size(); ++i) {
     double row_gap = fabs(row_positions[i - 1] - row_positions[i]);
     if (row_gap > max_baseline_error) {
       ++non_trivial_gaps;
@@ -677,7 +677,7 @@ void BaselineBlock::ComputeBaselinePositions(const FCOORD &direction,
 // of the spacings between adjacent overlapping textlines.
 void BaselineBlock::EstimateLineSpacing() {
   std::vector<float> spacings;
-  for (int r = 0; r < rows_.size(); ++r) {
+  for (unsigned r = 0; r < rows_.size(); ++r) {
     BaselineRow *row = rows_[r];
     // Exclude silly lines.
     if (fabs(row->BaselineAngle()) > M_PI * 0.25) {
@@ -685,7 +685,7 @@ void BaselineBlock::EstimateLineSpacing() {
     }
     // Find the first row after row that overlaps it significantly.
     const TBOX &row_box = row->bounding_box();
-    int r2;
+    unsigned r2;
     for (r2 = r + 1; r2 < rows_.size() && !row_box.major_x_overlap(rows_[r2]->bounding_box());
          ++r2) {
       ;
@@ -786,8 +786,8 @@ double BaselineBlock::FitLineSpacingModel(const std::vector<double> &positions, 
     }
     // Get the median offset.
     if (debug_level_ > 2) {
-      for (int i = 0; i < offsets.size(); ++i) {
-        tprintf("%d: %g\n", i, offsets[i]);
+      for (unsigned i = 0; i < offsets.size(); ++i) {
+        tprintf("%u: %g\n", i, offsets[i]);
       }
     }
     *c_out = MedianOfCircularValues(*m_out, offsets);
