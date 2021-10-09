@@ -82,7 +82,7 @@ public:
   // deletes itself. The first part, up to network with index last_start, goes
   // into start, and the rest goes into end.
   TESS_API
-  void SplitAt(int last_start, Series **start, Series **end);
+  void SplitAt(unsigned last_start, Series **start, Series **end);
 
   // Appends the elements of the src series to this, removing from src and
   // deleting it.

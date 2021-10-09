@@ -1280,9 +1280,9 @@ void RecodeBeamSearch::ExtractPath(const RecodeNode *node, std::vector<const Rec
 // Helper prints debug information on the given lattice path.
 void RecodeBeamSearch::DebugPath(const UNICHARSET *unicharset,
                                  const std::vector<const RecodeNode *> &path) const {
-  for (int c = 0; c < path.size(); ++c) {
+  for (unsigned c = 0; c < path.size(); ++c) {
     const RecodeNode &node = *path[c];
-    tprintf("%d ", c);
+    tprintf("%u ", c);
     node.Print(null_char_, *unicharset, 1);
   }
 }
@@ -1294,9 +1294,9 @@ void RecodeBeamSearch::DebugUnicharPath(const UNICHARSET *unicharset,
                                         const std::vector<float> &certs,
                                         const std::vector<float> &ratings,
                                         const std::vector<int> &xcoords) const {
-  int num_ids = unichar_ids.size();
+  auto num_ids = unichar_ids.size();
   double total_rating = 0.0;
-  for (int c = 0; c < num_ids; ++c) {
+  for (unsigned c = 0; c < num_ids; ++c) {
     int coord = xcoords[c];
     tprintf("%d %d=%s r=%g, c=%g, s=%d, e=%d, perm=%d\n", coord, unichar_ids[c],
             unicharset->debug_str(unichar_ids[c]).c_str(), ratings[c], certs[c],

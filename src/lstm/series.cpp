@@ -160,16 +160,16 @@ bool Series::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *s
 // Splits the series after the given index, returning the two parts and
 // deletes itself. The first part, up to network with index last_start, goes
 // into start, and the rest goes into end.
-void Series::SplitAt(int last_start, Series **start, Series **end) {
+void Series::SplitAt(unsigned last_start, Series **start, Series **end) {
   *start = nullptr;
   *end = nullptr;
-  if (last_start < 0 || last_start >= stack_.size()) {
-    tprintf("Invalid split index %d must be in range [0,%zu]!\n", last_start, stack_.size() - 1);
+  if (last_start >= stack_.size()) {
+    tprintf("Invalid split index %u must be in range [0,%zu]!\n", last_start, stack_.size() - 1);
     return;
   }
   auto *master_series = new Series("MasterSeries");
   auto *boosted_series = new Series("BoostedSeries");
-  for (int s = 0; s <= last_start; ++s) {
+  for (unsigned s = 0; s <= last_start; ++s) {
     if (s + 1 == stack_.size() && stack_[s]->type() == NT_SOFTMAX) {
       // Change the softmax to a tanh.
       auto *fc = static_cast<FullyConnected *>(stack_[s]);
@@ -178,7 +178,7 @@ void Series::SplitAt(int last_start, Series **start, Series **end) {
     master_series->AddToStack(stack_[s]);
     stack_[s] = nullptr;
   }
-  for (int s = last_start + 1; s < stack_.size(); ++s) {
+  for (unsigned s = last_start + 1; s < stack_.size(); ++s) {
     boosted_series->AddToStack(stack_[s]);
     stack_[s] = nullptr;
   }
