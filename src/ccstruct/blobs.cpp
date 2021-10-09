@@ -871,12 +871,15 @@ TBOX TWERD::bounding_box() const {
 
 // Merges the blobs from start to end, not including end, and deletes
 // the blobs between start and end.
-void TWERD::MergeBlobs(int start, int end) {
-  if (start >= blobs.size() - 1) {
+void TWERD::MergeBlobs(unsigned start, unsigned end) {
+  if (end > blobs.size()) {
+    end = blobs.size();
+  }
+  if (start >= end) {
     return; // Nothing to do.
   }
   TESSLINE *outline = blobs[start]->outlines;
-  for (int i = start + 1; i < end && i < blobs.size(); ++i) {
+  for (auto i = start + 1; i < end; ++i) {
     TBLOB *next_blob = blobs[i];
     // Take the outlines from the next blob.
     if (outline == nullptr) {
@@ -895,7 +898,7 @@ void TWERD::MergeBlobs(int start, int end) {
   }
   // Remove dead blobs from the vector.
   // TODO: optimize.
-  for (int i = start + 1; i < end && start + 1 < blobs.size(); ++i) {
+  for (auto i = start + 1; i < end && start + 1 < blobs.size(); ++i) {
     blobs.erase(blobs.begin() + start + 1);
   }
 }
