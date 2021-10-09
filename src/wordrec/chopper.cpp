@@ -264,7 +264,7 @@ SEAM *Wordrec::chop_numbered_blob(TWERD *word, int32_t blob_number, bool italic_
 }
 
 SEAM *Wordrec::chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic_blob,
-                                     WERD_RES *word_res, int *blob_number) {
+                                     WERD_RES *word_res, unsigned *blob_number) {
   TWERD *word = word_res->chopped_word;
   for (*blob_number = 0; *blob_number < word->NumBlobs(); ++*blob_number) {
     TBLOB *blob = word->blobs[*blob_number];
@@ -319,13 +319,13 @@ SEAM *Wordrec::chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic
  */
 SEAM *Wordrec::improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, DANGERR *fixpt,
                                 bool split_next_to_fragment, bool italic_blob, WERD_RES *word,
-                                int *blob_number) {
+                                unsigned *blob_number) {
   float rating_ceiling = FLT_MAX;
   SEAM *seam = nullptr;
   do {
     *blob_number = select_blob_to_split_from_fixpt(fixpt);
     if (chop_debug) {
-      tprintf("blob_number from fixpt = %d\n", *blob_number);
+      tprintf("blob_number from fixpt = %u\n", *blob_number);
     }
     bool split_point_from_dict = (*blob_number != -1);
     if (split_point_from_dict) {
@@ -334,7 +334,7 @@ SEAM *Wordrec::improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, 
       *blob_number = select_blob_to_split(blob_choices, rating_ceiling, split_next_to_fragment);
     }
     if (chop_debug) {
-      tprintf("blob_number = %d\n", *blob_number);
+      tprintf("blob_number = %u\n", *blob_number);
     }
     if (*blob_number == -1) {
       return nullptr;
@@ -365,7 +365,7 @@ SEAM *Wordrec::improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, 
  */
 SEAM *Wordrec::chop_one_blob(const std::vector<TBOX> &boxes,
                              const std::vector<BLOB_CHOICE *> &blob_choices, WERD_RES *word_res,
-                             int *blob_number) {
+                             unsigned *blob_number) {
   if (prioritize_division) {
     return chop_overlapping_blob(boxes, true, word_res, blob_number);
   } else {
@@ -445,7 +445,7 @@ void Wordrec::improve_by_chopping(float rating_cert_scale, WERD_RES *word,
                                   BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle,
                                   LMPainPoints *pain_points,
                                   std::vector<SegSearchPending> *pending) {
-  int blob_number;
+  unsigned blob_number;
   do { // improvement loop.
     // Make a simple vector of BLOB_CHOICEs to make it easy to pick which
     // one to chop.

@@ -338,13 +338,13 @@ public:
   SEAM *chop_numbered_blob(TWERD *word, int32_t blob_number, bool italic_blob,
                            const std::vector<SEAM *> &seams);
   SEAM *chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic_blob, WERD_RES *word_res,
-                              int *blob_number);
+                              unsigned *blob_number);
   SEAM *improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, DANGERR *fixpt,
                          bool split_next_to_fragment, bool italic_blob, WERD_RES *word,
-                         int *blob_number);
+                         unsigned *blob_number);
   SEAM *chop_one_blob(const std::vector<TBOX> &boxes,
                       const std::vector<BLOB_CHOICE *> &blob_choices, WERD_RES *word_res,
-                      int *blob_number);
+                      unsigned *blob_number);
   void chop_word_main(WERD_RES *word);
   void improve_by_chopping(float rating_cert_scale, WERD_RES *word,
                            BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle,
