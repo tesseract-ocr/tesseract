@@ -446,7 +446,7 @@ struct TWERD {
   void ComputeBoundingBoxes();
 
   // Returns the number of blobs in the word.
-  int NumBlobs() const {
+  unsigned NumBlobs() const {
     return blobs.size();
   }
   TBOX bounding_box() const;

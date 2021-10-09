@@ -292,7 +292,7 @@ void ImageData::Display() const {
   }
   win->TextAttributes("Arial", text_size, false, false, false);
   if (!boxes_.empty()) {
-    for (int b = 0; b < boxes_.size(); ++b) {
+    for (unsigned b = 0; b < boxes_.size(); ++b) {
       boxes_[b].plot(win);
       win->Text(boxes_[b].left(), height + kTextSize, box_texts_[b].c_str());
     }
@@ -312,7 +312,7 @@ void ImageData::Display() const {
 void ImageData::AddBoxes(const std::vector<TBOX> &boxes, const std::vector<std::string> &texts,
                          const std::vector<int> &box_pages) {
   // Copy the boxes and make the transcription.
-  for (int i = 0; i < box_pages.size(); ++i) {
+  for (unsigned i = 0; i < box_pages.size(); ++i) {
     if (page_number_ >= 0 && box_pages[i] != page_number_) {
       continue;
     }
@@ -483,7 +483,7 @@ bool DocumentData::IsPageAvailable(int index, ImageData **page) {
   }
   if (num_pages > 0) {
     index = Modulo(index, num_pages);
-    if (pages_offset_ <= index && index < pages_offset_ + pages_.size()) {
+    if (pages_offset_ <= index && static_cast<unsigned>(index) < pages_offset_ + pages_.size()) {
       *page = pages_[index - pages_offset_]; // Page is available already.
       return true;
     }

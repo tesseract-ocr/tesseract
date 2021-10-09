@@ -58,22 +58,20 @@ void REJ::full_print(FILE *fp) const {
 
 REJMAP &REJMAP::operator=(const REJMAP &source) {
   initialise(source.len);
-  for (int i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     ptr[i] = source.ptr[i];
   }
   return *this;
 }
 
-void REJMAP::initialise(int16_t length) {
+void REJMAP::initialise(uint16_t length) {
   ptr = std::make_unique<REJ[]>(length);
   len = length;
 }
 
 int16_t REJMAP::accept_count() const { // How many accepted?
-  int i;
   int16_t count = 0;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       count++;
     }
@@ -82,7 +80,7 @@ int16_t REJMAP::accept_count() const { // How many accepted?
 }
 
 bool REJMAP::recoverable_rejects() const { // Any non perm rejs?
-  for (int i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].recoverable()) {
       return true;
     }
@@ -91,7 +89,7 @@ bool REJMAP::recoverable_rejects() const { // Any non perm rejs?
 }
 
 bool REJMAP::quality_recoverable_rejects() const { // Any potential rejs?
-  for (int i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accept_if_good_quality()) {
       return true;
     }
@@ -100,9 +98,8 @@ bool REJMAP::quality_recoverable_rejects() const { // Any potential rejs?
 }
 
 void REJMAP::remove_pos( // Cut out an element
-    int16_t pos          // element to remove
+    uint16_t pos         // element to remove
 ) {
-  ASSERT_HOST(pos >= 0);
   ASSERT_HOST(pos < len);
   ASSERT_HOST(len > 0);
 
@@ -113,45 +110,34 @@ void REJMAP::remove_pos( // Cut out an element
 }
 
 void REJMAP::print(FILE *fp) const {
-  int i;
-  char buff[512];
-
-  for (i = 0; i < len; i++) {
-    buff[i] = ptr[i].display_char();
+  fputc('"', fp);
+  for (unsigned i = 0; i < len; i++) {
+    fputc( ptr[i].display_char(), fp);
   }
-  buff[i] = '\0';
-  fprintf(fp, "\"%s\"", buff);
+  fputc('"', fp);
 }
 
 void REJMAP::full_print(FILE *fp) const {
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     ptr[i].full_print(fp);
     fprintf(fp, "\n");
   }
 }
 
 void REJMAP::rej_word_small_xht() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     ptr[i].setrej_small_xht();
   }
 }
 
 void REJMAP::rej_word_tess_failure() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     ptr[i].setrej_tess_failure();
   }
 }
 
 void REJMAP::rej_word_not_tess_accepted() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       ptr[i].setrej_not_tess_accepted();
     }
@@ -159,9 +145,7 @@ void REJMAP::rej_word_not_tess_accepted() { // Reject whole word
 }
 
 void REJMAP::rej_word_contains_blanks() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       ptr[i].setrej_contains_blanks();
     }
@@ -169,9 +153,7 @@ void REJMAP::rej_word_contains_blanks() { // Reject whole word
 }
 
 void REJMAP::rej_word_bad_permuter() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       ptr[i].setrej_bad_permuter();
     }
@@ -179,9 +161,7 @@ void REJMAP::rej_word_bad_permuter() { // Reject whole word
 }
 
 void REJMAP::rej_word_xht_fixup() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       ptr[i].setrej_xht_fixup();
     }
@@ -189,9 +169,7 @@ void REJMAP::rej_word_xht_fixup() { // Reject whole word
 }
 
 void REJMAP::rej_word_no_alphanums() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       ptr[i].setrej_no_alphanums();
     }
@@ -199,9 +177,7 @@ void REJMAP::rej_word_no_alphanums() { // Reject whole word
 }
 
 void REJMAP::rej_word_mostly_rej() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       ptr[i].setrej_mostly_rej();
     }
@@ -209,9 +185,7 @@ void REJMAP::rej_word_mostly_rej() { // Reject whole word
 }
 
 void REJMAP::rej_word_bad_quality() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       ptr[i].setrej_bad_quality();
     }
@@ -219,9 +193,7 @@ void REJMAP::rej_word_bad_quality() { // Reject whole word
 }
 
 void REJMAP::rej_word_doc_rej() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       ptr[i].setrej_doc_rej();
     }
@@ -229,9 +201,7 @@ void REJMAP::rej_word_doc_rej() { // Reject whole word
 }
 
 void REJMAP::rej_word_block_rej() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       ptr[i].setrej_block_rej();
     }
@@ -239,9 +209,7 @@ void REJMAP::rej_word_block_rej() { // Reject whole word
 }
 
 void REJMAP::rej_word_row_rej() { // Reject whole word
-  int i;
-
-  for (i = 0; i < len; i++) {
+  for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       ptr[i].setrej_row_rej();
     }
