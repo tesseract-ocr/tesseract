@@ -136,10 +136,7 @@ void Dawg::iterate_words_rec(const WERD_CHOICE &word_so_far, NODE_REF to_explore
   }
 }
 
-bool Dawg::match_words(WERD_CHOICE *word, int32_t index, NODE_REF node, UNICHAR_ID wildcard) const {
-  EDGE_REF edge;
-  int32_t word_end;
-
+bool Dawg::match_words(WERD_CHOICE *word, uint32_t index, NODE_REF node, UNICHAR_ID wildcard) const {
   if (wildcard != INVALID_UNICHAR_ID && word->unichar_id(index) == wildcard) {
     bool any_matched = false;
     NodeChildVector vec;
@@ -153,8 +150,8 @@ bool Dawg::match_words(WERD_CHOICE *word, int32_t index, NODE_REF node, UNICHAR_
     word->set_unichar_id(wildcard, index);
     return any_matched;
   } else {
-    word_end = index == word->length() - 1;
-    edge = edge_char_of(node, word->unichar_id(index), word_end);
+    auto word_end = index == word->length() - 1;
+    auto edge = edge_char_of(node, word->unichar_id(index), word_end);
     if (edge != NO_EDGE) { // normal edge in DAWG
       node = next_node(edge);
       if (word_end) {

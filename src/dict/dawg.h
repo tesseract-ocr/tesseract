@@ -277,7 +277,7 @@ protected:
   /// the *'s in this string are interpreted as wildcards.
   /// WERD_CHOICE param is not passed by const so that wildcard searches
   /// can modify it and work without having to copy WERD_CHOICEs.
-  bool match_words(WERD_CHOICE *word, int32_t index, NODE_REF node, UNICHAR_ID wildcard) const;
+  bool match_words(WERD_CHOICE *word, uint32_t index, NODE_REF node, UNICHAR_ID wildcard) const;
 
   // Recursively iterate over all words in a dawg (see public iterate_words).
   void iterate_words_rec(const WERD_CHOICE &word_so_far, NODE_REF to_explore,

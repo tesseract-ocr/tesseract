@@ -364,7 +364,7 @@ bool Dict::FinishLoad() {
   successors_.reserve(dawgs_.size());
   for (auto dawg : dawgs_) {
     auto *lst = new SuccessorList();
-    for (int j = 0; j < dawgs_.size(); ++j) {
+    for (unsigned j = 0; j < dawgs_.size(); ++j) {
       const Dawg *other = dawgs_[j];
       if (dawg != nullptr && other != nullptr && (dawg->lang() == other->lang()) &&
           kDawgSuccessors[dawg->type()][other->type()]) {
@@ -432,7 +432,7 @@ int Dict::def_letter_is_okay(void *void_dawg_args, const UNICHARSET &unicharset,
   // Go over the active_dawgs vector and insert DawgPosition records
   // with the updated ref (an edge with the corresponding unichar id) into
   // dawg_args->updated_pos.
-  for (int a = 0; a < dawg_args->active_dawgs->size(); ++a) {
+  for (unsigned a = 0; a < dawg_args->active_dawgs->size(); ++a) {
     const DawgPosition &pos = (*dawg_args->active_dawgs)[a];
     const Dawg *punc_dawg = pos.punc_index >= 0 ? dawgs_[pos.punc_index] : nullptr;
     const Dawg *dawg = pos.dawg_index >= 0 ? dawgs_[pos.dawg_index] : nullptr;
@@ -608,11 +608,10 @@ void Dict::ProcessPatternEdges(const Dawg *dawg, const DawgPosition &pos, UNICHA
 // beginning of the word. If hyphenated() returns true, copy the entries
 // from hyphen_active_dawgs_ instead.
 void Dict::init_active_dawgs(DawgPositionVector *active_dawgs, bool ambigs_mode) const {
-  int i;
   if (hyphenated()) {
     *active_dawgs = hyphen_active_dawgs_;
     if (dawg_debug_level >= 3) {
-      for (i = 0; i < hyphen_active_dawgs_.size(); ++i) {
+      for (unsigned i = 0; i < hyphen_active_dawgs_.size(); ++i) {
         tprintf("Adding hyphen beginning dawg [%d, " REFFORMAT "]\n",
                 hyphen_active_dawgs_[i].dawg_index, hyphen_active_dawgs_[i].dawg_ref);
       }
@@ -626,7 +625,7 @@ void Dict::default_dawgs(DawgPositionVector *dawg_pos_vec, bool suppress_pattern
   bool punc_dawg_available = (punc_dawg_ != nullptr) &&
                              punc_dawg_->edge_char_of(0, Dawg::kPatternUnicharID, true) != NO_EDGE;
 
-  for (int i = 0; i < dawgs_.size(); i++) {
+  for (unsigned i = 0; i < dawgs_.size(); i++) {
     if (dawgs_[i] != nullptr && !(suppress_patterns && (dawgs_[i])->type() == DAWG_TYPE_PATTERN)) {
       int dawg_ty = dawgs_[i]->type();
       bool subsumed_by_punc = kDawgSuccessors[DAWG_TYPE_PUNCTUATION][dawg_ty];
@@ -666,7 +665,7 @@ void Dict::add_document_word(const WERD_CHOICE &best_choice) {
   if (best_choice.length() >= kDocDictMaxRepChars) {
     int num_rep_chars = 1;
     UNICHAR_ID uch_id = best_choice.unichar_id(0);
-    for (int i = 1; i < best_choice.length(); ++i) {
+    for (unsigned i = 1; i < best_choice.length(); ++i) {
       if (best_choice.unichar_id(i) != uch_id) {
         num_rep_chars = 1;
         uch_id = best_choice.unichar_id(i);
@@ -841,7 +840,7 @@ bool Dict::valid_bigram(const WERD_CHOICE &word1, const WERD_CHOICE &word2) cons
 
   // Extract the core word from the middle of each word with any digits
   //         replaced with question marks.
-  int w1start, w1end, w2start, w2end;
+  unsigned w1start, w1end, w2start, w2end;
   word1.punct_stripped(&w1start, &w1end);
   word2.punct_stripped(&w2start, &w2end);
 
@@ -857,7 +856,7 @@ bool Dict::valid_bigram(const WERD_CHOICE &word1, const WERD_CHOICE &word2) cons
   const UNICHARSET &uchset = getUnicharset();
   std::vector<UNICHAR_ID> bigram_string;
   bigram_string.reserve(w1end + w2end + 1);
-  for (int i = w1start; i < w1end; i++) {
+  for (auto i = w1start; i < w1end; i++) {
     const auto &normed_ids = getUnicharset().normed_ids(word1.unichar_id(i));
     if (normed_ids.size() == 1 && uchset.get_isdigit(normed_ids[0])) {
       bigram_string.push_back(question_unichar_id_);
@@ -866,7 +865,7 @@ bool Dict::valid_bigram(const WERD_CHOICE &word1, const WERD_CHOICE &word2) cons
     }
   }
   bigram_string.push_back(UNICHAR_SPACE);
-  for (int i = w2start; i < w2end; i++) {
+  for (auto i = w2start; i < w2end; i++) {
     const auto &normed_ids = getUnicharset().normed_ids(word2.unichar_id(i));
     if (normed_ids.size() == 1 && uchset.get_isdigit(normed_ids[0])) {
       bigram_string.push_back(question_unichar_id_);
@@ -885,11 +884,10 @@ bool Dict::valid_punctuation(const WERD_CHOICE &word) {
   if (word.empty()) {
     return NO_PERM;
   }
-  int i;
   WERD_CHOICE new_word(word.unicharset());
-  int last_index = word.length() - 1;
+  auto last_index = word.length() - 1;
   int new_len = 0;
-  for (i = 0; i <= last_index; ++i) {
+  for (unsigned i = 0; i <= last_index; ++i) {
     UNICHAR_ID unichar_id = (word.unichar_id(i));
     if (getUnicharset().get_ispunctuation(unichar_id)) {
       new_word.append_unichar_id(unichar_id, 1, 0.0, 0.0);
@@ -901,7 +899,7 @@ bool Dict::valid_punctuation(const WERD_CHOICE &word) {
       new_word.append_unichar_id(Dawg::kPatternUnicharID, 1, 0.0, 0.0);
     }
   }
-  for (i = 0; i < dawgs_.size(); ++i) {
+  for (unsigned i = 0; i < dawgs_.size(); ++i) {
     if (dawgs_[i] != nullptr && dawgs_[i]->type() == DAWG_TYPE_PUNCTUATION &&
         dawgs_[i]->word_in_dawg(new_word)) {
       return true;
