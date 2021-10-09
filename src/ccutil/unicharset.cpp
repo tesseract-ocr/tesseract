@@ -883,7 +883,7 @@ void UNICHARSET::post_load_setup() {
   int x_height_alphas = 0;
   int cap_height_alphas = 0;
   top_bottom_set_ = false;
-  for (UNICHAR_ID id = 0; id < unichars.size(); ++id) {
+  for (unsigned id = 0; id < unichars.size(); ++id) {
     int min_bottom = 0;
     int max_bottom = UINT8_MAX;
     int min_top = 0;
@@ -1012,7 +1012,7 @@ bool UNICHARSET::AnyRepeatedUnicodes() const {
   if (has_special_codes()) {
     start_id = SPECIAL_UNICHAR_CODES_COUNT;
   }
-  for (int id = start_id; id < unichars.size(); ++id) {
+  for (unsigned id = start_id; id < unichars.size(); ++id) {
     // Convert to unicodes.
     std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(get_normed_unichar(id));
     for (size_t u = 1; u < unicodes.size(); ++u) {

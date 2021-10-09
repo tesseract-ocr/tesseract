@@ -78,7 +78,7 @@ static bool DecodeRadicalLine(std::string &radical_data_line, RSMap *radical_map
 // is unlikely to want to use it again.
 static bool DecodeRadicalTable(std::string &radical_data, RSMap *radical_map) {
   std::vector<std::string> lines = split(radical_data, '\n');
-  for (int i = 0; i < lines.size(); ++i) {
+  for (unsigned i = 0; i < lines.size(); ++i) {
     if (!DecodeRadicalLine(lines[i], radical_map)) {
       tprintf("Invalid format in radical table at line %d: %s\n", i, lines[i].c_str());
       return false;
@@ -265,7 +265,7 @@ void UnicharCompress::DefragmentCodeValues(int encoded_null) {
   }
   // Compute offsets based on code use.
   int offset = 0;
-  for (int i = 0; i < offsets.size(); ++i) {
+  for (unsigned i = 0; i < offsets.size(); ++i) {
     // If not used, decrement everything above here.
     // We are moving encoded_null to the end, so it is not "used".
     if (offsets[i] == 0 || i == encoded_null) {
@@ -338,7 +338,7 @@ bool UnicharCompress::DeSerialize(TFile *fp) {
 // See the class comment above for details.
 std::string UnicharCompress::GetEncodingAsString(const UNICHARSET &unicharset) const {
   std::string encoding;
-  for (int c = 0; c < encoder_.size(); ++c) {
+  for (unsigned c = 0; c < encoder_.size(); ++c) {
     const RecodedCharID &code = encoder_[c];
     if (0 < c && c < SPECIAL_UNICHAR_CODES_COUNT && code == encoder_[c - 1]) {
       // Don't show the duplicate entry.
