@@ -742,7 +742,7 @@ int EquationDetect::CountAlignment(const std::vector<int> &sorted_vec, const int
 
   // Search right side.
   index = pos + 1 - sorted_vec.begin();
-  while (index < sorted_vec.size() && sorted_vec[index++] - val < kDistTh) {
+  while (static_cast<size_t>(index) < sorted_vec.size() && sorted_vec[index++] - val < kDistTh) {
     count++;
   }
 

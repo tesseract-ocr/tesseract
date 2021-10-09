@@ -64,7 +64,7 @@ int16_t Tesseract::word_outline_errs(WERD_RES *word) {
   int16_t err_count = 0;
 
   if (word->rebuild_word != nullptr) {
-    for (int b = 0; b < word->rebuild_word->NumBlobs(); ++b) {
+    for (unsigned b = 0; b < word->rebuild_word->NumBlobs(); ++b) {
       TBLOB *blob = word->rebuild_word->blobs[b];
       err_count += count_outline_errs(word->best_choice->unichar_string()[i], blob->NumOutlines());
       i++;
@@ -911,7 +911,7 @@ bool Tesseract::noise_outlines(TWERD *word) {
   int16_t max_dimension;
   float small_limit = kBlnXHeight * crunch_small_outlines_size;
 
-  for (int b = 0; b < word->NumBlobs(); ++b) {
+  for (unsigned b = 0; b < word->NumBlobs(); ++b) {
     TBLOB *blob = word->blobs[b];
     for (TESSLINE *ol = blob->outlines; ol != nullptr; ol = ol->next) {
       outline_count++;

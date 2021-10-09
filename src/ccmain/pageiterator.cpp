@@ -612,12 +612,12 @@ void PageIterator::BeginWord(int offset) {
     // is already baseline denormalized.
     word_length_ = word_res->best_choice->length();
     if (word_res->box_word != nullptr) {
-      if (word_res->box_word->length() != word_length_) {
+      if (word_res->box_word->length() != static_cast<unsigned>(word_length_)) {
         tprintf("Corrupted word! best_choice[len=%d] = %s, box_word[len=%d]: ", word_length_,
                 word_res->best_choice->unichar_string().c_str(), word_res->box_word->length());
         word_res->box_word->bounding_box().print();
       }
-      ASSERT_HOST(word_res->box_word->length() == word_length_);
+      ASSERT_HOST(word_res->box_word->length() == static_cast<unsigned>(word_length_));
     }
     word_ = nullptr;
     // We will be iterating the box_word.

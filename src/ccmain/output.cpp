@@ -101,7 +101,6 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
                               bool force_eol) {  // override tilde crunch?
   WERD_RES *word = page_res_it.word();
   const UNICHARSET &uchset = *word->uch_set;
-  int i;
   bool need_reject = false;
   UNICHAR_ID space = uchset.unichar_to_id(" ");
 
@@ -181,7 +180,7 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
   if (!word->word->flag(W_REP_CHAR) || !tessedit_write_rep_codes) {
     if (tessedit_zero_rejection) {
       /* OVERRIDE ALL REJECTION MECHANISMS - ONLY REJECT TESS FAILURES */
-      for (i = 0; i < word->best_choice->length(); ++i) {
+      for (unsigned i = 0; i < word->best_choice->length(); ++i) {
         if (word->reject_map[i].rejected()) {
           word->reject_map[i].setrej_minimal_rej_accept();
         }
@@ -189,7 +188,7 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
     }
     if (tessedit_minimal_rejection) {
       /* OVERRIDE ALL REJECTION MECHANISMS - ONLY REJECT TESS FAILURES */
-      for (i = 0; i < word->best_choice->length(); ++i) {
+      for (unsigned i = 0; i < word->best_choice->length(); ++i) {
         if ((word->best_choice->unichar_id(i) != space) && word->reject_map[i].rejected()) {
           word->reject_map[i].setrej_minimal_rej_accept();
         }
@@ -365,7 +364,7 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
 
 int16_t Tesseract::count_alphas(const WERD_CHOICE &word) {
   int count = 0;
-  for (int i = 0; i < word.length(); ++i) {
+  for (unsigned i = 0; i < word.length(); ++i) {
     if (word.unicharset()->get_isalpha(word.unichar_id(i))) {
       count++;
     }
@@ -375,7 +374,7 @@ int16_t Tesseract::count_alphas(const WERD_CHOICE &word) {
 
 int16_t Tesseract::count_alphanums(const WERD_CHOICE &word) {
   int count = 0;
-  for (int i = 0; i < word.length(); ++i) {
+  for (unsigned i = 0; i < word.length(); ++i) {
     if (word.unicharset()->get_isalpha(word.unichar_id(i)) ||
         word.unicharset()->get_isdigit(word.unichar_id(i))) {
       count++;

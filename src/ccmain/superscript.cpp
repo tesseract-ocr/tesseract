@@ -502,13 +502,13 @@ WERD_RES *Tesseract::TrySuperscriptSplits(int num_chopped_leading, float leading
  */
 bool Tesseract::BelievableSuperscript(bool debug, const WERD_RES &word, float certainty_threshold,
                                       int *left_ok, int *right_ok) const {
-  int initial_ok_run_count = 0;
-  int ok_run_count = 0;
+  unsigned initial_ok_run_count = 0;
+  unsigned ok_run_count = 0;
   float worst_certainty = 0.0f;
   const WERD_CHOICE &wc = *word.best_choice;
 
   const UnicityTable<FontInfo> &fontinfo_table = get_fontinfo_table();
-  for (int i = 0; i < wc.length(); i++) {
+  for (unsigned i = 0; i < wc.length(); i++) {
     TBLOB *blob = word.rebuild_word->blobs[i];
     UNICHAR_ID unichar_id = wc.unichar_id(i);
     float char_certainty = wc.certainty(i);
