@@ -446,14 +446,14 @@ struct TWERD {
   void ComputeBoundingBoxes();
 
   // Returns the number of blobs in the word.
-  int NumBlobs() const {
+  unsigned NumBlobs() const {
     return blobs.size();
   }
   TBOX bounding_box() const;
 
   // Merges the blobs from start to end, not including end, and deletes
   // the blobs between start and end.
-  void MergeBlobs(int start, int end);
+  void MergeBlobs(unsigned start, unsigned end);
 
 #ifndef GRAPHICS_DISABLED
   void plot(ScrollView *window);

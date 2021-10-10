@@ -55,13 +55,13 @@ bool SaveDataToFile(const std::vector<char> &data, const char *filename) {
   if (fp == nullptr) {
     return false;
   }
-  bool result = static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
+  bool result = fwrite(&data[0], 1, data.size(), fp) == data.size();
   fclose(fp);
   return result;
 }
 
-TFile::TFile()
-    : data_(nullptr), offset_(0), data_is_owned_(false), is_writing_(false), swap_(false) {}
+TFile::TFile() {
+}
 
 TFile::~TFile() {
   if (data_is_owned_) {
@@ -152,7 +152,7 @@ bool TFile::Open(const char *filename, FileReader reader) {
   }
 }
 
-bool TFile::Open(const char *data, int size) {
+bool TFile::Open(const char *data, size_t size) {
   offset_ = 0;
   if (!data_is_owned_) {
     data_ = new std::vector<char>;
@@ -181,7 +181,7 @@ bool TFile::Open(FILE *fp, int64_t end_offset) {
       return false;
     }
   }
-  int size = end_offset - current_pos;
+  size_t size = end_offset - current_pos;
   is_writing_ = false;
   swap_ = false;
   if (!data_is_owned_) {
@@ -189,7 +189,7 @@ bool TFile::Open(FILE *fp, int64_t end_offset) {
     data_is_owned_ = true;
   }
   data_->resize(size); // TODO: optimize no init
-  return static_cast<int>(fread(&(*data_)[0], 1, size, fp)) == size;
+  return fread(&(*data_)[0], 1, size, fp) == size;
 }
 
 char *TFile::FGets(char *buffer, int buffer_size) {
@@ -207,21 +207,20 @@ char *TFile::FGets(char *buffer, int buffer_size) {
   return size > 0 ? buffer : nullptr;
 }
 
-int TFile::FReadEndian(void *buffer, size_t size, int count) {
-  int num_read = FRead(buffer, size, count);
+size_t TFile::FReadEndian(void *buffer, size_t size, size_t count) {
+  auto num_read = FRead(buffer, size, count);
   if (swap_ && size != 1) {
     char *char_buffer = static_cast<char *>(buffer);
-    for (int i = 0; i < num_read; ++i, char_buffer += size) {
+    for (size_t i = 0; i < num_read; ++i, char_buffer += size) {
       ReverseN(char_buffer, size);
     }
   }
   return num_read;
 }
 
-int TFile::FRead(void *buffer, size_t size, int count) {
+size_t TFile::FRead(void *buffer, size_t size, size_t count) {
   ASSERT_HOST(!is_writing_);
   ASSERT_HOST(size > 0);
-  ASSERT_HOST(count >= 0);
   size_t required_size;
   if (SIZE_MAX / size <= count) {
     // Avoid integer overflow.
@@ -270,10 +269,9 @@ bool TFile::CloseWrite(const char *filename, FileWriter writer) {
   }
 }
 
-int TFile::FWrite(const void *buffer, size_t size, int count) {
+size_t TFile::FWrite(const void *buffer, size_t size, size_t count) {
   ASSERT_HOST(is_writing_);
   ASSERT_HOST(size > 0);
-  ASSERT_HOST(count >= 0);
   ASSERT_HOST(SIZE_MAX / size > count);
   size_t total = size * count;
   const char *buf = static_cast<const char *>(buffer);

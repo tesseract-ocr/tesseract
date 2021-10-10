@@ -434,7 +434,6 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs, LABELEDLIS
                               const char *program_feature_type) {
   uint16_t N;
   CLUSTERER *Clusterer;
-  int32_t CharID;
   LIST FeatureList = nullptr;
   FEATURE_SET FeatureSet = nullptr;
 
@@ -443,7 +442,7 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs, LABELEDLIS
   Clusterer = MakeClusterer(N, FeatureDefs.FeatureDesc[desc_index]->ParamDesc);
 
   FeatureList = char_sample->List;
-  CharID = 0;
+  uint32_t CharID = 0;
   std::vector<float> Sample;
   iterate(FeatureList) {
     FeatureSet = reinterpret_cast<FEATURE_SET>(FeatureList->first_node());

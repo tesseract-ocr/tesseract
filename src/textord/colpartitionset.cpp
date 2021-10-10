@@ -187,7 +187,7 @@ void ColPartitionSet::AddToColumnSetsIfUnique(PartSetVector *column_sets, WidthC
     delete this;
     return;
   }
-  for (int i = 0; i < column_sets->size(); ++i) {
+  for (unsigned i = 0; i < column_sets->size(); ++i) {
     ColPartitionSet *columns = column_sets->at(i);
     // In ordering the column set candidates, good_coverage_ is king,
     // followed by good_column_count_ and then bad_coverage_.

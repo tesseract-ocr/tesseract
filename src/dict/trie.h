@@ -36,7 +36,6 @@ class UNICHARSET;
 // typedefs to int and restrict the casts to extracting these values from
 // the 64 bit EDGE_RECORD.
 using EDGE_INDEX = int64_t; // index of an edge in a given node
-using NODE_MARKER = bool *;
 using EDGE_VECTOR = std::vector<EDGE_RECORD>;
 
 struct TRIE_NODE_RECORD {
@@ -383,7 +382,7 @@ protected:
   // caller when all edges with this letter have been reduced.
   // Returns true if further reduction is possible with this same letter.
   bool reduce_lettered_edges(EDGE_INDEX edge_index, UNICHAR_ID unichar_id, NODE_REF node,
-                             EDGE_VECTOR *backward_edges, NODE_MARKER reduced_nodes);
+                             EDGE_VECTOR *backward_edges, std::vector<bool> &reduced_nodes);
 
   /**
    * Order num_edges of consecutive EDGE_RECORDS in the given EDGE_VECTOR in
@@ -394,7 +393,7 @@ protected:
   void sort_edges(EDGE_VECTOR *edges);
 
   /** Eliminates any redundant edges from this node in the Trie. */
-  void reduce_node_input(NODE_REF node, NODE_MARKER reduced_nodes);
+  void reduce_node_input(NODE_REF node, std::vector<bool> &reduced_nodes);
 
   // Returns the pattern unichar id for the given character class code.
   UNICHAR_ID character_class_to_pattern(char ch);

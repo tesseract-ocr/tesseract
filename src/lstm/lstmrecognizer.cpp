@@ -269,7 +269,7 @@ void LSTMRecognizer::RecognizeLine(const ImageData &image_data, bool invert, boo
     }
     search_->segmentTimestepsByCharacters();
     unsigned char_it = 0;
-    for (int i = 0; i < words->size(); ++i) {
+    for (size_t i = 0; i < words->size(); ++i) {
       for (int j = 0; j < words->at(i)->end; ++j) {
         if (char_it < search_->ctc_choices.size()) {
           words->at(i)->CTC_symbol_choices.push_back(search_->ctc_choices[char_it]);

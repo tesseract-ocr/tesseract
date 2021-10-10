@@ -449,18 +449,18 @@ bool WERD_RES::IsAmbiguous() {
 // Returns true if the ratings matrix size matches the sum of each of the
 // segmentation states.
 bool WERD_RES::StatesAllValid() {
-  int ratings_dim = ratings->dimension();
+  unsigned ratings_dim = ratings->dimension();
   if (raw_choice->TotalOfStates() != ratings_dim) {
-    tprintf("raw_choice has total of states = %d vs ratings dim of %d\n",
+    tprintf("raw_choice has total of states = %u vs ratings dim of %u\n",
             raw_choice->TotalOfStates(), ratings_dim);
     return false;
   }
   WERD_CHOICE_IT it(&best_choices);
-  int index = 0;
+  unsigned index = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward(), ++index) {
     WERD_CHOICE *choice = it.data();
     if (choice->TotalOfStates() != ratings_dim) {
-      tprintf("Cooked #%d has total of states = %d vs ratings dim of %d\n", index,
+      tprintf("Cooked #%u has total of states = %u vs ratings dim of %u\n", index,
               choice->TotalOfStates(), ratings_dim);
       return false;
     }
@@ -522,19 +522,19 @@ void WERD_RES::FilterWordChoices(int debug_level) {
     // Since the two words may use different segmentations of the chunks, we
     // iterate over the chunks to find out whether a comparable blob
     // classification is much worse than the best result.
-    int i = 0, j = 0, chunk = 0;
+    unsigned i = 0, j = 0, chunk = 0;
     // Each iteration of the while deals with 1 chunk. On entry choice_chunk
     // and best_chunk are the indices of the first chunk in the NEXT blob,
     // i.e. we don't have to increment i, j while chunk < choice_chunk and
     // best_chunk respectively.
-    int choice_chunk = choice->state(0), best_chunk = best_choice->state(0);
+    auto choice_chunk = choice->state(0), best_chunk = best_choice->state(0);
     while (i < choice->length() && j < best_choice->length()) {
       if (choice->unichar_id(i) != best_choice->unichar_id(j) &&
           choice->certainty(i) - best_choice->certainty(j) < threshold) {
         if (debug_level >= 2) {
           choice->print("WorstCertaintyDiffWorseThan");
           tprintf(
-              "i %d j %d Choice->Blob[i].Certainty %.4g"
+              "i %u j %u Choice->Blob[i].Certainty %.4g"
               " WorstOtherChoiceCertainty %g Threshold %g\n",
               i, j, choice->certainty(i), best_choice->certainty(j), threshold);
           tprintf("Discarding bad choice #%d\n", index);
@@ -561,7 +561,7 @@ void WERD_RES::ComputeAdaptionThresholds(float certainty_scale, float min_rating
   int end_chunk = best_choice->state(0);
   int end_raw_chunk = raw_choice->state(0);
   int raw_blob = 0;
-  for (int i = 0; i < best_choice->length(); i++, thresholds++) {
+  for (unsigned i = 0; i < best_choice->length(); i++, thresholds++) {
     float avg_rating = 0.0f;
     int num_error_chunks = 0;
 
@@ -737,8 +737,8 @@ int WERD_RES::GetBlobsWidth(int start_blob, int last_blob) const {
   return result;
 }
 // Returns the width of a gap between the specified blob and the next one.
-int WERD_RES::GetBlobsGap(int blob_index) const {
-  if (blob_index < 0 || blob_index >= blob_gaps.size()) {
+int WERD_RES::GetBlobsGap(unsigned blob_index) const {
+  if (blob_index >= blob_gaps.size()) {
     return 0;
   }
   return blob_gaps[blob_index];
@@ -748,8 +748,8 @@ int WERD_RES::GetBlobsGap(int blob_index) const {
 // best choice word taken from the appropriate cell in the ratings MATRIX.
 // Borrowed pointer, so do not delete. May return nullptr if there is no
 // BLOB_CHOICE matching the unichar_id at the given index.
-BLOB_CHOICE *WERD_RES::GetBlobChoice(int index) const {
-  if (index < 0 || index >= best_choice->length()) {
+BLOB_CHOICE *WERD_RES::GetBlobChoice(unsigned index) const {
+  if (index >= best_choice->length()) {
     return nullptr;
   }
   BLOB_CHOICE_LIST *choices = GetBlobChoices(index);
@@ -826,7 +826,7 @@ void WERD_RES::RebuildBestState() {
   }
   best_state.clear();
   int start = 0;
-  for (int i = 0; i < best_choice->length(); ++i) {
+  for (unsigned i = 0; i < best_choice->length(); ++i) {
     int length = best_choice->state(i);
     best_state.push_back(length);
     if (length > 1) {
@@ -847,10 +847,10 @@ void WERD_RES::CloneChoppedToRebuild() {
   delete rebuild_word;
   rebuild_word = new TWERD(*chopped_word);
   SetupBoxWord();
-  int word_len = box_word->length();
+  auto word_len = box_word->length();
   best_state.reserve(word_len);
   correct_text.reserve(word_len);
-  for (int i = 0; i < word_len; ++i) {
+  for (unsigned i = 0; i < word_len; ++i) {
     best_state.push_back(1);
     correct_text.emplace_back("");
   }
@@ -886,14 +886,14 @@ void WERD_RES::SetAllScriptPositions(tesseract::ScriptPos position) {
 // providing a single classifier result for each blob.
 // The BLOB_CHOICEs are consumed and the word takes ownership.
 // The number of blobs in the box_word must match blob_count.
-void WERD_RES::FakeClassifyWord(int blob_count, BLOB_CHOICE **choices) {
+void WERD_RES::FakeClassifyWord(unsigned blob_count, BLOB_CHOICE **choices) {
   // Setup the WERD_RES.
   ASSERT_HOST(box_word != nullptr);
   ASSERT_HOST(blob_count == box_word->length());
   ClearWordChoices();
   ClearRatings();
   ratings = new MATRIX(blob_count, 1);
-  for (int c = 0; c < blob_count; ++c) {
+  for (unsigned c = 0; c < blob_count; ++c) {
     auto *choice_list = new BLOB_CHOICE_LIST;
     BLOB_CHOICE_IT choice_it(choice_list);
     choice_it.add_after_then_move(choices[c]);
@@ -936,7 +936,7 @@ void WERD_RES::FakeWordFromRatings(PermuterType permuter) {
 void WERD_RES::BestChoiceToCorrectText() {
   correct_text.clear();
   ASSERT_HOST(best_choice != nullptr);
-  for (int i = 0; i < best_choice->length(); ++i) {
+  for (unsigned i = 0; i < best_choice->length(); ++i) {
     UNICHAR_ID choice_id = best_choice->unichar_id(i);
     const char *blob_choice = uch_set->id_to_unichar(choice_id);
     correct_text.emplace_back(blob_choice);
@@ -952,7 +952,7 @@ bool WERD_RES::ConditionalBlobMerge(std::function<UNICHAR_ID(UNICHAR_ID, UNICHAR
                                     std::function<bool(const TBOX &, const TBOX &)> box_cb) {
   ASSERT_HOST(best_choice->empty() || ratings != nullptr);
   bool modified = false;
-  for (int i = 0; i + 1 < best_choice->length(); ++i) {
+  for (unsigned i = 0; i + 1 < best_choice->length(); ++i) {
     UNICHAR_ID new_id = class_cb(best_choice->unichar_id(i), best_choice->unichar_id(i + 1));
     if (new_id != INVALID_UNICHAR_ID &&
         (box_cb == nullptr || box_cb(box_word->BlobBox(i), box_word->BlobBox(i + 1)))) {
@@ -979,7 +979,7 @@ bool WERD_RES::ConditionalBlobMerge(std::function<UNICHAR_ID(UNICHAR_ID, UNICHAR
 
 // Merges 2 adjacent blobs in the result (index and index+1) and corrects
 // all the data to account for the change.
-void WERD_RES::MergeAdjacentBlobs(int index) {
+void WERD_RES::MergeAdjacentBlobs(unsigned index) {
   if (reject_map.length() == best_choice->length()) {
     reject_map.remove_pos(index);
   }
@@ -1072,7 +1072,7 @@ UNICHAR_ID WERD_RES::BothSpaces(UNICHAR_ID id1, UNICHAR_ID id2) {
 void WERD_RES::merge_tess_fails() {
   using namespace std::placeholders; // for _1, _2
   if (ConditionalBlobMerge(std::bind(&WERD_RES::BothSpaces, this, _1, _2), nullptr)) {
-    int len = best_choice->length();
+    unsigned len = best_choice->length();
     ASSERT_HOST(reject_map.length() == len);
     ASSERT_HOST(box_word->length() == len);
   }
@@ -1083,7 +1083,7 @@ void WERD_RES::merge_tess_fails() {
 bool WERD_RES::PiecesAllNatural(int start, int count) const {
   // all seams must have no splits.
   for (int index = start; index < start + count - 1; ++index) {
-    if (index >= 0 && index < seam_array.size()) {
+    if (index >= 0 && static_cast<size_t>(index) < seam_array.size()) {
       SEAM *seam = seam_array[index];
       if (seam != nullptr && seam->HasAnySplits()) {
         return false;
@@ -1278,7 +1278,7 @@ static TBOX ComputeWordBounds(const tesseract::PointerVector<WERD_RES> &words, i
   TBOX clipped_box;
   TBOX current_box = words[w_index]->word->bounding_box();
   TBOX next_box;
-  if (w_index + 1 < words.size() && words[w_index + 1] != nullptr &&
+  if (static_cast<size_t>(w_index + 1) < words.size() && words[w_index + 1] != nullptr &&
       words[w_index + 1]->word != nullptr) {
     next_box = words[w_index + 1]->word->bounding_box();
   }
@@ -1383,7 +1383,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(tesseract::PointerVector<WERD_RES> *words) 
   C_BLOB_IT rej_b_it(input_word->word->rej_cblob_list());
   rej_b_it.sort(&C_BLOB::SortByXMiddle);
   TBOX clip_box;
-  for (int w = 0; w < words->size(); ++w) {
+  for (size_t w = 0; w < words->size(); ++w) {
     WERD_RES *word_w = (*words)[w];
     clip_box = ComputeWordBounds(*words, w, clip_box, wr_it_of_current_word);
     // Compute blob boundaries.
@@ -1401,7 +1401,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(tesseract::PointerVector<WERD_RES> *words) 
     C_BLOB_IT dest_it(word_w->word->cblob_list());
     // Build the box word as we move the blobs.
     auto *box_word = new tesseract::BoxWord;
-    for (int i = 0; i < blob_ends.size(); ++i, fake_b_it.forward()) {
+    for (size_t i = 0; i < blob_ends.size(); ++i, fake_b_it.forward()) {
       int end_x = blob_ends[i];
       TBOX blob_box;
       // Add the blobs up to end_x.

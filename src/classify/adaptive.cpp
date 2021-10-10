@@ -99,7 +99,7 @@ ADAPT_TEMPLATES_STRUCT::ADAPT_TEMPLATES_STRUCT(UNICHARSET &unicharset) {
   NumNonEmptyClasses = 0;
 
   /* Insert an empty class for each unichar id in unicharset */
-  for (int i = 0; i < MAX_NUM_CLASSES; i++) {
+  for (unsigned i = 0; i < MAX_NUM_CLASSES; i++) {
     Class[i] = nullptr;
     if (i < unicharset.size()) {
       AddAdaptedClass(this, new ADAPT_CLASS_STRUCT, i);
@@ -108,7 +108,7 @@ ADAPT_TEMPLATES_STRUCT::ADAPT_TEMPLATES_STRUCT(UNICHARSET &unicharset) {
 }
 
 ADAPT_TEMPLATES_STRUCT::~ADAPT_TEMPLATES_STRUCT() {
-  for (int i = 0; i < (Templates)->NumClasses; i++) {
+  for (unsigned i = 0; i < (Templates)->NumClasses; i++) {
     delete Class[i];
   }
   delete Templates;
@@ -160,11 +160,11 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templat
   fprintf(File, "   Id  NC NPC  NP NPP\n");
   fprintf(File, "------------------------\n");
 
-  for (int i = 0; i < (Templates->Templates)->NumClasses; i++) {
+  for (unsigned i = 0; i < (Templates->Templates)->NumClasses; i++) {
     IClass = Templates->Templates->Class[i];
     AClass = Templates->Class[i];
     if (!IsEmptyAdaptedClass(AClass)) {
-      fprintf(File, "%5d  %s %3d %3d %3d %3zd\n", i, unicharset.id_to_unichar(i), IClass->NumConfigs,
+      fprintf(File, "%5u  %s %3d %3d %3d %3zd\n", i, unicharset.id_to_unichar(i), IClass->NumConfigs,
               AClass->NumPermConfigs, IClass->NumProtos,
               IClass->NumProtos - AClass->TempProtos->size());
     }
@@ -242,7 +242,7 @@ ADAPT_TEMPLATES_STRUCT *Classify::ReadAdaptedTemplates(TFile *fp) {
   Templates->Templates = ReadIntTemplates(fp);
 
   /* then read in the adaptive info for each class */
-  for (int i = 0; i < (Templates->Templates)->NumClasses; i++) {
+  for (unsigned i = 0; i < (Templates->Templates)->NumClasses; i++) {
     Templates->Class[i] = ReadAdaptedClass(fp);
   }
   return (Templates);
@@ -343,8 +343,6 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS_STRUCT *Class, int NumConfigs) {
  * @note Globals: none
  */
 void Classify::WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templates) {
-  int i;
-
   /* first write the high level adaptive template struct */
   fwrite(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1, File);
 
@@ -352,7 +350,7 @@ void Classify::WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templat
   WriteIntTemplates(File, Templates->Templates, unicharset);
 
   /* then write out the adaptive info for each class */
-  for (i = 0; i < (Templates->Templates)->NumClasses; i++) {
+  for (unsigned i = 0; i < (Templates->Templates)->NumClasses; i++) {
     WriteAdaptedClass(File, Templates->Class[i], Templates->Templates->Class[i]->NumConfigs);
   }
 } /* WriteAdaptedTemplates */

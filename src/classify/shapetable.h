@@ -245,7 +245,7 @@ public:
   bool DeSerialize(TFile *fp);
 
   // Accessors.
-  int NumShapes() const {
+  unsigned NumShapes() const {
     return shape_table_.size();
   }
   const UNICHARSET &unicharset() const {
@@ -263,36 +263,36 @@ public:
   // Useful in conjunction with set_unicharset.
   void ReMapClassIds(const std::vector<int> &unicharset_map);
   // Returns a string listing the classes/fonts in a shape.
-  std::string DebugStr(int shape_id) const;
+  std::string DebugStr(unsigned shape_id) const;
   // Returns a debug string summarizing the table.
   std::string SummaryStr() const;
 
   // Adds a new shape starting with the given unichar_id and font_id.
   // Returns the assigned index.
-  int AddShape(int unichar_id, int font_id);
+  unsigned AddShape(int unichar_id, int font_id);
   // Adds a copy of the given shape unless it is already present.
   // Returns the assigned index or index of existing shape if already present.
-  int AddShape(const Shape &other);
+  unsigned AddShape(const Shape &other);
   // Removes the shape given by the shape index. All indices above are changed!
-  void DeleteShape(int shape_id);
+  void DeleteShape(unsigned shape_id);
   // Adds a font_id to the given existing shape index for the given
   // unichar_id. If the unichar_id is not in the shape, it is added.
-  void AddToShape(int shape_id, int unichar_id, int font_id);
+  void AddToShape(unsigned shape_id, int unichar_id, int font_id);
   // Adds the given shape to the existing shape with the given index.
-  void AddShapeToShape(int shape_id, const Shape &other);
+  void AddShapeToShape(unsigned shape_id, const Shape &other);
   // Returns the id of the shape that contains the given unichar and font.
   // If not found, returns -1.
   // If font_id < 0, the font_id is ignored and the first shape that matches
   // the unichar_id is returned.
   int FindShape(int unichar_id, int font_id) const;
   // Returns the first unichar_id and font_id in the given shape.
-  void GetFirstUnicharAndFont(int shape_id, int *unichar_id, int *font_id) const;
+  void GetFirstUnicharAndFont(unsigned shape_id, int *unichar_id, int *font_id) const;
 
   // Accessors for the Shape with the given shape_id.
-  const Shape &GetShape(int shape_id) const {
+  const Shape &GetShape(unsigned shape_id) const {
     return *shape_table_[shape_id];
   }
-  Shape *MutableShape(int shape_id) {
+  Shape *MutableShape(unsigned shape_id) {
     return shape_table_[shape_id];
   }
 
@@ -301,24 +301,24 @@ public:
   int BuildFromShape(const Shape &shape, const ShapeTable &master_shapes);
 
   // Returns true if the shapes are already merged.
-  bool AlreadyMerged(int shape_id1, int shape_id2) const;
+  bool AlreadyMerged(unsigned shape_id1, unsigned shape_id2) const;
   // Returns true if any shape contains multiple unichars.
   bool AnyMultipleUnichars() const;
   // Returns the maximum number of unichars over all shapes.
   int MaxNumUnichars() const;
   // Merges shapes with a common unichar over the [start, end) interval.
   // Assumes single unichar per shape.
-  void ForceFontMerges(int start, int end);
+  void ForceFontMerges(unsigned start, unsigned end);
   // Returns the number of unichars in the master shape.
-  int MasterUnicharCount(int shape_id) const;
+  unsigned MasterUnicharCount(unsigned shape_id) const;
   // Returns the sum of the font counts in the master shape.
-  int MasterFontCount(int shape_id) const;
+  int MasterFontCount(unsigned shape_id) const;
   // Returns the number of unichars that would result from merging the shapes.
-  int MergedUnicharCount(int shape_id1, int shape_id2) const;
+  int MergedUnicharCount(unsigned shape_id1, unsigned shape_id2) const;
   // Merges two shape_ids, leaving shape_id2 marked as merged.
-  void MergeShapes(int shape_id1, int shape_id2);
+  void MergeShapes(unsigned shape_id1, unsigned shape_id2);
   // Swaps two shape_ids.
-  void SwapShapes(int shape_id1, int shape_id2);
+  void SwapShapes(unsigned shape_id1, unsigned shape_id2);
   // Appends the master shapes from other to this.
   // Used to create a clean ShapeTable from a merged one, or to create a
   // copy of a ShapeTable.
@@ -330,19 +330,19 @@ public:
   // Returns the destination of this shape, (if merged), taking into account
   // the fact that the destination may itself have been merged.
   // For a non-merged shape, returns the input shape_id.
-  int MasterDestinationIndex(int shape_id) const;
+  unsigned MasterDestinationIndex(unsigned shape_id) const;
 
   // Returns false if the unichars in neither shape is a subset of the other..
-  bool SubsetUnichar(int shape_id1, int shape_id2) const;
+  bool SubsetUnichar(unsigned shape_id1, unsigned shape_id2) const;
   // Returns false if the unichars in neither shape is a subset of the other..
-  bool MergeSubsetUnichar(int merge_id1, int merge_id2, int shape_id) const;
+  bool MergeSubsetUnichar(int merge_id1, int merge_id2, unsigned shape_id) const;
   // Returns true if the unichar sets are equal between the shapes.
-  bool EqualUnichars(int shape_id1, int shape_id2) const;
-  bool MergeEqualUnichars(int merge_id1, int merge_id2, int shape_id) const;
+  bool EqualUnichars(unsigned shape_id1, unsigned shape_id2) const;
+  bool MergeEqualUnichars(int merge_id1, int merge_id2, unsigned shape_id) const;
   // Returns true if there is a common unichar between the shapes.
-  bool CommonUnichars(int shape_id1, int shape_id2) const;
+  bool CommonUnichars(unsigned shape_id1, unsigned shape_id2) const;
   // Returns true if there is a common font id between the shapes.
-  bool CommonFont(int shape_id1, int shape_id2) const;
+  bool CommonFont(unsigned shape_id1, unsigned shape_id2) const;
 
   // Adds the unichars of the given shape_id to the vector of results. Any
   // unichar_id that is already present just has the fonts added to the

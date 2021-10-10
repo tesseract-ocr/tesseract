@@ -37,8 +37,8 @@ namespace tesseract {
 // Returns -1 if the unichar_id is not found
 int ShapeRating::FirstResultWithUnichar(const std::vector<ShapeRating> &results,
                                         const ShapeTable &shape_table, UNICHAR_ID unichar_id) {
-  for (int r = 0; r < results.size(); ++r) {
-    const int shape_id = results[r].shape_id;
+  for (unsigned r = 0; r < results.size(); ++r) {
+    const auto shape_id = results[r].shape_id;
     const Shape &shape = shape_table.GetShape(shape_id);
     if (shape.ContainsUnichar(unichar_id)) {
       return r;
@@ -53,7 +53,7 @@ int ShapeRating::FirstResultWithUnichar(const std::vector<ShapeRating> &results,
 // Returns -1 if the unichar_id is not found
 int UnicharRating::FirstResultWithUnichar(const std::vector<UnicharRating> &results,
                                           UNICHAR_ID unichar_id) {
-  for (int r = 0; r < results.size(); ++r) {
+  for (unsigned r = 0; r < results.size(); ++r) {
     if (results[r].unichar_id == unichar_id) {
       return r;
     }
@@ -122,7 +122,7 @@ void Shape::AddToShape(int unichar_id, int font_id) {
 // Adds everything in other to this.
 void Shape::AddShape(const Shape &other) {
   for (const auto &unichar : other.unichars_) {
-    for (int f = 0; f < unichar.font_ids.size(); ++f) {
+    for (unsigned f = 0; f < unichar.font_ids.size(); ++f) {
       AddToShape(unichar.unichar_id, unichar.font_ids[f]);
     }
   }
@@ -229,7 +229,7 @@ bool Shape::IsEqualUnichars(Shape *other) {
   if (!other->unichars_sorted_) {
     other->SortUnichars();
   }
-  for (int c = 0; c < unichars_.size(); ++c) {
+  for (unsigned c = 0; c < unichars_.size(); ++c) {
     if (unichars_[c].unichar_id != other->unichars_[c].unichar_id) {
       return false;
     }
@@ -289,8 +289,8 @@ void ShapeTable::ReMapClassIds(const std::vector<int> &unicharset_map) {
 }
 
 // Returns a string listing the classes/fonts in a shape.
-std::string ShapeTable::DebugStr(int shape_id) const {
-  if (shape_id < 0 || shape_id >= shape_table_.size()) {
+std::string ShapeTable::DebugStr(unsigned shape_id) const {
+  if (shape_id >= shape_table_.size()) {
     return "INVALID_UNICHAR_ID";
   }
   const Shape &shape = GetShape(shape_id);
@@ -326,7 +326,7 @@ std::string ShapeTable::SummaryStr() const {
   int max_unichars = 0;
   int num_multi_shapes = 0;
   int num_master_shapes = 0;
-  for (int s = 0; s < shape_table_.size(); ++s) {
+  for (unsigned s = 0; s < shape_table_.size(); ++s) {
     if (MasterDestinationIndex(s) != s) {
       continue;
     }
@@ -348,8 +348,8 @@ std::string ShapeTable::SummaryStr() const {
 
 // Adds a new shape starting with the given unichar_id and font_id.
 // Returns the assigned index.
-int ShapeTable::AddShape(int unichar_id, int font_id) {
-  int index = shape_table_.size();
+unsigned ShapeTable::AddShape(int unichar_id, int font_id) {
+  auto index = shape_table_.size();
   auto *shape = new Shape;
   shape->AddToShape(unichar_id, font_id);
   shape_table_.push_back(shape);
@@ -359,8 +359,8 @@ int ShapeTable::AddShape(int unichar_id, int font_id) {
 
 // Adds a copy of the given shape unless it is already present.
 // Returns the assigned index or index of existing shape if already present.
-int ShapeTable::AddShape(const Shape &other) {
-  int index;
+unsigned ShapeTable::AddShape(const Shape &other) {
+  unsigned index;
   for (index = 0; index < shape_table_.size() && !(other == *shape_table_[index]); ++index) {
     continue;
   }
@@ -373,21 +373,21 @@ int ShapeTable::AddShape(const Shape &other) {
 }
 
 // Removes the shape given by the shape index.
-void ShapeTable::DeleteShape(int shape_id) {
+void ShapeTable::DeleteShape(unsigned shape_id) {
   delete shape_table_[shape_id];
   shape_table_.erase(shape_table_.begin() + shape_id);
 }
 
 // Adds a font_id to the given existing shape index for the given
 // unichar_id. If the unichar_id is not in the shape, it is added.
-void ShapeTable::AddToShape(int shape_id, int unichar_id, int font_id) {
+void ShapeTable::AddToShape(unsigned shape_id, int unichar_id, int font_id) {
   Shape &shape = *shape_table_[shape_id];
   shape.AddToShape(unichar_id, font_id);
   num_fonts_ = std::max(num_fonts_, font_id + 1);
 }
 
 // Adds the given shape to the existing shape with the given index.
-void ShapeTable::AddShapeToShape(int shape_id, const Shape &other) {
+void ShapeTable::AddShapeToShape(unsigned shape_id, const Shape &other) {
   Shape &shape = *shape_table_[shape_id];
   shape.AddShape(other);
   num_fonts_ = 0;
@@ -398,7 +398,7 @@ void ShapeTable::AddShapeToShape(int shape_id, const Shape &other) {
 // If font_id < 0, the font_id is ignored and the first shape that matches
 // the unichar_id is returned.
 int ShapeTable::FindShape(int unichar_id, int font_id) const {
-  for (int s = 0; s < shape_table_.size(); ++s) {
+  for (unsigned s = 0; s < shape_table_.size(); ++s) {
     const Shape &shape = GetShape(s);
     for (int c = 0; c < shape.size(); ++c) {
       if (shape[c].unichar_id == unichar_id) {
@@ -417,7 +417,7 @@ int ShapeTable::FindShape(int unichar_id, int font_id) const {
 }
 
 // Returns the first unichar_id and font_id in the given shape.
-void ShapeTable::GetFirstUnicharAndFont(int shape_id, int *unichar_id, int *font_id) const {
+void ShapeTable::GetFirstUnicharAndFont(unsigned shape_id, int *unichar_id, int *font_id) const {
   const UnicharAndFonts &unichar_and_fonts = (*shape_table_[shape_id])[0];
   *unichar_id = unichar_and_fonts.unichar_id;
   *font_id = unichar_and_fonts.font_ids[0];
@@ -428,7 +428,7 @@ void ShapeTable::GetFirstUnicharAndFont(int shape_id, int *unichar_id, int *font
 int ShapeTable::BuildFromShape(const Shape &shape, const ShapeTable &master_shapes) {
   BitVector shape_map(master_shapes.NumShapes());
   for (int u_ind = 0; u_ind < shape.size(); ++u_ind) {
-    for (int f_ind = 0; f_ind < shape[u_ind].font_ids.size(); ++f_ind) {
+    for (unsigned f_ind = 0; f_ind < shape[u_ind].font_ids.size(); ++f_ind) {
       int c = shape[u_ind].unichar_id;
       int f = shape[u_ind].font_ids[f_ind];
       int master_id = master_shapes.FindShape(c, f);
@@ -440,7 +440,7 @@ int ShapeTable::BuildFromShape(const Shape &shape, const ShapeTable &master_shap
     }
   }
   int num_masters = 0;
-  for (int s = 0; s < master_shapes.NumShapes(); ++s) {
+  for (unsigned s = 0; s < master_shapes.NumShapes(); ++s) {
     if (shape_map[s]) {
       AddShape(master_shapes.GetShape(s));
       ++num_masters;
@@ -450,14 +450,14 @@ int ShapeTable::BuildFromShape(const Shape &shape, const ShapeTable &master_shap
 }
 
 // Returns true if the shapes are already merged.
-bool ShapeTable::AlreadyMerged(int shape_id1, int shape_id2) const {
+bool ShapeTable::AlreadyMerged(unsigned shape_id1, unsigned shape_id2) const {
   return MasterDestinationIndex(shape_id1) == MasterDestinationIndex(shape_id2);
 }
 
 // Returns true if any shape contains multiple unichars.
 bool ShapeTable::AnyMultipleUnichars() const {
-  int num_shapes = NumShapes();
-  for (int s1 = 0; s1 < num_shapes; ++s1) {
+  auto num_shapes = NumShapes();
+  for (unsigned s1 = 0; s1 < num_shapes; ++s1) {
     if (MasterDestinationIndex(s1) != s1) {
       continue;
     }
@@ -482,11 +482,11 @@ int ShapeTable::MaxNumUnichars() const {
 
 // Merges shapes with a common unichar over the [start, end) interval.
 // Assumes single unichar per shape.
-void ShapeTable::ForceFontMerges(int start, int end) {
-  for (int s1 = start; s1 < end; ++s1) {
+void ShapeTable::ForceFontMerges(unsigned start, unsigned end) {
+  for (unsigned s1 = start; s1 < end; ++s1) {
     if (MasterDestinationIndex(s1) == s1 && GetShape(s1).size() == 1) {
       int unichar_id = GetShape(s1)[0].unichar_id;
-      for (int s2 = s1 + 1; s2 < end; ++s2) {
+      for (auto s2 = s1 + 1; s2 < end; ++s2) {
         if (MasterDestinationIndex(s2) == s2 && GetShape(s2).size() == 1 &&
             unichar_id == GetShape(s2)[0].unichar_id) {
           MergeShapes(s1, s2);
@@ -500,13 +500,13 @@ void ShapeTable::ForceFontMerges(int start, int end) {
 }
 
 // Returns the number of unichars in the master shape.
-int ShapeTable::MasterUnicharCount(int shape_id) const {
+unsigned ShapeTable::MasterUnicharCount(unsigned shape_id) const {
   int master_id = MasterDestinationIndex(shape_id);
   return GetShape(master_id).size();
 }
 
 // Returns the sum of the font counts in the master shape.
-int ShapeTable::MasterFontCount(int shape_id) const {
+int ShapeTable::MasterFontCount(unsigned shape_id) const {
   int master_id = MasterDestinationIndex(shape_id);
   const Shape &shape = GetShape(master_id);
   int font_count = 0;
@@ -517,7 +517,7 @@ int ShapeTable::MasterFontCount(int shape_id) const {
 }
 
 // Returns the number of unichars that would result from merging the shapes.
-int ShapeTable::MergedUnicharCount(int shape_id1, int shape_id2) const {
+int ShapeTable::MergedUnicharCount(unsigned shape_id1, unsigned shape_id2) const {
   // Do it the easy way for now.
   int master_id1 = MasterDestinationIndex(shape_id1);
   int master_id2 = MasterDestinationIndex(shape_id2);
@@ -527,9 +527,9 @@ int ShapeTable::MergedUnicharCount(int shape_id1, int shape_id2) const {
 }
 
 // Merges two shape_ids, leaving shape_id2 marked as merged.
-void ShapeTable::MergeShapes(int shape_id1, int shape_id2) {
-  int master_id1 = MasterDestinationIndex(shape_id1);
-  int master_id2 = MasterDestinationIndex(shape_id2);
+void ShapeTable::MergeShapes(unsigned shape_id1, unsigned shape_id2) {
+  auto master_id1 = MasterDestinationIndex(shape_id1);
+  auto master_id2 = MasterDestinationIndex(shape_id2);
   // Point master_id2 (and all merged shapes) to master_id1.
   shape_table_[master_id2]->set_destination_index(master_id1);
   // Add all the shapes of master_id2 to master_id1.
@@ -537,7 +537,7 @@ void ShapeTable::MergeShapes(int shape_id1, int shape_id2) {
 }
 
 // Swaps two shape_ids.
-void ShapeTable::SwapShapes(int shape_id1, int shape_id2) {
+void ShapeTable::SwapShapes(unsigned shape_id1, unsigned shape_id2) {
   Shape *tmp = shape_table_[shape_id1];
   shape_table_[shape_id1] = shape_table_[shape_id2];
   shape_table_[shape_id2] = tmp;
@@ -545,12 +545,12 @@ void ShapeTable::SwapShapes(int shape_id1, int shape_id2) {
 
 // Returns the destination of this shape, (if merged), taking into account
 // the fact that the destination may itself have been merged.
-int ShapeTable::MasterDestinationIndex(int shape_id) const {
-  int dest_id = shape_table_[shape_id]->destination_index();
-  if (dest_id == shape_id || dest_id < 0) {
+unsigned ShapeTable::MasterDestinationIndex(unsigned shape_id) const {
+  auto dest_id = shape_table_[shape_id]->destination_index();
+  if (static_cast<unsigned>(dest_id) == shape_id || dest_id < 0) {
     return shape_id; // Is master already.
   }
-  int master_id = shape_table_[dest_id]->destination_index();
+  auto master_id = shape_table_[dest_id]->destination_index();
   if (master_id == dest_id || master_id < 0) {
     return dest_id; // Dest is the master and shape_id points to it.
   }
@@ -559,7 +559,7 @@ int ShapeTable::MasterDestinationIndex(int shape_id) const {
 }
 
 // Returns false if the unichars in neither shape is a subset of the other.
-bool ShapeTable::SubsetUnichar(int shape_id1, int shape_id2) const {
+bool ShapeTable::SubsetUnichar(unsigned shape_id1, unsigned shape_id2) const {
   const Shape &shape1 = GetShape(shape_id1);
   const Shape &shape2 = GetShape(shape_id2);
   int c1, c2;
@@ -579,7 +579,7 @@ bool ShapeTable::SubsetUnichar(int shape_id1, int shape_id2) const {
 }
 
 // Returns false if the unichars in neither shape is a subset of the other.
-bool ShapeTable::MergeSubsetUnichar(int merge_id1, int merge_id2, int shape_id) const {
+bool ShapeTable::MergeSubsetUnichar(int merge_id1, int merge_id2, unsigned shape_id) const {
   const Shape &merge1 = GetShape(merge_id1);
   const Shape &merge2 = GetShape(merge_id2);
   const Shape &shape = GetShape(shape_id);
@@ -606,7 +606,7 @@ bool ShapeTable::MergeSubsetUnichar(int merge_id1, int merge_id2, int shape_id) 
 }
 
 // Returns true if the unichar sets are equal between the shapes.
-bool ShapeTable::EqualUnichars(int shape_id1, int shape_id2) const {
+bool ShapeTable::EqualUnichars(unsigned shape_id1, unsigned shape_id2) const {
   const Shape &shape1 = GetShape(shape_id1);
   const Shape &shape2 = GetShape(shape_id2);
   for (int c1 = 0; c1 < shape1.size(); ++c1) {
@@ -625,7 +625,7 @@ bool ShapeTable::EqualUnichars(int shape_id1, int shape_id2) const {
 }
 
 // Returns true if the unichar sets are equal between the shapes.
-bool ShapeTable::MergeEqualUnichars(int merge_id1, int merge_id2, int shape_id) const {
+bool ShapeTable::MergeEqualUnichars(int merge_id1, int merge_id2, unsigned shape_id) const {
   const Shape &merge1 = GetShape(merge_id1);
   const Shape &merge2 = GetShape(merge_id2);
   const Shape &shape = GetShape(shape_id);
@@ -651,7 +651,7 @@ bool ShapeTable::MergeEqualUnichars(int merge_id1, int merge_id2, int shape_id) 
 }
 
 // Returns true if there is a common unichar between the shapes.
-bool ShapeTable::CommonUnichars(int shape_id1, int shape_id2) const {
+bool ShapeTable::CommonUnichars(unsigned shape_id1, unsigned shape_id2) const {
   const Shape &shape1 = GetShape(shape_id1);
   const Shape &shape2 = GetShape(shape_id2);
   for (int c1 = 0; c1 < shape1.size(); ++c1) {
@@ -664,7 +664,7 @@ bool ShapeTable::CommonUnichars(int shape_id1, int shape_id2) const {
 }
 
 // Returns true if there is a common font id between the shapes.
-bool ShapeTable::CommonFont(int shape_id1, int shape_id2) const {
+bool ShapeTable::CommonFont(unsigned shape_id1, unsigned shape_id2) const {
   const Shape &shape1 = GetShape(shape_id1);
   const Shape &shape2 = GetShape(shape_id2);
   for (int c1 = 0; c1 < shape1.size(); ++c1) {
@@ -685,7 +685,7 @@ void ShapeTable::AppendMasterShapes(const ShapeTable &other, std::vector<int> *s
     shape_map->clear();
     shape_map->resize(other.NumShapes(), -1);
   }
-  for (int s = 0; s < other.shape_table_.size(); ++s) {
+  for (unsigned s = 0; s < other.shape_table_.size(); ++s) {
     if (other.shape_table_[s]->destination_index() < 0) {
       int index = AddShape(*other.shape_table_[s]);
       if (shape_map != nullptr) {

@@ -83,7 +83,7 @@ bool FontInfoTable::SetContainsMultipleFontProperties(
   }
   int first_font = font_set[0].fontinfo_id;
   uint32_t properties = at(first_font).properties;
-  for (int f = 1; f < font_set.size(); ++f) {
+  for (unsigned f = 1; f < font_set.size(); ++f) {
     if (at(font_set[f].fontinfo_id).properties != properties) {
       return true;
     }
@@ -95,7 +95,7 @@ bool FontInfoTable::SetContainsMultipleFontProperties(
 void FontInfoTable::MoveSpacingInfoFrom(FontInfoTable *other) {
   using namespace std::placeholders; // for _1, _2
   set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
-  for (int i = 0; i < other->size(); ++i) {
+  for (unsigned i = 0; i < other->size(); ++i) {
     std::vector<FontSpacingInfo *> *spacing_vec = other->at(i).spacing_vec;
     if (spacing_vec != nullptr) {
       int target_index = get_index(other->at(i));
@@ -117,7 +117,7 @@ void FontInfoTable::MoveTo(UnicityTable<FontInfo> *target) {
   target->clear();
   using namespace std::placeholders; // for _1, _2
   target->set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
-  for (int i = 0; i < size(); ++i) {
+  for (unsigned i = 0; i < size(); ++i) {
     // Bit copy the FontInfo and steal all the pointers.
     target->push_back(at(i));
     at(i).name = nullptr;

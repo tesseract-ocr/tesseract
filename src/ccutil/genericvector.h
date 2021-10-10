@@ -71,7 +71,7 @@ public:
   }
 
   // Return the size used.
-  int size() const {
+  unsigned size() const {
     return size_used_;
   }
   // Workaround to avoid g++ -Wsign-compare warnings.
@@ -308,7 +308,7 @@ inline bool SaveDataToFile(const GenericVector<char> &data, const char *filename
   if (fp == nullptr) {
     return false;
   }
-  bool result = static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
+  bool result = fwrite(&data[0], 1, data.size(), fp) == data.size();
   fclose(fp);
   return result;
 }
@@ -373,7 +373,7 @@ public:
   }
   PointerVector<T> &operator+=(const PointerVector &other) {
     this->reserve(this->size_used_ + other.size_used_);
-    for (int i = 0; i < other.size(); ++i) {
+    for (unsigned i = 0; i < other.size(); ++i) {
       this->push_back(new T(*other.data_[i]));
     }
     return *this;
@@ -681,7 +681,7 @@ void GenericVector<T>::operator+=(const T &t) {
 template <typename T>
 GenericVector<T> &GenericVector<T>::operator+=(const GenericVector &other) {
   this->reserve(size_used_ + other.size_used_);
-  for (int i = 0; i < other.size(); ++i) {
+  for (unsigned i = 0; i < other.size(); ++i) {
     this->operator+=(other.data_[i]);
   }
   return *this;
@@ -757,7 +757,7 @@ bool GenericVector<T>::read(TFile *f, std::function<bool(TFile *, T *)> cb) {
       }
     }
   } else {
-    if (f->FReadEndian(data_, sizeof(T), size_used_) != size_used_) {
+    if (f->FReadEndian(data_, sizeof(T), size_used_) != static_cast<unsigned>(size_used_)) {
       return false;
     }
   }

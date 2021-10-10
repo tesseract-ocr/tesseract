@@ -1528,8 +1528,8 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(BlobNeighbourDir direction
   // By iteratively including the next smallest distance across the vectors,
   // (as in a merge sort) we can use the vector indices as counts of each type
   // and find the nearest set of objects that give us a definite decision.
-  int counts[NPT_COUNT];
-  memset(counts, 0, sizeof(counts[0]) * NPT_COUNT);
+  unsigned counts[NPT_COUNT];
+  memset(counts, 0, sizeof(counts));
   // If there is image in the search box, tip the balance in image's favor.
   int image_bias = image_region ? kSmoothDecisionMargin / 2 : 0;
   BlobRegionType text_dir = part.blob_type();
@@ -1551,15 +1551,15 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(BlobNeighbourDir direction
     }
     *best_distance = min_dist;
     if (debug) {
-      tprintf("Totals: htext=%d+%d, vtext=%d+%d, image=%d+%d, at dist=%d\n", counts[NPT_HTEXT],
+      tprintf("Totals: htext=%u+%u, vtext=%u+%u, image=%u+%u, at dist=%d\n", counts[NPT_HTEXT],
               counts[NPT_WEAK_HTEXT], counts[NPT_VTEXT], counts[NPT_WEAK_VTEXT], counts[NPT_IMAGE],
               image_bias, min_dist);
     }
     // See if we have a decision yet.
-    int image_count = counts[NPT_IMAGE];
-    int htext_score =
+    auto image_count = counts[NPT_IMAGE];
+    auto htext_score =
         counts[NPT_HTEXT] + counts[NPT_WEAK_HTEXT] - (image_count + counts[NPT_WEAK_VTEXT]);
-    int vtext_score =
+    auto vtext_score =
         counts[NPT_VTEXT] + counts[NPT_WEAK_VTEXT] - (image_count + counts[NPT_WEAK_HTEXT]);
     if (image_count > 0 && image_bias - htext_score >= kSmoothDecisionMargin &&
         image_bias - vtext_score >= kSmoothDecisionMargin) {

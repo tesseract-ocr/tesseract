@@ -1489,7 +1489,7 @@ CLUSTERER *MakeClusterer(int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
  *
  * @return    Pointer to the new sample data structure
  */
-SAMPLE *MakeSample(CLUSTERER *Clusterer, const float *Feature, int32_t CharID) {
+SAMPLE *MakeSample(CLUSTERER *Clusterer, const float *Feature, uint32_t CharID) {
   int i;
 
   // see if the samples have already been clustered - if so trap an error

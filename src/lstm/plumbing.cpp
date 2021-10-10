@@ -142,7 +142,7 @@ void Plumbing::DebugWeights() {
 
 // Returns a set of strings representing the layer-ids of all layers below.
 void Plumbing::EnumerateLayers(const std::string *prefix, std::vector<std::string> &layers) const {
-  for (int i = 0; i < stack_.size(); ++i) {
+  for (size_t i = 0; i < stack_.size(); ++i) {
     std::string layer_name;
     if (prefix) {
       layer_name = *prefix;
@@ -161,7 +161,7 @@ void Plumbing::EnumerateLayers(const std::string *prefix, std::vector<std::strin
 Network *Plumbing::GetLayer(const char *id) const {
   char *next_id;
   int index = strtol(id, &next_id, 10);
-  if (index < 0 || index >= stack_.size()) {
+  if (index < 0 || static_cast<unsigned>(index) >= stack_.size()) {
     return nullptr;
   }
   if (stack_[index]->IsPlumbingType()) {
@@ -176,7 +176,7 @@ Network *Plumbing::GetLayer(const char *id) const {
 float *Plumbing::LayerLearningRatePtr(const char *id) {
   char *next_id;
   int index = strtol(id, &next_id, 10);
-  if (index < 0 || index >= stack_.size()) {
+  if (index < 0 || static_cast<unsigned>(index) >= stack_.size()) {
     return nullptr;
   }
   if (stack_[index]->IsPlumbingType()) {
@@ -184,7 +184,7 @@ float *Plumbing::LayerLearningRatePtr(const char *id) {
     ASSERT_HOST(*next_id == ':');
     return plumbing->LayerLearningRatePtr(next_id + 1);
   }
-  if (index >= learning_rates_.size()) {
+  if (static_cast<unsigned>(index) >= learning_rates_.size()) {
     return nullptr;
   }
   return &learning_rates_[index];
@@ -238,7 +238,7 @@ bool Plumbing::DeSerialize(TFile *fp) {
 // Updates the weights using the given learning rate, momentum and adam_beta.
 // num_samples is used in the adam computation iff use_adam_ is true.
 void Plumbing::Update(float learning_rate, float momentum, float adam_beta, int num_samples) {
-  for (int i = 0; i < stack_.size(); ++i) {
+  for (size_t i = 0; i < stack_.size(); ++i) {
     if (network_flags_ & NF_LAYER_SPECIFIC_LR) {
       if (i < learning_rates_.size()) {
         learning_rate = learning_rates_[i];
@@ -259,7 +259,7 @@ void Plumbing::CountAlternators(const Network &other, TFloat *same, TFloat *chan
   ASSERT_HOST(other.type() == type_);
   const auto *plumbing = static_cast<const Plumbing *>(&other);
   ASSERT_HOST(plumbing->stack_.size() == stack_.size());
-  for (int i = 0; i < stack_.size(); ++i) {
+  for (size_t i = 0; i < stack_.size(); ++i) {
     stack_[i]->CountAlternators(*plumbing->stack_[i], same, changed);
   }
 }

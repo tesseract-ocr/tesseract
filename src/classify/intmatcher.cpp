@@ -165,7 +165,7 @@ public:
   void ComputeScores(const INT_TEMPLATES_STRUCT *int_templates, int num_features,
                      const INT_FEATURE_STRUCT *features) {
     num_features_ = num_features;
-    int num_pruners = int_templates->NumClassPruners;
+    auto num_pruners = int_templates->NumClassPruners;
     for (int f = 0; f < num_features; ++f) {
       const INT_FEATURE_STRUCT *feature = &features[f];
       // Quantize the feature to NUM_CP_BUCKETS*NUM_CP_BUCKETS*NUM_CP_BUCKETS.
@@ -175,7 +175,7 @@ public:
       int class_id = 0;
       // Each CLASS_PRUNER_STRUCT only covers CLASSES_PER_CP(32) classes, so
       // we need a collection of them, indexed by pruner_set.
-      for (int pruner_set = 0; pruner_set < num_pruners; ++pruner_set) {
+      for (unsigned pruner_set = 0; pruner_set < num_pruners; ++pruner_set) {
         // Look up quantized feature in a 3-D array, an array of weights for
         // each class.
         const uint32_t *pruner_word_ptr = int_templates->ClassPruners[pruner_set]->p[x][y][theta];

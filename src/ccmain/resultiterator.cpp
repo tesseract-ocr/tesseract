@@ -228,7 +228,7 @@ void ResultIterator::CalculateBlobOrder(std::vector<int> *blob_indices) const {
       i = j;
     }
   }
-  ASSERT_HOST(blob_indices->size() == word_length_);
+  ASSERT_HOST(blob_indices->size() == static_cast<size_t>(word_length_));
 }
 
 static void PrintScriptDirs(const std::vector<StrongScriptDirection> &dirs) {
@@ -501,7 +501,7 @@ bool ResultIterator::Next(PageIteratorLevel level) {
     case RIL_SYMBOL: {
       std::vector<int> blob_order;
       CalculateBlobOrder(&blob_order);
-      int next_blob = 0;
+      unsigned next_blob = 0;
       while (next_blob < blob_order.size() && blob_index_ != blob_order[next_blob]) {
         next_blob++;
       }

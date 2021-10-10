@@ -137,13 +137,13 @@ public:
 
   float EstimateYFor(float x, float r) {
     ASSERT_HOST(finalized_);
-    int start = 0, end = values_.size();
+    unsigned start = 0, end = values_.size();
     // Because the number of samples (used_) is assumed to be small,
     // just use linear search to find values within the range.
-    while (start < values_.size() && values_[start].x < x * (1.0 - r)) {
+    while (start < values_.size() && values_[start].x < x * (1 - r)) {
       start++;
     }
-    while (end - 1 >= 0 && values_[end - 1].x > x * (1.0 + r)) {
+    while (end > 0 && values_[end - 1].x > x * (1 + r)) {
       end--;
     }
 
@@ -157,7 +157,7 @@ public:
     // Compute weighted average of the values.
     float rc = 0;
     int vote = 0;
-    for (int i = start; i < end; i++) {
+    for (auto i = start; i < end; i++) {
       rc += values_[i].vote * x * values_[i].y / values_[i].x;
       vote += values_[i].vote;
     }
@@ -457,8 +457,8 @@ private:
 
   // Cleanup chars that are already merged to others.
   void DeleteChars() {
-    int index = 0;
-    for (int i = 0; i < characters_.size(); ++i) {
+    unsigned index = 0;
+    for (unsigned i = 0; i < characters_.size(); ++i) {
       if (!characters_[i].delete_flag()) {
         if (index != i) {
           characters_[index] = characters_[i];

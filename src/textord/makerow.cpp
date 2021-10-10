@@ -1295,7 +1295,7 @@ void Textord::compute_block_xheight(TO_BLOCK *block, float gradient) {
   for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
     row = row_it.data();
     // Compute the xheight of this row if it has not been computed before.
-    if (row->xheight <= 0.0) {
+    if (row->xheight <= 0) {
       compute_row_xheight(row, block->block->classify_rotation(), gradient, block->line_size);
     }
     ROW_CATEGORY row_category = get_row_category(row);
@@ -1349,10 +1349,10 @@ void Textord::compute_block_xheight(TO_BLOCK *block, float gradient) {
     xheight = static_cast<float>(textord_min_xheight);
     corrected_xheight = true;
   }
-  if (corrected_xheight || ascrise <= 0.0) {
+  if (corrected_xheight || ascrise <= 0) {
     ascrise = xheight * asc_frac_xheight;
   }
-  if (corrected_xheight || descdrop >= 0.0) {
+  if (corrected_xheight || descdrop >= 0) {
     descdrop = -(xheight * desc_frac_xheight);
   }
   block->xheight = xheight;
@@ -1397,7 +1397,7 @@ void Textord::compute_row_xheight(TO_ROW *row, // row to do
       &heights, &floating_heights, textord_single_height_mode && rotation.y() == 0.0, min_height,
       max_height, &(row->xheight), &(row->ascrise));
   row->descdrop = 0.0f;
-  if (row->xheight > 0.0) {
+  if (row->xheight > 0) {
     row->descdrop =
         static_cast<float>(compute_row_descdrop(row, gradient, row->xheight_evidence, &heights));
   }
@@ -1699,7 +1699,7 @@ void correct_row_xheight(TO_ROW *row, float xheight, float ascrise, float descdr
   // -- the row does not have ascenders or descenders, but its xheight
   //    is close to the average block xheight (e.g. row with "www.mmm.com")
   if (row_category == ROW_ASCENDERS_FOUND) {
-    if (row->descdrop >= 0.0) {
+    if (row->descdrop >= 0) {
       row->descdrop = row->xheight * (descdrop / xheight);
     }
   } else if (row_category == ROW_INVALID ||

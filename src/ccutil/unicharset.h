@@ -283,7 +283,7 @@ public:
     if (cleaned != unichar_repr) {
       unichar_insert(unichar_repr, OldUncleanUnichars::kTrue);
     } else {
-      int old_size = size();
+      auto old_size = size();
       unichar_insert(unichar_repr, OldUncleanUnichars::kFalse);
       if (size() == old_size) {
         unichar_insert(unichar_repr, OldUncleanUnichars::kTrue);
@@ -345,7 +345,7 @@ public:
   }
 
   // Return the size of the set (the number of different UNICHAR it holds).
-  int size() const {
+  size_t size() const {
     return unichars.size();
   }
 

@@ -120,14 +120,14 @@ bool Parallel::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch 
 #endif
     debug = false;
   }
-  int stack_size = stack_.size();
+  auto stack_size = stack_.size();
   if (type_ == NT_PAR_2D_LSTM) {
     // Special case, run parallel in parallel.
     std::vector<NetworkScratch::IO> in_deltas(stack_size);
     std::vector<NetworkScratch::IO> out_deltas(stack_size);
     // Split the forward deltas for each stack element.
     int feature_offset = 0;
-    for (int i = 0; i < stack_.size(); ++i) {
+    for (unsigned i = 0; i < stack_.size(); ++i) {
       int num_features = stack_[i]->NumOutputs();
       in_deltas[i].Resize(fwd_deltas, num_features, scratch);
       out_deltas[i].Resize(fwd_deltas, stack_[i]->NumInputs(), scratch);
@@ -137,11 +137,11 @@ bool Parallel::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch 
 #ifdef _OPENMP
 #  pragma omp parallel for num_threads(stack_size)
 #endif
-    for (int i = 0; i < stack_size; ++i) {
+    for (unsigned i = 0; i < stack_size; ++i) {
       stack_[i]->Backward(debug, *in_deltas[i], scratch, i == 0 ? back_deltas : out_deltas[i]);
     }
     if (needs_to_backprop_) {
-      for (int i = 1; i < stack_size; ++i) {
+      for (unsigned i = 1; i < stack_size; ++i) {
         back_deltas->AddAllToFloat(*out_deltas[i]);
       }
     }
@@ -152,7 +152,7 @@ bool Parallel::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch 
     // back_deltas.
     NetworkScratch::IO out_deltas;
     int feature_offset = 0;
-    for (int i = 0; i < stack_.size(); ++i) {
+    for (unsigned i = 0; i < stack_.size(); ++i) {
       int num_features = stack_[i]->NumOutputs();
       in_deltas->CopyUnpacking(fwd_deltas, feature_offset, num_features);
       feature_offset += num_features;

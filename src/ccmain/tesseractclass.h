@@ -593,7 +593,7 @@ public:
   void recog_word_recursive(WERD_RES *word);
   void recog_word(WERD_RES *word);
   void split_and_recog_word(WERD_RES *word);
-  void split_word(WERD_RES *word, int split_pt, WERD_RES **right_piece,
+  void split_word(WERD_RES *word, unsigned split_pt, WERD_RES **right_piece,
                   BlamerBundle **orig_blamer_bundle) const;
   void join_words(WERD_RES *word, WERD_RES *word2, BlamerBundle *orig_bb) const;
   //// fixspace.cpp ///////////////////////////////////////////////////////
@@ -722,8 +722,8 @@ public:
   // vector holding classification results for a sequence of consecutive
   // blobs, with index 0 being a single blob, index 1 being 2 blobs etc.
   void SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, int choices_pos,
-                     int choices_length, const std::vector<UNICHAR_ID> &target_text,
-                     int text_index, float rating, std::vector<int> *segmentation,
+                     unsigned choices_length, const std::vector<UNICHAR_ID> &target_text,
+                     unsigned text_index, float rating, std::vector<int> *segmentation,
                      float *best_rating, std::vector<int> *best_segmentation);
   // Counts up the labelled words and the blobs within.
   // Deletes all unused or emptied words, counting the unused ones.

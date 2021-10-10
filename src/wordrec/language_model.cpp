@@ -828,10 +828,9 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(bool word_end, int curr_c
       return nullptr;
     }
 
-    int i;
-    // Check a that the path terminated before the current character is a word.
+    // Check that the path terminated before the current character is a word.
     bool has_word_ending = false;
-    for (i = 0; i < parent_vse->dawg_info->active_dawgs.size(); ++i) {
+    for (unsigned i = 0; i < parent_vse->dawg_info->active_dawgs.size(); ++i) {
       const DawgPosition &pos = parent_vse->dawg_info->active_dawgs[i];
       const Dawg *pdawg = pos.dawg_index < 0 ? nullptr : dict_->GetDawg(pos.dawg_index);
       if (pdawg == nullptr || pos.back_to_punc) {
@@ -860,7 +859,7 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(bool word_end, int curr_c
   // like don't.
   const auto &normed_ids = dict_->getUnicharset().normed_ids(b.unichar_id());
   DawgPositionVector tmp_active_dawgs;
-  for (int i = 0; i < normed_ids.size(); ++i) {
+  for (unsigned i = 0; i < normed_ids.size(); ++i) {
     if (language_model_debug_level > 2) {
       tprintf("Test Letter OK for unichar %d, normed %d\n", b.unichar_id(), normed_ids[i]);
     }

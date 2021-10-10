@@ -272,7 +272,7 @@ const char *UNICHARSET::id_to_unichar(UNICHAR_ID id) const {
   if (id == INVALID_UNICHAR_ID) {
     return INVALID_UNICHAR;
   }
-  ASSERT_HOST(id < this->size());
+  ASSERT_HOST(static_cast<unsigned>(id) < this->size());
   return unichars[id].representation;
 }
 
@@ -280,7 +280,7 @@ const char *UNICHARSET::id_to_unichar_ext(UNICHAR_ID id) const {
   if (id == INVALID_UNICHAR_ID) {
     return INVALID_UNICHAR;
   }
-  ASSERT_HOST(id < this->size());
+  ASSERT_HOST(static_cast<unsigned>(id) < this->size());
   // Resolve from the kCustomLigatures table if this is a private encoding.
   if (get_isprivate(id)) {
     const char *ch = id_to_unichar(id);
@@ -384,7 +384,7 @@ void UNICHARSET::set_ranges_empty() {
 // everything set. The unicharsets don't have to be the same, and graphemes
 // are correctly accounted for.
 void UNICHARSET::PartialSetPropertiesFromOther(int start_index, const UNICHARSET &src) {
-  for (int ch = start_index; ch < unichars.size(); ++ch) {
+  for (unsigned ch = start_index; ch < unichars.size(); ++ch) {
     const char *utf8 = id_to_unichar(ch);
     UNICHAR_PROPERTIES properties;
     if (src.GetStrProperties(utf8, &properties)) {
@@ -481,7 +481,7 @@ void UNICHARSET::encode_string(const char *str, int str_index, int str_length,
                                std::vector<UNICHAR_ID> *encoding, std::vector<char> *lengths,
                                unsigned *best_total_length, std::vector<UNICHAR_ID> *best_encoding,
                                std::vector<char> *best_lengths) const {
-  if (str_index > *best_total_length) {
+  if (str_index > static_cast<int>(*best_total_length)) {
     // This is the best result so far.
     *best_total_length = str_index;
     *best_encoding = *encoding;
@@ -506,7 +506,7 @@ void UNICHARSET::encode_string(const char *str, int str_index, int str_length,
       lengths->push_back(length);
       encode_string(str, str_index + length, str_length, encoding, lengths, best_total_length,
                     best_encoding, best_lengths);
-      if (*best_total_length == str_length) {
+      if (static_cast<int>(*best_total_length) == str_length) {
         return; // Tail recursion success!
       }
       // Failed with that length, truncate back and try again.
@@ -695,9 +695,9 @@ bool UNICHARSET::eq(UNICHAR_ID unichar_id, const char *const unichar_repr) const
 bool UNICHARSET::save_to_string(std::string &str) const {
   const int kFileBufSize = 1024;
   char buffer[kFileBufSize + 1];
-  snprintf(buffer, kFileBufSize, "%d\n", this->size());
+  snprintf(buffer, kFileBufSize, "%zu\n", this->size());
   str = buffer;
-  for (UNICHAR_ID id = 0; id < this->size(); ++id) {
+  for (unsigned id = 0; id < this->size(); ++id) {
     int min_bottom, max_bottom, min_top, max_top;
     get_top_bottom(id, &min_bottom, &max_bottom, &min_top, &max_top);
     float width, width_sd;
@@ -883,7 +883,7 @@ void UNICHARSET::post_load_setup() {
   int x_height_alphas = 0;
   int cap_height_alphas = 0;
   top_bottom_set_ = false;
-  for (UNICHAR_ID id = 0; id < unichars.size(); ++id) {
+  for (unsigned id = 0; id < unichars.size(); ++id) {
     int min_bottom = 0;
     int max_bottom = UINT8_MAX;
     int min_top = 0;
@@ -1012,7 +1012,7 @@ bool UNICHARSET::AnyRepeatedUnicodes() const {
   if (has_special_codes()) {
     start_id = SPECIAL_UNICHAR_CODES_COUNT;
   }
-  for (int id = start_id; id < unichars.size(); ++id) {
+  for (unsigned id = start_id; id < unichars.size(); ++id) {
     // Convert to unicodes.
     std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(get_normed_unichar(id));
     for (size_t u = 1; u < unicodes.size(); ++u) {

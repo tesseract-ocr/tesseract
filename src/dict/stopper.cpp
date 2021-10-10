@@ -164,7 +164,6 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
   // Construct BLOB_CHOICE_LIST_VECTOR with ambiguities
   // for each unichar id in BestChoice.
   BLOB_CHOICE_LIST_VECTOR ambig_blob_choices;
-  int i;
   bool ambigs_found = false;
   // For each position in best_choice:
   // -- choose AMBIG_SPEC_LIST that corresponds to unichar_id at best_choice[i]
@@ -190,7 +189,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
       // unichar id for the corresponding position in best_choice.
       // best_choice consisting from only the original letters will
       // have a rating of 0.0.
-      for (i = 0; i < best_choice->length(); ++i) {
+      for (unsigned i = 0; i < best_choice->length(); ++i) {
         auto *lst = new BLOB_CHOICE_LIST();
         BLOB_CHOICE_IT lst_it(lst);
         // TODO(rays/antonova) Put real xheights and y shifts here.
@@ -201,10 +200,9 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
     }
     UNICHAR_ID wrong_ngram[MAX_AMBIG_SIZE + 1];
     int wrong_ngram_index;
-    int next_index;
     int blob_index = 0;
-    for (i = 0; i < best_choice->length(); blob_index += best_choice->state(i), ++i) {
-      UNICHAR_ID curr_unichar_id = best_choice->unichar_id(i);
+    for (unsigned i = 0; i < best_choice->length(); blob_index += best_choice->state(i), ++i) {
+      auto curr_unichar_id = best_choice->unichar_id(i);
       if (stopper_debug_level > 2) {
         tprintf("Looking for %s ngrams starting with %s:\n", replace ? "replaceable" : "ambiguous",
                 getUnicharset().debug_str(curr_unichar_id).c_str());
@@ -212,7 +210,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
       int num_wrong_blobs = best_choice->state(i);
       wrong_ngram_index = 0;
       wrong_ngram[wrong_ngram_index] = curr_unichar_id;
-      if (curr_unichar_id == INVALID_UNICHAR_ID || curr_unichar_id >= table.size() ||
+      if (curr_unichar_id == INVALID_UNICHAR_ID || static_cast<size_t>(curr_unichar_id) >= table.size() ||
           table[curr_unichar_id] == nullptr) {
         continue; // there is no ambig spec for this unichar id
       }
@@ -272,6 +270,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
           }
           spec_it.forward();
         } else if (compare == -1) {
+          unsigned next_index;
           if (wrong_ngram_index + 1 < ambig_spec->wrong_ngram_size &&
               ((next_index = wrong_ngram_index + 1 + i) < best_choice->length())) {
             // Add the next unichar id to wrong_ngram and keep looking for
@@ -293,7 +292,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
   if (ambigs_found) {
     if (stopper_debug_level > 2) {
       tprintf("\nResulting ambig_blob_choices:\n");
-      for (i = 0; i < ambig_blob_choices.size(); ++i) {
+      for (unsigned i = 0; i < ambig_blob_choices.size(); ++i) {
         print_ratings_list("", ambig_blob_choices.at(i), getUnicharset());
         tprintf("\n");
       }
@@ -310,7 +309,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
         // the capability to produce classifications combined from character
         // fragments is added to other functions.
         int orig_i = 0;
-        for (i = 0; i < alt_word->length(); ++i) {
+        for (unsigned i = 0; i < alt_word->length(); ++i) {
           const UNICHARSET &uchset = getUnicharset();
           bool replacement_is_ngram = uchset.get_isngram(alt_word->unichar_id(i));
           UNICHAR_ID leftmost_id = alt_word->unichar_id(i);
@@ -444,7 +443,7 @@ void Dict::ReplaceAmbig(int wrong_ngram_begin_index, int wrong_ngram_size,
 int Dict::LengthOfShortestAlphaRun(const WERD_CHOICE &WordChoice) const {
   int shortest = INT32_MAX;
   int curr_len = 0;
-  for (int w = 0; w < WordChoice.length(); ++w) {
+  for (unsigned w = 0; w < WordChoice.length(); ++w) {
     if (WordChoice.unicharset()->get_isalpha(WordChoice.unichar_id(w))) {
       curr_len++;
     } else if (curr_len > 0) {

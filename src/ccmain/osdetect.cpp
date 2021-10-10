@@ -381,7 +381,7 @@ bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
         for (choice_it.mark_cycle_pt(); !choice_it.cycled_list() && choice == nullptr;
              choice_it.forward()) {
           int choice_script = choice_it.data()->script_id();
-          int s = 0;
+          unsigned s = 0;
           for (s = 0; s < allowed_scripts_->size(); ++s) {
             if ((*allowed_scripts_)[s] == choice_script) {
               choice = choice_it.data();
@@ -477,7 +477,7 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
       int id = choice->script_id();
       if (allowed_scripts_ != nullptr && !allowed_scripts_->empty()) {
         // Check that the choice is in an allowed script.
-        int s = 0;
+        size_t s = 0;
         for (s = 0; s < allowed_scripts_->size(); ++s) {
           if ((*allowed_scripts_)[s] == id) {
             break;
