@@ -629,13 +629,9 @@ ScriptPos WERD_CHOICE::ScriptPositionOf(bool print_debug, const UNICHARSET &unic
 
 // Returns the script-id (eg Han) of the dominant script in the word.
 int WERD_CHOICE::GetTopScriptID() const {
-  int max_script = unicharset_->get_script_table_size();
-  int *sid = new int[max_script];
-  int x;
-  for (x = 0; x < max_script; x++) {
-    sid[x] = 0;
-  }
-  for (x = 0; x < length_; ++x) {
+  unsigned max_script = unicharset_->get_script_table_size();
+  std::vector<unsigned> sid(max_script);
+  for (unsigned x = 0; x < length_; ++x) {
     int script_id = unicharset_->get_script(unichar_id(x));
     sid[script_id]++;
   }
@@ -653,7 +649,7 @@ int WERD_CHOICE::GetTopScriptID() const {
   // Note that high script ID overrides lower one on a tie, thus biasing
   // towards non-Common script (if sorted that way in unicharset file).
   int max_sid = 0;
-  for (x = 1; x < max_script; x++) {
+  for (unsigned x = 1; x < max_script; x++) {
     if (sid[x] >= sid[max_sid]) {
       max_sid = x;
     }
@@ -661,7 +657,6 @@ int WERD_CHOICE::GetTopScriptID() const {
   if (sid[max_sid] < length_ / 2) {
     max_sid = unicharset_->null_sid();
   }
-  delete[] sid;
   return max_sid;
 }
 
