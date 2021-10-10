@@ -439,13 +439,14 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
           bestPos = i;
         }
       }
-      // TODO: bestCode is currently unused (see commit 2dd5d0d60).
+#if 0 // TODO: bestCode is currently unused (see commit 2dd5d0d60).
       int bestCode = -10;
       for (auto &node : best_nodes) {
         if (node->unichar_id == unichar_ids[bestPos]) {
           bestCode = node->code;
         }
       }
+#endif
       // Exclude the best choice for the followup decoding.
       std::unordered_set<int> excludeCodeList;
       for (auto &best_node : best_nodes) {
