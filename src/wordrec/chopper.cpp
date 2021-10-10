@@ -522,12 +522,11 @@ void Wordrec::improve_by_chopping(float rating_cert_scale, WERD_RES *word,
 int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices,
                                   float rating_ceiling, bool split_next_to_fragment) {
   BLOB_CHOICE *blob_choice;
-  int x;
   float worst = -FLT_MAX;
   int worst_index = -1;
   float worst_near_fragment = -FLT_MAX;
   int worst_index_near_fragment = -1;
-  const CHAR_FRAGMENT **fragments = nullptr;
+  std::vector<const CHAR_FRAGMENT *> fragments;
 
   if (chop_debug) {
     if (rating_ceiling < FLT_MAX) {
@@ -538,7 +537,7 @@ int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices
   }
 
   if (split_next_to_fragment && blob_choices.size() > 0) {
-    fragments = new const CHAR_FRAGMENT *[blob_choices.size()];
+    fragments.resize(blob_choices.size());
     if (blob_choices[0] != nullptr) {
       fragments[0] = getDict().getUnicharset().get_fragment(blob_choices[0]->unichar_id());
     } else {
@@ -546,9 +545,8 @@ int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices
     }
   }
 
-  for (x = 0; x < blob_choices.size(); ++x) {
+  for (unsigned x = 0; x < blob_choices.size(); ++x) {
     if (blob_choices[x] == nullptr) {
-      delete[] fragments;
       return x;
     } else {
       blob_choice = blob_choices[x];
@@ -591,7 +589,6 @@ int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices
       }
     }
   }
-  delete[] fragments;
   // TODO(daria): maybe a threshold of badness for
   // worst_near_fragment would be useful.
   return worst_index_near_fragment != -1 ? worst_index_near_fragment : worst_index;
