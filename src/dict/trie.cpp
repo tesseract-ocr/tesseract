@@ -417,6 +417,7 @@ bool Trie::read_pattern_list(const char *filename, const UNICHARSET &unicharset)
         if (*str_ptr == '\\') { // regular '\' unichar that was escaped
           curr_unichar_id = unicharset.unichar_to_id(str_ptr, step);
         } else {
+#if 0 // TODO: This code should be enabled if kSaneNumConcreteChars != 0.
           if (word.length() < kSaneNumConcreteChars) {
             tprintf(
                 "Please provide at least %d concrete characters at the"
@@ -425,6 +426,7 @@ bool Trie::read_pattern_list(const char *filename, const UNICHARSET &unicharset)
             failed = true;
             break;
           }
+#endif
           // Parse character class from expression.
           curr_unichar_id = character_class_to_pattern(*str_ptr);
         }
