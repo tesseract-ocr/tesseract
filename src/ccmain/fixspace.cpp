@@ -262,7 +262,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   int16_t total_score = 0;
   int16_t word_count = 0;
   int16_t done_word_count = 0;
-  int16_t i;
+  int i;
   int16_t offset;
   int16_t prev_word_score = 0;
   bool prev_word_done = false;
