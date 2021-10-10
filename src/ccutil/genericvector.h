@@ -757,7 +757,7 @@ bool GenericVector<T>::read(TFile *f, std::function<bool(TFile *, T *)> cb) {
       }
     }
   } else {
-    if (f->FReadEndian(data_, sizeof(T), size_used_) != size_used_) {
+    if (f->FReadEndian(data_, sizeof(T), size_used_) != static_cast<unsigned>(size_used_)) {
       return false;
     }
   }
