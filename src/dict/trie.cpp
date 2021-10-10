@@ -508,19 +508,15 @@ SquishedDawg *Trie::trie_to_dawg() {
   if (debug_level_ > 2) {
     print_all("Before reduction:", MAX_NODE_EDGES_DISPLAY);
   }
-  auto reduced_nodes = new bool[nodes_.size()];
-  for (int i = 0; i < nodes_.size(); i++) {
-    reduced_nodes[i] = false;
-  }
+  std::vector<bool> reduced_nodes(nodes_.size());
   this->reduce_node_input(0, reduced_nodes);
-  delete[] reduced_nodes;
 
   if (debug_level_ > 2) {
     print_all("After reduction:", MAX_NODE_EDGES_DISPLAY);
   }
   // Build a translation map from node indices in nodes_ vector to
   // their target indices in EDGE_ARRAY.
-  auto *node_ref_map = new NODE_REF[nodes_.size() + 1];
+  std::vector<NODE_REF> node_ref_map(nodes_.size() + 1);
   int i, j;
   node_ref_map[0] = 0;
   for (i = 0; i < nodes_.size(); ++i) {
@@ -548,7 +544,6 @@ SquishedDawg *Trie::trie_to_dawg() {
       ++edge_array_ptr;
     }
   }
-  delete[] node_ref_map;
 
   return new SquishedDawg(edge_array, num_forward_edges, type_, lang_, perm_, unicharset_size_,
                           debug_level_);
@@ -599,7 +594,7 @@ bool Trie::eliminate_redundant_edges(NODE_REF node, const EDGE_RECORD &edge1,
 }
 
 bool Trie::reduce_lettered_edges(EDGE_INDEX edge_index, UNICHAR_ID unichar_id, NODE_REF node,
-                                 EDGE_VECTOR *backward_edges, NODE_MARKER reduced_nodes) {
+                                 EDGE_VECTOR *backward_edges, std::vector<bool> &reduced_nodes) {
   if (debug_level_ > 1) {
     tprintf("reduce_lettered_edges(edge=" REFFORMAT ")\n", edge_index);
   }
@@ -662,7 +657,7 @@ void Trie::sort_edges(EDGE_VECTOR *edges) {
   }
 }
 
-void Trie::reduce_node_input(NODE_REF node, NODE_MARKER reduced_nodes) {
+void Trie::reduce_node_input(NODE_REF node, std::vector<bool> &reduced_nodes) {
   EDGE_VECTOR &backward_edges = nodes_[node]->backward_edges;
   sort_edges(&backward_edges);
   if (debug_level_ > 1) {
