@@ -46,7 +46,7 @@ void Dict::go_deeper_dawg_fxn(const char *debug, const BLOB_CHOICE_LIST_VECTOR &
                               float *limit, WERD_CHOICE *best_choice, int *attempts_left,
                               void *void_more_args) {
   auto *more_args = static_cast<DawgArgs *>(void_more_args);
-  word_ending = (char_choice_index == char_choices.size() - 1);
+  word_ending = (static_cast<unsigned>(char_choice_index) == char_choices.size() - 1);
   int word_index = word->length() - 1;
   if (best_choice->rating() < *limit) {
     return;
@@ -73,7 +73,7 @@ void Dict::go_deeper_dawg_fxn(const char *debug, const BLOB_CHOICE_LIST_VECTOR &
     DawgPositionVector unigram_updated_dawgs;
     DawgArgs unigram_dawg_args(&unigram_active_dawgs, &unigram_updated_dawgs, more_args->permuter);
     // Check unigrams in the ngram with letter_is_okay().
-    for (int i = 0; unigrams_ok && i < encoding.size(); ++i) {
+    for (size_t i = 0; unigrams_ok && i < encoding.size(); ++i) {
       UNICHAR_ID uch_id = encoding[i];
       ASSERT_HOST(uch_id != INVALID_UNICHAR_ID);
       ++num_unigrams;
@@ -195,7 +195,7 @@ void Dict::permute_choices(const char *debug, const BLOB_CHOICE_LIST_VECTOR &cha
         debug, char_choice_index, *limit, word->rating(), word->certainty(),
         word->debug_string().c_str());
   }
-  if (char_choice_index < char_choices.size()) {
+  if (static_cast<unsigned>(char_choice_index) < char_choices.size()) {
     BLOB_CHOICE_IT blob_choice_it;
     blob_choice_it.set_to_list(char_choices.at(char_choice_index));
     for (blob_choice_it.mark_cycle_pt(); !blob_choice_it.cycled_list(); blob_choice_it.forward()) {
@@ -226,7 +226,7 @@ void Dict::append_choices(const char *debug, const BLOB_CHOICE_LIST_VECTOR &char
                           const CHAR_FRAGMENT_INFO *prev_char_frag_info, WERD_CHOICE *word,
                           float certainties[], float *limit, WERD_CHOICE *best_choice,
                           int *attempts_left, void *more_args) {
-  int word_ending = (char_choice_index == char_choices.size() - 1);
+  auto word_ending = (static_cast<unsigned>(char_choice_index) == char_choices.size() - 1);
 
   // Deal with fragments.
   CHAR_FRAGMENT_INFO char_frag_info;

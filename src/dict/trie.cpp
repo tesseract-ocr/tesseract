@@ -517,6 +517,7 @@ SquishedDawg *Trie::trie_to_dawg() {
   // Build a translation map from node indices in nodes_ vector to
   // their target indices in EDGE_ARRAY.
   std::vector<NODE_REF> node_ref_map(nodes_.size() + 1);
+  unsigned i;
   for (i = 0; i < nodes_.size(); ++i) {
     node_ref_map[i + 1] = node_ref_map[i] + nodes_[i]->forward_edges.size();
   }

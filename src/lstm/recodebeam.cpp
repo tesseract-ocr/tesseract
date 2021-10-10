@@ -122,7 +122,7 @@ void RecodeBeamSearch::DecodeSecondaryBeams(const NetworkIO &output, double dict
     return;
   }
   int width = output.Width();
-  int bucketNumber = 0;
+  unsigned bucketNumber = 0;
   for (int t = 0; t < width; ++t) {
     while ((bucketNumber + 1) < character_boundaries_.size() &&
            t >= character_boundaries_[bucketNumber + 1]) {
@@ -160,7 +160,7 @@ void RecodeBeamSearch::SaveMostCertainChoices(const float *outputs, int num_outp
 }
 
 void RecodeBeamSearch::segmentTimestepsByCharacters() {
-  for (int i = 1; i < character_boundaries_.size(); ++i) {
+  for (unsigned i = 1; i < character_boundaries_.size(); ++i) {
     std::vector<std::vector<std::pair<const char *, float>>> segment;
     for (int j = character_boundaries_[i - 1]; j < character_boundaries_[i]; ++j) {
       segment.push_back(timesteps[j]);
@@ -183,7 +183,7 @@ RecodeBeamSearch::combineSegmentedTimesteps(
 void RecodeBeamSearch::calculateCharBoundaries(std::vector<int> *starts, std::vector<int> *ends,
                                                std::vector<int> *char_bounds_, int maxWidth) {
   char_bounds_->push_back(0);
-  for (int i = 0; i < ends->size(); ++i) {
+  for (unsigned i = 0; i < ends->size(); ++i) {
     int middle = ((*starts)[i + 1] - (*ends)[i]) / 2;
     char_bounds_->push_back((*ends)[i] + middle);
   }
@@ -339,7 +339,7 @@ void RecodeBeamSearch::PrintBeam2(bool uids, int num_outputs, const UNICHARSET *
     }
   }
   int ct = 0;
-  int cb = 1;
+  unsigned cb = 1;
   for (std::vector<const RecodeNode *> layer : topology) {
     if (cb >= character_boundaries_.size()) {
       break;
@@ -399,7 +399,7 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
   // new beam is calculated based on the results from the original beam.
   std::vector<RecodeBeam *> &currentBeam = secondary_beam_.empty() ? beam_ : secondary_beam_;
   character_boundaries_[0] = 0;
-  for (int j = 1; j < character_boundaries_.size(); ++j) {
+  for (unsigned j = 1; j < character_boundaries_.size(); ++j) {
     std::vector<int> unichar_ids;
     std::vector<float> certs;
     std::vector<float> ratings;
@@ -434,7 +434,7 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
     }
     if (!unichar_ids.empty()) {
       int bestPos = 0;
-      for (int i = 1; i < unichar_ids.size(); ++i) {
+      for (unsigned i = 1; i < unichar_ids.size(); ++i) {
         if (ratings[i] < ratings[bestPos]) {
           bestPos = i;
         }
@@ -619,7 +619,7 @@ WERD_RES *RecodeBeamSearch::InitializeWord(bool leading_space, const TBOX &line_
   C_BLOB_LIST blobs;
   C_BLOB_IT b_it(&blobs);
   for (int i = word_start; i < word_end; ++i) {
-    if (character_boundaries_.size() > (i + 1)) {
+    if (static_cast<unsigned>(i + 1) < character_boundaries_.size()) {
       TBOX box(static_cast<int16_t>(std::floor(character_boundaries_[i] * scale_factor)) +
                    line_box.left(),
                line_box.bottom(),
@@ -714,7 +714,7 @@ void RecodeBeamSearch::ComputeSecTopN(std::unordered_set<int> *exList, const flo
 void RecodeBeamSearch::DecodeStep(const float *outputs, int t, double dict_ratio,
                                   double cert_offset, double worst_dict_cert,
                                   const UNICHARSET *charset, bool debug) {
-  if (t == beam_.size()) {
+  if (t == static_cast<int>(beam_.size())) {
     beam_.push_back(new RecodeBeam);
   }
   RecodeBeam *step = beam_[t];
@@ -783,7 +783,7 @@ void RecodeBeamSearch::DecodeStep(const float *outputs, int t, double dict_ratio
 void RecodeBeamSearch::DecodeSecondaryStep(const float *outputs, int t, double dict_ratio,
                                            double cert_offset, double worst_dict_cert,
                                            const UNICHARSET *charset, bool debug) {
-  if (t == secondary_beam_.size()) {
+  if (t == static_cast<int>(secondary_beam_.size())) {
     secondary_beam_.push_back(new RecodeBeam);
   }
   RecodeBeam *step = secondary_beam_[t];

@@ -362,7 +362,7 @@ public:
       return nullptr;
     }
     UNICHAR_ID id = best_choice->unichar_id(blob_index);
-    if (id < 0 || id >= uch_set->size()) {
+    if (static_cast<unsigned>(id) >= uch_set->size()) {
       return nullptr;
     }
     UNICHAR_ID mirrored = uch_set->get_mirror(id);
@@ -377,7 +377,7 @@ public:
       return nullptr;
     }
     UNICHAR_ID id = raw_choice->unichar_id(blob_index);
-    if (id < 0 || id >= uch_set->size()) {
+    if (static_cast<unsigned>(id) >= uch_set->size()) {
       return nullptr;
     }
     return uch_set->id_to_unichar(id);
@@ -395,8 +395,8 @@ public:
       return false;
     }
     for (unsigned id = 0; id < best_choice->length(); id++) {
-      int unichar_id = best_choice->unichar_id(id);
-      if (unichar_id < 0 || unichar_id >= uch_set->size()) {
+      unsigned unichar_id = best_choice->unichar_id(id);
+      if (unichar_id >= uch_set->size()) {
         continue; // Ignore illegal chars.
       }
       UNICHARSET::Direction dir = uch_set->get_direction(unichar_id);
@@ -412,8 +412,8 @@ public:
       return false;
     }
     for (unsigned id = 0; id < best_choice->length(); id++) {
-      int unichar_id = best_choice->unichar_id(id);
-      if (unichar_id < 0 || unichar_id >= uch_set->size()) {
+      unsigned unichar_id = best_choice->unichar_id(id);
+      if (unichar_id >= uch_set->size()) {
         continue; // Ignore illegal chars.
       }
       UNICHARSET::Direction dir = uch_set->get_direction(unichar_id);

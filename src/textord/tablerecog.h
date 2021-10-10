@@ -86,15 +86,15 @@ public:
   // Basic accessors. Some are treated as attributes despite having indirect
   // representation.
   bool is_lined() const;
-  int row_count() const;
-  int column_count() const;
-  int cell_count() const;
+  unsigned row_count() const;
+  unsigned column_count() const;
+  unsigned cell_count() const;
   void set_bounding_box(const TBOX &box);
   const TBOX &bounding_box() const;
   int median_cell_height();
   int median_cell_width();
-  int row_height(int row) const;
-  int column_width(int column) const;
+  int row_height(unsigned row) const;
+  int column_width(unsigned column) const;
   int space_above() const;
   int space_below() const;
 
@@ -120,7 +120,7 @@ public:
   int CountFilledCells();
   int CountFilledCellsInRow(int row);
   int CountFilledCellsInColumn(int column);
-  int CountFilledCells(int row_start, int row_end, int column_start, int column_end);
+  int CountFilledCells(unsigned row_start, unsigned row_end, unsigned column_start, unsigned column_end);
 
   // Makes sure that at least one cell in a row has substantial area filled.
   // This can filter out large whitespace caused by growing tables too far
@@ -128,7 +128,7 @@ public:
   // (currently bugged for some reason).
   bool VerifyRowFilled(int row);
   // Finds the filled area in a cell.
-  double CalculateCellFilledPercentage(int row, int column);
+  double CalculateCellFilledPercentage(unsigned row, unsigned column);
 
   // Debug display, draws the table in the given color. If the table is not
   // valid, the table and "best" grid lines are still drawn in the given color.

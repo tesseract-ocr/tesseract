@@ -578,7 +578,7 @@ void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
       tprintf("\n");
       PrintAdaptedTemplates(stdout, AdaptedTemplates);
 
-      for (int i = 0; i < AdaptedTemplates->Templates->NumClasses; i++) {
+      for (unsigned i = 0; i < AdaptedTemplates->Templates->NumClasses; i++) {
         BaselineCutoffs[i] = CharNormCutoffs[i];
       }
     }
@@ -1294,7 +1294,7 @@ int Classify::CharNormTrainingSample(bool pruner_only, int keep_this, const Trai
   // Compute the char_norm_array from the saved cn_feature.
   FEATURE norm_feature = sample.GetCNFeature();
   std::vector<uint8_t> char_norm_array(unicharset.size());
-  int num_pruner_classes = std::max(unicharset.size(), PreTrainedTemplates->NumClasses);
+  auto num_pruner_classes = std::max(static_cast<unsigned>(unicharset.size()), PreTrainedTemplates->NumClasses);
   std::vector<uint8_t> pruner_norm_array(num_pruner_classes);
   adapt_results->BlobLength = static_cast<int>(ActualOutlineLength(norm_feature) * 20 + 0.5);
   ComputeCharNormArrays(norm_feature, PreTrainedTemplates, &char_norm_array[0], &pruner_norm_array[0]);
@@ -1631,7 +1631,7 @@ void Classify::ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES
       memset(&pruner_array[0], UINT8_MAX, templates->NumClasses * sizeof(pruner_array[0]));
       // Each entry in the pruner norm array is the MIN of all the entries of
       // the corresponding unichars in the CharNormArray.
-      for (int id = 0; id < templates->NumClasses; ++id) {
+      for (unsigned id = 0; id < templates->NumClasses; ++id) {
         int font_set_id = templates->Class[id]->font_set_id;
         const FontSet &fs = fontset_table_.at(font_set_id);
         for (unsigned config = 0; config < fs.size(); ++config) {
@@ -2114,7 +2114,7 @@ int Classify::ClassAndConfigIDToFontOrShapeID(int class_id, int int_result_confi
 // Converts a shape_table_ index to a classifier class_id index (not a
 // unichar-id!). Uses a search, so not fast.
 int Classify::ShapeIDToClassID(int shape_id) const {
-  for (int id = 0; id < PreTrainedTemplates->NumClasses; ++id) {
+  for (unsigned id = 0; id < PreTrainedTemplates->NumClasses; ++id) {
     int font_set_id = PreTrainedTemplates->Class[id]->font_set_id;
     ASSERT_HOST(font_set_id >= 0);
     const FontSet &fs = fontset_table_.at(font_set_id);

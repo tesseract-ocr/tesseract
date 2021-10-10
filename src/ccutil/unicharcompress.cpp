@@ -61,7 +61,7 @@ static bool DecodeRadicalLine(std::string &radical_data_line, RSMap *radical_map
     return false;
   }
   std::unique_ptr<std::vector<int>> radicals(new std::vector<int>);
-  for (int i = 1; i < entries.size(); ++i) {
+  for (size_t i = 1; i < entries.size(); ++i) {
     int radical = strtol(&entries[i][0], &end, 10);
     if (*end != '\0') {
       return false;
@@ -132,10 +132,10 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
   // to measure the number of radicals and strokes, initially we use the same
   // code range for all 3 Han code positions, and fix them after.
   int han_offset = hangul_offset + kTotalJamos;
-  for (int u = 0; u <= unicharset.size(); ++u) {
+  for (unsigned u = 0; u <= unicharset.size(); ++u) {
     // We special-case allow null_id to be equal to unicharset.size() in case
     // there is no space in unicharset for it.
-    if (u == unicharset.size() && u != null_id) {
+    if (u == unicharset.size() && static_cast<int>(u) != null_id) {
       break; // Finished
     }
     RecodedCharID code;
@@ -173,7 +173,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
       // Special cases.
       if (u == UNICHAR_SPACE) {
         code.Set(0, 0); // Space.
-      } else if (u == null_id ||
+      } else if (static_cast<int>(u) == null_id ||
                  (unicharset.has_special_codes() && u < SPECIAL_UNICHAR_CODES_COUNT)) {
         code.Set(0, direct_set.unichar_to_id(kNullChar));
       } else {
@@ -207,7 +207,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
   int code_offset = 0;
   for (int i = 0; i < RecodedCharID::kMaxCodeLen; ++i) {
     int max_offset = 0;
-    for (int u = 0; u < unicharset.size(); ++u) {
+    for (unsigned u = 0; u < unicharset.size(); ++u) {
       RecodedCharID *code = &encoder_[u];
       if (code->length() <= i) {
         continue;
@@ -229,7 +229,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
 // passes them through unchanged.
 void UnicharCompress::SetupPassThrough(const UNICHARSET &unicharset) {
   std::vector<RecodedCharID> codes;
-  for (int u = 0; u < unicharset.size(); ++u) {
+  for (unsigned u = 0; u < unicharset.size(); ++u) {
     RecodedCharID code;
     code.Set(0, u);
     codes.push_back(code);
@@ -268,7 +268,7 @@ void UnicharCompress::DefragmentCodeValues(int encoded_null) {
   for (unsigned i = 0; i < offsets.size(); ++i) {
     // If not used, decrement everything above here.
     // We are moving encoded_null to the end, so it is not "used".
-    if (offsets[i] == 0 || i == encoded_null) {
+    if (offsets[i] == 0 || i == static_cast<unsigned>(encoded_null)) {
       --offset;
     } else {
       offsets[i] = offset;
@@ -292,8 +292,8 @@ void UnicharCompress::DefragmentCodeValues(int encoded_null) {
 
 // Encodes a single unichar_id. Returns the length of the code, or zero if
 // invalid input, and the encoding itself
-int UnicharCompress::EncodeUnichar(int unichar_id, RecodedCharID *code) const {
-  if (unichar_id < 0 || unichar_id >= encoder_.size()) {
+int UnicharCompress::EncodeUnichar(unsigned unichar_id, RecodedCharID *code) const {
+  if (unichar_id >= encoder_.size()) {
     return 0;
   }
   *code = encoder_[unichar_id];
@@ -397,7 +397,7 @@ void UnicharCompress::SetupDecoder() {
   Cleanup();
   is_valid_start_.clear();
   is_valid_start_.resize(code_range_);
-  for (int c = 0; c < encoder_.size(); ++c) {
+  for (unsigned c = 0; c < encoder_.size(); ++c) {
     const RecodedCharID &code = encoder_[c];
     decoder_[code] = c;
     is_valid_start_[code(0)] = true;

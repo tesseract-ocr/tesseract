@@ -106,8 +106,8 @@ struct INT_CLASS_STRUCT {
 struct TESS_API INT_TEMPLATES_STRUCT {
   INT_TEMPLATES_STRUCT();
   ~INT_TEMPLATES_STRUCT();
-  int NumClasses;
-  int NumClassPruners;
+  unsigned NumClasses;
+  unsigned NumClassPruners;
   INT_CLASS_STRUCT *Class[MAX_NUM_CLASSES];
   CLASS_PRUNER_STRUCT *ClassPruners[MAX_NUM_CLASS_PRUNERS];
 };

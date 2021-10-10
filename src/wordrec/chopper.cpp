@@ -301,7 +301,7 @@ SEAM *Wordrec::chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic
     }
   }
 
-  *blob_number = -1;
+  *blob_number = UINT_MAX;
   return nullptr;
 }
 
@@ -323,20 +323,21 @@ SEAM *Wordrec::improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, 
   float rating_ceiling = FLT_MAX;
   SEAM *seam = nullptr;
   do {
-    *blob_number = select_blob_to_split_from_fixpt(fixpt);
+    auto blob = select_blob_to_split_from_fixpt(fixpt);
     if (chop_debug) {
-      tprintf("blob_number from fixpt = %u\n", *blob_number);
+      tprintf("blob_number from fixpt = %d\n", blob);
     }
-    bool split_point_from_dict = (*blob_number != -1);
+    bool split_point_from_dict = (blob != -1);
     if (split_point_from_dict) {
       fixpt->clear();
     } else {
-      *blob_number = select_blob_to_split(blob_choices, rating_ceiling, split_next_to_fragment);
+      blob = select_blob_to_split(blob_choices, rating_ceiling, split_next_to_fragment);
     }
     if (chop_debug) {
-      tprintf("blob_number = %u\n", *blob_number);
+      tprintf("blob_number = %d\n", blob);
     }
-    if (*blob_number == -1) {
+    *blob_number = blob;
+    if (blob == -1) {
       return nullptr;
     }
 

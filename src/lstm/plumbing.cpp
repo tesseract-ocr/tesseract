@@ -161,7 +161,7 @@ void Plumbing::EnumerateLayers(const std::string *prefix, std::vector<std::strin
 Network *Plumbing::GetLayer(const char *id) const {
   char *next_id;
   int index = strtol(id, &next_id, 10);
-  if (index < 0 || index >= stack_.size()) {
+  if (index < 0 || static_cast<unsigned>(index) >= stack_.size()) {
     return nullptr;
   }
   if (stack_[index]->IsPlumbingType()) {
@@ -176,7 +176,7 @@ Network *Plumbing::GetLayer(const char *id) const {
 float *Plumbing::LayerLearningRatePtr(const char *id) {
   char *next_id;
   int index = strtol(id, &next_id, 10);
-  if (index < 0 || index >= stack_.size()) {
+  if (index < 0 || static_cast<unsigned>(index) >= stack_.size()) {
     return nullptr;
   }
   if (stack_[index]->IsPlumbingType()) {
@@ -184,7 +184,7 @@ float *Plumbing::LayerLearningRatePtr(const char *id) {
     ASSERT_HOST(*next_id == ':');
     return plumbing->LayerLearningRatePtr(next_id + 1);
   }
-  if (index >= learning_rates_.size()) {
+  if (static_cast<unsigned>(index) >= learning_rates_.size()) {
     return nullptr;
   }
   return &learning_rates_[index];

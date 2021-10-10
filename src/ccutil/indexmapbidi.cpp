@@ -222,8 +222,8 @@ bool IndexMapBiDi::Serialize(FILE *fp) const {
   // then each additional sparse entry needs to be stored.
   // Normally we store only the compact map to save space.
   std::vector<int32_t> remaining_pairs;
-  for (size_t i = 0; i < sparse_map_.size(); ++i) {
-    if (sparse_map_[i] >= 0 && compact_map_[sparse_map_[i]] != i) {
+  for (unsigned i = 0; i < sparse_map_.size(); ++i) {
+    if (sparse_map_[i] >= 0 && static_cast<unsigned>(compact_map_[sparse_map_[i]]) != i) {
       remaining_pairs.push_back(i);
       remaining_pairs.push_back(sparse_map_[i]);
     }
@@ -243,7 +243,7 @@ bool IndexMapBiDi::DeSerialize(bool swap, FILE *fp) {
   }
   sparse_map_.clear();
   sparse_map_.resize(sparse_size_, -1);
-  for (size_t i = 0; i < compact_map_.size(); ++i) {
+  for (unsigned i = 0; i < compact_map_.size(); ++i) {
     sparse_map_[compact_map_[i]] = i;
   }
   for (size_t i = 0; i < remaining_pairs.size(); ++i) {

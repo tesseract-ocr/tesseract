@@ -859,7 +859,7 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(bool word_end, int curr_c
   // like don't.
   const auto &normed_ids = dict_->getUnicharset().normed_ids(b.unichar_id());
   DawgPositionVector tmp_active_dawgs;
-  for (int i = 0; i < normed_ids.size(); ++i) {
+  for (unsigned i = 0; i < normed_ids.size(); ++i) {
     if (language_model_debug_level > 2) {
       tprintf("Test Letter OK for unichar %d, normed %d\n", b.unichar_id(), normed_ids[i]);
     }
