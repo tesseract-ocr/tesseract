@@ -927,7 +927,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
   if (Templates->NumClasses != unicharset_size) {
     tprintf(
         "Warning: executing WriteIntTemplates() with %d classes in"
-        " Templates, while target_unicharset size is %d\n",
+        " Templates, while target_unicharset size is %zu\n",
         Templates->NumClasses, unicharset_size);
   }
 
