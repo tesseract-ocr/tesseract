@@ -198,7 +198,7 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     Image original = GetPixRect();
     pix_binary = original.copy();
     original.destroy();
-    return std::make_tuple(false, nullptr, pix_binary, nullptr);
+    return std::make_tuple(true, nullptr, pix_binary, nullptr);
   }
 
   auto pix_grey = GetPixRectGrey();
