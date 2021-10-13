@@ -76,7 +76,7 @@ Tesseract::Tesseract()
                this->params())
     , INT_MEMBER(thresholding_method,
                  static_cast<int>(tesseract::ThresholdMethod::Otsu),
-                 "Thresholding method: 0 = Otsu, 1 = Adaptive Otsu, 2 = "
+                 "Thresholding method: 0 = Otsu, 1 = LeptonicaOtsu, 2 = "
                  "Sauvola",
                  this->params())
     , INT_MEMBER(thresholding_window_size, 51,
@@ -90,18 +90,18 @@ Tesseract::Tesseract()
                  this->params())
     , INT_MEMBER(thresholding_tile_size, 300,
                  "Desired tile size. Actual size may vary. Must be >= 16. "
-                 "This parameter is used by the Adaptive Otsu thresolding "
+                 "This parameter is used by the LeptonicaOtsu thresolding "
                  "method",
                  this->params())
     , INT_MEMBER(thresholding_smooth_size, 0,
                  "Size of convolution kernel applied to threshold array. "
-                 "This parameter is used by the Adaptive Otsu thresolding "
+                 "This parameter is used by the LeptonicaOtsu thresolding "
                  "method. "
                  "Use 0 for no smoothing",
                  this->params())
     , double_MEMBER(thresholding_score_fraction, 0.1,
                  "Fraction of the max Otsu score. "
-                 "This parameter is used by the Adaptive Otsu thresolding "
+                 "This parameter is used by the LeptonicaOtsu thresolding "
                  "method. "
                  "Typically 0.1. Use 0.0 for standard Otsu",
                  this->params())
