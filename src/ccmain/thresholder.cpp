@@ -242,7 +242,7 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     kfactor = std::max(0.0, kfactor);
 
     if (thresholding_debug) {
-      tprintf("\nwindow size: %d  kfactor: %f  nx:%d  ny: %d", window_size, half_window_size, kfactor, nx, ny);
+      tprintf("\nwindow size: %d  kfactor: %f  nx:%d  ny: %d", window_size, kfactor, nx, ny);
     }
 
     r = pixSauvolaBinarizeTiled(pix_grey, half_window_size, kfactor, nx, ny,
