@@ -204,15 +204,28 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
   auto pix_grey = GetPixRectGrey();
 
   int r;
+  
+  l_int32 pix_w, pix_h;
+  pixGetDimensions(pix_grey, &pix_w, &pix_h, nullptr);
+
+  bool thresholding_debug;
+  api->GetBoolVariable("thresholding_debug", &thresholding_debug);
+  if (thresholding_debug) {
+    tprintf("\nimage width: %d  height: %d  ppi: %d", pix_w, pix_h, yres_);
+  }
+
   if (method == ThresholdMethod::Sauvola) {
     int window_size;
-    api->GetIntVariable("thresholding_window_size", &window_size);
+    double window_size_factor;
+    api->GetDoubleVariable("thresholding_window_size", &window_size_factor);
+    window_size = window_size_factor * yres_;
+    window_size = std::max(7, window_size);
+    window_size = std::min(pix_w < pix_h ? pix_w - 3 : pix_h - 3, window_size);
     int half_window_size = window_size / 2;
+
     // factor for image division into tiles; >= 1
     l_int32 nx, ny;
-//  // tiles size will be approx. 250 x 250 pixels
-    l_int32 pix_w, pix_h;
-    pixGetDimensions(pix_grey, &pix_w, &pix_h, nullptr);
+    // tiles size will be approx. 250 x 250 pixels
     nx = std::max(1, (pix_w + 125) / 250);
     ny = std::max(1, (pix_h + 125) / 250);
     auto xrat = pix_w / nx;
@@ -226,19 +239,44 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
 
     double kfactor;
     api->GetDoubleVariable("thresholding_kfactor", &kfactor);
+    kfactor = std::max(0.0, kfactor);
+
+    if (thresholding_debug) {
+      tprintf("\nwindow size: %d  kfactor: %f  nx:%d  ny: %d", window_size, half_window_size, kfactor, nx, ny);
+    }
+
     r = pixSauvolaBinarizeTiled(pix_grey, half_window_size, kfactor, nx, ny,
                                (PIX**)pix_thresholds,
                                 (PIX**)pix_binary);
   } else { // if (method == ThresholdMethod::LeptonicaOtsu)
     int tile_size;
-    api->GetIntVariable("thresholding_tile_size", &tile_size);
-    int smooth_size;
-    api->GetIntVariable("thresholding_smooth_size", &smooth_size);
-    int half_smooth_size = smooth_size / 2;
+    double tile_size_factor;
+    api->GetDoubleVariable("thresholding_tile_size", &tile_size_factor);
+    tile_size = tile_size_factor * yres_;
+    tile_size = std::max(16, tile_size);
+
+    int smooth_size_x, smooth_size_y;
+    double smooth_size_factor;
+    api->GetDoubleVariable("thresholding_smooth_kernel_size",
+                         &smooth_size_factor);
+    smooth_size_factor = std::min(1.0, smooth_size_factor);
+    if (smooth_size_factor > 0) {
+      smooth_size_x = smooth_size_factor * pix_w / tile_size;
+      smooth_size_y = smooth_size_factor * pix_h / tile_size;
+    } else {
+      smooth_size_x = 0;
+      smooth_size_y = 0;
+    }    
+
     double score_fraction;
     api->GetDoubleVariable("thresholding_score_fraction", &score_fraction);
+
+    if (thresholding_debug) {
+      tprintf("\ntile size: %d  smooth_size_x: %d  smooth_size_y: %d  score_fraction: %f", tile_size, smooth_size_x, smooth_size_y, score_fraction);
+    }
+
     r = pixOtsuAdaptiveThreshold(pix_grey, tile_size, tile_size,
-                                 half_smooth_size, half_smooth_size,
+                                 smooth_size_x / 2, smooth_size_y / 2,
                                  score_fraction, 
                                  (PIX**)pix_thresholds,
                                  (PIX**)pix_binary);

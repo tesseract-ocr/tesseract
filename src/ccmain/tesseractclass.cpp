@@ -79,32 +79,34 @@ Tesseract::Tesseract()
                  "Thresholding method: 0 = Otsu, 1 = LeptonicaOtsu, 2 = "
                  "Sauvola",
                  this->params())
-    , INT_MEMBER(thresholding_window_size, 51,
-                 "Window size for measuring local statistics. "
-                 "This parameter is used by the Sauvola thresolding method",
-                 this->params())
+    , BOOL_MEMBER(thresholding_debug, false,
+                  "Debug the thresholding process",
+                  this->params())
+    , double_MEMBER(thresholding_window_size, 0.33,
+                    "Window size for measuring local statistics. "
+                    "This parameter is used by the Sauvola thresolding method",
+                    this->params())
     , double_MEMBER(thresholding_kfactor, 0.34,
                     "Factor for reducing threshold due to variance. "
-                    "This parameter is used by the Sauvola thresolding method. "
-                    "Must be >= 0",
-                 this->params())
-    , INT_MEMBER(thresholding_tile_size, 300,
-                 "Desired tile size. Actual size may vary. Must be >= 16. "
-                 "This parameter is used by the LeptonicaOtsu thresolding "
-                 "method",
-                 this->params())
-    , INT_MEMBER(thresholding_smooth_size, 0,
-                 "Size of convolution kernel applied to threshold array. "
-                 "This parameter is used by the LeptonicaOtsu thresolding "
-                 "method. "
-                 "Use 0 for no smoothing",
-                 this->params())
+                    "This parameter is used by the Sauvola thresolding method."
+                    " Normal range: 0.2-0.5",
+                    this->params())
+    , double_MEMBER(thresholding_tile_size, 0.33,
+                    "Desired tile size. "
+                    "This parameter is used by the LeptonicaOtsu thresolding "
+                    "method",
+                    this->params())
+    , double_MEMBER(thresholding_smooth_kernel_size, 1.0,
+                    "Size of convolution kernel applied to threshold array. "
+                    "This parameter is used by the LeptonicaOtsu thresolding "
+                    "method. Range: 0.0-1.0",
+                    this->params())
     , double_MEMBER(thresholding_score_fraction, 0.1,
-                 "Fraction of the max Otsu score. "
-                 "This parameter is used by the LeptonicaOtsu thresolding "
-                 "method. "
-                 "Typically 0.1. Use 0.0 for standard Otsu",
-                 this->params())
+                    "Fraction of the max Otsu score. "
+                    "This parameter is used by the LeptonicaOtsu thresolding "
+                    "method. "
+                    "For standard Otsu use 0.0, otherwise 0.1 is recommended",
+                    this->params())
     , INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
                       "Which OCR engine(s) to run (Tesseract, LSTM, both)."
                       " Defaults to loading and running the most accurate"
