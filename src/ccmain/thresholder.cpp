@@ -255,29 +255,24 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     tile_size = tile_size_factor * yres_;
     tile_size = std::max(16, tile_size);
 
-    int smooth_size_x, smooth_size_y;
+    int smooth_size;
     double smooth_size_factor;
     api->GetDoubleVariable("thresholding_smooth_kernel_size",
                          &smooth_size_factor);
-    smooth_size_factor = std::min(1.0, smooth_size_factor);
-    if (smooth_size_factor > 0) {
-      smooth_size_x = smooth_size_factor * pix_w / tile_size;
-      smooth_size_y = smooth_size_factor * pix_h / tile_size;
-    } else {
-      smooth_size_x = 0;
-      smooth_size_y = 0;
-    }    
+    smooth_size_factor = std::max(0.0, smooth_size_factor);
+    smooth_size = smooth_size_factor * yres_;
+    int half_smooth_size = smooth_size / 2;
 
     double score_fraction;
     api->GetDoubleVariable("thresholding_score_fraction", &score_fraction);
 
     if (thresholding_debug) {
-      tprintf("\ntile size: %d  smooth_size_x: %d  smooth_size_y: %d  score_fraction: %f", tile_size, smooth_size_x, smooth_size_y, score_fraction);
+      tprintf("\ntile size: %d  smooth_size: %d  score_fraction: %f", tile_size, smooth_size, score_fraction);
     }
 
     r = pixOtsuAdaptiveThreshold(pix_grey, tile_size, tile_size,
-                                 smooth_size_x / 2, smooth_size_y / 2,
-                                 score_fraction, 
+                                 half_smooth_size, half_smooth_size,
+                                 score_fraction,
                                  (PIX**)pix_thresholds,
                                  (PIX**)pix_binary);
   }
