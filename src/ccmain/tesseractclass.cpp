@@ -83,7 +83,7 @@ Tesseract::Tesseract()
                   "Debug the thresholding process",
                   this->params())
     , double_MEMBER(thresholding_window_size, 0.33,
-                    "Window size for measuring local statistics. "
+                    "Window size for measuring local statistics (to be multiplied by image DPI). "
                     "This parameter is used by the Sauvola thresolding method",
                     this->params())
     , double_MEMBER(thresholding_kfactor, 0.34,
@@ -92,7 +92,7 @@ Tesseract::Tesseract()
                     " Normal range: 0.2-0.5",
                     this->params())
     , double_MEMBER(thresholding_tile_size, 0.33,
-                    "Desired tile size. "
+                    "Desired tile size (to be multiplied by image DPI). "
                     "This parameter is used by the LeptonicaOtsu thresolding "
                     "method",
                     this->params())
