@@ -429,7 +429,7 @@ Tesseract::Tesseract()
                     "information is lost due to the cut off at 0. The standard value is "
                     "5",
                     this->params())
-    , BOOL_MEMBER(pageseg_apply_music_mask, true,
+    , BOOL_MEMBER(pageseg_apply_music_mask, false,
                   "Detect music staff and remove intersecting components", this->params())
     ,
 
