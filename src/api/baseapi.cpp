@@ -376,9 +376,8 @@ int TessBaseAPI::Init(const char *data, int data_size, const char *language, Ocr
                       char **configs, int configs_size, const std::vector<std::string> *vars_vec,
                       const std::vector<std::string> *vars_values, bool set_only_non_debug_params,
                       FileReader reader) {
-  // Default language is "eng".
   if (language == nullptr) {
-    language = "eng";
+    language = "";
   }
   if (data == nullptr) {
     data = "";
