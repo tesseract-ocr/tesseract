@@ -654,12 +654,14 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  if (lang == nullptr) {
-    // Set default language if none was given.
+  bool in_recognition_mode = !list_langs && !print_parameters && !print_fonts_table;
+
+  if (lang == nullptr && in_recognition_mode) {
+    // Set default language model if none was given and a model file is needed.
     lang = "eng";
   }
 
-  if (image == nullptr && !list_langs && !print_parameters && !print_fonts_table) {
+  if (image == nullptr && in_recognition_mode) {
     return EXIT_SUCCESS;
   }
 
