@@ -526,7 +526,7 @@ public:
   void recognize_page(std::string &image_name);
   void end_tesseract();
 
-  bool init_tesseract_lang_data(const std::string &arg0, const std::string &textbase,
+  bool init_tesseract_lang_data(const std::string &arg0,
                                 const std::string &language, OcrEngineMode oem, char **configs,
                                 int configs_size, const std::vector<std::string> *vars_vec,
                                 const std::vector<std::string> *vars_values,
