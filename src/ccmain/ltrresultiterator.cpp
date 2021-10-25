@@ -432,7 +432,8 @@ ChoiceIterator::~ChoiceIterator() {
 // are none left.
 bool ChoiceIterator::Next() {
   if (oemLSTM_ && LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
-    if (LSTM_choice_it_ != LSTM_choices_->end() && next(LSTM_choice_it_) == LSTM_choices_->end()) {
+    if (LSTM_choice_it_ == LSTM_choices_->end() ||
+        next(LSTM_choice_it_) == LSTM_choices_->end()) {
       return false;
     } else {
       ++LSTM_choice_it_;
