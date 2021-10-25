@@ -26,12 +26,6 @@
 #include "fileerr.h"
 
 namespace tesseract {
-/**********************************************************************
- * main_setup
- *
- * Main for mithras demo program. Read the arguments and set up globals.
- **********************************************************************/
-
 /**
  * @brief CCUtil::main_setup - set location of tessdata and name of image
  *
