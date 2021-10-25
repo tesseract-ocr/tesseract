@@ -453,19 +453,6 @@ void Tesseract::SetupUniversalFontIds() {
   font_table_size_ = all_fonts.size();
 }
 
-// init the LM component
-int Tesseract::init_tesseract_lm(const std::string &arg0, const std::string &textbase,
-                                 const std::string &language, TessdataManager *mgr) {
-  if (!init_tesseract_lang_data(arg0, textbase, language, OEM_TESSERACT_ONLY, nullptr, 0, nullptr,
-                                nullptr, false, mgr)) {
-    return -1;
-  }
-  getDict().SetupForLoad(Dict::GlobalDawgCache());
-  getDict().Load(lang, mgr);
-  getDict().FinishLoad();
-  return 0;
-}
-
 #endif // ndef DISABLED_LEGACY_ENGINE
 
 void Tesseract::end_tesseract() {

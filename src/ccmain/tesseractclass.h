@@ -523,9 +523,6 @@ public:
   // instances of the same font loaded.
   void SetupUniversalFontIds();
 
-  int init_tesseract_lm(const std::string &arg0, const std::string &textbase,
-                        const std::string &language, TessdataManager *mgr);
-
   void recognize_page(std::string &image_name);
   void end_tesseract();
 
