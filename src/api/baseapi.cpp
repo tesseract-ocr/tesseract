@@ -474,25 +474,6 @@ void TessBaseAPI::GetAvailableLanguagesAsVector(std::vector<std::string> *langs)
   }
 }
 
-// TODO(amit): Adapt to lstm
-#ifndef DISABLED_LEGACY_ENGINE
-/**
- * Init only the lang model component of Tesseract. The only functions
- * that work after this init are SetVariable and IsValidWord.
- * WARNING: temporary! This function will be removed from here and placed
- * in a separate API at some future time.
- */
-int TessBaseAPI::InitLangMod(const char *datapath, const char *language) {
-  if (tesseract_ == nullptr) {
-    tesseract_ = new Tesseract;
-  } else {
-    ParamUtils::ResetToDefaults(tesseract_->params());
-  }
-  TessdataManager mgr;
-  return tesseract_->init_tesseract_lm(datapath, nullptr, language, &mgr);
-}
-#endif // ndef DISABLED_LEGACY_ENGINE
-
 /**
  * Init only for page layout analysis. Use only for calls to SetImage and
  * AnalysePage. Calls that attempt recognition will generate an error.
