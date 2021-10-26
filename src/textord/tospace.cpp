@@ -1124,8 +1124,6 @@ ROW *Textord::make_blob_words(TO_ROW *row,    // row to make
   C_BLOB_IT cblob_it = &cblobs;
   WERD_LIST words;
   WERD *word;         // new word
-  BLOBNBOX *bblob;    // current blob
-  TBOX blob_box;      // bounding box
   BLOBNBOX_IT box_it; // iterator
   int16_t word_count = 0;
 
@@ -1136,18 +1134,21 @@ ROW *Textord::make_blob_words(TO_ROW *row,    // row to make
   bol = true;
   if (!box_it.empty()) {
     do {
-      bblob = box_it.data();
-      blob_box = bblob->bounding_box();
+      auto bblob = box_it.data();
+      auto blob_box = bblob->bounding_box();
       if (bblob->joined_to_prev()) {
-        if (bblob->cblob() != nullptr) {
+        auto cblob = bblob->remove_cblob();
+        if (cblob != nullptr) {
           cout_it.set_to_list(cblob_it.data()->out_list());
           cout_it.move_to_last();
-          cout_it.add_list_after(bblob->cblob()->out_list());
-          delete bblob->cblob();
+          cout_it.add_list_after(cblob->out_list());
+          delete cblob;
         }
       } else {
-        if (bblob->cblob() != nullptr) {
-          cblob_it.add_after_then_move(bblob->cblob());
+        auto cblob = bblob->cblob();
+        if (cblob != nullptr) {
+          bblob->set_owns_cblob(false);
+          cblob_it.add_after_then_move(cblob);
         }
       }
       box_it.forward(); // next one
