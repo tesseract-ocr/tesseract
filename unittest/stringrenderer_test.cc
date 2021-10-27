@@ -313,10 +313,12 @@ TEST_F(StringRendererTest, DoesLigatureTextForRendering) {
   EXPECT_EQ(strlen(kEngNonLigatureText),
             renderer_->RenderToImage(kEngNonLigatureText, strlen(kEngNonLigatureText), &pix));
   pix.destroy();
+#if 0 // not with NFC normalization
   // There should be one less box than letters due to the 'fi' ligature.
   EXPECT_EQ(strlen(kEngNonLigatureText) - 1, renderer_->GetBoxes().size());
   // The output box text should be ligatured.
   EXPECT_STREQ("ﬁ", renderer_->GetBoxes()[0]->ch().c_str());
+#endif
 }
 
 TEST_F(StringRendererTest, DoesRetainInputLigatureForRendering) {
