@@ -4,7 +4,6 @@
  *              conditional on codepoint support by a specified font
  *              (if specified).
  * Author:      Ranjith Unnikrishnan
- * Created:     Mon Nov 18 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,11 +71,6 @@ void LigatureTable::Init() {
       icu::Normalizer::normalize(unicode_lig8, UNORM_NFC, 0, normed8_result, status);
       std::string normed8;
       normed8_result.toUTF8String(normed8);
-      // The icu::Normalizer maps the "LONG S T" ligature to "st". Correct that
-      // here manually so that AddLigatures() will work as desired.
-      if (lig8 == "\uFB05") {
-        normed8 = "ſt";
-      }
       int lig_length = lig8.length();
       int norm_length = normed8.size();
       if (normed8 != lig8 && lig_length > 1 && norm_length > 1) {
