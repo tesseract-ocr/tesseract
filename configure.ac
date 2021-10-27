@@ -213,9 +213,9 @@ AC_ARG_WITH([extra-libraries],
 
 AC_MSG_CHECKING([--enable-float32 argument])
 AC_ARG_ENABLE([float32],
-  AS_HELP_STRING([--enable-float32], [enable float for LSTM [default=no]]))
+	      AS_HELP_STRING([--disable-float32], [disable float and enable double for LSTM]))
 AC_MSG_RESULT([$enable_float32])
-if test "$enable_float32" = "yes"; then
+if test "$enable_float32" != "no"; then
   AC_DEFINE([FAST_FLOAT], [1], [Enable float for LSTM])
 fi
 
