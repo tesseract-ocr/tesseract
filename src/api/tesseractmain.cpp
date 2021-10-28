@@ -417,7 +417,7 @@ static bool ParseArgs(int argc, char **argv, const char **lang, const char **ima
       try {
         auto loglevel = loglevels.at(loglevel_string);
 	log_level = loglevel;
-      } catch(std::out_of_range) {
+      } catch(const std::out_of_range& e) {
         // TODO: Allow numeric argument?
 	tprintf("Error, unsupported --loglevel %s\n", loglevel_string.c_str());
         return false;
