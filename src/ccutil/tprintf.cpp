@@ -32,6 +32,8 @@ namespace tesseract {
 
 #define MAX_MSG_LEN 2048
 
+INT_VAR(log_level, INT_MAX, "Logging level");
+
 static STRING_VAR(debug_file, "", "File to send tprintf output to");
 
 // Trace printf
