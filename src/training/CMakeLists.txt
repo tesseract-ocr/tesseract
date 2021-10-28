@@ -1,6 +1,7 @@
 #
 # tesseract
 #
+cmake_policy(SET CMP0074 NEW)
 
 if (UNIX AND NOT ANDROID)
     set(LIB_pthread pthread)
