@@ -449,7 +449,9 @@ void DocumentData::LoadPageInBackground(int index) {
   if (thread.joinable()) {
     thread.join();
   }
-  thread = std::thread(&tesseract::DocumentData::ReCachePages, this);
+  // Don't run next statement asynchronously because that would
+  // create too many threads on Linux (see issue #3111).
+  ReCachePages();
 }
 
 // Returns a pointer to the page with the given index, modulo the total
