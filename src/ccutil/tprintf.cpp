@@ -25,6 +25,7 @@
 
 #include "params.h"
 
+#include <climits> // for INT_MAX
 #include <cstdarg>
 #include <cstdio>
 
