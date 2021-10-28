@@ -25,7 +25,7 @@
 namespace tesseract {
 
 // Disable some log messages by setting log_level > 0.
-extern INT_VAR_H(log_level);
+extern TESS_API INT_VAR_H(log_level);
 
 // Main logging function.
 extern TESS_API void tprintf( // Trace printf
