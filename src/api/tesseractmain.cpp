@@ -335,13 +335,6 @@ static void PrintLangsList(tesseract::TessBaseAPI &api) {
   api.End();
 }
 
-static void PrintBanner() {
-  if (log_level <= 0) {
-    tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
-            tesseract::TessBaseAPI::Version());
-  }
-}
-
 /**
  * We have 2 possible sources of pagesegmode: a config file and
  * the command line. For backwards compatibility reasons, the
@@ -819,15 +812,7 @@ int main(int argc, char **argv) {
     PreloadRenderers(api, renderers, pagesegmode, outputbase);
   }
 
-  bool banner = false;
-  if (outputbase != nullptr && strcmp(outputbase, "-") && strcmp(outputbase, "stdout")) {
-    banner = true;
-  }
-
   if (!renderers.empty()) {
-    if (banner) {
-      PrintBanner();
-    }
 #ifdef DISABLED_LEGACY_ENGINE
     if (!osd_warning.empty()) {
       fprintf(stderr, "%s", osd_warning.c_str());
