@@ -258,7 +258,13 @@ elseif(MSVC)
     if (NOT CLANG)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
     endif()
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /wd4244 /wd4305 /wd4267")
+    # Hide some warnings for release target
+    # wd4244 'argument': conversion from 'uint64_t' to 'unsigned int', possible loss of data
+    # wd4251 needs to have dll-interface
+    # wd4267 return': conversion from 'size_t' to 'int', possible loss of data
+    # wd4275 non dll-interface class
+    # wd4305 ...truncation from 'double' to 'float'
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /wd4244 /wd4305 /wd4267 /wd4251 /wd4275")
     # Don't use /Wall because it generates too many warnings.
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /W0 /bigobj")
     # MT flag
