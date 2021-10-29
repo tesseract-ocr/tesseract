@@ -72,6 +72,11 @@
 
 namespace tesseract {
 
+// TODO: The parameter classify_enable_adaptive_matcher can cause
+// a segmentation fault if it is set to false (issue #256),
+// so override it here.
+#define classify_enable_adaptive_matcher true
+
 #define ADAPT_TEMPLATE_SUFFIX ".a"
 
 #define MAX_MATCHES 10
