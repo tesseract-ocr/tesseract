@@ -1,3 +1,16 @@
+2021-10-29 - V5.0.0-rc1
+  * Faster training and recognition by default (float instead of
+    double calculations)
+  * More options for binarization
+  * Improved support for ARM NEON
+  * Modernized code
+  * Removed proprietary data types like GenericVector and STRING
+    from public API
+  * pdf.ttf no longer needed, now integrated into the code
+  * Faster flat build with automake
+  * Improved unit tests and fuzzing tests
+  * Lots of bug fixes
+
 2019-07-07 - V4.1.0
   * Added new renders Alto, LSTMBox, WordStrBox.
   * Added character boxes in hOCR output.
@@ -150,7 +163,7 @@
   * `OcrEngineMode` in `Init` replaces `AccuracyVSpeed` to control cube.
   * Greatly improved segmentation search with consequent accuracy and speed improvements, especially for Chinese.
   * Added `PageIterator` and `ResultIterator` as cleaner ways to get the full results out of Tesseract, that are not currently provided by any of the `TessBaseAPI::Get*` methods. All other methods, such as the `ETEXT_STRUCT` in particular are deprecated and will be deleted in the future.
-  * ApplyBoxes totally rewritten to make training easier. It can now cope with touching/overlapping training characters, and a new boxfile format allows word boxes instead of character boxes, BUT to use that you have to have already boostrapped the language with character boxes. "Cyclic dependency" on traineddata.
+  * ApplyBoxes totally rewritten to make training easier. It can now cope with touching/overlapping training characters, and a new boxfile format allows word boxes instead of character boxes, BUT to use that you have to have already bootstrapped the language with character boxes. "Cyclic dependency" on traineddata.
   * Auto orientation and script detection added to page layout analysis.
   * Deleted *lots* of dead code.
   * Fixxht module replaced with scalable data-driven module.
