@@ -278,13 +278,6 @@ enum OcrEngineMode {
   OEM_COUNT                    // Number of OEMs
 };
 
-enum class ThresholdMethod {
-  Otsu,          // Tesseract's legacy Otsu
-  LeptonicaOtsu, // Leptonica's Otsu
-  Sauvola,       // Leptonica's Sauvola
-  Max,           // Number of Thresholding methods
-};
-
 } // namespace tesseract.
 
 #endif // TESSERACT_CCSTRUCT_PUBLICTYPES_H_

@@ -46,6 +46,7 @@
 #  include "equationdetect.h"
 #endif
 #include "lstmrecognizer.h"
+#include "thresholder.h" // for ThresholdMethod
 
 namespace tesseract {
 
@@ -75,7 +76,7 @@ Tesseract::Tesseract()
                " (Values from PageSegMode enum in tesseract/publictypes.h)",
                this->params())
     , INT_MEMBER(thresholding_method,
-                 static_cast<int>(tesseract::ThresholdMethod::Otsu),
+                 static_cast<int>(ThresholdMethod::Otsu),
                  "Thresholding method: 0 = Otsu, 1 = LeptonicaOtsu, 2 = "
                  "Sauvola",
                  this->params())
