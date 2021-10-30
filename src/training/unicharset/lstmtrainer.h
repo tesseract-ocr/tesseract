@@ -95,9 +95,12 @@ public:
   // Initializes the character set encode/decode mechanism directly from a
   // previously setup traineddata containing dawgs, UNICHARSET and
   // UnicharCompress. Note: Call before InitNetwork!
-  void InitCharSet(const std::string &traineddata_path) {
-    ASSERT_HOST(mgr_.Init(traineddata_path.c_str()));
-    InitCharSet();
+  bool InitCharSet(const std::string &traineddata_path) {
+    bool success = mgr_.Init(traineddata_path.c_str());
+    if (success) {
+      InitCharSet();
+    }
+    return success;
   }
   void InitCharSet(const TessdataManager &mgr) {
     mgr_ = mgr;
