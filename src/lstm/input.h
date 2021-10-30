@@ -33,8 +33,10 @@ public:
   ~Input() override = default;
 
   std::string spec() const override {
-    return std::to_string(shape_.batch()) + "," + std::to_string(shape_.height()) + "," +
-           std::to_string(shape_.width()) + "," + std::to_string(shape_.depth());
+    return std::to_string(shape_.batch()) + "," +
+           std::to_string(shape_.height()) + "," +
+           std::to_string(shape_.width()) + "," +
+           std::to_string(shape_.depth());
   }
 
   // Returns the required shape input to the network.
@@ -43,7 +45,8 @@ public:
   }
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  StaticShape OutputShape([[maybe_unused]] const StaticShape &input_shape) const override {
+  StaticShape OutputShape(
+      [[maybe_unused]] const StaticShape &input_shape) const override {
     return shape_;
   }
   // Writes to the given file. Returns false in case of error.
@@ -66,27 +69,29 @@ public:
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  void Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
-               NetworkScratch *scratch, NetworkIO *output) override;
+  void Forward(bool debug, const NetworkIO &input,
+               const TransposedArray *input_transpose, NetworkScratch *scratch,
+               NetworkIO *output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  bool Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
-                NetworkIO *back_deltas) override;
+  bool Backward(bool debug, const NetworkIO &fwd_deltas,
+                NetworkScratch *scratch, NetworkIO *back_deltas) override;
   // Creates and returns a Pix of appropriate size for the network from the
   // image_data. If non-null, *image_scale returns the image scale factor used.
   // Returns nullptr on error.
   /* static */
-  static Image PrepareLSTMInputs(const ImageData &image_data, const Network *network, int min_width,
-                                TRand *randomizer, float *image_scale);
+  static Image PrepareLSTMInputs(const ImageData &image_data,
+                                 const Network *network, int min_width,
+                                 TRand *randomizer, float *image_scale);
   // Converts the given pix to a NetworkIO of height and depth appropriate to
   // the given StaticShape:
   // If depth == 3, convert to 24 bit color, otherwise normalized grey.
   // Scale to target height, if the shape's height is > 1, or its depth if the
   // height == 1. If height == 0 then no scaling.
   // NOTE: It isn't safe for multiple threads to call this on the same pix.
-  static void PreparePixInput(const StaticShape &shape, const Image pix, TRand *randomizer,
-                              NetworkIO *input);
+  static void PreparePixInput(const StaticShape &shape, const Image pix,
+                              TRand *randomizer, NetworkIO *input);
 
 private:
   void DebugWeights() override {
