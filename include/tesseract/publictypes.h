@@ -282,8 +282,7 @@ enum class ThresholdMethod {
   Otsu,          // Tesseract's legacy Otsu
   LeptonicaOtsu, // Leptonica's Otsu
   Sauvola,       // Leptonica's Sauvola
-
-  Max,        // Number of Thresholding methods
+  Max,           // Number of Thresholding methods
 };
 
 } // namespace tesseract.
