@@ -43,7 +43,7 @@ public:
   }
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  StaticShape OutputShape(const StaticShape &input_shape) const override {
+  StaticShape OutputShape([[maybe_unused]] const StaticShape &input_shape) const override {
     return shape_;
   }
   // Writes to the given file. Returns false in case of error.

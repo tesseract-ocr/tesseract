@@ -187,7 +187,7 @@ public:
   // output from code_map[output] where non-negative, and uses the mean (over
   // all outputs) of the existing weights for all outputs with negative code_map
   // entries. Returns the new number of weights.
-  virtual int RemapOutputs(int old_no, const std::vector<int> &code_map) {
+  virtual int RemapOutputs([[maybe_unused]] int old_no, [[maybe_unused]] const std::vector<int> &code_map) {
     return 0;
   }
 
@@ -216,7 +216,7 @@ public:
 
   // Provides the (minimum) x scale factor to the network (of interest only to
   // input units) so they can determine how to scale bounding boxes.
-  virtual void CacheXScaleFactor(int factor) {}
+  virtual void CacheXScaleFactor([[maybe_unused]] int factor) {}
 
   // Provides debug output on the weights.
   virtual void DebugWeights() = 0;
@@ -231,11 +231,11 @@ public:
 public:
   // Updates the weights using the given learning rate, momentum and adam_beta.
   // num_samples is used in the adam computation iff use_adam_ is true.
-  virtual void Update(float learning_rate, float momentum, float adam_beta, int num_samples) {}
+  virtual void Update([[maybe_unused]] float learning_rate, [[maybe_unused]] float momentum, [[maybe_unused]] float adam_beta, [[maybe_unused]] int num_samples) {}
   // Sums the products of weight updates in *this and other, splitting into
   // positive (same direction) in *same and negative (different direction) in
   // *changed.
-  virtual void CountAlternators(const Network &other, TFloat *same, TFloat *changed) const {}
+  virtual void CountAlternators([[maybe_unused]] const Network &other, [[maybe_unused]] TFloat *same, [[maybe_unused]] TFloat *changed) const {}
 
   // Reads from the given file. Returns nullptr in case of error.
   // Determines the type of the serialized class and calls its DeSerialize
