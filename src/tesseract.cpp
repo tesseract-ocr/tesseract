@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        tesseractmain.cpp
+ * File:        tesseract.cpp
  * Description: Main program for merge of tess and editor.
  * Author:      Ray Smith
  *
