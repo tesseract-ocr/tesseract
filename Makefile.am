@@ -1160,20 +1160,22 @@ endif # TENSORFLOW
 
 # Build googletest:
 check_LTLIBRARIES = libgtest.la libgtest_main.la libgmock.la libgmock_main.la
-libgtest_la_SOURCES = googletest/googletest/src/gtest-all.cc
-libgtest_la_CPPFLAGS = -I$(top_srcdir)/googletest/googletest/include -I$(top_srcdir)/googletest/googletest -pthread
-libgtest_main_la_SOURCES = googletest/googletest/src/gtest_main.cc
+libgtest_la_SOURCES = unittest/third_party/googletest/googletest/src/gtest-all.cc
+libgtest_la_CPPFLAGS = -I$(top_srcdir)/unittest/third_party/googletest/googletest/include
+libgtest_la_CPPFLAGS += -I$(top_srcdir)/unittest/third_party/googletest/googletest
+libgtest_la_CPPFLAGS += -pthread
+libgtest_main_la_SOURCES = unittest/third_party/googletest/googletest/src/gtest_main.cc
 libgtest_main_la_CPPFLAGS = $(libgtest_la_CPPFLAGS)
 
-GMOCK_INCLUDES = -I$(top_srcdir)/googletest/googlemock/include \
-                 -I$(top_srcdir)/googletest/googlemock \
-                 -I$(top_srcdir)/googletest/googletest/include \
-                 -I$(top_srcdir)/googletest/googletest
+GMOCK_INCLUDES = -I$(top_srcdir)/unittest/third_party/googletest/googlemock/include \
+                 -I$(top_srcdir)/unittest/third_party/googletest/googlemock \
+                 -I$(top_srcdir)/unittest/third_party/googletest/googletest/include \
+                 -I$(top_srcdir)/unittest/third_party/googletest/googletest
 
-libgmock_la_SOURCES = googletest/googlemock/src/gmock-all.cc
+libgmock_la_SOURCES = unittest/third_party/googletest/googlemock/src/gmock-all.cc
 libgmock_la_CPPFLAGS = $(GMOCK_INCLUDES) \
                        -pthread
-libgmock_main_la_SOURCES = googletest/googlemock/src/gmock_main.cc
+libgmock_main_la_SOURCES = unittest/third_party/googletest/googlemock/src/gmock_main.cc
 libgmock_main_la_CPPFLAGS = $(GMOCK_INCLUDES) \
                             -pthread
 
@@ -1185,8 +1187,8 @@ TESS_LIBS += libtesseract.la $(libarchive_LIBS)
 TESS_LIBS += $(TENSORFLOW_LIBS)
 TRAINING_LIBS = libtesseract_training.la
 TRAINING_LIBS += $(TESS_LIBS)
-unittest_CPPFLAGS += -isystem $(top_srcdir)/googletest/googletest/include
-unittest_CPPFLAGS += -isystem $(top_srcdir)/googletest/googlemock/include
+unittest_CPPFLAGS += -isystem $(top_srcdir)/unittest/third_party/googletest/googletest/include
+unittest_CPPFLAGS += -isystem $(top_srcdir)/unittest/third_party/googletest/googlemock/include
 
 check_PROGRAMS = apiexample_test
 if ENABLE_TRAINING
