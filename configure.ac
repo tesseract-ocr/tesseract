@@ -20,7 +20,7 @@ AC_LANG_COMPILER_REQUIRE
 CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([config])
-AC_CONFIG_SRCDIR([src/api/tesseractmain.cpp])
+AC_CONFIG_SRCDIR([src/tesseract.cpp])
 AC_PREFIX_DEFAULT([/usr/local])
 
 # Automake configuration. Do not require README file (we use README.md).

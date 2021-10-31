@@ -718,7 +718,7 @@ endif
 # Rules for tesseract executable.
 
 bin_PROGRAMS = tesseract
-tesseract_SOURCES = src/api/tesseractmain.cpp
+tesseract_SOURCES = src/tesseract.cpp
 tesseract_CPPFLAGS =
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/arch
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccstruct

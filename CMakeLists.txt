@@ -362,7 +362,7 @@ else()
     include_directories(${Leptonica_INCLUDE_DIRS})
 
     # Check for optional libraries.
-    find_package(TIFF)  # for tesseractmain
+    find_package(TIFF)  # for tesseract
     if(NOT TIFF_FOUND AND PKG_CONFIG_EXECUTABLE)
             # try PKG_CONFIG to find libtiff if cmake failed
             pkg_check_modules(TIFF libtiff-4)
@@ -733,10 +733,10 @@ if (WIN32 AND CLANG AND OPENMP_BUILD)
 endif()
 
 ########################################
-# EXECUTABLE tesseractmain
+# EXECUTABLE tesseract
 ########################################
 
-add_executable                  (tesseract src/api/tesseractmain.cpp)
+add_executable                  (tesseract src/tesseract.cpp)
 target_link_libraries           (tesseract libtesseract)
 if (HAVE_TIFFIO_H AND WIN32)
     target_link_libraries       (tesseract ${TIFF_LIBRARIES})

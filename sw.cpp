@@ -20,7 +20,7 @@ void build(Solution &s)
         libtesseract -= "src/training/.*"_rr;
 
         libtesseract -=
-            "src/api/tesseractmain.cpp",
+            "src/tesseract.cpp",
             "src/viewer/svpaint.cpp";
 
         libtesseract.Public += "include"_idir;
@@ -109,7 +109,7 @@ void build(Solution &s)
     auto &tesseract = tess.addExecutable("tesseract");
     {
         tesseract += cppstd;
-        tesseract += "src/api/tesseractmain.cpp";
+        tesseract += "src/tesseract.cpp";
         tesseract += libtesseract;
     }
 
