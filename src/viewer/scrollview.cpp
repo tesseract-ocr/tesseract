@@ -566,7 +566,16 @@ void ScrollView::AlwaysOnTop(bool b) {
 }
 
 // Adds a message entry to the message box.
-void ScrollView::AddMessage(const char *format, ...) {
+void ScrollView::AddMessage(const char *message) {
+  char form[kMaxMsgSize];
+  snprintf(form, sizeof(form), "w%u:%s", window_id_, message);
+
+  char *esc = AddEscapeChars(form);
+  SendMsg("addMessage(\"%s\")", esc);
+  delete[] esc;
+}
+
+void ScrollView::AddMessageF(const char *format, ...) {
   va_list args;
   char message[kMaxMsgSize - 4];
 
@@ -574,12 +583,7 @@ void ScrollView::AddMessage(const char *format, ...) {
   vsnprintf(message, sizeof(message), format, args);
   va_end(args);
 
-  char form[kMaxMsgSize];
-  snprintf(form, sizeof(form), "w%u:%s", window_id_, message);
-
-  char *esc = AddEscapeChars(form);
-  SendMsg("addMessage(\"%s\")", esc);
-  delete[] esc;
+  AddMessage(message);
 }
 
 // Set a messagebox.

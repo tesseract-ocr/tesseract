@@ -299,7 +299,8 @@ public:
 
   // ...which can be added by this command.
   // This is intended as an "debug" output window.
-  void AddMessage(const char *format, ...) __attribute__((format(printf, 2, 3)));
+  void AddMessage(const char *message);
+  void AddMessageF(const char *format, ...) __attribute__((format(printf, 2, 3)));
 
   // Zoom the window to the rectangle given upper left corner and
   // lower right corner.
