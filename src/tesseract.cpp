@@ -25,6 +25,7 @@
 #if defined(__USE_GNU)
 #  include <cfenv> // for feenableexcept
 #endif
+#include <climits> // for INT_MIN, INT_MAX
 #include <cstdlib> // for std::getenv
 #include <iostream>
 #include <map>    // for std::map
