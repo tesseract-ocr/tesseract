@@ -21,6 +21,7 @@
 #define TESSERACT_CCUTIL_HELPERS_H_
 
 #include <cassert>
+#include <climits> // for INT_MIN, INT_MAX
 #include <cmath> // std::isfinite
 #include <cstdio>
 #include <cstring>
