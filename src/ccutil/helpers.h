@@ -173,6 +173,8 @@ inline int DivRounded(int a, int b) {
 // Return a double cast to int with rounding.
 inline int IntCastRounded(double x) {
   assert(std::isfinite(x));
+  assert(x < INT_MAX);
+  assert(x > INT_MIN);
   return x >= 0.0 ? static_cast<int>(x + 0.5) : -static_cast<int>(-x + 0.5);
 }
 
