@@ -65,9 +65,6 @@ Latest source code is available from [main branch on GitHub](https://github.com/
 Open issues can be found in [issue tracker](https://github.com/tesseract-ocr/tesseract/issues),
 and [planning documentation](https://tesseract-ocr.github.io/tessdoc/Planning.html).
 
-The latest 3.0x version is **[3.05.02](https://github.com/tesseract-ocr/tesseract/releases/tag/3.05.02)**, released on June 19, 2018. Latest source code for 3.05 is available from [3.05 branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/3.05).
-There is no development for this version, but it can be used for special cases (e.g. see [Regression of features from 3.0x](https://tesseract-ocr.github.io/tessdoc/Planning.html#regression-of-features-from-30x)).
-
 See **[Release Notes](https://tesseract-ocr.github.io/tessdoc/ReleaseNotes.html)**
 and **[Change Log](https://github.com/tesseract-ocr/tesseract/blob/main/ChangeLog)** for more details of the releases.
 
