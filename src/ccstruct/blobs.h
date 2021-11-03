@@ -196,7 +196,7 @@ struct EDGEPT {
   bool is_hidden = false;
   uint8_t runlength = 0;
   int8_t dir = 0;
-  int8_t fixed = 0;
+  bool fixed = false;
   EDGEPT *next = nullptr;           // anticlockwise element
   EDGEPT *prev = nullptr;           // clockwise element
   C_OUTLINE *src_outline = nullptr; // Outline it came from.
