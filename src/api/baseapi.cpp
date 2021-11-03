@@ -1897,15 +1897,13 @@ void TessBaseAPI::End() {
   if (osd_tesseract_ == tesseract_) {
     osd_tesseract_ = nullptr;
   }
-#endif // ndef DISABLED_LEGACY_ENGINE
-  delete tesseract_;
-  tesseract_ = nullptr;
-#ifndef DISABLED_LEGACY_ENGINE
   delete osd_tesseract_;
   osd_tesseract_ = nullptr;
   delete equ_detect_;
   equ_detect_ = nullptr;
 #endif // ndef DISABLED_LEGACY_ENGINE
+  delete tesseract_;
+  tesseract_ = nullptr;
   input_file_.clear();
   output_file_.clear();
   datapath_.clear();
