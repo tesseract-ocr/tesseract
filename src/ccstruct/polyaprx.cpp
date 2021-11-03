@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        polyaprx.cpp  (Formerly polygon.c)
+ * File:        polyaprx.cpp
  * Description: Code for polygonal approximation from old edgeprog.
  * Author:      Ray Smith
  *
@@ -34,7 +34,8 @@ namespace tesseract {
 #define FASTEDGELENGTH 256
 
 static BOOL_VAR(poly_debug, false, "Debug old poly");
-static BOOL_VAR(poly_wide_objects_better, true, "More accurate approx on wide things");
+static BOOL_VAR(poly_wide_objects_better, true,
+                "More accurate approx on wide things");
 
 #define fixed_dist 20  // really an int_variable
 #define approx_dist 15 // really an int_variable
@@ -126,8 +127,9 @@ static void cutline(       // recursive refine
   }
 
   if (poly_debug) {
-    tprintf("Cutline:A=%d, max=%.2f(%.2f%%), msd=%.2f(%.2f%%)\n", area, maxperp / 256.0,
-            maxperp * 200.0 / area, perp / 256.0, perp * 300.0 / area);
+    tprintf("Cutline:A=%d, max=%.2f(%.2f%%), msd=%.2f(%.2f%%)\n", area,
+            maxperp / 256.0, maxperp * 200.0 / area, perp / 256.0,
+            perp * 300.0 / area);
   }
   if (maxperp * par1 >= 10 * area || perp * par2 >= 10 * area || vlen >= 126) {
     maxpoint->fixed = true;
@@ -144,8 +146,8 @@ static void cutline(       // recursive refine
  **********************************************************************/
 
 static EDGEPT *edgesteps_to_edgepts( // convert outline
-    C_OUTLINE *c_outline,     // input
-    EDGEPT edgepts[]          // output is array
+    C_OUTLINE *c_outline,            // input
+    EDGEPT edgepts[]                 // output is array
 ) {
   int32_t length;    // steps in path
   ICOORD pos;        // current coords
@@ -169,7 +171,8 @@ static EDGEPT *edgesteps_to_edgepts( // convert outline
   do {
     dir = c_outline->step_dir(stepindex);
     vec = c_outline->step(stepindex);
-    if (stepindex < length - 1 && c_outline->step_dir(stepindex + 1) - dir == -32) {
+    if (stepindex < length - 1 &&
+        c_outline->step_dir(stepindex + 1) - dir == -32) {
       dir += 128 - 16;
       vec += c_outline->step(stepindex + 1);
       stepinc = 2;
@@ -230,7 +233,8 @@ static EDGEPT *edgesteps_to_edgepts( // convert outline
   epdir &= 7;
   edgepts[epindex].dir = epdir;
   edgepts[0].prev = &edgepts[epindex];
-  ASSERT_HOST(pos.x() == c_outline->start_pos().x() && pos.y() == c_outline->start_pos().y());
+  ASSERT_HOST(pos.x() == c_outline->start_pos().x() &&
+              pos.y() == c_outline->start_pos().y());
   return &edgepts[0];
 }
 
@@ -238,8 +242,8 @@ static EDGEPT *edgesteps_to_edgepts( // convert outline
  *fix2(start,area) fixes points on the outline according to a trial method*
  **********************************************************************/
 
-static void fix2(         // polygonal approx
-    EDGEPT *start, // loop to approimate
+static void fix2(  // polygonal approx
+    EDGEPT *start, // loop to approximate
     int area) {
   EDGEPT *edgept; // current point
   EDGEPT *edgept1;
@@ -258,18 +262,18 @@ static void fix2(         // polygonal approx
          (dir = (edgept->prev->dir - edgept->next->dir) & 7) != 2 && dir != 6) {
     edgept = edgept->next; // find suitable start
   }
-  loopstart = edgept;      // remember start
+  loopstart = edgept; // remember start
 
-  stopped = 0;                   // not finished yet
-  edgept->fixed = true; //fix it
+  stopped = 0;          // not finished yet
+  edgept->fixed = true; // fix it
   do {
-    linestart = edgept;        // possible start of line
-    auto dir1 = edgept->dir; //first direction
-    //length of dir1
+    linestart = edgept;      // possible start of line
+    auto dir1 = edgept->dir; // first direction
+    // length of dir1
     auto sum1 = edgept->runlength;
     edgept = edgept->next;
-    auto dir2 = edgept->dir; //2nd direction
-    //length in dir2
+    auto dir2 = edgept->dir; // 2nd direction
+    // length in dir2
     auto sum2 = edgept->runlength;
     if (((dir1 - dir2 + 1) & 7) < 3) {
       while (edgept->prev->dir == edgept->next->dir) {
@@ -425,9 +429,9 @@ static void fix2(         // polygonal approx
  *using the points which have been fixed by the first approximation*
  **********************************************************************/
 
-static EDGEPT *poly2(       // second poly
-    EDGEPT *startpt, // start of loop
-    int area         // area of blob box
+static EDGEPT *poly2( // second poly
+    EDGEPT *startpt,  // start of loop
+    int area          // area of blob box
 ) {
   EDGEPT *edgept;    // current outline point
   EDGEPT *loopstart; // starting point
@@ -467,9 +471,10 @@ static EDGEPT *poly2(       // second poly
           edgept = edgept->next; // move on
         } while (!edgept->fixed && edgept != loopstart && edgesum < 126);
         if (poly_debug) {
-          tprintf("Poly2:starting at (%d,%d)+%d=(%d,%d),%d to (%d,%d)\n", linestart->pos.x,
-                  linestart->pos.y, linestart->dir, linestart->vec.x, linestart->vec.y,
-                  edgesum, edgept->pos.x, edgept->pos.y);
+          tprintf("Poly2:starting at (%d,%d)+%d=(%d,%d),%d to (%d,%d)\n",
+                  linestart->pos.x, linestart->pos.y, linestart->dir,
+                  linestart->vec.x, linestart->vec.y, edgesum, edgept->pos.x,
+                  edgept->pos.y);
         }
         // reapproximate
         cutline(linestart, edgept, area);
