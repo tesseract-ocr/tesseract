@@ -69,7 +69,9 @@ class WERD_RES;
 
 class ColumnFinder;
 class DocumentData;
+#ifndef DISABLED_LEGACY_ENGINE
 class EquationDetect;
+#endif // ndef DISABLED_LEGACY_ENGINE
 class ImageData;
 class LSTMRecognizer;
 class Tesseract;
@@ -189,8 +191,10 @@ public:
   // Clear the document dictionary for this and all subclassifiers.
   void ResetDocumentDictionary();
 
+#ifndef DISABLED_LEGACY_ENGINE
   // Set the equation detector.
   void SetEquationDetect(EquationDetect *detector);
+#endif // ndef DISABLED_LEGACY_ENGINE
 
   // Simple accessors.
   const FCOORD &reskew() const {
@@ -942,7 +946,9 @@ public:
   BOOL_VAR_H(textord_use_cjk_fp_model);
   BOOL_VAR_H(poly_allow_detailed_fx);
   BOOL_VAR_H(tessedit_init_config_only);
+#ifndef DISABLED_LEGACY_ENGINE
   BOOL_VAR_H(textord_equation_detect);
+#endif // ndef DISABLED_LEGACY_ENGINE
   BOOL_VAR_H(textord_tabfind_vertical_text);
   BOOL_VAR_H(textord_tabfind_force_vertical_text);
   double_VAR_H(textord_tabfind_vertical_text_ratio);
@@ -1001,8 +1007,10 @@ private:
   Tesseract *most_recently_used_;
   // The size of the font table, ie max possible font id + 1.
   int font_table_size_;
+#ifndef DISABLED_LEGACY_ENGINE
   // Equation detector. Note: this pointer is NOT owned by the class.
   EquationDetect *equ_detect_;
+#endif // ndef DISABLED_LEGACY_ENGINE
   // LSTM recognizer, if available.
   LSTMRecognizer *lstm_recognizer_;
   // Output "page" number (actually line number) using TrainLineRecognizer.
