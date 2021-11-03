@@ -249,7 +249,6 @@ static void fix2(  // polygonal approx
   EDGEPT *edgept1;
   EDGEPT *loopstart; // modified start of loop
   EDGEPT *linestart; // start of line segment
-  int stopped;       // completed flag
   int fixed_count;   // no of fixed points
   int8_t dir;
   int d01, d12, d23, gapmin;
@@ -264,7 +263,8 @@ static void fix2(  // polygonal approx
   }
   loopstart = edgept; // remember start
 
-  stopped = 0;          // not finished yet
+  // completed flag
+  bool stopped = false;
   edgept->fixed = true; // fix it
   do {
     linestart = edgept;      // possible start of line
@@ -287,7 +287,8 @@ static void fix2(  // polygonal approx
       }
 
       if (edgept == loopstart) {
-        stopped = 1; // finished
+        // finished
+        stopped = true;
       }
       if (sum2 + sum1 > 2 && linestart->prev->dir == dir2 &&
           (linestart->prev->runlength > linestart->runlength || sum2 > sum1)) {
@@ -343,7 +344,7 @@ static void fix2(  // polygonal approx
     edgept = edgept->next;   // do all points
   } while (edgept != start); // until finished
 
-  stopped = 0;
+  stopped = false;
   if (area < 450) {
     area = 450;
   }
@@ -415,7 +416,7 @@ static void fix2(  // polygonal approx
     edgept = edgept->next;
     while (!edgept->fixed) {
       if (edgept == startfix) {
-        stopped = 1;
+        stopped = true;
       }
       edgept = edgept->next;
     }
