@@ -29,7 +29,9 @@
 #include "dict.h"       // for Dict
 #include "elst.h"       // for ELIST_ITERATOR, ELISTIZE, ELISTIZEH
 #include "environ.h"    // for l_uint8
+#ifndef DISABLED_LEGACY_ENGINE
 #include "equationdetect.h" // for EquationDetect, destructor of equ_detect_
+#endif // ndef DISABLED_LEGACY_ENGINE
 #include "errcode.h" // for ASSERT_HOST
 #include "helpers.h" // for IntCastRounded, chomp_string
 #include "host.h"    // for MAX_PATH
@@ -206,7 +208,9 @@ static void addAvailableLanguages(const std::string &datadir, const std::string 
 TessBaseAPI::TessBaseAPI()
     : tesseract_(nullptr)
     , osd_tesseract_(nullptr)
+  #ifndef DISABLED_LEGACY_ENGINE
     , equ_detect_(nullptr)
+  #endif // ndef DISABLED_LEGACY_ENGINE
     , reader_(nullptr)
     ,
     // thresholder_ is initialized to nullptr here, but will be set before use
@@ -1889,15 +1893,17 @@ void TessBaseAPI::End() {
     delete paragraph_models_;
     paragraph_models_ = nullptr;
   }
+#ifndef DISABLED_LEGACY_ENGINE
   if (osd_tesseract_ == tesseract_) {
     osd_tesseract_ = nullptr;
   }
-  delete tesseract_;
-  tesseract_ = nullptr;
   delete osd_tesseract_;
   osd_tesseract_ = nullptr;
   delete equ_detect_;
   equ_detect_ = nullptr;
+#endif // ndef DISABLED_LEGACY_ENGINE
+  delete tesseract_;
+  tesseract_ = nullptr;
   input_file_.clear();
   output_file_.clear();
   datapath_.clear();
@@ -2119,6 +2125,7 @@ int TessBaseAPI::FindLines() {
 
   Tesseract *osd_tess = osd_tesseract_;
   OSResults osr;
+#ifndef DISABLED_LEGACY_ENGINE
   if (PSM_OSD_ENABLED(tesseract_->tessedit_pageseg_mode) && osd_tess == nullptr) {
     if (strcmp(language_.c_str(), "osd") == 0) {
       osd_tess = tesseract_;
@@ -2144,6 +2151,7 @@ int TessBaseAPI::FindLines() {
       }
     }
   }
+#endif // ndef DISABLED_LEGACY_ENGINE
 
   if (tesseract_->SegmentPage(input_file_.c_str(), block_list_, osd_tess, &osr) < 0) {
     return -1;

@@ -400,7 +400,9 @@ Tesseract::Tesseract()
                        "instance is not going to be used for OCR but say only "
                        "for layout analysis.",
                        this->params())
+#ifndef DISABLED_LEGACY_ENGINE
     , BOOL_MEMBER(textord_equation_detect, false, "Turn on equation detector", this->params())
+#endif // ndef DISABLED_LEGACY_ENGINE
     , BOOL_MEMBER(textord_tabfind_vertical_text, true, "Enable vertical detection", this->params())
     , BOOL_MEMBER(textord_tabfind_force_vertical_text, false, "Force using vertical text page mode",
                   this->params())
@@ -452,7 +454,9 @@ Tesseract::Tesseract()
     , reskew_(1.0f, 0.0f)
     , most_recently_used_(this)
     , font_table_size_(0)
+#ifndef DISABLED_LEGACY_ENGINE
     , equ_detect_(nullptr)
+#endif // ndef DISABLED_LEGACY_ENGINE
     , lstm_recognizer_(nullptr)
     , train_line_page_num_(0) {}
 
