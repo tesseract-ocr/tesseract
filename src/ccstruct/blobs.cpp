@@ -930,8 +930,8 @@ bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT *location) {
     if (outline1->is_hole) {
       continue; // Holes do not count as separable.
     }
-    TPOINT mid_pt1(static_cast<int16_t>((outline1->topleft.x + outline1->botright.x) / 2),
-                   static_cast<int16_t>((outline1->topleft.y + outline1->botright.y) / 2));
+    TPOINT mid_pt1((outline1->topleft.x + outline1->botright.x) / 2,
+                   (outline1->topleft.y + outline1->botright.y) / 2);
     int mid_prod1 = mid_pt1.cross(vertical);
     int min_prod1, max_prod1;
     outline1->MinMaxCrossProduct(vertical, &min_prod1, &max_prod1);
@@ -939,8 +939,8 @@ bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT *location) {
       if (outline2->is_hole) {
         continue; // Holes do not count as separable.
       }
-      TPOINT mid_pt2(static_cast<int16_t>((outline2->topleft.x + outline2->botright.x) / 2),
-                     static_cast<int16_t>((outline2->topleft.y + outline2->botright.y) / 2));
+      TPOINT mid_pt2((outline2->topleft.x + outline2->botright.x) / 2,
+                     (outline2->topleft.y + outline2->botright.y) / 2);
       int mid_prod2 = mid_pt2.cross(vertical);
       int min_prod2, max_prod2;
       outline2->MinMaxCrossProduct(vertical, &min_prod2, &max_prod2);
@@ -977,8 +977,8 @@ void divide_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob, const TPOINT
   int location_prod = location.cross(vertical);
 
   while (outline != nullptr) {
-    TPOINT mid_pt(static_cast<int16_t>((outline->topleft.x + outline->botright.x) / 2),
-                  static_cast<int16_t>((outline->topleft.y + outline->botright.y) / 2));
+    TPOINT mid_pt((outline->topleft.x + outline->botright.x) / 2,
+                  (outline->topleft.y + outline->botright.y) / 2);
     int mid_prod = mid_pt.cross(vertical);
     if (mid_prod < location_prod) {
       // Outline is in left blob.
