@@ -99,7 +99,7 @@ TEST_F(PageSegModeTest, WordTest) {
     VerifyRectText(tesseract::PSM_SINGLE_LINE, "What should", 237, 393, 256, 36);
   #ifdef DISABLED_LEGACY_ENGINE
     // Skip check as LSTM mode adds a space.
-    LOG(INFO) << "Skip `Whatshould` test in LSTM Mode \n";
+    LOG(INFO) << "Skip `Whatshould` test in LSTM Mode\n";
   #else
     // Test a random pair of words as a word
     VerifyRectText(tesseract::PSM_SINGLE_WORD, "Whatshould", 237, 393, 256, 36);
