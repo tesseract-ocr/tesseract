@@ -143,6 +143,9 @@ public:
     friend bool operator!=(const CI &lhs, const CI &rhs) {
       return !(lhs == rhs);
     }
+    friend bool operator<=(const CI &lhs, const CI &rhs) {
+      return lhs.it_ <= rhs.it_;
+    }
 
   private:
     friend class UNICHAR;
