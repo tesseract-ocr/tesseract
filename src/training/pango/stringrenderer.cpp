@@ -289,7 +289,7 @@ int StringRenderer::FindFirstPageBreakOffset(const char *text, int text_length) 
   UNICHAR::const_iterator it = UNICHAR::begin(text, text_length);
   const UNICHAR::const_iterator it_end = UNICHAR::end(text, text_length);
   const int kMaxUnicodeBufLength = 15000;
-  for (int i = 0; i < kMaxUnicodeBufLength && it <= it_end; ++it, ++i) {
+  for (int i = 0; i < kMaxUnicodeBufLength && it < it_end; ++it, ++i) {
     ;
   }
   int buf_length = it.utf8_data() - text;
@@ -667,7 +667,7 @@ int StringRenderer::RenderToBinaryImage(const char *text, int text_length, int t
 std::string StringRenderer::InsertWordJoiners(const std::string &text) {
   std::string out_str;
   const UNICHAR::const_iterator it_end = UNICHAR::end(text.c_str(), text.length());
-  for (UNICHAR::const_iterator it = UNICHAR::begin(text.c_str(), text.length()); it <= it_end;
+  for (UNICHAR::const_iterator it = UNICHAR::begin(text.c_str(), text.length()); it < it_end;
        ++it) {
     // Add the symbol to the output string.
     out_str.append(it.utf8_data(), it.utf8_len());
@@ -687,7 +687,7 @@ std::string StringRenderer::InsertWordJoiners(const std::string &text) {
 std::string StringRenderer::ConvertBasicLatinToFullwidthLatin(const std::string &str) {
   std::string full_str;
   const UNICHAR::const_iterator it_end = UNICHAR::end(str.c_str(), str.length());
-  for (UNICHAR::const_iterator it = UNICHAR::begin(str.c_str(), str.length()); it <= it_end; ++it) {
+  for (UNICHAR::const_iterator it = UNICHAR::begin(str.c_str(), str.length()); it < it_end; ++it) {
     // Convert printable and non-space 7-bit ASCII characters to
     // their fullwidth forms.
     if (IsInterchangeValid7BitAscii(*it) && isprint(*it) && !isspace(*it)) {
@@ -705,7 +705,7 @@ std::string StringRenderer::ConvertBasicLatinToFullwidthLatin(const std::string 
 std::string StringRenderer::ConvertFullwidthLatinToBasicLatin(const std::string &str) {
   std::string half_str;
   UNICHAR::const_iterator it_end = UNICHAR::end(str.c_str(), str.length());
-  for (UNICHAR::const_iterator it = UNICHAR::begin(str.c_str(), str.length()); it <= it_end; ++it) {
+  for (UNICHAR::const_iterator it = UNICHAR::begin(str.c_str(), str.length()); it < it_end; ++it) {
     char32 half_char = FullwidthToHalfwidth(*it);
     // Convert fullwidth Latin characters to their halfwidth forms
     // only if halfwidth forms are printable and non-space 7-bit ASCII.
@@ -841,7 +841,7 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage, const char *text,
     total_chars_ = 0;
     // Fill the hash table and use that for computing which fonts to use.
     for (UNICHAR::const_iterator it = UNICHAR::begin(text, text_length);
-         it <= UNICHAR::end(text, text_length); ++it) {
+         it < UNICHAR::end(text, text_length); ++it) {
       ++total_chars_;
       ++char_map_[*it];
     }
