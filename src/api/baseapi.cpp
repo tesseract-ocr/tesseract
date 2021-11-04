@@ -208,9 +208,7 @@ static void addAvailableLanguages(const std::string &datadir, const std::string 
 TessBaseAPI::TessBaseAPI()
     : tesseract_(nullptr)
     , osd_tesseract_(nullptr)
-  #ifndef DISABLED_LEGACY_ENGINE
     , equ_detect_(nullptr)
-  #endif // ndef DISABLED_LEGACY_ENGINE
     , reader_(nullptr)
     ,
     // thresholder_ is initialized to nullptr here, but will be set before use
