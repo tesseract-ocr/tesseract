@@ -1180,6 +1180,11 @@ void compute_row_stats( // find lines
     if (prev_row != nullptr) {
       rows[rowcount++] = prev_row;
       prev_row->spacing = row->intercept() - prev_row->intercept();
+      if (prev_row->spacing < 0.1 && prev_row->spacing > -0.1) {
+        // Avoid small spacing values which give a small disp_quant_factor_.
+        // That can cause large memory allocations with out-of-memory.
+        prev_row->spacing = 0;
+      }
       if (testing_on) {
         tprintf("Row at %g yields spacing of %g\n", row->intercept(), prev_row->spacing);
       }
