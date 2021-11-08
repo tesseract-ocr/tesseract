@@ -140,7 +140,7 @@ bool TessTextRenderer::AddImageHandler(TessBaseAPI *api) {
   }
 
   const char *pageSeparator = api->GetStringVariable("page_separator");
-  if (pageSeparator != nullptr && *pageSeparator != '\0'&& imagenum() > 0) {
+  if (pageSeparator != nullptr && *pageSeparator != '\0' && imagenum() > 0) {
     AppendString(pageSeparator);
   }
 
