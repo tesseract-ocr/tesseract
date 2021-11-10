@@ -297,9 +297,6 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
   std::vector<std::string> langs_not_to_load;
   ParseLanguageString(language, &langs_to_load, &langs_not_to_load);
 
-  // Set the basename, compute the data directory.
-  main_setup(arg0, textbase);
-
   for (auto *lang : sub_langs_) {
     delete lang;
   }
@@ -310,8 +307,7 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
   // Load the rest into sub_langs_.
   // A range based for loop does not work here because langs_to_load
   // might be changed in the loop when a new submodel is found.
-  for (size_t lang_index = 0; lang_index < langs_to_load.size(); ++lang_index) {
-    auto &lang_to_load = langs_to_load[lang_index];
+  for (auto &lang_to_load : langs_to_load) {
     if (!IsStrInList(lang_to_load, langs_not_to_load)) {
       const char *lang_str = lang_to_load.c_str();
       Tesseract *tess_to_init;
@@ -399,6 +395,9 @@ int Tesseract::init_tesseract_internal(const std::string &arg0, const std::strin
                                        const std::vector<std::string> *vars_vec,
                                        const std::vector<std::string> *vars_values,
                                        bool set_only_non_debug_params, TessdataManager *mgr) {
+  // Set the basename, compute the data directory.
+  main_setup(arg0, textbase);
+
   if (!init_tesseract_lang_data(arg0, language, oem, configs, configs_size, vars_vec,
                                 vars_values, set_only_non_debug_params, mgr)) {
     return -1;
