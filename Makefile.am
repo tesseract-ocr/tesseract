@@ -141,9 +141,6 @@ libtesseract_native_la_CXXFLAGS = -O3 -ffast-math
 if OPENMP_SIMD
 libtesseract_native_la_CXXFLAGS += -fopenmp-simd -DOPENMP_SIMD
 endif
-if MARCH_NATIVE_OPT
-libtesseract_native_la_CXXFLAGS += -march=native -mtune=native
-endif
 libtesseract_native_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 libtesseract_native_la_SOURCES = src/arch/dotproduct.cpp
 

@@ -188,8 +188,6 @@ case "${host_cpu}" in
 
 esac
 
-AX_CHECK_COMPILE_FLAG([-march=native], [arch_native=true], [arch_native=false], [$WERROR])
-AM_CONDITIONAL([MARCH_NATIVE_OPT], $arch_native)
 AX_CHECK_COMPILE_FLAG([-fopenmp-simd], [openmp_simd=true], [openmp_simd=false], [$WERROR])
 AM_CONDITIONAL([OPENMP_SIMD], $openmp_simd)
 
