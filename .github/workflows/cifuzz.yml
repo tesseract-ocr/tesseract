@@ -5,9 +5,9 @@ on:
   pull_request:
     branches:
     - main
-  paths:
-  - '**.cpp'
-  - '**.h'
+    paths:
+    - '**.cpp'
+    - '**.h'
 jobs:
   Fuzzing:
     runs-on: ubuntu-latest
