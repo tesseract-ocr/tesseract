@@ -418,7 +418,7 @@ int TessBaseAPI::Init(const char *data, int data_size, const char *language, Ocr
 
   // Update datapath and language requested for the last valid initialization.
   datapath_ = datapath;
-  if ((strcmp(datapath_.c_str(), "") == 0) && (strcmp(tesseract_->datadir.c_str(), "") != 0)) {
+  if (datapath_.empty() && !tesseract_->datadir.empty()) {
     datapath_ = tesseract_->datadir;
   }
 
