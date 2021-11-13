@@ -204,7 +204,7 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
   auto pix_grey = GetPixRectGrey();
 
   int r;
-  
+
   l_int32 pix_w, pix_h;
   pixGetDimensions(pix_grey, &pix_w, &pix_h, nullptr);
 

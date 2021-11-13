@@ -437,7 +437,7 @@ configure_file(
 
 include(CMakePackageConfigHelpers)
 include(GenerateExportHeader)
-    
+
 # show summary of configuration
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
     set(COMPILER_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}")
@@ -775,7 +775,7 @@ write_basic_package_version_file(
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 install(TARGETS tesseract DESTINATION bin)
 install(TARGETS libtesseract EXPORT TesseractTargets RUNTIME DESTINATION bin LIBRARY
-        DESTINATION ${CMAKE_INSTALL_LIBDIR} 
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(EXPORT TesseractTargets NAMESPACE Tesseract:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tesseract)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake DESTINATION ${CMAKE_INSTALL_LIBDIR})

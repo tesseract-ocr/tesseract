@@ -29,4 +29,3 @@ jobs:
            tesseract -v
            text2image -v
            lstmtraining -v
-           
