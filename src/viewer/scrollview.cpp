@@ -60,7 +60,7 @@ static std::map<std::pair<ScrollView *, SVEventType>, std::pair<SVSemaphore *, S
     waiting_for_events;
 static std::mutex *waiting_for_events_mu;
 
-SVEvent *SVEvent::copy() {
+SVEvent *SVEvent::copy() const {
   auto *any = new SVEvent;
   any->command_id = command_id;
   any->counter = counter;
@@ -423,7 +423,7 @@ void ScrollView::Signal() {
   semaphore_->Signal();
 }
 
-void ScrollView::SetEvent(SVEvent *svevent) {
+void ScrollView::SetEvent(const SVEvent *svevent) {
   // Copy event
   SVEvent *any = svevent->copy();
   SVEvent *specific = svevent->copy();

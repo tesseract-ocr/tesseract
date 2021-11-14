@@ -69,7 +69,7 @@ struct SVEvent {
   ~SVEvent() {
     delete[] parameter;
   }
-  SVEvent *copy();
+  SVEvent *copy() const;
   SVEventType type = SVET_DESTROY; // What kind of event.
   ScrollView *window = nullptr;    // Window event relates to.
   char *parameter = nullptr;       // Any string that might have been passed as argument.
@@ -372,7 +372,7 @@ private:
   static void MessageReceiver();
 
   // Place an event into the event_table (synchronized).
-  void SetEvent(SVEvent *svevent);
+  void SetEvent(const SVEvent *svevent);
 
   // Wake up the semaphore.
   void Signal();
