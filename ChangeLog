@@ -1,4 +1,4 @@
-2021-10-29 - V5.0.0-rc1
+2021-11-14 - V5.0.0-rc2
   * Faster training and recognition by default (float instead of
     double calculations)
   * More options for binarization
@@ -8,6 +8,7 @@
     from public API
   * pdf.ttf no longer needed, now integrated into the code
   * Faster flat build with automake
+  * New options for combine_tessdata to show details of traineddata files
   * Improved unit tests and fuzzing tests
   * Lots of bug fixes
 
