@@ -1,4 +1,4 @@
-2021-09-18 - V4.1.2
+2021-11-14 - V4.1.2
   * Add RowAttributes getter to PageIterator
   * Allow line images with larger width for training
   * Fix memory leaks
@@ -8,6 +8,7 @@
   * Abort LSTM training with integer model (fixes issue #1573)
   * Update documentation
   * Make automake builds less noisy by default
+  * Don't use -march=native in automake builds
 
 2019-12-26 - V4.1.1
   * Implemented sw build (cppan is depreciated)
