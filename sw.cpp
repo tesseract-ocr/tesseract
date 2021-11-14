@@ -65,9 +65,16 @@ void build(Solution &s)
         {
             libtesseract += "__SSE4_1__"_def;
             libtesseract.CompileOptions.push_back("-arch:AVX2");
+        }
 
-            libtesseract -=
-                "src/arch/dotproductfma.cpp";
+        libtesseract -= "src/arch/dotproductfma.cpp";
+
+        if (libtesseract.getBuildSettings().TargetOS.Type != OSType::Windows)
+        {
+            libtesseract["src/arch/dotproductavx.cpp"].args.push_back("-mavx");
+            libtesseract["src/arch/dotproductsse.cpp"].args.push_back("-msse4.1");
+            libtesseract["src/arch/intsimdmatrixsse.cpp"].args.push_back("-msse4.1");
+            libtesseract["src/arch/intsimdmatrixavx2.cpp"].args.push_back("-mavx2");
         }
 
         libtesseract.Public += "HAVE_CONFIG_H"_d;
