@@ -20,9 +20,9 @@
 #ifndef TESSERACT_TEXTORD_COLPARTITIONSET_H_
 #define TESSERACT_TEXTORD_COLPARTITIONSET_H_
 
-#include "colpartition.h"  // For ColPartition_LIST.
-#include "rect.h"          // For TBOX.
-#include "tabvector.h"     // For BLOBNBOX_CLIST.
+#include "colpartition.h" // For ColPartition_LIST.
+#include "rect.h"         // For TBOX.
+#include "tabvector.h"    // For BLOBNBOX_CLIST.
 
 namespace tesseract {
 
@@ -71,15 +71,17 @@ public:
   void RelinquishParts();
 
   // Attempt to improve this by adding partitions or expanding partitions.
-  void ImproveColumnCandidate(WidthCallback cb, PartSetVector *src_sets);
+  void ImproveColumnCandidate(const WidthCallback &cb, PartSetVector *src_sets);
 
   // If this set is good enough to represent a new partitioning into columns,
   // add it to the vector of sets, otherwise delete it.
-  void AddToColumnSetsIfUnique(PartSetVector *column_sets, WidthCallback cb);
+  void AddToColumnSetsIfUnique(PartSetVector *column_sets,
+                               const WidthCallback &cb);
 
   // Return true if the partitions in other are all compatible with the columns
   // in this.
-  bool CompatibleColumns(bool debug, ColPartitionSet *other, WidthCallback cb);
+  bool CompatibleColumns(bool debug, ColPartitionSet *other,
+                         const WidthCallback &cb);
 
   // Returns the total width of all blobs in the part_set that do not lie
   // within an approved column. Used as a cost measure for using this
@@ -104,20 +106,22 @@ public:
   // represent the gaps in between columns, with 0 being left of the leftmost.
   // resolution refers to the ppi resolution of the image. It may be 0 if only
   // the first_col and last_col are required.
-  ColumnSpanningType SpanningType(int resolution, int left, int right, int height, int y,
-                                  int left_margin, int right_margin, int *first_col, int *last_col,
-                                  int *first_spanned_col);
+  ColumnSpanningType SpanningType(int resolution, int left, int right,
+                                  int height, int y, int left_margin,
+                                  int right_margin, int *first_col,
+                                  int *last_col, int *first_spanned_col);
 
   // The column_set has changed. Close down all in-progress WorkingPartSets in
   // columns that do not match and start new ones for the new columns in this.
   // As ColPartitions are turned into BLOCKs, the used ones are put in
   // used_parts, as they still need to be referenced in the grid.
-  void ChangeWorkColumns(const ICOORD &bleft, const ICOORD &tright, int resolution,
-                         ColPartition_LIST *used_parts, WorkingPartSet_LIST *working_set);
+  void ChangeWorkColumns(const ICOORD &bleft, const ICOORD &tright,
+                         int resolution, ColPartition_LIST *used_parts,
+                         WorkingPartSet_LIST *working_set);
 
   // Accumulate the widths and gaps into the given variables.
-  void AccumulateColumnWidthsAndGaps(int *total_width, int *width_samples, int *total_gap,
-                                     int *gap_samples);
+  void AccumulateColumnWidthsAndGaps(int *total_width, int *width_samples,
+                                     int *total_gap, int *gap_samples);
 
   // Provide debug output for this ColPartitionSet and all the ColPartitions.
   void Print();

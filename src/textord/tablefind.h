@@ -107,7 +107,8 @@ private:
 
 // Typedef BBGrid of ColSegments
 using ColSegmentGrid = BBGrid<ColSegment, ColSegment_CLIST, ColSegment_C_IT>;
-using ColSegmentGridSearch = GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT>;
+using ColSegmentGridSearch =
+    GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT>;
 
 // TableFinder is a utility class to find a set of tables given a set of
 // ColPartitions and Columns. The TableFinder will mark candidate ColPartitions
@@ -143,8 +144,8 @@ public:
   // tables. The columns and width callbacks are used to merge tables.
   // The reskew argument is only used to write the tables to the out.png
   // if that feature is enabled.
-  void LocateTables(ColPartitionGrid *grid, ColPartitionSet **columns, WidthCallback width_cb,
-                    const FCOORD &reskew);
+  void LocateTables(ColPartitionGrid *grid, ColPartitionSet **columns,
+                    WidthCallback width_cb, const FCOORD &reskew);
 
 protected:
   // Access for the grid dimensions.
@@ -179,7 +180,8 @@ protected:
   // Utility function to move segments to col_seg_grid
   // Note: Move includes ownership,
   // so segments will be be owned by col_seg_grid
-  void MoveColSegmentsToGrid(ColSegment_LIST *segments, ColSegmentGrid *col_seg_grid);
+  void MoveColSegmentsToGrid(ColSegment_LIST *segments,
+                             ColSegmentGrid *col_seg_grid);
 
   //////// Set up code to run during table detection to correctly
   //////// initialize variables on column partitions that are used later.
@@ -191,7 +193,8 @@ protected:
   // Set left, right and top, bottom spacings of each colpartition.
   // Left/right spacings are w.r.t the column boundaries
   // Top/bottom spacings are w.r.t. previous and next colpartitions
-  static void SetPartitionSpacings(ColPartitionGrid *grid, ColPartitionSet **all_columns);
+  static void SetPartitionSpacings(ColPartitionGrid *grid,
+                                   ColPartitionSet **all_columns);
 
   // Set spacing and closest neighbors above and below a given colpartition.
   void SetVerticalSpacing(ColPartition *part);
@@ -263,10 +266,12 @@ protected:
   ////////
 
   // Get Column segments from best_columns_
-  void GetColumnBlocks(ColPartitionSet **columns, ColSegment_LIST *col_segments);
+  void GetColumnBlocks(ColPartitionSet **columns,
+                       ColSegment_LIST *col_segments);
 
   // Group Column segments into consecutive single column regions.
-  void GroupColumnBlocks(ColSegment_LIST *current_segments, ColSegment_LIST *col_segments);
+  void GroupColumnBlocks(ColSegment_LIST *current_segments,
+                         ColSegment_LIST *col_segments);
 
   // Check if two boxes are consecutive within the same column
   bool ConsecutiveBoxes(const TBOX &b1, const TBOX &b2);
@@ -295,7 +300,8 @@ protected:
   // earlier functions) in the x direction and the min/max extent of
   // overlapping table columns in the y direction.
   // Section 4.2 of paper.
-  void GetTableRegions(ColSegment_LIST *table_columns, ColSegment_LIST *table_regions);
+  void GetTableRegions(ColSegment_LIST *table_columns,
+                       ColSegment_LIST *table_regions);
 
   //////// Functions to "patch up" found tables
   ////////
@@ -316,11 +322,12 @@ protected:
   void GrowTableBox(const TBOX &table_box, TBOX *result_box);
   // Grow a table by increasing the size of the box to include
   // partitions with significant overlap with the table.
-  void GrowTableToIncludePartials(const TBOX &table_box, const TBOX &search_range,
-                                  TBOX *result_box);
+  void GrowTableToIncludePartials(const TBOX &table_box,
+                                  const TBOX &search_range, TBOX *result_box);
   // Grow a table by expanding to the extents of significantly
   // overlapping lines.
-  void GrowTableToIncludeLines(const TBOX &table_box, const TBOX &search_range, TBOX *result_box);
+  void GrowTableToIncludeLines(const TBOX &table_box, const TBOX &search_range,
+                               TBOX *result_box);
   // Checks whether the horizontal line belong to the table by looking at the
   // side spacing of extra ColParitions that will be included in the table
   // due to expansion
@@ -351,12 +358,14 @@ protected:
 
   // Displays Colpartitions marked as table row. Overlays them on top of
   // part_grid_.
-  void DisplayColSegments(ScrollView *win, ColSegment_LIST *cols, ScrollView::Color color);
+  void DisplayColSegments(ScrollView *win, ColSegment_LIST *cols,
+                          ScrollView::Color color);
 
   // Displays the colpartitions using a new coloring on an existing window.
   // Note: This method is only for debug purpose during development and
   // would not be part of checked in code
-  void DisplayColPartitions(ScrollView *win, ColPartitionGrid *grid, ScrollView::Color text_color,
+  void DisplayColPartitions(ScrollView *win, ColPartitionGrid *grid,
+                            ScrollView::Color text_color,
                             ScrollView::Color table_color);
   void DisplayColPartitions(ScrollView *win, ColPartitionGrid *grid,
                             ScrollView::Color default_color);
@@ -366,7 +375,8 @@ protected:
   // Merge all colpartitions in table regions to make them a single
   // colpartition and revert types of isolated table cells not
   // assigned to any table to their original types.
-  void MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **columns, WidthCallback width_cb);
+  void MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **columns,
+                       const WidthCallback &width_cb);
 
   /////////////////////////////////////////////////
   // Useful objects used during table find process.

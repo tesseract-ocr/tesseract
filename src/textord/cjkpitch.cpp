@@ -22,6 +22,7 @@
 #include "tovars.h"
 
 #include <algorithm> // for std::sort
+#include <cmath>
 #include <vector>    // for std::vector
 
 namespace tesseract {
@@ -437,7 +438,7 @@ private:
     }
 
     const float real_pitch = box_pitch(box1, box2);
-    if (fabs(real_pitch - pitch) < pitch * kFPTolerance) {
+    if (std::fabs(real_pitch - pitch) < pitch * kFPTolerance) {
       return true;
     }
 
@@ -645,7 +646,7 @@ void FPRow::EstimatePitch(bool pass1) {
         // So we collect only pitch values between two good
         // characters. and within tolerance in pass2.
         if (pass1 ||
-            (prev_was_good && fabs(estimated_pitch_ - pitch) < kFPTolerance * estimated_pitch_)) {
+            (prev_was_good && std::fabs(estimated_pitch_ - pitch) < kFPTolerance * estimated_pitch_)) {
           good_pitches_.Add(pitch);
           if (!is_box_modified(i - 1) && !is_box_modified(i)) {
             good_gaps_.Add(gap);

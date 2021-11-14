@@ -984,8 +984,8 @@ float LanguageModel::ComputeNgramCost(const char *unichar, float certainty, floa
     *found_small_prob = true;
     prob = language_model_ngram_small_prob;
   }
-  *ngram_cost = -1.0 * log2(prob);
-  float ngram_and_classifier_cost = -1.0 * log2(CertaintyScore(certainty) / denom) +
+  *ngram_cost = -1 * std::log2(prob);
+  float ngram_and_classifier_cost = -1 * std::log2(CertaintyScore(certainty) / denom) +
                                     *ngram_cost * language_model_ngram_scale_factor;
   if (language_model_debug_level > 1) {
     tprintf("-log [ p(%s) * p(%s | %s) ] = -log2(%g*%g) = %g\n", unichar, unichar, context_ptr,
@@ -1341,24 +1341,24 @@ void LanguageModel::ExtractFeaturesFromPath(const ViterbiStateEntry &vse, float 
     int permuter = vse.dawg_info->permuter;
     if (permuter == NUMBER_PERM || permuter == USER_PATTERN_PERM) {
       if (vse.consistency_info.num_digits == vse.length) {
-        features[PTRAIN_DIGITS_SHORT + len] = 1.0;
+        features[PTRAIN_DIGITS_SHORT + len] = 1.0f;
       } else {
-        features[PTRAIN_NUM_SHORT + len] = 1.0;
+        features[PTRAIN_NUM_SHORT + len] = 1.0f;
       }
     } else if (permuter == DOC_DAWG_PERM) {
-      features[PTRAIN_DOC_SHORT + len] = 1.0;
+      features[PTRAIN_DOC_SHORT + len] = 1.0f;
     } else if (permuter == SYSTEM_DAWG_PERM || permuter == USER_DAWG_PERM ||
                permuter == COMPOUND_PERM) {
-      features[PTRAIN_DICT_SHORT + len] = 1.0;
+      features[PTRAIN_DICT_SHORT + len] = 1.0f;
     } else if (permuter == FREQ_DAWG_PERM) {
-      features[PTRAIN_FREQ_SHORT + len] = 1.0;
+      features[PTRAIN_FREQ_SHORT + len] = 1.0f;
     }
   }
   // Record shape cost feature (normalized by path length).
   features[PTRAIN_SHAPE_COST_PER_CHAR] =
       vse.associate_stats.shape_cost / static_cast<float>(vse.length);
   // Record ngram cost. (normalized by the path length).
-  features[PTRAIN_NGRAM_COST_PER_CHAR] = 0.0;
+  features[PTRAIN_NGRAM_COST_PER_CHAR] = 0.0f;
   if (vse.ngram_info != nullptr) {
     features[PTRAIN_NGRAM_COST_PER_CHAR] =
         vse.ngram_info->ngram_cost / static_cast<float>(vse.length);
@@ -1369,7 +1369,7 @@ void LanguageModel::ExtractFeaturesFromPath(const ViterbiStateEntry &vse, float 
   features[PTRAIN_NUM_BAD_CASE] = vse.consistency_info.NumInconsistentCase();
   features[PTRAIN_XHEIGHT_CONSISTENCY] = vse.consistency_info.xht_decision;
   features[PTRAIN_NUM_BAD_CHAR_TYPE] =
-      vse.dawg_info == nullptr ? vse.consistency_info.NumInconsistentChartype() : 0.0;
+      vse.dawg_info == nullptr ? vse.consistency_info.NumInconsistentChartype() : 0.0f;
   features[PTRAIN_NUM_BAD_SPACING] = vse.consistency_info.NumInconsistentSpaces();
   // Disabled this feature for now due to its poor performance.
   // features[PTRAIN_NUM_BAD_FONT] = vse.consistency_info.inconsistent_font;

@@ -26,8 +26,7 @@
 
 using namespace tesseract;
 
-static int list_components(TessdataManager &tm, const char *filename)
-{
+static int list_components(TessdataManager &tm, const char *filename) {
   // Initialize TessdataManager with the data in the given traineddata file.
   if (filename != nullptr && !tm.Init(filename)) {
     tprintf("Failed to read %s\n", filename);
@@ -37,8 +36,7 @@ static int list_components(TessdataManager &tm, const char *filename)
   return EXIT_SUCCESS;
 }
 
-static int list_network(TessdataManager &tm, const char *filename)
-{
+static int list_network(TessdataManager &tm, const char *filename) {
   if (filename != nullptr && !tm.Init(filename)) {
     tprintf("Failed to read %s\n", filename);
     return EXIT_FAILURE;
@@ -62,11 +60,11 @@ static int list_network(TessdataManager &tm, const char *filename)
 
     std::cout << "Layer Learning Rates: ";
     auto layers = recognizer.EnumerateLayers();
-    for (auto id : layers) {
+    for (const auto &id : layers) {
       auto layer = recognizer.GetLayer(id);
       std::cout << id << "(" << layer->name() << ")"
                 << "=" << recognizer.GetLayerLearningRate(id)
-                << (layers[layers.size()-1] != id ? ", " : "");
+                << (layers[layers.size() - 1] != id ? ", " : "");
     }
     std::cout << "\n";
   }
@@ -138,7 +136,8 @@ int main(int argc, char **argv) {
     } else {
       printf("Output %s created successfully.\n", output_file.c_str());
     }
-  } else if (argc >= 4 && (strcmp(argv[1], "-e") == 0 || strcmp(argv[1], "-u") == 0)) {
+  } else if (argc >= 4 &&
+             (strcmp(argv[1], "-e") == 0 || strcmp(argv[1], "-u") == 0)) {
     // Initialize TessdataManager with the data in the given traineddata file.
     if (!tm.Init(argv[2])) {
       tprintf("Failed to read %s\n", argv[2]);
@@ -173,7 +172,8 @@ int main(int argc, char **argv) {
         if (tm.ExtractToFile(filename.c_str())) {
           printf("Wrote %s\n", filename.c_str());
         } else if (errno != 0) {
-          printf("Error, could not extract %s: %s\n", filename.c_str(), strerror(errno));
+          printf("Error, could not extract %s: %s\n", filename.c_str(),
+                 strerror(errno));
           return EXIT_FAILURE;
         }
       }
@@ -184,7 +184,8 @@ int main(int argc, char **argv) {
     std::string traineddata_filename = new_traineddata_filename;
     traineddata_filename += ".__tmp__";
     if (rename(new_traineddata_filename, traineddata_filename.c_str()) != 0) {
-      tprintf("Failed to create a temporary file %s\n", traineddata_filename.c_str());
+      tprintf("Failed to create a temporary file %s\n",
+              traineddata_filename.c_str());
       return EXIT_FAILURE;
     }
 
@@ -212,7 +213,8 @@ int main(int argc, char **argv) {
     std::vector<char> lstm_data;
     fp.OpenWrite(&lstm_data);
     ASSERT_HOST(recognizer.Serialize(&tm, &fp));
-    tm.OverwriteEntry(tesseract::TESSDATA_LSTM, &lstm_data[0], lstm_data.size());
+    tm.OverwriteEntry(tesseract::TESSDATA_LSTM, &lstm_data[0],
+                      lstm_data.size());
     if (!tm.SaveFile(argv[2], nullptr)) {
       tprintf("Failed to write modified traineddata:%s!\n", argv[2]);
       return EXIT_FAILURE;

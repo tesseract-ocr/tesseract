@@ -23,6 +23,8 @@
 
 #include "wordseg.h"
 
+#include <cmath>
+
 #include "blobbox.h"
 #include "cjkpitch.h"
 #include "drawtord.h"
@@ -222,7 +224,7 @@ int32_t row_words(    // compute space size
   lower = row->xheight * textord_words_initial_lower;
   upper = row->xheight * textord_words_initial_upper;
   cluster_count = gap_stats.cluster(lower, upper, textord_spacesize_ratioprop, 3, cluster_stats);
-  while (cluster_count < 2 && ceil(lower) < floor(upper)) {
+  while (cluster_count < 2 && std::ceil(lower) < std::floor(upper)) {
     // shrink gap
     upper = (upper * 3 + lower) / 4;
     lower = (lower * 3 + upper) / 4;

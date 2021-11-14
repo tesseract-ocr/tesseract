@@ -365,14 +365,14 @@ void AddProtoToProtoPruner(PROTO_STRUCT *Proto, int ProtoId, INT_CLASS_STRUCT *C
   Length = Proto->Length;
 
   X = Proto->X + X_SHIFT;
-  Pad = std::max(fabs(cos(Angle)) * (Length / 2.0 + classify_pp_end_pad * GetPicoFeatureLength()),
-                 fabs(sin(Angle)) * (classify_pp_side_pad * GetPicoFeatureLength()));
+  Pad = std::max(fabs(std::cos(Angle)) * (Length / 2.0 + classify_pp_end_pad * GetPicoFeatureLength()),
+                 fabs(std::sin(Angle)) * (classify_pp_side_pad * GetPicoFeatureLength()));
 
   FillPPLinearBits(ProtoSet->ProtoPruner[PRUNER_X], Index, X, Pad, debug);
 
   Y = Proto->Y + Y_SHIFT;
-  Pad = std::max(fabs(sin(Angle)) * (Length / 2.0 + classify_pp_end_pad * GetPicoFeatureLength()),
-                 fabs(cos(Angle)) * (classify_pp_side_pad * GetPicoFeatureLength()));
+  Pad = std::max(fabs(std::sin(Angle)) * (Length / 2.0 + classify_pp_end_pad * GetPicoFeatureLength()),
+                 fabs(std::cos(Angle)) * (classify_pp_side_pad * GetPicoFeatureLength()));
 
   FillPPLinearBits(ProtoSet->ProtoPruner[PRUNER_Y], Index, Y, Pad, debug);
 } /* AddProtoToProtoPruner */
@@ -1388,8 +1388,8 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
     if ((Angle > 0.0 && Angle < 0.25) || (Angle > 0.5 && Angle < 0.75)) {
       /* rising diagonal proto */
       Angle *= 2.0 * M_PI;
-      Cos = fabs(cos(Angle));
-      Sin = fabs(sin(Angle));
+      Cos = fabs(std::cos(Angle));
+      Sin = fabs(std::sin(Angle));
 
       /* compute the positions of the corners of the acceptance region */
       Start.x = X - (HalfLength + EndPad) * Cos - SidePad * Sin;
@@ -1438,8 +1438,8 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
     } else {
       /* falling diagonal proto */
       Angle *= 2.0 * M_PI;
-      Cos = fabs(cos(Angle));
-      Sin = fabs(sin(Angle));
+      Cos = fabs(std::cos(Angle));
+      Sin = fabs(std::sin(Angle));
 
       /* compute the positions of the corners of the acceptance region */
       Start.x = X - (HalfLength + EndPad) * Cos - SidePad * Sin;

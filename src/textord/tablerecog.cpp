@@ -720,15 +720,6 @@ int StructuredTable::CountPartitions(const TBOX &box) {
 //////// TableRecognizer Class
 ////////
 
-TableRecognizer::TableRecognizer()
-    : text_grid_(nullptr)
-    , line_grid_(nullptr)
-    , min_height_(0)
-    , min_width_(0)
-    , max_text_height_(INT32_MAX) {}
-
-TableRecognizer::~TableRecognizer() = default;
-
 void TableRecognizer::Init() {}
 
 void TableRecognizer::set_text_grid(ColPartitionGrid *text_grid) {

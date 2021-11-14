@@ -73,7 +73,8 @@ class LSTMTrainer;
 // Function to compute and record error rates on some external test set(s).
 // Args are: iteration, mean errors, model, training stage.
 // Returns a string containing logging information about the tests.
-using TestCallback = std::function<std::string(int, const double *, const TessdataManager &, int)>;
+using TestCallback = std::function<std::string(int, const double *,
+                                               const TessdataManager &, int)>;
 
 // Trainer class for LSTM networks. Most of the effort is in creating the
 // ideal target outputs from the transcription. A box file is used if it is
@@ -82,8 +83,8 @@ using TestCallback = std::function<std::string(int, const double *, const Tessda
 class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
 public:
   LSTMTrainer();
-  LSTMTrainer(const char *model_base, const char *checkpoint_name, int debug_interval,
-              int64_t max_memory);
+  LSTMTrainer(const char *model_base, const char *checkpoint_name,
+              int debug_interval, int64_t max_memory);
   virtual ~LSTMTrainer();
 
   // Tries to deserialize a trainer from the given file and silently returns
@@ -113,8 +114,9 @@ public:
   // are implemented.
   // For other args see NetworkBuilder::InitNetwork.
   // Note: Be sure to call InitCharSet before InitNetwork!
-  bool InitNetwork(const char *network_spec, int append_index, int net_flags, float weight_range,
-                   float learning_rate, float momentum, float adam_beta);
+  bool InitNetwork(const char *network_spec, int append_index, int net_flags,
+                   float weight_range, float learning_rate, float momentum,
+                   float adam_beta);
   // Initializes a trainer from a serialized TFNetworkModel proto.
   // Returns the global step of TensorFlow graph or 0 if failed.
   // Building a compatible TF graph: See tfnetwork.proto.
@@ -160,7 +162,8 @@ public:
   // NewSingleError.
   double LastSingleError(ErrorTypes type) const {
     return error_buffers_[type]
-                         [(training_iteration() + kRollingBufferSize_ - 1) % kRollingBufferSize_];
+                         [(training_iteration() + kRollingBufferSize_ - 1) %
+                          kRollingBufferSize_];
   }
   const DocumentCache &training_data() const {
     return training_data_;
@@ -172,11 +175,10 @@ public:
   // If the training sample is usable, grid searches for the optimal
   // dict_ratio/cert_offset, and returns the results in a string of space-
   // separated triplets of ratio,offset=worderr.
-  Trainability GridSearchDictParams(const ImageData *trainingdata, int iteration,
-                                    double min_dict_ratio, double dict_ratio_step,
-                                    double max_dict_ratio, double min_cert_offset,
-                                    double cert_offset_step, double max_cert_offset,
-                                    std::string &results);
+  Trainability GridSearchDictParams(
+      const ImageData *trainingdata, int iteration, double min_dict_ratio,
+      double dict_ratio_step, double max_dict_ratio, double min_cert_offset,
+      double cert_offset_step, double max_cert_offset, std::string &results);
 
   // Provides output on the distribution of weight values.
   void DebugNetwork();
@@ -184,20 +186,22 @@ public:
   // Loads a set of lstmf files that were created using the lstm.train config to
   // tesseract into memory ready for training. Returns false if nothing was
   // loaded.
-  bool LoadAllTrainingData(const std::vector<std::string> &filenames, CachingStrategy cache_strategy,
+  bool LoadAllTrainingData(const std::vector<std::string> &filenames,
+                           CachingStrategy cache_strategy,
                            bool randomly_rotate);
 
   // Keeps track of best and locally worst error rate, using internally computed
   // values. See MaintainCheckpointsSpecific for more detail.
-  bool MaintainCheckpoints(TestCallback tester, std::string &log_msg);
+  bool MaintainCheckpoints(const TestCallback &tester, std::string &log_msg);
   // Keeps track of best and locally worst error_rate (whatever it is) and
   // launches tests using rec_model, when a new min or max is reached.
   // Writes checkpoints using train_model at appropriate times and builds and
   // returns a log message to indicate progress. Returns false if nothing
   // interesting happened.
-  bool MaintainCheckpointsSpecific(int iteration, const std::vector<char> *train_model,
-                                   const std::vector<char> *rec_model, TestCallback tester,
-                                   std::string &log_msg);
+  bool MaintainCheckpointsSpecific(int iteration,
+                                   const std::vector<char> *train_model,
+                                   const std::vector<char> *rec_model,
+                                   TestCallback tester, std::string &log_msg);
   // Builds a string containing a progress message with current error rates.
   void PrepareLogMsg(std::string &log_msg) const;
   // Appends <intro_str> iteration learning_iteration()/training_iteration()/
@@ -214,7 +218,8 @@ public:
   }
 
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(SerializeAmount serialize_amount, const TessdataManager *mgr, TFile *fp) const;
+  bool Serialize(SerializeAmount serialize_amount, const TessdataManager *mgr,
+                 TFile *fp) const;
   // Reads from the given file. Returns false in case of error.
   bool DeSerialize(const TessdataManager *mgr, TFile *fp);
 
@@ -240,18 +245,20 @@ public:
   // Even if it looks like all weights should remain the same, an adjustment
   // will be made to guarantee a different result when reverting to an old best.
   // Returns the number of layer learning rates that were reduced.
-  int ReduceLayerLearningRates(TFloat factor, int num_samples, LSTMTrainer *samples_trainer);
+  int ReduceLayerLearningRates(TFloat factor, int num_samples,
+                               LSTMTrainer *samples_trainer);
 
   // Converts the string to integer class labels, with appropriate null_char_s
   // in between if not in SimpleTextOutput mode. Returns false on failure.
   bool EncodeString(const std::string &str, std::vector<int> *labels) const {
-    return EncodeString(str, GetUnicharset(), IsRecoding() ? &recoder_ : nullptr,
-                        SimpleTextOutput(), null_char_, labels);
+    return EncodeString(str, GetUnicharset(),
+                        IsRecoding() ? &recoder_ : nullptr, SimpleTextOutput(),
+                        null_char_, labels);
   }
   // Static version operates on supplied unicharset, encoder, simple_text.
   static bool EncodeString(const std::string &str, const UNICHARSET &unicharset,
-                           const UnicharCompress *recoder, bool simple_text, int null_char,
-                           std::vector<int> *labels);
+                           const UnicharCompress *recoder, bool simple_text,
+                           int null_char, std::vector<int> *labels);
 
   // Performs forward-backward on the given trainingdata.
   // Returns the sample that was used or nullptr if the next sample was deemed
@@ -259,7 +266,8 @@ public:
   // holds the training samples.
   const ImageData *TrainOnLine(LSTMTrainer *samples_trainer, bool batch) {
     int sample_index = sample_iteration();
-    const ImageData *image = samples_trainer->training_data_.GetPageBySerial(sample_index);
+    const ImageData *image =
+        samples_trainer->training_data_.GetPageBySerial(sample_index);
     if (image != nullptr) {
       Trainability trainable = TrainOnLine(image, batch);
       if (trainable == UNENCODABLE || trainable == NOT_BOXED) {
@@ -274,30 +282,34 @@ public:
 
   // Prepares the ground truth, runs forward, and prepares the targets.
   // Returns a Trainability enum to indicate the suitability of the sample.
-  Trainability PrepareForBackward(const ImageData *trainingdata, NetworkIO *fwd_outputs,
-                                  NetworkIO *targets);
+  Trainability PrepareForBackward(const ImageData *trainingdata,
+                                  NetworkIO *fwd_outputs, NetworkIO *targets);
 
   // Writes the trainer to memory, so that the current training state can be
   // restored.  *this must always be the master trainer that retains the only
   // copy of the training data and language model. trainer is the model that is
   // actually serialized.
-  bool SaveTrainingDump(SerializeAmount serialize_amount, const LSTMTrainer &trainer,
+  bool SaveTrainingDump(SerializeAmount serialize_amount,
+                        const LSTMTrainer &trainer,
                         std::vector<char> *data) const;
 
   // Reads previously saved trainer from memory. *this must always be the
   // master trainer that retains the only copy of the training data and
   // language model. trainer is the model that is restored.
-  bool ReadTrainingDump(const std::vector<char> &data, LSTMTrainer &trainer) const {
+  bool ReadTrainingDump(const std::vector<char> &data,
+                        LSTMTrainer &trainer) const {
     if (data.empty()) {
       return false;
     }
     return ReadSizedTrainingDump(&data[0], data.size(), trainer);
   }
-  bool ReadSizedTrainingDump(const char *data, int size, LSTMTrainer &trainer) const {
+  bool ReadSizedTrainingDump(const char *data, int size,
+                             LSTMTrainer &trainer) const {
     return trainer.ReadLocalTrainingDump(&mgr_, data, size);
   }
   // Restores the model to *this.
-  bool ReadLocalTrainingDump(const TessdataManager *mgr, const char *data, int size);
+  bool ReadLocalTrainingDump(const TessdataManager *mgr, const char *data,
+                             int size);
 
   // Sets up the data for MaintainCheckpoints from a light ReadTrainingDump.
   void SetupCheckpointInfo();
@@ -334,26 +346,30 @@ protected:
   // corresponding x_starts.
   // Returns false if the truth string is empty.
   bool DebugLSTMTraining(const NetworkIO &inputs, const ImageData &trainingdata,
-                         const NetworkIO &fwd_outputs, const std::vector<int> &truth_labels,
+                         const NetworkIO &fwd_outputs,
+                         const std::vector<int> &truth_labels,
                          const NetworkIO &outputs);
   // Displays the network targets as line a line graph.
-  void DisplayTargets(const NetworkIO &targets, const char *window_name, ScrollView **window);
+  void DisplayTargets(const NetworkIO &targets, const char *window_name,
+                      ScrollView **window);
 
   // Builds a no-compromises target where the first positions should be the
   // truth labels and the rest is padded with the null_char_.
-  bool ComputeTextTargets(const NetworkIO &outputs, const std::vector<int> &truth_labels,
+  bool ComputeTextTargets(const NetworkIO &outputs,
+                          const std::vector<int> &truth_labels,
                           NetworkIO *targets);
 
   // Builds a target using standard CTC. truth_labels should be pre-padded with
   // nulls wherever desired. They don't have to be between all labels.
   // outputs is input-output, as it gets clipped to minimum probability.
-  bool ComputeCTCTargets(const std::vector<int> &truth_labels, NetworkIO *outputs,
-                         NetworkIO *targets);
+  bool ComputeCTCTargets(const std::vector<int> &truth_labels,
+                         NetworkIO *outputs, NetworkIO *targets);
 
   // Computes network errors, and stores the results in the rolling buffers,
   // along with the supplied text_error.
   // Returns the delta error of the current sample (not running average.)
-  double ComputeErrorRates(const NetworkIO &deltas, double char_error, double word_error);
+  double ComputeErrorRates(const NetworkIO &deltas, double char_error,
+                           double word_error);
 
   // Computes the network activation RMS error rate.
   double ComputeRMSError(const NetworkIO &deltas);
@@ -366,7 +382,8 @@ protected:
   double ComputeWinnerError(const NetworkIO &deltas);
 
   // Computes a very simple bag of chars char error rate.
-  double ComputeCharError(const std::vector<int> &truth_str, const std::vector<int> &ocr_str);
+  double ComputeCharError(const std::vector<int> &truth_str,
+                          const std::vector<int> &ocr_str);
   // Computes a very simple bag of words word recall error rate.
   // NOTE that this is destructive on both input strings.
   double ComputeWordError(std::string *truth_str, std::string *ocr_str);
@@ -380,8 +397,9 @@ protected:
 
   // Given that error_rate is either a new min or max, updates the best/worst
   // error rates, and record of progress.
-  std::string UpdateErrorGraph(int iteration, double error_rate, const std::vector<char> &model_data,
-                               TestCallback tester);
+  std::string UpdateErrorGraph(int iteration, double error_rate,
+                               const std::vector<char> &model_data,
+                               const TestCallback &tester);
 
 protected:
 #ifndef GRAPHICS_DISABLED

@@ -51,7 +51,7 @@ PRIORITY Wordrec::grade_split_length(SPLIT *split) {
   if (split_length <= 0) {
     grade = 0;
   } else {
-    grade = sqrt(split_length) * chop_split_dist_knob;
+    grade = std::sqrt(split_length) * chop_split_dist_knob;
   }
 
   return (std::max(0.0f, grade));

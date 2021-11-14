@@ -28,6 +28,7 @@
 #include "unicharset.h"
 
 #include <algorithm>
+#include <cmath>
 #include <string>
 #include <vector>
 
@@ -149,7 +150,7 @@ BLOB_CHOICE &BLOB_CHOICE::operator=(const BLOB_CHOICE &other) {
 // Returns true if *this and other agree on the baseline and x-height
 // to within some tolerance based on a given estimate of the x-height.
 bool BLOB_CHOICE::PosAndSizeAgree(const BLOB_CHOICE &other, float x_height, bool debug) const {
-  double baseline_diff = fabs(yshift() - other.yshift());
+  double baseline_diff = std::fabs(yshift() - other.yshift());
   if (baseline_diff > kMaxBaselineDrift * x_height) {
     if (debug) {
       tprintf("Baseline diff %g for %d v %d\n", baseline_diff, unichar_id_, other.unichar_id_);

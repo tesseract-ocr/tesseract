@@ -38,7 +38,8 @@ namespace tesseract {
 // instead of weak vtables in every compilation unit.
 Dawg::~Dawg() = default;
 
-bool Dawg::prefix_in_dawg(const WERD_CHOICE &word, bool requires_complete) const {
+bool Dawg::prefix_in_dawg(const WERD_CHOICE &word,
+                          bool requires_complete) const {
   if (word.empty()) {
     return !requires_complete;
   }
@@ -56,7 +57,8 @@ bool Dawg::prefix_in_dawg(const WERD_CHOICE &word, bool requires_complete) const
     }
   }
   // Now check the last character.
-  return edge_char_of(node, word.unichar_id(end_index), requires_complete) != NO_EDGE;
+  return edge_char_of(node, word.unichar_id(end_index), requires_complete) !=
+         NO_EDGE;
 }
 
 bool Dawg::word_in_dawg(const WERD_CHOICE &word) const {
@@ -84,7 +86,8 @@ int Dawg::check_for_words(const char *filename, const UNICHARSET &unicharset,
     chomp_string(string); // remove newline
     WERD_CHOICE word(string, unicharset);
     if (word.length() > 0 && !word.contains_unichar_id(INVALID_UNICHAR_ID)) {
-      if (!match_words(&word, 0, 0, enable_wildcard ? wildcard : INVALID_UNICHAR_ID)) {
+      if (!match_words(&word, 0, 0,
+                       enable_wildcard ? wildcard : INVALID_UNICHAR_ID)) {
         tprintf("Missing word: %s\n", string);
         ++misses;
       }
@@ -106,21 +109,25 @@ void Dawg::iterate_words(const UNICHARSET &unicharset,
   iterate_words_rec(word, 0, cb);
 }
 
-static void CallWithUTF8(std::function<void(const char *)> cb, const WERD_CHOICE *wc) {
+static void CallWithUTF8(const std::function<void(const char *)> &cb,
+                         const WERD_CHOICE *wc) {
   std::string s;
   wc->string_and_lengths(&s, nullptr);
   cb(s.c_str());
 }
 
-void Dawg::iterate_words(const UNICHARSET &unicharset, std::function<void(const char *)> cb) const {
+void Dawg::iterate_words(const UNICHARSET &unicharset,
+                         const std::function<void(const char *)> &cb) const {
   using namespace std::placeholders; // for _1
-  std::function<void(const WERD_CHOICE *)> shim(std::bind(CallWithUTF8, cb, _1));
+  std::function<void(const WERD_CHOICE *)> shim(
+      std::bind(CallWithUTF8, cb, _1));
   WERD_CHOICE word(&unicharset);
   iterate_words_rec(word, 0, shim);
 }
 
-void Dawg::iterate_words_rec(const WERD_CHOICE &word_so_far, NODE_REF to_explore,
-                             std::function<void(const WERD_CHOICE *)> cb) const {
+void Dawg::iterate_words_rec(
+    const WERD_CHOICE &word_so_far, NODE_REF to_explore,
+    const std::function<void(const WERD_CHOICE *)> &cb) const {
   NodeChildVector children;
   this->unichar_ids_of(to_explore, &children, false);
   for (auto &i : children) {
@@ -136,7 +143,8 @@ void Dawg::iterate_words_rec(const WERD_CHOICE &word_so_far, NODE_REF to_explore
   }
 }
 
-bool Dawg::match_words(WERD_CHOICE *word, uint32_t index, NODE_REF node, UNICHAR_ID wildcard) const {
+bool Dawg::match_words(WERD_CHOICE *word, uint32_t index, NODE_REF node,
+                       UNICHAR_ID wildcard) const {
   if (wildcard != INVALID_UNICHAR_ID && word->unichar_id(index) == wildcard) {
     bool any_matched = false;
     NodeChildVector vec;
@@ -187,7 +195,8 @@ SquishedDawg::~SquishedDawg() {
   delete[] edges_;
 }
 
-EDGE_REF SquishedDawg::edge_char_of(NODE_REF node, UNICHAR_ID unichar_id, bool word_end) const {
+EDGE_REF SquishedDawg::edge_char_of(NODE_REF node, UNICHAR_ID unichar_id,
+                                    bool word_end) const {
   EDGE_REF edge = node;
   if (node == 0) { // binary search
     EDGE_REF start = 0;
@@ -195,7 +204,8 @@ EDGE_REF SquishedDawg::edge_char_of(NODE_REF node, UNICHAR_ID unichar_id, bool w
     int compare;
     while (start <= end) {
       edge = (start + end) >> 1; // (start + end) / 2
-      compare = given_greater_than_edge_rec(NO_EDGE, word_end, unichar_id, edges_[edge]);
+      compare = given_greater_than_edge_rec(NO_EDGE, word_end, unichar_id,
+                                            edges_[edge]);
       if (compare == 0) { // given == vec[k]
         return edge;
       } else if (compare == 1) { // given > vec[k]
@@ -258,8 +268,8 @@ void SquishedDawg::print_node(NODE_REF node, int max_num_edges) const {
       eow = end_of_word(edge) ? eow_string : not_eow_string;
 
       unichar_id = edge_letter(edge);
-      tprintf(REFFORMAT " : next = " REFFORMAT ", unichar_id = %d, %s %s %s\n", edge,
-              next_node(edge), unichar_id, direction, is_last, eow);
+      tprintf(REFFORMAT " : next = " REFFORMAT ", unichar_id = %d, %s %s %s\n",
+              edge, next_node(edge), unichar_id, direction, is_last, eow);
 
       if (edge - node > max_num_edges) {
         return;
@@ -273,8 +283,9 @@ void SquishedDawg::print_node(NODE_REF node, int max_num_edges) const {
         eow = end_of_word(edge) ? eow_string : not_eow_string;
 
         unichar_id = edge_letter(edge);
-        tprintf(REFFORMAT " : next = " REFFORMAT ", unichar_id = %d, %s %s %s\n", edge,
-                next_node(edge), unichar_id, direction, is_last, eow);
+        tprintf(REFFORMAT " : next = " REFFORMAT
+                          ", unichar_id = %d, %s %s %s\n",
+                edge, next_node(edge), unichar_id, direction, is_last, eow);
 
         if (edge - node > MAX_NODE_EDGES_DISPLAY) {
           return;
@@ -291,9 +302,11 @@ void SquishedDawg::print_edge(EDGE_REF edge) const {
   if (edge == NO_EDGE) {
     tprintf("NO_EDGE\n");
   } else {
-    tprintf(REFFORMAT " : next = " REFFORMAT ", unichar_id = '%d', %s %s %s\n", edge,
-            next_node(edge), edge_letter(edge), (forward_edge(edge) ? "FORWARD" : "       "),
-            (last_edge(edge) ? "LAST" : "    "), (end_of_word(edge) ? "EOW" : ""));
+    tprintf(REFFORMAT " : next = " REFFORMAT ", unichar_id = '%d', %s %s %s\n",
+            edge, next_node(edge), edge_letter(edge),
+            (forward_edge(edge) ? "FORWARD" : "       "),
+            (last_edge(edge) ? "LAST" : "    "),
+            (end_of_word(edge) ? "EOW" : ""));
   }
 }
 
@@ -328,8 +341,8 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
     return false;
   }
   if (debug_level_ > 2) {
-    tprintf("type: %d lang: %s perm: %d unicharset_size: %d num_edges: %d\n", type_, lang_.c_str(),
-            perm_, unicharset_size_, num_edges_);
+    tprintf("type: %d lang: %s perm: %d unicharset_size: %d num_edges: %d\n",
+            type_, lang_.c_str(), perm_, unicharset_size_, num_edges_);
     for (EDGE_REF edge = 0; edge < num_edges_; ++edge) {
       print_edge(edge);
     }
@@ -337,7 +350,8 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
   return true;
 }
 
-std::unique_ptr<EDGE_REF[]> SquishedDawg::build_node_map(int32_t *num_nodes) const {
+std::unique_ptr<EDGE_REF[]> SquishedDawg::build_node_map(
+    int32_t *num_nodes) const {
   EDGE_REF edge;
   std::unique_ptr<EDGE_REF[]> node_map(new EDGE_REF[num_edges_]);
   int32_t node_counter;

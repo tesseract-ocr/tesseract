@@ -428,7 +428,7 @@ bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
   // Normalize the orientation scores for the blob and use them to
   // update the aggregated orientation score.
   for (int i = 0; total_blob_o_score != 0 && i < 4; ++i) {
-    osr_->orientations[i] += log(blob_o_score[i] / total_blob_o_score);
+    osr_->orientations[i] += std::log(blob_o_score[i] / total_blob_o_score);
   }
 
   // TODO(ranjith) Add an early exit test, based on min_orientation_margin,

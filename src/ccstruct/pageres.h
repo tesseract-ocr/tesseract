@@ -19,24 +19,24 @@
 #ifndef PAGERES_H
 #define PAGERES_H
 
-#include "blamer.h"     // for BlamerBundle (ptr only), IRR_NUM_REASONS
-#include "clst.h"       // for CLIST_ITERATOR, CLISTIZEH
+#include "blamer.h"        // for BlamerBundle (ptr only), IRR_NUM_REASONS
+#include "clst.h"          // for CLIST_ITERATOR, CLISTIZEH
+#include "elst.h"          // for ELIST_ITERATOR, ELIST_LINK, ELISTIZEH
 #include "genericvector.h" // for PointerVector
-#include "elst.h"       // for ELIST_ITERATOR, ELIST_LINK, ELISTIZEH
-#include "matrix.h"     // for MATRIX
-#include "normalis.h"   // for DENORM
-#include "ratngs.h"     // for WERD_CHOICE, BLOB_CHOICE (ptr only)
-#include "rect.h"       // for TBOX
-#include "rejctmap.h"   // for REJMAP
-#include "unicharset.h" // for UNICHARSET, UNICHARSET::Direction, UNI...
-#include "werd.h"       // for WERD, W_BOL, W_EOL
+#include "matrix.h"        // for MATRIX
+#include "normalis.h"      // for DENORM
+#include "ratngs.h"        // for WERD_CHOICE, BLOB_CHOICE (ptr only)
+#include "rect.h"          // for TBOX
+#include "rejctmap.h"      // for REJMAP
+#include "unicharset.h"    // for UNICHARSET, UNICHARSET::Direction, UNI...
+#include "werd.h"          // for WERD, W_BOL, W_EOL
 
 #include <tesseract/unichar.h> // for UNICHAR_ID, INVALID_UNICHAR_ID
 
-#include <cstdint>     // for int32_t, int16_t
-#include <functional>  // for std::function
-#include <set>         // for std::pair
-#include <vector>      // for std::vector
+#include <cstdint>    // for int32_t, int16_t
+#include <functional> // for std::function
+#include <set>        // for std::pair
+#include <vector>     // for std::vector
 
 #include <sys/types.h> // for int8_t
 
@@ -218,7 +218,8 @@ public:
   // Stores the lstm choices of every timestep
   std::vector<std::vector<std::pair<const char *, float>>> timesteps;
   // Stores the lstm choices of every timestep segmented by character
-  std::vector<std::vector<std::vector<std::pair<const char *, float>>>> segmented_timesteps;
+  std::vector<std::vector<std::vector<std::pair<const char *, float>>>>
+      segmented_timesteps;
   // Symbolchoices acquired during CTC
   std::vector<std::vector<std::pair<const char *, float>>> CTC_symbol_choices;
   // Stores if the timestep vector starts with a space
@@ -391,7 +392,8 @@ public:
   }
 
   bool AnyRtlCharsInWord() const {
-    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1) {
+    if (uch_set == nullptr || best_choice == nullptr ||
+        best_choice->length() < 1) {
       return false;
     }
     for (unsigned id = 0; id < best_choice->length(); id++) {
@@ -400,7 +402,8 @@ public:
         continue; // Ignore illegal chars.
       }
       UNICHARSET::Direction dir = uch_set->get_direction(unichar_id);
-      if (dir == UNICHARSET::U_RIGHT_TO_LEFT || dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC) {
+      if (dir == UNICHARSET::U_RIGHT_TO_LEFT ||
+          dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC) {
         return true;
       }
     }
@@ -408,7 +411,8 @@ public:
   }
 
   bool AnyLtrCharsInWord() const {
-    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1) {
+    if (uch_set == nullptr || best_choice == nullptr ||
+        best_choice->length() < 1) {
       return false;
     }
     for (unsigned id = 0; id < best_choice->length(); id++) {
@@ -417,7 +421,8 @@ public:
         continue; // Ignore illegal chars.
       }
       UNICHARSET::Direction dir = uch_set->get_direction(unichar_id);
-      if (dir == UNICHARSET::U_LEFT_TO_RIGHT || dir == UNICHARSET::U_ARABIC_NUMBER) {
+      if (dir == UNICHARSET::U_LEFT_TO_RIGHT ||
+          dir == UNICHARSET::U_ARABIC_NUMBER) {
         return true;
       }
     }
@@ -463,9 +468,11 @@ public:
   // of any of the above flags. It should really be a tesseract::OcrEngineMode
   // but is declared as int for ease of use with tessedit_ocr_engine_mode.
   // Returns false if the word is empty and sets up fake results.
-  bool SetupForRecognition(const UNICHARSET &unicharset_in, tesseract::Tesseract *tesseract,
-                           Image pix, int norm_mode, const TBOX *norm_box, bool numeric_mode,
-                           bool use_body_size, bool allow_detailed_fx, ROW *row,
+  bool SetupForRecognition(const UNICHARSET &unicharset_in,
+                           tesseract::Tesseract *tesseract, Image pix,
+                           int norm_mode, const TBOX *norm_box,
+                           bool numeric_mode, bool use_body_size,
+                           bool allow_detailed_fx, ROW *row,
                            const BLOCK *block);
 
   // Set up the seam array, bln_boxes, best_choice, and raw_choice to empty
@@ -529,8 +536,9 @@ public:
   // min_rating limits how tight to make a template.
   // max_rating limits how loose to make a template.
   // rating_margin denotes the amount of margin to put in template.
-  void ComputeAdaptionThresholds(float certainty_scale, float min_rating, float max_rating,
-                                 float rating_margin, float *thresholds);
+  void ComputeAdaptionThresholds(float certainty_scale, float min_rating,
+                                 float max_rating, float rating_margin,
+                                 float *thresholds);
 
   // Saves a copy of the word_choice if it has the best unadjusted rating.
   // Returns true if the word_choice was the new best.
@@ -541,7 +549,8 @@ public:
   // The best_choices list is kept in sorted order by rating. Duplicates are
   // removed, and the list is kept no longer than max_num_choices in length.
   // Returns true if the word_choice is still a valid pointer.
-  bool LogNewCookedChoice(int max_num_choices, bool debug, WERD_CHOICE *word_choice);
+  bool LogNewCookedChoice(int max_num_choices, bool debug,
+                          WERD_CHOICE *word_choice);
 
   // Prints a brief list of all the best choices.
   void PrintBestChoices() const;
@@ -616,8 +625,9 @@ public:
   // callback box_cb is nullptr or returns true, setting the merged blob
   // result to the class returned from class_cb.
   // Returns true if anything was merged.
-  bool ConditionalBlobMerge(std::function<UNICHAR_ID(UNICHAR_ID, UNICHAR_ID)> class_cb,
-                            std::function<bool(const TBOX &, const TBOX &)> box_cb);
+  bool ConditionalBlobMerge(
+      const std::function<UNICHAR_ID(UNICHAR_ID, UNICHAR_ID)> &class_cb,
+      const std::function<bool(const TBOX &, const TBOX &)> &box_cb);
 
   // Merges 2 adjacent blobs in the result (index and index+1) and corrects
   // all the data to account for the change.
@@ -683,7 +693,8 @@ public:
   // Do two PAGE_RES_ITs point at the same word?
   // This is much cheaper than cmp().
   bool operator==(const PAGE_RES_IT &other) const {
-    return word_res == other.word_res && row_res == other.row_res && block_res == other.block_res;
+    return word_res == other.word_res && row_res == other.row_res &&
+           block_res == other.block_res;
   }
 
   bool operator!=(const PAGE_RES_IT &other) const {

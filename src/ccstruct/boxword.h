@@ -72,7 +72,8 @@ public:
   // This and other putatively are the same, so call the (permanent) callback
   // for each blob index where the bounding boxes match.
   // The callback is deleted on completion.
-  void ProcessMatchedBlobs(const TWERD &other, std::function<void(int)> cb) const;
+  void ProcessMatchedBlobs(const TWERD &other,
+                           const std::function<void(int)> &cb) const;
 
   const TBOX &bounding_box() const {
     return bbox_;

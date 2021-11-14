@@ -676,7 +676,7 @@ IntegerMatcher::IntegerMatcher(tesseract::IntParam *classify_debug_level)
 
     if (kSEExponentialMultiplier > 0.0) {
       double scale =
-          1.0 - exp(-kSEExponentialMultiplier) *
+          1.0 - std::exp(-kSEExponentialMultiplier) *
                     exp(kSEExponentialMultiplier * (static_cast<double>(i) / SE_TABLE_SIZE));
       evidence *= ClipToRange(scale, 0.0, 1.0);
     }

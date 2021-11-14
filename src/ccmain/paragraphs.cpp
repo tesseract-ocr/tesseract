@@ -113,6 +113,7 @@ static void PrintTable(const std::vector<std::vector<std::string>> &rows, const 
   }
 
   std::vector<std::string> col_width_patterns;
+  col_width_patterns.reserve(max_col_widths.size());
   for (int max_col_width : max_col_widths) {
     col_width_patterns.push_back(std::string("%-") + std::to_string(max_col_width) + "s");
   }

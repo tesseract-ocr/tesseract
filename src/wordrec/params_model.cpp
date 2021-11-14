@@ -94,7 +94,7 @@ bool ParamsModel::Equivalent(const ParamsModel &that) const {
     }
     for (unsigned i = 0; i < weights_vec_[p].size(); i++) {
       if (weights_vec_[p][i] != that.weights_vec_[p][i] &&
-          fabs(weights_vec_[p][i] - that.weights_vec_[p][i]) > epsilon) {
+          std::fabs(weights_vec_[p][i] - that.weights_vec_[p][i]) > epsilon) {
         return false;
       }
     }

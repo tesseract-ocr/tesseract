@@ -1782,13 +1782,13 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
       Y2 = F2->Params[PicoFeatY];
       A2 = F2->Params[PicoFeatDir];
 
-      AngleDelta = fabs(A1 - A2);
+      AngleDelta = std::fabs(A1 - A2);
       if (AngleDelta > 0.5) {
         AngleDelta = 1.0 - AngleDelta;
       }
 
-      if (AngleDelta > matcher_clustering_max_angle_delta || fabs(X1 - X2) > SegmentLength ||
-          fabs(Y1 - Y2) > SegmentLength) {
+      if (AngleDelta > matcher_clustering_max_angle_delta || std::fabs(X1 - X2) > SegmentLength ||
+          std::fabs(Y1 - Y2) > SegmentLength) {
         break;
       }
     }

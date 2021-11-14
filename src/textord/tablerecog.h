@@ -250,8 +250,8 @@ protected:
 
 class TESS_API TableRecognizer {
 public:
-  TableRecognizer();
-  ~TableRecognizer();
+  TableRecognizer() = default;
+  ~TableRecognizer() = default;
 
   // Initialization code. Must be called after the constructor.
   void Init();
@@ -358,13 +358,13 @@ protected:
   static bool IsWeakTableRow(StructuredTable *table, int row);
 
   // Input data, used as read only data to make decisions.
-  ColPartitionGrid *text_grid_; // Text ColPartitions
-  ColPartitionGrid *line_grid_; // Line ColPartitions
+  ColPartitionGrid *text_grid_ = nullptr; // Text ColPartitions
+  ColPartitionGrid *line_grid_ = nullptr; // Line ColPartitions
   // Table constraints, a "good" table must satisfy these.
-  int min_height_;
-  int min_width_;
+  int min_height_ = 0;
+  int min_width_ = 0;
   // Filters, used to prevent awkward partitions from destroying structure.
-  int max_text_height_; // Horizontal lines may intersect taller text.
+  int max_text_height_ = INT32_MAX; // Horizontal lines may intersect taller text.
 };
 
 } // namespace tesseract
