@@ -188,9 +188,6 @@ public:
   // Block until an event of the given type is received.
   SVEvent *AwaitEvent(SVEventType type);
 
-  // Block until any event on any window is received.
-  SVEvent *AwaitEventAnyWindow();
-
   /*******************************************************************************
    * Getters and Setters
    *******************************************************************************/

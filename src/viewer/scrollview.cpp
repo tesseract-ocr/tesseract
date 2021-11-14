@@ -461,26 +461,6 @@ SVEvent *ScrollView::AwaitEvent(SVEventType type) {
   return ret;
 }
 
-// Block until any event on any window is received.
-// No event is returned here!
-SVEvent *ScrollView::AwaitEventAnyWindow() {
-  // Initialize the waiting semaphore.
-  auto *sem = new SVSemaphore();
-  std::pair<ScrollView *, SVEventType> ea((ScrollView *)nullptr, SVET_ANY);
-  waiting_for_events_mu->lock();
-  waiting_for_events[ea] = std::pair<SVSemaphore *, SVEvent *>(sem, (SVEvent *)nullptr);
-  waiting_for_events_mu->unlock();
-  // Wait on it.
-  stream_->Flush();
-  sem->Wait();
-  // Process the event we got woken up for (its in waiting_for_events pair).
-  waiting_for_events_mu->lock();
-  SVEvent *ret = waiting_for_events[ea].second;
-  waiting_for_events.erase(ea);
-  waiting_for_events_mu->unlock();
-  return ret;
-}
-
 // Send the current buffered polygon (if any) and clear it.
 void ScrollView::SendPolygon() {
   if (!points_->empty) {
