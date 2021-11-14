@@ -370,7 +370,7 @@ void TableFinder::LocateTables(ColPartitionGrid *grid,
   // Merge all colpartitions in table regions to make them a single
   // colpartition and revert types of isolated table cells not
   // assigned to any table to their original types.
-  MakeTableBlocks(grid, all_columns, std::move(width_cb));
+  MakeTableBlocks(grid, all_columns, width_cb);
 }
 // All grids have the same dimensions. The clean_part_grid_ sizes are set from
 // the part_grid_ that is passed to InsertCleanPartitions, which was the same as

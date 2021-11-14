@@ -875,7 +875,7 @@ ColPartitionSet *ColPartitionGrid::MakeSingleColumnSet(WidthCallback cb) {
   if (single_column_part != nullptr) {
     // Make a ColPartitionSet out of the single_column_part as a candidate
     // for the single column case.
-    single_column_part->SetColumnGoodness(std::move(cb));
+    single_column_part->SetColumnGoodness(cb);
     return new ColPartitionSet(single_column_part);
   }
   return nullptr;
