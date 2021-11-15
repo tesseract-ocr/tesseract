@@ -1,18 +1,18 @@
-AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\" \
-    -I$(top_srcdir)/src/arch \
-    -I$(top_srcdir)/src/lstm \
-    -I$(top_srcdir)/src/ccutil \
-    -I$(top_srcdir)/src/ccstruct \
-    -I$(top_srcdir)/src/viewer \
-    -I$(top_srcdir)/src/textord \
-    -I$(top_srcdir)/src/dict \
-    -I$(top_srcdir)/src/classify \
-    -I$(top_srcdir)/src/ccmain \
-    -I$(top_srcdir)/src/wordrec \
-    -I$(top_srcdir)/src/cutil \
-    -I$(top_srcdir)/src/opencl \
-    -I$(top_builddir)/api
-
+AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"
+AM_CPPFLAGS += -I$(top_builddir)/include
+AM_CPPFLAGS += -I$(top_builddir)/src/api
+AM_CPPFLAGS += -I$(top_srcdir)/src/arch
+AM_CPPFLAGS += -I$(top_srcdir)/src/ccmain
+AM_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+AM_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+AM_CPPFLAGS += -I$(top_srcdir)/src/classify
+AM_CPPFLAGS += -I$(top_srcdir)/src/cutil
+AM_CPPFLAGS += -I$(top_srcdir)/src/dict
+AM_CPPFLAGS += -I$(top_srcdir)/src/lstm
+AM_CPPFLAGS += -I$(top_srcdir)/src/opencl
+AM_CPPFLAGS += -I$(top_srcdir)/src/textord
+AM_CPPFLAGS += -I$(top_srcdir)/src/viewer
+AM_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
 
 if DISABLED_LEGACY_ENGINE

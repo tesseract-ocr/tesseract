@@ -1,10 +1,10 @@
-AM_CPPFLAGS += \
-    -I$(top_srcdir)/src/ccstruct \
-    -I$(top_srcdir)/src/ccutil \
-    -I$(top_srcdir)/src/cutil \
-    -I$(top_srcdir)/src/classify \
-    -I$(top_srcdir)/src/dict \
-    -I$(top_srcdir)/src/viewer
+AM_CPPFLAGS += -I$(top_builddir)/include
+AM_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
+AM_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+AM_CPPFLAGS += -I$(top_srcdir)/src/classify
+AM_CPPFLAGS += -I$(top_srcdir)/src/cutil
+AM_CPPFLAGS += -I$(top_srcdir)/src/dict
+AM_CPPFLAGS += -I$(top_srcdir)/src/viewer
 
 if DISABLED_LEGACY_ENGINE
 AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE

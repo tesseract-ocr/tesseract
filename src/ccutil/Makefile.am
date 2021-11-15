@@ -1,6 +1,8 @@
 AM_CXXFLAGS =
 AM_CPPFLAGS =
 
+AM_CPPFLAGS += -I$(top_builddir)/include
+
 if !NO_TESSDATA_PREFIX
 AM_CXXFLAGS += -DTESSDATA_PREFIX=@datadir@
 endif
