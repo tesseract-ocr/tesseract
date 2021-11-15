@@ -925,7 +925,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata,
     upside_down = randomizer_.SignedRand(1.0) > 0.0;
     if (upside_down) {
       // Modify the truth labels to match the rotation:
-      // Apart from space and null, increment the label. This is changes the
+      // Apart from space and null, increment the label. This changes the
       // script-id to the same script-id but upside-down.
       // The labels need to be reversed in order, as the first is now the last.
       for (auto truth_label : truth_labels) {
