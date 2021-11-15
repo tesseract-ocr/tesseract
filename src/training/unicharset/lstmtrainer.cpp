@@ -396,8 +396,8 @@ void LSTMTrainer::PrepareLogMsg(std::string &log_msg) const {
   LogIterations("At", log_msg);
   log_msg += ", Mean rms=" + std::to_string(error_rates_[ET_RMS]);
   log_msg += "%, delta=" + std::to_string(error_rates_[ET_DELTA]);
-  log_msg += "%, char train=" + std::to_string(error_rates_[ET_CHAR_ERROR]);
-  log_msg += "%, word train=" + std::to_string(error_rates_[ET_WORD_RECERR]);
+  log_msg += "%, BCER train=" + std::to_string(error_rates_[ET_CHAR_ERROR]);
+  log_msg += "%, BWER train=" + std::to_string(error_rates_[ET_WORD_RECERR]);
   log_msg += "%, skip ratio=" + std::to_string(error_rates_[ET_SKIP_RATIO]);
   log_msg += "%, ";
 }

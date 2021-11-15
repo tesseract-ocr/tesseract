@@ -106,7 +106,7 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
         std::string ocr_text = trainer.DecodeLabels(ocr_labels);
         tprintf("OCR  :%s\n", ocr_text.c_str());
         if (verbosity > 2 || (verbosity > 1 && result != PERFECT)) {
-          tprintf("Line Char error rate=%f, Word error rate=%f\n\n",
+          tprintf("Line BCER=%f, BWER=%f\n\n",
                   trainer.NewSingleError(tesseract::ET_CHAR_ERROR),
                   trainer.NewSingleError(tesseract::ET_WORD_RECERR));
         }
@@ -118,8 +118,8 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
   std::string result;
   result += "At iteration " + std::to_string(iteration);
   result += ", stage " + std::to_string(training_stage);
-  result += ", Eval Char error rate=" + std::to_string(char_error);
-  result += ", Word error rate=" + std::to_string(word_error);
+  result += ", BCER eval=" + std::to_string(char_error);
+  result += ", BWER eval=" + std::to_string(word_error);
   return result;
 }
 
