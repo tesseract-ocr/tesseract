@@ -116,9 +116,11 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
   char_error *= 100.0 / total_pages_;
   word_error *= 100.0 / total_pages_;
   std::string result;
-  result += "At iteration " + std::to_string(iteration);
-  result += ", stage " + std::to_string(training_stage);
-  result += ", BCER eval=" + std::to_string(char_error);
+  if (iteration != 0 || training_stage != 0) {
+    result += "At iteration " + std::to_string(iteration);
+    result += ", stage " + std::to_string(training_stage) + ", ";
+  }
+  result += "BCER eval=" + std::to_string(char_error);
   result += ", BWER eval=" + std::to_string(word_error);
   return result;
 }
