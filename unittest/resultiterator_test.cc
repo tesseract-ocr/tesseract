@@ -357,6 +357,10 @@ TEST_F(ResultIteratorTest, GreyTest) {
 
 // Tests that Tesseract gets smallcaps and dropcaps.
 TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test as LSTM mode does not recognize smallcaps & dropcaps attributes.
+  GTEST_SKIP();
+#else
   SetImage("8071_093.3B.tif");
   char *result = api_.GetUTF8Text();
   delete[] result;
@@ -404,6 +408,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
   EXPECT_EQ(1, found_dropcaps);
   EXPECT_GE(4, found_smallcaps);
   EXPECT_LE(false_positives, 3);
+#endif // def DISABLED_LEGACY_ENGINE
 }
 
 #if 0
