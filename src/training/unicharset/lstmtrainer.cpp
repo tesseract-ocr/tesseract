@@ -330,7 +330,7 @@ bool LSTMTrainer::MaintainCheckpoints(const TestCallback &tester,
   std::vector<char> rec_model_data;
   if (error_rate < best_error_rate_) {
     SaveRecognitionDump(&rec_model_data);
-    log_msg += " New best char error = " + std::to_string(error_rate);
+    log_msg += " New best BCER = " + std::to_string(error_rate);
     log_msg += UpdateErrorGraph(iteration, error_rate, rec_model_data, tester);
     // If sub_trainer_ is not nullptr, either *this beat it to a new best, or it
     // just overwrote *this. In either case, we have finished with it.
@@ -353,7 +353,7 @@ bool LSTMTrainer::MaintainCheckpoints(const TestCallback &tester,
     }
   } else if (error_rate > worst_error_rate_) {
     SaveRecognitionDump(&rec_model_data);
-    log_msg += " New worst char error = " + std::to_string(error_rate);
+    log_msg += " New worst BCER = " + std::to_string(error_rate);
     log_msg += UpdateErrorGraph(iteration, error_rate, rec_model_data, tester);
     if (worst_error_rate_ > best_error_rate_ + kMinDivergenceRate &&
         best_error_rate_ < kMinStartedErrorRate && !best_trainer_.empty()) {
