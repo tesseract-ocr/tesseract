@@ -264,8 +264,8 @@ public:
                 int *y2) const;
 
   // Returns the attributes of the current row.
-  void RowAttributes(float* row_height, float* descenders,
-                     float* ascenders) const;
+  void RowAttributes(float *row_height, float *descenders,
+                     float *ascenders) const;
 
   /**
    * Returns orientation for the block the iterator points to.
