@@ -35,7 +35,8 @@ bool ValidateIndic::ConsumeGraphemeIfValid() {
       return true;
     default:
       if (report_errors_) {
-        tprintf("Invalid start of grapheme sequence:%c=0x%x\n", codes_[codes_used_].first,
+        tprintf("Invalid start of grapheme sequence:%c=0x%x\n",
+                static_cast<int>(codes_[codes_used_].first),
                 codes_[codes_used_].second);
       }
       return false;
