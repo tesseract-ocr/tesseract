@@ -130,12 +130,14 @@ protected:
   }
 
   void VerifyRebuilds(int block_limit, int para_limit, int line_limit, int word_limit,
-                      int symbol_limit, PageIterator *it) {
+                      int symbol_limit, PageIterator *it, PageIteratorLevel maxlevel=tesseract::RIL_SYMBOL) {
     VerifyRebuild(block_limit, tesseract::RIL_BLOCK, it);
     VerifyRebuild(para_limit, tesseract::RIL_PARA, it);
     VerifyRebuild(line_limit, tesseract::RIL_TEXTLINE, it);
     VerifyRebuild(word_limit, tesseract::RIL_WORD, it);
-    VerifyRebuild(symbol_limit, tesseract::RIL_SYMBOL, it);
+    if (maxlevel == tesseract::RIL_SYMBOL) {
+      VerifyRebuild(symbol_limit, maxlevel, it);
+    }
   }
 
   void VerifyAllText(const std::string &truth, ResultIterator *it) {
@@ -277,7 +279,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
   // The images should rebuild almost perfectly.
   LOG(INFO) << "Verifying image rebuilds 2a (resultiterator)"
             << "\n";
-  VerifyRebuilds(8, 8, 0, 0, 40, r_it);
+  VerifyRebuilds(8, 8, 0, 0, 40, r_it, tesseract::RIL_WORD);
   // Test the text.
   LOG(INFO) << "Verifying text rebuilds 1 (resultiterator)"
             << "\n";
@@ -286,7 +288,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
   // The images should rebuild almost perfectly.
   LOG(INFO) << "Verifying image rebuilds 2b (resultiterator)"
             << "\n";
-  VerifyRebuilds(8, 8, 0, 0, 40, r_it);
+  VerifyRebuilds(8, 8, 0, 0, 40, r_it, tesseract::RIL_WORD);
 
   r_it->Begin();
   // Test baseline of the first line.
@@ -313,17 +315,27 @@ TEST_F(ResultIteratorTest, EasyTest) {
     const char *font = r_it->WordFontAttributes(&bold, &italic, &underlined, &monospace, &serif,
                                                 &smallcaps, &pointsize, &font_id);
     float confidence = r_it->Confidence(tesseract::RIL_WORD);
+  #ifdef DISABLED_LEGACY_ENGINE
     EXPECT_GE(confidence, 80.0f);
+  #endif
     char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
+
+  #ifdef DISABLED_LEGACY_ENGINE
+    LOG(INFO) << "Word " << word_str << ", font size " << pointsize
+      << ", conf " << confidence << "\n";
+  #else
     LOG(INFO) << "Word " << word_str << " in font " << font
       << ", id " << font_id << ", size " << pointsize
       << ", conf " << confidence << "\n";
+  #endif // def DISABLED_LEGACY_ENGINE
     delete[] word_str;
+  #ifdef DISABLED_LEGACY_ENGINE
     EXPECT_FALSE(bold);
     EXPECT_FALSE(italic);
     EXPECT_FALSE(underlined);
     EXPECT_FALSE(monospace);
     EXPECT_FALSE(serif);
+  #endif // def DISABLED_LEGACY_ENGINE
     // The text is about 31 pixels high.  Above we say the source is 200 ppi,
     // which translates to:
     // 31 pixels / textline * (72 pts / inch) / (200 pixels / inch) = 11.16 pts
