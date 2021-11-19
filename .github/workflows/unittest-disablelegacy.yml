@@ -5,7 +5,7 @@ name: unittest-disablelegacy
 on:
   #push:
   schedule:
-    - cron: 0 2 * * MON
+    - cron: 0 10 * * *
 
 jobs:
   linux:
