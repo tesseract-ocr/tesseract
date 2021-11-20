@@ -45,9 +45,11 @@
 #include "werdit.h"
 
 const char *const kBackUpConfigFile = "tempconfigdata.config";
+#ifndef DISABLED_LEGACY_ENGINE
 // Min believable x-height for any text when refitting as a fraction of
 // original x-height
 const double kMinRefitXHeightFraction = 0.5;
+#endif // ! DISABLED_LEGACY_ENGINE
 
 /**
  * Make a word from the selected blobs and run Tess on them.
@@ -1895,6 +1897,7 @@ bool Tesseract::check_debug_pt(WERD_RES *word, int location) {
  *
  * Find the modal font and remove from the stats.
  */
+#ifndef DISABLED_LEGACY_ENGINE
 static void find_modal_font( // good chars in word
     STATS *fonts,            // font stats
     int16_t *font_out,       // output font
@@ -1914,6 +1917,7 @@ static void find_modal_font( // good chars in word
     *font_count = 0;
   }
 }
+#endif // ! DISABLED_LEGACY_ENGINE
 
 /**
  * set_word_fonts

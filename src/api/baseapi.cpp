@@ -109,16 +109,16 @@ const char kUNLVReject = '~';
 /** Character used by UNLV as a suspect marker. */
 const char kUNLVSuspect = '^';
 /**
- * Filename used for input image file, from which to derive a name to search
- * for a possible UNLV zone file, if none is specified by SetInputName.
- */
-static const char *kInputFile = "noname.tif";
-/**
  * Temp file used for storing current parameters before applying retry values.
  */
 static const char *kOldVarsFile = "failed_vars.txt";
 
 #ifndef DISABLED_LEGACY_ENGINE
+/**
+ * Filename used for input image file, from which to derive a name to search
+ * for a possible UNLV zone file, if none is specified by SetInputName.
+ */
+static const char *kInputFile = "noname.tif";
 static const char kUnknownFontName[] = "UnknownFont";
 
 static STRING_VAR(classify_font_name, kUnknownFontName,
