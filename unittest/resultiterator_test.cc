@@ -310,37 +310,36 @@ TEST_F(ResultIteratorTest, EasyTest) {
 
   // Test font attributes for each word.
   do {
-    bool bold, italic, underlined, monospace, serif, smallcaps;
+    float confidence = r_it->Confidence(tesseract::RIL_WORD);
+#ifndef DISABLED_LEGACY_ENGINE
     int pointsize, font_id;
+    bool bold, italic, underlined, monospace, serif, smallcaps;
     const char *font = r_it->WordFontAttributes(&bold, &italic, &underlined, &monospace, &serif,
                                                 &smallcaps, &pointsize, &font_id);
-    float confidence = r_it->Confidence(tesseract::RIL_WORD);
-  #ifdef DISABLED_LEGACY_ENGINE
     EXPECT_GE(confidence, 80.0f);
-  #endif
+#endif
     char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
 
-  #ifdef DISABLED_LEGACY_ENGINE
-    LOG(INFO) << "Word " << word_str << ", font size " << pointsize
-      << ", conf " << confidence << "\n";
-  #else
+#ifdef DISABLED_LEGACY_ENGINE
+    LOG(INFO) << "Word " << word_str << ", conf " << confidence << "\n";
+#else
     LOG(INFO) << "Word " << word_str << " in font " << font
       << ", id " << font_id << ", size " << pointsize
       << ", conf " << confidence << "\n";
-  #endif // def DISABLED_LEGACY_ENGINE
+#endif // def DISABLED_LEGACY_ENGINE
     delete[] word_str;
-  #ifdef DISABLED_LEGACY_ENGINE
+#ifndef DISABLED_LEGACY_ENGINE
     EXPECT_FALSE(bold);
     EXPECT_FALSE(italic);
     EXPECT_FALSE(underlined);
     EXPECT_FALSE(monospace);
     EXPECT_FALSE(serif);
-  #endif // def DISABLED_LEGACY_ENGINE
     // The text is about 31 pixels high.  Above we say the source is 200 ppi,
     // which translates to:
     // 31 pixels / textline * (72 pts / inch) / (200 pixels / inch) = 11.16 pts
     EXPECT_GE(pointsize, 11.16 - 1.50);
     EXPECT_LE(pointsize, 11.16 + 1.50);
+#endif // def DISABLED_LEGACY_ENGINE
   } while (r_it->Next(tesseract::RIL_WORD));
   delete r_it;
 }
@@ -420,7 +419,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
   EXPECT_EQ(1, found_dropcaps);
   EXPECT_GE(4, found_smallcaps);
   EXPECT_LE(false_positives, 3);
-#endif // def DISABLED_LEGACY_ENGINE
+#endif // DISABLED_LEGACY_ENGINE
 }
 
 #if 0
