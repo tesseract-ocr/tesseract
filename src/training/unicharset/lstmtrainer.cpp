@@ -1324,7 +1324,7 @@ double LSTMTrainer::ComputeWinnerError(const NetworkIO &deltas) {
 double LSTMTrainer::ComputeCharError(const std::vector<int> &truth_str,
                                      const std::vector<int> &ocr_str) {
   std::vector<int> label_counts(NumOutputs());
-  int truth_size = 0;
+  unsigned truth_size = 0;
   for (auto ch : truth_str) {
     if (ch != null_char_) {
       ++label_counts[ch];
@@ -1336,11 +1336,12 @@ double LSTMTrainer::ComputeCharError(const std::vector<int> &truth_str,
       --label_counts[ch];
     }
   }
-  int char_errors = 0;
+  unsigned char_errors = 0;
   for (auto label_count : label_counts) {
     char_errors += abs(label_count);
   }
-  if (truth_size == 0) {
+  // Limit BCER to interval [0,1] and avoid division by zero.
+  if (truth_size <= char_errors) {
     return (char_errors == 0) ? 0.0 : 1.0;
   }
   return static_cast<double>(char_errors) / truth_size;
