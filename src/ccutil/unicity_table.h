@@ -69,11 +69,6 @@ public:
     return table_.get_index(object);
   }
 
-  /// Return true if the id is valid
-  T contains_id(int id) const  {
-    return table_.contains_index(id);
-  }
-
   /// Add an element in the table
   int push_back(T object)  {
     auto idx = get_index(object);

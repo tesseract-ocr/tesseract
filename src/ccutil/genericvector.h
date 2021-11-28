@@ -103,9 +103,6 @@ public:
   // Return the index of the T object.
   int get_index(const T &object) const;
 
-  // Return true if the index is valid
-  T contains_index(int index) const;
-
   // Push an element in the end of the array
   int push_back(T object);
   void operator+=(const T &t);
@@ -610,12 +607,6 @@ void GenericVector<T>::remove(int index) {
     data_[i] = data_[i + 1];
   }
   size_used_--;
-}
-
-// Return true if the index is valindex
-template <typename T>
-T GenericVector<T>::contains_index(int index) const {
-  return index >= 0 && index < size_used_;
 }
 
 // Return the index of the T object.
