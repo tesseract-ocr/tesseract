@@ -1125,8 +1125,8 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, boo
       // by int_result. In this case, build a vector of UnicharRating to
       // gather together different font-ids for each unichar. Also covers case1.
       std::vector<UnicharRating> mapped_results;
-      for (unsigned f = 0; f < int_result->fonts.size(); ++f) {
-        int shape_id = int_result->fonts[f].fontinfo_id;
+      for (auto &f : int_result->fonts) {
+        int shape_id = f.fontinfo_id;
         const Shape &shape = shape_table_->GetShape(shape_id);
         for (int c = 0; c < shape.size(); ++c) {
           int unichar_id = shape[c].unichar_id;
@@ -1144,7 +1144,7 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, boo
             mapped_results[r].fonts.clear();
           }
           for (int font_id : shape[c].font_ids) {
-            mapped_results[r].fonts.emplace_back(font_id, int_result->fonts[f].score);
+            mapped_results[r].fonts.emplace_back(font_id, f.score);
           }
         }
       }
@@ -1639,8 +1639,8 @@ void Classify::ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES
       for (unsigned id = 0; id < templates->NumClasses; ++id) {
         int font_set_id = templates->Class[id]->font_set_id;
         const FontSet &fs = fontset_table_.at(font_set_id);
-        for (unsigned config = 0; config < fs.size(); ++config) {
-          const Shape &shape = shape_table_->GetShape(fs[config]);
+        for (auto f : fs) {
+          const Shape &shape = shape_table_->GetShape(f);
           for (int c = 0; c < shape.size(); ++c) {
             if (char_norm_array[shape[c].unichar_id] < pruner_array[id]) {
               pruner_array[id] = char_norm_array[shape[c].unichar_id];
@@ -2123,8 +2123,8 @@ int Classify::ShapeIDToClassID(int shape_id) const {
     int font_set_id = PreTrainedTemplates->Class[id]->font_set_id;
     ASSERT_HOST(font_set_id >= 0);
     const FontSet &fs = fontset_table_.at(font_set_id);
-    for (unsigned config = 0; config < fs.size(); ++config) {
-      if (fs[config] == shape_id) {
+    for (auto f : fs) {
+      if (f == shape_id) {
         return id;
       }
     }
