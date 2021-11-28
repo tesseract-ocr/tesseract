@@ -104,7 +104,7 @@ public:
     } else if (size > 50000000) {
       // Arbitrarily limit the number of elements to protect against bad data.
       return false;
-    } else if constexpr (std::is_same_v<T, std::string>) {
+    } else if constexpr (std::is_same<T, std::string>::value) {
       // Deserialize a string.
       // TODO: optimize.
       data.resize(size);
@@ -113,7 +113,7 @@ public:
           return false;
         }
       }
-    } else if constexpr (std::is_class_v<T>) {
+    } else if constexpr (std::is_class<T>::value) {
       // Deserialize a tesseract class.
       // TODO: optimize.
       data.resize(size);
@@ -122,7 +122,7 @@ public:
           return false;
         }
       }
-    } else if constexpr (std::is_pointer_v<T>) {
+    } else if constexpr (std::is_pointer<T>::value) {
       // Deserialize pointers.
       // TODO: optimize.
       data.resize(size);
@@ -163,21 +163,21 @@ public:
     uint32_t size = data.size();
     if (!Serialize(&size)) {
       return false;
-    } else if constexpr (std::is_same_v<T, std::string>) {
+    } else if constexpr (std::is_same<T, std::string>::value) {
       // Serialize strings.
       for (auto string : data) {
         if (!Serialize(string)) {
           return false;
         }
       }
-    } else if constexpr (std::is_class_v<T>) {
+    } else if constexpr (std::is_class<T>::value) {
       // Serialize a tesseract class.
       for (auto &item : data) {
         if (!item.Serialize(this)) {
           return false;
         }
       }
-    } else if constexpr (std::is_pointer_v<T>) {
+    } else if constexpr (std::is_pointer<T>::value) {
       // Serialize pointers.
       for (auto &item : data) {
         uint8_t non_null = (item != nullptr);

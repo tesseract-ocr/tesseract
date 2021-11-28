@@ -665,7 +665,8 @@ void UNICHARSET::unichar_insert(const char *const unichar_repr,
         encode_string(str, true, &encoding, nullptr, nullptr)) {
       return;
     }
-    auto &u = unichars.emplace_back();
+    unichars.emplace_back();
+    auto &u = unichars.back();
     int index = 0;
     do {
       if (index >= UNICHAR_LEN) {
