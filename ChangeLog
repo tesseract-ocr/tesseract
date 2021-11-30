@@ -1,4 +1,4 @@
-2021-11-22 - V5.0.0-rc3
+2021-11-22 - V5.0.0
   * Faster training and recognition by default (float instead of
     double calculations)
   * More options for binarization
@@ -12,6 +12,27 @@
   * Improved training messages
   * Improved unit tests and fuzzing tests
   * Lots of bug fixes
+
+2021-11-15 - V4.1.3
+  * Fix build regression for autoconf build
+
+2021-11-14 - V4.1.2
+  * Add RowAttributes getter to PageIterator
+  * Allow line images with larger width for training
+  * Fix memory leaks
+  * Improve build process
+  * Don't output empty ALTO sourceImageInformation (issue #2700)
+  * Extend URI support for Tesseract with libcurl
+  * Abort LSTM training with integer model (fixes issue #1573)
+  * Update documentation
+  * Make automake builds less noisy by default
+  * Don't use -march=native in automake builds
+
+2019-12-26 - V4.1.1
+  * Implemented sw build (cppan is depreciated)
+  * Improved cmake build
+  * Code cleanup and optimization
+  * A lot of bug fixes...
 
 2019-07-07 - V4.1.0
   * Added new renders Alto, LSTMBox, WordStrBox.
