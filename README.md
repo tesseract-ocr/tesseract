@@ -60,7 +60,7 @@ at Hewlett-Packard Co, Greeley Colorado between 1985 and 1994, with some
 more changes made in 1996 to port to Windows, and some C++izing in 1998.
 In 2005 Tesseract was open sourced by HP. From 2006 until November 2018 it was developed by Google.
 
-The latest (LSTM based) stable version is **[4.1.1](https://github.com/tesseract-ocr/tesseract/releases/tag/4.1.1)**, released on December 26, 2019.
+The latest stable version is **[5.0.0](https://github.com/tesseract-ocr/tesseract/releases/tag/5.0.0)**, released on November 30, 2021.
 Latest source code is available from [main branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/main).
 Open issues can be found in [issue tracker](https://github.com/tesseract-ocr/tesseract/issues),
 and [planning documentation](https://tesseract-ocr.github.io/tessdoc/Planning.html).
