@@ -220,7 +220,7 @@ set(HAVE_SSE4_1 FALSE)
 add_definitions("-DHAVE_NEON")
 set(HAVE_NEON TRUE)
 
-else()
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm.*")
 
 set(HAVE_AVX FALSE)
 set(HAVE_AVX2 FALSE)
@@ -233,7 +233,14 @@ if(HAVE_NEON)
     add_definitions("-DHAVE_NEON")
 endif()
 
-endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64")
+else()
+set(HAVE_AVX FALSE)
+set(HAVE_AVX2 FALSE)
+set(HAVE_FMA FALSE)
+set(HAVE_NEON FALSE)
+set(HAVE_SSE4_1 FALSE)
+
+endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64|amd64|i386")
 
 # auto optimize - used only for information about available vectors
 include(OptimizeForArchitecture)
