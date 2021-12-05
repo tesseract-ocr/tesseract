@@ -17,7 +17,6 @@ jobs:
         #os: [ ubuntu-18.04, ubuntu-20.04 ]
         os: [ ubuntu-20.04 ]
 
-
     steps:
     - uses: actions/checkout@v2
       with:
@@ -27,7 +26,7 @@ jobs:
       run: |
            sudo apt-get install autoconf libleptonica-dev libpango1.0-dev -y
            sudo apt-get install cabextract -y
-           sudo apt-get install libc++-7-dev libc++abi-7-dev -y
+           #sudo apt-get install libc++-7-dev libc++abi-7-dev -y
            
     - name: Setup
       run: |
