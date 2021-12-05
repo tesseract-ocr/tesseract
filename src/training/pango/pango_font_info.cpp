@@ -21,7 +21,7 @@
 #  include "config_auto.h"
 #endif
 
-#if (defined __MINGW32__) || (defined __CYGWIN__)
+#if (defined __CYGWIN__)
 // workaround for stdlib.h and putenv
 #  undef __STRICT_ANSI__
 #endif
