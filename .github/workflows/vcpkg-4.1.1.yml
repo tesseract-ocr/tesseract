@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest ]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
       - name: Checkout Tesseract Source (for test images)
