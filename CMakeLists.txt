@@ -233,7 +233,7 @@ if(HAVE_NEON)
     add_definitions("-DHAVE_NEON")
 endif()
 
-endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64")
+endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64|amd64|i386")
 
 # auto optimize - used only for information about available vectors
 include(OptimizeForArchitecture)
