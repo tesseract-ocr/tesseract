@@ -149,7 +149,7 @@ endif()
 
 message("CMAKE_SYSTEM_PROCESSOR=<${CMAKE_SYSTEM_PROCESSOR}>")
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64|amd64|i386")
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
 
 set(HAVE_NEON FALSE)
 
@@ -233,7 +233,7 @@ if(HAVE_NEON)
     add_definitions("-DHAVE_NEON")
 endif()
 
-endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64|amd64|i386")
+endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
 
 # auto optimize - used only for information about available vectors
 include(OptimizeForArchitecture)
