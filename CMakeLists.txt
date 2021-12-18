@@ -235,19 +235,6 @@ endif()
 
 endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
 
-# auto optimize - used only for information about available vectors
-include(OptimizeForArchitecture)
-OptimizeForArchitecture()
-# remove global definition to eliminate effect on build
-foreach(_flag ${_enable_vector_unit_list})
-    string(TOUPPER "${_flag}" _flag)
-    string(REPLACE "." "_" _flag "__${_flag}__")
-    remove_definitions("-D${_flag}")
-endforeach(_flag)
-foreach(flag ${Vc_ARCHITECTURE_FLAGS})
-    set(Vc_CXX_FLAGS "${Vc_CXX_FLAGS} ${flag}")
-endforeach()
-
 # Compiler specific environments
 if(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG -pedantic -Og")
@@ -460,8 +447,6 @@ get_directory_property( DirCompDefs COMPILE_DEFINITIONS)
 message( STATUS "Compile definitions = ${DirCompDefs}")
 message( STATUS "Linker options: ${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_${CMAKE_BUILD_TYPE_UP}}")
 message( STATUS "Install directory: ${CMAKE_INSTALL_PREFIX}")
-message( STATUS "Architecture flags: ${Vc_ARCHITECTURE_FLAGS}")
-message( STATUS "Vector unit list: ${_enable_vector_unit_list}")
 message( STATUS "HAVE_AVX: ${HAVE_AVX}")
 message( STATUS "HAVE_AVX2: ${HAVE_AVX2}")
 message( STATUS "HAVE_FMA: ${HAVE_FMA}")
