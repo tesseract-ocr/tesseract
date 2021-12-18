@@ -721,6 +721,13 @@ if (WIN32 AND CLANG AND OPENMP_BUILD)
     target_link_libraries (libtesseract PRIVATE ${OpenMP_LIBRARY})
 endif()
 
+if (ANDROID)
+    add_definitions(-DANDROID)
+    find_package(CpuFeaturesNdkCompat REQUIRED)
+    target_include_directories(libtesseract PRIVATE "${CpuFeaturesNdkCompat_DIR}/../../../include/ndk_compat")
+    target_link_libraries     (libtesseract PRIVATE CpuFeatures::ndk_compat)
+endif()
+
 ########################################
 # EXECUTABLE tesseract
 ########################################
