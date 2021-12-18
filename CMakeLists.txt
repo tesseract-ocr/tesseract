@@ -336,6 +336,10 @@ if (SW_BUILD)
     sw_execute()
 else()
     find_package(PkgConfig)
+    if(BUILD_TRAINING_TOOLS)
+        message(WARNING "Building of Training Tools requires PkgConfig")
+        set(BUILD_TRAINING_TOOLS OFF)
+    endif(BUILD_TRAINING_TOOLS)
     # Check for required library.
     # option -DLeptonica_DIR=path => cmake hint where to find leptonica
     find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} CONFIG)
