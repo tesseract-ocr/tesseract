@@ -93,6 +93,7 @@ option(BUILD_TESTS "Build tests" OFF)
 option(USE_SYSTEM_ICU "Use system ICU" OFF)
 option(DISABLE_ARCHIVE "Disable build with libarchive (if available)" OFF)
 option(DISABLE_CURL "Disable build with libcurl (if available)" OFF)
+option(INSTALL_CONFIGS "Install tesseract configs" ON)
 
 if(NOT ${CMAKE_VERSION} VERSION_LESS "3.15.0")
   if(WIN32 AND MSVC)
@@ -484,6 +485,7 @@ message(STATUS "Build training tools [BUILD_TRAINING_TOOLS]: "
                "${BUILD_TRAINING_TOOLS}")
 message(STATUS "Build tests [BUILD_TESTS]: ${BUILD_TESTS}")
 message(STATUS "Use system ICU Library [USE_SYSTEM_ICU]: ${USE_SYSTEM_ICU}")
+message(STATUS "Install tesseract configs [INSTALL_CONFIGS]: ${INSTALL_CONFIGS}")
 message(STATUS "--------------------------------------------------------")
 message(STATUS)
 
@@ -645,7 +647,7 @@ endif(HAVE_NEON)
 
 file(
   GLOB_RECURSE
-  tesseract_hdr
+  TESSERACT_HDR
   include/*
   src/arch/*.h
   src/ccmain/*.h
@@ -671,8 +673,44 @@ set(TESSERACT_SRC
     src/api/pdfrenderer.cpp
     src/api/wordstrboxrenderer.cpp)
 
+set(TESSERACT_CONFIGS
+  tessdata/configs/alto
+  tessdata/configs/ambigs.train
+  tessdata/configs/api_config
+  tessdata/configs/bazaar
+  tessdata/configs/bigram
+  tessdata/configs/box.train
+  tessdata/configs/box.train.stderr
+  tessdata/configs/digits
+  tessdata/configs/get.images
+  tessdata/configs/hocr
+  tessdata/configs/inter
+  tessdata/configs/kannada
+  tessdata/configs/linebox
+  tessdata/configs/logfile
+  tessdata/configs/lstm.train
+  tessdata/configs/lstmbox
+  tessdata/configs/lstmdebug
+  tessdata/configs/makebox
+  tessdata/configs/pdf
+  tessdata/configs/quiet
+  tessdata/configs/rebox
+  tessdata/configs/strokewidth
+  tessdata/configs/tsv
+  tessdata/configs/txt
+  tessdata/configs/unlv
+  tessdata/configs/wordstrbox)
+
+set(TESSERACT_TESSCONFIGS
+  tessdata/tessconfigs/batch
+  tessdata/tessconfigs/batch.nochop
+  tessdata/tessconfigs/matdemo
+  tessdata/tessconfigs/msdemo
+  tessdata/tessconfigs/nobatch
+  tessdata/tessconfigs/segdemo)
+
 set(LIBTESSFILES ${TESSERACT_SRC} ${arch_files} ${arch_files_opt}
-                 ${tesseract_hdr})
+                 ${TESSERACT_HDR})
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBTESSFILES})
 
@@ -830,6 +868,13 @@ install(
         include/tesseract/unichar.h
         # ${CMAKE_CURRENT_BINARY_DIR}/src/endianness.h
   DESTINATION include/tesseract)
+
+if(INSTALL_CONFIGS)
+install(FILES ${TESSERACT_CONFIGS}
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/configs)
+install(FILES ${TESSERACT_TESSCONFIGS}
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/tessconfigs)
+endif()
 
 # ##############################################################################
 # uninstall target
