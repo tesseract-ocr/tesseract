@@ -28,7 +28,7 @@
 #include <cstdlib>
 #include <sstream> // for std::ostringstream
 
-#if !defined(__GNUC__) && defined(_MSC_VER) && !defined(__clang__)
+#if defined(_MSC_VER) && !defined(__clang__)
 #  include <intrin.h> // _BitScanReverse
 #endif
 
