@@ -391,7 +391,6 @@ bool Tesseract::process_cmd_win_event( // UI command semantics
     int32_t cmd_event,                 // which menu item?
     char *new_value                    // any prompt data
 ) {
-  char msg[160];
   bool exit = false;
 
   color_mode = CM_RAINBOW;
@@ -547,8 +546,7 @@ bool Tesseract::process_cmd_win_event( // UI command semantics
       break;
 
     default:
-      snprintf(msg, sizeof(msg), "Unrecognised event %" PRId32 "(%s)", cmd_event, new_value);
-      image_win->AddMessage(msg);
+      image_win->AddMessage("Unrecognised event {} ({})", cmd_event, new_value);
       break;
   }
   return exit;
@@ -570,7 +568,6 @@ void Tesseract::process_image_event( // action in image win
   static ICOORD down;
   ICOORD up;
   TBOX selection_box;
-  char msg[80];
 
   switch (event.type) {
     case SVET_SELECTION:
@@ -622,8 +619,7 @@ void Tesseract::process_image_event( // action in image win
           break;
 
         default:
-          sprintf(msg, "Mode %d not yet implemented", mode);
-          image_win->AddMessage(msg);
+          image_win->AddMessage("Mode {} not yet implemented", mode);
           break;
       }
     default:

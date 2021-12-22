@@ -33,6 +33,7 @@
 
 #include "image.h"
 
+#include <fmt/format.h>
 #include <tesseract/export.h>
 
 #include <cstdio>
@@ -294,10 +295,14 @@ public:
   // Adds a messagebox to the SVWindow. This way, it can show the messages...
   void AddMessageBox();
 
+  void vAddMessage(fmt::string_view format, fmt::format_args args);
+
   // ...which can be added by this command.
   // This is intended as an "debug" output window.
-  void AddMessage(const char *message);
-  void AddMessageF(const char *format, ...) __attribute__((format(printf, 2, 3)));
+  template <typename S, typename... Args>
+  void AddMessage(const S &format, Args&&... args) {
+    vAddMessage(format, fmt::make_args_checked<Args...>(format, args...));
+  }
 
   // Zoom the window to the rectangle given upper left corner and
   // lower right corner.
