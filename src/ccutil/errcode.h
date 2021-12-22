@@ -37,18 +37,17 @@ enum TessErrorLogCode {
 #define MEMORY_ABORT 2
 #define FILE_ABORT 3
 
-#if !defined(__GNUC__) && !defined(__attribute__)
-# define __attribute__(attr) // compiler without support for __attribute__
-#endif
-
 class TESS_API ERRCODE { // error handler class
   const char *message;   // error message
 public:
+#if defined(__GNUC__) && defined(__attribute__)
+  __attribute__((format(printf, 4, 5)))
+#endif
   void error(                  // error print function
       const char *caller,      // function location
       TessErrorLogCode action, // action to take
       const char *format, ...  // fprintf format
-  ) const __attribute__((format(printf, 4, 5)));
+  ) const;
   constexpr ERRCODE(const char *string) : message(string) {} // initialize with string
 };
 

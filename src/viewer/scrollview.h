@@ -40,10 +40,6 @@
 
 namespace tesseract {
 
-#if !defined(__GNUC__) && !defined(__attribute__)
-# define __attribute__(attr) // compiler without support for __attribute__
-#endif
-
 class ScrollView;
 class SVNetwork;
 class SVSemaphore;
@@ -297,7 +293,10 @@ public:
   // ...which can be added by this command.
   // This is intended as an "debug" output window.
   void AddMessage(const char *message);
-  void AddMessageF(const char *format, ...) __attribute__((format(printf, 2, 3)));
+#if defined(__GNUC__) && defined(__attribute__)
+  __attribute__((format(printf, 2, 3)))
+#endif
+  void AddMessageF(const char *format, ...);
 
   // Zoom the window to the rectangle given upper left corner and
   // lower right corner.
@@ -310,7 +309,10 @@ public:
   // this just for fun will likely break your application!
   // It is public so you can actually take use of the LUA functionalities, but
   // be careful!
-  void SendMsg(const char* msg, ...) __attribute__((format(printf, 2, 3)));
+#if defined(__GNUC__) && defined(__attribute__)
+  __attribute__((format(printf, 2, 3)))
+#endif
+  void SendMsg(const char* msg, ...);
 
   // Custom messages (manipulating java code directly) can be send through this.
   // Send a message to the server without adding the

@@ -24,17 +24,15 @@
 
 namespace tesseract {
 
-#if !defined(__GNUC__) && !defined(__attribute__)
-# define __attribute__(attr) // compiler without support for __attribute__
-#endif
-
 // Disable some log messages by setting log_level > 0.
 extern TESS_API INT_VAR_H(log_level);
 
 // Main logging function.
+#if defined(__GNUC__) && defined(__attribute__)
+__attribute__((format(printf, 1, 2)))
+#endif
 extern TESS_API void tprintf( // Trace printf
-    const char *format, ...)  // Message
-    __attribute__((format(printf, 1, 2)));
+    const char *format, ...);  // Message
 
 } // namespace tesseract
 
