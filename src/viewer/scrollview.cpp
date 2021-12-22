@@ -381,19 +381,15 @@ ScrollView::~ScrollView() {
 
 #ifndef GRAPHICS_DISABLED
 /// Send a message to the server, attaching the window id.
-void ScrollView::SendMsg(const char *format, ...) {
+void ScrollView::vSendMsg(fmt::string_view format, fmt::format_args args) {
+  auto message = fmt::vformat(format, args);
+
   if (!points_->empty) {
     SendPolygon();
   }
-  va_list args;
-  char message[kMaxMsgSize - 4];
-
-  va_start(args, format); // variable list
-  vsnprintf(message, sizeof(message), format, args);
-  va_end(args);
 
   char form[kMaxMsgSize];
-  snprintf(form, sizeof(form), "w%u:%s\n", window_id_, message);
+  snprintf(form, sizeof(form), "w%u:%s\n", window_id_, message.c_str());
 
   stream_->Send(form);
 }
@@ -537,7 +533,7 @@ void ScrollView::vAddMessage(fmt::string_view format, fmt::format_args args) {
   snprintf(form, sizeof(form), "w%u:%s", window_id_, message.c_str());
 
   char *esc = AddEscapeChars(form);
-  SendMsg("addMessage(\"%s\")", esc);
+  SendMsg("addMessage(\"{}\")", esc);
   delete[] esc;
 }
 
@@ -559,7 +555,7 @@ void ScrollView::Clear() {
 
 // Set the stroke width.
 void ScrollView::Stroke(float width) {
-  SendMsg("setStrokeWidth(%f)", width);
+  SendMsg("setStrokeWidth({})", width);
 }
 
 // Draw a rectangle using the current pen color.
@@ -568,33 +564,33 @@ void ScrollView::Rectangle(int x1, int y1, int x2, int y2) {
   if (x1 == x2 && y1 == y2) {
     return; // Scrollviewer locks up.
   }
-  SendMsg("drawRectangle(%d,%d,%d,%d)", x1, TranslateYCoordinate(y1), x2, TranslateYCoordinate(y2));
+  SendMsg("drawRectangle({},{},{},{})", x1, TranslateYCoordinate(y1), x2, TranslateYCoordinate(y2));
 }
 
 // Draw an ellipse using the current pen color.
 // The ellipse is filled with the current brush color.
 void ScrollView::Ellipse(int x1, int y1, int width, int height) {
-  SendMsg("drawEllipse(%d,%d,%u,%u)", x1, TranslateYCoordinate(y1), width, height);
+  SendMsg("drawEllipse({},{},{},{})", x1, TranslateYCoordinate(y1), width, height);
 }
 
 // Set the pen color to the given RGB values.
 void ScrollView::Pen(int red, int green, int blue) {
-  SendMsg("pen(%d,%d,%d)", red, green, blue);
+  SendMsg("pen({},{},{})", red, green, blue);
 }
 
 // Set the pen color to the given RGB values.
 void ScrollView::Pen(int red, int green, int blue, int alpha) {
-  SendMsg("pen(%d,%d,%d,%d)", red, green, blue, alpha);
+  SendMsg("pen({},{},{},{})", red, green, blue, alpha);
 }
 
 // Set the brush color to the given RGB values.
 void ScrollView::Brush(int red, int green, int blue) {
-  SendMsg("brush(%d,%d,%d)", red, green, blue);
+  SendMsg("brush({},{},{})", red, green, blue);
 }
 
 // Set the brush color to the given RGB values.
 void ScrollView::Brush(int red, int green, int blue, int alpha) {
-  SendMsg("brush(%d,%d,%d,%d)", red, green, blue, alpha);
+  SendMsg("brush({},{},{},{})", red, green, blue, alpha);
 }
 
 // Set the attributes for future Text(..) calls.
@@ -619,18 +615,18 @@ void ScrollView::TextAttributes(const char *font, int pixel_size, bool bold, boo
   } else {
     u = "false";
   }
-  SendMsg("textAttributes('%s',%u,%s,%s,%s)", font, pixel_size, b, i, u);
+  SendMsg("textAttributes('{}',{},{},{},{})", font, pixel_size, b, i, u);
 }
 
 // Draw text at the given coordinates.
 void ScrollView::Text(int x, int y, const char *mystring) {
-  SendMsg("drawText(%d,%d,'%s')", x, TranslateYCoordinate(y), mystring);
+  SendMsg("drawText({},{},'{}')", x, TranslateYCoordinate(y), mystring);
 }
 
 // Open and draw an image given a name at (x,y).
 void ScrollView::Draw(const char *image, int x_pos, int y_pos) {
-  SendMsg("openImage('%s')", image);
-  SendMsg("drawImage('%s',%d,%d)", image, x_pos, TranslateYCoordinate(y_pos));
+  SendMsg("openImage('{}')", image);
+  SendMsg("drawImage('{}',{},{})", image, x_pos, TranslateYCoordinate(y_pos));
 }
 
 // Add new checkboxmenuentry to menubar.
@@ -639,9 +635,9 @@ void ScrollView::MenuItem(const char *parent, const char *name, int cmdEvent, bo
     parent = "";
   }
   if (flag) {
-    SendMsg("addMenuBarItem('%s','%s',%d,true)", parent, name, cmdEvent);
+    SendMsg("addMenuBarItem('{}','{}',{},true)", parent, name, cmdEvent);
   } else {
-    SendMsg("addMenuBarItem('%s','%s',%d,false)", parent, name, cmdEvent);
+    SendMsg("addMenuBarItem('{}','{}',{},false)", parent, name, cmdEvent);
   }
 }
 
@@ -650,7 +646,7 @@ void ScrollView::MenuItem(const char *parent, const char *name, int cmdEvent) {
   if (parent == nullptr) {
     parent = "";
   }
-  SendMsg("addMenuBarItem('%s','%s',%d)", parent, name, cmdEvent);
+  SendMsg("addMenuBarItem('{}','{}',{})", parent, name, cmdEvent);
 }
 
 // Add new submenu to menubar.
@@ -658,7 +654,7 @@ void ScrollView::MenuItem(const char *parent, const char *name) {
   if (parent == nullptr) {
     parent = "";
   }
-  SendMsg("addMenuBarItem('%s','%s')", parent, name);
+  SendMsg("addMenuBarItem('{}','{}')", parent, name);
 }
 
 // Add new submenu to popupmenu.
@@ -666,7 +662,7 @@ void ScrollView::PopupItem(const char *parent, const char *name) {
   if (parent == nullptr) {
     parent = "";
   }
-  SendMsg("addPopupMenuItem('%s','%s')", parent, name);
+  SendMsg("addPopupMenuItem('{}','{}')", parent, name);
 }
 
 // Add new submenuentry to popupmenu.
@@ -677,7 +673,7 @@ void ScrollView::PopupItem(const char *parent, const char *name, int cmdEvent, c
   }
   char *esc = AddEscapeChars(value);
   char *esc2 = AddEscapeChars(desc);
-  SendMsg("addPopupMenuItem('%s','%s',%d,'%s','%s')", parent, name, cmdEvent, esc, esc2);
+  SendMsg("addPopupMenuItem('{}','{}',{},'{}','{}')", parent, name, cmdEvent, esc, esc2);
   delete[] esc;
   delete[] esc2;
 }
@@ -711,7 +707,7 @@ void ScrollView::Brush(Color color) {
 
 // Shows a modal Input Dialog which can return any kind of String
 char *ScrollView::ShowInputDialog(const char *msg) {
-  SendMsg("showInputDialog(\"%s\")", msg);
+  SendMsg("showInputDialog(\"{}\")", msg);
   // wait till an input event (all others are thrown away)
   auto ev = AwaitEvent(SVET_INPUT);
   char *p = new char[strlen(ev->parameter) + 1];
@@ -721,7 +717,7 @@ char *ScrollView::ShowInputDialog(const char *msg) {
 
 // Shows a modal Yes/No Dialog which will return 'y' or 'n'
 int ScrollView::ShowYesNoDialog(const char *msg) {
-  SendMsg("showYesNoDialog(\"%s\")", msg);
+  SendMsg("showYesNoDialog(\"{}\")", msg);
   // Wait till an input event (all others are thrown away)
   auto ev = AwaitEvent(SVET_INPUT);
   int a = ev->parameter[0];
@@ -733,7 +729,7 @@ int ScrollView::ShowYesNoDialog(const char *msg) {
 void ScrollView::ZoomToRectangle(int x1, int y1, int x2, int y2) {
   y1 = TranslateYCoordinate(y1);
   y2 = TranslateYCoordinate(y2);
-  SendMsg("zoomRectangle(%d,%d,%d,%d)", std::min(x1, x2), std::min(y1, y2), std::max(x1, x2),
+  SendMsg("zoomRectangle({},{},{},{})", std::min(x1, x2), std::min(y1, y2), std::max(x1, x2),
           std::max(y1, y2));
 }
 
@@ -744,7 +740,7 @@ void ScrollView::Draw(Image image, int x_pos, int y_pos) {
   pixWriteMem(&data, &size, image, IFF_PNG);
   int base64_len = (size + 2) / 3 * 4;
   y_pos = TranslateYCoordinate(y_pos);
-  SendMsg("readImage(%d,%d,%d)", x_pos, y_pos, base64_len);
+  SendMsg("readImage({},{},{})", x_pos, y_pos, base64_len);
   // Base64 encode the data.
   const char kBase64Table[64] = {
       'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',

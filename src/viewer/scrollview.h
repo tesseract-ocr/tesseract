@@ -42,10 +42,6 @@
 
 namespace tesseract {
 
-#if !defined(__GNUC__) && !defined(__attribute__)
-# define __attribute__(attr) // compiler without support for __attribute__
-#endif
-
 class ScrollView;
 class SVNetwork;
 class SVSemaphore;
@@ -316,7 +312,11 @@ public:
   // this just for fun will likely break your application!
   // It is public so you can actually take use of the LUA functionalities, but
   // be careful!
-  void SendMsg(const char* msg, ...) __attribute__((format(printf, 2, 3)));
+  void vSendMsg(fmt::string_view format, fmt::format_args args);
+  template <typename S, typename... Args>
+  void SendMsg(const S &format, Args&&... args) {
+    vSendMsg(format, fmt::make_args_checked<Args...>(format, args...));
+  }
 
   // Custom messages (manipulating java code directly) can be send through this.
   // Send a message to the server without adding the
