@@ -86,6 +86,7 @@ AM_CXXFLAGS = $(OPENMP_CXXFLAGS)
 
 libtesseract_la_CPPFLAGS = $(AM_CPPFLAGS)
 libtesseract_la_CPPFLAGS += -DTESS_COMMON_TRAINING_API=
+libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/fmt/include
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/arch
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/ccmain
 libtesseract_la_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
@@ -508,6 +509,7 @@ libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/cutil
 libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/dict
 libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/lstm
 libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/viewer
+libtesseract_lstm_la_CPPFLAGS += -I$(top_srcdir)/src/fmt/include
 if TENSORFLOW
 libtesseract_lstm_la_CPPFLAGS += -DINCLUDE_TENSORFLOW
 libtesseract_lstm_la_CPPFLAGS += -I/usr/include/tensorflow
@@ -728,6 +730,13 @@ libtesseract_la_SOURCES += src/wordrec/segsearch.cpp
 libtesseract_la_SOURCES += src/wordrec/wordclass.cpp
 endif
 
+# Rules for thirdparty software src/fmt.
+
+noinst_HEADERS += src/fmt/include/fmt/core.h
+noinst_HEADERS += src/fmt/include/fmt/format.h
+noinst_HEADERS += src/fmt/include/fmt/format-inl.h
+libtesseract_la_SOURCES += src/fmt/src/format.cc
+
 # Rules for tesseract executable.
 
 bin_PROGRAMS = tesseract
@@ -741,6 +750,7 @@ tesseract_CPPFLAGS += -I$(top_srcdir)/src/viewer
 if OPENCL
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/opencl
 endif
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/fmt/include
 tesseract_CPPFLAGS += $(AM_CPPFLAGS)
 if VISIBILITY
 tesseract_CPPFLAGS += -DTESS_IMPORTS
@@ -813,6 +823,7 @@ training_CPPFLAGS += -I$(top_srcdir)/src/dict
 training_CPPFLAGS += -I$(top_srcdir)/src/classify
 training_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 training_CPPFLAGS += -I$(top_srcdir)/src/cutil
+training_CPPFLAGS += -I$(top_srcdir)/src/fmt/include
 training_CPPFLAGS += $(ICU_UC_CFLAGS) $(ICU_I18N_CFLAGS)
 training_CPPFLAGS += $(pango_CFLAGS)
 training_CPPFLAGS += $(cairo_CFLAGS)
