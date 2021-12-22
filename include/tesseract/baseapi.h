@@ -154,7 +154,7 @@ public:
   /**
    * Print Tesseract fonts table to the given file.
    */
-  void PrintFontsTable(FILE* fp) const;
+  void PrintFontsTable(FILE *fp) const;
 
 #endif
 
@@ -246,14 +246,6 @@ public:
    * Returns the available languages in the sorted vector of std::string.
    */
   void GetAvailableLanguagesAsVector(std::vector<std::string> *langs) const;
-
-  /**
-   * Init only the lang model component of Tesseract. The only functions
-   * that work after this init are SetVariable and IsValidWord.
-   * WARNING: temporary! This function will be removed from here and placed
-   * in a separate API at some future time.
-   */
-  int InitLangMod(const char *datapath, const char *language);
 
   /**
    * Init only for page layout analysis. Use only for calls to SetImage and

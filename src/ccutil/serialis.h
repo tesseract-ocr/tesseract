@@ -76,7 +76,7 @@ public:
   // Note that mixed read/write is not supported.
   bool Open(const char *filename, FileReader reader);
   // From an existing memory buffer.
-  bool Open(const char *data, int size);
+  bool Open(const char *data, size_t size);
   // From an open file and an end offset.
   bool Open(FILE *fp, int64_t end_offset);
   // Sets the value of the swap flag, so that FReadEndian does the right thing.
@@ -92,7 +92,7 @@ public:
   //bool DeSerialize(std::vector<std::string> &data);
   template <typename T>
   bool DeSerialize(T *data, size_t count = 1) {
-    return FReadEndian(data, sizeof(T), count) == static_cast<int>(count);
+    return FReadEndian(data, sizeof(T), count) == count;
   }
   template <typename T>
   bool DeSerialize(std::vector<T> &data) {
@@ -104,7 +104,7 @@ public:
     } else if (size > 50000000) {
       // Arbitrarily limit the number of elements to protect against bad data.
       return false;
-    } else if constexpr (std::is_same_v<T, std::string>) {
+    } else if constexpr (std::is_same<T, std::string>::value) {
       // Deserialize a string.
       // TODO: optimize.
       data.resize(size);
@@ -113,7 +113,7 @@ public:
           return false;
         }
       }
-    } else if constexpr (std::is_class_v<T>) {
+    } else if constexpr (std::is_class<T>::value) {
       // Deserialize a tesseract class.
       // TODO: optimize.
       data.resize(size);
@@ -122,7 +122,7 @@ public:
           return false;
         }
       }
-    } else if constexpr (std::is_pointer_v<T>) {
+    } else if constexpr (std::is_pointer<T>::value) {
       // Deserialize pointers.
       // TODO: optimize.
       data.resize(size);
@@ -155,7 +155,7 @@ public:
   bool Serialize(const std::vector<char> &data);
   template <typename T>
   bool Serialize(const T *data, size_t count = 1) {
-    return FWrite(data, sizeof(T), count) == static_cast<int>(count);
+    return FWrite(data, sizeof(T), count) == count;
   }
   template <typename T>
   bool Serialize(const std::vector<T> &data) {
@@ -163,21 +163,21 @@ public:
     uint32_t size = data.size();
     if (!Serialize(&size)) {
       return false;
-    } else if constexpr (std::is_same_v<T, std::string>) {
+    } else if constexpr (std::is_same<T, std::string>::value) {
       // Serialize strings.
       for (auto string : data) {
         if (!Serialize(string)) {
           return false;
         }
       }
-    } else if constexpr (std::is_class_v<T>) {
+    } else if constexpr (std::is_class<T>::value) {
       // Serialize a tesseract class.
       for (auto &item : data) {
         if (!item.Serialize(this)) {
           return false;
         }
       }
-    } else if constexpr (std::is_pointer_v<T>) {
+    } else if constexpr (std::is_pointer<T>::value) {
       // Serialize pointers.
       for (auto &item : data) {
         uint8_t non_null = (item != nullptr);
@@ -207,9 +207,9 @@ public:
   // Replicates fread, followed by a swap of the bytes if needed, returning the
   // number of items read. If swap_ is true then the count items will each have
   // size bytes reversed.
-  int FReadEndian(void *buffer, size_t size, int count);
+  size_t FReadEndian(void *buffer, size_t size, size_t count);
   // Replicates fread, returning the number of items read.
-  int FRead(void *buffer, size_t size, int count);
+  size_t FRead(void *buffer, size_t size, size_t count);
   // Resets the TFile as if it has been Opened, but nothing read.
   // Only allowed while reading!
   void Rewind();
@@ -222,19 +222,19 @@ public:
 
   // Replicates fwrite, returning the number of items written.
   // To use fprintf, use snprintf and FWrite.
-  int FWrite(const void *buffer, size_t size, int count);
+  size_t FWrite(const void *buffer, size_t size, size_t count);
 
 private:
   // The buffered data from the file.
-  std::vector<char> *data_;
+  std::vector<char> *data_ = nullptr;
   // The number of bytes used so far.
-  int offset_;
+  unsigned offset_ = 0;
   // True if the data_ pointer is owned by *this.
-  bool data_is_owned_;
+  bool data_is_owned_ = false;
   // True if the TFile is open for writing.
-  bool is_writing_;
+  bool is_writing_ = false;
   // True if bytes need to be swapped in FReadEndian.
-  bool swap_;
+  bool swap_ = false;
 };
 
 } // namespace tesseract.

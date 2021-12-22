@@ -20,13 +20,21 @@
 #define TESSERACT_CCMAIN_THRESHOLDER_H_
 
 #include <tesseract/export.h>
-#include <tesseract/publictypes.h>
 
 #include <vector> // for std::vector
 
 struct Pix;
 
 namespace tesseract {
+
+enum class ThresholdMethod {
+  Otsu,          // Tesseract's legacy Otsu
+  LeptonicaOtsu, // Leptonica's Otsu
+  Sauvola,       // Leptonica's Sauvola
+  Max,           // Number of Thresholding methods
+};
+
+class TessBaseAPI;
 
 /// Base class for all tesseract image thresholding classes.
 /// Specific classes can add new thresholding methods by
@@ -121,7 +129,7 @@ public:
   /// Returns false on error.
   virtual bool ThresholdToPix(Image *pix);
 
-  virtual std::tuple<bool, Image, Image, Image> Threshold(
+  virtual std::tuple<bool, Image, Image, Image> Threshold(TessBaseAPI *api,
                                                           ThresholdMethod method);
 
   // Gets a pix that contains an 8 bit threshold value at each pixel. The

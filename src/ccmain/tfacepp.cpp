@@ -47,14 +47,7 @@ void Tesseract::recog_word(WERD_RES *word) {
   ASSERT_HOST(!word->chopped_word->blobs.empty());
   recog_word_recursive(word);
   word->SetupBoxWord();
-  if (word->best_choice->length() != word->box_word->length()) {
-    tprintf(
-        "recog_word ASSERT FAIL String:\"%s\"; "
-        "Strlen=%d; #Blobs=%d\n",
-        word->best_choice->debug_string().c_str(), word->best_choice->length(),
-        word->box_word->length());
-  }
-  ASSERT_HOST(word->best_choice->length() == word->box_word->length());
+  ASSERT_HOST(static_cast<unsigned>(word->best_choice->length()) == word->box_word->length());
   // Check that the ratings matrix size matches the sum of all the
   // segmentation states.
   if (!word->StatesAllValid()) {
@@ -82,7 +75,7 @@ void Tesseract::recog_word(WERD_RES *word) {
   // Factored out from control.cpp
   ASSERT_HOST((word->best_choice == nullptr) == (word->raw_choice == nullptr));
   if (word->best_choice == nullptr || word->best_choice->empty() ||
-      static_cast<int>(strspn(word->best_choice->unichar_string().c_str(), " ")) ==
+      strspn(word->best_choice->unichar_string().c_str(), " ") ==
           word->best_choice->length()) {
     word->tess_failed = true;
     word->reject_map.initialise(word->box_word->length());
@@ -99,7 +92,7 @@ void Tesseract::recog_word(WERD_RES *word) {
  * Convert the output back to editor form.
  **********************************************************************/
 void Tesseract::recog_word_recursive(WERD_RES *word) {
-  int word_length = word->chopped_word->NumBlobs(); // no of blobs
+  auto word_length = word->chopped_word->NumBlobs(); // no of blobs
   if (word_length > MAX_UNDIVIDED_LENGTH) {
     return split_and_recog_word(word);
   }
@@ -134,7 +127,7 @@ void Tesseract::split_and_recog_word(WERD_RES *word) {
   // Find the biggest blob gap in the chopped_word.
   int bestgap = -INT32_MAX;
   int split_index = 0;
-  for (int b = 1; b < word->chopped_word->NumBlobs(); ++b) {
+  for (unsigned b = 1; b < word->chopped_word->NumBlobs(); ++b) {
     TBOX prev_box = word->chopped_word->blobs[b - 1]->bounding_box();
     TBOX blob_box = word->chopped_word->blobs[b]->bounding_box();
     int gap = blob_box.left() - prev_box.right();
@@ -167,7 +160,7 @@ void Tesseract::split_and_recog_word(WERD_RES *word) {
  * and will now be owned by the caller.  New blamer bundles are forged for the
  * two pieces.
  **********************************************************************/
-void Tesseract::split_word(WERD_RES *word, int split_pt, WERD_RES **right_piece,
+void Tesseract::split_word(WERD_RES *word, unsigned split_pt, WERD_RES **right_piece,
                            BlamerBundle **orig_blamer_bundle) const {
   ASSERT_HOST(split_pt > 0 && split_pt < word->chopped_word->NumBlobs());
 
@@ -181,7 +174,7 @@ void Tesseract::split_word(WERD_RES *word, int split_pt, WERD_RES **right_piece,
   TWERD *chopped = word->chopped_word;
   auto *chopped2 = new TWERD;
   chopped2->blobs.reserve(chopped->NumBlobs() - split_pt);
-  for (int i = split_pt; i < chopped->NumBlobs(); ++i) {
+  for (auto i = split_pt; i < chopped->NumBlobs(); ++i) {
     chopped2->blobs.push_back(chopped->blobs[i]);
   }
   chopped->blobs.resize(split_pt);

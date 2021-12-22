@@ -74,9 +74,9 @@ void SVSync::StartProcess(const char *executable, const char *args) {
   STARTUPINFO start_info;
   PROCESS_INFORMATION proc_info;
   GetStartupInfo(&start_info);
-  if (!CreateProcess(nullptr, const_cast<char *>(proc.c_str()), nullptr, nullptr, FALSE,
-                     CREATE_NO_WINDOW | DETACHED_PROCESS, nullptr, nullptr, &start_info,
-                     &proc_info))
+  if (!CreateProcess(nullptr, const_cast<char *>(proc.c_str()), nullptr,
+                     nullptr, FALSE, CREATE_NO_WINDOW | DETACHED_PROCESS,
+                     nullptr, nullptr, &start_info, &proc_info))
     return;
 #  else
   int pid = fork();
@@ -131,13 +131,13 @@ SVSemaphore::SVSemaphore() {
 }
 
 SVSemaphore::~SVSemaphore() {
-#ifdef _WIN32
+#  ifdef _WIN32
   CloseHandle(semaphore_);
-#elif defined(__APPLE__)
+#  elif defined(__APPLE__)
   sem_close(semaphore_);
-#else
+#  else
   sem_close(&semaphore_);
-#endif
+#  endif
 }
 
 void SVSemaphore::Signal() {
@@ -243,14 +243,15 @@ static const char *ScrollViewProg() {
 }
 
 // The arguments to the program to invoke to start ScrollView
-static std::string ScrollViewCommand(std::string scrollview_path) {
+static std::string ScrollViewCommand(const std::string &scrollview_path) {
   // The following ugly ifdef is to enable the output of the java runtime
   // to be sent down a black hole on non-windows to ignore all the
   // exceptions in piccolo. Ideally piccolo would be debugged to make
   // this unnecessary.
   // Also the path has to be separated by ; on windows and : otherwise.
 #  ifdef _WIN32
-  const char cmd_template[] = "-Djava.library.path=\"%s\" -jar \"%s/ScrollView.jar\"";
+  const char cmd_template[] =
+      "-Djava.library.path=\"%s\" -jar \"%s/ScrollView.jar\"";
 
 #  else
   const char cmd_template[] =
@@ -289,14 +290,15 @@ SVNetwork::SVNetwork(const char *hostname, int port) {
 #  endif // _WIN32
 
   if (getaddrinfo(hostname, port_string.c_str(), nullptr, &addr_info) != 0) {
-    std::cerr << "Error resolving name for ScrollView host " << std::string(hostname) << ":" << port
-              << std::endl;
+    std::cerr << "Error resolving name for ScrollView host "
+              << std::string(hostname) << ":" << port << std::endl;
 #  ifdef _WIN32
     WSACleanup();
 #  endif // _WIN32
   }
 
-  stream_ = socket(addr_info->ai_family, addr_info->ai_socktype, addr_info->ai_protocol);
+  stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
+                   addr_info->ai_protocol);
 
   if (stream_ < 0) {
     std::cerr << "Failed to open socket" << std::endl;
@@ -324,7 +326,8 @@ SVNetwork::SVNetwork(const char *hostname, int port) {
 
     Close();
     for (;;) {
-      stream_ = socket(addr_info->ai_family, addr_info->ai_socktype, addr_info->ai_protocol);
+      stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
+                       addr_info->ai_protocol);
       if (stream_ >= 0) {
         if (connect(stream_, addr_info->ai_addr, addr_info->ai_addrlen) == 0) {
           break;

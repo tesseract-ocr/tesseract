@@ -106,7 +106,7 @@ public:
   // Each element of the returned list is the start (x) and extent(y) of
   // a run inside the region.
   // Delete the returned list after use.
-  ICOORDELT_LIST *get_line(int16_t y);
+  ICOORDELT_LIST *get_line(TDimension y);
 
 private:
   POLY_BLOCK *block;

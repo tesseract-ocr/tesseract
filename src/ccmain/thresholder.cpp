@@ -25,6 +25,7 @@
 #endif
 
 #include <allheaders.h>
+#include <tesseract/baseapi.h> // for api->GetIntVariable()
 
 #include <cstdint> // for uint32_t
 #include <cstring>
@@ -186,7 +187,8 @@ void ImageThresholder::SetImage(const Image pix) {
 }
 
 std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
-                                                         ThresholdMethod method) {
+                                                      TessBaseAPI *api,
+                                                      ThresholdMethod method) {
   Image pix_binary = nullptr;
   Image pix_thresholds = nullptr;
 
@@ -196,19 +198,83 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     Image original = GetPixRect();
     pix_binary = original.copy();
     original.destroy();
-    return std::make_tuple(false, nullptr, pix_binary, nullptr);
+    return std::make_tuple(true, nullptr, pix_binary, nullptr);
   }
 
   auto pix_grey = GetPixRectGrey();
 
   int r;
+
+  l_int32 pix_w, pix_h;
+  pixGetDimensions(pix_grey, &pix_w, &pix_h, nullptr);
+
+  bool thresholding_debug;
+  api->GetBoolVariable("thresholding_debug", &thresholding_debug);
+  if (thresholding_debug) {
+    tprintf("\nimage width: %d  height: %d  ppi: %d\n", pix_w, pix_h, yres_);
+  }
+
   if (method == ThresholdMethod::Sauvola) {
-    r = pixSauvolaBinarizeTiled(pix_grey, 25, 0.40, 300, 300, (PIX**)pix_thresholds,
+    int window_size;
+    double window_size_factor;
+    api->GetDoubleVariable("thresholding_window_size", &window_size_factor);
+    window_size = window_size_factor * yres_;
+    window_size = std::max(7, window_size);
+    window_size = std::min(pix_w < pix_h ? pix_w - 3 : pix_h - 3, window_size);
+    int half_window_size = window_size / 2;
+
+    // factor for image division into tiles; >= 1
+    l_int32 nx, ny;
+    // tiles size will be approx. 250 x 250 pixels
+    nx = std::max(1, (pix_w + 125) / 250);
+    ny = std::max(1, (pix_h + 125) / 250);
+    auto xrat = pix_w / nx;
+    auto yrat = pix_h / ny;
+    if (xrat < half_window_size + 2) {
+      nx = pix_w / (half_window_size + 2);
+    }
+    if (yrat < half_window_size + 2) {
+      ny = pix_h / (half_window_size + 2);
+    }
+
+    double kfactor;
+    api->GetDoubleVariable("thresholding_kfactor", &kfactor);
+    kfactor = std::max(0.0, kfactor);
+
+    if (thresholding_debug) {
+      tprintf("window size: %d  kfactor: %.3f  nx:%d  ny: %d\n", window_size, kfactor, nx, ny);
+    }
+
+    r = pixSauvolaBinarizeTiled(pix_grey, half_window_size, kfactor, nx, ny,
+                               (PIX**)pix_thresholds,
                                 (PIX**)pix_binary);
-  } else {
-    // AdaptiveOtsu.
-    r = pixOtsuAdaptiveThreshold(pix_grey, 300, 300, 0, 0, 0.1,
-                                 (PIX**)pix_thresholds, (PIX**)pix_binary);
+  } else { // if (method == ThresholdMethod::LeptonicaOtsu)
+    int tile_size;
+    double tile_size_factor;
+    api->GetDoubleVariable("thresholding_tile_size", &tile_size_factor);
+    tile_size = tile_size_factor * yres_;
+    tile_size = std::max(16, tile_size);
+
+    int smooth_size;
+    double smooth_size_factor;
+    api->GetDoubleVariable("thresholding_smooth_kernel_size",
+                         &smooth_size_factor);
+    smooth_size_factor = std::max(0.0, smooth_size_factor);
+    smooth_size = smooth_size_factor * yres_;
+    int half_smooth_size = smooth_size / 2;
+
+    double score_fraction;
+    api->GetDoubleVariable("thresholding_score_fraction", &score_fraction);
+
+    if (thresholding_debug) {
+      tprintf("tile size: %d  smooth_size: %d  score_fraction: %.2f\n", tile_size, smooth_size, score_fraction);
+    }
+
+    r = pixOtsuAdaptiveThreshold(pix_grey, tile_size, tile_size,
+                                 half_smooth_size, half_smooth_size,
+                                 score_fraction,
+                                 (PIX**)pix_thresholds,
+                                 (PIX**)pix_binary);
   }
 
   bool ok = (r == 0);

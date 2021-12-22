@@ -69,7 +69,7 @@ float CompareProtos(PROTO_STRUCT *p1, PROTO_STRUCT *p2) {
   float Angle, Length;
 
   /* if p1 and p2 are not close in length, don't let them match */
-  Length = fabs(p1->Length - p2->Length);
+  Length = std::fabs(p1->Length - p2->Length);
   if (Length > MAX_LENGTH_MISMATCH) {
     return (0.0);
   }
@@ -88,8 +88,8 @@ float CompareProtos(PROTO_STRUCT *p1, PROTO_STRUCT *p2) {
   }
 
   /* set the dummy pico-feature at one end of p1 and match it to p2 */
-  Feature->Params[PicoFeatX] = p1->X + cos(Angle) * Length;
-  Feature->Params[PicoFeatY] = p1->Y + sin(Angle) * Length;
+  Feature->Params[PicoFeatX] = p1->X + std::cos(Angle) * Length;
+  Feature->Params[PicoFeatY] = p1->Y + std::sin(Angle) * Length;
   if (DummyFastMatch(Feature, p2)) {
     Evidence = SubfeatureEvidence(Feature, p2);
     if (Evidence < WorstEvidence) {
@@ -101,8 +101,8 @@ float CompareProtos(PROTO_STRUCT *p1, PROTO_STRUCT *p2) {
   }
 
   /* set the dummy pico-feature at the other end of p1 and match it to p2 */
-  Feature->Params[PicoFeatX] = p1->X - cos(Angle) * Length;
-  Feature->Params[PicoFeatY] = p1->Y - sin(Angle) * Length;
+  Feature->Params[PicoFeatX] = p1->X - std::cos(Angle) * Length;
+  Feature->Params[PicoFeatY] = p1->Y - std::sin(Angle) * Length;
   if (DummyFastMatch(Feature, p2)) {
     Evidence = SubfeatureEvidence(Feature, p2);
     if (Evidence < WorstEvidence) {
@@ -266,7 +266,7 @@ bool DummyFastMatch(FEATURE Feature, PROTO_STRUCT *Proto) {
   float AngleError;
 
   MaxAngleError = training_angle_pad / 360.0;
-  AngleError = fabs(Proto->Angle - Feature->Params[PicoFeatDir]);
+  AngleError = std::fabs(Proto->Angle - Feature->Params[PicoFeatDir]);
   if (AngleError > 0.5) {
     AngleError = 1.0 - AngleError;
   }
@@ -296,8 +296,8 @@ void ComputePaddedBoundingBox(PROTO_STRUCT *Proto, float TangentPad, float Ortho
                               FRECT *BoundingBox) {
   float Length = Proto->Length / 2.0 + TangentPad;
   float Angle = Proto->Angle * 2.0 * M_PI;
-  float CosOfAngle = fabs(cos(Angle));
-  float SinOfAngle = fabs(sin(Angle));
+  float CosOfAngle = fabs(std::cos(Angle));
+  float SinOfAngle = fabs(std::sin(Angle));
 
   float Pad = std::max(CosOfAngle * Length, SinOfAngle * OrthogonalPad);
   BoundingBox->MinX = Proto->X - Pad;

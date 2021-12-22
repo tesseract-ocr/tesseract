@@ -112,7 +112,10 @@ int main(int argc, char **argv) {
   tesseract::LSTMTrainer trainer(FLAGS_model_output.c_str(), checkpoint_file.c_str(),
                                  FLAGS_debug_interval,
                                  static_cast<int64_t>(FLAGS_max_image_MB) * 1048576);
-  trainer.InitCharSet(FLAGS_traineddata.c_str());
+  if (!trainer.InitCharSet(FLAGS_traineddata.c_str())) {
+    tprintf("Error, failed to read %s\n", FLAGS_traineddata.c_str());
+    return EXIT_FAILURE;
+  }
 
   // Reading something from an existing model doesn't require many flags,
   // so do it now and exit.
@@ -224,6 +227,7 @@ int main(int argc, char **argv) {
     tprintf("%s\n", log_str.c_str());
   } while (trainer.best_error_rate() > FLAGS_target_error_rate &&
            (trainer.training_iteration() < max_iterations));
-  tprintf("Finished! Error rate = %g\n", trainer.best_error_rate());
+  tprintf("Finished! Selected model with minimal training error rate (BCER) = %g\n",
+          trainer.best_error_rate());
   return EXIT_SUCCESS;
 } /* main */

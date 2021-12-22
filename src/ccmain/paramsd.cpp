@@ -278,7 +278,7 @@ void ParamsEditor::Notify(const SVEvent *sve) {
     } else {
       ParamContent *vc = ParamContent::GetParamContentById(sve->command_id);
       vc->SetValue(param);
-      sv_window_->AddMessage("Setting %s to %s", vc->GetName(), vc->GetValue().c_str());
+      sv_window_->AddMessageF("Setting %s to %s", vc->GetName(), vc->GetValue().c_str());
     }
   }
 }
@@ -336,11 +336,7 @@ void ParamsEditor::WriteParams(char *filename, bool changes_only) {
 
   fp = fopen(filename, "wb"); // can we write to it?
   if (fp == nullptr) {
-    sv_window_->AddMessage(
-        "Can't write to file "
-        "%s"
-        "",
-        filename);
+    sv_window_->AddMessageF("Can't write to file %s", filename);
     return;
   }
   for (auto &iter : vcMap) {

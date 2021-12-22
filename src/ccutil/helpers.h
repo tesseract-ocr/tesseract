@@ -21,6 +21,7 @@
 #define TESSERACT_CCUTIL_HELPERS_H_
 
 #include <cassert>
+#include <climits> // for INT_MIN, INT_MAX
 #include <cmath> // std::isfinite
 #include <cstdio>
 #include <cstring>
@@ -173,6 +174,8 @@ inline int DivRounded(int a, int b) {
 // Return a double cast to int with rounding.
 inline int IntCastRounded(double x) {
   assert(std::isfinite(x));
+  assert(x < INT_MAX);
+  assert(x > INT_MIN);
   return x >= 0.0 ? static_cast<int>(x + 0.5) : -static_cast<int>(-x + 0.5);
 }
 
@@ -249,7 +252,7 @@ bool Serialize(FILE *fp, const std::vector<T> &data) {
   uint32_t size = data.size();
   if (fwrite(&size, sizeof(size), 1, fp) != 1) {
     return false;
-  } else if constexpr (std::is_class_v<T>) {
+  } else if constexpr (std::is_class<T>::value) {
     // Serialize a tesseract class.
     for (auto &item : data) {
       if (!item.Serialize(fp)) {

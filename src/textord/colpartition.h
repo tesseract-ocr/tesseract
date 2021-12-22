@@ -81,7 +81,8 @@ public:
    * Constructs a fake ColPartition with no BLOBNBOXes to represent a
    * horizontal or vertical line, given a type and a bounding box.
    */
-  static ColPartition *MakeLinePartition(BlobRegionType blob_type, const ICOORD &vertical, int left,
+  static ColPartition *MakeLinePartition(BlobRegionType blob_type,
+                                         const ICOORD &vertical, int left,
                                          int bottom, int right, int top);
 
   // Constructs and returns a fake ColPartition with a single fake BLOBNBOX,
@@ -90,14 +91,16 @@ public:
   // the ColPartition owns the BLOBNBOX!!!
   // Call DeleteBoxes before deleting the ColPartition.
   static ColPartition *FakePartition(const TBOX &box, PolyBlockType block_type,
-                                     BlobRegionType blob_type, BlobTextFlowType flow);
+                                     BlobRegionType blob_type,
+                                     BlobTextFlowType flow);
 
   // Constructs and returns a ColPartition with the given real BLOBNBOX,
   // and sets it up to be a "big" partition (single-blob partition bigger
   // than the surrounding text that may be a dropcap, two or more vertically
   // touching characters, or some graphic element.
   // If the given list is not nullptr, the partition is also added to the list.
-  static ColPartition *MakeBigPartition(BLOBNBOX *box, ColPartition_LIST *big_part_list);
+  static ColPartition *MakeBigPartition(BLOBNBOX *box,
+                                        ColPartition_LIST *big_part_list);
 
   ~ColPartition();
 
@@ -389,7 +392,8 @@ public:
       return false;
     }
     int overlap = VCoreOverlap(other);
-    int height = std::min(median_top_ - median_bottom_, other.median_top_ - other.median_bottom_);
+    int height = std::min(median_top_ - median_bottom_,
+                          other.median_top_ - other.median_bottom_);
     return overlap * 3 > height;
   }
   // Returns true if this and other can be combined without putting a
@@ -412,7 +416,8 @@ public:
 
   // Returns true if the types are similar to each other.
   static bool TypesSimilar(PolyBlockType type1, PolyBlockType type2) {
-    return (type1 == type2 || (type1 == PT_FLOWING_TEXT && type2 == PT_INLINE_EQUATION) ||
+    return (type1 == type2 ||
+            (type1 == PT_FLOWING_TEXT && type2 == PT_INLINE_EQUATION) ||
             (type2 == PT_FLOWING_TEXT && type1 == PT_INLINE_EQUATION));
   }
 
@@ -519,7 +524,8 @@ public:
   bool ConfirmNoTabViolation(const ColPartition &other) const;
 
   // Returns true if other has a similar stroke width to this.
-  bool MatchingStrokeWidth(const ColPartition &other, double fractional_tolerance,
+  bool MatchingStrokeWidth(const ColPartition &other,
+                           double fractional_tolerance,
                            double constant_tolerance) const;
   // Returns true if candidate is an acceptable diacritic base char merge
   // with this as the diacritic.
@@ -548,7 +554,8 @@ public:
   // Set the density value for a particular BlobSpecialTextType, should ONLY be
   // used for debugging or testing. In production code, use
   // ComputeSpecialBlobsDensity instead.
-  void SetSpecialBlobsDensity(const BlobSpecialTextType type, const float density);
+  void SetSpecialBlobsDensity(const BlobSpecialTextType type,
+                              const float density);
   // Compute the SpecialTextType density of blobs, where we assume
   // that the SpecialTextType in the boxes_ has been set.
   void ComputeSpecialBlobsDensity();
@@ -565,14 +572,14 @@ public:
   ColPartition *SingletonPartner(bool upper);
 
   // Merge with the other partition and delete it.
-  void Absorb(ColPartition *other, WidthCallback cb);
+  void Absorb(ColPartition *other, const WidthCallback &cb);
 
   // Returns true if the overlap between this and the merged pair of
   // merge candidates is sufficiently trivial to be allowed.
   // The merged box can graze the edge of this by the ok_box_overlap
   // if that exceeds the margin to the median top and bottom.
-  bool OKMergeOverlap(const ColPartition &merge1, const ColPartition &merge2, int ok_box_overlap,
-                      bool debug);
+  bool OKMergeOverlap(const ColPartition &merge1, const ColPartition &merge2,
+                      int ok_box_overlap, bool debug);
 
   // Find the blob at which to split this to minimize the overlap with the
   // given box. Returns the first blob to go in the second partition.
@@ -606,10 +613,11 @@ public:
 
   // Returns the first and last column touched by this partition.
   // resolution refers to the ppi resolution of the image.
-  void ColumnRange(int resolution, ColPartitionSet *columns, int *first_col, int *last_col);
+  void ColumnRange(int resolution, ColPartitionSet *columns, int *first_col,
+                   int *last_col);
 
   // Sets the internal flags good_width_ and good_column_.
-  void SetColumnGoodness(WidthCallback cb);
+  void SetColumnGoodness(const WidthCallback &cb);
 
   // Determines whether the blobs in this partition mostly represent
   // a leader (fixed pitch sequence) and sets the member blobs accordingly.
@@ -634,8 +642,9 @@ public:
 
   // Adds this ColPartition to a matching WorkingPartSet if one can be found,
   // otherwise starts a new one in the appropriate column, ending the previous.
-  void AddToWorkingSet(const ICOORD &bleft, const ICOORD &tright, int resolution,
-                       ColPartition_LIST *used_parts, WorkingPartSet_LIST *working_set);
+  void AddToWorkingSet(const ICOORD &bleft, const ICOORD &tright,
+                       int resolution, ColPartition_LIST *used_parts,
+                       WorkingPartSet_LIST *working_set);
 
   // From the given block_parts list, builds one or more BLOCKs and
   // corresponding TO_BLOCKs, such that the line spacing is uniform in each.
@@ -643,17 +652,21 @@ public:
   // The used partitions are put onto used_parts, as they may still be referred
   // to in the partition grid. bleft, tright and resolution are the bounds
   // and resolution of the original image.
-  static void LineSpacingBlocks(const ICOORD &bleft, const ICOORD &tright, int resolution,
-                                ColPartition_LIST *block_parts, ColPartition_LIST *used_parts,
-                                BLOCK_LIST *completed_blocks, TO_BLOCK_LIST *to_blocks);
+  static void LineSpacingBlocks(const ICOORD &bleft, const ICOORD &tright,
+                                int resolution, ColPartition_LIST *block_parts,
+                                ColPartition_LIST *used_parts,
+                                BLOCK_LIST *completed_blocks,
+                                TO_BLOCK_LIST *to_blocks);
   // Constructs a block from the given list of partitions.
   // Arguments are as LineSpacingBlocks above.
   static TO_BLOCK *MakeBlock(const ICOORD &bleft, const ICOORD &tright,
-                             ColPartition_LIST *block_parts, ColPartition_LIST *used_parts);
+                             ColPartition_LIST *block_parts,
+                             ColPartition_LIST *used_parts);
 
   // Constructs a block from the given list of vertical text partitions.
   // Currently only creates rectangular blocks.
-  static TO_BLOCK *MakeVerticalTextBlock(const ICOORD &bleft, const ICOORD &tright,
+  static TO_BLOCK *MakeVerticalTextBlock(const ICOORD &bleft,
+                                         const ICOORD &tright,
                                          ColPartition_LIST *block_parts,
                                          ColPartition_LIST *used_parts);
 
@@ -686,7 +699,8 @@ public:
   // one partner. This makes block creation simpler.
   // If get_desperate is true, goes to more desperate merge methods
   // to merge flowing text before breaking partnerships.
-  void RefinePartners(PolyBlockType type, bool get_desperate, ColPartitionGrid *grid);
+  void RefinePartners(PolyBlockType type, bool get_desperate,
+                      ColPartitionGrid *grid);
 
   // Returns true if this column partition is in the same column as
   // part. This function will only work after the SetPartitionType function
@@ -700,8 +714,10 @@ public:
     const ColPartition *part2 = *static_cast<const ColPartition *const *>(p2);
     int mid_y1 = part1->bounding_box_.y_middle();
     int mid_y2 = part2->bounding_box_.y_middle();
-    if ((part2->bounding_box_.bottom() <= mid_y1 && mid_y1 <= part2->bounding_box_.top()) ||
-        (part1->bounding_box_.bottom() <= mid_y2 && mid_y2 <= part1->bounding_box_.top())) {
+    if ((part2->bounding_box_.bottom() <= mid_y1 &&
+         mid_y1 <= part2->bounding_box_.top()) ||
+        (part1->bounding_box_.bottom() <= mid_y2 &&
+         mid_y2 <= part1->bounding_box_.top())) {
       // Sort by increasing x.
       return part1->bounding_box_.x_middle() - part2->bounding_box_.x_middle();
     }
@@ -721,7 +737,8 @@ private:
   // Cleans up the partners above if upper is true, else below.
   // If get_desperate is true, goes to more desperate merge methods
   // to merge flowing text before breaking partnerships.
-  void RefinePartnersInternal(bool upper, bool get_desperate, ColPartitionGrid *grid);
+  void RefinePartnersInternal(bool upper, bool get_desperate,
+                              ColPartitionGrid *grid);
   // Restricts the partners to only desirable types. For text and BRT_HLINE this
   // means the same type_ , and for image types it means any image type.
   void RefinePartnersByType(bool upper, ColPartition_CLIST *partners);
@@ -736,7 +753,8 @@ private:
   // is set, indicating that the textlines probably need to be regenerated
   // by aggressive line fitting/splitting, as there are probably vertically
   // joined blobs that cross textlines.
-  void RefineTextPartnersByMerge(bool upper, bool desperate, ColPartition_CLIST *partners,
+  void RefineTextPartnersByMerge(bool upper, bool desperate,
+                                 ColPartition_CLIST *partners,
                                  ColPartitionGrid *grid);
   // Keep the partner with the biggest overlap.
   void RefinePartnersByOverlap(bool upper, ColPartition_CLIST *partners);
@@ -747,12 +765,14 @@ private:
   // Smoothes the spacings in the list into groups of equal linespacing.
   // resolution is the resolution of the original image, used as a basis
   // for thresholds in change of spacing. page_height is in pixels.
-  static void SmoothSpacings(int resolution, int page_height, ColPartition_LIST *parts);
+  static void SmoothSpacings(int resolution, int page_height,
+                             ColPartition_LIST *parts);
 
   // Returns true if the parts array of pointers to partitions matches the
   // condition for a spacing blip. See SmoothSpacings for what this means
   // and how it is used.
-  static bool OKSpacingBlip(int resolution, int median_spacing, ColPartition **parts, int offset);
+  static bool OKSpacingBlip(int resolution, int median_spacing,
+                            ColPartition **parts, int offset);
 
   // Returns true if both the top and bottom spacings of this match the given
   // spacing to within suitable margins dictated by the image resolution.
@@ -765,7 +785,8 @@ private:
   // Returns true if the sum spacing of this and other match the given
   // spacing (or twice the given spacing) to within a suitable margin dictated
   // by the image resolution.
-  bool SummedSpacingOK(const ColPartition &other, int spacing, int resolution) const;
+  bool SummedSpacingOK(const ColPartition &other, int spacing,
+                       int resolution) const;
 
   // Returns a suitable spacing margin that can be applied to bottoms of
   // text lines, based on the resolution and the stored side_step_.
@@ -792,7 +813,8 @@ private:
   // rightmost right bounding box edge.
   // TODO(rays) Not good enough. Needs improving to tightly wrap text in both
   // directions, and to loosely wrap images.
-  static void RightEdgeRun(ColPartition_IT *part_it, ICOORD *start, ICOORD *end);
+  static void RightEdgeRun(ColPartition_IT *part_it, ICOORD *start,
+                           ICOORD *end);
 
   // The margins are determined by the position of the nearest vertically
   // overlapping neighbour to the side. They indicate the maximum extent
@@ -893,7 +915,8 @@ private:
 };
 
 // Typedef it now in case it becomes a class later.
-using ColPartitionGridSearch = GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>;
+using ColPartitionGridSearch =
+    GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>;
 
 } // namespace tesseract.
 

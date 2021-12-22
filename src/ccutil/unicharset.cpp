@@ -58,24 +58,26 @@ const double kMinXHeightFraction = 0.25;
 const double kMinCapHeightFraction = 0.05;
 
 /*static */
-const char *UNICHARSET::kCustomLigatures[][2] = {{"ct", "\uE003"}, // c + t -> U+E003
-                                                 {"ſh", "\uE006"}, // long-s + h -> U+E006
-                                                 {"ſi", "\uE007"}, // long-s + i -> U+E007
-                                                 {"ſl", "\uE008"}, // long-s + l -> U+E008
-                                                 {"ſſ", "\uE009"}, // long-s + long-s -> U+E009
-                                                 {nullptr, nullptr}};
+const char *UNICHARSET::kCustomLigatures[][2] = {
+    {"ct", "\uE003"}, // c + t -> U+E003
+    {"ſh", "\uE006"}, // long-s + h -> U+E006
+    {"ſi", "\uE007"}, // long-s + i -> U+E007
+    {"ſl", "\uE008"}, // long-s + l -> U+E008
+    {"ſſ", "\uE009"}, // long-s + long-s -> U+E009
+    {nullptr, nullptr}};
 
 // List of mappings to make when ingesting strings from the outside.
 // The substitutions clean up text that should exist for rendering of
 // synthetic data, but not in the recognition set.
-const char *UNICHARSET::kCleanupMaps[][2] = {{"\u0640", ""},   // TATWEEL is deleted.
-                                             {"\ufb01", "fi"}, // fi ligature->fi pair.
-                                             {"\ufb02", "fl"}, // fl ligature->fl pair.
-                                             {nullptr, nullptr}};
+const char *UNICHARSET::kCleanupMaps[][2] = {
+    {"\u0640", ""},   // TATWEEL is deleted.
+    {"\ufb01", "fi"}, // fi ligature->fi pair.
+    {"\ufb02", "fl"}, // fl ligature->fl pair.
+    {nullptr, nullptr}};
 
 // List of strings for the SpecialUnicharCodes. Keep in sync with the enum.
-const char *UNICHARSET::kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT] = {" ", "Joined",
-                                                                             "|Broken|0|1"};
+const char *UNICHARSET::kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT] = {
+    " ", "Joined", "|Broken|0|1"};
 
 const char *UNICHARSET::null_script = "NULL";
 
@@ -137,7 +139,8 @@ bool UNICHARSET::UNICHAR_PROPERTIES::AnyRangeEmpty() const {
 }
 
 // Expands the ranges with the ranges from the src properties.
-void UNICHARSET::UNICHAR_PROPERTIES::ExpandRangesFrom(const UNICHAR_PROPERTIES &src) {
+void UNICHARSET::UNICHAR_PROPERTIES::ExpandRangesFrom(
+    const UNICHAR_PROPERTIES &src) {
   UpdateRange(src.min_bottom, &min_bottom, &max_bottom);
   UpdateRange(src.max_bottom, &min_bottom, &max_bottom);
   UpdateRange(src.min_top, &min_top, &max_top);
@@ -164,7 +167,8 @@ void UNICHARSET::UNICHAR_PROPERTIES::CopyFrom(const UNICHAR_PROPERTIES &src) {
   fragment = saved_fragment;
 }
 
-UNICHARSET::UNICHARSET() : ids(), script_table(nullptr), script_table_size_used(0) {
+UNICHARSET::UNICHARSET()
+    : ids(), script_table(nullptr), script_table_size_used(0) {
   clear();
   for (int i = 0; i < SPECIAL_UNICHAR_CODES_COUNT; ++i) {
     unichar_insert(kSpecialUnicharCodes[i]);
@@ -180,13 +184,15 @@ UNICHARSET::~UNICHARSET() {
 
 UNICHAR_ID
 UNICHARSET::unichar_to_id(const char *const unichar_repr) const {
-  std::string cleaned = old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
+  std::string cleaned =
+      old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
   return ids.contains(cleaned.data(), cleaned.size())
              ? ids.unichar_to_id(cleaned.data(), cleaned.size())
              : INVALID_UNICHAR_ID;
 }
 
-UNICHAR_ID UNICHARSET::unichar_to_id(const char *const unichar_repr, int length) const {
+UNICHAR_ID UNICHARSET::unichar_to_id(const char *const unichar_repr,
+                                     int length) const {
   assert(length > 0 && length <= UNICHAR_LEN);
   std::string cleaned(unichar_repr, length);
   if (!old_style_included_) {
@@ -215,7 +221,8 @@ int UNICHARSET::step(const char *str) const {
 // Return whether the given UTF-8 string is encodable with this UNICHARSET.
 // If not encodable, write the first byte offset which cannot be converted
 // into the second (return) argument.
-bool UNICHARSET::encodable_string(const char *str, unsigned *first_bad_position) const {
+bool UNICHARSET::encodable_string(const char *str,
+                                  unsigned *first_bad_position) const {
   std::vector<UNICHAR_ID> encoding;
   return encode_string(str, true, &encoding, nullptr, first_bad_position);
 }
@@ -230,7 +237,8 @@ bool UNICHARSET::encodable_string(const char *str, unsigned *first_bad_position)
 // that do not belong in the unicharset, or encoding may fail.
 // Use CleanupString to perform the cleaning.
 bool UNICHARSET::encode_string(const char *str, bool give_up_on_failure,
-                               std::vector<UNICHAR_ID> *encoding, std::vector<char> *lengths,
+                               std::vector<UNICHAR_ID> *encoding,
+                               std::vector<char> *lengths,
                                unsigned *encoded_length) const {
   std::vector<UNICHAR_ID> working_encoding;
   std::vector<char> working_lengths;
@@ -240,8 +248,8 @@ bool UNICHARSET::encode_string(const char *str, bool give_up_on_failure,
   unsigned str_pos = 0;
   bool perfect = true;
   while (str_pos < str_length) {
-    encode_string(str, str_pos, str_length, &working_encoding, &working_lengths, &str_pos, encoding,
-                  &best_lengths);
+    encode_string(str, str_pos, str_length, &working_encoding, &working_lengths,
+                  &str_pos, encoding, &best_lengths);
     if (str_pos < str_length) {
       // This is a non-match. Skip one utf-8 character.
       perfect = false;
@@ -272,7 +280,7 @@ const char *UNICHARSET::id_to_unichar(UNICHAR_ID id) const {
   if (id == INVALID_UNICHAR_ID) {
     return INVALID_UNICHAR;
   }
-  ASSERT_HOST(id < this->size());
+  ASSERT_HOST(static_cast<unsigned>(id) < this->size());
   return unichars[id].representation;
 }
 
@@ -280,7 +288,7 @@ const char *UNICHARSET::id_to_unichar_ext(UNICHAR_ID id) const {
   if (id == INVALID_UNICHAR_ID) {
     return INVALID_UNICHAR;
   }
-  ASSERT_HOST(id < this->size());
+  ASSERT_HOST(static_cast<unsigned>(id) < this->size());
   // Resolve from the kCustomLigatures table if this is a private encoding.
   if (get_isprivate(id)) {
     const char *ch = id_to_unichar(id);
@@ -357,8 +365,9 @@ void UNICHARSET::set_normed_ids(UNICHAR_ID unichar_id) {
   unichars[unichar_id].properties.normed_ids.clear();
   if (unichar_id == UNICHAR_SPACE && id_to_unichar(unichar_id)[0] == ' ') {
     unichars[unichar_id].properties.normed_ids.push_back(UNICHAR_SPACE);
-  } else if (!encode_string(unichars[unichar_id].properties.normed.c_str(), true,
-                            &unichars[unichar_id].properties.normed_ids, nullptr, nullptr)) {
+  } else if (!encode_string(unichars[unichar_id].properties.normed.c_str(),
+                            true, &unichars[unichar_id].properties.normed_ids,
+                            nullptr, nullptr)) {
     unichars[unichar_id].properties.normed_ids.clear();
     unichars[unichar_id].properties.normed_ids.push_back(unichar_id);
   }
@@ -383,8 +392,9 @@ void UNICHARSET::set_ranges_empty() {
 // Sets all the properties for this unicharset given a src unicharset with
 // everything set. The unicharsets don't have to be the same, and graphemes
 // are correctly accounted for.
-void UNICHARSET::PartialSetPropertiesFromOther(int start_index, const UNICHARSET &src) {
-  for (int ch = start_index; ch < unichars.size(); ++ch) {
+void UNICHARSET::PartialSetPropertiesFromOther(int start_index,
+                                               const UNICHARSET &src) {
+  for (unsigned ch = start_index; ch < unichars.size(); ++ch) {
     const char *utf8 = id_to_unichar(ch);
     UNICHAR_PROPERTIES properties;
     if (src.GetStrProperties(utf8, &properties)) {
@@ -464,8 +474,10 @@ void UNICHARSET::AppendOtherUnicharset(const UNICHARSET &src) {
 // Returns true if the acceptable ranges of the tops of the characters do
 // not overlap, making their x-height calculations distinct.
 bool UNICHARSET::SizesDistinct(UNICHAR_ID id1, UNICHAR_ID id2) const {
-  int overlap = std::min(unichars[id1].properties.max_top, unichars[id2].properties.max_top) -
-                std::max(unichars[id1].properties.min_top, unichars[id2].properties.min_top);
+  int overlap = std::min(unichars[id1].properties.max_top,
+                         unichars[id2].properties.max_top) -
+                std::max(unichars[id1].properties.min_top,
+                         unichars[id2].properties.min_top);
   return overlap <= 0;
 }
 
@@ -478,10 +490,12 @@ bool UNICHARSET::SizesDistinct(UNICHAR_ID id1, UNICHAR_ID id2) const {
 // the overall process of encoding a partially failed string more efficient.
 // See unicharset.h for definition of the args.
 void UNICHARSET::encode_string(const char *str, int str_index, int str_length,
-                               std::vector<UNICHAR_ID> *encoding, std::vector<char> *lengths,
-                               unsigned *best_total_length, std::vector<UNICHAR_ID> *best_encoding,
+                               std::vector<UNICHAR_ID> *encoding,
+                               std::vector<char> *lengths,
+                               unsigned *best_total_length,
+                               std::vector<UNICHAR_ID> *best_encoding,
                                std::vector<char> *best_lengths) const {
-  if (str_index > *best_total_length) {
+  if (str_index > static_cast<int>(*best_total_length)) {
     // This is the best result so far.
     *best_total_length = str_index;
     *best_encoding = *encoding;
@@ -504,9 +518,9 @@ void UNICHARSET::encode_string(const char *str, int str_index, int str_length,
       UNICHAR_ID id = ids.unichar_to_id(str + str_index, length);
       encoding->push_back(id);
       lengths->push_back(length);
-      encode_string(str, str_index + length, str_length, encoding, lengths, best_total_length,
-                    best_encoding, best_lengths);
-      if (*best_total_length == str_length) {
+      encode_string(str, str_index + length, str_length, encoding, lengths,
+                    best_total_length, best_encoding, best_lengths);
+      if (static_cast<int>(*best_total_length) == str_length) {
         return; // Tail recursion success!
       }
       // Failed with that length, truncate back and try again.
@@ -526,7 +540,8 @@ void UNICHARSET::encode_string(const char *str, int str_index, int str_length,
 // Returns false if no valid match was found in the unicharset.
 // NOTE that script_id, mirror, and other_case refer to this unicharset on
 // return and will need translation if the target unicharset is different.
-bool UNICHARSET::GetStrProperties(const char *utf8_str, UNICHAR_PROPERTIES *props) const {
+bool UNICHARSET::GetStrProperties(const char *utf8_str,
+                                  UNICHAR_PROPERTIES *props) const {
   props->Init();
   props->SetRangesEmpty();
   int total_unicodes = 0;
@@ -636,22 +651,27 @@ char UNICHARSET::get_chartype(UNICHAR_ID id) const {
   return 0;
 }
 
-void UNICHARSET::unichar_insert(const char *const unichar_repr, OldUncleanUnichars old_style) {
+void UNICHARSET::unichar_insert(const char *const unichar_repr,
+                                OldUncleanUnichars old_style) {
   if (old_style == OldUncleanUnichars::kTrue) {
     old_style_included_ = true;
   }
-  std::string cleaned = old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
+  std::string cleaned =
+      old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
   if (!cleaned.empty() && !ids.contains(cleaned.data(), cleaned.size())) {
     const char *str = cleaned.c_str();
     std::vector<int> encoding;
-    if (!old_style_included_ && encode_string(str, true, &encoding, nullptr, nullptr)) {
+    if (!old_style_included_ &&
+        encode_string(str, true, &encoding, nullptr, nullptr)) {
       return;
     }
-    auto &u = unichars.emplace_back();
+    unichars.emplace_back();
+    auto &u = unichars.back();
     int index = 0;
     do {
       if (index >= UNICHAR_LEN) {
-        fprintf(stderr, "Utf8 buffer too big, size>%d for %s\n", UNICHAR_LEN, unichar_repr);
+        fprintf(stderr, "Utf8 buffer too big, size>%d for %s\n", UNICHAR_LEN,
+                unichar_repr);
         return;
       }
       u.representation[index++] = *str++;
@@ -673,11 +693,13 @@ void UNICHARSET::unichar_insert(const char *const unichar_repr, OldUncleanUnicha
 }
 
 bool UNICHARSET::contains_unichar(const char *const unichar_repr) const {
-  std::string cleaned = old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
+  std::string cleaned =
+      old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
   return ids.contains(cleaned.data(), cleaned.size());
 }
 
-bool UNICHARSET::contains_unichar(const char *const unichar_repr, int length) const {
+bool UNICHARSET::contains_unichar(const char *const unichar_repr,
+                                  int length) const {
   if (length == 0) {
     return false;
   }
@@ -688,16 +710,17 @@ bool UNICHARSET::contains_unichar(const char *const unichar_repr, int length) co
   return ids.contains(cleaned.data(), cleaned.size());
 }
 
-bool UNICHARSET::eq(UNICHAR_ID unichar_id, const char *const unichar_repr) const {
+bool UNICHARSET::eq(UNICHAR_ID unichar_id,
+                    const char *const unichar_repr) const {
   return strcmp(this->id_to_unichar(unichar_id), unichar_repr) == 0;
 }
 
 bool UNICHARSET::save_to_string(std::string &str) const {
   const int kFileBufSize = 1024;
   char buffer[kFileBufSize + 1];
-  snprintf(buffer, kFileBufSize, "%d\n", this->size());
+  snprintf(buffer, kFileBufSize, "%zu\n", this->size());
   str = buffer;
-  for (UNICHAR_ID id = 0; id < this->size(); ++id) {
+  for (unsigned id = 0; id < this->size(); ++id) {
     int min_bottom, max_bottom, min_top, max_top;
     get_top_bottom(id, &min_bottom, &max_bottom, &min_top, &max_top);
     float width, width_sd;
@@ -709,17 +732,20 @@ bool UNICHARSET::save_to_string(std::string &str) const {
     unsigned int properties = this->get_properties(id);
     if (strcmp(this->id_to_unichar(id), " ") == 0) {
       snprintf(buffer, kFileBufSize, "%s %x %s %d\n", "NULL", properties,
-               this->get_script_from_script_id(this->get_script(id)), this->get_other_case(id));
+               this->get_script_from_script_id(this->get_script(id)),
+               this->get_other_case(id));
       str += buffer;
     } else {
       std::ostringstream stream;
       stream.imbue(std::locale::classic());
-      stream << this->id_to_unichar(id) << ' ' << properties << ' ' << min_bottom << ','
-             << max_bottom << ',' << min_top << ',' << max_top << ',' << width << ',' << width_sd
-             << ',' << bearing << ',' << bearing_sd << ',' << advance << ',' << advance_sd << ' '
+      stream << this->id_to_unichar(id) << ' ' << properties << ' '
+             << min_bottom << ',' << max_bottom << ',' << min_top << ','
+             << max_top << ',' << width << ',' << width_sd << ',' << bearing
+             << ',' << bearing_sd << ',' << advance << ',' << advance_sd << ' '
              << this->get_script_from_script_id(this->get_script(id)) << ' '
-             << this->get_other_case(id) << ' ' << this->get_direction(id) << ' '
-             << this->get_mirror(id) << ' ' << this->get_normed_unichar(id) << "\t# "
+             << this->get_other_case(id) << ' ' << this->get_direction(id)
+             << ' ' << this->get_mirror(id) << ' '
+             << this->get_normed_unichar(id) << "\t# "
              << this->debug_str(id).c_str() << '\n';
       str += stream.str().c_str();
     }
@@ -741,24 +767,28 @@ private:
 bool UNICHARSET::load_from_file(FILE *file, bool skip_fragments) {
   LocalFilePointer lfp(file);
   using namespace std::placeholders; // for _1, _2
-  std::function<char *(char *, int)> fgets_cb = std::bind(&LocalFilePointer::fgets, &lfp, _1, _2);
+  std::function<char *(char *, int)> fgets_cb =
+      std::bind(&LocalFilePointer::fgets, &lfp, _1, _2);
   bool success = load_via_fgets(fgets_cb, skip_fragments);
   return success;
 }
 
 bool UNICHARSET::load_from_file(tesseract::TFile *file, bool skip_fragments) {
   using namespace std::placeholders; // for _1, _2
-  std::function<char *(char *, int)> fgets_cb = std::bind(&tesseract::TFile::FGets, file, _1, _2);
+  std::function<char *(char *, int)> fgets_cb =
+      std::bind(&tesseract::TFile::FGets, file, _1, _2);
   bool success = load_via_fgets(fgets_cb, skip_fragments);
   return success;
 }
 
-bool UNICHARSET::load_via_fgets(std::function<char *(char *, int)> fgets_cb, bool skip_fragments) {
+bool UNICHARSET::load_via_fgets(
+    const std::function<char *(char *, int)> &fgets_cb, bool skip_fragments) {
   int unicharset_size;
   char buffer[256];
 
   this->clear();
-  if (fgets_cb(buffer, sizeof(buffer)) == nullptr || sscanf(buffer, "%d", &unicharset_size) != 1) {
+  if (fgets_cb(buffer, sizeof(buffer)) == nullptr ||
+      sscanf(buffer, "%d", &unicharset_size) != 1) {
     return false;
   }
   for (UNICHAR_ID id = 0; id < unicharset_size; ++id) {
@@ -800,27 +830,30 @@ bool UNICHARSET::load_via_fgets(std::function<char *(char *, int)> fgets_cb, boo
     auto position = stream.tellg();
     stream.seekg(position);
     char c1, c2, c3, c4, c5, c6, c7, c8, c9;
-    stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >> max_top >> c4 >> width >>
-        c5 >> width_sd >> c6 >> bearing >> c7 >> bearing_sd >> c8 >> advance >> c9 >> advance_sd >>
-        std::setw(63) >> script >> other_case >> direction >> mirror >> std::setw(63) >> normed;
-    if (stream.fail() || c1 != ',' || c2 != ',' || c3 != ',' || c4 != ',' || c5 != ',' ||
-        c6 != ',' || c7 != ',' || c8 != ',' || c9 != ',') {
+    stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >>
+        max_top >> c4 >> width >> c5 >> width_sd >> c6 >> bearing >> c7 >>
+        bearing_sd >> c8 >> advance >> c9 >> advance_sd >> std::setw(63) >>
+        script >> other_case >> direction >> mirror >> std::setw(63) >> normed;
+    if (stream.fail() || c1 != ',' || c2 != ',' || c3 != ',' || c4 != ',' ||
+        c5 != ',' || c6 != ',' || c7 != ',' || c8 != ',' || c9 != ',') {
       stream.clear();
       stream.seekg(position);
-      stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >> max_top >> c4 >> width >>
-          c5 >> width_sd >> c6 >> bearing >> c7 >> bearing_sd >> c8 >> advance >> c9 >>
-          advance_sd >> std::setw(63) >> script >> other_case >> direction >> mirror;
-      if (stream.fail() || c1 != ',' || c2 != ',' || c3 != ',' || c4 != ',' || c5 != ',' ||
-          c6 != ',' || c7 != ',' || c8 != ',' || c9 != ',') {
+      stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >>
+          max_top >> c4 >> width >> c5 >> width_sd >> c6 >> bearing >> c7 >>
+          bearing_sd >> c8 >> advance >> c9 >> advance_sd >> std::setw(63) >>
+          script >> other_case >> direction >> mirror;
+      if (stream.fail() || c1 != ',' || c2 != ',' || c3 != ',' || c4 != ',' ||
+          c5 != ',' || c6 != ',' || c7 != ',' || c8 != ',' || c9 != ',') {
         stream.clear();
         stream.seekg(position);
-        stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >> max_top >>
-            std::setw(63) >> script >> other_case >> direction >> mirror;
+        stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >>
+            max_top >> std::setw(63) >> script >> other_case >> direction >>
+            mirror;
         if (stream.fail() || c1 != ',' || c2 != ',' || c3 != ',') {
           stream.clear();
           stream.seekg(position);
-          stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >> max_top >>
-              std::setw(63) >> script >> other_case;
+          stream >> min_bottom >> c1 >> max_bottom >> c2 >> min_top >> c3 >>
+              max_top >> std::setw(63) >> script >> other_case;
           if (stream.fail() || c1 != ',' || c2 != ',' || c3 != ',') {
             stream.clear();
             stream.seekg(position);
@@ -883,7 +916,7 @@ void UNICHARSET::post_load_setup() {
   int x_height_alphas = 0;
   int cap_height_alphas = 0;
   top_bottom_set_ = false;
-  for (UNICHAR_ID id = 0; id < unichars.size(); ++id) {
+  for (unsigned id = 0; id < unichars.size(); ++id) {
     int min_bottom = 0;
     int max_bottom = UINT8_MAX;
     int min_top = 0;
@@ -909,8 +942,9 @@ void UNICHARSET::post_load_setup() {
 
   script_has_upper_lower_ = net_case_alphas > 0;
   script_has_xheight_ =
-      script_has_upper_lower_ || (x_height_alphas > cap_height_alphas * kMinXHeightFraction &&
-                                  cap_height_alphas > x_height_alphas * kMinCapHeightFraction);
+      script_has_upper_lower_ ||
+      (x_height_alphas > cap_height_alphas * kMinXHeightFraction &&
+       cap_height_alphas > x_height_alphas * kMinCapHeightFraction);
 
   null_sid_ = get_script_id_from_name(null_script);
   ASSERT_HOST(null_sid_ == 0);
@@ -954,7 +988,8 @@ bool UNICHARSET::major_right_to_left() const {
     if (dir == UNICHARSET::U_LEFT_TO_RIGHT) {
       ltr_count++;
     }
-    if (dir == UNICHARSET::U_RIGHT_TO_LEFT || dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC ||
+    if (dir == UNICHARSET::U_RIGHT_TO_LEFT ||
+        dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC ||
         dir == UNICHARSET::U_ARABIC_NUMBER) {
       rtl_count++;
     }
@@ -966,7 +1001,8 @@ bool UNICHARSET::major_right_to_left() const {
 // An empty or nullptr whitelist enables everything (minus any blacklist).
 // An empty or nullptr blacklist disables nothing.
 // An empty or nullptr blacklist has no effect.
-void UNICHARSET::set_black_and_whitelist(const char *blacklist, const char *whitelist,
+void UNICHARSET::set_black_and_whitelist(const char *blacklist,
+                                         const char *whitelist,
                                          const char *unblacklist) {
   bool def_enabled = whitelist == nullptr || whitelist[0] == '\0';
   // Set everything to default
@@ -1012,7 +1048,7 @@ bool UNICHARSET::AnyRepeatedUnicodes() const {
   if (has_special_codes()) {
     start_id = SPECIAL_UNICHAR_CODES_COUNT;
   }
-  for (int id = start_id; id < unichars.size(); ++id) {
+  for (unsigned id = start_id; id < unichars.size(); ++id) {
     // Convert to unicodes.
     std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(get_normed_unichar(id));
     for (size_t u = 1; u < unicodes.size(); ++u) {
@@ -1037,7 +1073,8 @@ int UNICHARSET::add_script(const char *script) {
     assert(script_table_size_used == script_table_size_reserved);
     script_table_size_reserved += script_table_size_reserved;
     char **new_script_table = new char *[script_table_size_reserved];
-    memcpy(new_script_table, script_table, script_table_size_used * sizeof(char *));
+    memcpy(new_script_table, script_table,
+           script_table_size_used * sizeof(char *));
     delete[] script_table;
     script_table = new_script_table;
   }
@@ -1048,7 +1085,8 @@ int UNICHARSET::add_script(const char *script) {
 
 // Returns the string that represents a fragment
 // with the given unichar, pos and total.
-std::string CHAR_FRAGMENT::to_string(const char *unichar, int pos, int total, bool natural) {
+std::string CHAR_FRAGMENT::to_string(const char *unichar, int pos, int total,
+                                     bool natural) {
   if (total == 1) {
     return std::string(unichar);
   }
@@ -1056,8 +1094,8 @@ std::string CHAR_FRAGMENT::to_string(const char *unichar, int pos, int total, bo
   result += kSeparator;
   result += unichar;
   char buffer[kMaxLen];
-  snprintf(buffer, kMaxLen, "%c%d%c%d", kSeparator, pos, natural ? kNaturalFlag : kSeparator,
-           total);
+  snprintf(buffer, kMaxLen, "%c%d%c%d", kSeparator, pos,
+           natural ? kNaturalFlag : kSeparator, total);
   result += buffer;
   return result;
 }

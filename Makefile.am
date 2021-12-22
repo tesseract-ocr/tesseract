@@ -1,15 +1,9 @@
 ## run autogen.sh to create Makefile.in from this file
-
-# Be less noisy by default. Can be overridden with `make V=1`.
-V = 0
-
 ACLOCAL_AMFLAGS = -I m4
 
 .PHONY: doc html install-langs ScrollView.jar install-jars pdf training
 
 CLEANFILES =
-
-DEFAULT_INCLUDES =
 
 SUBDIRS = . tessdata
 
@@ -80,7 +74,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/include
 AM_CPPFLAGS += -I$(top_builddir)/include
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS
-AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
+AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden -fPIC
 endif
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
 
@@ -146,9 +140,6 @@ noinst_LTLIBRARIES += libtesseract_native.la
 libtesseract_native_la_CXXFLAGS = -O3 -ffast-math
 if OPENMP_SIMD
 libtesseract_native_la_CXXFLAGS += -fopenmp-simd -DOPENMP_SIMD
-endif
-if MARCH_NATIVE_OPT
-libtesseract_native_la_CXXFLAGS += -march=native -mtune=native
 endif
 libtesseract_native_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 libtesseract_native_la_SOURCES = src/arch/dotproduct.cpp
@@ -724,13 +715,16 @@ endif
 # Rules for tesseract executable.
 
 bin_PROGRAMS = tesseract
-tesseract_SOURCES = src/api/tesseractmain.cpp
+tesseract_SOURCES = src/tesseract.cpp
 tesseract_CPPFLAGS =
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/arch
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccutil
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/dict
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/viewer
+if OPENCL
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/opencl
+endif
 tesseract_CPPFLAGS += $(AM_CPPFLAGS)
 if VISIBILITY
 tesseract_CPPFLAGS += -DTESS_IMPORTS
@@ -1163,20 +1157,22 @@ endif # TENSORFLOW
 
 # Build googletest:
 check_LTLIBRARIES = libgtest.la libgtest_main.la libgmock.la libgmock_main.la
-libgtest_la_SOURCES = googletest/googletest/src/gtest-all.cc
-libgtest_la_CPPFLAGS = -I$(top_srcdir)/googletest/googletest/include -I$(top_srcdir)/googletest/googletest -pthread
-libgtest_main_la_SOURCES = googletest/googletest/src/gtest_main.cc
+libgtest_la_SOURCES = unittest/third_party/googletest/googletest/src/gtest-all.cc
+libgtest_la_CPPFLAGS = -I$(top_srcdir)/unittest/third_party/googletest/googletest/include
+libgtest_la_CPPFLAGS += -I$(top_srcdir)/unittest/third_party/googletest/googletest
+libgtest_la_CPPFLAGS += -pthread
+libgtest_main_la_SOURCES = unittest/third_party/googletest/googletest/src/gtest_main.cc
 libgtest_main_la_CPPFLAGS = $(libgtest_la_CPPFLAGS)
 
-GMOCK_INCLUDES = -I$(top_srcdir)/googletest/googlemock/include \
-                 -I$(top_srcdir)/googletest/googlemock \
-                 -I$(top_srcdir)/googletest/googletest/include \
-                 -I$(top_srcdir)/googletest/googletest
+GMOCK_INCLUDES = -I$(top_srcdir)/unittest/third_party/googletest/googlemock/include \
+                 -I$(top_srcdir)/unittest/third_party/googletest/googlemock \
+                 -I$(top_srcdir)/unittest/third_party/googletest/googletest/include \
+                 -I$(top_srcdir)/unittest/third_party/googletest/googletest
 
-libgmock_la_SOURCES = googletest/googlemock/src/gmock-all.cc
+libgmock_la_SOURCES = unittest/third_party/googletest/googlemock/src/gmock-all.cc
 libgmock_la_CPPFLAGS = $(GMOCK_INCLUDES) \
                        -pthread
-libgmock_main_la_SOURCES = googletest/googlemock/src/gmock_main.cc
+libgmock_main_la_SOURCES = unittest/third_party/googletest/googlemock/src/gmock_main.cc
 libgmock_main_la_CPPFLAGS = $(GMOCK_INCLUDES) \
                             -pthread
 
@@ -1188,8 +1184,8 @@ TESS_LIBS += libtesseract.la $(libarchive_LIBS)
 TESS_LIBS += $(TENSORFLOW_LIBS)
 TRAINING_LIBS = libtesseract_training.la
 TRAINING_LIBS += $(TESS_LIBS)
-unittest_CPPFLAGS += -isystem $(top_srcdir)/googletest/googletest/include
-unittest_CPPFLAGS += -isystem $(top_srcdir)/googletest/googlemock/include
+unittest_CPPFLAGS += -isystem $(top_srcdir)/unittest/third_party/googletest/googletest/include
+unittest_CPPFLAGS += -isystem $(top_srcdir)/unittest/third_party/googletest/googlemock/include
 
 check_PROGRAMS = apiexample_test
 if ENABLE_TRAINING

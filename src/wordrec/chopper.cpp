@@ -264,7 +264,7 @@ SEAM *Wordrec::chop_numbered_blob(TWERD *word, int32_t blob_number, bool italic_
 }
 
 SEAM *Wordrec::chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic_blob,
-                                     WERD_RES *word_res, int *blob_number) {
+                                     WERD_RES *word_res, unsigned *blob_number) {
   TWERD *word = word_res->chopped_word;
   for (*blob_number = 0; *blob_number < word->NumBlobs(); ++*blob_number) {
     TBLOB *blob = word->blobs[*blob_number];
@@ -301,7 +301,7 @@ SEAM *Wordrec::chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic
     }
   }
 
-  *blob_number = -1;
+  *blob_number = UINT_MAX;
   return nullptr;
 }
 
@@ -319,24 +319,25 @@ SEAM *Wordrec::chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic
  */
 SEAM *Wordrec::improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, DANGERR *fixpt,
                                 bool split_next_to_fragment, bool italic_blob, WERD_RES *word,
-                                int *blob_number) {
+                                unsigned *blob_number) {
   float rating_ceiling = FLT_MAX;
   SEAM *seam = nullptr;
   do {
-    *blob_number = select_blob_to_split_from_fixpt(fixpt);
+    auto blob = select_blob_to_split_from_fixpt(fixpt);
     if (chop_debug) {
-      tprintf("blob_number from fixpt = %d\n", *blob_number);
+      tprintf("blob_number from fixpt = %d\n", blob);
     }
-    bool split_point_from_dict = (*blob_number != -1);
+    bool split_point_from_dict = (blob != -1);
     if (split_point_from_dict) {
       fixpt->clear();
     } else {
-      *blob_number = select_blob_to_split(blob_choices, rating_ceiling, split_next_to_fragment);
+      blob = select_blob_to_split(blob_choices, rating_ceiling, split_next_to_fragment);
     }
     if (chop_debug) {
-      tprintf("blob_number = %d\n", *blob_number);
+      tprintf("blob_number = %d\n", blob);
     }
-    if (*blob_number == -1) {
+    *blob_number = blob;
+    if (blob == -1) {
       return nullptr;
     }
 
@@ -365,7 +366,7 @@ SEAM *Wordrec::improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, 
  */
 SEAM *Wordrec::chop_one_blob(const std::vector<TBOX> &boxes,
                              const std::vector<BLOB_CHOICE *> &blob_choices, WERD_RES *word_res,
-                             int *blob_number) {
+                             unsigned *blob_number) {
   if (prioritize_division) {
     return chop_overlapping_blob(boxes, true, word_res, blob_number);
   } else {
@@ -445,7 +446,7 @@ void Wordrec::improve_by_chopping(float rating_cert_scale, WERD_RES *word,
                                   BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle,
                                   LMPainPoints *pain_points,
                                   std::vector<SegSearchPending> *pending) {
-  int blob_number;
+  unsigned blob_number;
   do { // improvement loop.
     // Make a simple vector of BLOB_CHOICEs to make it easy to pick which
     // one to chop.
@@ -522,12 +523,11 @@ void Wordrec::improve_by_chopping(float rating_cert_scale, WERD_RES *word,
 int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices,
                                   float rating_ceiling, bool split_next_to_fragment) {
   BLOB_CHOICE *blob_choice;
-  int x;
   float worst = -FLT_MAX;
   int worst_index = -1;
   float worst_near_fragment = -FLT_MAX;
   int worst_index_near_fragment = -1;
-  const CHAR_FRAGMENT **fragments = nullptr;
+  std::vector<const CHAR_FRAGMENT *> fragments;
 
   if (chop_debug) {
     if (rating_ceiling < FLT_MAX) {
@@ -538,7 +538,7 @@ int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices
   }
 
   if (split_next_to_fragment && blob_choices.size() > 0) {
-    fragments = new const CHAR_FRAGMENT *[blob_choices.size()];
+    fragments.resize(blob_choices.size());
     if (blob_choices[0] != nullptr) {
       fragments[0] = getDict().getUnicharset().get_fragment(blob_choices[0]->unichar_id());
     } else {
@@ -546,9 +546,8 @@ int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices
     }
   }
 
-  for (x = 0; x < blob_choices.size(); ++x) {
+  for (unsigned x = 0; x < blob_choices.size(); ++x) {
     if (blob_choices[x] == nullptr) {
-      delete[] fragments;
       return x;
     } else {
       blob_choice = blob_choices[x];
@@ -591,7 +590,6 @@ int Wordrec::select_blob_to_split(const std::vector<BLOB_CHOICE *> &blob_choices
       }
     }
   }
-  delete[] fragments;
   // TODO(daria): maybe a threshold of badness for
   // worst_near_fragment would be useful.
   return worst_index_near_fragment != -1 ? worst_index_near_fragment : worst_index;

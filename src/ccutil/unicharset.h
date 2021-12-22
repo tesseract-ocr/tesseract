@@ -85,7 +85,8 @@ public:
 
   // Returns the string that represents a fragment
   // with the given unichar, pos and total.
-  static std::string to_string(const char *unichar, int pos, int total, bool natural);
+  static std::string to_string(const char *unichar, int pos, int total,
+                               bool natural);
   // Returns the string that represents this fragment.
   std::string to_string() const {
     return to_string(unichar, pos, total, natural);
@@ -93,19 +94,22 @@ public:
 
   // Checks whether a fragment has the same unichar,
   // position and total as the given inputs.
-  inline bool equals(const char *other_unichar, int other_pos, int other_total) const {
-    return (strcmp(this->unichar, other_unichar) == 0 && this->pos == other_pos &&
-            this->total == other_total);
+  inline bool equals(const char *other_unichar, int other_pos,
+                     int other_total) const {
+    return (strcmp(this->unichar, other_unichar) == 0 &&
+            this->pos == other_pos && this->total == other_total);
   }
   inline bool equals(const CHAR_FRAGMENT *other) const {
-    return this->equals(other->get_unichar(), other->get_pos(), other->get_total());
+    return this->equals(other->get_unichar(), other->get_pos(),
+                        other->get_total());
   }
 
   // Checks whether a given fragment is a continuation of this fragment.
   // Assumes that the given fragment pointer is not nullptr.
   inline bool is_continuation_of(const CHAR_FRAGMENT *fragment) const {
     return (strcmp(this->unichar, fragment->get_unichar()) == 0 &&
-            this->total == fragment->get_total() && this->pos == fragment->get_pos() + 1);
+            this->total == fragment->get_total() &&
+            this->pos == fragment->get_pos() + 1);
   }
 
   // Returns true if this fragment is a beginning fragment.
@@ -237,8 +241,10 @@ public:
   // WARNING: Caller must guarantee that str has already been cleaned of codes
   // that do not belong in the unicharset, or encoding may fail.
   // Use CleanupString to perform the cleaning.
-  bool encode_string(const char *str, bool give_up_on_failure, std::vector<UNICHAR_ID> *encoding,
-                     std::vector<char> *lengths, unsigned *encoded_length) const;
+  bool encode_string(const char *str, bool give_up_on_failure,
+                     std::vector<UNICHAR_ID> *encoding,
+                     std::vector<char> *lengths,
+                     unsigned *encoded_length) const;
 
   // Return the unichar representation corresponding to the given UNICHAR_ID
   // within the UNICHARSET.
@@ -272,7 +278,8 @@ public:
   // TATWEEL characters are kept and n-grams are allowed. Otherwise TATWEEL
   // characters are ignored/skipped as if they don't exist and n-grams that
   // can already be encoded are not added.
-  void unichar_insert(const char *const unichar_repr, OldUncleanUnichars old_style);
+  void unichar_insert(const char *const unichar_repr,
+                      OldUncleanUnichars old_style);
   void unichar_insert(const char *const unichar_repr) {
     unichar_insert(unichar_repr, OldUncleanUnichars::kFalse);
   }
@@ -283,7 +290,7 @@ public:
     if (cleaned != unichar_repr) {
       unichar_insert(unichar_repr, OldUncleanUnichars::kTrue);
     } else {
-      int old_size = size();
+      auto old_size = size();
       unichar_insert(unichar_repr, OldUncleanUnichars::kFalse);
       if (size() == old_size) {
         unichar_insert(unichar_repr, OldUncleanUnichars::kTrue);
@@ -345,7 +352,7 @@ public:
   }
 
   // Return the size of the set (the number of different UNICHAR it holds).
-  int size() const {
+  size_t size() const {
     return unichars.size();
   }
 
@@ -365,7 +372,8 @@ public:
   // Returns true if the operation is successful.
   bool save_to_file(FILE *file) const {
     std::string str;
-    return save_to_string(str) && tesseract::Serialize(file, &str[0], str.length());
+    return save_to_string(str) &&
+           tesseract::Serialize(file, &str[0], str.length());
   }
 
   bool save_to_file(tesseract::TFile *file) const {
@@ -575,8 +583,8 @@ public:
   // baseline-normalized coordinates, ie, where the baseline is
   // kBlnBaselineOffset and the meanline is kBlnBaselineOffset + kBlnXHeight
   // (See normalis.h for the definitions).
-  void get_top_bottom(UNICHAR_ID unichar_id, int *min_bottom, int *max_bottom, int *min_top,
-                      int *max_top) const {
+  void get_top_bottom(UNICHAR_ID unichar_id, int *min_bottom, int *max_bottom,
+                      int *min_top, int *max_top) const {
     if (INVALID_UNICHAR_ID == unichar_id) {
       *min_bottom = *min_top = 0;
       *max_bottom = *max_top = 256; // kBlnCellHeight
@@ -588,16 +596,21 @@ public:
     *min_top = unichars[unichar_id].properties.min_top;
     *max_top = unichars[unichar_id].properties.max_top;
   }
-  void set_top_bottom(UNICHAR_ID unichar_id, int min_bottom, int max_bottom, int min_top,
-                      int max_top) {
-    unichars[unichar_id].properties.min_bottom = ClipToRange<int>(min_bottom, 0, UINT8_MAX);
-    unichars[unichar_id].properties.max_bottom = ClipToRange<int>(max_bottom, 0, UINT8_MAX);
-    unichars[unichar_id].properties.min_top = ClipToRange<int>(min_top, 0, UINT8_MAX);
-    unichars[unichar_id].properties.max_top = ClipToRange<int>(max_top, 0, UINT8_MAX);
+  void set_top_bottom(UNICHAR_ID unichar_id, int min_bottom, int max_bottom,
+                      int min_top, int max_top) {
+    unichars[unichar_id].properties.min_bottom =
+        ClipToRange<int>(min_bottom, 0, UINT8_MAX);
+    unichars[unichar_id].properties.max_bottom =
+        ClipToRange<int>(max_bottom, 0, UINT8_MAX);
+    unichars[unichar_id].properties.min_top =
+        ClipToRange<int>(min_top, 0, UINT8_MAX);
+    unichars[unichar_id].properties.max_top =
+        ClipToRange<int>(max_top, 0, UINT8_MAX);
   }
   // Returns the width stats (as mean, sd) of the given unichar relative to the
   // median advance of all characters in the character set.
-  void get_width_stats(UNICHAR_ID unichar_id, float *width, float *width_sd) const {
+  void get_width_stats(UNICHAR_ID unichar_id, float *width,
+                       float *width_sd) const {
     if (INVALID_UNICHAR_ID == unichar_id) {
       *width = 0.0f;
       *width_sd = 0.0f;
@@ -614,7 +627,8 @@ public:
   }
   // Returns the stats of the x-bearing (as mean, sd) of the given unichar
   // relative to the median advance of all characters in the character set.
-  void get_bearing_stats(UNICHAR_ID unichar_id, float *bearing, float *bearing_sd) const {
+  void get_bearing_stats(UNICHAR_ID unichar_id, float *bearing,
+                         float *bearing_sd) const {
     if (INVALID_UNICHAR_ID == unichar_id) {
       *bearing = *bearing_sd = 0.0f;
       return;
@@ -623,13 +637,15 @@ public:
     *bearing = unichars[unichar_id].properties.bearing;
     *bearing_sd = unichars[unichar_id].properties.bearing_sd;
   }
-  void set_bearing_stats(UNICHAR_ID unichar_id, float bearing, float bearing_sd) {
+  void set_bearing_stats(UNICHAR_ID unichar_id, float bearing,
+                         float bearing_sd) {
     unichars[unichar_id].properties.bearing = bearing;
     unichars[unichar_id].properties.bearing_sd = bearing_sd;
   }
   // Returns the stats of the x-advance of the given unichar (as mean, sd)
   // relative to the median advance of all characters in the character set.
-  void get_advance_stats(UNICHAR_ID unichar_id, float *advance, float *advance_sd) const {
+  void get_advance_stats(UNICHAR_ID unichar_id, float *advance,
+                         float *advance_sd) const {
     if (INVALID_UNICHAR_ID == unichar_id) {
       *advance = *advance_sd = 0;
       return;
@@ -638,7 +654,8 @@ public:
     *advance = unichars[unichar_id].properties.advance;
     *advance_sd = unichars[unichar_id].properties.advance_sd;
   }
-  void set_advance_stats(UNICHAR_ID unichar_id, float advance, float advance_sd) {
+  void set_advance_stats(UNICHAR_ID unichar_id, float advance,
+                         float advance_sd) {
     unichars[unichar_id].properties.advance = advance;
     unichars[unichar_id].properties.advance_sd = advance_sd;
   }
@@ -654,8 +671,9 @@ public:
       return true;
     }
     int script_id = get_script(unichar_id);
-    return script_id != han_sid_ && script_id != thai_sid_ && script_id != hangul_sid_ &&
-           script_id != hiragana_sid_ && script_id != katakana_sid_;
+    return script_id != han_sid_ && script_id != thai_sid_ &&
+           script_id != hangul_sid_ && script_id != hiragana_sid_ &&
+           script_id != katakana_sid_;
   }
 
   // Return the script name of the given unichar.
@@ -738,7 +756,8 @@ public:
   // at these codes and they should not be used.
   bool has_special_codes() const {
     return get_fragment(UNICHAR_BROKEN) != nullptr &&
-           strcmp(id_to_unichar(UNICHAR_BROKEN), kSpecialUnicharCodes[UNICHAR_BROKEN]) == 0;
+           strcmp(id_to_unichar(UNICHAR_BROKEN),
+                  kSpecialUnicharCodes[UNICHAR_BROKEN]) == 0;
   }
 
   // Returns true if there are any repeated unicodes in the normalized
@@ -800,7 +819,8 @@ public:
   // Return a pointer to the CHAR_FRAGMENT class struct if the given
   // unichar representation represents a character fragment.
   const CHAR_FRAGMENT *get_fragment(const char *const unichar_repr) const {
-    if (unichar_repr == nullptr || unichar_repr[0] == '\0' || !ids.contains(unichar_repr, false)) {
+    if (unichar_repr == nullptr || unichar_repr[0] == '\0' ||
+        !ids.contains(unichar_repr, false)) {
       return nullptr;
     }
     return get_fragment(unichar_to_id(unichar_repr));
@@ -1020,8 +1040,9 @@ private:
   // best_encoding contains the encoding that used the longest part of str.
   // best_lengths (may be null) contains the lengths of best_encoding.
   void encode_string(const char *str, int str_index, int str_length,
-                     std::vector<UNICHAR_ID> *encoding, std::vector<char> *lengths,
-                     unsigned *best_total_length, std::vector<UNICHAR_ID> *best_encoding,
+                     std::vector<UNICHAR_ID> *encoding,
+                     std::vector<char> *lengths, unsigned *best_total_length,
+                     std::vector<UNICHAR_ID> *best_encoding,
                      std::vector<char> *best_lengths) const;
 
   // Gets the properties for a grapheme string, combining properties for
@@ -1034,7 +1055,8 @@ private:
   // Load ourselves from a "file" where our only interface to the file is
   // an implementation of fgets().  This is the parsing primitive accessed by
   // the public routines load_from_file().
-  bool load_via_fgets(std::function<char *(char *, int)> fgets_cb, bool skip_fragments);
+  bool load_via_fgets(const std::function<char *(char *, int)> &fgets_cb,
+                      bool skip_fragments);
 
   // List of mappings to make when ingesting strings from the outside.
   // The substitutions clean up text that should exists for rendering of

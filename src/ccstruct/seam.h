@@ -34,10 +34,10 @@ class SEAM {
 public:
   // A seam with no splits
   SEAM(float priority, const TPOINT &location)
-      : priority_(priority), location_(location), widthp_(0), widthn_(0), num_splits_(0) {}
+      : priority_(priority), location_(location), num_splits_(0) {}
   // A seam with a single split point.
   SEAM(float priority, const TPOINT &location, const SPLIT &split)
-      : priority_(priority), location_(location), widthp_(0), widthn_(0), num_splits_(1) {
+      : priority_(priority), location_(location), num_splits_(1) {
     splits_[0] = split;
   }
   // Default copy constructor, operator= and destructor are OK!
@@ -191,8 +191,8 @@ private:
   // A range such that all splits in *this SEAM are contained within blobs in
   // the range [index - widthn_,index + widthp_] where index is the index of
   // this SEAM in the seams vector.
-  int8_t widthp_;
-  int8_t widthn_;
+  uint8_t widthp_ = 0;
+  uint8_t widthn_ = 0;
   // Number of splits_ that are used.
   uint8_t num_splits_;
   // Set of pairs of points that are the ends of each split in the SEAM.

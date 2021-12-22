@@ -75,7 +75,7 @@ int OtsuThreshold(Image src_pix, int left, int top, int width, int height, std::
       // or to be a convincing background we must have a large fraction of H.
       // In between we assume this channel contains no thresholding information.
       int hi_value = best_omega_0 < H * 0.5;
-      (*thresholds)[ch] = best_t;
+      thresholds[ch] = best_t;
       if (best_omega_0 > H * 0.75) {
         any_good_hivalue = true;
         hi_values[ch] = 0;

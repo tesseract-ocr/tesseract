@@ -22,6 +22,7 @@
 #  include "config_auto.h"
 #endif
 
+#include <cmath>
 #include <string>
 #include "lstmtrainer.h"
 
@@ -71,14 +72,17 @@ const int kTargetXScale = 5;
 const int kTargetYScale = 100;
 #endif // !GRAPHICS_DISABLED
 
-LSTMTrainer::LSTMTrainer() : randomly_rotate_(false), training_data_(0), sub_trainer_(nullptr) {
+LSTMTrainer::LSTMTrainer()
+    : randomly_rotate_(false), training_data_(0), sub_trainer_(nullptr) {
   EmptyConstructor();
   debug_interval_ = 0;
 }
 
-LSTMTrainer::LSTMTrainer(const char *model_base, const char *checkpoint_name, int debug_interval,
-                         int64_t max_memory)
-    : randomly_rotate_(false), training_data_(max_memory), sub_trainer_(nullptr) {
+LSTMTrainer::LSTMTrainer(const char *model_base, const char *checkpoint_name,
+                         int debug_interval, int64_t max_memory)
+    : randomly_rotate_(false),
+      training_data_(max_memory),
+      sub_trainer_(nullptr) {
   EmptyConstructor();
   debug_interval_ = debug_interval;
   model_base_ = model_base;
@@ -96,7 +100,8 @@ LSTMTrainer::~LSTMTrainer() {
 
 // Tries to deserialize a trainer from the given file and silently returns
 // false in case of failure.
-bool LSTMTrainer::TryLoadingCheckpoint(const char *filename, const char *old_traineddata) {
+bool LSTMTrainer::TryLoadingCheckpoint(const char *filename,
+                                       const char *old_traineddata) {
   std::vector<char> data;
   if (!LoadDataFromFile(filename, &data)) {
     return false;
@@ -105,12 +110,18 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char *filename, const char *old_tra
   if (!ReadTrainingDump(data, *this)) {
     return false;
   }
+  if (IsIntMode()) {
+    tprintf("Error, %s is an integer (fast) model, cannot continue training\n",
+            filename);
+    return false;
+  }
   if (((old_traineddata == nullptr || *old_traineddata == '\0') &&
        network_->NumOutputs() == recoder_.code_range()) ||
       filename == old_traineddata) {
     return true; // Normal checkpoint load complete.
   }
-  tprintf("Code range changed from %d to %d!\n", network_->NumOutputs(), recoder_.code_range());
+  tprintf("Code range changed from %d to %d!\n", network_->NumOutputs(),
+          recoder_.code_range());
   if (old_traineddata == nullptr || *old_traineddata == '\0') {
     tprintf("Must supply the old traineddata for code conversion!\n");
     return false;
@@ -148,21 +159,23 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char *filename, const char *old_tra
 // are implemented.
 // For other args see NetworkBuilder::InitNetwork.
 // Note: Be sure to call InitCharSet before InitNetwork!
-bool LSTMTrainer::InitNetwork(const char *network_spec, int append_index, int net_flags,
-                              float weight_range, float learning_rate, float momentum,
+bool LSTMTrainer::InitNetwork(const char *network_spec, int append_index,
+                              int net_flags, float weight_range,
+                              float learning_rate, float momentum,
                               float adam_beta) {
   mgr_.SetVersionString(mgr_.VersionString() + ":" + network_spec);
   adam_beta_ = adam_beta;
   learning_rate_ = learning_rate;
   momentum_ = momentum;
   SetNullChar();
-  if (!NetworkBuilder::InitNetwork(recoder_.code_range(), network_spec, append_index, net_flags,
-                                   weight_range, &randomizer_, &network_)) {
+  if (!NetworkBuilder::InitNetwork(recoder_.code_range(), network_spec,
+                                   append_index, net_flags, weight_range,
+                                   &randomizer_, &network_)) {
     return false;
   }
   network_str_ += network_spec;
-  tprintf("Built network:%s from request %s\n",
-          network_->spec().c_str(), network_spec);
+  tprintf("Built network:%s from request %s\n", network_->spec().c_str(),
+          network_spec);
   tprintf(
       "Training parameters:\n  Debug interval = %d,"
       " weights = %g, learning rate = %g, momentum=%g\n",
@@ -218,14 +231,14 @@ void LSTMTrainer::InitIterations() {
 // If the training sample is usable, grid searches for the optimal
 // dict_ratio/cert_offset, and returns the results in a string of space-
 // separated triplets of ratio,offset=worderr.
-Trainability LSTMTrainer::GridSearchDictParams(const ImageData *trainingdata, int iteration,
-                                               double min_dict_ratio, double dict_ratio_step,
-                                               double max_dict_ratio, double min_cert_offset,
-                                               double cert_offset_step, double max_cert_offset,
-                                               std::string &results) {
+Trainability LSTMTrainer::GridSearchDictParams(
+    const ImageData *trainingdata, int iteration, double min_dict_ratio,
+    double dict_ratio_step, double max_dict_ratio, double min_cert_offset,
+    double cert_offset_step, double max_cert_offset, std::string &results) {
   sample_iteration_ = iteration;
   NetworkIO fwd_outputs, targets;
-  Trainability result = PrepareForBackward(trainingdata, &fwd_outputs, &targets);
+  Trainability result =
+      PrepareForBackward(trainingdata, &fwd_outputs, &targets);
   if (result == UNENCODABLE || result == HI_PRECISION_ERR || dict_ == nullptr) {
     return result;
   }
@@ -234,8 +247,10 @@ Trainability LSTMTrainer::GridSearchDictParams(const ImageData *trainingdata, in
   std::vector<int> truth_labels, ocr_labels, xcoords;
   ASSERT_HOST(EncodeString(trainingdata->transcription(), &truth_labels));
   // NO-dict error.
-  RecodeBeamSearch base_search(recoder_, null_char_, SimpleTextOutput(), nullptr);
-  base_search.Decode(fwd_outputs, 1.0, 0.0, RecodeBeamSearch::kMinCertainty, nullptr);
+  RecodeBeamSearch base_search(recoder_, null_char_, SimpleTextOutput(),
+                               nullptr);
+  base_search.Decode(fwd_outputs, 1.0, 0.0, RecodeBeamSearch::kMinCertainty,
+                     nullptr);
   base_search.ExtractBestPathAsLabels(&ocr_labels, &xcoords);
   std::string truth_text = DecodeLabels(truth_labels);
   std::string ocr_text = DecodeLabels(ocr_labels);
@@ -244,18 +259,21 @@ Trainability LSTMTrainer::GridSearchDictParams(const ImageData *trainingdata, in
 
   RecodeBeamSearch search(recoder_, null_char_, SimpleTextOutput(), dict_);
   for (double r = min_dict_ratio; r < max_dict_ratio; r += dict_ratio_step) {
-    for (double c = min_cert_offset; c < max_cert_offset; c += cert_offset_step) {
-      search.Decode(fwd_outputs, r, c, RecodeBeamSearch::kMinCertainty, nullptr);
+    for (double c = min_cert_offset; c < max_cert_offset;
+         c += cert_offset_step) {
+      search.Decode(fwd_outputs, r, c, RecodeBeamSearch::kMinCertainty,
+                    nullptr);
       search.ExtractBestPathAsLabels(&ocr_labels, &xcoords);
       truth_text = DecodeLabels(truth_labels);
       ocr_text = DecodeLabels(ocr_labels);
       // This is destructive on both strings.
       double word_error = ComputeWordError(&truth_text, &ocr_text);
-      if ((r == min_dict_ratio && c == min_cert_offset) || !std::isfinite(word_error)) {
+      if ((r == min_dict_ratio && c == min_cert_offset) ||
+          !std::isfinite(word_error)) {
         std::string t = DecodeLabels(truth_labels);
-	std::string o = DecodeLabels(ocr_labels);
-        tprintf("r=%g, c=%g, truth=%s, ocr=%s, wderr=%g, truth[0]=%d\n", r, c, t.c_str(), o.c_str(),
-                word_error, truth_labels[0]);
+        std::string o = DecodeLabels(ocr_labels);
+        tprintf("r=%g, c=%g, truth=%s, ocr=%s, wderr=%g, truth[0]=%d\n", r, c,
+                t.c_str(), o.c_str(), word_error, truth_labels[0]);
       }
       results += " " + std::to_string(r);
       results += "," + std::to_string(c);
@@ -274,17 +292,20 @@ void LSTMTrainer::DebugNetwork() {
 // tesseract into memory ready for training. Returns false if nothing was
 // loaded.
 bool LSTMTrainer::LoadAllTrainingData(const std::vector<std::string> &filenames,
-                                      CachingStrategy cache_strategy, bool randomly_rotate) {
+                                      CachingStrategy cache_strategy,
+                                      bool randomly_rotate) {
   randomly_rotate_ = randomly_rotate;
   training_data_.Clear();
-  return training_data_.LoadDocuments(filenames, cache_strategy, LoadDataFromFile);
+  return training_data_.LoadDocuments(filenames, cache_strategy,
+                                      LoadDataFromFile);
 }
 
 // Keeps track of best and locally worst char error_rate and launches tests
 // using tester, when a new min or max is reached.
 // Writes checkpoints at appropriate times and builds and returns a log message
 // to indicate progress. Returns false if nothing interesting happened.
-bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, std::string &log_msg) {
+bool LSTMTrainer::MaintainCheckpoints(const TestCallback &tester,
+                                      std::string &log_msg) {
   PrepareLogMsg(log_msg);
   double error_rate = CharError();
   int iteration = learning_iteration();
@@ -309,14 +330,15 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, std::string &log_msg)
   std::vector<char> rec_model_data;
   if (error_rate < best_error_rate_) {
     SaveRecognitionDump(&rec_model_data);
-    log_msg += " New best char error = " + std::to_string(error_rate);
+    log_msg += " New best BCER = " + std::to_string(error_rate);
     log_msg += UpdateErrorGraph(iteration, error_rate, rec_model_data, tester);
     // If sub_trainer_ is not nullptr, either *this beat it to a new best, or it
     // just overwrote *this. In either case, we have finished with it.
     sub_trainer_.reset();
     stall_iteration_ = learning_iteration() + kMinStallIterations;
     if (TransitionTrainingStage(kStageTransitionThreshold)) {
-      log_msg += " Transitioned to stage " + std::to_string(CurrentTrainingStage());
+      log_msg +=
+          " Transitioned to stage " + std::to_string(CurrentTrainingStage());
     }
     SaveTrainingDump(NO_BEST_TRAINER, *this, &best_trainer_);
     if (error_rate < error_rate_of_last_saved_best_ * kBestCheckpointFraction) {
@@ -331,7 +353,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, std::string &log_msg)
     }
   } else if (error_rate > worst_error_rate_) {
     SaveRecognitionDump(&rec_model_data);
-    log_msg += " New worst char error = " + std::to_string(error_rate);
+    log_msg += " New worst BCER = " + std::to_string(error_rate);
     log_msg += UpdateErrorGraph(iteration, error_rate, rec_model_data, tester);
     if (worst_error_rate_ > best_error_rate_ + kMinDivergenceRate &&
         best_error_rate_ < kMinStartedErrorRate && !best_trainer_.empty()) {
@@ -374,15 +396,16 @@ void LSTMTrainer::PrepareLogMsg(std::string &log_msg) const {
   LogIterations("At", log_msg);
   log_msg += ", Mean rms=" + std::to_string(error_rates_[ET_RMS]);
   log_msg += "%, delta=" + std::to_string(error_rates_[ET_DELTA]);
-  log_msg += "%, char train=" + std::to_string(error_rates_[ET_CHAR_ERROR]);
-  log_msg += "%, word train=" + std::to_string(error_rates_[ET_WORD_RECERR]);
+  log_msg += "%, BCER train=" + std::to_string(error_rates_[ET_CHAR_ERROR]);
+  log_msg += "%, BWER train=" + std::to_string(error_rates_[ET_WORD_RECERR]);
   log_msg += "%, skip ratio=" + std::to_string(error_rates_[ET_SKIP_RATIO]);
   log_msg += "%, ";
 }
 
 // Appends <intro_str> iteration learning_iteration()/training_iteration()/
 // sample_iteration() to the log_msg.
-void LSTMTrainer::LogIterations(const char *intro_str, std::string &log_msg) const {
+void LSTMTrainer::LogIterations(const char *intro_str,
+                                std::string &log_msg) const {
   log_msg += intro_str;
   log_msg += " iteration " + std::to_string(learning_iteration());
   log_msg += "/" + std::to_string(training_iteration());
@@ -392,7 +415,8 @@ void LSTMTrainer::LogIterations(const char *intro_str, std::string &log_msg) con
 // Returns true and increments the training_stage_ if the error rate has just
 // passed through the given threshold for the first time.
 bool LSTMTrainer::TransitionTrainingStage(float error_threshold) {
-  if (best_error_rate_ < error_threshold && training_stage_ + 1 < num_training_stages_) {
+  if (best_error_rate_ < error_threshold &&
+      training_stage_ + 1 < num_training_stages_) {
     ++training_stage_;
     return true;
   }
@@ -400,8 +424,8 @@ bool LSTMTrainer::TransitionTrainingStage(float error_threshold) {
 }
 
 // Writes to the given file. Returns false in case of error.
-bool LSTMTrainer::Serialize(SerializeAmount serialize_amount, const TessdataManager *mgr,
-                            TFile *fp) const {
+bool LSTMTrainer::Serialize(SerializeAmount serialize_amount,
+                            const TessdataManager *mgr, TFile *fp) const {
   if (!LSTMRecognizer::Serialize(mgr, fp)) {
     return false;
   }
@@ -466,7 +490,8 @@ bool LSTMTrainer::Serialize(SerializeAmount serialize_amount, const TessdataMana
     return false;
   }
   std::vector<char> sub_data;
-  if (sub_trainer_ != nullptr && !SaveTrainingDump(LIGHT, *sub_trainer_, &sub_data)) {
+  if (sub_trainer_ != nullptr &&
+      !SaveTrainingDump(LIGHT, *sub_trainer_, &sub_data)) {
     return false;
   }
   if (!fp->Serialize(sub_data)) {
@@ -583,11 +608,13 @@ void LSTMTrainer::StartSubtrainer(std::string &log_msg) {
     log_msg += " Failed to revert to previous best for trial!";
     sub_trainer_.reset();
   } else {
-    log_msg += " Trial sub_trainer_ from iteration " + std::to_string(sub_trainer_->training_iteration());
+    log_msg += " Trial sub_trainer_ from iteration " +
+               std::to_string(sub_trainer_->training_iteration());
     // Reduce learning rate so it doesn't diverge this time.
     sub_trainer_->ReduceLearningRates(this, log_msg);
     // If it fails again, we will wait twice as long before reverting again.
-    int stall_offset = learning_iteration() - sub_trainer_->learning_iteration();
+    int stall_offset =
+        learning_iteration() - sub_trainer_->learning_iteration();
     stall_iteration_ = learning_iteration() + 2 * stall_offset;
     sub_trainer_->stall_iteration_ = stall_iteration_;
     // Re-save the best trainer with the new learning rates and stall iteration.
@@ -615,7 +642,8 @@ SubTrainerResult LSTMTrainer::UpdateSubtrainer(std::string &log_msg) {
     int end_iteration = training_iteration();
     while (sub_trainer_->training_iteration() < end_iteration &&
            sub_margin >= kSubTrainerMarginFraction) {
-      int target_iteration = sub_trainer_->training_iteration() + kNumPagesPerBatch;
+      int target_iteration =
+          sub_trainer_->training_iteration() + kNumPagesPerBatch;
       while (sub_trainer_->training_iteration() < target_iteration) {
         sub_trainer_->TrainOnLine(this, false);
       }
@@ -627,12 +655,14 @@ SubTrainerResult LSTMTrainer::UpdateSubtrainer(std::string &log_msg) {
       sub_error = sub_trainer_->CharError();
       sub_margin = (training_error - sub_error) / sub_error;
     }
-    if (sub_error < best_error_rate_ && sub_margin >= kSubTrainerMarginFraction) {
+    if (sub_error < best_error_rate_ &&
+        sub_margin >= kSubTrainerMarginFraction) {
       // The sub_trainer_ has won the race to a new best. Switch to it.
       std::vector<char> updated_trainer;
       SaveTrainingDump(LIGHT, *sub_trainer_, &updated_trainer);
       ReadTrainingDump(updated_trainer, *this);
-      log_msg += " Sub trainer wins at iteration " + std::to_string(training_iteration());
+      log_msg += " Sub trainer wins at iteration " +
+                 std::to_string(training_iteration());
       log_msg += "\n";
       return STR_REPLACED;
     }
@@ -643,11 +673,13 @@ SubTrainerResult LSTMTrainer::UpdateSubtrainer(std::string &log_msg) {
 
 // Reduces network learning rates, either for everything, or for layers
 // independently, according to NF_LAYER_SPECIFIC_LR.
-void LSTMTrainer::ReduceLearningRates(LSTMTrainer *samples_trainer, std::string &log_msg) {
+void LSTMTrainer::ReduceLearningRates(LSTMTrainer *samples_trainer,
+                                      std::string &log_msg) {
   if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
-    int num_reduced =
-        ReduceLayerLearningRates(kLearningRateDecay, kNumAdjustmentIterations, samples_trainer);
-    log_msg += "\nReduced learning rate on layers: " + std::to_string(num_reduced);
+    int num_reduced = ReduceLayerLearningRates(
+        kLearningRateDecay, kNumAdjustmentIterations, samples_trainer);
+    log_msg +=
+        "\nReduced learning rate on layers: " + std::to_string(num_reduced);
   } else {
     ScaleLearningRate(kLearningRateDecay);
     log_msg += "\nReduced learning rate to :" + std::to_string(learning_rate_);
@@ -708,7 +740,8 @@ int LSTMTrainer::ReduceLayerLearningRates(TFloat factor, int num_samples,
       copy_trainer.SetIteration(iteration);
       // Train on the sample, but keep the update in updates_ instead of
       // applying to the weights.
-      const ImageData *trainingdata = copy_trainer.TrainOnLine(samples_trainer, true);
+      const ImageData *trainingdata =
+          copy_trainer.TrainOnLine(samples_trainer, true);
       if (trainingdata == nullptr) {
         continue;
       }
@@ -723,7 +756,8 @@ int LSTMTrainer::ReduceLayerLearningRates(TFloat factor, int num_samples,
         samples_trainer->ReadTrainingDump(updated_trainer, layer_trainer);
         Network *layer = layer_trainer.GetLayer(layers[i]);
         // Update the weights in just the layer, using Adam if enabled.
-        layer->Update(0.0, momentum_, adam_beta_, layer_trainer.training_iteration_ + 1);
+        layer->Update(0.0, momentum_, adam_beta_,
+                      layer_trainer.training_iteration_ + 1);
         // Zero the updates matrix again.
         layer->Update(0.0, 0.0, 0.0, 0);
         // Train again on the same sample, again holding back the updates.
@@ -731,9 +765,10 @@ int LSTMTrainer::ReduceLayerLearningRates(TFloat factor, int num_samples,
         // Count the sign changes in the updates in layer vs in copy_trainer.
         float before_bad = bad_sums[ww][i];
         float before_ok = ok_sums[ww][i];
-        layer->CountAlternators(*copy_trainer.GetLayer(layers[i]), &ok_sums[ww][i],
-                                &bad_sums[ww][i]);
-        float bad_frac = bad_sums[ww][i] + ok_sums[ww][i] - before_bad - before_ok;
+        layer->CountAlternators(*copy_trainer.GetLayer(layers[i]),
+                                &ok_sums[ww][i], &bad_sums[ww][i]);
+        float bad_frac =
+            bad_sums[ww][i] + ok_sums[ww][i] - before_bad - before_ok;
         if (bad_frac > 0.0f) {
           bad_frac = (bad_sums[ww][i] - before_bad) / bad_frac;
         }
@@ -752,8 +787,8 @@ int LSTMTrainer::ReduceLayerLearningRates(TFloat factor, int num_samples,
     TFloat total_same = bad_sums[LR_SAME][i] + ok_sums[LR_SAME][i];
     TFloat frac_down = bad_sums[LR_DOWN][i] / total_down;
     TFloat frac_same = bad_sums[LR_SAME][i] / total_same;
-    tprintf("Layer %d=%s: lr %g->%g%%, lr %g->%g%%", i, layer->name().c_str(), lr * factor,
-            100.0 * frac_down, lr, 100.0 * frac_same);
+    tprintf("Layer %d=%s: lr %g->%g%%, lr %g->%g%%", i, layer->name().c_str(),
+            lr * factor, 100.0 * frac_down, lr, 100.0 * frac_same);
     if (frac_down < frac_same * kImprovementFraction) {
       tprintf(" REDUCED\n");
       ScaleLayerLearningRate(layers[i], factor);
@@ -777,9 +812,10 @@ int LSTMTrainer::ReduceLayerLearningRates(TFloat factor, int num_samples,
 // Converts the string to integer class labels, with appropriate null_char_s
 // in between if not in SimpleTextOutput mode. Returns false on failure.
 /* static */
-bool LSTMTrainer::EncodeString(const std::string &str, const UNICHARSET &unicharset,
-                               const UnicharCompress *recoder, bool simple_text, int null_char,
-                               std::vector<int> *labels) {
+bool LSTMTrainer::EncodeString(const std::string &str,
+                               const UNICHARSET &unicharset,
+                               const UnicharCompress *recoder, bool simple_text,
+                               int null_char, std::vector<int> *labels) {
   if (str.c_str() == nullptr || str.length() <= 0) {
     tprintf("Empty truth string!\n");
     return false;
@@ -791,7 +827,8 @@ bool LSTMTrainer::EncodeString(const std::string &str, const UNICHARSET &unichar
     labels->push_back(null_char);
   }
   std::string cleaned = unicharset.CleanupString(str.c_str());
-  if (unicharset.encode_string(cleaned.c_str(), true, &internal_labels, nullptr, &err_index)) {
+  if (unicharset.encode_string(cleaned.c_str(), true, &internal_labels, nullptr,
+                               &err_index)) {
     bool success = true;
     for (auto internal_label : internal_labels) {
       if (recoder != nullptr) {
@@ -831,19 +868,23 @@ bool LSTMTrainer::EncodeString(const std::string &str, const UNICHARSET &unichar
 
 // Performs forward-backward on the given trainingdata.
 // Returns a Trainability enum to indicate the suitability of the sample.
-Trainability LSTMTrainer::TrainOnLine(const ImageData *trainingdata, bool batch) {
+Trainability LSTMTrainer::TrainOnLine(const ImageData *trainingdata,
+                                      bool batch) {
   NetworkIO fwd_outputs, targets;
-  Trainability trainable = PrepareForBackward(trainingdata, &fwd_outputs, &targets);
+  Trainability trainable =
+      PrepareForBackward(trainingdata, &fwd_outputs, &targets);
   ++sample_iteration_;
   if (trainable == UNENCODABLE || trainable == NOT_BOXED) {
     return trainable; // Sample was unusable.
   }
-  bool debug = debug_interval_ > 0 && training_iteration() % debug_interval_ == 0;
+  bool debug =
+      debug_interval_ > 0 && training_iteration() % debug_interval_ == 0;
   // Run backprop on the output.
   NetworkIO bp_deltas;
   if (network_->IsTraining() &&
       (trainable != PERFECT ||
-       training_iteration() > last_perfect_training_iteration_ + perfect_delay_)) {
+       training_iteration() >
+           last_perfect_training_iteration_ + perfect_delay_)) {
     network_->Backward(debug, targets, &scratch_space_, &bp_deltas);
     network_->Update(learning_rate_, batch ? -1.0f : momentum_, adam_beta_,
                      training_iteration_ + 1);
@@ -860,18 +901,21 @@ Trainability LSTMTrainer::TrainOnLine(const ImageData *trainingdata, bool batch)
 
 // Prepares the ground truth, runs forward, and prepares the targets.
 // Returns a Trainability enum to indicate the suitability of the sample.
-Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, NetworkIO *fwd_outputs,
+Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata,
+                                             NetworkIO *fwd_outputs,
                                              NetworkIO *targets) {
   if (trainingdata == nullptr) {
     tprintf("Null trainingdata.\n");
     return UNENCODABLE;
   }
   // Ensure repeatability of random elements even across checkpoints.
-  bool debug = debug_interval_ > 0 && training_iteration() % debug_interval_ == 0;
+  bool debug =
+      debug_interval_ > 0 && training_iteration() % debug_interval_ == 0;
   std::vector<int> truth_labels;
   if (!EncodeString(trainingdata->transcription(), &truth_labels)) {
     tprintf("Can't encode transcription: '%s' in language '%s'\n",
-            trainingdata->transcription().c_str(), trainingdata->language().c_str());
+            trainingdata->transcription().c_str(),
+            trainingdata->language().c_str());
     return UNENCODABLE;
   }
   bool upside_down = false;
@@ -881,7 +925,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, Netw
     upside_down = randomizer_.SignedRand(1.0) > 0.0;
     if (upside_down) {
       // Modify the truth labels to match the rotation:
-      // Apart from space and null, increment the label. This is changes the
+      // Apart from space and null, increment the label. This changes the
       // script-id to the same script-id but upside-down.
       // The labels need to be reversed in order, as the first is now the last.
       for (auto truth_label : truth_labels) {
@@ -904,8 +948,8 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, Netw
   float image_scale;
   NetworkIO inputs;
   bool invert = trainingdata->boxes().empty();
-  if (!RecognizeLine(*trainingdata, invert, debug, invert, upside_down, &image_scale, &inputs,
-                     fwd_outputs)) {
+  if (!RecognizeLine(*trainingdata, invert, debug, invert, upside_down,
+                     &image_scale, &inputs, fwd_outputs)) {
     tprintf("Image %s not trainable\n", trainingdata->imagefilename().c_str());
     return UNENCODABLE;
   }
@@ -913,12 +957,14 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, Netw
   LossType loss_type = OutputLossType();
   if (loss_type == LT_SOFTMAX) {
     if (!ComputeTextTargets(*fwd_outputs, truth_labels, targets)) {
-      tprintf("Compute simple targets failed for %s!\n", trainingdata->imagefilename().c_str());
+      tprintf("Compute simple targets failed for %s!\n",
+              trainingdata->imagefilename().c_str());
       return UNENCODABLE;
     }
   } else if (loss_type == LT_CTC) {
     if (!ComputeCTCTargets(truth_labels, fwd_outputs, targets)) {
-      tprintf("Compute CTC targets failed for %s!\n", trainingdata->imagefilename().c_str());
+      tprintf("Compute CTC targets failed for %s!\n",
+              trainingdata->imagefilename().c_str());
       return UNENCODABLE;
     }
   } else {
@@ -932,7 +978,8 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, Netw
   if (loss_type != LT_CTC) {
     LabelsFromOutputs(*targets, &truth_labels, &xcoords);
   }
-  if (!DebugLSTMTraining(inputs, *trainingdata, *fwd_outputs, truth_labels, *targets)) {
+  if (!DebugLSTMTraining(inputs, *trainingdata, *fwd_outputs, truth_labels,
+                         *targets)) {
     tprintf("Input width was %d\n", inputs.Width());
     return UNENCODABLE;
   }
@@ -941,7 +988,8 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, Netw
   targets->SubtractAllFromFloat(*fwd_outputs);
   if (debug_interval_ != 0) {
     if (truth_text != ocr_text) {
-      tprintf("Iteration %d: BEST OCR TEXT : %s\n", training_iteration(), ocr_text.c_str());
+      tprintf("Iteration %d: BEST OCR TEXT : %s\n", training_iteration(),
+              ocr_text.c_str());
     }
   }
   double char_error = ComputeCharError(truth_labels, ocr_labels);
@@ -964,7 +1012,8 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata, Netw
 // restored.  *this must always be the master trainer that retains the only
 // copy of the training data and language model. trainer is the model that is
 // actually serialized.
-bool LSTMTrainer::SaveTrainingDump(SerializeAmount serialize_amount, const LSTMTrainer &trainer,
+bool LSTMTrainer::SaveTrainingDump(SerializeAmount serialize_amount,
+                                   const LSTMTrainer &trainer,
                                    std::vector<char> *data) const {
   TFile fp;
   fp.OpenWrite(data);
@@ -972,7 +1021,8 @@ bool LSTMTrainer::SaveTrainingDump(SerializeAmount serialize_amount, const LSTMT
 }
 
 // Restores the model to *this.
-bool LSTMTrainer::ReadLocalTrainingDump(const TessdataManager *mgr, const char *data, int size) {
+bool LSTMTrainer::ReadLocalTrainingDump(const TessdataManager *mgr,
+                                        const char *data, int size) {
   if (size == 0) {
     tprintf("Warning: data size is 0 in LSTMTrainer::ReadLocalTrainingDump\n");
     return false;
@@ -986,7 +1036,8 @@ bool LSTMTrainer::ReadLocalTrainingDump(const TessdataManager *mgr, const char *
 bool LSTMTrainer::SaveTraineddata(const char *filename) {
   std::vector<char> recognizer_data;
   SaveRecognitionDump(&recognizer_data);
-  mgr_.OverwriteEntry(TESSDATA_LSTM, &recognizer_data[0], recognizer_data.size());
+  mgr_.OverwriteEntry(TESSDATA_LSTM, &recognizer_data[0],
+                      recognizer_data.size());
   return mgr_.SaveFile(filename, SaveDataToFile);
 }
 
@@ -1021,8 +1072,8 @@ void LSTMTrainer::FillErrorBuffer(double new_error, ErrorTypes type) {
 
 // Helper generates a map from each current recoder_ code (ie softmax index)
 // to the corresponding old_recoder code, or -1 if there isn't one.
-std::vector<int> LSTMTrainer::MapRecoder(const UNICHARSET &old_chset,
-                                         const UnicharCompress &old_recoder) const {
+std::vector<int> LSTMTrainer::MapRecoder(
+    const UNICHARSET &old_chset, const UnicharCompress &old_recoder) const {
   int num_new_codes = recoder_.code_range();
   int num_new_unichars = GetUnicharset().size();
   std::vector<int> code_map(num_new_codes, -1);
@@ -1041,9 +1092,10 @@ std::vector<int> LSTMTrainer::MapRecoder(const UNICHARSET &old_chset,
         continue;
       }
       // The old unicharset must have the same unichar.
-      int old_uid = uid < num_new_unichars
-                        ? old_chset.unichar_to_id(GetUnicharset().id_to_unichar(uid))
-                        : old_chset.size() - 1;
+      int old_uid =
+          uid < num_new_unichars
+              ? old_chset.unichar_to_id(GetUnicharset().id_to_unichar(uid))
+              : old_chset.size() - 1;
       if (old_uid == INVALID_UNICHAR_ID) {
         continue;
       }
@@ -1075,7 +1127,8 @@ void LSTMTrainer::InitCharSet() {
 
 // Helper computes and sets the null_char_.
 void LSTMTrainer::SetNullChar() {
-  null_char_ = GetUnicharset().has_special_codes() ? UNICHAR_BROKEN : GetUnicharset().size();
+  null_char_ = GetUnicharset().has_special_codes() ? UNICHAR_BROKEN
+                                                   : GetUnicharset().size();
   RecodedCharID code;
   recoder_.EncodeUnichar(null_char_, &code);
   null_char_ = code(0);
@@ -1099,7 +1152,8 @@ void LSTMTrainer::EmptyConstructor() {
 // as an image in the given window, and the corresponding labels at the
 // corresponding x_starts.
 // Returns false if the truth string is empty.
-bool LSTMTrainer::DebugLSTMTraining(const NetworkIO &inputs, const ImageData &trainingdata,
+bool LSTMTrainer::DebugLSTMTraining(const NetworkIO &inputs,
+                                    const ImageData &trainingdata,
                                     const NetworkIO &fwd_outputs,
                                     const std::vector<int> &truth_labels,
                                     const NetworkIO &outputs) {
@@ -1114,12 +1168,15 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO &inputs, const ImageData &tr
     std::vector<int> xcoords;
     LabelsFromOutputs(outputs, &labels, &xcoords);
     std::string text = DecodeLabels(labels);
-    tprintf("Iteration %d: GROUND  TRUTH : %s\n", training_iteration(), truth_text.c_str());
+    tprintf("Iteration %d: GROUND  TRUTH : %s\n", training_iteration(),
+            truth_text.c_str());
     if (truth_text != text) {
-      tprintf("Iteration %d: ALIGNED TRUTH : %s\n", training_iteration(), text.c_str());
+      tprintf("Iteration %d: ALIGNED TRUTH : %s\n", training_iteration(),
+              text.c_str());
     }
     if (debug_interval_ > 0 && training_iteration() % debug_interval_ == 0) {
-      tprintf("TRAINING activation path for truth string %s\n", truth_text.c_str());
+      tprintf("TRAINING activation path for truth string %s\n",
+              truth_text.c_str());
       DebugActivationPath(outputs, labels, xcoords);
 #ifndef GRAPHICS_DISABLED
       DisplayForward(inputs, labels, xcoords, "LSTMTraining", &align_win_);
@@ -1136,11 +1193,12 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO &inputs, const ImageData &tr
 #ifndef GRAPHICS_DISABLED
 
 // Displays the network targets as line a line graph.
-void LSTMTrainer::DisplayTargets(const NetworkIO &targets, const char *window_name,
-                                 ScrollView **window) {
+void LSTMTrainer::DisplayTargets(const NetworkIO &targets,
+                                 const char *window_name, ScrollView **window) {
   int width = targets.Width();
   int num_features = targets.NumFeatures();
-  Network::ClearWindow(true, window_name, width * kTargetXScale, kTargetYScale, window);
+  Network::ClearWindow(true, window_name, width * kTargetXScale, kTargetYScale,
+                       window);
   for (int c = 0; c < num_features; ++c) {
     int color = c % (ScrollView::GREEN_YELLOW - 1) + 2;
     (*window)->Pen(static_cast<ScrollView::Color>(color));
@@ -1172,7 +1230,8 @@ void LSTMTrainer::DisplayTargets(const NetworkIO &targets, const char *window_na
 
 // Builds a no-compromises target where the first positions should be the
 // truth labels and the rest is padded with the null_char_.
-bool LSTMTrainer::ComputeTextTargets(const NetworkIO &outputs, const std::vector<int> &truth_labels,
+bool LSTMTrainer::ComputeTextTargets(const NetworkIO &outputs,
+                                     const std::vector<int> &truth_labels,
                                      NetworkIO *targets) {
   if (truth_labels.size() > targets->Width()) {
     tprintf("Error: transcription %s too long to fit into target of width %d\n",
@@ -1193,18 +1252,19 @@ bool LSTMTrainer::ComputeTextTargets(const NetworkIO &outputs, const std::vector
 // Builds a target using standard CTC. truth_labels should be pre-padded with
 // nulls wherever desired. They don't have to be between all labels.
 // outputs is input-output, as it gets clipped to minimum probability.
-bool LSTMTrainer::ComputeCTCTargets(const std::vector<int> &truth_labels, NetworkIO *outputs,
-                                    NetworkIO *targets) {
+bool LSTMTrainer::ComputeCTCTargets(const std::vector<int> &truth_labels,
+                                    NetworkIO *outputs, NetworkIO *targets) {
   // Bottom-clip outputs to a minimum probability.
   CTC::NormalizeProbs(outputs);
-  return CTC::ComputeCTCTargets(truth_labels, null_char_, outputs->float_array(), targets);
+  return CTC::ComputeCTCTargets(truth_labels, null_char_,
+                                outputs->float_array(), targets);
 }
 
 // Computes network errors, and stores the results in the rolling buffers,
 // along with the supplied text_error.
 // Returns the delta error of the current sample (not running average.)
-double LSTMTrainer::ComputeErrorRates(const NetworkIO &deltas, double char_error,
-                                      double word_error) {
+double LSTMTrainer::ComputeErrorRates(const NetworkIO &deltas,
+                                      double char_error, double word_error) {
   UpdateErrorBuffer(ComputeRMSError(deltas), ET_RMS);
   // Delta error is the fraction of timesteps with >0.5 error in the top choice
   // score. If zero, then the top choice characters are guaranteed correct,
@@ -1249,7 +1309,7 @@ double LSTMTrainer::ComputeWinnerError(const NetworkIO &deltas) {
   for (int t = 0; t < width; ++t) {
     const float *class_errs = deltas.f(t);
     for (int c = 0; c < num_classes; ++c) {
-      float abs_delta = fabs(class_errs[c]);
+      float abs_delta = std::fabs(class_errs[c]);
       // TODO(rays) Filtering cases where the delta is very large to cut out
       // GT errors doesn't work. Find a better way or get better truth.
       if (0.5 <= abs_delta) {
@@ -1264,7 +1324,7 @@ double LSTMTrainer::ComputeWinnerError(const NetworkIO &deltas) {
 double LSTMTrainer::ComputeCharError(const std::vector<int> &truth_str,
                                      const std::vector<int> &ocr_str) {
   std::vector<int> label_counts(NumOutputs());
-  int truth_size = 0;
+  unsigned truth_size = 0;
   for (auto ch : truth_str) {
     if (ch != null_char_) {
       ++label_counts[ch];
@@ -1276,11 +1336,12 @@ double LSTMTrainer::ComputeCharError(const std::vector<int> &truth_str,
       --label_counts[ch];
     }
   }
-  int char_errors = 0;
+  unsigned char_errors = 0;
   for (auto label_count : label_counts) {
     char_errors += abs(label_count);
   }
-  if (truth_size == 0) {
+  // Limit BCER to interval [0,1] and avoid division by zero.
+  if (truth_size <= char_errors) {
     return (char_errors == 0) ? 0.0 : 1.0;
   }
   return static_cast<double>(char_errors) / truth_size;
@@ -1288,7 +1349,8 @@ double LSTMTrainer::ComputeCharError(const std::vector<int> &truth_str,
 
 // Computes word recall error rate using a very simple bag of words algorithm.
 // NOTE that this is destructive on both input strings.
-double LSTMTrainer::ComputeWordError(std::string *truth_str, std::string *ocr_str) {
+double LSTMTrainer::ComputeWordError(std::string *truth_str,
+                                     std::string *ocr_str) {
   using StrMap = std::unordered_map<std::string, int, std::hash<std::string>>;
   std::vector<std::string> truth_words = split(*truth_str, ' ');
   if (truth_words.empty()) {
@@ -1296,7 +1358,7 @@ double LSTMTrainer::ComputeWordError(std::string *truth_str, std::string *ocr_st
   }
   std::vector<std::string> ocr_words = split(*ocr_str, ' ');
   StrMap word_counts;
-  for (auto truth_word : truth_words) {
+  for (const auto &truth_word : truth_words) {
     std::string truth_word_string(truth_word.c_str());
     auto it = word_counts.find(truth_word_string);
     if (it == word_counts.end()) {
@@ -1305,7 +1367,7 @@ double LSTMTrainer::ComputeWordError(std::string *truth_str, std::string *ocr_st
       ++it->second;
     }
   }
-  for (auto ocr_word : ocr_words) {
+  for (const auto &ocr_word : ocr_words) {
     std::string ocr_word_string(ocr_word.c_str());
     auto it = word_counts.find(ocr_word_string);
     if (it == word_counts.end()) {
@@ -1329,7 +1391,8 @@ void LSTMTrainer::UpdateErrorBuffer(double new_error, ErrorTypes type) {
   int index = training_iteration_ % kRollingBufferSize_;
   error_buffers_[type][index] = new_error;
   // Compute the mean error.
-  int mean_count = std::min<int>(training_iteration_ + 1, error_buffers_[type].size());
+  int mean_count =
+      std::min<int>(training_iteration_ + 1, error_buffers_[type].size());
   double buffer_sum = 0.0;
   for (int i = 0; i < mean_count; ++i) {
     buffer_sum += error_buffers_[type][i];
@@ -1349,8 +1412,9 @@ void LSTMTrainer::RollErrorBuffers() {
   }
   ++training_iteration_;
   if (debug_interval_ != 0) {
-    tprintf("Mean rms=%g%%, delta=%g%%, train=%g%%(%g%%), skip ratio=%g%%\n", error_rates_[ET_RMS],
-            error_rates_[ET_DELTA], error_rates_[ET_CHAR_ERROR], error_rates_[ET_WORD_RECERR],
+    tprintf("Mean rms=%g%%, delta=%g%%, train=%g%%(%g%%), skip ratio=%g%%\n",
+            error_rates_[ET_RMS], error_rates_[ET_DELTA],
+            error_rates_[ET_CHAR_ERROR], error_rates_[ET_WORD_RECERR],
             error_rates_[ET_SKIP_RATIO]);
   }
 }
@@ -1360,11 +1424,14 @@ void LSTMTrainer::RollErrorBuffers() {
 // Tester is an externally supplied callback function that tests on some
 // data set with a given model and records the error rates in a graph.
 std::string LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
-                                     const std::vector<char> &model_data, TestCallback tester) {
-  if (error_rate > best_error_rate_ && iteration < best_iteration_ + kErrorGraphInterval) {
+                                          const std::vector<char> &model_data,
+                                          const TestCallback &tester) {
+  if (error_rate > best_error_rate_ &&
+      iteration < best_iteration_ + kErrorGraphInterval) {
     // Too soon to record a new point.
     if (tester != nullptr && !worst_model_data_.empty()) {
-      mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0], worst_model_data_.size());
+      mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0],
+                          worst_model_data_.size());
       return tester(worst_iteration_, nullptr, mgr_, CurrentTrainingStage());
     } else {
       return "";
@@ -1380,8 +1447,10 @@ std::string LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
   if (error_rate < best_error_rate_) {
     // This is a new (global) minimum.
     if (tester != nullptr && !worst_model_data_.empty()) {
-      mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0], worst_model_data_.size());
-      result = tester(worst_iteration_, worst_error_rates_, mgr_, CurrentTrainingStage());
+      mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0],
+                          worst_model_data_.size());
+      result = tester(worst_iteration_, worst_error_rates_, mgr_,
+                      CurrentTrainingStage());
       worst_model_data_.clear();
       best_model_data_ = model_data;
     }
@@ -1393,23 +1462,28 @@ std::string LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
     // Compute 2% decay time.
     double two_percent_more = error_rate + 2.0;
     int i;
-    for (i = best_error_history_.size() - 1; i >= 0 && best_error_history_[i] < two_percent_more;
-         --i) {
+    for (i = best_error_history_.size() - 1;
+         i >= 0 && best_error_history_[i] < two_percent_more; --i) {
     }
     int old_iteration = i >= 0 ? best_error_iterations_[i] : 0;
     improvement_steps_ = iteration - old_iteration;
-    tprintf("2 Percent improvement time=%d, best error was %g @ %d\n", improvement_steps_,
-            i >= 0 ? best_error_history_[i] : 100.0, old_iteration);
+    tprintf("2 Percent improvement time=%d, best error was %g @ %d\n",
+            improvement_steps_, i >= 0 ? best_error_history_[i] : 100.0,
+            old_iteration);
   } else if (error_rate > best_error_rate_) {
     // This is a new (local) maximum.
     if (tester != nullptr) {
       if (!best_model_data_.empty()) {
-        mgr_.OverwriteEntry(TESSDATA_LSTM, &best_model_data_[0], best_model_data_.size());
-        result = tester(best_iteration_, best_error_rates_, mgr_, CurrentTrainingStage());
+        mgr_.OverwriteEntry(TESSDATA_LSTM, &best_model_data_[0],
+                            best_model_data_.size());
+        result = tester(best_iteration_, best_error_rates_, mgr_,
+                        CurrentTrainingStage());
       } else if (!worst_model_data_.empty()) {
         // Allow for multiple data points with "worst" error rate.
-        mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0], worst_model_data_.size());
-        result = tester(worst_iteration_, worst_error_rates_, mgr_, CurrentTrainingStage());
+        mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0],
+                            worst_model_data_.size());
+        result = tester(worst_iteration_, worst_error_rates_, mgr_,
+                        CurrentTrainingStage());
       }
       if (result.length() > 0) {
         best_model_data_.clear();

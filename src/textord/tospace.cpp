@@ -36,6 +36,7 @@
 #endif
 
 #include <algorithm>
+#include <cmath>
 #include <memory>
 
 #define MAXSPACING 128 /*max expected spacing in pix */
@@ -295,7 +296,7 @@ void Textord::row_spacing_stats(TO_ROW *row, GAPMAP *gapmap, int16_t block_idx, 
   /* Collect first pass stats for row */
 
   if (!good_block_space_estimate) {
-    block_space_gap_width = int16_t(floor(row->xheight / 2));
+    block_space_gap_width = int16_t(std::floor(row->xheight / 2));
   }
   if (!row->blob_list()->empty()) {
     if (tosp_threshold_bias1 > 0) {
@@ -435,7 +436,7 @@ are ignoring big gaps*/
     if (suspected_table) {
       sane_space =
           std::max(tosp_table_kn_sp_ratio * row->kern_size, tosp_table_xht_sp_ratio * row->xheight);
-      sane_threshold = int32_t(floor((sane_space + row->kern_size) / 2));
+      sane_threshold = int32_t(std::floor((sane_space + row->kern_size) / 2));
 
       if ((row->space_size < sane_space) || (row->space_threshold < sane_threshold)) {
         if (tosp_debug_level > 5) {
@@ -606,7 +607,7 @@ It comes to the same thing.
   (Though there is a difference in that old textor has integer space_size
   and kern_size.)
 */
-    row->space_threshold = int32_t(floor((row->space_size + row->kern_size) / 2));
+    row->space_threshold = int32_t(std::floor((row->space_size + row->kern_size) / 2));
   }
 
   // Apply the same logic and ratios as in row_spacing_stats to
@@ -648,7 +649,7 @@ bool Textord::isolated_row_stats(TO_ROW *row, GAPMAP *gapmap, STATS *all_gap_sta
   crude_threshold_estimate =
       std::max(tosp_init_guess_kn_mult * kern_estimate, tosp_init_guess_xht_mult * row->xheight);
   small_gaps_count =
-      stats_count_under(all_gap_stats, static_cast<int16_t>(ceil(crude_threshold_estimate)));
+      stats_count_under(all_gap_stats, static_cast<int16_t>(std::ceil(crude_threshold_estimate)));
   total = all_gap_stats->get_total();
 
   if ((total <= tosp_redo_kern_limit) ||
@@ -718,7 +719,7 @@ bool Textord::isolated_row_stats(TO_ROW *row, GAPMAP *gapmap, STATS *all_gap_sta
   } else {
     row->kern_size = all_gap_stats->median();
   }
-  row->space_threshold = int32_t(floor((row->space_size + row->kern_size) / 2));
+  row->space_threshold = int32_t(std::floor((row->space_size + row->kern_size) / 2));
   /* Sanity check */
   if ((row->kern_size >= row->space_threshold) || (row->space_threshold >= row->space_size) ||
       (row->space_threshold <= 0)) {
@@ -793,7 +794,7 @@ threshold is not within it, move the threshold so that is is just inside it.
     reqd_zero_width = 3;
   }
 
-  for (index = int16_t(ceil(kn)); index < int16_t(floor(sp)); index++) {
+  for (index = int16_t(std::ceil(kn)); index < int16_t(std::floor(sp)); index++) {
     if (all_gap_stats->pile_count(index) == 0) {
       if (zero_width == 0) {
         zero_start = index;
@@ -909,7 +910,7 @@ the gap between the word being built and the next one. */
       current_gap = box_it.data()->bounding_box().left() - next_rep_char_word_right;
       current_within_xht_gap = current_gap;
       if (current_gap > tosp_rep_space * repetition_spacing) {
-        prev_blanks = static_cast<uint8_t>(floor(current_gap / row->space_size));
+        prev_blanks = static_cast<uint8_t>(std::floor(current_gap / row->space_size));
         if (prev_blanks < 1) {
           prev_blanks = 1;
         }
@@ -1002,7 +1003,7 @@ the gap between the word being built and the next one. */
             current_gap = word->bounding_box().left() - prev_x;
             current_within_xht_gap = current_gap;
             if (current_gap > tosp_rep_space * repetition_spacing) {
-              blanks = static_cast<uint8_t>(floor(current_gap / row->space_size));
+              blanks = static_cast<uint8_t>(std::floor(current_gap / row->space_size));
               if (blanks < 1) {
                 blanks = 1;
               }
@@ -1066,7 +1067,7 @@ the gap between the word being built and the next one. */
       repetition_spacing = find_mean_blob_spacing(word);
       current_gap = word->bounding_box().left() - prev_x;
       if (current_gap > tosp_rep_space * repetition_spacing) {
-        blanks = static_cast<uint8_t>(floor(current_gap / row->space_size));
+        blanks = static_cast<uint8_t>(std::floor(current_gap / row->space_size));
         if (blanks < 1) {
           blanks = 1;
         }
@@ -1124,8 +1125,6 @@ ROW *Textord::make_blob_words(TO_ROW *row,    // row to make
   C_BLOB_IT cblob_it = &cblobs;
   WERD_LIST words;
   WERD *word;         // new word
-  BLOBNBOX *bblob;    // current blob
-  TBOX blob_box;      // bounding box
   BLOBNBOX_IT box_it; // iterator
   int16_t word_count = 0;
 
@@ -1136,18 +1135,21 @@ ROW *Textord::make_blob_words(TO_ROW *row,    // row to make
   bol = true;
   if (!box_it.empty()) {
     do {
-      bblob = box_it.data();
-      blob_box = bblob->bounding_box();
+      auto bblob = box_it.data();
+      auto blob_box = bblob->bounding_box();
       if (bblob->joined_to_prev()) {
-        if (bblob->cblob() != nullptr) {
+        auto cblob = bblob->remove_cblob();
+        if (cblob != nullptr) {
           cout_it.set_to_list(cblob_it.data()->out_list());
           cout_it.move_to_last();
-          cout_it.add_list_after(bblob->cblob()->out_list());
-          delete bblob->cblob();
+          cout_it.add_list_after(cblob->out_list());
+          delete cblob;
         }
       } else {
-        if (bblob->cblob() != nullptr) {
-          cblob_it.add_after_then_move(bblob->cblob());
+        auto cblob = bblob->cblob();
+        if (cblob != nullptr) {
+          bblob->set_owns_cblob(false);
+          cblob_it.add_after_then_move(cblob);
         }
       }
       box_it.forward(); // next one
@@ -1737,7 +1739,7 @@ caps ht chars which should NOT have their box reduced: T, Y, V, W etc
   if (left_limit > junk) {
     *left_above_xht = INT16_MAX; // No area above xht
   } else {
-    *left_above_xht = static_cast<int16_t>(floor(left_limit));
+    *left_above_xht = static_cast<int16_t>(std::floor(left_limit));
   }
   /*
 Find reduced LH limit of blob - the left extent of the region ABOVE the
@@ -1761,7 +1763,7 @@ Find reduced RH limit of blob - the right extent of the region BELOW the xht.
     return TBOX(); // no area within xht so return empty box
   }
 
-  return TBOX(ICOORD(static_cast<int16_t>(floor(left_limit)), blob_box.bottom()),
-              ICOORD(static_cast<int16_t>(ceil(right_limit)), blob_box.top()));
+  return TBOX(ICOORD(static_cast<int16_t>(std::floor(left_limit)), blob_box.bottom()),
+              ICOORD(static_cast<int16_t>(std::ceil(right_limit)), blob_box.top()));
 }
 } // namespace tesseract

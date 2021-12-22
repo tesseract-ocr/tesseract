@@ -207,7 +207,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
     case spherical:
       ReadNFloats(fp, 1, &(Proto->Variance.Spherical));
       Proto->Magnitude.Spherical = 1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
-      Proto->TotalMagnitude = pow(Proto->Magnitude.Spherical, static_cast<float>(N));
+      Proto->TotalMagnitude = std::pow(Proto->Magnitude.Spherical, static_cast<float>(N));
       Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
       Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
       Proto->Distrib.clear();

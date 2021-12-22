@@ -123,7 +123,7 @@ void IndexMapBiDi::Setup() {
   }
   compact_map_.clear();
   compact_map_.resize(compact_size, -1);
-  for (int i = 0; i < sparse_map_.size(); ++i) {
+  for (size_t i = 0; i < sparse_map_.size(); ++i) {
     if (sparse_map_[i] >= 0) {
       compact_map_[sparse_map_[i]] = i;
     }
@@ -187,7 +187,7 @@ void IndexMapBiDi::CompleteMerges() {
   // Re-generate the compact_map leaving holes for unused indices.
   compact_map_.clear();
   compact_map_.resize(compact_size, -1);
-  for (int i = 0; i < sparse_map_.size(); ++i) {
+  for (size_t i = 0; i < sparse_map_.size(); ++i) {
     if (sparse_map_[i] >= 0) {
       if (compact_map_[sparse_map_[i]] == -1) {
         compact_map_[sparse_map_[i]] = i;
@@ -198,7 +198,7 @@ void IndexMapBiDi::CompleteMerges() {
   // index went to in the compacted map.
   std::vector<int32_t> tmp_compact_map(compact_size, -1);
   compact_size = 0;
-  for (int i = 0; i < compact_map_.size(); ++i) {
+  for (size_t i = 0; i < compact_map_.size(); ++i) {
     if (compact_map_[i] >= 0) {
       tmp_compact_map[i] = compact_size;
       compact_map_[compact_size++] = compact_map_[i];
@@ -222,8 +222,8 @@ bool IndexMapBiDi::Serialize(FILE *fp) const {
   // then each additional sparse entry needs to be stored.
   // Normally we store only the compact map to save space.
   std::vector<int32_t> remaining_pairs;
-  for (int i = 0; i < sparse_map_.size(); ++i) {
-    if (sparse_map_[i] >= 0 && compact_map_[sparse_map_[i]] != i) {
+  for (unsigned i = 0; i < sparse_map_.size(); ++i) {
+    if (sparse_map_[i] >= 0 && static_cast<unsigned>(compact_map_[sparse_map_[i]]) != i) {
       remaining_pairs.push_back(i);
       remaining_pairs.push_back(sparse_map_[i]);
     }
@@ -243,10 +243,10 @@ bool IndexMapBiDi::DeSerialize(bool swap, FILE *fp) {
   }
   sparse_map_.clear();
   sparse_map_.resize(sparse_size_, -1);
-  for (int i = 0; i < compact_map_.size(); ++i) {
+  for (unsigned i = 0; i < compact_map_.size(); ++i) {
     sparse_map_[compact_map_[i]] = i;
   }
-  for (int i = 0; i < remaining_pairs.size(); ++i) {
+  for (size_t i = 0; i < remaining_pairs.size(); ++i) {
     int sparse_index = remaining_pairs[i++];
     sparse_map_[sparse_index] = remaining_pairs[i];
   }

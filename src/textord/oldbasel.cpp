@@ -32,6 +32,7 @@
 #include "textord.h"
 #include "tprintf.h"
 
+#include <cmath>
 #include <vector> // for std::vector
 
 #include <algorithm>
@@ -1450,7 +1451,7 @@ void make_first_xheight( // find xheight
   for (blobindex = 0; blobindex < blobcount; blobindex++) {
     int xcenter = (blobcoords[blobindex].left() + blobcoords[blobindex].right()) / 2;
     float base = baseline->y(xcenter);
-    float bottomdiff = fabs(base - blobcoords[blobindex].bottom());
+    float bottomdiff = std::fabs(base - blobcoords[blobindex].bottom());
     int strength = textord_ocropus_mode && bottomdiff <= kBaselineTouch ? kGoodStrength : 1;
     int height = static_cast<int>(blobcoords[blobindex].top() - base + 0.5);
     if (blobcoords[blobindex].height() > init_lineheight * kMinHeight) {

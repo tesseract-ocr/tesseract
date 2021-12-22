@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest ]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
       - name: Checkout Tesseract Source (for test images)
@@ -56,7 +56,7 @@ jobs:
              git clone https://github.com/egorpugin/tessdata tessdata_unittest
              mv tessdata_unittest/* ../
         if: runner.os == 'Windows'
-        
+
       - name: Create CMakeLists.txt file for basicapitest
         shell: bash
         run: |
@@ -75,7 +75,7 @@ jobs:
              EOF
              cat CMakeLists.txt
         if: runner.os == 'Windows'
-        
+
       - name: Configure basicapitest
         run: |
              cd test
@@ -87,7 +87,7 @@ jobs:
              cd test
              cmake --build .  --config Release
         if: runner.os == 'Windows'
-        
+
       - name: Run basicapitest (Windows)
         run: |
              cd test

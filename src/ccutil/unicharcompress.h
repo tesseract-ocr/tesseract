@@ -174,7 +174,7 @@ public:
 
   // Encodes a single unichar_id. Returns the length of the code, (or zero if
   // invalid input), and the encoding itself in code.
-  int EncodeUnichar(int unichar_id, RecodedCharID *code) const;
+  int EncodeUnichar(unsigned unichar_id, RecodedCharID *code) const;
   // Decodes code, returning the original unichar-id, or
   // INVALID_UNICHAR_ID if the input is invalid.
   int DecodeUnichar(const RecodedCharID &code) const;

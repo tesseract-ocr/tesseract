@@ -1489,7 +1489,7 @@ CLUSTERER *MakeClusterer(int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
  *
  * @return    Pointer to the new sample data structure
  */
-SAMPLE *MakeSample(CLUSTERER *Clusterer, const float *Feature, int32_t CharID) {
+SAMPLE *MakeSample(CLUSTERER *Clusterer, const float *Feature, uint32_t CharID) {
   int i;
 
   // see if the samples have already been clustered - if so trap an error
@@ -1674,13 +1674,13 @@ float Mean(PROTOTYPE *Proto, uint16_t Dimension) {
 float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
   switch (Proto->Style) {
     case spherical:
-      return sqrt(Proto->Variance.Spherical);
+      return std::sqrt(Proto->Variance.Spherical);
     case elliptical:
-      return sqrt(Proto->Variance.Elliptical[Dimension]);
+      return std::sqrt(Proto->Variance.Elliptical[Dimension]);
     case mixed:
       switch (Proto->Distrib[Dimension]) {
         case normal:
-          return sqrt(Proto->Variance.Elliptical[Dimension]);
+          return std::sqrt(Proto->Variance.Elliptical[Dimension]);
         case uniform:
         case D_random:
           return Proto->Variance.Elliptical[Dimension];
@@ -2268,7 +2268,7 @@ static PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer, CLUSTER *Cluster, STATIST
     }
 
     FillBuckets(NormalBuckets, Cluster, i, &(Clusterer->ParamDesc[i]), Proto->Mean[i],
-                sqrt(Proto->Variance.Elliptical[i]));
+                std::sqrt(Proto->Variance.Elliptical[i]));
     if (DistributionOK(NormalBuckets)) {
       continue;
     }
@@ -2576,7 +2576,7 @@ static bool Independent(PARAM_DESC *ParamDesc, int16_t N, float *CoVariance, flo
       if ((*VARii == 0.0) || (*VARjj == 0.0)) {
         CorrelationCoeff = 0.0;
       } else {
-        CorrelationCoeff = sqrt(sqrt(*CoVariance * *CoVariance / (*VARii * *VARjj)));
+        CorrelationCoeff = sqrt(std::sqrt(*CoVariance * *CoVariance / (*VARii * *VARjj)));
       }
       if (CorrelationCoeff > Independence) {
         return false;

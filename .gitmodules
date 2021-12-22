@@ -1,5 +1,5 @@
 [submodule "googletest"]
-	path = googletest
+	path = unittest/third_party/googletest
 	url = https://github.com/google/googletest.git
 [submodule "test"]
 	path = test

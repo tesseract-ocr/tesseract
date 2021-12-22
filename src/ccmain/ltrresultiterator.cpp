@@ -147,14 +147,6 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
   return 0.0f;
 }
 
-void LTRResultIterator::RowAttributes(float *row_height, float *descenders,
-                                      float *ascenders) const {
-  *row_height =
-      it_->row()->row->x_height() + it_->row()->row->ascenders() - it_->row()->row->descenders();
-  *descenders = it_->row()->row->descenders();
-  *ascenders = it_->row()->row->ascenders();
-}
-
 // Returns the font attributes of the current word. If iterating at a higher
 // level object than words, eg textlines, then this will return the
 // attributes of the first word in that textline.
@@ -335,10 +327,10 @@ char *LTRResultIterator::WordNormedUTF8Text() const {
   WERD_CHOICE *best_choice = it_->word()->best_choice;
   const UNICHARSET *unicharset = it_->word()->uch_set;
   ASSERT_HOST(best_choice != nullptr);
-  for (int i = 0; i < best_choice->length(); ++i) {
+  for (unsigned i = 0; i < best_choice->length(); ++i) {
     ocr_text += unicharset->get_normed_unichar(best_choice->unichar_id(i));
   }
-  int length = ocr_text.length() + 1;
+  auto length = ocr_text.length() + 1;
   char *result = new char[length];
   strncpy(result, ocr_text.c_str(), length);
   return result;
@@ -404,7 +396,7 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator &result_it) {
         strcmp(word_res_->CTC_symbol_choices[0][0].first, " ")) {
       blanks_before_word_ = 0;
     }
-    auto index = *tstep_index_;
+    unsigned index = *tstep_index_;
     index += blanks_before_word_;
     if (index < word_res_->CTC_symbol_choices.size()) {
       LSTM_choices_ = &word_res_->CTC_symbol_choices[index];
@@ -432,7 +424,8 @@ ChoiceIterator::~ChoiceIterator() {
 // are none left.
 bool ChoiceIterator::Next() {
   if (oemLSTM_ && LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
-    if (LSTM_choice_it_ != LSTM_choices_->end() && next(LSTM_choice_it_) == LSTM_choices_->end()) {
+    if (LSTM_choice_it_ == LSTM_choices_->end() ||
+        next(LSTM_choice_it_) == LSTM_choices_->end()) {
       return false;
     } else {
       ++LSTM_choice_it_;
@@ -484,7 +477,7 @@ float ChoiceIterator::Confidence() const {
 
 // Returns the set of timesteps which belong to the current symbol
 std::vector<std::vector<std::pair<const char *, float>>> *ChoiceIterator::Timesteps() const {
-  int offset = *tstep_index_ + blanks_before_word_;
+  unsigned offset = *tstep_index_ + blanks_before_word_;
   if (offset >= word_res_->segmented_timesteps.size() || !oemLSTM_) {
     return nullptr;
   }

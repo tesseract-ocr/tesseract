@@ -133,8 +133,8 @@ jobs:
           git clone --depth 1 https://github.com/tesseract-ocr/tessconfigs
           mkdir d:/a/local/share
           move tessconfigs d:/a/local/share
-          curl -L https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata --output d:/a/local/share/tessconfigs/eng.traineddata
-          curl -L https://github.com/tesseract-ocr/tessdata/raw/master/osd.traineddata --output d:/a/local/share/tessconfigs/osd.traineddata
+          curl -L https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata --output d:/a/local/share/tessconfigs/eng.traineddata
+          curl -L https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata --output d:/a/local/share/tessconfigs/osd.traineddata
           set TESSDATA_PREFIX=d:/a/local/share/tessconfigs
           set PATH=d:/a/local/bin;%PATH%
           tesseract -v

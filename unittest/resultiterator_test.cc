@@ -130,12 +130,14 @@ protected:
   }
 
   void VerifyRebuilds(int block_limit, int para_limit, int line_limit, int word_limit,
-                      int symbol_limit, PageIterator *it) {
+                      int symbol_limit, PageIterator *it, PageIteratorLevel maxlevel=tesseract::RIL_SYMBOL) {
     VerifyRebuild(block_limit, tesseract::RIL_BLOCK, it);
     VerifyRebuild(para_limit, tesseract::RIL_PARA, it);
     VerifyRebuild(line_limit, tesseract::RIL_TEXTLINE, it);
     VerifyRebuild(word_limit, tesseract::RIL_WORD, it);
-    VerifyRebuild(symbol_limit, tesseract::RIL_SYMBOL, it);
+    if (maxlevel == tesseract::RIL_SYMBOL) {
+      VerifyRebuild(symbol_limit, maxlevel, it);
+    }
   }
 
   void VerifyAllText(const std::string &truth, ResultIterator *it) {
@@ -277,7 +279,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
   // The images should rebuild almost perfectly.
   LOG(INFO) << "Verifying image rebuilds 2a (resultiterator)"
             << "\n";
-  VerifyRebuilds(8, 8, 0, 0, 40, r_it);
+  VerifyRebuilds(8, 8, 0, 0, 40, r_it, tesseract::RIL_WORD);
   // Test the text.
   LOG(INFO) << "Verifying text rebuilds 1 (resultiterator)"
             << "\n";
@@ -286,7 +288,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
   // The images should rebuild almost perfectly.
   LOG(INFO) << "Verifying image rebuilds 2b (resultiterator)"
             << "\n";
-  VerifyRebuilds(8, 8, 0, 0, 40, r_it);
+  VerifyRebuilds(8, 8, 0, 0, 40, r_it, tesseract::RIL_WORD);
 
   r_it->Begin();
   // Test baseline of the first line.
@@ -308,17 +310,25 @@ TEST_F(ResultIteratorTest, EasyTest) {
 
   // Test font attributes for each word.
   do {
-    bool bold, italic, underlined, monospace, serif, smallcaps;
+    float confidence = r_it->Confidence(tesseract::RIL_WORD);
+#ifndef DISABLED_LEGACY_ENGINE
     int pointsize, font_id;
+    bool bold, italic, underlined, monospace, serif, smallcaps;
     const char *font = r_it->WordFontAttributes(&bold, &italic, &underlined, &monospace, &serif,
                                                 &smallcaps, &pointsize, &font_id);
-    float confidence = r_it->Confidence(tesseract::RIL_WORD);
     EXPECT_GE(confidence, 80.0f);
+#endif
     char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
+
+#ifdef DISABLED_LEGACY_ENGINE
+    LOG(INFO) << "Word " << word_str << ", conf " << confidence << "\n";
+#else
     LOG(INFO) << "Word " << word_str << " in font " << font
       << ", id " << font_id << ", size " << pointsize
       << ", conf " << confidence << "\n";
+#endif // def DISABLED_LEGACY_ENGINE
     delete[] word_str;
+#ifndef DISABLED_LEGACY_ENGINE
     EXPECT_FALSE(bold);
     EXPECT_FALSE(italic);
     EXPECT_FALSE(underlined);
@@ -329,6 +339,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
     // 31 pixels / textline * (72 pts / inch) / (200 pixels / inch) = 11.16 pts
     EXPECT_GE(pointsize, 11.16 - 1.50);
     EXPECT_LE(pointsize, 11.16 + 1.50);
+#endif // def DISABLED_LEGACY_ENGINE
   } while (r_it->Next(tesseract::RIL_WORD));
   delete r_it;
 }
@@ -357,6 +368,10 @@ TEST_F(ResultIteratorTest, GreyTest) {
 
 // Tests that Tesseract gets smallcaps and dropcaps.
 TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test as LSTM mode does not recognize smallcaps & dropcaps attributes.
+  GTEST_SKIP();
+#else
   SetImage("8071_093.3B.tif");
   char *result = api_.GetUTF8Text();
   delete[] result;
@@ -404,6 +419,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
   EXPECT_EQ(1, found_dropcaps);
   EXPECT_GE(4, found_smallcaps);
   EXPECT_LE(false_positives, 3);
+#endif // DISABLED_LEGACY_ENGINE
 }
 
 #if 0

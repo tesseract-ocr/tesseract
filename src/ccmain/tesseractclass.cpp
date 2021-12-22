@@ -46,6 +46,7 @@
 #  include "equationdetect.h"
 #endif
 #include "lstmrecognizer.h"
+#include "thresholder.h" // for ThresholdMethod
 
 namespace tesseract {
 
@@ -75,10 +76,40 @@ Tesseract::Tesseract()
                " (Values from PageSegMode enum in tesseract/publictypes.h)",
                this->params())
     , INT_MEMBER(thresholding_method,
-                 static_cast<int>(tesseract::ThresholdMethod::Otsu),
-                 "Thresholding "
-                 "method: 0 = Otsu, 1 = Adaptive Otsu, 2 = Sauvola",
+                 static_cast<int>(ThresholdMethod::Otsu),
+                 "Thresholding method: 0 = Otsu, 1 = LeptonicaOtsu, 2 = "
+                 "Sauvola",
                  this->params())
+    , BOOL_MEMBER(thresholding_debug, false,
+                  "Debug the thresholding process",
+                  this->params())
+    , double_MEMBER(thresholding_window_size, 0.33,
+                    "Window size for measuring local statistics (to be "
+                    "multiplied by image DPI). "
+                    "This parameter is used by the Sauvola thresolding method",
+                    this->params())
+    , double_MEMBER(thresholding_kfactor, 0.34,
+                    "Factor for reducing threshold due to variance. "
+                    "This parameter is used by the Sauvola thresolding method."
+                    " Normal range: 0.2-0.5",
+                    this->params())
+    , double_MEMBER(thresholding_tile_size, 0.33,
+                    "Desired tile size (to be multiplied by image DPI). "
+                    "This parameter is used by the LeptonicaOtsu thresolding "
+                    "method",
+                    this->params())
+    , double_MEMBER(thresholding_smooth_kernel_size, 0.0,
+                    "Size of convolution kernel applied to threshold array "
+                    "(to be multiplied by image DPI). Use 0 for no smoothing. "
+                    "This parameter is used by the LeptonicaOtsu thresolding "
+                    "method",
+                    this->params())
+    , double_MEMBER(thresholding_score_fraction, 0.1,
+                    "Fraction of the max Otsu score. "
+                    "This parameter is used by the LeptonicaOtsu thresolding "
+                    "method. "
+                    "For standard Otsu use 0.0, otherwise 0.1 is recommended",
+                    this->params())
     , INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
                       "Which OCR engine(s) to run (Tesseract, LSTM, both)."
                       " Defaults to loading and running the most accurate"
@@ -369,7 +400,9 @@ Tesseract::Tesseract()
                        "instance is not going to be used for OCR but say only "
                        "for layout analysis.",
                        this->params())
+#ifndef DISABLED_LEGACY_ENGINE
     , BOOL_MEMBER(textord_equation_detect, false, "Turn on equation detector", this->params())
+#endif // ndef DISABLED_LEGACY_ENGINE
     , BOOL_MEMBER(textord_tabfind_vertical_text, true, "Enable vertical detection", this->params())
     , BOOL_MEMBER(textord_tabfind_force_vertical_text, false, "Force using vertical text page mode",
                   this->params())
@@ -403,7 +436,7 @@ Tesseract::Tesseract()
                     "information is lost due to the cut off at 0. The standard value is "
                     "5",
                     this->params())
-    , BOOL_MEMBER(pageseg_apply_music_mask, true,
+    , BOOL_MEMBER(pageseg_apply_music_mask, false,
                   "Detect music staff and remove intersecting components", this->params())
     ,
 
@@ -421,7 +454,9 @@ Tesseract::Tesseract()
     , reskew_(1.0f, 0.0f)
     , most_recently_used_(this)
     , font_table_size_(0)
+#ifndef DISABLED_LEGACY_ENGINE
     , equ_detect_(nullptr)
+#endif // ndef DISABLED_LEGACY_ENGINE
     , lstm_recognizer_(nullptr)
     , train_line_page_num_(0) {}
 

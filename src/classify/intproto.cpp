@@ -221,7 +221,7 @@ void AddIntClass(INT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, INT_CLASS_ST
   int Pruner;
 
   assert(LegalClassId(ClassId));
-  if (ClassId != Templates->NumClasses) {
+  if (static_cast<unsigned>(ClassId) != Templates->NumClasses) {
     fprintf(stderr,
             "Please make sure that classes are added to templates"
             " in increasing order of ClassIds\n");
@@ -365,14 +365,14 @@ void AddProtoToProtoPruner(PROTO_STRUCT *Proto, int ProtoId, INT_CLASS_STRUCT *C
   Length = Proto->Length;
 
   X = Proto->X + X_SHIFT;
-  Pad = std::max(fabs(cos(Angle)) * (Length / 2.0 + classify_pp_end_pad * GetPicoFeatureLength()),
-                 fabs(sin(Angle)) * (classify_pp_side_pad * GetPicoFeatureLength()));
+  Pad = std::max(fabs(std::cos(Angle)) * (Length / 2.0 + classify_pp_end_pad * GetPicoFeatureLength()),
+                 fabs(std::sin(Angle)) * (classify_pp_side_pad * GetPicoFeatureLength()));
 
   FillPPLinearBits(ProtoSet->ProtoPruner[PRUNER_X], Index, X, Pad, debug);
 
   Y = Proto->Y + Y_SHIFT;
-  Pad = std::max(fabs(sin(Angle)) * (Length / 2.0 + classify_pp_end_pad * GetPicoFeatureLength()),
-                 fabs(cos(Angle)) * (classify_pp_side_pad * GetPicoFeatureLength()));
+  Pad = std::max(fabs(std::sin(Angle)) * (Length / 2.0 + classify_pp_end_pad * GetPicoFeatureLength()),
+                 fabs(std::cos(Angle)) * (classify_pp_side_pad * GetPicoFeatureLength()));
 
   FillPPLinearBits(ProtoSet->ProtoPruner[PRUNER_Y], Index, Y, Pad, debug);
 } /* AddProtoToProtoPruner */
@@ -491,13 +491,12 @@ INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
                                            const UNICHARSET &target_unicharset) {
   CLASS_TYPE FClass;
   INT_CLASS_STRUCT *IClass;
-  int ClassId;
   int ProtoId;
   int ConfigId;
 
   auto IntTemplates = new INT_TEMPLATES_STRUCT;
 
-  for (ClassId = 0; ClassId < target_unicharset.size(); ClassId++) {
+  for (unsigned ClassId = 0; ClassId < target_unicharset.size(); ClassId++) {
     FClass = &(FloatProtos[ClassId]);
     if (FClass->NumProtos == 0 && FClass->NumConfigs == 0 &&
         strcmp(target_unicharset.id_to_unichar(ClassId), " ") != 0) {
@@ -507,14 +506,10 @@ INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
     assert(UnusedClassIdIn(IntTemplates, ClassId));
     IClass = new INT_CLASS_STRUCT(FClass->NumProtos, FClass->NumConfigs);
     FontSet fs{FClass->font_set.size()};
-    for (int i = 0; i < fs.size(); ++i) {
+    for (unsigned i = 0; i < fs.size(); ++i) {
       fs[i] = FClass->font_set.at(i);
     }
-    if (this->fontset_table_.contains(fs)) {
-      IClass->font_set_id = this->fontset_table_.get_index(fs);
-    } else {
-      IClass->font_set_id = this->fontset_table_.push_back(fs);
-    }
+    IClass->font_set_id = this->fontset_table_.push_back(fs);
     AddIntClass(IntTemplates, ClassId, IClass);
 
     for (ProtoId = 0; ProtoId < FClass->NumProtos; ProtoId++) {
@@ -613,10 +608,10 @@ INT_TEMPLATES_STRUCT::INT_TEMPLATES_STRUCT() {
 }
 
 INT_TEMPLATES_STRUCT::~INT_TEMPLATES_STRUCT() {
-  for (int i = 0; i < NumClasses; i++) {
+  for (unsigned i = 0; i < NumClasses; i++) {
     delete Class[i];
   }
-  for (int i = 0; i < NumClassPruners; i++) {
+  for (unsigned i = 0; i < NumClassPruners; i++) {
     delete ClassPruners[i];
   }
 }
@@ -630,9 +625,7 @@ INT_TEMPLATES_STRUCT::~INT_TEMPLATES_STRUCT() {
  * @note Globals: none
  */
 INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
-  int i, j, w, x, y, z;
-  int unicharset_size;
-  int version_id = 0;
+  int j, w, x, y, z;
   INT_TEMPLATES_STRUCT *Templates;
   CLASS_PRUNER_STRUCT *Pruner;
   INT_CLASS_STRUCT *Class;
@@ -645,25 +638,29 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
   uint32_t SetBitsForMask =          // word with NUM_BITS_PER_CLASS
       (1 << NUM_BITS_PER_CLASS) - 1; // set starting at bit 0
   uint32_t Mask, NewMask, ClassBits;
-  int MaxNumConfigs = MAX_NUM_CONFIGS;
-  int WerdsPerConfigVec = WERDS_PER_CONFIG_VEC;
+  unsigned MaxNumConfigs = MAX_NUM_CONFIGS;
+  unsigned WerdsPerConfigVec = WERDS_PER_CONFIG_VEC;
 
   /* first read the high level template struct */
   Templates = new INT_TEMPLATES_STRUCT;
   // Read Templates in parts for 64 bit compatibility.
+  uint32_t unicharset_size;
   if (fp->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1) != 1) {
     tprintf("Bad read of inttemp!\n");
   }
-  if (fp->FReadEndian(&Templates->NumClasses, sizeof(Templates->NumClasses), 1) != 1 ||
+  int32_t version_id = 0;
+  if (fp->FReadEndian(&version_id, sizeof(version_id), 1) != 1 ||
       fp->FReadEndian(&Templates->NumClassPruners, sizeof(Templates->NumClassPruners), 1) != 1) {
     tprintf("Bad read of inttemp!\n");
   }
-  if (Templates->NumClasses < 0) {
+  if (version_id < 0) {
     // This file has a version id!
-    version_id = -Templates->NumClasses;
+    version_id = -version_id;
     if (fp->FReadEndian(&Templates->NumClasses, sizeof(Templates->NumClasses), 1) != 1) {
       tprintf("Bad read of inttemp!\n");
     }
+  } else {
+    Templates->NumClasses = version_id;
   }
 
   if (version_id < 3) {
@@ -683,8 +680,8 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
   }
 
   /* then read in the class pruners */
-  const int kNumBuckets = NUM_CP_BUCKETS * NUM_CP_BUCKETS * NUM_CP_BUCKETS * WERDS_PER_CP_VECTOR;
-  for (i = 0; i < Templates->NumClassPruners; i++) {
+  const unsigned kNumBuckets = NUM_CP_BUCKETS * NUM_CP_BUCKETS * NUM_CP_BUCKETS * WERDS_PER_CP_VECTOR;
+  for (unsigned i = 0; i < Templates->NumClassPruners; i++) {
     Pruner = new CLASS_PRUNER_STRUCT;
     if (fp->FReadEndian(Pruner, sizeof(Pruner->p[0][0][0][0]), kNumBuckets) != kNumBuckets) {
       tprintf("Bad read of inttemp!\n");
@@ -700,19 +697,19 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
   if (version_id < 2) {
     // Allocate enough class pruners to cover all the class ids.
     max_class_id = 0;
-    for (i = 0; i < Templates->NumClasses; i++) {
+    for (unsigned i = 0; i < Templates->NumClasses; i++) {
       if (ClassIdFor[i] > max_class_id) {
         max_class_id = ClassIdFor[i];
       }
     }
-    for (i = 0; i <= CPrunerIdFor(max_class_id); i++) {
+    for (int i = 0; i <= CPrunerIdFor(max_class_id); i++) {
       Templates->ClassPruners[i] = new CLASS_PRUNER_STRUCT;
       memset(Templates->ClassPruners[i], 0, sizeof(CLASS_PRUNER_STRUCT));
     }
     // Convert class pruners from the old format (indexed by class index)
     // to the new format (indexed by class id).
     last_cp_bit_number = NUM_BITS_PER_CLASS * Templates->NumClasses - 1;
-    for (i = 0; i < Templates->NumClassPruners; i++) {
+    for (unsigned i = 0; i < Templates->NumClassPruners; i++) {
       for (x = 0; x < NUM_CP_BUCKETS; x++) {
         for (y = 0; y < NUM_CP_BUCKETS; y++) {
           for (z = 0; z < NUM_CP_BUCKETS; z++) {
@@ -750,13 +747,13 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
         }
       }
     }
-    for (i = 0; i < Templates->NumClassPruners; i++) {
+    for (unsigned i = 0; i < Templates->NumClassPruners; i++) {
       delete TempClassPruner[i];
     }
   }
 
   /* then read in each class */
-  for (i = 0; i < Templates->NumClasses; i++) {
+  for (unsigned i = 0; i < Templates->NumClasses; i++) {
     /* first read in the high level struct for the class */
     Class = new INT_CLASS_STRUCT;
     if (fp->FReadEndian(&Class->NumProtos, sizeof(Class->NumProtos), 1) != 1 ||
@@ -773,7 +770,7 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
         }
       }
     }
-    int num_configs = version_id < 4 ? MaxNumConfigs : Class->NumConfigs;
+    unsigned num_configs = version_id < 4 ? MaxNumConfigs : Class->NumConfigs;
     ASSERT_HOST(num_configs <= MaxNumConfigs);
     if (fp->FReadEndian(Class->ConfigLengths, sizeof(uint16_t), num_configs) != num_configs) {
       tprintf("Bad read of inttemp!\n");
@@ -797,7 +794,7 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
     /* then read in the proto sets */
     for (j = 0; j < Class->NumProtoSets; j++) {
       auto ProtoSet = new PROTO_SET_STRUCT;
-      int num_buckets = NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR;
+      unsigned num_buckets = NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR;
       if (fp->FReadEndian(&ProtoSet->ProtoPruner, sizeof(ProtoSet->ProtoPruner[0][0][0]),
                           num_buckets) != num_buckets) {
         tprintf("Bad read of inttemp!\n");
@@ -830,7 +827,7 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
     ClassForClassId(Templates, 0)->font_set_id = -1;
     Templates->NumClasses++;
     /* make sure the classes are contiguous */
-    for (i = 0; i < MAX_NUM_CLASSES; i++) {
+    for (unsigned i = 0; i < MAX_NUM_CLASSES; i++) {
       if (i < Templates->NumClasses) {
         if (ClassForClassId(Templates, i) == nullptr) {
           fprintf(stderr, "Non-contiguous class ids in inttemp\n");
@@ -838,7 +835,7 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
         }
       } else {
         if (ClassForClassId(Templates, i) != nullptr) {
-          fprintf(stderr, "Class id %d exceeds NumClassesIn (Templates) %d\n", i,
+          fprintf(stderr, "Class id %u exceeds NumClassesIn (Templates) %u\n", i,
                   Templates->NumClasses);
           exit(1);
         }
@@ -919,15 +916,14 @@ void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView *window) {
  */
 void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
                                  const UNICHARSET &target_unicharset) {
-  int i, j;
   INT_CLASS_STRUCT *Class;
-  int unicharset_size = target_unicharset.size();
+  auto unicharset_size = target_unicharset.size();
   int version_id = -5; // When negated by the reader -1 becomes +1 etc.
 
   if (Templates->NumClasses != unicharset_size) {
     tprintf(
         "Warning: executing WriteIntTemplates() with %d classes in"
-        " Templates, while target_unicharset size is %d\n",
+        " Templates, while target_unicharset size is %zu\n",
         Templates->NumClasses, unicharset_size);
   }
 
@@ -938,12 +934,12 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
   fwrite(&Templates->NumClasses, sizeof(Templates->NumClasses), 1, File);
 
   /* then write out the class pruners */
-  for (i = 0; i < Templates->NumClassPruners; i++) {
+  for (unsigned i = 0; i < Templates->NumClassPruners; i++) {
     fwrite(Templates->ClassPruners[i], sizeof(CLASS_PRUNER_STRUCT), 1, File);
   }
 
   /* then write out each class */
-  for (i = 0; i < Templates->NumClasses; i++) {
+  for (unsigned i = 0; i < Templates->NumClasses; i++) {
     Class = Templates->Class[i];
 
     /* first write out the high level struct for the class */
@@ -951,7 +947,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
     fwrite(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1, File);
     ASSERT_HOST(Class->NumConfigs == this->fontset_table_.at(Class->font_set_id).size());
     fwrite(&Class->NumConfigs, sizeof(Class->NumConfigs), 1, File);
-    for (j = 0; j < Class->NumConfigs; ++j) {
+    for (int j = 0; j < Class->NumConfigs; ++j) {
       fwrite(&Class->ConfigLengths[j], sizeof(uint16_t), 1, File);
     }
 
@@ -961,7 +957,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
     }
 
     /* then write out the proto sets */
-    for (j = 0; j < Class->NumProtoSets; j++) {
+    for (int j = 0; j < Class->NumProtoSets; j++) {
       fwrite(Class->ProtoSets[j], sizeof(PROTO_SET_STRUCT), 1, File);
     }
 
@@ -991,7 +987,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
  * @note Globals: none
  */
 float BucketStart(int Bucket, float Offset, int NumBuckets) {
-  return ((static_cast<float>(Bucket) / NumBuckets) - Offset);
+  return static_cast<float>(Bucket) / NumBuckets - Offset;
 
 } /* BucketStart */
 
@@ -1007,7 +1003,7 @@ float BucketStart(int Bucket, float Offset, int NumBuckets) {
  * @note Globals: none
  */
 float BucketEnd(int Bucket, float Offset, int NumBuckets) {
-  return ((static_cast<float>(Bucket + 1) / NumBuckets) - Offset);
+  return static_cast<float>(Bucket + 1) / NumBuckets - Offset;
 } /* BucketEnd */
 
 /**
@@ -1180,7 +1176,7 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool *adaptive_on, bool *
           *shape_id = atoi(ev->parameter);
           *adaptive_on = false;
           *pretrained_on = true;
-          if (*shape_id >= 0 && *shape_id < shape_table_->NumShapes()) {
+          if (*shape_id >= 0 && static_cast<unsigned>(*shape_id) < shape_table_->NumShapes()) {
             int font_id;
             shape_table_->GetFirstUnicharAndFont(*shape_id, &unichar_id, &font_id);
             tprintf("Shape %d, first unichar=%d, font=%d\n", *shape_id, unichar_id, font_id);
@@ -1208,7 +1204,7 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool *adaptive_on, bool *
             *shape_id = -1;
             return unichar_id;
           }
-          for (int s = 0; s < shape_table_->NumShapes(); ++s) {
+          for (unsigned s = 0; s < shape_table_->NumShapes(); ++s) {
             if (shape_table_->GetShape(s).ContainsUnichar(unichar_id)) {
               tprintf("%s\n", shape_table_->DebugStr(s).c_str());
             }
@@ -1388,8 +1384,8 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
     if ((Angle > 0.0 && Angle < 0.25) || (Angle > 0.5 && Angle < 0.75)) {
       /* rising diagonal proto */
       Angle *= 2.0 * M_PI;
-      Cos = fabs(cos(Angle));
-      Sin = fabs(sin(Angle));
+      Cos = fabs(std::cos(Angle));
+      Sin = fabs(std::sin(Angle));
 
       /* compute the positions of the corners of the acceptance region */
       Start.x = X - (HalfLength + EndPad) * Cos - SidePad * Sin;
@@ -1438,8 +1434,8 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
     } else {
       /* falling diagonal proto */
       Angle *= 2.0 * M_PI;
-      Cos = fabs(cos(Angle));
-      Sin = fabs(sin(Angle));
+      Cos = fabs(std::cos(Angle));
+      Sin = fabs(std::sin(Angle));
 
       /* compute the positions of the corners of the acceptance region */
       Start.x = X - (HalfLength + EndPad) * Cos - SidePad * Sin;

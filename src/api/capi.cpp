@@ -254,12 +254,6 @@ char **TessBaseAPIGetAvailableLanguagesAsVector(const TessBaseAPI *handle) {
   return arr;
 }
 
-#ifndef DISABLED_LEGACY_ENGINE
-int TessBaseAPIInitLangMod(TessBaseAPI *handle, const char *datapath, const char *language) {
-  return handle->InitLangMod(datapath, language);
-}
-#endif
-
 void TessBaseAPIInitForAnalysePage(TessBaseAPI *handle) {
   handle->InitForAnalysePage();
 }

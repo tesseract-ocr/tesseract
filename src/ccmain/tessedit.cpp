@@ -75,15 +75,12 @@ void Tesseract::read_config_file(const char *filename, SetParamConstraint constr
 // from the language-specific config file (stored in [lang].traineddata), from
 // the config files specified on the command line or left as the default
 // OEM_TESSERACT_ONLY if none of the configs specify this variable.
-bool Tesseract::init_tesseract_lang_data(const std::string &arg0, const std::string &textbase,
+bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
                                          const std::string &language, OcrEngineMode oem,
                                          char **configs, int configs_size,
                                          const std::vector<std::string> *vars_vec,
                                          const std::vector<std::string> *vars_values,
                                          bool set_only_non_debug_params, TessdataManager *mgr) {
-  // Set the basename, compute the data directory.
-  main_setup(arg0, textbase);
-
   // Set the language data path prefix
   lang = !language.empty() ? language : "eng";
   language_data_path_prefix = datadir;
@@ -303,6 +300,10 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
   for (auto *lang : sub_langs_) {
     delete lang;
   }
+
+  // Set the basename, compute the data directory.
+  main_setup(arg0, textbase);
+
   sub_langs_.clear();
   // Find the first loadable lang and load into this.
   // Add any languages that this language requires
@@ -310,8 +311,7 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
   // Load the rest into sub_langs_.
   // A range based for loop does not work here because langs_to_load
   // might be changed in the loop when a new submodel is found.
-  for (size_t lang_index = 0; lang_index < langs_to_load.size(); ++lang_index) {
-    auto &lang_to_load = langs_to_load[lang_index];
+  for (auto &lang_to_load : langs_to_load) {
     if (!IsStrInList(lang_to_load, langs_not_to_load)) {
       const char *lang_str = lang_to_load.c_str();
       Tesseract *tess_to_init;
@@ -319,6 +319,7 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
         tess_to_init = this;
       } else {
         tess_to_init = new Tesseract;
+        tess_to_init->main_setup(arg0, textbase);
       }
 
       int result = tess_to_init->init_tesseract_internal(arg0, textbase, lang_str, oem, configs,
@@ -348,7 +349,7 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
       }
     }
   }
-  if (!loaded_primary) {
+  if (!loaded_primary && !langs_to_load.empty()) {
     tprintf("Tesseract couldn't load any languages!\n");
     return -1; // Couldn't load any language!
   }
@@ -399,7 +400,7 @@ int Tesseract::init_tesseract_internal(const std::string &arg0, const std::strin
                                        const std::vector<std::string> *vars_vec,
                                        const std::vector<std::string> *vars_values,
                                        bool set_only_non_debug_params, TessdataManager *mgr) {
-  if (!init_tesseract_lang_data(arg0, textbase, language, oem, configs, configs_size, vars_vec,
+  if (!init_tesseract_lang_data(arg0, language, oem, configs, configs_size, vars_vec,
                                 vars_values, set_only_non_debug_params, mgr)) {
     return -1;
   }
@@ -451,19 +452,6 @@ void Tesseract::SetupUniversalFontIds() {
     AssignIds(all_fonts, &sub_lang->get_fontinfo_table());
   }
   font_table_size_ = all_fonts.size();
-}
-
-// init the LM component
-int Tesseract::init_tesseract_lm(const std::string &arg0, const std::string &textbase,
-                                 const std::string &language, TessdataManager *mgr) {
-  if (!init_tesseract_lang_data(arg0, textbase, language, OEM_TESSERACT_ONLY, nullptr, 0, nullptr,
-                                nullptr, false, mgr)) {
-    return -1;
-  }
-  getDict().SetupForLoad(Dict::GlobalDawgCache());
-  getDict().Load(lang, mgr);
-  getDict().FinishLoad();
-  return 0;
 }
 
 #endif // ndef DISABLED_LEGACY_ENGINE

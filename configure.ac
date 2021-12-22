@@ -5,7 +5,7 @@
 # ----------------------------------------
 # Initialization
 # ----------------------------------------
-AC_PREREQ([2.63])
+AC_PREREQ([2.69])
 AC_INIT([tesseract],
         [m4_esyscmd_s([test -d .git && git describe --abbrev=4 || cat VERSION])],
         [https://github.com/tesseract-ocr/tesseract/issues],,
@@ -20,16 +20,16 @@ AC_LANG_COMPILER_REQUIRE
 CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([config])
-AC_CONFIG_SRCDIR([src/api/tesseractmain.cpp])
+AC_CONFIG_SRCDIR([src/tesseract.cpp])
 AC_PREFIX_DEFAULT([/usr/local])
 
 # Automake configuration. Do not require README file (we use README.md).
-AM_INIT_AUTOMAKE([foreign subdir-objects])
+AM_INIT_AUTOMAKE([foreign subdir-objects nostdinc])
 
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 PACKAGE_YEAR=2021
-PACKAGE_DATE="08/15"
+PACKAGE_DATE="11/30"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 
@@ -74,6 +74,10 @@ AC_CONFIG_HEADERS([include/config_auto.h:config/config.h.in])
 AM_CONDITIONAL([T_WIN], false)
 AM_CONDITIONAL([GRAPHICS_DISABLED], false)
 AC_SUBST([AM_CPPFLAGS])
+
+# Be less noisy by default.
+# Can be overridden with `configure --disable-silent-rules` or with `make V=1`.
+AM_SILENT_RULES([yes])
 
 OPENCL_INC="/opt/AMDAPP/include"
 OPENCL_LIBS="-lOpenCL"
@@ -184,8 +188,6 @@ case "${host_cpu}" in
 
 esac
 
-AX_CHECK_COMPILE_FLAG([-march=native], [arch_native=true], [arch_native=false], [$WERROR])
-AM_CONDITIONAL([MARCH_NATIVE_OPT], $arch_native)
 AX_CHECK_COMPILE_FLAG([-fopenmp-simd], [openmp_simd=true], [openmp_simd=false], [$WERROR])
 AM_CONDITIONAL([OPENMP_SIMD], $openmp_simd)
 
@@ -209,9 +211,9 @@ AC_ARG_WITH([extra-libraries],
 
 AC_MSG_CHECKING([--enable-float32 argument])
 AC_ARG_ENABLE([float32],
-  AS_HELP_STRING([--enable-float32], [enable float for LSTM [default=no]]))
+	      AS_HELP_STRING([--disable-float32], [disable float and enable double for LSTM]))
 AC_MSG_RESULT([$enable_float32])
-if test "$enable_float32" = "yes"; then
+if test "$enable_float32" != "no"; then
   AC_DEFINE([FAST_FLOAT], [1], [Enable float for LSTM])
 fi
 
@@ -308,7 +310,7 @@ case "${host_os}" in
     MY_CHECK_FRAMEWORK([Accelerate])
     if test $my_cv_framework_Accelerate = yes; then
       AM_CPPFLAGS="-DHAVE_FRAMEWORK_ACCELERATE $AM_CPPFLAGS"
-      LDFLAGS="$LDFLAGS -framework Accelerate"
+      AM_LDFLAGS="$AM_LDFLAGS -framework Accelerate"
     fi
     MY_CHECK_FRAMEWORK([OpenCL])
     if test "$enable_opencl" = "yes"; then

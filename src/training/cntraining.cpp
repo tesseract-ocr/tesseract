@@ -106,7 +106,6 @@ int main(int argc, char *argv[]) {
   // Set the global Config parameters before parsing the command line.
   Config = CNConfig;
 
-  const char *PageName;
   LIST CharList = NIL_LIST;
   CLUSTERER *Clusterer = nullptr;
   LIST ProtoList = NIL_LIST;
@@ -118,8 +117,7 @@ int main(int argc, char *argv[]) {
 
   ParseArguments(&argc, &argv);
   int num_fonts = 0;
-  int tessoptind = 1;
-  while ((PageName = GetNextFilename(argc, argv, tessoptind)) != nullptr) {
+  for (const char *PageName = *++argv; PageName != nullptr; PageName = *++argv) {
     printf("Reading %s ...\n", PageName);
     FILE *TrainingPage = fopen(PageName, "rb");
     ASSERT_HOST(TrainingPage);

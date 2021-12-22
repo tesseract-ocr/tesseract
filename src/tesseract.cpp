@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        tesseractmain.cpp
+ * File:        tesseract.cpp
  * Description: Main program for merge of tess and editor.
  * Author:      Ray Smith
  *
@@ -25,8 +25,10 @@
 #if defined(__USE_GNU)
 #  include <cfenv> // for feenableexcept
 #endif
+#include <climits> // for INT_MIN, INT_MAX
 #include <cstdlib> // for std::getenv
 #include <iostream>
+#include <map>    // for std::map
 #include <memory> // std::unique_ptr
 
 #include <allheaders.h>
@@ -238,6 +240,8 @@ static void PrintHelpExtra(const char *program) {
       "  --user-words PATH     Specify the location of user words file.\n"
       "  --user-patterns PATH  Specify the location of user patterns file.\n"
       "  --dpi VALUE           Specify DPI for input image.\n"
+      "  --loglevel LEVEL      Specify logging level. LEVEL can be\n"
+      "                        ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL or OFF.\n"
       "  -l LANG[+LANG]        Specify language(s) used for OCR.\n"
       "  -c VAR=VALUE          Set value for config variables.\n"
       "                        Multiple -c arguments are allowed.\n"
@@ -325,16 +329,12 @@ static bool SetVariablesFromCLArgs(tesseract::TessBaseAPI &api, int argc, char *
 static void PrintLangsList(tesseract::TessBaseAPI &api) {
   std::vector<std::string> languages;
   api.GetAvailableLanguagesAsVector(&languages);
-  printf("List of available languages (%zu):\n", languages.size());
+  printf("List of available languages in \"%s\" (%zu):\n",
+         api.GetDatapath(), languages.size());
   for (const auto &language : languages) {
     printf("%s\n", language.c_str());
   }
   api.End();
-}
-
-static void PrintBanner() {
-  tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
-          tesseract::TessBaseAPI::Version());
 }
 
 /**
@@ -403,6 +403,27 @@ static bool ParseArgs(int argc, char **argv, const char **lang, const char **ima
     } else if (strcmp(argv[i], "--dpi") == 0 && i + 1 < argc) {
       *dpi = atoi(argv[i + 1]);
       ++i;
+    } else if (strcmp(argv[i], "--loglevel") == 0 && i + 1 < argc) {
+      // Allow the log levels which are used by log4cxx.
+      const std::string loglevel_string = argv[++i];
+      static const std::map<const std::string, int> loglevels {
+        {"ALL", INT_MIN},
+        {"TRACE", 5000},
+        {"DEBUG", 10000},
+        {"INFO", 20000},
+        {"WARN", 30000},
+        {"ERROR", 40000},
+        {"FATAL", 50000},
+        {"OFF", INT_MAX},
+      };
+      try {
+        auto loglevel = loglevels.at(loglevel_string);
+	log_level = loglevel;
+      } catch(const std::out_of_range& e) {
+        // TODO: Allow numeric argument?
+	tprintf("Error, unsupported --loglevel %s\n", loglevel_string.c_str());
+        return false;
+      }
     } else if (strcmp(argv[i], "--user-words") == 0 && i + 1 < argc) {
       vars_vec->push_back("user_words_file");
       vars_values->push_back(argv[i + 1]);
@@ -654,12 +675,14 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  if (lang == nullptr) {
-    // Set default language if none was given.
+  bool in_recognition_mode = !list_langs && !print_parameters && !print_fonts_table;
+
+  if (lang == nullptr && in_recognition_mode) {
+    // Set default language model if none was given and a model file is needed.
     lang = "eng";
   }
 
-  if (image == nullptr && !list_langs && !print_parameters && !print_fonts_table) {
+  if (image == nullptr && in_recognition_mode) {
     return EXIT_SUCCESS;
   }
 
@@ -668,7 +691,7 @@ int main(int argc, char **argv) {
   // first TessBaseAPI must be destructed, DawgCache must be the last object.
   tesseract::Dict::GlobalDawgCache();
 
-  tesseract::TessBaseAPI api;
+  TessBaseAPI api;
 
   api.SetOutputName(outputbase);
 
@@ -791,15 +814,7 @@ int main(int argc, char **argv) {
     PreloadRenderers(api, renderers, pagesegmode, outputbase);
   }
 
-  bool banner = false;
-  if (outputbase != nullptr && strcmp(outputbase, "-") && strcmp(outputbase, "stdout")) {
-    banner = true;
-  }
-
   if (!renderers.empty()) {
-    if (banner) {
-      PrintBanner();
-    }
 #ifdef DISABLED_LEGACY_ENGINE
     if (!osd_warning.empty()) {
       fprintf(stderr, "%s", osd_warning.c_str());

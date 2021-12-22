@@ -111,7 +111,7 @@ int Wordrec::angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   if (static_cast<int>(length) == 0) {
     return (0);
   }
-  angle = static_cast<int>(floor(asin(vector1.cross(vector2) / length) / M_PI * 180.0 + 0.5));
+  angle = static_cast<int>(floor(std::asin(vector1.cross(vector2) / length) / M_PI * 180.0 + 0.5));
 
   /* Use dot product */
   if (vector1.dot(vector2) < 0) {

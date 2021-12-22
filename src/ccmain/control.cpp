@@ -45,9 +45,11 @@
 #include "werdit.h"
 
 const char *const kBackUpConfigFile = "tempconfigdata.config";
+#ifndef DISABLED_LEGACY_ENGINE
 // Min believable x-height for any text when refitting as a fraction of
 // original x-height
 const double kMinRefitXHeightFraction = 0.5;
+#endif // ! DISABLED_LEGACY_ENGINE
 
 /**
  * Make a word from the selected blobs and run Tess on them.
@@ -227,7 +229,7 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT 
       }
     }
     if (word->word->tess_failed) {
-      int s;
+      unsigned s;
       for (s = 0; s < word->lang_words.size() && word->lang_words[s]->tess_failed; ++s) {
       }
       // If all are failed, skip it. Image words are skipped by this test.
@@ -727,7 +729,7 @@ void Tesseract::script_pos_pass(PAGE_RES *page_res) {
       // Scan for upper/lower.
       int num_upper = 0;
       int num_lower = 0;
-      for (int i = 0; i < word->best_choice->length(); ++i) {
+      for (unsigned i = 0; i < word->best_choice->length(); ++i) {
         if (word->uch_set->get_isupper(word->best_choice->unichar_id(i))) {
           ++num_upper;
         } else if (word->uch_set->get_islower(word->best_choice->unichar_id(i))) {
@@ -743,7 +745,7 @@ void Tesseract::script_pos_pass(PAGE_RES *page_res) {
 }
 
 // Helper finds the gap between the index word and the next.
-static void WordGap(const PointerVector<WERD_RES> &words, int index, int *right, int *next_left) {
+static void WordGap(const PointerVector<WERD_RES> &words, unsigned index, int *right, int *next_left) {
   *right = -INT32_MAX;
   *next_left = INT32_MAX;
   if (index < words.size()) {
@@ -756,13 +758,13 @@ static void WordGap(const PointerVector<WERD_RES> &words, int index, int *right,
 
 // Factored helper computes the rating, certainty, badness and validity of
 // the permuter of the words in [first_index, end_index).
-static void EvaluateWordSpan(const PointerVector<WERD_RES> &words, int first_index, int end_index,
+static void EvaluateWordSpan(const PointerVector<WERD_RES> &words, unsigned first_index, unsigned end_index,
                              float *rating, float *certainty, bool *bad, bool *valid_permuter) {
   if (end_index <= first_index) {
     *bad = true;
     *valid_permuter = false;
   }
-  for (int index = first_index; index < end_index && index < words.size(); ++index) {
+  for (unsigned index = first_index; index < end_index && index < words.size(); ++index) {
     WERD_CHOICE *choice = words[index]->best_choice;
     if (choice == nullptr) {
       *bad = true;
@@ -790,11 +792,11 @@ static int SelectBestWords(double rating_ratio, double certainty_margin, bool de
   // boundary at the end.
   std::vector<WERD_RES *> out_words;
   // Index into each word vector (best, new).
-  int b = 0, n = 0;
+  unsigned b = 0, n = 0;
   int num_best = 0, num_new = 0;
   while (b < best_words->size() || n < new_words->size()) {
     // Start of the current run in each.
-    int start_b = b, start_n = n;
+    auto start_b = b, start_n = n;
     while (b < best_words->size() || n < new_words->size()) {
       int b_right = -INT32_MAX;
       int next_b_left = INT32_MAX;
@@ -884,7 +886,7 @@ int Tesseract::RetryWithLanguage(const WordData &word_data, WordRecognizer recog
     *in_word = nullptr;
   }
   if (debug) {
-    for (int i = 0; i < new_words.size(); ++i) {
+    for (unsigned i = 0; i < new_words.size(); ++i) {
       new_words[i]->DebugTopChoice("Lang result");
     }
   }
@@ -896,7 +898,7 @@ int Tesseract::RetryWithLanguage(const WordData &word_data, WordRecognizer recog
 
 // Helper returns true if all the words are acceptable.
 static bool WordsAcceptable(const PointerVector<WERD_RES> &words) {
-  for (int w = 0; w < words.size(); ++w) {
+  for (unsigned w = 0; w < words.size(); ++w) {
     if (words[w]->tess_failed || !words[w]->tess_accepted) {
       return false;
     }
@@ -1597,10 +1599,10 @@ void Tesseract::match_word_pass_n(int pass_n, WERD_RES *word, ROW *row, BLOCK *b
         word->fix_hyphens();
       }
       /* Don't trust fix_quotes! - though I think I've fixed the bug */
-      if (word->best_choice->length() != word->box_word->length()) {
+      if (static_cast<unsigned>(word->best_choice->length()) != word->box_word->length()) {
         tprintf(
             "POST FIX_QUOTES FAIL String:\"%s\"; Strlen=%d;"
-            " #Blobs=%d\n",
+            " #Blobs=%u\n",
             word->best_choice->debug_string().c_str(), word->best_choice->length(),
             word->box_word->length());
       }
@@ -1621,7 +1623,7 @@ void Tesseract::match_word_pass_n(int pass_n, WERD_RES *word, ROW *row, BLOCK *b
 static BLOB_CHOICE *FindBestMatchingChoice(UNICHAR_ID char_id, WERD_RES *word_res) {
   // Find the corresponding best BLOB_CHOICE from any position in the word_res.
   BLOB_CHOICE *best_choice = nullptr;
-  for (int i = 0; i < word_res->best_choice->length(); ++i) {
+  for (unsigned i = 0; i < word_res->best_choice->length(); ++i) {
     BLOB_CHOICE *choice = FindMatchingChoice(char_id, word_res->GetBlobChoices(i));
     if (choice != nullptr) {
       if (best_choice == nullptr || choice->rating() < best_choice->rating()) {
@@ -1637,7 +1639,7 @@ static BLOB_CHOICE *FindBestMatchingChoice(UNICHAR_ID char_id, WERD_RES *word_re
 // in the best_choice.
 static void CorrectRepcharChoices(BLOB_CHOICE *blob_choice, WERD_RES *word_res) {
   WERD_CHOICE *word = word_res->best_choice;
-  for (int i = 0; i < word_res->best_choice->length(); ++i) {
+  for (unsigned i = 0; i < word_res->best_choice->length(); ++i) {
     BLOB_CHOICE *choice =
         FindMatchingChoice(blob_choice->unichar_id(), word_res->GetBlobChoices(i));
     if (choice == nullptr) {
@@ -1646,7 +1648,7 @@ static void CorrectRepcharChoices(BLOB_CHOICE *blob_choice, WERD_RES *word_res) 
     }
   }
   // Correct any incorrect results in word.
-  for (int i = 0; i < word->length(); ++i) {
+  for (unsigned i = 0; i < word->length(); ++i) {
     if (word->unichar_id(i) != blob_choice->unichar_id()) {
       word->set_unichar_id(blob_choice->unichar_id(), i);
     }
@@ -1666,7 +1668,7 @@ void Tesseract::fix_rep_char(PAGE_RES_IT *page_res_it) {
 
   // Find the frequency of each unique character in the word.
   SortHelper<UNICHAR_ID> rep_ch(word.length());
-  for (int i = 0; i < word.length(); ++i) {
+  for (unsigned i = 0; i < word.length(); ++i) {
     rep_ch.Add(word.unichar_id(i), 1);
   }
 
@@ -1895,6 +1897,7 @@ bool Tesseract::check_debug_pt(WERD_RES *word, int location) {
  *
  * Find the modal font and remove from the stats.
  */
+#ifndef DISABLED_LEGACY_ENGINE
 static void find_modal_font( // good chars in word
     STATS *fonts,            // font stats
     int16_t *font_out,       // output font
@@ -1914,6 +1917,7 @@ static void find_modal_font( // good chars in word
     *font_count = 0;
   }
 }
+#endif // ! DISABLED_LEGACY_ENGINE
 
 /**
  * set_word_fonts
@@ -1951,7 +1955,7 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   if (tessedit_debug_fonts) {
     tprintf("Examining fonts in %s\n", word->best_choice->debug_string().c_str());
   }
-  for (int b = 0; b < word->best_choice->length(); ++b) {
+  for (unsigned b = 0; b < word->best_choice->length(); ++b) {
     const BLOB_CHOICE *choice = word->GetBlobChoice(b);
     if (choice == nullptr) {
       continue;

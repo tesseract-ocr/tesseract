@@ -69,16 +69,6 @@ public:
     return table_.get_index(object);
   }
 
-  /// Return true if T is in the table
-  bool contains(T object) const {
-    return get_index(object) != -1;
-  }
-
-  /// Return true if the id is valid
-  T contains_id(int id) const  {
-    return table_.contains_index(id);
-  }
-
   /// Add an element in the table
   int push_back(T object)  {
     auto idx = get_index(object);

@@ -325,7 +325,7 @@ float Textord::filter_noise_blobs(BLOBNBOX_LIST *src_list,     // original list
                (tesseract::CCStruct::kDescenderFraction + tesseract::CCStruct::kXHeightFraction +
                 2 * tesseract::CCStruct::kAscenderFraction) /
                tesseract::CCStruct::kXHeightFraction);
-  min_y = floor(initial_x / 2);
+  min_y = std::floor(initial_x / 2);
   max_x = ceil(initial_x * textord_width_limit);
   small_it.move_to_first();
   for (small_it.mark_cycle_pt(); !small_it.cycled_list(); small_it.forward()) {
@@ -729,7 +729,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST *diacritic_blobs, BL
     int best_g = 0;
     float best_angle_diff = FLT_MAX;
     for (const auto &group : groups) {
-      double angle_diff = fabs(block_angle - group->angle);
+      double angle_diff = std::fabs(block_angle - group->angle);
       if (angle_diff > M_PI) {
         angle_diff = fabs(angle_diff - 2.0 * M_PI);
       }

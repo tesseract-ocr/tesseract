@@ -82,6 +82,10 @@ echo "Running $LIBTOOLIZE"
 $LIBTOOLIZE -f -c || bail_out
 $LIBTOOLIZE --automake || bail_out
 
+# Run aclocal a 2nd time because glibtoolize created additional m4 files.
+echo "Running aclocal"
+aclocal -I config || bail_out
+
 # --- Step 3: Generate configure and include/miaconfig.h from:
 #             . configure.ac
 #

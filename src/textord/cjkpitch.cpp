@@ -22,6 +22,7 @@
 #include "tovars.h"
 
 #include <algorithm> // for std::sort
+#include <cmath>
 #include <vector>    // for std::vector
 
 namespace tesseract {
@@ -137,13 +138,13 @@ public:
 
   float EstimateYFor(float x, float r) {
     ASSERT_HOST(finalized_);
-    int start = 0, end = values_.size();
+    unsigned start = 0, end = values_.size();
     // Because the number of samples (used_) is assumed to be small,
     // just use linear search to find values within the range.
-    while (start < values_.size() && values_[start].x < x * (1.0 - r)) {
+    while (start < values_.size() && values_[start].x < x * (1 - r)) {
       start++;
     }
-    while (end - 1 >= 0 && values_[end - 1].x > x * (1.0 + r)) {
+    while (end > 0 && values_[end - 1].x > x * (1 + r)) {
       end--;
     }
 
@@ -157,7 +158,7 @@ public:
     // Compute weighted average of the values.
     float rc = 0;
     int vote = 0;
-    for (int i = start; i < end; i++) {
+    for (auto i = start; i < end; i++) {
       rc += values_[i].vote * x * values_[i].y / values_[i].x;
       vote += values_[i].vote;
     }
@@ -437,7 +438,7 @@ private:
     }
 
     const float real_pitch = box_pitch(box1, box2);
-    if (fabs(real_pitch - pitch) < pitch * kFPTolerance) {
+    if (std::fabs(real_pitch - pitch) < pitch * kFPTolerance) {
       return true;
     }
 
@@ -457,8 +458,8 @@ private:
 
   // Cleanup chars that are already merged to others.
   void DeleteChars() {
-    int index = 0;
-    for (int i = 0; i < characters_.size(); ++i) {
+    unsigned index = 0;
+    for (unsigned i = 0; i < characters_.size(); ++i) {
       if (!characters_[i].delete_flag()) {
         if (index != i) {
           characters_[index] = characters_[i];
@@ -645,7 +646,7 @@ void FPRow::EstimatePitch(bool pass1) {
         // So we collect only pitch values between two good
         // characters. and within tolerance in pass2.
         if (pass1 ||
-            (prev_was_good && fabs(estimated_pitch_ - pitch) < kFPTolerance * estimated_pitch_)) {
+            (prev_was_good && std::fabs(estimated_pitch_ - pitch) < kFPTolerance * estimated_pitch_)) {
           good_pitches_.Add(pitch);
           if (!is_box_modified(i - 1) && !is_box_modified(i)) {
             good_gaps_.Add(gap);

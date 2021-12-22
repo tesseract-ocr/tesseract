@@ -13,10 +13,10 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ master ]
+    branches: [ main ]
   schedule:
     - cron: '34 23 * * 2'
 
@@ -43,6 +43,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+           sudo apt-get update
            sudo apt-get install autoconf libleptonica-dev -y
            sudo apt-get install libpango1.0-dev -y
            sudo apt-get install cabextract libarchive-dev -y

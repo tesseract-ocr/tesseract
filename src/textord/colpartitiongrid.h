@@ -47,16 +47,18 @@ public:
   // calls the confirm_cb to check any more rules. If the confirm_cb returns
   // true, then the partitions are merged.
   // Both callbacks are deleted before returning.
-  void Merges(std::function<bool(ColPartition *, TBOX *)> box_cb,
-              std::function<bool(const ColPartition *, const ColPartition *)> confirm_cb);
+  void Merges(const std::function<bool(ColPartition *, TBOX *)> &box_cb,
+              const std::function<bool(const ColPartition *,
+                                       const ColPartition *)> &confirm_cb);
 
   // For the given partition, calls the box_cb permanent callback
   // to compute the search box, searches the box, and if a candidate is found,
   // calls the confirm_cb to check any more rules. If the confirm_cb returns
   // true, then the partitions are merged.
   // Returns true if the partition is consumed by one or more merges.
-  bool MergePart(std::function<bool(ColPartition *, TBOX *)> box_cb,
-                 std::function<bool(const ColPartition *, const ColPartition *)> confirm_cb,
+  bool MergePart(const std::function<bool(ColPartition *, TBOX *)> &box_cb,
+                 const std::function<bool(const ColPartition *,
+                                          const ColPartition *)> &confirm_cb,
                  ColPartition *part);
 
   // Computes and returns the total overlap of all partitions in the grid.
@@ -78,7 +80,8 @@ public:
   // See colpartitiongrid.cpp for a diagram.
   ColPartition *BestMergeCandidate(
       const ColPartition *part, ColPartition_CLIST *candidates, bool debug,
-      std::function<bool(const ColPartition *, const ColPartition *)> confirm_cb,
+      const std::function<bool(const ColPartition *, const ColPartition *)>
+          &confirm_cb,
       int *overlap_increase);
 
   // Split partitions where it reduces overlap between their bounding boxes.
@@ -98,8 +101,8 @@ public:
   // nontext_map, which is used to prevent the spread of text neighbourhoods
   // into images.
   // Returns true if anything was changed.
-  bool GridSmoothNeighbours(BlobTextFlowType source_type, Image nontext_map, const TBOX &im_box,
-                            const FCOORD &rerotation);
+  bool GridSmoothNeighbours(BlobTextFlowType source_type, Image nontext_map,
+                            const TBOX &im_box, const FCOORD &rerotation);
 
   // Reflects the grid and its colpartitions in the y-axis, assuming that
   // all blob boxes have already been done.
@@ -150,7 +153,8 @@ public:
 
   // Improves the margins of the ColPartitions in the list by calling
   // FindPartitionMargins on each.
-  void ListFindMargins(ColPartitionSet **best_columns, ColPartition_LIST *parts);
+  void ListFindMargins(ColPartitionSet **best_columns,
+                       ColPartition_LIST *parts);
 
   // Deletes all the partitions in the grid after disowning all the blobs.
   void DeleteParts();
@@ -185,8 +189,8 @@ private:
   // Finds and returns a list of candidate ColPartitions to merge with part.
   // The candidates must overlap search_box, and when merged must not
   // overlap any other partitions that are not overlapped by each individually.
-  void FindMergeCandidates(const ColPartition *part, const TBOX &search_box, bool debug,
-                           ColPartition_CLIST *candidates);
+  void FindMergeCandidates(const ColPartition *part, const TBOX &search_box,
+                           bool debug, ColPartition_CLIST *candidates);
 
   // Smoothes the region type/flow type of the given part by looking at local
   // neighbours and the given image mask. Searches a padded rectangle with the
@@ -199,7 +203,8 @@ private:
   // nontext_map, which is used to prevent the spread of text neighbourhoods
   // into images.
   // Returns true if the partition was changed.
-  bool SmoothRegionType(Image nontext_map, const TBOX &im_box, const FCOORD &rerotation, bool debug,
+  bool SmoothRegionType(Image nontext_map, const TBOX &im_box,
+                        const FCOORD &rerotation, bool debug,
                         ColPartition *part);
   // Executes the search for SmoothRegionType in a single direction.
   // Creates a bounding box that is padded in all directions except direction,
@@ -207,17 +212,21 @@ private:
   // partitions that makes a decisive result (if any) and returns the type
   // and the distance of the collection. If there are any pixels in the
   // nontext_map, then the decision is biased towards image.
-  BlobRegionType SmoothInOneDirection(BlobNeighbourDir direction, Image nontext_map,
-                                      const TBOX &im_box, const FCOORD &rerotation, bool debug,
-                                      const ColPartition &part, int *best_distance);
+  BlobRegionType SmoothInOneDirection(BlobNeighbourDir direction,
+                                      Image nontext_map, const TBOX &im_box,
+                                      const FCOORD &rerotation, bool debug,
+                                      const ColPartition &part,
+                                      int *best_distance);
   // Counts the partitions in the given search_box by appending the gap
   // distance (scaled by dist_scaling) of the part from the base_part to the
   // vector of the appropriate type for the partition. Prior to return, the
   // vectors in the dists array are sorted in increasing order.
   // dists must be an array of vectors of size NPT_COUNT.
-  void AccumulatePartDistances(const ColPartition &base_part, const ICOORD &dist_scaling,
-                               const TBOX &search_box, Image nontext_map, const TBOX &im_box,
-                               const FCOORD &rerotation, bool debug, std::vector<int> *dists);
+  void AccumulatePartDistances(const ColPartition &base_part,
+                               const ICOORD &dist_scaling,
+                               const TBOX &search_box, Image nontext_map,
+                               const TBOX &im_box, const FCOORD &rerotation,
+                               bool debug, std::vector<int> *dists);
 
   // Improves the margins of the ColPartition by searching for
   // neighbours that vertically overlap significantly.
@@ -226,8 +235,8 @@ private:
   // Starting at x, and going in the specified direction, up to x_limit, finds
   // the margin for the given y range by searching sideways,
   // and ignoring not_this.
-  int FindMargin(int x, bool right_to_left, int x_limit, int y_bottom, int y_top,
-                 const ColPartition *not_this);
+  int FindMargin(int x, bool right_to_left, int x_limit, int y_bottom,
+                 int y_top, const ColPartition *not_this);
 };
 
 } // namespace tesseract.

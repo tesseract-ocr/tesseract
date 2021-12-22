@@ -52,19 +52,19 @@ public:
 
   // Merges the boxes from start to end, not including end, and deletes
   // the boxes between start and end.
-  void MergeBoxes(int start, int end);
+  void MergeBoxes(unsigned start, unsigned end);
 
   // Inserts a new box before the given index.
   // Recomputes the bounding box.
-  void InsertBox(int index, const TBOX &box);
+  void InsertBox(unsigned index, const TBOX &box);
 
   // Changes the box at the given index to the new box.
   // Recomputes the bounding box.
-  void ChangeBox(int index, const TBOX &box);
+  void ChangeBox(unsigned index, const TBOX &box);
 
   // Deletes the box with the given index, and shuffles up the rest.
   // Recomputes the bounding box.
-  void DeleteBox(int index);
+  void DeleteBox(unsigned index);
 
   // Deletes all the boxes stored in BoxWord.
   void DeleteAllBoxes();
@@ -72,15 +72,16 @@ public:
   // This and other putatively are the same, so call the (permanent) callback
   // for each blob index where the bounding boxes match.
   // The callback is deleted on completion.
-  void ProcessMatchedBlobs(const TWERD &other, std::function<void(int)> cb) const;
+  void ProcessMatchedBlobs(const TWERD &other,
+                           const std::function<void(int)> &cb) const;
 
   const TBOX &bounding_box() const {
     return bbox_;
   }
-  int length() const {
+  unsigned length() const {
     return length_;
   }
-  const TBOX &BlobBox(int index) const {
+  const TBOX &BlobBox(unsigned index) const {
     return boxes_[index];
   }
 
@@ -88,7 +89,7 @@ private:
   void ComputeBoundingBox();
 
   TBOX bbox_;
-  int length_;
+  unsigned length_;
   std::vector<TBOX> boxes_;
 };
 

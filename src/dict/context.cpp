@@ -44,9 +44,8 @@ const int case_state_table[6][4] = {
 
 int Dict::case_ok(const WERD_CHOICE &word) const {
   int state = 0;
-  int x;
   const UNICHARSET *unicharset = word.unicharset();
-  for (x = 0; x < word.length(); ++x) {
+  for (unsigned x = 0; x < word.length(); ++x) {
     UNICHAR_ID ch_id = word.unichar_id(x);
     if (unicharset->get_isupper(ch_id)) {
       state = case_state_table[state][1];
@@ -69,7 +68,7 @@ bool Dict::absolute_garbage(const WERD_CHOICE &word, const UNICHARSET &unicharse
     return false;
   }
   int num_alphanum = 0;
-  for (int x = 0; x < word.length(); ++x) {
+  for (unsigned x = 0; x < word.length(); ++x) {
     num_alphanum +=
         (unicharset.get_isalpha(word.unichar_id(x)) || unicharset.get_isdigit(word.unichar_id(x)));
   }

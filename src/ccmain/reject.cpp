@@ -94,9 +94,6 @@ void Tesseract::set_done(WERD_RES *word, int16_t pass) {
  * Sets a reject map for the word.
  *************************************************************************/
 void Tesseract::make_reject_map(WERD_RES *word, ROW *row, int16_t pass) {
-  int i;
-  int offset;
-
   flip_0O(word);
   check_debug_pt(word, -1); // For trap only
   set_done(word, pass);     // Set acceptance
@@ -145,7 +142,7 @@ void Tesseract::make_reject_map(WERD_RES *word, ROW *row, int16_t pass) {
           // PASSED TEST
         } else if (best_choice->permuter() == NUMBER_PERM) {
           if (rej_alphas_in_number_perm) {
-            for (i = 0, offset = 0; best_choice->unichar_string()[offset] != '\0';
+            for (int i = 0, offset = 0; best_choice->unichar_string()[offset] != '\0';
                  offset += best_choice->unichar_lengths()[i++]) {
               if (word->reject_map[i].accepted() &&
                   word->uch_set->get_isalpha(best_choice->unichar_string().c_str() + offset,
@@ -210,7 +207,7 @@ void Tesseract::reject_I_1_L(WERD_RES *word) {
 
 void reject_poor_matches(WERD_RES *word) {
   float threshold = compute_reject_threshold(word->best_choice);
-  for (int i = 0; i < word->best_choice->length(); ++i) {
+  for (unsigned i = 0; i < word->best_choice->length(); ++i) {
     if (word->best_choice->unichar_id(i) == UNICHAR_SPACE) {
       word->reject_map[i].setrej_tess_failure();
     } else if (word->best_choice->certainty(i) < threshold) {
@@ -232,16 +229,16 @@ float compute_reject_threshold(WERD_CHOICE *word) {
   float bestgap = 0.0f; // biggest gap
   float gapstart;       // bottom of gap
 
-  int blob_count = word->length();
+  auto blob_count = word->length();
   std::vector<float> ratings;
   ratings.reserve(blob_count);
-  for (int i = 0; i < blob_count; ++i) {
+  for (unsigned i = 0; i < blob_count; ++i) {
     ratings.push_back(word->certainty(i));
   }
   std::sort(ratings.begin(), ratings.end());
   gapstart = ratings[0] - 1; // all reject if none better
   if (blob_count >= 3) {
-    for (int index = 0; index < blob_count - 1; index++) {
+    for (unsigned index = 0; index < blob_count - 1; index++) {
       if (ratings[index + 1] - ratings[index] > bestgap) {
         bestgap = ratings[index + 1] - ratings[index];
         // find biggest
@@ -514,14 +511,12 @@ bool Tesseract::word_contains_non_1_digit(const char *word, const char *word_len
  * Don't unreject LONE accepted 1Il conflict set chars
  *************************************************************************/
 void Tesseract::dont_allow_1Il(WERD_RES *word) {
-  int i = 0;
-  int offset;
   int word_len = word->reject_map.length();
   const char *s = word->best_choice->unichar_string().c_str();
   const char *lengths = word->best_choice->unichar_lengths().c_str();
   bool accepted_1Il = false;
 
-  for (i = 0, offset = 0; i < word_len; offset += word->best_choice->unichar_lengths()[i++]) {
+  for (int i = 0, offset = 0; i < word_len; offset += word->best_choice->unichar_lengths()[i++]) {
     if (word->reject_map[i].accepted()) {
       if (conflict_set_I_l_1.contains(s[offset])) {
         accepted_1Il = true;
@@ -537,7 +532,7 @@ void Tesseract::dont_allow_1Il(WERD_RES *word) {
     return; // Nothing to worry about
   }
 
-  for (i = 0, offset = 0; i < word_len; offset += word->best_choice->unichar_lengths()[i++]) {
+  for (int i = 0, offset = 0; i < word_len; offset += word->best_choice->unichar_lengths()[i++]) {
     if (conflict_set_I_l_1.contains(s[offset]) && word->reject_map[i].accepted()) {
       word->reject_map[i].setrej_postNN_1Il();
     }
@@ -547,7 +542,7 @@ void Tesseract::dont_allow_1Il(WERD_RES *word) {
 int16_t Tesseract::count_alphanums(WERD_RES *word_res) {
   int count = 0;
   const WERD_CHOICE *best_choice = word_res->best_choice;
-  for (int i = 0; i < word_res->reject_map.length(); ++i) {
+  for (unsigned i = 0; i < word_res->reject_map.length(); ++i) {
     if ((word_res->reject_map[i].accepted()) &&
         (word_res->uch_set->get_isalpha(best_choice->unichar_id(i)) ||
          word_res->uch_set->get_isdigit(best_choice->unichar_id(i)))) {
@@ -568,9 +563,6 @@ void Tesseract::reject_mostly_rejects(WERD_RES *word) {
 }
 
 bool Tesseract::repeated_nonalphanum_wd(WERD_RES *word, ROW *row) {
-  int16_t char_quality;
-  int16_t accepted_char_quality;
-
   if (word->best_choice->unichar_lengths().length() <= 1) {
     return false;
   }
@@ -580,15 +572,17 @@ bool Tesseract::repeated_nonalphanum_wd(WERD_RES *word, ROW *row) {
   }
 
   UNICHAR_ID uch_id = word->best_choice->unichar_id(0);
-  for (int i = 1; i < word->best_choice->length(); ++i) {
+  for (unsigned i = 1; i < word->best_choice->length(); ++i) {
     if (word->best_choice->unichar_id(i) != uch_id) {
       return false;
     }
   }
 
+  int16_t char_quality;
+  int16_t accepted_char_quality;
   word_char_quality(word, &char_quality, &accepted_char_quality);
 
-  if ((word->best_choice->unichar_lengths().length() == char_quality) &&
+  if ((word->best_choice->unichar_lengths().length() == static_cast<size_t>(char_quality)) &&
       (char_quality == accepted_char_quality)) {
     return true;
   } else {
@@ -607,7 +601,6 @@ int16_t Tesseract::safe_dict_word(const WERD_RES *werd_res) {
 // in word_res->best_choice.
 void Tesseract::flip_hyphens(WERD_RES *word_res) {
   WERD_CHOICE *best_choice = word_res->best_choice;
-  int i;
   int prev_right = -9999;
   int next_left;
   TBOX out_box;
@@ -617,9 +610,9 @@ void Tesseract::flip_hyphens(WERD_RES *word_res) {
     return;
   }
 
-  int num_blobs = word_res->rebuild_word->NumBlobs();
+  auto num_blobs = word_res->rebuild_word->NumBlobs();
   UNICHAR_ID unichar_dash = word_res->uch_set->unichar_to_id("-");
-  for (i = 0; i < best_choice->length() && i < num_blobs; ++i) {
+  for (unsigned i = 0; i < best_choice->length() && i < num_blobs; ++i) {
     TBLOB *blob = word_res->rebuild_word->blobs[i];
     out_box = blob->bounding_box();
     if (i + 1 == num_blobs) {
@@ -666,15 +659,14 @@ void Tesseract::flip_hyphens(WERD_RES *word_res) {
 // in word_res->best_choice.
 void Tesseract::flip_0O(WERD_RES *word_res) {
   WERD_CHOICE *best_choice = word_res->best_choice;
-  int i;
   TBOX out_box;
 
   if (!tessedit_flip_0O) {
     return;
   }
 
-  int num_blobs = word_res->rebuild_word->NumBlobs();
-  for (i = 0; i < best_choice->length() && i < num_blobs; ++i) {
+  auto num_blobs = word_res->rebuild_word->NumBlobs();
+  for (unsigned i = 0; i < best_choice->length() && i < num_blobs; ++i) {
     TBLOB *blob = word_res->rebuild_word->blobs[i];
     if (word_res->uch_set->get_isupper(best_choice->unichar_id(i)) ||
         word_res->uch_set->get_isdigit(best_choice->unichar_id(i))) {
@@ -691,7 +683,7 @@ void Tesseract::flip_0O(WERD_RES *word_res) {
       unichar_O == INVALID_UNICHAR_ID || !word_res->uch_set->get_enabled(unichar_O)) {
     return; // 0 or O are not present/enabled in unicharset
   }
-  for (i = 1; i < best_choice->length(); ++i) {
+  for (unsigned i = 1; i < best_choice->length(); ++i) {
     if (best_choice->unichar_id(i) == unichar_0 || best_choice->unichar_id(i) == unichar_O) {
       /* A0A */
       if ((i + 1) < best_choice->length() &&

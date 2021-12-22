@@ -21,6 +21,7 @@
 
 #include "elst.h"
 #include "errcode.h" // for ASSERT_HOST
+#include "tesstypes.h" // for TDimension
 
 #include <tesseract/export.h> // for DLLSYM
 
@@ -43,7 +44,7 @@ public:
   /// constructor
   ///@param xin x value
   ///@param yin y value
-  ICOORD(int16_t xin, int16_t yin) {
+  ICOORD(TDimension xin, TDimension yin) {
     xcoord = xin;
     ycoord = yin;
   }
@@ -54,20 +55,20 @@ public:
   bool Serialize(TFile *f) const;
 
   /// access function
-  int16_t x() const {
+  TDimension x() const {
     return xcoord;
   }
   /// access_function
-  int16_t y() const {
+  TDimension y() const {
     return ycoord;
   }
 
   /// rewrite function
-  void set_x(int16_t xin) {
+  void set_x(TDimension xin) {
     xcoord = xin; // write new value
   }
   /// rewrite function
-  void set_y(int16_t yin) { // value to set
+  void set_y(TDimension yin) { // value to set
     ycoord = yin;
   }
 
@@ -128,15 +129,15 @@ public:
   /// cross product
   friend int32_t operator*(const ICOORD &, const ICOORD &);
   /// multiply
-  friend ICOORD operator*(const ICOORD &, int16_t);
+  friend ICOORD operator*(const ICOORD &, TDimension);
   /// multiply
-  friend ICOORD operator*(int16_t, const ICOORD &);
+  friend ICOORD operator*(TDimension, const ICOORD &);
   /// multiply
-  friend ICOORD &operator*=(ICOORD &, int16_t);
+  friend ICOORD &operator*=(ICOORD &, TDimension);
   /// divide
-  friend ICOORD operator/(const ICOORD &, int16_t);
+  friend ICOORD operator/(const ICOORD &, TDimension);
   /// divide
-  friend ICOORD &operator/=(ICOORD &, int16_t);
+  friend ICOORD &operator/=(ICOORD &, TDimension);
   /// rotate
   ///@param vec by vector
   void rotate(const FCOORD &vec);
@@ -155,8 +156,8 @@ public:
   bool DeSerialize(bool swap, FILE *fp);
 
 protected:
-  int16_t xcoord; ///< x value
-  int16_t ycoord; ///< y value
+  TDimension xcoord; ///< x value
+  TDimension ycoord; ///< y value
 };
 
 class ICOORDELT : public ELIST_LINK,
@@ -171,7 +172,7 @@ public:
   /// constructor
   ///@param xin x value
   ///@param yin y value
-  ICOORDELT(int16_t xin, int16_t yin) {
+  ICOORDELT(TDimension xin, TDimension yin) {
     xcoord = xin;
     ycoord = yin;
   }
@@ -438,7 +439,7 @@ inline int32_t operator*( // cross product
 
 inline ICOORD operator*( // scalar multiply
     const ICOORD &op1,   // operands
-    int16_t scale) {
+    TDimension scale) {
   ICOORD result; // output
 
   result.xcoord = op1.xcoord * scale;
@@ -447,7 +448,7 @@ inline ICOORD operator*( // scalar multiply
 }
 
 inline ICOORD operator*( // scalar multiply
-    int16_t scale,
+    TDimension scale,
     const ICOORD &op1 // operands
 ) {
   ICOORD result; // output
@@ -465,7 +466,7 @@ inline ICOORD operator*( // scalar multiply
 
 inline ICOORD &operator*=( // scalar multiply
     ICOORD &op1,           // operands
-    int16_t scale) {
+    TDimension scale) {
   op1.xcoord *= scale;
   op1.ycoord *= scale;
   return op1;
@@ -479,7 +480,7 @@ inline ICOORD &operator*=( // scalar multiply
 
 inline ICOORD operator/( // scalar divide
     const ICOORD &op1,   // operands
-    int16_t scale) {
+    TDimension scale) {
   ICOORD result; // output
 
   result.xcoord = op1.xcoord / scale;
@@ -495,7 +496,7 @@ inline ICOORD operator/( // scalar divide
 
 inline ICOORD &operator/=( // scalar divide
     ICOORD &op1,           // operands
-    int16_t scale) {
+    TDimension scale) {
   op1.xcoord /= scale;
   op1.ycoord /= scale;
   return op1;
@@ -509,8 +510,8 @@ inline ICOORD &operator/=( // scalar divide
 
 inline void ICOORD::rotate( // rotate by vector
     const FCOORD &vec) {
-  auto tmp = static_cast<int16_t>(std::floor(xcoord * vec.x() - ycoord * vec.y() + 0.5f));
-  ycoord = static_cast<int16_t>(std::floor(ycoord * vec.x() + xcoord * vec.y() + 0.5f));
+  auto tmp = static_cast<TDimension>(std::floor(xcoord * vec.x() - ycoord * vec.y() + 0.5f));
+  ycoord = static_cast<TDimension>(std::floor(ycoord * vec.x() + xcoord * vec.y() + 0.5f));
   xcoord = tmp;
 }
 

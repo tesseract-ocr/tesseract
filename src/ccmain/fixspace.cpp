@@ -262,7 +262,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   int16_t total_score = 0;
   int16_t word_count = 0;
   int16_t done_word_count = 0;
-  int16_t i;
+  int i;
   int16_t offset;
   int16_t prev_word_score = 0;
   bool prev_word_done = false;
@@ -684,7 +684,6 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
 
 int16_t Tesseract::worst_noise_blob(WERD_RES *word_res, float *worst_noise_score) {
   float noise_score[512];
-  int i;
   int min_noise_blob; // 1st contender
   int max_noise_blob; // last contender
   int non_noise_count;
@@ -697,7 +696,7 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res, float *worst_noise_score
   }
 
   // Normalised.
-  int blob_count = word_res->box_word->length();
+  auto blob_count = word_res->box_word->length();
   ASSERT_HOST(blob_count <= 512);
   if (blob_count < 5) {
     return -1; // too short to split
@@ -712,7 +711,7 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res, float *worst_noise_score
   }
 #endif
 
-  for (i = 0; i < blob_count && i < word_res->rebuild_word->NumBlobs(); i++) {
+  for (unsigned i = 0; i < blob_count && i < word_res->rebuild_word->NumBlobs(); i++) {
     TBLOB *blob = word_res->rebuild_word->blobs[i];
     if (word_res->reject_map[i].accepted()) {
       noise_score[i] = non_noise_limit;
@@ -731,7 +730,8 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res, float *worst_noise_score
   /* Now find the worst one which is far enough away from the end of the word */
 
   non_noise_count = 0;
-  for (i = 0; i < blob_count && non_noise_count < fixsp_non_noise_limit; i++) {
+  int i;
+  for (i = 0; static_cast<unsigned>(i) < blob_count && non_noise_count < fixsp_non_noise_limit; i++) {
     if (noise_score[i] >= non_noise_limit) {
       non_noise_count++;
     }
@@ -760,7 +760,7 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res, float *worst_noise_score
 
   *worst_noise_score = small_limit;
   worst_noise_blob = -1;
-  for (i = min_noise_blob; i <= max_noise_blob; i++) {
+  for (auto i = min_noise_blob; i <= max_noise_blob; i++) {
     if (noise_score[i] < *worst_noise_score) {
       worst_noise_blob = i;
       *worst_noise_score = noise_score[i];
@@ -838,7 +838,6 @@ int16_t Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_it(&word_res_list);
   WERD_RES *word;
   int16_t score = 0;
-  int16_t i;
   float small_limit = kBlnXHeight * fixsp_small_outlines_size;
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
@@ -849,9 +848,9 @@ int16_t Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
     if (word->done || word->tess_accepted || word->best_choice->permuter() == SYSTEM_DAWG_PERM ||
         word->best_choice->permuter() == FREQ_DAWG_PERM ||
         word->best_choice->permuter() == USER_DAWG_PERM || safe_dict_word(word) > 0) {
-      int num_blobs = word->rebuild_word->NumBlobs();
+      auto num_blobs = word->rebuild_word->NumBlobs();
       UNICHAR_ID space = word->uch_set->unichar_to_id(" ");
-      for (i = 0; i < word->best_choice->length() && i < num_blobs; ++i) {
+      for (unsigned i = 0; i < word->best_choice->length() && i < num_blobs; ++i) {
         TBLOB *blob = word->rebuild_word->blobs[i];
         if (word->best_choice->unichar_id(i) == space || blob_noise_score(blob) < small_limit) {
           score -= 1; // penalise possibly erroneous non-space

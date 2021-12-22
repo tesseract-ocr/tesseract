@@ -94,7 +94,7 @@ bool ParamsModel::Equivalent(const ParamsModel &that) const {
     }
     for (unsigned i = 0; i < weights_vec_[p].size(); i++) {
       if (weights_vec_[p][i] != that.weights_vec_[p][i] &&
-          fabs(weights_vec_[p][i] - that.weights_vec_[p][i]) > epsilon) {
+          std::fabs(weights_vec_[p][i] - that.weights_vec_[p][i]) > epsilon) {
         return false;
       }
     }
@@ -154,7 +154,7 @@ bool ParamsModel::SaveToFile(const char *full_path) const {
     return false;
   }
   bool all_good = true;
-  for (int i = 0; i < weights.size(); i++) {
+  for (unsigned i = 0; i < weights.size(); i++) {
     if (fprintf(fp, "%s %f\n", kParamsTrainingFeatureTypeName[i], weights[i]) < 0) {
       all_good = false;
     }

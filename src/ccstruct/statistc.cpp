@@ -521,12 +521,12 @@ int STATS::top_n_modes(int max_modes, std::vector<KDPairInc<float, int>> &modes)
           break;
         }
       }
-      if (total_count > least_count || modes.size() < max_modes) {
+      if (total_count > least_count || modes.size() < static_cast<size_t>(max_modes)) {
         // We definitely want this mode, so if we have enough discard the least.
-        if (modes.size() == max_modes) {
+        if (modes.size() == static_cast<size_t>(max_modes)) {
           modes.resize(max_modes - 1);
         }
-        int target_index = 0;
+        size_t target_index = 0;
         // Linear search for the target insertion point.
         while (target_index < modes.size() && modes[target_index].data() >= total_count) {
           ++target_index;
