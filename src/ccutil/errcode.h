@@ -49,6 +49,7 @@ public:
       TessErrorLogCode action, // action to take
       const char *format, ...  // fprintf format
   ) const __attribute__((format(printf, 4, 5)));
+  void error(const char *caller, TessErrorLogCode action) const;
   constexpr ERRCODE(const char *string) : message(string) {} // initialize with string
 };
 

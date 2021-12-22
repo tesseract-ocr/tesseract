@@ -70,7 +70,7 @@ void ELIST::assign_to_sublist( // to this list
   constexpr ERRCODE LIST_NOT_EMPTY("Destination list must be empty before extracting a sublist");
 
   if (!empty()) {
-    LIST_NOT_EMPTY.error("ELIST.assign_to_sublist", ABORT, nullptr);
+    LIST_NOT_EMPTY.error("ELIST.assign_to_sublist", ABORT);
   }
 
   last = start_it->extract_sublist(end_it);
@@ -169,7 +169,7 @@ ELIST_LINK *ELIST::add_sorted_and_find(int comparator(const void *, const void *
 ELIST_LINK *ELIST_ITERATOR::forward() {
 #ifndef NDEBUG
   if (!list)
-    NO_LIST.error("ELIST_ITERATOR::forward", ABORT, nullptr);
+    NO_LIST.error("ELIST_ITERATOR::forward", ABORT);
 #endif
   if (list->empty()) {
     return nullptr;
@@ -189,7 +189,7 @@ ELIST_LINK *ELIST_ITERATOR::forward() {
   }
 #ifndef NDEBUG
   if (!current)
-    NULL_DATA.error("ELIST_ITERATOR::forward", ABORT, nullptr);
+    NULL_DATA.error("ELIST_ITERATOR::forward", ABORT);
 #endif
   next = current->next;
 
@@ -218,9 +218,9 @@ ELIST_LINK *ELIST_ITERATOR::data_relative( // get data + or - ...
 
 #ifndef NDEBUG
   if (!list)
-    NO_LIST.error("ELIST_ITERATOR::data_relative", ABORT, nullptr);
+    NO_LIST.error("ELIST_ITERATOR::data_relative", ABORT);
   if (list->empty())
-    EMPTY_LIST.error("ELIST_ITERATOR::data_relative", ABORT, nullptr);
+    EMPTY_LIST.error("ELIST_ITERATOR::data_relative", ABORT);
   if (offset < -1)
     BAD_PARAMETER.error("ELIST_ITERATOR::data_relative", ABORT, "offset < -l");
 #endif
@@ -235,7 +235,7 @@ ELIST_LINK *ELIST_ITERATOR::data_relative( // get data + or - ...
 
 #ifndef NDEBUG
   if (!ptr)
-    NULL_DATA.error("ELIST_ITERATOR::data_relative", ABORT, nullptr);
+    NULL_DATA.error("ELIST_ITERATOR::data_relative", ABORT);
 #endif
 
   return ptr;
@@ -252,7 +252,7 @@ ELIST_LINK *ELIST_ITERATOR::data_relative( // get data + or - ...
 ELIST_LINK *ELIST_ITERATOR::move_to_last() {
 #ifndef NDEBUG
   if (!list)
-    NO_LIST.error("ELIST_ITERATOR::move_to_last", ABORT, nullptr);
+    NO_LIST.error("ELIST_ITERATOR::move_to_last", ABORT);
 #endif
 
   while (current != list->last) {
@@ -280,7 +280,7 @@ void ELIST_ITERATOR::exchange(  // positions of 2 links
 
 #ifndef NDEBUG
   if (!list)
-    NO_LIST.error("ELIST_ITERATOR::exchange", ABORT, nullptr);
+    NO_LIST.error("ELIST_ITERATOR::exchange", ABORT);
   if (!other_it)
     BAD_PARAMETER.error("ELIST_ITERATOR::exchange", ABORT, "other_it nullptr");
   if (!(other_it->list))
@@ -297,7 +297,7 @@ link */
   /* Error if either current element is deleted */
 
   if (!current || !other_it->current) {
-    DONT_EXCHANGE_DELETED.error("ELIST_ITERATOR.exchange", ABORT, nullptr);
+    DONT_EXCHANGE_DELETED.error("ELIST_ITERATOR.exchange", ABORT);
   }
 
   /* Now handle the 4 cases: doubleton list; non-doubleton adjacent elements
@@ -383,14 +383,14 @@ ELIST_LINK *ELIST_ITERATOR::extract_sublist( // from this current
   if (!other_it)
     BAD_PARAMETER.error("ELIST_ITERATOR::extract_sublist", ABORT, "other_it nullptr");
   if (!list)
-    NO_LIST.error("ELIST_ITERATOR::extract_sublist", ABORT, nullptr);
+    NO_LIST.error("ELIST_ITERATOR::extract_sublist", ABORT);
   if (list != other_it->list)
-    BAD_EXTRACTION_PTS.error("ELIST_ITERATOR.extract_sublist", ABORT, nullptr);
+    BAD_EXTRACTION_PTS.error("ELIST_ITERATOR.extract_sublist", ABORT);
   if (list->empty())
-    EMPTY_LIST.error("ELIST_ITERATOR::extract_sublist", ABORT, nullptr);
+    EMPTY_LIST.error("ELIST_ITERATOR::extract_sublist", ABORT);
 
   if (!current || !other_it->current)
-    DONT_EXTRACT_DELETED.error("ELIST_ITERATOR.extract_sublist", ABORT, nullptr);
+    DONT_EXTRACT_DELETED.error("ELIST_ITERATOR.extract_sublist", ABORT);
 #endif
 
   ex_current_was_last = other_it->ex_current_was_last = false;
@@ -400,7 +400,7 @@ ELIST_LINK *ELIST_ITERATOR::extract_sublist( // from this current
   temp_it.mark_cycle_pt();
   do {                         // walk sublist
     if (temp_it.cycled_list()) { // can't find end pt
-      BAD_SUBLIST.error("ELIST_ITERATOR.extract_sublist", ABORT, nullptr);
+      BAD_SUBLIST.error("ELIST_ITERATOR.extract_sublist", ABORT);
     }
 
     if (temp_it.at_last()) {
