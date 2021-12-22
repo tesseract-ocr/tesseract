@@ -18,61 +18,14 @@
 
 #include "errcode.h"
 
-#include <cstdarg>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 
 namespace tesseract {
 
 constexpr ERRCODE BADERRACTION("Illegal error action");
 #define MAX_MSG 1024
 
-/**********************************************************************
- * error
- *
- * Print an error message and continue, exit or abort according to action.
- * Makes use of error messages and numbers in a common place.
- *
- **********************************************************************/
-void ERRCODE::error(         // handle error
-    const char *caller,      // name of caller
-    TessErrorLogCode action, // action to take
-    const char *format, ...  // special message
-    ) const {
-  va_list args; // variable args
-  char msg[MAX_MSG];
-  char *msgptr = msg;
-
-  if (caller != nullptr) {
-    // name of caller
-    msgptr += sprintf(msgptr, "%s:", caller);
-  }
-  // actual message
-  msgptr += sprintf(msgptr, "Error:%s", message);
-  if (format != nullptr) {
-    msgptr += sprintf(msgptr, ":");
-    va_start(args, format); // variable list
-#ifdef _WIN32
-                            // print remainder
-    msgptr += _vsnprintf(msgptr, MAX_MSG - 2 - (msgptr - msg), format, args);
-    msg[MAX_MSG - 2] = '\0'; // ensure termination
-    strcat(msg, "\n");
-#else
-                            // print remainder
-    msgptr += vsprintf(msgptr, format, args);
-    // no specific
-    msgptr += sprintf(msgptr, "\n");
-#endif
-    va_end(args);
-  } else {
-    // no specific
-    msgptr += sprintf(msgptr, "\n");
-  }
-
-  // %s is needed here so msg is printed correctly!
-  fprintf(stderr, "%s", msg);
-
+static void error_action(TessErrorLogCode action) {
   switch (action) {
     case DBG:
     case TESSLOG:
@@ -95,8 +48,31 @@ void ERRCODE::error(         // handle error
   }
 }
 
+/**********************************************************************
+ * error
+ *
+ * Print an error message and continue, exit or abort according to action.
+ * Makes use of error messages and numbers in a common place.
+ *
+ **********************************************************************/
 void ERRCODE::error(const char *caller, TessErrorLogCode action) const {
-  error(caller, action, nullptr);
+  if (caller != nullptr) {
+    // name of caller
+    fprintf(stderr, "%s\n", fmt::format("{}:Error:{}", caller, message).c_str());
+  } else {
+    fprintf(stderr, "%s\n", fmt::format("Error:{}", message).c_str());
+  }
+  error_action(action);
+}
+
+void ERRCODE::verror(const char *caller, TessErrorLogCode action, fmt::string_view format, fmt::format_args args) const {
+  if (caller != nullptr) {
+    // name of caller
+    fprintf(stderr, "%s\n", fmt::format("{}:Error:{}:{}", caller, message, fmt::vformat(format, args)).c_str());
+  } else {
+    fprintf(stderr, "%s\n", fmt::format("Error:{}:{}", message, fmt::vformat(format, args)).c_str());
+  }
+  error_action(action);
 }
 
 } // namespace tesseract

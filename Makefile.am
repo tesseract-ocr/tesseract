@@ -347,6 +347,7 @@ endif
 # Rules for src/ccutil
 
 libtesseract_ccutil_la_CPPFLAGS = $(AM_CPPFLAGS)
+libtesseract_ccutil_la_CPPFLAGS += -I$(top_srcdir)/src/fmt/include
 libtesseract_ccutil_la_CPPFLAGS += $(libarchive_CFLAGS)
 if !NO_TESSDATA_PREFIX
 libtesseract_ccutil_la_CPPFLAGS += -DTESSDATA_PREFIX='"@datadir@"'
@@ -1162,6 +1163,7 @@ unittest_CPPFLAGS += -I$(top_srcdir)/src/classify
 unittest_CPPFLAGS += -I$(top_srcdir)/src/cutil
 unittest_CPPFLAGS += -I$(top_srcdir)/src/dict
 unittest_CPPFLAGS += -I$(top_srcdir)/src/display
+unittest_CPPFLAGS += -I$(top_srcdir)/src/fmt/include
 unittest_CPPFLAGS += -I$(top_srcdir)/src/lstm
 unittest_CPPFLAGS += -I$(top_srcdir)/src/textord
 unittest_CPPFLAGS += -I$(top_srcdir)/unittest/base
