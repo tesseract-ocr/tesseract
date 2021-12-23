@@ -1500,14 +1500,11 @@ class appender : public std::back_insert_iterator<detail::buffer<char>> {
   using _Unchecked_type = appender;  // Mark iterator as checked.
 
   auto operator++() -> appender& {
-    base::operator++();
     return *this;
   }
 
   auto operator++(int) -> appender {
-    auto tmp = *this;
-    ++*this;
-    return tmp;
+    return *this;
   }
 };
 
