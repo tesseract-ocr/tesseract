@@ -2336,7 +2336,6 @@ void assign_blobs_to_rows( // find lines
     if (!row_it.empty()) {
       for (row_it.move_to_first(); !row_it.at_last() && row_it.data()->min_y() > top;
            row_it.forward()) {
-        ;
       }
       row = row_it.data();
       if (row->min_y() <= top && row->max_y() >= bottom) {

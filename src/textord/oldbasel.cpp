@@ -174,14 +174,12 @@ void Textord::correlate_neighbours(TO_BLOCK *block, // block rows are in.
            otherrow >= 0 && (rows[otherrow]->xheight < 0.0 ||
                              !row->baseline.overlap(&rows[otherrow]->baseline, MAXOVERLAP));
            otherrow--) {
-        ;
       }
       upperrow = otherrow; /*decent row above */
       for (otherrow = rowindex + 1;
            otherrow < rowcount && (rows[otherrow]->xheight < 0.0 ||
                                    !row->baseline.overlap(&rows[otherrow]->baseline, MAXOVERLAP));
            otherrow++) {
-        ;
       }
       lowerrow = otherrow; /*decent row below */
       if (upperrow >= 0) {
@@ -1107,13 +1105,11 @@ int segment_spline(             // make xstarts
       /*find rising y centre */
       for (ptindex = turnpoints[segment - 1] + 1;
            ptindex < turnpoints[segment] && ycoords[ptindex + 1] <= lastmax; ptindex++) {
-        ;
       }
     } else {
       /*find falling y centre */
       for (ptindex = turnpoints[segment - 1] + 1;
            ptindex < turnpoints[segment] && ycoords[ptindex + 1] >= lastmax; ptindex++) {
-        ;
       }
     }
 
