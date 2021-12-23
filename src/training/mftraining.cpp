@@ -77,9 +77,9 @@ static void DisplayProtoList(const char *ch, LIST protolist) {
     window->DrawTo((x + dx) * 256, (y + dy) * 256);
     auto prototypeNumSamples = prototype->NumSamples;
     if (prototype->Significant) {
-      tprintf("Green proto at (%g,%g)+(%g,%g) %d samples\n", x, y, dx, dy, prototypeNumSamples);
+      tprintf("Green proto at ({},{})+({},{}) {} samples\n", x, y, dx, dy, prototypeNumSamples);
     } else if (prototype->NumSamples > 0 && !prototype->Merged) {
-      tprintf("Red proto at (%g,%g)+(%g,%g) %d samples\n", x, y, dx, dy, prototypeNumSamples);
+      tprintf("Red proto at ({},{})+({},{}) {} samples\n", x, y, dx, dy, prototypeNumSamples);
     }
   }
   window->Update();

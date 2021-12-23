@@ -74,13 +74,13 @@ static bool AcceptableRowArgs(int debug_level, int min_num_rows, const char *fun
                               const std::vector<RowScratchRegisters> *rows, int row_start,
                               int row_end) {
   if (row_start < 0 || static_cast<size_t>(row_end) > rows->size() || row_start > row_end) {
-    tprintf("Invalid arguments rows[%d, %d) while rows is of size %zu.\n", row_start, row_end,
+    tprintf("Invalid arguments rows[{}, {}) while rows is of size {}.\n", row_start, row_end,
             rows->size());
     return false;
   }
   if (row_end - row_start < min_num_rows) {
     if (debug_level > 1) {
-      tprintf("# Too few rows[%d, %d) for %s.\n", row_start, row_end, function_name);
+      tprintf("# Too few rows[{}, {}) for {}.\n", row_start, row_end, function_name);
     }
     return false;
   }
@@ -121,7 +121,7 @@ static void PrintTable(const std::vector<std::vector<std::string>> &rows, const 
   for (const auto &row : rows) {
     for (unsigned c = 0; c < row.size(); c++) {
       if (c > 0) {
-        tprintf("%s", colsep);
+        tprintf("{}", colsep);
       }
       tprintf(col_width_patterns[c].c_str(), row[c].c_str());
     }
@@ -172,7 +172,7 @@ static void PrintDetectorState(const ParagraphTheory &theory,
   tprintf("Active Paragraph Models:\n");
   unsigned m = 0;
   for (const auto &model : theory.models()) {
-    tprintf(" %d: %s\n", ++m, model->ToString().c_str());
+    tprintf(" {}: {}\n", ++m, model->ToString());
   }
 }
 
@@ -181,7 +181,7 @@ static void DebugDump(bool should_print, const char *phase, const ParagraphTheor
   if (!should_print) {
     return;
   }
-  tprintf("# %s\n", phase);
+  tprintf("# {}\n", phase);
   PrintDetectorState(theory, rows);
 }
 
@@ -190,7 +190,7 @@ static void PrintRowRange(const std::vector<RowScratchRegisters> &rows, int row_
                           int row_end) {
   tprintf("======================================\n");
   for (int row = row_start; row < row_end; row++) {
-    tprintf("%s\n", rows[row].ri_->text.c_str());
+    tprintf("{}\n", rows[row].ri_->text.c_str());
   }
   tprintf("======================================\n");
 }
@@ -912,8 +912,8 @@ struct GeometricClassifierState {
     CalculateTabStops(r, r_start, r_end, tolerance, &left_tabs, &right_tabs);
     if (debug_level >= 3) {
       tprintf(
-          "Geometry: TabStop cluster tolerance = %d; "
-          "%zu left tabs; %zu right tabs\n",
+          "Geometry: TabStop cluster tolerance = {}; "
+          "{} left tabs; {} right tabs\n",
           tolerance, left_tabs.size(), right_tabs.size());
     }
     ltr = (*r)[r_start].ri_->ltr;
@@ -974,7 +974,7 @@ struct GeometricClassifierState {
     if (debug_level < min_debug_level) {
       return;
     }
-    tprintf("# %s\n", why);
+    tprintf("# {}\n", why);
     PrintRows();
   }
 
@@ -1071,7 +1071,7 @@ static void GeometricClassifyThreeTabStopTextBlock(int debug_level, GeometricCla
   if (debug_level > 0) {
     tprintf(
         "# Not enough variety for clear outline classification. "
-        "Guessing these are %s aligned based on script.\n",
+        "Guessing these are {} aligned based on script.\n",
         s.ltr ? "left" : "right");
     s.PrintRows();
   }
@@ -1138,7 +1138,7 @@ static void GeometricClassify(int debug_level, std::vector<RowScratchRegisters> 
   }
   if (debug_level > 1) {
     tprintf("###############################################\n");
-    tprintf("##### GeometricClassify( rows[%d:%d) )   ####\n", row_start, row_end);
+    tprintf("##### GeometricClassify( rows[{}:{}) )   ####\n", row_start, row_end);
     tprintf("###############################################\n");
   }
   RecomputeMarginsAndClearHypotheses(rows, row_start, row_end, 10);
@@ -1213,11 +1213,11 @@ static void GeometricClassify(int debug_level, std::vector<RowScratchRegisters> 
     } else {
       // Ambiguous! Probably lineated (poetry)
       if (debug_level > 1) {
-        tprintf("# Cannot determine %s indent likely to start paragraphs.\n",
+        tprintf("# Cannot determine {} indent likely to start paragraphs.\n",
                 s.just == tesseract::JUSTIFICATION_LEFT ? "left" : "right");
-        tprintf("# Indent of %d looks like a first line %d%% of the time.\n",
+        tprintf("# Indent of {} looks like a first line {}% of the time.\n",
                 s.AlignTabs()[0].center, percent0firsts);
-        tprintf("# Indent of %d looks like a first line %d%% of the time.\n",
+        tprintf("# Indent of {} looks like a first line {}% of the time.\n",
                 s.AlignTabs()[1].center, percent1firsts);
         s.PrintRows();
       }
@@ -2041,7 +2041,7 @@ static void StrongEvidenceClassify(int debug_level, std::vector<RowScratchRegist
 
   if (debug_level > 1) {
     tprintf("#############################################\n");
-    tprintf("# StrongEvidenceClassify( rows[%d:%d) )\n", row_start, row_end);
+    tprintf("# StrongEvidenceClassify( rows[{}:{}) )\n", row_start, row_end);
     tprintf("#############################################\n");
   }
 

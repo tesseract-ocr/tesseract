@@ -881,7 +881,7 @@ bool Tesseract::word_dumper(PAGE_RES_IT *pr_it) {
   word_res->word->print();
   if (word_res->blamer_bundle != nullptr && wordrec_debug_blamer &&
       word_res->blamer_bundle->incorrect_result_reason() != IRR_CORRECT) {
-    tprintf("Current blamer debug: %s\n", word_res->blamer_bundle->debug().c_str());
+    tprintf("Current blamer debug: {}\n", word_res->blamer_bundle->debug().c_str());
   }
   return true;
 }

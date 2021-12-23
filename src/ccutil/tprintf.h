@@ -19,22 +19,23 @@
 #ifndef TESSERACT_CCUTIL_TPRINTF_H
 #define TESSERACT_CCUTIL_TPRINTF_H
 
-#include "params.h" // for BOOL_VAR_H
+#include "params.h"           // for BOOL_VAR_H
+#include <fmt/format.h>       // for fmt
 #include <tesseract/export.h> // for TESS_API
 
 namespace tesseract {
 
-#if !defined(__GNUC__) && !defined(__attribute__)
-# define __attribute__(attr) // compiler without support for __attribute__
-#endif
-
 // Disable some log messages by setting log_level > 0.
 extern TESS_API INT_VAR_H(log_level);
 
+// Helper function for tprintf.
+extern TESS_API void vTessPrint(fmt::string_view format, fmt::format_args args);
+
 // Main logging function.
-extern TESS_API void tprintf( // Trace printf
-    const char *format, ...)  // Message
-    __attribute__((format(printf, 1, 2)));
+template <typename S, typename... Args>
+void tprintf(const S *format, Args &&...args) {
+  vTessPrint(format, fmt::make_args_checked<Args...>(format, args...));
+}
 
 } // namespace tesseract
 

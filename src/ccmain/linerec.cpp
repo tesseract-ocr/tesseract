@@ -45,7 +45,7 @@ bool Tesseract::TrainLineRecognizer(const char *input_imagename, const std::stri
   if (applybox_page > 0) {
     // Load existing document for the previous pages.
     if (!images.LoadDocument(lstmf_name.c_str(), 0, 0, nullptr)) {
-      tprintf("Failed to read training data from %s!\n", lstmf_name.c_str());
+      tprintf("Failed to read training data from {}!\n", lstmf_name);
       return false;
     }
   }
@@ -54,17 +54,17 @@ bool Tesseract::TrainLineRecognizer(const char *input_imagename, const std::stri
   // Get the boxes for this page, if there are any.
   if (!ReadAllBoxes(applybox_page, false, input_imagename, &boxes, &texts, nullptr, nullptr) ||
       boxes.empty()) {
-    tprintf("Failed to read boxes from %s\n", input_imagename);
+    tprintf("Failed to read boxes from {}\n", input_imagename);
     return false;
   }
   TrainFromBoxes(boxes, texts, block_list, &images);
   if (images.PagesSize() == 0) {
-    tprintf("Failed to read pages from %s\n", input_imagename);
+    tprintf("Failed to read pages from {}\n", input_imagename);
     return false;
   }
   images.Shuffle();
   if (!images.SaveDocument(lstmf_name.c_str(), nullptr)) {
-    tprintf("Failed to write training data to %s!\n", lstmf_name.c_str());
+    tprintf("Failed to write training data to {}!\n", lstmf_name);
     return false;
   }
   return true;
@@ -112,7 +112,7 @@ void Tesseract::TrainFromBoxes(const std::vector<TBOX> &boxes, const std::vector
     }
     ImageData *imagedata = nullptr;
     if (best_block == nullptr) {
-      tprintf("No block overlapping textline: %s\n", line_str.c_str());
+      tprintf("No block overlapping textline: {}\n", line_str);
     } else {
       imagedata = GetLineData(line_box, boxes, texts, start_box, end_box, *best_block);
     }

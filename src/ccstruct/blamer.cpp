@@ -551,7 +551,7 @@ void BlamerBundle::LastChanceBlame(bool debug, WERD_RES *word) {
       word->blamer_bundle->SetBlame(IRR_UNKNOWN, debug_str, word->best_choice, debug);
     } else if (irr != IRR_CORRECT && correct) {
       if (debug) {
-        tprintf("Corrected %s\n", word->blamer_bundle->debug_.c_str());
+        tprintf("Corrected {}\n", word->blamer_bundle->debug_);
       }
       word->blamer_bundle->incorrect_result_reason_ = IRR_CORRECT;
       word->blamer_bundle->debug_ = "";
@@ -568,7 +568,7 @@ void BlamerBundle::SetMisAdaptionDebug(const WERD_CHOICE *best_choice, bool debu
     misadaption_debug_ += "): ";
     FillDebugString("", best_choice, misadaption_debug_);
     if (debug) {
-      tprintf("%s\n", misadaption_debug_.c_str());
+      tprintf("{}\n", misadaption_debug_);
     }
   }
 }

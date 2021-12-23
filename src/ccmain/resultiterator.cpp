@@ -541,7 +541,7 @@ bool ResultIterator::Next(PageIteratorLevel level) {
           at_beginning_of_minor_run_ = (word_indices[j - 1] == kMinorRunStart);
           // awesome, we move to word_indices[j]
           if (BidiDebug(3)) {
-            tprintf("Next(RIL_WORD): %d -> %d\n", this_word_index, word_indices[j]);
+            tprintf("Next(RIL_WORD): {} -> {}\n", this_word_index, word_indices[j]);
           }
           PageIterator::RestartRow();
           for (int k = 0; k < word_indices[j]; k++) {
@@ -552,7 +552,7 @@ bool ResultIterator::Next(PageIteratorLevel level) {
         }
       }
       if (BidiDebug(3)) {
-        tprintf("Next(RIL_WORD): %d -> EOL\n", this_word_index);
+        tprintf("Next(RIL_WORD): {} -> EOL\n", this_word_index);
       }
       // we're going off the end of the text line.
       return Next(RIL_TEXTLINE);
@@ -731,15 +731,13 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(std::string *text) {
     std::vector<int> textline_order;
     std::vector<StrongScriptDirection> dirs;
     CalculateTextlineOrder(current_paragraph_is_ltr_, *this, &dirs, &textline_order);
-    tprintf("Strong Script dirs     [%p/P=%s]: ",
-            static_cast<void *>(it_->row()),
+    tprintf("Strong Script dirs     [{}/P={}]: ", static_cast<void *>(it_->row()),
             current_paragraph_is_ltr_ ? "ltr" : "rtl");
     PrintScriptDirs(dirs);
-    tprintf("Logical textline order [%p/P=%s]: ",
-            static_cast<void *>(it_->row()),
+    tprintf("Logical textline order [{}/P={}]: ", static_cast<void *>(it_->row()),
             current_paragraph_is_ltr_ ? "ltr" : "rtl");
     for (int i : textline_order) {
-      tprintf("%d ", i);
+      tprintf("{} ", i);
     }
     tprintf("\n");
   }
@@ -753,11 +751,11 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(std::string *text) {
     AppendUTF8WordText(text);
     words_appended++;
     if (BidiDebug(2)) {
-      tprintf("Num spaces=%d, text=%s\n", numSpaces, text->c_str());
+      tprintf("Num spaces={}, text={}\n", numSpaces, *text);
     }
   } while (Next(RIL_WORD) && !IsAtBeginningOf(RIL_TEXTLINE));
   if (BidiDebug(1)) {
-    tprintf("%d words printed\n", words_appended);
+    tprintf("{} words printed\n", words_appended);
   }
   *text += line_separator_;
   // If we just finished a paragraph, add an extra newline.

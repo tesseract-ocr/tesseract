@@ -91,8 +91,8 @@ bool Tesseract::recog_interactive(PAGE_RES_IT *pr_it) {
     WERD_RES *word_res = pr_it->word();
     word_char_quality(word_res, &char_qual, &good_char_qual);
     tprintf(
-        "\n%d chars;  word_blob_quality: %d;  outline_errs: %d; "
-        "char_quality: %d; good_char_quality: %d\n",
+        "\n{} chars;  word_blob_quality: {};  outline_errs: {}; "
+        "char_quality: {}; good_char_quality: {}\n",
         word_res->reject_map.length(), word_blob_quality(word_res), word_outline_errs(word_res),
         char_qual, good_char_qual);
   }
@@ -123,7 +123,7 @@ bool Tesseract::ProcessTargetWord(const TBOX &word_box, const TBOX &target_word_
         backup_config_file_ = kBackUpConfigFile;
         FILE *config_fp = fopen(backup_config_file_, "wb");
         if (config_fp == nullptr) {
-          tprintf("Error, failed to open file \"%s\"\n", backup_config_file_);
+          tprintf("Error, failed to open file \"{}\"\n", backup_config_file_);
         } else {
           ParamUtils::PrintParams(config_fp, params());
           fclose(config_fp);
@@ -252,8 +252,8 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT 
 
     classify_word_and_language(pass_n, pr_it, word);
     if (tessedit_dump_choices || debug_noise_removal) {
-      tprintf("Pass%d: %s [%s]\n", pass_n, word->word->best_choice->unichar_string().c_str(),
-              word->word->best_choice->debug_string().c_str());
+      tprintf("Pass{}: {} [{}]\n", pass_n, word->word->best_choice->unichar_string(),
+              word->word->best_choice->debug_string());
     }
     pr_it->forward();
     if (make_next_word_fuzzy && pr_it->word() != nullptr) {
@@ -497,13 +497,13 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
 
     if (w->tesseract->getDict().valid_bigram(prev_best, this_best)) {
       if (tessedit_bigram_debug) {
-        tprintf("Top choice \"%s %s\" verified by bigram model.\n", orig_w1_str.c_str(),
-                orig_w2_str.c_str());
+        tprintf("Top choice \"{} {}\" verified by bigram model.\n", orig_w1_str,
+                orig_w2_str);
       }
       continue;
     }
     if (tessedit_bigram_debug > 2) {
-      tprintf("Examining alt choices for \"%s %s\".\n", orig_w1_str.c_str(), orig_w2_str.c_str());
+      tprintf("Examining alt choices for \"{} {}\".\n", orig_w1_str, orig_w2_str);
     }
     if (tessedit_bigram_debug > 1) {
       if (!w_prev->best_choices.singleton()) {
@@ -549,9 +549,9 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
           EqualIgnoringCaseAndTerminalPunct(*w->best_choice, *overrides_word2[best_idx])) {
         if (tessedit_bigram_debug > 1) {
           tprintf(
-              "Top choice \"%s %s\" verified (sans case) by bigram "
+              "Top choice \"{} {}\" verified (sans case) by bigram "
               "model.\n",
-              orig_w1_str.c_str(), orig_w2_str.c_str());
+              orig_w1_str, orig_w2_str);
         }
         continue;
       }
@@ -588,9 +588,9 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
             choices_description += " compatible bigrams.";
           }
         }
-        tprintf("Replaced \"%s %s\" with \"%s %s\" with bigram model. %s\n", orig_w1_str.c_str(),
-                orig_w2_str.c_str(), new_w1_str.c_str(), new_w2_str.c_str(),
-                choices_description.c_str());
+        tprintf("Replaced \"{} {}\" with \"{} {}\" with bigram model. %s\n", orig_w1_str,
+                orig_w2_str, new_w1_str, new_w2_str,
+                choices_description);
       }
     }
   }
@@ -652,8 +652,7 @@ void Tesseract::rejection_passes(PAGE_RES *page_res, ETEXT_DESC *monitor,
   }
 
   if (tessedit_debug_quality_metrics) {
-    tprintf(
-        "QUALITY: num_chs= %d  num_rejs= %d %5.3f blob_qual= %d %5.3f"
+    tprintf("QUALITY: num_chs= %d  num_rejs= %d %5.3f blob_qual= %d %5.3f"
         " outline_errs= %d %5.3f char_qual= %d %5.3f good_ch_qual= %d %5.3f\n",
         page_res->char_count, page_res->rej_count,
         page_res->rej_count / static_cast<float>(page_res->char_count), stats_.doc_blob_quality,
@@ -692,13 +691,13 @@ void Tesseract::blamer_pass(PAGE_RES *page_res) {
   }
   tprintf("Blame reasons:\n");
   for (int bl = 0; bl < IRR_NUM_REASONS; ++bl) {
-    tprintf("%s %d\n", BlamerBundle::IncorrectReasonName(static_cast<IncorrectResultReason>(bl)),
+    tprintf("{} {}\n", BlamerBundle::IncorrectReasonName(static_cast<IncorrectResultReason>(bl)),
             page_res->blame_reasons[bl]);
   }
   if (page_res->misadaption_log.size() > 0) {
     tprintf("Misadaption log:\n");
     for (auto &log : page_res->misadaption_log) {
-      tprintf("%s\n", log.c_str());
+      tprintf("{}\n", log);
     }
   }
 }

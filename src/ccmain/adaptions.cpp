@@ -34,7 +34,7 @@ namespace tesseract {
 bool Tesseract::word_adaptable( // should we adapt?
     WERD_RES *word, uint16_t mode) {
   if (tessedit_adaption_debug) {
-    tprintf("Running word_adaptable() for %s rating %.4f certainty %.4f\n",
+    tprintf("Running word_adaptable() for {} rating %.4f certainty %.4f\n",
             word->best_choice->unichar_string().c_str(), word->best_choice->rating(),
             word->best_choice->certainty());
   }
@@ -112,7 +112,7 @@ bool Tesseract::word_adaptable( // should we adapt?
   }
 
   if (tessedit_adaption_debug) {
-    tprintf("returning status %d\n", status);
+    tprintf("returning status {}\n", status);
   }
   return status;
 }

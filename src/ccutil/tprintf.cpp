@@ -26,7 +26,6 @@
 #include "params.h"
 
 #include <climits> // for INT_MAX
-#include <cstdarg>
 #include <cstdio>
 
 namespace tesseract {
@@ -38,7 +37,7 @@ INT_VAR(log_level, INT_MAX, "Logging level");
 static STRING_VAR(debug_file, "", "File to send tprintf output to");
 
 // Trace printf
-void tprintf(const char *format, ...) {
+void vTessPrint(fmt::string_view format, fmt::format_args args) {
   const char *debug_file_name = debug_file.c_str();
   static FILE *debugfp = nullptr; // debug file
 
@@ -62,14 +61,11 @@ void tprintf(const char *format, ...) {
     debugfp = nullptr;
   }
 
-  va_list args;           // variable args
-  va_start(args, format); // variable list
   if (debugfp != nullptr) {
-    vfprintf(debugfp, format, args);
+    fmt::vprint(debugfp, format, args);
   } else {
-    vfprintf(stderr, format, args);
+    fmt::vprint(stderr, format, args);
   }
-  va_end(args);
 }
 
 } // namespace tesseract

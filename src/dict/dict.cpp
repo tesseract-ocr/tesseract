@@ -253,7 +253,7 @@ void Dict::Load(const std::string &lang, TessdataManager *data_file) {
     }
     if (!trie_ptr->read_and_add_word_list(name.c_str(), getUnicharset(),
                                           Trie::RRP_REVERSE_IF_HAS_RTL)) {
-      tprintf("Error: failed to load %s\n", name.c_str());
+      tprintf("Error: failed to load {}\n", name);
       delete trie_ptr;
     } else {
       dawgs_.push_back(trie_ptr);
@@ -271,7 +271,7 @@ void Dict::Load(const std::string &lang, TessdataManager *data_file) {
       name += user_patterns_suffix;
     }
     if (!trie_ptr->read_pattern_list(name.c_str(), getUnicharset())) {
-      tprintf("Error: failed to load %s\n", name.c_str());
+      tprintf("Error: failed to load {}\n", name);
       delete trie_ptr;
     } else {
       dawgs_.push_back(trie_ptr);
@@ -326,7 +326,7 @@ void Dict::LoadLSTM(const std::string &lang, TessdataManager *data_file) {
     }
     if (!trie_ptr->read_and_add_word_list(name.c_str(), getUnicharset(),
                                           Trie::RRP_REVERSE_IF_HAS_RTL)) {
-      tprintf("Error: failed to load %s\n", name.c_str());
+      tprintf("Error: failed to load {}\n", name);
       delete trie_ptr;
     } else {
       dawgs_.push_back(trie_ptr);
@@ -344,7 +344,7 @@ void Dict::LoadLSTM(const std::string &lang, TessdataManager *data_file) {
       name += user_patterns_suffix;
     }
     if (!trie_ptr->read_pattern_list(name.c_str(), getUnicharset())) {
-      tprintf("Error: failed to load %s\n", name.c_str());
+      tprintf("Error: failed to load {}\n", name);
       delete trie_ptr;
     } else {
       dawgs_.push_back(trie_ptr);
@@ -411,8 +411,8 @@ int Dict::def_letter_is_okay(void *void_dawg_args, const UNICHARSET &unicharset,
 
   if (dawg_debug_level >= 3) {
     tprintf(
-        "def_letter_is_okay: current unichar=%s word_end=%d"
-        " num active dawgs=%zu\n",
+        "def_letter_is_okay: current unichar={} word_end={}"
+        " num active dawgs={}\n",
         getUnicharset().debug_str(unichar_id).c_str(), word_end, dawg_args->active_dawgs->size());
   }
 
@@ -456,7 +456,7 @@ int Dict::def_letter_is_okay(void *void_dawg_args, const UNICHARSET &unicharset,
           EDGE_REF dawg_edge = sdawg->edge_char_of(0, ch, word_end);
           if (dawg_edge != NO_EDGE) {
             if (dawg_debug_level >= 3) {
-              tprintf("Letter found in dawg %d\n", sdawg_index);
+              tprintf("Letter found in dawg {}\n", sdawg_index);
             }
             dawg_args->updated_dawgs->add_unique(
                 DawgPosition(sdawg_index, dawg_edge, pos.punc_index, punc_transition_edge, false),
@@ -529,12 +529,12 @@ int Dict::def_letter_is_okay(void *void_dawg_args, const UNICHARSET &unicharset,
             : dawg->edge_char_of(node, char_for_dawg(unicharset, unichar_id, dawg), word_end);
 
     if (dawg_debug_level >= 3) {
-      tprintf("Active dawg: [%d, " REFFORMAT "] edge=" REFFORMAT "\n", pos.dawg_index, node, edge);
+      tprintf("Active dawg: [{}, {}] edge={}\n", pos.dawg_index, node, edge);
     }
 
     if (edge != NO_EDGE) { // the unichar was found in the current dawg
       if (dawg_debug_level >= 3) {
-        tprintf("Letter found in dawg %d\n", pos.dawg_index);
+        tprintf("Letter found in dawg {}\n", pos.dawg_index);
       }
       if (word_end && punc_dawg && !punc_dawg->end_of_word(pos.punc_ref)) {
         if (dawg_debug_level >= 3) {
@@ -563,7 +563,7 @@ int Dict::def_letter_is_okay(void *void_dawg_args, const UNICHARSET &unicharset,
     dawg_args->permuter = curr_perm;
   }
   if (dawg_debug_level >= 2) {
-    tprintf("Returning %d for permuter code for this character.\n", dawg_args->permuter);
+    tprintf("Returning {} for permuter code for this character.\n", dawg_args->permuter);
   }
   return dawg_args->permuter;
 }
@@ -587,9 +587,9 @@ void Dict::ProcessPatternEdges(const Dawg *dawg, const DawgPosition &pos, UNICHA
         continue;
       }
       if (dawg_debug_level >= 3) {
-        tprintf("Pattern dawg: [%d, " REFFORMAT "] edge=" REFFORMAT "\n", pos.dawg_index, node,
+        tprintf("Pattern dawg: [{}, {}] edge={}\n", pos.dawg_index, node,
                 edge);
-        tprintf("Letter found in pattern dawg %d\n", pos.dawg_index);
+        tprintf("Letter found in pattern dawg {}\n", pos.dawg_index);
       }
       if (dawg->permuter() > *curr_perm) {
         *curr_perm = dawg->permuter();
@@ -612,7 +612,7 @@ void Dict::init_active_dawgs(DawgPositionVector *active_dawgs, bool ambigs_mode)
     *active_dawgs = hyphen_active_dawgs_;
     if (dawg_debug_level >= 3) {
       for (unsigned i = 0; i < hyphen_active_dawgs_.size(); ++i) {
-        tprintf("Adding hyphen beginning dawg [%d, " REFFORMAT "]\n",
+        tprintf("Adding hyphen beginning dawg [{}, {}]\n",
                 hyphen_active_dawgs_[i].dawg_index, hyphen_active_dawgs_[i].dawg_ref);
       }
     }
@@ -632,12 +632,12 @@ void Dict::default_dawgs(DawgPositionVector *dawg_pos_vec, bool suppress_pattern
       if (dawg_ty == DAWG_TYPE_PUNCTUATION) {
         dawg_pos_vec->push_back(DawgPosition(-1, NO_EDGE, i, NO_EDGE, false));
         if (dawg_debug_level >= 3) {
-          tprintf("Adding beginning punc dawg [%d, " REFFORMAT "]\n", i, NO_EDGE);
+          tprintf("Adding beginning punc dawg [{}, {}]\n", i, NO_EDGE);
         }
       } else if (!punc_dawg_available || !subsumed_by_punc) {
         dawg_pos_vec->push_back(DawgPosition(i, NO_EDGE, -1, NO_EDGE, false));
         if (dawg_debug_level >= 3) {
-          tprintf("Adding beginning dawg [%d, " REFFORMAT "]\n", i, NO_EDGE);
+          tprintf("Adding beginning dawg [{}, {}]\n", i, NO_EDGE);
         }
       }
     }
@@ -698,7 +698,7 @@ void Dict::add_document_word(const WERD_CHOICE &best_choice) {
     filename += ".doc";
     FILE *doc_word_file = fopen(filename.c_str(), "a");
     if (doc_word_file == nullptr) {
-      tprintf("Error: Could not open file %s\n", filename.c_str());
+      tprintf("Error: Could not open file {}\n", filename);
       ASSERT_HOST(doc_word_file);
     }
     fprintf(doc_word_file, "%s\n", best_choice.debug_string().c_str());

@@ -1005,10 +1005,10 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist, std::string *buf, const char
     chomp_string(pagename);
     Pix *pix = pixRead(pagename);
     if (pix == nullptr) {
-      tprintf("Image file %s cannot be read!\n", pagename);
+      tprintf("Image file {} cannot be read!\n", pagename);
       return false;
     }
-    tprintf("Page %u : %s\n", page, pagename);
+    tprintf("Page {} : {}\n", page, pagename);
     bool r = ProcessPage(pix, page, pagename, retry_config, timeout_millisec, renderer);
     pixDestroy(&pix);
     if (!r) {
@@ -1047,7 +1047,7 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data, size_t size, co
     }
     if (offset || page > 0) {
       // Only print page number for multipage TIFF file.
-      tprintf("Page %d\n", page + 1);
+      tprintf("Page {}\n", page + 1);
     }
     auto page_string = std::to_string(page);
     SetVariable("applybox_page", page_string.c_str());
@@ -1074,7 +1074,7 @@ bool TessBaseAPI::ProcessPages(const char *filename, const char *retry_config, i
 #ifndef DISABLED_LEGACY_ENGINE
   if (result) {
     if (tesseract_->tessedit_train_from_boxes && !tesseract_->WriteTRFile(output_file_.c_str())) {
-      tprintf("Write of TR file failed: %s\n", output_file_.c_str());
+      tprintf("Write of TR file failed: {}\n", output_file_.c_str());
       return false;
     }
   }
@@ -1108,7 +1108,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
   if (stdInput) {
 #ifdef WIN32
     if (_setmode(_fileno(stdin), _O_BINARY) == -1)
-      tprintf("ERROR: cin to binary: %s", strerror(errno));
+      tprintf("ERROR: cin to binary: {}", strerror(errno));
 #endif // WIN32
   }
 
@@ -1293,7 +1293,7 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
     // Save current config variables before switching modes.
     FILE *fp = fopen(kOldVarsFile, "wb");
     if (fp == nullptr) {
-      tprintf("Error, failed to open file \"%s\"\n", kOldVarsFile);
+      tprintf("Error, failed to open file \"{}\"\n", kOldVarsFile);
     } else {
       PrintVariables(fp);
       fclose(fp);
@@ -1841,7 +1841,7 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char *wordstr) {
   SetVariable("classify_enable_learning", "0");
   const std::unique_ptr<const char[]> text(GetUTF8Text());
   if (debug) {
-    tprintf("Trying to adapt \"%s\" to \"%s\"\n", text.get(), wordstr);
+    tprintf("Trying to adapt \"{}\" to \"{}\"\n", text.get(), wordstr);
   }
   if (text != nullptr) {
     PAGE_RES_IT it(page_res_);
@@ -2062,7 +2062,7 @@ bool TessBaseAPI::Threshold(Pix **pix) {
   if (user_dpi && (user_dpi < kMinCredibleResolution || user_dpi > kMaxCredibleResolution)) {
     tprintf(
         "Warning: User defined image dpi is outside of expected range "
-        "(%d - %d)!\n",
+        "({} - {})!\n",
         kMinCredibleResolution, kMaxCredibleResolution);
   }
   // Always use user defined dpi
@@ -2071,7 +2071,7 @@ bool TessBaseAPI::Threshold(Pix **pix) {
   } else if (y_res < kMinCredibleResolution || y_res > kMaxCredibleResolution) {
     if (y_res != 0) {
       // Show warning only if a resolution was given.
-      tprintf("Warning: Invalid resolution %d dpi. Using %d instead.\n",
+      tprintf("Warning: Invalid resolution {} dpi. Using {} instead.\n",
               y_res, kMinCredibleResolution);
     }
     thresholder_->SetSourceYResolution(kMinCredibleResolution);
@@ -2116,8 +2116,8 @@ bool TessBaseAPI::Threshold(Pix **pix) {
                                   kMinCredibleResolution, kMaxCredibleResolution);
   if (estimated_res != thresholder_->GetScaledEstimatedResolution()) {
     tprintf(
-        "Estimated internal resolution %d out of range! "
-        "Corrected to %d.\n",
+        "Estimated internal resolution {} out of range! "
+        "Corrected to {}.\n",
         thresholder_->GetScaledEstimatedResolution(), estimated_res);
   }
   tesseract_->set_source_resolution(estimated_res);
