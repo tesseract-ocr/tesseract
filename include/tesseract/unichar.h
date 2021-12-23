@@ -99,10 +99,10 @@ public:
   //   for (UNICHAR::const_iterator it = UNICHAR::begin(str, str_len);
   //        it != UNICHAR::end(str, len);
   //        ++it) {
-  //     tprintf("UCS-4 symbol code = %d\n", *it);
+  //     printf("UCS-4 symbol code = %d\n", *it);
   //     char buf[5];
   //     int char_len = it.get_utf8(buf); buf[char_len] = '\0';
-  //     tprintf("Char = %s\n", buf);
+  //     printf("Char = %s\n", buf);
   //   }
   class TESS_API const_iterator {
     using CI = const_iterator;
