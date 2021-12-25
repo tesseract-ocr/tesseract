@@ -1,4 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        osdetect.h
 // Description: Orientation and script detection.
 // Author:      Samuel Charron

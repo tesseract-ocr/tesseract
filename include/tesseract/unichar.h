@@ -1,4 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        unichar.h
 // Description: Unicode character/ligature class.
 // Author:      Ray Smith

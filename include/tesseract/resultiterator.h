@@ -1,4 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        resultiterator.h
 // Description: Iterator for tesseract results that is capable of
 //              iterating in proper reading order over Bi Directional

@@ -1,4 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        pageiterator.h
 // Description: Iterator for tesseract page structure that avoids using
 //              tesseract internal data structures.

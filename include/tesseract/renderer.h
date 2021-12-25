@@ -1,4 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        renderer.h
 // Description: Rendering interface to inject into TessBaseAPI
 //
