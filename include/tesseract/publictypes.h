@@ -1,4 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        publictypes.h
 // Description: Types used in both the API and internally
 // Author:      Ray Smith
