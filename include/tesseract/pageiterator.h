@@ -1,4 +1,3 @@
-///////////////////////////////////////////////////////////////////////
 // SPDX-License-Identifier: Apache-2.0
 // File:        pageiterator.h
 // Description: Iterator for tesseract page structure that avoids using
@@ -15,8 +14,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef TESSERACT_CCMAIN_PAGEITERATOR_H_
 #define TESSERACT_CCMAIN_PAGEITERATOR_H_
