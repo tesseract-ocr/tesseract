@@ -1,4 +1,3 @@
-///////////////////////////////////////////////////////////////////////
 // SPDX-License-Identifier: Apache-2.0
 // File:        ltrresultiterator.h
 // Description: Iterator for tesseract results in strict left-to-right
@@ -15,8 +14,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef TESSERACT_CCMAIN_LTR_RESULT_ITERATOR_H_
 #define TESSERACT_CCMAIN_LTR_RESULT_ITERATOR_H_

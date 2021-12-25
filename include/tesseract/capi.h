@@ -1,4 +1,3 @@
-///////////////////////////////////////////////////////////////////////
 // SPDX-License-Identifier: Apache-2.0
 // File:        capi.h
 // Description: C-API TessBaseAPI
@@ -13,8 +12,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef API_CAPI_H_
 #define API_CAPI_H_
