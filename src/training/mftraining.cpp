@@ -255,7 +255,7 @@ int main(int argc, char **argv) {
   // Now write the inttemp and pffmtable.
   trainer->WriteInttempAndPFFMTable(trainer->unicharset(), *unicharset, *shape_table, float_classes,
                                     inttemp_file.c_str(), pffmtable_file.c_str());
-  for (int c = 0; c < unicharset->size(); ++c) {
+  for (size_t c = 0; c < unicharset->size(); ++c) {
     FreeClassFields(&float_classes[c]);
   }
   delete[] float_classes;
