@@ -189,9 +189,12 @@ ELIST2_LINK *ELIST2_ITERATOR::forward() {
   next = current->next;
 
 #ifndef NDEBUG
-  if (!next)
-    NULL_NEXT.error("ELIST2_ITERATOR::forward", ABORT, "This is: %p  Current is: %p", this,
-                    current);
+  if (!next) {
+    NULL_NEXT.error("ELIST2_ITERATOR::forward", ABORT,
+                    "This is: %p  Current is: %p",
+                    static_cast<void *>(this),
+                    static_cast<void *>(current));
+  }
 #endif
 
   return current;
@@ -229,9 +232,12 @@ ELIST2_LINK *ELIST2_ITERATOR::backward() {
 #ifndef NDEBUG
   if (!current)
     NULL_DATA.error("ELIST2_ITERATOR::backward", ABORT, nullptr);
-  if (!prev)
-    NULL_PREV.error("ELIST2_ITERATOR::backward", ABORT, "This is: %p  Current is: %p", this,
-                    current);
+  if (!prev) {
+    NULL_PREV.error("ELIST2_ITERATOR::backward", ABORT,
+                    "This is: %p  Current is: %p",
+                    static_cast<void *>(this),
+                    static_cast<void *>(current));
+  }
 #endif
 
   prev = current->prev;

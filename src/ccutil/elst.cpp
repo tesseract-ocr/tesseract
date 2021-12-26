@@ -194,8 +194,12 @@ ELIST_LINK *ELIST_ITERATOR::forward() {
   next = current->next;
 
 #ifndef NDEBUG
-  if (!next)
-    NULL_NEXT.error("ELIST_ITERATOR::forward", ABORT, "This is: %p  Current is: %p", this, current);
+  if (!next) {
+    NULL_NEXT.error("ELIST_ITERATOR::forward", ABORT,
+                    "This is: %p  Current is: %p",
+                    static_cast<void *>(this),
+                    static_cast<void *>(current));
+  }
 #endif
   return current;
 }

@@ -708,7 +708,8 @@ bool ColumnFinder::AssignColumns(const PartSetVector &part_sets) {
       } else {
         column_set_costs[part_i][col_i] = INT32_MAX;
         if (debug) {
-          tprintf("Set id %d did not match at y=%d, lineset =%p\n", col_i, part_i, line_set);
+          tprintf("Set id %d did not match at y=%d, lineset =%p\n",
+                  col_i, part_i, static_cast<void *>(line_set));
         }
       }
     }

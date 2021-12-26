@@ -1001,7 +1001,7 @@ void ColPartition::ComputeLimits() {
   }
   if (TabFind::WithinTestRegion(2, bounding_box_.left(),
                                 bounding_box_.bottom())) {
-    tprintf("Recomputed box for partition %p\n", this);
+    tprintf("Recomputed box for partition %p\n", static_cast<void *>(this));
     Print();
   }
 }
