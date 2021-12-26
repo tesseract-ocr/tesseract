@@ -261,6 +261,7 @@ Tesseract::Tesseract()
     , BOOL_MEMBER(hocr_font_info, false, "Add font info to hocr output", this->params())
     , BOOL_MEMBER(hocr_char_boxes, false, "Add coordinates for each character to hocr output",
                   this->params())
+    , BOOL_MEMBER(hocr_images, false, "Add images to hocr output", this->params())
     , BOOL_MEMBER(crunch_early_merge_tess_fails, true, "Before word crunch?", this->params())
     , BOOL_MEMBER(crunch_early_convert_bad_unlv_chs, false, "Take out ~^ early?", this->params())
     , double_MEMBER(crunch_terrible_rating, 80.0, "crunch rating lt this", this->params())

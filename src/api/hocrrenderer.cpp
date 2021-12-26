@@ -143,8 +143,10 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
   const char *paragraph_lang = nullptr;
   bool font_info = false;
   bool hocr_boxes = false;
+  bool hocr_images = false;
   GetBoolVariable("hocr_font_info", &font_info);
   GetBoolVariable("hocr_char_boxes", &hocr_boxes);
+  GetBoolVariable("hocr_images", &hocr_images);
 
   if (input_file_.empty()) {
     SetInputName(nullptr);
@@ -189,6 +191,7 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
 
   std::unique_ptr<ResultIterator> res_it(GetIterator());
   while (!res_it->Empty(RIL_BLOCK)) {
+    bool skipword = false;
     if (res_it->Empty(RIL_WORD)) {
       res_it->Next(RIL_WORD);
       continue;
@@ -228,12 +231,27 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
         case PT_CAPTION_TEXT:
           hocr_str << "ocr_caption";
           break;
+        case PT_FLOWING_IMAGE:
+        case PT_HEADING_IMAGE:
+        case PT_PULLOUT_IMAGE:
+          {
+            if (hocr_images) {
+              hocr_str << "ocr_photo";
+              skipword = true;
+              break;
+            }
+          }
+          // Fall through if hocr_images is false, because we would omit ocr_line
+          // in the past.
         default:
           hocr_str << "ocr_line";
       }
       hocr_str << "' id='"
                << "line_" << page_id << "_" << lcnt << "'";
       AddBoxTohOCR(res_it.get(), RIL_TEXTLINE, hocr_str);
+      if (skipword) {
+        goto word_end;
+      }
     }
 
     // Now, process the word...
@@ -445,6 +463,7 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
       bcnt++;
     }
   }
+word_end:
   hocr_str << "  </div>\n";
 
   const std::string &text = hocr_str.str();

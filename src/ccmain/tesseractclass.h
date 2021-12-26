@@ -849,6 +849,7 @@ public:
   BOOL_VAR_H(unlv_tilde_crunching);
   BOOL_VAR_H(hocr_font_info);
   BOOL_VAR_H(hocr_char_boxes);
+  BOOL_VAR_H(hocr_images);
   BOOL_VAR_H(crunch_early_merge_tess_fails);
   BOOL_VAR_H(crunch_early_convert_bad_unlv_chs);
   double_VAR_H(crunch_terrible_rating);
