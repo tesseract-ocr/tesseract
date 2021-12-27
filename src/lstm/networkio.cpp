@@ -412,15 +412,6 @@ void NetworkIO::CopyTimeStepGeneral(int dest_t, int dest_offset, int num_feature
   }
 }
 
-// Zeroes a single time step.
-void NetworkIO::ZeroTimeStepGeneral(int t, int offset, int num_features) {
-  if (int_mode_) {
-    ZeroVector(num_features, i_[t] + offset);
-  } else {
-    ZeroVector(num_features, f_[t] + offset);
-  }
-}
-
 // Sets the given range to random values.
 void NetworkIO::Randomize(int t, int offset, int num_features, TRand *randomizer) {
   if (int_mode_) {
