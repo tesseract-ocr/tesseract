@@ -42,13 +42,13 @@ extern const TFloat LogisticTable[];
 
 // Non-linearity (sigmoid) functions with cache tables and clipping.
 inline TFloat Tanh(TFloat x) {
-  if (x < 0.0) {
+  if (x < 0) {
     return -Tanh(-x);
   }
   x *= kScaleFactor;
   auto index = static_cast<unsigned>(x);
   if (index >= (kTableSize - 1)) {
-    return 1.0;
+    return 1;
   }
   TFloat tanh_i0 = TanhTable[index];
   TFloat tanh_i1 = TanhTable[index + 1];
@@ -57,13 +57,13 @@ inline TFloat Tanh(TFloat x) {
 }
 
 inline TFloat Logistic(TFloat x) {
-  if (x < 0.0) {
-    return 1.0 - Logistic(-x);
+  if (x < 0) {
+    return 1 - Logistic(-x);
   }
   x *= kScaleFactor;
   auto index = static_cast<unsigned>(x);
   if (index >= (kTableSize - 1)) {
-    return 1.0;
+    return 1;
   }
   TFloat l0 = LogisticTable[index];
   TFloat l1 = LogisticTable[index + 1];
@@ -79,36 +79,36 @@ struct FFunc {
 };
 struct FPrime {
   inline TFloat operator()(TFloat y) const {
-    return y * (1.0 - y);
+    return y * (1 - y);
   }
 };
 struct ClipFFunc {
   inline TFloat operator()(TFloat x) const {
-    if (x <= 0.0) {
-      return 0.0;
+    if (x <= 0) {
+      return 0;
     }
-    if (x >= 1.0) {
-      return 1.0;
+    if (x >= 1) {
+      return 1;
     }
     return x;
   }
 };
 struct ClipFPrime {
   inline TFloat operator()(TFloat y) const {
-    return 0.0 < y && y < 1.0 ? 1.0 : 0.0;
+    return 0 < y && y < 1 ? 1 : 0;
   }
 };
 struct Relu {
   inline TFloat operator()(TFloat x) const {
-    if (x <= 0.0) {
-      return 0.0;
+    if (x <= 0) {
+      return 0;
     }
     return x;
   }
 };
 struct ReluPrime {
   inline TFloat operator()(TFloat y) const {
-    return 0.0 < y ? 1.0 : 0.0;
+    return 0 < y ? 1 : 0;
   }
 };
 struct GFunc {
@@ -118,23 +118,23 @@ struct GFunc {
 };
 struct GPrime {
   inline TFloat operator()(TFloat y) const {
-    return 1.0 - y * y;
+    return 1 - y * y;
   }
 };
 struct ClipGFunc {
   inline TFloat operator()(TFloat x) const {
-    if (x <= -1.0) {
-      return -1.0;
+    if (x <= -1) {
+      return -1;
     }
-    if (x >= 1.0) {
-      return 1.0;
+    if (x >= 1) {
+      return 1;
     }
     return x;
   }
 };
 struct ClipGPrime {
   inline TFloat operator()(TFloat y) const {
-    return -1.0 < y && y < 1.0 ? 1.0 : 0.0;
+    return -1 < y && y < 1 ? 1 : 0;
   }
 };
 struct HFunc {
@@ -183,7 +183,7 @@ inline void SoftmaxInPlace(int n, T *inout) {
     return;
   }
   // A limit on the negative range input to exp to guarantee non-zero output.
-  const T kMaxSoftmaxActivation = 86.0f;
+  const T kMaxSoftmaxActivation = 86;
 
   T max_output = inout[0];
   for (int i = 1; i < n; i++) {
@@ -192,14 +192,14 @@ inline void SoftmaxInPlace(int n, T *inout) {
       max_output = output;
     }
   }
-  T prob_total = 0.0;
+  T prob_total = 0;
   for (int i = 0; i < n; i++) {
     T prob = inout[i] - max_output;
-    prob = exp(ClipToRange(prob, -kMaxSoftmaxActivation, static_cast<T>(0)));
+    prob = std::exp(ClipToRange(prob, -kMaxSoftmaxActivation, static_cast<T>(0)));
     prob_total += prob;
     inout[i] = prob;
   }
-  if (prob_total > 0.0) {
+  if (prob_total > 0) {
     for (int i = 0; i < n; i++) {
       inout[i] /= prob_total;
     }
@@ -207,7 +207,7 @@ inline void SoftmaxInPlace(int n, T *inout) {
 }
 
 // Copies n values of the given src vector to dest.
-inline void CopyVector(int n, const TFloat *src, TFloat *dest) {
+inline void CopyVector(unsigned n, const TFloat *src, TFloat *dest) {
   memcpy(dest, src, n * sizeof(dest[0]));
 }
 
@@ -242,7 +242,7 @@ inline void SumVectors(int n, const TFloat *v1, const TFloat *v2, const TFloat *
 
 // Sets the given n-vector vec to 0.
 template <typename T>
-inline void ZeroVector(int n, T *vec) {
+inline void ZeroVector(unsigned n, T *vec) {
   memset(vec, 0, n * sizeof(*vec));
 }
 
