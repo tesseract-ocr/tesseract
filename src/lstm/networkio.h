@@ -2,7 +2,6 @@
 // File:        networkio.h
 // Description: Network input/output data, allowing float/int implementations.
 // Author:      Ray Smith
-// Created:     Tue Jun 17 08:43:11 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -146,9 +145,12 @@ public:
                            int src_t, int src_offset);
   // Zeroes a single time step.
   void ZeroTimeStep(int t) {
-    ZeroTimeStepGeneral(t, 0, NumFeatures());
+    if (int_mode_) {
+      memset(i_[t], 0, sizeof(*i_[t]) * NumFeatures());
+    } else {
+      memset(f_[t], 0, sizeof(*f_[t]) * NumFeatures());
+    }
   }
-  void ZeroTimeStepGeneral(int t, int offset, int num_features);
   // Sets the given range to random values.
   void Randomize(int t, int offset, int num_features, TRand *randomizer);
 
