@@ -3,7 +3,6 @@
  * Description: Methods to process images containing devanagari symbols,
  *              prior to classification.
  * Author:      Shobhit Saxena
- * Created:     Mon Nov 17 20:26:01 IST 2008
  *
  * (C) Copyright 2008, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -387,7 +386,7 @@ Box *ShiroRekhaSplitter::GetBoxForTBOX(const TBOX &tbox) const {
 // It also prunes very small blobs from calculation.
 int ShiroRekhaSplitter::GetModeHeight(Image pix) {
   Boxa *boxa = pixConnComp(pix, nullptr, 8);
-  STATS heights(0, pixGetHeight(pix));
+  STATS heights(0, pixGetHeight(pix) - 1);
   heights.clear();
   for (int i = 0; i < boxaGetCount(boxa); ++i) {
     Box *box = boxaGetBox(boxa, i, L_CLONE);

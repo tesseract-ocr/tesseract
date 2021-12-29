@@ -112,10 +112,10 @@ void Textord::block_spacing_stats(TO_BLOCK *block, GAPMAP *gapmap, bool &old_tex
   TO_ROW *row;         // current row
   BLOBNBOX_IT blob_it; // iterator
 
-  STATS centre_to_centre_stats(0, MAXSPACING);
+  STATS centre_to_centre_stats(0, MAXSPACING - 1);
   // DEBUG USE ONLY
-  STATS all_gap_stats(0, MAXSPACING);
-  STATS space_gap_stats(0, MAXSPACING);
+  STATS all_gap_stats(0, MAXSPACING - 1);
+  STATS space_gap_stats(0, MAXSPACING - 1);
   int16_t minwidth = MAXSPACING; // narrowest blob
   TBOX blob_box;
   TBOX prev_blob_box;
@@ -274,10 +274,10 @@ void Textord::row_spacing_stats(TO_ROW *row, GAPMAP *gapmap, int16_t block_idx, 
 ) {
   // iterator
   BLOBNBOX_IT blob_it = row->blob_list();
-  STATS all_gap_stats(0, MAXSPACING);
-  STATS cert_space_gap_stats(0, MAXSPACING);
-  STATS all_space_gap_stats(0, MAXSPACING);
-  STATS small_gap_stats(0, MAXSPACING);
+  STATS all_gap_stats(0, MAXSPACING - 1);
+  STATS cert_space_gap_stats(0, MAXSPACING - 1);
+  STATS all_space_gap_stats(0, MAXSPACING - 1);
+  STATS small_gap_stats(0, MAXSPACING - 1);
   TBOX blob_box;
   TBOX prev_blob_box;
   int16_t gap_width;
@@ -636,9 +636,9 @@ bool Textord::isolated_row_stats(TO_ROW *row, GAPMAP *gapmap, STATS *all_gap_sta
   int16_t total;
   // iterator
   BLOBNBOX_IT blob_it = row->blob_list();
-  STATS cert_space_gap_stats(0, MAXSPACING);
-  STATS all_space_gap_stats(0, MAXSPACING);
-  STATS small_gap_stats(0, MAXSPACING);
+  STATS cert_space_gap_stats(0, MAXSPACING - 1);
+  STATS all_space_gap_stats(0, MAXSPACING - 1);
+  STATS small_gap_stats(0, MAXSPACING - 1);
   TBOX blob_box;
   TBOX prev_blob_box;
   int16_t gap_width;

@@ -43,7 +43,7 @@ GAPMAP::GAPMAP(     // Constructor
   int16_t gap_width;
   int16_t start_of_row;
   int16_t end_of_row;
-  STATS xht_stats(0, 128);
+  STATS xht_stats(0, 127);
   int16_t min_quantum;
   int16_t max_quantum;
   int16_t i;

@@ -567,7 +567,7 @@ void StrokeWidth::MarkLeaderNeighbours(const ColPartition *part, LeftOrRight sid
 
 // Helper to compute the UQ of the square-ish CJK characters.
 static int UpperQuartileCJKSize(int gridsize, BLOBNBOX_LIST *blobs) {
-  STATS sizes(0, gridsize * kMaxCJKSizeRatio);
+  STATS sizes(0, gridsize * kMaxCJKSizeRatio - 1);
   BLOBNBOX_IT it(blobs);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX *blob = it.data();

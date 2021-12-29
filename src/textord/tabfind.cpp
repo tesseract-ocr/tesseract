@@ -971,7 +971,7 @@ void TabFind::ComputeColumnWidths(ScrollView *tab_win, ColPartitionGrid *part_gr
 #endif // !GRAPHICS_DISABLED
   // Accumulate column sections into a STATS
   int col_widths_size = (tright_.x() - bleft_.x()) / kColumnWidthFactor;
-  STATS col_widths(0, col_widths_size + 1);
+  STATS col_widths(0, col_widths_size);
   ApplyPartitionsToColumnWidths(part_grid, &col_widths);
 #ifndef GRAPHICS_DISABLED
   if (tab_win != nullptr) {
@@ -1099,8 +1099,8 @@ int TabFind::FindMedianGutterWidth(TabVector_LIST *lines) {
   TabVector_IT it(lines);
   int prev_right = -1;
   int max_gap = static_cast<int>(kMaxGutterWidthAbsolute * resolution_);
-  STATS gaps(0, max_gap);
-  STATS heights(0, max_gap);
+  STATS gaps(0, max_gap - 1);
+  STATS heights(0, max_gap - 1);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     TabVector *v = it.data();
     TabVector *partner = v->GetSinglePartner();
