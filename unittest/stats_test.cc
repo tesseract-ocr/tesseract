@@ -40,6 +40,13 @@ TEST_F(STATSTest, BasicStats) {
   EXPECT_EQ(12, stats_.pile_count(2));
 }
 
+TEST_F(STATSTest, InitStats) {
+  STATS stats;
+  EXPECT_EQ(0, stats.get_total());
+  EXPECT_EQ(0, stats.mode());
+  EXPECT_EQ(0, stats.pile_count(2));
+}
+
 // Tests the top_n_modes function.
 TEST_F(STATSTest, TopNModes) {
   std::vector<tesseract::KDPairInc<float, int> > modes;
