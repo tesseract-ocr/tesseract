@@ -320,7 +320,7 @@ void BaselineRow::SetupBlobDisplacements(const FCOORD &direction) {
   }
   // Set up a histogram using disp_quant_factor_ as the bucket size.
   STATS dist_stats(IntCastRounded(min_dist / disp_quant_factor_),
-                   IntCastRounded(max_dist / disp_quant_factor_) + 1);
+                   IntCastRounded(max_dist / disp_quant_factor_));
   for (double perp_blob_dist : perp_blob_dists) {
     dist_stats.add(IntCastRounded(perp_blob_dist / disp_quant_factor_), 1);
   }

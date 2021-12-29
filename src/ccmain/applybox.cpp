@@ -159,7 +159,7 @@ PAGE_RES *Tesseract::ApplyBoxes(const char *filename, bool find_segmentation,
 // Helper computes median xheight in the image.
 static double MedianXHeight(BLOCK_LIST *block_list) {
   BLOCK_IT block_it(block_list);
-  STATS xheights(0, block_it.data()->pdblk.bounding_box().height());
+  STATS xheights(0, block_it.data()->pdblk.bounding_box().height() - 1);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     ROW_IT row_it(block_it.data()->row_list());
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {

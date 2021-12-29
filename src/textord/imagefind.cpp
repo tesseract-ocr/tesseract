@@ -451,9 +451,9 @@ void ImageFind::ComputeRectangleColors(const TBOX &rect, Image pix, int factor, 
   Image scaled = pixClipRectangle(pix, scaled_box, nullptr);
 
   // Compute stats over the whole image.
-  STATS red_stats(0, 256);
-  STATS green_stats(0, 256);
-  STATS blue_stats(0, 256);
+  STATS red_stats(0, 255);
+  STATS green_stats(0, 255);
+  STATS blue_stats(0, 255);
   uint32_t *data = pixGetData(scaled);
   ASSERT_HOST(pixGetWpl(scaled) == width_pad);
   for (int y = 0; y < height_pad; ++y) {

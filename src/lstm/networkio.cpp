@@ -127,7 +127,7 @@ void NetworkIO::ZeroInvalidElements() {
 static void ComputeBlackWhite(Image pix, float *black, float *white) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
-  STATS mins(0, 256), maxes(0, 256);
+  STATS mins(0, 255), maxes(0, 255);
   if (width >= 3) {
     int y = height / 2;
     l_uint32 *line = pixGetData(pix) + pixGetWpl(pix) * y;

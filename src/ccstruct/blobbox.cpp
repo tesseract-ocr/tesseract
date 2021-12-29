@@ -810,7 +810,7 @@ void TO_ROW::compute_vertical_projection() { // project whole row
     row_box += blob_it.data()->bounding_box();
   }
 
-  projection.set_range(row_box.left() - PROJECTION_MARGIN, row_box.right() + PROJECTION_MARGIN);
+  projection.set_range(row_box.left() - PROJECTION_MARGIN, row_box.right() + PROJECTION_MARGIN - 1);
   projection_left = row_box.left() - PROJECTION_MARGIN;
   projection_right = row_box.right() + PROJECTION_MARGIN;
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {

@@ -22,7 +22,7 @@ class STATSTest : public testing::Test {
 public:
   void SetUp() override {
     std::locale::global(std::locale(""));
-    stats_.set_range(0, 16);
+    stats_.set_range(0, 15);
     for (size_t i = 0; i < countof(kTestData); ++i) {
       stats_.add(i, kTestData[i]);
     }

@@ -55,7 +55,7 @@ bool test_underline(  // look for underlines
 
   auto blob_box = blob->bounding_box();
   auto blob_width = blob->bounding_box().width();
-  projection.set_range(blob_box.bottom(), blob_box.top() + 1);
+  projection.set_range(blob_box.bottom(), blob_box.top());
   if (testing_on) {
     //              blob->plot(to_win,GOLDENROD,GOLDENROD);
     //              line_color_index(to_win,GOLDENROD);

@@ -529,8 +529,8 @@ int StructuredTable::FindHorizontalMargin(ColPartitionGrid *grid, int border, bo
 void StructuredTable::CalculateStats() {
   const int kMaxCellHeight = 1000;
   const int kMaxCellWidth = 1000;
-  STATS height_stats(0, kMaxCellHeight + 1);
-  STATS width_stats(0, kMaxCellWidth + 1);
+  STATS height_stats(0, kMaxCellHeight);
+  STATS width_stats(0, kMaxCellWidth);
 
   for (unsigned i = 0; i < row_count(); ++i) {
     height_stats.add(row_height(i), column_count());
