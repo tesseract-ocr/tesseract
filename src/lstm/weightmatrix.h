@@ -56,7 +56,7 @@ public:
     for (int y = 0; y < num_features; ++y) {
       for (int t = 0; t < width; ++t) {
         if (num == 0 || t < num || t + num >= width) {
-          tprintf(" %g", (*this)(y, t));
+          tprintf(" %g", static_cast<double>((*this)(y, t)));
         }
       }
       tprintf("\n");

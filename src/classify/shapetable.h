@@ -44,7 +44,7 @@ struct UnicharRating {
     tprintf(
         "Unichar-id=%d, rating=%g, adapted=%d, config=%d, misses=%u,"
         " %zu fonts\n",
-        unichar_id, rating, adapted, config, feature_misses, fonts.size());
+        unichar_id, static_cast<double>(rating), adapted, config, feature_misses, fonts.size());
   }
 
   // Helper function to get the index of the first result with the required
