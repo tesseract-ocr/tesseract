@@ -394,7 +394,6 @@ public:
   double_VAR_H(matcher_clustering_max_angle_delta);
   double_VAR_H(classify_misfit_junk_penalty);
   double_VAR_H(rating_scale);
-  double_VAR_H(certainty_scale);
   double_VAR_H(tessedit_class_miss_scale);
   double_VAR_H(classify_adapted_pruning_factor);
   double_VAR_H(classify_adapted_pruning_threshold);

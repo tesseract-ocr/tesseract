@@ -276,7 +276,7 @@ void Classify::LearnWord(const char *fontname, WERD_RES *word) {
       tprintf("\n\nAdapting to word = %s\n", word->best_choice->debug_string().c_str());
     }
     thresholds = new float[word_len];
-    word->ComputeAdaptionThresholds(certainty_scale, matcher_perfect_threshold,
+    word->ComputeAdaptionThresholds(getDict().certainty_scale, matcher_perfect_threshold,
                                     matcher_good_threshold, matcher_rating_margin, thresholds);
   }
   int start_blob = 0;
