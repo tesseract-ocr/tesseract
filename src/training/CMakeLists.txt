@@ -1,7 +1,9 @@
 #
 # tesseract
 #
-cmake_policy(SET CMP0074 NEW)
+if(NOT ${CMAKE_VERSION} VERSION_LESS "3.12.0")
+  cmake_policy(SET CMP0074 NEW)
+endif()
 
 if(UNIX AND NOT ANDROID)
   set(LIB_pthread pthread)
