@@ -717,6 +717,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBTESSFILES})
 add_library(libtesseract ${LIBTESSFILES})
 target_include_directories(
   libtesseract
+  BEFORE
   PRIVATE src
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/arch>
@@ -747,7 +748,7 @@ if(LibArchive_FOUND)
   target_link_libraries(libtesseract PUBLIC ${LibArchive_LIBRARIES})
 endif(LibArchive_FOUND)
 if(CURL_FOUND)
-  if(NOT "${CURL_LIBRARIES}")
+  if(NOT CURL_LIBRARIES)
     target_link_libraries(libtesseract PUBLIC CURL::libcurl)
   else()
     target_link_libraries(libtesseract PUBLIC ${CURL_LIBRARIES})
