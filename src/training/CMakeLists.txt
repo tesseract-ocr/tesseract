@@ -70,7 +70,7 @@ endif()
 
 if(NOT SW_BUILD)
   if(PKG_CONFIG_FOUND)
-    pkg_check_modules(ICU REQUIRED icu-uc icu-i18n)
+    pkg_check_modules(ICU REQUIRED IMPORTED_TARGET icu-uc icu-i18n)
   else()
     find_package(ICU 52.1 COMPONENTS uc i18n)
   endif()
@@ -247,8 +247,13 @@ if(ICU_FOUND)
     target_link_libraries(unicharset_training
                           PUBLIC common_training org.sw.demo.unicode.icu.i18n)
   else()
-    target_link_libraries(unicharset_training PUBLIC common_training
-                                                     ${ICU_LINK_LIBRARIES})
+    if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
+      target_link_libraries(unicharset_training PUBLIC common_training
+                                                       PkgConfig::ICU)
+    else()
+      target_link_libraries(unicharset_training PUBLIC common_training
+                                                       ${ICU_LINK_LIBRARIES})
+    endif()
   endif()
   target_include_directories(unicharset_training
                              PUBLIC unicharset ${CMAKE_CURRENT_BINARY_DIR})
@@ -342,6 +347,7 @@ if(ICU_FOUND)
       pkg_check_modules(
         PANGO
         REQUIRED
+        IMPORTED_TARGET
         pango>=1.38.0
         cairo
         pangoft2
@@ -365,7 +371,11 @@ if(ICU_FOUND)
         target_include_directories(pango_training BEFORE
                                    PUBLIC ${PANGO_INCLUDE_DIRS})
         target_compile_definitions(pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
-        target_link_libraries(pango_training PUBLIC ${PANGO_LINK_LIBRARIES})
+        if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
+          target_link_libraries(pango_training PUBLIC PkgConfig::PANGO)
+        else()
+          target_link_libraries(pango_training PUBLIC ${PANGO_LINK_LIBRARIES})
+        endif()
       endif()
     endif()
     target_include_directories(pango_training
