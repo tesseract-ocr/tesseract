@@ -11,13 +11,13 @@ endif()
 
 if(SW_BUILD)
   set(ICU_FOUND 1)
-else()  # NOT SW_BUILD
+else() # NOT SW_BUILD
   find_package(PkgConfig)
 endif()
 
 # experimental
 # If PkgConfig is not present training tools will not be build,
-# so it does not make sense to set ICU
+# so it does not make sense to set ICU.
 if(MSVC
    AND PKG_CONFIG_FOUND
    AND NOT SW_BUILD
@@ -47,8 +47,8 @@ if(MSVC
   message(STATUS "Downloading latest ICU binaries")
   set(COMPILER "msvc10")
   set(ICU_URL "https://github.com/unicode-org/icu/releases/download")
-  SET(ICU_R "56-1")
-  SET(ICU_V "56_1")
+  set(ICU_R "56-1")
+  set(ICU_V "56_1")
   file(
     DOWNLOAD
     "${ICU_URL}/release-${ICU_R}/icu4c-${ICU_V}-Win${ARCH_NAME}-${COMPILER}.zip"
