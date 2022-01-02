@@ -339,11 +339,14 @@ if(ICU_FOUND)
   if(PKG_CONFIG_FOUND OR SW_BUILD)
 
     if(PKG_CONFIG_FOUND)
-      pkg_check_modules(Pango REQUIRED pango>=1.38.0)
-      pkg_check_modules(Cairo REQUIRED cairo)
-      pkg_check_modules(PangoFt2 REQUIRED pangoft2)
-      pkg_check_modules(PangoCairo REQUIRED pangocairo)
-      pkg_check_modules(FontConfig REQUIRED fontconfig)
+      pkg_check_modules(
+        PANGO
+        REQUIRED
+        pango>=1.38.0
+        cairo
+        pangoft2
+        pangocairo
+        fontconfig)
     endif()
 
     # ##########################################################################
@@ -359,15 +362,10 @@ if(ICU_FOUND)
                             PUBLIC org.sw.demo.gnome.pango.pangocairo)
     else()
       if(PKG_CONFIG_FOUND)
-        target_include_directories(
-          pango_training BEFORE PUBLIC ${Cairo_INCLUDE_DIRS}
-                                       ${Pango_INCLUDE_DIRS})
+        target_include_directories(pango_training BEFORE
+                                   PUBLIC ${PANGO_INCLUDE_DIRS})
         target_compile_definitions(pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
-        target_link_libraries(
-          pango_training
-          PUBLIC ${Pango_LINK_LIBRARIES} ${Cairo_LINK_LIBRARIES}
-                 ${PangoCairo_LINK_LIBRARIES} ${PangoFt2_LINK_LIBRARIES}
-                 ${FontConfig_LINK_LIBRARIES})
+        target_link_libraries(pango_training PUBLIC ${PANGO_LINK_LIBRARIES})
       endif()
     endif()
     target_include_directories(pango_training
