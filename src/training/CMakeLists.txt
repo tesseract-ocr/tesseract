@@ -11,13 +11,13 @@ endif()
 
 if(SW_BUILD)
   set(ICU_FOUND 1)
-else()  # NOT SW_BUILD
+else() # NOT SW_BUILD
   find_package(PkgConfig)
 endif()
 
 # experimental
 # If PkgConfig is not present training tools will not be build,
-# so it does not make sense to set ICU
+# so it does not make sense to set ICU.
 if(MSVC
    AND PKG_CONFIG_FOUND
    AND NOT SW_BUILD
@@ -47,8 +47,8 @@ if(MSVC
   message(STATUS "Downloading latest ICU binaries")
   set(COMPILER "msvc10")
   set(ICU_URL "https://github.com/unicode-org/icu/releases/download")
-  SET(ICU_R "56-1")
-  SET(ICU_V "56_1")
+  set(ICU_R "56-1")
+  set(ICU_V "56_1")
   file(
     DOWNLOAD
     "${ICU_URL}/release-${ICU_R}/icu4c-${ICU_V}-Win${ARCH_NAME}-${COMPILER}.zip"
@@ -70,7 +70,7 @@ endif()
 
 if(NOT SW_BUILD)
   if(PKG_CONFIG_FOUND)
-    pkg_check_modules(ICU REQUIRED icu-uc icu-i18n)
+    pkg_check_modules(ICU REQUIRED IMPORTED_TARGET icu-uc icu-i18n)
   else()
     find_package(ICU 52.1 COMPONENTS uc i18n)
   endif()
@@ -247,8 +247,13 @@ if(ICU_FOUND)
     target_link_libraries(unicharset_training
                           PUBLIC common_training org.sw.demo.unicode.icu.i18n)
   else()
-    target_link_libraries(unicharset_training PUBLIC common_training
-                                                     ${ICU_LINK_LIBRARIES})
+    if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
+      target_link_libraries(unicharset_training PUBLIC common_training
+                                                       PkgConfig::ICU)
+    else()
+      target_link_libraries(unicharset_training PUBLIC common_training
+                                                       ${ICU_LINK_LIBRARIES})
+    endif()
   endif()
   target_include_directories(unicharset_training
                              PUBLIC unicharset ${CMAKE_CURRENT_BINARY_DIR})
@@ -339,11 +344,15 @@ if(ICU_FOUND)
   if(PKG_CONFIG_FOUND OR SW_BUILD)
 
     if(PKG_CONFIG_FOUND)
-      pkg_check_modules(Pango REQUIRED pango>=1.38.0)
-      pkg_check_modules(Cairo REQUIRED cairo)
-      pkg_check_modules(PangoFt2 REQUIRED pangoft2)
-      pkg_check_modules(PangoCairo REQUIRED pangocairo)
-      pkg_check_modules(FontConfig REQUIRED fontconfig)
+      pkg_check_modules(
+        PANGO
+        REQUIRED
+        IMPORTED_TARGET
+        pango>=1.38.0
+        cairo
+        pangoft2
+        pangocairo
+        fontconfig)
     endif()
 
     # ##########################################################################
@@ -359,15 +368,14 @@ if(ICU_FOUND)
                             PUBLIC org.sw.demo.gnome.pango.pangocairo)
     else()
       if(PKG_CONFIG_FOUND)
-        target_include_directories(
-          pango_training BEFORE PUBLIC ${Cairo_INCLUDE_DIRS}
-                                       ${Pango_INCLUDE_DIRS})
+        target_include_directories(pango_training BEFORE
+                                   PUBLIC ${PANGO_INCLUDE_DIRS})
         target_compile_definitions(pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
-        target_link_libraries(
-          pango_training
-          PUBLIC ${Pango_LINK_LIBRARIES} ${Cairo_LINK_LIBRARIES}
-                 ${PangoCairo_LINK_LIBRARIES} ${PangoFt2_LINK_LIBRARIES}
-                 ${FontConfig_LINK_LIBRARIES})
+        if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
+          target_link_libraries(pango_training PUBLIC PkgConfig::PANGO)
+        else()
+          target_link_libraries(pango_training PUBLIC ${PANGO_LINK_LIBRARIES})
+        endif()
       endif()
     endif()
     target_include_directories(pango_training
