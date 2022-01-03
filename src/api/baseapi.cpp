@@ -57,6 +57,7 @@
 #include "tprintf.h"         // for tprintf
 #include "werd.h"            // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
 #include "thresholder.h"     // for ImageThresholder
+#include "winutils.h"
 
 #include <tesseract/baseapi.h>
 #include <tesseract/ocrclass.h>       // for ETEXT_DESC
@@ -156,26 +157,29 @@ static void addAvailableLanguages(const std::string &datadir, const std::string 
   }
   const size_t extlen = sizeof(kTrainedDataSuffix);
 #ifdef _WIN32
-  WIN32_FIND_DATA data;
-  HANDLE handle = FindFirstFile((datadir + base2 + "*").c_str(), &data);
+  const auto kTrainedDataSuffixUtf16 = winutils::Utf8ToUtf16(kTrainedDataSuffix);
+
+  WIN32_FIND_DATAW data;
+  HANDLE handle = FindFirstFileW(
+    winutils::Utf8ToUtf16((datadir + base2 + "*").c_str()).c_str(), &data);
   if (handle != INVALID_HANDLE_VALUE) {
     BOOL result = TRUE;
     for (; result;) {
-      char *name = data.cFileName;
+      wchar_t *name = data.cFileName;
       // Skip '.', '..', and hidden files
       if (name[0] != '.') {
         if ((data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY) {
-          addAvailableLanguages(datadir, base2 + name, langs);
+          addAvailableLanguages(datadir, base2 + winutils::Utf16ToUtf8(name), langs);
         } else {
-          size_t len = strlen(name);
+          size_t len = wcslen(name);
           if (len > extlen && name[len - extlen] == '.' &&
-              strcmp(&name[len - extlen + 1], kTrainedDataSuffix) == 0) {
+              &name[len - extlen + 1] == kTrainedDataSuffixUtf16) {
             name[len - extlen] = '\0';
-            langs->push_back(base2 + name);
+            langs->push_back(base2 + winutils::Utf16ToUtf8(name));
           }
         }
       }
-      result = FindNextFile(handle, &data);
+      result = FindNextFileW(handle, &data);
     }
     FindClose(handle);
   }

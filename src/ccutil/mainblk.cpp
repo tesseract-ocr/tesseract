@@ -24,8 +24,11 @@
 
 #include "ccutil.h"
 #include "fileerr.h"
+#include "winutils.h"
 
 namespace tesseract {
+
+
 /**
  * @brief CCUtil::main_setup - set location of tessdata and name of image
  *
@@ -49,13 +52,13 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
 #if defined(_WIN32)
   } else if (datadir.empty() || _access(datadir.c_str(), 0) != 0) {
     /* Look for tessdata in directory of executable. */
-    char path[_MAX_PATH];
-    DWORD length = GetModuleFileName(nullptr, path, sizeof(path));
-    if (length > 0 && length < sizeof(path)) {
-      char *separator = std::strrchr(path, '\\');
+    wchar_t path[_MAX_PATH];
+    DWORD length = GetModuleFileNameW(nullptr, path, _MAX_PATH);
+    if (length > 0 && length < _MAX_PATH) {
+      wchar_t *separator = std::wcsrchr(path, '\\');
       if (separator != nullptr) {
         *separator = '\0';
-        datadir = path;
+        datadir = winutils::Utf16ToUtf8(path);
         datadir += "/tessdata";
       }
     }
