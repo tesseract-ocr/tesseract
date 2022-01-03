@@ -10,10 +10,7 @@
 
 #include "fopenutf8.h"
 
-#if _WIN32
-#  include <windows.h>
-#  include "winutils.h"
-#endif // _WIN32
+#include "winutils.h"
 
 namespace tesseract {
 
