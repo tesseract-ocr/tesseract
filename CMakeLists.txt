@@ -372,15 +372,17 @@ else()
   include_directories(${Leptonica_INCLUDE_DIRS})
 
   # Check for optional libraries.
-  find_package(TIFF) # for tesseract
-  if(NOT TIFF_FOUND AND PKG_CONFIG_EXECUTABLE)
-    # try PKG_CONFIG to find libtiff if cmake failed
-    pkg_check_modules(TIFF libtiff-4)
-  endif()
-  if(TIFF_FOUND)
-    set(HAVE_TIFFIO_H ON)
-    include_directories(${TIFF_INCLUDE_DIRS})
-  endif(TIFF_FOUND)
+  if(WIN32)
+    find_package(TIFF) # for tesseract
+    if(NOT TIFF_FOUND AND PKG_CONFIG_EXECUTABLE)
+      # try PKG_CONFIG to find libtiff if cmake failed
+      pkg_check_modules(TIFF libtiff-4)
+    endif()
+    if(TIFF_FOUND)
+      set(HAVE_TIFFIO_H ON)
+      include_directories(${TIFF_INCLUDE_DIRS})
+    endif(TIFF_FOUND)
+  endif(WIN32)
   if(DISABLE_ARCHIVE)
     set(HAVE_LIBARCHIVE OFF)
   else(DISABLE_ARCHIVE)
