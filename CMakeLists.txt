@@ -226,7 +226,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64.*|AARCH64.*")
   add_definitions("-DHAVE_NEON")
   set(HAVE_NEON TRUE)
 
-else()
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm.*")
 
   set(HAVE_AVX FALSE)
   set(HAVE_AVX2 FALSE)
@@ -238,6 +238,14 @@ else()
     set(NEON_COMPILE_FLAGS "-mfpu=neon")
     add_definitions("-DHAVE_NEON")
   endif()
+
+else()
+
+  set(HAVE_AVX FALSE)
+  set(HAVE_AVX2 FALSE)
+  set(HAVE_FMA FALSE)
+  set(HAVE_NEON FALSE)
+  set(HAVE_SSE4_1 FALSE)
 
 endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
 
