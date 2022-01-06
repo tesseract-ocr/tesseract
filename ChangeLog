@@ -1,3 +1,15 @@
+2022-01-06 - V5.0.1 (planned)
+  * Add SPDX-License-Identifier to public include files.
+  * Support redirections when running OCR on a URL.
+  * Lots of fixes and improvements for cmake builds.
+    Distributions should use the autoconf build.
+  * Fix broken msys2 build with gcc 11.
+  * Fix parameter certainty_scale (was duplicated).
+  * Fix some compiler warnings and clean code.
+  * Correctly detect amd64 and i386 on FreeBSD.
+  * Add libarchive and libcurl in continuous integration actions.
+  * Update submodule googletest to release v1.11.0.
+
 2021-11-22 - V5.0.0
   * Faster training and recognition by default (float instead of
     double calculations)
