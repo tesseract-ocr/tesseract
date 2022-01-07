@@ -1,4 +1,4 @@
-2022-01-06 - V5.0.1 (planned)
+2022-01-06 - V5.0.1
   * Add SPDX-License-Identifier to public include files.
   * Support redirections when running OCR on a URL.
   * Lots of fixes and improvements for cmake builds.
