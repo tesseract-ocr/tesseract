@@ -188,6 +188,9 @@ case "${host_cpu}" in
 
 esac
 
+# check whether feenableexcept is supported. some C libraries (e.g. uclibc) don't.
+AC_CHECK_FUNCS([feenableexcept])
+
 AX_CHECK_COMPILE_FLAG([-fopenmp-simd], [openmp_simd=true], [openmp_simd=false], [$WERROR])
 AM_CONDITIONAL([OPENMP_SIMD], $openmp_simd)
 
