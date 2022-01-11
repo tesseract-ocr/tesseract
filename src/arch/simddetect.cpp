@@ -55,7 +55,7 @@
 #if defined(HAVE_NEON) && !defined(__aarch64__)
 #  ifdef ANDROID
 #    include <cpu-features.h>
-#  else
+#  elif defined(HAVE_SYS_AUXV_H)
 /* Assume linux */
 #    include <asm/hwcap.h>
 #    include <sys/auxv.h>
@@ -216,9 +216,11 @@ SIMDDetect::SIMDDetect() {
     if (family == ANDROID_CPU_FAMILY_ARM)
       neon_available_ = (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON);
   }
-#  else
+#  elif defined(HAVE_SYS_AUXV_H)
   /* Assume linux */
   neon_available_ = getauxval(AT_HWCAP) & HWCAP_NEON;
+#  else
+  neon_available_ = false;
 #  endif
 #endif
 

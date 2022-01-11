@@ -86,6 +86,7 @@ set(include_files_list
     stdint.h
     stdlib.h
     string.h
+    sys/auxv.h
     sys/stat.h
     sys/types.h
     unistd.h

@@ -241,8 +241,10 @@ fi
 # check whether to build OpenMP support
 AC_OPENMP
 
-have_tiff=false
 # Note that the first usage of AC_CHECK_HEADERS must be unconditional.
+AC_CHECK_HEADERS([sys/auxv.h])
+
+have_tiff=false
 AC_CHECK_HEADERS([tiffio.h], [have_tiff=true], [have_tiff=false])
 
 # check whether to build opencl version
