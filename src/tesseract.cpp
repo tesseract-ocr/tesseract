@@ -629,7 +629,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
  **********************************************************************/
 
 int main(int argc, char **argv) {
-#if defined(__USE_GNU)
+#if defined(__USE_GNU) && defined(HAVE_FEENABLEEXCEPT)
   // Raise SIGFPE.
 #  if defined(__clang__)
   // clang creates code which causes some FP exceptions, so don't enable those.

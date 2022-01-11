@@ -104,6 +104,13 @@ set(types_list
 )
 check_types(types_list)
 
+list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+list(APPEND CMAKE_REQUIRED_LIBRARIES -lm)
+set(functions_list
+    feenableexcept
+)
+check_functions(functions_list)
+
 file(APPEND ${AUTOCONFIG_SRC} "
 /* Version number */
 #cmakedefine PACKAGE_VERSION \"${PACKAGE_VERSION}\"
