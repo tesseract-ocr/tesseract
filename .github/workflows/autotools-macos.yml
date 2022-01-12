@@ -42,7 +42,7 @@ jobs:
 
     - name: Configure Tesseract
       run: |
-           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2' "PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/opt/libffi/lib/pkgconfig"
+           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
 
     - name: Make and Install Tesseract
       run: |
