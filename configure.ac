@@ -446,6 +446,15 @@ esac
 
 AC_SEARCH_LIBS([pthread_create], [pthread])
 
+# Set PKG_CONFIG_PATH for MacOS with Homebrew unless it is already set.
+AC_CHECK_PROG([have_brew], brew, true, false)
+if $have_brew; then
+  brew_prefix=$(brew --prefix)
+  if test -z "$PKG_CONFIG_PATH"; then
+    PKG_CONFIG_PATH=$brew_prefix/opt/icu4c/lib/pkgconfig:$brew_prefix/opt/libarchive/lib/pkgconfig
+    export PKG_CONFIG_PATH
+  fi
+fi
 
 # ----------------------------------------
 # Check for programs needed to build documentation.
@@ -465,9 +474,7 @@ AS_IF([test "$enable_doc" != "no"], [
   if $have_asciidoc && $have_xsltproc; then
     AM_CONDITIONAL([ASCIIDOC], true)
     XML_CATALOG_FILES=
-    AC_CHECK_PROG([have_brew], brew, true, false)
     if $have_brew; then
-      brew_prefix=$(brew --prefix)
       catalog_file=$brew_prefix/etc/xml/catalog
       if test -f $catalog_file; then
         AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], true)
