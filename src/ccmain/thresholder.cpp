@@ -27,7 +27,8 @@
 #include <allheaders.h>
 #include <tesseract/baseapi.h> // for api->GetIntVariable()
 
-#include <cstdint> // for uint32_t
+#include <algorithm> // for std::max, std::min
+#include <cstdint>   // for uint32_t
 #include <cstring>
 #include <tuple>
 
