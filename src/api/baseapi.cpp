@@ -99,6 +99,9 @@ namespace tesseract {
 
 static BOOL_VAR(stream_filelist, false, "Stream a filelist from stdin");
 static STRING_VAR(document_title, "", "Title of output document (used for hOCR and PDF output)");
+#ifdef HAVE_LIBCURL
+static INT_VAR(curl_timeout, 0, "Timeout for curl in seconds");
+#endif
 
 /** Minimum sensible image size to be worth running tesseract. */
 const int kMinRectSize = 10;
@@ -1149,6 +1152,17 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
       curlcode = curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 8);
       if (curlcode != CURLE_OK) {
         return error("curl_easy_setopt");
+      }
+      int timeout = curl_timeout;
+      if (timeout > 0) {
+        curlcode = curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+        if (curlcode != CURLE_OK) {
+          return error("curl_easy_setopt");
+        }
+        curlcode = curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+        if (curlcode != CURLE_OK) {
+          return error("curl_easy_setopt");
+        }
       }
       curlcode = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
       if (curlcode != CURLE_OK) {
