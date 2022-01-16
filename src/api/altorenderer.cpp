@@ -13,9 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "errcode.h" // for ASSERT_HOST
 #ifdef _WIN32
-#  include "host.h" // windows.h for MultiByteToWideChar, ...
+#  include "host.h"  // windows.h for MultiByteToWideChar, ...
 #endif
+#include "tprintf.h" // for tprintf
 
 #include <tesseract/baseapi.h>
 #include <tesseract/renderer.h>
@@ -174,6 +176,36 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
       continue;
     }
 
+    int left, top, right, bottom;
+    auto block_type = res_it->BlockType();
+
+    switch (block_type) {
+      case PT_FLOWING_IMAGE:
+      case PT_HEADING_IMAGE:
+      case PT_PULLOUT_IMAGE: {
+        // Handle all kinds of images.
+        // TODO: optionally add TYPE, for example TYPE="photo".
+        alto_str << "\t\t\t\t<Illustration ID=\"cblock_" << bcnt++ << "\"";
+        AddBoxToAlto(res_it, RIL_BLOCK, alto_str);
+        alto_str << "</Illustration>\n";
+        res_it->Next(RIL_BLOCK);
+        continue;
+      }
+      case PT_HORZ_LINE:
+      case PT_VERT_LINE:
+        // Handle horizontal and vertical lines.
+        alto_str << "\t\t\t\t<GraphicalElement ID=\"cblock_" << bcnt++ << "\"";
+        AddBoxToAlto(res_it, RIL_BLOCK, alto_str);
+        alto_str << "</GraphicalElement >\n";
+        res_it->Next(RIL_BLOCK);
+        continue;
+      case PT_NOISE:
+        tprintf("TODO: Please report image which triggers the noise case.\n");
+        ASSERT_HOST(false);
+      default:
+        break;
+    }
+
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
       alto_str << "\t\t\t\t<ComposedBlock ID=\"cblock_" << bcnt << "\"";
       AddBoxToAlto(res_it, RIL_BLOCK, alto_str);
@@ -200,7 +232,6 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
     bool last_word_in_tblock = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
     bool last_word_in_cblock = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
 
-    int left, top, right, bottom;
     res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
 
     do {

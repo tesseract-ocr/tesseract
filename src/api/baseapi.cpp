@@ -1371,6 +1371,22 @@ char *TessBaseAPI::GetUTF8Text() {
     if (it->Empty(RIL_PARA)) {
       continue;
     }
+    auto block_type = it->BlockType();
+    switch (block_type) {
+      case PT_FLOWING_IMAGE:
+      case PT_HEADING_IMAGE:
+      case PT_PULLOUT_IMAGE:
+      case PT_HORZ_LINE:
+      case PT_VERT_LINE:
+        // Ignore images and lines for text output.
+        continue;
+      case PT_NOISE:
+        tprintf("TODO: Please report image which triggers the noise case.\n");
+        ASSERT_HOST(false);
+      default:
+        break;
+    }
+
     const std::unique_ptr<const char[]> para_text(it->GetUTF8Text(RIL_PARA));
     text += para_text.get();
   } while (it->Next(RIL_PARA));
