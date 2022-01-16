@@ -8,7 +8,7 @@
 #
 # ##############################################################################
 
-cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 # In-source builds are disabled.
 if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
@@ -292,9 +292,7 @@ if(OPENMP_BUILD)
   if(OpenMP_FOUND)
     message(">> OpenMP_FOUND ${OpenMP_FOUND} ${OpenMP_VERSION}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    if(${CMAKE_VERSION} VERSION_LESS "3.9.0")
-      add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
-    endif()
+    add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
   endif()
   # https://stackoverflow.com/questions/12399422
   # how-to-set-linker-flags-for-openmp-in-cmakes-try-compile-function
