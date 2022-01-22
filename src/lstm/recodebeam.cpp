@@ -40,9 +40,9 @@ const int RecodeBeamSearch::kBeamWidths[RecodedCharID::kMaxCodeLen + 1] = {
 
 static const char *kNodeContNames[] = {"Anything", "OnlyDup", "NoDup"};
 
-// the minimum diplopia key is the minimum score (key) from
+// The minimum diplopia key is the minimum score (key) from
 // the network output to qualify as a likely 'real' character
-// for the purposes of identifying possible diplopia
+// for the purposes of identifying possible diplopia.
 static const float kMinDiplopiaKey = 0.25f;
 
 // Prints debug details of the node.
@@ -693,8 +693,8 @@ void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int to
       }
     }
   }
-  // need to identify if we are in a potential diplopia situation
-  // or if we already are, then determine if it is ended
+  // Need to identify if we are in a potential diplopia situation
+  // or if we already are, then determine if it is ended.
   if (in_possible_diplopia_) {
     if (!found_first_code && !found_second_code) {
       in_possible_diplopia_ = false;
@@ -1176,7 +1176,7 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
     if (UpdateHeapIfMatched(&node, heap)) {
       return;
     }
-    // check to see if node is possible diplopia
+    // Check to see if node is possible diplopia.
     if (!AddToHeapIsAllowed(&node)) {
       return;
     }
@@ -1231,7 +1231,7 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode *new_node, RecodeHeap *hea
   return false;
 }
 
-// Determines if node can be added to heap based on possible diplopia status
+// Determines if node can be added to heap based on possible diplopia status.
 bool RecodeBeamSearch::AddToHeapIsAllowed(RecodeNode *new_node) {
   if (!in_possible_diplopia_) {
     return true;
