@@ -428,9 +428,9 @@ private:
   bool is_simple_text_;
   // Variables used in tracking possible diplopia case.
   // Refer to ComputeTopN routine for use of these variables.
-  bool in_possible_diplopia_;
-  int first_diplopia_code_;
-  int second_diplopia_code_;
+  bool in_possible_diplopia_ = false;
+  int first_diplopia_code_ = -1;
+  int second_diplopia_code_ = -1;
   // The encoded (class label) of the null/reject character.
   int null_char_;
 };
