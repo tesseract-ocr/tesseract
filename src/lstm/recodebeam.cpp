@@ -43,7 +43,7 @@ static const char *kNodeContNames[] = {"Anything", "OnlyDup", "NoDup"};
 // the minimum diplopia key is the minimum score (key) from
 // the network output to qualify as a likely 'real' character
 // for the purposes of identifying possible diplopia
-static const float kMinDiplopiaKey = 0.25;
+static const float kMinDiplopiaKey = 0.25f;
 
 // Prints debug details of the node.
 void RecodeNode::Print(int null_char, const UNICHARSET &unicharset, int depth) const {
@@ -190,7 +190,7 @@ RecodeBeamSearch::combineSegmentedTimesteps(
 
 void RecodeBeamSearch::calculateCharBoundaries(std::vector<int> *starts, std::vector<int> *ends,
                                                std::vector<int> *char_bounds_, int maxWidth) {
-  char_bounds_->push_back((*starts)[0]); 
+  char_bounds_->push_back((*starts)[0]);
   for (int i = 0; i < ends->size(); ++i) {
     int middle = ((*starts)[i + 1] - (*ends)[i]) / 2;
     char_bounds_->push_back((*ends)[i] + middle);
@@ -667,8 +667,8 @@ void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int to
       }
     }
   }
-  float top_key = 0.0F;
-  float second_key = 0.0F;
+  float top_key = 0.0f;
+  float second_key = 0.0f;
   bool found_first_code = false;
   bool found_second_code = false;
   while (!top_heap_.empty()) {
@@ -696,14 +696,14 @@ void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs, int to
   // need to identify if we are in a potential diplopia situation
   // or if we already are, then determine if it is ended
   if (in_possible_diplopia_) {
-    if (!found_first_code && !found_second_code){
+    if (!found_first_code && !found_second_code) {
       in_possible_diplopia_ = false;
       first_diplopia_code_ = -1;
       second_diplopia_code_ = -1;
     }
   }
   if (!in_possible_diplopia_) {
-    if (top_code_ != null_char_ && second_code_ != null_char_ && top_key > kMinDiplopiaKey && second_key > kMinDiplopiaKey){
+    if (top_code_ != null_char_ && second_code_ != null_char_ && top_key > kMinDiplopiaKey && second_key > kMinDiplopiaKey) {
       in_possible_diplopia_ = true;
       first_diplopia_code_ = top_code_;
       second_diplopia_code_ = second_code_;
