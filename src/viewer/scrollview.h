@@ -40,6 +40,10 @@
 
 namespace tesseract {
 
+#if !defined(__GNUC__) && !defined(__attribute__)
+# define __attribute__(attr) // compiler without support for __attribute__
+#endif
+
 class ScrollView;
 class SVNetwork;
 class SVSemaphore;
@@ -65,7 +69,7 @@ struct SVEvent {
   ~SVEvent() {
     delete[] parameter;
   }
-  SVEvent *copy();
+  SVEvent *copy() const;
   SVEventType type = SVET_DESTROY; // What kind of event.
   ScrollView *window = nullptr;    // Window event relates to.
   char *parameter = nullptr;       // Any string that might have been passed as argument.
@@ -184,9 +188,6 @@ public:
   // Block until an event of the given type is received.
   SVEvent *AwaitEvent(SVEventType type);
 
-  // Block until any event on any window is received.
-  SVEvent *AwaitEventAnyWindow();
-
   /*******************************************************************************
    * Getters and Setters
    *******************************************************************************/
@@ -295,7 +296,8 @@ public:
 
   // ...which can be added by this command.
   // This is intended as an "debug" output window.
-  void AddMessage(const char *format, ...);
+  void AddMessage(const char *message);
+  void AddMessageF(const char *format, ...) __attribute__((format(printf, 2, 3)));
 
   // Zoom the window to the rectangle given upper left corner and
   // lower right corner.
@@ -308,7 +310,7 @@ public:
   // this just for fun will likely break your application!
   // It is public so you can actually take use of the LUA functionalities, but
   // be careful!
-  void SendMsg(const char *msg, ...);
+  void SendMsg(const char* msg, ...) __attribute__((format(printf, 2, 3)));
 
   // Custom messages (manipulating java code directly) can be send through this.
   // Send a message to the server without adding the
@@ -370,7 +372,7 @@ private:
   static void MessageReceiver();
 
   // Place an event into the event_table (synchronized).
-  void SetEvent(SVEvent *svevent);
+  void SetEvent(const SVEvent *svevent);
 
   // Wake up the semaphore.
   void Signal();

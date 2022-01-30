@@ -69,7 +69,9 @@ class WERD_RES;
 
 class ColumnFinder;
 class DocumentData;
+#ifndef DISABLED_LEGACY_ENGINE
 class EquationDetect;
+#endif // ndef DISABLED_LEGACY_ENGINE
 class ImageData;
 class LSTMRecognizer;
 class Tesseract;
@@ -110,7 +112,7 @@ class Tesseract;
 // NOTE: that each level contains members that correspond to global
 // data that is defined (and used) at that level, not necessarily where
 // the type is defined so for instance:
-// BOOL_VAR_H(textord_show_blobs, false, "Display unsorted blobs");
+// BOOL_VAR_H(textord_show_blobs);
 // goes inside the Textord class, not the cc_util class.
 
 // A collection of various variables for statistics and debugging.
@@ -189,8 +191,10 @@ public:
   // Clear the document dictionary for this and all subclassifiers.
   void ResetDocumentDictionary();
 
+#ifndef DISABLED_LEGACY_ENGINE
   // Set the equation detector.
   void SetEquationDetect(EquationDetect *detector);
+#endif // ndef DISABLED_LEGACY_ENGINE
 
   // Simple accessors.
   const FCOORD &reskew() const {
@@ -523,13 +527,10 @@ public:
   // instances of the same font loaded.
   void SetupUniversalFontIds();
 
-  int init_tesseract_lm(const std::string &arg0, const std::string &textbase,
-                        const std::string &language, TessdataManager *mgr);
-
   void recognize_page(std::string &image_name);
   void end_tesseract();
 
-  bool init_tesseract_lang_data(const std::string &arg0, const std::string &textbase,
+  bool init_tesseract_lang_data(const std::string &arg0,
                                 const std::string &language, OcrEngineMode oem, char **configs,
                                 int configs_size, const std::vector<std::string> *vars_vec,
                                 const std::vector<std::string> *vars_values,
@@ -593,7 +594,7 @@ public:
   void recog_word_recursive(WERD_RES *word);
   void recog_word(WERD_RES *word);
   void split_and_recog_word(WERD_RES *word);
-  void split_word(WERD_RES *word, int split_pt, WERD_RES **right_piece,
+  void split_word(WERD_RES *word, unsigned split_pt, WERD_RES **right_piece,
                   BlamerBundle **orig_blamer_bundle) const;
   void join_words(WERD_RES *word, WERD_RES *word2, BlamerBundle *orig_bb) const;
   //// fixspace.cpp ///////////////////////////////////////////////////////
@@ -722,8 +723,8 @@ public:
   // vector holding classification results for a sequence of consecutive
   // blobs, with index 0 being a single blob, index 1 being 2 blobs etc.
   void SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, int choices_pos,
-                     int choices_length, const std::vector<UNICHAR_ID> &target_text,
-                     int text_index, float rating, std::vector<int> *segmentation,
+                     unsigned choices_length, const std::vector<UNICHAR_ID> &target_text,
+                     unsigned text_index, float rating, std::vector<int> *segmentation,
                      float *best_rating, std::vector<int> *best_segmentation);
   // Counts up the labelled words and the blobs within.
   // Deletes all unused or emptied words, counting the unused ones.
@@ -748,282 +749,217 @@ public:
   float ComputeCompatibleXheight(WERD_RES *word_res, float *baseline_shift);
   //// Data members ///////////////////////////////////////////////////////
   // TODO(ocr-team): Find and remove obsolete parameters.
-  BOOL_VAR_H(tessedit_resegment_from_boxes, false, "Take segmentation and labeling from box file");
-  BOOL_VAR_H(tessedit_resegment_from_line_boxes, false,
-             "Conversion of word/line box file to char box file");
-  BOOL_VAR_H(tessedit_train_from_boxes, false, "Generate training data from boxed chars");
-  BOOL_VAR_H(tessedit_make_boxes_from_boxes, false, "Generate more boxes from boxed chars");
-  BOOL_VAR_H(tessedit_train_line_recognizer, false,
-             "Break input into lines and remap boxes if present");
-  BOOL_VAR_H(tessedit_dump_pageseg_images, false,
-             "Dump intermediate images made during page segmentation");
-  BOOL_VAR_H(tessedit_do_invert, true, "Try inverting the image in `LSTMRecognizeWord`");
-  INT_VAR_H(tessedit_pageseg_mode, PSM_SINGLE_BLOCK,
-            "Page seg mode: 0=osd only, 1=auto+osd, 2=auto, 3=col, 4=block,"
-            " 5=line, 6=word, 7=char"
-            " (Values from PageSegMode enum in tesseract/publictypes.h)");
-  INT_VAR_H(thresholding_method,
-            static_cast<int>(tesseract::ThreshMethod::Otsu), "Thresholding "
-            "method: 0 = Otsu, 1 = Adaptive Otsu, 2 = Sauvola");
-  INT_VAR_H(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
-            "Which OCR engine(s) to run (Tesseract, LSTM, both). Defaults"
-            " to loading and running the most accurate available.");
-  STRING_VAR_H(tessedit_char_blacklist, "", "Blacklist of chars not to recognize");
-  STRING_VAR_H(tessedit_char_whitelist, "", "Whitelist of chars to recognize");
-  STRING_VAR_H(tessedit_char_unblacklist, "", "List of chars to override tessedit_char_blacklist");
-  BOOL_VAR_H(tessedit_ambigs_training, false, "Perform training for ambiguities");
-  INT_VAR_H(pageseg_devanagari_split_strategy, tesseract::ShiroRekhaSplitter::NO_SPLIT,
-            "Whether to use the top-line splitting process for Devanagari "
-            "documents while performing page-segmentation.");
-  INT_VAR_H(ocr_devanagari_split_strategy, tesseract::ShiroRekhaSplitter::NO_SPLIT,
-            "Whether to use the top-line splitting process for Devanagari "
-            "documents while performing ocr.");
-  STRING_VAR_H(tessedit_write_params_to_file, "", "Write all parameters to the given file.");
-  BOOL_VAR_H(tessedit_adaption_debug, false, "Generate and print debug information for adaption");
-  INT_VAR_H(bidi_debug, 0, "Debug level for BiDi");
-  INT_VAR_H(applybox_debug, 1, "Debug level");
-  INT_VAR_H(applybox_page, 0, "Page number to apply boxes from");
-  STRING_VAR_H(applybox_exposure_pattern, ".exp",
-               "Exposure value follows this pattern in the image"
-               " filename. The name of the image files are expected"
-               " to be in the form [lang].[fontname].exp[num].tif");
-  BOOL_VAR_H(applybox_learn_chars_and_char_frags_mode, false,
-             "Learn both character fragments (as is done in the"
-             " special low exposure mode) as well as unfragmented"
-             " characters.");
-  BOOL_VAR_H(applybox_learn_ngrams_mode, false,
-             "Each bounding box is assumed to contain ngrams. Only"
-             " learn the ngrams whose outlines overlap horizontally.");
-  BOOL_VAR_H(tessedit_display_outwords, false, "Draw output words");
-  BOOL_VAR_H(tessedit_dump_choices, false, "Dump char choices");
-  BOOL_VAR_H(tessedit_timing_debug, false, "Print timing stats");
-  BOOL_VAR_H(tessedit_fix_fuzzy_spaces, true, "Try to improve fuzzy spaces");
-  BOOL_VAR_H(tessedit_unrej_any_wd, false, "Don't bother with word plausibility");
-  BOOL_VAR_H(tessedit_fix_hyphens, true, "Crunch double hyphens?");
-  BOOL_VAR_H(tessedit_enable_doc_dict, true, "Add words to the document dictionary");
-  BOOL_VAR_H(tessedit_debug_fonts, false, "Output font info per char");
-  INT_VAR_H(tessedit_font_id, 0, "Disable font detection and use the font"
-                                 " corresponding to the ID specified instead");
-  BOOL_VAR_H(tessedit_debug_block_rejection, false, "Block and Row stats");
-  BOOL_VAR_H(tessedit_enable_bigram_correction, true,
-             "Enable correction based on the word bigram dictionary.");
-  BOOL_VAR_H(tessedit_enable_dict_correction, false,
-             "Enable single word correction based on the dictionary.");
-  INT_VAR_H(tessedit_bigram_debug, 0,
-            "Amount of debug output for bigram "
-            "correction.");
-  BOOL_VAR_H(enable_noise_removal, true,
-             "Remove and conditionally reassign small outlines when they"
-             " confuse layout analysis, determining diacritics vs noise");
-  INT_VAR_H(debug_noise_removal, 0, "Debug reassignment of small outlines");
+  BOOL_VAR_H(tessedit_resegment_from_boxes);
+  BOOL_VAR_H(tessedit_resegment_from_line_boxes);
+  BOOL_VAR_H(tessedit_train_from_boxes);
+  BOOL_VAR_H(tessedit_make_boxes_from_boxes);
+  BOOL_VAR_H(tessedit_train_line_recognizer);
+  BOOL_VAR_H(tessedit_dump_pageseg_images);
+  BOOL_VAR_H(tessedit_do_invert);
+  INT_VAR_H(tessedit_pageseg_mode);
+  INT_VAR_H(thresholding_method);
+  BOOL_VAR_H(thresholding_debug);
+  double_VAR_H(thresholding_window_size);
+  double_VAR_H(thresholding_kfactor);
+  double_VAR_H(thresholding_tile_size);
+  double_VAR_H(thresholding_smooth_kernel_size);
+  double_VAR_H(thresholding_score_fraction);
+  INT_VAR_H(tessedit_ocr_engine_mode);
+  STRING_VAR_H(tessedit_char_blacklist);
+  STRING_VAR_H(tessedit_char_whitelist);
+  STRING_VAR_H(tessedit_char_unblacklist);
+  BOOL_VAR_H(tessedit_ambigs_training);
+  INT_VAR_H(pageseg_devanagari_split_strategy);
+  INT_VAR_H(ocr_devanagari_split_strategy);
+  STRING_VAR_H(tessedit_write_params_to_file);
+  BOOL_VAR_H(tessedit_adaption_debug);
+  INT_VAR_H(bidi_debug);
+  INT_VAR_H(applybox_debug);
+  INT_VAR_H(applybox_page);
+  STRING_VAR_H(applybox_exposure_pattern);
+  BOOL_VAR_H(applybox_learn_chars_and_char_frags_mode);
+  BOOL_VAR_H(applybox_learn_ngrams_mode);
+  BOOL_VAR_H(tessedit_display_outwords);
+  BOOL_VAR_H(tessedit_dump_choices);
+  BOOL_VAR_H(tessedit_timing_debug);
+  BOOL_VAR_H(tessedit_fix_fuzzy_spaces);
+  BOOL_VAR_H(tessedit_unrej_any_wd);
+  BOOL_VAR_H(tessedit_fix_hyphens);
+  BOOL_VAR_H(tessedit_enable_doc_dict);
+  BOOL_VAR_H(tessedit_debug_fonts);
+  INT_VAR_H(tessedit_font_id);
+  BOOL_VAR_H(tessedit_debug_block_rejection);
+  BOOL_VAR_H(tessedit_enable_bigram_correction);
+  BOOL_VAR_H(tessedit_enable_dict_correction);
+  INT_VAR_H(tessedit_bigram_debug);
+  BOOL_VAR_H(enable_noise_removal);
+  INT_VAR_H(debug_noise_removal);
   // Worst (min) certainty, for which a diacritic is allowed to make the base
   // character worse and still be included.
-  double_VAR_H(noise_cert_basechar, -8.0, "Hingepoint for base char certainty");
+  double_VAR_H(noise_cert_basechar);
   // Worst (min) certainty, for which a non-overlapping diacritic is allowed to
   // make the base character worse and still be included.
-  double_VAR_H(noise_cert_disjoint, -2.5, "Hingepoint for disjoint certainty");
+  double_VAR_H(noise_cert_disjoint);
   // Worst (min) certainty, for which a diacritic is allowed to make a new
   // stand-alone blob.
-  double_VAR_H(noise_cert_punc, -2.5, "Threshold for new punc char certainty");
+  double_VAR_H(noise_cert_punc);
   // Factor of certainty margin for adding diacritics to not count as worse.
-  double_VAR_H(noise_cert_factor, 0.375, "Scaling on certainty diff from Hingepoint");
-  INT_VAR_H(noise_maxperblob, 8, "Max diacritics to apply to a blob");
-  INT_VAR_H(noise_maxperword, 16, "Max diacritics to apply to a word");
-  INT_VAR_H(debug_x_ht_level, 0, "Reestimate debug");
-  STRING_VAR_H(chs_leading_punct, "('`\"", "Leading punctuation");
-  STRING_VAR_H(chs_trailing_punct1, ").,;:?!", "1st Trailing punctuation");
-  STRING_VAR_H(chs_trailing_punct2, ")'`\"", "2nd Trailing punctuation");
-  double_VAR_H(quality_rej_pc, 0.08, "good_quality_doc lte rejection limit");
-  double_VAR_H(quality_blob_pc, 0.0, "good_quality_doc gte good blobs limit");
-  double_VAR_H(quality_outline_pc, 1.0, "good_quality_doc lte outline error limit");
-  double_VAR_H(quality_char_pc, 0.95, "good_quality_doc gte good char limit");
-  INT_VAR_H(quality_min_initial_alphas_reqd, 2, "alphas in a good word");
-  INT_VAR_H(tessedit_tess_adaption_mode, 0x27, "Adaptation decision algorithm for tess");
-  BOOL_VAR_H(tessedit_minimal_rej_pass1, false, "Do minimal rejection on pass 1 output");
-  BOOL_VAR_H(tessedit_test_adaption, false, "Test adaption criteria");
-  BOOL_VAR_H(test_pt, false, "Test for point");
-  double_VAR_H(test_pt_x, 99999.99, "xcoord");
-  double_VAR_H(test_pt_y, 99999.99, "ycoord");
-  INT_VAR_H(multilang_debug_level, 0, "Print multilang debug info.");
-  INT_VAR_H(paragraph_debug_level, 0, "Print paragraph debug info.");
-  BOOL_VAR_H(paragraph_text_based, true,
-             "Run paragraph detection on the post-text-recognition "
-             "(more accurate)");
-  BOOL_VAR_H(lstm_use_matrix, 1, "Use ratings matrix/beam searct with lstm");
-  STRING_VAR_H(outlines_odd, "%| ", "Non standard number of outlines");
-  STRING_VAR_H(outlines_2, "ij!?%\":;", "Non standard number of outlines");
-  BOOL_VAR_H(tessedit_good_quality_unrej, true, "Reduce rejection on good docs");
-  BOOL_VAR_H(tessedit_use_reject_spaces, true, "Reject spaces?");
-  double_VAR_H(tessedit_reject_doc_percent, 65.00, "%rej allowed before rej whole doc");
-  double_VAR_H(tessedit_reject_block_percent, 45.00, "%rej allowed before rej whole block");
-  double_VAR_H(tessedit_reject_row_percent, 40.00, "%rej allowed before rej whole row");
-  double_VAR_H(tessedit_whole_wd_rej_row_percent, 70.00,
-               "Number of row rejects in whole word rejects"
-               "which prevents whole row rejection");
-  BOOL_VAR_H(tessedit_preserve_blk_rej_perfect_wds, true,
-             "Only rej partially rejected words in block rejection");
-  BOOL_VAR_H(tessedit_preserve_row_rej_perfect_wds, true,
-             "Only rej partially rejected words in row rejection");
-  BOOL_VAR_H(tessedit_dont_blkrej_good_wds, false, "Use word segmentation quality metric");
-  BOOL_VAR_H(tessedit_dont_rowrej_good_wds, false, "Use word segmentation quality metric");
-  INT_VAR_H(tessedit_preserve_min_wd_len, 2, "Only preserve wds longer than this");
-  BOOL_VAR_H(tessedit_row_rej_good_docs, true, "Apply row rejection to good docs");
-  double_VAR_H(tessedit_good_doc_still_rowrej_wd, 1.1,
-               "rej good doc wd if more than this fraction rejected");
-  BOOL_VAR_H(tessedit_reject_bad_qual_wds, true, "Reject all bad quality wds");
-  BOOL_VAR_H(tessedit_debug_doc_rejection, false, "Page stats");
-  BOOL_VAR_H(tessedit_debug_quality_metrics, false, "Output data to debug file");
-  BOOL_VAR_H(bland_unrej, false, "unrej potential with no checks");
-  double_VAR_H(quality_rowrej_pc, 1.1, "good_quality_doc gte good char limit");
-  BOOL_VAR_H(unlv_tilde_crunching, false, "Mark v.bad words for tilde crunch");
-  BOOL_VAR_H(hocr_font_info, false, "Add font info to hocr output");
-  BOOL_VAR_H(hocr_char_boxes, false, "Add coordinates for each character to hocr output");
-  BOOL_VAR_H(crunch_early_merge_tess_fails, true, "Before word crunch?");
-  BOOL_VAR_H(crunch_early_convert_bad_unlv_chs, false, "Take out ~^ early?");
-  double_VAR_H(crunch_terrible_rating, 80.0, "crunch rating lt this");
-  BOOL_VAR_H(crunch_terrible_garbage, true, "As it says");
-  double_VAR_H(crunch_poor_garbage_cert, -9.0, "crunch garbage cert lt this");
-  double_VAR_H(crunch_poor_garbage_rate, 60, "crunch garbage rating lt this");
-  double_VAR_H(crunch_pot_poor_rate, 40, "POTENTIAL crunch rating lt this");
-  double_VAR_H(crunch_pot_poor_cert, -8.0, "POTENTIAL crunch cert lt this");
-  double_VAR_H(crunch_del_rating, 60, "POTENTIAL crunch rating lt this");
-  double_VAR_H(crunch_del_cert, -10.0, "POTENTIAL crunch cert lt this");
-  double_VAR_H(crunch_del_min_ht, 0.7, "Del if word ht lt xht x this");
-  double_VAR_H(crunch_del_max_ht, 3.0, "Del if word ht gt xht x this");
-  double_VAR_H(crunch_del_min_width, 3.0, "Del if word width lt xht x this");
-  double_VAR_H(crunch_del_high_word, 1.5, "Del if word gt xht x this above bl");
-  double_VAR_H(crunch_del_low_word, 0.5, "Del if word gt xht x this below bl");
-  double_VAR_H(crunch_small_outlines_size, 0.6, "Small if lt xht x this");
-  INT_VAR_H(crunch_rating_max, 10, "For adj length in rating per ch");
-  INT_VAR_H(crunch_pot_indicators, 1, "How many potential indicators needed");
-  BOOL_VAR_H(crunch_leave_ok_strings, true, "Don't touch sensible strings");
-  BOOL_VAR_H(crunch_accept_ok, true, "Use acceptability in okstring");
-  BOOL_VAR_H(crunch_leave_accept_strings, false, "Don't pot crunch sensible strings");
-  BOOL_VAR_H(crunch_include_numerals, false, "Fiddle alpha figures");
-  INT_VAR_H(crunch_leave_lc_strings, 4, "Don't crunch words with long lower case strings");
-  INT_VAR_H(crunch_leave_uc_strings, 4, "Don't crunch words with long lower case strings");
-  INT_VAR_H(crunch_long_repetitions, 3, "Crunch words with long repetitions");
-  INT_VAR_H(crunch_debug, 0, "As it says");
-  INT_VAR_H(fixsp_non_noise_limit, 1, "How many non-noise blbs either side?");
-  double_VAR_H(fixsp_small_outlines_size, 0.28, "Small if lt xht x this");
-  BOOL_VAR_H(tessedit_prefer_joined_punct, false, "Reward punctuation joins");
-  INT_VAR_H(fixsp_done_mode, 1, "What constitutes done for spacing");
-  INT_VAR_H(debug_fix_space_level, 0, "Contextual fixspace debug");
-  STRING_VAR_H(numeric_punctuation, ".,", "Punct. chs expected WITHIN numbers");
-  INT_VAR_H(x_ht_acceptance_tolerance, 8, "Max allowed deviation of blob top outside of font data");
-  INT_VAR_H(x_ht_min_change, 8, "Min change in xht before actually trying it");
-  INT_VAR_H(superscript_debug, 0, "Debug level for sub & superscript fixer");
-  double_VAR_H(superscript_worse_certainty, 2.0,
-               "How many times worse "
-               "certainty does a superscript position glyph need to be for us "
-               "to try classifying it as a char with a different baseline?");
-  double_VAR_H(superscript_bettered_certainty, 0.97,
-               "What reduction in "
-               "badness do we think sufficient to choose a superscript over "
-               "what we'd thought.  For example, a value of 0.6 means we want "
-               "to reduce badness of certainty by 40%");
-  double_VAR_H(superscript_scaledown_ratio, 0.4,
-               "A superscript scaled down more than this is unbelievably "
-               "small.  For example, 0.3 means we expect the font size to "
-               "be no smaller than 30% of the text line font size.");
-  double_VAR_H(subscript_max_y_top, 0.5,
-               "Maximum top of a character measured as a multiple of x-height "
-               "above the baseline for us to reconsider whether it's a "
-               "subscript.");
-  double_VAR_H(superscript_min_y_bottom, 0.3,
-               "Minimum bottom of a character measured as a multiple of "
-               "x-height above the baseline for us to reconsider whether it's "
-               "a superscript.");
-  BOOL_VAR_H(tessedit_write_block_separators, false, "Write block separators in output");
-  BOOL_VAR_H(tessedit_write_rep_codes, false, "Write repetition char code");
-  BOOL_VAR_H(tessedit_write_unlv, false, "Write .unlv output file");
-  BOOL_VAR_H(tessedit_create_txt, false, "Write .txt output file");
-  BOOL_VAR_H(tessedit_create_hocr, false, "Write .html hOCR output file");
-  BOOL_VAR_H(tessedit_create_alto, false, "Write .xml ALTO output file");
-  BOOL_VAR_H(tessedit_create_lstmbox, false, "Write .box file for LSTM training");
-  BOOL_VAR_H(tessedit_create_tsv, false, "Write .tsv output file");
-  BOOL_VAR_H(tessedit_create_wordstrbox, false, "Write WordStr format .box output file");
-  BOOL_VAR_H(tessedit_create_pdf, false, "Write .pdf output file");
-  BOOL_VAR_H(textonly_pdf, false, "Create PDF with only one invisible text layer");
-  INT_VAR_H(jpg_quality, 85, "Set JPEG quality level");
-  INT_VAR_H(user_defined_dpi, 0, "Specify DPI for input image");
-  INT_VAR_H(min_characters_to_try, 50, "Specify minimum characters to try during OSD");
-  STRING_VAR_H(unrecognised_char, "|", "Output char for unidentified blobs");
-  INT_VAR_H(suspect_level, 99, "Suspect marker level");
-  INT_VAR_H(suspect_short_words, 2, "Don't Suspect dict wds longer than this");
-  BOOL_VAR_H(suspect_constrain_1Il, false, "UNLV keep 1Il chars rejected");
-  double_VAR_H(suspect_rating_per_ch, 999.9, "Don't touch bad rating limit");
-  double_VAR_H(suspect_accept_rating, -999.9, "Accept good rating limit");
-  BOOL_VAR_H(tessedit_minimal_rejection, false, "Only reject tess failures");
-  BOOL_VAR_H(tessedit_zero_rejection, false, "Don't reject ANYTHING");
-  BOOL_VAR_H(tessedit_word_for_word, false, "Make output have exactly one word per WERD");
-  BOOL_VAR_H(tessedit_zero_kelvin_rejection, false, "Don't reject ANYTHING AT ALL");
-  INT_VAR_H(tessedit_reject_mode, 0, "Rejection algorithm");
-  BOOL_VAR_H(tessedit_rejection_debug, false, "Adaption debug");
-  BOOL_VAR_H(tessedit_flip_0O, true, "Contextual 0O O0 flips");
-  double_VAR_H(tessedit_lower_flip_hyphen, 1.5, "Aspect ratio dot/hyphen test");
-  double_VAR_H(tessedit_upper_flip_hyphen, 1.8, "Aspect ratio dot/hyphen test");
-  BOOL_VAR_H(rej_trust_doc_dawg, false, "Use DOC dawg in 11l conf. detector");
-  BOOL_VAR_H(rej_1Il_use_dict_word, false, "Use dictword test");
-  BOOL_VAR_H(rej_1Il_trust_permuter_type, true, "Don't double check");
-  BOOL_VAR_H(rej_use_tess_accepted, true, "Individual rejection control");
-  BOOL_VAR_H(rej_use_tess_blanks, true, "Individual rejection control");
-  BOOL_VAR_H(rej_use_good_perm, true, "Individual rejection control");
-  BOOL_VAR_H(rej_use_sensible_wd, false, "Extend permuter check");
-  BOOL_VAR_H(rej_alphas_in_number_perm, false, "Extend permuter check");
-  double_VAR_H(rej_whole_of_mostly_reject_word_fract, 0.85, "if >this fract");
-  INT_VAR_H(tessedit_image_border, 2, "Rej blbs near image edge limit");
-  STRING_VAR_H(ok_repeated_ch_non_alphanum_wds, "-?*\075", "Allow NN to unrej");
-  STRING_VAR_H(conflict_set_I_l_1, "Il1[]", "Il1 conflict set");
-  INT_VAR_H(min_sane_x_ht_pixels, 8, "Reject any x-ht lt or eq than this");
-  BOOL_VAR_H(tessedit_create_boxfile, false, "Output text with boxes");
-  INT_VAR_H(tessedit_page_number, -1, "-1 -> All pages, else specific page to process");
-  BOOL_VAR_H(tessedit_write_images, false, "Capture the image from the IPE");
-  BOOL_VAR_H(interactive_display_mode, false, "Run interactively?");
-  STRING_VAR_H(file_type, ".tif", "Filename extension");
-  BOOL_VAR_H(tessedit_override_permuter, true, "According to dict_word");
-  STRING_VAR_H(tessedit_load_sublangs, "", "List of languages to load with this one");
-  BOOL_VAR_H(tessedit_use_primary_params_model, false,
-             "In multilingual mode use params model of the primary language");
+  double_VAR_H(noise_cert_factor);
+  INT_VAR_H(noise_maxperblob);
+  INT_VAR_H(noise_maxperword);
+  INT_VAR_H(debug_x_ht_level);
+  STRING_VAR_H(chs_leading_punct);
+  STRING_VAR_H(chs_trailing_punct1);
+  STRING_VAR_H(chs_trailing_punct2);
+  double_VAR_H(quality_rej_pc);
+  double_VAR_H(quality_blob_pc);
+  double_VAR_H(quality_outline_pc);
+  double_VAR_H(quality_char_pc);
+  INT_VAR_H(quality_min_initial_alphas_reqd);
+  INT_VAR_H(tessedit_tess_adaption_mode);
+  BOOL_VAR_H(tessedit_minimal_rej_pass1);
+  BOOL_VAR_H(tessedit_test_adaption);
+  BOOL_VAR_H(test_pt);
+  double_VAR_H(test_pt_x);
+  double_VAR_H(test_pt_y);
+  INT_VAR_H(multilang_debug_level);
+  INT_VAR_H(paragraph_debug_level);
+  BOOL_VAR_H(paragraph_text_based);
+  BOOL_VAR_H(lstm_use_matrix);
+  STRING_VAR_H(outlines_odd);
+  STRING_VAR_H(outlines_2);
+  BOOL_VAR_H(tessedit_good_quality_unrej);
+  BOOL_VAR_H(tessedit_use_reject_spaces);
+  double_VAR_H(tessedit_reject_doc_percent);
+  double_VAR_H(tessedit_reject_block_percent);
+  double_VAR_H(tessedit_reject_row_percent);
+  double_VAR_H(tessedit_whole_wd_rej_row_percent);
+  BOOL_VAR_H(tessedit_preserve_blk_rej_perfect_wds);
+  BOOL_VAR_H(tessedit_preserve_row_rej_perfect_wds);
+  BOOL_VAR_H(tessedit_dont_blkrej_good_wds);
+  BOOL_VAR_H(tessedit_dont_rowrej_good_wds);
+  INT_VAR_H(tessedit_preserve_min_wd_len);
+  BOOL_VAR_H(tessedit_row_rej_good_docs);
+  double_VAR_H(tessedit_good_doc_still_rowrej_wd);
+  BOOL_VAR_H(tessedit_reject_bad_qual_wds);
+  BOOL_VAR_H(tessedit_debug_doc_rejection);
+  BOOL_VAR_H(tessedit_debug_quality_metrics);
+  BOOL_VAR_H(bland_unrej);
+  double_VAR_H(quality_rowrej_pc);
+  BOOL_VAR_H(unlv_tilde_crunching);
+  BOOL_VAR_H(hocr_font_info);
+  BOOL_VAR_H(hocr_char_boxes);
+  BOOL_VAR_H(crunch_early_merge_tess_fails);
+  BOOL_VAR_H(crunch_early_convert_bad_unlv_chs);
+  double_VAR_H(crunch_terrible_rating);
+  BOOL_VAR_H(crunch_terrible_garbage);
+  double_VAR_H(crunch_poor_garbage_cert);
+  double_VAR_H(crunch_poor_garbage_rate);
+  double_VAR_H(crunch_pot_poor_rate);
+  double_VAR_H(crunch_pot_poor_cert);
+  double_VAR_H(crunch_del_rating);
+  double_VAR_H(crunch_del_cert);
+  double_VAR_H(crunch_del_min_ht);
+  double_VAR_H(crunch_del_max_ht);
+  double_VAR_H(crunch_del_min_width);
+  double_VAR_H(crunch_del_high_word);
+  double_VAR_H(crunch_del_low_word);
+  double_VAR_H(crunch_small_outlines_size);
+  INT_VAR_H(crunch_rating_max);
+  INT_VAR_H(crunch_pot_indicators);
+  BOOL_VAR_H(crunch_leave_ok_strings);
+  BOOL_VAR_H(crunch_accept_ok);
+  BOOL_VAR_H(crunch_leave_accept_strings);
+  BOOL_VAR_H(crunch_include_numerals);
+  INT_VAR_H(crunch_leave_lc_strings);
+  INT_VAR_H(crunch_leave_uc_strings);
+  INT_VAR_H(crunch_long_repetitions);
+  INT_VAR_H(crunch_debug);
+  INT_VAR_H(fixsp_non_noise_limit);
+  double_VAR_H(fixsp_small_outlines_size);
+  BOOL_VAR_H(tessedit_prefer_joined_punct);
+  INT_VAR_H(fixsp_done_mode);
+  INT_VAR_H(debug_fix_space_level);
+  STRING_VAR_H(numeric_punctuation);
+  INT_VAR_H(x_ht_acceptance_tolerance);
+  INT_VAR_H(x_ht_min_change);
+  INT_VAR_H(superscript_debug);
+  double_VAR_H(superscript_worse_certainty);
+  double_VAR_H(superscript_bettered_certainty);
+  double_VAR_H(superscript_scaledown_ratio);
+  double_VAR_H(subscript_max_y_top);
+  double_VAR_H(superscript_min_y_bottom);
+  BOOL_VAR_H(tessedit_write_block_separators);
+  BOOL_VAR_H(tessedit_write_rep_codes);
+  BOOL_VAR_H(tessedit_write_unlv);
+  BOOL_VAR_H(tessedit_create_txt);
+  BOOL_VAR_H(tessedit_create_hocr);
+  BOOL_VAR_H(tessedit_create_alto);
+  BOOL_VAR_H(tessedit_create_lstmbox);
+  BOOL_VAR_H(tessedit_create_tsv);
+  BOOL_VAR_H(tessedit_create_wordstrbox);
+  BOOL_VAR_H(tessedit_create_pdf);
+  BOOL_VAR_H(textonly_pdf);
+  INT_VAR_H(jpg_quality);
+  INT_VAR_H(user_defined_dpi);
+  INT_VAR_H(min_characters_to_try);
+  STRING_VAR_H(unrecognised_char);
+  INT_VAR_H(suspect_level);
+  INT_VAR_H(suspect_short_words);
+  BOOL_VAR_H(suspect_constrain_1Il);
+  double_VAR_H(suspect_rating_per_ch);
+  double_VAR_H(suspect_accept_rating);
+  BOOL_VAR_H(tessedit_minimal_rejection);
+  BOOL_VAR_H(tessedit_zero_rejection);
+  BOOL_VAR_H(tessedit_word_for_word);
+  BOOL_VAR_H(tessedit_zero_kelvin_rejection);
+  INT_VAR_H(tessedit_reject_mode);
+  BOOL_VAR_H(tessedit_rejection_debug);
+  BOOL_VAR_H(tessedit_flip_0O);
+  double_VAR_H(tessedit_lower_flip_hyphen);
+  double_VAR_H(tessedit_upper_flip_hyphen);
+  BOOL_VAR_H(rej_trust_doc_dawg);
+  BOOL_VAR_H(rej_1Il_use_dict_word);
+  BOOL_VAR_H(rej_1Il_trust_permuter_type);
+  BOOL_VAR_H(rej_use_tess_accepted);
+  BOOL_VAR_H(rej_use_tess_blanks);
+  BOOL_VAR_H(rej_use_good_perm);
+  BOOL_VAR_H(rej_use_sensible_wd);
+  BOOL_VAR_H(rej_alphas_in_number_perm);
+  double_VAR_H(rej_whole_of_mostly_reject_word_fract);
+  INT_VAR_H(tessedit_image_border);
+  STRING_VAR_H(ok_repeated_ch_non_alphanum_wds);
+  STRING_VAR_H(conflict_set_I_l_1);
+  INT_VAR_H(min_sane_x_ht_pixels);
+  BOOL_VAR_H(tessedit_create_boxfile);
+  INT_VAR_H(tessedit_page_number);
+  BOOL_VAR_H(tessedit_write_images);
+  BOOL_VAR_H(interactive_display_mode);
+  STRING_VAR_H(file_type);
+  BOOL_VAR_H(tessedit_override_permuter);
+  STRING_VAR_H(tessedit_load_sublangs);
+  BOOL_VAR_H(tessedit_use_primary_params_model);
   // Min acceptable orientation margin (difference in scores between top and 2nd
   // choice in OSResults::orientations) to believe the page orientation.
-  double_VAR_H(min_orientation_margin, 7.0, "Min acceptable orientation margin");
-  BOOL_VAR_H(textord_tabfind_show_vlines, false, "Debug line finding");
-  BOOL_VAR_H(textord_use_cjk_fp_model, false, "Use CJK fixed pitch model");
-  BOOL_VAR_H(poly_allow_detailed_fx, false, "Allow feature extractors to see the original outline");
-  BOOL_VAR_H(tessedit_init_config_only, false,
-             "Only initialize with the config file. Useful if the instance is "
-             "not going to be used for OCR but say only for layout analysis.");
-  BOOL_VAR_H(textord_equation_detect, false, "Turn on equation detector");
-  BOOL_VAR_H(textord_tabfind_vertical_text, true, "Enable vertical detection");
-  BOOL_VAR_H(textord_tabfind_force_vertical_text, false, "Force using vertical text page mode");
-  double_VAR_H(textord_tabfind_vertical_text_ratio, 0.5,
-               "Fraction of textlines deemed vertical to use vertical page "
-               "mode");
-  double_VAR_H(textord_tabfind_aligned_gap_fraction, 0.75,
-               "Fraction of height used as a minimum gap for aligned blobs.");
-  INT_VAR_H(tessedit_parallelize, 0, "Run in parallel where possible");
-  BOOL_VAR_H(preserve_interword_spaces, false, "Preserve multiple interword spaces");
-  STRING_VAR_H(page_separator, "\f", "Page separator (default is form feed control character)");
-  INT_VAR_H(lstm_choice_mode, 0,
-            "Allows to include alternative symbols choices in the hOCR "
-            "output. "
-            "Valid input values are 0, 1 and 2. 0 is the default value. "
-            "With 1 the alternative symbol choices per timestep are included. "
-            "With 2 the alternative symbol choices are extracted from the CTC "
-            "process instead of the lattice. The choices are mapped per "
-            "character.");
-  INT_VAR_H(lstm_choice_iterations, 5,
-            "Sets the number of cascading iterations for the Beamsearch in "
-            "lstm_choice_mode. Note that lstm_choice_mode must be set to "
-            "a value greater than 0 to produce results.");
-  double_VAR_H(lstm_rating_coefficient, 5,
-               "Sets the rating coefficient for the lstm choices. The smaller "
-               "the coefficient, the better are the ratings for each choice "
-               "and less information is lost due to the cut off at 0. The "
-               "standard value is 5.");
-  BOOL_VAR_H(pageseg_apply_music_mask, true,
-             "Detect music staff and remove intersecting components");
+  double_VAR_H(min_orientation_margin);
+  BOOL_VAR_H(textord_tabfind_show_vlines);
+  BOOL_VAR_H(textord_use_cjk_fp_model);
+  BOOL_VAR_H(poly_allow_detailed_fx);
+  BOOL_VAR_H(tessedit_init_config_only);
+#ifndef DISABLED_LEGACY_ENGINE
+  BOOL_VAR_H(textord_equation_detect);
+#endif // ndef DISABLED_LEGACY_ENGINE
+  BOOL_VAR_H(textord_tabfind_vertical_text);
+  BOOL_VAR_H(textord_tabfind_force_vertical_text);
+  double_VAR_H(textord_tabfind_vertical_text_ratio);
+  double_VAR_H(textord_tabfind_aligned_gap_fraction);
+  INT_VAR_H(tessedit_parallelize);
+  BOOL_VAR_H(preserve_interword_spaces);
+  STRING_VAR_H(page_separator);
+  INT_VAR_H(lstm_choice_mode);
+  INT_VAR_H(lstm_choice_iterations);
+  double_VAR_H(lstm_rating_coefficient);
+  BOOL_VAR_H(pageseg_apply_music_mask);
 
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE *init_recog_training(const char *filename);
@@ -1071,8 +1007,10 @@ private:
   Tesseract *most_recently_used_;
   // The size of the font table, ie max possible font id + 1.
   int font_table_size_;
+#ifndef DISABLED_LEGACY_ENGINE
   // Equation detector. Note: this pointer is NOT owned by the class.
   EquationDetect *equ_detect_;
+#endif // ndef DISABLED_LEGACY_ENGINE
   // LSTM recognizer, if available.
   LSTMRecognizer *lstm_recognizer_;
   // Output "page" number (actually line number) using TrainLineRecognizer.

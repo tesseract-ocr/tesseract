@@ -151,8 +151,7 @@ ImageData *Tesseract::GetLineData(const TBOX &line_box, const std::vector<TBOX> 
     line_boxes.push_back(box);
     line_texts.push_back(texts[b]);
   }
-  std::vector<int> page_numbers;
-  page_numbers.resize(line_boxes.size(), applybox_page);
+  std::vector<int> page_numbers(line_boxes.size(), applybox_page);
   image_data->AddBoxes(line_boxes, line_texts, page_numbers);
   return image_data;
 }
@@ -270,22 +269,14 @@ void Tesseract::SearchWords(PointerVector<WERD_RES> *words) {
   if (stopper_dict == nullptr) {
     stopper_dict = &getDict();
   }
-  bool any_nonspace_delimited = false;
-  for (int w = 0; w < words->size(); ++w) {
-    WERD_RES *word = (*words)[w];
-    if (word->best_choice != nullptr && word->best_choice->ContainsAnyNonSpaceDelimited()) {
-      any_nonspace_delimited = true;
-      break;
-    }
-  }
-  for (int w = 0; w < words->size(); ++w) {
+  for (unsigned w = 0; w < words->size(); ++w) {
     WERD_RES *word = (*words)[w];
     if (word->best_choice == nullptr) {
       // It is a dud.
       word->SetupFake(lstm_recognizer_->GetUnicharset());
     } else {
       // Set the best state.
-      for (int i = 0; i < word->best_choice->length(); ++i) {
+      for (unsigned i = 0; i < word->best_choice->length(); ++i) {
         int length = word->best_choice->state(i);
         word->best_state.push_back(length);
       }

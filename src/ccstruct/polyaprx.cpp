@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        polyaprx.cpp  (Formerly polygon.c)
+ * File:        polyaprx.cpp
  * Description: Code for polygonal approximation from old edgeprog.
  * Author:      Ray Smith
  *
@@ -34,7 +34,8 @@ namespace tesseract {
 #define FASTEDGELENGTH 256
 
 static BOOL_VAR(poly_debug, false, "Debug old poly");
-static BOOL_VAR(poly_wide_objects_better, true, "More accurate approx on wide things");
+static BOOL_VAR(poly_wide_objects_better, true,
+                "More accurate approx on wide things");
 
 #define fixed_dist 20  // really an int_variable
 #define approx_dist 15 // really an int_variable
@@ -43,60 +44,99 @@ const int par1 = 4500 / (approx_dist * approx_dist);
 const int par2 = 6750 / (approx_dist * approx_dist);
 
 /**********************************************************************
- * tesspoly_outline
- *
- * Approximate an outline from chain codes form using the old tess algorithm.
- * If allow_detailed_fx is true, the EDGEPTs in the returned TBLOB
- * contain pointers to the input C_OUTLINEs that enable higher-resolution
- * feature extraction that does not use the polygonal approximation.
+ *cutline(first,last,area) straightens out a line by partitioning
+ *and joining the ends by a straight line*
  **********************************************************************/
 
-TESSLINE *ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline) {
-  EDGEPT stack_edgepts[FASTEDGELENGTH]; // converted path
-  EDGEPT *edgepts = stack_edgepts;
+static void cutline(       // recursive refine
+    EDGEPT *first,         // ends of line
+    EDGEPT *last, int area // area of object
+) {
+  EDGEPT *edge;     // current edge
+  TPOINT vecsum;    // vector sum
+  int vlen;         // approx length of vecsum
+  TPOINT vec;       // accumulated vector
+  EDGEPT *maxpoint; // worst point
+  int maxperp;      // max deviation
+  int perp;         // perp distance
+  int ptcount;      // no of points
+  int squaresum;    // sum of perps
 
-  // Use heap memory if the stack buffer is not big enough.
-  if (c_outline->pathlength() > FASTEDGELENGTH) {
-    edgepts = new EDGEPT[c_outline->pathlength()];
+  edge = first; // start of line
+  if (edge->next == last) {
+    return; // simple line
   }
 
-  // bounding box
-  const auto &loop_box = c_outline->bounding_box();
-  int32_t area = loop_box.height();
-  if (!poly_wide_objects_better && loop_box.width() > area) {
-    area = loop_box.width();
+  // vector sum
+  vecsum.x = last->pos.x - edge->pos.x;
+  vecsum.y = last->pos.y - edge->pos.y;
+  if (vecsum.x == 0 && vecsum.y == 0) {
+    // special case
+    vecsum.x = -edge->prev->vec.x;
+    vecsum.y = -edge->prev->vec.y;
   }
-  area *= area;
-  edgesteps_to_edgepts(c_outline, edgepts);
-  fix2(edgepts, area);
-  EDGEPT *edgept = poly2(edgepts, area); // 2nd approximation.
-  EDGEPT *startpt = edgept;
-  EDGEPT *result = nullptr;
-  EDGEPT *prev_result = nullptr;
+  // absolute value
+  vlen = vecsum.x > 0 ? vecsum.x : -vecsum.x;
+  if (vecsum.y > vlen) {
+    vlen = vecsum.y; // maximum
+  } else if (-vecsum.y > vlen) {
+    vlen = -vecsum.y; // absolute value
+  }
+
+  vec.x = edge->vec.x; // accumulated vector
+  vec.y = edge->vec.y;
+  maxperp = 0; // none yet
+  squaresum = ptcount = 0;
+  edge = edge->next; // move to actual point
+  maxpoint = edge;   // in case there isn't one
   do {
-    auto *new_pt = new EDGEPT;
-    new_pt->pos = edgept->pos;
-    new_pt->prev = prev_result;
-    if (prev_result == nullptr) {
-      result = new_pt;
-    } else {
-      prev_result->next = new_pt;
-      new_pt->prev = prev_result;
+    perp = vec.cross(vecsum); // get perp distance
+    if (perp != 0) {
+      perp *= perp; // squared deviation
     }
-    if (allow_detailed_fx) {
-      new_pt->src_outline = edgept->src_outline;
-      new_pt->start_step = edgept->start_step;
-      new_pt->step_count = edgept->step_count;
+    squaresum += perp; // sum squares
+    ptcount++;         // count points
+    if (poly_debug) {
+      tprintf("Cutline:Final perp=%d\n", perp);
     }
-    prev_result = new_pt;
-    edgept = edgept->next;
-  } while (edgept != startpt);
-  prev_result->next = result;
-  result->prev = prev_result;
-  if (edgepts != stack_edgepts) {
-    delete[] edgepts;
+    if (perp > maxperp) {
+      maxperp = perp;
+      maxpoint = edge; // find greatest deviation
+    }
+    vec.x += edge->vec.x; // accumulate vectors
+    vec.y += edge->vec.y;
+    edge = edge->next;
+  } while (edge != last); // test all line
+
+  perp = vecsum.length();
+  ASSERT_HOST(perp != 0);
+
+  if (maxperp < 256 * INT16_MAX) {
+    maxperp <<= 8;
+    maxperp /= perp; // true max perp
+  } else {
+    maxperp /= perp;
+    maxperp <<= 8; // avoid overflow
   }
-  return TESSLINE::BuildFromOutlineList(result);
+  if (squaresum < 256 * INT16_MAX) {
+    // mean squared perp
+    perp = (squaresum << 8) / (perp * ptcount);
+  } else {
+    // avoid overflow
+    perp = (squaresum / perp << 8) / ptcount;
+  }
+
+  if (poly_debug) {
+    tprintf("Cutline:A=%d, max=%.2f(%.2f%%), msd=%.2f(%.2f%%)\n", area,
+            maxperp / 256.0, maxperp * 200.0 / area, perp / 256.0,
+            perp * 300.0 / area);
+  }
+  if (maxperp * par1 >= 10 * area || perp * par2 >= 10 * area || vlen >= 126) {
+    maxpoint->fixed = true;
+    // partitions
+    cutline(first, maxpoint, area);
+    cutline(maxpoint, last, area);
+  }
 }
 
 /**********************************************************************
@@ -105,9 +145,9 @@ TESSLINE *ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline) {
  * Convert a C_OUTLINE to EDGEPTs.
  **********************************************************************/
 
-EDGEPT *edgesteps_to_edgepts( // convert outline
-    C_OUTLINE *c_outline,     // input
-    EDGEPT edgepts[]          // output is array
+static EDGEPT *edgesteps_to_edgepts( // convert outline
+    C_OUTLINE *c_outline,            // input
+    EDGEPT edgepts[]                 // output is array
 ) {
   int32_t length;    // steps in path
   ICOORD pos;        // current coords
@@ -131,7 +171,8 @@ EDGEPT *edgesteps_to_edgepts( // convert outline
   do {
     dir = c_outline->step_dir(stepindex);
     vec = c_outline->step(stepindex);
-    if (stepindex < length - 1 && c_outline->step_dir(stepindex + 1) - dir == -32) {
+    if (stepindex < length - 1 &&
+        c_outline->step_dir(stepindex + 1) - dir == -32) {
       dir += 128 - 16;
       vec += c_outline->step(stepindex + 1);
       stepinc = 2;
@@ -192,7 +233,8 @@ EDGEPT *edgesteps_to_edgepts( // convert outline
   epdir &= 7;
   edgepts[epindex].dir = epdir;
   edgepts[0].prev = &edgepts[epindex];
-  ASSERT_HOST(pos.x() == c_outline->start_pos().x() && pos.y() == c_outline->start_pos().y());
+  ASSERT_HOST(pos.x() == c_outline->start_pos().x() &&
+              pos.y() == c_outline->start_pos().y());
   return &edgepts[0];
 }
 
@@ -200,14 +242,13 @@ EDGEPT *edgesteps_to_edgepts( // convert outline
  *fix2(start,area) fixes points on the outline according to a trial method*
  **********************************************************************/
 
-void fix2(         // polygonal approx
-    EDGEPT *start, /*loop to approimate */
+static void fix2(  // polygonal approx
+    EDGEPT *start, // loop to approximate
     int area) {
-  EDGEPT *edgept; /*current point */
+  EDGEPT *edgept; // current point
   EDGEPT *edgept1;
-  EDGEPT *loopstart; /*modified start of loop */
-  EDGEPT *linestart; /*start of line segment */
-  int stopped;       /*completed flag */
+  EDGEPT *loopstart; // modified start of loop
+  EDGEPT *linestart; // start of line segment
   int fixed_count;   // no of fixed points
   int8_t dir;
   int d01, d12, d23, gapmin;
@@ -215,29 +256,30 @@ void fix2(         // polygonal approx
   EDGEPT *edgefix, *startfix;
   EDGEPT *edgefix0, *edgefix1, *edgefix2, *edgefix3;
 
-  edgept = start; /*start of loop */
+  edgept = start; // start of loop
   while (((edgept->dir - edgept->prev->dir + 1) & 7) < 3 &&
          (dir = (edgept->prev->dir - edgept->next->dir) & 7) != 2 && dir != 6) {
-    edgept = edgept->next; /*find suitable start */
+    edgept = edgept->next; // find suitable start
   }
-  loopstart = edgept;      /*remember start */
+  loopstart = edgept; // remember start
 
-  stopped = 0;                   /*not finished yet */
-  edgept->fixed = true; //fix it
+  // completed flag
+  bool stopped = false;
+  edgept->fixed = true; // fix it
   do {
-    linestart = edgept;        /*possible start of line */
-    auto dir1 = edgept->dir; //first direction
-    //length of dir1
+    linestart = edgept;      // possible start of line
+    auto dir1 = edgept->dir; // first direction
+    // length of dir1
     auto sum1 = edgept->runlength;
     edgept = edgept->next;
-    auto dir2 = edgept->dir; //2nd direction
-    //length in dir2
+    auto dir2 = edgept->dir; // 2nd direction
+    // length in dir2
     auto sum2 = edgept->runlength;
     if (((dir1 - dir2 + 1) & 7) < 3) {
       while (edgept->prev->dir == edgept->next->dir) {
-        edgept = edgept->next; /*look at next */
+        edgept = edgept->next; // look at next
         if (edgept->dir == dir1) {
-          /*sum lengths */
+          // sum lengths
           sum1 += edgept->runlength;
         } else {
           sum2 += edgept->runlength;
@@ -245,11 +287,12 @@ void fix2(         // polygonal approx
       }
 
       if (edgept == loopstart) {
-        stopped = 1; /*finished */
+        // finished
+        stopped = true;
       }
       if (sum2 + sum1 > 2 && linestart->prev->dir == dir2 &&
           (linestart->prev->runlength > linestart->runlength || sum2 > sum1)) {
-        /*start is back one */
+        // start is back one
         linestart = linestart->prev;
         linestart->fixed = true;
       }
@@ -262,10 +305,10 @@ void fix2(         // polygonal approx
         edgept = edgept->next;
       }
     }
-    /*sharp bend */
+    // sharp bend
     edgept->fixed = true;
   }
-  /*do whole loop */
+  // do whole loop
   while (edgept != loopstart && !stopped);
 
   edgept = start;
@@ -283,13 +326,13 @@ void fix2(         // polygonal approx
 
   edgept = start;
   do {
-    /*single fixed step */
+    // single fixed step
     if (edgept->fixed &&
         edgept->runlength == 1
-        /*and neighbours free */
+        // and neighbours free
         && edgept->next->fixed &&
         !edgept->prev->fixed
-        /*same pair of dirs */
+        // same pair of dirs
         && !edgept->next->next->fixed &&
         edgept->prev->dir == edgept->next->dir &&
         edgept->prev->prev->dir == edgept->next->next->dir &&
@@ -298,10 +341,10 @@ void fix2(         // polygonal approx
       edgept->fixed = false;
       edgept->next->fixed = false;
     }
-    edgept = edgept->next;   /*do all points */
-  } while (edgept != start); /*until finished */
+    edgept = edgept->next;   // do all points
+  } while (edgept != start); // until finished
 
-  stopped = 0;
+  stopped = false;
   if (area < 450) {
     area = 450;
   }
@@ -373,7 +416,7 @@ void fix2(         // polygonal approx
     edgept = edgept->next;
     while (!edgept->fixed) {
       if (edgept == startfix) {
-        stopped = 1;
+        stopped = true;
       }
       edgept = edgept->next;
     }
@@ -387,60 +430,61 @@ void fix2(         // polygonal approx
  *using the points which have been fixed by the first approximation*
  **********************************************************************/
 
-EDGEPT *poly2(       // second poly
-    EDGEPT *startpt, /*start of loop */
-    int area         /*area of blob box */
+static EDGEPT *poly2( // second poly
+    EDGEPT *startpt,  // start of loop
+    int area          // area of blob box
 ) {
-  EDGEPT *edgept;    /*current outline point */
-  EDGEPT *loopstart; /*starting point */
-  EDGEPT *linestart; /*start of line */
-  int edgesum;       /*correction count */
+  EDGEPT *edgept;    // current outline point
+  EDGEPT *loopstart; // starting point
+  EDGEPT *linestart; // start of line
+  int edgesum;       // correction count
 
   if (area < 1200) {
-    area = 1200; /*minimum value */
+    area = 1200; // minimum value
   }
 
-  loopstart = nullptr; /*not found it yet */
-  edgept = startpt;    /*start of loop */
+  loopstart = nullptr; // not found it yet
+  edgept = startpt;    // start of loop
 
   do {
     // current point fixed and next not
     if (edgept->fixed && !edgept->next->fixed) {
-      loopstart = edgept; /*start of repoly */
+      loopstart = edgept; // start of repoly
       break;
     }
-    edgept = edgept->next;     /*next point */
-  } while (edgept != startpt); /*until found or finished */
+    edgept = edgept->next;     // next point
+  } while (edgept != startpt); // until found or finished
 
   if (loopstart == nullptr && !startpt->fixed) {
-    /*fixed start of loop */
+    // fixed start of loop
     startpt->fixed = true;
-    loopstart = startpt; /*or start of loop */
+    loopstart = startpt; // or start of loop
   }
   if (loopstart) {
     do {
-      edgept = loopstart; /*first to do */
+      edgept = loopstart; // first to do
       do {
         linestart = edgept;
-        edgesum = 0; /*sum of lengths */
+        edgesum = 0; // sum of lengths
         do {
-          /*sum lengths */
+          // sum lengths
           edgesum += edgept->runlength;
-          edgept = edgept->next; /*move on */
+          edgept = edgept->next; // move on
         } while (!edgept->fixed && edgept != loopstart && edgesum < 126);
         if (poly_debug) {
-          tprintf("Poly2:starting at (%d,%d)+%d=(%d,%d),%d to (%d,%d)\n", linestart->pos.x,
-                  linestart->pos.y, linestart->dir, linestart->vec.x, linestart->vec.y,
-                  edgesum, edgept->pos.x, edgept->pos.y);
+          tprintf("Poly2:starting at (%d,%d)+%d=(%d,%d),%d to (%d,%d)\n",
+                  linestart->pos.x, linestart->pos.y, linestart->dir,
+                  linestart->vec.x, linestart->vec.y, edgesum, edgept->pos.x,
+                  edgept->pos.y);
         }
-        /*reapproximate */
+        // reapproximate
         cutline(linestart, edgept, area);
 
         while (edgept->next->fixed && edgept != loopstart) {
-          edgept = edgept->next; /*look for next non-fixed */
+          edgept = edgept->next; // look for next non-fixed
         }
       }
-      /*do all the loop */
+      // do all the loop
       while (edgept != loopstart);
       edgesum = 0;
       do {
@@ -466,106 +510,68 @@ EDGEPT *poly2(       // second poly
       linestart->vec.y = edgept->pos.y - linestart->pos.y;
     } while (edgept != loopstart);
   } else {
-    edgept = startpt; /*start of loop */
+    edgept = startpt; // start of loop
   }
 
-  loopstart = edgept; /*new start */
-  return loopstart;   /*correct exit */
+  loopstart = edgept; // new start
+  return loopstart;   // correct exit
 }
 
 /**********************************************************************
- *cutline(first,last,area) straightens out a line by partitioning
- *and joining the ends by a straight line*
+ * tesspoly_outline
+ *
+ * Approximate an outline from chain codes form using the old tess algorithm.
+ * If allow_detailed_fx is true, the EDGEPTs in the returned TBLOB
+ * contain pointers to the input C_OUTLINEs that enable higher-resolution
+ * feature extraction that does not use the polygonal approximation.
  **********************************************************************/
 
-void cutline(              // recursive refine
-    EDGEPT *first,         /*ends of line */
-    EDGEPT *last, int area /*area of object */
-) {
-  EDGEPT *edge;     /*current edge */
-  TPOINT vecsum;    /*vector sum */
-  int vlen;         /*approx length of vecsum */
-  TPOINT vec;       /*accumulated vector */
-  EDGEPT *maxpoint; /*worst point */
-  int maxperp;      /*max deviation */
-  int perp;         /*perp distance */
-  int ptcount;      /*no of points */
-  int squaresum;    /*sum of perps */
+TESSLINE *ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline) {
+  EDGEPT stack_edgepts[FASTEDGELENGTH]; // converted path
+  EDGEPT *edgepts = stack_edgepts;
 
-  edge = first; /*start of line */
-  if (edge->next == last) {
-    return; /*simple line */
+  // Use heap memory if the stack buffer is not big enough.
+  if (c_outline->pathlength() > FASTEDGELENGTH) {
+    edgepts = new EDGEPT[c_outline->pathlength()];
   }
 
-  /*vector sum */
-  vecsum.x = last->pos.x - edge->pos.x;
-  vecsum.y = last->pos.y - edge->pos.y;
-  if (vecsum.x == 0 && vecsum.y == 0) {
-    /*special case */
-    vecsum.x = -edge->prev->vec.x;
-    vecsum.y = -edge->prev->vec.y;
+  // bounding box
+  const auto &loop_box = c_outline->bounding_box();
+  int32_t area = loop_box.height();
+  if (!poly_wide_objects_better && loop_box.width() > area) {
+    area = loop_box.width();
   }
-  /*absolute value */
-  vlen = vecsum.x > 0 ? vecsum.x : -vecsum.x;
-  if (vecsum.y > vlen) {
-    vlen = vecsum.y; /*maximum */
-  } else if (-vecsum.y > vlen) {
-    vlen = -vecsum.y; /*absolute value */
-  }
-
-  vec.x = edge->vec.x; /*accumulated vector */
-  vec.y = edge->vec.y;
-  maxperp = 0; /*none yet */
-  squaresum = ptcount = 0;
-  edge = edge->next; /*move to actual point */
-  maxpoint = edge;   /*in case there isn't one */
+  area *= area;
+  edgesteps_to_edgepts(c_outline, edgepts);
+  fix2(edgepts, area);
+  EDGEPT *edgept = poly2(edgepts, area); // 2nd approximation.
+  EDGEPT *startpt = edgept;
+  EDGEPT *result = nullptr;
+  EDGEPT *prev_result = nullptr;
   do {
-    perp = vec.cross(vecsum); // get perp distance
-    if (perp != 0) {
-      perp *= perp; /*squared deviation */
+    auto *new_pt = new EDGEPT;
+    new_pt->pos = edgept->pos;
+    new_pt->prev = prev_result;
+    if (prev_result == nullptr) {
+      result = new_pt;
+    } else {
+      prev_result->next = new_pt;
+      new_pt->prev = prev_result;
     }
-    squaresum += perp; /*sum squares */
-    ptcount++;         /*count points */
-    if (poly_debug) {
-      tprintf("Cutline:Final perp=%d\n", perp);
+    if (allow_detailed_fx) {
+      new_pt->src_outline = edgept->src_outline;
+      new_pt->start_step = edgept->start_step;
+      new_pt->step_count = edgept->step_count;
     }
-    if (perp > maxperp) {
-      maxperp = perp;
-      maxpoint = edge; /*find greatest deviation */
-    }
-    vec.x += edge->vec.x; /*accumulate vectors */
-    vec.y += edge->vec.y;
-    edge = edge->next;
-  } while (edge != last); /*test all line */
-
-  perp = vecsum.length();
-  ASSERT_HOST(perp != 0);
-
-  if (maxperp < 256 * INT16_MAX) {
-    maxperp <<= 8;
-    maxperp /= perp; /*true max perp */
-  } else {
-    maxperp /= perp;
-    maxperp <<= 8; /*avoid overflow */
+    prev_result = new_pt;
+    edgept = edgept->next;
+  } while (edgept != startpt);
+  prev_result->next = result;
+  result->prev = prev_result;
+  if (edgepts != stack_edgepts) {
+    delete[] edgepts;
   }
-  if (squaresum < 256 * INT16_MAX) {
-    /*mean squared perp */
-    perp = (squaresum << 8) / (perp * ptcount);
-  } else {
-    /*avoid overflow */
-    perp = (squaresum / perp << 8) / ptcount;
-  }
-
-  if (poly_debug) {
-    tprintf("Cutline:A=%d, max=%.2f(%.2f%%), msd=%.2f(%.2f%%)\n", area, maxperp / 256.0,
-            maxperp * 200.0 / area, perp / 256.0, perp * 300.0 / area);
-  }
-  if (maxperp * par1 >= 10 * area || perp * par2 >= 10 * area || vlen >= 126) {
-    maxpoint->fixed = true;
-    /*partitions */
-    cutline(first, maxpoint, area);
-    cutline(maxpoint, last, area);
-  }
+  return TESSLINE::BuildFromOutlineList(result);
 }
 
 } // namespace tesseract

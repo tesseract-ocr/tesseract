@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "include_gunit.h"
 #include "util/utf8/unicodetext.h"
 
 #include <string.h>  // for memcpy, NULL, memcmp, etc
@@ -172,10 +173,12 @@ void UnicodeText::Repr::append(const char *bytes, int byte_length) {
   size_ += byte_length;
 }
 
+#ifdef INCLUDE_TENSORFLOW
 string UnicodeText::Repr::DebugString() const {
   return tensorflow::strings::Printf("{Repr %p data=%p size=%d capacity=%d %s}", this, data_, size_,
                                      capacity_, ours_ ? "Owned" : "Alias");
 }
+#endif
 
 // *************** UnicodeText ******************
 
@@ -310,17 +313,24 @@ UnicodeText::const_iterator UnicodeText::UnsafeFind(const UnicodeText &look,
                                                     const_iterator start_pos) const {
   // Due to the magic of the UTF8 encoding, searching for a sequence of
   // letters is equivalent to substring search.
+#ifdef INCLUDE_TENSORFLOW
   StringPiece searching(utf8_data(), utf8_length());
   StringPiece look_piece(look.utf8_data(), look.utf8_length());
+#endif
   LOG(FATAL) << "Not implemented";
+#ifdef INCLUDE_TENSORFLOW
   // StringPiece::size_type found =
   //    searching.find(look_piece, start_pos.utf8_data() - utf8_data());
   StringPiece::size_type found = StringPiece::npos;
   if (found == StringPiece::npos)
     return end();
   return const_iterator(utf8_data() + found);
+#else
+  return end();
+#endif
 }
 
+#ifdef INCLUDE_TENSORFLOW
 bool UnicodeText::HasReplacementChar() const {
   // Equivalent to:
   //   UnicodeText replacement_char;
@@ -332,6 +342,7 @@ bool UnicodeText::HasReplacementChar() const {
   // return searching.find(looking_for) != StringPiece::npos;
   return false;
 }
+#endif
 
 // ----- other methods -----
 
@@ -371,10 +382,12 @@ bool operator==(const UnicodeText &lhs, const UnicodeText &rhs) {
   return memcmp(lhs.repr_.data_, rhs.repr_.data_, lhs.repr_.size_) == 0;
 }
 
+#ifdef INCLUDE_TENSORFLOW
 string UnicodeText::DebugString() const {
   return tensorflow::strings::Printf("{UnicodeText %p chars=%d repr=%s}", this, size(),
                                      repr_.DebugString().c_str());
 }
+#endif
 
 // ******************* UnicodeText::const_iterator *********************
 
@@ -479,6 +492,7 @@ UnicodeText::const_iterator UnicodeText::MakeIterator(const char *p) const {
   return const_iterator(p);
 }
 
+#ifdef INCLUDE_TENSORFLOW
 string UnicodeText::const_iterator::DebugString() const {
   return tensorflow::strings::Printf("{iter %p}", it_);
 }
@@ -492,3 +506,4 @@ string CodepointString(const UnicodeText &t) {
     tensorflow::strings::Appendf(&s, "%X ", *it++);
   return s;
 }
+#endif

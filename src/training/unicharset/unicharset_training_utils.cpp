@@ -128,7 +128,7 @@ void SetupBasicProperties(bool report_errors, bool decompose, UNICHARSET *unicha
     std::string normed_str;
     if (unichar_id != 0 &&
         tesseract::NormalizeUTF8String(
-            decompose ? tesseract::UnicodeNormMode::kNFKD : tesseract::UnicodeNormMode::kNFKC,
+            decompose ? tesseract::UnicodeNormMode::kNFD : tesseract::UnicodeNormMode::kNFC,
             tesseract::OCRNorm::kNormalize, tesseract::GraphemeNorm::kNone, unichar_str,
             &normed_str) &&
         !normed_str.empty()) {
@@ -189,7 +189,7 @@ void SetPropertiesForInputFile(const std::string &script_dir,
 
   // Load the input unicharset
   unicharset.load_from_file(input_unicharset_file.c_str());
-  tprintf("Loaded unicharset of size %d from file %s\n", unicharset.size(),
+  tprintf("Loaded unicharset of size %zu from file %s\n", unicharset.size(),
           input_unicharset_file.c_str());
 
   // Set unichar properties

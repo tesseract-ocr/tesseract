@@ -40,10 +40,10 @@ void Tesseract::PrerecAllWordsPar(const std::vector<WordData> &words) {
   std::vector<BlobData> blobs;
   for (const auto &w : words) {
     if (w.word->ratings != nullptr && w.word->ratings->get(0, 0) == nullptr) {
-      for (int s = 0; s < w.lang_words.size(); ++s) {
+      for (size_t s = 0; s < w.lang_words.size(); ++s) {
         Tesseract *sub = s < sub_langs_.size() ? sub_langs_[s] : this;
         const WERD_RES &word = *w.lang_words[s];
-        for (int b = 0; b < word.chopped_word->NumBlobs(); ++b) {
+        for (unsigned b = 0; b < word.chopped_word->NumBlobs(); ++b) {
           blobs.emplace_back(b, sub, word);
         }
       }

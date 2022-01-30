@@ -33,6 +33,7 @@
 #include <allheaders.h> // for pixGetHeight, pixGetPixel
 
 #include <algorithm> // for max, min
+#include <cmath>
 #include <cstdint>   // for INT32_MAX, INT16_MAX
 
 #define PROJECTION_MARGIN 10 // arbitrary
@@ -133,7 +134,7 @@ void BLOBNBOX::chop(       // chop blobs
   BLOBNBOX_IT blob_it;        // blob iterator
 
   // get no of chops
-  blobcount = static_cast<int16_t>(floor(box.width() / xheight));
+  blobcount = static_cast<int16_t>(std::floor(box.width() / xheight));
   if (blobcount > 1 && cblob_ptr != nullptr) {
     // width of each
     blobwidth = static_cast<float>(box.width() + 1) / blobcount;
@@ -150,12 +151,12 @@ void BLOBNBOX::chop(       // chop blobs
         UpdateRange(test_ymin, test_ymax, &ymin, &ymax);
       } while (blob != end_it->data());
       if (ymin < ymax) {
-        leftx = static_cast<int16_t>(floor(rightx - blobwidth));
+        leftx = static_cast<int16_t>(std::floor(rightx - blobwidth));
         if (leftx < box.left()) {
           leftx = box.left(); // clip to real box
         }
-        bl = ICOORD(leftx, static_cast<int16_t>(floor(ymin)));
-        tr = ICOORD(static_cast<int16_t>(ceil(rightx)), static_cast<int16_t>(ceil(ymax)));
+        bl = ICOORD(leftx, static_cast<int16_t>(std::floor(ymin)));
+        tr = ICOORD(static_cast<int16_t>(std::ceil(rightx)), static_cast<int16_t>(std::ceil(ymax)));
         if (blobindex == 0) {
           box = TBOX(bl, tr); // change box
         } else {

@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cfloat> // for FLT_MAX
+#include <cmath>
 #include <memory>
 
 namespace tesseract {
@@ -87,7 +88,9 @@ CTC::CTC(const std::vector<int> &labels, int null_char, const GENERIC_2D_ARRAY<f
 // Computes vectors of min and max label index for each timestep, based on
 // whether skippability of nulls makes it possible to complete a valid path.
 bool CTC::ComputeLabelLimits() {
+  min_labels_.clear();
   min_labels_.resize(num_timesteps_, 0);
+  max_labels_.clear();
   max_labels_.resize(num_timesteps_, 0);
   int min_u = num_labels_ - 1;
   if (labels_[min_u] == null_char_) {
@@ -264,7 +267,7 @@ float CTC::CalculateBiasFraction() {
   if (total_labels == 0) {
     return 0.0f;
   }
-  return exp(std::max(true_pos - false_pos, 1) * log(kMinProb_) / total_labels);
+  return exp(std::max(true_pos - false_pos, 1) * std::log(kMinProb_) / total_labels);
 }
 
 // Given ln(x) and ln(y), returns ln(x + y), using:
@@ -317,7 +320,7 @@ void CTC::Backward(GENERIC_2D_ARRAY<double> *log_probs) const {
     const float *outputs_tp1 = outputs_[t + 1];
     for (int u = min_labels_[t]; u <= max_labels_[t]; ++u) {
       // Continuing the same label.
-      double log_sum = log_probs->get(t + 1, u) + log(outputs_tp1[labels_[u]]);
+      double log_sum = log_probs->get(t + 1, u) + std::log(outputs_tp1[labels_[u]]);
       // Change from previous label.
       if (u + 1 < num_labels_) {
         double prev_prob = outputs_tp1[labels_[u + 1]];

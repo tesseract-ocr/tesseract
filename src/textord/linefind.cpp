@@ -206,8 +206,7 @@ static int FilterFalsePositives(int resolution, Image nonline_pix, Image interse
       // Too thick for the length.
       bad_line = true;
     }
-    if (!bad_line &&
-        (intersection_pix == nullptr || NumTouchingIntersections(box, intersection_pix) < 2)) {
+    if (!bad_line && (NumTouchingIntersections(box, intersection_pix) < 2)) {
       // Test non-line density near the line.
       int nonline_count = CountPixelsAdjacentToLine(max_width, box, nonline_pix);
       if (nonline_count > box_height * box_width * kMaxNonLineDensity) {
@@ -256,12 +255,11 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Image pix, int *
   // Find lines, convert to TabVector_LIST and remove those that are used.
   FindAndRemoveVLines(resolution, pix_intersections, vertical_x, vertical_y, &pix_vline,
                       pix_non_vline, pix, v_lines);
+  pix_intersections.destroy();
   if (pix_hline != nullptr) {
     // Recompute intersections and re-filter false positive h-lines.
     if (pix_vline != nullptr) {
       pix_intersections = pix_vline & pix_hline;
-    } else {
-      pix_intersections.destroy();
     }
     if (!FilterFalsePositives(resolution, pix_non_hline, pix_intersections, pix_hline)) {
       pix_hline.destroy();
@@ -275,6 +273,7 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Image pix, int *
   if (pixa_display != nullptr && pix_hline != nullptr) {
     pixaAddPix(pixa_display, pix_hline, L_CLONE);
   }
+  pix_intersections.destroy();
   if (pix_vline != nullptr && pix_hline != nullptr) {
     // Remove joins (intersections) where lines cross, and the residue.
     // Recalculate the intersections, since some lines have been deleted.

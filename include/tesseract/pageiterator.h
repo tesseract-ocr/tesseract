@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        pageiterator.h
 // Description: Iterator for tesseract page structure that avoids using
 //              tesseract internal data structures.
@@ -14,8 +14,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef TESSERACT_CCMAIN_PAGEITERATOR_H_
 #define TESSERACT_CCMAIN_PAGEITERATOR_H_
@@ -262,6 +260,10 @@ public:
    */
   bool Baseline(PageIteratorLevel level, int *x1, int *y1, int *x2,
                 int *y2) const;
+
+  // Returns the attributes of the current row.
+  void RowAttributes(float *row_height, float *descenders,
+                     float *ascenders) const;
 
   /**
    * Returns orientation for the block the iterator points to.

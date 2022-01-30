@@ -45,14 +45,14 @@ static void position_outline( // put in place
     C_OUTLINE *outline,       // thing to place
     C_OUTLINE_LIST *destlist  // desstination list
 ) {
-  C_OUTLINE *dest_outline;    // outline from dest list
   C_OUTLINE_IT it = destlist; // iterator
                               // iterator on children
   C_OUTLINE_IT child_it = outline->child();
 
   if (!it.empty()) {
     do {
-      dest_outline = it.data(); // get destination
+      // outline from dest list
+      C_OUTLINE *dest_outline = it.data(); // get destination
                                 // encloses dest
       if (*dest_outline < *outline) {
         // take off list
@@ -248,13 +248,12 @@ C_BLOB *C_BLOB::FakeBlob(const TBOX &box) {
  **********************************************************************/
 
 TBOX C_BLOB::bounding_box() const { // bounding box
-  C_OUTLINE *outline;               // current outline
   // This is a read-only iteration of the outlines.
   C_OUTLINE_IT it = const_cast<C_OUTLINE_LIST *>(&outlines);
   TBOX box; // bounding box
 
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    outline = it.data();
+    C_OUTLINE *outline = it.data();
     box += outline->bounding_box();
   }
   return box;
@@ -267,13 +266,11 @@ TBOX C_BLOB::bounding_box() const { // bounding box
  **********************************************************************/
 
 int32_t C_BLOB::area() {       // area
-  C_OUTLINE *outline;          // current outline
   C_OUTLINE_IT it = &outlines; // outlines of blob
-  int32_t total;               // total area
+  int32_t total = 0;           // total area
 
-  total = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    outline = it.data();
+    C_OUTLINE *outline = it.data();
     total += outline->area();
   }
   return total;
@@ -286,13 +283,11 @@ int32_t C_BLOB::area() {       // area
  **********************************************************************/
 
 int32_t C_BLOB::perimeter() {
-  C_OUTLINE *outline;          // current outline
   C_OUTLINE_IT it = &outlines; // outlines of blob
-  int32_t total;               // total perimeter
+  int32_t total = 0;           // total perimeter
 
-  total = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    outline = it.data();
+    C_OUTLINE *outline = it.data();
     total += outline->perimeter();
   }
   return total;
@@ -305,13 +300,11 @@ int32_t C_BLOB::perimeter() {
  **********************************************************************/
 
 int32_t C_BLOB::outer_area() { // area
-  C_OUTLINE *outline;          // current outline
   C_OUTLINE_IT it = &outlines; // outlines of blob
-  int32_t total;               // total area
+  int32_t total = 0;           // total area
 
-  total = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    outline = it.data();
+    C_OUTLINE *outline = it.data();
     total += outline->outer_area();
   }
   return total;
@@ -327,13 +320,11 @@ int32_t C_BLOB::outer_area() { // area
 int32_t C_BLOB::count_transitions( // area
     int32_t threshold              // on size
 ) {
-  C_OUTLINE *outline;          // current outline
   C_OUTLINE_IT it = &outlines; // outlines of blob
-  int32_t total;               // total area
+  int32_t total = 0;           // total area
 
-  total = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    outline = it.data();
+    C_OUTLINE *outline = it.data();
     total += outline->count_transitions(threshold);
   }
   return total;
@@ -431,8 +422,7 @@ int16_t C_BLOB::EstimateBaselinePosition() {
     return bottom; // This is only for non-CJK blobs.
   }
   // Get the minimum y coordinate at each x-coordinate.
-  std::vector<int> y_mins;
-  y_mins.resize(width + 1, box.top());
+  std::vector<int> y_mins(width + 1, box.top());
   C_OUTLINE_IT it(&outlines);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     C_OUTLINE *outline = it.data();

@@ -57,7 +57,7 @@ void Classify::ClearCharNormArray(uint8_t *char_norm_array) {
  */
 void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT &norm_feature,
                                        uint8_t *char_norm_array) {
-  for (int i = 0; i < unicharset.size(); i++) {
+  for (unsigned i = 0; i < unicharset.size(); i++) {
     if (i < PreTrainedTemplates->NumClasses) {
       int norm_adjust =
           static_cast<int>(INT_CHAR_NORM_RANGE * ComputeNormMatch(i, norm_feature, false));

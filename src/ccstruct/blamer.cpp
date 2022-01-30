@@ -72,7 +72,7 @@ void BlamerBundle::SetWordTruth(const UNICHARSET &unicharset, const char *truth_
   std::vector<char> lengths;
   unicharset.encode_string(truth_str, false, &encoding, &lengths, nullptr);
   int total_length = 0;
-  for (int i = 0; i < encoding.size(); total_length += lengths[i++]) {
+  for (size_t i = 0; i < encoding.size(); total_length += lengths[i++]) {
     std::string uch(truth_str + total_length);
     uch.resize(lengths[i] - total_length);
     UNICHAR_ID id = encoding[i];
@@ -119,7 +119,7 @@ bool BlamerBundle::ChoiceIsCorrect(const WERD_CHOICE *word_choice) const {
   }
   const UNICHARSET *uni_set = word_choice->unicharset();
   std::string normed_choice_str;
-  for (int i = 0; i < word_choice->length(); ++i) {
+  for (unsigned i = 0; i < word_choice->length(); ++i) {
     normed_choice_str += uni_set->get_normed_unichar(word_choice->unichar_id(i));
   }
   std::string truth_str = TruthString();
@@ -155,7 +155,7 @@ void BlamerBundle::SetupNormTruthWord(const DENORM &denorm) {
   TPOINT botright;
   TPOINT norm_topleft;
   TPOINT norm_botright;
-  for (int b = 0; b < truth_word_.length(); ++b) {
+  for (unsigned b = 0; b < truth_word_.length(); ++b) {
     const TBOX &box = truth_word_.BlobBox(b);
     topleft.x = box.left();
     topleft.y = box.top();
@@ -175,8 +175,7 @@ void BlamerBundle::SplitBundle(int word1_right, int word2_left, bool debug, Blam
                                BlamerBundle *bundle2) const {
   std::string debug_str;
   // Find truth boxes that correspond to the split in the blobs.
-  int b;
-  int begin2_truth_index = -1;
+  unsigned begin2_truth_index = 0;
   if (incorrect_result_reason_ != IRR_NO_TRUTH && truth_has_char_boxes_) {
     debug_str = "Looking for truth split at";
     debug_str += " end1_x " + std::to_string(word1_right);
@@ -184,7 +183,7 @@ void BlamerBundle::SplitBundle(int word1_right, int word2_left, bool debug, Blam
     debug_str += "\nnorm_truth_word boxes:\n";
     if (norm_truth_word_.length() > 1) {
       norm_truth_word_.BlobBox(0).print_to_str(debug_str);
-      for (b = 1; b < norm_truth_word_.length(); ++b) {
+      for (unsigned b = 1; b < norm_truth_word_.length(); ++b) {
         norm_truth_word_.BlobBox(b).print_to_str(debug_str);
         if ((abs(word1_right - norm_truth_word_.BlobBox(b - 1).right()) < norm_box_tolerance_) &&
             (abs(word2_left - norm_truth_word_.BlobBox(b).left()) < norm_box_tolerance_)) {
@@ -204,7 +203,7 @@ void BlamerBundle::SplitBundle(int word1_right, int word2_left, bool debug, Blam
     bundle2->truth_has_char_boxes_ = true;
     bundle2->norm_box_tolerance_ = norm_box_tolerance_;
     BlamerBundle *curr_bb = bundle1;
-    for (b = 0; b < norm_truth_word_.length(); ++b) {
+    for (unsigned b = 0; b < norm_truth_word_.length(); ++b) {
       if (b == begin2_truth_index) {
         curr_bb = bundle2;
       }
@@ -264,7 +263,7 @@ void BlamerBundle::BlameClassifier(const UNICHARSET &unicharset, const TBOX &blo
     return; // Nothing to do here.
   }
 
-  for (int b = 0; b < norm_truth_word_.length(); ++b) {
+  for (unsigned b = 0; b < norm_truth_word_.length(); ++b) {
     const TBOX &truth_box = norm_truth_word_.BlobBox(b);
     // Note that we are more strict on the bounding box boundaries here
     // than in other places (chopper, segmentation search), since we do
@@ -311,10 +310,9 @@ void BlamerBundle::SetChopperBlame(const WERD_RES *word, bool debug) {
   if (NoTruth() || !truth_has_char_boxes_ || word->chopped_word->blobs.empty()) {
     return;
   }
-  std::string debug_str;
   bool missing_chop = false;
   int num_blobs = word->chopped_word->blobs.size();
-  int box_index = 0;
+  unsigned box_index = 0;
   int blob_index = 0;
   int16_t truth_x = -1;
   while (box_index < truth_word_.length() && blob_index < num_blobs) {
@@ -367,7 +365,7 @@ void BlamerBundle::BlameClassifierOrLangModel(const WERD_RES *word, const UNICHA
   if (valid_permuter) {
     // Find out whether best choice is a top choice.
     best_choice_is_dict_and_top_choice_ = true;
-    for (int i = 0; i < word->best_choice->length(); ++i) {
+    for (unsigned i = 0; i < word->best_choice->length(); ++i) {
       BLOB_CHOICE_IT blob_choice_it(word->GetBlobChoices(i));
       ASSERT_HOST(!blob_choice_it.empty());
       BLOB_CHOICE *first_choice = nullptr;
@@ -415,7 +413,7 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD *word, bool debug) {
   }
   int blob_index = 0;
   int16_t next_box_x = word->blobs[blob_index]->bounding_box().right();
-  for (int truth_idx = 0; blob_index < num_blobs && truth_idx < norm_truth_word_.length();
+  for (unsigned truth_idx = 0; blob_index < num_blobs && truth_idx < norm_truth_word_.length();
        ++blob_index) {
     ++next_box_col;
     int16_t curr_box_x = next_box_x;
@@ -442,7 +440,7 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD *word, bool debug) {
   }
   if (blob_index < num_blobs || // trailing blobs
       correct_segmentation_cols_.size() != norm_truth_word_.length()) {
-    debug_str += 
+    debug_str +=
         "Blamer failed to find correct segmentation"
         " (tolerance=" +
         std::to_string(norm_box_tolerance_);
@@ -478,7 +476,7 @@ void BlamerBundle::InitForSegSearch(const WERD_CHOICE *best_choice, MATRIX *rati
   // Fill pain points for any unclassifed blob corresponding to the
   // correct segmentation state.
   debug_str += "Correct segmentation:\n";
-  for (int idx = 0; idx < correct_segmentation_cols_.size(); ++idx) {
+  for (unsigned idx = 0; idx < correct_segmentation_cols_.size(); ++idx) {
     debug_str += "col=" + std::to_string(correct_segmentation_cols_[idx]);
     debug_str += " row=" + std::to_string(correct_segmentation_rows_[idx]);
     debug_str += "\n";

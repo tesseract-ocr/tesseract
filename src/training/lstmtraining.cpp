@@ -36,6 +36,8 @@ static INT_PARAM_FLAG(perfect_sample_delay, 0, "How many imperfect samples betwe
 static DOUBLE_PARAM_FLAG(target_error_rate, 0.01, "Final error rate in percent.");
 static DOUBLE_PARAM_FLAG(weight_range, 0.1, "Range of initial random weights.");
 static DOUBLE_PARAM_FLAG(learning_rate, 10.0e-4, "Weight factor for new deltas.");
+static BOOL_PARAM_FLAG(reset_learning_rate, false,
+                       "Resets all stored learning rates to the value specified by --learning_rate.");
 static DOUBLE_PARAM_FLAG(momentum, 0.5, "Decay factor for repeating deltas.");
 static DOUBLE_PARAM_FLAG(adam_beta, 0.999, "Decay factor for repeating deltas.");
 static INT_PARAM_FLAG(max_image_MB, 6000, "Max memory to use for images.");
@@ -110,7 +112,10 @@ int main(int argc, char **argv) {
   tesseract::LSTMTrainer trainer(FLAGS_model_output.c_str(), checkpoint_file.c_str(),
                                  FLAGS_debug_interval,
                                  static_cast<int64_t>(FLAGS_max_image_MB) * 1048576);
-  trainer.InitCharSet(FLAGS_traineddata.c_str());
+  if (!trainer.InitCharSet(FLAGS_traineddata.c_str())) {
+    tprintf("Error, failed to read %s\n", FLAGS_traineddata.c_str());
+    return EXIT_FAILURE;
+  }
 
   // Reading something from an existing model doesn't require many flags,
   // so do it now and exit.
@@ -157,6 +162,10 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
       }
       tprintf("Continuing from %s\n", FLAGS_continue_from.c_str());
+      if (FLAGS_reset_learning_rate) {
+        trainer.SetLearningRate(FLAGS_learning_rate);
+        tprintf("Set learning rate to %f\n", static_cast<float>(FLAGS_learning_rate));
+      }
       trainer.InitIterations();
     }
     if (FLAGS_continue_from.empty() || FLAGS_append_index >= 0) {
@@ -218,6 +227,7 @@ int main(int argc, char **argv) {
     tprintf("%s\n", log_str.c_str());
   } while (trainer.best_error_rate() > FLAGS_target_error_rate &&
            (trainer.training_iteration() < max_iterations));
-  tprintf("Finished! Error rate = %g\n", trainer.best_error_rate());
+  tprintf("Finished! Selected model with minimal training error rate (BCER) = %g\n",
+          trainer.best_error_rate());
   return EXIT_SUCCESS;
 } /* main */

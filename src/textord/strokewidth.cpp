@@ -161,7 +161,6 @@ void StrokeWidth::FindTextlineDirectionAndFixBrokenCJK(PageSegMode pageseg_mode,
   InsertBlobs(input_block);
   // Repair broken CJK characters if needed.
   while (cjk_merge && FixBrokenCJK(input_block)) {
-    ;
   }
   // Grade blobs by inspection of neighbours.
   FindTextlineFlowDirection(pageseg_mode, false);

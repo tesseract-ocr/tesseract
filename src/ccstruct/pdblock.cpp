@@ -42,9 +42,10 @@ constexpr ERRCODE LOSTBLOCKLINE("Can't find rectangle for line");
  * Constructor for a simple rectangular block.
  **********************************************************************/
 PDBLK::PDBLK(                   // rectangular block
-    int16_t xmin,               // bottom left
-    int16_t ymin, int16_t xmax, // top right
-    int16_t ymax)
+    TDimension xmin,            // bottom left
+    TDimension ymin,
+    TDimension xmax,            // top right
+    TDimension ymax)
     : box(ICOORD(xmin, ymin), ICOORD(xmax, ymax)) {
   // boundaries
   ICOORDELT_IT left_it = &leftside;
@@ -349,9 +350,9 @@ void BLOCK_RECT_IT::forward() { // next rectangle
  * Get the the start and width of a line in the block.
  **********************************************************************/
 
-int16_t BLOCK_LINE_IT::get_line( // get a line
-    int16_t y,                   // line to get
-    int16_t &xext                // output extent
+TDimension BLOCK_LINE_IT::get_line( // get a line
+    TDimension y,                   // line to get
+    TDimension &xext                // output extent
 ) {
   ICOORD bleft;  // bounding box
   ICOORD tright; // of block & rect

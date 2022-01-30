@@ -17,6 +17,7 @@
 
 #include "networkio.h"
 #include <cfloat> // for FLT_MAX
+#include <cmath>
 
 #include <allheaders.h>
 #include "functions.h"
@@ -28,7 +29,7 @@ namespace tesseract {
 // Minimum value to output for certainty.
 const float kMinCertainty = -20.0f;
 // Probability corresponding to kMinCertainty.
-const float kMinProb = exp(kMinCertainty);
+const float kMinProb = std::exp(kMinCertainty);
 
 // Resizes to a specific size as a 2-d temp buffer. No batches, no y-dim.
 void NetworkIO::Resize2d(bool int_mode, int width, int num_features) {
@@ -356,7 +357,7 @@ Image NetworkIO::ToPix() const {
         } else if (num_features > 3) {
           // More than 3 features use false yellow/blue color, assuming a signed
           // input in the range [-1,1].
-          red = ClipToRange<int>(IntCastRounded(fabs(pixel) * 255), 0, 255);
+          red = ClipToRange<int>(IntCastRounded(std::fabs(pixel) * 255), 0, 255);
           if (pixel >= 0) {
             green = red;
             blue = 0;
@@ -408,15 +409,6 @@ void NetworkIO::CopyTimeStepGeneral(int dest_t, int dest_offset, int num_feature
     memcpy(i_[dest_t] + dest_offset, src.i_[src_t] + src_offset, num_features * sizeof(i_[0][0]));
   } else {
     memcpy(f_[dest_t] + dest_offset, src.f_[src_t] + src_offset, num_features * sizeof(f_[0][0]));
-  }
-}
-
-// Zeroes a single time step.
-void NetworkIO::ZeroTimeStepGeneral(int t, int offset, int num_features) {
-  if (int_mode_) {
-    ZeroVector(num_features, i_[t] + offset);
-  } else {
-    ZeroVector(num_features, f_[t] + offset);
   }
 }
 
@@ -529,9 +521,9 @@ int NetworkIO::PositionOfBestMatch(const std::vector<int> &labels, int start, in
   int length = labels.size();
   int last_start = end - length;
   int best_start = -1;
-  double best_score = 0.0;
+  TFloat best_score = 0;
   for (int s = start; s <= last_start; ++s) {
-    double score = ScoreOfLabels(labels, s);
+    TFloat score = ScoreOfLabels(labels, s);
     if (score > best_score || best_start < 0) {
       best_score = score;
       best_start = s;
@@ -542,9 +534,9 @@ int NetworkIO::PositionOfBestMatch(const std::vector<int> &labels, int start, in
 
 // Returns the cumulative score of the given labels starting at start, and
 // using one label per time-step.
-double NetworkIO::ScoreOfLabels(const std::vector<int> &labels, int start) const {
+TFloat NetworkIO::ScoreOfLabels(const std::vector<int> &labels, int start) const {
   int length = labels.size();
-  double score = 0.0;
+  TFloat score = 0;
   for (int i = 0; i < length; ++i) {
     score += f_(start + i, labels[i]);
   }
@@ -586,7 +578,7 @@ void NetworkIO::EnsureBestLabel(int t, int label) {
 // Helper function converts prob to certainty taking the minimum into account.
 /* static */
 float NetworkIO::ProbToCertainty(float prob) {
-  return prob > kMinProb ? log(prob) : kMinCertainty;
+  return prob > kMinProb ? std::log(prob) : kMinCertainty;
 }
 
 // Returns true if there is any bad value that is suspiciously like a GT
@@ -615,27 +607,27 @@ bool NetworkIO::AnySuspiciousTruth(float confidence_thr) const {
 }
 
 // Reads a single timestep to floats in the range [-1, 1].
-void NetworkIO::ReadTimeStep(int t, double *output) const {
+void NetworkIO::ReadTimeStep(int t, TFloat *output) const {
   if (int_mode_) {
     const int8_t *line = i_[t];
     for (int i = 0; i < i_.dim2(); ++i) {
-      output[i] = static_cast<double>(line[i]) / INT8_MAX;
+      output[i] = static_cast<TFloat>(line[i]) / INT8_MAX;
     }
   } else {
     const float *line = f_[t];
     for (int i = 0; i < f_.dim2(); ++i) {
-      output[i] = static_cast<double>(line[i]);
+      output[i] = static_cast<TFloat>(line[i]);
     }
   }
 }
 
 // Adds a single timestep to floats.
-void NetworkIO::AddTimeStep(int t, double *inout) const {
+void NetworkIO::AddTimeStep(int t, TFloat *inout) const {
   int num_features = NumFeatures();
   if (int_mode_) {
     const int8_t *line = i_[t];
     for (int i = 0; i < num_features; ++i) {
-      inout[i] += static_cast<double>(line[i]) / INT8_MAX;
+      inout[i] += static_cast<TFloat>(line[i]) / INT8_MAX;
     }
   } else {
     const float *line = f_[t];
@@ -661,13 +653,13 @@ void NetworkIO::AddTimeStepPart(int t, int offset, int num_features, float *inou
 }
 
 // Writes a single timestep from floats in the range [-1, 1].
-void NetworkIO::WriteTimeStep(int t, const double *input) {
+void NetworkIO::WriteTimeStep(int t, const TFloat *input) {
   WriteTimeStepPart(t, 0, NumFeatures(), input);
 }
 
 // Writes a single timestep from floats in the range [-1, 1] writing only
 // num_features elements of input to (*this)[t], starting at offset.
-void NetworkIO::WriteTimeStepPart(int t, int offset, int num_features, const double *input) {
+void NetworkIO::WriteTimeStepPart(int t, int offset, int num_features, const TFloat *input) {
   if (int_mode_) {
     int8_t *line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {
@@ -807,7 +799,7 @@ void NetworkIO::ComputeCombinerDeltas(const NetworkIO &fwd_deltas, const Network
       // Reconstruct the target from the delta.
       float comb_target = delta_line[i] + output;
       comb_line[i] = comb_target - comb_line[i];
-      float base_delta = fabs(comb_target - base_line[i]);
+      float base_delta = std::fabs(comb_target - base_line[i]);
       if (base_delta > max_base_delta) {
         max_base_delta = base_delta;
       }

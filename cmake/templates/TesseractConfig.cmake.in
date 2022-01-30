@@ -10,8 +10,13 @@
 #    target_link_libraries(MY_TARGET_NAME Tesseract::libtesseract)
 #
 #    This file will define the following variables:
-#      - Tesseract_LIBRARIES             : The list of all imported targets for OpenCV modules.
+#      - Tesseract_LIBRARIES             : The list of all imported targets.
 #      - Tesseract_INCLUDE_DIRS          : The Tesseract include directories.
+#      - Tesseract_LIBRARY_DIRS          : The Tesseract library directories.
+#      - Tesseract_VERSION               : The version of this Tesseract build: "@VERSION_PLAIN@"
+#      - Tesseract_VERSION_MAJOR         : Major version part of Tesseract_VERSION: "@VERSION_MAJOR@"
+#      - Tesseract_VERSION_MINOR         : Minor version part of Tesseract_VERSION: "@VERSION_MINOR@"
+#      - Tesseract_VERSION_PATCH         : Patch version part of Tesseract_VERSION: "@VERSION_PATCH@"
 #
 # ===================================================================================
 
@@ -22,7 +27,13 @@ include(${CMAKE_CURRENT_LIST_DIR}/TesseractTargets.cmake)
 
 @PACKAGE_INIT@
 
+SET(Tesseract_VERSION           @VERSION_PLAIN@)
+SET(Tesseract_VERSION_MAJOR     @VERSION_MAJOR@)
+SET(Tesseract_VERSION_MINOR     @VERSION_MINOR@)
+SET(Tesseract_VERSION_PATCH     @VERSION_PATCH@)
+
 set_and_check(Tesseract_INCLUDE_DIRS "@PACKAGE_INCLUDE_DIR@")
-set(Tesseract_LIBRARIES libtesseract)
+set_and_check(Tesseract_LIBRARY_DIRS "@PACKAGE_LIBRARY_DIRS@")
+set(Tesseract_LIBRARIES @tesseract_OUTPUT_NAME@)
 
 check_required_components(Tesseract)

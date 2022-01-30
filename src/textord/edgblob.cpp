@@ -77,8 +77,8 @@ OL_BUCKETS::OL_BUCKETS(ICOORD bleft, // corners
  */
 
 C_OUTLINE_LIST *OL_BUCKETS::operator()( // array access
-    int16_t x,                          // image coords
-    int16_t y) {
+    TDimension x,                       // image coords
+    TDimension y) {
   return &buckets[(y - bl.y()) / BUCKETSIZE * bxdim +
                   (x - bl.x()) / BUCKETSIZE];
 }
@@ -122,9 +122,8 @@ int32_t OL_BUCKETS::outline_complexity(C_OUTLINE *outline, // parent outline
                                        int32_t max_count,  // max output
                                        int16_t depth       // recurion depth
 ) {
-  int16_t xmin, xmax; // coord limits
-  int16_t ymin, ymax;
-  int16_t xindex, yindex;   // current bucket
+  TDimension xmin, xmax;    // coord limits
+  TDimension ymin, ymax;
   C_OUTLINE *child;         // current child
   int32_t child_count;      // no of children
   int32_t grandchild_count; // no of grandchildren
@@ -141,8 +140,8 @@ int32_t OL_BUCKETS::outline_complexity(C_OUTLINE *outline, // parent outline
     return max_count + depth;
   }
 
-  for (yindex = ymin; yindex <= ymax; yindex++) {
-    for (xindex = xmin; xindex <= xmax; xindex++) {
+  for (auto yindex = ymin; yindex <= ymax; yindex++) {
+    for (auto xindex = xmin; xindex <= xmax; xindex++) {
       child_it.set_to_list(&buckets[yindex * bxdim + xindex]);
       if (child_it.empty()) {
         continue;
@@ -198,9 +197,8 @@ int32_t OL_BUCKETS::count_children( // recursive count
     int32_t max_count               // max output
 ) {
   bool parent_box;    // could it be boxy
-  int16_t xmin, xmax; // coord limits
-  int16_t ymin, ymax;
-  int16_t xindex, yindex;   // current bucket
+  TDimension xmin, xmax;    // coord limits
+  TDimension ymin, ymax;
   C_OUTLINE *child;         // current child
   int32_t child_count;      // no of children
   int32_t grandchild_count; // no of grandchildren
@@ -221,8 +219,8 @@ int32_t OL_BUCKETS::count_children( // recursive count
   parent_area = 0;
   max_parent_area = 0;
   parent_box = true;
-  for (yindex = ymin; yindex <= ymax; yindex++) {
-    for (xindex = xmin; xindex <= xmax; xindex++) {
+  for (auto yindex = ymin; yindex <= ymax; yindex++) {
+    for (auto xindex = xmin; xindex <= xmax; xindex++) {
       child_it.set_to_list(&buckets[yindex * bxdim + xindex]);
       if (child_it.empty()) {
         continue;
@@ -321,9 +319,8 @@ void OL_BUCKETS::extract_children( // recursive count
     C_OUTLINE *outline,            // parent outline
     C_OUTLINE_IT *it               // destination iterator
 ) {
-  int16_t xmin, xmax; // coord limits
-  int16_t ymin, ymax;
-  int16_t xindex, yindex; // current bucket
+  TDimension xmin, xmax; // coord limits
+  TDimension ymin, ymax;
   TBOX olbox;
   C_OUTLINE_IT child_it; // search iterator
 
@@ -332,8 +329,8 @@ void OL_BUCKETS::extract_children( // recursive count
   xmax = (olbox.right() - bl.x()) / BUCKETSIZE;
   ymin = (olbox.bottom() - bl.y()) / BUCKETSIZE;
   ymax = (olbox.top() - bl.y()) / BUCKETSIZE;
-  for (yindex = ymin; yindex <= ymax; yindex++) {
-    for (xindex = xmin; xindex <= xmax; xindex++) {
+  for (auto yindex = ymin; yindex <= ymax; yindex++) {
+    for (auto xindex = xmin; xindex <= xmax; xindex++) {
       child_it.set_to_list(&buckets[yindex * bxdim + xindex]);
       for (child_it.mark_cycle_pt(); !child_it.cycled_list();
            child_it.forward()) {

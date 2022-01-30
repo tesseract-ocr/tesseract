@@ -380,7 +380,7 @@ float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1, int font_i
   }
   // Both font and class are different. Linear search for class_id2/font_id2
   // in what is a hopefully short list of distances.
-  int cache_index = 0;
+  size_t cache_index = 0;
   while (cache_index < fc_info.distance_cache.size() &&
          (fc_info.distance_cache[cache_index].unichar_id != class_id2 ||
           fc_info.distance_cache[cache_index].font_id != font_id2)) {
@@ -470,14 +470,14 @@ int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1, int font_i
     std::vector<int> good_features;
     AddNearFeatures(feature_map, feature, 1, &good_features);
     // Check that none of the good_features are in the cloud.
-    int i;
-    for (i = 0; i < good_features.size(); ++i) {
-      int good_f = good_features[i];
+    bool found = false;
+    for (auto good_f : good_features) {
       if (cloud1[good_f]) {
+        found = true;
         break;
       }
     }
-    if (i < good_features.size()) {
+    if (found) {
       continue; // Found one in the cloud.
     }
     ++result;
@@ -570,11 +570,11 @@ void TrainingSampleSet::OrganizeByFontAndClass() {
   FontClassInfo empty;
   font_class_array_ =
       new GENERIC_2D_ARRAY<FontClassInfo>(compact_font_size, unicharset_size_, empty);
-  for (int s = 0; s < samples_.size(); ++s) {
+  for (size_t s = 0; s < samples_.size(); ++s) {
     int font_id = samples_[s]->font_id();
     int class_id = samples_[s]->class_id();
     if (font_id < 0 || font_id >= font_id_map_.SparseSize()) {
-      tprintf("Font id = %d/%d, class id = %d/%d on sample %d\n", font_id,
+      tprintf("Font id = %d/%d, class id = %d/%d on sample %zu\n", font_id,
               font_id_map_.SparseSize(), class_id, unicharset_size_, s);
     }
     ASSERT_HOST(font_id >= 0 && font_id < font_id_map_.SparseSize());
@@ -607,7 +607,7 @@ void TrainingSampleSet::SetupFontIdMap() {
     ++font_counts[font_id];
   }
   font_id_map_.Init(font_counts.size(), false);
-  for (int f = 0; f < font_counts.size(); ++f) {
+  for (size_t f = 0; f < font_counts.size(); ++f) {
     font_id_map_.SetMap(f, font_counts[f] > 0);
   }
   font_id_map_.Setup();
@@ -651,8 +651,7 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap &map, bool d
       int max_s2 = 0;
       fcinfo.canonical_sample = fcinfo.samples[0];
       fcinfo.canonical_dist = 0.0f;
-      for (int i = 0; i < fcinfo.samples.size(); ++i) {
-        int s1 = fcinfo.samples[i];
+      for (auto s1 : fcinfo.samples) {
         const std::vector<int> &features1 = samples_[s1]->indexed_features();
         f_table.Set(features1, features1.size(), true);
         double max_dist = 0.0;

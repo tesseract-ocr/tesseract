@@ -24,7 +24,7 @@
 
 namespace tesseract {
 
-extern BOOL_VAR_H(textord_oldbl_debug, false, "Debug old baseline generation");
+extern BOOL_VAR_H(textord_oldbl_debug);
 
 int get_blob_coords(    // get boxes
     TO_ROW *row,        // row to use

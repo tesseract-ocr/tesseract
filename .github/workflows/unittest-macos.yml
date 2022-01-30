@@ -25,7 +25,7 @@ jobs:
       run: |
            brew install autoconf automake libarchive
            brew install leptonica cairo pango
-           brew install cabextract abseil
+           brew install cabextract
 
     - name: Setup
       run: |
@@ -36,8 +36,7 @@ jobs:
       run: |
            ./configure '--disable-shared' '--with-pic' \
                 'CXX=${{ matrix.config.cxx }}' \
-                'CXXFLAGS=-g -O2 -fsanitize=address,undefined' \
-                "PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/opt/libffi/lib/pkgconfig"
+                'CXXFLAGS=-g -O2 -fsanitize=address,undefined'
 
     - name: Make and Install Tesseract
       run: |

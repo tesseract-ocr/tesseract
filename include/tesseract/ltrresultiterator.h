@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        ltrresultiterator.h
 // Description: Iterator for tesseract results in strict left-to-right
 //              order that avoids using tesseract internal data structures.
@@ -14,8 +14,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef TESSERACT_CCMAIN_LTR_RESULT_ITERATOR_H_
 #define TESSERACT_CCMAIN_LTR_RESULT_ITERATOR_H_
@@ -92,10 +90,6 @@ public:
   // Returns the mean confidence of the current object at the given level.
   // The number should be interpreted as a percent probability. (0.0f-100.0f)
   float Confidence(PageIteratorLevel level) const;
-
-  // Returns the attributes of the current row.
-  void RowAttributes(float *row_height, float *descenders,
-                     float *ascenders) const;
 
   // ============= Functions that refer to words only ============.
 

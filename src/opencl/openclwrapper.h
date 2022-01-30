@@ -30,6 +30,9 @@
 #    include <CL/cl.h>
 #  endif
 
+namespace tesseract {
+
+class Image;
 struct TessDeviceScore;
 
 // device type
@@ -169,6 +172,8 @@ public:
   static bool deviceIsSelected;
   static bool selectedDeviceIsOpenCL();
 };
+
+}
 
 #endif // USE_OPENCL
 #endif // TESSERACT_OPENCL_OPENCLWRAPPER_H_

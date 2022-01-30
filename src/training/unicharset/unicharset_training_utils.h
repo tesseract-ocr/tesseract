@@ -2,7 +2,6 @@
 // File:        unicharset_training_utils.h
 // Description: Training utilities for UNICHARSET.
 // Author:      Ray Smith
-// Created:     Fri Oct 17 17:14:01 PDT 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +27,6 @@
 
 namespace tesseract {
 
-class STATS;
 class UNICHARSET;
 
 // Helper sets the character attribute properties and sets up the script table.

@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        baseapi.h
 // Description: Simple API for calling tesseract.
 // Author:      Ray Smith
@@ -13,8 +13,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef TESSERACT_API_BASEAPI_H_
 #define TESSERACT_API_BASEAPI_H_
@@ -32,7 +30,6 @@
 #include <tesseract/version.h>
 
 #include <cstdio>
-#include <tuple>  // for std::tuple
 #include <vector> // for std::vector
 
 struct Pix;
@@ -155,7 +152,7 @@ public:
   /**
    * Print Tesseract fonts table to the given file.
    */
-  void PrintFontsTable(FILE* fp) const;
+  void PrintFontsTable(FILE *fp) const;
 
 #endif
 
@@ -247,14 +244,6 @@ public:
    * Returns the available languages in the sorted vector of std::string.
    */
   void GetAvailableLanguagesAsVector(std::vector<std::string> *langs) const;
-
-  /**
-   * Init only the lang model component of Tesseract. The only functions
-   * that work after this init are SetVariable and IsValidWord.
-   * WARNING: temporary! This function will be removed from here and placed
-   * in a separate API at some future time.
-   */
-  int InitLangMod(const char *datapath, const char *language);
 
   /**
    * Init only for page layout analysis. Use only for calls to SetImage and
@@ -538,31 +527,6 @@ public:
    * as UTF8 and must be freed with the delete [] operator.
    */
   char *GetUTF8Text();
-
-  size_t GetNumberOfTables() const;
-
-  /// Return the i-th table bounding box coordinates
-  ///
-  /// Gives the (top_left.x, top_left.y, bottom_right.x, bottom_right.y)
-  /// coordinates of the i-th table.
-  std::tuple<int, int, int, int> GetTableBoundingBox(
-      unsigned
-          i ///< Index of the table, for upper limit \see GetNumberOfTables()
-  );
-
-  /// Get bounding boxes of the rows of a table
-  /// return values are (top_left.x, top_left.y, bottom_right.x, bottom_right.y)
-  std::vector<std::tuple<int, int, int, int> > GetTableRows(
-      unsigned
-          i ///< Index of the table, for upper limit \see GetNumberOfTables()
-  );
-
-  /// Get bounding boxes of the cols of a table
-  /// return values are (top_left.x, top_left.y, bottom_right.x, bottom_right.y)
-  std::vector<std::tuple<int, int, int, int> > GetTableCols(
-      unsigned
-          i ///< Index of the table, for upper limit \see GetNumberOfTables()
-  );
 
   /**
    * Make a HTML-formatted string with hOCR markup from the internal

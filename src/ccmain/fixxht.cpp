@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <cstring>
 
 namespace tesseract {
@@ -205,7 +206,7 @@ float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res, float *baseline_sh
             new_xht / word_res->denorm.y_scale());
   }
   // The xheight must change by at least x_ht_min_change to be used.
-  if (fabs(new_xht - kBlnXHeight) >= x_ht_min_change) {
+  if (std::fabs(new_xht - kBlnXHeight) >= x_ht_min_change) {
     return new_xht / word_res->denorm.y_scale();
   } else {
     return bottom_shift != 0 ? word_res->x_height : 0.0f;

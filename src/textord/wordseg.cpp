@@ -23,6 +23,8 @@
 
 #include "wordseg.h"
 
+#include <cmath>
+
 #include "blobbox.h"
 #include "cjkpitch.h"
 #include "drawtord.h"
@@ -36,7 +38,6 @@
 
 namespace tesseract {
 
-BOOL_VAR(textord_fp_chopping, true, "Do fixed pitch chopping");
 BOOL_VAR(textord_force_make_prop_words, false, "Force proportional word segmentation on all rows");
 BOOL_VAR(textord_chopper_test, false, "Chopper is being tested.");
 
@@ -223,7 +224,7 @@ int32_t row_words(    // compute space size
   lower = row->xheight * textord_words_initial_lower;
   upper = row->xheight * textord_words_initial_upper;
   cluster_count = gap_stats.cluster(lower, upper, textord_spacesize_ratioprop, 3, cluster_stats);
-  while (cluster_count < 2 && ceil(lower) < floor(upper)) {
+  while (cluster_count < 2 && std::ceil(lower) < std::floor(upper)) {
     // shrink gap
     upper = (upper * 3 + lower) / 4;
     lower = (lower * 3 + upper) / 4;

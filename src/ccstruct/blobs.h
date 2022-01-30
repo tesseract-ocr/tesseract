@@ -28,7 +28,7 @@
 
 #include <tesseract/publictypes.h> // for OcrEngineMode
 
-#include <cstdint> // for int16_t
+#include "tesstypes.h" // for TDimension
 
 struct Pix;
 
@@ -46,8 +46,8 @@ class WERD;
 ----------------------------------------------------------------------*/
 
 struct TPOINT {
-  TPOINT() : x(0), y(0) {}
-  TPOINT(int16_t vx, int16_t vy) : x(vx), y(vy) {}
+  TPOINT() = default;
+  TPOINT(TDimension vx, TDimension vy) : x(vx), y(vy) {}
   TPOINT(const ICOORD &ic) : x(ic.x()), y(ic.y()) {}
 
   void operator+=(const TPOINT &other) {
@@ -86,8 +86,8 @@ struct TPOINT {
     return x * x + y * y;
   }
 
-  int16_t x; // absolute x coord.
-  int16_t y; // absolute y coord.
+  TDimension x = 0; // absolute x coord.
+  TDimension y = 0; // absolute y coord.
 };
 
 using VECTOR = TPOINT; // structure for coordinates.
@@ -196,7 +196,7 @@ struct EDGEPT {
   bool is_hidden = false;
   uint8_t runlength = 0;
   int8_t dir = 0;
-  int8_t fixed = 0;
+  bool fixed = false;
   EDGEPT *next = nullptr;           // anticlockwise element
   EDGEPT *prev = nullptr;           // clockwise element
   C_OUTLINE *src_outline = nullptr; // Outline it came from.
@@ -446,14 +446,14 @@ struct TWERD {
   void ComputeBoundingBoxes();
 
   // Returns the number of blobs in the word.
-  int NumBlobs() const {
+  unsigned NumBlobs() const {
     return blobs.size();
   }
   TBOX bounding_box() const;
 
   // Merges the blobs from start to end, not including end, and deletes
   // the blobs between start and end.
-  void MergeBlobs(int start, int end);
+  void MergeBlobs(unsigned start, unsigned end);
 
 #ifndef GRAPHICS_DISABLED
   void plot(ScrollView *window);

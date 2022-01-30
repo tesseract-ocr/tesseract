@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        mod128.h  (Formerly dir128.h)
  * Description: Header for class which implements modulo arithmetic.
- * Author:          Ray Smith
- * Created:         Tue Mar 26 17:48:13 GMT 1991
+ * Author:      Ray Smith
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -81,7 +80,6 @@ public:
     return dir;
   }
 
-private:
   int8_t dir; // a direction
 };
 

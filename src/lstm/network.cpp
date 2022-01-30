@@ -134,7 +134,7 @@ void Network::SetNetworkFlags(uint32_t flags) {
 
 // Sets up the network for training. Initializes weights using weights of
 // scale `range` picked according to the random number generator `randomizer`.
-int Network::InitWeights(float range, TRand *randomizer) {
+int Network::InitWeights([[maybe_unused]] float range, TRand *randomizer) {
   randomizer_ = randomizer;
   return 0;
 }
@@ -321,7 +321,7 @@ Network *Network::CreateFromFile(TFile *fp) {
 }
 
 // Returns a random number in [-range, range].
-double Network::Random(double range) {
+TFloat Network::Random(TFloat range) {
   ASSERT_HOST(randomizer_ != nullptr);
   return randomizer_->SignedRand(range);
 }

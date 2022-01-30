@@ -23,6 +23,8 @@
 #  include "config_auto.h"
 #endif
 
+#include <regex> // for std::regex_match
+
 #include "control.h"
 #include "matchdefs.h"
 #include "pageres.h"
@@ -73,15 +75,12 @@ void Tesseract::read_config_file(const char *filename, SetParamConstraint constr
 // from the language-specific config file (stored in [lang].traineddata), from
 // the config files specified on the command line or left as the default
 // OEM_TESSERACT_ONLY if none of the configs specify this variable.
-bool Tesseract::init_tesseract_lang_data(const std::string &arg0, const std::string &textbase,
+bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
                                          const std::string &language, OcrEngineMode oem,
                                          char **configs, int configs_size,
                                          const std::vector<std::string> *vars_vec,
                                          const std::vector<std::string> *vars_values,
                                          bool set_only_non_debug_params, TessdataManager *mgr) {
-  // Set the basename, compute the data directory.
-  main_setup(arg0, textbase);
-
   // Set the language data path prefix
   lang = !language.empty() ? language : "eng";
   language_data_path_prefix = datadir;
@@ -247,6 +246,15 @@ static bool IsStrInList(const std::string &str, const std::vector<std::string> &
 void Tesseract::ParseLanguageString(const std::string &lang_str, std::vector<std::string> *to_load,
                                     std::vector<std::string> *not_to_load) {
   std::string remains(lang_str);
+  // Look whether the model file uses a prefix which must be applied to
+  // included model files as well.
+  std::regex e("(.*)/[^/]*");
+  std::cmatch cm;
+  std::string prefix;
+  if (std::regex_match(lang.c_str(), cm, e, std::regex_constants::match_default)) {
+    // A prefix was found.
+    prefix = cm[1].str() + "/";
+  }
   while (!remains.empty()) {
     // Find the start of the lang code and which vector to add to.
     const char *start = remains.c_str();
@@ -268,6 +276,7 @@ void Tesseract::ParseLanguageString(const std::string &lang_str, std::vector<std
     lang_code.resize(end);
     std::string next(start + end);
     remains = next;
+    lang_code = prefix + lang_code;
     // Check whether lang_code is already in the target vector and add.
     if (!IsStrInList(lang_code, *target)) {
       target->push_back(lang_code);
@@ -291,19 +300,26 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
   for (auto *lang : sub_langs_) {
     delete lang;
   }
+
+  // Set the basename, compute the data directory.
+  main_setup(arg0, textbase);
+
   sub_langs_.clear();
   // Find the first loadable lang and load into this.
   // Add any languages that this language requires
   bool loaded_primary = false;
   // Load the rest into sub_langs_.
-  for (unsigned lang_index = 0; lang_index < langs_to_load.size(); ++lang_index) {
-    if (!IsStrInList(langs_to_load[lang_index], langs_not_to_load)) {
-      const char *lang_str = langs_to_load[lang_index].c_str();
+  // A range based for loop does not work here because langs_to_load
+  // might be changed in the loop when a new submodel is found.
+  for (auto &lang_to_load : langs_to_load) {
+    if (!IsStrInList(lang_to_load, langs_not_to_load)) {
+      const char *lang_str = lang_to_load.c_str();
       Tesseract *tess_to_init;
       if (!loaded_primary) {
         tess_to_init = this;
       } else {
         tess_to_init = new Tesseract;
+        tess_to_init->main_setup(arg0, textbase);
       }
 
       int result = tess_to_init->init_tesseract_internal(arg0, textbase, lang_str, oem, configs,
@@ -316,7 +332,7 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
         if (result < 0) {
           tprintf("Failed loading language '%s'\n", lang_str);
         } else {
-          ParseLanguageString(tess_to_init->tessedit_load_sublangs.c_str(), &langs_to_load,
+          ParseLanguageString(tess_to_init->tessedit_load_sublangs, &langs_to_load,
                               &langs_not_to_load);
           loaded_primary = true;
         }
@@ -327,13 +343,13 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
         } else {
           sub_langs_.push_back(tess_to_init);
           // Add any languages that this language requires
-          ParseLanguageString(tess_to_init->tessedit_load_sublangs.c_str(), &langs_to_load,
+          ParseLanguageString(tess_to_init->tessedit_load_sublangs, &langs_to_load,
                               &langs_not_to_load);
         }
       }
     }
   }
-  if (!loaded_primary) {
+  if (!loaded_primary && !langs_to_load.empty()) {
     tprintf("Tesseract couldn't load any languages!\n");
     return -1; // Couldn't load any language!
   }
@@ -384,7 +400,7 @@ int Tesseract::init_tesseract_internal(const std::string &arg0, const std::strin
                                        const std::vector<std::string> *vars_vec,
                                        const std::vector<std::string> *vars_values,
                                        bool set_only_non_debug_params, TessdataManager *mgr) {
-  if (!init_tesseract_lang_data(arg0, textbase, language, oem, configs, configs_size, vars_vec,
+  if (!init_tesseract_lang_data(arg0, language, oem, configs, configs_size, vars_vec,
                                 vars_values, set_only_non_debug_params, mgr)) {
     return -1;
   }
@@ -412,7 +428,7 @@ static void CollectFonts(const UnicityTable<FontInfo> &new_fonts,
 // Helper assigns an id to lang_fonts using the index in all_fonts table.
 static void AssignIds(const UnicityTable<FontInfo> &all_fonts, UnicityTable<FontInfo> *lang_fonts) {
   for (int i = 0; i < lang_fonts->size(); ++i) {
-    int index = all_fonts.get_id(lang_fonts->at(i));
+    auto index = all_fonts.get_index(lang_fonts->at(i));
     lang_fonts->at(i).universal_id = index;
   }
 }
@@ -436,19 +452,6 @@ void Tesseract::SetupUniversalFontIds() {
     AssignIds(all_fonts, &sub_lang->get_fontinfo_table());
   }
   font_table_size_ = all_fonts.size();
-}
-
-// init the LM component
-int Tesseract::init_tesseract_lm(const std::string &arg0, const std::string &textbase,
-                                 const std::string &language, TessdataManager *mgr) {
-  if (!init_tesseract_lang_data(arg0, textbase, language, OEM_TESSERACT_ONLY, nullptr, 0, nullptr,
-                                nullptr, false, mgr)) {
-    return -1;
-  }
-  getDict().SetupForLoad(Dict::GlobalDawgCache());
-  getDict().Load(lang, mgr);
-  getDict().FinishLoad();
-  return 0;
 }
 
 #endif // ndef DISABLED_LEGACY_ENGINE

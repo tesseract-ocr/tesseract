@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        unichar.h
 // Description: Unicode character/ligature class.
 // Author:      Ray Smith
@@ -13,8 +13,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef TESSERACT_CCUTIL_UNICHAR_H_
 #define TESSERACT_CCUTIL_UNICHAR_H_
@@ -32,7 +30,6 @@ namespace tesseract {
 // at least 4. Must not exceed 31 without changing the coding of length.
 #define UNICHAR_LEN 30
 
-// TODO(rays) Move these to the tesseract namespace.
 // A UNICHAR_ID is the unique id of a unichar.
 using UNICHAR_ID = int;
 
@@ -100,10 +97,10 @@ public:
   //   for (UNICHAR::const_iterator it = UNICHAR::begin(str, str_len);
   //        it != UNICHAR::end(str, len);
   //        ++it) {
-  //     tprintf("UCS-4 symbol code = %d\n", *it);
+  //     printf("UCS-4 symbol code = %d\n", *it);
   //     char buf[5];
   //     int char_len = it.get_utf8(buf); buf[char_len] = '\0';
-  //     tprintf("Char = %s\n", buf);
+  //     printf("Char = %s\n", buf);
   //   }
   class TESS_API const_iterator {
     using CI = const_iterator;

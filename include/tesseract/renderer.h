@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        renderer.h
 // Description: Rendering interface to inject into TessBaseAPI
 //
@@ -12,8 +12,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef TESSERACT_API_RENDERER_H_
 #define TESSERACT_API_RENDERER_H_
@@ -141,13 +139,12 @@ protected:
   void AppendData(const char *s, int len);
 
 private:
+  TessResultRenderer *next_;   // Can link multiple renderers together
+  FILE *fout_;                 // output file pointer
   const char *file_extension_; // standard extension for generated output
   std::string title_;          // title of document being rendered
   int imagenum_;               // index of last image added
-
-  FILE *fout_;               // output file pointer
-  TessResultRenderer *next_; // Can link multiple renderers together
-  bool happy_;               // I get grumpy when the disk fills up, etc.
+  bool happy_;                 // I get grumpy when the disk fills up, etc.
 };
 
 /**
@@ -189,6 +186,9 @@ protected:
   bool BeginDocumentHandler() override;
   bool AddImageHandler(TessBaseAPI *api) override;
   bool EndDocumentHandler() override;
+
+private:
+  bool begin_document;
 };
 
 /**

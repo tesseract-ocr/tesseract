@@ -32,6 +32,7 @@
 #include "textord.h"
 #include "tprintf.h"
 
+#include <cmath>
 #include <vector> // for std::vector
 
 #include <algorithm>
@@ -173,14 +174,12 @@ void Textord::correlate_neighbours(TO_BLOCK *block, // block rows are in.
            otherrow >= 0 && (rows[otherrow]->xheight < 0.0 ||
                              !row->baseline.overlap(&rows[otherrow]->baseline, MAXOVERLAP));
            otherrow--) {
-        ;
       }
       upperrow = otherrow; /*decent row above */
       for (otherrow = rowindex + 1;
            otherrow < rowcount && (rows[otherrow]->xheight < 0.0 ||
                                    !row->baseline.overlap(&rows[otherrow]->baseline, MAXOVERLAP));
            otherrow++) {
-        ;
       }
       lowerrow = otherrow; /*decent row below */
       if (upperrow >= 0) {
@@ -1106,13 +1105,11 @@ int segment_spline(             // make xstarts
       /*find rising y centre */
       for (ptindex = turnpoints[segment - 1] + 1;
            ptindex < turnpoints[segment] && ycoords[ptindex + 1] <= lastmax; ptindex++) {
-        ;
       }
     } else {
       /*find falling y centre */
       for (ptindex = turnpoints[segment - 1] + 1;
            ptindex < turnpoints[segment] && ycoords[ptindex + 1] >= lastmax; ptindex++) {
-        ;
       }
     }
 
@@ -1450,7 +1447,7 @@ void make_first_xheight( // find xheight
   for (blobindex = 0; blobindex < blobcount; blobindex++) {
     int xcenter = (blobcoords[blobindex].left() + blobcoords[blobindex].right()) / 2;
     float base = baseline->y(xcenter);
-    float bottomdiff = fabs(base - blobcoords[blobindex].bottom());
+    float bottomdiff = std::fabs(base - blobcoords[blobindex].bottom());
     int strength = textord_ocropus_mode && bottomdiff <= kBaselineTouch ? kGoodStrength : 1;
     int height = static_cast<int>(blobcoords[blobindex].top() - base + 0.5);
     if (blobcoords[blobindex].height() > init_lineheight * kMinHeight) {

@@ -75,10 +75,11 @@ static void DisplayProtoList(const char *ch, LIST protolist) {
     auto dy = static_cast<float>(LengthOf(prototype->Mean) * sin(angle) / 2);
     window->SetCursor((x - dx) * 256, (y - dy) * 256);
     window->DrawTo((x + dx) * 256, (y + dy) * 256);
+    auto prototypeNumSamples = prototype->NumSamples;
     if (prototype->Significant) {
-      tprintf("Green proto at (%g,%g)+(%g,%g) %d samples\n", x, y, dx, dy, prototype->NumSamples);
+      tprintf("Green proto at (%g,%g)+(%g,%g) %d samples\n", x, y, dx, dy, prototypeNumSamples);
     } else if (prototype->NumSamples > 0 && !prototype->Merged) {
-      tprintf("Red proto at (%g,%g)+(%g,%g) %d samples\n", x, y, dx, dy, prototype->NumSamples);
+      tprintf("Red proto at (%g,%g)+(%g,%g) %d samples\n", x, y, dx, dy, prototypeNumSamples);
     }
   }
   window->Update();
@@ -198,7 +199,7 @@ int main(int argc, char **argv) {
   ShapeTable *shape_table = nullptr;
   std::string file_prefix;
   // Load the training data.
-  auto trainer = tesseract::LoadTrainingData(argc, argv, false, &shape_table, file_prefix);
+  auto trainer = tesseract::LoadTrainingData(argv + 1, false, &shape_table, file_prefix);
   if (trainer == nullptr) {
     return 1; // Failed.
   }
@@ -254,7 +255,7 @@ int main(int argc, char **argv) {
   // Now write the inttemp and pffmtable.
   trainer->WriteInttempAndPFFMTable(trainer->unicharset(), *unicharset, *shape_table, float_classes,
                                     inttemp_file.c_str(), pffmtable_file.c_str());
-  for (int c = 0; c < unicharset->size(); ++c) {
+  for (size_t c = 0; c < unicharset->size(); ++c) {
     FreeClassFields(&float_classes[c]);
   }
   delete[] float_classes;

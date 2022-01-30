@@ -187,7 +187,8 @@ public:
   // output from code_map[output] where non-negative, and uses the mean (over
   // all outputs) of the existing weights for all outputs with negative code_map
   // entries. Returns the new number of weights.
-  virtual int RemapOutputs(int old_no, const std::vector<int> &code_map) {
+  virtual int RemapOutputs([[maybe_unused]] int old_no,
+                           [[maybe_unused]] const std::vector<int> &code_map) {
     return 0;
   }
 
@@ -216,7 +217,7 @@ public:
 
   // Provides the (minimum) x scale factor to the network (of interest only to
   // input units) so they can determine how to scale bounding boxes.
-  virtual void CacheXScaleFactor(int factor) {}
+  virtual void CacheXScaleFactor([[maybe_unused]] int factor) {}
 
   // Provides debug output on the weights.
   virtual void DebugWeights() = 0;
@@ -231,11 +232,16 @@ public:
 public:
   // Updates the weights using the given learning rate, momentum and adam_beta.
   // num_samples is used in the adam computation iff use_adam_ is true.
-  virtual void Update(float learning_rate, float momentum, float adam_beta, int num_samples) {}
+  virtual void Update([[maybe_unused]] float learning_rate,
+                      [[maybe_unused]] float momentum,
+                      [[maybe_unused]] float adam_beta,
+                      [[maybe_unused]] int num_samples) {}
   // Sums the products of weight updates in *this and other, splitting into
   // positive (same direction) in *same and negative (different direction) in
   // *changed.
-  virtual void CountAlternators(const Network &other, double *same, double *changed) const {}
+  virtual void CountAlternators([[maybe_unused]] const Network &other,
+                                [[maybe_unused]] TFloat *same,
+                                [[maybe_unused]] TFloat *changed) const {}
 
   // Reads from the given file. Returns nullptr in case of error.
   // Determines the type of the serialized class and calls its DeSerialize
@@ -260,7 +266,8 @@ public:
   // reference it on a call to backward. This is a bit ugly, but it makes it
   // possible for a replicating parallel to calculate the input transpose once
   // instead of all the replicated networks having to do it.
-  virtual void Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+  virtual void Forward(bool debug, const NetworkIO &input,
+                       const TransposedArray *input_transpose,
                        NetworkScratch *scratch, NetworkIO *output) = 0;
 
   // Runs backward propagation of errors on fwdX_deltas.
@@ -268,8 +275,8 @@ public:
   // Returns false if back_deltas was not set, due to there being no point in
   // propagating further backwards. Thus most complete networks will always
   // return false from Backward!
-  virtual bool Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
-                        NetworkIO *back_deltas) = 0;
+  virtual bool Backward(bool debug, const NetworkIO &fwd_deltas,
+                        NetworkScratch *scratch, NetworkIO *back_deltas) = 0;
 
   // === Debug image display methods. ===
   // Displays the image of the matrix to the forward window.
@@ -278,8 +285,8 @@ public:
   void DisplayBackward(const NetworkIO &matrix);
 
   // Creates the window if needed, otherwise clears it.
-  static void ClearWindow(bool tess_coords, const char *window_name, int width, int height,
-                          ScrollView **window);
+  static void ClearWindow(bool tess_coords, const char *window_name, int width,
+                          int height, ScrollView **window);
 
   // Displays the pix in the given window. and returns the height of the pix.
   // The pix is pixDestroyed.
@@ -287,7 +294,7 @@ public:
 
 protected:
   // Returns a random number in [-range, range].
-  double Random(double range);
+  TFloat Random(TFloat range);
 
 protected:
   NetworkType type_;       // Type of the derived network class.

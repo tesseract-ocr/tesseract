@@ -59,8 +59,8 @@ public:
     unichar_id_ = UNICHAR_SPACE;
     fontinfo_id_ = -1;
     fontinfo_id2_ = -1;
-    rating_ = 10.0;
-    certainty_ = -1.0;
+    rating_ = 10.0f;
+    certainty_ = -1.0f;
     script_id_ = -1;
     min_xheight_ = 0.0f;
     max_xheight_ = 0.0f;
@@ -170,13 +170,17 @@ public:
   bool PosAndSizeAgree(const BLOB_CHOICE &other, float x_height, bool debug) const;
 
   void print(const UNICHARSET *unicharset) const {
-    tprintf("r%.2f c%.2f x[%g,%g]: %d %s", rating_, certainty_, min_xheight_, max_xheight_,
+    tprintf("r%.2f c%.2f x[%g,%g]: %d %s",
+            static_cast<double>(rating_),
+            static_cast<double>(certainty_),
+            static_cast<double>(min_xheight_),
+            static_cast<double>(max_xheight_),
             unichar_id_, (unicharset == nullptr) ? "" : unicharset->debug_str(unichar_id_).c_str());
   }
   void print_full() const {
     print(nullptr);
     tprintf(" script=%d, font1=%d, font2=%d, yshift=%g, classifier=%d\n", script_id_, fontinfo_id_,
-            fontinfo_id2_, yshift_, classifier_);
+            fontinfo_id2_, static_cast<double>(yshift_), classifier_);
   }
   // Sort function for sorting BLOB_CHOICEs in increasing order of rating.
   static int SortByRating(const void *p1, const void *p2) {
@@ -280,7 +284,7 @@ public:
   bool empty() const {
     return length_ == 0;
   }
-  inline int length() const {
+  inline unsigned length() const {
     return length_;
   }
   float adjust_factor() const {
@@ -292,15 +296,15 @@ public:
   inline const std::vector<UNICHAR_ID> &unichar_ids() const {
     return unichar_ids_;
   }
-  inline UNICHAR_ID unichar_id(int index) const {
+  inline UNICHAR_ID unichar_id(unsigned index) const {
     assert(index < length_);
     return unichar_ids_[index];
   }
-  inline int state(int index) const {
+  inline unsigned state(unsigned index) const {
     return state_[index];
   }
-  ScriptPos BlobPosition(int index) const {
-    if (index < 0 || index >= length_) {
+  ScriptPos BlobPosition(unsigned index) const {
+    if (index >= length_) {
       return SP_NORMAL;
     }
     return script_pos_[index];
@@ -311,7 +315,7 @@ public:
   inline float certainty() const {
     return certainty_;
   }
-  inline float certainty(int index) const {
+  inline float certainty(unsigned index) const {
     return certainties_[index];
   }
   inline float min_x_height() const {
@@ -331,13 +335,13 @@ public:
   // Returns the BLOB_CHOICE_LIST corresponding to the given index in the word,
   // taken from the appropriate cell in the ratings MATRIX.
   // Borrowed pointer, so do not delete.
-  BLOB_CHOICE_LIST *blob_choices(int index, MATRIX *ratings) const;
+  BLOB_CHOICE_LIST *blob_choices(unsigned index, MATRIX *ratings) const;
 
   // Returns the MATRIX_COORD corresponding to the location in the ratings
   // MATRIX for the given index into the word.
-  MATRIX_COORD MatrixCoord(int index) const;
+  MATRIX_COORD MatrixCoord(unsigned index) const;
 
-  inline void set_unichar_id(UNICHAR_ID unichar_id, int index) {
+  inline void set_unichar_id(UNICHAR_ID unichar_id, unsigned index) {
     assert(index < length_);
     unichar_ids_[index] = unichar_id;
   }
@@ -359,7 +363,7 @@ public:
   // Note: this function should only be used if all the fields
   // are populated manually with set_* functions (rather than
   // (copy)constructors and append_* functions).
-  inline void set_length(int len) {
+  inline void set_length(unsigned len) {
     ASSERT_HOST(reserved_ >= len);
     length_ = len;
   }
@@ -379,7 +383,7 @@ public:
 
   /// Initializes WERD_CHOICE - reserves length slots in unichar_ids_ and
   /// fragment_length_ arrays. Sets other values to default (blank) values.
-  inline void init(int reserved) {
+  inline void init(unsigned reserved) {
     reserved_ = reserved;
     if (reserved > 0) {
       unichar_ids_.resize(reserved);
@@ -431,7 +435,7 @@ public:
   void append_unichar_id(UNICHAR_ID unichar_id, int blob_count, float rating, float certainty);
 
   inline void set_unichar_id(UNICHAR_ID unichar_id, int blob_count, float rating, float certainty,
-                             int index) {
+                             unsigned index) {
     assert(index < length_);
     unichar_ids_[index] = unichar_id;
     state_[index] = blob_count;
@@ -444,14 +448,14 @@ public:
   }
   // Sets the entries for the given index from the BLOB_CHOICE, assuming
   // unit fragment lengths, but setting the state for this index to blob_count.
-  void set_blob_choice(int index, int blob_count, const BLOB_CHOICE *blob_choice);
+  void set_blob_choice(unsigned index, int blob_count, const BLOB_CHOICE *blob_choice);
 
   bool contains_unichar_id(UNICHAR_ID unichar_id) const;
-  void remove_unichar_ids(int index, int num);
+  void remove_unichar_ids(unsigned index, int num);
   inline void remove_last_unichar_id() {
     --length_;
   }
-  inline void remove_unichar_id(int index) {
+  inline void remove_unichar_id(unsigned index) {
     this->remove_unichar_ids(index, 1);
   }
   bool has_rtl_unichar_id() const;
@@ -460,7 +464,7 @@ public:
   // Returns the half-open interval of unichar_id indices [start, end) which
   // enclose the core portion of this word -- the part after stripping
   // punctuation from the left and right.
-  void punct_stripped(int *start_core, int *end_core) const;
+  void punct_stripped(unsigned *start_core, unsigned *end_core) const;
 
   // Returns the indices [start, end) containing the core of the word, stripped
   // of any superscript digits on either side. (i.e., the non-footnote part
@@ -469,12 +473,12 @@ public:
 
   // Return a copy of this WERD_CHOICE with the choices [start, end).
   // The result is useful only for checking against a dictionary.
-  WERD_CHOICE shallow_copy(int start, int end) const;
+  WERD_CHOICE shallow_copy(unsigned start, unsigned end) const;
 
   void string_and_lengths(std::string *word_str, std::string *word_lengths_str) const;
   std::string debug_string() const {
     std::string word_str;
-    for (int i = 0; i < length_; ++i) {
+    for (unsigned i = 0; i < length_; ++i) {
       word_str += unicharset_->debug_str(unichar_ids_[i]);
       word_str += " ";
     }
@@ -482,7 +486,7 @@ public:
   }
   // Returns true if any unichar_id in the word is a non-space-delimited char.
   bool ContainsAnyNonSpaceDelimited() const {
-    for (int i = 0; i < length_; ++i) {
+    for (unsigned i = 0; i < length_; ++i) {
       if (!unicharset_->IsSpaceDelimited(unichar_ids_[i])) {
         return true;
       }
@@ -491,7 +495,7 @@ public:
   }
   // Returns true if the word is all spaces.
   bool IsAllSpaces() const {
-    for (int i = 0; i < length_; ++i) {
+    for (unsigned i = 0; i < length_; ++i) {
       if (unichar_ids_[i] != UNICHAR_SPACE) {
         return false;
       }
@@ -552,7 +556,7 @@ public:
   void UpdateStateForSplit(int blob_position);
 
   // Returns the sum of all the state elements, being the total number of blobs.
-  int TotalOfStates() const;
+  unsigned TotalOfStates() const;
 
   void print() const {
     this->print("");
@@ -591,8 +595,8 @@ private:
   std::vector<ScriptPos> script_pos_;   // Normal/Sub/Superscript of each unichar.
   std::vector<int> state_;              // Number of blobs in each unichar.
   std::vector<float> certainties_;      // Certainty of each unichar.
-  int reserved_;            // size of the above arrays
-  int length_;              // word length
+  unsigned reserved_;            // size of the above arrays
+  unsigned length_;              // word length
   // Factor that was used to adjust the rating.
   float adjust_factor_;
   // Rating is the sum of the ratings of the individual blobs in the word.

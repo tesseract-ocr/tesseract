@@ -21,7 +21,7 @@ cache:
 
 before_install:
   - sudo apt-get install libleptonica-dev libpango1.0-dev libtiff5-dev -y
-  
+
 install:
 
 script:
@@ -30,7 +30,7 @@ script:
   - cmake .. -DSW_BUILD=OFF
   - make
   - sudo make install
-  
+
 #after_script: # let those commands trigger build errors
   - tesseract -v
   - text2image -v

@@ -19,24 +19,24 @@
 #ifndef PAGERES_H
 #define PAGERES_H
 
-#include "blamer.h"     // for BlamerBundle (ptr only), IRR_NUM_REASONS
-#include "clst.h"       // for CLIST_ITERATOR, CLISTIZEH
+#include "blamer.h"        // for BlamerBundle (ptr only), IRR_NUM_REASONS
+#include "clst.h"          // for CLIST_ITERATOR, CLISTIZEH
+#include "elst.h"          // for ELIST_ITERATOR, ELIST_LINK, ELISTIZEH
 #include "genericvector.h" // for PointerVector
-#include "elst.h"       // for ELIST_ITERATOR, ELIST_LINK, ELISTIZEH
-#include "matrix.h"     // for MATRIX
-#include "normalis.h"   // for DENORM
-#include "ratngs.h"     // for WERD_CHOICE, BLOB_CHOICE (ptr only)
-#include "rect.h"       // for TBOX
-#include "rejctmap.h"   // for REJMAP
-#include "unicharset.h" // for UNICHARSET, UNICHARSET::Direction, UNI...
-#include "werd.h"       // for WERD, W_BOL, W_EOL
+#include "matrix.h"        // for MATRIX
+#include "normalis.h"      // for DENORM
+#include "ratngs.h"        // for WERD_CHOICE, BLOB_CHOICE (ptr only)
+#include "rect.h"          // for TBOX
+#include "rejctmap.h"      // for REJMAP
+#include "unicharset.h"    // for UNICHARSET, UNICHARSET::Direction, UNI...
+#include "werd.h"          // for WERD, W_BOL, W_EOL
 
 #include <tesseract/unichar.h> // for UNICHAR_ID, INVALID_UNICHAR_ID
 
-#include <cstdint>     // for int32_t, int16_t
-#include <functional>  // for std::function
-#include <set>         // for std::pair
-#include <vector>      // for std::vector
+#include <cstdint>    // for int32_t, int16_t
+#include <functional> // for std::function
+#include <set>        // for std::pair
+#include <vector>     // for std::vector
 
 #include <sys/types.h> // for int8_t
 
@@ -96,6 +96,7 @@ public:
     rej_count = 0;
     rejected = false;
     prev_word_best_choice = nullptr;
+    blame_reasons.clear();
     blame_reasons.resize(IRR_NUM_REASONS);
   }
 
@@ -217,7 +218,8 @@ public:
   // Stores the lstm choices of every timestep
   std::vector<std::vector<std::pair<const char *, float>>> timesteps;
   // Stores the lstm choices of every timestep segmented by character
-  std::vector<std::vector<std::vector<std::pair<const char *, float>>>> segmented_timesteps;
+  std::vector<std::vector<std::vector<std::pair<const char *, float>>>>
+      segmented_timesteps;
   // Symbolchoices acquired during CTC
   std::vector<std::vector<std::pair<const char *, float>>> CTC_symbol_choices;
   // Stores if the timestep vector starts with a space
@@ -356,12 +358,12 @@ public:
   // This matters for mirrorable characters such as parentheses.  We recognize
   // characters purely based on their shape on the page, and by default produce
   // the corresponding unicode for a left-to-right context.
-  const char *BestUTF8(int blob_index, bool in_rtl_context) const {
-    if (blob_index < 0 || best_choice == nullptr || blob_index >= best_choice->length()) {
+  const char *BestUTF8(unsigned blob_index, bool in_rtl_context) const {
+    if (best_choice == nullptr || blob_index >= best_choice->length()) {
       return nullptr;
     }
     UNICHAR_ID id = best_choice->unichar_id(blob_index);
-    if (id < 0 || id >= uch_set->size()) {
+    if (static_cast<unsigned>(id) >= uch_set->size()) {
       return nullptr;
     }
     UNICHAR_ID mirrored = uch_set->get_mirror(id);
@@ -371,35 +373,37 @@ public:
     return uch_set->id_to_unichar_ext(id);
   }
   // Returns the UTF-8 string for the given blob index in the raw_choice word.
-  const char *RawUTF8(int blob_index) const {
-    if (blob_index < 0 || blob_index >= raw_choice->length()) {
+  const char *RawUTF8(unsigned blob_index) const {
+    if (blob_index >= raw_choice->length()) {
       return nullptr;
     }
     UNICHAR_ID id = raw_choice->unichar_id(blob_index);
-    if (id < 0 || id >= uch_set->size()) {
+    if (static_cast<unsigned>(id) >= uch_set->size()) {
       return nullptr;
     }
     return uch_set->id_to_unichar(id);
   }
 
-  UNICHARSET::Direction SymbolDirection(int blob_index) const {
-    if (best_choice == nullptr || blob_index >= best_choice->length() || blob_index < 0) {
+  UNICHARSET::Direction SymbolDirection(unsigned blob_index) const {
+    if (best_choice == nullptr || blob_index >= best_choice->length()) {
       return UNICHARSET::U_OTHER_NEUTRAL;
     }
     return uch_set->get_direction(best_choice->unichar_id(blob_index));
   }
 
   bool AnyRtlCharsInWord() const {
-    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1) {
+    if (uch_set == nullptr || best_choice == nullptr ||
+        best_choice->length() < 1) {
       return false;
     }
-    for (int id = 0; id < best_choice->length(); id++) {
-      int unichar_id = best_choice->unichar_id(id);
-      if (unichar_id < 0 || unichar_id >= uch_set->size()) {
+    for (unsigned id = 0; id < best_choice->length(); id++) {
+      unsigned unichar_id = best_choice->unichar_id(id);
+      if (unichar_id >= uch_set->size()) {
         continue; // Ignore illegal chars.
       }
       UNICHARSET::Direction dir = uch_set->get_direction(unichar_id);
-      if (dir == UNICHARSET::U_RIGHT_TO_LEFT || dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC) {
+      if (dir == UNICHARSET::U_RIGHT_TO_LEFT ||
+          dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC) {
         return true;
       }
     }
@@ -407,16 +411,18 @@ public:
   }
 
   bool AnyLtrCharsInWord() const {
-    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1) {
+    if (uch_set == nullptr || best_choice == nullptr ||
+        best_choice->length() < 1) {
       return false;
     }
-    for (int id = 0; id < best_choice->length(); id++) {
-      int unichar_id = best_choice->unichar_id(id);
-      if (unichar_id < 0 || unichar_id >= uch_set->size()) {
+    for (unsigned id = 0; id < best_choice->length(); id++) {
+      unsigned unichar_id = best_choice->unichar_id(id);
+      if (unichar_id >= uch_set->size()) {
         continue; // Ignore illegal chars.
       }
       UNICHARSET::Direction dir = uch_set->get_direction(unichar_id);
-      if (dir == UNICHARSET::U_LEFT_TO_RIGHT || dir == UNICHARSET::U_ARABIC_NUMBER) {
+      if (dir == UNICHARSET::U_LEFT_TO_RIGHT ||
+          dir == UNICHARSET::U_ARABIC_NUMBER) {
         return true;
       }
     }
@@ -462,9 +468,11 @@ public:
   // of any of the above flags. It should really be a tesseract::OcrEngineMode
   // but is declared as int for ease of use with tessedit_ocr_engine_mode.
   // Returns false if the word is empty and sets up fake results.
-  bool SetupForRecognition(const UNICHARSET &unicharset_in, tesseract::Tesseract *tesseract,
-                           Image pix, int norm_mode, const TBOX *norm_box, bool numeric_mode,
-                           bool use_body_size, bool allow_detailed_fx, ROW *row,
+  bool SetupForRecognition(const UNICHARSET &unicharset_in,
+                           tesseract::Tesseract *tesseract, Image pix,
+                           int norm_mode, const TBOX *norm_box,
+                           bool numeric_mode, bool use_body_size,
+                           bool allow_detailed_fx, ROW *row,
                            const BLOCK *block);
 
   // Set up the seam array, bln_boxes, best_choice, and raw_choice to empty
@@ -528,8 +536,9 @@ public:
   // min_rating limits how tight to make a template.
   // max_rating limits how loose to make a template.
   // rating_margin denotes the amount of margin to put in template.
-  void ComputeAdaptionThresholds(float certainty_scale, float min_rating, float max_rating,
-                                 float rating_margin, float *thresholds);
+  void ComputeAdaptionThresholds(float certainty_scale, float min_rating,
+                                 float max_rating, float rating_margin,
+                                 float *thresholds);
 
   // Saves a copy of the word_choice if it has the best unadjusted rating.
   // Returns true if the word_choice was the new best.
@@ -540,7 +549,8 @@ public:
   // The best_choices list is kept in sorted order by rating. Duplicates are
   // removed, and the list is kept no longer than max_num_choices in length.
   // Returns true if the word_choice is still a valid pointer.
-  bool LogNewCookedChoice(int max_num_choices, bool debug, WERD_CHOICE *word_choice);
+  bool LogNewCookedChoice(int max_num_choices, bool debug,
+                          WERD_CHOICE *word_choice);
 
   // Prints a brief list of all the best choices.
   void PrintBestChoices() const;
@@ -549,13 +559,13 @@ public:
   // inclusive.
   int GetBlobsWidth(int start_blob, int last_blob) const;
   // Returns the width of a gap between the specified blob and the next one.
-  int GetBlobsGap(int blob_index) const;
+  int GetBlobsGap(unsigned blob_index) const;
 
   // Returns the BLOB_CHOICE corresponding to the given index in the
   // best choice word taken from the appropriate cell in the ratings MATRIX.
   // Borrowed pointer, so do not delete. May return nullptr if there is no
   // BLOB_CHOICE matching the unichar_id at the given index.
-  BLOB_CHOICE *GetBlobChoice(int index) const;
+  BLOB_CHOICE *GetBlobChoice(unsigned index) const;
 
   // Returns the BLOB_CHOICE_LIST corresponding to the given index in the
   // best choice word taken from the appropriate cell in the ratings MATRIX.
@@ -601,7 +611,7 @@ public:
   // providing a single classifier result for each blob.
   // The BLOB_CHOICEs are consumed and the word takes ownership.
   // The number of blobs in the box_word must match blob_count.
-  void FakeClassifyWord(int blob_count, BLOB_CHOICE **choices);
+  void FakeClassifyWord(unsigned blob_count, BLOB_CHOICE **choices);
 
   // Creates a WERD_CHOICE for the word using the top choices from the leading
   // diagonal of the ratings matrix.
@@ -615,12 +625,13 @@ public:
   // callback box_cb is nullptr or returns true, setting the merged blob
   // result to the class returned from class_cb.
   // Returns true if anything was merged.
-  bool ConditionalBlobMerge(std::function<UNICHAR_ID(UNICHAR_ID, UNICHAR_ID)> class_cb,
-                            std::function<bool(const TBOX &, const TBOX &)> box_cb);
+  bool ConditionalBlobMerge(
+      const std::function<UNICHAR_ID(UNICHAR_ID, UNICHAR_ID)> &class_cb,
+      const std::function<bool(const TBOX &, const TBOX &)> &box_cb);
 
   // Merges 2 adjacent blobs in the result (index and index+1) and corrects
   // all the data to account for the change.
-  void MergeAdjacentBlobs(int index);
+  void MergeAdjacentBlobs(unsigned index);
 
   // Callback helper for fix_quotes returns a double quote if both
   // arguments are quote, otherwise INVALID_UNICHAR_ID.
@@ -682,7 +693,8 @@ public:
   // Do two PAGE_RES_ITs point at the same word?
   // This is much cheaper than cmp().
   bool operator==(const PAGE_RES_IT &other) const {
-    return word_res == other.word_res && row_res == other.row_res && block_res == other.block_res;
+    return word_res == other.word_res && row_res == other.row_res &&
+           block_res == other.block_res;
   }
 
   bool operator!=(const PAGE_RES_IT &other) const {

@@ -1,5 +1,5 @@
 name: msys2
-# msys2 build for tesseract -head from master branch.
+# msys2 build for tesseract -head from main branch.
 on:
   #push:
   schedule:

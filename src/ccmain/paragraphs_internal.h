@@ -34,9 +34,6 @@ class WERD_CHOICE;
 TESS_API
 bool AsciiLikelyListItem(const std::string &word);
 
-// Return the first Unicode Codepoint from werd[pos].
-int UnicodeFor(const UNICHARSET *u, const WERD_CHOICE *werd, int pos);
-
 // Set right word attributes given either a unicharset and werd or a utf8
 // string.
 TESS_API

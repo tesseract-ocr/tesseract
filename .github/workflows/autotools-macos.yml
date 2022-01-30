@@ -5,6 +5,7 @@ on:
   #push:
   schedule:
     - cron: 0 20 * * *
+  workflow_dispatch:
 jobs:
 
   brew:
@@ -42,7 +43,7 @@ jobs:
 
     - name: Configure Tesseract
       run: |
-           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2' "PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/opt/libffi/lib/pkgconfig"
+           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
 
     - name: Make and Install Tesseract
       run: |
@@ -92,7 +93,7 @@ jobs:
       run: |
            export "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig"
            cd test
-           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp -I/usr/local/include -L/usr/local/lib `pkg-config --cflags --libs tesseract lept ` -pthread -std=c++11
+           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp $(pkg-config --cflags --libs tesseract lept) -pthread -std=c++11 -framework accelerate
            ./basicapitest
 
     - name: Display Compiler Version
@@ -130,6 +131,9 @@ jobs:
     - name: Install Macports
       run: |
         curl -LO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci; source ./macports-ci install
+        # --remove-brew does not remove the Homebrew entries in bin,
+        # so remove them now.
+        rm -v $(brew --prefix)/bin/*
 
     - name: Install Dependencies
       run: |
@@ -189,7 +193,7 @@ jobs:
       run: |
            export "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig"
            cd test
-           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp -I/opt/local/include -L/opt/local/lib -I/usr/local/include -L/usr/local/lib `pkg-config --cflags --libs tesseract lept ` -pthread -std=c++11
+           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp -I/opt/local/include -L/opt/local/lib $(pkg-config --cflags --libs tesseract lept) -pthread -std=c++11 -framework Accelerate
            ./basicapitest
 
     - name: Display Compiler Version
@@ -202,4 +206,3 @@ jobs:
       run: |
            cat test-suite.log
       if: always()
-

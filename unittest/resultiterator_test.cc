@@ -5,7 +5,6 @@
 #include <string>
 #include "scrollview.h"
 
-#include "absl/strings/str_format.h" // for absl::StrFormat
 #include "include_gunit.h"
 #include "log.h" // for LOG
 
@@ -99,7 +98,7 @@ protected:
       pixWrite(outfile.c_str(), pix, IFF_PNG);
     }
     pix.destroy();
-    LOG(INFO) << absl::StrFormat("At level %d: pix diff = %d\n", level, pixcount);
+    LOG(INFO) << "At level " << level << ": pix diff = " << pixcount << "\n";
     EXPECT_LE(pixcount, max_diff);
     //    if (base::GetFlag(FLAGS_v) > 1) CHECK_LE(pixcount, max_diff);
   }
@@ -131,12 +130,14 @@ protected:
   }
 
   void VerifyRebuilds(int block_limit, int para_limit, int line_limit, int word_limit,
-                      int symbol_limit, PageIterator *it) {
+                      int symbol_limit, PageIterator *it, PageIteratorLevel maxlevel=tesseract::RIL_SYMBOL) {
     VerifyRebuild(block_limit, tesseract::RIL_BLOCK, it);
     VerifyRebuild(para_limit, tesseract::RIL_PARA, it);
     VerifyRebuild(line_limit, tesseract::RIL_TEXTLINE, it);
     VerifyRebuild(word_limit, tesseract::RIL_WORD, it);
-    VerifyRebuild(symbol_limit, tesseract::RIL_SYMBOL, it);
+    if (maxlevel == tesseract::RIL_SYMBOL) {
+      VerifyRebuild(symbol_limit, maxlevel, it);
+    }
   }
 
   void VerifyAllText(const std::string &truth, ResultIterator *it) {
@@ -278,7 +279,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
   // The images should rebuild almost perfectly.
   LOG(INFO) << "Verifying image rebuilds 2a (resultiterator)"
             << "\n";
-  VerifyRebuilds(8, 8, 0, 0, 40, r_it);
+  VerifyRebuilds(8, 8, 0, 0, 40, r_it, tesseract::RIL_WORD);
   // Test the text.
   LOG(INFO) << "Verifying text rebuilds 1 (resultiterator)"
             << "\n";
@@ -287,13 +288,14 @@ TEST_F(ResultIteratorTest, EasyTest) {
   // The images should rebuild almost perfectly.
   LOG(INFO) << "Verifying image rebuilds 2b (resultiterator)"
             << "\n";
-  VerifyRebuilds(8, 8, 0, 0, 40, r_it);
+  VerifyRebuilds(8, 8, 0, 0, 40, r_it, tesseract::RIL_WORD);
 
   r_it->Begin();
   // Test baseline of the first line.
   int x1, y1, x2, y2;
   r_it->Baseline(tesseract::RIL_TEXTLINE, &x1, &y1, &x2, &y2);
-  LOG(INFO) << absl::StrFormat("Baseline (%d,%d)->(%d,%d)", x1, y1, x2, y2) << "\n";
+  LOG(INFO) << "Baseline ("
+     << x1 << ',' << y1 << ")->(" << x2 << ',' << y2 << ")\n";
   // Make sure we have a decent vector.
   EXPECT_GE(x2, x1 + 400);
   // The point 200,116 should be very close to the baseline.
@@ -308,17 +310,25 @@ TEST_F(ResultIteratorTest, EasyTest) {
 
   // Test font attributes for each word.
   do {
-    bool bold, italic, underlined, monospace, serif, smallcaps;
+    float confidence = r_it->Confidence(tesseract::RIL_WORD);
+#ifndef DISABLED_LEGACY_ENGINE
     int pointsize, font_id;
+    bool bold, italic, underlined, monospace, serif, smallcaps;
     const char *font = r_it->WordFontAttributes(&bold, &italic, &underlined, &monospace, &serif,
                                                 &smallcaps, &pointsize, &font_id);
-    float confidence = r_it->Confidence(tesseract::RIL_WORD);
     EXPECT_GE(confidence, 80.0f);
+#endif
     char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
-    LOG(INFO) << absl::StrFormat("Word %s in font %s, id %d, size %d, conf %g", word_str, font,
-                                 font_id, pointsize, confidence)
-              << "\n";
+
+#ifdef DISABLED_LEGACY_ENGINE
+    LOG(INFO) << "Word " << word_str << ", conf " << confidence << "\n";
+#else
+    LOG(INFO) << "Word " << word_str << " in font " << font
+      << ", id " << font_id << ", size " << pointsize
+      << ", conf " << confidence << "\n";
+#endif // def DISABLED_LEGACY_ENGINE
     delete[] word_str;
+#ifndef DISABLED_LEGACY_ENGINE
     EXPECT_FALSE(bold);
     EXPECT_FALSE(italic);
     EXPECT_FALSE(underlined);
@@ -329,6 +339,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
     // 31 pixels / textline * (72 pts / inch) / (200 pixels / inch) = 11.16 pts
     EXPECT_GE(pointsize, 11.16 - 1.50);
     EXPECT_LE(pointsize, 11.16 + 1.50);
+#endif // def DISABLED_LEGACY_ENGINE
   } while (r_it->Next(tesseract::RIL_WORD));
   delete r_it;
 }
@@ -357,6 +368,10 @@ TEST_F(ResultIteratorTest, GreyTest) {
 
 // Tests that Tesseract gets smallcaps and dropcaps.
 TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test as LSTM mode does not recognize smallcaps & dropcaps attributes.
+  GTEST_SKIP();
+#else
   SetImage("8071_093.3B.tif");
   char *result = api_.GetUTF8Text();
   delete[] result;
@@ -372,8 +387,8 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
                              &pointsize, &font_id);
     char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     if (word_str != nullptr) {
-      LOG(INFO) << absl::StrFormat("Word %s is %s", word_str, smallcaps ? "SMALLCAPS" : "Normal")
-                << "\n";
+      LOG(INFO) << "Word " << word_str
+        << " is " << (smallcaps ? "SMALLCAPS" : "Normal") << "\n";
       if (r_it->SymbolIsDropcap()) {
         ++found_dropcaps;
       }
@@ -392,7 +407,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
       while (s_it.Next(tesseract::RIL_SYMBOL) && !s_it.IsAtBeginningOf(tesseract::RIL_WORD)) {
         if (s_it.SymbolIsDropcap()) {
           char *sym_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
-          LOG(ERROR) << absl::StrFormat("Symbol %s of word %s is dropcap", sym_str, word_str);
+          LOG(ERROR) << "Symbol " << sym_str << " of word " << word_str << " is dropcap";
           delete[] sym_str;
         }
         EXPECT_FALSE(s_it.SymbolIsDropcap());
@@ -404,6 +419,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
   EXPECT_EQ(1, found_dropcaps);
   EXPECT_GE(4, found_smallcaps);
   EXPECT_LE(false_positives, 3);
+#endif // DISABLED_LEGACY_ENGINE
 }
 
 #if 0
@@ -433,8 +449,7 @@ TEST_F(ResultIteratorTest, SubSuperTest) {
       result = r_it->GetUTF8Text(tesseract::RIL_SYMBOL);
       if (strchr(kAllowedSupers, result[0]) == nullptr) {
         char* word = r_it->GetUTF8Text(tesseract::RIL_WORD);
-        LOG(ERROR) << absl::StrFormat("Char %s in word %s is unexpected super!",
-                                    result, word);
+        LOG(ERROR) << "Char " << result << " in word " << word << " is unexpected super!";
         delete [] word;
         EXPECT_TRUE(strchr(kAllowedSupers, result[0]) != nullptr);
       }
@@ -445,8 +460,8 @@ TEST_F(ResultIteratorTest, SubSuperTest) {
     }
   } while (r_it->Next(tesseract::RIL_SYMBOL));
   delete r_it;
-  LOG(INFO) << absl::StrFormat("Subs = %d, supers= %d, normal = %d",
-                          found_subs, found_supers, found_normal) << "\n";
+  LOG(INFO) << "Subs = " << found_subs << ", supers= " << found_supers
+    << ", normal = " << found_normal << "\n";
   EXPECT_GE(found_subs, 25);
   EXPECT_GE(found_supers, 25);
   EXPECT_GE(found_normal, 1350);
@@ -528,7 +543,7 @@ TEST_F(ResultIteratorTest, DISABLED_NonNullChoicesTest) {
   do {
     char *word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     if (word_str != nullptr) {
-      LOG(INFO) << absl::StrFormat("Word %s:", word_str) << "\n";
+      LOG(INFO) << "Word " << word_str << ":\n";
       ResultIterator s_it = *r_it;
       do {
         tesseract::ChoiceIterator c_it(s_it);
@@ -571,7 +586,7 @@ TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
         const char *char_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
         CHECK(char_str != nullptr);
         float confidence = s_it.Confidence(tesseract::RIL_SYMBOL);
-        LOG(INFO) << absl::StrFormat("Char %s has confidence %g\n", char_str, confidence);
+        LOG(INFO) << "Char " << char_str << " has confidence " << confidence << "\n";
         delete[] char_str;
       } while (!s_it.IsAtFinalElement(tesseract::RIL_WORD, tesseract::RIL_SYMBOL) &&
                s_it.Next(tesseract::RIL_SYMBOL));

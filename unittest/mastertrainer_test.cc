@@ -32,9 +32,6 @@
 #include "trainingsample.h"
 #include "unicharset.h"
 
-#include "absl/strings/numbers.h"   // for safe_strto32
-#include "absl/strings/str_split.h" // for absl::StrSplit
-
 #include <string>
 #include <utility>
 #include <vector>
@@ -176,12 +173,11 @@ protected:
     FLAGS_X = TestDataNameToPath("eng.xheights").c_str();
     FLAGS_U = TestDataNameToPath("eng.unicharset").c_str();
     std::string tr_file_name(TestDataNameToPath("eng.Arial.exp0.tr"));
-    const char *argv[] = {tr_file_name.c_str()};
-    int argc = 1;
+    const char *filelist[] = {tr_file_name.c_str(), nullptr};
     std::string file_prefix;
     delete shape_table_;
     shape_table_ = nullptr;
-    master_trainer_ = LoadTrainingData(argc, argv, false, &shape_table_, file_prefix);
+    master_trainer_ = LoadTrainingData(filelist, false, &shape_table_, file_prefix);
     EXPECT_TRUE(master_trainer_ != nullptr);
     EXPECT_TRUE(shape_table_ != nullptr);
   }
@@ -268,7 +264,7 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
                                            shape_classifier.get(), &accuracy_report);
   LOG(INFO) << accuracy_report.c_str();
   std::string result_string = accuracy_report.c_str();
-  std::vector<std::string> results = absl::StrSplit(result_string, '\t', absl::SkipEmpty());
+  std::vector<std::string> results = split(result_string, '\t');
   EXPECT_EQ(tesseract::CT_SIZE + 1, results.size());
   int result_values[tesseract::CT_SIZE];
   for (int i = 0; i < tesseract::CT_SIZE; ++i) {

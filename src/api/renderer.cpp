@@ -31,11 +31,11 @@ namespace tesseract {
  * Base Renderer interface implementation
  **********************************************************************/
 TessResultRenderer::TessResultRenderer(const char *outputbase, const char *extension)
-    : file_extension_(extension)
+    : next_(nullptr)
+    , fout_(stdout)
+    , file_extension_(extension)
     , title_("")
     , imagenum_(-1)
-    , fout_(stdout)
-    , next_(nullptr)
     , happy_(true) {
   if (strcmp(outputbase, "-") && strcmp(outputbase, "stdout")) {
     std::string outfile = std::string(outputbase) + "." + extension;
@@ -139,12 +139,12 @@ bool TessTextRenderer::AddImageHandler(TessBaseAPI *api) {
     return false;
   }
 
-  AppendString(utf8.get());
-
   const char *pageSeparator = api->GetStringVariable("page_separator");
-  if (pageSeparator != nullptr && *pageSeparator != '\0') {
+  if (pageSeparator != nullptr && *pageSeparator != '\0' && imagenum() > 0) {
     AppendString(pageSeparator);
   }
+
+  AppendString(utf8.get());
 
   return true;
 }

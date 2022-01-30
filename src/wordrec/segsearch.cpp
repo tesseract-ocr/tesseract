@@ -30,12 +30,6 @@
 
 namespace tesseract {
 
-void Wordrec::DoSegSearch(WERD_RES *word_res) {
-  BestChoiceBundle best_choice_bundle(word_res->ratings->dimension());
-  // Run Segmentation Search.
-  SegSearch(word_res, &best_choice_bundle, nullptr);
-}
-
 void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle,
                         BlamerBundle *blamer_bundle) {
   LMPainPoints pain_points(segsearch_max_pain_points, segsearch_max_char_wh_ratio,
@@ -156,6 +150,7 @@ void Wordrec::InitialSegSearch(WERD_RES *word_res, LMPainPoints *pain_points,
   // children are considered in the non-decreasing order of their column, since
   // this guarantees that all the parents would be up to date before an update
   // of a child is done.
+  pending->clear();
   pending->resize(word_res->ratings->dimension(), SegSearchPending());
 
   // Search the ratings matrix for the initial best path.
@@ -169,8 +164,8 @@ void Wordrec::UpdateSegSearchNodes(float rating_cert_scale, int starting_col,
                                    LMPainPoints *pain_points, BestChoiceBundle *best_choice_bundle,
                                    BlamerBundle *blamer_bundle) {
   MATRIX *ratings = word_res->ratings;
-  ASSERT_HOST(ratings->dimension() == pending->size());
-  ASSERT_HOST(ratings->dimension() == best_choice_bundle->beam.size());
+  ASSERT_HOST(static_cast<unsigned>(ratings->dimension()) == pending->size());
+  ASSERT_HOST(static_cast<unsigned>(ratings->dimension()) == best_choice_bundle->beam.size());
   for (int col = starting_col; col < ratings->dimension(); ++col) {
     if (!(*pending)[col].WorkToDo()) {
       continue;

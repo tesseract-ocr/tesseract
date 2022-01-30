@@ -50,16 +50,11 @@ bool test_underline(  // look for underlines
     int16_t baseline, ///< coords of baseline
     int16_t xheight   ///< height of line
 ) {
-  int16_t occ;
-  int16_t blob_width; // width of blob
-  TBOX blob_box;      // bounding box
-  int32_t desc_occ;
-  int32_t x_occ;
-  int32_t asc_occ;
+  TDimension occ;
   STATS projection;
 
-  blob_box = blob->bounding_box();
-  blob_width = blob->bounding_box().width();
+  auto blob_box = blob->bounding_box();
+  auto blob_width = blob->bounding_box().width();
   projection.set_range(blob_box.bottom(), blob_box.top() + 1);
   if (testing_on) {
     //              blob->plot(to_win,GOLDENROD,GOLDENROD);
@@ -73,21 +68,21 @@ bool test_underline(  // look for underlines
             blob->bounding_box().right(), blob->bounding_box().top(), baseline);
   }
   horizontal_cblob_projection(blob, &projection);
-  desc_occ = 0;
+  int32_t desc_occ = 0;
   for (occ = blob_box.bottom(); occ < baseline; occ++) {
     if (occ <= blob_box.top() && projection.pile_count(occ) > desc_occ) {
       // max in region
       desc_occ = projection.pile_count(occ);
     }
   }
-  x_occ = 0;
+  int32_t x_occ = 0;
   for (occ = baseline; occ <= baseline + xheight; occ++) {
     if (occ >= blob_box.bottom() && occ <= blob_box.top() && projection.pile_count(occ) > x_occ) {
       // max in region
       x_occ = projection.pile_count(occ);
     }
   }
-  asc_occ = 0;
+  int32_t asc_occ = 0;
   for (occ = baseline + xheight + 1; occ <= blob_box.top(); occ++) {
     if (occ >= blob_box.bottom() && projection.pile_count(occ) > asc_occ) {
       asc_occ = projection.pile_count(occ);

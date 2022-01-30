@@ -135,7 +135,7 @@ bool SPLIT::IsLittleChunk(int min_points, int min_area) const {
  *
  * Create an EDGEPT and hook it into an existing list of edge points.
  **********************************************************************/
-EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev) {
+EDGEPT *make_edgept(TDimension x, TDimension y, EDGEPT *next, EDGEPT *prev) {
   EDGEPT *this_edgept;
   /* Create point */
   this_edgept = new EDGEPT;

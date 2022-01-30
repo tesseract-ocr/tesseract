@@ -60,10 +60,10 @@
 │   └── script
 │       └── Latin.traineddata
 └── tesseract
-    ├── abseil
     ...
     ├── test
     ├── unittest
+    │   └── third_party/googletest
     └── VERSION
 ```
 

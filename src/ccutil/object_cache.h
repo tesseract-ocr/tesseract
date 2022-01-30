@@ -43,7 +43,8 @@ public:
         tprintf(
             "ObjectCache(%p)::~ObjectCache(): WARNING! LEAK! object %p "
             "still has count %d (id %s)\n",
-            this, it.object, it.count, it.id.c_str());
+            static_cast<void *>(this), static_cast<void *>(it.object),
+            it.count, it.id.c_str());
       } else {
         delete it.object;
         it.object = nullptr;

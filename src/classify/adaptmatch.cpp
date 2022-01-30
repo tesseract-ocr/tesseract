@@ -72,6 +72,11 @@
 
 namespace tesseract {
 
+// TODO: The parameter classify_enable_adaptive_matcher can cause
+// a segmentation fault if it is set to false (issue #256),
+// so override it here.
+#define classify_enable_adaptive_matcher true
+
 #define ADAPT_TEMPLATE_SUFFIX ".a"
 
 #define MAX_MATCHES 10
@@ -143,7 +148,7 @@ inline bool MarginalMatch(float confidence, float matcher_great_threshold) {
 -----------------------------------------------------------------------------*/
 // Returns the index of the given id in results, if present, or the size of the
 // vector (index it will go at) if not present.
-static int FindScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
+static unsigned FindScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
   for (unsigned i = 0; i < results.match.size(); i++) {
     if (results.match[i].unichar_id == id) {
       return i;
@@ -155,7 +160,7 @@ static int FindScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
 // Returns the current rating for a unichar id if we have rated it, defaulting
 // to WORST_POSSIBLE_RATING.
 static float ScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
-  int index = FindScoredUnichar(id, results);
+  unsigned index = FindScoredUnichar(id, results);
   if (index >= results.match.size()) {
     return WORST_POSSIBLE_RATING;
   }
@@ -271,7 +276,7 @@ void Classify::LearnWord(const char *fontname, WERD_RES *word) {
       tprintf("\n\nAdapting to word = %s\n", word->best_choice->debug_string().c_str());
     }
     thresholds = new float[word_len];
-    word->ComputeAdaptionThresholds(certainty_scale, matcher_perfect_threshold,
+    word->ComputeAdaptionThresholds(getDict().certainty_scale, matcher_perfect_threshold,
                                     matcher_good_threshold, matcher_rating_margin, thresholds);
   }
   int start_blob = 0;
@@ -323,7 +328,7 @@ void Classify::LearnWord(const char *fontname, WERD_RES *word) {
                                                    pieces_all_natural);
 
 	      std::string full_string;
-              for (int i = 0; i < tokens.size(); i++) {
+              for (unsigned i = 0; i < tokens.size(); i++) {
                 full_string += tokens[i];
                 if (i != tokens.size() - 1) {
                   full_string += ' ';
@@ -421,7 +426,7 @@ void Classify::LearnPieces(const char *fontname, int start, int length, float th
     LearnBlob(fontname, rotated_blob, cn_denorm, fx_info, correct_text);
   } else if (unicharset.contains_unichar(correct_text)) {
     UNICHAR_ID class_id = unicharset.unichar_to_id(correct_text);
-    int font_id = word->fontinfo != nullptr ? fontinfo_table_.get_id(*word->fontinfo) : 0;
+    int font_id = word->fontinfo != nullptr ? fontinfo_table_.get_index(*word->fontinfo) : 0;
     if (classify_learning_debug_level >= 1) {
       tprintf("Adapting to char = %s, thr= %g font_id= %d\n", unicharset.id_to_unichar(class_id),
               threshold, font_id);
@@ -578,7 +583,7 @@ void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
       tprintf("\n");
       PrintAdaptedTemplates(stdout, AdaptedTemplates);
 
-      for (int i = 0; i < AdaptedTemplates->Templates->NumClasses; i++) {
+      for (unsigned i = 0; i < AdaptedTemplates->Templates->NumClasses; i++) {
         BaselineCutoffs[i] = CharNormCutoffs[i];
       }
     }
@@ -807,7 +812,7 @@ bool Classify::AdaptableWord(WERD_RES *word) {
   if (word->best_choice == nullptr) {
     return false;
   }
-  int BestChoiceLength = word->best_choice->length();
+  auto BestChoiceLength = word->best_choice->length();
   float adaptable_score = getDict().segment_penalty_dict_case_ok + ADAPTABLE_WERD_ADJUSTMENT;
   return // rules that apply in general - simplest to compute first
       BestChoiceLength > 0 && BestChoiceLength == word->rebuild_word->NumBlobs() &&
@@ -979,7 +984,7 @@ void Classify::DisplayAdaptedChar(TBLOB *blob, INT_CLASS_STRUCT *int_class) {
  * @param[out] results results to add new result to
  */
 void Classify::AddNewResult(const UnicharRating &new_result, ADAPT_RESULTS *results) {
-  int old_match = FindScoredUnichar(new_result.unichar_id, *results);
+  auto old_match = FindScoredUnichar(new_result.unichar_id, *results);
 
   if (new_result.rating + matcher_bad_match_pad < results->best_rating ||
       (old_match < results->match.size() &&
@@ -1120,8 +1125,8 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, boo
       // by int_result. In this case, build a vector of UnicharRating to
       // gather together different font-ids for each unichar. Also covers case1.
       std::vector<UnicharRating> mapped_results;
-      for (int f = 0; f < int_result->fonts.size(); ++f) {
-        int shape_id = int_result->fonts[f].fontinfo_id;
+      for (auto &f : int_result->fonts) {
+        int shape_id = f.fontinfo_id;
         const Shape &shape = shape_table_->GetShape(shape_id);
         for (int c = 0; c < shape.size(); ++c) {
           int unichar_id = shape[c].unichar_id;
@@ -1139,7 +1144,7 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, boo
             mapped_results[r].fonts.clear();
           }
           for (int font_id : shape[c].font_ids) {
-            mapped_results[r].fonts.emplace_back(font_id, int_result->fonts[f].score);
+            mapped_results[r].fonts.emplace_back(font_id, f.score);
           }
         }
       }
@@ -1283,7 +1288,7 @@ int Classify::CharNormClassifier(TBLOB *blob, const TrainingSample &sample,
 int Classify::CharNormTrainingSample(bool pruner_only, int keep_this, const TrainingSample &sample,
                                      std::vector<UnicharRating> *results) {
   results->clear();
-  auto *adapt_results = new ADAPT_RESULTS();
+  std::unique_ptr<ADAPT_RESULTS> adapt_results(new ADAPT_RESULTS());
   adapt_results->Initialize();
   // Compute the bounding box of the features.
   uint32_t num_features = sample.num_features();
@@ -1293,16 +1298,15 @@ int Classify::CharNormTrainingSample(bool pruner_only, int keep_this, const Trai
                 sample.geo_feature(GeoTop), sample.geo_feature(GeoTop));
   // Compute the char_norm_array from the saved cn_feature.
   FEATURE norm_feature = sample.GetCNFeature();
-  auto *char_norm_array = new uint8_t[unicharset.size()];
-  int num_pruner_classes = std::max(unicharset.size(), PreTrainedTemplates->NumClasses);
-  auto *pruner_norm_array = new uint8_t[num_pruner_classes];
-  adapt_results->BlobLength = static_cast<int>(ActualOutlineLength(norm_feature) * 20 + 0.5);
-  ComputeCharNormArrays(norm_feature, PreTrainedTemplates, char_norm_array, pruner_norm_array);
+  std::vector<uint8_t> char_norm_array(unicharset.size());
+  auto num_pruner_classes = std::max(static_cast<unsigned>(unicharset.size()), PreTrainedTemplates->NumClasses);
+  std::vector<uint8_t> pruner_norm_array(num_pruner_classes);
+  adapt_results->BlobLength = static_cast<int>(ActualOutlineLength(norm_feature) * 20 + 0.5f);
+  ComputeCharNormArrays(norm_feature, PreTrainedTemplates, &char_norm_array[0], &pruner_norm_array[0]);
 
-  PruneClasses(PreTrainedTemplates, num_features, keep_this, sample.features(), pruner_norm_array,
+  PruneClasses(PreTrainedTemplates, num_features, keep_this, sample.features(), &pruner_norm_array[0],
                shape_table_ != nullptr ? &shapetable_cutoffs_[0] : CharNormCutoffs,
                &adapt_results->CPResults);
-  delete[] pruner_norm_array;
   if (keep_this >= 0) {
     adapt_results->CPResults[0].Class = keep_this;
     adapt_results->CPResults.resize(1);
@@ -1314,9 +1318,9 @@ int Classify::CharNormTrainingSample(bool pruner_only, int keep_this, const Trai
       results->push_back(UnicharRating(class_id, 1.0f - it.Rating));
     }
   } else {
-    MasterMatcher(PreTrainedTemplates, num_features, sample.features(), char_norm_array, nullptr,
+    MasterMatcher(PreTrainedTemplates, num_features, sample.features(), &char_norm_array[0], nullptr,
                   matcher_debug_flags, classify_integer_matcher_multiplier, blob_box,
-                  adapt_results->CPResults, adapt_results);
+                  adapt_results->CPResults, adapt_results.get());
     // Convert master matcher results to output format.
     for (auto &i : adapt_results->match) {
       results->push_back(i);
@@ -1325,8 +1329,6 @@ int Classify::CharNormTrainingSample(bool pruner_only, int keep_this, const Trai
       std::sort(results->begin(), results->end(), SortDescendingRating);
     }
   }
-  delete[] char_norm_array;
-  delete adapt_results;
   return num_features;
 } /* CharNormTrainingSample */
 
@@ -1345,7 +1347,7 @@ int Classify::CharNormTrainingSample(bool pruner_only, int keep_this, const Trai
 void Classify::ClassifyAsNoise(ADAPT_RESULTS *results) {
   float rating = results->BlobLength / matcher_avg_noise_size;
   rating *= rating;
-  rating /= 1.0 + rating;
+  rating /= 1 + rating;
 
   AddNewResult(UnicharRating(UNICHAR_SPACE, 1.0f - rating), results);
 } /* ClassifyAsNoise */
@@ -1627,18 +1629,18 @@ int Classify::GetCharNormFeature(const INT_FX_RESULT_STRUCT &fx_info, INT_TEMPLA
 void Classify::ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES_STRUCT *templates,
                                      uint8_t *char_norm_array, uint8_t *pruner_array) {
   ComputeIntCharNormArray(*norm_feature, char_norm_array);
-  if (pruner_array != nullptr) {
+  //if (pruner_array != nullptr) {
     if (shape_table_ == nullptr) {
       ComputeIntCharNormArray(*norm_feature, pruner_array);
     } else {
-      memset(pruner_array, UINT8_MAX, templates->NumClasses * sizeof(pruner_array[0]));
+      memset(&pruner_array[0], UINT8_MAX, templates->NumClasses * sizeof(pruner_array[0]));
       // Each entry in the pruner norm array is the MIN of all the entries of
       // the corresponding unichars in the CharNormArray.
-      for (int id = 0; id < templates->NumClasses; ++id) {
+      for (unsigned id = 0; id < templates->NumClasses; ++id) {
         int font_set_id = templates->Class[id]->font_set_id;
         const FontSet &fs = fontset_table_.at(font_set_id);
-        for (int config = 0; config < fs.size(); ++config) {
-          const Shape &shape = shape_table_->GetShape(fs[config]);
+        for (auto f : fs) {
+          const Shape &shape = shape_table_->GetShape(f);
           for (int c = 0; c < shape.size(); ++c) {
             if (char_norm_array[shape[c].unichar_id] < pruner_array[id]) {
               pruner_array[id] = char_norm_array[shape[c].unichar_id];
@@ -1647,7 +1649,7 @@ void Classify::ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES
         }
       }
     }
-  }
+  //}
   delete norm_feature;
 }
 
@@ -1780,13 +1782,13 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
       Y2 = F2->Params[PicoFeatY];
       A2 = F2->Params[PicoFeatDir];
 
-      AngleDelta = fabs(A1 - A2);
-      if (AngleDelta > 0.5) {
-        AngleDelta = 1.0 - AngleDelta;
+      AngleDelta = std::fabs(A1 - A2);
+      if (AngleDelta > 0.5f) {
+        AngleDelta = 1 - AngleDelta;
       }
 
-      if (AngleDelta > matcher_clustering_max_angle_delta || fabs(X1 - X2) > SegmentLength ||
-          fabs(Y1 - Y2) > SegmentLength) {
+      if (AngleDelta > matcher_clustering_max_angle_delta || std::fabs(X1 - X2) > SegmentLength ||
+          std::fabs(Y1 - Y2) > SegmentLength) {
         break;
       }
     }
@@ -1809,8 +1811,8 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
    instead of the -0.25 to 0.75 used in baseline normalization */
     Proto->Length = SegmentLength;
     Proto->Angle = A1;
-    Proto->X = (X1 + X2) / 2.0;
-    Proto->Y = (Y1 + Y2) / 2.0 - Y_DIM_OFFSET;
+    Proto->X = (X1 + X2) / 2;
+    Proto->Y = (Y1 + Y2) / 2 - Y_DIM_OFFSET;
     FillABC(Proto);
 
     TempProto->ProtoId = Pid;
@@ -2043,7 +2045,7 @@ void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
  * - matcher_good_threshold default good match rating
  */
 void Classify::SetAdaptiveThreshold(float Threshold) {
-  Threshold = (Threshold == matcher_good_threshold) ? 0.9 : (1.0 - Threshold);
+  Threshold = (Threshold == matcher_good_threshold) ? 0.9f : (1 - Threshold);
   classify_adapt_proto_threshold.set_value(ClipToRange<int>(255 * Threshold, 0, 255));
   classify_adapt_feature_threshold.set_value(ClipToRange<int>(255 * Threshold, 0, 255));
 } /* SetAdaptiveThreshold */
@@ -2117,12 +2119,12 @@ int Classify::ClassAndConfigIDToFontOrShapeID(int class_id, int int_result_confi
 // Converts a shape_table_ index to a classifier class_id index (not a
 // unichar-id!). Uses a search, so not fast.
 int Classify::ShapeIDToClassID(int shape_id) const {
-  for (int id = 0; id < PreTrainedTemplates->NumClasses; ++id) {
+  for (unsigned id = 0; id < PreTrainedTemplates->NumClasses; ++id) {
     int font_set_id = PreTrainedTemplates->Class[id]->font_set_id;
     ASSERT_HOST(font_set_id >= 0);
     const FontSet &fs = fontset_table_.at(font_set_id);
-    for (int config = 0; config < fs.size(); ++config) {
-      if (fs[config] == shape_id) {
+    for (auto f : fs) {
+      if (f == shape_id) {
         return id;
       }
     }

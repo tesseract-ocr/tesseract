@@ -69,15 +69,15 @@ static int32_t IntDotProductSSE(const int8_t *u, const int8_t *v, int n) {
 }
 
 // Computes part of matrix.vector v = Wu. Computes 1 result.
-static void PartialMatrixDotVector1(const int8_t *wi, const double *scales, const int8_t *u,
-                                    int num_in, double *v) {
-  double total = IntDotProductSSE(u, wi, num_in);
+static void PartialMatrixDotVector1(const int8_t *wi, const TFloat *scales, const int8_t *u,
+                                    int num_in, TFloat *v) {
+  TFloat total = IntDotProductSSE(u, wi, num_in);
   // Add in the bias and correct for integer values.
   *v = (total + wi[num_in] * INT8_MAX) * *scales;
 }
 
-static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const double *scales,
-                            const int8_t *u, double *v) {
+static void matrixDotVector(int dim1, int dim2, const int8_t *wi, const TFloat *scales,
+                            const int8_t *u, TFloat *v) {
   const int num_out = dim1;
   const int num_in = dim2 - 1;
   int output = 0;
@@ -99,7 +99,8 @@ const IntSimdMatrix IntSimdMatrix::intSimdMatrixSSE = {
     // Number of 8 bit inputs in the inputs register.
     1,
     // Number of inputs in each weight group.
-    1};
+    1
+};
 
 } // namespace tesseract.
 

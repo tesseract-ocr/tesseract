@@ -43,7 +43,8 @@ const int kMaxReadAhead = 8;
 
 ImageData::ImageData() : page_number_(-1), vertical_text_(false) {}
 // Takes ownership of the pix and destroys it.
-ImageData::ImageData(bool vertical, Image pix) : page_number_(0), vertical_text_(vertical) {
+ImageData::ImageData(bool vertical, Image pix)
+    : page_number_(0), vertical_text_(vertical) {
   SetPix(pix);
 }
 ImageData::~ImageData() {
@@ -55,8 +56,8 @@ ImageData::~ImageData() {
 // Builds and returns an ImageData from the basic data. Note that imagedata,
 // truth_text, and box_text are all the actual file data, NOT filenames.
 ImageData *ImageData::Build(const char *name, int page_number, const char *lang,
-                            const char *imagedata, int imagedatasize, const char *truth_text,
-                            const char *box_text) {
+                            const char *imagedata, int imagedatasize,
+                            const char *truth_text, const char *box_text) {
   auto *image_data = new ImageData();
   image_data->imagefilename_ = name;
   image_data->page_number_ = page_number;
@@ -67,7 +68,8 @@ ImageData *ImageData::Build(const char *name, int page_number, const char *lang,
   memcpy(&image_data->image_data_[0], imagedata, imagedatasize);
   if (!image_data->AddBoxes(box_text)) {
     if (truth_text == nullptr || truth_text[0] == '\0') {
-      tprintf("Error: No text corresponding to page %d from image %s!\n", page_number, name);
+      tprintf("Error: No text corresponding to page %d from image %s!\n",
+              page_number, name);
       delete image_data;
       return nullptr;
     }
@@ -210,8 +212,9 @@ Image ImageData::GetPix() const {
 // The return value is the scaled Pix, which must be pixDestroyed after use,
 // and scale_factor (if not nullptr) is set to the scale factor that was applied
 // to the image to achieve the target_height.
-Image ImageData::PreScale(int target_height, int max_height, float *scale_factor, int *scaled_width,
-                         int *scaled_height, std::vector<TBOX> *boxes) const {
+Image ImageData::PreScale(int target_height, int max_height,
+                          float *scale_factor, int *scaled_width,
+                          int *scaled_height, std::vector<TBOX> *boxes) const {
   int input_width = 0;
   int input_height = 0;
   Image src_pix = GetPix();
@@ -231,8 +234,8 @@ Image ImageData::PreScale(int target_height, int max_height, float *scale_factor
   // Get the scaled image.
   Image pix = pixScale(src_pix, im_factor, im_factor);
   if (pix == nullptr) {
-    tprintf("Scaling pix of size %d, %d by factor %g made null pix!!\n", input_width, input_height,
-            im_factor);
+    tprintf("Scaling pix of size %d, %d by factor %g made null pix!!\n",
+            input_width, input_height, im_factor);
     src_pix.destroy();
     return nullptr;
   }
@@ -278,9 +281,9 @@ void ImageData::Display() const {
   }
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
-  auto *win =
-      new ScrollView("Imagedata", 100, 100, 2 * (width + 2 * kTextSize),
-                     2 * (height + 4 * kTextSize), width + 10, height + 3 * kTextSize, true);
+  auto *win = new ScrollView("Imagedata", 100, 100, 2 * (width + 2 * kTextSize),
+                             2 * (height + 4 * kTextSize), width + 10,
+                             height + 3 * kTextSize, true);
   win->Draw(pix, 0, height - 1);
   pix.destroy();
   // Draw the boxes.
@@ -292,7 +295,7 @@ void ImageData::Display() const {
   }
   win->TextAttributes("Arial", text_size, false, false, false);
   if (!boxes_.empty()) {
-    for (int b = 0; b < boxes_.size(); ++b) {
+    for (unsigned b = 0; b < boxes_.size(); ++b) {
       boxes_[b].plot(win);
       win->Text(boxes_[b].left(), height + kTextSize, box_texts_[b].c_str());
     }
@@ -309,10 +312,11 @@ void ImageData::Display() const {
 
 // Adds the supplied boxes and transcriptions that correspond to the correct
 // page number.
-void ImageData::AddBoxes(const std::vector<TBOX> &boxes, const std::vector<std::string> &texts,
+void ImageData::AddBoxes(const std::vector<TBOX> &boxes,
+                         const std::vector<std::string> &texts,
                          const std::vector<int> &box_pages) {
   // Copy the boxes and make the transcription.
-  for (int i = 0; i < box_pages.size(); ++i) {
+  for (unsigned i = 0; i < box_pages.size(); ++i) {
     if (page_number_ >= 0 && box_pages[i] != page_number_) {
       continue;
     }
@@ -346,7 +350,8 @@ Image ImageData::GetPixInternal(const std::vector<char> &image_data) {
   Image pix = nullptr;
   if (!image_data.empty()) {
     // Convert the array to an image.
-    const auto *u_data = reinterpret_cast<const unsigned char *>(&image_data[0]);
+    const auto *u_data =
+        reinterpret_cast<const unsigned char *>(&image_data[0]);
     pix = pixReadMem(u_data, image_data.size());
   }
   return pix;
@@ -361,23 +366,25 @@ bool ImageData::AddBoxes(const char *box_text) {
     std::vector<std::string> texts;
     std::vector<int> box_pages;
     if (ReadMemBoxes(page_number_, /*skip_blanks*/ false, box_text,
-                     /*continue_on_failure*/ true, &boxes, &texts, nullptr, &box_pages)) {
+                     /*continue_on_failure*/ true, &boxes, &texts, nullptr,
+                     &box_pages)) {
       AddBoxes(boxes, texts, box_pages);
       return true;
     } else {
-      tprintf("Error: No boxes for page %d from image %s!\n", page_number_, imagefilename_.c_str());
+      tprintf("Error: No boxes for page %d from image %s!\n", page_number_,
+              imagefilename_.c_str());
     }
   }
   return false;
 }
 
 DocumentData::DocumentData(const std::string &name)
-    : document_name_(name)
-    , pages_offset_(-1)
-    , total_pages_(-1)
-    , memory_used_(0)
-    , max_memory_(0)
-    , reader_(nullptr) {}
+    : document_name_(name),
+      pages_offset_(-1),
+      total_pages_(-1),
+      memory_used_(0),
+      max_memory_(0),
+      reader_(nullptr) {}
 
 DocumentData::~DocumentData() {
   if (thread.joinable()) {
@@ -392,15 +399,16 @@ DocumentData::~DocumentData() {
 
 // Reads all the pages in the given lstmf filename to the cache. The reader
 // is used to read the file.
-bool DocumentData::LoadDocument(const char *filename, int start_page, int64_t max_memory,
-                                FileReader reader) {
+bool DocumentData::LoadDocument(const char *filename, int start_page,
+                                int64_t max_memory, FileReader reader) {
   SetDocument(filename, max_memory, reader);
   pages_offset_ = start_page;
   return ReCachePages();
 }
 
 // Sets up the document, without actually loading it.
-void DocumentData::SetDocument(const char *filename, int64_t max_memory, FileReader reader) {
+void DocumentData::SetDocument(const char *filename, int64_t max_memory,
+                               FileReader reader) {
   std::lock_guard<std::mutex> lock_p(pages_mutex_);
   std::lock_guard<std::mutex> lock(general_mutex_);
   document_name_ = filename;
@@ -435,19 +443,23 @@ void DocumentData::LoadPageInBackground(int index) {
   if (IsPageAvailable(index, &page)) {
     return;
   }
-  std::lock_guard<std::mutex> lock(pages_mutex_);
-  if (pages_offset_ == index) {
-    return;
+  {
+    std::lock_guard<std::mutex> lock(pages_mutex_);
+    if (pages_offset_ == index) {
+      return;
+    }
+    pages_offset_ = index;
+    for (auto page : pages_) {
+      delete page;
+    }
+    pages_.clear();
   }
-  pages_offset_ = index;
-  for (auto page : pages_) {
-    delete page;
-  }
-  pages_.clear();
   if (thread.joinable()) {
     thread.join();
   }
-  thread = std::thread(&tesseract::DocumentData::ReCachePages, this);
+  // Don't run next statement asynchronously because that would
+  // create too many threads on Linux (see issue #3111).
+  ReCachePages();
 }
 
 // Returns a pointer to the page with the given index, modulo the total
@@ -481,7 +493,8 @@ bool DocumentData::IsPageAvailable(int index, ImageData **page) {
   }
   if (num_pages > 0) {
     index = Modulo(index, num_pages);
-    if (pages_offset_ <= index && index < pages_offset_ + pages_.size()) {
+    if (pages_offset_ <= index &&
+        static_cast<unsigned>(index) < pages_offset_ + pages_.size()) {
       *page = pages_[index - pages_offset_]; // Page is available already.
       return true;
     }
@@ -501,8 +514,8 @@ int64_t DocumentData::UnCache() {
   pages_offset_ = -1;
   set_total_pages(-1);
   set_memory_used(0);
-  tprintf("Unloaded document %s, saving %" PRId64 " memory\n", document_name_.c_str(),
-          memory_saved);
+  tprintf("Unloaded document %s, saving %" PRId64 " memory\n",
+          document_name_.c_str(), memory_saved);
   return memory_saved;
 }
 
@@ -534,8 +547,8 @@ bool DocumentData::ReCachePages() {
   }
   pages_.clear();
   TFile fp;
-  if (!fp.Open(document_name_.c_str(), reader_) || !fp.DeSerializeSize(&loaded_pages) ||
-      loaded_pages <= 0) {
+  if (!fp.Open(document_name_.c_str(), reader_) ||
+      !fp.DeSerializeSize(&loaded_pages) || loaded_pages <= 0) {
     tprintf("Deserialize header failed: %s\n", document_name_.c_str());
     return false;
   }
@@ -548,7 +561,8 @@ bool DocumentData::ReCachePages() {
     if (!fp.DeSerialize(&non_null)) {
       break;
     }
-    if (page < pages_offset_ || (max_memory_ > 0 && memory_used() > max_memory_)) {
+    if (page < pages_offset_ ||
+        (max_memory_ > 0 && memory_used() > max_memory_)) {
       if (non_null && !ImageData::SkipDeSerialize(&fp)) {
         break;
       }
@@ -570,16 +584,17 @@ bool DocumentData::ReCachePages() {
     }
   }
   if (page < loaded_pages) {
-    tprintf("Deserialize failed: %s read %d/%d lines\n", document_name_.c_str(), page,
-            loaded_pages);
+    tprintf("Deserialize failed: %s read %d/%d lines\n", document_name_.c_str(),
+            page, loaded_pages);
     for (auto page : pages_) {
       delete page;
     }
     pages_.clear();
   } else if (loaded_pages > 1) {
     // Avoid lots of messages for training with single line images.
-    tprintf("Loaded %zu/%d lines (%d-%zu) of document %s\n", pages_.size(), loaded_pages,
-            pages_offset_ + 1, pages_offset_ + pages_.size(), document_name_.c_str());
+    tprintf("Loaded %zu/%d lines (%d-%zu) of document %s\n", pages_.size(),
+            loaded_pages, pages_offset_ + 1, pages_offset_ + pages_.size(),
+            document_name_.c_str());
   }
   set_total_pages(loaded_pages);
   return !pages_.empty();
@@ -597,7 +612,8 @@ DocumentCache::~DocumentCache() {
 // Adds all the documents in the list of filenames, counting memory.
 // The reader is used to read the files.
 bool DocumentCache::LoadDocuments(const std::vector<std::string> &filenames,
-                                  CachingStrategy cache_strategy, FileReader reader) {
+                                  CachingStrategy cache_strategy,
+                                  FileReader reader) {
   cache_strategy_ = cache_strategy;
   int64_t fair_share_memory = 0;
   // In the round-robin case, each DocumentData handles restricting its content
@@ -606,7 +622,7 @@ bool DocumentCache::LoadDocuments(const std::vector<std::string> &filenames,
   if (cache_strategy_ == CS_ROUND_ROBIN) {
     fair_share_memory = max_memory_ / filenames.size();
   }
-  for (auto filename : filenames) {
+  for (const auto &filename : filenames) {
     auto *document = new DocumentData(filename);
     document->SetDocument(filename.c_str(), fair_share_memory, reader);
     AddToCache(document);
@@ -628,7 +644,8 @@ bool DocumentCache::AddToCache(DocumentData *data) {
 }
 
 // Finds and returns a document by name.
-DocumentData *DocumentCache::FindDocument(const std::string &document_name) const {
+DocumentData *DocumentCache::FindDocument(
+    const std::string &document_name) const {
   for (auto *document : documents_) {
     if (document->document_name() == document_name) {
       return document;
@@ -692,7 +709,8 @@ const ImageData *DocumentCache::GetPageSequential(int serial) {
     }
   }
   int doc_index = serial / num_pages_per_doc_ % num_docs;
-  const ImageData *doc = documents_[doc_index]->GetPage(serial % num_pages_per_doc_);
+  const ImageData *doc =
+      documents_[doc_index]->GetPage(serial % num_pages_per_doc_);
   // Count up total memory. Background loading makes it more complicated to
   // keep a running count.
   int64_t total_memory = 0;
@@ -706,7 +724,8 @@ const ImageData *DocumentCache::GetPageSequential(int serial) {
     // we create a hole between them and then un-caching the backmost occupied
     // will work for both.
     int num_in_front = CountNeighbourDocs(doc_index, 1);
-    for (int offset = num_in_front - 2; offset > 1 && total_memory >= max_memory_; --offset) {
+    for (int offset = num_in_front - 2;
+         offset > 1 && total_memory >= max_memory_; --offset) {
       int next_index = (doc_index + offset) % num_docs;
       total_memory -= documents_[next_index]->UnCache();
     }
@@ -714,7 +733,8 @@ const ImageData *DocumentCache::GetPageSequential(int serial) {
     // we take away the document that a 2nd reader is using, it will put it
     // back and make a hole between.
     int num_behind = CountNeighbourDocs(doc_index, -1);
-    for (int offset = num_behind; offset < 0 && total_memory >= max_memory_; ++offset) {
+    for (int offset = num_behind; offset < 0 && total_memory >= max_memory_;
+         ++offset) {
       int next_index = (doc_index + offset + num_docs) % num_docs;
       total_memory -= documents_[next_index]->UnCache();
     }

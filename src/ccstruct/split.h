@@ -111,12 +111,12 @@ struct SPLIT {
               V a r i a b l e s
 ----------------------------------------------------------------------*/
 
-extern BOOL_VAR_H(wordrec_display_splits, 0, "Display splits");
+extern BOOL_VAR_H(wordrec_display_splits);
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev);
+EDGEPT *make_edgept(TDimension x, TDimension y, EDGEPT *next, EDGEPT *prev);
 
 void remove_edgept(EDGEPT *point);
 

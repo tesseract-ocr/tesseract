@@ -33,7 +33,7 @@ namespace tesseract {
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 -----------------------------------------------------------------------------*/
-#define MINSEARCH -FLT_MAX
+#define MINSEARCH (-FLT_MAX)
 #define MAXSEARCH FLT_MAX
 
 // Helper function to find the next essential dimension in a cycle.
@@ -398,7 +398,7 @@ float DistanceSquared(int k, PARAM_DESC *dim, float p1[], float p2[]) {
 }
 
 float ComputeDistance(int k, PARAM_DESC *dim, float p1[], float p2[]) {
-  return sqrt(DistanceSquared(k, dim, p1, p2));
+  return std::sqrt(DistanceSquared(k, dim, p1, p2));
 }
 
 /*---------------------------------------------------------------------------*/

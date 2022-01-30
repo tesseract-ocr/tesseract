@@ -89,13 +89,13 @@ void StructuredTable::set_max_text_height(int height) {
 bool StructuredTable::is_lined() const {
   return is_lined_;
 }
-int StructuredTable::row_count() const {
+unsigned StructuredTable::row_count() const {
   return cell_y_.empty() ? 0 : cell_y_.size() - 1;
 }
-int StructuredTable::column_count() const {
+unsigned StructuredTable::column_count() const {
   return cell_x_.empty() ? 0 : cell_x_.size() - 1;
 }
-int StructuredTable::cell_count() const {
+unsigned StructuredTable::cell_count() const {
   return row_count() * column_count();
 }
 void StructuredTable::set_bounding_box(const TBOX &box) {
@@ -110,12 +110,12 @@ int StructuredTable::median_cell_height() {
 int StructuredTable::median_cell_width() {
   return median_cell_width_;
 }
-int StructuredTable::row_height(int row) const {
-  ASSERT_HOST(0 <= row && row < row_count());
+int StructuredTable::row_height(unsigned row) const {
+  ASSERT_HOST(row < row_count());
   return cell_y_[row + 1] - cell_y_[row];
 }
-int StructuredTable::column_width(int column) const {
-  ASSERT_HOST(0 <= column && column < column_count());
+int StructuredTable::column_width(unsigned column) const {
+  ASSERT_HOST(column < column_count());
   return cell_x_[column + 1] - cell_x_[column];
 }
 int StructuredTable::space_above() const {
@@ -234,16 +234,16 @@ int StructuredTable::CountFilledCellsInRow(int row) {
 int StructuredTable::CountFilledCellsInColumn(int column) {
   return CountFilledCells(0, row_count() - 1, column, column);
 }
-int StructuredTable::CountFilledCells(int row_start, int row_end, int column_start,
-                                      int column_end) {
-  ASSERT_HOST(0 <= row_start && row_start <= row_end && row_end < row_count());
-  ASSERT_HOST(0 <= column_start && column_start <= column_end && column_end < column_count());
+int StructuredTable::CountFilledCells(unsigned row_start, unsigned row_end, unsigned column_start,
+                                      unsigned column_end) {
+  ASSERT_HOST(row_start <= row_end && row_end < row_count());
+  ASSERT_HOST(column_start <= column_end && column_end < column_count());
   int cell_count = 0;
   TBOX cell_box;
-  for (int row = row_start; row <= row_end; ++row) {
+  for (unsigned row = row_start; row <= row_end; ++row) {
     cell_box.set_bottom(cell_y_[row]);
     cell_box.set_top(cell_y_[row + 1]);
-    for (int col = column_start; col <= column_end; ++col) {
+    for (unsigned col = column_start; col <= column_end; ++col) {
       cell_box.set_left(cell_x_[col]);
       cell_box.set_right(cell_x_[col + 1]);
       if (CountPartitions(cell_box) > 0) {
@@ -258,8 +258,8 @@ int StructuredTable::CountFilledCells(int row_start, int row_end, int column_sta
 // This can filter out large whitespace caused by growing tables too far
 // and page numbers.
 bool StructuredTable::VerifyRowFilled(int row) {
-  for (int i = 0; i < column_count(); ++i) {
-    double area_filled = CalculateCellFilledPercentage(row, i);
+  for (unsigned i = 0; i < column_count(); ++i) {
+    auto area_filled = CalculateCellFilledPercentage(row, i);
     if (area_filled >= kMinFilledArea) {
       return true;
     }
@@ -269,9 +269,9 @@ bool StructuredTable::VerifyRowFilled(int row) {
 
 // Finds the filled area in a cell.
 // Assume ColPartitions do not overlap for simplicity (even though they do).
-double StructuredTable::CalculateCellFilledPercentage(int row, int column) {
-  ASSERT_HOST(0 <= row && row <= row_count());
-  ASSERT_HOST(0 <= column && column <= column_count());
+double StructuredTable::CalculateCellFilledPercentage(unsigned row, unsigned column) {
+  ASSERT_HOST(row <= row_count());
+  ASSERT_HOST(column <= column_count());
   const TBOX kCellBox(cell_x_[column], cell_y_[row], cell_x_[column + 1], cell_y_[row + 1]);
   ASSERT_HOST(!kCellBox.null_box());
 
@@ -309,39 +309,6 @@ void StructuredTable::Display(ScrollView *window, ScrollView::Color color) {
 }
 
 #endif
-
-std::vector<TBOX> StructuredTable::getRows()
-{
-  if (cell_y_.size() < 2) {
-    return std::vector<TBOX>();
-  }
-
-  std::vector<TBOX> rows(cell_y_.size() - 1);
-  unsigned ct = cell_y_.size() - 2;
-  for(unsigned i = 0; i + 1 < cell_y_.size(); i++) {
-    const ICOORD left(bounding_box_.left(), cell_y_[i]);
-    const ICOORD right(bounding_box_.right(), cell_y_[i + 1]);
-    rows[ct - i] = TBOX(left, right);
-  }
- 
-  return rows;
-}
-
-std::vector<TBOX> StructuredTable::getCols()
-{
-  if (cell_x_.size() < 2) {
-    return std::vector<TBOX>();
-  }
-
-  std::vector<TBOX> cols(cell_x_.size() - 1);
-  for(unsigned i = 0; i + 1 < cell_x_.size(); i++) {
-    const ICOORD top(cell_x_[i], bounding_box_.top());
-    const ICOORD bot(cell_x_[i+1], bounding_box_.bottom());
-    cols[i] = TBOX(top, bot);
-  }
- 
-  return cols;
-}
 
 // Clear structure information.
 void StructuredTable::ClearStructure() {
@@ -565,10 +532,10 @@ void StructuredTable::CalculateStats() {
   STATS height_stats(0, kMaxCellHeight + 1);
   STATS width_stats(0, kMaxCellWidth + 1);
 
-  for (int i = 0; i < row_count(); ++i) {
+  for (unsigned i = 0; i < row_count(); ++i) {
     height_stats.add(row_height(i), column_count());
   }
-  for (int i = 0; i < column_count(); ++i) {
+  for (unsigned i = 0; i < column_count(); ++i) {
     width_stats.add(column_width(i), row_count());
   }
 
@@ -650,8 +617,8 @@ void StructuredTable::FindCellSplitLocations(const std::vector<int> &min_list,
   ASSERT_HOST(min_list.at(min_list.size() - 1) < max_list.at(max_list.size() - 1));
 
   locations->push_back(min_list.at(0));
-  int min_index = 0;
-  int max_index = 0;
+  unsigned min_index = 0;
+  unsigned max_index = 0;
   int stacked_partitions = 0;
   int last_cross_position = INT32_MAX;
   // max_index will expire after min_index.
@@ -752,15 +719,6 @@ int StructuredTable::CountPartitions(const TBOX &box) {
 ////////
 //////// TableRecognizer Class
 ////////
-
-TableRecognizer::TableRecognizer()
-    : text_grid_(nullptr)
-    , line_grid_(nullptr)
-    , min_height_(0)
-    , min_width_(0)
-    , max_text_height_(INT32_MAX) {}
-
-TableRecognizer::~TableRecognizer() = default;
 
 void TableRecognizer::Init() {}
 
@@ -937,7 +895,7 @@ bool TableRecognizer::RecognizeWhitespacedTable(const TBOX &guess_box, Structure
   const int kMidGuessY = (guess_box.bottom() + guess_box.top()) / 2;
   // Keeps track of the most columns in an accepted table. The resulting table
   // may be less than the max, but we don't want to stray too far.
-  int best_cols = 0;
+  unsigned best_cols = 0;
   // Make sure we find a good border.
   bool found_good_border = false;
 

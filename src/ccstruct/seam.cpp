@@ -143,7 +143,7 @@ void SEAM::UndoSeam(TBLOB *blob, TBLOB *other_blob) const {
 // Prints everything in *this SEAM.
 void SEAM::Print(const char *label) const {
   tprintf("%s", label);
-  tprintf(" %6.2f @ (%d,%d), p=%d, n=%d ", priority_, location_.x, location_.y, widthp_, widthn_);
+  tprintf(" %6.2f @ (%d,%d), p=%u, n=%u ", priority_, location_.x, location_.y, widthp_, widthn_);
   for (int s = 0; s < num_splits_; ++s) {
     splits_[s].Print();
     if (s + 1 < num_splits_) {
@@ -263,7 +263,7 @@ void start_seam_list(TWERD *word, std::vector<SEAM *> *seam_array) {
   seam_array->clear();
   TPOINT location;
 
-  for (int b = 1; b < word->NumBlobs(); ++b) {
+  for (unsigned b = 1; b < word->NumBlobs(); ++b) {
     TBOX bbox = word->blobs[b - 1]->bounding_box();
     TBOX nbox = word->blobs[b]->bounding_box();
     location.x = (bbox.right() + nbox.left()) / 2;

@@ -22,13 +22,13 @@
 
 #include <algorithm>
 #include <cmath>
+#include <utility>
 #include "tablefind.h"
 
 #include <allheaders.h>
 
 #include "colpartitionset.h"
 #include "tablerecog.h"
-#include "tabletransfer.h"
 
 namespace tesseract {
 
@@ -158,11 +158,11 @@ void DeleteObject(T *object) {
 }
 
 TableFinder::TableFinder()
-    : resolution_(0)
-    , global_median_xheight_(0)
-    , global_median_blob_width_(0)
-    , global_median_ledding_(0)
-    , left_to_right_language_(true) {}
+    : resolution_(0),
+      global_median_xheight_(0),
+      global_median_blob_width_(0),
+      global_median_ledding_(0),
+      left_to_right_language_(true) {}
 
 TableFinder::~TableFinder() {
   // ColPartitions and ColSegments created by this class for storage in grids
@@ -178,7 +178,8 @@ void TableFinder::set_left_to_right_language(bool order) {
   left_to_right_language_ = order;
 }
 
-void TableFinder::Init(int grid_size, const ICOORD &bottom_left, const ICOORD &top_right) {
+void TableFinder::Init(int grid_size, const ICOORD &bottom_left,
+                       const ICOORD &top_right) {
   // Initialize clean partitions list and grid
   clean_part_grid_.Init(grid_size, bottom_left, top_right);
   leader_and_ruling_grid_.Init(grid_size, bottom_left, top_right);
@@ -189,7 +190,8 @@ void TableFinder::Init(int grid_size, const ICOORD &bottom_left, const ICOORD &t
 
 // Copy cleaned partitions from part_grid_ to clean_part_grid_ and
 // insert leaders and rulers into the leader_and_ruling_grid_
-void TableFinder::InsertCleanPartitions(ColPartitionGrid *grid, TO_BLOCK *block) {
+void TableFinder::InsertCleanPartitions(ColPartitionGrid *grid,
+                                        TO_BLOCK *block) {
   // Calculate stats. This lets us filter partitions in AllowTextPartition()
   // and filter blobs in AllowBlob().
   SetGlobalSpacings(grid);
@@ -256,20 +258,22 @@ void TableFinder::InsertCleanPartitions(ColPartitionGrid *grid, TO_BLOCK *block)
 }
 
 // High level function to perform table detection
-void TableFinder::LocateTables(ColPartitionGrid *grid, ColPartitionSet **all_columns,
+void TableFinder::LocateTables(ColPartitionGrid *grid,
+                               ColPartitionSet **all_columns,
                                WidthCallback width_cb, const FCOORD &reskew) {
   // initialize spacing, neighbors, and columns
   InitializePartitions(all_columns);
 
 #ifndef GRAPHICS_DISABLED
   if (textord_show_tables) {
-    ScrollView *table_win = MakeWindow(0, 300,
-                                       "Step 1: Column Partitions & Neighbors");
+    ScrollView *table_win = MakeWindow(0, 300, "Column Partitions & Neighbors");
     DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
-    DisplayColPartitions(table_win, &leader_and_ruling_grid_, ScrollView::AQUAMARINE);
-    DisplayColPartitionConnections(table_win, &clean_part_grid_, ScrollView::ORANGE);
+    DisplayColPartitions(table_win, &leader_and_ruling_grid_,
+                         ScrollView::AQUAMARINE);
+    DisplayColPartitionConnections(table_win, &clean_part_grid_,
+                                   ScrollView::ORANGE);
 
-    table_win = MakeWindow(100, 300, "Step 2: Fragmented Text");
+    table_win = MakeWindow(100, 300, "Fragmented Text");
     DisplayColPartitions(table_win, &fragmented_text_grid_, ScrollView::BLUE);
   }
 #endif // !GRAPHICS_DISABLED
@@ -304,8 +308,7 @@ void TableFinder::LocateTables(ColPartitionGrid *grid, ColPartitionSet **all_col
 
 #ifndef GRAPHICS_DISABLED
   if (textord_tablefind_show_mark) {
-    ScrollView *table_win = MakeWindow(1200, 300,
-                                       "Step 7: Table Columns and Regions");
+    ScrollView *table_win = MakeWindow(1200, 300, "Table Columns and Regions");
     DisplayColSegments(table_win, &table_columns, ScrollView::DARK_TURQUOISE);
     DisplayColSegments(table_win, &table_regions, ScrollView::YELLOW);
   }
@@ -327,8 +330,7 @@ void TableFinder::LocateTables(ColPartitionGrid *grid, ColPartitionSet **all_col
 
 #ifndef GRAPHICS_DISABLED
     if (textord_show_tables) {
-      ScrollView *table_win = MakeWindow(1200, 300,
-                                         "Step 8: Detected Table Locations");
+      ScrollView *table_win = MakeWindow(1200, 300, "Detected Table Locations");
       DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
       DisplayColSegments(table_win, &table_columns, ScrollView::KHAKI);
       table_grid_.DisplayBoxes(table_win);
@@ -342,10 +344,9 @@ void TableFinder::LocateTables(ColPartitionGrid *grid, ColPartitionSet **all_col
 
 #ifndef GRAPHICS_DISABLED
     if (textord_show_tables) {
-      ScrollView *table_win = MakeWindow(1400, 600,
-                                         "Step 10: Recognized Tables");
-      DisplayColPartitions(table_win, &clean_part_grid_,
-                           ScrollView::BLUE, ScrollView::BLUE);
+      ScrollView *table_win = MakeWindow(1400, 600, "Recognized Tables");
+      DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE,
+                           ScrollView::BLUE);
       table_grid_.DisplayBoxes(table_win);
     }
 #endif // !GRAPHICS_DISABLED
@@ -358,9 +359,9 @@ void TableFinder::LocateTables(ColPartitionGrid *grid, ColPartitionSet **all_col
 
 #ifndef GRAPHICS_DISABLED
     if (textord_show_tables) {
-      ScrollView *table_win = MakeWindow(1500, 300, "Step 11: Detected Tables");
-      DisplayColPartitions(table_win, &clean_part_grid_,
-                           ScrollView::BLUE, ScrollView::BLUE);
+      ScrollView *table_win = MakeWindow(1500, 300, "Detected Tables");
+      DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE,
+                           ScrollView::BLUE);
       table_grid_.DisplayBoxes(table_win);
     }
 #endif // !GRAPHICS_DISABLED
@@ -459,7 +460,8 @@ void TableFinder::SplitAndInsertFragmentedTextPartition(ColPartition *part) {
     // Look for the next split in the partition.
     for (box_it.mark_cycle_pt(); !box_it.cycled_list(); box_it.forward()) {
       const TBOX &box = box_it.data()->bounding_box();
-      if (previous_right != INT32_MIN && box.left() - previous_right > kThreshold) {
+      if (previous_right != INT32_MIN &&
+          box.left() - previous_right > kThreshold) {
         // We have a split position. Split the partition in two pieces.
         // Insert the left piece in the grid and keep processing the right.
         int mid_x = (box.left() + previous_right) / 2;
@@ -491,7 +493,8 @@ bool TableFinder::AllowTextPartition(const ColPartition &part) const {
   const int median_area = global_median_xheight_ * global_median_blob_width_;
   const double kAreaPerBlobRequired = median_area * kAllowTextArea;
   // Keep comparisons strictly greater to disallow 0!
-  return part.median_height() > kHeightRequired && part.median_width() > kWidthRequired &&
+  return part.median_height() > kHeightRequired &&
+         part.median_width() > kWidthRequired &&
          part.bounding_box().area() > kAreaPerBlobRequired * part.boxes_count();
 }
 
@@ -519,13 +522,15 @@ ScrollView *TableFinder::MakeWindow(int x, int y, const char *window_name) {
 #endif
 
 // Make single-column blocks from good_columns_ partitions.
-void TableFinder::GetColumnBlocks(ColPartitionSet **all_columns, ColSegment_LIST *column_blocks) {
+void TableFinder::GetColumnBlocks(ColPartitionSet **all_columns,
+                                  ColSegment_LIST *column_blocks) {
   for (int i = 0; i < gridheight(); ++i) {
     ColPartitionSet *columns = all_columns[i];
     if (columns != nullptr) {
       ColSegment_LIST new_blocks;
       // Get boxes from the current vertical position on the grid
-      columns->GetColumnBoxes(i * gridsize(), (i + 1) * gridsize(), &new_blocks);
+      columns->GetColumnBoxes(i * gridsize(), (i + 1) * gridsize(),
+                              &new_blocks);
       // Merge the new_blocks boxes into column_blocks if they are well-aligned
       GroupColumnBlocks(&new_blocks, column_blocks);
     }
@@ -533,7 +538,8 @@ void TableFinder::GetColumnBlocks(ColPartitionSet **all_columns, ColSegment_LIST
 }
 
 // Merge column segments into the current list if they are well aligned.
-void TableFinder::GroupColumnBlocks(ColSegment_LIST *new_blocks, ColSegment_LIST *column_blocks) {
+void TableFinder::GroupColumnBlocks(ColSegment_LIST *new_blocks,
+                                    ColSegment_LIST *column_blocks) {
   ColSegment_IT src_it(new_blocks);
   ColSegment_IT dest_it(column_blocks);
   // iterate through the source list
@@ -565,8 +571,10 @@ void TableFinder::GroupColumnBlocks(ColSegment_LIST *new_blocks, ColSegment_LIST
 bool TableFinder::ConsecutiveBoxes(const TBOX &b1, const TBOX &b2) {
   int x_margin = 20;
   int y_margin = 5;
-  return (abs(b1.left() - b2.left()) < x_margin) && (abs(b1.right() - b2.right()) < x_margin) &&
-         (abs(b1.top() - b2.bottom()) < y_margin || abs(b2.top() - b1.bottom()) < y_margin);
+  return (abs(b1.left() - b2.left()) < x_margin) &&
+         (abs(b1.right() - b2.right()) < x_margin) &&
+         (abs(b1.top() - b2.bottom()) < y_margin ||
+          abs(b2.top() - b1.bottom()) < y_margin);
 }
 
 // Set up info for clean_part_grid_ partitions to be valid during detection
@@ -578,7 +586,8 @@ void TableFinder::InitializePartitions(ColPartitionSet **all_columns) {
 }
 
 // Set left, right and top, bottom spacings of each colpartition.
-void TableFinder::SetPartitionSpacings(ColPartitionGrid *grid, ColPartitionSet **all_columns) {
+void TableFinder::SetPartitionSpacings(ColPartitionGrid *grid,
+                                       ColPartitionSet **all_columns) {
   // Iterate the ColPartitions in the grid.
   ColPartitionGridSearch gsearch(grid);
   gsearch.StartFullSearch();
@@ -606,7 +615,8 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid *grid, ColPartitionSet *
     hsearch.StartSideSearch(box.left(), box.bottom(), box.top());
     ColPartition *neighbor = nullptr;
     while ((neighbor = hsearch.NextSideSearch(true)) != nullptr) {
-      if (neighbor->type() == PT_PULLOUT_IMAGE || neighbor->type() == PT_FLOWING_IMAGE ||
+      if (neighbor->type() == PT_PULLOUT_IMAGE ||
+          neighbor->type() == PT_FLOWING_IMAGE ||
           neighbor->type() == PT_HEADING_IMAGE) {
         int right = neighbor->bounding_box().right();
         if (right < box.left()) {
@@ -618,7 +628,8 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid *grid, ColPartitionSet *
     hsearch.StartSideSearch(box.left(), box.bottom(), box.top());
     neighbor = nullptr;
     while ((neighbor = hsearch.NextSideSearch(false)) != nullptr) {
-      if (neighbor->type() == PT_PULLOUT_IMAGE || neighbor->type() == PT_FLOWING_IMAGE ||
+      if (neighbor->type() == PT_PULLOUT_IMAGE ||
+          neighbor->type() == PT_FLOWING_IMAGE ||
           neighbor->type() == PT_HEADING_IMAGE) {
         int left = neighbor->bounding_box().left();
         if (left > box.right()) {
@@ -630,8 +641,9 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid *grid, ColPartitionSet *
 
     ColPartition *upper_part = part->SingletonPartner(true);
     if (upper_part) {
-      int space = std::max(
-          0, static_cast<int>(upper_part->bounding_box().bottom() - part->bounding_box().bottom()));
+      int space =
+          std::max(0, static_cast<int>(upper_part->bounding_box().bottom() -
+                                       part->bounding_box().bottom()));
       part->set_space_above(space);
     } else {
       // TODO(nbeato): What constitutes a good value?
@@ -642,8 +654,9 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid *grid, ColPartitionSet *
 
     ColPartition *lower_part = part->SingletonPartner(false);
     if (lower_part) {
-      int space = std::max(
-          0, static_cast<int>(part->bounding_box().bottom() - lower_part->bounding_box().bottom()));
+      int space =
+          std::max(0, static_cast<int>(part->bounding_box().bottom() -
+                                       lower_part->bounding_box().bottom()));
       part->set_space_below(space);
     } else {
       // TODO(nbeato): What constitutes a good value?
@@ -657,14 +670,17 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid *grid, ColPartitionSet *
 // Set spacing and closest neighbors above and below a given colpartition.
 void TableFinder::SetVerticalSpacing(ColPartition *part) {
   TBOX box = part->bounding_box();
-  int top_range = std::min(box.top() + kMaxVerticalSpacing, static_cast<int>(tright().y()));
-  int bottom_range = std::max(box.bottom() - kMaxVerticalSpacing, static_cast<int>(bleft().y()));
+  int top_range =
+      std::min(box.top() + kMaxVerticalSpacing, static_cast<int>(tright().y()));
+  int bottom_range = std::max(box.bottom() - kMaxVerticalSpacing,
+                              static_cast<int>(bleft().y()));
   box.set_top(top_range);
   box.set_bottom(bottom_range);
 
   TBOX part_box = part->bounding_box();
   // Start a rect search
-  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> rectsearch(&clean_part_grid_);
+  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> rectsearch(
+      &clean_part_grid_);
   rectsearch.StartRectSearch(box);
   ColPartition *neighbor;
   int min_space_above = kMaxVerticalSpacing;
@@ -683,7 +699,8 @@ void TableFinder::SetVerticalSpacing(ColPartition *part) {
         min_space_below = gap;
         below_neighbor = neighbor;
       } // If neighbor is above current partition
-      else if (part_box.top() < neighbor_box.bottom() && gap < min_space_above) {
+      else if (part_box.top() < neighbor_box.bottom() &&
+               gap < min_space_above) {
         min_space_above = gap;
         above_neighbor = neighbor;
       }
@@ -782,37 +799,37 @@ void TableFinder::MarkTablePartitions() {
   MarkPartitionsUsingLocalInformation();
 #ifndef GRAPHICS_DISABLED
   if (textord_tablefind_show_mark) {
-    ScrollView *table_win = MakeWindow(300, 300,
-                                       "Step 3: Initial Table Partitions");
+    ScrollView *table_win = MakeWindow(300, 300, "Initial Table Partitions");
     DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
-    DisplayColPartitions(table_win, &leader_and_ruling_grid_, ScrollView::AQUAMARINE);
+    DisplayColPartitions(table_win, &leader_and_ruling_grid_,
+                         ScrollView::AQUAMARINE);
   }
 #endif
   FilterFalseAlarms();
 #ifndef GRAPHICS_DISABLED
   if (textord_tablefind_show_mark) {
-    ScrollView *table_win = MakeWindow(600, 300,
-                                       "Step 4: Filtered Table Partitions");
+    ScrollView *table_win = MakeWindow(600, 300, "Filtered Table Partitions");
     DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
-    DisplayColPartitions(table_win, &leader_and_ruling_grid_, ScrollView::AQUAMARINE);
+    DisplayColPartitions(table_win, &leader_and_ruling_grid_,
+                         ScrollView::AQUAMARINE);
   }
 #endif
   SmoothTablePartitionRuns();
 #ifndef GRAPHICS_DISABLED
   if (textord_tablefind_show_mark) {
-    ScrollView *table_win = MakeWindow(900, 300,
-                                       "Step 5: Smoothed Table Partitions");
+    ScrollView *table_win = MakeWindow(900, 300, "Smoothed Table Partitions");
     DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
-    DisplayColPartitions(table_win, &leader_and_ruling_grid_, ScrollView::AQUAMARINE);
+    DisplayColPartitions(table_win, &leader_and_ruling_grid_,
+                         ScrollView::AQUAMARINE);
   }
 #endif
   FilterFalseAlarms();
 #ifndef GRAPHICS_DISABLED
   if (textord_tablefind_show_mark || textord_show_tables) {
-    ScrollView *table_win = MakeWindow(900, 300,
-                                       "Step 6: Final Table Partitions");
+    ScrollView *table_win = MakeWindow(900, 300, "Final Table Partitions");
     DisplayColPartitions(table_win, &clean_part_grid_, ScrollView::BLUE);
-    DisplayColPartitions(table_win, &leader_and_ruling_grid_, ScrollView::AQUAMARINE);
+    DisplayColPartitions(table_win, &leader_and_ruling_grid_,
+                         ScrollView::AQUAMARINE);
   }
 #endif
 }
@@ -826,7 +843,8 @@ void TableFinder::MarkTablePartitions() {
 //  4- Partitions with leaders before/after them.
 void TableFinder::MarkPartitionsUsingLocalInformation() {
   // Iterate the ColPartitions in the grid.
-  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> gsearch(&clean_part_grid_);
+  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> gsearch(
+      &clean_part_grid_);
   gsearch.StartFullSearch();
   ColPartition *part = nullptr;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
@@ -861,7 +879,8 @@ bool TableFinder::HasWideOrNoInterWordGap(ColPartition *part) const {
   BLOBNBOX_CLIST *part_boxes = part->boxes();
   BLOBNBOX_C_IT it(part_boxes);
   // Check if this is a relatively small partition (such as a single word)
-  if (part->bounding_box().width() < kMinBoxesInTextPartition * part->median_height() &&
+  if (part->bounding_box().width() <
+          kMinBoxesInTextPartition * part->median_height() &&
       part_boxes->length() < kMinBoxesInTextPartition) {
     return true;
   }
@@ -918,7 +937,8 @@ bool TableFinder::HasWideOrNoInterWordGap(ColPartition *part) const {
   }
   // Since no large gap was found, return false if the partition is too
   // long to be a data cell
-  if (part->bounding_box().width() > kMaxBoxesInDataPartition * part->median_height() ||
+  if (part->bounding_box().width() >
+          kMaxBoxesInDataPartition * part->median_height() ||
       part_boxes->length() > kMaxBoxesInDataPartition) {
     return false;
   }
@@ -1027,19 +1047,23 @@ void TableFinder::FilterParagraphEndings() {
     // To account for that, check if the partition center is to
     // the left of the one above it.
     int mid = (part->bounding_box().left() + part->bounding_box().right()) / 2;
-    int upper_mid = (upper_part->bounding_box().left() + upper_part->bounding_box().right()) / 2;
+    int upper_mid = (upper_part->bounding_box().left() +
+                     upper_part->bounding_box().right()) /
+                    2;
     int current_spacing = 0; // spacing of the current line to margin
     int upper_spacing = 0;   // spacing of the previous line to the margin
     if (left_to_right_language_) {
       // Left to right languages, use mid - left to figure out the distance
       // the middle is from the left margin.
-      int left = std::min(part->bounding_box().left(), upper_part->bounding_box().left());
+      int left = std::min(part->bounding_box().left(),
+                          upper_part->bounding_box().left());
       current_spacing = mid - left;
       upper_spacing = upper_mid - left;
     } else {
       // Right to left languages, use right - mid to figure out the distance
       // the middle is from the right margin.
-      int right = std::max(part->bounding_box().right(), upper_part->bounding_box().right());
+      int right = std::max(part->bounding_box().right(),
+                           upper_part->bounding_box().right());
       current_spacing = right - mid;
       upper_spacing = right - upper_mid;
     }
@@ -1057,7 +1081,8 @@ void TableFinder::FilterParagraphEndings() {
     // The last line of a paragraph should be left aligned.
     // TODO(nbeato): This would be untrue if the text was right aligned.
     // How often is that?
-    if (part->space_to_left() > kMaxParagraphEndingLeftSpaceMultiple * part->median_height()) {
+    if (part->space_to_left() >
+        kMaxParagraphEndingLeftSpaceMultiple * part->median_height()) {
       continue;
     }
     // The line above it should be right aligned (assuming justified format).
@@ -1066,7 +1091,8 @@ void TableFinder::FilterParagraphEndings() {
     // line could have fit on the previous line). So compare
     // whitespace to text.
     if (upper_part->bounding_box().width() <
-        kMinParagraphEndingTextToWhitespaceRatio * upper_part->space_to_right()) {
+        kMinParagraphEndingTextToWhitespaceRatio *
+            upper_part->space_to_right()) {
       continue;
     }
 
@@ -1164,7 +1190,8 @@ void TableFinder::SetColumnsType(ColSegment_LIST *column_blocks) {
     TBOX box = seg->bounding_box();
     int num_table_cells = 0;
     int num_text_cells = 0;
-    GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> rsearch(&clean_part_grid_);
+    GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> rsearch(
+        &clean_part_grid_);
     rsearch.SetUniqueMode(true);
     rsearch.StartRectSearch(box);
     ColPartition *part = nullptr;
@@ -1189,7 +1216,8 @@ void TableFinder::SetColumnsType(ColSegment_LIST *column_blocks) {
 }
 
 // Move column blocks to grid
-void TableFinder::MoveColSegmentsToGrid(ColSegment_LIST *segments, ColSegmentGrid *col_seg_grid) {
+void TableFinder::MoveColSegmentsToGrid(ColSegment_LIST *segments,
+                                        ColSegmentGrid *col_seg_grid) {
   ColSegment_IT it(segments);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     ColSegment *seg = it.extract();
@@ -1211,7 +1239,8 @@ void TableFinder::GridMergeColumnBlocks() {
   int margin = gridsize();
 
   // Iterate the Column Blocks in the grid.
-  GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> gsearch(&col_seg_grid_);
+  GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> gsearch(
+      &col_seg_grid_);
   gsearch.StartFullSearch();
   ColSegment *seg;
   while ((seg = gsearch.NextFullSearch()) != nullptr) {
@@ -1225,12 +1254,15 @@ void TableFinder::GridMergeColumnBlocks() {
     do {
       TBOX box = seg->bounding_box();
       // slightly expand the search region vertically
-      int top_range = std::min(box.top() + margin, static_cast<int>(tright().y()));
-      int bottom_range = std::max(box.bottom() - margin, static_cast<int>(bleft().y()));
+      int top_range =
+          std::min(box.top() + margin, static_cast<int>(tright().y()));
+      int bottom_range =
+          std::max(box.bottom() - margin, static_cast<int>(bleft().y()));
       box.set_top(top_range);
       box.set_bottom(bottom_range);
       neighbor_found = false;
-      GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> rectsearch(&col_seg_grid_);
+      GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> rectsearch(
+          &col_seg_grid_);
       rectsearch.StartRectSearch(box);
       ColSegment *neighbor = nullptr;
       while ((neighbor = rectsearch.NextRectSearch()) != nullptr) {
@@ -1288,7 +1320,8 @@ void TableFinder::GridMergeColumnBlocks() {
 void TableFinder::GetTableColumns(ColSegment_LIST *table_columns) {
   ColSegment_IT it(table_columns);
   // Iterate the ColPartitions in the grid.
-  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> gsearch(&clean_part_grid_);
+  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> gsearch(
+      &clean_part_grid_);
   gsearch.StartFullSearch();
   ColPartition *part;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
@@ -1302,7 +1335,8 @@ void TableFinder::GetTableColumns(ColSegment_LIST *table_columns) {
     // Start a search below the current cell to find bottom neighbours
     // Note: a full search will always process things above it first, so
     // this should be starting at the highest cell and working its way down.
-    GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> vsearch(&clean_part_grid_);
+    GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> vsearch(
+        &clean_part_grid_);
     vsearch.StartVerticalSearch(box.left(), box.right(), box.bottom());
     ColPartition *neighbor = nullptr;
     bool found_neighbours = false;
@@ -1337,11 +1371,13 @@ void TableFinder::GetTableColumns(ColSegment_LIST *table_columns) {
 
 // Mark regions in a column that are x-bounded by the column boundaries and
 // y-bounded by the table columns' projection on the y-axis as table regions
-void TableFinder::GetTableRegions(ColSegment_LIST *table_columns, ColSegment_LIST *table_regions) {
+void TableFinder::GetTableRegions(ColSegment_LIST *table_columns,
+                                  ColSegment_LIST *table_regions) {
   ColSegment_IT cit(table_columns);
   ColSegment_IT rit(table_regions);
   // Iterate through column blocks
-  GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> gsearch(&col_seg_grid_);
+  GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> gsearch(
+      &col_seg_grid_);
   gsearch.StartFullSearch();
   ColSegment *part;
   int page_height = tright().y() - bleft().y();
@@ -1400,7 +1436,8 @@ void TableFinder::GetTableRegions(ColSegment_LIST *table_columns, ColSegment_LIS
 // single line and hence the tables get merged together
 void TableFinder::GridMergeTableRegions() {
   // Iterate the table regions in the grid.
-  GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> gsearch(&table_grid_);
+  GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> gsearch(
+      &table_grid_);
   gsearch.StartFullSearch();
   ColSegment *seg = nullptr;
   while ((seg = gsearch.NextFullSearch()) != nullptr) {
@@ -1413,7 +1450,8 @@ void TableFinder::GridMergeTableRegions() {
       search_region.set_left(bleft().x());
       search_region.set_right(tright().x());
       neighbor_found = false;
-      GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> rectsearch(&table_grid_);
+      GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> rectsearch(
+          &table_grid_);
       rectsearch.StartRectSearch(search_region);
       ColSegment *neighbor = nullptr;
       while ((neighbor = rectsearch.NextRectSearch()) != nullptr) {
@@ -1465,13 +1503,15 @@ bool TableFinder::BelongToOneTable(const TBOX &box1, const TBOX &box2) {
   // Check for ColPartitions spanning both table regions
   TBOX bbox = box1.bounding_union(box2);
   // Start a rect search on bbox
-  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> rectsearch(&clean_part_grid_);
+  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> rectsearch(
+      &clean_part_grid_);
   rectsearch.StartRectSearch(bbox);
   ColPartition *part = nullptr;
   while ((part = rectsearch.NextRectSearch()) != nullptr) {
     const TBOX &part_box = part->bounding_box();
     // return true if a colpartition spanning both table regions is found
-    if (part_box.overlap(box1) && part_box.overlap(box2) && !part->IsImageType()) {
+    if (part_box.overlap(box1) && part_box.overlap(box2) &&
+        !part->IsImageType()) {
       return true;
     }
   }
@@ -1553,12 +1593,14 @@ void TableFinder::GrowTableBox(const TBOX &table_box, TBOX *result_box) {
 
 // Grow a table by increasing the size of the box to include
 // partitions with significant overlap with the table.
-void TableFinder::GrowTableToIncludePartials(const TBOX &table_box, const TBOX &search_range,
+void TableFinder::GrowTableToIncludePartials(const TBOX &table_box,
+                                             const TBOX &search_range,
                                              TBOX *result_box) {
   // Rulings are in a different grid, so search 2 grids for rulings, text,
   // and table partitions that are not entirely within the new box.
   for (int i = 0; i < 2; ++i) {
-    ColPartitionGrid *grid = (i == 0) ? &fragmented_text_grid_ : &leader_and_ruling_grid_;
+    ColPartitionGrid *grid =
+        (i == 0) ? &fragmented_text_grid_ : &leader_and_ruling_grid_;
     ColPartitionGridSearch rectsearch(grid);
     rectsearch.StartRectSearch(search_range);
     ColPartition *part = nullptr;
@@ -1580,7 +1622,8 @@ void TableFinder::GrowTableToIncludePartials(const TBOX &table_box, const TBOX &
 
 // Grow a table by expanding to the extents of significantly
 // overlapping lines.
-void TableFinder::GrowTableToIncludeLines(const TBOX &table_box, const TBOX &search_range,
+void TableFinder::GrowTableToIncludeLines(const TBOX &table_box,
+                                          const TBOX &search_range,
                                           TBOX *result_box) {
   ColPartitionGridSearch rsearch(&leader_and_ruling_grid_);
   rsearch.SetUniqueMode(true);
@@ -1612,7 +1655,8 @@ void TableFinder::GrowTableToIncludeLines(const TBOX &table_box, const TBOX &sea
 // Checks whether the horizontal line belong to the table by looking at the
 // side spacing of extra ColParitions that will be included in the table
 // due to expansion
-bool TableFinder::HLineBelongsToTable(const ColPartition &part, const TBOX &table_box) {
+bool TableFinder::HLineBelongsToTable(const ColPartition &part,
+                                      const TBOX &table_box) {
   if (!part.IsHorizontalLine()) {
     return false;
   }
@@ -1638,7 +1682,8 @@ bool TableFinder::HLineBelongsToTable(const ColPartition &part, const TBOX &tabl
   // Rulings are in a different grid, so search 2 grids for rulings, text,
   // and table partitions that are introduced by the new box.
   for (int i = 0; i < 2; ++i) {
-    ColPartitionGrid *grid = (i == 0) ? &clean_part_grid_ : &leader_and_ruling_grid_;
+    ColPartitionGrid *grid =
+        (i == 0) ? &clean_part_grid_ : &leader_and_ruling_grid_;
     // Start a rect search on bbox
     ColPartitionGridSearch rectsearch(grid);
     rectsearch.SetUniqueMode(true);
@@ -1683,12 +1728,14 @@ bool TableFinder::HLineBelongsToTable(const ColPartition &part, const TBOX &tabl
 void TableFinder::IncludeLeftOutColumnHeaders(TBOX *table_box) {
   // Start a search above the current table to look for column headers
   ColPartitionGridSearch vsearch(&clean_part_grid_);
-  vsearch.StartVerticalSearch(table_box->left(), table_box->right(), table_box->top());
+  vsearch.StartVerticalSearch(table_box->left(), table_box->right(),
+                              table_box->top());
   ColPartition *neighbor = nullptr;
   ColPartition *previous_neighbor = nullptr;
   while ((neighbor = vsearch.NextVerticalSearch(false)) != nullptr) {
     // Max distance to find a table heading.
-    const int max_distance = kMaxColumnHeaderDistance * neighbor->median_height();
+    const int max_distance =
+        kMaxColumnHeaderDistance * neighbor->median_height();
     int table_top = table_box->top();
     const TBOX &box = neighbor->bounding_box();
     // Do not continue if the next box is way above
@@ -1725,7 +1772,8 @@ void TableFinder::DeleteSingleColumnTables() {
   // create an integer array to hold projection on x-axis
   int *table_xprojection = new int[page_width];
   // Iterate through all tables in the table grid
-  GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> table_search(&table_grid_);
+  GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> table_search(
+      &table_grid_);
   table_search.StartFullSearch();
   ColSegment *table;
   while ((table = table_search.NextFullSearch()) != nullptr) {
@@ -1735,7 +1783,8 @@ void TableFinder::DeleteSingleColumnTables() {
       table_xprojection[i] = 0;
     }
     // Start a rect search on table_box
-    GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> rectsearch(&clean_part_grid_);
+    GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> rectsearch(
+        &clean_part_grid_);
     rectsearch.SetUniqueMode(true);
     rectsearch.StartRectSearch(table_box);
     ColPartition *part;
@@ -1842,7 +1891,7 @@ void TableFinder::RecognizeTables() {
 #ifndef GRAPHICS_DISABLED
   ScrollView *table_win = nullptr;
   if (textord_show_tables) {
-    table_win = MakeWindow(0, 0, "Step 9: Table Structure");
+    table_win = MakeWindow(0, 0, "Table Structure");
     DisplayColPartitions(table_win, &fragmented_text_grid_, ScrollView::BLUE,
                          ScrollView::LIGHT_BLUE);
     // table_grid_.DisplayBoxes(table_win);
@@ -1949,7 +1998,8 @@ void TableFinder::DisplayColPartitions(ScrollView *win, ColPartitionGrid *grid,
   DisplayColPartitions(win, grid, default_color, ScrollView::YELLOW);
 }
 
-void TableFinder::DisplayColPartitionConnections(ScrollView *win, ColPartitionGrid *grid,
+void TableFinder::DisplayColPartitionConnections(ScrollView *win,
+                                                 ColPartitionGrid *grid,
                                                  ScrollView::Color color) {
   // Iterate the ColPartitions in the grid.
   GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> gsearch(grid);
@@ -1993,27 +2043,9 @@ void TableFinder::DisplayColPartitionConnections(ScrollView *win, ColPartitionGr
 // Merge all colpartitions in table regions to make them a single
 // colpartition and revert types of isolated table cells not
 // assigned to any table to their original types.
-void TableFinder::MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **all_columns,
-                                  WidthCallback width_cb) {
-#ifndef GRAPHICS_DISABLED
-  ScrollView* table_win = nullptr;
-  if (textord_show_tables) {
-    table_win = MakeWindow(0, 0, "Step 12: Final tables");
-    DisplayColPartitions(table_win, &fragmented_text_grid_,
-                         ScrollView::BLUE, ScrollView::LIGHT_BLUE);
-  }
-#endif  // GRAPHICS_DISABLED
-  
-  // initializing recognizer in order to extract table row and columnd info
-  TableRecognizer recognizer;
-  {
-    recognizer.Init();
-    recognizer.set_line_grid(&leader_and_ruling_grid_);
-    recognizer.set_text_grid(&fragmented_text_grid_);
-    recognizer.set_max_text_height(global_median_xheight_ * 2.0);
-    recognizer.set_min_height(1.5 * gridheight());
-  }
-  
+void TableFinder::MakeTableBlocks(ColPartitionGrid *grid,
+                                  ColPartitionSet **all_columns,
+                                  const WidthCallback &width_cb) {
   // Since we have table blocks already, remove table tags from all
   // colpartitions
   GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> gsearch(grid);
@@ -2027,13 +2059,15 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **all_
   }
   // Now make a single colpartition out of each table block and remove
   // all colpartitions contained within a table
-  GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> table_search(&table_grid_);
+  GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT> table_search(
+      &table_grid_);
   table_search.StartFullSearch();
   ColSegment *table;
   while ((table = table_search.NextFullSearch()) != nullptr) {
     const TBOX &table_box = table->bounding_box();
     // Start a rect search on table_box
-    GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> rectsearch(grid);
+    GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> rectsearch(
+        grid);
     rectsearch.StartRectSearch(table_box);
     ColPartition *part;
     ColPartition *table_partition = nullptr;
@@ -2068,36 +2102,17 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid, ColPartitionSet **all_
       table_partition->set_flow(BTFT_CHAIN);
       table_partition->SetBlobTypes();
       grid->InsertBBox(true, true, table_partition);
-      
-      // Insert table columns and rows into an api accessible object
-      StructuredTable* table_structure = recognizer.RecognizeTable(table_box);
-      if (table_structure != nullptr) {
-#ifndef GRAPHICS_DISABLED
-      if (textord_show_tables) {
-        table_structure->Display(table_win, ScrollView::LIME_GREEN);
-      }
-#endif  // GRAPHICS_DISABLED
-
-      auto &tables = uniqueInstance<std::vector<TessTable>>();
-      tables.push_back(
-          TessTable{table_box, table_structure->getRows(), table_structure->getCols()});
-
-      delete table_structure;
-      }
     }
   }
-  
-#ifndef GRAPHICS_DISABLED
-  if (textord_show_tables) {
-    table_grid_.DisplayBoxes(table_win);
-  }
-#endif  // GRAPHICS_DISABLED
 }
 
 //////// ColSegment code
 ////////
 ColSegment::ColSegment()
-    : ELIST_LINK(), num_table_cells_(0), num_text_cells_(0), type_(COL_UNKNOWN) {}
+    : ELIST_LINK(),
+      num_table_cells_(0),
+      num_text_cells_(0),
+      type_(COL_UNKNOWN) {}
 
 // Provides a color for BBGrid to draw the rectangle.
 ScrollView::Color ColSegment::BoxColor() const {

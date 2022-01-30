@@ -12,8 +12,6 @@
 #include <stdio.h>
 #include <memory>
 
-#include "absl/strings/str_split.h"
-
 #include "fileio.h"
 #include "include_gunit.h"
 
@@ -58,7 +56,7 @@ TEST(InputBufferTest, Read) {
   std::string str;
   auto input = std::make_unique<InputBuffer>(fp);
   EXPECT_TRUE(input->Read(&str));
-  std::vector<std::string> lines = absl::StrSplit(str, '\n', absl::SkipEmpty());
+  std::vector<std::string> lines = split(str, '\n');
   EXPECT_EQ(2, lines.size());
   EXPECT_EQ("Hello", lines[0]);
   EXPECT_EQ(" world!", lines[1]);

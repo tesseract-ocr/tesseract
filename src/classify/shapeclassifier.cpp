@@ -45,8 +45,7 @@ int ShapeClassifier::UnicharClassifySample(const TrainingSample &sample, Image p
   std::vector<ShapeRating> shape_results;
   int num_shape_results = ClassifySample(sample, page_pix, debug, keep_this, &shape_results);
   const ShapeTable *shapes = GetShapeTable();
-  std::vector<int> unichar_map;
-  unichar_map.resize(shapes->unicharset().size(), -1);
+  std::vector<int> unichar_map(shapes->unicharset().size(), -1);
   for (int r = 0; r < num_shape_results; ++r) {
     shapes->AddShapeToResults(shape_results[r], &unichar_map, results);
   }
@@ -205,13 +204,13 @@ void ShapeClassifier::FilterDuplicateUnichars(std::vector<ShapeRating> *results)
   std::vector<ShapeRating> filtered_results;
   // Copy results to filtered results and knock out duplicate unichars.
   const ShapeTable *shapes = GetShapeTable();
-  for (int r = 0; r < results->size(); ++r) {
+  for (unsigned r = 0; r < results->size(); ++r) {
     if (r > 0) {
       const Shape &shape_r = shapes->GetShape((*results)[r].shape_id);
       int c;
       for (c = 0; c < shape_r.size(); ++c) {
         int unichar_id = shape_r[c].unichar_id;
-        int s;
+        unsigned s;
         for (s = 0; s < r; ++s) {
           const Shape &shape_s = shapes->GetShape((*results)[s].shape_id);
           if (shape_s.ContainsUnichar(unichar_id)) {
