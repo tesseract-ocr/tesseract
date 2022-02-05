@@ -51,6 +51,199 @@ const int kMinImageFindSize = 100;
 // will fatten out too much and have to be clipped to text.
 const int kNoisePadding = 4;
 
+// Scans horizontally on x=[x_start,x_end), starting with y=*y_start,
+// stepping y+=y_step, until y=y_end. *ystart is input/output.
+// If the number of black pixels in a row, pix_count fits this pattern:
+// 0 or more rows with pix_count < min_count then
+// <= mid_width rows with min_count <= pix_count <= max_count then
+// a row with pix_count > max_count then
+// true is returned, and *y_start = the first y with pix_count >= min_count.
+static bool HScanForEdge(uint32_t *data, int wpl, int x_start, int x_end, int min_count,
+                         int mid_width, int max_count, int y_end, int y_step, int *y_start) {
+  int mid_rows = 0;
+  for (int y = *y_start; y != y_end; y += y_step) {
+    // Need pixCountPixelsInRow(pix, y, &pix_count, nullptr) to count in a
+    // subset.
+    int pix_count = 0;
+    uint32_t *line = data + wpl * y;
+    for (int x = x_start; x < x_end; ++x) {
+      if (GET_DATA_BIT(line, x)) {
+        ++pix_count;
+      }
+    }
+    if (mid_rows == 0 && pix_count < min_count) {
+      continue; // In the min phase.
+    }
+    if (mid_rows == 0) {
+      *y_start = y; // Save the y_start where we came out of the min phase.
+    }
+    if (pix_count > max_count) {
+      return true; // Found the pattern.
+    }
+    ++mid_rows;
+    if (mid_rows > mid_width) {
+      break; // Middle too big.
+    }
+  }
+  return false; // Never found max_count.
+}
+
+// Scans vertically on y=[y_start,y_end), starting with x=*x_start,
+// stepping x+=x_step, until x=x_end. *x_start is input/output.
+// If the number of black pixels in a column, pix_count fits this pattern:
+// 0 or more cols with pix_count < min_count then
+// <= mid_width cols with min_count <= pix_count <= max_count then
+// a column with pix_count > max_count then
+// true is returned, and *x_start = the first x with pix_count >= min_count.
+static bool VScanForEdge(uint32_t *data, int wpl, int y_start, int y_end, int min_count,
+                         int mid_width, int max_count, int x_end, int x_step, int *x_start) {
+  int mid_cols = 0;
+  for (int x = *x_start; x != x_end; x += x_step) {
+    int pix_count = 0;
+    uint32_t *line = data + y_start * wpl;
+    for (int y = y_start; y < y_end; ++y, line += wpl) {
+      if (GET_DATA_BIT(line, x)) {
+        ++pix_count;
+      }
+    }
+    if (mid_cols == 0 && pix_count < min_count) {
+      continue; // In the min phase.
+    }
+    if (mid_cols == 0) {
+      *x_start = x; // Save the place where we came out of the min phase.
+    }
+    if (pix_count > max_count) {
+      return true; // found the pattern.
+    }
+    ++mid_cols;
+    if (mid_cols > mid_width) {
+      break; // Middle too big.
+    }
+  }
+  return false; // Never found max_count.
+}
+
+// Returns true if there is a rectangle in the source pix, such that all
+// pixel rows and column slices outside of it have less than
+// min_fraction of the pixels black, and within max_skew_gradient fraction
+// of the pixels on the inside, there are at least max_fraction of the
+// pixels black. In other words, the inside of the rectangle looks roughly
+// rectangular, and the outside of it looks like extra bits.
+// On return, the rectangle is defined by x_start, y_start, x_end and y_end.
+// Note: the algorithm is iterative, allowing it to slice off pixels from
+// one edge, allowing it to then slice off more pixels from another edge.
+static bool pixNearlyRectangular(Image pix, double min_fraction, double max_fraction,
+                                 double max_skew_gradient, int *x_start, int *y_start,
+                                 int *x_end, int *y_end) {
+  ASSERT_HOST(pix != nullptr);
+  *x_start = 0;
+  *x_end = pixGetWidth(pix);
+  *y_start = 0;
+  *y_end = pixGetHeight(pix);
+
+  uint32_t *data = pixGetData(pix);
+  int wpl = pixGetWpl(pix);
+  bool any_cut = false;
+  bool left_done = false;
+  bool right_done = false;
+  bool top_done = false;
+  bool bottom_done = false;
+  do {
+    any_cut = false;
+    // Find the top/bottom edges.
+    int width = *x_end - *x_start;
+    int min_count = static_cast<int>(width * min_fraction);
+    int max_count = static_cast<int>(width * max_fraction);
+    int edge_width = static_cast<int>(width * max_skew_gradient);
+    if (HScanForEdge(data, wpl, *x_start, *x_end, min_count, edge_width, max_count, *y_end, 1,
+                     y_start) &&
+        !top_done) {
+      top_done = true;
+      any_cut = true;
+    }
+    --(*y_end);
+    if (HScanForEdge(data, wpl, *x_start, *x_end, min_count, edge_width, max_count, *y_start, -1,
+                     y_end) &&
+        !bottom_done) {
+      bottom_done = true;
+      any_cut = true;
+    }
+    ++(*y_end);
+
+    // Find the left/right edges.
+    int height = *y_end - *y_start;
+    min_count = static_cast<int>(height * min_fraction);
+    max_count = static_cast<int>(height * max_fraction);
+    edge_width = static_cast<int>(height * max_skew_gradient);
+    if (VScanForEdge(data, wpl, *y_start, *y_end, min_count, edge_width, max_count, *x_end, 1,
+                     x_start) &&
+        !left_done) {
+      left_done = true;
+      any_cut = true;
+    }
+    --(*x_end);
+    if (VScanForEdge(data, wpl, *y_start, *y_end, min_count, edge_width, max_count, *x_start, -1,
+                     x_end) &&
+        !right_done) {
+      right_done = true;
+      any_cut = true;
+    }
+    ++(*x_end);
+  } while (any_cut);
+
+  // All edges must satisfy the condition of sharp gradient in pixel density
+  // in order for the full rectangle to be present.
+  return left_done && right_done && top_done && bottom_done;
+}
+
+// Generates a Boxa, Pixa pair from the input binary (image mask) pix,
+// analogous to pixConnComp, except that connected components which are nearly
+// rectangular are replaced with solid rectangles.
+// The returned boxa, pixa may be nullptr, meaning no images found.
+// If not nullptr, they must be destroyed by the caller.
+// Resolution of pix should match the source image (Tesseract::pix_binary_)
+// so the output coordinate systems match.
+static void ConnCompAndRectangularize(Image pix, DebugPixa *pixa_debug, Boxa **boxa,
+                                      Pixa **pixa) {
+  *boxa = nullptr;
+  *pixa = nullptr;
+
+  if (textord_tabfind_show_images && pixa_debug != nullptr) {
+    pixa_debug->AddPix(pix, "Conncompimage");
+  }
+  // Find the individual image regions in the mask image.
+  *boxa = pixConnComp(pix, pixa, 8);
+  // Rectangularize the individual images. If a sharp edge in vertical and/or
+  // horizontal occupancy can be found, it indicates a probably rectangular
+  // image with unwanted bits merged on, so clip to the approximate rectangle.
+  int npixes = 0;
+  if (*boxa != nullptr && *pixa != nullptr) {
+    npixes = pixaGetCount(*pixa);
+  }
+  for (int i = 0; i < npixes; ++i) {
+    int x_start, x_end, y_start, y_end;
+    Image img_pix = pixaGetPix(*pixa, i, L_CLONE);
+    if (textord_tabfind_show_images && pixa_debug != nullptr) {
+      pixa_debug->AddPix(img_pix, "A component");
+    }
+    if (pixNearlyRectangular(img_pix, kMinRectangularFraction, kMaxRectangularFraction,
+                             kMaxRectangularGradient, &x_start, &y_start, &x_end, &y_end)) {
+      Image simple_pix = pixCreate(x_end - x_start, y_end - y_start, 1);
+      pixSetAll(simple_pix);
+      img_pix.destroy();
+      // pixaReplacePix takes ownership of the simple_pix.
+      pixaReplacePix(*pixa, i, simple_pix, nullptr);
+      img_pix = pixaGetPix(*pixa, i, L_CLONE);
+      // Fix the box to match the new pix.
+      l_int32 x, y, width, height;
+      boxaGetBoxGeometry(*boxa, i, &x, &y, &width, &height);
+      Box *simple_box = boxCreate(x + x_start, y + y_start, x_end - x_start, y_end - y_start);
+      boxaReplaceBox(*boxa, i, simple_box);
+    }
+    img_pix.destroy();
+  }
+}
+
 // Finds image regions within the BINARY source pix (page image) and returns
 // the image regions as a mask image.
 // The returned pix may be nullptr, meaning no images found.
@@ -145,199 +338,6 @@ Image ImageFind::FindImages(Image pix, DebugPixa *pixa_debug) {
   result |= pixht;
   pixht.destroy();
   return result;
-}
-
-// Generates a Boxa, Pixa pair from the input binary (image mask) pix,
-// analogous to pixConnComp, except that connected components which are nearly
-// rectangular are replaced with solid rectangles.
-// The returned boxa, pixa may be nullptr, meaning no images found.
-// If not nullptr, they must be destroyed by the caller.
-// Resolution of pix should match the source image (Tesseract::pix_binary_)
-// so the output coordinate systems match.
-void ImageFind::ConnCompAndRectangularize(Image pix, DebugPixa *pixa_debug, Boxa **boxa,
-                                          Pixa **pixa) {
-  *boxa = nullptr;
-  *pixa = nullptr;
-
-  if (textord_tabfind_show_images && pixa_debug != nullptr) {
-    pixa_debug->AddPix(pix, "Conncompimage");
-  }
-  // Find the individual image regions in the mask image.
-  *boxa = pixConnComp(pix, pixa, 8);
-  // Rectangularize the individual images. If a sharp edge in vertical and/or
-  // horizontal occupancy can be found, it indicates a probably rectangular
-  // image with unwanted bits merged on, so clip to the approximate rectangle.
-  int npixes = 0;
-  if (*boxa != nullptr && *pixa != nullptr) {
-    npixes = pixaGetCount(*pixa);
-  }
-  for (int i = 0; i < npixes; ++i) {
-    int x_start, x_end, y_start, y_end;
-    Image img_pix = pixaGetPix(*pixa, i, L_CLONE);
-    if (textord_tabfind_show_images && pixa_debug != nullptr) {
-      pixa_debug->AddPix(img_pix, "A component");
-    }
-    if (pixNearlyRectangular(img_pix, kMinRectangularFraction, kMaxRectangularFraction,
-                             kMaxRectangularGradient, &x_start, &y_start, &x_end, &y_end)) {
-      Image simple_pix = pixCreate(x_end - x_start, y_end - y_start, 1);
-      pixSetAll(simple_pix);
-      img_pix.destroy();
-      // pixaReplacePix takes ownership of the simple_pix.
-      pixaReplacePix(*pixa, i, simple_pix, nullptr);
-      img_pix = pixaGetPix(*pixa, i, L_CLONE);
-      // Fix the box to match the new pix.
-      l_int32 x, y, width, height;
-      boxaGetBoxGeometry(*boxa, i, &x, &y, &width, &height);
-      Box *simple_box = boxCreate(x + x_start, y + y_start, x_end - x_start, y_end - y_start);
-      boxaReplaceBox(*boxa, i, simple_box);
-    }
-    img_pix.destroy();
-  }
-}
-
-// Scans horizontally on x=[x_start,x_end), starting with y=*y_start,
-// stepping y+=y_step, until y=y_end. *ystart is input/output.
-// If the number of black pixels in a row, pix_count fits this pattern:
-// 0 or more rows with pix_count < min_count then
-// <= mid_width rows with min_count <= pix_count <= max_count then
-// a row with pix_count > max_count then
-// true is returned, and *y_start = the first y with pix_count >= min_count.
-static bool HScanForEdge(uint32_t *data, int wpl, int x_start, int x_end, int min_count,
-                         int mid_width, int max_count, int y_end, int y_step, int *y_start) {
-  int mid_rows = 0;
-  for (int y = *y_start; y != y_end; y += y_step) {
-    // Need pixCountPixelsInRow(pix, y, &pix_count, nullptr) to count in a
-    // subset.
-    int pix_count = 0;
-    uint32_t *line = data + wpl * y;
-    for (int x = x_start; x < x_end; ++x) {
-      if (GET_DATA_BIT(line, x)) {
-        ++pix_count;
-      }
-    }
-    if (mid_rows == 0 && pix_count < min_count) {
-      continue; // In the min phase.
-    }
-    if (mid_rows == 0) {
-      *y_start = y; // Save the y_start where we came out of the min phase.
-    }
-    if (pix_count > max_count) {
-      return true; // Found the pattern.
-    }
-    ++mid_rows;
-    if (mid_rows > mid_width) {
-      break; // Middle too big.
-    }
-  }
-  return false; // Never found max_count.
-}
-
-// Scans vertically on y=[y_start,y_end), starting with x=*x_start,
-// stepping x+=x_step, until x=x_end. *x_start is input/output.
-// If the number of black pixels in a column, pix_count fits this pattern:
-// 0 or more cols with pix_count < min_count then
-// <= mid_width cols with min_count <= pix_count <= max_count then
-// a column with pix_count > max_count then
-// true is returned, and *x_start = the first x with pix_count >= min_count.
-static bool VScanForEdge(uint32_t *data, int wpl, int y_start, int y_end, int min_count,
-                         int mid_width, int max_count, int x_end, int x_step, int *x_start) {
-  int mid_cols = 0;
-  for (int x = *x_start; x != x_end; x += x_step) {
-    int pix_count = 0;
-    uint32_t *line = data + y_start * wpl;
-    for (int y = y_start; y < y_end; ++y, line += wpl) {
-      if (GET_DATA_BIT(line, x)) {
-        ++pix_count;
-      }
-    }
-    if (mid_cols == 0 && pix_count < min_count) {
-      continue; // In the min phase.
-    }
-    if (mid_cols == 0) {
-      *x_start = x; // Save the place where we came out of the min phase.
-    }
-    if (pix_count > max_count) {
-      return true; // found the pattern.
-    }
-    ++mid_cols;
-    if (mid_cols > mid_width) {
-      break; // Middle too big.
-    }
-  }
-  return false; // Never found max_count.
-}
-
-// Returns true if there is a rectangle in the source pix, such that all
-// pixel rows and column slices outside of it have less than
-// min_fraction of the pixels black, and within max_skew_gradient fraction
-// of the pixels on the inside, there are at least max_fraction of the
-// pixels black. In other words, the inside of the rectangle looks roughly
-// rectangular, and the outside of it looks like extra bits.
-// On return, the rectangle is defined by x_start, y_start, x_end and y_end.
-// Note: the algorithm is iterative, allowing it to slice off pixels from
-// one edge, allowing it to then slice off more pixels from another edge.
-bool ImageFind::pixNearlyRectangular(Image pix, double min_fraction, double max_fraction,
-                                     double max_skew_gradient, int *x_start, int *y_start,
-                                     int *x_end, int *y_end) {
-  ASSERT_HOST(pix != nullptr);
-  *x_start = 0;
-  *x_end = pixGetWidth(pix);
-  *y_start = 0;
-  *y_end = pixGetHeight(pix);
-
-  uint32_t *data = pixGetData(pix);
-  int wpl = pixGetWpl(pix);
-  bool any_cut = false;
-  bool left_done = false;
-  bool right_done = false;
-  bool top_done = false;
-  bool bottom_done = false;
-  do {
-    any_cut = false;
-    // Find the top/bottom edges.
-    int width = *x_end - *x_start;
-    int min_count = static_cast<int>(width * min_fraction);
-    int max_count = static_cast<int>(width * max_fraction);
-    int edge_width = static_cast<int>(width * max_skew_gradient);
-    if (HScanForEdge(data, wpl, *x_start, *x_end, min_count, edge_width, max_count, *y_end, 1,
-                     y_start) &&
-        !top_done) {
-      top_done = true;
-      any_cut = true;
-    }
-    --(*y_end);
-    if (HScanForEdge(data, wpl, *x_start, *x_end, min_count, edge_width, max_count, *y_start, -1,
-                     y_end) &&
-        !bottom_done) {
-      bottom_done = true;
-      any_cut = true;
-    }
-    ++(*y_end);
-
-    // Find the left/right edges.
-    int height = *y_end - *y_start;
-    min_count = static_cast<int>(height * min_fraction);
-    max_count = static_cast<int>(height * max_fraction);
-    edge_width = static_cast<int>(height * max_skew_gradient);
-    if (VScanForEdge(data, wpl, *y_start, *y_end, min_count, edge_width, max_count, *x_end, 1,
-                     x_start) &&
-        !left_done) {
-      left_done = true;
-      any_cut = true;
-    }
-    --(*x_end);
-    if (VScanForEdge(data, wpl, *y_start, *y_end, min_count, edge_width, max_count, *x_start, -1,
-                     x_end) &&
-        !right_done) {
-      right_done = true;
-      any_cut = true;
-    }
-    ++(*x_end);
-  } while (any_cut);
-
-  // All edges must satisfy the condition of sharp gradient in pixel density
-  // in order for the full rectangle to be present.
-  return left_done && right_done && top_done && bottom_done;
 }
 
 // Given an input pix, and a bounding rectangle, the sides of the rectangle

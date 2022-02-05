@@ -24,10 +24,6 @@
 
 #include <cstdint>
 
-struct Boxa;
-struct Pix;
-struct Pixa;
-
 namespace tesseract {
 
 class ColPartitionGrid;
@@ -36,7 +32,6 @@ class TabFind;
 class TBOX;
 class FCOORD;
 class TO_BLOCK;
-class BLOBNBOX_LIST;
 
 // The ImageFind class is a simple static function wrapper class that
 // exposes the FindImages function and some useful helper functions.
@@ -48,28 +43,6 @@ public:
   // If not nullptr, it must be PixDestroyed by the caller.
   // If textord_tabfind_show_images, debug images are appended to pixa_debug.
   static Image FindImages(Image pix, DebugPixa *pixa_debug);
-
-  // Generates a Boxa, Pixa pair from the input binary (image mask) pix,
-  // analogous to pixConnComp, except that connected components which are nearly
-  // rectangular are replaced with solid rectangles.
-  // The returned boxa, pixa may be nullptr, meaning no images found.
-  // If not nullptr, they must be destroyed by the caller.
-  // Resolution of pix should match the source image (Tesseract::pix_binary_)
-  // so the output coordinate systems match.
-  static void ConnCompAndRectangularize(Image pix, DebugPixa *pixa_debug, Boxa **boxa, Pixa **pixa);
-
-  // Returns true if there is a rectangle in the source pix, such that all
-  // pixel rows and column slices outside of it have less than
-  // min_fraction of the pixels black, and within max_skew_gradient fraction
-  // of the pixels on the inside, there are at least max_fraction of the
-  // pixels black. In other words, the inside of the rectangle looks roughly
-  // rectangular, and the outside of it looks like extra bits.
-  // On return, the rectangle is defined by x_start, y_start, x_end and y_end.
-  // Note: the algorithm is iterative, allowing it to slice off pixels from
-  // one edge, allowing it to then slice off more pixels from another edge.
-  static bool pixNearlyRectangular(Image pix, double min_fraction, double max_fraction,
-                                   double max_skew_gradient, int *x_start, int *y_start, int *x_end,
-                                   int *y_end);
 
   // Given an input pix, and a bounding rectangle, the sides of the rectangle
   // are shrunk inwards until they bound any black pixels found within the
