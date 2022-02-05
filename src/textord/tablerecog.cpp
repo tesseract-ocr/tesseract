@@ -59,6 +59,28 @@ const double kGoodRowNumberOfColumnsLarge = 0.7;
 // be considered "filled"
 const double kMinFilledArea = 0.35;
 
+// Indicates that a table row is weak. This means that it has
+// many missing data cells or very large cell heights compared.
+// to the rest of the table.
+// Code is buggy right now. It is disabled in the calling function.
+// It seems like sometimes the row that is passed in is not correct
+// sometimes (like a phantom row is introduced). There's something going
+// on in the cell_y_ data member before this is called... not certain.
+static bool IsWeakTableRow(StructuredTable *table, int row) {
+  if (!table->VerifyRowFilled(row)) {
+    return false;
+  }
+
+  double threshold;
+  if (table->column_count() < countof(kGoodRowNumberOfColumnsSmall)) {
+    threshold = kGoodRowNumberOfColumnsSmall[table->column_count()];
+  } else {
+    threshold = table->column_count() * kGoodRowNumberOfColumnsLarge;
+  }
+
+  return table->CountFilledCellsInRow(row) < threshold;
+}
+
 ////////
 //////// StructuredTable Class
 ////////
@@ -1057,25 +1079,6 @@ int TableRecognizer::NextHorizontalSplit(int left, int right, int y, bool top_to
   // If none is found, we at least want to preserve the min/max,
   // which defines the overlap of y with the last partition in the grid.
   return last_y;
-}
-
-// Code is buggy right now. It is disabled in the calling function.
-// It seems like sometimes the row that is passed in is not correct
-// sometimes (like a phantom row is introduced). There's something going
-// on in the cell_y_ data member before this is called... not certain.
-bool TableRecognizer::IsWeakTableRow(StructuredTable *table, int row) {
-  if (!table->VerifyRowFilled(row)) {
-    return false;
-  }
-
-  double threshold;
-  if (table->column_count() < countof(kGoodRowNumberOfColumnsSmall)) {
-    threshold = kGoodRowNumberOfColumnsSmall[table->column_count()];
-  } else {
-    threshold = table->column_count() * kGoodRowNumberOfColumnsLarge;
-  }
-
-  return table->CountFilledCellsInRow(row) < threshold;
 }
 
 } // namespace tesseract
