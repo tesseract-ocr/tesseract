@@ -346,7 +346,7 @@ void LineFinder::ConvertBoxaToBlobs(int image_width, int image_height, Boxa **bo
   boxaDestroy(boxes);
 }
 
-// Finds vertical line objects in pix_vline and removes the from src_pix.
+// Finds vertical line objects in pix_vline and removes them from src_pix.
 // Uses the given resolution to determine size thresholds instead of any
 // that may be present in the pix.
 // The output vertical_x and vertical_y contain a sum of the output vectors,
