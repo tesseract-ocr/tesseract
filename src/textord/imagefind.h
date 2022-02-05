@@ -87,12 +87,6 @@ class ImageFind {
   static double ColorDistanceFromLine(const uint8_t* line1, const uint8_t* line2,
                                       const uint8_t* point);
 
-  // Returns the leptonica combined code for the given RGB triplet.
-  static uint32_t ComposeRGB(uint32_t r, uint32_t g, uint32_t b);
-
-  // Returns the input value clipped to a uint8_t.
-  static uint8_t ClipToByte(double pixel);
-
   // Returns true if there are no black pixels in between the boxes.
   // The im_box must represent the bounding box of the pix in tesseract
   // coordinates, which may be negative, due to rotations to make the textlines
