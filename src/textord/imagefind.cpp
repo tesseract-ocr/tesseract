@@ -396,23 +396,6 @@ double ImageFind::ColorDistanceFromLine(const uint8_t *line1, const uint8_t *lin
   return cross_sq / line_sq; // This is the squared distance.
 }
 
-// Returns the leptonica combined code for the given RGB triplet.
-uint32_t ImageFind::ComposeRGB(uint32_t r, uint32_t g, uint32_t b) {
-  l_uint32 result;
-  composeRGBPixel(r, g, b, &result);
-  return result;
-}
-
-// Returns the input value clipped to a uint8_t.
-uint8_t ImageFind::ClipToByte(double pixel) {
-  if (pixel < 0.0) {
-    return 0;
-  } else if (pixel >= 255.0) {
-    return 255;
-  }
-  return static_cast<uint8_t>(pixel);
-}
-
 // ================ CUTTING POLYGONAL IMAGES FROM A RECTANGLE ================
 // The following functions are responsible for cutting a polygonal image from
 // a rectangle: CountPixelsInRotatedBox, AttemptToShrinkBox, CutChunkFromParts
