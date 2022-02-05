@@ -89,20 +89,6 @@ public:
   // Returns the input value clipped to a uint8_t.
   static uint8_t ClipToByte(double pixel);
 
-  // Computes the light and dark extremes of color in the given rectangle of
-  // the given pix, which is factor smaller than the coordinate system in rect.
-  // The light and dark points are taken to be the upper and lower 8th-ile of
-  // the most deviant of R, G and B. The value of the other 2 channels are
-  // computed by linear fit against the most deviant.
-  // The colors of the two point are returned in color1 and color2, with the
-  // alpha channel set to a scaled mean rms of the fits.
-  // If color_map1 is not null then it and color_map2 get rect pasted in them
-  // with the two calculated colors, and rms map gets a pasted rect of the rms.
-  // color_map1, color_map2 and rms_map are assumed to be the same scale as pix.
-  static void ComputeRectangleColors(const TBOX &rect, Image pix, int factor, Image color_map1,
-                                     Image color_map2, Image rms_map, uint8_t *color1,
-                                     uint8_t *color2);
-
   // Returns true if there are no black pixels in between the boxes.
   // The im_box must represent the bounding box of the pix in tesseract
   // coordinates, which may be negative, due to rotations to make the textlines
