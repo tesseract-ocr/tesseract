@@ -92,7 +92,7 @@ static void RemoveUnusedLineSegments(bool horizontal_lines, BLOBNBOX_LIST *line_
 // as well by removing components that touch the line, but are not in the
 // non_line_pix mask. It is assumed that the non_line_pix mask has already
 // been prepared to required accuracy.
-static void SubtractLinesAndResidue(Image line_pix, Image non_line_pix, int resolution,
+static void SubtractLinesAndResidue(Image line_pix, Image non_line_pix,
                                     Image src_pix) {
   // First remove the lines themselves.
   pixSubtract(src_pix, src_pix, line_pix);
@@ -609,7 +609,7 @@ static void GetLineMasks(int resolution, Image src_pix, Image *pix_vline, Image 
 // If no good lines are found, pix_vline is destroyed.
 // None of the input pointers may be nullptr, and if *pix_vline is nullptr then
 // the function does nothing.
-static void FindAndRemoveVLines(int resolution, Image pix_intersections, int *vertical_x,
+static void FindAndRemoveVLines(Image pix_intersections, int *vertical_x,
                                 int *vertical_y, Image *pix_vline, Image pix_non_vline,
                                 Image src_pix, TabVector_LIST *vectors) {
   if (pix_vline == nullptr || *pix_vline == nullptr) {
@@ -625,7 +625,7 @@ static void FindAndRemoveVLines(int resolution, Image pix_intersections, int *ve
   FindLineVectors(bleft, tright, &line_bblobs, vertical_x, vertical_y, vectors);
   if (!vectors->empty()) {
     RemoveUnusedLineSegments(false, &line_bblobs, *pix_vline);
-    SubtractLinesAndResidue(*pix_vline, pix_non_vline, resolution, src_pix);
+    SubtractLinesAndResidue(*pix_vline, pix_non_vline, src_pix);
     ICOORD vertical;
     vertical.set_with_shrink(*vertical_x, *vertical_y);
     TabVector::MergeSimilarTabVectors(vertical, vectors, nullptr);
@@ -644,7 +644,7 @@ static void FindAndRemoveVLines(int resolution, Image pix_intersections, int *ve
 // If no good lines are found, pix_hline is destroyed.
 // None of the input pointers may be nullptr, and if *pix_hline is nullptr then
 // the function does nothing.
-static void FindAndRemoveHLines(int resolution, Image pix_intersections, int vertical_x,
+static void FindAndRemoveHLines(Image pix_intersections, int vertical_x,
                                 int vertical_y, Image *pix_hline, Image pix_non_hline,
                                 Image src_pix, TabVector_LIST *vectors) {
   if (pix_hline == nullptr || *pix_hline == nullptr) {
@@ -660,7 +660,7 @@ static void FindAndRemoveHLines(int resolution, Image pix_intersections, int ver
   FindLineVectors(bleft, tright, &line_bblobs, &vertical_x, &vertical_y, vectors);
   if (!vectors->empty()) {
     RemoveUnusedLineSegments(true, &line_bblobs, *pix_hline);
-    SubtractLinesAndResidue(*pix_hline, pix_non_hline, resolution, src_pix);
+    SubtractLinesAndResidue(*pix_hline, pix_non_hline, src_pix);
     ICOORD vertical;
     vertical.set_with_shrink(vertical_x, vertical_y);
     TabVector::MergeSimilarTabVectors(vertical, vectors, nullptr);
@@ -704,7 +704,7 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Image pix, int *
   GetLineMasks(resolution, pix, &pix_vline, &pix_non_vline, &pix_hline, &pix_non_hline,
                &pix_intersections, pix_music_mask, pixa_display);
   // Find lines, convert to TabVector_LIST and remove those that are used.
-  FindAndRemoveVLines(resolution, pix_intersections, vertical_x, vertical_y, &pix_vline,
+  FindAndRemoveVLines(pix_intersections, vertical_x, vertical_y, &pix_vline,
                       pix_non_vline, pix, v_lines);
   pix_intersections.destroy();
   if (pix_hline != nullptr) {
@@ -716,7 +716,7 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Image pix, int *
       pix_hline.destroy();
     }
   }
-  FindAndRemoveHLines(resolution, pix_intersections, *vertical_x, *vertical_y, &pix_hline,
+  FindAndRemoveHLines(pix_intersections, *vertical_x, *vertical_y, &pix_hline,
                       pix_non_hline, pix, h_lines);
   if (pixa_display != nullptr && pix_vline != nullptr) {
     pixaAddPix(pixa_display, pix_vline, L_CLONE);
