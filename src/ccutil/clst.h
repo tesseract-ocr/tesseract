@@ -708,7 +708,6 @@ public:
   };                                                            \
   struct CLASSNAME##_C_IT : X_ITER<CLIST_ITERATOR, CLASSNAME> { \
     using X_ITER<CLIST_ITERATOR, CLASSNAME>::X_ITER;            \
-    CLASSNAME##_C_IT(CLASSNAME##_CLIST *list) : X_ITER(list) {} \
   };
 
 } // namespace tesseract

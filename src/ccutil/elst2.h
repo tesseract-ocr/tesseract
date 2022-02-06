@@ -825,7 +825,6 @@ inline void ELIST2_ITERATOR::add_to_end( // element to add
   };                                                                     \
   struct CLASSNAME##_IT : X_ITER<ELIST2_ITERATOR, CLASSNAME> {           \
     using X_ITER<ELIST2_ITERATOR, CLASSNAME>::X_ITER;                    \
-    CLASSNAME##_IT(CLASSNAME##_LIST *list) : X_ITER(list) {}             \
     CLASSNAME *backward() {                                              \
       return reinterpret_cast<CLASSNAME *>(ELIST2_ITERATOR::backward()); \
     }                                                                    \

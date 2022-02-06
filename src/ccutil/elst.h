@@ -806,7 +806,6 @@ inline void ELIST_ITERATOR::add_to_end( // element to add
   };                                                                   \
   struct CLASSNAME##_IT : X_ITER<ELIST_ITERATOR, CLASSNAME> {          \
     using X_ITER<ELIST_ITERATOR, CLASSNAME>::X_ITER;                   \
-    CLASSNAME##_IT(CLASSNAME##_LIST *list) : X_ITER(list) {}           \
   };
 
 } // namespace tesseract
