@@ -28,9 +28,4 @@ const double CCStruct::kAscenderFraction = 0.25;
 const double CCStruct::kXHeightCapRatio =
     CCStruct::kXHeightFraction / (CCStruct::kXHeightFraction + CCStruct::kAscenderFraction);
 
-// Destructor.
-// It is defined here, so the compiler can create a single vtable
-// instead of weak vtables in every compilation unit.
-CCStruct::~CCStruct() = default;
-
 } // namespace tesseract
