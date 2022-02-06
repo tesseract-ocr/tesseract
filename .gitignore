@@ -63,6 +63,7 @@ config_auto.h
 # ignore compilation files
 build/*
 /bin
+/cmake-*
 .deps
 .dirstamp
 /.libs
