@@ -25,8 +25,6 @@
 #include "render.h"  // for display_blob, blob_window, wordrec_blob_pause
 #include "wordrec.h" // for Wordrec
 
-class BLOB_CHOICE_LIST;
-
 struct TBLOB;
 
 // Include automatically generated configuration file if running autoconf.
