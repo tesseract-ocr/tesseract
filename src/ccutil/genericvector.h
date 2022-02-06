@@ -41,10 +41,6 @@ public:
   GenericVector() {
     init(kDefaultVectorSize);
   }
-  GenericVector(int size, const T &init_val) {
-    init(size);
-    init_to_size(size, init_val);
-  }
 
   // Copy
   GenericVector(const GenericVector &other) {
@@ -106,14 +102,6 @@ public:
   // Push an element in the end of the array
   int push_back(T object);
   void operator+=(const T &t);
-
-  // Push an element in the end of the array if the same
-  // element is not already contained in the array.
-  int push_back_new(const T &object);
-
-  // Push an element in the front of the array
-  // Note: This function is O(n)
-  int push_front(const T &object);
 
   // Set the value at the given index
   void set(const T &t, int index);
@@ -178,26 +166,12 @@ public:
   // bool T::Serialize(FILE* fp) const that returns false in case of error.
   // Returns false in case of error.
   bool SerializeClasses(FILE *fp) const;
-  bool SerializeClasses(TFile *fp) const;
   // Reads a vector of classes from the given file. Assumes the existence of
   // bool T::Deserialize(bool swap, FILE* fp) that returns false in case of
   // error. Also needs T::T() and T::T(constT&), as init_to_size is used in
   // this function. Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerializeClasses(bool swap, FILE *fp);
   bool DeSerializeClasses(TFile *fp);
-
-  // Allocates a new array of double the current_size, copies over the
-  // information from data to the new location, deletes data and returns
-  // the pointed to the new larger array.
-  // This function uses memcpy to copy the data, instead of invoking
-  // operator=() for each element like double_the_size() does.
-  static T *double_the_size_memcpy(int current_size, T *data) {
-    T *data_new = new T[current_size * 2];
-    memcpy(data_new, data, sizeof(T) * current_size);
-    delete[] data;
-    return data_new;
-  }
 
   // Reverses the elements of the vector.
   void reverse() {
@@ -219,26 +193,6 @@ public:
   // in the result and positive if it is to appear later, with 0 for equal.
   void sort(int (*comparator)(const void *, const void *)) {
     qsort(data_, size_used_, sizeof(*data_), comparator);
-  }
-
-  // Searches the array (assuming sorted in ascending order, using sort()) for
-  // an element equal to target and returns the index of the best candidate.
-  // The return value is conceptually the largest index i such that
-  // data_[i] <= target or 0 if target < the whole vector.
-  // NOTE that this function uses operator> so really the return value is
-  // the largest index i such that data_[i] > target is false.
-  int binary_search(const T &target) const {
-    int bottom = 0;
-    int top = size_used_;
-    while (top - bottom > 1) {
-      int middle = (bottom + top) / 2;
-      if (data_[middle] > target) {
-        top = middle;
-      } else {
-        bottom = middle;
-      }
-    }
-    return bottom;
   }
 
   // Swaps the elements with the given indices.
@@ -305,11 +259,6 @@ inline bool SaveDataToFile(const GenericVector<char> &data, const char *filename
   bool result = fwrite(&data[0], 1, data.size(), fp) == data.size();
   fclose(fp);
   return result;
-}
-
-template <typename T>
-bool cmp_eq(T const &t1, T const &t2) {
-  return t1 == t2;
 }
 
 // Used by sort()
@@ -633,29 +582,6 @@ int GenericVector<T>::push_back(T object) {
 }
 
 template <typename T>
-int GenericVector<T>::push_back_new(const T &object) {
-  int index = get_index(object);
-  if (index >= 0) {
-    return index;
-  }
-  return push_back(object);
-}
-
-// Add an element in the array (front)
-template <typename T>
-int GenericVector<T>::push_front(const T &object) {
-  if (size_used_ == size_reserved_) {
-    double_the_size();
-  }
-  for (int i = size_used_; i > 0; --i) {
-    data_[i] = data_[i - 1];
-  }
-  data_[0] = object;
-  ++size_used_;
-  return 0;
-}
-
-template <typename T>
 void GenericVector<T>::operator+=(const T &t) {
   push_back(t);
 }
@@ -831,42 +757,12 @@ bool GenericVector<T>::SerializeClasses(FILE *fp) const {
   }
   return true;
 }
-template <typename T>
-bool GenericVector<T>::SerializeClasses(TFile *fp) const {
-  if (fp->FWrite(&size_used_, sizeof(size_used_), 1) != 1) {
-    return false;
-  }
-  for (int i = 0; i < size_used_; ++i) {
-    if (!data_[i].Serialize(fp)) {
-      return false;
-    }
-  }
-  return true;
-}
 
 // Reads a vector of classes from the given file. Assumes the existence of
 // bool T::Deserialize(bool swap, FILE* fp) that returns false in case of
 // error. Also needs T::T() and T::T(constT&), as init_to_size is used in
 // this function. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
-template <typename T>
-bool GenericVector<T>::DeSerializeClasses(bool swap, FILE *fp) {
-  int32_t reserved;
-  if (fread(&reserved, sizeof(reserved), 1, fp) != 1) {
-    return false;
-  }
-  if (swap) {
-    Reverse32(&reserved);
-  }
-  T empty;
-  init_to_size(reserved, empty);
-  for (int i = 0; i < reserved; ++i) {
-    if (!data_[i].DeSerialize(swap, fp)) {
-      return false;
-    }
-  }
-  return true;
-}
 template <typename T>
 bool GenericVector<T>::DeSerializeClasses(TFile *fp) {
   int32_t reserved;
