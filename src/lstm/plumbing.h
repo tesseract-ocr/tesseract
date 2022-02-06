@@ -25,7 +25,7 @@
 namespace tesseract {
 
 // Holds a collection of other networks and forwards calls to each of them.
-class Plumbing : public Network {
+class TESS_API Plumbing : public Network {
 public:
   // ni_ and no_ will be set by AddToStack.
   explicit Plumbing(const std::string &name);
