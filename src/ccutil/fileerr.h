@@ -24,14 +24,6 @@
 namespace tesseract {
 
 constexpr ERRCODE CANTOPENFILE("Can't open file");
-constexpr ERRCODE CANTCREATEFILE("Can't create file");
-constexpr ERRCODE CANTMAKEPIPE("Can't create pipe");
-constexpr ERRCODE CANTCONNECTPIPE("Can't reconnect pipes to stdin/stdout");
-constexpr ERRCODE READFAILED("Read of file failed");
-constexpr ERRCODE WRITEFAILED("Write of file failed");
-constexpr ERRCODE SELECTFAILED("Select failed");
-
-constexpr ERRCODE EXECFAILED("Could not exec new process");
 
 } // namespace tesseract
 

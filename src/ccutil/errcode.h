@@ -31,12 +31,6 @@ enum TessErrorLogCode {
   ABORT = 2     /*abort after error */
 };
 
-/* Explicit Error Abort codes */
-#define NO_ABORT_CODE 0
-#define LIST_ABORT 1
-#define MEMORY_ABORT 2
-#define FILE_ABORT 3
-
 #if !defined(__GNUC__) && !defined(__attribute__)
 # define __attribute__(attr) // compiler without support for __attribute__
 #endif
