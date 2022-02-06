@@ -23,12 +23,9 @@
 
 namespace tesseract {
 
-constexpr ERRCODE SERIALISE_LINKS("Attempted to (de)serialise a link element");
-
 #ifndef NDEBUG
 
 constexpr ERRCODE NO_LIST("Iterator not set to a list");
-constexpr ERRCODE NULL_OBJECT("List found this = nullptr!");
 constexpr ERRCODE NULL_DATA("List would have returned a nullptr data pointer");
 constexpr ERRCODE NULL_CURRENT("List current position is nullptr");
 constexpr ERRCODE NULL_NEXT("Next element on the list is nullptr");
