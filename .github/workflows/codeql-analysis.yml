@@ -63,7 +63,7 @@ jobs:
       run: |
        ./autogen.sh
        ./configure
-       make all training
+       make all training -j
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
