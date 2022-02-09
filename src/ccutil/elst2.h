@@ -819,15 +819,15 @@ inline void ELIST2_ITERATOR::add_to_end( // element to add
   }
 }
 
-#define ELIST2IZEH(CLASSNAME)                                            \
-  struct CLASSNAME##_LIST : X_LIST<ELIST2, ELIST2_ITERATOR, CLASSNAME> { \
-    using X_LIST<ELIST2, ELIST2_ITERATOR, CLASSNAME>::X_LIST;            \
-  };                                                                     \
-  struct CLASSNAME##_IT : X_ITER<ELIST2_ITERATOR, CLASSNAME> {           \
-    using X_ITER<ELIST2_ITERATOR, CLASSNAME>::X_ITER;                    \
-    CLASSNAME *backward() {                                              \
-      return reinterpret_cast<CLASSNAME *>(ELIST2_ITERATOR::backward()); \
-    }                                                                    \
+#define ELIST2IZEH(CLASSNAME)                                                  \
+  class CLASSNAME##_LIST : public X_LIST<ELIST2, ELIST2_ITERATOR, CLASSNAME> { \
+    using X_LIST<ELIST2, ELIST2_ITERATOR, CLASSNAME>::X_LIST;                  \
+  };                                                                           \
+  struct CLASSNAME##_IT : X_ITER<ELIST2_ITERATOR, CLASSNAME> {                 \
+    using X_ITER<ELIST2_ITERATOR, CLASSNAME>::X_ITER;                          \
+    CLASSNAME *backward() {                                                    \
+      return reinterpret_cast<CLASSNAME *>(ELIST2_ITERATOR::backward());       \
+    }                                                                          \
   };
 
 } // namespace tesseract

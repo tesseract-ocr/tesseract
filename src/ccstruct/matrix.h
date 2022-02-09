@@ -39,7 +39,7 @@
 
 namespace tesseract {
 
-struct BLOB_CHOICE_LIST;
+class BLOB_CHOICE_LIST;
 class UNICHARSET;
 
 #define NOT_CLASSIFIED static_cast<BLOB_CHOICE_LIST *>(nullptr)
