@@ -292,9 +292,9 @@ if(OPENMP_BUILD)
   if(OpenMP_FOUND)
     message(">> OpenMP_FOUND ${OpenMP_FOUND} ${OpenMP_VERSION}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-      if (NOT TARGET OpenMP::OpenMP_CXX)
-        add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
-      endif()
+    if (NOT TARGET OpenMP::OpenMP_CXX)
+      add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
+    endif()
   endif()
   # https://stackoverflow.com/questions/12399422
   # how-to-set-linker-flags-for-openmp-in-cmakes-try-compile-function
