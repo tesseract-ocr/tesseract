@@ -103,7 +103,7 @@ tesseract_LDADD += $(libcurl_LIBS)
 if T_WIN
 tesseract_LDADD += -ltiff
 tesseract_LDADD += -lws2_32
-libtesseract_la_LDFLAGS += -no-undefined -Wl,--as-needed -lws2_32
+libtesseract_la_LDFLAGS += -no-undefined -lws2_32
 endif
 if ADD_RT
 tesseract_LDADD += -lrt
