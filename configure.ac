@@ -91,7 +91,7 @@ case "${host_os}" in
     mingw*)
         AM_CONDITIONAL([T_WIN], true)
         AM_CONDITIONAL([ADD_RT], false)
-        AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
+        AC_SUBST([AM_LDFLAGS], ['-no-undefined'])
         ;;
     cygwin*)
         AM_CONDITIONAL([ADD_RT], false)

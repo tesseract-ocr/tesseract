@@ -107,7 +107,7 @@ libtesseract_la_LDFLAGS += $(libarchive_LIBS)
 libtesseract_la_LDFLAGS += $(libcurl_LIBS)
 libtesseract_la_LDFLAGS += $(TENSORFLOW_LIBS)
 if T_WIN
-libtesseract_la_LDFLAGS += -no-undefined -Wl,--as-needed -lws2_32
+libtesseract_la_LDFLAGS += -no-undefined -lws2_32
 else
 libtesseract_la_LDFLAGS += $(NOUNDEFINED)
 endif
