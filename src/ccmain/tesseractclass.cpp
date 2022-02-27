@@ -86,27 +86,27 @@ Tesseract::Tesseract()
     , double_MEMBER(thresholding_window_size, 0.33,
                     "Window size for measuring local statistics (to be "
                     "multiplied by image DPI). "
-                    "This parameter is used by the Sauvola thresolding method",
+                    "This parameter is used by the Sauvola thresholding method",
                     this->params())
     , double_MEMBER(thresholding_kfactor, 0.34,
                     "Factor for reducing threshold due to variance. "
-                    "This parameter is used by the Sauvola thresolding method."
+                    "This parameter is used by the Sauvola thresholding method."
                     " Normal range: 0.2-0.5",
                     this->params())
     , double_MEMBER(thresholding_tile_size, 0.33,
                     "Desired tile size (to be multiplied by image DPI). "
-                    "This parameter is used by the LeptonicaOtsu thresolding "
+                    "This parameter is used by the LeptonicaOtsu thresholding "
                     "method",
                     this->params())
     , double_MEMBER(thresholding_smooth_kernel_size, 0.0,
                     "Size of convolution kernel applied to threshold array "
                     "(to be multiplied by image DPI). Use 0 for no smoothing. "
-                    "This parameter is used by the LeptonicaOtsu thresolding "
+                    "This parameter is used by the LeptonicaOtsu thresholding "
                     "method",
                     this->params())
     , double_MEMBER(thresholding_score_fraction, 0.1,
                     "Fraction of the max Otsu score. "
-                    "This parameter is used by the LeptonicaOtsu thresolding "
+                    "This parameter is used by the LeptonicaOtsu thresholding "
                     "method. "
                     "For standard Otsu use 0.0, otherwise 0.1 is recommended",
                     this->params())
