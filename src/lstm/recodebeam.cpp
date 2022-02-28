@@ -24,12 +24,6 @@
 #include "unicharcompress.h"
 
 #include <algorithm> // for std::reverse
-#include <deque>
-#include <map>
-#include <set>
-#include <tuple>
-#include <unordered_set>
-#include <vector>
 
 namespace tesseract {
 
