@@ -1,3 +1,10 @@
+2022-03-01 - V5.1.0
+  * Handle image and line regions in output formats ALTO, hOCR and text.
+  * New parameter curl_timeout for curl_easy_setop.
+  * Build fixes and improvements.
+  * Catch nullptr in PageIterator::Orientation to improve robustness.
+  * Remove unused code.
+
 2022-01-06 - V5.0.1
   * Add SPDX-License-Identifier to public include files.
   * Support redirections when running OCR on a URL.
