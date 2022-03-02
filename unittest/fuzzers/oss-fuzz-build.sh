@@ -30,6 +30,10 @@ cp -R $SRC/tessdata $OUT
 
 LEPTONICA_LIBS=$(pkg-config --static --libs lept)
 
+export
+
+set -x
+
 $CXX $CXXFLAGS \
     -I $SRC/tesseract/include \
     -I/usr/local/include/leptonica \
@@ -47,3 +51,5 @@ $CXX $CXXFLAGS \
      $SRC/tesseract/.libs/libtesseract.a \
      $LEPTONICA_LIBS \
      $LIB_FUZZING_ENGINE
+
+$OUT/fuzzer-api
