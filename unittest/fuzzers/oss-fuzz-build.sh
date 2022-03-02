@@ -18,7 +18,7 @@
 cd $SRC/leptonica
 ./autogen.sh
 
-./configure --disable-shared --without-giflib --without-jpeg --without-libopenjpeg --without-libpng --without-libtiff --without-libwebp --without-libwebpmux
+./configure --disable-shared --without-giflib --without-jpeg --without-libopenjpeg --without-libpng --without-libwebp --without-libwebpmux
 make SUBDIRS=src install -j$(nproc)
 ldconfig
 
@@ -27,7 +27,8 @@ cd $SRC/tesseract
 CXXFLAGS="$CXXFLAGS -D_GLIBCXX_DEBUG" ./configure --disable-graphics --disable-shared
 make -j$(nproc)
 
-cp -R $SRC/tessdata $OUT
+mkdir $OUT/tessdata
+curl -L -o $OUT/tessdata/eng.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
 
 LEPTONICA_LIBS=$(pkg-config --static --libs lept)
 
