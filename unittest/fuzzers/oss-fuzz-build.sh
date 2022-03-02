@@ -39,7 +39,7 @@ $CXX $CXXFLAGS \
     -I/usr/local/include/leptonica \
      $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api \
      $SRC/tesseract/.libs/libtesseract.a \
-     $LEPTONICA_LIBS \
+     -static $LEPTONICA_LIBS \
      $LIB_FUZZING_ENGINE
 
 $CXX $CXXFLAGS \
@@ -49,7 +49,7 @@ $CXX $CXXFLAGS \
     -I/usr/local/include/leptonica \
      $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api-512x256 \
      $SRC/tesseract/.libs/libtesseract.a \
-     $LEPTONICA_LIBS \
+     -static $LEPTONICA_LIBS \
      $LIB_FUZZING_ENGINE
 
-$OUT/fuzzer-api
+ldd $OUT/fuzzer-api
