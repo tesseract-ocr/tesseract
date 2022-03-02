@@ -17,7 +17,8 @@
 
 cd $SRC/leptonica
 ./autogen.sh
-./configure --disable-shared --without-libpng
+
+./configure --disable-shared --without-giflib --without-jpeg --without-libopenjpeg --without-libpng --without-libtiff --without-libwebp --without-libwebpmux
 make SUBDIRS=src install -j$(nproc)
 ldconfig
 
