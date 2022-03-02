@@ -17,7 +17,7 @@
 
 cd $SRC/leptonica
 ./autogen.sh
-./configure --disable-shared
+./configure --disable-shared --without-libpng
 make SUBDIRS=src install -j$(nproc)
 ldconfig
 
@@ -39,7 +39,7 @@ $CXX $CXXFLAGS \
     -I/usr/local/include/leptonica \
      $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api \
      $SRC/tesseract/.libs/libtesseract.a \
-     -static $LEPTONICA_LIBS \
+     $LEPTONICA_LIBS \
      $LIB_FUZZING_ENGINE
 
 $CXX $CXXFLAGS \
@@ -49,7 +49,7 @@ $CXX $CXXFLAGS \
     -I/usr/local/include/leptonica \
      $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api-512x256 \
      $SRC/tesseract/.libs/libtesseract.a \
-     -static $LEPTONICA_LIBS \
+     $LEPTONICA_LIBS \
      $LIB_FUZZING_ENGINE
 
 ldd $OUT/fuzzer-api
