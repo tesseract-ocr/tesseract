@@ -28,18 +28,14 @@ make -j$(nproc)
 
 cp -R $SRC/tessdata $OUT
 
+LEPTONICA_LIBS=$(pkg-config --static --libs lept)
+
 $CXX $CXXFLAGS \
     -I $SRC/tesseract/include \
     -I/usr/local/include/leptonica \
      $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api \
      $SRC/tesseract/.libs/libtesseract.a \
-     /usr/local/lib/liblept.a \
-     /usr/lib/x86_64-linux-gnu/libtiff.a \
-     /usr/lib/x86_64-linux-gnu/libpng.a \
-     /usr/lib/x86_64-linux-gnu/libjpeg.a \
-     /usr/lib/x86_64-linux-gnu/libjbig.a \
-     /usr/lib/x86_64-linux-gnu/liblzma.a \
-     -lz \
+     $LEPTONICA_LIBS \
      $LIB_FUZZING_ENGINE
 
 $CXX $CXXFLAGS \
@@ -49,11 +45,5 @@ $CXX $CXXFLAGS \
     -I/usr/local/include/leptonica \
      $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api-512x256 \
      $SRC/tesseract/.libs/libtesseract.a \
-     /usr/local/lib/liblept.a \
-     /usr/lib/x86_64-linux-gnu/libtiff.a \
-     /usr/lib/x86_64-linux-gnu/libpng.a \
-     /usr/lib/x86_64-linux-gnu/libjpeg.a \
-     /usr/lib/x86_64-linux-gnu/libjbig.a \
-     /usr/lib/x86_64-linux-gnu/liblzma.a \
-     -lz \
+     $LEPTONICA_LIBS \
      $LIB_FUZZING_ENGINE
