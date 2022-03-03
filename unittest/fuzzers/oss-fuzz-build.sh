@@ -26,24 +26,37 @@ cd $SRC/tesseract
 CXXFLAGS="$CXXFLAGS -D_GLIBCXX_DEBUG" ./configure --disable-graphics --disable-shared
 make -j$(nproc)
 
-cp -R $SRC/tessdata $OUT
+# Get the models which are needed for the fuzzers.
 
+mkdir -p $OUT/tessdata
+(
+cd $OUT/tessdata
+test -f eng.traineddata || \
+  curl -L -O https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
+)
+
+# OSS-Fuzz requires static linking for the project specific libraries,
+# so get the list of those libraries for Leptonica and TIFF.
+# Note that libm must be linker dynamically to avoid linker errors.
+
+LEPTONICA_CFLAGS=$(pkg-config --cflags lept)
 LEPTONICA_LIBS=$(pkg-config --static --libs lept)
+LIBTIFF_LIBS=$(pkg-config --static --libs libtiff-4 | sed 's/ -lm//')
 
 $CXX $CXXFLAGS \
     -I $SRC/tesseract/include \
-    -I/usr/local/include/leptonica \
      $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api \
      $SRC/tesseract/.libs/libtesseract.a \
-     $LEPTONICA_LIBS \
+     $LEPTONICA_CFLAGS \
+     -Wl,-Bstatic $LEPTONICA_LIBS $LIBTIFF_LIBS -Wl,-Bdynamic \
      $LIB_FUZZING_ENGINE
 
 $CXX $CXXFLAGS \
     -DTESSERACT_FUZZER_WIDTH=512 \
     -DTESSERACT_FUZZER_HEIGHT=256 \
     -I $SRC/tesseract/include \
-    -I/usr/local/include/leptonica \
      $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api-512x256 \
      $SRC/tesseract/.libs/libtesseract.a \
-     $LEPTONICA_LIBS \
+     $LEPTONICA_CFLAGS \
+     -Wl,-Bstatic $LEPTONICA_LIBS $LIBTIFF_LIBS -Wl,-Bdynamic \
      $LIB_FUZZING_ENGINE
