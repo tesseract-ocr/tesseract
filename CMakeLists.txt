@@ -45,7 +45,7 @@ endif()
 #
 # ##############################################################################
 
-project(tesseract C CXX)
+project(tesseract CXX)
 
 # Get version with components from VERSION file.
 file(STRINGS "VERSION" VERSION_PLAIN)

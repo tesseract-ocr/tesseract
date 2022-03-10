@@ -96,13 +96,13 @@ set(include_files_list
     pango-1.0/pango/pango-features.h
     unicode/uchar.h
 )
-check_includes(include_files_list)
+# check_includes(include_files_list)
 
 set(types_list
     "long long int"
     wchar_t
 )
-check_types(types_list)
+# check_types(types_list)
 
 list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 list(APPEND CMAKE_REQUIRED_LIBRARIES -lm)
