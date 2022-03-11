@@ -57,7 +57,7 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
 #if defined(_WIN32)
   } else if (datadir.empty() || _access(datadir.c_str(), 0) != 0) {
     /* Look for tessdata in directory of executable. */
-    char path[_MAX_PATH] = {0};
+    char path[_MAX_PATH];
     DWORD length = GetModuleFileName(nullptr, path, sizeof(path));
     if (length > 0 && length < sizeof(path)) {
       char *separator = std::strrchr(path, '\\');
