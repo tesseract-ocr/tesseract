@@ -86,7 +86,7 @@ endif()
 option(OPENMP_BUILD "Build with openmp support" OFF) # see issue #1662
 option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
 option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
-option(ENABLE_LTO "Enable link-time optimization" ON)
+option(ENABLE_LTO "Enable link-time optimization" OFF)
 option(FAST_FLOAT "Enable float for LSTM" ON)
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
