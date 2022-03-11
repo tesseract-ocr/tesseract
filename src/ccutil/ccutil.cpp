@@ -57,27 +57,30 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
 #if defined(_WIN32)
   } else if (datadir.empty() || _access(datadir.c_str(), 0) != 0) {
     /* Look for tessdata in directory of executable. */
-    char path[_MAX_PATH];
+    char path[_MAX_PATH] = {0};
     DWORD length = GetModuleFileName(nullptr, path, sizeof(path));
     if (length > 0 && length < sizeof(path)) {
       char *separator = std::strrchr(path, '\\');
       if (separator != nullptr) {
         *separator = '\0';
-        datadir = path;
-        datadir += "/tessdata";
+        std::string subdir = path;
+        subdir += "/tessdata";
+        if (_access(subdir.c_str(), 0) == 0) {
+          datadir = subdir;
+        }
       }
     }
 #endif /* _WIN32 */
-#if defined(TESSDATA_PREFIX)
-  } else {
-    // Use tessdata prefix which was compiled in.
-    datadir = TESSDATA_PREFIX "/tessdata";
-#endif
   }
 
   // datadir may still be empty:
   if (datadir.empty()) {
+#if defined(TESSDATA_PREFIX)
+    // Use tessdata prefix which was compiled in.
+    datadir = TESSDATA_PREFIX "/tessdata";
+#else
     datadir = "./";
+#endif /* TESSDATA_PREFIX */
   }
 
   // check for missing directory separator
