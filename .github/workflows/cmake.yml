@@ -41,7 +41,6 @@ jobs:
           - { name: ubuntu-20.04-clang-8-cmake, os: ubuntu-20.04, cxx: clang++-8 } #installed
           - { name: ubuntu-20.04-clang-9-cmake, os: ubuntu-20.04, cxx: clang++-9 } #installed
           - { name: ubuntu-20.04-clang-10-cmake, os: ubuntu-20.04, cxx: clang++-10 } #installed
-          - { name: ubuntu-20.04-clang-13-cmake, os: ubuntu-20.04, cxx: clang++-13 } #installed
 
           - { name: ubuntu-20.04-gcc-7-cmake, os: ubuntu-20.04, cxx: g++-7 } #installed
           - { name: ubuntu-20.04-gcc-8-cmake, os: ubuntu-20.04, cxx: g++-8 } #installed
