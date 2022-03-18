@@ -550,6 +550,18 @@ public:
    */
   char *GetAltoText(int page_number);
 
+   /**
+   * Make an XML-formatted string with PAGE markup from the internal
+   * data structures.
+   */
+  char *GetPAGEText(ETEXT_DESC *monitor, int page_number);
+
+  /**
+   * Make an XML-formatted string with PAGE markup from the internal
+   * data structures.
+   */
+  char *GetPAGEText(int page_number);
+
   /**
    * Make a TSV-formatted string from the internal data structures.
    * page_number is 0-based but will appear in the output as 1-based.
