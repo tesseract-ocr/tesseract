@@ -16,6 +16,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+// Include automatically generated configuration file
+#ifdef HAVE_CONFIG_H
+#  include "config_auto.h"
+#endif
+
 #include "otsuthr.h"
 #include "thresholder.h"
 #include "tprintf.h" // for tprintf
