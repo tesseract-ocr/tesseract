@@ -2,8 +2,9 @@ name: autotools-openmp
 # autotools on Ubuntu - run benchmark test. '--enable-openmp' no training tools
 on:
   #push:
-  schedule:
-    - cron: 0 20 * * *
+  #schedule:
+  #  - cron: 0 20 * * *
+  workflow_dispatch:
 jobs:
 
   linux:
