@@ -80,3 +80,4 @@ jobs:
            for lmt in {1..3}; do
                 time OMP_THREAD_LIMIT=$lmt tesseract benchmarks.list - --tessdata-dir ../tessdata > /dev/null 2>&1 && echo "OMP_THREAD_LIMIT=" $lmt "tessdata" 
            done
+ 
