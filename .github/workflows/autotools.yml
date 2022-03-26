@@ -2,7 +2,7 @@ name: autotools
 # autotools build of tesseract and training tools on Ubuntu.
 # run command line tests, basicapitest and unittests. '--disable-openmp'
 on:
-  push:
+  #push:
   schedule:
     - cron: 0 20 * * *
 jobs:
