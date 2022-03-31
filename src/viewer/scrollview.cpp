@@ -328,7 +328,7 @@ void ScrollView::StartEventHandler() {
     int serial = -1;
     int k = -1;
     mutex_.lock();
-    // Check every table entry if he is is valid and not already processed.
+    // Check every table entry if they is is valid and not already processed.
 
     for (int i = 0; i < SVET_COUNT; i++) {
       if (event_table_[i] != nullptr && (serial < 0 || event_table_[i]->counter < serial)) {
@@ -804,7 +804,7 @@ void ScrollView::Draw(Image image, int x_pos, int y_pos) {
 }
 
 // Escapes the ' character with a \, so it can be processed by LUA.
-// Note: The caller will have to make sure he deletes the newly allocated item.
+// Note: The caller will have to make sure they deletes the newly allocated item.
 char *ScrollView::AddEscapeChars(const char *input) {
   const char *nextptr = strchr(input, '\'');
   const char *lastptr = input;
