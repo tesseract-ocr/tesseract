@@ -53,12 +53,12 @@
 #endif
 
 #if defined(HAVE_NEON) && !defined(__aarch64__)
-#  ifdef ANDROID
+#  if HAVE_ANDROID_GETCPUFAMILY
 #    include <cpu-features.h>
-#  elif defined(__linux__)
+#  elif HAVE_GETAUXVAL
 #    include <asm/hwcap.h>
 #    include <sys/auxv.h>
-#  elif defined(__FreeBSD__)
+#  elif HAVE_ELF_AUX_INFO
 #    include <sys/auxv.h>
 #    include <sys/elf.h>
 #  endif
@@ -212,15 +212,15 @@ SIMDDetect::SIMDDetect() {
 #endif
 
 #if defined(HAVE_NEON) && !defined(__aarch64__)
-#  ifdef ANDROID
+#  if HAVE_ANDROID_GETCPUFAMILY
   {
     AndroidCpuFamily family = android_getCpuFamily();
     if (family == ANDROID_CPU_FAMILY_ARM)
       neon_available_ = (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON);
   }
-#  elif defined(__linux__)
+#  elif HAVE_GETAUXVAL
   neon_available_ = getauxval(AT_HWCAP) & HWCAP_NEON;
-#  elif defined(__FreeBSD__)
+#  elif HAVE_ELF_AUX_INFO
   unsigned long hwcap = 0;
   elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap);
   neon_available_ = hwcap & HWCAP_NEON;
