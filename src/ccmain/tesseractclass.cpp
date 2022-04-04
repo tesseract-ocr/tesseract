@@ -75,6 +75,9 @@ Tesseract::Tesseract()
                "11=sparse_text, 12=sparse_text+osd, 13=raw_line"
                " (Values from PageSegMode enum in tesseract/publictypes.h)",
                this->params())
+    , BOOL_MEMBER(normalize_grayscale, false, 
+                  "Applys non-linear normalization (nlnorm) on a grayscale version of the input image", 
+                  this->params())
     , INT_MEMBER(thresholding_method,
                  static_cast<int>(ThresholdMethod::Otsu),
                  "Thresholding method: 0 = Otsu, 1 = LeptonicaOtsu, 2 = "

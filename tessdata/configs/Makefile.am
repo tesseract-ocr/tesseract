@@ -4,5 +4,5 @@ data_DATA += api_config kannada box.train.stderr quiet logfile digits get.images
 data_DATA += lstmbox wordstrbox
 # Configurations for OCR output.
 data_DATA += alto hocr pdf tsv txt
-data_DATA += linebox rebox strokewidth bigram
+data_DATA += linebox rebox strokewidth bigram normalize_grayscale
 EXTRA_DIST = $(data_DATA)

@@ -1253,8 +1253,37 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
 bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
                               const char *retry_config, int timeout_millisec,
                               TessResultRenderer *renderer) {
+
+  auto pixs = pixCopy(nullptr, pix);
+
   SetInputName(filename);
-  SetImage(pix);
+  SetImage(pixs);
+
+  // Image preprocessing
+
+  // Process input image to a normalized grayscale
+  // atm it uses a non-linear algorithm
+  bool normalize_grayscale=false;
+  GetBoolVariable("normalize_grayscale", &normalize_grayscale);
+  if (normalize_grayscale) {
+    Pix *pixg = thresholder_->GetPixNormRectGrey();
+    pixDestroy(&pixs);
+    pixs = pixCopy(nullptr, pixg);
+    pixDestroy(&pixg);
+    thresholder_->SetImage(pixs);
+    SetInputImage(pixs);
+    if (tesseract_->tessedit_write_images) {
+      std::string output_filename = output_file_ + ".norm_gray";
+      if (page_index > 0) {
+        output_filename += std::to_string(page_index);
+      }
+      output_filename += ".tif";
+      pixWrite(output_filename.c_str(), pixs, IFF_TIFF_G4);
+    }
+  }
+
+  // Recognition
+
   bool failed = false;
 
   if (tesseract_->tessedit_pageseg_mode == PSM_AUTO_ONLY) {
@@ -1300,7 +1329,7 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
     }
     // Switch to alternate mode for retry.
     ReadConfigFile(retry_config);
-    SetImage(pix);
+    SetImage(pixs);
     Recognize(nullptr);
     // Restore saved config variables.
     ReadConfigFile(kOldVarsFile);
@@ -1309,7 +1338,7 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
   if (renderer && !failed) {
     failed = !renderer->AddImage(this);
   }
-
+  pixDestroy(&pixs);
   return !failed;
 }
 
