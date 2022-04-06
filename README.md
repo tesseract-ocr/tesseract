@@ -17,6 +17,7 @@ Table of Contents
 * [Tesseract OCR](#tesseract-ocr)
    * [About](#about)
    * [Brief history](#brief-history)
+   * [Web Demo](#Web-Demo)
    * [Installing Tesseract](#installing-tesseract)
    * [Running Tesseract](#running-tesseract)
    * [For developers](#for-developers)
@@ -71,6 +72,10 @@ and [planning documentation](https://tesseract-ocr.github.io/tessdoc/Planning.ht
 
 See **[Release Notes](https://tesseract-ocr.github.io/tessdoc/ReleaseNotes.html)**
 and **[Change Log](https://github.com/tesseract-ocr/tesseract/blob/main/ChangeLog)** for more details of the releases.
+
+## Web Demo
+
+Integrated into [Huggingface Spaces 🤗](https://huggingface.co/spaces) using [Gradio](https://github.com/gradio-app/gradio). Try out the Web Demo: [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/tomofi/Tesseract-OCR)
 
 ## Installing Tesseract
 
