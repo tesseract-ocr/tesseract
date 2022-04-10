@@ -1349,11 +1349,11 @@ static TBOX ComputeWordBounds(const tesseract::PointerVector<WERD_RES> &words,
   return clipped_box;
 }
 
-// Helper moves the blob from src to dest. If it isn't contained by clip_box,
-// the blob is replaced by a fake that is contained.
-static TBOX MoveAndClipBlob(C_BLOB_IT *src_it, C_BLOB_IT *dest_it,
-                            const TBOX &clip_box) {
-  C_BLOB *src_blob = src_it->extract();
+// Helper moves the src_blob to dest. If it isn't contained by clip_box,
+// the blob is replaced by a fake that is contained. The helper takes ownership
+// of the blob.
+static TBOX ClipAndAddBlob(C_BLOB *src_blob, C_BLOB_IT *dest_it,
+                           const TBOX &clip_box) {
   TBOX box = src_blob->bounding_box();
   if (!clip_box.contains(box)) {
     int left =
@@ -1447,17 +1447,17 @@ void PAGE_RES_IT::ReplaceCurrentWord(
       // Add the blobs up to end_x.
       while (!src_b_it.empty() &&
              src_b_it.data()->bounding_box().x_middle() < end_x) {
-        blob_box += MoveAndClipBlob(&src_b_it, &dest_it, clip_box);
+        blob_box += ClipAndAddBlob(src_b_it.extract(), &dest_it, clip_box);
         src_b_it.forward();
       }
       while (!rej_b_it.empty() &&
              rej_b_it.data()->bounding_box().x_middle() < end_x) {
-        blob_box += MoveAndClipBlob(&rej_b_it, &dest_it, clip_box);
+        blob_box += ClipAndAddBlob(rej_b_it.extract(), &dest_it, clip_box);
         rej_b_it.forward();
       }
       if (blob_box.null_box()) {
         // Use the original box as a back-up.
-        blob_box = MoveAndClipBlob(&fake_b_it, &dest_it, clip_box);
+        blob_box = ClipAndAddBlob(fake_b_it.extract(), &dest_it, clip_box);
       }
       box_word->InsertBox(i, blob_box);
     }
