@@ -109,6 +109,9 @@ bool TessResultRenderer::EndDocument() {
 }
 
 void TessResultRenderer::AppendString(const char *s) {
+  if (s == nullptr) {
+    return;
+  }
   AppendData(s, strlen(s));
 }
 
