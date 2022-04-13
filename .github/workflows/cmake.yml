@@ -50,6 +50,7 @@ jobs:
     steps:
       - name: Install compilers on Linux
         run: |
+             sudo apt-get update
              sudo apt-get install ${{ matrix.config.cxx }} -y
         if: runner.os == 'Linux'
 
