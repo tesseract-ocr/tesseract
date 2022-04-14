@@ -225,6 +225,11 @@ SIMDDetect::SIMDDetect() {
   // Select code for calculation of dot product based on autodetection.
   if (false) {
     // This is a dummy to support conditional compilation.
+#if defined(HAVE_AVX512F)
+  } else if (avx512F_available_) {
+    // AVX512F detected.
+    SetDotProduct(DotProductAVX512F, &IntSimdMatrix::intSimdMatrixAVX2);
+#endif
 #if defined(HAVE_AVX2)
   } else if (avx2_available_) {
     // AVX2 detected.

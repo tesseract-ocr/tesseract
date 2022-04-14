@@ -167,6 +167,10 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
     set(AVX2_COMPILE_FLAGS "/arch:AVX2")
     add_definitions("-DHAVE_AVX2")
 
+    set(HAVE_AVX512F ON)
+    set(AVX512_COMPILE_FLAGS "/arch:AVX512")
+    add_definitions("-DHAVE_AVX512F")
+
     set(HAVE_FMA ON)
     set(FMA_COMPILE_FLAGS "-D__FMA__")
     add_definitions("-DHAVE_FMA")
@@ -198,6 +202,12 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
       add_definitions("-DHAVE_AVX2")
     endif()
 
+    check_cxx_compiler_flag("-mavx512f" HAVE_AVX512F)
+    if(HAVE_AVX512F)
+      set(AVX512F_COMPILE_FLAGS "-mavx512f")
+      add_definitions("-DHAVE_AVX512F")
+    endif()
+
     check_cxx_compiler_flag("-mfma" HAVE_FMA)
     if(HAVE_FMA)
       set(FMA_COMPILE_FLAGS "-mfma")
@@ -215,6 +225,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64.*|AARCH64.*")
 
   set(HAVE_AVX FALSE)
   set(HAVE_AVX2 FALSE)
+  set(HAVE_AVX512F FALSE)
   set(HAVE_FMA FALSE)
   set(HAVE_SSE4_1 FALSE)
 
@@ -225,6 +236,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm.*")
 
   set(HAVE_AVX FALSE)
   set(HAVE_AVX2 FALSE)
+  set(HAVE_AVX512F FALSE)
   set(HAVE_FMA FALSE)
   set(HAVE_SSE4_1 FALSE)
 
@@ -238,6 +250,7 @@ else()
 
   set(HAVE_AVX FALSE)
   set(HAVE_AVX2 FALSE)
+  set(HAVE_AVX512F FALSE)
   set(HAVE_FMA FALSE)
   set(HAVE_NEON FALSE)
   set(HAVE_SSE4_1 FALSE)
@@ -480,6 +493,7 @@ message(STATUS "Linker options: ${CMAKE_EXE_LINKER_FLAGS} "
 message(STATUS "Install directory: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "HAVE_AVX: ${HAVE_AVX}")
 message(STATUS "HAVE_AVX2: ${HAVE_AVX2}")
+message(STATUS "HAVE_AVX512F: ${HAVE_AVX512F}")
 message(STATUS "HAVE_FMA: ${HAVE_FMA}")
 message(STATUS "HAVE_SSE4_1: ${HAVE_SSE4_1}")
 message(STATUS "MARCH_NATIVE_OPT: ${MARCH_NATIVE_OPT}")
@@ -641,6 +655,11 @@ if(HAVE_AVX2)
   set_source_files_properties(src/arch/intsimdmatrixavx2.cpp
                               PROPERTIES COMPILE_FLAGS ${AVX2_COMPILE_FLAGS})
 endif(HAVE_AVX2)
+if(HAVE_AVX512F)
+  list(APPEND arch_files_opt src/arch/dotproductavx512.cpp)
+  set_source_files_properties(src/arch/dotproductavx512.cpp
+                              PROPERTIES COMPILE_FLAGS ${AVX512F_COMPILE_FLAGS})
+endif(HAVE_AVX512F)
 if(HAVE_FMA)
   list(APPEND arch_files_opt src/arch/dotproductfma.cpp)
   set_source_files_properties(src/arch/dotproductfma.cpp
