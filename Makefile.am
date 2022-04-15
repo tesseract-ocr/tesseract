@@ -160,6 +160,14 @@ libtesseract_la_LIBADD += libtesseract_avx2.la
 noinst_LTLIBRARIES += libtesseract_avx2.la
 endif
 
+if HAVE_AVX512F
+libtesseract_avx512_la_CXXFLAGS = -mavx512f
+libtesseract_avx512_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_avx512_la_SOURCES = src/arch/dotproductavx512.cpp
+libtesseract_la_LIBADD += libtesseract_avx512.la
+noinst_LTLIBRARIES += libtesseract_avx512.la
+endif
+
 if HAVE_FMA
 libtesseract_fma_la_CXXFLAGS = -mfma
 libtesseract_fma_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
