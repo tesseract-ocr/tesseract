@@ -168,7 +168,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
     add_definitions("-DHAVE_AVX2")
 
     set(HAVE_AVX512F ON)
-    set(AVX512_COMPILE_FLAGS "/arch:AVX512")
+    set(AVX512F_COMPILE_FLAGS "/arch:AVX512")
     add_definitions("-DHAVE_AVX512F")
 
     set(HAVE_FMA ON)
