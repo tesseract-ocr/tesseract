@@ -66,11 +66,11 @@ void AsciiToRowInfo(const char *text, int row_number, RowInfo *info) {
 
   info->lword_text = words[0].c_str();
   info->rword_text = words[words.size() - 1].c_str();
-  int lspace = 0;
+  unsigned lspace = 0;
   while (lspace < info->text.size() && text[lspace] == ' ') {
     lspace++;
   }
-  int rspace = 0;
+  unsigned rspace = 0;
   while (rspace < info->text.size() && text[info->text.size() - rspace - 1] == ' ') {
     rspace++;
   }
