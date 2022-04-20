@@ -220,7 +220,8 @@ NUMA      *na;
   if (d == 32)
       // ITU-R 601-2 luma 
       pixg = pixConvertRGBToGray(pixs, 0.299, 0.587, 0.114);
-      //pixg = pixConvertRGBToGray(pixs, 0.3, 0.4, 0.3);
+      // Legacy converting
+      // pixg = pixConvertRGBToGray(pixs, 0.3, 0.4, 0.3);
   else
       pixg = pixConvertTo8(pixs, 0);
 
@@ -243,9 +244,9 @@ NUMA      *na;
   pixDestroy(&pixd2);
   pixGetDimensions(pixd, &w2, &h2, NULL);
   pixd2 = pixScaleGrayLI(pixd, (l_float32)w1 / (l_float32)w2, (l_float32)h1 / (l_float32)h2);
+  pixDestroy(&pixd);
   pixInvert(pixd2, pixd2);
   pixAddGray(pixg, pixg, pixd2);
-  pixDestroy(&pixd);
   pixDestroy(&pixd2);
 
   /* Local contrast enhancement */

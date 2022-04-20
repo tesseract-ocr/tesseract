@@ -1254,31 +1254,32 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
                               const char *retry_config, int timeout_millisec,
                               TessResultRenderer *renderer) {
 
-  auto pixs = pixCopy(nullptr, pix);
-
   SetInputName(filename);
-  SetImage(pixs);
+
+  SetImage(pix);
 
   // Image preprocessing
 
   // Process input image to a normalized grayscale
   // atm it uses a non-linear algorithm
-  bool normalize_grayscale=false;
-  GetBoolVariable("normalize_grayscale", &normalize_grayscale);
-  if (normalize_grayscale) {
-    Pix *pixg = thresholder_->GetPixNormRectGrey();
-    pixDestroy(&pixs);
-    pixs = pixCopy(nullptr, pixg);
-    pixDestroy(&pixg);
-    thresholder_->SetImage(pixs);
-    SetInputImage(pixs);
+  bool nlnorm, nlth, nlrec;
+  GetBoolVariable("normalize_grayscale", &nlnorm);
+  GetBoolVariable("normalize_thresholding", &nlth);
+  GetBoolVariable("normalize_recognition", &nlrec);
+  if (nlnorm || nlth || nlrec) {
+    if (nlnorm || (nlth && nlrec)) {
+      SetInputImage(thresholder_->GetPixNormRectGrey());
+      thresholder_->SetImage(GetInputImage());
+    } else if (nlth) thresholder_->SetImage(thresholder_->GetPixNormRectGrey());
+    else if (nlrec) SetInputImage(thresholder_->GetPixNormRectGrey());
+    
     if (tesseract_->tessedit_write_images) {
       std::string output_filename = output_file_ + ".norm_gray";
       if (page_index > 0) {
         output_filename += std::to_string(page_index);
       }
       output_filename += ".tif";
-      pixWrite(output_filename.c_str(), pixs, IFF_TIFF_G4);
+      pixWrite(output_filename.c_str(), pix, IFF_TIFF_G4);
     }
   }
 
@@ -1329,7 +1330,17 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
     }
     // Switch to alternate mode for retry.
     ReadConfigFile(retry_config);
-    SetImage(pixs);
+    SetImage(pix);
+    
+    // Apply image preprocessing
+    if (nlnorm || nlth || nlrec) {
+      if (nlnorm || (nlth && nlrec)) {
+        SetInputImage(thresholder_->GetPixNormRectGrey());
+        thresholder_->SetImage(GetInputImage());
+      } else if (nlth) thresholder_->SetImage(thresholder_->GetPixNormRectGrey());
+      else if (nlrec) SetInputImage(thresholder_->GetPixNormRectGrey());
+    }
+    //if (normalize_grayscale) thresholder_->SetImage(thresholder_->GetPixNormRectGrey());
     Recognize(nullptr);
     // Restore saved config variables.
     ReadConfigFile(kOldVarsFile);
@@ -1338,7 +1349,7 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
   if (renderer && !failed) {
     failed = !renderer->AddImage(this);
   }
-  pixDestroy(&pixs);
+  //pixDestroy(&pixs);
   return !failed;
 }
 

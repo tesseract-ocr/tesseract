@@ -76,7 +76,16 @@ Tesseract::Tesseract()
                " (Values from PageSegMode enum in tesseract/publictypes.h)",
                this->params())
     , BOOL_MEMBER(normalize_grayscale, false, 
-                  "Applys non-linear normalization (nlnorm) on a grayscale version of the input image", 
+                  "Applys non-linear normalization (nlnorm) on a grayscale version "
+                  "of the input image and replace it for all tasks", 
+                  this->params())
+    , BOOL_MEMBER(normalize_thresholding, false, 
+                  "Applys non-linear normalization (nlnorm) on a grayscale version "
+                  "of the input image only for thresholding tasks (layout analysis)", 
+                  this->params())
+    , BOOL_MEMBER(normalize_recognition, false, 
+                  "Applys non-linear normalization (nlnorm) on a grayscale version "
+                  "of the input image only for the character recognition task", 
                   this->params())
     , INT_MEMBER(thresholding_method,
                  static_cast<int>(ThresholdMethod::Otsu),
