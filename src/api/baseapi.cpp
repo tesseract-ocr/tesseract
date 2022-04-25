@@ -1270,16 +1270,18 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
     if (nlnorm || (nlth && nlrec)) {
       SetInputImage(thresholder_->GetPixNormRectGrey());
       thresholder_->SetImage(GetInputImage());
-    } else if (nlth) thresholder_->SetImage(thresholder_->GetPixNormRectGrey());
-    else if (nlrec) SetInputImage(thresholder_->GetPixNormRectGrey());
-    
+    } else if (nlth) {
+      thresholder_->SetImage(thresholder_->GetPixNormRectGrey());
+    } else if (nlrec) {
+      SetInputImage(thresholder_->GetPixNormRectGrey());
+    }
     if (tesseract_->tessedit_write_images) {
       std::string output_filename = output_file_ + ".norm_gray";
       if (page_index > 0) {
         output_filename += std::to_string(page_index);
       }
       output_filename += ".tif";
-      pixWrite(output_filename.c_str(), pix, IFF_TIFF_G4);
+      pixWrite(output_filename.c_str(), GetInputImage(), IFF_TIFF_G4);
     }
   }
 
@@ -1337,8 +1339,11 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
       if (nlnorm || (nlth && nlrec)) {
         SetInputImage(thresholder_->GetPixNormRectGrey());
         thresholder_->SetImage(GetInputImage());
-      } else if (nlth) thresholder_->SetImage(thresholder_->GetPixNormRectGrey());
-      else if (nlrec) SetInputImage(thresholder_->GetPixNormRectGrey());
+      } else if (nlth) {
+        thresholder_->SetImage(thresholder_->GetPixNormRectGrey());
+      } else if (nlrec) {
+        SetInputImage(thresholder_->GetPixNormRectGrey());
+      }
     }
     //if (normalize_grayscale) thresholder_->SetImage(thresholder_->GetPixNormRectGrey());
     Recognize(nullptr);
