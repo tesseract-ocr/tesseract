@@ -230,11 +230,11 @@ private:
   // PDFs one page at a time. At the end, that metadata is
   // used to make everything that isn't easily handled in a
   // streaming fashion.
-  long int obj_;                       // counter for PDF objects
-  std::vector<std::uint64_t> offsets_; // offset of every PDF object in bytes
-  std::vector<long int> pages_;        // object number for every /Page object
-  std::string datadir_;                // where to find the custom font
-  bool textonly_;                      // skip images if set
+  long int obj_;                      // counter for PDF objects
+  std::vector<std::int64_t> offsets_; // offset of every PDF object in bytes
+  std::vector<long int> pages_;       // object number for every /Page object
+  std::string datadir_;               // where to find the custom font
+  bool textonly_;                     // skip images if set
   // Bookkeeping only. DIY = Do It Yourself.
   void AppendPDFObjectDIY(size_t objectsize);
   // Bookkeeping + emit data.
