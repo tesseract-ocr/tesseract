@@ -87,7 +87,7 @@ SIMDDetect SIMDDetect::detector;
 bool SIMDDetect::neon_available_ = true;
 #elif defined(HAVE_NEON)
 // If true, then Neon has been detected.
-bool SIMDDetect::neon_available_ = false;
+bool SIMDDetect::neon_available_;
 #else
 // If true, then AVX has been detected.
 bool SIMDDetect::avx_available_;
@@ -212,15 +212,15 @@ SIMDDetect::SIMDDetect() {
 #endif
 
 #if defined(HAVE_NEON) && !defined(__aarch64__)
-#  if HAVE_ANDROID_GETCPUFAMILY
+#  if defined(HAVE_ANDROID_GETCPUFAMILY)
   {
     AndroidCpuFamily family = android_getCpuFamily();
     if (family == ANDROID_CPU_FAMILY_ARM)
       neon_available_ = (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON);
   }
-#  elif HAVE_GETAUXVAL
+#  elif defined(HAVE_GETAUXVAL)
   neon_available_ = getauxval(AT_HWCAP) & HWCAP_NEON;
-#  elif HAVE_ELF_AUX_INFO
+#  elif defined(HAVE_ELF_AUX_INFO)
   unsigned long hwcap = 0;
   elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap);
   neon_available_ = hwcap & HWCAP_NEON;
