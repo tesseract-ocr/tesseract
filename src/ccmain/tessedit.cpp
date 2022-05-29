@@ -23,8 +23,6 @@
 #  include "config_auto.h"
 #endif
 
-#include <regex> // for std::regex_match
-
 #include "control.h"
 #include "matchdefs.h"
 #include "pageres.h"
@@ -248,12 +246,11 @@ void Tesseract::ParseLanguageString(const std::string &lang_str, std::vector<std
   std::string remains(lang_str);
   // Look whether the model file uses a prefix which must be applied to
   // included model files as well.
-  std::regex e("(.*)/[^/]*");
-  std::cmatch cm;
   std::string prefix;
-  if (std::regex_match(lang.c_str(), cm, e, std::regex_constants::match_default)) {
+  size_t found = lang.find_last_of('/');
+  if (found != std::string::npos) {
     // A prefix was found.
-    prefix = cm[1].str() + "/";
+    prefix = lang.substr(0, found + 1);
   }
   while (!remains.empty()) {
     // Find the start of the lang code and which vector to add to.
