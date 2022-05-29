@@ -60,7 +60,7 @@ jobs:
            lscpu
            free
            g++ --version
-           tesseract -v 
+           tesseract -v
            time tesseract benchmarks.list - --tessdata-dir ../tessdata_fast > /dev/null 2>&1
            echo "tessdata_fast"
 
@@ -79,6 +79,5 @@ jobs:
     - name: Run Tesseract using image from issue 263 with tessdata and OpenMP Thread Limit
       run: |
            for lmt in {1..3}; do
-                time OMP_THREAD_LIMIT=$lmt tesseract benchmarks.list - --tessdata-dir ../tessdata > /dev/null 2>&1 && echo "OMP_THREAD_LIMIT=" $lmt "tessdata" 
+                time OMP_THREAD_LIMIT=$lmt tesseract benchmarks.list - --tessdata-dir ../tessdata > /dev/null 2>&1 && echo "OMP_THREAD_LIMIT=" $lmt "tessdata"
            done
- 

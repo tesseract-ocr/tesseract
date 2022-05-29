@@ -28,7 +28,7 @@ jobs:
            sudo apt-get install autoconf libleptonica-dev libpango1.0-dev -y
            sudo apt-get install cabextract -y
            #sudo apt-get install libc++-7-dev libc++abi-7-dev -y
-           
+
     - name: Setup
       run: |
            mkdir -p m4
