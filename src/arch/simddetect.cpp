@@ -55,7 +55,7 @@
 #if defined(HAVE_NEON) && !defined(__aarch64__)
 #  if defined(HAVE_ANDROID_GETCPUFAMILY)
 #    include <cpu-features.h>
-#  elif HAVE_GETAUXVAL
+#  elif defined(HAVE_GETAUXVAL)
 #    include <asm/hwcap.h>
 #    include <sys/auxv.h>
 #  elif HAVE_ELF_AUX_INFO
