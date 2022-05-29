@@ -58,7 +58,7 @@
 #  elif defined(HAVE_GETAUXVAL)
 #    include <asm/hwcap.h>
 #    include <sys/auxv.h>
-#  elif HAVE_ELF_AUX_INFO
+#  elif defined(HAVE_ELF_AUX_INFO)
 #    include <sys/auxv.h>
 #    include <sys/elf.h>
 #  endif
