@@ -145,7 +145,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: tesseract-cmake-win64
-          # path: d:/a/local
+          path: d:/a/local
           retention-days: 5
           
       - name: Download a Build Artifact
