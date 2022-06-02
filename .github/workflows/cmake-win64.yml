@@ -38,8 +38,8 @@ jobs:
       - name: Build and Install zlib
         shell: cmd
         run: |
-             curl -sSL -o zlib1211.zip https://zlib.net/zlib1211.zip
-             unzip.exe zlib1211.zip
+             curl -sSL -o zlib1212.zip https://zlib.net/zlib1211.zip
+             unzip.exe zlib1212.zip
              cd zlib-1.2.11
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=d:/a/local -DCMAKE_INSTALL_PREFIX=d:/a/local
              cmake --build build --config Release --target install
