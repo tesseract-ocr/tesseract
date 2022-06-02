@@ -53,12 +53,12 @@ jobs:
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=d:/a/local -DCMAKE_INSTALL_PREFIX=d:/a/local
              cmake --build build --config Release --target install
 
-      - name: Build and Install webp
-        shell: cmd
-        run: |
-             git clone --depth 1 https://github.com/webmproject/libwebp.git && cd libwebp
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=d:/a/local -DCMAKE_INSTALL_PREFIX=d:/a/local
-             cmake --build build --config Release --target install
+#      - name: Build and Install webp
+#        shell: cmd
+#        run: |
+#             git clone --depth 1 https://github.com/webmproject/libwebp.git && cd libwebp
+#             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=d:/a/local -DCMAKE_INSTALL_PREFIX=d:/a/local -DWEBP_BUILD_ANIM_UTILS =OFF
+#             cmake --build build --config Release --target install
 
       - name: Build and Install giflib
         shell: cmd
