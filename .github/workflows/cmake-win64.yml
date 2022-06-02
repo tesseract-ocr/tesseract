@@ -140,3 +140,19 @@ jobs:
           tesseract -v
           tesseract --list-langs
           tesseract test/testing/phototest.tif -
+          
+      - name: Upload Build Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: tesseract-cmake-win64
+          # path: d:/a/local
+          retention-days: 5
+          
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v3.0.0
+        with:
+          # Artifact name
+          name: # optional
+          # Destination path
+          path: # optional          
+          
