@@ -5,20 +5,20 @@ on:
   #push:
   schedule:
     - cron: 0 23 * * *
+  workflow_dispatch:
 
 jobs:
   build:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     strategy:
-      fail-fast: false
+      fail-fast: True
       matrix:
         config:
         - {
-            name: "Windows Latest MSVC - cmake",
+            name: "Windows Latest MSVC - cmake", artifact: "Windows-MSVC",
             os: windows-latest,
-            cc: "cl",
-            cxx: "cl",
+            cc: "cl", cxx: "cl",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
           }
 
