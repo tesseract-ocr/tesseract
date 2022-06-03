@@ -72,7 +72,8 @@ void build(Solution &s)
         // check arch (arm)
         libtesseract -= "src/arch/dotproductneon.cpp";
 
-        if (libtesseract.getBuildSettings().TargetOS.Type != OSType::Windows)
+        if (libtesseract.getBuildSettings().TargetOS.Type != OSType::Windows &&
+            libtesseract.getBuildSettings().TargetOS.Arch != ArchType::aarch64)
         {
             libtesseract["src/arch/dotproductavx.cpp"].args.push_back("-mavx");
             libtesseract["src/arch/dotproductavx512.cpp"].args.push_back("-mavx512f");
