@@ -787,7 +787,7 @@ void Textord::improve_row_threshold(TO_ROW *row, STATS *all_gap_stats) {
   /*
 Look for the first region of all 0's in the histogram which is wider than
 max(3, (sp - kn) / 3) and starts between kn and sp. If found, and current
-threshold is not within it, move the threshold so that is is just inside it.
+threshold is not within it, move the threshold so that is just inside it.
 */
   reqd_zero_width = static_cast<int16_t>(floor((sp - kn) / 3 + 0.5));
   if (reqd_zero_width < 3) {

@@ -871,7 +871,7 @@ void C_OUTLINE::ComputeBinaryOffsets() {
     increment_step(s, 1, &head_pos, dir_counts, pos_totals);
   }
   for (int s = 0; s < stepcount; pos += step(s++)) {
-    // At step s, s in in the middle of [s-2, s+2].
+    // At step s, s in the middle of [s-2, s+2].
     increment_step(s + 2, 1, &head_pos, dir_counts, pos_totals);
     int dir_index = chain_code(s);
     ICOORD step_vec = step(s);

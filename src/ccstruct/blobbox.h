@@ -769,7 +769,7 @@ public:
 #ifndef GRAPHICS_DISABLED
   // Draw the noise blobs from all lists in red.
   void plot_noise_blobs(ScrollView *to_win);
-  // Draw the blobs on on the various lists in the block in different colors.
+  // Draw the blobs on the various lists in the block in different colors.
   void plot_graded_blobs(ScrollView *to_win);
 #endif
 

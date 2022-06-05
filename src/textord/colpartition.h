@@ -671,7 +671,7 @@ public:
                                          ColPartition_LIST *used_parts);
 
   // Makes a TO_ROW matching this and moves all the blobs to it, transferring
-  // ownership to to returned TO_ROW.
+  // ownership to returned TO_ROW.
   TO_ROW *MakeToRow();
 
   // Returns a copy of everything except the list of boxes. The resulting

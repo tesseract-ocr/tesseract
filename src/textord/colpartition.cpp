@@ -1378,7 +1378,7 @@ bool ColPartition::HasGoodBaseline() {
   } else {
     // Horizontal lines use the bottom as the baseline.
     TBOX box(it.data()->bounding_box());
-    // Use the bottom-left of the first box, the the bottom-right of the last,
+    // Use the bottom-left of the first box, the bottom-right of the last,
     // and the middle of all others.
     ICOORD first_pt(box.left(), box.bottom());
     linepoints.Add(first_pt);
@@ -1623,7 +1623,7 @@ static TO_BLOCK *MoveBlobsToBlock(bool vertical_text, int line_spacing,
                                   ColPartition_LIST *used_parts) {
   // Make a matching TO_BLOCK and put all the BLOBNBOXes from the parts in it.
   // Move all the parts to a done list as they are no longer needed, except
-  // that have have to continue to exist until the part grid is deleted.
+  // that have to continue to exist until the part grid is deleted.
   // Compute the median blob size as we go, as the block needs to know.
   TBOX block_box(block->pdblk.bounding_box());
   STATS sizes(0, std::max(block_box.width(), block_box.height()) - 1);
@@ -1780,7 +1780,7 @@ TO_BLOCK *ColPartition::MakeVerticalTextBlock(const ICOORD &bleft,
 }
 
 // Makes a TO_ROW matching this and moves all the blobs to it, transferring
-// ownership to to returned TO_ROW.
+// ownership to returned TO_ROW.
 TO_ROW *ColPartition::MakeToRow() {
   BLOBNBOX_C_IT blob_it(&boxes_);
   TO_ROW *row = nullptr;

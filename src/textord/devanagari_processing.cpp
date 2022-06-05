@@ -199,7 +199,7 @@ int ShiroRekhaSplitter::GetXheightForCC(Box *cc_bbox) {
       int baseline = static_cast<int>(row->base_line(box_middle) + 0.5);
       TBOX test_box(box_middle - row->x_height() / 2, baseline, box_middle + row->x_height() / 2,
                     static_cast<int>(baseline + row->x_height()));
-      // Compute overlap. If it is is a major overlap, this is the right row.
+      // Compute overlap. If it is a major overlap, this is the right row.
       if (bbox.major_overlap(test_box)) {
         return row->x_height();
       }

@@ -466,7 +466,7 @@ protected:
   // significant learning. learning_iteration_ <= training_iteration_.
   // learning_iteration_ is used to measure rate of learning progress.
   int learning_iteration_;
-  // Saved value of sample_iteration_ before looking for the the next sample.
+  // Saved value of sample_iteration_ before looking for the next sample.
   int prev_sample_iteration_;
   // How often to include a PERFECT training sample in backprop.
   // A PERFECT training sample is used if the current

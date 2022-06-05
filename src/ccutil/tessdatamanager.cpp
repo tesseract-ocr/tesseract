@@ -48,7 +48,7 @@ TessdataManager::TessdataManager(FileReader reader)
   SetVersionString(TESSERACT_VERSION_STR);
 }
 
-// Lazily loads from the the given filename. Won't actually read the file
+// Lazily loads from the given filename. Won't actually read the file
 // until it needs it.
 void TessdataManager::LoadFileLater(const char *data_file_name) {
   Clear();
