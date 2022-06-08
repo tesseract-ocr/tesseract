@@ -16,10 +16,13 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: ilammy/setup-nasm@v1
-      - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} ) (${GITHUB_REF#refs/*/})"
+      - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
         uses: actions/checkout@v3
         with:
           submodules: recursive
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Setup Instalation Location
         run: |
              mkdir ${{env.ILOC}}
@@ -74,8 +77,8 @@ jobs:
       - name: Build and Install jbigkit
         shell: cmd
         run: |
-             git clone --depth 1 https://github.com/zdenop/jbigkit
-             cd jbigkit-2.1
+             git clone --depth 1 https://github.com/zdenop/jbigkit.git
+             cd jbigkit
              cmake -Bbuild -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DBUILD_PROGRAMS=OFF -DBUILD_TOOLS=OFF -DCMAKE_WARN_DEPRECATED=OFF
              cmake --build build --config Release --target install
              cd ..
@@ -92,7 +95,7 @@ jobs:
       - name: Build and Install libtiff
         shell: cmd
         run: |
-             git clone --depth 1 https://gitlab.com/libtiff/libtiff
+             git clone --depth 1 https://gitlab.com/libtiff/libtiff.git
              cd libtiff
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -Dtiff-tools=OFF -Dtiff-tests=OFF -Dtiff-contrib=OFF -Dtiff-docs=OFF
              cmake --build build --config Release --target install
@@ -122,7 +125,7 @@ jobs:
              git clone --depth 1 https://github.com/libarchive/libarchive.git
              cd libarchive
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DENABLE_TEST=OFF
-             cmake --build build --config Release --target instal
+             cmake --build build --config Release --target install
 
       - name: Remove not needed tools Before building tesseract
         shell: cmd
@@ -149,6 +152,6 @@ jobs:
       - name: Upload Build Results
         uses: actions/upload-artifact@v2
         with:
-          name: tesseract-${{env.RELEASE_VERSION}}-VS2019_win64
+          name: tesseract-${{ steps.get_version.outputs.VERSION }}-VS2019_win64
           path: ${{env.ILOC}}
           retention-days: 5
