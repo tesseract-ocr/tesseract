@@ -16,15 +16,14 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: ilammy/setup-nasm@v1
-      - name: Checkout code
+      - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} ) (${GITHUB_REF#refs/*/})"
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
-        shell: cmd
+      - name: Setup Instalation Location
         run: |
              mkdir ${{env.ILOC}}
-      - name: Build and Install zlib
+      - name: Build and Install zlib-ng
         shell: cmd
         run: |
              git clone --depth 1 https://github.com/zlib-ng/zlib-ng.git
