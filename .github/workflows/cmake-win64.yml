@@ -135,7 +135,8 @@ jobs:
       - name: Build and Install tesseract
         shell: cmd
         run: |
-             cmake -E env CXXFLAGS="/Qpar /fp:fast" cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=ON
+             REM cmake -E env CXXFLAGS="/Qpar /fp:fast"
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=ON
              cmake --build build --config Release --target install
 
       - name: Display Tesseract Version and Test Command Line Usage
