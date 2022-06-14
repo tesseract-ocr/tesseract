@@ -41,9 +41,9 @@ and GitHub's log of [contributors](https://github.com/tesseract-ocr/tesseract/gr
 
 Tesseract has **unicode (UTF-8) support**, and can **recognize more than 100 languages** "out of the box".
 
-Tesseract supports **various output formats**: plain text, hOCR (HTML), PDF, invisible-text-only PDF, TSV and ALTO (the last one - since version 4.1.0).
+Tesseract supports **[various image formats](https://tesseract-ocr.github.io/tessdoc/InputFormats)** including PNG, JPEG and TIFF.
 
-Tesseract supports **various [image formats](https://tesseract-ocr.github.io/tessdoc/InputFormats)** including PNG, JPEG and TIFF.
+Tesseract supports **various output formats**: plain text, hOCR (HTML), PDF, invisible-text-only PDF, TSV and ALTO (the last one - since version 4.1.0).
 
 You should note that in many cases, in order to get better OCR results,
 you'll need to **[improve the quality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html) of the image** you are giving Tesseract.
