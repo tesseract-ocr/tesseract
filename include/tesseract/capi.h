@@ -231,6 +231,12 @@ TESS_API int TessBaseAPIInit4(TessBaseAPI *handle, const char *datapath,
                               char **vars_values, size_t vars_vec_size,
                               BOOL set_only_non_debug_params);
 
+TESS_API int TessBaseAPIInit5(TessBaseAPI *handle, const char *data, int data_size,
+                              const char *language, TessOcrEngineMode mode,
+                              char **configs, int configs_size, char **vars_vec,
+                              char **vars_values, size_t vars_vec_size,
+                              BOOL set_only_non_debug_params);
+
 TESS_API const char *TessBaseAPIGetInitLanguagesAsString(
     const TessBaseAPI *handle);
 TESS_API char **TessBaseAPIGetLoadedLanguagesAsVector(
