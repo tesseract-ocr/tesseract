@@ -5,7 +5,6 @@
  *              is rotated for degradation.  Also includes routines to output
  *              the character-tagged boxes to a boxfile.
  * Author:      Ray Smith
- * Created:     Mon Nov 18 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,10 +25,11 @@
 #include <string>
 #include <vector>
 
-#include <allheaders.h> // from Leptonica
+#include <allheaders.h>   // for Leptonica API
+#if (LIBLEPT_MAJOR_VERSION == 1 && LIBLEPT_MINOR_VERSION >= 83) || LIBLEPT_MAJOR_VERSION > 1
+#include <pix_internal.h> // for fast access to Box geometry
+#endif
 #include <tesseract/export.h>
-
-struct Box;
 
 namespace tesseract {
 
