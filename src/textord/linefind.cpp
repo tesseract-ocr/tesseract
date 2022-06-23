@@ -92,7 +92,7 @@ static void RemoveUnusedLineSegments(bool horizontal_lines, BLOBNBOX_LIST *line_
 // as well by removing components that touch the line, but are not in the
 // non_line_pix mask. It is assumed that the non_line_pix mask has already
 // been prepared to required accuracy.
-static void SubtractLinesAndResidue(Image line_pix, Image non_line_pix, int resolution,
+static void SubtractLinesAndResidue(Image line_pix, Image non_line_pix,
                                     Image src_pix) {
   // First remove the lines themselves.
   pixSubtract(src_pix, src_pix, line_pix);
@@ -225,96 +225,13 @@ static int FilterFalsePositives(int resolution, Image nonline_pix, Image interse
   return remaining_boxes;
 }
 
-// Finds vertical and horizontal line objects in the given pix.
-// Uses the given resolution to determine size thresholds instead of any
-// that may be present in the pix.
-// The output vertical_x and vertical_y contain a sum of the output vectors,
-// thereby giving the mean vertical direction.
-// If pix_music_mask != nullptr, and music is detected, a mask of the staves
-// and anything that is connected (bars, notes etc.) will be returned in
-// pix_music_mask, the mask subtracted from pix, and the lines will not
-// appear in v_lines or h_lines.
-// The output vectors are owned by the list and Frozen (cannot refit) by
-// having no boxes, as there is no need to refit or merge separator lines.
-// The detected lines are removed from the pix.
-void LineFinder::FindAndRemoveLines(int resolution, bool debug, Image pix, int *vertical_x,
-                                    int *vertical_y, Image *pix_music_mask, TabVector_LIST *v_lines,
-                                    TabVector_LIST *h_lines) {
-  if (pix == nullptr || vertical_x == nullptr || vertical_y == nullptr) {
-    tprintf("Error in parameters for LineFinder::FindAndRemoveLines\n");
-    return;
-  }
-  Image pix_vline = nullptr;
-  Image pix_non_vline = nullptr;
-  Image pix_hline = nullptr;
-  Image pix_non_hline = nullptr;
-  Image pix_intersections = nullptr;
-  Pixa *pixa_display = debug ? pixaCreate(0) : nullptr;
-  GetLineMasks(resolution, pix, &pix_vline, &pix_non_vline, &pix_hline, &pix_non_hline,
-               &pix_intersections, pix_music_mask, pixa_display);
-  // Find lines, convert to TabVector_LIST and remove those that are used.
-  FindAndRemoveVLines(resolution, pix_intersections, vertical_x, vertical_y, &pix_vline,
-                      pix_non_vline, pix, v_lines);
-  pix_intersections.destroy();
-  if (pix_hline != nullptr) {
-    // Recompute intersections and re-filter false positive h-lines.
-    if (pix_vline != nullptr) {
-      pix_intersections = pix_vline & pix_hline;
-    }
-    if (!FilterFalsePositives(resolution, pix_non_hline, pix_intersections, pix_hline)) {
-      pix_hline.destroy();
-    }
-  }
-  FindAndRemoveHLines(resolution, pix_intersections, *vertical_x, *vertical_y, &pix_hline,
-                      pix_non_hline, pix, h_lines);
-  if (pixa_display != nullptr && pix_vline != nullptr) {
-    pixaAddPix(pixa_display, pix_vline, L_CLONE);
-  }
-  if (pixa_display != nullptr && pix_hline != nullptr) {
-    pixaAddPix(pixa_display, pix_hline, L_CLONE);
-  }
-  pix_intersections.destroy();
-  if (pix_vline != nullptr && pix_hline != nullptr) {
-    // Remove joins (intersections) where lines cross, and the residue.
-    // Recalculate the intersections, since some lines have been deleted.
-    pix_intersections = pix_vline & pix_hline;
-    // Fatten up the intersections and seed-fill to get the intersection
-    // residue.
-    Image pix_join_residue = pixDilateBrick(nullptr, pix_intersections, 5, 5);
-    pixSeedfillBinary(pix_join_residue, pix_join_residue, pix, 8);
-    // Now remove the intersection residue.
-    pixSubtract(pix, pix, pix_join_residue);
-    pix_join_residue.destroy();
-  }
-  // Remove any detected music.
-  if (pix_music_mask != nullptr && *pix_music_mask != nullptr) {
-    if (pixa_display != nullptr) {
-      pixaAddPix(pixa_display, *pix_music_mask, L_CLONE);
-    }
-    pixSubtract(pix, pix, *pix_music_mask);
-  }
-  if (pixa_display != nullptr) {
-    pixaAddPix(pixa_display, pix, L_CLONE);
-  }
-
-  pix_vline.destroy();
-  pix_non_vline.destroy();
-  pix_hline.destroy();
-  pix_non_hline.destroy();
-  pix_intersections.destroy();
-  if (pixa_display != nullptr) {
-    pixaConvertToPdf(pixa_display, resolution, 1.0f, 0, 0, "LineFinding", "vhlinefinding.pdf");
-    pixaDestroy(&pixa_display);
-  }
-}
-
 // Converts the Boxa array to a list of C_BLOB, getting rid of severely
 // overlapping outlines and those that are children of a bigger one.
 // The output is a list of C_BLOBs that are owned by the list.
 // The C_OUTLINEs in the C_BLOBs contain no outline data - just empty
 // bounding boxes. The Boxa is consumed and destroyed.
-void LineFinder::ConvertBoxaToBlobs(int image_width, int image_height, Boxa **boxes,
-                                    C_BLOB_LIST *blobs) {
+static void ConvertBoxaToBlobs(int image_width, int image_height, Boxa **boxes,
+                               C_BLOB_LIST *blobs) {
   C_OUTLINE_LIST outlines;
   C_OUTLINE_IT ol_it = &outlines;
   // Iterate the boxes to convert to outlines.
@@ -346,80 +263,59 @@ void LineFinder::ConvertBoxaToBlobs(int image_width, int image_height, Boxa **bo
   boxaDestroy(boxes);
 }
 
-// Finds vertical line objects in pix_vline and removes the from src_pix.
-// Uses the given resolution to determine size thresholds instead of any
-// that may be present in the pix.
-// The output vertical_x and vertical_y contain a sum of the output vectors,
-// thereby giving the mean vertical direction.
-// The output vectors are owned by the list and Frozen (cannot refit) by
-// having no boxes, as there is no need to refit or merge separator lines.
-// If no good lines are found, pix_vline is destroyed.
-// None of the input pointers may be nullptr, and if *pix_vline is nullptr then
-// the function does nothing.
-void LineFinder::FindAndRemoveVLines(int resolution, Image pix_intersections, int *vertical_x,
-                                     int *vertical_y, Image *pix_vline, Image pix_non_vline,
-                                     Image src_pix, TabVector_LIST *vectors) {
-  if (pix_vline == nullptr || *pix_vline == nullptr) {
-    return;
-  }
-  C_BLOB_LIST line_cblobs;
-  BLOBNBOX_LIST line_bblobs;
-  GetLineBoxes(false, *pix_vline, pix_intersections, &line_cblobs, &line_bblobs);
-  int width = pixGetWidth(src_pix);
-  int height = pixGetHeight(src_pix);
-  ICOORD bleft(0, 0);
-  ICOORD tright(width, height);
-  FindLineVectors(bleft, tright, &line_bblobs, vertical_x, vertical_y, vectors);
-  if (!vectors->empty()) {
-    RemoveUnusedLineSegments(false, &line_bblobs, *pix_vline);
-    SubtractLinesAndResidue(*pix_vline, pix_non_vline, resolution, src_pix);
-    ICOORD vertical;
-    vertical.set_with_shrink(*vertical_x, *vertical_y);
-    TabVector::MergeSimilarTabVectors(vertical, vectors, nullptr);
-  } else {
-    pix_vline->destroy();
-  }
-}
-
-// Finds horizontal line objects in pix_hline and removes them from src_pix.
-// Uses the given resolution to determine size thresholds instead of any
-// that may be present in the pix.
-// The output vertical_x and vertical_y contain a sum of the output vectors,
-// thereby giving the mean vertical direction.
-// The output vectors are owned by the list and Frozen (cannot refit) by
-// having no boxes, as there is no need to refit or merge separator lines.
-// If no good lines are found, pix_hline is destroyed.
-// None of the input pointers may be nullptr, and if *pix_hline is nullptr then
-// the function does nothing.
-void LineFinder::FindAndRemoveHLines(int resolution, Image pix_intersections, int vertical_x,
-                                     int vertical_y, Image *pix_hline, Image pix_non_hline,
-                                     Image src_pix, TabVector_LIST *vectors) {
-  if (pix_hline == nullptr || *pix_hline == nullptr) {
-    return;
-  }
-  C_BLOB_LIST line_cblobs;
-  BLOBNBOX_LIST line_bblobs;
-  GetLineBoxes(true, *pix_hline, pix_intersections, &line_cblobs, &line_bblobs);
-  int width = pixGetWidth(src_pix);
-  int height = pixGetHeight(src_pix);
-  ICOORD bleft(0, 0);
-  ICOORD tright(height, width);
-  FindLineVectors(bleft, tright, &line_bblobs, &vertical_x, &vertical_y, vectors);
-  if (!vectors->empty()) {
-    RemoveUnusedLineSegments(true, &line_bblobs, *pix_hline);
-    SubtractLinesAndResidue(*pix_hline, pix_non_hline, resolution, src_pix);
-    ICOORD vertical;
-    vertical.set_with_shrink(vertical_x, vertical_y);
-    TabVector::MergeSimilarTabVectors(vertical, vectors, nullptr);
-    // Iterate the vectors to flip them. x and y were flipped for horizontal
-    // lines, so FindLineVectors can work just with the vertical case.
-    // See GetLineBoxes for more on the flip.
-    TabVector_IT h_it(vectors);
-    for (h_it.mark_cycle_pt(); !h_it.cycled_list(); h_it.forward()) {
-      h_it.data()->XYFlip();
+// Returns a list of boxes corresponding to the candidate line segments. Sets
+// the line_crossings member of the boxes so we can later determine the number
+// of intersections touched by a full line.
+static void GetLineBoxes(bool horizontal_lines, Image pix_lines, Image pix_intersections,
+                         C_BLOB_LIST *line_cblobs, BLOBNBOX_LIST *line_bblobs) {
+  // Put a single pixel crack in every line at an arbitrary spacing,
+  // so they break up and the bounding boxes can be used to get the
+  // direction accurately enough without needing outlines.
+  int wpl = pixGetWpl(pix_lines);
+  int width = pixGetWidth(pix_lines);
+  int height = pixGetHeight(pix_lines);
+  l_uint32 *data = pixGetData(pix_lines);
+  if (horizontal_lines) {
+    for (int y = 0; y < height; ++y, data += wpl) {
+      for (int x = kCrackSpacing; x < width; x += kCrackSpacing) {
+        CLEAR_DATA_BIT(data, x);
+      }
     }
   } else {
-    pix_hline->destroy();
+    for (int y = kCrackSpacing; y < height; y += kCrackSpacing) {
+      memset(data + wpl * y, 0, wpl * sizeof(*data));
+    }
+  }
+  // Get the individual connected components
+  Boxa *boxa = pixConnComp(pix_lines, nullptr, 8);
+  ConvertBoxaToBlobs(width, height, &boxa, line_cblobs);
+  // Make the BLOBNBOXes from the C_BLOBs.
+  C_BLOB_IT blob_it(line_cblobs);
+  BLOBNBOX_IT bbox_it(line_bblobs);
+  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+    C_BLOB *cblob = blob_it.data();
+    auto *bblob = new BLOBNBOX(cblob);
+    bbox_it.add_to_end(bblob);
+    // Determine whether the line segment touches two intersections.
+    const TBOX &bbox = bblob->bounding_box();
+    Box *box = boxCreate(bbox.left(), bbox.bottom(), bbox.width(), bbox.height());
+    bblob->set_line_crossings(NumTouchingIntersections(box, pix_intersections));
+    boxDestroy(&box);
+    // Transform the bounding box prior to finding lines. To save writing
+    // two line finders, flip x and y for horizontal lines and re-use the
+    // tab-stop detection code. For vertical lines we still have to flip the
+    // y-coordinates to switch from leptonica coords to tesseract coords.
+    if (horizontal_lines) {
+      // Note that we have Leptonica coords stored in a Tesseract box, so that
+      // bbox.bottom(), being the MIN y coord, is actually the top, so to get
+      // back to Leptonica coords in RemoveUnusedLineSegments, we have to
+      // use height - box.right() as the top, which looks very odd.
+      TBOX new_box(height - bbox.top(), bbox.left(), height - bbox.bottom(), bbox.right());
+      bblob->set_bounding_box(new_box);
+    } else {
+      TBOX new_box(bbox.left(), height - bbox.top(), bbox.right(), height - bbox.bottom());
+      bblob->set_bounding_box(new_box);
+    }
   }
 }
 
@@ -428,9 +324,9 @@ void LineFinder::FindAndRemoveHLines(int resolution, Image pix_intersections, in
 // The input line_bblobs list is const really.
 // The output vertical_x and vertical_y are the total of all the vectors.
 // The output list of TabVector makes no reference to the input BLOBNBOXes.
-void LineFinder::FindLineVectors(const ICOORD &bleft, const ICOORD &tright,
-                                 BLOBNBOX_LIST *line_bblobs, int *vertical_x, int *vertical_y,
-                                 TabVector_LIST *vectors) {
+static void FindLineVectors(const ICOORD &bleft, const ICOORD &tright,
+                            BLOBNBOX_LIST *line_bblobs, int *vertical_x, int *vertical_y,
+                            TabVector_LIST *vectors) {
   BLOBNBOX_IT bbox_it(line_bblobs);
   int b_count = 0;
   // Put all the blobs into the grid to find the lines, and move the blobs
@@ -556,11 +452,12 @@ static Image FilterMusic(int resolution, Image pix_closed, Image pix_vline, Imag
 // pix_music_mask      candidate music staves.
 // This function promises to initialize all the output (2nd level) pointers,
 // but any of the returns that are empty will be nullptr on output.
-// None of the input (1st level) pointers may be nullptr except pix_music_mask,
-// which will disable music detection, and pixa_display.
-void LineFinder::GetLineMasks(int resolution, Image src_pix, Image *pix_vline, Image *pix_non_vline,
-                              Image *pix_hline, Image *pix_non_hline, Image *pix_intersections,
-                              Image *pix_music_mask, Pixa *pixa_display) {
+// None of the input (1st level) pointers may be nullptr except
+// pix_music_mask, which will disable music detection, and pixa_display, which
+// is for debug.
+static void GetLineMasks(int resolution, Image src_pix, Image *pix_vline, Image *pix_non_vline,
+                         Image *pix_hline, Image *pix_non_hline, Image *pix_intersections,
+                         Image *pix_music_mask, Pixa *pixa_display) {
   Image pix_closed = nullptr;
   Image pix_hollow = nullptr;
 
@@ -702,59 +599,163 @@ void LineFinder::GetLineMasks(int resolution, Image src_pix, Image *pix_vline, I
   pix_nonlines.destroy();
 }
 
-// Returns a list of boxes corresponding to the candidate line segments. Sets
-// the line_crossings member of the boxes so we can later determine the number
-// of intersections touched by a full line.
-void LineFinder::GetLineBoxes(bool horizontal_lines, Image pix_lines, Image pix_intersections,
-                              C_BLOB_LIST *line_cblobs, BLOBNBOX_LIST *line_bblobs) {
-  // Put a single pixel crack in every line at an arbitrary spacing,
-  // so they break up and the bounding boxes can be used to get the
-  // direction accurately enough without needing outlines.
-  int wpl = pixGetWpl(pix_lines);
-  int width = pixGetWidth(pix_lines);
-  int height = pixGetHeight(pix_lines);
-  l_uint32 *data = pixGetData(pix_lines);
-  if (horizontal_lines) {
-    for (int y = 0; y < height; ++y, data += wpl) {
-      for (int x = kCrackSpacing; x < width; x += kCrackSpacing) {
-        CLEAR_DATA_BIT(data, x);
-      }
+// Finds vertical line objects in pix_vline and removes them from src_pix.
+// Uses the given resolution to determine size thresholds instead of any
+// that may be present in the pix.
+// The output vertical_x and vertical_y contain a sum of the output vectors,
+// thereby giving the mean vertical direction.
+// The output vectors are owned by the list and Frozen (cannot refit) by
+// having no boxes, as there is no need to refit or merge separator lines.
+// If no good lines are found, pix_vline is destroyed.
+// None of the input pointers may be nullptr, and if *pix_vline is nullptr then
+// the function does nothing.
+static void FindAndRemoveVLines(Image pix_intersections, int *vertical_x,
+                                int *vertical_y, Image *pix_vline, Image pix_non_vline,
+                                Image src_pix, TabVector_LIST *vectors) {
+  if (pix_vline == nullptr || *pix_vline == nullptr) {
+    return;
+  }
+  C_BLOB_LIST line_cblobs;
+  BLOBNBOX_LIST line_bblobs;
+  GetLineBoxes(false, *pix_vline, pix_intersections, &line_cblobs, &line_bblobs);
+  int width = pixGetWidth(src_pix);
+  int height = pixGetHeight(src_pix);
+  ICOORD bleft(0, 0);
+  ICOORD tright(width, height);
+  FindLineVectors(bleft, tright, &line_bblobs, vertical_x, vertical_y, vectors);
+  if (!vectors->empty()) {
+    RemoveUnusedLineSegments(false, &line_bblobs, *pix_vline);
+    SubtractLinesAndResidue(*pix_vline, pix_non_vline, src_pix);
+    ICOORD vertical;
+    vertical.set_with_shrink(*vertical_x, *vertical_y);
+    TabVector::MergeSimilarTabVectors(vertical, vectors, nullptr);
+  } else {
+    pix_vline->destroy();
+  }
+}
+
+// Finds horizontal line objects in pix_hline and removes them from src_pix.
+// Uses the given resolution to determine size thresholds instead of any
+// that may be present in the pix.
+// The output vertical_x and vertical_y contain a sum of the output vectors,
+// thereby giving the mean vertical direction.
+// The output vectors are owned by the list and Frozen (cannot refit) by
+// having no boxes, as there is no need to refit or merge separator lines.
+// If no good lines are found, pix_hline is destroyed.
+// None of the input pointers may be nullptr, and if *pix_hline is nullptr then
+// the function does nothing.
+static void FindAndRemoveHLines(Image pix_intersections, int vertical_x,
+                                int vertical_y, Image *pix_hline, Image pix_non_hline,
+                                Image src_pix, TabVector_LIST *vectors) {
+  if (pix_hline == nullptr || *pix_hline == nullptr) {
+    return;
+  }
+  C_BLOB_LIST line_cblobs;
+  BLOBNBOX_LIST line_bblobs;
+  GetLineBoxes(true, *pix_hline, pix_intersections, &line_cblobs, &line_bblobs);
+  int width = pixGetWidth(src_pix);
+  int height = pixGetHeight(src_pix);
+  ICOORD bleft(0, 0);
+  ICOORD tright(height, width);
+  FindLineVectors(bleft, tright, &line_bblobs, &vertical_x, &vertical_y, vectors);
+  if (!vectors->empty()) {
+    RemoveUnusedLineSegments(true, &line_bblobs, *pix_hline);
+    SubtractLinesAndResidue(*pix_hline, pix_non_hline, src_pix);
+    ICOORD vertical;
+    vertical.set_with_shrink(vertical_x, vertical_y);
+    TabVector::MergeSimilarTabVectors(vertical, vectors, nullptr);
+    // Iterate the vectors to flip them. x and y were flipped for horizontal
+    // lines, so FindLineVectors can work just with the vertical case.
+    // See GetLineBoxes for more on the flip.
+    TabVector_IT h_it(vectors);
+    for (h_it.mark_cycle_pt(); !h_it.cycled_list(); h_it.forward()) {
+      h_it.data()->XYFlip();
     }
   } else {
-    for (int y = kCrackSpacing; y < height; y += kCrackSpacing) {
-      memset(data + wpl * y, 0, wpl * sizeof(*data));
+    pix_hline->destroy();
+  }
+}
+
+// Finds vertical and horizontal line objects in the given pix.
+// Uses the given resolution to determine size thresholds instead of any
+// that may be present in the pix.
+// The output vertical_x and vertical_y contain a sum of the output vectors,
+// thereby giving the mean vertical direction.
+// If pix_music_mask != nullptr, and music is detected, a mask of the staves
+// and anything that is connected (bars, notes etc.) will be returned in
+// pix_music_mask, the mask subtracted from pix, and the lines will not
+// appear in v_lines or h_lines.
+// The output vectors are owned by the list and Frozen (cannot refit) by
+// having no boxes, as there is no need to refit or merge separator lines.
+// The detected lines are removed from the pix.
+void LineFinder::FindAndRemoveLines(int resolution, bool debug, Image pix, int *vertical_x,
+                                    int *vertical_y, Image *pix_music_mask, TabVector_LIST *v_lines,
+                                    TabVector_LIST *h_lines) {
+  if (pix == nullptr || vertical_x == nullptr || vertical_y == nullptr) {
+    tprintf("Error in parameters for LineFinder::FindAndRemoveLines\n");
+    return;
+  }
+  Image pix_vline = nullptr;
+  Image pix_non_vline = nullptr;
+  Image pix_hline = nullptr;
+  Image pix_non_hline = nullptr;
+  Image pix_intersections = nullptr;
+  Pixa *pixa_display = debug ? pixaCreate(0) : nullptr;
+  GetLineMasks(resolution, pix, &pix_vline, &pix_non_vline, &pix_hline, &pix_non_hline,
+               &pix_intersections, pix_music_mask, pixa_display);
+  // Find lines, convert to TabVector_LIST and remove those that are used.
+  FindAndRemoveVLines(pix_intersections, vertical_x, vertical_y, &pix_vline,
+                      pix_non_vline, pix, v_lines);
+  pix_intersections.destroy();
+  if (pix_hline != nullptr) {
+    // Recompute intersections and re-filter false positive h-lines.
+    if (pix_vline != nullptr) {
+      pix_intersections = pix_vline & pix_hline;
+    }
+    if (!FilterFalsePositives(resolution, pix_non_hline, pix_intersections, pix_hline)) {
+      pix_hline.destroy();
     }
   }
-  // Get the individual connected components
-  Boxa *boxa = pixConnComp(pix_lines, nullptr, 8);
-  ConvertBoxaToBlobs(width, height, &boxa, line_cblobs);
-  // Make the BLOBNBOXes from the C_BLOBs.
-  C_BLOB_IT blob_it(line_cblobs);
-  BLOBNBOX_IT bbox_it(line_bblobs);
-  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
-    C_BLOB *cblob = blob_it.data();
-    auto *bblob = new BLOBNBOX(cblob);
-    bbox_it.add_to_end(bblob);
-    // Determine whether the line segment touches two intersections.
-    const TBOX &bbox = bblob->bounding_box();
-    Box *box = boxCreate(bbox.left(), bbox.bottom(), bbox.width(), bbox.height());
-    bblob->set_line_crossings(NumTouchingIntersections(box, pix_intersections));
-    boxDestroy(&box);
-    // Transform the bounding box prior to finding lines. To save writing
-    // two line finders, flip x and y for horizontal lines and re-use the
-    // tab-stop detection code. For vertical lines we still have to flip the
-    // y-coordinates to switch from leptonica coords to tesseract coords.
-    if (horizontal_lines) {
-      // Note that we have Leptonica coords stored in a Tesseract box, so that
-      // bbox.bottom(), being the MIN y coord, is actually the top, so to get
-      // back to Leptonica coords in RemoveUnusedLineSegments, we have to
-      // use height - box.right() as the top, which looks very odd.
-      TBOX new_box(height - bbox.top(), bbox.left(), height - bbox.bottom(), bbox.right());
-      bblob->set_bounding_box(new_box);
-    } else {
-      TBOX new_box(bbox.left(), height - bbox.top(), bbox.right(), height - bbox.bottom());
-      bblob->set_bounding_box(new_box);
+  FindAndRemoveHLines(pix_intersections, *vertical_x, *vertical_y, &pix_hline,
+                      pix_non_hline, pix, h_lines);
+  if (pixa_display != nullptr && pix_vline != nullptr) {
+    pixaAddPix(pixa_display, pix_vline, L_CLONE);
+  }
+  if (pixa_display != nullptr && pix_hline != nullptr) {
+    pixaAddPix(pixa_display, pix_hline, L_CLONE);
+  }
+  pix_intersections.destroy();
+  if (pix_vline != nullptr && pix_hline != nullptr) {
+    // Remove joins (intersections) where lines cross, and the residue.
+    // Recalculate the intersections, since some lines have been deleted.
+    pix_intersections = pix_vline & pix_hline;
+    // Fatten up the intersections and seed-fill to get the intersection
+    // residue.
+    Image pix_join_residue = pixDilateBrick(nullptr, pix_intersections, 5, 5);
+    pixSeedfillBinary(pix_join_residue, pix_join_residue, pix, 8);
+    // Now remove the intersection residue.
+    pixSubtract(pix, pix, pix_join_residue);
+    pix_join_residue.destroy();
+  }
+  // Remove any detected music.
+  if (pix_music_mask != nullptr && *pix_music_mask != nullptr) {
+    if (pixa_display != nullptr) {
+      pixaAddPix(pixa_display, *pix_music_mask, L_CLONE);
     }
+    pixSubtract(pix, pix, *pix_music_mask);
+  }
+  if (pixa_display != nullptr) {
+    pixaAddPix(pixa_display, pix, L_CLONE);
+  }
+
+  pix_vline.destroy();
+  pix_non_vline.destroy();
+  pix_hline.destroy();
+  pix_non_hline.destroy();
+  pix_intersections.destroy();
+  if (pixa_display != nullptr) {
+    pixaConvertToPdf(pixa_display, resolution, 1.0f, 0, 0, "LineFinding", "vhlinefinding.pdf");
+    pixaDestroy(&pixa_display);
   }
 }
 

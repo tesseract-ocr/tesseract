@@ -490,8 +490,10 @@ void MergeInsignificantProtos(LIST ProtoList, const char *label, CLUSTERER *Clus
     }
     if (best_match != nullptr && !best_match->Significant) {
       if (debug) {
-        tprintf("Merging red clusters (%d+%d) at %g,%g and %g,%g\n", best_match->NumSamples,
-                Prototype->NumSamples, best_match->Mean[0], best_match->Mean[1], Prototype->Mean[0],
+        auto bestMatchNumSamples = best_match->NumSamples;
+        auto prototypeNumSamples = Prototype->NumSamples;
+        tprintf("Merging red clusters (%d+%d) at %g,%g and %g,%g\n", bestMatchNumSamples,
+                prototypeNumSamples, best_match->Mean[0], best_match->Mean[1], Prototype->Mean[0],
                 Prototype->Mean[1]);
       }
       best_match->NumSamples =

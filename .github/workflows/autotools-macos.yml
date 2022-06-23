@@ -5,6 +5,7 @@ on:
   #push:
   schedule:
     - cron: 0 20 * * *
+  workflow_dispatch:
 jobs:
 
   brew:
@@ -42,7 +43,7 @@ jobs:
 
     - name: Configure Tesseract
       run: |
-           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2' "PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/opt/libffi/lib/pkgconfig"
+           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
 
     - name: Make and Install Tesseract
       run: |
@@ -130,6 +131,9 @@ jobs:
     - name: Install Macports
       run: |
         curl -LO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci; source ./macports-ci install
+        # --remove-brew does not remove the Homebrew entries in bin,
+        # so remove them now.
+        rm -v $(brew --prefix)/bin/*
 
     - name: Install Dependencies
       run: |

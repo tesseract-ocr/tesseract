@@ -608,7 +608,7 @@ void TabVector::Evaluate(const ICOORD &vertical, TabFind *finder) {
     max_gutter = kGutterToNeighbourRatio * mean_height;
   }
 
-  STATS gutters(0, max_gutter + 1);
+  STATS gutters(0, max_gutter);
   // Evaluate the boxes for their goodness, calculating the coverage as we go.
   // Remove boxes that are not good and shorten the list to the first and
   // last good boxes.
@@ -901,7 +901,7 @@ TabVector *TabVector::VerticalTextlinePartner() {
   if (width < 0) {
     width = -width;
   }
-  STATS gaps(0, width * 2);
+  STATS gaps(0, width * 2 - 1);
   BLOBNBOX *prev_bbox = nullptr;
   box_it2.mark_cycle_pt();
   for (box_it1.mark_cycle_pt(); !box_it1.cycled_list(); box_it1.forward()) {

@@ -228,6 +228,22 @@ int TessBaseAPIInit3(TessBaseAPI *handle, const char *datapath, const char *lang
   return handle->Init(datapath, language);
 }
 
+int TessBaseAPIInit5(TessBaseAPI *handle, const char *data, int data_size, const char *language,
+                     TessOcrEngineMode mode, char **configs, int configs_size, char **vars_vec,
+                     char **vars_values, size_t vars_vec_size, BOOL set_only_non_debug_params) {
+  std::vector<std::string> varNames;
+  std::vector<std::string> varValues;
+  if (vars_vec != nullptr && vars_values != nullptr) {
+    for (size_t i = 0; i < vars_vec_size; i++) {
+      varNames.emplace_back(vars_vec[i]);
+      varValues.emplace_back(vars_values[i]);
+    }
+  }
+
+  return handle->Init(data, data_size, language, mode, configs, configs_size, &varNames, &varValues,
+                      set_only_non_debug_params != 0, nullptr);
+}
+
 const char *TessBaseAPIGetInitLanguagesAsString(const TessBaseAPI *handle) {
   return handle->GetInitLanguagesAsString();
 }

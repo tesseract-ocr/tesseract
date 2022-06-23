@@ -24,10 +24,6 @@
 
 #include <cstdint>
 
-struct Boxa;
-struct Pix;
-struct Pixa;
-
 namespace tesseract {
 
 class ColPartitionGrid;
@@ -36,7 +32,6 @@ class TabFind;
 class TBOX;
 class FCOORD;
 class TO_BLOCK;
-class BLOBNBOX_LIST;
 
 // The ImageFind class is a simple static function wrapper class that
 // exposes the FindImages function and some useful helper functions.
@@ -49,28 +44,6 @@ public:
   // If textord_tabfind_show_images, debug images are appended to pixa_debug.
   static Image FindImages(Image pix, DebugPixa *pixa_debug);
 
-  // Generates a Boxa, Pixa pair from the input binary (image mask) pix,
-  // analogous to pixConnComp, except that connected components which are nearly
-  // rectangular are replaced with solid rectangles.
-  // The returned boxa, pixa may be nullptr, meaning no images found.
-  // If not nullptr, they must be destroyed by the caller.
-  // Resolution of pix should match the source image (Tesseract::pix_binary_)
-  // so the output coordinate systems match.
-  static void ConnCompAndRectangularize(Image pix, DebugPixa *pixa_debug, Boxa **boxa, Pixa **pixa);
-
-  // Returns true if there is a rectangle in the source pix, such that all
-  // pixel rows and column slices outside of it have less than
-  // min_fraction of the pixels black, and within max_skew_gradient fraction
-  // of the pixels on the inside, there are at least max_fraction of the
-  // pixels black. In other words, the inside of the rectangle looks roughly
-  // rectangular, and the outside of it looks like extra bits.
-  // On return, the rectangle is defined by x_start, y_start, x_end and y_end.
-  // Note: the algorithm is iterative, allowing it to slice off pixels from
-  // one edge, allowing it to then slice off more pixels from another edge.
-  static bool pixNearlyRectangular(Image pix, double min_fraction, double max_fraction,
-                                   double max_skew_gradient, int *x_start, int *y_start, int *x_end,
-                                   int *y_end);
-
   // Given an input pix, and a bounding rectangle, the sides of the rectangle
   // are shrunk inwards until they bound any black pixels found within the
   // original rectangle. Returns false if the rectangle contains no black
@@ -82,26 +55,6 @@ public:
   // (RGB) space, line1 and line2.
   static double ColorDistanceFromLine(const uint8_t *line1, const uint8_t *line2,
                                       const uint8_t *point);
-
-  // Returns the leptonica combined code for the given RGB triplet.
-  static uint32_t ComposeRGB(uint32_t r, uint32_t g, uint32_t b);
-
-  // Returns the input value clipped to a uint8_t.
-  static uint8_t ClipToByte(double pixel);
-
-  // Computes the light and dark extremes of color in the given rectangle of
-  // the given pix, which is factor smaller than the coordinate system in rect.
-  // The light and dark points are taken to be the upper and lower 8th-ile of
-  // the most deviant of R, G and B. The value of the other 2 channels are
-  // computed by linear fit against the most deviant.
-  // The colors of the two point are returned in color1 and color2, with the
-  // alpha channel set to a scaled mean rms of the fits.
-  // If color_map1 is not null then it and color_map2 get rect pasted in them
-  // with the two calculated colors, and rms map gets a pasted rect of the rms.
-  // color_map1, color_map2 and rms_map are assumed to be the same scale as pix.
-  static void ComputeRectangleColors(const TBOX &rect, Image pix, int factor, Image color_map1,
-                                     Image color_map2, Image rms_map, uint8_t *color1,
-                                     uint8_t *color2);
 
   // Returns true if there are no black pixels in between the boxes.
   // The im_box must represent the bounding box of the pix in tesseract

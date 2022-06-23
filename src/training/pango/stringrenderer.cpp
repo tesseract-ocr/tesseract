@@ -85,7 +85,7 @@ static Image CairoARGB32ToPixFormat(cairo_surface_t *surface) {
   int byte_stride = cairo_image_surface_get_stride(surface);
 
   for (int i = 0; i < height; ++i) {
-    memcpy(reinterpret_cast<unsigned char *>(pix->data + i * pix->wpl) + 1,
+    memcpy(reinterpret_cast<unsigned char *>(pixGetData(pix) + i * pixGetWpl(pix)) + 1,
            cairo_image_surface_get_data(surface) + i * byte_stride,
            byte_stride - ((i == height - 1) ? 1 : 0));
   }

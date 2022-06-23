@@ -725,8 +725,8 @@ public:
     ASSERT_HOST(block->pdblk.poly_block() != nullptr);
     block->rotate(rotation);
     // Update the median size statistic from the blobs list.
-    STATS widths(0, block->pdblk.bounding_box().width());
-    STATS heights(0, block->pdblk.bounding_box().height());
+    STATS widths(0, block->pdblk.bounding_box().width() - 1);
+    STATS heights(0, block->pdblk.bounding_box().height() - 1);
     BLOBNBOX_IT blob_it(&blobs);
     for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
       widths.add(blob_it.data()->bounding_box().width(), 1);
@@ -769,7 +769,7 @@ public:
 #ifndef GRAPHICS_DISABLED
   // Draw the noise blobs from all lists in red.
   void plot_noise_blobs(ScrollView *to_win);
-  // Draw the blobs on on the various lists in the block in different colors.
+  // Draw the blobs on the various lists in the block in different colors.
   void plot_graded_blobs(ScrollView *to_win);
 #endif
 

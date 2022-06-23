@@ -91,8 +91,12 @@ void ERRCODE::error(         // handle error
 #endif
       abort();
     default:
-      BADERRACTION.error("error", ABORT, nullptr);
+      BADERRACTION.error("error", ABORT);
   }
+}
+
+void ERRCODE::error(const char *caller, TessErrorLogCode action) const {
+  error(caller, action, nullptr);
 }
 
 } // namespace tesseract

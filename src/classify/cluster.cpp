@@ -28,7 +28,6 @@
 
 #include <cfloat> // for FLT_MAX
 #include <cmath>  // for M_PI
-#include <array>  // for std::array
 #include <vector> // for std::vector
 
 namespace tesseract {

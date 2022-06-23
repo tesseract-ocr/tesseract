@@ -161,7 +161,6 @@ void StrokeWidth::FindTextlineDirectionAndFixBrokenCJK(PageSegMode pageseg_mode,
   InsertBlobs(input_block);
   // Repair broken CJK characters if needed.
   while (cjk_merge && FixBrokenCJK(input_block)) {
-    ;
   }
   // Grade blobs by inspection of neighbours.
   FindTextlineFlowDirection(pageseg_mode, false);
@@ -568,7 +567,7 @@ void StrokeWidth::MarkLeaderNeighbours(const ColPartition *part, LeftOrRight sid
 
 // Helper to compute the UQ of the square-ish CJK characters.
 static int UpperQuartileCJKSize(int gridsize, BLOBNBOX_LIST *blobs) {
-  STATS sizes(0, gridsize * kMaxCJKSizeRatio);
+  STATS sizes(0, gridsize * kMaxCJKSizeRatio - 1);
   BLOBNBOX_IT it(blobs);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX *blob = it.data();

@@ -22,7 +22,7 @@ class STATSTest : public testing::Test {
 public:
   void SetUp() override {
     std::locale::global(std::locale(""));
-    stats_.set_range(0, 16);
+    stats_.set_range(0, 15);
     for (size_t i = 0; i < countof(kTestData); ++i) {
       stats_.add(i, kTestData[i]);
     }
@@ -38,6 +38,13 @@ TEST_F(STATSTest, BasicStats) {
   EXPECT_EQ(37, stats_.get_total());
   EXPECT_EQ(2, stats_.mode());
   EXPECT_EQ(12, stats_.pile_count(2));
+}
+
+TEST_F(STATSTest, InitStats) {
+  STATS stats;
+  EXPECT_EQ(0, stats.get_total());
+  EXPECT_EQ(0, stats.mode());
+  EXPECT_EQ(0, stats.pile_count(2));
 }
 
 // Tests the top_n_modes function.

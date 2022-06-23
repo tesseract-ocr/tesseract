@@ -225,7 +225,7 @@ bool PageIterator::IsAtFinalElement(PageIteratorLevel level,
     return true; // Already at the end!
   }
   // The result is true if we step forward by element and find we are
-  // at the the end of the page or at beginning of *all* levels in:
+  // at the end of the page or at beginning of *all* levels in:
   // [level, element).
   // When there is more than one level difference between element and level,
   // we could for instance move forward one symbol and still be at the first
@@ -566,7 +566,15 @@ void PageIterator::Orientation(tesseract::Orientation *orientation,
                                tesseract::WritingDirection *writing_direction,
                                tesseract::TextlineOrder *textline_order,
                                float *deskew_angle) const {
-  BLOCK *block = it_->block()->block;
+  auto *block_res = it_->block();
+  if (block_res == nullptr) {
+    // Nothing can be done, so return default values.
+    *orientation = ORIENTATION_PAGE_UP;
+    *writing_direction = WRITING_DIRECTION_LEFT_TO_RIGHT;
+    *textline_order = TEXTLINE_ORDER_TOP_TO_BOTTOM;
+    return;
+  }
+  auto *block = block_res->block;
 
   // Orientation
   FCOORD up_in_image(0.0, 1.0);

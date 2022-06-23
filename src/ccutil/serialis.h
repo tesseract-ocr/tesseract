@@ -29,14 +29,6 @@
 
 namespace tesseract {
 
-/***********************************************************************
-  QUOTE_IT   MACRO DEFINITION
-  ===========================
-Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
-***********************************************************************/
-
-#define QUOTE_IT(parm) #parm
-
 // Return number of elements of an array.
 template <typename T, size_t N>
 constexpr size_t countof(T const (&)[N]) noexcept {

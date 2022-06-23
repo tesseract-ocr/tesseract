@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        baseapi.h
 // Description: Simple API for calling tesseract.
 // Author:      Ray Smith
@@ -13,8 +13,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef TESSERACT_API_BASEAPI_H_
 #define TESSERACT_API_BASEAPI_H_

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        tablerecog.h
 // Description: Functions to detect structure of tables.
-// Author:    Nicholas Beato
+// Author:      Nicholas Beato
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -351,11 +351,6 @@ protected:
   // changes much, it can be removed. Note, it isn't really as reliable
   // as I thought. I went with alternatives for most of the other uses.
   int NextHorizontalSplit(int left, int right, int y, bool top_to_bottom);
-
-  // Indicates that a table row is weak. This means that it has
-  // many missing data cells or very large cell heights compared.
-  // to the rest of the table.
-  static bool IsWeakTableRow(StructuredTable *table, int row);
 
   // Input data, used as read only data to make decisions.
   ColPartitionGrid *text_grid_ = nullptr; // Text ColPartitions

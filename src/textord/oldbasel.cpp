@@ -174,14 +174,12 @@ void Textord::correlate_neighbours(TO_BLOCK *block, // block rows are in.
            otherrow >= 0 && (rows[otherrow]->xheight < 0.0 ||
                              !row->baseline.overlap(&rows[otherrow]->baseline, MAXOVERLAP));
            otherrow--) {
-        ;
       }
       upperrow = otherrow; /*decent row above */
       for (otherrow = rowindex + 1;
            otherrow < rowcount && (rows[otherrow]->xheight < 0.0 ||
                                    !row->baseline.overlap(&rows[otherrow]->baseline, MAXOVERLAP));
            otherrow++) {
-        ;
       }
       lowerrow = otherrow; /*decent row below */
       if (upperrow >= 0) {
@@ -428,7 +426,7 @@ int get_blob_coords(    // get boxes
   int losscount;    // lost blobs
   int maxlosscount; // greatest lost blobs
   /*height stat collection */
-  STATS heightstat(0, MAXHEIGHT);
+  STATS heightstat(0, MAXHEIGHT - 1);
 
   if (blob_it.empty()) {
     return 0; // none
@@ -1107,13 +1105,11 @@ int segment_spline(             // make xstarts
       /*find rising y centre */
       for (ptindex = turnpoints[segment - 1] + 1;
            ptindex < turnpoints[segment] && ycoords[ptindex + 1] <= lastmax; ptindex++) {
-        ;
       }
     } else {
       /*find falling y centre */
       for (ptindex = turnpoints[segment - 1] + 1;
            ptindex < turnpoints[segment] && ycoords[ptindex + 1] >= lastmax; ptindex++) {
-        ;
       }
     }
 
@@ -1351,7 +1347,7 @@ void old_first_xheight( // the wiseowl way
 ) {
   int blobindex; /*current blob */
                  /*height statistics */
-  STATS heightstat(0, MAXHEIGHT);
+  STATS heightstat(0, MAXHEIGHT - 1);
   int height;      /*height of blob */
   int xcentre;     /*centre of blob */
   int lineheight;  /*approx xheight */
@@ -1431,7 +1427,7 @@ void make_first_xheight( // find xheight
     QSPLINE *baseline,   /*established */
     float jumplimit      /*min ascender height */
 ) {
-  STATS heightstat(0, HEIGHTBUCKETS);
+  STATS heightstat(0, HEIGHTBUCKETS - 1);
   int lefts[HEIGHTBUCKETS];
   int rights[HEIGHTBUCKETS];
   int modelist[MODENUM];

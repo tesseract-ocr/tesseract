@@ -16,6 +16,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+// Include automatically generated configuration file
+#ifdef HAVE_CONFIG_H
+#  include "config_auto.h"
+#endif
+
 #include "otsuthr.h"
 #include "thresholder.h"
 #include "tprintf.h" // for tprintf
@@ -27,7 +32,8 @@
 #include <allheaders.h>
 #include <tesseract/baseapi.h> // for api->GetIntVariable()
 
-#include <cstdint> // for uint32_t
+#include <algorithm> // for std::max, std::min
+#include <cstdint>   // for uint32_t
 #include <cstring>
 #include <tuple>
 
@@ -164,16 +170,7 @@ void ImageThresholder::SetImage(const Image pix) {
   // Convert the image as necessary so it is one of binary, plain RGB, or
   // 8 bit with no colormap. Guarantee that we always end up with our own copy,
   // not just a clone of the input.
-  if (pixGetColormap(src)) {
-    Image tmp = pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC);
-    depth = pixGetDepth(tmp);
-    if (depth > 1 && depth < 8) {
-      pix_ = pixConvertTo8(tmp, false);
-      tmp.destroy();
-    } else {
-      pix_ = tmp;
-    }
-  } else if (depth > 1 && depth < 8) {
+  if (depth > 1 && depth < 8) {
     pix_ = pixConvertTo8(src, false);
   } else {
     pix_ = src.copy();

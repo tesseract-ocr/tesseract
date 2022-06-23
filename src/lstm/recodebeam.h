@@ -29,11 +29,8 @@
 #include "ratngs.h"
 #include "unicharcompress.h"
 
-#include <deque>
-#include <set>
-#include <tuple>
-#include <unordered_set>
-#include <vector>
+#include <unordered_set> // for std::unordered_set
+#include <vector>        // for std::vector
 
 namespace tesseract {
 

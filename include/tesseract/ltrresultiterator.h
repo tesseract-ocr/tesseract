@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        ltrresultiterator.h
 // Description: Iterator for tesseract results in strict left-to-right
 //              order that avoids using tesseract internal data structures.
@@ -14,8 +14,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef TESSERACT_CCMAIN_LTR_RESULT_ITERATOR_H_
 #define TESSERACT_CCMAIN_LTR_RESULT_ITERATOR_H_
@@ -183,7 +181,7 @@ class TESS_API ChoiceIterator {
 public:
   // Construction is from a LTRResultIterator that points to the symbol of
   // interest. The ChoiceIterator allows a one-shot iteration over the
-  // choices for this symbol and after that is is useless.
+  // choices for this symbol and after that it is useless.
   explicit ChoiceIterator(const LTRResultIterator &result_it);
   ~ChoiceIterator();
 

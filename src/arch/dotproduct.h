@@ -27,6 +27,9 @@ TFloat DotProductNative(const TFloat *u, const TFloat *v, int n);
 // Uses Intel AVX intrinsics to access the SIMD instruction set.
 TFloat DotProductAVX(const TFloat *u, const TFloat *v, int n);
 
+// Uses Intel AVX512F intrinsics to access the SIMD instruction set.
+TFloat DotProductAVX512F(const TFloat *u, const TFloat *v, int n);
+
 // Use Intel FMA.
 TFloat DotProductFMA(const TFloat *u, const TFloat *v, int n);
 

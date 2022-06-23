@@ -81,7 +81,7 @@ void LLSQ::add(const LLSQ &other) {
 
 void LLSQ::remove(double x, double y) { // delete an element
   if (total_weight <= 0.0) {            // illegal
-    EMPTY_LLSQ.error("LLSQ::remove", ABORT, nullptr);
+    EMPTY_LLSQ.error("LLSQ::remove", ABORT);
   }
   total_weight--; // count elements
   sigx -= x;      // update accumulators

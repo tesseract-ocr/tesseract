@@ -347,7 +347,7 @@ void BLOCK_RECT_IT::forward() { // next rectangle
 /**********************************************************************
  * BLOCK_LINE_IT::get_line
  *
- * Get the the start and width of a line in the block.
+ * Get the start and width of a line in the block.
  **********************************************************************/
 
 TDimension BLOCK_LINE_IT::get_line( // get a line

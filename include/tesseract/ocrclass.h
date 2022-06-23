@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /**********************************************************************
  * File:        ocrclass.h
  * Description: Class definitions and constants for the OCR API.

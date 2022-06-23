@@ -40,14 +40,14 @@ namespace tesseract {
  *
  * Construct a new stats element by allocating and zeroing the memory.
  **********************************************************************/
-STATS::STATS(int32_t min_bucket_value, int32_t max_bucket_value_plus_1) {
-  if (max_bucket_value_plus_1 <= min_bucket_value) {
+STATS::STATS(int32_t min_bucket_value, int32_t max_bucket_value) {
+  if (max_bucket_value < min_bucket_value) {
     min_bucket_value = 0;
-    max_bucket_value_plus_1 = 1;
+    max_bucket_value = 1;
   }
   rangemin_ = min_bucket_value; // setup
-  rangemax_ = max_bucket_value_plus_1;
-  buckets_ = new int32_t[rangemax_ - rangemin_];
+  rangemax_ = max_bucket_value;
+  buckets_ = new int32_t[1 + rangemax_ - rangemin_];
   clear();
 }
 
@@ -56,16 +56,16 @@ STATS::STATS(int32_t min_bucket_value, int32_t max_bucket_value_plus_1) {
  *
  * Alter the range on an existing stats element.
  **********************************************************************/
-bool STATS::set_range(int32_t min_bucket_value, int32_t max_bucket_value_plus_1) {
-  if (max_bucket_value_plus_1 <= min_bucket_value) {
+bool STATS::set_range(int32_t min_bucket_value, int32_t max_bucket_value) {
+  if (max_bucket_value < min_bucket_value) {
     return false;
   }
-  if (rangemax_ - rangemin_ != max_bucket_value_plus_1 - min_bucket_value) {
+  if (rangemax_ - rangemin_ != max_bucket_value - min_bucket_value) {
     delete[] buckets_;
-    buckets_ = new int32_t[max_bucket_value_plus_1 - min_bucket_value];
+    buckets_ = new int32_t[1 + max_bucket_value - min_bucket_value];
   }
   rangemin_ = min_bucket_value; // setup
-  rangemax_ = max_bucket_value_plus_1;
+  rangemax_ = max_bucket_value;
   clear(); // zero it
   return true;
 }
@@ -78,7 +78,7 @@ bool STATS::set_range(int32_t min_bucket_value, int32_t max_bucket_value_plus_1)
 void STATS::clear() { // clear out buckets
   total_count_ = 0;
   if (buckets_ != nullptr) {
-    memset(buckets_, 0, (rangemax_ - rangemin_) * sizeof(buckets_[0]));
+    memset(buckets_, 0, (1 + rangemax_ - rangemin_) * sizeof(buckets_[0]));
   }
 }
 
@@ -97,12 +97,11 @@ STATS::~STATS() {
  * Add a set of samples to (or delete from) a pile.
  **********************************************************************/
 void STATS::add(int32_t value, int32_t count) {
-  if (buckets_ == nullptr) {
-    return;
+  if (buckets_ != nullptr) {
+    value = ClipToRange(value, rangemin_, rangemax_);
+    buckets_[value - rangemin_] += count;
+    total_count_ += count; // keep count of total
   }
-  value = ClipToRange(value, rangemin_, rangemax_ - 1);
-  buckets_[value - rangemin_] += count;
-  total_count_ += count; // keep count of total
 }
 
 /**********************************************************************
@@ -116,7 +115,7 @@ int32_t STATS::mode() const { // get mode of samples
   }
   int32_t max = buckets_[0]; // max cell count
   int32_t maxindex = 0;      // index of max
-  for (int index = rangemax_ - rangemin_ - 1; index > 0; --index) {
+  for (int index = rangemax_ - rangemin_; index > 0; --index) {
     if (buckets_[index] > max) {
       max = buckets_[index]; // find biggest
       maxindex = index;
@@ -135,7 +134,7 @@ double STATS::mean() const { // get mean of samples
     return static_cast<double>(rangemin_);
   }
   int64_t sum = 0;
-  for (int index = rangemax_ - rangemin_ - 1; index >= 0; --index) {
+  for (int index = rangemax_ - rangemin_; index >= 0; --index) {
     sum += static_cast<int64_t>(index) * buckets_[index];
   }
   return static_cast<double>(sum) / total_count_ + rangemin_;
@@ -152,7 +151,7 @@ double STATS::sd() const { // standard deviation
   }
   int64_t sum = 0;
   double sqsum = 0.0;
-  for (int index = rangemax_ - rangemin_ - 1; index >= 0; --index) {
+  for (int index = rangemax_ - rangemin_; index >= 0; --index) {
     sum += static_cast<int64_t>(index) * buckets_[index];
     sqsum += static_cast<double>(index) * index * buckets_[index];
   }
@@ -186,7 +185,7 @@ double STATS::ile(double frac) const {
 #endif
   int sum = 0;
   int index = 0;
-  for (index = 0; index < rangemax_ - rangemin_ && sum < target; sum += buckets_[index++]) {
+  for (index = 0; index <= rangemax_ - rangemin_ && sum < target; sum += buckets_[index++]) {
     ;
   }
   if (index > 0) {
@@ -207,7 +206,7 @@ int32_t STATS::min_bucket() const { // Find min
     return rangemin_;
   }
   int32_t min = 0;
-  for (min = 0; (min < rangemax_ - rangemin_) && (buckets_[min] == 0); min++) {
+  for (min = 0; (min <= rangemax_ - rangemin_) && (buckets_[min] == 0); min++) {
     ;
   }
   return rangemin_ + min;
@@ -224,7 +223,7 @@ int32_t STATS::max_bucket() const { // Find max
     return rangemin_;
   }
   int32_t max;
-  for (max = rangemax_ - rangemin_ - 1; max > 0 && buckets_[max] == 0; max--) {
+  for (max = rangemax_ - rangemin_; max > 0 && buckets_[max] == 0; max--) {
     ;
   }
   return rangemin_ + max;
@@ -270,7 +269,7 @@ bool STATS::local_min(int32_t x) const {
   if (buckets_ == nullptr) {
     return false;
   }
-  x = ClipToRange(x, rangemin_, rangemax_ - 1) - rangemin_;
+  x = ClipToRange(x, rangemin_, rangemax_) - rangemin_;
   if (buckets_[x] == 0) {
     return true;
   }
@@ -281,10 +280,10 @@ bool STATS::local_min(int32_t x) const {
   if (index >= 0 && buckets_[index] < buckets_[x]) {
     return false;
   }
-  for (index = x + 1; index < rangemax_ - rangemin_ && buckets_[index] == buckets_[x]; ++index) {
+  for (index = x + 1; index <= rangemax_ - rangemin_ && buckets_[index] == buckets_[x]; ++index) {
     ;
   }
-  if (index < rangemax_ - rangemin_ && buckets_[index] < buckets_[x]) {
+  if (index <= rangemax_ - rangemin_ && buckets_[index] < buckets_[x]) {
     return false;
   } else {
     return true;
@@ -304,7 +303,7 @@ void STATS::smooth(int32_t factor) {
     return;
   }
   STATS result(rangemin_, rangemax_);
-  int entrycount = rangemax_ - rangemin_;
+  int entrycount = 1 + rangemax_ - rangemin_;
   for (int entry = 0; entry < entrycount; entry++) {
     // centre weight
     int count = buckets_[entry] * factor;
@@ -368,7 +367,7 @@ int32_t STATS::cluster(float lower, // thresholds
         clusters[0].add(entry, count);
       }
     }
-    for (entry = new_centre + 1; entry - centres[cluster_count] < lower && entry < rangemax_ &&
+    for (entry = new_centre + 1; entry - centres[cluster_count] < lower && entry <= rangemax_ &&
                                  pile_count(entry) <= pile_count(entry - 1);
          entry++) {
       count = pile_count(entry) - clusters[0].pile_count(entry);
@@ -386,7 +385,7 @@ int32_t STATS::cluster(float lower, // thresholds
   do {
     new_cluster = false;
     new_mode = 0;
-    for (entry = 0; entry < rangemax_ - rangemin_; entry++) {
+    for (entry = 0; entry <= rangemax_ - rangemin_; entry++) {
       count = buckets_[entry] - clusters[0].buckets_[entry];
       // remaining pile
       if (count > 0) { // any to handle
@@ -433,7 +432,7 @@ int32_t STATS::cluster(float lower, // thresholds
           clusters[0].add(entry, count);
         }
       }
-      for (entry = new_centre + 1; entry - centres[cluster_count] < lower && entry < rangemax_ &&
+      for (entry = new_centre + 1; entry - centres[cluster_count] < lower && entry <= rangemax_ &&
                                    pile_count(entry) <= pile_count(entry - 1);
            entry++) {
         count = pile_count(entry) - clusters[0].pile_count(entry);
@@ -482,7 +481,7 @@ int STATS::top_n_modes(int max_modes, std::vector<KDPairInc<float, int>> &modes)
   if (max_modes <= 0) {
     return 0;
   }
-  int src_count = rangemax_ - rangemin_;
+  int src_count = 1 + rangemax_ - rangemin_;
   // Used copies the counts in buckets_ as they get used.
   STATS used(rangemin_, rangemax_);
   modes.clear();
@@ -605,7 +604,7 @@ void STATS::plot(ScrollView *window, // to draw in
   }
   window->Pen(colour);
 
-  for (int index = 0; index < rangemax_ - rangemin_; index++) {
+  for (int index = 0; index <= rangemax_ - rangemin_; index++) {
     window->Rectangle(xorigin + xscale * index, yorigin, xorigin + xscale * (index + 1),
                       yorigin + yscale * buckets_[index]);
   }
@@ -630,7 +629,7 @@ void STATS::plotline(ScrollView *window, // to draw in
   }
   window->Pen(colour);
   window->SetCursor(xorigin, yorigin + yscale * buckets_[0]);
-  for (int index = 0; index < rangemax_ - rangemin_; index++) {
+  for (int index = 0; index <= rangemax_ - rangemin_; index++) {
     window->DrawTo(xorigin + xscale * index, yorigin + yscale * buckets_[index]);
   }
 }

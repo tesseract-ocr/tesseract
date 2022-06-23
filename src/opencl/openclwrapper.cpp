@@ -8,10 +8,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Include automatically generated configuration file
+#ifdef HAVE_CONFIG_H
+#  include "config_auto.h"
+#endif
+
 #ifdef USE_OPENCL
 
 #  ifdef _WIN32
 #    include <io.h>
+#    include <windows.h>
 #  else
 #    include <sys/types.h>
 #    include <unistd.h>

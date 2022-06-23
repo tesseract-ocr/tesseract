@@ -669,7 +669,6 @@ double check_pitch_sync3(    // find segmentation
   do {
     for (x = best_end->position() - pitch + pitch_error;
          x < best_end->position() - pitch_error && projection->pile_count(x) == 0; x++) {
-      ;
     }
     if (x < best_end->position() - pitch_error) {
       occupation_count++;

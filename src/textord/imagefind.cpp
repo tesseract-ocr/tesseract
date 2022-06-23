@@ -46,14 +46,203 @@ const double kMaxRectangularFraction = 0.75;
 const double kMaxRectangularGradient = 0.1; // About 6 degrees.
 // Minimum image size to be worth looking for images on.
 const int kMinImageFindSize = 100;
-// Scale factor for the rms color fit error.
-const double kRMSFitScaling = 8.0;
-// Min color difference to call it two colors.
-const int kMinColorDifference = 16;
 // Pixel padding for noise blobs and partitions when rendering on the image
 // mask to encourage them to join together. Make it too big and images
 // will fatten out too much and have to be clipped to text.
 const int kNoisePadding = 4;
+
+// Scans horizontally on x=[x_start,x_end), starting with y=*y_start,
+// stepping y+=y_step, until y=y_end. *ystart is input/output.
+// If the number of black pixels in a row, pix_count fits this pattern:
+// 0 or more rows with pix_count < min_count then
+// <= mid_width rows with min_count <= pix_count <= max_count then
+// a row with pix_count > max_count then
+// true is returned, and *y_start = the first y with pix_count >= min_count.
+static bool HScanForEdge(uint32_t *data, int wpl, int x_start, int x_end, int min_count,
+                         int mid_width, int max_count, int y_end, int y_step, int *y_start) {
+  int mid_rows = 0;
+  for (int y = *y_start; y != y_end; y += y_step) {
+    // Need pixCountPixelsInRow(pix, y, &pix_count, nullptr) to count in a
+    // subset.
+    int pix_count = 0;
+    uint32_t *line = data + wpl * y;
+    for (int x = x_start; x < x_end; ++x) {
+      if (GET_DATA_BIT(line, x)) {
+        ++pix_count;
+      }
+    }
+    if (mid_rows == 0 && pix_count < min_count) {
+      continue; // In the min phase.
+    }
+    if (mid_rows == 0) {
+      *y_start = y; // Save the y_start where we came out of the min phase.
+    }
+    if (pix_count > max_count) {
+      return true; // Found the pattern.
+    }
+    ++mid_rows;
+    if (mid_rows > mid_width) {
+      break; // Middle too big.
+    }
+  }
+  return false; // Never found max_count.
+}
+
+// Scans vertically on y=[y_start,y_end), starting with x=*x_start,
+// stepping x+=x_step, until x=x_end. *x_start is input/output.
+// If the number of black pixels in a column, pix_count fits this pattern:
+// 0 or more cols with pix_count < min_count then
+// <= mid_width cols with min_count <= pix_count <= max_count then
+// a column with pix_count > max_count then
+// true is returned, and *x_start = the first x with pix_count >= min_count.
+static bool VScanForEdge(uint32_t *data, int wpl, int y_start, int y_end, int min_count,
+                         int mid_width, int max_count, int x_end, int x_step, int *x_start) {
+  int mid_cols = 0;
+  for (int x = *x_start; x != x_end; x += x_step) {
+    int pix_count = 0;
+    uint32_t *line = data + y_start * wpl;
+    for (int y = y_start; y < y_end; ++y, line += wpl) {
+      if (GET_DATA_BIT(line, x)) {
+        ++pix_count;
+      }
+    }
+    if (mid_cols == 0 && pix_count < min_count) {
+      continue; // In the min phase.
+    }
+    if (mid_cols == 0) {
+      *x_start = x; // Save the place where we came out of the min phase.
+    }
+    if (pix_count > max_count) {
+      return true; // found the pattern.
+    }
+    ++mid_cols;
+    if (mid_cols > mid_width) {
+      break; // Middle too big.
+    }
+  }
+  return false; // Never found max_count.
+}
+
+// Returns true if there is a rectangle in the source pix, such that all
+// pixel rows and column slices outside of it have less than
+// min_fraction of the pixels black, and within max_skew_gradient fraction
+// of the pixels on the inside, there are at least max_fraction of the
+// pixels black. In other words, the inside of the rectangle looks roughly
+// rectangular, and the outside of it looks like extra bits.
+// On return, the rectangle is defined by x_start, y_start, x_end and y_end.
+// Note: the algorithm is iterative, allowing it to slice off pixels from
+// one edge, allowing it to then slice off more pixels from another edge.
+static bool pixNearlyRectangular(Image pix, double min_fraction, double max_fraction,
+                                 double max_skew_gradient, int *x_start, int *y_start,
+                                 int *x_end, int *y_end) {
+  ASSERT_HOST(pix != nullptr);
+  *x_start = 0;
+  *x_end = pixGetWidth(pix);
+  *y_start = 0;
+  *y_end = pixGetHeight(pix);
+
+  uint32_t *data = pixGetData(pix);
+  int wpl = pixGetWpl(pix);
+  bool any_cut = false;
+  bool left_done = false;
+  bool right_done = false;
+  bool top_done = false;
+  bool bottom_done = false;
+  do {
+    any_cut = false;
+    // Find the top/bottom edges.
+    int width = *x_end - *x_start;
+    int min_count = static_cast<int>(width * min_fraction);
+    int max_count = static_cast<int>(width * max_fraction);
+    int edge_width = static_cast<int>(width * max_skew_gradient);
+    if (HScanForEdge(data, wpl, *x_start, *x_end, min_count, edge_width, max_count, *y_end, 1,
+                     y_start) &&
+        !top_done) {
+      top_done = true;
+      any_cut = true;
+    }
+    --(*y_end);
+    if (HScanForEdge(data, wpl, *x_start, *x_end, min_count, edge_width, max_count, *y_start, -1,
+                     y_end) &&
+        !bottom_done) {
+      bottom_done = true;
+      any_cut = true;
+    }
+    ++(*y_end);
+
+    // Find the left/right edges.
+    int height = *y_end - *y_start;
+    min_count = static_cast<int>(height * min_fraction);
+    max_count = static_cast<int>(height * max_fraction);
+    edge_width = static_cast<int>(height * max_skew_gradient);
+    if (VScanForEdge(data, wpl, *y_start, *y_end, min_count, edge_width, max_count, *x_end, 1,
+                     x_start) &&
+        !left_done) {
+      left_done = true;
+      any_cut = true;
+    }
+    --(*x_end);
+    if (VScanForEdge(data, wpl, *y_start, *y_end, min_count, edge_width, max_count, *x_start, -1,
+                     x_end) &&
+        !right_done) {
+      right_done = true;
+      any_cut = true;
+    }
+    ++(*x_end);
+  } while (any_cut);
+
+  // All edges must satisfy the condition of sharp gradient in pixel density
+  // in order for the full rectangle to be present.
+  return left_done && right_done && top_done && bottom_done;
+}
+
+// Generates a Boxa, Pixa pair from the input binary (image mask) pix,
+// analogous to pixConnComp, except that connected components which are nearly
+// rectangular are replaced with solid rectangles.
+// The returned boxa, pixa may be nullptr, meaning no images found.
+// If not nullptr, they must be destroyed by the caller.
+// Resolution of pix should match the source image (Tesseract::pix_binary_)
+// so the output coordinate systems match.
+static void ConnCompAndRectangularize(Image pix, DebugPixa *pixa_debug, Boxa **boxa,
+                                      Pixa **pixa) {
+  *boxa = nullptr;
+  *pixa = nullptr;
+
+  if (textord_tabfind_show_images && pixa_debug != nullptr) {
+    pixa_debug->AddPix(pix, "Conncompimage");
+  }
+  // Find the individual image regions in the mask image.
+  *boxa = pixConnComp(pix, pixa, 8);
+  // Rectangularize the individual images. If a sharp edge in vertical and/or
+  // horizontal occupancy can be found, it indicates a probably rectangular
+  // image with unwanted bits merged on, so clip to the approximate rectangle.
+  int npixes = 0;
+  if (*boxa != nullptr && *pixa != nullptr) {
+    npixes = pixaGetCount(*pixa);
+  }
+  for (int i = 0; i < npixes; ++i) {
+    int x_start, x_end, y_start, y_end;
+    Image img_pix = pixaGetPix(*pixa, i, L_CLONE);
+    if (textord_tabfind_show_images && pixa_debug != nullptr) {
+      pixa_debug->AddPix(img_pix, "A component");
+    }
+    if (pixNearlyRectangular(img_pix, kMinRectangularFraction, kMaxRectangularFraction,
+                             kMaxRectangularGradient, &x_start, &y_start, &x_end, &y_end)) {
+      Image simple_pix = pixCreate(x_end - x_start, y_end - y_start, 1);
+      pixSetAll(simple_pix);
+      img_pix.destroy();
+      // pixaReplacePix takes ownership of the simple_pix.
+      pixaReplacePix(*pixa, i, simple_pix, nullptr);
+      img_pix = pixaGetPix(*pixa, i, L_CLONE);
+      // Fix the box to match the new pix.
+      l_int32 x, y, width, height;
+      boxaGetBoxGeometry(*boxa, i, &x, &y, &width, &height);
+      Box *simple_box = boxCreate(x + x_start, y + y_start, x_end - x_start, y_end - y_start);
+      boxaReplaceBox(*boxa, i, simple_box);
+    }
+    img_pix.destroy();
+  }
+}
 
 // Finds image regions within the BINARY source pix (page image) and returns
 // the image regions as a mask image.
@@ -151,199 +340,6 @@ Image ImageFind::FindImages(Image pix, DebugPixa *pixa_debug) {
   return result;
 }
 
-// Generates a Boxa, Pixa pair from the input binary (image mask) pix,
-// analogous to pixConnComp, except that connected components which are nearly
-// rectangular are replaced with solid rectangles.
-// The returned boxa, pixa may be nullptr, meaning no images found.
-// If not nullptr, they must be destroyed by the caller.
-// Resolution of pix should match the source image (Tesseract::pix_binary_)
-// so the output coordinate systems match.
-void ImageFind::ConnCompAndRectangularize(Image pix, DebugPixa *pixa_debug, Boxa **boxa,
-                                          Pixa **pixa) {
-  *boxa = nullptr;
-  *pixa = nullptr;
-
-  if (textord_tabfind_show_images && pixa_debug != nullptr) {
-    pixa_debug->AddPix(pix, "Conncompimage");
-  }
-  // Find the individual image regions in the mask image.
-  *boxa = pixConnComp(pix, pixa, 8);
-  // Rectangularize the individual images. If a sharp edge in vertical and/or
-  // horizontal occupancy can be found, it indicates a probably rectangular
-  // image with unwanted bits merged on, so clip to the approximate rectangle.
-  int npixes = 0;
-  if (*boxa != nullptr && *pixa != nullptr) {
-    npixes = pixaGetCount(*pixa);
-  }
-  for (int i = 0; i < npixes; ++i) {
-    int x_start, x_end, y_start, y_end;
-    Image img_pix = pixaGetPix(*pixa, i, L_CLONE);
-    if (textord_tabfind_show_images && pixa_debug != nullptr) {
-      pixa_debug->AddPix(img_pix, "A component");
-    }
-    if (pixNearlyRectangular(img_pix, kMinRectangularFraction, kMaxRectangularFraction,
-                             kMaxRectangularGradient, &x_start, &y_start, &x_end, &y_end)) {
-      Image simple_pix = pixCreate(x_end - x_start, y_end - y_start, 1);
-      pixSetAll(simple_pix);
-      img_pix.destroy();
-      // pixaReplacePix takes ownership of the simple_pix.
-      pixaReplacePix(*pixa, i, simple_pix, nullptr);
-      img_pix = pixaGetPix(*pixa, i, L_CLONE);
-      // Fix the box to match the new pix.
-      l_int32 x, y, width, height;
-      boxaGetBoxGeometry(*boxa, i, &x, &y, &width, &height);
-      Box *simple_box = boxCreate(x + x_start, y + y_start, x_end - x_start, y_end - y_start);
-      boxaReplaceBox(*boxa, i, simple_box);
-    }
-    img_pix.destroy();
-  }
-}
-
-// Scans horizontally on x=[x_start,x_end), starting with y=*y_start,
-// stepping y+=y_step, until y=y_end. *ystart is input/output.
-// If the number of black pixels in a row, pix_count fits this pattern:
-// 0 or more rows with pix_count < min_count then
-// <= mid_width rows with min_count <= pix_count <= max_count then
-// a row with pix_count > max_count then
-// true is returned, and *y_start = the first y with pix_count >= min_count.
-static bool HScanForEdge(uint32_t *data, int wpl, int x_start, int x_end, int min_count,
-                         int mid_width, int max_count, int y_end, int y_step, int *y_start) {
-  int mid_rows = 0;
-  for (int y = *y_start; y != y_end; y += y_step) {
-    // Need pixCountPixelsInRow(pix, y, &pix_count, nullptr) to count in a
-    // subset.
-    int pix_count = 0;
-    uint32_t *line = data + wpl * y;
-    for (int x = x_start; x < x_end; ++x) {
-      if (GET_DATA_BIT(line, x)) {
-        ++pix_count;
-      }
-    }
-    if (mid_rows == 0 && pix_count < min_count) {
-      continue; // In the min phase.
-    }
-    if (mid_rows == 0) {
-      *y_start = y; // Save the y_start where we came out of the min phase.
-    }
-    if (pix_count > max_count) {
-      return true; // Found the pattern.
-    }
-    ++mid_rows;
-    if (mid_rows > mid_width) {
-      break; // Middle too big.
-    }
-  }
-  return false; // Never found max_count.
-}
-
-// Scans vertically on y=[y_start,y_end), starting with x=*x_start,
-// stepping x+=x_step, until x=x_end. *x_start is input/output.
-// If the number of black pixels in a column, pix_count fits this pattern:
-// 0 or more cols with pix_count < min_count then
-// <= mid_width cols with min_count <= pix_count <= max_count then
-// a column with pix_count > max_count then
-// true is returned, and *x_start = the first x with pix_count >= min_count.
-static bool VScanForEdge(uint32_t *data, int wpl, int y_start, int y_end, int min_count,
-                         int mid_width, int max_count, int x_end, int x_step, int *x_start) {
-  int mid_cols = 0;
-  for (int x = *x_start; x != x_end; x += x_step) {
-    int pix_count = 0;
-    uint32_t *line = data + y_start * wpl;
-    for (int y = y_start; y < y_end; ++y, line += wpl) {
-      if (GET_DATA_BIT(line, x)) {
-        ++pix_count;
-      }
-    }
-    if (mid_cols == 0 && pix_count < min_count) {
-      continue; // In the min phase.
-    }
-    if (mid_cols == 0) {
-      *x_start = x; // Save the place where we came out of the min phase.
-    }
-    if (pix_count > max_count) {
-      return true; // found the pattern.
-    }
-    ++mid_cols;
-    if (mid_cols > mid_width) {
-      break; // Middle too big.
-    }
-  }
-  return false; // Never found max_count.
-}
-
-// Returns true if there is a rectangle in the source pix, such that all
-// pixel rows and column slices outside of it have less than
-// min_fraction of the pixels black, and within max_skew_gradient fraction
-// of the pixels on the inside, there are at least max_fraction of the
-// pixels black. In other words, the inside of the rectangle looks roughly
-// rectangular, and the outside of it looks like extra bits.
-// On return, the rectangle is defined by x_start, y_start, x_end and y_end.
-// Note: the algorithm is iterative, allowing it to slice off pixels from
-// one edge, allowing it to then slice off more pixels from another edge.
-bool ImageFind::pixNearlyRectangular(Image pix, double min_fraction, double max_fraction,
-                                     double max_skew_gradient, int *x_start, int *y_start,
-                                     int *x_end, int *y_end) {
-  ASSERT_HOST(pix != nullptr);
-  *x_start = 0;
-  *x_end = pixGetWidth(pix);
-  *y_start = 0;
-  *y_end = pixGetHeight(pix);
-
-  uint32_t *data = pixGetData(pix);
-  int wpl = pixGetWpl(pix);
-  bool any_cut = false;
-  bool left_done = false;
-  bool right_done = false;
-  bool top_done = false;
-  bool bottom_done = false;
-  do {
-    any_cut = false;
-    // Find the top/bottom edges.
-    int width = *x_end - *x_start;
-    int min_count = static_cast<int>(width * min_fraction);
-    int max_count = static_cast<int>(width * max_fraction);
-    int edge_width = static_cast<int>(width * max_skew_gradient);
-    if (HScanForEdge(data, wpl, *x_start, *x_end, min_count, edge_width, max_count, *y_end, 1,
-                     y_start) &&
-        !top_done) {
-      top_done = true;
-      any_cut = true;
-    }
-    --(*y_end);
-    if (HScanForEdge(data, wpl, *x_start, *x_end, min_count, edge_width, max_count, *y_start, -1,
-                     y_end) &&
-        !bottom_done) {
-      bottom_done = true;
-      any_cut = true;
-    }
-    ++(*y_end);
-
-    // Find the left/right edges.
-    int height = *y_end - *y_start;
-    min_count = static_cast<int>(height * min_fraction);
-    max_count = static_cast<int>(height * max_fraction);
-    edge_width = static_cast<int>(height * max_skew_gradient);
-    if (VScanForEdge(data, wpl, *y_start, *y_end, min_count, edge_width, max_count, *x_end, 1,
-                     x_start) &&
-        !left_done) {
-      left_done = true;
-      any_cut = true;
-    }
-    --(*x_end);
-    if (VScanForEdge(data, wpl, *y_start, *y_end, min_count, edge_width, max_count, *x_start, -1,
-                     x_end) &&
-        !right_done) {
-      right_done = true;
-      any_cut = true;
-    }
-    ++(*x_end);
-  } while (any_cut);
-
-  // All edges must satisfy the condition of sharp gradient in pixel density
-  // in order for the full rectangle to be present.
-  return left_done && right_done && top_done && bottom_done;
-}
-
 // Given an input pix, and a bounding rectangle, the sides of the rectangle
 // are shrunk inwards until they bound any black pixels found within the
 // original rectangle. Returns false if the rectangle contains no black
@@ -398,148 +394,6 @@ double ImageFind::ColorDistanceFromLine(const uint8_t *line1, const uint8_t *lin
     return 0.0;
   }
   return cross_sq / line_sq; // This is the squared distance.
-}
-
-// Returns the leptonica combined code for the given RGB triplet.
-uint32_t ImageFind::ComposeRGB(uint32_t r, uint32_t g, uint32_t b) {
-  l_uint32 result;
-  composeRGBPixel(r, g, b, &result);
-  return result;
-}
-
-// Returns the input value clipped to a uint8_t.
-uint8_t ImageFind::ClipToByte(double pixel) {
-  if (pixel < 0.0) {
-    return 0;
-  } else if (pixel >= 255.0) {
-    return 255;
-  }
-  return static_cast<uint8_t>(pixel);
-}
-
-// Computes the light and dark extremes of color in the given rectangle of
-// the given pix, which is factor smaller than the coordinate system in rect.
-// The light and dark points are taken to be the upper and lower 8th-ile of
-// the most deviant of R, G and B. The value of the other 2 channels are
-// computed by linear fit against the most deviant.
-// The colors of the two points are returned in color1 and color2, with the
-// alpha channel set to a scaled mean rms of the fits.
-// If color_map1 is not null then it and color_map2 get rect pasted in them
-// with the two calculated colors, and rms map gets a pasted rect of the rms.
-// color_map1, color_map2 and rms_map are assumed to be the same scale as pix.
-void ImageFind::ComputeRectangleColors(const TBOX &rect, Image pix, int factor, Image color_map1,
-                                       Image color_map2, Image rms_map, uint8_t *color1,
-                                       uint8_t *color2) {
-  ASSERT_HOST(pix != nullptr && pixGetDepth(pix) == 32);
-  // Pad the rectangle outwards by 2 (scaled) pixels if possible to get more
-  // background.
-  int width = pixGetWidth(pix);
-  int height = pixGetHeight(pix);
-  int left_pad = std::max(rect.left() - 2 * factor, 0) / factor;
-  int top_pad = (rect.top() + 2 * factor + (factor - 1)) / factor;
-  top_pad = std::min(height, top_pad);
-  int right_pad = (rect.right() + 2 * factor + (factor - 1)) / factor;
-  right_pad = std::min(width, right_pad);
-  int bottom_pad = std::max(rect.bottom() - 2 * factor, 0) / factor;
-  int width_pad = right_pad - left_pad;
-  int height_pad = top_pad - bottom_pad;
-  if (width_pad < 1 || height_pad < 1 || width_pad + height_pad < 4) {
-    return;
-  }
-  // Now crop the pix to the rectangle.
-  Box *scaled_box = boxCreate(left_pad, height - top_pad, width_pad, height_pad);
-  Image scaled = pixClipRectangle(pix, scaled_box, nullptr);
-
-  // Compute stats over the whole image.
-  STATS red_stats(0, 256);
-  STATS green_stats(0, 256);
-  STATS blue_stats(0, 256);
-  uint32_t *data = pixGetData(scaled);
-  ASSERT_HOST(pixGetWpl(scaled) == width_pad);
-  for (int y = 0; y < height_pad; ++y) {
-    for (int x = 0; x < width_pad; ++x, ++data) {
-      int r = GET_DATA_BYTE(data, COLOR_RED);
-      int g = GET_DATA_BYTE(data, COLOR_GREEN);
-      int b = GET_DATA_BYTE(data, COLOR_BLUE);
-      red_stats.add(r, 1);
-      green_stats.add(g, 1);
-      blue_stats.add(b, 1);
-    }
-  }
-  // Find the RGB component with the greatest 8th-ile-range.
-  // 8th-iles are used instead of quartiles to get closer to the true
-  // foreground color, which is going to be faint at best because of the
-  // pre-scaling of the input image.
-  int best_l8 = static_cast<int>(red_stats.ile(0.125f));
-  int best_u8 = static_cast<int>(ceil(red_stats.ile(0.875f)));
-  int best_i8r = best_u8 - best_l8;
-  int x_color = COLOR_RED;
-  int y1_color = COLOR_GREEN;
-  int y2_color = COLOR_BLUE;
-  int l8 = static_cast<int>(green_stats.ile(0.125f));
-  int u8 = static_cast<int>(ceil(green_stats.ile(0.875f)));
-  if (u8 - l8 > best_i8r) {
-    best_i8r = u8 - l8;
-    best_l8 = l8;
-    best_u8 = u8;
-    x_color = COLOR_GREEN;
-    y1_color = COLOR_RED;
-  }
-  l8 = static_cast<int>(blue_stats.ile(0.125f));
-  u8 = static_cast<int>(ceil(blue_stats.ile(0.875f)));
-  if (u8 - l8 > best_i8r) {
-    best_i8r = u8 - l8;
-    best_l8 = l8;
-    best_u8 = u8;
-    x_color = COLOR_BLUE;
-    y1_color = COLOR_GREEN;
-    y2_color = COLOR_RED;
-  }
-  if (best_i8r >= kMinColorDifference) {
-    LLSQ line1;
-    LLSQ line2;
-    uint32_t *data = pixGetData(scaled);
-    for (int im_y = 0; im_y < height_pad; ++im_y) {
-      for (int im_x = 0; im_x < width_pad; ++im_x, ++data) {
-        int x = GET_DATA_BYTE(data, x_color);
-        int y1 = GET_DATA_BYTE(data, y1_color);
-        int y2 = GET_DATA_BYTE(data, y2_color);
-        line1.add(x, y1);
-        line2.add(x, y2);
-      }
-    }
-    double m1 = line1.m();
-    double c1 = line1.c(m1);
-    double m2 = line2.m();
-    double c2 = line2.c(m2);
-    double rms = line1.rms(m1, c1) + line2.rms(m2, c2);
-    rms *= kRMSFitScaling;
-    // Save the results.
-    color1[x_color] = ClipToByte(best_l8);
-    color1[y1_color] = ClipToByte(m1 * best_l8 + c1 + 0.5);
-    color1[y2_color] = ClipToByte(m2 * best_l8 + c2 + 0.5);
-    color1[L_ALPHA_CHANNEL] = ClipToByte(rms);
-    color2[x_color] = ClipToByte(best_u8);
-    color2[y1_color] = ClipToByte(m1 * best_u8 + c1 + 0.5);
-    color2[y2_color] = ClipToByte(m2 * best_u8 + c2 + 0.5);
-    color2[L_ALPHA_CHANNEL] = ClipToByte(rms);
-  } else {
-    // There is only one color.
-    color1[COLOR_RED] = ClipToByte(red_stats.median());
-    color1[COLOR_GREEN] = ClipToByte(green_stats.median());
-    color1[COLOR_BLUE] = ClipToByte(blue_stats.median());
-    color1[L_ALPHA_CHANNEL] = 0;
-    memcpy(color2, color1, 4);
-  }
-  if (color_map1 != nullptr) {
-    pixSetInRectArbitrary(color_map1, scaled_box,
-                          ComposeRGB(color1[COLOR_RED], color1[COLOR_GREEN], color1[COLOR_BLUE]));
-    pixSetInRectArbitrary(color_map2, scaled_box,
-                          ComposeRGB(color2[COLOR_RED], color2[COLOR_GREEN], color2[COLOR_BLUE]));
-    pixSetInRectArbitrary(rms_map, scaled_box, color1[L_ALPHA_CHANNEL]);
-  }
-  scaled.destroy();
-  boxDestroy(&scaled_box);
 }
 
 // ================ CUTTING POLYGONAL IMAGES FROM A RECTANGLE ================

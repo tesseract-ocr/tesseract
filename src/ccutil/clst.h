@@ -190,7 +190,7 @@ public:
   void *data() { // get current data
 #ifndef NDEBUG
     if (!list) {
-      NO_LIST.error("CLIST_ITERATOR::data", ABORT, nullptr);
+      NO_LIST.error("CLIST_ITERATOR::data", ABORT);
     }
 #endif
     return current->data;
@@ -523,7 +523,7 @@ inline void *CLIST_ITERATOR::extract() {
 #ifndef NDEBUG
   if (!current) { // list empty or
                   // element extracted
-    NULL_CURRENT.error("CLIST_ITERATOR::extract", ABORT, nullptr);
+    NULL_CURRENT.error("CLIST_ITERATOR::extract", ABORT);
   }
 #endif
 
@@ -576,7 +576,7 @@ inline void *CLIST_ITERATOR::move_to_first() {
 inline void CLIST_ITERATOR::mark_cycle_pt() {
 #ifndef NDEBUG
   if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::mark_cycle_pt", ABORT, nullptr);
+    NO_LIST.error("CLIST_ITERATOR::mark_cycle_pt", ABORT);
   }
 #endif
 
@@ -666,7 +666,7 @@ inline void CLIST_ITERATOR::add_to_end( // element to add
     void *new_data) {
 #ifndef NDEBUG
   if (!list) {
-    NO_LIST.error("CLIST_ITERATOR::add_to_end", ABORT, nullptr);
+    NO_LIST.error("CLIST_ITERATOR::add_to_end", ABORT);
   }
   if (!new_data) {
     BAD_PARAMETER.error("CLIST_ITERATOR::add_to_end", ABORT, "new_data is nullptr");
@@ -702,15 +702,12 @@ public:
   }
 };
 
-#define CLISTIZEH(CLASSNAME)                                          \
-  class CLASSNAME##_CLIST : public X_CLIST<CLASSNAME> {               \
-  public:                                                             \
-    using X_CLIST<CLASSNAME>::X_CLIST;                                \
-  };                                                                  \
-  class CLASSNAME##_C_IT : public X_ITER<CLIST_ITERATOR, CLASSNAME> { \
-  public:                                                             \
-    using X_ITER<CLIST_ITERATOR, CLASSNAME>::X_ITER;                  \
-    CLASSNAME##_C_IT(CLASSNAME##_CLIST *list) : X_ITER(list) {}       \
+#define CLISTIZEH(CLASSNAME)                                    \
+  class CLASSNAME##_CLIST : public X_CLIST<CLASSNAME> {         \
+    using X_CLIST<CLASSNAME>::X_CLIST;                          \
+  };                                                            \
+  struct CLASSNAME##_C_IT : X_ITER<CLIST_ITERATOR, CLASSNAME> { \
+    using X_ITER<CLIST_ITERATOR, CLASSNAME>::X_ITER;            \
   };
 
 } // namespace tesseract

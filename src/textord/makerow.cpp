@@ -518,7 +518,7 @@ void vigorous_noise_removal(TO_BLOCK *block) {
         max_height = blob->bounding_box().height();
       }
     }
-    STATS hstats(0, max_height + 1);
+    STATS hstats(0, max_height);
     for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
       BLOBNBOX *blob = b_it.data();
       int height = blob->bounding_box().height();
@@ -1288,16 +1288,16 @@ void Textord::compute_block_xheight(TO_BLOCK *block, float gradient) {
   // Compute the best guess of xheight of each row individually.
   // Use xheight and ascrise values of the rows where ascenders were found.
   get_min_max_xheight(block->line_size, &min_height, &max_height);
-  STATS row_asc_xheights(min_height, max_height + 1);
+  STATS row_asc_xheights(min_height, max_height);
   STATS row_asc_ascrise(static_cast<int>(min_height * asc_frac_xheight),
-                        static_cast<int>(max_height * asc_frac_xheight) + 1);
+                        static_cast<int>(max_height * asc_frac_xheight));
   int min_desc_height = static_cast<int>(min_height * desc_frac_xheight);
   int max_desc_height = static_cast<int>(max_height * desc_frac_xheight);
-  STATS row_asc_descdrop(min_desc_height, max_desc_height + 1);
-  STATS row_desc_xheights(min_height, max_height + 1);
-  STATS row_desc_descdrop(min_desc_height, max_desc_height + 1);
-  STATS row_cap_xheights(min_height, max_height + 1);
-  STATS row_cap_floating_xheights(min_height, max_height + 1);
+  STATS row_asc_descdrop(min_desc_height, max_desc_height);
+  STATS row_desc_xheights(min_height, max_height);
+  STATS row_desc_descdrop(min_desc_height, max_desc_height);
+  STATS row_cap_xheights(min_height, max_height);
+  STATS row_cap_floating_xheights(min_height, max_height);
   for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
     row = row_it.data();
     // Compute the xheight of this row if it has not been computed before.
@@ -1394,8 +1394,8 @@ void Textord::compute_row_xheight(TO_ROW *row, // row to do
 
   int min_height, max_height;
   get_min_max_xheight(block_line_size, &min_height, &max_height);
-  STATS heights(min_height, max_height + 1);
-  STATS floating_heights(min_height, max_height + 1);
+  STATS heights(min_height, max_height);
+  STATS floating_heights(min_height, max_height);
   fill_heights(row, gradient, min_height, max_height, &heights, &floating_heights);
   row->ascrise = 0.0f;
   row->xheight = 0.0f;
@@ -1594,7 +1594,7 @@ int32_t compute_row_descdrop(TO_ROW *row, float gradient, int xheight_blob_count
   float height;  // height of blob
   BLOBNBOX_IT blob_it = row->blob_list();
   BLOBNBOX *blob; // current blob
-  STATS heights(min_height, max_height + 1);
+  STATS heights(min_height, max_height);
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     blob = blob_it.data();
     if (!blob->joined_to_prev()) {
@@ -2336,7 +2336,6 @@ void assign_blobs_to_rows( // find lines
     if (!row_it.empty()) {
       for (row_it.move_to_first(); !row_it.at_last() && row_it.data()->min_y() > top;
            row_it.forward()) {
-        ;
       }
       row = row_it.data();
       if (row->min_y() <= top && row->max_y() >= bottom) {

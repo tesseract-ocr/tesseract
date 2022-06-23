@@ -1623,8 +1623,8 @@ void RecomputeMarginsAndClearHypotheses(std::vector<RowScratchRegisters> *rows, 
     UpdateRange(sr.lmargin_ + sr.lindent_, &lmin, &lmax);
     UpdateRange(sr.rmargin_ + sr.rindent_, &rmin, &rmax);
   }
-  STATS lefts(lmin, lmax + 1);
-  STATS rights(rmin, rmax + 1);
+  STATS lefts(lmin, lmax);
+  STATS rights(rmin, rmax);
   for (int i = start; i < end; i++) {
     RowScratchRegisters &sr = (*rows)[i];
     if (sr.ri_->num_words == 0) {
@@ -1655,7 +1655,7 @@ int InterwordSpace(const std::vector<RowScratchRegisters> &rows, int row_start, 
       (rows[row_start].ri_->lword_box.height() + rows[row_end - 1].ri_->lword_box.height()) / 2;
   int word_width =
       (rows[row_start].ri_->lword_box.width() + rows[row_end - 1].ri_->lword_box.width()) / 2;
-  STATS spacing_widths(0, 5 + word_width);
+  STATS spacing_widths(0, 4 + word_width);
   for (int i = row_start; i < row_end; i++) {
     if (rows[i].ri_->num_words > 1) {
       spacing_widths.add(rows[i].ri_->average_interword_space, 1);

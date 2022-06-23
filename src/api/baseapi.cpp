@@ -99,6 +99,9 @@ namespace tesseract {
 
 static BOOL_VAR(stream_filelist, false, "Stream a filelist from stdin");
 static STRING_VAR(document_title, "", "Title of output document (used for hOCR and PDF output)");
+#ifdef HAVE_LIBCURL
+static INT_VAR(curl_timeout, 0, "Timeout for curl in seconds");
+#endif
 
 /** Minimum sensible image size to be worth running tesseract. */
 const int kMinRectSize = 10;
@@ -1150,6 +1153,17 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
       if (curlcode != CURLE_OK) {
         return error("curl_easy_setopt");
       }
+      int timeout = curl_timeout;
+      if (timeout > 0) {
+        curlcode = curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+        if (curlcode != CURLE_OK) {
+          return error("curl_easy_setopt");
+        }
+        curlcode = curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+        if (curlcode != CURLE_OK) {
+          return error("curl_easy_setopt");
+        }
+      }
       curlcode = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
       if (curlcode != CURLE_OK) {
         return error("curl_easy_setopt");
@@ -1357,6 +1371,22 @@ char *TessBaseAPI::GetUTF8Text() {
     if (it->Empty(RIL_PARA)) {
       continue;
     }
+    auto block_type = it->BlockType();
+    switch (block_type) {
+      case PT_FLOWING_IMAGE:
+      case PT_HEADING_IMAGE:
+      case PT_PULLOUT_IMAGE:
+      case PT_HORZ_LINE:
+      case PT_VERT_LINE:
+        // Ignore images and lines for text output.
+        continue;
+      case PT_NOISE:
+        tprintf("TODO: Please report image which triggers the noise case.\n");
+        ASSERT_HOST(false);
+      default:
+        break;
+    }
+
     const std::unique_ptr<const char[]> para_text(it->GetUTF8Text(RIL_PARA));
     text += para_text.get();
   } while (it->Next(RIL_PARA));

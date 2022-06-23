@@ -949,12 +949,12 @@ void ColPartition::ComputeLimits() {
     median_right_ = bounding_box_.right();
     median_width_ = bounding_box_.width();
   } else {
-    STATS top_stats(bounding_box_.bottom(), bounding_box_.top() + 1);
-    STATS bottom_stats(bounding_box_.bottom(), bounding_box_.top() + 1);
-    STATS height_stats(0, bounding_box_.height() + 1);
-    STATS left_stats(bounding_box_.left(), bounding_box_.right() + 1);
-    STATS right_stats(bounding_box_.left(), bounding_box_.right() + 1);
-    STATS width_stats(0, bounding_box_.width() + 1);
+    STATS top_stats(bounding_box_.bottom(), bounding_box_.top());
+    STATS bottom_stats(bounding_box_.bottom(), bounding_box_.top());
+    STATS height_stats(0, bounding_box_.height());
+    STATS left_stats(bounding_box_.left(), bounding_box_.right());
+    STATS right_stats(bounding_box_.left(), bounding_box_.right());
+    STATS width_stats(0, bounding_box_.width());
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       bbox = it.data();
       if (non_leader_count == 0 || bbox->flow() != BTFT_LEADER) {
@@ -1001,7 +1001,7 @@ void ColPartition::ComputeLimits() {
   }
   if (TabFind::WithinTestRegion(2, bounding_box_.left(),
                                 bounding_box_.bottom())) {
-    tprintf("Recomputed box for partition %p\n", this);
+    tprintf("Recomputed box for partition %p\n", static_cast<void *>(this));
     Print();
   }
 }
@@ -1132,8 +1132,8 @@ bool ColPartition::MarkAsLeaderIfMonospaced() {
   bool result = false;
   // Gather statistics on the gaps between blobs and the widths of the blobs.
   int part_width = bounding_box_.width();
-  STATS gap_stats(0, part_width);
-  STATS width_stats(0, part_width);
+  STATS gap_stats(0, part_width - 1);
+  STATS width_stats(0, part_width - 1);
   BLOBNBOX_C_IT it(&boxes_);
   BLOBNBOX *prev_blob = it.data();
   prev_blob->set_flow(BTFT_NEIGHBOURS);
@@ -1378,7 +1378,7 @@ bool ColPartition::HasGoodBaseline() {
   } else {
     // Horizontal lines use the bottom as the baseline.
     TBOX box(it.data()->bounding_box());
-    // Use the bottom-left of the first box, the the bottom-right of the last,
+    // Use the bottom-left of the first box, the bottom-right of the last,
     // and the middle of all others.
     ICOORD first_pt(box.left(), box.bottom());
     linepoints.Add(first_pt);
@@ -1489,7 +1489,7 @@ void ColPartition::LineSpacingBlocks(const ICOORD &bleft, const ICOORD &tright,
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     ColPartition *part = it.data();
     ASSERT_HOST(!part->boxes()->empty());
-    STATS side_steps(0, part->bounding_box().height());
+    STATS side_steps(0, part->bounding_box().height() - 1);
     if (part->bounding_box().height() > max_line_height) {
       max_line_height = part->bounding_box().height();
     }
@@ -1623,10 +1623,10 @@ static TO_BLOCK *MoveBlobsToBlock(bool vertical_text, int line_spacing,
                                   ColPartition_LIST *used_parts) {
   // Make a matching TO_BLOCK and put all the BLOBNBOXes from the parts in it.
   // Move all the parts to a done list as they are no longer needed, except
-  // that have have to continue to exist until the part grid is deleted.
+  // that have to continue to exist until the part grid is deleted.
   // Compute the median blob size as we go, as the block needs to know.
   TBOX block_box(block->pdblk.bounding_box());
-  STATS sizes(0, std::max(block_box.width(), block_box.height()));
+  STATS sizes(0, std::max(block_box.width(), block_box.height()) - 1);
   bool text_type = block->pdblk.poly_block()->IsText();
   ColPartition_IT it(block_parts);
   auto *to_block = new TO_BLOCK(block);
@@ -1780,7 +1780,7 @@ TO_BLOCK *ColPartition::MakeVerticalTextBlock(const ICOORD &bleft,
 }
 
 // Makes a TO_ROW matching this and moves all the blobs to it, transferring
-// ownership to to returned TO_ROW.
+// ownership to returned TO_ROW.
 TO_ROW *ColPartition::MakeToRow() {
   BLOBNBOX_C_IT blob_it(&boxes_);
   TO_ROW *row = nullptr;
@@ -1884,8 +1884,8 @@ void ColPartition::PrintColors() {
 
 // Sets the types of all partitions in the run to be the max of the types.
 void ColPartition::SmoothPartnerRun(int working_set_count) {
-  STATS left_stats(0, working_set_count);
-  STATS right_stats(0, working_set_count);
+  STATS left_stats(0, working_set_count - 1);
+  STATS right_stats(0, working_set_count - 1);
   PolyBlockType max_type = type_;
   ColPartition *partner;
   for (partner = SingletonPartner(false); partner != nullptr;
@@ -2250,7 +2250,7 @@ bool ColPartition::ThisPartitionBetter(BLOBNBOX *bbox,
 // The iterator is passed by value so the iteration does not modify the
 // caller's iterator.
 static int MedianSpacing(int page_height, ColPartition_IT it) {
-  STATS stats(0, page_height);
+  STATS stats(0, page_height - 1);
   while (!it.cycled_list()) {
     ColPartition *part = it.data();
     it.forward();

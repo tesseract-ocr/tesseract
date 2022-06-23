@@ -708,7 +708,8 @@ bool ColumnFinder::AssignColumns(const PartSetVector &part_sets) {
       } else {
         column_set_costs[part_i][col_i] = INT32_MAX;
         if (debug) {
-          tprintf("Set id %d did not match at y=%d, lineset =%p\n", col_i, part_i, line_set);
+          tprintf("Set id %d did not match at y=%d, lineset =%p\n",
+                  col_i, part_i, static_cast<void *>(line_set));
         }
       }
     }
@@ -807,7 +808,7 @@ bool ColumnFinder::BiggestUnassignedRange(int set_count, const bool *any_columns
 int ColumnFinder::RangeModalColumnSet(int **column_set_costs, const int *assigned_costs, int start,
                                       int end) {
   int column_count = column_sets_.size();
-  STATS column_stats(0, column_count);
+  STATS column_stats(0, column_count - 1);
   for (int part_i = start; part_i < end; ++part_i) {
     for (int col_j = 0; col_j < column_count; ++col_j) {
       if (column_set_costs[part_i][col_j] < assigned_costs[part_i]) {
@@ -1576,8 +1577,8 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *block
     FCOORD blob_rotation = ComputeBlockAndClassifyRotation(block);
     // Rotate all the blobs if needed and recompute the bounding boxes.
     // Compute the block median blob width and height as we go.
-    STATS widths(0, block->pdblk.bounding_box().width());
-    STATS heights(0, block->pdblk.bounding_box().height());
+    STATS widths(0, block->pdblk.bounding_box().width() - 1);
+    STATS heights(0, block->pdblk.bounding_box().height() - 1);
     RotateAndExplodeBlobList(blob_rotation, &to_block->blobs, &widths, &heights);
     TO_ROW_IT row_it(to_block->get_rows());
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {

@@ -821,7 +821,8 @@ static const char *kernel_src = KERNEL(
 \n #define CHAR_VEC_WIDTH 4 \n
 \n #define PIXELS_PER_WORD 32 \n
 \n #define PIXELS_PER_BURST 8 \n
-\n #define BURSTS_PER_WORD(PIXELS_PER_WORD / PIXELS_PER_BURST) \n typedef union {
+\n #define BURSTS_PER_WORD (PIXELS_PER_WORD)/(PIXELS_PER_BURST) \n
+\n typedef union {
         uchar s[PIXELS_PER_BURST * NUM_CHANNELS];
         uchar4 v[(PIXELS_PER_BURST * NUM_CHANNELS) / CHAR_VEC_WIDTH];
     } charVec;
@@ -869,7 +870,8 @@ static const char *kernel_src = KERNEL(
 \n #define CHAR_VEC_WIDTH 8 \n
 \n #define PIXELS_PER_WORD 32 \n
 \n #define PIXELS_PER_BURST 8 \n
-\n #define BURSTS_PER_WORD(PIXELS_PER_WORD / PIXELS_PER_BURST) \n typedef union {
+\n #define BURSTS_PER_WORD (PIXELS_PER_WORD) / (PIXELS_PER_BURST) \n
+\n typedef union {
             uchar s[PIXELS_PER_BURST * 1];
             uchar8 v[(PIXELS_PER_BURST * 1) / CHAR_VEC_WIDTH];
         } charVec1;

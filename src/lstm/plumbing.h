@@ -25,7 +25,7 @@
 namespace tesseract {
 
 // Holds a collection of other networks and forwards calls to each of them.
-class Plumbing : public Network {
+class TESS_API Plumbing : public Network {
 public:
   // ni_ and no_ will be set by AddToStack.
   explicit Plumbing(const std::string &name);
@@ -103,10 +103,8 @@ public:
     return stack_;
   }
   // Returns a set of strings representing the layer-ids of all layers below.
-  TESS_API
   void EnumerateLayers(const std::string *prefix, std::vector<std::string> &layers) const;
   // Returns a pointer to the network layer corresponding to the given id.
-  TESS_API
   Network *GetLayer(const char *id) const;
   // Returns the learning rate for a specific layer of the stack.
   float LayerLearningRate(const char *id) {
@@ -129,7 +127,6 @@ public:
   }
 
   // Returns a pointer to the learning rate for the given layer id.
-  TESS_API
   float *LayerLearningRatePtr(const char *id);
 
   // Writes to the given file. Returns false in case of error.

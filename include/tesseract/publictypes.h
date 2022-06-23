@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        publictypes.h
 // Description: Types used in both the API and internally
 // Author:      Ray Smith
@@ -13,8 +13,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef TESSERACT_CCSTRUCT_PUBLICTYPES_H_
 #define TESSERACT_CCSTRUCT_PUBLICTYPES_H_

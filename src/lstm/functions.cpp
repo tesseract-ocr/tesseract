@@ -1,4 +1,4 @@
-// Generated code with lookup tables
+// Generated code with lookup tables (see generate_lut.py)
 #include "functions.h"
 namespace tesseract {
 const TFloat TanhTable[] = {

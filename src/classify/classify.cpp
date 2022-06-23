@@ -101,7 +101,6 @@ Classify::Classify()
                     "its expected textline position",
                     this->params())
     , double_MEMBER(rating_scale, 1.5, "Rating scaling factor", this->params())
-    , double_MEMBER(certainty_scale, 20.0, "Certainty scaling factor", this->params())
     , double_MEMBER(tessedit_class_miss_scale, 0.00390625, "Scale factor for features not used",
                     this->params())
     , double_MEMBER(classify_adapted_pruning_factor, 2.5,

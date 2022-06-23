@@ -185,7 +185,7 @@ int32_t row_words(    // compute space size
   TBOX blob_box; // bounding box
                  // iterator
   BLOBNBOX_IT blob_it = row->blob_list();
-  STATS gap_stats(0, maxwidth);
+  STATS gap_stats(0, maxwidth - 1);
   STATS cluster_stats[4]; // clusters
 
   testpt = ICOORD(textord_test_x, textord_test_y);
@@ -341,7 +341,7 @@ int32_t row_words2(   // compute space size
   TBOX blob_box; // bounding box
                  // iterator
   BLOBNBOX_IT blob_it = row->blob_list();
-  STATS gap_stats(0, maxwidth);
+  STATS gap_stats(0, maxwidth - 1);
   // gap sizes
   float gaps[BLOCK_STATS_CLUSTERS];
   STATS cluster_stats[BLOCK_STATS_CLUSTERS + 1];

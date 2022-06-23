@@ -2015,7 +2015,7 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
 void Tesseract::font_recognition_pass(PAGE_RES *page_res) {
   PAGE_RES_IT page_res_it(page_res);
   WERD_RES *word;                       // current word
-  STATS doc_fonts(0, font_table_size_); // font counters
+  STATS doc_fonts(0, font_table_size_ - 1); // font counters
 
   // Gather font id statistics.
   for (page_res_it.restart_page(); page_res_it.word() != nullptr; page_res_it.forward()) {

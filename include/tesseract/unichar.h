@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
 // File:        unichar.h
 // Description: Unicode character/ligature class.
 // Author:      Ray Smith
@@ -13,8 +13,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-///////////////////////////////////////////////////////////////////////
 
 #ifndef TESSERACT_CCUTIL_UNICHAR_H_
 #define TESSERACT_CCUTIL_UNICHAR_H_
@@ -99,10 +97,10 @@ public:
   //   for (UNICHAR::const_iterator it = UNICHAR::begin(str, str_len);
   //        it != UNICHAR::end(str, len);
   //        ++it) {
-  //     tprintf("UCS-4 symbol code = %d\n", *it);
+  //     printf("UCS-4 symbol code = %d\n", *it);
   //     char buf[5];
   //     int char_len = it.get_utf8(buf); buf[char_len] = '\0';
-  //     tprintf("Char = %s\n", buf);
+  //     printf("Char = %s\n", buf);
   //   }
   class TESS_API const_iterator {
     using CI = const_iterator;

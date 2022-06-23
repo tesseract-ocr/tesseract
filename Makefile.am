@@ -107,7 +107,7 @@ libtesseract_la_LDFLAGS += $(libarchive_LIBS)
 libtesseract_la_LDFLAGS += $(libcurl_LIBS)
 libtesseract_la_LDFLAGS += $(TENSORFLOW_LIBS)
 if T_WIN
-libtesseract_la_LDFLAGS += -no-undefined -Wl,--as-needed -lws2_32
+libtesseract_la_LDFLAGS += -no-undefined -lws2_32
 else
 libtesseract_la_LDFLAGS += $(NOUNDEFINED)
 endif
@@ -158,6 +158,14 @@ libtesseract_avx2_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 libtesseract_avx2_la_SOURCES = src/arch/intsimdmatrixavx2.cpp
 libtesseract_la_LIBADD += libtesseract_avx2.la
 noinst_LTLIBRARIES += libtesseract_avx2.la
+endif
+
+if HAVE_AVX512F
+libtesseract_avx512_la_CXXFLAGS = -mavx512f
+libtesseract_avx512_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_avx512_la_SOURCES = src/arch/dotproductavx512.cpp
+libtesseract_la_LIBADD += libtesseract_avx512.la
+noinst_LTLIBRARIES += libtesseract_avx512.la
 endif
 
 if HAVE_FMA
@@ -379,7 +387,6 @@ libtesseract_ccutil_la_SOURCES += src/ccutil/clst.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/elst2.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/elst.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/errcode.cpp
-libtesseract_ccutil_la_SOURCES += src/ccutil/mainblk.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/serialis.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/scanutils.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/tessdatamanager.cpp

@@ -333,7 +333,7 @@ protected:
 
   // Finds the edge with the given direction, word_end and unichar_id
   // in the node indicated by node_ref. Fills in the pointer to the
-  // EDGE_RECORD and the index of the edge with the the values
+  // EDGE_RECORD and the index of the edge with the values
   // corresponding to the edge found. Returns true if an edge was found.
   bool edge_char_of(NODE_REF node_ref, NODE_REF next_node, int direction, bool word_end,
                     UNICHAR_ID unichar_id, EDGE_RECORD **edge_ptr, EDGE_INDEX *edge_index) const;

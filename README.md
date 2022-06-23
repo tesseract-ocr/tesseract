@@ -1,8 +1,7 @@
 # Tesseract OCR
 
-[![Build Status](https://travis-ci.org/tesseract-ocr/tesseract.svg?branch=master)](https://travis-ci.org/tesseract-ocr/tesseract)
 [![Build status](https://ci.appveyor.com/api/projects/status/miah0ikfsf0j3819/branch/master?svg=true)](https://ci.appveyor.com/project/zdenop/tesseract/)
-![Build status](https://github.com/tesseract-ocr/tesseract/workflows/sw/badge.svg)<br>
+[![Build status](https://github.com/tesseract-ocr/tesseract/workflows/sw/badge.svg)](https://github.com/tesseract-ocr/tesseract/actions/workflows/sw.yml)<br>
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/tesseract-ocr/badge.svg)](https://scan.coverity.com/projects/tesseract-ocr)
 [![Code Quality: Cpp](https://img.shields.io/lgtm/grade/cpp/g/tesseract-ocr/tesseract.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesseract-ocr/tesseract/context:cpp)
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/tesseract-ocr/tesseract.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesseract-ocr/tesseract/alerts)
@@ -34,7 +33,7 @@ on line recognition, but also still supports the legacy Tesseract OCR engine of
 Tesseract 3 which works by recognizing character patterns. Compatibility with
 Tesseract 3 is enabled by using the Legacy OCR Engine mode (--oem 0).
 It also needs [traineddata](https://tesseract-ocr.github.io/tessdoc/Data-Files.html) files which support the legacy engine, for example
-those from the tessdata repository.
+those from the [tessdata](https://github.com/tesseract-ocr/tessdata) repository.
 
 The lead developer is Ray Smith. The maintainer is Zdenko Podobny.
 For a list of contributors see [AUTHORS](https://github.com/tesseract-ocr/tesseract/blob/main/AUTHORS)
@@ -42,7 +41,9 @@ and GitHub's log of [contributors](https://github.com/tesseract-ocr/tesseract/gr
 
 Tesseract has **unicode (UTF-8) support**, and can **recognize more than 100 languages** "out of the box".
 
-Tesseract supports **various output formats**: plain text, hOCR (HTML), PDF, invisible-text-only PDF, TSV. The main branch also has experimental support for ALTO (XML) output.
+Tesseract supports **[various image formats](https://tesseract-ocr.github.io/tessdoc/InputFormats)** including PNG, JPEG and TIFF.
+
+Tesseract supports **various output formats**: plain text, hOCR (HTML), PDF, invisible-text-only PDF, TSV and ALTO (the last one - since version 4.1.0).
 
 You should note that in many cases, in order to get better OCR results,
 you'll need to **[improve the quality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html) of the image** you are giving Tesseract.
@@ -60,7 +61,11 @@ at Hewlett-Packard Co, Greeley Colorado between 1985 and 1994, with some
 more changes made in 1996 to port to Windows, and some C++izing in 1998.
 In 2005 Tesseract was open sourced by HP. From 2006 until November 2018 it was developed by Google.
 
-The latest stable version is **[5.0.0](https://github.com/tesseract-ocr/tesseract/releases/tag/5.0.0)**, released on November 30, 2021.
+Major version 5 is the current stable version and started with release
+[5.0.0](https://github.com/tesseract-ocr/tesseract/releases/tag/5.0.0) on November 30, 2021.
+Newer minor versions and bugfix versions are available from
+[GitHub](https://github.com/tesseract-ocr/tesseract/releases/).
+
 Latest source code is available from [main branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/main).
 Open issues can be found in [issue tracker](https://github.com/tesseract-ocr/tesseract/issues),
 and [planning documentation](https://tesseract-ocr.github.io/tessdoc/Planning.html).

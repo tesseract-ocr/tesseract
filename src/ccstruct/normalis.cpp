@@ -180,7 +180,7 @@ static void ComputeRunlengthImage(const TBOX &box,
       ++y;
     }
   }
-  // Now set the image pixels the the MIN of the x and y runlengths.
+  // Now set the image pixels the MIN of the x and y runlengths.
   for (int iy = 0; iy < height; ++iy) {
     int x = 0;
     for (auto x_coord : x_coords[iy]) {

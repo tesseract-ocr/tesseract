@@ -30,23 +30,20 @@ namespace tesseract {
 class TESS_API STATS {
 public:
   // The histogram buckets are in the range
-  // [min_bucket_value, max_bucket_value_plus_1 - 1] i.e.
   // [min_bucket_value, max_bucket_value].
   // Any data under min_bucket value is silently mapped to min_bucket_value,
   // and likewise, any data over max_bucket_value is silently mapped to
   // max_bucket_value.
   // In the internal array, min_bucket_value maps to 0 and
-  // max_bucket_value_plus_1 - min_bucket_value to the array size.
-  // TODO(rays) This is ugly. Convert the second argument to
-  // max_bucket_value and all the code that uses it.
-  STATS(int32_t min_bucket_value, int32_t max_bucket_value_plus_1);
+  // 1 + max_bucket_value - min_bucket_value to the array size.
+  STATS(int32_t min_bucket_value, int32_t max_bucket_value);
   STATS() = default; // empty for arrays
 
   ~STATS();
 
   // (Re)Sets the range and clears the counts.
   // See the constructor for info on max and min values.
-  bool set_range(int32_t min_bucket_value, int32_t max_bucket_value_plus_1);
+  bool set_range(int32_t min_bucket_value, int32_t max_bucket_value);
 
   void clear(); // empty buckets
 
@@ -73,11 +70,14 @@ public:
   double median() const; // get median of samples
   // Returns the count of the given value.
   int32_t pile_count(int32_t value) const {
+    if (buckets_ == nullptr) {
+      return 0;
+    }
     if (value <= rangemin_) {
       return buckets_[0];
     }
-    if (value >= rangemax_ - 1) {
-      return buckets_[rangemax_ - rangemin_ - 1];
+    if (value >= rangemax_) {
+      return buckets_[rangemax_ - rangemin_];
     }
     return buckets_[value - rangemin_];
   }
@@ -139,7 +139,6 @@ public:
 
 private:
   int32_t rangemin_ = 0; // min of range
-  // rangemax_ is not well named as it is really one past the max.
   int32_t rangemax_ = 0;       // max of range
   int32_t total_count_ = 0;    // no of samples
   int32_t *buckets_ = nullptr; // array of cells

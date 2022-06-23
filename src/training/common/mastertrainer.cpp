@@ -450,7 +450,7 @@ bool MasterTrainer::LoadXHeights(const char *filename) {
     return false;
   }
   int mean_xheight = DivRounded(total_xheight, xheight_count);
-  for (int i = 0; i < fontinfo_table_.size(); ++i) {
+  for (size_t i = 0; i < fontinfo_table_.size(); ++i) {
     if (xheights_[i] < 0) {
       xheights_[i] = mean_xheight;
     }
@@ -535,7 +535,7 @@ int MasterTrainer::GetFontInfoId(const char *font_name) {
 int MasterTrainer::GetBestMatchingFontInfoId(const char *filename) {
   int fontinfo_id = -1;
   int best_len = 0;
-  for (int f = 0; f < fontinfo_table_.size(); ++f) {
+  for (size_t f = 0; f < fontinfo_table_.size(); ++f) {
     if (strstr(filename, fontinfo_table_.at(f).name) != nullptr) {
       int len = strlen(fontinfo_table_.at(f).name);
       // Use the longest matching length in case a substring of a font matched.
@@ -646,7 +646,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   std::vector<uint16_t> shapetable_cutoffs;
   std::vector<uint16_t> unichar_cutoffs(unicharset.size());
   /* then write out each class */
-  for (int i = 0; i < int_templates->NumClasses; ++i) {
+  for (unsigned i = 0; i < int_templates->NumClasses; ++i) {
     INT_CLASS_STRUCT *Class = ClassForClassId(int_templates, i);
     // Todo: Test with min instead of max
     // int MaxLength = LengthForConfigId(Class, 0);
@@ -674,7 +674,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
     tprintf("Error, failed to open file \"%s\"\n", pffmtable_file);
   } else {
     tesseract::Serialize(fp, shapetable_cutoffs);
-    for (int c = 0; c < unicharset.size(); ++c) {
+    for (size_t c = 0; c < unicharset.size(); ++c) {
       const char *unichar = unicharset.id_to_unichar(c);
       if (strcmp(unichar, " ") == 0) {
         unichar = "NULL";

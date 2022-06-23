@@ -254,7 +254,7 @@ bool LanguageModel::UpdateState(bool just_classified, int curr_col, int curr_row
     tprintf("\nUpdateState: col=%d row=%d %s", curr_col, curr_row,
             just_classified ? "just_classified" : "");
     if (language_model_debug_level > 5) {
-      tprintf("(parent=%p)\n", parent_node);
+      tprintf("(parent=%p)\n", static_cast<void *>(parent_node));
     } else {
       tprintf("\n");
     }
@@ -588,7 +588,7 @@ bool LanguageModel::AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags
         dict_->getUnicharset().id_to_unichar(b->unichar_id()), b->rating(), b->certainty(),
         top_choice_flags);
     if (language_model_debug_level > 5) {
-      tprintf(" parent_vse=%p\n", parent_vse);
+      tprintf(" parent_vse=%p\n", static_cast<void *>(parent_vse));
     } else {
       tprintf("\n");
     }

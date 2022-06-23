@@ -93,13 +93,6 @@ inline void chomp_string(char *str) {
   }
 }
 
-// Advance the current pointer of the file if it points to a newline character.
-inline void SkipNewline(FILE *file) {
-  if (fgetc(file) != '\n') {
-    fseek(file, -1, SEEK_CUR);
-  }
-}
-
 // return the smallest multiple of block_size greater than or equal to n.
 inline int RoundUp(int n, int block_size) {
   return block_size * ((n + block_size - 1) / block_size);
@@ -197,19 +190,9 @@ inline void ReverseN(void *ptr, int num_bytes) {
   }
 }
 
-// Reverse the order of bytes in a 16 bit quantity for big/little-endian switch.
-inline void Reverse16(void *ptr) {
-  ReverseN(ptr, 2);
-}
-
 // Reverse the order of bytes in a 32 bit quantity for big/little-endian switch.
 inline void Reverse32(void *ptr) {
   ReverseN(ptr, 4);
-}
-
-// Reverse the order of bytes in a 64 bit quantity for big/little-endian switch.
-inline void Reverse64(void *ptr) {
-  ReverseN(ptr, 8);
 }
 
 // Reads a vector of simple types from the given file. Assumes that bitwise

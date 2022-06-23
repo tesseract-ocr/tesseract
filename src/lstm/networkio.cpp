@@ -127,7 +127,7 @@ void NetworkIO::ZeroInvalidElements() {
 static void ComputeBlackWhite(Image pix, float *black, float *white) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
-  STATS mins(0, 256), maxes(0, 256);
+  STATS mins(0, 255), maxes(0, 255);
   if (width >= 3) {
     int y = height / 2;
     l_uint32 *line = pixGetData(pix) + pixGetWpl(pix) * y;
@@ -409,15 +409,6 @@ void NetworkIO::CopyTimeStepGeneral(int dest_t, int dest_offset, int num_feature
     memcpy(i_[dest_t] + dest_offset, src.i_[src_t] + src_offset, num_features * sizeof(i_[0][0]));
   } else {
     memcpy(f_[dest_t] + dest_offset, src.f_[src_t] + src_offset, num_features * sizeof(f_[0][0]));
-  }
-}
-
-// Zeroes a single time step.
-void NetworkIO::ZeroTimeStepGeneral(int t, int offset, int num_features) {
-  if (int_mode_) {
-    ZeroVector(num_features, i_[t] + offset);
-  } else {
-    ZeroVector(num_features, f_[t] + offset);
   }
 }
 

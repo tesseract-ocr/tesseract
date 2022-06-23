@@ -614,7 +614,6 @@ public:
     if (INVALID_UNICHAR_ID == unichar_id) {
       *width = 0.0f;
       *width_sd = 0.0f;
-      ;
       return;
     }
     ASSERT_HOST(contains_unichar_id(unichar_id));

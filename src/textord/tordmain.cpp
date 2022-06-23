@@ -80,7 +80,7 @@ void SetBlobStrokeWidth(Image pix, BLOBNBOX *blob) {
   uint32_t *data = pixGetData(dist_pix);
   int wpl = pixGetWpl(dist_pix);
   // Horizontal width of stroke.
-  STATS h_stats(0, width + 1);
+  STATS h_stats(0, width);
   for (int y = 0; y < height; ++y) {
     uint32_t *pixels = data + y * wpl;
     int prev_pixel = 0;
@@ -104,7 +104,7 @@ void SetBlobStrokeWidth(Image pix, BLOBNBOX *blob) {
     }
   }
   // Vertical width of stroke.
-  STATS v_stats(0, height + 1);
+  STATS v_stats(0, height);
   for (int x = 0; x < width; ++x) {
     int prev_pixel = 0;
     int pixel = GET_DATA_BYTE(data, x);
@@ -300,7 +300,7 @@ float Textord::filter_noise_blobs(BLOBNBOX_LIST *src_list,     // original list
   BLOBNBOX_IT noise_it = noise_list;
   BLOBNBOX_IT small_it = small_list;
   BLOBNBOX_IT large_it = large_list;
-  STATS size_stats(0, MAX_NEAREST_DIST);
+  STATS size_stats(0, MAX_NEAREST_DIST - 1);
   // blob heights
   float min_y; // size limits
   float max_y;

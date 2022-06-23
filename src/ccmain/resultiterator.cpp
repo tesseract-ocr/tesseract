@@ -616,7 +616,7 @@ bool ResultIterator::IsAtFinalElement(PageIteratorLevel level, PageIteratorLevel
     return true; // Already at the end!
   }
   // The result is true if we step forward by element and find we are
-  // at the the end of the page or at beginning of *all* levels in:
+  // at the end of the page or at beginning of *all* levels in:
   // [level, element).
   // When there is more than one level difference between element and level,
   // we could for instance move forward one symbol and still be at the first
@@ -731,10 +731,12 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(std::string *text) {
     std::vector<int> textline_order;
     std::vector<StrongScriptDirection> dirs;
     CalculateTextlineOrder(current_paragraph_is_ltr_, *this, &dirs, &textline_order);
-    tprintf("Strong Script dirs     [%p/P=%s]: ", it_->row(),
+    tprintf("Strong Script dirs     [%p/P=%s]: ",
+            static_cast<void *>(it_->row()),
             current_paragraph_is_ltr_ ? "ltr" : "rtl");
     PrintScriptDirs(dirs);
-    tprintf("Logical textline order [%p/P=%s]: ", it_->row(),
+    tprintf("Logical textline order [%p/P=%s]: ",
+            static_cast<void *>(it_->row()),
             current_paragraph_is_ltr_ ? "ltr" : "rtl");
     for (int i : textline_order) {
       tprintf("%d ", i);

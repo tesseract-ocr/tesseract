@@ -525,7 +525,7 @@ static void HistogramWeight(TFloat weight, STATS *histogram) {
 }
 
 void WeightMatrix::Debug2D(const char *msg) {
-  STATS histogram(0, kHistogramBuckets);
+  STATS histogram(0, kHistogramBuckets - 1);
   if (int_mode_) {
     for (int i = 0; i < wi_.dim1(); ++i) {
       for (int j = 0; j < wi_.dim2(); ++j) {

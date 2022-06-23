@@ -87,7 +87,7 @@ public:
   // 6. Destruction. Use of a single column finder for multiple images does not
   //    make sense.
   // Throughout these steps, the ColPartitions are owned by part_grid_, which
-  // means that that it must be kept correct. Exception: big_parts_ owns its
+  // means that it must be kept correct. Exception: big_parts_ owns its
   // own ColPartitions.
   // The BLOBNBOXes are owned by the input TO_BLOCK for the whole time, except
   // for a phase in FindBlocks before TransformToBlocks, when they become

@@ -166,9 +166,9 @@ void find_underlined_blobs(    // get chop points
   TBOX blob_box = u_line->bounding_box();
   // cell iterator
   ICOORDELT_IT cell_it = chop_cells;
-  STATS upper_proj(blob_box.left(), blob_box.right() + 1);
-  STATS middle_proj(blob_box.left(), blob_box.right() + 1);
-  STATS lower_proj(blob_box.left(), blob_box.right() + 1);
+  STATS upper_proj(blob_box.left(), blob_box.right());
+  STATS middle_proj(blob_box.left(), blob_box.right());
+  STATS lower_proj(blob_box.left(), blob_box.right());
   C_OUTLINE_IT out_it; // outlines of blob
 
   ASSERT_HOST(u_line->cblob() != nullptr);

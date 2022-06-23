@@ -166,7 +166,7 @@ Image DegradeImage(Image input, int exposure, TRand *randomizer, float *rotation
       }
       SET_DATA_BYTE(data, x, pixel);
     }
-    data += input->wpl;
+    data += pixGetWpl(input);
   }
   return input;
 }

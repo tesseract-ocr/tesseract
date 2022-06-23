@@ -714,9 +714,9 @@ void TableFinder::SetVerticalSpacing(ColPartition *part) {
 
 // Set global spacing and x-height estimates
 void TableFinder::SetGlobalSpacings(ColPartitionGrid *grid) {
-  STATS xheight_stats(0, kMaxVerticalSpacing + 1);
-  STATS width_stats(0, kMaxBlobWidth + 1);
-  STATS ledding_stats(0, kMaxVerticalSpacing + 1);
+  STATS xheight_stats(0, kMaxVerticalSpacing);
+  STATS width_stats(0, kMaxBlobWidth);
+  STATS ledding_stats(0, kMaxVerticalSpacing);
   // Iterate the ColPartitions in the grid.
   ColPartitionGridSearch gsearch(grid);
   gsearch.SetUniqueMode(true);
