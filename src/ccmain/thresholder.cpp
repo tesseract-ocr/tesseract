@@ -170,16 +170,7 @@ void ImageThresholder::SetImage(const Image pix) {
   // Convert the image as necessary so it is one of binary, plain RGB, or
   // 8 bit with no colormap. Guarantee that we always end up with our own copy,
   // not just a clone of the input.
-  if (pixGetColormap(src)) {
-    Image tmp = pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC);
-    depth = pixGetDepth(tmp);
-    if (depth > 1 && depth < 8) {
-      pix_ = pixConvertTo8(tmp, false);
-      tmp.destroy();
-    } else {
-      pix_ = tmp;
-    }
-  } else if (depth > 1 && depth < 8) {
+  if (depth > 1 && depth < 8) {
     pix_ = pixConvertTo8(src, false);
   } else {
     pix_ = src.copy();
