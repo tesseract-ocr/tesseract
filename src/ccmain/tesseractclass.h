@@ -756,6 +756,7 @@ public:
   BOOL_VAR_H(tessedit_train_line_recognizer);
   BOOL_VAR_H(tessedit_dump_pageseg_images);
   BOOL_VAR_H(tessedit_do_invert);
+  double_VAR_H(invert_threshold);
   INT_VAR_H(tessedit_pageseg_mode);
   INT_VAR_H(thresholding_method);
   BOOL_VAR_H(thresholding_debug);
