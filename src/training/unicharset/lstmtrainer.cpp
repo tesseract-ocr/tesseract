@@ -948,7 +948,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata,
   float image_scale;
   NetworkIO inputs;
   bool invert = trainingdata->boxes().empty();
-  if (!RecognizeLine(*trainingdata, invert, debug, invert, upside_down,
+  if (!RecognizeLine(*trainingdata, invert ? 0.5f : 0.0f, debug, invert, upside_down,
                      &image_scale, &inputs, fwd_outputs)) {
     tprintf("Image %s not trainable\n", trainingdata->imagefilename().c_str());
     return UNENCODABLE;

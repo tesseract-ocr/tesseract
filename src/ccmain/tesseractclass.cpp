@@ -63,8 +63,11 @@ Tesseract::Tesseract()
                   "Break input into lines and remap boxes if present", this->params())
     , BOOL_MEMBER(tessedit_dump_pageseg_images, false,
                   "Dump intermediate images made during page segmentation", this->params())
-    , BOOL_MEMBER(tessedit_do_invert, true, "Try inverting the image in `LSTMRecognizeWord`",
+    , BOOL_MEMBER(tessedit_do_invert, true, "Try inverted line image if necessary",
                   this->params())
+    , double_MEMBER(invert_threshold, 0.7,
+                    "For lines with a mean confidence below this value, OCR is also tried with an inverted image",
+                    this->params())
     ,
     // The default for pageseg_mode is the old behaviour, so as not to
     // upset anything that relies on that.
