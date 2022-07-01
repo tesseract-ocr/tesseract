@@ -1288,10 +1288,10 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
       output_filename += std::to_string(page_index);
     }
     output_filename += ".tif";
-    if (graynorm_mode == 2 ) {
-      pixWrite(output_filename.c_str(), GetInputImage(), IFF_TIFF_G4);
-    } else {
+    if (graynorm_mode == 2) {
       pixWrite(output_filename.c_str(), thresholder_->GetPixRect(), IFF_TIFF_G4);
+    } else {
+      pixWrite(output_filename.c_str(), GetInputImage(), IFF_TIFF_G4);
     }
   }
 
