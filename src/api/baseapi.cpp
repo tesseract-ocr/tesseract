@@ -928,7 +928,7 @@ Pix *TessBaseAPI::GetInputImage() {
 // Grayscale normalization (preprocessing)
 bool TessBaseAPI::NormalizeImage(int mode){
   if (!GetInputImage()){
-    tprintf("Please use SetImage() befor using applying image preprocessing steps.");
+    tprintf("Please use SetImage before applying the image pre-processing steps.");
     return false;
   }
   if (mode == 1) {

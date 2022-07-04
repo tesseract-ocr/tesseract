@@ -280,7 +280,6 @@ Pix *ImageThresholder::pixNLNorm(Pix *pixs, int *pthresh) {
   return pixg;
 }
 
-
 /*----------------------------------------------------------------------*
  *                          Thresholding                                *
  *----------------------------------------------------------------------*/
@@ -478,7 +477,6 @@ Image ImageThresholder::GetPixNormRectGrey() {
   pix.destroy();
   return result;
 }
-
 
 // Otsu thresholds the rectangle, taking the rectangle from *this.
 void ImageThresholder::OtsuThresholdRectToPix(Image src_pix, Image *out_pix) const {
