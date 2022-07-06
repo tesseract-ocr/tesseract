@@ -1,3 +1,22 @@
+2022-07-06 - V5.2.0
+  * Improvements and fixes for continuous integration,
+    autoconf and cmake builds.
+  * Set /Os for some 32 bit MS compilers (fixes #3769).
+  * Improve comments and other documentation.
+  * Add initial support for Intel AVX512F.
+  * Fix for very large PDF files on 32 bit hosts (fixes #3805).
+  * Fix NEON detection on FreeBSD.
+  * Fix regression with UZN files (fixes #3837).
+  * Fix calling delete[] for memory allocated by malloc in C API.
+  * Add an API function to init tesseract with traineddata from memory
+    (fixes #3691).
+  * Replace direct access to Leptonica internal data structures by
+    function calls and support latest releases of Leptonica.
+  * Replace std::regex by std::string functions (fixes issue #3830).
+  * Use compiled-in TESSDATA_PREFIX also on Windows (fixes #3767).
+  * Add new parameter 'invert_threshold', change the default threshold
+    from 0.5 to 0.7 and mark parameter 'tessedit_do_invert' as deprecated.
+
 2022-03-01 - V5.1.0
   * Handle image and line regions in output formats ALTO, hOCR and text.
   * New parameter curl_timeout for curl_easy_setop.
@@ -200,7 +219,7 @@
   * Removed old/dead serialise/deserialze methods on *LISTIZED classes.
   * Total rewrite of DENORM to better encapsulate operation and make
     for potential to extract features from images.
-  * Thread-safety! Moved all critical globals and statics to members of the appropriate class. Tesseract is now thread-safe (multiple instances can be used in parallel in multiple threads.) with the minor exception that some control parameters are still global and affect all threads.
+  * Thread-safety! Moved all critical global and static variables to members of the appropriate class. Tesseract is now thread-safe (multiple instances can be used in parallel in multiple threads.) with the minor exception that some control parameters are still global and affect all threads.
   * Added Cube, a new recognizer for Arabic. Cube can also be used in combination with normal Tesseract for other languages with an improvement in accuracy at the cost of (much) lower speed. *There is no training module for Cube yet.*
   * `OcrEngineMode` in `Init` replaces `AccuracyVSpeed` to control cube.
   * Greatly improved segmentation search with consequent accuracy and speed improvements, especially for Chinese.
