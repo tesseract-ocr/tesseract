@@ -95,6 +95,7 @@ option(USE_SYSTEM_ICU "Use system ICU" OFF)
 option(DISABLE_ARCHIVE "Disable build with libarchive (if available)" OFF)
 option(DISABLE_CURL "Disable build with libcurl (if available)" OFF)
 option(INSTALL_CONFIGS "Install tesseract configs" ON)
+option(DISABLE_OPTIMIZATION "Disable platform-specific optimizations" OFF)
 
 if(NOT ${CMAKE_VERSION} VERSION_LESS "3.15.0")
   if(WIN32 AND MSVC)
@@ -144,7 +145,7 @@ else()
 endif()
 
 check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
-if(COMPILER_SUPPORTS_MARCH_NATIVE)
+if(NOT DISABLE_OPTIMIZATION AND COMPILER_SUPPORTS_MARCH_NATIVE)
   set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -march=native")
   if(NOT CLANG AND MSVC)
     # clang-cl does not know this argument
@@ -155,7 +156,7 @@ endif()
 
 message(STATUS "CMAKE_SYSTEM_PROCESSOR=<${CMAKE_SYSTEM_PROCESSOR}>")
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
+if(NOT DISABLE_OPTIMIZATION AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
 
   set(HAVE_NEON FALSE)
   if(MSVC)
