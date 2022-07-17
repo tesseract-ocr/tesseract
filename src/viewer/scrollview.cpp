@@ -98,7 +98,7 @@ void ScrollView::MessageReceiver() {
   // the events accordingly.
   while (true) {
     // The new event we create.
-    std::unique_ptr<SVEvent> cur(new SVEvent);
+    SVEvent *cur(new SVEvent);
     // The ID of the corresponding window.
     int window_id;
 
@@ -149,7 +149,7 @@ void ScrollView::MessageReceiver() {
       }
 
       // Place two copies of it in the table for the window.
-      cur->window->SetEvent(cur.get());
+      cur->window->SetEvent(cur);
 
       // Check if any of the threads currently waiting want it.
       std::pair<ScrollView *, SVEventType> awaiting_list(cur->window, cur->type);
@@ -158,13 +158,13 @@ void ScrollView::MessageReceiver() {
                                                                     SVET_ANY);
       waiting_for_events_mu->lock();
       if (waiting_for_events.count(awaiting_list) > 0) {
-        waiting_for_events[awaiting_list].second = cur.get();
+        waiting_for_events[awaiting_list].second = cur;
         waiting_for_events[awaiting_list].first->Signal();
       } else if (waiting_for_events.count(awaiting_list_any) > 0) {
-        waiting_for_events[awaiting_list_any].second = cur.get();
+        waiting_for_events[awaiting_list_any].second = cur;
         waiting_for_events[awaiting_list_any].first->Signal();
       } else if (waiting_for_events.count(awaiting_list_any_window) > 0) {
-        waiting_for_events[awaiting_list_any_window].second = cur.get();
+        waiting_for_events[awaiting_list_any_window].second = cur;
         waiting_for_events[awaiting_list_any_window].first->Signal();
       }
       waiting_for_events_mu->unlock();
@@ -836,7 +836,7 @@ char ScrollView::Wait() {
   char ret = '\0';
   SVEventType ev_type = SVET_ANY;
   do {
-    std::unique_ptr<SVEvent> ev(AwaitEvent(SVET_ANY));
+    SVEvent *ev(AwaitEvent(SVET_ANY));
     ev_type = ev->type;
     if (ev_type == SVET_INPUT) {
       ret = ev->parameter[0];
