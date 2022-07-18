@@ -158,13 +158,13 @@ void ScrollView::MessageReceiver() {
                                                                     SVET_ANY);
       waiting_for_events_mu->lock();
       if (waiting_for_events.count(awaiting_list) > 0) {
-        waiting_for_events[awaiting_list].second = cur.get();
+        waiting_for_events[awaiting_list].second = cur.release();
         waiting_for_events[awaiting_list].first->Signal();
       } else if (waiting_for_events.count(awaiting_list_any) > 0) {
-        waiting_for_events[awaiting_list_any].second = cur.get();
+        waiting_for_events[awaiting_list_any].second = cur.release();
         waiting_for_events[awaiting_list_any].first->Signal();
       } else if (waiting_for_events.count(awaiting_list_any_window) > 0) {
-        waiting_for_events[awaiting_list_any_window].second = cur.get();
+        waiting_for_events[awaiting_list_any_window].second = cur.release();
         waiting_for_events[awaiting_list_any_window].first->Signal();
       }
       waiting_for_events_mu->unlock();
