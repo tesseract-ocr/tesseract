@@ -36,6 +36,7 @@
 #include <tesseract/export.h>
 
 #include <cstdio>
+#include <memory>
 #include <mutex>
 
 namespace tesseract {
@@ -186,7 +187,7 @@ public:
   void AddEventHandler(SVEventHandler *listener);
 
   // Block until an event of the given type is received.
-  SVEvent *AwaitEvent(SVEventType type);
+  std::unique_ptr<SVEvent> AwaitEvent(SVEventType type);
 
   /*******************************************************************************
    * Getters and Setters

@@ -56,8 +56,8 @@ struct SVPolyLineBuffer {
 static std::map<int, ScrollView *> svmap;
 static std::mutex *svmap_mu;
 // A map of all semaphores waiting for a specific event on a specific window.
-static std::map<std::pair<ScrollView *, SVEventType>, std::pair<SVSemaphore *, SVEvent *>>
-    waiting_for_events;
+static std::map<std::pair<ScrollView *, SVEventType>,
+                std::pair<SVSemaphore *, std::unique_ptr<SVEvent>>> waiting_for_events;
 static std::mutex *waiting_for_events_mu;
 
 SVEvent *SVEvent::copy() const {
@@ -158,13 +158,13 @@ void ScrollView::MessageReceiver() {
                                                                     SVET_ANY);
       waiting_for_events_mu->lock();
       if (waiting_for_events.count(awaiting_list) > 0) {
-        waiting_for_events[awaiting_list].second = cur.release();
+        waiting_for_events[awaiting_list].second = std::move(cur);
         waiting_for_events[awaiting_list].first->Signal();
       } else if (waiting_for_events.count(awaiting_list_any) > 0) {
-        waiting_for_events[awaiting_list_any].second = cur.release();
+        waiting_for_events[awaiting_list_any].second = std::move(cur);
         waiting_for_events[awaiting_list_any].first->Signal();
       } else if (waiting_for_events.count(awaiting_list_any_window) > 0) {
-        waiting_for_events[awaiting_list_any_window].second = cur.release();
+        waiting_for_events[awaiting_list_any_window].second = std::move(cur);
         waiting_for_events[awaiting_list_any_window].first->Signal();
       }
       waiting_for_events_mu->unlock();
@@ -367,8 +367,7 @@ ScrollView::~ScrollView() {
     // So the event handling thread can quit.
     SendMsg("destroy()");
 
-    SVEvent *sve = AwaitEvent(SVET_DESTROY);
-    delete sve;
+    AwaitEvent(SVET_DESTROY);
     svmap_mu->lock();
     svmap[window_id_] = nullptr;
     svmap_mu->unlock();
@@ -442,19 +441,19 @@ void ScrollView::SetEvent(const SVEvent *svevent) {
 /// Block until an event of the given type is received.
 /// Note: The calling function is responsible for deleting the returned
 /// SVEvent afterwards!
-SVEvent *ScrollView::AwaitEvent(SVEventType type) {
+std::unique_ptr<SVEvent> ScrollView::AwaitEvent(SVEventType type) {
   // Initialize the waiting semaphore.
   auto *sem = new SVSemaphore();
   std::pair<ScrollView *, SVEventType> ea(this, type);
   waiting_for_events_mu->lock();
-  waiting_for_events[ea] = std::pair<SVSemaphore *, SVEvent *>(sem, (SVEvent *)nullptr);
+  waiting_for_events[ea] = {sem, nullptr};
   waiting_for_events_mu->unlock();
   // Wait on it, but first flush.
   stream_->Flush();
   sem->Wait();
   // Process the event we got woken up for (its in waiting_for_events pair).
   waiting_for_events_mu->lock();
-  SVEvent *ret = waiting_for_events[ea].second;
+  auto ret = std::move(waiting_for_events[ea].second);
   waiting_for_events.erase(ea);
   delete sem;
   waiting_for_events_mu->unlock();
@@ -734,23 +733,19 @@ void ScrollView::Brush(Color color) {
 // Shows a modal Input Dialog which can return any kind of String
 char *ScrollView::ShowInputDialog(const char *msg) {
   SendMsg("showInputDialog(\"%s\")", msg);
-  SVEvent *ev;
   // wait till an input event (all others are thrown away)
-  ev = AwaitEvent(SVET_INPUT);
+  auto ev = AwaitEvent(SVET_INPUT);
   char *p = new char[strlen(ev->parameter) + 1];
   strcpy(p, ev->parameter);
-  delete ev;
   return p;
 }
 
 // Shows a modal Yes/No Dialog which will return 'y' or 'n'
 int ScrollView::ShowYesNoDialog(const char *msg) {
   SendMsg("showYesNoDialog(\"%s\")", msg);
-  SVEvent *ev;
   // Wait till an input event (all others are thrown away)
-  ev = AwaitEvent(SVET_INPUT);
+  auto ev = AwaitEvent(SVET_INPUT);
   int a = ev->parameter[0];
-  delete ev;
   return a;
 }
 
