@@ -1163,12 +1163,11 @@ void FillPPLinearBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR], 
 CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool *adaptive_on, bool *pretrained_on,
                                    int *shape_id) {
   tprintf("%s\n", Prompt);
-  SVEvent *ev;
   SVEventType ev_type;
   int unichar_id = INVALID_UNICHAR_ID;
   // Wait until a click or popup event.
   do {
-    ev = IntMatchWindow->AwaitEvent(SVET_ANY);
+    auto ev = IntMatchWindow->AwaitEvent(SVET_ANY);
     ev_type = ev->type;
     if (ev_type == SVET_POPUP) {
       if (ev->command_id == IDA_SHAPE_INDEX) {
@@ -1214,7 +1213,6 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool *adaptive_on, bool *
         }
       }
     }
-    delete ev;
   } while (ev_type != SVET_CLICK);
   return 0;
 } /* GetClassToDebug */

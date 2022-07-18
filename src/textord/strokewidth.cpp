@@ -123,7 +123,7 @@ StrokeWidth::StrokeWidth(int gridsize, const ICOORD &bleft, const ICOORD &tright
 StrokeWidth::~StrokeWidth() {
 #ifndef GRAPHICS_DISABLED
   if (widths_win_ != nullptr) {
-    delete widths_win_->AwaitEvent(SVET_DESTROY);
+    widths_win_->AwaitEvent(SVET_DESTROY);
     if (textord_tabfind_only_strokewidths) {
       exit(0);
     }

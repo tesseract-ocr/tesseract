@@ -440,7 +440,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Image scaled_color, int s
           DisplayTabVectors(window);
         }
         if (window != nullptr && textord_tabfind_show_partitions > 1) {
-          delete window->AwaitEvent(SVET_DESTROY);
+          window->AwaitEvent(SVET_DESTROY);
         }
       }
     }
@@ -476,7 +476,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Image scaled_color, int s
     bool waiting = false;
     do {
       waiting = false;
-      SVEvent *event = blocks_win_->AwaitEvent(SVET_ANY);
+      auto event = blocks_win_->AwaitEvent(SVET_ANY);
       if (event->type == SVET_INPUT && event->parameter != nullptr) {
         if (*event->parameter == 'd') {
           result = -1;
@@ -488,7 +488,6 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Image scaled_color, int s
       } else {
         waiting = true;
       }
-      delete event;
     } while (waiting);
   }
 #endif // !GRAPHICS_DISABLED

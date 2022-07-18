@@ -891,7 +891,7 @@ Trainability LSTMTrainer::TrainOnLine(const ImageData *trainingdata,
   }
 #ifndef GRAPHICS_DISABLED
   if (debug_interval_ == 1 && debug_win_ != nullptr) {
-    delete debug_win_->AwaitEvent(SVET_CLICK);
+    debug_win_->AwaitEvent(SVET_CLICK);
   }
 #endif // !GRAPHICS_DISABLED
   // Roll the memory of past means.
