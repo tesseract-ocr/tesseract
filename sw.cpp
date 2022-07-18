@@ -21,7 +21,7 @@ void build(Solution &s)
 
         libtesseract -=
             "src/tesseract.cpp",
-            "src/viewer/svpaint.cpp";
+            "src/svpaint.cpp";
 
         libtesseract.Public += "include"_idir;
         libtesseract.Protected +=
