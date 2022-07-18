@@ -70,7 +70,7 @@ struct SVEvent {
   ~SVEvent() {
     delete[] parameter;
   }
-  SVEvent *copy() const;
+  std::unique_ptr<SVEvent> copy() const;
   SVEventType type = SVET_DESTROY; // What kind of event.
   ScrollView *window = nullptr;    // Window event relates to.
   char *parameter = nullptr;       // Any string that might have been passed as argument.
@@ -414,7 +414,7 @@ private:
   static SVNetwork *stream_;
 
   // Table of all the currently queued events.
-  SVEvent *event_table_[SVET_COUNT];
+  std::unique_ptr<SVEvent> event_table_[SVET_COUNT];
 
   // Mutex to access the event_table_ in a synchronized fashion.
   std::mutex mutex_;

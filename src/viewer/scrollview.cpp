@@ -60,8 +60,8 @@ static std::map<std::pair<ScrollView *, SVEventType>,
                 std::pair<SVSemaphore *, std::unique_ptr<SVEvent>>> waiting_for_events;
 static std::mutex *waiting_for_events_mu;
 
-SVEvent *SVEvent::copy() const {
-  auto *any = new SVEvent;
+std::unique_ptr<SVEvent> SVEvent::copy() const {
+  auto any = std::unique_ptr<SVEvent>(new SVEvent);
   any->command_id = command_id;
   any->counter = counter;
   any->parameter = new char[strlen(parameter) + 1];
@@ -319,12 +319,9 @@ void ScrollView::Initialize(const char *name, int x_pos, int y_pos, int x_size, 
 
 /// Sits and waits for events on this window.
 void ScrollView::StartEventHandler() {
-  SVEvent *new_event;
-
   for (;;) {
     stream_->Flush();
     semaphore_->Wait();
-    new_event = nullptr;
     int serial = -1;
     int k = -1;
     mutex_.lock();
@@ -332,25 +329,22 @@ void ScrollView::StartEventHandler() {
 
     for (int i = 0; i < SVET_COUNT; i++) {
       if (event_table_[i] != nullptr && (serial < 0 || event_table_[i]->counter < serial)) {
-        new_event = event_table_[i];
         serial = event_table_[i]->counter;
         k = i;
       }
     }
     // If we didn't find anything we had an old alarm and just sleep again.
-    if (new_event != nullptr) {
-      event_table_[k] = nullptr;
+    if (k != -1) {
+      auto new_event = std::move(event_table_[k]);
       mutex_.unlock();
       if (event_handler_ != nullptr) {
-        event_handler_->Notify(new_event);
+        event_handler_->Notify(new_event.get());
       }
       if (new_event->type == SVET_DESTROY) {
         // Signal the destructor that it is safe to terminate.
         event_handler_ended_ = true;
-        delete new_event; // Delete the pointer after it has been processed.
         return;
       }
-      delete new_event; // Delete the pointer after it has been processed.
     } else {
       mutex_.unlock();
     }
@@ -382,9 +376,6 @@ ScrollView::~ScrollView() {
   }
   delete semaphore_;
   delete points_;
-  for (auto &i : event_table_) {
-    delete i;
-  }
 #endif // !GRAPHICS_DISABLED
 }
 
@@ -424,18 +415,15 @@ void ScrollView::Signal() {
 
 void ScrollView::SetEvent(const SVEvent *svevent) {
   // Copy event
-  SVEvent *any = svevent->copy();
-  SVEvent *specific = svevent->copy();
+  auto any = svevent->copy();
+  auto specific = svevent->copy();
   any->counter = specific->counter + 1;
 
   // Place both events into the queue.
   std::lock_guard<std::mutex> guard(mutex_);
-  // Delete the old objects..
-  delete event_table_[specific->type];
-  delete event_table_[SVET_ANY];
-  // ...and put the new ones in the table.
-  event_table_[specific->type] = specific;
-  event_table_[SVET_ANY] = any;
+
+  event_table_[specific->type] = std::move(specific);
+  event_table_[SVET_ANY] = std::move(any);
 }
 
 /// Block until an event of the given type is received.
