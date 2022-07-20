@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
     Clusterer = SetUpForClustering(FeatureDefs, CharSample, PROGRAM_FEATURE_TYPE);
     if (Clusterer == nullptr) { // To avoid a SIGSEGV
       fprintf(stderr, "Error: nullptr clusterer!\n");
-      return 1;
+      return EXIT_FAILURE;
     }
     float SavedMinSamples = Config.MinSamples;
     // To disable the tendency to produce a single cluster for all fonts,
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
     FreeProtoList(&freeable_proto);
   }
   printf("\n");
-  return 0;
+  return EXIT_SUCCESS;
 } // main
 
 /*----------------------------------------------------------------------------

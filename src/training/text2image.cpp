@@ -458,15 +458,15 @@ static int Main() {
   // Check validity of input flags.
   if (FLAGS_text.empty()) {
     tprintf("'--text' option is missing!\n");
-    exit(1);
+    return EXIT_FAILURE;
   }
   if (FLAGS_outputbase.empty()) {
     tprintf("'--outputbase' option is missing!\n");
-    exit(1);
+    return EXIT_FAILURE;
   }
   if (!FLAGS_unicharset_file.empty() && FLAGS_render_ngrams) {
     tprintf("Use '--unicharset_file' only if '--render_ngrams' is set.\n");
-    exit(1);
+    return EXIT_FAILURE;
   }
 
   std::string font_name = FLAGS_font.c_str();
@@ -479,7 +479,7 @@ static int Main() {
         tprintf("Pango suggested font '%s'.\n", pango_name.c_str());
       }
       tprintf("Please correct --font arg.\n");
-      exit(1);
+      return EXIT_FAILURE;
     }
   }
 
@@ -525,14 +525,14 @@ static int Main() {
     render.set_render_fullwidth_latin(true);
   } else {
     tprintf("Invalid writing mode: %s\n", FLAGS_writing_mode.c_str());
-    exit(1);
+    return EXIT_FAILURE;
   }
 
   std::string src_utf8;
   // This c_str is NOT redundant!
   if (!File::ReadFileToString(FLAGS_text.c_str(), &src_utf8)) {
     tprintf("Failed to read file: %s\n", FLAGS_text.c_str());
-    exit(1);
+    return EXIT_FAILURE;
   }
 
   // Remove the unicode mark if present.
@@ -554,7 +554,7 @@ static int Main() {
     if (FLAGS_render_ngrams && !FLAGS_unicharset_file.empty() &&
         !unicharset.load_from_file(FLAGS_unicharset_file.c_str())) {
       tprintf("Failed to load unicharset from file %s\n", FLAGS_unicharset_file.c_str());
-      exit(1);
+      return EXIT_FAILURE;
     }
 
     // If we are rendering ngrams that will be OCRed later, shuffle them so that
@@ -604,7 +604,7 @@ static int Main() {
     tprintf("Extracting font properties only\n");
     ExtractFontProperties(src_utf8, &render, FLAGS_outputbase.c_str());
     tprintf("Done!\n");
-    return 0;
+    return EXIT_SUCCESS;
   }
 
   int im = 0;
@@ -708,7 +708,7 @@ static int Main() {
     }
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 int main(int argc, char **argv) {
