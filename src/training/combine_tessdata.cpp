@@ -269,7 +269,7 @@ int main(int argc, char **argv) {
         "Usage for compacting LSTM component to int:\n"
         "  %s -c traineddata_file\n",
         argv[0]);
-    return 1;
+    return EXIT_FAILURE;
   }
   tm.Directory();
   return EXIT_SUCCESS;
