@@ -1,6 +1,6 @@
 void build(Solution &s)
 {
-    auto &tess = s.addProject("google.tesseract", "master");
+    auto &tess = s.addProject("google.tesseract", "main");
     tess += Git("https://github.com/tesseract-ocr/tesseract", "", "{v}");
 
     auto cppstd = cpp17;
@@ -82,7 +82,13 @@ void build(Solution &s)
             libtesseract["src/arch/intsimdmatrixavx2.cpp"].args.push_back("-mavx2");
         }
         if (!win_or_mingw)
+        {
             libtesseract += "pthread"_slib;
+        }
+        if (libtesseract.getBuildSettings().TargetOS.Arch == ArchType::aarch64)
+        {
+            libtesseract += "src/arch/dotproductneon.cpp";
+        }
 
         libtesseract.Public += "HAVE_CONFIG_H"_d;
         libtesseract.Public += "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1"_d;
