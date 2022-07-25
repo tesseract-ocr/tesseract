@@ -35,7 +35,7 @@ namespace tesseract {
 
 class ScrollView;
 
-class SVMenuNode {
+class TESS_API SVMenuNode {
 public:
   // Creating the (empty) root menu node.
   SVMenuNode();

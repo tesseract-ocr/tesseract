@@ -89,7 +89,7 @@ struct SVEvent {
 // The SVEventHandler class is used for Event handling: If you register your
 // class as SVEventHandler to a ScrollView Window, the SVEventHandler will be
 // called whenever an appropriate event occurs.
-class SVEventHandler {
+class TESS_API SVEventHandler {
 public:
   virtual ~SVEventHandler();
 
