@@ -79,7 +79,8 @@ void build(Solution &s)
         }
         if (!win_or_mingw)
         {
-            libtesseract += "pthread"_slib;
+            if (!libtesseract.getBuildSettings().TargetOS.Android)
+                libtesseract += "pthread"_slib;
         }
         if (libtesseract.getBuildSettings().TargetOS.Arch == ArchType::aarch64)
         {
