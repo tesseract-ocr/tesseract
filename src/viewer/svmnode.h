@@ -29,6 +29,8 @@
 
 #ifndef GRAPHICS_DISABLED
 
+#include <tesseract/export.h>
+
 #include <string>
 
 namespace tesseract {
