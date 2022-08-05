@@ -41,6 +41,7 @@
 #endif
 
 #if defined(HAVE_AVX) || defined(HAVE_AVX2) || defined(HAVE_FMA) || defined(HAVE_SSE4_1)
+// See https://en.wikipedia.org/wiki/CPUID.
 #  define HAS_CPUID
 #endif
 
@@ -94,6 +95,7 @@ bool SIMDDetect::avx_available_;
 bool SIMDDetect::avx2_available_;
 bool SIMDDetect::avx512F_available_;
 bool SIMDDetect::avx512BW_available_;
+bool SIMDDetect::avx512VNNI_available_;
 // If true, then FMA has been detected.
 bool SIMDDetect::fma_available_;
 // If true, then SSe4.1 has been detected.
@@ -171,6 +173,7 @@ SIMDDetect::SIMDDetect() {
         avx2_available_ = (ebx & 0x00000020) != 0;
         avx512F_available_ = (ebx & 0x00010000) != 0;
         avx512BW_available_ = (ebx & 0x40000000) != 0;
+        avx512VNNI_available_ = (ecx & 0x00000800) != 0;
       }
 #      endif
     }
@@ -201,6 +204,7 @@ SIMDDetect::SIMDDetect() {
         avx2_available_ = (cpuInfo[1] & 0x00000020) != 0;
         avx512F_available_ = (cpuInfo[1] & 0x00010000) != 0;
         avx512BW_available_ = (cpuInfo[1] & 0x40000000) != 0;
+        avx512VNNI_available_ = (cpuInfo[2] & 0x00000800) != 0;
       }
 #      endif
     }
