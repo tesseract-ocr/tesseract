@@ -130,6 +130,7 @@ AX_CHECK_COMPILE_FLAG([-Werror=unused-command-line-argument], [WERROR=-Werror=un
 AM_CONDITIONAL([HAVE_AVX], false)
 AM_CONDITIONAL([HAVE_AVX2], false)
 AM_CONDITIONAL([HAVE_AVX512F], false)
+AM_CONDITIONAL([HAVE_AVX512VNNI], false)
 AM_CONDITIONAL([HAVE_FMA], false)
 AM_CONDITIONAL([HAVE_SSE4_1], false)
 AM_CONDITIONAL([HAVE_NEON], false)
@@ -154,6 +155,12 @@ case "${host_cpu}" in
     AM_CONDITIONAL([HAVE_AVX512F], $avx512f)
     if $avx512f; then
       AC_DEFINE([HAVE_AVX512F], [1], [Enable AVX512F instructions])
+    fi
+
+    AX_CHECK_COMPILE_FLAG([-march=icelake-client], [avx512vnni=true], [avx512vnni=false], [$WERROR])
+    AM_CONDITIONAL([HAVE_AVX512VNNI], $avx512vnni)
+    if $avx512vnni; then
+      AC_DEFINE([HAVE_AVX512VNNI], [1], [Enable AVX512VNNI instructions])
     fi
 
     AX_CHECK_COMPILE_FLAG([-mfma], [fma=true], [fma=false], [$WERROR])

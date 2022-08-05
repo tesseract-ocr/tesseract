@@ -243,7 +243,18 @@ SIMDDetect::SIMDDetect() {
 #if defined(HAVE_AVX512F)
   } else if (avx512F_available_) {
     // AVX512F detected.
+#  if defined(HAVE_AVX512VNNI)
+    if (avx512VNNI_available_) {
+      printf("mit VNNI\n");
+      SetDotProduct(DotProductAVX512F, &IntSimdMatrix::intSimdMatrixAVX512VNNI);
+    } else {
+      printf("ohne VNNI\n");
+      SetDotProduct(DotProductAVX512F, &IntSimdMatrix::intSimdMatrixAVX2);
+    }
+#  else
+    printf("ohne VNNI???\n");
     SetDotProduct(DotProductAVX512F, &IntSimdMatrix::intSimdMatrixAVX2);
+#  endif
 #endif
 #if defined(HAVE_AVX2)
   } else if (avx2_available_) {
