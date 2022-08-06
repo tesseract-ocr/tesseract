@@ -44,6 +44,7 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
     if (chop_enable && word_res->chopped_word != nullptr) {
       improve_by_chopping(rating_cert_scale, word_res, best_choice_bundle, blamer_bundle,
                           &pain_points, &pending);
+      InitialSegSearch(word_res, &pain_points, &pending, best_choice_bundle, blamer_bundle);
     }
     if (chop_debug) {
       SEAM::PrintSeams("Final seam list:", word_res->seam_array);
@@ -52,8 +53,6 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
     if (blamer_bundle != nullptr && !blamer_bundle->ChoiceIsCorrect(word_res->best_choice)) {
       blamer_bundle->SetChopperBlame(word_res, wordrec_debug_blamer);
     }
-
-    InitialSegSearch(word_res, &pain_points, &pending, best_choice_bundle, blamer_bundle);
   }
   // Keep trying to find a better path by fixing the "pain points".
 
