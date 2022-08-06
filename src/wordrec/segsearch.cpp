@@ -52,6 +52,8 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
     if (blamer_bundle != nullptr && !blamer_bundle->ChoiceIsCorrect(word_res->best_choice)) {
       blamer_bundle->SetChopperBlame(word_res, wordrec_debug_blamer);
     }
+
+    InitialSegSearch(word_res, &pain_points, &pending, best_choice_bundle, blamer_bundle);
   }
   // Keep trying to find a better path by fixing the "pain points".
 
