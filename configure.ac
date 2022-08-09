@@ -157,7 +157,7 @@ case "${host_cpu}" in
       AC_DEFINE([HAVE_AVX512F], [1], [Enable AVX512F instructions])
     fi
 
-    AX_CHECK_COMPILE_FLAG([-march=icelake-client], [avx512vnni=true], [avx512vnni=false], [$WERROR])
+    AX_CHECK_COMPILE_FLAG([-mavx512vnni], [avx512vnni=true], [avx512vnni=false], [$WERROR])
     AM_CONDITIONAL([HAVE_AVX512VNNI], $avx512vnni)
     if $avx512vnni; then
       AC_DEFINE([HAVE_AVX512VNNI], [1], [Enable AVX512VNNI instructions])

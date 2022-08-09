@@ -171,7 +171,7 @@ noinst_LTLIBRARIES += libtesseract_avx512.la
 endif
 
 if HAVE_AVX512VNNI
-libtesseract_avx512vnni_la_CXXFLAGS = -march=icelake-client
+libtesseract_avx512vnni_la_CXXFLAGS = -mavx512vnni -mavx512vl
 libtesseract_avx512vnni_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
 libtesseract_avx512vnni_la_SOURCES = src/arch/intsimdmatrixavx512vnni.cpp
 libtesseract_la_LIBADD += libtesseract_avx512vnni.la

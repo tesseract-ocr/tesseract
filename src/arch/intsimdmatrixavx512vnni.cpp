@@ -17,9 +17,9 @@
 
 #include "intsimdmatrix.h"
 
-#if !defined(__AVX2__)
+#if !defined(__AVX512VNNI__) || !defined(__AVX512VL__)
 #  if defined(__i686__) || defined(__x86_64__)
-#    error Implementation only for AVX2 capable architectures
+#    error Implementation only for AVX512VNNI capable architectures
 #  endif
 #else
 #  include <immintrin.h>
@@ -73,16 +73,12 @@ static inline void MultiplyGroup(const __m256i &rep_input, const __m256i &ones, 
   // Normalize the signs on rep_input, weights, so weights is always +ve.
   reps = _mm256_sign_epi8(rep_input, weights);
   weights = _mm256_sign_epi8(weights, weights);
-  // Multiply 32x8-bit reps by 32x8-bit weights to make 16x16-bit results,
-  // with adjacent pairs added.
-  weights = _mm256_maddubs_epi16(weights, reps);
-  // Multiply 16x16-bit result by 16x16-bit ones to make 8x32-bit results,
-  // with  adjacent pairs added. What we really want is a horizontal add of
-  // 16+16=32 bit result, but there is no such instruction, so multiply by
-  // 16-bit ones instead. It is probably faster than all the sign-extending,
-  // permuting and adding that would otherwise be required.
-  weights = _mm256_madd_epi16(weights, ones);
-  result = _mm256_add_epi32(result, weights);
+
+  // VNNI instruction. It replaces 3 AVX2 instructions:
+  //weights = _mm256_maddubs_epi16(weights, reps);
+  //weights = _mm256_madd_epi16(weights, ones);
+  //result = _mm256_add_epi32(result, weights);
+  result = _mm256_dpbusd_epi32(result, weights, reps);
 }
 
 // Load 64 bits into the bottom of a 128bit register.
