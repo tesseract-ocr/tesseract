@@ -68,7 +68,7 @@ jobs:
       - name: Build and Install webp
         shell: cmd
         run: |
-             git clone --depth 1 https://github.com/webmproject/libwebp.git
+             git -c advice.detachedHead=false clone --branch v1.2.3 --depth 1 https://github.com/webmproject/libwebp.git
              cd libwebp
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DWEBP_BUILD_ANIM_UTILS=OFF -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF -DWEBP_BUILD_VWEBP=OFF -DWEBP_BUILD_WEBPMUX=OFF -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_EXTRAS=OFF
              cmake --build build --config Release --target install

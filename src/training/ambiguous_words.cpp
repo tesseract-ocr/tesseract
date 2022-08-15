@@ -33,13 +33,13 @@ int main(int argc, char **argv) {
   // Parse input arguments.
   if (argc > 1 && (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version"))) {
     printf("%s\n", tesseract::TessBaseAPI::Version());
-    return 0;
+    return EXIT_SUCCESS;
   } else if (argc != 4 && (argc != 6 || strcmp(argv[1], "-l") != 0)) {
     printf(
         "Usage: %s -v | --version | %s [-l lang] tessdata_dir wordlist_file"
         " output_ambiguous_wordlist_file\n",
         argv[0], argv[0]);
-    return 1;
+    return EXIT_FAILURE;
   }
   int argv_offset = 0;
   std::string lang;
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
   FILE *input_file = fopen(input_file_str, "rb");
   if (input_file == nullptr) {
     tesseract::tprintf("Failed to open input wordlist file %s\n", input_file_str);
-    exit(1);
+    return EXIT_FAILURE;
   }
   char str[CHARS_PER_LINE];
 
@@ -78,4 +78,5 @@ int main(int argc, char **argv) {
   }
   // Clean up.
   fclose(input_file);
+  return EXIT_SUCCESS;
 }
