@@ -326,9 +326,7 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level, int *left,
       }
     } while (other.Next(RIL_TEXTLINE));
   }
-  if (level != RIL_SYMBOL || cblob_it_ != nullptr) {
-    box.rotate(it_->block()->block->re_rotation());
-  }
+  box.rotate(it_->block()->block->re_rotation());
   // Now we have a box in tesseract coordinates relative to the image rectangle,
   // we have to convert the coords to a top-down system.
   const int pix_height = pixGetHeight(tesseract_->pix_binary());
