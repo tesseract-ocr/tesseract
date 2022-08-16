@@ -13,8 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-10.15-clang-unittest, os: macos-10.15, cxx: clang++ }
-          - { name: macos-10.15-gcc-unittest, os: macos-10.15, cxx: g++ }
+          - { name: macos-12-clang-unittest, os: macos-12, cxx: clang++ }
+          - { name: macos-12-gcc-unittest, os: macos-12, cxx: g++ }
 
     steps:
     - uses: actions/checkout@v2
