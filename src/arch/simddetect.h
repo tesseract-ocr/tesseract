@@ -47,6 +47,10 @@ public:
   static inline bool IsAVX512BWAvailable() {
     return detector.avx512BW_available_;
   }
+  // Returns true if AVX512 Vector Neural Network Instructions are available.
+  static inline bool IsAVX512VNNIAvailable() {
+    return detector.avx512VNNI_available_;
+  }
   // Returns true if FMA is available on this system.
   static inline bool IsFMAAvailable() {
     return detector.fma_available_;
@@ -75,6 +79,7 @@ private:
   static TESS_API bool avx2_available_;
   static TESS_API bool avx512F_available_;
   static TESS_API bool avx512BW_available_;
+  static TESS_API bool avx512VNNI_available_;
   // If true, then FMA has been detected.
   static TESS_API bool fma_available_;
   // If true, then SSe4.1 has been detected.

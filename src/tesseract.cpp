@@ -149,6 +149,9 @@ static void PrintVersionInfo() {
   if (tesseract::SIMDDetect::IsAVX512FAvailable()) {
     printf(" Found AVX512F\n");
   }
+  if (tesseract::SIMDDetect::IsAVX512VNNIAvailable()) {
+    printf(" Found AVX512VNNI\n");
+  }
   if (tesseract::SIMDDetect::IsAVX2Available()) {
     printf(" Found AVX2\n");
   }
