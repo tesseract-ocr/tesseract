@@ -674,7 +674,7 @@ void Textord::clean_small_noise_from_words(ROW *row) {
         delete blob_it.extract();
       }
     }
-    if (word->cblob_list()->empty() && word->rej_cblob_list()->empty()) {
+    if (word->cblob_list()->empty()) {
       if (!word_it.at_last()) {
         // The next word is no longer a fuzzy non space if it was before,
         // since the word before is about to be deleted.
