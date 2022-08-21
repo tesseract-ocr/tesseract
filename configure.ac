@@ -170,7 +170,7 @@ case "${host_cpu}" in
 
     ;;
 
-  aarch64|arm64)
+  aarch64*|arm64)
 
     # ARMv8 always has NEON and does not need special compiler flags.
     AM_CONDITIONAL([HAVE_NEON], true)
