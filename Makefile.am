@@ -897,22 +897,22 @@ libtesseract_training_la_SOURCES += src/training/common/sampleiterator.cpp
 libtesseract_training_la_SOURCES += src/training/common/trainingsampleset.cpp
 endif
 
-trainingtools = combine_lang_model
-trainingtools += combine_tessdata
-trainingtools += dawg2wordlist
-trainingtools += lstmeval
-trainingtools += lstmtraining
-trainingtools += merge_unicharsets
-trainingtools += set_unicharset_properties
-trainingtools += text2image
-trainingtools += unicharset_extractor
-trainingtools += wordlist2dawg
+trainingtools = combine_lang_model$(EXEEXT)
+trainingtools += combine_tessdata$(EXEEXT)
+trainingtools += dawg2wordlist$(EXEEXT)
+trainingtools += lstmeval$(EXEEXT)
+trainingtools += lstmtraining$(EXEEXT)
+trainingtools += merge_unicharsets$(EXEEXT)
+trainingtools += set_unicharset_properties$(EXEEXT)
+trainingtools += text2image$(EXEEXT)
+trainingtools += unicharset_extractor$(EXEEXT)
+trainingtools += wordlist2dawg$(EXEEXT)
 if !DISABLED_LEGACY_ENGINE
-trainingtools += ambiguous_words
-trainingtools += classifier_tester
-trainingtools += cntraining
-trainingtools += mftraining
-trainingtools += shapeclustering
+trainingtools += ambiguous_words$(EXEEXT)
+trainingtools += classifier_tester$(EXEEXT)
+trainingtools += cntraining$(EXEEXT)
+trainingtools += mftraining$(EXEEXT)
+trainingtools += shapeclustering$(EXEEXT)
 endif
 
 $(trainingtools): libtesseract.la
