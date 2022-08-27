@@ -18,6 +18,10 @@ on:
       - '**.cpp'
       - '**.h'
       - '**/codeql-analysis.yml'
+      - 'm4/*.m4'
+      - 'Makefile.am'
+      - 'autogen.sh'
+      - 'configure.ac'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ main ]
@@ -25,6 +29,10 @@ on:
       - '**.cpp'
       - '**.h'
       - '**/codeql-analysis.yml'
+      - 'm4/*.m4'
+      - 'Makefile.am'
+      - 'autogen.sh'
+      - 'configure.ac'
   schedule:
     - cron: '34 23 * * 2'
 
