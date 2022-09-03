@@ -16,6 +16,14 @@ configuration:
 cache:
   - c:/Users/appveyor/.sw -> appveyor.yml
 
+only_commits:
+  files:
+    - appveyor.yml
+    - '**.cpp'
+    - '**.h'
+    - 'unittest/**.c'
+    - 'unittest/**.cc'
+
 before_build:
   - git submodule update --init --recursive
   - curl -fsS -L -o dl.zip https://github.com/SoftwareNetwork/binaries/raw/master/sw-master-windows-client.zip
