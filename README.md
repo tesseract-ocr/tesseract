@@ -23,6 +23,7 @@ Table of Contents
    * [License](#license)
    * [Dependencies](#dependencies)
    * [Latest Version of README](#latest-version-of-readme)
+   * [Third-party tools](#third-party-tools)
 
 
 ## About
@@ -134,3 +135,7 @@ It is suggested to use leptonica with built-in support for [zlib](https://zlib.n
 For the latest online version of the README.md see:
 
 https://github.com/tesseract-ocr/tesseract/blob/main/README.md
+
+## Third-party tools
+
+* **[PPOCRLabel](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/PPOCRLabel/README.md)** is a semi-automatic graphic annotation tool suitable for OCR field, with built-in PP-OCR model to automatically detect and re-recognize data. It is written in Python3 and PyQT5, supporting rectangular box, table, irregular text and key information annotation modes.
