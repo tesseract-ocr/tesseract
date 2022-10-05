@@ -13,11 +13,7 @@ void build(Solution &s)
 
         libtesseract += cppstd;
 
-        libtesseract += "TESS_API"_api;
-        libtesseract += "include/.*"_rr;
-        libtesseract += "src/.+/.*"_rr;
-        libtesseract -= "src/lstm/.*\\.cc"_rr;
-        libtesseract -= "src/training/.*"_rr;
+        libtesseract += "TESS_API"_api + "include/.*"_rr + "src/.+/.*"_rr - "src/lstm/.*\\.cc"_rr - "src/training/.*"_rr;
 
         libtesseract.Public += "include"_idir;
         libtesseract.Protected +=
