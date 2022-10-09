@@ -13,8 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: 18.04-openmp, os: ubuntu-18.04 }
           - { name: 20.04-openmp, os: ubuntu-20.04 }
+          - { name: 22.04-openmp, os: ubuntu-22.04 }
 
     steps:
     - uses: actions/checkout@v2

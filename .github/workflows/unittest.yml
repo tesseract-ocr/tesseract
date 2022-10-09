@@ -1,6 +1,5 @@
 name: unittest
 # autotools build on ubuntu. unittests with address sanitizers. with openmp.
-# [  FAILED  ] LSTMTrainerTest.DeterminismTest - clang version 9.0.0-2~ubuntu18.04.2
 # ubuntu-20.04-gcc-unittest - CI runs out of diskspace.
 on:
   #push:
@@ -15,8 +14,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: ubuntu-18.04-gcc-unittest, os: ubuntu-18.04, cxx: g++ }
-          - { name: ubuntu-20.04-clang-unittest, os: ubuntu-20.04, cxx: clang++ }
+          - { name: ubuntu-20.04-gcc-unittest, os: ubuntu-20.04, cxx: g++ }
+          - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++ }
     steps:
     - uses: actions/checkout@v2
       with:
