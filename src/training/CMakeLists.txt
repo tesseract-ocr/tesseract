@@ -119,6 +119,11 @@ add_library(common_training ${COMMON_TRAINING_SRC})
 target_include_directories(common_training PUBLIC common
                                                   ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(common_training PUBLIC libtesseract)
+install(
+  TARGETS common_training
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 generate_export_header(common_training EXPORT_MACRO_NAME
                        TESS_COMMON_TRAINING_API)
 project_group(common_training "Training Tools")
@@ -265,6 +270,11 @@ if(ICU_FOUND)
   endif()
   target_include_directories(unicharset_training
                              PUBLIC unicharset ${CMAKE_CURRENT_BINARY_DIR})
+  install(
+    TARGETS unicharset_training
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
   generate_export_header(unicharset_training EXPORT_MACRO_NAME
                          TESS_UNICHARSET_TRAINING_API)
   project_group(unicharset_training "Training Tools")
