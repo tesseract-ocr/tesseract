@@ -609,6 +609,7 @@ void StringRenderer::CorrectBoxPositionsToLayout(std::vector<BoxChar *> *boxchar
 
 int StringRenderer::StripUnrenderableWords(std::string *utf8_text) const {
   std::string output_text;
+  std::string unrendable_words;
   const char *text = utf8_text->c_str();
   size_t offset = 0;
   int num_dropped = 0;
@@ -625,13 +626,15 @@ int StringRenderer::StripUnrenderableWords(std::string *utf8_text) const {
       output_text.append(text + offset, word_len);
     } else {
       ++num_dropped;
+      unrendable_words.append(text + offset, word_len);
+      unrendable_words.append(" ");
     }
     offset += word_len;
   }
   utf8_text->swap(output_text);
 
   if (num_dropped > 0) {
-    tprintf("Stripped %d unrenderable words\n", num_dropped);
+    tprintf("Stripped %d unrenderable word(s): '%s'\n", num_dropped, unrendable_words.c_str());
   }
   return num_dropped;
 }
