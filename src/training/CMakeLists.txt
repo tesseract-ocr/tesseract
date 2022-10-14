@@ -74,7 +74,14 @@ if(NOT SW_BUILD)
   else()
     find_package(ICU 52.1 COMPONENTS uc i18n)
   endif()
+  if(ICU_FOUND)
+    message(">> ICU_FOUND ${ICU_FOUND} ${ICU_VERSION} ${ICU_LIBRARIES} ${ICU_INCLUDE_DIRS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ICU_CXX_FLAGS}")
+  else()
+    message(">> ICU not found!")
+  endif()
 endif()
+
 
 # ##############################################################################
 # LIBRARY common_training
@@ -252,6 +259,7 @@ if(ICU_FOUND)
                                                        PkgConfig::ICU)
     else()
       target_link_libraries(unicharset_training PUBLIC common_training
+                                                       ICU::uc ICU::i18n
                                                        ${ICU_LINK_LIBRARIES})
     endif()
   endif()
