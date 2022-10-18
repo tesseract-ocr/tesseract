@@ -20,7 +20,7 @@
 // - A LMB click either draws point-to-point, point or text.
 // - A LMB dragging either draws a line, a rectangle or ellipse.
 
-// Include automatically generated configuration file if running autoconf.
+// Include automatically generated configuration file if r.;]unning autoconf.
 #ifdef HAVE_CONFIG_H
 #  include "config_auto.h"
 #endif
