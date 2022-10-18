@@ -43,7 +43,7 @@ jobs:
 
     - name: Configure Tesseract
       run: |
-           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
+           CXX=g++-11 ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
 
     - name: Make and Install Tesseract
       run: |
