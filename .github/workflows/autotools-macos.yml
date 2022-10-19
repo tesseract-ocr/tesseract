@@ -15,7 +15,7 @@ jobs:
       matrix:
         config:
           - { name: macos-12-clang-13-autotools, os: macos-12, cxx: clang++ }
-          - { name: macos-12-gcc-11-autotools, os: macos-12, cxx: g++-11 }
+          #- { name: macos-12-gcc-11-autotools, os: macos-12, cxx: g++-11 }
 
     steps:
     - uses: actions/checkout@v2
@@ -43,7 +43,7 @@ jobs:
 
     - name: Configure Tesseract
       run: |
-           CXX=g++-11 ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
+           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
 
     - name: Make and Install Tesseract
       run: |
