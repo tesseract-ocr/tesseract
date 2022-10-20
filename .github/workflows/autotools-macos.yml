@@ -18,7 +18,7 @@ jobs:
           #- { name: macos-12-gcc-11-autotools, os: macos-12, cxx: g++-11 }
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -118,7 +118,7 @@ jobs:
           - { name: macos-10.15-clang-12-autotools, os: macos-10.15, cxx: clang++ }
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 

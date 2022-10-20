@@ -17,7 +17,7 @@ jobs:
           - { name: ubuntu-20.04-gcc-unittest, os: ubuntu-20.04, cxx: g++ }
           - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++ }
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
