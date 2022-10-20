@@ -28,7 +28,7 @@ jobs:
         os: [windows-2022, windows-2019, ubuntu-22.04, ubuntu-20.04, macos-12]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - uses: egorpugin/sw-action@master
