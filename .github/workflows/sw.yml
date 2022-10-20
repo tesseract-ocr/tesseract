@@ -71,7 +71,7 @@ jobs:
 
     - name: Upload Unit Test Results
       if: always() && matrix.os != 'windows-2022' && matrix.os != 'windows-2019'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: Test Results (${{ matrix.os }})
         path: .sw/test/results.xml
