@@ -175,7 +175,6 @@ void ImageThresholder::SetImage(const Image pix) {
   } else {
     pix_ = src.copy();
   }
-  src.destroy();
   depth = pixGetDepth(pix_);
   pix_channels_ = depth / 8;
   pix_wpl_ = pixGetWpl(pix_);
