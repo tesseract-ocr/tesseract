@@ -293,18 +293,20 @@ bool ImageThresholder::ThresholdToPix(Image *pix) {
     // allows the caller to modify the output.
     *pix = original.copy();
   } else {
+    Image tmp;
     if (pixGetColormap(original)) {
       Image without_cmap =
           pixRemoveColormap(original, REMOVE_CMAP_BASED_ON_SRC);
       int depth = pixGetDepth(without_cmap);
       if (depth > 1 && depth < 8) {
-        original = pixConvertTo8(without_cmap, false);
+        tmp = pixConvertTo8(without_cmap, false);
       } else {
-        original = without_cmap.copy();
+        tmp = without_cmap.copy();
       }
       without_cmap.destroy();
     }
-    OtsuThresholdRectToPix(original, pix);
+    OtsuThresholdRectToPix(tmp, pix);
+    tmp.destroy();
   }
   original.destroy();
   return true;
@@ -357,7 +359,7 @@ Image ImageThresholder::GetPixRect() {
   }
 }
 
-// Get a clone/copy of the source image rectangle, reduced to greyscale,
+// Get a clone/copy of the source image rectangle,; reduced to greyscale,
 // and at the same resolution as the output binary.
 // The returned Pix must be pixDestroyed.
 // Provided to the classifier to extract features from the greyscale image.
