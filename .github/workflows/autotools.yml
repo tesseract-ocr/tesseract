@@ -24,7 +24,7 @@ jobs:
           - { name: ubuntu-20.04-gcc-10-autotools, os: ubuntu-20.04, cxx: g++-10 } #installed
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 

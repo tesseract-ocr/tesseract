@@ -151,7 +151,7 @@ jobs:
           tesseract test/testing/phototest.tif -
           
       - name: Upload Build Results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tesseract-${{ steps.get_version.outputs.VERSION }}-VS2019_win64
           path: ${{env.ILOC}}

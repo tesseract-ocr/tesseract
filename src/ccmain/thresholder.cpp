@@ -287,15 +287,26 @@ bool ImageThresholder::ThresholdToPix(Image *pix) {
     tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
     return false;
   }
+  Image original = GetPixRect();
   if (pix_channels_ == 0) {
     // We have a binary image, but it still has to be copied, as this API
     // allows the caller to modify the output.
-    Image original = GetPixRect();
     *pix = original.copy();
-    original.destroy();
   } else {
-    OtsuThresholdRectToPix(pix_, pix);
+    if (pixGetColormap(original)) {
+      Image without_cmap =
+          pixRemoveColormap(original, REMOVE_CMAP_BASED_ON_SRC);
+      int depth = pixGetDepth(without_cmap);
+      if (depth > 1 && depth < 8) {
+        original = pixConvertTo8(without_cmap, false);
+      } else {
+        original = without_cmap.copy();
+      }
+      without_cmap.destroy();
+    }
+    OtsuThresholdRectToPix(original, pix);
   }
+  original.destroy();
   return true;
 }
 
@@ -353,7 +364,7 @@ Image ImageThresholder::GetPixRect() {
 Image ImageThresholder::GetPixRectGrey() {
   auto pix = GetPixRect(); // May have to be reduced to grey.
   int depth = pixGetDepth(pix);
-  if (depth != 8) {
+  if (depth != 8 || pixGetColormap(pix)) {
     if (depth == 24) {
       auto tmp = pixConvert24To32(pix);
       pix.destroy();

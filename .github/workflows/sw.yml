@@ -28,7 +28,7 @@ jobs:
         os: [windows-2022, windows-2019, ubuntu-22.04, ubuntu-20.04, macos-12]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - uses: egorpugin/sw-action@master
@@ -71,7 +71,7 @@ jobs:
 
     - name: Upload Unit Test Results
       if: always() && matrix.os != 'windows-2022' && matrix.os != 'windows-2019'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: Test Results (${{ matrix.os }})
         path: .sw/test/results.xml
