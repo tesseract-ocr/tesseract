@@ -1,29 +1,27 @@
 # Tesseract OCR
 
 [![Build status](https://ci.appveyor.com/api/projects/status/miah0ikfsf0j3819/branch/master?svg=true)](https://ci.appveyor.com/project/zdenop/tesseract/)
-[![Build status](https://github.com/tesseract-ocr/tesseract/workflows/sw/badge.svg)](https://github.com/tesseract-ocr/tesseract/actions/workflows/sw.yml)<br>
+[![Build status](https://github.com/tesseract-ocr/tesseract/workflows/sw/badge.svg)](https://github.com/tesseract-ocr/tesseract/actions/workflows/sw.yml)\
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/tesseract-ocr/badge.svg)](https://scan.coverity.com/projects/tesseract-ocr)
 [![Code Quality: Cpp](https://img.shields.io/lgtm/grade/cpp/g/tesseract-ocr/tesseract.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesseract-ocr/tesseract/context:cpp)
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/tesseract-ocr/tesseract.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesseract-ocr/tesseract/alerts)
 [![OSS-Fuzz](https://img.shields.io/badge/oss--fuzz-fuzzing-brightgreen)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=2&q=proj:tesseract-ocr)
-<br/>
+\
 [![GitHub license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://raw.githubusercontent.com/tesseract-ocr/tesseract/main/LICENSE)
 [![Downloads](https://img.shields.io/badge/download-all%20releases-brightgreen.svg)](https://github.com/tesseract-ocr/tesseract/releases/)
 
-Table of Contents
-=================
+## Table of Contents
 
 * [Tesseract OCR](#tesseract-ocr)
-   * [About](#about)
-   * [Brief history](#brief-history)
-   * [Installing Tesseract](#installing-tesseract)
-   * [Running Tesseract](#running-tesseract)
-   * [For developers](#for-developers)
-   * [Support](#support)
-   * [License](#license)
-   * [Dependencies](#dependencies)
-   * [Latest Version of README](#latest-version-of-readme)
-
+  * [About](#about)
+  * [Brief history](#brief-history)
+  * [Installing Tesseract](#installing-tesseract)
+  * [Running Tesseract](#running-tesseract)
+  * [For developers](#for-developers)
+  * [Support](#support)
+  * [License](#license)
+  * [Dependencies](#dependencies)
+  * [Latest Version of README](#latest-version-of-readme)
 
 ## About
 
@@ -97,6 +95,7 @@ particularly the [FAQ](https://tesseract-ocr.github.io/tessdoc/FAQ.html) to see 
 If not, search the [Tesseract user forum](https://groups.google.com/g/tesseract-ocr), the [Tesseract developer forum](https://groups.google.com/g/tesseract-dev) and [past issues](https://github.com/tesseract-ocr/tesseract/issues), and if you still can't find what you need, ask for support in the mailing-lists.
 
 Mailing-lists:
+
 * [tesseract-ocr](https://groups.google.com/g/tesseract-ocr) - For tesseract users.
 * [tesseract-dev](https://groups.google.com/g/tesseract-dev) - For tesseract developers.
 
@@ -133,4 +132,4 @@ It is suggested to use leptonica with built-in support for [zlib](https://zlib.n
 
 For the latest online version of the README.md see:
 
-https://github.com/tesseract-ocr/tesseract/blob/main/README.md
+<https://github.com/tesseract-ocr/tesseract/blob/main/README.md>
