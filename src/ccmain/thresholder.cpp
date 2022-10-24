@@ -293,8 +293,8 @@ bool ImageThresholder::ThresholdToPix(Image *pix) {
     // allows the caller to modify the output.
     *pix = original.copy();
   } else {
-    Image tmp;
     if (pixGetColormap(original)) {
+      Image tmp;
       Image without_cmap =
           pixRemoveColormap(original, REMOVE_CMAP_BASED_ON_SRC);
       int depth = pixGetDepth(without_cmap);
@@ -304,9 +304,11 @@ bool ImageThresholder::ThresholdToPix(Image *pix) {
         tmp = without_cmap.copy();
       }
       without_cmap.destroy();
+      OtsuThresholdRectToPix(tmp, pix);
+      tmp.destroy();
+    } else {
+      OtsuThresholdRectToPix(pix_, pix);
     }
-    OtsuThresholdRectToPix(tmp, pix);
-    tmp.destroy();
   }
   original.destroy();
   return true;
