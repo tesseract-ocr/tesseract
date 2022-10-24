@@ -359,7 +359,7 @@ Image ImageThresholder::GetPixRect() {
   }
 }
 
-// Get a clone/copy of the source image rectangle,; reduced to greyscale,
+// Get a clone/copy of the source image rectangle, reduced to greyscale,
 // and at the same resolution as the output binary.
 // The returned Pix must be pixDestroyed.
 // Provided to the classifier to extract features from the greyscale image.
