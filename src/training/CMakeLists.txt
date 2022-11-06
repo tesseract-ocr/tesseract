@@ -264,7 +264,7 @@ if(ICU_FOUND)
                                                        PkgConfig::ICU)
     else()
       target_link_libraries(unicharset_training PUBLIC common_training
-                                                       ICU::uc ICU::i18n
+                                                       ${ICU_LIBRARIES}
                                                        ${ICU_LINK_LIBRARIES})
     endif()
   endif()
