@@ -54,6 +54,7 @@ jobs:
            brew install leptonica
            brew install libarchive
            brew install pango
+           brew install icu4c && brew link icu4c
            brew install cabextract
            brew install ninja
            ninja --version
