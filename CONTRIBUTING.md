@@ -77,4 +77,4 @@ In short, after running `configure` from the build directory of your choice, to 
 
 As soon as your changes are building and tests are succeeding, you can publish them. If you have not already, please [fork](https://docs.github.com/en/get-started/quickstart/contributing-to-projects) tesseract (somewhere) on GitHub, and push your changes to that fork (in a new branch). Then [submit as PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
 
-Please also keep track of reports from CI (automated build status) and Coverity/LGTM (quality scan). When the indicators show deterioration after your changes, further action may be required to improve them.
+Please also keep track of reports from CI (automated build status) and Coverity/CodeQL (quality scan). When the indicators show deterioration after your changes, further action may be required to improve them.
