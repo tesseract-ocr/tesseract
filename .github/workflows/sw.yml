@@ -34,12 +34,18 @@ jobs:
     - uses: egorpugin/sw-action@master
 
     - name: build
-      if: matrix.os == 'windows-2022' || matrix.os == 'windows-2019'
+      if: github.event_name != 'pull_request' && (matrix.os == 'windows-2022' || matrix.os == 'windows-2019')
       run: ./sw -static -shared -platform x86,x64 -config d,r build
+    - name: build-pr
+      if: github.event_name == 'pull_request' && (matrix.os == 'windows-2022' || matrix.os == 'windows-2019')
+      run: ./sw build
 
     - name: build
-      if: matrix.os != 'windows-2022' && matrix.os != 'windows-2019'
+      if: github.event_name != 'pull_request' && (matrix.os != 'windows-2022' && matrix.os != 'windows-2019')
       run: ./sw -static -shared -config d,r build -Dwith-tests=1
+    - name: build-pr
+      if: github.event_name == 'pull_request' && (matrix.os != 'windows-2022' && matrix.os != 'windows-2019')
+      run: ./sw build -Dwith-tests=1
 
     - name: download test data
       run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
@@ -47,15 +53,18 @@ jobs:
     - name: copy fonts
       if: matrix.os != 'windows-2022' && matrix.os != 'windows-2019'
       run: cp tessdata_unittest/fonts/* test/testing/
-
     - name: copy fonts
       if: matrix.os == 'windows-2022' || matrix.os == 'windows-2019'
       run: Copy-Item -Path "tessdata_unittest\fonts\*" -Destination "test\testing" -Recurse
       shell: pwsh
 
     - name: test
-      if: matrix.os != 'windows-2022' && matrix.os != 'windows-2019'
+      if: github.event_name != 'pull_request' && (matrix.os != 'windows-2022' && matrix.os != 'windows-2019')
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
+      continue-on-error: true
+    - name: test
+      if: github.event_name == 'pull_request' && (matrix.os != 'windows-2022' && matrix.os != 'windows-2019')
+      run: ./sw test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
       continue-on-error: true
 
     - name: test-nightly
