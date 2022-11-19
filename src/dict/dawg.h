@@ -382,7 +382,7 @@ public:
   /// true otherwise.
   inline bool add_unique(const DawgPosition &new_pos, bool debug,
                          const char *debug_msg) {
-    for (auto position : *this) {
+    for (auto &&position : *this) {
       if (position == new_pos) {
         return false;
       }

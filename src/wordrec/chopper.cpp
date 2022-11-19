@@ -283,7 +283,7 @@ SEAM *Wordrec::chop_overlapping_blob(const std::vector<TBOX> &boxes, bool italic
 
     bool almost_equal_box = false;
     int num_overlap = 0;
-    for (auto boxe : boxes) {
+    for (auto &&boxe : boxes) {
       if (original_box.overlap_fraction(boxe) > 0.125) {
         num_overlap++;
       }
