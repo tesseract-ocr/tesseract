@@ -322,7 +322,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX &line_box,
 }
 
 struct greater_than {
-  inline bool operator()(const RecodeNode *&node1, const RecodeNode *&node2) {
+  inline bool operator()(const RecodeNode *&node1, const RecodeNode *&node2) const {
     return (node1->score > node2->score);
   }
 };

@@ -269,11 +269,11 @@ public:
   bool normalise();
 
   /// test equality
-  bool operator==(const FCOORD &other) {
+  bool operator==(const FCOORD &other) const {
     return xcoord == other.xcoord && ycoord == other.ycoord;
   }
   /// test inequality
-  bool operator!=(const FCOORD &other) {
+  bool operator!=(const FCOORD &other) const {
     return xcoord != other.xcoord || ycoord != other.ycoord;
   }
   /// rotate 90 deg anti
