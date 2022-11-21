@@ -361,7 +361,7 @@ struct DawgPosition {
         dawg_index(dawg_idx),
         punc_index(punc_idx),
         back_to_punc(backtopunc) {}
-  bool operator==(const DawgPosition &other) {
+  bool operator==(const DawgPosition &other) const {
     return dawg_index == other.dawg_index && dawg_ref == other.dawg_ref &&
            punc_index == other.punc_index && punc_ref == other.punc_ref &&
            back_to_punc == other.back_to_punc;
@@ -382,7 +382,7 @@ public:
   /// true otherwise.
   inline bool add_unique(const DawgPosition &new_pos, bool debug,
                          const char *debug_msg) {
-    for (auto position : *this) {
+    for (auto &&position : *this) {
       if (position == new_pos) {
         return false;
       }

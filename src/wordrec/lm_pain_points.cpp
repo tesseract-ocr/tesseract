@@ -130,7 +130,7 @@ void LMPainPoints::GenerateFromAmbigs(const DANGERR &fixpt, ViterbiStateEntry *v
                                       WERD_RES *word_res) {
   // Begins and ends in DANGERR vector now record the blob indices as used
   // by the ratings matrix.
-  for (auto danger : fixpt) {
+  for (auto &&danger : fixpt) {
     // Only use dangerous ambiguities.
     if (danger.dangerous) {
       GeneratePainPoint(danger.begin, danger.end - 1, LM_PPTYPE_AMBIG, vse->cost, true,
@@ -203,7 +203,7 @@ bool LMPainPoints::GeneratePainPoint(int col, int row, LMPainPointsType pp_type,
 void LMPainPoints::RemapForSplit(int index) {
   for (auto &pain_points_heap : pain_points_heaps_) {
     std::vector<MatrixCoordPair> &heap = pain_points_heap.heap();
-    for (auto entry : heap) {
+    for (auto &&entry : heap) {
       entry.data().MapForSplit(index);
     }
   }

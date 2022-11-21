@@ -174,7 +174,7 @@ void ShapeClassifier::UnicharPrintResults(const char *context,
             GetUnicharset().id_to_unichar(result.unichar_id));
     if (!result.fonts.empty()) {
       tprintf(" Font Vector:");
-      for (auto font : result.fonts) {
+      for (auto &&font : result.fonts) {
         tprintf(" %d", font.fontinfo_id);
       }
     }

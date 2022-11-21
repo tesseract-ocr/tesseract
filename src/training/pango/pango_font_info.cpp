@@ -591,7 +591,7 @@ int FontUtils::FontScore(const std::unordered_map<char32, int64_t> &ch_map,
   }
   *raw_score = 0;
   int ok_chars = 0;
-  for (auto it : ch_map) {
+  for (auto &&it : ch_map) {
     bool covered =
         (coverage != nullptr) && (IsWhitespace(it.first) ||
                                   (pango_coverage_get(coverage, it.first) == PANGO_COVERAGE_EXACT));

@@ -1079,7 +1079,7 @@ void Classify::MasterMatcher(INT_TEMPLATES_STRUCT *templates, int16_t num_featur
   int top = blob_box.top();
   int bottom = blob_box.bottom();
   UnicharRating int_result;
-  for (auto result : results) {
+  for (auto &&result : results) {
     CLASS_ID class_id = result.Class;
     BIT_VECTOR protos = classes != nullptr ? classes[class_id]->PermProtos : AllProtosOn;
     BIT_VECTOR configs = classes != nullptr ? classes[class_id]->PermConfigs : AllConfigsOn;

@@ -157,7 +157,7 @@ public:
       return false;
     } else if constexpr (std::is_same<T, std::string>::value) {
       // Serialize strings.
-      for (auto string : data) {
+      for (auto &&string : data) {
         if (!Serialize(string)) {
           return false;
         }
