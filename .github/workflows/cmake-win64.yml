@@ -149,7 +149,12 @@ jobs:
           tesseract -v
           tesseract --list-langs
           tesseract test/testing/phototest.tif -
-          
+
+      - name: Sleep for 15 seconds
+        run: |
+          echo "Upload Build Results..."
+          sleep 15s
+        
       - name: Upload Build Results
         uses: actions/upload-artifact@v3
         with:
