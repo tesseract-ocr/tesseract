@@ -16,6 +16,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: ilammy/setup-nasm@v1
+      - uses: battila7/get-version-action@v2
       - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
         uses: actions/checkout@v3
         with:
@@ -139,6 +140,13 @@ jobs:
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=ON
              cmake --build build --config Release --target install
 
+      - name: Upload Build Results
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: tesseract-${{ steps.get_version.outputs.VERSION }}-VS2019_win64
+          path: ${{env.ILOC}}
+          retention-days: 5
+          
       - name: Display Tesseract Version and Test Command Line Usage
         shell: cmd
         run: |
@@ -152,15 +160,4 @@ jobs:
           tesseract -v
           tesseract --list-langs
           tesseract test/testing/phototest.tif -
-
-      - name: Sleep for 15 seconds
-        run: |
-          echo "Upload Build Results..."
-          sleep 15s
-        
-      - name: Upload Build Results
-        uses: actions/upload-artifact@v3
-        with:
-          name: tesseract-${{ steps.get_version.outputs.VERSION }}-VS2019_win64
-          path: ${{env.ILOC}}
-          retention-days: 5
+      
