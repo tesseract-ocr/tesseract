@@ -3,8 +3,8 @@
 name: cmake-win64
 on:
   #push:
-  schedule:
-    - cron: 0 23 * * *
+  # schedule:
+    # - cron: 0 23 * * *
   workflow_dispatch:
 
 env:
