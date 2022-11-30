@@ -54,31 +54,12 @@ jobs:
              cmake --build build --config Release --target install
              cd ..
 
-      - name: Build and Install giflib
-        shell: cmd
-        run: |
-             curl -sSL -o giflib-master.zip https://codeload.github.com/xbmc/giflib/zip/master
-             unzip -qq giflib-master.zip
-             cd giflib-master
-             cmake -Bbuild -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}}
-             cmake --build build --config Release --target install
-             cd ..
-
       - name: Build and Install libjpeg
         shell: cmd
         run: |
              git clone --depth 1 https://github.com/libjpeg-turbo/libjpeg-turbo.git
              cd libjpeg-turbo
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DWITH_TURBOJPEG=OFF -DENABLE_SHARED=OFF
-             cmake --build build --config Release --target install
-             cd ..
-
-      - name: Build and Install webp
-        shell: cmd
-        run: |
-             git -c advice.detachedHead=false clone --branch v1.2.3 --depth 1 https://github.com/webmproject/libwebp.git
-             cd libwebp
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DWEBP_BUILD_ANIM_UTILS=OFF -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF -DWEBP_BUILD_VWEBP=OFF -DWEBP_BUILD_WEBPMUX=OFF -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_EXTRAS=OFF
              cmake --build build --config Release --target install
              cd ..
 
@@ -91,30 +72,12 @@ jobs:
              cmake --build build --config Release --target install
              cd ..
 
-      - name: Build and Install zstd
-        shell: cmd
-        run: |
-             git clone --depth 1 https://github.com/facebook/zstd.git
-             cd zstd/build/cmake
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DZSTD_BUILD_PROGRAMS=OFF -DBUILD_TESTING=OFF
-             cmake --build build --config Release --target install
-             cd ..
-
       - name: Build and Install libtiff
         shell: cmd
         run: |
              git clone -c advice.detachedHead=false -b "v4.0.10" --depth 1 https://gitlab.com/libtiff/libtiff.git
              cd libtiff
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -Dtiff-tools=OFF -Dtiff-tests=OFF -Dtiff-contrib=OFF -Dtiff-docs=OFF
-             cmake --build build --config Release --target install
-             cd ..
-
-      - name: Build and Install openjpeg
-        shell: cmd
-        run: |
-             git clone --depth 1 https://github.com/uclouvain/openjpeg.git
-             cd openjpeg
-             cmake -Bbuild -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DBUILD_CODEC=OFF -DBUILD_TESTING=OFF -DBUILD_DOC=OFF -DCMAKE_WARN_DEPRECATED=OFF
              cmake --build build --config Release --target install
              cd ..
 
@@ -127,14 +90,6 @@ jobs:
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_PROG=OFF -DBUILD_SHARED_LIBS=ON
              cmake --build build --config Release --target install
 
-      - name: Build and Install libarchive
-        shell: cmd
-        run: |
-             git clone --depth 1 https://github.com/libarchive/libarchive.git
-             cd libarchive
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DENABLE_TEST=OFF
-             cmake --build build --config Release --target install
-
       - name: Remove not needed tools Before building tesseract
         shell: cmd
         run: >
@@ -143,8 +98,7 @@ jobs:
       - name: Build and Install tesseract
         shell: cmd
         run: |
-             REM cmake -E env CXXFLAGS="/Qpar /fp:fast"
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=ON
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=OFF
              cmake --build build --config Release --target install
 
       - name: Upload Build Results
@@ -158,13 +112,15 @@ jobs:
         shell: cmd
         run: |
           curl -L https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata --output ${{env.ILOC}}/share/tessdata/eng.traineddata
-          REM curl -L https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata --output ${{env.ILOC}}/share/tessdata/osd.traineddata
+          curl -L https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata --output ${{env.ILOC}}/share/tessdata/osd.traineddata
           echo "Setting TESSDATA_PREFIX..."
           set TESSDATA_PREFIX=${{env.ILOC}}/share/tessdata
           echo "Setting PATH..."
           set PATH=${{env.ILOC}}/bin;%PATH%
           echo "Checking installed tesseract version..."
           tesseract -v
+          echo "Checking installed langs"
           tesseract --list-langs
+          echo "Checking OCR process"
           tesseract test/testing/phototest.tif -
       
