@@ -16,7 +16,6 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: ilammy/setup-nasm@v1
-      - uses: battila7/get-version-action@v2
       - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
         uses: actions/checkout@v3
         with:
