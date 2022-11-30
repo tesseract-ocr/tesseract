@@ -21,9 +21,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
+      - run: git fetch --prune --unshallow --tags
       - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+        run: |
+             $git_info=$(git describe --tags HEAD)
+             echo "version=${git_info}" >> $env:GITHUB_OUTPUT
       - name: Setup Instalation Location
         run: |
              mkdir ${{env.ILOC}}
@@ -143,10 +146,10 @@ jobs:
       - name: Upload Build Results
         uses: actions/upload-artifact@v3.1.1
         with:
-          name: tesseract-${{ steps.get_version.outputs.VERSION }}-VS2019_win64
+          name: tesseract-${{ steps.get_version.outputs.version }}-VS2019_win64
           path: ${{env.ILOC}}
           retention-days: 5
-          
+
       - name: Display Tesseract Version and Test Command Line Usage
         shell: cmd
         run: |
