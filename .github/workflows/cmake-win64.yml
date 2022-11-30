@@ -30,6 +30,10 @@ jobs:
       - name: Setup Instalation Location
         run: |
              mkdir ${{env.ILOC}}
+      - name: Uninstall Perl
+        run: |
+          choco uninstall strawberryperl
+
       - name: Build and Install zlib-ng
         shell: cmd
         run: |
