@@ -55,7 +55,7 @@ void Tesseract::PrerecAllWordsPar(const std::vector<WordData> &words) {
 #  pragma omp parallel for num_threads(10)
 #endif // _OPENMP
     // NOLINTNEXTLINE(modernize-loop-convert)
-    for (size_t b = 0; b < blobs.size(); ++b) {
+    for (auto b = 0; b < blobs.size(); ++b) {
       *blobs[b].choices =
           blobs[b].tesseract->classify_blob(blobs[b].blob, "par", ScrollView::WHITE, nullptr);
     }
