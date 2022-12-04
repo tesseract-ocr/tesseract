@@ -278,7 +278,7 @@ bool TessdataManager::CombineDataFiles(const char *language_data_path_prefix,
   if (!IsBaseAvailable() && !IsLSTMAvailable()) {
     tprintf(
         "Error: traineddata file must contain at least (a unicharset file"
-        "and inttemp) OR an lstm file.\n");
+        " and inttemp) OR an lstm file.\n");
     return false;
   }
   // Write updated data to the output traineddata file.
