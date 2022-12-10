@@ -475,7 +475,7 @@ WERD_CHOICE &WERD_CHOICE::operator+=(const WERD_CHOICE &second) {
   if (second.adjust_factor_ > adjust_factor_) {
     adjust_factor_ = second.adjust_factor_;
   }
-  rating_ += second.rating();          // add ratings
+  rating_ += second.rating();            // add ratings
   if (second.certainty() < certainty_) { // take min
     certainty_ = second.certainty();
   }
@@ -568,7 +568,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD *word, int debug) {
       ScriptPos sp = script_pos_[i];
       if (sp == tesseract::SP_SUBSCRIPT || sp == tesseract::SP_SUPERSCRIPT) {
         ASSERT_HOST(position_counts[sp] > 0);
-	position_counts[sp]--;
+        position_counts[sp]--;
         position_counts[tesseract::SP_NORMAL]++;
         script_pos_[i] = tesseract::SP_NORMAL;
       }
@@ -583,7 +583,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD *word, int debug) {
         TBLOB *tblob = word->blobs[chunk_index];
         ScriptPositionOf(true, *unicharset_, tblob->bounding_box(), unichar_id(blob_index));
       }
-      chunk_index += state_.empty() ? 1 :  state_[blob_index];
+      chunk_index += state_.empty() ? 1 : state_[blob_index];
     }
   }
 }

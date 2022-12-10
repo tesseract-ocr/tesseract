@@ -371,9 +371,10 @@ static bool checkArgValues(int arg, const char *mode, int count) {
 // NOTE: arg_i is used here to avoid ugly *i so many times in this function
 static bool ParseArgs(int argc, char **argv, const char **lang, const char **image,
                       const char **outputbase, const char **datapath, l_int32 *dpi,
-                      bool *list_langs, bool *print_parameters, bool* print_fonts_table, std::vector<std::string> *vars_vec,
-                      std::vector<std::string> *vars_values, l_int32 *arg_i,
-                      tesseract::PageSegMode *pagesegmode, tesseract::OcrEngineMode *enginemode) {
+                      bool *list_langs, bool *print_parameters, bool *print_fonts_table,
+                      std::vector<std::string> *vars_vec, std::vector<std::string> *vars_values,
+                      l_int32 *arg_i, tesseract::PageSegMode *pagesegmode,
+                      tesseract::OcrEngineMode *enginemode) {
   bool noocr = false;
   int i;
   for (i = 1; i < argc && (*outputbase == nullptr || argv[i][0] == '-'); i++) {
@@ -421,10 +422,10 @@ static bool ParseArgs(int argc, char **argv, const char **lang, const char **ima
       };
       try {
         auto loglevel = loglevels.at(loglevel_string);
-	log_level = loglevel;
-      } catch(const std::out_of_range& e) {
+        log_level = loglevel;
+      } catch (const std::out_of_range &e) {
         // TODO: Allow numeric argument?
-	tprintf("Error, unsupported --loglevel %s\n", loglevel_string.c_str());
+        tprintf("Error, unsupported --loglevel %s\n", loglevel_string.c_str());
         return false;
       }
     } else if (strcmp(argv[i], "--user-words") == 0 && i + 1 < argc) {
@@ -674,7 +675,8 @@ int main(int argc, char **argv) {
 #endif // HAVE_TIFFIO_H && _WIN32
 
   if (!ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &dpi, &list_langs,
-                 &print_parameters, &print_fonts_table, &vars_vec, &vars_values, &arg_i, &pagesegmode, &enginemode)) {
+                 &print_parameters, &print_fonts_table, &vars_vec, &vars_values, &arg_i,
+                 &pagesegmode, &enginemode)) {
     return EXIT_FAILURE;
   }
 
@@ -728,7 +730,7 @@ int main(int argc, char **argv) {
 
 #ifndef DISABLED_LEGACY_ENGINE
   if (print_fonts_table) {
-    FILE* fout = stdout;
+    FILE *fout = stdout;
     fprintf(stdout, "Tesseract fonts table:\n");
     api.PrintFontsTable(fout);
     api.End();
