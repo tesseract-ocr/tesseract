@@ -22,8 +22,6 @@
 
 namespace tesseract {
 
-using void_proc = void (*)(...);
-
 /**
 NOTE:  All circular parameters of all keys must be in the range
 
@@ -34,7 +32,11 @@ MakeKDTree.  All KD routines assume that this is true and will not operate
 correctly if circular parameters outside the specified range are used.
 */
 
+struct ClusteringContext;
+struct CLUSTER;
 struct KDTREE;
+
+using kdwalk_proc = void (*)(ClusteringContext *context, CLUSTER *Cluster, int32_t Level);
 
 struct KDNODE {
   /// This routine allocates memory for a new K-D tree node
@@ -46,14 +48,14 @@ struct KDNODE {
   /// @param Data  ptr to data to be stored in new node
   /// @param Index  index of Key to branch on
   KDNODE() = default;
-  KDNODE(KDTREE *tree, float key[], void *data, int Index);
+  KDNODE(KDTREE *tree, float key[], CLUSTER *data, int Index);
   ~KDNODE() {
     delete Left;
     delete Right;
   }
 
   float *Key;          /**< search key */
-  void *Data;          /**< data that corresponds to key */
+  CLUSTER *Data;       /**< data that corresponds to key */
   float BranchPoint;   /**< needed to make deletes work efficiently */
   float LeftBranch;    /**< used to optimize search pruning */
   float RightBranch;   /**< used to optimize search pruning */
@@ -80,7 +82,7 @@ struct KDTREE {
   std::vector<PARAM_DESC> KeyDesc; // description of each dimension
 };
 
-inline KDNODE::KDNODE(KDTREE *tree, float key[], void *data, int Index) {
+inline KDNODE::KDNODE(KDTREE *tree, float key[], CLUSTER *data, int Index) {
   Key = key;
   Data = data;
   BranchPoint = Key[Index];
@@ -100,14 +102,14 @@ inline KDNODE::KDNODE(KDTREE *tree, float key[], void *data, int Index) {
 -----------------------------------------------------------------------------*/
 KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]);
 
-void KDStore(KDTREE *Tree, float *Key, void *Data);
+void KDStore(KDTREE *Tree, float *Key, CLUSTER *Data);
 
 void KDDelete(KDTREE *Tree, float Key[], void *Data);
 
 void KDNearestNeighborSearch(KDTREE *Tree, float Query[], int QuerySize, float MaxDistance,
                              int *NumberOfResults, void **NBuffer, float DBuffer[]);
 
-void KDWalk(KDTREE *Tree, void_proc Action, void *context);
+void KDWalk(KDTREE *Tree, kdwalk_proc Action, ClusteringContext *context);
 
 /*-----------------------------------------------------------------------------
           Private Function Prototypes
@@ -120,7 +122,7 @@ float ComputeDistance(int k, PARAM_DESC *dim, float p1[], float p2[]);
 
 int QueryInSearch(KDTREE *tree);
 
-void Walk(KDTREE *tree, void_proc action, void *context, KDNODE *SubTree, int32_t Level);
+void Walk(KDTREE *tree, kdwalk_proc action, ClusteringContext *context, KDNODE *SubTree, int32_t Level);
 
 void InsertNodes(KDTREE *tree, KDNODE *nodes);
 
