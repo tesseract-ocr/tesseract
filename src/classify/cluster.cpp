@@ -2523,7 +2523,6 @@ static PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statist
  */
 static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
   auto Proto = new PROTOTYPE;
-  ASSERT_HOST(N == sizeof(Cluster->Mean));
   Proto->Mean = Cluster->Mean;
   Proto->Distrib.clear();
   Proto->Significant = true;
