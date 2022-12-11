@@ -2774,8 +2774,8 @@ static double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha)
    for the specified number of degrees of freedom.  Search the list for
    the desired chi-squared. */
   CHISTRUCT SearchKey(0.0, Alpha);
-  auto OldChiSquared = reinterpret_cast<CHISTRUCT *>(
-      search(ChiWith[DegreesOfFreedom], &SearchKey, AlphaMatch)->first_node());
+  auto *found = search(ChiWith[DegreesOfFreedom], &SearchKey, AlphaMatch);
+  auto OldChiSquared = reinterpret_cast<CHISTRUCT *>(found ? found->first_node() : nullptr);
 
   if (OldChiSquared == nullptr) {
     OldChiSquared = new CHISTRUCT(DegreesOfFreedom, Alpha);
