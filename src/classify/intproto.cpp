@@ -919,13 +919,13 @@ void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView *window) {
 void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
                                  const UNICHARSET &target_unicharset) {
   INT_CLASS_STRUCT *Class;
-  auto unicharset_size = target_unicharset.size();
+  uint32_t unicharset_size = target_unicharset.size();
   int version_id = -5; // When negated by the reader -1 becomes +1 etc.
 
   if (Templates->NumClasses != unicharset_size) {
     tprintf(
         "Warning: executing WriteIntTemplates() with %d classes in"
-        " Templates, while target_unicharset size is %zu\n",
+        " Templates, while target_unicharset size is %" PRIu32 "\n",
         Templates->NumClasses, unicharset_size);
   }
 
