@@ -31,6 +31,8 @@
 #include <string>
 #include <vector>
 
+#include "serialis.h"
+
 namespace tesseract {
 
 template <class T>
@@ -240,6 +242,19 @@ bool Serialize(FILE *fp, const std::vector<T> &data) {
     for (auto &item : data) {
       if (!item.Serialize(fp)) {
         return false;
+      }
+    }
+  } else if constexpr (std::is_pointer<T>::value) {
+    // Serialize pointers.
+    for (auto &item : data) {
+      uint8_t non_null = (item != nullptr);
+      if (!Serialize(fp, &non_null)) {
+        return false;
+      }
+      if (non_null) {
+        if (!item->Serialize(fp)) {
+          return false;
+        }
       }
     }
   } else if (size > 0) {
