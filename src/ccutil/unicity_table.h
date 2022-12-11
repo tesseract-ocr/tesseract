@@ -73,8 +73,7 @@ public:
   int push_back(T object)  {
     auto idx = get_index(object);
     if (idx == -1) {
-      table_.push_back(object);
-      idx = size();
+      idx = table_.push_back(object);
     }
     return idx;
   }
