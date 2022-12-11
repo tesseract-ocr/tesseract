@@ -1716,7 +1716,7 @@ static void CreateClusterTree(CLUSTERER *Clusterer) {
   context.candidates = new TEMPCLUSTER[Clusterer->NumberOfSamples];
   context.next = 0;
   context.heap = new ClusterHeap(Clusterer->NumberOfSamples);
-  KDWalk(context.tree, reinterpret_cast<void_proc>(MakePotentialClusters), &context);
+  KDWalk(context.tree, MakePotentialClusters, &context);
 
   // form potential clusters into actual clusters - always do "best" first
   while (context.heap->Pop(&HeapEntry)) {
