@@ -221,7 +221,8 @@ bool write_spacing_info(FILE *f, const FontInfo &fi) {
 
 bool write_set(FILE *f, const FontSet &fs) {
   int size = fs.size();
-  return tesseract::Serialize(f, &size) && tesseract::Serialize(f, &fs[0], size);
+  return tesseract::Serialize(f, &size) &&
+         (size > 0 ? tesseract::Serialize(f, &fs[0], size) : true);
 }
 
 } // namespace tesseract.
