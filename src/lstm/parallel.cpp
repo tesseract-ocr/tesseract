@@ -137,7 +137,7 @@ bool Parallel::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch 
 #ifdef _OPENMP
 #  pragma omp parallel for num_threads(stack_size)
 #endif
-    for (auto i = 0; i < stack_size; ++i) {
+    for (unsigned i = 0; i < stack_size; ++i) {
       stack_[i]->Backward(debug, *in_deltas[i], scratch, i == 0 ? back_deltas : out_deltas[i]);
     }
     if (needs_to_backprop_) {
