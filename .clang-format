@@ -1,7 +1,7 @@
 BasedOnStyle: Google
 
 # Modifications for Tesseract.
-ColumnLimit:     100
+
 # Only merge empty functions.
 AllowShortFunctionsOnASingleLine: Empty
 # Do not allow short if statements.
