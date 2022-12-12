@@ -62,6 +62,13 @@ public:
     return table_.at(id);
   }
 
+  T &operator[](size_t id) {
+    return table_[id];
+  }
+  const T &operator[](size_t id) const {
+    return table_[id];
+  }
+
   /// Return the id of the T object.
   /// This method NEEDS a compare_callback to be passed to
   /// set_compare_callback.
