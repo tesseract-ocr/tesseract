@@ -21,7 +21,7 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Install dependencies (MacOS Homebrew)
+    - name: Install dependencies (macOS Homebrew)
       run: |
            brew install autoconf automake libarchive
            brew install leptonica cairo pango
@@ -32,7 +32,7 @@ jobs:
            mkdir -p m4
            ./autogen.sh
 
-    - name: Configure (MacOS Homebrew)
+    - name: Configure (macOS Homebrew)
       run: |
            ./configure '--disable-shared' '--with-pic' \
                 'CXX=${{ matrix.config.cxx }}' \

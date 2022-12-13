@@ -464,7 +464,7 @@ esac
 
 AC_SEARCH_LIBS([pthread_create], [pthread])
 
-# Set PKG_CONFIG_PATH for MacOS with Homebrew unless it is already set.
+# Set PKG_CONFIG_PATH for macOS with Homebrew unless it is already set.
 AC_CHECK_PROG([have_brew], brew, true, false)
 if $have_brew; then
   brew_prefix=$(brew --prefix)
@@ -487,7 +487,7 @@ AC_ARG_ENABLE([doc],
 AS_IF([test "$enable_doc" != "no"], [
   AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
   AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
-  # MacOS with Homebrew requires the environment variable
+  # macOS with Homebrew requires the environment variable
   # XML_CATALOG_FILES for xsltproc.
   if $have_asciidoc && $have_xsltproc; then
     AM_CONDITIONAL([ASCIIDOC], true)
