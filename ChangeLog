@@ -1,3 +1,23 @@
+2022-12-13 - V5.3.0-rc1
+ * Fix the training tools for the legacy OCR engine (fix issue #3925).
+ * PDF renderer: Ignore non-text blocks (fix issue #3957).
+ * Remove colormap before thresholding (fix issue #3940).
+ * Fix a number of performance issues reported by Coverity Scan.
+ * Training tools: Replace call of exit function by return statement in main function.
+ * Fix double free in function vigorous_noise_removal (fix issue #3876).
+ * Create to_win if needed in Textord::make_spline_rows (fix issue #3875).
+ * Bug fixes for ScrollView viewer:
+   * Fix memory issues in ScrollView::MessageReceiver.
+   * Catch potential nullptr in SVNetwork::SVNetwork.
+   * Move svpaint.cpp from src/viewer to src/.
+   * Add rule for svpaint executable in Autotools.
+ * Bug fixes and improvements for build tools:
+   * Fix AMD64 detection with autobuild on FreeBSD (fix issue #3964).
+   * Fix tesseract.pc generated from CMake to match Autotools.
+   * Detect availability of AVX512-VNNI.
+   * configure.ac: fix build on aarch64_be.
+ * Drop CI for old versions of macOS and Ubuntu.
+
 2022-07-06 - V5.2.0
   * Improvements and fixes for continuous integration,
     autoconf and cmake builds.
