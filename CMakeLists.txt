@@ -275,6 +275,8 @@ elseif(MSVC)
   # 'double' to 'float'
   set(CMAKE_CXX_FLAGS_RELEASE
       "${CMAKE_CXX_FLAGS_RELEASE} /wd4244 /wd4305 /wd4267 /wd4251 /wd4275 /wd4005")
+  set(CMAKE_CXX_FLAGS_RELEASE
+      "${CMAKE_CXX_FLAGS_RELEASE} /wd4068")
   # Don't use /Wall because it generates too many warnings.
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /W0 /bigobj")
   # MT flag
