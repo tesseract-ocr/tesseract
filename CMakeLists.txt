@@ -299,13 +299,6 @@ if(OPENMP_BUILD
 endif()
 if(OPENMP_BUILD)
   find_package(OpenMP QUIET)
-  if(OpenMP_FOUND)
-    message(">> OpenMP_FOUND ${OpenMP_FOUND} ${OpenMP_VERSION}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    if (NOT TARGET OpenMP::OpenMP_CXX)
-      add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
-    endif()
-  endif()
   # https://stackoverflow.com/questions/12399422
   # how-to-set-linker-flags-for-openmp-in-cmakes-try-compile-function
   if(NOT OpenMP_FOUND
@@ -326,8 +319,22 @@ if(OPENMP_BUILD)
     add_definitions(-D_OPENMP=201107)
   endif()
   if(MSVC)
-    string(REPLACE "/openmp" "/openmp:llvm -openmp:experimental" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-    string(REPLACE "-openmp" "/openmp:llvm -openmp:experimental" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+    # Note: -openmp:llvm is available for X64 from MSVC 16.9
+    # from MSVC 16.10 Preview 2 there is support also for x86 and arm64
+    # https://devblogs.microsoft.com/cppblog/openmp-updates-and-fixes-for-cpp-in-visual-studio-2019-16-10/
+    if ("${OpenMP_CXX_FLAGS}" STREQUAL "-openmp")
+      set(OpenMP_CXX_FLAGS "-openmp:llvm")
+    endif()
+    # 'simd': requires '-openmp:experimental'
+    set_source_files_properties(src/arch/dotproduct.cpp
+                              PROPERTIES COMPILE_FLAGS "-openmp:experimental")
+  endif()
+  if(OpenMP_FOUND)
+    message(">> OpenMP_FOUND ${OpenMP_FOUND} version: ${OpenMP_CXX_VERSION}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    if (NOT TARGET OpenMP::OpenMP_CXX)
+      add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
+    endif()
   endif()
 endif()
 
