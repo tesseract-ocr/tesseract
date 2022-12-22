@@ -1,3 +1,6 @@
+2022-12-22 - V5.3.0
+ * Minor updates for documentation and cmake builds.
+
 2022-12-13 - V5.3.0-rc1
  * Fix the training tools for the legacy OCR engine (fix issue #3925).
  * PDF renderer: Ignore non-text blocks (fix issue #3957).
