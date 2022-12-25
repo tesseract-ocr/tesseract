@@ -1,0 +1,7 @@
+name: Feature Request
+description: File a feature request
+body:
+  - type: textarea
+    attributes:
+      label: Your Feature Request
+      description: Please look first at the [open issues labeled as 'feature request'](https://github.com/tesseract-ocr/tesseract/labels/feature%20request).
