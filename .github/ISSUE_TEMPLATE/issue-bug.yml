@@ -20,33 +20,18 @@ body:
       label: Basic Information
       description: Version info, compiled libraries, SIMD, OpenMP
       placeholder: "Paste the output of the command: tesseract -v"
-  - type: markdown
-    attributes:
-      value: |
-        ### Operating System
-        Choose the OS where the bug occurs      
-  - type: checkboxes
-    id: os-windows
-    attributes:
-      label: Windows
-      options:
-        - label: Windows 11
-        - label: Windows 10
-  - type: checkboxes
-    id: os-macos
-    attributes:
-      label: macOS
-      options:
-        - label: macOS 13 Ventura
-        - label: macOS 12 Monterey
-        - label: macOS 11 Big Sur
   - type: dropdown
     id: os-linux
     attributes:
-      label: Linux
-      description: Popular Linux distros with a long time support (LTS)
+      label: Operating System
+      description:  Choose the OS where the bug occurs
       multiple: true
       options:
+        - Windows 11
+        - Windows 10
+        - macOS 13 Ventura
+        - macOS 12 Monterey
+        - macOS 11 Big Sur
         - Ubuntu 22.04 Jammy
         - Ubuntu 20.04 Focal
         - Debian Testing Bookwarm
