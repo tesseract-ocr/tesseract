@@ -10,7 +10,10 @@ body:
         Have a question? Need help?
         Please use [our forum](https://groups.google.com/g/tesseract-ocr).
         
-        Don't open an issue for [Tesseract version which was released more than a year ago](https://tesseract-ocr.github.io/tessdoc/ReleaseNotes.html).
+        * Don't open an issue for [Tesseract version which was released more than a year ago](https://tesseract-ocr.github.io/tessdoc/ReleaseNotes.html).
+        * Please provide the input image.
+        * Also provide output files (txt and/or tsv, hocr, pdf). You can make a zip archive that will contain these files, so GitHub will let you upload them.
+        * Don't attach a screenshot of the command line and output. Instead, copy the text and paste it in your bug report. 
   - type: textarea
     attributes:
       label: Basic Information
