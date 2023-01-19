@@ -6,16 +6,16 @@ body:
       value: |
         ### Attention
         Before you submit an issue, please review [the guidelines for this repository](https://github.com/tesseract-ocr/tesseract/blob/main/CONTRIBUTING.md).
-                 
+
         Have a question? Need help?
         Please use [our forum](https://groups.google.com/g/tesseract-ocr).
-        
+
         Please follow these rules:
         * Don't open an issue for [Tesseract version which was released more than a year ago](https://tesseract-ocr.github.io/tessdoc/ReleaseNotes.html).
         * Don't open an issue which involves 3rd party tools that use Tesseract as a library. Only report about an issue with the Tesseract command line tool or the C/C++ API.
         * Please provide the input image.
         * Also provide output files (txt and/or tsv, hocr, pdf). You can make a zip archive that will contain these files, so GitHub will let you upload them.
-        * Don't attach a screenshot of the command line and output. Instead, copy the text and paste it in your bug report. 
+        * Don't attach a screenshot of the command line and output. Instead, copy the text and paste it in your bug report.
   - type: textarea
     attributes:
       label: Basic Information
@@ -51,7 +51,7 @@ body:
   - type: textarea
     attributes:
       label: Compiler
-      placeholder: "Enter compiler name and version (Examples: MSVC 2019 16.11, Clang 13.0.1, GCC 11.2, Xcode 14.1)" 
+      placeholder: "Enter compiler name and version (Examples: MSVC 2019 16.11, Clang 13.0.1, GCC 11.2, Xcode 14.1)"
   - type: textarea
     attributes:
       label: Virtualization / Containers
