@@ -259,12 +259,10 @@ if(ICU_FOUND)
     target_link_libraries(unicharset_training
                           PUBLIC common_training org.sw.demo.unicode.icu.i18n)
   else()
-    if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
-      target_link_libraries(unicharset_training PUBLIC common_training
-                                                       PkgConfig::ICU)
+    if(PKG_CONFIG_FOUND)
+      target_link_libraries(unicharset_training PUBLIC common_training PkgConfig::ICU)
     else()
-      target_link_libraries(unicharset_training PUBLIC common_training
-                                                       ${ICU_LIBRARIES})
+      target_link_libraries(unicharset_training PUBLIC common_training ${ICU_LIBRARIES})
     endif()
   endif()
   target_include_directories(unicharset_training
@@ -388,11 +386,7 @@ if(ICU_FOUND)
         target_include_directories(pango_training BEFORE
                                    PUBLIC ${PANGO_INCLUDE_DIRS})
         target_compile_definitions(pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
-        if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
-          target_link_libraries(pango_training PUBLIC PkgConfig::PANGO)
-        else()
-          target_link_libraries(pango_training PUBLIC ${PANGO_LINK_LIBRARIES})
-        endif()
+        target_link_libraries(pango_training PUBLIC PkgConfig::PANGO)
       endif()
     endif()
     target_include_directories(pango_training
