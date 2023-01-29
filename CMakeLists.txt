@@ -812,14 +812,8 @@ set_target_properties(libtesseract
 set_target_properties(libtesseract
   PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
-if(WIN32)
-  set_target_properties(libtesseract
-     PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
-  set_target_properties(libtesseract
-     PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
-else()
-  set_target_properties(libtesseract PROPERTIES OUTPUT_NAME tesseract)
-endif()
+set_target_properties(libtesseract
+  PROPERTIES OUTPUT_NAME tesseract$<$<BOOL:${WIN32}>:${VERSION_MAJOR}${VERSION_MINOR}$<$<CONFIG:DEBUG>:d>>)
 
 if(SW_BUILD)
   target_link_libraries(libtesseract PUBLIC org.sw.demo.danbloomberg.leptonica
@@ -884,8 +878,10 @@ get_target_property(tesseract_NAME libtesseract NAME)
 get_target_property(tesseract_VERSION libtesseract VERSION)
 get_target_property(tesseract_OUTPUT_NAME libtesseract OUTPUT_NAME)
 
-configure_file(tesseract.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc
+configure_file(tesseract.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc.in
                @ONLY)
+# to resolve generator expression in OUTPUT_NAME
+file(GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tesseract_$<CONFIG>.pc INPUT ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc.in)
 
 configure_package_config_file(
   cmake/templates/TesseractConfig.cmake.in
@@ -897,8 +893,8 @@ write_basic_package_version_file(
   VERSION ${PACKAGE_VERSION}
   COMPATIBILITY SameMajorVersion)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract_$<CONFIG>.pc
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig RENAME tesseract.pc)
 install(TARGETS tesseract DESTINATION bin)
 install(
   TARGETS libtesseract
