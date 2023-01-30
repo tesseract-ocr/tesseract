@@ -21,6 +21,7 @@
 
 #include <tesseract/export.h> // for TESS_API
 
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <string>
