@@ -39,7 +39,6 @@ jobs:
              git clone --depth 1 https://github.com/zlib-ng/zlib-ng.git
              cd zlib-ng
              cmake -Bbuild -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DBUILD_SHARED_LIBS=OFF -DZLIB_COMPAT=ON -DZLIB_ENABLE_TESTS=OFF -DINSTALL_UTILS=OFF
-             cmake -Bbuild -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DZLIB_COMPAT=ON -DZLIB_ENABLE_TESTS=OFF -DINSTALL_UTILS=OFF
              cmake --build build --config Release --target install
              cd ..
 
