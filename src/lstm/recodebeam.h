@@ -211,8 +211,8 @@ public:
   // Generates debug output of the content of the beams after a Decode.
   void DebugBeams(const UNICHARSET &unicharset) const;
 
-  // Extract the best charakters from the current decode iteration and block
-  // those symbols for the next iteration. In contrast to tesseracts standard
+  // Extract the best characters from the current decode iteration and block
+  // those symbols for the next iteration. In contrast to Tesseract's standard
   // method to chose the best overall node chain, this methods looks at a short
   // node chain segmented by the character boundaries and chooses the best
   // option independent of the remaining node chain.

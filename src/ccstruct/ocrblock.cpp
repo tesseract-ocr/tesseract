@@ -312,7 +312,7 @@ static bool RightMargin(ICOORDELT_LIST *segments, int x, int *margin) {
 //  |  You  see this|    | |_| \|_| |   |rectangular      |
 //  |text is  flowed|    |      }   |   |boundary     that|
 //  |around  a  mid-|     \   ____  |   |forms the  ideal-|
-//  |cloumn portrait._____ \       /  __|ized  text margin|
+//  |column portrait._____ \       /  __|ized  text margin|
 //  |  Polyblobs     exist| \    /   |from which we should|
 //  |to account for insets|  |   |   |measure    paragraph|
 //  |which make  otherwise|  -----   |indentation.        |

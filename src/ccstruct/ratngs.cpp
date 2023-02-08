@@ -524,7 +524,7 @@ WERD_CHOICE &WERD_CHOICE::operator=(const WERD_CHOICE &source) {
 // bounding boxes, *this to get the unichars, and this->unicharset
 // to get the target positions. If small_caps is true, sub/super are not
 // considered, but dropcaps are.
-// NOTE: blobs_list should be the chopped_word blobs. (Fully segemented.)
+// NOTE: blobs_list should be the chopped_word blobs. (Fully segmented.)
 void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD *word, int debug) {
   // Initialize to normal.
   for (unsigned i = 0; i < length_; ++i) {
