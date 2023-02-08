@@ -77,7 +77,7 @@ static int Main(int argc, char **argv) {
                    /*continue_on_failure*/ false, /*boxes*/ nullptr, &texts,
                    /*box_texts*/ nullptr, /*pages*/ nullptr);
       if (!res) {
-        tprintf("Can not read box data from '%s'\n", argv[arg]);
+        tprintf("Cannot read box data from '%s'\n", argv[arg]);
         return EXIT_FAILURE;
       }
     } else {

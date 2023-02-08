@@ -400,7 +400,7 @@ public:
 //
 /// Concrete class that can operate on a compacted (squished) Dawg (read,
 /// search and write to file). This class is read-only in the sense that
-/// new words can not be added to an instance of SquishedDawg.
+/// new words cannot be added to an instance of SquishedDawg.
 /// The underlying representation of the nodes and edges in SquishedDawg
 /// is stored as a contiguous EDGE_ARRAY (read from file or given as an
 /// argument to the constructor).

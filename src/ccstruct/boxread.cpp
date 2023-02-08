@@ -78,7 +78,7 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const char *filename, std::
                   std::vector<int> *pages) {
   std::ifstream input(BoxFileName(filename).c_str(), std::ios::in | std::ios::binary);
   if (input.fail()) {
-    tprintf("Can not read box data from '%s'.\n", BoxFileName(filename).c_str());
+    tprintf("Cannot read box data from '%s'.\n", BoxFileName(filename).c_str());
     tprintf("Does it exists?\n");
     return false;
   }

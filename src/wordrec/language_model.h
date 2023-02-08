@@ -267,7 +267,7 @@ protected:
   // could be pruned out (i.e. is neither a system/user/frequent dictionary
   // nor a top choice path).
   // In non-space delimited languages all paths can be "somewhat" dictionary
-  // words. In such languages we can not do dictionary-driven path pruning,
+  // words. In such languages we cannot do dictionary-driven path pruning,
   // so paths with non-empty dawg_info are considered prunable.
   inline bool PrunablePath(const ViterbiStateEntry &vse) {
     if (vse.top_choice_flags) {

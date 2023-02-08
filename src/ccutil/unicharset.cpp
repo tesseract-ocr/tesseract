@@ -1104,7 +1104,7 @@ CHAR_FRAGMENT *CHAR_FRAGMENT::parse_from_string(const char *string) {
   const char *ptr = string;
   int len = strlen(string);
   if (len < kMinLen || *ptr != kSeparator) {
-    return nullptr; // this string can not represent a fragment
+    return nullptr; // this string cannot represent a fragment
   }
   ptr++; // move to the next character
   int step = 0;

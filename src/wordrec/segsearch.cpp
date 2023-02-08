@@ -242,7 +242,7 @@ void Wordrec::ProcessSegSearchPainPoint(float pain_point_priority, const MATRIX_
   if (lst == nullptr) {
     ratings->put(pain_point.col, pain_point.row, classified);
   } else {
-    // We can not delete old BLOB_CHOICEs, since they might contain
+    // We cannot delete old BLOB_CHOICEs, since they might contain
     // ViterbiStateEntries that are parents of other "active" entries.
     // Thus if the matrix cell already contains classifications we add
     // the new ones to the beginning of the list.
