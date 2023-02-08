@@ -357,7 +357,7 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id, float curr_rating, fl
   }
   if (word_ending && char_frag_info->fragment) {
     if (debug) {
-      tprintf("Word can not end with a fragment\n");
+      tprintf("Word cannot end with a fragment\n");
     }
     return false;
   }

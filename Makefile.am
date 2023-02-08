@@ -821,7 +821,7 @@ if DISABLED_LEGACY_ENGINE
 training_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
 endif
 
-# TODO: training programs can not be linked to shared library created
+# TODO: training programs cannot be linked to shared library created
 # with -fvisibility
 if VISIBILITY
 AM_LDFLAGS += -all-static

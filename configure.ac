@@ -640,7 +640,7 @@ AM_COND_IF([ENABLE_TRAINING],
    echo "$ sudo make training-install"
    echo ""],
   [
-   echo "You can not build training tools because of missing dependency."
+   echo "You cannot build training tools because of missing dependency."
    echo "Check configure output for details."
    echo ""]
 )
