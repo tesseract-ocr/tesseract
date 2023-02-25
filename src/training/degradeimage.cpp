@@ -232,7 +232,7 @@ void GeneratePerspectiveDistortion(int width, int height, TRand *randomizer, Ima
     // Transform the image.
     Image transformed = pixProjective(*pix, im_coeffs, incolor);
     if (transformed == nullptr) {
-      tprintf("Projective transformation failed!!\n");
+      tprintf("ERROR: Projective transformation failed!!\n");
       return;
     }
     pix->destroy();

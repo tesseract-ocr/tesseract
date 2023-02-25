@@ -155,13 +155,13 @@ ShapeTable *LoadShapeTable(const std::string &file_prefix) {
     if (!shape_table->DeSerialize(&shape_fp)) {
       delete shape_table;
       shape_table = nullptr;
-      tprintf("Error: Failed to read shape table %s\n", shape_table_file.c_str());
+      tprintf("ERROR: Failed to read shape table %s\n", shape_table_file.c_str());
     } else {
       int num_shapes = shape_table->NumShapes();
       tprintf("Read shape table %s of %d shapes\n", shape_table_file.c_str(), num_shapes);
     }
   } else {
-    tprintf("Warning: No shape table file present: %s\n", shape_table_file.c_str());
+    tprintf("WARNING: No shape table file present: %s\n", shape_table_file.c_str());
   }
   return shape_table;
 }
@@ -173,11 +173,11 @@ void WriteShapeTable(const std::string &file_prefix, const ShapeTable &shape_tab
   FILE *fp = fopen(shape_table_file.c_str(), "wb");
   if (fp != nullptr) {
     if (!shape_table.Serialize(fp)) {
-      fprintf(stderr, "Error writing shape table: %s\n", shape_table_file.c_str());
+      tprintf("ERROR: Error writing shape table: %s\n", shape_table_file.c_str());
     }
     fclose(fp);
   } else {
-    fprintf(stderr, "Error creating shape table: %s\n", shape_table_file.c_str());
+    tprintf("ERROR: Error creating shape table: %s\n", shape_table_file.c_str());
   }
 }
 
@@ -272,7 +272,7 @@ std::unique_ptr<MasterTrainer> LoadTrainingData(const char *const *filelist, boo
   }
   trainer->PreTrainingSetup();
   if (!FLAGS_O.empty() && !trainer->unicharset().save_to_file(FLAGS_O.c_str())) {
-    fprintf(stderr, "Failed to save unicharset to file %s\n", FLAGS_O.c_str());
+    tprintf("ERROR: Failed to save unicharset to file %s\n", FLAGS_O.c_str());
     return {};
   }
 
@@ -353,7 +353,7 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
       unicharset->unichar_insert(unichar);
       if (unicharset->size() > MAX_NUM_CLASSES) {
         tprintf(
-            "Error: Size of unicharset in training is "
+            "ERROR: Size of unicharset in training is "
             "greater than MAX_NUM_CLASSES\n");
         exit(1);
       }
@@ -641,7 +641,7 @@ CLASS_STRUCT *SetUpForFloat2Int(const UNICHARSET &unicharset, LIST LabeledClassL
   BIT_VECTOR NewConfig;
   BIT_VECTOR OldConfig;
 
-  //  printf("Float2Int ...\n");
+  //  tprintf("Float2Int ...\n");
 
   auto *float_classes = new CLASS_STRUCT[unicharset.size()];
   iterate(LabeledClassList) {

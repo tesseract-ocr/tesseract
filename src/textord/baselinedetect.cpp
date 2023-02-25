@@ -399,7 +399,7 @@ float BaselineRow::PerpDistanceFromBaseline(const FCOORD &pt) const {
   float distance = baseline_vector * offset_vector;
   float sqlength = baseline_vector.sqlength();
   if (sqlength == 0.0f) {
-    tprintf("unexpected baseline vector (0,0)\n");
+    tprintf("Unexpected baseline vector (0,0)\n");
     return 0.0f;
   }
   return std::sqrt(distance * distance / sqlength);

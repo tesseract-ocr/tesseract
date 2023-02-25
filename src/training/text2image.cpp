@@ -457,15 +457,15 @@ static int Main() {
 
   // Check validity of input flags.
   if (FLAGS_text.empty()) {
-    tprintf("'--text' option is missing!\n");
+    tprintf("ERROR: '--text' option is missing!\n");
     return EXIT_FAILURE;
   }
   if (FLAGS_outputbase.empty()) {
-    tprintf("'--outputbase' option is missing!\n");
+    tprintf("ERROR: '--outputbase' option is missing!\n");
     return EXIT_FAILURE;
   }
   if (!FLAGS_unicharset_file.empty() && FLAGS_render_ngrams) {
-    tprintf("Use '--unicharset_file' only if '--render_ngrams' is set.\n");
+    tprintf("ERROR: Use '--unicharset_file' only if '--render_ngrams' is set.\n");
     return EXIT_FAILURE;
   }
 
@@ -474,11 +474,11 @@ static int Main() {
     font_name += ',';
     std::string pango_name;
     if (!FontUtils::IsAvailableFont(font_name.c_str(), &pango_name)) {
-      tprintf("Could not find font named '%s'.\n", FLAGS_font.c_str());
+      tprintf("ERROR: Could not find font named '%s'.\n", FLAGS_font.c_str());
       if (!pango_name.empty()) {
-        tprintf("Pango suggested font '%s'.\n", pango_name.c_str());
+        tprintf("  Pango suggested font '%s'.\n", pango_name.c_str());
       }
-      tprintf("Please correct --font arg.\n");
+      tprintf("  Please correct --font arg.\n");
       return EXIT_FAILURE;
     }
   }
@@ -524,14 +524,14 @@ static int Main() {
     render.set_gravity_hint_strong(true);
     render.set_render_fullwidth_latin(true);
   } else {
-    tprintf("Invalid writing mode: %s\n", FLAGS_writing_mode.c_str());
+    tprintf("ERROR: Invalid writing mode: %s\n", FLAGS_writing_mode.c_str());
     return EXIT_FAILURE;
   }
 
   std::string src_utf8;
   // This c_str is NOT redundant!
   if (!File::ReadFileToString(FLAGS_text.c_str(), &src_utf8)) {
-    tprintf("Failed to read file: %s\n", FLAGS_text.c_str());
+    tprintf("ERROR: Failed to read file: %s\n", FLAGS_text.c_str());
     return EXIT_FAILURE;
   }
 
@@ -539,7 +539,7 @@ static int Main() {
   if (strncmp(src_utf8.c_str(), "\xef\xbb\xbf", 3) == 0) {
     src_utf8.erase(0, 3);
   }
-  tlog(1, "Render string of size %zu\n", src_utf8.length());
+  tlog(1, "  Render string of size %zu\n", src_utf8.length());
 
   if (FLAGS_render_ngrams || FLAGS_only_extract_font_properties) {
     // Try to preserve behavior of old text2image by expanding inter-word
@@ -553,7 +553,7 @@ static int Main() {
     UNICHARSET unicharset;
     if (FLAGS_render_ngrams && !FLAGS_unicharset_file.empty() &&
         !unicharset.load_from_file(FLAGS_unicharset_file.c_str())) {
-      tprintf("Failed to load unicharset from file %s\n", FLAGS_unicharset_file.c_str());
+      tprintf("ERROR: Failed to load unicharset from file %s\n", FLAGS_unicharset_file.c_str());
       return EXIT_FAILURE;
     }
 
@@ -699,7 +699,7 @@ static int Main() {
     filename += ".fontlist.txt";
     FILE *fp = fopen(filename.c_str(), "wb");
     if (fp == nullptr) {
-      tprintf("Failed to create output font list %s\n", filename.c_str());
+      tprintf("ERROR: Failed to create output font list %s\n", filename.c_str());
     } else {
       for (auto &font_name : font_names) {
         fprintf(fp, "%s\n", font_name.c_str());
@@ -722,7 +722,7 @@ int main(int argc, char **argv) {
     static char envstring[] = "PANGOCAIRO_BACKEND=fc";
     putenv(envstring);
   } else {
-    printf(
+    tprintf(
         "Using '%s' as pango cairo backend based on environment "
         "variable.\n",
         backend);

@@ -19,6 +19,8 @@
 #include "commontraining.h" // CheckSharedLibraryVersion
 #include "unicharset.h"
 
+using namespace tesseract;
+
 int main(int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();
 
@@ -27,30 +29,30 @@ int main(int argc, char **argv) {
     return EXIT_SUCCESS;
   } else if (argc < 4) {
     // Print usage
-    printf(
+    tprintf(
         "Usage: %s -v | --version |\n"
         "       %s unicharset-in-1 ... unicharset-in-n unicharset-out\n",
         argv[0], argv[0]);
     return EXIT_FAILURE;
   }
 
-  tesseract::UNICHARSET input_unicharset, result_unicharset;
+  UNICHARSET input_unicharset, result_unicharset;
   for (int arg = 1; arg < argc - 1; ++arg) {
     // Load the input unicharset
     if (input_unicharset.load_from_file(argv[arg])) {
-      printf("Loaded unicharset of size %zu from file %s\n", input_unicharset.size(), argv[arg]);
+      tprintf("Loaded unicharset of size %zu from file %s\n", input_unicharset.size(), argv[arg]);
       result_unicharset.AppendOtherUnicharset(input_unicharset);
     } else {
-      printf("Failed to load unicharset from file %s!!\n", argv[arg]);
+      tprintf("ERROR: Failed to load unicharset from file %s!!\n", argv[arg]);
       return EXIT_FAILURE;
     }
   }
 
   // Save the combined unicharset.
   if (result_unicharset.save_to_file(argv[argc - 1])) {
-    printf("Wrote unicharset file %s.\n", argv[argc - 1]);
+    tprintf("Wrote unicharset file %s.\n", argv[argc - 1]);
   } else {
-    printf("Cannot save unicharset file %s.\n", argv[argc - 1]);
+    tprintf("ERROR: Cannot save unicharset file %s.\n", argv[argc - 1]);
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

@@ -28,11 +28,11 @@ int main(int argc, char **argv) {
 
   // Check validity of input flags.
   if (FLAGS_U.empty() || FLAGS_O.empty()) {
-    tprintf("Specify both input and output unicharsets!\n");
+    tprintf("ERROR: Specify both input and output unicharsets!\n");
     return EXIT_FAILURE;
   }
   if (FLAGS_script_dir.empty()) {
-    tprintf("Must specify a script_dir!\n");
+    tprintf("ERROR: Must specify a script_dir!\n");
     return EXIT_FAILURE;
   }
 

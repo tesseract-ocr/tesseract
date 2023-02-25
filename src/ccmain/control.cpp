@@ -123,7 +123,7 @@ bool Tesseract::ProcessTargetWord(const TBOX &word_box, const TBOX &target_word_
         backup_config_file_ = kBackUpConfigFile;
         FILE *config_fp = fopen(backup_config_file_, "wb");
         if (config_fp == nullptr) {
-          tprintf("Error, failed to open file \"%s\"\n", backup_config_file_);
+          tprintf("ERROR: Failed to open file \"%s\"\n", backup_config_file_);
         } else {
           ParamUtils::PrintParams(config_fp, params());
           fclose(config_fp);
@@ -472,7 +472,7 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
     }
     if (w_prev->word->flag(W_REP_CHAR) || w->word->flag(W_REP_CHAR)) {
       if (tessedit_bigram_debug) {
-        tprintf("Skipping because one of the words is W_REP_CHAR\n");
+        tprintf("WARNING: Skipping because one of the words is W_REP_CHAR\n");
       }
       continue;
     }
@@ -1678,7 +1678,7 @@ void Tesseract::fix_rep_char(PAGE_RES_IT *page_res_it) {
   // Find the best exemplar of a classifier result for maxch_id.
   BLOB_CHOICE *best_choice = FindBestMatchingChoice(maxch_id, word_res);
   if (best_choice == nullptr) {
-    tprintf("Failed to find a choice for %s, occurring %d times\n",
+    tprintf("WARNING: Failed to find a choice for %s, occurring %d times\n",
             word_res->uch_set->debug_str(maxch_id).c_str(), max_count);
     return;
   }
@@ -1737,9 +1737,9 @@ ACCEPTABLE_WERD_TYPE Tesseract::acceptable_word_string(const UNICHARSET &char_se
       goto not_a_word;
     }
     /*
-Allow a single hyphen in a lower case word
-- don't trust upper case - I've seen several cases of "H" -> "I-I"
-*/
+      Allow a single hyphen in a lower case word
+      - don't trust upper case - I've seen several cases of "H" -> "I-I"
+    */
     if (lengths[i] == 1 && s[offset] == '-') {
       hyphen_pos = i;
       offset += lengths[i++];
@@ -1939,7 +1939,7 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   }
   if (tessedit_font_id > 0) {
     if (tessedit_font_id >= fontinfo_size) {
-      tprintf("Error, invalid font ID provided: must be below %d.\n"
+      tprintf("ERROR: Invalid font ID provided: must be below %d.\n"
               "Falling back to font auto-detection.\n", fontinfo_size);
     } else {
       word->fontinfo = &fontinfo_table_.at(tessedit_font_id);

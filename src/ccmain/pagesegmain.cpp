@@ -160,7 +160,7 @@ int Tesseract::SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract
 
   if (blocks->empty()) {
     if (textord_debug_tabfind) {
-      tprintf("Empty page\n");
+      tprintf("WARNING: Empty page\n");
     }
     return 0; // AutoPageSeg found an empty page.
   }

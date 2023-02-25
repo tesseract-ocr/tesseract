@@ -224,7 +224,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
           UnicharIdArrayUtils::print(wrong_ngram, getUnicharset());
           tprintf("current ngram from spec: ");
           UnicharIdArrayUtils::print(ambig_spec->wrong_ngram, getUnicharset());
-          tprintf("comparison result: %d\n", compare);
+          tprintf("Comparison result: %d\n", compare);
         }
         if (compare == 0) {
           // Record the place where we found an ambiguity.
@@ -242,7 +242,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
 
           if (replace) {
             if (stopper_debug_level > 2) {
-              tprintf("replace ambiguity with %s : ",
+              tprintf("Replace ambiguity with %s : ",
                       getUnicharset().id_to_unichar(ambig_spec->correct_ngram_id));
               UnicharIdArrayUtils::print(ambig_spec->correct_fragments, getUnicharset());
             }

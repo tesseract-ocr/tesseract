@@ -261,10 +261,10 @@ int main(int argc, char **argv) {
   delete[] float_classes;
   FreeLabeledClassList(mf_classes);
   delete shape_table;
-  printf("Done!\n");
+  tprintf("Done!\n");
   if (!FLAGS_test_ch.empty()) {
     // If we are displaying debug window(s), wait for the user to look at them.
-    printf("Hit return to exit...\n");
+    tprintf("Hit return to exit...\n");
     while (getchar() != '\n') {
       ;
     }

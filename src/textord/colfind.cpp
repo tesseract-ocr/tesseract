@@ -363,7 +363,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Image scaled_color, int s
 
     // Make the column_sets_.
     if (!MakeColumns(false)) {
-      tprintf("Empty page!!\n");
+      tprintf("WARNING: Empty page!!\n");
       part_grid_.DeleteParts();
       return 0; // This is an empty page.
     }

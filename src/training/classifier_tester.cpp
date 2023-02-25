@@ -47,7 +47,7 @@ static tesseract::ShapeClassifier *InitializeClassifier(const char *classifer_na
     }
   }
   if (classifier == CN_COUNT) {
-    fprintf(stderr, "Invalid classifier name:%s\n", FLAGS_classifier.c_str());
+    tprintf("ERROR: Invalid classifier name: %s\n", FLAGS_classifier.c_str());
     return nullptr;
   }
 
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
   tesseract::ShapeClassifier *shape_classifier =
       InitializeClassifier(FLAGS_classifier.c_str(), trainer->unicharset(), argc, argv, &api);
   if (shape_classifier == nullptr) {
-    fprintf(stderr, "Classifier init failed!:%s\n", FLAGS_classifier.c_str());
+    tprintf("ERROR: Classifier init failed!: %s\n", FLAGS_classifier.c_str());
     return EXIT_FAILURE;
   }
 

@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
   tesseract::Dict &dict = api.tesseract()->getDict();
   FILE *input_file = fopen(input_file_str, "rb");
   if (input_file == nullptr) {
-    tesseract::tprintf("Failed to open input wordlist file %s\n", input_file_str);
+    tesseract::tprintf("ERROR: Failed to open input wordlist file %s\n", input_file_str);
     return EXIT_FAILURE;
   }
   char str[CHARS_PER_LINE];

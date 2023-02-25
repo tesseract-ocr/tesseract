@@ -323,7 +323,7 @@ void SIMDDetect::Update() {
     dotproduct_method = "std::inner_product";
   } else {
     // Unsupported value of config variable.
-    tprintf("Warning, ignoring unsupported config variable value: dotproduct=%s\n",
+    tprintf("WARNING: Ignoring unsupported config variable value: dotproduct=%s\n",
             dotproduct.c_str());
     tprintf(
         "Supported values for dotproduct: auto generic native"

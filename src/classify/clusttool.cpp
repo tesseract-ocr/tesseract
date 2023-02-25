@@ -57,7 +57,7 @@ static bool ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
     float f = NAN;
     stream >> f;
     if (std::isnan(f)) {
-      tprintf("Read of %u floats failed!\n", N);
+      tprintf("ERROR: Read of %u floats failed!\n", N);
       return false;
     }
     Buffer[i] = f;
@@ -175,7 +175,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   if (fp->FGets(line, kMaxLineSize) == nullptr ||
       sscanf(line, "%" QUOTED_TOKENSIZE "s %" QUOTED_TOKENSIZE "s %d", sig_token, shape_token,
              &SampleCount) != 3) {
-    tprintf("Invalid prototype: %s\n", line);
+    tprintf("ERROR: Invalid prototype: %s\n", line);
     return nullptr;
   }
   auto Proto = new PROTOTYPE;
@@ -193,7 +193,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->Style = automatic;
       break;
     default:
-      tprintf("Invalid prototype style specification:%s\n", shape_token);
+      tprintf("ERROR: Invalid prototype style specification:%s\n", shape_token);
       Proto->Style = elliptical;
   }
 

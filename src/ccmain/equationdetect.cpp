@@ -106,7 +106,7 @@ EquationDetect::EquationDetect(const char *equ_datapath, const char *equ_name) {
 
   if (equ_tesseract_.init_tesseract(equ_datapath, equ_name, OEM_TESSERACT_ONLY)) {
     tprintf(
-        "Warning: equation region detection requested,"
+        "WARNING: Equation region detection requested,"
         " but %s failed to load from %s\n",
         equ_name, equ_datapath);
   }

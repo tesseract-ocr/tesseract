@@ -97,7 +97,7 @@ void plot_to_row(             // draw a row
   float left, right; // end of row
 
   if (it.empty()) {
-    tprintf("No blobs in row at %g\n", row->parallel_c());
+    tprintf("ERROR: No blobs in row at %g\n", row->parallel_c());
     return;
   }
   left = it.data()->bounding_box().left();

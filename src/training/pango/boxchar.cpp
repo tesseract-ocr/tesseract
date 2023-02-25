@@ -53,7 +53,7 @@ void BoxChar::GetDirection(int *num_rtl, int *num_ltr) const {
   // Convert the unichar to UTF32 representation
   std::vector<char32> uni_vector = UNICHAR::UTF8ToUTF32(ch_.c_str());
   if (uni_vector.empty()) {
-    tprintf("Illegal utf8 in boxchar string:%s = ", ch_.c_str());
+    tprintf("ERROR: Illegal utf8 in boxchar string:%s = ", ch_.c_str());
     for (char c : ch_) {
       tprintf(" 0x%x", c);
     }
@@ -334,7 +334,7 @@ std::string BoxChar::GetTesseractBoxStr(int height, const std::vector<BoxChar *>
   for (auto boxe : boxes) {
     const Box *box = boxe->box_;
     if (box == nullptr) {
-      tprintf("Error: Call PrepareToWrite before WriteTesseractBoxFile!!\n");
+      tprintf("ERROR: Call PrepareToWrite before WriteTesseractBoxFile!!\n");
       return "";
     }
     int nbytes = snprintf(buffer, kMaxLineLength, "%s %d %d %d %d %d\n", boxe->ch_.c_str(), box->x,

@@ -346,7 +346,7 @@ void AddProtoToProtoPruner(PROTO_STRUCT *Proto, int ProtoId, INT_CLASS_STRUCT *C
   float Pad;
 
   if (ProtoId >= Class->NumProtos) {
-    tprintf("AddProtoToProtoPruner:assert failed: %d < %d", ProtoId, Class->NumProtos);
+    tprintf("ERROR: AddProtoToProtoPruner:assert failed: %d < %d", ProtoId, Class->NumProtos);
   }
   assert(ProtoId < Class->NumProtos);
 
@@ -500,7 +500,7 @@ INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
     FClass = &(FloatProtos[ClassId]);
     if (FClass->NumProtos == 0 && FClass->NumConfigs == 0 &&
         strcmp(target_unicharset.id_to_unichar(ClassId), " ") != 0) {
-      tprintf("Warning: no protos/configs for %s in CreateIntTemplates()\n",
+      tprintf("WARNING: no protos/configs for %s in CreateIntTemplates()\n",
               target_unicharset.id_to_unichar(ClassId));
     }
     assert(UnusedClassIdIn(IntTemplates, ClassId));
@@ -648,18 +648,18 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
   // Read Templates in parts for 64 bit compatibility.
   uint32_t unicharset_size;
   if (fp->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1) != 1) {
-    tprintf("Bad read of inttemp!\n");
+    tprintf("ERROR: Bad read of inttemp!\n");
   }
   int32_t version_id = 0;
   if (fp->FReadEndian(&version_id, sizeof(version_id), 1) != 1 ||
       fp->FReadEndian(&Templates->NumClassPruners, sizeof(Templates->NumClassPruners), 1) != 1) {
-    tprintf("Bad read of inttemp!\n");
+    tprintf("ERROR: Bad read of inttemp!\n");
   }
   if (version_id < 0) {
     // This file has a version id!
     version_id = -version_id;
     if (fp->FReadEndian(&Templates->NumClasses, sizeof(Templates->NumClasses), 1) != 1) {
-      tprintf("Bad read of inttemp!\n");
+      tprintf("ERROR: Bad read of inttemp!\n");
     }
   } else {
     Templates->NumClasses = version_id;
@@ -673,11 +673,11 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
   if (version_id < 2) {
     std::vector<int16_t> IndexFor(MAX_NUM_CLASSES);
     if (fp->FReadEndian(&IndexFor[0], sizeof(IndexFor[0]), unicharset_size) != unicharset_size) {
-      tprintf("Bad read of inttemp!\n");
+      tprintf("ERROR: Bad read of inttemp!\n");
     }
     if (fp->FReadEndian(&ClassIdFor[0], sizeof(ClassIdFor[0]), Templates->NumClasses) !=
         Templates->NumClasses) {
-      tprintf("Bad read of inttemp!\n");
+      tprintf("ERROR: Bad read of inttemp!\n");
     }
   }
 
@@ -686,7 +686,7 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
   for (unsigned i = 0; i < Templates->NumClassPruners; i++) {
     Pruner = new CLASS_PRUNER_STRUCT;
     if (fp->FReadEndian(Pruner, sizeof(Pruner->p[0][0][0][0]), kNumBuckets) != kNumBuckets) {
-      tprintf("Bad read of inttemp!\n");
+      tprintf("ERROR: Bad read of inttemp!\n");
     }
     if (version_id < 2) {
       TempClassPruner[i] = Pruner;
@@ -761,21 +761,21 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
     if (fp->FReadEndian(&Class->NumProtos, sizeof(Class->NumProtos), 1) != 1 ||
         fp->FRead(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1) != 1 ||
         fp->FRead(&Class->NumConfigs, sizeof(Class->NumConfigs), 1) != 1) {
-      tprintf("Bad read of inttemp!\n");
+      tprintf("ERROR: Bad read of inttemp!\n");
     }
     if (version_id == 0) {
       // Only version 0 writes 5 pointless pointers to the file.
       for (j = 0; j < 5; ++j) {
         int32_t junk;
         if (fp->FRead(&junk, sizeof(junk), 1) != 1) {
-          tprintf("Bad read of inttemp!\n");
+          tprintf("ERROR: Bad read of inttemp!\n");
         }
       }
     }
     unsigned num_configs = version_id < 4 ? MaxNumConfigs : Class->NumConfigs;
     ASSERT_HOST(num_configs <= MaxNumConfigs);
     if (fp->FReadEndian(Class->ConfigLengths, sizeof(uint16_t), num_configs) != num_configs) {
-      tprintf("Bad read of inttemp!\n");
+      tprintf("ERROR: Bad read of inttemp!\n");
     }
     if (version_id < 2) {
       ClassForClassId(Templates, ClassIdFor[i]) = Class;
@@ -789,7 +789,7 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
       Class->ProtoLengths.resize(MaxNumIntProtosIn(Class));
       if (fp->FRead(&Class->ProtoLengths[0], sizeof(uint8_t), MaxNumIntProtosIn(Class)) !=
           MaxNumIntProtosIn(Class)) {
-        tprintf("Bad read of inttemp!\n");
+        tprintf("ERROR: Bad read of inttemp!\n");
       }
     }
 
@@ -799,18 +799,18 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
       unsigned num_buckets = NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR;
       if (fp->FReadEndian(&ProtoSet->ProtoPruner, sizeof(ProtoSet->ProtoPruner[0][0][0]),
                           num_buckets) != num_buckets) {
-        tprintf("Bad read of inttemp!\n");
+        tprintf("ERROR: Bad read of inttemp!\n");
       }
       for (x = 0; x < PROTOS_PER_PROTO_SET; x++) {
         if (fp->FRead(&ProtoSet->Protos[x].A, sizeof(ProtoSet->Protos[x].A), 1) != 1 ||
             fp->FRead(&ProtoSet->Protos[x].B, sizeof(ProtoSet->Protos[x].B), 1) != 1 ||
             fp->FRead(&ProtoSet->Protos[x].C, sizeof(ProtoSet->Protos[x].C), 1) != 1 ||
             fp->FRead(&ProtoSet->Protos[x].Angle, sizeof(ProtoSet->Protos[x].Angle), 1) != 1) {
-          tprintf("Bad read of inttemp!\n");
+          tprintf("ERROR: Bad read of inttemp!\n");
         }
         if (fp->FReadEndian(&ProtoSet->Protos[x].Configs, sizeof(ProtoSet->Protos[x].Configs[0]),
                             WerdsPerConfigVec) != WerdsPerConfigVec) {
-          tprintf("Bad read of inttemp!\n");
+          tprintf("ERROR: Bad read of inttemp!\n");
         }
       }
       Class->ProtoSets[j] = ProtoSet;
@@ -837,7 +837,7 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
         }
       } else {
         if (ClassForClassId(Templates, i) != nullptr) {
-          fprintf(stderr, "Class id %u exceeds NumClassesIn (Templates) %u\n", i,
+          tprintf("ERROR: Class id %u exceeds NumClassesIn (Templates) %u\n", i,
                   Templates->NumClasses);
           exit(1);
         }
@@ -924,7 +924,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
 
   if (Templates->NumClasses != unicharset_size) {
     tprintf(
-        "Warning: executing WriteIntTemplates() with %d classes in"
+        "WARNING: Executing WriteIntTemplates() with %d classes in"
         " Templates, while target_unicharset size is %" PRIu32 "\n",
         Templates->NumClasses, unicharset_size);
   }
@@ -1185,7 +1185,7 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool *adaptive_on, bool *
           }
           tprintf("Shape index '%s' not found in shape table\n", ev->parameter);
         } else {
-          tprintf("No shape table loaded!\n");
+          tprintf("WARNING: No shape table loaded!\n");
         }
       } else {
         if (unicharset.contains_unichar(ev->parameter)) {
@@ -1211,7 +1211,7 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool *adaptive_on, bool *
             }
           }
         } else {
-          tprintf("Char class '%s' not found in unicharset", ev->parameter);
+          tprintf("ERROR: Char class '%s' not found in unicharset", ev->parameter);
         }
       }
     }
