@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
       tprintf("Writing squished DAWG to '%s'\n", dawg_filename);
       dawg->write_squished_dawg(dawg_filename);
     } else {
-      tprintf("ERROR: Dawg is empty, skip producing the output file\n");
+      tprintf("WARNING: Dawg is empty, skip producing the output file\n");
     }
   } else if (argc == 5) {
     tprintf("Loading dawg DAWG from '%s'\n", dawg_filename);
