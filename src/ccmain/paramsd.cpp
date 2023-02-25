@@ -336,7 +336,7 @@ void ParamsEditor::WriteParams(char *filename, bool changes_only) {
 
   fp = fopen(filename, "wb"); // can we write to it?
   if (fp == nullptr) {
-    sv_window_->AddMessage("Can't write to file {}", filename);
+    sv_window_->AddMessageF("Can't write to file %s", filename);
     return;
   }
   for (auto &iter : vcMap) {
