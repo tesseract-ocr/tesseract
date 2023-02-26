@@ -518,7 +518,7 @@ void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
   // The largest (positive and negative) numbers are reported for lindent & rindent.
   // While the column header has widths 5,4,4,5, it is therefore opportune to slightly
   // offset the widths in the format string here to allow ample space for lindent & rindent
-  // while keeeping the final table output nicely readable: 4,5,5,4.
+  // while keeping the final table output nicely readable: 4,5,5,4.
   snprintf(s, sizeof(s), "[%4d,%5d;%5d,%4d]", lmargin_, lindent_, rindent_, rmargin_);
   dbg.emplace_back(s);
   std::string model_string;
