@@ -49,7 +49,7 @@ bool read_unlv_file(   // print list of sides
 
   name += UNLV_EXT; // add extension
   if ((pdfp = fopen(name.c_str(), "rb")) == nullptr) {
-    tprintf("ERROR: Cannot read UZN file %s.\n", name);
+    tprintf("ERROR: Cannot read UZN file %s.\n", name.c_str());
     return false; // didn't read one
   } else {
     while (tfscanf(pdfp, "%d %d %d %d %*s", &x, &y, &width, &height) >= 4) {
