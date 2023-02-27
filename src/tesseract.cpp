@@ -368,7 +368,7 @@ static void FixPageSegMode(tesseract::TessBaseAPI &api, tesseract::PageSegMode p
 
 static bool checkArgValues(int arg, const char *mode, int count) {
   if (arg >= count || arg < 0) {
-    trintf("ERROR: Invalid %s value, please enter a number between 0-%d\n", mode, count - 1);
+    tprintf("ERROR: Invalid %s value, please enter a number between 0-%d\n", mode, count - 1);
     return false;
   }
   return true;
