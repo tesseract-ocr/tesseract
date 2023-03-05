@@ -29,13 +29,15 @@
 
 #ifndef GRAPHICS_DISABLED
 
+#include <tesseract/export.h>
+
 #include <string>
 
 namespace tesseract {
 
 class ScrollView;
 
-class SVMenuNode {
+class TESS_API SVMenuNode {
 public:
   // Creating the (empty) root menu node.
   SVMenuNode();

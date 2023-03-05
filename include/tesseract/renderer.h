@@ -21,6 +21,7 @@
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
+#include <cstdint>
 #include <string> // for std::string
 #include <vector> // for std::vector
 
@@ -230,7 +231,7 @@ private:
   // used to make everything that isn't easily handled in a
   // streaming fashion.
   long int obj_;                  // counter for PDF objects
-  std::vector<long int> offsets_; // offset of every PDF object in bytes
+  std::vector<uint64_t> offsets_; // offset of every PDF object in bytes
   std::vector<long int> pages_;   // object number for every /Page object
   std::string datadir_;           // where to find the custom font
   bool textonly_;                 // skip images if set

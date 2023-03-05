@@ -327,7 +327,7 @@ void Classify::LearnWord(const char *fontname, WERD_RES *word) {
               tokens[0] = CHAR_FRAGMENT::to_string(tokens[0].c_str(), frag, word->best_state[ch],
                                                    pieces_all_natural);
 
-	      std::string full_string;
+              std::string full_string;
               for (unsigned i = 0; i < tokens.size(); i++) {
                 full_string += tokens[i];
                 if (i != tokens.size() - 1) {
@@ -1079,7 +1079,7 @@ void Classify::MasterMatcher(INT_TEMPLATES_STRUCT *templates, int16_t num_featur
   int top = blob_box.top();
   int bottom = blob_box.bottom();
   UnicharRating int_result;
-  for (auto result : results) {
+  for (auto &&result : results) {
     CLASS_ID class_id = result.Class;
     BIT_VECTOR protos = classes != nullptr ? classes[class_id]->PermProtos : AllProtosOn;
     BIT_VECTOR configs = classes != nullptr ? classes[class_id]->PermConfigs : AllConfigsOn;
@@ -1149,9 +1149,9 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, boo
         }
       }
       for (auto &m : mapped_results) {
-        m.rating = ComputeCorrectedRating(
-            debug, m.unichar_id, cp_rating, int_result->rating,
-            int_result->feature_misses, bottom, top, blob_length, matcher_multiplier, cn_factors);
+        m.rating = ComputeCorrectedRating(debug, m.unichar_id, cp_rating, int_result->rating,
+                                          int_result->feature_misses, bottom, top, blob_length,
+                                          matcher_multiplier, cn_factors);
         AddNewResult(m, final_results);
       }
       return;

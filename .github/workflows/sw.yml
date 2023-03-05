@@ -2,7 +2,19 @@ name: sw
 
 on:
   push:
+    paths:
+      - '**.cpp'
+      - '**.h'
+      - '**/sw.yml'
+      - 'unittest/**.c'
+      - 'unittest/**.cc'
   pull_request:
+    paths:
+      - '**.cpp'
+      - '**.h'
+      - '**/sw.yml'
+      - 'unittest/**.c'
+      - 'unittest/**.cc'
   schedule:
     # every day
     - cron: 0 0 * * *
@@ -13,60 +25,69 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, windows-2022, ubuntu-20.04, macOS-latest]
+        os: [windows-2022, ubuntu-22.04, ubuntu-20.04, macos-12]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - uses: egorpugin/sw-action@master
 
     - name: build
-      if: matrix.os == 'windows-latest' || matrix.os == 'windows-2022'
+      if: github.event_name != 'pull_request' && (matrix.os == 'windows-2022')
       run: ./sw -static -shared -platform x86,x64 -config d,r build
+    - name: build-pr
+      if: github.event_name == 'pull_request' && (matrix.os == 'windows-2022')
+      run: ./sw build
 
     - name: build
-      if: matrix.os != 'windows-latest' && matrix.os != 'windows-2022'
+      if: github.event_name != 'pull_request' && (matrix.os != 'windows-2022')
       run: ./sw -static -shared -config d,r build -Dwith-tests=1
+    - name: build-pr
+      if: github.event_name == 'pull_request' && (matrix.os != 'windows-2022')
+      run: ./sw build -Dwith-tests=1
 
     - name: download test data
       run: git clone https://github.com/egorpugin/tessdata tessdata_unittest
 
     - name: copy fonts
-      if: matrix.os != 'windows-latest' && matrix.os != 'windows-2022'
+      if: matrix.os != 'windows-2022'
       run: cp tessdata_unittest/fonts/* test/testing/
-
     - name: copy fonts
-      if: matrix.os == 'windows-latest' || matrix.os == 'windows-2022'
+      if: matrix.os == 'windows-2022'
       run: Copy-Item -Path "tessdata_unittest\fonts\*" -Destination "test\testing" -Recurse
       shell: pwsh
 
     - name: test
-      if: matrix.os != 'windows-latest' && matrix.os != 'windows-2022'
+      if: github.event_name != 'pull_request' && (matrix.os != 'windows-2022')
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
+      continue-on-error: true
+    - name: test
+      if: github.event_name == 'pull_request' && (matrix.os != 'windows-2022')
+      run: ./sw test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
       continue-on-error: true
 
     - name: test-nightly
-      if: matrix.os != 'windows-latest' && matrix.os != 'windows-2022' && github.event.schedule=='0 0 * * *'
+      if: matrix.os != 'windows-2022' && matrix.os != 'macos-12' && github.event.schedule=='0 0 * * *'
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1
       continue-on-error: true
 
-    # windows tests hang here for some reason, investigate
+    # windows and macos-12 tests hang here for some reason, investigate
     #- name: test
-      #if: matrix.os == 'windows-latest' || matrix.os == 'windows-2022'
+      #if: matrix.os == 'windows-2022' || matrix.os == 'macos-12'
       #run: ./sw test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
       #continue-on-error: true
 
     - name: Upload Unit Test Results
-      if: always() && matrix.os != 'windows-latest' && matrix.os != 'windows-2022'
-      uses: actions/upload-artifact@v2
+      if: always() && matrix.os != 'windows-2022'
+      uses: actions/upload-artifact@v3
       with:
         name: Test Results (${{ matrix.os }})
         path: .sw/test/results.xml
 
     - name: Publish Test Report
-      if: always() && matrix.os != 'windows-latest' && matrix.os != 'windows-2022'
-      uses: mikepenz/action-junit-report@v1
+      if: always() && matrix.os != 'windows-2022'
+      uses: mikepenz/action-junit-report@v3
       with:
         check_name: test (${{ matrix.os }})
         report_paths: .sw/test/results.xml

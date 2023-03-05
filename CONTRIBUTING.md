@@ -10,7 +10,7 @@ Use the [user forum](https://groups.google.com/g/tesseract-ocr) instead of creat
 * You have problems using Tesseract and need some help.
 * You have problems installing the software.
 * You are not satisfied with the accuracy of the OCR, and want to ask how you can improve it. Note: You should first read the [ImproveQuality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html) documentation.
-* You are trying to train Tesseract and you have a problem and/or want to ask a question about the training process. Note: You should first read the **official** guides [[1]](https://tesseract-ocr.github.io/tessdoc/) or [[2]](https://tesseract-ocr.github.io/tessdoc/Training-Tesseract.html) found in the project documentation.
+* You are trying to train Tesseract and you have a problem and/or want to ask a question about the training process. Note: You should first read the **official** guides [[1]](https://tesseract-ocr.github.io/tessdoc/) or [[2]](https://tesseract-ocr.github.io/tessdoc/tess5/TrainingTesseract-5.html) found in the project documentation.
 * You have a general question.
 
 An issue should only be reported if the platform you are using is one of these:
@@ -71,10 +71,10 @@ You should always make sure your changes build and run successfully.
 
 For that, your clone needs to have all submodules (`googletest`, `test`) included. To do so, either specify `--recurse-submodules` during the initial clone, or run `git submodule update --init --recursive NAME` for each `NAME` later. If `configure` already created those directories (blocking the clone), remove them first (or `make distclean`), then clone and reconfigure.
 
-Have a look at [the README](./README.md) and [testing README](./test/testing/README.md) and the [documentation](https://tesseract-ocr.github.io/tessdoc/Compiling-%E2%80%93-GitInstallation.html#unit-test-builds) on installation.
+Have a look at [the README](./README.md) and [testing README](https://github.com/tesseract-ocr/test/blob/main/README.md) and the [documentation](https://tesseract-ocr.github.io/tessdoc/Compiling-%E2%80%93-GitInstallation.html#unit-test-builds) on installation.
 
 In short, after running `configure` from the build directory of your choice, to build the library and CLI, run `make`. To test it, run `make check`. To build the training tools, run `make training`.
 
-As soon as your changes are building and tests are succeeding, you can publish them. If you have not already, please [fork](https://guides.github.com/activities/forking/) tesseract (somewhere) on GitHub, and push your changes to that fork (in a new branch). Then [submit as PR](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork).
+As soon as your changes are building and tests are succeeding, you can publish them. If you have not already, please [fork](https://docs.github.com/en/get-started/quickstart/contributing-to-projects) tesseract (somewhere) on GitHub, and push your changes to that fork (in a new branch). Then [submit as PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
 
-Please also keep track of reports from CI (automated build status) and Coverity/LGTM (quality scan). When the indicators show deterioration after your changes, further action may be required to improve them.
+Please also keep track of reports from CI (automated build status) and Coverity/CodeQL (quality scan). When the indicators show deterioration after your changes, further action may be required to improve them.

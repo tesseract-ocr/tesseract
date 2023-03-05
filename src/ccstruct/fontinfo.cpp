@@ -67,7 +67,7 @@ bool FontInfoTable::DeSerialize(TFile *fp) {
 bool FontInfoTable::SetContainsFontProperties(int font_id,
                                               const std::vector<ScoredFont> &font_set) const {
   uint32_t properties = at(font_id).properties;
-  for (auto f : font_set) {
+  for (auto &&f : font_set) {
     if (at(f.fontinfo_id).properties == properties) {
       return true;
     }
@@ -221,7 +221,8 @@ bool write_spacing_info(FILE *f, const FontInfo &fi) {
 
 bool write_set(FILE *f, const FontSet &fs) {
   int size = fs.size();
-  return tesseract::Serialize(f, &size) && tesseract::Serialize(f, &fs[0], size);
+  return tesseract::Serialize(f, &size) &&
+         (size > 0 ? tesseract::Serialize(f, &fs[0], size) : true);
 }
 
 } // namespace tesseract.

@@ -19,7 +19,7 @@
 
 #include "blobs.h"
 #include "classify.h"
-#include "clusttool.h" //If remove you get cought in a loop somewhere
+#include "clusttool.h" //If remove you get caught in a loop somewhere
 #include "mfx.h"
 #include "params.h"
 

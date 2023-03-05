@@ -33,7 +33,7 @@ public:
 
   ~UNICHARMAP();
 
-  // Insert the given unichar represention in the UNICHARMAP and associate it
+  // Insert the given unichar representation in the UNICHARMAP and associate it
   // with the given id. The length of the representation MUST be non-zero.
   void insert(const char *const unichar_repr, UNICHAR_ID id);
 

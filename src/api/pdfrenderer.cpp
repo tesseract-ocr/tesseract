@@ -25,6 +25,7 @@
 
 #include <allheaders.h>
 #include <tesseract/baseapi.h>
+#include <tesseract/publictypes.h> // for PTIsTextType()
 #include <tesseract/renderer.h>
 #include <cmath>
 #include <cstring>
@@ -354,6 +355,12 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
   const std::unique_ptr</*non-const*/ ResultIterator> res_it(api->GetIterator());
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
+      auto block_type = res_it->BlockType();
+      if (!PTIsTextType(block_type)) {
+        // ignore non-text blocks
+        res_it->Next(RIL_BLOCK);
+        continue;
+      }
       pdf_str << "BT\n3 Tr"; // Begin text object, use invisible ink
       old_fontsize = 0;      // Every block will declare its fontsize
       new_block = true;      // Every block will declare its affine matrix

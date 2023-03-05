@@ -15,34 +15,17 @@ jobs:
       matrix:
         config:
 
-          - { name: macos-10.15-clang-12-cmake, os: macos-10.15, cxx: clang++ } # default
-          - { name: macos-10.15-clang-11-cmake, os: macos-10.15, cxx: '$(brew --prefix llvm)/bin/clang++' }  #installed
-          - { name: macos-10.15-gcc-9-cmake, os: macos-10.15, cxx: g++-9 } #installed
-          - { name: macos-10.15-gcc-10-cmake, os: macos-10.15, cxx: g++-10 } #installed
-          - { name: macos-10.15-gcc-11-cmake, os: macos-10.15, cxx: g++-11 } #installed
-
           - { name: macos-11-clang-12-cmake, os: macos-11, cxx: clang++ } # default
-          - { name: macos-11-clang-11-cmake, os: macos-11, cxx: '$(brew --prefix llvm)/bin/clang++' }  #installed
+          # - { name: macos-11-clang-11-cmake, os: macos-11, cxx: '$(brew --prefix llvm)/bin/clang++' }  #installed
           - { name: macos-11-gcc-9-cmake, os: macos-11, cxx: g++-9 } #installed
           - { name: macos-11-gcc-10-cmake, os: macos-11, cxx: g++-10 } #installed
           - { name: macos-11-gcc-11-cmake, os: macos-11, cxx: g++-11 } #installed
-
-          - { name: ubuntu-18.04-clang-7-cmake, os: ubuntu-18.04, cxx: clang++-7 }
-          - { name: ubuntu-18.04-clang-8-cmake, os: ubuntu-18.04, cxx: clang++-8 } #installed
-          - { name: ubuntu-18.04-clang-9-cmake, os: ubuntu-18.04, cxx: clang++-9 } #installed
-          - { name: ubuntu-18.04-clang-10-cmake, os: ubuntu-18.04, cxx: clang++-10 }
-
-          - { name: ubuntu-18.04-gcc-7-cmake, os: ubuntu-18.04, cxx: g++-7 } #installed
-          - { name: ubuntu-18.04-gcc-8-cmake, os: ubuntu-18.04, cxx: g++-8 } #installed
-          - { name: ubuntu-18.04-gcc-9-cmake, os: ubuntu-18.04, cxx: g++-9 } #installed
-          - { name: ubuntu-18.04-gcc-10-cmake, os: ubuntu-18.04, cxx: g++-10 } #installed
 
           - { name: ubuntu-20.04-clang-7-cmake, os: ubuntu-20.04, cxx: clang++-7 }
           - { name: ubuntu-20.04-clang-8-cmake, os: ubuntu-20.04, cxx: clang++-8 } #installed
           - { name: ubuntu-20.04-clang-9-cmake, os: ubuntu-20.04, cxx: clang++-9 } #installed
           - { name: ubuntu-20.04-clang-10-cmake, os: ubuntu-20.04, cxx: clang++-10 } #installed
 
-          - { name: ubuntu-20.04-gcc-7-cmake, os: ubuntu-20.04, cxx: g++-7 } #installed
           - { name: ubuntu-20.04-gcc-8-cmake, os: ubuntu-20.04, cxx: g++-8 } #installed
           - { name: ubuntu-20.04-gcc-9-cmake, os: ubuntu-20.04, cxx: g++-9 } #installed
           - { name: ubuntu-20.04-gcc-10-cmake, os: ubuntu-20.04, cxx: g++-10 } #installed
@@ -50,6 +33,7 @@ jobs:
     steps:
       - name: Install compilers on Linux
         run: |
+             sudo apt-get update
              sudo apt-get install ${{ matrix.config.cxx }} -y
         if: runner.os == 'Linux'
 
@@ -67,8 +51,9 @@ jobs:
         run: |
            brew install autoconf automake
            brew install leptonica
-           brew install libarchive
+           # brew install libarchive
            brew install pango
+           brew install icu4c && brew link icu4c
            brew install cabextract
            brew install ninja
            ninja --version
@@ -76,7 +61,7 @@ jobs:
         if: runner.os == 'macOS'
 
       - name: Checkout Source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
              submodules: recursive
 
@@ -99,6 +84,8 @@ jobs:
         run: |
              set -e
              export PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:/$(brew --prefix)/opt/libffi/lib/pkgconfig:$PKG_CONFIG_PATH
+             export LDFLAGS="-L/usr/local/opt/icu4c/lib"
+             export CPPFLAGS="-I/usr/local/opt/icu4c/include"
              mkdir build
              mkdir inst
              cmake \
@@ -157,12 +144,14 @@ jobs:
         run: |
              export "PKG_CONFIG_PATH=$GITHUB_WORKSPACE/build/inst/lib/pkgconfig/:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/Library/Homebrew/os/mac/pkgconfig/11:$PKG_CONFIG_PATH"
              cd test
-             ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp "-I$GITHUB_WORKSPACE/build/inst/include" "-L$GITHUB_WORKSPACE/build/inst/lib" $(pkg-config --cflags --libs tesseract lept libarchive libcurl) -pthread -std=c++11
+             ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp "-I$GITHUB_WORKSPACE/build/inst/include" "-L$GITHUB_WORKSPACE/build/inst/lib" $(pkg-config --cflags --libs tesseract lept libcurl) -pthread -std=c++11
              ./basicapitest
         if: runner.os == 'macOS'
 
       - name: Display Compiler Version
         run: |
              ${{ matrix.config.cxx }} --version
-             git log -3 --pretty=format:'%h %ad %s | %an'
+             pwd
+             ls -la
+             # git log -3 --pretty=format:'%h %ad %s | %an'
         if: always()

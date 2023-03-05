@@ -126,7 +126,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa *pixa_debug) {
     num_ccs = pixaGetCount(ccs);
   }
   for (int i = 0; i < num_ccs; ++i) {
-    Box *box = ccs->boxa->box[i];
+    Box *box = pixaGetBox(ccs, i, L_CLONE);
     Image word_pix = pixClipRectangle(orig_pix_, box, nullptr);
     ASSERT_HOST(word_pix);
     int xheight = GetXheightForCC(box);
@@ -137,12 +137,15 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa *pixa_debug) {
     // blobs from the shiro-rekha process. This is primarily to save the CCs
     // corresponding to punctuation marks/small dots etc which are part of
     // larger graphemes.
-    if (xheight == kUnspecifiedXheight || (box->w > xheight / 3 && box->h > xheight / 2)) {
-      SplitWordShiroRekha(split_strategy, word_pix, xheight, box->x, box->y, regions_to_clear);
+    l_int32 x, y, w, h;
+    boxGetGeometry(box, &x, &y, &w, &h);
+    if (xheight == kUnspecifiedXheight || (w > xheight / 3 && h > xheight / 2)) {
+      SplitWordShiroRekha(split_strategy, word_pix, xheight, x, y, regions_to_clear);
     } else if (devanagari_split_debuglevel > 0) {
-      tprintf("CC dropped from splitting: %d,%d (%d, %d)\n", box->x, box->y, box->w, box->h);
+      tprintf("CC dropped from splitting: %d,%d (%d, %d)\n", x, y, w, h);
     }
     word_pix.destroy();
+    boxDestroy(&box);
   }
   // Actually clear the boxes now.
   for (int i = 0; i < boxaGetCount(regions_to_clear); ++i) {
@@ -171,8 +174,10 @@ int ShiroRekhaSplitter::GetXheightForCC(Box *cc_bbox) {
     return global_xheight_;
   }
   // Compute the box coordinates in Tesseract's coordinate system.
-  TBOX bbox(cc_bbox->x, pixGetHeight(orig_pix_) - cc_bbox->y - cc_bbox->h - 1,
-            cc_bbox->x + cc_bbox->w, pixGetHeight(orig_pix_) - cc_bbox->y - 1);
+  l_int32 x, y, w, h;
+  boxGetGeometry(cc_bbox, &x, &y, &w, &h);
+  TBOX bbox(x, pixGetHeight(orig_pix_) - y - h - 1,
+            x + w, pixGetHeight(orig_pix_) - y - 1);
   // Iterate over all blocks.
   BLOCK_IT block_it(segmentation_block_list_);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
@@ -194,7 +199,7 @@ int ShiroRekhaSplitter::GetXheightForCC(Box *cc_bbox) {
       int baseline = static_cast<int>(row->base_line(box_middle) + 0.5);
       TBOX test_box(box_middle - row->x_height() / 2, baseline, box_middle + row->x_height() / 2,
                     static_cast<int>(baseline + row->x_height()));
-      // Compute overlap. If it is is a major overlap, this is the right row.
+      // Compute overlap. If it is a major overlap, this is the right row.
       if (bbox.major_overlap(test_box)) {
         return row->x_height();
       }
@@ -268,8 +273,8 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy, Image
     // shiro-rekha.
     leeway_to_keep = xheight - stroke_width;
   }
-  box_to_clear->y = shirorekha_bottom + leeway_to_keep;
-  box_to_clear->h = height - box_to_clear->y;
+  auto y = shirorekha_bottom + leeway_to_keep;
+  boxSetGeometry(box_to_clear, -1, y, -1, height - y);
   pixClearInRect(word_in_xheight, box_to_clear);
   boxDestroy(&box_to_clear);
 
@@ -390,8 +395,10 @@ int ShiroRekhaSplitter::GetModeHeight(Image pix) {
   heights.clear();
   for (int i = 0; i < boxaGetCount(boxa); ++i) {
     Box *box = boxaGetBox(boxa, i, L_CLONE);
-    if (box->h >= 3 || box->w >= 3) {
-      heights.add(box->h, 1);
+    l_int32 x, y, w, h;
+    boxGetGeometry(box, &x, &y, &w, &h);
+    if (h >= 3 || w >= 3) {
+      heights.add(h, 1);
     }
     boxDestroy(&box);
   }

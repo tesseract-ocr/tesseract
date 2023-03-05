@@ -115,7 +115,6 @@ void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Image page_pix,
   std::vector<UnicharRating> results;
   // Debug classification until the user quits.
   const UNICHARSET &unicharset = GetUnicharset();
-  SVEvent *ev;
   SVEventType ev_type;
   do {
     std::vector<ScrollView *> windows;
@@ -135,7 +134,7 @@ void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Image page_pix,
     UNICHAR_ID old_unichar_id;
     do {
       old_unichar_id = unichar_id;
-      ev = debug_win->AwaitEvent(SVET_ANY);
+      auto ev = debug_win->AwaitEvent(SVET_ANY);
       ev_type = ev->type;
       if (ev_type == SVET_POPUP) {
         if (unicharset.contains_unichar(ev->parameter)) {
@@ -144,7 +143,6 @@ void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Image page_pix,
           tprintf("Char class '%s' not found in unicharset", ev->parameter);
         }
       }
-      delete ev;
     } while (unichar_id == old_unichar_id && ev_type != SVET_CLICK && ev_type != SVET_DESTROY);
     for (auto window : windows) {
       delete window;
@@ -176,7 +174,7 @@ void ShapeClassifier::UnicharPrintResults(const char *context,
             GetUnicharset().id_to_unichar(result.unichar_id));
     if (!result.fonts.empty()) {
       tprintf(" Font Vector:");
-      for (auto font : result.fonts) {
+      for (auto &&font : result.fonts) {
         tprintf(" %d", font.fontinfo_id);
       }
     }

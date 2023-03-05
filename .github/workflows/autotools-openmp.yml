@@ -1,0 +1,83 @@
+name: autotools-openmp
+# autotools on Ubuntu - run benchmark test. '--enable-openmp' no training tools
+on:
+  #push:
+  #schedule:
+  #  - cron: 0 20 * * *
+  workflow_dispatch:
+jobs:
+
+  linux:
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { name: 20.04-openmp, os: ubuntu-20.04 }
+          - { name: 22.04-openmp, os: ubuntu-22.04 }
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Download fonts, tessdata and langdata required for tests
+      run: |
+           git clone https://github.com/egorpugin/tessdata tessdata_unittest
+           cp tessdata_unittest/fonts/* test/testing/
+           mv tessdata_unittest/* ../
+
+    - name: Install dependencies
+      run: |
+           sudo apt-get update
+           sudo apt-get install autoconf libleptonica-dev -y
+           sudo apt-get install libpango1.0-dev -y
+           sudo apt-get install cabextract libarchive-dev -y
+           sudo apt-get install libcurl4-openssl-dev libcurl4 curl -y
+
+    - name: Setup Tesseract
+      run: |
+           mkdir -p m4
+           ./autogen.sh
+
+    - name: Configure Tesseract
+      run: |
+           ./configure '--disable-shared' '--enable-openmp' '--disable-doc' 'CXX=g++' 'CXXFLAGS=-g -O2'
+           grep -i OpenMP config.log
+
+    - name: Make and Install Tesseract
+      run: |
+           make
+           sudo make install
+
+    - name: Setup for Tesseract benchmark using image from issue 263 fifteen times in a list file
+      run: |
+           wget -O i263_speed.jpg https://cloud.githubusercontent.com/assets/9968625/13674495/ac261db4-e6ab-11e5-9b4a-ad91d5b4ff87.jpg
+           printf 'i263_speed.jpg\n%.0s' {1..15} > benchmarks.list
+
+    - name: Run Tesseract using image from issue 263 with tessdata_fast
+      run: |
+           lscpu
+           free
+           g++ --version
+           tesseract -v
+           time tesseract benchmarks.list - --tessdata-dir ../tessdata_fast > /dev/null 2>&1
+           echo "tessdata_fast"
+
+    - name: Run Tesseract using image from issue 263 with tessdata_fast and OpenMP Thread Limit
+      run: |
+           for lmt in {1..3}; do
+                time OMP_THREAD_LIMIT=$lmt tesseract benchmarks.list - --tessdata-dir ../tessdata_fast > /dev/null 2>&1 && echo "OMP_THREAD_LIMIT=" $lmt "tessdata_fast"
+           done
+
+    - name: Run Tesseract using image from issue 263 with tessdata_best and OpenMP Thread Limit
+      run: |
+           for lmt in {1..3}; do
+                time OMP_THREAD_LIMIT=$lmt tesseract benchmarks.list - --tessdata-dir ../tessdata_best > /dev/null 2>&1 && echo "OMP_THREAD_LIMIT=" $lmt "tessdata_best"
+           done
+
+    - name: Run Tesseract using image from issue 263 with tessdata and OpenMP Thread Limit
+      run: |
+           for lmt in {1..3}; do
+                time OMP_THREAD_LIMIT=$lmt tesseract benchmarks.list - --tessdata-dir ../tessdata > /dev/null 2>&1 && echo "OMP_THREAD_LIMIT=" $lmt "tessdata"
+           done

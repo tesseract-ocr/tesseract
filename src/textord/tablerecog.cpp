@@ -365,7 +365,7 @@ bool StructuredTable::VerifyLinedTableCells() {
 
 // TODO(nbeato): Could be much better than this.
 // Examples:
-//   - Caclulate the percentage of filled cells.
+//   - Calculate the percentage of filled cells.
 //   - Calculate the average number of ColPartitions per cell.
 //   - Calculate the number of cells per row with partitions.
 //   - Check if ColPartitions in adjacent cells are similar.

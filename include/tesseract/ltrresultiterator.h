@@ -181,7 +181,7 @@ class TESS_API ChoiceIterator {
 public:
   // Construction is from a LTRResultIterator that points to the symbol of
   // interest. The ChoiceIterator allows a one-shot iteration over the
-  // choices for this symbol and after that is is useless.
+  // choices for this symbol and after that it is useless.
   explicit ChoiceIterator(const LTRResultIterator &result_it);
   ~ChoiceIterator();
 

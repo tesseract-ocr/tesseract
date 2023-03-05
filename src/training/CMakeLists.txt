@@ -74,7 +74,14 @@ if(NOT SW_BUILD)
   else()
     find_package(ICU 52.1 COMPONENTS uc i18n)
   endif()
+  if(ICU_FOUND)
+    message(">> ICU_FOUND ${ICU_FOUND} ${ICU_VERSION} ${ICU_LIBRARIES} ${ICU_INCLUDE_DIRS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ICU_CXX_FLAGS}")
+  else()
+    message(">> ICU not found!")
+  endif()
 endif()
+
 
 # ##############################################################################
 # LIBRARY common_training
@@ -112,6 +119,11 @@ add_library(common_training ${COMMON_TRAINING_SRC})
 target_include_directories(common_training PUBLIC common
                                                   ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(common_training PUBLIC libtesseract)
+install(
+  TARGETS common_training
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 generate_export_header(common_training EXPORT_MACRO_NAME
                        TESS_COMMON_TRAINING_API)
 project_group(common_training "Training Tools")
@@ -247,16 +259,19 @@ if(ICU_FOUND)
     target_link_libraries(unicharset_training
                           PUBLIC common_training org.sw.demo.unicode.icu.i18n)
   else()
-    if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
-      target_link_libraries(unicharset_training PUBLIC common_training
-                                                       PkgConfig::ICU)
+    if(PKG_CONFIG_FOUND)
+      target_link_libraries(unicharset_training PUBLIC common_training PkgConfig::ICU)
     else()
-      target_link_libraries(unicharset_training PUBLIC common_training
-                                                       ${ICU_LINK_LIBRARIES})
+      target_link_libraries(unicharset_training PUBLIC common_training ${ICU_LIBRARIES})
     endif()
   endif()
   target_include_directories(unicharset_training
                              PUBLIC unicharset ${CMAKE_CURRENT_BINARY_DIR})
+  install(
+    TARGETS unicharset_training
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
   generate_export_header(unicharset_training EXPORT_MACRO_NAME
                          TESS_UNICHARSET_TRAINING_API)
   project_group(unicharset_training "Training Tools")
@@ -331,6 +346,7 @@ if(ICU_FOUND)
   # ############################################################################
 
   add_executable(unicharset_extractor unicharset_extractor.cpp)
+  set_property(TARGET unicharset_extractor PROPERTY CXX_STANDARD 17)
   target_link_libraries(unicharset_extractor unicharset_training)
   project_group(unicharset_extractor "Training Tools")
   install(
@@ -371,11 +387,7 @@ if(ICU_FOUND)
         target_include_directories(pango_training BEFORE
                                    PUBLIC ${PANGO_INCLUDE_DIRS})
         target_compile_definitions(pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
-        if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
-          target_link_libraries(pango_training PUBLIC PkgConfig::PANGO)
-        else()
-          target_link_libraries(pango_training PUBLIC ${PANGO_LINK_LIBRARIES})
-        endif()
+        target_link_libraries(pango_training PUBLIC PkgConfig::PANGO)
       endif()
     endif()
     target_include_directories(pango_training

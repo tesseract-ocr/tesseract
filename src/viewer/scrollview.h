@@ -36,6 +36,7 @@
 #include <tesseract/export.h>
 
 #include <cstdio>
+#include <memory>
 #include <mutex>
 
 namespace tesseract {
@@ -69,7 +70,7 @@ struct SVEvent {
   ~SVEvent() {
     delete[] parameter;
   }
-  SVEvent *copy() const;
+  std::unique_ptr<SVEvent> copy() const;
   SVEventType type = SVET_DESTROY; // What kind of event.
   ScrollView *window = nullptr;    // Window event relates to.
   char *parameter = nullptr;       // Any string that might have been passed as argument.
@@ -88,7 +89,7 @@ struct SVEvent {
 // The SVEventHandler class is used for Event handling: If you register your
 // class as SVEventHandler to a ScrollView Window, the SVEventHandler will be
 // called whenever an appropriate event occurs.
-class SVEventHandler {
+class TESS_API SVEventHandler {
 public:
   virtual ~SVEventHandler();
 
@@ -186,7 +187,7 @@ public:
   void AddEventHandler(SVEventHandler *listener);
 
   // Block until an event of the given type is received.
-  SVEvent *AwaitEvent(SVEventType type);
+  std::unique_ptr<SVEvent> AwaitEvent(SVEventType type);
 
   /*******************************************************************************
    * Getters and Setters
@@ -413,7 +414,7 @@ private:
   static SVNetwork *stream_;
 
   // Table of all the currently queued events.
-  SVEvent *event_table_[SVET_COUNT];
+  std::unique_ptr<SVEvent> event_table_[SVET_COUNT];
 
   // Mutex to access the event_table_ in a synchronized fashion.
   std::mutex mutex_;

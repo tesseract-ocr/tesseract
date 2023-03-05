@@ -505,9 +505,11 @@ INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
     }
     assert(UnusedClassIdIn(IntTemplates, ClassId));
     IClass = new INT_CLASS_STRUCT(FClass->NumProtos, FClass->NumConfigs);
-    FontSet fs{FClass->font_set.size()};
-    for (unsigned i = 0; i < fs.size(); ++i) {
-      fs[i] = FClass->font_set.at(i);
+    unsigned fs_size = FClass->font_set.size();
+    FontSet fs;
+    fs.reserve(fs_size);
+    for (unsigned i = 0; i < fs_size; ++i) {
+      fs.push_back(FClass->font_set[i]);
     }
     IClass->font_set_id = this->fontset_table_.push_back(fs);
     AddIntClass(IntTemplates, ClassId, IClass);
@@ -917,13 +919,13 @@ void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView *window) {
 void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates,
                                  const UNICHARSET &target_unicharset) {
   INT_CLASS_STRUCT *Class;
-  auto unicharset_size = target_unicharset.size();
+  uint32_t unicharset_size = target_unicharset.size();
   int version_id = -5; // When negated by the reader -1 becomes +1 etc.
 
   if (Templates->NumClasses != unicharset_size) {
     tprintf(
         "Warning: executing WriteIntTemplates() with %d classes in"
-        " Templates, while target_unicharset size is %zu\n",
+        " Templates, while target_unicharset size is %" PRIu32 "\n",
         Templates->NumClasses, unicharset_size);
   }
 
@@ -1163,12 +1165,11 @@ void FillPPLinearBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR], 
 CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool *adaptive_on, bool *pretrained_on,
                                    int *shape_id) {
   tprintf("%s\n", Prompt);
-  SVEvent *ev;
   SVEventType ev_type;
   int unichar_id = INVALID_UNICHAR_ID;
   // Wait until a click or popup event.
   do {
-    ev = IntMatchWindow->AwaitEvent(SVET_ANY);
+    auto ev = IntMatchWindow->AwaitEvent(SVET_ANY);
     ev_type = ev->type;
     if (ev_type == SVET_POPUP) {
       if (ev->command_id == IDA_SHAPE_INDEX) {
@@ -1214,7 +1215,6 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool *adaptive_on, bool *
         }
       }
     }
-    delete ev;
   } while (ev_type != SVET_CLICK);
   return 0;
 } /* GetClassToDebug */

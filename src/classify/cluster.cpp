@@ -1716,7 +1716,7 @@ static void CreateClusterTree(CLUSTERER *Clusterer) {
   context.candidates = new TEMPCLUSTER[Clusterer->NumberOfSamples];
   context.next = 0;
   context.heap = new ClusterHeap(Clusterer->NumberOfSamples);
-  KDWalk(context.tree, reinterpret_cast<void_proc>(MakePotentialClusters), &context);
+  KDWalk(context.tree, MakePotentialClusters, &context);
 
   // form potential clusters into actual clusters - always do "best" first
   while (context.heap->Pop(&HeapEntry)) {
@@ -2523,7 +2523,6 @@ static PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statist
  */
 static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
   auto Proto = new PROTOTYPE;
-  ASSERT_HOST(N == sizeof(Cluster->Mean));
   Proto->Mean = Cluster->Mean;
   Proto->Distrib.clear();
   Proto->Significant = true;
@@ -2775,8 +2774,8 @@ static double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha)
    for the specified number of degrees of freedom.  Search the list for
    the desired chi-squared. */
   CHISTRUCT SearchKey(0.0, Alpha);
-  auto OldChiSquared = reinterpret_cast<CHISTRUCT *>(
-      search(ChiWith[DegreesOfFreedom], &SearchKey, AlphaMatch)->first_node());
+  auto *found = search(ChiWith[DegreesOfFreedom], &SearchKey, AlphaMatch);
+  auto OldChiSquared = reinterpret_cast<CHISTRUCT *>(found ? found->first_node() : nullptr);
 
   if (OldChiSquared == nullptr) {
     OldChiSquared = new CHISTRUCT(DegreesOfFreedom, Alpha);

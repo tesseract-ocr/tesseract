@@ -99,7 +99,7 @@ void ParamsEditor::GetFirstWords(const char *s, // source string
                                  char *t        // target string
 ) {
   int full_length = strlen(s);
-  int reqd_len = 0; // No. of chars requird
+  int reqd_len = 0; // No. of chars required
   const char *next_word = s;
 
   while ((n > 0) && reqd_len < full_length) {

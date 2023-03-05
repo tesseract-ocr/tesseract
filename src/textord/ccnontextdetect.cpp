@@ -134,7 +134,7 @@ Image CCNonTextDetect::ComputeNonTextMask(bool debug, Image photo_map, TO_BLOCK 
 #endif // !GRAPHICS_DISABLED
     pixWrite("junkccphotomask.png", pix, IFF_PNG);
 #ifndef GRAPHICS_DISABLED
-    delete win->AwaitEvent(SVET_DESTROY);
+    win->AwaitEvent(SVET_DESTROY);
     delete win;
 #endif // !GRAPHICS_DISABLED
   }

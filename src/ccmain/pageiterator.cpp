@@ -225,7 +225,7 @@ bool PageIterator::IsAtFinalElement(PageIteratorLevel level,
     return true; // Already at the end!
   }
   // The result is true if we step forward by element and find we are
-  // at the the end of the page or at beginning of *all* levels in:
+  // at the end of the page or at beginning of *all* levels in:
   // [level, element).
   // When there is more than one level difference between element and level,
   // we could for instance move forward one symbol and still be at the first

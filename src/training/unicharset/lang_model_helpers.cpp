@@ -239,6 +239,7 @@ int CombineLangModel(const UNICHARSET &unicharset, const std::string &script_dir
     tprintf("Error writing output traineddata file!!\n");
     return EXIT_FAILURE;
   }
+  tprintf("Created %s/%s/%s.traineddata", output_dir.c_str(), lang.c_str(), lang.c_str());
   return EXIT_SUCCESS;
 }
 

@@ -297,8 +297,13 @@ SVNetwork::SVNetwork(const char *hostname, int port) {
 #  endif // _WIN32
   }
 
-  stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
-                   addr_info->ai_protocol);
+  if (addr_info == nullptr) {
+    // Mark stream_ as invalid.
+    stream_ = -1;
+  } else {
+    stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
+                     addr_info->ai_protocol);
+  }
 
   if (stream_ < 0) {
     std::cerr << "Failed to open socket" << std::endl;

@@ -29,7 +29,7 @@ AM_INIT_AUTOMAKE([foreign subdir-objects nostdinc])
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 PACKAGE_YEAR=2022
-PACKAGE_DATE="03/01"
+PACKAGE_DATE="12/22"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 
@@ -129,13 +129,14 @@ AX_CHECK_COMPILE_FLAG([-Werror=unused-command-line-argument], [WERROR=-Werror=un
 
 AM_CONDITIONAL([HAVE_AVX], false)
 AM_CONDITIONAL([HAVE_AVX2], false)
+AM_CONDITIONAL([HAVE_AVX512F], false)
 AM_CONDITIONAL([HAVE_FMA], false)
 AM_CONDITIONAL([HAVE_SSE4_1], false)
 AM_CONDITIONAL([HAVE_NEON], false)
 
 case "${host_cpu}" in
 
-  *86*)
+  amd64|*86*)
 
     AX_CHECK_COMPILE_FLAG([-mavx], [avx=true], [avx=false], [$WERROR])
     AM_CONDITIONAL([HAVE_AVX], ${avx})
@@ -147,6 +148,12 @@ case "${host_cpu}" in
     AM_CONDITIONAL([HAVE_AVX2], $avx2)
     if $avx2; then
       AC_DEFINE([HAVE_AVX2], [1], [Enable AVX2 instructions])
+    fi
+
+    AX_CHECK_COMPILE_FLAG([-mavx512f], [avx512f=true], [avx512f=false], [$WERROR])
+    AM_CONDITIONAL([HAVE_AVX512F], $avx512f)
+    if $avx512f; then
+      AC_DEFINE([HAVE_AVX512F], [1], [Enable AVX512F instructions])
     fi
 
     AX_CHECK_COMPILE_FLAG([-mfma], [fma=true], [fma=false], [$WERROR])
@@ -163,7 +170,7 @@ case "${host_cpu}" in
 
     ;;
 
-  aarch64)
+  aarch64*|arm64)
 
     # ARMv8 always has NEON and does not need special compiler flags.
     AM_CONDITIONAL([HAVE_NEON], true)
@@ -178,6 +185,7 @@ case "${host_cpu}" in
       AC_DEFINE([HAVE_NEON], [1], [Enable NEON instructions])
       NEON_CXXFLAGS="-mfpu=neon"
       AC_SUBST([NEON_CXXFLAGS])
+      check_for_neon=1
     fi
 
     ;;
@@ -190,6 +198,16 @@ esac
 
 # check whether feenableexcept is supported. some C libraries (e.g. uclibc) don't.
 AC_CHECK_FUNCS([feenableexcept])
+
+# additional checks for NEON targets
+if test x$check_for_neon = x1; then
+  AC_MSG_NOTICE([checking how to detect NEON availability])
+  AC_CHECK_FUNCS([getauxval elf_aux_info android_getCpuFamily])
+
+  if test $ac_cv_func_getauxval = no && test $ac_cv_func_elf_aux_info = no && test $ac_cv_func_android_getCpuFamily = no; then
+      AC_MSG_WARN([NEON is available, but we don't know how to check for it.  Will not be able to use NEON.])
+  fi
+fi
 
 AX_CHECK_COMPILE_FLAG([-fopenmp-simd], [openmp_simd=true], [openmp_simd=false], [$WERROR])
 AM_CONDITIONAL([OPENMP_SIMD], $openmp_simd)
@@ -446,7 +464,7 @@ esac
 
 AC_SEARCH_LIBS([pthread_create], [pthread])
 
-# Set PKG_CONFIG_PATH for MacOS with Homebrew unless it is already set.
+# Set PKG_CONFIG_PATH for macOS with Homebrew unless it is already set.
 AC_CHECK_PROG([have_brew], brew, true, false)
 if $have_brew; then
   brew_prefix=$(brew --prefix)
@@ -469,7 +487,7 @@ AC_ARG_ENABLE([doc],
 AS_IF([test "$enable_doc" != "no"], [
   AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
   AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
-  # MacOS with Homebrew requires the environment variable
+  # macOS with Homebrew requires the environment variable
   # XML_CATALOG_FILES for xsltproc.
   if $have_asciidoc && $have_xsltproc; then
     AM_CONDITIONAL([ASCIIDOC], true)
@@ -622,7 +640,7 @@ AM_COND_IF([ENABLE_TRAINING],
    echo "$ sudo make training-install"
    echo ""],
   [
-   echo "You can not build training tools because of missing dependency."
+   echo "You cannot build training tools because of missing dependency."
    echo "Check configure output for details."
    echo ""]
 )

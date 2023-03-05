@@ -1,0 +1,75 @@
+name: Bug Report
+description: File a bug report
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Attention
+        Before you submit an issue, please review [the guidelines for this repository](https://github.com/tesseract-ocr/tesseract/blob/main/CONTRIBUTING.md).
+
+        Have a question? Need help?
+        Please use [our forum](https://groups.google.com/g/tesseract-ocr).
+
+        Please follow these rules:
+        * Don't open an issue for [Tesseract version which was released more than a year ago](https://tesseract-ocr.github.io/tessdoc/ReleaseNotes.html).
+        * Don't open an issue which involves 3rd party tools that use Tesseract as a library. Only report about an issue with the Tesseract command line tool or the C/C++ API.
+        * Please provide the input image.
+        * Also provide output files (txt and/or tsv, hocr, pdf). You can make a zip archive that will contain these files, so GitHub will let you upload them.
+        * Don't attach a screenshot of the command line and output. Instead, copy the text and paste it in your bug report.
+  - type: textarea
+    attributes:
+      label: Basic Information
+      description: Version info, compiled libraries, SIMD, OpenMP
+      placeholder: "Paste the output of the command: tesseract -v"
+  - type: dropdown
+    id: os-linux
+    attributes:
+      label: Operating System
+      description:  Choose the OS where the bug occurs
+      multiple: true
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS 13 Ventura
+        - macOS 12 Monterey
+        - macOS 11 Big Sur
+        - Ubuntu 22.04 Jammy
+        - Ubuntu 20.04 Focal
+        - Debian Testing Bookworm
+        - Debian 11 Bullseye
+        - RHEL 9
+        - RHEL 8
+  - type: textarea
+    attributes:
+      label: Other Operating System
+      placeholder: Enter the name and version of the OS
+  - type: textarea
+    attributes:
+      label: uname -a
+      placeholder: "Paste the output of the command: umame -a (if available in your system)."
+
+  - type: textarea
+    attributes:
+      label: Compiler
+      placeholder: "Enter compiler name and version (Examples: MSVC 2019 16.11, Clang 13.0.1, GCC 11.2, Xcode 14.1)"
+  - type: textarea
+    attributes:
+      label: Virtualization / Containers
+      placeholder: "Enter the name and version of the VM / container which you use (Examples: Oracle VM VirtualBox 7.0.4,VMware Workstation 17.0, Hyper-V, Docker 20.10.22)"
+  - type: textarea
+    attributes:
+      label: CPU
+      placeholder: "Enter your CPU vendor name and model (Examples: Intel Core i7-11700K, AMD Ryzen 7 5800X, Apple Silicon M1)"
+  - type: textarea
+    attributes:
+      label: Current Behavior
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+  - type: textarea
+    attributes:
+      label: Suggested Fix
+  - type: textarea
+    attributes:
+      label: Other Information
+      placeholder: Add more details here.

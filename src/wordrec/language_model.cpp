@@ -1010,7 +1010,7 @@ float LanguageModel::ComputeDenom(BLOB_CHOICE_LIST *curr_list) {
   assert(len != 0);
   // The ideal situation would be to have the classifier scores for
   // classifying each position as each of the characters in the unicharset.
-  // Since we can not do this because of speed, we add a very crude estimate
+  // Since we cannot do this because of speed, we add a very crude estimate
   // of what these scores for the "missing" classifications would sum up to.
   denom +=
       (dict_->getUnicharset().size() - len) * CertaintyScore(language_model_ngram_nonmatch_score);
@@ -1375,7 +1375,12 @@ void LanguageModel::ExtractFeaturesFromPath(const ViterbiStateEntry &vse, float 
   // features[PTRAIN_NUM_BAD_FONT] = vse.consistency_info.inconsistent_font;
 
   // Classifier-related features.
-  features[PTRAIN_RATING_PER_CHAR] = vse.ratings_sum / static_cast<float>(vse.outline_length);
+  if (vse.outline_length > 0.0f) {
+    features[PTRAIN_RATING_PER_CHAR] = vse.ratings_sum / vse.outline_length;
+  } else {
+    // Avoid FP division by 0.
+    features[PTRAIN_RATING_PER_CHAR] = 0.0f;
+  }
 }
 
 WERD_CHOICE *LanguageModel::ConstructWord(ViterbiStateEntry *vse, WERD_RES *word_res,

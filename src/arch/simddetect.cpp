@@ -41,6 +41,7 @@
 #endif
 
 #if defined(HAVE_AVX) || defined(HAVE_AVX2) || defined(HAVE_FMA) || defined(HAVE_SSE4_1)
+// See https://en.wikipedia.org/wiki/CPUID.
 #  define HAS_CPUID
 #endif
 
@@ -53,12 +54,14 @@
 #endif
 
 #if defined(HAVE_NEON) && !defined(__aarch64__)
-#  ifdef ANDROID
+#  if defined(HAVE_ANDROID_GETCPUFAMILY)
 #    include <cpu-features.h>
-#  else
-/* Assume linux */
+#  elif defined(HAVE_GETAUXVAL)
 #    include <asm/hwcap.h>
 #    include <sys/auxv.h>
+#  elif defined(HAVE_ELF_AUX_INFO)
+#    include <sys/auxv.h>
+#    include <sys/elf.h>
 #  endif
 #endif
 
@@ -92,6 +95,7 @@ bool SIMDDetect::avx_available_;
 bool SIMDDetect::avx2_available_;
 bool SIMDDetect::avx512F_available_;
 bool SIMDDetect::avx512BW_available_;
+bool SIMDDetect::avx512VNNI_available_;
 // If true, then FMA has been detected.
 bool SIMDDetect::fma_available_;
 // If true, then SSe4.1 has been detected.
@@ -169,6 +173,7 @@ SIMDDetect::SIMDDetect() {
         avx2_available_ = (ebx & 0x00000020) != 0;
         avx512F_available_ = (ebx & 0x00010000) != 0;
         avx512BW_available_ = (ebx & 0x40000000) != 0;
+        avx512VNNI_available_ = (ecx & 0x00000800) != 0;
       }
 #      endif
     }
@@ -199,6 +204,7 @@ SIMDDetect::SIMDDetect() {
         avx2_available_ = (cpuInfo[1] & 0x00000020) != 0;
         avx512F_available_ = (cpuInfo[1] & 0x00010000) != 0;
         avx512BW_available_ = (cpuInfo[1] & 0x40000000) != 0;
+        avx512VNNI_available_ = (cpuInfo[2] & 0x00000800) != 0;
       }
 #      endif
     }
@@ -210,21 +216,29 @@ SIMDDetect::SIMDDetect() {
 #endif
 
 #if defined(HAVE_NEON) && !defined(__aarch64__)
-#  ifdef ANDROID
+#  if defined(HAVE_ANDROID_GETCPUFAMILY)
   {
     AndroidCpuFamily family = android_getCpuFamily();
     if (family == ANDROID_CPU_FAMILY_ARM)
       neon_available_ = (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON);
   }
-#  else
-  /* Assume linux */
+#  elif defined(HAVE_GETAUXVAL)
   neon_available_ = getauxval(AT_HWCAP) & HWCAP_NEON;
+#  elif defined(HAVE_ELF_AUX_INFO)
+  unsigned long hwcap = 0;
+  elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap);
+  neon_available_ = hwcap & HWCAP_NEON;
 #  endif
 #endif
 
   // Select code for calculation of dot product based on autodetection.
   if (false) {
     // This is a dummy to support conditional compilation.
+#if defined(HAVE_AVX512F)
+  } else if (avx512F_available_) {
+    // AVX512F detected.
+    SetDotProduct(DotProductAVX512F, &IntSimdMatrix::intSimdMatrixAVX2);
+#endif
 #if defined(HAVE_AVX2)
   } else if (avx2_available_) {
     // AVX2 detected.

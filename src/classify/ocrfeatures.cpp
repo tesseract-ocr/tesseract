@@ -21,6 +21,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <sstream> // for std::stringstream
 
 namespace tesseract {
 
@@ -106,7 +107,13 @@ static void WriteFeature(FEATURE Feature, std::string &str) {
 #ifndef WIN32
     assert(!std::isnan(Feature->Params[i]));
 #endif
-    str += " " + std::to_string(Feature->Params[i]);
+    std::stringstream stream;
+    // Use "C" locale (needed for double value).
+    stream.imbue(std::locale::classic());
+    // Use 8 digits for double value.
+    stream.precision(8);
+    stream << Feature->Params[i];
+    str += " " + stream.str();
   }
   str += "\n";
 } /* WriteFeature */

@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
   auto trainer = tesseract::LoadTrainingData(argv + 1, false, nullptr, file_prefix);
 
   if (!trainer) {
-    return 1;
+    return EXIT_FAILURE;
   }
 
   if (FLAGS_display_cloud_font >= 0) {
@@ -58,13 +58,13 @@ int main(int argc, char **argv) {
     trainer->DisplaySamples(FLAGS_canonical_class1.c_str(), FLAGS_display_cloud_font,
                             FLAGS_canonical_class2.c_str(), FLAGS_display_canonical_font);
 #endif // !GRAPHICS_DISABLED
-    return 0;
+    return EXIT_SUCCESS;
   } else if (!FLAGS_canonical_class1.empty()) {
     trainer->DebugCanonical(FLAGS_canonical_class1.c_str(), FLAGS_canonical_class2.c_str());
-    return 0;
+    return EXIT_SUCCESS;
   }
   trainer->SetupMasterShapes();
   WriteShapeTable(file_prefix, trainer->master_shapes());
 
-  return 0;
+  return EXIT_SUCCESS;
 } /* main */

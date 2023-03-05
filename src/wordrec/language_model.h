@@ -236,7 +236,7 @@ protected:
   // Constructs WERD_CHOICE by recording unichar_ids of the BLOB_CHOICEs
   // on the path represented by the given BLOB_CHOICE and language model
   // state entries (lmse, dse). The path is re-constructed by following
-  // the parent pointers in the the lang model state entries). If the
+  // the parent pointers in the lang model state entries). If the
   // constructed WERD_CHOICE is better than the best/raw choice recorded
   // in the best_choice_bundle, this function updates the corresponding
   // fields and sets best_choice_bunldle->updated to true.
@@ -267,7 +267,7 @@ protected:
   // could be pruned out (i.e. is neither a system/user/frequent dictionary
   // nor a top choice path).
   // In non-space delimited languages all paths can be "somewhat" dictionary
-  // words. In such languages we can not do dictionary-driven path pruning,
+  // words. In such languages we cannot do dictionary-driven path pruning,
   // so paths with non-empty dawg_info are considered prunable.
   inline bool PrunablePath(const ViterbiStateEntry &vse) {
     if (vse.top_choice_flags) {
@@ -367,7 +367,7 @@ protected:
   // Set to true if a choice representing correct segmentation was explored.
   bool correct_segmentation_explored_ = false;
 
-  // Params models containing weights for for computing ViterbiStateEntry costs.
+  // Params models containing weights for computing ViterbiStateEntry costs.
   ParamsModel params_model_;
 };
 

@@ -212,7 +212,7 @@ KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
  * @param Key    ptr to key by which data can be retrieved
  * @param Data    ptr to data to be stored in the tree
  */
-void KDStore(KDTREE *Tree, float *Key, void *Data) {
+void KDStore(KDTREE *Tree, float *Key, CLUSTER *Data) {
   auto PtrToNode = &(Tree->Root.Left);
   auto Node = *PtrToNode;
   auto Level = NextLevel(Tree, -1);
@@ -310,7 +310,7 @@ void KDNearestNeighborSearch(KDTREE *Tree, float Query[], int QuerySize, float M
 
 /*---------------------------------------------------------------------------*/
 /** Walk a given Tree with action. */
-void KDWalk(KDTREE *Tree, void_proc action, void *context) {
+void KDWalk(KDTREE *Tree, kdwalk_proc action, ClusteringContext *context) {
   if (Tree->Root.Left != nullptr) {
     Walk(Tree, action, context, Tree->Root.Left, NextLevel(Tree, -1));
   }
@@ -463,7 +463,7 @@ bool KDTreeSearch::BoxIntersectsSearch(float *lower, float *upper) {
  * @param sub_tree  ptr to root of subtree to be walked
  * @param level  current level in the tree for this node
  */
-void Walk(KDTREE *tree, void_proc action, void *context, KDNODE *sub_tree, int32_t level) {
+void Walk(KDTREE *tree, kdwalk_proc action, ClusteringContext *context, KDNODE *sub_tree, int32_t level) {
   (*action)(context, sub_tree->Data, level);
   if (sub_tree->Left != nullptr) {
     Walk(tree, action, context, sub_tree->Left, NextLevel(tree, level));

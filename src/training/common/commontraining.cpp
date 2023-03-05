@@ -376,6 +376,7 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT &feature_definitions, const c
       if (feature_type != i) {
         delete char_desc->FeatureSets[i];
       }
+      char_desc->FeatureSets[i] = nullptr;
     }
     delete char_desc;
   }

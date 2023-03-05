@@ -7,23 +7,12 @@ on:
     - cron: 0 20 * * *
 jobs:
 
-
   linux:
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
         config:
-          - { name: ubuntu-18.04-clang-7-autotools, os: ubuntu-18.04, cxx: clang++-7 }
-          - { name: ubuntu-18.04-clang-8-autotools, os: ubuntu-18.04, cxx: clang++-8 } #installed
-          - { name: ubuntu-18.04-clang-9-autotools, os: ubuntu-18.04, cxx: clang++-9 } #installed
-          - { name: ubuntu-18.04-clang-10-autotools, os: ubuntu-18.04, cxx: clang++-10 }
-
-          - { name: ubuntu-18.04-gcc-7-autotools, os: ubuntu-18.04, cxx: g++-7 } #installed
-          - { name: ubuntu-18.04-gcc-8-autotools, os: ubuntu-18.04, cxx: g++-8 } #installed
-          - { name: ubuntu-18.04-gcc-9-autotools, os: ubuntu-18.04, cxx: g++-9 } #installed
-          - { name: ubuntu-18.04-gcc-10-autotools, os: ubuntu-18.04, cxx: g++-10 } #installed
-
           - { name: ubuntu-20.04-clang-7-autotools, os: ubuntu-20.04, cxx: clang++-7 }
           - { name: ubuntu-20.04-clang-8-autotools, os: ubuntu-20.04, cxx: clang++-8 } #installed
           - { name: ubuntu-20.04-clang-9-autotools, os: ubuntu-20.04, cxx: clang++-9 } #installed
@@ -35,7 +24,7 @@ jobs:
           - { name: ubuntu-20.04-gcc-10-autotools, os: ubuntu-20.04, cxx: g++-10 } #installed
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -108,6 +97,29 @@ jobs:
            cd test
            ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp -I/usr/local/include -L/usr/local/lib `pkg-config --cflags --libs tesseract lept ` -pthread -std=c++11
            ./basicapitest
+
+    - name: Setup for Tesseract benchmark using image from issue 263 fifteen times in a list file
+      run: |
+           wget -O i263_speed.jpg https://cloud.githubusercontent.com/assets/9968625/13674495/ac261db4-e6ab-11e5-9b4a-ad91d5b4ff87.jpg
+           printf 'i263_speed.jpg\n%.0s' {1..15} > benchmarks.list
+           lscpu
+           free
+           tesseract -v
+
+    - name: Run Tesseract using image from issue 263 with tessdata_fast
+      run: |
+           time tesseract benchmarks.list - --tessdata-dir ../tessdata_fast > /dev/null 2>&1
+           echo "tessdata_fast - disable-openmp"
+
+    - name: Run Tesseract using image from issue 263 with tessdata_best
+      run: |
+           time tesseract benchmarks.list - --tessdata-dir ../tessdata_best > /dev/null 2>&1
+           echo "tessdata_best - disable-openmp"
+
+    - name: Run Tesseract using image from issue 263 with tessdata_fast
+      run: |
+           time tesseract benchmarks.list - --tessdata-dir ../tessdata > /dev/null 2>&1
+           echo "tessdata - disable-openmp"
 
     - name: Display Compiler Version
       run: |

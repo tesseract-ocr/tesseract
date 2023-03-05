@@ -19,7 +19,7 @@ jobs:
       run:
         shell: msys2 {0}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - uses: msys2/setup-msys2@v2
@@ -41,13 +41,23 @@ jobs:
            pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-pkg-config
            pacman --noconfirm -S ${{ matrix.mingw_package_prefix }}-zlib
 
-    - name: Build and install tesseract and training tools
+    - name: Setup Tesseract
       run: |
+           mkdir -p m4
            ./autogen.sh
-           ./configure
+
+    - name: Configure Tesseract
+      run: |
+           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
+
+    - name: Build and install Tesseract
+      run: |
            make
-           make training
            make install
+
+    - name: Make and install training tools
+      run: |
+           make training
            make training-install
 
     - name: Display version

@@ -76,7 +76,7 @@ set(MINIMUM_LEPTONICA_VERSION 1.74)
 #
 # ##############################################################################
 
-message("Configuring tesseract version ${PACKAGE_VERSION}...")
+message(STATUS "Configuring tesseract version ${PACKAGE_VERSION}...")
 
 if(WIN32)
   option(SW_BUILD "Build with sw" ON)
@@ -88,6 +88,7 @@ option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
 option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
 option(ENABLE_LTO "Enable link-time optimization" OFF)
 option(FAST_FLOAT "Enable float for LSTM" ON)
+option(ENABLE_OPENCL "Enable unsupported experimental OpenCL support" OFF)
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
 option(USE_SYSTEM_ICU "Use system ICU" OFF)
@@ -152,7 +153,7 @@ if(COMPILER_SUPPORTS_MARCH_NATIVE)
   set(MARCH_NATIVE_OPT ON)
 endif()
 
-message("CMAKE_SYSTEM_PROCESSOR=<${CMAKE_SYSTEM_PROCESSOR}>")
+message(STATUS "CMAKE_SYSTEM_PROCESSOR=<${CMAKE_SYSTEM_PROCESSOR}>")
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
 
@@ -165,6 +166,10 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
     set(HAVE_AVX2 ON)
     set(AVX2_COMPILE_FLAGS "/arch:AVX2")
     add_definitions("-DHAVE_AVX2")
+
+    set(HAVE_AVX512F ON)
+    set(AVX512F_COMPILE_FLAGS "/arch:AVX512")
+    add_definitions("-DHAVE_AVX512F")
 
     set(HAVE_FMA ON)
     set(FMA_COMPILE_FLAGS "-D__FMA__")
@@ -197,6 +202,12 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
       add_definitions("-DHAVE_AVX2")
     endif()
 
+    check_cxx_compiler_flag("-mavx512f" HAVE_AVX512F)
+    if(HAVE_AVX512F)
+      set(AVX512F_COMPILE_FLAGS "-mavx512f")
+      add_definitions("-DHAVE_AVX512F")
+    endif()
+
     check_cxx_compiler_flag("-mfma" HAVE_FMA)
     if(HAVE_FMA)
       set(FMA_COMPILE_FLAGS "-mfma")
@@ -214,6 +225,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64.*|AARCH64.*")
 
   set(HAVE_AVX FALSE)
   set(HAVE_AVX2 FALSE)
+  set(HAVE_AVX512F FALSE)
   set(HAVE_FMA FALSE)
   set(HAVE_SSE4_1 FALSE)
 
@@ -224,6 +236,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm.*")
 
   set(HAVE_AVX FALSE)
   set(HAVE_AVX2 FALSE)
+  set(HAVE_AVX512F FALSE)
   set(HAVE_FMA FALSE)
   set(HAVE_SSE4_1 FALSE)
 
@@ -237,6 +250,7 @@ else()
 
   set(HAVE_AVX FALSE)
   set(HAVE_AVX2 FALSE)
+  set(HAVE_AVX512F FALSE)
   set(HAVE_FMA FALSE)
   set(HAVE_NEON FALSE)
   set(HAVE_SSE4_1 FALSE)
@@ -261,6 +275,8 @@ elseif(MSVC)
   # 'double' to 'float'
   set(CMAKE_CXX_FLAGS_RELEASE
       "${CMAKE_CXX_FLAGS_RELEASE} /wd4244 /wd4305 /wd4267 /wd4251 /wd4275 /wd4005")
+  set(CMAKE_CXX_FLAGS_RELEASE
+      "${CMAKE_CXX_FLAGS_RELEASE} /wd4068")
   # Don't use /Wall because it generates too many warnings.
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /W0 /bigobj")
   # MT flag
@@ -283,13 +299,6 @@ if(OPENMP_BUILD
 endif()
 if(OPENMP_BUILD)
   find_package(OpenMP QUIET)
-  if(OpenMP_FOUND)
-    message(">> OpenMP_FOUND ${OpenMP_FOUND} ${OpenMP_VERSION}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    if (NOT TARGET OpenMP::OpenMP_CXX)
-      add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
-    endif()
-  endif()
   # https://stackoverflow.com/questions/12399422
   # how-to-set-linker-flags-for-openmp-in-cmakes-try-compile-function
   if(NOT OpenMP_FOUND
@@ -310,8 +319,22 @@ if(OPENMP_BUILD)
     add_definitions(-D_OPENMP=201107)
   endif()
   if(MSVC)
-    string(REPLACE "/openmp" "/openmp:llvm -openmp:experimental" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-    string(REPLACE "-openmp" "/openmp:llvm -openmp:experimental" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+    # Note: -openmp:llvm is available for X64 from MSVC 16.9
+    # from MSVC 16.10 Preview 2 there is support also for x86 and arm64
+    # https://devblogs.microsoft.com/cppblog/openmp-updates-and-fixes-for-cpp-in-visual-studio-2019-16-10/
+    if ("${OpenMP_CXX_FLAGS}" STREQUAL "-openmp")
+      set(OpenMP_CXX_FLAGS "-openmp:llvm")
+    endif()
+    # 'simd': requires '-openmp:experimental'
+    set_source_files_properties(src/arch/dotproduct.cpp
+                              PROPERTIES COMPILE_FLAGS "-openmp:experimental")
+  endif()
+  if(OpenMP_FOUND)
+    message(">> OpenMP_FOUND ${OpenMP_FOUND} version: ${OpenMP_CXX_VERSION}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    if (NOT TARGET OpenMP::OpenMP_CXX)
+      add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
+    endif()
   endif()
 endif()
 
@@ -349,10 +372,6 @@ if(SW_BUILD)
   sw_execute()
 else()
   find_package(PkgConfig)
-  if(BUILD_TRAINING_TOOLS AND NOT PKG_CONFIG_FOUND)
-    message(WARNING "Building of Training Tools requires PkgConfig")
-    set(BUILD_TRAINING_TOOLS OFF)
-  endif(BUILD_TRAINING_TOOLS AND NOT PKG_CONFIG_FOUND)
   # Check for required library. option -DLeptonica_DIR=path => cmake hint where
   # to find leptonica
   find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} CONFIG)
@@ -405,7 +424,17 @@ else()
   endif(DISABLE_CURL)
 endif()
 
-find_package(OpenCL QUIET)
+IF(ENABLE_OPENCL)
+  find_package(OpenCL)
+  if (OpenCL_FOUND)
+    include_directories(${OpenCL_INCLUDE_DIRS})
+    message(STATUS "OpenCL_INCLUDE_DIRS: ${OpenCL_INCLUDE_DIRS}")
+    message(STATUS "OpenCL_LIBRARY: ${OpenCL_LIBRARY}")
+    set(USE_OPENCL ON)
+  else()
+    set(USE_OPENCL OFF)
+  endif(OpenCL_FOUND)
+endif(ENABLE_OPENCL)
 
 # ##############################################################################
 #
@@ -455,10 +484,17 @@ elseif(${CMAKE_BUILD_TYPE} MATCHES Release)
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
   endif() # LTO_SUPPORTED
 endif()
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(BUILD_ARCH "64 bits")
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+  set(BUILD_ARCH "32 bits")
+endif()
+
 message(STATUS)
 message(STATUS "General configuration for Tesseract ${PACKAGE_VERSION}")
 message(STATUS "--------------------------------------------------------")
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE} ${BUILD_ARCH}")
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "Used standard: C++${CMAKE_CXX_STANDARD}")
 message(STATUS "CXX compiler options: ${COMPILER_FLAGS}")
@@ -469,6 +505,7 @@ message(STATUS "Linker options: ${CMAKE_EXE_LINKER_FLAGS} "
 message(STATUS "Install directory: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "HAVE_AVX: ${HAVE_AVX}")
 message(STATUS "HAVE_AVX2: ${HAVE_AVX2}")
+message(STATUS "HAVE_AVX512F: ${HAVE_AVX512F}")
 message(STATUS "HAVE_FMA: ${HAVE_FMA}")
 message(STATUS "HAVE_SSE4_1: ${HAVE_SSE4_1}")
 message(STATUS "MARCH_NATIVE_OPT: ${MARCH_NATIVE_OPT}")
@@ -488,6 +525,9 @@ message(STATUS "Disable the legacy OCR engine [DISABLED_LEGACY_ENGINE]: "
 message(STATUS "Build training tools [BUILD_TRAINING_TOOLS]: "
                "${BUILD_TRAINING_TOOLS}")
 message(STATUS "Build tests [BUILD_TESTS]: ${BUILD_TESTS}")
+if(ENABLE_OPENCL)
+  message(STATUS "Enable unsupported experimental OpenCL [ENABLE_OPENCL]: ${USE_OPENCL}")
+endif(ENABLE_OPENCL)
 message(STATUS "Use system ICU Library [USE_SYSTEM_ICU]: ${USE_SYSTEM_ICU}")
 message(STATUS "Install tesseract configs [INSTALL_CONFIGS]: ${INSTALL_CONFIGS}")
 message(STATUS "--------------------------------------------------------")
@@ -627,6 +667,11 @@ if(HAVE_AVX2)
   set_source_files_properties(src/arch/intsimdmatrixavx2.cpp
                               PROPERTIES COMPILE_FLAGS ${AVX2_COMPILE_FLAGS})
 endif(HAVE_AVX2)
+if(HAVE_AVX512F)
+  list(APPEND arch_files_opt src/arch/dotproductavx512.cpp)
+  set_source_files_properties(src/arch/dotproductavx512.cpp
+                              PROPERTIES COMPILE_FLAGS ${AVX512F_COMPILE_FLAGS})
+endif(HAVE_AVX512F)
 if(HAVE_FMA)
   list(APPEND arch_files_opt src/arch/dotproductfma.cpp)
   set_source_files_properties(src/arch/dotproductfma.cpp
@@ -748,6 +793,9 @@ target_link_libraries(libtesseract PRIVATE ${LIB_Ws2_32} ${LIB_pthread})
 if(OpenMP_CXX_FOUND)
   target_link_libraries(libtesseract PUBLIC OpenMP::OpenMP_CXX)
 endif()
+if(OpenCL_FOUND)
+  target_link_libraries(libtesseract PUBLIC OpenCL::OpenCL)
+endif()
 if(LibArchive_FOUND)
   target_link_libraries(libtesseract PUBLIC ${LibArchive_LIBRARIES})
 endif(LibArchive_FOUND)
@@ -764,14 +812,8 @@ set_target_properties(libtesseract
 set_target_properties(libtesseract
   PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
-if(WIN32)
-  set_target_properties(libtesseract
-     PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
-  set_target_properties(libtesseract
-     PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
-else()
-  set_target_properties(libtesseract PROPERTIES OUTPUT_NAME tesseract)
-endif()
+set_target_properties(libtesseract
+  PROPERTIES OUTPUT_NAME tesseract$<$<BOOL:${WIN32}>:${VERSION_MAJOR}${VERSION_MINOR}$<$<CONFIG:DEBUG>:d>>)
 
 if(SW_BUILD)
   target_link_libraries(libtesseract PUBLIC org.sw.demo.danbloomberg.leptonica
@@ -797,6 +839,13 @@ if(WIN32
   # Workaround for "libomp.lib is not automatically added on Windows" see:
   # http://lists.llvm.org/pipermail/openmp-dev/2015-August/000857.html
   target_link_libraries(libtesseract PRIVATE ${OpenMP_LIBRARY})
+endif()
+
+if (ANDROID)
+    add_definitions(-DANDROID)
+    find_package(CpuFeaturesNdkCompat REQUIRED)
+    target_include_directories(libtesseract PRIVATE "${CpuFeaturesNdkCompat_DIR}/../../../include/ndk_compat")
+    target_link_libraries     (libtesseract PRIVATE CpuFeatures::ndk_compat)
 endif()
 
 # ##############################################################################
@@ -829,8 +878,10 @@ get_target_property(tesseract_NAME libtesseract NAME)
 get_target_property(tesseract_VERSION libtesseract VERSION)
 get_target_property(tesseract_OUTPUT_NAME libtesseract OUTPUT_NAME)
 
-configure_file(tesseract.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc
+configure_file(tesseract.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc.in
                @ONLY)
+# to resolve generator expression in OUTPUT_NAME
+file(GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tesseract_$<CONFIG>.pc INPUT ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc.in)
 
 configure_package_config_file(
   cmake/templates/TesseractConfig.cmake.in
@@ -842,8 +893,8 @@ write_basic_package_version_file(
   VERSION ${PACKAGE_VERSION}
   COMPATIBILITY SameMajorVersion)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract_$<CONFIG>.pc
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig RENAME tesseract.pc)
 install(TARGETS tesseract DESTINATION bin)
 install(
   TARGETS libtesseract

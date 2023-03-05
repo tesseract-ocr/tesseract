@@ -17,14 +17,28 @@
 
 #include <tesseract/capi.h>
 
-#include <cstring> // for strdup
-
 const char *TessVersion() {
   return TessBaseAPI::Version();
 }
 
+static char *MakeText(const std::string& srcText) {
+  auto *text = new char[srcText.size() + 1];
+  srcText.copy(text, srcText.size());
+  text[srcText.size()] = 0;
+  return text;
+}
+
 void TessDeleteText(const char *text) {
   delete[] text;
+}
+
+static char **MakeTextArray(const std::vector<std::string>& srcArr) {
+  auto **arr = new char *[srcArr.size() + 1];
+  for (size_t i = 0; i < srcArr.size(); ++i) {
+    arr[i] = MakeText(srcArr[i]);
+  }
+  arr[srcArr.size()] = nullptr;
+  return arr;
 }
 
 void TessDeleteTextArray(char **arr) {
@@ -228,6 +242,22 @@ int TessBaseAPIInit3(TessBaseAPI *handle, const char *datapath, const char *lang
   return handle->Init(datapath, language);
 }
 
+int TessBaseAPIInit5(TessBaseAPI *handle, const char *data, int data_size, const char *language,
+                     TessOcrEngineMode mode, char **configs, int configs_size, char **vars_vec,
+                     char **vars_values, size_t vars_vec_size, BOOL set_only_non_debug_params) {
+  std::vector<std::string> varNames;
+  std::vector<std::string> varValues;
+  if (vars_vec != nullptr && vars_values != nullptr) {
+    for (size_t i = 0; i < vars_vec_size; i++) {
+      varNames.emplace_back(vars_vec[i]);
+      varValues.emplace_back(vars_values[i]);
+    }
+  }
+
+  return handle->Init(data, data_size, language, mode, configs, configs_size, &varNames, &varValues,
+                      set_only_non_debug_params != 0, nullptr);
+}
+
 const char *TessBaseAPIGetInitLanguagesAsString(const TessBaseAPI *handle) {
   return handle->GetInitLanguagesAsString();
 }
@@ -235,23 +265,13 @@ const char *TessBaseAPIGetInitLanguagesAsString(const TessBaseAPI *handle) {
 char **TessBaseAPIGetLoadedLanguagesAsVector(const TessBaseAPI *handle) {
   std::vector<std::string> languages;
   handle->GetLoadedLanguagesAsVector(&languages);
-  char **arr = new char *[languages.size() + 1];
-  for (auto &language : languages) {
-    arr[&language - &languages[0]] = strdup(language.c_str());
-  }
-  arr[languages.size()] = nullptr;
-  return arr;
+  return MakeTextArray(languages);
 }
 
 char **TessBaseAPIGetAvailableLanguagesAsVector(const TessBaseAPI *handle) {
   std::vector<std::string> languages;
   handle->GetAvailableLanguagesAsVector(&languages);
-  char **arr = new char *[languages.size() + 1];
-  for (auto &language : languages) {
-    arr[&language - &languages[0]] = strdup(language.c_str());
-  }
-  arr[languages.size()] = nullptr;
-  return arr;
+  return MakeTextArray(languages);
 }
 
 void TessBaseAPIInitForAnalysePage(TessBaseAPI *handle) {

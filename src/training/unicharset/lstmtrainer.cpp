@@ -891,7 +891,7 @@ Trainability LSTMTrainer::TrainOnLine(const ImageData *trainingdata,
   }
 #ifndef GRAPHICS_DISABLED
   if (debug_interval_ == 1 && debug_win_ != nullptr) {
-    delete debug_win_->AwaitEvent(SVET_CLICK);
+    debug_win_->AwaitEvent(SVET_CLICK);
   }
 #endif // !GRAPHICS_DISABLED
   // Roll the memory of past means.
@@ -948,7 +948,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata,
   float image_scale;
   NetworkIO inputs;
   bool invert = trainingdata->boxes().empty();
-  if (!RecognizeLine(*trainingdata, invert, debug, invert, upside_down,
+  if (!RecognizeLine(*trainingdata, invert ? 0.5f : 0.0f, debug, invert, upside_down,
                      &image_scale, &inputs, fwd_outputs)) {
     tprintf("Image %s not trainable\n", trainingdata->imagefilename().c_str());
     return UNENCODABLE;

@@ -66,7 +66,7 @@ class FCOORD;
 
 /* The first 3 dimensions of the CLASS_PRUNER_STRUCT are the
  * 3 axes of the quantized feature space.
- * The position of the the bits recorded for each class in the
+ * The position of the bits recorded for each class in the
  * 4th dimension is determined by using CPrunerWordIndexFor(c),
  * where c is the corresponding class id. */
 struct CLASS_PRUNER_STRUCT {

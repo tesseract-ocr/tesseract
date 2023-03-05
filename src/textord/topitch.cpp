@@ -1105,7 +1105,7 @@ float tune_row_pitch(           // find fp cells
     float &best_sp_sd,          // space sd
     int16_t &best_mid_cuts,     // no of cheap cuts
     ICOORDELT_LIST *best_cells, // row cells
-    bool testing_on             // inidividual words
+    bool testing_on             // individual words
 ) {
   int pitch_delta;           // offset pitch
   int16_t mid_cuts;          // cheap cuts
@@ -1204,7 +1204,7 @@ float tune_row_pitch2(          // find fp cells
     float &best_sp_sd,          // space sd
     int16_t &best_mid_cuts,     // no of cheap cuts
     ICOORDELT_LIST *best_cells, // row cells
-    bool testing_on             // inidividual words
+    bool testing_on             // individual words
 ) {
   int pitch_delta;    // offset pitch
   int16_t pixel;      // pixel coord
@@ -1297,7 +1297,7 @@ float compute_pitch_sd(        // find fp cells
     float &sp_sd,              // space sd
     int16_t &mid_cuts,         // no of free cuts
     ICOORDELT_LIST *row_cells, // list of chop pts
-    bool testing_on,           // inidividual words
+    bool testing_on,           // individual words
     int16_t start,             // start of good range
     int16_t end                // end of good range
 ) {
@@ -1453,7 +1453,7 @@ float compute_pitch_sd2(       // find fp cells
     int16_t &occupation,       // no of occupied cells
     int16_t &mid_cuts,         // no of free cuts
     ICOORDELT_LIST *row_cells, // list of chop pts
-    bool testing_on,           // inidividual words
+    bool testing_on,           // individual words
     int16_t start,             // start of good range
     int16_t end                // end of good range
 ) {

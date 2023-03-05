@@ -13,15 +13,15 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-10.15-clang-unittest, os: macos-10.15, cxx: clang++ }
-          - { name: macos-10.15-gcc-unittest, os: macos-10.15, cxx: g++ }
+          - { name: macos-12-clang-unittest, os: macos-12, cxx: clang++ }
+          - { name: macos-12-gcc-unittest, os: macos-12, cxx: g++ }
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
-    - name: Install dependencies (MacOS Homebrew)
+    - name: Install dependencies (macOS Homebrew)
       run: |
            brew install autoconf automake libarchive
            brew install leptonica cairo pango
@@ -32,7 +32,7 @@ jobs:
            mkdir -p m4
            ./autogen.sh
 
-    - name: Configure (MacOS Homebrew)
+    - name: Configure (macOS Homebrew)
       run: |
            ./configure '--disable-shared' '--with-pic' \
                 'CXX=${{ matrix.config.cxx }}' \

@@ -71,9 +71,9 @@ float DotProductSSE(const float *u, const float *v, int n) {
   }
   // Add the 4 sums in sum horizontally.
 #if 0
-	alignas(32) float tmp[4];
-	_mm_store_ps(tmp, sum);
-	float result = tmp[0] + tmp[1] + tmp[2] + tmp[3];
+  alignas(32) float tmp[4];
+  _mm_store_ps(tmp, sum);
+  float result = tmp[0] + tmp[1] + tmp[2] + tmp[3];
 #else
   __m128 zero = _mm_setzero_ps();
   // https://www.felixcloutier.com/x86/haddps

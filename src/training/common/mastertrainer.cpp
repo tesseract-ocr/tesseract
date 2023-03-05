@@ -785,9 +785,8 @@ void MasterTrainer::DisplaySamples(const char *unichar_str1, int cloud_font,
   ScrollView *s_window = CreateFeatureSpaceWindow("Samples", 100, 500);
   SVEventType ev_type;
   do {
-    SVEvent *ev;
     // Wait until a click or popup event.
-    ev = f_window->AwaitEvent(SVET_ANY);
+    auto ev = f_window->AwaitEvent(SVET_ANY);
     ev_type = ev->type;
     if (ev_type == SVET_CLICK) {
       int feature_index = feature_space.XYToFeatureIndex(ev->x, ev->y);
@@ -801,7 +800,6 @@ void MasterTrainer::DisplaySamples(const char *unichar_str1, int cloud_font,
         s_window->Update();
       }
     }
-    delete ev;
   } while (ev_type != SVET_DESTROY);
 }
 #endif // !GRAPHICS_DISABLED

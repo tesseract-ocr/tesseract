@@ -546,7 +546,7 @@ void vigorous_noise_removal(TO_BLOCK *block) {
           }
         }
         // It might be noise so get rid of it.
-        delete blob->cblob();
+        delete blob->remove_cblob();
         delete b_it.extract();
       } else {
         prev = blob;
@@ -1336,7 +1336,7 @@ void Textord::compute_block_xheight(TO_BLOCK *block, float gradient) {
     // Try to search for two modes in row_cap_heights that could
     // be the xheight and the capheight (e.g. some of the rows
     // were lowercase, but did not have enough (a/de)scenders.
-    // If such two modes can not be found, this block is most
+    // If such two modes cannot be found, this block is most
     // likely all caps (or all small caps, in which case the code
     // still works as intended).
     compute_xheight_from_modes(
@@ -2000,6 +2000,9 @@ void Textord::make_spline_rows(TO_BLOCK *block, // block to do
                                bool testing_on) {
 #ifndef GRAPHICS_DISABLED
   ScrollView::Color colour; // of row
+  if (testing_on && to_win == nullptr) {
+    create_to_win(page_tr_);
+  }
 #endif
   TO_ROW_IT row_it = block->get_rows();
 

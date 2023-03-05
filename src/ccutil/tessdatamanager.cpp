@@ -48,7 +48,7 @@ TessdataManager::TessdataManager(FileReader reader)
   SetVersionString(TESSERACT_VERSION_STR);
 }
 
-// Lazily loads from the the given filename. Won't actually read the file
+// Lazily loads from the given filename. Won't actually read the file
 // until it needs it.
 void TessdataManager::LoadFileLater(const char *data_file_name) {
   Clear();
@@ -278,7 +278,7 @@ bool TessdataManager::CombineDataFiles(const char *language_data_path_prefix,
   if (!IsBaseAvailable() && !IsLSTMAvailable()) {
     tprintf(
         "Error: traineddata file must contain at least (a unicharset file"
-        "and inttemp) OR an lstm file.\n");
+        " and inttemp) OR an lstm file.\n");
     return false;
   }
   // Write updated data to the output traineddata file.
