@@ -18,7 +18,6 @@ jobs:
           - { name: ubuntu-20.04-clang-9-autotools, os: ubuntu-20.04, cxx: clang++-9 } #installed
           - { name: ubuntu-20.04-clang-10-autotools, os: ubuntu-20.04, cxx: clang++-10 } #installed
 
-          - { name: ubuntu-20.04-gcc-7-autotools, os: ubuntu-20.04, cxx: g++-7 } #installed
           - { name: ubuntu-20.04-gcc-8-autotools, os: ubuntu-20.04, cxx: g++-8 } #installed
           - { name: ubuntu-20.04-gcc-9-autotools, os: ubuntu-20.04, cxx: g++-9 } #installed
           - { name: ubuntu-20.04-gcc-10-autotools, os: ubuntu-20.04, cxx: g++-10 } #installed
