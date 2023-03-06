@@ -32,7 +32,7 @@ It also needs [traineddata](https://tesseract-ocr.github.io/tessdoc/Data-Files.h
 Stefan Weil is the current lead developer. Ray Smith was the lead developer until 2018. The maintainer is Zdenko Podobny. For a list of contributors see [AUTHORS](https://github.com/tesseract-ocr/tesseract/blob/main/AUTHORS)
 and GitHub's log of [contributors](https://github.com/tesseract-ocr/tesseract/graphs/contributors).
 
-Tesseract has **unicode (UTF-8) support**, and can **recognize more than 100 languages** "out of the box".
+Tesseract has **unicode (UTF-8) support**, and can **recognize [more than 100 languages](https://tesseract-ocr.github.io/tessdoc/Data-Files-in-different-versions.html)** "out of the box".
 
 Tesseract supports **[various image formats](https://tesseract-ocr.github.io/tessdoc/InputFormats)** including PNG, JPEG and TIFF.
 
