@@ -868,7 +868,7 @@ char
 
     // Create word stream if word level output is active
     if (WORDLEVELFLAG) {
-      word_str << "\t\t\t\t<Word id=\"r_" << tcnt << "_tl_" << lcnt << "_w_" << wcnt << "readingDirection=\""
+      word_str << "\t\t\t\t<Word id=\"r_" << tcnt << "_tl_" << lcnt << "_w_" << wcnt << "\" readingDirection=\""
       << WritingDirectionToStr(writing_direction)  << "\" "
       << "custom=\""<< "readingOrder {index:"<< wcnt <<";}\">\n";
       if (!POLYGONFLAG || ttb_flag){
