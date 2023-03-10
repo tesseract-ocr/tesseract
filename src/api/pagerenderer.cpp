@@ -66,16 +66,16 @@ GetSlopeAndOffset(float x0, float y0, float x1, float y1, float *m, float *b){
 static void 
 AddPointsToPAGE(Pta *pts, std::stringstream &str) {
   int num_pts;
-  float x, y;
-  
+
   str <<"<Coords points=\"";
-    num_pts = ptaGetCount(pts);
-    for (int p = 0; p < num_pts; ++p) {
-      ptaGetPt(pts, p, &x, &y);
-      if (p!=0) str << " ";
-      str << (l_uint32) x << "," << (l_uint32) y;
-    }
-    str << "\"/>\n";
+  num_pts = ptaGetCount(pts);
+  for (int p = 0; p < num_pts; ++p) {
+    int x, y;
+    ptaGetIPt(pts, p, &x, &y);
+    if (p != 0) str << " ";
+    str << std::to_string(x) << "," << std::to_string(y);
+  }
+  str << "\"/>\n";
 }
 
 ///
@@ -147,7 +147,7 @@ DestroyAndCreatePta(Pta *pts) {
 Pta*
 RecalcPolygonline(Pta *pts, bool upper) {
   int num_pts, num_bin, index=0, p_index, offset;
-  float m, b, x, y, x0, y0, x1, y1;
+  int m, b, x, y, x0, y0, x1, y1;
   float x_min, y_min, x_max, y_max;
   NUMA *bin_line;
   Pta *pts_recalc;
@@ -169,8 +169,8 @@ RecalcPolygonline(Pta *pts, bool upper) {
   } 
     
   do {
-    ptaGetPt(pts, index, &x0, &y0);
-    ptaGetPt(pts, index+1, &x1, &y1);
+    ptaGetIPt(pts, index, &x0, &y0);
+    ptaGetIPt(pts, index+1, &x1, &y1);
     // TODO add +1?
     for (int p = x0-x_min; p <= x1-x_min; ++p) {
       if (!upper) {
@@ -230,7 +230,7 @@ static void
 UpdateBlockPoints(Pta *block_top_pts, Pta *block_bottom_pts, 
   Pta *line_top_pts, Pta *line_bottom_pts, int lcnt, int last_word_in_cblock) {
   int num_pts;
-  float x, y;
+  int x, y;
 
   // Create a hull around all lines
   if (lcnt==0 && last_word_in_cblock) {
@@ -239,27 +239,27 @@ UpdateBlockPoints(Pta *block_top_pts, Pta *block_bottom_pts,
   } else if (lcnt==0){ 
     ptaJoin(block_top_pts, line_top_pts, 0, -1);
     num_pts = ptaGetCount(line_bottom_pts);
-    ptaGetPt(line_bottom_pts, num_pts-1, &x, &y);
+    ptaGetIPt(line_bottom_pts, num_pts-1, &x, &y);
     ptaAddPt(block_top_pts, x, y);
-    ptaGetPt(line_bottom_pts, 0, &x, &y);
+    ptaGetIPt(line_bottom_pts, 0, &x, &y);
     ptaAddPt(block_bottom_pts, x, y);
   } else if (last_word_in_cblock) {
-    ptaGetPt(line_top_pts, 0, &x, &y);
+    ptaGetIPt(line_top_pts, 0, &x, &y);
     ptaAddPt(block_bottom_pts, x, y);
     ptaJoin(block_bottom_pts, line_bottom_pts, 0, -1);
     num_pts = ptaGetCount(line_top_pts);
-    ptaGetPt(line_top_pts, num_pts-1, &x, &y);
+    ptaGetIPt(line_top_pts, num_pts-1, &x, &y);
     ptaAddPt(block_top_pts, x, y);
   } else {
-    ptaGetPt(line_top_pts, 0, &x, &y);
+    ptaGetIPt(line_top_pts, 0, &x, &y);
     ptaAddPt(block_bottom_pts, x, y);
-    ptaGetPt(line_bottom_pts, 0, &x, &y);
+    ptaGetIPt(line_bottom_pts, 0, &x, &y);
     ptaAddPt(block_bottom_pts, x, y);
     num_pts = ptaGetCount(line_top_pts);
-    ptaGetPt(line_top_pts, num_pts-1, &x, &y);
+    ptaGetIPt(line_top_pts, num_pts-1, &x, &y);
     ptaAddPt(block_top_pts, x, y);
     num_pts = ptaGetCount(line_bottom_pts);
-    ptaGetPt(line_bottom_pts, num_pts-1, &x, &y);
+    ptaGetIPt(line_bottom_pts, num_pts-1, &x, &y);
     ptaAddPt(block_top_pts, x, y);
   };
 }
@@ -269,16 +269,16 @@ UpdateBlockPoints(Pta *block_top_pts, Pta *block_bottom_pts,
 ///
 static void 
 SimplifyLinePolygon(Pta *polyline, int tolerance, bool upper){
-  int num_pts, index=1;
-  float m, b, x0, y0, x1, y1, x2, y2, x3, y3, y_min, y_max;
+  int num_pts, x0, y0, x1, y1, x2, y2, x3, y3, index=1;
+  float m, b, y_min, y_max;
 
   while (index <= polyline->n-2) {
-    ptaGetPt(polyline, index-1, &x0, &y0);
-    ptaGetPt(polyline, index, &x1, &y1);
-    ptaGetPt(polyline, index+1, &x2, &y2);
+    ptaGetIPt(polyline, index-1, &x0, &y0);
+    ptaGetIPt(polyline, index, &x1, &y1);
+    ptaGetIPt(polyline, index+1, &x2, &y2);
     if (index+2 < polyline->n) {
       // Delete two point indentations 
-      ptaGetPt(polyline, index+2, &x3, &y3);
+      ptaGetIPt(polyline, index+2, &x3, &y3);
       if (abs(x3-x0) <= tolerance*2){
         GetSlopeAndOffset(x0, y0, x3, y3, &m, &b);
         
@@ -351,7 +351,8 @@ AddBoxToPAGE(const ResultIterator *it, PageIteratorLevel level,
 static void 
 AppendLinePolygon(Pta *pts_ltr, Pta *pts_rtl, Pta *ptss, tesseract::WritingDirection writing_direction) {
   PTA *ptsd;
-   if (writing_direction != WRITING_DIRECTION_RIGHT_TO_LEFT) {
+   
+  if (writing_direction != WRITING_DIRECTION_RIGHT_TO_LEFT) {
     if (ptaGetCount(pts_rtl)!=0){ 
       ptaJoin(pts_ltr, pts_rtl, 0, -1);
       pts_rtl = DestroyAndCreatePta(pts_rtl);
@@ -384,17 +385,15 @@ AddBaselineToPTA(const ResultIterator *it, PageIteratorLevel level, Pta *baselin
 ///
 static void 
 AddBaselinePtsToPAGE(Pta *baseline_pts, std::stringstream &str) {
-  int num_pts;
-  float x, y;
+  int x, y, num_pts = baseline_pts->n;
   
-  str <<"<Baseline points=\"";
-    num_pts = ptaGetCount(baseline_pts);
-    for (int p = 0; p < num_pts; ++p) {
-      ptaGetPt(baseline_pts, p, &x, &y);
-      if (p!=0) str << " ";
-      str << (l_uint32) x << "," << (l_uint32) y;
-    }
-    str << "\"/>\n";
+  str << "<Baseline points=\"";
+  for (int p = 0; p < num_pts; ++p) {
+    ptaGetIPt(baseline_pts, p, &x, &y);
+    if (p != 0) str << " ";
+    str << std::to_string(x) << "," << std::to_string(y);
+  }
+  str << "\"/>\n";
 }
 
 ///
@@ -469,6 +468,7 @@ ClipAndSimplifyBaseline(Pta *bottom_pts, Pta*baseline_pts, tesseract::WritingDir
   } else {
     SimplifyLinePolygon(baseline_clipped_pts, 3, 1);
   }
+  SimplifyLinePolygon(baseline_clipped_pts, 3, writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM ? 0 : 1);
   return baseline_clipped_pts;
 }
 
@@ -477,8 +477,8 @@ ClipAndSimplifyBaseline(Pta *bottom_pts, Pta*baseline_pts, tesseract::WritingDir
 ///
 Pta*
 FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta*baseline_pts, tesseract::WritingDirection writing_direction) {
-  int num_pts, num_bin, index=0, p_index, offset;
-  float m, b, x, y, x0, y0, x1, y1;
+  int num_pts, num_bin, index=0, p_index, offset, x, y, x0, y0, x1, y1;
+  float m, b; 
   float x_min, y_min, x_max, y_max;
   float x_min_bl, y_min_bl, x_max_bl, y_max_bl;
   float delta_median, delta_median_Q1, delta_median_Q3, delta_median_IQR;
@@ -496,8 +496,8 @@ FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta*baseline_pts, tesseract::Writing
   num_pts = ptaGetCount(bottom_pts);
   // Create a interpolated polygon with stepsize 1
   for (int index = 0; index < num_pts-1; ++index) {
-    ptaGetPt(bottom_pts, index, &x0, &y0);
-    ptaGetPt(bottom_pts, index+1, &x1, &y1);
+    ptaGetIPt(bottom_pts, index, &x0, &y0);
+    ptaGetIPt(bottom_pts, index+1, &x1, &y1);
     if (x0 >= x1) continue;
     if (y0==y1) {
       for (int p = x0-x_min; p < x1-x_min+1; ++p) {
@@ -507,7 +507,7 @@ FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta*baseline_pts, tesseract::Writing
       GetSlopeAndOffset(x0, y0, x1, y1, &m, &b);
       for (int p = x0-x_min; p < x1-x_min+1; ++p) {
         if (bin_line->array[p] == -1. || ((p+x_min)*m+b) > bin_line->array[p]) bin_line->array[p] = ((p+x_min)*m+b);
-        }
+      }
     }
   }
 
@@ -518,10 +518,10 @@ FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta*baseline_pts, tesseract::Writing
   
   // Clip Baseline and create a set of deltas between baseline and polygon
   for (int p = 0; p < num_pts; ++p) {
-    ptaGetPt(baseline_pts, p, &x0, &y0);
+    ptaGetIPt(baseline_pts, p, &x0, &y0);
 
     if (x0 < x_min){
-      ptaGetPt(baseline_pts, p+1, &x1, &y1);
+      ptaGetIPt(baseline_pts, p+1, &x1, &y1);
       if (x1 < x_min) {
         continue; 
       } else {
@@ -531,7 +531,7 @@ FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta*baseline_pts, tesseract::Writing
       }
     } else if (x0 > x_max) {
       if (ptaGetCount(baseline_recalc_pts) > 0) {
-        ptaGetPt(baseline_pts, p-1, &x1, &y1);
+        ptaGetIPt(baseline_pts, p-1, &x1, &y1);
         GetSlopeAndOffset(x1, y1, x0, y0, &m, &b);
         y0 = int (x_max*m+b);
         x0 = x_max;
@@ -559,7 +559,7 @@ FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta*baseline_pts, tesseract::Writing
   baseline_recalc_pts = ptaCreate(0);
   num_pts = ptaGetCount(baseline_clipped_pts);
   for (int p = 0; p < num_pts; ++p) {
-    ptaGetPt(baseline_clipped_pts, p, &x0, &y0);
+    ptaGetIPt(baseline_clipped_pts, p, &x0, &y0);
     int x_val = x0-x_min;
     // Delete outliers with IQR
     if (abs(y0-bin_line->array[x_val]) > 1.5*delta_median_Q3+delta_median && p != 0 && p != num_pts-1) {
