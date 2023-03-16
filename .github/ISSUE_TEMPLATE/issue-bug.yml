@@ -18,9 +18,18 @@ body:
         * Don't attach a screenshot of the command line and output. Instead, copy the text and paste it in your bug report.
   - type: textarea
     attributes:
-      label: Basic Information
+      label: Current Behavior
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+  - type: textarea
+    attributes:
+      label: Suggested Fix
+  - type: textarea
+    attributes:
+      label: tesseract -v
       description: Version info, compiled libraries, SIMD, OpenMP
-      placeholder: "Paste the output of the command: tesseract -v"
+      placeholder: "Please paste the output of the command: tesseract -v"
   - type: dropdown
     id: os-linux
     attributes:
@@ -60,15 +69,6 @@ body:
     attributes:
       label: CPU
       placeholder: "Enter your CPU vendor name and model (Examples: Intel Core i7-11700K, AMD Ryzen 7 5800X, Apple Silicon M1)"
-  - type: textarea
-    attributes:
-      label: Current Behavior
-  - type: textarea
-    attributes:
-      label: Expected Behavior
-  - type: textarea
-    attributes:
-      label: Suggested Fix
   - type: textarea
     attributes:
       label: Other Information
