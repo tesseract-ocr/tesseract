@@ -63,12 +63,12 @@ body:
       placeholder: "Enter compiler name and version (Examples: MSVC 2019 16.11, Clang 13.0.1, GCC 11.2, Xcode 14.1)"
   - type: textarea
     attributes:
-      label: Virtualization / Containers
-      placeholder: "Enter the name and version of the VM / container which you use (Examples: Oracle VM VirtualBox 7.0.4,VMware Workstation 17.0, Hyper-V, Docker 20.10.22)"
-  - type: textarea
-    attributes:
       label: CPU
       placeholder: "Enter your CPU vendor name and model (Examples: Intel Core i7-11700K, AMD Ryzen 7 5800X, Apple Silicon M1)"
+  - type: textarea
+    attributes:
+      label: Virtualization / Containers
+      placeholder: "Enter the name and version of the VM / container which you use (Examples: Oracle VM VirtualBox 7.0.4,VMware Workstation 17.0, Hyper-V, Docker 20.10.22)"
   - type: textarea
     attributes:
       label: Other Information
