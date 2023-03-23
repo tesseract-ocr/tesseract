@@ -151,10 +151,10 @@ set(MARCH_NATIVE_OPT OFF)
 if(ENABLE_NATIVE)
   check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
   if(COMPILER_SUPPORTS_MARCH_NATIVE)
-    set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -march=native")
+    set(DOTPRODUCT_FLAGS "${DOTPRODUCT_FLAGS} -march=native")
     if(NOT CLANG AND MSVC)
       # clang-cl does not know this argument
-      set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -mtune=native")
+      set(DOTPRODUCT_FLAGS "${DOTPRODUCT_FLAGS} -mtune=native")
     endif()
     set(MARCH_NATIVE_OPT ON)
   endif(COMPILER_SUPPORTS_MARCH_NATIVE)
@@ -196,7 +196,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
         set(SSE4_1_COMPILE_FLAGS "-msse4.1 ${SSE4_1_COMPILE_FLAGS}")
       endif(HAVE_SSE4_1)
     endif(CLANG)
-  else()  # if not MSVC
+  else() # if not MSVC
     check_cxx_compiler_flag("-mavx" HAVE_AVX)
     if(HAVE_AVX)
       set(AVX_COMPILE_FLAGS "-mavx")
@@ -281,9 +281,9 @@ elseif(MSVC)
   # loss of data wd4275 non dll-interface class wd4305 ...truncation from
   # 'double' to 'float'
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} /wd4244 /wd4305 /wd4267 /wd4251 /wd4275 /wd4005")
-  set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} /wd4068")
+      "${CMAKE_CXX_FLAGS_RELEASE} /wd4244 /wd4305 /wd4267 /wd4251 /wd4275 /wd4005"
+  )
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /wd4068")
   # Don't use /Wall because it generates too many warnings.
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /W0 /bigobj")
   # MT flag
@@ -326,10 +326,10 @@ if(OPENMP_BUILD)
     add_definitions(-D_OPENMP=201107)
   endif()
   if(MSVC)
-    # Note: -openmp:llvm is available for X64 from MSVC 16.9
-    # from MSVC 16.10 Preview 2 there is support also for x86 and arm64
+    # Note: -openmp:llvm is available for X64 from MSVC 16.9 from MSVC 16.10
+    # Preview 2 there is support also for x86 and arm64
     # https://devblogs.microsoft.com/cppblog/openmp-updates-and-fixes-for-cpp-in-visual-studio-2019-16-10/
-    if ("${OpenMP_CXX_FLAGS}" STREQUAL "-openmp")
+    if("${OpenMP_CXX_FLAGS}" STREQUAL "-openmp")
       set(OpenMP_CXX_FLAGS "-openmp:llvm")
     endif()
     # 'simd': requires '-openmp:experimental'
@@ -339,7 +339,7 @@ if(OPENMP_BUILD)
   if(OpenMP_FOUND)
     message(">> OpenMP_FOUND ${OpenMP_FOUND} version: ${OpenMP_CXX_VERSION}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    if (NOT TARGET OpenMP::OpenMP_CXX)
+    if(NOT TARGET OpenMP::OpenMP_CXX)
       add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
     endif()
   endif()
@@ -431,9 +431,9 @@ else()
   endif(DISABLE_CURL)
 endif()
 
-IF(ENABLE_OPENCL)
+if(ENABLE_OPENCL)
   find_package(OpenCL)
-  if (OpenCL_FOUND)
+  if(OpenCL_FOUND)
     include_directories(${OpenCL_INCLUDE_DIRS})
     message(STATUS "OpenCL_INCLUDE_DIRS: ${OpenCL_INCLUDE_DIRS}")
     message(STATUS "OpenCL_LIBRARY: ${OpenCL_LIBRARY}")
@@ -450,7 +450,7 @@ endif(ENABLE_OPENCL)
 # ##############################################################################
 
 if(NOT MSVC)
-  set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -O3 -ffast-math")
+  set(DOTPRODUCT_FLAGS "${DOTPRODUCT_FLAGS} -O3 -ffast-math")
 endif()
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
@@ -535,10 +535,13 @@ message(STATUS "Build training tools [BUILD_TRAINING_TOOLS]: "
                "${BUILD_TRAINING_TOOLS}")
 message(STATUS "Build tests [BUILD_TESTS]: ${BUILD_TESTS}")
 if(ENABLE_OPENCL)
-  message(STATUS "Enable unsupported experimental OpenCL [ENABLE_OPENCL]: ${USE_OPENCL}")
+  message(
+    STATUS
+      "Enable unsupported experimental OpenCL [ENABLE_OPENCL]: ${USE_OPENCL}")
 endif(ENABLE_OPENCL)
 message(STATUS "Use system ICU Library [USE_SYSTEM_ICU]: ${USE_SYSTEM_ICU}")
-message(STATUS "Install tesseract configs [INSTALL_CONFIGS]: ${INSTALL_CONFIGS}")
+message(
+  STATUS "Install tesseract configs [INSTALL_CONFIGS]: ${INSTALL_CONFIGS}")
 message(STATUS "--------------------------------------------------------")
 message(STATUS)
 
@@ -591,7 +594,7 @@ if(DISABLED_LEGACY_ENGINE)
         PARENT_SCOPE)
   endfunction()
 
-set(TESSERACT_SRC_LEGACY
+  set(TESSERACT_SRC_LEGACY
       src/ccmain/adaptions.cpp
       src/ccmain/docqual.cpp
       src/ccmain/equationdetect.cpp
@@ -661,10 +664,10 @@ endif(DISABLED_LEGACY_ENGINE)
 list(APPEND arch_files src/arch/dotproduct.cpp src/arch/simddetect.cpp
      src/arch/intsimdmatrix.cpp)
 
-if(MARCH_NATIVE_FLAGS)
+if(DOTPRODUCT_FLAGS)
   set_source_files_properties(src/arch/dotproduct.cpp
-                              PROPERTIES COMPILE_FLAGS ${MARCH_NATIVE_FLAGS})
-endif(MARCH_NATIVE_FLAGS)
+                              PROPERTIES COMPILE_FLAGS ${DOTPRODUCT_FLAGS})
+endif(DOTPRODUCT_FLAGS)
 if(HAVE_AVX)
   list(APPEND arch_files_opt src/arch/dotproductavx.cpp)
   set_source_files_properties(src/arch/dotproductavx.cpp
@@ -732,40 +735,37 @@ set(TESSERACT_SRC
     src/api/wordstrboxrenderer.cpp)
 
 set(TESSERACT_CONFIGS
-  tessdata/configs/alto
-  tessdata/configs/ambigs.train
-  tessdata/configs/api_config
-  tessdata/configs/bazaar
-  tessdata/configs/bigram
-  tessdata/configs/box.train
-  tessdata/configs/box.train.stderr
-  tessdata/configs/digits
-  tessdata/configs/get.images
-  tessdata/configs/hocr
-  tessdata/configs/inter
-  tessdata/configs/kannada
-  tessdata/configs/linebox
-  tessdata/configs/logfile
-  tessdata/configs/lstm.train
-  tessdata/configs/lstmbox
-  tessdata/configs/lstmdebug
-  tessdata/configs/makebox
-  tessdata/configs/pdf
-  tessdata/configs/quiet
-  tessdata/configs/rebox
-  tessdata/configs/strokewidth
-  tessdata/configs/tsv
-  tessdata/configs/txt
-  tessdata/configs/unlv
-  tessdata/configs/wordstrbox)
+    tessdata/configs/alto
+    tessdata/configs/ambigs.train
+    tessdata/configs/api_config
+    tessdata/configs/bazaar
+    tessdata/configs/bigram
+    tessdata/configs/box.train
+    tessdata/configs/box.train.stderr
+    tessdata/configs/digits
+    tessdata/configs/get.images
+    tessdata/configs/hocr
+    tessdata/configs/inter
+    tessdata/configs/kannada
+    tessdata/configs/linebox
+    tessdata/configs/logfile
+    tessdata/configs/lstm.train
+    tessdata/configs/lstmbox
+    tessdata/configs/lstmdebug
+    tessdata/configs/makebox
+    tessdata/configs/pdf
+    tessdata/configs/quiet
+    tessdata/configs/rebox
+    tessdata/configs/strokewidth
+    tessdata/configs/tsv
+    tessdata/configs/txt
+    tessdata/configs/unlv
+    tessdata/configs/wordstrbox)
 
 set(TESSERACT_TESSCONFIGS
-  tessdata/tessconfigs/batch
-  tessdata/tessconfigs/batch.nochop
-  tessdata/tessconfigs/matdemo
-  tessdata/tessconfigs/msdemo
-  tessdata/tessconfigs/nobatch
-  tessdata/tessconfigs/segdemo)
+    tessdata/tessconfigs/batch tessdata/tessconfigs/batch.nochop
+    tessdata/tessconfigs/matdemo tessdata/tessconfigs/msdemo
+    tessdata/tessconfigs/nobatch tessdata/tessconfigs/segdemo)
 
 set(LIBTESSFILES ${TESSERACT_SRC} ${arch_files} ${arch_files_opt}
                  ${TESSERACT_HDR})
@@ -774,8 +774,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBTESSFILES})
 
 add_library(libtesseract ${LIBTESSFILES})
 target_include_directories(
-  libtesseract
-  BEFORE
+  libtesseract BEFORE
   PRIVATE src
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/arch>
@@ -816,13 +815,19 @@ if(CURL_FOUND)
   endif()
 endif(CURL_FOUND)
 
-set_target_properties(libtesseract
-  PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
-set_target_properties(libtesseract
-  PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+set_target_properties(
+  libtesseract PROPERTIES VERSION
+                          ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+set_target_properties(
+  libtesseract PROPERTIES SOVERSION
+                          ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
-set_target_properties(libtesseract
-  PROPERTIES OUTPUT_NAME tesseract$<$<BOOL:${WIN32}>:${VERSION_MAJOR}${VERSION_MINOR}$<$<CONFIG:DEBUG>:d>>)
+set_target_properties(
+  libtesseract
+  PROPERTIES
+    OUTPUT_NAME
+    tesseract$<$<BOOL:${WIN32}>:${VERSION_MAJOR}${VERSION_MINOR}$<$<CONFIG:DEBUG>:d>>
+)
 
 if(SW_BUILD)
   target_link_libraries(libtesseract PUBLIC org.sw.demo.danbloomberg.leptonica
@@ -850,11 +855,13 @@ if(WIN32
   target_link_libraries(libtesseract PRIVATE ${OpenMP_LIBRARY})
 endif()
 
-if (ANDROID)
-    add_definitions(-DANDROID)
-    find_package(CpuFeaturesNdkCompat REQUIRED)
-    target_include_directories(libtesseract PRIVATE "${CpuFeaturesNdkCompat_DIR}/../../../include/ndk_compat")
-    target_link_libraries     (libtesseract PRIVATE CpuFeatures::ndk_compat)
+if(ANDROID)
+  add_definitions(-DANDROID)
+  find_package(CpuFeaturesNdkCompat REQUIRED)
+  target_include_directories(
+    libtesseract
+    PRIVATE "${CpuFeaturesNdkCompat_DIR}/../../../include/ndk_compat")
+  target_link_libraries(libtesseract PRIVATE CpuFeatures::ndk_compat)
 endif()
 
 # ##############################################################################
@@ -873,8 +880,9 @@ endif()
 
 # ##############################################################################
 
-if(BUILD_TESTS AND EXISTS
-     ${CMAKE_CURRENT_SOURCE_DIR}/unittest/third_party/googletest/CMakeLists.txt
+if(BUILD_TESTS
+   AND EXISTS
+       ${CMAKE_CURRENT_SOURCE_DIR}/unittest/third_party/googletest/CMakeLists.txt
 )
   add_subdirectory(unittest/third_party/googletest)
 endif()
@@ -890,7 +898,10 @@ get_target_property(tesseract_OUTPUT_NAME libtesseract OUTPUT_NAME)
 configure_file(tesseract.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc.in
                @ONLY)
 # to resolve generator expression in OUTPUT_NAME
-file(GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tesseract_$<CONFIG>.pc INPUT ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc.in)
+file(
+  GENERATE
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tesseract_$<CONFIG>.pc
+  INPUT ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc.in)
 
 configure_package_config_file(
   cmake/templates/TesseractConfig.cmake.in
@@ -902,8 +913,10 @@ write_basic_package_version_file(
   VERSION ${PACKAGE_VERSION}
   COMPATIBILITY SameMajorVersion)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract_$<CONFIG>.pc
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig RENAME tesseract.pc)
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract_$<CONFIG>.pc
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+  RENAME tesseract.pc)
 install(TARGETS tesseract DESTINATION bin)
 install(
   TARGETS libtesseract
@@ -935,10 +948,10 @@ install(
   DESTINATION include/tesseract)
 
 if(INSTALL_CONFIGS)
-install(FILES ${TESSERACT_CONFIGS}
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/configs)
-install(FILES ${TESSERACT_TESSCONFIGS}
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/tessconfigs)
+  install(FILES ${TESSERACT_CONFIGS}
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/configs)
+  install(FILES ${TESSERACT_TESSCONFIGS}
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/tessconfigs)
 endif()
 
 # ##############################################################################
