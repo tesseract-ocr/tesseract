@@ -89,6 +89,10 @@ option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
 option(ENABLE_LTO "Enable link-time optimization" OFF)
 option(FAST_FLOAT "Enable float for LSTM" ON)
 option(ENABLE_OPENCL "Enable unsupported experimental OpenCL support" OFF)
+option(ENABLE_NATIVE
+       "Enable optimization for host CPU (could break HW compatibility)" OFF)
+# see
+# https://stackoverflow.com/questions/52653025/why-is-march-native-used-so-rarely
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
 option(USE_SYSTEM_ICU "Use system ICU" OFF)
@@ -143,15 +147,18 @@ else()
   message(STATUS "IPO / LTO not supported: <${error}>")
 endif()
 
-check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
-if(COMPILER_SUPPORTS_MARCH_NATIVE)
-  set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -march=native")
-  if(NOT CLANG AND MSVC)
-    # clang-cl does not know this argument
-    set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -mtune=native")
-  endif()
-  set(MARCH_NATIVE_OPT ON)
-endif()
+set(MARCH_NATIVE_OPT OFF)
+if(ENABLE_NATIVE)
+  check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+  if(COMPILER_SUPPORTS_MARCH_NATIVE)
+    set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -march=native")
+    if(NOT CLANG AND MSVC)
+      # clang-cl does not know this argument
+      set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -mtune=native")
+    endif()
+    set(MARCH_NATIVE_OPT ON)
+  endif(COMPILER_SUPPORTS_MARCH_NATIVE)
+endif(ENABLE_NATIVE)
 
 message(STATUS "CMAKE_SYSTEM_PROCESSOR=<${CMAKE_SYSTEM_PROCESSOR}>")
 
@@ -518,6 +525,8 @@ message(STATUS "Build with libarchive support [HAVE_LIBARCHIVE]: "
                "${HAVE_LIBARCHIVE}")
 message(STATUS "Build with libcurl support [HAVE_LIBCURL]: ${HAVE_LIBCURL}")
 message(STATUS "Enable float for LSTM [FAST_FLOAT]: ${FAST_FLOAT}")
+message(STATUS "Enable optimization for host CPU (could break HW compatibility)"
+               " [ENABLE_NATIVE]: ${ENABLE_NATIVE}")
 message(STATUS "Disable disable graphics (ScrollView) [GRAPHICS_DISABLED]: "
                "${GRAPHICS_DISABLED}")
 message(STATUS "Disable the legacy OCR engine [DISABLED_LEGACY_ENGINE]: "
