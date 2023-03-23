@@ -185,6 +185,10 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
     set(HAVE_SSE4_1 ON)
     set(SSE4_1_COMPILE_FLAGS "-D__SSE4_1__")
     add_definitions("-DHAVE_SSE4_1")
+
+    set(DOTPRODUCT_FLAGS "${DOTPRODUCT_FLAGS} -openmp:experimental")
+    add_definitions("-DOPENMP_SIMD")
+
     # clang with MSVC compatibility
     if(CLANG)
       set(CMAKE_CXX_FLAGS
@@ -226,6 +230,12 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
       set(SSE4_1_COMPILE_FLAGS "-msse4.1")
       add_definitions("-DHAVE_SSE4_1")
     endif()
+
+    check_cxx_compiler_flag("-fopenmp-simd" OPENMP_SIMD)
+    if(OPENMP_SIMD)
+      set(DOTPRODUCT_FLAGS "${DOTPRODUCT_FLAGS} -fopenmp-simd")
+      add_definitions("-DOPENMP_SIMD")
+    endif(OPENMP_SIMD)
   endif(MSVC)
 
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64.*|AARCH64.*")
@@ -331,10 +341,9 @@ if(OPENMP_BUILD)
     # https://devblogs.microsoft.com/cppblog/openmp-updates-and-fixes-for-cpp-in-visual-studio-2019-16-10/
     if("${OpenMP_CXX_FLAGS}" STREQUAL "-openmp")
       set(OpenMP_CXX_FLAGS "-openmp:llvm")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd9025") # overriding '/openmp'
+                                                        # with '/openmp:llvm'
     endif()
-    # 'simd': requires '-openmp:experimental'
-    set_source_files_properties(src/arch/dotproduct.cpp
-                              PROPERTIES COMPILE_FLAGS "-openmp:experimental")
   endif()
   if(OpenMP_FOUND)
     message(">> OpenMP_FOUND ${OpenMP_FOUND} version: ${OpenMP_CXX_VERSION}")
@@ -449,7 +458,9 @@ endif(ENABLE_OPENCL)
 #
 # ##############################################################################
 
-if(NOT MSVC)
+if(MSVC)
+  set(DOTPRODUCT_FLAGS "${DOTPRODUCT_FLAGS} /fp:fast")
+else()
   set(DOTPRODUCT_FLAGS "${DOTPRODUCT_FLAGS} -O3 -ffast-math")
 endif()
 
