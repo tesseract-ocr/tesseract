@@ -398,9 +398,8 @@ bool try_doc_fixed(             // determine pitch
   int16_t mid_cuts; // no of cheap cuts
   float pitch_sd;   // sync rating
 
-  if (block_it.empty()
-      //      || block_it.data()==block_it.data_relative(1)
-      || !textord_blockndoc_fixed) {
+  if (!textord_blockndoc_fixed ||
+      block_it.empty() || block_it.data()->get_rows()->empty()) {
     return false;
   }
   shift_factor = gradient / (gradient * gradient + 1);
