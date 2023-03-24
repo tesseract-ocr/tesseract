@@ -26,7 +26,7 @@ jobs:
         run: |
              $git_info=$(git describe --tags HEAD)
              echo "version=${git_info}" >> $env:GITHUB_OUTPUT
-      - name: Setup Instalation Location
+      - name: Setup Installation Location
         run: |
              mkdir ${{env.ILOC}}
       - name: Uninstall Perl

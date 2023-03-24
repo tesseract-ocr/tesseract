@@ -314,7 +314,7 @@ int32_t C_BLOB::outer_area() { // area
  * C_BLOB::count_transitions
  *
  * Return the total x and y maxes and mins in the blob.
- * Chlid outlines are not counted.
+ * Child outlines are not counted.
  **********************************************************************/
 
 int32_t C_BLOB::count_transitions( // area
