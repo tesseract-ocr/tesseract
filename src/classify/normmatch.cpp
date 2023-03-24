@@ -112,7 +112,6 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId, const FEATURE_STRUCT &feature
     tprintf("\nChar norm for class %s\n", unicharset.id_to_unichar(ClassId));
   }
 
-  int ProtoId = 0;
   iterate(Protos) {
     auto Proto = reinterpret_cast<PROTOTYPE *>(Protos->first_node());
     float Delta = feature.Params[CharNormY] - Proto->Mean[CharNormY];
@@ -146,7 +145,6 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId, const FEATURE_STRUCT &feature
       BestMatch = Match;
     }
 
-    ProtoId++;
   }
   return 1.0 - NormEvidenceOf(BestMatch);
 } /* ComputeNormMatch */
