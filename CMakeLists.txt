@@ -245,8 +245,6 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64.*|AARCH64.*")
   set(HAVE_AVX512F FALSE)
   set(HAVE_FMA FALSE)
   set(HAVE_SSE4_1 FALSE)
-
-  add_definitions("-DHAVE_NEON")
   set(HAVE_NEON TRUE)
 
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm.*")
@@ -256,12 +254,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm.*")
   set(HAVE_AVX512F FALSE)
   set(HAVE_FMA FALSE)
   set(HAVE_SSE4_1 FALSE)
-
   check_cxx_compiler_flag("-mfpu=neon" HAVE_NEON)
-  if(HAVE_NEON)
-    set(NEON_COMPILE_FLAGS "-mfpu=neon")
-    add_definitions("-DHAVE_NEON")
-  endif()
 
 else()
 
@@ -274,7 +267,13 @@ else()
 
 endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|x86_64|AMD64|amd64|i386|i686")
 
-# Compiler specific environments
+if(HAVE_NEON)
+  set(NEON_COMPILE_FLAGS "-mfpu=neon")
+  message(STATUS "LTO build is not supported on arm/RBPi.")
+  set(ENABLE_LTO FALSE)  # enable LTO cause fatal error on arm/RBPi
+endif()
+
+# Compiler specific environment
 if(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
   set(CMAKE_CXX_FLAGS_DEBUG
       "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG -pedantic -Og")
