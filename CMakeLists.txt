@@ -127,6 +127,9 @@ endif()
 include(CheckCXXCompilerFlag)
 
 set(CMAKE_CXX_STANDARD 17)
+if("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+  set(CMAKE_CXX_STANDARD 20)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # cygwin gnu c++ needs to use -std=gnu++17 instead of -std=c++17
@@ -340,8 +343,6 @@ if(OPENMP_BUILD)
     # https://devblogs.microsoft.com/cppblog/openmp-updates-and-fixes-for-cpp-in-visual-studio-2019-16-10/
     if("${OpenMP_CXX_FLAGS}" STREQUAL "-openmp")
       set(OpenMP_CXX_FLAGS "-openmp:llvm")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd9025") # overriding '/openmp'
-                                                        # with '/openmp:llvm'
     endif()
   endif()
   if(OpenMP_FOUND)
@@ -400,17 +401,15 @@ else()
   include_directories(${Leptonica_INCLUDE_DIRS})
 
   # Check for optional libraries.
-  if(WIN32)
-    find_package(TIFF) # for tesseract
-    if(NOT TIFF_FOUND AND PKG_CONFIG_EXECUTABLE)
-      # try PKG_CONFIG to find libtiff if cmake failed
-      pkg_check_modules(TIFF libtiff-4)
-    endif()
-    if(TIFF_FOUND)
-      set(HAVE_TIFFIO_H ON)
-      include_directories(${TIFF_INCLUDE_DIRS})
-    endif(TIFF_FOUND)
-  endif(WIN32)
+  find_package(TIFF) # for tesseract
+  if(NOT TIFF_FOUND AND PKG_CONFIG_EXECUTABLE)
+    # try PKG_CONFIG to find libtiff if cmake failed
+    pkg_check_modules(TIFF libtiff-4)
+  endif()
+  if(TIFF_FOUND)
+    set(HAVE_TIFFIO_H ON)
+    include_directories(${TIFF_INCLUDE_DIRS})
+  endif(TIFF_FOUND)
   if(DISABLE_ARCHIVE)
     set(HAVE_LIBARCHIVE OFF)
   else(DISABLE_ARCHIVE)
