@@ -350,7 +350,7 @@ ColumnFinder *Tesseract::SetupPageSegAndDetectOrientation(PageSegMode pageseg_mo
       vertical_text = finder->IsVerticallyAlignedText(textord_tabfind_vertical_text_ratio, to_block,
                                                       &osd_blobs);
     }
-    
+
   #ifndef DISABLED_LEGACY_ENGINE
     if (PSM_OSD_ENABLED(pageseg_mode) && osd_tess != nullptr && osr != nullptr) {
       std::vector<int> osd_scripts;
