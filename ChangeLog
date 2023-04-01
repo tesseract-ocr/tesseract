@@ -1,3 +1,11 @@
+2023-04-01 - V5.3.1
+ * Bug fixes for some special scenarios:
+   * Fix issue #4010.
+   * textord: Catch empty rows in block iterator (fixes #4039).
+   * Fix FP division by zero (issue #3995).
+ * Improve documentation and log messages.
+ * Build fixes and improvements (mainly for cmake).
+
 2022-12-22 - V5.3.0
  * Minor updates for documentation and cmake builds.
 
