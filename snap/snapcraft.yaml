@@ -41,7 +41,7 @@ parts:
       - libgomp1
     after: [leptonica]
   leptonica:
-    source: https://github.com/DanBloomberg/leptonica/archive/1.74.2.tar.gz
+    source: https://github.com/DanBloomberg/leptonica/archive/1.83.1.tar.gz
     plugin: autotools
     stage-packages:
       - libjbig0
