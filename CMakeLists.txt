@@ -961,6 +961,8 @@ if(INSTALL_CONFIGS)
           DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/configs)
   install(FILES ${TESSERACT_TESSCONFIGS}
           DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/tessconfigs)
+  install(FILES contrib/completions/zsh/_tesseract
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/zsh/site-functions)
 endif()
 
 # ##############################################################################

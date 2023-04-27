@@ -5,7 +5,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 CLEANFILES =
 
-SUBDIRS = . tessdata
+SUBDIRS = . tessdata contrib
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
