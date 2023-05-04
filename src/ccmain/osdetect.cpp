@@ -460,7 +460,7 @@ ScriptDetector::ScriptDetector(const std::vector<int> *allowed_scripts, OSResult
 // adding this blob.
 void ScriptDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
   for (int i = 0; i < 4; ++i) {
-    bool done[kMaxNumberOfScripts] = {false};
+    std::vector<bool> done(kMaxNumberOfScripts);
 
     BLOB_CHOICE_IT choice_it;
     choice_it.set_to_list(scores + i);
@@ -488,7 +488,7 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
         }
       }
       // Script already processed before.
-      if (done[id]) {
+      if (done.at(id)) {
         continue;
       }
       done[id] = true;
