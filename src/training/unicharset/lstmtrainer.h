@@ -25,6 +25,7 @@
 #include "rect.h"
 
 #include <functional> // for std::function
+#include <sstream>    // for std::stringstream
 
 namespace tesseract {
 
@@ -192,7 +193,7 @@ public:
 
   // Keeps track of best and locally worst error rate, using internally computed
   // values. See MaintainCheckpointsSpecific for more detail.
-  bool MaintainCheckpoints(const TestCallback &tester, std::string &log_msg);
+  bool MaintainCheckpoints(const TestCallback &tester, std::stringstream &log_msg);
   // Keeps track of best and locally worst error_rate (whatever it is) and
   // launches tests using rec_model, when a new min or max is reached.
   // Writes checkpoints using train_model at appropriate times and builds and
@@ -201,12 +202,12 @@ public:
   bool MaintainCheckpointsSpecific(int iteration,
                                    const std::vector<char> *train_model,
                                    const std::vector<char> *rec_model,
-                                   TestCallback tester, std::string &log_msg);
-  // Builds a string containing a progress message with current error rates.
-  void PrepareLogMsg(std::string &log_msg) const;
+                                   TestCallback tester, std::stringstream &log_msg);
+  // Builds a progress message with current error rates.
+  void PrepareLogMsg(std::stringstream &log_msg) const;
   // Appends <intro_str> iteration learning_iteration()/training_iteration()/
   // sample_iteration() to the log_msg.
-  void LogIterations(const char *intro_str, std::string &log_msg) const;
+  void LogIterations(const char *intro_str, std::stringstream &log_msg) const;
 
   // TODO(rays) Add curriculum learning.
   // Returns true and increments the training_stage_ if the error rate has just
@@ -226,7 +227,7 @@ public:
   // De-serializes the saved best_trainer_ into sub_trainer_, and adjusts the
   // learning rates (by scaling reduction, or layer specific, according to
   // NF_LAYER_SPECIFIC_LR).
-  void StartSubtrainer(std::string &log_msg);
+  void StartSubtrainer(std::stringstream &log_msg);
   // While the sub_trainer_ is behind the current training iteration and its
   // training error is at least kSubTrainerMarginFraction better than the
   // current training error, trains the sub_trainer_, and returns STR_UPDATED if
@@ -235,10 +236,10 @@ public:
   // trainer in *this is replaced with sub_trainer_, and STR_REPLACED is
   // returned. STR_NONE is returned if the subtrainer wasn't good enough to
   // receive any training iterations.
-  SubTrainerResult UpdateSubtrainer(std::string &log_msg);
+  SubTrainerResult UpdateSubtrainer(std::stringstream &log_msg);
   // Reduces network learning rates, either for everything, or for layers
   // independently, according to NF_LAYER_SPECIFIC_LR.
-  void ReduceLearningRates(LSTMTrainer *samples_trainer, std::string &log_msg);
+  void ReduceLearningRates(LSTMTrainer *samples_trainer, std::stringstream &log_msg);
   // Considers reducing the learning rate independently for each layer down by
   // factor(<1), or leaving it the same, by double-training the given number of
   // samples and minimizing the amount of changing of sign of weight updates.
