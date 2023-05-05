@@ -164,7 +164,7 @@ void Series::SplitAt(unsigned last_start, Series **start, Series **end) {
   *start = nullptr;
   *end = nullptr;
   if (last_start >= stack_.size()) {
-    tprintf("Invalid split index %u must be in range [0,%zu]!\n", last_start, stack_.size() - 1);
+    tprintf("ERROR: Invalid split index %u must be in range [0,%zu]!\n", last_start, stack_.size() - 1);
     return;
   }
   auto *master_series = new Series("MasterSeries");

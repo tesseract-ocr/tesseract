@@ -126,7 +126,7 @@ void ImageThresholder::SetImage(const unsigned char *imagedata, int width, int h
       break;
 
     default:
-      tprintf("Cannot convert RAW image to Pix with bpp = %d\n", bpp);
+      tprintf("ERROR: Cannot convert RAW image to Pix with bpp = %d\n", bpp);
   }
   SetImage(pix);
   pix.destroy();
@@ -284,7 +284,7 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
 /// Returns false on error.
 bool ImageThresholder::ThresholdToPix(Image *pix) {
   if (image_width_ > INT16_MAX || image_height_ > INT16_MAX) {
-    tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
+    tprintf("ERROR: Image too large: (%d, %d)\n", image_width_, image_height_);
     return false;
   }
   Image original = GetPixRect();

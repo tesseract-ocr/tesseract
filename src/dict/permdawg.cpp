@@ -59,7 +59,7 @@ void Dict::go_deeper_dawg_fxn(const char *debug, const BLOB_CHOICE_LIST_VECTOR &
   bool checked_unigrams = false;
   if (getUnicharset().get_isngram(orig_uch_id)) {
     if (dawg_debug_level) {
-      tprintf("checking unigrams in an ngram %s\n", getUnicharset().debug_str(orig_uch_id).c_str());
+      tprintf("Checking unigrams in an ngram %s\n", getUnicharset().debug_str(orig_uch_id).c_str());
     }
     int num_unigrams = 0;
     word->remove_last_unichar_id();
@@ -106,13 +106,13 @@ void Dict::go_deeper_dawg_fxn(const char *debug, const BLOB_CHOICE_LIST_VECTOR &
     // Add a new word choice
     if (word_ending) {
       if (dawg_debug_level) {
-        tprintf("found word = %s\n", word->debug_string().c_str());
+        tprintf("Found word = %s\n", word->debug_string().c_str());
       }
       if (strcmp(output_ambig_words_file.c_str(), "") != 0) {
         if (output_ambig_words_file_ == nullptr) {
           output_ambig_words_file_ = fopen(output_ambig_words_file.c_str(), "wb+");
           if (output_ambig_words_file_ == nullptr) {
-            tprintf("Failed to open output_ambig_words_file %s\n", output_ambig_words_file.c_str());
+            tprintf("ERROR: Failed to open output_ambig_words_file %s\n", output_ambig_words_file.c_str());
             exit(1);
           }
           std::string word_str;
@@ -142,7 +142,7 @@ void Dict::go_deeper_dawg_fxn(const char *debug, const BLOB_CHOICE_LIST_VECTOR &
     }
   } else {
     if (dawg_debug_level) {
-      tprintf("last unichar not OK at index %d in %s\n", word_index, word->debug_string().c_str());
+      tprintf("Last unichar not OK at index %d in %s\n", word_index, word->debug_string().c_str());
     }
   }
 }
@@ -311,7 +311,7 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id, float curr_rating, fl
   char_frag_info->num_fragments = 1;
   if (prev_fragment && !this_fragment) {
     if (debug) {
-      tprintf("Skip choice with incomplete fragment\n");
+      tprintf("WARNING: Skip choice with incomplete fragment\n");
     }
     return false;
   }
@@ -349,7 +349,7 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id, float curr_rating, fl
         }
       } else {
         if (debug) {
-          tprintf("Non-starting fragment piece with no prev_fragment\n");
+          tprintf("WARNING: Non-starting fragment piece with no prev_fragment\n");
         }
         return false;
       }
@@ -357,7 +357,7 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id, float curr_rating, fl
   }
   if (word_ending && char_frag_info->fragment) {
     if (debug) {
-      tprintf("Word cannot end with a fragment\n");
+      tprintf("WARNING: Word cannot end with a fragment\n");
     }
     return false;
   }

@@ -61,7 +61,10 @@
 
 static void Win32ErrorHandler(const char *module, const char *fmt, va_list ap) {
   if (module != nullptr) {
-    fprintf(stderr, "%s: ", module);
+    fprintf(stderr, "ERROR: %s: ", module);
+  }
+  else {
+    fprintf(stderr, "ERROR: ");
   }
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, ".\n");
@@ -69,7 +72,10 @@ static void Win32ErrorHandler(const char *module, const char *fmt, va_list ap) {
 
 static void Win32WarningHandler(const char *module, const char *fmt, va_list ap) {
   if (module != nullptr) {
-    fprintf(stderr, "%s: ", module);
+    fprintf(stderr, "WARNING: %s: ", module);
+  }
+  else {
+    fprintf(stderr, "WARNING: ");
   }
   fprintf(stderr, "Warning, ");
   vfprintf(stderr, fmt, ap);
@@ -312,7 +318,7 @@ static bool SetVariablesFromCLArgs(tesseract::TessBaseAPI &api, int argc, char *
       opt1[255] = '\0';
       char *p = strchr(opt1, '=');
       if (!p) {
-        fprintf(stderr, "Missing = in configvar assignment\n");
+        tprintf("ERROR: Missing '=' in configvar assignment for '%s'\n", opt1);
         success = false;
         break;
       }
@@ -322,7 +328,7 @@ static bool SetVariablesFromCLArgs(tesseract::TessBaseAPI &api, int argc, char *
       ++i;
 
       if (!api.SetVariable(opt1, opt2)) {
-        fprintf(stderr, "Could not set option: %s=%s\n", opt1, opt2);
+        tprintf("ERROR: Could not set option: %s=%s\n", opt1, opt2);
       }
     }
   }
@@ -362,7 +368,7 @@ static void FixPageSegMode(tesseract::TessBaseAPI &api, tesseract::PageSegMode p
 
 static bool checkArgValues(int arg, const char *mode, int count) {
   if (arg >= count || arg < 0) {
-    printf("Invalid %s value, please enter a number between 0-%d\n", mode, count - 1);
+    tprintf("ERROR: Invalid %s value, please enter a number between 0-%d\n", mode, count - 1);
     return false;
   }
   return true;
@@ -425,7 +431,7 @@ static bool ParseArgs(int argc, char **argv, const char **lang, const char **ima
         log_level = loglevel;
       } catch (const std::out_of_range &e) {
         // TODO: Allow numeric argument?
-        tprintf("Error, unsupported --loglevel %s\n", loglevel_string.c_str());
+        tprintf("ERROR: Unsupported --loglevel %s\n", loglevel_string.c_str());
         return false;
       }
     } else if (strcmp(argv[i], "--user-words") == 0 && i + 1 < argc) {
@@ -469,7 +475,7 @@ static bool ParseArgs(int argc, char **argv, const char **lang, const char **ima
       *image = argv[i];
     } else {
       // Unexpected argument.
-      fprintf(stderr, "Error, unknown command line argument '%s'\n", argv[i]);
+      tprintf("ERROR: Unknown command line argument '%s'\n", argv[i]);
       return false;
     }
   }
@@ -481,7 +487,7 @@ static bool ParseArgs(int argc, char **argv, const char **lang, const char **ima
     if (*lang != nullptr && strcmp(*lang, "osd")) {
       // If the user explicitly specifies a language (other than osd)
       // or a script, only orientation can be detected.
-      fprintf(stderr, "Warning, detects only orientation with -l %s\n", *lang);
+      tprintf("WARNING: Detects only orientation with -l %s\n", *lang);
     } else {
       // That mode requires osd.traineddata to detect orientation and script.
       *lang = "osd";
@@ -514,7 +520,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {
-        tprintf("Error, could not create hOCR output file: %s\n", strerror(errno));
+        tprintf("ERROR: Could not create hOCR output file: %s\n", strerror(errno));
         error = true;
       }
     }
@@ -525,7 +531,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {
-        tprintf("Error, could not create ALTO output file: %s\n", strerror(errno));
+        tprintf("ERROR: Could not create ALTO output file: %s\n", strerror(errno));
         error = true;
       }
     }
@@ -538,16 +544,16 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {
-        tprintf("Error, could not create TSV output file: %s\n", strerror(errno));
+        tprintf("ERROR: Could not create TSV output file: %s\n", strerror(errno));
         error = true;
       }
     }
 
     api.GetBoolVariable("tessedit_create_pdf", &b);
     if (b) {
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
       if (_setmode(_fileno(stdout), _O_BINARY) == -1)
-        tprintf("ERROR: cin to binary: %s", strerror(errno));
+        tprintf("ERROR: Cannot set STDIN to binary: %s", strerror(errno));
 #endif // WIN32
       bool textonly;
       api.GetBoolVariable("textonly_pdf", &textonly);
@@ -555,7 +561,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {
-        tprintf("Error, could not create PDF output file: %s\n", strerror(errno));
+        tprintf("ERROR: Could not create PDF output file: %s\n", strerror(errno));
         error = true;
       }
     }
@@ -567,7 +573,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {
-        tprintf("Error, could not create UNLV output file: %s\n", strerror(errno));
+        tprintf("ERROR: Could not create UNLV output file: %s\n", strerror(errno));
         error = true;
       }
     }
@@ -578,7 +584,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {
-        tprintf("Error, could not create LSTM BOX output file: %s\n", strerror(errno));
+        tprintf("ERROR: Could not create LSTM BOX output file: %s\n", strerror(errno));
         error = true;
       }
     }
@@ -589,7 +595,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {
-        tprintf("Error, could not create BOX output file: %s\n", strerror(errno));
+        tprintf("ERROR: Could not create BOX output file: %s\n", strerror(errno));
         error = true;
       }
     }
@@ -600,7 +606,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {
-        tprintf("Error, could not create WordStr BOX output file: %s\n", strerror(errno));
+        tprintf("ERROR: Could not create WordStr BOX output file: %s\n", strerror(errno));
         error = true;
       }
     }
@@ -614,7 +620,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {
-        tprintf("Error, could not create TXT output file: %s\n", strerror(errno));
+        tprintf("ERROR: Could not create TXT output file: %s\n", strerror(errno));
       }
     }
   }
@@ -716,7 +722,7 @@ int main(int argc, char **argv) {
   }
 
   if (init_failed) {
-    fprintf(stderr, "Could not initialize tesseract.\n");
+    tprintf("ERROR: Could not initialize tesseract.\n");
     return EXIT_FAILURE;
   }
 
@@ -750,7 +756,7 @@ int main(int argc, char **argv) {
   if (pagesegmode == tesseract::PSM_AUTO_ONLY) {
     Pix *pixs = pixRead(image);
     if (!pixs) {
-      fprintf(stderr, "Leptonica can't process input file: %s\n", image);
+      tprintf("ERROR: Leptonica can't process input file: %s\n", image);
       return 2;
     }
 
@@ -794,18 +800,18 @@ int main(int argc, char **argv) {
     const char *disabled_osd_msg =
         "\nERROR: The page segmentation mode 0 (OSD Only) is currently "
         "disabled.\n\n";
-    fprintf(stderr, "%s", disabled_osd_msg);
+    tprintf("%s", disabled_osd_msg);
     return EXIT_FAILURE;
   } else if (cur_psm == tesseract::PSM_AUTO_OSD) {
     api.SetPageSegMode(tesseract::PSM_AUTO);
     osd_warning +=
-        "\nWarning: The page segmentation mode 1 (Auto+OSD) is currently "
+        "\nWARNING: The page segmentation mode 1 (Auto+OSD) is currently "
         "disabled. "
         "Using PSM 3 (Auto) instead.\n\n";
   } else if (cur_psm == tesseract::PSM_SPARSE_TEXT_OSD) {
     api.SetPageSegMode(tesseract::PSM_SPARSE_TEXT);
     osd_warning +=
-        "\nWarning: The page segmentation mode 12 (Sparse text + OSD) is "
+        "\nWARNING: The page segmentation mode 12 (Sparse text + OSD) is "
         "currently disabled. "
         "Using PSM 11 (Sparse text) instead.\n\n";
   }
@@ -822,12 +828,12 @@ int main(int argc, char **argv) {
   if (!renderers.empty()) {
 #ifdef DISABLED_LEGACY_ENGINE
     if (!osd_warning.empty()) {
-      fprintf(stderr, "%s", osd_warning.c_str());
+      tprintf("%s", osd_warning.c_str());
     }
 #endif
     bool succeed = api.ProcessPages(image, nullptr, 0, renderers[0].get());
     if (!succeed) {
-      fprintf(stderr, "Error during processing.\n");
+      tprintf("ERROR: Error during page processing.\n");
       ret_val = EXIT_FAILURE;
     }
   }

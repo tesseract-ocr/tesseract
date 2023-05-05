@@ -1117,7 +1117,7 @@ void compute_fixed_pitch_cjk(ICOORD page_tr, TO_BLOCK_LIST *port_blocks) {
   // Early exit if the page doesn't seem to contain fixed pitch rows.
   if (!analyzer.maybe_fixed_pitch()) {
     if (textord_debug_pitch_test) {
-      tprintf("Page doesn't seem to contain fixed pitch rows\n");
+      tprintf("INFO: Page doesn't seem to contain fixed pitch rows\n");
     }
     return;
   }

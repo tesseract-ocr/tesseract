@@ -56,7 +56,7 @@ static void AddStringsToUnicharset(const std::vector<std::string> &strings, int 
         unicharset->unichar_insert(normed.c_str());
       }
     } else {
-      tprintf("Normalization failed for string '%s'\n", string.c_str());
+      tprintf("ERROR: Normalization failed for string '%s'\n", string.c_str());
     }
   }
 }
@@ -77,7 +77,7 @@ static int Main(int argc, char **argv) {
                    /*continue_on_failure*/ false, /*boxes*/ nullptr, &texts,
                    /*box_texts*/ nullptr, /*pages*/ nullptr);
       if (!res) {
-        tprintf("Cannot read box data from '%s'\n", argv[arg]);
+        tprintf("ERROR: Cannot read box data from '%s'\n", argv[arg]);
         return EXIT_FAILURE;
       }
     } else {
@@ -92,7 +92,7 @@ static int Main(int argc, char **argv) {
   if (unicharset.save_to_file(FLAGS_output_unicharset.c_str())) {
     tprintf("Wrote unicharset file %s\n", FLAGS_output_unicharset.c_str());
   } else {
-    tprintf("Cannot save unicharset file %s\n", FLAGS_output_unicharset.c_str());
+    tprintf("ERROR: Cannot save unicharset file %s\n", FLAGS_output_unicharset.c_str());
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

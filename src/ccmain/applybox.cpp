@@ -400,7 +400,7 @@ bool Tesseract::ResegmentCharBox(PAGE_RES *page_res, const TBOX *prev_box, const
     }
   }
   if (applybox_debug > 0) {
-    tprintf("FAIL!\n");
+    tprintf("ERROR: FAIL!\n");
   }
   return false; // Failure.
 }
@@ -485,7 +485,7 @@ bool Tesseract::ResegmentWordBox(BLOCK_LIST *block_list, const TBOX &box, const 
     }
   }
   if (new_word == nullptr && applybox_debug > 0) {
-    tprintf("FAIL!\n");
+    tprintf("ERROR: FAIL!\n");
   }
   return new_word != nullptr;
 }

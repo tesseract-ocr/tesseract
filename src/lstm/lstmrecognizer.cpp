@@ -203,7 +203,7 @@ bool LSTMRecognizer::LoadRecoder(TFile *fp) {
     RecodedCharID code;
     recoder_.EncodeUnichar(UNICHAR_SPACE, &code);
     if (code(0) != UNICHAR_SPACE) {
-      tprintf("Space was garbled in recoding!!\n");
+      tprintf("ERROR: Space was garbled in recoding!!\n");
       return false;
     }
   } else {
@@ -235,7 +235,7 @@ bool LSTMRecognizer::LoadDictionary(const ParamsVectors *params, const std::stri
     return true; // Success.
   }
   if (log_level <= 0) {
-    tprintf("Failed to load any lstm-specific dictionaries for lang %s!!\n", lang.c_str());
+    tprintf("ERROR: Failed to load any lstm-specific dictionaries for lang %s!!\n", lang.c_str());
   }
   delete dict_;
   dict_ = nullptr;
@@ -327,13 +327,13 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data,
   int min_width = network_->XScaleFactor();
   Image pix = Input::PrepareLSTMInputs(image_data, network_, min_width, &randomizer_, scale_factor);
   if (pix == nullptr) {
-    tprintf("Line cannot be recognized!!\n");
+    tprintf("ERROR: Line cannot be recognized!!\n");
     return false;
   }
   // Maximum width of image to train on.
   const int kMaxImageWidth = 128 * pixGetHeight(pix);
   if (network_->IsTraining() && pixGetWidth(pix) > kMaxImageWidth) {
-    tprintf("Image too large to learn!! Size = %dx%d\n", pixGetWidth(pix), pixGetHeight(pix));
+    tprintf("ERROR: Image too large to learn!! Size = %dx%d\n", pixGetWidth(pix), pixGetHeight(pix));
     pix.destroy();
     return false;
   }

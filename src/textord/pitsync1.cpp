@@ -395,7 +395,7 @@ void make_illegal_segment(   // find segmentation
     segpt = new FPSEGPT(x, false, offset, region_index, pitch, pitch_error, prev_list);
     if (segpt->previous() != nullptr) {
       ASSERT_HOST(offset >= 0);
-      fprintf(stderr, "made fake at %d\n", x);
+      tprintf("Made fake at %d\n", x);
       // make one up
       segpt_it.add_after_then_move(segpt);
       segpt->faked = true;

@@ -49,7 +49,7 @@ void ERRCODE::error(         // handle error
     msgptr += sprintf(msgptr, "%s:", caller);
   }
   // actual message
-  msgptr += sprintf(msgptr, "Error:%s", message);
+  msgptr += sprintf(msgptr, "ERROR: %s", message);
   if (format != nullptr) {
     msgptr += sprintf(msgptr, ":");
     va_start(args, format); // variable list

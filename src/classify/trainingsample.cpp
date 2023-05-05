@@ -239,7 +239,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type, int micro_type, int c
   delete[] features_;
   FEATURE_SET_STRUCT *char_features = char_desc->FeatureSets[int_feature_type];
   if (char_features == nullptr) {
-    tprintf("Error: no features to train on of type %s\n", kIntFeatureType);
+    tprintf("ERROR: No features to train on of type %s\n", kIntFeatureType);
     num_features_ = 0;
     features_ = nullptr;
   } else {
@@ -256,7 +256,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type, int micro_type, int c
   delete[] micro_features_;
   char_features = char_desc->FeatureSets[micro_type];
   if (char_features == nullptr) {
-    tprintf("Error: no features to train on of type %s\n", kMicroFeatureType);
+    tprintf("ERROR: No features to train on of type %s\n", kMicroFeatureType);
     num_micro_features_ = 0;
     micro_features_ = nullptr;
   } else {
@@ -271,7 +271,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type, int micro_type, int c
   // Extract the CN feature.
   char_features = char_desc->FeatureSets[cn_type];
   if (char_features == nullptr) {
-    tprintf("Error: no CN feature to train on.\n");
+    tprintf("ERROR: No CN feature to train on.\n");
   } else {
     ASSERT_HOST(char_features->NumFeatures == 1);
     cn_feature_[CharNormY] = char_features->Features[0]->Params[CharNormY];
@@ -282,7 +282,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type, int micro_type, int c
   // Extract the Geo feature.
   char_features = char_desc->FeatureSets[geo_type];
   if (char_features == nullptr) {
-    tprintf("Error: no Geo feature to train on.\n");
+    tprintf("ERROR: No Geo feature to train on.\n");
   } else {
     ASSERT_HOST(char_features->NumFeatures == 1);
     geo_feature_[GeoBottom] = char_features->Features[0]->Params[GeoBottom];

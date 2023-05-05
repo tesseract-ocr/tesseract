@@ -196,7 +196,7 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word, const std::vector<bool> *re
       found = edge_char_of(last_node, NO_EDGE, FORWARD_EDGE, word_end, unichar_id, &edge_ptr,
                            &edge_index);
       if (found && debug_level_ > 1) {
-        tprintf("exploring edge " REFFORMAT " in node " REFFORMAT "\n", edge_index, last_node);
+        tprintf("Exploring edge " REFFORMAT " in node " REFFORMAT "\n", edge_index, last_node);
       }
       if (!found) {
         still_finding_chars = false;
@@ -222,7 +222,7 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word, const std::vector<bool> *re
     if (!still_finding_chars) {
       the_next_node = new_dawg_node();
       if (debug_level_ > 1) {
-        tprintf("adding node " REFFORMAT "\n", the_next_node);
+        tprintf("Adding node " REFFORMAT "\n", the_next_node);
       }
       if (the_next_node == 0) {
         add_failed = true;
@@ -321,7 +321,7 @@ bool Trie::add_word_list(const std::vector<std::string> &words, const UNICHARSET
     if (!word_in_dawg(word)) {
       add_word_to_dawg(word);
       if (!word_in_dawg(word)) {
-        tprintf("Error: word '%s' not in DAWG after adding it\n", i.c_str());
+        tprintf("ERROR: Word '%s' not in DAWG after adding it\n", i.c_str());
         return false;
       }
     }
@@ -389,13 +389,13 @@ UNICHAR_ID Trie::character_class_to_pattern(char ch) {
 
 bool Trie::read_pattern_list(const char *filename, const UNICHARSET &unicharset) {
   if (!initialized_patterns_) {
-    tprintf("please call initialize_patterns() before read_pattern_list()\n");
+    tprintf("WARNING: Please call initialize_patterns() before read_pattern_list()\n");
     return false;
   }
 
   FILE *pattern_file = fopen(filename, "rb");
   if (pattern_file == nullptr) {
-    tprintf("Error opening pattern file %s\n", filename);
+    tprintf("ERROR: Error opening pattern file %s\n", filename);
     return false;
   }
 
@@ -420,7 +420,7 @@ bool Trie::read_pattern_list(const char *filename, const UNICHARSET &unicharset)
 #if 0 // TODO: This code should be enabled if kSaneNumConcreteChars != 0.
           if (word.length() < kSaneNumConcreteChars) {
             tprintf(
-                "Please provide at least %d concrete characters at the"
+                "ERROR: Please provide at least %d concrete characters at the"
                 " beginning of the pattern\n",
                 kSaneNumConcreteChars);
             failed = true;
@@ -449,7 +449,7 @@ bool Trie::read_pattern_list(const char *filename, const UNICHARSET &unicharset)
       }
     }
     if (failed) {
-      tprintf("Invalid user pattern %s\n", string);
+      tprintf("ERROR: Invalid user pattern %s\n", string);
       continue;
     }
     // Insert the pattern into the trie.
@@ -459,7 +459,7 @@ bool Trie::read_pattern_list(const char *filename, const UNICHARSET &unicharset)
     if (!this->word_in_dawg(word)) {
       this->add_word_to_dawg(word, &repetitions_vec);
       if (!this->word_in_dawg(word)) {
-        tprintf("Error: failed to insert pattern '%s'\n", string);
+        tprintf("ERROR: Failed to insert pattern '%s'\n", string);
       }
     }
     ++pattern_count;
@@ -477,7 +477,7 @@ void Trie::remove_edge_linkage(NODE_REF node1, NODE_REF node2, int direction, bo
   EDGE_INDEX edge_index = 0;
   ASSERT_HOST(edge_char_of(node1, node2, direction, word_end, unichar_id, &edge_ptr, &edge_index));
   if (debug_level_ > 1) {
-    tprintf("removed edge in nodes_[" REFFORMAT "]: ", node1);
+    tprintf("Removed edge in nodes_[" REFFORMAT "]: ", node1);
     print_edge_rec(*edge_ptr);
     tprintf("\n");
   }
@@ -585,7 +585,7 @@ bool Trie::eliminate_redundant_edges(NODE_REF node, const EDGE_RECORD &edge1,
   int next_node2_num_edges =
       (next_node2_ptr->forward_edges.size() + next_node2_ptr->backward_edges.size());
   if (debug_level_ > 1) {
-    tprintf("removed %d edges from node " REFFORMAT "\n", next_node2_num_edges, next_node2);
+    tprintf("Removed %d edges from node " REFFORMAT "\n", next_node2_num_edges, next_node2);
   }
   next_node2_ptr->forward_edges.clear();
   next_node2_ptr->backward_edges.clear();

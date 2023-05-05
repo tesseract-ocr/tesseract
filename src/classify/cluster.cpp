@@ -2118,7 +2118,7 @@ static PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer, CLUSTERCONFIG *Confi
   }
   double err = InvertMatrix(&Covariance[0], N, &Inverse[0]);
   if (err > 1) {
-    tprintf("Clustering error: Matrix inverse failed with error %g\n", err);
+    tprintf("ERROR: Clustering error: Matrix inverse failed with error %g\n", err);
   }
   int EssentialN = 0;
   for (int dim = 0; dim < N; ++dim) {
