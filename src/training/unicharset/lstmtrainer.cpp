@@ -1051,13 +1051,14 @@ void LSTMTrainer::SaveRecognitionDump(std::vector<char> *data) const {
 // Returns a suitable filename for a training dump, based on the model_base_,
 // best_error_rate_, best_iteration_ and training_iteration_.
 std::string LSTMTrainer::DumpFilename() const {
-  std::string filename;
-  filename += model_base_.c_str();
-  filename += "_" + std::to_string(best_error_rate_);
-  filename += "_" + std::to_string(best_iteration_);
-  filename += "_" + std::to_string(training_iteration_);
-  filename += ".checkpoint";
-  return filename;
+  std::stringstream filename;
+  filename.imbue(std::locale::classic());
+  filename << model_base_ << std::fixed << std::setprecision(3)
+           << "_" << best_error_rate_
+           << "_" << best_iteration_
+           << "_" << training_iteration_
+           << ".checkpoint";
+  return filename.str();
 }
 
 // Fills the whole error buffer of the given type with the given value.
