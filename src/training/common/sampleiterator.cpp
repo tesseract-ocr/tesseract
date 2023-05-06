@@ -240,11 +240,9 @@ int SampleIterator::UniformSamples() {
 // to 1. Returns the minimum assigned sample weight.
 double SampleIterator::NormalizeSamples() {
   double total_weight = 0.0;
-  int sample_count = 0;
   for (Begin(); !AtEnd(); Next()) {
     const TrainingSample &sample = GetSample();
     total_weight += sample.weight();
-    ++sample_count;
   }
   // Normalize samples.
   double min_assigned_sample_weight = 1.0;
