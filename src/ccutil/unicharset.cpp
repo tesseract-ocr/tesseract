@@ -314,10 +314,10 @@ std::string UNICHARSET::debug_utf8_str(const char *str) {
     step = UNICHAR::utf8_step(str + i);
     if (step == 0) {
       step = 1;
-      sprintf(hex, "%x", str[i]);
+      snprintf(hex, sizeof(hex), "%x", str[i]);
     } else {
       UNICHAR ch(str + i, step);
-      sprintf(hex, "%x", ch.first_uni());
+      snprintf(hex, sizeof(hex), "%x", ch.first_uni());
     }
     result += hex;
     result += " ";

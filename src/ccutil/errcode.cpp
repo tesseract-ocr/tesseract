@@ -22,6 +22,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iostream> // for std::cerr
+#include <sstream>  // for std::stringstream
 
 namespace tesseract {
 
@@ -41,37 +43,26 @@ void ERRCODE::error(         // handle error
     const char *format, ...  // special message
     ) const {
   va_list args; // variable args
-  char msg[MAX_MSG];
-  char *msgptr = msg;
+  std::stringstream msg;
 
   if (caller != nullptr) {
     // name of caller
-    msgptr += sprintf(msgptr, "%s:", caller);
+    msg << caller << ':';
   }
   // actual message
-  msgptr += sprintf(msgptr, "Error:%s", message);
+  msg << "Error:" << message;
   if (format != nullptr) {
-    msgptr += sprintf(msgptr, ":");
+    char str[MAX_MSG];
     va_start(args, format); // variable list
-#ifdef _WIN32
-                            // print remainder
-    msgptr += _vsnprintf(msgptr, MAX_MSG - 2 - (msgptr - msg), format, args);
-    msg[MAX_MSG - 2] = '\0'; // ensure termination
-    strcat(msg, "\n");
-#else
-                            // print remainder
-    msgptr += vsprintf(msgptr, format, args);
-    // no specific
-    msgptr += sprintf(msgptr, "\n");
-#endif
+    // print remainder
+    std::vsnprintf(str, sizeof(str), format, args);
+    // ensure termination
+    str[sizeof(str) - 1] = '\0';
     va_end(args);
-  } else {
-    // no specific
-    msgptr += sprintf(msgptr, "\n");
+    msg << ':' << str;
   }
 
-  // %s is needed here so msg is printed correctly!
-  fprintf(stderr, "%s", msg);
+  std::cerr << msg.str() << '\n';
 
   switch (action) {
     case DBG:

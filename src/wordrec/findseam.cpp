@@ -103,7 +103,6 @@ void Wordrec::add_seam_to_queue(float new_priority, SEAM *new_seam, SeamQueue *s
 void Wordrec::choose_best_seam(SeamQueue *seam_queue, const SPLIT *split, PRIORITY priority,
                                SEAM **seam_result, TBLOB *blob, SeamPile *seam_pile) {
   SEAM *seam;
-  char str[80];
   float my_priority;
   /* Add seam of split */
   my_priority = priority;
@@ -133,7 +132,8 @@ void Wordrec::choose_best_seam(SeamQueue *seam_queue, const SPLIT *split, PRIORI
         seam->FullPriority(bbox.left(), bbox.right(), chop_overlap_knob, chop_centered_maxwidth,
                            chop_center_knob, chop_width_change_knob);
     if (chop_debug) {
-      sprintf(str, "Full my_priority %0.0f,  ", my_priority);
+      char str[80];
+      snprintf(str, sizeof(str), "Full my_priority %0.0f,  ", my_priority);
       seam->Print(str);
     }
 
