@@ -16,6 +16,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "lstmtester.h"
+#include <iomanip>  // for std::setprecision
 #include <thread>   // for std::thread
 #include "fileio.h" // for LoadFileLinesToStrings
 
@@ -115,14 +116,15 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
   }
   char_error *= 100.0 / total_pages_;
   word_error *= 100.0 / total_pages_;
-  std::string result;
+  std::stringstream result;
+  result.imbue(std::locale::classic());
+  result << std::fixed << std::setprecision(3);
   if (iteration != 0 || training_stage != 0) {
-    result += "At iteration " + std::to_string(iteration);
-    result += ", stage " + std::to_string(training_stage) + ", ";
+    result << "At iteration " << iteration
+           << ", stage " << training_stage << ", ";
   }
-  result += "BCER eval=" + std::to_string(char_error);
-  result += ", BWER eval=" + std::to_string(word_error);
-  return result;
+  result << "BCER eval=" << char_error << ", BWER eval=" << word_error;
+  return result.str();
 }
 
 // Helper thread function for RunEvalAsync.

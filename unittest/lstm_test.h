@@ -103,7 +103,7 @@ protected:
     int iteration_limit = iteration + max_iterations;
     double best_error = 100.0;
     do {
-      std::string log_str;
+      std::stringstream log_str;
       int target_iteration = iteration + kBatchIterations;
       // Train a few.
       double mean_error = 0.0;
