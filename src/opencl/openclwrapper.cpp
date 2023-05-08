@@ -812,7 +812,8 @@ int OpenclDevice::BinaryGenerated(const char *clFileName, FILE **fhandle) {
   cl_int clStatus;
   int status = 0;
   FILE *fd = nullptr;
-  char fileName[256] = {0}, cl_name[128] = {0};
+  char fileName[256];
+  char cl_name[128];
   char deviceName[1024];
   clStatus = clGetDeviceInfo(gpuEnv.mpArryDevsID[i], CL_DEVICE_NAME, sizeof(deviceName), deviceName,
                              nullptr);
@@ -820,7 +821,7 @@ int OpenclDevice::BinaryGenerated(const char *clFileName, FILE **fhandle) {
   const char *str = strstr(clFileName, ".cl");
   memcpy(cl_name, clFileName, str - clFileName);
   cl_name[str - clFileName] = '\0';
-  sprintf(fileName, "%s-%s.bin", cl_name, deviceName);
+  snprintf(fileName, sizeof(fileName), "%s-%s.bin", cl_name, deviceName);
   legalizeFileName(fileName);
   fd = fopen(fileName, "rb");
   status = (fd != nullptr) ? 1 : 0;
@@ -894,9 +895,9 @@ int OpenclDevice::GeneratBinFromKernelSource(cl_program program, const char *clF
 
   /* dump out each binary into its own separate file. */
   for (i = 0; i < numDevices; i++) {
-    char fileName[256] = {0}, cl_name[128] = {0};
-
     if (binarySizes[i] != 0) {
+      char fileName[256];
+      char cl_name[128];
       char deviceName[1024];
       clStatus =
           clGetDeviceInfo(mpArryDevsID[i], CL_DEVICE_NAME, sizeof(deviceName), deviceName, nullptr);
@@ -905,7 +906,7 @@ int OpenclDevice::GeneratBinFromKernelSource(cl_program program, const char *clF
       const char *str = strstr(clFileName, ".cl");
       memcpy(cl_name, clFileName, str - clFileName);
       cl_name[str - clFileName] = '\0';
-      sprintf(fileName, "%s-%s.bin", cl_name, deviceName);
+      snprintf(fileName, sizeof(fileName), "%s-%s.bin", cl_name, deviceName);
       legalizeFileName(fileName);
       if (!WriteBinaryToFile(fileName, binaries[i], binarySizes[i])) {
         tprintf("[OD] write binary[%s] failed\n", fileName);
