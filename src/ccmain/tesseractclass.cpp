@@ -495,6 +495,7 @@ void Tesseract::Clear() {
   scaled_color_.destroy();
   deskew_ = FCOORD(1.0f, 0.0f);
   reskew_ = FCOORD(1.0f, 0.0f);
+  gradient_ = 0.0f;
   splitter_.Clear();
   scaled_factor_ = -1;
   for (auto &sub_lang : sub_langs_) {
