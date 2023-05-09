@@ -2201,6 +2201,13 @@ int TessBaseAPI::FindLines() {
   return 0;
 }
 
+/**
+ * Return average gradient of lines on page.
+ */
+float TessBaseAPI::GetGradient() {
+  return tesseract_->gradient();
+}
+
 /** Delete the pageres and clear the block list ready for a new page. */
 void TessBaseAPI::ClearResults() {
   if (tesseract_ != nullptr) {
