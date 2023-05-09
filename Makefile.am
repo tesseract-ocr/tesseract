@@ -734,10 +734,15 @@ bin_PROGRAMS = tesseract
 tesseract_SOURCES = src/tesseract.cpp
 tesseract_CPPFLAGS =
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/arch
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccmain
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccutil
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/classify
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/cutil
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/dict
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/textord
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/viewer
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 if OPENCL
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/opencl
 endif
