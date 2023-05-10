@@ -724,12 +724,6 @@ public:
   void set_min_orientation_margin(double margin);
   /* @} */
 
-  /**
-   * Find lines from the image making the BLOCK_LIST.
-   * @return 0 on success.
-   */
-  int FindLines();
-
 protected:
   /** Common code for setting the image. Returns true if Init has been called.
    */
@@ -740,6 +734,12 @@ protected:
    * the source is thresholded to pix instead of the internal IMAGE.
    */
   virtual bool Threshold(Pix **pix);
+
+  /**
+   * Find lines from the image making the BLOCK_LIST.
+   * @return 0 on success.
+   */
+  int FindLines();
 
   /** Delete the pageres and block list ready for a new page. */
   void ClearResults();
