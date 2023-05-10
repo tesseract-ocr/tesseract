@@ -327,6 +327,10 @@ struct Pix *TessBaseAPIGetThresholdedImage(TessBaseAPI *handle) {
   return handle->GetThresholdedImage();
 }
 
+float TessBaseAPIGetGradient(TessBaseAPI *handle) {
+  return handle->GetGradient();
+}
+
 void TessBaseAPIClearPersistentCache(TessBaseAPI * /*handle*/) {
   TessBaseAPI::ClearPersistentCache();
 }
