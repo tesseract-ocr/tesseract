@@ -1004,7 +1004,7 @@ private:
   int scaled_factor_;
   FCOORD deskew_;
   FCOORD reskew_;
-  float gradient_ = 0.0f;
+  float gradient_;
   TesseractStats stats_;
   // Sub-languages to be tried in addition to this.
   std::vector<Tesseract *> sub_langs_;

@@ -458,6 +458,7 @@ Tesseract::Tesseract()
     , scaled_factor_(-1)
     , deskew_(1.0f, 0.0f)
     , reskew_(1.0f, 0.0f)
+    , gradient_(0.0f)
     , most_recently_used_(this)
     , font_table_size_(0)
 #ifndef DISABLED_LEGACY_ENGINE
