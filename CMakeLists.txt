@@ -372,6 +372,7 @@ add_definitions("-DCMAKE_BUILD")
 # packages
 #
 # ##############################################################################
+include(CheckFunctions)
 
 if(SW_BUILD)
   find_package(SW REQUIRED)
@@ -398,8 +399,18 @@ else()
   endif()
   if(NOT Leptonica_FOUND)
     message(FATAL_ERROR "Cannot find required library Leptonica. Quitting!")
+  else()
+    message(STATUS "Found leptonica version: ${Leptonica_VERSION}")
   endif(NOT Leptonica_FOUND)
   include_directories(${Leptonica_INCLUDE_DIRS})
+
+  check_leptonica_tiff_support()
+  if (NOT LEPT_TIFF_RESULT EQUAL 0)
+    message(NOTICE "Leptonica was build without TIFF support! Disabling TIFF support...")
+    set(DISABLE_TIFF ON)
+  else()
+    message(STATUS "Leptonica was build with TIFF support.")
+  endif()
 
   # Check for optional libraries.
   if(DISABLE_TIFF)
