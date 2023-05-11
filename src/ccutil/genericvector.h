@@ -123,7 +123,7 @@ public:
 
   // Add a callback to be called to delete the elements when the array took
   // their ownership.
-  void set_clear_callback(std::function<void(T)> cb) {
+  void set_clear_callback(const std::function<void(T)> &cb) {
     clear_cb_ = cb;
   }
 
@@ -148,8 +148,8 @@ public:
   // fread (and swapping)/fwrite.
   // Returns false on error or if the callback returns false.
   // DEPRECATED. Use [De]Serialize[Classes] instead.
-  bool write(FILE *f, std::function<bool(FILE *, const T &)> cb) const;
-  bool read(TFile *f, std::function<bool(TFile *, T *)> cb);
+  bool write(FILE *f, const std::function<bool(FILE *, const T &)> &cb) const;
+  bool read(TFile *f, const std::function<bool(TFile *, T *)> &cb);
   // Writes a vector of simple types to the given file. Assumes that bitwise
   // read/write of T will work. Returns false in case of error.
   // TODO(rays) Change all callers to use TFile and remove deprecated methods.
@@ -577,7 +577,7 @@ int GenericVector<T>::push_back(T object) {
     double_the_size();
   }
   index = size_used_++;
-  data_[index] = object;
+  data_[index] = std::move(object);
   return index;
 }
 
@@ -627,7 +627,7 @@ void GenericVector<T>::delete_data_pointers() {
 }
 
 template <typename T>
-bool GenericVector<T>::write(FILE *f, std::function<bool(FILE *, const T &)> cb) const {
+bool GenericVector<T>::write(FILE *f, const std::function<bool(FILE *, const T &)> &cb) const {
   if (fwrite(&size_reserved_, sizeof(size_reserved_), 1, f) != 1) {
     return false;
   }
@@ -649,7 +649,7 @@ bool GenericVector<T>::write(FILE *f, std::function<bool(FILE *, const T &)> cb)
 }
 
 template <typename T>
-bool GenericVector<T>::read(TFile *f, std::function<bool(TFile *, T *)> cb) {
+bool GenericVector<T>::read(TFile *f, const std::function<bool(TFile *, T *)> &cb) {
   int32_t reserved;
   if (f->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
     return false;
