@@ -680,7 +680,13 @@ int main(int argc, char **argv) {
                  &pagesegmode, &enginemode)) {
     return EXIT_FAILURE;
   }
-
+  
+  /*Here, the program calls the "ParseArgs" function, 
+  which copies the values stored in the command to the program memory. 
+  That's why this is the instruction that determines whether the execution 
+  of the function failed or succeeded.
+  */
+  
   bool in_recognition_mode = !list_langs && !print_parameters && !print_fonts_table;
 
   if (lang == nullptr && in_recognition_mode) {
