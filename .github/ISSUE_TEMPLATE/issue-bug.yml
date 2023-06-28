@@ -46,7 +46,7 @@ body:
         - macOS 11 Big Sur
         - Ubuntu 22.04 Jammy
         - Ubuntu 20.04 Focal
-        - Debian Testing Bookworm
+        - Debian 12 Bookworm
         - Debian 11 Bullseye
         - RHEL 9
         - RHEL 8
