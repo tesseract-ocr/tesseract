@@ -174,7 +174,7 @@ int32_t OL_BUCKETS::outline_complexity(C_OUTLINE *outline, // parent outline
         if (child_count + grandchild_count > max_count) { // too complex
           if (edges_debug) {
             tprintf(
-                "Disgard outline on child_count=%d + grandchild_count=%d "
+                "Discard outline on child_count=%d + grandchild_count=%d "
                 "> max_count=%d\n",
                 child_count, grandchild_count, max_count);
           }

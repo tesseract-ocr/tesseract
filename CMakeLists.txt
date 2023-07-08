@@ -324,7 +324,7 @@ if(OPENMP_BUILD)
   if(NOT OpenMP_FOUND
      AND CLANG
      AND WIN32)
-    # workaroung because find_package(OpenMP) does not work for clang-cl
+    # workaround because find_package(OpenMP) does not work for clang-cl
     # https://gitlab.kitware.com/cmake/cmake/issues/19404
     check_include_file_cxx(omp.h HAVE_OMP_H_INCLUDE)
     find_library(OpenMP_LIBRARY NAMES omp libomp.lib)
