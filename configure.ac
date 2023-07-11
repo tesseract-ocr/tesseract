@@ -7,7 +7,7 @@
 # ----------------------------------------
 AC_PREREQ([2.69])
 AC_INIT([tesseract],
-        [m4_esyscmd_s([git describe --abbrev=4 2>/dev/null || cat VERSION])],
+        [m4_esyscmd_s([test -d .git && git describe --abbrev=4 2>/dev/null || cat VERSION])],
         [https://github.com/tesseract-ocr/tesseract/issues],,
         [https://github.com/tesseract-ocr/tesseract/])
 
