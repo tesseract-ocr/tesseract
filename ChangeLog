@@ -1,3 +1,20 @@
+2023-07-11 - V5.3.2
+* Updates for snap package building.
+* Support for Sgaw and W Pwo Karen languages in the Myanmar validator (#4065).
+* Improve format of logging from lstmtraining.
+* Use less digits in filenames of checkpoints written by lstmtraining.
+* Replace deprecated sprintf.
+* Remove unused code in function fix_rep_char.
+* Avoid 32 bit overflow in multiplication (fixes 3 CodeQL CI alerts).
+* Avoid conversions from std::string to char* to std::string.
+* Abort with error message if OSD is requested with LSTM-only model.
+* cmake: allow to disable tiff (-DDISABLE_TIFF=ON).
+* cmake: provide info about disabled LibArchive and CURL.
+* cmake: check if leptonica was build with tiff support.
+* Remove old broken GitHub action vcpkg-4.1.1 (fixes issue #4078).
+* Create config.yml.
+* Fix typos.
+
 2023-04-01 - V5.3.1
  * Bug fixes for some special scenarios:
    * Fix issue #4010.
