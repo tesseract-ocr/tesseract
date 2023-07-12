@@ -42,6 +42,8 @@ DENORM::DENORM() {
 
 DENORM::DENORM(const DENORM &src) {
   rotation_ = nullptr;
+  x_map_ = nullptr;
+  y_map_ = nullptr;
   *this = src;
 }
 

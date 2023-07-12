@@ -87,7 +87,7 @@ public:
 
   /// Add a callback to be called to delete the elements when the table took
   /// their ownership.
-  void set_clear_callback(std::function<void(T)> cb) {
+  void set_clear_callback(const std::function<void(T)> &cb) {
     table_.set_clear_callback(cb);
   }
 
@@ -109,10 +109,10 @@ public:
   /// The Callback given must be permanent since they will be called more than
   /// once. The given callback will be deleted at the end.
   /// Returns false on read/write error.
-  bool write(FILE *f, std::function<bool(FILE *, const T &)> cb) const {
+  bool write(FILE *f, const std::function<bool(FILE *, const T &)> &cb) const {
     return table_.write(f, cb);
   }
-  bool read(tesseract::TFile *f, std::function<bool(tesseract::TFile *, T *)> cb) {
+  bool read(tesseract::TFile *f, const std::function<bool(tesseract::TFile *, T *)> &cb) {
     return table_.read(f, cb);
   }
 
