@@ -30,7 +30,7 @@ function(check_leptonica_tiff_support)
   set(CMAKE_TRY_COMPILE_CONFIGURATION ${CMAKE_BUILD_TYPE})
   try_run(
     LEPT_TIFF_RESULT
-    LEPT_TIFF_COMPILE 
+    LEPT_TIFF_COMPILE
     SOURCE_FROM_CONTENT tiff_test.cpp "${TIFF_TEST}"
     CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${Leptonica_INCLUDE_DIRS}"
     LINK_LIBRARIES ${Leptonica_LIBRARIES}

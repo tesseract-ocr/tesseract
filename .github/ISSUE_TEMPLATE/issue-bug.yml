@@ -16,7 +16,7 @@ body:
         * Please provide the input image.
         * Also provide output files (txt and/or tsv, hocr, pdf). You can make a zip archive that will contain these files, so GitHub will let you upload them.
         * Don't attach a screenshot of the command line and output. Instead, copy the text and paste it in your bug report.
-        
+
         Windows versions 7, 8, 8.1 are not supported.
   - type: textarea
     attributes:
