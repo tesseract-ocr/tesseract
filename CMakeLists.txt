@@ -408,10 +408,10 @@ else()
   include_directories(${Leptonica_INCLUDE_DIRS})
 
   check_leptonica_tiff_support()
-  if (NOT LEPT_TIFF_RESULT EQUAL 0)
+  if ((NOT LEPT_TIFF_RESULT EQUAL 0) AND LEPT_TIFF_COMPILE_SUCCESS)
     message(NOTICE "Leptonica was build without TIFF support! Disabling TIFF support...")
     set(DISABLE_TIFF ON)
-  else()
+  elseif(NOT ${CMAKE_VERSION} VERSION_LESS "3.25")
     message(STATUS "Leptonica was build with TIFF support.")
   endif()
 
