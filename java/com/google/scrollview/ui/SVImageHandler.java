@@ -27,7 +27,7 @@ import javax.xml.bind.DatatypeConverter;
  * @author wanke@google.com
  */
 public class SVImageHandler {
-  /* All methods are static, so we forbid to construct SVImageHandler objects */
+  /* All methods are static, so we forbid to construct SVImageHandler objects. */
   private SVImageHandler() {
   }
 
