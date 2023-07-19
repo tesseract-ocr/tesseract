@@ -390,8 +390,7 @@ public class ScrollView {
               "UTF8"));
     } catch (IOException e) {
       // Something went wrong and we were unable to set up a connection. This is
-      // pretty
-      // much a fatal error.
+      // pretty much a fatal error.
       // Note: The server does not get restarted automatically if this happens.
       e.printStackTrace();
       System.exit(1);
