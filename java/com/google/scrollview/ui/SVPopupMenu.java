@@ -56,7 +56,7 @@ public class SVPopupMenu implements ActionListener {
    *
    * @param parent The menu we add our new entry to (should have been defined
    *        before). If the parent is "", we will add the entry to the root
-   *        (top-level)
+   *        (top-level).
    * @param name The caption of the new entry.
    * @param id The Id of the new entry. If it is -1, the entry will be treated
    *        as a menu.
@@ -64,14 +64,14 @@ public class SVPopupMenu implements ActionListener {
   public void add(String parent, String name, int id) {
     // A duplicate entry - we just throw it away, since its already in.
     if (items.get(name) != null) { return; }
-    // A new submenu at the top-level
+    // A new submenu at the top-level.
     if (parent.equals("")) {
       JMenu jli = new JMenu(name);
       SVAbstractMenuItem mli = new SVSubMenuItem(name, jli);
       items.put(name, mli);
       root.add(jli);
     }
-    // A new sub-submenu
+    // A new sub-submenu.
     else if (id == -1) {
       SVAbstractMenuItem jmi = items.get(parent);
       JMenu jli = new JMenu(name);
@@ -101,7 +101,7 @@ public class SVPopupMenu implements ActionListener {
    *
    * @param parent The menu we add our new entry to (should have been defined
    *        before). If the parent is "", we will add the entry to the root
-   *        (top-level)
+   *        (top-level).
    * @param name The caption of the new entry.
    * @param id The Id of the new entry. If it is -1, the entry will be treated
    *        as a menu.
