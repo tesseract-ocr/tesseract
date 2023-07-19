@@ -56,7 +56,7 @@ public class ScrollView {
   /** Prints all received messages to the console if true. */
   static boolean debugViewNetworkTraffic = false;
 
-  /** Add a new message to the outgoing queue */
+  /** Add a new message to the outgoing queue. */
   public static void addMessage(SVEvent e) {
     if (debugViewNetworkTraffic) {
       System.out.println("(S->c) " + e.toString());
