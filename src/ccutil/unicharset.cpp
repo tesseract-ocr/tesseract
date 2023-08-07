@@ -1000,7 +1000,7 @@ bool UNICHARSET::major_right_to_left() const {
 // Set a whitelist and/or blacklist of characters to recognize.
 // An empty or nullptr whitelist enables everything (minus any blacklist).
 // An empty or nullptr blacklist disables nothing.
-// An empty or nullptr blacklist has no effect.
+// An empty or nullptr unblacklist has no effect.
 void UNICHARSET::set_black_and_whitelist(const char *blacklist,
                                          const char *whitelist,
                                          const char *unblacklist) {
