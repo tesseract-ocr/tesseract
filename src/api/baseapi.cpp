@@ -2374,7 +2374,7 @@ int TessBaseAPI::NumDawgs() const {
   return tesseract_ == nullptr ? 0 : tesseract_->getDict().NumDawgs();
 }
 
-/** Escape a char string - remove <>&"' with HTML codes. */
+/** Escape a char string - replace <>&"' with HTML codes. */
 std::string HOcrEscape(const char *text) {
   std::string ret;
   const char *ptr;
