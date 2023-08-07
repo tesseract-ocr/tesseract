@@ -250,9 +250,14 @@ static void ConnCompAndRectangularize(Image pix, DebugPixa *pixa_debug, Boxa **b
 // If not nullptr, it must be PixDestroyed by the caller.
 // If textord_tabfind_show_images, debug images are appended to pixa_debug.
 Image ImageFind::FindImages(Image pix, DebugPixa *pixa_debug) {
+  auto width = pixGetWidth(pix);
+  auto height = pixGetHeight(pix);
   // Not worth looking at small images.
-  if (pixGetWidth(pix) < kMinImageFindSize || pixGetHeight(pix) < kMinImageFindSize) {
-    return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
+  // Leptonica will print an error message and return nullptr if we call
+  // pixGenHalftoneMask(pixr, nullptr, ...) with width or height < 100
+  // for the reduced image, so we want to bypass that, too.
+  if (width / 2 < kMinImageFindSize || height / 2 < kMinImageFindSize) {
+    return pixCreate(width, height, 1);
   }
 
   // Reduce by factor 2.
@@ -262,15 +267,6 @@ Image ImageFind::FindImages(Image pix, DebugPixa *pixa_debug) {
   }
 
   // Get the halftone mask directly from Leptonica.
-  //
-  // Leptonica will print an error message and return nullptr if we call
-  // pixGenHalftoneMask(pixr, nullptr, ...) with too small image, so we
-  // want to bypass that.
-  if (pixGetWidth(pixr) < kMinImageFindSize || pixGetHeight(pixr) < kMinImageFindSize) {
-    pixr.destroy();
-    return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
-  }
-  // Get the halftone mask.
   l_int32 ht_found = 0;
   Pixa *pixadb = (textord_tabfind_show_images && pixa_debug != nullptr) ? pixaCreate(0) : nullptr;
   Image pixht2 = pixGenerateHalftoneMask(pixr, nullptr, &ht_found, pixadb);
@@ -287,7 +283,7 @@ Image ImageFind::FindImages(Image pix, DebugPixa *pixa_debug) {
     pixht2.destroy();
   }
   if (pixht2 == nullptr) {
-    return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
+    return pixCreate(width, height, 1);
   }
 
   // Expand back up again.
@@ -334,7 +330,7 @@ Image ImageFind::FindImages(Image pix, DebugPixa *pixa_debug) {
     pixa_debug->AddPix(pixht, "FinalMask");
   }
   // Make the result image the same size as the input.
-  Image result = pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
+  Image result = pixCreate(width, height, 1);
   result |= pixht;
   pixht.destroy();
   return result;
