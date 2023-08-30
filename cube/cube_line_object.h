@@ -27,6 +27,10 @@
 #include "cube_reco_context.h"
 #include "cube_object.h"
 #include "allheaders.h"
+#if (LIBLEPT_MAJOR_VERSION > 1) || (LIBLEPT_MINOR_VERSION > 82)
+    // The public API of Leptonica 1.83.0 hides details of some data
+    #include <pix_internal.h>
+#endif
 
 namespace tesseract {
 class CubeLineObject {

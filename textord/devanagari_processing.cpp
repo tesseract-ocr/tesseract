@@ -26,6 +26,10 @@
 #include "allheaders.h"
 #include "tordmain.h"
 #include "statistc.h"
+#if (LIBLEPT_MAJOR_VERSION > 1) || (LIBLEPT_MINOR_VERSION > 82)
+    // The public API of Leptonica 1.83.0 hides details of some data
+    #include <pix_internal.h>
+#endif
 
 // Flags controlling the debugging information for shiro-rekha splitting
 // strategies.

@@ -30,6 +30,10 @@
 #include "const.h"
 #include "char_set.h"
 #include "char_samp.h"
+#if (LIBLEPT_MAJOR_VERSION > 1) || (LIBLEPT_MINOR_VERSION > 82)
+    // The public API of Leptonica 1.83.0 hides details of some data
+    #include <pix_internal.h>
+#endif
 
 namespace tesseract {
 class CubeUtils {
