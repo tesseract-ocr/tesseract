@@ -103,7 +103,7 @@ static STRING_VAR(document_title, "", "Title of output document (used for hOCR a
 static INT_VAR(curl_timeout, 0, "Timeout for curl in seconds");
 #endif
 
-/** Minimum sensible image size to be worth running tesseract. */
+/** Minimum sensible image size to be worth running Tesseract. */
 const int kMinRectSize = 10;
 /** Character returned when Tesseract couldn't recognize as anything. */
 const char kTesseractReject = '~';
@@ -613,7 +613,7 @@ void TessBaseAPI::SetImage(Pix *pix) {
 
 /**
  * Restrict recognition to a sub-rectangle of the image. Call after SetImage.
- * Each SetRectangle clears the recogntion results so multiple rectangles
+ * Each SetRectangle clears the recognition results so multiple rectangles
  * can be recognized with the same image.
  */
 void TessBaseAPI::SetRectangle(int left, int top, int width, int height) {
