@@ -13,11 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: ubuntu-22.04-clang-14-autotools, os: ubuntu-22.04, cxx: clang++-14 }
-          - { name: ubuntu-22.04-clang-13-autotools, os: ubuntu-22.04, cxx: clang++-13 } #installed
-          - { name: ubuntu-22.04-clang-12-autotools, os: ubuntu-22.04, cxx: clang++-12 } #installed
-          - { name: ubuntu-20.04-clang-11-autotools, os: ubuntu-20.04, cxx: clang++-11 } #installed
-          - { name: ubuntu-20.04-clang-10-autotools, os: ubuntu-20.04, cxx: clang++-10 } #installed
+          - { name: ubuntu-22.04-clang-15-autotools, os: ubuntu-22.04, cxx: clang++-15 }
+          - { name: ubuntu-22.04-clang-14-autotools, os: ubuntu-22.04, cxx: clang++-14 } #installed
 
           - { name: ubuntu-22.04-gcc-12-autotools, os: ubuntu-22.04, cxx: g++-12 } #installed
           - { name: ubuntu-22.04-gcc-11-autotools, os: ubuntu-22.04, cxx: g++-11 } #installed
