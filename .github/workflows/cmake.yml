@@ -19,13 +19,9 @@ jobs:
           - { name: macos-11-clang-13-cmake, os: macos-11, cxx: clang++ } # default
 
           - { name: macos-11-gcc-12-cmake, os: macos-11, cxx: g++-12 } #installed
-          - { name: macos-11-gcc-11-cmake, os: macos-11, cxx: g++-11 } #installed
 
+          - { name: ubuntu-22.04-clang-15-cmake, os: ubuntu-22.04, cxx: clang++-15 } #installed
           - { name: ubuntu-22.04-clang-14-cmake, os: ubuntu-22.04, cxx: clang++-14 } #installed
-          - { name: ubuntu-22.04-clang-13-cmake, os: ubuntu-22.04, cxx: clang++-13 } #installed
-          - { name: ubuntu-20.04-clang-12-cmake, os: ubuntu-20.04, cxx: clang++-12 } #installed
-          - { name: ubuntu-20.04-clang-11-cmake, os: ubuntu-20.04, cxx: clang++-11 } #installed
-          - { name: ubuntu-20.04-clang-10-cmake, os: ubuntu-20.04, cxx: clang++-10 } #installed
 
           - { name: ubuntu-22.04-gcc-12-cmake, os: ubuntu-22.04, cxx: g++-12 } #installed
           - { name: ubuntu-22.04-gcc-11-cmake, os: ubuntu-22.04, cxx: g++-11 } #installed
