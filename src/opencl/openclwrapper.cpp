@@ -191,7 +191,6 @@ static ds_status initDSProfile(ds_profile **p, const char *version) {
 
   profile->numDevices = numDevices + 1; // +1 to numDevices to include the native CPU
   profile->devices.resize(profile->numDevices);
-  memset(profile->devices.data(), 0, profile->numDevices * sizeof(ds_device));
 
   next = 0;
   for (i = 0; i < numPlatforms; i++) {
