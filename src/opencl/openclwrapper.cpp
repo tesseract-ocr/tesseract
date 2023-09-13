@@ -174,8 +174,8 @@ static ds_status initDSProfile(ds_profile **p, const char *version) {
   clGetPlatformIDs(0, nullptr, &numPlatforms);
 
   if (numPlatforms > 0) {
-    platforms.reserve(numPlatforms);
-    clGetPlatformIDs(numPlatforms, &platforms[0], nullptr);
+    platforms.resize(numPlatforms);
+    clGetPlatformIDs(numPlatforms, platforms.data(), nullptr);
   }
 
   numDevices = 0;
@@ -186,12 +186,11 @@ static ds_status initDSProfile(ds_profile **p, const char *version) {
   }
 
   if (numDevices > 0) {
-    devices.reserve(numDevices);
+    devices.resize(numDevices);
   }
 
   profile->numDevices = numDevices + 1; // +1 to numDevices to include the native CPU
-  profile->devices.reserve(profile->numDevices);
-  memset(&profile->devices[0], 0, profile->numDevices * sizeof(ds_device));
+  profile->devices.resize(profile->numDevices);
 
   next = 0;
   for (i = 0; i < numPlatforms; i++) {
