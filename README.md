@@ -67,6 +67,23 @@ or [build it from source](https://tesseract-ocr.github.io/tessdoc/Compiling.html
 
 A C++ compiler with good C++17 support is required for building Tesseract from source.
 
+## Windows Installation clarification
+
+For Windows user, once you download the Tesseract OCR 4, follow the pop-up instructions, 
+choose which components of the software you would like to install (if storage is limited).
+Make sure to remember where you saved the file, you will need it to add your environment variables.
+You will notice that if you try to use tesseract right after the installation it will not be 
+available on the command line (at least not yet). To remedy this, we need to add it the path where 
+the application was saved by taking the following steps:
+*	Open system environment properties from your settings menu and select environment variable.
+*	Open file explorer and go the Tesseract folder (should be in C drive by default)
+*	Once you find the executable (tesserac.exe) fill, copy the path to it.
+*	Get back to the environment variable window, click path then edit then new path variable and past 
+the path, and save.
+*	After this, you are good to open a new command line, to make sure it is there, type tesseract,
+ this should open the help page with all the command you can use.
+
+
 ## Running Tesseract
 
 Basic **[command line usage](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html)**:
@@ -76,6 +93,15 @@ Basic **[command line usage](https://tesseract-ocr.github.io/tessdoc/Command-Lin
 For more information about the various command line options use `tesseract --help` or `man tesseract`.
 
 Examples can be found in the [documentation](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html#simplest-invocation-to-ocr-an-image).
+
+## Tips and Tricks
+
+1-	For non-roman alphabet languages (languages with alphabet other abc…) it is best to have the 
+image with the word oriented in way that make the words horizontal. This help prevent out errors
+sometime. 
+2-	If running an image with just one line and it is not recognized, try running again, it should
+output the right words.
+3- Do not run an image with no words on it as it will sometime stall the system.
 
 ## For developers
 
