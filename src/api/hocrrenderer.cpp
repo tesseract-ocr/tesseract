@@ -500,8 +500,8 @@ TessHOcrRenderer::TessHOcrRenderer(const char *outputbase, bool font_info)
 }
 
 bool TessHOcrRenderer::BeginDocumentHandler() {
-  SetContentType("application/xhtml+xml");
-  return true;
+     SetContentType("application/xhtml+xml"); 
+  // Remove the unnecessary return true; statement
   AppendString(
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
@@ -527,6 +527,7 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
 
   return true;
 }
+
 
 bool TessHOcrRenderer::EndDocumentHandler() {
   AppendString(" </body>\n</html>\n");
