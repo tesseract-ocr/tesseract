@@ -1,3 +1,12 @@
+2023-10-05 - V5.3.3
+* Small code fixes and improvements to fix Coverity Scan issues.
+* Disable -mfpu=neon for aarch64.
+* Fix build without git clone in cloned directory (required for FreeBSD).
+* Other build fixes for autotools, cmake and sw.
+* Fix regression in layout detection which was introduced in release 5.0.0.
+* Fix regression which prevented loading of submodels, introduced in release 5.0.0-rc2.
+* Other small improvements for code and documentation.
+
 2023-07-11 - V5.3.2
 * Updates for snap package building.
 * Support for Sgaw and W Pwo Karen languages in the Myanmar validator (#4065).
@@ -264,7 +273,7 @@
   * Many other fixes, including the way in which the chopper finds chops and messes with the outline while it does so.
 
 2010-11-29 - V3.01
-  * Removed old/dead serialise/deserialze methods on *LISTIZED classes.
+  * Removed old/dead serialise/deserialize methods on *LISTIZED classes.
   * Total rewrite of DENORM to better encapsulate operation and make
     for potential to extract features from images.
   * Thread-safety! Moved all critical global and static variables to members of the appropriate class. Tesseract is now thread-safe (multiple instances can be used in parallel in multiple threads.) with the minor exception that some control parameters are still global and affect all threads.
