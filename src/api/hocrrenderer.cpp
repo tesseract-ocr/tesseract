@@ -525,7 +525,7 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
         " </head>\n"
         " <body>\n");
 
-    return true;
+  return true;
 }
 
 bool TessHOcrRenderer::EndDocumentHandler() {
