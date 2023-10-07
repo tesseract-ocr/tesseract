@@ -45,8 +45,8 @@ jobs:
       - name: Build and Install libpng
         shell: cmd
         run: |
-             curl -sSL -o lpng1639.zip https://download.sourceforge.net/libpng/lpng1639.zip
-             unzip.exe  -qq lpng1639.zip
+             curl -sSL -o lpng1639.zip https://download.sourceforge.net/libpng/lpng1640.zip
+             unzip.exe  -qq lpng1640.zip
              cd lpng1639
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DPNG_TESTS=OFF -DPNG_SHARED=OFF
              cmake --build build --config Release --target install
@@ -73,7 +73,7 @@ jobs:
       - name: Build and Install libtiff
         shell: cmd
         run: |
-             git clone -c advice.detachedHead=false -b "v4.0.10" --depth 1 https://gitlab.com/libtiff/libtiff.git
+             git clone -c advice.detachedHead=false -b "v4.6.0" --depth 1 https://gitlab.com/libtiff/libtiff.git
              cd libtiff
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -Dtiff-tools=OFF -Dtiff-tests=OFF -Dtiff-contrib=OFF -Dtiff-docs=OFF
              cmake --build build --config Release --target install
