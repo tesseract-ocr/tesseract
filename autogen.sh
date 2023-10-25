@@ -46,6 +46,14 @@ if [ "$1" = "clean" ]; then
     find . -iname "Makefile.in" -type f -exec rm '{}' +
 fi
 
+bail_out()
+{
+    echo
+    echo "  Something went wrong, bailing out!"
+    echo
+    exit 1
+}
+
 # Prevent any errors that might result from failing to properly invoke
 # `libtoolize` or `glibtoolize,` whichever is present on your system,
 # from occurring by testing for its existence and capturing the absolute path to
@@ -58,14 +66,6 @@ else
   echo "Unable to find a valid copy of libtoolize or glibtoolize in your PATH!"
   bail_out
 fi
-
-bail_out()
-{
-    echo
-    echo "  Something went wrong, bailing out!"
-    echo
-    exit 1
-}
 
 # --- Step 1: Generate aclocal.m4 from:
 #             . acinclude.m4
