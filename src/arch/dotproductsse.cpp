@@ -141,6 +141,6 @@ double DotProductSSE(const double *u, const double *v, int n) {
 }
 #endif
 
-} // namespace tesseract.
+}
 
 #endif
