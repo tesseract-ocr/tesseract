@@ -15,8 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: ubuntu-20.04-gcc-unittest, os: ubuntu-20.04, cxx: g++ }
-          - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++ }
+          - { name: ubuntu-20.04-gcc-unittest, os: ubuntu-20.04, cxx: g++, cxxflags: '-g -O2 -fsanitize=address,undefined' }
+          - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++, cxxflags: '-g -O2 -fsanitize=address,undefined -stdlib=libc++' }
     steps:
     - uses: actions/checkout@v3
       with:
@@ -43,7 +43,7 @@ jobs:
     - name: Configure (Linux)
       run: |
            ./configure '--disable-shared' 'CXX=${{ matrix.config.cxx }}' \
-               'CXXFLAGS=-g -O2 -fsanitize=address,undefined'
+               'CXXFLAGS=${{ matrix.config.cxxflags }}'
 
     - name: Make and Install Tesseract
       run: |
