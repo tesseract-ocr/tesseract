@@ -32,7 +32,7 @@ jobs:
             container: fedora:latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     - uses: egorpugin/sw-action@master
