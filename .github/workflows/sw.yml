@@ -32,16 +32,16 @@ jobs:
             container: fedora:latest
 
     steps:
+    - name: packages
+      if: matrix.os == 'ubuntu-22.04'
+      run: sudo dnf install cmake
+      
     - uses: actions/checkout@v4
     - uses: actions/checkout@v4
       with:
         repository: tesseract-ocr/test
         path: tesseract/test    
     - uses: egorpugin/sw-action@master
-
-    - name: packages
-      if: matrix.os == 'ubuntu-22.04'
-      run: sudo dnf install cmake
       
     - name: build
       if: github.event_name != 'pull_request' && (matrix.os == 'windows-2022')
