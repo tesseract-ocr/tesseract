@@ -33,8 +33,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       with:
-        submodules: recursive
+        repository: https://github.com/tesseract-ocr/tesseract
+        path: tesseract/test    
     - uses: egorpugin/sw-action@master
 
     - name: build
