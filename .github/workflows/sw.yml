@@ -39,6 +39,10 @@ jobs:
         path: tesseract/test    
     - uses: egorpugin/sw-action@master
 
+    - name: packages
+      if: matrix.os == 'ubuntu-22.04'
+      run: sudo dnf install cmake
+      
     - name: build
       if: github.event_name != 'pull_request' && (matrix.os == 'windows-2022')
       run: ./sw -static -shared -platform x86,x64 -config d,r build
