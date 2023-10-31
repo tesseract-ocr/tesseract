@@ -34,7 +34,7 @@ jobs:
     steps:
     - name: packages
       if: matrix.os == 'ubuntu-22.04'
-      run: sudo dnf -y install cmake gcc lld
+      run: sudo dnf -y install cmake gcc lld which
       
     - uses: actions/checkout@v4
     - uses: actions/checkout@v4
