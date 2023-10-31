@@ -34,13 +34,11 @@ jobs:
     steps:
     - name: packages
       if: matrix.os == 'ubuntu-22.04'
-      run: sudo dnf -y install cmake gcc lld which
+      run: sudo dnf -y install cmake gcc lld which flex bison clang clang-tools-extra git
       
     - uses: actions/checkout@v4
-    - uses: actions/checkout@v4
       with:
-        repository: tesseract-ocr/test
-        path: tesseract/test    
+        submodules: recursive
     - uses: egorpugin/sw-action@master
       
     - name: build
