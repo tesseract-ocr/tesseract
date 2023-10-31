@@ -22,10 +22,14 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-22.04, macos-12]
+        os: [windows-2022, macos-13]
+        include:
+          - os: ubuntu-22.04
+            container: fedora:latest
 
     steps:
     - uses: actions/checkout@v3
