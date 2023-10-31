@@ -35,7 +35,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/checkout@v4
       with:
-        repository: https://github.com/tesseract-ocr/tesseract
+        repository: tesseract-ocr/test
         path: tesseract/test    
     - uses: egorpugin/sw-action@master
 
