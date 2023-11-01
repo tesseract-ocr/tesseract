@@ -35,12 +35,12 @@ jobs:
     - name: packages
       if: matrix.os == 'ubuntu-22.04'
       run: sudo dnf -y install cmake gcc lld which flex bison clang clang-tools-extra git
-      
+
     - uses: actions/checkout@v4
       with:
         submodules: recursive
     - uses: egorpugin/sw-action@master
-      
+
     - name: build
       if: github.event_name != 'pull_request' && (matrix.os == 'windows-2022')
       run: ./sw -static -shared -platform x86,x64 -config d,r build
