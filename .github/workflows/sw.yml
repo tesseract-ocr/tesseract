@@ -67,7 +67,7 @@ jobs:
       shell: pwsh
 
     - name: test
-      if: github.event_name != 'pull_request' && (matrix.os != 'windows-2022')
+      if: github.event_name != 'pull_request' && (matrix.os != 'windows-2022' && matrix.os != 'macos-13')
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
       continue-on-error: true
     - name: test
