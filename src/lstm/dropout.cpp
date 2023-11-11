@@ -96,7 +96,10 @@ void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray 
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
                         NetworkIO *back_deltas) {
-  output->Resize(input, no_);
+  tprintf("%s: missing implementation\n", __FUNCTION__);
+
+#if 0
+  back_deltas->Resize(input, no_);
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<float> dist(0.0f, 1.0f);
@@ -110,6 +113,7 @@ bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *
       output->push_back(0.0f);
     }
   }
+#endif
 
 #if 0
   back_deltas->Resize(fwd_deltas, ni_);

@@ -25,12 +25,12 @@ namespace tesseract {
 class Dropout : public Network {
 public:
   TESS_API
-  Dropout(const std::string &name, int ni, float probability, uint8_t dimensions);
+  Dropout(const std::string &name, int ni, float dropout_rate, uint8_t dimensions);
   ~Dropout() override = default;
 
   // Accessors.
   std::string spec() const override {
-    return "Do";
+    return "Do" + std::to_string(dropout_rate_) + "," + std::to_string(dimensions_);
   }
 
   // Writes to the given file. Returns false in case of error.
@@ -53,7 +53,7 @@ private:
     tprintf("Must override Network::DebugWeights for type %d\n", type_);
   }
 
-  float probability_;
+  float dropout_rate_;
   uint8_t dimensions_;
 };
 
