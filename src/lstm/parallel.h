@@ -27,7 +27,7 @@ class Parallel : public Plumbing {
 public:
   // ni_ and no_ will be set by AddToStack.
   TESS_API
-  Parallel(const char *name, NetworkType type);
+  Parallel(const std::string &name, NetworkType type);
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).

@@ -29,7 +29,7 @@ using tensorflow::TensorShape;
 
 namespace tesseract {
 
-TFNetwork::TFNetwork(const char *name) : Network(NT_TENSORFLOW, name, 0, 0) {}
+TFNetwork::TFNetwork(const std::string &name) : Network(NT_TENSORFLOW, name, 0, 0) {}
 
 int TFNetwork::InitFromProtoStr(const std::string &proto_str) {
   if (!model_proto_.ParseFromString(proto_str))

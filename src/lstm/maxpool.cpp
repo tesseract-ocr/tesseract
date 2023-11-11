@@ -19,7 +19,7 @@
 
 namespace tesseract {
 
-Maxpool::Maxpool(const char *name, int ni, int x_scale, int y_scale)
+Maxpool::Maxpool(const std::string &name, int ni, int x_scale, int y_scale)
     : Reconfig(name, ni, x_scale, y_scale) {
   type_ = NT_MAXPOOL;
   no_ = ni;

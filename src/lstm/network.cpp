@@ -264,7 +264,7 @@ Network *Network::CreateFromFile(TFile *fp) {
       network = new LSTM(name, ni, no, no, false, type);
       break;
     case NT_MAXPOOL:
-      network = new Maxpool(name.c_str(), ni, 0, 0);
+      network = new Maxpool(name, ni, 0, 0);
       break;
     // All variants of Parallel.
     case NT_PARALLEL:
@@ -272,10 +272,10 @@ Network *Network::CreateFromFile(TFile *fp) {
     case NT_PAR_RL_LSTM:
     case NT_PAR_UD_LSTM:
     case NT_PAR_2D_LSTM:
-      network = new Parallel(name.c_str(), type);
+      network = new Parallel(name, type);
       break;
     case NT_RECONFIG:
-      network = new Reconfig(name.c_str(), ni, 0, 0);
+      network = new Reconfig(name, ni, 0, 0);
       break;
     // All variants of reversed.
     case NT_XREVERSED:
@@ -284,11 +284,11 @@ Network *Network::CreateFromFile(TFile *fp) {
       network = new Reversed(name, type);
       break;
     case NT_SERIES:
-      network = new Series(name.c_str());
+      network = new Series(name);
       break;
     case NT_TENSORFLOW:
 #ifdef INCLUDE_TENSORFLOW
-      network = new TFNetwork(name.c_str());
+      network = new TFNetwork(name);
 #else
       tprintf("TensorFlow not compiled in! -DINCLUDE_TENSORFLOW\n");
 #endif
@@ -302,7 +302,7 @@ Network *Network::CreateFromFile(TFile *fp) {
     case NT_LOGISTIC:
     case NT_POSCLIP:
     case NT_SYMCLIP:
-      network = new FullyConnected(name.c_str(), ni, no, type);
+      network = new FullyConnected(name, ni, no, type);
       break;
     default:
       break;

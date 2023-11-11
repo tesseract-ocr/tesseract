@@ -2,7 +2,6 @@
 // File:        maxpool.h
 // Description: Standard Max-Pooling layer.
 // Author:      Ray Smith
-// Created:     Tue Mar 18 16:28:18 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +28,7 @@ namespace tesseract {
 class Maxpool : public Reconfig {
 public:
   TESS_API
-  Maxpool(const char *name, int ni, int x_scale, int y_scale);
+  Maxpool(const std::string &name, int ni, int x_scale, int y_scale);
   ~Maxpool() override = default;
 
   // Accessors.
