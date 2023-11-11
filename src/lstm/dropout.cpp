@@ -18,28 +18,32 @@
 #  include "config_auto.h"
 #endif
 
-#include "dropout.h"
+#include <random>
 
+#include "dropout.h"
 #include "networkscratch.h"
 #include "serialis.h"
 
 namespace tesseract {
 
-Dropout::Dropout(const std::string &name, int ni, float probability, uint8_t dimensions)
+Dropout::Dropout(const std::string &name, int ni, float dropout_rate, uint8_t dimensions)
     : Network(NT_DROPOUT, name, ni, 0),
-      probability_(probability),
+      dropout_rate_(dropout_rate),
       dimensions_(dimensions)
 {
+  if (dropout_rate_ < 0 || dropout_rate_ >= 1) {
+    throw std::invalid_argument("Invalid dropout rate. Must be in [0, 1).");
+  }
 }
 
 // Writes to the given file. Returns false in case of error.
 bool Dropout::Serialize(TFile *fp) const {
-  return Network::Serialize(fp) && fp->Serialize(&probability_) && fp->Serialize(&dimensions_);
+  return Network::Serialize(fp) && fp->Serialize(&dropout_rate_) && fp->Serialize(&dimensions_);
 }
 
 // Reads from the given file. Returns false in case of error.
 bool Dropout::DeSerialize(TFile *fp) {
-  if (!fp->DeSerialize(&probability_)) {
+  if (!fp->DeSerialize(&dropout_rate_)) {
     return false;
   }
   if (!fp->DeSerialize(&dimensions_)) {
@@ -53,8 +57,8 @@ bool Dropout::DeSerialize(TFile *fp) {
 // See NetworkCpp for a detailed discussion of the arguments.
 void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
                        NetworkScratch *scratch, NetworkIO *output) {
+  *output = input;
 #if 0
-  output->Resize(input, no_);
   int y_scale = 2 * half_y_ + 1;
   StrideMap::Index dest_index(output->stride_map());
   do {
@@ -92,6 +96,21 @@ void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray 
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
                         NetworkIO *back_deltas) {
+  output->Resize(input, no_);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+
+  for (unsigned i = 0; i < ni_; i++) {
+    if (dist(gen) >= dropout_rate_) {
+      // Keep the neuron
+      output->push_back(input[i]);
+    } else {
+      // Drop the neuron
+      output->push_back(0.0f);
+    }
+  }
+
 #if 0
   back_deltas->Resize(fwd_deltas, ni_);
   NetworkScratch::IO delta_sum;
