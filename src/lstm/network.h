@@ -140,9 +140,7 @@ public:
   const std::string &name() const {
     return name_;
   }
-  virtual std::string spec() const {
-    return "?";
-  }
+  virtual std::string spec() const = 0;
   bool TestFlag(NetworkFlags flag) const {
     return (network_flags_ & flag) != 0;
   }
