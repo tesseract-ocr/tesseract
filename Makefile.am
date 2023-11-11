@@ -519,6 +519,7 @@ libtesseract_lstm_la_CPPFLAGS += -DTESSDATA_PREFIX='"@datadir@"'
 endif
 
 noinst_HEADERS += src/lstm/convolve.h
+noinst_HEADERS += src/lstm/dropout.h
 noinst_HEADERS += src/lstm/fullyconnected.h
 noinst_HEADERS += src/lstm/functions.h
 noinst_HEADERS += src/lstm/input.h
@@ -541,6 +542,7 @@ noinst_HEADERS += src/lstm/weightmatrix.h
 noinst_LTLIBRARIES += libtesseract_lstm.la
 
 libtesseract_lstm_la_SOURCES = src/lstm/convolve.cpp
+libtesseract_lstm_la_SOURCES += src/lstm/dropout.cpp
 libtesseract_lstm_la_SOURCES += src/lstm/fullyconnected.cpp
 libtesseract_lstm_la_SOURCES += src/lstm/functions.cpp
 libtesseract_lstm_la_SOURCES += src/lstm/input.cpp

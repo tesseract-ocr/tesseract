@@ -28,6 +28,7 @@
 // factory deserializing method: CreateFromFile.
 #include <allheaders.h>
 #include "convolve.h"
+#include "dropout.h"
 #include "fullyconnected.h"
 #include "input.h"
 #include "lstm.h"
@@ -59,7 +60,7 @@ const int kYWinFrameSize = 80;
 // layer types in NetworkType without invalidating existing network files.
 static char const *const kTypeNames[NT_COUNT] = {
     "Invalid",     "Input",
-    "Convolve",    "Maxpool",
+    "Convolve", "Dropout", "Maxpool",
     "Parallel",    "Replicated",
     "ParBidiLSTM", "DepParUDLSTM",
     "Par2dLSTM",   "Series",
@@ -250,6 +251,9 @@ Network *Network::CreateFromFile(TFile *fp) {
   switch (type) {
     case NT_CONVOLVE:
       network = new Convolve(name, ni, 0, 0);
+      break;
+    case NT_DROPOUT:
+      network = new Dropout(name, ni, 0.5f, 1);
       break;
     case NT_INPUT:
       network = new Input(name, ni, no);
