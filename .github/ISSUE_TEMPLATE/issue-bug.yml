@@ -41,6 +41,7 @@ body:
       options:
         - Windows 11
         - Windows 10
+        - macOS 14 Sonoma
         - macOS 13 Ventura
         - macOS 12 Monterey
         - macOS 11 Big Sur
