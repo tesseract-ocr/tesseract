@@ -1,7 +1,7 @@
 # Tesseract OCR
 
 [![Build status](https://ci.appveyor.com/api/projects/status/miah0ikfsf0j3819/branch/master?svg=true)](https://ci.appveyor.com/project/zdenop/tesseract/)
-[![Build status](https://github.com/tesseract-ocr/tesseract/workflows/sw/badge.svg)](https://github.com/tesseract-ocr/tesseract/actions/workflows/sw.yml)\
+[![Build status](https://github.com/tesseract-ocr/tesseract/actions/workflows/sw.yml/badge.svg)](https://github.com/tesseract-ocr/tesseract/actions/workflows/sw.yml)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/tesseract-ocr/badge.svg)](https://scan.coverity.com/projects/tesseract-ocr)
 [![CodeQL](https://github.com/tesseract-ocr/tesseract/workflows/CodeQL/badge.svg)](https://github.com/tesseract-ocr/tesseract/security/code-scanning)
 [![OSS-Fuzz](https://img.shields.io/badge/oss--fuzz-fuzzing-brightgreen)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=2&q=proj:tesseract-ocr)
