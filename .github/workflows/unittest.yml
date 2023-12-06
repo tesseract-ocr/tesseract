@@ -5,6 +5,7 @@ on:
   #push:
   schedule:
     - cron: 0 0 * * *
+  workflow_dispatch:
 
 jobs:
   sanitizers:
@@ -14,12 +15,19 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: ubuntu-20.04-gcc-unittest, os: ubuntu-20.04, cxx: g++ }
-          - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++ }
+          - { name: ubuntu-20.04-gcc-unittest, os: ubuntu-20.04, cxx: g++, cxxflags: '-g -O2 -fsanitize=address,undefined' }
+          - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++, cxxflags: '-g -O2 -fsanitize=address,undefined -stdlib=libc++' }
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+
+    - name: Remove Homebrew, Android and .NET to provide more disk space
+      run: |
+           # https://github.com/actions/virtual-environments/issues/2606#issuecomment-772683150
+           sudo rm -rf /home/linuxbrew # will release Homebrew
+           sudo rm -rf /usr/local/lib/android # will release about 10 GB if you don't need Android
+           sudo rm -rf /usr/share/dotnet # will release about 20GB if you don't need .NET
 
     - name: Install dependencies (Linux)
       run: |
@@ -35,7 +43,7 @@ jobs:
     - name: Configure (Linux)
       run: |
            ./configure '--disable-shared' 'CXX=${{ matrix.config.cxx }}' \
-               'CXXFLAGS=-g -O2 -fsanitize=address,undefined'
+               'CXXFLAGS=${{ matrix.config.cxxflags }}'
 
     - name: Make and Install Tesseract
       run: |

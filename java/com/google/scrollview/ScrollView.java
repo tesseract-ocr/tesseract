@@ -56,7 +56,7 @@ public class ScrollView {
   /** Prints all received messages to the console if true. */
   static boolean debugViewNetworkTraffic = false;
 
-  /** Add a new message to the outgoing queue */
+  /** Add a new message to the outgoing queue. */
   public static void addMessage(SVEvent e) {
     if (debugViewNetworkTraffic) {
       System.out.println("(S->c) " + e.toString());
@@ -191,7 +191,7 @@ public class ScrollView {
           }
         }
         // If str is not null here, then we have a string with a comma in it.
-        // Append , and the next argument at the next iteration, but check
+        // Append, and the next argument at the next iteration, but check
         // that str is null after the loop terminates in case it was an
         // unterminated string.
       } else if (floatPattern.matcher(argStr).matches()) {
@@ -390,8 +390,7 @@ public class ScrollView {
               "UTF8"));
     } catch (IOException e) {
       // Something went wrong and we were unable to set up a connection. This is
-      // pretty
-      // much a fatal error.
+      // pretty much a fatal error.
       // Note: The server does not get restarted automatically if this happens.
       e.printStackTrace();
       System.exit(1);

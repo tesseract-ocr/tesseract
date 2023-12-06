@@ -23,6 +23,8 @@
 #endif
 
 #include <cmath>
+#include <iomanip>             // for std::setprecision
+#include <locale>              // for std::locale::classic
 #include <string>
 #include "lstmtrainer.h"
 
@@ -305,7 +307,7 @@ bool LSTMTrainer::LoadAllTrainingData(const std::vector<std::string> &filenames,
 // Writes checkpoints at appropriate times and builds and returns a log message
 // to indicate progress. Returns false if nothing interesting happened.
 bool LSTMTrainer::MaintainCheckpoints(const TestCallback &tester,
-                                      std::string &log_msg) {
+                                      std::stringstream &log_msg) {
   PrepareLogMsg(log_msg);
   double error_rate = CharError();
   int iteration = learning_iteration();
@@ -330,35 +332,34 @@ bool LSTMTrainer::MaintainCheckpoints(const TestCallback &tester,
   std::vector<char> rec_model_data;
   if (error_rate < best_error_rate_) {
     SaveRecognitionDump(&rec_model_data);
-    log_msg += " New best BCER = " + std::to_string(error_rate);
-    log_msg += UpdateErrorGraph(iteration, error_rate, rec_model_data, tester);
+    log_msg << " New best BCER = " << error_rate;
+    log_msg << UpdateErrorGraph(iteration, error_rate, rec_model_data, tester);
     // If sub_trainer_ is not nullptr, either *this beat it to a new best, or it
     // just overwrote *this. In either case, we have finished with it.
     sub_trainer_.reset();
     stall_iteration_ = learning_iteration() + kMinStallIterations;
     if (TransitionTrainingStage(kStageTransitionThreshold)) {
-      log_msg +=
-          " Transitioned to stage " + std::to_string(CurrentTrainingStage());
+      log_msg << " Transitioned to stage " << CurrentTrainingStage();
     }
     SaveTrainingDump(NO_BEST_TRAINER, *this, &best_trainer_);
     if (error_rate < error_rate_of_last_saved_best_ * kBestCheckpointFraction) {
       std::string best_model_name = DumpFilename();
       if (!SaveDataToFile(best_trainer_, best_model_name.c_str())) {
-        log_msg += " failed to write best model:";
+        log_msg << " failed to write best model:";
       } else {
-        log_msg += " wrote best model:";
+        log_msg << " wrote best model:";
         error_rate_of_last_saved_best_ = best_error_rate_;
       }
-      log_msg += best_model_name;
+      log_msg << best_model_name;
     }
   } else if (error_rate > worst_error_rate_) {
     SaveRecognitionDump(&rec_model_data);
-    log_msg += " New worst BCER = " + std::to_string(error_rate);
-    log_msg += UpdateErrorGraph(iteration, error_rate, rec_model_data, tester);
+    log_msg << " New worst BCER = " << error_rate;
+    log_msg << UpdateErrorGraph(iteration, error_rate, rec_model_data, tester);
     if (worst_error_rate_ > best_error_rate_ + kMinDivergenceRate &&
         best_error_rate_ < kMinStartedErrorRate && !best_trainer_.empty()) {
       // Error rate has ballooned. Go back to the best model.
-      log_msg += "\nDivergence! ";
+      log_msg << "\nDivergence! ";
       // Copy best_trainer_ before reading it, as it will get overwritten.
       std::vector<char> revert_data(best_trainer_);
       if (ReadTrainingDump(revert_data, *this)) {
@@ -382,34 +383,33 @@ bool LSTMTrainer::MaintainCheckpoints(const TestCallback &tester,
     std::vector<char> checkpoint;
     if (!SaveTrainingDump(FULL, *this, &checkpoint) ||
         !SaveDataToFile(checkpoint, checkpoint_name_.c_str())) {
-      log_msg += " failed to write checkpoint.";
+      log_msg << " failed to write checkpoint.";
     } else {
-      log_msg += " wrote checkpoint.";
+      log_msg << " wrote checkpoint.";
     }
   }
-  log_msg += "\n";
   return result;
 }
 
 // Builds a string containing a progress message with current error rates.
-void LSTMTrainer::PrepareLogMsg(std::string &log_msg) const {
+void LSTMTrainer::PrepareLogMsg(std::stringstream &log_msg) const {
   LogIterations("At", log_msg);
-  log_msg += ", Mean rms=" + std::to_string(error_rates_[ET_RMS]);
-  log_msg += "%, delta=" + std::to_string(error_rates_[ET_DELTA]);
-  log_msg += "%, BCER train=" + std::to_string(error_rates_[ET_CHAR_ERROR]);
-  log_msg += "%, BWER train=" + std::to_string(error_rates_[ET_WORD_RECERR]);
-  log_msg += "%, skip ratio=" + std::to_string(error_rates_[ET_SKIP_RATIO]);
-  log_msg += "%, ";
+  log_msg << std::fixed << std::setprecision(3)
+          << ", mean rms=" << error_rates_[ET_RMS]
+          << "%, delta=" << error_rates_[ET_DELTA]
+          << "%, BCER train=" << error_rates_[ET_CHAR_ERROR]
+          << "%, BWER train=" << error_rates_[ET_WORD_RECERR]
+          << "%, skip ratio=" << error_rates_[ET_SKIP_RATIO] << "%,";
 }
 
 // Appends <intro_str> iteration learning_iteration()/training_iteration()/
 // sample_iteration() to the log_msg.
 void LSTMTrainer::LogIterations(const char *intro_str,
-                                std::string &log_msg) const {
-  log_msg += intro_str;
-  log_msg += " iteration " + std::to_string(learning_iteration());
-  log_msg += "/" + std::to_string(training_iteration());
-  log_msg += "/" + std::to_string(sample_iteration());
+                                std::stringstream &log_msg) const {
+  log_msg << intro_str
+          << " iteration " << learning_iteration()
+          << "/" << training_iteration()
+          << "/" << sample_iteration();
 }
 
 // Returns true and increments the training_stage_ if the error rate has just
@@ -602,14 +602,14 @@ bool LSTMTrainer::DeSerialize(const TessdataManager *mgr, TFile *fp) {
 // De-serializes the saved best_trainer_ into sub_trainer_, and adjusts the
 // learning rates (by scaling reduction, or layer specific, according to
 // NF_LAYER_SPECIFIC_LR).
-void LSTMTrainer::StartSubtrainer(std::string &log_msg) {
+void LSTMTrainer::StartSubtrainer(std::stringstream &log_msg) {
   sub_trainer_ = std::make_unique<LSTMTrainer>();
   if (!ReadTrainingDump(best_trainer_, *sub_trainer_)) {
-    log_msg += " Failed to revert to previous best for trial!";
+    log_msg << " Failed to revert to previous best for trial!";
     sub_trainer_.reset();
   } else {
-    log_msg += " Trial sub_trainer_ from iteration " +
-               std::to_string(sub_trainer_->training_iteration());
+    log_msg << " Trial sub_trainer_ from iteration "
+            << sub_trainer_->training_iteration();
     // Reduce learning rate so it doesn't diverge this time.
     sub_trainer_->ReduceLearningRates(this, log_msg);
     // If it fails again, we will wait twice as long before reverting again.
@@ -630,14 +630,13 @@ void LSTMTrainer::StartSubtrainer(std::string &log_msg) {
 // trainer in *this is replaced with sub_trainer_, and STR_REPLACED is
 // returned. STR_NONE is returned if the subtrainer wasn't good enough to
 // receive any training iterations.
-SubTrainerResult LSTMTrainer::UpdateSubtrainer(std::string &log_msg) {
+SubTrainerResult LSTMTrainer::UpdateSubtrainer(std::stringstream &log_msg) {
   double training_error = CharError();
   double sub_error = sub_trainer_->CharError();
   double sub_margin = (training_error - sub_error) / sub_error;
   if (sub_margin >= kSubTrainerMarginFraction) {
-    log_msg += " sub_trainer=" + std::to_string(sub_error);
-    log_msg += " margin=" + std::to_string(100.0 * sub_margin);
-    log_msg += "\n";
+    log_msg << " sub_trainer=" << sub_error
+            << " margin=" << 100.0 * sub_margin << "\n";
     // Catch up to current iteration.
     int end_iteration = training_iteration();
     while (sub_trainer_->training_iteration() < end_iteration &&
@@ -647,11 +646,12 @@ SubTrainerResult LSTMTrainer::UpdateSubtrainer(std::string &log_msg) {
       while (sub_trainer_->training_iteration() < target_iteration) {
         sub_trainer_->TrainOnLine(this, false);
       }
-      std::string batch_log = "Sub:";
+      std::stringstream batch_log("Sub:");
+      batch_log.imbue(std::locale::classic());
       sub_trainer_->PrepareLogMsg(batch_log);
-      batch_log += "\n";
-      tprintf("UpdateSubtrainer:%s", batch_log.c_str());
-      log_msg += batch_log;
+      batch_log << "\n";
+      tprintf("UpdateSubtrainer:%s", batch_log.str().c_str());
+      log_msg << batch_log.str();
       sub_error = sub_trainer_->CharError();
       sub_margin = (training_error - sub_error) / sub_error;
     }
@@ -661,9 +661,8 @@ SubTrainerResult LSTMTrainer::UpdateSubtrainer(std::string &log_msg) {
       std::vector<char> updated_trainer;
       SaveTrainingDump(LIGHT, *sub_trainer_, &updated_trainer);
       ReadTrainingDump(updated_trainer, *this);
-      log_msg += " Sub trainer wins at iteration " +
-                 std::to_string(training_iteration());
-      log_msg += "\n";
+      log_msg << " Sub trainer wins at iteration "
+              << training_iteration() << "\n";
       return STR_REPLACED;
     }
     return STR_UPDATED;
@@ -674,17 +673,16 @@ SubTrainerResult LSTMTrainer::UpdateSubtrainer(std::string &log_msg) {
 // Reduces network learning rates, either for everything, or for layers
 // independently, according to NF_LAYER_SPECIFIC_LR.
 void LSTMTrainer::ReduceLearningRates(LSTMTrainer *samples_trainer,
-                                      std::string &log_msg) {
+                                      std::stringstream &log_msg) {
   if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
     int num_reduced = ReduceLayerLearningRates(
         kLearningRateDecay, kNumAdjustmentIterations, samples_trainer);
-    log_msg +=
-        "\nReduced learning rate on layers: " + std::to_string(num_reduced);
+    log_msg << "\nReduced learning rate on layers: " << num_reduced;
   } else {
     ScaleLearningRate(kLearningRateDecay);
-    log_msg += "\nReduced learning rate to :" + std::to_string(learning_rate_);
+    log_msg << "\nReduced learning rate to :" << learning_rate_;
   }
-  log_msg += "\n";
+  log_msg << "\n";
 }
 
 // Considers reducing the learning rate independently for each layer down by
@@ -1053,13 +1051,14 @@ void LSTMTrainer::SaveRecognitionDump(std::vector<char> *data) const {
 // Returns a suitable filename for a training dump, based on the model_base_,
 // best_error_rate_, best_iteration_ and training_iteration_.
 std::string LSTMTrainer::DumpFilename() const {
-  std::string filename;
-  filename += model_base_.c_str();
-  filename += "_" + std::to_string(best_error_rate_);
-  filename += "_" + std::to_string(best_iteration_);
-  filename += "_" + std::to_string(training_iteration_);
-  filename += ".checkpoint";
-  return filename;
+  std::stringstream filename;
+  filename.imbue(std::locale::classic());
+  filename << model_base_ << std::fixed << std::setprecision(3)
+           << "_" << best_error_rate_
+           << "_" << best_iteration_
+           << "_" << training_iteration_
+           << ".checkpoint";
+  return filename.str();
 }
 
 // Fills the whole error buffer of the given type with the given value.

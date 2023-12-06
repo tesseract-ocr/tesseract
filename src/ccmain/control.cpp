@@ -1684,18 +1684,6 @@ void Tesseract::fix_rep_char(PAGE_RES_IT *page_res_it) {
   }
   word_res->done = true;
 
-  // Measure the mean space.
-  int gap_count = 0;
-  WERD *werd = word_res->word;
-  C_BLOB_IT blob_it(werd->cblob_list());
-  C_BLOB *prev_blob = blob_it.data();
-  for (blob_it.forward(); !blob_it.at_first(); blob_it.forward()) {
-    C_BLOB *blob = blob_it.data();
-    int gap = blob->bounding_box().left();
-    gap -= prev_blob->bounding_box().right();
-    ++gap_count;
-    prev_blob = blob;
-  }
   // Just correct existing classification.
   CorrectRepcharChoices(best_choice, word_res);
   word_res->reject_map.initialise(word.length());

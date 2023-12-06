@@ -1609,10 +1609,10 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(
     }
     // See if we have a decision yet.
     auto image_count = counts[NPT_IMAGE];
-    auto htext_score = counts[NPT_HTEXT] + counts[NPT_WEAK_HTEXT] -
-                       (image_count + counts[NPT_WEAK_VTEXT]);
-    auto vtext_score = counts[NPT_VTEXT] + counts[NPT_WEAK_VTEXT] -
-                       (image_count + counts[NPT_WEAK_HTEXT]);
+    int htext_score = counts[NPT_HTEXT] + counts[NPT_WEAK_HTEXT] -
+                      (image_count + counts[NPT_WEAK_VTEXT]);
+    int vtext_score = counts[NPT_VTEXT] + counts[NPT_WEAK_VTEXT] -
+                      (image_count + counts[NPT_WEAK_HTEXT]);
     if (image_count > 0 && image_bias - htext_score >= kSmoothDecisionMargin &&
         image_bias - vtext_score >= kSmoothDecisionMargin) {
       *best_distance = dists[NPT_IMAGE][0];

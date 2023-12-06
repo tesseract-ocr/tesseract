@@ -13,13 +13,13 @@ description: |
 
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict
+base: core22
 
 apps:
   tesseract:
-    command: >
-      env
-      TESSDATA_PREFIX=$SNAP_USER_COMMON
-      tesseract
+    command: usr/local/bin/tesseract
+    environment:
+      TESSDATA_PREFIX: $SNAP_USER_COMMON
     plugs:
       - home
       - removable-media
@@ -30,9 +30,9 @@ parts:
     plugin: autotools
     build-packages:
       - pkg-config
-      - libpng12-dev
-      - libjpeg8-dev
-      - libtiff5-dev
+      - libpng-dev
+      - libjpeg-dev
+      - libtiff-dev
       - zlib1g-dev
       - libicu-dev
       - libpango1.0-dev
@@ -41,7 +41,7 @@ parts:
       - libgomp1
     after: [leptonica]
   leptonica:
-    source: https://github.com/DanBloomberg/leptonica/archive/1.74.2.tar.gz
+    source: https://github.com/DanBloomberg/leptonica/archive/1.83.1.tar.gz
     plugin: autotools
     stage-packages:
       - libjbig0

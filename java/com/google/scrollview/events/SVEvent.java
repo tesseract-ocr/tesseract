@@ -53,7 +53,7 @@ public class SVEvent {
   }
 
   /**
-   * An event which issues a command (like clicking on a item in the menubar).
+   * An event which issues a command (like clicking on an item in the menubar).
    *
    * @param eventtype The type of the event as specified in SVEventType
    *        (usually SVET_MENU or SVET_POPUP)

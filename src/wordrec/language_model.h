@@ -77,7 +77,7 @@ public:
                    float rating_cert_scale);
 
   // Updates language model state of the given BLOB_CHOICE_LIST (from
-  // the ratings matrix) a its parent. Updates pain_points if new
+  // the ratings matrix) and its parent. Updates pain_points if new
   // problematic points are found in the segmentation graph.
   //
   // At most language_model_viterbi_list_size are kept in each

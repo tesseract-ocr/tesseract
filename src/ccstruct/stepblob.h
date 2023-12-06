@@ -78,7 +78,7 @@ public:
   int32_t count_transitions( // count maxima
       int32_t threshold);    // size threshold
 
-  void move(const ICOORD vec);         // repostion blob by vector
+  void move(const ICOORD vec);         // reposition blob by vector
   void rotate(const FCOORD &rotation); // Rotate by given vector.
 
   // Adds sub-pixel resolution EdgeOffsets for the outlines using greyscale

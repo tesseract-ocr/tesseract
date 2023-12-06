@@ -82,7 +82,7 @@ public class SVWindow extends JFrame {
   // This really needs to be a fixed width stroke as the basic stroke is
   // anti-aliased and gets too faint, but the piccolo fixed width stroke
   // is too buggy and generates missing initial moveto in path definition
-  // errors with a IllegalPathStateException that cannot be caught because
+  // errors with an IllegalPathStateException that cannot be caught because
   // it is in the automatic repaint function. If we can fix the exceptions
   // in piccolo, then we can use the following instead of BasicStroke:
   //   import edu.umd.cs.piccolox.util.PFixedWidthStroke;

@@ -61,7 +61,7 @@ struct EANYCODE_CHAR { /*single character */
   // is UTF8 which means that ASCII characters will come out as one structure
   // but other characters will be returned in two or more instances of this
   // structure with a single byte of the  UTF8 code in each, but each will have
-  // the same bounding box. Programs which want to handle languagues with
+  // the same bounding box. Programs which want to handle languages with
   // different characters sets will need to handle extended characters
   // appropriately, but *all* code needs to be prepared to receive UTF8 coded
   // characters for characters such as bullet and fancy quotes.

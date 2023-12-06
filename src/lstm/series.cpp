@@ -25,7 +25,7 @@
 namespace tesseract {
 
 // ni_ and no_ will be set by AddToStack.
-Series::Series(const char *name) : Plumbing(name) {
+Series::Series(const std::string &name) : Plumbing(name) {
   type_ = NT_SERIES;
 }
 

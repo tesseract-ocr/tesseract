@@ -140,9 +140,17 @@ bool ValidateMyanmar::ConsumeOptionalSignsIfPresent() {
   }
   // Tone mark extensions.
   ch = codes_[codes_used_].second;
-  if (ch == 0x1038 || ch == kMyanmarAsat || ch == 0x1063 || ch == 0x1064 ||
+  if (ch == 0x102c || ch == 0x1038 || ch == kMyanmarAsat || (0x1062 <= ch && ch <= 0x1064) ||
       (0x1069 <= ch && ch <= 0x106d) || (0x1087 <= ch && ch <= 0x108d) || ch == 0x108f ||
       ch == 0x109a || ch == 0x109b || (0xaa7b <= ch && ch <= 0xaa7d)) {
+    if (UseMultiCode(1)) {
+      return true;
+    }
+  }
+  // Sgaw tones 0x1062, 0x1063 must be followed by asat.
+  // W Pwo tones 0x1069, 0x106a, and 0x106b may be followed by dot below or visarga (nasal).
+  ch = codes_[codes_used_].second;
+  if (ch == 0x103a || ch == 0x1037 || ch == 0x1038) {
     if (UseMultiCode(1)) {
       return true;
     }

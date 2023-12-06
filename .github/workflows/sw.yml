@@ -22,13 +22,21 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-22.04, ubuntu-20.04, macos-12]
+        os: [windows-2022, macos-13]
+        include:
+          - os: ubuntu-22.04
+            container: fedora:latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: packages
+      if: matrix.os == 'ubuntu-22.04'
+      run: sudo dnf -y install cmake gcc lld which flex bison clang clang-tools-extra git
+
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     - uses: egorpugin/sw-action@master
@@ -59,7 +67,7 @@ jobs:
       shell: pwsh
 
     - name: test
-      if: github.event_name != 'pull_request' && (matrix.os != 'windows-2022')
+      if: github.event_name != 'pull_request' && (matrix.os != 'windows-2022' && matrix.os != 'macos-13')
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
       continue-on-error: true
     - name: test
@@ -68,13 +76,13 @@ jobs:
       continue-on-error: true
 
     - name: test-nightly
-      if: matrix.os != 'windows-2022' && matrix.os != 'macos-12' && github.event.schedule=='0 0 * * *'
+      if: matrix.os != 'windows-2022' && matrix.os != 'macos-13' && github.event.schedule=='0 0 * * *'
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1
       continue-on-error: true
 
-    # windows and macos-12 tests hang here for some reason, investigate
+    # windows and macos-13 tests hang here for some reason, investigate
     #- name: test
-      #if: matrix.os == 'windows-2022' || matrix.os == 'macos-12'
+      #if: matrix.os == 'windows-2022' || matrix.os == 'macos-13'
       #run: ./sw test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
       #continue-on-error: true
 

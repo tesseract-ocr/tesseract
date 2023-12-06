@@ -20,7 +20,7 @@
 
 namespace tesseract {
 
-Reconfig::Reconfig(const char *name, int ni, int x_scale, int y_scale)
+Reconfig::Reconfig(const std::string &name, int ni, int x_scale, int y_scale)
     : Network(NT_RECONFIG, name, ni, ni * x_scale * y_scale)
     , x_scale_(x_scale)
     , y_scale_(y_scale) {}

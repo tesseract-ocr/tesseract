@@ -266,6 +266,9 @@ int main(int argc, char **argv) {
         "  %s -d traineddata_file\n\n",
         argv[0]);
     printf(
+        "NOTE: Above two flags may combined as -dl or -ld to get both outputs"
+        );
+    printf(
         "Usage for compacting LSTM component to int:\n"
         "  %s -c traineddata_file\n",
         argv[0]);

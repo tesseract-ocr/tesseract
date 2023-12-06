@@ -432,7 +432,7 @@ void TableFinder::InsertImagePartition(ColPartition *part) {
 // text lines on the page. The assumption is that a table
 // will have several lines with similar overlapping whitespace
 // whereas text will not have this type of property.
-// Note: The code Assumes that blobs are sorted by the left side x!
+// Note: The code assumes that blobs are sorted by the left side x!
 // This will not work (as well) if the blobs are sorted by center/right.
 void TableFinder::SplitAndInsertFragmentedTextPartition(ColPartition *part) {
   ASSERT_HOST(part != nullptr);

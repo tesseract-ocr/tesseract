@@ -16,11 +16,22 @@ body:
         * Please provide the input image.
         * Also provide output files (txt and/or tsv, hocr, pdf). You can make a zip archive that will contain these files, so GitHub will let you upload them.
         * Don't attach a screenshot of the command line and output. Instead, copy the text and paste it in your bug report.
+
+        Windows versions 7, 8, 8.1 are not supported.
   - type: textarea
     attributes:
-      label: Basic Information
+      label: Current Behavior
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+  - type: textarea
+    attributes:
+      label: Suggested Fix
+  - type: textarea
+    attributes:
+      label: tesseract -v
       description: Version info, compiled libraries, SIMD, OpenMP
-      placeholder: "Paste the output of the command: tesseract -v"
+      placeholder: "Please paste the output of the command: tesseract -v"
   - type: dropdown
     id: os-linux
     attributes:
@@ -30,12 +41,13 @@ body:
       options:
         - Windows 11
         - Windows 10
+        - macOS 14 Sonoma
         - macOS 13 Ventura
         - macOS 12 Monterey
         - macOS 11 Big Sur
         - Ubuntu 22.04 Jammy
         - Ubuntu 20.04 Focal
-        - Debian Testing Bookworm
+        - Debian 12 Bookworm
         - Debian 11 Bullseye
         - RHEL 9
         - RHEL 8
@@ -54,21 +66,12 @@ body:
       placeholder: "Enter compiler name and version (Examples: MSVC 2019 16.11, Clang 13.0.1, GCC 11.2, Xcode 14.1)"
   - type: textarea
     attributes:
-      label: Virtualization / Containers
-      placeholder: "Enter the name and version of the VM / container which you use (Examples: Oracle VM VirtualBox 7.0.4,VMware Workstation 17.0, Hyper-V, Docker 20.10.22)"
-  - type: textarea
-    attributes:
       label: CPU
       placeholder: "Enter your CPU vendor name and model (Examples: Intel Core i7-11700K, AMD Ryzen 7 5800X, Apple Silicon M1)"
   - type: textarea
     attributes:
-      label: Current Behavior
-  - type: textarea
-    attributes:
-      label: Expected Behavior
-  - type: textarea
-    attributes:
-      label: Suggested Fix
+      label: Virtualization / Containers
+      placeholder: "Enter the name and version of the VM / container which you use (Examples: Oracle VM VirtualBox 7.0.4,VMware Workstation 17.0, Hyper-V, Docker 20.10.22)"
   - type: textarea
     attributes:
       label: Other Information

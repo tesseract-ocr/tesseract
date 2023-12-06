@@ -252,19 +252,19 @@ Network *Network::CreateFromFile(TFile *fp) {
 
   switch (type) {
     case NT_CONVOLVE:
-      network = new Convolve(name.c_str(), ni, 0, 0);
+      network = new Convolve(name, ni, 0, 0);
       break;
     case NT_INPUT:
-      network = new Input(name.c_str(), ni, no);
+      network = new Input(name, ni, no);
       break;
     case NT_LSTM:
     case NT_LSTM_SOFTMAX:
     case NT_LSTM_SOFTMAX_ENCODED:
     case NT_LSTM_SUMMARY:
-      network = new LSTM(name.c_str(), ni, no, no, false, type);
+      network = new LSTM(name, ni, no, no, false, type);
       break;
     case NT_MAXPOOL:
-      network = new Maxpool(name.c_str(), ni, 0, 0);
+      network = new Maxpool(name, ni, 0, 0);
       break;
     // All variants of Parallel.
     case NT_PARALLEL:
@@ -272,23 +272,23 @@ Network *Network::CreateFromFile(TFile *fp) {
     case NT_PAR_RL_LSTM:
     case NT_PAR_UD_LSTM:
     case NT_PAR_2D_LSTM:
-      network = new Parallel(name.c_str(), type);
+      network = new Parallel(name, type);
       break;
     case NT_RECONFIG:
-      network = new Reconfig(name.c_str(), ni, 0, 0);
+      network = new Reconfig(name, ni, 0, 0);
       break;
     // All variants of reversed.
     case NT_XREVERSED:
     case NT_YREVERSED:
     case NT_XYTRANSPOSE:
-      network = new Reversed(name.c_str(), type);
+      network = new Reversed(name, type);
       break;
     case NT_SERIES:
-      network = new Series(name.c_str());
+      network = new Series(name);
       break;
     case NT_TENSORFLOW:
 #ifdef INCLUDE_TENSORFLOW
-      network = new TFNetwork(name.c_str());
+      network = new TFNetwork(name);
 #else
       tprintf("TensorFlow not compiled in! -DINCLUDE_TENSORFLOW\n");
 #endif
@@ -302,7 +302,7 @@ Network *Network::CreateFromFile(TFile *fp) {
     case NT_LOGISTIC:
     case NT_POSCLIP:
     case NT_SYMCLIP:
-      network = new FullyConnected(name.c_str(), ni, no, type);
+      network = new FullyConnected(name, ni, no, type);
       break;
     default:
       break;

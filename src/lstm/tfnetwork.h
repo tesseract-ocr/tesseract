@@ -34,7 +34,7 @@ namespace tesseract {
 
 class TFNetwork : public Network {
 public:
-  explicit TFNetwork(const char *name);
+  explicit TFNetwork(const std::string &name);
   virtual ~TFNetwork() = default;
 
   // Returns the required shape input to the network.
