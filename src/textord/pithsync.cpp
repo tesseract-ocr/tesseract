@@ -316,9 +316,7 @@ double check_pitch_sync2(    // find segmentation
   TBOX this_box;                // bounding box
   TBOX next_box;                // box of next blob
   FPSEGPT *segpt;               // segment point
-  double best_cost;             // best path
   double mean_sum;              // computes result
-  FPCUTPT *best_end;            // end of best path
   int16_t best_fake;            // best fake level
   int16_t best_count;           // no of cuts
   BLOBNBOX_IT this_it;          // copy iterator
@@ -371,8 +369,6 @@ double check_pitch_sync2(    // find segmentation
   }
 
   this_it = *blob_it;
-  best_cost = FLT_MAX;
-  best_end = nullptr;
   this_box = box_next(&this_it); // first box
   next_box = box_next(&this_it); // second box
   blob_index = 1;
@@ -411,7 +407,8 @@ double check_pitch_sync2(    // find segmentation
   }
 
   best_fake = INT16_MAX;
-  best_cost = INT32_MAX;
+  // best path
+  double best_cost = INT32_MAX;
   best_count = INT16_MAX;
   while (x < right_edge + pitch) {
     offset = x < right_edge ? right_edge - x : 0;
@@ -438,7 +435,8 @@ double check_pitch_sync2(    // find segmentation
   }
   ASSERT_HOST(best_fake < INT16_MAX);
 
-  best_end = &cutpts[(best_left_x + best_right_x) / 2 - array_origin];
+  // end of best path
+  FPCUTPT *best_end = &cutpts[(best_left_x + best_right_x) / 2 - array_origin];
   if (this_box.right() == textord_test_x && this_box.top() == textord_test_y) {
     for (x = left_edge - pitch; x < right_edge + pitch; x++) {
       tprintf("x=%d, C=%g, s=%g, sq=%g, prev=%d\n", x, cutpts[x - array_origin].cost_function(),
@@ -509,9 +507,7 @@ double check_pitch_sync3(    // find segmentation
   FPSEGPT *segpt;               // segment point
   int minindex;                 // next input position
   int test_index;               // index to mins
-  double best_cost;             // best path
   double mean_sum;              // computes result
-  FPCUTPT *best_end;            // end of best path
   int16_t best_fake;            // best fake level
   int16_t best_count;           // no of cuts
   FPSEGPT_IT seg_it = seg_list; // output iterator
@@ -549,8 +545,6 @@ double check_pitch_sync3(    // find segmentation
                                    offset);
   }
 
-  best_cost = FLT_MAX;
-  best_end = nullptr;
   for (offset = -pitch_error, minindex = 0; offset < pitch_error; offset++, minindex++) {
     mins[minindex] = projection->local_min(x + offset);
   }
@@ -629,7 +623,8 @@ double check_pitch_sync3(    // find segmentation
   }
 
   best_fake = INT16_MAX;
-  best_cost = INT32_MAX;
+  // best path
+  double best_cost = INT32_MAX;
   best_count = INT16_MAX;
   while (x < right_edge + pitch) {
     offset = x < right_edge ? right_edge - x : 0;
@@ -656,7 +651,8 @@ double check_pitch_sync3(    // find segmentation
   }
   ASSERT_HOST(best_fake < INT16_MAX);
 
-  best_end = &cutpts[(best_left_x + best_right_x) / 2 - array_origin];
+  // end of best path
+  FPCUTPT *best_end = &cutpts[(best_left_x + best_right_x) / 2 - array_origin];
   //      for (x=left_edge-pitch;x<right_edge+pitch;x++)
   //      {
   //              tprintf("x=%d, C=%g, s=%g, sq=%g, prev=%d\n",
