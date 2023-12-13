@@ -1421,7 +1421,7 @@ static void AddBoxToTSV(const PageIterator *it, PageIteratorLevel level, std::st
  * page_number is 0-based but will appear in the output as 1-based.
  * Returned string must be freed with the delete [] operator.
  */
-char *TessBaseAPI::GetTSVText(int page_number) {
+char *TessBaseAPI::GetTSVText(int page_number, bool font_info, bool lang_info) {
   if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0)) {
     return nullptr;
   }
@@ -1434,6 +1434,9 @@ char *TessBaseAPI::GetTSVText(int page_number) {
   int par_num = 0;
   int line_num = 0;
   int word_num = 0;
+  std::string x_font;
+  int x_fsize = 0;
+  std::string lang;
 
   std::string tsv_str;
   tsv_str += "1\t" + std::to_string(page_num); // level 1 - page
@@ -1445,7 +1448,15 @@ char *TessBaseAPI::GetTSVText(int page_number) {
   tsv_str += "\t" + std::to_string(rect_top_);
   tsv_str += "\t" + std::to_string(rect_width_);
   tsv_str += "\t" + std::to_string(rect_height_);
-  tsv_str += "\t-1\t\n";
+  tsv_str += "\t-1";
+  if (font_info) {
+    tsv_str += "\t" + x_font;
+    tsv_str += "\t" + x_fsize;
+  }
+  if (lang_info) {
+    tsv_str += "\t" + lang;
+  }
+  tsv_str += "\t\n";
 
   const std::unique_ptr</*non-const*/ ResultIterator> res_it(GetIterator());
   while (!res_it->Empty(RIL_BLOCK)) {
@@ -1466,9 +1477,19 @@ char *TessBaseAPI::GetTSVText(int page_number) {
       tsv_str += "\t" + std::to_string(line_num);
       tsv_str += "\t" + std::to_string(word_num);
       AddBoxToTSV(res_it.get(), RIL_BLOCK, tsv_str);
-      tsv_str += "\t-1\t\n"; // end of row for block
+      tsv_str += "\t-1";
+      if (font_info) {
+        tsv_str += "\t\t";
+      }
+      if (lang_info) {
+        tsv_str += "\t";
+      }
+      tsv_str += "\t\n"; // end of row for block
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
+      if (lang_info) {
+        lang = res_it->WordRecognitionLanguage();
+      }
       par_num++;
       line_num = 0;
       word_num = 0;
@@ -1478,7 +1499,14 @@ char *TessBaseAPI::GetTSVText(int page_number) {
       tsv_str += "\t" + std::to_string(line_num);
       tsv_str += "\t" + std::to_string(word_num);
       AddBoxToTSV(res_it.get(), RIL_PARA, tsv_str);
-      tsv_str += "\t-1\t\n"; // end of row for para
+      tsv_str += "\t-1";
+      if (font_info) {
+        tsv_str += "\t\t";
+      }
+      if (lang_info) {
+        tsv_str += "\t" + lang;
+      }
+      tsv_str += "\t\n"; // end of row for para
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       line_num++;
@@ -1489,7 +1517,14 @@ char *TessBaseAPI::GetTSVText(int page_number) {
       tsv_str += "\t" + std::to_string(line_num);
       tsv_str += "\t" + std::to_string(word_num);
       AddBoxToTSV(res_it.get(), RIL_TEXTLINE, tsv_str);
-      tsv_str += "\t-1\t\n"; // end of row for line
+      tsv_str += "\t-1";
+      if (font_info) {
+        tsv_str += "\t\t";
+      }
+      if (lang_info) {
+        tsv_str += "\t";
+      }
+      tsv_str += "\t\n"; // end of row for line
     }
 
     // Now, process the word...
@@ -1506,9 +1541,29 @@ char *TessBaseAPI::GetTSVText(int page_number) {
     tsv_str += "\t" + std::to_string(right - left);
     tsv_str += "\t" + std::to_string(bottom - top);
     tsv_str += "\t" + std::to_string(res_it->Confidence(RIL_WORD));
-    tsv_str += "\t";
+
+    if (font_info) {
+      bool bold, italic, underlined, monospace, serif, smallcaps;
+      int pointsize, font_id;
+      const char *font_name =
+        res_it->WordFontAttributes(&bold, &italic, &underlined, &monospace,
+                                   &serif, &smallcaps, &pointsize, &font_id);
+      tsv_str += "\t";
+      if (font_name) {
+        tsv_str += HOcrEscape(font_name);
+      }
+      tsv_str += "\t" + std::to_string(pointsize);
+    }
+    if (lang_info) {
+      const char *word_lang = res_it->WordRecognitionLanguage();
+      tsv_str += "\t";
+      if (word_lang) {
+        tsv_str += word_lang;
+      }
+    }
 
     // Increment counts if at end of block/paragraph/textline.
+    tsv_str += "\t";
     if (res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD)) {
       lcnt++;
     }

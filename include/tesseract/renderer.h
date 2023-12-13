@@ -197,6 +197,7 @@ private:
  */
 class TESS_API TessTsvRenderer : public TessResultRenderer {
 public:
+  TessTsvRenderer(const char *outputbase, bool font_info, bool lang_info);
   explicit TessTsvRenderer(const char *outputbase, bool font_info);
   explicit TessTsvRenderer(const char *outputbase);
 
@@ -207,6 +208,7 @@ protected:
 
 private:
   bool font_info_; // whether to print font information
+  bool lang_info_; // whether to print language information
 };
 
 /**
