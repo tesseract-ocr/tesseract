@@ -84,7 +84,8 @@ using TestCallback = std::function<std::string(int, const double *,
 class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
 public:
   LSTMTrainer();
-  LSTMTrainer(const char *model_base, const char *checkpoint_name,
+  LSTMTrainer(const std::string &model_base,
+              const std::string &checkpoint_name,
               int debug_interval, int64_t max_memory);
   virtual ~LSTMTrainer();
 
