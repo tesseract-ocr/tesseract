@@ -33,7 +33,8 @@
 
 #include <allheaders.h> // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 
-#include <cinttypes> // for PRId64
+#include <cinttypes>    // for PRId64
+#include <fstream>      // for std::ifstream
 
 namespace tesseract {
 
@@ -546,6 +547,31 @@ bool DocumentData::ReCachePages() {
     delete page;
   }
   pages_.clear();
+#if !defined(TESSERACT_IMAGEDATA_AS_PIX)
+  auto name_size = document_name_.size();
+  if (name_size > 4 && document_name_.substr(name_size - 4) == ".png") {
+    // PNG image given instead of LSTMF file.
+    std::string gt_name = document_name_.substr(0, name_size - 3) + "gt.txt";
+    std::ifstream t(gt_name);
+    std::string line;
+    std::getline(t, line);
+    t.close();
+    ImageData *image_data = ImageData::Build(document_name_.c_str(), 0, "", nullptr, 0, line.c_str(), nullptr);
+    Image image = pixRead(document_name_.c_str());
+    image_data->SetPix(image);
+    pages_.push_back(image_data);
+    loaded_pages = 1;
+    pages_offset_ %= loaded_pages;
+    set_total_pages(loaded_pages);
+    set_memory_used(memory_used() + image_data->MemoryUsed());
+#if 0
+    tprintf("Loaded %zu/%d lines (%d-%zu) of document %s\n", pages_.size(),
+            loaded_pages, pages_offset_ + 1, pages_offset_ + pages_.size(),
+            document_name_.c_str());
+#endif
+    return !pages_.empty();
+  }
+#endif
   TFile fp;
   if (!fp.Open(document_name_.c_str(), reader_) ||
       !fp.DeSerializeSize(&loaded_pages) || loaded_pages <= 0) {
