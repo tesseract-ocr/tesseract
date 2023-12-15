@@ -33,7 +33,8 @@
 
 #include <allheaders.h> // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 
-#include <cinttypes> // for PRId64
+#include <cinttypes>    // for PRId64
+#include <fstream>      // for std::ifstream
 
 namespace tesseract {
 
@@ -534,7 +535,7 @@ void DocumentData::Shuffle() {
   }
 }
 
-// Locks the pages_mutex_ and Loads as many pages can fit in max_memory_
+// Locks the pages_mutex_ and loads as many pages can fit in max_memory_
 // starting at index pages_offset_.
 bool DocumentData::ReCachePages() {
   std::lock_guard<std::mutex> lock(pages_mutex_);
@@ -546,6 +547,45 @@ bool DocumentData::ReCachePages() {
     delete page;
   }
   pages_.clear();
+#if !defined(TESSERACT_IMAGEDATA_AS_PIX)
+  if (document_name_.ends_with("png")) {
+    // PNG image given instead of LSTMF file.
+#if 1
+    std::string gt_name = document_name_.substr(0, document_name_.length() - 3) + "gt.txt";
+    std::ifstream t(gt_name);
+    std::string line;
+    std::getline(t, line);
+    ImageData *image_data = ImageData::Build(document_name_.c_str(), 0, "", nullptr, 0, line.c_str(), nullptr);
+    Image image = pixRead(document_name_.c_str());
+    image_data->SetPix(image);
+#else
+    ImageData *image_data = new ImageData;
+    image_data->set_imagefilename(document_name_);
+    image_data->set_page_number(0);
+    Image image = pixRead(document_name_.c_str());
+    image_data->SetPix(image);
+    auto height = pixGetHeight(image);
+    auto width = pixGetWidth(image);
+    std::string gt_name = document_name_.substr(0, document_name_.length() - 3) + "gt.txt";
+    std::ifstream t(gt_name);
+    std::string line;
+    std::getline(t, line);
+    //std::stringstream buffer;
+    //buffer << t.rdbuf();
+#endif
+    t.close();
+    //image_data->transcription_ = buffer.str();
+    pages_.push_back(image_data);
+    set_total_pages(1);
+    loaded_pages = 1;
+    if (true) {
+      tprintf("Loaded %zu/%d lines (%d-%zu) of document %s\n", pages_.size(),
+              loaded_pages, pages_offset_ + 1, pages_offset_ + pages_.size(),
+              document_name_.c_str());
+    }
+    return !pages_.empty();
+  }
+#endif
   TFile fp;
   if (!fp.Open(document_name_.c_str(), reader_) ||
       !fp.DeSerializeSize(&loaded_pages) || loaded_pages <= 0) {
