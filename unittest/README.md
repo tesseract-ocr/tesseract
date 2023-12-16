@@ -86,3 +86,16 @@ git submodule update --init
 export TESSDATA_PREFIX=/prefix/to/path/to/tessdata
 make check
 ```
+
+## Run tests using CMake toolchain
+```
+cmake -DBUILD_TESTING=ON -B build 
+export TESSDATA_PREFIX=/prefix/to/path/to/tessdata
+cmake --build build --target check
+```
+
+### Run a single test target
+```
+cmake --build build --target fileio_test
+./build/bin/fileio_test
+```

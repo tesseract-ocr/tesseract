@@ -94,7 +94,7 @@ option(ENABLE_NATIVE
 # see
 # https://stackoverflow.com/questions/52653025/why-is-march-native-used-so-rarely
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
-option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_TESTING "Build tests" OFF)
 option(USE_SYSTEM_ICU "Use system ICU" OFF)
 option(DISABLE_TIFF "Disable build with libtiff (if available)" OFF)
 option(DISABLE_ARCHIVE "Disable build with libarchive (if available)" OFF)
@@ -564,7 +564,7 @@ message(STATUS "Disable the legacy OCR engine [DISABLED_LEGACY_ENGINE]: "
                "${DISABLED_LEGACY_ENGINE}")
 message(STATUS "Build training tools [BUILD_TRAINING_TOOLS]: "
                "${BUILD_TRAINING_TOOLS}")
-message(STATUS "Build tests [BUILD_TESTS]: ${BUILD_TESTS}")
+message(STATUS "Build tests [BUILD_TESTING]: ${BUILD_TESTING}")
 if(ENABLE_OPENCL)
   message(
     STATUS
@@ -910,16 +910,13 @@ if(OPENMP_BUILD AND UNIX)
 endif()
 
 # ##############################################################################
-
-if(BUILD_TESTS
-   AND EXISTS
-       ${CMAKE_CURRENT_SOURCE_DIR}/unittest/third_party/googletest/CMakeLists.txt
-)
-  add_subdirectory(unittest/third_party/googletest)
-endif()
-
 if(BUILD_TRAINING_TOOLS)
   add_subdirectory(src/training)
+endif()
+
+if(BUILD_TESTING)
+  include(CTest)
+  add_subdirectory(unittest)
 endif()
 
 get_target_property(tesseract_NAME libtesseract NAME)

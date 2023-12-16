@@ -64,6 +64,12 @@ jobs:
         with:
              submodules: recursive
 
+      - name: Download fonts, tessdata and langdata required for tests
+        run: |
+          git clone https://github.com/egorpugin/tessdata tessdata_unittest
+          cp tessdata_unittest/fonts/* test/testing/
+          mv tessdata_unittest/* ../
+
       - name: Configure Tesseract (Linux)
         run: |
              mkdir build
@@ -74,6 +80,7 @@ jobs:
                -G Ninja \
                -DCMAKE_BUILD_TYPE=Release \
                -DOPENMP_BUILD=OFF \
+               -DBUILD_TESTING=ON \
                -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
                -DCMAKE_INSTALL_PREFIX:PATH=inst
         if: runner.os == 'Linux'
@@ -101,6 +108,11 @@ jobs:
         run: |
              cmake --build build --config Release --target install
 
+      - name: Make and run Unit Tests (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cmake --build build --config Release --target check
+
       - name: Display Tesseract Version
         run: |
              build/inst/bin/tesseract -v
@@ -109,12 +121,6 @@ jobs:
         run: |
              build/inst/bin/lstmtraining -v
              build/inst/bin/text2image -v
-
-      - name: Download fonts, tessdata and langdata required for tests
-        run: |
-             git clone https://github.com/egorpugin/tessdata tessdata_unittest
-             cp tessdata_unittest/fonts/* test/testing/
-             mv tessdata_unittest/* ../
 
       - name: List languages in different tessdata-dir
         run: |
