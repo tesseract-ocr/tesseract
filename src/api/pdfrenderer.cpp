@@ -329,7 +329,12 @@ static bool CodepointToUtf16be(int code, char utf16[kMaxBytesPerCodepoint]) {
 }
 
 char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double height) {
-  double ppi = api->GetSourceYResolution();
+  double input_image_ppi = api->GetSourceYResolution();
+  double ppi = GetRenderingResolution(api);
+  double scale = 1;
+  if (input_image_ppi > 0) {
+    scale = ppi / input_image_ppi;
+  }
 
   // These initial conditions are all arbitrary and will be overwritten
   double old_x = 0.0, old_y = 0.0;
@@ -379,6 +384,7 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       int x1, y1, x2, y2;
       res_it->Baseline(RIL_TEXTLINE, &x1, &y1, &x2, &y2);
+      x1 *= scale; y1 *= scale; x2 *= scale; y2 *= scale;
       ClipBaseline(ppi, x1, y1, x2, y2, &line_x1, &line_y1, &line_x2, &line_y2);
     }
 
@@ -413,6 +419,7 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
     {
       int word_x1, word_y1, word_x2, word_y2;
       res_it->Baseline(RIL_WORD, &word_x1, &word_y1, &word_x2, &word_y2);
+      word_x1 *= scale; word_y1 *= scale; word_x2 *= scale; word_y2 *= scale;
       GetWordBaseline(writing_direction, ppi, height, word_x1, word_y1, word_x2, word_y2, line_x1,
                       line_y1, line_x2, line_y2, &x, &y, &word_length);
     }
@@ -828,9 +835,9 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix, const char *filename, long int obj
 }
 
 bool TessPDFRenderer::AddImageHandler(TessBaseAPI *api) {
-  Pix *pix = api->GetInputImage();
+  Pix *pix = GetRenderingImage(api);
   const char *filename = api->GetInputName();
-  int ppi = api->GetSourceYResolution();
+  int ppi = GetRenderingResolution(api);
   if (!pix || ppi <= 0) {
     return false;
   }

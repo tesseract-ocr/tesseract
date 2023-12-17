@@ -18,12 +18,14 @@
 #ifdef HAVE_CONFIG_H
 #  include "config_auto.h"
 #endif
+#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include <tesseract/renderer.h>
 #include <cstring>
 #include <memory>     // std::unique_ptr
 #include <string>     // std::string
 #include "serialis.h" // Serialize
+#include "tprintf.h"
 
 namespace tesseract {
 
@@ -36,6 +38,8 @@ TessResultRenderer::TessResultRenderer(const char *outputbase, const char *exten
     , file_extension_(extension)
     , title_("")
     , imagenum_(-1)
+    , rendering_image_(nullptr)
+    , rendering_dpi_(0)
     , happy_(true) {
   if (strcmp(outputbase, "-") && strcmp(outputbase, "stdout")) {
     std::string outfile = std::string(outputbase) + "." + extension;
@@ -90,11 +94,69 @@ bool TessResultRenderer::AddImage(TessBaseAPI *api) {
     return false;
   }
   ++imagenum_;
+  Pix *rendering_image_prev = rendering_image_;
+  int rendering_dpi_prev = rendering_dpi_;
   bool ok = AddImageHandler(api);
+  ResetRenderingState(rendering_image_prev, rendering_dpi_prev);
   if (next_) {
     ok = next_->AddImage(api) && ok;
   }
   return ok;
+}
+
+void TessResultRenderer::ResetRenderingState(Pix *rendering_image_prev,
+                                             int rendering_dpi_prev) {
+  if (rendering_image_ != rendering_image_prev) {
+    pixDestroy(&rendering_image_);
+    rendering_image_ = rendering_image_prev;
+  }
+  if (rendering_dpi_ != rendering_dpi_prev) {
+    rendering_dpi_ = rendering_dpi_prev;
+  }
+}
+
+Pix *TessResultRenderer::GetRenderingImage(TessBaseAPI *api) {
+  if (!rendering_image_) {
+    Pix *source_image = api->GetInputImage();
+    int source_dpi = api->GetSourceYResolution();
+    if (!source_image || source_dpi <= 0) {
+      happy_ = false;
+      return nullptr;
+    }
+
+    int rendering_dpi = GetRenderingResolution(api);
+    if (rendering_dpi != source_dpi) {
+      float scale = (float)rendering_dpi / (float)source_dpi;
+
+      rendering_image_ = pixScale(source_image, scale, scale);
+    } else {
+      return source_image;
+    }
+  }
+  return rendering_image_;
+}
+
+int TessResultRenderer::GetRenderingResolution(tesseract::TessBaseAPI *api) {
+  if (rendering_dpi_) {
+    return rendering_dpi_;
+  }
+  int source_dpi = api->GetSourceYResolution();
+  int rendering_dpi;
+  if (api->GetIntVariable("rendering_dpi", &rendering_dpi) &&
+      rendering_dpi > 0 && rendering_dpi != source_dpi) {
+    if (rendering_dpi < kMinCredibleResolution ||
+        rendering_dpi > kMaxCredibleResolution) {
+#if !defined(NDEBUG)
+      tprintf(
+          "Warning: User defined rendering dpi %d is outside of expected range "
+          "(%d - %d)!\n",
+          rendering_dpi, kMinCredibleResolution, kMaxCredibleResolution);
+#endif
+    }
+    rendering_dpi_ = rendering_dpi;
+    return rendering_dpi_;
+  }
+  return source_dpi;
 }
 
 bool TessResultRenderer::EndDocument() {
