@@ -550,34 +550,19 @@ bool DocumentData::ReCachePages() {
 #if !defined(TESSERACT_IMAGEDATA_AS_PIX)
   if (document_name_.ends_with("png")) {
     // PNG image given instead of LSTMF file.
-#if 1
     std::string gt_name = document_name_.substr(0, document_name_.length() - 3) + "gt.txt";
     std::ifstream t(gt_name);
     std::string line;
     std::getline(t, line);
+    t.close();
     ImageData *image_data = ImageData::Build(document_name_.c_str(), 0, "", nullptr, 0, line.c_str(), nullptr);
     Image image = pixRead(document_name_.c_str());
     image_data->SetPix(image);
-#else
-    ImageData *image_data = new ImageData;
-    image_data->set_imagefilename(document_name_);
-    image_data->set_page_number(0);
-    Image image = pixRead(document_name_.c_str());
-    image_data->SetPix(image);
-    auto height = pixGetHeight(image);
-    auto width = pixGetWidth(image);
-    std::string gt_name = document_name_.substr(0, document_name_.length() - 3) + "gt.txt";
-    std::ifstream t(gt_name);
-    std::string line;
-    std::getline(t, line);
-    //std::stringstream buffer;
-    //buffer << t.rdbuf();
-#endif
-    t.close();
-    //image_data->transcription_ = buffer.str();
     pages_.push_back(image_data);
-    set_total_pages(1);
     loaded_pages = 1;
+    pages_offset_ %= loaded_pages;
+    set_total_pages(loaded_pages);
+    set_memory_used(memory_used() + image_data->MemoryUsed());
     if (true) {
       tprintf("Loaded %zu/%d lines (%d-%zu) of document %s\n", pages_.size(),
               loaded_pages, pages_offset_ + 1, pages_offset_ + pages_.size(),
