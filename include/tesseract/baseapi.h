@@ -564,8 +564,7 @@ public:
    * page_number is 0-based but will appear in the output as 1-based.
    * Returned string must be freed with the delete [] operator.
    */
-  char *GetTSVText(int page_number, bool font_info=false,
-                   bool lang_info=false);
+  char *GetTSVText(int page_number, bool lang_info=false);
 
   /**
    * Make a box file for LSTM training from the internal data structures.

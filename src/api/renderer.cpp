@@ -156,19 +156,11 @@ bool TessTextRenderer::AddImageHandler(TessBaseAPI *api) {
  * TSV Text Renderer interface implementation
  **********************************************************************/
 TessTsvRenderer::TessTsvRenderer(const char *outputbase) : TessResultRenderer(outputbase, "tsv") {
-  font_info_ = false;
   lang_info_ = false;
 }
 
-TessTsvRenderer::TessTsvRenderer(const char *outputbase, bool font_info)
+TessTsvRenderer::TessTsvRenderer(const char *outputbase, bool lang_info)
     : TessResultRenderer(outputbase, "tsv") {
-  font_info_ = font_info;
-  lang_info_ = false;
-}
-
-TessTsvRenderer::TessTsvRenderer(const char *outputbase, bool font_info, bool lang_info)
-    : TessResultRenderer(outputbase, "tsv") {
-  font_info_ = font_info;
   lang_info_ = lang_info;
 }
 
@@ -177,9 +169,6 @@ bool TessTsvRenderer::BeginDocumentHandler() {
   AppendString(
       "level\tpage_num\tblock_num\tpar_num\tline_num\tword_"
       "num\tleft\ttop\twidth\theight\tconf\t");
-  if (font_info_) {
-    AppendString("x_font\tx_fsize\t");
-  }
   if (lang_info_) {
     AppendString("lang\t");
   }
@@ -192,7 +181,7 @@ bool TessTsvRenderer::EndDocumentHandler() {
 }
 
 bool TessTsvRenderer::AddImageHandler(TessBaseAPI *api) {
-  const std::unique_ptr<const char[]> tsv(api->GetTSVText(imagenum(), font_info_, lang_info_));
+  const std::unique_ptr<const char[]> tsv(api->GetTSVText(imagenum(), lang_info_));
   if (tsv == nullptr) {
     return false;
   }
