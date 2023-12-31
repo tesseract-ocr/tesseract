@@ -80,7 +80,7 @@ LSTMTrainer::LSTMTrainer()
   debug_interval_ = 0;
 }
 
-LSTMTrainer::LSTMTrainer(const char *model_base, const char *checkpoint_name,
+LSTMTrainer::LSTMTrainer(const std::string &model_base, const std::string &checkpoint_name,
                          int debug_interval, int64_t max_memory)
     : randomly_rotate_(false),
       training_data_(max_memory),
