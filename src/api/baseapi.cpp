@@ -1184,6 +1184,10 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
       if (curlcode != CURLE_OK) {
         return error("curl_easy_setopt");
       }
+      curlcode = curl_easy_setopt(curl, CURLOPT_USERAGENT, "Tesseract OCR");
+      if (curlcode != CURLE_OK) {
+        return error("curl_easy_setopt");
+      }
       curlcode = curl_easy_perform(curl);
       if (curlcode != CURLE_OK) {
         return error("curl_easy_perform");
