@@ -1,3 +1,13 @@
+2024-01-18 - V5.3.4
+* Fixes for scrollview
+* Fixes for autoconf, clang and sw builds
+* Improve OCR for an image URL
+  * Fail on curl download errors
+  * New parameter curl_cookiefile
+  * Set User-Agent: header field in HTTP request for curl downloads
+* Output directory list from "combine_tessdata -d" to stdout
+* Other small improvements for code and documentation.
+
 2023-10-05 - V5.3.3
 * Small code fixes and improvements to fix Coverity Scan issues.
 * Disable -mfpu=neon for aarch64.
