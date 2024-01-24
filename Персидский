@@ -1,0 +1,1 @@
+tesseract input.pdf output.txt --lang he
