@@ -17,13 +17,13 @@
 
 cd $SRC/leptonica
 ./autogen.sh
-./configure --disable-shared
+./configure --disable-shared --disable-openmp
 make SUBDIRS=src install -j$(nproc)
 ldconfig
 
 cd $SRC/tesseract
 ./autogen.sh
-CXXFLAGS="$CXXFLAGS -D_GLIBCXX_DEBUG" ./configure --disable-graphics --disable-shared
+CXXFLAGS="$CXXFLAGS -D_GLIBCXX_DEBUG" ./configure --disable-graphics --disable-shared --disable-openmp
 make -j$(nproc)
 
 # Get the models which are needed for the fuzzers.
