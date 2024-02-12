@@ -664,8 +664,6 @@ bool TessPDFRenderer::BeginDocumentHandler() {
 bool TessPDFRenderer::imageToPDFObj(Pix *pix, const char *filename, long int objnum,
                                     char **pdf_object, long int *pdf_object_size,
                                     const int jpg_quality) {
-  int sad;
-
   if (!pdf_object_size || !pdf_object) {
     return false;
   }
@@ -676,7 +674,7 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix, const char *filename, long int obj
   }
 
   L_Compressed_Data *cid = nullptr;
-  sad = l_generateCIDataForPdf(filename, pix, jpg_quality, &cid);
+  auto sad = l_generateCIDataForPdf(filename, pix, jpg_quality, &cid);
 
   if (sad || !cid) {
     l_CIDataDestroy(&cid);
