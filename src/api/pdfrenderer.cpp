@@ -674,14 +674,7 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix, const char *filename, long int obj
   }
 
   L_Compressed_Data *cid = nullptr;
-
-  int sad = 0;
-  if (pixGetInputFormat(pix) == IFF_PNG) {
-    sad = pixGenerateCIData(pix, L_FLATE_ENCODE, 0, 0, &cid);
-  }
-  if (!cid) {
-    sad = l_generateCIDataForPdf(filename, pix, jpg_quality, &cid);
-  }
+  auto sad = l_generateCIDataForPdf(filename, pix, jpg_quality, &cid);
 
   if (sad || !cid) {
     l_CIDataDestroy(&cid);
