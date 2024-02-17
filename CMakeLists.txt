@@ -99,7 +99,6 @@ option(DISABLE_TIFF "Disable build with libtiff (if available)" OFF)
 option(DISABLE_ARCHIVE "Disable build with libarchive (if available)" OFF)
 option(DISABLE_CURL "Disable build with libcurl (if available)" OFF)
 option(INSTALL_CONFIGS "Install tesseract configs" ON)
-option(INSTALL_PDF_TTF "Install pdf font file" ON)
 
 if(NOT ${CMAKE_VERSION} VERSION_LESS "3.15.0")
   if(WIN32 AND MSVC)
@@ -556,8 +555,6 @@ message(STATUS "Build tests [BUILD_TESTS]: ${BUILD_TESTS}")
 message(STATUS "Use system ICU Library [USE_SYSTEM_ICU]: ${USE_SYSTEM_ICU}")
 message(
   STATUS "Install tesseract configs [INSTALL_CONFIGS]: ${INSTALL_CONFIGS}")
-message(
-  STATUS "Install tesseract pdf font [INSTALL_PDF_TTF]: ${INSTALL_PDF_TTF}")
 message(STATUS "--------------------------------------------------------")
 message(STATUS)
 
@@ -965,10 +962,6 @@ if(INSTALL_CONFIGS)
   install(FILES ${TESSERACT_TESSCONFIGS}
           DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/tessconfigs)
 endif()
-if (INSTALL_PDF_TTF)
-  install(FILES tessdata/pdf.ttf
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata)
-endif ()
 
 # ##############################################################################
 # uninstall target
