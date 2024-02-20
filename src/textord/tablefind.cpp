@@ -1653,7 +1653,7 @@ void TableFinder::GrowTableToIncludeLines(const TBOX &table_box,
 }
 
 // Checks whether the horizontal line belong to the table by looking at the
-// side spacing of extra ColParitions that will be included in the table
+// side spacing of extra ColPartitions that will be included in the table
 // due to expansion
 bool TableFinder::HLineBelongsToTable(const ColPartition &part,
                                       const TBOX &table_box) {

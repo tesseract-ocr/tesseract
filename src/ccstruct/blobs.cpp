@@ -361,7 +361,7 @@ TBLOB *TBLOB::ClassifyNormalizeIfNeeded() const {
     rotated_blob = new TBLOB(*this);
     const FCOORD &rotation = denorm_.block()->classify_rotation();
     // Move the rotated blob back to the same y-position so that we
-    // can still distinguish similar glyphs with differeny y-position.
+    // can still distinguish similar glyphs with different y-position.
     float target_y =
         kBlnBaselineOffset + (rotation.y() > 0 ? x_middle - box.left() : box.right() - x_middle);
     rotated_blob->Normalize(nullptr, &rotation, &denorm_, x_middle, y_middle, 1.0f, 1.0f, 0.0f,

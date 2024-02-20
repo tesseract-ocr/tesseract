@@ -142,7 +142,7 @@ private:
   // |        Double     width    heading                              |
   // |-----------------------------------------------------------------|
   // |-------------------------------| |-------------------------------|
-  // |   Common width ColParition    | |  Common width ColPartition    |
+  // |   Common width ColPartition   | |  Common width ColPartition    |
   // |-------------------------------| |-------------------------------|
   // the layout with two common-width columns has better coverage than the
   // double width heading, because the coverage is "good," even though less in

@@ -120,7 +120,7 @@ C_OUTLINE_LIST *OL_BUCKETS::scan_next(decltype(buckets)::iterator in_it) {
 
 int32_t OL_BUCKETS::outline_complexity(C_OUTLINE *outline, // parent outline
                                        int32_t max_count,  // max output
-                                       int16_t depth       // recurion depth
+                                       int16_t depth       // recursion depth
 ) {
   TDimension xmin, xmax;    // coord limits
   TDimension ymin, ymax;

@@ -19,7 +19,7 @@
 #ifndef TESSERACT_TEXTORD_STROKEWIDTH_H_
 #define TESSERACT_TEXTORD_STROKEWIDTH_H_
 
-#include "blobbox.h"  // BlobNeighourDir.
+#include "blobbox.h"  // BlobNeighbourDir.
 #include "blobgrid.h" // Base class.
 #include "colpartitiongrid.h"
 #include "textlineprojection.h"
