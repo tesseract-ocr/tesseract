@@ -17,7 +17,7 @@
 
 #include <allheaders.h>
 #include "bbgrid.h"  // Base class.
-#include "blobbox.h" // BlobNeighourDir.
+#include "blobbox.h" // BlobNeighbourDir.
 #include "blobs.h"
 #include "colpartition.h"
 #include "helpers.h" // for IntCastRounded

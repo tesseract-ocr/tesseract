@@ -61,7 +61,7 @@ static bool is_single_quote(const char32 ch) {
       0x2018, // left single quotation mark (English, others)
       0x2019, // right single quotation mark (Danish, Finnish, Swedish, Norw.)
               // We may have to introduce a comma set with 0x201a
-      0x201B, // single high-reveresed-9 quotation mark (PropList.txt)
+      0x201B, // single high-reversed-9 quotation mark (PropList.txt)
       0x2032, // prime
       0x300C, // left corner bracket (East Asian languages)
       0xFF07, // fullwidth apostrophe
