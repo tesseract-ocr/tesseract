@@ -1,13 +1,6 @@
 environment:
   matrix:
-    # does not work with sw at the moment
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      #platform: Win32
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      #platform: Win32
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      #platform: Win64
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
       platform: Win64
 
 configuration:
