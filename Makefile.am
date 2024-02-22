@@ -1269,6 +1269,7 @@ check_PROGRAMS += paragraphs_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += params_model_test
 endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += pdfrenderer_test
 check_PROGRAMS += progress_test
 check_PROGRAMS += qrsequence_test
 check_PROGRAMS += recodebeam_test
@@ -1496,6 +1497,10 @@ progress_test_SOURCES = unittest/progress_test.cc
 progress_test_CPPFLAGS = $(unittest_CPPFLAGS)
 progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
 progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+pdfrenderer_test_SOURCES = unittest/pdfrenderer_test.cc
+pdfrenderer_test_CPPFLAGS = $(unittest_CPPFLAGS)
+pdfrenderer_test_LDADD = $(TESS_LIBS) $(TRAINING_LIBS)
 
 qrsequence_test_SOURCES = unittest/qrsequence_test.cc
 qrsequence_test_CPPFLAGS = $(unittest_CPPFLAGS)

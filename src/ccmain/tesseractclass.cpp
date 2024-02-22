@@ -349,6 +349,7 @@ Tesseract::Tesseract()
     , BOOL_MEMBER(textonly_pdf, false, "Create PDF with only one invisible text layer",
                   this->params())
     , INT_MEMBER(jpg_quality, 85, "Set JPEG quality level", this->params())
+    , INT_MEMBER(rendering_dpi, 0, "Scaled input image resolution before rendering", this->params())
     , INT_MEMBER(user_defined_dpi, 0, "Specify DPI for input image", this->params())
     , INT_MEMBER(min_characters_to_try, 50, "Specify minimum characters to try during OSD",
                  this->params())

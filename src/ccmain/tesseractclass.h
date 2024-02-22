@@ -903,6 +903,7 @@ public:
   BOOL_VAR_H(tessedit_create_pdf);
   BOOL_VAR_H(textonly_pdf);
   INT_VAR_H(jpg_quality);
+  INT_VAR_H(rendering_dpi);
   INT_VAR_H(user_defined_dpi);
   INT_VAR_H(min_characters_to_try);
   STRING_VAR_H(unrecognised_char);

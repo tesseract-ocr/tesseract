@@ -106,6 +106,23 @@ public:
     return imagenum_;
   }
 
+  /**
+   * Specifies an alternate image to render with the extracted text.
+   * It must be called after BeginDocument and before AddImage.
+   */
+  void SetRenderingImage(Pix *rendering_image) {
+    rendering_image_ = rendering_image;
+  }
+
+  /**
+   * Specifies the expected rendering resolution.
+   * If not set, rendering_dpi api params will be used, else the source image
+   * resolution.
+   */
+  void SetRenderingResolution(int rendering_dpi) {
+    rendering_dpi_ = rendering_dpi;
+  }
+
 protected:
   /**
    * Called by concrete classes.
@@ -139,12 +156,29 @@ protected:
   // This method will grow the output buffer if needed.
   void AppendData(const char *s, int len);
 
+  // Renderers can call this to get the actual image to render with extracted
+  // text. This method returns:
+  //  - the rendering image set by the caller or
+  //  - the input image scaled to the rendering_dpi field if defined or
+  //  - the input image from the api otherwise
+  Pix *GetRenderingImage(TessBaseAPI *api);
+
+  // Resolution of the rendering image either set manually by the caller or with
+  // the rendering_dpi api parameter.
+  int GetRenderingResolution(TessBaseAPI *api);
+
+  // Reset rendering image and dpi to previous state. Destroy scaled rendered
+  // image if exists.
+  void ResetRenderingState(Pix *rendering_image_prev, int rendering_dpi_prev);
+
 private:
   TessResultRenderer *next_;   // Can link multiple renderers together
   FILE *fout_;                 // output file pointer
   const char *file_extension_; // standard extension for generated output
   std::string title_;          // title of document being rendered
   int imagenum_;               // index of last image added
+  Pix *rendering_image_;       // Image to render with the extracted text
+  int rendering_dpi_;          // Resolution of the rendering_image
   bool happy_;                 // I get grumpy when the disk fills up, etc.
 };
 
