@@ -139,6 +139,12 @@ protected:
   // This method will grow the output buffer if needed.
   void AppendData(const char *s, int len);
 
+  template <typename T>
+  auto AppendData(T &&d) {
+    AppendData(d.data(), d.size());
+    return d.size();
+  }
+
 private:
   TessResultRenderer *next_;   // Can link multiple renderers together
   FILE *fout_;                 // output file pointer
