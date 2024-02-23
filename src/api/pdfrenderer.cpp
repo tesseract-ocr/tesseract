@@ -22,6 +22,7 @@
 
 #include "pdf_ttf.h"
 #include "tprintf.h"
+#include "helpers.h" // for Swap
 
 #include <allheaders.h>
 #include <tesseract/baseapi.h>
@@ -33,7 +34,6 @@
 #include <locale>    // for std::locale::classic
 #include <memory>    // std::unique_ptr
 #include <sstream>   // for std::stringstream
-#include "helpers.h" // for Swap
 
 /*
 
