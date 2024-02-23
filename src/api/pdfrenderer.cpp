@@ -466,7 +466,6 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     if (res_it->IsAtBeginningOf(RIL_WORD)) {
       pdf_word += "0020";
-      pdf_word_len++;
     }
     if (word_length > 0 && pdf_word_len > 0) {
       double h_stretch = kCharWidth * prec(100.0 * word_length / (fontsize * pdf_word_len));
