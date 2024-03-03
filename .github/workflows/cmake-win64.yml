@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: ilammy/setup-nasm@v1
       - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
       - run: git fetch --prune --unshallow --tags

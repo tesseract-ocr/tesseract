@@ -17,7 +17,7 @@ jobs:
           - { name: 22.04-openmp, os: ubuntu-22.04 }
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 
