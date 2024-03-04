@@ -11,8 +11,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - msystem: MINGW32
-            mingw_package_prefix: mingw-w64-i686
           - msystem: MINGW64
             mingw_package_prefix: mingw-w64-x86_64
     defaults:
