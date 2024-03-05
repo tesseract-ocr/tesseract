@@ -40,7 +40,7 @@ jobs:
 
     - name: Make and Install Tesseract
       run: |
-           make -j 8
+           make
            sudo make install install
 
     - name: Make and Install Training Tools
@@ -69,7 +69,7 @@ jobs:
 
     - name: Make and run Unit Tests
       run: |
-           make check -j 4
+           make check
 
     - name: Display Unit Tests Report
       run: |
