@@ -10,10 +10,11 @@ on:
 jobs:
   linux:
     runs-on: ${{ matrix.os }}
+    timout-minutes: 150
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ g++, clang++ ]
+        compiler: [ g++, clang++-15 ]
         os: [ ubuntu-22.04 ]
 
     steps:
@@ -44,7 +45,7 @@ jobs:
 
     - name: Make and Install Training Tools
       run: |
-           make training -j 8
+           make training
            sudo make install training-install
 
     - name: Display Version
