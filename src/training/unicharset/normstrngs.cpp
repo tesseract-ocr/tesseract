@@ -83,8 +83,7 @@ static bool is_single_quote(const char32 ch) {
 }
 
 static bool is_double_quote(const char32 ch) {
-  static const int kNumDoubleQuoteUnicodes = 8;
-  static const char32 kDoubleQuoteUnicodes[kNumDoubleQuoteUnicodes] = {
+  static const char32 kDoubleQuoteUnicodes[] = {
       '"',
       0x201C, // left double quotation mark (English, others)
       0x201D, // right double quotation mark (Danish, Finnish, Swedish, Norw.)
