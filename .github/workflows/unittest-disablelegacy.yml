@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         compiler: [ g++, clang++ ]
-        os: [ ubuntu-20.04 ]
+        os: [ ubuntu-22.04 ]
 
     steps:
     - uses: actions/checkout@v4
