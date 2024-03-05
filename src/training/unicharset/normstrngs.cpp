@@ -3,7 +3,6 @@
  * Description: Utilities to normalize and manipulate UTF-32 and
  *              UTF-8 strings.
  * Author:      Ranjith Unnikrishnan
- * Created:     Thu July 4 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,8 +35,7 @@
 namespace tesseract {
 
 static bool is_hyphen_punc(const char32 ch) {
-  static const int kNumHyphenPuncUnicodes = 13;
-  static const char32 kHyphenPuncUnicodes[kNumHyphenPuncUnicodes] = {
+  static const char32 kHyphenPuncUnicodes[] = {
       '-',
       0x2010, // hyphen
       0x2011, // non-breaking hyphen
