@@ -62,8 +62,7 @@ static bool is_hyphen_punc(const char32 ch) {
 }
 
 static bool is_single_quote(const char32 ch) {
-  static const int kNumSingleQuoteUnicodes = 8;
-  static const char32 kSingleQuoteUnicodes[kNumSingleQuoteUnicodes] = {
+  static const char32 kSingleQuoteUnicodes[] = {
       '\'', '`',
       0x2018, // left single quotation mark (English, others)
       0x2019, // right single quotation mark (Danish, Finnish, Swedish, Norw.)
