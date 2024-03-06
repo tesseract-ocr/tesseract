@@ -10,7 +10,7 @@ on:
 jobs:
   linux:
     runs-on: ${{ matrix.os }}
-    timout-minutes: 150
+    timeout-minutes: 150
     strategy:
       fail-fast: false
       matrix:
