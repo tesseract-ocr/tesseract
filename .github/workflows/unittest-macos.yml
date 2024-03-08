@@ -13,6 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
+          - { name: macos-arm-14-clang-unittest, os: macos-14, cxx: clang++ } # Apple silicon
           - { name: macos-12-clang-unittest, os: macos-12, cxx: clang++ }
           - { name: macos-12-gcc-unittest, os: macos-12, cxx: g++ }
 
