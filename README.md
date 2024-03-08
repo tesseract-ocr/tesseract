@@ -65,7 +65,7 @@ and **[Change Log](https://github.com/tesseract-ocr/tesseract/blob/main/ChangeLo
 You can either [Install Tesseract via pre-built binary package](https://tesseract-ocr.github.io/tessdoc/Installation.html)
 or [build it from source](https://tesseract-ocr.github.io/tessdoc/Compiling.html).
 
-A C++ compiler with good C++17 support is required for building Tesseract from source.
+Before building Tesseract from source, please check that your system has a compiler which is one of the [supported compilers](https://tesseract-ocr.github.io/tessdoc/supported-compilers.html).
 
 ## Running Tesseract
 
