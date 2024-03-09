@@ -1402,7 +1402,7 @@ void ParagraphModelSmearer::CalculateOpenModels(int row_start, int row_end) {
           push_back_new(still_open, m);
         }
       }
-      OpenModels(row + 1) = still_open;
+      OpenModels(row + 1) = std::move(still_open);
     }
   }
 }
