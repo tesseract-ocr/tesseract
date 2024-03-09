@@ -272,7 +272,7 @@ void Tesseract::ParseLanguageString(const std::string &lang_str, std::vector<std
     std::string lang_code(start);
     lang_code.resize(end);
     std::string next(start + end);
-    remains = next;
+    remains = std::move(next);
     lang_code = prefix + lang_code;
     // Check whether lang_code is already in the target vector and add.
     if (!IsStrInList(lang_code, *target)) {
