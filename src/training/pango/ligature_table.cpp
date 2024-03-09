@@ -75,7 +75,7 @@ void LigatureTable::Init() {
       int norm_length = normed8.size();
       if (normed8 != lig8 && lig_length > 1 && norm_length > 1) {
         norm_to_lig_table_[normed8] = lig8;
-        lig_to_norm_table_[lig8] = normed8;
+        lig_to_norm_table_[lig8] = std::move(normed8);
         if (min_lig_length_ == 0 || lig_length < min_lig_length_) {
           min_lig_length_ = lig_length;
         }
