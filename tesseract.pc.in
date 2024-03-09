@@ -1,13 +1,17 @@
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-bindir=@bindir@
-datarootdir = @datarootdir@
-datadir=@datadir@
-libdir=@libdir@
-includedir=@includedir@
+# Configuration for Tesseract OCR Engine
 
+# Installation paths
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+datarootdir = @datarootdir@
+datadir = @datadir@
+libdir = @libdir@
+includedir = @includedir@
+
+# Package Information
 Name: @PACKAGE_NAME@
-Description: An OCR Engine that was developed at HP Labs between 1985 and 1995... and now at Google.
+Description: An OCR Engine developed at HP Labs between 1985 and 1995, now maintained by Google.
 URL: https://github.com/tesseract-ocr/tesseract
 Version: @VERSION@
 Requires.private: lept
