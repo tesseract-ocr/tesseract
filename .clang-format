@@ -1,4 +1,4 @@
-BasedOnStyle: Google
+# Google-based Style
 
 # Modifications for Tesseract.
 
@@ -10,10 +10,15 @@ IndentPPDirectives: AfterHash
 
 # Default style for some settings.
 
+# Offset for access modifiers.
 AccessModifierOffset: -2
+# Do not allow short loops on a single line.
 AllowShortLoopsOnASingleLine: false
 # Enforce always the same pointer alignment.
 DerivePointerAlignment: false
+# Preserve include blocks.
 IncludeBlocks: Preserve
+# Right-align pointer.
 PointerAlignment: Right
+# Spaces before trailing comments.
 SpacesBeforeTrailingComments: 1
