@@ -268,7 +268,7 @@ bool UNICHARSET::encode_string(const char *str, bool give_up_on_failure,
     }
   }
   if (lengths != nullptr) {
-    *lengths = best_lengths;
+    *lengths = std::move(best_lengths);
   }
   if (encoded_length != nullptr) {
     *encoded_length = str_pos;
