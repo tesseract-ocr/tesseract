@@ -26,7 +26,7 @@ jobs:
       run: |
            brew install autoconf automake libarchive
            brew install leptonica cairo pango
-           brew install cabextract
+           brew install cabextract libtool
 
     - name: Setup
       run: |
