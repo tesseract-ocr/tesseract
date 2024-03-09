@@ -366,8 +366,8 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data,
           tprintf("Inverting image: old min=%g, mean=%g, sd=%g, inv %g,%g,%g\n", pos_min, pos_mean,
                   pos_sd, inv_min, inv_mean, inv_sd);
         }
-        *outputs = inv_outputs;
-        *inputs = inv_inputs;
+        *outputs = std::move(inv_outputs);
+        *inputs = std::move(inv_inputs);
       } else if (re_invert) {
         // Inverting was not an improvement, so undo and run again, so the
         // outputs match the best forward result.
