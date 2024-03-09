@@ -225,7 +225,7 @@ void ShapeClassifier::FilterDuplicateUnichars(std::vector<ShapeRating> *results)
     }
     filtered_results.push_back((*results)[r]);
   }
-  *results = filtered_results;
+  *results = std::move(filtered_results);
 }
 
 } // namespace tesseract.
