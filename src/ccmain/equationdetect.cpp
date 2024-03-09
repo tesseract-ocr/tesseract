@@ -391,7 +391,7 @@ int EquationDetect::FindEquationParts(ColPartitionGrid *part_grid, ColPartitionS
     for (auto &i : seeds_expanded) {
       InsertPartAfterAbsorb(i);
     }
-    cp_seeds_ = seeds_expanded;
+    cp_seeds_ = std::move(seeds_expanded);
   }
 
   // Pass 4: find math block satellite text partitions and merge them.
@@ -823,7 +823,7 @@ void EquationDetect::IdentifyInlinePartsHorizontal() {
   }
 
   // Reset the cp_seeds_ using the new_seeds.
-  cp_seeds_ = new_seeds;
+  cp_seeds_ = std::move(new_seeds);
 }
 
 int EquationDetect::EstimateTextPartLineSpacing() {
@@ -891,7 +891,7 @@ void EquationDetect::IdentifyInlinePartsVertical(const bool top_to_bottom,
       new_seeds.push_back(part);
     }
   }
-  cp_seeds_ = new_seeds;
+  cp_seeds_ = std::move(new_seeds);
 }
 
 bool EquationDetect::IsInline(const bool search_bottom, const int textparts_linespacing,
