@@ -19,7 +19,6 @@ jobs:
           - { name: ubuntu-22.04-gcc-11-autotools, os: ubuntu-22.04, cxx: g++-11 } #installed
           - { name: ubuntu-20.04-gcc-10-autotools, os: ubuntu-20.04, cxx: g++-10 } #installed
           - { name: ubuntu-20.04-gcc-9-autotools, os: ubuntu-20.04, cxx: g++-9 } #installed
-          - { name: ubuntu-20.04-gcc-8-autotools, os: ubuntu-20.04, cxx: g++-8 }
 
     steps:
     - uses: actions/checkout@v4
