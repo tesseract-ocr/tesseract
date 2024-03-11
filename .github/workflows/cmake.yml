@@ -26,7 +26,6 @@ jobs:
           - { name: ubuntu-22.04-gcc-11-cmake, os: ubuntu-22.04, cxx: g++-11 } #installed
           - { name: ubuntu-20.04-gcc-10-cmake, os: ubuntu-20.04, cxx: g++-10 } #installed
           - { name: ubuntu-20.04-gcc-9-cmake, os: ubuntu-20.04, cxx: g++-9 } #installed
-          - { name: ubuntu-20.04-gcc-8-cmake, os: ubuntu-20.04, cxx: g++-8 }
 
     steps:
       - name: Install compilers on Linux
