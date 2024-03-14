@@ -208,8 +208,7 @@ void RecodeBeamSearch::DetermineDiplopiaCharToRemove(int width, int timestep) {
     start_diplopia_ = start_second_diplopia;
     end_diplopia_ = end_second_diplopia;
     diplopia_max_ = second_diplopia_max;
-  }
-  else {
+  } else {
     chosen_diplopia_char_ = first_diplopia_char_;
     start_diplopia_ = start_first_diplopia;
     end_diplopia_ = end_first_diplopia;
@@ -218,8 +217,7 @@ void RecodeBeamSearch::DetermineDiplopiaCharToRemove(int width, int timestep) {
 
   if (first_diplopia_max_timestep <= second_diplopia_max_timestep) {
     diplopia_gap_ = second_diplopia_max_timestep - first_diplopia_max_timestep;
-  }
-  else {
+  } else {
     diplopia_gap_ = first_diplopia_max_timestep - second_diplopia_max_timestep;
   }
 }
@@ -275,14 +273,11 @@ void RecodeBeamSearch::DetermineDiplopiaDimensions(int width, int timestep, int 
 
   if (key_later < key_current && key_earlier < key_current) {
     shape = CS_AT_PEAK;
-  }
-  else if (key_later > key_current && key_earlier < key_current) {
+  } else if (key_later > key_current && key_earlier < key_current) {
     shape = CS_PEAK_LATER;
-  }
-  else if (key_later < key_current && key_earlier > key_current) {
+  } else if (key_later < key_current && key_earlier > key_current) {
     shape = CS_PEAK_EARLIER;
-  }
-  else {
+  } else {
     shape = CS_IN_VALLEY;
   }
 
