@@ -203,7 +203,7 @@ private:
  */
 class TESS_API TessTsvRenderer : public TessResultRenderer {
 public:
-  explicit TessTsvRenderer(const char *outputbase, bool font_info);
+  explicit TessTsvRenderer(const char *outputbase, bool lang_info);
   explicit TessTsvRenderer(const char *outputbase);
 
 protected:
@@ -212,7 +212,7 @@ protected:
   bool EndDocumentHandler() override;
 
 private:
-  bool font_info_; // whether to print font information
+  bool lang_info_; // whether to print language information
 };
 
 /**
