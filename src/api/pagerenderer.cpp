@@ -700,7 +700,7 @@ char
     return nullptr;
   }
 
-  int lcnt = 0, tcnt = 0, bcnt = 0, wcnt = 0;
+  int rcnt = 0, lcnt = 0, wcnt = 0;
 
   if (input_file_.empty()) {
     SetInputName(nullptr);
@@ -769,7 +769,7 @@ char
   // TODO: Do we need to create a random number here?
   std::size_t ro_id = std::hash<std::string>{}(GetInputName());
   reading_order_str << "\t\t<ReadingOrder>\n"
-  << "\t\t\t<OrderedGroup id=\"ro_"<< ro_id
+  << "\t\t\t<OrderedGroup id=\"ro"<< ro_id
   << "\" caption=\"Regions reading order\">\n";
 
   ResultIterator *res_it = GetIterator();
@@ -787,20 +787,20 @@ char
       case PT_HEADING_IMAGE:
       case PT_PULLOUT_IMAGE: {
         // Handle all kinds of images.
-        page_str << "\t\t<Graphic id=\"r" << bcnt++ << "\">\n";
+        page_str << "\t\t<GraphicRegion id=\"r" << rcnt++ << "\">\n";
         page_str << "\t\t\t";
         AddBoxToPAGE(res_it, RIL_BLOCK, page_str);
-        page_str << "\t\t</Graphic>\n";
+        page_str << "\t\t</GraphicRegion>\n";
         res_it->Next(RIL_BLOCK);
         continue;
       }
       case PT_HORZ_LINE:
       case PT_VERT_LINE:
         // Handle horizontal and vertical lines.
-        page_str << "\t\t<Separator id=\"r_" << bcnt++ << "\">\n";
+        page_str << "\t\t<SeparatorRegion id=\"r" << rcnt++ << "\">\n";
         page_str << "\t\t\t";
         AddBoxToPAGE(res_it, RIL_BLOCK, page_str);
-        page_str << "\t\t</Separator>\n";
+        page_str << "\t\t</SeparatorRegion>\n";
         res_it->Next(RIL_BLOCK);
         continue;
       case PT_NOISE:
@@ -814,15 +814,15 @@ char
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
       // Add Block to reading order
       reading_order_str << "\t\t\t\t<RegionRefIndexed "
-      << "index=\"" << tcnt << "\" "
-      << "regionRef=\"r_" << tcnt << "\"/>\n";
+      << "index=\"" << rcnt << "\" "
+      << "regionRef=\"r" << rcnt << "\"/>\n";
       
       float deskew_angle;
       res_it->Orientation(&orientation_block, &writing_direction_block, &textline_order_block,
                   &deskew_angle);
       block_conf = ((res_it-> Confidence(RIL_BLOCK))/100.);
-      page_str << "\t\t<TextRegion id=\"r_" << tcnt << "\" "
-      << "custom=\""<< "readingOrder {index:"<< tcnt <<";} "
+      page_str << "\t\t<TextRegion id=\"r" << rcnt << "\" "
+      << "custom=\""<< "readingOrder {index:"<< rcnt <<";} "
       << "readingDirection {"<< WritingDirectionToStr(writing_direction_block)<<";} "
       << "orientation {"<< orientation_block <<";}\">\n";
       page_str << "\t\t\t";
@@ -849,7 +849,7 @@ char
 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       line_conf = ((res_it-> Confidence(RIL_TEXTLINE))/100.);
-      line_str << "\t\t\t<TextLine id=\"r_" << tcnt << "_tl_" << lcnt <<"\" readingDirection=\"" 
+      line_str << "\t\t\t<TextLine id=\"r" << rcnt << "l" << lcnt <<"\" readingDirection=\"" 
       << WritingDirectionToStr(writing_direction) << "\" "
       << "custom=\""<< "readingOrder {index:"<< lcnt <<";}\">\n";
       // If wordlevel is not set, get the line polygon and baseline
@@ -868,7 +868,7 @@ char
 
     // Create word stream if word level output is active
     if (WORDLEVELFLAG) {
-      word_str << "\t\t\t\t<Word id=\"r_" << tcnt << "_tl_" << lcnt << "_w_" << wcnt << "\" readingDirection=\""
+      word_str << "\t\t\t\t<Word id=\"r" << rcnt << "l" << lcnt << "w" << wcnt << "\" readingDirection=\""
       << WritingDirectionToStr(writing_direction)  << "\" "
       << "custom=\""<< "readingOrder {index:"<< wcnt <<";}\">\n";
       if (!POLYGONFLAG || ttb_flag){
@@ -1040,7 +1040,7 @@ char
       << "\t\t\t</TextEquiv>\n";
       page_str << "\t\t</TextRegion>\n";
       region_content.str("");
-      tcnt++;
+      rcnt++;
       lcnt = 0;
     }
   }
