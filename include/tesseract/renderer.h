@@ -199,7 +199,7 @@ private:
 };
 
 /**
- * Renders tesseract output into an page xml text string
+ * Renders Tesseract output into a PAGE XML text string
  */
 class TESS_API TessPAGERenderer : public TessResultRenderer {
 public:
