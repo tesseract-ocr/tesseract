@@ -343,7 +343,7 @@ AppendLinePolygon(Pta *pts_ltr, Pta *pts_rtl, Pta *ptss, tesseract::WritingDirec
   if (writing_direction != WRITING_DIRECTION_RIGHT_TO_LEFT) {
     if (ptaGetCount(pts_rtl)!=0){
       ptaJoin(pts_ltr, pts_rtl, 0, -1);
-      pts_rtl = DestroyAndCreatePta(pts_rtl);
+      DestroyAndCreatePta(pts_rtl);
     }
     ptaJoin(pts_ltr, ptss, 0, -1);
   } else {
@@ -353,7 +353,7 @@ AppendLinePolygon(Pta *pts_ltr, Pta *pts_rtl, Pta *ptss, tesseract::WritingDirec
       ptaJoin(ptsd, pts_rtl, 0, -1);
     }
     ptaDestroy(&pts_rtl);
-    pts_rtl = ptaCopy(ptsd);
+    ptaCopy(ptsd);
   }
 }
 
@@ -551,13 +551,14 @@ FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta*baseline_pts, tesseract::Writing
     int x_val = x0-x_min;
     // Delete outliers with IQR
     if (abs(y0-bin_line->array[x_val]) > 1.5*delta_median_Q3+delta_median && p != 0 && p != num_pts-1) {
+      // TODO: Why was this section added?
       // If it's the starting or end point adjust the y value in the median delta range
-      if (p == num_pts-1) {
-        if (writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM) {
-          if (y0 < bin_line->array[x_val]) y0 = y0-delta_median;
-        } else if (y0 > bin_line->array[x_val]) y0 = y0+delta_median;
-        ptaAddPt(baseline_recalc_pts, x0, y0);
-      }
+      //if ( p == 0 || p == num_pts-1) {
+      //  if (writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM) {
+      //    if (y0 < bin_line->array[x_val]) y0 = y0-delta_median;
+      //  } else if (y0 > bin_line->array[x_val]) y0 = y0+delta_median;
+      //  ptaAddPt(baseline_recalc_pts, x0, y0);
+      //}
       continue;
     }
     if (writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM) {
