@@ -37,21 +37,6 @@
 
 namespace tesseract {
 
-
-///
-/// Block orientation at the current iterator position.
-///
-static tesseract::Orientation
-GetBlockTextOrientation(const PageIterator *it) {
-  tesseract::Orientation orientation;
-  tesseract::WritingDirection writing_direction;
-  tesseract::TextlineOrder textline_order;
-  float deskew_angle;
-  it->Orientation(&orientation, &writing_direction, &textline_order,
-                  &deskew_angle);
-  return orientation;
-}
-
 ///
 /// Slope and offset between two points
 ///
@@ -354,8 +339,7 @@ AddBoxToPAGE(const ResultIterator *it, PageIteratorLevel level,
 ///
 static void
 AppendLinePolygon(Pta *pts_ltr, Pta *pts_rtl, Pta *ptss, tesseract::WritingDirection writing_direction) {
-  PTA *ptsd;
-
+  // If writing direction is NOT right-to-left, handle the left-to-right case.
   if (writing_direction != WRITING_DIRECTION_RIGHT_TO_LEFT) {
     if (ptaGetCount(pts_rtl)!=0){
       ptaJoin(pts_ltr, pts_rtl, 0, -1);
@@ -363,7 +347,8 @@ AppendLinePolygon(Pta *pts_ltr, Pta *pts_rtl, Pta *ptss, tesseract::WritingDirec
     }
     ptaJoin(pts_ltr, ptss, 0, -1);
   } else {
-    ptsd = ptaCopy(ptss);
+    // For right-to-left, work with a copy of ptss initially.
+    PTA *ptsd = ptaCopy(ptss);
     if (ptaGetCount(pts_rtl)!=0) {
       ptaJoin(ptsd, pts_rtl, 0, -1);
     }
@@ -460,7 +445,6 @@ ClipAndSimplifyBaseline(Pta *bottom_pts, Pta*baseline_pts, tesseract::WritingDir
         GetSlopeAndOffset(x1, y1, x0, y0, &m, &b);
         y0 = int (x_max*m+b);
         x0 = x_max;
-        int x_val = x0-x_min;
         ptaAddPt(baseline_clipped_pts, x0, y0);
         break;
       }
@@ -568,7 +552,7 @@ FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta*baseline_pts, tesseract::Writing
     // Delete outliers with IQR
     if (abs(y0-bin_line->array[x_val]) > 1.5*delta_median_Q3+delta_median && p != 0 && p != num_pts-1) {
       // If it's the starting or end point adjust the y value in the median delta range
-      if (p == 0 || p == num_pts-1) {
+      if (p == num_pts-1) {
         if (writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM) {
           if (y0 < bin_line->array[x_val]) y0 = y0-delta_median;
         } else if (y0 > bin_line->array[x_val]) y0 = y0+delta_median;
@@ -715,8 +699,7 @@ char
   int str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_.c_str(), -1, nullptr, 0);
   wchar_t *uni16_str = new WCHAR[str16_len];
   str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_.c_str(), -1, uni16_str, str16_len);
-  int utf8_len =
-      WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr, 0, nullptr, nullptr);
+  int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr, 0, nullptr, nullptr);
   char *utf8_str = new char[utf8_len];
   WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, utf8_str, utf8_len, nullptr, nullptr);
   input_file_ = utf8_str;
