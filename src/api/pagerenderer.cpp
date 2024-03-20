@@ -30,7 +30,7 @@
 #include <unordered_set>
 
 #include <allheaders.h>
-+#if (LIBLEPT_MAJOR_VERSION == 1 && LIBLEPT_MINOR_VERSION >= 83) || LIBLEPT_MAJOR_VERSION > 1
+#if (LIBLEPT_MAJOR_VERSION == 1 && LIBLEPT_MINOR_VERSION >= 83) || LIBLEPT_MAJOR_VERSION > 1
 #include <array_internal.h>
 #include <pix_internal.h>
 #endif
@@ -767,8 +767,7 @@ char
   //AppendString(api->GetInputName());
   reading_order_str << "\" "
            << "imageWidth=\"" << rect_width_ << "\" "
-           << "imageHeight=\"" << rect_height_ << "\" "
-           << "type=\"content\">\n";
+           << "imageHeight=\"" << rect_height_ << "\">\n";
 
   // TODO: Do we need to create a random number here?
   std::size_t ro_id = std::hash<std::string>{}(GetInputName());
@@ -825,10 +824,11 @@ char
       res_it->Orientation(&orientation_block, &writing_direction_block, &textline_order_block,
                   &deskew_angle);
       block_conf = ((res_it-> Confidence(RIL_BLOCK))/100.);
-      page_str << "\t\t<TextRegion id=\"r" << rcnt << "\" "
-      << "custom=\""<< "readingOrder {index:"<< rcnt <<";} "
-      << "readingDirection {"<< WritingDirectionToStr(writing_direction_block)<<";} "
-      << "orientation {"<< orientation_block <<";}\">\n";
+      page_str << "\t\t<TextRegion id=\"r" << rcnt << "\" " << "custom=\""<< "readingOrder {index:"<< rcnt <<";} ";
+      if (writing_direction_block != 0) {
+        page_str << "readingDirection {"<< WritingDirectionToStr(writing_direction_block)<<";} ";
+      }
+      page_str << "orientation {"<< orientation_block <<";}\">\n";
       page_str << "\t\t\t";
       if (!POLYGONFLAG && !WORDLEVELFLAG) AddBoxToPAGE(res_it, RIL_BLOCK, page_str);
     }
@@ -853,9 +853,11 @@ char
 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       line_conf = ((res_it-> Confidence(RIL_TEXTLINE))/100.);
-      line_str << "\t\t\t<TextLine id=\"r" << rcnt << "l" << lcnt <<"\" readingDirection=\""
-      << WritingDirectionToStr(writing_direction) << "\" "
-      << "custom=\""<< "readingOrder {index:"<< lcnt <<";}\">\n";
+      line_str << "\t\t\t<TextLine id=\"r" << rcnt << "l" << lcnt << "\" ";
+      if (writing_direction != 0 && writing_direction != writing_direction_block) {
+        line_str << "readingDirection=\"" << WritingDirectionToStr(writing_direction) << "\" ";
+      }
+      line_str <<  "custom=\""<< "readingOrder {index:"<< lcnt <<";}\">\n";
       // If wordlevel is not set, get the line polygon and baseline
       if (!WORDLEVELFLAG && !POLYGONFLAG) {
         AddPointToWordPolygon(res_it, RIL_TEXTLINE, line_top_ltr_pts, line_bottom_ltr_pts, writing_direction);
@@ -1071,8 +1073,13 @@ char
   const std::string &text = reading_order_str.str();
   reading_order_str.str("");
 
+  // Allocate memory for result to hold text.length() characters plus a null terminator
+  // Safely copy the string into result, ensuring no overflow
+  // strncpy does not necessarily null-terminate the destination, so do it manually
   char *result = new char[text.length() + 1];
-  strcpy(result, text.c_str());
+  strncpy(result, text.c_str(), text.length());
+  result[text.length()] = '\0';
+
   delete res_it;
   return result;
 }
