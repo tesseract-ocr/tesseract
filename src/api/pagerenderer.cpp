@@ -75,7 +75,7 @@ static void AddPointsToPAGE(Pta *pts, std::stringstream &str) {
 static void AddPointToWordPolygon(
     const ResultIterator *res_it, PageIteratorLevel level, Pta *word_top_pts,
     Pta *word_bottom_pts, tesseract::WritingDirection writing_direction) {
-  int num_pts, left, top, right, bottom;
+  int left, top, right, bottom;
 
   res_it->BoundingBox(level, &left, &top, &right, &bottom);
 
@@ -131,8 +131,8 @@ Pta *DestroyAndCreatePta(Pta *pts) {
 /// Create a hull for overlapping areas
 ///
 Pta *RecalcPolygonline(Pta *pts, bool upper) {
-  int num_pts, num_bin, index = 0, p_index, offset;
-  int m, b, x, y, x0, y0, x1, y1;
+  int num_pts, num_bin, index = 0;
+  int y, x0, y0, x1, y1;
   float x_min, y_min, x_max, y_max;
   NUMA *bin_line;
   Pta *pts_recalc;
@@ -258,7 +258,7 @@ static void UpdateBlockPoints(Pta *block_top_pts, Pta *block_bottom_pts,
 /// currently not necessary)
 ///
 static void SimplifyLinePolygon(Pta *polyline, int tolerance, bool upper) {
-  int num_pts, x0, y0, x1, y1, x2, y2, x3, y3, index = 1;
+  int x0, y0, x1, y1, x2, y2, x3, y3, index = 1;
   float m, b, y_min, y_max;
 
   while (index <= polyline->n - 2) {
@@ -417,7 +417,7 @@ Pta *SortBaseline(Pta *baseline_pts,
 Pta *ClipAndSimplifyBaseline(Pta *bottom_pts, Pta *baseline_pts,
                              tesseract::WritingDirection writing_direction) {
   int num_pts;
-  float m, b, x, y, x0, y0, x1, y1;
+  float m, b, x0, y0, x1, y1;
   float x_min, y_min, x_max, y_max;
   Pta *baseline_clipped_pts;
 
@@ -469,7 +469,6 @@ Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
   int num_pts, num_bin, index = 0, p_index, offset, x, y, x0, y0, x1, y1;
   float m, b;
   float x_min, y_min, x_max, y_max;
-  float x_min_bl, y_min_bl, x_max_bl, y_max_bl;
   float delta_median, delta_median_Q1, delta_median_Q3, delta_median_IQR;
   NUMA *bin_line, *poly_bl_delta;
   Pta *baseline_recalc_pts, *baseline_clipped_pts;
@@ -508,7 +507,6 @@ Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
   }
 
   num_pts = ptaGetCount(baseline_pts);
-  index = 0;
   baseline_clipped_pts = ptaCreate(0);
   poly_bl_delta = numaCreate(0);
 
@@ -791,7 +789,6 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       continue;
     }
 
-    int left, top, right, bottom;
     auto block_type = res_it->BlockType();
 
     switch (block_type) {
