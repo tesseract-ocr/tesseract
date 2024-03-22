@@ -897,9 +897,9 @@ public:
   BOOL_VAR_H(tessedit_create_txt);
   BOOL_VAR_H(tessedit_create_hocr);
   BOOL_VAR_H(tessedit_create_alto);
-  BOOL_VAR_H(tessedit_create_page);
-  BOOL_VAR_H(tessedit_create_page_polygon);
-  BOOL_VAR_H(tessedit_create_page_wordlevel);
+  BOOL_VAR_H(tessedit_create_page_xml);
+  BOOL_VAR_H(page_xml_polygon);
+  INT_VAR_H(page_xml_level);
   BOOL_VAR_H(tessedit_create_lstmbox);
   BOOL_VAR_H(tessedit_create_tsv);
   BOOL_VAR_H(tessedit_create_wordstrbox);

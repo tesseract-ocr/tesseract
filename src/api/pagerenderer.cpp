@@ -524,7 +524,7 @@ Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
         x0 = x_min;
       }
     } else if (x0 > x_max) {
-      if (ptaGetCount(baseline_recalc_pts) > 0) {
+      if (ptaGetCount(baseline_clipped_pts) > 0) {
         ptaGetIPt(baseline_pts, p - 1, &x1, &y1);
         GetSlopeAndOffset(x1, y1, x0, y0, &m, &b);
         y0 = int(x_max * m + b);
@@ -546,7 +546,6 @@ Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
   numaGetMedian(poly_bl_delta, &delta_median);
   numaGetRankValue(poly_bl_delta, 0.25, NULL, 0, &delta_median_Q1);
   numaGetRankValue(poly_bl_delta, 0.75, NULL, 0, &delta_median_Q3);
-  delta_median_IQR = abs(delta_median_Q3 - delta_median_Q1);
 
   // Fit baseline into the polygon
   // Todo: Needs maybe some adjustments to suppress fitting to superscript
@@ -763,9 +762,14 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
 
   // Replace this with real flags:
   bool POLYGONFLAG;
-  GetBoolVariable("tessedit_create_page_polygon", &POLYGONFLAG);
-  bool WORDLEVELFLAG;
-  GetBoolVariable("tessedit_create_page_wordlevel", &WORDLEVELFLAG);
+  GetBoolVariable("page_xml_polygon", &POLYGONFLAG);
+  int LEVELFLAG;
+  GetIntVariable("page_xml_level", &LEVELFLAG);
+  
+  if (LEVELFLAG != 0 && LEVELFLAG != 1) {
+    tprintf("For now, only line level and word level are available, and the level is reset to line level.\n");
+    LEVELFLAG = 0;
+  }
 
   // Use "C" locale (needed for int values larger than 999).
   page_str.imbue(std::locale::classic());
@@ -838,7 +842,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       }
       page_str << "orientation {" << orientation_block << ";}\">\n";
       page_str << "\t\t\t";
-      if (!POLYGONFLAG && !WORDLEVELFLAG) {
+      if (!POLYGONFLAG && LEVELFLAG == 0) {
         AddBoxToPAGE(res_it, RIL_BLOCK, page_str);
       }
     }
@@ -871,8 +875,8 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       }
       line_str << "custom=\""
                << "readingOrder {index:" << lcnt << ";}\">\n";
-      // If wordlevel is not set, get the line polygon and baseline
-      if (!WORDLEVELFLAG && !POLYGONFLAG) {
+      // If level is linebased, get the line polygon and baseline
+      if (LEVELFLAG == 0 && !POLYGONFLAG) {
         AddPointToWordPolygon(res_it, RIL_TEXTLINE, line_top_ltr_pts,
                               line_bottom_ltr_pts, writing_direction);
         AddBaselineToPTA(res_it, RIL_TEXTLINE, line_baseline_pts);
@@ -889,7 +893,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     word_conf = ((res_it->Confidence(RIL_WORD)) / 100.);
 
     // Create word stream if word level output is active
-    if (WORDLEVELFLAG) {
+    if (LEVELFLAG > 0) {
       word_str << "\t\t\t\t<Word id=\"r" << rcnt << "l" << lcnt << "w" << wcnt
                << "\" readingDirection=\""
                << WritingDirectionToStr(writing_direction) << "\" "
@@ -901,7 +905,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       }
     }
 
-    if (POLYGONFLAG && ttb_flag && !WORDLEVELFLAG) {
+    if (POLYGONFLAG && ttb_flag && LEVELFLAG == 0) {
       AddPointToWordPolygon(res_it, RIL_WORD, word_top_pts, word_bottom_pts,
                             writing_direction);
     }
@@ -923,7 +927,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
 
-    if (WORDLEVELFLAG || POLYGONFLAG) {
+    if (LEVELFLAG > 0 || POLYGONFLAG) {
       // Sort wordpolygons
       word_top_pts = RecalcPolygonline(word_top_pts, 1 - ttb_flag);
       word_bottom_pts = RecalcPolygonline(word_bottom_pts, 0 + ttb_flag);
@@ -945,7 +949,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     }
 
     // Write word information to the output
-    if (WORDLEVELFLAG) {
+    if (LEVELFLAG > 0) {
       word_str << "\t\t\t\t\t";
       if (ttb_flag) {
         word_top_pts = TransposePolygonline(word_top_pts);
@@ -960,7 +964,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
                << "\t\t\t\t\t</TextEquiv>\n"
                << "\t\t\t\t</Word>\n";
     }
-    if (WORDLEVELFLAG || POLYGONFLAG) {
+    if (LEVELFLAG > 0 || POLYGONFLAG) {
       // Add wordbaseline to linebaseline
       if (ttb_flag) {
         word_baseline_pts = TransposePolygonline(word_baseline_pts);
@@ -990,7 +994,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
         ptaJoin(line_bottom_ltr_pts, line_bottom_rtl_pts, 0, -1);
         line_bottom_rtl_pts = DestroyAndCreatePta(line_bottom_rtl_pts);
       }
-      if (POLYGONFLAG || WORDLEVELFLAG) {
+      if (POLYGONFLAG || LEVELFLAG > 0) {
         // Recalc Polygonlines
         line_top_ltr_pts = RecalcPolygonline(line_top_ltr_pts, 1 - ttb_flag);
         line_bottom_ltr_pts =
@@ -1021,7 +1025,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       ptaJoin(line_top_ltr_pts, line_bottom_ltr_pts, 0, -1);
       line_bottom_ltr_pts = DestroyAndCreatePta(line_bottom_ltr_pts);
 
-      if (WORDLEVELFLAG && !POLYGONFLAG) {
+      if (LEVELFLAG > 0 && !POLYGONFLAG) {
         line_top_ltr_pts = PolygonToBoxCoords(line_top_ltr_pts);
       }
 
@@ -1064,7 +1068,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
 
     // Write region information to the output
     if (last_word_in_cblock) {
-      if (POLYGONFLAG || WORDLEVELFLAG) {
+      if (POLYGONFLAG || LEVELFLAG > 0) {
         page_str << "<Coords points=\"";
         block_bottom_pts = ReversePolygonline(block_bottom_pts, 1);
         ptaJoin(block_top_pts, block_bottom_pts, 0, -1);

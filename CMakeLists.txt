@@ -766,7 +766,6 @@ set(TESSERACT_CONFIGS
     tessdata/configs/lstmdebug
     tessdata/configs/makebox
     tessdata/configs/page
-    tessdata/configs/page_poly
     tessdata/configs/pdf
     tessdata/configs/quiet
     tessdata/configs/rebox
