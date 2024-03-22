@@ -341,7 +341,7 @@ Tesseract::Tesseract()
     , BOOL_MEMBER(tessedit_create_hocr, false, "Write .html hOCR output file", this->params())
     , BOOL_MEMBER(tessedit_create_alto, false, "Write .xml ALTO file", this->params())
     , BOOL_MEMBER(tessedit_create_page, false, "Write .page.xml PAGE file", this->params())
-    , BOOL_MEMBER(tessedit_create_page_polygon, true, "Create the PAGE file with polygons instead of bbox values", this->params())
+    , BOOL_MEMBER(tessedit_create_page_polygon, true, "Create the PAGE file with polygons instead of box values", this->params())
     , BOOL_MEMBER(tessedit_create_page_wordlevel, false, "Create the PAGE file on wordlevel", this->params())
     , BOOL_MEMBER(tessedit_create_lstmbox, false, "Write .box file for LSTM training",
                   this->params())
