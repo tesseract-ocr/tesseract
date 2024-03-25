@@ -168,7 +168,7 @@ int Tesseract::SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract
   bool cjk_mode = textord_use_cjk_fp_model;
 
   textord_.TextordPage(pageseg_mode, reskew_, width, height, pix_binary_, pix_thresholds_,
-                       pix_grey_, splitting || cjk_mode, &diacritic_blobs, blocks, &to_blocks);
+                       pix_grey_, splitting || cjk_mode, &diacritic_blobs, blocks, &to_blocks, &gradient_);
   return auto_page_seg_ret_val;
 }
 

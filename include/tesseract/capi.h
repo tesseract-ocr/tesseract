@@ -274,6 +274,7 @@ TESS_API void TessBaseAPISetRectangle(TessBaseAPI *handle, int left, int top,
                                       int width, int height);
 
 TESS_API struct Pix *TessBaseAPIGetThresholdedImage(TessBaseAPI *handle);
+TESS_API float TessBaseAPIGetGradient(TessBaseAPI *handle);
 TESS_API struct Boxa *TessBaseAPIGetRegions(TessBaseAPI *handle,
                                             struct Pixa **pixa);
 TESS_API struct Boxa *TessBaseAPIGetTextlines(TessBaseAPI *handle,

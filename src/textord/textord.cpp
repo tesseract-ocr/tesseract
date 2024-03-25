@@ -177,7 +177,7 @@ Textord::Textord(CCStruct *ccstruct)
 void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD &reskew, int width, int height,
                           Image binary_pix, Image thresholds_pix, Image grey_pix, bool use_box_bottoms,
                           BLOBNBOX_LIST *diacritic_blobs, BLOCK_LIST *blocks,
-                          TO_BLOCK_LIST *to_blocks) {
+                          TO_BLOCK_LIST *to_blocks, float *gradient) {
   page_tr_.set_x(width);
   page_tr_.set_y(height);
   if (to_blocks->empty()) {
@@ -219,15 +219,14 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD &reskew, int wi
   TO_BLOCK_IT to_block_it(to_blocks);
   TO_BLOCK *to_block = to_block_it.data();
   // Make the rows in the block.
-  float gradient;
   // Do it the old fashioned way.
   if (PSM_LINE_FIND_ENABLED(pageseg_mode)) {
-    gradient = make_rows(page_tr_, to_blocks);
+    *gradient = make_rows(page_tr_, to_blocks);
   } else if (!PSM_SPARSE(pageseg_mode)) {
     // RAW_LINE, SINGLE_LINE, SINGLE_WORD and SINGLE_CHAR all need a single row.
-    gradient = make_single_row(page_tr_, pageseg_mode != PSM_RAW_LINE, to_block, to_blocks);
+    *gradient = make_single_row(page_tr_, pageseg_mode != PSM_RAW_LINE, to_block, to_blocks);
   } else {
-    gradient = 0.0f;
+    *gradient = 0.0f;
   }
   BaselineDetect baseline_detector(textord_baseline_debug, reskew, to_blocks);
   baseline_detector.ComputeStraightBaselines(use_box_bottoms);
@@ -236,7 +235,7 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD &reskew, int wi
   // Now make the words in the lines.
   if (PSM_WORD_FIND_ENABLED(pageseg_mode)) {
     // SINGLE_LINE uses the old word maker on the single line.
-    make_words(this, page_tr_, gradient, blocks, to_blocks);
+    make_words(this, page_tr_, *gradient, blocks, to_blocks);
   } else {
     // SINGLE_WORD and SINGLE_CHAR cram all the blobs into a
     // single word, and in SINGLE_CHAR mode, all the outlines

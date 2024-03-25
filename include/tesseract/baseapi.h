@@ -347,6 +347,11 @@ public:
   Pix *GetThresholdedImage();
 
   /**
+   * Return average gradient of lines on page.
+   */
+  float GetGradient();
+
+  /**
    * Get the result of page layout analysis as a leptonica-style
    * Boxa, Pixa pair, in reading order.
    * Can be called before or after Recognize.
