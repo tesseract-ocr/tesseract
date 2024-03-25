@@ -548,7 +548,8 @@ bool DocumentData::ReCachePages() {
   }
   pages_.clear();
 #if !defined(TESSERACT_IMAGEDATA_AS_PIX)
-  if (document_name_.ends_with("png")) {
+  auto name_size = document_name_.size();
+  if (name_size > 4 && document_name_.substr(name_size - 4) == ".png") {
     // PNG image given instead of LSTMF file.
     std::string gt_name = document_name_.substr(0, document_name_.length() - 3) + "gt.txt";
     std::ifstream t(gt_name);
