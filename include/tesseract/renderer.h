@@ -199,6 +199,23 @@ private:
 };
 
 /**
+ * Renders Tesseract output into a PAGE XML text string
+ */
+class TESS_API TessPAGERenderer : public TessResultRenderer {
+public:
+  explicit TessPAGERenderer(const char *outputbase);
+
+protected:
+  bool BeginDocumentHandler() override;
+  bool AddImageHandler(TessBaseAPI *api) override;
+  bool EndDocumentHandler() override;
+
+private:
+  bool begin_document;
+};
+
+
+/**
  * Renders Tesseract output into a TSV string
  */
 class TESS_API TessTsvRenderer : public TessResultRenderer {
