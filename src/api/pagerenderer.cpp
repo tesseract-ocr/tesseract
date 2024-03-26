@@ -30,6 +30,8 @@
 #include <unordered_set>
 
 #include <allheaders.h>
+#include <iostream>
+
 #if (LIBLEPT_MAJOR_VERSION == 1 && LIBLEPT_MINOR_VERSION >= 83) || \
     LIBLEPT_MAJOR_VERSION > 1
 #  include <array_internal.h>
@@ -849,6 +851,8 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
 
     // Writing direction changes at a per-word granularity
     tesseract::WritingDirection writing_direction;
+    tesseract::WritingDirection writing_direction_before;
+    
     writing_direction = writing_direction_block;
     if (writing_direction_block != WRITING_DIRECTION_TOP_TO_BOTTOM) {
       switch (res_it->WordDirection()) {
@@ -866,7 +870,9 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     bool ttb_flag = (writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM);
 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
+      writing_direction_before = writing_direction;
       line_conf = ((res_it->Confidence(RIL_TEXTLINE)) / 100.);
+      line_content << res_it->GetUTF8Text(RIL_TEXTLINE);
       line_str << "\t\t\t<TextLine id=\"r" << rcnt << "l" << lcnt << "\" ";
       if (writing_direction != 0 &&
           writing_direction != writing_direction_block) {
@@ -977,11 +983,27 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     word_top_pts = DestroyAndCreatePta(word_top_pts);
     word_bottom_pts = DestroyAndCreatePta(word_bottom_pts);
 
+    // Check why this combination of words is not working as expected!
     // Write the word contents to the line
-    line_content << word_content.str();
+    /*   
+    if (!last_word_in_line && writing_direction_before != writing_direction && writing_direction < 2 && writing_direction_before < 2 && res_it->WordDirection()) {
+      if (writing_direction_before == WRITING_DIRECTION_LEFT_TO_RIGHT) {
+        //line_content << "‏" << word_content.str();
+      }
+      else {
+        //line_content << "‎" << word_content.str();
+      }
+    } else {
+      //line_content << word_content.str();
+    }
+    // Check if WordIsNeutral
+    if (res_it->WordDirection()){
+      writing_direction_before = writing_direction;
+    }
+    */
     word_content.str("");
-
     wcnt++;
+
 
     // Write line information to the output
     if (last_word_in_line) {
@@ -1048,7 +1070,6 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       // Add word information if word level output is active
       line_str << word_str.str();
       word_str.str("");
-
       // Write Line TextEquiv
       line_str << "\t\t\t\t<TextEquiv index=\"1\" conf=\""
                << std::setprecision(4) << line_conf << "\">\n"
