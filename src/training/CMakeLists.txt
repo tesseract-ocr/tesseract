@@ -346,7 +346,7 @@ if(ICU_FOUND)
   # ############################################################################
 
   add_executable(unicharset_extractor unicharset_extractor.cpp)
-  set_property(TARGET unicharset_extractor PROPERTY CXX_STANDARD 17)
+  target_compile_features(unicharset_extractor PRIVATE cxx_std_17)
   target_link_libraries(unicharset_extractor unicharset_training)
   project_group(unicharset_extractor "Training Tools")
   install(
