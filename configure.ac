@@ -79,8 +79,6 @@ AC_SUBST([AM_CPPFLAGS])
 # Can be overridden with `configure --disable-silent-rules` or with `make V=1`.
 AM_SILENT_RULES([yes])
 
-OPENCL_INC="/opt/AMDAPP/include"
-OPENCL_LIBS="-lOpenCL"
 #############################
 #
 # Platform specific setup
@@ -102,15 +100,12 @@ case "${host_os}" in
         AM_CONDITIONAL([ADD_RT], true)
         ;;
     *darwin*)
-        OPENCL_LIBS=""
-        OPENCL_INC=""
         AM_CONDITIONAL([ADD_RT], false)
         ;;
     *android*|openbsd*)
         AM_CONDITIONAL([ADD_RT], false)
         ;;
     powerpc-*-darwin*)
-        OPENCL_LIBS=""
         ;;
     *)
         # default
@@ -263,19 +258,6 @@ have_tiff=false
 # Note that the first usage of AC_CHECK_HEADERS must be unconditional.
 AC_CHECK_HEADERS([tiffio.h], [have_tiff=true], [have_tiff=false])
 
-# check whether to build opencl version
-AC_MSG_CHECKING([--enable-opencl argument])
-AC_ARG_ENABLE([opencl],
-    AS_HELP_STRING([--enable-opencl], [enable opencl build [default=no]]))
-AC_MSG_RESULT([$enable_opencl])
-# check for opencl header
-have_opencl=false
-if test "$enable_opencl" = "yes"; then
-  AC_CHECK_HEADERS([CL/cl.h], [have_opencl=true], [
-    AC_CHECK_HEADERS(OpenCL/cl.h, [have_opencl=true], [have_opencl=false])
-  ])
-fi
-
 # Configure arguments which allow disabling some optional libraries.
 AC_ARG_WITH([archive],
             AS_HELP_STRING([--with-archive],
@@ -323,9 +305,6 @@ m4_define([MY_CHECK_FRAMEWORK],
    fi]
 )
 
-have_opencl_lib=false
-OPENCL_CPPFLAGS=''
-OPENCL_LDFLAGS=''
 case "${host_os}" in
   *darwin* | *-macos10*)
     MY_CHECK_FRAMEWORK([Accelerate])
@@ -333,36 +312,11 @@ case "${host_os}" in
       AM_CPPFLAGS="-DHAVE_FRAMEWORK_ACCELERATE $AM_CPPFLAGS"
       AM_LDFLAGS="$AM_LDFLAGS -framework Accelerate"
     fi
-    MY_CHECK_FRAMEWORK([OpenCL])
-    if test "$enable_opencl" = "yes"; then
-      if test $my_cv_framework_OpenCL = no; then
-        AC_MSG_ERROR([Required OpenCL library not found!])
-      fi
-      AM_CPPFLAGS="-DUSE_OPENCL $AM_CPPFLAGS"
-      OPENCL_CPPFLAGS=""
-      OPENCL_LDFLAGS="-framework OpenCL"
-    fi
     ;;
   *)
     # default
-    if test "$enable_opencl" = "yes"; then
-        AC_CHECK_LIB([OpenCL], [clGetPlatformIDs],
-                     [have_opencl_lib=true], [have_opencl_lib=false])
-        if !($have_opencl); then
-            AC_MSG_ERROR([Required OpenCL headers not found!])
-        fi
-        if !($have_opencl_lib); then
-            AC_MSG_ERROR([Required OpenCL library not found!])
-        fi
-        AM_CPPFLAGS="-DUSE_OPENCL $AM_CPPFLAGS"
-        OPENCL_CPPFLAGS="-I${OPENCL_INC}"
-        OPENCL_LDFLAGS="${OPENCL_LIBS}"
-    fi
     ;;
 esac
-AM_CONDITIONAL([OPENCL], [test "$enable_opencl" = "yes"])
-AC_SUBST([OPENCL_CPPFLAGS])
-AC_SUBST([OPENCL_LDFLAGS])
 
 # check whether to build tesseract with -fvisibility=hidden -fvisibility-inlines-hidden
 # http://gcc.gnu.org/wiki/Visibility

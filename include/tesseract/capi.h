@@ -186,8 +186,6 @@ TESS_API int TessResultRendererImageNum(TessResultRenderer *renderer);
 TESS_API TessBaseAPI *TessBaseAPICreate();
 TESS_API void TessBaseAPIDelete(TessBaseAPI *handle);
 
-TESS_API size_t TessBaseAPIGetOpenCLDevice(TessBaseAPI *handle, void **device);
-
 TESS_API void TessBaseAPISetInputName(TessBaseAPI *handle, const char *name);
 TESS_API const char *TessBaseAPIGetInputName(TessBaseAPI *handle);
 

@@ -34,9 +34,6 @@
 #include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include "dict.h"
-#if defined(USE_OPENCL)
-#  include "openclwrapper.h" // for OpenclDevice
-#endif
 #include <tesseract/renderer.h>
 #include "simddetect.h"
 #include "tesseractclass.h" // for AnyTessLang
@@ -112,34 +109,6 @@ static void PrintVersionInfo() {
   printf("  %s\n", versionStrP);
   lept_free(versionStrP);
 
-#ifdef USE_OPENCL
-  cl_platform_id platform[4];
-  cl_uint num_platforms;
-
-  printf(" OpenCL info:\n");
-  if (clGetPlatformIDs(4, platform, &num_platforms) == CL_SUCCESS) {
-    printf("  Found %u platform(s).\n", num_platforms);
-    for (unsigned n = 0; n < num_platforms; n++) {
-      char info[256];
-      if (clGetPlatformInfo(platform[n], CL_PLATFORM_NAME, 256, info, 0) == CL_SUCCESS) {
-        printf("  Platform %u name: %s.\n", n + 1, info);
-      }
-      if (clGetPlatformInfo(platform[n], CL_PLATFORM_VERSION, 256, info, 0) == CL_SUCCESS) {
-        printf("  Version: %s.\n", info);
-      }
-      cl_device_id devices[2];
-      cl_uint num_devices;
-      if (clGetDeviceIDs(platform[n], CL_DEVICE_TYPE_ALL, 2, devices, &num_devices) == CL_SUCCESS) {
-        printf("  Found %u device(s).\n", num_devices);
-        for (unsigned i = 0; i < num_devices; ++i) {
-          if (clGetDeviceInfo(devices[i], CL_DEVICE_NAME, 256, info, 0) == CL_SUCCESS) {
-            printf("    Device %u name: %s.\n", i + 1, info);
-          }
-        }
-      }
-    }
-  }
-#endif
 #if defined(HAVE_NEON) || defined(__aarch64__)
   if (tesseract::SIMDDetect::IsNEONAvailable())
     printf(" Found NEON\n");

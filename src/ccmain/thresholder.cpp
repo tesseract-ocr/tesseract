@@ -25,10 +25,6 @@
 #include "thresholder.h"
 #include "tprintf.h" // for tprintf
 
-#if defined(USE_OPENCL)
-#  include "openclwrapper.h" // for OpenclDevice
-#endif
-
 #include <allheaders.h>
 #include <tesseract/baseapi.h> // for api->GetIntVariable()
 
@@ -388,19 +384,7 @@ void ImageThresholder::OtsuThresholdRectToPix(Image src_pix, Image *out_pix) con
 
   int num_channels = OtsuThreshold(src_pix, rect_left_, rect_top_, rect_width_, rect_height_,
                                    thresholds, hi_values);
-  // only use opencl if compiled w/ OpenCL and selected device is opencl
-#ifdef USE_OPENCL
-  OpenclDevice od;
-  if (num_channels == 4 && od.selectedDeviceIsOpenCL() && rect_top_ == 0 && rect_left_ == 0) {
-    od.ThresholdRectToPixOCL((unsigned char *)pixGetData(src_pix), num_channels,
-                             pixGetWpl(src_pix) * 4, &thresholds[0], &hi_values[0], out_pix /*pix_OCL*/,
-                             rect_height_, rect_width_, rect_top_, rect_left_);
-  } else {
-#endif
-    ThresholdRectToPix(src_pix, num_channels, thresholds, hi_values, out_pix);
-#ifdef USE_OPENCL
-  }
-#endif
+  ThresholdRectToPix(src_pix, num_channels, thresholds, hi_values, out_pix);
 }
 
 /// Threshold the rectangle, taking everything except the src_pix
