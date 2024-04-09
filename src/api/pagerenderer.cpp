@@ -156,7 +156,6 @@ Pta *RecalcPolygonline(Pta *pts, bool upper) {
   do {
     ptaGetIPt(pts, index, &x0, &y0);
     ptaGetIPt(pts, index + 1, &x1, &y1);
-    // TODO add +1?
     for (int p = x0 - x_min; p <= x1 - x_min; ++p) {
       if (!upper) {
         if (bin_line->array[p] == -1. || y0 > bin_line->array[p]) {
@@ -573,15 +572,6 @@ Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
     if (abs(y0 - bin_line->array[x_val]) >
             1.5 * delta_median_Q3 + delta_median &&
         p != 0 && p != num_pts - 1) {
-      // TODO: Why was this section added?
-      // If it's the starting or end point adjust the y value in the median
-      // delta range
-      // if ( p == 0 || p == num_pts-1) {
-      //  if (writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM) {
-      //    if (y0 < bin_line->array[x_val]) y0 = y0-delta_median;
-      //  } else if (y0 > bin_line->array[x_val]) y0 = y0+delta_median;
-      //  ptaAddPt(baseline_recalc_pts, x0, y0);
-      //}
       continue;
     }
     if (writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM) {
@@ -635,7 +625,6 @@ bool TessPAGERenderer::BeginDocumentHandler() {
 /// Append the PAGE XML for the layout of the image
 ///
 bool TessPAGERenderer::AddImageHandler(TessBaseAPI *api) {
-  // TODO: Set to 2019 back
   if (begin_document) {
     AppendString(
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
@@ -793,8 +782,6 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
   reading_order_str << "\" "
                     << "imageWidth=\"" << rect_width_ << "\" "
                     << "imageHeight=\"" << rect_height_ << "\">\n";
-
-  // TODO: Do we need to create a random number here?
   std::size_t ro_id = std::hash<std::string>{}(GetInputName());
   reading_order_str << "\t\t<ReadingOrder>\n"
                     << "\t\t\t<OrderedGroup id=\"ro" << ro_id
@@ -880,7 +867,8 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     }
 
     bool ttb_flag = (writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM);
-    // TODO: Rework polygon handling if line is skewed (90 or 180 degress), for now using LinePts 
+    // TODO: Rework polygon handling if line is skewed (90 or 180 degress),
+    // for now using LinePts 
     bool skewed_flag = (orientation_block != 0 && orientation_block != 2);
 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
