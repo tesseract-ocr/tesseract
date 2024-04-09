@@ -30,8 +30,6 @@
 #include <unordered_set>
 
 #include <allheaders.h>
-#include <iostream>
-
 #if (LIBLEPT_MAJOR_VERSION == 1 && LIBLEPT_MINOR_VERSION >= 83) || \
     LIBLEPT_MAJOR_VERSION > 1
 #  include <array_internal.h>
@@ -395,7 +393,7 @@ Pta *SortBaseline(Pta *baseline_pts,
 
   sorted_baseline_pts =
       ptaSort(baseline_pts, L_SORT_BY_X, L_SORT_INCREASING, NULL);
-
+  
   do {
     ptaGetPt(sorted_baseline_pts, index, &x0, &y0);
     ptaGetPt(sorted_baseline_pts, index + 1, &x1, &y1);
@@ -431,16 +429,18 @@ Pta *ClipAndSimplifyBaseline(Pta *bottom_pts, Pta *baseline_pts,
   for (int p = 0; p < num_pts; ++p) {
     ptaGetPt(baseline_pts, p, &x0, &y0);
     if (x0 < x_min) {
-      ptaGetPt(baseline_pts, p + 1, &x1, &y1);
-      if (x1 < x_min) {
-        continue;
-      } else {
-        GetSlopeAndOffset(x0, y0, x1, y1, &m, &b);
-        y0 = int(x_min * m + b);
-        x0 = x_min;
+      if (p + 1 < num_pts) {
+        ptaGetPt(baseline_pts, p + 1, &x1, &y1);
+        if (x1 < x_min) {
+          continue;
+        } else {
+          GetSlopeAndOffset(x0, y0, x1, y1, &m, &b);
+          y0 = int(x_min * m + b);
+          x0 = x_min;
+        }
       }
     } else if (x0 > x_max) {
-      if (ptaGetCount(baseline_clipped_pts) > 0) {
+      if (ptaGetCount(baseline_clipped_pts) > 0 && p > 0) {
         ptaGetPt(baseline_pts, p - 1, &x1, &y1);
         // See comment above
         GetSlopeAndOffset(x1, y1, x0, y0, &m, &b);
@@ -460,6 +460,18 @@ Pta *ClipAndSimplifyBaseline(Pta *bottom_pts, Pta *baseline_pts,
   SimplifyLinePolygon(
       baseline_clipped_pts, 3,
       writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM ? 0 : 1);
+
+  // Check the number of points in baseline_clipped_pts after processing
+  int clipped_pts_count = ptaGetCount(baseline_clipped_pts);
+
+  if (clipped_pts_count < 2) {
+      // If there's only one point in baseline_clipped_pts, duplicate it
+      ptaDestroy(&baseline_clipped_pts); // Clean up the created but unused Pta
+      baseline_clipped_pts = ptaCreate(0);
+      ptaAddPt(baseline_clipped_pts, x_min, y_min);
+      ptaAddPt(baseline_clipped_pts, x_max, y_min); 
+  }
+
   return baseline_clipped_pts;
 }
 
@@ -850,8 +862,8 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     }
 
     // Writing direction changes at a per-word granularity
+    // tesseract::WritingDirection writing_direction_before;
     tesseract::WritingDirection writing_direction;
-    tesseract::WritingDirection writing_direction_before;
     
     writing_direction = writing_direction_block;
     if (writing_direction_block != WRITING_DIRECTION_TOP_TO_BOTTOM) {
@@ -870,7 +882,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     bool ttb_flag = (writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM);
 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      writing_direction_before = writing_direction;
+      // writing_direction_before = writing_direction;
       line_conf = ((res_it->Confidence(RIL_TEXTLINE)) / 100.);
       line_content << res_it->GetUTF8Text(RIL_TEXTLINE);
       line_str << "\t\t\t<TextLine id=\"r" << rcnt << "l" << lcnt << "\" ";
