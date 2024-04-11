@@ -105,7 +105,7 @@ void IntSimdMatrix::MatrixDotVector(const GENERIC_2D_ARRAY<int8_t> &w,
   }
 
   // Capture the remainder mod four
-  for (; i < num_out; i++) {
+  for (; i < num_out; ++i) {
     const int8_t *wi = w[i];
     int total = 0;
     for (int j = 0; j < num_in; ++j) {
