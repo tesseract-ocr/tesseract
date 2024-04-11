@@ -21,7 +21,6 @@ void build(Solution &s)
 
         libtesseract.Public += "include"_idir;
         libtesseract.Protected +=
-            "src/opencl"_id,
             "src/ccmain"_id,
             "src/api"_id,
             "src/dict"_id,

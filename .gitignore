@@ -83,10 +83,6 @@ __pycache__
 *.traineddata
 tessdata_*
 
-# OpenCL
-tesseract_opencl_profile_devices.dat
-kernel*.bin
-
 # build dirs
 /build*
 /*.dll

@@ -87,15 +87,6 @@ public:
   static const char *Version();
 
   /**
-   * If compiled with OpenCL AND an available OpenCL
-   * device is deemed faster than serial code, then
-   * "device" is populated with the cl_device_id
-   * and returns sizeof(cl_device_id)
-   * otherwise *device=nullptr and returns 0.
-   */
-  static size_t getOpenCLDevice(void **device);
-
-  /**
    * Set the name of the input file. Needed for training and
    * reading a UNLV zone file, and for searchable PDF output.
    */

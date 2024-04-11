@@ -41,9 +41,6 @@
 #endif
 #include "mutableiterator.h" // for MutableIterator
 #include "normalis.h"        // for kBlnBaselineOffset, kBlnXHeight
-#if defined(USE_OPENCL)
-#  include "openclwrapper.h" // for OpenclDevice
-#endif
 #include "pageres.h"         // for PAGE_RES_IT, WERD_RES, PAGE_RES, CR_DE...
 #include "paragraphs.h"      // for DetectParagraphs
 #include "params.h"          // for BoolParam, IntParam, DoubleParam, Stri...
@@ -244,27 +241,6 @@ const char *TessBaseAPI::Version() {
 }
 
 /**
- * If compiled with OpenCL AND an available OpenCL
- * device is deemed faster than serial code, then
- * "device" is populated with the cl_device_id
- * and returns sizeof(cl_device_id)
- * otherwise *device=nullptr and returns 0.
- */
-size_t TessBaseAPI::getOpenCLDevice(void **data) {
-#ifdef USE_OPENCL
-  ds_device device = OpenclDevice::getDeviceSelection();
-  if (device.type == DS_DEVICE_OPENCL_DEVICE) {
-    *data = new cl_device_id;
-    memcpy(*data, &device.oclDeviceID, sizeof(cl_device_id));
-    return sizeof(cl_device_id);
-  }
-#endif
-
-  *data = nullptr;
-  return 0;
-}
-
-/**
  * Set the name of the input file. Needed only for training and
  * loading a UNLV zone file.
  */
@@ -398,10 +374,6 @@ int TessBaseAPI::Init(const char *data, int data_size, const char *language, Ocr
     delete tesseract_;
     tesseract_ = nullptr;
   }
-#ifdef USE_OPENCL
-  OpenclDevice od;
-  od.InitEnv();
-#endif
   bool reset_classifier = true;
   if (tesseract_ == nullptr) {
     reset_classifier = false;
