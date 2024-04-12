@@ -843,7 +843,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       }
       page_str << "orientation {" << orientation_block << ";}\">\n";
       page_str << "\t\t\t";
-      if (!POLYGONFLAG && LEVELFLAG == 0) {
+      if ((!POLYGONFLAG || (orientation_block != 0 && orientation_block != 2)) && LEVELFLAG == 0) {
         AddBoxToPAGE(res_it, RIL_BLOCK, page_str);
       }
     }
@@ -870,6 +870,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     // TODO: Rework polygon handling if line is skewed (90 or 180 degress),
     // for now using LinePts 
     bool skewed_flag = (orientation_block != 0 && orientation_block != 2);
+
 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // writing_direction_before = writing_direction;
