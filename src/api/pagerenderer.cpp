@@ -874,7 +874,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // writing_direction_before = writing_direction;
       line_conf = ((res_it->Confidence(RIL_TEXTLINE)) / 100.);
-      line_content << res_it->GetUTF8Text(RIL_TEXTLINE);
+      line_content << HOcrEscape(res_it->GetUTF8Text(RIL_TEXTLINE)).c_str();
       line_str << "\t\t\t<TextLine id=\"r" << rcnt << "l" << lcnt << "\" ";
       if (writing_direction != 0 &&
           writing_direction != writing_direction_block) {
