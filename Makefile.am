@@ -113,6 +113,7 @@ libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION)
 
 libtesseract_la_SOURCES = src/api/baseapi.cpp
 libtesseract_la_SOURCES += src/api/altorenderer.cpp
+libtesseract_la_SOURCES += src/api/pagerenderer.cpp
 libtesseract_la_SOURCES += src/api/capi.cpp
 libtesseract_la_SOURCES += src/api/hocrrenderer.cpp
 libtesseract_la_SOURCES += src/api/lstmboxrenderer.cpp

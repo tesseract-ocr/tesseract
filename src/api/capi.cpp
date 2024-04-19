@@ -68,6 +68,10 @@ TessResultRenderer *TessAltoRendererCreate(const char *outputbase) {
   return new tesseract::TessAltoRenderer(outputbase);
 }
 
+TessResultRenderer *TessPAGERendererCreate(const char *outputbase) {
+  return new tesseract::TessPAGERenderer(outputbase);
+}
+
 TessResultRenderer *TessTsvRendererCreate(const char *outputbase) {
   return new tesseract::TessTsvRenderer(outputbase);
 }
@@ -418,6 +422,10 @@ char *TessBaseAPIGetHOCRText(TessBaseAPI *handle, int page_number) {
 
 char *TessBaseAPIGetAltoText(TessBaseAPI *handle, int page_number) {
   return handle->GetAltoText(page_number);
+}
+
+char *TessBaseAPIGetPAGEText(TessBaseAPI *handle, int page_number) {
+  return handle->GetPAGEText(page_number);
 }
 
 char *TessBaseAPIGetTsvText(TessBaseAPI *handle, int page_number) {
