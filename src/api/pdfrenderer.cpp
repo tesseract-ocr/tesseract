@@ -192,7 +192,10 @@ static const int kMaxBytesPerCodepoint = 20;
  * PDF Renderer interface implementation
  **********************************************************************/
 TessPDFRenderer::TessPDFRenderer(const char *outputbase, const char *datadir, bool textonly)
-    : TessResultRenderer(outputbase, "pdf"), datadir_(datadir) {
+    : TessResultRenderer(outputbase, "pdf")
+    , datadir_(datadir)
+    , rendering_image_(nullptr)
+    , rendering_dpi_(0) {
   obj_ = 0;
   textonly_ = textonly;
   offsets_.push_back(0);
@@ -834,7 +837,60 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix, const char *filename, long int obj
   return true;
 }
 
+void TessPDFRenderer::ResetRenderingState(Pix *rendering_image_prev,
+                                             int rendering_dpi_prev) {
+  if (rendering_image_ != rendering_image_prev) {
+    pixDestroy(&rendering_image_);
+    rendering_image_ = rendering_image_prev;
+  }
+  rendering_dpi_ = rendering_dpi_prev;
+}
+
+Pix *TessPDFRenderer::GetRenderingImage(TessBaseAPI *api) {
+  if (!rendering_image_) {
+    Pix *source_image = api->GetInputImage();
+    int source_dpi = api->GetSourceYResolution();
+    if (!source_image || source_dpi <= 0) {
+      return nullptr;
+    }
+
+    int rendering_dpi = GetRenderingResolution(api);
+    if (rendering_dpi != source_dpi) {
+      float scale = (float)rendering_dpi / (float)source_dpi;
+      rendering_image_ = pixScale(source_image, scale, scale);
+    } else {
+      return source_image;
+    }
+  }
+  return rendering_image_;
+}
+
+int TessPDFRenderer::GetRenderingResolution(tesseract::TessBaseAPI *api) {
+  if (rendering_dpi_) {
+    return rendering_dpi_;
+  }
+  int source_dpi = api->GetSourceYResolution();
+  int rendering_dpi;
+  if (api->GetIntVariable("rendering_dpi", &rendering_dpi) &&
+      rendering_dpi > 0 && rendering_dpi != source_dpi) {
+    if (rendering_dpi < kMinCredibleResolution ||
+        rendering_dpi > kMaxCredibleResolution) {
+#if !defined(NDEBUG)
+      tprintf(
+          "Warning: User defined rendering dpi %d is outside of expected range "
+          "(%d - %d)!\n",
+          rendering_dpi, kMinCredibleResolution, kMaxCredibleResolution);
+#endif
+    }
+    rendering_dpi_ = rendering_dpi;
+    return rendering_dpi_;
+  }
+  return source_dpi;
+}
+
 bool TessPDFRenderer::AddImageHandler(TessBaseAPI *api) {
+  Pix *rendering_image_prev = rendering_image_;
+  int rendering_dpi_prev = rendering_dpi_;
   Pix *pix = GetRenderingImage(api);
   const char *filename = api->GetInputName();
   int ppi = GetRenderingResolution(api);
@@ -920,12 +976,14 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI *api) {
     int jpg_quality;
     api->GetIntVariable("jpg_quality", &jpg_quality);
     if (!imageToPDFObj(pix, filename, obj_, &pdf_object, &objsize, jpg_quality)) {
+      ResetRenderingState(rendering_image_prev, rendering_dpi_prev);
       return false;
     }
     AppendData(pdf_object, objsize);
     AppendPDFObjectDIY(objsize);
     delete[] pdf_object;
   }
+  ResetRenderingState(rendering_image_prev, rendering_dpi_prev);
   return true;
 }
 

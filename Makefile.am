@@ -1472,7 +1472,7 @@ progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 pdfrenderer_test_SOURCES = unittest/pdfrenderer_test.cc
 pdfrenderer_test_CPPFLAGS = $(unittest_CPPFLAGS)
-pdfrenderer_test_LDADD = $(TESS_LIBS) $(TRAINING_LIBS)
+pdfrenderer_test_LDADD = $(TESS_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
 qrsequence_test_SOURCES = unittest/qrsequence_test.cc
 qrsequence_test_CPPFLAGS = $(unittest_CPPFLAGS)
