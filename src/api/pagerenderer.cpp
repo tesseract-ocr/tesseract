@@ -482,7 +482,7 @@ Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
   int num_pts, num_bin, x0, y0, x1, y1;
   float m, b;
   float x_min, y_min, x_max, y_max;
-  float delta_median, delta_median_Q1, delta_median_Q3, delta_median_IQR;
+  float delta_median, delta_median_Q1, delta_median_Q3;
   NUMA *bin_line, *poly_bl_delta;
   Pta *baseline_recalc_pts, *baseline_clipped_pts;
 
@@ -747,7 +747,6 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
   float x1, y1, x2, y2, word_conf, line_conf, block_conf;
 
   tesseract::Orientation orientation_block;
-  tesseract::Orientation orientation_line;
   tesseract::WritingDirection writing_direction_block;
   tesseract::TextlineOrder textline_order_block;
 
