@@ -89,7 +89,7 @@ public:
   // Corrects the data structures for the given rotation.
   void CorrectForRotation(const FCOORD &rerotation, ColPartitionGrid *part_grid);
 
-  // Finds leader partitions and inserts them into the give grid.
+  // Finds leader partitions and inserts them into the given grid.
   void FindLeaderPartitions(TO_BLOCK *block, ColPartitionGrid *part_grid);
 
   // Finds and marks noise those blobs that look like bits of vertical lines
