@@ -142,7 +142,7 @@ ColumnFinder::~ColumnFinder() {
 }
 
 // Performs initial processing on the blobs in the input_block:
-// Setup the part_grid, stroke_width_, nontext_map.
+// Setup the part_grid_, stroke_width_, nontext_map.
 // Obvious noise blobs are filtered out and used to mark the nontext_map_.
 // Initial stroke-width analysis is used to get local text alignment
 // direction, so the textline projection_ map can be setup.
