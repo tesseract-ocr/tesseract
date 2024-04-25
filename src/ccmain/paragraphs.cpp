@@ -2610,7 +2610,6 @@ void DetectParagraphs(int debug_level, bool after_text_recognition,
 
   // Run the paragraph detection algorithm.
   std::vector<PARA *> row_owners;
-  std::vector<PARA *> the_paragraphs;
   if (!is_image_block) {
     DetectParagraphs(debug_level, &row_infos, &row_owners, block->para_list(), models);
   } else {
