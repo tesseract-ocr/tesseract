@@ -971,7 +971,7 @@ void ColumnFinder::ReleaseBlobsAndCleanupUnused(TO_BLOCK *block) {
 // Splits partitions that cross columns where they have nothing in the gap.
 void ColumnFinder::GridSplitPartitions() {
   // Iterate the ColPartitions in the grid.
-  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> gsearch(&part_grid_);
+  ColPartitionGridSearch gsearch(&part_grid_);
   gsearch.StartFullSearch();
   ColPartition *dont_repeat = nullptr;
   ColPartition *part;
@@ -1438,7 +1438,7 @@ void ColumnFinder::TransformToBlocks(BLOCK_LIST *blocks, TO_BLOCK_LIST *to_block
   // like horizontal lines going before the text lines above them.
   ColPartition_CLIST temp_part_list;
   // Iterate the ColPartitions in the grid. It starts at the top
-  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT> gsearch(&part_grid_);
+  ColPartitionGridSearch gsearch(&part_grid_);
   gsearch.StartFullSearch();
   int prev_grid_y = -1;
   ColPartition *part;
