@@ -2485,8 +2485,8 @@ OVERLAP_STATE most_overlapping_row( // find best row
       row_it->forward();
       test_row = row_it->data();
       if (test_row->min_y() <= top && test_row->max_y() >= bottom) {
-        merge_top = test_row->max_y() > row->max_y() ? test_row->max_y() : row->max_y();
-        merge_bottom = test_row->min_y() < row->min_y() ? test_row->min_y() : row->min_y();
+        merge_top = std::max(test_row->max_y(),row->max_y());
+        merge_bottom = std::min(test_row->min_y(),row->min_y());
         if (merge_top - merge_bottom <= rowsize) {
           if (testing_blob && textord_debug_blob) {
             tprintf("Merging rows at (%g,%g), (%g,%g)\n", row->min_y(), row->max_y(),
