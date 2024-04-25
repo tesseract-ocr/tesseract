@@ -543,7 +543,7 @@ bool Textord::clean_noise_from_row( // remove empties
             norm_count,
             rejected? "REJECTED": "ACCEPTED");
   }
-  return rejected;
+  return super_norm_count < textord_noise_sncount && rejected;
 }
 
 /**********************************************************************
