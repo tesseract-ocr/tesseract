@@ -873,7 +873,11 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // writing_direction_before = writing_direction;
       line_conf = ((res_it->Confidence(RIL_TEXTLINE)) / 100.);
-      line_content << HOcrEscape(res_it->GetUTF8Text(RIL_TEXTLINE)).c_str();
+      std::string textline = res_it->GetUTF8Text(RIL_TEXTLINE);
+      if (textline.back() == '\n') {
+        textline.erase(textline.length() - 1);
+      }
+      line_content << HOcrEscape(textline.c_str());
       line_str << "\t\t\t<TextLine id=\"r" << rcnt << "l" << lcnt << "\" ";
       if (writing_direction != 0 &&
           writing_direction != writing_direction_block) {
@@ -1078,12 +1082,10 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       region_content << line_content.str();
       line_content.str("");
       if (!last_word_in_cblock) {
-        region_content << "\n\t\t\t\t\t";
+        region_content << '\n';
       }
       lcnt++;
       wcnt = 0;
-    } else {
-      line_content << " ";
     }
 
     // Write region information to the output
