@@ -746,8 +746,9 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
 
   float x1, y1, x2, y2, word_conf, line_conf, block_conf;
 
-  tesseract::Orientation orientation_block;
-  tesseract::WritingDirection writing_direction_block;
+  tesseract::Orientation orientation_block = ORIENTATION_PAGE_UP;
+  tesseract::WritingDirection writing_direction_block =
+      WRITING_DIRECTION_LEFT_TO_RIGHT;
   tesseract::TextlineOrder textline_order_block;
 
   Pta *block_top_pts = ptaCreate(0);
@@ -834,14 +835,14 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       block_conf = ((res_it->Confidence(RIL_BLOCK)) / 100.);
       page_str << "\t\t<TextRegion id=\"r" << rcnt << "\" " << "custom=\""
                << "readingOrder {index:" << rcnt << ";} ";
-      if (writing_direction_block != 0) {
+      if (writing_direction_block != WRITING_DIRECTION_LEFT_TO_RIGHT) {
         page_str << "readingDirection {"
                  << WritingDirectionToStr(writing_direction_block) << ";} ";
       }
       page_str << "orientation {" << orientation_block << ";}\">\n";
       page_str << "\t\t\t";
-      if ((!POLYGONFLAG ||
-           (orientation_block != 0 && orientation_block != 2)) &&
+      if ((!POLYGONFLAG || (orientation_block != ORIENTATION_PAGE_UP &&
+                            orientation_block != ORIENTATION_PAGE_DOWN)) &&
           LEVELFLAG == 0) {
         AddBoxToPAGE(res_it, RIL_BLOCK, page_str);
       }
@@ -849,9 +850,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
 
     // Writing direction changes at a per-word granularity
     // tesseract::WritingDirection writing_direction_before;
-    tesseract::WritingDirection writing_direction;
-
-    writing_direction = writing_direction_block;
+    auto writing_direction = writing_direction_block;
     if (writing_direction_block != WRITING_DIRECTION_TOP_TO_BOTTOM) {
       switch (res_it->WordDirection()) {
         case DIR_LEFT_TO_RIGHT:
@@ -868,7 +867,8 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     bool ttb_flag = (writing_direction == WRITING_DIRECTION_TOP_TO_BOTTOM);
     // TODO: Rework polygon handling if line is skewed (90 or 180 degress),
     // for now using LinePts
-    bool skewed_flag = (orientation_block != 0 && orientation_block != 2);
+    bool skewed_flag = (orientation_block != ORIENTATION_PAGE_UP &&
+                        orientation_block != ORIENTATION_PAGE_DOWN);
 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // writing_direction_before = writing_direction;
@@ -879,7 +879,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       }
       line_content << HOcrEscape(textline.c_str());
       line_str << "\t\t\t<TextLine id=\"r" << rcnt << "l" << lcnt << "\" ";
-      if (writing_direction != 0 &&
+      if (writing_direction != WRITING_DIRECTION_LEFT_TO_RIGHT &&
           writing_direction != writing_direction_block) {
         line_str << "readingDirection=\""
                  << WritingDirectionToStr(writing_direction) << "\" ";
