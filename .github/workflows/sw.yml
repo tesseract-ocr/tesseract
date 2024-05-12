@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, macos-13]
+        os: [windows-2022, macos-latest]
         include:
           - os: ubuntu-22.04
             container: fedora:latest
@@ -67,7 +67,7 @@ jobs:
       shell: pwsh
 
     - name: test
-      if: github.event_name != 'pull_request' && (matrix.os != 'windows-2022' && matrix.os != 'macos-13')
+      if: github.event_name != 'pull_request' && (matrix.os != 'windows-2022' && matrix.os != 'macos-latest')
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
       continue-on-error: true
     - name: test
@@ -76,13 +76,13 @@ jobs:
       continue-on-error: true
 
     - name: test-nightly
-      if: matrix.os != 'windows-2022' && matrix.os != 'macos-13' && github.event.schedule=='0 0 * * *'
+      if: matrix.os != 'windows-2022' && matrix.os != 'macos-latest' && github.event.schedule=='0 0 * * *'
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1
       continue-on-error: true
 
-    # windows and macos-13 tests hang here for some reason, investigate
+    # windows and macos-latest tests hang here for some reason, investigate
     #- name: test
-      #if: matrix.os == 'windows-2022' || matrix.os == 'macos-13'
+      #if: matrix.os == 'windows-2022' || matrix.os == 'macos-latest'
       #run: ./sw test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
       #continue-on-error: true
 
