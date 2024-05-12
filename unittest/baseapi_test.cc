@@ -124,7 +124,6 @@ TEST_F(TesseractTest, HOCRWorksWithoutSetInputName) {
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) == -1) {
     // eng.traineddata not found.
     GTEST_SKIP();
-    return;
   }
   Image src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
   CHECK(src_pix);
@@ -143,7 +142,6 @@ TEST_F(TesseractTest, HOCRContainsBaseline) {
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) == -1) {
     // eng.traineddata not found.
     GTEST_SKIP();
-    return;
   }
   Image src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
   CHECK(src_pix);
@@ -179,7 +177,6 @@ TEST_F(TesseractTest, AdaptToWordStrTest) {
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) == -1) {
     // eng.traineddata not found.
     GTEST_SKIP();
-    return;
   }
   api.SetVariable("matcher_sufficient_examples_for_prototyping", "1");
   api.SetVariable("classify_class_pruner_threshold", "220");
@@ -215,7 +212,6 @@ TEST_F(TesseractTest, BasicLSTMTest) {
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
     // eng.traineddata not found.
     GTEST_SKIP();
-    return;
   }
   Image src_pix = pixRead(TestDataNameToPath("phototest_2.tif").c_str());
   CHECK(src_pix);
@@ -239,7 +235,6 @@ TEST_F(TesseractTest, LSTMGeometryTest) {
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
     // eng.traineddata not found.
     GTEST_SKIP();
-    return;
   }
   api.SetImage(src_pix);
   ASSERT_EQ(api.Recognize(nullptr), 0);
