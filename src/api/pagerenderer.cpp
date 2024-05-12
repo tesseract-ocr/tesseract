@@ -391,7 +391,7 @@ Pta *SortBaseline(Pta *baseline_pts,
   Pta *sorted_baseline_pts;
 
   sorted_baseline_pts =
-      ptaSort(baseline_pts, L_SORT_BY_X, L_SORT_INCREASING, NULL);
+      ptaSort(baseline_pts, L_SORT_BY_X, L_SORT_INCREASING, nullptr);
 
   do {
     ptaGetPt(sorted_baseline_pts, index, &x0, &y0);
@@ -557,8 +557,8 @@ Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
 
   // Calculate quartiles to find outliers
   numaGetMedian(poly_bl_delta, &delta_median);
-  numaGetRankValue(poly_bl_delta, 0.25, NULL, 0, &delta_median_Q1);
-  numaGetRankValue(poly_bl_delta, 0.75, NULL, 0, &delta_median_Q3);
+  numaGetRankValue(poly_bl_delta, 0.25, nullptr, 0, &delta_median_Q1);
+  numaGetRankValue(poly_bl_delta, 0.75, nullptr, 0, &delta_median_Q3);
 
   // Fit baseline into the polygon
   // Todo: Needs maybe some adjustments to suppress fitting to superscript
