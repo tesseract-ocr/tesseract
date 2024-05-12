@@ -77,7 +77,7 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
   if (datadir.empty()) {
 #if defined(TESSDATA_PREFIX)
     // Use tessdata prefix which was compiled in.
-    // Note that some software (for example conda) patch TESSDATA_PREFIX
+    // Note that some software (for example conda) patches TESSDATA_PREFIX
     // in the binary, so it should not be used directly with a std::string.
     tessdata_prefix = TESSDATA_PREFIX;
     datadir = tessdata_prefix;
