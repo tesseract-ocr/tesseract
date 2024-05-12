@@ -1,3 +1,6 @@
+2024-05-12 - V5.3.5-rc1
+*
+
 2024-01-18 - V5.3.4
 * Fixes for scrollview
 * Fixes for autoconf, clang and sw builds
