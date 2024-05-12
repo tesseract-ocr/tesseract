@@ -89,7 +89,8 @@ public:
   // to the appropriate word(s) in case they are really diacritics.
   void TextordPage(PageSegMode pageseg_mode, const FCOORD &reskew, int width, int height,
                    Image binary_pix, Image thresholds_pix, Image grey_pix, bool use_box_bottoms,
-                   BLOBNBOX_LIST *diacritic_blobs, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks);
+                   BLOBNBOX_LIST *diacritic_blobs, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks,
+                   float *gradient);
 
   // If we were supposed to return only a single textline, and there is more
   // than one, clean up and leave only the best.
