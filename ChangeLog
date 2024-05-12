@@ -1,4 +1,4 @@
-2024-05-12 - V5.3.5-rc1
+2024-05-12 - V5.4.0-rc1
 * Build fixes, code refactoring and other smaller changes.
 * Fix grey result of indexed PNG in pdfrenderer.
 * Rename frk -> deu_latf (ISO 639-3, ISO 15924).
