@@ -1,5 +1,15 @@
 2024-05-12 - V5.3.5-rc1
-*
+* Build fixes, code refactoring and other smaller changes.
+* Fix grey result of indexed PNG in pdfrenderer.
+* Rename frk -> deu_latf (ISO 639-3, ISO 15924).
+* Remove broken Dockerfile.
+* Fixes for several issues reported by Coverity Scan.
+* Remove unsupported OpenCL code and related API functions (#4220).
+* Facilitate vectorization for generic build (#4223).
+* Add PAGE XML renderer / export (#4214).
+* Support training without lstmf files.
+* Improve CCUtil::main_setup (fixes issue #4230 related to Coda).
+* Allow for text angle/gradient to be retrieved (#4070).
 
 2024-01-18 - V5.3.4
 * Fixes for scrollview
