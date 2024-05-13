@@ -77,11 +77,10 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
   if (datadir.empty()) {
 #if defined(TESSDATA_PREFIX)
     // Use tessdata prefix which was compiled in.
+    datadir = TESSDATA_PREFIX "/tessdata/";
     // Note that some software (for example conda) patches TESSDATA_PREFIX
-    // in the binary, so it should not be used directly with a std::string.
-    tessdata_prefix = TESSDATA_PREFIX;
-    datadir = tessdata_prefix;
-    datadir += "/tessdata/";
+    // in the binary, so it might be shorter. Recalculate its length.
+    datadir.resize(std::strlen(datadir.c_str()));
 #else
     datadir = "./";
 #endif /* TESSDATA_PREFIX */
