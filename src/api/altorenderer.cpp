@@ -70,7 +70,6 @@ bool TessAltoRenderer::AddImageHandler(TessBaseAPI *api) {
     AppendString(
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v3#\" "
-      "xmlns:xlink=\"http://www.w3.org/1999/xlink\" "
       "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
       "xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v3# "
       "http://www.loc.gov/alto/v3/alto-3-0.xsd\">\n"
