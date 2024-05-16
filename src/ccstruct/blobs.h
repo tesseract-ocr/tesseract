@@ -81,8 +81,8 @@ struct TPOINT {
     return x * other.x + y * other.y;
   }
 
-  // Calculate length of vector.
-  int length() const {
+  // Calculate square of vector length.
+  int length2() const {
     return x * x + y * y;
   }
 
