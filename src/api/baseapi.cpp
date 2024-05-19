@@ -1402,7 +1402,9 @@ char *TessBaseAPI::GetTSVText(int page_number) {
     return nullptr;
   }
 
+#if !defined(NDEBUG)
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
+#endif
   int page_id = page_number + 1; // we use 1-based page numbers.
 
   int page_num = page_id;
@@ -1484,6 +1486,7 @@ char *TessBaseAPI::GetTSVText(int page_number) {
     tsv_str += "\t" + std::to_string(res_it->Confidence(RIL_WORD));
     tsv_str += "\t";
 
+#if !defined(NDEBUG)
     // Increment counts if at end of block/paragraph/textline.
     if (res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD)) {
       lcnt++;
@@ -1494,13 +1497,16 @@ char *TessBaseAPI::GetTSVText(int page_number) {
     if (res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD)) {
       bcnt++;
     }
+#endif
 
     do {
       tsv_str += std::unique_ptr<const char[]>(res_it->GetUTF8Text(RIL_SYMBOL)).get();
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     tsv_str += "\n"; // end of row
+#if !defined(NDEBUG)
     wcnt++;
+#endif
   }
 
   char *ret = new char[tsv_str.length() + 1];

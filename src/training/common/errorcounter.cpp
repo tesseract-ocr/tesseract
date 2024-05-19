@@ -114,7 +114,9 @@ void ErrorCounter::DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifi
   ErrorCounter new_counter(new_classifier->GetUnicharset(), fontsize);
   std::vector<UnicharRating> results;
 
+#if !defined(NDEBUG)
   int total_samples = 0;
+#endif
   int error_samples = 25;
   int total_new_errors = 0;
   // Iterate over all the samples, accumulating errors.
@@ -145,7 +147,9 @@ void ErrorCounter::DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifi
         }
       }
     }
+#if !defined(NDEBUG)
     ++total_samples;
+#endif
   }
   tprintf("Total new errors = %d\n", total_new_errors);
 }

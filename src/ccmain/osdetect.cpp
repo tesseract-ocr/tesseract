@@ -223,7 +223,9 @@ int orientation_and_script_detection(const char *filename, OSResults *osr,
 // Returns a non-zero number of blobs if the page was successfully processed, or
 // zero if the page had too few characters to be reliable
 int os_detect(TO_BLOCK_LIST *port_blocks, OSResults *osr, tesseract::Tesseract *tess) {
+#if !defined(NDEBUG)
   int blobs_total = 0;
+#endif
   TO_BLOCK_IT block_it;
   block_it.set_to_list(port_blocks);
 
@@ -241,7 +243,9 @@ int os_detect(TO_BLOCK_LIST *port_blocks, OSResults *osr, tesseract::Tesseract *
       BLOBNBOX *bbox = bbox_it.data();
       C_BLOB *blob = bbox->cblob();
       TBOX box = blob->bounding_box();
+#if !defined(NDEBUG)
       ++blobs_total;
+#endif
 
       // Catch illegal value of box width and avoid division by zero.
       if (box.width() == 0) {
