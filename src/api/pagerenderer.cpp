@@ -744,7 +744,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
   std::stringstream word_str;
   std::stringstream page_str;
 
-  float x1, y1, x2, y2, word_conf, line_conf, block_conf;
+  float x1, y1, x2, y2;
 
   tesseract::Orientation orientation_block = ORIENTATION_PAGE_UP;
   tesseract::WritingDirection writing_direction_block =
@@ -824,6 +824,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
         break;
     }
 
+    float block_conf = 0;
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
       // Add Block to reading order
       reading_order_str << "\t\t\t\t<RegionRefIndexed " << "index=\"" << rcnt
@@ -870,6 +871,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     bool skewed_flag = (orientation_block != ORIENTATION_PAGE_UP &&
                         orientation_block != ORIENTATION_PAGE_DOWN);
 
+    float line_conf = 0;
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // writing_direction_before = writing_direction;
       line_conf = ((res_it->Confidence(RIL_TEXTLINE)) / 100.);
@@ -900,7 +902,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_cblock = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
 
-    word_conf = ((res_it->Confidence(RIL_WORD)) / 100.);
+    float word_conf = ((res_it->Confidence(RIL_WORD)) / 100.);
 
     // Create word stream if word level output is active
     if (LEVELFLAG > 0) {
