@@ -230,12 +230,20 @@ bool PangoFontInfo::CoversUTF8Text(const char *utf8_text, int byte_length) const
       int len = it.get_utf8(tmp);
       tmp[len] = '\0';
       tlog(2, "'%s' (U+%x) not covered by font\n", tmp, *it);
+#if PANGO_VERSION_CHECK(1, 52, 0)
+      g_object_unref(coverage);
+#else
       pango_coverage_unref(coverage);
+#endif
       g_object_unref(font);
       return false;
     }
   }
+#if PANGO_VERSION_CHECK(1, 52, 0)
+  g_object_unref(coverage);
+#else
   pango_coverage_unref(coverage);
+#endif
   g_object_unref(font);
   return true;
 }
@@ -303,7 +311,11 @@ int PangoFontInfo::DropUncoveredChars(std::string *utf8_text) const {
     my_strnmove(out, utf8_char, utf8_len);
     out += utf8_len;
   }
+#if PANGO_VERSION_CHECK(1, 52, 0)
+  g_object_unref(coverage);
+#else
   pango_coverage_unref(coverage);
+#endif
   g_object_unref(font);
   utf8_text->resize(out - utf8_text->c_str());
   return num_dropped_chars;
@@ -603,7 +615,11 @@ int FontUtils::FontScore(const std::unordered_map<char32, int64_t> &ch_map,
       ch_flags->push_back(covered);
     }
   }
+#if PANGO_VERSION_CHECK(1, 52, 0)
+  g_object_unref(coverage);
+#else
   pango_coverage_unref(coverage);
+#endif
   g_object_unref(font);
   return ok_chars;
 }
