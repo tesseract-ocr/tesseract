@@ -14,6 +14,7 @@
 // limitations under the License.
 
 #include "errcode.h" // for ASSERT_HOST
+#include "helpers.h" // for copy_string
 #ifdef _WIN32
 #  include "host.h" // windows.h for MultiByteToWideChar, ...
 #endif
@@ -1143,15 +1144,8 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
   const std::string &text = reading_order_str.str();
   reading_order_str.str("");
 
-  // Allocate memory for result to hold text.length() characters plus a null
-  // terminator Safely copy the string into result, ensuring no overflow strncpy
-  // does not necessarily null-terminate the destination, so do it manually
-  char *result = new char[text.length() + 1];
-  strncpy(result, text.c_str(), text.length());
-  result[text.length()] = '\0';
-
   delete res_it;
-  return result;
+  return copy_string(text);
 }
 
 } // namespace tesseract

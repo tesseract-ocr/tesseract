@@ -19,6 +19,7 @@
 
 #include <tesseract/ltrresultiterator.h>
 
+#include "helpers.h"  // for copy_string
 #include "pageres.h"
 #include "tesseractclass.h"
 
@@ -76,10 +77,7 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
       }
     } while (level == RIL_BLOCK && res_it.block() == res_it.prev_block());
   }
-  int length = text.length() + 1;
-  char *result = new char[length];
-  strncpy(result, text.c_str(), length);
-  return result;
+  return copy_string(text);
 }
 
 // Set the string inserted at the end of each text line. "\n" by default.
@@ -310,11 +308,7 @@ char *LTRResultIterator::WordTruthUTF8Text() const {
   if (!HasTruthString()) {
     return nullptr;
   }
-  std::string truth_text = it_->word()->blamer_bundle->TruthString();
-  int length = truth_text.length() + 1;
-  char *result = new char[length];
-  strncpy(result, truth_text.c_str(), length);
-  return result;
+  return copy_string(it_->word()->blamer_bundle->TruthString());
 }
 
 // Returns the null terminated UTF-8 encoded normalized OCR string for the
@@ -330,10 +324,7 @@ char *LTRResultIterator::WordNormedUTF8Text() const {
   for (unsigned i = 0; i < best_choice->length(); ++i) {
     ocr_text += unicharset->get_normed_unichar(best_choice->unichar_id(i));
   }
-  auto length = ocr_text.length() + 1;
-  char *result = new char[length];
-  strncpy(result, ocr_text.c_str(), length);
-  return result;
+  return copy_string(ocr_text);
 }
 
 // Returns a pointer to serialized choice lattice.
