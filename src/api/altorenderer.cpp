@@ -14,6 +14,7 @@
 // limitations under the License.
 
 #include "errcode.h" // for ASSERT_HOST
+#include "helpers.h" // for copy_string
 #ifdef _WIN32
 #  include "host.h"  // windows.h for MultiByteToWideChar, ...
 #endif
@@ -270,12 +271,9 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
 
   alto_str << "\t\t\t</PrintSpace>\n"
            << "\t\t</Page>\n";
-  const std::string &text = alto_str.str();
 
-  char *result = new char[text.length() + 1];
-  strcpy(result, text.c_str());
   delete res_it;
-  return result;
+  return copy_string(alto_str.str());
 }
 
 } // namespace tesseract
