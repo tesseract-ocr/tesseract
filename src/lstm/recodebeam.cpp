@@ -898,12 +898,13 @@ void RecodeBeamSearch::ContinueContext(
   int length = LengthFromBeamsIndex(index);
   bool use_dawgs = IsDawgFromBeamsIndex(index);
   NodeContinuation prev_cont = ContinuationFromBeamsIndex(index);
-  for (int p = length - 1; p >= 0; --p, previous = previous->prev) {
+  for (int p = length - 1; p >= 0 && previous != nullptr; --p) {
     while (previous->duplicate || previous->code == null_char_) {
       previous = previous->prev;
     }
     prefix.Set(p, previous->code);
     full_code.Set(p, previous->code);
+    previous = previous->prev;
   }
   if (prev != nullptr && !is_simple_text_) {
     if (top_n_flags_[prev->code] == top_n_flag) {
