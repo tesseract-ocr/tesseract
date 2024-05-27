@@ -45,8 +45,8 @@ body:
         - macOS 13 Ventura
         - macOS 12 Monterey
         - macOS 11 Big Sur
+        - Ubuntu 24.04 Noble
         - Ubuntu 22.04 Jammy
-        - Ubuntu 20.04 Focal
         - Debian 12 Bookworm
         - Debian 11 Bullseye
         - RHEL 9
