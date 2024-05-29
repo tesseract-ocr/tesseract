@@ -58,33 +58,6 @@ bool Dropout::DeSerialize(TFile *fp) {
 void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
                        NetworkScratch *scratch, NetworkIO *output) {
   *output = input;
-#if 0
-  int y_scale = 2 * half_y_ + 1;
-  StrideMap::Index dest_index(output->stride_map());
-  do {
-    // Stack x_scale groups of y_scale * ni_ inputs together.
-    int t = dest_index.t();
-    int out_ix = 0;
-    for (int x = -half_x_; x <= half_x_; ++x, out_ix += y_scale * ni_) {
-      StrideMap::Index x_index(dest_index);
-      if (!x_index.AddOffset(x, FD_WIDTH)) {
-        // This x is outside the image.
-        output->Randomize(t, out_ix, y_scale * ni_, randomizer_);
-      } else {
-        int out_iy = out_ix;
-        for (int y = -half_y_; y <= half_y_; ++y, out_iy += ni_) {
-          StrideMap::Index y_index(x_index);
-          if (!y_index.AddOffset(y, FD_HEIGHT)) {
-            // This y is outside the image.
-            output->Randomize(t, out_iy, ni_, randomizer_);
-          } else {
-            output->CopyTimeStepGeneral(t, out_iy, ni_, input, y_index.t(), 0);
-          }
-        }
-      }
-    }
-  } while (dest_index.Increment());
-#endif
 #ifndef GRAPHICS_DISABLED
   if (debug) {
     DisplayForward(*output);
@@ -98,12 +71,12 @@ bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *
                         NetworkIO *back_deltas) {
   tprintf("%s: missing implementation\n", __FUNCTION__);
 
-#if 0
-  back_deltas->Resize(input, no_);
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
+  back_deltas->Resize(fwd_deltas, ni_);
+#if 0
   for (unsigned i = 0; i < ni_; i++) {
     if (dist(gen) >= dropout_rate_) {
       // Keep the neuron
@@ -116,7 +89,6 @@ bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *
 #endif
 
 #if 0
-  back_deltas->Resize(fwd_deltas, ni_);
   NetworkScratch::IO delta_sum;
   delta_sum.ResizeFloat(fwd_deltas, ni_, scratch);
   delta_sum->Zero();
