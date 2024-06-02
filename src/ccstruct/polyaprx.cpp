@@ -108,7 +108,7 @@ static void cutline(       // recursive refine
     edge = edge->next;
   } while (edge != last); // test all line
 
-  perp = vecsum.length();
+  perp = vecsum.length2();
   ASSERT_HOST(perp != 0);
 
   if (maxperp < 256 * INT16_MAX) {
@@ -389,7 +389,7 @@ static void fix2(  // polygonal approx
       break; // already too few
     }
     d12vec.diff(edgefix1->pos, edgefix2->pos);
-    d12 = d12vec.length();
+    d12 = d12vec.length2();
     // TODO(rays) investigate this change:
     // Only unfix a point if it is part of a low-curvature section
     // of outline and the total angle change of the outlines is
@@ -397,9 +397,9 @@ static void fix2(  // polygonal approx
     // if (d12 <= gapmin && edgefix0->vec.dot(edgefix2->vec) > 0) {
     if (d12 <= gapmin) {
       d01vec.diff(edgefix0->pos, edgefix1->pos);
-      d01 = d01vec.length();
+      d01 = d01vec.length2();
       d23vec.diff(edgefix2->pos, edgefix3->pos);
-      d23 = d23vec.length();
+      d23 = d23vec.length2();
       if (d01 > d23) {
         edgefix2->fixed = false;
         fixed_count--;

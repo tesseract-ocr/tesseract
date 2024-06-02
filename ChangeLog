@@ -1,3 +1,7 @@
+2024-05-19 - V5.4.0-rc2
+* Fix setup of datadir on installations with Conda (issue #4230) (#4240)
+* Fix FP exception in Wordrec::angle_change (issue #4242) (#4243)
+
 2024-05-12 - V5.4.0-rc1
 * Build fixes, code refactoring and other smaller changes.
 * Fix grey result of indexed PNG in pdfrenderer.

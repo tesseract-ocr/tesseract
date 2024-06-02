@@ -77,7 +77,7 @@ public:
 
   /// find sq length
   float sqlength() const {
-    return (float)(xcoord * xcoord + ycoord * ycoord);
+    return static_cast<float>(xcoord * xcoord + ycoord * ycoord);
   }
 
   /// find length
@@ -101,7 +101,7 @@ public:
 
   /// find angle
   float angle() const {
-    return (float)std::atan2(ycoord, xcoord);
+    return std::atan2(static_cast<float>(ycoord), static_cast<float>(xcoord));
   }
 
   /// test equality

@@ -14,6 +14,7 @@
 // limitations under the License.
 
 #include "errcode.h" // for ASSERT_HOST
+#include "helpers.h" // for copy_string
 #ifdef _WIN32
 #  include "host.h" // windows.h for MultiByteToWideChar, ...
 #endif
@@ -391,7 +392,7 @@ Pta *SortBaseline(Pta *baseline_pts,
   Pta *sorted_baseline_pts;
 
   sorted_baseline_pts =
-      ptaSort(baseline_pts, L_SORT_BY_X, L_SORT_INCREASING, NULL);
+      ptaSort(baseline_pts, L_SORT_BY_X, L_SORT_INCREASING, nullptr);
 
   do {
     ptaGetPt(sorted_baseline_pts, index, &x0, &y0);
@@ -557,8 +558,8 @@ Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
 
   // Calculate quartiles to find outliers
   numaGetMedian(poly_bl_delta, &delta_median);
-  numaGetRankValue(poly_bl_delta, 0.25, NULL, 0, &delta_median_Q1);
-  numaGetRankValue(poly_bl_delta, 0.75, NULL, 0, &delta_median_Q3);
+  numaGetRankValue(poly_bl_delta, 0.25, nullptr, 0, &delta_median_Q1);
+  numaGetRankValue(poly_bl_delta, 0.75, nullptr, 0, &delta_median_Q3);
 
   // Fit baseline into the polygon
   // Todo: Needs maybe some adjustments to suppress fitting to superscript
@@ -744,7 +745,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
   std::stringstream word_str;
   std::stringstream page_str;
 
-  float x1, y1, x2, y2, word_conf, line_conf, block_conf;
+  float x1, y1, x2, y2;
 
   tesseract::Orientation orientation_block = ORIENTATION_PAGE_UP;
   tesseract::WritingDirection writing_direction_block =
@@ -824,6 +825,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
         break;
     }
 
+    float block_conf = 0;
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
       // Add Block to reading order
       reading_order_str << "\t\t\t\t<RegionRefIndexed " << "index=\"" << rcnt
@@ -870,6 +872,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     bool skewed_flag = (orientation_block != ORIENTATION_PAGE_UP &&
                         orientation_block != ORIENTATION_PAGE_DOWN);
 
+    float line_conf = 0;
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // writing_direction_before = writing_direction;
       line_conf = ((res_it->Confidence(RIL_TEXTLINE)) / 100.);
@@ -900,7 +903,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_cblock = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
 
-    word_conf = ((res_it->Confidence(RIL_WORD)) / 100.);
+    float word_conf = ((res_it->Confidence(RIL_WORD)) / 100.);
 
     // Create word stream if word level output is active
     if (LEVELFLAG > 0) {
@@ -1141,15 +1144,8 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
   const std::string &text = reading_order_str.str();
   reading_order_str.str("");
 
-  // Allocate memory for result to hold text.length() characters plus a null
-  // terminator Safely copy the string into result, ensuring no overflow strncpy
-  // does not necessarily null-terminate the destination, so do it manually
-  char *result = new char[text.length() + 1];
-  strncpy(result, text.c_str(), text.length());
-  result[text.length()] = '\0';
-
   delete res_it;
-  return result;
+  return copy_string(text);
 }
 
 } // namespace tesseract
