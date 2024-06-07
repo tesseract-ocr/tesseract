@@ -1,3 +1,7 @@
+2024-06-06 - V5.4.0
+* Small build fixes and code improvements
+  (#4241, #4243, #4244, #4245, #4246, #4248, #4249, #4250, #4253)
+
 2024-05-19 - V5.4.0-rc2
 * Fix setup of datadir on installations with Conda (issue #4230) (#4240)
 * Fix FP exception in Wordrec::angle_change (issue #4242) (#4243)

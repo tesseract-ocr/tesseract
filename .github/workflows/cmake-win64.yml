@@ -45,9 +45,9 @@ jobs:
       - name: Build and Install libpng
         shell: cmd
         run: |
-             curl -sSL -o lpng1639.zip https://download.sourceforge.net/libpng/lpng1640.zip
-             unzip.exe  -qq lpng1640.zip
-             cd lpng1639
+             curl -sSL -o lpng1643.zip https://download.sourceforge.net/libpng/lpng1643.zip
+             unzip.exe  -qq lpng1643.zip
+             cd lpng1643
              cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DPNG_TESTS=OFF -DPNG_SHARED=OFF
              cmake --build build --config Release --target install
              cd ..
@@ -100,7 +100,7 @@ jobs:
              cmake --build build --config Release --target install
 
       - name: Upload Build Results
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v4
         with:
           name: tesseract-${{ steps.get_version.outputs.version }}-VS2019_win64
           path: ${{env.ILOC}}
