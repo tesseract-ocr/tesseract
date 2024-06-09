@@ -14,6 +14,7 @@
 // limitations under the License.
 
 #include "errcode.h" // for ASSERT_HOST
+#include "helpers.h" // for copy_string
 #ifdef _WIN32
 #  include "host.h"  // windows.h for MultiByteToWideChar, ...
 #endif
@@ -70,7 +71,6 @@ bool TessAltoRenderer::AddImageHandler(TessBaseAPI *api) {
     AppendString(
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v3#\" "
-      "xmlns:xlink=\"http://www.w3.org/1999/xlink\" "
       "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
       "xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v3# "
       "http://www.loc.gov/alto/v3/alto-3-0.xsd\">\n"
@@ -271,12 +271,9 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
 
   alto_str << "\t\t\t</PrintSpace>\n"
            << "\t\t</Page>\n";
-  const std::string &text = alto_str.str();
 
-  char *result = new char[text.length() + 1];
-  strcpy(result, text.c_str());
   delete res_it;
-  return result;
+  return copy_string(alto_str.str());
 }
 
 } // namespace tesseract

@@ -52,17 +52,17 @@ struct NORM_PROTOS {
  * normalization adjustment.  The equation that represents the transform is:
  *       1 / (1 + (NormAdj / midpoint) ^ curl)
  */
-static double NormEvidenceOf(double NormAdj) {
-  NormAdj /= classify_norm_adj_midpoint;
+static float NormEvidenceOf(float NormAdj) {
+  NormAdj /= static_cast<float>(classify_norm_adj_midpoint);
 
   if (classify_norm_adj_curl == 3) {
     NormAdj = NormAdj * NormAdj * NormAdj;
   } else if (classify_norm_adj_curl == 2) {
     NormAdj = NormAdj * NormAdj;
   } else {
-    NormAdj = pow(NormAdj, classify_norm_adj_curl);
+    NormAdj = std::pow(NormAdj, static_cast<float>(classify_norm_adj_curl));
   }
-  return (1.0 / (1.0 + NormAdj));
+  return (1 / (1 + NormAdj));
 }
 
 /*----------------------------------------------------------------------------
@@ -73,7 +73,7 @@ static double NormEvidenceOf(double NormAdj) {
 double_VAR(classify_norm_adj_midpoint, 32.0, "Norm adjust midpoint ...");
 double_VAR(classify_norm_adj_curl, 2.0, "Norm adjust curl ...");
 /** Weight of width variance against height and vertical position. */
-const double kWidthErrorWeighting = 0.125;
+const float kWidthErrorWeighting = 0.125f;
 
 /*----------------------------------------------------------------------------
               Public Code
@@ -102,17 +102,20 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId, const FEATURE_STRUCT &feature
     float Match = (feature.Params[CharNormLength] * feature.Params[CharNormLength] * 500.0f +
                    feature.Params[CharNormRx] * feature.Params[CharNormRx] * 8000.0f +
                    feature.Params[CharNormRy] * feature.Params[CharNormRy] * 8000.0f);
-    return (1.0f - NormEvidenceOf(Match));
+    return (1 - NormEvidenceOf(Match));
   }
-
-  float BestMatch = FLT_MAX;
-  LIST Protos = NormProtos->Protos[ClassId];
 
   if (DebugMatch) {
     tprintf("\nChar norm for class %s\n", unicharset.id_to_unichar(ClassId));
   }
 
-  int ProtoId = 0;
+  LIST Protos = NormProtos->Protos[ClassId];
+  if (Protos == nullptr) {
+     // Avoid FP overflow in NormEvidenceOf.
+     return 1.0f;
+  }
+
+  float BestMatch = FLT_MAX;
   iterate(Protos) {
     auto Proto = reinterpret_cast<PROTOTYPE *>(Protos->first_node());
     float Delta = feature.Params[CharNormY] - Proto->Mean[CharNormY];
@@ -145,10 +148,8 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId, const FEATURE_STRUCT &feature
     if (Match < BestMatch) {
       BestMatch = Match;
     }
-
-    ProtoId++;
   }
-  return 1.0 - NormEvidenceOf(BestMatch);
+  return 1 - NormEvidenceOf(BestMatch);
 } /* ComputeNormMatch */
 
 void Classify::FreeNormProtos() {

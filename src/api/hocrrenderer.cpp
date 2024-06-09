@@ -25,6 +25,7 @@
 #  include "host.h" // windows.h for MultiByteToWideChar, ...
 #endif
 #include <tesseract/renderer.h>
+#include "helpers.h"        // for copy_string
 #include "tesseractclass.h" // for Tesseract
 
 namespace tesseract {
@@ -480,10 +481,7 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
   }
   hocr_str << "  </div>\n";
 
-  const std::string &text = hocr_str.str();
-  char *result = new char[text.length() + 1];
-  strcpy(result, text.c_str());
-  return result;
+  return copy_string(hocr_str.str());
 }
 
 /**********************************************************************

@@ -64,7 +64,6 @@ protected:
     if (!SetImage(imagefile)) {
       // eng.traineddata not found or other problem during Init.
       GTEST_SKIP();
-      return;
     }
     if (line_mode) {
       api_.SetVariable("tessedit_resegment_from_line_boxes", "1");
