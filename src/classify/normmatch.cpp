@@ -105,13 +105,17 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId, const FEATURE_STRUCT &feature
     return (1 - NormEvidenceOf(Match));
   }
 
-  float BestMatch = FLT_MAX;
-  LIST Protos = NormProtos->Protos[ClassId];
-
   if (DebugMatch) {
     tprintf("\nChar norm for class %s\n", unicharset.id_to_unichar(ClassId));
   }
 
+  LIST Protos = NormProtos->Protos[ClassId];
+  if (Protos == nullptr) {
+     // Avoid FP overflow in NormEvidenceOf.
+     return 1.0f;
+  }
+
+  float BestMatch = FLT_MAX;
   iterate(Protos) {
     auto Proto = reinterpret_cast<PROTOTYPE *>(Protos->first_node());
     float Delta = feature.Params[CharNormY] - Proto->Mean[CharNormY];
