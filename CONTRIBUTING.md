@@ -7,6 +7,7 @@
 If you think you found a bug in Tesseract, please create an issue.
 
 Use the [user forum](https://groups.google.com/g/tesseract-ocr) instead of creating an issue if ...
+
 * You have problems using Tesseract and need some help.
 * You have problems installing the software.
 * You are not satisfied with the accuracy of the OCR, and want to ask how you can improve it. Note: You should first read the [ImproveQuality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html) documentation.
@@ -14,9 +15,10 @@ Use the [user forum](https://groups.google.com/g/tesseract-ocr) instead of creat
 * You have a general question.
 
 An issue should only be reported if the platform you are using is one of these:
-  * Linux (but not a version that is more than 4 years old)
-  * Windows (Windows 7 or newer version)
-  * macOS (last 3 releases)
+
+* Linux (but not a version that is more than 4 years old)
+* Windows (Windows 7 or newer version)
+* macOS (last 3 releases)
 
 For older versions or other operating systems, use the Tesseract forum.
 
@@ -39,8 +41,9 @@ Post example files to demonstrate the problem.
 BUT don't post files with private info (about yourself or others).
 
 When attaching a file to the issue report / forum ...
-  * Do not post a file larger than 20 MB.
-  * GitHub supports only few file name extensions like `.png` or `.txt`. If GitHub rejects your files, you can compress them using a program that can produce a zip archive and then load this zip file to GitHub.
+
+* Do not post a file larger than 20 MB.
+* GitHub supports only few file name extensions like `.png` or `.txt`. If GitHub rejects your files, you can compress them using a program that can produce a zip archive and then load this zip file to GitHub.
 
 Do not attach programs or libraries to your issues/posts.
 
