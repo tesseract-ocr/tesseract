@@ -88,14 +88,14 @@ jobs:
 
     - name: Upload Unit Test Results
       if: always() && matrix.os != 'windows-2022'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Test Results (${{ matrix.os }})
         path: .sw/test/results.xml
 
     - name: Publish Test Report
       if: always() && matrix.os != 'windows-2022'
-      uses: mikepenz/action-junit-report@v3
+      uses: mikepenz/action-junit-report@v4
       with:
         check_name: test (${{ matrix.os }})
         report_paths: .sw/test/results.xml
