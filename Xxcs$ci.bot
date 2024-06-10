@@ -1,0 +1,56 @@
+import cv2
+import pytesseract
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+
+# توکن ربات خود را در اینجا قرار دهید
+TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
+
+# مسیر به Tesseract OCR
+pytesseract.pytesseract.tesseract_cmd = r'/path/to/tesseract'  # برای مثال: C:/Program Files/Tesseract-OCR/tesseract.exe
+
+def start(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text('سلام! لطفاً فیش بانکی خود را ارسال کنید.')
+
+def process_image(update: Update, context: CallbackContext) -> None:
+    photo_file = update.message.photo[-1].get_file()
+    photo_file.download('received_image.jpg')
+
+    # خواندن تصویر
+    img = cv2.imread('received_image.jpg')
+
+    # استفاده از OCR برای استخراج متن
+    text = pytesseract.image_to_string(img, lang='fas')  # 'fas' برای زبان فارسی
+
+    # جستجوی شماره حساب و کارت در متن
+    account_number = find_account_number(text)
+    card_number = find_card_number(text)
+
+    response = f"شماره حساب: {account_number}\nشماره کارت: {card_number}"
+    update.message.reply_text(response)
+
+def find_account_number(text):
+    # جستجو برای شماره حساب در متن
+    import re
+    match = re.search(r'\b\d{3,4}-\d{3,4}-\d{3,4}-\d{3,4}\b', text)
+    return match.group(0) if match else "پیدا نشد"
+
+def find_card_number(text):
+    # جستجو برای شماره کارت در متن
+    import re
+    match = re.search(r'\b\d{16}\b', text)
+    return match.group(0) if match else "پیدا نشد"
+
+def main() -> None:
+    updater = Updater(TOKEN)
+
+    dispatcher = updater.dispatcher
+
+    dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(MessageHandler(Filters.photo, process_image))
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
