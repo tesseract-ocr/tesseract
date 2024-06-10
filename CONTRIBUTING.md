@@ -7,6 +7,7 @@
 If you think you found a bug in Tesseract, please create an issue.
 
 Use the [user forum](https://groups.google.com/g/tesseract-ocr) instead of creating an issue if ...
+
 * You have problems using Tesseract and need some help.
 * You have problems installing the software.
 * You are not satisfied with the accuracy of the OCR, and want to ask how you can improve it. Note: You should first read the [ImproveQuality](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html) documentation.
