@@ -267,8 +267,6 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   bool prev_char_1 = false;     // prev ch a "1/I/l"?
   bool prev_char_digit = false; // prev ch 2..9 or 0
   const char *punct_chars = "!\"`',.:;";
-  bool prev_char_punct = false;
-
   do {
     // current word
     WERD_RES *word = word_res_it.data();
@@ -325,6 +323,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
       /* Add 1 to total score for every joined punctuation regardless of context
   and rejtn */
       if (tessedit_prefer_joined_punct) {
+        bool prev_char_punct;
         for (i = 0, offset = 0, prev_char_punct = false; i < word_len;
              offset += word->best_choice->unichar_lengths()[i++]) {
           bool current_char_punct =
