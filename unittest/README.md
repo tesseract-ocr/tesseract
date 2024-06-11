@@ -75,7 +75,6 @@
 * [Lohit-Hindi.ttf](https://raw.githubusercontent.com/pratul/packageofpractices/master/assets/fonts/Lohit-Hindi.ttf)
 * [UnBatang.ttf](https://raw.githubusercontent.com/byrongibson/fonts/master/backup/truetype.original/unfonts-core/UnBatang.ttf)
 
-
 ## Run tests
 
 To run the tests, do the following in tesseract folder

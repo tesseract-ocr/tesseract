@@ -50,7 +50,6 @@ Just run:
 
 and follow the instruction on [Viewer Debugging](https://tesseract-ocr.github.io/tessdoc/ViewerDebugging.html).
 
-
 ## cmake
 
 There is alternative build system based on multiplatform [cmake](https://cmake.org/)
@@ -60,7 +59,6 @@ There is alternative build system based on multiplatform [cmake](https://cmake.o
     mkdir build
     cd build && cmake .. && make
     sudo make install
-
 
 ### WINDOWS
 
