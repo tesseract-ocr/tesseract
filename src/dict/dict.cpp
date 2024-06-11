@@ -886,7 +886,7 @@ bool Dict::valid_punctuation(const WERD_CHOICE &word) {
   }
   WERD_CHOICE new_word(word.unicharset());
   auto last_index = word.length() - 1;
-  int new_len = 0;
+  int new_len;
   for (unsigned i = 0; i <= last_index; ++i) {
     UNICHAR_ID unichar_id = (word.unichar_id(i));
     if (getUnicharset().get_ispunctuation(unichar_id)) {
