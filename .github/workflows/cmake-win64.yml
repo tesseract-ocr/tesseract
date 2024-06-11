@@ -9,6 +9,7 @@ on:
 
 env:
   ILOC: d:/a/local
+  png_ver: 1643
 
 jobs:
   build:
@@ -45,11 +46,11 @@ jobs:
       - name: Build and Install libpng
         shell: cmd
         run: |
-             curl -sSL -o lpng1643.zip https://download.sourceforge.net/libpng/lpng1643.zip
-             unzip.exe  -qq lpng1643.zip
-             cd lpng1643
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DPNG_TESTS=OFF -DPNG_SHARED=OFF
-             cmake --build build --config Release --target install
+             curl -sSL -o lpng${{env.png_ver}}.zip https://download.sourceforge.net/libpng/lpng${{env.png_ver}}.zip
+             unzip.exe  -qq lpng${{env.png_ver}}.zip
+             cd lpng${{env.png_ver}}
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DPNG_TESTS=OFF -DPNG_SHARED=OFF
+             cmake --build build --config RelWithDebInfo --target install
              cd ..
 
       - name: Build and Install libjpeg
