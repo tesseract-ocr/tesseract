@@ -2407,8 +2407,8 @@ static void InitializeTextAndBoxesPreRecognition(const MutableIterator &it, RowI
   // Set up text, lword_text, and rword_text (mostly for debug printing).
   std::string fake_text;
   PageIterator pit(static_cast<const PageIterator &>(it));
-  bool first_word = true;
   if (!pit.Empty(RIL_WORD)) {
+    bool first_word = true;
     do {
       fake_text += "x";
       if (first_word) {

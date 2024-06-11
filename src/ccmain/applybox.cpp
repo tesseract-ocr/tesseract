@@ -258,10 +258,10 @@ void Tesseract::MaximallyChopWord(const std::vector<TBOX> &boxes, BLOCK *block, 
   }
   const double e = exp(1.0); // The base of natural logs.
   unsigned blob_number;
-  int right_chop_index = 0;
   if (!assume_fixed_pitch_char_segment) {
     // We only chop if the language is not fixed pitch like CJK.
     SEAM *seam = nullptr;
+    int right_chop_index = 0;
     while ((seam = chop_one_blob(boxes, blob_choices, word_res, &blob_number)) != nullptr) {
       word_res->InsertSeam(blob_number, seam);
       BLOB_CHOICE *left_choice = blob_choices[blob_number];
@@ -685,6 +685,7 @@ void Tesseract::SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, in
 void Tesseract::TidyUp(PAGE_RES *page_res) {
   int ok_blob_count = 0;
   int bad_blob_count = 0;
+  // TODO: check usage of ok_word_count.
   int ok_word_count = 0;
   int unlabelled_words = 0;
   PAGE_RES_IT pr_it(page_res);
