@@ -26,9 +26,12 @@ jobs:
 
       - name: Get the version
         id: get_version
+        continue-on-error: true
         run: |
              $git_info=$(git describe --tags HEAD)
+             $stamp=$(date +'%Y-%m-%d_%H%M%S')
              echo "version=${git_info}" >> $env:GITHUB_OUTPUT
+             echo "stamp=${stamp}" >> $env:GITHUB_OUTPUT
 
       - name: Setup Installation Location
         run: |
@@ -107,7 +110,7 @@ jobs:
       - name: Upload Build Results
         uses: actions/upload-artifact@v4
         with:
-          name: tesseract-${{ steps.get_version.outputs.version }}-VS2019_win64
+          name: tesseract-${{ steps.get_version.outputs.version }}-${{steps.get_version.outputs.stamp}}-VS2019_win64
           path: ${{env.ILOC}}
           retention-days: 5
 
