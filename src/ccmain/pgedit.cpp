@@ -703,9 +703,7 @@ bool Tesseract::word_display(PAGE_RES_IT *pr_it) {
   WERD_RES *word_res = pr_it->word();
   WERD *word = word_res->word;
   TBOX word_bb;    // word bounding box
-  int word_height; // ht of word BB
   bool displayed_something = false;
-  float shift; // from bot left
 
   if (color_mode != CM_RAINBOW && word_res->box_word != nullptr) {
 #  ifndef DISABLED_LEGACY_ENGINE
@@ -842,13 +840,14 @@ bool Tesseract::word_display(PAGE_RES_IT *pr_it) {
   if (text.length() > 0) {
     word_bb = word->bounding_box();
     image_win->Pen(ScrollView::RED);
-    word_height = word_bb.height();
-    int text_height = 0.50 * word_height;
+    auto word_height = word_bb.height();
+    int text_height = word_height / 2;
     if (text_height > 20) {
       text_height = 20;
     }
     image_win->TextAttributes("Arial", text_height, false, false, false);
-    shift = (word_height < word_bb.width()) ? 0.25 * word_height : 0.0f;
+    // from bot left
+    float shift = (word_height < word_bb.width()) ? 0.25f * word_height : 0.0f;
     image_win->Text(word_bb.left() + shift, word_bb.bottom() + 0.25 * word_height, text.c_str());
     if (blame.length() > 0) {
       image_win->Text(word_bb.left() + shift, word_bb.bottom() + 0.25 * word_height - text_height,

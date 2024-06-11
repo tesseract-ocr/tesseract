@@ -101,11 +101,11 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
                               bool force_eol) {  // override tilde crunch?
   WERD_RES *word = page_res_it.word();
   const UNICHARSET &uchset = *word->uch_set;
-  bool need_reject = false;
   UNICHAR_ID space = uchset.unichar_to_id(" ");
 
   if ((word->unlv_crunch_mode != CR_NONE || word->best_choice->empty()) &&
       !tessedit_zero_kelvin_rejection && !tessedit_word_for_word) {
+    bool need_reject = false;
     if ((word->unlv_crunch_mode != CR_DELETE) &&
         (!stats_.tilde_crunch_written ||
          ((word->unlv_crunch_mode == CR_KEEP_SPACE) && (word->word->space() > 0) &&
