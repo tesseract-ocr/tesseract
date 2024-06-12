@@ -9,6 +9,7 @@ on:
 
 env:
   ILOC: d:/a/local
+  png_ver: 1643
 
 jobs:
   build:
@@ -16,19 +17,26 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: ilammy/setup-nasm@v1
+      - uses: microsoft/setup-msbuild@v2
       - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
         uses: actions/checkout@v4
         with:
           submodules: recursive
       - run: git fetch --prune --unshallow --tags
+
       - name: Get the version
         id: get_version
+        continue-on-error: true
         run: |
              $git_info=$(git describe --tags HEAD)
+             $stamp=$(date +'%Y-%m-%d_%H%M%S')
              echo "version=${git_info}" >> $env:GITHUB_OUTPUT
+             echo "stamp=${stamp}" >> $env:GITHUB_OUTPUT
+
       - name: Setup Installation Location
         run: |
              mkdir ${{env.ILOC}}
+
       - name: Uninstall Perl
         run: |
           choco uninstall strawberryperl
@@ -39,17 +47,17 @@ jobs:
              git clone --depth 1 https://github.com/zlib-ng/zlib-ng.git
              cd zlib-ng
              cmake -Bbuild -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DBUILD_SHARED_LIBS=OFF -DZLIB_COMPAT=ON -DZLIB_ENABLE_TESTS=OFF -DINSTALL_UTILS=OFF
-             cmake --build build --config Release --target install
+             cmake --build build --target install
              cd ..
 
       - name: Build and Install libpng
         shell: cmd
         run: |
-             curl -sSL -o lpng1643.zip https://download.sourceforge.net/libpng/lpng1643.zip
-             unzip.exe  -qq lpng1643.zip
-             cd lpng1643
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DPNG_TESTS=OFF -DPNG_SHARED=OFF
-             cmake --build build --config Release --target install
+             curl -sSL -o lpng${{env.png_ver}}.zip https://download.sourceforge.net/libpng/lpng${{env.png_ver}}.zip
+             unzip.exe  -qq lpng${{env.png_ver}}.zip
+             cd lpng${{env.png_ver}}
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DPNG_TESTS=OFF -DPNG_SHARED=OFF
+             cmake --build build --target install
              cd ..
 
       - name: Build and Install libjpeg
@@ -57,8 +65,8 @@ jobs:
         run: |
              git clone --depth 1 https://github.com/libjpeg-turbo/libjpeg-turbo.git
              cd libjpeg-turbo
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DWITH_TURBOJPEG=OFF -DENABLE_SHARED=OFF
-             cmake --build build --config Release --target install
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DWITH_TURBOJPEG=OFF -DENABLE_SHARED=OFF
+             cmake --build build --target install
              cd ..
 
       - name: Build and Install jbigkit
@@ -67,7 +75,7 @@ jobs:
              git clone --depth 1 https://github.com/zdenop/jbigkit.git
              cd jbigkit
              cmake -Bbuild -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DBUILD_PROGRAMS=OFF -DBUILD_TOOLS=OFF -DCMAKE_WARN_DEPRECATED=OFF
-             cmake --build build --config Release --target install
+             cmake --build build --target install
              cd ..
 
       - name: Build and Install libtiff
@@ -75,8 +83,8 @@ jobs:
         run: |
              git clone -c advice.detachedHead=false -b "v4.6.0" --depth 1 https://gitlab.com/libtiff/libtiff.git
              cd libtiff
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -Dtiff-tools=OFF -Dtiff-tests=OFF -Dtiff-contrib=OFF -Dtiff-docs=OFF
-             cmake --build build --config Release --target install
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -Dtiff-tools=OFF -Dtiff-tests=OFF -Dtiff-contrib=OFF -Dtiff-docs=OFF
+             cmake --build build --target install
              cd ..
 
       - name: Build and Install leptonica
@@ -85,8 +93,8 @@ jobs:
              echo "Building leptonica..."
              git clone --depth 1 https://github.com/DanBloomberg/leptonica.git
              cd leptonica
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_PROG=OFF -DBUILD_SHARED_LIBS=ON
-             cmake --build build --config Release --target install
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_PROG=OFF -DBUILD_SHARED_LIBS=ON
+             cmake --build build --target install
 
       - name: Remove not needed tools Before building tesseract
         shell: cmd
@@ -96,13 +104,13 @@ jobs:
       - name: Build and Install tesseract
         shell: cmd
         run: |
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=OFF
-             cmake --build build --config Release --target install
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=OFF
+             cmake --build build --target install
 
       - name: Upload Build Results
         uses: actions/upload-artifact@v4
         with:
-          name: tesseract-${{ steps.get_version.outputs.version }}-VS2019_win64
+          name: tesseract-${{ steps.get_version.outputs.version }}-${{steps.get_version.outputs.stamp}}-VS2019_win64
           path: ${{env.ILOC}}
           retention-days: 5
 

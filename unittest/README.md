@@ -1,9 +1,9 @@
 # Unit Testing for Tesseract
 
-
 ## Requirements
 
 ### Files and structure
+
 ```
 
 ├── langdata_lstm
@@ -74,7 +74,6 @@
 * dejavu-fonts: [DejaVuSans-ExtraLight.ttf](https://dejavu-fonts.github.io/Download.html)
 * [Lohit-Hindi.ttf](https://raw.githubusercontent.com/pratul/packageofpractices/master/assets/fonts/Lohit-Hindi.ttf)
 * [UnBatang.ttf](https://raw.githubusercontent.com/byrongibson/fonts/master/backup/truetype.original/unfonts-core/UnBatang.ttf)
-
 
 ## Run tests
 
