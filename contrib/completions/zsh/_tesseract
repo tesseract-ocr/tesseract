@@ -1,0 +1,45 @@
+#compdef tesseract
+
+local psm=(
+  '0\:Orientation\ and\ script\ detection\ \(OSD\)\ only'
+  '1\:Automatic\ page\ segmentation\ with\ OSD'
+  '2\:Automatic\ page\ segmentation,\ but\ no\ OSD,\ or\ OCR\ \(not\ implemented\)'
+  '3\:Fully\ automatic\ page\ segmentation,\ but\ no\ OSD\ \(Default\)'
+  '4\:Assume\ a\ single\ column\ of\ text\ of\ variable\ sizes'
+  '5\:Assume\ a\ single\ uniform\ block\ of\ vertically\ aligned\ text'
+  '6\:Assume\ a\ single\ uniform\ block\ of\ text'
+  '7\:Treat\ the\ image\ as\ a\ single\ text\ line'
+  '8\:Treat\ the\ image\ as\ a\ single\ word'
+  '9\:Treat\ the\ image\ as\ a\ single\ word\ in\ a\ circle'
+  '10\:Treat\ the\ image\ as\ a\ single\ character'
+  '11\:Sparse\ text.\ Find\ as\ much\ text\ as\ possible\ in\ no\ particular\ order'
+  '12\:Sparse\ text\ with\ OSD'
+  '13\:Raw\ line.\ Treat\ the\ image\ as\ a\ single\ text\ line,\ bypassing\ hacks\ that\ are\ Tesseract-specific'
+)
+local oem=(
+  '0\:Legacy\ engine\ only'
+  '1\:Neural\ nets\ LSTM\ engine\ only'
+  '2\:Legacy\ +\ LSTM\ engines'
+  '3\:Default,\ based\ on\ what\ is\ available'
+)
+local options=(
+  "(- : *)"{-h,--help}"[Show minimal help message]"
+  "(- : *)"--help-extra"[Show extra help for advanced users]"
+  "(- : *)"--help-psm"[Show page segmentation modes]"
+  "(- : *)"--help-oem"[Show OCR Engine modes]"
+  "(- : *)"{-v,--version}"[Show version information]"
+  "(- : *)"--list-langs"[List available languages for tesseract engine]"
+  "(- : *)"--print-fonts-table"[Print tesseract fonts table]"
+  "(- : *)"--print-parameters"[Print tesseract parameters]"
+  --tessdata-dir"[Specify the location of tessdata path]: :_dirs"
+  --user-words"[Specify the location of user words file]: :_files"
+  --user-patterns"[Specify the location of user patterns file]: :_files"
+  --dpi"[Specify DPI for input image]:VALUE"
+  --loglevel"[Specify logging level]:LEVEL:(ALL TRACE DEBUG INFO WARN ERROR FATAL OFF)"
+  -l"[Specify language(s) used for OCR]:LANG:($(tesseract --list-langs | tail -n+2))"
+  '*'-c"[Set value for config variables]:VAR=VALUE"
+  --psm"[Specify page segmentation mode]:Page segmentation mode:(($psm))"
+  --oem"[Specify OCR Engine mode]:OCR Engine mode:(($oem))"
+)
+
+_arguments -s -S $options ':imagename:_files' ':outputbase:_files' '*:config:_files'
