@@ -57,7 +57,10 @@ bool Dropout::DeSerialize(TFile *fp) {
 // See NetworkCpp for a detailed discussion of the arguments.
 void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
                        NetworkScratch *scratch, NetworkIO *output) {
-  *output = input;
+  if (IsTraining()) {
+  } else {
+    *output = input;
+  }
 #ifndef GRAPHICS_DISABLED
   if (debug) {
     DisplayForward(*output);
