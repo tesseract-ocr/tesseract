@@ -179,6 +179,103 @@ void ImageThresholder::SetImage(const Image pix) {
   Init();
 }
 
+/*----------------------------------------------------------------------*
+ *                  Non-linear contrast normalization                   *
+ *----------------------------------------------------------------------*/
+/*!
+ * \brief   pixNLNorm()
+ *
+ * \param[in]    pixs          8 or 32 bpp
+ * \param[out]   ptresh        l_int32 global threshold value
+ * \return       pixd          8 bpp grayscale, or NULL on error
+ *
+ * <pre>
+ * Notes:
+ *      (1) This composite operation is good for adaptively removing
+ *          dark background. Adaption of Thomas Breuel's nlbin version
+ *          from ocropus.
+ *      (2) A good thresholder together NLNorm is WAN
+ * </pre>
+ */
+Pix *ImageThresholder::pixNLNorm(Pix *pixs, int *pthresh) {
+  l_int32 d, thresh, w1, h1, w2, h2, fgval, bgval;
+  l_uint32 black_val, white_val;
+  l_float32 factor, threshpos, avefg, avebg;
+  PIX *pixg, *pixd, *pixd2;
+  BOX *pixbox;
+  NUMA *na;
+
+  PROCNAME("pixNLNorm");
+
+  if (!pixs || (d = pixGetDepth(pixs)) < 8) {
+    return (PIX *)ERROR_PTR("pixs undefined or d < 8 bpp", procName, NULL);
+  }
+  if (d == 32) {
+    // ITU-R 601-2 luma
+    pixg = pixConvertRGBToGray(pixs, 0.299, 0.587, 0.114);
+    // Legacy converting
+    // pixg = pixConvertRGBToGray(pixs, 0.3, 0.4, 0.3);
+  } else {
+    pixg = pixConvertTo8(pixs, 0);
+  }
+
+  /// Normalize contrast
+  //  pixGetBlackOrWhiteVal(pixg, L_GET_BLACK_VAL, &black_val);
+  //  if (black_val>0) pixAddConstantGray(pixg, -1 * black_val);
+  //  pixGetBlackOrWhiteVal(pixg, L_GET_WHITE_VAL, &white_val);
+  //  if (white_val<255) pixMultConstantGray(pixg, (255. / white_val));
+  pixd = pixMaxDynamicRange(pixg, L_LINEAR_SCALE);
+  pixDestroy(&pixg);
+  pixg = pixCopy(nullptr, pixd);
+  pixDestroy(&pixd);
+
+  /// Calculate flat version
+  pixGetDimensions(pixg, &w1, &h1, NULL);
+  pixd = pixScaleGeneral(pixg, 0.5, 0.5, 0.0, 0);
+  pixd2 = pixRankFilter(pixd, 20, 2, 0.8);
+  pixDestroy(&pixd);
+  pixd = pixRankFilter(pixd2, 2, 20, 0.8);
+  pixDestroy(&pixd2);
+  pixGetDimensions(pixd, &w2, &h2, NULL);
+  pixd2 = pixScaleGrayLI(pixd, (l_float32)w1 / (l_float32)w2,
+                         (l_float32)h1 / (l_float32)h2);
+  pixDestroy(&pixd);
+  pixInvert(pixd2, pixd2);
+  pixAddGray(pixg, pixg, pixd2);
+  pixDestroy(&pixd2);
+
+  /// Local contrast enhancement
+  //  Ignore a border of 10 % and get a mean threshold,
+  //  background and foreground value
+  pixbox = boxCreate(w1 * 0.1, h1 * 0.1, w1 * 0.9, h1 * 0.9);
+  na = pixGetGrayHistogramInRect(pixg, pixbox, 1);
+  numaSplitDistribution(na, 0.1, &thresh, &avefg, &avebg, NULL, NULL, NULL);
+  boxDestroy(&pixbox);
+  numaDestroy(&na);
+
+  /// Subtract by a foreground value and multiply by factor to
+  //  set a background value to 255
+  fgval = (l_int32)(avefg + 0.5);
+  bgval = (l_int32)(avebg + 0.5);
+  threshpos = (l_float32)(thresh - fgval) / (bgval - fgval);
+  // Todo: fgval or fgval + slightly offset
+  fgval = fgval; // + (l_int32) ((thresh - fgval)*.25);
+  bgval = bgval +
+          (l_int32)std::min((l_int32)((bgval - thresh) * .5), (255 - bgval));
+  factor = 255. / (bgval - fgval);
+  if (pthresh) {
+    *pthresh = (l_int32)threshpos * factor - threshpos * .1;
+  }
+  pixAddConstantGray(pixg, -1 * fgval);
+  pixMultConstantGray(pixg, factor);
+  
+  return pixg;
+}
+
+/*----------------------------------------------------------------------*
+ *                          Thresholding                                *
+ *----------------------------------------------------------------------*/
+
 std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
                                                       TessBaseAPI *api,
                                                       ThresholdMethod method) {
@@ -199,7 +296,7 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
   int r;
 
   l_int32 pix_w, pix_h;
-  pixGetDimensions(pix_grey, &pix_w, &pix_h, nullptr);
+  pixGetDimensions(pix_, &pix_w, &pix_h, nullptr);
 
   bool thresholding_debug;
   api->GetBoolVariable("thresholding_debug", &thresholding_debug);
@@ -375,6 +472,17 @@ Image ImageThresholder::GetPixRectGrey() {
     return result;
   }
   return pix;
+}
+
+// Get a clone/copy of the source image rectangle, reduced to normalized greyscale,
+// and at the same resolution as the output binary.
+// The returned Pix must be pixDestroyed.
+// Provided to the classifier to extract features from the greyscale image.
+Image ImageThresholder::GetPixNormRectGrey() {
+  auto pix = GetPixRect();
+  auto result = ImageThresholder::pixNLNorm(pix, nullptr);
+  pix.destroy();
+  return result;
 }
 
 // Otsu thresholds the rectangle, taking the rectangle from *this.
