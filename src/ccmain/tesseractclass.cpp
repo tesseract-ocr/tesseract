@@ -481,8 +481,8 @@ Tesseract::~Tesseract() {
   for (auto *lang : sub_langs_) {
     delete lang;
   }
-  for (int i = 0; i < lstm_recognizers_.size(); ++i) {
-    delete lstm_recognizers_[i];
+  for (auto &&lstm_recognizer : lstm_recognizers_) {
+    delete lstm_recognizer;
   }
   lstm_recognizers_.clear();
   lstm_recognizer_ = nullptr;
