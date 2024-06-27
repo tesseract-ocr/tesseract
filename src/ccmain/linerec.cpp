@@ -228,7 +228,7 @@ ImageData *Tesseract::GetRectImage(const TBOX &box, const BLOCK &block, int padd
 // Recognizes a word or group of words, converting to WERD_RES in *words.
 // Analogous to classify_word_pass1, but can handle a group of words as well.
 void Tesseract::LSTMRecognizeWord(const BLOCK &block, ROW *row, WERD_RES *word,
-                                  PointerVector<WERD_RES> *words) {
+                                  PointerVector<WERD_RES> *words, LSTMRecognizer *lstm_recognizer) {
   TBOX word_box = word->word->bounding_box();
   // Get the word image - no frills.
   if (tessedit_pageseg_mode == PSM_SINGLE_WORD || tessedit_pageseg_mode == PSM_RAW_LINE) {
@@ -251,22 +251,22 @@ void Tesseract::LSTMRecognizeWord(const BLOCK &block, ROW *row, WERD_RES *word,
 
   bool do_invert = tessedit_do_invert;
   float threshold = do_invert ? double(invert_threshold) : 0.0f;
-  lstm_recognizer_->RecognizeLine(*im_data, threshold, classify_debug_level > 0,
-                                  kWorstDictCertainty / kCertaintyScale, word_box, words,
-                                  lstm_choice_mode, lstm_choice_iterations);
+  lstm_recognizer->RecognizeLine(*im_data, threshold, classify_debug_level > 0,
+                                 kWorstDictCertainty / kCertaintyScale, word_box, words,
+                                 lstm_choice_mode, lstm_choice_iterations);
   delete im_data;
-  SearchWords(words);
+  SearchWords(words, lstm_recognizer);
 }
 
 // Apply segmentation search to the given set of words, within the constraints
 // of the existing ratings matrix. If there is already a best_choice on a word
 // leaves it untouched and just sets the done/accepted etc flags.
-void Tesseract::SearchWords(PointerVector<WERD_RES> *words) {
+void Tesseract::SearchWords(PointerVector<WERD_RES> *words, LSTMRecognizer *lstm_recognizer) {
   // Run the segmentation search on the network outputs and make a BoxWord
   // for each of the output words.
   // If we drop a word as junk, then there is always a space in front of the
   // next.
-  const Dict *stopper_dict = lstm_recognizer_->GetDict();
+  const Dict *stopper_dict = lstm_recognizer->GetDict();
   if (stopper_dict == nullptr) {
     stopper_dict = &getDict();
   }
@@ -274,7 +274,7 @@ void Tesseract::SearchWords(PointerVector<WERD_RES> *words) {
     WERD_RES *word = (*words)[w];
     if (word->best_choice == nullptr) {
       // It is a dud.
-      word->SetupFake(lstm_recognizer_->GetUnicharset());
+      word->SetupFake(lstm_recognizer->GetUnicharset());
     } else {
       // Set the best state.
       for (unsigned i = 0; i < word->best_choice->length(); ++i) {
