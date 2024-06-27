@@ -24,6 +24,7 @@
 #include "pageres.h"
 
 #include "blamer.h"   // for BlamerBundle
+#include "blob_bounds_calculator.h" // for BoxBoundariesCalculator
 #include "blobs.h"    // for TWERD, TBLOB
 #include "boxword.h"  // for BoxWord
 #include "errcode.h"  // for ASSERT_HOST
@@ -1273,36 +1274,6 @@ WERD_RES *PAGE_RES_IT::InsertSimpleCloneWord(const WERD_RES &clone_res,
   return new_res;
 }
 
-// Helper computes the boundaries between blobs in the word. The blob bounds
-// are likely very poor, if they come from LSTM, where it only outputs the
-// character at one pixel within it, so we find the midpoints between them.
-static void ComputeBlobEnds(const WERD_RES &word, const TBOX &clip_box,
-                            C_BLOB_LIST *next_word_blobs,
-                            std::vector<int> *blob_ends) {
-  C_BLOB_IT blob_it(word.word->cblob_list());
-  for (int length : word.best_state) {
-    // Get the bounding box of the fake blobs
-    TBOX blob_box = blob_it.data()->bounding_box();
-    blob_it.forward();
-    for (int b = 1; b < length; ++b) {
-      blob_box += blob_it.data()->bounding_box();
-      blob_it.forward();
-    }
-    // This blob_box is crap, so for now we are only looking for the
-    // boundaries between them.
-    int blob_end = INT32_MAX;
-    if (!blob_it.at_first() || next_word_blobs != nullptr) {
-      if (blob_it.at_first()) {
-        blob_it.set_to_list(next_word_blobs);
-      }
-      blob_end = (blob_box.right() + blob_it.data()->bounding_box().left()) / 2;
-    }
-    blob_end = ClipToRange<int>(blob_end, clip_box.left(), clip_box.right());
-    blob_ends->push_back(blob_end);
-  }
-  blob_ends->back() = clip_box.right();
-}
-
 // Helper computes the bounds of a word by restricting it to existing words
 // that significantly overlap.
 static TBOX ComputeWordBounds(const tesseract::PointerVector<WERD_RES> &words,
@@ -1349,11 +1320,45 @@ static TBOX ComputeWordBounds(const tesseract::PointerVector<WERD_RES> &words,
   return clipped_box;
 }
 
-// Helper moves the blob from src to dest. If it isn't contained by clip_box,
-// the blob is replaced by a fake that is contained.
-static TBOX MoveAndClipBlob(C_BLOB_IT *src_it, C_BLOB_IT *dest_it,
-                            const TBOX &clip_box) {
-  C_BLOB *src_blob = src_it->extract();
+// Helper to compute input for BoxBoundariesCalculator
+static std::vector<BoxBoundaries> ComputeFakeWordBlobXBounds(
+    const PointerVector<WERD_RES> &words) {
+
+  std::vector<BoxBoundaries> result;
+
+  for (size_t w = 0; w < words.size(); ++w) {
+    WERD_RES *word_w = words[w];
+
+    C_BLOB_IT blob_it(word_w->word->cblob_list());
+    for (int length : word_w->best_state) {
+      TBOX blob_box = blob_it.data()->bounding_box();
+      blob_it.forward();
+      for (int b = 1; b < length; ++b) {
+        blob_box += blob_it.data()->bounding_box();
+        blob_it.forward();
+      }
+      result.push_back({blob_box.left(), blob_box.right()});
+    }
+  }
+  return result;
+}
+
+// Helper to compute input for BoxBoundariesCalculator
+static std::vector<BoxBoundaries> ComputeBlobXBoundsFromTBOX(
+    const std::vector<TBOX> &boxes) {
+  std::vector<BoxBoundaries> result;
+  result.reserve(boxes.size());
+  for (const auto& box : boxes) {
+    result.push_back({box.left(), box.right()});
+  }
+  return result;
+}
+
+// Helper moves the src_blob to dest. If it isn't contained by clip_box,
+// the blob is replaced by a fake that is contained. The helper takes ownership
+// of the blob.
+static TBOX ClipAndAddBlob(C_BLOB *src_blob, C_BLOB_IT *dest_it,
+                           const TBOX &clip_box) {
   TBOX box = src_blob->bounding_box();
   if (!clip_box.contains(box)) {
     int left =
@@ -1370,6 +1375,13 @@ static TBOX MoveAndClipBlob(C_BLOB_IT *src_it, C_BLOB_IT *dest_it,
   }
   dest_it->add_after_then_move(src_blob);
   return box;
+}
+
+// Helper to clip a box only in X direction
+static TBOX ClipBoxX(const TBOX &box, int left, int right) {
+  int clip_left = ClipToRange<int>(box.left(), left, right - 1);
+  int clip_right = ClipToRange<int>(box.right(), left + 1, right);
+  return TBOX(clip_left, box.bottom(), clip_right, box.top());
 }
 
 // Replaces the current WERD/WERD_RES with the given words. The given words
@@ -1416,21 +1428,31 @@ void PAGE_RES_IT::ReplaceCurrentWord(
     }
   }
   ASSERT_HOST(!wr_it.cycled_list());
-  // Since we only have an estimate of the bounds between blobs, use the blob
-  // x-middle as the determiner of where to put the blobs
+
+  std::vector<TBOX> blob_boxes;
+
   C_BLOB_IT src_b_it(input_word->word->cblob_list());
   src_b_it.sort(&C_BLOB::SortByXMiddle);
+  for (src_b_it.mark_cycle_pt(); !src_b_it.cycled_list(); src_b_it.forward()) {
+    blob_boxes.push_back(src_b_it.data()->bounding_box());
+  }
+  src_b_it.move_to_first();
+
   C_BLOB_IT rej_b_it(input_word->word->rej_cblob_list());
   rej_b_it.sort(&C_BLOB::SortByXMiddle);
+
+  auto fake_blob_bounds = ComputeFakeWordBlobXBounds(*words);
+  BoxBoundariesCalculator calculator{ComputeBlobXBoundsFromTBOX(blob_boxes), {}};
+  auto char_bounds = calculator.calculate_bounds(fake_blob_bounds);
+  size_t char_bounds_i = 0;
+  size_t box_bounds_i = 0;
+  TBOX last_blob_box;
+
   TBOX clip_box;
   for (size_t w = 0; w < words->size(); ++w) {
     WERD_RES *word_w = (*words)[w];
     clip_box = ComputeWordBounds(*words, w, clip_box, wr_it_of_current_word);
-    // Compute blob boundaries.
-    std::vector<int> blob_ends;
-    C_BLOB_LIST *next_word_blobs =
-        w + 1 < words->size() ? (*words)[w + 1]->word->cblob_list() : nullptr;
-    ComputeBlobEnds(*word_w, clip_box, next_word_blobs, &blob_ends);
+
     // Remove the fake blobs on the current word, but keep safe for back-up if
     // no blob can be found.
     C_BLOB_LIST fake_blobs;
@@ -1441,26 +1463,64 @@ void PAGE_RES_IT::ReplaceCurrentWord(
     C_BLOB_IT dest_it(word_w->word->cblob_list());
     // Build the box word as we move the blobs.
     auto *box_word = new tesseract::BoxWord;
-    for (size_t i = 0; i < blob_ends.size(); ++i, fake_b_it.forward()) {
-      int end_x = blob_ends[i];
+
+    for (size_t i = 0; i < word_w->best_state.size(); ++i) {
+      const auto& char_bound = char_bounds[char_bounds_i++];
+
       TBOX blob_box;
-      // Add the blobs up to end_x.
-      while (!src_b_it.empty() &&
-             src_b_it.data()->bounding_box().x_middle() < end_x) {
-        blob_box += MoveAndClipBlob(&src_b_it, &dest_it, clip_box);
-        src_b_it.forward();
+      if (char_bound.begin_box_index != char_bound.end_box_index) {
+        // The box indices in curr_char_bound will always be increasing, thus
+        // we can iterate src_b_it in the same order.
+        while (box_bounds_i < char_bound.begin_box_index) {
+          box_bounds_i++;
+          src_b_it.forward();
+        }
+
+        if (box_bounds_i > char_bound.begin_box_index) {
+          // The blob was split across multiple characters and has already
+          // been extracted for a previous character. We have the bounds
+          // of the blob and can create a fake blob out of it.
+          TBOX fake_box = ClipBoxX(last_blob_box,
+                                   char_bound.begin_x, char_bound.end_x);
+          blob_box += ClipAndAddBlob(C_BLOB::FakeBlob(fake_box),
+                                     &dest_it, clip_box);
+        }
+
+        // Add all blobs that have not yet been assigned to any of the
+        // characters.
+        while (box_bounds_i < char_bound.end_box_index) {
+          auto* src_blob = src_b_it.extract();
+          last_blob_box = src_blob->bounding_box();
+          TBOX inserted_box = ClipAndAddBlob(src_blob, &dest_it, clip_box);
+
+          box_bounds_i++;
+          src_b_it.forward();
+
+          // Note that the blob may be split across multiple characters in
+          // which case we want to clip the box to the part that was "assigned"
+          // to the character.
+          blob_box += ClipBoxX(inserted_box,
+                               char_bound.begin_x, char_bound.end_x);
+        }
       }
+
+      // It's not clear where rejected blobs should be added because by
+      // definition we don't have enough information about them. So we just
+      // add them to whatever character follows.
       while (!rej_b_it.empty() &&
-             rej_b_it.data()->bounding_box().x_middle() < end_x) {
-        blob_box += MoveAndClipBlob(&rej_b_it, &dest_it, clip_box);
+             rej_b_it.data()->bounding_box().x_middle() < char_bound.end_x) {
+        blob_box += ClipAndAddBlob(rej_b_it.extract(), &dest_it, clip_box);
         rej_b_it.forward();
       }
+
       if (blob_box.null_box()) {
         // Use the original box as a back-up.
-        blob_box = MoveAndClipBlob(&fake_b_it, &dest_it, clip_box);
+        blob_box = ClipAndAddBlob(fake_b_it.extract(), &dest_it, clip_box);
       }
       box_word->InsertBox(i, blob_box);
+      fake_b_it.forward();
     }
+
     delete word_w->box_word;
     word_w->box_word = box_word;
     if (!input_word->combination) {
