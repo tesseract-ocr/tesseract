@@ -79,7 +79,7 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor, int32_t word_count, PAGE_R
   ROW_RES_IT row_res_it;
   WERD_RES_IT word_res_it_from;
   WERD_RES_IT word_res_it_to;
-  WERD_RES *word_res;
+  std::shared_ptr<WERD_RES> word_res;
   WERD_RES_LIST fuzzy_space_words;
   int16_t new_length;
   bool prevent_null_wd_fixsp; // DON'T process blobless wds
@@ -114,7 +114,7 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor, int32_t word_count, PAGE_R
         if (!word_res_it_from.at_last()) {
           word_res_it_to = word_res_it_from;
           prevent_null_wd_fixsp = word_res->word->cblob_list()->empty();
-          if (check_debug_pt(word_res, 60)) {
+          if (check_debug_pt(word_res.get(), 60)) {
             debug_fix_space_level.set_value(10);
           }
           word_res_it_to.forward();
@@ -131,7 +131,7 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor, int32_t word_count, PAGE_R
           while (!word_res_it_to.at_last() &&
                  (word_res_it_to.data_relative(1)->word->flag(W_FUZZY_NON) ||
                   word_res_it_to.data_relative(1)->word->flag(W_FUZZY_SP))) {
-            if (check_debug_pt(word_res, 60)) {
+            if (check_debug_pt(word_res.get(), 60)) {
               debug_fix_space_level.set_value(10);
             }
             if (word_res->word->cblob_list()->empty()) {
@@ -139,7 +139,7 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor, int32_t word_count, PAGE_R
             }
             word_res = word_res_it_to.forward();
           }
-          if (check_debug_pt(word_res, 60)) {
+          if (check_debug_pt(word_res.get(), 60)) {
             debug_fix_space_level.set_value(10);
           }
           if (word_res->word->cblob_list()->empty()) {
@@ -203,12 +203,12 @@ void initialise_search(WERD_RES_LIST &src_list, WERD_RES_LIST &new_list) {
   WERD_RES *new_wd;
 
   for (src_it.mark_cycle_pt(); !src_it.cycled_list(); src_it.forward()) {
-    WERD_RES *src_wd = src_it.data();
+    WERD_RES *src_wd = src_it.data().get();
     if (!src_wd->combination) {
       new_wd = WERD_RES::deep_copy(src_wd);
       new_wd->combination = false;
       new_wd->part_of_combo = false;
-      new_it.add_after_then_move(new_wd);
+      new_it.add_after_then_move(std::shared_ptr<WERD_RES>(new_wd));
     }
   }
 }
@@ -220,7 +220,7 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row, BLOCK *block
   // prev_word_best_choice_ before calling classify_word_pass2().
   prev_word_best_choice_ = nullptr;
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
-    word = word_it.data();
+    word = word_it.data().get();
     if ((!word->part_of_combo) && (word->box_word == nullptr)) {
       WordData word_data(block, row, word);
       SetupWordPassN(2, &word_data);
@@ -269,7 +269,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   const char *punct_chars = "!\"`',.:;";
   do {
     // current word
-    WERD_RES *word = word_res_it.data();
+    WERD_RES *word = word_res_it.data().get();
     bool word_done = fixspace_thinks_word_done(word);
     word_count++;
     if (word->tess_failed) {
@@ -396,7 +396,7 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
   int16_t min_gap = INT16_MAX;
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
-    word = word_it.data();
+    word = word_it.data().get();
     if (!word->part_of_combo) {
       box = word->word->bounding_box();
       if (prev_right > -INT16_MAX) {
@@ -413,13 +413,13 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
     word_it.set_to_list(&words);
     // Note: we can't use cycle_pt due to inserted combos at start of list.
     for (; (prev_right == -INT16_MAX) || !word_it.at_first(); word_it.forward()) {
-      word = word_it.data();
+      word = word_it.data().get();
       if (!word->part_of_combo) {
         box = word->word->bounding_box();
         if (prev_right > -INT16_MAX) {
           gap = box.left() - prev_right;
           if (gap <= min_gap) {
-            prev_word = prev_word_it.data();
+            prev_word = prev_word_it.data().get();
             WERD_RES *combo;
             if (prev_word->combination) {
               combo = prev_word;
@@ -433,14 +433,14 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
               combo->combination = true;
               combo->x_height = prev_word->x_height;
               prev_word->part_of_combo = true;
-              prev_word_it.add_before_then_move(combo);
+              prev_word_it.add_before_then_move(std::shared_ptr<WERD_RES>(combo));
             }
             combo->word->set_flag(W_EOL, word->word->flag(W_EOL));
             if (word->combination) {
               combo->word->join_on(word->word);
               // Move blobs to combo
               // old combo no longer needed
-              delete word_it.extract();
+              word_it.extract();
             } else {
               // Copy current wd to combo
               combo->copy_on(word);
@@ -545,7 +545,7 @@ void Tesseract::fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row, BLOCK *block)
   int16_t new_length;
   float junk;
 
-  word_res = word_res_it.data();
+  word_res = word_res_it.data().get();
   if (word_res->word->flag(W_REP_CHAR) || word_res->combination || word_res->part_of_combo ||
       !word_res->word->flag(W_DONT_CHOP)) {
     return;
@@ -582,11 +582,11 @@ void Tesseract::fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row, BLOCK *
 
   dump_words(best_perm, best_score, 1, improved);
 
-  old_word_res = best_perm_it.data();
+  old_word_res = best_perm_it.data().get();
   // Even deep_copy doesn't copy the underlying WERD unless its combination
   // flag is true!.
   old_word_res->combination = true; // Kludge to force deep copy
-  current_perm_it.add_to_end(WERD_RES::deep_copy(old_word_res));
+  current_perm_it.add_to_end(std::shared_ptr<WERD_RES>(WERD_RES::deep_copy(old_word_res)));
   old_word_res->combination = false; // Undo kludge
 
   break_noisiest_blob_word(current_perm);
@@ -630,7 +630,7 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
   int16_t i;
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
-    auto blob_index = worst_noise_blob(word_it.data(), &noise_score);
+    auto blob_index = worst_noise_blob(word_it.data().get(), &noise_score);
     if (blob_index > -1 && worst_noise_score > noise_score) {
       worst_noise_score = noise_score;
       worst_blob_index = blob_index;
@@ -644,7 +644,7 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
 
   /* Now split the worst_word_it */
 
-  word_res = worst_word_it.data();
+  word_res = worst_word_it.data().get();
 
   /* Move blobs before noise blob to a new bloblist */
 
@@ -671,7 +671,7 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
 
   auto *new_word_res = new WERD_RES(new_word);
   new_word_res->combination = true;
-  worst_word_it.add_before_then_move(new_word_res);
+  worst_word_it.add_before_then_move(std::shared_ptr<WERD_RES>(new_word_res));
 
   word_res->ClearResults();
 }
@@ -834,7 +834,7 @@ int16_t Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
   float small_limit = kBlnXHeight * fixsp_small_outlines_size;
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
-    word = word_it.data();
+    word = word_it.data().get();
     if (word->rebuild_word == nullptr) {
       continue; // Can't handle cube words.
     }

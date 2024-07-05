@@ -387,7 +387,7 @@ public:
   bool RecogWordsSegment(std::vector<WordData>::iterator start, std::vector<WordData>::iterator end,
                          int pass_n, ETEXT_DESC *monitor, PAGE_RES *page_res,
                          LSTMRecognizer *lstm_recognizer, std::atomic<int>& words_done,
-                         int total_words, std::mutex& monitor_mutex);
+                         int total_words, std::shared_ptr<std::mutex> recog_words_mutex);
   // Runs word recognition on all the words.
   bool RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES *page_res,
                           std::vector<WordData> *words);

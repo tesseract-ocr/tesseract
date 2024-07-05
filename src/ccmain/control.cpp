@@ -203,8 +203,8 @@ bool Tesseract::RecogWordsSegment(std::vector<WordData>::iterator start,
                                   LSTMRecognizer *lstm_recognizer,
                                   std::atomic<int>& words_done,
                                   int total_words,
-                                  std::mutex& monitor_mutex) {
-  PAGE_RES_IT pr_it(page_res);
+                                  std::shared_ptr<std::mutex> recog_words_mutex) {
+  PAGE_RES_IT pr_it(page_res, recog_words_mutex);
   // Process a segment of the words vector
   pr_it.restart_page();
 
@@ -214,7 +214,7 @@ bool Tesseract::RecogWordsSegment(std::vector<WordData>::iterator start,
       word->prev_word = &(*(it - 1));
     }
     if (monitor != nullptr) {
-      std::lock_guard<std::mutex> lock(monitor_mutex);
+      std::lock_guard<std::mutex> lock(*recog_words_mutex);
       monitor->ocr_alive = true;
       if (pass_n == 1) {
         monitor->progress = 70 * words_done / total_words;
@@ -245,9 +245,7 @@ bool Tesseract::RecogWordsSegment(std::vector<WordData>::iterator start,
       }
     }
     // Sync pr_it with the WordData.
-    while (pr_it.word() != nullptr && pr_it.word() != word->word) {
-      pr_it.forward();
-    }
+    pr_it.forward_to_word(word->word);
     ASSERT_HOST(pr_it.word() != nullptr);
     bool make_next_word_fuzzy = false;
 #ifndef DISABLED_LEGACY_ENGINE
@@ -274,19 +272,24 @@ bool Tesseract::RecogWordsSegment(std::vector<WordData>::iterator start,
 bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES *page_res,
                                    std::vector<WordData> *words) {
   int total_words = words->size();
-  int segment_size = total_words / lstm_num_threads;
+  int segment_size = std::max(total_words / lstm_num_threads, 1);
   std::atomic<int> words_done(0);
-  std::mutex monitor_mutex;
+  std::shared_ptr<std::mutex> recog_words_mutex = std::make_shared<std::mutex>();
   std::vector<std::future<bool>> futures;
 
   // Launch multiple threads to recognize the words in parallel
   auto segment_start = words->begin() + segment_size;
-  for (int i = 1; i < lstm_num_threads; ++i) {
-      auto segment_end = (i == lstm_num_threads - 1) ? words->end() : segment_start + segment_size;
-      futures.push_back(std::async(std::launch::async, &Tesseract::RecogWordsSegment,
-        this, segment_start, segment_end, pass_n, monitor, page_res,
-        lstm_recognizers_[i], std::ref(words_done), total_words, std::ref(monitor_mutex)));
-      segment_start = segment_end;
+  for (int i = 1; i < lstm_num_threads && segment_start != words->end(); ++i) {
+    auto segment_end = segment_start + segment_size;
+    if (i == lstm_num_threads - 1 ||
+        std::distance(segment_start, words->end()) < segment_size) {
+      segment_end = words->end();
+    }
+    futures.push_back(std::async(
+        std::launch::async, &Tesseract::RecogWordsSegment, this, segment_start,
+        segment_end, pass_n, monitor, page_res, lstm_recognizers_[i],
+        std::ref(words_done), total_words, recog_words_mutex));
+    segment_start = segment_end;
   }
 
   // Process the first segment in this thread
@@ -298,7 +301,7 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES *pa
                                           lstm_recognizers_[0],
                                           std::ref(words_done),
                                           total_words,
-                                          std::ref(monitor_mutex));
+                                          recog_words_mutex);
 
   // Wait for all threads to complete and aggregate results
   for (auto &f : futures) {

@@ -33,11 +33,12 @@ namespace tesseract {
  *  the consequential memory overhead.
  **********************************************************************/
 
-void ELIST::internal_clear( // destroy all links
+template <typename T>
+inline void ELIST_T<T>::internal_clear( // destroy all links
     void (*zapper)(void *)) {
   // ptr to zapper functn
-  ELIST_LINK *ptr;
-  ELIST_LINK *next;
+  T ptr;
+  T next;
 
   if (!empty()) {
     ptr = last->next;     // set to first
@@ -45,7 +46,10 @@ void ELIST::internal_clear( // destroy all links
     last = nullptr;       // set list empty
     while (ptr) {
       next = ptr->next;
-      zapper(ptr);
+      if constexpr (!is_shared_ptr<T>::value) {
+        // We need not delete the shared pointer objects as it will be deleted automatically
+        zapper(ptr);
+      }
       ptr = next;
     }
   }
@@ -64,9 +68,10 @@ void ELIST::internal_clear( // destroy all links
  *  end point is always the end_it position.
  **********************************************************************/
 
-void ELIST::assign_to_sublist( // to this list
-    ELIST_ITERATOR *start_it,  // from list start
-    ELIST_ITERATOR *end_it) {  // from list end
+template <typename T>
+void ELIST_T<T>::assign_to_sublist( // to this list
+    ELIST_ITERATOR_T<T> *start_it,  // from list start
+    ELIST_ITERATOR_T<T> *end_it) {  // from list end
   constexpr ERRCODE LIST_NOT_EMPTY("Destination list must be empty before extracting a sublist");
 
   if (!empty()) {
@@ -84,7 +89,8 @@ void ELIST::assign_to_sublist( // to this list
  *   ( int (*)(const void *, const void *)
  **********************************************************************/
 
-void ELIST::sort(   // sort elements
+template <typename T>
+void ELIST_T<T>::sort(   // sort elements
     int comparator( // comparison routine
         const void *, const void *)) {
   // Allocate an array of pointers, one per list element.
@@ -92,10 +98,10 @@ void ELIST::sort(   // sort elements
 
   if (count > 0) {
     // ptr array to sort
-    std::vector<ELIST_LINK *> base;
+    std::vector<T> base;
     base.reserve(count);
 
-    ELIST_ITERATOR it(this);
+    ELIST_ITERATOR_T<T> it(this);
 
     // Extract all elements, putting the pointers in the array.
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -122,8 +128,9 @@ void ELIST::sort(   // sort elements
 // list) - new_link is not added to the list and the function returns the
 // pointer to the identical entry that already exists in the list
 // (otherwise the function returns new_link).
-ELIST_LINK *ELIST::add_sorted_and_find(int comparator(const void *, const void *), bool unique,
-                                       ELIST_LINK *new_link) {
+template <typename T>
+T ELIST_T<T>::add_sorted_and_find(int comparator(const void *, const void *), bool unique,
+                                  T new_link) {
   // Check for adding at the end.
   if (last == nullptr || comparator(&last, &new_link) < 0) {
     if (last == nullptr) {
@@ -135,9 +142,9 @@ ELIST_LINK *ELIST::add_sorted_and_find(int comparator(const void *, const void *
     last = new_link;
   } else {
     // Need to use an iterator.
-    ELIST_ITERATOR it(this);
+    ELIST_ITERATOR_T<T> it(this);
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-      ELIST_LINK *link = it.data();
+      T link = it.data();
       int compare = comparator(&link, &new_link);
       if (compare > 0) {
         break;
@@ -165,8 +172,8 @@ ELIST_LINK *ELIST::add_sorted_and_find(int comparator(const void *, const void *
  *  Move the iterator to the next element of the list.
  *  REMEMBER: ALL LISTS ARE CIRCULAR.
  **********************************************************************/
-
-ELIST_LINK *ELIST_ITERATOR::forward() {
+template <typename T>
+inline T ELIST_ITERATOR_T<T>::forward() {
 #ifndef NDEBUG
   if (!list)
     NO_LIST.error("ELIST_ITERATOR::forward", ABORT);
@@ -195,10 +202,17 @@ ELIST_LINK *ELIST_ITERATOR::forward() {
 
 #ifndef NDEBUG
   if (!next) {
+    void *current_ptr = nullptr;
+    if constexpr(is_shared_ptr<T>::value) {
+      current_ptr = static_cast<void *>(current.get());
+    }
+    else {
+      current_ptr = static_cast<void *>(current);
+    }
     NULL_NEXT.error("ELIST_ITERATOR::forward", ABORT,
                     "This is: %p  Current is: %p",
                     static_cast<void *>(this),
-                    static_cast<void *>(current));
+                    current_ptr);
   }
 #endif
   return current;
@@ -212,9 +226,10 @@ ELIST_LINK *ELIST_ITERATOR::forward() {
  *  (This function can't be INLINEd because it contains a loop)
  **********************************************************************/
 
-ELIST_LINK *ELIST_ITERATOR::data_relative( // get data + or - ...
+template <typename T>
+T ELIST_ITERATOR_T<T>::data_relative( // get data + or - ...
     int8_t offset) {                       // offset from current
-  ELIST_LINK *ptr;
+  T ptr;
 
 #ifndef NDEBUG
   if (!list)
@@ -249,7 +264,8 @@ ELIST_LINK *ELIST_ITERATOR::data_relative( // get data + or - ...
  *  (This function can't be INLINEd because it contains a loop)
  **********************************************************************/
 
-ELIST_LINK *ELIST_ITERATOR::move_to_last() {
+template <typename T>
+T ELIST_ITERATOR_T<T>::move_to_last() {
 #ifndef NDEBUG
   if (!list)
     NO_LIST.error("ELIST_ITERATOR::move_to_last", ABORT);
@@ -272,11 +288,12 @@ ELIST_LINK *ELIST_ITERATOR::move_to_last() {
  *  (This function hasn't been in-lined because its a bit big!)
  **********************************************************************/
 
-void ELIST_ITERATOR::exchange(  // positions of 2 links
-    ELIST_ITERATOR *other_it) { // other iterator
+template <typename T>
+void ELIST_ITERATOR_T<T>::exchange(  // positions of 2 links
+    ELIST_ITERATOR_T<T> *other_it) { // other iterator
   constexpr ERRCODE DONT_EXCHANGE_DELETED("Can't exchange deleted elements of lists");
 
-  ELIST_LINK *old_current;
+  T old_current;
 
 #ifndef NDEBUG
   if (!list)
@@ -368,16 +385,17 @@ non-adjacent elements. */
  *  (Can't inline this function because it contains a loop)
  **********************************************************************/
 
-ELIST_LINK *ELIST_ITERATOR::extract_sublist( // from this current
-    ELIST_ITERATOR *other_it) {              // to other current
+template <typename T>
+T ELIST_ITERATOR_T<T>::extract_sublist( // from this current
+    ELIST_ITERATOR_T<T> *other_it) {              // to other current
 #ifndef NDEBUG
   constexpr ERRCODE BAD_EXTRACTION_PTS("Can't extract sublist from points on different lists");
   constexpr ERRCODE DONT_EXTRACT_DELETED("Can't extract a sublist marked by deleted points");
 #endif
   constexpr ERRCODE BAD_SUBLIST("Can't find sublist end point in original list");
 
-  ELIST_ITERATOR temp_it = *this;
-  ELIST_LINK *end_of_new_list;
+  ELIST_ITERATOR_T<T> temp_it = *this;
+  T end_of_new_list;
 
 #ifndef NDEBUG
   if (!other_it)
@@ -436,5 +454,13 @@ ELIST_LINK *ELIST_ITERATOR::extract_sublist( // from this current
   }
   return end_of_new_list;
 }
+
+template class ELIST_LINK_T<ELIST_LINK*>;
+template class ELIST_T<ELIST_LINK*>;
+template class ELIST_ITERATOR_T<ELIST_LINK*>;
+
+template class ELIST_LINK_T<std::shared_ptr<ELIST_LINK_SP>>;
+template class ELIST_T<std::shared_ptr< ELIST_LINK_SP>>;
+template class ELIST_ITERATOR_T<std::shared_ptr<ELIST_LINK_SP>>;
 
 } // namespace tesseract
