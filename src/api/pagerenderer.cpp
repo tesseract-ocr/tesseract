@@ -789,6 +789,10 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
                     << "\" caption=\"Regions reading order\">\n";
 
   ResultIterator *res_it = GetIterator();
+  
+  float block_conf = 0;
+  float line_conf = 0;
+
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_WORD)) {
       res_it->Next(RIL_WORD);
@@ -825,7 +829,6 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
         break;
     }
 
-    float block_conf = 0;
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
       // Add Block to reading order
       reading_order_str << "\t\t\t\t<RegionRefIndexed " << "index=\"" << rcnt
@@ -871,8 +874,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     // for now using LinePts
     bool skewed_flag = (orientation_block != ORIENTATION_PAGE_UP &&
                         orientation_block != ORIENTATION_PAGE_DOWN);
-
-    float line_conf = 0;
+  
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // writing_direction_before = writing_direction;
       line_conf = ((res_it->Confidence(RIL_TEXTLINE)) / 100.);
