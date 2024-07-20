@@ -471,9 +471,7 @@ else()
   set(DOTPRODUCT_FLAGS "${DOTPRODUCT_FLAGS} -O3 -ffast-math")
 endif()
 
-if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
-  set(CMAKE_INSTALL_LIBDIR lib)
-endif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+include (GNUInstallDirs)
 
 set(AUTOCONFIG_SRC ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h.in)
 set(AUTOCONFIG ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
@@ -484,13 +482,13 @@ if(GRAPHICS_DISABLED)
 endif()
 set(CMAKE_REQUIRED_INCLUDES
     ${CMAKE_REQUIRED_INCLUDES} "${CMAKE_PREFIX_PATH}/include"
-    "${CMAKE_INSTALL_PREFIX}/include")
+    ${CMAKE_INSTALL_INCLUDEDIR})
 include(Configure)
 
 configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 
-set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
-set(LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+set(INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
+set(LIBRARY_DIRS ${CMAKE_INSTALL_LIBDIR})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/tesseract/version.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/version.h @ONLY)
@@ -937,7 +935,7 @@ install(
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-if (MSVC)
+if (MSVC AND BUILD_SHARED_LIBS)
   install(FILES $<TARGET_PDB_FILE:libtesseract> DESTINATION bin OPTIONAL)
 endif()
 install(
@@ -965,9 +963,9 @@ install(
 
 if(INSTALL_CONFIGS)
   install(FILES ${TESSERACT_CONFIGS}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/configs)
+          DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/tessdata/configs)
   install(FILES ${TESSERACT_TESSCONFIGS}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/tessconfigs)
+          DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/tessdata/tessconfigs)
 endif()
 
 # ##############################################################################

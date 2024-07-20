@@ -133,7 +133,7 @@ jobs:
         run: |
              export "PKG_CONFIG_PATH=$GITHUB_WORKSPACE/build/inst/lib/pkgconfig/:$PKG_CONFIG_PATH"
              cd test
-             ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp "-I$GITHUB_WORKSPACE/build/inst/include" "-L$GITHUB_WORKSPACE/build/inst/lib" $(pkg-config --cflags --libs tesseract lept libarchive libcurl) -pthread -std=c++11
+             ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp "-I$GITHUB_WORKSPACE/build/inst/include" "-L$GITHUB_WORKSPACE/build/inst/lib" $(pkg-config --cflags --libs tesseract lept libarchive libcurl) -pthread -std=c++17
              ./basicapitest
         if: runner.os == 'Linux'
 
@@ -141,7 +141,7 @@ jobs:
         run: |
              export "PKG_CONFIG_PATH=$GITHUB_WORKSPACE/build/inst/lib/pkgconfig/:$(brew --prefix)/opt/libarchive/lib/pkgconfig:$(brew --prefix)/Library/Homebrew/os/mac/pkgconfig/11:$PKG_CONFIG_PATH"
              cd test
-             ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp "-I$GITHUB_WORKSPACE/build/inst/include" "-L$GITHUB_WORKSPACE/build/inst/lib" $(pkg-config --cflags --libs tesseract lept libcurl) -pthread -std=c++11
+             ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp "-I$GITHUB_WORKSPACE/build/inst/include" "-L$GITHUB_WORKSPACE/build/inst/lib" $(pkg-config --cflags --libs tesseract lept libcurl) -pthread -std=c++17
              ./basicapitest
         if: runner.os == 'macOS'
 

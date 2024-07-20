@@ -10,7 +10,7 @@ You need Leptonica 1.74.2 (minimum) for Tesseract 4.0x.
 
 Known dependencies for training tools (excluding leptonica):
 
-* compiler with c++11 support
+* compiler with c++17 support
 * automake
 * pkg-config
 * pango-devel
@@ -38,7 +38,6 @@ all languages).
 
     git clone https://github.com/tesseract-ocr/tessdata.git tesseract-ocr.tessdata
 
-
 You need an Internet connection and [curl](https://curl.haxx.se/) to compile `ScrollView.jar`
 because the build will automatically download
 [piccolo2d-core-3.0.1.jar](https://search.maven.org/remotecontent?filepath=org/piccolo2d/piccolo2d-core/3.0.1/piccolo2d-core-3.0.1.jar) and
@@ -51,7 +50,6 @@ Just run:
 
 and follow the instruction on [Viewer Debugging](https://tesseract-ocr.github.io/tessdoc/ViewerDebugging.html).
 
-
 ## cmake
 
 There is alternative build system based on multiplatform [cmake](https://cmake.org/)
@@ -61,7 +59,6 @@ There is alternative build system based on multiplatform [cmake](https://cmake.o
     mkdir build
     cd build && cmake .. && make
     sudo make install
-
 
 ### WINDOWS
 
