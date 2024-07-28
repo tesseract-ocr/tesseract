@@ -789,7 +789,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
                     << "\" caption=\"Regions reading order\">\n";
 
   ResultIterator *res_it = GetIterator();
-  
+
   float block_conf = 0;
   float line_conf = 0;
 
@@ -874,7 +874,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     // for now using LinePts
     bool skewed_flag = (orientation_block != ORIENTATION_PAGE_UP &&
                         orientation_block != ORIENTATION_PAGE_DOWN);
-  
+
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // writing_direction_before = writing_direction;
       line_conf = ((res_it->Confidence(RIL_TEXTLINE)) / 100.);
