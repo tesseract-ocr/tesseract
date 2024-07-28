@@ -16,9 +16,9 @@ jobs:
         config:
 
           - { name: macos-12-clang-14-cmake, os: macos-12, cxx: clang++ } # default
-          - { name: macos-11-clang-13-cmake, os: macos-11, cxx: clang++ } # default
+          - { name: macos-14-clang-15-cmake, os: macos-14, cxx: clang++ } # default
 
-          - { name: macos-11-gcc-12-cmake, os: macos-11, cxx: g++-12 } #installed
+          - { name: macos-14-gcc-14-cmake, os: macos-14, cxx: g++-14 } #installed
 
           - { name: ubuntu-22.04-clang-15-cmake, os: ubuntu-22.04, cxx: clang++-15 } #installed
 
