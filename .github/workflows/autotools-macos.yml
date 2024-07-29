@@ -32,13 +32,12 @@ jobs:
       run: |
            brew install autoconf automake
            brew install leptonica
-           brew install cairo pango icu4c
+           brew install pango icu4c
            brew install cabextract
            brew install libarchive curl
 
     - name: Setup Tesseract
       run: |
-           mkdir -p m4
            ./autogen.sh
 
     - name: Configure Tesseract
@@ -145,7 +144,6 @@ jobs:
 
     - name: Setup Tesseract
       run: |
-           mkdir -p m4
            ./autogen.sh
 
     - name: Configure Tesseract
