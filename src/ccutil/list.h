@@ -15,6 +15,7 @@
 #define LIST_ITERATOR_H
 
 #include <stdint.h>
+#include <memory>
 
 namespace tesseract {
 
@@ -62,6 +63,55 @@ public:
 
     for (from_it.mark_cycle_pt(); !from_it.cycled_list(); from_it.forward())
       to_it.add_after_then_move((*copier)(from_it.data()));
+  }
+};
+
+template <typename ITERATOR, typename CLASSNAME>
+class X_ITER_SP : public ITERATOR {
+public:
+  X_ITER_SP() = default;
+  template <typename U>
+  X_ITER_SP(U *list) : ITERATOR(list) {}
+
+  std::shared_ptr<CLASSNAME> data() {
+    return std::static_pointer_cast<CLASSNAME>(ITERATOR::data());
+  }
+  std::shared_ptr<CLASSNAME> data_relative(int8_t offset) {
+    return std::static_pointer_cast<CLASSNAME>(ITERATOR::data_relative(offset));
+  }
+  std::shared_ptr<CLASSNAME> forward() {
+    return std::static_pointer_cast<CLASSNAME>(ITERATOR::forward());
+  }
+  std::shared_ptr<CLASSNAME> extract() {
+    return std::static_pointer_cast<CLASSNAME>(ITERATOR::extract());
+  }
+};
+
+template <typename CONTAINER, typename ITERATOR, typename CLASSNAME>
+class X_LIST_SP : public CONTAINER {
+public:
+  X_LIST_SP() = default;
+  X_LIST_SP(const X_LIST_SP &) = delete;
+  X_LIST_SP &operator=(const X_LIST_SP &) = delete;
+  ~X_LIST_SP() {
+    clear();
+  }
+
+  /* delete elements */
+  void clear() {
+    CONTAINER::internal_clear(
+        [](void *link) { delete reinterpret_cast<CLASSNAME *>(link); });
+  }
+
+  /* Become a deep copy of src_list */
+  template <typename U>
+  void deep_copy(const U *src_list, CLASSNAME *(*copier)(const CLASSNAME *)) {
+    X_ITER_SP<ITERATOR, CLASSNAME> from_it(const_cast<U *>(src_list));
+    X_ITER_SP<ITERATOR, CLASSNAME> to_it(this);
+
+    for (from_it.mark_cycle_pt(); !from_it.cycled_list(); from_it.forward())
+      to_it.add_after_then_move(
+          std::shared_ptr<CLASSNAME>((*copier)(from_it.data().get())));
   }
 };
 

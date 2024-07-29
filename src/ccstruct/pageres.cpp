@@ -173,18 +173,18 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
         combo = new WERD_RES(copy_word);
         combo->x_height = the_row->x_height();
         combo->combination = true;
-        word_res_it.add_to_end(combo);
+        word_res_it.add_to_end(std::shared_ptr<WERD_RES>(combo));
       }
       word_res->part_of_combo = true;
     } else {
       combo = nullptr;
     }
-    word_res_it.add_to_end(word_res);
+    word_res_it.add_to_end(std::shared_ptr<WERD_RES>(word_res));
   }
 }
 
 WERD_RES &WERD_RES::operator=(const WERD_RES &source) {
-  this->ELIST_LINK::operator=(source);
+  this->ELIST_LINK_SP::operator=(source);
   Clear();
   if (source.combination) {
     word = new WERD;
@@ -1251,6 +1251,7 @@ int PAGE_RES_IT::cmp(const PAGE_RES_IT &other) const {
 // with best_choice etc.
 WERD_RES *PAGE_RES_IT::InsertSimpleCloneWord(const WERD_RES &clone_res,
                                              WERD *new_word) {
+  std::lock_guard<std::mutex> guard(*mutex_res);
   // Make a WERD_RES for the new_word.
   auto *new_res = new WERD_RES(new_word);
   new_res->CopySimpleFields(clone_res);
@@ -1258,13 +1259,13 @@ WERD_RES *PAGE_RES_IT::InsertSimpleCloneWord(const WERD_RES &clone_res,
   // Insert into the appropriate place in the ROW_RES.
   WERD_RES_IT wr_it(&row()->word_res_list);
   for (wr_it.mark_cycle_pt(); !wr_it.cycled_list(); wr_it.forward()) {
-    WERD_RES *word = wr_it.data();
-    if (word == word_res) {
+    WERD_RES *word = wr_it.data().get();
+    if (word == word_res.get()) {
       break;
     }
   }
   ASSERT_HOST(!wr_it.cycled_list());
-  wr_it.add_before_then_move(new_res);
+  wr_it.add_before_then_move(std::shared_ptr<WERD_RES>(new_res));
   if (wr_it.at_first()) {
     // This is the new first word, so reset the member iterator so it
     // detects the cycled_list state correctly.
@@ -1381,6 +1382,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(
     DeleteCurrentWord();
     return;
   }
+  std::lock_guard<std::mutex> guard(*mutex_res);
   WERD_RES *input_word = word();
   // Set the BOL/EOL flags on the words from the input word.
   if (input_word->word->flag(W_BOL)) {
@@ -1410,7 +1412,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(
   // Insert into the appropriate place in the ROW_RES.
   WERD_RES_IT wr_it(&row()->word_res_list);
   for (wr_it.mark_cycle_pt(); !wr_it.cycled_list(); wr_it.forward()) {
-    WERD_RES *word = wr_it.data();
+    WERD_RES *word = wr_it.data().get();
     if (word == input_word) {
       break;
     }
@@ -1470,7 +1472,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(
       word_w->combination = false;
     }
     (*words)[w] = nullptr; // We are taking ownership.
-    wr_it.add_before_stay_put(word_w);
+    wr_it.add_before_stay_put(std::shared_ptr<WERD_RES>(word_w));
   }
   // We have taken ownership of the words.
   words->clear();
@@ -1480,12 +1482,13 @@ void PAGE_RES_IT::ReplaceCurrentWord(
   if (!input_word->combination) {
     delete w_it.extract();
   }
-  delete wr_it.extract();
+  wr_it.extract_mt();
   ResetWordIterator();
 }
 
 // Deletes the current WERD_RES and its underlying WERD.
 void PAGE_RES_IT::DeleteCurrentWord() {
+  std::lock_guard<std::mutex> guard(*mutex_res);
   // Check that this word is as we expect. part_of_combos are NEVER iterated
   // by the normal iterator, so we should never be trying to delete them.
   ASSERT_HOST(!word_res->part_of_combo);
@@ -1512,13 +1515,14 @@ void PAGE_RES_IT::DeleteCurrentWord() {
     }
   }
   ASSERT_HOST(!wr_it.cycled_list());
-  delete wr_it.extract();
+  wr_it.extract_mt();
   ResetWordIterator();
 }
 
 // Makes the current word a fuzzy space if not already fuzzy. Updates
 // corresponding part of combo if required.
 void PAGE_RES_IT::MakeCurrentWordFuzzy() {
+  std::lock_guard<std::mutex> guard(*mutex_res);
   WERD *real_word = word_res->word;
   if (!real_word->flag(W_FUZZY_SP) && !real_word->flag(W_FUZZY_NON)) {
     real_word->set_flag(W_FUZZY_SP, true);
@@ -1583,7 +1587,10 @@ void PAGE_RES_IT::ResetWordIterator() {
         word_res = word_res_it.data();
       }
     }
-    ASSERT_HOST(!word_res_it.cycled_list());
+    if (word_res_it.cycled_list()) {
+      // We didn't find next_word_res. Maybe it has been deleted by some other thread.
+      return;
+    }
     wr_it_of_next_word = word_res_it;
     word_res_it.forward();
   } else {
@@ -1672,7 +1679,7 @@ foundword:
                                            ? nullptr
                                            : prev_word_res->best_choice;
   }
-  return word_res;
+  return word_res.get();
 }
 
 /*************************************************************************
@@ -1698,6 +1705,7 @@ WERD_RES *PAGE_RES_IT::restart_row() {
  *************************************************************************/
 
 WERD_RES *PAGE_RES_IT::forward_paragraph() {
+  std::lock_guard<std::mutex> guard(*mutex_res);
   while (block_res == next_block_res &&
          (next_row_res != nullptr && next_row_res->row != nullptr &&
           row_res->row->para() == next_row_res->row->para())) {
@@ -1713,10 +1721,19 @@ WERD_RES *PAGE_RES_IT::forward_paragraph() {
  *************************************************************************/
 
 WERD_RES *PAGE_RES_IT::forward_block() {
+  std::lock_guard<std::mutex> guard(*mutex_res);
   while (block_res == next_block_res) {
     internal_forward(false, true);
   }
   return internal_forward(false, true);
+}
+
+bool PAGE_RES_IT::forward_to_word(const WERD_RES* word_res) {
+  std::lock_guard<std::mutex> guard(*mutex_res);
+  while (word() != nullptr && word() != word_res) {
+      internal_forward(false, false);
+  }
+  return word() != nullptr;
 }
 
 void PAGE_RES_IT::rej_stat_word() {
