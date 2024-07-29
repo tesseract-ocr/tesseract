@@ -24,13 +24,10 @@ jobs:
 
     - name: Install dependencies (macOS Homebrew)
       run: |
-           brew install autoconf automake libarchive
-           brew install leptonica cairo pango
-           brew install cabextract libtool
-
+           brew install autoconf automake cabextract libtool
+           brew install leptonica libarchive pango
     - name: Setup
       run: |
-           mkdir -p m4
            ./autogen.sh
 
     - name: Configure (macOS Homebrew)
