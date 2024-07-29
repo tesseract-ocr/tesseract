@@ -15,6 +15,7 @@
 #endif
 
 #include "ccutil.h"
+#include "tprintf.h"  // for tprintf
 
 #include <cstdlib>
 #include <cstring>    // for std::strrchrA
