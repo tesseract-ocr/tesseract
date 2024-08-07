@@ -31,7 +31,6 @@ jobs:
 
     - name: Setup
       run: |
-           mkdir -p m4
            ./autogen.sh
 
     - name: Configure

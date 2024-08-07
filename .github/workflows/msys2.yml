@@ -41,7 +41,6 @@ jobs:
 
     - name: Setup Tesseract
       run: |
-           mkdir -p m4
            ./autogen.sh
 
     - name: Configure Tesseract
