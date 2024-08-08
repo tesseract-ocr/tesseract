@@ -44,6 +44,8 @@ parts:
     source: https://github.com/DanBloomberg/leptonica.git
     source-tag: 1.83.1
     plugin: autotools
+    build-packages:
+      - libopenjp2-7-dev
     stage-packages:
       - libjbig0
       - libjpeg-turbo8
